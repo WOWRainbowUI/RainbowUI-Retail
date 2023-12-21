@@ -940,34 +940,34 @@ function MMPE:InitConfig()
                             includeCountInTooltip = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Include Count",
-                                desc = "Include the raw count value in the tooltip, as well as the percentage",
+                                name = "包含數量",
+                                desc = "除了百分比，也要在浮動提示資訊中包含數量",
                             },
                         },
                     },
                     pullEstimateFrame = {
                         order = increment(),
                         type = "group",
-                        name = "Pull Estimate frame",
+                        name = "拉怪估計框架",
                         inline = true,
                         args = {
                             enablePullEstimate = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Enable Current Pull frame",
-                                desc = "Display a frame with current pull information",
+                                name = "啟用當前拉怪框架",
+                                desc = "顯示當前拉怪資訊的框架",
                             },
                             pullEstimateCombatOnly = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Only in combat",
-                                desc = "Only show the frame when you are in combat",
+                                name = "只有戰鬥中",
+                                desc = "只有戰鬥中時才顯示框架",
                             },
                             lockPullFrame = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Lock frame",
-                                desc = "Lock the frame in place",
+                                name = "鎖定框架",
+                                desc = "鎖定框架的位置",
                                 set = function(info, value)
                                     self:SetSetting(info[#info], value)
                                     self.currentPullFrame:EnableMouse(not value)
@@ -976,8 +976,8 @@ function MMPE:InitConfig()
                             reset = {
                                 order = increment(),
                                 type = "execute",
-                                name = "Reset position",
-                                desc = "Reset position of Current Pull frame to the default",
+                                name = "重置位置",
+                                desc = "將當前拉怪框架的位置恢復成預設值",
                                 func = function()
                                     self.DB.settings.pullFramePoint = self.defaultSettings.pullFramePoint
                                     SetFramePoint(self.currentPullFrame, self.DB.settings.pullFramePoint)
@@ -988,21 +988,21 @@ function MMPE:InitConfig()
                     nameplate = {
                         order = increment(),
                         type = "group",
-                        name = "Nameplate",
+                        name = "血條",
                         inline = true,
                         args = {
                             enableNameplateText = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Enable Nameplate Text",
-                                desc = "Adds the % info to the enemy nameplates",
+                                name = "啟用血條文字",
+                                desc = "在敵人血條旁加上 % 資訊",
                                 descStyle = "inline",
                             },
                             nameplateTextColor = {
                                 order = increment(),
                                 type = "color",
-                                name = "Nameplate Text Color",
-                                desc = "Color of the text on the enemy nameplates",
+                                name = "血條文字顏色",
+                                desc = "敵人血條旁文字的顏色",
                                 hasAlpha = true,
                                 get = function(info)
                                     local hex = self:GetSetting(info[#info])
@@ -1015,8 +1015,8 @@ function MMPE:InitConfig()
                             offsetx = {
                                 order = increment(),
                                 type = "range",
-                                name = "Horizontal offset ( <-> )",
-                                desc = "Horizontal offset of the nameplate text",
+                                name = "水平位置 ( <-> )",
+                                desc = "血條文字的水平偏移位置",
                                 width = "double",
                                 softMin = -100,
                                 softMax = 100,
@@ -1025,8 +1025,8 @@ function MMPE:InitConfig()
                             offsety = {
                                 order = increment(),
                                 type = "range",
-                                name = "Vertical Offset ( | )",
-                                desc = "Vertical offset of the nameplate text",
+                                name = "垂直位置 ( | )",
+                                desc = "血條文字的垂直偏移位置",
                                 width = "double",
                                 softMin = -100,
                                 softMax = 100,
@@ -1037,30 +1037,30 @@ function MMPE:InitConfig()
                     experimental = {
                         order = increment(),
                         type = "group",
-                        name = "Experimental",
+                        name = "實驗性",
                         inline = true,
                         args = {
                             description = {
                                 order = increment(),
                                 type = "description",
-                                name = "These options are experimental and may not work as intended.",
+                                name = "這些是實驗性的選項，可能不會如預期的運作。",
                             },
                             mdtEmulation = {
                                 order = increment(),
                                 type = "group",
                                 inline = true,
-                                name = "MDT Emulation",
+                                name = "MDT 模擬",
                                 args = {
                                     mdtEmulationDescription = {
                                         order = increment(),
                                         type = "description",
-                                        name = mdtLoaded and "Disabled when MythicDungeonTools is loaded" or "Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead.",
+                                        name = mdtLoaded and "載入 MythicDungeonTools 時停用" or "允許使用 MythicDungeonTools 來取得 % 資訊的插件或 WA 與本插件一起使用。",
                                         width = "double",
                                     },
                                     enableMdtEmulation = {
                                         order = increment(),
                                         type = "toggle",
-                                        name = "Enable MDT Emulation",
+                                        name = "啟用 MDT 模擬",
                                         desc = "",
                                         set = function(info, value)
                                             self:SetSetting(info[#info], value)
@@ -1110,7 +1110,7 @@ function MMPE:InitConfig()
                         type = "description",
                         name = function() return
                         string.format(
-                                "NPC data patch version: %s, build %d (ts %d)",
+                                "NPC 資料版本: %s, build %d (ts %d)",
                                 self.DB.npcDataPatchVersionInfo.version,
                                 self.DB.npcDataPatchVersionInfo.build,
                                 self.DB.npcDataPatchVersionInfo.timestamp
