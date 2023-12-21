@@ -2654,11 +2654,11 @@ L["Open your player Details! breakdown."] = "打開 Details! 玩家分析。"
 
 -- functions\dungeon.lua 更改字體大小
 -- L["Enabled"] = "啟用" -- 前面已有
-L["Details! Damage Chart for M+"] = "Details! M+ 傷害圖表"
 L["Dungeon Run Chart"] = "地城攻略圖表"
 L["Show this chart at the end of a mythic dungeon run.\n\nIf disabled, you can reactivate it again at the options panel > streamer settings."] = "打完傳奇地城後顯示這個圖表。\n\n停用時，可以從選項面板 > streamer settings 將它再次啟用。"
 L["Show Boss"] = "顯示首領"
 L["Details!: Average Dps for "] = "Details!: 平均 DPS - "
+L["Details! Mythic Run Completed!"] = "Details! 傳奇地城通關!"
 
 -- functions\mythicdungeon.lua
 L["the overall data has been reset."] = "已重置整體資料。"

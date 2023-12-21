@@ -190,9 +190,9 @@
 		---@field key7 number
 
 		local augmentation_aura_list = {
-			[395152] = true,
+			[395152] = true,--ebon might (evoker 10.1.5) 395296 = the evoker buff on it self
 			[413984] = true,
-			[410089] = true,
+			[410089] = true,--prescience (evoker 10.1.5)
 			[409560] = true,
 			[360827] = true,
 			[410263] = true,
@@ -221,6 +221,8 @@
 			ss = {},
 			infernobless = {},
 		}
+
+		Details.augmentation_cache = augmentation_cache
 
 		Details222.SpecHelpers[1473].augmentation_cache = augmentation_cache
 
@@ -331,7 +333,7 @@
 		}
 
 	else --retail
-		override_spellId = {
+		override_spellId = { --~merge
 			[184707] = 218617, --warrior rampage
 			[184709] = 218617, --warrior rampage
 			[201364] = 218617, --warrior rampage
@@ -371,6 +373,8 @@
 			[280720] = 282449, --rogue Secret Technique
 			[280719] = 282449, --rogue Secret Technique
 			[27576] = 5374, --rogue mutilate
+			[385897] = 8676, --rogue Ambush
+			[430023] = 8676, --rogue Ambush
 
 			[233496] = 233490, --warlock Unstable Affliction
 			[233497] = 233490, --warlock Unstable Affliction
@@ -392,6 +396,10 @@
 			[228361] = 228360, --shadow priest void erruption
 
 			[401422] = 401428, --vessel of searing shadow (trinket)
+
+			[417134] = 414532, --rage of Fyr'alath
+			[413584] = 414532,
+			[424094] = 414532,
 		}
 
 		--all totem
@@ -1328,19 +1336,21 @@
 						end
 
 						--> calculate tier and ilevel bonuses; this values could be cached at the start of the combat
-							local bHasFourPieces = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].tierAmount >= 4
-							local tierPieceMultiplier = bHasFourPieces and 1.08 or 1
+							--local bHasFourPieces = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].tierAmount >= 4
+							local tierPieceMultiplier = 1 --bHasFourPieces and 1.08 or 1
 							local evokerItemLevel = gearCache[evokerSourceSerial] and gearCache[evokerSourceSerial].ilevel or 400
 							evokerItemLevel = max(evokerItemLevel, 400)
-							local itemLevelMultiplier = 1 + ((evokerItemLevel - 400) * 0.01)
+							local itemLevelMultiplier = 1 + ((evokerItemLevel - 400) * 0.006)
 
 						local predictedAmount = 0
 						if (Details.zone_type == "raid") then --0x410b
 							predictedAmount = amount * (0.06947705 * tierPieceMultiplier * itemLevelMultiplier)
 						else
-							predictedAmount = amount * (0.08416225 * tierPieceMultiplier * itemLevelMultiplier)
+							predictedAmount = amount * (0.07590444 * tierPieceMultiplier * itemLevelMultiplier)
 						end
 
+						--local damageSpellName = GetSpellInfo(spellId)
+						--print("EbonMight Cache:", Details.augmentation_cache, evokerSourceSerial, floor(amount), floor(predictedAmount), floor(predictedAmount/amount*100) .. "%", damageSpellName)
 						evokerActor.total_extra = evokerActor.total_extra + predictedAmount
 						augmentedSpell.total = augmentedSpell.total + predictedAmount
 						augmentedSpell.targets[sourceName] = (augmentedSpell.targets[sourceName] or 0) + predictedAmount
@@ -5769,21 +5779,24 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	function Details.parser_functions:WORLD_STATE_TIMER_START(...)
 		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
 		if (difficultyID == 8) then
-			if (Details222.MythicPlus.CHALLENGE_MODE_START_AT + 10 > GetTime()) then
-				if (not Details222.MythicPlus.WorldStateTimerStartAt) then
-					local payload1, payload2, payload3 = ...
-					payload1 = payload1 or ""
-					payload2 = payload2 or ""
-					payload3 = payload3 or ""
-					Details222.MythicPlus.LogStep("Event: WORLD_STATE_TIMER_START | payload1: " .. payload1 .. " | payload2: " .. payload2 .. " | payload3: " .. payload3)
-					Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
-					Details222.MythicPlus.WorldStateTimerStartAt = time()
+			if (Details222.MythicPlus.CHALLENGE_MODE_START_AT) then --would be nil if a world timer starts before the challenge mode start event
+				--todo: should also check if the mythic+ is active
+				if (Details222.MythicPlus.CHALLENGE_MODE_START_AT + 10 > GetTime()) then
+					if (not Details222.MythicPlus.WorldStateTimerStartAt) then
+						local payload1, payload2, payload3 = ...
+						payload1 = payload1 or ""
+						payload2 = payload2 or ""
+						payload3 = payload3 or ""
+						Details222.MythicPlus.LogStep("Event: WORLD_STATE_TIMER_START | payload1: " .. payload1 .. " | payload2: " .. payload2 .. " | payload3: " .. payload3)
+						Details:SendEvent("COMBAT_MYTHICDUNGEON_START")
+						Details222.MythicPlus.WorldStateTimerStartAt = time()
+					end
 				end
 			end
 		end
 	end
 
-	function Details.parser_functions:CHALLENGE_MODE_START(...)
+	function Details.parser_functions:CHALLENGE_MODE_START(...) --~challenge ~mythic ~m+
 		--send mythic dungeon start event
 		if (Details.debug) then
 		end
@@ -5800,13 +5813,15 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	function Details.parser_functions:CHALLENGE_MODE_COMPLETED(...)
 		Details222.MythicPlus.WorldStateTimerEndAt = time()
 
-		local mapChallengeModeID, level, time, onTime, keystoneUpgradeLevels, practiceRun,
-		oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord,
-		PrimaryAffix, isEligibleForScore, members
-		   = C_ChallengeMode.GetCompletionInfo()
+		local mapChallengeModeID, level, time, onTime, keystoneUpgradeLevels, practiceRun, oldOverallDungeonScore, newOverallDungeonScore, IsMapRecord, IsAffixRecord, PrimaryAffix, isEligibleForScore, members = C_ChallengeMode.GetCompletionInfo()
 
-		Details222.MythicPlus.time = math.floor(time / 1000)
 		Details222.MythicPlus.bOnTime = onTime
+		if (time)    then
+        	Details222.MythicPlus.time = math.floor(time / 1000)
+			Details:Msg("run elapsed time:", DetailsFramework:IntegerToTimer(time / 1000))
+		else
+			Details222.MythicPlus.time = 0.1
+		end
 
 		--send mythic dungeon end event
 		local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
@@ -6569,7 +6584,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 	end
 
-	if(isERA) then
+	if(false and isERA) then
 		eraNamedSpellsToID = {
 		["SPELL_PERIODIC_DAMAGE"] = true,
 		["SPELL_DAMAGE"] = true,
@@ -7269,3 +7284,5 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 	end
+
+
