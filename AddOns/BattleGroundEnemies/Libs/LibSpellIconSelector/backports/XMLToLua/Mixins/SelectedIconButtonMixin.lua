@@ -2,21 +2,17 @@ local AddonName, Data = ...
 
 Data.Mixins = Data.Mixins or {}
 
-local BackportedSelectedIconButtonMixin = {};
+local SelectedIconButtonMixin = {};
 
-function BackportedSelectedIconButtonMixin:SetIconTexture(iconTexture)
+function SelectedIconButtonMixin:SetIconTexture(iconTexture)
 	self.Icon:SetTexture(iconTexture);
 end
 
-function BackportedSelectedIconButtonMixin:GetIconTexture()
+function SelectedIconButtonMixin:GetIconTexture()
 	return self.Icon:GetTexture();
 end
 
-function BackportedSelectedIconButtonMixin:SetSelectedTexture()
-	self.SelectedTexture:SetShown(self:GetIconSelectorPopupFrame():GetSelectedIndex() == nil);
-end
-
-function BackportedSelectedIconButtonMixin:OnClick()
+function SelectedIconButtonMixin:OnClick()
 	if ( self:GetIconSelectorPopupFrame():GetSelectedIndex() == nil ) then
 		return;
 	end
@@ -24,12 +20,12 @@ function BackportedSelectedIconButtonMixin:OnClick()
 	self:GetIconSelectorPopupFrame().IconSelector:ScrollToSelectedIndex();
 end
 
-function BackportedSelectedIconButtonMixin:GetIconSelectorPopupFrame()
+function SelectedIconButtonMixin:GetIconSelectorPopupFrame()
 	return self.selectedIconButtonIconSelector;
 end
 
-function BackportedSelectedIconButtonMixin:SetIconSelector(iconSelector)
+function SelectedIconButtonMixin:SetIconSelector(iconSelector)
 	self.selectedIconButtonIconSelector = iconSelector;
 end
 
-Data.Mixins.BackportedSelectedIconButtonMixin = BackportedSelectedIconButtonMixin
+Data.Mixins.BackportedSelectedIconButtonMixin = SelectedIconButtonMixin

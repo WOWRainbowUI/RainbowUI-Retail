@@ -6,11 +6,6 @@ Data.Mixins = Data.Mixins or {}
 
 local IconSelectorPopupFrameTemplateMixin = {};
 
-IconSelectorPopupFrameModes = IconSelectorPopupFrameModes or EnumUtil.MakeEnum(
-	"New",
-	"Edit"
-);
-
 local ValidIconSelectorCursorTypes = {
 	"item",
 	"spell",

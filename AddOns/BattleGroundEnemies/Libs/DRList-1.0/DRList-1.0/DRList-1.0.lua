@@ -9,7 +9,7 @@ License: MIT
 
 --- DRList-1.0
 -- @module DRList-1.0
-local MAJOR, MINOR = "DRList-1.0", 46 -- Don't forget to change this in Spells.lua aswell!
+local MAJOR, MINOR = "DRList-1.0", 55 -- Don't forget to change this in Spells.lua aswell!
 local Lib = assert(LibStub, MAJOR .. " requires LibStub."):NewLibrary(MAJOR, MINOR)
 if not Lib then return end -- already loaded
 
@@ -30,7 +30,7 @@ L["TAUNTS"] = "Taunts"
 L["FEARS"] = "Fears"
 L["RANDOM_ROOTS"] = "Random roots"
 L["RANDOM_STUNS"] = "Random stuns"
-L["OPENER_STUN"] = "Opener Stuns"
+L["OPENER_STUN"] = "Opener stuns"
 L["HORROR"] = "Horrors"
 L["SCATTERS"] = "Scatters"
 L["SLEEPS"] = GetSpellInfo(1090) or "Sleep"
@@ -62,7 +62,7 @@ elseif locale == "frFR" then
     L["STUNS"] = "Etourdissements"
     L["TAUNTS"] = "Provocations"
 elseif locale == "itIT" then
-    --@localization(locale="itIT", namespace="Categories", format="lua_additive_table", handle-unlocalized="ignore")@
+    -- TODO translate me
 elseif locale == "koKR" then
     L["DISORIENTS"] = "방향 감각 상실"
     L["INCAPACITATES"] = "행동 불가"
@@ -71,7 +71,7 @@ elseif locale == "koKR" then
     L["SILENCES"] = "침묵"
     L["STUNS"] = "기절"
 elseif locale == "ptBR" then
-    --@localization(locale="ptBR", namespace="Categories", format="lua_additive_table", handle-unlocalized="ignore")@
+    -- TODO: translate me
 elseif locale == "ruRU" then
     L["DISARMS"] = "Разоружение"
     L["DISORIENTS"] = "Дезориентация"
@@ -135,24 +135,24 @@ Lib.gameExpansion = ({
 -- How long it takes for a DR to expire, in seconds.
 Lib.resetTimes = {
     retail = {
-        ["default"] = 18.5, -- 18 sec + 0.5 latency
-        ["npc"] = 23, -- Against mobs it seems to last slightly longer, depending on server load
-        ["knockback"] = 10, -- Knockbacks are immediately immune and only DRs for 10s
+        ["default"] = 18.5, -- static 18 sec + 0.5 latency
+        ["npc"] = 21, -- Against mobs it seems to last slightly longer, depending on server load
+        ["knockback"] = 10.5, -- Knockbacks are immediately immune and only DRs for 10s
     },
 
     classic = {
-        ["default"] = 19, -- dynamic between 15 and 20s
-        ["npc"] = 23,
+        ["default"] = 20, -- dynamic between 15 and 20s
+        ["npc"] = 21,
     },
 
     tbc = {
-        ["default"] = 19, -- dynamic between 15 and 20s
-        ["npc"] = 23,
+        ["default"] = 20, -- dynamic between 15 and 20s
+        ["npc"] = 21,
     },
 
     wotlk = {
-        ["default"] = 19,  -- dynamic between 15 and 20s
-        ["npc"] = 23,
+        ["default"] = 20, -- dynamic between 15 and 20s
+        ["npc"] = 21,
     },
 }
 
@@ -219,13 +219,12 @@ Lib.categoryNames = {
 }
 
 -- Categories that have DR against normal mobs.
--- Note that this is only for normal mobs on retail. Special mobs or pets have DR on all categories,
+-- Note that for retail some special mobs have DR on all categories,
 -- see UnitClassification() and UnitIsQuestBoss().
 Lib.categoriesPvE = {
     retail = {
-        ["taunt"] = L.TAUNTS, -- Lib.categoryNames.retail.taunt
+        ["taunt"] = L.TAUNTS,
         ["stun"] = L.STUNS,
-        ["root"] = L.ROOTS,
     },
 
     classic = {
@@ -292,9 +291,9 @@ function Lib:GetCategories()
     return Lib.categoryNames[Lib.gameExpansion]
 end
 
---- Get table of all categories that DRs in PvE only.
+--- Get table of all categories that DRs in PvE.
 -- Key is unlocalized name used for API functions, value is localized name used for UI.
--- Note that this is only for normal mobs on retail. Special mobs or pets have DR on all categories,
+-- Note that for retail some special mobs have DR on all categories,
 -- see UnitClassification() and UnitIsQuestBoss().
 -- Tip: you can combine :GetPvECategories() and :IterateSpellsByCategory() to get spellIDs only for PvE aswell.
 -- @treturn table {string=string}
@@ -310,20 +309,14 @@ function Lib:GetResetTime(category)
 end
 
 --- Get unlocalized DR category by spell ID.
--- For Classic (vanilla) you should pass in the spell name instead of ID.
--- For Classic you also get an optional second return value
--- which is the hardcoded spell ID of the spell name you passed in.
--- You should use this ID to query additional info from Blizzard API if needed, as
--- spell names only works for the player if they have the spell in their current spellbook.
 -- @tparam number spellID
--- @treturn[1] string|nil The category name.
--- @treturn[2] number|nil The spell ID. (Classic only)
+-- @treturn string|nil The category name.
 function Lib:GetCategoryBySpellID(spellID)
     if Lib.gameExpansion == "classic" then
-        -- special case for classic as CLEU doesn't provide spellIDs
-        local data = Lib.spellList[spellID]
-        if not data then return end
-        return data.category, data.spellID
+        -- OBSOLETE: second return value is no longer needed after Classic Era patch 1.15.0.
+        local category = Lib.spellList[spellID]
+        if not category then return end
+        return category, spellID
     end
 
     return Lib.spellList[spellID]
@@ -337,7 +330,7 @@ function Lib:GetCategoryLocalization(category)
 end
 
 --- Check if a category has DR against mobs.
--- Note that this is only for normal mobs on retail. Special mobs or pets have DR on all categories,
+-- Note that for retail some special mobs have DR on all categories, you need to check for this yourself;
 -- see UnitClassification() and UnitIsQuestBoss().
 -- @tparam string category Unlocalized category name
 -- @treturn bool
@@ -378,7 +371,6 @@ do
     --- Iterate through the spells of a given category.
     -- @tparam string category Unlocalized category name
     -- @usage for spellID in DRList:IterateSpellsByCategory("root") do print(spellID) end
-    -- @warning Slow function, do not use for frequent combat related stuff unless you cache results.
     -- @return Iterator function
     function Lib:IterateSpellsByCategory(category)
         assert(Lib.categoryNames[Lib.gameExpansion][category], "invalid category")
@@ -391,6 +383,6 @@ Lib.GetCategoryName = Lib.GetCategoryLocalization
 Lib.IsPVE = Lib.IsPvECategory
 Lib.NextDR = Lib.GetNextDR
 Lib.GetSpellCategory = Lib.GetCategoryBySpellID
-Lib.IterateSpells = Lib.IterateSpellsByCategory
 Lib.RESET_TIME = Lib.resetTimes[Lib.gameExpansion].default
 Lib.pveDR = Lib.categoriesPvE
+Lib.IterateSpells = function(cat) if cat then return Lib.IterateSpellsByCategory(cat) else return next, Lib.spellList end end

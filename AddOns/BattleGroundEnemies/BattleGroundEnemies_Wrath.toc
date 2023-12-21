@@ -1,9 +1,10 @@
-## Interface: 30400
+## Interface: 30403
 ## Title: BattleGroundEnemies
-## Version: 10.0.2.6
+## Version: 10.2.0.3
 ## Author: Bullsei
 ## SavedVariables: BattleGroundEnemiesDB
 ## OptionalDeps: Ace3, LibStub, LibRaces-1.0, UTF8, DRList-1.0, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets
+## IconTexture: Interface\AddOns\BattleGroundEnemies\bge_logo.tga
 
 ## X-Curse-Project-ID: 274066
 ## X-Wago-ID: nQN5aoNB
@@ -23,25 +24,26 @@ TargetCall.lua
 Changelog.lua
 ImportExport.lua
 
-Objects\ContainerTemplate.lua
-Objects\Auras.lua
-Objects\CastBar.lua
-Objects\CombatIndicator.lua
-Objects\Covenant.lua
-Objects\DR.lua
-Objects\HealthBar.lua
-Objects\HighestActivePriority.lua
-Objects\Level.lua
-Objects\Name.lua
-Objects\ObjectiveAndRespawn.lua
-Objects\Power.lua
-Objects\Racial.lua
-Objects\RaidTargetIcon.lua
-Objects\Role.lua
-Objects\SpecAndClass.lua
-Objects\TargetIndicatorNumeric.lua
-Objects\TargetIndicatorSymbolic.lua
-Objects\Trinket.lua
+Modules\ContainerTemplate.lua
+Modules\Auras.lua
+Modules\CastBar.lua
+Modules\CombatIndicator.lua
+# Modules\Cooldowns.lua
+Modules\Covenant.lua
+Modules\DR.lua
+Modules\HealthBar.lua
+Modules\HighestActivePriority.lua
+Modules\Level.lua
+Modules\Name.lua
+Modules\ObjectiveAndRespawn.lua
+Modules\Power.lua
+Modules\Racial.lua
+Modules\RaidTargetIcon.lua
+Modules\Role.lua
+Modules\SpecAndClass.lua
+Modules\TargetIndicatorNumeric.lua
+Modules\TargetIndicatorSymbolic.lua
+Modules\Trinket.lua
 
 
 Options.lua
