@@ -476,11 +476,6 @@ GTFO.SpellID["420332"] = {
   sound = 1;
 };
 
-GTFO.SpellID["422608"] = {
-  --desc = "Molten Storm (Volgoth The Flamebringer)";
-  sound = 1;
-};
-
 --- *******************
 --- * Ruby Life Pools *
 --- *******************
@@ -1483,10 +1478,12 @@ GTFO.SpellID["424970"] = {
 GTFO.SpellID["422091"] = {
   --desc = "Controlled Burn (Gnarlroot)";
   sound = 4;
-  negatingDebuffSpellID = 421972 -- Controlled Burn
+  --negatingDebuffSpellID = ????; -- 
+  test = true;
 };
+-- TODO: Controlled Burn (Gnarlroot) - Friendly-Fire warning - Giant circle around players
 
--- TODO: Gathering Torment (Igira the Cruel) - Only alert when afflicted by Flesh Mortification Debuff - Heroic mode
+-- TODO: Gathering Torment (Igira the Cruel) - Only alert when afflicted by Flesh Mortification Debuff
 
 GTFO.SpellID["421082"] = {
   --desc = "Hellboil (Volcoross)";
@@ -1498,13 +1495,14 @@ GTFO.SpellID["423494"] = {
   sound = 1;
 };
 
+-- TODO: Lava (Volcoross) - Test if lava in and around boss area has its own spell ID
 -- TODO: Coiling Flames (Volcoross) - Friendly-Fire warning - Giant but shrinking circle around players
 -- TODO: Combusting Rage (Volcoross) - Tank-only warning - Tanks out of range
 
 GTFO.SpellID["426390"] = {
   --desc = "Corrosive Pollen (Aerwynn)";
   sound = 1;
-  damageMinimum = 30000;
+  test = true; -- Alert only when not polymorphed as a duck, duck may count as a vehicle?
 };
 
 -- TODO: Poisonous Javelin (Aerwynn) - Residual effect after the javelin is thrown?
@@ -1541,6 +1539,9 @@ GTFO.SpellID["428474"] = {
   affirmingDebuffSpellID = 428479; -- Lucid Vulnerability
 };
 
+-- TODO: Verdant Matrix (Nymue) - Green lines on the floor that put a stacking debuff when you cross them, Inflorescence debuff negates this
+-- TODO: Impending Loom (Nymue) - Green lasers that move across the room
+
 GTFO.SpellID["421532"] = {
   --desc = "Smoldering Ground (Smolderon)";
   sound = 1;
@@ -1565,15 +1566,10 @@ GTFO.SpellID["424499"] = {
   sound = 1;
 };
 
-GTFO.SpellID["425451"] = {
-  --desc = "Scorching Ground (Tindral Sageswift)";
-  sound = 1;
-  test = true;
-};
-
 GTFO.SpellID["419504"] = {
   --desc = "Raging Flames (Fyrakk)";
   sound = 1;
+  test = true; -- Multiple spell IDs?
 };
 
 GTFO.SpellID["425483"] = {
@@ -1582,12 +1578,8 @@ GTFO.SpellID["425483"] = {
   test = true;
 };
 
-GTFO.SpellID["410225"] = {
-  --desc = "Shadowflame Breath (Fyrakk)";
-  sound = 1;
-};
-
 -- TODO: Pulsing Core (Fyrakk) - Ranged alert only?
+
 
 
 GTFO.SpellID["425093"] = {

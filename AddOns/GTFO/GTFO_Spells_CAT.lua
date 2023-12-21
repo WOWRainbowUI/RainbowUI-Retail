@@ -63,11 +63,6 @@ GTFO.SpellID["91491"] = {
 	sound = 1;
 };
 
-GTFO.SpellID["428404"] = {
-	--desc = "Blotting Darkness (Throne of the Tides, M+)";
-	sound = 1;
-};
-
 GTFO.SpellID["76230"] = {
 	--desc = "Mind Fog (Throne of the Tides)";
 	soundFunction = function() 

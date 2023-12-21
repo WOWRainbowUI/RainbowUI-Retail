@@ -8,6 +8,9 @@ Author: Zensunim of Malygos
 
 GTFOLocal = 
 {
+	Addon_Name = "",
+	Option_Name = "GTFO",
+	Master_Volume = "Master",
 	Active_Off = "Addon suspended",
 	Active_On = "Addon resumed",
 	Group_None = "None",

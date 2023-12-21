@@ -2775,7 +2775,7 @@ GTFO.SpellID["425660"] = {
 GTFO.SpellID["418533"] = {
   --desc = "Smashing Viscera (Igira the Cruel)";
   sound = 3;
-  damageMinimum = 300000;
+  test = true;
 };
 
 GTFO.SpellID["423715"] = {
@@ -2795,43 +2795,20 @@ GTFO.SpellID["423110"] = {
   tankSound = 0;
 };
 
-GTFO.SpellID["417003"] = {
-  --desc = "Twisting Blade (Igira the Cruel)";
-  sound = 3;
-};
 
 -- TODO: Shared Agony/Drenched Blades (Igira the Cruel) - Non-Tank melee was-too-close fail, applies Drenched Blades?
+-- TODO: Twisting Blade (Igira the Cruel) - Giant missile from boss, everyone can avoid
 -- TODO: Devastation (Igira the Cruel) - Fire swirls after the boss leaps and lands (heroic)
 -- TODO: Vital Rupture (Igira the Cruel) - Friendly-fire fail of standing in someone else's circle (applies debuff)
 -- TODO: Umbral Destruction (Igira the Cruel) - Fail if a player with the Brutalized debuff soaks this
 
-GTFO.SpellID["420410"] = {
-  --desc = "Scorchtail Crash (Volcoross)";
-  sound = 3;
-};
-
-GTFO.SpellID["421613"] = {
-  --desc = "Volcanic Disgorge (Volcoross)";
-  sound = 3;
-};
-
-GTFO.SpellID["421032"] = {
-  --desc = "Captivating Finale (Pip)";
-  sound = 3;
-  applicationOnly = true;
-};
-
-GTFO.SpellID["425410"] = {
-  --desc = "Polymorph Bomb (Pip)";
-  applicationOnly = true;
-  sound = 1;
-};
+-- TODO: Scorchtail Crash (Volcoross) - Giant tail smash from shadow
+-- TODO: Volcanic Disgorge (Volcoross) - Fire swirls that spawn bad pools
 
 -- TODO: Agonizing Claws (Urctos) - Non-Tank fail, or tank fail if debuffed 
 -- TODO: Barreling Charge (Urctos) - Bear charges and knocks everyone in his path but does more damage if he doesn't hit anyone, fail if debuffed by Trampled (Heroic)
 -- TODO: Whimsical Gust (Pip) - Tornados (Heroic)
 -- TODO: Poisonous Javelin (Aerwynn) - Fail if you're not the target (may not be detectable by addons) or get hit multiple times
-
 
 GTFO.SpellID["426209"] = {
   --desc = "Blazing Thorns (Larodar, Keeper of the Flame)";
@@ -2843,50 +2820,14 @@ GTFO.SpellID["418538"] = {
   sound = 3;
 };
 
-GTFO.SpellID["421467"] = {
-  --desc = "Flash Fire (Larodar, Keeper of the Flame)";
-  sound = 4;
-  test = true; -- Detect if you're not the one that had the debuff
-};
-
-GTFO.SpellID["421591"] = {
-  --desc = "Smoldering Backdraft (Larodar, Keeper of the Flame)";
-  sound = 3;
-  tankSound = 0;
-};
-
+-- TODO: Smoldering Backdraft (Larodar) - Non-tank fail or tank fail if debuffed with Smoldering Suffocation
+-- TODO: Flash Fire (Larodar) - Giant circle around player, fail if you're not the target or get hit multiple times
 -- TODO: Green Swirls (Larodar) - Unknown ability, green swirls? Probably Avoid
--- TODO: Blazing Coalescence (Larodar) - Mythic fail when debuffed with Everlasting Blaze
 
 -- TODO: Weaver's Burden (Nymue) - Giant circle around player, fail if you're not the target or get hit multiple times
 -- TODO: Full Bloom (Nymue) - Non-tank fail
-
-GTFO.SpellID["429180"] = {
-  --desc = "Lumbering Slam (Cycle Warden)";
-  sound = 3;
-};
-
-GTFO.SpellID["430311"] = {
-  --desc = "Radial Flourish (Cycle Warden)";
-  sound = 3;
-};
-
-GTFO.SpellID["425370"] = {
-  --desc = "Radial Flourish (Cycle Warden)";
-  sound = 3;
-};
-
-GTFO.SpellID["420554"] = {
-  --desc = "Verdant Matrix (Nymue)";
-  applicationOnly = true;
-  sound = 3;
-};
-
-GTFO.SpellID["429785"] = {
-  --desc = "Impending Loom (Nymue)";
-  applicationOnly = true;
-  sound = 3;
-};
+-- TODO: Lumbering Slam (Cycle Warden) - Avoidable brown cone from giant tree add
+-- TODO: Radial Flourish (Cycle Warden) - Green swirl from giant tree add
 
 GTFO.SpellID["426795"] = {
   --desc = "Fire Rain (Smolderon)";
@@ -2911,72 +2852,25 @@ GTFO.SpellID["424233"] = {
 
 -- TODO: Flame Waves (Smolderon) - Moving fire pillars to avoid (Heroic)
 
-GTFO.SpellID["428770"] = {
-  --desc = "Feather Bomb (Tindral Sageswift)";
-  sound = 3;
-};
-
-
-GTFO.SpellID["422503"] = {
-  --desc = "Star Fragments (Tindral Sageswift)";
-  sound = 3;
-};
-
-GTFO.SpellID["423656"] = {
-  --desc = "Fire Beam (Tindral Sageswift)";
-  sound = 3;
-};
-
-GTFO.SpellID["424377"] = {
-  --desc = "Supernova (Tindral Sageswift)";
-  sound = 3;
-};
-
-GTFO.SpellID["421939"] = {
-  --desc = "Scorching Plume (Tindral Sageswift)";
-  sound = 3;
-};
-
 -- TODO: Mass Entanglement (Tindral Sageswift) - Small circles around players, fail if hit more than once
 -- TODO: Falling Stars (Tindral Sageswift) - Giant blue circle around player, fail if you're not the target or get hit multiple times
+-- TODO: Star Fragments (Tindral Sageswift) - Blue swirls after Falling Stars explodes
+-- TODO: Fire Beam (Tindral Sageswift) - This is the initial giant swirl spawn, not the individual beams
 -- TODO: Scorching Plume (Tindral Sageswift) - Fire balls during dragonriding phase
 -- TODO: Seed of Flame (Tindral Sageswift) - Stepping on a seed while debuffed with vulnerability (don't know how many stacks is acceptable or not, might use low damage alert)
 -- TODO: Flare Bomb (Tindral Sageswift) - Flying into a Flare Bomb while debuffed with vulnerability (Mythic)
 -- TODO: Fire Swirls (Tindral Sageswift) - Unknown ability, fire swirls that show up throughout the fight
 
-GTFO.SpellID["419061"] = {
-  --desc = "Firestorm (Fyrakk)";
-  sound = 3;
-};
-
-GTFO.SpellID["420313"] = {
-  --desc = "Firestorm (Fyrakk)";
-  sound = 3;
-  test = true;
-};
-
-GTFO.SpellID["429940"] = {
-  --desc = "Wildfire (Fyrakk)";
-  sound = 3;
-};
-
-GTFO.SpellID["425530"] = {
-  --desc = "Swirling Firestorm (Fyrakk)";
-  sound = 3;
-};
-
-GTFO.SpellID["422526"] = {
-  --desc = "Shadowflame Devastation (Fyrakk)";
-  sound = 3;
-};
-
-
 -- TODO: Fyr'alath's Flame (Fyrakk) - Fireball that does damage to players
+-- TODO: Firestorm (Fyrakk) - Fire Swirls of two different sizes?
+-- TODO: Wildfire (Fyrakk) - Fire Swirls after cast?
 -- TODO: Flame Orbs (Fyrakk) - Fail taking an orb while debuffed with too many stacks of Flamebound or 1 stack of Shadowbound
 -- TODO: Shadow Orbs (Fyrakk) - Fail taking an orb while debuffed with too many stacks of Shadowbound or 1 stack of Flamebound
 -- TODO: Molten Eruption (Fyrakk) - Timebomb circles?
 -- TODO: Blaze (Fyrakk)
+-- TODO: Blazing Seed (Fyrakk)
 -- TODO: Shadowflame Breath (Fyrakk) - Cone attack, but needed to ignite seeds?
+-- TODO: Swirling Firestorm (Fyrakk)
 
 
 GTFO.SpellID["424808"] = {
@@ -3018,17 +2912,6 @@ GTFO.SpellID["427589"] = {
   --desc = "Erupting Rubble (Stalwart Bristlebruin)";
   sound = 3;
 };
-
-GTFO.SpellID["428023"] = {
-  --desc = "Dream's Wrath (Keeper of the Dream)";
-  sound = 3;
-};
-
-GTFO.SpellID["427581"] = {
-  --desc = "Brawny Bash (Stalwart Bristlebruin)";
-  sound = 3;
-};
-
 
 end
 

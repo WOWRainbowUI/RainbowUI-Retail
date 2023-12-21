@@ -26,9 +26,9 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.5.7"; -- Version number (text format)
+	Version = "5.5.6"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 50507; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 50506; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -80,7 +80,7 @@ GTFO = {
 	WrathMode = nil; -- WoW Wrath client detection
 	NewSettingsUIMode = nil; -- New WoW UI Settings system
 	SoundChannels = { 
-		{ Code = "Master", Name = _G.MASTER_VOLUME },
+		{ Code = "Master", Name = GTFOLocal.Master_Volume },
 		{ Code = "SFX", Name = _G.SOUND_VOLUME, CVar = "Sound_EnableSFX" },
 		{ Code = "Ambience", Name = _G.AMBIENCE_VOLUME, CVar = "Sound_EnableAmbience" },
 		{ Code = "Music", Name = _G.MUSIC_VOLUME, CVar = "Sound_EnableMusic" },
@@ -181,7 +181,7 @@ function GTFO_OnEvent(self, event, ...)
 		if (GTFOData.DataCode ~= GTFO.DataCode) then
 			GTFO_SetDefaults();
 			GTFO_ChatPrint(string.format(GTFOLocal.Loading_NewDatabase, GTFO.Version));
-			GTFO_DisplayConfigPopupMessage();
+			-- GTFO_DisplayConfigPopupMessage();
 		end
 		GTFO.Settings = {
 			Active = GTFOData.Active;
@@ -1158,12 +1158,12 @@ function GTFO_RenderOptions()
 		-- TODO: Rebuild configuration menus in new Dragonflight format
 		-- Modern version (Dragonflight)
 		local ConfigurationPanel = CreateFrame("FRAME","GTFO_MainFrame");
-		ConfigurationPanel.name = "GTFO";
+		ConfigurationPanel.name = GTFOLocal.Option_Name;
 		InterfaceOptions_AddCategory(ConfigurationPanel);
 
 		local IntroMessageHeader = ConfigurationPanel:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
 		IntroMessageHeader:SetPoint("TOPLEFT", 10, -10);
-		IntroMessageHeader:SetText("GTFO "..GTFO.Version);
+		IntroMessageHeader:SetText(GTFOLocal.Addon_Name.." GTFO "..GTFO.Version);
 
 		local EnabledButton = CreateFrame("CheckButton", "GTFO_EnabledButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 		EnabledButton:SetPoint("TOPLEFT", 10, -35)
@@ -1331,7 +1331,7 @@ function GTFO_RenderOptions()
 
 		local IntroMessageHeader2 = IgnoreOptionsPanel:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
 		IntroMessageHeader2:SetPoint("TOPLEFT", 10, -10);
-		IntroMessageHeader2:SetText("GTFO "..GTFO.Version.." - "..GTFOLocal.UI_SpecialAlertsHeader);
+		IntroMessageHeader2:SetText(GTFOLocal.Addon_Name.." GTFO "..GTFO.Version.." - "..GTFOLocal.UI_SpecialAlertsHeader);
 
 		local yCount = -20;
 		for key, option in pairs(GTFO.IgnoreSpellCategory) do
@@ -1353,12 +1353,12 @@ function GTFO_RenderOptions()
 	else
 		-- Classic version (pre-Dragonflight)
 		local ConfigurationPanel = CreateFrame("FRAME","GTFO_MainFrame");
-		ConfigurationPanel.name = "GTFO";
+		ConfigurationPanel.name = GTFOLocal.Option_Name;
 		InterfaceOptions_AddCategory(ConfigurationPanel);
 
 		local IntroMessageHeader = ConfigurationPanel:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
 		IntroMessageHeader:SetPoint("TOPLEFT", 10, -10);
-		IntroMessageHeader:SetText("GTFO "..GTFO.Version);
+		IntroMessageHeader:SetText(GTFOLocal.Addon_Name.." GTFO "..GTFO.Version);
 
 		local EnabledButton = CreateFrame("CheckButton", "GTFO_EnabledButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 		EnabledButton:SetPoint("TOPLEFT", 10, -35)
@@ -1508,7 +1508,7 @@ function GTFO_RenderOptions()
 
 		local IntroMessageHeader2 = IgnoreOptionsPanel:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
 		IntroMessageHeader2:SetPoint("TOPLEFT", 10, -10);
-		IntroMessageHeader2:SetText("GTFO "..GTFO.Version.." - "..GTFOLocal.UI_SpecialAlertsHeader);
+		IntroMessageHeader2:SetText(GTFOLocal.Addon_Name.." GTFO "..GTFO.Version.." - "..GTFOLocal.UI_SpecialAlertsHeader);
 
 		local yCount = -20;
 		for key, option in pairs(GTFO.IgnoreSpellCategory) do
@@ -1882,9 +1882,9 @@ function GTFO_SendUpdateRequest()
 end
 
 function GTFO_Command_Options()
-	InterfaceOptionsFrame_OpenToCategory("GTFO");
-	InterfaceOptionsFrame_OpenToCategory("GTFO");
-	InterfaceOptionsFrame_OpenToCategory("GTFO");
+	InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
+	InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
+	InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
 end
 
 function GTFO_Option_SetVolume()
