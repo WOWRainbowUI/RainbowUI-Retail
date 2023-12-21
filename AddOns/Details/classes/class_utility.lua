@@ -1463,45 +1463,41 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 end
 
 --this shouldn't be hardcoded
-local runes_id = {
+local runeIds = {
 	[175457] = true, -- focus
 	[175456] = true, --hyper
 	[175439] = true, --stout
 }
 
 --called from control on leave / enter combat
-function _detalhes:CatchRaidBuffUptime (in_or_out)
-
+function _detalhes:CatchRaidBuffUptime(sOperationType)
 	if (IsInRaid()) then
-
-		local pot_usage = {}
-		local focus_augmentation = {}
-
+		local potUsage = {}
+		local focusAugmentation = {}
 		--raid groups
 		local cacheGetTime = GetTime()
 
 		for raidIndex = 1, GetNumGroupMembers() do
-			local RaidIndex = "raid" .. raidIndex
-			local playerGUID = UnitGUID(RaidIndex)
+			local unitId = "raid" .. raidIndex
+			local playerGUID = UnitGUID(unitId)
 
 			if (playerGUID) then
-
-				local playerName, realmName = _UnitName (RaidIndex)
+				local playerName, realmName = _UnitName(unitId)
 				if (realmName and realmName ~= "") then
 					playerName = playerName .. "-" .. realmName
 				end
 
 				for buffIndex = 1, 41 do
-					local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (RaidIndex, buffIndex, nil, "HELPFUL")
-					if (name and unitCaster and UnitExists(unitCaster) and UnitExists(RaidIndex) and UnitIsUnit(unitCaster, RaidIndex)) then
-						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, 0x0, spellid, name, in_or_out)
+					local name, _, _, _, _, _, unitCaster, _, _, spellId  = _UnitAura(unitId, buffIndex, nil, "HELPFUL")
+					if (name and unitCaster and UnitExists(unitCaster) and UnitExists(unitId) and UnitIsUnit(unitCaster, unitId)) then
+						_detalhes.parser:add_buff_uptime(nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, 0x0, spellId, name, sOperationType)
 
-						if (in_or_out == "BUFF_UPTIME_IN") then
-							if (_detalhes.PotionList [spellid]) then
-								pot_usage [playerName] = spellid
+						if (sOperationType == "BUFF_UPTIME_IN") then
+							if (_detalhes.PotionList[spellId]) then
+								potUsage[playerName] = spellId
 
-							elseif (runes_id [spellid]) then
-								focus_augmentation [playerName] = true
+							elseif(runeIds[spellId]) then
+								focusAugmentation[playerName] = true
 							end
 						end
 					end
@@ -1509,10 +1505,10 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			end
 		end
 
-		if (in_or_out == "BUFF_UPTIME_IN") then
+		if (sOperationType == "BUFF_UPTIME_IN") then
 			local string_output = "pre-potion: " --localize-me
 
-			for playername, potspellid in pairs(pot_usage) do
+			for playername, potspellid in pairs(potUsage) do
 				local name, _, icon = _GetSpellInfo(potspellid)
 				local unitClass = Details:GetUnitClass(playername)
 				local class_color = ""
@@ -1524,68 +1520,101 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 
 			_detalhes.pre_pot_used = string_output
 
-			_detalhes:SendEvent("COMBAT_PREPOTION_UPDATED", nil, pot_usage, focus_augmentation)
+			_detalhes:SendEvent("COMBAT_PREPOTION_UPDATED", nil, potUsage, focusAugmentation)
 		end
 
 	elseif (IsInGroup()) then
-
-		local pot_usage = {}
-		local focus_augmentation = {}
+		local potUsage = {}
+		local focusAugmentation = {}
 
 		--party members
 		for groupIndex = 1, GetNumGroupMembers() - 1 do
+			local unitId = "party" .. groupIndex
 			for buffIndex = 1, 41 do
-				local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("party"..groupIndex, buffIndex, nil, "HELPFUL")
-				if (name and unitCaster and UnitExists(unitCaster) and UnitExists("party" .. groupIndex) and UnitIsUnit(unitCaster, "party" .. groupIndex)) then
+				if (UnitExists(unitId)) then
+					local auraName, _, _, _, _, _, unitCaster, _, _, spellId  = UnitBuff(unitId, buffIndex)
+					if (auraName) then
+						if (UnitExists(unitCaster)) then
+							local bBuffIsPlacedOnTarget = Details.CreditBuffToTarget[spellId]
+							if (UnitIsUnit(unitCaster, unitId) or bBuffIsPlacedOnTarget) then
+								if (bBuffIsPlacedOnTarget and not UnitIsUnit(unitCaster, unitId)) then
+									--could be prescince, ebom might or power infusion; casted on a target instead of the caster
+									local sourceSerial = UnitGUID(unitCaster)
+									local sourceName = Details:GetFullName(unitCaster)
+									local sourceFlags = 0x514
+									local targetSerial = UnitGUID(unitId)
+									local targetName = Details:GetFullName(unitId)
+									local targetFlags = 0x514
+									local targetFlags2 = 0x0
+									local spellName = auraName
+									--print(targetName, "already had", spellName, "at first of a combat")
+									Details.parser:buff("SPELL_AURA_APPLIED", time(), sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, 0x4, "BUFF", 0)
+								else
+									local playerGUID = UnitGUID(unitId)
+									if (playerGUID) then
+										local playerName = Details:GetFullName(unitId)
+										if (sOperationType == "BUFF_UPTIME_IN") then
+											if (_detalhes.PotionList[spellId]) then
+												potUsage[playerName] = spellId
+											elseif (runeIds[spellId]) then
+												focusAugmentation [playerName] = true
+											end
+										end
 
-					local playerName, realmName = _UnitName ("party"..groupIndex)
-					local playerGUID = UnitGUID("party"..groupIndex)
-
-					if (playerGUID) then
-						if (realmName and realmName ~= "") then
-							playerName = playerName .. "-" .. realmName
-						end
-
-						if (in_or_out == "BUFF_UPTIME_IN") then
-							if (_detalhes.PotionList [spellid]) then
-								pot_usage [playerName] = spellid
-
-							elseif (runes_id [spellid]) then
-								focus_augmentation [playerName] = true
+										_detalhes.parser:add_buff_uptime(nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellId, auraName, sOperationType)
+									end
+								end
 							end
 						end
-
-						_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellid, name, in_or_out)
 					end
 				end
 			end
 		end
 
-		--player it self
+		--player it self (while in a party that isn't a raid group)
+		local unitId = "player"
 		for buffIndex = 1, 41 do
-			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
-			if (name and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
-				local playerName = Details.playername
-				local playerGUID = UnitGUID("player")
-				if (playerGUID) then
-					if (in_or_out == "BUFF_UPTIME_IN") then
-						if (_detalhes.PotionList [spellid]) then
-							pot_usage [playerName] = spellid
-						elseif (runes_id [spellid]) then
-							focus_augmentation [playerName] = true
+			local auraName, _, _, _, _, _, unitCaster, _, _, spellId  = UnitBuff(unitId, buffIndex)
+			if (auraName) then
+				if (UnitExists(unitCaster)) then -- and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, unitId)
+					local bBuffIsPlacedOnTarget = Details.CreditBuffToTarget[spellId]
+					if (UnitIsUnit(unitCaster, unitId) or bBuffIsPlacedOnTarget) then
+						if (bBuffIsPlacedOnTarget and not UnitIsUnit(unitCaster, unitId)) then
+							--could be prescince, ebom might or power infusion; casted on a target instead of the caster
+							local sourceSerial = UnitGUID(unitCaster)
+							local sourceName = Details:GetFullName(unitCaster)
+							local sourceFlags = 0x514
+							local targetSerial = UnitGUID(unitId)
+							local targetName = Details:GetFullName(unitId)
+							local targetFlags = 0x514
+							local targetFlags2 = 0x0
+							local spellName = auraName
+							Details.parser:buff("SPELL_AURA_APPLIED", time(), sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, 0x4, "BUFF", 0)
+						else
+							local playerName = Details:GetFullName(unitId)
+							local playerGUID = UnitGUID(unitId)
+							if (playerGUID) then
+								if (sOperationType == "BUFF_UPTIME_IN") then
+									if (_detalhes.PotionList[spellId]) then
+										potUsage [playerName] = spellId
+									elseif (runeIds[spellId]) then
+										focusAugmentation[playerName] = true
+									end
+								end
+
+								_detalhes.parser:add_buff_uptime(nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellId, auraName, sOperationType)
+							end
 						end
 					end
-
-					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellid, name, in_or_out)
 				end
 			end
 		end
 
-		if (in_or_out == "BUFF_UPTIME_IN") then
+		if (sOperationType == "BUFF_UPTIME_IN") then
 			local string_output = "pre-potion: "
 
-			for playername, potspellid in pairs(pot_usage) do
-				local name, _, icon = _GetSpellInfo(potspellid)
+			for playername, potspellid in pairs(potUsage) do
+				local auraName, _, icon = _GetSpellInfo(potspellid)
 				local unitClass = Details:GetUnitClass(playername)
 				local class_color = ""
 				if (unitClass and RAID_CLASS_COLORS[unitClass]) then
@@ -1595,38 +1624,38 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			end
 
 			_detalhes.pre_pot_used = string_output
-			_detalhes:SendEvent("COMBAT_PREPOTION_UPDATED", nil, pot_usage, focus_augmentation)
+			_detalhes:SendEvent("COMBAT_PREPOTION_UPDATED", nil, potUsage, focusAugmentation)
 		end
 
-	else
-
+	else --end of IsInGroup
+		--player alone
 		local pot_usage = {}
 		local focus_augmentation = {}
 
 		for buffIndex = 1, 41 do
-			local name, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
-			if (name and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
+			local auraName, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
+			if (auraName and unitCaster and UnitExists(unitCaster) and UnitIsUnit(unitCaster, "player")) then
 				local playerName = Details.playername
 				local playerGUID = UnitGUID("player")
 
 				if (playerGUID) then
-					if (in_or_out == "BUFF_UPTIME_IN") then
+					if (sOperationType == "BUFF_UPTIME_IN") then
 						if (_detalhes.PotionList [spellid]) then
 							pot_usage [playerName] = spellid
-						elseif (runes_id [spellid]) then
+						elseif (runeIds [spellid]) then
 							focus_augmentation [playerName] = true
 						end
 					end
-					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellid, name, in_or_out)
+					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellid, auraName, sOperationType)
 				end
 			end
 		end
 
 		--[
-		if (in_or_out == "BUFF_UPTIME_IN") then
+		if (sOperationType == "BUFF_UPTIME_IN") then
 			local string_output = "pre-potion: "
 			for playername, potspellid in pairs(pot_usage) do
-				local name, _, icon = _GetSpellInfo(potspellid)
+				local auraName, _, icon = _GetSpellInfo(potspellid)
 				local unitClass = Details:GetUnitClass(playername)
 				local class_color = ""
 				if (unitClass and RAID_CLASS_COLORS[unitClass]) then
