@@ -36,16 +36,6 @@
 ## X-Category-zhTW: 物品
 ## IconTexture: Interface\Icons\inv_misc_bag_08
 
-#@no-lib-strip@
-libs\LibStub\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-libs\AceAddon-3.0\AceAddon-3.0.xml
-libs\AceDB-3.0\AceDB-3.0.xml
-libs\AceHook-3.0\AceHook-3.0.xml
-libs\AceConsole-3.0\AceConsole-3.0.xml
-libs\LibSharedMedia-3.0\lib.xml
-#@end-no-lib-strip@
-
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 core\EventHandlers.lua
