@@ -376,6 +376,9 @@ function Addon.UpdateRoute(z)
 end
 
 function Addon.AddKill(npcId)
+    assert(MDTGuideDB.dungeon, "Missing dungeon")
+    assert(MDT.dungeonEnemies[MDTGuideDB.dungeon], "Missing dungeon enemies")
+
     for i,enemy in ipairs(MDT.dungeonEnemies[MDTGuideDB.dungeon]) do
         if enemy.id == npcId then
             table.insert(MDTGuideDB.route.kills, i)
