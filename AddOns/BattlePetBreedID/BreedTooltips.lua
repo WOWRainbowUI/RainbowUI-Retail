@@ -49,7 +49,7 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
 
     breedtip = _G[breedtiptext] or CreateFrame("GameTooltip", breedtiptext, nil, "GameTooltipTemplate")
 
-	-- Check for existence of LibExtraTip
+    -- Check for existence of LibExtraTip
     local extratip = false
     if (internal.LibExtraTip) and (internal.LibExtraTip.GetExtraTip) then
         extratip = internal.LibExtraTip:GetExtraTip(parent)
@@ -91,15 +91,15 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
 
     -- Set line for "Current pet's breed"
     if (BPBID_Options.Breedtip.Current) and (tblBreedID) then
-        local current = "\124cFFD4A017目前品級:\124r "
+        local current = "\124cFFD4A017Current Breed:\124r "
         local numBreeds = #tblBreedID
         for i = 1, numBreeds do
             if (i == 1) then
                 current = current .. internal.RetrieveBreedName(tblBreedID[i])
             elseif (i == 2) and (i == numBreeds) then
-                current = current .. " 或 " .. internal.RetrieveBreedName(tblBreedID[i])
+                current = current .. " or " .. internal.RetrieveBreedName(tblBreedID[i])
             elseif (i == numBreeds) then
-                current = current .. ", 或 " .. internal.RetrieveBreedName(tblBreedID[i])
+                current = current .. ", or " .. internal.RetrieveBreedName(tblBreedID[i])
             else
                 current = current .. ", " .. internal.RetrieveBreedName(tblBreedID[i])
             end
@@ -109,28 +109,28 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
 
     -- Set line for "Current pet's possible breeds"
     if (BPBID_Options.Breedtip.Possible) then
-        local possible = "\124cFFD4A017潛力品級"
+        local possible = "\124cFFD4A017Possible Breed"
         if (speciesID) and (BPBID_Arrays.BreedsPerSpecies[speciesID]) then
             local numBreeds = #BPBID_Arrays.BreedsPerSpecies[speciesID]
             if numBreeds == internal.MAX_BREEDS then
-                possible = possible .. ":\124r 所有"
+                possible = possible .. "s:\124r All"
             else
                 for i = 1, numBreeds do
                     if (numBreeds == 1) then
                         possible = possible .. ":\124r " .. internal.RetrieveBreedName(BPBID_Arrays.BreedsPerSpecies[speciesID][i])
                     elseif (i == 1) then
-                        possible = possible .. ":\124r " .. internal.RetrieveBreedName(BPBID_Arrays.BreedsPerSpecies[speciesID][i])
+                        possible = possible .. "s:\124r " .. internal.RetrieveBreedName(BPBID_Arrays.BreedsPerSpecies[speciesID][i])
                     elseif (i == 2) and (i == numBreeds) then
-                        possible = possible .. " 和 " .. internal.RetrieveBreedName(BPBID_Arrays.BreedsPerSpecies[speciesID][i])
+                        possible = possible .. " and " .. internal.RetrieveBreedName(BPBID_Arrays.BreedsPerSpecies[speciesID][i])
                     elseif (i == numBreeds) then
-                        possible = possible .. " 和 " .. internal.RetrieveBreedName(BPBID_Arrays.BreedsPerSpecies[speciesID][i])
+                        possible = possible .. ", and " .. internal.RetrieveBreedName(BPBID_Arrays.BreedsPerSpecies[speciesID][i])
                     else
                         possible = possible .. ", " .. internal.RetrieveBreedName(BPBID_Arrays.BreedsPerSpecies[speciesID][i])
                     end
                 end
             end
         else
-            possible = possible .. ":\124r 未知"
+            possible = possible .. "s:\124r Unknown"
         end
         breedtip:AddLine(possible, 1, 1, 1, 1)
     end
@@ -139,7 +139,7 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
     if (BPBID_Arrays.BasePetStats[speciesID]) then
         -- Set line for "Pet species' base stats"
         if (BPBID_Options.Breedtip.SpeciesBase) then
-            local speciesbase = "\124cFFD4A017基本屬性:\124r " .. BPBID_Arrays.BasePetStats[speciesID][1] .. "/" .. BPBID_Arrays.BasePetStats[speciesID][2] .. "/" .. BPBID_Arrays.BasePetStats[speciesID][3]
+            local speciesbase = "\124cFFD4A017Base Stats:\124r " .. BPBID_Arrays.BasePetStats[speciesID][1] .. "/" .. BPBID_Arrays.BasePetStats[speciesID][2] .. "/" .. BPBID_Arrays.BasePetStats[speciesID][3]
             breedtip:AddLine(speciesbase, 1, 1, 1, 1)
         end
 
@@ -161,7 +161,7 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
         if (BPBID_Options.Breedtip.CurrentStats) and (tblBreedID) then
             for i = 1, #tblBreedID do
                 local currentbreed = tblBreedID[i]
-                local currentstats = "\124cFFD4A017品級 " .. internal.RetrieveBreedName(currentbreed) .. "*:\124r " .. (BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3])
+                local currentstats = "\124cFFD4A017Breed " .. internal.RetrieveBreedName(currentbreed) .. "*:\124r " .. (BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3])
                 breedtip:AddLine(currentstats, 1, 1, 1, 1)
             end
         end
@@ -171,7 +171,7 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
             if (not BPBID_Options.Breedtip.CurrentStats) or (not extrabreeds) then
                 for i = 1, #BPBID_Arrays.BreedsPerSpecies[speciesID] do
                     local currentbreed = BPBID_Arrays.BreedsPerSpecies[speciesID][i]
-                    local allstatsp1 = "\124cFFD4A017品級 " .. internal.RetrieveBreedName(currentbreed)
+                    local allstatsp1 = "\124cFFD4A017Breed " .. internal.RetrieveBreedName(currentbreed)
                     local allstatsp2 = ":\124r " .. (BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3])
                     local allstats -- Will be defined by the if statement below to see the asterisk needs to be added
                     
@@ -187,7 +187,7 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
                 for i = 1, 10 do
                     if (extrabreeds[i]) and (extrabreeds[i] > 2) then
                         local currentbreed = i + 2
-                        local allstats = "\124cFFD4A017品級 " .. internal.RetrieveBreedName(currentbreed) .. ":\124r " .. (BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3])
+                        local allstats = "\124cFFD4A017Breed " .. internal.RetrieveBreedName(currentbreed) .. ":\124r " .. (BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) .. "/" .. (BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3])
                         breedtip:AddLine(allstats, 1, 1, 1, 1)
                     end
                 end
@@ -207,7 +207,7 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
                     quality = rarity
                 end
 
-                local currentstats25 = hex .. internal.RetrieveBreedName(currentbreed) .. "* @25級:\124r " .. ceil((BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) * 5 + 100 - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5)
+                local currentstats25 = hex .. internal.RetrieveBreedName(currentbreed) .. "* at 25:\124r " .. ceil((BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) * 5 + 100 - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5)
                 breedtip:AddLine(currentstats25, 1, 1, 1, 1)
             end
         end
@@ -228,7 +228,7 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
                 for i = 1, #BPBID_Arrays.BreedsPerSpecies[speciesID] do
                     local currentbreed = BPBID_Arrays.BreedsPerSpecies[speciesID][i]
                     local allstats25p1 = hex .. internal.RetrieveBreedName(currentbreed)
-                    local allstats25p2 = " @25級:\124r " .. ceil((BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) * 5 + 100 - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5)
+                    local allstats25p2 = " at 25:\124r " .. ceil((BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) * 5 + 100 - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5)
                     local allstats25 -- Will be defined by the if statement below to see the asterisk needs to be added
 
                     if (not extrabreeds) or ((extrabreeds[currentbreed - 2]) and (extrabreeds[currentbreed - 2] > 2)) then
@@ -243,7 +243,7 @@ function BPBID_SetBreedTooltip(parent, speciesID, tblBreedID, rareness, tooltipD
                 for i = 1, 10 do
                     if (extrabreeds[i]) and (extrabreeds[i] > 2) then
                         local currentbreed = i + 2
-                        local allstats25 = hex .. internal.RetrieveBreedName(currentbreed) .. " @25級:\124r " .. ceil((BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) * 5 + 100 - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5)
+                        local allstats25 = hex .. internal.RetrieveBreedName(currentbreed) .. " at 25:\124r " .. ceil((BPBID_Arrays.BasePetStats[speciesID][1] + BPBID_Arrays.BreedStats[currentbreed][1]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) * 5 + 100 - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][2] + BPBID_Arrays.BreedStats[currentbreed][2]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5) .. "/" .. ceil((BPBID_Arrays.BasePetStats[speciesID][3] + BPBID_Arrays.BreedStats[currentbreed][3]) * 25 * ((BPBID_Arrays.RealRarityValues[quality] - 0.5) * 2 + 1) - 0.5)
                         breedtip:AddLine(allstats25, 1, 1, 1, 1)
                     end
                 end
