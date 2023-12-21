@@ -1,0 +1,19 @@
+## Interface: 100200
+## Author: Sanex (Arathor EU)
+## Title: LOIHLoot
+## Version: 10.2.0
+## Notes: Syncs players' loot wishlists to raid leader(s) to help determine best loot method.
+## SavedVariables: LOIHLootDB
+## SavedVariablesPerCharacter: LOIHLootCharDB
+
+## Title-zhTW: |cffFF7F00[團隊]|r 戰利品願望清單
+## Notes-zhTW: LOIHLoot |n|n在冒險指南中將你想要的裝備加入願望清單。|n|n還可以將願望清單同步給團隊隊長，方便決定最佳的分裝方式。|n|n|cffffd200使用方法: |r在冒險指南中每個團隊副本首領的戰利品標籤頁面中勾選想要的裝備。|n|n輸入 /lloot 打開主視窗，從Esc>選項>插件>願望清單，查看更多指令用法。
+## X-Category-zhTW: 團隊
+## IconTexture: Interface\Icons\battleground_strongbox_gold_alliance
+
+Localization-en.lua
+Localization-zh.lua
+
+LOIHLoot.lua
+LOIHLootFrame.xml
+LOIHLootFrame.lua

@@ -1,0 +1,8 @@
+## Interface: 100200## IconTexture: 982414
+## Title: |cffff00ffLuckyAres|r
+## Notes: |CFFFF6461用于副本内友方血条参数且重载后不失效|r
+## Title-zhTW: |cff0099FF[介面]|r 友方只顯示名字 (備用)
+## Notes-zhTW: |cffff00ffLuckyAres|r |n|n在副本內開啟友方血條時，只會顯示隊友的名字，不會顯示隊友的血條和施法條，讓畫面不會那麼混亂。|n|n|cffffd200使用方法: |r每次進入副本後都需要手動重新載入介面一次，才會有效果。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+core.lua

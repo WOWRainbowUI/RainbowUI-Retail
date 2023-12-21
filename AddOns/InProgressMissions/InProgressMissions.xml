@@ -1,0 +1,144 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+  <Frame name="GarrisonLandingPageReportMissionRewardTemplateIPM" enableMouse="true" virtual="true">
+		<Size x="29" y="29"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture atlas="GarrLanding_RewardsShadow">
+          <Size x="34" y="34"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Icon">
+					<Size x="28" y="28"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK" textureSubLevel="1">
+				<FontString parentKey="Quantity" inherits="NumberFontNormalSmall">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon" x="2" y="-1"/>
+					</Anchors>
+				</FontString>
+				<Texture parentKey="IconBorder" file="Interface\Common\WhiteIconFrame" setAllPoints="true">
+				</Texture>
+        <FontString parentKey="Success" inherits="NumberFontNormalSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-2" y="2"/>
+					</Anchors>
+          <Color r="0.9" g="0.9" b="0.9" a="1"/>
+				</FontString>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="IconOverlay" hidden="true">
+					<Size x="36" y="36"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.Icon"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Button name="GarrisonLandingPageReportMissionTemplateIPM" virtual="true" hidden="true">
+		<Size x="400" y="37"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="BG" atlas="GarrLanding-Mission-InProgress" useAtlasSize="true" setAllPoints="true">
+				</Texture>
+        <Texture parentKey="CompletedOverlay" file="Interface\QuestFrame\UI-QuestTitleHighlight" setAllPoints="true" alpha=".7" alphaMode="ADD" desaturated="true" hidden="true">
+          <TexCoords left="0" right="0.4" top="0" bottom="1"/>
+          <Color r="1" g=".9" b=".35"/>
+				</Texture>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="MissionTypeIcon" atlas="GarrMission_MissionIcon-Combat" alpha=".7">
+					<Size x="33" y="33"/>
+					<Anchors>
+						<Anchor point="LEFT" x="2" y="0"/>
+					</Anchors>
+				</Texture>
+        <FontString parentKey="Level" inherits="GameFontHighlightMed2">
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.MissionTypeIcon" x="0" y="2"/>
+					</Anchors>
+					<Color r=".93" g=".93" b=".9"/>
+				</FontString>
+        <FontString parentKey="NumFollowers" inherits="FriendsFont_UserText" alpha=".7">
+					<Anchors>
+						<Anchor point="BOTTOM" relativeKey="$parent.MissionTypeIcon" x="0" y="3"/>
+					</Anchors>
+          <Color r=".75" g=".75" b=".73"/>
+				</FontString>
+				<FontString parentKey="Title" inherits="GameFontHighlightMed2" justifyH="LEFT">
+					<Size x="290" y="15"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="42" y="-3.5"/>
+					</Anchors>
+					<Color r=".75" g=".75" b=".73"/>
+				</FontString>
+				<FontString parentKey="MissionType" inherits="GameFontNormal" justifyH="LEFT">
+					<Size x="390" y="0"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="61" y="4"/>
+					</Anchors>
+					<Color r="0.8" g="0.7" b="0.53" a="1"/>
+				</FontString>
+				<FontString parentKey="TimeLeft" inherits="GameFontNormalMed2" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="-3" y="-4"/>
+					</Anchors>
+				</FontString>
+        <Texture parentKey="CompletedCheck" atlas="Adventures-Checkmark" hidden="true">
+					<Size x="40" y="30"/>
+					<Anchors>
+						<Anchor point="RIGHT" x="-10" y="-1"/>
+					</Anchors>
+				</Texture>
+				<FontString parentKey="Status" inherits="GameFontNormal" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="-8" y="3"/>
+					</Anchors>
+					<Color r="0.792" g="0.690" b="0.529" a="1"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame parentKey="EncounterIcon" inherits="CovenantLandingPageEncounterIconTemplate" hidden="true" scale=".9">
+				<Anchors>
+					<Anchor point="LEFT" x="5" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame parentArray="Rewards" parentKey="Reward1" inherits="GarrisonLandingPageReportMissionRewardTemplateIPM" hidden="true">
+				<Anchors>
+					<Anchor point="RIGHT" x="-5"/>
+				</Anchors>
+			</Frame>
+			<Frame parentArray="Rewards" parentKey="Reward2" inherits="GarrisonLandingPageReportMissionRewardTemplateIPM" hidden="true">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.Reward1" relativePoint="LEFT" x="-5" y="0"/>
+				</Anchors>
+			</Frame>
+			<Frame parentArray="Rewards" parentKey="Reward3" inherits="GarrisonLandingPageReportMissionRewardTemplateIPM" hidden="true">
+				<Anchors>
+					<Anchor point="RIGHT" relativeKey="$parent.Reward2" relativePoint="LEFT" x="-5" y="0"/>
+				</Anchors>
+			</Frame>
+		</Frames>
+		<Scripts>
+      <OnLoad>
+        InProgressMissions:MissionButton_OnLoad(self)
+      </OnLoad>
+			<!-- <OnEnter function="GarrisonLandingPageReportMission_OnEnter"/> -->
+			<!-- <OnLeave function="GarrisonLandingPageReportMission_OnLeave"/> -->
+			<!-- <OnClick function="GarrisonLandingPageReportMission_OnClick"/> -->
+		</Scripts>
+	</Button>
+
+</Ui>

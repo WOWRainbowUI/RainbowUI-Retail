@@ -1,0 +1,40 @@
+## Interface: 100200
+## Title: |cff9d5db8Keystone Loot|r
+## Notes: Shows the items from the mythic plus instances in a compact overview
+## Notes-ruRU: Компактный аддон, который показывает уровни предметов из подземелий М+
+## Author: Selina Ruesch
+## X-Email: selina.ruesch@gmail.com
+## Version: 1.4.0
+## IconTexture: Interface\Icons\INV_Relics_Hourglass_02
+## SavedVariables: KEYSTONE_LOOT_DB
+## SavedVariablesPerCharacter: KEYSTONE_LOOT_CHAR_DB
+
+## Title-zhTW: |cffFF7F00[M+]|r 裝備查詢
+## Notes-zhTW: |cff9d5db8Keystone Loot|r |n|n方便尋找在 M+ 地城和寶庫可取得的裝備，可以依照職業、專精、部位和物品等級來找裝備。|n|n|cffffd200使用方法: |r點小地圖按鈕。
+## X-Category-zhTW: 物品
+## DefaultState: disabled
+
+api/locale.lua
+api/util.lua
+api/loot.lua
+api/favorite.lua
+api/upgrade_item.lua
+api/dropdown.lua
+api/catalyst.lua
+
+frames/main.lua
+frames/instance.lua
+frames/filter.lua
+frames/filter_class.lua
+frames/filter_slot.lua
+frames/filter_itemlevel.lua
+frames/item.lua
+frames/minimap.lua
+frames/dropdown.lua
+frames/catalyst.lua
+
+## frames/settings/register.lua
+## frames/settings/header.lua
+## frames/settings/minimap.lua
+
+core.lua

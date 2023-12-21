@@ -1,0 +1,28 @@
+## Interface: 100200
+## Title: HandyNotes: Valdrakken
+## Notes: Shows the NPC and POI locations in Valdrakken.
+## Notes-deDE: Zeigt die Positionen von NPCs und anderen Orten von Interesse in Valdrakken an.
+## Author: |cFFFF8C00Dathwada EU-Eredar|r
+## Version: v9
+## RequiredDeps: HandyNotes
+## DefaultState: enabled
+## SavedVariables: HandyNotes_ValdrakkenDB
+## IconTexture: 4661644
+## X-Date: 2023-11-11
+## X-Category: Map
+
+## Title-zhTW: |cff4DFF4D[地圖]|r 地圖標記-沃卓肯
+## Notes-zhTW: HandyNotes: Valdrakken |n|n在地圖上顯示沃卓肯各種NPC的位置。
+## X-Category-zhTW: 地圖
+
+# LOCALIZATION FILES
+localization\locales.xml
+
+# CORE FILES
+core\constants.lua
+core\handler.lua
+core\config.lua
+core\dev.lua
+
+# DATABASE
+data\DB.lua

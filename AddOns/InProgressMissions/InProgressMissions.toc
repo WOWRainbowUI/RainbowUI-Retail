@@ -1,0 +1,11 @@
+## Interface: 100200## IconTexture: 982414
+## Version: 10.0.38
+## Author: Jaijai
+## Title: In Progress Missions
+## Title-zhTW: |cff00FFFF[任務]|r 指揮桌任務報告
+## Notes-zhTW: In Progress Missions |n|n列出所有角色的指揮桌任務進度，包括暗影之境夥伴、艾澤拉斯勇士、職業大廳和要塞追隨者。|n|n|cffffd200使用方法: |r點小地圖按鈕的任務報告按鈕。|n低等級還沒有任務報告按鈕的角色，可以輸入 /ipm 來查看任務報告。|n|n|cffFF2D2D特別注意: |r其他角色必須先登入過遊戲，並且也有載入這個插件才會顯示在報告中。
+## X-Category-zhTW: 任務
+## DefaultState: disabled
+## SavedVariables: IPMDB, IPMDBicon
+InProgressMissions.xml
+InProgressMissions.lua

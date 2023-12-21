@@ -1,0 +1,27 @@
+## Interface: 100200
+
+## Title: Leatrix Maps
+## Notes: Enhancements for your maps.
+
+## Version: 10.2.03
+## Author: Leatrix
+## SavedVariables: LeaMapsDB
+
+## IconTexture: Interface\HELPFRAME\HelpIcon-Bug
+
+## OptionalDeps: Leatrix_enUS, ElvUI, Demodal, WorldQuestTracker
+
+## AddonCompartmentFunc:LeaMapsGlobalMiniBtnClickFunc
+
+## X-Curse-Project-ID: 298842
+
+## Title-zhTW: |cff4DFF4D[地圖]|r 世界地圖增強
+## Notes-zhTW: Leatrix Maps |n|n讓大地圖視窗化，可自由移動位置和調整大小。還有顯示未探索區域、副本入口、區域等級和座標...等功能。|n|n|cffffd200使用方法: 輸入 /ltm 進行設定。
+## X-Category-zhTW: 地圖
+
+Leatrix_Maps_Library.lua
+Leatrix_Maps_Locale.lua
+Leatrix_Maps.xml
+Leatrix_Maps_Icons.lua
+Leatrix_Maps_Reveal.lua
+Leatrix_Maps.lua

@@ -1,0 +1,14 @@
+﻿## Interface: 100200
+## Title: GladiatorlosSA_zhCN(Yike_Xia)
+## Title-zhCN:GladiatorlosSA_夏一可语音包
+## Notes: GSA plugin for Chinese voice set
+## Title-zhTW: |cffFF0000[PvP]|r 敵方技能監控 (語音)-中文語音
+## Notes-zhTW: GladiatorlosSA_zhCN(Yike_Xia)|n|nGSA夏一可中文語音包插件
+## X-Category-zhTW: PvP
+## IconTexture: 982414
+## DefaultState: disabled
+## Dependencies: GladiatorlosSA2
+## Author: Yike Xia, Mini_Dragon
+## Version: 20230125
+
+GladiatorlosSA_zhCN.lua

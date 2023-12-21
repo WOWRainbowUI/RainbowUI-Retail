@@ -1,0 +1,19 @@
+## Interface: 100200
+## Title: HidingBar
+## Author: sfmict
+## Version: v10.2.1
+## IconTexture: Interface\AddOns\HidingBar\media\icon
+## Notes: Convenient hiding panel
+## SavedVariables: HidingBarDB
+## SavedVariablesPerCharacter: HidingBarDBChar
+## OptionalDeps: Masque
+
+## Title-zhTW: |cff4DFF4D[地圖]|r 小地圖按鈕整合
+## Notes-zhTW: HidingBar |n|n將小地圖周圍的按鈕，整合成一個彈出式按鈕選單!|n可以自訂按鈕選單的位置、樣式和將按鈕分組。|n|n|cffffd200使用方法：|r從Esc>選項>插件>小地圖-按鈕，進行設定。
+## X-Category-zhTW: 地圖
+
+embeds.xml
+locales.xml
+templates.xml
+Config.lua
+HidingBar.lua

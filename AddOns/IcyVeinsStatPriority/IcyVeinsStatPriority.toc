@@ -1,0 +1,19 @@
+## Interface: 100200
+## Title: |cff69CCF0Icy Veins|r Stat Priority
+## Version: 2023-11-29
+## Author: enderneko
+## SavedVariables: IVSP_Config, IVSP_Custom
+
+## X-Curse-Project-ID: 286395
+
+## Title-zhTW: |cffB973FF[裝備]|r 屬性建議
+## Notes-zhTW: |cff69CCF0Icy Veins|r Stat Priority |n根據職業和專精，在角色資訊視窗上方顯示裝備屬性選擇優先順序的建議。|n適用於大部分的情況，若你玩的流派需求不同，此建議僅供參考。|n|cffffd200使用方法：|r在屬性建議文字上面點左鍵打開設定選項，點右鍵看所有職業的屬性。|n資料來源：icy-veins.com
+## X-Category-zhTW: 物品
+## IconTexture: Interface\Icons\ability_paladin_beaconoflight
+
+Locales\enUS.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+
+Data.lua
+Core.lua

@@ -1,0 +1,30 @@
+## Interface: 100200
+
+## Title: Leatrix Plus
+## Title-zhCN: Leatrix Plus [|cffeda55f功能百宝箱|r]
+## Title-zhTW: Leatrix Plus [|cffeda55f功能百寶箱|r]
+
+## Notes: Quality of life addon.
+## Notes-zhCN: 哆啦A梦的百宝袋
+## Notes-zhTW: 哆啦A夢的百寶袋
+
+## Version: 10.2.03
+## Author: Leatrix
+## SavedVariables: LeaPlusDB
+## AddonCompartmentFunc:LeaPlusGlobalMiniBtnClickFunc
+
+## IconTexture: Interface\HELPFRAME\ReportLagIcon-Movement
+
+## OptionalDeps: Leatrix_enUS, ElvUI, Glass, Titan, Leatrix_Maps, totalRP3, SexyMap
+
+## X-Curse-Project-ID: 94855
+
+## Title-zhTW: |cff0099FF[介面]|r 功能百寶箱
+## Notes-zhTW: Leatrix Plus |n|n讓生活更美好的插件，提供多種各式各樣的遊戲功能設定。|n|n|cffffd200使用方法: |r點小地圖按鈕的藍色閃電開啟設定。|n|n|cffFF2D2D特別注意: |r請勿使用功能百寶箱 "框架相關" 裡面功能和遊戲內建的編輯模式來調整同一個框架，會發生衝突。
+## X-Category-zhTW: 介面
+
+Leatrix_Plus_Library.lua
+Leatrix_Plus_Locale.lua
+Leatrix_Plus_Media.lua
+Leatrix_Plus_Mute.lua
+Leatrix_Plus.lua

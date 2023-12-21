@@ -1,0 +1,17 @@
+## Interface: 11403
+## Version: 1.0.5
+## Title:|cffffffffFinal Fantasy|r Level Up!
+## Author: DonnieDice
+## Notes: Grats!
+## Title-zhTW: |cff00FFFF[音效]|r FF XIV 升級音效
+## Notes-zhTW: |cffffffffFinal Fantasy|r Level Up! |n|n升級時會播放最終幻想14的升級音效。
+
+## X-Category: UI Media, Questing & Leveling, Audio & Video, Miscellaneous
+## X-Category-zhTW: 任務
+## X-Website: https://github.com/donniedice/FFLU
+## X-Curse-Project-ID: 305470
+## X-Tukui-ProjectID: 224
+## X-Wago-ID: Xb6XE0Kp
+## X-WoWI-ID: 26252
+
+main.lua

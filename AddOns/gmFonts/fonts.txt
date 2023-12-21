@@ -1,0 +1,93 @@
+Here is a list of fonts included:
+
+-- ace_futurism
+"Ace Futurism is a simple techno font inspired by multiple that already exist. 
+Was initially to be used in a game but the game halted being worked on so I finished up the font and here it is."
+http://nalgames.com/fonts/all-fonts/
+
+-- a_d_mono
+Created by Matt M. Denton and released as freeware.
+
+-- candara
+Candara is a humanist sans-serif typeface designed by Gary Munch and commissioned by Microsoft. 
+It is part of the ClearType Font Collection, all starting with the letter C to reflect that they were 
+designed to work well with Microsoft's ClearType text rendering system. The others are Calibri, Cambria, Consolas, Corbel and Constantia.
+
+-- carlito
+Carlito is a drop in replacement for Calibri Fonts. 
+Metrically compatible with the current MS default font Calibri. 
+It is licensed under the OFL 1.1.
+
+-- comic neue
+Comic Neue is a casual script typeface released in 2014. 
+It was designed by Craig Rozynski as a more modern, refined version of the ubiquitous, but frequently criticised typeface, Comic Sans.
+http://comicneue.com/
+
+-- dosis
+Designed by Edgar Tolentino, refined & extended by Pablo Impallari, spaced & kerned by Igino Marini iKern.
+Dosis is a very simple, rounded, sans serif family.
+
+-- droid
+Droid is a font family first released in 2007 and created by Ascender Corporation for use by the Open Handset Alliance platform Android[1] and licensed under the Apache License. 
+The fonts are intended for use on the small screens of mobile handsets and were designed by Steve Matteson of Ascender Corporation.
+The name was derived from the Open Handset Alliance platform named Android
+
+-- expressway
+Expressway is a sans-serif font family inspired by the U.S. Department of Transportation’s FHWA Series
+of Standard Alphabets. For the second half of the 20th Century, it was the font most used on road signs in U.S., Canada, Mexico, Australia, Spain,Venezuela,the Netherlands, Brazil, Argentina, Taiwan, Malaysia, Indonesia, India, Mongolia and New Zealand.
+Rather than sticking too closely to government specs, Expressway is a more practical design that still holds on to that old, road sign feeling. 
+The full family has 7 weights, 2 widths plus italics for a total of 28 styles.
+This font includes a license that allows free commercial use: sometimes referred to as a desktop license.
+
+-- ladybug love demo
+"Ladybug Love" is a font free for personal and charity use by Misti (https://mistifonts.com/)
+http://www.dafont.com/ladybug-love.font
+
+-- lato
+Lato is a sans serif typeface family started in the summer of 2010 by Warsaw-based designer Lukasz Dziedzic (“Lato” means “Summer” in Polish). In December 2010 the Lato family was published under the Open Font License by his foundry tyPoland, with support from Google. 
+The Lato font family is available as a free download under the SIL Open Font License 1.1. 
+The fonts can be used without any limitations for commercial and non-commercial purposes. 
+They can be also freely modified if the terms of the license are observed.
+http://www.latofonts.com/lato-free-fonts/
+
+-- lauren
+Lauren is a font developed by Computer Support Corporation. 
+It is now free for personal use.
+
+-- noto
+When text is rendered by a computer, sometimes characters are displayed as “tofu”. They are little boxes to indicate your device doesn’t have a font to display the text.
+Google has been developing a font family called Noto, which aims to support all languages with a harmonious look and feel. Noto is Google’s answer to tofu. The name noto is to convey the idea that Google’s goal is to see “no more tofu”. Noto has multiple styles and weights, and is freely available to all.
+
+-- pt sans
+PT Sans is a drop in replacement of Myriad font by Adobe.
+It is licensed under the OFL 1.1.
+
+-- ropa sans
+Ropa Sans is an open-source subset of the Ropa Sans Pro family. Ropa Sans Pro consists of 8 weights plus extra designed italics and small caps, with extensive coverage of Latin and essential coverage of Cyrillic and Greek scripts, and is available commercially from lettersoup.de.
+This Open Font License version, Ropa Sans, consists of the regular weight and the corresponding italic, and covers Latin-based languages only.
+
+-- terminus
+Terminus Font is a clean, fixed width bitmap font, designed for long (8 and more hours per day) work with computers. Version 4.46 contains 1291 characters, covers about 120 language sets and supports ISO8859-1/2/5/7/9/13/15/16, Paratype-PT154/PT254, KOI8-R/U/E/F, Esperanto, many IBM, Windows and Macintosh code pages, as well as the IBM VGA, vt100 and xterm pseudographic characters.
+http://terminus-font.sourceforge.net/
+
+-- the happy giraffe demo
+"The Happy Giraffe" is a font free for personal and charity use by Misti (https://mistifonts.com/)
+http://www.dafont.com/the-happy-giraffe.font
+
+-- ubuntu
+The Ubuntu Font Family are a set of matching new libre/open fonts 
+in development during 2010-2011. The development is being funded by Canonical Ltd 
+on behalf the wider Free Software community and the Ubuntu project. 
+The technical font design work and implementation is being undertaken by Dalton Maag.
+
+-- verdana
+Verdana is a humanist sans-serif typeface designed by Matthew Carter for Microsoft Corporation, with hand-hinting done by Thomas Rickner, then at Monotype. The name "Verdana" is based on verdant (something green), and Ana (the name of Howlett's eldest daughter). 
+According to a study of online fonts by the Software Usability and Research Laboratory at Wichita State University, participants preferred Verdana to be the best overall font choice and it was also perceived as being among the most legible fonts. It is part of Microsoft's TrueType core fonts.
+
+-- OpenDyslexic
+A typeface for Dyslexia
+OpenDyslexic is a typeface designed against some common symptoms of dyslexia.
+OpenDyslexic is free to use. 
+The newest version of OpenDyslexic now uses the SIL-OFL license, giving you freedom to use it for personal use, business use, education, commercial, 
+books, ebook readers, applications, websites, and any other project or purpose you need.
+Check here for more info: https://opendyslexic.org/

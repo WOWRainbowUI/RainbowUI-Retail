@@ -1,0 +1,21 @@
+## Interface: 100200
+
+## Title: Focus Interrupt Sounds |cff7fff7f -Ace3-|r
+## Version: r146a
+## Author: Corg
+## X-Category: Combat
+## X-Website: https://www.curseforge.com/wow/addons/focus-interrupt-sounds
+## X-AceForum: 13375
+## Notes: Makes a sound when your focus starts casting.  Use with [target=focus] macros for interrupts (Counterspell, Spell Lock, Wind Shear, ...).
+## SavedVariables: FocusInterruptSoundsDB
+
+## OptionalDeps: Ace3
+
+## Title-zhTW: |cffFF7373[職業]|r 斷法提醒和通報
+## Notes-zhTW: Focus Interrupt Sounds |cff7fff7f -Ace3-|r|n|n你的敵對目標開始施放可以中斷的法術時，會有語音提醒快打斷。成功打斷時會在聊天視窗顯示訊息告知你的隊友。|n|n|cffffd200使用方法: |r從Esc>選項>插件>斷法，加入自己的斷法技能後便可以使用，相關設定也在這裡。
+## X-Category-zhTW: 職業
+## IconTexture: Interface\Icons\spell_arcane_arcane04
+## DefaultState: disabled
+
+
+FocusInterruptSounds.lua

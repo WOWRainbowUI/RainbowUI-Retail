@@ -1,0 +1,12 @@
+## Interface: 100200
+## Title: FatalArenaFrames
+## Notes: Hides enemy frames in arena
+## Title-zhTW: |cffFF0000[PvP]|r 隱藏內建競技場頭像
+## Notes-zhTW: FatalArenaFrames |n|n競技場頭像插件有時不會自動隱藏遊戲內建的競技場頭像，如果你遇到這個問題，請使用這個插件來隱藏遊戲內建的競技場頭像。
+## X-Category-zhTW: PvP
+## IconTexture: Interface\Icons\achievement_pvp_h_12
+## DefaultState: disabled
+## Author: Fatal
+## Version: 1.3.0
+
+FatalArenaFrames.lua
