@@ -1,5 +1,21 @@
-Decursive 2.7.12
+Decursive 2.7.14
 ================
+
+Decursive 2.7.14 (2023-12-18)
+-----------------------------
+
+- Fix spell detection in classic versions of WoW when "Show all spells ranks"
+  option is not checked in WoW's spell book UI.
+
+- The blacklist can now be disabled completely by setting the "Seconds on the
+  Blacklist" option to 0.
+
+- Fix problem with Decursive' message frame preventing the new Pinging WoW
+  feature to work when clicking through this invisible frame.
+
+- Support for improved purify talent which is now required for priests to be
+  able to cure diseases with Purify (WoW Retail).
+
 
 Decursive 2.7.12 (2023-11-08)
 -----------------------------

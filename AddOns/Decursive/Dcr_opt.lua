@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.7.12) add-on for World of Warcraft UI
+    Decursive (v 2.7.14) add-on for World of Warcraft UI
     Copyright (C) 2006-2019 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2023-09-03T20:24:23Z
+    This file was last updated on 2023-12-18T08:50:23Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -758,7 +758,7 @@ local function GetStaticOptions ()
                         type = 'range',
                         name = L["BLACK_LENGTH"],
                         desc = L["OPT_BLACKLENTGH_DESC"],
-                        min = 1,
+                        min = 0,
                         max = 20,
                         step = 0.1,
                         order = 40,
@@ -1901,7 +1901,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.7.12", "John Wellesz", ("2023-11-08T10:01:56Z"):sub(1,10),
+                                    "2.7.14", "John Wellesz", ("2023-12-18T17:49:10Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -3693,6 +3693,6 @@ function D:QuickAccess (CallingObject, button) -- {{{
 end -- }}}
 
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.7.12";
+T._LoadedFiles["Dcr_opt.lua"] = "2.7.14";
 
 -- Closer
