@@ -1,0 +1,26 @@
+<Bindings>
+  <Binding category="戰場地圖" name="REPORTERINC1">
+    REPorter:SmallButton(1);
+  </Binding>
+  <Binding category="戰場地圖" name="REPORTERINC2">
+    REPorter:SmallButton(2);
+  </Binding>
+  <Binding category="戰場地圖" name="REPORTERINC3">
+    REPorter:SmallButton(3);
+  </Binding>
+  <Binding category="戰場地圖" name="REPORTERINC4">
+    REPorter:SmallButton(4);
+  </Binding>
+  <Binding category="戰場地圖" name="REPORTERINC5">
+    REPorter:SmallButton(5);
+  </Binding>
+  <Binding category="戰場地圖" name="REPORTERINC6">
+    REPorter:SmallButton(6);
+  </Binding>
+  <Binding category="戰場地圖" name="REPORTERHELP">
+    REPorter:BigButton(true);
+  </Binding>
+  <Binding category="戰場地圖" name="REPORTERCLEAR">
+    REPorter:BigButton(false);
+  </Binding>
+</Bindings>

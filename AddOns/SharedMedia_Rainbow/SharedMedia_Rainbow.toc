@@ -1,0 +1,18 @@
+## Interface: 100200
+## IconTexture: 648852
+## Title: SharedMedia Rainbow
+## Notes: Inserts some media into LibSharedMedia's storage.
+## Title-zhTW: |cffFF9900[進階]|r 字體材質包
+## Notes-zhTW: SharedMedia Rainbow |n讓不同的插件能夠共享材質、背景、邊框、字體和音效，也提供了多種材質可供設定插件時使用。
+## Version: 3.1.1-r199
+## Author: Elkano
+## X-Category: Miscellaneous
+## X-Category-zhTW: 進階
+
+## X-Revision: 191
+## X-Date: 2018-07-17T19:41:06Z
+
+## OptionalDeps: LibStub, LibSharedMedia-3.0
+
+
+SharedMedia.lua

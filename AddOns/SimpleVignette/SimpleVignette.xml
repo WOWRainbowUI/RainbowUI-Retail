@@ -1,0 +1,132 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+<Script file="SimpleVignette.lua"/>
+	<Frame name="SVOptions_Frame" parent="UIParent" enableMouse="true" movable="true" hidden="true">
+		<Size>
+			<AbsDimension x="280" y="175"/>
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="FontString1" font="GameFontNormalHuge" text="稀有怪和寶箱通知 SimpleVignette" >
+					<Color r="0" g=".75" b="1" a="1"/>
+					<FontHeight val="18"/>
+					<Shadow>
+						<Color a=".75" r=".2" g=".5" b=".75"/>
+						<Offset x="1" y="-1"/>
+					</Shadow>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="23" y="-15" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="FontString3" font="GameFontNormalHuge" text="啟用音效" justifyH="LEFT">
+					<Color r="1" g="1" b="1" a="1"/>
+					<FontHeight val="16"/>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="80" y="-86" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="FontString5" font="GameFontNormalHuge" text="啟用寶箱" justifyH="LEFT">
+					<Color r="1" g="1" b="1" a="1"/>
+					<FontHeight val="16"/>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="80" y="-60" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="SVSoundNameShow" font="GameFontNormalLarge" justifyH="LEFT">
+					<Color r="1" g=".3" b=".3" a="1"/>
+					<FontHeight val="16"/>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset x="121" y="-129" />
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button name="SVTestSound" inherits="UIPanelButtonTemplate" text="測試">
+			<NormalFont style="GameFontNormalLarge"/>
+			<HighlightFont style="GameFontNormalLarge"/>
+			<Size>
+					<AbsDimension x="60" y="32" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="200" y="-122" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>TestSoundClick()</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="SVChangeSound" inherits="UIPanelButtonTemplate" text="音效 >">
+			<NormalFont style="GameFontNormalLarge"/>
+			<HighlightFont style="GameFontNormalLarge"/>
+				<Size>
+					<AbsDimension x="70" y="32" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset x="50" y="-122" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>ChangeSoundClick()</OnClick>
+				</Scripts>
+			</Button>
+			<CheckButton name="ChestSelectButton" inherits="UICheckButtonTemplate" text="ChestSelect">
+                <Size>
+                    <AbsDimension x="45" y="31" />
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset x="23" y="-53" />
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        SVChest_Check();
+                    </OnLoad>
+                </Scripts>
+                <NormalTexture file="Interface\BUTTONS\CheckButtonGlow" />
+                <HighlightTexture file="Interface\BUTTONS\CheckButtonGlow" />
+            </CheckButton>
+			<CheckButton name="SoundSelectButton" inherits="UICheckButtonTemplate" text="SoundSelect">
+                <Size>
+                    <AbsDimension x="45" y="31" />
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset x="23" y="-80" />
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        SVSound_Check();
+                    </OnLoad>
+                </Scripts>
+                <NormalTexture file="Interface\BUTTONS\CheckButtonGlow" />
+                <HighlightTexture file="Interface\BUTTONS\CheckButtonGlow" />
+            </CheckButton>
+		<MessageFrame name="SVMessageFrame" insertMode="TOP" parent="UIParent" frameStrata="LOW" toplevel="true">
+			<Size><AbsDimension x="512" y="60"/></Size>
+			<Anchors><Anchor point="CENTER"><Offset><AbsDimension x="0" y="250"/></Offset></Anchor></Anchors>
+			<FontString font="GameFontNormalHuge" justifyH="CENTER"/>
+		</MessageFrame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				tinsert(UISpecialFrames, self:GetName());
+				SimpleVignette_OnLoad(self);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

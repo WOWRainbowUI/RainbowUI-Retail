@@ -1,0 +1,26 @@
+## Interface: 100200
+## Title: TankMD
+## Notes: One button to always misdirect to the tank. Also supports Tricks for rogues, Blistering Scales for evokers and Innervate for druids (targets healers).
+## Author: Oppzippy
+## Version: v2.5.1
+## OptionalDeps: Ace3
+## X-Curse-Project-ID: 258204
+## X-WoWI-ID: 25625
+## X-Wago-ID: xZKxpqKk
+
+## Title-zhTW: |cffFF7373[職業]|r 一鍵誤導/偷天/啟動
+## Notes-zhTW: TankMD |n|n只要一個按鈕或快速鍵便會自動偷天/誤導坦克，德魯伊則會啟動補師，不用切換選取目標!|n沒有隊伍或隊伍中沒有坦克時，獵人會自動誤導給寵物。|n|n|cffffd200使用方法: |r從 Esc>選項>按鍵綁定>插件>誤導導給第一個坦克，設定快捷鍵。|n|n或是新增巨集拉到快捷列上，誤導給第一個坦克的巨集內容為|n|n#showtooltip 誤導|n/click TankMDButton1 LeftButton 1|n/click TankMDButton1 LeftButton 0|n|n|cffFF2D2D特別注意: |r巨集寫法有變動，請依照上面的說明修改巨集內容。
+## X-Category-zhTW: 職業
+## IconTexture: Interface\Icons\ability_hunter_misdirection
+## DefaultState: disabled
+
+Libs\LibGroupInSpecT-1.1\lib.xml
+
+TargetMatcher\TargetMatchers.xml
+Config.lua
+MisdirectButton.lua
+Core.lua
+TankMD.lua
+
+Locales\locales.xml
+Bindings.lua

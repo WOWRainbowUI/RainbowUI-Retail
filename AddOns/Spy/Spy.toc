@@ -1,0 +1,39 @@
+﻿## Interface: 100200## IconTexture: 982414
+## Title: Spy
+## Version: 3.10.6
+## Notes: Detects and alerts you to the presence of nearby enemy players.
+## Notes-zhCN: 检测并提醒您附近有敌方玩家。
+## Title-zhTW: |cffFF0000[PvP]|r 偵測敵方玩家
+## Notes-zhTW: Spy |n|nPvP 的野外求生的利器，偵測並列出附近所有的敵對陣營玩家。將玩家加入 KOS 即殺清單，出現在你附近時便會播放警告音效，或是通報到聊天頻道。|n|n還能夠和公會、隊伍、團隊成員分享即殺玩家的資料，自保圍剿兩相宜。也會記錄最近遇到的敵方玩家和勝敗次數統計。|n|n|cffffd200使用方法: |r從Esc>選項>插件>PvP偵測玩家，進行設定。
+## X-Category-zhTW: PvP
+## DefaultState: disabled
+## Creator: Immolation
+## Author: Slipjack
+## X-Credits-ptBR: Localization: Kasth
+## X-Credits-zhTW: Localization: Jaspy10
+## X-Credits-deDE: Localization: Jana
+## X-Credits-deCN: Localization: Kidd8250
+## X-Credits-koKR: Localization: Ringdove
+## X-Credits-frFR: Localization: FishtrBone and others
+## X-Credits-ruRU: Localization: TeHbZShadow
+## OptionalDeps: Ace3, LibSharedMedia-3.0, 
+## SavedVariables: SpyDB
+## SavedVariablesPerCharacter: SpyPerCharDB
+
+Libs\LibChatAnims\LibChatAnims.xml
+
+Spy.xml
+
+Locales\Spy-enUS.lua
+Locales\Spy-zhTW.lua
+Locales\Spy-zhCN.lua
+
+Spy.lua
+Fonts.lua
+Colors.lua
+Widgets.lua
+WindowOrder.lua
+MainWindow.lua
+List.lua
+SpyStats.xml
+SpyData.lua

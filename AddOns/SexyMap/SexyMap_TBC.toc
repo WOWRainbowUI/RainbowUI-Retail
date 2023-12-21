@@ -1,0 +1,40 @@
+## Interface: 20504
+## Version: v10.2.0
+## Title: SexyMap
+## Notes: Spice up your minimap with some sexy options.
+## Notes-zhCN: 为你的小地图增趣添彩，并包含一些性感选项。
+## Title-zhTW: |cff4DFF4D[地圖]|r 性感小地圖
+## Notes-zhTW: SexyMap |n|n讓你的小地圖更具特色和樂趣，並增添一些性感的選項設定。|n|n|cffffd200使用方法：|r從Esc>選項>插件>小地圖，進行設定。
+## X-Category-zhTW: 地圖
+## Author: Funkydude
+## X-Credits: Antiarc (Former Author)
+## SavedVariables: SexyMap2DB
+
+## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
+## X-Curse-Project-ID: 15936
+## X-WoWI-ID: 21538
+## X-Wago-ID: e56no0K9
+
+## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
+## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
+
+
+embeds.xml
+
+localization\enUS.lua
+localization\zhTW.lua
+localization\zhCN.lua
+
+SexyMap_TBC.lua
+
+Shapes_Classic.lua
+
+Buttons_TBC.lua
+BorderPresets.lua
+Borders_Classic.lua
+Clock.lua
+Coordinates.lua
+HudMap.lua
+Movers_Classic.lua
+Ping.lua
+ZoneText.lua

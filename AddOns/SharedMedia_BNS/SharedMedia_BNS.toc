@@ -1,0 +1,13 @@
+﻿## Interface: 100200
+## Title: SharedMedia |cff00c0ffBNS|r
+## Notes: BNS素材包，內含音效與中英字型以及材質，除了WA可以選用以外，其他所有使用SharedMedia函數庫的插件也都可以使用。
+## Version: 1.28
+## Author: BNS (三皈依-暗影之月@TW)
+## X-Category-zhTW: 進階
+## IconTexture: Interface\Icons\Achievement_ChallengeMode_Gold
+
+## Title-zhTW: |cffFF9900[進階]|r BNS音效材質包
+## Notes-zhTW: SharedMedia_BNS |n|n一個修改自 SharedMedia_Causese 的 WA 音效包，除了 WA 技能提醒可用以外，其他使用 SharedMedia 函數庫的插件也能選用。
+## DefaultState: Enabled
+
+ShareMedia.lua
