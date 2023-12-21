@@ -1,0 +1,14 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+
+  <Script file="ImprovedEditMode.lua"/>
+
+  <Frame name="BUIIQueueStatusButtonEditModeSystemTemplate" inherits="EditModeSystemTemplate" virtual="true">
+    <KeyValues>
+      <KeyValue key="system" value="Enum.EditModeSystem.BUIIQueueStatusButton" type="global"/>
+      <KeyValue key="systemNameString" value="BUII_HUD_EDIT_MODE_QUEUE_STATUS_BUTTON_LABEL" type="global"/>
+    </KeyValues>
+    <Frames>
+      <Frame inherits="EditModeSystemSelectionTemplate" setAllPoints="true" hidden="true"/>
+    </Frames>
+  </Frame>
+</Ui>

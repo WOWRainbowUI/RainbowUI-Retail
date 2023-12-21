@@ -1,0 +1,45 @@
+## Interface: 100200
+## Title: BtWLoadouts
+## Version: v1.15.5
+## Notes: Change your characters spec, talents, equipment, essences, and action bars all at once
+## Author: Breen
+## SavedVariables: BtWLoadoutsSets, BtWLoadoutsSpecInfo, BtWLoadoutsRoleInfo, BtWLoadoutsEssenceInfo, BtWLoadoutsCharacterInfo, BtWLoadoutsHelpTipFlags, BtWLoadoutsSettings, BtWLoadoutsTraitsInfo, BtWLoadoutsFrameSettings
+## SavedVariablesPerCharacter: BtWLoadoutsCollapsed, BtWLoadoutsCategories, BtWLoadoutsFilters
+## OptionalDeps: OPie, Adibags, Bagnon
+## X-Curse-Project-ID: 336400
+## X-WoWI-ID: 25156
+## X-Wago-ID: J96EOYGg
+
+## Title-zhTW: |cffFF9900[進階]|r 快速切換
+## Notes-zhTW: BtWLoadouts |n|n更改專精、天賦、裝備和快捷列，一次全部搞定！還可以依據不同的區域，快速切換所有設定。|n|n|cffffd200使用方法: |r點小地圖按鈕。
+## X-Category-zhTW: 進階
+## IconTexture: Interface\Icons\Ability_marksmanship
+## DefaultState: disabled
+
+Localizations.lua
+Localizations.zhCN.lua
+Localizations.zhTW.lua
+
+Versions.lua
+Blockers.lua
+DFTalents.100105.lua
+Characters.lua
+Instances.lua
+Sets.lua
+
+BtWLoadouts.xml
+
+Loadouts.xml
+Talents.xml
+DFTalents.xml
+PvPTalents.xml
+Essences.xml
+Soulbinds.xml
+Equipment.xml
+ActionBars.xml
+Conditions.xml
+Share.xml
+
+Launcher.lua
+Events.lua
+Minimap.xml

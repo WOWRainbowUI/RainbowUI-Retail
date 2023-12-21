@@ -1,0 +1,56 @@
+## Interface: 100200
+## Title: BtWQuests: Dragonflight
+## Version: 6.1
+## Notes: Dragonflight quest data for BtWQuests
+## Author: Breen
+## Dependencies: BtWQuests
+## OptionalDeps: BtWQuestsDragonflightPrologue
+## LoadOnDemand: 1
+## X-BtWQuests: Dragonflight
+## X-BtWQuests-Expansion: 9
+## X-BtWQuests-Expansion-Image: UI-Expansion 0 0.90625 0 0.8125
+## X-BtWQuests-AutoLoad: 1
+## X-Part-Of: BtWQuests
+## X-Curse-Project-ID: 652343
+## X-WoWI-ID: 26399
+## X-Wago-ID: Xb6XkoNp
+
+## Title-zhTW: |cff00FFFF[任務]|r 指南-巨龍崛起
+## Notes-zhTW: BtWQuests |n|n提供巨龍崛起的任務資料。
+## X-Category-zhTW: 任務
+## IconTexture: Interface\QuestFrame\UI-QuestLog-BookIcon
+## DefaultState: disabled
+
+Defines.lua
+
+Localization.lua
+Localization.zhCN.lua
+Localization.zhTW.lua
+
+Database/Quests.lua
+Database/Quests.zhCN.lua
+Database/Quests.zhTW.lua
+
+Database/NPCs.lua
+Database/NPCs.zhCN.lua
+Database/NPCs.zhTW.lua
+
+Database/Objects.lua
+Database/Objects.zhCN.lua
+Database/Objects.zhTW.lua
+
+Database/Index.enUS.lua
+Database/Index.zhCN.lua
+Database/Index.zhTW.lua
+
+General.lua
+10.0.7.lua
+10.1.0.lua
+10.1.5.lua
+10.1.7.lua
+10.2.0.lua
+FriendOfTheDragonIsles.lua
+TheWakingShores.lua
+OhnahranPlains.lua
+TheAzureSpan.lua
+Thaldraszus.lua

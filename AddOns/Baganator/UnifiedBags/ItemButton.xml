@@ -1,0 +1,73 @@
+<Ui>
+  <ItemButton name="BaganatorRetailCachedItemButtonTemplate" virtual="true" mixin="BaganatorRetailCachedItemButtonMixin">
+    <Scripts>
+      <OnClick method="OnClick"/>
+      <OnEnter method="OnEnter"/>
+      <OnLeave method="OnLeave"/>
+    </Scripts>
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="ItemLevel" inherits="NumberFontNormal"/>
+        <FontString parentKey="BindingText" inherits="NumberFontNormal"/>
+        <Texture parentKey="UpgradeArrow"/>
+        <Texture parentKey="JunkIcon" atlas="bags-junkcoin" useAtlasSize="true" hidden="true">
+          <Anchors>
+            <Anchor point="TOPLEFT" x="1" y="0"/>
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+  </ItemButton>
+
+  <ItemButton name="BaganatorRetailLiveItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
+    <Scripts>
+      <OnLoad inherit="prepend">
+        Mixin(self, BaganatorRetailLiveItemButtonMixin)
+        self:MyOnLoad()
+      </OnLoad>
+    </Scripts>
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="ItemLevel" inherits="NumberFontNormal"/>
+        <FontString parentKey="BindingText" inherits="NumberFontNormal"/>
+        <Texture parentKey="UpgradeArrow"/>
+      </Layer>
+    </Layers>
+  </ItemButton>
+
+  <Button name="BaganatorClassicCachedItemButtonTemplate" virtual="true" inherits="ItemButtonTemplate" mixin="BaganatorClassicCachedItemButtonMixin">
+    <Scripts>
+      <OnClick method="OnClick"/>
+      <OnEnter method="OnEnter"/>
+      <OnLeave method="OnLeave"/>
+    </Scripts>
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="ItemLevel" inherits="NumberFontNormal"/>
+        <FontString parentKey="BindingText" inherits="NumberFontNormal"/>
+        <Texture parentKey="UpgradeArrow"/>
+        <Texture parentKey="JunkIcon" atlas="bags-junkcoin" useAtlasSize="true" hidden="true">
+          <Anchors>
+            <Anchor point="TOPLEFT" x="1" y="0"/>
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
+  </Button>
+
+  <Button name="BaganatorClassicLiveItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
+    <Scripts>
+      <OnLoad inherit="prepend">
+        Mixin(self, BaganatorClassicLiveItemButtonMixin)
+        self:MyOnLoad()
+      </OnLoad>
+    </Scripts>
+    <Layers>
+      <Layer level="OVERLAY">
+        <FontString parentKey="ItemLevel" inherits="NumberFontNormal"/>
+        <FontString parentKey="BindingText" inherits="NumberFontNormal"/>
+        <Texture parentKey="UpgradeArrow"/>
+      </Layer>
+    </Layers>
+  </Button>
+</Ui>

@@ -1,0 +1,177 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+
+  <Script file="CastBarTimers.lua"/>
+  <Script file="QuickKeybindModeShortcut.lua"/>
+  <Script file="BravosUIImprovements.lua"/>
+
+  <Frame name="BUIIOptionsPanel" hidden="false">
+
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentDisplayHeader" text="內建介面增強" inherits="GameFontNormalLarge">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset>
+                <AbsDimension x="16" y="-16"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+
+    <Frames>
+
+      <CheckButton name="$parentHealthClassColor" parentKey="HealthClassColor" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentDisplayHeader" relativePoint="BOTTOMLEFT" x="0" y="-25"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text='頭像顯示職業顏色 (使用頭像插件時不用打勾)' inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_HealthClassColorCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentCastBarTimers" parentKey="CastBarTimers" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.HealthClassColor" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="施法條顯示時間" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_CastBarTimersCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentCastBarIcon" parentKey="CastBarIcon" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.CastBarTimers" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="玩家施法條顯示法術圖示" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_CastBarIconCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentCastBarOnTop" parentKey="CastBarOnTop" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.CastBarIcon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="目標和專注目標頭像的施法條在上方" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_CastBarOnTopCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentSaneCombinedBagSorting" parentKey="SaneCombinedBagSorting" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.CastBarOnTop" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text='合理的排序遊戲內建的合併背包' inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_SaneCombinedBagSortingCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentHideStanceBar" parentKey="HideStanceBar" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.SaneCombinedBagSorting" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text='隱藏形態列 (角色專用設定)' inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_HideStanceBar_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentQuickKeybindShortcut" parentKey="QuickKeybindShortcut" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.HideStanceBar" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Esc 選單加入快速按鍵綁定按鈕" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_QuickKeybindShortcut_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentImprovedEditMode" parentKey="ImprovedEditMode" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.QuickKeybindShortcut" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text='增強編輯模式 (使用 "編輯模式擴充包" 插件時不用打勾)' inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_ImprovedEditMode_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+    </Frames>
+
+    <Scripts>
+      <OnLoad function="BUII_OnLoadHandler"/>
+      <OnEvent function="BUII_OnEventHandler"/>
+    </Scripts>
+
+  </Frame>
+</Ui>
