@@ -1,0 +1,18 @@
+tag 9fbae69051d00b9150f958b06dbd0a35a425ec71 r55
+Author:	Benjamin Staneck <staneck@gmail.com>
+Date:	Wed Aug 23 18:15:44 2023 +0200
+
+commit dd98a24c71e47f8e8483ccc63fcef6646828dcab
+Author: Nicholas Drzewiecki <drzewieckinicholas@gmail.com>
+Date:   Tue Aug 22 19:34:40 2023 -0700
+
+    chore: update toc versions
+
+commit ec5144167325c12f3cb5669947802b0a9500140c
+Author: Nicholas Drzewiecki <drzewieckinicholas@gmail.com>
+Date:   Tue Aug 22 19:29:19 2023 -0700
+
+    fix: update usage of SetGradient in Classic to how it is in Wrath and Dragonflight
+    
+    SetGradient now expects TextureBase:SetGradient(orientation, minColor, maxColor) in Classic 1.14.4 as it is in Wrath and Dragonflight.
+

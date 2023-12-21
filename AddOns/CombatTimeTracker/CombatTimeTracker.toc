@@ -1,0 +1,24 @@
+## Interface: 100200
+## Title: Combat |cffff930fTime Tracker|r
+## Version: v10.2.1
+## Notes: Fully automatic custom stopwatch to keep track of time spent in combat.
+## Author: Bowtiesphd
+## OptionalDeps: Ace3
+## X-Embeds: Ace3
+## X-Curse-Project-ID: 305012
+## Globe: check-classic
+
+
+## SavedVariablesPerCharacter: longestMin, longestSec, activeProfileKey, activeProfile
+## SavedVariables: cttDB
+
+## Title-zhTW: |cffFF2D2D[戰鬥]|r 時間追蹤
+## Notes-zhTW: Combat |cffff930fTime Tracker|r |n|n顯示這次戰鬥的經過時間，方便觀察戰鬥的時間軸、可以開幾次大招...等等。可以自訂位置、大小、字體和顏色。|n|n|cffffd200使用方法: |r點小地圖按鈕，或輸入 /ctt 開啟設定選項。
+## IconTexture: Interface\\Icons\\inv_belt_armor_waistoftime_d_01
+## X-Category-zhTW: 戰鬥
+## DefaultState: disabled
+
+embeds.xml
+Locales\Locales.xml
+Stopwatch.xml
+Core.lua

@@ -1,0 +1,47 @@
+<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="localization\localization.lua"/>
+	<Script file="localization\localization_zhTW.lua"/>
+	<Script file="embeds.lua"/>
+	<Script file="CalReminder.lua"/>
+	<Script file="CalReminderOptions.lua"/>
+	<FontString name="CalReminderWindowTitleTemplate" inherits="GameFontNormal" virtual="true">
+		<Size x="400" y="20" />
+	</FontString>
+	<FontString name="CalReminderLabelTemplate" inherits="GameFontNormal" virtual="true">
+		<Size x="200" y="20" />
+	</FontString>
+	<FontString name="CalReminderPlayerLabelTemplate" inherits="GameFontHighlightSmall" virtual="true" justifyH="LEFT">
+		<Size x="85" y="20" />
+	</FontString>
+	<Button name="CalReminderButtonTemplate" inherits="UIPanelButtonTemplate" virtual="true">
+		<Size x="150" y="22"/>
+	</Button>
+	<Frame name="CalReminderFrameTemplate" frameStrata="DIALOG" toplevel="true" parent="UIParent" enableMouseClicks="true" virtual="true">
+		<Frames>
+			<Button name="$parentShowCalendarButton" parentKey="ShowCalendarButton" inherits="CalReminderButtonTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" x="-80" y="22" />
+				</Anchors>
+				<Scripts>
+					<OnClick function="CalReminderFrameShowCalendarButton_OnClick"/>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad function="CalReminderFrame_OnLoad"/>
+			<OnMouseUp function="CalReminderFrame_OnMouseUp"/>
+		</Scripts>
+		<Animations>
+			<AnimationGroup parentKey="Fadein" setToFinalAlpha="true">
+				<Alpha childKey="Name" startDelay="0" duration="2.0" order="1" fromAlpha="0" toAlpha="1"/>
+			</AnimationGroup>
+			<AnimationGroup parentKey="Fadeout" setToFinalAlpha="true">
+				<Alpha childKey="Name" startDelay="0" duration="0.25" order="1" fromAlpha="1" toAlpha="0"/>
+			</AnimationGroup>
+			<AnimationGroup parentKey="Close" setToFinalAlpha="true">
+				<Alpha childKey="Name" startDelay="0" duration="1" order="1" fromAlpha="1" toAlpha="0"/>
+			</AnimationGroup>
+		</Animations>
+	</Frame>
+	<GameTooltip name="CalReminderTooltip" frameStrata="TOOLTIP" hidden="true" parent="UIParent" inherits="GameTooltipTemplate" />
+</Ui>

@@ -1,0 +1,11 @@
+## Interface: 100200
+## Title: Clear Map Pin
+## Author: Zealo_s
+## Version: 1.0
+
+## Title-zhTW: |cff4DFF4D[地圖]|r 清除標記快速鍵
+## Notes-zhTW: Clear Map Pin |n|n讓你能夠自訂一個快速按鍵來清除遊戲內建的地圖標記導航，不用打開地圖再按住 Ctrl 鍵點地圖標記來清除。|n|n使用方法: 從 Esc>選項>按鍵綁定>插件>清除地圖標記，設定快速鍵。
+## X-Category-zhTW: 地圖
+## IconTexture: Interface\Icons\inv_misc_map_01
+
+## ClearMapPin.lua

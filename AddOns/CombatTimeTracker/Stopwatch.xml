@@ -1,0 +1,64 @@
+<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.blizzard.com/wow/ui/">
+
+    <Frame name="cttStopwatchGui" parent="UIParent" movable="true" enableMouse="true" clampedToScreen="true" hidden="false" inherits="BackdropTemplate">
+        <Size x="100" y="40"/>
+        <Anchors>
+            <Anchor point="RIGHT"/>
+        </Anchors>
+        <KeyValues>
+            <KeyValue key="backdropInfo" value="BACKDROP_TOOLTIP_16_16_5555" type="global"/>
+            <KeyValue key="backdropBorderColor" value="LEGENDARY_ORANGE_COLOR" type="global"/>
+            <KeyValue key="backdropBorderColorAlpha" value="0.25" type="number"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture setAllPoints="true">
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture name="$parentTargetIcon" file="Interface/TargetingFrame/UI-RaidTargetingIcon_8" hidden="true">
+                    <Size x="15" y="15"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset>
+                                <AbsDimension x="25" y="-5" />
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+                <Texture name="$parentTargetIcon2" file="Interface/TargetingFrame/UI-RaidTargetingIcon_8" hidden="true">
+                    <Size x="15" y="15"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT">
+                            <Offset>
+                                <AbsDimension x="-25" y="-5" />
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+                <FontString name="$parentTargetText" inherits="GameFontNormalLarge" text="">
+                    <Size x="100" y="25" />
+                    <Anchors>
+                        <Anchor point="TOP"/>
+                    </Anchors>
+                    <color r="255" g="255" b="255"/>
+                </FontString>
+                <FontString name="$parentTimeText" inherits="GameFontNormalLarge" text="00:00:00">
+                    <Size x="100" y="25" />
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                    <color r="255" g="255" b="255"/>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad>
+                self:RegisterForDrag("LeftButton")
+            </OnLoad>
+        </Scripts>
+    </Frame>
+
+</Ui>

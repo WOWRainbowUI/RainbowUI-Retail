@@ -1,0 +1,13 @@
+## Interface: 100200## IconTexture: 982414
+## Title: Conceal
+## Author: Keirmot
+## Notes: Hide the player frame, and action bars when not in use!
+## Title-zhTW: |cff0099FF[介面]|r 隱藏
+## Notes-zhTW: Conceal |n|n可以將頭像、背包、快捷列...等隱藏或設為半透明，滑鼠指向或戰鬥中才顯示出來。|n|n|cffffd200使用方法: |r從Esc>選項>插件>隱藏，進行設定。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+## Version: 1.5.0
+
+## SavedVariables: ConcealDB
+
+Conceal.lua

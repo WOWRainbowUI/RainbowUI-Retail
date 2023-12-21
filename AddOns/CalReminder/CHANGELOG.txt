@@ -1,0 +1,35 @@
+﻿- v1.2.1
+	- TOC for 10.1.0.
+- v1.2
+	- TOC for 10.0.7.
+	- Guild events are now well tracked.
+- v1.1.14
+	- TOC for 10.0.5.
+- v1.1.13
+	- TOC for 10.0.2.
+- v1.1.12
+	- The showing time of the Achievement type reminder is reduced to 10 seconds.
+- v1.1.11
+	- Library import revert to default handling.
+- v1.1.10
+	- [EZBlizzardUiPopups] New models and library import rationalization.
+- v1.1.9
+	- [EZBlizzardUiPopups] Handeled a problem with the TalkinHeadFrame button.
+- v1.1.8
+	- Fixed a bug with Calendar invitation Status. The values changed at some point in the game.
+- v1.1.7
+	- Handeled a problem with the TalkinHeadFrame button.
+- v1.1.6
+	- Fixed a method call for TalkingHeadFrame.
+- v1.1.5
+	- TOC for 10.0.0.
+- v1.1.4
+	- TOC for 9.2.7.
+	- Packager modifications (libraries externalization).
+- v1.1.3
+	- TOC for 9.2.
+- v1.1.2
+	- TOC for 9.1.5.
+- v1.1.1
+	- Added: New Talking Heads for 9.1.
+	- Added: You can now choose the NPC who will remind you impending events.

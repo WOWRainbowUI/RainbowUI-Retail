@@ -1,0 +1,3 @@
+##Changelog:
+###v10.2.1
+* Updating to include Dragonflight raids and dungeons for timers

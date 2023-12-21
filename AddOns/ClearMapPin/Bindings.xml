@@ -1,0 +1,3 @@
+<Bindings>
+ <Binding name="清除地圖標記" header="Clear Map Pin" category="ADDONS">C_Map.ClearUserWaypoint()</Binding>
+</Bindings>

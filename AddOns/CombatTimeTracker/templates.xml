@@ -1,0 +1,6 @@
+<Font name="DestinyFontHuge" font="Fonts\MORPHEUS.ttf" virtual="true">
+    <FontHeight>
+        <AbsValue val="32"/>
+    </FontHeight>
+    <Color r="0.1" g="0.1" b="0.1"/>
+</Font>
