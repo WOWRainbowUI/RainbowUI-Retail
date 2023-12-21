@@ -1,12 +1,13 @@
 ## Interface: 100200
 ## Title: Mythic Plus Pull ReEstimated
-## Version: v1.8.11
+## Version: v1.9.0
 ## Notes: Tracks and displays % progress gained from individual mobs or entire pulls in Mythic+ dungeons. /mpp for options
 ## Author: Numy
 ## IconTexture: Interface\Addons\MythicPlusPullReEstimated\media\icon
 ## SavedVariables: MMPEDB
 ## X-Curse-Project-ID: 431246
 ## X-Wago-ID: anKWEqNE
+## OptionalDeps: MythicDungeonTools
 
 
 Libs\embeds.xml
