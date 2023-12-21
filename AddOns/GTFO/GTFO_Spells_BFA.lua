@@ -409,6 +409,11 @@ GTFO.SpellID["270685"] = {
   sound = 1;
 };
 
+GTFO.SpellID["303800"] = {
+  --desc = "Oppressive Blast (HK-8 Aerial Oppression Unit)";
+  sound = 1;
+};
+
 -- ***********************
 -- * Shrine of the Storm *
 -- ***********************
