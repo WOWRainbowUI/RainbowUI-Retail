@@ -1,7 +1,7 @@
 --[[
 AdiBags - Dragonflight
 by Zottelchen
-version: 2.3.27
+version: 2.3.29
 Items from the Dragonflight expansion.
 ]]
 
@@ -523,6 +523,9 @@ database["Runes"] = {
   204971, -- Hissing Rune
   204972, -- Hissing Rune
   204973, -- Hissing Rune
+  210247, -- Vantus Rune: Amirdrassil, the Dream's Hope
+  210248, -- Vantus Rune: Amirdrassil, the Dream's Hope
+  210249, -- Vantus Rune: Amirdrassil, the Dream's Hope
 }
 
 -- Statues
@@ -812,6 +815,8 @@ database["ItemLevelUpgrades"] = {
   204682, -- Enchanted Wyrm's Shadowflame Crest
   204697, -- Enchanted Aspect's Shadowflame Crest
   204717, -- Splintered Spark of Shadowflame
+  206959, -- Spark of Dreams
+  208396, -- Splintered Spark of Dreams
 }
 
 -- Profession Gear
@@ -3740,7 +3745,7 @@ end
 local setFilter = AdiBags:RegisterFilter("Dragonflight", 98, "ABEvent-1.0")
 setFilter.uiName = string.format("|cffa00000%s|r", L["Dragonflight"])
 setFilter.uiDesc = string.format(
-  "%s\n|cffffd800%s: 2.3.27|r",
+  "%s\n|cffffd800%s: 2.3.29|r",
   L["Items from the Dragonflight expansion."],
   L["Filter version"]
 )
