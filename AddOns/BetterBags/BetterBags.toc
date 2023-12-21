@@ -17,17 +17,8 @@
 ## IconTexture: Interface\Icons\reliquarybag_icon
 ## DefaultState: disabled
 
-libs\LibStub\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-libs\AceAddon-3.0\AceAddon-3.0.xml
-libs\AceDB-3.0\AceDB-3.0.xml
-libs\AceHook-3.0\AceHook-3.0.xml
-libs\AceConsole-3.0\AceConsole-3.0.xml
-libs\AceEvent-3.0\AceEvent-3.0.xml
-libs\LibSharedMedia-3.0\lib.xml
 libs\LibWindow-1.1\LibWindow-1.1.lua
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
-libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
 
 templates\container.xml
 
