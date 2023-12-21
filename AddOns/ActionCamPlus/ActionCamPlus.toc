@@ -1,0 +1,15 @@
+## Interface: 100200
+## Title: ActionCamPlus
+## Notes: Makes Blizzard's experimental Action Camera more usable.
+## Title-zhTW: |cffffffee[系統]|r 動感鏡頭 Plus
+## Notes-zhTW: ActionCamPlus |n|n啟用遊戲內建的動感鏡頭功能，可以自動記憶並切換騎乘坐騎時的鏡頭距離。|n|n如果想要更像家機般的遊玩感受，請在設定選項中啟用 "動感鏡頭" 和 "上下調整鏡頭"。|n|n|cffffd200使用方法: |r|n開/關動感鏡頭: 輸入 /acp 或 /動感鏡頭|n|n也可以在 Esc>選項>按鍵綁定>插件>開關動感鏡頭Plus，設定快速鍵。|n|n設定選項: 輸入 /acp h 或 /動感鏡頭 h
+## X-Category-zhTW: 系統
+## IconTexture: Interface\Icons\ability_racial_soar
+## DefaultState: disabled
+## Author: Anorian
+## SavedVariables: ActionCamPlusDB
+## Version: v0.62
+## OptionalDeps: ACP
+
+ActionCamPlus.lua
+ActionCamPlusConfig.lua

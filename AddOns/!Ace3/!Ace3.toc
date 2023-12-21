@@ -1,0 +1,54 @@
+## Interface: 100200
+
+## Title: Lib: Ace3
+## Notes: AddOn development framework
+## Title-zhTW: |cffffffff[不要關閉]|r Ace3 共用函式庫
+## Notes-zhTW: Lib: Ace3 |n|n大部分插件都會使用到的函式庫。|n|cffFF2D2D請千萬千萬不要關閉！|r
+## DefaultState: Enabled
+## Author: Ace3 Development Team
+## X-Website: http://www.wowace.com
+## X-Category: Library
+## X-Category-zhTW: 系統
+## X-License: Limited BSD
+## Version: r1313
+## IconTexture: 135453
+
+LibStub\LibStub.lua
+
+TaintLess.xml
+
+CallbackHandler-1.0\CallbackHandler-1.0.lua
+LibDataBroker-1.1\LibDataBroker-1.1.lua
+
+AceAddon-3.0\AceAddon-3.0.xml
+AceEvent-3.0\AceEvent-3.0.xml
+AceTimer-3.0\AceTimer-3.0.xml
+AceBucket-3.0\AceBucket-3.0.xml
+AceHook-3.0\AceHook-3.0.xml
+AceDB-3.0\AceDB-3.0.xml
+AceDBOptions-3.0\AceDBOptions-3.0.xml
+AceLocale-3.0\AceLocale-3.0.xml
+AceConsole-3.0\AceConsole-3.0.xml
+LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+AceGUI-3.0\AceGUI-3.0.xml
+AceGUI-3.0-SharedMediaWidgets\widget.xml
+AceConfig-3.0\AceConfig-3.0.xml
+AceComm-3.0\AceComm-3.0.xml
+AceTab-3.0\AceTab-3.0.xml
+AceSerializer-3.0\AceSerializer-3.0.xml
+
+Ace3.lua
+
+LibDBIcon-1.0\LibDBIcon-1.0.lua
+LibDialog-1.0\LibDialog-1.0.lua
+LibDualSpec-1.0\LibDualSpec-1.0.lua
+LibRangeCheck-2.0\LibRangeCheck-2.0.lua
+LibUIDropDownMenu\LibUIDropDownMenu.xml
+LibCustomGlow-1.0\LibCustomGlow-1.0.lua
+LibDeflate\LibDeflate.lua
+LibQTip-1.0\LibQTip-1.0.lua
+LibSerialize\LibSerialize.lua
+
+HereBeDragons\HereBeDragons-2.0.lua
+HereBeDragons\HereBeDragons-Pins-2.0.lua
+HereBeDragons\HereBeDragons-Migrate.lua

@@ -1,0 +1,5 @@
+<Bindings>
+	<Binding name="開關動感鏡頭 Plus" header="動感鏡頭 Plus" category="ADDONS">
+		SlashCmdList.ACTIONCAMPLUS('')
+	</Binding>
+</Bindings>

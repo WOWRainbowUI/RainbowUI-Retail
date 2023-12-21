@@ -1,0 +1,24 @@
+tag 081ed0d6ca853409b53e0886e7b4fb5e206bdb01 v0.5
+Author:	Antoine Pietri <antoine.pietri1@gmail.com>
+Date:	Sat Oct 5 19:47:42 2019 +0200
+
+version 0.5
+-----BEGIN PGP SIGNATURE-----
+
+iQFOBAABCAA4FiEEK3+ITqUhoMLTy00+5HbuHqx0YRkFAl2Y1z4aHGFudG9pbmUu
+cGlldHJpMUBnbWFpbC5jb20ACgkQ5HbuHqx0YRlqDwf/Tg3eaSztlQzZLuP0uTDj
+iqxrq2Zf8Msz9kCbLz7pnLG5Zye6vnuNmgmh751PN6klpg3hcoIcHq20i4P7Q5v4
+f719wZ3e+tpkl2zczSmyYupTHRyMeQtpMGY5jJNJMzMutat8WB2xujFNx526QwHd
+JX5WP0mRBeQaa5lrga/vNzD4h0+xtGVf5lv7SplJWntW8gGrpQ/8mCTTXUw0M3VC
+QH1tuwTFX/CSmBguu7qbbvxy1cmzLUJUFjHCadUqwZUeFfa5ufcvUzCeWaZVShR8
+dyvLy8bSkleRpfmx4QMPuhBpbcivqjD/V3VpclNX6BDJQP8i3jQKvZ7B1jAvDvIr
+SA==
+=Y9Wz
+-----END PGP SIGNATURE-----
+
+commit db6f6dbdc464f22af5e58a8ffd969798b3152f12
+Author: Antoine Pietri <antoine.pietri1@gmail.com>
+Date:   Sat Oct 5 19:47:20 2019 +0200
+
+    Bump API version to 80205
+

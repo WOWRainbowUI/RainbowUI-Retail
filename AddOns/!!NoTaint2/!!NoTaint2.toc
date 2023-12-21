@@ -1,0 +1,14 @@
+## Interface: 100200
+## Title: !!NoTaint2
+## Notes: Reduce the chance blizzard UI being tainted in Dragon Flight, and fix most action bar keypess blocking issues.
+## Title-zhCN: |cff880303[爱不易]|r !!NoTaint2
+## Notes-zhCN: 改善10.0因为暴雪编辑模式污染导致的卡动作条按键等问题，还能在出现问题后紧急处理，提醒重载界面
+## Title-zhTW: |cffffffff[不要關閉]|r 無汙染2
+## Notes-zhTW: !!NoTaint2 |n|n改善 10.0 因為暴雪編輯模式污染導致快捷列卡按鍵等問題，還能在出現問題後緊急處理，提醒重新載入介面。
+## X-Category-zhTW: 系統## IconTexture: Interface\Icons\ability_evoker_emeraldblossom
+## Author: warbaby
+## Version: r221114
+## SavedVariables: notaint2stop
+
+
+!!NoTaint2.lua

@@ -1,0 +1,25 @@
+## Interface: 100200
+## Title: AdiBags - Archaeology
+## Notes: Adds Archaeology items to AdiBags virtual groups
+## Notes-zhCN: 将考古项目添加到AdiBags虚拟组
+## IconTexture: Interface\ICONS\Inv_misc_shovel_01
+
+## Version: 10.2-release1
+## Author: Sygon_Paul
+## X-Date: 2023-11-08T01:17:38Z
+## X-License: Copyright © 2023 Paul Vandersypen, All Rights Reserved
+## X-Category: Bags & Inventory
+## Dependencies: AdiBags
+
+## X-Curse-Project-ID: 275546
+## X-WoWI-ID: 24455
+## X-Wago-ID: RqGZxb6d
+
+## Title-zhTW: |cffB973CC[背包]|r Adi 背包分類-考古學
+## Notes-zhTW: AdiBags - Archaeology |n|n把考古學的物品收納在一起。
+## X-Category-zhTW: 物品
+## DefaultState: disabled
+
+Localization.lua
+Database.lua
+AdiBags_Archaeology.lua

@@ -1,0 +1,12 @@
+tag dc9ff7524ec6147b1e497708c6fe0356bc3b23b7 v1.0.5-20170330
+Author:	wangbei <wangbei@rd.tuan800.com>
+Date:	Thu Mar 30 11:26:06 2017 +0800
+
+7.2.0 release
+
+commit 8f30cb5d5aac2b6074a030080a07fe0ec2fd872e
+Author: wangbei <wangbei@rd.tuan800.com>
+Date:   Thu Mar 30 11:25:15 2017 +0800
+
+    toc and addon list update
+

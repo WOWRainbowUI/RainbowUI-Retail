@@ -1,0 +1,23 @@
+## Interface: 100200
+## Title: AdiBags - Hearthstones
+## Notes: Adds various hearthing items to AdiBags virtual groups
+## Notes-zhCN: 增加各种传送物品到AdiBags的虚拟类别
+## IconTexture: Interface\ICONS\Inv_misc_rune_01
+
+## Version: 2.18
+## Author: Sygon of Lightbringer-US (Crimson Embers, Alliance)
+## X-Date: 2023-11-08T01:31:42Z
+## X-License: Copyright © 2023 Paul Vandersypen. All Rights Reserved
+## X-Category: Bags & Inventory
+## Dependencies: AdiBags
+## X-Curse-Project-ID: 102083
+## X-WoWI-ID: 24173
+## X-Wago-ID: 25NRRwN3
+
+## Title-zhTW: |cffB973CC[背包]|r Adi 背包分類-爐石
+## Notes-zhTW: AdiBags - Hearthstones |n|n新增 "爐石" 分類，收納各種有傳送功能的物品。
+## X-Category-zhTW: 物品
+
+Localization.lua
+Database.lua
+AdiBags_Hearthstones.lua

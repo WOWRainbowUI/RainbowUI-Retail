@@ -1,0 +1,13 @@
+## Interface: 100200## IconTexture: 982414
+
+## Title: AdiBags - Filter for BoE/BoA
+## Notes: Adds BoE/BoA filters to AdiBags.
+## Title-zhTW: |cffB973CC[背包]|r Adi 背包分類-綁定類型
+## Notes-zhTW: AdiBags - Filter for BoE/BoA |n|n把帳號綁定和裝備綁定的物品分開收納。
+## X-Category-zhTW: 物品
+## Author: Outroot, Spanky
+## Version: v1.5
+
+## Dependencies: AdiBags
+
+AdiBags_BoE_BoA.lua

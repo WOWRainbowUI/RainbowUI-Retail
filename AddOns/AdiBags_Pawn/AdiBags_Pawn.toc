@@ -1,0 +1,13 @@
+## Interface: 100200
+## Title: AdiBags - Pawn
+## Notes: Adds an Pawn items filter to AdiBags.
+## Author: Lizrael
+## Version: 1.1.3
+## Dependencies: AdiBags Pawn
+
+## Title-zhTW: |cffB973CC[背包]|r Adi 分類-升級裝備
+## Notes-zhTW: AdiBags - Pawn |n把 Pawn 插件顯示升級箭頭的裝備收納在一起。
+## X-Category-zhTW: 物品
+## IconTexture: Interface\Icons\inv_misc_bag_08
+
+AdiBags_Pawn.lua

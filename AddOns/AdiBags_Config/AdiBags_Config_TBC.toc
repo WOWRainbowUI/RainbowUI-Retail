@@ -1,0 +1,30 @@
+## Interface: 20504
+
+## Title: AdiBags Configuration
+## Notes: Adirelle's bag addon.
+## Author: Adirelle
+## Version: v1.10.23
+## X-Date: 2023-12-04T6:02:26Z
+## X-Part-Of: AdiBags
+## LoadOnDemand: 1
+## Dependencies: AdiBags
+## OptionalDeps: AceGUI-3.0-SharedMediaWidgets
+
+## Title-zhTW: |cffB973CC[背包]|r Adi 分類背包-設定選項
+## Notes-zhTW: AdiBags Configuration |n|nAdi 背包的設定選項。|n|n|cffffd200使用方法: |r在背包視窗內的空白處點一下滑鼠右鍵可以開啟設定選項。
+## X-Category-zhTW: 物品
+## IconTexture: Interface\Icons\inv_misc_bag_08
+
+#@no-lib-strip@
+..\AdiBags\libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+..\AdiBags\libs\AceGUI-3.0\AceGUI-3.0.xml
+..\AdiBags\libs\AceConfig-3.0\AceConfig-3.0.xml
+..\AdiBags\libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
+#@end-no-lib-strip@
+
+..\AdiBags\config\Config-ItemList.lua
+..\AdiBags\config\Options.lua
+
+#@debug@
+# ## Version: DEV
+#@end-debug@

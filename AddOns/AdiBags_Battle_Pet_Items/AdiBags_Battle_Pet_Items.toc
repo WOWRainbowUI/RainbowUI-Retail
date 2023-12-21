@@ -1,0 +1,18 @@
+## Interface: 100200## IconTexture: 982414
+## Title: |cff00ff00AdiBags - Battle Pet Items|r
+## X-Curse-Project-ID: 297298
+## Version: |cffFF4500v1.0.12|r
+## Author: LownIgnitus|r aka Mihkael of Alexstrasza-US
+## Notes: Adds various Battle Pet items to AdiBags item filters.
+## X-Date: 2021/08/01
+## X-Website: https://github.com/lownignitus/AdiBags_Battle_Pet_Items
+## X-Category: Bags & Inventory
+## Dependencies: AdiBags
+
+## Title-zhTW: |cffB973CC[背包]|r Adi 背包分類-戰寵用品
+## Notes-zhTW: |cff00ff00AdiBags - Battle Pet Items|r |n|n新增多種戰寵物品到 Adi背包的過濾方式。
+## X-Category-zhTW: 物品
+## DefaultState: disabled
+
+Localization.lua
+AdiBags_Battle_Pet_Items.lua

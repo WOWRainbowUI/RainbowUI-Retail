@@ -1,0 +1,21 @@
+## Interface: 100200
+## Title: AdiBags - Dragonflight
+## Version: 2.3.27
+## Author: Zottelchen
+## Notes: Items from the Dragonflight expansion.
+## IconTexture: Interface\AddOns\AdiBags_Dragonflight\icon
+## Dependencies: AdiBags
+## X-Date: 2023-11-30T17:23:21Z
+## X-Revision: 138
+## X-Category: Bags & Inventory
+## X-Curse-Project-ID: 662103
+## X-WoWI-ID: 26470
+## X-Wago-ID: kRNLXYNo
+
+## Title-zhTW: |cffB973CC[背包]|r Adi 背包分類-巨龍崛起
+## Notes-zhTW: AdiBags - Dragonflight |n|n把巨龍崛起的各種物品分門別類的收納。
+## X-Category-zhTW: 物品
+
+Localization.lua
+AdiBags_Dragonflight.lua
+

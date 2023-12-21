@@ -1,0 +1,17 @@
+## Interface: 100200
+## Title: BugGrabber
+## Version: v10.2.1
+## Notes: Grabs bugs for the bug sack.
+## Author: Funkydude
+## X-Credits: Rabbit, Rowne, Ramble, kergoth, ckknight, Fritti
+## X-License: All Rights Reserved
+## X-Category: Development Tools
+## SavedVariables: BugGrabberDB
+
+## Title-zhTW: |cffffffee[系統]|r 錯誤收集器
+## Notes-zhTW: BugGrabber |n|n收集錯誤訊息，防止遊戲中斷，訊息會顯示在錯誤訊息袋中。
+## X-Category-zhTW: 系統
+
+BugGrabber.lua
+locales.lua
+
