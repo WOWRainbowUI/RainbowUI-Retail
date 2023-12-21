@@ -12,7 +12,7 @@
 ## Notes-zhTW: HidingBar |n|n將小地圖周圍的按鈕，整合成一個彈出式按鈕選單!|n可以自訂按鈕選單的位置、樣式和將按鈕分組。|n|n|cffffd200使用方法：|r從Esc>選項>插件>小地圖-按鈕，進行設定。
 ## X-Category-zhTW: 地圖
 
-embeds.xml
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 locales.xml
 templates.xml
 Config.lua
