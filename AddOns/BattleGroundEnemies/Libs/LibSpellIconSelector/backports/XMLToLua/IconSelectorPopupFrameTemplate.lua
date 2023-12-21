@@ -136,6 +136,15 @@ Data.Templates.IconSelectorPopupFrameTemplate = function(parent)
 
 	frame.BorderBox = borderBox
 
+	-- if DoesTemplateExist(EnumDropDownControlTemplate) then
+	-- 	local iconTypeDropDown = CreateFrame("Frame", nil, borderBox, "EnumDropDownControlTemplate")
+	-- 	iconTypeDropDown:SetPoint("TOPRIGHT", -44, -68)
+	-- 	borderBox.IconTypeDropDown = iconTypeDropDown
+	-- end
+
+
+
+
 	frame.IconSelector = Data.Templates.ScrollBoxSelectorTemplate(frame)
 	frame.IconSelector:SetFrameStrata("HIGH")
 	frame.IconSelector:SetPoint("TOPLEFT", 21, -84)

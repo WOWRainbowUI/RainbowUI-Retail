@@ -2,6 +2,99 @@ local AddonName, Data = ...
 
 Data.changelog = {
 	{
+		Version = "10.2.0.3",
+		General = "Bugfix an error.",
+		Sections = {
+			{
+				Header = "Bugfixes:",
+				Entries = {
+					"Fixed an error regarding LibGroupInSpecT on Classic. Thanks to timber_hall@CurseForge for the report.",
+				}
+			},
+		}
+	},
+	{
+		Version = "10.2.0.2",
+		General = "Some minor changes and bugfixes",
+		Sections = {
+			{
+				Header = "Bugfixes:",
+				Entries = {
+					"Fixed the reverse operation of the Disable arena frames in arena setting. Thanks to synthetized@CurseForge for reporting.",
+				}
+			},
+		}
+	},
+	{
+		Version = "10.2.0.1",
+		General = "Some minor changes and bugfixes",
+		Sections = {
+			{
+				Header = "Changes:",
+				Entries = {
+					"Custom keybinding now also works in arenas. Thanks to ItsMeATaco at CurseForge for reporting"
+				}
+			},
+			{
+				Header = "Bugfixes:",
+				Entries = {
+					"The addon now also hides the new square arena frames introduced some months ago when the option is set. Thanks to Kennahz from GitHub for the report",
+				}
+			},
+		}
+	},
+	{
+		Version = "10.2.0.0",
+		General = "This version mostly contains bugfixes and minor tweaks being reported during the last months. I Tried to catch them all. If you still face some issues please let me know on Curseforge or GitHub.",
+		Sections = {
+			{
+				Header = "Changes:",
+				Entries = {
+					"The Addon now uses LibRangeCheck-3.0 to check for the distance to other players. This also fixes the error message due to blizzards new combat restrictions on retail. You might need to change your range indicator range setting",
+					"The Addon now resets all auras if a different player has been assigned to a button.",
+					"Aura icons are now cropped a little bit for cleaner looks.",
+					"The addon is now disabled if more than 40 people are in a raid. (For example in Epic Battlegrounds)",
+					"Player frames now have a global name assigned."
+				}
+			},
+			{
+				Header = "Bugfixes:",
+				Entries = {
+					"Fix the hiding of the arena frames in battlegrounds and arena.",
+					"Includes new version of LibChangelog which fixes an error message on wotlk/classic.",
+					"Fixed an error in the icon selector for the combat indicator.",
+					"Fixed an bug with the spec not showing when testing solo.",
+					"Fixed some problems with debuff type filtering."
+				}
+			},
+			{
+				Header = "New Features:",
+				Entries = {
+					"Added support for blizzards mouseover casting on ally frames. This feature is enabled by default",
+				}
+			},
+		}
+	},
+	{
+		Version = "10.0.2.7",
+		Sections = {
+			{
+				Header = "Changes:",
+				Entries = {
+					"The addon will not set the pvp trinket CD to 2 minutes if the expansion is retail or the player is level 70 or higher. Otherwise it will be 5 minutes. Thanks to henrygeorgebush at curseforge.",
+					"Human racial now has 120 seconds CD in classic. Thanks to henrygeorgebush at curseforge."
+				}
+			},
+			{
+				Header = "Bugfixes:",
+				Entries = {
+					"Fixed testmode auras. Thanks to henrygeorgebush at curseforge.",
+					"Fixed debuff type filtering. Buffs can now be filtered by type magic, and debuffs by type magic, curse, poision and Disease. Thanks to henrygeorgebush at curseforge."
+				}
+			},
+		}
+	},
+	{
 		Version = "10.0.2.6",
 		Sections = {
 			{

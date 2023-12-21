@@ -114,12 +114,12 @@ Data.DrCategorys = {
 Data.DebuffTypes = {
 	HELPFUL = {
 		Magic = L.Magic,
-		Disease = L.Disease,
-		Poison = L.Poison,
-		Curse = L.Curse
 	},
 	HARMFUL = {
 		Magic = L.Magic,
+		Disease = L.Disease,
+		Poison = L.Poison,
+		Curse = L.Curse
 	}
 
 }
@@ -210,18 +210,25 @@ do
 		taunt = 1
 	}
 
-	if IsClassic then
-		for spellName, spellData in pairs(DRList.spells) do
-			local category = spellData.category
-			table_insert(Data.DrCategoryToSpell[category], spellName)
-			Data.SpellPriorities[spellName] = drCategoryToPriority[category]
-		end
-	else
-		for spellId, categorieName in pairs(DRList.spells) do
-			table_insert(Data.DrCategoryToSpell[categorieName], spellId)
-			Data.SpellPriorities[spellId] = drCategoryToPriority[categorieName]
-		end
+
+	-- no more needed since classic supports spellIDs now
+	-- if IsClassic then
+	-- 	for spellName, spellData in pairs(DRList.spells) do
+	-- 		local category = spellData.category
+	-- 		table_insert(Data.DrCategoryToSpell[category], spellName)
+	-- 		Data.SpellPriorities[spellName] = drCategoryToPriority[category]
+	-- 	end
+	-- else
+	-- 	for spellId, categorieName in pairs(DRList.spells) do
+	-- 		table_insert(Data.DrCategoryToSpell[categorieName], spellId)
+	-- 		Data.SpellPriorities[spellId] = drCategoryToPriority[categorieName]
+	-- 	end
+	-- end
+	for spellId, categorieName in pairs(DRList.spells) do
+		table_insert(Data.DrCategoryToSpell[categorieName], spellId)
+		Data.SpellPriorities[spellId] = drCategoryToPriority[categorieName]
 	end
+
 end
 
 
@@ -755,9 +762,28 @@ Data.BattlegroundspezificDebuffs = { --key = mapID, value = table with key = num
 }
 
 
+
+--[[ 
+	Classic Data
+	Insignia of the Alliance 5 min CD
+	Insignia of the Horde 5 min CD
+
+	Medallions got added in TBC and require level 70
+
+	Medallion of the Alliance 2 min CD
+	Medallion of the Horde 2 min CD
+ ]]
+
+local trinketCD
+if IsRetail or UnitLevel("player") >= 70 then
+	trinketCD = 120
+else
+	trinketCD = 300
+end
+
 Data.TrinketData = {
 	[195710] = {cd = 180											},		-- 1: Honorable Medallion, 3. min. CD, detected by Combatlog
-	[42292]  = {cd = 120, itemID = 37865							},		-- 2: Medallion of the Alliance, Medallion of the Horde used in Classic, TBC, and probably some other Expansions  2 min. CD, detected by Combatlog, should show as Medaillon; used in TBC etc
+	[42292]  = {cd = trinketCD, itemID = 37865						},		-- 2: Medallion of the Alliance, Medallion of the Horde used in Classic, TBC, and probably some other Expansions  2 min. CD, detected by Combatlog, should show as Medaillon; used in TBC etc
 	[208683] = {cd = 120											}, 		-- 2: Gladiator's Medallion, 2 min. CD, detected by Combatlog
 	[336126] = {cd = 120											},		-- 2: Gladiator's Medallion, 2 min. CD, Shadowlands Update
 --	[195901] = {cd = 60, fileID = GetSpellTexture(214027)			},		-- 3: Adaptation, 1 min. CD, detected by Aura 195901
@@ -776,7 +802,7 @@ if IsClassic then
 		[GetSpellInfo(23273)] = {spellId = 23273, cd = 300, itemID = 18856},	-- Immune Charm/Fear/Polymorph	Rogue, Warlock
 		[GetSpellInfo(23274)] = {spellId = 23274, cd = 300, itemID = 18856}, 	-- Immune Fear/Polymorph/Snare	Mage
 		[GetSpellInfo(23276)] = {spellId = 23276, cd = 300, itemID = 18856},	-- Immune Fear/Polymorph/Stun	Paladin, Priest
-		[GetSpellInfo(23227)] = {spellId = 23227, cd = 300, itemID = 18856}	-- Immune Charm/Fear/Stun		Druid
+		[GetSpellInfo(23227)] = {spellId = 23227, cd = 300, itemID = 18856}		-- Immune Charm/Fear/Stun		Druid
 	})
 end
 
@@ -866,44 +892,44 @@ Data.CovenantSpells = {
 }
 
 Data.RacialSpellIDtoCooldown = {
-	 [7744] = {cd = 120, trinketCD = 30 },					--Will of the Forsaken, Undead Racial, 30 sec cooldown trigger on trinket
-	[20594] = {cd = 120 				},					--Stoneform, Dwarf Racial
-	[58984] = {cd = 120 				},					--Shadowmeld, Night Elf Racial
-	[59752] = {cd = 180, trinketCD = 90 },  				--Every Man for Himself, Human Racial, 90 sec cooldown trigger on trinket
-	[28730] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Mage and Warlock,
-	[50613] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Death Knight,
-   [202719] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Demon Hunter,
-	[80483] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Hunter,
-   [129597] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Monk,
-   [155145] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Paladin,
-   [232633] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Priest,
-	[25046] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Rogue,
-	[69179] = {cd = 90  				},					--Arcane Torrent, Blood Elf Racial, Warrior,
-	[20589] = {cd = 90  				}, 					--Escape Artist, Gnome Racial
-	[26297] = {cd = 180 				},					--Berserkering, Troll Racial
-	[33702] = {cd = 120 				},					--Blood Fury, Orc Racial, Mage,  Warlock
-	[20572]	= {cd = 120 				},					--Blood Fury, Orc Racial, Warrior, Hunter, Rogue, Death Knight
-	[33697] = {cd = 120 				},					--Blood Fury, Orc Racial, Shaman, Monk
-	[20577] = {cd = 120 				}, 					--Cannibalize, Undead Racial
-	[68992]	= {cd = 120 				},					--Darkflight, Worgen Racial
-	[59545] = {cd = 180 				},					--Gift of the Naaru, Draenei Racial, Death Knight
-	[59543] = {cd = 180 				},					--Gift of the Naaru, Draenei Racial, Hunter
-	[59548] = {cd = 180 				},					--Gift of the Naaru, Draenei Racial, Mage
-   [121093]	= {cd = 180 				},					--Gift of the Naaru, Draenei Racial, Monk
-	[59542] = {cd = 180 				},					--Gift of the Naaru, Draenei Racial, Paladin
-	[59544] = {cd = 180 				},					--Gift of the Naaru, Draenei Racial, Priest
-	[59547] = {cd = 180 				},					--Gift of the Naaru, Draenei Racial, Shaman
-	[28880] = {cd = 180 				},					--Gift of the Naaru, Draenei Racial, Warrior
-   [107079] = {cd = 120 				},					--Quaking Palm, Pandaren Racial
-	[69041] = {cd = 90  				},					--Rocket Barrage, Goblin Racial
-	[69070] = {cd = 90  				},					--Rocket Jump, Goblin Racial
-	[20549] = {cd = 90  				},					--War Stomp, Tauren Racial
-   [312411] = {cd = 90					},					--Bag of Tricks, Vulpera Racial
-   [265221] = {cd = 120					},					--Fireblood, Dark Iron Dwarf Racial
-   [255647] = {cd = 150					},					--Light's Judgment, Lightforged Draenei Racial
-   [255654] = {cd = 120					},					--Bull Rush, Highmountain Tauren Racial
-   [287712] = {cd = 150					}, 					--Haymaker, Kul Tiran Racial
-   [260364] = {cd = 180					}					--Arcane Pulse, Nightborne Racial
+	 [7744] = {cd = 120, trinketCD = 30						},					--Will of the Forsaken, Undead Racial, 30 sec cooldown trigger on trinket
+	[20594] = {cd = 120 									},					--Stoneform, Dwarf Racial
+	[58984] = {cd = 120 									},					--Shadowmeld, Night Elf Racial
+	[59752] = {cd = IsRetail and 180 or 120, trinketCD = 90 },  				--Every Man for Himself, Human Racial, 90 sec cooldown trigger on trinket, got renamed in Shadowlands to Will to Survive
+	[28730] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Mage and Warlock,
+	[50613] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Death Knight,
+   [202719] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Demon Hunter,
+	[80483] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Hunter,
+   [129597] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Monk,
+   [155145] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Paladin,
+   [232633] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Priest,
+	[25046] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Rogue,
+	[69179] = {cd = 90  									},					--Arcane Torrent, Blood Elf Racial, Warrior,
+	[20589] = {cd = 90  									}, 					--Escape Artist, Gnome Racial
+	[26297] = {cd = 180 									},					--Berserkering, Troll Racial
+	[33702] = {cd = 120 									},					--Blood Fury, Orc Racial, Mage,  Warlock
+	[20572]	= {cd = 120 									},					--Blood Fury, Orc Racial, Warrior, Hunter, Rogue, Death Knight
+	[33697] = {cd = 120 									},					--Blood Fury, Orc Racial, Shaman, Monk
+	[20577] = {cd = 120 									}, 					--Cannibalize, Undead Racial
+	[68992]	= {cd = 120 									},					--Darkflight, Worgen Racial
+	[59545] = {cd = 180 									},					--Gift of the Naaru, Draenei Racial, Death Knight
+	[59543] = {cd = 180 									},					--Gift of the Naaru, Draenei Racial, Hunter
+	[59548] = {cd = 180 									},					--Gift of the Naaru, Draenei Racial, Mage
+   [121093]	= {cd = 180 									},					--Gift of the Naaru, Draenei Racial, Monk
+	[59542] = {cd = 180 									},					--Gift of the Naaru, Draenei Racial, Paladin
+	[59544] = {cd = 180 									},					--Gift of the Naaru, Draenei Racial, Priest
+	[59547] = {cd = 180 									},					--Gift of the Naaru, Draenei Racial, Shaman
+	[28880] = {cd = 180 									},					--Gift of the Naaru, Draenei Racial, Warrior
+   [107079] = {cd = 120 									},					--Quaking Palm, Pandaren Racial
+	[69041] = {cd = 90  									},					--Rocket Barrage, Goblin Racial
+	[69070] = {cd = 90  									},					--Rocket Jump, Goblin Racial
+	[20549] = {cd = 90  									},					--War Stomp, Tauren Racial
+   [312411] = {cd = 90										},					--Bag of Tricks, Vulpera Racial
+   [265221] = {cd = 120										},					--Fireblood, Dark Iron Dwarf Racial
+   [255647] = {cd = 150										},					--Light's Judgment, Lightforged Draenei Racial
+   [255654] = {cd = 120										},					--Bull Rush, Highmountain Tauren Racial
+   [287712] = {cd = 150										}, 					--Haymaker, Kul Tiran Racial
+   [260364] = {cd = 180										}					--Arcane Pulse, Nightborne Racial
 }
 
 if IsWrath then
@@ -936,69 +962,66 @@ for spellId in pairs(Data.RacialSpellIDtoCooldown) do
 	local racialName = GetSpellInfo(spellId)
 
 	if racialName then
-
 		if not Data.RacialNameToSpellIDs[racialName] then
 			Data.RacialNameToSpellIDs[racialName] = {}
 			Data.Racialnames[GetSpellInfo(spellId)] = GetSpellInfo(spellId)
 		end
 		Data.RacialNameToSpellIDs[racialName][spellId] = true
 	end
-
 end
 
 
+-- Data.EnemiesRangeToRange = {}
+-- Data.EnemiesItemIDToRange = {}
+-- Data.EnemiesRangeToItemID	= {
+-- 	[5] = 37727, -- Ruby Acorn --works, also for allies,
+-- 	[6] = 63427, -- Worgsaw --works, also for allies,
+-- 	[8] = 34368, -- Attuned Crystal Cores --works, also for allies,
+-- 	[10] = 32321, -- Sparrowhawk Net
+-- 	[15] = 33069, -- Sturdy Rope --doesn't work on allies
+-- 	[20] = 10645, -- Gnomish Death Ray --doesn't work on allies
+-- 	[25] = 24268, -- Netherweave Net --doesn't work on allies
+-- 	[30] = 34191, -- Handful of Snowflakes
+-- 	[35] = 18904, -- Zorbin's Ultra-Shrinker
+-- 	[40] = 28767, -- The Decapitator --doesn't work on allies
+-- 	[45] = 32698, -- Wrangling Rope
+-- 	[50] = 116139, -- Haunting Memento
+-- 	[60] = 32825, -- Soul Cannon
+-- 	[70] = 41265, -- Eyesore Blaster
+-- 	[80] = 35278, -- Reinforced Net
+-- 	[100] = 33119, -- Malister's Frost Wand --doesn't work on allies
+-- }
+-- Data.AlliesRangeToRange = {}
+-- Data.AlliesItemIDToRange = {}
+-- Data.AlliesRangeToItemID	= {
+-- 	[5] = 37727, -- Ruby Acorn
+-- 	[6] = 63427, -- Worgsaw
+-- 	[8] = 34368, -- Attuned Crystal Cores
+-- 	[10] = 32321, -- Sparrowhawk Net
+-- 	[15] = 6450, -- Silk Bandage
+-- 	[20] = 21519, -- Mistletoe
+-- 	[25] = 31463, -- Zezzak's Shard
+-- 	[30] = 34191, -- Handful of Snowflakes
+-- 	[35] = 18904, -- Zorbin's Ultra-Shrinker
+-- 	[40] = 34471, -- Vial of the Sunwell
+-- 	[45] = 32698, -- Wrangling Rope
+-- 	[50] = 116139, -- Haunting Memento
+-- 	[60] = 32825, -- Soul Cannon
+-- 	[70] = 41265, -- Eyesore Blaster
+-- 	[80] = 35278, -- Reinforced Net
+-- }
+
+-- for range, itemID in next, Data.EnemiesRangeToItemID do
+-- 	Data.EnemiesRangeToRange[range] = range --for testmode
+-- 	Data.EnemiesItemIDToRange[itemID] = range --for testmode
+-- end
+
+-- for range, itemID in next, Data.AlliesRangeToItemID do
+-- 	Data.AlliesRangeToRange[range] = range --for testmode
+-- 	Data.AlliesItemIDToRange[itemID] = range --for testmode
+-- end
 
 
-
-Data.EnemiesRangeToRange = {}
-Data.EnemiesItemIDToRange = {}
-Data.EnemiesRangeToItemID	= {
-	[5] = 37727, -- Ruby Acorn --works, also for allies,
-	[6] = 63427, -- Worgsaw --works, also for allies,
-	[8] = 34368, -- Attuned Crystal Cores --works, also for allies,
-	[10] = 32321, -- Sparrowhawk Net
-	[15] = 33069, -- Sturdy Rope --doesn't work on allies
-	[20] = 10645, -- Gnomish Death Ray --doesn't work on allies
-	[25] = 24268, -- Netherweave Net --doesn't work on allies
-	[30] = 34191, -- Handful of Snowflakes
-	[35] = 18904, -- Zorbin's Ultra-Shrinker
-	[40] = 28767, -- The Decapitator --doesn't work on allies
-	[45] = 32698, -- Wrangling Rope
-	[50] = 116139, -- Haunting Memento
-	[60] = 32825, -- Soul Cannon
-	[70] = 41265, -- Eyesore Blaster
-	[80] = 35278, -- Reinforced Net
-	[100] = 33119, -- Malister's Frost Wand --doesn't work on allies
-}
-Data.AlliesRangeToRange = {}
-Data.AlliesItemIDToRange = {}
-Data.AlliesRangeToItemID	= {
-	[5] = 37727, -- Ruby Acorn
-	[6] = 63427, -- Worgsaw
-	[8] = 34368, -- Attuned Crystal Cores
-	[10] = 32321, -- Sparrowhawk Net
-	[15] = 6450, -- Silk Bandage
-	[20] = 21519, -- Mistletoe
-	[25] = 31463, -- Zezzak's Shard
-	[30] = 34191, -- Handful of Snowflakes
-	[35] = 18904, -- Zorbin's Ultra-Shrinker
-	[40] = 34471, -- Vial of the Sunwell
-	[45] = 32698, -- Wrangling Rope
-	[50] = 116139, -- Haunting Memento
-	[60] = 32825, -- Soul Cannon
-	[70] = 41265, -- Eyesore Blaster
-	[80] = 35278, -- Reinforced Net
-}
-
-for range, itemID in next, Data.EnemiesRangeToItemID do
-	Data.EnemiesRangeToRange[range] = range --for testmode
-	Data.EnemiesItemIDToRange[itemID] = range --for testmode
-end
-
-for range, itemID in next, Data.AlliesRangeToItemID do
-	Data.AlliesRangeToRange[range] = range --for testmode
-	Data.AlliesItemIDToRange[itemID] = range --for testmode
-end
 
 
 Data.Classes = {}

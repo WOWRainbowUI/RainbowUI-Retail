@@ -1,10 +1,11 @@
-## Interface: 100200## IconTexture: 982414
-## Interface-Wrath: 30400
-## Interface-Classic: 11403
+## Interface: 100200
+## Interface-Wrath: 30403
+## Interface-Classic: 11500
 ## Title: Lib: LibRaces-1.0
 ## Notes: A library to easy translate localized race names to generic token like strings
 ## Author: Hizuro
-## Version: r39
+## IconTexture: 986485
+## Version: r49
 ## OptionalDeps: LibStub, CallbackHandler-1.0
 
 ## X-Curse-Project-ID: 269683

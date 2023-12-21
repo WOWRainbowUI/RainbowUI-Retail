@@ -127,6 +127,7 @@ Example:
 
 This will target the enemy, cast Polymorph, write a message into the say channel and target your previous target.
 Note that macros can only be 255 characters long (including substitutions).]=]
+L["Data"] = "Data"
 L["debuff"] = "debuff"
 L["DebuffContainer"] = "Debuff container"
 L["DebuffIcon"] = "Debuff icon"
@@ -394,7 +395,7 @@ L["Trinket_Enabled_Desc"] = "When enabled there will be icons for Gladiator's Me
 L["Trinket_Width_Desc"] = "The width of the trinket."
 L["TrinketSettings_Desc"] = "Settings regarding Trinkets"
 L["UpdatePeriod"] = "Update period"
-L["UpdatePeriod_Desc"] = "The time between combat checks, dont put this too low because this can potentially cause performance issues."
+L["UpdatePeriod_Desc"] = "The time between combat checks in seconds, dont put this too low because this can potentially cause performance issues."
 L["Upwards"] = "Upwards"
 L["UseBarHeight"] = "Use bar height"
 L["UseBigDebuffsPriority"] = "Use BigDebuffs priorities"

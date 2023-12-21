@@ -1,7 +1,7 @@
 local AddonName, Data = ...
 
 
-local MAJOR, MINOR = "LibSpellIconSelector", 1
+local MAJOR, MINOR = "LibSpellIconSelector", 2
 local LibSpellIconSelector = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not LibSpellIconSelector then return end
@@ -15,7 +15,7 @@ local selectedIconId
 local onApplyF
 local deduplicate
 
-local IconSelectorPopupFrameTemplateMixin = IconSelectorPopupFrameTemplateMixin or BackportedIconSelectorPopupFrameTemplateMixin or Data.Mixins.BackportedIconSelectorPopupFrameTemplateMixin
+local IconSelectorPopupFrameTemplateMixin = IconSelectorPopupFrameTemplateMixin or Data.Mixins.BackportedIconSelectorPopupFrameTemplateMixin
 
 local function deduplicateIcons(t)
 	local foundIcons = {}
@@ -97,7 +97,10 @@ function iconSelectorFrameMixin:OnShow()
 		self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(icon);
 
 		-- Index is not yet set, but we know if an icon in IconSelector was selected it was in the list, so set directly.
-		self.BorderBox.SelectedIconArea.SelectedIconButton.SelectedTexture:SetShown(false);
+
+		if self.BorderBox.SelectedIconArea.SelectedIconButton.SelectedTexture then
+			self.BorderBox.SelectedIconArea.SelectedIconButton.SelectedTexture:SetShown(false);
+		end
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconHeader:SetText(ICON_SELECTION_TITLE_CURRENT);
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconDescription:SetText(ICON_SELECTION_CLICK);
 	end
@@ -144,7 +147,11 @@ function iconSelectorFrameMixin:Update()
 	self.IconSelector:SetSelectionsDataProvider(getSelection, getNumSelections);
 	self.IconSelector:ScrollToSelectedIndex();
 
-	self.BorderBox.SelectedIconArea.SelectedIconButton:SetSelectedTexture();
+
+	-- if self.BorderBox.SelectedIconArea.SelectedIconButton.SetSelectedTexture then
+	-- 	self.BorderBox.SelectedIconArea.SelectedIconButton:SetSelectedTexture();
+	-- end
+
 	self:SetSelectedIconText();
 end
 
@@ -159,10 +166,6 @@ function iconSelectorFrameMixin:OkayButton_OnClick()
 		local selectedIndex = self.IconSelector:GetSelectedIndex()
 		onApplyF(dataProviderTable[selectedIndex])
 	end
-
-
-	local index = 1
-	local iconTexture = self.BorderBox.SelectedIconArea.SelectedIconButton:GetIconTexture();
 end
 
 local function filterBySpellName(name)
@@ -225,6 +228,12 @@ function LibSpellIconSelector:Show(iconId, onApply)
 		if DoesTemplateExist("IconSelectorPopupFrameTemplate") then
 			frame = CreateFrame("frame", nil, UIParent, "IconSelectorPopupFrameTemplate")
 			Mixin(frame, iconSelectorFrameMixin)
+
+			if frame.BorderBox.IconTypeDropDown then
+				frame.BorderBox.IconTypeDropDown:Hide()
+				frame.BorderBox.IconTypeDropDown.Show = function(self) return end
+				frame.BorderBox.IconTypeDropDown.SetShown = function(self) return end
+			end
 		else
 			-- use the backported templates and mixins
 			--frame = CreateFrame("frame", nil, UIParent, "BackportedIconSelectorPopupFrameTemplate")
@@ -237,7 +246,7 @@ function LibSpellIconSelector:Show(iconId, onApply)
 		end
 
 		frame:Hide()
-		
+
 
 		frame.BorderBox.EditBoxHeaderText:SetText("filter by spell id or name")
 		frame.BorderBox.DedupCheckbox = CreateFrame("CheckButton", nil, frame.BorderBox, "UICheckButtonTemplate")
@@ -284,7 +293,7 @@ function LibSpellIconSelector:Show(iconId, onApply)
 		frame.BorderBox.IconSelectorEditBox:SetScript("OnEnterPressed", inputChanged);
 		frame.BorderBox.IconSelectorEditBox:SetScript("OnEscapePressed", function(self) inputChanged(self) self:ClearFocus() end );
 
-		
+
 
 		frame:SetMovable(true)
 		frame:EnableMouse(true)
