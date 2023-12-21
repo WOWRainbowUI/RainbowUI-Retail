@@ -58,7 +58,7 @@ local defaultsTable = {
 	sideArt = true,
 	sideArtStyle = 1,
 	tempFixes = {
-		hideVigor = true,
+		hideVigor = true, -- this is now deprecated
 	},
 
 };
@@ -329,7 +329,7 @@ function DR.updateSpeed()
 		DR:Show()
 	end
 	if NotDragonIsles then
-		DR.statusbar:SetMinMaxValues(0, 80)
+		DR.statusbar:SetMinMaxValues(0, 85)
 		if forwardSpeed > 52 then
 			local textColor = CreateColor(DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice purple?) -
@@ -573,7 +573,7 @@ function DR:toggleEvent(event, arg1)
 		if DragonRider_DB.tempFixes == nil then
 			DragonRider_DB.tempFixes = {};
 		end
-		if DragonRider_DB.tempFixes.hideVigor == nil then
+		if DragonRider_DB.tempFixes.hideVigor == nil then -- this is now deprecated
 			DragonRider_DB.tempFixes.hideVigor = true
 		end
 
@@ -846,21 +846,6 @@ function DR:toggleEvent(event, arg1)
 			layout:AddInitializer(initializer);
 		end
 
-
-		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["BugfixesName"]));
-
-		do
-			local variable = "hideVigor"
-			local name = L["BugfixHideVigor"]
-			local tooltip = L["BugfixHideVigorTT"]
-			local defaultValue = true
-
-			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB.tempFixes[variable])
-		end
-
 		Settings.RegisterAddOnCategory(category)
 
 
@@ -875,9 +860,6 @@ function DR:toggleEvent(event, arg1)
 	if DR.MountEvents[event] then
 		local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
 		if canGlide == true then
-			if DragonRider_DB.tempFixes.hideVigor == true then
-				UIWidgetPowerBarContainerFrame:Show(); -- this should hopefully be a temporary fix
-			end
 			DR.setPositions();
 			DR.TimerNamed:Cancel();
 			DR.TimerNamed = C_Timer.NewTicker(.1, function()
@@ -885,9 +867,6 @@ function DR:toggleEvent(event, arg1)
 			end)
 			DR.statusbar:Show();
 		else
-			if DragonRider_DB.tempFixes.hideVigor == true then
-				UIWidgetPowerBarContainerFrame:Hide(); -- this should hopefully be a temporary fix
-			end
 			DR.clearPositions();
 			DR.TimerNamed:Cancel();
 		end
