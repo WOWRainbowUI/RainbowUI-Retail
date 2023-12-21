@@ -9,6 +9,11 @@
 ## X-Curse-Project-ID: 274066
 ## X-Wago-ID: nQN5aoNB
 
+## Title-zhTW: |cffFF0000[PvP]|r 戰場目標框架
+## Notes-zhTW: BattleGroundEnemies |n|n戰場專用的友方和敵方單位框架，可以監控敵人的血量、減益效果、控場遞減...等等多種狀態。|n|n|cffffd200使用方法: |r從Esc>選項>插件>PvP戰場目標，進行設定。
+## X-Category-zhTW: PvP
+## DefaultState: disabled
+
 #@no-lib-strip@
 embeds.xml
 #@end-no-lib-strip@

@@ -2526,7 +2526,8 @@ do
 				local myRole
 				if HasSpeccs then
 					if not specCache[self.PlayerDetails.GUID] then
-						BattleGroundEnemies:Information(L["you don't seem to have a specialization. The testmode requires one."])
+						BattleGroundEnemies:Information(
+							L["you don't seem to have a specialization. The testmode requires one."])
 					else
 						myRole = Data.Classes[self.PlayerDetails.PlayerClass][specCache[self.PlayerDetails.GUID]]
 							.roledID
