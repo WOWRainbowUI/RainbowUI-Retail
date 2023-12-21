@@ -272,10 +272,10 @@ function panel:InitializeOptions()
 end
 
 function panel:InitializeClassSpells(relativeTo)
-	-------------  CLASSES  -------------
+	-------------  CLASS / RACIALS  -------------
 	local myClassTitle = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
 	myClassTitle:SetPoint("TOPLEFT", relativeTo, 0, -PADDING_CATERGORY)
-	myClassTitle:SetText("職業法術")
+	myClassTitle:SetText("職業/種族技能")
 
 	local lastbutton = nil
 	local posy = -PADDING
