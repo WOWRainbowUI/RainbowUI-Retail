@@ -1,0 +1,25 @@
+## Interface: 100200
+## Title: Mythic Plus Pull ReEstimated
+## Version: v1.8.11
+## Notes: Tracks and displays % progress gained from individual mobs or entire pulls in Mythic+ dungeons. /mpp for options
+## Author: Numy
+## IconTexture: Interface\Addons\MythicPlusPullReEstimated\media\icon
+## SavedVariables: MMPEDB
+## X-Curse-Project-ID: 431246
+## X-Wago-ID: anKWEqNE
+
+## Title-zhTW: |cffFF7F00[M+]|r 小怪%
+## Notes-zhTW: Mythic Plus Pull ReEstimated |n|n預設在畫面右側、任務清單上方顯示拉怪的預估%，在滑鼠指向的浮動提示資訊中顯示每一隻小怪的%，也可以在敵人的血條旁顯示% (需要在選項中啟用)。|n|n|cffffd200使用方法: |r從Esc>選項>插件>M+ 小怪%，進行設定。
+## X-Category-zhTW: 團隊
+
+Libs\embeds.xml
+
+MythicPlusPullReEstimated.lua
+
+Data\Dragonflight.lua
+Data\Shadowlands.lua
+Data\BFA.lua
+Data\Legion.lua
+Data\Warlords of Draenor.lua
+Data\Mists of Pandaria.lua
+Data\Cataclysm.lua

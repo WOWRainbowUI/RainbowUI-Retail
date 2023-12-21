@@ -1,0 +1,15 @@
+## Interface: 100200## IconTexture: 982414
+## Name: masque_Shadowlands
+## Title: Masque: Shadowlands
+## Version: 1.3-Release
+## Author: Levi "Hodag" Nellen
+## Notes: Main button art courtesy of Blizzard Entertainment. Backdrop art courtesy of Storm FX.
+## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-暗影之境
+## Notes-zhTW: Masque - Shadowlands |n|n暗影之境的按鈕外觀佈景主題。
+## DefaultState: disabled
+## Dependencies: Masque
+## X-License: All Rights Reserved
+## X-Category: Artwork
+## X-Category-zhTW: 介面
+
+main.lua

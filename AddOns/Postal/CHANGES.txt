@@ -1,0 +1,9 @@
+------------------------------------------------------------------------
+r602 | Zimzarina | 2023-11-07 16:15:13 +0000 (Tue, 07 Nov 2023) | 1 line
+Changed paths:
+   M /trunk/Postal.toc
+   A /trunk/Postal_TBC.toc
+
+TOC Update for Retail.  Restored Postal_TBC.toc as this does not appear to be the source of the packaging issue.
+------------------------------------------------------------------------
+

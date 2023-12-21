@@ -1,0 +1,34 @@
+﻿## Interface: 100200
+## Title: Pawn
+## Version: 2.8.6
+## Notes: Pawn helps you compare items and find upgrades.
+## OptionalDependencies: Ace3, ArkInventoryRules, AtlasLoot, EQCompare, EquipCompare, LinkWrangler, MobInfo2, MultiTips, Outfitter
+## SavedVariables: PawnCommon
+## SavedVariablesPerCharacter: PawnOptions, PawnMrRobotScaleProviderOptions, PawnClassicScaleProviderOptions
+
+## X-Wago-ID: R4N2k46L
+
+## Title-zhTW: |cffB973FF[裝備]|r 屬性比較
+## Notes-zhTW: Pawn |n|n計算屬性EP值並給予裝備提升百分比的建議。|n此建議適用於大部分的情況，但因為天賦和派系的不同，所需求的屬性可能不太一樣，這時可以自訂屬性權重分數，完全符合個人需求。|n|n|cffffd200使用方法: |r滑鼠指向比較好的裝備時會顯示提升%。|n從Esc>選項>插件>裝備-比較，進行設定。
+## X-Category-zhTW: 物品
+## IconTexture: Interface\Icons\achievement_garrisonfollower_levelup
+
+VgerCore\VgerCore.lua
+
+Core.lua
+Localization.lua
+Localization.zhCN.lua
+Localization.zhTW.lua
+UIStrings.lua
+TooltipParsing.lua
+Gems.lua
+GemsClassic.lua
+GemsBurningCrusade.lua
+GemsWrath.lua
+ScaleTemplates.lua
+ItemIDs.lua
+Pawn.lua
+PawnUI.lua
+PawnUI.xml
+AskMrRobot.lua
+ClassicHawsJon.lua

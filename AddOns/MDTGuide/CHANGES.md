@@ -1,0 +1,3 @@
+- Added command to disable map animations
+- Removed height setting command
+- Fix some hidden UI elements reappearing after closing and reopening MDT

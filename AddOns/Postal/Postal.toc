@@ -1,0 +1,37 @@
+## Interface: 100200
+## Title: Postal
+## Version: v4.0.9
+## X-Build: 602
+## X-ReleaseDate: 2023-11-07T16:15:13Z
+## X-Revision: 602
+## Author: Xinhuan
+## X-Credits: Ammo, Rabbit, Grennon, Mikk, oscarucb, Jonny aka The_Original_Manbot
+## X-Category: Mail
+## IconTexture: 133457
+## Notes: Postal: Enhanced Mailbox support
+## OptionalDeps: Ace3, !BlizzBugsSuck, !ClassColors
+## SavedVariables: Postal3DB
+
+## LoadManagers: AddonLoader
+## X-LoadOn-Mailbox: true
+## X-Email: jonny AT jmbg DOT net
+
+## Title-zhTW: |cffB973CC[物品]|r 超強信箱 
+## Notes-zhTW: Postal |n|n強化信箱功能。收件人可以快速地選擇分身，避免寄錯；一次收取所有信件，還有更多功能。
+## X-Category-zhTW: 物品
+
+Localization.lua
+Postal.lua
+
+# Users can comment out any module (or delete the .lua) of any module they do not wish to load
+Modules\Express.lua
+Modules\OpenAll.lua
+Modules\Wire.lua
+Modules\Select.lua
+Modules\TradeBlock.lua
+Modules\Rake.lua
+Modules\BlackBook.lua
+Modules\DoNotWant.lua
+Modules\CarbonCopy.lua
+Modules\Forward.lua
+Modules\QuickAttach.lua

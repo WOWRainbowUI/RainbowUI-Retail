@@ -1,0 +1,13 @@
+## Interface: 100200## IconTexture: 982414
+## Title: Masque|c0000FF00:|r|cffa335ee Renaitre|r 
+## Version: v7.0.3
+## Notes: Renaitre's (US Thrall) button skins for Masque.
+## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-索爾
+## Notes-zhTW: Masque - |cffa335ee Renaitre|r |n|n索爾的按鈕外觀佈景主題。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+## Author: Limb0
+## Credits: StormFX and JJ Sheets (the creators of Masque and ButtonFacade), Sairen (creator of cyCircled)
+## Dependencies: Masque
+
+Skins.lua

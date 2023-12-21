@@ -1,0 +1,5 @@
+<Bindings>
+ <Binding name="快速上標" header="快速上標" default="SHIFT-F" category="ADDONS">RoundRobin()</Binding>
+ <Binding name="重置"  default="SHIFT-R" category="ADDONS">QTReset()</Binding>
+ <Binding name="清除"  default="SHIFT-C" category="ADDONS">QTClear()</Binding>
+</Bindings>

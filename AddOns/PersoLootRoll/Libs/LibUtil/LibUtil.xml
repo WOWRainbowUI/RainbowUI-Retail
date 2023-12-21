@@ -1,0 +1,9 @@
+<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Include file="Util.lua"/>
+	<Include file="Bool.lua"/>
+	<Include file="Fn.lua"/>
+	<Include file="Misc.lua"/>
+	<Include file="Num.lua"/>
+	<Include file="Str.lua"/>
+	<Include file="Tbl.lua"/>
+</Ui>

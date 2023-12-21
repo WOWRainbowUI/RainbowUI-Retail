@@ -1,0 +1,18 @@
+## Interface: 100200
+## Title: PetTracker
+## IconTexture: Interface/Addons/PetTracker/art/compass
+## Notes: Tracks pets in and out of combat, so you can catch|nthem all. Shows pet breeds & rarity, available PvE|nencounters and more.|n|cffbbbbbbBy João Cardoso|r|n|n|TInterface/Addons/PetTracker/art/patreon:12:12|t |cff82c5ffpatreon.com/jaliborc|r|n|TInterface/Addons/PetTracker/art/paypal:12:12|t |cff82c5ffpaypal.me/jaliborc|r|n|TInterface/Addons/PetTracker/art/discord:12:12:0:-2|t |cff82c5ffbit.ly/discord-jaliborc|r
+## Author: Jaliborc (João Cardoso)
+## X-License: All Rights Reserved
+## X-Category: Battle Pets
+## OptionalDeps: WoWUnit
+## SavedVariablesPerCharacter: PetTracker_State
+## SavedVariables: PetTracker_Sets
+## Version: 10.2.3
+
+## Title-zhTW: |cff96FF73[戰寵]|r 助手
+## Notes-zhTW: PetTracker |n|n追蹤你在該區域已有和缺少的戰寵。|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰寵，進行設定。
+## X-Category-zhTW: 收藏
+## DefaultState: disabled
+
+addons\main\main.xml

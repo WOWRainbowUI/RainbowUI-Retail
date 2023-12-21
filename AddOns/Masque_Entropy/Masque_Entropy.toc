@@ -1,0 +1,30 @@
+## Interface: 100200
+
+## Author: StormFX
+## Title: Masque: Entropy
+## Version: 10.2.0
+
+## Dependencies: Masque
+## IconTexture: Interface\AddOns\Masque_Entropy\Textures\Icon
+
+## Notes: Entropy skins for Masque.
+
+## X-Category: Interface Enhancements
+## X-Credits: Zeal
+## X-Discord: https://discord.gg/7MTWRgDzz8
+## X-Website: https://github.com/SFX-WoW/Masque_Entropy
+
+## X-Curse-Project-ID: 13595
+## X-Wago-ID: 25NRZvN3
+## X-WoWI-ID: 8873
+
+## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-熵元素
+## Notes-zhTW: Masque - |cffff8000Entropy|r |cffffffffIII|r |n|n彩色金屬細框的按鈕外觀佈景主題。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+
+# Locales
+Locales.lua
+
+# Skins
+Skins.lua

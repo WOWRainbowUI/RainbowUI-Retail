@@ -1,0 +1,10 @@
+tag 7c3a2cfa93a8a9e84f77f335e3654642a64e714b 10.0.2.1
+Author:	semlar <teslagraafs@gmail.com>
+Date:	Mon Jan 9 14:31:41 2023 -0500
+
+commit 7ffb71ae23d2b1102766eacf1575aef4106e3073
+Author: semlar <teslagraafs@gmail.com>
+Date:   Mon Jan 9 14:31:24 2023 -0500
+
+    Fix error caused by C_QuestLog.GetInfo not returning data while loading from server
+

@@ -1,0 +1,16 @@
+## Interface: 100200## IconTexture: 982414
+## Title: Masque: |cff267EFFTrinity|r
+## Author: Maul
+## Version: Centauri-5
+## Notes: Masque Skins originally made for Trinity Bars by Maul
+## Note: Adornment skins by Tonedef of WoWInterface
+## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-三位一體
+## Notes-zhTW: Masque - |cff267EFFTrinity|r |n|n三位一體的按鈕外觀佈景主題。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+## Dependencies: Masque
+## X-Copyright: Copyright© 2006-2014 Connor H. Chenoweth, aka Maul - All rights reserved.
+## X-Email: trinityui@live.com
+## X-Versioning: Stars
+
+Masque_Trinity.lua

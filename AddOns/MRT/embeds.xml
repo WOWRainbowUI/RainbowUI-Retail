@@ -1,0 +1,4 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="libs\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
+	<Script file="libs\LibGetFrame-1.0\LibGetFrame-1.0.lua"/>
+</Ui>

@@ -1,0 +1,18 @@
+<Bindings>
+	<Binding name="EXRT_OPEN" header="ExRT" category="MRT">
+		GMRT.Options:Open()
+	</Binding>
+	<Binding name="EXRT_FIGHTLOG_OPEN" category="MRT">
+		GMRT.F.FightLog_Open()
+	</Binding>
+	<Binding name="CLICK EXRTWM1:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM2:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM3:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM4:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM5:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM6:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM7:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM8:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTCWM:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTTOGGLENOTE:LeftButton" category="MRT" />
+</Bindings>

@@ -1,0 +1,33 @@
+## Interface: 100200
+## Title: PersoLootRoll
+## Notes: A loot roll addon for personal loot.
+## Notes-zhCN: 战利品的个人拾取分配插件。
+## Title-zhTW: |cffFF7F00[副本]|r 個人拾取分享助手
+## Notes-zhTW: PersoLootRoll |n|n好東西要和好基友分享，個人拾取分享助手讓個人拾取分享裝備更容易!|n|n|隊伍中拿到可以給出去的裝備時，會出現類似遊戲內建的貪需按鈕，方便擲骰裝備。|n|n|cffffd200使用方法: |r點小地圖按鈕開啟骰裝視窗，或從Esc>選項>插件>副本-分享裝備，進行設定。
+## X-Category-zhTW: 團隊
+## IconTexture: Interface\Buttons\UI-GroupLoot-Dice-Up
+## DefaultState: disabled
+## Version: 24.07
+## SavedVariables: PersoLootRollDB, PersoLootRollIconDB, PersoLootRollML, PersoLootRollDebug
+## OptionalDeps: Pawn, EPGPNext, WoWUnit
+
+# Libs
+Libs\libs.xml
+
+# Initialization
+Init.lua
+
+# Application
+Util\util.xml
+Locale\locale.xml
+Data\data.xml
+Models\models.xml
+Core\core.xml
+
+# Modules, Plugins
+Modules\modules.xml
+Plugins\plugins.xml
+
+# GUI
+GUI\gui.xml
+
