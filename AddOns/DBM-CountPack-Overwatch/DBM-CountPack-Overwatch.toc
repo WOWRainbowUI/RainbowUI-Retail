@@ -1,0 +1,17 @@
+## Interface: 100200
+## Title:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff308530Countpack Overwatch|r
+## Title-ruRU:|cffffe00a<|r|cffff7d0aDBM Медиа|r|cffffe00a>|r |cff308530Звуки отсчёта из Overwatch|r
+## DefaultState: enabled
+## RequiredDeps: DBM-Core
+## Author: MysticalOS, Domekologe
+## Version: 1.4.36
+## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
+## X-DBM-CountPack: 1
+## X-DBM-CountPack-GlobalName: DBMCPOverwatch
+## X-Curse-Project-ID: 267605
+## X-Wago-ID: kRNLxQNo
+
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM Media|r|cffffe00a>|r |cff69ccf0鬥陣特攻倒數語音包|r
+## Notes-zhTW: Countpack Overwatch |n|n選擇你最愛的鬥陣特攻人物幫你開怪倒數。|n|n|cffffd200使用方法: 輸入 /dbm >選項>語音警告，從右方的下拉選單選擇倒數計時語音。|n|n在下拉選單內滾動滑鼠滾輪可以選擇更多語音。
+
+CountLoadList.lua

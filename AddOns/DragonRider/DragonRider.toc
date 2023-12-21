@@ -1,0 +1,40 @@
+## Interface: 100200
+## Author: Keyboardturner
+## Version: 0.0.8
+## Title: Dragon Rider
+## Notes: Displays a speedometer paired with the vigor bar and some other dragonriding-related options.
+## IconTexture: Interface/Icons/ability_dragonriding_glyph01.blp
+## X-Curse-Project-ID: 893295
+## X-WoWI-ID: 26618
+## X-Wago-ID: XKq9EDKy
+
+## Title-enUS: Dragon Rider
+## Notes-enUS: Displays a speedometer paired with the vigor bar and some other dragonriding-related options.
+## Title-frFR: Dragonnier
+## Notes-frFR: Affiche un indicateur de vitesse associé à la barre de vigueur et à d'autres options liées à la conduite de dragons.
+## Title-esES: Jinete de Dragón
+## Notes-esES: Muestra un velocímetro emparejado con la barra de vigor y algunas otras opciones relacionadas con la conducción de dragones.
+## Title-esMX: Jinete de Dragón
+## Notes-esMX: Muestra un velocímetro emparejado con la barra de vigor y algunas otras opciones relacionadas con la conducción de dragones.
+## Title-deDE: Drachenreiter
+## Notes-deDE: Zeigt einen Tachometer gepaart mit der Energieleiste und einigen anderen Drachenreiten-bezogenen Optionen an.
+## Title-itIT: Cavaliere del Drago
+## Notes-itIT: Mostra un tachimetro abbinato alla barra del vigore e alcune altre opzioni relative alla cavalcata dei draghi.
+## Title-ptBR: Cavaleiro do Dragão
+## Notes-ptBR: Exibe um velocímetro emparelhado com a barra de vigor e algumas outras opções relacionadas à cavalgada de dragões.
+## Title-ruRU: Драконий Всадник
+## Notes-ruRU: Отображает спидометр в паре с полосой энергии и некоторыми другими параметрами, связанными с верховой ездой на драконах.
+## Title-koKR: 드래곤 라이더
+## Notes-koKR: 활력 막대 및 기타 드래곤 라이딩 관련 옵션과 페어링된 속도계를 표시합니다.
+## Title-zhCN: Dragon Rider: 龙骑士
+## Notes-zhCN: 显示与活力条和其他一些与龙骑术相关的选项配对的速度计。
+## Title-zhTW: Dragon Rider: 龍騎士
+## Notes-zhTW: 顯示與活力條和其他一些與龍騎術相關的選項配對的速度計。
+## SavedVariables: DragonRider_DB
+
+## Title-zhTW: |cff0099FF[介面]|r 飛龍速度條
+## Notes-zhTW: Plumber |n|n顯示飛龍騎術的飛行速度，方便達成快意翱翔的效果。|n|n|cffffd200使用方法: |r從Esc>選項>插件>飛龍速度條，進行設定。
+## X-Category-zhTW: 介面
+
+Localization.lua
+DragonRider.lua

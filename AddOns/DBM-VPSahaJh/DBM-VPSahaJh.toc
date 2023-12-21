@@ -1,0 +1,16 @@
+﻿## Interface: 100200
+## Interface-Classic: 11404
+## Interface-BCC: 20504
+## Interface-Wrath: 30403
+## Title:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0Voicepack Saha Jh|r
+## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0家豪語音包|r
+## DefaultState: enabled
+## RequiredDeps: DBM-Core
+## Author: 安格斯
+## Version: 23-1205
+## IconTexture: Interface\AddOns\DBM-VPSaha_Jh\z_ags
+## X-DBM-Voice: 1
+## X-DBM-Voice-Name: 家豪 (中文男音)
+## X-DBM-Voice-ShortName: SahaJh
+## X-DBM-Voice-Version: 15
+## X-DBM-Voice-HasCount: 1
