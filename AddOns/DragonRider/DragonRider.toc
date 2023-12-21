@@ -33,7 +33,7 @@
 ## SavedVariables: DragonRider_DB
 
 ## Title-zhTW: |cff0099FF[介面]|r 飛龍速度條
-## Notes-zhTW: Plumber |n|n顯示飛龍騎術的飛行速度，方便達成快意翱翔的效果。|n|n|cffffd200使用方法: |r從Esc>選項>插件>飛龍速度條，進行設定。
+## Notes-zhTW: Dragon Rider |n|n顯示飛龍騎術的飛行速度，方便達成快意翱翔的效果。|n|n|cffffd200使用方法: |r從Esc>選項>插件>飛龍速度條，進行設定。
 ## X-Category-zhTW: 介面
 
 Localization.lua
