@@ -1,3 +1,9 @@
+Version 1.25
+
+- Added command to disable map animations
+- Removed height setting command
+- Fix some hidden UI elements reappearing after closing and reopening MDT
+
 Version 1.24
 
 - Updated for patch 10.2
