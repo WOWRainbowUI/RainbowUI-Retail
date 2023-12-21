@@ -1,0 +1,11 @@
+﻿## Interface: 100200## IconTexture: 982414
+## Title: EasyConversion
+## Notes: 將聊天視窗中的簡體字轉換成繁體，看起來更輕鬆(製作: Etern)
+## Title-zhTW: |cffFF9999[聊天]|r 文字簡轉繁
+## Notes-zhTW: EasyConversion |n|n將聊天視窗中的簡體字轉換成繁體，看起來更輕鬆。
+## X-Category-zhTW: 社交
+## DefaultState: disabled
+## Version: 1.0.9-TraditionalVersion
+## Author: Etern
+
+core.lua
