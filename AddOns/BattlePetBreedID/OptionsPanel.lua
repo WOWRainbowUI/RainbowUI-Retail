@@ -45,7 +45,7 @@ local addonname, internal = ...
 
 -- Create options panel
 local Options = CreateFrame("Frame")
-local properName = "戰寵-品級"
+local properName = "Battle Pet BreedID"
 
 -- Variable for easy positioning
 local lastcheckbox
@@ -90,13 +90,13 @@ local function CreateButton(text, height, width, anchorPoint, relativeTo, relati
 end
 
 -- Create title, version, author, and description fields
-local title = CreateFont("GameFontNormalLarge", "戰寵品級提示")
+local title = CreateFont("GameFontNormalLarge", properName)
 title:SetPoint("TOPLEFT", 16, -16)
-local ver = CreateFont("GameFontNormalSmall", GetAddOnMetadata(addonname, "Version"))
+local ver = CreateFont("GameFontNormalSmall", "version "..GetAddOnMetadata(addonname, "Version"))
 ver:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 4, 0)
-local auth = CreateFont("GameFontNormalSmall", "作者: "..GetAddOnMetadata(addonname, "Author"))
+local auth = CreateFont("GameFontNormalSmall", "created by "..GetAddOnMetadata(addonname, "Author"))
 auth:SetPoint("BOTTOMLEFT", ver, "BOTTOMRIGHT", 3, 0)
-local desc = CreateFont("GameFontHighlight", nil, nil, nil, "TOPLEFT", title, "BOTTOMLEFT", 580, 40, 0, -8, "在寵物日誌、對戰、聊天視窗連結和拍賣場的滑鼠提示中顯示戰寵的屬性品級資訊。")
+local desc = CreateFont("GameFontHighlight", nil, nil, nil, "TOPLEFT", title, "BOTTOMLEFT", 580, 40, 0, -8, "Battle Pet BreedID displays the BreedID of pets in your journal, in battle, in chat links, and in item tooltips.")
 
 -- Create dropdownmenu
 if not BPBID_OptionsFormatMenu then
@@ -110,16 +110,16 @@ BPBID_OptionsFormatMenu:Show()
 
 -- Create array for dropdownmenu
 local formats = {
-    "數字 (3)",
-    "雙數字 (3/13)",
-    "文字 (B/B)",
+    "Number (3)",
+    "Dual numbers (3/13)",
+    "Letters (B/B)",
 }
 
 -- Create array for text blurb
 local formatTexts = {
-    "數字系統原本是由暴雪開發人員所建立，僅供內部使用 (透過 Web API 被發現)，也因此相當的武斷 (為何是從 3 開始?)，但這是起初所能獲得的全部資訊。然而，有些人已經透過數字學會了這個系統，還有少數較舊的資源和插件也會使用。",
-    "和數字相同，主要提供給想要辨別寵物性別的玩家使用。公的寵物使用較前面的數字 (3 - 12)，母的寵物使用第二組數字 (13 - 22)。請記得，不是所有寵物都有兩種性別，例如所有 (?) 元素類型的寵物清一色都是公的。",
-    "單字系統是為了能夠快速辨識寵物之間不同品級而發展出來的。每個單字都代表著這個品級的主要構成屬性，例如 速/速 (#5) 是純速度的品級，速/平 (#11) 是一半速度和一半其他3種屬性平衡的組合，血/攻 (#7) 是一半血量和一半攻擊強度。",
+    "The number system was created by Blizzard developers and is used internally (it was discovered via the Web API). As such, it is fairly arbitrary (why does it start at 3?), but it was all we had at first. However, some people have learned the system by numbers, and a few older resources and addons use it.",
+    "Same as numbers but for people who like a reminder that we cannot figure out the sex of pets in-game. Male pets are the first number (3 - 12) and female pets are the second number (13 - 22). Remember that not all pets can be both sexes. For example, all (?) Elemental type pets are exclusively male.",
+    "The letter system was developed as a way to more quickly tell breeds apart from each other. Each letter represents one half of the stat contribution that makes up a breed. A few examples: S/S (#5) is a pure Speed breed. S/B (#11) is half Speed with the other half Balanced between all three stats. H/P (#7) is half Health and half Power.",
 }
 
 -- Create text blurb explaining format choices
@@ -161,58 +161,58 @@ UIDropDownMenu_SetText(BPBID_OptionsFormatMenu, formats[tempformat])
 UIDropDownMenu_JustifyText(BPBID_OptionsFormatMenu, "LEFT")
 
 -- Set on top of colored region
-local nameTitle = CreateFont("GameFontNormal", "名字旁顯示品級於...")
+local nameTitle = CreateFont("GameFontNormal", "Show BreedIDs in the Name line...")
 nameTitle:SetPoint("TOPLEFT", BPBID_OptionsFormatMenu, "BOTTOMLEFT", -8, -16)
 nameTitle:SetTextColor(1, 1, 1, 1)
 
 -- Make Names checkboxes
-local OptNamesPrimaryBattle = CreateCheckbox("對戰中 (在主要的寵物)", 32, 32, "TOPLEFT", nameTitle, "BOTTOMLEFT", 0, 0)
-local OptNamesBattleTooltip = CreateCheckbox("對戰中的滑鼠提示", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptNamesBPT = CreateCheckbox("物品滑鼠提示", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptNamesFBPT = CreateCheckbox("聊天視窗連結的滑鼠提示", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptNamesHSFUpdate = CreateCheckbox("寵物日誌可捲動的視窗", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptNamesHSFUpdateRarity = CreateCheckbox("顯示稀有程度顏色", 16, 16, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 32, 0, "GameFontNormalSmall")
-local OptNamesPJT = CreateCheckbox("寵物日誌說明滑鼠提示", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", -32, 0)
-local OptNamesPJTRarity = CreateCheckbox("顯示稀有程度顏色", 16, 16, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 32, 0, "GameFontNormalSmall")
+local OptNamesPrimaryBattle = CreateCheckbox("In Battle (on primary pets)", 32, 32, "TOPLEFT", nameTitle, "BOTTOMLEFT", 0, 0)
+local OptNamesBattleTooltip = CreateCheckbox("On in-battle tooltips", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptNamesBPT = CreateCheckbox("In Item tooltips", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptNamesFBPT = CreateCheckbox("In Chat Link tooltips", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptNamesHSFUpdate = CreateCheckbox("In the Pet Journal scrolling frame", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptNamesHSFUpdateRarity = CreateCheckbox("Color Pet Journal scrolling frame by rarity.", 16, 16, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 32, 0, "GameFontNormalSmall")
+local OptNamesPJT = CreateCheckbox("In the Pet Journal description tooltip", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", -32, 0)
+local OptNamesPJTRarity = CreateCheckbox("Color Pet Journal tooltip headers by rarity", 16, 16, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 32, 0, "GameFontNormalSmall")
 
 -- Above the Tooltips region's title (this checkbox disables the rest of them)
-local OptTooltipsEnabled = CreateCheckbox("啟用戰寵品級滑鼠提示", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", -32, -16)
+local OptTooltipsEnabled = CreateCheckbox("Enable Battle Pet BreedID Tooltips", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", -32, -16)
 
 -- Text above the Tooltips region
-local tooltipsTitle = CreateFont("GameFontNormal", "顯示戰寵品級滑鼠提示於...")
+local tooltipsTitle = CreateFont("GameFontNormal", "Show Battle Pet BreedID Tooltips...")
 tooltipsTitle:SetPoint("TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, -2)
 tooltipsTitle:SetTextColor(1, 1, 1, 1)
 
 -- Make Tooltips checkboxes
-local OptTooltipsBattleTooltip = CreateCheckbox("對戰中", 32, 32, "TOPLEFT", tooltipsTitle, "BOTTOMLEFT", 0, 0)
-local OptTooltipsBPT = CreateCheckbox("物品", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptTooltipsFBPT = CreateCheckbox("聊天視窗連結", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptTooltipsPJT = CreateCheckbox("寵物日誌", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptTooltipsBattleTooltip = CreateCheckbox("In Battle", 32, 32, "TOPLEFT", tooltipsTitle, "BOTTOMLEFT", 0, 0)
+local OptTooltipsBPT = CreateCheckbox("On Items", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptTooltipsFBPT = CreateCheckbox("On Chat Links", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptTooltipsPJT = CreateCheckbox("In the Pet Journal", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
 
 -- Text above the Tooltips region
-local breedtipTitle = CreateFont("GameFontNormal", "滑鼠提示中要顯示...")
+local breedtipTitle = CreateFont("GameFontNormal", "In Tooltips, show...")
 breedtipTitle:SetPoint("TOP", FormatTextBlurb, "BOTTOM", -48, -8)
 breedtipTitle:SetTextColor(1, 1, 1, 1)
 
 -- Make Breedtip checkboxes
-local OptBreedtipCurrent = CreateCheckbox("當前寵物的品級", 32, 32, "TOPLEFT", breedtipTitle, "BOTTOMLEFT", 0, 0)
-local OptBreedtipPossible = CreateCheckbox("當前寵物潛力品級", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptBreedtipSpeciesBase = CreateCheckbox("寵物種類的基本屬性", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptBreedtipCurrentStats = CreateCheckbox("目前品級的基本屬性", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptBreedtipAllStats = CreateCheckbox("所有品級的基本屬性", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptBreedtipCurrentStats25 = CreateCheckbox("目前品級在25級時的屬性", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
-local OptBreedtipCurrentStats25Rare = CreateCheckbox("總是假設寵物在25級時是稀有", 16, 16, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 32, 0, "GameFontNormalSmall")
-local OptBreedtipAllStats25 = CreateCheckbox("所有品級在25級時的屬性", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", -32, 0)
-local OptBreedtipAllStats25Rare = CreateCheckbox("總是假設寵物在25級時是稀有", 16, 16, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 32, 0, "GameFontNormalSmall")
+local OptBreedtipCurrent = CreateCheckbox("Current pet's breed", 32, 32, "TOPLEFT", breedtipTitle, "BOTTOMLEFT", 0, 0)
+local OptBreedtipPossible = CreateCheckbox("Current pet's possible breeds", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptBreedtipSpeciesBase = CreateCheckbox("Pet species' base stats", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptBreedtipCurrentStats = CreateCheckbox("Current breed's base stats", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptBreedtipAllStats = CreateCheckbox("All breed's base stats", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptBreedtipCurrentStats25 = CreateCheckbox("Current breed's stats at level 25", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, 0)
+local OptBreedtipCurrentStats25Rare = CreateCheckbox("Always assume pet will be Rare at level 25", 16, 16, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 32, 0, "GameFontNormalSmall")
+local OptBreedtipAllStats25 = CreateCheckbox("All breeds' stats at level 25", 32, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", -32, 0)
+local OptBreedtipAllStats25Rare = CreateCheckbox("Always assume pet will be Rare at level 25", 16, 16, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 32, 0, "GameFontNormalSmall")
 
 -- Text above the BlizzBug region
-local blizzbugTitle = CreateFont("GameFontNormal", "修正Bug:") -- Used to say "Fix Blizzard Bugs:"
+local blizzbugTitle = CreateFont("GameFontNormal", "Fix Bugs:") -- Used to say "Fix Blizzard Bugs:"
 blizzbugTitle:SetPoint("TOPLEFT", OptBreedtipAllStats25Rare, "BOTTOMLEFT", -32, -16)
 blizzbugTitle:SetTextColor(1, 1, 1, 1)
 
-local OptBugBattleFontFix = CreateCheckbox("測試舊的寵物對戰稀有程度顏色", 32, 32, "TOPLEFT", blizzbugTitle, "BOTTOMLEFT", 0, 0)
+local OptBugBattleFontFix = CreateCheckbox("Test old Pet Battle rarity coloring", 32, 32, "TOPLEFT", blizzbugTitle, "BOTTOMLEFT", 0, 0)
 
-local OptDefaultButton = CreateButton("恢復預設", 80, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, -32)
+local OptDefaultButton = CreateButton("Defaults", 80, 32, "TOPLEFT", lastcheckbox, "BOTTOMLEFT", 0, -32)
 
 -- Refresh all settings from storage
 local function BPBID_Options_Refresh()
