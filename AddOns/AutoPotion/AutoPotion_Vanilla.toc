@@ -1,0 +1,16 @@
+## Interface: 11404
+## Version: 3.3.1
+## Title: Auto Potion
+## Author: ollidiemaus
+## Notes: Updates the Macro AutoPotion to use either Healthstone or the highest Potion found in Bags 
+## X-Curse-Project-ID: 312940
+## X-Wago-ID: yQKybBG7
+## SavedVariables: HAMDB
+Core/Spells.lua
+Core/Item.lua
+Core/DB.lua
+Core/Potions.lua
+Core/Player.lua
+code.lua
+Bindings.lua
+FrameXML/InterfaceOptionsFrame.lua
