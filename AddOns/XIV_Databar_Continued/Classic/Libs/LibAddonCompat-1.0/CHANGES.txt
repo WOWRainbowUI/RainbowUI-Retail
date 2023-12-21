@@ -1,0 +1,10 @@
+lightweight tag 28651b1058e8244461ae628a9176dc01ae63e2e6 v1.0.8
+Author:	Eliote <3354468+eliote@users.noreply.github.com>
+Date:	Wed Sep 7 17:21:58 2022 -0300
+
+commit 28651b1058e8244461ae628a9176dc01ae63e2e6
+Author: Eliote <3354468+eliote@users.noreply.github.com>
+Date:   Wed Sep 7 17:21:58 2022 -0300
+
+    Use original function on retail
+

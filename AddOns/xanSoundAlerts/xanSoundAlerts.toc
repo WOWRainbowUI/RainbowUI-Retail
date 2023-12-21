@@ -1,0 +1,19 @@
+## Interface: 100200## IconTexture: 982414
+## Title: xanSoundAlerts
+## Notes: Plays a sound when your health or mana is low.
+## Title-zhTW: |cffFF2D2D[戰鬥]|r 血量/法力過低音效
+## Notes-zhTW: xanSoundAlerts |n|n血量或法力/能量太低時，會發出音效來提醒。
+## X-Category-zhTW: 戰鬥
+## Author: Xruptor
+## Version: 3.2
+## X-Curse-Project-ID: 299032
+## X-WoWI-ID: 24732
+## X-Wago-ID: RaN0Q96j
+## OptionalDeps: tekDebug
+## SavedVariablesPerCharacter: XanSA_DB
+
+locale\enUS.lua
+locale\zhTW.lua
+
+xanSoundAlerts.lua
+config.lua

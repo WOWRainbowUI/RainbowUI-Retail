@@ -1,0 +1,37 @@
+<Bindings>
+	<Binding name="VUHDO_KEY_ASSIGN_SMART_BUFF" description="" header="Vuhdo" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_1" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_2" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_3" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_4" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_5" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_6" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_7" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_8" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_9" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_10" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_11" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_12" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_13" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_14" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_15" description="" category="巫毒">
+	</Binding>
+	<Binding name="VUHDO_KEY_ASSIGN_16" description="" category="巫毒">
+	</Binding>
+</Bindings>
+

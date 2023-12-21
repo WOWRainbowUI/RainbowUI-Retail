@@ -1,0 +1,13 @@
+## Interface: 100200## IconTexture: 982414
+## Title: YouGotMail
+## Notes: Simple addon for Classic WoW to play the familiar "You got mail" when you receive mail.
+## Title-zhTW: |cffB973CC[物品]|r 新郵件通知音效 
+## Notes-zhTW: YouGotMail |n|n收到新的郵件時會播放 You got mail 經典音效。
+## X-Category-zhTW: 物品
+## Author: Boodaah
+## Version: 1.0.0
+## SavedVariablesPerCharacter: YouGotMailDB
+## X-eMail: boodaah@me.com
+## X-License: Public Domain
+
+YouGotMail.lua

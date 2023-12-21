@@ -1,0 +1,28 @@
+## Interface: 100200
+
+## Title: VuhDo ['vu:du:]
+## Author: Iza@Gilneas, humfras, Ivaria@Hyjal
+## Version: 3.156a
+## Notes: Raid Frames providing click-heal functionality, buff and debuff control, main tank management and much more
+## IconTexture: Interface\AddOns\VuhDo\Images\TemporaryPortrait-Female-BloodElf-VuhDo
+
+## X-Curse-Project-ID: 7950
+## X-WoWI-ID: 14239
+## X-Wago-ID: yQKynG71
+
+## SavedVariablesPerCharacter: VUHDO_CONFIG, VUHDO_PANEL_SETUP, VUHDO_SPELL_ASSIGNMENTS, VUHDO_HOSTILE_SPELL_ASSIGNMENTS, VUHDO_MM_SETTINGS, VUHDO_PLAYER_TARGETS, VUHDO_MAINTANK_NAMES, VUHDO_BUFF_SETTINGS, VUHDO_POWER_TYPE_COLORS, VUHDO_SPELLS_KEYBOARD, VUHDO_SPELL_CONFIG, VUHDO_BUFF_ORDER, VUHDO_SPEC_LAYOUTS, VUHDO_GROUP_SIZE, VUHDO_RAID, VUHDO_INDICATOR_CONFIG
+## SavedVariables: VUHDO_DEFAULT_LAYOUT, VUHDO_DEFAULT_PROFILE, VUHDO_PROFILES, VUHDO_MANUAL_ROLES, VUHDO_SPELL_LAYOUTS, VUHDO_USER_CLASS_COLORS, VUHDO_DEBUFF_BLACKLIST, VUHDO_BOUQUETS, VUHDO_COMBAT_LOG_TRACE, VUHDO_GLOBAL_CONFIG, VUHDO_DEBUG
+
+## LoadOnDemand: 0
+
+## Title-zhTW: |cffFF7F00[團隊]|r 框架 (巫毒)
+## Notes-zhTW: VuhDo ['vu:du:] |n用來取代隊伍/團隊框架，滑鼠點一下就能快速施放法術/補血，是補師的好朋友!|n 可以自訂框架的外觀，提供治療、驅散、施放增益效果、使用飾品、距離檢查和仇恨提示的功能。|n|cffffd200使用方法：|r點小地圖按鈕開啟設定。
+## DefaultState: disabled
+
+Libs\Libs.xml
+
+VuhDo.xml
+
+VuhDoPanel.xml
+VuhDoBuffWatch.xml
+

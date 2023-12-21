@@ -1,0 +1,20 @@
+<Bindings>
+	<Binding name="WIMSHOWALL" header="WIM" category="ADDONS">
+			WIM.ShowAllWindows();
+	</Binding>
+	<Binding name="WIMHIDEALL" category="ADDONS">
+			WIM.HideAllWindows();
+	</Binding>
+	<Binding name="WIMUNREAD" category="ADDONS">
+			WIM.ShowAllUnreadWindows();
+	</Binding>
+	<Binding name="WIMVISIBLE" category="ADDONS">
+			WIM.ToggleContainer(WIM.db.winAnimation);
+	</Binding>
+	<Binding name="WIMHISTORY" category="ADDONS">
+			WIM.ShowHistoryViewer();
+	</Binding>
+	<Binding name="WIMOPTIONS" category="ADDONS">
+			WIM.ShowOptions();
+	</Binding>
+</Bindings>

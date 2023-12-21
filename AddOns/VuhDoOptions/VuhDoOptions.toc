@@ -1,0 +1,86 @@
+## Interface: 100200
+
+## Title: VuhDo ['vu:du:] - Options
+## Author: Iza@Gilneas, humfras, Ivaria@Hyjal
+## Version: 3.156a
+## Notes: VuhDo Options
+## IconTexture: Interface\AddOns\VuhDo\Images\TemporaryPortrait-Female-BloodElf-VuhDo
+
+## X-Curse-Project-ID: 7950
+## X-WoWI-ID: 14239
+## X-Wago-ID: yQKynG71
+
+## SavedVariables: VUHDO_OPTIONS_SETTINGS
+## SavedVariablesPerCharacter: VUHDO_GLOBAL_ICONS, VUHDO_GI_SCAN_IDX
+
+## Dependencies: VuhDo
+## LoadOnDemand: 0
+
+## Title-zhTW: |cffFF7F00[團隊]|r 框架 (巫毒)-設定選項
+## Notes-zhTW: VuhDo ['vu:du:] - Options |n巫毒治療框架的設定選項。|n|cffffd200使用方法：|r點小地圖按鈕開啟設定。
+## DefaultState: disabled
+
+Libs\ChatThrottleLib\ChatThrottleLib.xml
+
+VuhDoLookAndFeel.xml
+VuhDoLookAndFeelStandardFont.xml
+VuhDoLookAndFeelStandardShare.xml
+
+VuhDoPanelConfig.xml
+VuhDoNewColorPicker.xml
+VuhDoNewOptionsGeneralAoeAdvice.xml
+VuhDoNewOptionsGeneralBasic.xml
+VuhDoNewOptionsGeneralBouquet.xml
+VuhDoNewOptionsGeneralScan.xml
+VuhDoNewOptionsGeneralThreat.xml
+VuhDoNewOptionsGeneralMisc.xml
+VuhDoNewOptionsGeneralCluster.xml
+VuhDoNewOptionsGeneralIndicators.xml
+VuhDoNewOptionsGeneralSpellTrace.xml
+VuhDoNewOptionsGeneral.xml
+VuhDoNewOptionsSpellMouse.xml
+VuhDoNewOptionsSpellKeys.xml
+VuhDoNewOptionsSpellKeysLocal.xml
+VuhDoNewOptionsSpellFire.xml
+VuhDoNewOptionsSpellHostile.xml
+VuhDoNewOptionsSpell.xml
+VuhDoNewOptionsPanelBasic.xml
+VuhDoNewOptionsPanelSize.xml
+VuhDoNewOptionsPanelBars.xml
+VuhDoNewOptionsPanelHeader.xml
+VuhDoNewOptionsPanelTarget.xml
+VuhDoNewOptionsPanelTooltip.xml
+VuhDoNewOptionsPanelText.xml
+VuhDoNewOptionsPanelMisc.xml
+VuhDoNewOptionsPanelHotBars.xml
+VuhDoNewOptionsPanelHots.xml
+VuhDoNewOptionsPanelPanel.xml
+VuhDoNewOptionsColorsClasses.xml
+VuhDoNewOptionsColorsHots.xml
+VuhDoNewOptionsColorsHotCharges.xml
+VuhDoNewOptionsColorsStates.xml
+VuhDoNewOptionsColorsModes.xml
+VuhDoNewOptionsColorsPowers.xml
+VuhDoNewOptionsColorsRaidIcons.xml
+VuhDoNewOptionsColorsTargets.xml
+VuhDoNewOptionsColors.xml
+VuhDoNewOptionsBuffs.xml
+VuhDoNewOptionsBuffsGeneric.xml
+VuhDoNewOptionsBuffsRebuff.xml
+VuhDoNewOptionsBuffsAppearance.xml
+VuhDoNewOptionsBuffsColors.xml
+VuhDoNewOptionsDebuffs.xml
+VuhDoNewOptionsDebuffsStandard.xml
+VuhDoNewOptionsDebuffsCustom.xml
+VuhDoNewOptionsDebuffsCustomVisuals.xml
+VuhDoNewOptionsTools.xml
+VuhDoNewOptionsToolsSkins.xml
+VuhDoNewOptionsToolsKeyLayouts.xml
+VuhDoNewOptionsToolsExport.xml
+VuhDoNewOptionsToolsReset.xml
+VuhDoNewOptionsToolsShare.xml
+VuhDoNewOptionsToolsWizard.xml
+VuhDoNewOptionsMove.xml
+VuhDoNewOptionsTabbedFrame.xml
+
+VuhDoBuffWatchSetup.xml

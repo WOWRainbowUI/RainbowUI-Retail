@@ -1,0 +1,10 @@
+tag c281ef0b36e7be6108bfe12047c90be186d9e638 10.0.0.0
+Author:	semlar <teslagraafs@gmail.com>
+Date:	Thu Oct 27 16:00:20 2022 -0400
+
+commit 77610d6bd19e19fa6d7f432fb5c5419815899e8e
+Author: semlar <teslagraafs@gmail.com>
+Date:   Thu Oct 27 15:59:44 2022 -0400
+
+    Initial fixes for 10.0
+

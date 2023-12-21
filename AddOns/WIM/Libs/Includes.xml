@@ -1,0 +1,11 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+<Include file="LibChatAnims\LibChatAnims.xml"/>
+<Include file="ChatThrottleLib\ChatThrottleLib.xml"/>
+<Include file="LibChatHandler-1.0\lib.xml"/>
+<Include file="LibDropDownMenu\LibDropDownMenu.xml"/>
+
+<!-- compatibility -->
+<Include file="compat\LibDropDownMenu.lua"/>
+</Ui>

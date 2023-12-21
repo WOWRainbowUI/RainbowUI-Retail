@@ -1,0 +1,15 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+
+<Frame name="XandY" parent="WorldMapFrame" hidden="false">
+	<Frames>
+		<Frame>
+			<Layers>
+				<Layer level="OVERLAY">
+					<FontString name="XandYCoords" inherits="GameFontNormal" justifyH="CENTER"> </FontString>
+				</Layer>
+			</Layers>
+		</Frame>
+	</Frames>
+</Frame>
+
+</Ui>
