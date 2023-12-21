@@ -281,7 +281,7 @@ function Addon.CalculateRoute()
 
         -- Limit runtime
         if total >= Addon.ROUTE_MAX_TOTAL then
-            Addon.Echo(nil, "Route calculation took too long, switching to enemy forces mode!")
+            Addon.Echo(nil, "路線計算太久，切換成敵方部隊模式!")
             useRoute, rerun = false, false
             break
         elseif i > Addon.ROUTE_MAX_FRAME * (1 - total * Addon.ROUTE_MAX_FRAME_SCALE / Addon.ROUTE_MAX_TOTAL) then
@@ -293,7 +293,7 @@ function Addon.CalculateRoute()
 
         -- Failure
         if not path then
-            Addon.Echo(nil, "Route calculation didn't work, switching to enemy forces mode!")
+            Addon.Echo(nil, "路線計算無法運作，切換成敵方部隊模式!")
             useRoute, rerun = false, false
             break
         end
@@ -376,8 +376,8 @@ function Addon.UpdateRoute(z)
 end
 
 function Addon.AddKill(npcId)
-    assert(MDTGuideDB.dungeon, "Missing dungeon")
-    assert(MDT.dungeonEnemies[MDTGuideDB.dungeon], "Missing dungeon enemies")
+    assert(MDTGuideDB.dungeon, "缺少地城")
+    assert(MDT.dungeonEnemies[MDTGuideDB.dungeon], "缺少地城敵人")
 
     for i,enemy in ipairs(MDT.dungeonEnemies[MDTGuideDB.dungeon]) do
         if enemy.id == npcId then
