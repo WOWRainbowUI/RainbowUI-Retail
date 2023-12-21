@@ -11,6 +11,12 @@
 ## X-WoWI-ID: 23217
 ## SavedVariables: BPBID_Options
 
+## Title-zhTW: |cff96FF73[戰寵]|r 品級提示
+## Notes-zhTW: Battle Pet BreedID |n|n在寵物日誌、對戰、聊天視窗連結和拍賣場的滑鼠提示中顯示戰寵的屬性品級資訊。|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰寵-品級，進行設定。
+## X-Category-zhTW: 收藏
+## IconTexture: Interface\Icons\inv_pet_achievement_raise75petstolevel25
+## DefaultState: disabled
+
 BattlePetBreedID.lua
 PetData.lua
 BreedTooltips.lua

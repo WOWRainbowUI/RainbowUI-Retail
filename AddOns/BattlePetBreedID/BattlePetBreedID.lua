@@ -76,7 +76,7 @@ function internal.CalculateBreedID(nSpeciesID, nQuality, nLevel, nMaxHP, nPower,
     -- End here and return "NEW" if species is new to the game (has unknown base stats)
     if not BPBID_Arrays.BasePetStats[nSpeciesID] then
         if ((BPBID_Options.Debug) and (not CPB.IsInBattle())) then
-            print("Species " .. nSpeciesID .. " is completely unknown.")
+            print("種類 " .. nSpeciesID .. " 完全未知。")
         end
         return "NEW", nQuality, {"NEW"}
     end
@@ -244,7 +244,7 @@ function internal.CalculateBreedID(nSpeciesID, nQuality, nLevel, nMaxHP, nPower,
     -- Debug section (to enable, you must manually set this value in-game using "/run BPBID_Options.Debug = true")
     if (BPBID_Options.Debug) and (not CPB.IsInBattle()) then
         if not (BPBID_Arrays.BreedsPerSpecies[nSpeciesID]) then
-            print("Species " .. nSpeciesID .. ": Possible breeds unknown. Current Breed is " .. breedID .. ".")
+            print("種類 " .. nSpeciesID .. "：潛力品級未知。當前的品級是 " .. breedID .. "。")
         elseif (breedID ~= "???") then
             local exists = false
             for i = 1, #BPBID_Arrays.BreedsPerSpecies[nSpeciesID] do
@@ -280,25 +280,25 @@ function internal.RetrieveBreedName(breedID)
         return numberBreed .. "/" .. numberBreed + internal.MAX_BREEDS
     else -- Select correct letter breed
         if (numberBreed == 3) then
-            return "B/B"
+            return "平/平"
         elseif (numberBreed == 4) then
-            return "P/P"
+            return "攻/攻"
         elseif (numberBreed == 5) then
-            return "S/S"
+            return "速/速"
         elseif (numberBreed == 6) then
-            return "H/H"
+            return "血/血"
         elseif (numberBreed == 7) then
-            return "H/P"
+            return "血/攻"
         elseif (numberBreed == 8) then
-            return "P/S"
+            return "攻/速"
         elseif (numberBreed == 9) then
-            return "H/S"
+            return "血/速"
         elseif (numberBreed == 10) then
-            return "P/B"
+            return "攻/平"
         elseif (numberBreed == 11) then
-            return "S/B"
+            return "速/平"
         elseif (numberBreed == 12) then
-            return "H/B"
+            return "血/平"
         else
             return "ERR-NAM" -- Should be impossible (keeping for debug)
         end
@@ -378,8 +378,8 @@ function internal.CacheAllPets()
                     local wildnum, flyingnum = 1, 1
                     if wild then wildnum = 1.2 end
                     if flying then flyingnum = 1.5 end
-                    print(string.format("NEW Species found; Owner #%i, Pet #%i, Wild status %s, SpeciesID %u, Base Stats %4.2f / %4.2f / %4.2f", iOwner, iIndex, wild and "true" or "false", nSpeciesID, ((nMaxHP * wildnum - 100) / 5) / (nLevel * (1 + (0.1 * (nQuality - 1)))), nPower / (nLevel * (1 + (0.1 * (nQuality - 1)))), (nSpeed / flyingnum) / (nLevel * (1 + (0.1 * (nQuality - 1))))))
-                    if (breed ~= "NEW") then SELECTED_CHAT_FRAME:AddMessage("NEW Breed found: " .. breed) end
+                    print(string.format("發現新品級；主人 #%i, 寵物 #%i, 野生狀態 %s, 種類ID %u, 基本屬性 %4.2f / %4.2f / %4.2f", iOwner, iIndex, wild and "true" or "false", nSpeciesID, ((nMaxHP * wildnum - 100) / 5) / (nLevel * (1 + (0.1 * (nQuality - 1)))), nPower / (nLevel * (1 + (0.1 * (nQuality - 1)))), (nSpeed / flyingnum) / (nLevel * (1 + (0.1 * (nQuality - 1))))))
+                    if (breed ~= "NEW") then SELECTED_CHAT_FRAME:AddMessage("發現新品級：" .. breed) end
                 elseif (breed ~= "???") and (sub(tostring(breed), 1, 3) ~= "ERR") then
                     local exists = false
                     if BPBID_Arrays.BreedsPerSpecies[nSpeciesID] then
@@ -391,13 +391,13 @@ function internal.CacheAllPets()
                         local wildnum, flyingnum = 1, 1
                         if wild then wildnum = 1.2 end
                         if flying then flyingnum = 1.5 end
-                        print(string.format("NEW Breed found for existing species; Owner #%i, Pet #%i, Wild status %s, SpeciesID %u, Base Stats %4.2f / %4.2f / %4.2f, Breed %s", iOwner, iIndex, wild and "true" or "false", nSpeciesID, ((nMaxHP * wildnum - 100) / 5) / (nLevel * (1 + (0.1 * (nQuality - 1)))), nPower / (nLevel * (1 + (0.1 * (nQuality - 1)))), (nSpeed / flyingnum) / (nLevel * (1 + (0.1 * (nQuality - 1)))), breed))
+                        print(string.format("已有的種類發現新品級；主人 #%i, 寵物 #%i, 野生狀態 %s, 種類ID %u, 基本屬性 %4.2f / %4.2f / %4.2f, 品級 %s", iOwner, iIndex, wild and "true" or "false", nSpeciesID, ((nMaxHP * wildnum - 100) / 5) / (nLevel * (1 + (0.1 * (nQuality - 1)))), nPower / (nLevel * (1 + (0.1 * (nQuality - 1)))), (nSpeed / flyingnum) / (nLevel * (1 + (0.1 * (nQuality - 1)))), breed))
                     end
                 end
                 
                 -- Checking if genders will ever be fixed
                 if (CPB.GetStateValue(iOwner, iIndex, 78) ~= 0) then
-                    print("HOLY !@#$ GENDERS ARE WORKING! This pet's gender is " .. CPB.GetStateValue(iOwner, iIndex, 78))
+                    print("我的媽媽咪呀 !@#$ 竟然有性別! 這個寵物的性別是 " .. CPB.GetStateValue(iOwner, iIndex, 78))
                 end
             end
         end
