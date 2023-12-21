@@ -2,7 +2,7 @@
 
 All items are broken down into categories, with itemID followed by the Item name.
 
-Latest version: 2.3.27
+Latest version: 2.3.29
 
 ## Achievements & Unlockables
 
@@ -582,6 +582,9 @@ Default Color: ![9bc53d](https://via.placeholder.com/16/9bc53d/643ac2?text=9bc53
 * 204971 - Hissing Rune
 * 204972 - Hissing Rune
 * 204973 - Hissing Rune
+* 210247 - Vantus Rune: Amirdrassil, the Dream's Hope
+* 210248 - Vantus Rune: Amirdrassil, the Dream's Hope
+* 210249 - Vantus Rune: Amirdrassil, the Dream's Hope
 
 ### Statues
 
@@ -943,6 +946,8 @@ Default Color: ![ba00ff](https://via.placeholder.com/16/ba00ff/45ff00?text=ba00f
 * 204682 - Enchanted Wyrm's Shadowflame Crest
 * 204697 - Enchanted Aspect's Shadowflame Crest
 * 204717 - Splintered Spark of Shadowflame
+* 206959 - Spark of Dreams
+* 208396 - Splintered Spark of Dreams
 
 ### Profession Gear
 
