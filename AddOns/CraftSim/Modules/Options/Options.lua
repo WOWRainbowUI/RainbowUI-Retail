@@ -12,7 +12,7 @@ function CraftSim.OPTIONS:Init()
 
 	CraftSim.OPTIONS.optionsPanel:HookScript("OnShow", function(self)
 		end)
-        CraftSim.OPTIONS.optionsPanel.name = "CraftSim"
+        CraftSim.OPTIONS.optionsPanel.name = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.OPTIONS_CRAFTSIM)
 	local title = CraftSim.OPTIONS.optionsPanel:CreateFontString('optionsTitle', 'OVERLAY', 'GameFontNormal')
     title:SetPoint("TOP", 0, 0)
 	title:SetText(CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.OPTIONS_TITLE))

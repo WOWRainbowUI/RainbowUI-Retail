@@ -507,5 +507,9 @@ function CraftSim.LOCAL_TW:GetData()
         -- static popups
         [CraftSim.CONST.TEXT.STATIC_POPUPS_YES] = "是",
         [CraftSim.CONST.TEXT.STATIC_POPUPS_NO] = "否",
+		
+		-- 自行加入
+		[CraftSim.CONST.TEXT.OPTIONS_CRAFTS] = "次製造",
+		[CraftSim.CONST.TEXT.OPTIONS_CRAFTSIM] = "專業-模擬器",
     }
 end

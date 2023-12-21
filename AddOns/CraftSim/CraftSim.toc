@@ -1,5 +1,4 @@
 ## Interface: 100200
-## DefaultState: enabled
 
 ## Title: CraftSim
 ## Notes: Calculates the average profit based on your profession stats and other tools for dragonflight gold making
@@ -13,6 +12,11 @@
 ## SavedVariables: CraftSimDebugData, CraftSimOptions, CraftSimGGUIConfig, CraftSimPriceOverridesV2, CraftSimRecipeIDs, CraftSimProfessionInfoCache, CraftSimProfessionSkillLineIDCache, CraftSimCraftData, CraftSimRecipeMap, CraftSimLoadedProfessionRecipes, CraftSimCustomerHistoryV2, CraftSimCustomerHistory
 ## Dependencies: Blizzard_Professions
 ## OptionalDeps: Auctionator, TradeSkillMaster, RECrystallize, OribosExchange
+
+## Title-zhTW: |cffFFFF99[專業]|r 製造模擬器
+## Notes-zhTW: CraftSim |n|n幫忙計算使用最低成本的材料製造出最高品質的物品。|n|n|cffffd200使用方法: |r打開專業製造視窗時會自動顯示，從Esc>選項>插件>專業-模擬器，進行設定。
+## X-Category-zhTW: 交易
+## DefaultState: disabled
 
 embeds.xml
 
@@ -93,14 +97,6 @@ Modules/Supporters/Frames.lua
 
 Locals/Localization.lua
 Locals/enUS.lua
-Locals/deDE.lua
-Locals/itIT.lua
-Locals/ruRU.lua
-Locals/ptBR.lua
-Locals/frFR.lua
-Locals/esES.lua
-Locals/esMX.lua
-Locals/koKR.lua
 Locals/zhTW.lua
 Locals/zhCN.lua
 
