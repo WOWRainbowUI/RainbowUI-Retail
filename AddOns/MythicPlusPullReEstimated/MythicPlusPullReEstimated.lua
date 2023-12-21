@@ -175,7 +175,7 @@ end
 
 function MMPE:SetSetting(setting, value)
     if (not setting or self.DB.settings[setting] == nil) then
-        self:PrintWarning(""M+小怪% 嘗試設定缺少的設定: " .. (setting or "nil"))
+        self:PrintWarning("M+小怪% 嘗試設定缺少的設定: " .. (setting or "nil"))
         return
     end
     self.DB.settings[setting] = value
@@ -1049,18 +1049,18 @@ function MMPE:InitConfig()
                                 order = increment(),
                                 type = "group",
                                 inline = true,
-                                name = "MDT 模擬",
+                                name = "模擬 MDT",
                                 args = {
                                     mdtEmulationDescription = {
                                         order = increment(),
                                         type = "description",
-                                        name = mdtLoaded and "載入 MythicDungeonTools 時停用" or "允許使用 MythicDungeonTools 來取得 % 資訊的插件或 WA 與本插件一起使用。",
+                                        name = mdtLoaded and "載入 MythicDungeonTools 時停用" or "允許使用 MythicDungeonTools 來取得 % 資訊的插件或 WA 改用本插件。",
                                         width = "double",
                                     },
                                     enableMdtEmulation = {
                                         order = increment(),
                                         type = "toggle",
-                                        name = "啟用 MDT 模擬",
+                                        name = "啟用模擬 MDT",
                                         desc = "",
                                         set = function(info, value)
                                             self:SetSetting(info[#info], value)
