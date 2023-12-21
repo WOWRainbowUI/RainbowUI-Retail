@@ -1,0 +1,17 @@
+## Interface: 100002
+## Interface-Wrath: 30400
+## Interface-Classic: 11403
+## Title: Lib: LibRaces-1.0
+## Notes: A library to easy translate localized race names to generic token like strings
+## Author: Hizuro
+## Version: r39
+## OptionalDeps: LibStub, CallbackHandler-1.0
+
+## X-Curse-Project-ID: 269683
+
+#@no-lib-strip@
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+#@end-no-lib-strip@
+
+LibRaces-1.0.lua
