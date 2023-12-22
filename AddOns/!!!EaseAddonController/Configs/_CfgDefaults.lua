@@ -594,6 +594,10 @@ D["CraftSim"] = {
         text = "設定選項",
         callback = function(cfg, v, loading) SlashCmdList["CRAFTSIM"]("") end,
     },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
 };
 D["CursorCooldown"] = {
     defaultEnable = 0,
