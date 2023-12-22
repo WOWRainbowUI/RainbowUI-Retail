@@ -1,0 +1,133 @@
+== v2.32 - 27th November 2023
+* Fix for the new World Map style for Classic Era
+
+== v2.31 - 21st October 2023
+* Multi TOCs now
+* Fix for the new World Map style for Wrath
+
+== v2.30 - 18th September 2023
+* TOC version bump to 10.1.7
+
+== v2.29 - 28th June 2023
+* TOC version bump to 10.1.5
+
+== v2.27 - 24th April 2023
+* TOC version bump to 10.1.0
+
+== v2.26 - 20th March 2023
+* TOC version bump to 10.0.7
+
+== v2.23 - 26th October 2022
+* The changes from v2.22 are effectively live now I've updated the R version to 100000
+
+== v2.22 - 7th October 2022
+* Support for Dragonflight world and minimap changes
+* The popup tooltip for the minimap zone text now supports multiple precision
+* Added a blank line to the minimap popup tooltip to assist readability
+* Slash chat commands added for configuring the precion
+* Had to remove precision altering option from clicks to the minimap zone text for Dragonflight only
+* round algorithm corrected/improved. Superior to Blizzards imho
+* A couple of local variables had scope changed to keep the memory footprint as low as possible
+
+== v2.21 - 14th September 2022
+* Test for build version "3" changed to "4" in two places
+
+== v2.16 - 7th June 2021
+* Universal code (save for version number in TOC)
+
+== v2.15 - 7th June 2021
+* Patch 9.0.5 version number change
+* Now with first shot of Covid19 vaccination
+* Added ptPT localisation
+
+== v2.14 - 17th March 2020
+* Patch 8.3.0 version number change
+* Now with COVID-19
+
+== v2.13 - 26th August 2019
+* Heck I hope I got the decision logic right this time:
+	- Mini: show coords for the map we are in/showing (if valid to do so)
+	- World: show the coords for the SHOWING map (if valid to do so)
+
+== v2.12 - 10th August 2019
+* Dual Retail and Classic version. Only difference is the first / Interface line in the TOC file
+
+== v2.11 - 24th July 2019
+* Support for esMX
+* Fix for World Quest tooltips getting mangled. I now hook the GameTooltip OnUpdate script
+
+== v2.10 - 3rd July 2019
+* Patch 8.2.0 version number change
+* Removed GetBestMapForUnit as unused
+* Removed multi patch support as Curse doesn't support it anymore (and WoW Interface never really did)
+
+== v2.09 - 20th March 2019
+* Corrected a build version check
+* Check for "Player (" rather than "Player" in Minimap tooltip - maybe a bit safer
+* I show the player coordinates for the currently showing map (if they exist) rather than Blizzard's "best fit" map
+
+== v2.08 - 13th January 2019
+* Patch 8.1.0 version number change
+* Tidy-up of build version checking
+* Small change to printPC
+
+== v2.07 - 14th October 2018
+* Fix for when in the Deeprun Tram, Ironforge side, and maybe possibly other locations with maps but undefined coordinates
+
+== v2.06 - 1st September 2018
+* Better Chinese translation thanks to EKE over at WoW Interface!
+
+== v2.05 - 11th August 2018
+* It appears GetXY() has not been defined when in instances, rather than just returning nil values with traditional programming
+
+== v2.04 - 9th August 2018
+* Bug where best map is nil during transition while hearthing / zen pilgrimage / etc
+
+== v2.03 - 8th August 2018
+* Update for Battle for Azeroth to 8.0.1
+* Required changes due to the new Mapping UI / API
+* Backwards compatibility retained
+
+== v2.02 - 15th April 2018
+* Added colourised text for compass points N/S/E/W (Chocolate Brown) and NW/SW/SE/NE (Sandy Brown)
+* Added degrees to Minimap popup text
+* Added note to Read Me file to state above only works from Patch 3.1.0+
+
+== v2.01 - 5th April
+* Possible double call to GetPlayerMapPosition() removed
+* Ready for any future TBC version (as well as Vanilla) along with Legion functionality ( you may need to enable "out of date" AddOns)
+* WoD also added
+* Read Me text altered to be clearer
+* Several blocks of code standardised
+
+== v2.00 - 8th March 2018
+* Total rewrite as was not working properly due to Blizzard changes during Legion
+* This version also attempts to work with any WoW build, focusing on Legion and Vanilla for now
+
+== v1.08 - 3rd September 2017
+* TOC version bump for Patch 7.3 Shadows of Argus
+
+== v1.07 - 21st May 2017
+* Retain any trailing zeroes for double or single digit decimal precision - less confusing and looks better
+
+== v1.06 - 29th March 2017
+* Patch 7.2 Update
+
+== v1.05 - 1st February 2017
+* Does not totally overwrite the title bar text for the world map but does an intelligent replace or insert
+
+== v1.04 - 4th January 2017
+* Tooltip needs to allow for xPLayer/yPlayer being already *100 or not yet *100
+* Removed two unnecessary LUA function localisations
+
+== v1.03 - 1st November 2016
+* Ensure the minimap text box owns the Tooltip
+
+== v1.02 - 26th October 2016
+* Fix for nil map coordinates in Instances
+
+== v1.01 - 25th October 2016
+* Version update to support Patch 7.1 "Return to Karahzan"
+
+== v1.00 - 25th October 2016
+* Initial release
