@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.0806
+PawnVersion = 2.0807
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.17
@@ -249,6 +249,9 @@ function PawnInitialize()
 				local ItemLink = C_TradeSkillUI.GetRecipeItemLink(...)
 				PawnUpdateTooltip("GameTooltip", "SetHyperlink", ItemLink)
 			end)
+	end
+	if GameTooltip.SetTradeSkillItem then
+		hooksecurefunc(GameTooltip, "SetTradeSkillItem", function(self, ...) PawnUpdateTooltip("GameTooltip", "SetTradeSkillItem", ...) end)
 	end
 	hooksecurefunc(GameTooltip, "SetTradeTargetItem", function(self, ...) PawnUpdateTooltip("GameTooltip", "SetTradeTargetItem", ...) end)
 	if GameTooltip.SetVoidItem then
