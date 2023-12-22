@@ -2211,6 +2211,8 @@ L["Urg'roth, Breaker of Heroes"] = "Ург'рот Сокрушитель Гер�
 L["Urh Relic"] = "Реликвия Урт"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "Используйте команду /mdt reset, чтобы восстановить положение и масштаб MDT по умолчанию."
 L["Use as a starting point:"] = "Использовать как начальную точку:"
+--[[Translation missing --]]
+L["Use forces count"] = ""
 L["Utgarde Keep"] = "Крепость Утгард"
 L["Utgarde Pinnacle"] = "Вершина Утгард"
 L["Valarjar Aspirant"] = "Валарьяр-претендентка"

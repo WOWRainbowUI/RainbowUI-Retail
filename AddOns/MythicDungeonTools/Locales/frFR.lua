@@ -2359,6 +2359,8 @@ L["Urh Relic"] = "Relique d'Urh"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "Utilisez '/mdt reset' pour rétablir la position et l'échelle par défaut de MDT. "
 L["Use as a starting point:"] = "A utiliser comme point de départ : "
 --[[Translation missing --]]
+L["Use forces count"] = ""
+--[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
 --[[Translation missing --]]
 L["Utgarde Pinnacle"] = "Utgarde Pinnacle"

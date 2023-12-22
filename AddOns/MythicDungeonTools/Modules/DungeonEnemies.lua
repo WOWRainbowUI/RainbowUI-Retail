@@ -192,11 +192,12 @@ local function setUpMouseHandlers(self)
 
   end)
   local tempPulls
+  local targetPull
   self:SetScript("OnDragStart", function()
     local x, y, scale
     preset = MDT:GetCurrentPreset()
     tempPulls = MDT:DeepCopy(preset.value.pulls)
-    local targetPull
+    targetPull = nil
     local _, _, _, blipX, blipY = self:GetPoint()
     self:SetScript("OnUpdate", function()
       local nx, ny = MDT:GetCursorPosition()
@@ -224,6 +225,7 @@ local function setUpMouseHandlers(self)
     self:SetScript("OnUpdate", nil)
     preset.value.pulls = tempPulls
     MDT:DungeonEnemies_UpdateSelected(MDT:GetCurrentPull(), tempPulls)
+    MDT:SetSelectionToPull(targetPull)
     MDT:ReloadPullButtons()
     MDT:UpdateProgressbar()
     if MDT.liveSessionActive and MDT:GetCurrentPreset().uid == MDT.livePresetUID then
@@ -1069,6 +1071,7 @@ function MDT:DungeonEnemies_UpdateSelected(pull, pulls, ignoreHulls)
                     blip.texture_SelectedHighlight:Hide()
                   else
                     if blip.clone.inspiring and isInspiring then
+                      ---@diagnostic disable-next-line: param-type-mismatch
                       SetPortraitToTexture(blip.texture_Portrait, 135946);
                     end
                     blip.texture_Portrait:SetVertexColor(r, g, b, 1)
@@ -1243,6 +1246,7 @@ function MDT:DungeonEnemies_UpdateInspiring(week)
   local isInspiring = MDT:IsWeekInspiring(week)
   for _, blip in pairs(blips) do
     if blip.clone.inspiring and isInspiring then
+      ---@diagnostic disable-next-line: param-type-mismatch
       SetPortraitToTexture(blip.texture_Portrait, 135946);
       blip.texture_Indicator:SetVertexColor(1, 1, 0, 1)
       blip.texture_Indicator:SetScale(1.15)

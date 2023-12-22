@@ -468,8 +468,7 @@ L["Dark Rune Thunderer"] = "Trovejador da Runa Negra"
 L["Dark Rune Warrior"] = "Guerreiro da Runa Negra"
 L["Dark Rune Worker"] = "Trabalhador da Runa Negra"
 L["Dark Touched Warrior"] = "Guerreiro Tocado pelas Trevas"
-L["Darkheart Thicket"] = [=[Bosque Corenegro 
-]=]
+L["Darkheart Thicket"] = "Bosque Corenegro"
 L["Darkheart Thicket Sublevel"] = [=[Bosque Corenegro Subnível 1
 ]=]
 L["Darkweb Hatchling"] = "Filhote de Teiabreu"
@@ -2586,6 +2585,8 @@ L["Urh Relic"] = "Relíquia Urh"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "Use '/mdt reset' to restore the default position and scale of MDT."
 --[[Translation missing --]]
 L["Use as a starting point:"] = "Use as a starting point:"
+--[[Translation missing --]]
+L["Use forces count"] = ""
 --[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
 --[[Translation missing --]]
