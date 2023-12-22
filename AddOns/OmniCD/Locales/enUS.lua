@@ -414,6 +414,10 @@ L["Use ElvUI Timer"] = "Use ElvUI Timer"
 L["[Show Numbers for Cooldowns] must be disabled in Blizzard's \'Options/Action Bars\' menu."] = "[Show Numbers for Cooldowns] must be disabled in Blizzard's \'Options/Action Bars\' menu."
 L["Attach to Raid Frame"] = "Attach to Raid Frame"
 L["Convert to additional CD bars that attach to each unit's raid frame."] = "Convert to additional CD bars that attach to each unit's raid frame."
+L["Icon ID (Optional)"] = "Icon ID (Optional)"
+L["Force Disable"] = "Force Disable"
+L["Only for talent abilities.\nCurrent ability for this specialization will no longer be tracked while you are in the selected zone(s)"] = "Only for talent abilities.\nCurrent ability for this specialization will no longer be tracked while you are in the selected zone(s)"
+
 
 -- 自行加入
 L["Omni|cff33ff99CD|r"] = "Omni|cff33ff99CD|r"

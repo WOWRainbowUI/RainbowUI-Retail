@@ -124,7 +124,7 @@ local function CooldownBarFrame_OnEvent(self, event, ...)
 			end
 
 			info.isDead = nil
-			info.isDeadOrOffline = nil
+			info.isDeadOrOffline = false
 			P:SetEnabledColorScheme(info)
 			self:UnregisterEvent(event)
 		end
@@ -565,7 +565,7 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 			local n = #spells
 			for j = 1, n do
 				local spell = spells[j]
-				local spellID, spellType, spec, race, item, item2, talent = spell.spellID, spell.type, spell.spec, spell.race, spell.item, spell.item2, spell.talent
+				local spellID, spellType, spec, race, item, item2, talent, disabledSpec = spell.spellID, spell.type, spell.spec, spell.race, spell.item, spell.item2, spell.talent, spell.disabledSpec
 
 				local isValidSpell
 				local enabledSpell = self.spell_enabled[spellID]
@@ -591,7 +591,7 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 					elseif isInspectedUnit then
 						if i == 6 then
 							isValidSpell = (not E.postBFA or not E.covenant_abilities[spellID] or self.isInShadowlands)
-								and self:IsSpecOrTalentForPvpStatus(spec==true and spellID or spec, info, lvl >= GetSpellLevelLearned(spellID))
+								and self:IsSpecOrTalentForPvpStatus(spec==true and spellID or spec, info, lvl >= GetSpellLevelLearned(spellID), disabledSpec and disabledSpec[info.spec])
 								and (not talent or not self:IsSpecOrTalentForPvpStatus(talent, info, true))
 
 							if ( isValidSpell and info.spec == 257 and not info.auras[2050] ) then
@@ -606,6 +606,7 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 						elseif i == 4 then
 							isValidSpell = info.talentData[spec]
 						else
+
 
 							if info.auras.hasWeyrnstone then
 								info.itemData[205146] = true

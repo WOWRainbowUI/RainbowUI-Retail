@@ -130,10 +130,6 @@ function CM:DequeueInspect(guid, addToStale)
 end
 
 function CM:EnqueueInspect(force, guid)
-	if E.isClassic then
-		return
-	end
-
 	local addedTime = GetTime()
 	if force then
 		wipe(P.pendingQueue)
@@ -759,10 +755,6 @@ end) or (E.isWOTLKC and function(info, inspectUnit, isInspect)
 
 	return list
 end) or function(info, inspectUnit, isInspect)
-	if E.isClassic and isInspect then
-		return
-	end
-
 	local list
 	if not isInspect then
 		list = { CM.SERIALIZATION_VERSION, true, "^T" }

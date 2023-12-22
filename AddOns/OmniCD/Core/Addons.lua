@@ -74,22 +74,30 @@ local unitFrameData = {
 	{
 		[1] = "Cell",
 		[2] = "CellPartyFrameMember",
-		[3] = "unitid",
+		[3] = "unit",
 		[4] = 1,
 		[5] = 5,
 	},
 	{
 		[1] = "Cell-Raid",
 		[2] = "CellRaidFrameMember",
-		[3] = "unitid",
+		[3] = "unit",
 		[4] = 1,
 		[5] = 40,
 	},
 	{
-		[1] = "Stuf",
-		[2] = "Stuf.units.party",
+		[1] = "Cell-Spotlight",
+		[2] = "CellSpotlightFrameUnitButton",
 		[3] = "unit",
 		[4] = 1,
+		[5] = 10,
+	},
+	{
+		[1] = "Cell-QuickCast",
+		[2] = "CellQuickCastButton",
+		[3] = "unit",
+		[4] = 1,
+		[5] = 6,
 	},
 	{
 		[1] = "AshToAsh",
@@ -281,7 +289,7 @@ local unitFrameData = {
 	},
 }
 
-local customUF = { optionTable = { auto = L["Auto"], blizz = L["Blizzard"] }, enabledList = false }
+local customUF = { optionTable = { auto = L["Auto"], blizz = "Blizzard" }, enabledList = false }
 
 function E:SetActiveUnitFrameData()
 	if customUF.enabledList then

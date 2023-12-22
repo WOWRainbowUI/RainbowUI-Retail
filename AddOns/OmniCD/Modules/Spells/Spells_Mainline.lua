@@ -307,8 +307,8 @@ E.spell_db = {
 		{ ["class"]="EVOKER",["type"]="defensive",["buff"]=355913,["spec"]=1467,["name"]="Emerald Blossom",["duration"]=30,["icon"]=4622457,["spellID"]=355913, },
 		{ ["class"]="EVOKER",["type"]="counterCC",["buff"]=378464,["spec"]=true,["name"]="Nullifying Shroud",["duration"]=90,["icon"]=135752,["spellID"]=378464, },
 		{ ["class"]="EVOKER",["type"]="disarm",["buff"]=370388,["spec"]=true,["name"]="Swoop Up",["duration"]=90,["icon"]=4622446,["spellID"]=370388, },
-		{ ["class"]="EVOKER",["type"]="immunity",["buff"]=378441,["spec"]=true,["name"]="Time Stop",["duration"]=90,["icon"]=4631367,["spellID"]=378441, },
-		{ ["class"]="EVOKER",["type"]="disarm",["buff"]=383005,["spec"]=true,["name"]="Chrono Loop",["duration"]=60,["icon"]=4630470,["spellID"]=383005, },
+		{ ["class"]="EVOKER",["type"]="immunity",["buff"]=378441,["spec"]=true,["name"]="Time Stop",["duration"]=45,["icon"]=4631367,["spellID"]=378441, },
+		{ ["class"]="EVOKER",["type"]="disarm",["buff"]=383005,["spec"]=true,["name"]="Chrono Loop",["duration"]=45,["icon"]=4630470,["spellID"]=383005, },
 		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=357210,["name"]="Deep Breath",["duration"]=120,["icon"]=4622450,["spellID"]=357210, },
 		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=382266,["name"]="Fire Breath",["duration"]=30,["icon"]=4622458,["spellID"]=382266, },
 		{ ["class"]="EVOKER",["type"]="other",["buff"]=358267,["name"]="Hover",["duration"]=35,["icon"]=4622463,["spellID"]=358267, },
@@ -369,7 +369,7 @@ E.spell_db = {
 		{ ["class"]="DRUID",["type"]="offensive",["buff"]=392160,["spec"]=true,["name"]="Invigorate",["duration"]=20,["icon"]=136073,["spellID"]=392160, },
 		{ ["class"]="DRUID",["type"]="offensive",["buff"]=197721,["spec"]=true,["name"]="Flourish",["duration"]=60,["icon"]=538743,["spellID"]=197721, },
 		{ ["class"]="DRUID",["type"]="externalDefensive",["buff"]=102342,["spec"]=true,["name"]="Ironbark",["duration"]=90,["icon"]=572025,["spellID"]=102342, },
-		{ ["class"]="DRUID",["type"]="cc",["buff"]=106951,["spec"]=true,["name"]="Berserk",["duration"]=180,["icon"]=236149,["spellID"]=106951,["talent"]=102543, },
+		{ ["class"]="DRUID",["type"]="offensive",["buff"]=106951,["spec"]=true,["name"]="Berserk",["duration"]=180,["icon"]=236149,["spellID"]=106951,["talent"]=102543, },
 		{ ["class"]="DRUID",["type"]="offensive",["buff"]=274837,["spec"]=true,["name"]="Feral Frenzy",["duration"]=45,["icon"]=132140,["spellID"]=274837, },
 		{ ["class"]="DRUID",["type"]="offensive",["buff"]=102543,["spec"]=true,["name"]="Incarnation: Avatar of Ashamane",["duration"]=180,["icon"]=571586,["spellID"]=102543, },
 		{ ["class"]="DRUID",["type"]="defensive",["buff"]=61336,["spec"]=true,["name"]="Survival Instincts",["charges"]=1,["duration"]=180,["icon"]=236169,["spellID"]=61336, },
@@ -675,7 +675,7 @@ E.spell_db = {
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=190319,["spec"]=true,["name"]="Combustion",["duration"]=120,["icon"]=135824,["spellID"]=190319, },
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=257541,["spec"]=true,["name"]="Phoenix Flames",["charges"]=2,["duration"]=25,["icon"]=1392549,["spellID"]=257541, },
 		{ ["class"]="MAGE",["type"]="disarm",["buff"]=157980,["spec"]=true,["name"]="Supernova",["duration"]=25,["icon"]=1033912,["spellID"]=157980, },
-		{ ["class"]="MAGE",["type"]="offensive",["buff"]=365350,["spec"]=true,["name"]="Arcane Surge",["duration"]=90,["icon"]=4667417,["spellID"]=365350, },
+		{ ["class"]="MAGE",["type"]="offensive",["buff"]=365362,["spec"]=true,["name"]="Arcane Surge",["duration"]=90,["icon"]=4667417,["spellID"]=365350, },
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=321507,["spec"]=true,["name"]="Touch of the Magi",["duration"]=45,["icon"]=236222,["spellID"]=321507, },
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=376103,["spec"]={376103,321076},["name"]="Radiant Spark",["duration"]=30,["icon"]=3565446,["spellID"]=376103, },
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=153626,["spec"]=true,["name"]="Arcane Orb",["charges"]=1,["duration"]=20,["icon"]=1033906,["spellID"]=153626, },
@@ -750,10 +750,13 @@ E.spell_db = {
 		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Bonemaw's Big Toe",["buff"]=397400,["duration"]=120,["icon"]=133718,["spellID"]=397400,["item"]=110012, },
 		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Cataclysmic Punch",["buff"]=392359,["duration"]=120,["icon"]=133718,["spellID"]=392359,["item"]=200868, },
 		]]
+		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Shadowflame Rage",["buff"]=425571,["duration"]=90,["icon"]=5415954,["spellID"]=422750,["item"]=207174, },
+		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Prophetic Stonescale",["buff"]=425571,["duration"]=480,["icon"]=1526618,["spellID"]=417050,["item"]=207528, },
 
 		{ ["class"]="TRINKET",["type"]="consumable",["name"]="Refreshing Healing Potion",["buff"]=370511,["duration"]=300,["icon"]=4497595,["spellID"]=370511,["item"]=nil, }, --["item"]=191378
 		{ ["class"]="TRINKET",["type"]="other",["buff"]=408234,["name"]="Activate Weyrnstone",["duration"]=120,["icon"]=5199618,["spellID"]=408234,["item"]=205146, },
 		{ ["class"]="TRINKET",["type"]="defensive",["buff"]=410232,["name"]="Undulating Sporecloak",["duration"]=120,["icon"]=3752753,["spellID"]=410232,["item"]=205025, },
+
 	},
 }
 
