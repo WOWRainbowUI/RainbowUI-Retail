@@ -1,0 +1,60 @@
+## Interface: 30403
+## Title: Baganator
+## Version: 0.71
+## Author: plusmouse
+## OptionalDeps: Masque
+## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA, BAGANATOR_SUMMARIES
+## IconTexture: Interface\AddOns\Baganator\Assets\logo.tga
+
+Locales.lua
+
+Core\Objects.lua
+Core\Constants.lua
+Core\Locales.lua
+Core\Config.lua
+Core\Utilities.lua
+Core\SlashCmd.lua
+Core\Main.lua
+
+InventoryTracking\Utilities.lua
+InventoryTracking\BagCache.lua
+InventoryTracking\MailCache.lua
+InventoryTracking\EquippedCache.lua
+InventoryTracking\CurrencyCache.lua
+InventoryTracking\GuildCache.lua
+InventoryTracking\ItemSummaries.lua
+InventoryTracking\Tooltips.lua
+InventoryTracking\CurrencyTooltipData.lua
+InventoryTracking\Main.lua
+
+Sorting\Main.lua
+Sorting\Stacks.lua
+Sorting\Plugins.lua
+
+UnifiedBags\Utilities.lua
+UnifiedBags\ItemButton.lua
+UnifiedBags\ItemButton.xml
+UnifiedBags\ItemButtonDataEvents.lua
+UnifiedBags\ContainerSlots.lua
+UnifiedBags\ContainerSlots.xml
+UnifiedBags\Components.xml
+UnifiedBags\Layouts.lua
+UnifiedBags\Layouts.xml
+UnifiedBags\BankView.lua
+UnifiedBags\BankView.xml
+UnifiedBags\MoneyDisplay.lua
+UnifiedBags\CharacterSelect.lua
+UnifiedBags\CharacterSelect.xml
+UnifiedBags\MainView.lua
+UnifiedBags\MainView.xml
+UnifiedBags\Search.lua
+UnifiedBags\OpenClose.lua
+UnifiedBags\Main.lua
+
+CustomiseDialog\Components.lua
+CustomiseDialog\Components.xml
+CustomiseDialog\Main.lua
+CustomiseDialog\Main.xml
+CustomiseDialog\Initialize.lua
+
+API.lua
