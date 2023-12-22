@@ -100,6 +100,12 @@ local unitFrameData = {
 		[5] = 6,
 	},
 	{
+		[1] = "Stuf",
+		[2] = "Stuf.units.party",
+		[3] = "unit",
+		[4] = 1,
+	},
+	{
 		[1] = "AshToAsh",
 		[2] = "AshToAshUnit%dUnit", -- panel#
 		[3] = "unit",
