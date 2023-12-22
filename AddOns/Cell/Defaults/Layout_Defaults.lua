@@ -135,6 +135,8 @@ Cell.defaults.layout = {
             ["position"] = {"BOTTOM", 0},
             ["frameLevel"] = 30,
             ["font"] = {"Cell ".._G.DEFAULT, 11, "Shadow"},
+            ["showTimer"] = true,
+            ["showBackground"] = true,
             ["colors"] = {
                 ["AFK"] = {1, 0.19, 0.19, 1},
                 ["OFFLINE"] = {1, 0.19, 0.19, 1},
@@ -249,7 +251,7 @@ Cell.defaults.layout = {
             ["type"] = "built-in",
             ["enabled"] = false,
             ["frameLevel"] = 7,
-            ["thickness"] = 3,
+            ["thickness"] = 2,
         }, -- 13
         {
             ["name"] = "Shield Bar",
