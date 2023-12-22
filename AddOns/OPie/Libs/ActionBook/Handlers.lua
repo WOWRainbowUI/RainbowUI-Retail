@@ -1045,9 +1045,9 @@ if MODERN or CF_WRATH then -- toy: item ID, flags[FORCE_SHOW]
 	local function describeToy(id)
 		if type(id) ~= "number" then return end
 		local _, name, tex = C_ToyBox.GetToyInfo(id)
-		return L"Toy", name, tex, nil, callMethod.SetToyByItemID, id
+		return L"Toy", name, tex or GetItemIcon(id), nil, callMethod.SetToyByItemID, id
 	end
-	AB:RegisterActionType("toy", createToy, describeToy, {"forceShow"})
+	AB:RegisterActionType("toy", createToy, describeToy, 2)
 	RW:SetCommandHint(SLASH_USE_TOY1, 60, function(_, _, clause, target)
 		if clause and clause ~= "" then
 			local _, link = GetItemInfo(clause)

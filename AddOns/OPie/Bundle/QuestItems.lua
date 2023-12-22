@@ -259,7 +259,7 @@ local function describeQI(name)
 		return L"Quest Items", L"Quest Items", [[Interface\AddOns\OPie\gfx\opie_ring_icon]], nil, nil, nil, "collection"
 	end
 end
--- AB:RegisterActionType("opie.autoquest", createQI, describeQI)
+AB:RegisterActionType("opie.autoquest", createQI, describeQI, 1)
 
 local edFrame = CreateFrame("Frame") do
 	edFrame:Hide()
@@ -467,7 +467,7 @@ local edFrame = CreateFrame("Frame") do
 	function edFrame:IsOwned(owner)
 		return edFrame:GetParent() == owner
 	end
-	-- AB:RegisterEditorPanel("opie.autoquest", edFrame)
+	AB:RegisterEditorPanel("opie.autoquest", edFrame)
 end
 
 
