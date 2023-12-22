@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 11500
 ## Version: 2.33
 ## Author: Taraezor
 ## IconTexture: Interface\Icons\Inv_10_dungeonjewelry_explorer_trinket_1compass_color1
@@ -27,13 +27,6 @@
 ## Notes-zhCN: 世界地图和迷你地图的|cFF0070DE地图坐标|r
 ## Notes-zhTW: 世界地圖和迷你地圖的|cFF0070DE地圖坐標|r
 ## SavedVariables: XandYDB
-## AddonCompartmentFunc: XandY_OnAddonCompartmentClick
-## AddonCompartmentFuncOnEnter: XandY_OnAddonCompartmentEnter
-## AddonCompartmentFuncOnLeave: XandY_OnAddonCompartmentLeave
-
-## Title-zhTW: |cff4DFF4D[地圖]|r 座標
-## Notes-zhTW: X and Y |n|n在世界地圖的標題列，和小地圖地名旁邊顯示座標值。
-## X-Category-zhTW: 地圖
 
 XandY.xml
 XandY.lua

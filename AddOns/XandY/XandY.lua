@@ -3,21 +3,23 @@
 
                                                X and Y
 
-                                      v2.32 - 28th October 2023
+                                     v2.33 - 10th December 2023
                                 Copyright (C) Taraezor / Chris Birch
+                                         All Rights Reserved
 
                                 ----o----(||)----oo----(||)----o----
 ]]
 
---------------------------------------------------------------------------------------------------------------------------------------------
---
---		Localisations and Local Data
---		============================
---
---------------------------------------------------------------------------------------------------------------------------------------------
-
-local addonName, L = ...
+local addonName, ns = ...
 local addonTitle = addonName
+
+-- Brown Theme
+ns.colour = {}
+ns.colour.prefix	= "\124cFFD2691E"	-- X11Chocolate
+ns.colour.highlight = "\124cFFF4A460"	-- X11SandyBrown
+ns.colour.plaintext = "\124cFFDEB887"	-- X11BurlyWood
+ns.colour.malachite	= "\124cFF0BDA51"
+ns.colour.gold		= "\124cFFFED12A"
 
 local date = date
 local ceil = math.ceil
@@ -34,15 +36,12 @@ local GetMinimapZoneText = GetMinimapZoneText
 local GetPlayerFacing = GetPlayerFacing
 local GetPlayerMapPosition = C_Map.GetPlayerMapPosition
 
-local mini = { xPlayer = 0, yPlayer = 0 }
-local world = { xPlayer = 0, yPlayer = 0, xCursor = 0, yCursor = 0 }
+local mini = {}
+local world = {}
 
---------------------------------------------------------------------------------------------------------------------------------------------
---
---		Local Functions
---		===============
---
---------------------------------------------------------------------------------------------------------------------------------------------
+local buildVersion = GetBuildInfo()
+local _, _, buildVersion = find( buildVersion, "(%d+\.%d+)" )
+buildVersion = tonumber( buildVersion )
 
 local function round( num, places )
 	if num < 0.0 then
@@ -51,42 +50,16 @@ local function round( num, places )
 	return floor( num * 10^places + .5 ) / 10^places
 end
 
---------------------------------------------------------------------------------------------------------------------------------------------
---
---		Build / Version Setup
---		=====================
---
---------------------------------------------------------------------------------------------------------------------------------------------
-
-local buildVersion = GetBuildInfo()
-local _, _, buildVersion = find( buildVersion, "(%d+\.%d+)" )
-buildVersion = tonumber( buildVersion )
-
---------------------------------------------------------------------------------------------------------------------------------------------
---
---		Colour Printing - Brown Theme + Map Colours
---		===============
---
---------------------------------------------------------------------------------------------------------------------------------------------
-
-local pc_colour_Prefix		= "\124cFFD2691E"	-- X11Chocolate
-local pc_colour_Highlight	= "\124cFFF4A460"	-- X11SandyBrown
-local pc_colour_PlainText	= "\124cFFDEB887"	-- X11BurlyWood
-local pc_colour_Malachite	= "\124cFF0BDA51"
-local pc_colour_Gold		= "\124cFFFED12A"
+local function FormattedXY( rawX, rawY )
+	return format( "%." ..XandYDB.miniPrecision .."f", round( rawX, XandYDB.miniPrecision ) ),
+			format( "%." ..XandYDB.miniPrecision .."f", round( rawY, XandYDB.miniPrecision ) )
+end
 
 local function printPC( message )
 	if message then
-		DEFAULT_CHAT_FRAME:AddMessage( pc_colour_Prefix.. (addonTitle or "地圖座標").. ": ".. pc_colour_PlainText.. message.. "\124r" )
+		DEFAULT_CHAT_FRAME:AddMessage( ns.colour.prefix.. (addonTitle or "地圖座標").. ": ".. ns.colour.plaintext.. message.. "\124r" )
 	end
 end
-
---------------------------------------------------------------------------------------------------------------------------------------------
---
---		Language Localisation
---		=====================
---
---------------------------------------------------------------------------------------------------------------------------------------------
 
 local locale = GetLocale()
 
@@ -128,12 +101,12 @@ else
 	end
 end
 
---------------------------------------------------------------------------------------------------------------------------------------------
+--=======================================================================================================
 --
---		MiniMapTooltip
---		==============
+--		MINIMAP TOOLTIP
+--		===============
 --
---------------------------------------------------------------------------------------------------------------------------------------------
+--=======================================================================================================
 
 local function MiniMapTooltip()
 
@@ -146,6 +119,9 @@ local function MiniMapTooltip()
 	
 	if mini.isOwned == true then
 		if ( mini.xPlayer > 0 ) and ( mini.yPlayer > 0 ) then
+		
+			local xPlayerF, yPlayerF = FormattedXY( mini.xPlayer, mini.yPlayer )
+			
 			mini.playerBrace = L["Player"].. " ("
 			mini.length, mini.found = len( mini.playerBrace ), 0
 			for i = GameTooltip:NumLines(), 2, -1 do
@@ -159,29 +135,22 @@ local function MiniMapTooltip()
 			end
 			
 			mini.degrees = round( ( ( GetPlayerFacing() or -1 ) * 180 / pi ), 0 )	
-			mini.coordsF = "%." ..( (XandYDB.miniDetail == 4) and 2 or XandYDB.miniDetail ) .."f"
 			
 			if mini.found > 0 then
 				if ( mini.degrees >= 0 ) then
 					_G[ "GameTooltipTextLeft".. mini.found ]:SetText( mini.playerBrace
-							..format( mini.coordsF, round( mini.xPlayer, 2 ) ) ..", " 
-							..format( mini.coordsF, round( mini.yPlayer, 2 ) ) ..") @ " ..mini.degrees .."°" )
+							..xPlayerF ..", " ..yPlayerF ..") @ " ..mini.degrees .."°" )
 				else
 					_G[ "GameTooltipTextLeft".. mini.found ]:SetText( mini.playerBrace
-							..format( mini.coordsF, round( mini.xPlayer, 2 ) ) ..", " 
-							..format( mini.coordsF, round( mini.yPlayer, 2 ) ) ..")" )
+							..xPlayerF ..", " ..yPlayerF ..")" )
 				end
 			else
 				if ( mini.degrees >= 0 ) then
 					GameTooltip:AddLine(" ")
-					GameTooltip:AddLine( mini.playerBrace
-							..format( mini.coordsF, round( mini.xPlayer, 2 ) ) ..", " 
-							..format( mini.coordsF, round( mini.yPlayer, 2 ) ) ..") @ " ..mini.degrees .."°" )
+					GameTooltip:AddLine( mini.playerBrace ..xPlayerF ..", " ..yPlayerF  ..") @ " ..mini.degrees .."°" )
 				else
 					GameTooltip:AddLine(" ")
-					GameTooltip:AddLine( mini.playerBrace
-							..format( mini.coordsF, round( mini.xPlayer, 2 ) ) ..", " 
-							..format( mini.coordsF, round( mini.yPlayer, 2 ) ) ..")" )
+					GameTooltip:AddLine( mini.playerBrace ..xPlayerF ..", " ..yPlayerF  ..")" )
 				end
 				GameTooltip:Show()
 			end
@@ -189,28 +158,30 @@ local function MiniMapTooltip()
 	end
 end
 
---------------------------------------------------------------------------------------------------------------------------------------------
+--=======================================================================================================
 --
---		Event Handler
+--		EVENT HANDLER
 --		=============
 --
---------------------------------------------------------------------------------------------------------------------------------------------
+--=======================================================================================================
 
 local old_MinimapZoneTextButtonOnClick;		-- Filled on VARIABLES_LOADED event. Not sure if other AddOns would have set this
 
 local function MinimapZoneTextButtonOnClick()
-
+	-- Can only happen pre Dragonflight 10.0
 	if old_MinimapZoneTextButtonOnClick then old_MinimapZoneTextButtonOnClick() end
-	XandYDB.miniDetail = ( XandYDB.miniDetail < 4 ) and ( XandYDB.miniDetail + 1 ) or 1
+	XandYDB.miniPrecision = ( XandYDB.miniPrecision < 3 ) and ( XandYDB.miniPrecision + 1 ) or 1
 end
 
 local function OnEventHandler( self, event, args )
 
 	if ( event == "VARIABLES_LOADED" ) then
 		if not XandYDB then XandYDB = {} end
-		local miniDetail = XandYDB.miniDetail or 1
+		local miniPrecision = XandYDB.miniPrecision or 2
+		local showMiniZoneText = XandYDB.showMiniZoneText or true
 		XandYDB = {}
-		XandYDB.miniDetail = miniDetail
+		XandYDB.miniPrecision = miniPrecision
+		XandYDB.showMiniZoneText = showMiniZoneText
 
 		if locale == "deDE" then
 			addonTitle = GetAddOnMetadata( "XandY", "Title-deDE" )
@@ -239,12 +210,9 @@ local function OnEventHandler( self, event, args )
 		end
 
 		if buildVersion < 10 then
+			-- DragonFlight repurposed the OnClick so it now can't be used
 			old_MinimapZoneTextButtonOnClick = MinimapZoneTextButton:GetScript( "OnClick" )
 			MinimapZoneTextButton:SetScript( "OnClick", MinimapZoneTextButtonOnClick )
-			-- Dragonflight - works but Blizzard now also trigger the World Map through here so...
-			-- changing the precision with a simple click here now has annoying consequences
---			old_MinimapZoneTextButtonOnClick = MinimapCluster.ZoneTextButton:GetScript( "OnClick" )
---			MinimapCluster.ZoneTextButton:SetScript( "OnClick", MinimapZoneTextButtonOnClick )
 		end
 		GameTooltip:HookScript( "OnUpdate", MiniMapTooltip )
 	end
@@ -254,14 +222,14 @@ local eventFrame = CreateFrame( "Frame" )
 eventFrame:RegisterEvent( "VARIABLES_LOADED" )
 eventFrame:SetScript( "OnEvent", OnEventHandler )
 
---------------------------------------------------------------------------------------------------------------------------------------------
+--=======================================================================================================
 --
---		OnUpdate Handler
+--		ONUPDATE HANDLER
 --		================
 --
---------------------------------------------------------------------------------------------------------------------------------------------
+--=======================================================================================================
 
-local timeSinceLastUpdate, curTime, isVisible, minimapZoneText = 0, 0, false, ""
+local timeSinceLastUpdate, curTime = 0, 0
 
 local function OnUpdate()
 
@@ -269,15 +237,15 @@ local function OnUpdate()
 	if curTime - timeSinceLastUpdate <= 0.2 then return end
 	timeSinceLastUpdate = curTime
 
-	isVisible = false
+	mini.isVisible = false
 	if buildVersion >= 10 then
-		if MinimapCluster.ZoneTextButton:IsVisible() == true then isVisible = true end
+		if MinimapCluster.ZoneTextButton:IsVisible() == true then mini.isVisible = true end
 	else
-		if MinimapZoneTextButton:IsVisible() == true then isVisible = true end
+		if MinimapZoneTextButton:IsVisible() == true then mini.isVisible = true end
 	end
 	
-	if isVisible == true then
-		minimapZoneText = GetMinimapZoneText()
+	if mini.isVisible == true then
+		mini.zoneText = GetMinimapZoneText()
 		mini.mapAreaInID = GetBestMapForUnit( "player" ) or 0
 		if GetPlayerMapPosition( mini.mapAreaInID, "player" ) then
 			mini.xPlayer, mini.yPlayer = GetPlayerMapPosition( mini.mapAreaInID, "player" ):GetXY()
@@ -286,27 +254,21 @@ local function OnUpdate()
 		end
 		mini.xPlayer, mini.yPlayer = ( mini.xPlayer or 0 ) * 100, ( mini.yPlayer or 0 ) * 100
 		if ( mini.xPlayer == 0 ) and ( mini.yPlayer == 0 ) then
-			MinimapZoneText:SetText( minimapZoneText )
+			MinimapZoneText:SetText( mini.zoneText )
 		else
 			mini.colourText = ""
 			mini.degrees = round( ( ( GetPlayerFacing() or -1 ) * 180 / pi ), 0 )			
 			if ( mini.degrees == 0 ) or ( mini.degrees == 90 ) or ( mini.degrees == 180 ) or ( mini.degrees == 270 )
 									or ( mini.degrees == 360 ) then
-				mini.colourText = pc_colour_Prefix
+				mini.colourText = ns.colour.prefix
 			elseif ( mini.degrees == 45 ) or ( mini.degrees == 135 ) or ( mini.degrees == 225 ) or ( mini.degrees == 315 ) then
-				mini.colourText = pc_colour_Highlight
+				mini.colourText = ns.colour.highlight
 			end
-			if ( XandYDB.miniDetail == 1 ) then
-				MinimapZoneText:SetText( mini.colourText.. "(".. format( "%d", round( mini.xPlayer, 1 ) ).. ", ".. 
-							format( "%d", round( mini.yPlayer, 1 ) ).. ") ".. minimapZoneText )
-			elseif ( XandYDB.miniDetail == 2 ) then
-				MinimapZoneText:SetText( mini.colourText.. "(".. format( "%.1f", round( mini.xPlayer, 2 ) ).. ", ".. 
-							format( "%.1f", round( mini.yPlayer, 2 ) ).. ") ".. minimapZoneText )
-			elseif ( XandYDB.miniDetail == 3 ) then
-				MinimapZoneText:SetText( mini.colourText.. "(".. format( "%.2f", round( mini.xPlayer, 3 ) ).. ", ".. 
-							format( "%.2f", round( mini.yPlayer, 3 ) ).. ") ".. minimapZoneText )
+			if XandYDB.showMiniZoneText == true then
+				mini.xPlayerF, mini.yPlayerF = FormattedXY( mini.xPlayer, mini.yPlayer )
+				MinimapZoneText:SetText( mini.colourText.. "(".. mini.xPlayerF.. ", ".. mini.yPlayerF.. ") ".. mini.zoneText )
 			else
-				MinimapZoneText:SetText( minimapZoneText )
+				MinimapZoneText:SetText( mini.zoneText )
 			end
 		end
 	end
@@ -324,14 +286,14 @@ local function OnUpdate()
 
 		world.playerCursor, world.spaces = "", ""
 		if ( world.xPlayer ~= 0 ) or ( world.yPlayer ~= 0 ) then
-			world.playerCursor = L[ "Player" ] .." @ " ..pc_colour_Malachite
-									..format( "%.2f", world.xPlayer ) .."\124r:" ..pc_colour_Malachite
+			world.playerCursor = L[ "Player" ] .." @ " ..ns.colour.malachite
+									..format( "%.2f", world.xPlayer ) .."\124r:" ..ns.colour.malachite
 									..format( "%.2f", world.yPlayer ) .."\124r"
 			world.spaces = " "
 		end		
 		if ( world.xCursor > 0 ) and ( world.xCursor < 100 ) and ( world.yCursor > 0 ) and ( world.yCursor < 100 ) then
-			world.playerCursor = world.playerCursor ..world.spaces ..L[ "Cursor" ] .." @ " ..pc_colour_Malachite 
-									..world.xCursor .."\124r:" ..pc_colour_Malachite ..world.yCursor .."\124r"
+			world.playerCursor = world.playerCursor ..world.spaces ..L[ "Cursor" ] .." @ " ..ns.colour.malachite 
+									..world.xCursor .."\124r:" ..ns.colour.malachite ..world.yCursor .."\124r"
 		end
 
 		if buildVersion >= 4 then
@@ -340,10 +302,10 @@ local function OnUpdate()
 			else
 				world.currentTitle = WorldMapFrame.BorderFrame.TitleText:GetText()
 			end
-			world.currentTitle = gsub( world.currentTitle, L[ "Player" ] .." @ " ..pc_colour_Malachite .."%d*%.*%d*\124r:" 
-										..pc_colour_Malachite .."%d*%.*%d*\124r", "" )
-			world.currentTitle = gsub( world.currentTitle, L[ "Cursor" ] .." @ " ..pc_colour_Malachite .."%d*%.*%d*\124r:"
-										..pc_colour_Malachite .."%d*%.*%d*\124r", "" )
+			world.currentTitle = gsub( world.currentTitle, L[ "Player" ] .." @ " ..ns.colour.malachite .."%d*%.*%d*\124r:" 
+										..ns.colour.malachite .."%d*%.*%d*\124r", "" )
+			world.currentTitle = gsub( world.currentTitle, L[ "Cursor" ] .." @ " ..ns.colour.malachite .."%d*%.*%d*\124r:"
+										..ns.colour.malachite .."%d*%.*%d*\124r", "" )
 			world.currentTitle = strtrim( world.currentTitle )
 			world.currentTitle = world.currentTitle .."                " ..world.playerCursor
 			if buildVersion < 10 then
@@ -362,30 +324,82 @@ end
 
 eventFrame:SetScript( "OnUpdate", OnUpdate )
 
---------------------------------------------------------------------------------------------------------------------------------------------
+--=======================================================================================================
 --
---		Slash Chat Commands
+--		MINIMAP ADDON COMPARTMENT  -- Blizzard only allow for Retail
+--		=========================
+--
+--=======================================================================================================
+
+function XandY_OnAddonCompartmentClick( addonName, buttonName )
+
+	if buttonName == nil then return end
+	
+	if buttonName == "LeftButton" then
+		XandYDB.miniPrecision = ( XandYDB.miniPrecision < 3 ) and ( XandYDB.miniPrecision + 1 ) or 1
+		printPC( printPC( "Decimal places = " ..XandYDB.miniPrecision )	)
+	elseif buttonName == "RightButton" then
+		XandYDB.miniPrecision = ( XandYDB.miniPrecision > 1 ) and ( XandYDB.miniPrecision - 1 ) or 3
+		printPC( printPC( "Decimal places = " ..XandYDB.miniPrecision )	)
+	elseif buttonName == "MiddleButton" then
+		XandYDB.showMiniZoneText = not XandYDB.showMiniZoneText
+		printPC( "Coords in Minimap Zone Text = " ..( XandYDB.showMiniZoneText == true and "On" or "Off" ) )
+	end
+	
+end
+
+function XandY_OnAddonCompartmentEnter( ... )
+	GameTooltip:SetOwner( DropDownList1, "ANCHOR_LEFT" )	
+	GameTooltip:AddLine( ns.colour.prefix .."X and Y" )
+	GameTooltip:AddLine( ns.colour.highlight .." " )
+	GameTooltip:AddLine( ns.colour.highlight .."Mouse Left/Right: " ..ns.colour.plaintext .."Toggle precision" )
+	GameTooltip:AddLine( ns.colour.highlight .."Mouse Middle: " ..ns.colour.plaintext .."Toggle Zone Text" )
+
+	if ( mini.xPlayer > 0 ) and ( mini.yPlayer > 0 ) then
+		mini.degrees = round( ( ( GetPlayerFacing() or -1 ) * 180 / pi ), 0 )	
+		mini.xPlayerF, mini.yPlayerF = FormattedXY( mini.xPlayer, mini.yPlayer )
+		mini.degrees = ( mini.degrees >= 0 ) and ( " @ " ..mini.degrees .."°" ) or ""		
+		GameTooltip:AddLine( mini.colourText.. "(".. mini.xPlayerF.. ":".. mini.yPlayerF.. ")" ..mini.degrees )
+	end
+	
+	GameTooltip:Show()
+end
+
+function XandY_OnAddonCompartmentLeave( ... )
+	GameTooltip:Hide()
+end
+
+--=======================================================================================================
+--
+--		SLASH CHAT COMMANDS  -- All game versions
 --		===================
 --
---------------------------------------------------------------------------------------------------------------------------------------------
+--=======================================================================================================
 
 SLASH_XandY1, SLASH_XandY2 = "/xandy", "/xy"
 
 local function Slash( options )
 	if (options == "?") or (options == "") then
-		printPC( "選項: " )
-		printPC( pc_colour_Highlight .."/xy 0" ..pc_colour_PlainText .." 不要顯示在小地圖區域文字" )
-		printPC( pc_colour_Highlight .."/xy 1" ..pc_colour_PlainText .." 座標值沒有小數點" )
-		printPC( pc_colour_Highlight .."/xy 2" ..pc_colour_PlainText .." 座標值一位小數" )
-		printPC( pc_colour_Highlight .."/xy 3" ..pc_colour_PlainText .." 座標值兩位小數" )
-	elseif options == "0" then
-		XandYDB.miniDetail = 4
-	elseif options == "1" then
-		XandYDB.miniDetail = 1
-	elseif options == "2" then
-		XandYDB.miniDetail = 2
-	elseif options == "3" then
-		XandYDB.miniDetail = 3
+		printPC( "小地圖選項: " )
+		printPC( ns.colour.highlight .."/xy t" ..ns.colour.plaintext .." Toggle show/hide coords on zone text" )
+		printPC( ns.colour.highlight .."/xy 1" ..ns.colour.plaintext .." Coords to one decimal place" )
+		printPC( ns.colour.highlight .."/xy 2" ..ns.colour.plaintext .." Coords to two decimal places" )
+		printPC( ns.colour.highlight .."/xy 3" ..ns.colour.plaintext .." Coords to three decimal places" )
+		if buildVersion >= 10 then
+			printPC( ns.colour.highlight .."Tip: Try the Minimap AddOn Menu (below the Calendar)" )
+		end
+	elseif options == "t" then
+		XandYDB.showMiniZoneText = not XandYDB.showMiniZoneText
+		printPC( "Coords in Minimap Zone Text = " ..( XandYDB.showMiniZoneText == true and "On" or "Off" ) )
+	else
+		if options == "1" then
+			XandYDB.miniPrecision = 1
+		elseif options == "2" then
+			XandYDB.miniPrecision = 2
+		elseif options == "3" then
+			XandYDB.miniPrecision = 3
+		end
+		printPC( "Decimal places = " ..XandYDB.miniPrecision )
 	end
 end
 
