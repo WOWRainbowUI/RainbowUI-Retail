@@ -46,7 +46,7 @@ function RangeDisplay:openConfigDialog(ud)
   ud = ud or lastConfiguredUd
   if Settings then
     -- TODO: find out how to open to a sub-category...
-    Settings.OpenToCategory(L[self.AppName])
+    Settings.OpenToCategory(L["RangeDisplay"])
     return
   end
   if ud then

@@ -1,10 +1,10 @@
-lightweight tag d2e0eb1c5beea48a99869ca6cf880b68761eb2ba v5.1.3
+lightweight tag fd28acbbda617e0619650d79c1a61b2bfe229f42 v6.0.0
 Author:	Péter Radics <mitchnull@gmail.com>
-Date:	Fri Nov 24 09:06:55 2023 +0100
+Date:	Tue Dec 19 15:35:15 2023 +0100
 
-commit d2e0eb1c5beea48a99869ca6cf880b68761eb2ba
+commit fd28acbbda617e0619650d79c1a61b2bfe229f42
 Author: Péter Radics <mitchnull@gmail.com>
-Date:   Fri Nov 24 09:06:55 2023 +0100
+Date:   Tue Dec 19 15:35:15 2023 +0100
 
-    pick up new LibRangeCheck version
+    switch over to using LibRangeCheck-3.0
 
