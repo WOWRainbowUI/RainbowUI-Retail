@@ -1,14 +1,20 @@
 # <DBM Mod> Dungeons (DF)
 
-## [r111](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r111) (2023-12-06)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r110...r111) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r112](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r112) (2023-12-21)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r111...r112) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Fix fel frenzy alert  
-- restore sol rotation stuff, but add a note explaining that if it's wrong, it's blizzards fault due to a bug and not DBM.  
-- fix stupid  
-- Use unit event instead of unreliable CLEu event for unchecked growth  
-- Fix https://github.com/DeadlyBossMods/DBM-Dungeons/issues/156  
-- miner timer fixes  
-- Fix timer display bug. Closes https://github.com/DeadlyBossMods/DBM-Retail/issues/961  
-- Update dungeon encounter Ids for BFD for classic era  
-- minor timer tweaks  
+- Backup Stage 2 trigger for Chrono Lord Deios in case early push (less than 4 add deaths)  
+- throttle icy veins warning on lady nazjar  
+- fix bad copy/paste  
+- Add DHT RP timers for first and second boss  
+- Add everbloom RP timer for portal  
+- helps to actually comment out the comments  
+- Add RP timer after first boss in BRH  
+- acid barrage tweak  
+- Fix bad option localization.  
+- small timer tweak  
+- further refinements to crappy spell queuing in DHT  
+- improve debug  
+- Few minor everbloom tweaks  
+- shorten scan time on waycrest  
+- two nameplate timer updates for atal dazar trash  

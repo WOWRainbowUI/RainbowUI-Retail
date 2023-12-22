@@ -10,7 +10,7 @@ else--TODO, refine for cata classic since no timewalker there
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20231118045752")
+mod:SetRevision("20231221070005")
 mod:SetCreatureID(40586)
 mod:SetEncounterID(1045)
 
@@ -121,7 +121,7 @@ if (wowToc >= 100200) then
 
 	function mod:SPELL_AURA_APPLIED(args)
 		local spellId = args.spellId
-		if spellId == 428329 and not args:IsDestTypePlayer() then
+		if spellId == 428329 and not args:IsDestTypePlayer() and self:AntiSpam(3, 1) then
 			specWarnIcyVeins:Show(args.destName)
 			specWarnIcyVeins:Play("helpdispel")
 		end

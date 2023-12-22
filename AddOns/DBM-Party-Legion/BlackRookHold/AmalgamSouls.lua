@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1518, "DBM-Party-Legion", 1, 740)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231117105343")
+mod:SetRevision("20231221055323")
 mod:SetCreatureID(98542)
 mod:SetEncounterID(1832)
 mod:SetHotfixNoticeRev(20231027000000)
@@ -84,7 +84,10 @@ function mod:OnCombatStart(delay)
 	timerReapSoulCD:Start(20-delay, 1)
 end
 
-function mod:OnCombatEnd()
+function mod:OnCombatEnd(wipe, secondRun)
+	if not wipe and not secondRun then
+		DBM:GetModByName("BRHTrash"):StartFirstRP()
+	end
 --	if self.Options.RangeFrame then
 --		DBM.RangeCheck:Hide()
 --	end

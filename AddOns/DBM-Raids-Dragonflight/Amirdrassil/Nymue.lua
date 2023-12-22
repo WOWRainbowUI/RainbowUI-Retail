@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2556, "DBM-Raids-Dragonflight", 1, 1207)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231212184112")
+mod:SetRevision("20231220084829")
 mod:SetCreatureID(206172)
 mod:SetEncounterID(2708)
 mod:SetUsedIcons(8, 7, 6)
@@ -51,7 +51,7 @@ local specWarnGTFO									= mod:NewSpecialWarningGTFO(428474, nil, nil, nil, 1,
 
 local timerImpendingLoomCD							= mod:NewCDCountTimer(23.8, 429615, L.Threads, nil, nil, 3)
 local timerEphemeralFloraCD							= mod:NewCDCountTimer(49, 430563, nil, nil, nil, 3, nil, DBM_COMMON_L.MYTHIC_ICON)
-local timerSurgingGrowthCD							= mod:NewCDCountTimer(7, 420971, DBM_COMMON_L.GROUPSOAKS.." (%s)", nil, nil, 3)--7-9, usually 8-9
+local timerSurgingGrowthCD							= mod:NewCDCountTimer(7, 420971, DBM_COMMON_L.GROUPSOAKS.." (%s)", nil, nil, 3)--5.1-9, usually 8-9
 local timerViridianRainCD							= mod:NewCDCountTimer(19.1, 420907, DBM_COMMON_L.AOEDAMAGE.." (%s)", nil, nil, 3)
 local timerWeaversBurdenCD							= mod:NewCDCountTimer(17.8, 426519, 167180, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)--ST "Bombs"
 local berserkTimer									= mod:NewBerserkTimer(720)

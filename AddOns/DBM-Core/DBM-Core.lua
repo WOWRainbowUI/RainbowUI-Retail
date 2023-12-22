@@ -73,21 +73,21 @@ local function showRealDate(curseDate)
 end
 
 local DBM = {
-	Revision = parseCurseDate("20231212202026"),
+	Revision = parseCurseDate("20231222013242"),
 }
 _G.DBM = DBM
 
-local fakeBWVersion, fakeBWHash = 303, "479937c"--303.0
+local fakeBWVersion, fakeBWHash = 309, "9218174"--309.1
 local bwVersionResponseString = "V^%d^%s"
 local PForceDisable
 -- The string that is shown as version
 if isRetail then
-	DBM.DisplayVersion = "10.2.11"
-	DBM.ReleaseRevision = releaseDate(2023, 12, 12) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+	DBM.DisplayVersion = "10.2.12"
+	DBM.ReleaseRevision = releaseDate(2023, 12, 21) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 	PForceDisable = 8--When this is incremented, trigger force disable regardless of major patch
 elseif isClassic then
-	DBM.DisplayVersion = "1.15.5 alpha"
-	DBM.ReleaseRevision = releaseDate(2023, 12, 9) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+	DBM.DisplayVersion = "1.15.6 alpha"
+	DBM.ReleaseRevision = releaseDate(2023, 12, 12) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 	PForceDisable = 4--When this is incremented, trigger force disable regardless of major patch
 elseif isBCC then
 	DBM.DisplayVersion = "2.6.0 alpha"--When TBC returns (and it will one day). It'll probably be game version 2.6
@@ -358,7 +358,7 @@ DBM.DefaultOptions = {
 	DontShowHudMap2 = false,
 	UseNameplateHandoff = true,--Power user setting, no longer shown in GUI
 	DontShowNameplateIcons = false,
-	DontShowNameplateIconsCD = false,
+	DontShowNameplateIconsCD = true, -- 更改預設值
 	DontSendBossGUIDs = false,
 	NPAuraText = true,
 	NPIconSize = 30,
@@ -637,8 +637,8 @@ local UnitAffectingCombat, InCombatLockdown, IsFalling, IsEncounterInProgress, U
 local UnitGUID, UnitHealth, UnitHealthMax, UnitBuff, UnitDebuff, UnitAura = UnitGUID, UnitHealth, UnitHealthMax, UnitBuff, UnitDebuff, UnitAura
 local UnitExists, UnitIsDead, UnitIsFriend, UnitIsUnit = UnitExists, UnitIsDead, UnitIsFriend, UnitIsUnit
 --local UnitTokenFromGUID, UnitPercentHealthFromGUID = UnitTokenFromGUID, UnitPercentHealthFromGUID
-local GetSpellInfo, GetDungeonInfo, GetSpellTexture, GetSpellCooldown = GetSpellInfo, C_LFGInfo and C_LFGInfo.GetDungeonInfo or GetDungeonInfo, GetSpellTexture, GetSpellCooldown
-local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+local GetSpellInfo, GetSpellTexture, GetSpellCooldown = GetSpellInfo, GetSpellTexture, GetSpellCooldown
+local GetDungeonInfo = C_LFGInfo.GetDungeonInfo or GetDungeonInfo -- Classic has C_LFGInfo but not C_LFGInfo.GetDungeonInfo, need to use global for classic
 local EJ_GetEncounterInfo, EJ_GetCreatureInfo = EJ_GetEncounterInfo, EJ_GetCreatureInfo
 local EJ_GetSectionInfo, GetSectionIconFlags
 if C_EncounterJournal then
@@ -656,6 +656,28 @@ local IsQuestFlaggedCompleted = C_QuestLog.IsQuestFlaggedCompleted
 local SendAddonMessage = C_ChatInfo.SendAddonMessage
 
 local RAID_CLASS_COLORS = _G["CUSTOM_CLASS_COLORS"] or RAID_CLASS_COLORS-- for Phanx' Class Colors
+
+-- Polyfill for C_AddOns, Classic and Retail have the fully featured table, Wrath has only Metadata (as of Dec 15th 2023)
+local cachedAddOns = {}
+local C_AddOns = {
+	GetAddOnMetadata = C_AddOns.GetAddOnMetadata,
+	GetNumAddOns = C_AddOns.GetNumAddOns or GetNumAddOns, ---@diagnostic disable-line:deprecated
+	GetAddOnInfo = C_AddOns.GetAddOnInfo or GetAddOnInfo, ---@diagnostic disable-line:deprecated
+	LoadAddOn = C_AddOns.LoadAddOn or LoadAddOn, ---@diagnostic disable-line:deprecated
+	IsAddOnLoaded = C_AddOns.IsAddOnLoaded or IsAddOnLoaded, ---@diagnostic disable-line:deprecated
+	EnableAddOn = C_AddOns.EnableAddOn or EnableAddOn, ---@diagnostic disable-line:deprecated
+	GetAddOnEnableState = C_AddOns.GetAddOnEnableState or function(addon, character)
+		return GetAddOnEnableState(character, addon) ---@diagnostic disable-line:deprecated
+	end,
+	DoesAddOnExist = C_AddOns.DoesAddOnExist or function(addon)
+		if not cachedAddOns then
+			for i = 1, GetNumAddOns() do ---@diagnostic disable-line:deprecated
+				cachedAddOns[GetAddOnInfo(i)] = true ---@diagnostic disable-line:deprecated
+			end
+		end
+		return cachedAddOns[addon]
+	end,
+}
 
 ---------------------------------
 --  General (local) functions  --
@@ -754,6 +776,7 @@ local function checkForSafeSender(sender, checkFriends, checkGuild, filterRaid, 
 	end
 	--Check Guildies (not used by whisper syncs, but used by status whispers)
 	if checkGuild then
+		--TODO, test UnitIsInMyGuild in both classics, and retail, especially for cross faction guild members. That can save a lot of cpu by removing iterating over literally entire guild roster
 		local totalMembers, _, numOnlineAndMobileMembers = GetNumGuildMembers()
 		local scanTotal = GetGuildRosterShowOffline() and totalMembers or numOnlineAndMobileMembers--Attempt CPU saving, if "show offline" is unchecked, we can reliably scan only online members instead of whole roster
 		for i=1, scanTotal do
@@ -959,7 +982,12 @@ do
 	local args = setmetatable({}, argsMT)
 
 	function argsMT.__index:IsSpellID(...)
-		return tIndexOf({...}, args.spellId) ~= nil
+		for i = 1, select('#', ...) do
+			if args.spellId == select(i, ...) then
+				return true
+			end
+		end
+		return false
 	end
 
 	--Function exclusively used in classic era to make it a little cleaner to mass unifiy modules to auto check spellid or spellName based on game flavor
@@ -967,8 +995,8 @@ do
 	function argsMT.__index:IsSpell(...)
 	--	if isClassic then
 	--		--ugly ass performance wasting checks that have to first convert Ids to names because #nochanges
-	--		for _, spellId in ipairs({...}) do
-	--			local spellName = DBM:GetSpellInfo(spellId)
+	--		for i = 1, select('#', ...) do
+	--			local spellName = DBM:GetSpellInfo(select(i, ...))
 	--			if spellName and spellName == args.spellName then
 	--				return true
 	--			end
@@ -976,7 +1004,12 @@ do
 	--		return false
 	--	else
 			--Just simple table comoparison
-			return tIndexOf({...}, args.spellId) ~= nil
+			for i = 1, select('#', ...) do
+				if args.spellId == select(i, ...) then
+					return true
+				end
+			end
+			return false
 	--	end
 	end
 
@@ -1232,7 +1265,8 @@ do
 
 	-- UNIT_* events are special: they can take 'parameters' like this: "UNIT_HEALTH boss1 boss2" which only trigger the event for the given unit ids
 	function DBM:RegisterEvents(...)
-		for _, event in ipairs({...}) do
+		for i = 1, select('#', ...) do
+			local event = select(i, ...)
 			-- spell events with special care.
 			if event:sub(0, 6) == "SPELL_" and event ~= "SPELL_NAME_UPDATE" or event:sub(0, 6) == "RANGE_" or event:sub(0, 6) == "SWING_" or event == "UNIT_DIED" or event == "UNIT_DESTROYED" or event == "PARTY_KILL" then
 				registerCLEUEvent(self, event)
@@ -1423,7 +1457,7 @@ do
 	}
 	function DBM:COMBAT_LOG_EVENT_UNFILTERED()
 		local timestamp, event, _, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, extraArg1, extraArg2, extraArg3, extraArg4, extraArg5, extraArg6, extraArg7, extraArg8, extraArg9, extraArg10 = CombatLogGetCurrentEventInfo()
-		if not registeredEvents[event] then return end
+		if not event or not registeredEvents[event] then return end
 		local eventSub6 = event:sub(0, 6)
 		if (eventSub6 == "SPELL_" or eventSub6 == "RANGE_") and not unfilteredCLEUEvents[event] and registeredSpellIds[event] then
 			if not registeredSpellIds[event][extraArg1] then return end
@@ -1564,7 +1598,7 @@ do
 
 	function DBM:ADDON_LOADED(modname)
 		if modname == "DBM-Core" and not isLoaded then
-			dbmToc = tonumber(GetAddOnMetadata("DBM-Core", "X-Min-Interface" .. (isClassic and "-Classic" or isBCC and "-BCC" or isWrath and "-Wrath" or "")))
+			dbmToc = tonumber(C_AddOns.GetAddOnMetadata("DBM-Core", "X-Min-Interface" .. (isClassic and "-Classic" or isBCC and "-BCC" or isWrath and "-Wrath" or ""))) or 0
 			isLoaded = true
 			for _, v in ipairs(onLoadCallbacks) do
 				xpcall(v, geterrorhandler())
@@ -1574,18 +1608,18 @@ do
 			DBT:LoadOptions("DBM")
 			self.AddOns = {}
 			private:OnModuleLoad()
-			if GetAddOnEnableState(playerName, "VEM-Core") >= 1 then
+			if C_AddOns.GetAddOnEnableState("VEM-Core", playerName) >= 1 then
 				self:Disable(true)
 				self:Schedule(15, infniteLoopNotice, self, L.VEM)
 				return
 			end
-			if GetAddOnEnableState(playerName, "DBM-Profiles") >= 1 then
+			if C_AddOns.GetAddOnEnableState("DBM-Profiles", playerName) >= 1 then
 				self:Disable(true)
 				self:Schedule(15, infniteLoopNotice, self, L.OUTDATEDPROFILES)
 				return
 			end
-			if GetAddOnEnableState(playerName, "DBM-SpellTimers") >= 1 then
-				local version = GetAddOnMetadata("DBM-SpellTimers", "Version") or "r0"
+			if C_AddOns.GetAddOnEnableState("DBM-SpellTimers", playerName) >= 1 then
+				local version = C_AddOns.GetAddOnMetadata("DBM-SpellTimers", "Version") or "r0"
 				version = tonumber(string.sub(version, 2, 4)) or 0
 				if version < 122 and not self.Options.DebugMode then
 					self:Disable(true)
@@ -1597,20 +1631,20 @@ do
 			if Plater and not Plater.db.profile.bossmod_support_bars_enabled and not DBM.Options.DontShowNameplateIconsCD then
 				C_TimerAfter(15, function() AddMsg(self, L.PLATER_NP_AURAS_MSG) end)
 			end
-			if GetAddOnEnableState(playerName, "DPMCore") >= 1 then
+			if C_AddOns.GetAddOnEnableState("DPMCore", playerName) >= 1 then
 				self:Disable(true)
 				self:Schedule(15, infniteLoopNotice, self, L.DPMCORE)
 				return
 			end
-			if GetAddOnEnableState(playerName, "DBM-VictorySound") >= 1 then
+			if C_AddOns.GetAddOnEnableState("DBM-VictorySound", playerName) >= 1 then
 				self:Disable(true)
 				C_TimerAfter(15, function() AddMsg(self, L.VICTORYSOUND) end)
 				return
 			end
-			if GetAddOnEnableState(playerName, "DBM-LDB") >= 1 then
+			if C_AddOns.GetAddOnEnableState("DBM-LDB", playerName) >= 1 then
 				C_TimerAfter(15, function() AddMsg(self, L.DBMLDB) end)
 			end
-			if GetAddOnEnableState(playerName, "DBM-LootReminder") >= 1 then
+			if C_AddOns.GetAddOnEnableState("DBM-LootReminder", playerName) >= 1 then
 				C_TimerAfter(15, function() AddMsg(self, L.DBMLOOTREMINDER) end)
 			end
 			self.Arrow:LoadPosition()
@@ -1628,21 +1662,21 @@ do
 			end
 			self.Voices = { {text = "None",value = "None"}, }--Create voice table, with default "None" value
 			self.VoiceVersions = {}
-			for i = 1, GetNumAddOns() do
-				local addonName = GetAddOnInfo(i)
-				local enabled = GetAddOnEnableState(playerName, i)
-				if GetAddOnMetadata(i, "X-DBM-Mod") then
+			for i = 1, C_AddOns.GetNumAddOns() do
+				local addonName = C_AddOns.GetAddOnInfo(i)
+				local enabled = C_AddOns.GetAddOnEnableState(i, playerName)
+				if C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod") then
 					if enabled ~= 0 then
 						if checkEntry(bannedMods, addonName) then
 							AddMsg(self, "The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
 						else
-							local mapIdTable = {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-MapID") or "")}
+							local mapIdTable = {strsplit(",", C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-MapID") or "")}
 
-							local minToc = tonumber(GetAddOnMetadata(i, "X-Min-Interface") or 0)
+							local minToc = tonumber(C_AddOns.GetAddOnMetadata(i, "X-Min-Interface") or 0)
 							if isBCC then
-								minToc = tonumber(GetAddOnMetadata(i, "X-Min-Interface-BCC") or minToc)
+								minToc = tonumber(C_AddOns.GetAddOnMetadata(i, "X-Min-Interface-BCC") or minToc)
 							elseif isWrath then
-								minToc = tonumber(GetAddOnMetadata(i, "X-Min-Interface-Wrath") or minToc)
+								minToc = tonumber(C_AddOns.GetAddOnMetadata(i, "X-Min-Interface-Wrath") or minToc)
 							end
 
 							local firstMapId = mapIdTable[1]
@@ -1663,24 +1697,24 @@ do
 							end
 
 							tinsert(self.AddOns, {
-								sort			= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Sort") or mhuge) or mhuge,
-								type			= GetAddOnMetadata(i, "X-DBM-Mod-Type") or "OTHER",
-								category		= GetAddOnMetadata(i, "X-DBM-Mod-Category") or "Other",
-								statTypes		= isWrath and GetAddOnMetadata(i, "X-DBM-StatTypes-Wrath") or GetAddOnMetadata(i, "X-DBM-StatTypes") or "",
-								name			= GetAddOnMetadata(i, "X-DBM-Mod-Name") or firstMapName or CL.UNKNOWN,
+								sort			= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Sort") or mhuge) or mhuge,
+								type			= C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Type") or "OTHER",
+								category		= C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Category") or "Other",
+								statTypes		= isWrath and C_AddOns.GetAddOnMetadata(i, "X-DBM-StatTypes-Wrath") or C_AddOns.GetAddOnMetadata(i, "X-DBM-StatTypes") or "",
+								name			= C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Name") or firstMapName or CL.UNKNOWN,
 								mapId			= mapIdTable,
-								subTabs			= GetAddOnMetadata(i, "X-DBM-Mod-SubCategoriesID") and {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-SubCategoriesID"))} or GetAddOnMetadata(i, "X-DBM-Mod-SubCategories") and {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-SubCategories"))},
-								oneFormat		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Single-Format") or 0) == 1, -- Deprecated
-								hasLFR			= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-LFR") or 0) == 1, -- Deprecated
-								hasChallenge	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Challenge") or 0) == 1, -- Deprecated
-								noHeroic		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-No-Heroic") or 0) == 1, -- Deprecated
-								hasMythic		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Mythic") or 0) == 1, -- Deprecated
-								hasTimeWalker	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-TimeWalker") or 0) == 1, -- Deprecated
-								noStatistics	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-No-Statistics") or 0) == 1,
-								isWorldBoss		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-World-Boss") or 0) == 1,
-								isExpedition	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Expedition") or 0) == 1,
-								minRevision		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-MinCoreRevision") or 0),
-								minExpansion	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-MinExpansion") or 0),
+								subTabs			= C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-SubCategoriesID") and {strsplit(",", C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-SubCategoriesID"))} or C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-SubCategories") and {strsplit(",", C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-SubCategories"))},
+								oneFormat		= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Has-Single-Format") or 0) == 1, -- Deprecated
+								hasLFR			= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Has-LFR") or 0) == 1, -- Deprecated
+								hasChallenge	= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Has-Challenge") or 0) == 1, -- Deprecated
+								noHeroic		= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-No-Heroic") or 0) == 1, -- Deprecated
+								hasMythic		= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Has-Mythic") or 0) == 1, -- Deprecated
+								hasTimeWalker	= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Has-TimeWalker") or 0) == 1, -- Deprecated
+								noStatistics	= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-No-Statistics") or 0) == 1,
+								isWorldBoss		= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-World-Boss") or 0) == 1,
+								isExpedition	= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-Expedition") or 0) == 1,
+								minRevision		= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-MinCoreRevision") or 0),
+								minExpansion	= tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-MinExpansion") or 0),
 								minToc			= minToc,
 								modId			= addonName,
 							})
@@ -1706,8 +1740,8 @@ do
 									end
 								end
 							end
-							if GetAddOnMetadata(i, "X-DBM-Mod-LoadCID") then
-								local idTable = {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-LoadCID"))}
+							if C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-LoadCID") then
+								local idTable = {strsplit(",", C_AddOns.GetAddOnMetadata(i, "X-DBM-Mod-LoadCID"))}
 								for j = 1, #idTable do
 									loadcIds[tonumber(idTable[j]) or ""] = addonName
 								end
@@ -1717,31 +1751,31 @@ do
 						disabledMods[#disabledMods+1] = addonName
 					end
 				end
-				if GetAddOnMetadata(i, "X-DBM-Voice") and enabled ~= 0 then
+				if C_AddOns.GetAddOnMetadata(i, "X-DBM-Voice") and enabled ~= 0 then
 					if checkEntry(bannedMods, addonName) then
 						AddMsg(self, "The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
 					else
 						C_TimerAfter(0.01, function()
-							local voiceValue = GetAddOnMetadata(i, "X-DBM-Voice-ShortName")
-							local voiceVersion = tonumber(GetAddOnMetadata(i, "X-DBM-Voice-Version") or 0)
+							local voiceValue = C_AddOns.GetAddOnMetadata(i, "X-DBM-Voice-ShortName")
+							local voiceVersion = tonumber(C_AddOns.GetAddOnMetadata(i, "X-DBM-Voice-Version") or 0)
 							if voiceVersion > 0 then--Do not insert voice version 0 into THIS table. 0 should be used by voice packs that insert only countdown
-								tinsert(self.Voices, { text = GetAddOnMetadata(i, "X-DBM-Voice-Name"), value = voiceValue })
+								tinsert(self.Voices, { text = C_AddOns.GetAddOnMetadata(i, "X-DBM-Voice-Name"), value = voiceValue })
 							end
 							self.VoiceVersions[voiceValue] = voiceVersion
 							self:Schedule(10, self.CheckVoicePackVersion, self, voiceValue)--Still at 1 since the count sounds won't break any mods or affect filter. V2 if support countsound path
-							if GetAddOnMetadata(i, "X-DBM-Voice-HasCount") then--Supports adding countdown options, insert new countdown into table
-								DBM:AddCountSound(GetAddOnMetadata(i, "X-DBM-Voice-Name"), "VP:"..voiceValue, "Interface\\AddOns\\DBM-VP"..voiceValue.."\\count\\")
+							if C_AddOns.GetAddOnMetadata(i, "X-DBM-Voice-HasCount") then--Supports adding countdown options, insert new countdown into table
+								DBM:AddCountSound(C_AddOns.GetAddOnMetadata(i, "X-DBM-Voice-Name"), "VP:"..voiceValue, "Interface\\AddOns\\DBM-VP"..voiceValue.."\\count\\")
 							end
 						end)
 					end
 				end
-				if GetAddOnMetadata(i, "X-DBM-CountPack") and enabled ~= 0 then
+				if C_AddOns.GetAddOnMetadata(i, "X-DBM-CountPack") and enabled ~= 0 then
 					if checkEntry(bannedMods, addonName) then
 						AddMsg(self, "The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
 					else
-						local loaded = LoadAddOn(addonName)
+						local loaded = C_AddOns.LoadAddOn(addonName)
 						C_TimerAfter(0.01, function()
-							local voiceGlobal = GetAddOnMetadata(i, "X-DBM-CountPack-GlobalName")
+							local voiceGlobal = C_AddOns.GetAddOnMetadata(i, "X-DBM-CountPack-GlobalName")
 							local insertFunction = _G[voiceGlobal]
 							if loaded and insertFunction then
 								insertFunction()
@@ -1751,13 +1785,13 @@ do
 						end)
 					end
 				end
-				if GetAddOnMetadata(i, "X-DBM-VictoryPack") and enabled ~= 0 then
+				if C_AddOns.GetAddOnMetadata(i, "X-DBM-VictoryPack") and enabled ~= 0 then
 					if checkEntry(bannedMods, addonName) then
 						AddMsg(self, "The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
 					else
-						local loaded = LoadAddOn(addonName)
+						local loaded = C_AddOns.LoadAddOn(addonName)
 						C_TimerAfter(0.01, function()
-							local victoryGlobal = GetAddOnMetadata(i, "X-DBM-VictoryPack-GlobalName")
+							local victoryGlobal = C_AddOns.GetAddOnMetadata(i, "X-DBM-VictoryPack-GlobalName")
 							local insertFunction = _G[victoryGlobal]
 							if loaded and insertFunction then
 								insertFunction()
@@ -1767,13 +1801,13 @@ do
 						end)
 					end
 				end
-				if GetAddOnMetadata(i, "X-DBM-DefeatPack") and enabled ~= 0 then
+				if C_AddOns.GetAddOnMetadata(i, "X-DBM-DefeatPack") and enabled ~= 0 then
 					if checkEntry(bannedMods, addonName) then
 						AddMsg(self, "The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
 					else
-						local loaded = LoadAddOn(addonName)
+						local loaded = C_AddOns.LoadAddOn(addonName)
 						C_TimerAfter(0.01, function()
-							local defeatGlobal = GetAddOnMetadata(i, "X-DBM-DefeatPack-GlobalName")
+							local defeatGlobal = C_AddOns.GetAddOnMetadata(i, "X-DBM-DefeatPack-GlobalName")
 							local insertFunction = _G[defeatGlobal]
 							if loaded and insertFunction then
 								insertFunction()
@@ -1783,13 +1817,13 @@ do
 						end)
 					end
 				end
-				if GetAddOnMetadata(i, "X-DBM-MusicPack") and enabled ~= 0 then
+				if C_AddOns.GetAddOnMetadata(i, "X-DBM-MusicPack") and enabled ~= 0 then
 					if checkEntry(bannedMods, addonName) then
 						AddMsg(self, "The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
 					else
-						local loaded = LoadAddOn(addonName)
+						local loaded = C_AddOns.LoadAddOn(addonName)
 						C_TimerAfter(0.01, function()
-							local musicGlobal = GetAddOnMetadata(i, "X-DBM-MusicPack-GlobalName")
+							local musicGlobal = C_AddOns.GetAddOnMetadata(i, "X-DBM-MusicPack-GlobalName")
 							local insertFunction = _G[musicGlobal]
 							if loaded and insertFunction then
 								insertFunction()
@@ -2194,27 +2228,27 @@ end
 do
 	local callOnLoad = {}
 	function DBM:LoadGUI()
-		if GetAddOnEnableState(playerName, "VEM-Core") >= 1 then
+		if C_AddOns.GetAddOnEnableState("VEM-Core", playerName) >= 1 then
 			self:AddMsg(L.VEM)
 			return
 		end
-		if GetAddOnEnableState(playerName, "DBM-Profiles") >= 1 then
+		if C_AddOns.GetAddOnEnableState("DBM-Profiles", playerName) >= 1 then
 			self:AddMsg(L.OUTDATEDPROFILES)
 			return
 		end
-		if GetAddOnEnableState(playerName, "DBM-SpellTimers") >= 1 then
-			local version = GetAddOnMetadata("DBM-SpellTimers", "Version") or "r0"
+		if C_AddOns.GetAddOnEnableState("DBM-SpellTimers", playerName) >= 1 then
+			local version = C_AddOns.GetAddOnMetadata("DBM-SpellTimers", "Version") or "r0"
 			version = tonumber(string.sub(version, 2, 4)) or 0
 			if version < 122 and not self.Options.DebugMode then
 				self:AddMsg(L.OUTDATEDSPELLTIMERS)
 				return
 			end
 		end
-		if GetAddOnEnableState(playerName, "DPMCore") >= 1 then
+		if C_AddOns.GetAddOnEnableState("DPMCore", playerName) >= 1 then
 			self:AddMsg(L.DPMCORE)
 			return
 		end
-		if GetAddOnEnableState(playerName, "DBM-VictorySound") >= 1 then
+		if C_AddOns.GetAddOnEnableState("DBM-VictorySound", playerName) >= 1 then
 			self:AddMsg(L.VICTORYSOUND)
 			return
 		end
@@ -2226,15 +2260,15 @@ do
 			AddMsg(self, L.UPDATEREMINDER_HEADER:format(self.NewerVersion, showRealDate(self.HighestRelease)))
 		end
 		local firstLoad = false
-		if not IsAddOnLoaded("DBM-GUI") then
-			local enabled = GetAddOnEnableState(playerName, "DBM-GUI")
+		if not C_AddOns.IsAddOnLoaded("DBM-GUI") then
+			local enabled = C_AddOns.GetAddOnEnableState("DBM-GUI", playerName)
 			if enabled == 0 then
-				EnableAddOn("DBM-GUI")
+				C_AddOns.EnableAddOn("DBM-GUI")
 			end
-			local loaded, reason = LoadAddOn("DBM-GUI")
+			local loaded, reason = C_AddOns.LoadAddOn("DBM-GUI")
 			if not loaded then
-				if reason then
-					self:AddMsg(L.LOAD_GUI_ERROR:format(tostring(_G["ADDON_"..reason or ""])))
+				if reason and _G["ADDON_" .. reason] then
+					self:AddMsg(L.LOAD_GUI_ERROR:format(tostring(_G["ADDON_" .. reason])))
 				else
 					self:AddMsg(L.LOAD_GUI_ERROR:format(CL.UNKNOWN))
 				end
@@ -3586,44 +3620,56 @@ do
 	local shadowlandsZones = {[2296]=true,[2450]=true,[2481]=true}
 	local challengeScenarios = {[1148]=true,[1698]=true,[1710]=true,[1703]=true,[1702]=true,[1684]=true,[1673]=true,[1616]=true,[2215]=true}
 	local pvpZones = {[30]=true,[489]=true,[529]=true,[559]=true,[562]=true,[566]=true,[572]=true,[617]=true,[618]=true,[628]=true,[726]=true,[727]=true,[761]=true,[968]=true,[980]=true,[998]=true,[1105]=true,[1134]=true,[1170]=true,[1504]=true,[1505]=true,[1552]=true,[1681]=true,[1672]=true,[1803]=true,[1825]=true,[1911]=true,[2106]=true,[2107]=true,[2118]=true,[2167]=true,[2177]=true,[2197]=true,[2245]=true,[2373]=true,[2509]=true,[2511]=true,[2547]=true,[2563]=true}
+
 	--This never wants to spam you to use mods for trivial content you don't need mods for.
 	--It's intended to suggest mods for content that's relevant to your level (TW, leveling up in dungeons, or even older raids you can't just roll over)
 	function DBM:CheckAvailableMods()
 		if _G["BigWigs"] then return end--If they are running two boss mods at once, lets assume they are only using DBM for a specific feature (such as brawlers) and not nag
 		if isRetail then
 			if not self:IsTrivial() then
-				if instanceDifficultyBylevel[LastInstanceMapID] and instanceDifficultyBylevel[LastInstanceMapID][2] == 2 and not GetAddOnInfo("DBM-Party-Dragonflight") then
+				if instanceDifficultyBylevel[LastInstanceMapID] and instanceDifficultyBylevel[LastInstanceMapID][2] == 2 and not C_AddOns.DoesAddOnExist("DBM-Party-Dragonflight") then
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Dungeon mods"))
-				elseif (classicZones[LastInstanceMapID] or bcZones[LastInstanceMapID]) and not GetAddOnInfo("DBM-Raids-BC") then
+				elseif (classicZones[LastInstanceMapID] or bcZones[LastInstanceMapID]) and not C_AddOns.DoesAddOnExist("DBM-Raids-BC") then
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM BC/Vanilla mods"))
-				elseif wrathZones[LastInstanceMapID] and not GetAddOnInfo("DBM-Raids-WoTLK") then
+				elseif wrathZones[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-Raids-WoTLK") then
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Wrath of the Lich King mods"))
-				elseif cataZones[LastInstanceMapID] and not GetAddOnInfo("DBM-Raids-Cata") then
+				elseif cataZones[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-Raids-Cata") then
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Cataclysm mods"))
-				elseif mopZones[LastInstanceMapID] and not GetAddOnInfo("DBM-Raids-MoP") then
+				elseif mopZones[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-Raids-MoP") then
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Mists of Pandaria mods"))
-				elseif wodZones[LastInstanceMapID] and not GetAddOnInfo("DBM-Raids-WoD") then
+				elseif wodZones[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-Raids-WoD") then
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Warlords of Draenor mods"))
-				elseif legionZones[LastInstanceMapID] and not GetAddOnInfo("DBM-Raids-Legion") then--Technically 45 level with quish, but because of tuning you need need mods even at 50
+				elseif legionZones[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-Raids-Legion") then--Technically 45 level with quish, but because of tuning you need need mods even at 50
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Legion mods"))
-				elseif bfaZones[LastInstanceMapID] and not GetAddOnInfo("DBM-Raids-BfA") then--Technically 50, but tuning and huge loss of player power, zones are even HARDER at 60
+				elseif bfaZones[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-Raids-BfA") then--Technically 50, but tuning and huge loss of player power, zones are even HARDER at 60
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Battle for Azeroth mods"))
-				elseif shadowlandsZones[LastInstanceMapID] and not GetAddOnInfo("DBM-Raids-Shadowlands") then--Technically 50, but tuning and huge loss of player power, zones are even HARDER at 60
+				elseif shadowlandsZones[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-Raids-Shadowlands") then--Technically 50, but tuning and huge loss of player power, zones are even HARDER at 60
 					AddMsg(self, L.MOD_AVAILABLE:format("DBM Shadowlands mods"))
 				end
-			elseif challengeScenarios[LastInstanceMapID] and not GetAddOnInfo("DBM-Challenges") then--No trivial check on challenge scenarios
+			elseif challengeScenarios[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-Challenges") then--No trivial check on challenge scenarios
 				AddMsg(self, L.MOD_AVAILABLE:format("DBM-Challenges"))
 			end
 		else--Classic
-			if instanceDifficultyBylevel[LastInstanceMapID] and instanceDifficultyBylevel[LastInstanceMapID][2] == 2 and not GetAddOnInfo("DBM-Party-Vanilla") then
+			if instanceDifficultyBylevel[LastInstanceMapID] and instanceDifficultyBylevel[LastInstanceMapID][2] == 2 and not C_AddOns.DoesAddOnExist("DBM-Party-Vanilla") then
 				AddMsg(self, L.MOD_AVAILABLE:format("DBM Dungeon mods"))
 			end
 		end
-		if pvpZones[LastInstanceMapID] and not GetAddOnInfo("DBM-PvP") and not pvpShown then
+		if pvpZones[LastInstanceMapID] and not C_AddOns.DoesAddOnExist("DBM-PvP") and not pvpShown then
 			AddMsg(self, L.MOD_AVAILABLE:format("DBM-PvP"))
 			pvpShown = true
 		end
 	end
+
+	function DBM:CheckAvailableModsByMap()
+		local mapId = C_Map.GetBestMapForUnit("player")
+		if mapId == 1440 and C_Seasons and C_Seasons.GetActiveSeason() == Enum.SeasonID.Placeholder then -- SoD
+			if not pvpShown and not C_AddOns.DoesAddOnExist("DBM-PvP") then
+				self:AddMsg(L.MOD_AVAILABLE:format("DBM-PvP"))
+				pvpShown = true
+			end
+		end
+	end
+
 	function DBM:TransitionToDungeonBGM(force, cleanup)
 		if cleanup then--Runs on zone change/cinematic Start (first load delay) and combat end
 			self:Unschedule(self.TransitionToDungeonBGM)
@@ -3752,6 +3798,7 @@ do
 		if mapID then
 			self:LoadModsOnDemand("mapId", "m" .. mapID)
 		end
+		DBM:CheckAvailableModsByMap()
 	end
 
 	function DBM:CHALLENGE_MODE_RESET()
@@ -3780,9 +3827,9 @@ do
 		self:Debug("LoadModsOnDemand fired for table " .. checkTable .. " value " .. tostring(checkValue))
 		for _, v in ipairs(self.AddOns) do
 			local modTable = v[checkTable]
-			local enabled = GetAddOnEnableState(playerName, v.modId)
+			local enabled = C_AddOns.GetAddOnEnableState(v.modId, playerName)
 			--self:Debug(v.modId.." is "..enabled, 2)
-			if not IsAddOnLoaded(v.modId) and modTable and checkEntry(modTable, checkValue) then
+			if not C_AddOns.IsAddOnLoaded(v.modId) and modTable and checkEntry(modTable, checkValue) then
 				if enabled ~= 0 then
 					self:LoadMod(v)
 				else
@@ -3839,14 +3886,12 @@ function DBM:LoadMod(mod, force)
 		EJ_SetDifficulty(difficultyIndex)--Work around blizzard crash bug where other mods (like Boss) screw with Ej difficulty value, which makes EJ_GetSectionInfo crash the game when called with invalid difficulty index set.
 	end
 	self:Debug("LoadAddOn should have fired for "..mod.name, 2)
-	local loaded, reason = LoadAddOn(mod.modId)
+	local loaded, reason = C_AddOns.LoadAddOn(mod.modId)
 	if not loaded then
-		if reason then
-			if reason == "DISABLED" then
-				self:AddMsg(L.LOAD_MOD_DISABLED:format(mod.name))
-			else
-				self:AddMsg(L.LOAD_MOD_ERROR:format(tostring(mod.name), tostring(_G["ADDON_"..reason or ""])))
-			end
+		if reason == "DISABLED" then
+			self:AddMsg(L.LOAD_MOD_DISABLED:format(mod.name))
+		elseif reason then
+			self:AddMsg(L.LOAD_MOD_ERROR:format(tostring(mod.name), tostring(_G["ADDON_"..reason] or CL.Unknown)))
 		else
 			self:Debug("LoadAddOn failed and did not give reason")
 		end
@@ -3887,8 +3932,8 @@ do
 		if guid and DBM:IsCreatureGUID(guid) then
 			local cId = DBM:GetCIDFromGUID(guid)
 			for bosscId, addon in pairs(loadcIds) do
-				local enabled = GetAddOnEnableState(playerName, addon)
-				if cId and bosscId and cId == bosscId and not IsAddOnLoaded(addon) and enabled ~= 0 then
+				local enabled = C_AddOns.GetAddOnEnableState(addon, playerName)
+				if cId and bosscId and cId == bosscId and not C_AddOns.IsAddOnLoaded(addon) and enabled ~= 0 then
 					for _, v in ipairs(DBM.AddOns) do
 						if v.modId == addon then
 							DBM:LoadMod(v, true)
@@ -6186,7 +6231,7 @@ do
 				}
 			elseif #splitTable >= 3 and splitTable[1]:lower() == "interface" and splitTable[2]:lower() == "addons" then -- We're an addon sound
 				validateCache[path] = {
-					exists = IsAddOnLoaded(splitTable[3]),
+					exists = C_AddOns.IsAddOnLoaded(splitTable[3]),
 					AddOn = splitTable[3]
 				}
 			else
@@ -7971,9 +8016,9 @@ function DBM:IsTanking(playerUnitID, enemyUnitID, isName, onlyRequested, enemyGU
 		if GetPartyAssignment("MAINTANK", playerUnitID, 1) then
 			return true
 		end
-		if isRetail then
+		if not isClassic and not isBCC then--Allow boss checks in wrath and later
 			--no SpecID checks because SpecID is only availalbe with DBM/Bigwigs, but both DBM/Bigwigs auto set DAMAGER/HEALER/TANK roles anyways so it'd be redundant
-			if UnitGroupRolesAssigned(playerUnitID) == "TANK" then
+			if UnitGroupRolesAssigned and UnitGroupRolesAssigned(playerUnitID) == "TANK" then
 				return true
 			end
 			for i = 1, 10 do
@@ -8580,6 +8625,8 @@ do
 
 	local textureCode = " |T%s:12:12|t "
 	local textureExp = " |T(%S+......%S+):12:12|t "--Fix texture file including blank not strips(example: Interface\\Icons\\Spell_Frost_Ring of Frost). But this have limitations. Since I'm poor at regular expressions, this is not good fix. Do you have another good regular expression, tandanu?
+
+	---@class Announce
 	local announcePrototype = {}
 	local mt = {__index = announcePrototype}
 
@@ -8868,7 +8915,6 @@ do
 	local function newAnnounce(self, announceType, spellId, color, icon, optionDefault, optionName, castTime, preWarnTime, soundOption, noFilter)
 		if not spellId then
 			error("newAnnounce: you must provide spellId", 2)
-			return
 		end
 		local optionVersion, alternateSpellId
 		if type(optionName) == "number" then
@@ -9030,13 +9076,14 @@ end
 --  Yell Object  --
 --------------------
 do
-	local voidForm = GetSpellInfo(194249)
+	---@class Yell
 	local yellPrototype = {}
 	local mt = { __index = yellPrototype }
+	local voidForm = GetSpellInfo(194249)
+
 	local function newYell(self, yellType, spellId, yellText, optionDefault, optionName, chatType)
 		if not spellId and not yellText then
 			error("NewYell: you must provide either spellId or yellText", 2)
-			return
 		end
 		local optionVersion
 		if type(optionName) == "number" then
@@ -9351,6 +9398,7 @@ do
 		end
 	end
 
+	---@class SpecialWarning
 	local specialWarningPrototype = {}
 	local mt = {__index = specialWarningPrototype}
 
@@ -9838,7 +9886,6 @@ do
 	local function newSpecialWarning(self, announceType, spellId, stacks, optionDefault, optionName, optionVersion, runSound, hasVoice, difficulty)
 		if not spellId then
 			error("newSpecialWarning: you must provide spellId", 2)
-			return
 		end
 		if runSound == true then
 			runSound = 2
@@ -10199,6 +10246,7 @@ end
 --  Timer Object  --
 --------------------
 do
+	---@class Timer
 	local timerPrototype = {}
 	local mt = {__index = timerPrototype}
 	local countvoice1, countvoice2, countvoice3, countvoice4
@@ -10727,7 +10775,6 @@ do
 		if DBM.Options.DontShowBossTimers and not self.mod.isTrashMod then return end
 		if DBM.Options.DontShowTrashTimers and self.mod.isTrashMod then return end
 		local id = self.id..pformat((("\t%s"):rep(select("#", ...))), ...)
-		DBM:Unschedule(playCountSound, id)
 		local bar = DBT:GetBar(id)
 		if not bar then
 			bar = self:Start(totalTime, ...)
@@ -10745,6 +10792,9 @@ do
 				if (type(countVoice) == "string" or countVoice > 0) then
 					if not bar.fade then--Don't start countdown voice if it's faded bar
 						if newRemaining > 2 then
+							--Can't be called early beacuse then it won't unschedule countdown triggered by :Start if it was called
+							--Also doesn't need to be called early like it does in AddTime and RemoveTime since those early return
+							DBM:Unschedule(playCountSound, id)
 							playCountdown(id, newRemaining, countVoice, bar.countdownMax, bar.requiresCombat)--timerId, timer, voice, count
 							DBM:Debug("Updating a countdown after a timer Update call for timer ID:"..id)
 						end
@@ -10759,7 +10809,7 @@ do
 		if DBM.Options.DontShowBossTimers and not self.mod.isTrashMod then return end
 		if DBM.Options.DontShowTrashTimers and self.mod.isTrashMod then return end
 		local id = self.id..pformat((("\t%s"):rep(select("#", ...))), ...)
-		DBM:Unschedule(playCountSound, id)
+		DBM:Unschedule(playCountSound, id)--Needs to be unscheduled early in case Start is called instead of Update
 		local bar = DBT:GetBar(id)
 		if not bar then
 			return self:Start(extendAmount, ...)
@@ -11257,6 +11307,7 @@ end
 --  Berserk/Combat Objects  --
 ------------------------------
 do
+	---@class EnrageTimer
 	local enragePrototype = {}
 	local mt = {__index = enragePrototype}
 

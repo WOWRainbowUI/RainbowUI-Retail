@@ -2,7 +2,7 @@ if (DBM:GetTOC() < 100200) then return end--DO NOT DELETE DO NOT DELETE DO NOT D
 local mod	= DBM:NewMod("ThroneofTidesTrash", "DBM-Party-Cataclysm", 9)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231128005122")
+mod:SetRevision("20231221045744")
 --mod:SetModelID(47785)
 mod:SetZone(643)
 
@@ -50,9 +50,9 @@ local specWarnGTFO					= mod:NewSpecialWarningGTFO(426688, nil, nil, nil, 1, 8)
 local timerHealingWaveCD			= mod:NewCDNPTimer(17, 76813, nil, "HasInterrupt", nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--17-18.2
 local timerHexCD					= mod:NewCDNPTimer(20.4, 76820, nil, nil, nil, 5, nil, DBM_COMMON_L.MAGIC_ICON)--Weak sample size, could be wrong
 local timerCrushingDepthsCD			= mod:NewCDNPTimer(27.9, 428542, nil, nil, nil, 5, nil, DBM_COMMON_L.HEALER_ICON)--Weak sample size, could be wrong
-local timerShellbreakerCD			= mod:NewCDNPTimer(17, 426741, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)--17-19
+local timerShellbreakerCD			= mod:NewCDNPTimer(17, 426741, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)--17-19 (8.4?)
 local timerVolatileBoltCD			= mod:NewCDNPTimer(20.6, 426684, nil, nil, nil, 3)--20.6-24.2
-local timerAcidBarrageCD			= mod:NewCDNPTimer(10.2, 426645, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)--10.2-13
+local timerAcidBarrageCD			= mod:NewCDNPTimer(10.2, 426645, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)--10.2-13 (8.7 lowest?)
 local timerClenchingTentaclesCD		= mod:NewCDNPTimer(24.3, 428926, nil, nil, nil, 2)--24.3-25.5
 local timerCrushCD					= mod:NewCDNPTimer(17, 429021, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerPsionicPulseCD			= mod:NewCDNPTimer(8.5, 426905, nil, nil, nil, 2)
@@ -99,9 +99,10 @@ function mod:SPELL_CAST_START(args)
 	elseif spellId == 426684 then
 		timerVolatileBoltCD:Start(nil, args.sourceGUID)
 		--If remaining time on acid barrage is less than 6 seconds when volatile bolt is cast, it'll be extended
-		if timerAcidBarrageCD:GetRemaining(args.sourceGUID) < 6 then
+		if timerAcidBarrageCD:GetRemaining(args.sourceGUID) < 4.8 then
+			DBM:Debug("extending acid barrage to 4.8 seconds", 2)
 			timerAcidBarrageCD:Stop(args.sourceGUID)
-			timerAcidBarrageCD:Start(6, args.sourceGUID)
+			timerAcidBarrageCD:Start(4.8, args.sourceGUID)
 		end
 		if self:AntiSpam(3, 2) then
 			specWarnVolatileBolt:Show()

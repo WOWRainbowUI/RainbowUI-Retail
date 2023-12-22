@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1654, "DBM-Party-Legion", 2, 762)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231124222902")
+mod:SetRevision("20231221065204")
 mod:SetCreatureID(96512)
 mod:SetEncounterID(1836)
 mod:SetUsedIcons(8, 7)
@@ -39,7 +39,7 @@ local yellLeap					= mod:NewYell(196354)
 local specWarnRampage			= mod:NewSpecialWarningDefensive(198379, "Tank", nil, nil, 1, 2)
 local specWarnFixate			= mod:NewSpecialWarningYou(198477, nil, nil, nil, 1, 2)
 
-local timerLeapCD				= mod:NewCDCountTimer(12.9, 196354, nil, nil, nil, 3)--13.2-17 depending on travel time and spell queuing (timer could be even shorter, small sample)
+local timerLeapCD				= mod:NewCDCountTimer(11.9, 196354, nil, nil, nil, 3)--11.9-17 depending on travel time and spell queuing (timer could be even shorter, small sample)
 local timerRampageCD			= mod:NewCDCountTimer(26.7, 198379, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)--26.7-32.7
 local timerNightfallCD			= mod:NewCDCountTimer(20.6, 212464, nil, nil, nil, 3)--20.6--30.4
 
@@ -97,9 +97,12 @@ function mod:OnCombatStart(delay)
 	end
 end
 
-function mod:OnCombatEnd()
+function mod:OnCombatEnd(wipe, secondRun)
 	if self.Options.NPAuraOnFixate then
 		DBM.Nameplate:Hide(true, nil, nil, nil, true, true)
+	end
+	if not wipe and not secondRun then
+		DBM:GetModByName("DHTTrash"):ResetSecondBossRP()
 	end
 end
 
