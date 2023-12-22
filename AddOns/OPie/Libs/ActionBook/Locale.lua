@@ -51,6 +51,12 @@ V =
       "飛行坐騎", "地面坐騎", "介面視窗", "物品", "物品", "巨集", "巨集", "雜項", "坐騎", "坐騎",
       "新增巨集", "只有裝備在身上時才顯示", "寵物技能", "寵物技能", "團隊標記圖示", "團隊世界標記圖示", "團隊標記圖示", "無法使用時顯示暫代圖示", "技能", "玩具",
       "玩具", "介面視窗", "使用已學會的最高等級", "區域能力",
+    }
+    or C == "ptBR" and { -- 34/34 (100%)
+      "Habilidades", "Também usar itens com o mesmo nome", "Batalha de mascote", "Mascotes de batalha", "Calendário", "Macro Personalizada", "Montaria de Dragonaria", "Conjunto de equipamento", "Conjuntos de equipamentos", "Botão de ação extra",
+      "Montaria Voadora", "Montaria Terrestre", "Painel de Interface", "Item", "Itens", "Macro", "Macros", "Variados", "Montaria", "Montarias",
+      "Novo Macro", "Apenas mostrar quando equipado", "Habilidade de Mascote", "Habilidades de Mascote", "Marcadores de Reide", "Marcadores Globais de Reide", "Marcadores de reide", "Sempre mostrar essa fatia quando indisponível", "Feitiço ", "Brinquedo",
+      "Bringquedos", "Painel de UI", "Usar o maior rank conhecido", "Habilidades de Área",
     } or nil
 
 K = V and {

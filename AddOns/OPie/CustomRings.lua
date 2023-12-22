@@ -1,4 +1,4 @@
-local MAJ, REV, _, T = 3, 59, ...
+local MAJ, REV, _, T = 3, 60, ...
 local EV, ORI, PC = T.Evie, OPie.UI, T.OPieCore
 local AB, RW, IM = T.ActionBook:compatible(2,37), T.ActionBook:compatible("Rewire", 1,10), T.ActionBook:compatible("Imp", 1, 0)
 assert(ORI and AB and RW and IM and EV and PC and 1, "Missing required libraries")
@@ -8,6 +8,7 @@ local RK_RingDesc, RK_CollectionIDs, RK_FluxRings, SV = {}, {}, {}
 local loadLock, queue, RK_DeletedRings, RK_FlagStore, sharedCollection = 0, {}, {}, {}, {}
 local CLASS, FULLNAME, FACTION
 local rotationPresentationModes = {cycle=20, shuffle=36, random=52, reset=68, jump=84}
+local SLICE_ACTIONID_TYPE = {string="imptext", number="spell"}
 
 local function assert(condition, text, level, ...)
 	return condition or error(tostring(text):format(...), 1 + (level or 1))((0)[0])
@@ -243,15 +244,9 @@ local function copy(t, copies)
 	return into
 end
 local function updateSliceAction_Z3(slice)
-	local at, v
-	if type(slice[1]) == "string" then
-		at = slice[1]
-	else
-		at = type(slice.id)
-		at = at == "string" and "imptext" or at == "number" and "spell" or nil
-	end
+	local at, v = type(slice[1]) == "string" and slice[1] or SLICE_ACTIONID_TYPE[type(slice.id)]
 	if at == "item" then
-		v = (slice.byName and 2 or 0) + (slice.forceShow and 1 or 0) + (slice.onlyEquipped and 4 or 0)
+		v = (slice.forceShow and 1 or 0) + (slice.byName and 2 or 0) + (slice.onlyEquipped and 4 or 0)
 		slice.byName, slice.forceShow, slice.onlyEquipped = nil
 	elseif at == "macro" or at == "extrabutton" or at == "toy" then
 		v = (slice.forceShow and 1 or 0)
@@ -262,7 +257,17 @@ local function updateSliceAction_Z3(slice)
 	elseif at == "spell" then
 		slice[3] = slice[3] == "lock-rank" and 16 or nil
 	end
-	slice[3] = v and v > 0 and v or slice[3] or nil
+	if v then
+		slice[3] = v > 0 and v or nil
+	end
+end
+local function genSliceTokenIndexMap(props)
+	local r = {}
+	for i=1, #props do
+		r[props[i].sliceToken or r] = i
+	end
+	r[r] = nil
+	return r
 end
 
 local RK_SetRingDesc
@@ -317,6 +322,120 @@ local function RK_SyncRing(name, force, tok)
 	AB:UpdateActionSlot(cid, collection)
 	PC:SetRing(name, cid, desc)
 end
+local BUP = {} do
+	local metaBits = {name=1, hotkey=2, internal=4, limit=8, embed=16, noOpportunisticCA=32, onOpen=64}
+	local ignoreSliceFields = {sliceToken=0, vm=0}
+	function BUP.DiffSlice(slice, bs)
+		if not bs then return end
+		local am, mm, ia, ib = true, true, slice, bs
+		repeat
+			for k,v in pairs(ia) do
+				local kt = type(k)
+				am = am and (kt ~= "number" or ib[k] == v)
+				mm = mm and (kt ~= "string" or ib[k] == v or ignoreSliceFields[k] or k:sub(1,1) == "_")
+			end
+			ia, ib = ib, ia
+		until ia == slice or not (am or mm)
+		local r = (am and 1 or 0) + (mm and 2 or 0)
+		return r > 0 and r or nil
+	end
+	function BUP.PatchSlice(slice, bs, patchBits)
+		if patchBits == 0 or type(patchBits) ~= "number" then
+			return
+		end
+		local patchAction, patchMeta, cl = patchBits % 2 > 0, patchBits % 4 > 1
+		for s=1, 2 do
+			for k in pairs(s == 1 and bs or slice) do
+				local tk, bv = type(k), bs[k]
+				if bv ~= nil and s > 1 then
+				elseif tk == "number" and patchAction or
+				       tk == "string" and patchMeta and not ignoreSliceFields[k] and k:sub(1,1) ~= "_" then
+					if type(bv) == "table" then
+						cl = cl or {}
+						bv = copy(bv, cl)
+					end
+					slice[k] = bv
+				end
+			end
+		end
+	end
+	function BUP.FindSliceWithAction(props, needle, avoidTokens)
+		local mv, mi
+		for i=1, #props do
+			local si = props[i]
+			if not avoidTokens[si.sliceToken] then
+				local v = BUP.DiffSlice(props[i], needle)
+				if v and v % 2 > 0 and (mv == nil or v > mv) then
+					mv, mi = v, i
+				end
+			end
+		end
+		return mi
+	end
+	function BUP.FindSliceByToken(props, needle)
+		for i=1,#props do
+			if props[i].sliceToken == needle then
+				return i
+			end
+		end
+	end
+	function BUP.DiffRingMeta(props, bp)
+		local r = 0
+		for k,v in pairs(metaBits) do
+			r = props[k] == bp[k] and r + v or r
+		end
+		return r > 0 and r or nil
+	end
+	function BUP.PatchRingMeta(props, bp, patchBits)
+		if patchBits == 0 or type(patchBits) ~= "number" then
+			return
+		end
+		for k,v in pairs(metaBits) do
+			if patchBits % (v+v) >= v and bp[k] ~= nil then
+				props[k] = bp[k]
+			end
+		end
+	end
+	function BUP.UpgradeBundledRing(saved, bundled)
+		if not (bundled and bundled.v and (tonumber(bundled.v) or 0) > (tonumber(saved.v) or 0)) then
+			return
+		end
+		local drop, lastMatchIndex = type(saved.dropTokens) == "table" and saved.dropTokens or nil, 0
+		local stim, bstim = genSliceTokenIndexMap(saved), genSliceTokenIndexMap(bundled)
+		for bst, bidx in pairs(bstim) do
+			local bs, aid = bundled[bidx]
+			for i=stim[bst] or 1, stim[bst] and #saved or 0 do
+				if saved[i].sliceToken == bst then
+					aid = i
+					break
+				end
+			end
+			aid = aid or BUP.FindSliceWithAction(saved, bs, bstim)
+			if aid then
+				BUP.PatchSlice(saved[aid], bs, saved[aid].vm)
+				saved[aid].sliceToken, lastMatchIndex = bs.sliceToken, aid
+			elseif not (drop and drop[bst]) then
+				lastMatchIndex = lastMatchIndex + 1
+				table.insert(saved, lastMatchIndex, copy(bs))
+			end
+		end
+		for i=#saved, 1, -1 do
+			local vm = not bstim[saved[i].sliceToken] and saved[i].vm
+			if vm and type(vm) == "number" and vm % 2 > 0 then
+				table.remove(saved, i)
+			end
+		end
+		BUP.PatchRingMeta(saved, bundled, saved.vm)
+		saved.v = bundled.v
+	end
+end
+local function findSliceByToken(props, st)
+	for i=1, props and st and #props or 0 do
+		if props[i].sliceToken == st then
+			return props[i]
+		end
+	end
+end
 local function dropUnderscoreKeys(t)
 	for k in pairs(t) do
 		if type(k) == "string" and k:sub(1,1) == "_" then
@@ -324,18 +443,15 @@ local function dropUnderscoreKeys(t)
 		end
 	end
 end
-local function RK_SanitizeDescription(name, props, isLaxInput)
+local function RK_SanitizeDescription(name, props, isLaxInput, doQueueUpgrade)
 	local uprefix, colID, marks = type(props._u) == "string" and props._u, RK_CollectionIDs[name], {}
+	local qd = doQueueUpgrade and queue[name]
 	for i=#props,1,-1 do
 		local v = props[i]
 		repeat
-			local rt, id = v.rtype, v.id
-			if rt and id then
-				v[1], v[2], v.rtype, v.id = rt, id
-			elseif type(id) == "number" then
-				v[1], v[2], v.rtype, v.id = "spell", id
-			elseif type(id) == "string" then
-				v[1], v[2], v.rtype, v.id = "imptext", id
+			local idt = SLICE_ACTIONID_TYPE[type(v.id)]
+			if idt then
+				v[1], v[2], v.id = idt, v.id
 			elseif v[1] == nil then
 				table.remove(props, i)
 				break
@@ -352,7 +468,11 @@ local function RK_SanitizeDescription(name, props, isLaxInput)
 			if not tokenOK then
 				if not isLaxInput then
 					-- Persistent, globally-unique slice tokens are required for rings created/persisted by external code
-					assert(false, string.format("desc[%d].sliceToken value is missing, invalid, or not [globally] unique (%s)", i, type(sliceToken)), 4)
+					local tokenDesc = type(sliceToken)
+					if tokenDesc == "string" and sliceToken:match("^[%a%d]+$") then
+						tokenDesc = tokenDesc .. ":" .. sliceToken
+					end
+					assert(false, string.format("desc[%d].sliceToken value is missing, invalid, or not [globally] unique (got %s)", i, tokenDesc), 4)
 				end
 				sliceToken = AB:CreateToken()
 			end
@@ -360,16 +480,48 @@ local function RK_SanitizeDescription(name, props, isLaxInput)
 		until 0
 	end
 	props._embed = nil
+	BUP.UpgradeBundledRing(props, qd)
 	return props
 end
-local function RK_SerializeDescription(props)
+local function RK_SerializeDescription(props, bp)
+	local stim, drop = bp and bp.v and props.v == bp.v and genSliceTokenIndexMap(bp)
+	if stim then
+		local present = genSliceTokenIndexMap(props)
+		for tok, bidx in pairs(stim) do
+			if not present[tok] then
+				local alt = BUP.FindSliceWithAction(props, bp[bidx], stim)
+				if alt then
+					props[alt].sliceToken, present[tok] = tok, alt
+				else
+					drop = drop or {}
+					drop[tok] = 1
+				end
+			end
+		end
+		if type(props.dropTokens) == "table" then
+			for tok, c in pairs(props.dropTokens) do
+				c = not (present[tok] or drop and drop[tok]) and (type(c) ~= "number" and 1 or c < 99 and c + 1)
+				if c then
+					drop = drop or {}
+					drop[tok] = c
+				end
+			end
+		end
+	end
 	for _, slice in ipairs(props) do
+		if stim then
+			local bs = props[stim[slice.sliceToken]]
+			slice.vm = bs and securecall(BUP.DiffSlice, slice, bs) or nil
+		end
 		if slice[1] == "spell" or slice[1] == "imptext" then
 			slice.id, slice[1], slice[2] = slice[2]
 		end
 		dropUnderscoreKeys(slice)
 	end
 	dropUnderscoreKeys(props)
+	if stim then
+		props.v, props.vm, props.dropTokens = bp.v, BUP.DiffRingMeta(props, bp) or nil, drop
+	end
 	props.sortScope = nil
 	props.quarantineBind = nil -- DEPRECATED [2310/Z2]
 	return props
@@ -397,8 +549,11 @@ local function svInitializer(event, _name, sv)
 		for k in pairs(sv) do sv[k] = nil end
 		for k, v in pairs(RK_RingDesc) do
 			if type(v) == "table" and not RK_DeletedRings[k] and v.save then
-				sv[k] = RK_SerializeDescription(v)
+				sv[k] = RK_SerializeDescription(v, queue[k])
 			end
+		end
+		for k,v in pairs(RK_DeletedRings) do
+			RK_DeletedRings[k] = queue[k] and true or type(v) ~= "number" and 0 or (v < 99 and v + 1 or nil)
 		end
 		sv.OPieDeletedRings, sv.OPieFlagStore = next(RK_DeletedRings) and RK_DeletedRings, next(RK_FlagStore) and RK_FlagStore
 
@@ -421,9 +576,10 @@ local function svInitializer(event, _name, sv)
 			if deleted[k] == nil and SV[k] == nil then
 				securecall(RK_SetRingDesc, k, v, true)
 				SV[k] = nil
-			elseif deleted[k] then
-				RK_DeletedRings[k] = true
 			end
+		end
+		for k,v in pairs(deleted) do
+			RK_DeletedRings[k] = v
 		end
 		for k, v in pairs(SV) do
 			if type(v) == "table" then
@@ -434,7 +590,7 @@ local function svInitializer(event, _name, sv)
 					updateSliceAction_Z3(v[i])
 				end
 			end
-			securecall(RK_SetRingDesc, k, v, true)
+			securecall(RK_SetRingDesc, k, v, true, true)
 		end
 
 	elseif event == "POST-LOGIN" and loadLock == 1 then
@@ -452,12 +608,12 @@ local function ringIterator(isDeleted, k)
 		return nk, v.name or nk, RK_CollectionIDs[nk] ~= nil, #v, v.internal, v.limit
 	end
 end
-function RK_SetRingDesc(name, desc, isLaxInput)
+function RK_SetRingDesc(name, desc, isLaxInput, doQueueUpgrade)
 	assert(type(name) == "string" and (type(desc) == "table" or desc == false))
 	if loadLock == 0 then
 		queue[name] = desc and RK_SanitizeDescription(name, copy(desc), isLaxInput)
 	elseif desc then
-		RK_RingDesc[name], RK_DeletedRings[name] = RK_SanitizeDescription(name, copy(desc), isLaxInput), nil
+		RK_RingDesc[name], RK_DeletedRings[name] = RK_SanitizeDescription(name, copy(desc), isLaxInput, doQueueUpgrade), nil
 		RK_SyncRing(name, true)
 	elseif RK_RingDesc[name] then
 		PC:SetRing(name, nil)
@@ -481,9 +637,9 @@ function api:GenFreeRingName(base, reserved)
 end
 function api:AddDefaultRing(name, desc)
 	assert(type(name) == "string" and type(desc) == "table", 'Syntax: RK:AddDefaultRing("name", descTable)', 2)
+	assert(loadLock == 0, 'AddDefaultRing: locked; call before PLAYER_LOGIN')
 	assert(queue[name] == nil and RK_RingDesc[name] == nil, 'A ring with this name already exists', 2)
-	queue[name] = copy(desc)
-	RK_SetRingDesc(name, queue[name])
+	RK_SetRingDesc(name, desc)
 end
 function api:SetExternalRing(name, desc)
 	assert(type(name) == "string" and (type(desc) == "table" or desc == false), 'Syntax: RK:SetExternalRing("name", descTable or false)', 2)
@@ -531,7 +687,7 @@ function private:GetRingSnapshot(name, bundleNested)
 		local props = m[table.remove(q)] or props
 		RK_SerializeDescription(props)
 		props.limit = type(props.limit) == "string" and props.limit:match("[^A-Z]") and "PLAYER" or props.limit
-		props.save, props.hotkey, props.v = nil
+		props.save, props.hotkey, props.v, props.vm, props.dropTokens = nil
 		for i=1,#props do
 			local v = props[i]
 			local st = v[1]
@@ -546,7 +702,7 @@ function private:GetRingSnapshot(name, bundleNested)
 				end
 			end
 			v.caption = nil -- DEPRECATED [2101/X4]
-			v.sliceToken = nil
+			v.sliceToken, v.vm = nil
 		end
 	until not q[1]
 	props._scv, props._bundle = 1, next(m) ~= nil and m or nil
@@ -585,8 +741,9 @@ function private:GetSnapshotRing(snap)
 			dropUnderscoreKeys(v)
 		end
 		ri.name = ri.name:gsub("|?|", "||")
-		ri.quarantineBind, ri.hotkey = nil, nil
+		ri.quarantineBind, ri.hotkey = nil
 		ri.quarantineOnOpen, ri.onOpen = ri.onOpen, nil
+		ri.v, ri.vm, ri.dropTokens = nil
 		dropUnderscoreKeys(ri)
 	until q[1] == nil
 	return root, bun
@@ -615,6 +772,18 @@ function private:GetDefaultDescription(name)
 end
 function private:GetDeletedRings()
 	return ringIterator, true, nil
+end
+
+function private:CanRestoreSlice(ring, slice)
+	assert(type(ring) == "string" and type(slice) == "table", 'Syntax: canRestore = RK:CanRestoreSlice("ring", slice)')
+	local bs = findSliceByToken(queue[ring], slice.sliceToken)
+	local diff = bs and BUP.DiffSlice(slice, bs)
+	return diff and diff ~= 3 or false, not not bs
+end
+function private:GetRestoredSlice(ring, slice)
+	assert(type(ring) == "string" and type(slice) == "table", 'Syntax: slice? = RK:GetRestoredSlice("ring", slice)')
+	local bs = findSliceByToken(queue[ring], slice.sliceToken)
+	return bs and copy(bs) or nil
 end
 
 for k,v in pairs(api) do

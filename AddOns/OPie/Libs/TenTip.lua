@@ -1,9 +1,8 @@
 local _, T = ...
 
-local tn, suf = "NotGameTooltip", 0
-while _G[tn] do
-	tn, suf = tn .. suf, suf + 1
-end
+local suf, tn = 1 repeat
+	tn, suf = "NotGameTooltip" .. suf, suf + 1
+until _G[tn] == nil
 local tip = CreateFrame("GameTooltip", tn, UIParent, "GameTooltipTemplate") do
 	local skipHide
 	tip:SetScript("OnShow", function(self)

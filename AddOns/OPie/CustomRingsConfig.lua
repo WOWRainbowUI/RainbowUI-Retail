@@ -902,12 +902,16 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 	sliceDetail.remove:SetText(L"Delete slice")
 	sliceDetail.remove:SetScript("OnClick", function() return api.deleteSlice() end)
 	sliceDetail.repick = CreateButton(sliceDetail)
-	sliceDetail.repick:SetPoint("TOPRIGHT", sliceDetail.remove, "TOPLEFT", -20, 0)
+	sliceDetail.repick:SetPoint("BOTTOMLEFT", 10, 10)
 	sliceDetail.repick:SetText(L"Change action")
 	sliceDetail.repick:SetScript("OnClick", function()
 		PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
 		return api.beginSliceRepick()
 	end)
+	sliceDetail.restore = CreateButton(sliceDetail)
+	sliceDetail.restore:SetPoint("RIGHT", sliceDetail.remove, "LEFT", -20, 0)
+	sliceDetail.restore:SetText(L"Restore default")
+	sliceDetail.restore:SetScript("OnClick", function() PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON) api.restoreSliceDefault() end)
 end
 newSlice = CreateFrame("Frame", nil, ringContainer) do
 	newSlice:SetAllPoints()
@@ -1655,6 +1659,9 @@ function api.updateSliceDisplay(_id, desc)
 	sliceDetail.showConditional:SetText(showConditional or desc.show or "")
 	api.updateSliceOptions(desc)
 	editorHost:SetAction(desc)
+	local canRestore, hasRestore = RK:CanRestoreSlice(currentRingName, desc)
+	sliceDetail.restore:SetShown(hasRestore)
+	sliceDetail.restore:SetEnabled(canRestore)
 end
 function api.moveSlice(source, dest)
 	if not (currentRing and currentRing[source] and currentRing[dest]) then return end
@@ -1725,6 +1732,17 @@ function api.restoreDefault()
 			RK:RestoreDefaults(currentRingName)
 		end
 		api.selectRing(nil, currentRingName)
+	end
+end
+function api.restoreSliceDefault()
+	if currentRingName and currentSliceIndex then
+		local ns = RK:GetRestoredSlice(currentRingName, currentRing[currentSliceIndex])
+		if ns then
+			currentRing[currentSliceIndex] = ns
+			api.saveRing(currentRingName, currentRing)
+			api.updateSliceDisplay(currentSliceIndex, ns)
+			api.updateRingLine()
+		end
 	end
 end
 function api.addSlice(pos, ...)
