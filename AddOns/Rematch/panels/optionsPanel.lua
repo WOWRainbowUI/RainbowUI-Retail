@@ -130,6 +130,36 @@ rematch.events:Register(rematch.optionsPanel,"PLAYER_LOGIN",function(self)
         end
     })
 
+    rematch.dialog:Register("ImportOptions",{
+        title = L["Import Options"],
+        accept = L["Import"],
+        cancel = CANCEL,
+        layout = {"Text","SmallText","MultiLineEditBox","Feedback"},
+        refreshFunc = function(self,info,subject,firstRun)
+            self.Text:SetText(L["Press Ctrl+V to paste from clipboard"])
+            self.SmallText:SetText(format(L["This will reset most options, set them to values pasted here, then reload the UI. %sUse this at your own risk!\124r Tinkering with these values can cause Rematch to become unstable and require a full reset."],C.HEX_RED))
+            self.Feedback:Set("warning",L["This will reset most options!\nThis cannot be undone!"])
+            rematch.dialog.AcceptButton:Disable()
+            self.MultiLineEditBox:SetText("")
+        end,
+        changeFunc = function(self,info,subject)
+            local import = (self.MultiLineEditBox:GetText() or ""):trim()
+            if import:len()>0 and not import:match("[A-Za-z0-9_]+=[A-Za-z0-9_%s]+") then
+                self.Feedback:Set("warning","Invalid options")
+                rematch.dialog.AcceptButton:Disable()
+            else
+                self.Feedback:Set("warning",L["This will reset most options!\nThis cannot be undone!"])
+                rematch.dialog.AcceptButton:SetEnabled(import:len()>0)
+            end
+        end,
+        acceptFunc = function(self,info,subject)
+            local import = (self.MultiLineEditBox:GetText() or ""):trim()
+            if import:len()>0 then
+                rematch.optionsPanel:ImportOptions(import)
+            end
+        end
+    })
+
     rematch.dialog:Register("ResetOptions",{
         title = L["Reset Options"],
         accept = YES,
@@ -798,4 +828,34 @@ function rematch.optionsPanel.widgetUpdate:UseCustomScaleWidget()
     self.Check:SetTexCoord(0+xoff,0.25+xoff,0.5,0.75)
     self.ScaleButton:SetShown(settings.CustomScale)
     self.ScaleButton:SetText(format("%d%%",settings.CustomScaleValue or 0))
+end
+
+-- resets all non-table options to default, sets non-table options in import to given values, then reloads the UI
+-- this is used for troubleshooting to mimic another user's options that was exported from the Export button in options
+function rematch.optionsPanel:ImportOptions(import)
+    local defaults = settings:GetDefaults()
+    -- wipe all number, boolean or string settings
+    for var,value in pairs(defaults) do
+        if type(value)=="number" or type(value)=="boolean" or type(value)=="string" then
+            settings[var] = value
+        end
+    end
+    for line in ((import or "").."\n"):gmatch("(.-)\n") do
+        local var,value = line:match("([A-Za-z0-9_]+)=([A-Za-z0-9_%s]+)")
+        if var and value then
+            var=var:trim()
+            value=value:trim()
+            local default = settings[var]
+            if default~=nil then
+                if type(default)=="number" and tonumber(value) then
+                    settings[var] = tonumber(value)
+                elseif type(default)=="boolean" and (value=="true" or value=="false") then
+                    settings[var] = value=="true"
+                elseif type(default)=="string" and tostring(value) then
+                    settings[var] = tostring(value)
+                end
+            end
+        end
+    end
+    ReloadUI()
 end

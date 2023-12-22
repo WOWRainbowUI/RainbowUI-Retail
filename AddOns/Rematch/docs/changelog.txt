@@ -1,3 +1,8 @@
+12/17/2023 version 5.0.4
+- Fix for Standalone Options 'Keep Window On Screen' -> 'Even Across Sessions' always showing window on login instead of only if it was up on last logout
+- Added Uncollected Pets count and Average Level to the total pets/collection tooltip in topleft of the expanded window
+- Localization template updated
+
 11/26/2023 version 5.0.3
 - Increased limit of team tabs from 15 to 16. The 16th tab, when used, replaces the "Create New Group" tab if it was shown
 - Added Team Option 'Show Create New Group Tab' to show/hide the tab with the yellow plus (+) symbol to create a new group. This is initially enabled for anyone who upgraded from Rematch 4 and disabled for any new installs

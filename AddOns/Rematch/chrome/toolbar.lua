@@ -257,7 +257,8 @@ end
 
 function rematch.toolbar.TotalsButton:OnEnter()
     self.Highlight:Show()
-    local tooltipBody = format(L["Unique Pets: %s%d\124r\nTotal Pets: %s%d\124r%s"],C.HEX_WHITE,rematch.roster:GetNumUniqueOwned(),C.HEX_WHITE,(select(2,C_PetJournal.GetNumPets())),settings.HideMenuHelp and "" or format(L["\n\n%s Click for details"],C.LMB_TEXT_ICON))
+    local stats = rematch.collectionInfo:GetCollectionStats()
+    local tooltipBody = format(L["Unique Pets: %s%d\124r\nTotal Pets: %s%d\124r\nUncollected Pets: %s%d\124r\nAverage Level: %s%.1f\124r%s"],C.HEX_WHITE,stats.numCollectedUnique,C.HEX_WHITE,stats.numCollectedTotal,C.HEX_WHITE,stats.numUncollected,C.HEX_WHITE,stats.averageLevel,settings.HideMenuHelp and "" or format(L["\n\n%s Click for details"],C.LMB_TEXT_ICON))
     rematch.tooltip:ShowSimpleTooltip(self,nil,tooltipBody)
 end
 

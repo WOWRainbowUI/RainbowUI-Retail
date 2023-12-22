@@ -44,6 +44,7 @@ rematch.events:Register(rematch.frame,"PLAYER_LOGIN",function(self)
     rematch.events:Register(self,"PLAYER_ENTERING_WORLD",self.PLAYER_ENTERING_WORLD)
     rematch.events:Register(self,"PET_BATTLE_OPENING_START",self.PET_BATTLE_OPENING_START)
     rematch.events:Register(self,"REMATCH_PETS_LOADED",self.REMATCH_PETS_LOADED)
+    rematch.events:Register(self,"PLAYER_LOGOUT",self.PLAYER_LOGOUT)
     self.CloseButton:Hide() -- using titlebar's close button
 end)
 
@@ -167,9 +168,13 @@ end
 
 -- on login after pets are loaded, open window if LockWindow and StayOnLogout enabled
 function rematch.frame:REMATCH_PETS_LOADED()
-    if settings.LockWindow and settings.StayOnLogout then
+    if settings.LockWindow and settings.StayOnLogout and not rematch.frame:IsVisible() and settings.WasShownOnLogout then
         self:Toggle()
     end
+end
+
+function rematch.frame:PLAYER_LOGOUT()
+    settings.WasShownOnLogout = rematch.frame:IsVisible()
 end
 
 -- rematch can't remain on screen during combat; if it's up as player enters combat, hide it but set a flag to bring it back after

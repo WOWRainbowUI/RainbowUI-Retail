@@ -70,6 +70,49 @@ local speciesStats = rematch.odTable:Create(function(self)
     end
 end)
 
+-- an unordered table of details about the collection
+local collectionStats = rematch.odTable:Create(function(self)
+    -- collection[speciesID] = {petType,source,numPets,numAt25,totalLevels,numPoor,numCommon,numUncommon,numRare}
+    local stats = rematch.collectionInfo:GetSpeciesStats()
+
+    self.numInJournal = 0
+    self.numCollectedUnique = 0
+    self.numCollectedTotal = 0
+    self.numUncollected = 0
+    self.numUniqueMax = 0 -- unique pets at max level
+    self.numTotalMax = 0 -- total pets at max level
+    self.totalLevels = 0 -- used in average level calculation
+    self.numUniqueRare = 0
+    self.numTotalRare = 0
+    self.numUncommon = 0
+    self.numCommon = 0
+    self.numPoor = 0
+    self.averageLevel = 0
+
+    for _,info in pairs(stats) do
+        self.numInJournal = self.numInJournal + 1
+        if info[3]==0 then
+            self.numUncollected = self.numUncollected + 1
+        else
+            self.numCollectedTotal = self.numCollectedTotal + info[3] -- total collected pets
+            self.numCollectedUnique = self.numCollectedUnique + 1 -- unique collected pets
+            self.numTotalMax = self.numTotalMax + info[4] -- total pets at max level
+            self.numUniqueMax = self.numUniqueMax + min(info[4],1) -- unique pets at max level
+            self.totalLevels = self.totalLevels + info[5]
+            self.numPoor = self.numPoor + info[7] -- total poor
+            self.numCommon = self.numCommon + info[8] -- total common
+            self.numUncommon = self.numUncommon + info[9] -- total uncommon
+            self.numTotalRare = self.numTotalRare + info[10] -- rare pets
+            self.numUniqueRare = self.numUniqueRare + min(info[10],1) -- unique rare pets
+        end
+    end
+
+    if self.totalLevels > 0 and self.numCollectedTotal > 0 then
+        self.averageLevel = self.totalLevels/self.numCollectedTotal
+    end
+    
+end)
+
 -- returns whether the given speciesID has a version at 25
 function rematch.collectionInfo:IsSpeciesAt25(speciesID)
     return speciesAt25[speciesID] or false
@@ -96,4 +139,9 @@ end
 function rematch.collectionInfo:GetSpeciesStats()
     speciesStats:Start()
     return speciesStats
+end
+
+function rematch.collectionInfo:GetCollectionStats()
+    collectionStats:Start()
+    return collectionStats
 end

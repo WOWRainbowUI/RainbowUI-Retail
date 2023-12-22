@@ -64,6 +64,7 @@ local defaults = {
     BarChartCategory = C.BARCHART_IN_JOURNAL, -- which barchart category to show for pet collection
     ConvertedTeams = {}, -- indexed by Rematch 4 team key, the Rematch 5 teamID that the key was converted into
     BackupCount = 0, -- number of teams created since a backup was last offered
+    WasShownOnLogout = false, -- true if the rematch window was on screen during logout
 
     -- Interaction Options
     InteractOnTarget = C.INTERACT_NONE, -- On Target (dropdown)

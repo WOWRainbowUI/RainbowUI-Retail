@@ -989,3 +989,29 @@ L["This will restore all options in Rematch to default values and reload the UI.
 L["All Options:"] = nil
 L["Reset"] = nil
 L["Export"] = nil
+
+-- Version: 5.0.4 --
+
+-- chrome\toolbar.lua
+L["Unique Pets: %s%d\124r\nTotal Pets: %s%d\124r\nUncollected Pets: %s%d\124r\nAverage Level: %s%.1f\124r%s"] = nil
+
+-- menus\teamMenu.lua
+L["Teams and Groups"] = nil
+L["Teams can be organized into an unlimited number of collapsible groups. You can create new groups with %sCreate New Group\124r in this menu. Up to %d groups can be shown as tabs to act as bookmarks to these groups.\n\nBoth teams and groups can be rearranged with drag and drop. To easily move many teams to another group, use %sTeam Herder\124r in this menu.\n\nTeams with a %s beside their name contain at least one target.\nTeams with a %s beside their name contain a leveling preference.\nPets or targets with a %s beside their name belong to at least one team."] = nil
+
+-- panels\optionsList.lua
+L["Show Create New Group Tab"] = nil
+L["When space permits, add a button at the bottom of team tabs to create a new group."] = nil
+L["Show team tabs along the right side of the window even if you're not on the teams panel."] = nil
+L["Never Show Team Tabs"] = nil
+L["Never show team tabs along the right side of the window even if you're on the teams panel."] = nil
+L["Target or pet is in a team"] = nil
+L["Pet is in the leveling queue"] = nil
+L["Team or pet has notes"] = nil
+L["Team has at least one target"] = nil
+L["Team or group has preferences"] = nil
+
+-- panels\optionsPanel.lua
+L["Import Options"] = nil
+L["This will reset most options, set them to values pasted here, then reload the UI. %sUse this at your own risk!\124r Tinkering with these values can cause Rematch to become unstable and require a full reset."] = nil
+L["This will reset most options!\nThis cannot be undone!"] = nil

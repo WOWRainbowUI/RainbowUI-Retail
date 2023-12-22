@@ -121,6 +121,12 @@ SlashCmdList["REMATCH"] = function(msg)
         return
     end
 
+    -- "/rematch import options" will show a dialog to reset options and update to the ones provided
+    if msg=="import options" then
+        rematch.dialog:ShowDialog("ImportOptions")
+        return
+    end
+
     -- if reached here, the msg didn't resolve to a team or anything meaningful
     rematch.utils:Write(format(L["The team named \"%s\" can't be found."],msg))
 
