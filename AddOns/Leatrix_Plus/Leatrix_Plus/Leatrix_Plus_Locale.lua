@@ -1,4 +1,4 @@
-﻿----------------------------------------------------------------------
+----------------------------------------------------------------------
 -- 	Leatrix Plus Locale
 ----------------------------------------------------------------------
 
@@ -4659,7 +4659,7 @@ end
 
 -- deDE: German
 if GameLocale == "deDE" then
-	L["A Deal with Death"] = "Ein Pakt mit dem Tod"
+L["A Deal with Death"] = "Ein Pakt mit dem Tod"
 L["A Falling Star"] = "Eine Sternschnuppe"
 L["A Found Memento"] = "Ein gefundenes Andenken"
 L["A friend request from"] = "Eine Freundschaftsanfrage von"
@@ -8423,7 +8423,6 @@ end
 
 -- itIT: Italian
 if GameLocale == "itIT" then
-L["(scroll the list for more)"] = "(scorrere l'elenco per saperne di più)"
 
 end
 
