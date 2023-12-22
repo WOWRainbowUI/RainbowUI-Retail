@@ -63,30 +63,30 @@ local function UpdateFonts()
 	NAMEPLATE_FONT     = GMFONTS["B"]
 
 	-- Base fonts
-	SetFont(_G.AchievementFont_Small,              	GMFONTS["B"], 12, "")
+	SetFont(_G.AchievementFont_Small,              	GMFONTS["B"], 13, "")
 	SetFont(_G.FriendsFont_Large,                  	GMFONTS["N"], 15, "", nil, nil, nil, 0, 0, 0, 1, -1)
 	SetFont(_G.FriendsFont_Normal,                 	GMFONTS["N"], 13, "", nil, nil, nil, 0, 0, 0, 1, -1)
-	SetFont(_G.FriendsFont_Small,                  	GMFONTS["N"], 11, "", nil, nil, nil, 0, 0, 0, 1, -1)
-	SetFont(_G.FriendsFont_UserText,               	GMFONTS["NR"], 12, "", nil, nil, nil, 0, 0, 0, 1, -1)
+	SetFont(_G.FriendsFont_Small,                  	GMFONTS["N"], 13, "", nil, nil, nil, 0, 0, 0, 1, -1)
+	SetFont(_G.FriendsFont_UserText,               	GMFONTS["NR"], 13, "", nil, nil, nil, 0, 0, 0, 1, -1)
 	SetFont(_G.GameTooltipHeader,                  	GMFONTS["B"], 15, "")
 	SetFont(_G.GameFont_Gigantic,                  	GMFONTS["B"], 32, "", nil, nil, nil, 0, 0, 0, 1, -1)
-	SetFont(_G.GameNormalNumberFont,               	GMFONTS["B"], 11, "")
+	SetFont(_G.GameNormalNumberFont,               	GMFONTS["B"], 13, "")
 	SetFont(_G.InvoiceFont_Med,                    	GMFONTS["I"], 13, "", 0.15, 0.09, 0.04)
-	SetFont(_G.InvoiceFont_Small,                  	GMFONTS["I"], 11, "", 0.15, 0.09, 0.04)
+	SetFont(_G.InvoiceFont_Small,                  	GMFONTS["I"], 13, "", 0.15, 0.09, 0.04)
 	SetFont(_G.MailFont_Large,                     	GMFONTS["I"], 15, "", 0.15, 0.09, 0.04, 0.54, 0.4, 0.1, 1, -1)
 	SetFont(_G.NumberFont_OutlineThick_Mono_Small, 	GMFONTS["NR"], 13, "OUTLINE")
 	SetFont(_G.NumberFont_Outline_Huge,            	GMFONTS["NR"], 30, "THICKOUTLINE", 0.30)
 	SetFont(_G.NumberFont_Outline_Large,           	GMFONTS["NR"], 17, "OUTLINE")
 	SetFont(_G.NumberFont_Outline_Med,             	GMFONTS["NR"], 15, "OUTLINE")
 	SetFont(_G.NumberFont_Shadow_Med,              	GMFONTS["N"], 14, "")
-	SetFont(_G.NumberFont_Shadow_Small,            	GMFONTS["N"], 12, "")
+	SetFont(_G.NumberFont_Shadow_Small,            	GMFONTS["N"], 13, "")
 	SetFont(_G.QuestFont_Shadow_Small,             	GMFONTS["N"], 16, "")
 	SetFont(_G.QuestFont_Large,                    	GMFONTS["N"], 16, "")
 	SetFont(_G.QuestFont_Shadow_Huge,              	GMFONTS["B"], 19, "", nil, nil, nil, 0.54, 0.4, 0.1)
 	SetFont(_G.QuestFont_Super_Huge,               	GMFONTS["B"], 24, "")
-	SetFont(_G.ReputationDetailFont,               	GMFONTS["B"], 12, "", nil, nil, nil, 0, 0, 0, 1, -1)
-	SetFont(_G.SpellFont_Small,                    	GMFONTS["B"], 11, "")
-	SetFont(_G.SystemFont_InverseShadow_Small,     	GMFONTS["B"], 11, "")
+	SetFont(_G.ReputationDetailFont,               	GMFONTS["B"], 13, "", nil, nil, nil, 0, 0, 0, 1, -1)
+	SetFont(_G.SpellFont_Small,                    	GMFONTS["B"], 13, "")
+	SetFont(_G.SystemFont_InverseShadow_Small,     	GMFONTS["B"], 13, "")
 	SetFont(_G.SystemFont_Large,                   	GMFONTS["N"], 17, "")
 	SetFont(_G.SystemFont_Med1,                    	GMFONTS["N"], 13, "")
 	SetFont(_G.SystemFont_Med2,                    	GMFONTS["I"], 14, "", 0.15, 0.09, 0.04)
@@ -102,12 +102,12 @@ local function UpdateFonts()
 	SetFont(_G.SystemFont_Shadow_Med2,             	GMFONTS["N"], 14, "")
 	SetFont(_G.SystemFont_Shadow_Med3,             	GMFONTS["N"], 15, "")
 	SetFont(_G.SystemFont_Shadow_Outline_Huge2,    	GMFONTS["N"], 22, "OUTLINE")
-	SetFont(_G.SystemFont_Shadow_Small,            	GMFONTS["B"], 11, "")
-	SetFont(_G.SystemFont_Small,                   	GMFONTS["N"], 12, "")
-	SetFont(_G.SystemFont_Tiny,                    	GMFONTS["N"], 11, "")
+	SetFont(_G.SystemFont_Shadow_Small,            	GMFONTS["B"], 13, "")
+	SetFont(_G.SystemFont_Small,                   	GMFONTS["N"], 13, "")
+	SetFont(_G.SystemFont_Tiny,                    	GMFONTS["N"], 13, "")
 	SetFont(_G.Tooltip_Med,                        	GMFONTS["N"], 13, "")
-	SetFont(_G.Tooltip_Small,                      	GMFONTS["B"], 12, "")
-	SetFont(_G.WhiteNormalNumberFont,              	GMFONTS["B"], 11, "")
+	SetFont(_G.Tooltip_Small,                      	GMFONTS["B"], 13, "")
+	SetFont(_G.WhiteNormalNumberFont,              	GMFONTS["B"], 13, "")
 
 	-- Derived fonts
 	SetFont(_G.BossEmoteNormalHuge,     			GMFONTS["BI"], 27, "THICKOUTLINE")
@@ -145,9 +145,9 @@ local function UpdateFonts()
 	SetFont(_G.SystemFont_Shadow_Large2,           GMFONTS["N"], 19, "") -- SharedFonts.xml
 	SetFont(_G.SystemFont_Shadow_Large_Outline,    GMFONTS["N"], 17, "OUTLINE") -- SharedFonts.xml
 	
-	SetFont(_G.SystemFont_Shadow_Med1_Outline,     GMFONTS["N"], 12, "OUTLINE") -- SharedFonts.xml
-	SetFont(_G.SystemFont_Shadow_Small2,           GMFONTS["N"], 11, "") -- SharedFonts.xml
-	SetFont(_G.SystemFont_Small2,                  GMFONTS["N"], 12, "") -- SharedFonts.xml
+	SetFont(_G.SystemFont_Shadow_Med1_Outline,     GMFONTS["N"], 13, "OUTLINE") -- SharedFonts.xml
+	SetFont(_G.SystemFont_Shadow_Small2,           GMFONTS["N"], 13, "") -- SharedFonts.xml
+	SetFont(_G.SystemFont_Small2,                  GMFONTS["N"], 13, "") -- SharedFonts.xml
 	
 	
 	for i=1,7 do
