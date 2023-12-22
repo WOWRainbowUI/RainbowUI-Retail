@@ -212,7 +212,7 @@ E.spell_cdmod_talents_mult = {
 	[199448] = { 216853, .67 },
 	[387174] = { 405757, .75 },
 	[36554] = { 382503, .8 },
-	[121471] = { 354825, .67 },
+	[121471] = { 354825, .8 },
 	[1856] = { 354825, .67 },
 	[1966] = { 354825, .67 },
 	[2983] = { 197000, .5 },
@@ -511,6 +511,11 @@ E.spell_merged = {
 	[326059] = 375982,
 	[325640] = 386997,
 	[307865] = 376079,
+
+	[415569] = 370511,
+	[423414] = 370511,
+	[371039] = 370511,
+	[422750] = 370511,
 }
 
 E.spell_merged_updateoncast = {
@@ -548,6 +553,11 @@ E.spell_merged_updateoncast = {
 	[119914] = { 30, 236316 },
 
 	[307865] = { 60, 3565453 },
+
+	[415569] = { 300, 5088844 },
+	[423414] = { 300, 4497594 },
+	[371039] = { 300, 5088843 },
+	[370511] = { 300, 4497595 },
 }
 
 E.spellcast_shared_cdstart = {
@@ -693,9 +703,10 @@ E.spell_aura_freespender = {
 	[378747] = "DirePack",
 	[378974] = "BastionofLight",
 	[326733] = "EmpyreanPower",
-	[384810] = "SealofClarity",
+
 	[327510] = "ShiningLight",
-	[209785] = "FireofJustice",
+	[414445] = "ShiningRighteousness",
+
 	[223819] = "DivinePurpose",
 	[408458] = "DivinePurpose",
 	[387079] = "TormentedCrescendo",
@@ -752,6 +763,7 @@ E.spell_auraapplied_processspell = {
 	[404381] = 404381,
 	[410232] = 410232,
 	[382912] = 377847,
+	[417069] = 417050,
 }
 
 E.spell_dispel_cdstart = {
@@ -1185,22 +1197,24 @@ local class_set_bonus = {
 		[253] = { 393646, 2 },
 	},
 	]]
-	--[[ 10.1
-	WARRIOR = {
+
+	WARRIOR101 = {
 		[73] = { 405581, 2 },
 	},
-	HUNTER = {
+	DEATHKNIGHT101 = {
+		[251] = { 405502, 4 },
+	},
+	HUNTER101 = {
 		[253] = { 405525, 4 },
 		[254] = { 405527, 4 },
 	},
-	PALADIN = {
+	PALADIN101 = {
 		[65] = { 405545, 2 },
 	},
-	WARLOCK = {
+	WARLOCK101 = {
 		[265] = { 405571, 2 },
 		[266] = { 405573, 2 },
 	},
-	]]
 
 	DEATHKNIGHT = {
 		[251] = { 422853, 4 },
@@ -1237,33 +1251,33 @@ E.item_set_bonus = {
 	[200387] = class_set_bonus.HUNTER,
 	[200389] = class_set_bonus.HUNTER,
 	[200391] = class_set_bonus.HUNTER,
-
-	[202443] = class_set_bonus.WARRIOR,
-	[202441] = class_set_bonus.WARRIOR,
-	[202446] = class_set_bonus.WARRIOR,
-	[202444] = class_set_bonus.WARRIOR,
-	[202442] = class_set_bonus.WARRIOR,
-	[202464] = class_set_bonus.DEATHKNIGHT,
-	[202462] = class_set_bonus.DEATHKNIGHT,
-	[202461] = class_set_bonus.DEATHKNIGHT,
-	[202460] = class_set_bonus.DEATHKNIGHT,
-	[202459] = class_set_bonus.DEATHKNIGHT,
-	[202482] = class_set_bonus.HUNTER,
-	[202480] = class_set_bonus.HUNTER,
-	[202479] = class_set_bonus.HUNTER,
-	[202478] = class_set_bonus.HUNTER,
-	[202477] = class_set_bonus.HUNTER,
-	[202455] = class_set_bonus.PALADIN,
-	[202453] = class_set_bonus.PALADIN,
-	[202452] = class_set_bonus.PALADIN,
-	[202451] = class_set_bonus.PALADIN,
-	[202450] = class_set_bonus.PALADIN,
-	[202536] = class_set_bonus.WARLOCK,
-	[202534] = class_set_bonus.WARLOCK,
-	[202533] = class_set_bonus.WARLOCK,
-	[202532] = class_set_bonus.WARLOCK,
-	[202531] = class_set_bonus.WARLOCK,
 	]]
+
+	[202443] = class_set_bonus.WARRIOR101,
+	[202441] = class_set_bonus.WARRIOR101,
+	[202446] = class_set_bonus.WARRIOR101,
+	[202444] = class_set_bonus.WARRIOR101,
+	[202442] = class_set_bonus.WARRIOR101,
+	[202464] = class_set_bonus.DEATHKNIGHT101,
+	[202462] = class_set_bonus.DEATHKNIGHT101,
+	[202461] = class_set_bonus.DEATHKNIGHT101,
+	[202460] = class_set_bonus.DEATHKNIGHT101,
+	[202459] = class_set_bonus.DEATHKNIGHT101,
+	[202482] = class_set_bonus.HUNTER101,
+	[202480] = class_set_bonus.HUNTER101,
+	[202479] = class_set_bonus.HUNTER101,
+	[202478] = class_set_bonus.HUNTER101,
+	[202477] = class_set_bonus.HUNTER101,
+	[202455] = class_set_bonus.PALADIN101,
+	[202453] = class_set_bonus.PALADIN101,
+	[202452] = class_set_bonus.PALADIN101,
+	[202451] = class_set_bonus.PALADIN101,
+	[202450] = class_set_bonus.PALADIN101,
+	[202536] = class_set_bonus.WARLOCK101,
+	[202534] = class_set_bonus.WARLOCK101,
+	[202533] = class_set_bonus.WARLOCK101,
+	[202532] = class_set_bonus.WARLOCK101,
+	[202531] = class_set_bonus.WARLOCK101,
 
 	[207200] = class_set_bonus.DEATHKNIGHT,
 	[207198] = class_set_bonus.DEATHKNIGHT,
@@ -1443,7 +1457,7 @@ E.sync_cooldowns = {
 
 
 		[853] = { 234299 },
-		[633] = { 65, 633, 392928 },
+		[633] = { 633, { 392928, 414720 } },
 		[31850] = { 66, 31850, 385422 },
 		[642] = { 66, 385422 },
 		--[31884] = { 66, 31884, 204074, { -389539,389539 } },

@@ -314,18 +314,21 @@ function P:IsSpecAndTalentForPvpStatus(talentID, info)
 	end
 end
 
-function P:IsSpecOrTalentForPvpStatus(talentID, info, isLearnedLevel)
+function P:IsSpecOrTalentForPvpStatus(talentID, info, isLearnedLevel, talentDisabledSpec)
 	if not talentID then
 		return isLearnedLevel
 	end
 	if type(talentID) == "table" then
 		for _, id in ipairs(talentID) do
-			local talent = P:IsSpecOrTalentForPvpStatus(id, info, isLearnedLevel)
+			local talent = P:IsSpecOrTalentForPvpStatus(id, info, isLearnedLevel, talentDisabledSpec)
 			if talent then return true end
 		end
 	else
 		if specIDs[talentID] then
 			return isLearnedLevel and info.spec == talentID
+		end
+		if talentDisabledSpec and talentDisabledSpec[self.zone] then
+			return
 		end
 		if covenantIDs[talentID] and not self.isInShadowlands then
 			return

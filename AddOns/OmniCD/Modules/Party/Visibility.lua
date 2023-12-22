@@ -396,7 +396,7 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 	self.isUserHidden = not self.isInTestMode and not E.db.general.showPlayer
 
 	self.isUserDisabled = self.isUserHidden and (not E.db.general.showPlayerEx or not IsAnyExBarEnabled())
-	self.isPvP = E.preCata or (self.isInPvPInstance or (instanceType == "none" and C_PvP.IsWarModeDesired()))
+	self.isPvP = E.preCata or self.isInPvPInstance or (instanceType == "none" and C_PvP.IsWarModeDesired())
 	self.effectivePixelMult = nil
 
 	CD:UpdateCombatLogVar()
