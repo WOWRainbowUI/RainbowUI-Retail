@@ -92,7 +92,7 @@ elseif locale == "zhCN" then
 	L["Cursor"] = "鼠标"
 elseif locale == "zhTW" then
 	L["Player"] = "玩家"
-	L["Cursor"] = "滑鼠游標"
+	L["Cursor"] = "游標"
 else
 	local dm = date( "%d%m" )
 	if sub( dm, 1, 2 ) == "19" and sub( dm, 3, 4 ) == "09" then
@@ -177,7 +177,7 @@ local function OnEventHandler( self, event, args )
 
 	if ( event == "VARIABLES_LOADED" ) then
 		if not XandYDB then XandYDB = {} end
-		local miniPrecision = XandYDB.miniPrecision or 2
+		local miniPrecision = XandYDB.miniPrecision or 1 -- 更改預設值
 		local showMiniZoneText = XandYDB.showMiniZoneText or true
 		XandYDB = {}
 		XandYDB.miniPrecision = miniPrecision
@@ -337,13 +337,13 @@ function XandY_OnAddonCompartmentClick( addonName, buttonName )
 	
 	if buttonName == "LeftButton" then
 		XandYDB.miniPrecision = ( XandYDB.miniPrecision < 3 ) and ( XandYDB.miniPrecision + 1 ) or 1
-		printPC( printPC( "Decimal places = " ..XandYDB.miniPrecision )	)
+		printPC( printPC( "小數點 = " ..XandYDB.miniPrecision )	)
 	elseif buttonName == "RightButton" then
 		XandYDB.miniPrecision = ( XandYDB.miniPrecision > 1 ) and ( XandYDB.miniPrecision - 1 ) or 3
-		printPC( printPC( "Decimal places = " ..XandYDB.miniPrecision )	)
+		printPC( printPC( "小數點 = " ..XandYDB.miniPrecision )	)
 	elseif buttonName == "MiddleButton" then
 		XandYDB.showMiniZoneText = not XandYDB.showMiniZoneText
-		printPC( "Coords in Minimap Zone Text = " ..( XandYDB.showMiniZoneText == true and "On" or "Off" ) )
+		printPC( "區域名稱上的座標 = " ..( XandYDB.showMiniZoneText == true and "開啟" or "關閉" ) )
 	end
 	
 end
@@ -352,14 +352,14 @@ function XandY_OnAddonCompartmentEnter( ... )
 	GameTooltip:SetOwner( DropDownList1, "ANCHOR_LEFT" )	
 	GameTooltip:AddLine( ns.colour.prefix .."X and Y" )
 	GameTooltip:AddLine( ns.colour.highlight .." " )
-	GameTooltip:AddLine( ns.colour.highlight .."Mouse Left/Right: " ..ns.colour.plaintext .."Toggle precision" )
-	GameTooltip:AddLine( ns.colour.highlight .."Mouse Middle: " ..ns.colour.plaintext .."Toggle Zone Text" )
+	GameTooltip:AddLine( ns.colour.highlight .."左鍵/右鍵: " ..ns.colour.plaintext .."切換精確度" )
+	GameTooltip:AddLine( ns.colour.highlight .."中鍵: " ..ns.colour.plaintext .."切換區域文字" )
 
 	if ( mini.xPlayer > 0 ) and ( mini.yPlayer > 0 ) then
 		mini.degrees = round( ( ( GetPlayerFacing() or -1 ) * 180 / pi ), 0 )	
 		mini.xPlayerF, mini.yPlayerF = FormattedXY( mini.xPlayer, mini.yPlayer )
 		mini.degrees = ( mini.degrees >= 0 ) and ( " @ " ..mini.degrees .."°" ) or ""		
-		GameTooltip:AddLine( mini.colourText.. "(".. mini.xPlayerF.. ":".. mini.yPlayerF.. ")" ..mini.degrees )
+		GameTooltip:AddLine( mini.colourText.. "(".. mini.xPlayerF.. ", ".. mini.yPlayerF.. ")" ..mini.degrees )
 	end
 	
 	GameTooltip:Show()
@@ -381,16 +381,16 @@ SLASH_XandY1, SLASH_XandY2 = "/xandy", "/xy"
 local function Slash( options )
 	if (options == "?") or (options == "") then
 		printPC( "小地圖選項: " )
-		printPC( ns.colour.highlight .."/xy t" ..ns.colour.plaintext .." Toggle show/hide coords on zone text" )
-		printPC( ns.colour.highlight .."/xy 1" ..ns.colour.plaintext .." Coords to one decimal place" )
-		printPC( ns.colour.highlight .."/xy 2" ..ns.colour.plaintext .." Coords to two decimal places" )
-		printPC( ns.colour.highlight .."/xy 3" ..ns.colour.plaintext .." Coords to three decimal places" )
+		printPC( ns.colour.highlight .."/xy t" ..ns.colour.plaintext .." 切換在區域名稱上顯示/隱藏座標" )
+		printPC( ns.colour.highlight .."/xy 1" ..ns.colour.plaintext .." 座標顯示 1 位小數" )
+		printPC( ns.colour.highlight .."/xy 2" ..ns.colour.plaintext .." 座標顯示 2 位小數" )
+		printPC( ns.colour.highlight .."/xy 3" ..ns.colour.plaintext .." 座標顯示 3 位小數" )
 		if buildVersion >= 10 then
-			printPC( ns.colour.highlight .."Tip: Try the Minimap AddOn Menu (below the Calendar)" )
+			printPC( ns.colour.highlight .."提示: 請試試小地圖插件選單 (在行事曆下方)" )
 		end
 	elseif options == "t" then
 		XandYDB.showMiniZoneText = not XandYDB.showMiniZoneText
-		printPC( "Coords in Minimap Zone Text = " ..( XandYDB.showMiniZoneText == true and "On" or "Off" ) )
+		printPC( "區域名稱上的座標 = " ..( XandYDB.showMiniZoneText == true and "開啟" or "關閉" ) )
 	else
 		if options == "1" then
 			XandYDB.miniPrecision = 1
@@ -399,7 +399,7 @@ local function Slash( options )
 		elseif options == "3" then
 			XandYDB.miniPrecision = 3
 		end
-		printPC( "Decimal places = " ..XandYDB.miniPrecision )
+		printPC( "小數點 = " ..XandYDB.miniPrecision )
 	end
 end
 

@@ -28,5 +28,9 @@
 ## Notes-zhTW: 世界地圖和迷你地圖的|cFF0070DE地圖坐標|r
 ## SavedVariables: XandYDB
 
+## Title-zhTW: |cff4DFF4D[地圖]|r 座標
+## Notes-zhTW: X and Y |n|n在世界地圖的標題列，和小地圖地名旁邊顯示座標值。
+## X-Category-zhTW: 地圖
+
 XandY.xml
 XandY.lua
