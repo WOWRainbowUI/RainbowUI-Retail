@@ -25,7 +25,7 @@
 ## X-Category-zhTW: 介面
 ## IconTexture: Interface\Icons\ability_warrior_innerrage
 
-Libs\Libs.xml
+Libs\ForAllIndentsAndPurposes\indent.lua
 Locales\Locales.xml
 
 Init.lua
