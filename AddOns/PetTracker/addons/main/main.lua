@@ -31,7 +31,7 @@ function Addon:OnEnable()
 
 	PetTracker_Sets, PetTracker_State = self.sets, self.state
 	AddonCompartmentFrame:RegisterAddon {
-		text = ADDON, keepShownOnClick = true, notCheckable = true,
+		text = C_AddOns.GetAddOnMetadata(ADDON, "Title"), keepShownOnClick = true, notCheckable = true,
 		icon = 'interface/addons/pettracker/art/compass',
 		func = function()
 			if C.AddOns.LoadAddOn(ADDON .. '_Config') then
