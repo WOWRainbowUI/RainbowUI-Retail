@@ -14,9 +14,11 @@ Baganator.Config.Options = {
   REVERSE_GROUPS_SORT_ORDER = "reverse_groups_sort_order",
   SORT_START_AT_BOTTOM = "sort_start_at_bottom",
   SORT_IGNORE_SLOTS_AT_END = "sort_ignore_slots_at_end",
-  SORT_IGNORE_SLOTS_COUNT = "sort_ignore_slots_count",
+  SORT_IGNORE_SLOTS_COUNT = "sort_ignore_slots_count_2",
   SHOW_RECENTS_TABS = "show_recents_tabs_main_view",
+  AUTO_SORT_ON_OPEN = "auto_sort_on_open",
   BAG_EMPTY_SPACE_AT_TOP = "bag_empty_space_at_top",
+  REDUCE_SPACING = "reduce_spacing",
 
   RECENT_CHARACTERS_MAIN_VIEW = "recent_characters_main_view",
 
@@ -30,6 +32,8 @@ Baganator.Config.Options = {
   TOOLTIPS_SORT_BY_NAME = "tooltips_sort_by_name",
 
   SHOW_ITEM_LEVEL = "show_item_level",
+  SHOW_EQUIPMENT_SET = "show_equipment_set",
+  SHOW_EXPANSION = "show_expansion",
   SHOW_BOE_STATUS = "show_boe_status",
   HIDE_BOE_ON_COMMON = "hide_boe_on_common",
   SHOW_BOA_STATUS = "show_boa_status",
@@ -40,12 +44,14 @@ Baganator.Config.Options = {
   ICON_BOTTOM_LEFT_CORNER = "icon_bottom_left_corner",
   ICON_BOTTOM_RIGHT_CORNER = "icon_bottom_right_corner",
   ICON_GREY_JUNK = "icon_grey_junk",
+  ICON_EQUIPMENT_SET_BORDER = "icon_equipment_set_border",
   ICON_FLASH_SIMILAR_ALT = "icon_flash_similar_alt",
 
   SHOW_PAWN_ARROW = "show_pawn_arrow",
   AUTO_PAWN_ARROW = "auto_pawn_arrow",
   SHOW_CIMI_ICON = "show_cimi_icon",
   AUTO_CIMI_ICON = "auto_cimi_icon",
+  JUNK_PLUGIN = "junk_plugin",
 
   MAIN_VIEW_POSITION = "main_view_position",
   MAIN_VIEW_SHOW_BAG_SLOTS = "main_view_show_bag_slots",
@@ -58,6 +64,7 @@ Baganator.Config.Options = {
   AUTO_OPEN = "auto_open",
 
   ENABLE_UNIFIED_BAGS = "enable_unified_bags",
+  ENABLE_EQUIPMENT_SET_INFO = "enable_equipment_set_info",
 }
 
 Baganator.Config.Defaults = {
@@ -73,6 +80,7 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.INVERTED_BAG_SHORTCUTS] = false,
   [Baganator.Config.Options.RECENT_CHARACTERS_MAIN_VIEW] = {},
   [Baganator.Config.Options.SHOW_ITEM_LEVEL] = true,
+  [Baganator.Config.Options.SHOW_EXPANSION] = false,
   [Baganator.Config.Options.SHOW_BOE_STATUS] = false,
   [Baganator.Config.Options.HIDE_BOE_ON_COMMON] = false,
   [Baganator.Config.Options.SHOW_BOA_STATUS] = false,
@@ -82,6 +90,7 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.ICON_TEXT_QUALITY_COLORS] = false,
   [Baganator.Config.Options.SHOW_PAWN_ARROW] = false,
   [Baganator.Config.Options.SHOW_CIMI_ICON] = false,
+  [Baganator.Config.Options.SHOW_EQUIPMENT_SET] = false,
   [Baganator.Config.Options.AUTO_PAWN_ARROW] = true,
   [Baganator.Config.Options.AUTO_CIMI_ICON] = true,
   [Baganator.Config.Options.MAIN_VIEW_POSITION] = {"RIGHT", -20, 0},
@@ -97,21 +106,30 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER] = "none",
   [Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER] = "quantity",
   [Baganator.Config.Options.ICON_GREY_JUNK] = false,
+  [Baganator.Config.Options.ICON_EQUIPMENT_SET_BORDER] = true,
   [Baganator.Config.Options.AUTO_OPEN] = {},
   [Baganator.Config.Options.MAIN_VIEW_SHOW_BAG_SLOTS] = true,
   [Baganator.Config.Options.BANK_ONLY_VIEW_SHOW_BAG_SLOTS] = true,
   [Baganator.Config.Options.BAG_EMPTY_SPACE_AT_TOP] = false,
+  [Baganator.Config.Options.REDUCE_SPACING] = false,
   [Baganator.Config.Options.SORT_METHOD] = "quality",
   [Baganator.Config.Options.REVERSE_GROUPS_SORT_ORDER] = false,
   [Baganator.Config.Options.SORT_START_AT_BOTTOM] = false,
   [Baganator.Config.Options.ICON_FLASH_SIMILAR_ALT] = false,
   [Baganator.Config.Options.SORT_IGNORE_SLOTS_AT_END] = false,
   [Baganator.Config.Options.SORT_IGNORE_SLOTS_COUNT] = 0,
+  [Baganator.Config.Options.AUTO_SORT_ON_OPEN] = false,
+  [Baganator.Config.Options.JUNK_PLUGIN] = "poor_quality",
 
   [Baganator.Config.Options.DEBUG] = false,
   [Baganator.Config.Options.DEBUG_TIMERS] = false,
 
   [Baganator.Config.Options.ENABLE_UNIFIED_BAGS] = true,
+  [Baganator.Config.Options.ENABLE_EQUIPMENT_SET_INFO] = Baganator.Constants.IsRetail,
+}
+
+Baganator.Config.IsCharacterSpecific = {
+  [Baganator.Config.Options.SORT_IGNORE_SLOTS_COUNT] = true,
 }
 
 Baganator.Config.VisualsFrameOnlySettings = {
@@ -127,11 +145,14 @@ Baganator.Config.ItemButtonsRelayoutSettings = {
   Baganator.Config.Options.SHOW_REAGENTS,
   Baganator.Config.Options.SHOW_SORT_BUTTON,
   Baganator.Config.Options.SHOW_ITEM_LEVEL,
+  Baganator.Config.Options.SHOW_EXPANSION,
+  Baganator.Config.Options.SHOW_EQUIPMENT_SET,
   Baganator.Config.Options.SHOW_BOE_STATUS,
   Baganator.Config.Options.HIDE_BOE_ON_COMMON,
   Baganator.Config.Options.SHOW_BOA_STATUS,
   Baganator.Config.Options.SHOW_PAWN_ARROW,
   Baganator.Config.Options.SHOW_CIMI_ICON,
+  Baganator.Config.Options.SHOW_EXPANSION,
   Baganator.Config.Options.ICON_TEXT_QUALITY_COLORS,
   Baganator.Config.Options.ICON_TEXT_FONT_SIZE,
   Baganator.Config.Options.ICON_TOP_LEFT_CORNER,
@@ -140,6 +161,8 @@ Baganator.Config.ItemButtonsRelayoutSettings = {
   Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER,
   Baganator.Config.Options.BAG_EMPTY_SPACE_AT_TOP,
   Baganator.Config.Options.ICON_GREY_JUNK,
+  Baganator.Config.Options.REDUCE_SPACING,
+  Baganator.Config.Options.JUNK_PLUGIN,
 }
 
 function Baganator.Config.IsValidOption(name)
@@ -167,8 +190,15 @@ function Baganator.Config.Set(name, value)
   elseif not Baganator.Config.IsValidOption(name) then
     error("Invalid option '" .. name .. "'")
   else
-    local oldValue = BAGANATOR_CONFIG[name]
-    BAGANATOR_CONFIG[name] = value
+    local oldValue
+    if Baganator.Config.IsCharacterSpecific[name] then
+      local characterName = Baganator.Utilities.GetCharacterFullName()
+      oldValue = BAGANATOR_CONFIG[name][characterName]
+      BAGANATOR_CONFIG[name][characterName] = value
+    else
+      oldValue = BAGANATOR_CONFIG[name]
+      BAGANATOR_CONFIG[name] = value
+    end
     if value ~= oldValue then
       Baganator.CallbackRegistry:TriggerEvent("SettingChangedEarly", name)
       Baganator.CallbackRegistry:TriggerEvent("SettingChanged", name)
@@ -183,7 +213,11 @@ end
 function Baganator.Config.Reset()
   BAGANATOR_CONFIG = {}
   for option, value in pairs(Baganator.Config.Defaults) do
-    BAGANATOR_CONFIG[option] = value
+    if Baganator.Config.IsCharacterSpecific[option] then
+      BAGANATOR_CONFIG[option] = {}
+    else
+      BAGANATOR_CONFIG[option] = value
+    end
   end
 end
 
@@ -193,7 +227,11 @@ function Baganator.Config.InitializeData()
   else
     for option, value in pairs(Baganator.Config.Defaults) do
       if BAGANATOR_CONFIG[option] == nil then
-        BAGANATOR_CONFIG[option] = value
+        if Baganator.Config.IsCharacterSpecific[option] then
+          BAGANATOR_CONFIG[option] = {}
+        else
+          BAGANATOR_CONFIG[option] = value
+        end
       end
     end
   end
@@ -203,6 +241,13 @@ function Baganator.Config.Get(name)
   -- This is ONLY if a config is asked for before variables are loaded
   if BAGANATOR_CONFIG == nil then
     return Baganator.Config.Defaults[name]
+  elseif Baganator.Config.IsCharacterSpecific[name] then
+    local value = BAGANATOR_CONFIG[name][Baganator.Utilities.GetCharacterFullName()]
+    if value == nil then
+      return Baganator.Config.Defaults[name]
+    else
+      return value
+    end
   else
     return BAGANATOR_CONFIG[name]
   end

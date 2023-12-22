@@ -1,4 +1,10 @@
 <Ui>
+  <Frame name="BaganatorSearchLayoutMonitorTemplate" virtual="true" mixin="BaganatorSearchLayoutMonitorMixin" parentArray="Layouts">
+    <Scripts>
+      <OnLoad method="OnLoad"/>
+:   </Scripts>
+  </Frame>
+
   <Frame name="BaganatorCachedBagLayoutTemplate" virtual="true" mixin="BaganatorCachedBagLayoutMixin" parentArray="Layouts">
     <Scripts>
       <OnLoad method="OnLoad"/>
@@ -29,7 +35,7 @@
           self.Divider:SetTexture("Interface\\Common\\UI-TooltipDivider")
           self.Divider:ClearAllPoints()
           self.Divider:SetHeight(15)
-          self.Divider:SetPoint("LEFT", 0, -8)
+          self.Divider:SetPoint("LEFT", 0, 8)
           self.Divider:SetPoint("RIGHT")
         end
       </OnLoad>

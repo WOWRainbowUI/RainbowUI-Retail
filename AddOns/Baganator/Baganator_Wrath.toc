@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Title: Baganator
-## Version: 0.71
+## Version: 0.96
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA, BAGANATOR_SUMMARIES
@@ -27,7 +27,7 @@ InventoryTracking\Tooltips.lua
 InventoryTracking\CurrencyTooltipData.lua
 InventoryTracking\Main.lua
 
-Sorting\Main.lua
+Sorting\Order.lua
 Sorting\Stacks.lua
 Sorting\Plugins.lua
 
@@ -57,4 +57,5 @@ CustomiseDialog\Main.lua
 CustomiseDialog\Main.xml
 CustomiseDialog\Initialize.lua
 
-API.lua
+API\Main.lua
+API\Plugins.lua
