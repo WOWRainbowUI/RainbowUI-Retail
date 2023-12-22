@@ -50,7 +50,7 @@ local function CreateAuthorPane()
     
     authorText = authorPane:CreateFontString(nil, "OVERLAY")
     authorText:SetPoint("TOPLEFT", 5, -27)
-    authorText.font = "Interface\\AddOns\\Cell\\Media\\font.ttf"
+    authorText.font = "Interface\\AddOns\\Cell\\Media\\Fonts\\font.ttf"
     authorText.size = 12
     UpdateFont(authorText)
 
@@ -85,7 +85,7 @@ local function CreateTranslatorsPane()
     translatorsTextCN:SetPoint("TOPRIGHT", -5, -27)
     translatorsTextCN:SetSpacing(5)
     translatorsTextCN:SetJustifyH("LEFT")
-    translatorsTextCN:SetText("zhTW: RainbowUI, BNS333, 米利")
+    translatorsTextCN:SetText("zhTW: RainbowUI, BNS333, Mili")
 
     translatorsTextKR = translatorsPane:CreateFontString(nil, "OVERLAY")
     translatorsTextKR.font = UNIT_NAME_FONT_KOREAN
@@ -119,7 +119,7 @@ local function CreateSpecialThanksPane()
     specialThanksText:SetPoint("TOPLEFT", 5, -27)
     specialThanksText:SetSpacing(5)
     specialThanksText:SetJustifyH("LEFT")
-    specialThanksText:SetText("warbaby (爱不易)\n钛锬 (NGA)\nJFunkGaming (YouTube)")
+    specialThanksText:SetText("warbaby (爱不易)\n钛锬 (NGA)\nJFunkGaming (YouTube)\nBruds (Discord)")
 end
 
 -------------------------------------------------

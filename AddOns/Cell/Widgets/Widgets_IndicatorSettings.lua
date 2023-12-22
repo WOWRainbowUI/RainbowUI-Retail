@@ -666,19 +666,14 @@ local function CreateSetting_TextWidth(parent)
             {
                 ["text"] = L["Length"],
                 ["onClick"] = function()
+                    widget.func({"length", 5, 3})
+                    widget.percent:Hide()
                     widget.length:SetText(5)
                     widget.length:Show()
-                    widget.percent:Hide()
+                    widget.length2:SetText(3)
+                    widget.length2:Show()
                     widget.lengthValue = 5
-                    
-                    if Cell.isAsian then
-                        widget.length2:SetText(5)
-                        widget.length2:Show()
-                        widget.func({"length", 5, 5})
-                        widget.lengthValue2 = 5
-                    else
-                        widget.func({"length", 5})
-                    end
+                    widget.lengthValue2 = 3
                 end,
             },
         })
@@ -720,6 +715,10 @@ local function CreateSetting_TextWidth(parent)
         widget.length = addon:CreateEditBox(widget, 34, 20, false, false, true)
         widget.length:SetPoint("TOPLEFT", widget.textWidth, "TOPRIGHT", 25, 0)
 
+        widget.enText = widget.length:CreateFontString(nil, "OVERLAY", font_name)
+        widget.enText:SetText(L["En"])
+        widget.enText:SetPoint("BOTTOMLEFT", widget.length, "TOPLEFT", 0, 1)
+
         widget.length.confirmBtn = addon:CreateButton(widget.length, "OK", "accent", {27, 20})
         widget.length.confirmBtn:SetPoint("TOPLEFT", widget.length, "TOPRIGHT", -1, 0)
         widget.length.confirmBtn:Hide()
@@ -733,11 +732,7 @@ local function CreateSetting_TextWidth(parent)
             widget.length.confirmBtn:Hide()
             widget.lengthValue = length
             
-            if Cell.isAsian then
-                widget.func({"length", length, tonumber(widget.length2:GetText()) or widget.lengthValue2})
-            else
-                widget.func({"length", length})
-            end
+            widget.func({"length", length, tonumber(widget.length2:GetText()) or widget.lengthValue2})
         end)
 
         widget.length:SetScript("OnTextChanged", function(self, userChanged)
@@ -750,45 +745,40 @@ local function CreateSetting_TextWidth(parent)
                 end
             end
         end)
-
-        -- for Chinese/Korean clients, additional english name length
+        
         widget.length2 = addon:CreateEditBox(widget, 33, 20, false, false, true)
         widget.length2:SetPoint("TOPLEFT", widget.length, "TOPRIGHT", 25, 0)
+        
+        widget.nonEnText = widget.length2:CreateFontString(nil, "OVERLAY", font_name)
+        widget.nonEnText:SetText(L["Non-En"])
+        widget.nonEnText:SetPoint("BOTTOMLEFT", widget.length2, "TOPLEFT", 0, 1)
 
-        if Cell.isAsian then
-            widget.nonEnText = widget.length:CreateFontString(nil, "OVERLAY", font_name)
-            widget.nonEnText:SetText(L["NON-EN"])
-            widget.nonEnText:SetPoint("BOTTOMLEFT", widget.length, "TOPLEFT", 0, 1)
-            widget.enText = widget.length2:CreateFontString(nil, "OVERLAY", font_name)
-            widget.enText:SetText(L["EN"])
-            widget.enText:SetPoint("BOTTOMLEFT", widget.length2, "TOPLEFT", 0, 1)
-
-            widget.length2.confirmBtn = addon:CreateButton(widget.length2, "OK", "accent", {27, 20})
-            widget.length2.confirmBtn:SetPoint("TOPLEFT", widget.length2, "TOPRIGHT", -1, 0)
+        widget.length2.confirmBtn = addon:CreateButton(widget.length2, "OK", "accent", {27, 20})
+        widget.length2.confirmBtn:SetPoint("TOPLEFT", widget.length2, "TOPRIGHT", -1, 0)
+        widget.length2.confirmBtn:Hide()
+        widget.length2.confirmBtn:SetScript("OnHide", function()
             widget.length2.confirmBtn:Hide()
-            widget.length2.confirmBtn:SetScript("OnHide", function()
-                widget.length2.confirmBtn:Hide()
-            end)
-            widget.length2.confirmBtn:SetScript("OnClick", function()
-                local length = tonumber(widget.length2:GetText())
-                widget.length2:SetText(length)
-                widget.length2:ClearFocus()
-                widget.length2.confirmBtn:Hide()
-                widget.func({"length", tonumber(widget.length:GetText()) or widget.lengthValue, length})
-                widget.lengthValue2 = length
-            end)
+        end)
+        widget.length2.confirmBtn:SetScript("OnClick", function()
+            local length = tonumber(widget.length2:GetText())
+            widget.length2:SetText(length)
+            widget.length2:ClearFocus()
+            widget.length2.confirmBtn:Hide()
+            widget.lengthValue2 = length
+            
+            widget.func({"length", tonumber(widget.length:GetText()) or widget.lengthValue, length})
+        end)
 
-            widget.length2:SetScript("OnTextChanged", function(self, userChanged)
-                if userChanged then
-                    local length = tonumber(self:GetText())
-                    if length and length ~= widget.lengthValue2 and length ~= 0 then
-                        widget.length2.confirmBtn:Show()
-                    else
-                        widget.length2.confirmBtn:Hide()
-                    end
+        widget.length2:SetScript("OnTextChanged", function(self, userChanged)
+            if userChanged then
+                local length = tonumber(self:GetText())
+                if length and length ~= widget.lengthValue2 and length ~= 0 then
+                    widget.length2.confirmBtn:Show()
+                else
+                    widget.length2.confirmBtn:Hide()
                 end
-            end)
-        end
+            end
+        end)
 
         widget.widthText = widget:CreateFontString(nil, "OVERLAY", font_name)
         widget.widthText:SetText(L["Text Width"])
@@ -817,15 +807,10 @@ local function CreateSetting_TextWidth(parent)
                 widget.length:SetText(width[2])
                 widget.lengthValue = width[2]
                 widget.length:Show()
+                widget.length2:SetText(width[3])
+                widget.lengthValue2 = width[3]
+                widget.length2:Show()
                 widget.percent:Hide()
-
-                if Cell.isAsian then
-                    widget.lengthValue2 = width[3] or width[2]
-                    widget.length2:SetText(width[3] or width[2])
-                    widget.length2:Show()
-                else
-                    widget.length2:Hide()
-                end
             end
         end
     else
@@ -1396,7 +1381,7 @@ local function CreateSetting_Font(parent)
             },
             {
                 ["text"] = L["Monochrome Outline"],
-                ["value"] = "Monochrome Outline",
+                ["value"] = "Monochrome,Outline",
                 ["onClick"] = widget.Update,
             },
         })
@@ -1774,7 +1759,7 @@ local function CreateSetting_Colors(parent)
     local widget
 
     if not settingWidgets["colors"] then
-        widget = addon:CreateFrame("CellIndicatorSettings_Colors", parent, 240, 72)
+        widget = addon:CreateFrame("CellIndicatorSettings_Colors", parent, 240, 77)
         settingWidgets["colors"] = widget
 
         local normalColor = addon:CreateColorPicker(widget, L["Normal"], false, function(r, g, b)
@@ -1939,27 +1924,48 @@ local function CreateSetting_CustomColors(parent)
                 ["text"] = L["Solid"],
                 ["value"] = "solid",
                 ["onClick"] = function()
-                    -- widget.colorPicker1:Show()
+                    P:Height(widget, 50)
+                    widget.colorPicker1:Show()
                     widget.colorPicker2:Hide()
-                    widget.func({"solid", widget.colorTable1, widget.colorTable2})
+                    widget.cotFrame:Hide()
+                    widget.colorTable[1] = "solid"
+                    widget.func(widget.colorTable)
                 end
             },
             {
                 ["text"] = L["Vertical Gradient"],
                 ["value"] = "gradient-vertical",
                 ["onClick"] = function()
-                    -- widget.colorPicker1:Show()
+                    P:Height(widget, 50)
+                    widget.colorPicker1:Show()
                     widget.colorPicker2:Show()
-                    widget.func({"gradient-vertical", widget.colorTable1, widget.colorTable2})
+                    widget.cotFrame:Hide()
+                    widget.colorTable[1] = "gradient-vertical"
+                    widget.func(widget.colorTable)
                 end
             },
             {
                 ["text"] = L["Horizontal Gradient"],
                 ["value"] = "gradient-horizontal",
                 ["onClick"] = function()
-                    -- widget.colorPicker1:Show()
+                    P:Height(widget, 50)
+                    widget.colorPicker1:Show()
                     widget.colorPicker2:Show()
-                    widget.func({"gradient-horizontal", widget.colorTable1, widget.colorTable2})
+                    widget.cotFrame:Hide()
+                    widget.colorTable[1] = "gradient-horizontal"
+                    widget.func(widget.colorTable)
+                end
+            },
+            {
+                ["text"] = L["Change Over Time"],
+                ["value"] = "change-over-time",
+                ["onClick"] = function()
+                    P:Height(widget, 117)
+                    widget.colorPicker1:Hide()
+                    widget.colorPicker2:Hide()
+                    widget.cotFrame:Show()
+                    widget.colorTable[1] = "change-over-time"
+                    widget.func(widget.colorTable)
                 end
             },
         }
@@ -1969,36 +1975,60 @@ local function CreateSetting_CustomColors(parent)
                 ["text"] = L["Solid"],
                 ["value"] = "solid",
                 ["onClick"] = function()
-                    -- widget.colorPicker1:Show()
+                    P:Height(widget, 50)
+                    widget.colorPicker1:Show()
                     widget.colorPicker2:Hide()
-                    widget.func({"solid", widget.colorTable1, widget.colorTable2})
+                    widget.cotFrame:Hide()
+                    widget.colorTable[1] = "solid"
+                    widget.func(widget.colorTable)
                 end
             },
             {
                 ["text"] = L["Vertical Gradient"],
                 ["value"] = "gradient-vertical",
                 ["onClick"] = function()
-                    -- widget.colorPicker1:Show()
+                    P:Height(widget, 50)
+                    widget.colorPicker1:Show()
                     widget.colorPicker2:Show()
-                    widget.func({"gradient-vertical", widget.colorTable1, widget.colorTable2})
+                    widget.cotFrame:Hide()
+                    widget.colorTable[1] = "gradient-vertical"
+                    widget.func(widget.colorTable)
                 end
             },
             {
                 ["text"] = L["Horizontal Gradient"],
                 ["value"] = "gradient-horizontal",
                 ["onClick"] = function()
-                    -- widget.colorPicker1:Show()
+                    P:Height(widget, 50)
+                    widget.colorPicker1:Show()
                     widget.colorPicker2:Show()
-                    widget.func({"gradient-horizontal", widget.colorTable1, widget.colorTable2})
+                    widget.cotFrame:Hide()
+                    widget.colorTable[1] = "gradient-horizontal"
+                    widget.func(widget.colorTable)
                 end
             },
             {
                 ["text"] = L["Debuff Type"],
                 ["value"] = "debuff-type",
                 ["onClick"] = function()
-                    -- widget.colorPicker1:Show()
+                    P:Height(widget, 50)
+                    widget.colorPicker1:Hide()
                     widget.colorPicker2:Hide()
-                    widget.func({"debuff-type", widget.colorTable1, widget.colorTable2})
+                    widget.cotFrame:Hide()
+                    widget.colorTable[1] = "debuff-type"
+                    widget.func(widget.colorTable)
+                end
+            },
+            {
+                ["text"] = L["Change Over Time"],
+                ["value"] = "change-over-time",
+                ["onClick"] = function()
+                    P:Height(widget, 117)
+                    widget.colorPicker1:Hide()
+                    widget.colorPicker2:Hide()
+                    widget.cotFrame:Show()
+                    widget.colorTable[1] = "change-over-time"
+                    widget.func(widget.colorTable)
                 end
             },
         }
@@ -2008,22 +2038,112 @@ local function CreateSetting_CustomColors(parent)
         widget.colorText:SetPoint("BOTTOMLEFT", widget.color, "TOPLEFT", 0, 1)
 
         widget.colorPicker1 = addon:CreateColorPicker(widget, "", true, function(r, g, b, a)
-            widget.colorTable1[1] = r
-            widget.colorTable1[2] = g 
-            widget.colorTable1[3] = b
-            widget.colorTable1[4] = a
-            widget.func({widget.color:GetSelected(), widget.colorTable1, widget.colorTable2})
+            widget.colorTable[2][1] = r
+            widget.colorTable[2][2] = g 
+            widget.colorTable[2][3] = b
+            widget.colorTable[2][4] = a
+            widget.func({widget.color:GetSelected(), widget.colorTable[2], widget.colorTable[3]})
         end)
         widget.colorPicker1:SetPoint("LEFT", widget.color, "RIGHT", 5, 0)
 
         widget.colorPicker2 = addon:CreateColorPicker(widget, "", true, function(r, g, b, a)
-            widget.colorTable2[1] = r
-            widget.colorTable2[2] = g 
-            widget.colorTable2[3] = b
-            widget.colorTable2[4] = a
-            widget.func({widget.color:GetSelected(), widget.colorTable1, widget.colorTable2})
+            widget.colorTable[3][1] = r
+            widget.colorTable[3][2] = g 
+            widget.colorTable[3][3] = b
+            widget.colorTable[3][4] = a
+            widget.func({widget.color:GetSelected(), widget.colorTable[2], widget.colorTable[3]})
         end)
         widget.colorPicker2:SetPoint("LEFT", widget.colorPicker1, "RIGHT", 5, 0)
+
+        widget.cotFrame = CreateFrame("Frame", nil, widget)
+        widget.cotFrame:SetSize(170, 50)
+        widget.cotFrame:SetPoint("TOPLEFT", widget.color, "BOTTOMLEFT", 0, -8)
+
+        local normalColor = addon:CreateColorPicker(widget.cotFrame, L["Normal"], false, function(r, g, b)
+            widget.colorTable[4][1] = r
+            widget.colorTable[4][2] = g 
+            widget.colorTable[4][3] = b
+            -- widget.func(widget.colorsTable)
+        end)
+        normalColor:SetPoint("TOPLEFT")
+        
+        local percentColor = addon:CreateColorPicker(widget.cotFrame, L["Remaining Time <"], false, function(r, g, b)
+            widget.colorTable[5][1] = r
+            widget.colorTable[5][2] = g 
+            widget.colorTable[5][3] = b
+            -- widget.func(widget.colorsTable)
+        end)
+        percentColor:SetPoint("TOPLEFT", normalColor, "BOTTOMLEFT", 0, -8)
+        
+        local secColor = addon:CreateColorPicker(widget.cotFrame, L["Remaining Time <"], false, function(r, g, b)
+            widget.colorTable[6][1] = r
+            widget.colorTable[6][2] = g 
+            widget.colorTable[6][3] = b
+            -- widget.func(widget.colorsTable)
+        end)
+        secColor:SetPoint("TOPLEFT", percentColor, "BOTTOMLEFT", 0, -8)
+
+        local percentDropdown = addon:CreateDropdown(widget.cotFrame, 60)
+        percentDropdown:SetPoint("LEFT", percentColor.label, "RIGHT", 5, 0)
+        percentDropdown:SetItems({
+            {
+                ["text"] = "75%",
+                ["onClick"] = function()
+                    widget.colorTable[5][4] = 0.75
+                end,
+            },
+            {
+                ["text"] = "50%",
+                ["onClick"] = function()
+                    widget.colorTable[5][4] = 0.5
+                end,
+            },
+            {
+                ["text"] = "25%",
+                ["onClick"] = function()
+                    widget.colorTable[5][4] = 0.25
+                end,
+            },
+            {
+                ["text"] = _G.NONE,
+                ["onClick"] = function()
+                    widget.colorTable[5][4] = 0
+                end,
+            },
+        })
+        
+        local secEditBox = addon:CreateEditBox(widget.cotFrame, 43, 20, false, false, true)
+        secEditBox:SetPoint("LEFT", secColor.label, "RIGHT", 5, 0)
+        secEditBox:SetMaxLetters(4)
+ 
+        secEditBox.confirmBtn = addon:CreateButton(widget.cotFrame, "OK", "accent", {27, 20})
+        secEditBox.confirmBtn:SetPoint("LEFT", secEditBox, "RIGHT", -1, 0)
+        secEditBox.confirmBtn:Hide()
+        secEditBox.confirmBtn:SetScript("OnHide", function()
+            secEditBox.confirmBtn:Hide()
+        end)
+        secEditBox.confirmBtn:SetScript("OnClick", function()
+            local newSec = tonumber(secEditBox:GetText())
+            widget.colorTable[6][4] = newSec
+            secEditBox:SetText(newSec)
+            secEditBox:ClearFocus()
+            secEditBox.confirmBtn:Hide()
+        end)
+
+        secEditBox:SetScript("OnTextChanged", function(self, userChanged)
+            if userChanged then
+                local newSec = tonumber(self:GetText())
+                if newSec and newSec ~= widget.colorTable[6][4] then
+                    secEditBox.confirmBtn:Show()
+                else
+                    secEditBox.confirmBtn:Hide()
+                end
+            end
+        end)
+
+        local secText = widget.cotFrame:CreateFontString(nil, "OVERLAY", font_name)
+        secText:SetPoint("LEFT", secEditBox, "RIGHT", 5, 0)
+        secText:SetText(L["sec"])
 
         -- callback
         function widget:SetFunc(func)
@@ -2032,29 +2152,46 @@ local function CreateSetting_CustomColors(parent)
         
         -- show db value
         function widget:SetDBValue(auraType, colorTable)
+            widget.colorTable = colorTable
+
             if auraType == "buff" then
                 widget.color:SetItems(widget.buffItems)
             else -- debuff
                 widget.color:SetItems(widget.debuffItems)
             end
             widget.color:SetSelectedValue(colorTable[1])
-
+            
             if colorTable[1] == "solid" then
-                -- widget.colorPicker1:Show()
+                P:Height(widget, 50)
+                widget.colorPicker1:Show()
                 widget.colorPicker2:Hide()
+                widget.cotFrame:Hide()
             elseif colorTable[1] == "debuff-type" then
-                -- widget.colorPicker1:Show()
+                P:Height(widget, 50)
+                widget.colorPicker1:Hide()
                 widget.colorPicker2:Hide()
+                widget.cotFrame:Hide()
+            elseif colorTable[1] == "change-over-time" then
+                P:Height(widget, 117)
+                widget.colorPicker1:Hide()
+                widget.colorPicker2:Hide()
+                widget.cotFrame:Show()
             else -- gradient
-                -- widget.colorPicker1:Show()
+                P:Height(widget, 50)
+                widget.colorPicker1:Show()
                 widget.colorPicker2:Show()
+                widget.cotFrame:Hide()
             end
             
-            widget.colorTable1 = colorTable[2]
-            widget.colorPicker1:SetColor(widget.colorTable1)
-            
-            widget.colorTable2 = colorTable[3]
-            widget.colorPicker2:SetColor(widget.colorTable2)
+            widget.colorPicker1:SetColor(colorTable[2])
+            widget.colorPicker2:SetColor(colorTable[3])
+
+            normalColor:SetColor(colorTable[4])
+            percentColor:SetColor({colorTable[5][1], colorTable[5][2], colorTable[5][3]})
+            secColor:SetColor({colorTable[6][1], colorTable[6][2], colorTable[6][3]})
+
+            percentDropdown:SetSelected(colorTable[5][4]~=0 and ((colorTable[5][4]*100).."%") or _G.NONE)
+            secEditBox:SetText(colorTable[6][4])
         end
     else
         widget = settingWidgets["customColors"]
@@ -2724,7 +2861,7 @@ local function CreateSetting_Glow(parent)
         widget.glowDuration:SetPoint("TOPLEFT", widget.glowType, "BOTTOMLEFT", 0, -25)
 
         -- glowFrequency
-        widget.glowFrequency = addon:CreateSlider(L["Frequency"], widget, -2, 2, 110, 0.05, function(value)
+        widget.glowFrequency = addon:CreateSlider(L["Frequency"], widget, -2, 2, 110, 0.01, function(value)
             widget.glow[4] = value
             widget.func(widget.glow)
         end)
@@ -2759,7 +2896,7 @@ local function CreateSetting_Glow(parent)
         -- show db value
         function widget:SetDBValue(t, hideNone)
             widget.glowType.items[1].disabled = hideNone
-            widget.glowType.items[5].disabled = Cell.isWrath
+            widget.glowType.items[5].disabled = Cell.isVanilla or Cell.isWrath
 
             -- {"Pixel", {0.95,0.95,0.32,1}, 9, 0.25, 8, 2},
             widget.glow = t
@@ -3880,7 +4017,7 @@ local function CreateSetting_ConsumablesPreview(parent)
             E = typeE,
         }
        
-        local speedSlider = addon:CreateSlider(_G.SPEED, widget, 0.5, 1.5, 145, 0.05)
+        local speedSlider = addon:CreateSlider(_G.SPEED, widget, 0.5, 1.5, 145, 0.01)
         speedSlider:SetPoint("TOPLEFT", typeE, "BOTTOMLEFT", 0, -25)
         speedSlider.afterValueChangedFn = function(value)
             widget.func(value)
