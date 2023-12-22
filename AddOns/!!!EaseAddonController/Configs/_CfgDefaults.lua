@@ -1092,6 +1092,7 @@ D["Glass"] = {
 };
 D["gmFonts"] = {
 	defaultEnable = 1,
+	tags = { "MISC" }, 
 	title = "遊戲介面字體",
 	desc = "更改整體遊戲介面預設的字體和大小。``只影響遊戲介面文字的字體和大小，每個插件仍可分別設定。``|cffFF2D2D特別注意：請不要選擇純英文字體，會無法顯示中文字。`",
 	modifier = "彩虹ui",
