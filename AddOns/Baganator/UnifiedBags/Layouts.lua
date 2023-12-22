@@ -24,8 +24,6 @@ local function MasqueRegistration(button)
   end
 end
 
-local iconPadding = 2
-
 BaganatorCachedBagLayoutMixin = {}
 
 local ReflowSettings = {
@@ -37,6 +35,7 @@ local ReflowSettings = {
   Baganator.Config.Options.ICON_TOP_RIGHT_CORNER,
   Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER,
   Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER,
+  Baganator.Config.Options.REDUCE_SPACING,
 }
 
 local RefreshContentSettings = {
@@ -46,13 +45,22 @@ local RefreshContentSettings = {
   Baganator.Config.Options.SHOW_BOA_STATUS,
   Baganator.Config.Options.SHOW_PAWN_ARROW,
   Baganator.Config.Options.SHOW_CIMI_ICON,
+  Baganator.Config.Options.SHOW_EXPANSION,
+  Baganator.Config.Options.SHOW_EQUIPMENT_SET,
   Baganator.Config.Options.ICON_TEXT_QUALITY_COLORS,
   Baganator.Config.Options.ICON_GREY_JUNK,
+  Baganator.Config.Options.JUNK_PLUGIN,
 }
 
 local classicCachedObjectCounter = 0
 
 local function FlowButtons(self, rowWidth)
+  local iconPadding = 4
+
+  if Baganator.Config.Get(Baganator.Config.Options.REDUCE_SPACING) then
+    iconPadding = 1
+  end
+
   local iconSize = Baganator.Config.Get(Baganator.Config.Options.BAG_ICON_SIZE)
 
   local rows, cols = 0, 0
@@ -63,7 +71,7 @@ local function FlowButtons(self, rowWidth)
     end
   end
   for _, button in ipairs(self.buttons) do
-    button:SetPoint("TOPLEFT", self, cols * (iconSize + iconPadding), - rows * (iconSize + iconPadding * 2))
+    button:SetPoint("TOPLEFT", self, cols * (iconSize + iconPadding), - rows * (iconSize + iconPadding))
     button:SetSize(iconSize, iconSize)
     button:UpdateTextures(iconSize)
     MasqueRegistration(button)
@@ -74,7 +82,7 @@ local function FlowButtons(self, rowWidth)
     end
   end
 
-  self:SetSize(rowWidth * (iconSize + iconPadding), (iconPadding * 2 + iconSize) * ((cols > 0 and (rows + 1) or rows)))
+  self:SetSize(rowWidth * (iconSize + iconPadding) - iconPadding, (iconPadding + iconSize) * ((cols > 0 and (rows + 1) or rows)))
   self.oldRowWidth = rowWidth
 end
 
@@ -91,6 +99,7 @@ function BaganatorCachedBagLayoutMixin:OnLoad()
   self.prevState = {}
   self.buttonsByBag = {}
   self.waitingUpdate = {}
+  self.SearchMonitor = CreateFrame("Frame", nil, self, "BaganatorSearchLayoutMonitorTemplate")
 end
 
 function BaganatorCachedBagLayoutMixin:InformSettingChanged(setting)
@@ -221,13 +230,7 @@ function BaganatorCachedBagLayoutMixin:ShowCharacter(character, section, indexes
 end
 
 function BaganatorCachedBagLayoutMixin:ApplySearch(text)
-  local start = debugprofilestop()
-  for _, itemButton in ipairs(self.buttons) do
-    itemButton:SetItemFiltered(text)
-  end
-  if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
-    print("cache search", debugprofilestop() - start)
-  end
+  self.SearchMonitor:StartSearch(text)
 end
 
 function BaganatorCachedBagLayoutMixin:OnShow()
@@ -281,9 +284,11 @@ function BaganatorLiveBagLayoutMixin:OnLoad()
   self.bagSizesUsed = {}
   self.waitingUpdate = {}
   self.prevState = {}
+  self.SearchMonitor = CreateFrame("Frame", nil, self, "BaganatorSearchLayoutMonitorTemplate")
 
   self:RegisterEvent("ITEM_LOCK_CHANGED")
 end
+
 
 function BaganatorLiveBagLayoutMixin:PreallocateButtons(buttonCount)
   self.pendingAllocations = true
@@ -384,13 +389,14 @@ function BaganatorLiveBagLayoutMixin:UpdateLockForItem(bagID, slotID)
   if itemButton then
     local info = C_Container.GetContainerItemInfo(bagID, slotID);
     local locked = info and info.isLocked;
-    SetItemButtonDesaturated(itemButton, locked)
+    SetItemButtonDesaturated(itemButton, locked or itemButton.BGR.persistIconGrey)
   end
 end
 
 function BaganatorLiveBagLayoutMixin:RebuildLayout(indexes, indexesToUse, rowWidth)
   self.buttonPool:ReleaseAll()
-  local indexFrames = {}
+  self.indexFramesPool:ReleaseAll()
+
   self.bagSizesUsed = {}
   self.buttons = {}
 
@@ -500,11 +506,43 @@ function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, 
 end
 
 function BaganatorLiveBagLayoutMixin:ApplySearch(text)
+  self.SearchMonitor:StartSearch(text)
+end
+
+BaganatorSearchLayoutMonitorMixin = {}
+
+function BaganatorSearchLayoutMonitorMixin:OnLoad()
+  self.pendingItems = {}
+  self.text = ""
+end
+
+function BaganatorSearchLayoutMonitorMixin:OnUpdate()
+  for itemButton in pairs(self.pendingItems)do
+    if not itemButton:SetItemFiltered(self.text) then
+      self.pendingItems[itemButton] = nil
+    end
+  end
+  if next(self.pendingItems) == nil then
+    self:SetScript("OnUpdate", nil)
+  end
+end
+
+function BaganatorSearchLayoutMonitorMixin:StartSearch(text)
   local start = debugprofilestop()
-  for _, itemButton in ipairs(self.buttons) do
-    itemButton:SetItemFiltered(text)
+  self.text = text
+  self.pendingItems = {}
+  for _, itemButton in ipairs(self:GetParent().buttons) do
+    if itemButton:SetItemFiltered(text) then
+      self.pendingItems[itemButton] = true
+    end
+  end
+  if next(self.pendingItems) then
+    self:SetScript("OnUpdate", self.OnUpdate)
   end
   if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
-    print("live search", debugprofilestop() - start)
+    print("search monitor start", debugprofilestop() - start)
   end
+end
+
+function BaganatorSearchLayoutMonitorMixin:ClearSearch()
 end

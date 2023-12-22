@@ -1,3 +1,5 @@
+local _, addonTable = ...
+
 local IsRetailCheck = function()
   return Baganator.Constants.IsRetail
 end
@@ -55,6 +57,16 @@ local WINDOW_OPTIONS = {
     highText = "42",
     valuePattern = BAGANATOR_L_X_BANK_COLUMNS,
     option = "bank_view_width",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_REDUCE_SPACING_BETWEEN_UI_COMPONENTS,
+    option = "reduce_spacing",
+  },
+  {
+    type = "header",
+    text = BAGANATOR_L_JUNK_DETECTION,
+    level = 2,
   },
 }
 
@@ -215,12 +227,24 @@ local OPEN_CLOSE_OPTIONS = {
     root = "auto_open",
     check = function() return not Baganator.Constants.IsEra end,
   },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_SCRAPPING_MACHINE,
+    option = "scrapping_machine",
+    root = "auto_open",
+    check = IsRetailCheck,
+  },
 }
 local SORTING_OPTIONS = {
   {
     type = "checkbox",
     text = BAGANATOR_L_SHOW_SORT_BUTTON,
     option = "show_sort_button_2",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_AUTO_SORT_ON_OPENING_BAGS,
+    option = "auto_sort_on_open",
   },
   {
     type = "checkbox",
@@ -238,8 +262,8 @@ local SORTING_OPTIONS = {
     max = 128,
     lowText = "0",
     highText = "128",
-    valuePattern = BAGANATOR_L_X_SLOTS_TO_IGNORE_WHEN_SORTING,
-    option = "sort_ignore_slots_count",
+    valuePattern = BAGANATOR_L_X_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC,
+    option = "sort_ignore_slots_count_2",
   },
   {
     type = "checkbox",
@@ -385,6 +409,35 @@ function BaganatorCustomiseDialogMixin:SetupWindow()
     Baganator.CallbackRegistry:TriggerEvent("ResetFramePositions")
   end)
 
+  do
+    local junkPlugins = {}
+    for id, pluginDetails in pairs(addonTable.JunkPlugins) do
+      table.insert(junkPlugins, {
+        label = pluginDetails.label,
+        id = id,
+      })
+    end
+    table.sort(junkPlugins, function(a, b)
+      return a.label < b.label
+    end)
+    local dropdown = {
+      type = "dropdown",
+      option = "junk_plugin",
+      entries = {
+        BAGANATOR_L_POOR_QUALITY,
+      },
+      values = {
+        "poor_quality",
+      },
+    }
+    for _, pluginInfo in ipairs(junkPlugins) do
+      table.insert(dropdown.entries, pluginInfo.label)
+      table.insert(dropdown.values, pluginInfo.id)
+    end
+
+    table.insert(WINDOW_OPTIONS, dropdown)
+  end
+
   local allFrames = GenerateFrames(WINDOW_OPTIONS, frame)
 
   allFrames[2].CheckBox.HoverBackground:SetPoint("RIGHT", frame.ResetFramePositions, "LEFT")
@@ -434,6 +487,10 @@ function BaganatorCustomiseDialogMixin:SetupIcon()
       "quantity",
     },
   }
+  if not Baganator.Constants.IsClassic then
+    table.insert(iconCornerOptions.entries, BAGANATOR_L_EXPANSION)
+    table.insert(iconCornerOptions.values, "expansion")
+  end
   if PawnShouldItemLinkHaveUpgradeArrowUnbudgeted then
     table.insert(iconCornerOptions.entries, BAGANATOR_L_PAWN)
     table.insert(iconCornerOptions.values, "pawn")
@@ -442,12 +499,18 @@ function BaganatorCustomiseDialogMixin:SetupIcon()
     table.insert(iconCornerOptions.entries, BAGANATOR_L_CAN_I_MOG_IT)
     table.insert(iconCornerOptions.values, "can_i_mog_it")
   end
+  if Baganator.Config.Get(Baganator.Config.Options.ENABLE_EQUIPMENT_SET_INFO) then
+    table.insert(iconCornerOptions.entries, BAGANATOR_L_EQUIPMENT_SET)
+    table.insert(iconCornerOptions.values, "equipment_set")
+  end
 
   local valuesToConfig = {
     ["item_level"] = "show_item_level",
     ["binding_type"] = "show_boe_status",
     ["pawn"] = "show_pawn_arrow",
     ["can_i_mog_it"] = "show_cimi_icon",
+    ["expansion"] = "show_expansion",
+    ["equipment_set"] = "show_equipment_set",
   }
 
   local configs = {

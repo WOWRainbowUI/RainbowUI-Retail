@@ -10,6 +10,7 @@ function BaganatorBankOnlyViewMixin:OnLoad()
   FrameUtil.RegisterFrameForEvents(self, {
     "BANKFRAME_OPENED",
     "BANKFRAME_CLOSED",
+    "PLAYERBANKBAGSLOTS_CHANGED",
   })
 
   self.sortManager = CreateFrame("Frame", nil, self)
@@ -127,6 +128,10 @@ function BaganatorBankOnlyViewMixin:OnEvent(eventName)
     if self.liveCharacter then
       self:UpdateForCharacter(self.liveCharacter)
     end
+  elseif eventName == "PLAYERBANKBAGSLOTS_CHANGED" then
+    if self:IsVisible() then
+      self:UpdateBagSlots()
+    end
   else
     self:Hide()
   end
@@ -145,7 +150,7 @@ function BaganatorBankOnlyViewMixin:OnHide(eventName)
 
   Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
   Baganator.UnifiedBags.Search.ClearCache()
-  self.sortManager:SetScript("OnUpdate", nil)
+  Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
 end
 
 function BaganatorBankOnlyViewMixin:SetLiveCharacter(character)
@@ -200,9 +205,17 @@ function BaganatorBankOnlyViewMixin:UpdateForCharacter(character, updatedBags)
     reagentBankHeight = 20
   end
 
+  local sideSpacing = 13
+  if Baganator.Config.Get(Baganator.Config.Options.REDUCE_SPACING) then
+    sideSpacing = 8
+  end
+
+  self.BankLive:ClearAllPoints()
+  self.BankLive:SetPoint("TOPLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset, -50)
+
   self:SetSize(
-    self.BankLive:GetWidth() + 30,
-    self.BankLive:GetHeight() + reagentBankHeight + 55
+    self.BankLive:GetWidth() + sideSpacing * 2 + Baganator.Constants.ButtonFrameOffset,
+    self.BankLive:GetHeight() + reagentBankHeight + 60
   )
   -- 300 is the default searchbox width
   self.SearchBox:SetWidth(math.min(300, self.BankLive:GetWidth() - 5))
@@ -227,11 +240,12 @@ function BaganatorBankOnlyViewMixin:CombineStacks(callback)
   end
   Baganator.Sorting.CombineStacks(BAGANATOR_DATA.Characters[self.liveCharacter].bank, Baganator.Constants.AllBankIndexes, bagsToSort, function(check)
     if not check then
+      Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
       callback()
-    elseif self:IsVisible() then
-      C_Timer.After(0, function()
+    else
+      Baganator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
         self:CombineStacks(callback)
-      end)
+      end, self.sortManager)
     end
   end)
 end
@@ -254,13 +268,13 @@ function BaganatorBankOnlyViewMixin:DoSort(isReverse)
     if family ~= nil and family ~= 0 then
       bagChecks[bagID] = function(item)
         local itemFamily = item.itemLink and GetItemFamily(item.itemLink)
-        return itemFamily and bit.band(itemFamily, family) ~= 0
+        return itemFamily and item.classID ~= Enum.ItemClass.Container and item.classID ~= Enum.ItemClass.Quiver and bit.band(itemFamily, family) ~= 0
       end
     end
   end
 
-  self.sortManager:SetScript("OnUpdate", function()
-    local goAgain = Baganator.Sorting.ApplySort(
+  local function DoSortInternal()
+    local goAgain = Baganator.Sorting.ApplyOrdering(
       BAGANATOR_DATA.Characters[self.liveCharacter].bank,
       Baganator.Constants.AllBankIndexes,
       indexesToUse,
@@ -268,9 +282,15 @@ function BaganatorBankOnlyViewMixin:DoSort(isReverse)
       isReverse
     )
     if not goAgain then
-      self.sortManager:SetScript("OnUpdate", nil)
+      Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
+    else
+      Baganator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
+        DoSortInternal()
+      end, self.sortManager)
     end
-  end)
+  end
+
+  DoSortInternal()
 end
 
 function BaganatorBankOnlyViewMixin:CombineStacksAndSort(isReverse)

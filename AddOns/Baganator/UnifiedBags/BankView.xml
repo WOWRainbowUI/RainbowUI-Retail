@@ -50,7 +50,7 @@
       <EditBox parentKey="SearchBox" inherits="SearchBoxTemplate" autoFocus="false" frameLevel="700">
         <Size x="300" y="22"/>
         <Anchors>
-          <Anchor point="BOTTOMLEFT" relativeKey="$parent.BankLive" relativePoint="TOPLEFT" x="5"/>
+          <Anchor point="BOTTOMLEFT" relativeKey="$parent.BankLive" relativePoint="TOPLEFT" x="5" y="3"/>
         </Anchors>
       </EditBox>
       <Button parentKey="ToggleReagentsBankButton" inherits="BaganatorToggleReagentsButtonTemplate">
@@ -61,7 +61,7 @@
         </Scripts>
         <Anchors>
           <Anchor point="LEFT" relativeKey="$parent.BankLive" x="-2"/>
-          <Anchor point="BOTTOM" y="4"/>
+          <Anchor point="BOTTOM" y="7"/>
         </Anchors>
       </Button>
       <Button parentKey="DepositIntoReagentsBankButton" inherits="UIPanelDynamicResizeButtonTemplate" text="BAGANATOR_L_DEPOSIT_REAGENTS">
@@ -82,7 +82,7 @@
         </Scripts>
         <Anchors>
           <Anchor point="LEFT" relativeKey="$parent.BankLive" x="-2"/>
-          <Anchor point="BOTTOM" y="4"/>
+          <Anchor point="BOTTOM" y="7"/>
         </Anchors>
       </Button>
     </Frames>

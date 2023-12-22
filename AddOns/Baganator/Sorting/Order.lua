@@ -1,3 +1,5 @@
+local _, addonTable = ...
+
 Baganator.Sorting = {}
 
 local QualityKeys = {
@@ -16,7 +18,6 @@ local TypeKeys = {
   "subClassID",
   "itemID",
   "quality",
-  "itemID",
   "itemLink",
   "itemCount",
 }
@@ -59,7 +60,7 @@ local function RemoveIgnoredSlotsFromOneList(list, bagIDs, bagChecks, isEnd, lef
   local offset = 0
 
   if isEnd then
-    while left > 0 do
+    while left > 0 and #list > offset do
       local item = list[#list - offset]
       if bagChecks[bagIDs[item.from.bagIndex]] then
         offset = offset + 1
@@ -69,7 +70,7 @@ local function RemoveIgnoredSlotsFromOneList(list, bagIDs, bagChecks, isEnd, lef
       end
     end
   else
-    while left > 0 do
+    while left > 0 and #list > offset do
       local item = list[1 + offset]
       if bagChecks[bagIDs[item.from.bagIndex]] then
         offset = offset + 1
@@ -92,7 +93,7 @@ local function SetIndexes(list, bagIDs)
   end
 end
 
-function Baganator.Sorting.SortOneListOffline(list)
+function Baganator.Sorting.OrderOneListOffline(list)
   local start = debugprofilestop()
 
   if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
@@ -240,7 +241,11 @@ local function QueueSwap(item, bagID, slotID, bagIDs, moveQueue0, moveQueue1)
   end
 end
 
-function Baganator.Sorting.ApplySort(bags, bagIDs, indexesToUse, bagChecks, isReverse, ignoreAtEnd, ignoreCount)
+function Baganator.Sorting.ApplyOrdering(bags, bagIDs, indexesToUse, bagChecks, isReverse, ignoreAtEnd, ignoreCount)
+  if InCombatLockdown() then -- Sorting breaks during combat due to Blizzard restrictions
+    return
+  end
+
   if ignoreCount == nil then
     ignoreCount = 0
   end
@@ -263,7 +268,7 @@ function Baganator.Sorting.ApplySort(bags, bagIDs, indexesToUse, bagChecks, isRe
 
   SetIndexes(oneList, bagIDs)
 
-  local sortedItems = Baganator.Sorting.SortOneListOffline(oneList)
+  local sortedItems = Baganator.Sorting.OrderOneListOffline(oneList)
   if showTimers then
     print("sort initial", debugprofilestop() - start)
     start = debugprofilestop()
@@ -276,6 +281,9 @@ function Baganator.Sorting.ApplySort(bags, bagIDs, indexesToUse, bagChecks, isRe
 
   if ignoreCount > 0 then
     RemoveIgnoredSlotsFromStores(bagStores, bagSizes, bagChecks, bagIDsAvailable, ignoreAtEnd, ignoreCount)
+
+    bagIDsAvailable = tFilter(bagIDsAvailable, function(a) return bagStores[a] ~= nil end, true)
+    bagIDsInverted = tFilter(bagIDsInverted, function(a) return bagStores[a] ~= nil end, true)
   end
 
   if showTimers then
@@ -283,8 +291,21 @@ function Baganator.Sorting.ApplySort(bags, bagIDs, indexesToUse, bagChecks, isRe
     start = debugprofilestop()
   end
 
-  local groupA = tFilter(sortedItems, function(item) return item.quality ~= Enum.ItemQuality.Poor end, true)
-  local groupB = tFilter(sortedItems, function(item) return item.quality == Enum.ItemQuality.Poor end, true)
+  local junkPlugin = addonTable.JunkPlugins[Baganator.Config.Get("junk_plugin")]
+  local groupA, groupB
+  if junkPlugin then
+    groupA, groupB = {}, {}
+    for _, item in ipairs(sortedItems) do
+      if junkPlugin.callback(bagIDs[item.from.bagIndex], item.from.slot, item.itemID, item.itemLink) then
+        table.insert(groupB, item)
+      else
+        table.insert(groupA, item)
+      end
+    end
+  else
+    groupA = tFilter(sortedItems, function(item) return item.quality ~= Enum.ItemQuality.Poor end, true)
+    groupB = tFilter(sortedItems, function(item) return item.quality == Enum.ItemQuality.Poor end, true)
+  end
 
   if isReverse then
     local tmp = groupA
@@ -299,7 +320,7 @@ function Baganator.Sorting.ApplySort(bags, bagIDs, indexesToUse, bagChecks, isRe
 
   for index, item in ipairs(groupB) do
     for bagIndex, bagID in ipairs(bagIDsInverted) do
-      if not bagChecks[bagID] or (item.classID ~= Enum.ItemClass.Container and bagChecks[bagID](item)) then
+      if not bagChecks[bagID] or bagChecks[bagID](item) then
         local slot = bagStores[bagID].last
         QueueSwap(item, bagID, slot, bagIDs, moveQueue0, moveQueue1)
         bagStores[bagID].last = slot - 1
@@ -314,7 +335,7 @@ function Baganator.Sorting.ApplySort(bags, bagIDs, indexesToUse, bagChecks, isRe
   bagIDsAvailable = tFilter(bagIDsAvailable, function(bagID) return tIndexOf(bagIDsInverted, bagID) ~= nil end, true)
   for index, item in ipairs(groupA) do
     for bagIndex, bagID in ipairs(bagIDsAvailable) do
-      if bagStores[bagID] and (not bagChecks[bagID] or (item.classID ~= Enum.ItemClass.Container and bagChecks[bagID](item))) then
+      if not bagChecks[bagID] or bagChecks[bagID](item) then
         local slot = bagStores[bagID].first
         QueueSwap(item, bagID, slot, bagIDs, moveQueue0, moveQueue1)
         bagStores[bagID].first = slot + 1

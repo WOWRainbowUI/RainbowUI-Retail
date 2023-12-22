@@ -107,6 +107,15 @@ function BaganatorMainViewMixin:OnLoad()
     self:UpdateForCharacter(character, self.liveCharacter == character)
   end)
 
+  Baganator.CallbackRegistry:RegisterCallback("CharacterDeleted", function(_, character)
+    self.tabsSetup = false
+    if self.lastCharacter == character then
+      self:UpdateForCharacter(self.liveCharacter, true)
+    else
+      self:UpdateForCharacter(self.lastCharacter, true)
+    end
+  end)
+
   local frame = CreateFrame("Frame")
   local function UpdateMoneyDisplay()
     if IsShiftKeyDown() then
@@ -136,11 +145,23 @@ function BaganatorMainViewMixin:OnLoad()
   end)
 end
 
+function BaganatorMainViewMixin:OnShow()
+  if Baganator.Config.Get(Baganator.Config.Options.AUTO_SORT_ON_OPEN) then
+    C_Timer.After(0, function()
+      self:CombineStacksAndSort()
+    end)
+  end
+
+  PlaySound(SOUNDKIT.IG_BACKPACK_OPEN);
+end
+
 function BaganatorMainViewMixin:OnHide()
   Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
   Baganator.UnifiedBags.Search.ClearCache()
   self.CharacterSelect:Hide()
-  self.sortManager:SetScript("OnUpdate", nil)
+  Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
+
+  PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE);
 end
 
 function BaganatorMainViewMixin:ApplySearch(text)
@@ -201,7 +222,7 @@ function BaganatorMainViewMixin:CreateBagSlots()
     bb:SetID(index)
     if #self.liveBagSlots == 1 then
       bb:SetPoint("BOTTOM", self, "TOP")
-      bb:SetPoint("LEFT", self.SearchBox, "LEFT", -15, 0)
+      bb:SetPoint("LEFT", self.ToggleBankButton, "LEFT", 2, 0)
     else
       bb:SetPoint("TOPLEFT", self.liveBagSlots[#self.liveBagSlots - 1], "TOPRIGHT")
     end
@@ -255,6 +276,10 @@ function BaganatorMainViewMixin:UpdateBagSlots()
       local details = CopyTable(containerInfo.bags[index])
       details.itemCount = Baganator.Utilities.CountEmptySlots(BAGANATOR_DATA.Characters[self.lastCharacter].bags[index + 1])
       bb:SetItemDetails(details)
+      if not details.iconTexture and not Baganator.Config.Get(Baganator.Config.Options.EMPTY_SLOT_BACKGROUND) then
+        local _, texture = GetInventorySlotInfo("Bag1")
+        SetItemButtonTexture(bb, texture)
+      end
       bb:SetShown(show)
     end
   else
@@ -307,7 +332,6 @@ function BaganatorMainViewMixin:SelectTab(character)
   end
 end
 
-local maxRecents = 5
 local function DeDuplicateRecents()
   local recents = Baganator.Config.Get(Baganator.Config.Options.RECENT_CHARACTERS_MAIN_VIEW)
   local newRecents = {}
@@ -373,7 +397,7 @@ function BaganatorMainViewMixin:RefreshTabs()
   local isShown = Baganator.Config.Get(Baganator.Config.Options.SHOW_RECENTS_TABS)
 
   local lastTab
-  tabs = {}
+  local tabs = {}
   for index, char in ipairs(characters) do
     local tabButton = self.tabsPool:Acquire()
     tabButton:SetText(char.nameOnly)
@@ -404,6 +428,13 @@ function BaganatorMainViewMixin:SetupTabs()
   self:FillRecents(characters)
 
   self.tabsSetup = self.liveCharacter ~= nil
+end
+
+function BaganatorMainViewMixin:HideExtraTabs()
+  local isShown = Baganator.Config.Get(Baganator.Config.Options.SHOW_RECENTS_TABS)
+  for _, tab in ipairs(self.Tabs) do
+    tab:SetShown(isShown and tab:GetRight() < self:GetRight())
+  end
 end
 
 function BaganatorMainViewMixin:NotifyBagUpdate(updatedBags)
@@ -467,12 +498,10 @@ function BaganatorMainViewMixin:UpdateForCharacter(character, isLive, updatedBag
   local bagIndexesToUse = {
     [1] = true, [2] = true, [3] = true, [4] = true, [5] = true
   }
-  local reagentBagIndexesToUse = {}
-  if Baganator.Constants.IsRetail then
-    reagentBagIndexesToUse = {
-      [6] = true
-    }
-  end
+  -- Works on retail for the reagent bag and on classic for the keyring
+  local reagentBagIndexesToUse = {
+    [6] = true
+  }
 
   local bankIndexesToUse = {
     [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true
@@ -510,6 +539,11 @@ function BaganatorMainViewMixin:UpdateForCharacter(character, isLive, updatedBag
   activeReagentBag:ShowCharacter(character, "bags", Baganator.Constants.AllBagIndexes, reagentBagIndexesToUse, bagWidth)
   activeReagentBag:ApplySearch(searchText)
 
+  local sideSpacing = 13
+  if Baganator.Config.Get(Baganator.Config.Options.REDUCE_SPACING) then
+    sideSpacing = 8
+  end
+
   local bagHeight = activeBag:GetHeight() + 6
   if activeReagentBag:GetHeight() > 0 then
     if showReagents then
@@ -542,7 +576,7 @@ function BaganatorMainViewMixin:UpdateForCharacter(character, isLive, updatedBag
       activeReagentBank:Hide()
     end
     height = math.max(bankHeight, height)
-    activeBank:SetPoint("TOPLEFT", 13, - (height - bankHeight)/2 - 50)
+    activeBank:SetPoint("TOPLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset, - (height - bankHeight)/2 - 50)
   end
   self.BankMissingHint:SetShown(self.viewBankShown and #activeBank.buttons == 0)
   if self.BankMissingHint:IsShown() then
@@ -551,30 +585,32 @@ function BaganatorMainViewMixin:UpdateForCharacter(character, isLive, updatedBag
 
   self.Tabs[1]:SetPoint("LEFT", activeBag, "LEFT")
 
-  activeBag:SetPoint("TOPRIGHT", -13, - (height - bagHeight)/2 - 50)
+  activeBag:SetPoint("TOPRIGHT", -sideSpacing, - (height - bagHeight)/2 - 50)
 
   self.SearchBox:ClearAllPoints()
-  self.SearchBox:SetPoint("RIGHT", -13, 0)
+  self.SearchBox:SetPoint("RIGHT", -sideSpacing, 0)
   self.SearchBox:SetPoint("BOTTOMLEFT", activeBag, "TOPLEFT", 5, 3)
   self.ToggleBankButton:ClearAllPoints()
   self.ToggleBankButton:SetPoint("TOP")
-  self.ToggleBankButton:SetPoint("LEFT", activeBag, -13, 0)
+  self.ToggleBankButton:SetPoint("LEFT", activeBag, -sideSpacing, 0)
   self:SetSize(
-    activeBag:GetWidth() + 30 + (activeBank and activeBank:GetWidth() + 30 or 0),
-    height + 68
+    activeBag:GetWidth() + sideSpacing * 2 + Baganator.Constants.ButtonFrameOffset + (activeBank and (activeBank:GetWidth() + sideSpacing * 2 + Baganator.Constants.ButtonFrameOffset) or 0),
+    height + 74
   )
+
+  self:HideExtraTabs()
 
   self.ToggleReagentsButton:SetShown(activeReagentBag:GetHeight() > 0 or activeReagentBag:IsShown())
   if self.ToggleReagentsButton:IsShown() then
     self.ToggleReagentsButton:ClearAllPoints()
-    self.ToggleReagentsButton:SetPoint("BOTTOM", self, "BOTTOM", 0, 4)
-    self.ToggleReagentsButton:SetPoint("LEFT", activeBag, -2, 0)
+    self.ToggleReagentsButton:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
+    self.ToggleReagentsButton:SetPoint("LEFT", activeBag, -2, -2)
   end
   self.ToggleReagentsBankButton:SetShown(activeReagentBank and activeReagentBank:GetHeight() > 0)
   if self.ToggleReagentsBankButton:IsShown() then
     self.ToggleReagentsBankButton:ClearAllPoints()
-    self.ToggleReagentsBankButton:SetPoint("LEFT", activeBank, "LEFT", -2, 0)
-    self.ToggleReagentsBankButton:SetPoint("BOTTOM", self, "BOTTOM", 0, 4)
+    self.ToggleReagentsBankButton:SetPoint("LEFT", activeBank, "LEFT", -2, -4)
+    self.ToggleReagentsBankButton:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
   end
 
   self:UpdateCurrencies(character)
@@ -650,13 +686,15 @@ function BaganatorMainViewMixin:CombineStacks(callback)
   for index, bagID in ipairs(Baganator.Constants.AllBagIndexes) do
     bagsToSort[index] = true
   end
+
   Baganator.Sorting.CombineStacks(BAGANATOR_DATA.Characters[self.liveCharacter].bags, Baganator.Constants.AllBagIndexes, bagsToSort, function(check)
     if not check then
+      Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
       callback()
-    elseif self:IsVisible() then
-      C_Timer.After(0, function()
+    else
+      Baganator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
         self:CombineStacks(callback)
-      end)
+      end, self.sortManager)
     end
   end)
 end
@@ -682,12 +720,12 @@ function BaganatorMainViewMixin:DoSort(isReverse)
     if family ~= nil and family ~= 0 then
       bagChecks[index] = function(item)
         local itemFamily = item.itemLink and GetItemFamily(item.itemLink)
-        return itemFamily and bit.band(itemFamily, family) ~= 0
+        return itemFamily and item.classID ~= Enum.ItemClass.Container and item.classID ~= Enum.ItemClass.Quiver and bit.band(itemFamily, family) ~= 0
       end
     end
   end
-  self.sortManager:SetScript("OnUpdate", function()
-    local goAgain = Baganator.Sorting.ApplySort(
+  local function DoSortInternal()
+    local goAgain = Baganator.Sorting.ApplyOrdering(
       BAGANATOR_DATA.Characters[self.liveCharacter].bags,
       Baganator.Constants.AllBagIndexes,
       bagsToSort,
@@ -697,9 +735,14 @@ function BaganatorMainViewMixin:DoSort(isReverse)
       Baganator.Config.Get(Baganator.Config.Options.SORT_IGNORE_SLOTS_COUNT)
     )
     if not goAgain then
-      self.sortManager:SetScript("OnUpdate", nil)
+      Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
+    else
+      Baganator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
+        DoSortInternal()
+      end, self.sortManager)
     end
-  end)
+  end
+  DoSortInternal()
 end
 
 function BaganatorMainViewMixin:CombineStacksAndSort(isReverse)

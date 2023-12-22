@@ -1,3 +1,7 @@
+local _, addonTable = ...
+
+addonTable.JunkPlugins = {}
+
 Baganator.ItemButtonUtil = {}
 
 function Baganator.ItemButtonUtil.SetAutoSettings()
@@ -45,6 +49,20 @@ local qualityColors = {
   [7] = CreateColor(79/255, 196/255, 225/255), -- Heirloom
   [8] = CreateColor(79/255, 196/255, 225/255), -- Blizzard
 }
+local equipmentSetBorder = CreateColor(83/255, 216/255, 186/255)
+
+local expansionIDToText = {
+  [0] = "Cla",
+  [1] = "BC",
+  [2] = "W",
+  [3] = "Cata",
+  [4] = "MoP",
+  [5] = "Dra",
+  [6] = "Leg",
+  [7] = "BfA",
+  [8] = "SL",
+  [9] = "DF",
+}
 
 local function IsBindOnAccount(itemLink)
   local tooltipInfo = C_TooltipInfo.GetHyperlink(itemLink)
@@ -73,6 +91,8 @@ function Baganator.ItemButtonUtil.UpdateSettings()
 
   iconSettings = {
     markJunk = Baganator.Config.Get("icon_grey_junk"),
+    usingJunkPlugin = false,
+    equipmentSetBorder = Baganator.Config.Get("icon_equipment_set_border"),
   }
 
   local useQualityColors = Baganator.Config.Get("icon_text_quality_colors")
@@ -117,6 +137,20 @@ function Baganator.ItemButtonUtil.UpdateSettings()
       end
     end)
   end
+  if Baganator.Config.Get("show_expansion") then
+    table.insert(itemCallbacks, function(self, data)
+      if not Baganator.Constants.IsClassic then
+        self.Expansion:SetText(expansionIDToText[self.BGR.expacID] or "")
+      end
+    end)
+  end
+  if Baganator.Config.Get("show_equipment_set") then
+    table.insert(itemCallbacks, function(self, data)
+      if data.setInfo then
+        self.EquipmentSet:Show()
+      end
+    end)
+  end
   if Baganator.Config.Get("show_pawn_arrow") and PawnShouldItemLinkHaveUpgradeArrowUnbudgeted then
     table.insert(itemCallbacks, function(self, data)
       if PawnShouldItemLinkHaveUpgradeArrowUnbudgeted(data.itemLink) then
@@ -141,6 +175,22 @@ function Baganator.ItemButtonUtil.UpdateSettings()
       end
       self.CanIMogItOverlay:Show()
       CIMI_SetIcon(self.CanIMogItOverlay, CIMI_Update, CanIMogIt:GetTooltipText(data.itemLink))
+    end)
+  end
+
+  local junkPluginID = Baganator.Config.Get("junk_plugin")
+  local junkPlugin = addonTable.JunkPlugins[junkPluginID]
+  if junkPlugin and junkPluginID ~= "poor_quality" then
+    iconSettings.usingJunkPlugin = true
+    table.insert(itemCallbacks, function(self, data)
+      if self.JunkIcon then
+        local isJunk = junkPlugin.callback(self:GetParent():GetID(), self:GetID(), data.itemID, data.itemLink)
+        self.JunkIcon:SetShown(isJunk)
+        if iconSettings.markJunk and isJunk then
+          self.BGR.persistIconGrey = true
+          self.icon:SetDesaturated(true)
+        end
+      end
     end)
   end
 end
@@ -168,12 +218,10 @@ local function GetExtraInfo(self, itemID, itemLink, data)
     self.BGR.subClassID = itemInfo[13]
     self.BGR.invType = itemInfo[9]
     self.BGR.isCosmetic = IsCosmeticItem and IsCosmeticItem(itemLink)
+    self.BGR.expacID = itemInfo[15]
     if self.BGR.isCosmetic then
       self.IconOverlay:SetAtlas("CosmeticIconFrame")
       self.IconOverlay:Show();
-    end
-    if self.BGR.pendingSearch then
-      self:SetItemFiltered(self.BGR.pendingSearch)
     end
     for _, callback in ipairs(itemCallbacks) do
       callback(self, data)
@@ -190,12 +238,10 @@ local function GetExtraInfo(self, itemID, itemLink, data)
       self.BGR.subClassID = itemInfo[13]
       self.BGR.invType = itemInfo[9]
       self.BGR.isCosmetic = IsCosmeticItem and IsCosmeticItem(itemLink)
+      self.BGR.expacID = itemInfo[15]
       if self.BGR.isCosmetic then
         self.IconOverlay:SetAtlas("CosmeticIconFrame")
         self.IconOverlay:Show();
-      end
-      if self.BGR.pendingSearch then
-        self:SetItemFiltered(self.BGR.pendingSearch)
       end
 
       for _, callback in ipairs(itemCallbacks) do
@@ -210,6 +256,9 @@ local function SetStaticInfo(self, details)
   self.BGR.quality = details.quality
   self.BindingText:SetText("")
   self.ItemLevel:SetText("")
+  self.Expansion:SetText("")
+  self.EquipmentSet:SetTexture("Interface\\Minimap\\Minimap_Shield_Normal")
+  self.EquipmentSet:Hide()
 
   if self.ProfessionQualityOverlay then
     local scale = self:GetWidth() / 37
@@ -226,11 +275,20 @@ local function SetStaticInfo(self, details)
     self.CanIMogItOverlay:Hide()
   end
 
-  self.JunkIcon:SetShown(details.quality == Enum.ItemQuality.Poor)
-  self.icon:SetDesaturated(iconSettings.markJunk and details.quality == Enum.ItemQuality.Poor)
+  if not iconSettings.usingJunkPlugin and self.JunkIcon then
+    self.JunkIcon:SetShown(details.quality == Enum.ItemQuality.Poor)
+    if iconSettings.markJunk and details.quality == Enum.ItemQuality.Poor then
+      self.BGR.persistIconGrey = true
+      self.icon:SetDesaturated(true)
+    end
+  end
 
   if self.BaganatorBagHighlight then
     self.BaganatorBagHighlight:Hide()
+  end
+
+  if iconSettings.equipmentSetBorder and self.BGR.setInfo then
+    self.IconBorder:SetVertexColor(equipmentSetBorder.r, equipmentSetBorder.g, equipmentSetBorder.b)
   end
 end
 
@@ -244,11 +302,8 @@ local function SearchCheck(self, text)
   end
 
   if self.BGR.itemInfoWaiting then
-    self.BGR.pendingSearch = text
     return
   end
-
-  self.BGR.pendingSearch = nil
 
   if not self.BGR.itemName then
     return
@@ -287,6 +342,8 @@ local function ApplyItemDetailSettings(button, size)
     ["quantity"] = button.Count,
     ["pawn"] = button.UpgradeArrow,
     ["can_i_mog_it"] = button.CanIMogItOverlay,
+    ["expansion"] = button.Expansion,
+    ["equipment_set"] = button.EquipmentSet,
   }
 
   for config, anchor in pairs(positions) do
@@ -309,10 +366,16 @@ local function ApplyItemDetailSettings(button, size)
       button.Count:SetPoint(unpack(anchor))
       button.Count:SetFont(font, newSize, fontFlags)
       button.Count:SetScale(scale)
+    elseif cornerType == "expansion" then
+      button.Expansion:SetParent(button)
+      button.Expansion:ClearAllPoints()
+      button.Expansion:SetPoint(unpack(anchor))
+      button.Expansion:SetFont(font, newSize, fontFlags)
+      button.Expansion:SetScale(scale)
     elseif cornerType == "pawn" then
       button.UpgradeArrow:SetParent(button)
       button.UpgradeArrow:ClearAllPoints()
-      button.UpgradeArrow:SetSize(15 * scale, 15 * scale)
+      button.UpgradeArrow:SetSize(13 * scale, 15 * scale)
       button.UpgradeArrow:SetPoint(unpack(anchor))
     elseif cornerType == "can_i_mog_it" and CIMI_AddToFrame then
       CIMI_AddToFrame(button, function() end)
@@ -328,6 +391,11 @@ local function ApplyItemDetailSettings(button, size)
         end
         overlay.CIMIIconTexture:SetSize(13 * shift, 13 * shift)
       end
+    elseif cornerType == "equipment_set" then
+      button.EquipmentSet:SetParent(button)
+      button.EquipmentSet:ClearAllPoints()
+      button.EquipmentSet:SetSize(15 * scale, 15 * scale)
+      button.EquipmentSet:SetPoint(unpack(anchor))
     end
     toHide[cornerType] = nil
   end
@@ -446,9 +514,12 @@ function BaganatorRetailCachedItemButtonMixin:SetItemDetails(details)
   self:SetItemButtonQuality(details.quality)
   self:SetItemButtonCount(details.itemCount)
   SetItemCraftingQualityOverlay(self, details.itemLink)
+  SetItemButtonDesaturated(self, false);
 
   self.BGR.itemLink = details.itemLink
+  self.BGR.itemID = details.itemID
   self.BGR.itemName = ""
+  self.BGR.setInfo = details.setInfo
 
   SetStaticInfo(self, details)
   if details.iconTexture ~= nil then
@@ -465,7 +536,11 @@ function BaganatorRetailCachedItemButtonMixin:BGRSetHighlight(isHighlighted)
 end
 
 function BaganatorRetailCachedItemButtonMixin:SetItemFiltered(text)
-  self:SetMatchesSearch(SearchCheck(self, text))
+  local result = SearchCheck(self, text)
+  if result == nil then
+    return true
+  end
+  self:SetMatchesSearch(result)
 end
 
 function BaganatorRetailCachedItemButtonMixin:OnClick(button)
@@ -596,10 +671,14 @@ function BaganatorRetailLiveItemButtonMixin:SetItemDetails(cacheData)
   self:SetMatchesSearch(true)
 
   -- Baganator specific stuff
+  self.JunkIcon:Hide()
+
   self.BGR = {}
   self.BGR.itemName = ""
   self.BGR.itemLink = cacheData.itemLink
+  self.BGR.itemID = cacheData.itemID
   self.BGR.itemNameLower = nil
+  self.BGR.setInfo = cacheData.setInfo
 
   SetStaticInfo(self, cacheData)
   if texture ~= nil then
@@ -620,11 +699,11 @@ function BaganatorRetailLiveItemButtonMixin:BGRUpdateCooldown()
 end
 
 function BaganatorRetailLiveItemButtonMixin:SetItemFiltered(text)
-  self:SetMatchesSearch(SearchCheck(self, text))
-end
-
-function BaganatorRetailLiveItemButtonMixin:SetItemFiltered(text)
-  self:SetMatchesSearch(SearchCheck(self, text))
+  local result = SearchCheck(self, text)
+  if result == nil then
+    return true
+  end
+  self:SetMatchesSearch(result)
 end
 
 function BaganatorRetailLiveItemButtonMixin:ClearNewItem()
@@ -639,16 +718,18 @@ function BaganatorRetailLiveItemButtonMixin:ClearNewItem()
 end
 
 local function ApplyQualityBorderClassic(self, quality)
-	if quality then
-		if quality >= LE_ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality] then
-			self.IconBorder:Show();
-			self.IconBorder:SetVertexColor(BAG_ITEM_QUALITY_COLORS[quality].r, BAG_ITEM_QUALITY_COLORS[quality].g, BAG_ITEM_QUALITY_COLORS[quality].b);
-		else
-			self.IconBorder:Hide();
-		end
-	else
-		self.IconBorder:Hide();
-	end
+  local color
+
+  if quality and quality >= LE_ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality] then
+    color = BAG_ITEM_QUALITY_COLORS[quality]
+  end
+
+  if color then
+    self.IconBorder:Show()
+    self.IconBorder:SetVertexColor(color.r, color.g, color.b)
+  else
+    self.IconBorder:Hide()
+  end
 end
 
 BaganatorClassicCachedItemButtonMixin = {}
@@ -660,13 +741,16 @@ end
 function BaganatorClassicCachedItemButtonMixin:SetItemDetails(details)
   self.BGR = {}
   self.BGR.itemLink = details.itemLink
+  self.BGR.itemID = details.itemID
   self.BGR.itemName = ""
   self.BGR.itemNameLower = nil
+  self.BGR.setInfo = details.setInfo
   
   SetItemButtonTexture(self, details.iconTexture or self.emptySlotFilepath);
   SetItemButtonQuality(self, details.quality); -- Doesn't do much
   ApplyQualityBorderClassic(self, details.quality)
   SetItemButtonCount(self, details.itemCount);
+  SetItemButtonDesaturated(self, false)
 
   SetStaticInfo(self, details)
   if details.iconTexture ~= nil then
@@ -683,7 +767,11 @@ function BaganatorClassicCachedItemButtonMixin:BGRSetHighlight(isHighlighted)
 end
 
 function BaganatorClassicCachedItemButtonMixin:SetItemFiltered(text)
-  self.searchOverlay:SetShown(not SearchCheck(self, text))
+  local result = SearchCheck(self, text)
+  if result == nil then
+    return true
+  end
+  self.searchOverlay:SetShown(not result)
 end
 
 function BaganatorClassicCachedItemButtonMixin:OnClick(button)
@@ -804,8 +892,10 @@ function BaganatorClassicLiveItemButtonMixin:SetItemDetails(cacheData)
   end
 
   self.BGR.itemLink = cacheData.itemLink
+  self.BGR.itemID = cacheData.itemID
   self.BGR.itemName = ""
   self.BGR.itemNameLower = nil
+  self.BGR.setInfo = cacheData.setInfo
 
   -- Copied code from Blizzard Container Frame logic
   local tooltipOwner = GameTooltip:GetOwner()
@@ -834,7 +924,7 @@ function BaganatorClassicLiveItemButtonMixin:SetItemDetails(cacheData)
   battlepayItemTexture:Hide();
   newItemTexture:Hide();
 
-  self.JunkIcon:SetShown(false);
+  self.JunkIcon:Hide();
 
   if ( texture ) then
     ContainerFrame_UpdateCooldown(self:GetParent():GetID(), self);
@@ -874,5 +964,9 @@ function BaganatorClassicLiveItemButtonMixin:ClearNewItem()
 end
 
 function BaganatorClassicLiveItemButtonMixin:SetItemFiltered(text)
-  self.searchOverlay:SetShown(not SearchCheck(self, text))
+  local result = SearchCheck(self, text)
+  if result == nil then
+    return true
+  end
+  self.searchOverlay:SetShown(not result)
 end
