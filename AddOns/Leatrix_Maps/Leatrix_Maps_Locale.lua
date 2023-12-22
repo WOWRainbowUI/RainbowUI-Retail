@@ -1,4 +1,4 @@
-﻿----------------------------------------------------------------------
+----------------------------------------------------------------------
 -- 	Leatrix Maps Locale
 ----------------------------------------------------------------------
 
@@ -19,7 +19,6 @@ if GameLocale == "zhCN" then
 L["/ltm help - Show this information."] = "/ltm help - 显示帮助信息"
 L["/ltm reset - Reset the panel position."] = "/ltm reset - 重置面板位置"
 L["/ltm wipe - Wipe all settings and reload."] = "/ltm wipe - 清空所有设置并重载插件"
-L["A stop error has occurred but no need to worry.  It can happen from time to time.  Click the reload button to resolve it."] = "出现了一个无关痛痒的报错，它并不会影响到你的体验，你可以点击重载按钮来解决这个问题。"
 L["Algeth'ar Academy"] = "奥吉萨尔学院"
 L["Allow frame movement"] = "允许框体移动"
 L["Alpha"] = "透明"
@@ -376,8 +375,6 @@ L["Windowed"] = "窗口模式"
 L["Wyrmrest Temple"] = "龙眠神殿"
 L["You cannot do that in combat."] = "你无法在战斗中这么做。"
 L["You should enable 2FA!"] = "您应该启用两步验证！"
-L["Your game account does not have Two-Factor Authentication (2FA) enabled.|n|nIf you use premade group finder to make a Mythic+ dungeon group for your own key, you may see a stop error when the game tries to set the activity title to your key level.  To clear this error, reload your UI.|n|nTo avoid seeing this error, enable Two-Factor Authentication (2FA) on your game account."] = "您的游戏帐户尚未启用两步验证（2FA）。|n|n如果您使用预制组查找器创建自己密钥的史诗+地下城组，当游戏尝试将活动标题设置为您密钥级别时，可能会出现停止错误。要清除此错误，请重新加载用户界面。|n|n为避免看到此错误，请在游戏帐户上启用两步验证（2FA）。"
-L["Your game account does not have Two-Factor Authentication (2FA) enabled.|n|nIf you use premade group finder to make a Mythic+ dungeon group for your own key, you may see a stop error when the game tries to set the activity title to your key level. To clear this error, reload your UI.|n|nTo avoid seeing this error, enable Two-Factor Authentication (2FA) on your game account."] = "您的游戏帐户尚未启用两步验证（2FA）。|n|n如果您使用预制组查找器创建自己密钥的史诗+地下城组，当游戏尝试将活动标题设置为您密钥级别时，可能会出现停止错误。要清除此错误，请重新加载用户界面。|n|n为避免看到此错误，请在游戏帐户上启用两步验证（2FA）."
 L["Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately but you do need to click it when you are done making changes and you want the changes to take effect."] = "你的插件需要重新载入，以使部分修改生效。|n|n你可以在你需要选项生效时，再点击重载插件按钮。"
 L["Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately, but you do need to click it when you are done making changes and you want the changes to take effect."] = "为使某些更改生效，您需要重新加载用户界面。|n|n您不必立即点击重新加载按钮，但在完成更改并希望更改生效时，您需要点击它。"
 L["Your UI needs to be reloaded."] = "插件需要重新载入。"
@@ -396,7 +393,6 @@ if GameLocale == "zhTW" then
 L["/ltm help - Show this information."] = "/ltm help - 顯示插件資訊。"
 L["/ltm reset - Reset the panel position."] = "/ltm reset - 重設面板位置。"
 L["/ltm wipe - Wipe all settings and reload."] = "/ltm wipe - 清除所有設定並重載。"
-L["A stop error has occurred but no need to worry.  It can happen from time to time.  Click the reload button to resolve it."] = "一個停止錯誤發生了，但無需擔心，三不五時會發生，請點擊重載按鈕來解決它。"
 L["Algeth'ar Academy"] = "阿爾蓋薩學院"
 L["Allow frame movement"] = "允許移動框架"
 L["Alpha"] = "透明"
@@ -753,8 +749,6 @@ L["Windowed"] = "視窗化"
 L["Wyrmrest Temple"] = "龍眠神殿"
 L["You cannot do that in combat."] = "你不能在戰鬥中這麼做。"
 L["You should enable 2FA!"] = "您應該啟用2FA！"
-L["Your game account does not have Two-Factor Authentication (2FA) enabled.|n|nIf you use premade group finder to make a Mythic+ dungeon group for your own key, you may see a stop error when the game tries to set the activity title to your key level.  To clear this error, reload your UI.|n|nTo avoid seeing this error, enable Two-Factor Authentication (2FA) on your game account."] = "您的遊戲帳戶未啟用雙重身份驗證 (2FA)。|n|n如果您使用預組搜尋器為您自己的鑰匙建立傳奇+地下城群組，當遊戲嘗試將活動標題設置為您的鑰匙級別時，您可能會看到停止錯誤。要清除此錯誤，請重新載入您的 UI。|n|n要避免看到此錯誤，請在您的遊戲帳戶上啟用雙重身份驗證 (2FA)。"
-L["Your game account does not have Two-Factor Authentication (2FA) enabled.|n|nIf you use premade group finder to make a Mythic+ dungeon group for your own key, you may see a stop error when the game tries to set the activity title to your key level. To clear this error, reload your UI.|n|nTo avoid seeing this error, enable Two-Factor Authentication (2FA) on your game account."] = "您的遊戲帳戶未啟用雙因子身份驗證（2FA）。|n|n如果您使用預製小隊搜尋器為自己的鑰匙創建一個秘境+地城小隊，當遊戲嘗試將活動標題設定為您的鑰匙等級時，可能會出現錯誤。要清除此錯誤，重新載入您的UI。|n|n為了避免看到此錯誤，請在您的遊戲帳戶上啟用雙因子身份驗證（2FA）."
 L["Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately but you do need to click it when you are done making changes and you want the changes to take effect."] = "您的UI需要重載以讓某些更動生效。|n|n您不必立即點擊重載按鈕，但如果您做了些更動並希望讓更動生效的話，點擊是確實需要的。"
 L["Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately, but you do need to click it when you are done making changes and you want the changes to take effect."] = "你需要重新加载用户界面以使一些更改生效。|n|n你不必立即点击重新加载按钮，但当你完成更改并希望更改生效时，你需要点击它。"
 L["Your UI needs to be reloaded."] = "您的UI需要重載。"
