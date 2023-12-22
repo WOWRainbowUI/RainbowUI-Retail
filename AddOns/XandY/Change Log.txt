@@ -1,3 +1,8 @@
+== v2.33 - 10th December 2023
+* Added Minimap AddOn Menu/Compartment (it's a Retail only feature)
+* Improved the way players cycle through 1,2,3 decimal places
+* Added a command to toggle the Minimap Zone Text coordinates on/off
+
 == v2.32 - 27th November 2023
 * Fix for the new World Map style for Classic Era
 
