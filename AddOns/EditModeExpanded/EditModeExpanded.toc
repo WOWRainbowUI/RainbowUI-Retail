@@ -11,11 +11,6 @@
 ## Notes-zhTW: Edit Mode Expanded |n|n讓編輯模式可以調整更多介面框架。|n|n|cffffd200使用方法: |r在編輯模式中調整框架。|n從Esc>選項>插件>編輯模式，停用不需要調整的框架。
 ## X-Category-zhTW: 介面
 
-libs\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-libs\AceDB-3.0\AceDB-3.0.xml
-libs\AceGUI-3.0\AceGUI-3.0.xml
-libs\AceConfig-3.0\AceConfig-3.0.xml
 libs\EditModeExpanded-1.0\EditModeExpanded-1.0.xml
 
 FrameHandlers\AchievementFrame.lua
