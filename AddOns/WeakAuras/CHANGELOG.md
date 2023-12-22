@@ -1,20 +1,33 @@
-# [5.8.5](https://github.com/WeakAuras/WeakAuras2/tree/5.8.5) (2023-11-12)
+# [5.8.7](https://github.com/WeakAuras/WeakAuras2/tree/5.8.7) (2023-12-03)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.8.4...5.8.5)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.8.6...5.8.7)
 
 ## Highlights
 
- - More template updates and bug fixes 
+ - Updates for Season of Discovery
+- New option to treat charged combo point as 7 combo points (thanks to @weswigham for initial idea+PR)
+- Bug fixes 
 
 ## Commits
 
-InfusOnWoW (2):
+InfusOnWoW (9):
 
-- More Template Updates
-- Combat Log Trigger: Fix various condition checks for !=
+- Show an warning on trying to update an aura that can't be updated
+- Add an option to treat a charged combo point as 7 combo points
+- Add CHAT_MSG_LOOT type
+- Tweak frame levels again a bit
+- Improve error message for auras without a region type
+- AuraBar: Fix property names for gradient colors
+- Author Options: Also sort Sound list for the user
+- Drangonflying Load Option
+- Templates: Fix talent load option for Holy Word: Sanctify
 
-mrbuds (2):
+Stanzilla (2):
 
-- Alternate Power trigger: make power field a multiEntry
-- Dynamic group: flatten background level of all regions
+- Bump minor
+- Bump Classic TOC for SoD
+
+mrbuds (1):
+
+- Classis SoD: include new spell ids in spell cache
 
