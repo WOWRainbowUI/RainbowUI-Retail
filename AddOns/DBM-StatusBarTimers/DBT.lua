@@ -110,7 +110,7 @@ DBT.DefaultOptions = {
 	HugeTimerY = -120,
 	ExpandUpwardsLarge = false,
 	FillUpLargeBars = true,
-	HugeBarsEnabled = true,
+	HugeBarsEnabled = false, -- 更改預設值: 大型計時條
 	HugeTimerPoint = "CENTER",
 	HugeSort = "Sort",
 	-- Misc
