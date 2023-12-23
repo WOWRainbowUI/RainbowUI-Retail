@@ -4,7 +4,7 @@ if not Stuf then return end
 local function module()
 local su = Stuf.units
 
-local RC = LibStub:GetLibrary("LibRangeCheck-2.0", true)
+local RC = LibStub:GetLibrary("LibRangeCheck-3.0", true)
 if not RC then return end
 
 local a = CreateFrame("Frame", "Stuf_RangeCheck", Stuf, BackdropTemplateMixin and 'BackdropTemplate')
