@@ -21,7 +21,6 @@
 ## IconTexture: Interface\Icons\ability_hunter_pathfinding
 ## DefaultState: disabled
 
-libs\LibRangeCheck-3.0\LibRangeCheck-3.0.lua
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 localizations.lua
