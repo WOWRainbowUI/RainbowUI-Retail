@@ -103,6 +103,9 @@ if GetLocale() == "zhTW" then
 	-- section.lua
 	L.data["Item Count: "] = "物品數: " 
 	
+	-- masque.lua
+	L.data["BetterBags"] = "掰特包"
+	
 end
 
 -- G returns the localized string for the given key.

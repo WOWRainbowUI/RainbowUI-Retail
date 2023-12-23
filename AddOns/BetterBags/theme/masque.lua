@@ -10,13 +10,16 @@ local masque = addon:NewModule('Masque')
 ---@class Masque: AceAddon
 local Masque = LibStub('Masque', true)
 
+---@class Localization: AceModule
+local L = addon:GetModule('Localization')
+
 function masque:OnEnable()
   if not Masque then
     return
   end
   self.groups = {}
-  self.groups["Backpack"] = Masque:Group('BetterBags', 'Backpack')
-  self.groups["Bank"] = Masque:Group('BetterBags', 'Bank')
+  self.groups["Backpack"] = Masque:Group(L:G('BetterBags'), L:G('Backpack'))
+  self.groups["Bank"] = Masque:Group(L:G('BetterBags'), L:G('Bank'))
 end
 
 function masque:AddButtonToGroup(group, button)
