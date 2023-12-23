@@ -9,6 +9,11 @@
 ## X-Wago-ID: BO678XK3
 ## X-WoWI-ID: 23235
 
+## Title-zhTW: |cffFF0000[PvP]|r 敵方技能監控 (條列)
+## Notes-zhTW: OmniBar |n|n監控敵人的技能冷卻時間，可以建立多組技能圖示列，擺在畫面上的任何位置。|n|n|cffffd200使用方法：|r從Esc>選項>插件>PvP技能監控條，進行設定。
+## X-Category-zhTW: PvP
+## DefaultState: disabled
+
 #@no-lib-strip@
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
