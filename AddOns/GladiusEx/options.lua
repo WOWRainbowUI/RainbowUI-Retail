@@ -609,7 +609,7 @@ function GladiusEx:SetupOptions()
 
     local options = {
         type = "group",
-        name = L["GladiusEx"],
+        name = L["GladiusEx "],
         get = getOption,
         set = setOption,
         args = {

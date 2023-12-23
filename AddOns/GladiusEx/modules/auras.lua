@@ -7,8 +7,8 @@ local MSQ = LibStub("Masque", true)
 local MSQ_Buffs
 local MSQ_Debuffs
 if MSQ then
-	MSQ_Buffs = MSQ:Group("GladiusEx", L["Buffs"])
-	MSQ_Debuffs = MSQ:Group("GladiusEx", L["Debuffs"])
+	MSQ_Buffs = MSQ:Group(L["GladiusEx "], L["Buffs"])
+	MSQ_Debuffs = MSQ:Group(L["GladiusEx "], L["Debuffs"])
 end
 
 -- global functions
