@@ -1,12 +1,15 @@
-## Interface: 100200## IconTexture: 982414
+## Interface: 100200
 ## Title: WorldFlightMap
 ## Notes: Replaces the regular flight map with the world map
-## Title-zhTW: |cff4DFF4D[地圖]|r 世界鳥點地圖
-## Notes-zhTW: WorldFlightMap |n|n使用完整的世界地圖來顯示鳥點和飛行路線，選擇鳥點的同時也可以看到任務位置。
-## X-Category-zhTW: 地圖
 ## Author: Semlar
 ## Version: 10.0.0.0
 ## Dependencies: Blizzard_FlightMap
 
+## Title-zhTW: |cff4DFF4D[地圖]|r 世界鳥點地圖
+## Notes-zhTW: WorldFlightMap |n|n使用完整的世界地圖來顯示鳥點和飛行路線，選擇鳥點的同時也可以看到任務位置。
+## X-Category-zhTW: 地圖
+## IconTexture: Interface\Icons\ability_mount_warhippogryph
+
 LinePool.lua
+WorldFlightPin.xml
 WorldFlightMap.lua

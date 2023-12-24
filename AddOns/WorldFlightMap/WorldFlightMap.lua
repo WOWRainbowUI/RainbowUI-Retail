@@ -157,6 +157,7 @@ function WorldFlightMapProvider:OnEvent(event, ...)
 		if InCombatLockdown() then
 			CloseTaxiMap()
 		else
+			local overrideMapID
 			if IsInInstance() then
 				local _, _, _, _, _, _, _, instanceID = GetInstanceInfo()
 				if instanceID == 2481 then
@@ -170,15 +171,17 @@ function WorldFlightMapProvider:OnEvent(event, ...)
 
 					ShowUIPanel(flightMapFrame)
 					return
+				elseif instanceID == 2516 then
+					overrideMapID = 2093
 				end
 			end
 
 			self:SetTaxiState(true)
-			self.taxiMap = GetMapSize(GetTaxiMapID())
+			self.taxiMap = GetMapSize(overrideMapID or GetTaxiMapID())
 			
 			local playerMapID = C_Map.GetBestMapForUnit('player')
 			local playerMapInfo = C_Map.GetMapInfo(playerMapID)
-			self.playerContinent = GetCurrentMapContinent(playerMapID)
+			self.playerContinent = GetCurrentMapContinent(overrideMapID or playerMapID)
 			
 			if not self:GetMap():IsShown() and not InCombatLockdown() then
 				ToggleWorldMap()
@@ -188,7 +191,7 @@ function WorldFlightMapProvider:OnEvent(event, ...)
 				-- We used to zoom out until we could fit multiple flight points on the same map, but this is simpler
 				-- if playerMapInfo.mapType > Enum.UIMapType.Zone and playerMapInfo.parentMapID then
 				if playerMapInfo.parentMapID then
-					local parentZone = GetParentZone(playerMapID)
+					local parentZone = overrideMapID or GetParentZone(playerMapID)
 					if parentZone then
 						self:GetMap():SetMapID(parentZone)
 					end
@@ -256,7 +259,7 @@ function WorldFlightMapProvider:AddFlightNode(taxiNodeData)
 			if drawPin then
 				-- Duplicating all of this from frameXML because we need to raise the frame level of the pins
 				local playAnim = taxiNodeData.state ~= Enum.FlightPathState.Unreachable;
-				local pin = self:GetMap():AcquirePin("FlightMap_FlightPointPinTemplate", playAnim);
+				local pin = self:GetMap():AcquirePin("WorldFlightPinTemplate", playAnim);
 				
 				-- For the sake of having other addons treat our buttons like normal taxi map buttons
 				_G['TaxiButton' .. taxiNodeData.slotIndex] = pin
@@ -292,7 +295,7 @@ function WorldFlightMapProvider:AddFlightNode(taxiNodeData)
 				
 				pin:SetShown(taxiNodeData.state ~= Enum.FlightPathState.Unreachable); -- Only show if part of a route, handled in the route building functions
 
-				for poiPin in self:GetMap():EnumeratePinsByTemplate("FlightPointPinTemplate") do
+				for poiPin in self:GetMap():EnumeratePinsByTemplate("WorldFlightPinTemplate") do
 					if poiPin.name == taxiNodeData.name and playAnim then
 						poiPin:Hide()
 					else
@@ -302,6 +305,18 @@ function WorldFlightMapProvider:AddFlightNode(taxiNodeData)
 				end
 			end
 		end
+	end
+end
+
+function WorldFlightMapProvider:RemoveAllData()
+	self:GetMap():RemoveAllPinsByTemplate("WorldFlightPinTemplate")
+	self:GetMap():ResetTitleAndPortraitIcon()
+
+	if self.highlightLinePool then
+		self.highlightLinePool:ReleaseAll()
+	end
+	if self.backgroundLinePool then
+		self.backgroundLinePool:ReleaseAll()
 	end
 end
 
@@ -375,3 +390,8 @@ function WorldMapFrame:UpdateTitleAndPortraitIcon()
 end
 
 WorldMapFrame:AddDataProvider(WorldFlightMapProvider)
+
+-- use modified pin mixin and template to prevent taint
+-- https://github.com/Stanzilla/WoWUIBugs/issues/453
+WorldFlightPinMixin = CreateFromMixins(FlightMap_FlightPointPinMixin)
+WorldFlightPinMixin.SetPassThroughButtons = function() end
