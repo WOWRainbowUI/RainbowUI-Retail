@@ -24,7 +24,7 @@ D["!!!gmFonts"] = {
 	},
 };
 D["gmFonts"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "MISC" }, 
 	title = "遊戲介面字體 (舊版)",
 	desc = "|cffFF2D2D此插件的資料夾名稱已經變更，請刪除 AddOns 裡面的 gmFonts 資料夾!`",
