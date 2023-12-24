@@ -136,9 +136,9 @@ if locale == "koKR" then
 elseif locale == "zhCN" then
 	LOCALE_MASK = lib.LOCALE_BIT_zhCN
 --
-	SML_MT_font["伤害数字"]		= [[Fonts\ARKai_C.ttf]]
-	SML_MT_font["默认"]			= [[Fonts\ARKai_T.ttf]]
-	SML_MT_font["聊天"]			= [[Fonts\ARHei.ttf]]
+	SML_MT_font["伤害数字"]		= [[Interface\Addons\SharedMedia_Rainbow\fonts\YaHei\YaHei.ttf]] -- [[Fonts\ARKai_C.ttf]]
+	SML_MT_font["默认"]			= [[Interface\Addons\SharedMedia_Rainbow\fonts\bHEI00M\bHEI00M.ttf]] -- [[Fonts\ARKai_T.ttf]]
+	SML_MT_font["聊天"]			= [[Interface\Addons\SharedMedia_BNS\font\ChironHeiHK-M.ttf]]  -- [[Fonts\ARHei.ttf]]
 --
 	lib.DefaultMedia["font"] = "默认" -- someone from zhCN please adjust if needed
 --
