@@ -158,6 +158,7 @@ rematch.optionsList = {
 	{type="check", group=17, text=L["Show Notes In Battle"], var="ShowNotesInBattle", tooltip=L["If the loaded team has notes, display and lock the notes when you enter a pet battle."]},
 	{type="check", group=17, text=L["Only Once Per Team"], var="ShowNotesOnce", dependency="ShowNotesInBattle", tooltip=L["Only display notes automatically the first time entering battle, until another team is loaded."]},
 	{type="widget", group=17, text=L["Notes Size"], parentKey="NotesFontWidget"}, -- Notes Size:
+	{type="check", group=17, text=L["Hide Notes Button In Battle"], var="HideNotesButtonInBattle", func="HideNotesButtonInBattle", tooltip=L["In the Battle UI, hide the notes \"micro\" button to show notes for the currently-loaded team. Enable this option if another addon wants to use the same space."]},
 
 	-- Ability Tooltip Options
 	{type="header", group=16, text=L["Ability Tooltip Options"]},
@@ -205,7 +206,8 @@ rematch.optionsList = {
 	{type="check", group=19, text=L["Automatically Level New Pets"], var="QueueAutoLearn", tooltip=L["When you capture or learn a pet that can level, automatically add it to the leveling queue."]},
 	{type="check", group=19, text=L["Only Pets Without One At 25"], var="QueueAutoLearnOnly", dependency="QueueAutoLearn", tooltip=L["Only automatically add pets to the queue when you don't have a version already at 25 or in the queue."]},
 	{type="check", group=19, text=L["Only Rare Pets"], var="QueueAutoLearnRare", dependency="QueueAutoLearn", tooltip=L["Only automatically add rare pets to the leveling queue."]},
-	{type="check", group=19, text=L["Random Pet When Queue Empty"], var="QueueRandomWhenEmpty", tooltip=L["When the queue is empty and a team loads with leveling slots, load a random high-level pet in the leveling slots."]},
+	{type="check", group=19, text=L["Random Pet When Queue Empty"], var="QueueRandomWhenEmpty", tooltip=L["When the queue is empty and a team loads with leveling slots, put random pets that are not max level into the leveling slots."]},
+	{type="check", group=19, text=L["Pick Random Max Level"], var="QueueRandomMaxLevel", dependency="QueueRandomWhenEmpty", tooltip=L["When the queue is empty and a team loads with leveling slots, put random max-level pets in the leveling slots."]},
 
 	-- Confirmation Options
 	{type="header", group=11, text=L["Confirmation Options"]},

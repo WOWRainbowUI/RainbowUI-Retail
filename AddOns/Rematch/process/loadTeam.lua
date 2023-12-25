@@ -153,7 +153,7 @@ function startLoad(teamID)
                         tinsert(loadPlan,{slot,levelingPetID}) -- add leveling pet to load plan
                         excludePetIDs[levelingPetID] = true -- exclude leveling pet from potential randoms
                     elseif settings.QueueRandomWhenEmpty then -- if a leveling pet wasn't found and Random Pet When Queue Empty enabled, pick a random pet
-                        local levelingPetID = rematch.randomPets:PickRandomPetID({excludePetIDs=excludePetIDs})
+                        local levelingPetID = rematch.randomPets:PickRandomPetID({excludePetIDs=excludePetIDs,levelable=(not settings.QueueRandomMaxLevel)})
                         if levelingPetID then
                             tinsert(loadPlan,{slot,levelingPetID})
                             excludePetIDs[levelingPetID] = true

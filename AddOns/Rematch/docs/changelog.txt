@@ -1,3 +1,19 @@
+12/24/2023 version 5.0.6
+- Fix for lua error for users that don't have Safari Hat cached on login
+
+12/24/2023 version 5.0.5
+- Rework of the Leveling Queue Option 'Random Pet When Queue Empty':
+  - Rather than picking random max-level pets, this option will now pick random pets that can level when filling leveling slots when the queue is empty
+  - The suboption 'Pick Random Max Level' was added to support old behavior of picking max level pets when the queue is empty
+  - Anyone who had 'Random Pet When Queue Empty' enabled before this update will also have 'Pick Random Max Level' enabled
+  - The random leveling pet should prefer pets that meet current preferences (if your current preference is max level 20, then random pet will be max level 20 where possible, or any level under 25 if not possible, or a random max level otherwise) and also prefer rares over uncommon or less
+- Added a team notes button to the "micro" buttons panel in the battle UI to view or modify notes for the currently-loaded team without summoning Rematch
+- Added Notes Option 'Hide Notes Button In Battle' to hide the new notes button in case other addons are using the same space of the battle UI
+- Potential fix for Safari Hat button not being usable because the toy was not cached
+- Fix for Delete/Undo/Save buttons not always dismissing when clicking Delete in the Notes window
+- Added REMATCH_NOTES_CHANGED event (with teamID or speciesID that had its notes changed)
+- Localization template updated
+
 12/17/2023 version 5.0.4
 - Fix for Standalone Options 'Keep Window On Screen' -> 'Even Across Sessions' always showing window on login instead of only if it was up on last logout
 - Added Uncollected Pets count and Average Level to the total pets/collection tooltip in topleft of the expanded window

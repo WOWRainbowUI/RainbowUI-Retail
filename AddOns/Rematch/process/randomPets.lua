@@ -11,6 +11,7 @@ rematch.randomPets = {}
 --  excludePetIDs = {} -- lookup table of PetIDs to not pick (eg loaded in other slots)
 --  strongVs = pet type the random pet prefers to be strong against
 --  toughVs = pet type the random pet prefers to be tough against
+--  levelable = true if pet should can level be max level (but still meet loaded preferences)
 -- }
 local randomPetIDs = {} -- list of random petIDs of the highest weight
 function rematch.randomPets:PickRandomPetID(info)
@@ -99,7 +100,17 @@ function rematch.randomPets:GetPetIDWeight(petID,info)
         end
         -- next highest is level
         if petInfo.level then
-            weight = weight + 100000*petInfo.level
+            local levelWeight = petInfo.level
+            -- for picking a random pet that can level
+            if info.levelable and settings.QueueRandomWhenEmpty and not settings.QueueRandomMaxLevel then
+                -- if pet can be slotted(summoned) and it can level, weight is 25 for preferred, 1 for non-preferred
+                if petInfo.isSummonable and rematch.queue:PetIDCanLevel(petID) then
+                    levelWeight = rematch.preferences:IsPetPreferred(petID) and 25 or 1
+                else -- 0 weight if it can't be slotted or level
+                    levelWeight = 0
+                end
+            end
+            weight = weight + 100000*levelWeight
         end
         -- highest is preferred pet type, if given (and a valid pet type)
         if info.petType and tonumber(info.petType) and info.petType>=1 and info.petType<=10 then

@@ -82,6 +82,10 @@ function rematch.convert:ConversionCheck()
         settings.NotesNoEscFix = true
         settings.NotesNoESC = nil
     end
+    -- 5.0.5: moving QueueRandomWhenEmpty QueueRandomMaxLevel
+    if settings.QueueRandomWhenEmpty and Rematch5Settings.QueueRandomMaxLevel==nil then
+        settings.QueueRandomMaxLevel = true
+    end
 end
 
 -- copies various settings from Rematch 4.x

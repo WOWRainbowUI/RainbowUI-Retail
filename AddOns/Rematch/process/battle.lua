@@ -4,6 +4,9 @@ local C = rematch.constants
 local settings = rematch.settings
 rematch.battle = {}
 
+-- this becoms the little notes button in the available spot of the battle UI's MicroButtonFrame
+rematch.battle.NotesButton = CreateFrame("Button","RematchNotesMicroButton")
+
 rematch.events:Register(rematch.battle,"PLAYER_LOGIN",function(self)
     if IsAddOnLoaded("Blizzard_PetBattleUI") then -- if already loaded on login, run setup right away
         self:Setup()
@@ -36,7 +39,95 @@ function rematch.battle:Setup()
 
     rematch.events:Register(self,"PET_BATTLE_FINAL_ROUND",self.PET_BATTLE_FINAL_ROUND)
     rematch.events:Register(self,"PET_BATTLE_CLOSE",self.PET_BATTLE_CLOSE)
+    rematch.events:Register(self,"REMATCH_NOTES_CHANGED",self.REMATCH_NOTES_CHANGED)
+    rematch.events:Register(self,"REMATCH_TEAM_LOADED",self.REMATCH_NOTES_CHANGED) -- this shares same function as notes changing
+
+    -- set up notes micro button in battle UI to summon team notes
+    local notesButton = self.NotesButton
+    notesButton:SetParent(PetBattleFrame.BottomFrame.MicroButtonFrame)
+    notesButton:SetSize(32,40)
+    notesButton:SetPoint("BOTTOMRIGHT",10,-10)
+    notesButton.Background = notesButton:CreateTexture(nil,"BACKGROUND")
+    notesButton.Background:SetAtlas("UI-HUD-MicroMenu-ButtonBG-Up",true)
+    notesButton.Background:SetPoint("CENTER")
+    notesButton.Icon = notesButton:CreateTexture(nil,"ARTWORK")
+    notesButton.Icon:SetTexture("Interface\\AddOns\\Rematch\\textures\\notesmicrobutton.blp")
+    notesButton.Icon:SetSize(24,24)
+    notesButton.Icon:SetPoint("CENTER")
+    notesButton.Highlight = notesButton:CreateTexture(nil,"OVERLAY")
+    notesButton.Highlight:SetBlendMode("ADD")
+    notesButton.Highlight:SetTexture("Interface\\AddOns\\Rematch\\textures\\notesmicrobutton.blp")
+    notesButton.Highlight:SetSize(24,24)
+    notesButton.Highlight:SetPoint("CENTER",notesButton.Icon,"CENTER")
+    notesButton.Highlight:SetAlpha(0.15)
+    notesButton.Highlight:Hide()
+    notesButton:SetScript("OnEnter",notesButton.OnEnter)
+    notesButton:SetScript("OnLeave",notesButton.OnLeave)
+    notesButton:SetScript("OnMouseDown",notesButton.OnMouseDown)
+    notesButton:SetScript("OnMouseUp",notesButton.OnMouseUp)
+    notesButton:SetScript("OnShow",notesButton.OnShow)
+    notesButton:SetScript("OnClick",notesButton.OnClick)
+    notesButton:SetShown(not settings.HideNotesButtonInBattle)
 end
+
+function rematch.battle.NotesButton:OnEnter()
+    self.Highlight:Show()
+    rematch.cardManager:OnEnter(rematch.notes,self,rematch.settings.currentTeamID)
+end
+
+function rematch.battle.NotesButton:OnLeave()
+    self.Highlight:Hide()
+    rematch.cardManager:OnLeave(rematch.notes,self,rematch.settings.currentTeamID)
+end
+
+function rematch.battle.NotesButton:OnMouseDown()
+    if self:IsEnabled() then
+        self.Background:SetPoint("CENTER",1,-1)
+        self.Icon:SetPoint("CENTER",1,-1)
+        self.Icon:SetVertexColor(0.45,0.45,0.45)
+    end
+end
+
+function rematch.battle.NotesButton:OnMouseUp()
+    if self:IsEnabled() then
+        self.Background:SetPoint("CENTER")
+        self.Icon:SetPoint("CENTER")
+        self.Icon:SetVertexColor(0.9,0.9,0.9)
+    end
+end
+
+function rematch.battle.NotesButton:OnShow()
+    self:OnMouseUp()
+    self:Update()
+end
+
+function rematch.battle.NotesButton:OnClick()
+    rematch.cardManager:OnClick(rematch.notes,self,rematch.settings.currentTeamID)
+end
+
+-- needs to update when button shown, team unloaded, team saved, notes changed
+function rematch.battle.NotesButton:Update()
+    local teamID = rematch.settings.currentTeamID
+    if rematch.savedTeams:IsUserTeam(teamID) then
+        self.Icon:SetDesaturated(false)
+        self.Icon:SetVertexColor(0.9,0.9,0.9,1)
+        if rematch.savedTeams[teamID].notes then
+            self.Icon:SetTexCoord(0,0.5,0,1)
+            self.Highlight:SetTexCoord(0,0.5,0,1)
+        else -- team is loaded but has no notes, use icon with green + on it
+            self.Icon:SetTexCoord(0.5,1,0,1)
+            self.Highlight:SetTexCoord(0.5,1,0,1)
+        end
+        self:Enable()
+    else
+        self.Icon:SetDesaturated(true)
+        self.Icon:SetVertexColor(0.4,0.4,0.4,0.5)
+        self.Icon:SetTexCoord(0,0.5,0,1)
+        self.Highlight:Hide()
+        self:Disable()
+    end
+end
+
 
 -- from the given owner,index, return a petID, either the owned petID (if petOwner is ally), or "battle:2:index"
 function rematch.battle:GetUnitPetID(petOwner,petIndex)
@@ -74,7 +165,7 @@ function rematch.battle:PET_BATTLE_FINAL_ROUND(winner)
     self.wasInPVP = not C_PetBattles.IsPlayerNPC(Enum.BattlePetOwner.Enemy)
 end
 
--- this is called in pairs, so don't use toggle
+-- this is called in pairs, so don't use toggle without checking if it's visible
 function rematch.battle:PET_BATTLE_CLOSE()
     if settings.ShowAfterBattle and not (self.wasInPVP and settings.ShowAfterPVEOnly) and not rematch.frame:IsVisible() then
         rematch.frame:Toggle(true)
@@ -83,5 +174,12 @@ function rematch.battle:PET_BATTLE_CLOSE()
     end
     if rematch.notes:IsVisible() and not rematch.notes.Content.ScrollFrame.EditBox:HasFocus() and not settings.KeepNotesOnScreen then
         rematch.cardManager:HideCard(rematch.notes)
+    end
+end
+
+-- if notes change while in battle UI, then the notes micro button will potentially change
+function rematch.battle:REMATCH_NOTES_CHANGED()
+    if PetBattleFrame and PetBattleFrame.BottomFrame.MicroButtonFrame:IsVisible() then
+        self.NotesButton:Update()
     end
 end

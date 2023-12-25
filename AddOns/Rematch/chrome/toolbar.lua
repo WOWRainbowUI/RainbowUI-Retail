@@ -34,6 +34,7 @@ rematch.events:Register(rematch.toolbar,"PLAYER_LOGIN",function(self)
     rematch.frame.TopTileStreaks:SetPoint("TOPRIGHT")
 
     rematch.events:Register(self,"REMATCH_TEAM_LOADED",self.REMATCH_TEAM_LOADED)
+    rematch.timer:Start(0.1,rematch.toolbar.CacheSafariHat)
 end)
 
 function rematch.toolbar:Configure()
@@ -144,6 +145,14 @@ function rematch.toolbar:OnHide()
     rematch.events:Unregister(self,"PET_BATTLE_QUEUE_STATUS")
     rematch.events:Unregister(self,"REMATCH_LOADOUTS_CHANGED")
     rematch.events:Register(self,"REMATCH_TEAM_LOADED",self.REMATCH_TEAM_LOADED)
+end
+
+-- safari hat is a toy and needs to be applied by name; forcing a cache on login to get the name
+function rematch.toolbar:CacheSafariHat()
+    if not C_Item.IsItemDataCachedByID(C.SAFARI_HAT_ITEM_ID) then
+        GetItemInfo(C.SAFARI_HAT_ITEM_ID)
+        rematch.timer:Start(0.1,rematch.toolbar.CacheSafariHat)
+    end
 end
 
 --[[ events ]]

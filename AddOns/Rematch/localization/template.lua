@@ -1015,3 +1015,12 @@ L["Team or group has preferences"] = nil
 L["Import Options"] = nil
 L["This will reset most options, set them to values pasted here, then reload the UI. %sUse this at your own risk!\124r Tinkering with these values can cause Rematch to become unstable and require a full reset."] = nil
 L["This will reset most options!\nThis cannot be undone!"] = nil
+
+-- Version: 5.0.5 --
+
+-- panels\optionsList.lua
+L["Hide Notes Button In Battle"] = nil
+L["In the Battle UI, hide the notes \"micro\" button to show notes for the currently-loaded team. Enable this option if another addon wants to use the same space."] = nil
+L["When the queue is empty and a team loads with leveling slots, put random pets that are not max level into the leveling slots."] = nil
+L["Pick Random Max Level"] = nil
+L["When the queue is empty and a team loads with leveling slots, put random max-level pets in the leveling slots."] = nil

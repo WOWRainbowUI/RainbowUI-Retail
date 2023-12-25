@@ -183,6 +183,7 @@ local defaults = {
     ShowNotesInBattle = false, -- Show Notes In Battle
     ShowNotesOnce = false, -- Only Once Per Team
     NotesFont = "GameFontHighlight", -- Notes Size
+    HideNotesButtonInBattle = false, -- Hide Notes Button In Battle
 
     -- Team Win Record Options
     HideWinRecord = false, -- Hide Win Record Text
@@ -223,7 +224,8 @@ local defaults = {
     QueueAutoLearn = false, -- Automatically Level New Pets
     QueueAutoLearnOnly = false, -- Only Pets Without One At 25
     QueueAutoLearnRare = false, -- Only Rare Pets
-    QueueRandomWhenEmpty = false, -- Randon Pet When Queue Empty
+    QueueRandomWhenEmpty = false, -- Random Pet When Queue Empty
+    QueueRandomMaxLevel = false, -- Pick Random Max Level
     QueueAutoImport = true, -- Add Imported Pets To Queue
 }
 

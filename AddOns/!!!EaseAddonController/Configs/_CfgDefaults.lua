@@ -2030,7 +2030,7 @@ D["RangeDisplay"] = {
 };
 D["Rematch"] = {
 	defaultEnable = 0,
-	title = "戰寵送作隊",
+	title = "寵物再戰",
 	desc = "寵物日誌介面增強，可以儲存對戰隊伍，對戰時快速載入隊伍，管理和升級戰寵更方便。`",
 	modifier = "彩虹ui",
 	img = true,

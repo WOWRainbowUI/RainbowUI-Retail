@@ -226,6 +226,7 @@ function rematch.notes.Content.Bottom.SaveButton:OnClick()
             end
             rematch.frame:Update()
             rematch.notes:ClearFocus()
+            rematch.events:Fire("REMATCH_NOTES_CHANGED",teamID)
         end
     elseif rematch.notes.petID then
         local speciesID = rematch.petInfo:Fetch(rematch.notes.petID).speciesID
@@ -237,6 +238,7 @@ function rematch.notes.Content.Bottom.SaveButton:OnClick()
             end
             rematch.frame:Update()
             rematch.notes:ClearFocus()
+            rematch.events:Fire("REMATCH_NOTES_CHANGED",speciesID)
         end
     end
 end
@@ -247,6 +249,7 @@ function rematch.notes.Content.Bottom.UndoButton:OnClick()
 end
 
 function rematch.notes.Content.Bottom.DeleteButton:OnClick()
+    rematch.notes:ClearFocus()
     rematch.cardManager:HideCard(rematch.notes)
     local subject = rematch.notes.teamID or rematch.notes.petID
     if not settings.DontConfirmDeleteNotes and rematch.notes.originalNotes then
@@ -263,11 +266,13 @@ function rematch.notes:DeleteNotes(subject)
         local team = rematch.savedTeams[subject]
         if team then
             rematch.savedTeams[subject].notes = nil
+            rematch.events:Fire("REMATCH_NOTES_CHANGED",subject)
         end
     elseif subject then
         local speciesID = rematch.petInfo:Fetch(subject).speciesID
         if speciesID then
             settings.PetNotes[speciesID] = nil
+            rematch.events:Fire("REMATCH_NOTES_CHANGED",speciesID)
         end
     end
     rematch.frame:Update()

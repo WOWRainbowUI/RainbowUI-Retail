@@ -22,6 +22,7 @@ Rematch uses an event dispatch system that outside addons can use:
     REMATCH_TEAMS_WIPED       (none)           After all teams are wiped by /rematch delete all teams
     REMATCH_PETS_LOADED       (none)           After login and pets are believed to be loaded
     REMATCH_PETS_CHANGED      (none)           After the pet roster has changed
+    REMATCH_NOTES_CHANGED     teamID/speciesID After notes for a team or pet changed or was deleted
 
 To register for these events:
 

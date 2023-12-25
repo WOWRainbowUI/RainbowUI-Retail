@@ -235,7 +235,7 @@ end
 
 -- returns true if the petID can level (is owned, can battle, has a level and is under 25)
 function rematch.queue:PetIDCanLevel(petID)
-    local petInfo = rematch.petInfo:Fetch(petID)
+    local petInfo = rematch.altInfo:Fetch(petID)
     return petInfo.isOwned and petInfo.canBattle and petInfo.level and petInfo.level<25
 end
 

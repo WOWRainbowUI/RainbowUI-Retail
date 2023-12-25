@@ -455,6 +455,10 @@ function rematch.optionsPanel.funcs:ExportSimplePetList()
     end
 end
 
+function rematch.optionsPanel.funcs:HideNotesButtonInBattle()
+    rematch.battle.NotesButton:SetShown(not settings.HideNotesButtonInBattle)
+end
+
 --[[ widget setups ]]
 
 rematch.optionsPanel.widgetSetup = {}
