@@ -1,9 +1,10 @@
 ------------------------------------------------------------------------
-r602 | Zimzarina | 2023-11-07 16:15:13 +0000 (Tue, 07 Nov 2023) | 1 line
+r606 | Zimzarina | 2023-12-17 16:57:54 +0000 (Sun, 17 Dec 2023) | 1 line
 Changed paths:
-   M /trunk/Postal.toc
-   A /trunk/Postal_TBC.toc
+   M /trunk/Modules/Forward.lua
+   M /trunk/Modules/OpenAll.lua
+   M /trunk/Modules/Select.lua
 
-TOC Update for Retail.  Restored Postal_TBC.toc as this does not appear to be the source of the packaging issue.
+Blizzard has now moved the API GetContainerNumFreeSlots(bagID) in Classic to the C_Container space to match WotLK and Dragonflight. Updated Classic for this change to C_Container.GetContainerNumFreeSlots(bagID).
 ------------------------------------------------------------------------
 

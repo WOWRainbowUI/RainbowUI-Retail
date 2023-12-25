@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 20504
 ## Title: Postal
 ## Version: v4.1.0
 ## X-Build: 606
@@ -7,7 +7,6 @@
 ## Author: Xinhuan
 ## X-Credits: Ammo, Rabbit, Grennon, Mikk, oscarucb, Jonny aka The_Original_Manbot
 ## X-Category: Mail
-## IconTexture: 133457
 ## Notes: Postal: Enhanced Mailbox support
 ## Notes-ruRU: Postal: Расширенная поддержка почтового ящика
 ## Notes-frFR: Postal: améliorations diverses de l'interface d'envoi/réception de courriers.
@@ -25,6 +24,16 @@
 ## Title-zhTW: |cffB973CC[物品]|r 超強信箱 
 ## Notes-zhTW: Postal |n|n強化信箱功能。收件人可以快速地選擇分身，避免寄錯；一次收取所有信件，還有更多功能。
 ## X-Category-zhTW: 物品
+
+#@no-lib-strip@
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceHook-3.0\AceHook-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+#@end-no-lib-strip@
 
 Localization.lua
 Postal.lua
