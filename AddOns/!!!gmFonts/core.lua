@@ -151,7 +151,7 @@ local function UpdateFonts()
 	SetFont(_G.SystemFont_Small2,                  GMFONTS["N"], 13, "") -- SharedFonts.xml
 	
 	
-	for i=1,20 do
+	for i=1,NUM_CHAT_WINDOWS do
 		local f = _G["ChatFrame"..i]
 		if f then 
 			local font, size, flags = f:GetFont()
