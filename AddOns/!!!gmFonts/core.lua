@@ -151,10 +151,12 @@ local function UpdateFonts()
 	SetFont(_G.SystemFont_Small2,                  GMFONTS["N"], 13, "") -- SharedFonts.xml
 	
 	
-	for i=1,7 do
+	for i=1,20 do
 		local f = _G["ChatFrame"..i]
-		local font, size, flags = f:GetFont()
-		f:SetFont(GMFONTS["N"], size, flags)
+		if f then 
+			local font, size, flags = f:GetFont()
+			f:SetFont([[Interface\Addons\SharedMedia_BNS\font\ChironHeiHK-M.ttf]], size, flags)
+		end
 	end
 
 	-- for _,butt in pairs(PaperDollTitlesPane.buttons) do butt.text:SetFontObject(GameFontHighlightSmallLeft) end
