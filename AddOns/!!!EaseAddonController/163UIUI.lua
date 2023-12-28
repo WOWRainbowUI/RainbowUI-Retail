@@ -204,11 +204,11 @@ function UUI.ClickAddonCheckBox(self, name, enable, subgroup)
         local other_loaded = false
         for _, other in ipairs(info.conflicts or _empty_table) do
             if IsAddOnLoaded(other) then
-                DisableAddOn(other)
+                EacDisableAddOn(other)
                 other_loaded = true
             end
         end
-        if other_loaded then EnableAddOn(name) return ReloadUI() end
+        if other_loaded then EacEnableAddOn(name) return ReloadUI() end
     end
 
     local needReload = U1ToggleAddon(name, enable, nil, deepToggleChildren);

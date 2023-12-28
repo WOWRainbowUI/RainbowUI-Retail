@@ -68,7 +68,7 @@ function U1ConfigsLoaded()
         -- we may hide some parent addons and load when their children is loaded.
         -- we register these addons by {hide=1,lod=1,protected=nil,} and Disable here to prevent Blizzard from loading them.
         if (v.lod and not v.realLOD) then
-            DisableAddOn(k)
+            EacDisableAddOn(k)
         end
 
         -- if parent addon is hidden, then set parent to nil and add parent in deps

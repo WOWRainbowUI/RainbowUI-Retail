@@ -184,7 +184,7 @@ function P:EnableOrDisableAddOn(addons)
         for k, v in pairs(addons) do
             local origin = GetAddOnEnableState(U1PlayerName,k)>=2
             if v==1 then
-                if not origin then EnableAddOn(k) end
+                if not origin then EacEnableAddOn(k) end
             else
                 if origin then DisableAddOn(k) end
             end
