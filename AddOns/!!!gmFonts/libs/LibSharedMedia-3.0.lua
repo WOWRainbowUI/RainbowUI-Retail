@@ -145,7 +145,7 @@ elseif locale == "zhCN" then
 elseif locale == "zhTW" then
 	LOCALE_MASK = lib.LOCALE_BIT_zhTW
 --
-	SML_MT_font["提示訊息"]	= [[Interface\Addons\SharedMedia_Rainbow\fonts\bHEI00M\bHEI00M.ttf]] -- [[Fonts\bHEI00M.ttf]]
+	SML_MT_font["提示訊息"]	= [[Interface\Addons\SharedMedia_Rainbow\fonts\GenRyuMin\GenRyuMin-B-Hoefler.ttf]] -- [[Fonts\bHEI00M.ttf]]
 	SML_MT_font["聊天"]		= [[Interface\Addons\SharedMedia_BNS\font\ChironHeiHK-M.ttf]] -- [[Fonts\bHEI01B.ttf]]
 	SML_MT_font["傷害數字"]	= [[Interface\Addons\SharedMedia_Rainbow\fonts\Rawhide_Raw\Rawhide_Raw.ttf]] -- [[Fonts\bKAI00M.ttf]]
 	SML_MT_font["預設"]		= [[Interface\Addons\SharedMedia_Rainbow\fonts\bHEI00M\bHEI00M.ttf]] -- [[Fonts\bLEI00D.ttf]]
@@ -178,8 +178,8 @@ else
 	SML_MT_font["AR CrystalzcuheiGBK Demibold"]		= [[Fonts\ARHei.TTF]]
 	SML_MT_font["AR ZhongkaiGBK Medium (Combat)"]	= [[Fonts\ARKai_C.TTF]]
 	SML_MT_font["AR ZhongkaiGBK Medium"]			= [[Fonts\ARKai_T.TTF]]
-	SML_MT_font["Arial Narrow"]						= [[Fonts\ARIALN.TTF]]
-	SML_MT_font["Friz Quadrata TT"]					= [[Fonts\FRIZQT__.TTF]]
+	SML_MT_font["Arial Narrow"]						= [[Interface\Addons\SharedMedia_BNS\font\ChironHeiHK-M.ttf]] -- [[Fonts\ARIALN.TTF]]
+	SML_MT_font["Friz Quadrata TT"]					= [[Interface\Addons\SharedMedia_Rainbow\fonts\bHEI00M\bHEI00M.ttf]] -- [[Fonts\FRIZQT__.TTF]]
 	SML_MT_font["MoK"]								= [[Fonts\K_Pagetext.TTF]]
 	SML_MT_font["Morpheus"]							= [[Fonts\MORPHEUS_CYR.TTF]]
 	SML_MT_font["Nimrod MT"]						= [[Fonts\NIM_____.ttf]]
