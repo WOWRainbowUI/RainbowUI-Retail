@@ -209,7 +209,10 @@ end
 function rematch.savedTeams:Create()
     local sideline = metaTeams.sideline
     assert(sideline,"Sideline team is malformed. Can't create a new team.")
-    assert(sideline.name:len()>0,"Sideline team has no name. Can't create a new team.")
+    --assert(sideline.name:len()>0,"Sideline team has no name. Can't create a new team.")
+    if not sideline.name or sideline.name:len()==0 then
+        sideline.name = L["New Team"]
+    end
     -- create a new table from a copy of the sideline
     local team = CopyTable(sideline)
     -- if name is already taken, make a unique name by appending (2) after it (or 3, 4, etc.)
