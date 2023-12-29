@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 11500
 ## Version: 1.33
 ## Title: NameplateSCT
 ## Author: mpstark, Justwait
@@ -13,6 +13,6 @@
 ## IconTexture: Interface\\Icons\\boss_odunrunes_yellow
 ## X-Category-zhTW: 戰鬥
 
-Libs\LibEasing\LibEasing.lua
+embeds.xml
 Locales\locale.xml
 NameplateSCT.lua
