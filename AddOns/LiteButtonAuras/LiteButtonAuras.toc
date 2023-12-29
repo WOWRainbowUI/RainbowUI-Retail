@@ -11,7 +11,7 @@
 ## Title-zhTW: |cff00CCFF[快捷列]|r 光環時間
 ## Notes-zhTW: LiteButtonAuras |n|n直接在快捷列的技能圖示上面顯示增益和減益效果的時間。|n|n對敵方目標施放的 DOT 會顯示紅色邊框，自己身上的 HOT/BUFF 會顯示綠色邊框。|n|n|cffffd200使用方法: |r輸入 /lba font default 18 THICKOUTLINE 將文字大小改為 18，輸入 /lba help 查看更多設定指令。
 ## X-Category-zhTW: 介面
-## IconTexture: Interface\Icons\achievement_guild_level10
+## IconTexture: Interface\Icons\achievement_guild_timeoff
 
 Libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua
 
