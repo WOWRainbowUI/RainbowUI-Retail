@@ -1771,8 +1771,6 @@ L["Unknown"] = "未知"
 -- L["m "] = " 分 "
 -- L["s"] = " 秒"
 L["Wipe has been called by your raid leader."] = "RL 說要 RE 了。"
-L["|cFFFFFF00you might find differences on damage done, this is due to a bug in the game client, nothing related to Details! itself ("] = "|cFFFFFF00如果你發現造成傷害不同，這是因為遊戲本身的 bug，和 Details! 無關 ("
-L["|cFFFFFF00you may find differences on damage done, this is due to a bug in the game client, nothing related to Details! itself ("] = "|cFFFFFF00如果你發現造成傷害不同，這是因為遊戲本身的 bug，和 Details! 無關 ("
 
 -- core\plugins.lua 更改字體大小
 L["Details version is out of date."] = "Details! 版本已過期。"
@@ -2043,6 +2041,7 @@ L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|
 L["M+ Score:"] = "M+ 分數:"
 L["Remove Common Segments"] = "移除一般戰鬥記錄"
 L["Reset, but keep Mythic+ Overall Segments"] = "重置，但是保留 M+ 整體戰鬥記錄"
+L["Remove Battleground Segments"] = "移除戰場戰鬥記錄"
 
 -- frames\window_news.lua
 L["Auto Open on New Changes"] = "有新的改動時自動打開"

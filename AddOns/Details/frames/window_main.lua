@@ -6531,6 +6531,9 @@ local buildSegmentTooltip = function(self, deltaTime)
 						segmentInfoAdded = true
 
 					elseif (thisCombat.is_boss and thisCombat.is_boss.name) then
+						---@type details_instanceinfo
+						local instanceInfo = Details:GetInstanceInfo(thisCombat.is_boss.mapid)
+
 						isMythicDungeon = false
 						local try_number = thisCombat.is_boss.try_number
 						local combat_time = thisCombat:GetCombatTime()
@@ -6559,31 +6562,22 @@ local buildSegmentTooltip = function(self, deltaTime)
 							end
 						end
 
-						local portrait = Details:GetBossPortrait(thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
+						---@type details_encounterinfo
+						local encounterInfo = Details:GetEncounterInfo(thisCombat.EncounterName)
+
+						local portrait = (encounterInfo and encounterInfo.creatureIcon) or thisCombat.is_boss.bossimage or thisCombat.bossIcon
 						if (portrait) then
 							gameCooltip:AddIcon(portrait, 2, "top", 128, 64)
-						else
-							local encounter_name = thisCombat.is_boss.encounter
-							local instanceID = thisCombat.is_boss.ej_instance_id
-							if (encounter_name and instanceID and instanceID ~= 0) then
-								local index, name, description, encounterID, rootSectionID, link = Details:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
-								if (index and name and encounterID) then
-									--EJ_SelectInstance (instanceID)
-									--creature info pode ser sempre 1, n�o usar o index do boss
-									local id, name, description, displayInfo, iconImage = DetailsFramework.EncounterJournal.EJ_GetCreatureInfo (1, encounterID)
-									if (iconImage) then
-										gameCooltip:AddIcon(iconImage, 2, "top", 128, 64)
-									end
-								end
-							end
 						end
 
 						gameCooltip:AddIcon([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
 
 						if (Details.tooltip.submenu_wallpaper) then
-							local background = Details:GetRaidIcon (thisCombat.is_boss.mapid)
+
+							local background = Details:GetRaidIcon(thisCombat.is_boss.mapid)
+
 							if (background and bCanUseBackgroundImage) then
-								gameCooltip:SetWallpaper (2, background, nil, segments_wallpaper_color, true)
+								gameCooltip:SetWallpaper(2, background, nil, segments_wallpaper_color, true)
 							else
 								local ej_id = thisCombat.is_boss.ej_instance_id
 								if (ej_id and ej_id ~= 0) then
@@ -9005,21 +8999,25 @@ end
 
 		Details:SetTooltipMinWidth()
 
-		gameCooltip:AddLine(Loc["Remove Common Segments"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
-		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
-		gameCooltip:AddMenu(1, function() Details.tabela_historico:ResetDataByCombatType("generic"); GameCooltip:Hide() end)
-
 		gameCooltip:AddLine(Loc["Reset, but keep Mythic+ Overall Segments"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
 		gameCooltip:AddMenu(1, function() Details.tabela_historico:ResetDataByCombatType("m+overall"); GameCooltip:Hide() end)
 
 		gameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
 
+		gameCooltip:AddLine(Loc["Remove Common Segments"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
+		gameCooltip:AddMenu(1, function() Details.tabela_historico:ResetDataByCombatType("generic"); GameCooltip:Hide() end)
+
+		gameCooltip:AddLine(Loc["Remove Battleground Segments"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
+		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
+		gameCooltip:AddMenu(1, function() Details.tabela_historico:ResetDataByCombatType("battleground"); GameCooltip:Hide() end)
+
+		gameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
+
 		gameCooltip:AddLine(Loc["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
 		gameCooltip:AddMenu(1, Details.tabela_historico.ResetOverallData)
-
-		gameCooltip:AddLine("$div", nil, 1, nil, -5, -11)
 
 		gameCooltip:AddLine(Loc["STRING_ERASE_DATA"], nil, 1, "white", nil, Details.font_sizes.menus, Details.font_faces.menus)
 		gameCooltip:AddIcon([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
