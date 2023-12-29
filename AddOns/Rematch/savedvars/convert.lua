@@ -53,7 +53,8 @@ function rematch.convert:ConversionCheck()
         RematchSettings = nil
     end
     -- if new settings are empty and there are Rematch4Settings, then import stuff after pets loaded
-    if not next(Rematch5Settings) and Rematch4Settings then
+    -- (settings.WasShownOnLogout will have a value on a reload, so checking if 1 or less settings exists)
+    if rematch.utils:GetSize(Rematch5Settings)<=1 and Rematch4Settings then
         rematch.convert:ImportSettings() -- import settings without waiting for pets to load (some modules need it on login)
         -- and after pets load, import teams and queue
         rematch.events:Register(self,"REMATCH_PETS_LOADED",function()

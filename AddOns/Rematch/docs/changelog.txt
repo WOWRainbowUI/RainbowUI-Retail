@@ -1,3 +1,7 @@
+12/25/2023 version 5.0.7
+- Potential fix for Rematch 4 to 5 conversion failing
+- Fix for /rematch reset everything not reverting to prior saved state
+
 12/24/2023 version 5.0.6
 - Fix for lua error for users that don't have Safari Hat cached on login
 
