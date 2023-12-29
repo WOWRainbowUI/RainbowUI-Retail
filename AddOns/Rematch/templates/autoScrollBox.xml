@@ -1,0 +1,139 @@
+<Ui>
+    <Script file="autoScrollBox.lua"/>
+
+    <Frame name="RematchAutoScrollBoxTintTemplate" hidden="true" virtual="true">
+        <KeyValues>
+            <KeyValue key="selectType" value="tint"/>
+        </KeyValues>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Texture" setAllPoints="true">
+                    <Color r="0" g="0" b="0" a="0.5"/>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <!-- template for a stretchable bordered selected texture -->
+    <Frame name="RematchAutoScrollBoxSelectTemplate" useParentLevel="true" hidden="true" virtual="true">
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="TopLeft" parentArray="Textures" file="Interface\AddOns\Rematch\textures\select">
+                    <Size x="8" y="8"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT"/>
+                    </Anchors>
+                    <TexCoords left="0" right="0.0625" top="0" bottom="0.25"/>
+                </Texture>
+                <Texture parentKey="TopRight" parentArray="Textures" file="Interface\AddOns\Rematch\textures\select">
+                    <Size x="8" y="8"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT"/>
+                    </Anchors>
+                    <TexCoords left="0.9375" right="1" top="0" bottom="0.25"/>
+                </Texture>
+                <Texture parentKey="BottomLeft" parentArray="Textures" file="Interface\AddOns\Rematch\textures\select">
+                    <Size x="8" y="8"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT"/>
+                    </Anchors>
+                    <TexCoords left="0" right="0.0625" top="0.75" bottom="1"/>
+                </Texture>
+                <Texture parentKey="BottomRight" parentArray="Textures" file="Interface\AddOns\Rematch\textures\select">
+                    <Size x="8" y="8"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT"/>
+                    </Anchors>
+                    <TexCoords left="0.9375" right="1" top="0.75" bottom="1"/>
+                </Texture>
+                <Texture parentKey="Left" parentArray="Textures" file="Interface\AddOns\Rematch\textures\select">
+                    <Size x="8" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.TopLeft" relativePoint="BOTTOMLEFT"/>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.BottomLeft" relativePoint="TOPLEFT"/>
+                    </Anchors>
+                    <TexCoords left="0" right="0.0625" top="0.25" bottom="0.75"/>
+                </Texture>
+                <Texture parentKey="Right" parentArray="Textures" file="Interface\AddOns\Rematch\textures\select">
+                    <Size x="8" y="0"/>
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.TopRight" relativePoint="BOTTOMRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.BottomRight" relativePoint="TOPRIGHT"/>
+                    </Anchors>
+                    <TexCoords left="0.9375" right="1" top="0.25" bottom="0.75"/>
+                </Texture>
+                <Texture parentKey="Top" parentArray="Textures" file="Interface\AddOns\Rematch\textures\select">
+                    <Size x="0" y="8"/>
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.TopLeft" relativePoint="TOPRIGHT"/>
+                        <Anchor point="TOPRIGHT" relativeKey="$parent.TopRight" relativePoint="TOPLEFT"/>
+                    </Anchors>
+                    <TexCoords left="0.0625" right="0.9375" top="0" bottom="0.25"/>
+                </Texture>
+                <Texture parentKey="Bottom" parentArray="Textures" file="Interface\AddOns\Rematch\textures\select">
+                    <Size x="0" y="8"/>
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativeKey="$parent.BottomLeft" relativePoint="BOTTOMRIGHT"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.BottomRight" relativePoint="BOTTOMLEFT"/>
+                    </Anchors>
+                    <TexCoords left="0.0625" right="0.9375" top="0.75" bottom="1"/>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnUpdate>
+                self.parent = nil
+            </OnUpdate>
+        </Scripts>
+    </Frame>
+
+    <Frame name="RematchAutoScrollBoxTemplate" mixin="RematchAutoScrollBoxMixin" inherits="RematchPanelInsetFrameTemplate" virtual="true">
+        <Frames>
+            <Frame parentKey="ScrollBox" inherits="WowScrollBoxList">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="5" y="-4"/>
+                    <Anchor point="BOTTOMRIGHT" x="-29" y="4"/>
+                </Anchors>
+            </Frame>
+            <EventFrame parentKey="ScrollBar" inherits="WowTrimScrollBar">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-3" y="-3"/>
+                    <Anchor point="BOTTOMRIGHT" x="-3" y="2"/>
+                </Anchors>
+            </EventFrame>
+            <!-- this takes up empty space at the bottom of the list to capture mouse events/clicks -->
+            <Button parentKey="CaptureButton" registerForClicks="AnyUp" hidden="true"/>
+            <!-- this is a flash to appear over a listbutton in response to autoScrollFrame:BlingIndex(index) -->
+            <Frame parentKey="Bling" useParentLevel="true" hidden="true">
+                <Layers>
+                    <Layer level="BACKGROUND" textureSubLevel="7">
+                        <Texture file="Interface\Archeology\arch-flareeffect" alphaMode="ADD" alpha="0.5">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="2" y="0"/>
+                                <Anchor point="BOTTOMRIGHT" x="-2" y="0"/>
+                            </Anchors>
+                            <TexCoords left="0.201171875" right="0.716796875" top="0.125" bottom="0.208984375"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Animations>
+                    <AnimationGroup parentKey="Anim">
+                        <Alpha fromAlpha="0" toAlpha="1" duration="0.1" order="1"/>
+                        <Alpha fromAlpha="1" toAlpha="0" duration="0.5" order="2"/>
+                        <Scripts>
+                            <OnFinished>
+                                self:GetParent():Hide()
+                            </OnFinished>
+                        </Scripts>
+                    </AnimationGroup>
+                </Animations>
+                <Scripts>
+                    <OnShow>
+                        self.Anim:Play()
+                    </OnShow>
+                </Scripts>
+            </Frame>
+        </Frames>
+    </Frame>
+
+</Ui>
