@@ -1,11 +1,11 @@
-## Interface: 100200
+## Interface: 11500
 
 ## Author: StormFX, JJSheets
 ## Title: Masque
 ## Version: 10.2.1
 
 ## IconTexture: Interface\AddOns\Masque\Textures\Icon
-## OptionalDeps: Ace3, AceGUI-3.0_SFX-Widgets, LibDBIcon-1.0, LibDualSpec-1.0
+## OptionalDeps: Ace3, AceGUI-3.0_SFX-Widgets, LibDBIcon-1.0
 ## SavedVariables: MasqueDB
 
 ## Notes: A skinning engine for button-based add-ons.
@@ -25,11 +25,6 @@
 ## X-Curse-Project-ID: 13592
 ## X-Wago-ID: kRNLgpGo
 ## X-WoWI-ID: 12097
-
-## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀
-## Notes-zhTW: Masque |n|n讓你可以變換達美樂快捷列、WA 技能提醒、血條浮動戰鬥文字... 等等多種插件的按鈕和圖示外觀，讓遊戲介面更具風格! 有許多外觀主題可供選擇。|n|n|cffffd200使用方法: |r從Esc>選項>插件>按鈕外觀，進行設定。
-## X-Category-zhTW: 介面
-## DefaultState: disabled
 
 # Libraries
 Libs\Libs.xml
