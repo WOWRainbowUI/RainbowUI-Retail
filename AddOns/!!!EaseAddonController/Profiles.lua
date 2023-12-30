@@ -182,7 +182,7 @@ end
 function P:EnableOrDisableAddOn(addons)
     if(addons) then
         for k, v in pairs(addons) do
-            local origin = GetAddOnEnableState(U1PlayerName,k)>=2
+            local origin = C_AddOns.GetAddOnEnableState(k, U1PlayerName)>=2
             if v==1 then
                 if not origin then EacEnableAddOn(k) end
             else
