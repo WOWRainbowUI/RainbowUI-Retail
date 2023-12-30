@@ -1,0 +1,45 @@
+## Interface: 30403
+## Title: !!!Ease Addon Controller
+## Title-zhCN: !!!网易有爱控制台单体版
+## Version: 10.2 Classic
+## Author: NetEase Inc. (warbaby & yleaf)
+## IconTexture: Interface\AddOns\!!!EaseAddonController\Textures\UI2-logo
+## SavedVariables: U1DBG
+## SavedVariablesPerCharacter: U1DB
+## Title-zhTW: |cffffffff[不要關閉]|r 插件控制台## Notes-zhTW: !!!網易有愛控制台單體版 |n|n管理插件粉輕鬆！直接在遊戲內瀏覽插件用法說明，還有搜尋插件和選項的功能。|n|n載入插件不用重新整理介面，將已載入的插件儲存成方案，依據不同的玩法需求，快速切換適合的插件方案使用。|n|cffffd200使用方法: |r從Esc>彩虹ui，或點小地圖按鈕。## X-Category-zhTW: 介面
+#file order is very important: DEBUG > Core > RunFirst > AceEvent > 163UI
+
+RunFirst.lua
+
+locale.en.lua
+locale.cn.lua
+locale.tw.lua
+
+Libs\CoreLibs.xml
+Core\copy_UIParent.lua
+Core\Core.lua
+Core\UI\UI.xml
+
+RunSecond.lua
+
+163UI.lua
+Tags.lua
+
+Configs\Configs.xml
+## ..\!!!EaseAddOnConfigs\MyConfigs.lua
+## ..\!!!EaseAddOnConfigs\MyConfigs.xml
+Configs\_CfgDefaults.lua
+CurseTags.lua
+CurseIcons.lua
+CurseAddOns.lua
+ConfigsLoaded.lua
+
+Controls\Controls.xml
+163UIUI.xml
+QuickMenus.lua
+163UIUI.lua
+
+Profiles.lua
+ProfilesUI.lua
+
+RunLast.lua

@@ -23,6 +23,8 @@ CoreAddEvent("ADDON_SELECTED")
 CoreAddEvent("DB_LOADED")
 CoreAddEvent("INIT_COMPLETED")
 
+BINDING_NAME_EAC_RELOADUI = RELOADUI
+
 local defaultDB = {
     selectedTag = UI163_USER_MODE and "ALL" or "NETEASE",
     showOrigin = nil,               -- show addon directory name
