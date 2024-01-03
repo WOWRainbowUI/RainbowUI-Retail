@@ -837,7 +837,11 @@ local event1 = false
 local event2 = false
 
 local function getFullName(name, server)
-    return server and name .. "-" .. server or name
+    if type(server) == "string" then -- 暫時修正
+		name = name .. "-" .. server
+	end
+	return name
+	-- return server and name .. "-" .. server or name
 end
 
 local function printDungeonDifficulty()

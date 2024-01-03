@@ -489,6 +489,10 @@ D["BlockMessageTeamGuard"] = {
         text = "設定選項",
         callback = function(cfg, v, loading) SlashCmdList["BlockMessageTeamGuard"]("") end,
     },
+	{
+		type = "text",
+        text = "|cffFF2D2D特別注意：因為廣告時常變化，若有擋不掉的廣告、密語、組隊邀請，只要自行新增關鍵字就可以了。\n\n組隊過濾和聊天過濾和的關鍵字是分開的，組隊過濾的關鍵字是角色ID，不是訊息內容，請特別留意。|r",       
+	},
 };
 D["Breakables"] = {
     defaultEnable = 0,
