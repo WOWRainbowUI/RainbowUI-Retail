@@ -1037,7 +1037,7 @@ function U1LoadAddOnBackend(name)
     end
 
     --- childrens are not loaded here, they are load in ToggleAddon
-    if GetAddOnEnableState(U1PlayerName, name) < 2 then EacEnableAddOn(name) end
+    if C_AddOns.GetAddOnEnableState(name, U1PlayerName) < 2 then EacEnableAddOn(name) end
 
     -- print("before", name, GetTime())
     capturing = name
