@@ -1039,7 +1039,7 @@ D["DragonRider"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" }, 
 	title = "飛龍速度條",
-	desc = "顯示飛龍騎術的飛行速度，方便達成快意翱翔的效果。`",
+	desc = "顯示飛龍騎術的飛行速度，方便達成快意翱翔的效果，並且提供一些自訂選項。`",
 	modifier = "彩虹ui",
 	{
 		type = "text",

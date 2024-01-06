@@ -69,6 +69,14 @@ if LOCALE == "enUS" then
 	L["BugfixesTT"] = "Experimental bug fix attempts for when default Blizzard frames aren't working as intended."
 	L["BugfixHideVigor"] = "Force Hide Vigor"
 	L["BugfixHideVigorTT"] = "Force hide the vigor bar when dismounted, and re-show when mounted on a dynamic flying mount."
+	L["FadeSpeedometer"] = "Fade Speedometer"
+	L["FadeSpeedometerTT"] = "Toggle fading the Speedometer when not gliding."
+	L["ShowVigorTooltip"] = "Show Vigor Tooltip"
+	L["ShowVigorTooltipTT"] = "Toggle the tooltip that displays upon the Vigor bar."
+	L["FadeVigor"] = "Fade Vigor"
+	L["FadeVigorTT"] = "Toggle fading the Vigor bar when not gliding and while at full Vigor."
+	L["LightningRush"] = "Static Charge Orbs"
+	L["LightningRushTT"] = "Toggle custom frames made for Static Charge auras which are used by the Algarian Stormrider's Lightning Rush ability."
 	
 	-- 自行加入
 	L["DragonRider"] = "Dragon Rider"
@@ -133,6 +141,14 @@ if LOCALE == "zhCN" then
 	L["BugfixesTT"] = "当默认暴雪框架未按预期工作时尝试进行实验性错误修复。"
 	L["BugfixHideVigor"] = "强制隐藏活力"
 	L["BugfixHideVigorTT"] = "拆卸时强制隐藏活力条，安装在动态飞行坐骑上时重新显示。"
+	L["FadeSpeedometer"] = "褪色车速表"
+	L["FadeSpeedometerTT"] = "在不滑行时切换速度计的淡出。"
+	L["ShowVigorTooltip"] = "显示活力工具提示"
+	L["ShowVigorTooltipTT"] = "切换活力条上显示的工具提示。"
+	L["FadeVigor"] = "褪色活力"
+	L["FadeVigorTT"] = "在不滑翔和充满活力时切换活力条的淡出。"
+	L["LightningRush"] = "静电荷球"
+	L["LightningRushTT"] = "切换为阿尔加里亚风暴骑士闪电冲锋能力使用的静电光环制作的自定义框架。"
 
 return end
 
@@ -194,6 +210,14 @@ if LOCALE == "zhTW" then
 	L["BugfixesTT"] = "當預設暴雪框架未如預期工作時嘗試進行實驗性錯誤修復。"
 	L["BugfixHideVigor"] = "強制隱藏活力"
 	L["BugfixHideVigorTT"] = "下坐騎時強制隱藏活力條，在動態飛行坐騎上時重新顯示。"
+	L["FadeSpeedometer"] = "淡出速度條"
+	L["FadeSpeedometerTT"] = "沒有滑翔時淡出速度條。"
+	L["ShowVigorTooltip"] = "顯示活力浮動提示資訊"
+	L["ShowVigorTooltipTT"] = "顯示活力條的浮動提示資訊。"
+	L["FadeVigor"] = "淡出活力"
+	L["FadeVigorTT"] = "沒有滑翔而且活力全滿時淡出活力條。"
+	L["LightningRush"] = "靜電荷球"
+	L["LightningRushTT"] = "切換為靜電充能光環所製作的自訂框架，這些光環是由阿爾加風暴飛騎的閃電衝刺技能所使用的。"
 	
 	-- 自行加入
 	L["DragonRider"] = "飛龍速度條"
