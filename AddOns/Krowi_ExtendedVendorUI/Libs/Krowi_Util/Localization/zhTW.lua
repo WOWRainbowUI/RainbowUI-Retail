@@ -27,7 +27,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("Krowi_Util-1.0", "zhTW");
 if not L then return end
 
 L["Loaded"] = "已載入";
--- L["Loaded Desc"] = "Indicates if the addon related to the plugin is loaded or not.";
+L["Loaded Desc"] = "與外掛套件有關的插件是否已載入。";
 L["Requires a reload"] = "需要重新載入介面";
 L["Profiles"] = "設定檔";
 L["Checked"] = "已啟用";
