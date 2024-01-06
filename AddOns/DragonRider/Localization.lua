@@ -69,6 +69,14 @@ if LOCALE == "enUS" then
 	L["BugfixesTT"] = "Experimental bug fix attempts for when default Blizzard frames aren't working as intended."
 	L["BugfixHideVigor"] = "Force Hide Vigor"
 	L["BugfixHideVigorTT"] = "Force hide the vigor bar when dismounted, and re-show when mounted on a dynamic flying mount."
+	L["FadeSpeedometer"] = "Fade Speedometer"
+	L["FadeSpeedometerTT"] = "Toggle fading the Speedometer when not gliding."
+	L["ShowVigorTooltip"] = "Show Vigor Tooltip"
+	L["ShowVigorTooltipTT"] = "Toggle the tooltip that displays upon the Vigor bar."
+	L["FadeVigor"] = "Fade Vigor"
+	L["FadeVigorTT"] = "Toggle fading the Vigor bar when not gliding and while at full Vigor."
+	L["LightningRush"] = "Static Charge Orbs"
+	L["LightningRushTT"] = "Toggle custom frames made for Static Charge auras which are used by the Algarian Stormrider's Lightning Rush ability."
 
 return end
 
@@ -130,6 +138,14 @@ if LOCALE == "esES" or LOCALE == "esMX" then
 	L["BugfixesTT"] = "Intentos experimentales de corrección de errores cuando los marcos predeterminados de Blizzard no funcionan según lo previsto."
 	L["BugfixHideVigor"] = "Fuerza Ocultar Vigor"
 	L["BugfixHideVigorTT"] = "Fuerce la ocultación de la barra de vigor cuando esté desmontado y vuelva a mostrarla cuando esté montado en una montura voladora dinámica."
+	L["FadeSpeedometer"] = "Velocímetro de desvanecimiento"
+	L["FadeSpeedometerTT"] = "Alternar la atenuación del velocímetro cuando no se está planeando."
+	L["ShowVigorTooltip"] = "Mostrar información sobre herramientas de vigor"
+	L["ShowVigorTooltipTT"] = "Alternar la información sobre herramientas que se muestra en la barra de Vigor."
+	L["FadeVigor"] = "Desvanecer vigor"
+	L["FadeVigorTT"] = "Alternar el desvanecimiento de la barra de Vigor cuando no estás deslizándote y cuando tienes el Vigor máximo."
+	L["LightningRush"] = "Orbes de carga estática"
+	L["LightningRushTT"] = "Alternar marcos personalizados creados para auras de carga estática que son utilizadas por la habilidad Algarian Stormrider Lightning Rush."
 
 return end
 
@@ -191,6 +207,14 @@ if LOCALE == "deDE" then
 	L["BugfixesTT"] = "Experimentelle Fehlerbehebungsversuche für den Fall, dass Standard-Blizzard-Frames nicht wie vorgesehen funktionieren."
 	L["BugfixHideVigor"] = "Force Hide Vigor"
 	L["BugfixHideVigorTT"] = "Erzwingen Sie das Ausblenden der Energieleiste beim Absteigen und das erneute Einblenden, wenn Sie auf einem dynamischen Flugreittier montiert sind."
+	L["FadeSpeedometer"] = "Fade Speedometer"
+	L["FadeSpeedometerTT"] = "Ausblenden des Tachometers ein-/ausschalten, wenn nicht gleitend."
+	L["ShowVigorTooltip"] = "Vigor-Tooltip anzeigen"
+	L["ShowVigorTooltipTT"] = "Schaltet den Tooltip um, der auf der Kraftleiste angezeigt wird."
+	L["FadeVigor"] = "Fade Vigor"
+	L["FadeVigorTT"] = "Ausblenden der Kraftleiste ein-/ausschalten, wenn nicht gleitend und bei voller Kraft."
+	L["LightningRush"] = "Statische Ladungskugeln"
+	L["LightningRushTT"] = "Schalten Sie die benutzerdefinierten Rahmen um, die für statische Ladungsauren erstellt wurden, die von der Algarian Stormrider Lightning Rush-Fähigkeit verwendet werden."
 
 return end
 
@@ -252,6 +276,14 @@ if LOCALE == "frFR" then
 	L["BugfixesTT"] = "Tentatives expérimentales de correction de bogues lorsque les images Blizzard par défaut ne fonctionnent pas comme prévu."
 	L["BugfixHideVigor"] = "Forcer à masquer la vigueur"
 	L["BugfixHideVigorTT"] = "Forcer à masquer la barre de vigueur une fois démonté et à la réafficher lorsqu'il est monté sur une monture volante dynamique."
+	L["FadeSpeedometer"] = "Fade Speedometer"
+	L["FadeSpeedometerTT"] = "Activer le fondu du compteur de vitesse lorsque vous ne planez pas."
+	L["ShowVigorTooltip"] = "Afficher l'info-bulle Vigor"
+	L["ShowVigorTooltipTT"] = "Basculez l'info-bulle qui s'affiche sur la barre Vigor."
+	L["FadeVigor"] = "Fade Vigor"
+	L["FadeVigorTT"] = "Activer l'effacement de la barre Vigor lorsque vous ne glissez pas et lorsque vous êtes au maximum de Vigor."
+	L["LightningRush"] = "Orbes de charge statique"
+	L["LightningRushTT"] = "Activez les cadres personnalisés conçus pour les auras de charge statique qui sont utilisées par la capacité Algarian Stormrider Lightning Rush."
 
 return end
 
@@ -313,6 +345,14 @@ if LOCALE == "itIT" then
 	L["BugfixesTT"] = "Tentativi sperimentali di correzione di bug per quando i frame Blizzard predefiniti non funzionano come previsto."
 	L["BugfixHideVigor"] = "Forza Nascondi Vigore"
 	L["BugfixHideVigorTT"] = "Nascondi forzatamente la barra del vigore quando scendi e la mostri quando sei montata su una cavalcatura volante dinamica."
+	L["FadeSpeedometer"] = "Tachimetro della dissolvenza"
+	L["FadeSpeedometerTT"] = "Attiva/disattiva la dissolvenza del tachimetro quando non stai planando."
+	L["ShowVigorTooltip"] = "Mostra descrizione comando Vigor"
+	L["ShowVigorTooltipTT"] = "Attiva/disattiva la descrizione comando visualizzata sulla barra del vigore."
+	L["FadeVigor"] = "Vigore della dissolvenza"
+	L["FadeVigorTT"] = "Attiva/disattiva la dissolvenza della barra del vigore quando non si plana e mentre si è al massimo del vigore."
+	L["LightningRush"] = "Sfere di carica statica"
+	L["LightningRushTT"] = "Attiva/disattiva i frame personalizzati realizzati per le aure di carica statica utilizzate dall'abilità Algarian Stormrider Lightning Rush."
 
 return end
 
@@ -374,6 +414,14 @@ if LOCALE == "ptBR" then
 	L["BugfixesTT"] = "Tentativas experimentais de correção de bugs quando os frames padrão da Blizzard não estão funcionando conforme o esperado."
 	L["BugfixHideVigor"] = "Forçar Ocultar Vigor"
 	L["BugfixHideVigorTT"] = "Force a ocultação da barra de vigor quando desmontada e mostre-a novamente quando montada em uma montaria voadora dinâmica."
+	L["FadeSpeedometer"] = "Fade Velocímetro"
+	L["FadeSpeedometerTT"] = "Alternar o desbotamento do velocímetro quando não estiver planando."
+	L["ShowVigorTooltip"] = "Mostrar dica de vigor"
+	L["ShowVigorTooltipTT"] = "Alternar a dica de ferramenta exibida na barra de Vigor."
+	L["FadeVigor"] = "Fade Vigor"
+	L["FadeVigorTT"] = "Alternar o desvanecimento da barra de Vigor quando não estiver planando e enquanto estiver com Vigor total."
+	L["LightningRush"] = "Orbes de carga estática"
+	L["LightningRushTT"] = "Alternar molduras personalizadas feitas para auras Static Charge que são usadas pela habilidade Algarian Stormrider Lightning Rush."
 
 -- Note that the EU Portuguese WoW client also
 -- uses the Brazilian Portuguese locale code.
@@ -437,6 +485,14 @@ if LOCALE == "ruRU" then
 	L["BugfixesTT"] = "Экспериментальные попытки исправить ошибку, когда стандартные фреймы Blizzard не работают должным образом."
 	L["BugfixHideVigor"] = "Сила Скрыть Энергию"
 	L["BugfixHideVigorTT"] = "Принудительно скройте шкалу энергии при спешивании и снова отобразите ее при установке на динамического летающего средства передвижения."
+	L["FadeSpeedometer"] = "Затухание спидометра"
+	L["FadeSpeedometerTT"] = "Включить затухание спидометра, когда он не скользит."
+	L["ShowVigorTooltip"] = "Показать подсказку по Vigor"
+	L["ShowVigorTooltipTT"] = "Переключить всплывающую подсказку, отображаемую на шкале энергии."
+	L["FadeVigor"] = "Угасание энергии"
+	L["FadeVigorTT"] = "Переключить затухание шкалы Энергии, когда она не скользит и при полной Энергии."
+	L["LightningRush"] = "Сферы статического заряда"
+	L["LightningRushTT"] = "Переключить пользовательские рамки, созданные для аур статического заряда, которые используются способностью Молниеносный рывок Алгарского всадника бури."
 
 return end
 
@@ -498,6 +554,14 @@ if LOCALE == "koKR" then
 	L["BugfixesTT"] = "기본 블리자드 프레임이 의도한 대로 작동하지 않는 경우를 위한 실험적인 버그 수정 시도입니다."
 	L["BugfixHideVigor"] = "포스 하이드 활력"
 	L["BugfixHideVigorTT"] = "분리되면 활력 바를 강제로 숨기고 동적 비행 탈것에 장착하면 다시 표시됩니다."
+	L["FadeSpeedometer"] = "속도계 페이드"
+	L["FadeSpeedometerTT"] = "글라이딩하지 않을 때 속도계 페이딩을 전환합니다."
+	L["ShowVigorTooltip"] = "활력 도구 설명 표시"
+	L["ShowVigorTooltipTT"] = "활력 막대에 표시되는 도구 설명을 전환합니다."
+	L["FadeVigor"] = "활력이 희미해짐"
+	L["FadeVigorTT"] = "활공하지 않을 때와 활력이 최대일 때 활력 바 페이드를 전환합니다."
+	L["LightningRush"] = "정전기 충전 오브"
+	L["LightningRushTT"] = "Algarian Stormrider Lightning Rush 능력에 사용되는 정전기 충전 오라용으로 제작된 사용자 정의 프레임을 전환합니다."
 
 return end
 
@@ -559,6 +623,14 @@ if LOCALE == "zhCN" then
 	L["BugfixesTT"] = "当默认暴雪框架未按预期工作时尝试进行实验性错误修复。"
 	L["BugfixHideVigor"] = "强制隐藏活力"
 	L["BugfixHideVigorTT"] = "拆卸时强制隐藏活力条，安装在动态飞行坐骑上时重新显示。"
+	L["FadeSpeedometer"] = "褪色车速表"
+	L["FadeSpeedometerTT"] = "在不滑行时切换速度计的淡出。"
+	L["ShowVigorTooltip"] = "显示活力工具提示"
+	L["ShowVigorTooltipTT"] = "切换活力条上显示的工具提示。"
+	L["FadeVigor"] = "褪色活力"
+	L["FadeVigorTT"] = "在不滑翔和充满活力时切换活力条的淡出。"
+	L["LightningRush"] = "静电荷球"
+	L["LightningRushTT"] = "切换为阿尔加里亚风暴骑士闪电冲锋能力使用的静电光环制作的自定义框架。"
 
 return end
 
@@ -620,5 +692,13 @@ if LOCALE == "zhTW" then
 	L["BugfixesTT"] = "當預設暴雪框架未如預期工作時嘗試進行實驗性錯誤修復。"
 	L["BugfixHideVigor"] = "強制隱藏活力"
 	L["BugfixHideVigorTT"] = "拆卸時強制隱藏活力條，安裝在動態飛行坐騎上時重新顯示。"
+	L["FadeSpeedometer"] = "褪色車速表"
+	L["FadeSpeedometerTT"] = "不滑行時切換速度計的淡出。"
+	L["ShowVigorTooltip"] = "顯示活力工具提示"
+	L["ShowVigorTooltipTT"] = "切換活力條上顯示的工具提示。"
+	L["FadeVigor"] = "褪色活力"
+	L["FadeVigorTT"] = "在不滑翔和充滿活力時切換活力條的淡出。"
+	L["LightningRush"] = "靜電荷球"
+	L["LightningRushTT"] = "切換為阿爾加里亞風暴騎士閃電衝鋒能力所使用的靜電光環製作的自訂框架。"
 
 return end
