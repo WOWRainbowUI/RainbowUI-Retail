@@ -296,8 +296,6 @@ end
 
 DR.toggleModels()
 
-
-
 DR.charge = CreateFrame("Frame")
 DR.charge:RegisterEvent("UNIT_AURA")
 DR.charge:RegisterEvent("SPELL_UPDATE_COOLDOWN")
@@ -651,13 +649,15 @@ function DR.DoWidgetThings()
 				
 			end
 
-			if C_PlayerInfo.GetGlidingInfo() then
+			if canGlide then
 				if fillCurrent >= fillMax and isGliding == false then
 					DR.HideWithFadeWidget();
 				else
 					UIWidgetPowerBarContainerFrame:Show();
 					UIWidgetPowerBarContainerFrame:SetAlpha(1);
 				end
+			else
+				DR.HideWithFadeWidget();
 			end
 		end
 	end
@@ -1205,6 +1205,7 @@ function DR:toggleEvent(event, arg1)
 
 		function DR.RepeatChecker()
 			local curentVigor, maxVigor = DR.GetVigorValueExact()
+			--print(curentVigor) -- for some fun spam
 			DR.DoWidgetThings()
 			local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
 			if canGlide == true and isGliding == true then
