@@ -1,5 +1,5 @@
 ## Interface: 100200
-## Version: v1.4 Fix
+## Version: v1.4 Fix2
 ## IconTexture: Interface\Icons\inv_misc_bomb_04
 ## Title: BlockMessageTeamGuard
 ## Notes: BlockMessageTeamGuard V1.4 https://www.curseforge.com/wow/addons/blockmessageteamguard

@@ -239,7 +239,8 @@ local function filter(self, event, msg, sender)
     if LPaddon.disableInInstance and inInstance and (instanceType == "party" or instanceType == "raid" or instanceType == "scenario" or instanceType == "arena" or instanceType == "pvp") then
         return
     end
-    local lowercase_message = msg:lower()
+    -- local lowercase_message = msg:lower()
+	local lowercase_message = string.gsub(msg, "%s", "") -- 去掉空格
     local lowercase_name = sender:lower()
 
     local close_chat_frame = function()
