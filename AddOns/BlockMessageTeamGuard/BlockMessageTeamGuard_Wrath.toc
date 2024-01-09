@@ -1,6 +1,5 @@
-## Interface: 100100
+## Interface: 30402
 ## Version: v1.4
-## IconTexture: Interface\Icons\inv_misc_bomb_04
 ## Title: BlockMessageTeamGuard
 ## Notes: BlockMessageTeamGuard V1.4
 ## Title-zhTW: |cffFF9999[聊天]|r 廣告守衛
