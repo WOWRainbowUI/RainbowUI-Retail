@@ -1241,7 +1241,7 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
 
 	if friendsListEmpty and (lastFriendsListEmptyWarning + 60) <= (math.floor(GetTime()+0.5)) then
 		lastFriendsListEmptyWarning = math.floor(GetTime()+0.5)
-		print("|cFF33FF99FriendGroups|r: Bnet API Bug detected. Your empty Friends List is caused by a WoW Client Bug. Please try to restart your game. (no guaranteed fix)")
+		print("|cFF33FF99好友群組|r: 偵測到戰網 API Bug。遊戲的 Bug 造成好友名單空白，請試試看重開遊戲。(如果沒有立刻恢復，通常過段時間就會正常了)")
 	end
 end
 
