@@ -1,4 +1,4 @@
---Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.1.2
+--Coutesy of ZamestoTV. Thank you!    --Translator: ZamestoTV as of 1.1.8
 
 if not (GetLocale() == "ruRU") then return end;
 
@@ -75,6 +75,28 @@ L["ModuleDescription HandyLockpick"] = "Щелкните ПКМ на сейфе 
 L["Instruction Pick Lock"] = "<Щелкните ПКМ, чтобы выбрать блокировку>";
 
 
+--BlizzFixEventToast (Make the toast banner (Level-up, Weekly Reward Unlocked, etc.) non-interactable so it doesn't block your mouse clicks)
+L["ModuleName BlizzFixEventToast"] = "Blitz Fix: События";
+L["ModuleDescription BlizzFixEventToast"] = "Измените поведение всплывающих окон событий, чтобы для этого не требовалось ваших щелчков мыши. Также позволяет щелкнуть ПКМ на всплывающем окне и немедленно закрыть его.\n\n*Баннеры по событиям - это баннеры, которые появляются в верхней части экрана, когда вы выполняете определенные действия.";
+
+
+--Navigator(Waypoint/SuperTrack) Shared Strings
+L["Priority"] = "Приоритет";
+L["Priority Default"] = "По умолчанию";  --WoW's default waypoint priority: Corpse, Quest, Scenario, Content
+L["Priority Default Tooltip"] = "Следуйте настройкам WoW по умолчанию. По возможности расставьте приоритеты в заданиях, местах воскрешения, местоположениях торговцев. В противном случае начните отслеживать активные семена.";
+L["Stop Tracking"] = "Прекратить отслеживание";
+L["Click To Track Location"] = "|TInterface/AddOns/Plumber/Art/SuperTracking/SuperTrackIcon:0:0:0:0|t " .. "Щелкните ЛКМ, чтобы отследить местоположение";
+L["Click To Track In TomTom"] = "|TInterface/AddOns/Plumber/Art/SuperTracking/TooltipIcon-TomTom:0:0:0:0|t " .. "Щелкните ЛКМ, чтобы отслеживать в TomTom";
+
+
+--Navigator_Dreamseed (Use Super Tracking to navigate players)
+L["ModuleName Navigator_Dreamseed"] = "Навигатор: Семена Сна";
+L["ModuleDescription Navigator_Dreamseed"] = "Используйте систему путевых точек, которая поможет вам добраться до семян сна.\n\n*Щелкните ПКМ на значке для получения дополнительных опций.\n\n|cffd4641cПутевые точки игры по умолчанию будут заменены, пока вы будете находиться в Изумрудном сне.|r";
+L["Priority New Seeds"] = "Поиск новых семян";
+L["Priority Rewards"] = "Сбор наград";
+L["Stop Tracking Dreamseed Tooltip"] = "Прекратите отслеживать семена до тех пор, пока не нажмете ЛКМ на штифт карты.";
+
+
 --Rare/Location Announcement
 L["Announce Location Tooltip"] = "Поделитесь этим местоположением в чате.";
 L["Announce Forbidden Reason In Cooldown"] = "Недавно вы поделились своим местоположением.";
@@ -84,6 +106,12 @@ L["Available In Format"] = "Доступно в: |cffffffff%s|r";
 L["Seed Color Epic"] = "фиолетовый: ";
 L["Seed Color Rare"] = "синий: ";
 L["Seed Color Uncommon"] = "зеленый: ";
+
+
+--Generic
+L["Reposition Button Horizontal"] = "Перемещение по горизонтали";   --Move the window horizontally
+L["Reposition Button Vertical"] = "Перемещение по вертикали";
+L["Reposition Button Tooltip"] = "Щелкните ЛКМ и перетащите, чтобы переместить окно.";
 
 
 
