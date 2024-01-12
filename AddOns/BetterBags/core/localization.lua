@@ -106,6 +106,52 @@ if GetLocale() == "zhTW" then
 	-- masque.lua
 	L.data["BetterBags"] = "掰特包"
 	
+	-- BetterBags-Teleports
+	L.data["Teleporters"] = "傳送"
+	
+	-- BetterBags-Appearances
+	L.data["Known - BoE"] = "已收集-裝備綁定"
+	L.data["Known - BoP"] = "已收集-靈魂綁定"
+	L.data["Unknown - "] = "外觀 (未收集) "
+	L.data["Unknown - Other Classes"] = "外觀 (未收集) "
+	
+	-- BetterBags-Bound
+	L.data["BoA"] = "帳號綁定"
+	L.data["BoE"] = "裝備綁定"
+	
+	-- BetterBags-Keystones
+	L.data["|cff7997dbKeystone|r"] = "|cff7997db鑰石|r"
+	
+	-- BetterBags_Dragonflight
+	L.data["|cff16B7FFPrimal Storms|r"] = "|cff16B7FF原初風暴|r"
+	L.data["|cffB5D3E7Storm's Fury|r"] = "|cffB5D3E7風暴之怒|r"
+	L.data["|cff88AAFFZskera Vault|r"] = "|cff88AAFF澤斯克拉密庫|r"
+	L.data["|cffFFAB00Primordial Stones|r"] = "|cffFFAB00原初之石|r"
+	L.data["|cff88AAFFArtisan Curios|r"] = "|cff88AAFF工匠珍品|r"
+	L.data["Diamanthia Journal"] = "艾達曼希亞日誌"
+	L.data["|cff0070ddProfession Knowledge|r"] = "|cff0070dd專業知識|r"
+	L.data["|cff56BBFFDrakewatcher Manuscript|r"] = "|cff56BBFF飛龍觀察者手稿|r"
+	L.data["|cffa335eeLizi's Reins|r"] = "|cffa335ee莉茲的韁繩|r"
+	L.data["|cffa335eeTemperamental Skyclaw|r"] = "|cffa335ee暴躁的天爪|r"
+	L.data["|cffa335eeMagmashell|r"] = "|cffa335ee熔殼蝸牛|r"
+	L.data["|cffa335eeLoyal Magmammoth|r"] = "|cffa335ee忠誠的熔岩猛瑪象|r"
+	L.data["|cffa335eeMossy Mammoth|r"] = "|cffa335ee青苔猛瑪象|r"
+	L.data["|cffa335eeGooey Snailemental|r"] = "|cffa335ee黏稠元素蝸牛|r"
+	L.data["|cff0070ddChip|r"] = "|cff0070dd小鑿|r"
+	L.data["|cff0070ddPhoenix Wishwing|r"] = "|cff0070dd鳳凰希翼|r"
+	L.data["|cffff8040Reputation|r"] = "|cffff8040聲望|r"
+	L.data["|cffAFB42BContracts|r"] = "|cffAFB42B合約|r"
+	L.data["Treasure Sacks"] = "寶藏袋"
+	L.data["Darkmoon Cards"] = "暗月卡"
+	L.data["Fortune Cards"] = "命運卡片"
+	L.data["|cffff8040Loamm|r"] = "|cffff8040洛姆|r"
+	L.data["|cffff8040Crests|r"] = "|cffff8040紋章|r"
+	L.data["|cff910951Fyrakk Assault|r"] = "|cff910951菲拉卡襲擊|r"
+	L.data["|cffEDE4D3Time Rift|r"] = "|cffEDE4D3時間裂隙|r"
+	L.data["|cff67CF9EDreamsurge|r"] = "|cff67CF9E夢境湧現|r"
+	L.data["|cff67CF9ESuperbloom|r"] = "|cff67CF9E繁盛綻放|r"
+	
+	
 end
 
 -- G returns the localized string for the given key.
