@@ -1,0 +1,26 @@
+## Interface: 100205
+
+## Title: BetterBags - Keystones
+## Notes: Adds a Mythic+ Keystones filter to BetterBags.
+## Author: Avyiel
+## Version: v1.0.0
+## X-Date: 2024-01-10T07:20:01Z
+## IconTexture: Interface\Icons\inv_relics_hourglass
+
+## DefaultState: Enabled
+## Dependencies: BetterBags
+
+## X-Date: 2024-01-10T07:20:01Z
+## X-Category: Bags & Inventory
+## X-License: MIT
+
+## X-Curse-Project-ID: 960362
+## X-Wago-ID: RNL92b6o
+
+## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-鑰石
+## Notes-zhTW: BetterBags |n|n新增 M+ 鑰石的分類。
+## X-Category-zhTW: 物品
+## DefaultState: disabled
+
+main.lua
+
