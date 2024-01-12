@@ -1,7 +1,7 @@
 --[[
 AdiBags - Dragonflight
 by Zottelchen
-version: 2.3.29
+version: 2.3.30
 Items from the Dragonflight expansion.
 ]]
 
@@ -2900,6 +2900,7 @@ database["Recipes"] = {
   207575, -- Ancient Technique: Wanderer's Guide
   207576, -- Ancient Schematic: Refurbished Purifier
   207577, -- Ancient Pattern: Sanctified Leather Hat
+  210241, -- Recipe: Dreamwalker's Healing Potion
 }
 
 -- Gems
@@ -3745,7 +3746,7 @@ end
 local setFilter = AdiBags:RegisterFilter("Dragonflight", 98, "ABEvent-1.0")
 setFilter.uiName = string.format("|cffa00000%s|r", L["Dragonflight"])
 setFilter.uiDesc = string.format(
-  "%s\n|cffffd800%s: 2.3.29|r",
+  "%s\n|cffffd800%s: 2.3.30|r",
   L["Items from the Dragonflight expansion."],
   L["Filter version"]
 )
