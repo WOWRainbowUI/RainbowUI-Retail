@@ -4,18 +4,18 @@ local _, addon = ...
 -- Database
 -----------------------------------------------------------
 addon.db = {
-	["|cff16B7FF原初風暴|r"] = {
+	["|cff16B7FFPrimal Storms|r"] = {
 		199211, -- Primeval Essence
 		199837, -- Dimmed Primeval Earth
 		199836, -- Dimmed Primeval Fire
 		199838, -- Dimmed Primeval Storm
 		199839, -- Dimmed Primeval Water
 	},
-	["|cffB5D3E7風暴之怒|r"] = {
+	["|cffB5D3E7Storm's Fury|r"] = {
 		203478, -- Field Deployable Heat Source
 		202039, -- Essence of the Storm
 	},
-	["|cff88AAFF澤斯克拉密庫|r"] = {
+	["|cff88AAFFZskera Vault|r"] = {
 		202196, -- Zskera Vault Key
 		203701, -- Neltharion Gift Token
 		203705, -- Empty Obsidian Vial
@@ -25,7 +25,7 @@ addon.db = {
 		203720, -- Restorative Water
 		204439, -- Research Chest Key
 	},
-	["|cffFFAB00原初之石|r"] = {
+	["|cffFFAB00Primordial Stones|r"] = {
 		203703, -- Prismatic Fragment
 		203702, -- Experimental Melder
 		204215, -- Dormant Primordial Fragment
@@ -60,7 +60,7 @@ addon.db = {
 		204010, -- Deluging Water Stone
 		204012, -- Cold Frost Stone
 	},
-	["|cff88AAFF工匠珍品|r"] = {
+	["|cff88AAFFArtisan Curios|r"] = {
 		203398, -- Dampening Powder
 		203399, -- Damaged Trident
 		203400, -- Lackluster Spices
@@ -83,7 +83,7 @@ addon.db = {
 		203417, -- Razor Sharp Animal Bone
 		203418, -- Amplified Quaking Stone
 	},
-	["艾達曼希亞日誌"] = {
+	["Diamanthia Journal"] = {
 		202335, -- Journal Entry: Relics
 		204200, -- Journal Entry: Experiments
 		202337, -- Journal Entry: Silence
@@ -93,7 +93,7 @@ addon.db = {
 		202336, -- Journal Entry: The Creches
 		204246, -- Journal Entry: Silence
 	},
-	["|cff0070dd專業知識|r"] = {
+	["|cff0070ddProfession Knowledge|r"] = {
 		191784, -- Dragon Shard of Knowledge
 		-- Alchemy
 		--------------------------------------------------------------------
@@ -400,7 +400,7 @@ addon.db = {
 		210462, -- Plush Pillow (10.2)
 		210463, -- Snuggle Buddy (10.2)
 	},
-	["|cff56BBFF飛龍觀察者手稿|r"] = {
+	["|cff56BBFFDrakewatcher Manuscript|r"] = {
 		196961, -- Cliffside Wylderdrake: Armor
 		196986, -- Cliffside Wylderdrake: Black Hair
 		196991, -- Cliffside Wylderdrake: Black Horns
@@ -785,26 +785,26 @@ addon.db = {
 		210536, -- Renewed Proto-Drake: Embodiment of the Blazing
 		210064, -- Winding Slitherdrake: Embodiment of the Verdant Gladiator
 	},
-	["|cffa335ee莉茲的韁繩|r"] = {
+	["|cffa335eeLizi's Reins|r"] = {
 		192615, -- Fluorescent Fluid
 		192658, -- High-Fiber Leaf
 		192636, -- Woolly Mountain Pelt
 		200598, -- Meluun's Green Curry
 	},
-	["|cffa335ee暴躁的天爪|r"] = {
+	["|cffa335eeTemperamental Skyclaw|r"] = {
 		201422, -- Flash Frozen Meat
 		201420, -- Gnolan's House Special
 		201421, -- Tuskarr Jerky
 	},
-	["|cffa335ee熔殼蝸牛|r"] = {
+	["|cffa335eeMagmashell|r"] = {
 		201883, -- Empty Magma Shell
 	},
-	["|cffa335ee忠誠的熔岩猛瑪象|r"] = {
+	["|cffa335eeLoyal Magmammoth|r"] = {
 		201840, -- Sturdy Obsidian Glasses
 		201839, -- Netherforged Lavaproof Boots
 		201837, -- Magmammoth Harness
 	},
-	["|cffa335ee青苔猛瑪象|r"] = {
+	["|cffa335eeMossy Mammoth|r"] = {
 		204371, -- Drop of Blue Dragon Magic
 		204366, -- Egg of Unknown Contents
 		204374, -- Emerald Dragon Brooch
@@ -816,15 +816,15 @@ addon.db = {
 		204372, -- Speck of Bronze Dust
 		204360, -- Strange Petrified Orb
 	},
-	["|cffa335ee黏稠元素蝸牛|r"] = {
+	["|cffa335eeGooey Snailemental|r"] = {
 		204352, -- Leftover Elemental Slime
 	},
-	["|cff0070dd小鑿|r"] = {
+	["|cff0070ddChip|r"] = {
 		199219, -- Element-Infused Blood
 		198082, -- Pre-Sentient Rock Cluster
 		198357, -- Rock of Aegis
 	},
-	["|cff0070dd鳳凰希翼|r"] = {
+	["|cff0070ddPhoenix Wishwing|r"] = {
 		199203, -- Phoenix Ash Talisman
 		199080, -- Smoldering Phoenix Ash
 		202062, -- Ash Feather
@@ -833,7 +833,7 @@ addon.db = {
 		199092, -- Inert Phoenix Ash
 		199177, -- Ash Feather Amulet
 	},
-	["|cffff8040聲望|r"] = {
+	["|cffff8040Reputation|r"] = {
 		191251, -- Key Fragments
 		193201, -- Key Framing
 		191264, -- Restored Obsidian Key
@@ -914,7 +914,7 @@ addon.db = {
 		210847, -- Tears of the Eye
 		210951, -- Treacherous Research Notes
 	},
-	["|cffAFB42B合約|r"] = {
+	["|cffAFB42BContracts|r"] = {
 		198497, --Contract: Valdrakken Accord
 		198499, --Contract: Valdrakken Accord
 		198498, --Contract: Valdrakken Accord
@@ -934,7 +934,7 @@ addon.db = {
 		210245, -- Contract: Dream Wardens
 		210246, -- Contract: Dream Wardens
 	},
-	["寶藏袋"] = {
+	["Treasure Sacks"] = {
 		199341, -- Regurgitated Sack of Swog Treasures
 		202104, -- Weighted Sac of Swog Treasures
 		199342, -- Weighted Sack of Swog Treasures
@@ -942,7 +942,7 @@ addon.db = {
 		202102, -- Immaculate Sac of Swog Treasures
 		199343, -- Immaculate Sack of Swog Treasures
 	},
-	["暗月卡"] = {
+	["Darkmoon Cards"] = {
 		198614, -- Soggy Clump of Darkmoon Cards
 		194827, -- Bundle O' Cards: Dragon Isles
 		194801, -- Ace of Air
@@ -979,7 +979,7 @@ addon.db = {
 		194794, -- Two of Frost
 	},
 
-	["命運卡片"] = {
+	["Fortune Cards"] = {
 		199137, -- Fated Fortune Card
 		199156, -- Fated Fortune Card
 		199166, -- Fated Fortune Card
@@ -1036,7 +1036,7 @@ addon.db = {
 		199132, -- Fated Fortune Card
 		199170, -- Fated Fortune Card
 	},
-	["|cffff8040洛姆|r"] = {
+	["|cffff8040Loamm|r"] = {
 		204715, -- Unearthed Fragrant Coin
 		204727, -- Coveted Bauble
 		204985, -- Barter Brick
@@ -1044,7 +1044,7 @@ addon.db = {
 		205982, -- Lost Dig Map
 		205984, -- Bartered Dig Map
 	},
-	["|cffff8040紋章|r"] = {
+	["|cffff8040Crests|r"] = {
 		-- 10.2.0
 		206961, -- Enchanted Aspect's Dreaming Crest
 		206960, -- Enchanted Wyrm's Dreaming Crest
@@ -1076,12 +1076,12 @@ addon.db = {
 		205970, -- Azure Flightstone
 		206037, -- Ruby Flightstone
 	},
-	["|cff910951菲拉卡襲擊|r"] = {
+	["|cff910951Fyrakk Assault|r"] = {
 		203430, -- Ward of Igira
 		203683, -- Ward of Fyrakk
 		203710, -- Everburning Key
 	},
-	["|cffEDE4D3時間裂隙|r"] = {
+	["|cffEDE4D3Time Rift|r"] = {
 		207582, -- Box of Tampered Reality
 		207584, -- Box of Volatile Reality
 		207583, -- Box of Collapsed Reality
@@ -1089,12 +1089,12 @@ addon.db = {
 		207002, -- Encapsulated Destiny
 		207030, -- Dilated Time Capsule
 	},
-	["|cff67CF9E夢境湧現|r"] = {
+	["|cff67CF9EDreamsurge|r"] = {
 		209419, -- Charred Elemental Remains
 		207026, -- Dreamsurge Coalescence
 		208153, -- Dreamsurge Chrysalis
 	},
-	["|cff67CF9E繁盛綻放|r"] = {
+	["|cff67CF9ESuperbloom|r"] = {
 		208066, -- Small Dreamseed
 		208067, -- Plump Dreamseed
 		208047, -- Gigantic Dreamseed
