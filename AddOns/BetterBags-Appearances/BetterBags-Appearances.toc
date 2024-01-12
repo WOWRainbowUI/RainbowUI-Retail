@@ -9,6 +9,7 @@
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-塑形外觀
 ## Notes-zhTW: BetterBags |n|n幫助收集裝備外觀的分類。
 ## X-Category-zhTW: 物品
+## IconTexture: Interface\Icons\inv_cloth_kaelthas_c_01_buckle
 ## DefaultState: disabled
 
 main.lua

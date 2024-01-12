@@ -7,8 +7,9 @@
 ## Dependencies: BetterBags
 
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-傳送
-## Notes-zhTW: BetterBags |n|n將所有爐石​​和傳送物品放在一個分類中。
+## Notes-zhTW: BetterBags |n|n將所有爐石和傳送物品放在一個分類中。
 ## X-Category-zhTW: 物品
+## IconTexture: Interface\Icons\achievement_guildperk_hastyhearth
 ## DefaultState: disabled
 
 main.lua
