@@ -2,7 +2,7 @@
 
 All items are broken down into categories, with itemID followed by the Item name.
 
-Latest version: 2.3.29
+Latest version: 2.3.30
 
 ## Achievements & Unlockables
 
@@ -3172,6 +3172,7 @@ Default Color: ![8f541a](https://via.placeholder.com/16/8f541a/70abe5?text=8f541
 * 207575 - Ancient Technique: Wanderer's Guide
 * 207576 - Ancient Schematic: Refurbished Purifier
 * 207577 - Ancient Pattern: Sanctified Leather Hat
+* 210241 - Recipe: Dreamwalker's Healing Potion
 
 ## Temporary & Permanent Enhancements
 
