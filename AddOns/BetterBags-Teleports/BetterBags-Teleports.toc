@@ -1,0 +1,14 @@
+## Interface: 100205
+## Title: BetterBags - Teleports
+## Author: Sauravisus
+## Version: 1.0.2
+## Notes: Puts all your hearthstones, and teleport items in one category.
+## X-Curse-Project-ID: 956341
+## Dependencies: BetterBags
+
+## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-傳送
+## Notes-zhTW: BetterBags |n|n將所有爐石​​和傳送物品放在一個分類中。
+## X-Category-zhTW: 物品
+## DefaultState: disabled
+
+main.lua
