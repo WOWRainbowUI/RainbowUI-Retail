@@ -1,9 +1,9 @@
-## Interface: 100205
+## Interface: 11500
 ## Title: LiteButtonAuras
 ## Version: 10.2.0-6
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
-## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
+## OptionalDeps: Bartender4, Dominos, ElvUI, Masque, LibClassicDurations, LibClassicCasterino
 ## SavedVariables: LiteButtonAurasDB
 ## X-Curse-Project-ID: 526431
 ## X-WoWI-ID: 26528
@@ -13,14 +13,14 @@
 ## X-Category-zhTW: 介面
 ## IconTexture: Interface\Icons\achievement_guild_timeoff
 
-Libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua
+embeds.xml
 
 SpellData.lua
 ColorGradient.lua
 BarIntegrations.lua
 SlashCommand.lua
 Options.lua
-Overlay.xml
+Overlay-Classic.xml
 Controller.xml
 
 UI\Options.lua

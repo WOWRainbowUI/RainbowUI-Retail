@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 30403
 ## Title: LiteButtonAuras
 ## Version: 10.2.0-6
 ## Author: Xodiv-Nagrand
@@ -13,14 +13,14 @@
 ## X-Category-zhTW: 介面
 ## IconTexture: Interface\Icons\achievement_guild_timeoff
 
-Libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua
+embeds.xml
 
 SpellData.lua
 ColorGradient.lua
 BarIntegrations.lua
 SlashCommand.lua
 Options.lua
-Overlay.xml
+Overlay-Classic.xml
 Controller.xml
 
 UI\Options.lua

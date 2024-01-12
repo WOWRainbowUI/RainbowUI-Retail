@@ -45,17 +45,9 @@ function LiteButtonAurasOverlayMixin:OnLoad()
 end
 
 function LiteButtonAurasOverlayMixin:Style()
-    local font = LBA.db.profile.font
-    if type(font) == 'string' and _G[font] and _G[font].GetFont then
-        self.Timer:SetFont(_G[font]:GetFont(), 16, "THICKOUTLINE") -- 更改大小和外框
-        self.Stacks:SetFont(_G[font]:GetFont(), 14, "THICKOUTLINE")
-    elseif type(font) == 'table' then
-        self.Timer:SetFont(unpack(font))
-        self.Stacks:SetFont(unpack(font))
-    else
-        self.Timer:SetFont(GameFontNormal:GetFont(), 16, "THICKOUTLINE")
-        self.Stacks:SetFont(GameFontNormal:GetFont(), 14, "THICKOUTLINE")
-    end
+    local p = LBA.db.profile
+    self.Timer:SetFont(p.fontPath, p.fontSize, p.fontFlags)
+    self.Stacks:SetFont(p.fontPath, p.fontSize, p.fontFlags)
 end
 
 -- This could be optimized (?) slightly be checking if type, id, subType

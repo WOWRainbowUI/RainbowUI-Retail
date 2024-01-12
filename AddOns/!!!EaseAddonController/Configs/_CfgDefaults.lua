@@ -1705,23 +1705,8 @@ D["LiteButtonAuras"] = {
 	icon = "Interface\\Icons\\achievement_guild_timeoff",
 	modifier = "彩虹ui",
 	{
-        text = "時間數字大小",
-		type = "spin",
-		range = {6, 60, 1},
-		default	= 16,
-        callback = function(cfg, v, loading) SlashCmdList["LiteButtonAuras"]("font default "..v.." THICKOUTLINE") end,
-    },
-	{
-        text = "/lba 指令說明",
-        callback = function(cfg, v, loading) SlashCmdList["LiteButtonAuras"]("help") end,
-    },
-	{
-        text = "光環設定說明",
-        callback = function(cfg, v, loading) SlashCmdList["LiteButtonAuras"]("aura help") end,
-    },
-	{
-        text = "不顯示時間設定說明",
-        callback = function(cfg, v, loading) SlashCmdList["LiteButtonAuras"]("deny help") end,
+        text = "設定選項",
+        callback = function(cfg, v, loading) Settings.OpenToCategory("光環時間") end,
     },
 };
 D["LootMonitor"] = {
