@@ -110,8 +110,8 @@ if GetLocale() == "zhTW" then
 	L.data["Teleporters"] = "傳送"
 	
 	-- BetterBags-Appearances
-	L.data["Known - BoE"] = "已收集-裝備綁定"
-	L.data["Known - BoP"] = "已收集-靈魂綁定"
+	L.data["Known - BoE"] = "裝備綁定 (已收集外觀) "
+	L.data["Known - BoP"] = "靈魂綁定 (已收集外觀) "
 	L.data["Unknown - "] = "外觀 (未收集) "
 	L.data["Unknown - Other Classes"] = "外觀 (未收集) "
 	
