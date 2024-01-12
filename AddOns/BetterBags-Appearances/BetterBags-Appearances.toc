@@ -1,0 +1,14 @@
+## Interface: 100205
+## Title: BetterBags - Appearances
+## Author: Sauravisus
+## Version: 1.0.2
+## Notes: Categories to help transmog farming.
+## X-Curse-Project-ID: 956133
+## Dependencies: BetterBags
+
+## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-塑形外觀
+## Notes-zhTW: BetterBags |n|n幫助收集裝備外觀的分類。
+## X-Category-zhTW: 物品
+## DefaultState: disabled
+
+main.lua
