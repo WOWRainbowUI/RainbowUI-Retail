@@ -1,0 +1,61 @@
+## Interface: 100200
+## Title: iP Mythic+ Timer
+## Notes: Compact Mythic+ Timer
+## Notes-ruRU: Компактный Таймер для Ключей
+## Author: iP
+## Version: 1.3.46
+## OptionalDeps: LibSharedMedia-3.0, LibDBIcon-1.0, LibStub
+## SavedVariables: IPMTDB, IPMTOptions, IPMTDungeon, IPMTTheme
+## X-eMail: ipzaur@gmail.com
+## IconTexture: Interface\AddOns\iPMythicTimer\media\icon
+
+Localization\localization.lua
+Localization\localization_ru.lua
+Localization\localization_zhtw.lua
+Localization\localization_zhcn.lua
+
+vars.lua
+libs.xml
+media.lua
+utility.lua
+fool.lua
+
+cooperation\mdt.lua
+cooperation\elvUI.lua
+cooperation\nameplateKAI.lua
+cooperation\kalielsTracker.lua
+
+theme\default.lua
+themes.lua
+
+seasons\season82.lua
+seasons\season83.lua
+seasons\season84.lua
+seasons\season91.lua
+seasons\season92.lua
+seasons\season93.lua
+seasons\season94.lua
+seasons\season101.lua
+
+frames\main.lua
+frames\help.lua
+frames\import.lua
+frames\options.lua
+frames\elemEditor.lua
+frames\textureEditor.lua
+frames\themes.lua
+frames\mapbut.lua
+frames\deaths.lua
+frames\debug.lua
+
+main.lua
+prognosis.lua
+help.lua
+import.lua
+options.lua
+deaths.lua
+textureEditor.lua
+elemEditor.lua
+
+
+iPMythicTimer.lua
