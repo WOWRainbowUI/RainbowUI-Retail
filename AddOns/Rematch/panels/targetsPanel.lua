@@ -40,7 +40,7 @@ function rematch.targetsPanel:PopulateTargetList(otable)
     -- if this list isn't populated yet, then fill it with headers and notable npcIDs (only recent targets ever change)
     local headerID
     if #otable==0 then
-        tinsert(otable,"header:Recent Targets")
+        tinsert(otable,"header:"..L["Recent Targets"])
         tinsert(otable,"placeholder:0") -- only one placeholder ever in otable: "No recent targets"
         for _,info in ipairs(rematch.targetData.notableTargets) do
             if headerID~=info[1] then -- new header found
@@ -119,7 +119,7 @@ end
 -- (if there's demand this can be an option to enable recent search hits)
 local skipRecent = true
 function rematch.targetsPanel:SearchHit(mask,data)
-    if data=="header:Recent Targets" then
+    if data=="header:"..L["Recent Targets"] then
         skipRecent = true
     elseif rematch.targetsPanel:IsHeader(data) then
         skipRecent = false

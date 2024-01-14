@@ -469,12 +469,12 @@ function rematch.optionsPanel.widgetSetup:AnchorWidget()
     self.tooltipBody = L["When the standalone window is minimized or maximized, use the chosen corner/edge as the anchor."]
     self.Label:SetText(self.tooltipTitle..":")
     self.DropDown:BasicSetup({
-            {text="Bottom Left", value="BOTTOMLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0.5,0.75}},
-            {text="Bottom Center", value="BOTTOM", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0.5,0.75}},
-            {text="Bottom Right", value="BOTTOMRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0.5,0.75}},
-            {text="Top Right", value="TOPRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0,0.25}},
-            {text="Top Center", value="TOP", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0,0.25}},
-            {text="Top Left", value="TOPLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0,0.25}}},
+            {text=L["Bottom Left"], value="BOTTOMLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0.5,0.75}},
+            {text=L["Bottom Center"], value="BOTTOM", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0.5,0.75}},
+            {text=L["Bottom Right"], value="BOTTOMRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0.5,0.75}},
+            {text=L["Top Right"], value="TOPRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0,0.25}},
+            {text=L["Top Center"], value="TOP", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0,0.25}},
+            {text=L["Top Left"], value="TOPLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0,0.25}}},
             function(value)
                 -- changing anchor while in journal mode (or while window is not on screen) messes up anchoring
                 if rematch.journal:IsActive() then
@@ -493,12 +493,12 @@ function rematch.optionsPanel.widgetSetup:PanelTabAnchorWidget()
     self.tooltipBody = L["Choose which corner of the standalone Rematch window to anchor panel tabs such as Pets, Teams, Targets, etc.\n\nNote: Choosing a new anchor for the whole window will change the tabs anchor to match. You can change this tabs anchor again anytime."]
     self.Label:SetText(self.tooltipTitle..":")
     self.DropDown:BasicSetup({
-            {text="Bottom Left", value="BOTTOMLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0.5,0.75}},
-            {text="Bottom Center", value="BOTTOM", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0.5,0.75}},
-            {text="Bottom Right", value="BOTTOMRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0.5,0.75}},
-            {text="Top Right", value="TOPRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0,0.25}},
-            {text="Top Center", value="TOP", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0,0.25}},
-            {text="Top Left", value="TOPLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0,0.25}}},
+            {text=L["Bottom Left"], value="BOTTOMLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0.5,0.75}},
+            {text=L["Bottom Center"], value="BOTTOM", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0.5,0.75}},
+            {text=L["Bottom Right"], value="BOTTOMRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0.5,0.75}},
+            {text=L["Top Right"], value="TOPRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0,0.25}},
+            {text=L["Top Center"], value="TOP", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0,0.25}},
+            {text=L["Top Left"], value="TOPLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0,0.25}}},
             function(value)
                 rematch.frame:ChangePanelTabAnchor(value)
             end
@@ -536,7 +536,7 @@ function rematch.optionsPanel.widgetSetup:FlipKeyWidget()
     self.tooltipTitle = L["Flip Modifier Key"]
     self.tooltipBody = L["The modifier key that will flip the pet card over. Regardless of this setting, you can flip the pet card over by mouseover of the pet's icon at the top of the card."]
     self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({{text="Alt Key", value="Alt"},{text="Shift Key", value="Shift"},{text="Ctrl Key", value="Ctrl"},{text="None", value="None"}},
+    self.DropDown:BasicSetup({{text=L["Alt"], value="Alt"},{text=L["Shift"], value="Shift"},{text=L["Ctrl"], value="Ctrl"},{text=L["None"], value="None"}},
                             function(value) settings.PetCardFlipKey=value rematch.petCard:Update() end)
     self.DropDown:SetSelection(settings.PetCardFlipKey)
 end
