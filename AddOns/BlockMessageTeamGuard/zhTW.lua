@@ -398,7 +398,7 @@ local function OnLoad(self, event, ...)
     LPaddon.customFilter = LP_DB.customFilter == nil and true or LP_DB.customFilter
     LPaddon.strangerGroupEnabled = LP_DB.strangerGroupEnabled == nil and true or LP_DB.strangerGroupEnabled
     if not LP_DB.customFilterWords or next(LP_DB.customFilterWords) == nil then
-    LP_DB.customFilterWords = {["微信"] = true, ["包赔"] = true, ["站桩"] = true, ["零封号"] = true, ["包团"] = true, ["散拍"] = true, ["快速到滿級"] = true, ["自己上随时打"] = true, ["来消费"] = true, ["淘宝"] = true, ["现在有团"] = true, ["为您服务"] = true, ["装备全送"] = true, ["同甲低保"] = true, ["免費送低保"] = true, ["掏宝"] = true, ["淘寶"] = true, ["自己上号"] = true, ["安全效率"] = true, ["送低保"] = true, ["上号躺"] = true, ["消費團本"] = true, ["满级即可参加"] = true, ["自己挂"] = true, ["可自上"] = true, ["躺尸"] = true, ["挂满级"] = true, ["掛滿級"] = true, ["加薇"] = true, ["+薇"] = true, ["威信"] = true,}
+    LP_DB.customFilterWords = {["微信"] = true, ["包赔"] = true, ["站桩"] = true, ["零封号"] = true, ["包团"] = true, ["散拍"] = true, ["快速到滿級"] = true, ["自己上随时打"] = true, ["来消费"] = true, ["淘宝"] = true, ["现在有团"] = true, ["为您服务"] = true, ["装备全送"] = true, ["同甲低保"] = true, ["免費送低保"] = true, ["掏宝"] = true, ["淘寶"] = true, ["自己上号"] = true, ["安全效率"] = true, ["送低保"] = true, ["上号躺"] = true, ["消費團本"] = true, ["满级即可参加"] = true, ["自己挂"] = true, ["可自上"] = true, ["躺尸"] = true, ["挂满级"] = true, ["掛滿級"] = true, ["加薇"] = true, ["+薇"] = true,  ["+微"] = true, ["威信"] = true,}
 end
     LPaddon.customFilterWords = LP_DB.customFilterWords    
     customFilterToggleButton:SetChecked(LPaddon.customFilter)
