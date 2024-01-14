@@ -1150,7 +1150,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的歌曲是：`冒險`by YOASOBI``",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的歌曲是：`飛天`by AyaseＸR-指定``",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
