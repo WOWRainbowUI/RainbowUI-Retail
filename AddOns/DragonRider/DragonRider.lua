@@ -67,23 +67,17 @@ local defaultsTable = {
 
 };
 
-local function ShowColorPicker(r, g, b, a, changedCallback)
-	ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = (a ~= nil), a;
-	ColorPickerFrame.previousValues = {r,g,b,a};
-	ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = changedCallback, changedCallback, changedCallback;
-	ColorPickerFrame:SetColorRGB(r,g,b);
-	ColorPickerFrame:Hide(); -- Need to run the OnShow handler.
-	ColorPickerFrame:Show();
-end
-
 local function ProgBarLowColor(restore)
 	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
 	if restore then
 	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR, newG, newB, newA = unpack(restore);
+		newR = restore["r"]
+		newG = restore["g"]
+		newB = restore["b"]
+		newA = restore["a"]
 	else
 	 -- Something changed
-		newA, newR, newG, newB = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB();
+		newA, newR, newG, newB = ColorPickerFrame:GetColorAlpha(), ColorPickerFrame:GetColorRGB();
 	end
 	 -- Update our internal storage.
 	r, g, b, a = newR, newG, newB, newA
@@ -95,10 +89,13 @@ local function ProgBarMidColor(restore)
 	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
 	if restore then
 	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR, newG, newB, newA = unpack(restore);
+		newR = restore["r"]
+		newG = restore["g"]
+		newB = restore["b"]
+		newA = restore["a"]
 	else
 	 -- Something changed
-		newA, newR, newG, newB = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB();
+		newA, newR, newG, newB = ColorPickerFrame:GetColorAlpha(), ColorPickerFrame:GetColorRGB();
 	end
 	 -- Update our internal storage.
 	r, g, b, a = newR, newG, newB, newA
@@ -110,10 +107,13 @@ local function ProgBarHighColor(restore)
 	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
 	if restore then
 	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR, newG, newB, newA = unpack(restore);
+		newR = restore["r"]
+		newG = restore["g"]
+		newB = restore["b"]
+		newA = restore["a"]
 	else
 	 -- Something changed
-		newA, newR, newG, newB = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB();
+		newA, newR, newG, newB = ColorPickerFrame:GetColorAlpha(), ColorPickerFrame:GetColorRGB();
 	end
 	 -- Update our internal storage.
 	r, g, b, a = newR, newG, newB, newA
@@ -122,54 +122,107 @@ local function ProgBarHighColor(restore)
 end
 
 local function TextLowColor(restore)
-	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
+	local newR, newG, newB; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
 	if restore then
 	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR, newG, newB, newA = unpack(restore);
+		newR = restore["r"]
+		newG = restore["g"]
+		newB = restore["b"]
 	else
 	 -- Something changed
-		newA, newR, newG, newB = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB();
+		newR, newG, newB = ColorPickerFrame:GetColorRGB();
 	end
 	 -- Update our internal storage.
-	r, g, b, a = newR, newG, newB, newA
+	r, g, b = newR, newG, newB
 	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedTextColor.slow.r, DragonRider_DB.speedTextColor.slow.g, DragonRider_DB.speedTextColor.slow.b, DragonRider_DB.speedTextColor.slow.a = newR, newG, newB, newA;
+	DragonRider_DB.speedTextColor.slow.r, DragonRider_DB.speedTextColor.slow.g, DragonRider_DB.speedTextColor.slow.b = newR, newG, newB;
 end
 
 local function TextMidColor(restore)
-	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
+	local newR, newG, newB; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
 	if restore then
 	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR, newG, newB, newA = unpack(restore);
+		newR = restore["r"]
+		newG = restore["g"]
+		newB = restore["b"]
 	else
 	 -- Something changed
-		newA, newR, newG, newB = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB();
+		newR, newG, newB = ColorPickerFrame:GetColorRGB();
 	end
 	 -- Update our internal storage.
-	r, g, b, a = newR, newG, newB, newA
+	r, g, b = newR, newG, newB
 	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedTextColor.vigor.r, DragonRider_DB.speedTextColor.vigor.g, DragonRider_DB.speedTextColor.vigor.b, DragonRider_DB.speedTextColor.vigor.a = newR, newG, newB, newA;
+	DragonRider_DB.speedTextColor.vigor.r, DragonRider_DB.speedTextColor.vigor.g, DragonRider_DB.speedTextColor.vigor.b, DragonRider_DB.speedTextColor.vigor.a = newR, newG, newB;
 end
 
 local function TextHighColor(restore)
-	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
+	local newR, newG, newB; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
 	if restore then
 	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR, newG, newB, newA = unpack(restore);
+		newR = restore["r"]
+		newG = restore["g"]
+		newB = restore["b"]
 	else
 	 -- Something changed
-		newA, newR, newG, newB = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB();
+		newR, newG, newB = ColorPickerFrame:GetColorRGB();
 	end
 	 -- Update our internal storage.
-	r, g, b, a = newR, newG, newB, newA
+	r, g, b = newR, newG, newB
 	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b, DragonRider_DB.speedTextColor.over.a = newR, newG, newB, newA;
+	DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b = newR, newG, newB;
 end
 
 
 
 
 local DR = CreateFrame("Frame", nil, UIParent)
+
+function DR:ShowColorPicker(r, g, b, a, callbackFunc)
+	if ColorPickerFrame.SetupColorPickerAndShow then
+		local options = {
+			swatchFunc = callbackFunc,
+			opacityFunc = callbackFunc,
+			cancelFunc = callbackFunc,
+			hasOpacity = true,
+			r = r,
+			g = g,
+			b = b,
+			opacity = a,
+		};
+
+		ColorPickerFrame:SetupColorPickerAndShow(options);
+	else
+		ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = true, a;
+		ColorPickerFrame.previousValues = {r,g,b,a};
+		ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = callbackFunc, callbackFunc, callbackFunc;
+		ColorPickerFrame:SetColorRGB(r,g,b,a);
+		ColorPickerFrame:Hide();
+		ColorPickerFrame:Show();
+	end
+end
+
+function DR:ShowColorPickerText(r, g, b, callbackFunc)
+	if ColorPickerFrame.SetupColorPickerAndShow then
+		local options = {
+			swatchFunc = callbackFunc,
+			opacityFunc = callbackFunc,
+			cancelFunc = callbackFunc,
+			hasOpacity = false,
+			r = r,
+			g = g,
+			b = b,
+		};
+
+		ColorPickerFrame:SetupColorPickerAndShow(options);
+	else
+		ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = false, a;
+		ColorPickerFrame.previousValues = {r,g,b};
+		ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = callbackFunc, callbackFunc, callbackFunc;
+		ColorPickerFrame:SetColorRGB(r,g,b);
+		ColorPickerFrame:Hide();
+		ColorPickerFrame:Show();
+	end
+end
 
 DR.WidgetFrameIDs = {
 	4460, -- generic DR
@@ -430,33 +483,33 @@ function DR.updateSpeed()
 	end
 	if NotDragonIsles then
 		DR.statusbar:SetMinMaxValues(0, 85)
-		if forwardSpeed > 52 then
-			local textColor = CreateColor(DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b):GenerateHexColor()
+		if forwardSpeed > 85*.65 then
+			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.over)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice purple?) -
-			DR.statusbar:SetStatusBarColor(DragonRider_DB.speedBarColor.over.r, DragonRider_DB.speedBarColor.over.g, DragonRider_DB.speedBarColor.over.b, DragonRider_DB.speedBarColor.over.a)
-		elseif forwardSpeed >= 47.8 and forwardSpeed <= 52 then
-			local textColor = CreateColor(DragonRider_DB.speedTextColor.vigor.r, DragonRider_DB.speedTextColor.vigor.g, DragonRider_DB.speedTextColor.vigor.b):GenerateHexColor()
+			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.over))
+		elseif forwardSpeed >= 85*.60 and forwardSpeed <= 85*.65 then
+			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.vigor)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice blue?) - 
-			DR.statusbar:SetStatusBarColor(DragonRider_DB.speedBarColor.vigor.r, DragonRider_DB.speedBarColor.vigor.g, DragonRider_DB.speedBarColor.vigor.b, DragonRider_DB.speedBarColor.vigor.a)
+			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.vigor))
 		else
-			local textColor = CreateColor(DragonRider_DB.speedTextColor.slow.r, DragonRider_DB.speedTextColor.slow.g, DragonRider_DB.speedTextColor.slow.b):GenerateHexColor()
+			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.slow)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- fff2a305 (nice yellow?) - 
-			DR.statusbar:SetStatusBarColor(DragonRider_DB.speedBarColor.slow.r, DragonRider_DB.speedBarColor.slow.g, DragonRider_DB.speedBarColor.slow.b, DragonRider_DB.speedBarColor.slow.a)
+			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.slow))
 		end
 	else
 		DR.statusbar:SetMinMaxValues(0, 100)
 		if forwardSpeed > 65 then
-			local textColor = CreateColor(DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b):GenerateHexColor()
+			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.over)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice purple?) -
-			DR.statusbar:SetStatusBarColor(DragonRider_DB.speedBarColor.over.r, DragonRider_DB.speedBarColor.over.g, DragonRider_DB.speedBarColor.over.b, DragonRider_DB.speedBarColor.over.a)
+			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.over))
 		elseif forwardSpeed >= 60 and forwardSpeed <= 65 then
-			local textColor = CreateColor(DragonRider_DB.speedTextColor.vigor.r, DragonRider_DB.speedTextColor.vigor.g, DragonRider_DB.speedTextColor.vigor.b):GenerateHexColor()
+			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.vigor)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice blue?) - 
-			DR.statusbar:SetStatusBarColor(DragonRider_DB.speedBarColor.vigor.r, DragonRider_DB.speedBarColor.vigor.g, DragonRider_DB.speedBarColor.vigor.b, DragonRider_DB.speedBarColor.vigor.a)
+			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.vigor))
 		else
-			local textColor = CreateColor(DragonRider_DB.speedTextColor.slow.r, DragonRider_DB.speedTextColor.slow.g, DragonRider_DB.speedTextColor.slow.b):GenerateHexColor()
+			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.slow)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- fff2a305 (nice yellow?) - 
-			DR.statusbar:SetStatusBarColor(DragonRider_DB.speedBarColor.slow.r, DragonRider_DB.speedBarColor.slow.g, DragonRider_DB.speedBarColor.slow.b, DragonRider_DB.speedBarColor.slow.a)
+			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.slow))
 		end
 	end
 	if DragonRider_DB.speedValUnits == 6 then
@@ -645,7 +698,7 @@ function DR.DoWidgetThings()
 				DR.fadeOutWidget = DR.fadeOutWidgetGroup:CreateAnimation("Alpha")
 				DR.fadeOutWidget:SetFromAlpha(DR.GetWidgetAlpha())
 				DR.fadeOutWidget:SetToAlpha(0)
-				DR.fadeOutWidget:SetDuration(1) -- Duration of the fade out animation
+				DR.fadeOutWidget:SetDuration(.9) -- Duration of the fade out animation
 				
 			end
 
@@ -1098,7 +1151,7 @@ function DR:toggleEvent(event, arg1)
 
 		do -- color picker - low progress bar color
 			local function OnButtonClick()
-				ShowColorPicker(DragonRider_DB.speedBarColor.slow.r, DragonRider_DB.speedBarColor.slow.g, DragonRider_DB.speedBarColor.slow.b, DragonRider_DB.speedBarColor.slow.a, ProgBarLowColor);
+				DR:ShowColorPicker(DragonRider_DB.speedBarColor.slow.r, DragonRider_DB.speedBarColor.slow.g, DragonRider_DB.speedBarColor.slow.b, DragonRider_DB.speedBarColor.slow.a, ProgBarLowColor);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["Low"], COLOR_PICKER, OnButtonClick, L["ColorPickerLowProgTT"], true);
@@ -1108,7 +1161,7 @@ function DR:toggleEvent(event, arg1)
 
 		do -- color picker - mid progress bar color
 			local function OnButtonClick()
-				ShowColorPicker(DragonRider_DB.speedBarColor.vigor.r, DragonRider_DB.speedBarColor.vigor.g, DragonRider_DB.speedBarColor.vigor.b, DragonRider_DB.speedBarColor.vigor.a, ProgBarMidColor);
+				DR:ShowColorPicker(DragonRider_DB.speedBarColor.vigor.r, DragonRider_DB.speedBarColor.vigor.g, DragonRider_DB.speedBarColor.vigor.b, DragonRider_DB.speedBarColor.vigor.a, ProgBarMidColor);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["Vigor"], COLOR_PICKER, OnButtonClick, L["ColorPickerMidProgTT"], true);
@@ -1118,7 +1171,7 @@ function DR:toggleEvent(event, arg1)
 
 		do -- color picker - high progress bar color
 			local function OnButtonClick()
-				ShowColorPicker(DragonRider_DB.speedBarColor.over.r, DragonRider_DB.speedBarColor.over.g, DragonRider_DB.speedBarColor.over.b, DragonRider_DB.speedBarColor.over.a, ProgBarHighColor);
+				DR:ShowColorPicker(DragonRider_DB.speedBarColor.over.r, DragonRider_DB.speedBarColor.over.g, DragonRider_DB.speedBarColor.over.b, DragonRider_DB.speedBarColor.over.a, ProgBarHighColor);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["High"], COLOR_PICKER, OnButtonClick, L["ColorPickerHighProgTT"], true);
@@ -1128,7 +1181,7 @@ function DR:toggleEvent(event, arg1)
 
 		do -- color picker - low speed text color
 			local function OnButtonClick()
-				ShowColorPicker(DragonRider_DB.speedTextColor.slow.r, DragonRider_DB.speedTextColor.slow.g, DragonRider_DB.speedTextColor.slow.b, DragonRider_DB.speedTextColor.slow.a, TextLowColor);
+				DR:ShowColorPickerText(DragonRider_DB.speedTextColor.slow.r, DragonRider_DB.speedTextColor.slow.g, DragonRider_DB.speedTextColor.slow.b, TextLowColor);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["Low"], COLOR_PICKER, OnButtonClick, L["ColorPickerLowTextTT"], true);
@@ -1138,7 +1191,7 @@ function DR:toggleEvent(event, arg1)
 
 		do -- color picker - mid speed text color
 			local function OnButtonClick()
-				ShowColorPicker(DragonRider_DB.speedTextColor.vigor.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b, DragonRider_DB.speedTextColor.over.a, TextMidColor);
+				DR:ShowColorPickerText(DragonRider_DB.speedTextColor.vigor.r, DragonRider_DB.speedTextColor.vigor.g, DragonRider_DB.speedTextColor.vigor.b, TextMidColor);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["Vigor"], COLOR_PICKER, OnButtonClick, L["ColorPickerMidTextTT"], true);
@@ -1148,7 +1201,7 @@ function DR:toggleEvent(event, arg1)
 
 		do -- color picker - high speed text color
 			local function OnButtonClick()
-				ShowColorPicker(DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b, DragonRider_DB.speedTextColor.over.a, TextHighColor);
+				DR:ShowColorPickerText(DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b, TextHighColor);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["High"], COLOR_PICKER, OnButtonClick, L["ColorPickerHighTextTT"], true);
