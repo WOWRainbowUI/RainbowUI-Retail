@@ -7,6 +7,10 @@
 
 local _, LBA = ...
 
+local fontPath, fontSize, fontFlags = NumberFontNormal:GetFont()
+
+local defaultAdjust = ( WOW_PROJECT_ID == 1 and 5 or 2 )
+
 local defaults = {
     global = {
     },
@@ -29,12 +33,28 @@ local defaults = {
         showSuggestions = true,
         colorTimers = true,
         decimalTimers = true,
-        fontPath = NumberFontNormal:GetFont(),
-        fontSize = math.floor(select(2, NumberFontNormal:GetFont()) + 0.5),
-        fontFlags = select(3, NumberFontNormal:GetFont()),
+        timerAnchor = "BOTTOMLEFT",
+        timerAdjust = defaultAdjust,
+        stacksAnchor = "TOPLEFT",
+        stacksAdjust = defaultAdjust,
+        fontPath = fontPath,
+        fontSize = math.floor(fontSize + 0.5),
+        fontFlags = fontFlags,
     },
     char = {
     },
+}
+
+LBA.anchorSettings = {
+    TOPLEFT     = { "TOPLEFT",       1, -1,     "LEFT" },
+    TOP         = { "TOP",           0, -1,     "MIDDLE" },
+    TOPRIGHT    = { "TOPRIGHT",     -1, -1,     "RIGHT" },
+    LEFT        = { "LEFT",          1,  0,     "LEFT", },
+    CENTER      = { "CENTER",        0,  0,     "MIDDLE" },
+    RIGHT       = { "RIGHT",        -1,  0,     "RIGHT" },
+    BOTTOMLEFT  = { "BOTTOMLEFT",    1,  1,     "LEFT" },
+    BOTTOM      = { "BOTTOM",        0,  1,     "MIDDLE" },
+    BOTTOMRIGHT = { "BOTTOMRIGHT",  -1,  1,     "RIGHT" },
 }
 
 local function IsTrue(x)
@@ -74,7 +94,13 @@ function LBA.SetOption(option, value, key)
     if type(defaults[key][option]) == 'boolean' then
         LBA.db[key][option] = IsTrue(value)
     elseif type(defaults[key][option]) == 'number' then
-        LBA.db[key][option] = tonumber(value)
+        if tonumber(value) then
+            LBA.db[key][option] = tonumber(value)
+        end
+    elseif LBA.anchorSettings[defaults[key][option]] then
+        if  LBA.anchorSettings[value] then
+            LBA.db[key][option] = value
+        end
     else
         LBA.db[key][option] = value
     end
@@ -170,3 +196,8 @@ function LBA.GetAuraMapList()
     sort(out, function (a, b) return a[2] < b[2] end)
     return out
 end
+
+function LBA.ApplyDefaultSettings()
+    LBA.db:ResetProfile()
+end
+
