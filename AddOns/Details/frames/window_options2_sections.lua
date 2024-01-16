@@ -6051,10 +6051,10 @@ do
                         StreamerPlugin.__enabled = tPluginSettings.enabled
 
                         if (not tPluginSettings.enabled) then
-                            sectionFrame.enableActionTrackerButtton:SetText("Enable")
+                            sectionFrame.enableActionTrackerButtton:SetText(Loc["Enable"])
                             Details:SendEvent("PLUGIN_DISABLED", StreamerPlugin)
                         else
-                            sectionFrame.enableActionTrackerButtton:SetText("Disable") --enableButton is nil value
+                            sectionFrame.enableActionTrackerButtton:SetText(Loc["Disable"]) --enableButton is nil value
 							Details:SendEvent("PLUGIN_ENABLED", StreamerPlugin)
                         end
                     end
@@ -6067,10 +6067,10 @@ do
                     end
 
                     --create the enable, disable and options button
-                    local enableActionTrackerButtton = DF:CreateButton(sectionFrame, enablePluginFunc, 100, 20, "Enable", false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+                    local enableActionTrackerButtton = DF:CreateButton(sectionFrame, enablePluginFunc, 100, 20, Loc["Enable"], false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
                     enableActionTrackerButtton:SetPoint("topleft", streamerTitleImage, "bottomleft", 0, -7)
 
-                    local actionTrackerOptionsButtton = DF:CreateButton(sectionFrame, openOptions, 100, 20, "Options", false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+                    local actionTrackerOptionsButtton = DF:CreateButton(sectionFrame, openOptions, 100, 20, Loc["Options"], false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
                     actionTrackerOptionsButtton:SetPoint("left", enableActionTrackerButtton, "right", 5, 0)
 
                     sectionFrame.enableActionTrackerButtton = enableActionTrackerButtton
@@ -6080,9 +6080,9 @@ do
 
 					--plugin already enabled
 					if (bIsPluginEnabled) then
-                        enableActionTrackerButtton:SetText("Disable")
+                        enableActionTrackerButtton:SetText(Loc["Disable"])
 					else
-                        enableActionTrackerButtton:SetText("Enable")
+                        enableActionTrackerButtton:SetText(Loc["Enable"])
 					end
 				end
 			else
@@ -6098,22 +6098,22 @@ do
     
                 if (pluginObject) then
                     if (pluginStable.enabled) then
-                        sectionFrame.enableActionTrackerButtton:SetText("Disable")
+                        sectionFrame.enableActionTrackerButtton:SetText(Loc["Disable"])
                     else
-                        sectionFrame.enableActionTrackerButtton:SetText("Enable")
+                        sectionFrame.enableActionTrackerButtton:SetText(Loc["Enable"])
                     end
                 end
 
                 if (Details.event_tracker.enabled) then
-                    sectionFrame.enableEventTrackerButtton:SetText("Disable")
+                    sectionFrame.enableEventTrackerButtton:SetText(Loc["Disable"])
                 else
-                    sectionFrame.enableEventTrackerButtton:SetText("Enable")
+                    sectionFrame.enableEventTrackerButtton:SetText(Loc["Enable"])
                 end
 
                 if (Details.realtime_dps_meter.enabled) then
-                    sectionFrame.enableArenaDPSTrackerButtton:SetText("Disable")
+                    sectionFrame.enableArenaDPSTrackerButtton:SetText(Loc["Disable"])
                 else
-                    sectionFrame.enableArenaDPSTrackerButtton:SetText("Enable")
+                    sectionFrame.enableArenaDPSTrackerButtton:SetText(Loc["Enable"])
                 end
             end)
 
@@ -6136,9 +6136,9 @@ do
                 afterUpdate()
 
                 if (Details.event_tracker.enabled) then
-                    sectionFrame.enableEventTrackerButtton:SetText("Disable")
+                    sectionFrame.enableEventTrackerButtton:SetText(Loc["Disable"])
                 else
-                    sectionFrame.enableEventTrackerButtton:SetText("Enable")
+                    sectionFrame.enableEventTrackerButtton:SetText(Loc["Enable"])
                 end
             end
 
@@ -6150,10 +6150,10 @@ do
             end
 
             --create the enable, disable and options button
-            local enableEventTrackerButtton = DF:CreateButton(sectionFrame, enableEventTracker, 100, 20, "Enable", false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            local enableEventTrackerButtton = DF:CreateButton(sectionFrame, enableEventTracker, 100, 20, Loc["Enable"], false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
             enableEventTrackerButtton:SetPoint("topleft", eventTrackerTitleImage, "bottomleft", 0, -7)
 
-            local actionTrackerOptionsButtton = DF:CreateButton(sectionFrame, openEventTrackerOptions, 100, 20, "Options", false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            local actionTrackerOptionsButtton = DF:CreateButton(sectionFrame, openEventTrackerOptions, 100, 20, Loc["Options"], false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
             actionTrackerOptionsButtton:SetPoint("left", enableEventTrackerButtton, "right", 5, 0)
 
             sectionFrame.enableEventTrackerButtton = enableEventTrackerButtton
@@ -6178,9 +6178,9 @@ do
                 afterUpdate()
 
                 if (Details.realtime_dps_meter.enabled) then
-                    sectionFrame.enableArenaDPSTrackerButtton:SetText("Disable")
+                    sectionFrame.enableArenaDPSTrackerButtton:SetText(Loc["Disable"])
                 else
-                    sectionFrame.enableArenaDPSTrackerButtton:SetText("Enable")
+                    sectionFrame.enableArenaDPSTrackerButtton:SetText(Loc["Enable"])
                 end
             end
 
@@ -6192,10 +6192,10 @@ do
             end
 
             --create the enable, disable and options button
-            local enableArenaDPSTrackerButtton = DF:CreateButton(sectionFrame, enableArenaDPS, 100, 20, "Enable", false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            local enableArenaDPSTrackerButtton = DF:CreateButton(sectionFrame, enableArenaDPS, 100, 20, Loc["Enable"], false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
             enableArenaDPSTrackerButtton:SetPoint("topleft", currentDPSTitleImage, "bottomleft", 0, -7)
 
-            local arenaDPSTrackerOptionsButtton = DF:CreateButton(sectionFrame, openArenaDPSOptions, 100, 20, "Options", false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+            local arenaDPSTrackerOptionsButtton = DF:CreateButton(sectionFrame, openArenaDPSOptions, 100, 20, Loc["Options"], false, false, "", false, false, false, DF:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
             arenaDPSTrackerOptionsButtton:SetPoint("left", enableArenaDPSTrackerButtton, "right", 5, 0)
 
             sectionFrame.enableArenaDPSTrackerButtton = enableArenaDPSTrackerButtton

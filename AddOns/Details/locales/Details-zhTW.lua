@@ -2047,7 +2047,7 @@ L["Remove Battleground Segments"] = "移除戰場戰鬥記錄"
 L["Auto Open on New Changes"] = "有新的改動時自動打開"
 
 -- frames\window_options2.lua 更改字體大小
-L["Options"] = "設定選項" -- 前面已有 ["STRING_INTERFACE_OPENOPTIONS"]
+L["Options"] = "選項" -- 前面已有 ["STRING_INTERFACE_OPENOPTIONS"]
 L[" unknown"] = " 未知"
 L["Editing Group"] = "編輯群組"
 L["Character\nPosition"] = "角色\n位置"
@@ -2166,6 +2166,7 @@ L["Real Time"] = "即時"
 -- L["Select Profile"] = "選擇設定檔"
 -- L["Not Installed"] = "未安裝"
 -- L["Height"] = "高度"
+-- L["Options"] = "選項"
 L["Immersion"] = "沉浸式體驗"
 L["Show pets when solo"] = "單人時顯示寵物"
 L["Click Through Only in Combat"] = "只有戰鬥中時要點擊穿透"
@@ -2323,6 +2324,8 @@ L["Use Total Combat Time"] = "使用總共戰鬥時間"
 L["The overall segment for the Mythic+ run will use 'totalDamage / totalCombatTime' to calculate DPS."] = "M+ 的整體戰鬥記錄使用 '總共輸出傷害 / 總共戰鬥時間' 來計算 DPS。"
 L["Use Run Time"] = "使用通關時間"
 L["The overall segment for the Mythic+ run will use 'totalDamage / runTime' to calculate DPS."] = "M+ 的整體戰鬥記錄使用 '總共輸出傷害 / 通關時間' 來計算 DPS。"
+L["Enable"] = "啟用"
+L["Disable"] = "停用"
 
 -- frames\window_plater.lua 更改字體大小
 -- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
@@ -2939,7 +2942,7 @@ L["total lines:"] = "總行數:"
 -- L["High"] = "高"
 -- L["Dialog"] = "對話框 (最高)"
 -- L["Details! Team"] = "Details! 團隊"
-L["Details! Streamer: Action Tracker"] = "Details! 實況主: 技能追蹤"
+L["Details! Streamer: Action Tracker"] = "Details! 直播工具: 技能追蹤"
 L["|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Right Click|r: Lock the Frame\n|cFFFF7700Slash Command|r: /streamer"] = "|cFFFF7700左鍵|r: 設定選項\n|cFFFF7700右鍵|r: 鎖定框架\n|cFFFF7700指令|r: /streamer"
 L["|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Slash Command|r: /streamer"] = "|cFFFF7700左鍵|r: 設定選項\n|cFFFF7700指令|r: /streamer"
 L["Locked"] = "鎖定"
@@ -3003,6 +3006,12 @@ L["Use Square Mode"] = "使用方格模式"
 L["You need to /reload after change."] = "更改後必須重新載入介面。"
 L["Square Amount"] = "方格數量"
 L["Square Size"] = "方格大小"
+L["Square Direction"] = "方格方向"
+L["Disable Plugin"] = "停用外掛"
+L["Enable Plugin"] = "啟用外掛"
+L["Start Plugin"] = "啟動外掛"
+L["Scale"] = "縮放大小"
+L["Select Mode (test casting some spells)"] = "選擇呈現模式 (施放些法術來測試)"
 
 -- Details_Vanguard.lua
 L["Show debuffs on each tanks in the raid, also shows incoming heal and damage and the last hits you took."] = "顯示團隊中每個坦克的減益，同時也會顯示即將治療、傷害和最後承受的攻擊。"
