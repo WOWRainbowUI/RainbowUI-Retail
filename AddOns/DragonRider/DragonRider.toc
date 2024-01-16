@@ -1,6 +1,6 @@
-## Interface: 100200
+## Interface: 100205
 ## Author: Keyboardturner
-## Version: 0.1.4
+## Version: 0.1.5
 ## Title: Dragon Rider
 ## Notes: Displays a speedometer paired with the vigor bar and some other dragonriding-related options.
 ## IconTexture: Interface/Icons/ability_dragonriding_glyph01.blp
