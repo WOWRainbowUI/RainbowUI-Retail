@@ -43,6 +43,7 @@ if GetLocale() == "zhTW" then
 	L.data["Expansion"] = "資料片"
 	L.data["If enabled, the item level of each item will be displayed in the corner of the item icon."] = "啟用時，會在物品圖示的角落顯示物品等級。"
 	L.data["If enabled, the item level text will be colored based on the item level."] = "啟用時，會依據物品等級來顯示物品等級文字的顏色。"
+	L.data["If enabled, recent items are put into their own special section at the top of your bag."] = "啟用時，最近獲得的新物品會放在背包最上方的專屬區塊中。"
 	L.data["If enabled, will categorize items by "] = "啟用時，會依照"
 	L.data["."] = "來分類物品。"
 	L.data["If enabled, will categorize items by expansion."] = "啟用時，會依照資料片來分類物品。"
