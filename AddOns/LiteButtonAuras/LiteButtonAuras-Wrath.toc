@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Title: LiteButtonAuras
-## Version: 10.2.0-6
+## Version: 10.2.0-7
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
@@ -20,7 +20,9 @@ ColorGradient.lua
 BarIntegrations.lua
 SlashCommand.lua
 Options.lua
-Overlay-Classic.xml
+Overlay.xml
 Controller.xml
 
+UI\AceGUIWidgets-LBAAnchorButtons.lua
+UI\AceGUIWidgets-LBAInputFocus.lua
 UI\Options.lua

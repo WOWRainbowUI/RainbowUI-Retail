@@ -18,7 +18,7 @@ local LibBG = LibStub("LibButtonGlow-1.0")
 
 -- Cache a some things to be faster. This is annoying but it's really a lot
 -- faster. Only do this for things that are called in the event loop otherwise
--- it's just a pain to maintain.
+-- it's a pain to maintain.
 
 local DebuffTypeColor = DebuffTypeColor
 local GetItemSpell = GetItemSpell
@@ -31,7 +31,6 @@ local IsSpellOverlayed = IsSpellOverlayed
 local UnitIsFriend = UnitIsFriend
 local WOW_PROJECT_ID = WOW_PROJECT_ID
 
-
 --[[------------------------------------------------------------------------]]--
 
 LiteButtonAurasOverlayMixin = {}
@@ -40,14 +39,28 @@ function LiteButtonAurasOverlayMixin:OnLoad()
     -- Bump it so it's on top of the cooldown frame
     local parent = self:GetParent()
     self:SetFrameLevel(parent.cooldown:GetFrameLevel() + 1)
-    self:SetSize(parent:GetSize())
     self:Style()
 end
 
 function LiteButtonAurasOverlayMixin:Style()
     local p = LBA.db.profile
+
+    local parent = self:GetParent()
+    self:SetSize(parent:GetSize())
+
+    local point, x, y, justifyH
+
     self.Timer:SetFont(p.fontPath, p.fontSize, p.fontFlags)
+    point, x, y, justifyH = unpack(LBA.anchorSettings[p.timerAnchor])
+    self.Timer:ClearAllPoints()
+    self.Timer:SetPoint(point, self, x*p.timerAdjust, y*p.timerAdjust)
+    self.Timer:SetJustifyH(justifyH)
+
     self.Stacks:SetFont(p.fontPath, p.fontSize, p.fontFlags)
+    point, x, y, justifyH = unpack(LBA.anchorSettings[p.stacksAnchor])
+    self.Stacks:ClearAllPoints()
+    self.Stacks:SetPoint(point, self, x*p.stacksAdjust, y*p.stacksAdjust)
+    self.Stacks:SetJustifyH(justifyH)
 end
 
 -- This could be optimized (?) slightly be checking if type, id, subType
@@ -149,6 +162,8 @@ function LiteButtonAurasOverlayMixin:Update(stateOnly)
             elseif state.player.totems[self.name] then
                 self:SetAsTotem(state.player.totems[self.name])
                 show = true
+            elseif self:TrySetAsTaunt() then
+                show = true
             elseif state.player.buffs[self.name] then
                 self:SetAsBuff(state.player.buffs[self.name])
                 show = true
@@ -171,9 +186,7 @@ function LiteButtonAurasOverlayMixin:Update(stateOnly)
         end
 
         -- We want to try to avoid doubling up on buttons Blizzard are already
-        -- showing their overlay on, because it looks terrible. Also try to
-        -- avoid calling IsSpellOverlayed as it seems to cause issues with the
-        -- new WoW 10.0.2 glow.
+        -- showing their overlay on, because it looks terrible.
 
         if WOW_PROJECT_ID == 1 then
             self.displayGlow = self.displayGlow and not (self.spellID and IsSpellOverlayed(self.spellID))
@@ -301,6 +314,20 @@ function LiteButtonAurasOverlayMixin:TrySetAsSoothe()
         if auraData.isStealable and auraData.dispelName == "" and self:ReadyBefore(auraData.expirationTime) then
             self.expireTime = auraData.expirationTime
             self.displaySuggestion = true
+            return true
+        end
+    end
+end
+
+-- Taunt Config ----------------------------------------------------------------
+
+function LiteButtonAurasOverlayMixin:TrySetAsTaunt()
+    if not self.name or not LBA.Taunts[self.name] then return end
+    if UnitIsFriend('player', 'target') then return end
+
+    for _, auraData in pairs(LBA.state.target.debuffs) do
+        if LBA.Taunts[auraData.name] then
+            self:SetAsDebuff(auraData)
             return true
         end
     end

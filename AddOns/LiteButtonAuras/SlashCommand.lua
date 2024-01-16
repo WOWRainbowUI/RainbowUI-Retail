@@ -25,9 +25,11 @@ local function PrintUsage()
     printf(GAMEMENU_HELP .. ":")
     printf("  /lba options")
     printf("  /lba stacks on|off|default")
+    printf("  /lba stacksanchor point [offset]")
     printf("  /lba timers on|off|default")
     printf("  /lba colortimers on|off|default")
     printf("  /lba decimaltimers on|off|default")
+    printf("  /lba timeranchor point [offset]")
     printf("  /lba font FontName|default")
     printf("  /lba font path [ size [ flags ] ]")
     printf("  /lba aura help")
@@ -36,11 +38,10 @@ end
 
 local function PrintAuraUsage()
     printf(GAMEMENU_HELP .. ":")
-    printf("  /lba aura default，恢復成預設的光環清單。")
-    printf("  /lba aura list，顯示光環清單。")
-    printf("  /lba aura wipe，清空光環清單。")
-    printf("  /lba aura hide <光環的法術ID> on <技能>，隱藏技能的光環時間。")
-    printf("  /lba aura show <光環的法術ID> on <技能>，在技能顯示光環時間。")
+    printf("  /lba aura list")
+    printf("  /lba aura wipe")
+    printf("  /lba aura hide <auraSpellID> on <ability>")
+    printf("  /lba aura show <auraSpellID> on <ability>")
 end
 
 local function PrintDenyUsage()
@@ -53,15 +54,15 @@ local function PrintDenyUsage()
 end
 
 local function PrintOptions()
+    local p = LBA.db.profile
     printf(SETTINGS .. ':')
-    printf("  stacks = " .. TrueStr(LBA.db.profile.showStacks))
-    printf("  timers = " .. TrueStr(LBA.db.profile.showTimers))
-    printf("  colortimers = " .. TrueStr(LBA.db.profile.colorTimers))
-    printf("  decimaltimers = " .. TrueStr(LBA.db.profile.decimalTimers))
-    printf("  font = [ '%s', %.1f, '%s' ]",
-                        LBA.db.profile.fontPath,
-                        LBA.db.profile.fontSize,
-                        LBA.db.profile.fontFlags)
+    printf("  stacks = " .. TrueStr(p.showStacks))
+    printf("  stacksAnchor = %s %d", p.stacksAnchor, p.stacksAdjust)
+    printf("  timer = " .. TrueStr(p.showTimers))
+    printf("  colorTimer = " .. TrueStr(p.colorTimers))
+    printf("  decimalTimer = " .. TrueStr(p.decimalTimers))
+    printf("  timerAnchor = %s %d", p.timerAnchor, p.timerAdjust)
+    printf("  font = [ '%s', %.1f, '%s' ]", p.fontPath, p.fontSize, p.fontFlags)
 end
 
 local function SetFont(args)
@@ -125,10 +126,6 @@ local function AuraCommand(argstr)
     elseif cmd == 'wipe' then
         printf("正在清空光環清單。")
         LBA.WipeAuraMap()
-    elseif cmd == 'default' then
-        printf("將光環清單恢復成預設值。")
-        LBA.WipeAuraMap()
-        LBA.DefaultAuraMap()
     else
         PrintAuraUsage()
     end
@@ -190,14 +187,20 @@ local function SlashCommand(argstr)
         LBA.OpenOptions()
     elseif cmd:lower() == 'stacks' and #args == 1 then
         LBA.SetOption('showStacks', args[1])
-    elseif cmd:lower() == 'timers' and #args == 1 then
+    elseif cmd:lower() == 'stacksanchor' and WithinRange(#args, 1, 2) then
+        LBA.SetOption('stacksAnchor', args[1])
+        if args[2] then LBA.SetOption('stacksAdjust', args[2]) end
+    elseif cmd:lower() == 'timer' and #args == 1 then
         LBA.SetOption('showTimers', args[1])
-    elseif cmd:lower() == 'colortimers' and #args == 1 then
+    elseif cmd:lower() == 'colortimer' and #args == 1 then
         LBA.SetOption('colorTimers', args[1])
-    elseif cmd:lower() == 'decimaltimers' and #args == 1 then
+    elseif cmd:lower() == 'decimaltimer' and #args == 1 then
         LBA.SetOption('decimalTimers', args[1])
-    elseif cmd:lower() == 'font' and #args >= 1 then
+    elseif cmd:lower() == 'font' and WithinRange(#args, 1, 3) then
         SetFont(args)
+    elseif cmd:lower() == 'timeranchor' and WithinRange(#args, 1, 2) then
+        LBA.SetOption('timerAnchor', args[1])
+        if args[2] then LBA.SetOption('timerAdjust', args[2]) end
     elseif cmd:lower() == 'aura' then
         AuraCommand(argstr)
     elseif cmd:lower() == 'deny' then
