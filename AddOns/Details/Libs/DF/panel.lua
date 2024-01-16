@@ -1483,40 +1483,94 @@ end
 
 
 ------------color pick
-local color_pick_func = function()
-	local r, g, b = ColorPickerFrame:GetColorRGB()
-	local a = OpacitySliderFrame:GetValue()
-	ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+local _, _, _, toc = GetBuildInfo()
+if (toc >= 100205) then
+	local color_pick_func = function(...)
+		local r, g, b = ColorPickerFrame:GetColorRGB()
+		local a = ColorPickerFrame:GetColorAlpha()
+		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+	end
+
+	local color_pick_func_cancel = function()
+		local r, g, b, a = ColorPickerFrame.previousValues.r, ColorPickerFrame.previousValues.g, ColorPickerFrame.previousValues.b, ColorPickerFrame.previousValues.a
+		ColorPickerFrame.Content.ColorPicker:SetColorRGB(r, g, b)
+		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+	end
+
+	function detailsFramework:ColorPick(frame, r, g, b, alpha, callback)
+
+		ColorPickerFrame:ClearAllPoints()
+		ColorPickerFrame:SetPoint("bottomleft", frame, "topright", 0, 0)
+
+		ColorPickerFrame.dcallback = callback
+		ColorPickerFrame.dframe = frame
+
+		ColorPickerFrame.func = color_pick_func
+		ColorPickerFrame.opacityFunc = color_pick_func
+		ColorPickerFrame.cancelFunc = color_pick_func_cancel
+
+		ColorPickerFrame.opacity = alpha
+		ColorPickerFrame.hasOpacity = alpha and true
+
+		ColorPickerFrame.previousValues = {r, g, b}
+		ColorPickerFrame.previousAlpha = alpha
+		ColorPickerFrame:SetParent(UIParent)
+		ColorPickerFrame:SetFrameStrata("tooltip")
+
+		local info = {
+			swatchFunc = color_pick_func,
+			hasOpacity = alpha and true,
+			opacityFunc = color_pick_func,
+			opacity = alpha,
+			previousValues = {r = r, g = g, b = b, a = alpha},
+			cancelFunc = color_pick_func_cancel,
+			r = r,
+			g = g,
+			b = b,
+		}
+		--OpenColorPicker(info)
+		ColorPickerFrame:SetupColorPickerAndShow(info)
+
+	end
+else
+	local color_pick_func = function()
+		local r, g, b = ColorPickerFrame:GetColorRGB()
+		local a = OpacitySliderFrame:GetValue()
+		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+	end
+	local color_pick_func_cancel = function()
+		ColorPickerFrame:SetColorRGB (unpack(ColorPickerFrame.previousValues))
+		local r, g, b = ColorPickerFrame:GetColorRGB()
+		local a = OpacitySliderFrame:GetValue()
+		ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
+	end
+
+	function detailsFramework:ColorPick (frame, r, g, b, alpha, callback)
+
+		ColorPickerFrame:ClearAllPoints()
+		ColorPickerFrame:SetPoint("bottomleft", frame, "topright", 0, 0)
+
+		ColorPickerFrame.dcallback = callback
+		ColorPickerFrame.dframe = frame
+
+		ColorPickerFrame.func = color_pick_func
+		ColorPickerFrame.opacityFunc = color_pick_func
+		ColorPickerFrame.cancelFunc = color_pick_func_cancel
+
+		ColorPickerFrame.opacity = alpha
+		ColorPickerFrame.hasOpacity = alpha and true
+
+		ColorPickerFrame.previousValues = {r, g, b}
+		ColorPickerFrame:SetParent(UIParent)
+		ColorPickerFrame:SetFrameStrata("tooltip")
+		ColorPickerFrame:SetColorRGB (r, g, b)
+		ColorPickerFrame:Show()
+	end
 end
-local color_pick_func_cancel = function()
-	ColorPickerFrame:SetColorRGB (unpack(ColorPickerFrame.previousValues))
-	local r, g, b = ColorPickerFrame:GetColorRGB()
-	local a = OpacitySliderFrame:GetValue()
-	ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
-end
 
-function detailsFramework:ColorPick (frame, r, g, b, alpha, callback)
 
-	ColorPickerFrame:ClearAllPoints()
-	ColorPickerFrame:SetPoint("bottomleft", frame, "topright", 0, 0)
 
-	ColorPickerFrame.dcallback = callback
-	ColorPickerFrame.dframe = frame
 
-	ColorPickerFrame.func = color_pick_func
-	ColorPickerFrame.opacityFunc = color_pick_func
-	ColorPickerFrame.cancelFunc = color_pick_func_cancel
-
-	ColorPickerFrame.opacity = alpha
-	ColorPickerFrame.hasOpacity = alpha and true
-
-	ColorPickerFrame.previousValues = {r, g, b}
-	ColorPickerFrame:SetParent(UIParent)
-	ColorPickerFrame:SetFrameStrata("tooltip")
-	ColorPickerFrame:SetColorRGB (r, g, b)
-	ColorPickerFrame:Show()
-
-end
 
 ------------icon pick
 function detailsFramework:IconPick (callback, close_when_select, param1, param2)
@@ -4079,9 +4133,25 @@ detailsFramework.RadioGroupCoreFunctions = {
 		local checkbox = detailsFramework:CreateSwitch(self, function()end, false)
 		checkbox:SetTemplate(detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE"))
 		checkbox:SetAsCheckBox()
+
+		if (self.options.rounded_corner_preset) then
+			checkbox:SetBackdrop(nil)
+			detailsFramework:AddRoundedCornersToFrame(checkbox, self.options.rounded_corner_preset)
+		end
+
+		if (self.options.checked_texture) then
+			checkbox:SetCheckedTexture(self.options.checked_texture, self.options.checked_texture_offset_x, self.options.checked_texture_offset_y)
+		end
+
 		checkbox.Icon = detailsFramework:CreateImage(checkbox, "", 16, 16)
 		checkbox.Label = detailsFramework:CreateLabel(checkbox, "")
 		self.allCheckBoxes[#self.allCheckBoxes + 1] = checkbox
+
+		if (self.options.on_create_checkbox) then
+			--use dispatch
+			detailsFramework:QuickDispatch(self.options.on_create_checkbox, self, checkbox)
+		end
+
 		return checkbox
 	end,
 
@@ -4107,6 +4177,10 @@ detailsFramework.RadioGroupCoreFunctions = {
 		if (checkbox._callback) then
 			detailsFramework:QuickDispatch(checkbox._callback, fixedParam, checkbox._optionid)
 		end
+
+		if (radioGroup.options.on_click_option) then
+			detailsFramework:QuickDispatch(radioGroup.options.on_click_option, radioGroup, checkbox, fixedParam, checkbox._optionid)
+		end
 	end,
 
 	RefreshCheckbox = function(self, checkbox, optionTable, optionId)
@@ -4123,8 +4197,8 @@ detailsFramework.RadioGroupCoreFunctions = {
 		checkbox._optionid = optionId
 		checkbox:SetFixedParameter(optionTable.param or optionId)
 
-		local isChecked = type(optionTable.get) == "function" and detailsFramework:Dispatch(optionTable.get) or false
-		checkbox:SetValue(isChecked)
+		local bIsChecked = type(optionTable.get) == "function" and detailsFramework:Dispatch(optionTable.get) or false
+		checkbox:SetValue(bIsChecked)
 
 		checkbox.Label.text = optionTable.name
 		checkbox.Label.textsize = optionTable.text_size or self.options.text_size
@@ -4134,7 +4208,7 @@ detailsFramework.RadioGroupCoreFunctions = {
 		if (optionTable.texture) then
 			checkbox.Icon:SetTexture(optionTable.texture)
 			checkbox.Icon:SetSize(width, height)
-			checkbox.Icon:SetPoint("left", checkbox, "right", 2, 0)
+			checkbox.Icon:SetPoint("left", checkbox, "right", self.AnchorOptions.icon_offset_x, 0)
 			checkbox.Label:SetPoint("left", checkbox.Icon, "right", 2, 0)
 			checkbox.tooltip = optionTable.tooltip
 
@@ -4142,6 +4216,12 @@ detailsFramework.RadioGroupCoreFunctions = {
 				checkbox.Icon:SetTexCoord(unpack(optionTable.texcoord))
 			else
 				checkbox.Icon:SetTexCoord(0, 1, 0, 1)
+			end
+
+			if (optionTable.mask) then
+				checkbox.Icon:SetMask(optionTable.mask)
+			else
+				checkbox.Icon:SetMask(nil)
 			end
 		else
 			checkbox.Icon:SetTexture("")
@@ -4177,7 +4257,19 @@ detailsFramework.RadioGroupCoreFunctions = {
 			totalWidth = math.max(self.AnchorOptions.min_width * #radioOptions, totalWidth)
 		end
 
-		self:SetSize(totalWidth, maxHeight)
+		if (not self.AnchorOptions.width) then
+			self:SetWidth(totalWidth)
+		else
+			self:SetWidth(self.AnchorOptions.width)
+		end
+
+		if (not self.AnchorOptions.height) then
+			self:SetHeight(maxHeight)
+		else
+			self:SetHeight(self.AnchorOptions.height)
+		end
+
+		self.AnchorOptions.start_y = -5
 
 		--sending false to automatically use the radio group children
 		self:ArrangeFrames(false, self.AnchorOptions)
