@@ -9,7 +9,7 @@ local function UpdateLoot()
 
 	Addon.API.UpdateCatalystLoot();
 
-	if (Addon.SELECTED_SLOT_ID == -1) then
+	if (KEYSTONE_LOOT_CHAR_DB.SELECTED_SLOT_ID == -1) then
 		for _, InstanceFrame in next, Addon.GetInstanceFrames() do
 			local numLoot = 0;
 			local instanceFavorites = Addon.API.GetFavorites(InstanceFrame.mapID);
@@ -53,8 +53,8 @@ local function UpdateLoot()
 	EJ_SelectTier(mythicTierID);
 	EJ_SetDifficulty(DifficultyUtil.ID.DungeonChallenge);
 
-	EJ_SetLootFilter(Addon.SELECTED_CLASS_ID, Addon.SELECTED_SPEC_ID);
-	C_EncounterJournal.SetSlotFilter(Addon.SELECTED_SLOT_ID);
+	EJ_SetLootFilter(KEYSTONE_LOOT_CHAR_DB.SELECTED_CLASS_ID, KEYSTONE_LOOT_CHAR_DB.SELECTED_SPEC_ID);
+	C_EncounterJournal.SetSlotFilter(KEYSTONE_LOOT_CHAR_DB.SELECTED_SLOT_ID);
 
 	for _, InstanceFrame in next, Addon.GetInstanceFrames() do
 		local instanceID = InstanceFrame.instanceID;
@@ -72,7 +72,7 @@ local function UpdateLoot()
 			local itemSkip = false;
 
 			if (
-				(mapID == 463 and (encounterID == 2526 or encounterID == 2536 or encounterID == 2534 or encounterID == 2538)) or -- Fall brauch keine Items aus Rise
+				(mapID == 463 and (encounterID == 2526 or encounterID == 2536 or encounterID == 2533 or encounterID == 2534 or encounterID == 2538)) or -- Fall brauch keine Items aus Rise
 				(mapID == 464 and (encounterID == 2521 or encounterID == 2528 or encounterID == 2535 or encounterID == 2537)) -- Rise brauch keine Items aus Fall
 			) then
 				itemSkip = true;

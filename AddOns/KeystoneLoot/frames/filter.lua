@@ -12,10 +12,11 @@ local function OnClick(self)
 end
 
 
-local function CreateFilterButton(filterType, ListFunction)
+local function CreateFilterButton(filterType, ListFunction, InitFuntion)
 	local Button = CreateFrame('Button', nil, MainFrame, 'UIMenuButtonStretchTemplate');
 	Button.filterType = filterType;
 	Button.ListFunction = ListFunction;
+	Button.InitFuntion = InitFuntion;
 
 	Button:SetSize(110, 24);
 	Button:SetPoint('TOP', -55, -35);
