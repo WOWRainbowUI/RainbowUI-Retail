@@ -1,3 +1,7 @@
+Version 1.26
+
+- Updated for MDT 4.3.1.*
+
 Version 1.25
 
 - Added command to disable map animations
