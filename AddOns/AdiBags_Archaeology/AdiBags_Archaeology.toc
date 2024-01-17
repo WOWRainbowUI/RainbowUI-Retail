@@ -1,4 +1,4 @@
-## Interface: 100105
+## Interface: 100205
 ## Title: AdiBags - Archaeology
 ## Notes: Adds Archaeology items to AdiBags virtual groups
 ## Notes-ruRU: Добавляет предметы археологии в виртуальные группы AdiBags
@@ -11,11 +11,11 @@
 ## Notes-zhTW: 將考古項目添加到AdiBags虛擬組
 ## Notes-itIT: Aggiunge elementi di archeologia ai gruppi virtuali di AdiBags
 ## Notes-frFR: Ajoute des éléments d'archéologie aux groupes virtuels AdiBags
-## IconTexture: Interface\ICONS\Inv_misc_1h_blacksmithshovel_a_01
+## IconTexture: Interface\ICONS\Inv_misc_shovel_01
 
-## Version: 2.11
+## Version: 10.2-release2
 ## Author: Sygon_Paul
-## X-Date: 2023-07-11T19:44:07Z
+## X-Date: 2024-01-17T00:20:45Z
 ## X-License: Copyright © 2023 Paul Vandersypen, All Rights Reserved
 ## X-Category: Bags & Inventory
 ## Dependencies: AdiBags
