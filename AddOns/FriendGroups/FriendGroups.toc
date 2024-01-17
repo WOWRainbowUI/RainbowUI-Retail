@@ -1,0 +1,12 @@
+## Interface: 100200
+## Version: 10.2.0
+## Title: Friend Groups
+## Author: Mikeprod
+## Edited by Thainii
+## Edited by Hayato
+
+## Notes: Addon managing your contact list with groups
+## SavedVariables: FriendGroups_SavedVars
+
+FriendGroups.lua
+FriendGroups.xml
