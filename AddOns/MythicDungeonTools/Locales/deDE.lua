@@ -1414,7 +1414,7 @@ L["Olmyr the Enlightened"] = "Olmyr der Erleuchtete"
 L["Omega Buster"] = "Omegabrecher"
 L["Oozing Leftovers"] = "Triefende Ersatzteile"
 --[[Translation missing --]]
-L["Open an issue on GitHub"] = ""
+L["Open an issue on GitHub"] = "Open an issue on GitHub"
 L["Open MDI override options"] = "Öffne MDI Überschreibungs Optionen"
 L["openSettingsTooltip"] = "Klicken um EInstellungen zu öffnen"
 L["Opera Hall Balcony"] = "Balkon des Opernsaals"
@@ -1525,7 +1525,7 @@ L["Prison Gate"] = "Gefängnistor"
 L["Proto-Drake Handler"] = "Protodrachentierführer"
 L["Proto-Drake Rider"] = "Protodrachenreiter"
 --[[Translation missing --]]
-L["Provide feedback in Discord"] = ""
+L["Provide feedback in Discord"] = "Provide feedback in Discord"
 L["Pull Drop Clear Pull"] = "Pull leeren"
 L["Pull Drop Close"] = "Schließen"
 L["Pull Drop Color"] = "Farbe"
@@ -2256,7 +2256,7 @@ L["Urh Relic"] = "Relikt Urh"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "Verwende '/mdt reset' um die Standardposition und -skalierung von MDT wiederherzustellen."
 L["Use as a starting point:"] = "Als Startpunkt verwenden:"
 --[[Translation missing --]]
-L["Use forces count"] = ""
+L["Use forces count"] = "Use forces count in Sidebar"
 --[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
 --[[Translation missing --]]

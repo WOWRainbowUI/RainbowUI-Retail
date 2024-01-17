@@ -1531,7 +1531,7 @@ L["Olmyr the Enlightened"] = "깨달은 자 올미르"
 L["Omega Buster"] = "오메가 섬멸로봇"
 L["Oozing Leftovers"] = "진물 찌꺼기"
 --[[Translation missing --]]
-L["Open an issue on GitHub"] = ""
+L["Open an issue on GitHub"] = "Open an issue on GitHub"
 L["Open MDI override options"] = "MDI 옵션을 재정의 열기"
 L["openSettingsTooltip"] = "클릭하여 설정 열기"
 L["Opera Hall Balcony"] = "오페라 극장 발코니"
@@ -1643,7 +1643,7 @@ L["Prison Gate"] = "감옥 문"
 L["Proto-Drake Handler"] = "원시비룡 조련사"
 L["Proto-Drake Rider"] = "원시비룡 기수"
 --[[Translation missing --]]
-L["Provide feedback in Discord"] = ""
+L["Provide feedback in Discord"] = "Provide feedback in Discord"
 L["Pull Drop Clear Pull"] = "초기화"
 L["Pull Drop Close"] = "닫기"
 L["Pull Drop Color"] = "색깔"
@@ -2406,7 +2406,7 @@ L["Urh Relic"] = "우르 유물"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "MDT의 위치와 규모가 기본으로 리싯하도록 '/mdt reset' 하시면 됩니다"
 L["Use as a starting point:"] = "출발점으로 사용하기"
 --[[Translation missing --]]
-L["Use forces count"] = ""
+L["Use forces count"] = "Use forces count in Sidebar"
 --[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
 --[[Translation missing --]]

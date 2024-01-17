@@ -1,3 +1,17 @@
+- v4.3.3.0 (2024-01-17)
+  - Patch 10.2.5 update
+- v4.3.2.6 (2024-01-14)
+  - DOTI: Galakrond's Fall: Unlinked Timeslicer 4 and added patrol path
+- v4.3.2.5 (2024-01-11)
+  - settings frame should no longer erroneously persist after closing it
+- v4.3.2.4 (2024-01-07)
+  - styling fixes
+- v4.3.2.3 (2024-01-02)
+  - locale string fixes
+- v4.3.2.2 (2024-01-01)
+  - fixed an issue where pull outlines could persist after a pull was deleted
+- v4.3.2.1 (2023-12-29)
+  - VOTI Fakll: Remove Timestream Leech 12, move Timestream Leech 3 and remove its group link
 - v4.3.2.0 (2023-12-23)
   - VOTI Rise: G2 replaced wrongly placed magus with vanguard
 - v4.3.1.8 (2023-12-20)

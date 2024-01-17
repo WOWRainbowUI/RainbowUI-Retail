@@ -1531,7 +1531,7 @@ L["Olmyr the Enlightened"] = "Olmyr, o Iluminado"
 L["Omega Buster"] = "Detonador Ômega"
 L["Oozing Leftovers"] = "Restos Gosmentos"
 --[[Translation missing --]]
-L["Open an issue on GitHub"] = ""
+L["Open an issue on GitHub"] = "Open an issue on GitHub"
 L["Open MDI override options"] = "Abrir opções de substituição do MDI"
 --[[Translation missing --]]
 L["openSettingsTooltip"] = "Click to open settings"
@@ -1657,7 +1657,7 @@ L["Prison Gate"] = "Prison Gate"
 L["Proto-Drake Handler"] = "Tratador de Protodracos"
 L["Proto-Drake Rider"] = "Ginete de Protodraco"
 --[[Translation missing --]]
-L["Provide feedback in Discord"] = ""
+L["Provide feedback in Discord"] = "Provide feedback in Discord"
 --[[Translation missing --]]
 L["Pull Drop Clear Pull"] = "Clear Pull"
 --[[Translation missing --]]
@@ -2586,7 +2586,7 @@ L["Use /mdt reset to restore the default position and scale of MDT."] = "Use '/m
 --[[Translation missing --]]
 L["Use as a starting point:"] = "Use as a starting point:"
 --[[Translation missing --]]
-L["Use forces count"] = ""
+L["Use forces count"] = "Use forces count in Sidebar"
 --[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
 --[[Translation missing --]]
