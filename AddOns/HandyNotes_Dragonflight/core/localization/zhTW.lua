@@ -195,6 +195,8 @@ L['options_icons_rares_desc'] = '顯示稀有 NPC 的位置。'
 L['options_icons_rares'] = '稀有怪'
 L['options_icons_treasures_desc'] = '顯示隱藏寶藏的位置。'
 L['options_icons_treasures'] = '寶藏'
+L['options_icons_vendors_desc'] = '顯示商人的位置。'
+L['options_icons_vendors'] = '商人'
 
 
 ------------------------------------ FOCUS ------------------------------------
