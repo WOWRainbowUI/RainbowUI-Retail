@@ -1,5 +1,18 @@
 ## Revision History:
 
+#### v11 (January 17, 2024)
+-------------------------------
+* Added level requirements for the Portal to The Timeways and Portal to Central Encampment.
+* Removed quest requirement for the Portal to Central Encampment.
+* Updated ruRU by [DanzoGit](https://github.com/DanzoGit) [PR #9](https://github.com/Dathwada/handynotes-valdrakken/pull/9)
+* Bump .toc to 100205
+
+#### v10 (November 19, 2023)
+-------------------------------
+* Added Portal to The Timeways (Season 3)
+    * Removed Season 2 Portals (Season 2)
+* Updated zhCN by [nanjuekaien1](https://github.com/nanjuekaien1)
+
 #### v9 (November 11, 2023)
 -------------------------------
 * Added Portal to Central Encampment
