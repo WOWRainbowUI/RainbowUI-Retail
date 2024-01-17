@@ -1,10 +1,8 @@
 ------------------------------------------------------------------------
-r606 | Zimzarina | 2023-12-17 16:57:54 +0000 (Sun, 17 Dec 2023) | 1 line
+r608 | Zimzarina | 2024-01-16 17:24:55 +0000 (Tue, 16 Jan 2024) | 1 line
 Changed paths:
-   M /trunk/Modules/Forward.lua
-   M /trunk/Modules/OpenAll.lua
-   M /trunk/Modules/Select.lua
+   M /trunk/Postal.toc
 
-Blizzard has now moved the API GetContainerNumFreeSlots(bagID) in Classic to the C_Container space to match WotLK and Dragonflight. Updated Classic for this change to C_Container.GetContainerNumFreeSlots(bagID).
+TOC Update.
 ------------------------------------------------------------------------
 
