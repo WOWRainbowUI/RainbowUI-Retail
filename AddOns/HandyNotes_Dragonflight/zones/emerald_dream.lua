@@ -14,6 +14,7 @@ local NPC = ns.node.NPC
 local PT = ns.node.ProfessionTreasures
 local Rare = ns.node.Rare
 local Treasure = ns.node.Treasure
+local Vendor = ns.node.Vendor
 
 local Achievement = ns.reward.Achievement
 local Currency = ns.reward.Currency
@@ -231,7 +232,7 @@ map.nodes[37433171] = Rare({
     pois = {POI({38113211})} -- Entrance
 }) -- Isaqa
 
-map.nodes[40294916] = Rare({
+map.nodes[40685084] = Rare({
     id = 210046,
     quest = 78211,
     rewards = {
@@ -241,7 +242,13 @@ map.nodes[40294916] = Rare({
         Transmog({item = 208336, type = L['mail']}), -- Legguards of the Dreamsaber
         DG.Feral.KeenEyedDreamsaber -- Mark of the Keen-Eyed Dreamsaber
     },
-    pois = {Path({40294916, 39214992, 39535168, 40865209, 40545087, 40294916})}
+    pois = {
+        Path({
+            40685084, 40735079, 40795045, 40644967, 40424961, 39724906,
+            39424984, 39325061, 39505117, 39865164, 40215183, 40615183,
+            40825162, 40655100, 40685084
+        })
+    }
 }) -- Keen-eyed Cian
 
 map.nodes[41107328] = Rare({
@@ -869,7 +876,7 @@ map.nodes[37846926] = MoonkinHatchling({
     pois = {POI({37526855})} -- Entrance
 }) -- Peanut
 
-map.nodes[40407150] = MoonkinHatchling({
+map.nodes[40317156] = MoonkinHatchling({
     criteriaID = 62778,
     location = L['in_cave'],
     pois = {POI({38817158})} -- Entrance
@@ -880,7 +887,7 @@ map.nodes[36357161] = MoonkinHatchling({
     pois = {POI({36147092})} -- Entrance
 }) -- Squawkle
 
-map.nodes[38446930] = MoonkinHatchling({
+map.nodes[38446932] = MoonkinHatchling({
     criteriaID = 62786,
     location = L['in_cave'],
     pois = {POI({37536964})} -- Entrance
@@ -892,7 +899,7 @@ map.nodes[38757048] = MoonkinHatchling({
     pois = {POI({37536964})} -- Entrance
 }) -- Tickles
 
-map.nodes[37757026] = MoonkinHatchling({
+map.nodes[37777028] = MoonkinHatchling({
     criteriaID = 62781,
     location = L['in_cave'],
     pois = {POI({37536964})} -- Entrance
@@ -1046,7 +1053,13 @@ map.nodes[51555972] = Collectible({
         Item({item = 211414}), -- Blossoming Dreamtrove
         Item({item = 208047}), -- Gigantic Dreamseed
         Item({item = 208067}), -- Plump Dreamseed
-        Item({item = 208066}) -- Small Dreamseed
+        Item({item = 208066}), -- Small Dreamseed
+        Spacer(), Section('{npc:207554}' .. '  ' .. _G.LOOT), -- Verlann Timbercrush
+        Transmog({item = 210661, slot = L['cosmetic']}), -- Dreamcatcher's Crescent
+        Transmog({item = 210662, slot = L['cosmetic']}), -- Ochre Ornament of the Grove
+        Transmog({item = 210663, slot = L['cosmetic']}), -- Circlet of the Mother Tree
+        Transmog({item = 210664, slot = L['cosmetic']}), -- Frost Sapling's Adornment
+        Transmog({item = 210666, slot = L['cosmetic']}) -- Crest of the Seething Flamekeeper
     }
 })
 
@@ -1697,14 +1710,10 @@ map.nodes[58434177] = ElusiveCreature({
 }) -- Elusive Verdant Gladewarden
 
 -------------------------------------------------------------------------------
--------------------------------- MISCELLANEOUS --------------------------------
+----------------------------------- VENDORS -----------------------------------
 -------------------------------------------------------------------------------
 
------------------------------- VENDOR: SEEDBLOOM ------------------------------
-
-local SeedbloomVendor = Class('SeedbloomVendor', Collectible, {
-    icon = 'peg_bl',
-    scale = 2.0,
+local SeedbloomVendor = Class('SeedbloomVendor', Vendor, {
     note = L['sylvia_vendor_note'],
     rewards = {
         DG.Travel.BorealDreamtalon:Count('1'), --
@@ -1732,12 +1741,8 @@ local SeedbloomVendor = Class('SeedbloomVendor', Collectible, {
 map.nodes[59761689] = SeedbloomVendor({id = 211265}) -- Sylvia Whisperbloom <Dreamseed Botanist>
 map.nodes[49776211] = SeedbloomVendor({id = 212797}) -- Talisa Whisperbloom <Dreamseed Botanist>
 
----------------------------- VENDOR: DREAM ENERGY -----------------------------
-
-local Elianna = Class('Elianna', Collectible, {
+local Elianna = Class('Elianna', Vendor, {
     id = 211209,
-    icon = 'peg_bl',
-    scale = 2.0,
     requires = {ns.requirement.Reputation(2574, 5, true)},
     rewards = {
         Pet({item = 210785, id = 4310, count = '1'}), -- Snorr
@@ -1771,6 +1776,10 @@ function Elianna.getters:note()
 end
 
 map.nodes[50226180] = Elianna()
+
+-------------------------------------------------------------------------------
+-------------------------------- MISCELLANEOUS --------------------------------
+-------------------------------------------------------------------------------
 
 --------------------------- TOY: IMPROVISED LEAFBED ---------------------------
 
@@ -1985,3 +1994,32 @@ map.nodes[58305820] = NPC({
         })
     }
 }) -- Sul'raka
+
+-------------------- DEAMON HUNTER WARGLAIVES: ALARA'SHINU --------------------
+
+local Alarashinu = Class('Alarashinu', Collectible, {
+    icon = 5061798,
+    quest = {78606, 78622, 78623, 78660, 78677, 78678}, -- a hidden quest chain
+    questCount = true,
+    class = 'DEMONHUNTER',
+    rewards = {Transmog({item = 210961, type = L['warglaive']})} -- Alara'shinu
+})
+
+function Alarashinu.getters:note()
+    local n = L['alarashinu_note'] .. '\n'
+    n = n .. QuestStatus(self.quest[1], 1, L['alarashinu_note_stage1'], true)
+    n = n .. QuestStatus(self.quest[2], 2, L['alarashinu_note_stage2'], true)
+    n = n .. QuestStatus(self.quest[3], 3, L['alarashinu_note_stage3'], true)
+    n = n .. QuestStatus(self.quest[4], 4, L['alarashinu_note_stage4'], true)
+    n = n .. QuestStatus(self.quest[5], 5, L['alarashinu_note_stage5'], true)
+    n = n .. QuestStatus(self.quest[6], 6, L['alarashinu_note_stage6'], true)
+    return n .. '\n' .. L['alarashinu_note_end']
+end
+
+map.nodes[50536096] = Alarashinu({id = 213029}) -- Landeron Felfury
+
+local brokenshore = ns.maps[646] or Map({id = 646, settings = false})
+brokenshore.nodes[71674147] = Alarashinu({id = 213114}) -- Memory of Landeron Felfury
+
+local valsharah = ns.maps[641] or Map({id = 641, settings = false})
+valsharah.nodes[51185689] = Alarashinu({id = 213186}) -- Memory of Landeron Felfury

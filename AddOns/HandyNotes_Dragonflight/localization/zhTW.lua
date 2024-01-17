@@ -166,6 +166,15 @@ L['dreamsurge_sublabel'] = '{note:只有在 {location:夢境湧現} 在此區域
 L['celestine_vendor_note'] = '使用 {item:207026} 交換坐騎, 玩具, 寵物和塑形.'
 L['renewed_magmammoth_note'] = '從 {location:夢境湧現} 最後的首領收集20個 {item:209419} 來組合成 {item:192807}.'
 
+L['dragon_pepe_label'] = nil
+L['dragon_pepe_note'] = nil
+L['explorer_pepe_label'] = nil
+L['explorer_pepe_note'] = nil
+L['tuskarr_pepe_label'] = nil
+L['tuskarr_pepe_note'] = nil
+
+L['end_of_august'] = nil
+
 -------------------------------------------------------------------------------
 ------------------------------- THE AZURE SPAN --------------------------------
 -------------------------------------------------------------------------------
@@ -610,6 +619,8 @@ L['naszuro_temporal_conflux'] = '在龍雕像的頭上.'
 L['revival_catalyst_label'] = '重生育籃控制臺'
 L['revival_catalyst_note'] = '將非套裝裝備轉換為對應裝等語部位的套裝部件.'
 
+L['provisioner_aristta_note'] = nil
+
 -------------------------------------------------------------------------------
 ------------------------------ THE WAKING SHORE -------------------------------
 -------------------------------------------------------------------------------
@@ -869,7 +880,7 @@ L['reefbreaker_moruud_note'] = '將附近的6個 {npc:210089} 連到 {npc:209898
 L['splinterlimb_note'] = '在8層 {spell:420009} 減益後會變為敵對. 每一輪後會堆疊一層. 擊殺攻擊他的怪物可以讓他快點完成每輪.'
 L['surging_lasher_note'] = '在此區域有 {location:翡翠狂亂} 事件時會重生.'
 L['talthonei_ashwisper_note'] = '在附近的區域擊殺怪物直到被殺的怪物說"我會復仇的"來刷新稀有.'
-L['talthonei_ashwisper_wq_note'] = nil
+L['talthonei_ashwisper_wq_note'] = '{note:只有在世界任務 {wq:Portal Panic} 處於啟動時才會在此刷新.}'
 
 L['in_a_tree'] = '在一棵樹上.'
 L['inside_building'] = '在建築內.'
@@ -1022,6 +1033,15 @@ L['thorn_bear_note'] = '1. 殺掉 {npc:210977}, 並對著屍體使用 {item:2098
 L['nahqi_note'] = '需要 {item:211314} 才能對 {npc:210908} 使用 {spell:1515}, 這需要從坐騎 {item:210061} 上取得.\n\n{npc:210908}{npc:<Ember of Regrowth>} 在空中 {note:逆時鐘} 繞著 {location:埃達希爾} 飛行, 飛行一周花費17:30.\n最小刷新時間為30分鐘.\n\n{note:牠是{npc:靈獸}. 只有獸王獵可以馴服牠.}'
 
 L['sulraka_note'] = '{npc:210868}{npc:<Daughter of Kimbul>} 以 {note:逆時鐘方向} 在 {location:埃達希爾} 東方的區域巡邏, 花費17分鐘完成一周.\n最小刷新時間為30分鐘.\n\n在移動時會在後方留下會存在3分鐘的 {object:Heavy Tracks}.\n牠會一直潛行移動, 所以你必須要在全新的 {object:Heavy Tracks} 前方使用 {spell:1543} 來揭露牠.\n施放 {spell:257284} 和/或 {spell:187650} 然後再嘗試使用  {spell:1515}.\n\n{note:把牠困住或是揭露牠是很重要的, 因為即使受到攻擊 {npc:210868} 也不會停止移動. 牠可能會跑出 {spell:1543} 的範圍來取消技能.}\n\n{note:牠是{npc:靈獸}. 只有獸王獵可以馴服牠.}'
+
+L['alarashinu_note'] = nil
+L['alarashinu_note_stage1'] = nil
+L['alarashinu_note_stage2'] = nil
+L['alarashinu_note_stage3'] = nil
+L['alarashinu_note_stage4'] = nil
+L['alarashinu_note_stage5'] = nil
+L['alarashinu_note_stage6'] = nil
+L['alarashinu_note_end'] = nil
 
 -------------------------------------------------------------------------------
 ----------------------------- SECRETS OF AZEROTH ------------------------------
@@ -1242,3 +1262,31 @@ L['wr_dur_foil_01'] = '在一些補給箱後面.'
 
 L['options_icons_warcraft_rumble'] = '魔獸兵團'
 L['options_icons_warcraft_rumble_desc'] = '顯示為了 {object:魔獸兵團} 跨界促銷的 {object:兵團零錢袋} 和 {object:兵團錫箔包裝袋} 的位置.'
+
+-------------------------------------------------------------------------------
+--------------------------------- AMIRDRASSIL ---------------------------------
+-------------------------------------------------------------------------------
+
+L['kaldorei_backpack_label'] = nil
+L['kaldorei_bag_label'] = nil
+L['kaldorei_bedroll_label'] = nil
+L['kaldorei_dagger_label'] = nil
+L['kaldorei_horn_label'] = nil
+L['kaldorei_moon_bow_label'] = nil
+L['kaldorei_shield_label'] = nil
+L['kaldorei_spear_label'] = nil
+L['kaldorei_spyglass_label'] = nil
+
+L['blue_kaldorei_backpack_note'] = nil
+L['blue_kaldorei_bedroll_note'] = nil
+L['blue_kaldorei_pouch_note'] = nil
+L['kaldorei_bow_carver_note'] = nil
+L['kaldorei_sentinels_spyglass_note'] = nil
+L['night_elven_bow_note'] = nil
+L['night_elven_horn_note'] = nil
+L['night_elven_shield_note'] = nil
+L['night_elven_signal_note'] = nil
+L['night_elven_spear_note'] = nil
+L['violet_kaldorei_pouch_note'] = nil
+
+L['moon_priestess_lasara_note'] = nil
