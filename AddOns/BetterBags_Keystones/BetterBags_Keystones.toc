@@ -3,14 +3,14 @@
 ## Title: BetterBags - Keystones
 ## Notes: Adds a Mythic+ Keystones filter to BetterBags.
 ## Author: Avyiel
-## Version: v1.0.0
-## X-Date: 2024-01-10T07:20:01Z
+## Version: v1.0.1
+## X-Date: 2024-01-17T06:39:58Z
 ## IconTexture: Interface\Icons\inv_relics_hourglass
 
 ## DefaultState: Enabled
 ## Dependencies: BetterBags
 
-## X-Date: 2024-01-10T07:20:01Z
+## X-Date: 2024-01-17T06:39:58Z
 ## X-Category: Bags & Inventory
 ## X-License: MIT
 
