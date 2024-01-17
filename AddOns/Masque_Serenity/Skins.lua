@@ -13,7 +13,7 @@
 local MSQ = LibStub and LibStub("Masque", true)
 if not MSQ then return end
 
-local AddOn, Core = ...
+local _, Core = ...
 
 ----------------------------------------
 -- Internal
@@ -25,11 +25,11 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 100100
+local API_VERSION = 100105
 
 -- Skin Info
 local Authors = {"StormFX", "|cff999999Sairen|r"}
-local Version = "10.2.0"
+local Version = "10.2.5"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Serenity",
 	"https://www.curseforge.com/wow/addons/masque-serenity",
