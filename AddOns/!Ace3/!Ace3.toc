@@ -1,17 +1,18 @@
-## Interface: 100200
+## Interface: 100205
 
 ## Title: Lib: Ace3
 ## Notes: AddOn development framework
-## Title-zhTW: |cffffffff[不要關閉]|r Ace3 共用函式庫
-## Notes-zhTW: Lib: Ace3 |n|n大部分插件都會使用到的函式庫。|n|cffFF2D2D請千萬千萬不要關閉！|r
-## DefaultState: Enabled
 ## Author: Ace3 Development Team
 ## X-Website: http://www.wowace.com
 ## X-Category: Library
 ## X-Category-zhTW: 系統
 ## X-License: Limited BSD
-## Version: r1313
+## Version: r1318
 ## IconTexture: 135453
+
+## Title-zhTW: |cffffffff[不要關閉]|r Ace3 共用函式庫
+## Notes-zhTW: Lib: Ace3 |n|n大部分插件都會使用到的函式庫。|n|cffFF2D2D請千萬千萬不要關閉！|r
+## DefaultState: Enabled
 
 LibStub\LibStub.lua
 
