@@ -102,11 +102,8 @@ function RematchHeaderTeamListButtonMixin:FillGroup(groupID)
     end
 
     -- place badges (just preferences for now)
-    rematch.badges:ClearBadges(self.Badges)
-    if group.preferences then
-        rematch.badges:AddBadge(self.Badges,"preferences","RIGHT",self.Icon,"LEFT",-2,0,-1)
-        xoff = xoff - C.BADGE_SIZE - 1
-    end
+    local badgesWidth = rematch.badges:AddBadges(self.Badges,"groups",groupID,"RIGHT",self.Icon,"LEFT",-2,0,-1)
+    xoff = xoff - badgesWidth
 
     self.Text:SetPoint("BOTTOMRIGHT",xoff,2)
 end
@@ -119,7 +116,7 @@ function RematchHeaderTeamListButtonMixin:FillHeader(headerID)
     local list = self:GetParent():GetParent():GetParent() -- the autoscrollframe this belongs to
     self:SetExpanded(list:IsHeaderExpanded(self.headerID),list:IsSearching() or list:IsHeadersLocked())
     self.Text:SetText(rematch.utils:GetFormattedHeaderName(headerID))
-    rematch.badges:ClearBadges(self.Badges)
+    rematch.badges:ClearBadges(self.Badges) -- target headers don't have badges for now
     self.Icon:Hide()
     self.Border:Hide()
 end
@@ -242,7 +239,7 @@ function RematchNormalTeamListButtonMixin:FillTeam(teamID)
     -- favorite never moves nor affects position of other stuff
     self.Favorite:SetShown(team.favorite and true or false)
     -- notes
-    if team.notes then
+    if not settings.HideNotesBadges and team.notes then
         self.NotesButton:SetPoint("RIGHT",row1Right,0)
         self.NotesButton:Show()
         row1Right = row1Right - 21
@@ -250,15 +247,8 @@ function RematchNormalTeamListButtonMixin:FillTeam(teamID)
         self.NotesButton:Hide()
     end
     -- badges
-    rematch.badges:ClearBadges(self.Badges)
-    if team.targets then
-        rematch.badges:AddBadge(self.Badges,"targets","TOPRIGHT",self,"TOPRIGHT",row1Right,-8,-1)
-    end
-    if team.preferences then
-        rematch.badges:AddBadge(self.Badges,"preferences","TOPRIGHT",self,"TOPRIGHT",row1Right,-8,-1)
-    end
-    local extraBadges = rematch.badges:AddExtendedBadges(teamID,"teams",self.Badges,"TOPRIGHT",self,"TOPRIGHT",row1Right,-8,-1)
-    row1Right = row1Right - (team.targets and C.BADGE_SIZE+1 or 0) - (team.preferences and C.BADGE_SIZE+1 or 0) - ((C.BADGE_SIZE + 1)*extraBadges)
+    local badgesWidth = rematch.badges:AddBadges(self.Badges,"teams",teamID,"TOPRIGHT",self,"TOPRIGHT",row1Right,-8,-1)
+    row1Right = row1Right - badgesWidth
     -- win record never moves but if does it may affect position on right
     if settings.HideWinRecord or not team.winrecord or (team.winrecord.battles or 0)==0 then
         self.Wins:Hide()
@@ -331,12 +321,8 @@ function RematchNormalTeamListButtonMixin:FillTarget(targetID)
     end
     self.Back:SetPoint("TOPLEFT",0,-1)
     self.Back:SetPoint("BOTTOMRIGHT",right,0)
-    rematch.badges:ClearBadges(self.Badges)
-    if rematch.savedTargets[npcID] then
-        rematch.badges:AddBadge(self.Badges,"team","TOPRIGHT",self,"TOPRIGHT",right,-8,-1)
-    end
-    local extraBadges = rematch.badges:AddExtendedBadges(targetID,"targets",self.Badges,"TOPRIGHT",self,"TOPRIGHT",right,-8,-1)
-    right = right - (rematch.savedTargets[npcID] and (C.BADGE_SIZE+1) or 0) - (C.BADGE_SIZE + 1)*extraBadges
+    local badgesWidth = rematch.badges:AddBadges(self.Badges,"targets",npcID,"TOPRIGHT",self,"TOPRIGHT",right,-8,-1)
+    right = right - badgesWidth
     local name = rematch.utils:GetFormattedTargetName(targetID)
     local subName = rematch.targetInfo:GetQuestName(npcID)
     if subName and (subName==rematch.targetInfo:GetNpcName(npcID) or subName==C.CACHE_RETRIEVING) then
@@ -448,7 +434,7 @@ function RematchCompactTeamListButtonMixin:FillTeam(teamID)
         right = right - self.Wins:GetStringWidth() - 1
     end
     -- notes
-    if team.notes then
+    if not settings.HideNotesBadges and team.notes then
         self.NotesButton:SetPoint("RIGHT",right,0)
         self.NotesButton:Show()
         right = right - 21
@@ -456,15 +442,8 @@ function RematchCompactTeamListButtonMixin:FillTeam(teamID)
         self.NotesButton:Hide()
     end
     -- badges
-    rematch.badges:ClearBadges(self.Badges)
-    if team.targets then
-        rematch.badges:AddBadge(self.Badges,"targets","RIGHT",self,"RIGHT",right,0,-1)
-    end
-    if team.preferences then
-        rematch.badges:AddBadge(self.Badges,"preferences","RIGHT",self,"RIGHT",right,0,-1)
-    end
-    local extraBadges = rematch.badges:AddExtendedBadges(teamID,"teams",self.Badges,"RIGHT",self,"RIGHT",right,0,-1)
-    right = right - (team.targets and C.BADGE_SIZE+1 or 0) - (team.preferences and C.BADGE_SIZE+1 or 0) - ((C.BADGE_SIZE + 1)*extraBadges)
+    local badgesWidth = rematch.badges:AddBadges(self.Badges,"teams",teamID,"RIGHT",self,"RIGHT",right,0,-1)
+    right = right - badgesWidth
     -- at this point, all rightmost matter placed, right is now the min of the two (they're both negative)
     left = left + 4 -- plus 4 for text padding on left
     -- name
@@ -516,12 +495,8 @@ function RematchCompactTeamListButtonMixin:FillTarget(targetID)
     end
     self.Back:SetPoint("TOPLEFT",0,-1)
     self.Back:SetPoint("BOTTOMRIGHT",right,0)
-    rematch.badges:ClearBadges(self.Badges)
-    if rematch.savedTargets[npcID] then
-        rematch.badges:AddBadge(self.Badges,"team","RIGHT",self,"RIGHT",right,0,-1)
-    end
-    local extraBadges = rematch.badges:AddExtendedBadges(targetID,"targets",self.Badges,"RIGHT",self,"RIGHT",right,0,-1)
-    right = right - (rematch.savedTargets[npcID] and (C.BADGE_SIZE+1) or 0) - (C.BADGE_SIZE + 1)*extraBadges
+    local badgesWidth = rematch.badges:AddBadges(self.Badges,"targets",npcID,"RIGHT",self,"RIGHT",right,0,-1)
+    right = right - badgesWidth
     -- name
     self.Name:SetPoint("LEFT",left,0)
     self.Name:SetPoint("RIGHT",right,0)

@@ -49,33 +49,24 @@ local categories = {
 
 rematch.events:Register(rematch.summaryDialog,"PLAYER_LOGIN",function(self)
 
-    rematch.dialog:Register("PetSummary",{
+    rematch.dialog:Register("PetSummaryMinimized",{
         title = L["Pet Collection"],
         accept = OKAY,
-        minHeight = 264,
-        layouts={
+        minHeight = 275,
+        minimize = {nextState="maximize", nextDialog="PetSummary"},
+        layouts = {
             Default={"LayoutTabs","PetSummary"},
-            Types={"LayoutTabs","BarChartDropDown","BarChart"},
-            Sources={"LayoutTabs","BarChartDropDown","BarChart"},
-            Battles={"LayoutTabs","Spacer","BattleSummary","Spacer2","Text","Team"}
+            Types={"LayoutTabs","BarChartDropDown","Spacer","BarChart"},
+            Sources={"LayoutTabs","BarChartDropDown","Spacer","BarChart"},
+            Battles={"LayoutTabs","BattleSummary","TopTeams","CheckButton"}            
         },
         refreshFunc = function(self,info,subject,firstRun)
             if firstRun then
+                rematch.summaryDialog:FirstUseSetup()
+                settings.MinimizePetSummary = true -- hitting minimize button will set this
                 self.LayoutTabs:SetTabs({{"Summary","Default"},{"Pet Types","Types"},{"Sources","Sources"},{"Battles","Battles"}})
-                if not self.BarChartDropDown.isSetup then
-                    local menu = {}
-                    for i,info in ipairs(categories) do
-                        tinsert(menu,{text=info.name, value=i})
-                    end
-                    self.BarChartDropDown.DropDown:BasicSetup(menu,
-                        function(value)
-                            settings.BarChartCategory = value
-                            self.BarChart:Set(rematch.summaryDialog:GetChartData(rematch.dialog:GetOpenLayout()=="Types" and C.BARCHART_TYPES or C.BARCHART_SOURCES,settings.BarChartCategory or C.BARCHART_IN_JOURNAL))
-                        end
-                    )
-                    self.BarChartDropDown.DropDown:SetSelection(settings.BarChartCategory)
-                    self.BarChartDropDown.isSetup = true
-                end
+                self.CheckButton:SetText(L["Rank teams by percentage won"])
+                self.CheckButton:SetChecked(settings.RankWinsByPercent)
             end
             local layout = rematch.dialog:GetOpenLayout()
             if layout=="Default" then
@@ -85,17 +76,54 @@ rematch.events:Register(rematch.summaryDialog,"PLAYER_LOGIN",function(self)
             elseif layout=="Sources" then
                 self.BarChart:Set(rematch.summaryDialog:GetChartData(C.BARCHART_SOURCES,settings.BarChartCategory or C.BARCHART_IN_JOURNAL))
             elseif layout=="Battles" then
-                local teamID = self.BattleSummary:Fill()
-                if teamID and rematch.savedTeams[teamID].winrecord then
-                    self.Team:Fill(teamID)
-                    self.Text:SetText(format(L["Team with the most wins (%s%d\124r)"],C.HEX_GREEN,rematch.savedTeams[teamID].winrecord.wins))
-                    self.Team:Show()
-                else
-                    self.Team:Hide()
-                    self.Text:SetText("")
-                end
+                local stats = rematch.collectionInfo:GetWinStats(3)
+                self.BattleSummary:Fill(stats)
+                self.TopTeams:Fill(stats.topTeams)
+                self.TopTeams:SetShown(stats.teams and stats.teams>0) -- only show top teams if there are teams to show
             end
         end,
+        changeFunc = function(self,info,subject)
+            settings.RankWinsByPercent = self.CheckButton:GetChecked()
+            rematch.dialog:Refresh()
+        end        
+    })
+
+    rematch.dialog:Register("PetSummary",{
+        title = L["Pet Collection"],
+        accept = OKAY,
+        minHeight = 476, -- was 264 with summary on its own tab
+        minimize = {nextState="minimize", nextDialog="PetSummaryMinimized"},
+        layouts={
+            Default={"LayoutTabs","PetSummary","BarChartDropDown","BarChart"},
+            Sources={"LayoutTabs","PetSummary","BarChartDropDown","BarChart"},
+            Battles={"LayoutTabs","Spacer","BattleSummary","TopTeams","CheckButton"}
+        },
+        refreshFunc = function(self,info,subject,firstRun)
+            if firstRun then
+                rematch.summaryDialog:FirstUseSetup()
+                settings.MinimizePetSummary = false -- hitting minimize button will set this
+                self.LayoutTabs:SetTabs({{L["Pet Types"],"Default"},{L["Sources"],"Sources"},{L["Battles"],"Battles"}})
+                self.CheckButton:SetText(L["Rank teams by percentage won"])
+                self.CheckButton:SetChecked(settings.RankWinsByPercent)
+            end
+            local layout = rematch.dialog:GetOpenLayout()
+            if layout=="Default" then
+                rematch.summaryDialog:FillSummary()
+                self.BarChart:Set(rematch.summaryDialog:GetChartData(C.BARCHART_TYPES,settings.BarChartCategory or C.BARCHART_IN_JOURNAL))
+            elseif layout=="Sources" then
+                rematch.summaryDialog:FillSummary()
+                self.BarChart:Set(rematch.summaryDialog:GetChartData(C.BARCHART_SOURCES,settings.BarChartCategory or C.BARCHART_IN_JOURNAL))
+            elseif layout=="Battles" then
+                local stats = rematch.collectionInfo:GetWinStats(10)
+                self.BattleSummary:Fill(stats)
+                self.TopTeams:Fill(stats.topTeams)
+                self.TopTeams:SetShown(stats.teams and stats.teams>0) -- only show top teams if there are teams to show
+            end
+        end,
+        changeFunc = function(self,info,subject)
+            settings.RankWinsByPercent = self.CheckButton:GetChecked()
+            rematch.dialog:Refresh()
+        end
     })
 
     -- sets the labels to the summary dialog control
@@ -111,6 +139,31 @@ rematch.events:Register(rematch.summaryDialog,"PLAYER_LOGIN",function(self)
     end
 
 end)
+
+-- since many sessions may not use this dialog at all, any setup stuff for dialog controls is done here on first use
+function rematch.summaryDialog:FirstUseSetup()
+    if not self.isSetup then
+        self.isSetup = true
+        local menu = {}
+        for i,info in ipairs(categories) do
+            tinsert(menu,{text=info.name, value=i})
+        end
+        rematch.dialog.Canvas.BarChartDropDown.DropDown:BasicSetup(menu,
+            function(value)
+                settings.BarChartCategory = value
+                rematch.dialog.Canvas.BarChart:Set(rematch.summaryDialog:GetChartData(rematch.dialog:GetOpenLayout()=="Types" and C.BARCHART_TYPES or C.BARCHART_SOURCES,settings.BarChartCategory or C.BARCHART_IN_JOURNAL))
+            end
+        )
+        rematch.dialog.Canvas.BarChartDropDown.DropDown:SetSelection(settings.BarChartCategory)
+
+        rematch.dialog.Canvas.TopTeams.WinsLabel:SetText(L["Wins"])
+
+
+        rematch.dialog.Canvas.BattleSummary.WinLabel:SetText(L["Won"])
+        rematch.dialog.Canvas.BattleSummary.LossLabel:SetText(L["Lost"])
+        rematch.dialog.Canvas.BattleSummary.DrawLabel:SetText(L["Draw"])        
+    end
+end
 
 -- main tab of dialog, summary statistics of collection
 function rematch.summaryDialog:FillSummary()

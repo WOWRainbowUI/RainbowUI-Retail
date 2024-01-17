@@ -2,6 +2,120 @@
 
     <Script file="dialogMixins.lua"/>
 
+    <Texture name="RematchDialogPetHerderButtonTemplate" mixin="RematchTextureMouseMixin" virtual="true">
+        <Size x="26" y="26"/>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Texture>
+
+
+    <Button name="RematchDialogTopTeamsListButtonTemplate" mixin="RematchDialogTopTeamsListButtonMixin" registerForClicks="AnyUp" virtual="true">
+        <Size x="268" y="26"/>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <!-- background texture stretchable over most of the button (aside from pet icons) -->
+                <Texture parentKey="Back" file="Interface\AddOns\Rematch\textures\listbuttondark">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="90" y="-1"/>
+                        <Anchor point="BOTTOMRIGHT"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <FontString parentKey="Rank" inherits="GameFontHighlightSmall" justifyH="RIGHT" text="1.">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativePoint="LEFT" x="14" y="0"/>
+                    </Anchors>
+                </FontString>
+                <!-- border over the pet icons on the left -->
+                <Texture parentKey="Border" file="Interface\AddOns\Rematch\textures\teamborders">
+                    <Size x="72" y="26"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="18" y="0"/>
+                    </Anchors>
+                    <TexCoords left="0" right="0.28125" top="0.1875" bottom="0.2890625"/>
+                </Texture>
+                <FontString parentKey="Percent" inherits="GameFontNormalSmall" justifyH="RIGHT" text="100%">
+                    <Anchors>
+                        <Anchor point="RIGHT"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Wins" inherits="GameFontNormalSmall" justifyH="RIGHT" text="99999">
+                    <Anchors>
+                        <Anchor point="RIGHT" x="-30" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="Name" inherits="GameFontNormal" justifyH="LEFT" wordwrap="false" text="Team Name">
+                    <Anchors>
+                        <Anchor point="LEFT" relativeKey="$parent.Border" relativePoint="RIGHT" x="2" y="0"/>
+                        <Anchor point="RIGHT" relativeKey="$parent.Wins" relativePoint="LEFT" x="-2" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+            <Layer level="BORDER">
+                <Texture parentArray="Pets" mixin="RematchDialogTopTeamsListPetButtonMixin">
+                    <Size x="22" y="22"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="20" y="0"/>
+                    </Anchors>
+					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+					<KeyValues>
+						<KeyValue key="petSlot" value="1"/>
+					</KeyValues>
+                    <Scripts>
+                        <OnEnter method="OnEnter"/>
+                        <OnLeave method="OnLeave"/>
+                        <OnMouseDown method="OnMouseDown"/>
+                        <OnMouseUp method="OnMouseUp"/>
+                    </Scripts>
+                </Texture>
+                <Texture parentArray="Pets" mixin="RematchDialogTopTeamsListPetButtonMixin" file="Interface\Icons\INV_Misc_QuestionMark">
+                    <Size x="22" y="22"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="43" y="0"/>
+                    </Anchors>
+					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+					<KeyValues>
+						<KeyValue key="petSlot" value="2"/>
+					</KeyValues>
+                    <Scripts>
+                        <OnEnter method="OnEnter"/>
+                        <OnLeave method="OnLeave"/>
+                        <OnMouseDown method="OnMouseDown"/>
+                        <OnMouseUp method="OnMouseUp"/>
+                    </Scripts>
+                </Texture>
+                <Texture parentArray="Pets" mixin="RematchDialogTopTeamsListPetButtonMixin" file="Interface\Icons\INV_Misc_QuestionMark">
+                    <Size x="22" y="22"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="66" y="0"/>
+                    </Anchors>
+					<TexCoords left="0.075" right="0.925" top="0.075" bottom="0.925"/>
+					<KeyValues>
+						<KeyValue key="petSlot" value="3"/>
+					</KeyValues>
+                    <Scripts>
+                        <OnEnter method="OnEnter"/>
+                        <OnLeave method="OnLeave"/>
+                        <OnMouseDown method="OnMouseDown"/>
+                        <OnMouseUp method="OnMouseUp"/>
+                    </Scripts>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseDown method="OnMouseDown"/>
+            <OnMouseUp method="OnMouseUp"/>
+            <OnClick method="OnClick"/>
+        </Scripts>        
+    </Button>
+
     <Frame name="RematchDialogBarChartBarTemplate" virtual="true">
         <Size x="22" y="186"/>
         <Layers>
@@ -163,7 +277,7 @@
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="Back" file="Interface\AddOns\Rematch\textures\headers" setAllPoints="true">
-                    <TexCoords left="0" right="0.48046875" top="0" bottom="0.40625"/>
+                    <TexCoords left="0" right="0.494140625" top="0" bottom="0.40625"/>
                 </Texture>
             </Layer>
             <Layer level="BORDER">
@@ -183,7 +297,7 @@
                         <MaskedTexture childKey="Icon"/>
                     </MaskedTextures>
                 </MaskTexture>
-                <Texture parentArray="Badges">
+                <Texture parentArray="Badges" hidden="true">
                     <Size x="14" y="14"/>
                     <Anchors>
                         <Anchor point="RIGHT" relativeKey="$parent.Icon" relativePoint="LEFT" x="-1" y="-1"/>
@@ -369,6 +483,15 @@
             <Anchor point="CENTER"/>
         </Anchors>
         <Frames>
+            <!-- Minimize titlebar button in topright -->
+            <Button parentKey="MinimizeButton" inherits="RematchTitlebarButtonTemplate">
+                <Anchors>
+                    <Anchor point="TOPRIGHT" relativeKey="$parent.CloseButton" relativePoint="TOPLEFT" x="0" y="0"/>
+                </Anchors>
+                <KeyValues>
+                    <KeyValue key="icon" value="minimize"/>
+                </KeyValues>
+            </Button>
             <!-- Cancel panel button in bottomright -->
             <Button parentKey="CancelButton" mixin="RematchDialogPanelButtonMixin" inherits="RematchPanelButtonTemplate">
                 <Size x="96" y="23"/>
@@ -1271,9 +1394,9 @@
                                 </Anchors>
                             </EditBox>
                             <Frame parentKey="List" inherits="RematchAutoScrollBoxTemplate">
-                                <Size x="260" y="230"/>
+                                <Size x="253" y="230"/>
                                 <Anchors>
-                                    <Anchor point="TOP" x="0" y="-36"/>
+                                    <Anchor point="TOP" x="4" y="-36"/>
                                 </Anchors>
                             </Frame>
                         </Frames>
@@ -1558,14 +1681,14 @@
                                                 <Anchor point="LEFT" x="8" y="0"/>
                                                 <Anchor point="RIGHT" x="-8" y="0"/>
                                             </Anchors>
-                                            <TexCoords left="0.015625" right="0.46484375" top="0" bottom="0.40625"/>
+                                            <TexCoords left="0.015625" right="0.478515625" top="0" bottom="0.40625"/>
                                         </Texture>
                                         <Texture file="Interface\AddOns\Rematch\textures\headers">
                                             <Size x="8" y="26"/>
                                             <Anchors>
                                                 <Anchor point="RIGHT"/>
                                             </Anchors>
-                                            <TexCoords left="0.46484375" right="0.48046875" top="0" bottom="0.40625"/>
+                                            <TexCoords left="0.478515625" right="0.494140625" top="0" bottom="0.40625"/>
                                         </Texture>
                                     </Layer>
                                     <Layer level="BORDER">
@@ -1582,14 +1705,14 @@
                                                 <Anchor point="LEFT" x="8" y="0"/>
                                                 <Anchor point="RIGHT" x="-8" y="0"/>
                                             </Anchors>
-                                            <TexCoords left="0.015625" right="0.46484375" top="0" bottom="0.40625"/>
+                                            <TexCoords left="0.015625" right="0.478515625" top="0" bottom="0.40625"/>
                                         </Texture>
                                         <Texture parentArray="Highlights" file="Interface\AddOns\Rematch\textures\headers" alphaMode="ADD" alpha="0.5" hidden="true">
                                             <Size x="8" y="26"/>
                                             <Anchors>
                                                 <Anchor point="RIGHT"/>
                                             </Anchors>
-                                            <TexCoords left="0.46484375" right="0.48046875" top="0" bottom="0.40625"/>
+                                            <TexCoords left="0.478515625" right="0.494140625" top="0" bottom="0.40625"/>
                                         </Texture>
                                     </Layer>
                                     <Layer level="ARTWORK">
@@ -2276,8 +2399,182 @@
                                 </FontString>
                             </Layer>
                         </Layers>
+                    </Frame>
+
+                    <!-- list of top 10 teams for battle summary -->
+                    <Frame parentKey="TopTeams" mixin="RematchDialogTopTeamsMixin">
+                        <Size x="268" y="284"/>
+                        <KeyValues>
+                            <KeyValue key="fixedWidth" value="268" type="number"/>
+                        </KeyValues>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <FontString parentKey="TeamsLabel" inherits="GameFontNormal">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="20" y="-2"/>
+                                    </Anchors>
+                                </FontString>
+                                <FontString parentKey="WinsLabel" inherits="GameFontNormal">
+                                    <Anchors>
+                                        <Anchor point="TOPRIGHT" x="-20" y="-2"/>
+                                    </Anchors>
+                                </FontString>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Button parentArray="Buttons" inherits="RematchDialogTopTeamsListButtonTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPLEFT" x="0" y="-22"/>
+                                </Anchors>
+                            </Button>
+                        </Frames>
+                    </Frame>
+
+                    <!-- typebar-like grid of buttons to choose a Pet Herder action -->
+                    <Frame parentKey="PetHerderPicker" mixin="PetHerderPickerMixin">
+                        <Size x="199" y="67"/>
+                        <KeyValues>
+                            <KeyValue key="fixedWidth" value="199" type="number"/>
+                        </KeyValues>
+                        <Layers>
+                            <Layer level="ARTWORK">
+                                <Texture parentKey="Border" file="Interface\AddOns\Rematch\textures\typebar" setAllPoints="true">
+                                    <TexCoords left="0.611328125" right="1" top="0" bottom="0.26171875"/>
+                                    <Color r="0.5" g="0.5" b="0.5"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="BORDER">
+                                <!-- cage -->
+                                <Texture parentArray="Buttons" file="Interface\Icons\INV_Box_PetCarrier_01" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="4" y="-4"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="cage"/>
+                                    </KeyValues>
+                					<TexCoords left="0.0625" right="0.9375" top="0.0625" bottom="0.9375"/>
+                                </Texture>
+                                <!-- favorite -->
+                                <Texture parentArray="Buttons" file="Interface\Icons\Achievement_GuildPerk_MrPopularity" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="37" y="-4"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="favorite"/>
+                                    </KeyValues>
+                					<TexCoords left="0.0625" right="0.9375" top="0.0625" bottom="0.9375"/>
+                                </Texture>
+                                <!-- leveling -->
+                                <Texture parentArray="Buttons" file="Interface\AddOns\Rematch\textures\levelingicon" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="70" y="-4"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="leveling"/>
+                                    </KeyValues>
+                					<TexCoords left="0.0625" right="0.9375" top="0.0625" bottom="0.9375"/>
+                                </Texture>
+                                <!-- marker:8 skull -->
+                                <Texture parentArray="Buttons" file="Interface\TargetingFrame\UI-RaidTargetingIcons" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="103" y="-4"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:8"/>
+                                    </KeyValues>
+                                    <TexCoords left="0.75" right="1" top="0.25" bottom="0.5"/>
+                                </Texture>
+                                <!-- marker:7 cross -->
+                                <Texture parentArray="Buttons" file="Interface\TargetingFrame\UI-RaidTargetingIcons" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="136" y="-4"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:7"/>
+                                    </KeyValues>
+                                    <TexCoords left="0.5" right="0.75" top="0.25" bottom="0.5"/>
+                                </Texture>
+                                <!-- marker:6 square -->
+                                <Texture parentArray="Buttons" file="Interface\TargetingFrame\UI-RaidTargetingIcons" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="169" y="-4"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:6"/>
+                                    </KeyValues>
+                                    <TexCoords left="0.25" right="0.5" top="0.25" bottom="0.5"/>
+                                </Texture>
+                                <!-- marker:5 moon -->
+                                <Texture parentArray="Buttons" file="Interface\TargetingFrame\UI-RaidTargetingIcons" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="4" y="-37"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:5"/>
+                                    </KeyValues>
+                                    <TexCoords left="0" right="0.25" top="0.25" bottom="0.5"/>
+                                </Texture>
+                                <!-- marker:4 triangle -->
+                                <Texture parentArray="Buttons" file="Interface\TargetingFrame\UI-RaidTargetingIcons" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="37" y="-37"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:4"/>
+                                    </KeyValues>
+                                    <TexCoords left="0.75" right="1" top="0" bottom="0.25"/>
+                                </Texture>
+                                <!-- marker:3 diamond -->
+                                <Texture parentArray="Buttons" file="Interface\TargetingFrame\UI-RaidTargetingIcons" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="70" y="-37"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:3"/>
+                                    </KeyValues>
+                                    <TexCoords left="0.5" right="0.75" top="0" bottom="0.25"/>
+                                </Texture>
+                                <!-- marker:2 circle -->
+                                <Texture parentArray="Buttons" file="Interface\TargetingFrame\UI-RaidTargetingIcons" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="103" y="-37"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:2"/>
+                                    </KeyValues>
+                                    <TexCoords left="0.25" right="0.5" top="0" bottom="0.25"/>
+                                </Texture>
+                                <!-- marker:1 star -->
+                                <Texture parentArray="Buttons" file="Interface\TargetingFrame\UI-RaidTargetingIcons" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="136" y="-37"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:1"/>
+                                    </KeyValues>
+                                    <TexCoords left="0" right="0.25" top="0" bottom="0.25"/>
+                                </Texture>
+                                <!-- marker:0 remove markers -->
+                                <Texture parentArray="Buttons" file="Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent" inherits="RematchDialogPetHerderButtonTemplate">
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT" x="169" y="-37"/>
+                                    </Anchors>
+                                    <KeyValues>
+                                        <KeyValue key="actionID" value="marker:0"/>
+                                    </KeyValues>
+                					<TexCoords left="0.0625" right="0.9375" top="0.0625" bottom="0.9375"/>
+                                </Texture>
+                            </Layer>
+                            <Layer level="OVERLAY">
+                                <Texture parentKey="Selected" desaturated="true" file="Interface\Buttons\CheckButtonHilight" alphaMode="ADD" alpha="0.75">
+                                    <Size x="32" y="32"/>
+                                    <Color r="1.0" g="1.0" b="0.5"/>
+                                </Texture>
+                            </Layer>
+                        </Layers>
                         <Scripts>
-                            <OnLoad method="OnLoad"/>
+                            <OnShow method="OnShow"/>
+                            <OnHide method="OnHide"/>
                         </Scripts>
                     </Frame>
 

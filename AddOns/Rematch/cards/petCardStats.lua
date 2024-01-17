@@ -310,6 +310,24 @@ rematch.petCardStats = {
             return settings.ShowSpeciesID and not petInfo.isSpecialType
         end
     },
+    -- Notes
+    {
+        icon = "Interface\\AddOns\\Rematch\\textures\\notesmicrobutton",
+        iconCoords = {0,0.5,0,1},
+        value = L["Notes"],
+        show = function(self,petInfo)
+            return petInfo.hasNotes
+        end,
+        enter = function(self,petInfo)
+            rematch.cardManager:OnEnter(rematch.notes,self,petInfo.petID)
+        end,
+        leave = function(self,petInfo)
+            rematch.cardManager:OnLeave(rematch.notes,self,petInfo.petID)
+        end,
+        click = function(self,petInfo)
+            rematch.cardManager:OnClick(rematch.notes,self,petInfo.petID)
+        end
+    },
     -- Search
     {
         icon = "Interface\\Minimap\\Tracking\\None",

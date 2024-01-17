@@ -123,7 +123,9 @@ end
 
 -- click of filter button in topright to summon filter menu
 function rematch.petsPanel.Top.FilterButton:OnClick(button)
-    rematch.dialog:HideDialog()
+    if rematch.dialog:GetOpenDialog()~="PetHerder" then
+        rematch.dialog:HideDialog()
+    end
     rematch.menus:Toggle("PetFilterMenu",self)
 end
 

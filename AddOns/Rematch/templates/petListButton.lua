@@ -16,6 +16,10 @@ function RematchCommonPetListButtonMixin:OnEnter()
             rematch.tooltip:ShowSimpleTooltip(self,nil,L["This pet cannot level.\n\nIt can't be added to the leveling queue."],"cursor")
         end
     end
+    -- if pet herder is up and action chosen, then we're targeting a pet to do something
+    if rematch.petHerder:IsTargeting() then
+        rematch.petHerder:SetCursorForPetID(self.petID)
+    end
 end
 
 function RematchCommonPetListButtonMixin:OnLeave()
@@ -23,6 +27,8 @@ function RematchCommonPetListButtonMixin:OnLeave()
     if GetMouseFocus()~=self.Icon then -- don't dismiss card if moving onto pet button
         rematch.cardManager:OnLeave(rematch.petCard,self,self.petID)
     end
+    SetCursor(nil)
+    rematch.dialog.Canvas.PetHerderPicker.petID = nil
     rematch.tooltip:Hide()
 end
 
@@ -37,7 +43,13 @@ function RematchCommonPetListButtonMixin:OnMouseUp(button)
 end
 
 function RematchCommonPetListButtonMixin:OnClick(button)
-    if rematch.petInfo:Fetch(self.petID).needsFanfare then -- for wrapped pets, show pet card (maximized)
+    if rematch.petHerder:IsTargeting() then -- targeting with pet herder takes priority on clicks
+        if button=="RightButton" then
+            rematch.dialog:Hide()
+        else
+            rematch.petHerder:HerdPetID(self.petID)
+        end
+    elseif rematch.petInfo:Fetch(self.petID).needsFanfare then -- for wrapped pets, show pet card (maximized)
         if settings.PetCardMinimized then
             settings.PetCardMinimized = false
             rematch.petCard:Configure()
@@ -79,7 +91,7 @@ RematchNormalPetListButtonMixin = {}
 function RematchNormalPetListButtonMixin:Fill(petID,dim)
     local petInfo = rematch.petInfo:Fetch(petID)
     self.petID = petID
-    local notesWidth, breedWidth, badgesWidth = 0,0,0
+    local notesWidth, breedWidth = 0,0
     local tint = dim and "grey" or petInfo.tint
 
     -- fill pet icon and its related textures (border, favorite, level, status)
@@ -98,7 +110,7 @@ function RematchNormalPetListButtonMixin:Fill(petID,dim)
     end
 
     -- notes button is always in the same place, a 20x20 button at -3,-3 from topright
-    if petInfo.hasNotes then
+    if not settings.HideNotesBadges and petInfo.hasNotes then
         self.NotesButton:Show()
         notesWidth = 24
     else
@@ -108,6 +120,7 @@ function RematchNormalPetListButtonMixin:Fill(petID,dim)
 
     -- breed
     if petInfo.breedName and (not settings.HideBreedsLists or self.alwaysShowBreed) then
+        self.Breed:SetFontObject(settings.LargerBreedText and "GameFontNormal" or "GameFontNormalSmall")
         self.Breed:SetText(petInfo.breedName)
         self.Breed:Show()
         breedWidth = 28 -- breed is centered at bottomright -14,12; so width is 14*2 = 28
@@ -116,27 +129,8 @@ function RematchNormalPetListButtonMixin:Fill(petID,dim)
     end
 
     -- place badges
-    rematch.badges:ClearBadges(self.Badges)
     local badgeXoff = -1-notesWidth -- right xoffset is depending on notes shown
-
-    if not self.forQueue and petInfo.isLeveling then
-        rematch.badges:AddBadge(self.Badges,"leveling","TOPRIGHT",self,"TOPRIGHT",badgeXoff,-8,-1)
-        badgesWidth = badgesWidth + C.BADGE_SIZE + 1
-    end
-    if petInfo.inTeams then
-        rematch.badges:AddBadge(self.Badges,"team","TOPRIGHT",self,"TOPRIGHT",badgeXoff,-8,-1)
-        badgesWidth = badgesWidth + C.BADGE_SIZE + 1
-    end
-    if petInfo.marker then
-        rematch.badges:AddBadge(self.Badges,"marker"..petInfo.marker,"TOPRIGHT",self,"TOPRIGHT",badgeXoff,-8,-1)
-        badgesWidth = badgesWidth + C.BADGE_SIZE + 1
-    end
-    if petInfo.isStickied then
-        rematch.badges:AddBadge(self.Badges,"new","TOPRIGHT",self,"TOPRIGHT",badgeXoff,-8,-1)
-        badgesWidth = badgesWidth + C.BADGE_SIZE + 1
-    end
-    local extraBadges = rematch.badges:AddExtendedBadges(petID,"pets",self.Badges,"TOPRIGHT",self,"TOPRIGHT",badgeXoff,-8,-1)
-    badgesWidth = badgesWidth + (C.BADGE_SIZE + 1)*extraBadges
+    local badgesWidth = rematch.badges:AddBadges(self.Badges,"pets",petID,"TOPRIGHT",self,"TOPRIGHT",badgeXoff,-8,-1)
 
     local left = 50 -- in normal mode, names begin 50px from left due to icon and a little padding for level bubble
     local right = -(4 + max(notesWidth+badgesWidth,breedWidth))
@@ -199,6 +193,7 @@ function RematchCompactPetListButtonMixin:Fill(petID,dim)
     end
 
     if petInfo.breedName and not settings.HideBreedsLists then
+        self.Breed:SetFontObject(settings.LargerBreedText and "GameFontHighlight" or "GameFontHighlightSmall")
         self.Breed:SetText(petInfo.breedName)
         self.Breed:Show()
     else
@@ -206,7 +201,7 @@ function RematchCompactPetListButtonMixin:Fill(petID,dim)
     end
 
     -- show notes button
-    if petInfo.hasNotes then
+    if not settings.HideNotesBadges and petInfo.hasNotes then
         self.NotesButton:Show()
         self.Badges[1]:SetPoint("RIGHT",self.NotesButton,"LEFT",-2,0)
         right = right - 20 - 2
@@ -216,27 +211,10 @@ function RematchCompactPetListButtonMixin:Fill(petID,dim)
     end
 
     -- place badges
-    rematch.badges:ClearBadges(self.Badges)
     local badgeXoff = right -- right xoffset is depending on notes shown
+    local badgesWidth = rematch.badges:AddBadges(self.Badges,"pets",petID,"TOPRIGHT",self,"TOPRIGHT",badgeXoff,-7,-1)
 
-    if not self.forQueue and petInfo.isLeveling then
-        rematch.badges:AddBadge(self.Badges,"leveling","TOPRIGHT",self,"TOPRIGHT",badgeXoff,-7,-1)
-        right = right - C.BADGE_SIZE - 1
-    end
-    if petInfo.inTeams then
-        rematch.badges:AddBadge(self.Badges,"team","TOPRIGHT",self,"TOPRIGHT",badgeXoff,-7,-1)
-        right = right - C.BADGE_SIZE - 1
-    end
-    if petInfo.marker then
-        rematch.badges:AddBadge(self.Badges,"marker"..petInfo.marker,"TOPRIGHT",self,"TOPRIGHT",badgeXoff,-7,-1)
-        right = right - C.BADGE_SIZE - 1
-    end
-    if petInfo.isStickied then
-        rematch.badges:AddBadge(self.Badges,"new","TOPRIGHT",self,"TOPRIGHT",badgeXoff,-7,-1)
-        right = right - C.BADGE_SIZE - 1
-    end
-    local extraBadges = rematch.badges:AddExtendedBadges(petID,"pets",self.Badges,"TOPRIGHT",self,"TOPRIGHT",badgeXoff,-8,-1)
-    right = right - (C.BADGE_SIZE + 1)*extraBadges
+    right = right - badgesWidth
 
     -- name
     self.PetName:SetPoint("RIGHT",right,0)

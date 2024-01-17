@@ -273,7 +273,13 @@ RematchQueueListButtonMixin = {}
 -- click override for queue listbutton: rightbutton for menu, if a pet that can level on cursor, receive in queue, otherwise pet card click
 function RematchQueueListButtonMixin:OnClick(button)
     local petID,canLevel = rematch.utils:GetPetCursorInfo(true)
-    if button=="RightButton" then
+    if rematch.petHerder:IsTargeting() then -- targeting with pet herder takes priority on clicks
+        if button=="RightButton" then
+            rematch.dialog:Hide()
+        else
+            rematch.petHerder:HerdPetID(self.petID)
+        end        
+    elseif button=="RightButton" then
         rematch.menus:Show("QueueListMenu",self,self.petID,"cursor")
     elseif petID and canLevel then
         self:OnReceiveDrag()

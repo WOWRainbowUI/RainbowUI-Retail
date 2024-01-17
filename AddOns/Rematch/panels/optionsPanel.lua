@@ -758,6 +758,9 @@ function rematch.optionsPanel.OptionsManagementWidget.ExportButton:OnClick()
         end
     end
     tinsert(results,"AllTeams="..rematch.utils:GetSize(rematch.savedTeams.AllTeams))
+    tinsert(results,"Version="..(C_AddOns.GetAddOnMetadata("Rematch","Version") or ""))
+    tinsert(results,"NumPets="..(rematch.roster:GetNumOwned() or ""))
+    tinsert(results,"NumTeams="..(rematch.savedTeams:GetNumTeams() or ""))
     table.sort(results)
 
     rematch.dialog:ShowDialog("ExportOptions",table.concat(results,"\n"))
@@ -765,6 +768,16 @@ end
 
 function rematch.optionsPanel.OptionsManagementWidget.ResetButton:OnClick()
     rematch.dialog:ShowDialog("ResetOptions")
+end
+
+-- sets up the CombineGroupKeyWidget and its dropdown control
+function rematch.optionsPanel.widgetSetup:CombineGroupKeyWidget()
+    self.tooltipTitle = L["Combine Groups Key"]
+    self.tooltipBody = L["While dragging a team group in the team list, holding this modifier key when you click another group will combine the two groups by moving all teams in the group on the cursor into the clicked group."]
+    self.Label:SetText(self.tooltipTitle..":")
+    self.DropDown:BasicSetup({{text="Alt Key", value="Alt"},{text="Shift Key", value="Shift"},{text="Ctrl Key", value="Ctrl"},{text="None", value="None"}},
+                            function(value) settings.CombineGroupKey=value rematch.petCard:Update() end)
+    self.DropDown:SetSelection(settings.CombineGroupKey)
 end
 
 --[[ widget updates ]]
@@ -832,6 +845,10 @@ function rematch.optionsPanel.widgetUpdate:UseCustomScaleWidget()
     self.Check:SetTexCoord(0+xoff,0.25+xoff,0.5,0.75)
     self.ScaleButton:SetShown(settings.CustomScale)
     self.ScaleButton:SetText(format("%d%%",settings.CustomScaleValue or 0))
+end
+
+function rematch.optionsPanel.widgetUpdate:CombineGroupKeyWidget()
+    self.DropDown:SetSelection(settings.CombineGroupKey)
 end
 
 -- resets all non-table options to default, sets non-table options in import to given values, then reloads the UI

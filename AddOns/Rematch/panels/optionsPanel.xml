@@ -140,6 +140,8 @@
             <Button parentKey="InteractOnMouseoverWidget" inherits="RematchOptionsDropDownTemplate"/>
             <!-- Notes Options: Notes Size -->
             <Button parentKey="NotesFontWidget" inherits="RematchOptionsDropDownTemplate"/>
+            <!-- Team Options: Combine Groups Key -->
+            <Button parentKey="CombineGroupKeyWidget" inherits="RematchOptionsDropDownTemplate"/>
 
             <!-- Standalone Window Options: Use Custom Scale -->
             <Button parentKey="UseCustomScaleWidget">

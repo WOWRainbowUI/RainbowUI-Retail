@@ -6,6 +6,63 @@ rematch.dragFrame = RematchDragFrame
 
 --[[ for dragging teams, groups (and maybe targets) ]]
 
+rematch.events:Register(rematch.dragFrame,"PLAYER_LOGIN",function(self)
+
+    -- confirmation to combine groups (move from one to another and delete old)
+    -- note: there's no option to auto-confirm since this involves multiple teams, probably will be a rare event,
+    -- and it would not give an option to not delete the old group
+    rematch.dialog:Register("CombineGroups",{
+        title = L["Combine Groups"],
+        accept = YES,
+        cancel = NO,
+        prompt = L["Combine team groups?"],
+        layout = {"Text","CheckButton","Help"},
+        refreshFunc = function(self,info,subject,firstRun)
+            -- neither group:favorites or group:none can be deleted, they can just be emptied
+            local cantDelete = subject.fromID=="group:favorites" or subject.fromID=="group:none"
+            local instructions = cantDelete and L["This will move all teams from %s to %s, leaving the %s group empty."] or L["This will move all teams from %s to %s and then delete the emptied %s group afterwards."]
+            local fromName = rematch.utils:GetFormattedGroupName(subject.fromID)
+            local toName = rematch.utils:GetFormattedGroupName(subject.toID)
+            self.Text:SetText(format(instructions,fromName,toName,fromName))
+            self.CheckButton:SetText(L["Don't Delete Empty Group"])
+            self.Help:SetText(L["You can also selectively move many teams with the Team Herder tool from the Teams button"])
+            self.CheckButton:SetChecked(settings.DontDeleteOnCombine or cantDelete)
+            self.CheckButton:SetEnabled(not cantDelete)
+        end,
+        changeFunc = function(self,info,subject)
+            settings.DontDeleteOnCombine = self.CheckButton:GetChecked()
+        end,
+        acceptFunc = function(self,info,subject)
+            if subject.fromID~=subject.toID and rematch.savedGroups[subject.fromID] and rematch.savedGroups[subject.toID] then
+                -- go through all teams and move any from fromID to toID
+                for teamID,team in rematch.savedTeams:AllTeams() do
+                    if team.groupID==subject.fromID then
+                        if subject.toID=="group:favorites" then -- moving team to favorites, save homeID
+                            team.homeID = team.groupID
+                            team.favorite = true
+                        elseif team.groupID=="group:favorites" then -- moving team out of favorites, nil homeID
+                            team.homeID = nil
+                            team.favorite = nil
+                        end
+                        team.groupID = subject.toID
+                        if settings.EchoTeamDrag then
+                            rematch.utils:Write(rematch.utils:GetFormattedTeamName(teamID),"moved to",rematch.utils:GetFormattedGroupName(subject.toID))
+                        end
+                    end
+                end
+                -- here all of teams should be out of subject.fromID group, delete group if checkbutton unchecked (and a deletable group)
+                if not settings.DontDeleteOnCombine and subject.fromID~="group:favorites" and subject.fromID~="group:none" then
+                    rematch.savedGroups:Delete(subject.fromID)
+                end
+                -- doing an immediate TeamsChanged
+                rematch.savedTeams:TeamsChanged(true) -- true will update UI immediately
+                rematch.teamsPanel.List:BlingData(subject.toID) -- bling the group teams were moved to
+            end
+        end
+    })
+
+end)
+
 -- returns the type of thing on the cursor (C.CURSOR_TYPE_GROUP or C.CURSOR_TYPE_TEAM) and the groupID/teamID
 -- if an actual item, spell or pet is on the cursor, this should return nil
 function rematch.dragFrame:GetCursorInfo()
@@ -198,24 +255,33 @@ function rematch.dragFrame.GlowFrame:OnUpdate(elapsed)
     -- if group on cursor, and mouse is over a group, put GlowLine above/below group
     if cursorType==C.CURSOR_TYPE_GROUP and isMouseOver then
         if focus and focus.groupID then
-            -- if cursor is in top half of button, anchor to top
-            if (cursorY/scale)>centerY then
-                self.GlowLine:SetPoint("CENTER",focus,"TOP")
-                self.GlowLine.direction = C.DRAG_DIRECTION_PREV
-            else
-                self.GlowLine:SetPoint("CENTER",focus,"BOTTOM")
-                self.GlowLine.direction = C.DRAG_DIRECTION_NEXT
+            -- if group combine key modifier is down, then showGlowArea and not line
+            if rematch.dragFrame:IsCombineGroupKeyUsed() then
+                self.GlowArea:SetPoint("TOPLEFT",focus,"TOPLEFT")
+                self.GlowArea:SetPoint("BOTTOMRIGHT",focus,"BOTTOMRIGHT")
+                showGlowArea = true
+            else -- combine key is not down, so we're reording groups
+                -- if cursor is in top half of button, anchor to top
+                if (cursorY/scale)>centerY then
+                    self.GlowLine:SetPoint("CENTER",focus,"TOP")
+                    self.GlowLine.direction = C.DRAG_DIRECTION_PREV
+                else
+                    self.GlowLine:SetPoint("CENTER",focus,"BOTTOM")
+                    self.GlowLine.direction = C.DRAG_DIRECTION_NEXT
+                end
+                showGlowLine = true
             end
-            showGlowLine = true
         elseif focus==rematch.teamsPanel.List.CaptureButton then -- if over capturebutton, then move glow to last button
-            local lastListButton = rematch.teamsPanel.List:GetLastListButton()
-            if lastListButton and lastListButton.groupID then
-                self.GlowLine:SetPoint("CENTER",lastListButton,"BOTTOM")
-            else -- no last button, put glow at top of frame
-                self.GlowLine:SetPoint("CENTER",self,"TOP")
+            if not rematch.dragFrame:IsCombineGroupKeyUsed() then -- make sure combine key not down over capture button
+                local lastListButton = rematch.teamsPanel.List:GetLastListButton()
+                if lastListButton and lastListButton.groupID then
+                    self.GlowLine:SetPoint("CENTER",lastListButton,"BOTTOM")
+                else -- no last button, put glow at top of frame
+                    self.GlowLine:SetPoint("CENTER",self,"TOP")
+                end
+                self.GlowLine.direction = C.DRAG_DIRECTION_END
+                showGlowLine = true
             end
-            self.GlowLine.direction = C.DRAG_DIRECTION_END
-            showGlowLine = true
         end
     elseif cursorType==C.CURSOR_TYPE_TEAM and isMouseOver then
         if focus and focus.teamID then
@@ -288,7 +354,11 @@ function rematch.dragFrame:ReceiveGroupToGroup(cursorID,groupID,direction)
     if cursorID==groupID then
         -- do nothing, trying to move a group before/after itself
         rematch.dragFrame:ClearCursor()
-    else
+        rematch.teamsPanel.List:BlingData(cursorID)
+    elseif rematch.dragFrame:IsCombineGroupKeyUsed() then -- if combining groups, show dialog
+        rematch.dialog:ShowDialog("CombineGroups",{fromID=cursorID,toID=groupID})
+        rematch.dragFrame:ClearCursor()
+    elseif direction then
         -- remove cursorID from settings.GroupOrder
         rematch.utils:TableRemoveByValue(settings.GroupOrder,cursorID)
         -- and then put it before/after groupID
@@ -311,8 +381,8 @@ function rematch.dragFrame:ReceiveGroupToGroup(cursorID,groupID,direction)
         rematch.dragFrame:ClearCursor()
         rematch.teamsPanel:Update()
         rematch.teamTabs:Update()
+        rematch.teamsPanel.List:BlingData(cursorID)
     end
-    rematch.teamsPanel.List:BlingData(cursorID)
 end
 
 -- dropping groupID(cursorID) onto the capture area/empty space after list
@@ -381,4 +451,23 @@ function rematch.dragFrame:ReceiveTeamToTeam(cursorID,teamID,direction)
         end
     end
     rematch.teamsPanel.List:BlingData(cursorID)
+end
+
+-- returns true if the modifier key assigned to the group combine key is down; or if key is given then whether that was a modifier key
+function rematch.dragFrame:IsCombineGroupKeyUsed(key)
+    local combineKey = settings.CombineGroupKey
+
+    if not key then -- if no key given, then check if a modifier key is down
+        key = (IsAltKeyDown() and "ALT") or (IsShiftKeyDown() and "SHIFT") or (IsControlKeyDown() and "CTRL")
+    end
+
+    if combineKey=="None" then
+        return false -- if combineKey is "None", don't bother
+    elseif combineKey=="Alt" then
+        return key=="LALT" or key=="RALT" or key=="ALT"
+    elseif combineKey=="Shift" then
+        return key=="LSHIFT" or key=="RSHIFT" or key=="SHIFT"
+    elseif combineKey=="Ctrl" then
+        return key=="LCTRL" or key=="RCTRL" or key=="CTRL"
+    end
 end

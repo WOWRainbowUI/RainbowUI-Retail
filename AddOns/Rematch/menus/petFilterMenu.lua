@@ -5,9 +5,6 @@ local settings = rematch.settings
 rematch.petFilterMenu = {}
 local pfm = rematch.petFilterMenu
 
-local PET_FILTER_HELP = format(L["In addition to the filters in this menu, you can further refine the pet list with the search box. Some search examples:\n\nPets: %sBlack Tabby\124r\nZones: %sSilithus\124r\nAbilities: %sSandstorm\124r\nText in abilities: %sBleed\124r\nLevels: %slevel=21-23\124r\nStats: %sspeed>300\124r\n\nSearches in \"quotes\" will limit results to only complete matches.\n\nSearch results will be sorted by relevance unless the option %sDon't Sort By Relevance\124r is checked in the Options tab."],C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE)
-local MULTI_CHECK_HELP = format(L["In filter menus, checkbox groups assume if nothing is checked you want to view all choices.\n\nYou can also:\n\n%s[Shift]+Click\124r to check all except the box clicked.\n\n%s[Alt]+Click\124r to uncheck all except the box clicked."],C.HEX_WHITE,C.HEX_WHITE)
-
 --[[
     The menu and its submenus from the Filter button in PetsPanel
 ]]
@@ -27,13 +24,16 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 		{text=RARITY, subMenu="PetRarity", group="Rarity", highlight=pfm.GroupUsed},
 		{text=LEVEL, subMenu="PetLevel", group="Level", highlight=pfm.GroupUsed},
 		{text=L["Breed"], hidden=pfm.NoBreedAddon, subMenu="PetBreed", group="Breed", highlight=pfm.GroupUsed},
-		{text=L["Pet Marker"], subMenu="PetMarker", group="Marker", highlight=pfm.GroupUsed},
+		{text=L["Pet Tags"], subMenu="PetMarker", group="Marker", highlight=pfm.GroupUsed},
 		{text=OTHER, subMenu="PetOther", group="Other", highlight=pfm.GroupUsed},
 		{text=L["Script"], subMenu="ScriptFilters", group="Script", highlight=pfm.GroupUsed},
 		{text=RAID_FRAME_SORT_LABEL, subMenu="PetSort", group="Sort", highlight=pfm.GroupUsed},
 		{text=L["Favorite Filters"], subMenu="FavoriteFilters"},
+		{spacer=true},
 		{text=L["Export Pets"], func=pfm.ExportPets},
-		{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Pet Filter"], tooltipBody=PET_FILTER_HELP},
+		{text=L["Pet Herder"], func=pfm.PetHerder},
+		{spacer=true},
+		{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Pet Filter"], tooltipBody=format(C.HELP_TEXT_PET_FILTER,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE)},
 		{text=L["Reset All"], func=pfm.ResetAll, stay=true},
 		{text=OKAY, noPostFunc=true},
     }
@@ -45,7 +45,7 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 		for i=1,10 do
 			tinsert(menu,{text=_G["BATTLE_PET_NAME_"..i], check=true, group=info[2], key=i, icon=pfm.GetIcon, isChecked=pfm.GetChecked, func=pfm.ToggleChecked, multiCheck=10})
 		end
-		tinsert(menu,{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=MULTI_CHECK_HELP})
+		tinsert(menu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=format(C.HELP_TEXT_MULTI_CHECK,C.HEX_WHITE,C.HEX_WHITE)})
 		tinsert(menu,{text=RESET, group=info[2], stay=true, func=pfm.ResetGroup})
 		rematch.menus:Register(info[1],menu)
 	end
@@ -55,7 +55,7 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 	for i=1,11 do
 		tinsert(sourcesMenu,{text=_G["BATTLE_PET_SOURCE_"..i], check=true, group="Sources", key=i, icon=pfm.GetIcon, iconCoords=pfm.GetIconCoords, isChecked=pfm.GetChecked, func=pfm.ToggleChecked, multiCheck=11})
 	end
-	tinsert(sourcesMenu,{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=MULTI_CHECK_HELP})
+	tinsert(sourcesMenu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=format(C.HELP_TEXT_MULTI_CHECK,C.HEX_WHITE,C.HEX_WHITE)})
 	tinsert(sourcesMenu,{text=RESET, group="Sources", stay=true, func=pfm.ResetGroup})
 	rematch.menus:Register("PetSources",sourcesMenu)
 
@@ -64,7 +64,7 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 	for i=9,0,-1 do
 		tinsert(expansionMenu,{text=rematch.utils:GetFormattedExpansionName(i), check=true, group="Expansion", key=i, icon=pfm.GetIcon, isChecked=pfm.GetChecked, func=pfm.ToggleChecked, multiCheck=10, multiCheckStart=0})
 	end
-	tinsert(expansionMenu,{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=MULTI_CHECK_HELP})
+	tinsert(expansionMenu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=format(C.HELP_TEXT_MULTI_CHECK,C.HEX_WHITE,C.HEX_WHITE)})
 	tinsert(expansionMenu,{text=RESET, group="Expansion", stay=true, func=pfm.ResetGroup})
 	rematch.menus:Register("PetExpansion",expansionMenu)
 
@@ -73,7 +73,7 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 	for i=1,4 do
 		tinsert(rarityMenu,{text=pfm.GetRarityText, check=true, group="Rarity", key=i, isChecked=pfm.GetChecked, func=pfm.ToggleChecked, multiCheck=4})
 	end
-	tinsert(rarityMenu,{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=MULTI_CHECK_HELP})
+	tinsert(rarityMenu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=format(C.HELP_TEXT_MULTI_CHECK,C.HEX_WHITE,C.HEX_WHITE)})
 	tinsert(rarityMenu,{text=RESET, group="Rarity", stay=true, func=pfm.ResetGroup})
 	rematch.menus:Register("PetRarity",rarityMenu)
 
@@ -88,7 +88,7 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 		{text=L["Without Any 25s"], check=true, group="Level", key="Without25s", isChecked=pfm.GetChecked, func=pfm.ToggleChecked},
 		{text=L["Moveset Not At 25"], check=true, group="Level", key="MovesetNot25", isChecked=pfm.GetChecked, func=pfm.ToggleChecked},
 		{spacer=true},
-		{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=MULTI_CHECK_HELP},
+		{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=format(C.HELP_TEXT_MULTI_CHECK,C.HEX_WHITE,C.HEX_WHITE)},
 		{text=RESET, group="Level", stay=true, func=pfm.ResetGroup}
 	}
 	rematch.menus:Register("PetLevel",levelMenu)
@@ -100,18 +100,18 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 			tinsert(breedMenu,{text=pfm.GetBreedName, check=true, group="Breed", multiCheck=11, multiCheckStart=3, key=i, isChecked=pfm.GetChecked, func=pfm.ToggleChecked})
 		end
 		tinsert(breedMenu,{text=NEW, check=true, group="Breed", multiCheck=11, multiCheckStart=3, key=13, isChecked=pfm.GetChecked, func=pfm.ToggleChecked})
-		tinsert(breedMenu,{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Breed"], tooltipBody=format(L["All breed data is pulled from your installed %s%s\124r addon.\n\nThe breed \"New\" means the pet has no breed data. Keep your breed addon up to date to ensure it has the most recent breed data."],C.HEX_WHITE,C_AddOns.GetAddOnMetadata(rematch.breedInfo:GetBreedSource(),"Title") or rematch.breedInfo:GetBreedSource())})
+		tinsert(breedMenu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Breed"], tooltipBody=format(L["All breed data is pulled from your installed %s%s\124r addon.\n\nThe breed \"New\" means the pet has no breed data. Keep your breed addon up to date to ensure it has the most recent breed data."],C.HEX_WHITE,C_AddOns.GetAddOnMetadata(rematch.breedInfo:GetBreedSource(),"Title") or rematch.breedInfo:GetBreedSource())})
 		tinsert(breedMenu,{text=RESET, group="Breed", stay=true, func=pfm.ResetGroup})
 		rematch.menus:Register("PetBreed",breedMenu)
 	end
 
 	-- Pet Marker
-	local markerMenu = { {title=L["Pet Marker"]} }
+	local markerMenu = { {title=L["Pet Tags"]} }
 	for i=8,1,-1 do
 		tinsert(markerMenu,{text=pfm.GetMarkerName, icon="Interface\\TargetingFrame\\UI-RaidTargetingIcons", iconCoords=pfm.GetIconCoords, check=true, group="Marker", multiCheck=9, key=i, isChecked=pfm.GetChecked, editButton=true, editFunc=pfm.RenameMarker, func=pfm.ToggleChecked})
 	end
 	tinsert(markerMenu,{text=NONE, icon="", check=true, group="Marker", multiCheck=9, key=9, isChecked=pfm.GetChecked, func=pfm.ToggleChecked})
-	tinsert(markerMenu,{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=MULTI_CHECK_HELP})
+	tinsert(markerMenu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Pet Tags"], tooltipBody=format(C.HELP_TEXT_PET_TAGS,C.HEX_WHITE,rematch.utils:IconAsText("Interface\\WorldMap\\Gear_64Grey"), rematch.utils:GetBadgeAsText(21,16,true), rematch.utils:GetBadgeAsText(21,16,true))})
 	tinsert(markerMenu,{text=RESET, group="Marker", stay=true, func=pfm.ResetGroup})
 	rematch.menus:Register("PetMarker",markerMenu)
 
@@ -160,7 +160,7 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 		{text=L["Reverse Sort"], check=true, group="Sort", key=-1, isChecked=pfm.GetChecked, func=pfm.ToggleChecked},
 		{text=L["Favorites First"], check=true, group="Sort", key="FavoritesNotFirst", isChecked=pfm.GetNotChecked, func=pfm.ToggleChecked},
 		{spacer=true},
-		{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipTitle=RAID_FRAME_SORT_LABEL, tooltipBody=format(L["You can filter to a specific range of stats too. For example, search for:\n\n%shealth>500\124r\nor\n%sspeed=200-300\124r\n\nThe sort order is not ordinarily reset when filters are reset. The option %sReset Sort With Filters\124r in the Options tab will reset the sort when you reset the filters."],C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE)},
+		{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipTitle=RAID_FRAME_SORT_LABEL, tooltipBody=format(L["You can filter to a specific range of stats too. For example, search for:\n\n%shealth>500\124r\nor\n%sspeed=200-300\124r\n\nThe sort order is not ordinarily reset when filters are reset. The option %sReset Sort With Filters\124r in the Options tab will reset the sort when you reset the filters."],C.HEX_WHITE,C.HEX_WHITE,C.HEX_WHITE)},
 		{text=RESET, group="Sort", stay=true, func=pfm.ResetGroup},
 	}
 	rematch.menus:Register("PetSort",firstSortMenu)
@@ -302,7 +302,6 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 		end,
 	})
 
-
 end)
 
 -- returns value of info.group/info.key
@@ -406,9 +405,7 @@ function pfm:GetBreedName()
 end
 -- returns the color-coded name for a pet marker
 function pfm:GetMarkerName()
-	if self.key and C.MARKER_COLORS[self.key] and _G["RAID_TARGET_"..self.key] then
-		return "\124cff"..C.MARKER_COLORS[self.key]..(settings.PetMarkerNames[self.key] or _G["RAID_TARGET_"..self.key])
-	end
+	return rematch.utils:GetFormattedMarkerName(self.key)
 end
 -- returns true if the option 'Hide Non-Battle Pets' is checked
 function pfm:NonBattlePetsHidden()
@@ -442,7 +439,7 @@ function rematch.menus:UpdateScriptFilters()
 		tinsert(menu,{spacer=true})
 	end
 	tinsert(menu,{text=L["New Script"], icon="Interface\\GuildBankFrame\\UI-GuildBankFrame-NewTab", func=pfm.EditScriptFilter})
-	tinsert(menu,{text=L["Help"], stay=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Script Filters"], tooltipBody=L["Script filters are a way to create new pet filters with Lua code.\n\nSome knowledge of Lua is helpful to create them. See docs/scriptfilters.txt for more information."]})
+	tinsert(menu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Script Filters"], tooltipBody=L["Script filters are a way to create new pet filters with Lua code.\n\nSome knowledge of Lua is helpful to create them. See docs/scriptfilters.txt for more information."]})
 	tinsert(menu,{text=RESET, group="Script", stay=true, func=pfm.ResetGroup})
 
 	rematch.menus:Register("ScriptFilters",menu)
@@ -596,7 +593,10 @@ function pfm:ExportPets()
 	rematch.dialog:ShowDialog("ExportPetsDialog")
 end
 
-
 function pfm:RenameMarker()
 	rematch.dialog:ShowDialog("RenamePetMarkerDialog",self.key)
+end
+
+function pfm:PetHerder()
+	rematch.dialog:ShowDialog("PetHerder")
 end

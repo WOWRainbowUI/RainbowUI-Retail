@@ -53,6 +53,7 @@ local C = rematch.constants
 		20 = About
 		21 = Random Pet Options
 		22 = Icon Legend
+		23 = Badge Options
 ]]
 
 rematch.optionsList = {
@@ -98,6 +99,17 @@ rematch.optionsList = {
 	{type="check", group=3, text=L["Color Team Names By Group"], var="ColorTeamNames", update=true, tooltip=L["Make team names colored the same as the colors you've chosen for the groups they belong to."]},
 	{type="check", group=3, text=L["Color Targets By Expansion"], var="ColorTargetNames", update=true, tooltip=L["Make notable target names colored after the expansion the target is from."]},
 
+	-- Badge Options
+	{type="header", group=23, text=L["Badge Options"]},
+	--{type="check", group=23, text=L["Only Show Badges On Mouseover"], var="ShowBadgesOnMouseover", update=true, tooltip=L["Hide all badges unless the mouse is over the pet, team or target.\n\nA badge is a non-interactive icon to the right of a list item to indicate some property such as whether it's leveling.\n\nWith this option enabled, the notes button, breed and win record are also hidden unless the mouse is over the list item."]},
+	{type="check", group=23, text=format(L["Hide Team Badges %s"],rematch.utils:GetBadgeAsText(12,14,true)), var="HideTeamBadges", update=true, tooltip=format(L["Hide the %s badge on pets and targets that indicate the pet or target is saved in a team."],rematch.utils:GetBadgeAsText(12,14,true))},
+	{type="check", group=23, text=format(L["Hide Leveling Badges %s"],rematch.utils:GetBadgeAsText(11,14,true)), var="HideLevelingBadges", update=true, tooltip=format(L["Hide the %s badge on pets that indicate the pet is in the leveling queue."],rematch.utils:GetBadgeAsText(11,14,true))},
+	{type="check", group=23, text=format(L["Hide Pet Tag Badges %s"],rematch.utils:GetBadgeAsText(16,14,true)), var="HideMarkerBadges", update=true, tooltip=format(L["Hide the pet tag badges (such as %s %s %s etc) on pets to indicate what pet tag has been given to the pet."],rematch.utils:GetBadgeAsText(16,14,true),rematch.utils:GetBadgeAsText(17,14,true),rematch.utils:GetBadgeAsText(18,14,true))},
+	{type="check", group=23, text=format(L["Hide Target Badges %s"],rematch.utils:GetBadgeAsText(27,14,true)), var="HideTargetBadges", update=true, tooltip=format(L["Hide the %s badge on teams that indicate the team contains a target."],rematch.utils:GetBadgeAsText(27,14,true))},
+	{type="check", group=23, text=format(L["Hide Preference Badges %s"],rematch.utils:GetBadgeAsText(14,14,true)), var="HidePreferenceBadges", update=true, tooltip=format(L["Hide the %s badge on teams that indicate the team contains leveling preferences."],rematch.utils:GetBadgeAsText(14,14,true))},
+	{type="check", group=23, text=format(L["Hide Notes Badges %s"],rematch.utils:GetBadgeAsText(13,16,false)), var="HideNotesBadges", update=true, tooltip=format(L["Hide the %s badge/button on pets and teams that indicate the pet or team has saved notes."],rematch.utils:GetBadgeAsText(13,16,false))},
+	-- {type="check", group=23, text=format(L["Hide External Badges %s"],rematch.utils:GetBadgeAsText(33,16,true)), var="HideExternalBadges", update=true, tooltip=L["Try to hide any badges added to lists from an external source like a third-party addon. (Rematch has no control over what outside addons do, so some addon's badges may not hide with this option.)"]},
+	
 	-- Behavior Options
 	{type="header", group=14, text=L["Behavior Options"]},
 	--{type="widget", group=14, parentKey="MousewheelSpeedWidget"}, -- Mousewheel Scroll Speed:
@@ -132,6 +144,7 @@ rematch.optionsList = {
 	{type="widget", group=18, text=L["Breed Format"], parentKey="BreedFormatWidget"}, -- Breed Format:
 	{type="check", group=18, text=L["Hide Breed In Lists"], var="HideBreedsLists", update=true, tooltip=L["Hide the breeds displayed in lists. Breeds will still be visible in pet cards."]},
 	{type="check", group=18, text=L["Hide Breed In Pet Slots"], var="HideBreedsLoadouts", update=true, tooltip=L["Hide the breeds displayed on pet slots. Breeds will still be visible in pet cards."]},
+	{type="check", group=18, text=L["Larger Breed Text"], var="LargerBreedText", update=true, tooltip=L["Increase the size of breed text (such as B/B or H/P) on pet list buttons and pet slots."]},
 
 	-- Pet Card Options
 	{type="header", group=4, text=L["Pet Card Options"]},
@@ -176,6 +189,7 @@ rematch.optionsList = {
 	{type="check", group=10, text=L["Display Where Teams Dragged"], var="EchoTeamDrag", tooltip=L["When a team is dragged to another group, print in the chat window where the team was moved to."]},
 	{type="check", group=10, text=L["Enable Dragging To Move Teams"], var="EnableDrag", tooltip=L["Allow moving teams or groups by dragging them. When this is unchecked you can still move a team or group from its right-click menu."]},
 	{type="check", group=10, text=L["Require Click To Drag Teams"], var="ClickToDrag", dependency="EnableDrag", tooltip=L["When dragging teams or groups to move them, release of the mouse button at the end of the drag will not move the team or group. A separate click is needed."]},
+	{type="widget", group=10, text=L["Combine Group Key"], parentKey="CombineGroupKeyWidget"},
 	{type="check", group=10, text=L["Prioritize Breed On Import"], var="PrioritizeBreedOnImport", tooltip=L["When importing or receiving teams, fill the team with the best matched breed as the first priority instead of the highest level."]},
 	{type="check", group=10, text=L["Remember Import Override"], var="ImportRememberOverride", tooltip=L["Rather than resetting to 'Create a new copy' everytime a team is imported and another team shares the same name, remember the last-chosen option without resetting."]},
 
@@ -217,7 +231,7 @@ rematch.optionsList = {
 	{type="check", group=11, text=L["Don't Ask When Deleting Notes"], var="DontConfirmDeleteNotes", tooltip=L["Don't ask for confirmation when deleting notes from a pet or team."]},
 	{type="check", group=11, text=L["Don't Ask When Filling Queue"], var="DontConfirmFillQueue", tooltip=L["Don't ask for confirmation when filling the queue from the Queue menu."]},
 	{type="check", group=11, text=L["Don't Ask To Stop Active Sort"], var="DontConfirmActiveSort", tooltip=L["Don't ask to stop the Active Sort in the queue when moving a pet within the queue while it's enabled. Always turn off active sort."]},
-	{type="check", group=11, text=L["Don't Ask For Queue Removal"], var="DontConfirmRemoveQueue", tooltip=L["Don't ask for confirmation when removing a pet from the leveling queue."]},
+	{type="check", group=11, text=L["Don't Ask To Remove From Queue"], var="DontConfirmRemoveQueue", tooltip=L["Don't ask for confirmation when removing a pet from the leveling queue."]},
 	{type="check", group=11, text=L["Don't Warn About Missing Pets"], var="DontWarnMissing", tooltip=L["Don't display a popup when a team loads and a pet within the team can't be found."]},
 	{type="check", group=11, text=L["Don't Remind About Backups"], var="NoBackupReminder", tooltip=L["Don't show a popup offering to backup teams every once in a while. Generally, the popup appears sometime after the number of teams increases by 50."]},
 

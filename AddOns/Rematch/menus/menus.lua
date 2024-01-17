@@ -484,7 +484,7 @@ function RematchMenuButtonMixin:OnEnter()
             end
         end
         if tooltipTitle or tooltipBody then
-            rematch.tooltip:ShowSimpleTooltip(self,tooltipTitle,tooltipBody)
+            rematch.tooltip:ShowSimpleTooltip(self,tooltipTitle,tooltipBody,nil,nil,nil,nil,nil,info.isHelp)
         end
         -- show sidebuttons on this button if deleteButton or editButton enabled
         local showDeleteButton = evaluate(info.deleteButton,info,subject)

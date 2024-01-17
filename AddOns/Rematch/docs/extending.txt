@@ -134,21 +134,29 @@ See info\petInfo.lua for more details
 
 __ Adding Badges __
 
-Badges are small icons on the right of list buttons, to show if a pet is leveling, if a team has preferences, etc.
+    Badges are small non-interactive icons placed to the right of list buttons to show if
+    the pet is leveling, in a team, etc; or a team has a target, has preferences, etc;
+    or any purpose.
 
-At the moment, the Notes button is the only badge that can be clicked to do something. Support for custom clickable
-badges may come in the future.
+    There are four lists:
+        "pets"    : pets in the pet list, queue or loadouts
+        "teams"   : teams in the team list
+        "targets" : targets in the target list (id is npcID)
+        "groups"  : team group headers
 
-To add badge support:
+    To register a badge (within this addon and outside it), use:
+    
+    Rematch.badges:RegisterBadge(list,name,icon,coords,callback,override)
 
-    Rematch.badges:RegisterBadge(list,badge,icon,iconCoords,callback)
+        list (string) is one of the above four lists (can be anything but Rematch only adds badges for these)
+        name (string) is a unique-per-list identifier for the badge
+        icon (string,number,function) is the icon of the badge; if a function it should return a string/number icon
+        coords (table,function) is the texcoords of the badge; if a function it should return texcoords
+        callback (function) is a function that returns true if the given id's list/name badge should be shown
+        override (function) is a function that reutnrs true when a badge should show regardless of settings
 
-With these arguments:
-    list        Either "pets", "teams" or "targets" to choose which list to add to
-    badge       An arbitrary unique name for the badge
-    icon        A filepath/fileID for the icon to use with the badge
-    iconCoords  Optional texcoords for the icon an ordered table {left,right,top,bottom} can be nil
-    callback    A function that takes a petID, teamID or targetID and returns true if badge should show
+    Override is because an upcoming update will hide all badges unless the mouse is over the list button;
+    but some cases will want to show the badge(s) regardless, such as using pet herder
 
 This example creates a "cats" badge that puts a badge on pets with 'Cat' in their species name:
 

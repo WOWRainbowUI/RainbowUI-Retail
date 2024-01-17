@@ -13,7 +13,7 @@
             </Layer>
             <Layer level="OVERLAY">
                 <!-- the tiny 1/2 in the bottomright for ability number (border shares this drawlayer) -->
-                <FontString parentKey="Number" inherits="SystemFont_Tiny">
+                <FontString parentKey="Number" inherits="GameFontHighlightSmall">
                     <Anchors>
                         <Anchor point="CENTER" relativePoint="BOTTOMRIGHT" x="-4" y="4"/>
                     </Anchors>

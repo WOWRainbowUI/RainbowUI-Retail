@@ -280,7 +280,7 @@ function rematch.preferences:IsPetPreferred(petID,preferences)
     end
     -- this should not be rematch.petInfo but a
     local petInfo = rematch.altInfo:Fetch(petID) -- using altInfo so it doesn't clobber petInfo from upstream
-    local preferred = petInfo.level and petInfo.isOwned -- assume the pet is preferred if it's owned and has a level
+    local preferred = petInfo.level and petInfo.isOwned and petInfo.isSummonable -- assume the pet is preferred if it's owned and has a level
 
     if settings.PreferencesPaused then
         return preferred -- if preferences paused, all owned pets are preferred

@@ -90,11 +90,13 @@ function rematch.loadoutPanel:FillLoadout(loadout,petID)
     end
 
     -- notes button in the topright
-    loadout.NotesButton:SetShown(petInfo.hasNotes)
+    local showNotes = not settings.HideNotesBadges and petInfo.hasNotes
+    loadout.NotesButton:SetShown(showNotes)
 
     -- breed in topright beneath notes button
     local breedXoff = -14
     if petInfo.breedName and not settings.HideBreedsLoadouts then
+        loadout.Breed:SetFontObject(settings.LargerBreedText and "GameFontNormal" or "GameFontNormalSmall")
         loadout.Breed:SetText(petInfo.breedName)
         loadout.Breed:Show()
         breedXoff = breedXoff - ceil(loadout.Breed:GetStringWidth())
@@ -103,22 +105,8 @@ function rematch.loadoutPanel:FillLoadout(loadout,petID)
     end
 
     -- badges in topright to left of notes button
-    rematch.badges:ClearBadges(loadout.Badges)
-    local right = petInfo.hasNotes and -34 or -12
-    local badgeXoff = right
-
-    if petInfo.isLeveling then
-        rematch.badges:AddBadge(loadout.Badges,"leveling","TOPRIGHT",loadout,"TOPRIGHT",badgeXoff,-24,-1)
-        right = right - C.BADGE_SIZE - 1
-    end
-    if petInfo.inTeams then
-        rematch.badges:AddBadge(loadout.Badges,"team","TOPRIGHT",loadout,"TOPRIGHT",badgeXoff,-24,-1)
-        right = right - C.BADGE_SIZE - 1
-    end
-    if petInfo.marker then
-        rematch.badges:AddBadge(loadout.Badges,"marker"..petInfo.marker,"TOPRIGHT",loadout,"TOPRIGHT",badgeXoff,-24,-1)
-        right = right - C.BADGE_SIZE - 1
-    end
+    local right = showNotes and -34 or -12
+    local badgesWidth = rematch.badges:AddBadges(loadout.Badges,"pets",petID,"TOPRIGHT",loadout,"TOPRIGHT",right,-24,-1)
 
     -- names between pet button and notes/badges/breed
     local nameXoff = min(right,breedXoff)

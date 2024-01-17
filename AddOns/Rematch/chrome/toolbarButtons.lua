@@ -73,11 +73,11 @@ function updates:SafariHatButton()
     if buffName then
         self.Cancel:Show()
         self:SetAttribute("type","macro")
-        self:SetAttribute("macrotext",format("/cancelaura %s",buffName))
+        self:SetAttribute("macrotext",format("/cancelaura %s",buffName or L["Safari Hat"]))
     else -- safari hat is not active, set attributes to use it
         self.Cancel:Hide()
         self:SetAttribute("type","item")
-        self:SetAttribute("item",(GetItemInfo(C.SAFARI_HAT_ITEM_ID)))
+        self:SetAttribute("item","item:"..C.SAFARI_HAT_ITEM_ID)
     end
     -- if they don't have a safari hat, then dim the button
     local hasHat = PlayerHasToy(C.SAFARI_HAT_ITEM_ID)

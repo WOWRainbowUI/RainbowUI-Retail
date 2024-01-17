@@ -565,9 +565,9 @@ RematchHeaderListButtonMixin = {}
 -- sets the background depending on whether in single-panel mode (wide header) and all other modes
 function RematchHeaderListButtonMixin:SetBack()
     if rematch.layout:GetMode(C.CURRENT)==1 then -- if in single-panel mode, use wide header
-        self.Back:SetTexCoord(0,0.59765625,0.5,0.90625)
+        self.Back:SetTexCoord(0,0.611328125,0.5,0.90625)
     else -- otherwise use normal-width header
-        self.Back:SetTexCoord(0,0.48046875,0,0.40625)
+        self.Back:SetTexCoord(0,0.494140625,0,0.40625)
     end
 end
 

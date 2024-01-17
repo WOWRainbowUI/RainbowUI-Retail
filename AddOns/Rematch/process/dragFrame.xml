@@ -10,6 +10,28 @@
                 <Layers>
                     <Layer level="BACKGROUND">
                         <Texture file="Interface\AddOns\Rematch\textures\headers">
+                            <Size x="8" y="26"/>
+                            <Anchors>
+                                <Anchor point="LEFT"/>
+                            </Anchors>
+                            <TexCoords left="0" right="0.015625" top="0" bottom="0.40625"/>
+                        </Texture>
+                        <Texture file="Interface\AddOns\Rematch\textures\headers">
+                            <Size x="0" y="26"/>
+                            <Anchors>
+                                <Anchor point="LEFT" x="8" y="0"/>
+                                <Anchor point="RIGHT" x="-8" y="0"/>
+                            </Anchors>
+                            <TexCoords left="0.015625" right="0.478515625" top="0" bottom="0.40625"/>
+                        </Texture>
+                        <Texture file="Interface\AddOns\Rematch\textures\headers">
+                            <Size x="8" y="26"/>
+                            <Anchors>
+                                <Anchor point="RIGHT"/>
+                            </Anchors>
+                            <TexCoords left="0.478515625" right="0.494140625" top="0" bottom="0.40625"/>
+                        </Texture>                    
+                        <!-- <Texture file="Interface\AddOns\Rematch\textures\headers">
                             <Size x="26" y="26"/>
                             <Anchors>
                                 <Anchor point="LEFT"/>
@@ -30,7 +52,7 @@
                                 <Anchor point="RIGHT" x="-26" y="0"/>
                             </Anchors>
                             <TexCoords left="0.05078125" right="0.4296875" top="0" bottom="0.40625"/>
-                        </Texture>
+                        </Texture> -->
                     </Layer>
                     <Layer level="BORDER">
                         <Texture parentKey="Icon">
