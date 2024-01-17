@@ -651,10 +651,25 @@ function DR.FixBlizzFrames()
 	end
 end
 
+function DR.SafeModeShow()
+	for k, v in pairs(DR.WidgetFrameIDs) do
+		if UIWidgetPowerBarContainerFrame.numWidgetsShowing > 1 then
+			for i, j in pairs(UIWidgetPowerBarContainerFrame.widgetFrames) do
+				if k ~= i then
+					UIWidgetPowerBarContainerFrame:SetAlpha(1);
+					UIWidgetPowerBarContainerFrame:Show();
+					return
+				end
+			end
+		end
+	end
+end
+
 function DR.DoWidgetThings()
 	local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
 	local fillCurrent, fillMax = DR.GetVigorValueExact()
 	DR.FixBlizzFrames()
+	DR.SafeModeShow()
 	for k, v in pairs(DR.WidgetFrameIDs) do
 		if UIWidgetPowerBarContainerFrame.widgetFrames[v] ~= nil then
 			
@@ -1285,6 +1300,8 @@ function DR:toggleEvent(event, arg1)
 			else
 				DR.clearPositions();
 				DR.TimerNamed:Cancel();
+				UIWidgetPowerBarContainerFrame:SetAlpha(1);
+				UIWidgetPowerBarContainerFrame:Show();
 
 			end
 		end
