@@ -78,8 +78,8 @@ function DC:AddCollectedDataToEnemyTable(dungeonIndex, ignoreSpells, ignoreCC)
     end
   end
 
-  if not ignoreSpells then print("Added "..spellsAdded.." new spells") end
-  if not ignoreCC then print("Added "..ccAdded.." new CC characteristics") end
+  -- if not ignoreSpells then print("Added "..spellsAdded.." new spells") end
+  -- if not ignoreCC then print("Added "..ccAdded.." new CC characteristics") end
 end
 
 local trackedEvents = {

@@ -1850,7 +1850,7 @@ L["Noth the Plaguebringer"] = "Noth the Plaguebringer"
 --[[Translation missing --]]
 L["Novos the Summoner"] = "Novos the Summoner"
 --[[Translation missing --]]
-L["NPCs"] = ""
+L["NPCs"] = "NPCs"
 --[[Translation missing --]]
 L["Nullmagic Hornswog"] = "Nullmagic Hornswog"
 L["Oakheart"] = "橡树之心"
@@ -1866,7 +1866,7 @@ L["Omega Buster"] = "欧米茄破坏者"
 --[[Translation missing --]]
 L["Oozing Leftovers"] = "Oozing Leftovers"
 --[[Translation missing --]]
-L["Open an issue on GitHub"] = ""
+L["Open an issue on GitHub"] = "Open an issue on GitHub"
 L["Open MDI override options"] = "打開 MDI 替代選項"
 L["openSettingsTooltip"] = "點一下打開設定選項"
 L["Opera Hall Balcony"] = "歌劇大廳露臺"
@@ -2032,7 +2032,7 @@ L["Proto-Drake Handler"] = "Proto-Drake Handler"
 --[[Translation missing --]]
 L["Proto-Drake Rider"] = "Proto-Drake Rider"
 --[[Translation missing --]]
-L["Provide feedback in Discord"] = ""
+L["Provide feedback in Discord"] = "Provide feedback in Discord"
 L["Pull Drop Clear Pull"] = "清空拉怪"
 L["Pull Drop Close"] = "關閉"
 L["Pull Drop Color"] = "顏色"
@@ -2963,7 +2963,7 @@ L["Urh Relic"] = "尤型圣物"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "輸入 /mdt reset 來重置 MDT 視窗，恢復成預設的大小和位置。"
 L["Use as a starting point:"] = "從這個規劃路線開始編輯:"
 --[[Translation missing --]]
-L["Use forces count"] = ""
+L["Use forces count"] = "Use forces count in Sidebar"
 --[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
 --[[Translation missing --]]

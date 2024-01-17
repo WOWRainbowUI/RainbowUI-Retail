@@ -2738,6 +2738,7 @@ function MDT:MakeChatPresetImportFrame(frame)
       MDT.main_frame.sidePanelDeleteButton.text:SetTextColor(1, 0.8196, 0)
     end
   end)
+  chatImport.statustext:GetParent():Hide()
   chatImport.defaultText = L["Import Preset"]..":\n"
   chatImport.importLabel = AceGUI:Create("Label")
   chatImport.importLabel:SetText(chatImport.defaultText)
@@ -2797,6 +2798,7 @@ function MDT:MakePresetImportFrame(frame)
       MDT.main_frame.sidePanelDeleteButton.text:SetTextColor(1, 0.8196, 0)
     end
   end)
+  frame.presetImportFrame.statustext:GetParent():Hide()
 
   frame.presetImportLabel = AceGUI:Create("Label")
   frame.presetImportLabel:SetText(nil)
@@ -2913,6 +2915,7 @@ function MDT:MakePresetCreationFrame(frame)
       MDT.main_frame.sidePanelDeleteButton.text:SetTextColor(1, 0.8196, 0)
     end
   end)
+  frame.presetCreationFrame.statustext:GetParent():Hide()
 
   frame.PresetCreationEditbox = AceGUI:Create("EditBox")
   frame.PresetCreationEditbox:SetLabel(L["Preset Name"]..":")
@@ -3213,6 +3216,7 @@ function MDT:MakeCustomColorFrame(frame)
   frame.CustomColorFrame:SetHeight(220)
   frame.CustomColorFrame:EnableResize(false)
   frame.CustomColorFrame:SetLayout("Flow")
+  frame.CustomColorFrame.statustext:GetParent():Hide()
   frame:AddChild(frame.CustomColorFrame)
 
   --Slider to adjust number of different colors and remake the frame OnMouseUp
@@ -3270,7 +3274,8 @@ function MDT:MakeSettingsFrame(frame)
   frame.settingsFrame:SetHeight(250)
   frame.settingsFrame:EnableResize(false)
   frame.settingsFrame:SetLayout("Flow")
-  MDT:FixAceGUIShowHide(frame.settingsFrame)
+  frame.settingsFrame.statustext:GetParent():Hide()
+  MDT:FixAceGUIShowHide(frame.settingsFrame, nil, nil, true)
 
   frame.minimapCheckbox = AceGUI:Create("CheckBox")
   frame.minimapCheckbox:SetLabel(L["Enable Minimap Button"])
@@ -3858,6 +3863,7 @@ function MDT:MakeRenameFrame(frame)
   frame.RenameFrame:SetCallback("OnClose", function(widget)
 
   end)
+  frame.RenameFrame.statustext:GetParent():Hide()
   frame.RenameFrame:Hide()
 
   local renameText
@@ -3910,7 +3916,7 @@ function MDT:MakeExportFrame(frame)
   frame.ExportFrame:EnableResize(false)
   frame.ExportFrame:SetLayout("Flow")
   frame.ExportFrame:SetCallback("OnClose", function(widget)
-
+    frame.ExportFrame.statustext:GetParent():Hide()
   end)
   frame.ExportFrameEditbox = AceGUI:Create("MultiLineEditBox")
   frame.ExportFrameEditbox:SetWidth(600)
@@ -3966,6 +3972,7 @@ function MDT:MakeDeleteConfirmationFrame(frame)
   frame.DeleteConfirmationFrame:SetCallback("OnClose", function(widget)
 
   end)
+  frame.DeleteConfirmationFrame.statustext:GetParent():Hide()
 
   frame.DeleteConfirmationFrame.label = AceGUI:Create("Label")
   frame.DeleteConfirmationFrame.label:SetWidth(390)
@@ -4003,6 +4010,7 @@ function MDT:MakeClearConfirmationFrame(frame)
   frame.ClearConfirmationFrame:SetCallback("OnClose", function(widget)
 
   end)
+  frame.ClearConfirmationFrame.statustext:GetParent():Hide()
 
   frame.ClearConfirmationFrame.label = AceGUI:Create("Label")
   frame.ClearConfirmationFrame.label:SetWidth(390)
@@ -4053,6 +4061,7 @@ function MDT:OpenConfirmationFrame(width, height, title, buttonText, prompt, cal
     f:SetLayout("Flow")
     f:SetCallback("OnClose", function(widget)
     end)
+    f.statustext:GetParent():Hide()
 
     f.label = AceGUI:Create("Label")
     f.label:SetWidth(390)
