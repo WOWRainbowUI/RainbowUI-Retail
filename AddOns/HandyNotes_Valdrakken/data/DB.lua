@@ -19,13 +19,7 @@ end
 
 local Durotar = GetMapNames(12, 1)
 local ElwynnForest = GetMapNames(13, 37)
--- local Pandaria = GetMapNames(424)
--- local Draenor = GetMapNames(572)
--- local BrokenIsles = GetMapNames(619)
-local Kalimdor = GetMapNames(12)
 local EasternKingdoms = GetMapNames(13)
-local Zandalar = GetMapNames(875)
-local KulTiras = GetMapNames(876)
 local EmeraldDream = GetMapNames(2200)
 
 ----------------------------------------------------------------------------------------------------
@@ -46,13 +40,9 @@ DB.points = {
         [48445104] = { icon = "mail", label = L["Mailbox"] },
         [54545949] = { icon = "mail", label = L["Mailbox"] },
 
-        [53885502] = {
-            icon = "portal",
-            multilabel = { L["Portal to Nazmir"], L["Portal to Tiragarde Sound"], L["Portal to Uldum"] },
-            multinote = { Zandalar, KulTiras, Kalimdor }
-        },
+        [53565538] = { icon="portal", label=L["Portal to The Timeways"], level=70 },
         [26094099] = { icon="portal", label=L["Portal to Badlands"], note=EasternKingdoms },
-        [62675730] = { icon="portal", label=L["Portal to Central Encampment"], note=EmeraldDream }, -- TODO find out and add accountwide quest
+        [62675730] = { icon="portal", label=L["Portal to Central Encampment"], note=EmeraldDream, level=70 }, -- quest=76318, TODO find out and add accountwide quest
 
         [73975645] = { icon = "void", npc = 185689 }, -- Vaultkeeper Aleer
         [74485605] = { icon = "transmogrifier", npc = 185570 }, -- Warpweaver Dayelis

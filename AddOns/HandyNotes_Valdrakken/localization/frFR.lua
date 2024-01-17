@@ -149,13 +149,7 @@ L["Portal to Stormwind"] = "Portail vers Hurlevent"
 L["Rostrum of Transformation"] = "Tribune de transformation"
 L["Teleport to Seat of the Aspects"] = "Téléportation au siège des Aspects"
 L["Visage of True Self"] = true
-L["Portal to Nazmir"] = "Portail vers Nazmir"
-L["Portal to Tiragarde Sound"] = "Portail vers la rade de Tiragarde"
-L["Portal to Uldum"] = "Portail vers Uldum"
 L["Portal to Badlands"] = "Portail vers les terres Ingrates"
 -- L["Portal to Central Encampment"] = ""
-
--- L["Portal to Dalaran"] = "Portail vers Dalaran"
--- L["Portal to Jade Forest"] = "Portail vers la forêt de Jade"
--- L["Portal to Shadowmoon Valley"] = "Portail vers la vallée d’Ombrelune"
+-- L["Portal to The Timeways"] = ""
 end

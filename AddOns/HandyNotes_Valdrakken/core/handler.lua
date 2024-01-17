@@ -133,7 +133,7 @@ local GetPointInfo = function(point)
     local icon
     if (point) then
         local label = GetCreatureNameByID(point.npc) or point.label or point.multilabel and Prepare(point.multilabel) or UNKNOWN
-        if (point.icon == "portal" and point.quest and not IsQuestCompleted(point.quest)) then
+        if (point.icon == "portal" and ((point.quest and not IsQuestCompleted(point.quest)) or (point.level and UnitLevel("player") < point.level))) then
             icon = private.constants.icon["portal_red"]
         else
             icon = SetIcon(point)
