@@ -259,9 +259,11 @@ else
         end
     end
     hooksecurefunc(ContainerFrameCombinedBags, "UpdateItems", update)
-    for _, frame in ipairs(UIParent.ContainerFrames) do
-        hooksecurefunc(frame, "UpdateItems", update)
-    end
+    if UIParent.ContainerFrames then -- 暫時修正
+		for _, frame in ipairs(UIParent.ContainerFrames) do
+			hooksecurefunc(frame, "UpdateItems", update)
+		end
+	end
 end
 
 hooksecurefunc("BankFrameItemButton_Update", function(button)
