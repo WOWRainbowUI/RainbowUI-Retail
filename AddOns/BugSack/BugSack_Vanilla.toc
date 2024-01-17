@@ -1,8 +1,17 @@
-## Interface: 100205
+## Interface: 11500
 ## Version: v10.2.2
 ## Title: BugSack
 ## Notes: Toss those bugs inna sack.
+## Notes-deDE: Werft den Fehler in einen Sack.
+## Notes-ruRU: Аддон ловит текущие ошибки в мешок.
 ## Notes-zhCN: 错误信息收集器。
+## Notes-zhTW: 集中顯示錯誤訊息，避免中斷遊戲。
+## Notes-koKR: 애드온에서 발생하는 버그를 자루에 넣어 버리세요.
+## Notes-frFR: Toss those bugs inna sack.
+## Notes-esES: Mete esos errores en un saco.
+## Notes-esMX: Mete esos errores en un saco.
+## Notes-ptBR: Toss those bugs inna sack.
+## Notes-itIT: Toss those bugs inna sack.
 ## Author: Funkydude
 ## SavedVariables: BugSackDB, BugSackLDBIconDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, LibDBIcon-1.0, !BugGrabber
