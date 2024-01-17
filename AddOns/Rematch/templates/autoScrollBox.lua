@@ -157,6 +157,24 @@ function RematchAutoScrollBoxMixin:Setup(definition)
         self.ScrollBox:RegisterCallback("OnScroll",function(...) definition.onScroll(self,...) end)
     end
 
+    -- separate OnScroll callback to disable ScrollToTopButton/ScrollToBottomButton
+    self.ScrollBox:RegisterCallback("OnScroll",function(...)
+        local _,percent,_,extent = ...
+        if extent==0 then -- can't scroll, disable top and bottom
+            self.ScrollToTopButton:SetToDisable()
+            self.ScrollToBottomButton:SetToDisable()
+        elseif percent<0.00000001 then -- at top, disable top, enable bottom
+            self.ScrollToTopButton:SetToDisable()
+            self.ScrollToBottomButton:SetToEnable()
+        elseif percent>0.99999999 then -- at bottom, enable top, disable bottom
+            self.ScrollToTopButton:SetToEnable()
+            self.ScrollToBottomButton:SetToDisable()
+        else -- somewhere in middle of scrollable list, enable top and bottom
+            self.ScrollToTopButton:SetToEnable()
+            self.ScrollToBottomButton:SetToEnable()
+        end
+    end)
+
     setView(self) -- create view (local so it can't be called from outside here or SetCompactMode)
 
     self.isSetup = true
@@ -619,6 +637,53 @@ function RematchAutoScrollBoxMixin:GetDataFrame(data)
         if frame.data==data and frame:IsVisible() then
             return frame
         end
+    end
+end
+
+--[[ scroll to end button mixin ]]
+
+RematchAutoScrollBoxScrollToEndMixin = {}
+
+function RematchAutoScrollBoxScrollToEndMixin:OnMouseDown()
+    if not self.isDisabled then
+        self.Texture:SetTexCoord(0,1,0.5,1)
+        self.Highlight:SetTexCoord(0,1,0.5,1)
+    end
+end
+
+function RematchAutoScrollBoxScrollToEndMixin:OnMouseUp()
+    if not self.isDisabled then
+        self.Texture:SetTexCoord(0,1,0,0.5)
+        self.Highlight:SetTexCoord(0,1,0,0.5)
+    end
+end
+
+-- self.scrollMethod should be "ScrollToBegin" or "ScrollToEnd", the ScrollBox method to scroll to top/bottom
+function RematchAutoScrollBoxScrollToEndMixin:OnClick(button)
+    local scrollBox = self:GetParent().ScrollBox
+    scrollBox[self.scrollMethod](scrollBox)
+    PlaySound(SOUNDKIT.IG_CHAT_BOTTOM)
+end
+
+-- to minimize work since this can be called many times while scrolling, this only does work if button needs enabled
+function RematchAutoScrollBoxScrollToEndMixin:SetToEnable()
+    if self.isDisabled then
+        self.isDisabled = false
+        self:GetScript("OnMouseUp")(self)
+        self:SetAlpha(1)
+        self:GetParent().ScrollBar[self.stepButton]:SetAlpha(1) -- un-dims the scrollbar's built-in Back/Forward button
+        self.Highlight:SetAlpha(0.3)
+    end
+end
+
+-- to minimize work since this can be called many times while scrolling, this only does work if button needs disabled
+function RematchAutoScrollBoxScrollToEndMixin:SetToDisable()
+    if not self.isDisabled then
+        self:GetScript("OnMouseUp")(self)
+        self:SetAlpha(0.5)
+        self:GetParent().ScrollBar[self.stepButton]:SetAlpha(0.5) -- dims the scrollbar's built-in Back/Forward button
+        self.Highlight:SetAlpha(0)
+        self.isDisabled = true
     end
 end
 

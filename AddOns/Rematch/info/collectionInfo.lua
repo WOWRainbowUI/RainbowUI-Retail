@@ -1,6 +1,7 @@
 local _,rematch = ...
 local L = rematch.localization
 local C = rematch.constants
+local settings = rematch.settings
 rematch.collectionInfo = {}
 
 --[[
@@ -145,3 +146,44 @@ function rematch.collectionInfo:GetCollectionStats()
     collectionStats:Start()
     return collectionStats
 end
+
+-- returns a table of winrecord stats for all teams, including a table of the top ten teamIDs by wins/percent
+-- limit, if given, will limit the topTeams to the first limit entries (3 or 10)
+function rematch.collectionInfo:GetWinStats(limit)
+    local winStats = {battles=0,teams=0,wins=0,losses=0,draws=0,topTeams={}}
+    local teamStats = {} -- ordered table of wins, percent wins and teamID gathered while counting totals
+    for teamID,team in rematch.savedTeams:AllTeams() do
+        if team.winrecord then
+            local recordWins = team.winrecord.wins or 0
+            local recordLosses = team.winrecord.losses or 0
+            local recordDraws = team.winrecord.draws or 0
+            local recordBattles = team.winrecord.battles or recordWins+recordLosses+recordDraws
+            winStats.teams = winStats.teams + 1
+            winStats.battles = winStats.battles + recordBattles
+            winStats.wins = winStats.wins + recordWins
+            winStats.losses = winStats.losses + recordLosses
+            winStats.draws = winStats.draws + recordDraws
+            if settings.RankWinsByPercent then
+                tinsert(teamStats,format("%.5f %06d %s",recordBattles>0 and recordWins/recordBattles or 0,recordWins,teamID))
+            else
+                tinsert(teamStats,format("%09d %.5f %s",recordWins,recordBattles>0 and recordWins/recordBattles or 0,teamID))
+            end
+        end
+    end
+    table.sort(teamStats,function(e1,e2) return e1>e2 end)
+    -- from all teams in teamStats, fill ordered table with top limit(eg top 10) {teamID,totalWins,percentWins}
+    for i=1,(limit or #teamStats) do
+        if teamStats[i] then
+            local value1,value2,teamID = teamStats[i]:match("([0-9.]+) ([0-9.]+) (.+)")
+            value1 = tonumber(value1)
+            value2 = tonumber(value2)
+            if settings.RankWinsByPercent then
+                tinsert(winStats.topTeams,{teamID,value2,value1})
+            else
+                tinsert(winStats.topTeams,{teamID,value1,value2})
+            end
+        end
+    end
+    return winStats
+end
+

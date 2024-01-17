@@ -149,8 +149,7 @@ end
 
 -- safari hat is a toy and needs to be applied by name; forcing a cache on login to get the name
 function rematch.toolbar:CacheSafariHat()
-    if not C_Item.IsItemDataCachedByID(C.SAFARI_HAT_ITEM_ID) then
-        GetItemInfo(C.SAFARI_HAT_ITEM_ID)
+    if not GetItemInfo(C.SAFARI_HAT_ITEM_ID) then
         rematch.timer:Start(0.1,rematch.toolbar.CacheSafariHat)
     end
 end
@@ -290,7 +289,7 @@ function rematch.toolbar.TotalsButton:OnMouseUp()
 end
 
 function rematch.toolbar.TotalsButton:OnClick()
-    rematch.dialog:ToggleDialog("PetSummary")
+    rematch.dialog:ToggleDialog(settings.MinimizePetSummary and "PetSummaryMinimized" or "PetSummary")
 end
 
 

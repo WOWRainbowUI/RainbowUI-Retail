@@ -238,6 +238,29 @@ function rematch.savedTeams:DeleteTeam(teamID)
     end
 end
 
+-- moves teamID to groupID and returns true if teamID's groupID was successfully changed
+function rematch.savedTeams:MoveTeam(teamID,groupID)
+    local moved = false
+    if rematch.savedTeams:IsUserTeam(teamID) and groupID and rematch.savedGroups[groupID] then
+        local team = rematch.savedTeams[teamID]
+        if groupID=="group:favorites" and groupID~=team.groupID then -- moving to favorites, set homeID
+            team.homeID = team.groupID
+            team.favorite = true
+            team.groupID = groupID
+            moved = true
+        elseif team.groupID=="group:favorites" and groupID~=team.groupID then -- moving out of favorites, clear homeID
+            team.homeID = nil
+            team.favorite = nil
+            team.groupID = groupID
+            moved = true
+        end
+    end
+    if moved then -- calling procedure may call this too which is fine; this is critical to run so group.teams can be rebuilt
+        rematch.savedTeams:TeamsChanged()
+    end
+    return moved
+end
+
 -- returns a unique team name, either based off the given name or "New Team", appending a (2) (or (3), (4), etc.)
 -- if the name is already taken
 function rematch.savedTeams:GetUniqueName(name)

@@ -92,7 +92,9 @@ function RematchPetCardStatMixin:OnEnter()
         end
         local petInfo = rematch.petInfo:Fetch(rematch.petCard.petID)
 
-        if info.altTooltip=="Breed" and (settings.PetCardMinimized or settings.PetCardHidePossibleBreeds) then -- special case for Breed stat, show BreedTable if possible breeds hidden
+        if info.enter then
+            info.enter(self,petInfo)
+        elseif info.altTooltip=="Breed" and (settings.PetCardMinimized or settings.PetCardHidePossibleBreeds) then -- special case for Breed stat, show BreedTable if possible breeds hidden
             rematch.petCard:ShowBreedTable(self)
         else
             local tooltipTitle = rematch.utils:Evaluate(rematch.utils:Evaluate(info.tooltipTitle,rematch.petCard,petInfo))
@@ -112,6 +114,9 @@ function RematchPetCardStatMixin:OnLeave()
             rematch.textureHighlight:Hide()
         end
         rematch.petCard:HideBreedTable()
+        if info.leave then
+            info.leave(self,rematch.petInfo:Fetch(rematch.petCard.petID))
+        end
     end
     rematch.tooltip:Hide()
 end

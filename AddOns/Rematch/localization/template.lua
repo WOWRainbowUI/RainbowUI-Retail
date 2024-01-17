@@ -1024,3 +1024,79 @@ L["In the Battle UI, hide the notes \"micro\" button to show notes for the curre
 L["When the queue is empty and a team loads with leveling slots, put random pets that are not max level into the leveling slots."] = nil
 L["Pick Random Max Level"] = nil
 L["When the queue is empty and a team loads with leveling slots, put random max-level pets in the leveling slots."] = nil
+
+-- Version: 5.1.0 --
+
+-- chrome\toolbarButtons.lua
+L["Safari Hat"] = nil
+
+-- dialogs\dialogMixins.lua
+L["Top %d Winning Teams"] = nil
+
+-- dialogs\summaryDialog.lua
+L["Rank teams by percentage won"] = nil
+L["Pet Types"] = nil
+L["Battles"] = nil
+
+-- main\constants.lua
+L["Pet Tags are a way to categorize pets for any meaning you choose. You can then filter by specific tags.\n\nTo tag a pet, right-click a pet in the pet list and choose a tag from the Pet Tags menu.\n\nTo easily tag multiple pets, choose the %sPet Herder\124r option in the main Filters menu.\n\nYou can rename a tag by moving the mouse over a tag in a Pet Tags menu and clicking the %s that appears to the right of the tag's name.\n\nFor instance you can rename %s to Wild Pets To Get, tag pets you'd like to capture with a %s, and the pet card and other places will use the new name for the tag."] = nil
+
+-- menus\petFilterMenu.lua
+L["Pet Tags"] = nil
+L["Pet Herder"] = nil
+
+-- panels\optionsList.lua
+L["Badge Options"] = nil
+L["Only Show Badges On Mouseover"] = nil
+L["Hide all badges unless the mouse is over the pet, team or target.\n\nA badge is a non-interactive icon to the right of a list item to indicate some property such as whether it's leveling.\n\nWith this option enabled, the notes button, breed and win record are also hidden unless the mouse is over the list item."] = nil
+L["Hide Team Badges %s"] = nil
+L["Hide the %s badge on pets and targets that indicate the pet or target is saved in a team."] = nil
+L["Hide Leveling Badges %s"] = nil
+L["Hide the %s badge on pets that indicate the pet is in the leveling queue."] = nil
+L["Hide Pet Tag Badges %s"] = nil
+L["Hide the pet tag badges (such as %s %s %s etc) on pets to indicate what pet tag has been given to the pet."] = nil
+L["Hide Target Badges %s"] = nil
+L["Hide the %s badge on teams that indicate the team contains a target."] = nil
+L["Hide Preference Badges %s"] = nil
+L["Hide the %s badge on teams that indicate the team contains leveling preferences."] = nil
+L["Hide Notes Badges %s"] = nil
+L["Hide the %s badge/button on pets and teams that indicate the pet or team has saved notes."] = nil
+L["Hide External Badges %s"] = nil
+L["Try to hide any badges added to lists from an external source like a third-party addon. (Rematch has no control over what outside addons do, so some addon's badges may not hide with this option.)"] = nil
+L["Larger Breed Text"] = nil
+L["Increase the size of breed text (such as B/B or H/P) on pet list buttons and pet slots."] = nil
+L["Combine Group Key"] = nil
+L["Don't Ask To Remove From Queue"] = nil
+
+-- panels\optionsPanel.lua
+L["Combine Groups Key"] = nil
+L["While dragging a team group in the team list, holding this modifier key when you click another group will combine the two groups by moving all teams in the group on the cursor into the clicked group."] = nil
+
+-- process\dragFrame.lua
+L["Combine Groups"] = nil
+L["Combine team groups?"] = nil
+L["This will move all teams from %s to %s, leaving the %s group empty."] = nil
+L["This will move all teams from %s to %s and then delete the emptied %s group afterwards."] = nil
+L["Don't Delete Empty Group"] = nil
+L["You can also selectively move many teams with the Team Herder tool from the Teams button"] = nil
+
+-- process\petHerder.lua
+L["Now click on pets in the pet list to use this action on the pets"] = nil
+L["Pick an action to use on multiple pets"] = nil
+L["Then click on pets in the pet list to use this action on the pets"] = nil
+L["Allow caging pets in a team"] = nil
+L["When the cursor changes to a \124TInterface\\Cursor\\Crosshairs:16\124t over a pet, click the pet to use the chosen action"] = nil
+L["You don't own this pet"] = nil
+L["Injured pets can't be caged"] = nil
+L["Slotted pets can't be caged"] = nil
+L["This pet is not tradable"] = nil
+L["This pet is in a team"] = nil
+L["This pet can't level"] = nil
+L["This pet has no pet tag"] = nil
+
+-- utils\utils.lua
+L["Cage Pet (Without Confirmation)"] = nil
+L["Set/Remove Favorite"] = nil
+L["Add/Remove From Leveling Queue"] = nil
+L["Remove Pet Tags"] = nil
+L["Set/Remove Pet Tag: %s"] = nil

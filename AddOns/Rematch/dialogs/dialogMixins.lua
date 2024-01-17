@@ -44,6 +44,12 @@ function RematchDialogTextMixin:SetTextColor(r,g,b)
     self.Text:SetTextColor(r,g,b)
 end
 
+function RematchDialogTextMixin:Reset()
+    if self==rematch.dialog.Canvas.Help then
+        self.Text:SetTextColor(0.85,0.85,0.85)
+    end
+end
+
 --[[ Feedback dialog control ]]
 
 RematchDialogFeedbackMixin = {}
@@ -1079,11 +1085,8 @@ function RematchDialogGroupPickerMixin:FillGroup(groupID)
     local group = groupID and rematch.savedGroups[groupID]
     self.Icon:SetTexture(group and group.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
     local xoff = -22
-    rematch.badges:ClearBadges(self.Badges)
-    if group.preferences then
-        rematch.badges:AddBadge(self.Badges,"preferences","RIGHT",self.Icon,"LEFT",-2,-1,-1)
-        xoff = xoff - C.BADGE_SIZE - 1
-    end
+    local badgesWidth = rematch.badges:AddBadges(self.Badges,"groups",groupID,"RIGHT",self.Icon,"LEFT",-2,-1,-1)
+    xoff = xoff - badgesWidth
     self.Text:SetPoint("BOTTOMRIGHT",xoff,2)
 end
 
@@ -1107,6 +1110,7 @@ function RematchDialogGroupPickerListButtonMixin:OnMouseUp()
     end
 end
 
+-- this is used for the GroupPicker
 function RematchDialogGroupPickerListButtonMixin:OnClick(button)
     if button~="RightButton" then
         local picker = self:GetParent():GetParent():GetParent():GetParent()
@@ -1266,11 +1270,8 @@ function RematchDialogGroupSelectMixin:Fill(groupID)
     self.Button.Name:SetText(rematch.utils:GetFormattedGroupName(groupID))
     self.Button.Icon:SetTexture(group.icon)
     local xoff = -22
-    rematch.badges:ClearBadges(self.Button.Badges)
-    if group.preferences then
-        rematch.badges:AddBadge(self.Button.Badges,"preferences","RIGHT",self.Button.Icon,"LEFT",-2,-1,-1)
-        xoff = xoff - C.BADGE_SIZE - 1
-    end
+    local badgesWidth = rematch.badges:AddBadges(self.Button.Badges,"groups",groupID,"RIGHT",self.Button.Icon,"LEFT",-2,-1,-1)
+    xoff = xoff - badgesWidth
     self.Button.Name:SetPoint("RIGHT",xoff,-1)
 end
 
@@ -1569,46 +1570,18 @@ end
 
 RematchDialogBattleSummaryMixin= {}
 
-function RematchDialogBattleSummaryMixin:OnLoad()
-    self.WinLabel:SetText(L["Won"])
-    self.LossLabel:SetText(L["Lost"])
-    self.DrawLabel:SetText(L["Draw"])
-end
-
 -- fills the BattleSummary control with totals of all team battles and returns teamID of team that won the most
-function RematchDialogBattleSummaryMixin:Fill()
-    local battles = 0
-    local teams = 0
-    local wins = 0
-    local losses = 0
-    local draws = 0
-    local bestTeamID
-    local bestTeamIDWins = 0
-    for teamID,team in rematch.savedTeams:AllTeams() do
-        if team.winrecord then
-            local recordWins = team.winrecord.wins or 0
-            local recordLosses = team.winrecord.losses or 0
-            local recordDraws = team.winrecord.draws or 0
-            local recordBattles = team.winrecord.battles or recordWins+recordLosses+recordDraws
-            teams = teams + 1
-            battles = battles + recordBattles
-            wins = wins + recordWins
-            losses = losses + recordLosses
-            draws = draws + recordDraws
-            if recordWins > bestTeamIDWins then
-                bestTeamID = teamID
-                bestTeamIDWins = recordWins
-            end
-        end
+function RematchDialogBattleSummaryMixin:Fill(stats)
+    if type(stats)=="table" then
+        local battles = stats.battles or 0
+        self.TotalBattles:SetText(format(L["%s%d\124r Battles for %s%d\124r Teams"],C.HEX_WHITE,battles,C.HEX_WHITE,stats.teams or 0))
+        self.WinAmount:SetText(stats.wins)
+        self.LossAmount:SetText(stats.losses)
+        self.DrawAmount:SetText(stats.draws)
+        self.WinPercent:SetText(battles>0 and floor(stats.wins*100/battles+0.5).."%" or "--")
+        self.LossPercent:SetText(battles>0 and floor(stats.losses*100/battles+0.5).."%" or "--")
+        self.DrawPercent:SetText(battles>0 and floor(stats.draws*100/battles+0.5).."%" or "--")
     end
-    self.TotalBattles:SetText(format(L["%s%d\124r Battles for %s%d\124r Teams"],C.HEX_WHITE,battles,C.HEX_WHITE,teams))
-    self.WinAmount:SetText(wins)
-    self.LossAmount:SetText(losses)
-    self.DrawAmount:SetText(draws)
-    self.WinPercent:SetText(battles>0 and floor(wins*100/battles+0.5).."%" or "--")
-    self.LossPercent:SetText(battles>0 and floor(losses*100/battles+0.5).."%" or "--")
-    self.DrawPercent:SetText(battles>0 and floor(draws*100/battles+0.5).."%" or "--")
-    return bestTeamID
 end
 
 --[[ RematchDialogBarChartIconMixin ]]
@@ -1627,4 +1600,164 @@ end
 function RematchDialogBarChartIconMixin:OnLeave()
     rematch.textureHighlight:Hide()
     rematch.tooltip:Hide()
+end
+
+--[[ RematchDialogTopTeamsMixin ]]
+
+RematchDialogTopTeamsMixin = {}
+
+-- teams is an ordered list of teams {teamID,totalWins,percentWins}
+function RematchDialogTopTeamsMixin:Fill(teams)
+    self.TeamsLabel:SetText(format(L["Top %d Winning Teams"],#teams))
+    local height = 22
+    for _,button in ipairs(self.Buttons) do
+        button:Hide()
+    end
+    for i,info in pairs(teams) do
+        if not self.Buttons[i] then
+            self.Buttons[i] = CreateFrame("Button",nil,self,"RematchDialogTopTeamsListButtonTemplate")
+            self.Buttons[i]:SetPoint("TOPLEFT",self.Buttons[i-1],"BOTTOMLEFT")
+        end
+        self.Buttons[i].teamID = info[1]
+        local team = rematch.savedTeams[info[1]]
+        self.Buttons[i].Rank:SetText(format("%d.",i))
+        self.Buttons[i].Name:SetText(rematch.utils:GetFormattedTeamName(info[1]))
+        self.Buttons[i].Wins:SetText(info[2])
+        local percent = floor(info[3]*100+0.5)
+        self.Buttons[i].Percent:SetText(percent.."%")
+        local r,g,b = 1,0.82,0
+        if percent >= 60 then
+            r,g,b = 0.125,0.9,0.125
+        elseif percent <= 40 then
+            r,g,b = 1,0.28235,0.28235
+        end
+        self.Buttons[i].Wins:SetTextColor(r,g,b)
+        self.Buttons[i].Percent:SetTextColor(r,g,b)
+        for j=1,3 do
+            local petInfo = rematch.petInfo:Fetch(team.pets[j])
+            self.Buttons[i].Pets[j].petID = team.pets[j]
+            self.Buttons[i].Pets[j]:SetTexture(petInfo.icon)            
+        end
+        height=height+26
+        self.Buttons[i]:Show()
+    end
+    self:SetHeight(height)
+end
+
+-- mouse events for TopTeam list buttons
+RematchDialogTopTeamsListButtonMixin = {}
+
+function RematchDialogTopTeamsListButtonMixin:OnEnter()
+    rematch.textureHighlight:Show(self.Back)
+    if not settings.HideTruncatedTooltips and self.Name:IsTruncated() then
+        rematch.tooltip:ShowSimpleTooltip(self,nil,self.Name:GetText() or "","BOTTOM",self.Name,"TOP",0,5,true)
+    end    
+end
+
+function RematchDialogTopTeamsListButtonMixin:OnLeave()
+    rematch.textureHighlight:Hide()
+    rematch.tooltip:Hide()
+end
+
+function RematchDialogTopTeamsListButtonMixin:OnMouseDown()
+    rematch.textureHighlight:Hide()
+end
+
+function RematchDialogTopTeamsListButtonMixin:OnMouseUp()
+    if GetMouseFocus()==self then
+        rematch.textureHighlight:Show(self.Back)
+    end
+end
+
+function RematchDialogTopTeamsListButtonMixin:OnClick(button)
+    if rematch.savedTeams:IsUserTeam(self.teamID) then
+        rematch.layout:SummonView("teams")
+        rematch.teamsPanel.List:ScrollDataIntoView(self.teamID)
+        rematch.teamsPanel.List:BlingData(self.teamID)
+    end
+end
+
+-- mouse events for TopTeams pets in each list button
+RematchDialogTopTeamsListPetButtonMixin = {}
+
+function RematchDialogTopTeamsListPetButtonMixin:OnEnter()
+    rematch.textureHighlight:Show(self,self:GetParent().Back)
+    rematch.cardManager:OnEnter(rematch.petCard,self:GetParent(),self.petID) -- anchor to parent
+end
+
+function RematchDialogTopTeamsListPetButtonMixin:OnLeave()
+    rematch.textureHighlight:Hide()
+    rematch.cardManager:OnLeave(rematch.petCard,self:GetParent(),self.petID)
+end
+
+function RematchDialogTopTeamsListPetButtonMixin:OnMouseDown()
+    rematch.textureHighlight:Hide()
+end
+
+function RematchDialogTopTeamsListPetButtonMixin:OnMouseUp()
+    if GetMouseFocus()==self then
+        rematch.textureHighlight:Show(self,self:GetParent().Back)
+        rematch.cardManager:OnClick(rematch.petCard,self:GetParent(),self.petID)
+    end
+end
+
+--[[ PetHerderPickerMixin ]]
+
+PetHerderPickerMixin = {}
+
+function PetHerderPickerMixin:Update()
+    for _,button in ipairs(self.Buttons) do
+        local actionID = rematch.petHerder:GetActionID()
+        if actionID then
+            button:SetDesaturated(button.actionID~=actionID)
+            if button.actionID==actionID then
+                self.Selected:ClearAllPoints()
+                self.Selected:SetPoint("TOPLEFT",button,"TOPLEFT",-3,3)
+                self.Selected:Show()
+            end
+        else
+            button:SetDesaturated(false)
+            self.Selected:Hide()
+        end
+        -- while here, set up the Onclick for each button if it hasn't been defined yet
+        if not button.OnClick then
+            button.OnClick = self.ButtonOnClick
+        end
+    end
+end
+
+-- when dialog closes, reset actionID
+function PetHerderPickerMixin:Reset()
+    rematch.petHerder:SetActionID(nil)
+end
+
+-- click of one of the pet herder actions
+function PetHerderPickerMixin:ButtonOnClick()
+    local picker = self:GetParent()
+    if self.actionID==rematch.petHerder:GetActionID() then
+        rematch.petHerder:SetActionID(nil)
+    else
+        rematch.petHerder:SetActionID(self.actionID)
+    end
+    picker:Update()
+    rematch.dialog:OnChange()
+end
+
+-- need to watch for something being picked up on the cursor while in pet herder targeting mode
+-- while this dialog control is on screen
+function PetHerderPickerMixin:OnShow()
+    rematch.events:Register(self,"CURSOR_CHANGED",self.CURSOR_CHANGED)
+    rematch.frame:Update()
+end
+
+function PetHerderPickerMixin:OnHide()
+    rematch.events:Unregister(self,"CURSOR_CHANGED")
+    SetCursor(nil)
+    rematch.frame:Update()
+end
+
+function PetHerderPickerMixin:CURSOR_CHANGED()
+    if rematch.dialog:GetOpenDialog()=="PetHerder" and GetCursorInfo() then
+        rematch.dialog:Hide()
+    end    
 end

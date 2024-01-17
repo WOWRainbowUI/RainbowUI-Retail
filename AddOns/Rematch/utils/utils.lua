@@ -217,6 +217,24 @@ function rematch.utils:GetFormattedExpansionName(expansionID)
     return format("\124cff%s%s\124r",color,_G["EXPANSION_NAME"..expansionID] or UNKNOWN)
 end
 
+function rematch.utils:GetFormattedActionName(actionID)
+    if actionID=="cage" then
+        return L["Cage Pet (Without Confirmation)"]
+    elseif actionID=="favorite" then
+        return L["Set/Remove Favorite"]
+    elseif actionID=="leveling" then
+        return L["Add/Remove From Leveling Queue"]
+    elseif actionID=="marker:0" then
+        return L["Remove Pet Tags"]
+    elseif type(actionID)=="string" then
+        local markerIndex = actionID:match("marker:(.+)")
+        if tonumber(markerIndex) then
+            return format(L["Set/Remove Pet Tag: %s"],rematch.utils:GetFormattedMarkerName(tonumber(markerIndex)))
+        end
+    end
+    return actionID
+end
+
 -- if dim is true, set text to 0.5,0.5,0.5; otherwise set to r,g,b (or 1,0.82,0 if none given)
 function rematch.utils:SetDimText(fontstring,dim,r,g,b)
     if not r then

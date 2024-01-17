@@ -1,8 +1,8 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: Rematch
 ## Notes: A pet journal alternative for managing pets and teams
 ## Author: Gello
-## Version: 5.0.7
+## Version: 5.1.0
 ## SavedVariables: Rematch5Settings, Rematch5SavedTeams, Rematch5SavedGroups, Rematch5SavedTargets, Rematch4Saved, Rematch4Settings, RematchSaved, RematchSettings
 ## IconTexture: Interface\AddOns\Rematch\textures\icon
 ## AddonCompartmentFunc: RematchToggleWindow
@@ -24,7 +24,6 @@ utils\utils.lua
 utils\debug.lua
 utils\timer.lua
 utils\odTable.lua
-utils\badges.lua
 utils\textureDrag.lua
 
 info\petInfo.lua
@@ -109,3 +108,5 @@ process\winrecord.lua
 process\battle.lua
 process\rebuild.lua
 process\send.lua
+process\petHerder.lua
+process\badges.lua

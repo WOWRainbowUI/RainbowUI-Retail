@@ -65,6 +65,9 @@ local defaults = {
     ConvertedTeams = {}, -- indexed by Rematch 4 team key, the Rematch 5 teamID that the key was converted into
     BackupCount = 0, -- number of teams created since a backup was last offered
     WasShownOnLogout = false, -- true if the rematch window was on screen during logout
+    RankWinsByPercent = false, -- in PetSummary dialog, whether to rank teams by percent instead of wins
+    MinimizePetSummary = true, -- whether to use PetSummaryMinimized dialog rather than PetSummary (maximized)
+    DontDeleteOnCombine = false, -- Don't Delete Empty Group in CombineGroups dialog
 
     -- Interaction Options
     InteractOnTarget = C.INTERACT_NONE, -- On Target (dropdown)
@@ -105,6 +108,14 @@ local defaults = {
     ShowAbilityNumbers = false, -- Show Abiltiy Numbers
     ShowAbilityNumbersLoaded = false, -- On Loaded Abilities Too
 
+    -- Badge Options
+    HideTeamBadges = false, -- Hide Team Badges
+    HideLevelingBadges = false, -- Hide Leveling Badges
+    HideMarkerBadges = false, -- Hide Marker Badges
+    HideTargetBadges = false, -- Hide Target Badges
+    HidePreferenceBadges = false, -- Hide Preference Badges
+    HideNotesBadges = false, -- HideNotesBadges
+   
     -- Behavior Options
     CardBehavior = "Normal", -- Card Speed (dropdown)
     TooltipBehavior = "Normal", -- Tooltip Speed (dropdown)
@@ -140,6 +151,7 @@ local defaults = {
     BreedFormat = C.BREED_FORMAT_LETTERS, -- Breed Format (dropdown)
     HideBreedsLists = false, -- Hide Breed In Lists
     HideBreedsLoadouts = false, -- Hide Breed In Pet Slots
+    LargerBreedText = false, -- Larger Breed Text
 
     -- Pet Card Options
     PetCardBackground = "Expansion", -- Card Background
@@ -167,6 +179,7 @@ local defaults = {
     EchoTeamDrag = false, -- Display Where Teams Dragged
     EnableDrag = true, -- Enable Drag To Move Teams
     ClickToDrag = false, -- Require Click To Drag
+    CombineGroupKey = "None", -- Group Combine Key
     ImportRememberOverride = false, -- Remember Override Import Option
     PrioritizeBreedOnImport = false, -- Prioritize Breed On Import
 

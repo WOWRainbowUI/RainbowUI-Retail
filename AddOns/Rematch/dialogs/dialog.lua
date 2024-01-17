@@ -30,10 +30,18 @@ rematch.dialog = RematchDialog
         ["Default"] = {"Text","Pet","etc"}, -- list of controls to use when dialog first opened
         ["AltLayout"] = {"Text","Pet","Feedback","etc"}, -- alternate layout for adding/removing controls
     },
-    layout = {"Text","Pet","etc"} -- for single-layout dialogs
+    layout = {"Text","Pet","etc"} -- for single-layout dialogs,
+    minimize = { -- only exists if dialog is minimizable
+        nextState = string, -- either "minimize" or "maximize"; the minimize icon to display
+        nextDialog = string, -- the dialog to open when the minimize/maximize button is clicked
+    }
 
     To change the displayed title:
         rematch.dialog:SetTitle(text)
+
+    On minimizable dialogs, if LayoutTabs are used, make sure the name of the tab is the same as the layout.
+    (For instance, "Battles" layout should have a tab with a "Battles" tab identifier). It will attempt to
+    return to the tab of the opened layout when it switches to the minimized/maximized dialog.
 
 ]]
 
@@ -48,6 +56,20 @@ rematch.events:Register(rematch.dialog,"PLAYER_LOGIN",function(self)
     self.InsetBg:SetPoint("BOTTOMRIGHT",-6,C.BOTTOMBAR_HEIGHT+6)
     self:Reset()
     self.CloseButton:SetScript("OnKeyDown",self.CloseButton.OnKeyDown)
+    self.MinimizeButton:SetScript("OnClick",function(self,button)
+        if self.nextDialog then
+            local layout = rematch.dialog:GetOpenLayout()
+            local tabsShown = rematch.dialog.Canvas.LayoutTabs:IsVisible()
+            rematch.dialog:ShowDialog(self.nextDialog)
+            if rematch.dialog:GetOpenLayout()~=layout then
+                if tabsShown then
+                    rematch.dialog.Canvas.LayoutTabs:GoToTab(layout)
+                else
+                    rematch.dialog:ChangeLayout(layout)
+                end
+            end
+        end
+    end)
 end)
 
 function rematch.dialog:OnMouseDown()
@@ -153,6 +175,11 @@ function rematch.dialog:ShowDialog(name,subject,layoutTab)
     self.AcceptButton:SetShown(info.accept and true)
     self.OtherButton.Text:SetText(info.other)
     self.OtherButton:SetShown(info.other and true)
+    self.MinimizeButton:SetShown(type(info.minimize)=="table")
+    if type(info.minimize)=="table" then
+        self.MinimizeButton:SetIcon(info.minimize.nextState)
+        self.MinimizeButton.nextDialog = info.minimize.nextDialog
+    end
     -- start with the Default layout
     self:ChangeLayout("Default",true)
     -- if info.layouts and info.layouts.Default then
@@ -205,6 +232,8 @@ function rematch.dialog:Reset()
             child.Reset(child) -- if element has a reset function, run it
         end
     end
+    self.MinimizeButton:Hide()
+    self.MinimizeButton.nextDialog = nil
     -- enable buttons that may have been disabled
     self.AcceptButton:Enable()
     self.OtherButton:Enable()

@@ -79,6 +79,11 @@ function rematch.petCard:Update(petID)
 
     -- if this is a leveling, random or ignored pet card, it can't flip
     local petInfo = rematch.petInfo:Fetch(self.petID)
+
+    if not petInfo.name then
+        rematch.petCard:Hide()
+    end
+
     if petInfo.isSpecialType then
         self.hardFlip = false
         self.softFlip = false

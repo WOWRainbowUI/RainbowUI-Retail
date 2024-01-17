@@ -12,7 +12,7 @@ rematch.events:Register(rematch.petMenu,"PLAYER_LOGIN",function(self)
         {title=pm.GetPetName},
         {text=pm.SummonOrDismissText, hidden=pm.NotOwnedPet, func=pm.SummonOrDismissFunc},
         {text=L["Set Notes"], func=pm.ShowNotes},
-        {text=L["Pet Marker"], hidden=pm.NotObtainablePet, subMenu="SetPetMarker"},
+        {text=L["Pet Tags"], hidden=pm.NotObtainablePet, subMenu="SetPetMarker"},
         {text=L["Find Similar"], hidden=pm.NotObtainablePet, func=pm.FindSimilarFunc},
         {text=L["Find Moveset"], hidden=pm.NotObtainablePet, func=pm.FindMovesetFunc},
         {text=L["Find Teams"], isDisabled=pm.NotInTeam, func=pm.ListTeams},
@@ -29,14 +29,14 @@ rematch.events:Register(rematch.petMenu,"PLAYER_LOGIN",function(self)
     }
     rematch.menus:Register("PetMenu",menu)
 
-	local setPetMarkerMenu = {{title=L["Pet Marker"]}}
+	local setPetMarkerMenu = {{title=L["Pet Tags"]}}
 	for i=8,1,-1 do
-		tinsert(setPetMarkerMenu,{text=pm.GetMarkerName, icon="Interface\\TargetingFrame\\UI-RaidTargetingIcons", iconCoords=pm.GetIconCoords, key=i, func=pm.SetPetMarker})
+		tinsert(setPetMarkerMenu,{text=pm.GetMarkerName, radio=true, icon="Interface\\TargetingFrame\\UI-RaidTargetingIcons", iconCoords=pm.GetIconCoords, key=i, isChecked=pm.IsMarkerChecked, func=pm.SetPetMarker, editButton=true, editFunc=pm.RenameMarker})
 	end
     -- the "None" option is value 9 for filtering purposes (a nil entry like the PetMarkers[speciesID] setting would
     -- confuse the emptiness of the filter)
-	tinsert(setPetMarkerMenu,{text=NONE, icon="", key=9, func=pm.SetPetMarker})
-    tinsert(setPetMarkerMenu,{text=L["Help"], stay=true, hidden=function() return settings.HideMenuHelp end, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Pet Marker"], tooltipBody=L["You can rename Pet Markers from the Filter menu. Move the mouse over a Pet Marker in the Filter menu and click the gear button to rename."]})
+	tinsert(setPetMarkerMenu,{text=NONE, radio=true, icon="", key=9, isChecked=pm.IsMarkerChecked, func=pm.SetPetMarker})
+    tinsert(setPetMarkerMenu,{text=L["Help"], stay=true, isHelp=true, hidden=function() return settings.HideMenuHelp end, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Pet Tags"], tooltipBody=format(C.HELP_TEXT_PET_TAGS,C.HEX_WHITE,rematch.utils:IconAsText("Interface\\WorldMap\\Gear_64Grey"),rematch.utils:GetBadgeAsText(21,16,true),rematch.utils:GetBadgeAsText(21,16,true))})
     tinsert(setPetMarkerMenu,{text=CANCEL})
 	rematch.menus:Register("SetPetMarker",setPetMarkerMenu)
 
@@ -370,4 +370,13 @@ function rematch.petMenu:ListTeams(petID)
         rematch.layout:SummonView("teams")
         rematch.teamsPanel:SetSearch(petID)
     end
+end
+
+function rematch.petMenu:RenameMarker()
+	rematch.dialog:ShowDialog("RenamePetMarkerDialog",self.key)
+end
+
+function rematch.petMenu:IsMarkerChecked(petID)
+    local marker = rematch.petInfo:Fetch(petID).marker
+    return (not marker and self.key==9) or marker==self.key
 end
