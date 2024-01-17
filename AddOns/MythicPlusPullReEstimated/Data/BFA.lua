@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1700046129,
-        version = '10.2.0',
-        build = 52148,
+        timestamp = 1705432281,
+        version = '10.2.5',
+        build = 52902,
     }
 end
 
@@ -53,7 +53,7 @@ function data:GetNPCData()
         [127879] = { ["name"] = "Shieldbearer of Zul", ["count"] = 4 },
         [128434] = { ["name"] = "Feasting Skyscreamer", ["count"] = 4 },
         [128435] = { ["name"] = "Toxic Saurid", ["count"] = 1 },
-        [128455] = { ["name"] = "T'lonja", ["count"] = 6 },
+        [128455] = { ["name"] = "T'lonja", ["count"] = 8 },
         [128551] = { ["name"] = "Irontide Mastiff", ["count"] = 4 },
         [128967] = { ["name"] = "Ashvane Sniper", ["count"] = 4 },
         [128969] = { ["name"] = "Ashvane Commander", ["count"] = 8 },
@@ -72,7 +72,7 @@ function data:GetNPCData()
         [129548] = { ["name"] = "Blacktooth Brute", ["count"] = 4 },
         [129550] = { ["name"] = "Bilge Rat Padfoot", ["count"] = 4 },
         [129551] = { ["name"] = "Bilge Rat Mixologist", ["count"] = 1 },
-        [129552] = { ["name"] = "Monzumi", ["count"] = 6 },
+        [129552] = { ["name"] = "Monzumi", ["count"] = 8 },
         [129553] = { ["name"] = "Dinomancer Kish'o", ["count"] = 10 },
         [129559] = { ["name"] = "Cutwater Duelist", ["count"] = 3 },
         [129598] = { ["name"] = "Freehold Pack Mule", ["count"] = 1 },

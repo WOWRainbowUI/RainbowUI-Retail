@@ -1,8 +1,7 @@
 # Mythic Plus Pull ReEstimated
 
-## [v1.9.0](https://github.com/NumyAddon/MythicPlusPullReEstimated/tree/v1.9.0) (2023-12-03)
-[Full Changelog](https://github.com/NumyAddon/MythicPlusPullReEstimated/compare/v1.8.11...v1.9.0) [Previous Releases](https://github.com/NumyAddon/MythicPlusPullReEstimated/releases)
+## [v1.9.2](https://github.com/NumyAddon/MythicPlusPullReEstimated/tree/v1.9.2) (2024-01-17)
+[Full Changelog](https://github.com/NumyAddon/MythicPlusPullReEstimated/compare/v1.9.1...v1.9.2) [Previous Releases](https://github.com/NumyAddon/MythicPlusPullReEstimated/releases)
 
-- minor cleanup  
-- Reworked the options UI, and added an experimental option for WAs/addons that use MythicDungeonTools for % data, to use this addon instead (if MDT addon is not enabled)  
-- Fixed some rounding errors, which sometimes resulted in 99.9% showing up instead of 100%  
+- TOC Bump  
+- Data update for 10.2.5  
