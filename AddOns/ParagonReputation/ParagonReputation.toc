@@ -1,0 +1,14 @@
+## Interface: 100200
+## Title: |cff0088eeParagon|r Reputation
+## Author: |cffabd473Fail|r |cffff4000US-Ragnaros|r
+## Version: 1.50
+## Notes: Better visualization of Paragon Factions on the Reputation Frame.
+## IconTexture: 3753261
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## SavedVariables: ParagonReputationDB
+
+data.lua
+localization.lua
+options.lua
+core.lua
