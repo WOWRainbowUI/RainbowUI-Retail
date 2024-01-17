@@ -14,6 +14,7 @@ local L = WeakAuras.L
 	L["%d |4aura:auras; added"] = "%d 個提醒效果; 已新增"
 	L["%d |4aura:auras; deleted"] = "%d 個提醒效果; 已刪除"
 	L["%d |4aura:auras; modified"] = "%d 個提醒效果; 已更改"
+	L["%d |4aura:auras; with meta data modified"] = "%d |4aura:auras; 元數據已修改"
 	L["%i auras selected"] = "已選擇 %i 個提醒效果"
 	L["%i."] = "%i。"
 	L["%i. %s"] = "%i。%s"
@@ -43,6 +44,7 @@ local L = WeakAuras.L
 	L["%s %s, Lines: %d, Frequency: %0.2f, Length: %d, Thickness: %d"] = "%s %s, 直線: %d, 頻率: %0.2f, 長度: %d, 粗細: %d"
 	L["%s %s, Particles: %d, Frequency: %0.2f, Scale: %0.2f"] = "%s %s, 粒子: %d, 頻率: %0.2f, 縮放大小: %0.2f"
 	L["%s %u. Overlay Function"] = "%s %u. 疊加功能"
+	L["%s (%s)"] = "%s (%s)"
 	L["%s Alpha: %d%%"] = "%s透明度: %d%%"
 	L["%s Color"] = "%s 顏色"
 	L["%s Custom Variables"] = "%s 自訂變數"
@@ -571,6 +573,8 @@ Can use \ to escape -.]=] ] = "過濾格式: '名字'、'名字-伺服器'、'-�
 	L["Linked aura: "] = "已連結光環: "
 	L["Load"] = "載入"
 	L["Loaded"] = "已載入"
+	--[[Translation missing --]]
+	L["Loaded/Standby"] = "Loaded/Standby"
 	L["Lock Positions"] = "鎖定位置"
 	L["Loop"] = "重複循環"
 	L["Low Mana"] = "低法力"
@@ -818,12 +822,15 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = [=[事件發�
 	L["Spark Settings"] = "亮點設定"
 	L["Spark Texture"] = "亮點材質"
 	L["Specialization"] = "專精"
+	L["Specific Currency ID"] = "特定兌換通貨ID"
 	L["Specific Unit"] = "指定單位"
 	L["Spell ID"] = "法術 ID"
 	L["Spell Selection Filters"] = "法術選擇過濾器"
 	L["Stack Count"] = "堆疊層數"
 	L["Stack Info"] = "堆疊層數資訊"
 	L["Stagger"] = "醉仙緩勁"
+	--[[Translation missing --]]
+	L["Standby"] = "Standby"
 	L["Star"] = "星星"
 	L["Start"] = "開始"
 	L["Start Angle"] = "開始時的角度"
@@ -864,10 +871,8 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = [=[事件發�
 	L["This adds %tooltip, %tooltip1, %tooltip2, %tooltip3 and %tooltip4 as text replacements and also allows filtering based on the tooltip content/values."] = "這會加入 %tooltip, %tooltip1, %tooltip2, %tooltip3 和 %tooltip4 來替換文字，還允許根據浮動提示資訊的內容/值來過濾。"
 	L[ [=[This aura contains custom Lua code.
 Make sure you can trust the person who sent it!]=] ] = "這個提醒效果包含自訂的 Lua 程式碼，請務必確定你能夠信任傳送給你的人!"
-	--[[Translation missing --]]
-	L["This aura is marked as an update to an aura '%s', but cannot be used to update that aura. This usually happens if an aura is moved out of a group."] = "This aura is marked as an update to an aura '%s', but cannot be used to update that aura. This usually happens if an aura is moved out of a group."
-	--[[Translation missing --]]
-	L["This aura is marked as an update to auras '%s', but cannot be used to update them. This usually happens if an aura is moved out of a group."] = "This aura is marked as an update to auras '%s', but cannot be used to update them. This usually happens if an aura is moved out of a group."
+	L["This aura is marked as an update to an aura '%s', but cannot be used to update that aura. This usually happens if an aura is moved out of a group."] = "此光環被標記為光環‘%s’的新版本，但無法用於更新該光環。此問題常見於該光環曾被移出群組。"
+	L["This aura is marked as an update to auras '%s', but cannot be used to update them. This usually happens if an aura is moved out of a group."] = "此光環被標記為光環‘%s’的新版本，但無法用於更新該光環。此問題常見於該光環曾被移出群組。"
 	L[ [=[This aura was created with a different version (%s) of World of Warcraft.
 It might not work correctly!]=] ] = "這個提醒效果是由不同版本 (%s) 的魔獸世界建立的，可能無法正常運作!"
 	L[ [=[This aura was created with a newer version of WeakAuras.
@@ -875,6 +880,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 安裝這個提醒效果之前，請先升級你的 WeakAuras 版本，或是等待下次發佈更新。]=]
 	L["This display is currently loaded"] = "這個提醒效果已經載入"
 	L["This display is not currently loaded"] = "這個提醒效果尚未載入"
+	--[[Translation missing --]]
+	L["This display is on standby, it will be loaded when needed."] = "This display is on standby, it will be loaded when needed."
 	L["This enables the collection of debug logs. Custom code can add debug information to the log through the function DebugPrint."] = "這會啟用蒐集除錯記錄，自訂程式碼可以透過 DebugPrint 函數將除錯資訊加入到記錄中。"
 	L["This is a modified version of your aura, |cff9900FF%s.|r"] = "這是你的提醒效果的修改版本，|cff9900FF%s。|r"
 	L["This is a modified version of your group: |cff9900FF%s|r"] = "這是您群組的修改版本：|cff9900FF%s|r"

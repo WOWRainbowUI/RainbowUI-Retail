@@ -8,6 +8,18 @@ local L = WeakAuras.L
 
 -- WeakAuras/Templates
 	--[[Translation missing --]]
+	L["(Dwarf)"] = "(Dwarf)"
+	--[[Translation missing --]]
+	L["(Dwarf/Human)"] = "(Dwarf/Human)"
+	--[[Translation missing --]]
+	L["(Human)"] = "(Human)"
+	--[[Translation missing --]]
+	L["(Night Elf)"] = "(Night Elf)"
+	--[[Translation missing --]]
+	L["(Troll)"] = "(Troll)"
+	--[[Translation missing --]]
+	L["(Undead)"] = "(Undead)"
+	--[[Translation missing --]]
 	L["< 4 stacks"] = "< 4 stacks"
 	--[[Translation missing --]]
 	L["5 stacks"] = "5 stacks"
@@ -53,6 +65,8 @@ local L = WeakAuras.L
 	L["Create Auras"] = "Crear auras"
 	L["debuff"] = "perjuicio"
 	L["Debuffs"] = "Perjuicios"
+	--[[Translation missing --]]
+	L["dps buff"] = "dps buff"
 	L["General"] = "General"
 	L["Health"] = "Salud"
 	L["Highlight while action is queued."] = "Resaltar mientras la acción está en cola."
@@ -65,6 +79,8 @@ local L = WeakAuras.L
 	L["Highlight while spell is active."] = "Resaltar mientras el hechizo está activo."
 	L["Hold CTRL to create multiple auras at once"] = "Mantén pulsado CTRL para crear varias auras a la vez"
 	L["Keeps existing triggers intact"] = "Mantiene intactos los activadores existentes"
+	--[[Translation missing --]]
+	L["Master Channeler Rune"] = "Master Channeler Rune"
 	--[[Translation missing --]]
 	L["Max 3"] = "Max 3"
 	--[[Translation missing --]]
@@ -83,6 +99,8 @@ local L = WeakAuras.L
 	L["Pet Behavior"] = "Comportamiento de mascota"
 	--[[Translation missing --]]
 	L["PvP Talents"] = "PvP Talents"
+	--[[Translation missing --]]
+	L["regen buff"] = "regen buff"
 	L["Replace all existing triggers"] = "Sustituir todos los activadores existentes"
 	L["Replace Triggers"] = "Sustituir activadores"
 	L["Resources"] = "Recursos"
