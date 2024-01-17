@@ -1,5 +1,5 @@
-## Interface: 100200
-## Version: 10.2.0.1
+## Interface: 100205
+## Version: 10.2.5.0
 ## Title: Masque Blizzard Bars
 ## Notes: Enables Masque to skin the built-in action bars
 ## Author: SimGuy
