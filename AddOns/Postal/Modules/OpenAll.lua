@@ -280,11 +280,11 @@ function Postal_OpenAll:ProcessNext()
 			local free=0
 			for bag=0,NUM_BAG_SLOTS do
 				local bagFree, bagFam
-				if Postal.WOWBCClassic then
-					bagFree, bagFam = GetContainerNumFreeSlots(bag)
-				else
+--				if Postal.WOWBCClassic then
+--					bagFree, bagFam = GetContainerNumFreeSlots(bag)
+--				else
 					bagFree, bagFam = C_Container.GetContainerNumFreeSlots(bag)
-				end
+--				end
 				if bagFam==0 then
 					free = free + bagFree
 				end

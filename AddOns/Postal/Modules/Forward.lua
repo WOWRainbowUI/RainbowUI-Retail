@@ -64,11 +64,11 @@ local function FreeBagSpace()
 	local FreeSpace = 0
 	for bagID = 0, 4, 1 do
 		local numberOfFreeSlots, bagType
-		if Postal.WOWBCClassic then
-			numberOfFreeSlots, bagType = GetContainerNumFreeSlots(bagID)
-		else
+--		if Postal.WOWBCClassic then
+--			numberOfFreeSlots, bagType = GetContainerNumFreeSlots(bagID)
+--		else
 			numberOfFreeSlots, bagType = C_Container.GetContainerNumFreeSlots(bagID)
-		end
+--		end
 		FreeSpace = FreeSpace + numberOfFreeSlots
 	end
 	return FreeSpace
