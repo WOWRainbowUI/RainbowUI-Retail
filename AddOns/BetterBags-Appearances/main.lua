@@ -314,7 +314,7 @@ function isKnown(itemID)
 end
 
 function isUsableByCurrentClass(data)
-    local itemType = data.itemInfo.itemSubType
+    local itemType = data.itemInfo.itemSubType or "" -- 暫時修正
     local upperItemType = string.upper(data.itemInfo.itemSubType or "") -- 暫時修正
     local equipLoc = data.itemInfo.itemEquipLoc
 
