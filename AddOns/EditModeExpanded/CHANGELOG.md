@@ -1,7 +1,7 @@
 # Edit Mode Expanded
 
-## [10.2-009](https://github.com/teelolws/EditModeExpanded/tree/10.2-009) (2024-01-08)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/10.2-008...10.2-009) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [10.2-010](https://github.com/teelolws/EditModeExpanded/tree/10.2-010) (2024-01-16)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/10.2-009...10.2-010) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Fix data integrity issue  
-    https://github.com/teelolws/EditModeExpanded/issues/128  
+- TOC update: 10.2.5  
+- Going forward, library should handle different versions being installed a little better  
