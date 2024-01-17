@@ -1,6 +1,17 @@
 ------------------------------------------------------------------------------
 -- Dragonflight
 --
+v10.2.5.2777
+	Fixed Cycle of Binding CDR when auras are refreshed.
+	Fixed Illuminated Sigils not adding a charge to Elysian Decree.
+
+v10.2.5.2776
+	Patch 10.2.5 - shared cd for healer pvp trinket updated
+	Added Sundering (Enhance Shaman, talent).
+	Added highlighting for key Summon abilities (e.g. Gargoyle, Demonic Tyrant, Infernal, Darkglare).
+	Berserk (Druid, Feral) spell-type fixed from CC to Offensive. This also fixes highlighting.
+	Cycle of Binding (Vengeance DH, talent) fixed: Elysian Decree will correctly reduce other Sigils' remaining CD.
+
 v10.2.0.2774
 	Added option to force disable talent-abilities by spec/zone. (e.g. disable Avenging Wrath for Prot/Ret in raids)
 	Updated Thief's Bargain CDR to 20% (December 5, 2023).
@@ -951,6 +962,9 @@ v2.6.01-bcc
 ------------------------------------------------------------------------------
 -- classic era
 --
+v1.15.0.2775
+	Talent inspection will correctly work for group members without OmniCD
+
 v1.15.0.2774
 	bump toc
 

@@ -100,6 +100,13 @@ local unitFrameData = {
 		[5] = 6,
 	},
 	{
+		[1] = "Cell-QuickAssist",
+		[2] = "CellQuickAssistHeaderUnitButton",
+		[3] = "unit",
+		[4] = 1,
+		[5] = 40,
+	},
+	{
 		[1] = "AshToAsh",
 		[2] = "AshToAshUnit%dUnit", -- panel#
 		[3] = "unit",

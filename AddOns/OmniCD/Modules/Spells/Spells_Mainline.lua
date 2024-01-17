@@ -631,6 +631,7 @@ E.spell_db = {
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=5394,["spec"]=true,["name"]="Healing Stream Totem",["duration"]=30,["icon"]=135127,["spellID"]=5394,["talent"]=157153, },
 		{ ["class"]="SHAMAN",["type"]="defensive",["buff"]=108281,["spec"]=true,["name"]="Ancestral Guidance",["duration"]=120,["icon"]=538564,["spellID"]=108281, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=114051,["spec"]=true,["name"]="Ascendance",["duration"]=180,["icon"]=135791,["spellID"]=114051, },
+		{ ["class"]="SHAMAN",["type"]="cc",["buff"]=197214,["spec"]=true,["name"]="Sundering",["duration"]=40,["icon"]=524794,["spellID"]=197214, },
 	},
 	["MAGE"] = {
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=353128,["spec"]=true,["duration"]=45,["name"]="Arcanosphere",["icon"]=4226155,["spellID"]=353128, },
@@ -776,6 +777,13 @@ E.buffFix = {
 
 E.buffFixNoCLEU = {
 	[125174] = 10,
+}
+
+E.summonedBuffDuration = {
+	[49206] = 25,
+	[265187] = 15,
+	[1122] = 30,
+	[205180] = 20,
 }
 
 E.spellDefaults = {

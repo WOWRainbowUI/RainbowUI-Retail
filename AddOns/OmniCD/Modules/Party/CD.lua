@@ -317,7 +317,7 @@ local function ProcessSpell(spellID, guid)
 		local now = GetTime()
 		for i = 1, #shared, 2 do
 			local sharedID = shared[i]
-			if ( sharedID ~= 336126 or not E.HEALER_SPEC[info.spec] ) then
+
 				local sharedCD = shared[i+1]
 				local sharedIcon = info.spellIcons[sharedID]
 				if sharedIcon then
@@ -329,7 +329,7 @@ local function ProcessSpell(spellID, guid)
 						break
 					end
 				end
-			end
+
 		end
 		return
 	end
@@ -960,6 +960,7 @@ local demonHunterSigils = {
 	[207684] = 207685,
 	[202137] = 204490,
 	[202138] = 204843,
+	[390163] = 389860,
 }
 
 local function ReduceSigilsCD(info, _,_,_,_,_,_,_,_,_,_, timestamp)
@@ -977,7 +978,12 @@ local function ReduceSigilsCD(info, _,_,_,_,_,_,_,_,_,_, timestamp)
 end
 
 for _, auraID in pairs(demonHunterSigils) do
-	registeredEvents['SPELL_AURA_APPLIED'][auraID] = ReduceSigilsCD
+	if ( auraID == 389860 or auraID == 204598 ) then
+		registeredEvents['SPELL_DAMAGE'][auraID] = ReduceSigilsCD
+	else
+		registeredEvents['SPELL_AURA_APPLIED'][auraID] = ReduceSigilsCD
+		registeredEvents['SPELL_AURA_REFRESH'][auraID] = ReduceSigilsCD
+	end
 end
 
 
@@ -5570,7 +5576,7 @@ setmetatable(registeredHostileEvents, nil)
 function P:SetDisabledColorScheme(destInfo)
 	if not destInfo.isDisabledColor then
 		destInfo.isDisabledColor = true
-		for _, icon in pairs(destInfo.spellIcons) do
+		for id, icon in pairs(destInfo.spellIcons) do
 			local statusBar = icon.statusBar
 			if statusBar then
 				if icon.active then
@@ -5584,6 +5590,10 @@ function P:SetDisabledColorScheme(destInfo)
 			end
 			icon.icon:SetDesaturated(true)
 			icon.icon:SetVertexColor(0.3, 0.3, 0.3)
+
+			if ( E.summonedBuffDuration[id] and destInfo.glowIcons[id] ) then
+				self:RemoveHighlight(icon)
+			end
 		end
 		for key, frame in pairs(P.extraBars) do
 			if frame.shouldRearrangeInterrupts then

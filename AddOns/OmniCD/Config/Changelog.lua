@@ -18,28 +18,16 @@ v3.4.3.2773
 
 ]=]
 else E.changelog = [=[
-v10.2.0.2775
-	Berserk (Druid, Feral) spell-type fixed to 'Offensive'. This also fixes highlighting.
+v10.2.5.2777
+	Fixed Cycle of Binding CDR when auras are refreshed.
+	Fixed Illuminated Sigils not adding a charge to Elysian Decree.
 
-v10.2.0.2774
-	Added option to force disable talent-abilities by spec/zone. (e.g. disable Avenging Wrath for Prot/Ret in raids)
-	Updated Thief's Bargain CDR to 20% (December 5, 2023).
-	Updated Time Stop, Chrono Loop's CD to 45 sec (November 14, 2023).
-	Added trinkets: Fyrakk's Tainted Rageheart, Prophetic Stonescales.
-	All healing potions have been merged to 'Refreshing Healing Potion' and it's icon will change to whichever potion was used last.
-	Fixed Withering Healing Potion icons.
-	Fixed Arcane Surge not highlighting.
-	Unsynced unit CDR fixes:
-	Fixed Tirion's Devotion for Holy Paladins.
-	Fixed Shining Righteousness counting towards Holy Power spent.
-	Fixed Shield of Righteousness for Holy Paladins not counting towards Holy Power spent.
-
-v10.2.0.2773
-	Fixed incorrect sorting when a unit dies or resurrects on ver.2772
-	Added Dreamwalker's Healing Potion, Potion of Withering Dream, Potion of Withering Vitality (merged).
-	Added option to change icon texture for 'Trinket, Main Hand, Consumables' spell type.
-	Cell support update (test func removed)
-
+v10.2.5.2776
+	Patch 10.2.5 - shared cd for healer pvp trinket updated
+	Added Sundering (Enhance Shaman, talent).
+	Added highlighting for key Summon abilities (e.g. Gargoyle, Demonic Tyrant, Infernal, Darkglare).
+	Berserk (Druid, Feral) spell-type fixed from CC to Offensive. This also fixes highlighting.
+	Cycle of Binding (Vengeance DH, talent) fixed: Elysian Decree will correctly reduce other Sigils' remaining CD.
 ]=]
 end
 
