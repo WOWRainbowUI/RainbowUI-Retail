@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.4", 10
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.4", 11
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -507,7 +507,11 @@ end
 
 local function ColorSwatch_OnClick(self)
 	v.DROPDOWNBUTTON:ddCloseMenus()
-	OpenColorPicker(self:GetParent())
+	if OpenColorPicker then
+		OpenColorPicker(self:GetParent())
+	else
+		ColorPickerFrame:SetupColorPickerAndShow(self:GetParent())
+	end
 end
 
 
@@ -1042,6 +1046,10 @@ if oldminor < MINOR_VERSION then
 		f.refresh = DropDownMenuSearchMixin.refresh
 		f.addButton = DropDownMenuSearchMixin.addButton
 	end
+
+	for i = 1, #colorSwatchFrames do
+		colorSwatchFrames[i]:SetScript("OnClick", ColorSwatch_OnClick)
+	end
 end
 
 
@@ -1473,7 +1481,6 @@ function DropDownButtonMixin:ddAddButton(info, level)
 
 			width = searchFrame:getEntryWidth()
 			menu.width = math.max(menu.width, width, self.minMenuWidth or 0)
-			if menu.width < width then menu.width = width end
 			searchFrame:Show()
 
 			menu.searchFrames[#menu.searchFrames + 1] = searchFrame
