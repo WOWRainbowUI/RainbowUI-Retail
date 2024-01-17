@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 11500
 ## Version: 3.3.5
 ## Title: Auto Potion
 ## Author: ollidiemaus
