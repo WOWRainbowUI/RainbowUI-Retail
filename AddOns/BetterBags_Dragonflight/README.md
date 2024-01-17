@@ -1,4 +1,4 @@
-# BetterBags Dragonflight
+# BetterBags - Dragonflight
 > Filter for common Dragonflight items in [BetterBags](https://www.curseforge.com/wow/addons/better-bags).
 
 **If you've noticed a missing, miscategorized, or unbelonging item, please leave a comment!**
