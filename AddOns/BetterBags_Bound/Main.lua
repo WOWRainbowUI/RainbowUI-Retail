@@ -44,7 +44,7 @@ local Scanner = _G[_SCANNER] or CreateFrame("GameTooltip", _SCANNER, UIParent)
 -- Results of this function, including nil, are cached, so you do not need to worry about performance
 -- after the first scan.
 ---@param data ItemData
-categories:RegisterCategoryFunction("BoundItemsCategoryFilter", function(data)
+categories:RegisterCategoryFunction("BoEBoAItemsCategoryFilter", function(data)
 	local quality = data.itemInfo.itemQuality
 	local bindType = data.itemInfo.bindType
 
