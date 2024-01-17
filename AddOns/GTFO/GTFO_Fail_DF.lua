@@ -1205,6 +1205,12 @@ GTFO.SpellID["375011"] = {
   applicationOnly = true;
 };
 
+GTFO.SpellID["430218"] = {
+  --desc = "Radiant Nova (Inquisitor Fairbell)";
+  sound = 3;
+};
+
+
 
 --- *******************
 --- * Ruby Life Pools *
@@ -2962,12 +2968,6 @@ GTFO.SpellID["423369"] = {
   sound = 3;
 }
 
-GTFO.SpellID["420554"] = {
-  --desc = "Verdant Matrix (Nymue)";
-  applicationOnly = true;
-  sound = 3;
-};
-
 GTFO.SpellID["429785"] = {
   --desc = "Impending Loom (Nymue)";
   applicationOnly = true;
@@ -2995,7 +2995,10 @@ GTFO.SpellID["424233"] = {
   sound = 3;
 };
 
--- TODO: Flame Waves (Smolderon) - Moving fire pillars to avoid (Heroic)
+GTFO.SpellID["421969"] = {
+  --desc = "Flame Waves (Smolderon)";
+  sound = 3;
+};
 
 GTFO.SpellID["428770"] = {
   --desc = "Feather Bomb (Tindral Sageswift)";

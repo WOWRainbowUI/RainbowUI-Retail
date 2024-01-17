@@ -2002,3 +2002,9 @@ Change Log:
 * Added WoD spells for the Everbloom
 * Fixed WoD spells for the Everbloom
 
+5.6.2
+* Updated for patch 10.2.5
+* Added Dragonflight spells (world)
+* Added Dragonflight spells for Amirdrassil, The Dream's Hope
+* Added Cataclysm spells for Throne of the Tides (Mythic+) (thanks aisenfaire)
+* Fixed Legion spells for Black Rook Hold

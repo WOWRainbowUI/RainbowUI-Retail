@@ -169,4 +169,7 @@ GTFO.IgnoreScan["421986"] = true; -- Tainted Bloom
 GTFO.IgnoreScan["430052"] = true; -- Searing Screams
 GTFO.IgnoreScan["423705"] = true; -- Burning Scales
 GTFO.IgnoreScan["418978"] = true; -- Burning Presence
+GTFO.IgnoreScan["420714"] = true; -- Noxious Blossom
+GTFO.IgnoreScan["425461"] = true; -- Tainted Heart
+
 
