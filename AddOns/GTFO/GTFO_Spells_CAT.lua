@@ -73,6 +73,11 @@ GTFO.SpellID["426688"] = {
 	sound = 1;
 };
 
+GTFO.SpellID["428294"] = {
+	--desc = "Trident Flurry (Naz'jar Honor Guard, Throne of the Tides, M+)";
+	sound = 1;
+};
+
 GTFO.SpellID["427559"] = {
 	--desc = "Bubbling Ooze (Commander Ulthok, Throne of the Tides, M+)";
 	sound = 1;

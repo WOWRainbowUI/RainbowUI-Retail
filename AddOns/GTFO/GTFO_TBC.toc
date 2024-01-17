@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 20504
 ## X-Min-Interface: 100205
 ## X-Min-Interface-Classic: 11500
 ## X-Min-Interface-BCC: 20504
@@ -9,7 +9,7 @@
 ## Version: 5.6.2
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
-## X-WoWI-ID: 17996
+## X-WoWI-ID: 17996 
 ## X-Curse-Project-ID: 20697
 ## X-Wago-ID: PANz0MK4
 ## IconTexture: Interface\Icons\spell_fire_fire
