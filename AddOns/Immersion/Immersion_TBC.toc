@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 20504
 ## IconTexture: Interface\AddOns\Immersion\Textures\Logo
 ## Title: Immersion
 ## Notes: Immersive replacement for quest & gossip
@@ -16,9 +16,16 @@
 ## Title-zhTW: |cff00FFFF[任務]|r 對話 (對話頭像)
 ## Notes-zhTW: Immersion |n|n與NPC對話、接受/交回任務時，會使用遊戲內建 "對話頭像" 風格的對話方式，取代傳統的任務說明，讓你更能享受並融入任務內容的對話劇情。|n|n|cffffd200使用方法: |r按空白鍵接受任務和繼續下一段對話，按Esc取消對話，按1~9數字鍵選擇對話選項。|n從Esc>選項>插件>任務-對話，進行設定。|n|n|cffFF2D2D特別注意: |r有多種任務對話插件選擇其中一種載入使用就好，不要同時載入。
 ## X-Category-zhTW: 任務
+## DefaultState: disabled
 
 # Locale
 Locale\Locale.xml
+
+# Libs
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
 
 # Compatibility scripts
 Compat.lua
