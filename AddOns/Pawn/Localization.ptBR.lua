@@ -1,6 +1,6 @@
 ﻿-- Pawn by Vger-Azjol-Nerub
 -- www.vgermods.com
--- © 2006-2023 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
+-- © 2006-2024 Travis Spomer.  This mod is released under the Creative Commons Attribution-NonCommercial-NoDerivs 3.0 license.
 -- See Readme.htm for more information.
 
 --
@@ -689,8 +689,6 @@ Atalho: Shift+clique em uma escala]=],
 		["ValuesDoNotShowUpgradesFor1H"] = "Não mostrar melhorias para armas de uma mão",
 		["ValuesDoNotShowUpgradesFor2H"] = "Não mostrar melhorias para armas de duas mãos",
 		["ValuesDoNotShowUpgradesTooltip"] = "Ative essa opção para esconder melhorias deste tipo de item. Por exemplo, mesmo que paladinos tanques possam usar armas de duas mãos, uma arma desse tipo nunca é uma \"melhoria\" para um conjunto de tanque, então o Pawn não deve mostrar notificações de melhoria para eles. Da mesma forma, paladinos de retribuição podem usar armas de uma mão, mas elas nunca serão melhorias.",
-		["ValuesFollowSpecialization"] = "Mostrar melhorias para o meu melhor tipo de armadura somente após o nível %d",
-		["ValuesFollowSpecializationTooltip"] = "Ative essa opção para esconder melhorias para armaduras que a sua classe não pode se especializar no nível %d. Por exemplo, no nível %d paladinos sagrados aprendem Especialização em Armadura de Placas, a qual aumenta o seu intelecto em 5%% enquanto usarem apenas armadura de placas. Quando essa opção é escolhida o Pawn nunca vai considerar tecido, couro ou malha para serem melhorias para paladinos sagrados de nível %d ou mais.",
 		["ValuesHeader"] = "Valores de atributos para %s",
 		["ValuesIgnoreItemType"] = "Items com isso não são usáveis",
 		["ValuesIgnoreStat"] = "Items com isso não são usáveis",
