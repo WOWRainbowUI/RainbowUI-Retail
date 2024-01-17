@@ -1,13 +1,17 @@
 ## Interface: 30403
 ## Title: WeakAuras Templates
 ## Author: The WeakAuras Team
-## Version: 5.8.7
+## Version: 5.9.1
 ## Notes: Templates for WeakAuras
 ## X-Category: Interface Enhancements
 ## Globe-Main: WeakAuras
-## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras, WeakAurasOptions
+
+## Title-zhTW: |cffFF9900[進階]|r WA技能提醒-範本
+## Notes-zhTW: WeakAuras Templates |n|nWA技能提醒的快速套用範本
+## X-Category-zhTW: 進階
+## DefaultState: disabled
 
 locales.xml
 

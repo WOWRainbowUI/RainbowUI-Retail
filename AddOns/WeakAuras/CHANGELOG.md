@@ -1,33 +1,33 @@
-# [5.8.7](https://github.com/WeakAuras/WeakAuras2/tree/5.8.7) (2023-12-03)
+# [5.9.1](https://github.com/WeakAuras/WeakAuras2/tree/5.9.1) (2024-01-17)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.8.6...5.8.7)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.9.0...5.9.1)
 
 ## Highlights
 
- - Updates for Season of Discovery
-- New option to treat charged combo point as 7 combo points (thanks to @weswigham for initial idea+PR)
-- Bug fixes 
+ Make guid formatter a bit more resilent 
 
 ## Commits
 
-InfusOnWoW (9):
+Boneshock (1):
 
-- Show an warning on trying to update an aura that can't be updated
-- Add an option to treat a charged combo point as 7 combo points
-- Add CHAT_MSG_LOOT type
-- Tweak frame levels again a bit
-- Improve error message for auras without a region type
-- AuraBar: Fix property names for gradient colors
-- Author Options: Also sort Sound list for the user
-- Drangonflying Load Option
-- Templates: Fix talent load option for Holy Word: Sanctify
+- Currency Trigger: use currency icon in options window
 
-Stanzilla (2):
+InfusOnWoW (12):
 
-- Bump minor
-- Bump Classic TOC for SoD
+- Make guid formatter a bit more resilent
+- Options: Fix loaded/unloaded buttons state + behaviour
+- Tweak initial displayed auras on Options open
+- Make Group Size/Group Type/Group Leader show up as standby too
+- Ignore case in top levels aura sort
+- Instance + Minimap Zone Id load option
+- Options: Tweak Load Indicator and load sections behaviour
+- Animations: Fix Rotate Out not offering an angle setting
+- Templates: Fix talent for Greater Invisbility
+- Update: Separate out only metada modifications
+- Update: Show which categories changed per aura
+- Update: semver changes are metadata changes
 
-mrbuds (1):
+Stanzilla (1):
 
-- Classis SoD: include new spell ids in spell cache
+- Update Retail TOC for Patch 10.2.5
 
