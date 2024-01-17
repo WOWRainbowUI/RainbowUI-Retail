@@ -520,9 +520,9 @@ D["ClearMapPin"] = {
     },
 };
 D["ColorPickerPlus"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
-	title = "顏色選擇器 Plus",
+	title = "(暫時無法使用) 顏色選擇器 Plus",
 	desc = "提供更方便的方式來選擇顏色，可以輸入顏色數值、直接選擇職業顏色，或是將自訂顏色儲存成色票供日後使用。``選擇顏色時會自動出現。`",
 	modifier = "彩虹ui",
 	img = true,
