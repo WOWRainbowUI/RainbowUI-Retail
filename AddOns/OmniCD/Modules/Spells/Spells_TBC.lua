@@ -301,6 +301,7 @@ E.spell_db = {
 E.iconFix = E.BLANK
 E.buffFix = E.BLANK
 E.buffFixNoCLEU = E.BLANK
+E.summonedBuffDuration = E.BLANK
 
 E.spellDefaults = {
 	42292,

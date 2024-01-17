@@ -98,7 +98,7 @@ local function ShowOverlayGlow(icon, duration, isRefresh)
 	if type(icon.isHighlighted) == "table" then
 		icon.isHighlighted:Cancel()
 	end
-	icon.isHighlighted = (E.isClassic or icon.guid == E.userGUID) and true or E.TimerAfter(duration + 0.1, RemoveHighlight_OnTimerEnd, icon)
+	icon.isHighlighted = (not E.isClassic and icon.guid ~= E.userGUID or E.summonedBuffDuration[icon.spellID]) and E.TimerAfter(duration + 0.1, RemoveHighlight_OnTimerEnd, icon) or true
 end
 
 function P:HideOverlayGlow(icon)
@@ -163,12 +163,24 @@ function P:HighlightIcon(icon, isRefresh)
 	end
 
 	local info = self.groupInfo[icon.guid]
-	local unit = info.unit
-	local duration = info and self:GetBuffDuration(unit, buff)
+	if not info then
+		return
+	end
+
+	local duration = E.summonedBuffDuration[icon.spellID]
+	if duration then
+		local active = info.active[icon.spellID]
+		if active then
+			duration = duration - GetTime() + active.startTime
+			duration = duration > 0 and duration
+		end
+	else
+		duration = self:GetBuffDuration(info.unit, buff)
+	end
 
 	if duration then
 		if E.buffFixNoCLEU[buff] and (not E.isBFA or not self.isInArena) then
-			info.bar:RegisterUnitEvent('UNIT_AURA', unit)
+			info.bar:RegisterUnitEvent('UNIT_AURA', info.unit)
 		end
 
 		ShowOverlayGlow(icon, duration, isRefresh)

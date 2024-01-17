@@ -100,6 +100,13 @@ local unitFrameData = {
 		[5] = 6,
 	},
 	{
+		[1] = "Cell-QuickAssist",
+		[2] = "CellQuickAssistHeaderUnitButton",
+		[3] = "unit",
+		[4] = 1,
+		[5] = 40,
+	},
+	{
 		[1] = "Stuf",
 		[2] = "Stuf.units.party",
 		[3] = "unit",
