@@ -315,7 +315,7 @@ end
 
 function isUsableByCurrentClass(data)
     local itemType = data.itemInfo.itemSubType
-    local upperItemType = string.upper(data.itemInfo.itemSubType)
+    local upperItemType = string.upper(data.itemInfo.itemSubType or "") -- 暫時修正
     local equipLoc = data.itemInfo.itemEquipLoc
 
     if equipLoc == WEAPON or equipLoc == TWOHANDEDWEAPON or equipLoc == SHIELD or equipLoc == RANGED or equipLoc == RANGEDRIGHT then
