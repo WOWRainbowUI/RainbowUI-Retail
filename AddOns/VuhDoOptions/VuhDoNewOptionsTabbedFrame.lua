@@ -56,7 +56,7 @@ local function VUHDO_countTableDiffs(aTable, anotherTable)
 		if ("table" == tType) then
 			tCount = tCount + VUHDO_countTableDiffs(tValue, anotherTable[tKey]);
 		elseif ("number" == tType) then
-			if (format("%0.4f", aTable[tKey]) ~= format("%0.4f", anotherTable[tKey])) then
+			if (format("%0.4f", aTable[tKey]) ~= (anotherTable[tKey] and format("%0.4f", anotherTable[tKey]) or nil)) then
 				tCount = tCount + 1;
 			end
 		else

@@ -1,4 +1,5 @@
 local floor = floor;
+local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs;
 local UnitPower = UnitPower;
 local UnitPowerMax = UnitPowerMax;
 
@@ -147,6 +148,16 @@ local function VUHDO_shieldAbsorbCalculator(anInfo)
 end
 
 
+
+--
+local function VUHDO_healAbsorbCalculator(anInfo)
+
+	return UnitGetTotalHealAbsorbs(anInfo["unit"]) or 0, nil;
+
+end
+
+
+
 --
 local function VUHDO_manaCalculator(anInfo)
 	if anInfo["powertype"] == 0 and anInfo["powermax"] > 0 then
@@ -161,7 +172,6 @@ end
 local function VUHDO_threatCalculator(anInfo)
 	return anInfo["threatPerc"], 100;
 end
-
 
 
 ------------------------------------------------------------------
@@ -235,103 +245,109 @@ end
 
 VUHDO_TEXT_PROVIDERS = {
 	["OVERHEAL_KILO_N_K"] = {
-		["displayName"] = "Overheal: <#nk>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_OVERHEAL,
 		["calculator"] = VUHDO_overhealCalculator,
 		["validator"] = VUHDO_kiloValidator,
 		["interests"] = { VUHDO_UPDATE_INC, VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_RANGE, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_ALIVE },
 	},
 	["OVERHEAL_KILO_PLUS_N_K"] = {
-		["displayName"] = "Overheal: +<#n>k",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_OVERHEAL_PLUS,
 		["calculator"] = VUHDO_overhealCalculator,
 		["validator"] = VUHDO_plusKiloValidator,
 		["interests"] = { VUHDO_UPDATE_INC, VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_RANGE, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_ALIVE },
 	},
 	["INCOMING_HEAL_NK"] = {
-		["displayName"] = "Incoming Heal: <#nk>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_INCOMING_HEAL,
 		["calculator"] = VUHDO_incomingHealCalculator,
 		["validator"] = VUHDO_kiloValidator,
 		["interests"] = { VUHDO_UPDATE_INC, VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_RANGE, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_ALIVE },
 	},
 	["SHIELD_ABSORB_OVERALL_N_K"] = {
-		["displayName"] = "Shield absorb total: <#nk>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SHIELD_ABSORB,
 		["calculator"] = VUHDO_shieldAbsorbCalculator,
 		["validator"] = VUHDO_kiloValidator,
 		["interests"] = { VUHDO_UPDATE_SHIELD },
 	},
+	["HEAL_ABSORB_TOTAL_N_K"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_HEAL_ABSORB,
+		["calculator"] = VUHDO_healAbsorbCalculator,
+		["validator"] = VUHDO_kiloValidator,
+		["interests"] = { VUHDO_UPDATE_SHIELD },
+	},
 	["THREAT_PERCENT"] = {
-		["displayName"] = "Threat: <#n>%",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_THREAT,
 		["calculator"] = VUHDO_threatCalculator,
 		["validator"] = VUHDO_percentValidator,
 		["interests"] = { VUHDO_UPDATE_THREAT_PERC },
 	},
 	["CHI_N"] = {
-		["displayName"] = "Chi: <#n>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_CHI,
 		["calculator"] = VUHDO_chiCalculator,
 		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_CHI, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
 	},
 	["HOLY_POWER_N"] = {
-		["displayName"] = "Holy Power: <#n>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_HOLY_POWER,
 		["calculator"] = VUHDO_holyPowerCalculator,
 		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_OWN_HOLY_POWER, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
 	},
 	["COMBO_POINTS_N"] = {
-		["displayName"] = "Combo Points: <#n>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_COMBO_POINTS,
 		["calculator"] = VUHDO_comboPointsCalculator,
 		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_COMBO_POINTS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
 	},
 	["SOUL_SHARDS_N"] = {
-		["displayName"] = "Soul Shards: <#n>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOUL_SHARDS,
 		["calculator"] = VUHDO_soulShardsCalculator,
 		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_SOUL_SHARDS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
 	},
 	["RUNES_N"] = {
-		["displayName"] = "Runes: <#n>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_RUNES,
 		["calculator"] = VUHDO_runesCalculator,
 		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_RUNES, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
 	},
 	["ARCANE_CHARGES_N"] = {
-		["displayName"] = "Arcane Charges: <#n>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_ARCANE_CHARGES,
 		["calculator"] = VUHDO_arcaneChargesCalculator,
 		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_ARCANE_CHARGES, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
 	},
 	["MANA_PERCENT"] = {
-		["displayName"] = "Mana: <#n>%",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT,
 		["calculator"] = VUHDO_manaCalculator,
 		["validator"] = VUHDO_percentValidator,
 		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
 	["MANA_PERCENT_TENTH"] = {
-		["displayName"] = "Mana: <#n/10%>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT_TENTH,
 		["calculator"] = VUHDO_manaCalculator,
 		["validator"] = VUHDO_tenthPercentValidator,
 		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
 	["MANA_UNIT_OF_UNIT"] = {
-		["displayName"] = "Mana: <#n>/<#n>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_UNIT_OF,
 		["calculator"] = VUHDO_manaCalculator,
 		["validator"] = VUHDO_unitOfUnitValidator,
 		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
 	["MANA_KILO_OF_KILO"] = {
-		["displayName"] = "Mana: <#nk>/<#nk>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_KILO_OF,
 		["calculator"] = VUHDO_manaCalculator,
 		["validator"] = VUHDO_kiloOfKiloValidator,
 		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
 	["MANA_N"] = {
-		["displayName"] = "Mana: <#n>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA,
 		["calculator"] = VUHDO_manaCalculator,
 		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
 	["MANA_NK"] = {
-		["displayName"] = "Mana: <#nk>",
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_KILO,
 		["calculator"] = VUHDO_manaCalculator,
 		["validator"] = VUHDO_kiloValidator,
 		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },

@@ -453,27 +453,32 @@ end
 
 --
 local function VUHDO_makeFullColorWoOpacity(...)
+
 	local tColor = VUHDO_makeFullColor(...);
 	
 	tColor["useOpacity"] = false;
 	
 	return tColor;
+
 end
 
 
 
 --
 local function VUHDO_makeHotColor(...)
-	local tColor = VUHDO_makeFullColor(...);
 	
+	local tColor = VUHDO_makeFullColor(...);
+
+	tColor["useOpacity"] = tColor["O"] and true or false;
+
 	tColor["isFullDuration"] = false;
 	tColor["isClock"] = false;
 	tColor["countdownMode"] = 1;
-	tColor["useOpacity"] = false;
 	tColor["isFadeOut"] = false;
 	tColor["isFlashWhenLow"] = false;
 	
 	return tColor;
+
 end
 
 
@@ -2713,6 +2718,7 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 		["ordering"] = VUHDO_ORDERING_STRICT,
 		["sort"] = VUHDO_SORT_RAID_UNITID,
 		["isReverse"] = false,
+		["isPetsLast"] = false,
 	},
 --[[
 	["POSITION"] = {

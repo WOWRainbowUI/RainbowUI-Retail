@@ -229,9 +229,9 @@ VUHDO_I18N_TT.K062 = "Отметьте, чтобы подсвечивать пе
 VUHDO_I18N_TT.K063 = "Отметьте, чтобы показывать ваше входящее исцеление. Это может ввести в заблуждение некоторых игроков.";
 VUHDO_I18N_TT.K064 = "Отметьте, для отображения входящего (еще неоконченного) заклинания исцеления. Это может уменьшить количество переисцеления.";
 VUHDO_I18N_TT.K065 = "Выберите период обновления проверки  расстояния до игроков. Маленькие значения этого параметра могут уменьшить быстродействие игры.";
-VUHDO_I18N_TT.K066 = "Check this to use the range of a \"typical\" spell. Also select this if you dont have any relevant spells.";
+VUHDO_I18N_TT.K066 = "Отметьте, что бы использовать дистанцию для \"среднестатистического\" заклинания. Либо же если у вас нет подходящих заклинаний.";
 VUHDO_I18N_TT.K067 = "Введите название заклинания, на основании дистанции действия которого будет производиться проверка расстояния до игроков.";
-VUHDO_I18N_TT.K068 = "Select this to have the spell range checked due to the range of the spell below.";
+VUHDO_I18N_TT.K068 = "Отметьте, что бы использовтаь дистанцию для выбранного ниже заклинания.";
 VUHDO_I18N_TT.K070 = "Выбрать в процентах высоту иконки HoT'а";
 VUHDO_I18N_TT.K071 = "Показывать иконку HoT'а справа внутри полосы здоровья";
 VUHDO_I18N_TT.K072 = "Показывать иконку HoT'а слева внутри полосы здоровья";
@@ -746,13 +746,14 @@ VUHDO_I18N_TT.K583 = "Отметьте, что бы иконки всех ХоТ
 VUHDO_I18N_TT.K584 = "Отметьте, что бы иконки всех ХоТ-ок мигали при спадении.";
 VUHDO_I18N_TT.K585 = "Выберите цвет для Пробудителей";
 VUHDO_I18N_TT.K586 = "Отметьте, что бы показывать только текст без иконки.";
-VUHDO_I18N_TT.K587 = "Show incoming spell casts only. Spells must be tracked by spell ID not name.";
-VUHDO_I18N_TT.K588 = "Show incoming spell casts from friendly units.";
-VUHDO_I18N_TT.K589 = "Show incoming spell casts from enemy units.";
-VUHDO_I18N_TT.K590 = "Show all incoming spell casts.";
-VUHDO_I18N_TT.K591 = "Filter to show only incoming spell casts from boss/NPC units.";
-VUHDO_I18N_TT.K592 = "Check this to show private aura icons on the health bar.";
-VUHDO_I18N_TT.K593 = "Select a size for your private aura icons.";
+VUHDO_I18N_TT.K587 = "Показывать только входящие заклинания. Отслеживание происходит только по ID заклинания.";
+VUHDO_I18N_TT.K588 = "Показывать входящие заклинания от союзных существ.";
+VUHDO_I18N_TT.K589 = "Покаывать входящие заклинания от вражеских существ.";
+VUHDO_I18N_TT.K590 = "Показывать все входящие заклинания";
+VUHDO_I18N_TT.K591 = "Добавить фильтр на заклинания только от Боссов/НПС существ.";
+VUHDO_I18N_TT.K592 = "Отметьте, что бы показывать иконки от приватных аур на полосах здоровья.";
+VUHDO_I18N_TT.K593 = "Выберите размер для иконок приватных аур.";
+VUHDO_I18N_TT.K594 = "Check to sort pet units last.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Стандартный\nпрофиль";
 VUHDO_I18N_DEFAULT_LAYOUT = "Стандартная раскладка клавиш ";
@@ -1317,7 +1318,7 @@ VUHDO_I18N_SPEC_4 = "Спек 4";
 
 VUHDO_I18N_ANNOUNCE_MASS_RES = "'Массовое' Воскрешение\nСообщение";
 
-VUHDO_I18N_SPELL_TRACE = "Отслеживание заклинания";
+VUHDO_I18N_SPELL_TRACE = "Отслеживание\nзаклинания";
 VUHDO_I18N_SPELL_TRACE_EDIT_BOX = "Введите имя или ID для слежения";
 VUHDO_I18N_SPELL_TRACE_LIST = "Отслеживание заклинания: список";
 VUHDO_I18N_DURATION = "Длительность";
@@ -1357,12 +1358,14 @@ VUHDO_I18N_CLOCK = "Стрелка\nЧасов";
 
 VUHDO_I18N_TEXT_ONLY = "Только текст";
 
-VUHDO_I18N_SHOW_FRIENDLY = "Show\nFriendly";
-VUHDO_I18N_SHOW_ENEMY = "Show\nEnemy";
-VUHDO_I18N_SHOW_ALL = "Show All";
-VUHDO_I18N_BOSS_ONLY = "Boss Only";
+VUHDO_I18N_SHOW_FRIENDLY = "Союзники";
+VUHDO_I18N_SHOW_ENEMY = "Враги";
+VUHDO_I18N_SHOW_ALL = "Все";
+VUHDO_I18N_BOSS_ONLY = "Только\nБосс";
 
 VUHDO_I18N_X = "X";
 VUHDO_I18N_Y = "Y";
 
-VUHDO_I18N_PRIVATE_AURAS = "Private Auras";
+VUHDO_I18N_PRIVATE_AURAS = "Приватные Ауры";
+
+VUHDO_I18N_PETS_LAST = "Pets last";
