@@ -989,6 +989,8 @@ VUHDO_DEFAULT_INDICATOR_CONFIG = {
 			["invertGrowth"] = false,
 			["vertical"] = false,
 			["turnAxis"] = false,
+			["turnAxisOvershield"] = false,
+			["turnAxisHealAbsorb"] = false,
 		},
 		["SIDE_LEFT"] = {
 			["TEXTURE"] = "VuhDo - Plain White",

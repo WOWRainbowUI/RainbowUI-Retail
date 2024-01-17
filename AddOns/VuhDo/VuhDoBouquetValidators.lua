@@ -753,8 +753,9 @@ end
 -- return tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tTimer2, clipLeft, clipRight, clipTop, clipBottom
 
 --
-local tHealth, tHealthMax;
+local tHealth;
 local function VUHDO_statusHealthValidator(anInfo, _)
+
 	if sIsInverted then
 		if VUHDO_CONFIG["SHOW_SHIELD_BAR"] then
 			tHealth = anInfo["health"] + VUHDO_getIncHealOnUnit(anInfo["unit"]) + VUHDO_getUnitOverallShieldRemain(anInfo["unit"]);
@@ -767,6 +768,7 @@ local function VUHDO_statusHealthValidator(anInfo, _)
 		return true, nil, anInfo["health"], -1,
 			anInfo["healthmax"], nil, anInfo["health"];
 	end
+
 end
 
 
@@ -865,6 +867,31 @@ local function VUHDO_statusFullIfActiveValidator(_, _)
 	else
 		return false, nil, -1, -1, -1;
 	end
+end
+
+
+
+--
+local tHealth;
+local function VUHDO_statusHealthIfActiveValidator(anInfo, _)
+
+	if VUHDO_getIsCurrentBouquetActive() then
+		if sIsInverted then
+			if VUHDO_CONFIG["SHOW_SHIELD_BAR"] then
+				tHealth = anInfo["health"] + VUHDO_getIncHealOnUnit(anInfo["unit"]) + VUHDO_getUnitOverallShieldRemain(anInfo["unit"]);
+			else
+				tHealth = anInfo["health"] + VUHDO_getIncHealOnUnit(anInfo["unit"]);
+			end
+
+			return true, nil, tHealth, -1, anInfo["healthmax"], VUHDO_getCurrentBouquetColor(), anInfo["health"];
+		else
+			return true, nil, anInfo["health"], -1,
+				anInfo["healthmax"], VUHDO_getCurrentBouquetColor(), anInfo["health"];
+		end
+	else
+		return false, nil, -1, -1, -1;
+	end
+
 end
 
 
@@ -1748,7 +1775,7 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["displayName"] = VUHDO_I18N_BOUQUET_STATUS_HEALTH,
 		["validator"] = VUHDO_statusHealthValidator,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
-		["interests"] = { VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_INC },
+		["interests"] = { VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_INC, VUHDO_UPDATE_SHIELD },
 	},
 
 	["STATUS_MANA"] = {
@@ -1830,6 +1857,13 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["validator"] = VUHDO_statusFullIfActiveValidator,
 		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
 		["interests"] = { },
+	},
+
+	["STATUS_HEALTH_ACTIVE"] = {
+		["displayName"] = VUHDO_I18N_BOUQUET_STATUS_HEALTH_IF_ACTIVE,
+		["validator"] = VUHDO_statusHealthIfActiveValidator,
+		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR,
+		["interests"] = { VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_INC, VUHDO_UPDATE_SHIELD },
 	},
 
 	["STATUS_CC_ACTIVE"] = {

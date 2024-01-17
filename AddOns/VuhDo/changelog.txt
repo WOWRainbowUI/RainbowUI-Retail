@@ -1,3 +1,80 @@
+Version 3.159  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+  
+  
+Improvements:  
+-- Added option to turn axis for overshield and heal absorb bars  
+-- Added option to sort pet units last  
+-- Bump TOC interface for 10.2.5  
+  
+  
+--------------------------------------------------------------  
+Version 3.158  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed HoT Icon opacity when using 'Glossy' or 'Flat' icons  
+-- Fixed HoT Icon timer text color when using 'Glossy' or 'Flat' icons  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
+Version 3.157  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed HoT Icon opacity, fade and flash effects  
+-- Fixed HoT Icon timer text opacity  
+-- Fixed detection of spellbook and talent overrides  
+-- Fixed hiding empty panels when 'Own Group' filter is used  
+-- Fixed visibility of empty panels containing only target/focus models  
+  
+  
+Improvements:  
+-- Added text provider to display total heal absorption amount  
+-- Added warning for ambiguous macro names on command binds e.g. menu  
+-- Added new bouquet validator 'Statusbar: Health % if active'  
+-- Manual and Dungeon Finder roles now take priority over class roles  
+  
+  
+--------------------------------------------------------------  
 Version 3.156  
   
   

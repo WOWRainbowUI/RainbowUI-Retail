@@ -315,14 +315,8 @@ function VUHDO_determineRole(aUnit)
 	tInfo = VUHDO_RAID[aUnit];
 	if not tInfo or tInfo["isPet"] then	return nil; end
 
-	-- Role determined by non-hybrid class?
-	tClassId = tInfo["classId"];
-	tClassRole = VUHDO_CLASS_ROLES[tClassId];
-	if tClassRole then
-		return tClassRole;
-	end
-
 	tName = tInfo["name"];
+
 	-- Manual role override oder dungeon finder role?
 	tFixRole = VUHDO_MANUAL_ROLES[tName] or VUHDO_determineDfToolRole(tInfo);
 	if tFixRole then
@@ -332,6 +326,13 @@ function VUHDO_determineRole(aUnit)
 	-- Assigned for MT?
 	if VUHDO_isUnitInModel(aUnit, 41) then -- VUHDO_ID_MAINTANKS
 		return 60; -- VUHDO_ID_MELEE_TANK
+	end
+
+	-- Role determined by non-hybrid class?
+	tClassId = tInfo["classId"];
+	tClassRole = VUHDO_CLASS_ROLES[tClassId];
+	if tClassRole then
+		return tClassRole;
 	end
 
 	-- Talent tree inspected?

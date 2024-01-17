@@ -1,5 +1,29 @@
 local huge = math.huge;
 
+local UnitBuff = UnitBuff or (C_UnitAuras and
+			(function(aUnit, anIndex, aFilter)
+				local tAuraData = C_UnitAuras.GetBuffDataByIndex(aUnit, anIndex, aFilter);
+
+				if not tAuraData then
+					return nil;
+				end
+
+				return AuraUtil.UnpackAuraData(tAuraData);
+			end)
+);
+
+local UnitDebuff = UnitDebuff or (C_UnitAuras and
+			(function(aUnit, anIndex, aFilter)
+				local tAuraData = C_UnitAuras.GetDebuffDataByIndex(aUnit, anIndex, aFilter);
+
+				if not tAuraData then
+					return nil;
+				end
+
+				return AuraUtil.UnpackAuraData(tAuraData);
+			end)
+);
+
 
 
 local VUHDO_CUSTOM_DEBUFF_CONFIG = { };

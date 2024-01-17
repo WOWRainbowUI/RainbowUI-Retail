@@ -50,7 +50,10 @@ local min = math.min;
 local sIsOverhealText;
 local sIsAggroText;
 local sIsInvertGrowth;
+local sIsTurnAxisOvershield;
+local sIsTurnAxisHealAbsorb;
 local sLifeColor;
+local sIsNoRangeFade;
 
 
 function VUHDO_customHealthInitLocalOverrides()
@@ -91,7 +94,11 @@ function VUHDO_customHealthInitLocalOverrides()
 
 	sIsOverhealText = VUHDO_CONFIG["SHOW_TEXT_OVERHEAL"]
 	sIsAggroText = VUHDO_CONFIG["THREAT"]["AGGRO_USE_TEXT"];
+
 	sIsInvertGrowth = VUHDO_INDICATOR_CONFIG["CUSTOM"]["HEALTH_BAR"]["invertGrowth"];
+	sIsTurnAxisOvershield = VUHDO_INDICATOR_CONFIG["CUSTOM"]["HEALTH_BAR"]["turnAxisOvershield"];
+	sIsTurnAxisHealAbsorb = VUHDO_INDICATOR_CONFIG["CUSTOM"]["HEALTH_BAR"]["turnAxisHealAbsorb"];
+
 	sLifeColor = VUHDO_PANEL_SETUP["PANEL_COLOR"]["HEALTH_TEXT"];
 	sIsNoRangeFade = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isNoRangeFade"];
 
@@ -234,7 +241,7 @@ local tShieldOpacity, tOvershieldOpacity;
 local tHealthBar, tHealthBarWidth, tHealthBarHeight, tHealthDeficit;
 local tOvershieldBar, tOvershieldBarSize, tOvershieldBarSizePercent, tOvershieldBarOffset, tOvershieldBarOffsetPercent;
 local tVisibleAmountInc;
-local tOrientation;
+local tOrientation, tOrientationOvershield;
 function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 	if not VUHDO_CONFIG["SHOW_SHIELD_BAR"] then 
 		return; 
@@ -248,6 +255,16 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 	end
 
 	tOrientation = VUHDO_getStatusbarOrientationString("HEALTH_BAR");
+
+	if (sIsTurnAxisOvershield and tOrientation == "HORIZONTAL") or (not sIsTurnAxisOvershield and tOrientation == "HORIZONTAL_INV") then
+		tOrientationOvershield = "HORIZONTAL_INV";
+	elseif (sIsTurnAxisOvershield and tOrientation == "HORIZONTAL_INV") or (not sIsTurnAxisOvershield and tOrientation == "HORIZONTAL") then
+		tOrientationOvershield = "HORIZONTAL";
+	elseif (sIsTurnAxisOvershield and tOrientation == "VERTICAL") or (not sIsTurnAxisOvershield and tOrientation == "VERTICAL_INV") then
+		tOrientationOvershield = "VERTICAL_INV";
+	else -- (sIsTurnAxisOvershield and tOrientation == "VERTICAL_INV")) or (not sIsTurnAxisOvershield and tOrientation == "VERTICAL")
+		tOrientationOvershield = "VERTICAL";
+	end
 
 	if not aHealthPlusIncQuota or not aAmountInc then
 		aHealthPlusIncQuota, aAmountInc = VUHDO_getHealthPlusIncQuota(aUnit);
@@ -300,7 +317,8 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 
 			tHealthBarWidth, tHealthBarHeight = tHealthBar:GetSize();
 
-			if (not sIsInvertGrowth and tOrientation == "HORIZONTAL") or (sIsInvertGrowth and tOrientation == "HORIZONTAL_INV") then 
+			if (not sIsInvertGrowth and tOrientationOvershield == "HORIZONTAL") or
+				(sIsInvertGrowth and tOrientationOvershield == "HORIZONTAL_INV") then
 				-- VUHDO_STATUSBAR_LEFT_TO_RIGHT
 				tOvershieldBarSize = tOvershieldBarSizePercent * tHealthBarWidth;
 				tOvershieldBarOffset = tOvershieldBarOffsetPercent * tHealthBarWidth;
@@ -310,7 +328,8 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 
 				tOvershieldBar:SetWidth(tOvershieldBarSize);
 				tOvershieldBar:SetTexCoord(0, tOvershieldBarSize / tOvershieldBar.tileSize, 0, tHealthBarHeight / tOvershieldBar.tileSize);
-			elseif (not sIsInvertGrowth and tOrientation == "HORIZONTAL_INV") or (sIsInvertGrowth and tOrientation == "HORIZONTAL") then
+			elseif (not sIsInvertGrowth and tOrientationOvershield == "HORIZONTAL_INV") or
+				(sIsInvertGrowth and tOrientationOvershield == "HORIZONTAL") then
 				-- VUHDO_STATUSBAR_RIGHT_TO_LEFT
 				tOvershieldBarSize = tOvershieldBarSizePercent * tHealthBarWidth;
 				tOvershieldBarOffset = tOvershieldBarOffsetPercent * tHealthBarWidth;
@@ -320,7 +339,8 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 
 				tOvershieldBar:SetWidth(tOvershieldBarSize);
 				tOvershieldBar:SetTexCoord(0, tOvershieldBarSize / tOvershieldBar.tileSize, 0, tHealthBarHeight / tOvershieldBar.tileSize);
-			elseif (not sIsInvertGrowth and tOrientation == "VERTICAL") or (sIsInvertGrowth and tOrientation == "VERTICAL_INV") then
+			elseif (not sIsInvertGrowth and tOrientationOvershield == "VERTICAL") or
+				(sIsInvertGrowth and tOrientationOvershield == "VERTICAL_INV") then
 				-- VUHDO_STATUSBAR_BOTTOM_TO_TOP
 				tOvershieldBarSize = tOvershieldBarSizePercent * tHealthBarHeight;
 				tOvershieldBarOffset = tOvershieldBarOffsetPercent * tHealthBarHeight;
@@ -330,7 +350,7 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 
 				tOvershieldBar:SetHeight(tOvershieldBarSize);
 				tOvershieldBar:SetTexCoord(0, tHealthBarWidth / tOvershieldBar.tileSize, 0, tOvershieldBarSize / tOvershieldBar.tileSize);
-			else -- (not sIsInvertGrowth and tOrientation == "VERTICAL_INV") or (sIsInvertGrowth and tOrientation == "VERTICAL")
+			else -- (not sIsInvertGrowth and tOrientationOvershield == "VERTICAL_INV") or (sIsInvertGrowth and tOrientationOvershield == "VERTICAL")
 				-- VUHDO_STATUSBAR_TOP_TO_BOTTOM
 				tOvershieldBarSize = tOvershieldBarSizePercent * tHealthBarHeight;
 				tOvershieldBarOffset = tOvershieldBarOffsetPercent * tHealthBarHeight;
@@ -359,7 +379,7 @@ local tHealAbsorbRemain;
 local tHealAbsorbOpacity;
 local tHealthBar, tHealthBarWidth, tHealthBarHeight, tHealthDeficit;
 local tHealAbsorbBar, tHealAbsorbBarSize, tHealAbsorbBarSizePercent, tHealAbsorbBarOffset, tHealAbsorbBarOffsetPercent;
-local tOrientation;
+local tOrientation, tOrientationHealAbsorb;
 function VUHDO_updateHealAbsorbBar(aUnit)
 	if not VUHDO_CONFIG["SHOW_HEAL_ABSORB_BAR"] then 
 		return; 
@@ -373,6 +393,16 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 	end
 
 	tOrientation = VUHDO_getStatusbarOrientationString("HEALTH_BAR");
+
+	if (sIsTurnAxisHealAbsorb and tOrientation == "HORIZONTAL") or (not sIsTurnAxisHealAbsorb and tOrientation == "HORIZONTAL_INV") then
+		tOrientationHealAbsorb = "HORIZONTAL_INV";
+	elseif (sIsTurnAxisHealAbsorb and tOrientation == "HORIZONTAL_INV") or (not sIsTurnAxisHealAbsorb and tOrientation == "HORIZONTAL") then
+		tOrientationHealAbsorb = "HORIZONTAL";
+	elseif (sIsTurnAxisHealAbsorb and tOrientation == "VERTICAL") or (not sIsTurnAxisHealAbsorb and tOrientation == "VERTICAL_INV") then
+		tOrientationHealAbsorb = "VERTICAL_INV";
+	else -- (sIsTurnAxisHealAbsorb and tOrientation == "VERTICAL_INV")) or (not sIsTurnAxisHealAbsorb and tOrientation == "VERTICAL")
+		tOrientationHealAbsorb = "VERTICAL";
+	end
 
 	tHealAbsorbRemain = min(UnitGetTotalHealAbsorbs(aUnit) or 0, tInfo["health"]);
 	tHealthDeficit = tInfo["healthmax"] - tInfo["health"];
@@ -400,7 +430,8 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 
 			tHealthBarWidth, tHealthBarHeight = tHealthBar:GetSize();
 
-			if (not sIsInvertGrowth and tOrientation == "HORIZONTAL") or (sIsInvertGrowth and tOrientation == "HORIZONTAL_INV") then 
+			if (not sIsInvertGrowth and tOrientationHealAbsorb == "HORIZONTAL") or
+				(sIsInvertGrowth and tOrientationHealAbsorb == "HORIZONTAL_INV") then
 				-- VUHDO_STATUSBAR_LEFT_TO_RIGHT
 				tHealAbsorbBarSize = tHealAbsorbBarSizePercent * tHealthBarWidth;
 				tHealAbsorbBarOffset = tHealAbsorbBarOffsetPercent * tHealthBarWidth;
@@ -410,7 +441,8 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 
 				tHealAbsorbBar:SetWidth(tHealAbsorbBarSize);
 				tHealAbsorbBar:SetTexCoord(0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize, 0, tHealthBarHeight / tHealAbsorbBar.tileSize);
-			elseif (not sIsInvertGrowth and tOrientation == "HORIZONTAL_INV") or (sIsInvertGrowth and tOrientation == "HORIZONTAL") then
+			elseif (not sIsInvertGrowth and tOrientationHealAbsorb == "HORIZONTAL_INV") or
+				(sIsInvertGrowth and tOrientationHealAbsorb == "HORIZONTAL") then
 				-- VUHDO_STATUSBAR_RIGHT_TO_LEFT
 				tHealAbsorbBarSize = tHealAbsorbBarSizePercent * tHealthBarWidth;
 				tHealAbsorbBarOffset = tHealAbsorbBarOffsetPercent * tHealthBarWidth;
@@ -420,7 +452,8 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 
 				tHealAbsorbBar:SetWidth(tHealAbsorbBarSize);
 				tHealAbsorbBar:SetTexCoord(0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize, 0, tHealthBarHeight / tHealAbsorbBar.tileSize);
-			elseif (not sIsInvertGrowth and tOrientation == "VERTICAL") or (sIsInvertGrowth and tOrientation == "VERTICAL_INV") then
+			elseif (not sIsInvertGrowth and tOrientationHealAbsorb == "VERTICAL") or
+				(sIsInvertGrowth and tOrientationHealAbsorb == "VERTICAL_INV") then
 				-- VUHDO_STATUSBAR_BOTTOM_TO_TOP
 				tHealAbsorbBarSize = tHealAbsorbBarSizePercent * tHealthBarHeight;
 				tHealAbsorbBarOffset = tHealAbsorbBarOffsetPercent * tHealthBarHeight;
@@ -430,7 +463,7 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 
 				tHealAbsorbBar:SetHeight(tHealAbsorbBarSize);
 				tHealAbsorbBar:SetTexCoord(0, tHealthBarWidth / tHealAbsorbBar.tileSize, 0, tHealAbsorbBarSize / tHealAbsorbBar.tileSize);
-			else -- (not sIsInvertGrowth and tOrientation == "VERTICAL_INV") or (sIsInvertGrowth and tOrientation == "VERTICAL")
+			else -- (not sIsInvertGrowth and tOrientationHealAbsorb == "VERTICAL_INV") or (sIsInvertGrowth and tOrientationHealAbsorb == "VERTICAL")
 				-- VUHDO_STATUSBAR_TOP_TO_BOTTOM
 				tHealAbsorbBarSize = tHealAbsorbBarSizePercent * tHealthBarHeight;
 				tHealAbsorbBarOffset = tHealAbsorbBarOffsetPercent * tHealthBarHeight;
@@ -925,22 +958,25 @@ local VUHDO_customizeHealButton = VUHDO_customizeHealButton;
 --
 local tInfo, tAlpha, tIcon;
 local function VUHDO_customizeDebuffIconsRange(aButton)
-	if sIsNoRangeFade then return; end
+
+	if sIsNoRangeFade then
+		return;
+	end
 
 	_, tInfo = VUHDO_getDisplayUnit(aButton);
 
-  if tInfo then
-  	tAlpha = tInfo["range"] and 1 or VUHDO_BAR_COLOR["OUTRANGED"]["O"];
+	if tInfo then
+		tAlpha = tInfo["range"] and 1 or VUHDO_BAR_COLOR["OUTRANGED"]["O"];
 
-  	for tCnt = 40, 44 do
-  		tIcon = VUHDO_getBarIconFrame(aButton, tCnt);
-  		if tIcon then
-	  		if tIcon:GetAlpha() > 0 then
-	  			tIcon:SetAlpha(tAlpha);
-	  		end
-	  	end
-  	end
-  end
+		for tCnt = 40, 44 do
+			tIcon = VUHDO_getBarIconFrame(aButton, tCnt);
+
+			if tIcon and tIcon:GetAlpha() > 0 then
+				tIcon:SetAlpha(tAlpha);
+			end
+		end
+	end
+
 end
 
 
