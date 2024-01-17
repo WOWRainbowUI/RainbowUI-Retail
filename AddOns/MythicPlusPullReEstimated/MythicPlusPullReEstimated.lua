@@ -91,7 +91,7 @@ MMPE.defaultSettings = {
     debug = false,
     debugNewNPCScores = false,
 
-    enableMdtEmulation = true,
+    enableMdtEmulation = false, -- 更改預設值
 }
 
 MMPE.warnings = {}
