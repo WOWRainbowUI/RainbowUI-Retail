@@ -19,11 +19,6 @@ for _, events in ipairs(ActionBarAnimationEvents) do
     ActionBarActionEventsFrame:UnregisterEvent(events)
 end
 
-
--- Abilities with Charges
-hooksecurefunc("StartChargeCooldown", function(parent, chargeStart, chargeDuration, chargeModRate)
-	if parent.chargeCooldown then
-		parent.chargeCooldown:SetEdgeTexture("Interface\\Cooldown\\edge")
-		--parent.chargeCooldown:SetFrameLevel(parent:GetFrameLevel() + 1)
-	end
+hooksecurefunc("CooldownFrame_Set", function(self)
+	self:SetEdgeTexture("Interface\\Cooldown\\edge")
 end)
