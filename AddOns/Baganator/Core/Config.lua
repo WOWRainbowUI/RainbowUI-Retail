@@ -10,6 +10,7 @@ Baganator.Config.Options = {
   EMPTY_SLOT_BACKGROUND = "empty_slot_background",
   SHOW_REAGENTS = "show_reagents",
   SHOW_SORT_BUTTON = "show_sort_button_2",
+  SHOW_TRANSFER_BUTTON = "show_transfer_button",
   SORT_METHOD = "sort_method",
   REVERSE_GROUPS_SORT_ORDER = "reverse_groups_sort_order",
   SORT_START_AT_BOTTOM = "sort_start_at_bottom",
@@ -24,6 +25,7 @@ Baganator.Config.Options = {
 
   INVERTED_BAG_SHORTCUTS = "inverted_bag_shortcuts",
   SHOW_INVENTORY_TOOLTIPS = "show_inventory_tooltips",
+  SHOW_GUILD_BANKS_IN_TOOLTIPS = "show_guild_banks_in_tooltips",
   SHOW_CURRENCY_TOOLTIPS = "show_currency_tooltips",
   SHOW_TOOLTIPS_ON_SHIFT = "show_tooltips_on_shift",
   TOOLTIPS_CONNECTED_REALMS_ONLY = "tooltips_connected_realms_only",
@@ -31,26 +33,18 @@ Baganator.Config.Options = {
   TOOLTIPS_CHARACTER_LIMIT = "tooltips_character_limit",
   TOOLTIPS_SORT_BY_NAME = "tooltips_sort_by_name",
 
-  SHOW_ITEM_LEVEL = "show_item_level",
-  SHOW_EQUIPMENT_SET = "show_equipment_set",
-  SHOW_EXPANSION = "show_expansion",
-  SHOW_BOE_STATUS = "show_boe_status",
   HIDE_BOE_ON_COMMON = "hide_boe_on_common",
-  SHOW_BOA_STATUS = "show_boa_status",
   ICON_TEXT_QUALITY_COLORS = "icon_text_quality_colors",
   ICON_TEXT_FONT_SIZE = "icon_text_font_size",
-  ICON_TOP_LEFT_CORNER = "icon_top_left_corner",
-  ICON_TOP_RIGHT_CORNER = "icon_top_right_corner",
-  ICON_BOTTOM_LEFT_CORNER = "icon_bottom_left_corner",
-  ICON_BOTTOM_RIGHT_CORNER = "icon_bottom_right_corner",
+  ICON_TOP_LEFT_CORNER_ARRAY = "icon_top_left_corner_array",
+  ICON_TOP_RIGHT_CORNER_ARRAY = "icon_top_right_corner_array",
+  ICON_BOTTOM_LEFT_CORNER_ARRAY = "icon_bottom_left_corner_array",
+  ICON_BOTTOM_RIGHT_CORNER_ARRAY = "icon_bottom_right_corner_array",
+  ICON_CORNERS_AUTO_INSERT_APPLIED = "icon_corners_auto_insert_applied",
   ICON_GREY_JUNK = "icon_grey_junk",
   ICON_EQUIPMENT_SET_BORDER = "icon_equipment_set_border",
   ICON_FLASH_SIMILAR_ALT = "icon_flash_similar_alt",
 
-  SHOW_PAWN_ARROW = "show_pawn_arrow",
-  AUTO_PAWN_ARROW = "auto_pawn_arrow",
-  SHOW_CIMI_ICON = "show_cimi_icon",
-  AUTO_CIMI_ICON = "auto_cimi_icon",
   JUNK_PLUGIN = "junk_plugin",
 
   MAIN_VIEW_POSITION = "main_view_position",
@@ -64,7 +58,7 @@ Baganator.Config.Options = {
   AUTO_OPEN = "auto_open",
 
   ENABLE_UNIFIED_BAGS = "enable_unified_bags",
-  ENABLE_EQUIPMENT_SET_INFO = "enable_equipment_set_info",
+  ENABLE_EQUIPMENT_SET_INFO = "enable_equipment_set_info_2",
 }
 
 Baganator.Config.Defaults = {
@@ -72,27 +66,20 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.BANK_VIEW_WIDTH] = Baganator.Constants.IsRetail and 24 or 18,
   [Baganator.Config.Options.BAG_ICON_SIZE] = 37,
   [Baganator.Config.Options.VIEW_ALPHA] = 1,
-  [Baganator.Config.Options.LOCK_FRAMES] = false, -- 更改預設值
+  [Baganator.Config.Options.LOCK_FRAMES] = false,
   [Baganator.Config.Options.NO_FRAME_BORDERS] = false,
   [Baganator.Config.Options.EMPTY_SLOT_BACKGROUND] = false,
   [Baganator.Config.Options.SHOW_REAGENTS] = true,
   [Baganator.Config.Options.SHOW_SORT_BUTTON] = true,
+  [Baganator.Config.Options.SHOW_TRANSFER_BUTTON] = true,
   [Baganator.Config.Options.INVERTED_BAG_SHORTCUTS] = false,
   [Baganator.Config.Options.RECENT_CHARACTERS_MAIN_VIEW] = {},
-  [Baganator.Config.Options.SHOW_ITEM_LEVEL] = true,
-  [Baganator.Config.Options.SHOW_EXPANSION] = false,
-  [Baganator.Config.Options.SHOW_BOE_STATUS] = false,
   [Baganator.Config.Options.HIDE_BOE_ON_COMMON] = false,
-  [Baganator.Config.Options.SHOW_BOA_STATUS] = false,
   [Baganator.Config.Options.SHOW_RECENTS_TABS] = true,
   [Baganator.Config.Options.SHOW_INVENTORY_TOOLTIPS] = false, -- 更改預設值
+  [Baganator.Config.Options.SHOW_GUILD_BANKS_IN_TOOLTIPS] = true,
   [Baganator.Config.Options.SHOW_CURRENCY_TOOLTIPS] = true,
   [Baganator.Config.Options.ICON_TEXT_QUALITY_COLORS] = true, -- 更改預設值
-  [Baganator.Config.Options.SHOW_PAWN_ARROW] = false,
-  [Baganator.Config.Options.SHOW_CIMI_ICON] = false,
-  [Baganator.Config.Options.SHOW_EQUIPMENT_SET] = false,
-  [Baganator.Config.Options.AUTO_PAWN_ARROW] = true,
-  [Baganator.Config.Options.AUTO_CIMI_ICON] = true,
   [Baganator.Config.Options.MAIN_VIEW_POSITION] = {"RIGHT", -20, 0},
   [Baganator.Config.Options.BANK_ONLY_VIEW_POSITION] = {"LEFT", 20, 0},
   [Baganator.Config.Options.SHOW_TOOLTIPS_ON_SHIFT] = false,
@@ -101,10 +88,11 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.TOOLTIPS_FACTION_ONLY] = false,
   [Baganator.Config.Options.TOOLTIPS_CHARACTER_LIMIT] = 4,
   [Baganator.Config.Options.ICON_TEXT_FONT_SIZE] = 14,
-  [Baganator.Config.Options.ICON_TOP_LEFT_CORNER] = "item_level",
-  [Baganator.Config.Options.ICON_TOP_RIGHT_CORNER] = "none",
-  [Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER] = "none",
-  [Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER] = "quantity",
+  [Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY] = {"junk", "item_level"},
+  [Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY] = {},
+  [Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY] = {"equipment_set"},
+  [Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY] = {"quantity"},
+  [Baganator.Config.Options.ICON_CORNERS_AUTO_INSERT_APPLIED] = {},
   [Baganator.Config.Options.ICON_GREY_JUNK] = false,
   [Baganator.Config.Options.ICON_EQUIPMENT_SET_BORDER] = true,
   [Baganator.Config.Options.AUTO_OPEN] = {},
@@ -112,7 +100,7 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.BANK_ONLY_VIEW_SHOW_BAG_SLOTS] = true,
   [Baganator.Config.Options.BAG_EMPTY_SPACE_AT_TOP] = false,
   [Baganator.Config.Options.REDUCE_SPACING] = false,
-  [Baganator.Config.Options.SORT_METHOD] = "quality",
+  [Baganator.Config.Options.SORT_METHOD] = "type",
   [Baganator.Config.Options.REVERSE_GROUPS_SORT_ORDER] = false,
   [Baganator.Config.Options.SORT_START_AT_BOTTOM] = false,
   [Baganator.Config.Options.ICON_FLASH_SIMILAR_ALT] = false,
@@ -125,7 +113,9 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.DEBUG_TIMERS] = false,
 
   [Baganator.Config.Options.ENABLE_UNIFIED_BAGS] = true,
-  [Baganator.Config.Options.ENABLE_EQUIPMENT_SET_INFO] = Baganator.Constants.IsRetail,
+  -- Option is disabled on classic WoW for Macs because there is a crash when
+  -- all 19 set item slots are occupied, see https://github.com/Stanzilla/WoWUIBugs/issues/511
+  [Baganator.Config.Options.ENABLE_EQUIPMENT_SET_INFO] = (Baganator.Constants.IsRetail or not IsMacClient()),
 }
 
 Baganator.Config.IsCharacterSpecific = {
@@ -144,25 +134,18 @@ Baganator.Config.ItemButtonsRelayoutSettings = {
   Baganator.Config.Options.BANK_VIEW_WIDTH,
   Baganator.Config.Options.SHOW_REAGENTS,
   Baganator.Config.Options.SHOW_SORT_BUTTON,
-  Baganator.Config.Options.SHOW_ITEM_LEVEL,
-  Baganator.Config.Options.SHOW_EXPANSION,
-  Baganator.Config.Options.SHOW_EQUIPMENT_SET,
-  Baganator.Config.Options.SHOW_BOE_STATUS,
+  Baganator.Config.Options.SHOW_TRANSFER_BUTTON,
   Baganator.Config.Options.HIDE_BOE_ON_COMMON,
-  Baganator.Config.Options.SHOW_BOA_STATUS,
-  Baganator.Config.Options.SHOW_PAWN_ARROW,
-  Baganator.Config.Options.SHOW_CIMI_ICON,
-  Baganator.Config.Options.SHOW_EXPANSION,
   Baganator.Config.Options.ICON_TEXT_QUALITY_COLORS,
   Baganator.Config.Options.ICON_TEXT_FONT_SIZE,
-  Baganator.Config.Options.ICON_TOP_LEFT_CORNER,
-  Baganator.Config.Options.ICON_TOP_RIGHT_CORNER,
-  Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER,
-  Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER,
   Baganator.Config.Options.BAG_EMPTY_SPACE_AT_TOP,
   Baganator.Config.Options.ICON_GREY_JUNK,
   Baganator.Config.Options.REDUCE_SPACING,
   Baganator.Config.Options.JUNK_PLUGIN,
+  Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY,
 }
 
 function Baganator.Config.IsValidOption(name)
@@ -207,7 +190,11 @@ function Baganator.Config.Set(name, value)
 end
 
 function Baganator.Config.ResetOne(name)
-  Baganator.Config.Set(name, CopyTable(Baganator.Config.Defaults[name]))
+  local newValue = Baganator.Config.Defaults[name]
+  if type(newValue) == "table" then
+    newValue = CopyTable(newValue)
+  end
+  Baganator.Config.Set(name, newValue)
 end
 
 function Baganator.Config.Reset()

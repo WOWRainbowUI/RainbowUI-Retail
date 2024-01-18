@@ -3,6 +3,7 @@
     <Scripts>
       <OnLoad method="OnLoad"/>
       <OnEvent method="OnEvent"/>
+      <OnShow method="OnShow"/>
       <OnHide method="OnHide"/>
       <OnDragStart method="OnDragStart"/>
       <OnDragStop method="OnDragStop"/>
@@ -20,6 +21,19 @@
         <Scripts>
           <OnClick>
             self:GetParent():CombineStacksAndSort(button == "RightButton")
+          </OnClick>
+        </Scripts>
+      </Button>
+      <Button parentKey="TransferButton" inherits="BaganatorTransferButtonTemplate" frameLevel="700" registerForClicks="LeftButtonUp,RightButtonUp">
+        <KeyValues>
+          <KeyValue key="tooltipText" value="BAGANATOR_L_TRANSFER_BANK_VIEW_TOOLTIP_TEXT" type="global"/>
+        </KeyValues>
+        <Anchors>
+          <Anchor point="RIGHT" relativeKey="$parent.SortButton" relativePoint="LEFT"/>
+        </Anchors>
+        <Scripts>
+          <OnClick>
+            self:GetParent():Transfer(button)
           </OnClick>
         </Scripts>
       </Button>

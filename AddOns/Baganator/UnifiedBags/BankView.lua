@@ -11,14 +11,20 @@ function BaganatorBankOnlyViewMixin:OnLoad()
     "BANKFRAME_OPENED",
     "BANKFRAME_CLOSED",
     "PLAYERBANKBAGSLOTS_CHANGED",
+    "PLAYER_REGEN_DISABLED",
+    "PLAYER_REGEN_ENABLED",
   })
 
-  self.sortManager = CreateFrame("Frame", nil, self)
+  Baganator.Utilities.AddBagSortManager(self) -- self.sortManager
+  Baganator.Utilities.AddBagTransferManager(self) -- self.transferManager
 
   self.SearchBox:HookScript("OnTextChanged", function(_, isUserInput)
     if isUserInput and not self.SearchBox:IsInIMECompositionMode() then
       local text = self.SearchBox:GetText()
       Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", text:lower())
+    end
+    if self.SearchBox:GetText() == "" then
+      self.SearchBox.Instructions:SetText(Baganator.Utilities.GetRandomSearchesText())
     end
   end)
   self.SearchBox.clearButton:SetScript("OnClick", function()
@@ -58,7 +64,7 @@ function BaganatorBankOnlyViewMixin:OnLoad()
     for _, layout in ipairs(self.Layouts) do
       layout:RequestContentRefresh()
     end
-    if self:IsVisible() then
+    if self:IsVisible() and self.liveCharacter ~= nil then
       self:UpdateForCharacter(self.liveCharacter)
     end
   end)
@@ -86,6 +92,33 @@ function BaganatorBankOnlyViewMixin:OnLoad()
     else
       bb:SetPoint("TOPLEFT", self.bankBagSlots[#self.bankBagSlots - 1], "TOPRIGHT")
     end
+  end
+
+  self.confirmTransferAllDialogName = "Baganator.ConfirmTransferAll_" .. self:GetName()
+  StaticPopupDialogs[self.confirmTransferAllDialogName] = {
+    text = BAGANATOR_L_CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK,
+    button1 = YES,
+    button2 = NO,
+    OnAccept = function()
+      self:RemoveSearchMatches(function() end)
+    end,
+    timeout = 0,
+    hideOnEscape = 1,
+  }
+  self:UpdateTransferButton()
+end
+
+function BaganatorBankOnlyViewMixin:UpdateTransferButton()
+  if not Baganator.Config.Get(Baganator.Config.Options.SHOW_TRANSFER_BUTTON) then
+    self.TransferButton:Hide()
+    return
+  end
+  self.TransferButton:Show()
+  self.TransferButton:ClearAllPoints()
+  if self.SortButton:IsShown() then
+    self.TransferButton:SetPoint("RIGHT", self.SortButton, "LEFT")
+  else
+    self.TransferButton:SetPoint("RIGHT", self.CustomiseButton, "LEFT")
   end
 end
 
@@ -128,12 +161,29 @@ function BaganatorBankOnlyViewMixin:OnEvent(eventName)
     if self.liveCharacter then
       self:UpdateForCharacter(self.liveCharacter)
     end
+  elseif eventName == "BANKFRAME_CLOSED" then
+    self:Hide()
   elseif eventName == "PLAYERBANKBAGSLOTS_CHANGED" then
     if self:IsVisible() then
       self:UpdateBagSlots()
     end
-  else
-    self:Hide()
+  elseif eventName == "PLAYER_REGEN_DISABLED" then
+    if not self.liveBagSlots then
+      return
+    end
+    -- Disable bank bag slots buttons in combat as pickup/drop doesn't work
+    for _, button in ipairs(self.liveBagSlots) do
+      SetItemButtonDesaturated(button, true)
+      button:Disable()
+    end
+  elseif eventName == "PLAYER_REGEN_ENABLED" then
+    if not self.liveBagSlots then
+      return
+    end
+    for _, button in ipairs(self.liveBagSlots) do
+      SetItemButtonDesaturated(button, false)
+      button:Enable()
+    end
   end
 end
 
@@ -145,12 +195,15 @@ function BaganatorBankOnlyViewMixin:UpdateBagSlots()
   end
 end
 
+function BaganatorBankOnlyViewMixin:OnShow()
+  self.SearchBox.Instructions:SetText(Baganator.Utilities.GetRandomSearchesText())
+end
+
 function BaganatorBankOnlyViewMixin:OnHide(eventName)
   CloseBankFrame()
 
   Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
   Baganator.UnifiedBags.Search.ClearCache()
-  Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
 end
 
 function BaganatorBankOnlyViewMixin:SetLiveCharacter(character)
@@ -177,6 +230,7 @@ function BaganatorBankOnlyViewMixin:UpdateForCharacter(character, updatedBags)
   end
 
   self.SortButton:SetShown(Baganator.Utilities.ShouldShowSortButton())
+  self:UpdateTransferButton()
 
   self:NotifyBagUpdate(updatedBags)
 
@@ -211,10 +265,10 @@ function BaganatorBankOnlyViewMixin:UpdateForCharacter(character, updatedBags)
   end
 
   self.BankLive:ClearAllPoints()
-  self.BankLive:SetPoint("TOPLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset, -50)
+  self.BankLive:SetPoint("TOPLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset - 2, -50)
 
   self:SetSize(
-    self.BankLive:GetWidth() + sideSpacing * 2 + Baganator.Constants.ButtonFrameOffset,
+    self.BankLive:GetWidth() + sideSpacing * 2 + Baganator.Constants.ButtonFrameOffset - 2,
     self.BankLive:GetHeight() + reagentBankHeight + 60
   )
   -- 300 is the default searchbox width
@@ -234,19 +288,12 @@ function BaganatorBankOnlyViewMixin:NotifyBagUpdate(updatedBags)
 end
 
 function BaganatorBankOnlyViewMixin:CombineStacks(callback)
-  local bagsToSort = {}
-  for index, bagID in ipairs(Baganator.Constants.AllBankIndexes) do
-    bagsToSort[index] = true
-  end
-  Baganator.Sorting.CombineStacks(BAGANATOR_DATA.Characters[self.liveCharacter].bank, Baganator.Constants.AllBankIndexes, bagsToSort, function(check)
-    if not check then
-      Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
+  Baganator.Sorting.CombineStacks(BAGANATOR_DATA.Characters[self.liveCharacter].bank, Baganator.Constants.AllBankIndexes, function(status)
+    self.sortManager:Apply(status, function()
+      self:CombineStacks(callback)
+    end, function()
       callback()
-    else
-      Baganator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
-        self:CombineStacks(callback)
-      end, self.sortManager)
-    end
+    end)
   end)
 end
 
@@ -255,39 +302,21 @@ function BaganatorBankOnlyViewMixin:DoSort(isReverse)
   for index in ipairs(Baganator.Constants.AllBankIndexes) do
     indexesToUse[index] = true
   end
-  local bagChecks = {}
-  if Baganator.Constants.IsRetail then
-    bagChecks[Enum.BagIndex.Reagentbank] = function(item)
-      return (select(17, GetItemInfo(item.itemLink)))
-    end
+  -- Ignore reagent bank if it isn't purchased
+  if Baganator.Constants.IsRetail and not IsReagentBankUnlocked() then
+    indexesToUse[tIndexOf(Baganator.Constants.AllBankIndexes, Enum.BagIndex.Reagentbank)] = nil
   end
-
-  for index = 1, Baganator.Constants.BankBagSlotsCount do
-    local bagID = Baganator.Constants.AllBankIndexes[index + 1]
-    local _, family = C_Container.GetContainerNumFreeSlots(bagID)
-    if family ~= nil and family ~= 0 then
-      bagChecks[bagID] = function(item)
-        local itemFamily = item.itemLink and GetItemFamily(item.itemLink)
-        return itemFamily and item.classID ~= Enum.ItemClass.Container and item.classID ~= Enum.ItemClass.Quiver and bit.band(itemFamily, family) ~= 0
-      end
-    end
-  end
+  local bagChecks = Baganator.Sorting.GetBagUsageChecks(Baganator.Constants.AllBankIndexes)
 
   local function DoSortInternal()
-    local goAgain = Baganator.Sorting.ApplyOrdering(
+    local status = Baganator.Sorting.ApplyOrdering(
       BAGANATOR_DATA.Characters[self.liveCharacter].bank,
       Baganator.Constants.AllBankIndexes,
       indexesToUse,
       bagChecks,
       isReverse
     )
-    if not goAgain then
-      Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
-    else
-      Baganator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
-        DoSortInternal()
-      end, self.sortManager)
-    end
+    self.sortManager:Apply(status, DoSortInternal, function() end)
   end
 
   DoSortInternal()
@@ -296,13 +325,58 @@ end
 function BaganatorBankOnlyViewMixin:CombineStacksAndSort(isReverse)
   local sortMethod = Baganator.Config.Get(Baganator.Config.Options.SORT_METHOD)
 
+  if not Baganator.Sorting.IsModeAvailable(sortMethod) then
+    Baganator.Config.ResetOne(Baganator.Config.Options.SORT_METHOD)
+    sortMethod = Baganator.Config.Get(Baganator.Config.Options.SORT_METHOD)
+  end
+
   if sortMethod == "blizzard" then
     Baganator.Sorting.BlizzardBankSort(isReverse)
   elseif sortMethod == "sortbags" then
     Baganator.Sorting.ExternalSortBagsBank(isReverse)
+  elseif sortMethod == "combine_stacks_only" then
+    self:CombineStacks(function() end)
   else
     self:CombineStacks(function()
       self:DoSort(isReverse)
     end)
+  end
+end
+
+function BaganatorBankOnlyViewMixin:RemoveSearchMatches(callback)
+  local matches = {}
+  for _, layout in ipairs({self.BankLive, self.ReagentBankLive}) do
+    tAppendAll(matches, layout.SearchMonitor:GetMatches())
+  end
+  local emptyBagSlots = Baganator.Sorting.GetEmptySlots(BAGANATOR_DATA.Characters[self.liveCharacter].bags, Baganator.Constants.AllBagIndexes)
+  local combinedIDs = CopyTable(Baganator.Constants.AllBagIndexes)
+  tAppendAll(combinedIDs, Baganator.Constants.AllBankIndexes)
+
+  local status = Baganator.Sorting.Transfer(combinedIDs, matches, emptyBagSlots)
+
+  self.transferManager:Apply(status, function()
+    self:RemoveSearchMatches(callback)
+  end, function()
+    callback()
+  end)
+end
+
+function BaganatorBankOnlyViewMixin:SaveToBag(callback)
+  local characterData = BAGANATOR_DATA.Characters[self.liveCharacter]
+
+  local status = Baganator.Sorting.SaveToView(characterData.bank, Baganator.Constants.AllBankIndexes, characterData.bags, Baganator.Constants.AllBagIndexes)
+
+  self.transferManager:Apply(status, function()
+    self:SaveToBag(callback)
+  end, function()
+    callback()
+  end)
+end
+
+function BaganatorBankOnlyViewMixin:Transfer(button)
+  if self.SearchBox:GetText() == "" then
+    StaticPopup_Show(self.confirmTransferAllDialogName)
+  else
+    self:RemoveSearchMatches(function() end)
   end
 end

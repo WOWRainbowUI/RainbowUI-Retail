@@ -49,6 +49,8 @@ local function InitCurrentCharacter()
 end
 
 local function SetupDataProcessing()
+  Baganator.Utilities.CacheConnectedRealms()
+
   local bagCache = CreateFrame("Frame")
   Mixin(bagCache, BaganatorBagCacheMixin)
   bagCache:OnLoad()
@@ -134,14 +136,22 @@ function Baganator.InventoryTracking.Initialize()
       end
     end)
   else
-    GameTooltip:HookScript("OnTooltipSetItem", function(tooltip)
-      local _, itemLink = tooltip:GetItem()
-      AddToItemTooltip(tooltip, Baganator.ItemSummaries, itemLink)
-    end)
-    ItemRefTooltip:HookScript("OnTooltipSetItem", function(tooltip)
-      local _, itemLink = tooltip:GetItem()
-      AddToItemTooltip(tooltip, Baganator.ItemSummaries, itemLink)
-    end)
+    local function SetItemTooltipHandler(tooltip)
+      local ready = true
+      tooltip:HookScript("OnTooltipSetItem", function(tooltip)
+        if not ready then
+          return
+        end
+        local _, itemLink = tooltip:GetItem()
+        AddToItemTooltip(tooltip, Baganator.ItemSummaries, itemLink)
+        ready = false
+      end)
+      tooltip:HookScript("OnTooltipCleared", function(tooltip)
+        ready = true
+      end)
+    end
+    SetItemTooltipHandler(GameTooltip)
+    SetItemTooltipHandler(ItemRefTooltip)
     local function CurrencyTooltipHandler(tooltip, index)
       local link = C_CurrencyInfo.GetCurrencyListLink(index)
       if link ~= nil then
