@@ -1,6 +1,8 @@
 # Baganator
 
-## [0.126](https://github.com/plusmouse/Baganator/tree/0.126) (2024-01-17)
-[Full Changelog](https://github.com/plusmouse/Baganator/compare/0.125...0.126) 
+## [0.127](https://github.com/plusmouse/Baganator/tree/0.127) (2024-01-18)
+[Full Changelog](https://github.com/plusmouse/Baganator/compare/0.126...0.127) 
 
-- Simplify Transfer feature to remove special actions  
+- Fix poor quality quest items which cannot be sold showing a junk icon  
+- More code cleanup  
+- Cleanup/simplify Transfer feature's code  
