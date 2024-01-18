@@ -1,6 +1,6 @@
 ## Interface: 100205
 ## Title: LiteButtonAuras
-## Version: 10.2.5-1
+## Version: 10.2.5-2
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
