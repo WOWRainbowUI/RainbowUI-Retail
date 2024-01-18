@@ -1,3 +1,10 @@
+# v2.35.0
+
+- Added A Dream of Fields and Fire quest line
+- Added New Beginnings quest line
+- Updated for 10.2.5
+- Fixed an issue with displaying race and class conditions in tooltips
+
 # v2.34.1
 
 - Updated for 10.2
