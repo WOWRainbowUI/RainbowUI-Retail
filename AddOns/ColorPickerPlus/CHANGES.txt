@@ -1,10 +1,56 @@
-tag 0fadc004711f7683ae9c5bd32458b9cb591ba865 r56
+tag d6a79309b1820fc0c283857640efc534266eb386 r57
 Author:	Benjamin Staneck <staneck@gmail.com>
-Date:	Tue Nov 7 21:12:32 2023 +0100
+Date:	Wed Jan 17 19:49:44 2024 +0100
 
-commit e017c11926c06c36ad285b610a3ad2c4df496c6b
+commit 8c7498ed9c8a6bab6b0c0130065eb5a4e3b3927e
 Author: Benjamin Staneck <staneck@gmail.com>
-Date:   Tue Nov 7 21:11:59 2023 +0100
+Date:   Wed Jan 17 19:46:46 2024 +0100
 
-    Update TOC for Retail Patch 10.2.0
+    Format with Stylua
+
+commit 24f07548a97649e848f2c4d30a9a38832c0da08e
+Author: Benjamin Staneck <staneck@gmail.com>
+Date:   Wed Jan 17 19:40:49 2024 +0100
+
+    Rename a few variables and add cspell DB
+
+commit 53d51a352b29793037a309d89c9e385afebf65fe
+Author: Benjamin Staneck <staneck@gmail.com>
+Date:   Wed Jan 17 19:38:03 2024 +0100
+
+    Fix functionality on 10.2.5 and add backwards compat
+
+commit 78e04903ebdd93a6855008d3669445b83c51dadf
+Author: Benjamin Staneck <staneck@gmail.com>
+Date:   Wed Jan 17 19:04:07 2024 +0100
+
+    More frame updates
+
+commit aac35c10c1325fc5f46dc62d86adb0f57a9f9863
+Author: Benjamin Staneck <staneck@gmail.com>
+Date:   Wed Jan 17 18:10:42 2024 +0100
+
+    CreateFrame improvements
+    
+    BackdropTemplate should be on all flavors now
+
+commit 7b400c94231d8dac600b9d572e92f2f1b62e5d43
+Author: Benjamin Staneck <staneck@gmail.com>
+Date:   Wed Jan 17 12:38:33 2024 +0100
+
+    Add .luarc.json
+
+commit be14a86e8eb2d82a6be7308ba38d3a8ce5fea211
+Author: Benjamin Staneck <staneck@gmail.com>
+Date:   Wed Jan 17 12:32:35 2024 +0100
+
+    Rename frames
+    
+    Errors are gone but functionality is not back 100%
+
+commit 784c0cf0b09217baa291efba10365160f9b6cd24
+Author: Benjamin Staneck <staneck@gmail.com>
+Date:   Wed Jan 17 12:31:00 2024 +0100
+
+    Update TOCs
 
