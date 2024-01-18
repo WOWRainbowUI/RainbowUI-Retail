@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 30403
 ## Title: TankMD
 ## Notes: One button to always misdirect to the tank. Also supports Tricks for rogues, Blistering Scales for evokers and Innervate for druids (targets healers).
 ## Author: Oppzippy
@@ -14,7 +14,7 @@
 ## IconTexture: Interface\Icons\ability_hunter_misdirection
 ## DefaultState: disabled
 
-Libs\LibGroupInSpecT-1.1\lib.xml
+LibsClassic.xml
 
 TargetMatcher\TargetMatchers.xml
 Config.lua

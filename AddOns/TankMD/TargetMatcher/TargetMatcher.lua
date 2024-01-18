@@ -9,7 +9,7 @@ TargetMatcherPrototype.raidUnits = {
 	"raid21", "raid22", "raid23", "raid24", "raid25", "raid26", "raid27", "raid28", "raid29", "raid30",
 	"raid31", "raid32", "raid33", "raid34", "raid35", "raid36", "raid37", "raid38", "raid39", "raid40"
 }
-TargetMatcherPrototype.partyUnits = {"player", "party1", "party2", "party3", "party4"}
+TargetMatcherPrototype.partyUnits = { "player", "party1", "party2", "party3", "party4" }
 
 
 function TargetMatcherPrototype:FindTargets()
@@ -17,7 +17,7 @@ function TargetMatcherPrototype:FindTargets()
 	local targets = {}
 	for _, unit in ipairs(groupMembers) do
 		if self:Matches(unit) then
-			targets[#targets+1] = unit
+			targets[#targets + 1] = unit
 		end
 	end
 	return targets
@@ -31,10 +31,13 @@ end
 function TargetMatcherPrototype:GetSortedGroupMembers()
 	local groupMembers = {}
 	local units = IsInRaid() and self.raidUnits or self.partyUnits
-	for i = 1, GetNumGroupMembers() do
+	local maxGroupMembers = IsInRaid() and MAX_RAID_MEMBERS or MAX_PARTY_MEMBERS + 1
+	for i = 1, maxGroupMembers do
 		local unit = units[i]
 		local name = UnitName(unit)
-		groupMembers[i] = name
+		if name and name ~= UNKNOWNOBJECT then
+			groupMembers[#groupMembers + 1] = name
+		end
 	end
 
 	table.sort(groupMembers)
