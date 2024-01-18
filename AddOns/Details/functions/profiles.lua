@@ -1398,7 +1398,7 @@ local default_global_data = {
 		merge_pet_abilities = false,
 		merge_player_abilities = false,
 
-		played_class_time = true,
+		played_class_time = false, -- 遊戲時間洗頻訊息
 		check_stuttering = false,  -- 檢查卡頓
 
 		--[bossname] = texture
