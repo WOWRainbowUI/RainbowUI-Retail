@@ -163,7 +163,7 @@ local options = {
                 },
                 AnchorHeader = {
                     type = "header",
-                    name = L["Anchors"],
+                    name = L["位置"],
                     order = order(),
                 },
                 postAnchorHeaderGap = {
@@ -179,7 +179,7 @@ local options = {
                     order = order(),
                 },
                 timerAnchor = {
-                    name = L["Timer Anchor"],
+                    name = L["時間位置"],
                     type = "select",
                     control = 'LBAAnchorButtons',
                     values = ANCHOR_SELECT_VALUES,
@@ -192,7 +192,7 @@ local options = {
                     order = order(),
                 },
                 stacksAnchor = {
-                    name = L["Stacks Anchor"],
+                    name = L["層數位置"],
                     type = "select",
                     control = 'LBAAnchorButtons',
                     values = ANCHOR_SELECT_VALUES,
@@ -211,7 +211,7 @@ local options = {
                     order = order(),
                 },
                 timerAdjust = {
-                    name = L["Timer Offset"],
+                    name = L["時間位置偏移"],
                     type = "range",
                     order = order(),
                     min = -16,
@@ -225,7 +225,7 @@ local options = {
                     order = order(),
                 },
                 stacksAdjust = {
-                    name = L["Stacks Offset"],
+                    name = L["層數位置偏移"],
                     type = "range",
                     order = order(),
                     min = -16,
