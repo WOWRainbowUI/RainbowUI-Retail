@@ -1,4 +1,4 @@
-﻿## Interface: 100205
+﻿## Interface: 100200
 ## Title: Spy
 ## Version: 3.10.8
 ## Notes: Detects and alerts you to the presence of nearby enemy players.
