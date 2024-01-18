@@ -423,30 +423,13 @@ L["TRADE"] = "Trade"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the bank into the bags.
-
-Special actions:
-- Right-click (move any bank items which have some in the bags)]=]
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "Move searched for items out of the bank into the bags."
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the bank.
-
-Special actions:
-- Right-click (move any bag items which have some in the bank)
-- Shift+Left-click (place as many items as possible in the bags without duplicates)]=]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = [=[Attach the searched for items to a mail for sending.
-
-Special actions:
-- Right-click to clear all attachments]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = [=[Place scrappable items into the scrapping machine.
-
-Special actions:
-- Right-click to remove all items from the scrapping machine]=]
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -735,30 +718,13 @@ L["TRADE"] = "Trade"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the bank into the bags.
-
-Special actions:
-- Right-click (move any bank items which have some in the bags)]=]
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "Move searched for items out of the bank into the bags."
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the bank.
-
-Special actions:
-- Right-click (move any bag items which have some in the bank)
-- Shift+Left-click (place as many items as possible in the bags without duplicates)]=]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = [=[Attach the searched for items to a mail for sending.
-
-Special actions:
-- Right-click to clear all attachments]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = [=[Place scrappable items into the scrapping machine.
-
-Special actions:
-- Right-click to remove all items from the scrapping machine]=]
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -1047,30 +1013,13 @@ L["TRADE"] = "Trade"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the bank into the bags.
-
-Special actions:
-- Right-click (move any bank items which have some in the bags)]=]
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "Move searched for items out of the bank into the bags."
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the bank.
-
-Special actions:
-- Right-click (move any bag items which have some in the bank)
-- Shift+Left-click (place as many items as possible in the bags without duplicates)]=]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = [=[Attach the searched for items to a mail for sending.
-
-Special actions:
-- Right-click to clear all attachments]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = [=[Place scrappable items into the scrapping machine.
-
-Special actions:
-- Right-click to remove all items from the scrapping machine]=]
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -1359,30 +1308,13 @@ L["TRADE"] = "Trade"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the bank into the bags.
-
-Special actions:
-- Right-click (move any bank items which have some in the bags)]=]
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "Move searched for items out of the bank into the bags."
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the bank.
-
-Special actions:
-- Right-click (move any bag items which have some in the bank)
-- Shift+Left-click (place as many items as possible in the bags without duplicates)]=]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = [=[Attach the searched for items to a mail for sending.
-
-Special actions:
-- Right-click to clear all attachments]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = [=[Place scrappable items into the scrapping machine.
-
-Special actions:
-- Right-click to remove all items from the scrapping machine]=]
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -1671,30 +1603,13 @@ L["TRADE"] = "Trade"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the bank into the bags.
-
-Special actions:
-- Right-click (move any bank items which have some in the bags)]=]
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "Move searched for items out of the bank into the bags."
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the bank.
-
-Special actions:
-- Right-click (move any bag items which have some in the bank)
-- Shift+Left-click (place as many items as possible in the bags without duplicates)]=]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = [=[Attach the searched for items to a mail for sending.
-
-Special actions:
-- Right-click to clear all attachments]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = [=[Place scrappable items into the scrapping machine.
-
-Special actions:
-- Right-click to remove all items from the scrapping machine]=]
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -1857,12 +1772,10 @@ L["TO_OPEN_OPTIONS_X"] = "輸入 /bgr 開啟選項"
 L["TOOLTIPS"] = "工具提示"
 L["TRADE"] = "交易"
 L["TRANSFER"] = "轉移"
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "移動搜尋銀行外的物品。\\n\\n對右鍵單擊的特殊操作，轉移在背包中的相同物品"
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "將銀行搜尋的物品轉移放入背包中。"
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "移動搜尋物品從背包到銀行。\\n\\n對右鍵單擊的特殊操作 (轉移已經在銀行中的物品) 以及 shift+點擊 (重新排序讓背包中的物品都是一整組)。"
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "將背包搜尋的物品轉移放入銀行中。"
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "將搜尋物品附加到郵件中進行發送。\\n\\n右鍵-單擊 來清除所有附件。"
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "將可報廢的物品放入回收機。右鍵點選可從回收機移除所有物品。"
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "將銀行搜尋的物品轉移放入背包中。"
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "將背包搜尋的物品轉移放入銀行中。"
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "將搜尋到的物品附加到郵件中發送。"
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "將可報廢的物品放入破爛回收機。"
 L["TRANSFERS"] = "轉移"
 L["TYPE"] = "類型"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "圖示上文字根據物品品質著色"
@@ -2008,14 +1921,14 @@ L["TO_OPEN_OPTIONS_X"] = "输入/bgr 打开选项"
 L["TOOLTIPS"] = "鼠标提示"
 L["TRADE"] = "交易"
 L["TRANSFER"] = "转移"
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "将搜索到的物品从银行转移到背包内。特殊操作： - 右键单击（转移背包中已有相同的物品）"
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "Move searched for items out of the bank into the bags."
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "将搜索到的物品从背包内移出，放入银行。特殊操作： - 右键单击（转移已存入银行的物品） - Shift+ 左键单击（重新排列，使背包内的所有物品都堆叠在一起）"
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "Move searched for items out from the bags into the bank."
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "将搜索到的物品添加到邮件中，以便发送。特殊操作： - 右键单击清除所有附件"
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "将可拆解的物品放入拆解机。特殊操作： - 右键单击可从拆解机中移除所有物品"
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 L["TRANSFERS"] = "转移"
 L["TYPE"] = "类型"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "图标上的文字根据物品的品质着色"
@@ -2223,30 +2136,13 @@ L["TRADE"] = "거래"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the bank into the bags.
-
-Special actions:
-- Right-click (move any bank items which have some in the bags)]=]
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "Move searched for items out of the bank into the bags."
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the bank.
-
-Special actions:
-- Right-click (move any bag items which have some in the bank)
-- Shift+Left-click (place as many items as possible in the bags without duplicates)]=]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = [=[Attach the searched for items to a mail for sending.
-
-Special actions:
-- Right-click to clear all attachments]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = [=[Place scrappable items into the scrapping machine.
-
-Special actions:
-- Right-click to remove all items from the scrapping machine]=]
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 L["TYPE"] = "유형"
@@ -2522,30 +2418,13 @@ L["TRADE"] = "Trade"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the bank into the bags.
-
-Special actions:
-- Right-click (move any bank items which have some in the bags)]=]
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
 --[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT_SHORT"] = "Move searched for items out of the bank into the bags."
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the bank.
-
-Special actions:
-- Right-click (move any bag items which have some in the bank)
-- Shift+Left-click (place as many items as possible in the bags without duplicates)]=]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT_SHORT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = [=[Attach the searched for items to a mail for sending.
-
-Special actions:
-- Right-click to clear all attachments]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = [=[Place scrappable items into the scrapping machine.
-
-Special actions:
-- Right-click to remove all items from the scrapping machine]=]
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]

@@ -158,7 +158,7 @@ function BaganatorMainViewMixin:OnLoad()
     button1 = YES,
     button2 = NO,
     OnAccept = function()
-      self:MoveMatchesToBank(function() end)
+      self:Transfer(true)
     end,
     timeout = 0,
     hideOnEscape = 1,
@@ -762,7 +762,7 @@ function BaganatorMainViewMixin:UpdateTransferButton()
     self.TransferButton:Hide()
     return
   end
-  for _, info in ipairs(addonTable.BagTransferShowConditions) do
+  for _, info in ipairs(addonTable.BagTransfers) do
     if info.condition() then
       self.TransferButton:Show()
       self.TransferButton.tooltipText = info.tooltipText
@@ -780,34 +780,23 @@ function BaganatorMainViewMixin:GetMatches()
   return matches
 end
 
-function BaganatorMainViewMixin:RunActions(actions)
-  if #actions == 0 then
-    return
-  end
-
-  local getMatches = function() return self:GetMatches() end
-  actions[1](getMatches, self.liveCharacter, function(status)
+function BaganatorMainViewMixin:RunAction(action)
+  action(self:GetMatches(), self.liveCharacter, function(status)
     self.transferManager:Apply(status, function()
-      self:RunActions(actions)
+      self:RunAction(action)
     end, function()
-      table.remove(actions, 1)
-      self:RunActions(actions)
     end)
   end)
 end
 
-function BaganatorMainViewMixin:Transfer(button, force)
-  StaticPopupDialogs[self.confirmTransferAllDialogName].OnAccept = function()
-    self:Transfer(button, true)
-  end
-
+function BaganatorMainViewMixin:Transfer(force)
   for _, transferDetails in ipairs(addonTable.BagTransfers) do
-    if transferDetails.condition(button) then
+    if transferDetails.condition() then
       if not force and transferDetails.confirmOnAll and self.SearchBox:GetText() == "" then
         StaticPopup_Show(self.confirmTransferAllDialogName)
         break
       else
-        self:RunActions(CopyTable(transferDetails.actions))
+        self:RunAction(transferDetails.action)
         break
       end
     end
