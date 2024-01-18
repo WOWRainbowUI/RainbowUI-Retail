@@ -38,8 +38,8 @@ local defaults = {
         stacksAnchor = "TOPLEFT",
         stacksAdjust = defaultAdjust,
         fontPath = fontPath,
-        fontSize = math.floor(fontSize + 0.5),
-        fontFlags = fontFlags,
+        fontSize = 14,
+        fontFlags = "THICKOUTLINE",
     },
     char = {
     },
