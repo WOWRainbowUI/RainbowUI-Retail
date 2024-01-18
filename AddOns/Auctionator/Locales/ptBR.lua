@@ -16,17 +16,11 @@ L["ANY_UPPER"] = "Qualquer"
 L["AUCTION"] = "Leilão"
 --[[Translation missing --]]
 L["AUCTION_AGE"] = "Auction Age"
---[[Translation missing --]]
-L["AUCTION_AGE_TOOLTIP_TOOLTIP_HEADER"] = "Auction Age Tooltip"
---[[Translation missing --]]
-L["AUCTION_AGE_TOOLTIP_TOOLTIP_TEXT"] = "Show auction information age in days for a given item's price in a tooltip (up to 21 days)."
 L["AUCTION_DURATION_12"] = "12 Horas"
 L["AUCTION_DURATION_24"] = "24 Horas"
 L["AUCTION_DURATION_48"] = "48 Horas"
 --[[Translation missing --]]
 L["AUCTION_MEAN"] = "Auction Mean"
-L["AUCTION_TOOLTIP_TOOLTIP_HEADER"] = "Informações de Leilão na dica"
-L["AUCTION_TOOLTIP_TOOLTIP_TEXT"] = "Mostra as informações de leilão na dica quando passar o mouse sobre um item."
 L["AUCTIONATOR"] = "Auctionator"
 L["AUTHOR_HEADER"] = "Autor"
 L["BID_EXISTING_ON_OWNED_AUCTION"] = "Alguém deu um lance neste leilão, portanto, cancelar custará seu depósito e:"
@@ -71,8 +65,9 @@ L["CONFIG_ALTERNATE_SCAN"] = "Use o modo de verificação mais lento alternativo
 L["CONFIG_ALTERNATE_SCAN_HEADER"] = "Modo de Verificação Alternativo"
 L["CONFIG_ALTERNATE_SCAN_TEXT"] = "O modo de verificação rápida pode causar desconexões em servidores lotados. Essa opção usa um método de verificação mais lento e com menor probabilidade de desconexão."
 --[[Translation missing --]]
-L["CONFIG_AUCTION_AGE_TOOLTIP"] = "Show the number of days since a price was seen on the AH"
-L["CONFIG_AUCTION_TOOLTIP"] = "Mostrar dica de leilão."
+L["CONFIG_AUCTION_AGE_TOOLTIP"] = "Show the number of days since a price was seen on the AH (up to 21 days)"
+--[[Translation missing --]]
+L["CONFIG_AUCTION_TOOLTIP"] = "Show auction house value of items in tooltips"
 L["CONFIG_AUTO_LIST_SEARCH"] = "Verificar automaticamente itens da lista de compras."
 L["CONFIG_AUTO_LIST_SEARCH_TOOLTIP_HEADER"] = "Pesquisa de lista automática"
 L["CONFIG_AUTO_LIST_SEARCH_TOOLTIP_TEXT"] = "Quando uma lista é selecionada, verifica automaticamente a casa de leilões em busca dos itens da lista. Quando esta opção está desativada, você pode verificar a lista inteira ao selecionar o botão 'Pesquisar' na barra lateral da Lista de Compras."
@@ -127,12 +122,14 @@ L["CONFIG_DEBUG"] = "Ativar/desativar mostrar mensagens de debug."
 L["CONFIG_DEBUG_TOOLTIP_HEADER"] = "Debug do Auctionator"
 L["CONFIG_DEBUG_TOOLTIP_TEXT"] = "Isto é utilizado pelos mantenedores para mostrar mensagens de debug no chat."
 L["CONFIG_DEVELOPER"] = "Configurações de Desenvolvedor (a)"
-L["CONFIG_ENCHANT_GENERIC_TOOLTIP"] = [=[Mostrar dicas de ferramentas de encantamento
-]=]
-L["CONFIG_ENCHANT_TOOLTIP"] = "Mostrar caixa de texto para encantamentos (WoD, Legion, BfA & Shadowlands apenas)"
+--[[Translation missing --]]
+L["CONFIG_ENCHANT_GENERIC_TOOLTIP"] = "Show estimated disenchant value of items in tooltips"
+--[[Translation missing --]]
+L["CONFIG_ENCHANT_TOOLTIP"] = "Show estimated disenchant item value in tooltips (WoD, Legion, BfA & Shadowlands only.)"
 L["CONFIG_FULL_SCAN_STEP_SIZE"] = "Tamanho do \"passo\" da varredura total"
 L["CONFIG_LIFO_CATEGORY"] = "Vendendo"
-L["CONFIG_MAIL_TOOLTIP"] = "Mostrar caixa de texto de correio"
+--[[Translation missing --]]
+L["CONFIG_MAIL_TOOLTIP"] = "Show auction house value of mail in tooltips"
 --[[Translation missing --]]
 L["CONFIG_MATCHING"] = "Choose how the item price is automatically selected"
 --[[Translation missing --]]
@@ -144,13 +141,15 @@ L["CONFIG_MATCHING_ITEM_NAME"] = "Same item/pet id and title (ignoring level)"
 --[[Translation missing --]]
 L["CONFIG_MATCHING_ITEM_NAME_AND_LEVEL"] = "Same item/pet id, title and level"
 --[[Translation missing --]]
-L["CONFIG_MILL_TOOLTIP"] = "Show mill value for herbs from inscription in tooltips"
+L["CONFIG_MILL_TOOLTIP"] = "Show estimated mill value for herbs with inscription in item tooltips"
 L["CONFIG_NOT_LIFO_CATEGORY"] = "Venda: Equipamento/Bichos de estimação"
-L["CONFIG_PET_TOOLTIP"] = "Mostrar caixa de texto para bichos de estimação"
+--[[Translation missing --]]
+L["CONFIG_PET_TOOLTIP"] = "Show auction house value of caged pets in tooltips"
 L["CONFIG_PROFILE_CATEGORY"] = "Perfil"
 L["CONFIG_PROFILE_TEXT"] = "Definir definições para cada personagem."
 L["CONFIG_PROFILE_TOGGLE"] = "Aplicar definições apenas para este personagem."
-L["CONFIG_PROSPECT_TOOLTIP"] = "Mostre valor de perspectiva para o minério de joalheria em dicas de ferramentas"
+--[[Translation missing --]]
+L["CONFIG_PROSPECT_TOOLTIP"] = "Show estimated prospect value for ores with jewelcrafting in item tooltips"
 L["CONFIG_QUANTITIES_CATEGORY"] = [=[Vendendo: Quantidades
 ]=]
 L["CONFIG_QUANTITIES_TEXT"] = [=[Escolha a quantidade padrão usada para as diferentes categorias de itens.
@@ -211,11 +210,11 @@ L["CONFIG_SELLING_MISSING_FAVOURITES_TOOLTIP_TEXT"] = "Mostrar os itens favorito
 L["CONFIG_SELLING_NOT_LIFO_HEADER"] = "Vendendo Equipamento/Bichos de estimação"
 L["CONFIG_SELLING_NOT_LIFO_TEXT"] = "Opções para definir porcentagem ou valor de subcotação e duração para equipamento e bichos de estimação em gaiolas. Essas categorias de itens são postadas individualmente e um comprador pode escolher qual ele(a) quer. Subcotação pode ser útil."
 --[[Translation missing --]]
-L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST"] = "In favourites item list place favourites you have in your bag first"
+L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST"] = "In favourites/custom groups place items you have in your bag first"
 --[[Translation missing --]]
-L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST_TOOLTIP_HEADER"] = "Possessed favourites first"
+L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST_TOOLTIP_HEADER"] = "Show possessed favourite/custom group items first"
 --[[Translation missing --]]
-L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST_TOOLTIP_TEXT"] = "Set the favourites ordering to force any items in your bag to be at the start of the list."
+L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST_TOOLTIP_TEXT"] = "Set the favourite/custom group ordering to force any items in your bag to be at the start of the list."
 L["CONFIG_SELLING_POST_SHORTCUT"] = "O atalho de teclado/mouse para postar o item selecionado é"
 L["CONFIG_SELLING_POST_SHORTCUT_TOOLTIP_TEXT"] = "Clique e depois pressione o botão (ou tecla) que você gostaria de usar para o atalho. Esse atalho vai apenas funcionar na aba de vendas e não vai afetar outros atalhos para a mesma tecla."
 --[[Translation missing --]]
@@ -262,9 +261,11 @@ L["CONFIG_SHOPPING_TEXT"] = "Opções para configurar o funcionamento da aba de 
 L["CONFIG_SMALL_TABS"] = "Usar abas pequenas para Casa de Leilões (reabra a Casa de Leilões para ver essa mudança)"
 L["CONFIG_SMALL_TABS_TOOLTIP_HEADER"] = "Abas Pequenas"
 L["CONFIG_SMALL_TABS_TOOLTIP_TEXT"] = "Quando há muitos addons adicionando abas à Casa de Leilões, elas podem passar do limite da janela. Essa opção faz a abas ficarem menores, assim elas cabem melhor."
-L["CONFIG_STACK_TOOLTIP"] = "Mostrar o preço da pilha inteira quando se pressiona o shift."
+--[[Translation missing --]]
+L["CONFIG_STACK_TOOLTIP"] = "Only show stack value when holding shift."
 L["CONFIG_TOOLTIPS_CATEGORY"] = "Caixas de Texto"
-L["CONFIG_TOOLTIPS_TEXT"] = "Opções para apresentar diferentes informações relacionadas a leilões na caixa de texto do jogo."
+--[[Translation missing --]]
+L["CONFIG_TOOLTIPS_TEXT"] = "Options to display different auction related information of items in tooltips, in your inventory and elsewhere."
 --[[Translation missing --]]
 L["CONFIG_UNDERCUT_ITEMS_AHEAD"] = "How many items can be ahead of your listings before they count as undercut"
 --[[Translation missing --]]
@@ -278,7 +279,8 @@ L["CONFIG_UNDERCUT_SCAN_MATCH_ILVL_VARIANTS_TOOLTIP_TEXT"] = "Leave this on to m
 L["CONFIG_UNDERCUT_SCAN_NOT_LIFO"] = "Incluir equipamento e bichos de estimação nas varreduras de subcotação"
 L["CONFIG_UNDERCUT_SCAN_NOT_LIFO_TOOLTIP_HEADER"] = "Varreduras de Subcotação para Equipamento/Bichos de Estimação"
 L["CONFIG_UNDERCUT_SCAN_NOT_LIFO_TOOLTIP_TEXT"] = "Deixe isso ativado para incluir leilões de bichos de estimação e equipamentos quando utilizar a varredura de subcotação. Desative para excluir os mesmos."
-L["CONFIG_VENDOR_TOOLTIP"] = "Mostrar valor de venda (para NPCs) na caixa de texto."
+--[[Translation missing --]]
+L["CONFIG_VENDOR_TOOLTIP"] = "Show vendor sell prices in item tooltips"
 L["CONFIRM"] = "confirmar"
 L["CONFIRM_POST_BELOW_VENDOR"] = [=[Você pode ganhar mais ouro vendendo isso para um fornecedor. Tem certeza de que deseja postar a esse preço?
 ]=]
@@ -344,8 +346,6 @@ L["DISCORD_TOOLTIP_TEXT"] = "Nós temos uma comunidade bem ativa para usuários 
 L["DISENCHANT"] = "Desencantar"
 L["DURATION"] = "Duração"
 L["EDIT_ITEM"] = "Editar Item"
-L["ENCHANT_TOOLTIP_TOOLTIP_HEADER"] = "Caixa de Texto para Informações de Encatamento"
-L["ENCHANT_TOOLTIP_TOOLTIP_TEXT"] = "Mostrar informação de encantamento na caixa de texto."
 L["ENGAGE_HEADER"] = "Engajar Com o Auctionator"
 --[[Translation missing --]]
 L["ENTER_QUANTITY_TO_CONFIRM_PURCHASE"] = "Enter the quantity of %s to confirm purchase:"
@@ -411,8 +411,6 @@ L["LOAD_HIGHER_PRICES"] = [=[Carregar preços mais altos
 ]=]
 L["LOAD_MORE_RESULTS"] = [=[Carregar mais resultados
 ]=]
-L["MAIL_TOOLTIP_TOOLTIP_HEADER"] = "Caixa de Texto da Caixa de Correio"
-L["MAIL_TOOLTIP_TOOLTIP_TEXT"] = "Mostra informações do Auctionator para itens na sua caixa de correio quando o mouse passa por cime."
 --[[Translation missing --]]
 L["MAKE_PERMANENT"] = "Make Permanent"
 --[[Translation missing --]]
@@ -422,10 +420,6 @@ L["MAX_COLON_X"] = [=[Máx.: %s
 ]=]
 --[[Translation missing --]]
 L["MILL"] = "Mill"
---[[Translation missing --]]
-L["MILL_TOOLTIP_TOOLTIP_HEADER"] = "Mill Tooltip Information"
---[[Translation missing --]]
-L["MILL_TOOLTIP_TOOLTIP_TEXT"] = "Show inscription milling estimated value in tooltip on mouseover."
 L["MIN"] = "Mínimo"
 L["MONTH_1"] = "Janeiro"
 L["MONTH_10"] = "Outubro"
@@ -473,8 +467,6 @@ L["PERCENTAGE"] = "Porcentagem"
 L["PERCENTAGE_SUFFIX"] = "% Desconto"
 L["PERCENTAGE_TOOLTIP_HEADER"] = "Porcentagem de subcotação"
 L["PERCENTAGE_TOOLTIP_TEXT"] = "A porcentagem de subcotação que será usada para calcular o preço. Por exemplo, um valor de 5 significa que seu item será postado com um desconto de 5% comparado ao menor preço atual."
-L["PET_TOOLTIP_TOOLTIP_HEADER"] = "Caixa de Texto de Bichos de Estimação"
-L["PET_TOOLTIP_TOOLTIP_TEXT"] = "Mostrar informações do Auctionator para bichos de estimação em gaiolas."
 L["POST"] = "Postar"
 L["POST_ATTEMPT_FAILED"] = "Sua última tentativa de postagem não funcionou. Tente novamente."
 --[[Translation missing --]]
@@ -503,8 +495,6 @@ L["PROFIT_WARNING_MISSING"] = "(no price data)"
 --[[Translation missing --]]
 L["PROFIT_WARNING_NOT_EXACT_ITEM"] = "(price data not exact match for item)"
 L["PROSPECT"] = "Perspectiva"
-L["PROSPECT_TOOLTIP_TOOLTIP_HEADER"] = "Informações sobre a dica de ferramenta de perspectiva"
-L["PROSPECT_TOOLTIP_TOOLTIP_TEXT"] = "Mostre o valor estimado de prospecção de joalheria na dica de ferramenta ao passar o mouse."
 L["PURCHASED_X_XX"] = [=[Comprado %s x%s
 ]=]
 L["QUANTITY"] = "Quantidade"
@@ -908,8 +898,6 @@ L["UNKNOWN"] = "desconhecido"
 L["UNSELECT_ALL"] = "Desmarcar todos"
 L["UPPER_UNIT_PRICE"] = "Preço Unitário Mais Alto"
 L["VENDOR"] = "Preço de venda"
-L["VENDOR_TOOLTIP_TOOLTIP_HEADER"] = "Informação de Vendendor na Caixa de Texto"
-L["VENDOR_TOOLTIP_TOOLTIP_TEXT"] = "Mostrar informação de venda para NPC na caixa de texto quando o mouse passa por cima."
 L["VERSION_HEADER"] = "Versão"
 L["VERSION_MESSAGE"] = "Versão %s"
 L["WAITING_AT_MOST_X_LONGER"] = [=[Aguardando no máximo %ss mais...

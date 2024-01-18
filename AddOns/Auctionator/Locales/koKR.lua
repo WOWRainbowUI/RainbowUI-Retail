@@ -6,10 +6,8 @@ AUCTIONATOR_LOCALES.koKR = function()
 ]=]
 L["ADD_ITEM"] = "아이템 추가"
 L["ADD_TERM_TO_LIST_DIALOG"] = "추가할 검색어 입력"
---[[Translation missing --]]
-L["ADD_TO_LIST"] = "Add To List"
---[[Translation missing --]]
-L["ADD_TO_X"] = "Add to %s"
+L["ADD_TO_LIST"] = "리스트 추가"
+L["ADD_TO_X"] = "%s에 추가"
 L["ALREADY_PURCHASED_X"] = "%s 구매함"
 L["ALT_LEFT_CLICK"] = "클릭"
 L["ALT_RIGHT_CLICK"] = "우클릭"
@@ -18,17 +16,11 @@ L["ANY_UPPER"] = "모두"
 L["AUCTION"] = "경매"
 --[[Translation missing --]]
 L["AUCTION_AGE"] = "Auction Age"
---[[Translation missing --]]
-L["AUCTION_AGE_TOOLTIP_TOOLTIP_HEADER"] = "Auction Age Tooltip"
---[[Translation missing --]]
-L["AUCTION_AGE_TOOLTIP_TOOLTIP_TEXT"] = "Show auction information age in days for a given item's price in a tooltip (up to 21 days)."
 L["AUCTION_DURATION_12"] = "12시간"
 L["AUCTION_DURATION_24"] = "24시간"
 L["AUCTION_DURATION_48"] = "48시간"
 --[[Translation missing --]]
 L["AUCTION_MEAN"] = "Auction Mean"
-L["AUCTION_TOOLTIP_TOOLTIP_HEADER"] = "경매 툴팁 정보"
-L["AUCTION_TOOLTIP_TOOLTIP_TEXT"] = "마우스를 위로  가져갔을 때 경매 정보를 표시하기"
 L["AUCTIONATOR"] = "옥셔네이터"
 L["AUTHOR_HEADER"] = "만든사람"
 --[[Translation missing --]]
@@ -70,8 +62,9 @@ L["CONFIG_ALTERNATE_SCAN"] = "일반 검색을 기본으로 설정하기"
 L["CONFIG_ALTERNATE_SCAN_HEADER"] = "일반 검색 모드"
 L["CONFIG_ALTERNATE_SCAN_TEXT"] = "빠른 검색 사용 시 일부 혼잡 서버에서 튕기는 현상이 발생합니다. 해당 버튼을 활성화 하여 튕기는 현상을 방지할 수 있습니다."
 --[[Translation missing --]]
-L["CONFIG_AUCTION_AGE_TOOLTIP"] = "Show the number of days since a price was seen on the AH"
-L["CONFIG_AUCTION_TOOLTIP"] = "경매 툴팁 표시"
+L["CONFIG_AUCTION_AGE_TOOLTIP"] = "Show the number of days since a price was seen on the AH (up to 21 days)"
+--[[Translation missing --]]
+L["CONFIG_AUCTION_TOOLTIP"] = "Show auction house value of items in tooltips"
 L["CONFIG_AUTO_LIST_SEARCH"] = "자동으로 구매목록을 검색"
 L["CONFIG_AUTO_LIST_SEARCH_TOOLTIP_HEADER"] = "자동으로 구매목록 검색"
 L["CONFIG_AUTO_LIST_SEARCH_TOOLTIP_TEXT"] = "구매목록을 선택하면 자동으로 구매목록에 추가된 품목을 검색합니다. 해당옵션이 꺼져있으면 하단의 검색 버튼으로도 검색이 가능합니다."
@@ -126,11 +119,14 @@ L["CONFIG_DEBUG"] = "디버그 모드"
 L["CONFIG_DEBUG_TOOLTIP_HEADER"] = "옥셔네이터 디버그"
 L["CONFIG_DEBUG_TOOLTIP_TEXT"] = "디버그 메시지를 채팅창에 출력합니다."
 L["CONFIG_DEVELOPER"] = "개발자 설정"
-L["CONFIG_ENCHANT_GENERIC_TOOLTIP"] = "마법부여 툴팁 표시"
-L["CONFIG_ENCHANT_TOOLTIP"] = "인챈트 툴팁을 표시합니다(드군, 군단, 격아, 어둠땅만 지원)"
+--[[Translation missing --]]
+L["CONFIG_ENCHANT_GENERIC_TOOLTIP"] = "Show estimated disenchant value of items in tooltips"
+--[[Translation missing --]]
+L["CONFIG_ENCHANT_TOOLTIP"] = "Show estimated disenchant item value in tooltips (WoD, Legion, BfA & Shadowlands only.)"
 L["CONFIG_FULL_SCAN_STEP_SIZE"] = "애드온 설치 시 튕기는 현상이 발생하면 숫자를 줄이세요"
 L["CONFIG_LIFO_CATEGORY"] = "판매: 일반"
-L["CONFIG_MAIL_TOOLTIP"] = "우체통 툴팁을 표시함"
+--[[Translation missing --]]
+L["CONFIG_MAIL_TOOLTIP"] = "Show auction house value of mail in tooltips"
 --[[Translation missing --]]
 L["CONFIG_MATCHING"] = "Choose how the item price is automatically selected"
 --[[Translation missing --]]
@@ -142,14 +138,15 @@ L["CONFIG_MATCHING_ITEM_NAME"] = "Same item/pet id and title (ignoring level)"
 --[[Translation missing --]]
 L["CONFIG_MATCHING_ITEM_NAME_AND_LEVEL"] = "Same item/pet id, title and level"
 --[[Translation missing --]]
-L["CONFIG_MILL_TOOLTIP"] = "Show mill value for herbs from inscription in tooltips"
+L["CONFIG_MILL_TOOLTIP"] = "Show estimated mill value for herbs with inscription in item tooltips"
 L["CONFIG_NOT_LIFO_CATEGORY"] = "판매: 장비/펫"
-L["CONFIG_PET_TOOLTIP"] = "툴팁에 펫 가격 표시"
+--[[Translation missing --]]
+L["CONFIG_PET_TOOLTIP"] = "Show auction house value of caged pets in tooltips"
 L["CONFIG_PROFILE_CATEGORY"] = "프로필"
 L["CONFIG_PROFILE_TEXT"] = "캐릭터 별 프로필 설정을 변경합니다."
 L["CONFIG_PROFILE_TOGGLE"] = "이 캐릭터만 적용"
 --[[Translation missing --]]
-L["CONFIG_PROSPECT_TOOLTIP"] = "Show prospect value for ore from jewelcrafting in tooltips"
+L["CONFIG_PROSPECT_TOOLTIP"] = "Show estimated prospect value for ores with jewelcrafting in item tooltips"
 L["CONFIG_QUANTITIES_CATEGORY"] = "판매: 수량"
 L["CONFIG_QUANTITIES_TEXT"] = "다른 아이템 범주에 사용되는 기본 수량을 선택합니다."
 L["CONFIG_RESET_STACK_SIZE_MEMORY"] = "묶음 갯수 기록 재설정"
@@ -205,15 +202,15 @@ L["CONFIG_SELLING_LIFO_TEXT"] = "일반 품목을 최저가를 %로 계산할 �
 L["CONFIG_SELLING_MISSING_FAVOURITES"] = "항상 즐겨찾기 아이템믈 표시합니다(가방에 없는 경우도 포함)"
 L["CONFIG_SELLING_MISSING_FAVOURITES_TOOLTIP_HEADER"] = "누락된 즐겨찾기 아이템 보기"
 --[[Translation missing --]]
-L["CONFIG_SELLING_MISSING_FAVOURITES_TOOLTIP_TEXT"] = "Show favourite items in the bag view even when they aren't in your bag."
+L["CONFIG_SELLING_MISSING_FAVOURITES_TOOLTIP_TEXT"] = "Show favourite/custom group items in the bag view even when they aren't in your bag."
 L["CONFIG_SELLING_NOT_LIFO_HEADER"] = "판매: 장비/펫"
 L["CONFIG_SELLING_NOT_LIFO_TEXT"] = "장비/펫의 최저가를 %로 계산할 지 골드로 계산할 지 설정합니다. 해당 카테고리는 목록이 개인화되며 최저가를 설정할 수 있습니다."
 --[[Translation missing --]]
-L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST"] = "In favourites item list place favourites you have in your bag first"
+L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST"] = "In favourites/custom groups place items you have in your bag first"
 --[[Translation missing --]]
-L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST_TOOLTIP_HEADER"] = "Possessed favourites first"
+L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST_TOOLTIP_HEADER"] = "Show possessed favourite/custom group items first"
 --[[Translation missing --]]
-L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST_TOOLTIP_TEXT"] = "Set the favourites ordering to force any items in your bag to be at the start of the list."
+L["CONFIG_SELLING_POSSESSED_FAVOURITES_FIRST_TOOLTIP_TEXT"] = "Set the favourite/custom group ordering to force any items in your bag to be at the start of the list."
 L["CONFIG_SELLING_POST_SHORTCUT"] = "현재 아이템을 게시하는 키보드/마우스 단축키는"
 --[[Translation missing --]]
 L["CONFIG_SELLING_POST_SHORTCUT_TOOLTIP_TEXT"] = "Click and then press the buttons that you wish to use as the shortcut. This shortcut will only be active in the Selling tab and won't affect any other shortcuts bound to the buttons."
@@ -259,9 +256,11 @@ L["CONFIG_SHOPPING_TEXT"] = "구매목록의 설정을 변경합니다."
 L["CONFIG_SMALL_TABS"] = "경매장에 작은 탭을 사용합니다 (경매장을 다시 열면 적용)"
 L["CONFIG_SMALL_TABS_TOOLTIP_HEADER"] = "작은 탭"
 L["CONFIG_SMALL_TABS_TOOLTIP_TEXT"] = "다른 경매자 애드온을 통해 경매장에 탭이 추가되면 경매장 창 끝이 넘어갈 수 있습니다. 이 설정은 더 작은 탭을 만듭니다."
-L["CONFIG_STACK_TOOLTIP"] = "쉬프트로 전체 가격 표시"
+--[[Translation missing --]]
+L["CONFIG_STACK_TOOLTIP"] = "Only show stack value when holding shift."
 L["CONFIG_TOOLTIPS_CATEGORY"] = "툴팁"
-L["CONFIG_TOOLTIPS_TEXT"] = "게임 내 툴팁에 대한 설정을 변경합니다."
+--[[Translation missing --]]
+L["CONFIG_TOOLTIPS_TEXT"] = "Options to display different auction related information of items in tooltips, in your inventory and elsewhere."
 --[[Translation missing --]]
 L["CONFIG_UNDERCUT_ITEMS_AHEAD"] = "How many items can be ahead of your listings before they count as undercut"
 --[[Translation missing --]]
@@ -275,7 +274,8 @@ L["CONFIG_UNDERCUT_SCAN_MATCH_ILVL_VARIANTS_TOOLTIP_TEXT"] = "Leave this on to m
 L["CONFIG_UNDERCUT_SCAN_NOT_LIFO"] = "장비/펫의 최저가도 포함"
 L["CONFIG_UNDERCUT_SCAN_NOT_LIFO_TOOLTIP_HEADER"] = "장비/펫의 최저가 검색"
 L["CONFIG_UNDERCUT_SCAN_NOT_LIFO_TOOLTIP_TEXT"] = "장비/펫의 최저가도  함께 검색합니다. 체크 해제시 장비와 펫의 최저가는 검색하지 않습니다."
-L["CONFIG_VENDOR_TOOLTIP"] = "상점가 툴팁에 표시"
+--[[Translation missing --]]
+L["CONFIG_VENDOR_TOOLTIP"] = "Show vendor sell prices in item tooltips"
 L["CONFIRM"] = "확인"
 L["CONFIRM_POST_BELOW_VENDOR"] = "상인에게 판매하면 더 많은 골드를 벌 수 있습니다. 정말 그 가격에 게시할까요?"
 L["CONFIRM_POST_LOW_PRICE"] = "%s의 가격이 약간 낮아 보입니다. 정말 그 가격에 게시할까요?"
@@ -333,8 +333,6 @@ L["DISCORD_TOOLTIP_TEXT"] = "옥셔네이터 사용자분들을 위한 도움을
 L["DISENCHANT"] = "마력추출"
 L["DURATION"] = "경매 기간"
 L["EDIT_ITEM"] = "내용편집"
-L["ENCHANT_TOOLTIP_TOOLTIP_HEADER"] = "마법부여 툴팁 정보"
-L["ENCHANT_TOOLTIP_TOOLTIP_TEXT"] = "마법부여 정보를 툴팁에 표시합니다."
 L["ENGAGE_HEADER"] = "옥셔네이터와 함께하기"
 --[[Translation missing --]]
 L["ENTER_QUANTITY_TO_CONFIRM_PURCHASE"] = "Enter the quantity of %s to confirm purchase:"
@@ -395,8 +393,6 @@ L["LIST_SEARCH_START"] = "검색중... (%s초)"
 L["LIST_SEARCH_STATUS"] = "검색완료 (%s초)"
 L["LOAD_HIGHER_PRICES"] = "더 높은 가격 불러오기"
 L["LOAD_MORE_RESULTS"] = "더 많은 결과 불러오기"
-L["MAIL_TOOLTIP_TOOLTIP_HEADER"] = "우체통 툴팁"
-L["MAIL_TOOLTIP_TOOLTIP_TEXT"] = "우체통에 있는 아이템에 대한 경매 정보를 마우스를 올려 확인 할 수 있습니다."
 --[[Translation missing --]]
 L["MAKE_PERMANENT"] = "Make Permanent"
 --[[Translation missing --]]
@@ -405,10 +401,6 @@ L["MAX"] = "최대"
 L["MAX_COLON_X"] = "최대: %s"
 --[[Translation missing --]]
 L["MILL"] = "Mill"
---[[Translation missing --]]
-L["MILL_TOOLTIP_TOOLTIP_HEADER"] = "Mill Tooltip Information"
---[[Translation missing --]]
-L["MILL_TOOLTIP_TOOLTIP_TEXT"] = "Show inscription milling estimated value in tooltip on mouseover."
 L["MIN"] = "최소"
 L["MONTH_1"] = "1월"
 L["MONTH_10"] = "10월"
@@ -451,8 +443,6 @@ L["PERCENTAGE"] = "백분율"
 L["PERCENTAGE_SUFFIX"] = "% 최저가"
 L["PERCENTAGE_TOOLTIP_HEADER"] = "최저가 설정"
 L["PERCENTAGE_TOOLTIP_TEXT"] = "최저가를 자동으로 계산하여 경매를 시작합니다. (ex. 5를 입력하면 현재 해당 물건의 5%를 깎아서 자동으로 최저가로 등록합니다.)"
-L["PET_TOOLTIP_TOOLTIP_HEADER"] = "펫 툴팁"
-L["PET_TOOLTIP_TOOLTIP_TEXT"] = "우리에 담긴 펫의 경매장 가격을 표시합니다."
 L["POST"] = "경매 시작"
 --[[Translation missing --]]
 L["POST_ATTEMPT_FAILED"] = "Your last post attempt didn't work. Try again."
@@ -482,9 +472,6 @@ L["PROFIT_WARNING_MISSING"] = "(no price data)"
 L["PROFIT_WARNING_NOT_EXACT_ITEM"] = "(price data not exact match for item)"
 --[[Translation missing --]]
 L["PROSPECT"] = "Prospect"
-L["PROSPECT_TOOLTIP_TOOLTIP_HEADER"] = "보석 추출 툴팁 정보"
---[[Translation missing --]]
-L["PROSPECT_TOOLTIP_TOOLTIP_TEXT"] = "Show jewelcrafting prospecting estimated value in tooltip on mouseover."
 L["PURCHASED_X_XX"] = "%s x%s 구매함"
 L["QUANTITY"] = "수량"
 L["REAGENT_SEARCH"] = "재료 검색"
@@ -858,8 +845,6 @@ L["UNKNOWN"] = "모름"
 L["UNSELECT_ALL"] = "모두선택 취소"
 L["UPPER_UNIT_PRICE"] = "상한가"
 L["VENDOR"] = "상점가"
-L["VENDOR_TOOLTIP_TOOLTIP_HEADER"] = "상점가 툴팁"
-L["VENDOR_TOOLTIP_TOOLTIP_TEXT"] = "상점가를 툴팁에 표시합니다."
 L["VERSION_HEADER"] = "버전"
 L["VERSION_MESSAGE"] = "%s 버전"
 L["WAITING_AT_MOST_X_LONGER"] = "최대 %ss 이상 대기 중..."
