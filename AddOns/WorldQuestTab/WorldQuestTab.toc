@@ -1,4 +1,4 @@
-﻿## Interface: 100200## IconTexture: 982414
+﻿## Interface: 100205## IconTexture: 982414
 ## Title: World Quest Tab
 ## Notes: Creates a new quest tab to keep track of world quests.
 ## Title-zhTW: |cff00FFFF[任務]|r 世界任務標籤頁

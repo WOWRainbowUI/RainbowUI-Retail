@@ -1,4 +1,4 @@
-## Interface: 100200## IconTexture: 982414
+## Interface: 100205## IconTexture: 982414
 
 ## Title: AdiBags - Filter for BoE/BoA
 ## Notes: Adds BoE/BoA filters to AdiBags.

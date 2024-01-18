@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: World Map Tracking Enhanced
 ## Title-zhCN: 增强的世界地图追踪选项
 ## Notes: Enhanced World Map's Tracking Options with the support to most popular addons

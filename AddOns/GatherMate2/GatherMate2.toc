@@ -1,4 +1,4 @@
-## Interface: 100200## IconTexture: 982414
+## Interface: 100205## IconTexture: 982414
 ## Notes: Collects Herbs, Mines, Gas Clouds, Archaeology, Treasure and Fishing locations and adds them to the worldmap and minimap
 ## Notes-zhCN: 收集草药、矿、气云和钓鱼的地点，并增加他们到世界地图和小地图。
 ## Title: GatherMate2

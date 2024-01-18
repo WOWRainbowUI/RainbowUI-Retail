@@ -1,4 +1,4 @@
-## Interface: 100200## IconTexture: 982414
+## Interface: 100205## IconTexture: 982414
 ## Title: Conceal
 ## Author: Keirmot
 ## Notes: Hide the player frame, and action bars when not in use!

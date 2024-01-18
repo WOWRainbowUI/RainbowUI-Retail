@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 100205
 #@non-debug@
 ## Title: Accountant Classic
 ## Title-zhCN: |cFF00FF00[信息]|rAccountant Classic

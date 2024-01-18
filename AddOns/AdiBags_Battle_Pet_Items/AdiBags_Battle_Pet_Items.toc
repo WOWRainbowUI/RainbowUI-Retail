@@ -1,4 +1,4 @@
-## Interface: 100200## IconTexture: 982414
+## Interface: 100205## IconTexture: 982414
 ## Title: |cff00ff00AdiBags - Battle Pet Items|r
 ## X-Curse-Project-ID: 297298
 ## Version: |cffFF4500v1.0.12|r

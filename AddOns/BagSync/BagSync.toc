@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: BagSync
 ## Notes: BagSync tracks your characters items and displays it within tooltips.
 ## Notes-zhCN: BagSync 是统计您角色内的物品数量并将其显示在工具提示中.

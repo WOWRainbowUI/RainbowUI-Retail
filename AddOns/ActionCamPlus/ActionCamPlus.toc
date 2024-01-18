@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: ActionCamPlus
 ## Notes: Makes Blizzard's experimental Action Camera more usable.
 ## Title-zhTW: |cffffffee[系統]|r 動感鏡頭 Plus

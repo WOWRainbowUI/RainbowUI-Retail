@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: AdiBags - Hearthstones
 ## Notes: Adds various hearthing items to AdiBags virtual groups
 ## Notes-zhCN: 增加各种传送物品到AdiBags的虚拟类别

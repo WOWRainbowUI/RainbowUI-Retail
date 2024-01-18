@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: Copy Anything
 ## Notes: Copy text from any frame.
 ## Author: Oppzippy
