@@ -19,8 +19,8 @@ local L = Cell.L
 -- sharing version check
 Cell.MIN_VERSION = 189
 Cell.MIN_CLICKCASTINGS_VERSION = 189
-Cell.MIN_LAYOUTS_VERSION = 209
-Cell.MIN_INDICATORS_VERSION = 209
+Cell.MIN_LAYOUTS_VERSION = 215
+Cell.MIN_INDICATORS_VERSION = 215
 Cell.MIN_DEBUFFS_VERSION = 189
 
 --[==[@debug@
@@ -148,7 +148,7 @@ function eventFrame:ADDON_LOADED(arg1)
                 ["fadeOut"] = false,
                 ["menuPosition"] = "top_bottom",
                 ["alwaysUpdateBuffs"] = false,
-                ["alwaysUpdateDebuffs"] = false,
+                ["alwaysUpdateDebuffs"] = true,
                 ["overrideLGF"] = false,
                 ["framePriority"] = "normal_spotlight_quickassist",
                 ["useCleuHealthUpdater"] = false,

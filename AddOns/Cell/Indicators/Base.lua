@@ -71,7 +71,7 @@ local function BorderIcon_SetCooldown(frame, start, duration, debuffType, textur
         frame.border:Hide()
         frame.cooldown:Show()
         frame.cooldown:SetSwipeColor(r, g, b)
-        frame.cooldown:SetCooldown(start, duration)
+        frame.cooldown:_SetCooldown(start, duration)
         frame.duration:Show()
 
         local fmt
@@ -79,22 +79,6 @@ local function BorderIcon_SetCooldown(frame, start, duration, debuffType, textur
         frame:SetScript("OnUpdate", function(self, elapsed)
             local remain = duration-(GetTime()-start)
             if remain < 0 then remain = 0 end
-
-            -- format
-            if remain > 60 then
-                fmt, remain = "%dm", remain/60
-            else
-                if Cell.vars.iconDurationRoundUp then
-                    fmt, remain = "%d", ceil(remain)
-                else
-                    if remain < Cell.vars.iconDurationDecimal then
-                        fmt = "%.1f"
-                    else
-                        fmt = "%d"
-                    end
-                end
-            end
-            frame.duration:SetFormattedText(fmt, remain)
 
             self.elapsed = self.elapsed + elapsed
             if self.elapsed >= 0.1 then
@@ -112,6 +96,22 @@ local function BorderIcon_SetCooldown(frame, start, duration, debuffType, textur
                     frame.duration:SetTextColor(frame.duration.r, frame.duration.g, frame.duration.b)
                 end
             end
+
+            -- format
+            if remain > 60 then
+                fmt, remain = "%dm", remain/60
+            else
+                if Cell.vars.iconDurationRoundUp then
+                    fmt, remain = "%d", ceil(remain)
+                else
+                    if remain < Cell.vars.iconDurationDecimal then
+                        fmt = "%.1f"
+                    else
+                        fmt = "%d"
+                    end
+                end
+            end
+            frame.duration:SetFormattedText(fmt, remain)
         end)
     end
 
@@ -141,8 +141,12 @@ function I:CreateAura_BorderIcon(name, parent, borderSize)
     cooldown:SetAllPoints(frame)
     cooldown:SetSwipeTexture("Interface\\Buttons\\WHITE8x8")
     cooldown:SetSwipeColor(1, 1, 1)
-    cooldown.noCooldownCount = true -- disable omnicc
     cooldown:SetHideCountdownNumbers(true)
+    -- disable omnicc
+    cooldown.noCooldownCount = true
+    -- prevent some addons from adding cooldown text
+    cooldown._SetCooldown = cooldown.SetCooldown
+    cooldown.SetCooldown = nil
 
     local iconFrame = CreateFrame("Frame", name.."IconFrame", frame)
     P:Point(iconFrame, "TOPLEFT", frame, "TOPLEFT", borderSize, -borderSize)
@@ -216,31 +220,28 @@ local function BarIcon_SetCooldown(frame, start, duration, debuffType, texture, 
         frame.duration:Hide()
         frame:SetScript("OnUpdate", nil)
     else
-        local threshold
-        if frame.showDuration == true then
-            frame.cooldown:Hide()
-            frame.duration:Show()
-            -- update threshold
-            threshold = duration
-        else -- false or number
+        if frame.showAnimation then
             -- init bar values
             frame.cooldown.elapsed = 0.1 -- update immediately
             frame.cooldown:SetMinMaxValues(0, duration)
             frame.cooldown:SetValue(GetTime()-start)
             frame.cooldown:Show()
-            -- update threshold and duration visibility
-            if not frame.showDuration then
-                frame.duration:Hide()
-            elseif frame.showDuration == 0 then
+        else
+            frame.cooldown:Hide()
+        end
+
+        local threshold
+        if frame.showDuration == false then
+            frame.duration:Hide()
+        else
+            if frame.showDuration == true then
                 threshold = duration
-                frame.duration:Show()
             elseif frame.showDuration >= 1 then
                 threshold = frame.showDuration
-                frame.duration:Show()
             else -- < 1
                 threshold = frame.showDuration * duration
-                frame.duration:Show()
             end
+            frame.duration:Show()
         end
 
         if frame.showDuration then
@@ -254,22 +255,6 @@ local function BarIcon_SetCooldown(frame, start, duration, debuffType, texture, 
                     frame.duration:SetText("")
                     return
                 end
-
-                -- format
-                if remain > 60 then
-                    fmt, remain = "%dm", remain/60
-                else
-                    if Cell.vars.iconDurationRoundUp then
-                        fmt, remain = "%d", ceil(remain)
-                    else
-                        if remain < Cell.vars.iconDurationDecimal then
-                            fmt = "%.1f"
-                        else
-                            fmt = "%d"
-                        end
-                    end
-                end
-                frame.duration:SetFormattedText(fmt, remain)
 
                 self.elapsed = self.elapsed + elapsed
                 if self.elapsed >= 0.1 then
@@ -287,6 +272,22 @@ local function BarIcon_SetCooldown(frame, start, duration, debuffType, texture, 
                         frame.duration:SetTextColor(frame.duration.r, frame.duration.g, frame.duration.b)
                     end
                 end
+
+                -- format
+                if remain > 60 then
+                    fmt, remain = "%dm", remain/60
+                else
+                    if Cell.vars.iconDurationRoundUp then
+                        fmt, remain = "%d", ceil(remain)
+                    else
+                        if remain < Cell.vars.iconDurationDecimal then
+                            fmt = "%.1f"
+                        else
+                            fmt = "%d"
+                        end
+                    end
+                end
+                frame.duration:SetFormattedText(fmt, remain)
             end)
         end
     end
@@ -421,10 +422,17 @@ function I:CreateAura_BarIcon(name, parent)
         frame.showDuration = show
         if show then
             duration:Show()
-            cooldown:Hide()
         else
             duration:Hide()
+        end
+    end
+
+    function frame:ShowAnimation(show)
+        frame.showAnimation = show
+        if show then
             cooldown:Show()
+        else
+            cooldown:Hide()
         end
     end
 
@@ -507,6 +515,19 @@ local function Text_SetCooldown(frame, start, duration, debuffType, texture, cou
                 local remain = duration-(GetTime()-start)
                 if remain < 0 then remain = 0 end
 
+                self.elapsed = self.elapsed + elapsed
+                if self.elapsed >= 0.1 then
+                    self.elapsed = 0
+                    -- color
+                    if remain <= frame.colors[3][4] then
+                        frame.text:SetTextColor(frame.colors[3][1], frame.colors[3][2], frame.colors[3][3])
+                    elseif remain <= duration * frame.colors[2][4] then
+                        frame.text:SetTextColor(frame.colors[2][1], frame.colors[2][2], frame.colors[2][3])
+                    else
+                        frame.text:SetTextColor(frame.colors[1][1], frame.colors[1][2], frame.colors[1][3])
+                    end
+                end
+
                 -- format
                 local fmt2
                 if remain > 60 then
@@ -523,19 +544,6 @@ local function Text_SetCooldown(frame, start, duration, debuffType, texture, cou
                     end
                 end
                 frame.text:SetFormattedText(fmt2, count, remain)
-
-                self.elapsed = self.elapsed + elapsed
-                if self.elapsed >= 0.1 then
-                    self.elapsed = 0
-                    -- color
-                    if remain <= frame.colors[3][4] then
-                        frame.text:SetTextColor(frame.colors[3][1], frame.colors[3][2], frame.colors[3][3])
-                    elseif remain <= duration * frame.colors[2][4] then
-                        frame.text:SetTextColor(frame.colors[2][1], frame.colors[2][2], frame.colors[2][3])
-                    else
-                        frame.text:SetTextColor(frame.colors[1][1], frame.colors[1][2], frame.colors[1][3])
-                    end
-                end
             end)
         else
             count = count == 0 and 1 or count
@@ -1019,6 +1027,12 @@ function I:CreateAura_Icons(name, parent, num)
     function icons:ShowDuration(show)
         for i = 1, num do
             icons[i]:ShowDuration(show)
+        end
+    end
+   
+    function icons:ShowAnimation(show)
+        for i = 1, num do
+            icons[i]:ShowAnimation(show)
         end
     end
     

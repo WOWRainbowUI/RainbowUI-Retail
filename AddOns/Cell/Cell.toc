@@ -1,6 +1,6 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: Cell
-## Version: r212-release
+## Version: r215-release
 ## Author: enderneko
 ## X-Flavor: Mainline
 ## SavedVariables: CellDB
@@ -35,7 +35,7 @@ Indicators\TargetCounter.lua
 Indicators\TargetedSpells.lua
 Indicators\Consumables.lua
 Indicators\Custom.lua
-Indicators\PatronIcon.lua
+Indicators\Patron.lua
 
 RaidFrames\MainFrame.lua
 

@@ -6,6 +6,7 @@ local U = Cell.uFuncs
 local A = Cell.animations
 local P = Cell.pixelPerfectFuncs
 
+local LGI = LibStub:GetLibrary("LibGroupInfo")
 local LCG = LibStub("LibCustomGlow-1.0")
 local LibTranslit = LibStub("LibTranslit-1.0")
 
@@ -680,8 +681,8 @@ local header = CreateFrame("Frame", "CellQuickAssistHeader", quickAssistFrame, "
 
 header:SetAttribute("template", "CellQuickAssistButtonTemplate")
 
-header:SetAttribute("showRaid", true)
-header:SetAttribute("showParty", true)
+-- header:SetAttribute("showRaid", true)
+-- header:SetAttribute("showParty", true)
 
 --! to make needButtons == 40 cheat configureChildren in SecureGroupHeaders.lua
 header:SetAttribute("startingIndex", -39)
@@ -732,6 +733,110 @@ local function ShowGlow(indicator, glowType, glowColor)
         LCG.PixelGlow_Stop(indicator)
         LCG.AutoCastGlow_Stop(indicator)
         LCG.ProcGlow_Stop(indicator)
+    end
+end
+
+-- ----------------------------------------------------------------------- --
+--                               spec filter                               --
+-- ----------------------------------------------------------------------- --
+local specFrame = CreateFrame("Frame")
+
+local specFilter
+local nameList = {}
+local nameToPriority = {}
+
+local function GetPriority(class, specId)
+    if not (class and specId) then return end
+    
+    local filter = specFilter[2]
+
+    local priority
+    for ci, ct in pairs(filter) do
+        if class == ct[1] then  -- class
+            priority = ci*10
+            for si, st in pairs(ct[2]) do
+                if specId == st[1] then  -- spec
+                    if st[2] then -- enabled
+                        priority = priority + si
+                    else
+                        priority = nil
+                    end
+                    break
+                end                
+            end
+            break
+        end
+    end
+
+    return priority
+end
+
+local function UpdateAllUnits()
+    if InCombatLockdown() then
+        specFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+        return
+    end
+
+    wipe(nameList)
+    wipe(nameToPriority)
+
+    for unit in F:IterateGroupMembers() do
+        if UnitIsConnected(unit) then
+            local name = GetUnitName(unit, true)
+            local guid = UnitGUID(unit)
+            local info = LGI:GetCachedInfo(guid)
+            if info then
+                nameToPriority[name] = GetPriority(info.class, info.specId)
+                -- print(name, nameToPriority[name], info.class, info.specId)
+            end
+            if nameToPriority[name] then
+                tinsert(nameList, name)
+            end
+        end
+    end
+
+    -- check hide self
+    if specFilter[3] then
+        F:TRemove(nameList, Cell.vars.playerNameShort)
+        nameToPriority[Cell.vars.playerNameShort] = nil
+    end
+
+    -- sort by class, spec, name
+    sort(nameList, function(a, b)
+        if nameToPriority[a] ~= nameToPriority[b] then
+            return nameToPriority[a] < nameToPriority[b]
+        else
+            return a < b
+        end
+    end)
+
+    -- texplore(nameList)
+    -- texplore(nameToPriority)
+
+    header:SetAttribute("groupingOrder", "")
+    header:SetAttribute("groupFilter", nil)
+    header:SetAttribute("groupBy", nil)
+    header:SetAttribute("nameList", F:TableToString(nameList, ","))
+    header:SetAttribute("sortMethod", "NAMELIST")
+end
+
+local timer
+function specFrame:PrepareUpdate(self, event)
+    specFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+
+    if timer then timer:Cancel() end
+    timer = C_Timer.NewTimer(1, UpdateAllUnits)
+end
+specFrame:SetScript("OnEvent", specFrame.PrepareUpdate)
+
+local function EnableSpecFilter(enable)
+    if enable then
+        specFrame:PrepareUpdate()
+        specFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+        LGI.RegisterCallback(specFrame, "GroupInfo_Update", "PrepareUpdate")
+    else
+        specFrame:UnregisterAllEvents()
+        LGI.UnregisterCallback(specFrame, "GroupInfo_Update")
     end
 end
 
@@ -809,9 +914,9 @@ local function UpdateQuickAssist(which)
     F:Debug("|cff33937FUpdateQuickAssist:|r", which)
 
     quickAssistTable = CellDB["quickAssist"][Cell.vars.playerSpecID]
+    local groupType = Cell.vars.quickAssistGroupType
 
-    if not quickAssistTable or not quickAssistTable["enabled"] then
-        UnregisterAttributeDriver(quickAssistFrame, "state-visibility")
+    if not (quickAssistTable and quickAssistTable["enabled"]) then
         quickAssistFrame:Hide()
         layoutTable = nil
         styleTable = nil
@@ -821,7 +926,7 @@ local function UpdateQuickAssist(which)
         return
     end
 
-    RegisterAttributeDriver(quickAssistFrame, "state-visibility", "[group] show; hide")
+    quickAssistFrame:Show()
     layoutTable = quickAssistTable["layout"]
     styleTable = quickAssistTable["style"]
     spellTable = quickAssistTable["spells"]
@@ -911,49 +1016,59 @@ local function UpdateQuickAssist(which)
     end
 
     if not which or which == "filter" then
-        -- header:SetAttribute("groupingOrder", nil)
-        -- header:SetAttribute("groupBy", nil)         
-        -- header:SetAttribute("groupFilter", nil)
-        -- header:SetAttribute("roleFilter", nil)
-
-        local selectedFilter = layoutTable["filters"]["active"]
+        local selectedFilter = groupType and quickAssistTable["filterAutoSwitch"][groupType] or 0
         
-        header:SetAttribute("showPlayer", not layoutTable["filters"][selectedFilter][3])
-        
-        if layoutTable["filters"][selectedFilter][1] == "role" then
-            local groupFilter = {}
-            for k, v in pairs(layoutTable["filters"][selectedFilter][2]) do
-                if v then
-                    tinsert(groupFilter, k)
+        EnableSpecFilter(false)
+        specFilter = nil
+
+        if selectedFilter == 0 then -- hide
+            header:SetAttribute("showRaid", false)
+            header:SetAttribute("showParty", false)
+            header:SetAttribute("showPlayer", false)
+        else
+            header:SetAttribute("showRaid", true)
+            header:SetAttribute("showParty", true)
+            header:SetAttribute("showPlayer", not quickAssistTable["filters"][selectedFilter][3])
+            
+            if quickAssistTable["filters"][selectedFilter][1] == "role" then
+                local groupFilter = {}
+                for k, v in pairs(quickAssistTable["filters"][selectedFilter][2]) do
+                    if v then
+                        tinsert(groupFilter, k)
+                    end
                 end
-            end
-            groupFilter = table.concat(groupFilter, ",")
-
-            header:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER")
-            header:SetAttribute("groupBy", "ASSIGNEDROLE")
-            header:SetAttribute("sortMethod", "NAME")
-            header:SetAttribute("groupFilter", groupFilter)
-
-        elseif layoutTable["filters"][selectedFilter][1] == "class" then
-            local groupFilter = {}
-            for k, v in pairs(layoutTable["filters"][selectedFilter][2]) do
-                if v[2] then
-                    tinsert(groupFilter, v[1])
+                groupFilter = table.concat(groupFilter, ",")
+    
+                header:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER")
+                header:SetAttribute("groupBy", "ASSIGNEDROLE")
+                header:SetAttribute("sortMethod", "NAME")
+                header:SetAttribute("groupFilter", groupFilter)
+    
+            elseif quickAssistTable["filters"][selectedFilter][1] == "class" then
+                local groupFilter = {}
+                for k, v in pairs(quickAssistTable["filters"][selectedFilter][2]) do
+                    if v[2] then
+                        tinsert(groupFilter, v[1])
+                    end
                 end
+                groupFilter = table.concat(groupFilter, ",")
+    
+                header:SetAttribute("groupingOrder", groupFilter)
+                header:SetAttribute("groupBy", "CLASS")
+                header:SetAttribute("sortMethod", "NAME")
+                header:SetAttribute("groupFilter", groupFilter)
+
+            elseif quickAssistTable["filters"][selectedFilter][1] == "spec" then
+                specFilter = quickAssistTable["filters"][selectedFilter]
+                EnableSpecFilter(true)
+    
+            elseif quickAssistTable["filters"][selectedFilter][1] == "name" then
+                header:SetAttribute("sortMethod", "NAMELIST")
+                header:SetAttribute("nameList", table.concat(quickAssistTable["filters"][selectedFilter][2], ","))
+                header:SetAttribute("groupingOrder", "")
+                header:SetAttribute("groupFilter", nil)
+                header:SetAttribute("groupBy", nil)
             end
-            groupFilter = table.concat(groupFilter, ",")
-
-            header:SetAttribute("groupingOrder", groupFilter)
-            header:SetAttribute("groupBy", "CLASS")
-            header:SetAttribute("sortMethod", "NAME")
-            header:SetAttribute("groupFilter", groupFilter)
-
-        elseif layoutTable["filters"][selectedFilter][1] == "name" then
-            header:SetAttribute("sortMethod", "NAMELIST")
-            header:SetAttribute("nameList", table.concat(layoutTable["filters"][selectedFilter][2], ","))
-            header:SetAttribute("groupingOrder", "")
-            header:SetAttribute("groupFilter", nil)
-            header:SetAttribute("groupBy", nil)
         end
 
         F:UpdateOmniCDPosition("Cell-QuickAssist")
@@ -1143,11 +1258,6 @@ local function UpdateQuickAssist(which)
 end
 Cell:RegisterCallback("UpdateQuickAssist", "UpdateQuickAssist", UpdateQuickAssist)
 
-local function SpecChanged()
-    UpdateQuickAssist()
-end
-Cell:RegisterCallback("SpecChanged", "QuickAssist_SpecChanged", SpecChanged)
-
 local function QuickAssist_CreateIndicators(button)
     -- buffs indicator (icon)
     local buffIcons = I:CreateAura_Icons(button:GetName().."BuffIcons", button.overlayFrame, 5)
@@ -1196,14 +1306,6 @@ local function AddonLoaded()
     for i = 1, 40 do
         QuickAssist_CreateIndicators(header[i])
     end
-    -- for i = 1, 5 do
-    --     filterBtns[i] = Cell:CreateButton(quickAssistFrame, i, "accent-hover", {37, 17})
-    --     filterBtns[i].id = i
-    -- end
-    -- HighlightFilter = Cell:CreateButtonGroup(filterBtns, function(id)
-    --     layoutTable["filters"]["active"] = id
-    --     Cell:Fire("UpdateQuickAssist", "filter")
-    -- end)
 end
 Cell:RegisterCallback("AddonLoaded", "QuickAssist_AddonLoaded", AddonLoaded)
 
@@ -1217,3 +1319,42 @@ local function UpdatePixelPerfect()
     end
 end
 Cell:RegisterCallback("UpdatePixelPerfect", "QuickAssist_UpdatePixelPerfect", UpdatePixelPerfect)
+
+-- ----------------------------------------------------------------------- --
+--                            filter auto switch                           --
+-- ----------------------------------------------------------------------- --
+local delayedFrame = CreateFrame("Frame")
+delayedFrame:SetScript("OnEvent", function()
+    delayedFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    Cell:Fire("UpdateQuickAssist")
+end)
+
+local function PreUpdateQuickAssist()
+    if Cell.vars.instanceType == "pvp" then
+        Cell.vars.quickAssistGroupType = "battleground"
+    elseif Cell.vars.instanceType == "arena" then
+        Cell.vars.quickAssistGroupType = "arena"
+    else
+        if Cell.vars.groupType == "party" then
+            Cell.vars.quickAssistGroupType = "party"
+        elseif Cell.vars.groupType == "raid" then
+            if Cell.vars.inMythic then
+                Cell.vars.quickAssistGroupType = "mythic"
+            else
+                Cell.vars.quickAssistGroupType = "raid"
+            end
+        else
+            Cell.vars.quickAssistGroupType = nil
+        end
+    end
+
+    if InCombatLockdown() then
+        delayedFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    else
+        Cell:Fire("UpdateQuickAssist")
+    end
+end
+Cell:RegisterCallback("EnterInstance", "QuickAssist_EnterInstance", PreUpdateQuickAssist)
+Cell:RegisterCallback("LeaveInstance", "QuickAssist_LeaveInstance", PreUpdateQuickAssist)
+Cell:RegisterCallback("GroupTypeChanged", "QuickAssist_GroupTypeChanged", PreUpdateQuickAssist)
+Cell:RegisterCallback("SpecChanged", "QuickAssist_SpecChanged", PreUpdateQuickAssist)

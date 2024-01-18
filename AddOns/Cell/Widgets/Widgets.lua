@@ -160,7 +160,7 @@ function addon:ColorFontStringWithAccentColor(fs)
 end
 
 function addon:WrapTextInAccentColor(text)
-    return WrapTextInColorCode(text, accentColor.s)
+    return WrapTextInColorCode(text, accentColor.s) -- FIXME: ("|c%s%s|r"):format(colorHexString, text)
 end
 
 -----------------------------------------
@@ -896,6 +896,13 @@ function addon:CreateColorPicker(parent, label, hasOpacity, onChange, onConfirm)
     --     ColorPickerFrame:Hide()
     --     ColorPickerFrame:Show()
     -- end
+
+    cp.hasOpacity = hasOpacity
+
+    function cp:EnableAlpha(enable)
+        addon:HideColorPicker()
+        cp.hasOpacity = enable
+    end
     
     cp:SetScript("OnClick", function()
         addon:ShowColorPicker(function(r, g, b, a)
@@ -907,7 +914,7 @@ function addon:CreateColorPicker(parent, label, hasOpacity, onChange, onConfirm)
             if onChange then
                 onChange(r, g, b, a)
             end
-        end, onConfirm, hasOpacity, unpack(cp.color))
+        end, onConfirm, cp.hasOpacity, unpack(cp.color))
     end)
 
     cp.color = {1, 1, 1, 1}
@@ -2670,7 +2677,7 @@ local function SetHighlightItem(i)
     end
 end
 
-function addon:CreateDropdown(parent, width, dropdownType, isMini)
+function addon:CreateDropdown(parent, width, dropdownType, isMini, isHorizontal)
     local menu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     P:Size(menu, width, 20)
     menu:EnableMouse(true)
@@ -2907,35 +2914,55 @@ function addon:CreateDropdown(parent, width, dropdownType, isMini)
                     menu:SetSelected(item.text)
                 end
                 list:Hide()
-                if item.onClick then item.onClick(item.text, item.value) end
+                if item.onClick then item.onClick(item.text, item.value, menu.id) end
             end)
 
             -- update point
             b:SetParent(list.scrollFrame.content)
             b:Show()
-            if i == 1 then
-                b:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
-                b:SetPoint("TOPRIGHT", P:Scale(-1), P:Scale(-1))
+
+            if isMini and isHorizontal then
+                P:Width(b, width)
+                if i == 1 then
+                    b:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+                else
+                    b:SetPoint("TOPLEFT", list.items[i-1], "TOPRIGHT")
+                end
             else
-                b:SetPoint("TOPLEFT", list.items[i-1], "BOTTOMLEFT")
-                b:SetPoint("TOPRIGHT", list.items[i-1], "BOTTOMRIGHT")
+                if i == 1 then
+                    b:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+                    b:SetPoint("TOPRIGHT", P:Scale(-1), P:Scale(-1))
+                else
+                    b:SetPoint("TOPLEFT", list.items[i-1], "BOTTOMLEFT")
+                    b:SetPoint("TOPRIGHT", list.items[i-1], "BOTTOMRIGHT")
+                end
             end
         end
 
         -- update list size
         list.menu = menu -- menu's OnHide -> list:Hide
         list:ClearAllPoints()
-        list:SetPoint("TOPLEFT", menu, "BOTTOMLEFT", 0, -2)
         
-        if #menu.items == 0 then
-            list:SetSize(menu:GetWidth(), P:Scale(5))
-        elseif #menu.items <= 10 then
-            list:SetSize(menu:GetWidth(), P:Scale(2) + #menu.items*P:Scale(18))
-            list.scrollFrame:SetContentHeight(P:Scale(2) + #menu.items*P:Scale(18))
+        if isMini and isHorizontal then
+            list:SetPoint("TOPLEFT", menu, "TOPRIGHT", 2, 0)
+            if #menu.items == 0 then
+                list:SetSize(P:Scale(5), menu:GetHeight())
+            else
+                list:SetSize(P:Scale(2) + #menu.items*P:Scale(width), menu:GetHeight())
+            end
+            list.scrollFrame:SetContentHeight(P:Scale(20))
         else
-            list:SetSize(menu:GetWidth(), P:Scale(2) + 10*P:Scale(18))
-            -- update list scrollFrame
-            list.scrollFrame:SetContentHeight(P:Scale(2) + #menu.items*P:Scale(18))
+            list:SetPoint("TOPLEFT", menu, "BOTTOMLEFT", 0, -2)
+            if #menu.items == 0 then
+                list:SetSize(menu:GetWidth(), P:Scale(5))
+            elseif #menu.items <= 10 then
+                list:SetSize(menu:GetWidth(), P:Scale(2) + #menu.items*P:Scale(18))
+                list.scrollFrame:SetContentHeight(P:Scale(2) + #menu.items*P:Scale(18))
+            else
+                list:SetSize(menu:GetWidth(), P:Scale(2) + 10*P:Scale(18))
+                -- update list scrollFrame
+                list.scrollFrame:SetContentHeight(P:Scale(2) + #menu.items*P:Scale(18))
+            end
         end
     end
 

@@ -28,6 +28,10 @@ local function CreatePreviewButton()
     previewButton:SetScript("OnUpdate", nil)
     previewButton:Show()
 
+    previewButton.widget.healthBar:SetMinMaxValues(0, 1)
+    previewButton.widget.healthBar:SetValue(1)
+    previewButton.widget.powerBar:SetMinMaxValues(0, 1)
+    previewButton.widget.powerBar:SetValue(1)
     previewButton.isPreview = true
     
     local previewButtonBG = Cell:CreateFrame("CellLayoutsPreviewButtonBG", layoutsTab)
@@ -55,7 +59,7 @@ local function UpdatePreviewButton(which, value)
             previewButton.indicators.nameText.isPreview = true
             previewButton.state.name = UnitName("player")
             previewButton.indicators.nameText:UpdateName()
-            previewButton.indicators.nameText:UpdatePreviewColor(iTable["nameColor"])
+            previewButton.indicators.nameText:UpdatePreviewColor(iTable["color"])
             previewButton.indicators.nameText:UpdateTextWidth(iTable["textWidth"])
             previewButton.indicators.nameText:SetFont(unpack(iTable["font"]))
             previewButton.indicators.nameText:ClearAllPoints()
@@ -128,11 +132,12 @@ local function CreateLayoutPreview()
     layoutPreviewAnchor:RegisterForDrag("LeftButton")
     layoutPreviewAnchor:SetClampedToScreen(true)
     Cell:StylizeFrame(layoutPreviewAnchor, {0, 1, 0, 0.4})
-    layoutPreviewAnchor:Hide()
+
     layoutPreviewAnchor:SetScript("OnDragStart", function()
         layoutPreviewAnchor:StartMoving()
         layoutPreviewAnchor:SetUserPlaced(false)
     end)
+    
     layoutPreviewAnchor:SetScript("OnDragStop", function()
         layoutPreviewAnchor:StopMovingOrSizing()
         P:SavePosition(layoutPreviewAnchor, selectedLayoutTable["main"]["position"])
@@ -245,8 +250,6 @@ local function UpdateLayoutPreview()
     -- update layoutPreviewAnchor point
     if selectedLayout == Cell.vars.currentLayout then
         layoutPreviewAnchor:SetAllPoints(Cell.frames.anchorFrame)
-        layoutPreviewAnchor:Hide()
-        layoutPreviewName:Hide()
     else
         if #selectedLayoutTable["main"]["position"] == 2 then
             P:LoadPosition(layoutPreviewAnchor, selectedLayoutTable["main"]["position"])
@@ -254,10 +257,8 @@ local function UpdateLayoutPreview()
             layoutPreviewAnchor:ClearAllPoints()
             layoutPreviewAnchor:SetPoint("TOPLEFT", UIParent, "CENTER")
         end
-        layoutPreviewAnchor:Show()
-        layoutPreviewName:SetText(L["Layout"]..": "..selectedLayout)
-        layoutPreviewName:Show()
     end
+    layoutPreviewName:SetText(L["Layout"]..": "..selectedLayout)
 
     -- re-arrange
     local shownGroups = {}
@@ -1729,7 +1730,7 @@ LoadAutoSwitchDropdowns = function()
                 Cell.vars.layoutAutoSwitch[autoSwitchIndex]["party"] = value
                 if Cell.vars.layoutGroupType == "party" then
                     F:UpdateLayout("party", true)
-                    LoadLayoutDB(Cell.vars.currentLayout)
+                    -- LoadLayoutDB(Cell.vars.currentLayout)
                     UpdateButtonStates()
                     -- UpdateEnabledLayoutText()
                 end
@@ -1748,7 +1749,7 @@ LoadAutoSwitchDropdowns = function()
                 Cell.vars.layoutAutoSwitch[autoSwitchIndex]["raid_outdoor"] = value
                 if Cell.vars.layoutGroupType == "raid_outdoor" then
                     F:UpdateLayout("raid_outdoor", true)
-                    LoadLayoutDB(Cell.vars.currentLayout)
+                    -- LoadLayoutDB(Cell.vars.currentLayout)
                     UpdateButtonStates()
                     -- UpdateEnabledLayoutText()
                 end
@@ -1768,7 +1769,7 @@ LoadAutoSwitchDropdowns = function()
                     Cell.vars.layoutAutoSwitch[autoSwitchIndex]["raid_instance"] = value
                     if Cell.vars.layoutGroupType == "raid_instance" then
                         F:UpdateLayout("raid_instance", true)
-                        LoadLayoutDB(Cell.vars.currentLayout)
+                        -- LoadLayoutDB(Cell.vars.currentLayout)
                         UpdateButtonStates()
                         -- UpdateEnabledLayoutText()
                     end
@@ -1787,7 +1788,7 @@ LoadAutoSwitchDropdowns = function()
                     Cell.vars.layoutAutoSwitch[autoSwitchIndex]["raid_mythic"] = value
                     if Cell.vars.layoutGroupType == "raid_mythic" then
                         F:UpdateLayout("raid_mythic", true)
-                        LoadLayoutDB(Cell.vars.currentLayout)
+                        -- LoadLayoutDB(Cell.vars.currentLayout)
                         UpdateButtonStates()
                         -- UpdateEnabledLayoutText()
                     end
@@ -1807,7 +1808,7 @@ LoadAutoSwitchDropdowns = function()
                     Cell.vars.layoutAutoSwitch[autoSwitchIndex]["raid10"] = value
                     if Cell.vars.layoutGroupType == "raid10" then
                         F:UpdateLayout("raid10", true)
-                        LoadLayoutDB(Cell.vars.currentLayout)
+                        -- LoadLayoutDB(Cell.vars.currentLayout)
                         UpdateButtonStates()
                         -- UpdateEnabledLayoutText()
                     end
@@ -1826,7 +1827,7 @@ LoadAutoSwitchDropdowns = function()
                     Cell.vars.layoutAutoSwitch[autoSwitchIndex]["raid25"] = value
                     if Cell.vars.layoutGroupType == "raid25" then
                         F:UpdateLayout("raid25", true)
-                        LoadLayoutDB(Cell.vars.currentLayout)
+                        -- LoadLayoutDB(Cell.vars.currentLayout)
                         UpdateButtonStates()
                         -- UpdateEnabledLayoutText()
                     end
@@ -1846,7 +1847,7 @@ LoadAutoSwitchDropdowns = function()
                     Cell.vars.layoutAutoSwitch[autoSwitchIndex]["raid_instance"] = value
                     if Cell.vars.layoutGroupType == "raid_instance" then
                         F:UpdateLayout("raid_instance", true)
-                        LoadLayoutDB(Cell.vars.currentLayout)
+                        -- LoadLayoutDB(Cell.vars.currentLayout)
                         UpdateButtonStates()
                         -- UpdateEnabledLayoutText()
                     end
@@ -1866,7 +1867,7 @@ LoadAutoSwitchDropdowns = function()
                 Cell.vars.layoutAutoSwitch[autoSwitchIndex]["arena"] = value
                 if Cell.vars.layoutGroupType == "arena" then
                     F:UpdateLayout("arena", true)
-                    LoadLayoutDB(Cell.vars.currentLayout)
+                    -- LoadLayoutDB(Cell.vars.currentLayout)
                     UpdateButtonStates()
                     -- UpdateEnabledLayoutText()
                 end
@@ -1886,7 +1887,7 @@ LoadAutoSwitchDropdowns = function()
                     Cell.vars.layoutAutoSwitch[autoSwitchIndex]["battleground"] = value
                     if Cell.vars.layoutGroupType == "battleground" then
                         F:UpdateLayout("battleground", true)
-                        LoadLayoutDB(Cell.vars.currentLayout)
+                        -- LoadLayoutDB(Cell.vars.currentLayout)
                         UpdateButtonStates()
                         -- UpdateEnabledLayoutText()
                     end
@@ -1906,7 +1907,7 @@ LoadAutoSwitchDropdowns = function()
                     Cell.vars.layoutAutoSwitch[autoSwitchIndex]["battleground15"] = value
                     if Cell.vars.layoutGroupType == "battleground15" then
                         F:UpdateLayout("battleground15", true)
-                        LoadLayoutDB(Cell.vars.currentLayout)
+                        -- LoadLayoutDB(Cell.vars.currentLayout)
                         UpdateButtonStates()
                         -- UpdateEnabledLayoutText()
                     end
@@ -1925,7 +1926,7 @@ LoadAutoSwitchDropdowns = function()
                     Cell.vars.layoutAutoSwitch[autoSwitchIndex]["battleground40"] = value
                     if Cell.vars.layoutGroupType == "battleground40" then
                         F:UpdateLayout("battleground40", true)
-                        LoadLayoutDB(Cell.vars.currentLayout)
+                        -- LoadLayoutDB(Cell.vars.currentLayout)
                         UpdateButtonStates()
                         -- UpdateEnabledLayoutText()
                     end
@@ -2030,7 +2031,7 @@ local rcSlider, groupSpacingSlider
 local orientationDropdown, anchorDropdown, spacingXSlider, spacingYSlider
 
 local sameSizeAsMainCB, sameArrangementAsMainCB
-local sortByRoleCB, hideSelfCB
+local sortByRoleCB, roleOrderWidget, hideSelfCB
 local showNpcCB, separateNpcCB, spotlightCB, hidePlaceholderCB, spotlightOrientationDropdown, partyPetsCB, raidPetsCB
 
 local function UpdateSize()
@@ -2084,6 +2085,61 @@ local function UpdateArrangement()
     end
 end
 
+-- TODO: move to Widgets.lua
+local function CreateRoleOrderWidget(parent)
+    local f = CreateFrame("Frame", nil, parent)
+    P:Size(f, 66, 20)
+
+    local buttons = {}
+    for _, role in pairs({"TANK", "HEALER", "DAMAGER"}) do
+        buttons[role] = Cell:CreateButton(f, nil, "accent-hover", {20, 20})
+        buttons[role]:SetTexture("Interface\\AddOns\\Cell\\Media\\Roles\\"..role.."32", {16, 16}, {"CENTER", 0, 0}, false, true)
+        buttons[role]._role = role
+        
+        buttons[role]:SetMovable(true)
+        buttons[role]:RegisterForDrag("LeftButton")
+        
+        buttons[role]:SetScript("OnDragStart", function(self)
+            self:SetFrameStrata("TOOLTIP")
+            self:StartMoving()
+            self:SetUserPlaced(false)
+        end)
+        
+        buttons[role]:SetScript("OnDragStop", function(self)
+            self:StopMovingOrSizing()
+            self:SetFrameStrata("LOW")
+            -- self:Hide() --! Hide() will cause OnDragStop trigger TWICE!!!
+            C_Timer.After(0.05, function()
+                local b = GetMouseFocus()
+                if b and b._role then
+                    local roleToIndex = F:ConvertTable(selectedLayoutTable["main"]["roleOrder"])
+                    -- print(self._role, "->", b._role)
+                    
+                    local oldIndex = roleToIndex[self._role]
+                    tremove(selectedLayoutTable["main"]["roleOrder"], oldIndex)
+
+                    local newIndex = roleToIndex[b._role]
+                    tinsert(selectedLayoutTable["main"]["roleOrder"], newIndex, self._role)
+
+                    Cell:Fire("UpdateLayout", selectedLayout, "sort")
+                end
+                f:Load(selectedLayoutTable["main"]["roleOrder"])
+            end)
+        end)
+    end
+
+    function f:Load(t)
+        for i, role in pairs(t) do
+            buttons[role]:SetFrameStrata("DIALOG")
+            buttons[role]:Show()
+            buttons[role]:ClearAllPoints()
+            buttons[role]:SetPoint("TOPLEFT", (i-1)*(P:Scale(20)+P:Scale(3)), 0)
+        end
+    end
+
+    return f
+end
+
 local function CreateLayoutSetupPane()
     local layoutSetupPane = Cell:CreateTitledPane(layoutsTab, L["Layout Setup"], 422, 290)
     layoutSetupPane:SetPoint("TOPLEFT", 5, -110)
@@ -2132,20 +2188,20 @@ local function CreateLayoutSetupPane()
     sameArrangementAsMainCB:Hide()
 
     -- width
-    widthSlider = Cell:CreateSlider(L["Width"], layoutSetupPane, 20, 300, 117, 1, function(value)
+    widthSlider = Cell:CreateSlider(L["Width"], layoutSetupPane, 20, 500, 117, 1, function(value)
         selectedLayoutTable[selectedPage]["size"][1] = value
         UpdateSize()
     end)
     
     -- height
-    heightSlider = Cell:CreateSlider(L["Height"], layoutSetupPane, 20, 300, 117, 1, function(value)
+    heightSlider = Cell:CreateSlider(L["Height"], layoutSetupPane, 20, 500, 117, 1, function(value)
         selectedLayoutTable[selectedPage]["size"][2] = value
         UpdateSize()
     end)
     heightSlider:SetPoint("TOPLEFT", widthSlider, 0, -55)
     
     -- power height
-    powerSizeSlider = Cell:CreateSlider(L["Power Size"], layoutSetupPane, 0, 20, 117, 1, function(value)
+    powerSizeSlider = Cell:CreateSlider(L["Power Size"], layoutSetupPane, 0, 100, 117, 1, function(value)
         selectedLayoutTable[selectedPage]["powerSize"] = value
         if selectedLayout == Cell.vars.currentLayout then
             Cell:Fire("UpdateLayout", selectedLayout, selectedPage.."-power")
@@ -2259,13 +2315,13 @@ local function CreateLayoutSetupPane()
     end)
 
      -- spacing
-    spacingXSlider = Cell:CreateSlider(L["Unit Spacing"].." X", layoutSetupPane, -1, 100, 117, 1, function(value)
+    spacingXSlider = Cell:CreateSlider(L["Unit Spacing"].." X", layoutSetupPane, -1, 500, 117, 1, function(value)
         selectedLayoutTable[selectedPage]["spacingX"] = value
         UpdateArrangement()
     end)
     spacingXSlider:SetPoint("TOPLEFT", orientationDropdown, 0, -55)
 
-    spacingYSlider = Cell:CreateSlider(L["Unit Spacing"].." Y", layoutSetupPane, -1, 100, 117, 1, function(value)
+    spacingYSlider = Cell:CreateSlider(L["Unit Spacing"].." Y", layoutSetupPane, -1, 500, 117, 1, function(value)
         selectedLayoutTable[selectedPage]["spacingY"] = value
         UpdateArrangement()
     end)
@@ -2282,9 +2338,19 @@ local function CreateLayoutSetupPane()
     -- sort by role
     sortByRoleCB = Cell:CreateCheckButton(pages.main, L["Sort By Role (Party Only)"], function(checked, self)
         selectedLayoutTable["main"]["sortByRole"] = checked
+        if checked then
+            roleOrderWidget:Show()
+        else
+            roleOrderWidget:Hide()
+        end
         Cell:Fire("UpdateLayout", selectedLayout, "sort")
     end)
     sortByRoleCB:SetPoint("TOPLEFT", 5, -27)
+    Cell:RegisterForCloseDropdown(sortByRoleCB)
+
+    -- role order
+    roleOrderWidget = CreateRoleOrderWidget(pages.main)
+    roleOrderWidget:SetPoint("TOPLEFT", sortByRoleCB, sortByRoleCB.label:GetWidth()+25, 3)
 
     -- hide self
     hideSelfCB = Cell:CreateCheckButton(pages.main, L["Hide Self (Party Only)"], function(checked, self)
@@ -2314,7 +2380,7 @@ local function CreateLayoutSetupPane()
     rcSlider:SetPoint("TOPLEFT", spacingXSlider, 0, -55)
     
     -- group spacing
-    groupSpacingSlider = Cell:CreateSlider(L["Group Spacing"], pages.main, 0, 50, 117, 1, function(value)
+    groupSpacingSlider = Cell:CreateSlider(L["Group Spacing"], pages.main, 0, 500, 117, 1, function(value)
         selectedLayoutTable["main"]["groupSpacing"] = value
         if selectedLayout == Cell.vars.currentLayout then
             Cell:Fire("UpdateLayout", selectedLayout, "groupSpacing")
@@ -2654,7 +2720,7 @@ LoadPageDB = function(page)
 end
 
 LoadLayoutDB = function(layout, dontShowPreview)
-    F:Debug("LoadLayoutDB: "..layout)
+    F:Debug("LoadLayoutDB:", layout, dontShowPreview)
 
     selectedLayout = layout
     selectedLayoutTable = CellDB["layouts"][layout]
@@ -2687,6 +2753,12 @@ LoadLayoutDB = function(layout, dontShowPreview)
     -- pages
     LoadPageDB(selectedPage)
     sortByRoleCB:SetChecked(selectedLayoutTable["main"]["sortByRole"])
+    if selectedLayoutTable["main"]["sortByRole"] then
+        roleOrderWidget:Show()
+    else
+        roleOrderWidget:Hide()
+    end
+    roleOrderWidget:Load(selectedLayoutTable["main"]["roleOrder"])
     hideSelfCB:SetChecked(selectedLayoutTable["main"]["hideSelf"])
     partyPetsCB:SetChecked(selectedLayoutTable["pet"]["partyEnabled"])
     raidPetsCB:SetChecked(selectedLayoutTable["pet"]["raidEnabled"])
@@ -2749,13 +2821,15 @@ LoadLayoutAutoSwitchDB = function()
     arenaDropdown:SetSelectedValue(Cell.vars.layoutAutoSwitch[autoSwitchIndex]["arena"])
 end
 
-local function UpdateLayoutAutoSwitch(layout)
+local function UpdateLayoutAutoSwitch(layout, which)
     if not init then return end
+    if which then return end
 
-    if layout and layoutsTab:IsVisible() then
+    if layoutsTab:IsVisible() then
         -- NOTE: group type changed / spec changed
-        LoadLayoutDB(Cell.vars.currentLayout, true)
+        LoadLayoutDB(Cell.vars.currentLayout)
         LoadLayoutAutoSwitchDB()
+        F:HidePowerFilters()
     end
 
     if Cell.vars.inBattleground then

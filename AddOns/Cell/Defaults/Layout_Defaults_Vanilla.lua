@@ -111,7 +111,7 @@ Cell.defaults.layout = {
             ["position"] = {"CENTER", "CENTER", 0, 0},
             ["frameLevel"] = 1,
             ["font"] = {"Cell ".._G.DEFAULT, 13, "Shadow"},
-            ["nameColor"] = {"custom", {1, 1, 1}},
+            ["color"] = {"custom_color", {1, 1, 1}},
             ["vehicleNamePosition"] = {"TOP", 0},
             ["textWidth"] = {"percentage", 0.75},
             ["showGroupNumber"] = false,
@@ -174,7 +174,7 @@ Cell.defaults.layout = {
             ["indicatorName"] = "partyAssignmentIcon",
             ["type"] = "built-in",
             ["enabled"] = true,
-            ["position"] = {"TOPLEFT", "TOPLEFT", 0, 0},
+            ["position"] = {"TOPLEFT", "TOPLEFT", 1, -1},
             ["size"] = {11, 11},
         }, -- 6
         {
@@ -183,7 +183,7 @@ Cell.defaults.layout = {
             ["type"] = "built-in",
             ["enabled"] = true,
             ["hideInCombat"] = true,
-            ["position"] = {"TOPLEFT", "TOPLEFT", 0, -11},
+            ["position"] = {"TOPLEFT", "TOPLEFT", 1, -10},
             ["size"] = {11, 11},
         }, -- 7
         {
@@ -221,7 +221,7 @@ Cell.defaults.layout = {
             ["enabled"] = false,
             ["position"] = {"TOPLEFT", "TOPLEFT", 0, 0},
             ["frameLevel"] = 3,
-            ["size"] = {10, 10},
+            ["size"] = {11, 11},
         }, -- 11
         {
             ["name"] = "Aggro (bar)",
@@ -257,6 +257,7 @@ Cell.defaults.layout = {
             ["frameLevel"] = 10,
             ["size"] = {12, 20},
             ["showDuration"] = false,
+            ["showAnimation"] = true,
             ["num"] = 2,
             ["orientation"] = "right-to-left",
             ["font"] = {
@@ -273,6 +274,7 @@ Cell.defaults.layout = {
             ["frameLevel"] = 10,
             ["size"] = {12, 20},
             ["showDuration"] = false,
+            ["showAnimation"] = true,
             ["num"] = 2,
             ["orientation"] = "left-to-right",
             ["font"] = {
@@ -289,6 +291,7 @@ Cell.defaults.layout = {
             ["frameLevel"] = 10,
             ["size"] = {12, 20},
             ["showDuration"] = false,
+            ["showAnimation"] = true,
             ["num"] = 2,
             ["orientation"] = "left-to-right",
             ["font"] = {
@@ -318,7 +321,9 @@ Cell.defaults.layout = {
             ["frameLevel"] = 2,
             ["size"] = {{13, 13}, {17, 17}},
             ["showDuration"] = false,
+            ["showAnimation"] = true,
             ["showTooltip"] = false,
+            ["enableBlacklistShortcut"] = false,
             ["num"] = 3,
             ["font"] = {
                 {"Cell ".._G.DEFAULT, 11, "Outline", "TOPRIGHT", 2, 1, {1, 1, 1}},
