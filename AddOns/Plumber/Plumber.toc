@@ -11,6 +11,9 @@
 
 ## IconTexture: Interface\AddOns\Plumber\Art\Logo\PlumberLogo64
 
+## Title-zhTW: |cff0099FF[介面]|r 夢境工具組
+## Notes-zhTW: Plumber |n|n讓你在世界地圖上就能看到夢境種子的位置和生長時間，稍微改善貢獻種子的介面，還有其他功能。|n|n|cffffd200使用方法: |r從Esc>選項>插件>夢境工具，看詳細介紹和進行設定。
+## X-Category-zhTW: 介面
 
 Initialization.lua
 Locales\Localization.xml

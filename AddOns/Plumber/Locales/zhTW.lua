@@ -93,6 +93,7 @@ L["ModuleName TalkingHead"] = HUD_EDIT_MODE_TALKING_HEAD_FRAME_LABEL or "對話�
 L["ModuleDescription TalkingHead"] = "將預設的對話頭像替換為一個乾淨、無頭像的介面。";
 L["EditMode TalkingHead"] = "夢境工具組: "..L["ModuleName TalkingHead"];
 L["TalkingHead Option InstantText"] = "立即顯示文字";   --Should texts immediately, no gradual fading
+L["TalkingHead Option TextOutline"] = "文字外框";
 L["TalkingHead Option Condition Header"] = "隱藏這些來源的文字:";
 L["TalkingHead Option Condition WorldQuest"] = TRACKER_HEADER_WORLD_QUESTS or "世界任務";
 L["TalkingHead Option Condition WorldQuest Tooltip"] = "隱藏世界任務的對話頭像。\n有時在接取世界任務之前就會觸發的對話頭像無法隱藏。";
@@ -120,6 +121,10 @@ L["ModuleDescription Navigator_Dreamseed"] = "使用導航系統引導你到夢�
 L["Priority New Seeds"] = "尋找新種子";
 L["Priority Rewards"] = "收集獎勵";
 L["Stop Tracking Dreamseed Tooltip"] = "停止追蹤種子直到你用左鍵點擊地圖標記。";
+
+--BlizzFixWardrobeTrackingTip (Permanently disable the tip for wardrobe shortcuts)
+L["ModuleName BlizzFixWardrobeTrackingTip"] = "暴雪修正: 衣櫃說明";
+L["ModuleDescription BlizzFixWardrobeTrackingTip"] = "隱藏衣櫃的教學說明按鈕。";
 
 --Rare/Location Announcement
 L["Announce Location Tooltip"] = "在聊天頻道中分享這個位置。";
