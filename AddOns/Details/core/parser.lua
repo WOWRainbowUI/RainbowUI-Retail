@@ -4783,9 +4783,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--["SPELL_CAST_FAILED"] = parser.spell_fail
 	}
 
-	--[==[@debug@
+	--[===[@debug@
 	Details.token_list = token_list
-	--@end-debug@]==]
+	--@end-debug@]===]
 
 	--serach key: ~capture
 
