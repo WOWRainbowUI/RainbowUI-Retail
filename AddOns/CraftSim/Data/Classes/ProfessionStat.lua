@@ -2,6 +2,7 @@
 local CraftSim = select(2, ...)
 
 ---@class CraftSim.ProfessionStat
+---@overload fun(name: string, value: number?, percentMod: number?): CraftSim.ProfessionStat
 CraftSim.ProfessionStat = CraftSim.Object:extend()
 
 local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.DATAEXPORT)
@@ -53,44 +54,51 @@ end
 
 -- Used by Inspiration only
 function CraftSim.ProfessionStat:GetExtraValueByFactor()
-    return (self.extraValue*(1+self.extraFactor)) + self.extraValueAfterFactor
+    return (self.extraValue * (1 + self.extraFactor)) + self.extraValueAfterFactor
 end
 
 ---@param value number
 function CraftSim.ProfessionStat:addValue(value)
     self.value = self.value + value
 end
+
 ---@param factor number
 function CraftSim.ProfessionStat:addFactor(factor)
     self.extraFactor = self.extraFactor + factor
 end
+
 ---@param extraValue number
 function CraftSim.ProfessionStat:addExtraValue(extraValue)
     self.extraValue = self.extraValue + extraValue
 end
+
 ---@param extraValueAfterFactor number
 function CraftSim.ProfessionStat:addExtraValueAfterFactor(extraValueAfterFactor)
     self.extraValueAfterFactor = self.extraValueAfterFactor + extraValueAfterFactor
 end
+
 ---@param value number
 function CraftSim.ProfessionStat:subtractValue(value)
     self.value = self.value - value
 end
+
 ---@param factor number
 function CraftSim.ProfessionStat:subtractFactor(factor)
     self.extraFactor = self.extraFactor - factor
 end
+
 ---@param extraValue number
 function CraftSim.ProfessionStat:subtractExtraValue(extraValue)
     self.extraValue = self.extraValue - extraValue
 end
+
 ---@param extraValueAfterFactor number
 function CraftSim.ProfessionStat:subtractExtraValueAfterFactor(extraValueAfterFactor)
     self.extraValueAfterFactor = self.extraValueAfterFactor - extraValueAfterFactor
 end
 
 function CraftSim.ProfessionStat:GetJSON(indent)
-	indent = indent or 0
+    indent = indent or 0
     local jb = CraftSim.JSONBuilder(indent)
     jb:Begin()
     jb:Add("name", self.name)
@@ -101,4 +109,39 @@ function CraftSim.ProfessionStat:GetJSON(indent)
     jb:Add("extraValueAfterFactor", self.extraValueAfterFactor, true)
     jb:End()
     return jb.json
+end
+
+---@class CraftSim.ProfessionStat.Serialized
+---@field name string
+---@field value number
+---@field percentMod number
+---@field extraFactor number
+---@field extraValue number
+---@field extraValueAfterFactor number
+
+---@return CraftSim.ProfessionStat.Serialized
+function CraftSim.ProfessionStat:Serialize()
+    ---@type CraftSim.ProfessionStat.Serialized
+    local serializedData = {
+        name = self.name,
+        value = self.value,
+        percentMod = self.percentMod,
+        extraFactor = self.extraFactor,
+        extraValue = self.extraValue,
+        extraValueAfterFactor = self.extraValueAfterFactor,
+    }
+    return serializedData
+end
+
+---@param serializedData CraftSim.ProfessionStat.Serialized
+function CraftSim.ProfessionStat:Deserialize(serializedData)
+    local professionStat = CraftSim.ProfessionStat()
+    professionStat.name = serializedData.name
+    professionStat.value = serializedData.value
+    professionStat.percentMod = serializedData.percentMod
+    professionStat.extraFactor = serializedData.extraFactor
+    professionStat.extraValue = serializedData.extraValue
+    professionStat.extraValueAfterFactor = serializedData.extraValueAfterFactor
+
+    return professionStat
 end

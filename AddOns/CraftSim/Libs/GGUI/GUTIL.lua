@@ -1,5 +1,4 @@
-
----@class GUTIL
+---@class GGUI_GUTIL
 GGUI_GUTIL = {}
 
 local GUTIL = GGUI_GUTIL
@@ -26,9 +25,8 @@ function Object:extend()
   return cls
 end
 
-
 function Object:implement(...)
-  for _, cls in pairs({...}) do
+  for _, cls in pairs({ ... }) do
     for k, v in pairs(cls) do
       if self[k] == nil and type(v) == "function" then
         self[k] = v
@@ -36,7 +34,6 @@ function Object:implement(...)
     end
   end
 end
-
 
 function Object:is(T)
   local mt = getmetatable(self)
@@ -49,11 +46,9 @@ function Object:is(T)
   return false
 end
 
-
 function Object:__tostring()
   return "Object"
 end
-
 
 function Object:__call(...)
   local obj = setmetatable({}, self)
@@ -69,15 +64,15 @@ if not GUTIL then return end
 ---@param itemLink string
 ---@return string? itemString
 function GUTIL:GetItemStringFromLink(itemLink)
-    return select(3, strfind(itemLink, "|H(.+)|h%["))
+  return select(3, strfind(itemLink, "|H(.+)|h%["))
 end
 
 ---Returns the quality of the item based on an item link if the item has a quality
 ---@param itemLink string
 ---@return number? qualityID
 function GUTIL:GetQualityIDFromLink(itemLink)
-    local qualityID = string.match(itemLink, "Quality%-Tier(%d+)")
-    return tonumber(qualityID)
+  local qualityID = string.match(itemLink, "Quality%-Tier(%d+)")
+  return tonumber(qualityID)
 end
 
 ---Returns the tooltip of an item as one string
@@ -87,18 +82,18 @@ function GUTIL:GetItemTooltipText(itemLink)
   local tooltipData = C_TooltipInfo.GetHyperlink(itemLink)
 
   if not tooltipData then
-      return ""
+    return ""
   end
 
   local tooltipText = ""
   for _, line in pairs(tooltipData.lines) do
-      local lineText = ""
-      for _, arg in pairs(line.args) do
-          if arg.stringVal then
-              lineText = lineText .. arg.stringVal
-          end
+    local lineText = ""
+    for _, arg in pairs(line.args) do
+      if arg.stringVal then
+        lineText = lineText .. arg.stringVal
       end
-      tooltipText = tooltipText .. lineText .. "\n"
+    end
+    tooltipText = tooltipText .. lineText .. "\n"
   end
 
   return tooltipText
@@ -111,9 +106,9 @@ end
 ---@return any? key
 function GUTIL:Find(t, findFunc)
   for k, v in pairs(t) do
-      if findFunc(v) then
-          return v, k
-      end
+    if findFunc(v) then
+      return v, k
+    end
   end
 
   return nil
@@ -123,9 +118,9 @@ end
 function GUTIL:Concat(tableList)
   local finalList = {}
   for _, currentTable in pairs(tableList) do
-      for _, item in pairs(currentTable) do
-          table.insert(finalList, item)
-      end
+    for _, item in pairs(currentTable) do
+      table.insert(finalList, item)
+    end
   end
   return finalList
 end
@@ -134,9 +129,9 @@ function GUTIL:ToSet(t)
   local set = {}
 
   for k, v in pairs(t) do
-      if not tContains(set, v) then
-          table.insert(set, v)
-      end
+    if not tContains(set, v) then
+      table.insert(set, v)
+    end
   end
 
   return set
@@ -149,50 +144,50 @@ function GUTIL:Map(t, mapFunc, options)
   options = options or {}
   local mapped = {}
   if not options.subTable then
-      for k, v in pairs(t) do
-          if options.isTableList then
-              if type(v) ~= "table" then
-                  error("GUTIL.Map: t contains a nontable element")
-              end
-              for subK, subV in pairs(v) do
-                  local mappedValue = mapFunc(subV, subK)
-                  if not mappedValue then
-                      error("GUTIL.Map: Did you forget to return in mapFunc?")
-                  end
-                  table.insert(mapped, mappedValue)
-              end
-          else
-              local mappedValue = mapFunc(v, k)
-              if mappedValue then
-                  table.insert(mapped, mappedValue)
-              end
+    for k, v in pairs(t) do
+      if options.isTableList then
+        if type(v) ~= "table" then
+          error("GUTIL.Map: t contains a nontable element")
+        end
+        for subK, subV in pairs(v) do
+          local mappedValue = mapFunc(subV, subK)
+          if not mappedValue then
+            error("GUTIL.Map: Did you forget to return in mapFunc?")
           end
+          table.insert(mapped, mappedValue)
+        end
+      else
+        local mappedValue = mapFunc(v, k)
+        if mappedValue then
+          table.insert(mapped, mappedValue)
+        end
       end
-      return mapped
+    end
+    return mapped
   else
-      for k, v in pairs(t) do
-          if not v[options.subTable] or type(v[options.subTable]) ~= "table" then
-              print("GUTIL.Map: given options.subTable is not existing or no table: " .. tostring(v[options.subTable]))
-          else
-              for subK, subV in pairs(v[options.subTable]) do
-                  local mappedValue = mapFunc(subV, subK)
-                  if not mappedValue then
-                      error("GUTIL.Map: Did you forget to return in mapFunc?")
-                  end
-                  table.insert(mapped, mappedValue)
-              end
+    for k, v in pairs(t) do
+      if not v[options.subTable] or type(v[options.subTable]) ~= "table" then
+        print("GUTIL.Map: given options.subTable is not existing or no table: " .. tostring(v[options.subTable]))
+      else
+        for subK, subV in pairs(v[options.subTable]) do
+          local mappedValue = mapFunc(subV, subK)
+          if not mappedValue then
+            error("GUTIL.Map: Did you forget to return in mapFunc?")
           end
+          table.insert(mapped, mappedValue)
+        end
       end
-      return mapped
+    end
+    return mapped
   end
 end
 
 function GUTIL:Filter(t, filterFunc)
   local filtered = {}
   for k, v in pairs(t) do
-      if filterFunc(v) then
-          table.insert(filtered, v)
-      end
+    if filterFunc(v) then
+      table.insert(filtered, v)
+    end
   end
   return filtered
 end
@@ -201,7 +196,7 @@ function GUTIL:CreateRegistreeForEvents(events)
   local registree = CreateFrame("Frame", nil)
   registree:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
   for _, event in pairs(events) do
-      registree:RegisterEvent(event)
+    registree:RegisterEvent(event)
   end
   return registree
 end
@@ -212,35 +207,35 @@ end
 function GUTIL:ValidateMoneyString(moneyString)
   -- check if the string matches the pattern
   if not string.match(moneyString, "^%d*g?%d*s?%d*c?$") then
-      return false
+    return false
   end
 
   -- check if the string contains at least one of g, s, or c
   if not string.match(moneyString, "[gsc]") then
-      return false
+    return false
   end
 
   -- check if the string contains multiple g, s, or c
   if string.match(moneyString, "g.*g") then
-      return false
-    end
-    if string.match(moneyString, "s.*s") then
-      return false
-    end
-    if string.match(moneyString, "c.*c") then
-      return false
-    end
-    
-    -- check if it ends incorrectly
-    if string.match(moneyString, "%d$") then
-      return false
-    end
-    
-    -- check if the string contains invalid characters
-    if string.match(moneyString, "[^%dgsc]") then
-      return false
-    end
-    
+    return false
+  end
+  if string.match(moneyString, "s.*s") then
+    return false
+  end
+  if string.match(moneyString, "c.*c") then
+    return false
+  end
+
+  -- check if it ends incorrectly
+  if string.match(moneyString, "%d$") then
+    return false
+  end
+
+  -- check if the string contains invalid characters
+  if string.match(moneyString, "[^%dgsc]") then
+    return false
+  end
+
   -- all checks passed, the string is valid
   return true
 end
@@ -252,15 +247,15 @@ end
 ---@return number?
 ---@return number?
 function GUTIL:GetMoneyValuesFromCopper(copperValue, formatString)
-    local gold = GUTIL:Round(copperValue/10000)
-    local silver = GUTIL:Round(copperValue/100000)
-    local copper = GUTIL:Round(copperValue/10000000)
+  local gold = GUTIL:Round(copperValue / 10000)
+  local silver = GUTIL:Round(copperValue / 100000)
+  local copper = GUTIL:Round(copperValue / 10000000)
 
-    if not formatString then
-        return tonumber(gold) or 0, tonumber(silver) or 0, tonumber(copper) or 0
-    else
-        return gold .. "g " .. silver .. "s " .. copper .. "c"
-    end
+  if not formatString then
+    return tonumber(gold) or 0, tonumber(silver) or 0, tonumber(copper) or 0
+  else
+    return gold .. "g " .. silver .. "s " .. copper .. "c"
+  end
 end
 
 ---Colorizes a Text based on a color in GUTIL.COLORS (hex with alpha prefix)
@@ -273,6 +268,7 @@ function GUTIL:ColorizeText(text, color)
   return startLine .. color .. text .. endLine
 end
 
+---@enum GUTIL.COLORS
 GUTIL.COLORS = {
   GREEN = "ff00FF00",
   RED = "ffFF0000",
@@ -288,7 +284,85 @@ GUTIL.COLORS = {
   SILVER = "ffdadada",
   COPPER = "ffc9803c",
   PATREON = "ffff424D",
+  WHISPER = "ffff80ff",
+  WHITE = "ffffffff",
 }
+---@enum GUTIL.CLASS_COLORS
+GUTIL.CLASS_COLORS = {
+  WARRIOR = "ffc79c6e", -- #C79C6E
+  ARMS = "ffc79c6e",
+  FURY = "ffc79c6e",
+  PROTECTION = "ffc79c6e",
+
+  PALADIN = "fff58cba", -- #F58CBA
+  HOLY = "fff58cba",
+  RETRIBUTION = "fff58cba",
+  PROTECTION_PALADIN = "fff58cba",
+
+  HUNTER = "ffabd473", -- #ABD473
+  BEAST_MASTERY = "ffabd473",
+  MARKSMANSHIP = "ffabd473",
+  SURVIVAL = "ffabd473",
+
+  ROGUE = "fffff569", -- #FFF569
+  ASSASSINATION = "fffff569",
+  OUTLAW = "fffff569",
+  SUBTLETY = "fffff569",
+
+  PRIEST = "ffffffff", -- #FFFFFF
+  DISCIPLINE = "ffffffff",
+  HOLY_PRIEST = "ffffffff",
+  SHADOW = "ffffffff",
+
+  DEATHKNIGHT = "ffc41f3b", -- #C41F3B
+  BLOOD = "ffc41f3b",
+  FROST = "ffc41f3b",
+  UNHOLY = "ffc41f3b",
+
+  SHAMAN = "ff0070de", -- #0070DE
+  ELEMENTAL = "ff0070de",
+  ENHANCEMENT = "ff0070de",
+  RESTORATION = "ff0070de",
+
+  MAGE = "ff69ccf0", -- #69CCF0
+  ARCANE = "ff69ccf0",
+  FIRE = "ff69ccf0",
+  FROST_MAGE = "ff69ccf0",
+
+  WARLOCK = "ff9482c9", -- #9482C9
+  AFFLICTION = "ff9482c9",
+  DEMONOLOGY = "ff9482c9",
+  DESTRUCTION = "ff9482c9",
+
+  MONK = "ff00ff96", -- #00FF96
+  BREWMASTER = "ff00ff96",
+  MISTWEAVER = "ff00ff96",
+  WINDWALKER = "ff00ff96",
+
+  DRUID = "ffff7d0a", -- #FF7D0A
+  BALANCE = "ffff7d0a",
+  FERAL = "ffff7d0a",
+  GUARDIAN = "ffff7d0a",
+  RESTORATION_DRUID = "ffff7d0a",
+
+  DEMONHUNTER = "ffa330c9", -- #A330C9
+  HAVOC = "ffa330c9",
+  VENGEANCE = "ffa330c9",
+
+  EVOKER = "ff33937f", -- #33937F
+  AUGMENTATION = "ff33937f",
+  DEVASTATION = "ff33937f",
+  PRESERVATION = "ff33937f",
+}
+
+-- Thanks to arkinventory
+function GUTIL:StripColor(text)
+  local text = text or ""
+  text = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "")
+  text = string.gsub(text, "|c%x%x %x%x%x%x%x", "") -- the trading parts colour has a space instead of a zero for some weird reason
+  text = string.gsub(text, "|r", "")
+  return text
+end
 
 function GUTIL:FormatMoney(copperValue, useColor, percentRelativeTo)
   local absValue = abs(copperValue)
@@ -297,25 +371,25 @@ function GUTIL:FormatMoney(copperValue, useColor, percentRelativeTo)
   local percentageText = ""
 
   if percentRelativeTo then
-      local oneP = percentRelativeTo / 100
-      local percent = GUTIL:Round(copperValue / oneP, 0)
+    local oneP = percentRelativeTo / 100
+    local percent = GUTIL:Round(copperValue / oneP, 0)
 
-      if oneP == 0 then
-          percent = 0
-      end
+    if oneP == 0 then
+      percent = 0
+    end
 
-      percentageText = " (" .. percent .. "%)"
+    percentageText = " (" .. percent .. "%)"
   end
 
   if copperValue < 0 then
-      minusText = "-"
-      color = GUTIL.COLORS.RED
+    minusText = "-"
+    color = GUTIL.COLORS.RED
   end
 
   if useColor then
-      return GUTIL:ColorizeText(minusText .. GetCoinTextureString(absValue, 10) .. percentageText, color)
+    return GUTIL:ColorizeText(minusText .. GetCoinTextureString(absValue, 10) .. percentageText, color)
   else
-      return minusText .. GetCoinTextureString(absValue, 10) .. percentageText
+    return minusText .. GetCoinTextureString(absValue, 10) .. percentageText
   end
 end
 
@@ -330,12 +404,12 @@ end
 
 ---@param itemList ItemMixin[]
 ---@param callback function
-function GUTIL:ContinueOnAllItemsLoaded(itemList, callback) 
+function GUTIL:ContinueOnAllItemsLoaded(itemList, callback)
   local itemsToLoad = #itemList
-      if itemsToLoad == 0 then
-          callback()
-      end
-  local itemLoaded = function ()
+  if itemsToLoad == 0 then
+    callback()
+  end
+  local itemLoaded = function()
     itemsToLoad = itemsToLoad - 1
 
     if itemsToLoad <= 0 then
@@ -351,17 +425,17 @@ function GUTIL:ContinueOnAllItemsLoaded(itemList, callback)
 end
 
 function GUTIL:EquipItemByLink(link)
-	for bag=BANK_CONTAINER, NUM_BAG_SLOTS+NUM_BANKBAGSLOTS do
-		for slot=1,C_Container.GetContainerNumSlots(bag) do
-			local item = C_Container.GetContainerItemLink(bag, slot)
-			if item and item == link then
-				if CursorHasItem() or CursorHasMoney() or CursorHasSpell() then ClearCursor() end
-				C_Container.PickupContainerItem(bag, slot)
-				AutoEquipCursorItem()
-				return true
-			end
-		end
-	end
+  for bag = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
+    for slot = 1, C_Container.GetContainerNumSlots(bag) do
+      local item = C_Container.GetContainerItemLink(bag, slot)
+      if item and item == link then
+        if CursorHasItem() or CursorHasMoney() or CursorHasSpell() then ClearCursor() end
+        C_Container.PickupContainerItem(bag, slot)
+        AutoEquipCursorItem()
+        return true
+      end
+    end
+  end
 end
 
 function GUTIL:isItemSoulbound(itemID)
@@ -376,11 +450,11 @@ end
 function GUTIL:Count(t, func)
   local count = 0
   for _, v in pairs(t) do
-      if func and func(v) then
-          count = count + 1
-      elseif not func then
-          count = count + 1
-      end
+    if func and func(v) then
+      count = count + 1
+    elseif not func then
+      count = count + 1
+    end
   end
 
   return count
@@ -389,22 +463,22 @@ end
 function GUTIL:Sort(t, compFunc)
   local sorted = {}
   for _, item in pairs(t) do
-      if sorted[1] == nil then
-          table.insert(sorted, item)
-      else
-          local inserted = false
-          for sortedIndex, sortedItem in pairs(sorted) do
-              if compFunc(item, sortedItem) then
-                  table.insert(sorted, sortedIndex, item)
-                  inserted = true
-                  break
-              end
-          end
-
-          if not inserted then
-              table.insert(sorted, item)
-          end
+    if sorted[1] == nil then
+      table.insert(sorted, item)
+    else
+      local inserted = false
+      for sortedIndex, sortedItem in pairs(sorted) do
+        if compFunc(item, sortedItem) then
+          table.insert(sorted, sortedIndex, item)
+          inserted = true
+          break
+        end
       end
+
+      if not inserted then
+        table.insert(sorted, item)
+      end
+    end
   end
 
   return sorted
@@ -413,31 +487,31 @@ end
 function GUTIL:Fold(t, foldFunction, startAtZero)
   local foldedValue = nil
   if #t < 2 and not startAtZero then
-      return t[1]
+    return t[1]
   elseif #t < 1 and startAtZero then
-      return t[0]
+    return t[0]
   end
 
   local startIndex = 1
   if startAtZero then
-      startIndex = 0
+    startIndex = 0
   end
   for index = startIndex, #t, 1 do
-      if foldedValue == nil then
-          foldedValue = foldFunction(t[startIndex], t[startIndex + 1])
-      elseif index < #t then
-          foldedValue = foldFunction(foldedValue, t[index+1])
-      end
+    if foldedValue == nil then
+      foldedValue = foldFunction(t[startIndex], t[startIndex + 1])
+    elseif index < #t then
+      foldedValue = foldFunction(foldedValue, t[index + 1])
+    end
   end
 
   return foldedValue
 end
 
-function GUTIL:IconToText(iconPath, height, width) 
+function GUTIL:IconToText(iconPath, height, width)
   if not width then
-      return "\124T" .. iconPath .. ":" .. height .. "\124t"
+    return "\124T" .. iconPath .. ":" .. height .. "\124t"
   else
-      return "\124T" .. iconPath .. ":" .. height .. ":" .. width .. "\124t"
+    return "\124T" .. iconPath .. ":" .. height .. ":" .. width .. "\124t"
   end
 end
 
@@ -452,5 +526,5 @@ function GUTIL:ValidateNumberString(str, min, max, allowDecimals)
   if (min and num < min) or (max and num > max) then
     return false -- Outside specified range
   end
-  return true -- Valid number within range
+  return true    -- Valid number within range
 end

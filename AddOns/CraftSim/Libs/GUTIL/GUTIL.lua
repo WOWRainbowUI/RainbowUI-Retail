@@ -1,8 +1,6 @@
-
-
-
----@class GUTIL
-local GUTIL = LibStub:NewLibrary("GUTIL", 1) or LibStub:GetLibrary("GUTIL")
+---@class GUTIL-2.0
+local GUTIL = LibStub:NewLibrary("GUTIL-2.0", 5)
+if not GUTIL then return end
 
 --- CLASSICS insert
 local Object = {}
@@ -26,9 +24,8 @@ function Object:extend()
   return cls
 end
 
-
 function Object:implement(...)
-  for _, cls in pairs({...}) do
+  for _, cls in pairs({ ... }) do
     for k, v in pairs(cls) do
       if self[k] == nil and type(v) == "function" then
         self[k] = v
@@ -36,7 +33,6 @@ function Object:implement(...)
     end
   end
 end
-
 
 function Object:is(T)
   local mt = getmetatable(self)
@@ -49,11 +45,9 @@ function Object:is(T)
   return false
 end
 
-
 function Object:__tostring()
   return "Object"
 end
-
 
 function Object:__call(...)
   local obj = setmetatable({}, self)
@@ -69,15 +63,15 @@ if not GUTIL then return end
 ---@param itemLink string
 ---@return string? itemString
 function GUTIL:GetItemStringFromLink(itemLink)
-    return select(3, strfind(itemLink, "|H(.+)|h%["))
+  return select(3, strfind(itemLink, "|H(.+)|h%["))
 end
 
 ---Returns the quality of the item based on an item link if the item has a quality
 ---@param itemLink string
 ---@return number? qualityID
 function GUTIL:GetQualityIDFromLink(itemLink)
-    local qualityID = string.match(itemLink, "Quality%-Tier(%d+)")
-    return tonumber(qualityID)
+  local qualityID = string.match(itemLink, "Quality%-Tier(%d+)")
+  return tonumber(qualityID)
 end
 
 function GUTIL:StringStartsWith(mainString, prefix)
@@ -88,56 +82,76 @@ function GUTIL:GetItemTooltipText(itemLink)
   local tooltipData = C_TooltipInfo.GetHyperlink(itemLink)
 
   if not tooltipData then
-      return ""
+    return ""
   end
 
   local tooltipText = ""
   for _, line in pairs(tooltipData.lines) do
-      local lineText = ""
-      for _, arg in pairs(line.args) do
-          if arg.stringVal then
-              lineText = lineText .. arg.stringVal
-          end
+    local lineText = ""
+    for _, arg in pairs(line.args) do
+      if arg.stringVal then
+        lineText = lineText .. arg.stringVal
       end
-      tooltipText = tooltipText .. lineText .. "\n"
+    end
+    tooltipText = tooltipText .. lineText .. "\n"
   end
 
   return tooltipText
 end
 
 ---Finds the first element in the table where findFunc(element) returns true
----@param t any
----@param findFunc any
----@return any? element
----@return any? key
+---@generic K
+---@generic V
+---@param t table<K, V>
+---@param findFunc fun(value: V): boolean
+---@return V? element
+---@return K? key
 function GUTIL:Find(t, findFunc)
   for k, v in pairs(t) do
-      if findFunc(v) then
-          return v, k
-      end
+    if findFunc(v) then
+      return v, k
+    end
   end
 
   return nil
 end
 
--- to concat lists together (behaviour unpredictable with tables that have strings or not ordered numbers as indices)
+--- to concat lists together (behaviour unpredictable with tables that have strings or not ordered numbers as indices)
+---@generic V
+---@param tableList table<number, V[]>
+---@return V[]
 function GUTIL:Concat(tableList)
   local finalList = {}
   for _, currentTable in pairs(tableList) do
-      for _, item in pairs(currentTable) do
-          table.insert(finalList, item)
-      end
+    for _, item in pairs(currentTable) do
+      table.insert(finalList, item)
+    end
   end
   return finalList
 end
 
-function GUTIL:ToSet(t)
+---makes a table unique
+---@generic V
+---@param t V[]
+---@param compareFunc? fun(element: V): any return a value with that the elements should be compared with
+---@return V[]
+function GUTIL:ToSet(t, compareFunc)
   local set = {}
 
-  for k, v in pairs(t) do
-      if not tContains(set, v) then
-          table.insert(set, v)
+  if not compareFunc then
+    for _, element in pairs(t) do
+      if not tContains(set, element) then
+        table.insert(set, element)
       end
+    end
+  else
+    for _, element in pairs(t) do
+      if not GUTIL:Some(set, function(setElement)
+            return compareFunc(element) == compareFunc(setElement)
+          end) then
+        table.insert(set, element)
+      end
+    end
   end
 
   return set
@@ -150,58 +164,63 @@ end
 --- maps a table to another table by calling mapFunc for each element. If the mapFunc returns nil the element will be skipped
 ---@generic K
 ---@generic V
+---@generic R
 ---@param t table<K, V>
----@param mapFunc fun(value:V, key:K): any
+---@param mapFunc fun(value:V, key:K): R
 ---@param options GUTIL.MapOptions?
----@return table mappedTable
+---@return R[]
 function GUTIL:Map(t, mapFunc, options)
   options = options or {}
   local mapped = {}
   if not options.subTable then
-      for k, v in pairs(t) do
-          if options.isTableList then
-              if type(v) ~= "table" then
-                  error("GUTIL.Map: t contains a nontable element")
-              end
-              for subK, subV in pairs(v) do
-                  local mappedValue = mapFunc(subV, subK)
-                  if not mappedValue then
-                      error("GUTIL.Map: Did you forget to return in mapFunc?")
-                  end
-                  table.insert(mapped, mappedValue)
-              end
-          else
-              local mappedValue = mapFunc(v, k)
-              if mappedValue then
-                  table.insert(mapped, mappedValue)
-              end
+    for k, v in pairs(t) do
+      if options.isTableList then
+        if type(v) ~= "table" then
+          error("GUTIL.Map: t contains a nontable element")
+        end
+        for subK, subV in pairs(v) do
+          local mappedValue = mapFunc(subV, subK)
+          if not mappedValue then
+            error("GUTIL.Map: Did you forget to return in mapFunc?")
           end
+          table.insert(mapped, mappedValue)
+        end
+      else
+        local mappedValue = mapFunc(v, k)
+        if mappedValue then
+          table.insert(mapped, mappedValue)
+        end
       end
-      return mapped
+    end
+    return mapped
   else
-      for k, v in pairs(t) do
-          if not v[options.subTable] or type(v[options.subTable]) ~= "table" then
-              print("GUTIL.Map: given options.subTable is not existing or no table: " .. tostring(v[options.subTable]))
-          else
-              for subK, subV in pairs(v[options.subTable]) do
-                  local mappedValue = mapFunc(subV, subK)
-                  if not mappedValue then
-                      error("GUTIL.Map: Did you forget to return in mapFunc?")
-                  end
-                  table.insert(mapped, mappedValue)
-              end
+    for k, v in pairs(t) do
+      if not v[options.subTable] or type(v[options.subTable]) ~= "table" then
+        print("GUTIL.Map: given options.subTable is not existing or no table: " .. tostring(v[options.subTable]))
+      else
+        for subK, subV in pairs(v[options.subTable]) do
+          local mappedValue = mapFunc(subV, subK)
+          if not mappedValue then
+            error("GUTIL.Map: Did you forget to return in mapFunc?")
           end
+          table.insert(mapped, mappedValue)
+        end
       end
-      return mapped
+    end
+    return mapped
   end
 end
 
+---@generic V
+---@param t V[]
+---@param filterFunc fun(value: V): boolean
+---@return V[]
 function GUTIL:Filter(t, filterFunc)
   local filtered = {}
   for k, v in pairs(t) do
-      if filterFunc(v) then
-          table.insert(filtered, v)
-      end
+    if filterFunc(v) then
+      table.insert(filtered, v)
+    end
   end
   return filtered
 end
@@ -210,7 +229,7 @@ function GUTIL:CreateRegistreeForEvents(events)
   local registree = CreateFrame("Frame", nil)
   registree:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
   for _, event in pairs(events) do
-      registree:RegisterEvent(event)
+    registree:RegisterEvent(event)
   end
   return registree
 end
@@ -221,33 +240,33 @@ end
 function GUTIL:ValidateMoneyString(moneyString)
   -- check if the string matches the pattern
   if not string.match(moneyString, "^%d*g?%d*s?%d*c?$") then
-      return false
+    return false
   end
 
   -- check if the string contains at least one of g, s, or c
   if not string.match(moneyString, "[gsc]") then
-      return false
+    return false
   end
 
   -- check if the string contains multiple g, s, or c
   if string.match(moneyString, "g.*g") then
-      return false
+    return false
   end
   if string.match(moneyString, "s.*s") then
-      return false
+    return false
   end
   if string.match(moneyString, "c.*c") then
-      return false
+    return false
   end
 
   -- check if it ends incorrectly
   if string.match(moneyString, "%d$") then
-      return false
+    return false
   end
 
   -- check if the string contains invalid characters
   if string.match(moneyString, "[^%dgsc]") then
-      return false
+    return false
   end
 
   -- all checks passed, the string is valid
@@ -261,15 +280,15 @@ end
 ---@return number?
 ---@return number?
 function GUTIL:GetMoneyValuesFromCopper(copperValue, formatString)
-    local gold = GUTIL:Round(copperValue/10000)
-    local silver = GUTIL:Round(copperValue/100000)
-    local copper = GUTIL:Round(copperValue/10000000)
+  local gold = math.floor(copperValue / 10000)
+  local silver = math.floor(copperValue % 10000 / 100)
+  local copper = math.floor(copperValue % 100)
 
-    if not formatString then
-        return tonumber(gold) or 0, tonumber(silver) or 0, tonumber(copper) or 0
-    else
-        return gold .. "g " .. silver .. "s " .. copper .. "c"
-    end
+  if not formatString then
+    return gold, silver, copper
+  else
+    return gold .. "g " .. silver .. "s " .. copper .. "c"
+  end
 end
 
 ---Colorizes a Text based on a color in GUTIL.COLORS (hex with alpha prefix)
@@ -282,6 +301,7 @@ function GUTIL:ColorizeText(text, color)
   return startLine .. color .. text .. endLine
 end
 
+---@enum GUTIL.COLORS
 GUTIL.COLORS = {
   GREEN = "ff00FF00",
   RED = "ffFF0000",
@@ -297,42 +317,122 @@ GUTIL.COLORS = {
   SILVER = "ffdadada",
   COPPER = "ffc9803c",
   PATREON = "ffff424D",
-  WHISPER = "ffff80ff"
+  WHISPER = "ffff80ff",
+  WHITE = "ffffffff",
 }
+
+---@enum GUTIL.CLASS_COLORS
+GUTIL.CLASS_COLORS = {
+  WARRIOR = "ffc79c6e", -- #C79C6E
+  ARMS = "ffc79c6e",
+  FURY = "ffc79c6e",
+  PROTECTION = "ffc79c6e",
+
+  PALADIN = "fff58cba", -- #F58CBA
+  HOLY = "fff58cba",
+  RETRIBUTION = "fff58cba",
+  PROTECTION_PALADIN = "fff58cba",
+
+  HUNTER = "ffabd473", -- #ABD473
+  BEAST_MASTERY = "ffabd473",
+  MARKSMANSHIP = "ffabd473",
+  SURVIVAL = "ffabd473",
+
+  ROGUE = "fffff569", -- #FFF569
+  ASSASSINATION = "fffff569",
+  OUTLAW = "fffff569",
+  SUBTLETY = "fffff569",
+
+  PRIEST = "ffffffff", -- #FFFFFF
+  DISCIPLINE = "ffffffff",
+  HOLY_PRIEST = "ffffffff",
+  SHADOW = "ffffffff",
+
+  DEATHKNIGHT = "ffc41f3b", -- #C41F3B
+  BLOOD = "ffc41f3b",
+  FROST = "ffc41f3b",
+  UNHOLY = "ffc41f3b",
+
+  SHAMAN = "ff0070de", -- #0070DE
+  ELEMENTAL = "ff0070de",
+  ENHANCEMENT = "ff0070de",
+  RESTORATION = "ff0070de",
+
+  MAGE = "ff69ccf0", -- #69CCF0
+  ARCANE = "ff69ccf0",
+  FIRE = "ff69ccf0",
+  FROST_MAGE = "ff69ccf0",
+
+  WARLOCK = "ff9482c9", -- #9482C9
+  AFFLICTION = "ff9482c9",
+  DEMONOLOGY = "ff9482c9",
+  DESTRUCTION = "ff9482c9",
+
+  MONK = "ff00ff96", -- #00FF96
+  BREWMASTER = "ff00ff96",
+  MISTWEAVER = "ff00ff96",
+  WINDWALKER = "ff00ff96",
+
+  DRUID = "ffff7d0a", -- #FF7D0A
+  BALANCE = "ffff7d0a",
+  FERAL = "ffff7d0a",
+  GUARDIAN = "ffff7d0a",
+  RESTORATION_DRUID = "ffff7d0a",
+
+  DEMONHUNTER = "ffa330c9", -- #A330C9
+  HAVOC = "ffa330c9",
+  VENGEANCE = "ffa330c9",
+
+  EVOKER = "ff33937f", -- #33937F
+  AUGMENTATION = "ff33937f",
+  DEVASTATION = "ff33937f",
+  PRESERVATION = "ff33937f",
+}
+
+-- Thanks to arkinventory
+function GUTIL:StripColor(text)
+  local text = text or ""
+  text = string.gsub(text, "|c%x%x%x%x%x%x%x%x", "")
+  text = string.gsub(text, "|c%x%x %x%x%x%x%x", "") -- the trading parts colour has a space instead of a zero for some weird reason
+  text = string.gsub(text, "|r", "")
+  return text
+end
 
 function GUTIL:GetPercentRelativeTo(value, hundredPercentValue)
   local oneP = hundredPercentValue / 100
-      local percent = GUTIL:Round(value / oneP, 0)
+  local percent = GUTIL:Round(value / oneP, 0)
 
-      if oneP == 0 then
-          percent = 0
-      end
-      return percent
+  if oneP == 0 then
+    percent = 0
+  end
+  return percent
 end
 
 --- formats the given copper value as gold, silver and copper display with icons
 ---@param copperValue number
----@param useColor boolean -- colors the numbers green if positive and red if negative
+---@param useColor? boolean -- colors the numbers green if positive and red if negative
 ---@param percentRelativeTo number? if included: will be treated as 100% and a % value in relation to the coppervalue will be added
-function GUTIL:FormatMoney(copperValue, useColor, percentRelativeTo)
+---@param separateThousands? boolean
+function GUTIL:FormatMoney(copperValue, useColor, percentRelativeTo, separateThousands)
+  copperValue = GUTIL:Round(copperValue) -- there is no such thing as decimal coppers (we no fuel station here)
   local absValue = abs(copperValue)
   local minusText = ""
   local color = GUTIL.COLORS.GREEN
   local percentageText = ""
 
   if percentRelativeTo then
-      percentageText = " (" .. GUTIL:GetPercentRelativeTo(copperValue, percentRelativeTo) .. "%)"
+    percentageText = " (" .. GUTIL:GetPercentRelativeTo(copperValue, percentRelativeTo) .. "%)"
   end
 
   if copperValue < 0 then
-      minusText = "-"
-      color = GUTIL.COLORS.RED
+    minusText = "-"
+    color = GUTIL.COLORS.RED
   end
 
   if useColor then
-      return GUTIL:ColorizeText(minusText .. GetCoinTextureString(absValue, 10) .. percentageText, color)
+    return GUTIL:ColorizeText(minusText .. GetMoneyString(absValue, separateThousands) .. percentageText, color)
   else
-      return minusText .. GetCoinTextureString(absValue, 10) .. percentageText
+    return minusText .. GetMoneyString(absValue, separateThousands) .. percentageText
   end
 end
 
@@ -348,45 +448,45 @@ end
 --- returns an ItemLocationMixin if found in the players bags or optional also bank
 ---@param itemID number
 ---@param includeBank boolean?
----@return ItemLocationMixin | nil itemLocation 
+---@return ItemLocationMixin | nil itemLocation
 function GUTIL:GetItemLocationFromItemID(itemID, includeBank)
   includeBank = includeBank or false
-    local function FindBagAndSlot(itemID) 
-      for bag = 0, NUM_BAG_SLOTS do
-        for slot = 1, C_Container.GetContainerNumSlots(bag) do
-            local slotItemID = C_Container.GetContainerItemID(bag, slot)
-            if slotItemID == itemID then
-                return bag, slot
-            end
+  local function FindBagAndSlot(itemID)
+    for bag = 0, NUM_BAG_SLOTS do
+      for slot = 1, C_Container.GetContainerNumSlots(bag) do
+        local slotItemID = C_Container.GetContainerItemID(bag, slot)
+        if slotItemID == itemID then
+          return bag, slot
         end
       end
-      if includeBank then
-        for bag = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
-          for slot = 1, C_Container.GetContainerNumSlots(bag) do
-              local slotItemID = C_Container.GetContainerItemID(bag, slot)
-              if slotItemID == itemID then
-                  return bag, slot
-              end
+    end
+    if includeBank then
+      for bag = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
+        for slot = 1, C_Container.GetContainerNumSlots(bag) do
+          local slotItemID = C_Container.GetContainerItemID(bag, slot)
+          if slotItemID == itemID then
+            return bag, slot
           end
         end
       end
     end
-    local bag, slot = FindBagAndSlot(itemID)
+  end
+  local bag, slot = FindBagAndSlot(itemID)
 
-    if bag and slot then
-      return ItemLocation:CreateFromBagAndSlot(bag, slot)
-    end
-    return nil -- Return nil if not found
+  if bag and slot then
+    return ItemLocation:CreateFromBagAndSlot(bag, slot)
+  end
+  return nil -- Return nil if not found
 end
 
 ---@param itemList ItemMixin[]
 ---@param callback function
-function GUTIL:ContinueOnAllItemsLoaded(itemList, callback) 
+function GUTIL:ContinueOnAllItemsLoaded(itemList, callback)
   local itemsToLoad = #itemList
-      if itemsToLoad == 0 then
-          callback()
-      end
-  local itemLoaded = function ()
+  if itemsToLoad == 0 then
+    callback()
+  end
+  local itemLoaded = function()
     itemsToLoad = itemsToLoad - 1
 
     if itemsToLoad <= 0 then
@@ -401,18 +501,33 @@ function GUTIL:ContinueOnAllItemsLoaded(itemList, callback)
   end
 end
 
+---@param conditionCallback fun(): boolean
+---@param callback function will be executed as soon as the condition is fulfilled
+---@param checkInterval number? Seconds - Default: 0 (once per frame).
+function GUTIL:WaitFor(conditionCallback, callback, checkInterval)
+  local function checkCondition()
+    if conditionCallback() then
+      callback()
+    else
+      C_Timer.After(checkInterval or 0, checkCondition)
+    end
+  end
+
+  checkCondition()
+end
+
 function GUTIL:EquipItemByLink(link)
-	for bag=BANK_CONTAINER, NUM_BAG_SLOTS+NUM_BANKBAGSLOTS do
-		for slot=1,C_Container.GetContainerNumSlots(bag) do
-			local item = C_Container.GetContainerItemLink(bag, slot)
-			if item and item == link then
-				if CursorHasItem() or CursorHasMoney() or CursorHasSpell() then ClearCursor() end
-				C_Container.PickupContainerItem(bag, slot)
-				AutoEquipCursorItem()
-				return true
-			end
-		end
-	end
+  for bag = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
+    for slot = 1, C_Container.GetContainerNumSlots(bag) do
+      local item = C_Container.GetContainerItemLink(bag, slot)
+      if item and item == link then
+        if CursorHasItem() or CursorHasMoney() or CursorHasSpell() then ClearCursor() end
+        C_Container.PickupContainerItem(bag, slot)
+        AutoEquipCursorItem()
+        return true
+      end
+    end
+  end
 end
 
 function GUTIL:isItemSoulbound(itemID)
@@ -425,34 +540,39 @@ function GUTIL:GetQualityIconString(qualityID, sizeX, sizeY, offsetX, offsetY)
 end
 
 --- Counts the number of items that return true for the given function
----@param t table
----@param func function
+---@generic K
+---@generic V
+---@param t table<K, V>
+---@param func fun(value: V): boolean
 ---@return number count
 function GUTIL:Count(t, func)
   local count = 0
   for _, v in pairs(t) do
-      if func and func(v) then
-          count = count + 1
-      elseif not func then
-          count = count + 1
-      end
+    if func and func(v) then
+      count = count + 1
+    elseif not func then
+      count = count + 1
+    end
   end
 
   return count
 end
 
 --- Returns true if any of the table's items resolves to true for the given function
----@param t table
----@param func function 
----@return boolean 
+---@generic K
+---@generic V
+---@param t table<K, V>
+---@param func fun(value: V): boolean
+---@return boolean
 function GUTIL:Some(t, func)
-    return self:Count(t, func) > 0
+  return self:Count(t, func) > 0
 end
 
 --- Returns true if all of the table's items resolve to true for the given function
----@param t table
----@param func function 
----@return boolean 
+---@generic V
+---@param t V[]
+---@param func fun(element: V):boolean
+---@return boolean
 function GUTIL:Every(t, func)
   local tableCount = self:Count(t)
   return self:Count(t, func) == tableCount
@@ -499,16 +619,16 @@ end
 ---@return number result 0 if same 1 if left is greater, -1 if left is smaller
 function GUTIL:CompareVersionStrings(versionA, versionB)
   local function compareSubversions(subversionA, subversionB)
-      for i = 1, math.max(#subversionA, #subversionB) do
-          local numA = tonumber(subversionA[i]) or 0
-          local numB = tonumber(subversionB[i]) or 0
-          if numA < numB then
-              return -1
-          elseif numA > numB then
-              return 1
-          end
+    for i = 1, math.max(#subversionA, #subversionB) do
+      local numA = tonumber(subversionA[i]) or 0
+      local numB = tonumber(subversionB[i]) or 0
+      if numA < numB then
+        return -1
+      elseif numA > numB then
+        return 1
       end
-      return 0
+    end
+    return 0
   end
 
   local subversionA = strsplit(versionA)
@@ -527,21 +647,21 @@ end
 function GUTIL:Fold(t, foldFunction, startAtZero)
   local foldedValue = nil
   if #t < 2 and not startAtZero then
-      return t[1]
+    return t[1]
   elseif #t < 1 and startAtZero then
-      return t[0]
+    return t[0]
   end
 
   local startIndex = 1
   if startAtZero then
-      startIndex = 0
+    startIndex = 0
   end
   for index = startIndex, #t, 1 do
-      if foldedValue == nil then
-          foldedValue = foldFunction(t[startIndex], t[startIndex + 1])
-      elseif index < #t then
-          foldedValue = foldFunction(foldedValue, t[index+1])
-      end
+    if foldedValue == nil then
+      foldedValue = foldFunction(t[startIndex], t[startIndex + 1])
+    elseif index < #t then
+      foldedValue = foldFunction(foldedValue, t[index + 1])
+    end
   end
 
   return foldedValue
@@ -563,11 +683,11 @@ function GUTIL:Split(t, splitFunc)
   return tableA, tableB
 end
 
-function GUTIL:IconToText(iconPath, height, width) 
+function GUTIL:IconToText(iconPath, height, width)
   if not width then
-      return "\124T" .. iconPath .. ":" .. height .. "\124t"
+    return "\124T" .. iconPath .. ":" .. height .. "\124t"
   else
-      return "\124T" .. iconPath .. ":" .. height .. ":" .. width .. "\124t"
+    return "\124T" .. iconPath .. ":" .. height .. ":" .. width .. "\124t"
   end
 end
 
@@ -582,22 +702,69 @@ function GUTIL:ValidateNumberString(str, min, max, allowDecimals)
   if (min and num < min) or (max and num > max) then
     return false -- Outside specified range
   end
-  return true -- Valid number within range
+  return true    -- Valid number within range
 end
 
 ---@param timestampHigher number unix seconds
 ---@param timestampBLower number unix seconds
 ---@return integer dayDiff
 function GUTIL:GetDaysBetweenTimestamps(timestampHigher, timestampBLower)
-        -- Calculate the difference in seconds
-        local differenceInSeconds = math.abs(timestampHigher - timestampBLower)
+  -- Calculate the difference in seconds
+  local differenceInSeconds = math.abs(timestampHigher - timestampBLower)
 
-        -- Convert seconds to days
-        local secondsInADay = 24 * 60 * 60 -- 24 hours * 60 minutes * 60 seconds
-        local differenceInDays = differenceInSeconds / secondsInADay
+  -- Convert seconds to days
+  local secondsInADay = 24 * 60 * 60 -- 24 hours * 60 minutes * 60 seconds
+  local differenceInDays = differenceInSeconds / secondsInADay
 
-        -- Round to the nearest whole number of days
-        differenceInDays = math.floor(differenceInDays + 0.5)
+  -- Round to the nearest whole number of days
+  differenceInDays = math.floor(differenceInDays + 0.5)
 
-        return differenceInDays
+  return differenceInDays
+end
+
+--- spreads the iteration (unsorted random) of a given function over multiple frames (one frame per iteration) to reduce game lag for heavy processing.
+--- Use the finallyCallback to continue after the iteration ends
+---@async
+---@generic K
+---@generic V
+---@param t table<K, V> the table to be iterated on
+---@param iterationFunction fun(key:K, value:V, counter:number):boolean|nil called for each iteration of the given table, if the function returns false iteration will be stopped
+---@param finallyCallback? function called after the iteration ends
+---@param maxIterations? integer maximum number of iterations. Default is nil meaning no maximum
+---@param maxMS? number maximum time in ms after the iteration is canceled
+function GUTIL:FrameDistributedIteration(t, iterationFunction, finallyCallback, maxIterations, maxMS)
+  --- map the keys of the table to indexes
+  local iterationCounter = 1
+  local startMS = GetTime() * 1000
+  local currentIterationKey = nil
+  local currentTableValue = nil
+  local function iterate()
+    currentIterationKey, currentTableValue = next(t, currentIterationKey)
+
+    if not currentIterationKey then
+      -- no more elements - end iterations
+      if finallyCallback then
+        finallyCallback()
+      end
+      return
+    end
+
+    local result = iterationFunction(currentIterationKey, currentTableValue, iterationCounter)
+    local stopIteration = result ~= nil and result == false
+    iterationCounter = iterationCounter + 1
+    local elapsedMS = (GetTime() * 1000) - startMS
+    local secondsReached = maxMS and (maxMS <= elapsedMS)
+    local iterationsReached = iterationCounter > maxIterations
+
+    if stopIteration or iterationsReached or secondsReached then
+      if finallyCallback then
+        finallyCallback()
+      end
+      return
+    else
+      RunNextFrame(iterate)
+    end
+  end
+
+  iterate()
 end

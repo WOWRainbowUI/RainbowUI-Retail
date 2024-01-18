@@ -1,6 +1,9 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
+local GUTIL = CraftSim.GUTIL
+
+---@class CraftSim.SIMULATION_MODE
 CraftSim.SIMULATION_MODE = {}
 
 CraftSim.SIMULATION_MODE.isActive = false
@@ -15,7 +18,7 @@ function CraftSim.SIMULATION_MODE:ResetSpecData()
     CraftSim.SIMULATION_MODE.specializationData = CraftSim.SIMULATION_MODE.recipeData.specializationData:Copy()
 
     CraftSim.SIMULATION_MODE.FRAMES:InitSpecModBySpecData() -- revert
-    CraftSim.MAIN:TriggerModulesErrorSafe()
+    CraftSim.MAIN:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:MaxSpecData()
@@ -30,7 +33,7 @@ function CraftSim.SIMULATION_MODE:MaxSpecData()
 
     CraftSim.SIMULATION_MODE.specializationData:UpdateProfessionStats()
     CraftSim.SIMULATION_MODE.FRAMES:InitSpecModBySpecData() -- update
-    CraftSim.MAIN:TriggerModulesErrorSafe()
+    CraftSim.MAIN:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:OnSpecModified(userInput, nodeModFrame)
@@ -38,7 +41,7 @@ function CraftSim.SIMULATION_MODE:OnSpecModified(userInput, nodeModFrame)
     if not userInput or not recipeData then
         return
     end
-    
+
     local inputNumber = CraftSim.UTIL:ValidateNumberInput(nodeModFrame.input, true)
 
     print("startinput after validation: " .. inputNumber)
@@ -54,7 +57,8 @@ function CraftSim.SIMULATION_MODE:OnSpecModified(userInput, nodeModFrame)
 
     -- update specdata
     ---@type CraftSim.NodeData
-    local nodeData = CraftSim.GUTIL:Find(CraftSim.SIMULATION_MODE.specializationData.nodeData, function(nodeData) return nodeData.nodeID == nodeModFrame.nodeID end)
+    local nodeData = GUTIL:Find(CraftSim.SIMULATION_MODE.specializationData.nodeData,
+        function(nodeData) return nodeData.nodeID == nodeModFrame.nodeID end)
     if not nodeData then
         return
     end
@@ -71,14 +75,14 @@ function CraftSim.SIMULATION_MODE:OnSpecModified(userInput, nodeModFrame)
 
     CraftSim.SIMULATION_MODE.specializationData:UpdateProfessionStats()
 
-    CraftSim.MAIN:TriggerModulesErrorSafe()
+    CraftSim.MAIN:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:OnStatModifierChanged(userInput)
     if not userInput then
         return
     end
-    CraftSim.MAIN:TriggerModulesErrorSafe()
+    CraftSim.MAIN:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:OnInputAllocationChanged(inputBox, userInput)
@@ -101,7 +105,7 @@ function CraftSim.SIMULATION_MODE:OnInputAllocationChanged(inputBox, userInput)
         inputBox:SetText(inputNumber)
     end
 
-    CraftSim.MAIN:TriggerModulesErrorSafe()
+    CraftSim.MAIN:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:AllocateAllByQuality(qualityID)
@@ -109,11 +113,10 @@ function CraftSim.SIMULATION_MODE:AllocateAllByQuality(qualityID)
     local reagentOverwriteFrame = simulationModeFrames.reagentOverwriteFrame
 
     for _, currentInput in pairs(reagentOverwriteFrame.reagentOverwriteInputs) do
-
         if currentInput.isActive then
             for i = 1, 3, 1 do
                 local allocationForQuality = 0
-                if i == qualityID then 
+                if i == qualityID then
                     allocationForQuality = currentInput["inputq" .. i].requiredQuantityValue
                 elseif qualityID == 0 then
                     allocationForQuality = 0
@@ -124,7 +127,7 @@ function CraftSim.SIMULATION_MODE:AllocateAllByQuality(qualityID)
         end
     end
 
-    CraftSim.MAIN:TriggerModulesErrorSafe()
+    CraftSim.MAIN:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:UpdateProfessionStatModifiersByInputs()
@@ -169,7 +172,7 @@ function CraftSim.SIMULATION_MODE:UpdateProfessionStatModifiersByInputs()
         local multicraftMod = CraftSim.UTIL:ValidateNumberInput(simulationModeFrames.multicraftMod, true)
         recipeData.professionStatModifiers.multicraft:addValue(multicraftMod)
     end
-    
+
     if recipeData.supportsResourcefulness then
         local resourcefulnessMod = CraftSim.UTIL:ValidateNumberInput(simulationModeFrames.resourcefulnessMod, true)
         recipeData.professionStatModifiers.resourcefulness:addValue(resourcefulnessMod)
@@ -185,16 +188,24 @@ function CraftSim.SIMULATION_MODE:UpdateRequiredReagentsByInputs()
     print("Update Reagent Input Frames:")
 
     local simulationModeFrames = CraftSim.SIMULATION_MODE.FRAMES:GetSimulationModeFramesByVisibility()
+
+    ---@type CraftSim.SimulationMode.ReagentOverwriteFrame
     local reagentOverwriteFrame = simulationModeFrames.reagentOverwriteFrame
+
+    reagentOverwriteFrame:SetStatus(tostring(GUTIL:Count(recipeData.reagentData.requiredReagents,
+        function(r) return r.hasQuality end)))
 
     --required
     local reagentList = {}
     -- update item allocations based on inputfields
     for _, overwriteInput in pairs(reagentOverwriteFrame.reagentOverwriteInputs) do
         if overwriteInput.isActive then
-            table.insert(reagentList, CraftSim.ReagentListItem(overwriteInput.inputq1.itemID, overwriteInput.inputq1:GetNumber()))
-            table.insert(reagentList, CraftSim.ReagentListItem(overwriteInput.inputq2.itemID, overwriteInput.inputq2:GetNumber()))
-            table.insert(reagentList, CraftSim.ReagentListItem(overwriteInput.inputq3.itemID, overwriteInput.inputq3:GetNumber()))
+            table.insert(reagentList,
+                CraftSim.ReagentListItem(overwriteInput.inputq1.itemID, overwriteInput.inputq1:GetNumber()))
+            table.insert(reagentList,
+                CraftSim.ReagentListItem(overwriteInput.inputq2.itemID, overwriteInput.inputq2:GetNumber()))
+            table.insert(reagentList,
+                CraftSim.ReagentListItem(overwriteInput.inputq3.itemID, overwriteInput.inputq3:GetNumber()))
         end
     end
 
@@ -204,8 +215,8 @@ function CraftSim.SIMULATION_MODE:UpdateRequiredReagentsByInputs()
     recipeData.reagentData:ClearOptionalReagents()
 
     local itemIDs = {}
-    for _, dropdown in pairs(reagentOverwriteFrame.optionalReagentFrames) do
-        local itemID = dropdown.selectedValue
+    for _, dropdown in pairs(reagentOverwriteFrame.optionalReagentItemSelectors) do
+        local itemID = dropdown.selectedItem and dropdown.selectedItem:GetItemID()
         if itemID then
             table.insert(itemIDs, itemID)
         end
@@ -217,8 +228,32 @@ end
 function CraftSim.SIMULATION_MODE:UpdateSimulationMode()
     CraftSim.SIMULATION_MODE:UpdateRequiredReagentsByInputs()
     CraftSim.SIMULATION_MODE:UpdateProfessionStatModifiersByInputs()
+    CraftSim.SIMULATION_MODE:UpdateRecipeDataBuffsBySimulatedBuffs()
     CraftSim.SIMULATION_MODE.recipeData:Update() -- update recipe Data by modifiers/reagents and such
     CraftSim.SIMULATION_MODE.FRAMES:UpdateCraftingDetailsPanel()
+end
+
+function CraftSim.SIMULATION_MODE:UpdateRecipeDataBuffsBySimulatedBuffs()
+    local print = CraftSim.UTIL:SetDebugPrint("BUFFDATA")
+    local recipeData = CraftSim.SIMULATION_MODE.recipeData
+
+    if not recipeData then return end
+
+    local exportMode = CraftSim.UTIL:GetExportModeByVisibility()
+
+    local craftBuffsFrame
+    if exportMode == CraftSim.CONST.EXPORT_MODE.NON_WORK_ORDER then
+        craftBuffsFrame = CraftSim.CRAFT_BUFFS.frame
+    else
+        craftBuffsFrame = CraftSim.CRAFT_BUFFS.frameWO
+    end
+
+    if not craftBuffsFrame then return end
+
+    local simulateBuffSelector = craftBuffsFrame.content.simulateBuffSelector
+
+    recipeData.buffData:SetBuffsByUIDToValueMap(simulateBuffSelector.selectedValues)
+    recipeData.buffData:UpdateProfessionStats()
 end
 
 function CraftSim.SIMULATION_MODE:InitializeSimulationMode(recipeData)
@@ -227,16 +262,16 @@ function CraftSim.SIMULATION_MODE:InitializeSimulationMode(recipeData)
     if not recipeData.isCooking and not recipeData.isOldWorldRecipe then
         CraftSim.SIMULATION_MODE.specializationData = recipeData.specializationData:Copy()
     end
-    
+
     -- update frame visiblity and initialize the input fields
     CraftSim.SIMULATION_MODE.FRAMES:UpdateVisibility()
     CraftSim.SIMULATION_MODE.FRAMES:InitReagentOverwriteFrames(CraftSim.SIMULATION_MODE.recipeData)
-    CraftSim.SIMULATION_MODE.FRAMES:InitOptionalReagentDropdowns(CraftSim.SIMULATION_MODE.recipeData)
+    CraftSim.SIMULATION_MODE.FRAMES:InitOptionalReagentItemSelectors(CraftSim.SIMULATION_MODE.recipeData)
     CraftSim.SIMULATION_MODE.FRAMES:InitSpecModBySpecData()
 
     -- -- update simulation recipe data and frontend
     CraftSim.SIMULATION_MODE:UpdateSimulationMode()
 
     -- recalculate modules
-    CraftSim.MAIN:TriggerModulesErrorSafe()
+    CraftSim.MAIN:TriggerModuleUpdate()
 end
