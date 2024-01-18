@@ -55,7 +55,7 @@ function CurrencyModule:Refresh()
         if xb.constants.playerLevel < MAX_PLAYER_LEVEL and db.modules.currency.showXPbar then
             self.xpBar:SetMinMaxValues(0, UnitXPMax('player'))
             self.xpBar:SetValue(UnitXP('player'))
-            self.xpText:SetText(string.upper(LEVEL .. ' ' .. UnitLevel("player") .. ' ' .. UnitClass('player')))
+            -- self.xpText:SetText(string.upper(LEVEL .. ' ' .. UnitLevel("player") .. ' ' .. UnitClass('player'))) -- 暫時修正
         end
         return
     end
