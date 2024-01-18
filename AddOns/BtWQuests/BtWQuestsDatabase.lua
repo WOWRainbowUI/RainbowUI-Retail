@@ -2206,12 +2206,26 @@ function RaceItemMixin:GetName(database, item, character, variation)
     local name
     if item.name then
         name = ItemMixin.GetName(self, database, item, character);
-    else
+    elseif item.id then
         local race = Races[item.id] or C_CreatureInfo.GetRaceInfo(item.id);
         name = race and race.raceName
+    elseif item.ids then
+        local names = {};
+        for id in ipairs(item.ids) do
+            local race = Races[id] or C_CreatureInfo.GetRaceInfo(id);
+            if race and race.raceName then
+                names[#names+1] = race.raceName
+            end
+        end
+        if #names > 1 then
+            local past = table.remove(names)
+            name = table.concat(names, ", ") .. ", and " .. past
+        else
+            name = table.concat(names, ", ")
+        end
     end
     
-    return name
+    return name or ""
 end
 function RaceItemMixin:IsCompleted(database, item, character)
     if item.id then
@@ -2226,12 +2240,26 @@ function ClassItemMixin:GetName(database, item, character, variation)
     local name
     if item.name then
         name = ItemMixin.GetName(self, database, item, character);
-    else
+    elseif item.id then
         local class = C_CreatureInfo.GetClassInfo(item.id);
         name = class and class.className
+    elseif item.ids then
+        local names = {};
+        for id in ipairs(item.ids) do
+            local class = C_CreatureInfo.GetClassInfo(id);
+            if class and class.className then
+                names[#names+1] = class.className
+            end
+        end
+        if #names > 1 then
+            local past = table.remove(names)
+            name = table.concat(names, ", ") .. ", and " .. past
+        else
+            name = table.concat(names, ", ")
+        end
     end
     
-    return name
+    return name or ""
 end
 function ClassItemMixin:IsCompleted(database, item, character)
     if item.id then
