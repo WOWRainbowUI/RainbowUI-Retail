@@ -15,7 +15,8 @@ L["+ Stack"] = "層數增加時"
 L["+ Stack & Duration"] = "層數與持續時間增加時"
 L["A 0-40 integer is required."] = "需要 0 ~ 40 的整數。"
 L["A positive integer is required."] = "需要正整數。"
-L["A UI reload is required.\nDo it now?"] = "需要重新載入介面。\n是否要現在立即重新載入?"
+L["A UI reload is required.\nDo it now?"] = [=[需要重新載入介面。
+是否要現在立即重新載入?]=]
 L["About"] = "關於"
 L["ABOUT"] = [=[Cell 團隊框架的靈感來主要來自 CompactRaid 與 Grid2，同時也稍微參考了 Aptechka 和 VuhDo。
 Cell 不輕量，也並非全能，其目標是提供良好的用戶體驗。
@@ -24,6 +25,7 @@ L["ACCEPTED"] = "已接受"
 L["Action"] = "動作"
 L["Add"] = "新增"
 L["Add new spell"] = "加入新法術"
+L["Added |T%d:0|t|cFFFF3030%s(%d)|r into debuff blacklist."] = "已將 |T%d:0|t|cFFFF3030%s(%d)|r 加入減益黑名單。"
 L["AFK"] = "暫離"
 L["Aggro (bar)"] = "仇恨 (條)"
 L["Aggro (blink)"] = "仇恨 (閃爍)"
@@ -191,10 +193,12 @@ L["Enable"] = "啟用"
 L["Enable Death Color"] = "啟用死亡顏色"
 L["Enable Full Health Color"] = "啟用滿血顏色"
 L["Enable Spotlight Frame"] = "啟用特別關注框架"
+L["enableBlacklistShortcut"] = "黑名單: Alt+Ctrl+右鍵"
 L["Enabled"] = "啟用"
 L["enableHighlight"] = "顯著標示單位按鈕"
 L["Ensure that other addons get the right unit button"] = "確保其他插件獲取到正確的單位按鈕"
-L["Enter: apply\nESC: discard"] = "Enter: 套用\nESC: 取消"
+L["Enter: apply\nESC: discard"] = [=[Enter: 套用
+ESC: 取消]=]
 L["Entire"] = "整個"
 L["Error"] = "錯誤"
 L["Even if disabled, the settings below affect \"Externals + Defensives\" indicator"] = "就算被停用，下列的設定也會對 \"減傷 (全部)\" 指示器生效"
@@ -207,6 +211,7 @@ L["Fade Out Menu"] = "淡出選單"
 L["Fade out menu buttons on mouseout"] = "滑鼠移開時淡出選單按鈕"
 L["Fade Out These Buttons"] = "淡出這些按鈕"
 L["fadeOut"] = "隨時間淡出"
+L["Filter Auto Switch"] = "過濾自動切換"
 L["first %d"] = "前 %d 個"
 L["Flash"] = "閃光"
 L["Focus"] = "專注"
@@ -257,6 +262,7 @@ L["Hide Blizzard Raid"] = "隱藏遊戲內建團隊框架"
 L["hide icon animation"] = "隱藏圖示動畫"
 L["Hide in Combat"] = "戰鬥中隱藏"
 L["Hide Placeholder Frames"] = "隱藏佔位框"
+L["Hide Self"] = "隱藏自己"
 L["Hide Self (Party Only)"] = "隱藏自己 (僅限小隊)"
 L["hideDamager"] = "隱藏傷害輸出"
 L["hideIfEmptyOrFull"] = "死亡或滿血時隱藏"
@@ -319,7 +325,10 @@ L["Magic"] = "魔法"
 L["Main"] = "主框架"
 L["many"] = "很多"
 L["Marks Bar"] = "標記工具列"
-L["marksTips"] = "\n|r目標標記\n左鍵: |cffffffff在目標上設置標記|r\n右鍵: |cffffffff將標記鎖定在目標上 (在你的隊伍中)|r"
+L["marksTips"] = [=[
+|r目標標記
+左鍵: |cffffffff在目標上設置標記|r
+右鍵: |cffffffff將標記鎖定在目標上 (在你的隊伍中)|r]=]
 L["Max Buttons"] = "按鈕數量"
 L["Max Columns"] = "最大列數"
 L["Max Icons"] = "最大顯示數量"
@@ -411,7 +420,10 @@ L["Profiles"] = "設定檔"
 L["Pull"] = "倒數"
 L["Pull in %d sec"] = "開怪還有 %d 秒"
 L["Pull timer cancelled"] = "開怪計時器已取消"
-L["pullTimerTips"] = "\n|r開怪倒數\n左鍵: |cffffffff開始倒數計時|r\n右鍵: |cffffffff取消倒數計時|r"
+L["pullTimerTips"] = [=[
+|r開怪倒數
+左鍵: |cffffffff開始倒數計時|r
+右鍵: |cffffffff取消倒數計時|r]=]
 L["PW:S"] = "真言術：盾"
 L["Quick Assist"] = "快速協助"
 L["Quick Cast"] = "快速施法"
@@ -427,7 +439,11 @@ L["raidRosterTips"] = "[右鍵] 助理，[Alt+右鍵] 移除。"
 L["Ready"] = "團確"
 L["Ready Check Icon"] = "準備確認圖示"
 L["ReadyCheck and PullTimer buttons"] = "準備確認和開怪倒數按鈕"
-L["readyCheckTips"] = "\n|r準備確認\n左鍵: |cffffffff準備確認|r\n右鍵: |cffffffff角色職責確認|r"
+L["readyCheckTips"] = [=[
+|r準備確認
+左鍵: |cffffffff準備確認|r
+右鍵: |cffffffff角色職責確認|r
+]=]
 L["Rect"] = "矩形"
 L["Remaining Time <"] = "剩餘時間 <"
 L["Remove"] = "移除"
@@ -455,7 +471,8 @@ L["Reset Offensive Spells"] = "重置爆發法術"
 L["reset Quick Assist for current spec"] = "重置快速協助 (當前專精)"
 L["RESET_CHARACTER"] = "從過舊的版本更新，需要重置角色設定檔"
 L["RESET_INCLUDES"] = "只包括滑鼠點擊施法和自動切換版面配置"
-L["RESET_YES_NO"] = "|cff22ff22是|r - 重置 Cell\n|cffff2222否|r - 我自己搞定"
+L["RESET_YES_NO"] = [=[|cff22ff22是|r - 重置 Cell
+|cffff2222否|r - 我自己搞定]=]
 L["Respond to all dispellable debuffs"] = "回應所有的可驅散減益"
 L["Respond to all requests from group members"] = "回應所有隊伍成員的請求"
 L["Respond to requests that are only sent to me"] = "只回應對我發送的請求"
@@ -510,6 +527,7 @@ L["Show units you care about more in a separate frame"] = "在單獨的框架中
 L["Show while in a party"] = "在隊伍中時顯示"
 L["Show while not in a group"] = "不在隊伍中時顯示"
 L["showAllSpells"] = "顯示所有法術"
+L["showAnimation"] = "顯示動畫效果"
 L["showBackground"] = "顯示背景"
 L["showDispelTypeIcons"] = "顯示驅散類型圖示"
 L["showDuration"] = "顯示持續時間文字"
@@ -529,6 +547,7 @@ L["Solo/Party"] = "單人/5人隊伍"
 L["Sort By Role (Party Only)"] = "依角色職責排序 (僅限小隊)"
 L["Spacing"] = "間距"
 L["Spec"] = "專精"
+L["Spec Filter"] = "依專精"
 L["Special Thanks"] = "特別感謝"
 L["SPELL"] = "法術"
 L["Spell"] = "法術"

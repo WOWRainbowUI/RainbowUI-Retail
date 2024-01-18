@@ -93,6 +93,12 @@ local function Cooldowns_ShowDuration(self, show)
     end
 end
 
+local function Cooldowns_ShowAnimation(self, show)
+    for i = 1, #self do
+        self[i]:ShowAnimation(show)
+    end
+end
+
 local function Cooldowns_UpdatePixelPerfect(self)
     P:Repoint(self)
     for i = 1, #self do
@@ -197,6 +203,7 @@ function I:CreateDefensiveCooldowns(parent)
     defensiveCooldowns.SetFont = Cooldowns_SetFont
     defensiveCooldowns.SetOrientation = Cooldowns_SetOrientation
     defensiveCooldowns.ShowDuration = Cooldowns_ShowDuration
+    defensiveCooldowns.ShowAnimation = Cooldowns_ShowAnimation
     defensiveCooldowns.UpdatePixelPerfect = Cooldowns_UpdatePixelPerfect
 
     for i = 1, 5 do
@@ -220,6 +227,7 @@ function I:CreateExternalCooldowns(parent)
     externalCooldowns.SetFont = Cooldowns_SetFont
     externalCooldowns.SetOrientation = Cooldowns_SetOrientation
     externalCooldowns.ShowDuration = Cooldowns_ShowDuration
+    externalCooldowns.ShowAnimation = Cooldowns_ShowAnimation
     externalCooldowns.UpdatePixelPerfect = Cooldowns_UpdatePixelPerfect
 
     for i = 1, 5 do
@@ -243,6 +251,7 @@ function I:CreateAllCooldowns(parent)
     allCooldowns.SetFont = Cooldowns_SetFont
     allCooldowns.SetOrientation = Cooldowns_SetOrientation
     allCooldowns.ShowDuration = Cooldowns_ShowDuration
+    allCooldowns.ShowAnimation = Cooldowns_ShowAnimation
     allCooldowns.UpdatePixelPerfect = Cooldowns_UpdatePixelPerfect
 
     for i = 1, 5 do
@@ -265,6 +274,7 @@ function I:CreateTankActiveMitigation(parent)
     bar:SetReverseFill(true)
 
     local tex = bar:CreateTexture(nil, "BORDER", nil, -1)
+    bar.tex = tex
     tex:SetColorTexture(F:GetClassColor(Cell.vars.playerClass))
     tex:SetPoint("TOPLEFT")
     tex:SetPoint("BOTTOMRIGHT", bar:GetStatusBarTexture(), "BOTTOMLEFT")
@@ -279,11 +289,20 @@ function I:CreateTankActiveMitigation(parent)
     end)
 
     function bar:SetCooldown(start, duration)
-        if not parent.state.class then parent.state.class = select(2, UnitClass(parent.state.unit)) end --? why sometimes parent.state.class == nil ???
-        tex:SetColorTexture(F:GetClassColor(parent.state.class))
+        if bar.cType == "class_color" then
+            if not parent.state.class then parent.state.class = UnitClassBase(parent.state.unit) end --? why sometimes parent.state.class == nil ???
+            tex:SetColorTexture(F:GetClassColor(parent.state.class))
+        else
+            tex:SetColorTexture(bar.cTable[1], bar.cTable[2], bar.cTable[3])
+        end
         bar:SetMinMaxValues(0, duration)
         bar:SetValue(GetTime()-start)
         bar:Show()
+    end
+
+    function bar:SetColor(cType, cTable)
+        bar.cType = cType
+        bar.cTable = cTable
     end
 end
 
@@ -399,6 +418,12 @@ local function Debuffs_ShowDuration(self, show)
     end
 end
 
+local function Debuffs_ShowAnimation(self, show)
+    for i = 1, 10 do
+        self[i]:ShowAnimation(show)
+    end
+end
+
 local function Debuffs_UpdatePixelPerfect(self)
     P:Repoint(self)
     for i = 1, 10 do
@@ -424,21 +449,53 @@ function I:CreateDebuffs(parent)
     debuffs.SetOrientation = Debuffs_SetOrientation
 
     debuffs.ShowDuration = Debuffs_ShowDuration
+    debuffs.ShowAnimation = Debuffs_ShowAnimation
     debuffs.UpdatePixelPerfect = Debuffs_UpdatePixelPerfect
 
     function debuffs:ShowTooltip(show)
+        debuffs.showTooltip = show
+
         for i = 1, 10 do
             if show then
-                debuffs[i]:SetScript("OnEnter", function()
-                    F:ShowTooltips(parent, "spell", parent.state.displayedUnit, debuffs[i].index, "HARMFUL")
+                debuffs[i]:SetScript("OnEnter", function(self)
+                    F:ShowTooltips(parent, "spell", parent.state.displayedUnit, self.index, "HARMFUL")
                 end)
+                
                 debuffs[i]:SetScript("OnLeave", function()
                     GameTooltip:Hide()
                 end)
             else
                 debuffs[i]:SetScript("OnEnter", nil)
                 debuffs[i]:SetScript("OnLeave", nil)
-                debuffs[i]:EnableMouse(false)
+                if not debuffs.enableBlacklistShortcut then debuffs[i]:EnableMouse(false) end
+            end
+        end
+    end
+
+    function debuffs:EnableBlacklistShortcut(enabled)
+        debuffs.enableBlacklistShortcut = enabled
+
+        for i = 1, 10 do
+            if enabled then
+                debuffs[i]:SetScript("OnMouseUp", function(self, button, isInside)
+                    if button == "RightButton" and isInside and IsLeftAltKeyDown() and IsLeftControlKeyDown()
+                        and self.spellId and not F:TContains(CellDB["debuffBlacklist"], self.spellId) then
+                        -- print msg
+                        local name, _, icon = GetSpellInfo(self.spellId)
+                        if name and icon then
+                            F:Print(L["Added |T%d:0|t|cFFFF3030%s(%d)|r into debuff blacklist."]:format(icon, name, self.spellId))
+                        end
+                        -- update db
+                        tinsert(CellDB["debuffBlacklist"], self.spellId)
+                        Cell.vars.debuffBlacklist = F:ConvertTable(CellDB["debuffBlacklist"])
+                        Cell:Fire("UpdateIndicators", Cell.vars.currentLayout, "", "debuffBlacklist")
+                        -- refresh
+                        F:ReloadIndicatorOptions(Cell.defaults.indicatorIndices.debuffs)
+                    end
+                end)
+            else
+                debuffs[i]:SetScript("OnMouseUp", nil)
+                if not debuffs.showTooltip then debuffs[i]:EnableMouse(false) end
             end
         end
     end
@@ -468,7 +525,7 @@ local function Dispels_SetSize(self, width, height)
     self.height = height
 
     self:_SetSize(width, height)
-    for i = 1, 4 do
+    for i = 1, 5 do
         self[i]:SetSize(width, height)
     end
 
@@ -493,7 +550,7 @@ local function Dispels_UpdateSize(self, iconsShown)
             height = self.height + (iconsShown - 1) * floor(self.height / 2)
         end
     else
-        for i = 1, 4 do
+        for i = 1, 5 do
             if self[i]:IsShown() then
                 if self.orientation == "horizontal"  then
                     width = self.width + (i - 1) * floor(self.width / 2)
@@ -509,38 +566,42 @@ local function Dispels_UpdateSize(self, iconsShown)
     self:_SetSize(width, height)
 end
 
+local dispelOrder = {"Magic", "Curse", "Disease", "Poison", "Bleed"}
 local function Dispels_SetDispels(self, dispelTypes)
     local r, g, b = 0, 0, 0
     local found
 
     self.highlight:Hide()
 
-    local i = 1
-    for dispelType, showHighlight in pairs(dispelTypes) do
-        -- highlight
-        if not found and self.highlightType ~= "none" and dispelType and showHighlight then
-            found = true
-            local r, g, b = I:GetDebuffTypeColor(dispelType)
-            if self.highlightType == "entire" then
-                self.highlight:SetVertexColor(r, g, b, 0.5)
-            elseif self.highlightType == "current" then
-                self.highlight:SetVertexColor(r, g, b, 1)
-            elseif self.highlightType == "gradient" or self.highlightType == "gradient-half" then
-                self.highlight:SetGradient("VERTICAL", CreateColor(r, g, b, 1), CreateColor(r, g, b, 0))
+    local i = 0
+    for _, dispelType in ipairs(dispelOrder) do
+        local showHighlight = dispelTypes[dispelType]
+        if type(showHighlight) == "boolean" then
+            -- highlight
+            if not found and self.highlightType ~= "none" and dispelType and showHighlight then
+                found = true
+                local r, g, b = I:GetDebuffTypeColor(dispelType)
+                if self.highlightType == "entire" then
+                    self.highlight:SetVertexColor(r, g, b, 0.5)
+                elseif self.highlightType == "current" then
+                    self.highlight:SetVertexColor(r, g, b, 1)
+                elseif self.highlightType == "gradient" or self.highlightType == "gradient-half" then
+                    self.highlight:SetGradient("VERTICAL", CreateColor(r, g, b, 1), CreateColor(r, g, b, 0))
+                end
+                self.highlight:Show()
             end
-            self.highlight:Show()
-        end
-        -- icons
-        if self.showIcons then
-            self[i]:SetDispel(dispelType)
-            i = i + 1
+            -- icons
+            if self.showIcons then
+                i = i + 1
+                self[i]:SetDispel(dispelType)
+            end
         end
     end
 
     self:UpdateSize(i)
 
     -- hide unused
-    for j = i, 5 do
+    for j = i+1, 5 do
         self[j]:Hide()
     end
 end
@@ -575,7 +636,7 @@ local function Dispels_SetOrientation(self, orientation)
         self.orientation = "vertical"
     end
     
-    for i = 1, 4 do
+    for i = 1, 5 do
         self[i]:ClearAllPoints()
         if i == 1 then
             self[i]:SetPoint(point)
@@ -1179,6 +1240,7 @@ local startTimeCache = {}
 function I:CreateStatusText(parent)
     local statusText = CreateFrame("Frame", parent:GetName().."StatusText", parent.widget.overlayFrame)
     parent.indicators.statusText = statusText
+    statusText:SetIgnoreParentAlpha(true)
     statusText:Hide()
 
     statusText.bg = statusText:CreateTexture(nil, "ARTWORK")

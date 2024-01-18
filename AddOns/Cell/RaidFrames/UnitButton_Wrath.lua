@@ -223,7 +223,7 @@ local function HandleIndicators(b)
             B:UpdateHealthText(b)
         end
         -- update color
-        if t["color"] then
+        if t["color"] and t["indicatorName"] ~= "nameText" then
             indicator:SetColor(unpack(t["color"]))
         end
         -- update colors
@@ -245,6 +245,10 @@ local function HandleIndicators(b)
         -- update duration
         if type(t["showDuration"]) == "boolean" or type(t["showDuration"]) == "number" then
             indicator:ShowDuration(t["showDuration"])
+        end
+        -- update animation
+        if type(t["showAnimation"]) == "boolean" then
+            indicator:ShowAnimation(t["showAnimation"])
         end
         -- update stack
         if type(t["showStack"]) == "boolean" then
@@ -283,6 +287,10 @@ local function HandleIndicators(b)
         -- tooltip
         if type(t["showTooltip"]) == "boolean" then
             indicator:ShowTooltip(t["showTooltip"])
+        end
+        -- blacklist shortcut
+        if type(t["enableBlacklistShortcut"]) == "boolean" then
+            indicator:EnableBlacklistShortcut(t["enableBlacklistShortcut"])
         end
         -- speed
         if t["speed"] then
@@ -515,18 +523,20 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 B:UpdateHealthText(b)
             end, true)
         elseif setting == "color" then
-            F:IterateAllUnitButtons(function(b)
-                local indicator = b.indicators[indicatorName]
-                indicator:SetColor(unpack(value))
-            end, true)
+            if indicatorName == "nameText" then
+                F:IterateAllUnitButtons(function(b)
+                    UnitButton_UpdateNameColor(b)
+                end, true)
+            else
+                F:IterateAllUnitButtons(function(b)
+                    local indicator = b.indicators[indicatorName]
+                    indicator:SetColor(unpack(value))
+                end, true)
+            end
         elseif setting == "customColors" then --! NOTE: 其他的colors不调用widget.func，不发出通知，因为这些指示器都使用OnUpdate更新颜色。
             F:IterateAllUnitButtons(function(b)
                 local indicator = b.indicators[indicatorName]
                 indicator:SetColors(value)
-            end, true)
-        elseif setting == "nameColor" then
-            F:IterateAllUnitButtons(function(b)
-                UnitButton_UpdateNameColor(b)
             end, true)
         elseif setting == "vehicleNamePosition" then
             F:IterateAllUnitButtons(function(b)
@@ -628,6 +638,11 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                     b.indicators[indicatorName]:ShowStack(value2)
                     UnitButton_UpdateAuras(b)
                 end, true)
+            elseif value == "showAnimation" then
+                F:IterateAllUnitButtons(function(b)
+                    b.indicators[indicatorName]:ShowAnimation(value2)
+                    UnitButton_UpdateAuras(b)
+                end, true)
             elseif value == "trackByName" then
                 F:IterateAllUnitButtons(function(b)
                     UnitButton_UpdateAuras(b)
@@ -635,6 +650,10 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             elseif value == "showTooltip" then
                 F:IterateAllUnitButtons(function(b)
                     b.indicators[indicatorName]:ShowTooltip(value2)
+                end, true)
+            elseif value == "enableBlacklistShortcut" then
+                F:IterateAllUnitButtons(function(b)
+                    b.indicators[indicatorName]:EnableBlacklistShortcut(value2)
                 end, true)
             elseif value == "circledStackNums" then
                 F:IterateAllUnitButtons(function(b)
@@ -697,8 +716,12 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                     indicator:SetTexture(value["texture"])
                 end
                 -- update showDuration
-                if value["showDuration"] then
+                if type(value["showDuration"]) ~= "nil" then
                     indicator:ShowDuration(value["showDuration"])
+                end
+                -- update showAnimation
+                if type(value["showAnimation"]) == "boolean" then
+                    indicator:ShowAnimation(value["showAnimation"])
                 end
                 -- update showStack
                 if value["showStack"] then
@@ -934,21 +957,23 @@ local function UnitButton_UpdateDebuffs(self)
     if enabledIndicators["debuffs"] then
         -- bigDebuffs first
         for debuffIndex, refreshing in pairs(self._debuffs_big) do
-            local name, icon, count, debuffType, duration, expirationTime = UnitDebuff(unit, debuffIndex)
+            local name, icon, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitDebuff(unit, debuffIndex)
             if name and not self._debuffs_raid_shown[debuffIndex] and startIndex <= indicatorNums["debuffs"] then
                 -- start, duration, debuffType, texture, count, refreshing
                 self.indicators.debuffs[startIndex]:SetCooldown(expirationTime - duration, duration, debuffType or "", icon, count, refreshing, true)
                 self.indicators.debuffs[startIndex].index = debuffIndex -- NOTE: for tooltip
+                self.indicators.debuffs[startIndex].spellId = spellId -- NOTE: for blacklist
                 startIndex = startIndex + 1
             end
         end
         -- then normal debuffs
         for debuffIndex, refreshing in pairs(self._debuffs_normal) do
-            local name, icon, count, debuffType, duration, expirationTime = UnitDebuff(unit, debuffIndex)
+            local name, icon, count, debuffType, duration, expirationTime, _, _, _, spellId = UnitDebuff(unit, debuffIndex)
             if name and not self._debuffs_raid_shown[debuffIndex] and startIndex <= indicatorNums["debuffs"] then
                 -- start, duration, debuffType, texture, count, refreshing
                 self.indicators.debuffs[startIndex]:SetCooldown(expirationTime - duration, duration, debuffType or "", icon, count, refreshing)
                 self.indicators.debuffs[startIndex].index = debuffIndex -- NOTE: for tooltip
+                self.indicators.debuffs[startIndex].spellId = spellId -- NOTE: for blacklist
                 startIndex = startIndex + 1
             end
         end
@@ -958,6 +983,7 @@ local function UnitButton_UpdateDebuffs(self)
     self.indicators.debuffs:UpdateSize(startIndex - 1)
     for i = startIndex, 10 do
         self.indicators.debuffs[i].index = nil
+        self.indicators.debuffs[i].spellId = nil
     end
 
     -- update dispels
@@ -1470,17 +1496,12 @@ UnitButton_UpdatePowerMax = function(self)
     if not unit then return end
 
     local value = UnitPowerMax(unit)
-    if value > 0 then
-        if barAnimationType == "Smooth" then
-            self.widget.powerBar:SetMinMaxSmoothedValue(0, value)
-        else
-            self.widget.powerBar:SetMinMaxValues(0, value)
-        end
-        self.widget.powerBar:Show()
-        self.widget.powerBarLoss:Show()
+    if value < 0 then value = 0 end
+    
+    if barAnimationType == "Smooth" then
+        self.widget.powerBar:SetMinMaxSmoothedValue(0, value)
     else
-        self.widget.powerBar:Hide()
-        self.widget.powerBarLoss:Hide()
+        self.widget.powerBar:SetMinMaxValues(0, value)
     end
 end
 
@@ -1791,23 +1812,23 @@ UnitButton_UpdateNameColor = function(self)
         elseif UnitIsCharmed(unit) then
             nameText:SetColor(F:GetClassColor(self.state.class))
         else
-            if Cell.vars.currentLayoutTable["indicators"][1]["nameColor"][1] == "class_color" then
+            if Cell.vars.currentLayoutTable["indicators"][1]["color"][1] == "class_color" then
                 nameText:SetColor(F:GetClassColor(self.state.class))
             else
-                nameText:SetColor(unpack(Cell.vars.currentLayoutTable["indicators"][1]["nameColor"][2]))
+                nameText:SetColor(unpack(Cell.vars.currentLayoutTable["indicators"][1]["color"][2]))
             end
         end
     elseif string.find(unit, "pet") then -- pet
-        if Cell.vars.currentLayoutTable["indicators"][1]["nameColor"][1] == "class_color" then
+        if Cell.vars.currentLayoutTable["indicators"][1]["color"][1] == "class_color" then
             nameText:SetColor(0.5, 0.5, 1)
         else
-            nameText:SetColor(unpack(Cell.vars.currentLayoutTable["indicators"][1]["nameColor"][2]))
+            nameText:SetColor(unpack(Cell.vars.currentLayoutTable["indicators"][1]["color"][2]))
         end
     else -- npc
-        if Cell.vars.currentLayoutTable["indicators"][1]["nameColor"][1] == "class_color" then
+        if Cell.vars.currentLayoutTable["indicators"][1]["color"][1] == "class_color" then
             nameText:SetColor(0, 1, 0.2)
         else
-            nameText:SetColor(unpack(Cell.vars.currentLayoutTable["indicators"][1]["nameColor"][2]))
+            nameText:SetColor(unpack(Cell.vars.currentLayoutTable["indicators"][1]["color"][2]))
         end
     end
 end
@@ -2367,10 +2388,13 @@ local function UnitButton_OnEvent(self, event, unit)
     end
 end
 
+local timer
 local function EnterLeaveInstance()
-    C_Timer.After(1, function()
+    if timer then timer:Cancel() timer=nil end
+    timer = C_Timer.NewTimer(1, function()
         F:Debug("|cffff1111*** EnterLeaveInstance:|r UnitButton_UpdateAll")
         F:IterateAllUnitButtons(UnitButton_UpdateAll, true)
+        timer = nil
     end)
 end
 Cell:RegisterCallback("EnterInstance", "UnitButton_EnterInstance", EnterLeaveInstance)

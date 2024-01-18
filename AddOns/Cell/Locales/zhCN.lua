@@ -295,6 +295,7 @@ L["Group Spacing"] = "队伍间距"
 
 L["Sort By Role (Party Only)"] = "按职责排序（仅小队）"
 L["Hide Self (Party Only)"] = "隐藏自己（仅小队）"
+L["Hide Self"] = "隐藏自己"
 
 L["Use Same Size As Main"] = "使用与主框体相同的尺寸"
 L["Use Same Arrangement As Main"] = "使用与主框体相同的排列"
@@ -523,6 +524,7 @@ L["castByMe"] = "只显示我施放的增益"
 L["buffByMe"] = "只显示我能施放的增益"
 L["trackByName"] = "匹配法术名称"
 L["showDuration"] = "显示持续时间文本"
+L["showAnimation"] = "显示动画"
 L["showStack"] = "显示层数文本"
 -- L["Show duration text instead of icon animation"] = "用持续时间文本取代图标动画"
 L["enableHighlight"] = "高亮单位按钮"
@@ -532,6 +534,8 @@ L["Require font support"] = "需要字体支持"
 L["showTooltip"] = "显示鼠标提示"
 L["This will make these icons not click-through-able"] = "将会使这些图标无法点击穿透"
 L["Tooltips need to be enabled in General tab"] = "需要先启用常规页面中的鼠标提示功能"
+L["Added |T%d:0|t|cFFFF3030%s(%d)|r into debuff blacklist."] = "已将 |T%d:0|t|cFFFF3030%s(%d)|r 添加至减益黑名单。"
+L["enableBlacklistShortcut"] = "黑名单：Alt+Ctrl+RightClick"
 L["Only one threshold is displayed at a time"] = "同一时间只显示一个阈值"
 L["hideDamager"] = "隐藏伤害输出"
 L["hideInCombat"] = "战斗中隐藏"
@@ -725,9 +729,11 @@ L["Units Per Row"] = "每行单位数"
 L["Max Rows"] = "最大行数"
 L["Units Per Column"] = "每列单位数"
 L["Max Columns"] = "最大列数"
+L["Filter Auto Switch"] = "过滤自动切换"
 L["Unit Filter"] = "单位过滤"
 L["Role Filter"] = "按职责"
 L["Class Filter"] = "按职业"
+L["Spec Filter"] = "按专精"
 L["Name Filter"] = "按名字"
 L["toggle"] = "切换"
 L["change the order"] = "调整顺序"
@@ -802,6 +808,31 @@ L["Click to view older changelogs"] = "点击查看远古更新记录"
 L["CHANGELOGS"] = [[
     <h1>更新后如果有各种问题，先排查代码片段。</h1>
     <p>（正式服）如果指示器不能正常刷新，尝试启用常规页面下的“总是更新增益/减益”选项。</p>
+    <br/>
+
+    <h1>r215-release (Jan 18, 2024, 11:31 GMT+8)</h1>
+    <p>+ 为减益指示器添加了黑名单的快捷方式：Alt+Ctrl+右键（默认禁用）。</p>
+    <p>+ 为部分指示器添加了“显示动画”的选项。</p>
+    <p>+ （正式服）为坦克主动减伤指示器添加了“颜色”的选项。</p>
+    <p>* 更新小队职责顺序的选项（PR #102，感谢 abazilla）。</p>
+    <p>* （正式服）默认启用“总是更新减益”。</p>
+    <p>* 修复快速协助的专精过滤器。</p>
+    <p>* 修复预览模式的拖动按钮。</p>
+    <br/>
+
+    <h1>r214-release (Dec 30, 2023, 20:35 GMT+8)</h1>
+    <p>* 修复法术请求，更新 CELL_NOTIFY 的负载。</p>
+    <p>* 更新驱散类型的优先级：魔法 &gt; 诅咒 &gt; 疾病 &gt; 中毒 &gt; 流血。</p>
+    <p>* 更新繁中。</p>
+    <br/>
+
+    <h1>r213-release (Dec 26, 2023, 04:04 GMT+8)</h1>
+    <p>+ （正式服）更新快速协助，新增“专精过滤器”以及“过滤自动切换”。</p>
+    <p>* （正式服）更新智能复活，现在支持群体复活技能。</p>
+    <p>* 上调部分指示器的最大尺寸。</p>
+    <p>* 修复能量条显示异常的问题。</p>
+    <p>* 修复工具子菜单。</p>
+    <p>* 修复持续时间文本的着色异常。</p>
     <br/>
 
     <h1>r212-release (Dec 18, 2023, 19:54 GMT+8)</h1>
