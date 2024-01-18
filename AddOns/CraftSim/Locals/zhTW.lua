@@ -15,6 +15,19 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.ENCHANTED_MATCH_STRING] = "附魔：",
 
         -- OPTIONAL (Defaulting to EN if not available):
+        -- expansions
+
+        [CraftSim.CONST.TEXT.EXPANSION_VANILLA] = "經典時期",
+        [CraftSim.CONST.TEXT.EXPANSION_THE_BURNING_CRUSADE] = "燃燒的遠征",
+        [CraftSim.CONST.TEXT.EXPANSION_WRATH_OF_THE_LICH_KING] = "巫妖王之怒",
+        [CraftSim.CONST.TEXT.EXPANSION_CATACLYSM] = "浩劫與重生",
+        [CraftSim.CONST.TEXT.EXPANSION_MISTS_OF_PANDARIA] = "潘達利亞之謎",
+        [CraftSim.CONST.TEXT.EXPANSION_WARLORDS_OF_DRAENOR] = "德拉諾之霸",
+        [CraftSim.CONST.TEXT.EXPANSION_LEGION] = "軍臨天下",
+        [CraftSim.CONST.TEXT.EXPANSION_BATTLE_FOR_AZEROTH] = "決戰艾澤拉斯",
+        [CraftSim.CONST.TEXT.EXPANSION_SHADOWLANDS] = "暗影之境",
+        [CraftSim.CONST.TEXT.EXPANSION_DRAGONFLIGHT] = "巨龍崛起",
+
         -- Other Statnames
 
         [CraftSim.CONST.TEXT.STAT_SKILL] = "技能",
@@ -369,6 +382,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_TOOLS] = "最佳化專業工具",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_TOOLS_TOOLTIP] = "為每個配方最佳化你的專業工具以獲取利潤\n\n",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_TOOLS_WARNING] = "如果你的背包中有很多工具\n掃描期間可能會降低遊戲效能",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_CRAFTER_HEADER] = "製造者",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_RECIPE_HEADER] = "配方",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_LEARNED_HEADER] = "已學會",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_GUARANTEED_HEADER] = "保證",
@@ -388,6 +402,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q2] = "材料品質 2",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q3] = "材料品質 3",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_OPTIMIZE] = "最佳化材料",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_EXPANSION_FILTER_BUTTON] = "資料片過濾",
 
         -- Recipe Top Gear
         [CraftSim.CONST.TEXT.TOP_GEAR_TITLE] = "CraftSim 最佳裝備",
@@ -452,6 +467,9 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.OPTIONS_GENERAL_SHOW_NEWS_CHECKBOX] = "顯示" .. f.bb("更新資訊"),
         [CraftSim.CONST.TEXT.OPTIONS_GENERAL_SHOW_NEWS_CHECKBOX_TOOLTIP] = "登入遊戲時，顯示 " ..
             f.l("CraftSim") .. f.bb(" 更新資訊") .. "的彈出視窗。",
+        [CraftSim.CONST.TEXT.OPTIONS_GENERAL_HIDE_MINIMAP_BUTTON_CHECKBOX] = "隱藏小地圖按鈕",
+        [CraftSim.CONST.TEXT.OPTIONS_GENERAL_HIDE_MINIMAP_BUTTON_TOOLTIP] = "啟用隱藏 " ..
+            f.l("CraftSim") .. " 的小地圖按鈕。",
 
         -- Control Panel
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_QUEUE_LABEL] = "製作排程",
@@ -481,6 +499,9 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CUSTOMER_SERVICE_TOOLTIP] = "提供多種不同的選項與潛在客戶互動",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CUSTOMER_HISTORY_LABEL] = "客戶記錄",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CUSTOMER_HISTORY_TOOLTIP] = "提供與客戶對談的歷史記錄、製作過的物品和佣金的模組",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_BUFFS_LABEL] = "製造增益效果",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_BUFFS_TOOLTIP] =
+        "顯示作用中和缺少的專業製造增益效果模組",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_RESET_FRAMES] = "重置框架位置",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_OPTIONS] = "選項",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_NEWS] = "更新資訊",
@@ -539,6 +560,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_IMPORT_RECIPE_SCAN_BUTTON_LABEL] = "根據配方掃描補貨",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_WRONG_PROFESSION] = "專業錯誤",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_ON_COOLDOWN] = "冷卻中",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_WRONG_CRAFTER] = "製造者錯誤",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_REAGENT_INFO_HEADER] = "試劑",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_REAGENT_INFO_BUTTON_LABEL] = "?",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_NEXT_BUTTON_LABEL] = "製造下一個",
@@ -571,13 +593,29 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_TOTAL_PROFIT_LABEL] = "總計 Φ 利潤:",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_TOTAL_CRAFTING_COSTS_LABEL] = "總計製造成本:",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_TITLE] = "編輯配方",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_NAME_LABEL] = "配方名稱",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_REAGENTS_SELECT_LABEL] = "選擇",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_OPTIONAL_REAGENTS_LABEL] = "選擇性材料",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_FINISHING_REAGENTS_LABEL] = "完成材料",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_PROFESSION_GEAR_LABEL] = "專業裝備",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_OPTIMIZE_PROFIT_BUTTON] = "最佳化利潤",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_CRAFTING_COSTS_LABEL] = "製造成本: ",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_AVERAGE_PROFIT_LABEL] = "平均利潤: ",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_RESULTS_LABEL] = "結果",
+        
+        -- craft buffs
+
+        [CraftSim.CONST.TEXT.CRAFT_BUFFS_TITLE] = "CraftSim 製造增益效果",
+        [CraftSim.CONST.TEXT.CRAFT_BUFFS_SIMULATE_BUTTON] = "模擬增益",
+        [CraftSim.CONST.TEXT.CRAFT_BUFF_CHEFS_HAT_TOOLTIP] = f.bb("巫妖王之怒玩具。") ..
+            "\n需要北裂境烹飪\n設定製造速度為 " .. f.g("0.5 秒"),
 
         -- static popups
         [CraftSim.CONST.TEXT.STATIC_POPUPS_YES] = "是",
         [CraftSim.CONST.TEXT.STATIC_POPUPS_NO] = "否",
-		
-		-- 自行加入
-		[CraftSim.CONST.TEXT.OPTIONS_CRAFTS] = "次製造",
-		[CraftSim.CONST.TEXT.OPTIONS_CRAFTSIM] = "專業-模擬器",
+        
+        -- 自行加入
+        [CraftSim.CONST.TEXT.OPTIONS_CRAFTS] = "次製造",
+        [CraftSim.CONST.TEXT.OPTIONS_CRAFTSIM] = "專業-模擬器",
     }
 end

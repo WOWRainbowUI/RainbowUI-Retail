@@ -327,7 +327,7 @@ function CraftSim.OPTIONS:Init()
             CraftSimOptions.craftGarbageCollectCrafts = number
         end)
 
-    CraftSim.FRAME:CreateText("Crafts", CraftingTab.content, garbageCollectCraftsInput, "LEFT", "RIGHT", 5, 0)
+    CraftSim.FRAME:CreateText(CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.OPTIONS_CRAFTS), CraftingTab.content, garbageCollectCraftsInput, "LEFT", "RIGHT", 5, 0) -- 自行修改
 
     InterfaceOptions_AddCategory(self.optionsPanel)
 end
