@@ -77,3 +77,84 @@ function Baganator.Utilities.CountEmptySlots(cachedBag)
 
   return empty
 end
+
+function Baganator.Utilities.GetRandomSearchesText()
+  local term = Baganator.Constants.SampleSearchTerms[random(#Baganator.Constants.SampleSearchTerms)]
+
+  return BAGANATOR_L_SEARCH_TRY_X:format(term)
+end
+
+if Baganator.Constants.IsClassic then
+  local tooltip = CreateFrame("GameTooltip", "BaganatorUtilitiesScanTooltip", nil, "GameTooltipTemplate")
+  tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+
+  function Baganator.Utilities.DumpClassicTooltip(tooltipSetter)
+    tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+    tooltipSetter(tooltip)
+
+    local name = tooltip:GetName()
+    local dump = {}
+
+    local row = 1
+    while _G[name .. "TextLeft" .. row] ~= nil do
+      local leftFontString = _G[name .. "TextLeft" .. row]
+      local rightFontString = _G[name .. "TextRight" .. row]
+
+      local entry = {
+        leftText = leftFontString:GetText(),
+        --leftColor = {leftFontString:GetTextColor()},
+        rightText = rightFontString:GetText(),
+        --rightColor = {rightFontString:GetTextColor()}
+      }
+      if entry.leftText or entry.rightText then
+        table.insert(dump, entry)
+      end
+
+      row = row + 1
+    end
+
+    return {lines = dump}
+  end
+end
+
+function Baganator.Utilities.AddBagSortManager(self)
+  self.sortManager = CreateFrame("Frame", nil, self)
+  function self.sortManager:Apply(status, retryFunc, completeFunc)
+    self:SetScript("OnUpdate", nil)
+    Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self)
+    if status == Baganator.Constants.SortStatus.Complete then
+      completeFunc()
+    elseif status == Baganator.Constants.SortStatus.WaitingMove then
+      Baganator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
+        retryFunc()
+      end, self)
+    else -- waiting item data or item unlock
+      self:SetScript("OnUpdate", retryFunc)
+    end
+  end
+  self.sortManager:SetScript("OnHide", function()
+    self.sortManager:SetScript("OnUpdate", nil)
+    Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.sortManager)
+  end)
+end
+
+function Baganator.Utilities.AddBagTransferManager(self)
+  self.transferManager = CreateFrame("Frame", nil, self)
+  function self.transferManager:Apply(status, retryFunc, completeFunc)
+    self:SetScript("OnUpdate", nil)
+    Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self)
+    if status == Baganator.Constants.SortStatus.Complete then
+      completeFunc()
+    elseif status == Baganator.Constants.SortStatus.WaitingMove then
+      Baganator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
+        C_Timer.After(0, retryFunc)
+      end, self)
+    else -- waiting item data or item unlock
+      self:SetScript("OnUpdate", retryFunc)
+    end
+  end
+  self.transferManager:SetScript("OnHide", function()
+    self.transferManager:SetScript("OnUpdate", nil)
+    Baganator.CallbackRegistry:UnregisterCallback("BagCacheUpdate", self.transferManager)
+  end)
+end

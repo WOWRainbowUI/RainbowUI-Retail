@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Title: Baganator
-## Version: 0.96
+## Version: 0.126
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA, BAGANATOR_SUMMARIES
@@ -9,8 +9,8 @@
 Locales.lua
 
 Core\Objects.lua
-Core\Constants.lua
 Core\Locales.lua
+Core\Constants.lua
 Core\Config.lua
 Core\Utilities.lua
 Core\SlashCmd.lua
@@ -27,9 +27,15 @@ InventoryTracking\Tooltips.lua
 InventoryTracking\CurrencyTooltipData.lua
 InventoryTracking\Main.lua
 
+Sorting\Utilities.lua
+Sorting\BagUsageChecks.lua
+Sorting\ItemFields.lua
 Sorting\Order.lua
-Sorting\Stacks.lua
+Sorting\CombineStacks.lua
 Sorting\Plugins.lua
+Sorting\ModeCheck.lua
+Sorting\Transfer.lua
+Sorting\TransferToMail.lua
 
 UnifiedBags\Utilities.lua
 UnifiedBags\ItemButton.lua
@@ -45,6 +51,7 @@ UnifiedBags\BankView.xml
 UnifiedBags\MoneyDisplay.lua
 UnifiedBags\CharacterSelect.lua
 UnifiedBags\CharacterSelect.xml
+UnifiedBags\BagTransfers.lua
 UnifiedBags\MainView.lua
 UnifiedBags\MainView.xml
 UnifiedBags\Search.lua
@@ -53,9 +60,13 @@ UnifiedBags\Main.lua
 
 CustomiseDialog\Components.lua
 CustomiseDialog\Components.xml
+CustomiseDialog\CornersComponents.lua
+CustomiseDialog\Corners.lua
+CustomiseDialog\Corners.xml
 CustomiseDialog\Main.lua
 CustomiseDialog\Main.xml
 CustomiseDialog\Initialize.lua
 
 API\Main.lua
-API\Plugins.lua
+API\Junk.lua
+API\ItemButton.lua

@@ -1,26 +1,88 @@
 local _, addonTable = ...
 
-Baganator.Sorting = {}
+-- See comment in Sorting/ItemFields.lua.
+-- Values generated are cached across the current sort iteration.
+local keysMapping = addonTable.sortItemFieldMap
 
-local QualityKeys = {
-  "priority",
-  "quality",
-  "classID",
-  "subClassID",
-  "itemID",
-  "itemLink",
-  "itemCount",
+local itemMetatable = {
+  __index = function(self, key)
+    if keysMapping[key] then
+      local result = keysMapping[key](self)
+      self[key] = result
+      return result
+    end
+  end
 }
 
-local TypeKeys = {
-  "priority",
-  "classID",
-  "subClassID",
-  "itemID",
-  "quality",
-  "itemLink",
-  "itemCount",
+-- Different sort modes, with different sorting criteria based on item data keys
+local allSortKeys = {
+  ["quality"] = {
+    "priority",
+    "quality",
+    "sortedClassID",
+    "sortedInvSlotID",
+    "sortedSubClassID",
+    "itemLevel",
+    "invertedExpansion", -- table.remove removes this on classic
+    "itemName",
+    "craftingQuality",
+    "invertedItemID",
+    "invertedItemCount",
+    "itemLink",
+  },
+  ["quality-legacy"] = {
+    "priority",
+    "quality",
+    "classID",
+    "subClassID",
+    "itemID",
+    "itemLink",
+    "itemCount",
+  },
+  ["type"] = {
+    "priority",
+    "sortedClassID",
+    "sortedInvSlotID",
+    "sortedSubClassID",
+    "invertedItemLevel",
+    "invertedExpansion", -- table.remove removes this on classic
+    "invertedQuality",
+    "itemName",
+    "invertedCraftingQuality",
+    "invertedItemID",
+    "invertedItemCount",
+    "itemLink",
+  },
+  ["type-legacy"] = {
+    "priority",
+    "classID",
+    "subClassID",
+    "itemID",
+    "quality",
+    "itemLink",
+    "itemCount",
+  },
+  ["expansion"] = {
+    "invertedExpansion",
+    "sortedClassID",
+    "sortedInvSlotID",
+    "sortedSubClassID",
+    "invertedItemLevel",
+    "invertedQuality",
+    "itemName",
+    "invertedCraftingQuality",
+    "invertedItemID",
+    "invertedItemCount",
+    "itemLink",
+  },
 }
+
+-- Remove expansion sort criteria on classic, as there isn't much expansion
+-- content to sort among
+if Baganator.Constants.IsClassic then
+  table.remove(allSortKeys["quality"], tIndexOf(allSortKeys["quality"], "invertedExpansion"))
+  table.remove(allSortKeys["type"], tIndexOf(allSortKeys["type"], "invertedExpansion"))
+end
 
 local PriorityItems = {
   6948, -- Hearthstone
@@ -41,12 +103,21 @@ local function ConvertToOneList(bags, indexesToUse)
       for slotIndex, item in ipairs(bagContents) do
         item.from = { bagIndex = bagIndex, slot = slotIndex}
         if item.itemLink then
+          setmetatable(item, itemMetatable)
           local linkToCheck = item.itemLink
           if not linkToCheck:match("item:") then
             linkToCheck = "item:" .. item.itemID
           end
-          item.classID, item.subClassID = select(6, GetItemInfoInstant(linkToCheck))
+
           item.priority = PriorityMap[item.itemID] and 1 or 1000
+          item.classID, item.subClassID = select(6, GetItemInfoInstant(linkToCheck))
+          item.invSlotID = C_Item.GetItemInventoryTypeByID(item.itemID)
+          if item.itemID == Baganator.Constants.BattlePetCageID then
+            local speciesID = tonumber(item.itemLink:match("battlepet:(%d+)"))
+            local petName, _, subClassID = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
+            item.itemName = petName
+            item.subClassID = subClassID
+          end
         end
         table.insert(list, item)
       end
@@ -88,7 +159,7 @@ local function SetIndexes(list, bagIDs)
   for index, item in ipairs(list) do
     if item.itemLink then
       local location = ItemLocation:CreateFromBagAndSlot(bagIDs[item.from.bagIndex], item.from.slot)
-      item.index = C_Item.GetItemGUID(location)
+      item.index = C_Item.DoesItemExist(location) and C_Item.GetItemGUID(location) or "-1"
     end
   end
 end
@@ -104,18 +175,18 @@ function Baganator.Sorting.OrderOneListOffline(list)
 
   list = tFilter(list, function(a) return a.itemLink ~= nil end, true)
 
-  local sortKeys
-  if Baganator.Config.Get("sort_method") == "type" then
-    sortKeys = TypeKeys
-  elseif Baganator.Config.Get("sort_method") == "quality" then
-    sortKeys = QualityKeys
-  end
+  local sortKeys = allSortKeys[Baganator.Config.Get("sort_method")]
 
+  local incomplete = false
   if reverse then
     table.sort(list, function(a, b)
       for _, key in ipairs(sortKeys) do
-        if a[key] ~= b[key] then
-          return a[key] > b[key]
+        if a[key] ~= nil and b[key] ~= nil then
+          if a[key] ~= b[key] then
+            return a[key] > b[key]
+          end
+        else
+          incomplete = true
         end
       end
       return a.index < b.index
@@ -123,15 +194,19 @@ function Baganator.Sorting.OrderOneListOffline(list)
   else
     table.sort(list, function(a, b)
       for _, key in ipairs(sortKeys) do
-        if a[key] ~= b[key] then
-          return a[key] < b[key]
+        if a[key] ~= nil and b[key] ~= nil then
+          if a[key] ~= b[key] then
+            return a[key] < b[key]
+          end
+        else
+          incomplete = true
         end
       end
       return a.index < b.index
     end)
   end
 
-  return list
+  return list, incomplete
 end
 
 local function GetUsableBags(bagIDs, indexesToUse, bagChecks, isReverse)
@@ -241,9 +316,15 @@ local function QueueSwap(item, bagID, slotID, bagIDs, moveQueue0, moveQueue1)
   end
 end
 
+-- Runs one step of the sort into order operation. Returns a value indicating if
+-- this needs to be run again on a later frame.
+-- bags: Scanned bag contents
+-- bagIDs: Corresponding bag IDs for the bag contents
+-- indexesToUse: Select specific bags
+-- bagChecks: Any special bag requirements for placing items in a specific bag
 function Baganator.Sorting.ApplyOrdering(bags, bagIDs, indexesToUse, bagChecks, isReverse, ignoreAtEnd, ignoreCount)
   if InCombatLockdown() then -- Sorting breaks during combat due to Blizzard restrictions
-    return
+    return Baganator.Constants.SortStatus.Complete
   end
 
   if ignoreCount == nil then
@@ -268,7 +349,7 @@ function Baganator.Sorting.ApplyOrdering(bags, bagIDs, indexesToUse, bagChecks, 
 
   SetIndexes(oneList, bagIDs)
 
-  local sortedItems = Baganator.Sorting.OrderOneListOffline(oneList)
+  local sortedItems, incomplete = Baganator.Sorting.OrderOneListOffline(oneList)
   if showTimers then
     print("sort initial", debugprofilestop() - start)
     start = debugprofilestop()
@@ -352,12 +433,17 @@ function Baganator.Sorting.ApplyOrdering(bags, bagIDs, indexesToUse, bagChecks, 
     start = debugprofilestop()
   end
 
+  local locked, moved = false, false
+
   -- Move items that have a blank slot as the target
   for _, move in ipairs(moveQueue0) do
     if not C_Item.IsLocked(move[1]) then
       C_Container.PickupContainerItem(move[1]:GetBagAndSlot())
       C_Container.PickupContainerItem(move[2]:GetBagAndSlot())
       ClearCursor()
+      moved = true
+    else
+      locked = true
     end
   end
 
@@ -367,10 +453,22 @@ function Baganator.Sorting.ApplyOrdering(bags, bagIDs, indexesToUse, bagChecks, 
       C_Container.PickupContainerItem(move[1]:GetBagAndSlot())
       C_Container.PickupContainerItem(move[2]:GetBagAndSlot())
       ClearCursor()
+      moved = true
+    else
+      locked = true
     end
   end
 
-  local pending = #moveQueue0 > 0 or #moveQueue1 > 0
+  local pending
+  if incomplete then
+    pending = Baganator.Constants.SortStatus.WaitingItemData
+  elseif moved then
+    pending = Baganator.Constants.SortStatus.WaitingMove
+  elseif locked then
+    pending = Baganator.Constants.SortStatus.WaitingUnlock
+  else
+    pending = Baganator.Constants.SortStatus.Complete
+  end
 
   if showTimers then
     print("sort items moved", debugprofilestop() - start)

@@ -84,7 +84,9 @@ function BaganatorItemSummariesMixin:GenerateCharacterSummary(characterName)
     end
   end
 
-  for _, item in pairs(details.mail) do
+  -- or because the mail is a newer key that might not exist on another
+  -- character yet
+  for _, item in pairs(details.mail or {}) do
     if item.itemLink then
       local key = Baganator.Utilities.GetItemKey(item.itemLink)
       if not summary[key] then
@@ -99,7 +101,9 @@ function BaganatorItemSummariesMixin:GenerateCharacterSummary(characterName)
     end
   end
 
-  for _, item in pairs(details.equipped) do
+  -- or because the equipped is a newer key that might not exist on another
+  -- character yet
+  for _, item in pairs(details.equipped or {}) do
     if item.itemLink then
       local key = Baganator.Utilities.GetItemKey(item.itemLink)
       if not summary[key] then
@@ -131,7 +135,7 @@ function BaganatorItemSummariesMixin:GenerateGuildSummary(guildName)
   end
 
   for _, tab in pairs(details.bank) do
-    if tab.fullAccess then
+    if tab.isViewable then
       for _, item in pairs(tab.slots) do
         if item.itemLink then
           local key = Baganator.Utilities.GetItemKey(item.itemLink)
@@ -174,13 +178,17 @@ function BaganatorItemSummariesMixin:GetTooltipInfo(key, sameConnectedRealm, sam
     end
   end
 
-  local realms
+  local realms = {}
   if sameConnectedRealm then
-    realms = Baganator.Utilities.GetConnectedRealms()
+    for _, r in ipairs(Baganator.Utilities.GetConnectedRealms()) do
+      realms[r] = true
+    end
   else
-    realms = {}
-    for realm in pairs(self.SV.Characters.ByRealm) do
-      table.insert(realms, realm)
+    for r in pairs(self.SV.Characters.ByRealm) do
+      realms[r] = true
+    end
+    for r in pairs(self.SV.Guilds.ByRealm) do
+      realms[r] = true
     end
   end
 
@@ -191,7 +199,7 @@ function BaganatorItemSummariesMixin:GetTooltipInfo(key, sameConnectedRealm, sam
 
   local currentFaction = UnitFactionGroup("player")
 
-  for _, r in ipairs(realms) do
+  for r in pairs(realms) do
     local charactersByRealm = self.SV.Characters.ByRealm[r]
     if charactersByRealm then
       for char, summary in pairs(charactersByRealm) do

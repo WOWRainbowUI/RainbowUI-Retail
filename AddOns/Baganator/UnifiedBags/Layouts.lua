@@ -31,22 +31,19 @@ local ReflowSettings = {
   Baganator.Config.Options.EMPTY_SLOT_BACKGROUND,
   Baganator.Config.Options.BAG_EMPTY_SPACE_AT_TOP,
   Baganator.Config.Options.ICON_TEXT_FONT_SIZE,
-  Baganator.Config.Options.ICON_TOP_LEFT_CORNER,
-  Baganator.Config.Options.ICON_TOP_RIGHT_CORNER,
-  Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER,
-  Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER,
+  Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY,
   Baganator.Config.Options.REDUCE_SPACING,
 }
 
 local RefreshContentSettings = {
-  Baganator.Config.Options.SHOW_ITEM_LEVEL,
-  Baganator.Config.Options.SHOW_BOE_STATUS,
   Baganator.Config.Options.HIDE_BOE_ON_COMMON,
-  Baganator.Config.Options.SHOW_BOA_STATUS,
-  Baganator.Config.Options.SHOW_PAWN_ARROW,
-  Baganator.Config.Options.SHOW_CIMI_ICON,
-  Baganator.Config.Options.SHOW_EXPANSION,
-  Baganator.Config.Options.SHOW_EQUIPMENT_SET,
+  Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY,
+  Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY,
   Baganator.Config.Options.ICON_TEXT_QUALITY_COLORS,
   Baganator.Config.Options.ICON_GREY_JUNK,
   Baganator.Config.Options.JUNK_PLUGIN,
@@ -70,10 +67,11 @@ local function FlowButtons(self, rowWidth)
       cols = 0
     end
   end
+  local iconPaddingScaled = iconPadding * 37 / iconSize
   for _, button in ipairs(self.buttons) do
-    button:SetPoint("TOPLEFT", self, cols * (iconSize + iconPadding), - rows * (iconSize + iconPadding))
-    button:SetSize(iconSize, iconSize)
-    button:UpdateTextures(iconSize)
+    button:SetPoint("TOPLEFT", self, cols * (37 + iconPaddingScaled), - rows * (37 + iconPaddingScaled))
+    button:SetScale(iconSize / 37)
+    button:UpdateTextures()
     MasqueRegistration(button)
     cols = cols + 1
     if cols >= rowWidth then
@@ -105,7 +103,8 @@ end
 function BaganatorCachedBagLayoutMixin:InformSettingChanged(setting)
   if tIndexOf(ReflowSettings, setting) ~= nil then
     self.reflow = true
-  elseif tIndexOf(RefreshContentSettings, setting) ~= nil then
+  end
+  if tIndexOf(RefreshContentSettings, setting) ~= nil then
     self.refreshContent = true
   end
 end
@@ -148,7 +147,6 @@ function BaganatorCachedBagLayoutMixin:RebuildLayout(newBags, indexes, indexesTo
       self.buttonsByBag[indexes[bagIndex]] = bagButtons
       for slotIndex = 1, #newBags[bagIndex] do
         local button = self.buttonPool:Acquire()
-        button:SetSize(iconSize, iconSize)
         button:Show()
 
         table.insert(self.buttons, button)
@@ -371,7 +369,8 @@ end
 function BaganatorLiveBagLayoutMixin:InformSettingChanged(setting)
   if tIndexOf(ReflowSettings, setting) ~= nil then
     self.reflow = true
-  elseif tIndexOf(RefreshContentSettings, setting) ~= nil then
+  end
+  if tIndexOf(RefreshContentSettings, setting) ~= nil then
     self.refreshContent = true
   end
 end
@@ -542,6 +541,21 @@ function BaganatorSearchLayoutMonitorMixin:StartSearch(text)
   if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
     print("search monitor start", debugprofilestop() - start)
   end
+end
+
+function BaganatorSearchLayoutMonitorMixin:GetMatches()
+  local matches = {}
+  for _, itemButton in ipairs(self:GetParent().buttons) do
+    if itemButton.BGR and itemButton.BGR.itemID and itemButton.BGR.matchesSearch then
+      table.insert(matches, {
+        bagID = itemButton:GetParent():GetID(),
+        slotID = itemButton:GetID(),
+        itemCount = itemButton.BGR.itemCount,
+        itemID = itemButton.BGR.itemID,
+      })
+    end
+  end
+  return matches
 end
 
 function BaganatorSearchLayoutMonitorMixin:ClearSearch()

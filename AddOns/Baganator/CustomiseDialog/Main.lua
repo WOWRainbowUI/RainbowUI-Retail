@@ -4,10 +4,14 @@ local IsRetailCheck = function()
   return Baganator.Constants.IsRetail
 end
 
+local NotIsEraCheck = function()
+  return not Baganator.Constants.IsEra
+end
+
 local WINDOW_OPTIONS = {
   {
     type = "checkbox",
-    text = BAGANATOR_L_ENABLE_BAG_VIEWS,
+    text = BAGANATOR_L_ENABLE_BAG_VIEWS_2,
     option = "enable_unified_bags",
   },
   {
@@ -27,7 +31,7 @@ local WINDOW_OPTIONS = {
   },
   {
     type = "checkbox",
-    text = BAGANATOR_L_PLACE_SPACE_EMPTY_OF_SLOTS_AT_TOP,
+    text = BAGANATOR_L_PLACE_BAG_ROW_WITH_MISSING_SLOTS_AT_THE_TOP,
     option = "bag_empty_space_at_top",
   },
   {
@@ -78,12 +82,6 @@ local ICON_OPTIONS = {
   },
   {
     type = "checkbox",
-    text = BAGANATOR_L_SHOW_BOA_STATUS,
-    option = "show_boa_status",
-    check = IsRetailCheck,
-  },
-  {
-    type = "checkbox",
     text = BAGANATOR_L_HIDE_BOE_STATUS_ON_COMMON,
     option = "hide_boe_on_common",
   },
@@ -122,7 +120,7 @@ local ICON_OPTIONS = {
   },
   {
     type = "header",
-    text = BAGANATOR_L_ICON_CORNERS,
+    text = BAGANATOR_L_ICON_CORNER_PRIORITIES,
     level = 2,
   },
 }
@@ -142,6 +140,12 @@ local TOOLTIP_OPTIONS = {
     type = "checkbox",
     text = BAGANATOR_L_PRESS_SHIFT_TO_SHOW_TOOLTIPS,
     option = "show_tooltips_on_shift",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS,
+    option = "show_guild_banks_in_tooltips",
+    check = NotIsEraCheck,
   },
   {
     type = "checkbox",
@@ -181,7 +185,7 @@ local OPEN_CLOSE_OPTIONS = {
     text = GUILD_BANK,
     option = "guild_bank",
     root = "auto_open",
-    check = function() return not Baganator.Constants.IsEra end,
+    check = NotIsEraCheck,
   },
   {
     type = "checkbox",
@@ -225,7 +229,7 @@ local OPEN_CLOSE_OPTIONS = {
     text = BAGANATOR_L_SOCKET_INTERFACE,
     option = "sockets",
     root = "auto_open",
-    check = function() return not Baganator.Constants.IsEra end,
+    check = NotIsEraCheck,
   },
   {
     type = "checkbox",
@@ -270,6 +274,18 @@ local SORTING_OPTIONS = {
     text = BAGANATOR_L_REVERSE_GROUPS_SORT_ORDER,
     option = "reverse_groups_sort_order",
   },
+  {
+    type = "header",
+    text = BAGANATOR_L_SORT_METHOD,
+    level = 2,
+  },
+}
+local TRANSFERS_OPTIONS = {
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_SHOW_TRANSFER_BUTTON,
+    option = "show_transfer_button",
+  },
 }
 
 table.sort(OPEN_CLOSE_OPTIONS, function(a, b)
@@ -281,6 +297,7 @@ local function GenerateFrames(options, parent)
   local allFrames = {}
   for _, option in ipairs(options) do
     if not option.check or option.check() then
+      local frame
       if option.type == "checkbox" then
         frame = CreateFrame("Frame", nil, parent, "BaganatorCheckBoxTemplate")
         frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, 0)
@@ -368,6 +385,7 @@ function BaganatorCustomiseDialogMixin:OnLoad()
   self:SetupTooltip()
   self:SetupOpenClose()
   self:SetupSorting()
+  self:SetupTransfers()
 
   PanelTemplates_SetNumTabs(self, #self.Tabs)
 
@@ -465,126 +483,24 @@ function BaganatorCustomiseDialogMixin:SetupIcon()
     end
   end)
 
+  local cornersEditor = Baganator.CustomiseDialog.GetCornersEditor(frame)
+  cornersEditor:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
+  table.insert(allFrames, cornersEditor)
+
   local itemButton
   if Baganator.Constants.IsRetail then
     itemButton = CreateFrame("ItemButton", nil, frame)
   else
     itemButton = CreateFrame("Button", nil, frame, "ItemButtonTemplate")
   end
-  itemButton:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -35)
-
-  local iconCornerOptions = {
-    entries = {
-      NONE,
-      BAGANATOR_L_ITEM_LEVEL,
-      BAGANATOR_L_BINDING_TYPE,
-      BAGANATOR_L_QUANTITY,
-    },
-    values = {
-      "none",
-      "item_level",
-      "binding_type",
-      "quantity",
-    },
-  }
-  if not Baganator.Constants.IsClassic then
-    table.insert(iconCornerOptions.entries, BAGANATOR_L_EXPANSION)
-    table.insert(iconCornerOptions.values, "expansion")
-  end
-  if PawnShouldItemLinkHaveUpgradeArrowUnbudgeted then
-    table.insert(iconCornerOptions.entries, BAGANATOR_L_PAWN)
-    table.insert(iconCornerOptions.values, "pawn")
-  end
-  if CIMI_AddToFrame then
-    table.insert(iconCornerOptions.entries, BAGANATOR_L_CAN_I_MOG_IT)
-    table.insert(iconCornerOptions.values, "can_i_mog_it")
-  end
-  if Baganator.Config.Get(Baganator.Config.Options.ENABLE_EQUIPMENT_SET_INFO) then
-    table.insert(iconCornerOptions.entries, BAGANATOR_L_EQUIPMENT_SET)
-    table.insert(iconCornerOptions.values, "equipment_set")
-  end
-
-  local valuesToConfig = {
-    ["item_level"] = "show_item_level",
-    ["binding_type"] = "show_boe_status",
-    ["pawn"] = "show_pawn_arrow",
-    ["can_i_mog_it"] = "show_cimi_icon",
-    ["expansion"] = "show_expansion",
-    ["equipment_set"] = "show_equipment_set",
-  }
-
-  local configs = {
-    ["icon_top_left_corner"] = true,
-    ["icon_top_right_corner"] = true,
-    ["icon_bottom_left_corner"] = true,
-    ["icon_bottom_right_corner"] = true,
-  }
-
-  local corners = {}
-  local topLeft = CreateFrame("Frame", nil, itemButton, "BaganatorDropDownTemplate")
-  iconCornerOptions.option = "icon_top_left_corner"
-  topLeft:Init(iconCornerOptions)
-  topLeft:ClearAllPoints()
-  topLeft:SetPoint("BOTTOMRIGHT", itemButton, "TOPLEFT", 0, -10)
-  topLeft:SetSize(250, 38)
-  table.insert(allFrames, topLeft)
-  table.insert(corners, topLeft)
-
-  local topRight = CreateFrame("Frame", nil, itemButton, "BaganatorDropDownTemplate")
-  iconCornerOptions.option = "icon_top_right_corner"
-  topRight:ClearAllPoints()
-  topRight:Init(iconCornerOptions)
-  topRight:SetPoint("BOTTOMLEFT", itemButton, "TOPRIGHT", 0, -10)
-  topRight:SetSize(250, 38)
-  table.insert(allFrames, topRight)
-  table.insert(corners, topRight)
-
-  local bottomLeft = CreateFrame("Frame", nil, itemButton, "BaganatorDropDownTemplate")
-  iconCornerOptions.option = "icon_bottom_left_corner"
-  bottomLeft:ClearAllPoints()
-  bottomLeft:Init(iconCornerOptions)
-  bottomLeft:SetPoint("TOPRIGHT", itemButton, "BOTTOMLEFT", 0, 10)
-  bottomLeft:SetSize(250, 38)
-  table.insert(allFrames, bottomLeft)
-  table.insert(corners, bottomLeft)
-
-  local bottomRight = CreateFrame("Frame", nil, itemButton, "BaganatorDropDownTemplate")
-  iconCornerOptions.option = "icon_bottom_right_corner"
-  bottomRight:ClearAllPoints()
-  bottomRight:Init(iconCornerOptions)
-  bottomRight:SetPoint("TOPLEFT", itemButton, "BOTTOMRIGHT", 0, 10)
-  bottomRight:SetSize(250, 38)
-  table.insert(allFrames, bottomRight)
-  table.insert(corners, bottomRight)
+  itemButton:SetPoint("CENTER", cornersEditor, 0, -15)
 
   frame:SetScript("OnShow", function()
     for index, frame in ipairs(allFrames) do
-      frame:SetValue(Baganator.Config.Get(frame.option))
+      if frame.SetValue then
+        frame:SetValue(Baganator.Config.Get(frame.option))
+      end
     end
-    Baganator.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
-      if not configs[settingName] then
-        return
-      end
-      local newValue = Baganator.Config.Get(settingName)
-      local unusedValues = CopyTable(valuesToConfig)
-      for _, corner in ipairs(corners) do
-        local value = Baganator.Config.Get(corner.option)
-        if corner.option ~= settingName and value == newValue then
-          corner:SetValue("none")
-        end
-        unusedValues[value] = nil
-      end
-      for value, config in pairs(valuesToConfig) do
-        if unusedValues[value] then
-          Baganator.Config.Set(config, false)
-        else
-          Baganator.Config.Set(config, true)
-        end
-      end
-    end, frame)
-  end)
-  frame:SetScript("OnHide", function()
-    Baganator.CallbackRegistry:UnregisterCallback("SettingChanged", frame)
   end)
 
   table.insert(self.lowestFrames, allFrames[#allFrames])
@@ -630,32 +546,57 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
 
   local frame = GetWrapperFrame(self)
 
+  local allModes = {
+    {"type", BAGANATOR_L_ITEM_TYPE_ENHANCED},
+    {"quality", BAGANATOR_L_ITEM_QUALITY_ENHANCED},
+    {"type-legacy", BAGANATOR_L_ITEM_TYPE_BASIC},
+    {"quality-legacy", BAGANATOR_L_ITEM_QUALITY_BASIC},
+    {"combine_stacks_only", BAGANATOR_L_COMBINE_STACKS_ONLY},
+    {"blizzard", BAGANATOR_L_BLIZZARD},
+    {"expansion", BAGANATOR_L_EXPANSION},
+    {"sortbags", BAGANATOR_L_SORTBAGS},
+  }
+
+  table.sort(allModes, function(a, b) return a[2] < b[2] end)
+
   local typeDropDown = {
     type = "dropdown",
     option = "sort_method",
-    entries = {
-      BAGANATOR_L_ITEM_TYPE,
-      BAGANATOR_L_ITEM_QUALITY,
-    },
-    values = {
-      "type",
-      "quality",
-    },
+    entries = {},
+    values = {},
   }
 
-  if Baganator.Constants.IsRetail then
-    table.insert(typeDropDown.entries, BAGANATOR_L_BLIZZARD)
-    table.insert(typeDropDown.values, "blizzard")
+  for _, details in ipairs(allModes) do
+    if Baganator.Sorting.IsModeAvailable(details[1]) then
+      table.insert(typeDropDown.values, details[1])
+      table.insert(typeDropDown.entries, details[2])
+    end
   end
 
-  if IsAddOnLoaded("SortBags") then
-    table.insert(typeDropDown.entries, BAGANATOR_L_SORTBAGS)
-    table.insert(typeDropDown.values, "sortbags")
+  if not Baganator.Sorting.IsModeAvailable(Baganator.Config.Get("sort_method")) then
+    Baganator.Config.ResetOne("sort_method")
   end
 
   table.insert(SORTING_OPTIONS, typeDropDown)
 
   local allFrames = GenerateFrames(SORTING_OPTIONS, frame)
+
+  frame:SetScript("OnShow", function()
+    for index, frame in ipairs(allFrames) do
+      frame:SetValue(Baganator.Config.Get(frame.option))
+    end
+  end)
+
+  table.insert(self.lowestFrames, allFrames[#allFrames])
+end
+
+function BaganatorCustomiseDialogMixin:SetupTransfers()
+  local tab = GetTab(self)
+  tab:SetText(BAGANATOR_L_TRANSFERS)
+
+  local frame = GetWrapperFrame(self)
+
+  local allFrames = GenerateFrames(TRANSFERS_OPTIONS, frame)
 
   frame:SetScript("OnShow", function()
     for index, frame in ipairs(allFrames) do
