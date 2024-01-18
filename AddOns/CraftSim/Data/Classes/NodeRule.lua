@@ -5,13 +5,17 @@ local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SPECDATA)
 
 
 ---@class CraftSim.NodeRule
+---@overload fun(recipeData: CraftSim.RecipeData?, nodeRuleData: table, nodeData: CraftSim.NodeData):CraftSim.NodeRule
 CraftSim.NodeRule = CraftSim.Object:extend()
 
----@param recipeData CraftSim.RecipeData
+---@param recipeData CraftSim.RecipeData?
 ---@param nodeRuleData table
 ---@param nodeData CraftSim.NodeData
 function CraftSim.NodeRule:new(recipeData, nodeRuleData, nodeData)
     self.affectsRecipe = false
+    if not recipeData then
+        return
+    end
     self.nodeData = nodeData
     ---@type CraftSim.ProfessionStats
     self.professionStats = CraftSim.ProfessionStats()
@@ -25,11 +29,11 @@ function CraftSim.NodeRule:new(recipeData, nodeRuleData, nodeData)
     self.professionStats.multicraft.value = nodeRuleData.multicraft or 0
     self.professionStats.resourcefulness.value = nodeRuleData.resourcefulness or 0
     self.professionStats.craftingspeed.value = nodeRuleData.craftingspeed or 0
-    
+
     self.professionStats.inspiration.extraFactor = nodeRuleData.inspirationBonusSkillFactor or 0
     self.professionStats.multicraft.extraFactor = nodeRuleData.multicraftExtraItemsFactor or 0
     self.professionStats.resourcefulness.extraFactor = nodeRuleData.resourcefulnessExtraItemsFactor or 0
-    
+
     self.equalsSkill = nodeRuleData.equalsSkill or false
     self.equalsMulticraft = nodeRuleData.equalsMulticraft or false
     self.equalsInspiration = nodeRuleData.equalsInspiration or false
@@ -39,13 +43,11 @@ function CraftSim.NodeRule:new(recipeData, nodeRuleData, nodeData)
     self.equalsResourcefulnessExtraItemsFactor = nodeRuleData.equalsResourcefulnessExtraItemsFactor or false
     self.equalsPhialExperimentationChanceFactor = nodeRuleData.equalsPhialExperimentationChanceFactor or false
     self.equalsPotionExperimentationChanceFactor = nodeRuleData.equalsPotionExperimentationChanceFactor or false
-
-    --self:UpdateProfessionStatsByRank(nodeData.rank)
 end
 
 function CraftSim.NodeRule:UpdateAffectance()
     self.affectsRecipe = self.idMapping:AffectsRecipe()
-    --print(self.nodeData.nodeName .. "-Rule affects recipe: " .. tostring(self.affectsRecipe))
+    print(self.nodeData.nodeName .. "-Rule affects recipe: " .. tostring(self.affectsRecipe))
 end
 
 ---@param rank number
@@ -63,7 +65,7 @@ function CraftSim.NodeRule:UpdateProfessionStatsByRank(rank)
     if self.equalsSkill then
         self.professionStats.skill.value = math.max(0, rank)
     end
-    
+
     if self.equalsMulticraft then
         self.professionStats.multicraft.value = math.max(0, rank)
     end
@@ -100,7 +102,6 @@ function CraftSim.NodeRule:UpdateProfessionStatsByRank(rank)
         print("NodeRule: Rule stats after updating rule: ")
         print(self.professionStats, true, nil, 1)
     end
-
 end
 
 function CraftSim.NodeRule:Debug()
@@ -117,7 +118,7 @@ function CraftSim.NodeRule:Debug()
     }
     local statLines = self.professionStats:Debug()
     statLines = CraftSim.GUTIL:Map(statLines, function(line) return "-" .. line end)
-    debugLines = CraftSim.GUTIL:Concat({debugLines, statLines})
+    debugLines = CraftSim.GUTIL:Concat({ debugLines, statLines })
     return debugLines
 end
 

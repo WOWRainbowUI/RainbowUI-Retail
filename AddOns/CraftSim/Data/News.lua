@@ -13,16 +13,83 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
     local news = {
         f.bb("                   Hello and thank you for using CraftSim!\n"),
         f.bb("                                 ( You are awesome! )"),
+        newP("13.0.2"),
+        f.p .. "Recrafting Orders should now have the correct reagent amount",
+        f.p .. "Removed the buff changed system print",
+        f.p .. "Thank you " .. f.bb("https://github.com/SirDester") .. " for",
+        f.a .. "  updating the italian translations!",
+        f.p ..
+        f.patreon("Supporter List Update ") .. CraftSim.MEDIA:GetAsTextIcon(CraftSim.MEDIA.IMAGES.PIXEL_HEART, 0.2),
+        newP("13.0.1"),
+        f.p .. "Fixed a bug with non-initialized professionInfoCache",
+        f.p .. "Updated toc file for 10.2.5",
+        newP("13.0.0"),
+        f.P .. f.g("RecipeScan") .. " now offers an expansion filter!",
+        f.a .. "- Scan ALL recipes (unlearned included) from ALL Expansions",
+        f.a .. "  tanks FPS though and takes a while to complete",
+        f.P .. f.g("Craft Queue") .. " now persists over sessions",
+        f.a .. "- It's now available for all your characters",
+        f.a .. "- You can even optimize and edit a recipe which was not queued by",
+        f.a .. "  the original crafter character!",
+        f.p .. "Rescaled the new design for the " .. f.bb("Specialization Info"),
+        f.a .. "  to fit all nodes into it.",
+        newP("12.5.4"),
+        f.P .. "Building the foundations for cross character recipe simulations",
+        newP("12.5.3"),
+        f.p .. "Hotfix for missing 6th optional reagent slot in " .. f.bb("Simulation Mode"),
+        newP("12.5.2"),
+        f.P .. "New Module: " .. f.g("Craft Buffs"),
+        f.a .. "- List all available crafting buffs relevant for this recipe",
+        f.a .. "- Including status, spell tooltip and possible profession stats",
+        f.a .. "- Buffs can now be simulated in " .. f.bb("Simulation Mode"),
+        f.P .. "Reworked " .. f.g("Specialization Info"),
+        f.a .. "- Stats and additional Info about that talent are now shown",
+        f.a .. "  as a tooltip and visually overhauled the list",
+        f.P .. f.g("Recipe Scan"),
+        f.a .. "- The result list and the options are now separated in different tabs",
+        f.a .. "- This allows for more scan options to be added in future updates",
+        f.a .. "- The selected scan mode now persists over sessions",
+        f.a .. "- " .. f.bb("Recipe Reagents ") .. "are now shown on mouse hover",
+        f.P .. f.g("Craft Queue"),
+        f.a .. "- " .. f.bb("Recipe Reagents ") .. "are now shown on mouse hover",
+        f.p .. f.g("Stat Weights") .. " display is now rounded to the copper",
+        f.p .. "Recolored the " .. f.bb("Expected Costs per Item") .. " in the " .. f.g("Statistics List"),
+        f.p .. "New visuals for " .. f.bb("Help Icons"),
+        newP("12.4.1"),
+        f.p .. "Fixed an error when CraftSim is the only addon using LibDBIcon",
+        newP("12.4.0"),
+        f.P .. "Reworked the " .. f.g("Optional Item Selectors") .. " in " .. f.bb("Simulation Mode"),
+        f.s .. f.g("zhTW Locals Update"),
+        f.a .. "- Thanks to " .. f.bb("https://github.com/class2u") .. " !",
+        f.s .. "Fixed a rounding error in " .. f.bb("Top Gear") .. " comparisons",
+        f.a .. "- Thanks to " .. f.bb("https://github.com/SanjoSolutions") .. " !",
+        f.s .. "Added an " .. f.g("'Only Favorites'") .. " option to the " .. f.bb("Recipe Scan"),
+        f.a .. "- Thanks to " .. f.bb("https://github.com/vmokok") .. " !",
+        f.p .. "Added a " .. f.g("Minimap Icon") .. " that opens the Addon Options",
+        f.a .. "- Plus an option to hide it",
+        f.p .. "The " .. f.bb("CraftQueue") .. " module now uses default blizzard tabs",
+        f.a .. "to navigate between Craft Queue and Restock Options",
+        newP("12.3.3"),
+        f.P .. f.g("Visual Updates") ..
+        newP("12.3.2"),
+        f.p .. f.g("Overhauled Optimization of Reagents"),
+        f.a .. "- Any toggle between " .. f.bb("Guaranteed") .. " and " .. f.bb("Inspiration - Optimization"),
+        f.a .. "- is now gone. " .. f.l("CraftSim") .. " will automatically optimize for both and",
+        f.a .. "- choose the one reaching the higher quality",
+        f.p .. "Small visual update to some lists",
+        f.p .. f.patreon("Supporter List Update"),
+        newP("12.3.0"),
+        f.P .. "Recipes can now be " .. f.g("edited") .. " directly in the " .. f.bb("CraftQueue"),
         newP("12.2.1"),
         f.P .. f.bb("CraftQueue"),
-        f.a .. "- The same recipe can now " .. f.r("not"), 
+        f.a .. "- The same recipe can now " .. f.r("not"),
         f.a .. "  have multiple entries in the craft queue",
         f.a .. "- Rows can now be clicked to jump to a recipe instead",
         f.a .. "  of having to click on the little arrow button",
         f.s .. f.bb("RecipeScan"),
         f.a .. "- Rows can now be clicked to jump to a recipe instead",
         f.a .. "  of having to click on the little arrow button",
-        f.a .. "Fixed a bug where reagents are not showing for salvage recipes",
+        f.p .. "Fixed a bug where reagents are not showing for salvage recipes",
         newP("12.2.0"),
         f.s .. f.g("zhTW Locals Update"),
         f.a .. "- Thanks to " .. f.bb("https://github.com/class2u") .. " !",
@@ -43,14 +110,14 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
         f.a .. "  This should keep the data amount low while occasionally",
         f.a .. "  removing any data that does not belong to 'real' customers",
         newP("12.0.5"),
-        f.p .. "Hotfixes regarding " ..f.bb("CustomerHistory") .. " Data Migration",
+        f.p .. "Hotfixes regarding " .. f.bb("CustomerHistory") .. " Data Migration",
         f.p .. "Added price source addons to optional deps......",
         f.p .. "Fixed average profit not correctly calculated",
         f.a .. "for non english clients",
         newP("12.0.0"),
         f.P .. "Reworked " .. f.bb("Customer History") .. ". Now includes:",
         f.a .. "- " .. f.g("A Whisper Button"),
-        f.a .. "- Separated and more clear " ..f.g("Craft and Chat History"),
+        f.a .. "- Separated and more clear " .. f.g("Craft and Chat History"),
         f.a .. "- " .. f.g("Bulk deletion") .. " of all 'customers' with 0 tips",
         f.a .. "- " .. "A better reactive list of your customers sorted by total tip",
         f.P .. f.g("Modules now load faster (~100ms)") .. " due to a refactor",
@@ -87,7 +154,7 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
         f.P .. f.bb("CraftQueue") .. " now has configureable " .. f.g("Restock Options"),
         f.a .. "affecting " .. f.bb("Restock from Recipe Scan") .. " Behaviour",
         f.a .. "This includes " .. f.g("Restock Amount") .. " and thresholds",
-        f.a .. "like " .. f.g("Profit Margin") .." and " .. f.g("Sale Rate"),
+        f.a .. "like " .. f.g("Profit Margin") .. " and " .. f.g("Sale Rate"),
         f.a .. f.bb("Sale Rate Thresholds") .. " are only available if TSM is loaded!",
         f.s .. f.bb("CraftQueue") .. " now shows average profit margin per recipe",
         f.p .. f.bb("PriceDetails:") .. " fixed a bug where not all qualities were listed",
@@ -156,18 +223,18 @@ end
 ---@async
 function CraftSim.NEWS:ShowNews(force)
     local itemMap = {
-        chocolate=Item:CreateFromItemID(194902),
+        chocolate = Item:CreateFromItemID(194902),
     }
-    CraftSim.GUTIL:ContinueOnAllItemsLoaded(CraftSim.GUTIL:Map(itemMap, function(i) return i end), function ()
+    CraftSim.GUTIL:ContinueOnAllItemsLoaded(CraftSim.GUTIL:Map(itemMap, function(i) return i end), function()
         local newsText = CraftSim.NEWS:GET_NEWS(itemMap)
         local newChecksum = CraftSim.NEWS:IsNewsUpdate(newsText)
         if newChecksum == nil and (not force) then
-           return 
+            return
         end
-    
+
         print("showing news, old / new cs: " .. tostring(CraftSimOptions.newsChecksum) .. "/" .. tostring(newChecksum))
         CraftSimOptions.newsChecksum = newChecksum
-    
+
         local infoFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.INFO)
         -- resize
         infoFrame:SetSize(CraftSim.CONST.infoBoxSizeX, CraftSim.CONST.infoBoxSizeY)

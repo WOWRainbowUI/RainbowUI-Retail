@@ -13,10 +13,34 @@ local function print(text, recursive, l) -- override
 end
 
 -- SavedVars
-CraftSimRecipeIDs = CraftSimRecipeIDs or {}
-CraftSimProfessionInfoCache = CraftSimProfessionInfoCache or {}
-CraftSimProfessionSkillLineIDCache = CraftSimProfessionSkillLineIDCache or {}
-CraftSimLoadedProfessionRecipes = CraftSimLoadedProfessionRecipes or {}
+CraftSimRecipeIDs = CraftSimRecipeIDs or {} -- itemToRecipe cache
+
+---@class CraftSim.ProfessionGearCacheData
+---@field cached boolean
+---@field equippedGear CraftSim.ProfessionGearSet.Serialized?
+---@field availableProfessionGear CraftSim.ProfessionGear.Serialized[]
+
+---@class CraftSim.RecipeDataCache
+---@field cachedRecipeIDs table<string, table<number, number[]>> table<crafterGUID, table<profession, recipeID[]>
+---@field recipeInfoCache table<string, table<number, TradeSkillRecipeInfo>> table<crafterGUID, table<recipeID, TradeSkillRecipeInfo>
+---@field professionInfoCache table<string, table<number, ProfessionInfo>> table<crafterGUID, table<recipeID, TradeSkillRecipeInfo>
+---@field operationInfoCache table<string, table<number, CraftingOperationInfo>> table<crafterGUID, table<recipeID, CraftingOperationInfo>>
+---@field specializationDataCache table<string, table<number, CraftSim.SpecializationData.Serialized>?> table<crafterGUID, table<recipeID, CraftSim.SpecializationData.Serialized>>
+---@field professionGearCache table<string, table<number, CraftSim.ProfessionGearCacheData>> table<crafterGUID, table<profession, CraftSim.ProfessionGearCacheData>>
+CraftSimRecipeDataCache = CraftSimRecipeDataCache or {
+    cachedRecipeIDs = {},
+    recipeInfoCache = {},
+    professionInfoCache = {},
+    operationInfoCache = {},
+    specializationDataCache = {},
+    professionGearCache = {},
+}
+
+CraftSim.CACHE.DEFAULT_PROFESSION_GEAR_CACHE_DATA = {
+    cached = false,
+    equippedGear = nil,
+    availableProfessionGear = {},
+}
 
 ---@class CraftSim.RecipeMap
 ---@field itemToRecipe? number[]
@@ -25,8 +49,20 @@ CraftSimLoadedProfessionRecipes = CraftSimLoadedProfessionRecipes or {}
 ---@type CraftSim.RecipeMap
 CraftSimRecipeMap = CraftSimRecipeMap or {}
 
--- session caches
-CraftSim.CACHE.SpecDataStatsByRecipeID = {}
+---@type CraftSim.CraftQueueItem.Serialized[]
+CraftSimCraftQueueCache = CraftSimCraftQueueCache or {}
+
+function CraftSim.CACHE:HandleCraftSimCacheUpdates()
+    -- init default cache fields in case of cache field updates
+    if CraftSimRecipeDataCache then
+        CraftSimRecipeDataCache.cachedRecipeIDs = CraftSimRecipeDataCache.cachedRecipeIDs or {}
+        CraftSimRecipeDataCache.recipeInfoCache = CraftSimRecipeDataCache.recipeInfoCache or {}
+        CraftSimRecipeDataCache.professionInfoCache = CraftSimRecipeDataCache.professionInfoCache or {}
+        CraftSimRecipeDataCache.operationInfoCache = CraftSimRecipeDataCache.operationInfoCache or {}
+        CraftSimRecipeDataCache.specializationDataCache = CraftSimRecipeDataCache.specializationDataCache or {}
+        CraftSimRecipeDataCache.professionGearCache = CraftSimRecipeDataCache.professionGearCache or {}
+    end
+end
 
 function CraftSim.CACHE:GetFromCache(cache, entryID)
     return cache[entryID]
@@ -42,9 +78,6 @@ end
 
 function CraftSim.CACHE:ClearAll()
     CraftSimRecipeIDs = {}
-    CraftSimProfessionInfoCache = {}
-    CraftSim.CACHE.SpecDataStatsByRecipeID = {}
-    CraftSimProfessionSkillLineIDCache = {}
 end
 
 ---@return any?
@@ -57,10 +90,10 @@ function CraftSim.CACHE:GetCacheEntryByVersion(cache, entryID)
         wipe(cache)
         cache.version = currentVersion
         cache.data = {}
-         print("cache now:")
-         print(cache, true)
+        print("cache now:")
+        print(cache, true)
     end
-        
+
     if cache.data[entryID] then
         print("return from cache")
         return cache.data[entryID]
@@ -81,7 +114,7 @@ function CraftSim.CACHE:GetCacheEntryByGameVersion(cache, entryID)
         cache.version = gameVersion
         cache.data = {}
     end
-        
+
     if cache.data[entryID] then
         print("return from cache")
         return cache.data[entryID]
@@ -104,6 +137,7 @@ function CraftSim.CACHE:AddCacheEntryByVersion(cache, entryID, data)
 
     cache.data[entryID] = data
 end
+
 --- By Game Version
 function CraftSim.CACHE:AddCacheEntryByGameVersion(cache, entryID, data)
     local gameVersion = select(4, GetBuildInfo())
@@ -123,7 +157,6 @@ end
 function CraftSim.CACHE:BuildRecipeMap(professionInfo, recipeID)
     local professionID = professionInfo.profession
     if professionInfo and professionID then
-        
         --- only need to check one of the lists
         local recipeToProfession = CraftSim.CACHE:GetCacheEntryByGameVersion(CraftSimRecipeMap, "recipeToProfession")
         if not recipeToProfession or not recipeToProfession[recipeID] then
@@ -133,7 +166,7 @@ function CraftSim.CACHE:BuildRecipeMap(professionInfo, recipeID)
             local recipeMapForItems = {}
             local recipeMapForProfession = {}
             local recipeIDs = C_TradeSkillUI.GetAllRecipeIDs()
-            table.foreach(recipeIDs, function (_, recipeID)
+            table.foreach(recipeIDs, function(_, recipeID)
                 local recipeInfo = C_TradeSkillUI.GetRecipeInfo(recipeID)
                 recipeMapForProfession[recipeID] = professionID
 
@@ -141,7 +174,7 @@ function CraftSim.CACHE:BuildRecipeMap(professionInfo, recipeID)
                     local itemIDs = CraftSim.UTIL:GetDifferentQualityIDsByCraftingReagentTbl(recipeID, {})
                     itemIDs = CraftSim.GUTIL:ToSet(itemIDs) -- to consider gear where all qualities have the same itemID
 
-                    table.foreach(itemIDs, function (_, itemID)
+                    table.foreach(itemIDs, function(_, itemID)
                         recipeMapForItems[itemID] = recipeID
                     end)
                 end
@@ -169,7 +202,7 @@ function CraftSim.CACHE:TriggerRecipeOperationInfoLoadForProfession(professionRe
         for _, recipeID in ipairs(professionRecipeIDs) do
             C_TradeSkillUI.GetCraftingOperationInfo(recipeID, {})
         end
-        
+
         table.insert(CraftSimLoadedProfessionRecipes, professionID)
         CraftSim.UTIL:StopProfiling("FORCE_RECIPE_OPERATION_INFOS")
     end
