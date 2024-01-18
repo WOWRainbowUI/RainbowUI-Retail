@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,challenge,timewalker"
 
-mod:SetRevision("20230410103707")
+mod:SetRevision("20240105194015")
 mod:SetCreatureID(59051, 59726, 58826)--59051 (Strife), 59726 (Anger), 58826 (Zao Sunseeker). This event has a random chance to be Zao (solo) or Anger and Strife (together)
 mod:SetEncounterID(1417)
 
@@ -30,7 +30,7 @@ local warnUltimatePower		= mod:NewTargetAnnounce(113309, 4)
 local specWarnIntensity		= mod:NewSpecialWarning("SpecWarnIntensity", "-Healer", nil, 2, 1, 2)
 local specWarnUltimatePower	= mod:NewSpecialWarningTarget(113309, nil, nil, nil, 2, 2)
 
-local timerRP				= mod:NewRPTimer(17.4)
+local timerRP				= mod:NewCombatTimer(17.4)
 local timerUltimatePower	= mod:NewTargetTimer(15, 113309, nil, nil, nil, 5)
 
 mod.vb.bossesDead = 0

@@ -3,17 +3,25 @@ if GetLocale() ~= "koKR" then return end
 if not DBM_GUI_L then DBM_GUI_L = {} end
 local L = DBM_GUI_L
 
+--L.MainFrame							= "Deadly Boss Mods"
+
 L.TranslationByPrefix		= "번역: "
 L.TranslationBy 			= "Elnarfim"
-L.Website					= "디스코드 채널 |cFF73C2FBhttps://discord.gg/deadlybossmods|r를 방문해 보세요. 트위터 팔로우 @deadlybossmods 또는 @MysticalOS"
+L.Website					= "디스코드 |cFF73C2FBhttps://discord.gg/deadlybossmods|r를 방문해 보세요. SNS에서 @deadlybossmods 또는 @MysticalOS를 팔로우하세요"
 L.WebsiteButton				= "웹사이트"
 
 L.OTabBosses					= "보스 설정"--Deprecated and will be deleted once tabs no longer use this
-L.OTabRaids						= "공격대"--Raids & PVP
-L.OTabDungeons						= "파티/1인"--1-5 person content (Dungeons, MoP Scenarios, World Events, Brawlers, Proving Grounds, Visions, Torghast, etc)
-L.OTabPlugins					= "핵심 플러그인"
+L.OTabRaids						= "공격대"--Just pve raids
+L.OTabDungeons						= "던전"--Just dungeons
+L.OTabWorld						= "필드 보스"--Since there are so many world mods, enough to get their own tab
+L.OTabScenarios						= "시나리오"--Future use, will be used for scenarios and delves, likely after there are more than 2 mods (so probably 12.x or later)
+L.OTabPlugins						= "기타"--Scenarios, PVP, Delves (11.x), Solo/Challenge content (torghast, mage tower, etc)
 L.OTabOptions					= "핵심 설정"
 L.OTabAbout						= "소개"
+
+--L.FOLLOWER						= "추종자"--i.e. the new dungeon type in 10.2.5. I haven't found a translated string yet
+
+L.TabCategory_CURRENT_SEASON		= "현재 시즌"
 
 L.TabCategory_OTHER			= "기타 모드"
 L.TabCategory_AFFIXES		= "어픽스"
@@ -30,7 +38,7 @@ L.MoveMe 					= "위치 이동"
 L.Button_OK					= "확인"
 L.Button_Cancel				= "취소"
 L.Button_LoadMod			= "애드온 로드"
-L.Mod_Enabled				= "보스 모드 활성화"
+L.Mod_Enabled				= "활성화: %s"
 L.Mod_Reset					= "설정 기본값 로드"
 L.Reset						= "초기화"
 L.Import					= "가져오기"
@@ -59,6 +67,7 @@ L.Area_ProfilesSetup		= "DBM 프로필 사용법 가이드"
 L.Core_GUI 					= "핵심 모드와 GUI"
 L.General 					= "일반 설정"
 L.EnableMiniMapIcon			= "미니맵 버튼 표시"
+--L.EnableCompartmentIcon	= "Show compartment button"
 L.UseSoundChannel			= "DBM 경고 효과음 재생 채널 선택"
 L.UseMasterChannel			= "주 음량"
 L.UseDialogChannel			= "대화"
@@ -85,7 +94,6 @@ L.Editbox_WindowHeight		= "설정 창 높이"
 
 L.UIGroupingOptions			= "UI 그룹 설정 (이미 로딩이 된 모드는 UI 재시작을 해야 변경됩니다)"
 L.GroupOptionsExcludeIcon	= "주문별로 형성된 그룹에서 '공격대 징표' 설정은 제외 (대신 '공격대 징표' 카테고리로 배치됩니다)"
-L.GroupOptionsExcludePAura			= "주문별로 형성된 그룹에서 '비공개 오라 효과음 재생' 설정은 제외 (대신 '비공개 오라' 카테고리로 배치됩니다)"
 
 L.AutoExpandSpellGroups		= "주문별로 그룹이 형성된 설정들을 자동으로 펼치기"
 L.ShowWAKeys				= "보스 모드 활성 조건을 이용한 WeakAuras 제작을 지원하기 위해 주문 이름 옆에 WeakAuras 키를 표시합니다."
@@ -228,6 +236,13 @@ L.SpecialWarnHeader5		= "유형 5: 메모에 당신의 이름이 있을 때 알�
 
 -- Panel: Generalwarnings
 L.Tab_GeneralMessages 		= "대화창 메시지"
+L.SelectChatFrameArea				= "대화창 설정"
+L.SelectChatFrameButton				= "대화창 선택"
+L.SelectChatFrameInfoIdle			= "%s에 메시지가 표시됩니다."
+L.SelectChatFrameDefaultName		= "기본 대화창"
+L.SelectChatFrameInfoDone			= "이 대화창에 메시지가 표시됩니다."
+L.SelectChatFrameInfoSelect			= "대화창을 클릭해서 선택합니다."
+L.SelectChatFrameInfoSelectNow		= "클릭해서 %s|1을;를; 선택하세요."
 L.CoreMessages				= "기본 메시지 설정"
 L.ShowPizzaMessage 			= "대화창에 전송받은 타이머 표시"
 L.ShowAllVersions	 		= "버전 검사시 대화창에 모든 파티/공격대원의 보스 모드 버전을 표시합니다. (설정을 꺼도 구버전/신버전으로 간략하게 표시됨)"
@@ -271,8 +286,11 @@ L.Area_VoicePackAdvOptions	= "음성팩 고급 설정"
 L.SpecWarn_AlwaysVoice		= "모든 음성 경고 재생 (특수 알림을 꺼놔도 재생됩니다. 일부 특수한 상황에 처한 공대장에게 유용하며 그 외에는 권장하지 않습니다)"
 L.VPDontMuteSounds			= "음성팩 사용시 DBM 경고음을 끄지 않음 (두가지 경고음 모두 듣고싶을때만 사용)"
 L.Area_VPLearnMore			= "음성팩에 대한 정보 및 관련 설정 사용법 알아보기"
+--L.VPLearnMore						= "|cFF73C2FBhttps://github.com/DeadlyBossMods/DBM-Retail/wiki/%5BGuide%5D-DBM-&-Voicepacks#2022-update|r"
 L.Area_BrowseOtherVP		= "Curse에 올라와있는 다른 음성팩 보기"
+--L.BrowseOtherVPs					= "|cFF73C2FBhttps://www.curseforge.com/wow/addons/search?search=dbm+voice|r"
 L.Area_BrowseOtherCT		= "Curse에 올라와있는 카운트다운 팩 보기"
+--L.BrowseOtherCTs					= "|cFF73C2FBhttps://www.curseforge.com/wow/addons/search?search=dbm+count+pack|r"
 
 -- Panel: Event Sounds
 L.Panel_EventSounds			= "이벤트 효과음 (승리, 전멸, 기타)"
@@ -294,7 +312,6 @@ L.TabCategory_Timers			= "타이머 바"
 L.Area_ColorBytype			= "속성별 바 색상 가이드"
 -- Panel: Color by Type
 L.Panel_ColorByType	 		= "바 색상"
-L.AreaTitle_BarColors		= "타이머 속성별 바 색상"
 L.AreaTitle_BarColors				= "일반 바 색상 (기본값은 스킬 속성마다 지정)"
 L.AreaTitle_ImpBarColors			= "중요 바 색상 (사용자가 중요로 설정한 바)"
 L.BarTexture 				= "바 텍스쳐"
@@ -387,7 +404,7 @@ L.FadeBar					= "사정거리 밖의 스킬에 대한 타이머 바 숨김"
 L.BarSkin					= "바 스킨"
 
 -- Panel: Pull, Break, Combat
-L.Panel_PullBreakCombat				= "풀링, 휴식, 전투"
+L.Panel_PullBreakCombat				= "풀링과 휴식"
 
 L.Area_SoundOptions					= "효과음 설정"
 
@@ -431,13 +448,13 @@ L.Area_Restore				= "DBM 복구 설정 (DBM이 보스 모드 종료시 이전 �
 L.SpamBlockNoIconRestore	= "아이콘 설정 상태를 저장하지 않고 전투 종료시 원래대로 복구"
 L.SpamBlockNoRangeRestore	= "모드가 '숨김' 명령을 내렸을 때 이전 설정 상태로 거리 창 복구 안함"
 
-L.Area_PullTimer			= "풀링, 휴식, 전투, 사용자 지정 바 관련 필터 설정"
+L.Area_PullTimer			= "풀링, 휴식, 사용자 지정 바 관련 필터 설정"
 L.DontShowPTNoID			= "같은 지역에 없는 사용자가 보낸 DBM 풀링 타이머 차단 (지역 ID 없이 전송된 BigWigs 타이머는 차단하지 않습니다)"
 L.DontShowPT				= "풀링/휴식 타이머 표시 안함"
 L.DontShowPTText			= "풀링/휴식 알림 텍스트 표시 안함"
 L.DontShowPTCountdownText	= "풀링 초읽기 숫자 표시 안함"
-L.DontPlayPTCountdown		= "풀링/휴식/전투/사용자 지정 초읽기 전구간 음성 재생 안함"
-L.PT_Threshold				= "휴식/전투/사용자 지정 타이머 초읽기 음성 재생 안함: %d초 까지"
+L.DontPlayPTCountdown		= "풀링/휴식/사용자 지정 초읽기 전구간 음성 재생 안함"
+L.PT_Threshold				= "풀링/휴식/사용자 지정 타이머 초읽기 음성 재생 안함: %d초 까지"
 
 -- Panel: Reduce Information
 L.Panel_ReducedInformation			= "정보량 줄이기"
@@ -457,7 +474,7 @@ L.FilterDispels				= "해제 주문이 쿨타임일땐 해제 알림 보지 않�
 L.FilterTrashWarnings		= "일반, 영웅, 이전 확장팩 던전에선 일반몹 알림 보지 않기"
 
 L.Area_BInterruptFilter				= "보스 차단 알림 필터 설정"
-L.FilterTargetFocus					= "현재 대상/주시 대상이 아니면 알림 표시 안함"
+L.FilterTargetFocus					= "현재 대상/주시 대상/액션 대상(적)이 아니면 알림 표시 안함"
 L.FilterInterruptCooldown			= "차단 주문이 쿨타임일땐 표시 안함"
 L.FilterInterruptHealer				= "힐러일때 표시 안함"
 L.FilterInterruptNoteName			= "시전 횟수가 포함되어 있는 차단 알림에서 사용자 정의 메모에 내 이름이 없으면 표시 안함"--Only used on bosses, trash mods don't assign counts
@@ -563,3 +580,5 @@ L.FontStyle				= "글꼴 속성"
 L.FontColor			= "글꼴 색상"
 L.FontShadow				= "그림자"
 L.FontType				= "글꼴 선택"
+
+--L.FontHeight	= 16

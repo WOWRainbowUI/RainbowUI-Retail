@@ -1,6 +1,6 @@
 # <DBM Mod> Challenges
 
-## [r160](https://github.com/DeadlyBossMods/DBM-Challenges/tree/r160) (2023-11-07)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Challenges/compare/r159...r160) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Challenges/releases)
+## [r161](https://github.com/DeadlyBossMods/DBM-Challenges/tree/r161) (2024-01-16)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Challenges/compare/r160...r161) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Challenges/releases)
 
-- Bump tocs  
+- Bump tocs for 10.2.5  

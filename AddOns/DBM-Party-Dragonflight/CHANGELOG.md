@@ -1,20 +1,17 @@
 # <DBM Mod> Dungeons (DF)
 
-## [r112](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r112) (2023-12-21)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r111...r112) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r115](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r115) (2024-01-16)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r114...r115) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Backup Stage 2 trigger for Chrono Lord Deios in case early push (less than 4 add deaths)  
-- throttle icy veins warning on lady nazjar  
-- fix bad copy/paste  
-- Add DHT RP timers for first and second boss  
-- Add everbloom RP timer for portal  
-- helps to actually comment out the comments  
-- Add RP timer after first boss in BRH  
-- acid barrage tweak  
-- Fix bad option localization.  
-- small timer tweak  
-- further refinements to crappy spell queuing in DHT  
-- improve debug  
-- Few minor everbloom tweaks  
-- shorten scan time on waycrest  
-- two nameplate timer updates for atal dazar trash  
+- Bump tocs for 10.2.5  
+- Switch objects to match pauls core updates  
+- Update localization.ru.lua (#164)  
+- Update localization.ru.lua (#163)  
+- minor timer fixes  
+- Micro timer adjustments  
+- tweak last  
+- Use warning aggregation for Yalnu for two similar mechanics  
+- more follower dungeon prep now that we have a dungeon list  
+- Update two distance APIs to be classic only  
+- Update koKR (#162)  
+    Co-authored-by: Artemis <QartemisT@gmail.com>  

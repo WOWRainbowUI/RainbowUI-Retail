@@ -2,7 +2,7 @@ if (DBM:GetTOC() < 100200) then return end--DO NOT DELETE DO NOT DELETE DO NOT D
 local mod	= DBM:NewMod("EverBloomTrash", "DBM-Party-WoD", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231221055323")
+mod:SetRevision("20240108011514")
 --mod:SetModelID(47785)
 mod:SetZone(1279)
 
@@ -187,9 +187,11 @@ function mod:SPELL_AURA_APPLIED(args)
 		specWarnVenomBurstDispel:Play("helpdispel")
 	elseif spellId == 165123 then
 		if args:IsPlayer() then
-			specWarnVenomBurst:Show()
-			specWarnVenomBurst:Play("range5")
-			yellnVenomBurst:Yell()
+			if self:AntiSpam(4, 5) then
+				specWarnVenomBurst:Show()
+				specWarnVenomBurst:Play("range5")
+				yellnVenomBurst:Yell()
+			end
 		else
 			warnVenomBurst:Show(args.destName)
 		end

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2397, "DBM-Party-Shadowlands", 6, 1187)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20220803233609")
+mod:SetRevision("20240106080507")
 mod:SetCreatureID(164451, 164463, 164461)--Dessia, Paceran, Sathel
 mod:SetEncounterID(2391)
 mod:SetHotfixNoticeRev(20220416000000)
@@ -91,7 +91,7 @@ end
 function mod:SPELL_CAST_START(args)
 	local spellId = args.spellId
 	if spellId == 320063 and self:AntiSpam(4, 1) then--Boss can stutter cast this (self interrupt and start cast over)
-		if self.Options.SpecWarn320063defensive2 then
+		if self.Options.SpecWarn320063defensive2 and self:IsTanking("player", nil, nil, true, args.sourceGUID) then
 			specWarnSlam:Show()
 			specWarnSlam:Play("defensive")
 		else

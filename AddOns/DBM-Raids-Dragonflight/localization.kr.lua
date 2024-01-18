@@ -267,7 +267,8 @@ L= DBM:GetModLocalization(2565)
 
 L:SetMiscLocalization({
 	TreeForm			= "나무 형상",
-	MoonkinForm			= "달빛야수 형상"
+	MoonkinForm			= "달빛야수 형상",
+	Feathers			= "깃털"
 })
 
 ---------------------------
@@ -295,4 +296,8 @@ L = DBM:GetModLocalization("AmirdrassilTrash")
 
 L:SetGeneralLocalization({
 	name =	"아미드랏실 일반몹"
+})
+
+L:SetMiscLocalization({
+	FyrakkRP			= "또 너인가? 미안하지만 널 직접 소멸시킬 여유가 없어서 말이다."
 })

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("AtalDazarTrash", "DBM-Party-BfA", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231209211945")
+mod:SetRevision("20240109044851")
 --mod:SetModelID(47785)
 mod:SetZone(1763)
 
@@ -35,7 +35,7 @@ local warnUnstableHex				= mod:NewCastAnnounce(252781, 4)
 local warnRendingMaul				= mod:NewStackAnnounce(255814, 2, nil, "Tank|Healer")
 --local warnFrenziedCharge			= mod:NewTargetNoFilterAnnounce(255567, 4)
 
-local specWarnWildThrash			= mod:NewSpecialWarningDodge(256882, nil, nil, nil, 2, 2)
+local specWarnWildThrash			= mod:NewSpecialWarningSpell(256882, nil, nil, nil, 2, 2)
 local specWarnVenomfangStrike		= mod:NewSpecialWarningDefensive(252687, nil, nil, nil, 1, 2)
 local specWarnUnstableHexSelf		= mod:NewSpecialWarningMoveAway(252781, nil, nil, nil, 1, 2)
 local yellUnstableHex				= mod:NewYell(252781)
@@ -63,8 +63,8 @@ local timerMercilessAssaultCD		= mod:NewCDNPTimer(9.8, 253239, nil, nil, nil, 3)
 local timerBwonsamdisMantleCD		= mod:NewCDNPTimer(26.7, 253544, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--More data needed
 local timerSoulburnCD				= mod:NewCDNPTimer(13.3, 254959, nil, nil, nil, 3)
 local timerTerrifyingScreechCD		= mod:NewCDNPTimer(18.2, 255041, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--Could be 17, watch for debug
-local timerVenomfangStrikeCD		= mod:NewCDNPTimer(15.7, 252687, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
-local timerBulwarkofJujuCD			= mod:NewCDNPTimer(23, 253721, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
+local timerVenomfangStrikeCD		= mod:NewCDNPTimer(15.3, 252687, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
+local timerBulwarkofJujuCD			= mod:NewCDNPTimer(22.2, 253721, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerHexCD					= mod:NewCDNPTimer(18.1, 252781, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
 local timerFrenziedChargeCD			= mod:NewCDNPTimer(13.3, 255567, nil, nil, nil, 3)--13.3-18.2
 local timerWildThrashCD				= mod:NewCDNPTimer(13.3, 256882, nil, nil, nil, 3)--13.3-18.2
@@ -158,9 +158,9 @@ function mod:SPELL_CAST_START(args)
 		end
 	elseif spellId == 256882 then
 		timerWildThrashCD:Start(nil, args.sourceGUID)
-		if self:AntiSpam(3, 2) then
+		if self:AntiSpam(3, 4) then
 			specWarnWildThrash:Show()
-			specWarnWildThrash:Play("watchstep")
+			specWarnWildThrash:Play("aesoon")
 		end
 	elseif spellId == 255567 then
 		timerFrenziedChargeCD:Start(nil, args.sourceGUID)

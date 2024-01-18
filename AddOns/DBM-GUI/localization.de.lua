@@ -18,7 +18,7 @@ L.TabCategory_OTHER			= "Sonstige Boss Mods"
 L.BossModLoaded 			= "Statistiken von %s"
 L.BossModLoad_now 			= [[Dieses Boss Mod ist nicht geladen. Es wird automatisch geladen, wenn du die Instanz betrittst. Du kannst auch auf den Button klicken um das Boss Mod manuell zu laden.]]
 
-
+--L.FOLLOWER				= "Follower"--i.e. the new dungeon type in 10.2.5. I haven't found a translated string yet
 
 L.PosX						= "Position X"
 L.PosY						= "Position Y"
@@ -27,7 +27,7 @@ L.MoveMe 					= "Positionieren"
 L.Button_OK 				= "OK"
 L.Button_Cancel 			= "Abbrechen"
 L.Button_LoadMod 			= "Lade Boss Mod"
-L.Mod_Enabled				= "Aktiviere Boss Mod"
+L.Mod_Enabled				= "Aktiviere: %s"
 L.Mod_Reset					= "Lade Standardeinstellungen"
 L.Reset 					= "Zurücksetzen"
 
@@ -49,6 +49,7 @@ L.Statistic_BestRank		= "Höchste Stufe:"
 -- Tab: General Core Options
 L.General 					= "Allgemeine Grundeinstellungen"
 L.EnableMiniMapIcon			= "Aktiviere Minimap-Symbol"
+--L.EnableCompartmentIcon	= "Show compartment button"
 L.UseSoundChannel			= "Audiokanal um DBM-Sounddateien abzuspielen"
 L.UseMasterChannel			= "Master Audiokanal"
 L.UseDialogChannel			= "Dialog Audiokanal"
@@ -249,13 +250,13 @@ L.FilterInterruptNoteName	= "Unterdrücke Warnungen für unterbrechbare Zauber (
 L.FilterDispels				= "Unterdrücke Warnungen für reinigbare Zauber, falls deine Reinigungen noch abklingen"
 L.FilterTrashWarnings		= "Unterdrücke alle \"Trash\"-Gegner Warnungen in normalen und heroischen Dungeons"
 
-L.Area_PullTimer			= "Filtereinstellungen für Pull-, Pausen-, Kampf- und benutzerdefinierte Timer"
+L.Area_PullTimer			= "Filtereinstellungen für Pull-, Pausen-, und benutzerdefinierte Timer"
 L.DontShowPTNoID			= "Blockiere Pull-Timer, die nicht aus deiner derzeitigen Zone gesendet worden sind"
 L.DontShowPT				= "Zeige keinen Timerbalken für Pull-/Pausen-Timer"
 L.DontShowPTText			= "Zeige keine Mitteilungen für Pull-/Pausen-Timer im Chatfenster"
-L.DontPlayPTCountdown		= "Spiele keinen akustischen Countdown für Pull-, Pausen-, Kampf- und benutzerdefinierte Timer"
+L.DontPlayPTCountdown		= "Spiele keinen akustischen Countdown für Pull-, Pausen-, und benutzerdefinierte Timer"
 L.DontShowPTCountdownText	= "Zeige keinen optischen Countdown für Pull-Timer"
-L.PT_Threshold				= "Zeige keinen opt. Countd. für Pausen-/Kampf-/Nutzer-Timer über: %d"
+L.PT_Threshold				= "Zeige keinen opt. Countd. für Pausen-/Nutzer-Timer über: %d"
 
 L.Panel_HideBlizzard		= "Deaktivierung von Spielelementen"
 L.Area_HideBlizzard			= "Einstellungen zum Deaktivieren und Verbergen von Spielelementen"

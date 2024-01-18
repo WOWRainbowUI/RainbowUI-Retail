@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,timewalker"
 
-mod:SetRevision("20231117105343")
+mod:SetRevision("20240106080507")
 mod:SetCreatureID(39625)
 mod:SetEncounterID(1051)
 
@@ -24,7 +24,7 @@ local warnFrenzySoon		= mod:NewSoonAnnounce(74853, 2, nil, "Tank|Healer")
 local warnFrenzy			= mod:NewSpellAnnounce(74853, 3, nil, "Tank|Healer")
 local warnBlitz				= mod:NewTargetAnnounce(74670, 3)
 
-local specWarnMalice		= mod:NewSpecialWarningDefensive(90170, "Tank", nil, nil, 1, 2)
+local specWarnMalice		= mod:NewSpecialWarningDefensive(90170, nil, nil, nil, 1, 2)
 local specWarnGroundSiege	= mod:NewSpecialWarningDodge(74634, "Melee", nil, nil, 2, 2)
 local specWarnBlitz			= mod:NewSpecialWarningYou(74670, nil, nil, nil, 1, 2)
 local yellBlitz				= mod:NewYell(74670)
@@ -51,8 +51,10 @@ function mod:SPELL_AURA_APPLIED(args)
 	elseif spellId == 74837 then
 		warnMalady:CombinedShow(0.3, args.destName)
 	elseif spellId == 90170 then
-		specWarnMalice:Show()
-		specWarnMalice:Play("defensive")
+		if self:IsTanking("player", "boss1", nil, true) then
+			specWarnMalice:Show()
+			specWarnMalice:Play("defensive")
+		end
 		timerMalice:Start()
 	end
 end

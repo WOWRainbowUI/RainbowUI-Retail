@@ -121,8 +121,6 @@ L.GENERIC_WARNING_OTHERS2	= "e %d altri"
 L.GENERIC_WARNING_BERSERK	= "Furia tra %s %s"
 L.GENERIC_TIMER_BERSERK		= "Furia"
 L.OPTION_TIMER_BERSERK		= "Visualizza Temporizzatore $spell:26662"
-L.GENERIC_TIMER_COMBAT		= "Inizio combattimento"
-L.OPTION_TIMER_COMBAT		= "Mostra temporizzatore inizio combattimento"
 -- L.BAD						= "Bad"
 
 L.OPTION_CATEGORY_TIMERS		= "Barre"
@@ -436,6 +434,7 @@ L.AUTO_TIMER_TEXTS.stage			= "Prossima Fase"
 L.AUTO_TIMER_TEXTS.adds			= "Add in Arrivo"
 L.AUTO_TIMER_TEXTS.addscustom	= "Add in Arrivo (%%s)"
 L.AUTO_TIMER_TEXTS.roleplay		= GUILD_INTEREST_RP
+L.AUTO_TIMER_TEXTS.combat		= "Inizio combattimento"
 -- L.AUTO_TIMER_TEXTS - FINE
 
 -- L.AUTO_TIMER_OPTIONS - INIZIO
@@ -459,6 +458,7 @@ L.AUTO_TIMER_OPTIONS.stage		= "Mostra temporizzatore per prossima fase"
 L.AUTO_TIMER_OPTIONS.adds		= "Mostra temporizzatore add in arrivo"
 L.AUTO_TIMER_OPTIONS.addscustom	= "Mostra temporizzatore add in arrivo"
 L.AUTO_TIMER_OPTIONS.roleplay	= "Mostra temporizzatore durata gioco di ruolo"
+L.AUTO_TIMER_OPTIONS.combat		= "Mostra temporizzatore inizio combattimento"
 -- L.AUTO_TIMER_OPTIONS - FINE
 
 
@@ -488,7 +488,6 @@ L.AUTO_YELL_ANNOUNCE_TEXT.position 		= "%s %%s su {rt%%d}"..UnitName("player")..
 L.AUTO_YELL_ANNOUNCE_TEXT.combo			= "%s e %%s" -- Nome abilità (da opzioni, più nome abilità passata in arg)
 -- L.AUTO_YELL_ANNOUNCE_TEXT - FINE
 L.AUTO_YELL_CUSTOM_POSITION		= "{rt%d}%s"--Doesn't need translating. Has no strings
-L.AUTO_YELL_CUSTOM_POSITION2		= "{rt%d}%s{rt%d}"--Doesn't need translating. Has no strings
 L.AUTO_YELL_CUSTOM_FADE			= "%s svanito"
 L.AUTO_HUD_OPTION_TEXT			= "Mostra la HudMap per l'abilità $spell:%s (Dismessa)"
 L.AUTO_HUD_OPTION_TEXT_MULTI		= "Mostra la HudMap per varie meccaniche (Dismessa)"

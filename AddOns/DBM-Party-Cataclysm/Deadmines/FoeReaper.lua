@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(91, "DBM-Party-Cataclysm", 2, 63)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200806142123")
+mod:SetRevision("20240110075649")
 mod:SetCreatureID(43778)
 mod:SetEncounterID(1063)
 mod:SetUsedIcons(8)
@@ -36,17 +36,11 @@ function mod:HarvestTarget()
 	if targetname == UnitName("player") then
 		specWarnHarvest:Show()
 		specWarnHarvest:Play("justrun")
+	elseif self:IsClassic() and self:CheckNearby(10, targetname) then
+		specWarnHarvestNear:Show(targetname)
+		specWarnHarvestNear:Play("runaway")
 	else
-		local uId = DBM:GetRaidUnitId(targetname)
-		if uId then
-			local inRange = CheckInteractDistance(uId, 2)
-			if inRange then
-				specWarnHarvestNear:Show(targetname)
-				specWarnHarvestNear:Play("runaway")
-			else
-				warnHarvest:Show(targetname)
-			end
-		end
+		warnHarvest:Show(targetname)
 	end
 end
 

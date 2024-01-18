@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2553, "DBM-Raids-Dragonflight", 1, 1207)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231222010126")
+mod:SetRevision("20240112060931")
 mod:SetCreatureID(208445)
 mod:SetEncounterID(2731)
 mod:SetUsedIcons(6, 7, 8)
@@ -38,7 +38,7 @@ mod:RegisterEventsInCombat(
 --TODO, maybe infoframe for tracking Blazing Coal stacks?
 --TODO, more with the tank stuff?
 --General
-local warnPhase										= mod:NewPhaseChangeAnnounce(2, nil, nil, nil, nil, nil, 2)
+local warnPhase										= mod:NewPhaseChangeAnnounce(2, 2, nil, nil, nil, nil, nil, 2)
 
 local specWarnGTFO									= mod:NewSpecialWarningGTFO(417632, nil, nil, nil, 1, 8)
 
@@ -124,7 +124,7 @@ local timerAshenCallCD								= mod:NewCDCountTimer(11.8, 421325, DBM_COMMON_L.A
 local timerAshenDevestationCD						= mod:NewCDCountTimer(49, 428896, nil, nil, nil, 3, nil, DBM_COMMON_L.MYTHIC_ICON)
 
 mod:AddPrivateAuraSoundOption(421461, true, 427299, 1)--Flash Fire
-mod:AddPrivateAuraSoundOption(428901, true, 428901, 1)--Ashen Devestation
+mod:AddPrivateAuraSoundOption(428901, true, 428896, 1)--Ashen Devestation
 
 --Stage 1
 mod.vb.ignitingCount = 0--Reused in stage 2 for Ashen Devestation
@@ -267,7 +267,7 @@ function mod:OnCombatStart(delay)
 		timerBlazingThornsCD:Start(30.7-delay, 1)
 		timerScorchingRootsCD:Start(37.3-delay, 1)
 	end
-	timerRagingInfernoCD:Start(90.5-delay, 1)
+	timerRagingInfernoCD:Start(90.3-delay, 1)
 end
 
 function mod:OnTimerRecovery()

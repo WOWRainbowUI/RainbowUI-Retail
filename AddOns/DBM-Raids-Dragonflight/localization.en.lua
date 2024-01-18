@@ -268,7 +268,8 @@ L= DBM:GetModLocalization(2565)
 
 L:SetMiscLocalization({
 	TreeForm			= "Tree Form",
-	MoonkinForm			= "Moonkin Form"
+	MoonkinForm			= "Moonkin Form",
+	Feathers			= "Feathers"
 })
 
 ---------------------------
@@ -296,4 +297,8 @@ L = DBM:GetModLocalization("AmirdrassilTrash")
 
 L:SetGeneralLocalization({
 	name =	"Amirdrassil Trash"
+})
+
+L:SetMiscLocalization({
+	FyrakkRP			= "You again. A pity I do not have time to eradicate you myself."
 })
