@@ -2,7 +2,7 @@
 
 All items are broken down into categories, with itemID followed by the Item name.
 
-Latest version: 2.3.30
+Latest version: 2.3.31
 
 ## Achievements & Unlockables
 

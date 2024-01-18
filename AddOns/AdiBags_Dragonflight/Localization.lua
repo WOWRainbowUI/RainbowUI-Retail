@@ -1,7 +1,7 @@
 --[[
 AdiBags - Dragonflight - Localization
 by Zottelchen
-version: 2.3.30
+version: 2.3.31
 This file contains translations for this filter.
 ]]
 local addonName, addon = ...
@@ -1562,18 +1562,15 @@ L["Awakened Elementals"] = "覺醒元素"
 L["Baits to attract skinnable creatures"] = "用來吸引一些可剝皮生物的餌"
 L["Bandages"] = "繃帶"
 L["Bandages, to patch up your broken friends :)"] = "繃帶, 幫你受傷的朋友包紮"
---[[Translation missing --]]
---[[ L["Catch-Up Accessories - contains Rings, Necklaces, Trinkets & Cloaks."] = ""--]] 
---[[Translation missing --]]
---[[ L["Catch-Up Weapon."] = ""--]] 
+L["Catch-Up Accessories - contains Rings, Necklaces, Trinkets & Cloaks."] = "追趕機制飾品 - 包括戒指、項鍊、飾品和披風。"
+L["Catch-Up Weapon."] = "追趕機制武器。"
 L["Cauldrons"] = "大鍋"
 L["Cauldrons, to share your soup with friends :)"] = "大鍋, 分享湯給你的朋友"
 L["Cavern Clawbering (Achievement)"] = "響動爪 (成就)"
 L["Cavern Currencies"] = "洞窟通貨"
 L["Chip (Pet)"] = "小鑿 (寵物)"
 L["Cloth"] = "布料"
---[[Translation missing --]]
---[[ L["Cloth Catch-Up Gear."] = ""--]] 
+L["Cloth Catch-Up Gear."] = "追趕機制布甲。"
 L["Color"] = "顏色"
 L["Colored Categories"] = "彩色類別名稱"
 L["Colored Prefix"] = "彩色前置文字"
@@ -1649,21 +1646,18 @@ L["Items which are used for achievements or unlockable mounts. Most of them lose
 L["Items which are used in multiple professions."] = "多種專業都會用到的物品。"
 L["Items which can be found and used in the Forbidden Reach."] = "在禁忌之境找到和使用物品。"
 L["Items which can be found and used in the Zaralek Cavern."] = "在札拉萊克洞窟找到和使用物品。"
---[[Translation missing --]]
---[[ L["Items which upgrade the item level of crafted gear."] = ""--]] 
+L["Items which upgrade the item level of crafted gear."] = "用來升級製作裝備等級的物品。"
 L["Items you can eat or use to improve yourself"] = "可以吃或使用，用來強化自己的物品。"
 L["Jewelcrafting"] = "珠寶加工"
 L["Leather"] = "皮革"
 L["Leather - Bait"] = "皮革 - 誘餌"
---[[Translation missing --]]
---[[ L["Leather Catch-Up Gear."] = ""--]] 
+L["Leather Catch-Up Gear."] = "追趕機制皮甲。"
 L["Leftover Elemental Slime"] = "殘留的元素黏液"
 --[[Translation missing --]]
 --[[ L["Librarian of the Reach (Achievement)"] = ""--]] 
 L["Lizis Reins (Mount)"] = "莉茲 (坐騎)"
 L["Magmashell (Mount)"] = "熔殼蝸牛 (坐騎)"
---[[Translation missing --]]
---[[ L["Mail Catch-Up Gear."] = ""--]] 
+L["Mail Catch-Up Gear."] = "追趕機制鎖甲。"
 L["Maps to Treasure found in the Dragon Isles"] = "巨龍群島的藏寶圖"
 L["Merge all %s into a single category."] = "將所有%s都合併成單一類別"
 L["Mining"] = "採礦"
@@ -1672,13 +1666,11 @@ L["None"] = "無"
 L["Other Items"] = "其他物品"
 L["Other items not really fitting in another category."] = "不屬於任何現有分類的其他物品。"
 L["Otto (Mount)"] = "奧圖 (坐騎)"
---[[Translation missing --]]
---[[ L["Permanent Enhancements"] = ""--]] 
+L["Permanent Enhancements"] = "永久性強化"
 L["Phials"] = "藥瓶"
 L["Phials added in the Dragonflight expansion"] = "巨龍崛起資料片新增的藥瓶"
 L["Phoenix Wishwing (Pet)"] = "鳳凰希翼 (寵物)"
---[[Translation missing --]]
---[[ L["Plate Catch-Up Gear."] = ""--]] 
+L["Plate Catch-Up Gear."] = "追趕機制板甲。"
 L["Potions"] = "藥水"
 L["Potions & Elixirs"] = "藥水 & 精煉"
 L["Potions added in the Dragonflight expansion"] = "巨龍崛起資料片的藥水"
@@ -1692,8 +1684,7 @@ L["Prefix Color"] = "前置文字顏色"
 L["Primalist Accessories"] = "洪荒飾品"
 L["Primalist Cloth"] = "洪荒布甲"
 L["Primalist Gear Tokens"] = "洪荒裝備代幣"
---[[Translation missing --]]
---[[ L["Primalist Gear Tokens is an account wide Catch-Up Gear."] = ""--]] 
+L["Primalist Gear Tokens is an account wide Catch-Up Gear."] = "洪荒裝備代幣是帳號綁定的追趕機制裝備。"
 L["Primalist Leather"] = "洪荒皮甲"
 L["Primalist Mail"] = "洪荒鎖甲"
 L["Primalist Plate"] = "洪荒鎧甲"
@@ -1720,30 +1711,23 @@ L["Specialized gear which improves your profession"] = "強化專業的特殊裝
 L["Statues"] = "雕像"
 L["Statues crafted by Jewelcrafters. They improve various things."] = "珠寶製造的雕像. 有不同的效果"
 L["Temperamental Skyclaw (Mount)"] = "暴躁的天爪 (坐騎)"
---[[Translation missing --]]
---[[ L["Temporary & Permanent Enhancements"] = ""--]] 
---[[Translation missing --]]
---[[ L["Temporary Enhancements"] = ""--]] 
+L["Temporary & Permanent Enhancements"] = "暫時 & 永久性強化"
+L["Temporary Enhancements"] = "暫時性強化"
 --[[Translation missing --]]
 --[[ L["Tetrachromancer (Achievement)"] = ""--]] 
---[[Translation missing --]]
---[[ L["These are gems that you can typically apply to armor to improve it."] = ""--]] 
---[[Translation missing --]]
---[[ L["These are permanent enhancements that you can typically apply to armor to improve it."] = ""--]] 
---[[Translation missing --]]
---[[ L["These are temporary enhancements that you can typically apply to armor to improve it."] = ""--]] 
+L["These are gems that you can typically apply to armor to improve it."] = "這些是通常用在護甲上以獲得提升的寶石。"
+L["These are permanent enhancements that you can typically apply to armor to improve it."] = "這些是通常用在護甲上以獲得提升的永久性強化。"
+L["These are temporary enhancements that you can typically apply to armor to improve it."] = "這些是通常用在護甲上以獲得提升的暫時性強化。"
 --[[Translation missing --]]
 --[[ L["These artifacts can be traded in Morqut Village."] = ""--]] 
 --[[Translation missing --]]
 --[[ L["These items can be found in the Zskera Vault and are used to create the Mossy Mammoth."] = ""--]] 
---[[Translation missing --]]
---[[ L["These items can be used to summon a rare mob in the Forbidden Reach."] = ""--]] 
+L["These items can be used to summon a rare mob in the Forbidden Reach."] = "這些物品可以用來召喚禁忌之境的稀有物。"
 L["These settings affect all categories of this filter."] = "這些設定會影響這個過濾程式中的所有類別。"
 L["This category contains currencies, used in the Zaralek Cavern."] = "此類別包含在札拉萊克洞窟使用的貨幣。"
 --[[Translation missing --]]
 --[[ L["This category contains fragments, used during the Fyrak Assault event."] = ""--]] 
---[[Translation missing --]]
---[[ L["This category contains hunting companion colors needed for the achievement."] = ""--]] 
+L["This category contains hunting companion colors needed for the achievement."] = "此類別包含達成成就所需的狩獵夥伴顏色。"
 --[[Translation missing --]]
 --[[ L["This category contains Primordial Stones, which can be inserted into the Onyx Annulet and the Annulet itself."] = ""--]] 
 --[[Translation missing --]]
@@ -1752,13 +1736,12 @@ L["This category contains currencies, used in the Zaralek Cavern."] = "此類別
 --[[ L["This category contains the books looted for the Librarian of the Reach achievement."] = ""--]] 
 --[[Translation missing --]]
 --[[ L["This category contains the item needed to get the Cavern Clawbering achievement."] = ""--]] 
---[[Translation missing --]]
---[[ L["This category contains the items needed to get the Chip pet."] = ""--]] 
+L["This category contains the items needed to get the Chip pet."] = "此類別包含獲得寵物小鑿所需的物品。"
 --[[Translation missing --]]
 --[[ L["This category contains the items needed to get the Phoenix Wishwing pet."] = ""--]] 
 --[[Translation missing --]]
 --[[ L["This category contains the quest items looted for the While We Were Sleeping achievement."] = ""--]] 
-L["This category only contains the Empty Magma Shell required to get the Magmashell Mount in the Waking Shores."] = "這個分類只有用來在甦醒海岸取得熔殼蝸牛坐所需騎的空熔岩外殼"
+L["This category only contains the Empty Magma Shell required to get the Magmashell Mount in the Waking Shores."] = "此類別只包含在甦醒海岸取得熔殼蝸牛坐騎所需的空熔岩外殼。"
 --[[Translation missing --]]
 --[[ L["This category only contains the Membership and the Magmotes required to get the Scrappy Worldsnail Mount in the Waking Shores."] = ""--]] 
 --[[Translation missing --]]
@@ -1773,8 +1756,7 @@ L["Treasure Sacks"] = "珍寶囊"
 L["Treasure Sacks given by the Great Swog, Saviour of all Dragonkind."] = "所有龍族的救世主，大史瓦格蛙給的珍寶囊。"
 --[[Translation missing --]]
 --[[ L["Untapped Forbidden Knowledge"] = ""--]] 
---[[Translation missing --]]
---[[ L["Use these for a powerup!"] = ""--]] 
+L["Use these for a powerup!"] = "使用這些來增強能力!"
 --[[Translation missing --]]
 --[[ L["While We Were Sleeping (Achievement)"] = ""--]] 
 L["Zskera Vault"] = "澤斯克拉密庫"
