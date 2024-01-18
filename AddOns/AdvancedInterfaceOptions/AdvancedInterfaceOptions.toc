@@ -1,7 +1,7 @@
 ## Interface: 100205
 ## Title: Advanced Interface Options
 ## Author: Stanzilla, Semlar
-## Version: 1.8.10
+## Version: 1.8.14
 ## IconTexture: 134521
 ## Notes: Restores access to removed interface options in Legion
 ## Title-zhTW: |cffFF9900[進階]|r 介面選項
@@ -17,6 +17,7 @@
 ## SavedVariables: AdvancedInterfaceOptionsSaved
 
 semlib\semlib.xml
+utils.lua
 cvars.lua
 basicOptions.lua
 browser.lua
