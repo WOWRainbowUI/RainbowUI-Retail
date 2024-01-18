@@ -1,4 +1,4 @@
-----------------------------------------------------------------------
+﻿----------------------------------------------------------------------
 -- 	Leatrix Maps Locale
 ----------------------------------------------------------------------
 
@@ -376,7 +376,6 @@ L["Wyrmrest Temple"] = "龙眠神殿"
 L["You cannot do that in combat."] = "你无法在战斗中这么做。"
 L["You should enable 2FA!"] = "您应该启用两步验证！"
 L["Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately but you do need to click it when you are done making changes and you want the changes to take effect."] = "你的插件需要重新载入，以使部分修改生效。|n|n你可以在你需要选项生效时，再点击重载插件按钮。"
-L["Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately, but you do need to click it when you are done making changes and you want the changes to take effect."] = "为使某些更改生效，您需要重新加载用户界面。|n|n您不必立即点击重新加载按钮，但在完成更改并希望更改生效时，您需要点击它。"
 L["Your UI needs to be reloaded."] = "插件需要重新载入。"
 L["Zeppelin to"] = "乘飞艇前往"
 L["Zoom"] = "缩放"
@@ -750,7 +749,6 @@ L["Wyrmrest Temple"] = "龍眠神殿"
 L["You cannot do that in combat."] = "你不能在戰鬥中這麼做。"
 L["You should enable 2FA!"] = "您應該啟用2FA！"
 L["Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately but you do need to click it when you are done making changes and you want the changes to take effect."] = "您的UI需要重載以讓某些更動生效。|n|n您不必立即點擊重載按鈕，但如果您做了些更動並希望讓更動生效的話，點擊是確實需要的。"
-L["Your UI needs to be reloaded for some of the changes to take effect.|n|nYou don't have to click the reload button immediately, but you do need to click it when you are done making changes and you want the changes to take effect."] = "你需要重新加载用户界面以使一些更改生效。|n|n你不必立即点击重新加载按钮，但当你完成更改并希望更改生效时，你需要点击它。"
 L["Your UI needs to be reloaded."] = "您的UI需要重載。"
 L["Zeppelin to"] = "飛艇往"
 L["Zoom"] = "縮放"
