@@ -85,7 +85,7 @@ MMPE.defaultSettings = {
         ["relativeFrame"] = "UIParent",
         ["relativePoint"] = "TOPRIGHT",
         ["offX"] = 0,
-        ["offY"] = -240,
+        ["offY"] = -260,
     },
 
     debug = false,
@@ -675,7 +675,7 @@ function MMPE:CreateNameplateText(unit)
         end
         local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
         if nameplate then
-            self.activeNameplates[unit] = nameplate:CreateFontString(unit .."mppProgress", "OVERLAY", "GameFontHighlightSmall")
+            self.activeNameplates[unit] = nameplate:CreateFontString(unit .."mppProgress", "OVERLAY", "NumberFontNormal") -- 更改字體
             self.activeNameplates[unit]:SetText("+?%")
         end
     end
