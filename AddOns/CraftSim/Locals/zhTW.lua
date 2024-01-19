@@ -27,6 +27,22 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.EXPANSION_BATTLE_FOR_AZEROTH] = "決戰艾澤拉斯",
         [CraftSim.CONST.TEXT.EXPANSION_SHADOWLANDS] = "暗影之境",
         [CraftSim.CONST.TEXT.EXPANSION_DRAGONFLIGHT] = "巨龍崛起",
+        
+        -- professions
+
+        [CraftSim.CONST.TEXT.PROFESSIONS_BLACKSMITHING] = "鍛造",
+        [CraftSim.CONST.TEXT.PROFESSIONS_LEATHERWORKING] = "製皮",
+        [CraftSim.CONST.TEXT.PROFESSIONS_ALCHEMY] = "煉金",
+        [CraftSim.CONST.TEXT.PROFESSIONS_HERBALISM] = "草藥",
+        [CraftSim.CONST.TEXT.PROFESSIONS_COOKING] = "烹飪",
+        [CraftSim.CONST.TEXT.PROFESSIONS_MINING] = "採礦",
+        [CraftSim.CONST.TEXT.PROFESSIONS_TAILORING] = "裁縫",
+        [CraftSim.CONST.TEXT.PROFESSIONS_ENGINEERING] = "工程學",
+        [CraftSim.CONST.TEXT.PROFESSIONS_ENCHANTING] = "附魔",
+        [CraftSim.CONST.TEXT.PROFESSIONS_FISHING] = "釣魚",
+        [CraftSim.CONST.TEXT.PROFESSIONS_SKINNING] = "剝皮",
+        [CraftSim.CONST.TEXT.PROFESSIONS_JEWELCRAFTING] = "珠寶",
+        [CraftSim.CONST.TEXT.PROFESSIONS_INSCRIPTION] = "銘文",
 
         -- Other Statnames
 
@@ -402,8 +418,21 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q2] = "材料品質 2",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q3] = "材料品質 3",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_OPTIMIZE] = "最佳化材料",
-        [CraftSim.CONST.TEXT.RECIPE_SCAN_EXPANSION_FILTER_BUTTON] = "資料片過濾",
-
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_EXPANSION_FILTER_BUTTON] = "資料片",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_ALTPROFESSIONS_FILTER_BUTTON] = "分身專業",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_SCAN_ALL_BUTTON_READY] = "掃描專業",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_SCAN_ALL_BUTTON_SCANNING] = "正在掃描...",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_IMPORT_ALL_PROFESSIONS_CHECKBOX_LABEL] = "所有掃描到的專業",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_IMPORT_ALL_PROFESSIONS_CHECKBOX_TOOLTIP] = f.g("是: ") ..
+            "從所有已啟用和掃描的專業匯入掃描結果。\n\n" ..
+            f.r("否: ") .. "從目前選取的專業匯入掃描結果。",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_CACHED_RECIPES_TOOLTIP] =
+            "每當你在角色打開或掃描配方時，" ..
+            f.l("CraftSim") ..
+            " 都會記住。\n\n只有 " ..
+            f.l("CraftSim") .. " 能記住的分身配方才會使用" .. f.bb("配方掃描") ..
+            "來掃描\n\n實際掃描的配方數量會根據你的" .. f.e("配方掃描選項") .. "而有所不同",
+        
         -- Recipe Top Gear
         [CraftSim.CONST.TEXT.TOP_GEAR_TITLE] = "CraftSim 最佳裝備",
         [CraftSim.CONST.TEXT.TOP_GEAR_AUTOMATIC] = "自動",
@@ -617,5 +646,7 @@ function CraftSim.LOCAL_TW:GetData()
         -- 自行加入
         [CraftSim.CONST.TEXT.OPTIONS_CRAFTS] = "次製造",
         [CraftSim.CONST.TEXT.OPTIONS_CRAFTSIM] = "專業-模擬器",
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_RECIPE_SCAN] = "配方掃描",
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_SCAN_OPTIONS] = "掃描選項",
     }
 end

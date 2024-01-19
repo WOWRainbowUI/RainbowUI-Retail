@@ -729,5 +729,7 @@ greater or equal the configured sale rate threshold.
         -- static popups
         [CraftSim.CONST.TEXT.STATIC_POPUPS_YES] = "Yes",
         [CraftSim.CONST.TEXT.STATIC_POPUPS_NO] = "No",
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_RECIPE_SCAN] = "Recipe Scan",
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_SCAN_OPTIONS] = "Scan Options",
     }
 end
