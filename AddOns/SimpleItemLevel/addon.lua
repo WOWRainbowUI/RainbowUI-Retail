@@ -632,6 +632,7 @@ ns:RegisterAddonHook("LiteBag", function()
 end)
 
 -- Baganator
+--[[
 ns:RegisterAddonHook("Baganator", function()
     local suppress = {}
     local function check_baginator_config(value)
@@ -684,7 +685,7 @@ ns:RegisterAddonHook("Baganator", function()
         hooksecurefunc(Baganator.UnifiedBags, "Initialize", baganator_hookmain)
     end
 end)
-
+--]]
 -- helper
 
 do
