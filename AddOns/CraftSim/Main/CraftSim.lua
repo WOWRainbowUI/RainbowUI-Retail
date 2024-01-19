@@ -31,7 +31,7 @@ CraftSimOptions = CraftSimOptions or {
 	openLastRecipe = true,
 	topGearAutoUpdate = false,
 	optionsShowNews = true,
-	optionsHideMinimapButton = false,
+	optionsHideMinimapButton = true, -- 更改預設值
 
 	-- modules
 	modulesMaterials = true,
