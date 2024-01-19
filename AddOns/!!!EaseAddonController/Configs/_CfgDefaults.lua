@@ -353,6 +353,19 @@ D["BetterBags"] = {
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\reliquarybag_icon",
 };
+D["BigDebuffs"] = {
+    defaultEnable = 0,
+	title = "大型控場圖示",
+	desc = "在血條右側顯示很大的控制技能圖示和時間，更容易看到。``使用暴雪頭像或遊戲內建頭像時，被控場時也會將自己的頭像圖案變成控制技能圖示。``|cffFF2D2D特別注意：使用此插件時建議在威力血條設定>套件>光環>控場，關閉所有單位的控場圖示，以避免重複。`",
+	modifier = "Kokusho",
+    {
+        text = "設定選項",
+        callback = function(cfg, v, loading) 
+			InterfaceOptionsFrame_OpenToCategory("PvP 控場圖示")
+			InterfaceOptionsFrame_OpenToCategory("PvP 控場圖示")
+		end,
+    },
+};
 D["BlockMessageTeamGuard"] = {
     defaultEnable = 1,
 	tags = { "SOCIAL" },
