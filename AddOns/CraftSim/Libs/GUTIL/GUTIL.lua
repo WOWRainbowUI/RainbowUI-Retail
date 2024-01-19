@@ -1,5 +1,5 @@
 ---@class GUTIL-2.0
-local GUTIL = LibStub:NewLibrary("GUTIL-2.0", 5)
+local GUTIL = LibStub:NewLibrary("GUTIL-2.0", 6)
 if not GUTIL then return end
 
 --- CLASSICS insert
@@ -720,6 +720,34 @@ function GUTIL:GetDaysBetweenTimestamps(timestampHigher, timestampBLower)
   differenceInDays = math.floor(differenceInDays + 0.5)
 
   return differenceInDays
+end
+
+--- used by GUTIL:OrderedPairs function
+---@generic K
+---@generic V
+---@param t table<K, V>
+---@return K, V
+function GUTIL.OrderedNext(t)
+  local key = t[t.__next]
+  if not key then return end
+  t.__next = t.__next + 1
+  return key, t.__source[key]
+end
+
+---based on [OrderedPairs User-Function](https://warcraft.wiki.gg/wiki/Orderedpairs)
+---@generic K
+---@generic V
+---@param t table<K, V>
+---@param compFunc? fun(a: V, b: V):boolean
+---@return fun(t: table<K, V>): K, V orderedNext
+---@return K[] keys
+function GUTIL:OrderedPairs(t, compFunc)
+  local keys, kn = { __source = t, __next = 1 }, 1
+  for k in pairs(t) do
+    keys[kn], kn = k, kn + 1
+  end
+  table.sort(keys, compFunc)
+  return GUTIL.OrderedNext, keys
 end
 
 --- spreads the iteration (unsorted random) of a given function over multiple frames (one frame per iteration) to reduce game lag for heavy processing.
