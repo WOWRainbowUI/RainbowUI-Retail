@@ -1,4 +1,4 @@
-local fontMain = "GameFontNormal" -- "Interface\\Addons\\DFFriendlyNameplates\\Media\\Fonts\\FiraMono-Medium.ttf" 
+local fontMain = "GameFontHighlight" -- "Interface\\Addons\\DFFriendlyNameplates\\Media\\Fonts\\FiraMono-Medium.ttf" 
 local pathToMedia = "Interface\\Addons\\DFFriendlyNameplates\\Media\\"
 local backdrop = { edgeFile = pathToMedia.."Textures\\WHITE8X8.BLP", edgeSize = 1 }
 local backdrop2 = { bgFile = pathToMedia.."Textures\\UI-Tooltip-Background.blp", tile = true, tileSize = 16, edgeFile = pathToMedia.."Textures\\WHITE8X8.BLP", edgeSize = 2 }
@@ -114,12 +114,12 @@ local function createDropdown(opts, frame)
     dropdown.Button:ClearAllPoints()
     dropdown.Button:SetPoint("LEFT",dropdownBox,"RIGHT", -22, 0)
     
-    dropdownBox.text = dropdownBox:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    dropdownBox.text = dropdownBox:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     dropdownBox.text:SetPoint("LEFT",  dropdownBox, 5, 0)
     dropdownBox.text:SetText("?")
     dropdownBox.text:SetSize(123, 20)
    
-    dropdownBox.key = dropdownBox:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    dropdownBox.key = dropdownBox:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     dropdownBox.key:SetText(SystemFont_NamePlateFixed:GetFont())
   
     local dropdownText = dropdown:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
@@ -177,12 +177,12 @@ local function createCheckButton(frame, x, y, text, dop)
     local checkButton = CreateFrame("CheckButton", nil, frame, "ChatConfigCheckButtonTemplate");
     checkButton:SetPoint("TOPLEFT", frame, x, y)
     checkButton:SetSize(25,25)
-    checkButton.text = checkButton:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    checkButton.text = checkButton:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     checkButton.text:SetPoint("LEFT",  checkButton, 25, 0)
     checkButton.text:SetText(text)
     checkButton.text:SetFont(fontMain, 12, "")
     if dop then 
-        checkButton.dopText = checkButton:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+        checkButton.dopText = checkButton:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
         checkButton.dopText:SetPoint("LEFT",  checkButton, 155, -2)
         checkButton.dopText:SetText("(Required ReloadUI)") 
         checkButton.dopText:SetFont(fontMain, 8, "")
@@ -221,9 +221,9 @@ httpsxNamePlatesSettings.closeButton:SetScript("OnEnter", function(self) self.te
 httpsxNamePlatesSettings.closeButton:SetScript("OnLeave", function(self) self.texture:SetDesaturated(1) end)
 httpsxNamePlatesSettings.closeButton:SetScript("OnClick", function(self) self:GetParent():Hide();httpsxNamePlatesSettings:Hide(); end)
 
-httpsxNamePlatesSettings.VersionText =  httpsxNamePlatesSettings:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+httpsxNamePlatesSettings.VersionText =  httpsxNamePlatesSettings:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 httpsxNamePlatesSettings.VersionText:SetPoint("BOTTOM",  httpsxNamePlatesSettings, "BOTTOM", 0, 10)
-httpsxNamePlatesSettings.VersionText:SetText("DF Friendly Nameplates 1.0.6")
+httpsxNamePlatesSettings.VersionText:SetText("DF Friendly Nameplates 1.0.4")
 httpsxNamePlatesSettings.VersionText:SetFont(fontMain, 12, "OUTLINE")
 
 httpsxNamePlatesSettings.header = CreateFrame('Frame', nil, httpsxNamePlatesSettings, 'BackdropTemplate')
@@ -433,7 +433,7 @@ lid = newLine(httpsxNamePlatesSettings.contents[1], false)
 local fontSelect, fontSelectBox = createDropdown(channelOpts, httpsxNamePlatesSettings.contents[1].lines[lid] )
 fontSelect:SetPoint("BOTTOMLEFT", httpsxNamePlatesSettings.contents[1].lines[lid], 0, 0);
 fontSelectBox:SetPoint("BOTTOMLEFT", httpsxNamePlatesSettings.contents[1].lines[lid], 0, 0);
-fontSelectBox.textBox = fontSelectBox:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+fontSelectBox.textBox = fontSelectBox:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 fontSelectBox.textBox:SetPoint("TOP",  fontSelectBox, 0, 14)
 fontSelectBox.textBox:SetText("字體:")
 fontSelectBox.textBox:SetTextColor(1.0,0.74,0,1)
@@ -463,7 +463,7 @@ sliderScale.High:SetText(72)
 sliderScale:SetSize(150,10)
 --frameAddBg(sliderScale, backdrop2, {0,0,0,0.6}, {1,1,1,0.3})
 
-sliderScale.textBox = sliderScale:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+sliderScale.textBox = sliderScale:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 sliderScale.textBox:SetPoint("TOP",  sliderScale, 0, 14)
 sliderScale.textBox:SetText("文字大小:")
 sliderScale.textBox:SetTextColor(1.0,0.74,0,1)
