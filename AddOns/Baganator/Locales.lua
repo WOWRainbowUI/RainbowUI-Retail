@@ -131,6 +131,8 @@ L["KEYWORD_COSMETIC"] = "cosmetic"
 L["KEYWORD_AXE"] = "axe"
 L["KEYWORD_MACE"] = "mace"
 L["KEYWORD_SWORD"] = "sword"
+L["KEYWORD_USE"] = "use"
+L["KEYWORD_OPEN"] = "open"
 
 L["SEARCH_TRY_X"] = "Search, try %s"
 
@@ -1921,14 +1923,10 @@ L["TO_OPEN_OPTIONS_X"] = "输入/bgr 打开选项"
 L["TOOLTIPS"] = "鼠标提示"
 L["TRADE"] = "交易"
 L["TRANSFER"] = "转移"
---[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "将在银行搜索出来的物品转移到背包中。"
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "将背包内搜索出来的物品转移到银行。"
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "将搜索到的物品添加到邮件内并发送。"
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "将可拆解物品放入拆解机内。"
 L["TRANSFERS"] = "转移"
 L["TYPE"] = "类型"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "图标上的文字根据物品的品质着色"

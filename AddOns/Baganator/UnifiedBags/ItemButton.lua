@@ -5,6 +5,7 @@ addonTable.JunkPlugins = {}
 Baganator.ItemButtonUtil = {}
 
 local IsEquipment = Baganator.Utilities.IsEquipment
+local equipmentSetBorder = CreateColor(198/255, 166/255, 0/255)
 
 local itemCallbacks = {}
 local iconSettings = {}
@@ -24,6 +25,7 @@ function Baganator.ItemButtonUtil.UpdateSettings()
   itemCallbacks = {}
   iconSettings = {
     markJunk = Baganator.Config.Get("icon_grey_junk"),
+    equipmentSetBorder = Baganator.Config.Get("icon_equipment_set_border"),
   }
 
   local junkPluginID = Baganator.Config.Get("junk_plugin")
@@ -121,6 +123,9 @@ local function GetExtraInfo(self, itemID, itemLink, data)
     for _, callback in ipairs(itemCallbacks) do
       callback(self, data)
     end
+    if self.BGRUpdateQuests then
+      self:BGRUpdateQuests()
+    end
   else
     local item = Item:CreateFromItemLink(itemLink)
     self.BGR.itemInfoWaiting = true
@@ -141,6 +146,9 @@ local function GetExtraInfo(self, itemID, itemLink, data)
 
       for _, callback in ipairs(itemCallbacks) do
         callback(self, data)
+      end
+      if self.BGRUpdateQuests then
+        self:BGRUpdateQuests()
       end
     end)
   end
@@ -350,7 +358,6 @@ function BaganatorRetailCachedItemButtonMixin:SetItemDetails(details)
   self.BGR.itemLink = details.itemLink
   self.BGR.itemID = details.itemID
   self.BGR.itemName = ""
-  self.BGR.setInfo = details.setInfo
   self.BGR.tooltipGetter = function() return C_TooltipInfo.GetHyperlink(details.itemLink) end
 
   SetStaticInfo(self, details)
@@ -477,13 +484,9 @@ function BaganatorRetailLiveItemButtonMixin:SetItemDetails(cacheData)
   local quality = (info and info.quality) or cacheData.quality;
   local readable = info and info.IsReadable;
   local itemLink = info and info.hyperlink;
-  local noValue = info and info.hasNoValue;
+  local noValue = cacheData.hasNoValue or (info and info.hasNoValue);
   local itemID = info and info.itemID;
   local isBound = info and info.isBound;
-  local questInfo = C_Container.GetContainerItemQuestInfo(self:GetBagID(), self:GetID());
-  local isQuestItem = questInfo.isQuestItem;
-  local questID = questInfo.questID;
-  local isActive = questInfo.isActive;
 
   ClearItemButtonOverlay(self);
 
@@ -497,7 +500,6 @@ function BaganatorRetailLiveItemButtonMixin:SetItemDetails(cacheData)
   SetItemButtonDesaturated(self, locked);
 
   self:UpdateExtended();
-  self:UpdateQuestItem(isQuestItem, questID, isActive);
   self:UpdateNewItem(quality);
   self:UpdateJunkItem(quality, noValue);
   self:UpdateItemContextMatching();
@@ -505,6 +507,7 @@ function BaganatorRetailLiveItemButtonMixin:SetItemDetails(cacheData)
   self:SetReadable(readable);
   self:CheckUpdateTooltip(tooltipOwner);
   self:SetMatchesSearch(true)
+
   SetWidgetsAlpha(self, true)
   ReparentOverlays(self)
 
@@ -513,9 +516,11 @@ function BaganatorRetailLiveItemButtonMixin:SetItemDetails(cacheData)
   self.BGR.itemLink = cacheData.itemLink
   self.BGR.itemID = cacheData.itemID
   self.BGR.itemNameLower = nil
-  self.BGR.setInfo = cacheData.setInfo
   self.BGR.tooltipGetter = function() return C_TooltipInfo.GetBagItem(self:GetBagID(), self:GetID()) end
   self.BGR.hasNoValue = noValue
+  self.BGR.setInfo = Baganator.UnifiedBags.EquipmentSetTracker:Get(ItemLocation:CreateFromBagAndSlot(self:GetBagID(), self:GetID()))
+
+  self:BGRUpdateQuests()
 
   SetStaticInfo(self, cacheData)
   if texture ~= nil then
@@ -533,6 +538,14 @@ end
 
 function BaganatorRetailLiveItemButtonMixin:BGRUpdateCooldown()
   self:UpdateCooldown(self.BGR.itemLink);
+end
+
+function BaganatorRetailLiveItemButtonMixin:BGRUpdateQuests()
+  local questInfo = C_Container.GetContainerItemQuestInfo(self:GetBagID(), self:GetID());
+  local isQuestItem = questInfo.isQuestItem;
+  local questID = questInfo.questID;
+  local isActive = questInfo.isActive;
+  self:UpdateQuestItem(isQuestItem, questID, isActive);
 end
 
 function BaganatorRetailLiveItemButtonMixin:SetItemFiltered(text)
@@ -617,7 +630,6 @@ function BaganatorClassicCachedItemButtonMixin:SetItemDetails(details)
   self.BGR.itemID = details.itemID
   self.BGR.itemName = ""
   self.BGR.itemNameLower = nil
-  self.BGR.setInfo = details.setInfo
   self.BGR.tooltipGetter = function() return Baganator.Utilities.DumpClassicTooltip(function(t) t:SetHyperlink(details.itemLink) end) end
   
   SetItemButtonTexture(self, details.iconTexture or self.emptySlotFilepath);
@@ -748,6 +760,11 @@ function BaganatorClassicLiveItemButtonMixin:BGRUpdateCooldown()
   end
 end
 
+
+function BaganatorClassicLiveItemButtonMixin:BGRUpdateQuests()
+  UpdateQuestItemClassic(self)
+end
+
 function BaganatorClassicLiveItemButtonMixin:OnLeave()
   if self:GetParent():GetID() == -1 then
     GameTooltip_Hide()
@@ -770,13 +787,10 @@ function BaganatorClassicLiveItemButtonMixin:SetItemDetails(cacheData)
     info = nil
   end
 
-  local noValue = info and info.hasNoValue
-
   self.BGR.itemLink = cacheData.itemLink
   self.BGR.itemID = cacheData.itemID
   self.BGR.itemName = ""
   self.BGR.itemNameLower = nil
-  self.BGR.setInfo = cacheData.setInfo
   self.BGR.tooltipGetter = function()
     return Baganator.Utilities.DumpClassicTooltip(function(tooltip)
       if self:GetParent():GetID() == -1 then
@@ -786,18 +800,19 @@ function BaganatorClassicLiveItemButtonMixin:SetItemDetails(cacheData)
       end
     end)
   end
+  self.BGR.setInfo = Baganator.UnifiedBags.EquipmentSetTracker:Get(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()))
 
   -- Copied code from Blizzard Container Frame logic
   local tooltipOwner = GameTooltip:GetOwner()
 
-  texture = info and info.iconFileID;
-  itemCount = info and info.stackCount;
-  locked = info and info.isLocked;
-  quality = info and info.quality;
-  readable = info and info.isReadable;
-  isFiltered = info and info.isFiltered;
-  noValue = info and info.hasNoValue;
-  itemID = info and info.itemID;
+  local texture = info and info.iconFileID;
+  local itemCount = info and info.stackCount;
+  local locked = info and info.isLocked;
+  local quality = info and info.quality;
+  local readable = info and info.isReadable;
+  local isFiltered = info and info.isFiltered;
+  local noValue = cacheData.hasNoValue or (info and info.hasNoValue);
+  local itemID = info and info.itemID;
   
   SetItemButtonTexture(self, texture or self.emptySlotFilepath);
   SetItemButtonQuality(self, quality, itemID);
@@ -808,7 +823,7 @@ function BaganatorClassicLiveItemButtonMixin:SetItemDetails(cacheData)
   
   ContainerFrameItemButton_SetForceExtended(self, false);
 
-  UpdateQuestItemClassic(self)
+  self:BGRUpdateQuests()
 
   if ( texture ) then
     ContainerFrame_UpdateCooldown(self:GetParent():GetID(), self);
