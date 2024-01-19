@@ -1,11 +1,16 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
+---@class CraftSim.RECIPE_SCAN
 CraftSim.RECIPE_SCAN = {}
 
-CraftSim.RECIPE_SCAN.scanInterval = 0
+local GUTIL = CraftSim.GUTIL
+
+local L = CraftSim.UTIL:GetLocalizer()
+
 CraftSim.RECIPE_SCAN.frame = nil
 CraftSim.RECIPE_SCAN.isScanning = false
+CraftSim.RECIPE_SCAN.isScanningProfessions = false
 
 ---@enum CraftSim.RecipeScanModes
 CraftSim.RECIPE_SCAN.SCAN_MODES = {
@@ -22,15 +27,11 @@ CraftSim.RECIPE_SCAN.SCAN_MODES_TRANSLATION_MAP = {
     OPTIMIZE = CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_OPTIMIZE,
 }
 
----@type CraftSim.RecipeData[]
-CraftSim.RECIPE_SCAN.currentResults = {}
-
 local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN)
 
-function CraftSim.RECIPE_SCAN:ToggleScanButton(value)
-    local frame = CraftSim.RECIPE_SCAN.frame
-    local recipeScanTab = frame.content.recipeScanTab
-    local content = recipeScanTab.content --[[@as CraftSim.RECIPE_SCAN.RECIPE_SCAN_TAB.CONTENT]]
+---@param row CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
+function CraftSim.RECIPE_SCAN:ToggleScanButton(row, value)
+    local content = row.content
     content.scanButton:SetEnabled(value)
     content.cancelScanButton:SetVisible(not value)
     if not value then
@@ -38,31 +39,54 @@ function CraftSim.RECIPE_SCAN:ToggleScanButton(value)
     else
         content.scanButton:SetText(CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.RECIPE_SCAN_SCAN_RECIPIES))
     end
-end
 
-function CraftSim.RECIPE_SCAN:UpdateScanPercent(currentProgress, maxProgress)
-    local currentPercentage = CraftSim.GUTIL:Round(currentProgress / (maxProgress / 100))
-
-    if currentPercentage % 1 == 0 then
-        local frame = CraftSim.RECIPE_SCAN.frame
-        local recipeScanTab = frame.content.recipeScanTab
-        local content = recipeScanTab.content --[[@as CraftSim.RECIPE_SCAN.RECIPE_SCAN_TAB.CONTENT]]
-        content.scanButton:SetText(CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.RECIPE_SCAN_SCANNING) ..
-            " " .. currentPercentage .. "%")
+    -- if within professionscan always hide the cancel button in the scanning row
+    if CraftSim.RECIPE_SCAN.isScanningProfessions then
+        content.cancelScanButton:Hide()
     end
 end
 
-function CraftSim.RECIPE_SCAN:EndScan()
+---@param row CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
+function CraftSim.RECIPE_SCAN:UpdateScanPercent(row, currentProgress, maxProgress)
+    local currentPercentage = GUTIL:Round(currentProgress / (maxProgress / 100))
+    local content = row.content
+
+    if currentPercentage % 1 == 0 then
+        content.scanButton:SetText(CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.RECIPE_SCAN_SCANNING) ..
+            " " .. currentPercentage .. "%")
+    end
+    content.resultAmount:SetText(currentProgress .. "/" .. maxProgress)
+end
+
+---@param row CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
+function CraftSim.RECIPE_SCAN:EndScan(row)
     print("scan finished")
     collectgarbage("collect") -- By Option?
-    CraftSim.RECIPE_SCAN:ToggleScanButton(true)
+    CraftSim.RECIPE_SCAN:ToggleScanButton(row, true)
     CraftSim.RECIPE_SCAN.isScanning = false
 
-    CraftSim.CRAFTQ.FRAMES:UpdateQueueDisplay() -- TODO: maybe only the button...
+    CraftSim.CRAFTQ.FRAMES:UpdateRecipeScanRestockButton(row.currentResults)
+
+    --sort scan results?
+    local resultList = row.content.resultList
+    if CraftSimOptions.recipeScanSortByProfitMargin then
+        resultList:UpdateDisplay(function(rowA, rowB)
+            return rowA.relativeProfit > rowB.relativeProfit
+        end)
+    else
+        resultList:UpdateDisplay(function(rowA, rowB)
+            return rowA.averageProfit > rowB.averageProfit
+        end)
+    end
+
+    if CraftSim.RECIPE_SCAN.isScanningProfessions then
+        CraftSim.RECIPE_SCAN:ScanNextProfessionRow()
+    end
 end
 
 ---@param recipeID number
 ---@return Enum.Profession? profession
+---@deprecateduse CraftSimRecipeDataCache.professionInfoCache instead
 function CraftSim.RECIPE_SCAN:GetProfessionByRecipeID(recipeID)
     for professionID, recipeIDs in pairs(CraftSimRecipeIDs.data) do
         if tContains(recipeIDs, recipeID) then
@@ -73,92 +97,147 @@ function CraftSim.RECIPE_SCAN:GetProfessionByRecipeID(recipeID)
     return nil
 end
 
+--- used in live preview?
+---@deprecated use CraftSimRecipeDataCache.professionInfoCache instead
 function CraftSim.RECIPE_SCAN:GetAllRecipeIDsFromCacheByProfessionID(professionID)
     return CraftSimRecipeIDs.data[professionID]
 end
 
+---@param crafterUID string
 ---@param recipeInfo TradeSkillRecipeInfo
-function CraftSim.RECIPE_SCAN.FilterRecipes(recipeInfo)
+function CraftSim.RECIPE_SCAN.FilterRecipeInfo(crafterUID, recipeInfo)
+    print("Filtering Recipe: " .. tostring(recipeInfo.name))
     if tContains(CraftSim.CONST.ALCHEMICAL_EXPERIMENTATION_RECIPE_IDS, recipeInfo.recipeID) then
+        print("Is Alchemical Experimentation: Exclude")
         return false
     end
     if recipeInfo.isDummyRecipe then
+        print("Is Dummy: Exclude")
         return false
     end
     if tContains(CraftSim.CONST.BLIZZARD_DUMMY_RECIPES, recipeInfo.recipeID) then
+        print("Is Dummy2: Exclude")
         return false
     end
     if not CraftSimOptions.recipeScanIncludeNotLearned and not recipeInfo.learned then
+        print("Is not learned: Exclude")
         return false
     end
     if tContains(CraftSim.CONST.QUEST_PLAN_CATEGORY_IDS, recipeInfo.categoryID) then
+        print("Is Quest: Exclude")
         return false
     end
     if CraftSimOptions.recipeScanOnlyFavorites and not recipeInfo.favorite then
+        print("Is not favorite: Exclude")
         return false
     end
 
-    ---@diagnostic disable-next-line: missing-parameter
-    -- local isExpansionIncluded = CraftSim.UTIL:IsDragonflightRecipe(recipeInfo.recipeID)
-    local professionInfo = C_TradeSkillUI.GetProfessionInfoByRecipeID(recipeInfo.recipeID)
+    -- use cache if available for performance
+    local professionInfoCache = CraftSimRecipeDataCache.professionInfoCache[crafterUID] or {}
+    local professionInfo = professionInfoCache[recipeInfo.recipeID]
+
+    if not professionInfo then
+        print("professionInfo not Cached: Get from Api")
+        professionInfo = C_TradeSkillUI.GetProfessionInfoByRecipeID(recipeInfo.recipeID)
+    end
+
+    -- if recipe does not have any profession info, exclude recipe
+    -- it seems some pandaren recipes may not have this info such as C_TradeSkillUI.GetProfessionInfoByRecipeID(381364)
+    if not professionInfo or not professionInfo.profession or not professionInfo.professionID then
+        print("ProfessionInfo missing information: Exclude")
+        return false
+    end
+
     local includedExpansions = {}
     for expansionID, included in pairs(CraftSimOptions.recipeScanFilteredExpansions) do
         if included then
             table.insert(includedExpansions, expansionID)
         end
     end
-    local recipeExpansionIncluded = CraftSim.GUTIL:Some(includedExpansions, function(expansionID)
+
+    local recipeExpansionIncluded = GUTIL:Some(includedExpansions, function(expansionID)
         local skillLineID = CraftSim.CONST.TRADESKILLLINEIDS[professionInfo.profession][expansionID]
         return professionInfo.professionID == skillLineID
     end)
-    if professionInfo.professionID == CraftSim.CONST.TRADESKILLLINEIDS[1][8] then
-        print(recipeInfo.name)
-        print("- recipeExpansionIncluded: " .. tostring(recipeExpansionIncluded))
-    end
+
     if recipeExpansionIncluded and recipeInfo.isEnchantingRecipe then
+        print(GUTIL:ColorizeText("Include", GUTIL.COLORS.GREEN))
         return true
     end
     if recipeExpansionIncluded then
-        -- if recipeInfo and recipeInfo.supportsCraftingStats and not recipeInfo.isGatheringRecipe and not recipeInfo.isSalvageRecipe and not recipeInfo.isRecraft then
         if recipeInfo and not recipeInfo.isGatheringRecipe and not recipeInfo.isSalvageRecipe and not recipeInfo.isRecraft then
             if recipeInfo.hyperlink then
                 local isGear = recipeInfo.hasSingleItemOutput and recipeInfo.qualityIlvlBonuses ~= nil
-                local isSoulbound = CraftSim.GUTIL:isItemSoulbound(CraftSim.GUTIL:GetItemIDByLink(recipeInfo.hyperlink))
+                local isSoulbound = GUTIL:isItemSoulbound(GUTIL:GetItemIDByLink(recipeInfo.hyperlink))
                 if not CraftSimOptions.recipeScanIncludeSoulbound then
                     if isGear and isSoulbound then
+                        print("Is Gear+Soulbound: Exclude")
                         return false
                     end
                     if not CraftSimOptions.recipeScanIncludeGear and isGear then
+                        print("Is Gear: Exclude")
                         return false
                     end
 
                     if isSoulbound then
+                        print("Is Soulbound: Exclude")
                         return false
                     end
                 end
 
                 if not CraftSimOptions.recipeScanIncludeGear and isGear then
+                    print("Is Gear: Exclude")
                     return false
                 end
-
+                print(GUTIL:ColorizeText("Include", GUTIL.COLORS.GREEN))
                 return true
             end
+            print("Is Gathering/Salvage/Recraft: Exclude")
             return false
         end
     end
+    print("Is not expansion: Exclude")
     return false
 end
 
-function CraftSim.RECIPE_SCAN:StartScan()
-    wipe(CraftSim.RECIPE_SCAN.currentResults)
+---@param row CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
+---@return TradeSkillRecipeInfo[]
+function CraftSim.RECIPE_SCAN:GetScanRecipeInfo(row)
+    local playerCrafterProfessionUID = CraftSim.RECIPE_SCAN:GetPlayerCrafterProfessionUID()
+    -- if its the currently open profession we can just take it directly
+    if row.crafterProfessionUID == playerCrafterProfessionUID then
+        return GUTIL:Map(C_TradeSkillUI.GetAllRecipeIDs(), function(recipeID)
+            local recipeInfo = C_TradeSkillUI.GetRecipeInfo(recipeID)
+            if CraftSim.RECIPE_SCAN.FilterRecipeInfo(row.crafterUID, recipeInfo) then
+                return recipeInfo
+            end
+            return nil
+        end)
+    end
+    -- else take the infos from cache
+    local cachedProfessions = CraftSimRecipeDataCache.cachedRecipeIDs[row.crafterUID] or {}
+    local cachedRecipeIDs = cachedProfessions[row.profession] or {}
+
+    return GUTIL:Map(cachedRecipeIDs, function(recipeID)
+        -- also take from cache
+        local recipeInfoCache = CraftSimRecipeDataCache.recipeInfoCache[row.crafterUID] or {}
+        local recipeInfo = recipeInfoCache[recipeID]
+        if CraftSim.RECIPE_SCAN.FilterRecipeInfo(row.crafterUID, recipeInfo) then
+            return recipeInfo
+        end
+        return nil
+    end)
+end
+
+---@param row CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
+function CraftSim.RECIPE_SCAN:StartScan(row)
+    wipe(row.currentResults)
     CraftSim.RECIPE_SCAN.isScanning = true
 
-    print("Scan Mode: " .. tostring(CraftSimOptions.recipeScanScanMode))
-    local recipeIDs = C_TradeSkillUI.GetAllRecipeIDs()
-    local recipeInfos = CraftSim.GUTIL:Map(recipeIDs, function(recipeID)
-        return C_TradeSkillUI.GetRecipeInfo(recipeID)
-    end)
-    recipeInfos = CraftSim.GUTIL:Filter(recipeInfos, CraftSim.RECIPE_SCAN.FilterRecipes)
+    print("Start Scan for: " .. tostring(row.crafterProfessionUID))
+
+    local recipeInfos = CraftSim.RECIPE_SCAN:GetScanRecipeInfo(row)
+    print("Scanning " .. tostring(#recipeInfos) .. " Recipes")
     local currentIndex = 1
 
     local function scanRecipesByInterval()
@@ -169,19 +248,20 @@ function CraftSim.RECIPE_SCAN:StartScan()
 
         CraftSim.UTIL:StartProfiling("Single Recipe Scan")
         local recipeInfo = recipeInfos[currentIndex]
+        local crafterData = row.crafterData
         if not recipeInfo then
-            CraftSim.RECIPE_SCAN:EndScan()
+            CraftSim.RECIPE_SCAN:EndScan(row)
             return
         end
 
-        CraftSim.RECIPE_SCAN:UpdateScanPercent(currentIndex, #recipeInfos)
+        CraftSim.RECIPE_SCAN:UpdateScanPercent(row, currentIndex, #recipeInfos)
 
-        print("recipeID: " .. tostring(recipeInfo.recipeID), false, true)
-        print("recipeName: " .. tostring(recipeInfo.name))
-        print("isEnchant: " .. tostring(recipeInfo.isEnchantingRecipe))
+        -- print("recipeID: " .. tostring(recipeInfo.recipeID), false, true)
+        -- print("recipeName: " .. tostring(recipeInfo.name))
+        -- print("isEnchant: " .. tostring(recipeInfo.isEnchantingRecipe))
 
         --- @type CraftSim.RecipeData
-        local recipeData = CraftSim.RecipeData(recipeInfo.recipeID);
+        local recipeData = CraftSim.RecipeData(recipeInfo.recipeID, nil, nil, crafterData);
 
         if recipeData.reagentData:HasOptionalReagents() and CraftSimOptions.recipeScanUseInsight then
             recipeData:SetOptionalReagent(CraftSim.CONST.ITEM_IDS.OPTIONAL_REAGENTS.ILLUSTRIOUS_INSIGHT)
@@ -191,7 +271,7 @@ function CraftSim.RECIPE_SCAN:StartScan()
         recipeData.professionGearSet:LoadCurrentEquippedSet()
         recipeData:Update()
         if not recipeData then
-            CraftSim.RECIPE_SCAN:EndScan()
+            CraftSim.RECIPE_SCAN:EndScan(row)
             return
         end
 
@@ -212,21 +292,20 @@ function CraftSim.RECIPE_SCAN:StartScan()
 
         local function continueScan()
             CraftSim.UTIL:StopProfiling("Single Recipe Scan")
-            CraftSim.RECIPE_SCAN.FRAMES:AddRecipe(recipeData)
+            CraftSim.RECIPE_SCAN.FRAMES:AddRecipe(row, recipeData)
 
-            table.insert(CraftSim.RECIPE_SCAN.currentResults, recipeData)
+            table.insert(row.currentResults, recipeData)
 
             currentIndex = currentIndex + 1
-            C_Timer.After(CraftSim.RECIPE_SCAN.scanInterval, scanRecipesByInterval)
+            RunNextFrame(scanRecipesByInterval)
         end
-        -- so we can display them smoothly
-        -- TODO: should we also wait for the reagents to load?
-        CraftSim.GUTIL:ContinueOnAllItemsLoaded(recipeData.resultData.itemsByQuality, continueScan)
+        -- since the result links are needed for calculations and probably not loaded within a scan
+        GUTIL:ContinueOnAllItemsLoaded(recipeData.resultData.itemsByQuality, continueScan)
     end
 
     print("End Scan")
-    CraftSim.RECIPE_SCAN:ToggleScanButton(false)
-    CraftSim.RECIPE_SCAN:ResetResults()
+    CraftSim.RECIPE_SCAN:ToggleScanButton(row, false)
+    CraftSim.RECIPE_SCAN.FRAMES:ResetResults(row)
     scanRecipesByInterval()
 end
 
@@ -241,4 +320,103 @@ function CraftSim.RECIPE_SCAN:SetReagentsByScanMode(recipeData)
     elseif CraftSimOptions.recipeScanScanMode == CraftSim.RECIPE_SCAN.SCAN_MODES.OPTIMIZE then
         recipeData:OptimizeReagents()
     end
+end
+
+---@param crafterUID string -  <name>-<NormalizedRealm>
+---@param profession Enum.Profession
+---@return string crafterProfessionUID <Name>-<NormalizedRealm>:<ProfessionID>
+function CraftSim.RECIPE_SCAN:GetCrafterProfessionUID(crafterUID, profession)
+    return tostring(crafterUID) .. ":" .. tostring(profession)
+end
+
+function CraftSim.RECIPE_SCAN:GetPlayerCrafterProfessionUID()
+    local currentProfessionInfo = C_TradeSkillUI
+        .GetBaseProfessionInfo()
+    if currentProfessionInfo then
+        return self:GetCrafterProfessionUID(CraftSim.UTIL:GetPlayerCrafterUID(),
+            currentProfessionInfo.profession)
+    end
+    return ""
+end
+
+--- called everytime recipeScan is shown
+function CraftSim.RECIPE_SCAN:UpdateProfessionListByCache()
+    -- wait til the currently open profession is cached then update list
+
+    local function update()
+        CraftSim.RECIPE_SCAN.FRAMES:UpdateProfessionList()
+    end
+
+    GUTIL:WaitFor(function()
+        local playerCrafterUID = CraftSim.UTIL:GetPlayerCrafterUID()
+        local professionInfo = C_TradeSkillUI.GetBaseProfessionInfo()
+        CraftSimRecipeDataCache.cachedRecipeIDs[playerCrafterUID] = CraftSimRecipeDataCache.cachedRecipeIDs
+            [playerCrafterUID] or {}
+        return CraftSimRecipeDataCache.cachedRecipeIDs[playerCrafterUID][professionInfo.profession] ~= nil
+    end, update)
+end
+
+-- ALL OF THE PROFESSIONS #meme
+
+CraftSim.RECIPE_SCAN.currentScanProfessionRow = 0
+function CraftSim.RECIPE_SCAN:ScanProfessions()
+    local professionList = CraftSim.RECIPE_SCAN.frame.content.recipeScanTab.content
+        .professionList --[[@as GGUI.FrameList]]
+    local activeRows = professionList.activeRows --[[@as table<number, CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW>]]
+
+    if #activeRows <= 0 then return end
+
+    -- for each row, select it,  scan, then go to next -> async!
+    CraftSim.RECIPE_SCAN.currentScanProfessionRow = 0
+    CraftSim.RECIPE_SCAN.isScanningProfessions = true
+    professionList:SetSelectionEnabled(false)
+
+    CraftSim.RECIPE_SCAN:ScanNextProfessionRow()
+end
+
+function CraftSim.RECIPE_SCAN:UpdateScanProfessionsButton()
+    local content = CraftSim.RECIPE_SCAN.frame.content.recipeScanTab
+        .content --[[@as CraftSim.RECIPE_SCAN.RECIPE_SCAN_TAB.CONTENT]]
+    local scanProfessionsButton = content.scanProfessionsButton
+
+    if CraftSim.RECIPE_SCAN.isScanningProfessions then
+        scanProfessionsButton:SetStatus("Scanning")
+    else
+        scanProfessionsButton:SetStatus("Ready")
+    end
+end
+
+function CraftSim.RECIPE_SCAN:ScanNextProfessionRow()
+    CraftSim.RECIPE_SCAN.currentScanProfessionRow = CraftSim.RECIPE_SCAN.currentScanProfessionRow + 1
+    local professionList = CraftSim.RECIPE_SCAN.frame.content.recipeScanTab.content
+        .professionList --[[@as GGUI.FrameList]]
+    local activeRows = professionList.activeRows --[[@as table<number, CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW>]]
+
+    local nextRow = activeRows[CraftSim.RECIPE_SCAN.currentScanProfessionRow]
+    if not nextRow then
+        CraftSim.RECIPE_SCAN:EndProfessionScan()
+        return
+    end
+
+    local checkBoxColumn = nextRow.columns[1] --[[@as CraftSim.RECIPE_SCAN.PROFESSION_LIST.CHECKBOX_COLUMN]]
+
+    if not checkBoxColumn.checkbox:GetChecked() then
+        CraftSim.RECIPE_SCAN:ScanNextProfessionRow() -- skip to next
+        return
+    end
+
+    CraftSim.RECIPE_SCAN:UpdateScanProfessionsButton()
+
+    nextRow:Select()
+    CraftSim.RECIPE_SCAN:StartScan(nextRow)
+end
+
+function CraftSim.RECIPE_SCAN:EndProfessionScan()
+    CraftSim.RECIPE_SCAN.currentScanProfessionRow = 0
+    CraftSim.RECIPE_SCAN.isScanningProfessions = false
+    CraftSim.RECIPE_SCAN:UpdateScanProfessionsButton()
+
+    local professionList = CraftSim.RECIPE_SCAN.frame.content.recipeScanTab.content
+        .professionList --[[@as GGUI.FrameList]]
+    professionList:SetSelectionEnabled(true)
 end

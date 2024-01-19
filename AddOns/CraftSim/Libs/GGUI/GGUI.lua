@@ -1,5 +1,5 @@
 ---@class GGUI-2.0
-local GGUI = LibStub:NewLibrary("GGUI-2.0", 16)
+local GGUI = LibStub:NewLibrary("GGUI-2.0", 17)
 if not GGUI then return end -- if version already exists
 
 local GUTIL = GGUI_GUTIL
@@ -1297,6 +1297,9 @@ function GGUI.Button:SetStatus(statusID)
     self.activeStatusID = statusID
 
     if buttonStatus then
+        if buttonStatus.label then
+            self.frame:SetText(buttonStatus.label)
+        end
         if buttonStatus.adjustWidth then
             if buttonStatus.sizeX then
                 self.frame:SetWidth(self.frame:GetTextWidth() + buttonStatus.sizeX)
@@ -1308,9 +1311,6 @@ function GGUI.Button:SetStatus(statusID)
         end
         if buttonStatus.sizeY then
             self.frame:SetHeight(buttonStatus.sizeY)
-        end
-        if buttonStatus.label then
-            self.frame:SetText(buttonStatus.label)
         end
         if buttonStatus.enabled ~= nil then
             self.frame:SetEnabled(buttonStatus.enabled)
@@ -1543,6 +1543,7 @@ end
 ---@field offsetY? number
 ---@field sizeX? number
 ---@field sizeY? number
+---@field scale? number
 
 ---@class GGUI.HelpIcon : GGUI.Widget
 ---@overload fun(options:GGUI.HelpIconConstructorOptions): GGUI.HelpIcon
@@ -1556,6 +1557,7 @@ function GGUI.HelpIcon:new(options)
     options.anchorB = options.anchorB or "CENTER"
     options.offsetX = options.offsetX or 0
     options.offsetY = options.offsetY or 0
+    options.scale = options.scale or 1
 
     local helpButton = CreateFrame("Button", nil, options.parent)
     GGUI.HelpIcon.super.new(self, helpButton)
@@ -1564,6 +1566,7 @@ function GGUI.HelpIcon:new(options)
     helpButton:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
     helpButton:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
     helpButton:SetSize(options.sizeX or 30, options.sizeY or 30)
+    helpButton:SetScale(options.scale)
 
     helpButton:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(helpButton, "ANCHOR_RIGHT")
@@ -2136,7 +2139,7 @@ GGUI.FrameList = GGUI.Widget:extend()
 ---@field noSelectionColor boolean?
 ---@field hoverRGBA? table<number>
 ---@field selectedRGBA? table<number>
----@field selectionCallback? fun(row: GGUI.FrameList.Row)
+---@field selectionCallback? fun(row: GGUI.FrameList.Row, userInput:boolean)
 
 ---@class GGUI.FrameList.ColumnOption
 ---@field width? number
@@ -2167,6 +2170,7 @@ function GGUI.FrameList:new(options)
         self.selectionOptions.hoverRGBA = self.selectionOptions.hoverRGBA or { 0, 1, 0, 0.3 }
         self.selectionOptions.selectedRGBA = self.selectionOptions.selectedRGBA or { 0, 1, 0, 0.6 }
         self.selectionOptions.selectionCallback = self.selectionOptions.selectionCallback or function() end
+        self.selectionEnabled = true
     end
     ---@type GGUI.FrameList.Row
     self.selectedRow = nil
@@ -2242,6 +2246,10 @@ function GGUI.FrameList:new(options)
     GGUI.FrameList.super.new(self, mainFrame)
 end
 
+function GGUI.FrameList:SetSelectionEnabled(enabled)
+    self.selectionEnabled = enabled
+end
+
 function GGUI.FrameList:ScrollDown()
     self.scrollFrame:ScrollDown()
 end
@@ -2297,7 +2305,7 @@ function GGUI.FrameList.Row:new(rowFrame, columns, rowConstructor, frameList)
         GameTooltip:Hide();
     end
     if frameList.selectionOptions then
-        self.Select = function()
+        self.Select = function(_, userInput)
             if self ~= frameList.selectedRow or frameList.selectionOptions.noSelectionColor then
                 if not frameList.selectionOptions.noSelectionColor then
                     rowFrame:SetBackdropColor(frameList.selectionOptions.selectedRGBA[1],
@@ -2310,7 +2318,7 @@ function GGUI.FrameList.Row:new(rowFrame, columns, rowConstructor, frameList)
                 end
                 frameList.selectedRow = self
 
-                frameList.selectionOptions.selectionCallback(self)
+                frameList.selectionOptions.selectionCallback(self, userInput)
             end
         end
         rowFrame:SetBackdrop({
@@ -2323,7 +2331,7 @@ function GGUI.FrameList.Row:new(rowFrame, columns, rowConstructor, frameList)
 
         onEnterSelectableRow =
             function()
-                if self ~= frameList.selectedRow or frameList.selectionOptions.noSelectionColor then
+                if self ~= frameList.selectedRow or frameList.selectionOptions.noSelectionColor and frameList.selectionEnabled then
                     rowFrame:SetBackdropColor(frameList.selectionOptions.hoverRGBA[1],
                         frameList.selectionOptions.hoverRGBA[2], frameList.selectionOptions.hoverRGBA[3],
                         frameList.selectionOptions.hoverRGBA[4])
@@ -2337,10 +2345,13 @@ function GGUI.FrameList.Row:new(rowFrame, columns, rowConstructor, frameList)
             end
         -- OnMouseDown handler - Mouse click
         rowFrame:SetScript("OnMouseDown", function()
-            self:Select()
+            if frameList.selectionEnabled then
+                self:Select(true)
+            end
         end)
     end
     rowFrame:SetScript("OnEnter", function()
+        if not frameList.selectionEnabled then return end
         handleTooltipOnEnter()
         if onEnterSelectableRow then
             onEnterSelectableRow()
@@ -2358,7 +2369,7 @@ end
 
 ---@param index number
 function GGUI.FrameList:SelectRow(index)
-    if not self.selectableRows then
+    if not self.selectionOptions then
         return
     end
     local row = self.activeRows[index]
@@ -2487,7 +2498,9 @@ end
 ---@param sortFunc? fun(rowA:GGUI.FrameList.Row, rowB:GGUI.FrameList.Row): boolean optional sorting before updating the display
 function GGUI.FrameList:UpdateDisplay(sortFunc)
     -- filter and show active rows and hide all inactive
-    self.activeRows = GUTIL:Filter(self.rows, function(row)
+    -- but keep reference!!
+    wipe(self.activeRows)
+    tAppendAll(self.activeRows, GUTIL:Filter(self.rows, function(row)
         if row.active then
             row:Show()
             return true
@@ -2495,14 +2508,15 @@ function GGUI.FrameList:UpdateDisplay(sortFunc)
             row:Hide()
             return false
         end
-    end)
+    end))
 
     if #self.activeRows == 0 then
         return
     end
 
     if #self.activeRows > 1 and sortFunc then
-        self.activeRows = GUTIL:Sort(self.activeRows, sortFunc)
+        -- in place sort to keep reference!
+        table.sort(self.activeRows, sortFunc)
     end
 
     local lastRow = nil

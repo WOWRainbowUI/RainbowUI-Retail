@@ -28,6 +28,22 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.EXPANSION_SHADOWLANDS] = "Shadowlands",
         [CraftSim.CONST.TEXT.EXPANSION_DRAGONFLIGHT] = "Dragonflight",
 
+        -- professions
+
+        [CraftSim.CONST.TEXT.PROFESSIONS_BLACKSMITHING] = "Blacksmithing",
+        [CraftSim.CONST.TEXT.PROFESSIONS_LEATHERWORKING] = "Leatherworking",
+        [CraftSim.CONST.TEXT.PROFESSIONS_ALCHEMY] = "Alchemy",
+        [CraftSim.CONST.TEXT.PROFESSIONS_HERBALISM] = "Herbalism",
+        [CraftSim.CONST.TEXT.PROFESSIONS_COOKING] = "Cooking",
+        [CraftSim.CONST.TEXT.PROFESSIONS_MINING] = "Mining",
+        [CraftSim.CONST.TEXT.PROFESSIONS_TAILORING] = "Tailoring",
+        [CraftSim.CONST.TEXT.PROFESSIONS_ENGINEERING] = "Engineering",
+        [CraftSim.CONST.TEXT.PROFESSIONS_ENCHANTING] = "Enchanting",
+        [CraftSim.CONST.TEXT.PROFESSIONS_FISHING] = "Fishing",
+        [CraftSim.CONST.TEXT.PROFESSIONS_SKINNING] = "Skinning",
+        [CraftSim.CONST.TEXT.PROFESSIONS_JEWELCRAFTING] = "Jewelcrafting",
+        [CraftSim.CONST.TEXT.PROFESSIONS_INSCRIPTION] = "Inscription",
+
         -- Other Statnames
 
         [CraftSim.CONST.TEXT.STAT_SKILL] = "Skill",
@@ -466,7 +482,20 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q2] = "Materials Quality 2",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q3] = "Materials Quality 3",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_OPTIMIZE] = "Optimize Reagents",
-        [CraftSim.CONST.TEXT.RECIPE_SCAN_EXPANSION_FILTER_BUTTON] = "Expansion Filters",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_EXPANSION_FILTER_BUTTON] = "Expansions",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_ALTPROFESSIONS_FILTER_BUTTON] = "Alt Professions",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_SCAN_ALL_BUTTON_READY] = "Scan Professions",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_SCAN_ALL_BUTTON_SCANNING] = "Scanning...",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_IMPORT_ALL_PROFESSIONS_CHECKBOX_LABEL] = "All Scanned Professions",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_IMPORT_ALL_PROFESSIONS_CHECKBOX_TOOLTIP] = f.g("True: ") ..
+            "Import Scan Results from all enabled and scanned professions\n\n" ..
+            f.r("False: ") .. "Import Scan Results only from currently selected profession",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_CACHED_RECIPES_TOOLTIP] =
+            "Whenever you open or scan a recipe on a character, " ..
+            f.l("CraftSim") ..
+            " remembers it.\n\nOnly recipes from your alts that " ..
+            f.l("CraftSim") .. " can remember will be scanned with " .. f.bb("RecipeScan\n\n") ..
+            "The actual amount of recipes that are scanned is then based on your " .. f.e("Recipe Scan Options"),
 
         -- Recipe Top Gear
         [CraftSim.CONST.TEXT.TOP_GEAR_TITLE] = "CraftSim Top Gear",

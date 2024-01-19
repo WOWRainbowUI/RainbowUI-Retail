@@ -754,7 +754,7 @@ function GUTIL:FrameDistributedIteration(t, iterationFunction, finallyCallback, 
     iterationCounter = iterationCounter + 1
     local elapsedMS = (GetTime() * 1000) - startMS
     local secondsReached = maxMS and (maxMS <= elapsedMS)
-    local iterationsReached = iterationCounter > maxIterations
+    local iterationsReached = maxIterations and (iterationCounter > maxIterations)
 
     if stopIteration or iterationsReached or secondsReached then
       if finallyCallback then
