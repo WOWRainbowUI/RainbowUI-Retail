@@ -1,0 +1,23 @@
+## Interface: 100200
+## Title: Simple Item Level
+## Author: Kemayo
+## Notes: Show item levels in useful places
+## OptionalDeps: LibAppropriateItems-1.0
+## SavedVariables: SimpleItemLevelDB
+## Version: v32.3
+
+## X-Website: https://www.wowace.com/projects/simple-item-level
+## X-License: BSD
+## X-Curse-Project-ID: 287692
+## X-Wago-ID: WYK9Da6L
+
+## Title-zhTW: |cffB973FF[裝備]|r 顯示物品等級
+## Notes-zhTW: Simple Item Level |n|n在角色視窗的裝備欄位、背包和浮動提示資訊中顯示物品等級數字。|n|n|cffffd200使用方法: |r從Esc>介面>插件>裝備-等級，進行設定。
+## X-Category-zhTW: 物品
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+addon.lua
+config.lua
