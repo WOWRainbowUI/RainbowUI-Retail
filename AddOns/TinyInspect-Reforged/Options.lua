@@ -1,6 +1,6 @@
 
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
-local actualVersion = GetAddOnMetadata("TinyInspect-Reforged", "Version") or UNKNOWN
+-- local actualVersion = GetAddOnMetadata("TinyInspect-Reforged", "Version") or UNKNOWN
 
 local addon, ns = ...
 local L = ns.L or {}
@@ -9,23 +9,23 @@ setmetatable(L, { __index = function(_, k)
 end})
 
 local DefaultDB = {
-    version = actualVersion,
+    version = "10.2.5",
     ShowItemBorder = true,
     EnableItemLevel  = true,
       ShowColoredItemLevelString = true,
       ShowCorruptedMark = false,
       ShowItemSlotString = true,
-        EnableItemLevelBag = true,
-        EnableItemLevelBank = true,
+        EnableItemLevelBag = false,
+        EnableItemLevelBank = false,
         EnableItemLevelMerchant = true,
         EnableItemLevelTrade = true,
-        EnableItemLevelGuildBank = true,
+        EnableItemLevelGuildBank = false,
         EnableItemLevelAuction = true,
-        EnableItemLevelAltEquipment = true,
-        EnableItemLevelPaperDoll = true,
+        EnableItemLevelAltEquipment = false,
+        EnableItemLevelPaperDoll = false,
         EnableItemLevelGuildNews = false,
         EnableItemLevelChat = false,
-        EnableItemLevelLoot = true,
+        EnableItemLevelLoot = false,
         EnableItemLevelOther = true,
     ShowInspectAngularBorder = false,
     ShowInspectColoredLabel = true,
@@ -278,6 +278,9 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
                 TinyInspectReforgedDB[k] = v
             end
         end
+	elseif C_AddOns.IsAddOnLoaded("SimpleItemLevel") and TinyInspectReforgedDB.version ~= DefaultDB.version then -- 暫時修正: 強制重置設定檔
+		TinyInspectReforgedDB = DefaultDB
+		print("裝備觀察: 為了配合新的 \"顯示物品等級\" 插件，避免物品等級數字重複顯示，已強制重置設定檔，改為新的預設值。")
     end
     InitCheckbox(frame)
 end)
