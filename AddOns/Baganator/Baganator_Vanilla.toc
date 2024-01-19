@@ -1,6 +1,6 @@
 ## Interface: 11500
 ## Title: Baganator
-## Version: 0.127
+## Version: 0.128
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA, BAGANATOR_SUMMARIES
@@ -46,6 +46,8 @@ UnifiedBags\ContainerSlots.xml
 UnifiedBags\Components.xml
 UnifiedBags\Layouts.lua
 UnifiedBags\Layouts.xml
+UnifiedBags\EquipmentSetTracker.lua
+UnifiedBags\EquipmentSetTracker.xml
 UnifiedBags\BankView.lua
 UnifiedBags\BankView.xml
 UnifiedBags\MoneyDisplay.lua
