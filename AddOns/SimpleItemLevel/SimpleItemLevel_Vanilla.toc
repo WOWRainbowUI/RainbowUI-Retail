@@ -1,0 +1,19 @@
+## Interface: 11404
+## Title: Simple Item Level
+## Author: Kemayo
+## Notes: Show item levels in useful places
+## OptionalDeps: LibAppropriateItems-1.0
+## SavedVariables: SimpleItemLevelDB
+## Version: v32.3
+
+## X-Website: https://www.wowace.com/projects/simple-item-level
+## X-License: BSD
+## X-Curse-Project-ID: 287692
+## X-Wago-ID: WYK9Da6L
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+addon.lua
+config.lua
