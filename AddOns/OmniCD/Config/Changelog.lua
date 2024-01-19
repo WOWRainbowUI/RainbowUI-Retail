@@ -18,6 +18,10 @@ v3.4.3.2773
 
 ]=]
 else E.changelog = [=[
+v10.2.5.2780
+	Missing talent abilities after 10.2.5 will correctly show
+	Addon will no longer sync with older versions
+
 v10.2.5.2777
 	Fixed Cycle of Binding CDR when auras are refreshed.
 	Fixed Illuminated Sigils not adding a charge to Elysian Decree.
