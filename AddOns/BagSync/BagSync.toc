@@ -1,0 +1,63 @@
+## Interface: 100200
+## Title: BagSync
+## Notes: BagSync tracks your characters items and displays it within tooltips.
+## Notes-zhCN: BagSync 是统计您角色内的物品数量并将其显示在工具提示中.
+## Notes-frFR: BagSync fait l'inventaire des objets de vos personnages et l'affiche dans des infobulles.
+## Notes-deDE: BagSync verfolgt die Gegenstände Deiner Charaktere und zeigt sie in Tooltips an.
+## Author: Xruptor
+## Version: 19.24
+## IconTexture: Interface\AddOns\BagSync\media\icon
+## X-Curse-Project-ID: 22067
+## X-WoWI-ID: 15351
+## X-Wago-ID: xZKxjQNk
+## OptionalDeps: tekDebug
+## SavedVariables: BagSyncDB
+
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+libs\AceLocale-3.0\AceLocale-3.0.xml
+libs\AceConsole-3.0\AceConsole-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+libs\LibItemScout-1.0\LibItemScout-1.0.lua
+libs\LibQTip-1.0\LibQTip-1.0.lua
+libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+libs\LibDDI-1.0\lib.xml
+
+locale\enUS.lua
+locale\deDE.lua
+locale\frFR.lua
+locale\koKR.lua
+locale\ruRU.lua
+locale\zhCN.lua
+locale\zhTW.lua
+locale\ptBR.lua
+locale\esES.lua
+
+core.lua
+coreui.xml
+
+wireframe\debug.lua
+wireframe\unit.lua
+wireframe\data.lua
+wireframe\scanner.lua
+wireframe\events.lua
+wireframe\tooltip.lua
+
+modules\databroker.lua
+modules\search.lua
+modules\advancedsearch.lua
+modules\details.lua
+modules\currency.lua
+modules\professions.lua
+modules\recipes.lua
+modules\blacklist.lua
+modules\whitelist.lua
+modules\gold.lua
+modules\profiles.lua
+modules\sortorder.lua
+modules\config.lua
