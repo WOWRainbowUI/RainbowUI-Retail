@@ -294,8 +294,7 @@ L["Charged Combo Point 3"] = "Заряженный анимой прием 3"
 L["Charged Combo Point 4"] = "Заряженный анимой прием 4"
 L["Charges"] = "Заряды"
 L["Charges Changed Event"] = "Изменение зарядов"
---[[Translation missing --]]
-L["Charging"] = "Charging"
+L["Charging"] = "Зарядка"
 L["Chat Frame"] = "Окно чата"
 L["Chat Message"] = "Сообщение в чат"
 --[[Translation missing --]]
@@ -345,12 +344,10 @@ L["Currency"] = "Валюта"
 L["Current Combo Point charged"] = "Текущий прием заряжен анимой"
 L["Current Essence"] = "Текущее количество сущностей"
 L["Current Experience"] = "Текущее количество опыта"
---[[Translation missing --]]
-L["Current Instance"] = "Current Instance"
+L["Current Instance"] = "Текущее подземелье"
 L["Current Movement Speed (%)"] = "Текущая скорость движения"
 L["Current Stage"] = "Текущий уровень усиления"
---[[Translation missing --]]
-L["Current Zone"] = "Current Zone"
+L["Current Zone"] = "Текущая зона"
 --[[Translation missing --]]
 L["Current Zone Group"] = "Current Zone Group"
 L["Curse"] = "Проклятие"

@@ -1536,7 +1536,7 @@ WeakAuras will always run custom grow code if you include 'changed' in this list
 	L["Your Saved Snippets"] = "Your Saved Snippets"
 	L["Z Offset"] = "Posición de Z"
 	L["Z Rotation"] = "Rotación de Z"
-	L["Zoom"] = "Ampliar"
+	L["Zoom"] = "Zoom"
 	L["Zoom In"] = "Acercar"
 	L["Zoom Out"] = "Alejar"
 

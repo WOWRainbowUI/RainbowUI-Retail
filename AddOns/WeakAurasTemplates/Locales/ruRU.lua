@@ -7,18 +7,12 @@ end
 local L = WeakAuras.L
 
 -- WeakAuras/Templates
-	--[[Translation missing --]]
-	L["(Dwarf)"] = "(Dwarf)"
-	--[[Translation missing --]]
-	L["(Dwarf/Human)"] = "(Dwarf/Human)"
-	--[[Translation missing --]]
-	L["(Human)"] = "(Human)"
-	--[[Translation missing --]]
-	L["(Night Elf)"] = "(Night Elf)"
-	--[[Translation missing --]]
-	L["(Troll)"] = "(Troll)"
-	--[[Translation missing --]]
-	L["(Undead)"] = "(Undead)"
+	L["(Dwarf)"] = "(Дворф)"
+	L["(Dwarf/Human)"] = "(Дворф/Человек)"
+	L["(Human)"] = "(Человек)"
+	L["(Night Elf)"] = "(Ночной эльф)"
+	L["(Troll)"] = "(Тролль)"
+	L["(Undead)"] = "(Нежить)"
 	L["< 4 stacks"] = "(менее 4 стаков)"
 	L["5 stacks"] = "(5 стаков)"
 	L["Abilities"] = "Способности"
