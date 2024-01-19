@@ -234,7 +234,7 @@ local function AddBoundToButton(button, item)
     end
     if item and item:IsItemInPlayersControl() then
         local itemLocation = item:GetItemLocation()
-        if itemLocation and C_Item.IsBound(itemLocation) then
+        if itemLocation and C_Item.IsBound(itemLocation) and button.simpleilvlbound then -- 暫時修正
             button.simpleilvlbound:Show()
         end
     end

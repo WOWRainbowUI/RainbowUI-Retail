@@ -1,5 +1,5 @@
 local myname, ns = ...
-local myfullname = "裝備-等級"
+local myfullname = "物品等級"
 
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 

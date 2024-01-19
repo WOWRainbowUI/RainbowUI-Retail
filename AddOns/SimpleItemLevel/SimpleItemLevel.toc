@@ -12,12 +12,10 @@
 ## X-Wago-ID: WYK9Da6L
 
 ## Title-zhTW: |cffB973FF[裝備]|r 顯示物品等級
-## Notes-zhTW: Simple Item Level |n|n在角色視窗的裝備欄位、背包和浮動提示資訊中顯示物品等級數字。|n|n|cffffd200使用方法: |r從Esc>介面>插件>裝備-等級，進行設定。
+## Notes-zhTW: Simple Item Level |n|n在角色視窗的裝備欄位、背包和浮動提示資訊中顯示物品等級數字。|n|n|cffffd200使用方法: |r從Esc>選項>插件>物品等級，進行設定。
 ## X-Category-zhTW: 物品
 
-#@no-lib-strip@
-embeds.xml
-#@end-no-lib-strip@
+lib\LibAppropriateItems-1.0\lib.xml
 
 addon.lua
 config.lua
