@@ -2050,6 +2050,17 @@ D["SimpleAddonManager"] = {
         text = "按 Esc > 插件，或是點 '插件管理員' 的小地圖按鈕都可以打開主視窗。",
     },
 };
+D["SimpleItemLevel"] = {
+	defaultEnable = 1,
+	tags = { "ITEM" },
+	title = "顯示物品等級",
+	desc = "在角色視窗的裝備欄位、背包和浮動提示資訊中顯示物品等級數字。``|cffFF2D2D特別注意: '裝備觀察' 插件也有顯示物品等級的功能，如果發現兩個重疊的物品等級數字，建議在 '裝備觀察' 插件的設定中關閉相關選項 (例如角色視窗、背包...)。`",
+	icon = "Interface\\Icons\\achievement_garrisonfollower_itemlevel650",
+	{
+        text = "設定選項",
+        callback = function(cfg, v, loading) SlashCmdList["SIMPLEITEMLEVEL"]("") end,
+    },
+};
 D["SimpleVignette"] = {
     defaultEnable = 0,
 	tags = { "MAP" },
