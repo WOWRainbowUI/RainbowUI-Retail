@@ -1,4 +1,4 @@
-local fontMain = "GameFontHighlight" -- "Interface\\Addons\\DFFriendlyNameplates\\Media\\Fonts\\FiraMono-Medium.ttf" 
+local fontMain = "Interface\\Addons\\SharedMedia_Rainbow\\fonts\\bHEI00M\\bHEI00M.ttf"
 local pathToMedia = "Interface\\Addons\\DFFriendlyNameplates\\Media\\"
 local backdrop = { edgeFile = pathToMedia.."Textures\\WHITE8X8.BLP", edgeSize = 1 }
 local backdrop2 = { bgFile = pathToMedia.."Textures\\UI-Tooltip-Background.blp", tile = true, tileSize = 16, edgeFile = pathToMedia.."Textures\\WHITE8X8.BLP", edgeSize = 2 }
