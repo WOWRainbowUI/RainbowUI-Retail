@@ -1,0 +1,22 @@
+## Interface: 100205
+
+## Title: BetterBags - Dragonflight
+## Notes: Filter for common Dragonflight items in BetterBags.
+## Author: Avyiel
+## Version: v1.0.1
+## X-Date: 2024-01-17T06:48:55Z
+## IconTexture: Interface\Icons\inv_misc_bag_06
+
+## DefaultState: Enabled
+## Dependencies: BetterBags
+
+## X-Date: 2024-01-17T06:48:55Z
+## X-Category: Bags & Inventory
+## X-License: MIT
+
+## X-Curse-Project-ID: 960813
+## X-Wago-ID: b6XV50Gp
+
+db.lua
+main.lua
+
