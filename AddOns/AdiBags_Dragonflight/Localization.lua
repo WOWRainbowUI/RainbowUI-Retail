@@ -1,7 +1,7 @@
 --[[
 AdiBags - Dragonflight - Localization
 by Zottelchen
-version: 2.3.31
+version: 2.3.32
 This file contains translations for this filter.
 ]]
 local addonName, addon = ...

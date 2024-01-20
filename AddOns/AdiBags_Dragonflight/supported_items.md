@@ -2,7 +2,7 @@
 
 All items are broken down into categories, with itemID followed by the Item name.
 
-Latest version: 2.3.31
+Latest version: 2.3.32
 
 ## Achievements & Unlockables
 
@@ -2025,6 +2025,7 @@ Time Rifts are the part of the content of 10.1.5.
 Default Color: ![eee5d4](https://via.placeholder.com/16/eee5d4/111a2b?text=eee5d4)
 
 * 207002 - Encapsulated Destiny
+* 207027 - Greater Encapsulated Destiny
 * 207030 - Dilated Time Capsule
 * 207582 - Box of Tampered Reality
 * 207583 - Box of Collapsed Reality

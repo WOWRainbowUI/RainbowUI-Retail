@@ -1,7 +1,7 @@
 --[[
 AdiBags - Dragonflight
 by Zottelchen
-version: 2.3.31
+version: 2.3.32
 Items from the Dragonflight expansion.
 ]]
 
@@ -1849,6 +1849,7 @@ database["ReputationItems"] = {
 -- Time Rifts
 database["TimeRifts"] = {
   207002, -- Encapsulated Destiny
+  207027, -- Greater Encapsulated Destiny
   207030, -- Dilated Time Capsule
   207582, -- Box of Tampered Reality
   207583, -- Box of Collapsed Reality
@@ -3746,7 +3747,7 @@ end
 local setFilter = AdiBags:RegisterFilter("Dragonflight", 70, "ABEvent-1.0")
 setFilter.uiName = string.format("|cffa00000%s|r", L["Dragonflight"])
 setFilter.uiDesc = string.format(
-  "%s\n|cffffd800%s: 2.3.31|r",
+  "%s\n|cffffd800%s: 2.3.32|r",
   L["Items from the Dragonflight expansion."],
   L["Filter version"]
 )
