@@ -1087,6 +1087,7 @@ addon.db = {
 		207583, -- Box of Collapsed Reality
 		208090, -- Contained Paracausality
 		207002, -- Encapsulated Destiny
+		207027, -- Greater Encapsulated Destiny
 		207030, -- Dilated Time Capsule
 	},
 	["|cff67CF9EDreamsurge|r"] = {

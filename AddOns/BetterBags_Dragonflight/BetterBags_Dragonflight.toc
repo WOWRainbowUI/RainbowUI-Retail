@@ -3,14 +3,14 @@
 ## Title: BetterBags - Dragonflight
 ## Notes: Filter for common Dragonflight items in BetterBags.
 ## Author: Avyiel
-## Version: v1.0.1
-## X-Date: 2024-01-17T06:48:55Z
+## Version: v1.0.2
+## X-Date: 2024-01-19T08:04:41Z
 ## IconTexture: Interface\Icons\inv_misc_bag_06
 
 ## DefaultState: Enabled
 ## Dependencies: BetterBags
 
-## X-Date: 2024-01-17T06:48:55Z
+## X-Date: 2024-01-19T08:04:41Z
 ## X-Category: Bags & Inventory
 ## X-License: MIT
 
@@ -18,7 +18,7 @@
 ## X-Wago-ID: b6XV50Gp
 
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-巨龍崛起
-## Notes-zhTW: BetterBags |n|n在掰特包中過濾常見的巨龍崛起物品。
+## Notes-zhTW: BetterBags - Dragonflight |n|n在掰特包中過濾常見的巨龍崛起物品。
 ## X-Category-zhTW: 物品
 ## DefaultState: disabled
 db.lua
