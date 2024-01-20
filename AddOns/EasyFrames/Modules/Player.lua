@@ -193,7 +193,7 @@ function Player:ShowNameInsideFrame(value)
 end
 
 function Player:ShowHitIndicator(value)
-    local frame = PlayerHitIndicator
+    local frame = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HitIndicator.HitText
 
     if (not value) then
         frame:SetText(nil)
