@@ -148,7 +148,7 @@ function ArmorModule:Refresh()
   self.armorText:SetPoint('LEFT', self.armorIcon, 'RIGHT', 5, 0)
 
   self.coordText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
-  self.coordText:SetPoint('LEFT', self.armorText, 'RIGHT', 5, 0)
+  self.coordText:SetPoint('LEFT', self.armorText, 'RIGHT', 20, 0)
 
   if self.coordTicker then
     if self.coordTicker:IsCancelled() and db.showCoords then
@@ -227,18 +227,20 @@ function ArmorModule:UpdatePlayerCoordinates()
 
   local rects = self.MapRects[map_id]
   if not rects then
-    rects = { }
     local _, topleft = C_Map.GetWorldPosFromMapPos(map_id, CreateVector2D(0, 0))
     local _, bottomright = C_Map.GetWorldPosFromMapPos(map_id, CreateVector2D(1, 1))
-    bottomright:Subtract(topleft)
-    rects = { topleft.x, topleft.y, bottomright.x, bottomright.y }
-    self.MapRects[map_id] = rects
+    if bottomright and topleft then -- 暫時修正
+		rects = { }
+		bottomright:Subtract(topleft)
+		rects = { topleft.x, topleft.y, bottomright.x, bottomright.y }
+		self.MapRects[map_id] = rects
+	end
   end
 
   local x, y = UnitPosition('player')
-  if not x then return end
-  x = floor(((x - rects[1]) / rects[3]) * 10000) / 100
-  y = floor(((y - rects[2]) / rects[4]) * 10000) / 100
+  if not x or not rects then return end -- 暫時修正
+  x = floor(((x - rects[1]) / rects[3]) * 100)
+  y = floor(((y - rects[2]) / rects[4]) * 100)
 
   self.coordText:SetText(y .. ', ' .. x)
 end
