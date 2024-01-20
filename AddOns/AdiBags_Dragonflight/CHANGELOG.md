@@ -1,6 +1,6 @@
 # AdiBags - Dragonflight
 
-## [2.3.31](https://github.com/Zottelchens-WoW-Addons/AdiBags-Dragonflight/tree/2.3.31) (2024-01-17)
-[Full Changelog](https://github.com/Zottelchens-WoW-Addons/AdiBags-Dragonflight/compare/2.3.30...2.3.31) [Previous Releases](https://github.com/Zottelchens-WoW-Addons/AdiBags-Dragonflight/releases)
+## [2.3.32](https://github.com/Zottelchens-WoW-Addons/AdiBags-Dragonflight/tree/2.3.32) (2024-01-19)
+[Full Changelog](https://github.com/Zottelchens-WoW-Addons/AdiBags-Dragonflight/compare/2.3.31...2.3.32) [Previous Releases](https://github.com/Zottelchens-WoW-Addons/AdiBags-Dragonflight/releases)
 
-- TOC bump  
+- add missing item  
