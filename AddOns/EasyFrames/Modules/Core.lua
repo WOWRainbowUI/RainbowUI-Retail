@@ -150,7 +150,7 @@ function Core:CreateHealthBarFor(parentFrame)
     HealthBar:RegisterUnitEvent("UNIT_HEALTH", HealthBar.unit)
     HealthBar:RegisterUnitEvent("UNIT_MAXHEALTH", HealthBar.unit)
 
-    local TotalAbsorbBar = CreateBar(parentFrame, "TotalAbsorbBar", "TotalAbsorbBarOverlayTemplate")
+    local TotalAbsorbBar = CreateBar(parentFrame, "TotalAbsorbBar")
     TotalAbsorbBar:SetFrameLevel(HealthBar:GetFrameLevel())
     TotalAbsorbBar:SetStatusBarTexture("Interface\\RaidFrame\\Shield-Fill")
 
@@ -164,18 +164,18 @@ function Core:CreateHealthBarFor(parentFrame)
     TotalAbsorbBar:RegisterUnitEvent("UNIT_HEAL_PREDICTION", HealthBar.unit)
     TotalAbsorbBar:RegisterUnitEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", HealthBar.unit)
 
-    local TotalAbsorbBarOverlay = CreateBar(parentFrame, "TotalAbsorbBarOverlay", "TotalAbsorbBarOverlayTemplate")
+    local TotalAbsorbBarOverlay = CreateBar(parentFrame, "TotalAbsorbBarOverlay")
     TotalAbsorbBarOverlay.tileSize = 32
     TotalAbsorbBarOverlay:SetFrameLevel(TotalAbsorbBar:GetFrameLevel() + 1)
     TotalAbsorbBarOverlay:SetStatusBarTexture("Interface\\RaidFrame\\Shield-Overlay")
     TotalAbsorbBarOverlay:SetAllPoints(TotalAbsorbBar)
 
-    local HealPredictionBar = CreateBar(parentFrame, "HealPredictionBar", "MyHealPredictionBarTemplate")
+    local HealPredictionBar = CreateBar(parentFrame, "HealPredictionBar")
     HealPredictionBar:SetFrameLevel(HealthBar:GetFrameLevel())
     HealPredictionBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
     HealPredictionBar:GetStatusBarTexture():SetVertexColor(0.0, 0.827, 0.765)
 
-    local OverAbsorbGlow = CreateBar(parentFrame, "OverAbsorbGlow", "OverAbsorbGlowTemplate")
+    local OverAbsorbGlow = CreateBar(parentFrame, "OverAbsorbGlow")
     OverAbsorbGlow:SetFrameLevel(HealthBar:GetFrameLevel())
     OverAbsorbGlow:SetStatusBarTexture("Interface\\RaidFrame\\Shield-Overshield")
     OverAbsorbGlow:GetStatusBarTexture():SetBlendMode("ADD")
@@ -183,7 +183,7 @@ function Core:CreateHealthBarFor(parentFrame)
     OverAbsorbGlow:SetPoint("TOPLEFT", HealthBar, "TOPRIGHT", -7, 0)
     OverAbsorbGlow:SetWidth(16)
 
-    local OverHealAbsorbGlow = CreateBar(parentFrame, "OverHealAbsorbGlow", "OverHealAbsorbGlowTemplate")
+    local OverHealAbsorbGlow = CreateBar(parentFrame, "OverHealAbsorbGlow")
     OverHealAbsorbGlow:SetFrameLevel(HealthBar:GetFrameLevel() + 1)
     OverHealAbsorbGlow:SetStatusBarTexture("Interface\\RaidFrame\\Absorb-Overabsorb")
     OverHealAbsorbGlow:GetStatusBarTexture():SetBlendMode("ADD")
@@ -191,7 +191,7 @@ function Core:CreateHealthBarFor(parentFrame)
     OverHealAbsorbGlow:SetPoint("TOPRIGHT", HealthBar, "TOPLEFT", 7, 0)
     OverHealAbsorbGlow:SetWidth(16)
 
-    local HealAbsorbBar = CreateBar(parentFrame, "HealAbsorbBar", "HealAbsorbBarTemplate")
+    local HealAbsorbBar = CreateBar(parentFrame, "HealAbsorbBar")
     HealAbsorbBar:SetStatusBarTexture("Interface\\RaidFrame\\Absorb-Fill")
     HealAbsorbBar:SetFrameLevel(HealthBar:GetFrameLevel())
 
@@ -615,7 +615,6 @@ function Core:MovePlayerFrameBars(isVehicle)
         -- Line order is important
         playerFrameContentMain.HealthBarArea.PlayerFrameHealthBarAnimatedLoss:SetParent(PlayerFrame) -- fix for blinking red texture
         healthBar:SetParent(PlayerFrame)
-        healthBar.TotalAbsorbBarOverlay:SetParent(PlayerFrame)
         healthBar.TotalAbsorbBar:SetParent(PlayerFrame)
         healthBar.MyHealPredictionBar:SetParent(PlayerFrame)
         healthBar.OtherHealPredictionBar:SetParent(PlayerFrame)
