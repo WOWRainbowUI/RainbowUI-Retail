@@ -473,9 +473,6 @@ local backdropSettings = {
     tileSize = 16
 }
 
--- Get encounter ID's
---/run local i=1 while EJ_GetInstanceByIndex(i,true)do local a1,a2=EJ_GetInstanceByIndex(i,true)print(a1,a2)EJ_SelectInstance(a1)i=i+1 local j=1 while EJ_GetEncounterInfoByIndex(j,a1)do local b1,_,b2=EJ_GetEncounterInfoByIndex(j,a1)print(b2,b1)j=j+1 end end
-
 local difficultyList = {
     L["LFR"],
     L["Normal"],
@@ -597,27 +594,11 @@ function CTT:ADDON_LOADED()
     end
 
     CTT_CheckForReload()
-    if GetAddOnMetadata("CombatTimeTracker", "Version") >= db.profile.cttMenuOptions.lastVersion and
+    if C_AddOns.GetAddOnMetadata("CombatTimeTracker", "Version") >= db.profile.cttMenuOptions.lastVersion and
         db.profile.cttMenuOptions.uiReset then
         CTT_PopUpMessage()
     end
 
-    --     local i = 1
-    --     while EJ_GetInstanceByIndex(i, true) do
-    --     local instanceId, name = EJ_GetInstanceByIndex(i, true)
-    --     print(instanceId, name)
-    --     EJ_SelectInstance(instanceId)
-    --     i = i+1
-
-    --     local j = 1
-    --     while EJ_GetEncounterInfoByIndex(j, instanceId) do
-    --         local _,_,_,_,_,_,id,_ = EJ_GetEncounterInfoByIndex(j, instanceId)
-    --         print(id)
-    --         j = j+1
-    --     end
-    --
-
-    -- git tag -am "Tag v2.0" v2.0 && git push origin master --tags
     cttStopwatchGui.elapsed = .05
     cttStopwatchGui:SetScript("OnUpdate", function(self, elapsed)
         cttElapsedSeconds = cttElapsedSeconds + elapsed
@@ -804,7 +785,6 @@ end
 -- event function to handle persistence on the settings of the tracker when the player enters the world
 function CTT:PLAYER_ENTERING_WORLD()
     -- CTT:Print("player entering world")
-    -- CTT:Print(GetAddOnMetadata("CombatTimeTracker", "Version"))
     CTT_InstanceTypeDisplay(db.profile.cttMenuOptions.instanceType)
     if db.profile.cttMenuOptions.timeTrackerSize then
         CTT_SetTrackerSizeOnLogin()
@@ -956,7 +936,7 @@ end
 function CTT_CheckForReload()
     if db.profile.cttMenuOptions.lastVersion == nil then
         db.profile.cttMenuOptions.uiReset = true
-        db.profile.cttMenuOptions.lastVersion = GetAddOnMetadata("CombatTimeTracker", "Version")
+        db.profile.cttMenuOptions.lastVersion = C_AddOns.GetAddOnMetadata("CombatTimeTracker", "Version")
     else
         db.profile.cttMenuOptions.uiReset = false
     end
@@ -2061,7 +2041,7 @@ function CTT:CreateOptionsMenu()
     -- main menu frame
     menu = AceGUI:Create("Frame")
     menu:SetTitle(L["Combat Time Tracker Options"])
-    menu:SetStatusText(GetAddOnMetadata("CombatTimeTracker", "Version"))
+    menu:SetStatusText(C_AddOns.GetAddOnMetadata("CombatTimeTracker", "Version"))
     menu:SetWidth(750)
     menu:SetHeight(750)
     menu:SetLayout("Fill")

@@ -1,3 +1,3 @@
 ##Changelog:
-###v10.2.1
-* Updating to include Dragonflight raids and dungeons for timers
+###v10.2.5.2
+* Updating the addon version api to use non-deprecated version
