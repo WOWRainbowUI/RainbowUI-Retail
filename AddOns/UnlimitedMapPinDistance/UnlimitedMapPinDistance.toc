@@ -1,7 +1,7 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: Unlimited Map Pin Distance
 ## Author: XAM
-## Version: 1.2.9
+## Version: 1.3.0
 ## Notes: Removes the 1000 yard limit on pins
 ## X-Category: map-minimap chat-communication quests-leveling
 ## X-Website: https://www.curseforge.com/wow/addons/unlimited-map-pin-distance
