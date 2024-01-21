@@ -349,9 +349,19 @@ D["BetterBags"] = {
 	defaultEnable = 0,
 	tags = { "ITEM" },
 	title = "掰特包",
-	desc = "Adi 背包的進化版，效能好、bug 少、東西不亂跑，分類清楚好好找。``點背包視窗左上角的背包圖示顯示選單，可以調整大小、選擇分類方式...等，也可變成不分類的合併背包。``",
+	desc = "Adi 背包的進化版，效能好、bug 少、東西不亂跑，分類清楚好好找。``也可以變成不分類的合併背包，或是清單背包。背包大小、分類都可以自行調整，還有有多種分類外掛模組可供選用。``|cffFF2D2D特別注意: 各種外掛模組的分類預設都不開啟，第一次使用時請點背包視窗左上角的背包圖示，或是在設定選項中勾選，要額外顯示哪些分類。|r`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\reliquarybag_icon",
+	{
+        text = "設定選項",
+        callback = function(cfg, v, loading) 
+			Settings.OpenToCategory(GetLocale() == "zhTW" and "背包" or "BetterBags")
+		end,
+    },
+	{
+		type = "text",
+		text = "點背包視窗左上角的背包圖示，也可以顯示設定選單。\n",
+	},
 };
 D["BigDebuffs"] = {
     defaultEnable = 0,
