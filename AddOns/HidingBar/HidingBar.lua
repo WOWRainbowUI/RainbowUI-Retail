@@ -450,7 +450,7 @@ function hb:checkProfile(profile)
 	profile.config.customGrabList = profile.config.customGrabList or {}
 	profile.config.ombGrabQueue = profile.config.ombGrabQueue or {}
 	profile.config.btnSettings = setmetatable(profile.config.btnSettings or {}, btnSettingsMeta)
-	profile.config.mbtnSettings = setmetatable(profile.config.mbtnSettings or {LibDBIcon10_DBM={true}, LibDBIcon10_Krowi_ExtendedVendorUILDB={true}, LibDBIcon10_Leatrix_Maps={true}, MyAddonButton={true}}, btnSettingsMeta) -- 更改預設值
+	profile.config.mbtnSettings = setmetatable(profile.config.mbtnSettings or {LibDBIcon10_DBM={true}, LibDBIcon10_Krowi_ExtendedVendorUILDB={true}, LibDBIcon10_Leatrix_Maps={true}}, btnSettingsMeta) -- 更改預設值
 	--[[ BTN SETTINGS OBJECT
 	[1] - is disabled
 	[2] - order
