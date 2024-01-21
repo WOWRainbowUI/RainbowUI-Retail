@@ -65,7 +65,7 @@ function addon:initRaidFrames()
     end)
     
     local partyFrameNamesWereHidden
-    lib:RegisterCustomCheckbox(PartyFrame, "Hide Names",
+    lib:RegisterCustomCheckbox(PartyFrame, "隱藏名字",
         function()
             for i = 1, 4 do
                 PartyFrame["MemberFrame"..i].name:Hide()
@@ -99,7 +99,7 @@ function addon:initRaidFrames()
     end
                         
     
-    lib:RegisterCustomCheckbox(CompactRaidFrameContainer, "Hide Names",
+    lib:RegisterCustomCheckbox(CompactRaidFrameContainer, "隱藏名字",
         function()
             showRaidFrameNames = false
             updateHideRaidFrameNames()

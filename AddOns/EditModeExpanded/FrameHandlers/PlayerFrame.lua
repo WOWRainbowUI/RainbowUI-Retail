@@ -37,7 +37,7 @@ function addon:initPlayerFrame()
             lib:RegisterResizable(PlayerFrame)
         end
         
-        lib:RegisterCustomCheckbox(PlayerFrame, "Hide Name",
+        lib:RegisterCustomCheckbox(PlayerFrame, "隱藏名字",
             function()
                 PlayerFrame.name:Hide()
             end,
@@ -47,7 +47,7 @@ function addon:initPlayerFrame()
             "HideName"
         )
         
-        lib:RegisterCustomCheckbox(PlayerFrame, "Hide Icons",
+        lib:RegisterCustomCheckbox(PlayerFrame, "隱藏圖示",
             function()
                 PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual:Hide()
                 PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:Hide()

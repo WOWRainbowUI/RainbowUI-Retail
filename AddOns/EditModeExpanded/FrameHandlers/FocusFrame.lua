@@ -8,7 +8,7 @@ function addon:initFocusFrame()
     end
     
     local nameWasHidden
-    lib:RegisterCustomCheckbox(FocusFrame, "Hide Name",
+    lib:RegisterCustomCheckbox(FocusFrame, "隱藏名字",
         function()
             FocusFrame.name:Hide()
             nameWasHidden = true
