@@ -107,6 +107,40 @@ if GetLocale() == "zhTW" then
 	-- masque.lua
 	L.data["BetterBags"] = "掰特包"
 	
+	-- config\bags.lua
+	L.data["No custom categories have been created yet."] = "尚未建立自訂分類。"
+	L.data["Select which custom categories to show in this bag. If an option is checked, items that belong to the checked category will be put into a section for that category."] = "選擇要在背包中顯示的自訂分類。勾選後，屬於該分類的物品將會放入該分類的區塊中。"
+	L.data["Categories"] = "分類"
+	L.data["Select which categories to show in this bag. If an option is checked, items that belong to the checked category will be put into a section for that category."] = "選擇要在背包中顯示的分類。勾選後，屬於該分類的物品將會放入該分類的區塊中。"
+	L.data["Item Compaction"] = "精簡版面"
+	L.data["If Simple is selected, item sections will be sorted from left to right, however if a section can fit in the same row as the section above it, the section will move up."] = "選擇 \"簡單\" 時，物品區塊會從左到右排序，如果某個區塊可以與上方的區塊放在同一列，該區塊會移至上方。"
+	L.data["Section Sorting"] = "區塊排序"
+	L.data["Select how sections should be sorted."] = "選擇區塊該如何排列順序。"
+	L.data["Alphabetically"] = "名稱"
+	L.data["Item Sorting"] = "物品排序"
+	L.data["Select how items should be sorted."] = "選擇物品該如何排列順序。"
+	L.data["Quality, then Alphabetically"] = "先品質、再名稱"
+	L.data["Alphabetically, then Quality"] = "先名稱、再品質"
+	L.data["Enabled"] = "啟用"
+	L.data["Show the item level of items in this bag."] = "顯示背包中物品的等級。"
+	L.data["Color"] = "顏色"
+	L.data["Color the item level text based on the item's quality."] = "依據物品品質來顯示物品等級文字的顏色。"
+	L.data["Select which view to use for this bag."] = "選擇檢視背包的方式。"
+	L.data["Display"] = "顯示"
+	L.data["Items Per Row"] = "每列物品數"
+	L.data["Set the number of items per row in this bag."] = "設定每個橫列要顯示幾件物品。"
+	L.data["Sections Per Row"] = "每列區塊數"
+	L.data["Set the number of sections per row in this bag."] = "設定每個橫列要顯示幾個分類區塊。"
+	L.data["Set the opacity of this bag."] = "設定背包的不透明度。"
+	L.data["Set the scale of this bag."] = "設定背包的縮放大小。"
+	
+	-- config\config.lua
+	L.data["General"] = "一般"
+	L.data["Show Blizzard Bag Button"] = "顯示背包按鈕"
+	L.data["Show or hide the default Blizzard bag button."] = "顯示畫面右下角，遊戲內建的背包按鈕。"
+	L.data["BetterBags"] = "掰特包"
+	
+	
 	-- BetterBags-Teleports
 	L.data["Teleporters"] = "傳送"
 	

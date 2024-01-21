@@ -86,9 +86,9 @@ end
 
 function config:OnEnable()
   LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, self:GetOptions())
-  LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, "BetterBags")
+  LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, L:G("Backpack"))
   LibStub("AceConfigDialog-3.0"):SetDefaultSize(addonName, 700, 800)
   LibStub('AceConsole-3.0'):RegisterChatCommand("bb", function()
-    LibStub("AceConfigDialog-3.0"):Open(addonName)
+    LibStub("AceConfigDialog-3.0"):Open(L:G("Backpack"))
   end)
 end
