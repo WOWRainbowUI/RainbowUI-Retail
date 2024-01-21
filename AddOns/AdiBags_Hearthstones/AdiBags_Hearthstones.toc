@@ -23,6 +23,10 @@
 ## X-WoWI-ID: 24173
 ## X-Wago-ID: 25NRRwN3
 
+## Title-zhTW: |cffB973CC[背包]|r Adi 背包分類-爐石
+## Notes-zhTW: AdiBags - Hearthstones |n|n新增 "爐石" 分類，收納各種有傳送功能的物品。
+## X-Category-zhTW: 物品
+
 Localization.lua
 Database.lua
 AdiBags_Hearthstones.lua
