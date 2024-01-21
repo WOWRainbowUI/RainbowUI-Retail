@@ -1,4 +1,4 @@
-## Interface: 11405
+## Interface: 11500
 ## Title: AdiBags - Hearthstones
 ## Notes: Adds various hearthing items to AdiBags virtual groups
 ## Notes-ruRU: Добавляют разные возвращающие предметы в виртуальные группы аддона.
@@ -13,9 +13,9 @@
 ## Notes-frFR: Ajoute différents objets de type Pierre de foyer aux groupes virtuels d'AdiBags
 ## IconTexture: Interface\ICONS\Inv_misc_rune_01
 
-## Version: 2.18
+## Version: 2.22
 ## Author: Sygon of Lightbringer-US (Crimson Embers, Alliance)
-## X-Date: 2023-11-16T05:50:59Z
+## X-Date: 2024-01-21T01:36:01Z
 ## X-License: Copyright © 2023 Paul Vandersypen. All Rights Reserved
 ## X-Category: Bags & Inventory
 ## Dependencies: AdiBags
