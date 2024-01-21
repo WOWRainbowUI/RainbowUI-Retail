@@ -24,7 +24,7 @@ function BagBar:GetDefaults()
             displayLayer = 'LOW',
             point = 'BOTTOMRIGHT',
             x = 0,
-            y = 25,
+            y = 40,
             oneBag = true,
             keyRing = false,
             spacing = 2

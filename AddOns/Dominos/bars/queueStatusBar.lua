@@ -25,7 +25,7 @@ function QueueStatusBar:GetDefaults()
     return {
         displayLayer = 'MEDIUM',
         point = 'BOTTOMRIGHT',
-        x = -250
+        x = -280
     }
 end
 

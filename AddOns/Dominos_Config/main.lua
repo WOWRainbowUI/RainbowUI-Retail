@@ -13,14 +13,13 @@ Addon.optionsMenuPanels = { }
 function Addon:OnEnable()
     ParentAddon.callbacks:Fire('OPTIONS_MENU_LOADING', self)
 
-    local L = Addon:GetLocale()
-	-- register ace config options
+    -- register ace config options
     LibStub('AceConfig-3.0'):RegisterOptionsTable(
         ParentAddonName,
         function()
             local options = {
                 type = 'group',
-                name = L.ParentAddonName,
+                name = ParentAddonName,
                 childGroups = "tab",
                 args = {}
             }

@@ -109,5 +109,3 @@ if IsMacClient() then
 else
     L.State_META = 'Meta鍵'
 end
-
-L.ParentAddonName = "達美樂快捷列 "

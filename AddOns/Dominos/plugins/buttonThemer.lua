@@ -109,8 +109,7 @@ local Masque, MasqueVersion = LibStub('Masque', true)
 if Masque then
     -- masque not installed
     function ButtonThemer:Register(button, groupName, ...)
-        local l = LibStub('AceLocale-3.0'):GetLocale('Dominos')
-		local group = Masque:Group(l.AddonName, groupName)
+        local group = Masque:Group(AddonName, groupName)
 
         group:AddButton(button, ...)
 

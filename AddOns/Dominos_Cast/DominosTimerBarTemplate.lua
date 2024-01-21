@@ -87,8 +87,8 @@ function TimerBar:SetFont(fontID)
     local oldFont, fontSize, fontFlags = self.statusBar.label:GetFont()
 
     if newFont and newFont ~= oldFont then
-        self.statusBar.label:SetFont(newFont, fontSize-4, fontFlags) -- 暫時修正
-        self.statusBar.text:SetFont(newFont, fontSize-4, fontFlags) -- 暫時修正
+        self.statusBar.label:SetFont(newFont, fontSize, fontFlags)
+        self.statusBar.text:SetFont(newFont, fontSize, fontFlags)
     end
 end
 

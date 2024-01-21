@@ -71,6 +71,7 @@ function ExtraAbilityBar:Layout()
 end
 
 function ExtraAbilityBar:RepositionExtraAbilityContainer()
+    if InCombatLockdown() then return end
     local container = ExtraAbilityContainer
 
     container:SetParent(self)

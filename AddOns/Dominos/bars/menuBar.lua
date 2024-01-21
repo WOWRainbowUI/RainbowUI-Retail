@@ -89,7 +89,8 @@ function MenuBar:GetDefaults()
             displayLayer = 'LOW',
             point = 'BOTTOMRIGHT',
             x = 0,
-            y = 0
+            y = 0,
+			spacing = -7
         }
     else
         return {
