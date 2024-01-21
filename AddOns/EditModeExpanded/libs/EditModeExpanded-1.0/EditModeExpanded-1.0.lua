@@ -2,12 +2,15 @@
 -- Internal variables
 --
 
-local MAJOR, MINOR = "EditModeExpanded-1.0", 76
+local MAJOR, MINOR = "EditModeExpanded-1.0", 77
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
 -- the internal frames provided by Blizzard go up to index 16. They reference Enum.EditModeSystem, which starts from index 0
-local STARTING_INDEX = 17
+local STARTING_INDEX = 0
+for _ in pairs(Enum.EditModeSystem) do
+    STARTING_INDEX = STARTING_INDEX + 1
+end
 local index = STARTING_INDEX
 local frames = lib.frames or {}
 lib.frames = frames
@@ -108,6 +111,10 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
     assert(type(name) == "string")
     assert(type(db) == "table")
     
+    if frame:IsUserPlaced() then
+        frame:SetUserPlaced(false)
+    end
+    
     if not anchorTo then anchorTo = UIParent end
     if not anchorPoint then anchorPoint = "BOTTOMLEFT" end
     frame.EMEanchorTo = anchorTo
@@ -155,6 +162,9 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
         
         frame.Selection:HookScript("OnDragStop", function(self)
             EditModeExpandedSystemSettingsDialog:UpdateSettings(frame)
+            if frame:IsUserPlaced() then
+                frame:SetUserPlaced(false)
+            end
         end)
         
         return
@@ -276,6 +286,10 @@ function lib:RegisterFrame(frame, name, db, anchorTo, anchorPoint, clamped)
         frame:SetPoint(anchorPoint, anchorTo, anchorPoint, x, y)
         
         EditModeExpandedSystemSettingsDialog:UpdateSettings(frame)
+        
+        if frame:IsUserPlaced() then
+            frame:SetUserPlaced(false)
+        end
     end)
     
     function frame:ClearHighlight()
@@ -1277,13 +1291,19 @@ end
 
 
 do
-    local lf = CreateFrame("Frame")
+    local initialLayout
+    initialLayout = function()
+        if EditModeManagerFrame:GetActiveLayoutInfo() then
+            profilesInitialised = true
+            refreshCurrentProfile()
+            initialLayout = nop
+        end
+    end
+    initialLayout()
+    
     hooksecurefunc(f, "OnLoad", function()
-        lf:RegisterEvent("EDIT_MODE_LAYOUTS_UPDATED")
-    end)
-    lf:SetScript("OnEvent", function()
-        profilesInitialised = true
-        refreshCurrentProfile()
+        initialLayout()
+        EventUtil.RegisterOnceFrameEventAndCallback("EDIT_MODE_LAYOUTS_UPDATED", initialLayout)
     end)
 end
 
@@ -1559,15 +1579,17 @@ do
                     
                     local systemID = getSystemID(frame)
                     local db = framesDB[systemID]
-                    local settings = db.settings
-                    local dialogs = framesDialogsKeys[systemID]
-                    
-                    if dialogs and dialogs[ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT] and settings and (settings[ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT] == 1) and dialogs[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] then
-                        if settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] == 1 then
-                            -- if "Hide" in enabled and this option too, then hide it while out of combat, show it while in combat
-                            frame:Show()
-                        else
-                            frame:Hide()
+                    if db then
+                        local settings = db.settings
+                        local dialogs = framesDialogsKeys[systemID]
+                        
+                        if dialogs and dialogs[ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT] and settings and (settings[ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT] == 1) and dialogs[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] then
+                            if settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] == 1 then
+                                -- if "Hide" in enabled and this option too, then hide it while out of combat, show it while in combat
+                                frame:Show()
+                            else
+                                frame:Hide()
+                            end
                         end
                     end
                 end
@@ -1582,14 +1604,16 @@ do
                     end
                     local systemID = getSystemID(frame)
                     local db = framesDB[systemID]
-                    local settings = db.settings
-                    local dialogs = framesDialogsKeys[systemID]
-                    
-                    if dialogs and settings and dialogs[ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT] and (settings[ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT] == 1) and dialogs[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] then
-                        if settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] == 1 then
-                            frame:Hide()
-                        else
-                            frame:Show()
+                    if db then
+                        local settings = db.settings
+                        local dialogs = framesDialogsKeys[systemID]
+                        
+                        if dialogs and settings and dialogs[ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT] and (settings[ENUM_EDITMODEACTIONBARSETTING_TOGGLEHIDEINCOMBAT] == 1) and dialogs[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] then
+                            if settings[ENUM_EDITMODEACTIONBARSETTING_HIDEABLE] == 1 then
+                                frame:Hide()
+                            else
+                                frame:Show()
+                            end
                         end
                     end
                 end
