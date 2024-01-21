@@ -261,7 +261,9 @@ local function filter(self, event, msg, sender)
     end
     -- local lowercase_message = msg:lower()
     -- local lowercase_message = string.gsub(msg, "%s", "") -- 過濾空格
-    local lowercase_message = filter_spec_chars(msg) -- 過濾特殊符號
+    local lowercase_message = string.gsub(msg, "{(.-)}", "") -- 過濾圖案
+    -- print(lowercase_message)
+	local lowercase_message = filter_spec_chars(lowercase_message) -- 過濾符號
 	-- print(lowercase_message)
     local lowercase_name = sender:lower()
 
