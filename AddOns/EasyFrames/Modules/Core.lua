@@ -682,8 +682,14 @@ function Core:MoveTargetFrameBars()
     local manaBar = targetFrameContentMain.ManaBar;
     local numericalThreat = TargetFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
 
-    -- Something like permanent hide (this is a hack).
-    self:MoveRegion(originHealthBar, "CENTER", TargetFrame, "CENTER", -20000, -20000)
+    -- Something like permanent hide.
+    originHealthBar:GetStatusBarTexture():SetAlpha(0)
+    originHealthBar.MyHealPredictionBar:SetAlpha(0)
+    originHealthBar.OtherHealPredictionBar:SetAlpha(0)
+    originHealthBar.TotalAbsorbBar:SetAlpha(0)
+    originHealthBar.OverAbsorbGlow:SetAlpha(0)
+    originHealthBar.OverHealAbsorbGlow:SetAlpha(0)
+    originHealthBar.HealAbsorbBar:SetAlpha(0)
 
     self:MoveRegion(localHealthBar, "CENTER", TargetFrame, "CENTER", -27, 9)
     self:MoveRegion(originHealthBar.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0)
@@ -725,8 +731,14 @@ function Core:MoveFocusFrameBars()
     local manaBar = focusFrameContentMain.ManaBar;
     local numericalThreat = FocusFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
 
-    -- Something like permanent hide (this is a hack).
-    self:MoveRegion(originHealthBar, "CENTER", FocusFrame, "CENTER", -20000, -20000)
+    -- Something like permanent hide.
+    originHealthBar:GetStatusBarTexture():SetAlpha(0)
+    originHealthBar.MyHealPredictionBar:SetAlpha(0)
+    originHealthBar.OtherHealPredictionBar:SetAlpha(0)
+    originHealthBar.TotalAbsorbBar:SetAlpha(0)
+    originHealthBar.OverAbsorbGlow:SetAlpha(0)
+    originHealthBar.OverHealAbsorbGlow:SetAlpha(0)
+    originHealthBar.HealAbsorbBar:SetAlpha(0)
 
     self:MoveRegion(localHealthBar, "CENTER", FocusFrame, "CENTER", -27, 9)
     self:MoveRegion(originHealthBar.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0)
