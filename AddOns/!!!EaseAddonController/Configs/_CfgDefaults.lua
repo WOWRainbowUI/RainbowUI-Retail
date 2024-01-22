@@ -563,6 +563,10 @@ D["CombatTimeTracker"] = {
         callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_CTT"]("") end,
     },
 	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。\n",
+	},
+	{
         type = "text",
 		text = "點小地圖按鈕的 '戰鬥時間追蹤' 按鈕也可以開啟設定選項。",
     },
