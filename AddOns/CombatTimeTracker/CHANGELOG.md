@@ -1,6 +1,6 @@
 # Combat Time Tracker
 
-## [v10.2.5.2](https://github.com/gkute/CombatTimeTracker/tree/v10.2.5.2) (2024-01-20)
-[Full Changelog](https://github.com/gkute/CombatTimeTracker/compare/v10.2.5...v10.2.5.2) [Previous Releases](https://github.com/gkute/CombatTimeTracker/releases)
+## [v10.2.5.5](https://github.com/gkute/CombatTimeTracker/tree/v10.2.5.5) (2024-01-21)
+[Full Changelog](https://github.com/gkute/CombatTimeTracker/compare/v10.2.5.4...v10.2.5.5) [Previous Releases](https://github.com/gkute/CombatTimeTracker/releases)
 
-- updating addon version to not be using deprecated api  
+- fix badge status  

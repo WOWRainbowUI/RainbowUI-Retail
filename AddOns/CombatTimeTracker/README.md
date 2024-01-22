@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/gkute/CombatTimeTracker/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/gkute/CombatTimeTracker/actions/workflows/release.yml)
+[![Package and release CTT](https://github.com/gkute/CombatTimeTracker/actions/workflows/release.yml/badge.svg)](https://github.com/gkute/CombatTimeTracker/actions/workflows/release.yml)
 [![CombatTimeTracker on Discord](https://img.shields.io/badge/discord-CombatTimeTracker-blue.svg)](https://discord.gg/37CUxNn)
 # Combat Time Tracker
 
