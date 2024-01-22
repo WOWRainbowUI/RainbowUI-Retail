@@ -161,8 +161,8 @@ function General:OnEnable()
 
     self:SetBrightFramesBorder(db.general.brightFrameBorder)
 
-    --self:SetMaxBuffCount(db.general.maxBuffCount)
-    --self:SetMaxDebuffCount(db.general.maxDebuffCount)
+    self:SetMaxBuffCount(db.general.maxBuffCount)
+    self:SetMaxDebuffCount(db.general.maxDebuffCount)
 end
 
 function General:OnProfileChanged(newDB)
@@ -183,8 +183,8 @@ function General:OnProfileChanged(newDB)
 
     self:SetCustomBuffSize(db.general.customBuffSize)
 
-    --self:SetMaxBuffCount(db.general.maxBuffCount)
-    --self:SetMaxDebuffCount(db.general.maxDebuffCount)
+    self:SetMaxBuffCount(db.general.maxBuffCount)
+    self:SetMaxDebuffCount(db.general.maxDebuffCount)
 end
 
 
