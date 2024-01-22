@@ -507,9 +507,12 @@ local cttLBD = LibStub("LibDataBroker-1.1"):NewDataObject("CombatTimeTracker", {
             end
         elseif buttonPressed == "MiddleButton" then
             icon:Hide("CombatTimeTracker")
-            db.minimap.hide = true
+            if (db.minimap == nil) then
+                db.minimap = {
+                    hide = true,
+                }
+            end
             db.profile.cttMenuOptions.minimapIconCheckButton = true
-            CTT.menu.minimapIconCheckButton:SetValue(true)
         else
             CTT_ToggleMenu()
         end
@@ -1234,7 +1237,7 @@ function CTT_ToggleMenu()
         loadOptionsAfterCombat = true
         CTT:Print(L["Options menu cannot be loaded while in combat, try again after combat has ended!"])
     else
-        if not CTT.menu then CTT:CreateOptionsMenu() end
+        CTT:CreateOptionsMenu()
         if CTT.menu:IsShown() then
             CTT.menu:Hide()
             -- CTT:Print(L["Options menu hidden, for other commands use /ctt help!"]) - 隱藏登入訊息
@@ -1368,12 +1371,15 @@ function CTT_BackDropSliderDone(widget, event, value)
 end
 
 function CTT_MinimapIconCheckButton(widget, event, value)
+    if (db.minimap == nil) then
+        db.minimap = {
+            hide = value,
+        }
+    end
     db.profile.cttMenuOptions.minimapIconCheckButton = value
     if db.profile.cttMenuOptions.minimapIconCheckButton then
-        db.minimap.hide = true
         icon:Hide("CombatTimeTracker")
     else
-        db.minimap.hide = false
         icon:Show("CombatTimeTracker")
     end
 end
@@ -1631,7 +1637,7 @@ local function OptionsMenu(container)
     lockFrameCheckButton:SetHeight(22)
     lockFrameCheckButton:SetType("checkbox")
     lockFrameCheckButton:ClearAllPoints()
-    if db.profile then lockFrameCheckButton:SetValue(db.profile.cttMenuOptions.lockFrameCheckButton) end
+    if db.profile.cttMenuOptions.lockFrameCheckButton ~= nil then lockFrameCheckButton:SetValue(db.profile.cttMenuOptions.lockFrameCheckButton) end
     lockFrameCheckButton:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
     lockFrameCheckButton:SetCallback("OnValueChanged", CTT_LockFrameCheckBoxState)
     container:AddChild(lockFrameCheckButton)
@@ -1643,7 +1649,7 @@ local function OptionsMenu(container)
     minimapIconCheckButton:SetHeight(22)
     minimapIconCheckButton:SetType("checkbox")
     minimapIconCheckButton:ClearAllPoints()
-    if db.profile.cttMenuOptions.minimapIconCheckButton then
+    if db.profile.cttMenuOptions.minimapIconCheckButton ~= nil then
         minimapIconCheckButton:SetValue(db.profile.cttMenuOptions.minimapIconCheckButton)
     else
         minimapIconCheckButton:SetValue(false)
@@ -1660,7 +1666,7 @@ local function OptionsMenu(container)
     toggleTarget:SetHeight(22)
     toggleTarget:SetType("checkbox")
     toggleTarget:ClearAllPoints()
-    if db.profile.cttMenuOptions.toggleTarget then
+    if db.profile.cttMenuOptions.toggleTarget ~= nil then
         toggleTarget:SetValue(db.profile.cttMenuOptions.toggleTarget)
     else
         toggleTarget:SetValue(true)
@@ -1677,7 +1683,7 @@ local function OptionsMenu(container)
     togglePrint:SetHeight(22)
     togglePrint:SetType("checkbox")
     togglePrint:ClearAllPoints()
-    if db.profile.cttMenuOptions.togglePrint then
+    if db.profile.cttMenuOptions.togglePrint ~= nil then
         togglePrint:SetValue(db.profile.cttMenuOptions.togglePrint)
     else
         togglePrint:SetValue(true)
@@ -1689,7 +1695,7 @@ local function OptionsMenu(container)
 
     -- color picker
     local textColorPicker = AceGUI:Create("ColorPicker")
-    if db.profile.cttMenuOptions.textColorPicker then
+    if db.profile.cttMenuOptions.textColorPicker ~= nil then
         textColorPicker:SetColor(db.profile.cttMenuOptions.textColorPicker[1],
             db.profile.cttMenuOptions.textColorPicker[2], db.profile.cttMenuOptions.textColorPicker[3],
             db.profile.cttMenuOptions.textColorPicker[4])
@@ -1748,7 +1754,7 @@ local function OptionsMenu(container)
     textFrameSizeSlider:SetLabel(L["Tracker Size"])
     textFrameSizeSlider:SetWidth(150)
     textFrameSizeSlider:SetIsPercent(true)
-    if db.profile.cttMenuOptions.textFrameSizeSlider then
+    if db.profile.cttMenuOptions.textFrameSizeSlider ~= nil then
         textFrameSizeSlider:SetValue(db.profile.cttMenuOptions
             .textFrameSizeSlider)
     end
@@ -1765,7 +1771,7 @@ local function OptionsMenu(container)
     backDropAlphaSlider:SetLabel(L["Backdrop Opacity"])
     backDropAlphaSlider:SetWidth(150)
     backDropAlphaSlider:SetIsPercent(true)
-    if db.profile.cttMenuOptions.backDropAlphaSlider then
+    if db.profile.cttMenuOptions.backDropAlphaSlider ~= nil then
         backDropAlphaSlider:SetValue(db.profile.cttMenuOptions.backDropAlphaSlider)
     else
         backDropAlphaSlider
@@ -1786,7 +1792,7 @@ local function OptionsMenu(container)
     fontPickerDropDown:SetMultiselect(false)
     fontPickerDropDown:ClearAllPoints()
     fontPickerDropDown:SetList(LSM:List("font"))
-    if db.profile.cttMenuOptions.fontName and db.profile.cttMenuOptions.fontPickerDropDown then
+    if db.profile.cttMenuOptions.fontName ~= nil and db.profile.cttMenuOptions.fontPickerDropDown ~= nil then
         fontPickerDropDown:SetText(fontTableOptions[db.profile.cttMenuOptions.fontPickerDropDown])
         fontPickerDropDown:SetValue(db.profile.cttMenuOptions.fontPickerDropDown)
     else
@@ -1806,7 +1812,7 @@ local function OptionsMenu(container)
     instanceType:ClearAllPoints()
     instanceType:SetList(instanceTypes)
     --TODO add conditionals to display the menu text as needed once list is made
-    if db.profile.cttMenuOptions.instanceType then
+    if db.profile.cttMenuOptions.instanceType ~= nil then
         instanceType:SetText(instanceTypes[db.profile.cttMenuOptions.instanceType])
         instanceType:SetValue(db.profile.cttMenuOptions.instanceType)
     else
@@ -1825,7 +1831,7 @@ local function OptionsMenu(container)
     soundPickerDropDown:SetMultiselect(false)
     soundPickerDropDown:ClearAllPoints()
     soundPickerDropDown:SetList(LSM:List("sound"))
-    if db.profile.cttMenuOptions.soundName and db.profile.cttMenuOptions.soundDropDownValue then
+    if db.profile.cttMenuOptions.soundName ~= nil and db.profile.cttMenuOptions.soundDropDownValue ~= nil then
         soundPickerDropDown:SetText(soundTableOptions[db.profile.cttMenuOptions.soundDropDownValue])
         soundPickerDropDown:SetValue(db.profile.cttMenuOptions.soundDropDownValue)
     else
@@ -1936,7 +1942,7 @@ local function Alerts(container)
     timeInput:SetLabel(L["Time(sec)"])
     timeInput:SetWidth(85)
     timeInput:ClearAllPoints()
-    if db.profile.cttMenuOptions.localStore then timeInput:SetText(db.profile.cttMenuOptions.localStore) end
+    if db.profile.cttMenuOptions.localStore ~= nil then timeInput:SetText(db.profile.cttMenuOptions.localStore) end
     timeInput:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
     timeInput:SetCallback("OnEnterPressed", CTT_AlertTimeOnEnterPressed)
     container:AddChild(timeInput)
