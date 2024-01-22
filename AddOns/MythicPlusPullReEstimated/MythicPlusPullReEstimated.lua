@@ -676,6 +676,7 @@ function MMPE:CreateNameplateText(unit)
         local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
         if nameplate then
             self.activeNameplates[unit] = nameplate:CreateFontString(unit .."mppProgress", "OVERLAY", "NumberFontNormal") -- 更改字體
+            self.activeNameplates[unit]:SetFont(STANDARD_TEXT_FONT, 9, "")
             self.activeNameplates[unit]:SetText("+?%")
         end
     end
