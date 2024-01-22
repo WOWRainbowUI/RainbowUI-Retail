@@ -209,6 +209,7 @@ function ActionButton:Update()
     self:UpdateFlashing()
     self:UpdateFlyout()
     self:UpdateIcon()
+    self:UpdateProfessionQuality()
     self:UpdateShown()
     self:UpdateUsable()
 
@@ -256,7 +257,10 @@ function ActionButton:UpdateCount()
     local action = self.action
     local count = GetActionCount(action) or 0
 
-    if IsConsumableAction(action) or IsStackableAction(action) or (not IsItemAction(action) and count > 0) then
+    if not HasAction(action) then
+        self.Count:SetText("")
+        self.Name:SetText("")
+    elseif IsConsumableAction(action) or IsStackableAction(action) or (not IsItemAction(action) and count > 0) then
         if count > 999 then
             self.Count:SetFormattedText("%.1f%k", count / 1000)
             self.Name:SetText("")
@@ -335,31 +339,43 @@ function ActionButton:UpdateUsable(usable, oom, oor)
         oor = IsActionInRange(self.action) == false
     end
 
-    local icon = self.icon
+    local iconState
     if usable then
         if oor then
-            icon:SetDesaturated(true)
-            icon:SetVertexColor(1, 0.4, 0.4)
+            iconState = "oor"
         else
-            icon:SetDesaturated(false)
-            icon:SetVertexColor(1, 1, 1)
+            iconState = "normal"
         end
     elseif oom then
-        icon:SetDesaturated(true)
-        icon:SetVertexColor(0.4, 0.4, 1.0)
+        iconState = "oom"
     else
+        iconState = "unusable"
+    end
+
+    local icon = self.icon
+    local iconColors = Addon.db.profile.actionColors
+    local c = iconColors[iconState]
+    if c.enabled then
+        icon:SetVertexColor(c.r, c.g, c.b, c.a)
+        icon:SetDesaturated(c.desaturate)
+    else
+        icon:SetVertexColor(1, 1, 1)
         icon:SetDesaturated(false)
-        icon:SetVertexColor(0.4, 0.4, 0.4)
     end
 
     local hotkey = self.HotKey
-    if oor then
-        hotkey:SetVertexColor(1, 0, 0)
+    local hotkeyColors = Addon.db.profile.hotkeyColors
+
+    if oor and hotkeyColors.oor.enabled then
+        c = hotkeyColors.oor
+        hotkey:SetTextColor(c.r, c.g, c.b, c.a)
+
         if (hotkey:GetText() or '') == '' then
             hotkey:SetText(RANGE_INDICATOR)
         end
     else
-        hotkey:SetVertexColor(1, 1, 1)
+        hotkey:SetTextColor(1, 1, 1, 1)
+
         if hotkey:GetText() == RANGE_INDICATOR then
             hotkey:SetText(self:GetHotkey())
         end
@@ -407,7 +423,7 @@ function ActionButton:SetShowGrid(show, reason, force)
     if InCombatLockdown() then return end
 
     if reason == nil then
-        error("Usage: ActionButton:SetShowGrid(show, reason, [, force?])", 2)
+        error("Usage: ActionButton:SetShowGrid(show, reason, force?)", 2)
     end
 
     local value = self:GetAttribute("showgrid") or 0
@@ -431,12 +447,14 @@ end
 
 
 -- standard method references
-ActionButton.UpdateCooldown = ActionButton_UpdateCooldown
-ActionButton.UpdateFlyout = ActionBarActionButtonMixin.UpdateFlyout
+ActionButton.ClearProfessionQuality = ActionBarActionButtonMixin.ClearProfessionQuality
 ActionButton.GetHotkey = Addon.BindableButton.GetHotkey
 ActionButton.HideOverlayGlow = ActionButton_HideOverlayGlow
 ActionButton.ShowOverlayGlow = ActionButton_ShowOverlayGlow
+ActionButton.UpdateCooldown = ActionButton_UpdateCooldown
+ActionButton.UpdateFlyout = ActionBarActionButtonMixin.UpdateFlyout
 ActionButton.UpdateOverlayGlow = ActionBarActionButtonMixin.UpdateOverlayGlow
+ActionButton.UpdateProfessionQuality = ActionBarActionButtonMixin.UpdateProfessionQuality
 
 -- exports
 Addon.ActionButton = ActionButton
