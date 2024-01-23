@@ -1,0 +1,41 @@
+## Interface: 100105
+#@non-debug@
+## Title: World Map Tracking Enhanced
+## Title-deDE: World Map Tracking Enhanced
+## Title-frFR: World Map Tracking Enhanced
+## Title-koKR: World Map Tracking Enhanced
+## Title-ruRU: World Map Tracking Enhanced
+## Title-zhCN: 增强的世界地图追踪选项
+## Title-zhTW: 強化的世界地圖追蹤
+## Notes: Enhanced World Map's Tracking Options with the support to most popular addons
+## Notes-deDE: Verbessert die Aufspüroptionen der Weltkarte, indem es die beliebtesten Addons unterstützt
+## Notes-koKR: 많은 대중적인 애드온을 지원하도록 세계 지도의 추적 옵션을 향상시킵니다
+## Notes-ruRU: Расширенные опции отслеживания карты мира с поддержкой большинства популярных аддонов
+## Notes-zhCN: 增强的世界地图追踪选项，支持最热门的游戏插件
+## Notes-zhTW: 強化的世界地圖追蹤選項，支援最熱門的遊戲插件
+#@end-non-debug@
+#@debug@
+# ## Title: World Map Tracking Enhanced
+# ## Title-zhTW: 強化的世界地圖追蹤
+# ## Notes: Enhanced World Map's Tracking Options with the support to most popular addons
+# ## Notes-zhTW: 強化的世界地圖追蹤選項，支援最熱門的遊戲插件
+#@end-debug@
+## Author: arith
+## Version: v4.26
+# # RequiredDeps: 
+## OptionalDeps: Ace3, LibStub, CallbackHandler-1.0, !LibUIDropDownMenu
+## DefaultState: enabled
+## SavedVariables: WorldMapTrackingEnhancedDB
+## X-Date: 2023-07-29T7:11:03Z
+## X-License: GPLv2
+## X-Category: Map
+## IconTexture: Interface\Minimap\Tracking\None
+
+Libs\Libs.xml
+Locale\Locales.xml
+Core\Constants.lua
+Core\Core.lua
+Core\Templates.xml
+Core\Config.lua
+
+Modules.xml
