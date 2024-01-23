@@ -1,4 +1,4 @@
--- $Id: Core.lua 154 2022-11-12 11:59:17Z arithmandar $
+-- $Id: Core.lua 166 2024-01-22 13:51:33Z arithmandar $
 -----------------------------------------------------------------------
 -- Upvalued Lua API.
 -----------------------------------------------------------------------
@@ -239,6 +239,11 @@ function WMTEButtonMixin:InitializeDropDown(frame, level)
 			info.text = MINIMAP_TRACKING_TRIVIAL_QUESTS;
 			info.value = "trivialQuests";
 			info.checked = self:IsTrackingFilter(Enum.MinimapTrackingFilter.TrivialQuests);
+			LibDD:UIDropDownMenu_AddButton(info);
+
+			info.text = CONTENT_TRACKING_MAP_TOGGLE;
+			info.value = "contentTrackingFilter";
+			info.checked = GetCVarBool("contentTrackingFilter");
 			LibDD:UIDropDownMenu_AddButton(info);
 		end
 		-- If we aren't on a map with world quests don't show the world quest reward filter options.
