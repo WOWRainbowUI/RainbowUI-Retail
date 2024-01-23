@@ -1,7 +1,24 @@
-$Id: ChangeLog.txt 158 2022-11-13 03:28:41Z arithmandar $
+$Id: ChangeLog.txt 166 2024-01-22 13:51:33Z arithmandar $
 
 Revision History:
 =================
+
+* v4.27 (Jan. 22, 2024)
+-----------------------
+- Toc update to support WoW 10.2.5 / 3.4.3 / 1.15.0
+- Added Tracked Items menu item (WoW Retail's built-in feature)
+
+* v4.26 (Jul. 29, 2023)
+-----------------------
+- Toc update to support WoW 10.1.5 / 3.4.2
+
+* v4.25 (Mar. 20, 2023)
+-----------------------
+- Toc update to support WoW 10.0.7 / 3.4.1
+
+* v4.24 (Nov. 19, 2022)
+-----------------------
+- Retail ToC update to support WoW 10.0.2
 
 * v4.23 (Nov. 13, 2022)
 -----------------------

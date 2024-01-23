@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 30403
 #@non-debug@
 ## Title: World Map Tracking Enhanced
 ## Title-deDE: World Map Tracking Enhanced
@@ -29,14 +29,12 @@
 ## X-Date: 2024-01-22T13:51:33Z
 ## X-License: GPLv2
 ## X-Category: Map
-## IconTexture: Interface\Minimap\Tracking\None
 
 ## Title-zhTW: |cff4DFF4D[地圖]|r 世界地圖追蹤增強
 ## Notes-zhTW: World Map Tracking Enhanced |n|n加強世界地圖右上角放大鏡的追蹤功能，提供更多的項目，隨時選擇地圖上要顯示、不顯示哪些圖示。|n|n支援地圖標記相關模組、採集助手、戰寵助手和世界任務追蹤插件，讓你可以快速開關地圖上的圖示，不需要分別停用每個插件。|n|n|cffffd200使用方法: |r點世界地圖右上角的放大鏡顯示追蹤選單。|n|n從Esc>選項>插件>世界地圖-追蹤，進行設定。
 ## X-Category-zhTW: 地圖
 
-##Libs\Libs.xml
-Libs\Krowi_WorldMapButtons\Krowi_WorldMapButtons-1.4.xml
+Libs\Libs.xml
 Locale\Locales.xml
 Core\Constants.lua
 Core\Core.lua
