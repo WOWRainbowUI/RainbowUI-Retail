@@ -1,10 +1,14 @@
-﻿$Id: Revision.txt 409 2024-01-21 14:30:18Z arithmandar $
+﻿$Id: Revision.txt 411 2024-01-22 13:12:43Z arithmandar $
 Known Issue(s):
 ===============
 - Some incomes were categorized into Unknown instead of corresponding group.
 
 Revision History:
 =================
+
+* v2.12.28 (Jan. 22, 2024)
+==========================
+- Library update: LibUIDropDownMenu
 
 * v2.12.27 (Jan. 21, 2024)
 ==========================
