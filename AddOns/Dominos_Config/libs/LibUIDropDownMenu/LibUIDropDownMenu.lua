@@ -1,4 +1,4 @@
--- $Id: LibUIDropDownMenu.lua 125 2024-01-21 11:58:31Z arithmandar $
+-- $Id: LibUIDropDownMenu.lua 129 2024-01-23 15:53:42Z arithmandar $
 -- ----------------------------------------------------------------------------
 -- Localized Lua globals.
 -- ----------------------------------------------------------------------------
@@ -18,7 +18,7 @@ local GameTooltip_SetTitle, GameTooltip_AddInstructionLine, GameTooltip_AddNorma
 
 -- ----------------------------------------------------------------------------
 local MAJOR_VERSION = "LibUIDropDownMenu-4.0"
-local MINOR_VERSION = 90000 + tonumber(("$Rev: 125 $"):match("%d+"))
+local MINOR_VERSION = 90000 + tonumber(("$Rev: 129 $"):match("%d+"))
 
 
 local LibStub = _G.LibStub
@@ -779,7 +779,9 @@ function lib:UIDropDownMenu_Initialize(frame, initFunction, displayMode, level, 
 	local dropDownList = _G["L_DropDownList"..level];
 	dropDownList.dropdown = frame;
 	dropDownList.shouldRefresh = true;
-	dropDownList:SetWindow(frame:GetWindow());
+	if (WoWRetail) then
+		dropDownList:SetWindow(frame:GetWindow());
+	end
 
 	lib:UIDropDownMenu_SetDisplayMode(frame, displayMode);
 end
@@ -1315,7 +1317,7 @@ function lib:UIDropDownMenu_AddButton(info, level)
 		_G[listFrameName.."Button"..index.."UnCheck"]:Hide();
 	end
 	button.checked = info.checked;
-	if (WoWRetail) then
+	if (WoWRetail and button.NewFeature) then
 		button.NewFeature:SetShown(button.showNewLabel); -- Retail only?
 	end
 	
