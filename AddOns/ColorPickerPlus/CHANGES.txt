@@ -1,12 +1,10 @@
-tag 5c6b059800bbe98f23cc29b74ad6dbe05310b0fa r58
+tag ac1fe3e0e72394f4dcc2850ec2f10023d0c52b70 r59
 Author:	Benjamin Staneck <staneck@gmail.com>
-Date:	Sat Jan 20 17:05:18 2024 +0100
+Date:	Mon Jan 22 12:42:29 2024 +0100
 
-commit dcb28eec448cf81ea8ce46ce0bfd230e1c8d089e
+commit eee893a97eac8084165cd7178a10cab80597c55e
 Author: Benjamin Staneck <staneck@gmail.com>
-Date:   Sat Jan 20 17:05:00 2024 +0100
+Date:   Mon Jan 22 12:42:14 2024 +0100
 
-    Fix reversed alpha in retail
-    
-    Fixes #14
+    More alpha fixes
 
