@@ -1,7 +1,11 @@
-$Id: ChangeLog.txt 166 2024-01-22 13:51:33Z arithmandar $
+$Id: ChangeLog.txt 168 2024-01-23 15:57:20Z arithmandar $
 
 Revision History:
 =================
+
+* v4.28 (Jan. 23, 2024)
+-----------------------
+- Library update: LibUIDropDownMenu
 
 * v4.27 (Jan. 22, 2024)
 -----------------------
