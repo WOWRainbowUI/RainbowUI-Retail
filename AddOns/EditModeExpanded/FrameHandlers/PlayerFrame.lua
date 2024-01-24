@@ -60,7 +60,7 @@ function addon:initPlayerFrame()
         )
         
         C_Timer.After(4, function()
-            lib:RegisterCustomCheckbox(PlayerFrame, "Hide Level",
+            lib:RegisterCustomCheckbox(PlayerFrame, "隱藏等級",
                 function()
                     PlayerLevelText:Hide()
                 end,
