@@ -3,6 +3,8 @@ local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 eventFrame:RegisterEvent("ARENA_PREP_OPPONENT_SPECIALIZATIONS")
+eventFrame:RegisterEvent("ARENA_OPPONENT_UPDATE")
+eventFrame:RegisterEvent("PVP_MATCH_STATE_CHANGED")
 
 local hiddenFrame = CreateFrame("Frame")
 
