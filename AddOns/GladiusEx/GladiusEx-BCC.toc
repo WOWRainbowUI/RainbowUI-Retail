@@ -1,4 +1,4 @@
-## Interface: 100205
+﻿## Interface: 20501
 ## Title: GladiusEx
 ## Notes: Arena unit frames and more
 ## SavedVariables: GladiusExDB
@@ -13,12 +13,12 @@
 ## DefaultState: disabled
 ## Version: 2.7.2
 
-embeds.xml
+embeds-bcc.xml
 templates.xml
 localization\enUS.lua
 localization\locales.lua
 GladiusEx.lua
-Data-Mainline.lua
+Data-BCC.lua
 options.lua
 modules\alerts.lua
 modules\announcements.lua

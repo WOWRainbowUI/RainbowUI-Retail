@@ -62,8 +62,7 @@ elseif locale == "frFR" then
     L["STUNS"] = "Etourdissements"
     L["TAUNTS"] = "Provocations"
 elseif locale == "itIT" then
-    -- Categories
-
+    -- TODO translate me
 elseif locale == "koKR" then
     L["DISORIENTS"] = "방향 감각 상실"
     L["INCAPACITATES"] = "행동 불가"
@@ -72,8 +71,7 @@ elseif locale == "koKR" then
     L["SILENCES"] = "침묵"
     L["STUNS"] = "기절"
 elseif locale == "ptBR" then
-    -- Categories
-
+    -- TODO: translate me
 elseif locale == "ruRU" then
     L["DISARMS"] = "Разоружение"
     L["DISORIENTS"] = "Дезориентация"
