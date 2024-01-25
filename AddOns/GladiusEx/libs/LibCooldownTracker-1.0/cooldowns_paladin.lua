@@ -108,7 +108,7 @@ LCT_SpellData[96231] = {
 -- Divine Protection
 LCT_SpellData[498] = {
 	class = "PALADIN",
-	specID = { SPEC_PALADIN_PROTECTION, SPEC_PALADIN_HOLY },
+	talent = true,
 	defensive = true,
 	duration = 8,
 	cooldown = 60,
@@ -318,15 +318,6 @@ LCT_SpellData[207028] = {
 	talent = true,
 	cooldown = 20,
 	replaces = 62124, -- Hand of Reckoning
-}
--- Seraphim
-LCT_SpellData[152262] = {
-	class = "PALADIN",
-	talent = true,
-	cooldown = 45,
-	duration = 15,
-	offensive = true
-	-- TODO consumes charges of Shield of the Righteous
 }
 -- Blessing of Spellwarding
 LCT_SpellData[204018] = {

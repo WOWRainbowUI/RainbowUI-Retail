@@ -23,8 +23,7 @@ L["Add click action"] = "Klickaktion hinzufügen"
 L["Add cooldowns group"] = "Abklingzeitengruppe hinzufügen"
 L["Add new aura"] = "Neue Aura hinzufügen"
 L["Add new aura filter"] = "Neuen Aurafilter hinzufügen"
---[[Translation missing --]]
-L["Add new cast"] = "Add new cast"
+L["Add new cast"] = "neuen Zauber hinzufügen"
 L["Add tag"] = "Tag hinzufügen"
 L["Add text"] = "Text hinzufügen"
 --[[Translation missing --]]
@@ -132,8 +131,7 @@ L["Button 4"] = "Button 4"
 L["Button 5"] = "Button 5"
 --[[Translation missing --]]
 L["Cast spell"] = "Cast spell"
---[[Translation missing --]]
-L["Cast text"] = "Cast text"
+L["Cast text"] = "Zaubertext"
 --[[Translation missing --]]
 L["Cast time text"] = "Cast time text"
 L["CastBar"] = "Zauberleiste"
@@ -460,8 +458,7 @@ L["MONK:short"] = "Mönch"
 L["Mouse button"] = "Maustaste"
 L["Name"] = true
 L["Name of the aura"] = "Name der Aura"
---[[Translation missing --]]
-L["Name of the cast"] = "Name of the cast"
+L["Name of the cast"] = "Name des Zaubers"
 --[[Translation missing --]]
 L["Name of the cast spell"] = "Name of the cast spell"
 L["Name of the tag"] = "Name des Tags"
@@ -5973,74 +5970,43 @@ L["Spec"] = "Spec"
 L["Spec detection"] = "Spec detection"
 --[[Translation missing --]]
 L["spec:shortTag"] = "Spec (Short)"
---[[Translation missing --]]
-L["specID:102:short"] = "Balance"
---[[Translation missing --]]
-L["specID:103:short"] = "Feral"
---[[Translation missing --]]
-L["specID:104:short"] = "Guardian"
---[[Translation missing --]]
-L["specID:105:short"] = "Resto"
---[[Translation missing --]]
-L["specID:250:short"] = "Blood"
---[[Translation missing --]]
-L["specID:251:short"] = "Frost"
---[[Translation missing --]]
-L["specID:252:short"] = "Unholy"
---[[Translation missing --]]
-L["specID:253:short"] = "BM"
---[[Translation missing --]]
-L["specID:254:short"] = "Marks"
---[[Translation missing --]]
-L["specID:255:short"] = "Surv"
---[[Translation missing --]]
-L["specID:256:short"] = "Disc"
---[[Translation missing --]]
-L["specID:257:short"] = "Holy"
---[[Translation missing --]]
-L["specID:258:short"] = "Shadow"
---[[Translation missing --]]
-L["specID:259:short"] = "Assa"
---[[Translation missing --]]
-L["specID:260:short"] = "Combat"
---[[Translation missing --]]
-L["specID:261:short"] = "Subtl"
---[[Translation missing --]]
-L["specID:262:short"] = "Ele"
---[[Translation missing --]]
-L["specID:263:short"] = "Enha"
---[[Translation missing --]]
-L["specID:264:short"] = "Resto"
---[[Translation missing --]]
-L["specID:265:short"] = "Affli"
---[[Translation missing --]]
-L["specID:266:short"] = "Demo"
---[[Translation missing --]]
-L["specID:267:short"] = "Destru"
+L["specID:102:short"] = "조화"
+L["specID:103:short"] = "야성"
+L["specID:104:short"] = "수호"
+L["specID:105:short"] = "회복"
+L["specID:250:short"] = "혈기"
+L["specID:251:short"] = "냉기"
+L["specID:252:short"] = "부정"
+L["specID:253:short"] = "야수"
+L["specID:254:short"] = "사격"
+L["specID:255:short"] = "생존"
+L["specID:256:short"] = "수양"
+L["specID:257:short"] = "신성"
+L["specID:258:short"] = "암흑"
+L["specID:259:short"] = "암살"
+L["specID:260:short"] = "전투"
+L["specID:261:short"] = "잠행"
+L["specID:262:short"] = "정기"
+L["specID:263:short"] = "고양"
+L["specID:264:short"] = "복원"
+L["specID:265:short"] = "고통"
+L["specID:266:short"] = "악마"
+L["specID:267:short"] = "파괴"
 --[[Translation missing --]]
 L["specID:268:short"] = "Brew"
 --[[Translation missing --]]
 L["specID:269:short"] = "Wind"
 --[[Translation missing --]]
 L["specID:270:short"] = "Mist"
---[[Translation missing --]]
-L["specID:62:short"] = "Arcane"
---[[Translation missing --]]
-L["specID:63:short"] = "Fire"
---[[Translation missing --]]
-L["specID:64:short"] = "Frost"
---[[Translation missing --]]
-L["specID:65:short"] = "Holy"
---[[Translation missing --]]
-L["specID:66:short"] = "Prot"
---[[Translation missing --]]
-L["specID:70:short"] = "Retri"
---[[Translation missing --]]
-L["specID:71:short"] = "Arms"
---[[Translation missing --]]
-L["specID:72:short"] = "Fury"
---[[Translation missing --]]
-L["specID:73:short"] = "Prot"
+L["specID:62:short"] = "비전"
+L["specID:63:short"] = "화염"
+L["specID:64:short"] = "냉기"
+L["specID:65:short"] = "신성"
+L["specID:66:short"] = "보호"
+L["specID:70:short"] = "징벌"
+L["specID:71:short"] = "무기"
+L["specID:72:short"] = "분노"
+L["specID:73:short"] = "방어"
 --[[Translation missing --]]
 L["specTag"] = "Spec"
 --[[Translation missing --]]
