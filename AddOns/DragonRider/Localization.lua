@@ -77,6 +77,8 @@ if LOCALE == "enUS" then
 	L["FadeVigorTT"] = "Toggle fading the Vigor bar when not gliding and while at full Vigor."
 	L["LightningRush"] = "Static Charge Orbs"
 	L["LightningRushTT"] = "Toggle custom frames made for Static Charge auras which are used by the Algarian Stormrider's Lightning Rush ability."
+	L["DynamicFOV"] = "Dynamic FOV"
+	L["DynamicFOVTT"] = "Enables adjustment of camera field of view based on gliding speed."
 
 return end
 
@@ -146,6 +148,8 @@ if LOCALE == "esES" or LOCALE == "esMX" then
 	L["FadeVigorTT"] = "Alternar el desvanecimiento de la barra de Vigor cuando no estás deslizándote y cuando tienes el Vigor máximo."
 	L["LightningRush"] = "Orbes de carga estática"
 	L["LightningRushTT"] = "Alternar marcos personalizados creados para auras de carga estática que son utilizadas por la habilidad Algarian Stormrider Lightning Rush."
+	L["DynamicFOV"] = "Campo de visión dinámico"
+	L["DynamicFOVTT"] = "Permite ajustar el campo de visión de la cámara según la velocidad de deslizamiento."
 
 return end
 
@@ -215,6 +219,8 @@ if LOCALE == "deDE" then
 	L["FadeVigorTT"] = "Ausblenden der Kraftleiste ein-/ausschalten, wenn nicht gleitend und bei voller Kraft."
 	L["LightningRush"] = "Statische Ladungskugeln"
 	L["LightningRushTT"] = "Schalten Sie die benutzerdefinierten Rahmen um, die für statische Ladungsauren erstellt wurden, die von der Algarian Stormrider Lightning Rush-Fähigkeit verwendet werden."
+	L["DynamicFOV"] = "Dynamisches Sichtfeld"
+	L["DynamicFOVTT"] = "Ermöglicht die Anpassung des Kamerasichtfelds basierend auf der Gleitgeschwindigkeit."
 
 return end
 
@@ -284,6 +290,8 @@ if LOCALE == "frFR" then
 	L["FadeVigorTT"] = "Activer l'effacement de la barre Vigor lorsque vous ne glissez pas et lorsque vous êtes au maximum de Vigor."
 	L["LightningRush"] = "Orbes de charge statique"
 	L["LightningRushTT"] = "Activez les cadres personnalisés conçus pour les auras de charge statique qui sont utilisées par la capacité Algarian Stormrider Lightning Rush."
+	L["DynamicFOV"] = "Champ de vision dynamique"
+	L["DynamicFOVTT"] = "Permet d'ajuster le champ de vision de la caméra en fonction de la vitesse de glisse."
 
 return end
 
@@ -353,6 +361,8 @@ if LOCALE == "itIT" then
 	L["FadeVigorTT"] = "Attiva/disattiva la dissolvenza della barra del vigore quando non si plana e mentre si è al massimo del vigore."
 	L["LightningRush"] = "Sfere di carica statica"
 	L["LightningRushTT"] = "Attiva/disattiva i frame personalizzati realizzati per le aure di carica statica utilizzate dall'abilità Algarian Stormrider Lightning Rush."
+	L["DynamicFOV"] = "FOV dinamico"
+	L["DynamicFOVTT"] = "Consente la regolazione del campo visivo della telecamera in base alla velocità di planata."
 
 return end
 
@@ -422,6 +432,8 @@ if LOCALE == "ptBR" then
 	L["FadeVigorTT"] = "Alternar o desvanecimento da barra de Vigor quando não estiver planando e enquanto estiver com Vigor total."
 	L["LightningRush"] = "Orbes de carga estática"
 	L["LightningRushTT"] = "Alternar molduras personalizadas feitas para auras Static Charge que são usadas pela habilidade Algarian Stormrider Lightning Rush."
+	L["DynamicFOV"] = "Campo de visão dinâmico"
+	L["DynamicFOVTT"] = "Permite o ajuste do campo de visão da câmera com base na velocidade de planeio."
 
 -- Note that the EU Portuguese WoW client also
 -- uses the Brazilian Portuguese locale code.
@@ -493,6 +505,8 @@ if LOCALE == "ruRU" then
 	L["FadeVigorTT"] = "Переключить затухание шкалы Энергии, когда она не скользит и при полной Энергии."
 	L["LightningRush"] = "Сферы статического заряда"
 	L["LightningRushTT"] = "Переключить пользовательские рамки, созданные для аур статического заряда, которые используются способностью Молниеносный рывок Алгарского всадника бури."
+	L["DynamicFOV"] = "Динамический угол обзора"
+	L["DynamicFOVTT"] = "Позволяет регулировать поле зрения камеры в зависимости от скорости планирования."
 
 return end
 
@@ -562,6 +576,8 @@ if LOCALE == "koKR" then
 	L["FadeVigorTT"] = "활공하지 않을 때와 활력이 최대일 때 활력 바 페이드를 전환합니다."
 	L["LightningRush"] = "정전기 충전 오브"
 	L["LightningRushTT"] = "Algarian Stormrider Lightning Rush 능력에 사용되는 정전기 충전 오라용으로 제작된 사용자 정의 프레임을 전환합니다."
+	L["DynamicFOV"] = "동적 시야"
+	L["DynamicFOVTT"] = "글라이딩 속도에 따라 카메라 시야를 조정할 수 있습니다."
 
 return end
 
@@ -631,6 +647,8 @@ if LOCALE == "zhCN" then
 	L["FadeVigorTT"] = "在不滑翔和充满活力时切换活力条的淡出。"
 	L["LightningRush"] = "静电荷球"
 	L["LightningRushTT"] = "切换为阿尔加里亚风暴骑士闪电冲锋能力使用的静电光环制作的自定义框架。"
+	L["DynamicFOV"] = "动态视野"
+	L["DynamicFOVTT"] = "能够根据滑翔速度调整相机视野。"
 
 return end
 
@@ -700,5 +718,7 @@ if LOCALE == "zhTW" then
 	L["FadeVigorTT"] = "在不滑翔和充滿活力時切換活力條的淡出。"
 	L["LightningRush"] = "靜電荷球"
 	L["LightningRushTT"] = "切換為阿爾加里亞風暴騎士閃電衝鋒能力所使用的靜電光環製作的自訂框架。"
+	L["DynamicFOV"] = "動態視野"
+	L["DynamicFOVTT"] = "能夠根據滑翔速度調整相機視野。"
 
 return end
