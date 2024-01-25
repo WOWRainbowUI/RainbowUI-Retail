@@ -651,25 +651,11 @@ function DR.FixBlizzFrames()
 	end
 end
 
-function DR.SafeModeShow()
-	for k, v in pairs(DR.WidgetFrameIDs) do
-		if UIWidgetPowerBarContainerFrame.numWidgetsShowing > 1 then
-			for i, j in pairs(UIWidgetPowerBarContainerFrame.widgetFrames) do
-				if k ~= i then
-					UIWidgetPowerBarContainerFrame:SetAlpha(1);
-					UIWidgetPowerBarContainerFrame:Show();
-					return
-				end
-			end
-		end
-	end
-end
 
 function DR.DoWidgetThings()
 	local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
 	local fillCurrent, fillMax = DR.GetVigorValueExact()
 	DR.FixBlizzFrames()
-	DR.SafeModeShow()
 	for k, v in pairs(DR.WidgetFrameIDs) do
 		if UIWidgetPowerBarContainerFrame.widgetFrames[v] ~= nil then
 			
@@ -684,55 +670,18 @@ function DR.DoWidgetThings()
 				end
 			end
 
-			if not DR.fadeOutWidgetGroup then
-
-				DR.fadeOutWidgetGroup = UIWidgetPowerBarContainerFrame:CreateAnimationGroup()
-
-				-- Set scripts for when animations start and finish
-				DR.fadeOutWidgetGroup:SetScript("OnFinished", function()
-					if UIWidgetPowerBarContainerFrame == nil then
-						return
-					else
-						UIWidgetPowerBarContainerFrame:SetAlpha(0);
-						UIWidgetPowerBarContainerFrame:Hide();
-						--DR.statusbar:Hide() -- Hide the frame when the fade out animation is finished
-					end
-				end)
-
-				-- Function to hide the frame with a fade out animation
-				function DR.HideWithFadeWidget()
-					if DragonRider_DB.fadeVigor == true then
-						DR.fadeOutWidgetGroup:Stop(); -- Stop any ongoing animations
-						DR.fadeOutWidgetGroup:Play(); -- Play the fade out animation
-					else
-						UIWidgetPowerBarContainerFrame:SetAlpha(1);
-						UIWidgetPowerBarContainerFrame:Show();
-					end
-				end
-				-- Create a fade out animation
-				DR.fadeOutWidget = DR.fadeOutWidgetGroup:CreateAnimation("Alpha")
-				DR.fadeOutWidget:SetFromAlpha(DR.GetWidgetAlpha())
-				DR.fadeOutWidget:SetToAlpha(0)
-				DR.fadeOutWidget:SetDuration(.9) -- Duration of the fade out animation
-				
-			end
-
-			if canGlide then
-				if fillCurrent >= fillMax and isGliding == false then
-					DR.HideWithFadeWidget();
-				else
-					UIWidgetPowerBarContainerFrame:Show();
-					UIWidgetPowerBarContainerFrame:SetAlpha(1);
-				end
-			else
-				DR.HideWithFadeWidget();
-			end
 		end
 	end
 end
 
 
 function DR.setPositions()
+	if DragonRider_DB.DynamicFOV == true then
+		C_CVar.SetCVar("AdvFlyingDynamicFOVEnabled", 1)
+	elseif DragonRider_DB.DynamicFOV == false then
+		C_CVar.SetCVar("AdvFlyingDynamicFOVEnabled", 0)
+	end
+
 	local ParentFrame = UIWidgetPowerBarContainerFrame
 	for k, v in pairs(DR.WidgetFrameIDs) do
 		if UIWidgetPowerBarContainerFrame.widgetFrames[v] then
@@ -930,13 +879,20 @@ function DR:toggleEvent(event, arg1)
 			DragonRider_DB.showtooltip = true
 		end
 		if DragonRider_DB.fadeVigor == nil then
-			DragonRider_DB.fadeVigor = true
+			DragonRider_DB.fadeVigor = false
 		end
 		if DragonRider_DB.fadeSpeed == nil then
 			DragonRider_DB.fadeSpeed = true
 		end
 		if DragonRider_DB.lightningRush == nil then
 			DragonRider_DB.lightningRush = true
+		end
+		if DragonRider_DB.DynamicFOV == nil then
+			if C_CVar.GetCVar("AdvFlyingDynamicFOVEnabled") == "1" then
+				DragonRider_DB.DynamicFOV = true
+			elseif C_CVar.GetCVar("AdvFlyingDynamicFOVEnabled") == "0" then
+				DragonRider_DB.DynamicFOV = false
+			end
 		end
 
 
@@ -1121,18 +1077,6 @@ function DR:toggleEvent(event, arg1)
 			setting:SetValue(DragonRider_DB[variable])
 		end
 
-		do
-			local variable = "fadeVigor"
-			local name = L["FadeVigor"]
-			local tooltip = L["FadeVigorTT"]
-			local defaultValue = true
-
-			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
-		end
-
 
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(SPECIAL));
 
@@ -1141,6 +1085,19 @@ function DR:toggleEvent(event, arg1)
 			local name = L["LightningRush"]
 			local tooltip = L["LightningRushTT"]
 			local defaultValue = true
+
+			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
+			Settings.CreateCheckBox(category, setting, tooltip)
+			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
+			setting:SetValue(DragonRider_DB[variable])
+		end
+
+		do
+			local variable = "DynamicFOV"
+			local name = L["DynamicFOV"]
+			local tooltip = L["DynamicFOVTT"]
+			local defaultValue = true
+			
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			Settings.CreateCheckBox(category, setting, tooltip)
@@ -1300,9 +1257,6 @@ function DR:toggleEvent(event, arg1)
 			else
 				DR.clearPositions();
 				DR.TimerNamed:Cancel();
-				UIWidgetPowerBarContainerFrame:SetAlpha(1);
-				UIWidgetPowerBarContainerFrame:Show();
-
 			end
 		end
 

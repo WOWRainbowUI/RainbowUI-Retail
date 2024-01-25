@@ -77,6 +77,8 @@ if LOCALE == "enUS" then
 	L["FadeVigorTT"] = "Toggle fading the Vigor bar when not gliding and while at full Vigor."
 	L["LightningRush"] = "Static Charge Orbs"
 	L["LightningRushTT"] = "Toggle custom frames made for Static Charge auras which are used by the Algarian Stormrider's Lightning Rush ability."
+	L["DynamicFOV"] = "Dynamic FOV"
+	L["DynamicFOVTT"] = "Enables adjustment of camera field of view based on gliding speed."
 	
 	-- 自行加入
 	L["DragonRider"] = "Dragon Rider"
@@ -218,6 +220,8 @@ if LOCALE == "zhTW" then
 	L["FadeVigorTT"] = "沒有滑翔而且活力全滿時淡出活力條。"
 	L["LightningRush"] = "靜電荷球"
 	L["LightningRushTT"] = "切換為靜電充能光環所製作的自訂框架，這些光環是由阿爾加風暴飛騎的閃電衝刺技能所使用的。"
+	L["DynamicFOV"] = "動態視野"
+	L["DynamicFOVTT"] = "啟用根據滑翔速度調整相機視野。"
 	
 	-- 自行加入
 	L["DragonRider"] = "飛龍速度條"
