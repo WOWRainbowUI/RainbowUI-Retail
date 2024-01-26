@@ -63,7 +63,11 @@ local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MythicDungeonTools", {
         minimapIcon:Lock("MythicDungeonTools")
       end
     elseif (buttonPressed == 'MiddleButton') then
-      MDT:HideMinimapButton()
+      if db.minimap.hide then
+        MDT:ShowMinimapButton()
+      else
+        MDT:HideMinimapButton()
+      end
     else
       MDT:Async(function() MDT:ShowInterfaceInternal() end, "showInterface")
     end
@@ -76,11 +80,6 @@ local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MythicDungeonTools", {
     tooltip:AddLine(L["Middle-click to disable Minimap Button"])
   end,
 })
-
--- Global for Addon Compartment
-MDT_OnAddonCompartmentClick = function()
-  MDT:Async(function() MDT:ShowInterfaceInternal() end, "showInterface")
-end
 
 SLASH_MYTHICDUNGEONTOOLS1 = "/mplus"
 SLASH_MYTHICDUNGEONTOOLS2 = "/mdt"
@@ -164,6 +163,7 @@ local defaultSavedVars = {
     tooltipInCorner = false,
     minimap = {
       hide = false,
+      compartmentHide = false,
     },
     toolbar = {
       color = { r = 1, g = 1, b = 1, a = 1 },
@@ -221,6 +221,10 @@ do
       if db.newDataCollectionActive or MDT:IsOnBetaServer() then
         MDT.DataCollection:Init()
         MDT.DataCollection:InitHealthTrack()
+      end
+      --compartment
+      if not db.minimap.compartmentHide then
+        minimapIcon:AddButtonToCompartment("MythicDungeonTools")
       end
       --fix db corruption
       do
@@ -952,7 +956,7 @@ function MDT:MakeSidePanel(frame)
     GameTooltip:Hide()
   end)
   settinggsCogwheel:SetCallback("OnClick", function(...)
-    self:OpenSettingsDialog()
+    self:ToggleSettingsDialog()
   end)
   frame.sidePanel.WidgetGroup:AddChild(frame.settingsCogwheel)
 
@@ -2315,19 +2319,23 @@ function MDT:OpenClearPresetDialog()
   MDT.main_frame.ClearConfirmationFrame:Show()
 end
 
-function MDT:OpenSettingsDialog()
+function MDT:ToggleSettingsDialog()
   if not MDT.main_frame.settingsFrame then
     MDT:MakeSettingsFrame(MDT.main_frame)
     MDT:MakeCustomColorFrame(MDT.main_frame.settingsFrame)
   end
-  MDT:HideAllDialogs()
-  MDT.main_frame.settingsFrame:ClearAllPoints()
-  MDT.main_frame.settingsFrame:SetPoint("CENTER", MDT.main_frame, "CENTER", 0, 50)
-  MDT.main_frame.settingsFrame:SetStatusText("")
-  MDT.main_frame.settingsFrame:Show()
-  MDT.main_frame.settingsFrame.CustomColorFrame:Hide()
-  if db.colorPaletteInfo.colorPaletteIdx == 6 then
-    MDT:OpenCustomColorsDialog()
+  if MDT.main_frame.settingsFrame:IsShown() then
+    MDT.main_frame.settingsFrame:Hide()
+  else
+    MDT:HideAllDialogs()
+    MDT.main_frame.settingsFrame:ClearAllPoints()
+    MDT.main_frame.settingsFrame:SetPoint("CENTER", MDT.main_frame, "CENTER", 0, 50)
+    MDT.main_frame.settingsFrame:SetStatusText("")
+    MDT.main_frame.settingsFrame:Show()
+    MDT.main_frame.settingsFrame.CustomColorFrame:Hide()
+    if db.colorPaletteInfo.colorPaletteIdx == 6 then
+      MDT:OpenCustomColorsDialog()
+    end
   end
 end
 
@@ -3271,7 +3279,7 @@ function MDT:MakeSettingsFrame(frame)
   frame.settingsFrame = AceGUI:Create("Frame")
   frame.settingsFrame:SetTitle(L["Settings"])
   frame.settingsFrame:SetWidth(240)
-  frame.settingsFrame:SetHeight(250)
+  frame.settingsFrame:SetHeight(270)
   frame.settingsFrame:EnableResize(false)
   frame.settingsFrame:SetLayout("Flow")
   frame.settingsFrame.statustext:GetParent():Hide()
@@ -3289,6 +3297,19 @@ function MDT:MakeSettingsFrame(frame)
     end
   end)
   frame.settingsFrame:AddChild(frame.minimapCheckbox)
+
+  frame.compartmentCheckbox = AceGUI:Create("CheckBox")
+  frame.compartmentCheckbox:SetLabel(L["Enable Compartment Button"])
+  frame.compartmentCheckbox:SetValue(not db.minimap.compartmentHide)
+  frame.compartmentCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
+    db.minimap.compartmentHide = not value
+    if not db.minimap.compartmentHide then
+      minimapIcon:AddButtonToCompartment("MythicDungeonTools")
+    else
+      minimapIcon:RemoveButtonFromCompartment("MythicDungeonTools")
+    end
+  end)
+  frame.settingsFrame:AddChild(frame.compartmentCheckbox)
 
   frame.forcesCheckbox = AceGUI:Create("CheckBox")
   frame.forcesCheckbox:SetLabel(L["Use forces count"])
@@ -3816,6 +3837,7 @@ function MDT:DeletePull(index)
   if #pulls == 1 then return end
   self:PresetsDeletePull(index)
   self:ReloadPullButtons()
+  self:UpdateProgressbar()
   local pullCount = 0
   for k, v in pairs(pulls) do
     pullCount = pullCount + 1
