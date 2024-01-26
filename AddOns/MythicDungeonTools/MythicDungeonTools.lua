@@ -53,7 +53,7 @@ end
 ---@diagnostic disable: missing-fields
 local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MythicDungeonTools", {
   type = "data source",
-  text = L["Mythic Dungeon Tools"],
+  text = C_AddOns.GetAddOnMetadata(AddonName, "Title"),
   icon = "Interface\\AddOns\\"..AddonName.."\\Textures\\NnoggieMinimap",
   OnClick = function(button, buttonPressed)
     if buttonPressed == "RightButton" then
