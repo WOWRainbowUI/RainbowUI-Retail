@@ -85,7 +85,7 @@ function VUHDO_initFuBar()
 	if VUHDO_LibDataBroker then
 		local minimapObject = VUHDO_LibDataBroker:NewDataObject("VuhDo", {
 			type = "launcher",
-			tocname = "VuhDo", -- 自行加入
+			text = C_AddOns.GetAddOnMetadata("VuhDo", "Title"), -- 自行加入
 			icon = VUHDO_STANDARD_ICON,
 			OnClick = function(aClickedFrame, aButton)
 				if aButton == "RightButton" then
