@@ -334,6 +334,8 @@ L["Chaotic Rift"] = "혼돈의 균열"
 L["Chargath, Bane of Scales"] = "비늘의 파멸 차르가스"
 L["Charged Dust Devil"] = "충전된 먼지 악마"
 --[[Translation missing --]]
+L["chatNoninteractiveWarning"] = "Chat frame is currently set to noninteractive, you will not be able to click on MDT routes."
+--[[Translation missing --]]
 L["Choose Enemy Forces Format"] = "Choose Enemy Forces Format"
 --[[Translation missing --]]
 L["Choose Enemy Style. Requires Reload"] = "Choose Enemy Style. Requires Reload"
@@ -701,6 +703,8 @@ L["Emissary of the Tides"] = "파도의 사절"
 --[[Translation missing --]]
 L["Empty"] = "Empty"
 L["Empyrean Assassin"] = "창공의 암살자"
+--[[Translation missing --]]
+L["Enable Compartment Button"] = "Enable Compartment Button"
 L["Enable Minimap Button"] = "미니맵 아이콘을 켜기"
 L["Enchanted Broodling"] = "마력 깃든 무리거미"
 L["Enchanted Emissary"] = "마력에 빠진 사절"

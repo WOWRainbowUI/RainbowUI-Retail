@@ -333,6 +333,8 @@ L["Channeler Varisz"] = "Canalizadora Varisz"
 L["Chaotic Rift"] = "Fenda Caótica"
 L["Chargath, Bane of Scales"] = "Chargath, Ruína das Escamas"
 L["Charged Dust Devil"] = "Redemoinho de Poeira Carregado"
+--[[Translation missing --]]
+L["chatNoninteractiveWarning"] = "Chat frame is currently set to noninteractive, you will not be able to click on MDT routes."
 L["Choose Enemy Forces Format"] = "Escolha o formato das forças inimigas"
 L["Choose Enemy Style. Requires Reload"] = "Escolha estilo inimigo. Requer Recarregamento "
 L["Choose NPC tooltip position"] = "Escolha a posição da dica de ferramenta de NPC"
@@ -693,6 +695,8 @@ L["Emissary of the Tides"] = "Emissária das Marés"
 --[[Translation missing --]]
 L["Empty"] = "Empty"
 L["Empyrean Assassin"] = "Assassino Empíreo"
+--[[Translation missing --]]
+L["Enable Compartment Button"] = "Enable Compartment Button"
 L["Enable Minimap Button"] = "Habilitar botão do minimapa"
 L["Enchanted Broodling"] = "Cria Encantada"
 L["Enchanted Emissary"] = "Emissária Encantada"

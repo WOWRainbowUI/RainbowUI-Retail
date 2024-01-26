@@ -1,10 +1,10 @@
 local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
-
+L["chatNoninteractiveWarning"]  = "Chat frame is currently set to noninteractive, you will not be able to click on MDT routes."
 L["Open an issue on GitHub"] = "Open an issue on GitHub"
 L["Provide feedback in Discord"] = "Provide feedback in Discord"
-
+L["Enable Compartment Button"] = "Enable Compartment Button"
 L["Sleep Walk"] = "Sleep Walk"
 L["Scare Beast"] = "Scare Beast"
 L["Hibernate"] = "Hibernate"
@@ -2732,6 +2732,7 @@ L["Channeler Varisz"] = "Channeler Varisz"
 L["Chaotic Rift"] = "Chaotic Rift"
 L["Chargath, Bane of Scales"] = "Chargath, Bane of Scales"
 L["Charged Dust Devil"] = "Charged Dust Devil"
+L["chatNoninteractiveWarning"] = "Chat frame is currently set to noninteractive, you will not be able to click on MDT routes."
 L["Choose Enemy Forces Format"] = "Choose Enemy Forces Format"
 L["Choose Enemy Style. Requires Reload"] = "Choose Enemy Style. Requires Reload"
 L["Choose NPC tooltip position"] = "Choose NPC tooltip position"
@@ -3053,6 +3054,7 @@ L["Embershard Scorpion"] = "Embershard Scorpion"
 L["Emissary of the Tides"] = "Emissary of the Tides"
 L["Empty"] = "Empty"
 L["Empyrean Assassin"] = "Empyrean Assassin"
+L["Enable Compartment Button"] = "Enable Compartment Button"
 L["Enable Minimap Button"] = "Enable Minimap Button"
 L["Enchanted Broodling"] = "Enchanted Broodling"
 L["Enchanted Emissary"] = "Enchanted Emissary"

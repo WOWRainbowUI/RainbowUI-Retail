@@ -414,6 +414,8 @@ L["Chaotic Rift"] = "Chaotic Rift"
 --[[Translation missing --]]
 L["Chargath, Bane of Scales"] = "Chargath, Bane of Scales"
 L["Charged Dust Devil"] = "充能的沙尘恶魔"
+--[[Translation missing --]]
+L["chatNoninteractiveWarning"] = "Chat frame is currently set to noninteractive, you will not be able to click on MDT routes."
 L["Choose Enemy Forces Format"] = "選擇敵方部隊格式"
 L["Choose Enemy Style. Requires Reload"] = "選擇敵人風格 (需要重新載入)"
 L["Choose NPC tooltip position"] = "選擇 NPC 滑鼠提示位置"
@@ -869,6 +871,8 @@ L["Emissary of the Tides"] = "潮汐使者"
 L["Empty"] = "空白"
 --[[Translation missing --]]
 L["Empyrean Assassin"] = "Empyrean Assassin"
+--[[Translation missing --]]
+L["Enable Compartment Button"] = "Enable Compartment Button"
 L["Enable Minimap Button"] = "啟用小地圖按鈕"
 L["Enchanted Broodling"] = "魔化巢蛛"
 L["Enchanted Emissary"] = "魔力使者"
