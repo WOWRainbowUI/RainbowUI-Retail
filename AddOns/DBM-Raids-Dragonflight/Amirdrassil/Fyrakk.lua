@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2519, "DBM-Raids-Dragonflight", 1, 1207)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240107070259")
+mod:SetRevision("20240120080957")
 mod:SetCreatureID(204931)
 
 mod:SetEncounterID(2677)
@@ -116,11 +116,11 @@ local warnInfernalMaw								= mod:NewStackAnnounce(425492, 3, nil, "Tank|Healer
 local warnEternalFirestorm							= mod:NewCountAnnounce(422935, 4)
 local warnEternalFirestormSwirl						= mod:NewCountAnnounce(402736, 3, nil, nil, 143413)--Short name "Swirl" 143413
 
-local specWarnApocalypseRoar						= mod:NewSpecialWarningCount(422837, nil, nil, nil, 2, 13)
+local specWarnApocalypseRoar						= mod:NewSpecialWarningCount(422837, nil, 140459, nil, 2, 13)
 local specWarnInfernalMaw							= mod:NewSpecialWarningDefensive(425492, nil, nil, nil, 1, 2)
 local specWarnInfernalMawTaunt						= mod:NewSpecialWarningTaunt(425492, nil, nil, nil, 1, 2)
 
-local timerApocalypseroarCD							= mod:NewCDCountTimer(49, 422837, DBM_COMMON_L.PUSHBACK.." (%s)", nil, nil, 2)
+local timerApocalypseroarCD							= mod:NewCDCountTimer(49, 422837, 140459, nil, nil, 2, nil, DBM_COMMON_L.DEADLY_ICON)
 local timerInfernalMawCD							= mod:NewCDCountTimer(49, 425492, nil, "Tank|healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerEternalFirestormCD						= mod:NewCDCountTimer(41, 422935, 419506, nil, nil, 3, nil, DBM_COMMON_L.HEALER_ICON)
 local timerEternalFirestormSwirlCD					= mod:NewCDCountTimer(41, 402736, 143413, nil, nil, 3)--short name "Swirl"
@@ -566,12 +566,10 @@ function mod:SPELL_AURA_APPLIED(args)
 		local cid = self:GetCIDFromGUID(args.destGUID)
 		if cid == 207796 then--Burning Colossus
 			self.vb.addsAlive = self.vb.addsAlive + 1
-			timerMoltenGauntletCD:Start(6.9, args.destGUID)
---			timerMoltenEruptionCD:Start(6.9, args.destGUID)--Using a shared global timer for now
+			timerMoltenGauntletCD:Start(6.2, args.destGUID)
 		elseif cid == 214012 then--Dark Colossus
 			self.vb.addsAlive = self.vb.addsAlive + 1
-			timerShadowGauntletCD:Start(6.9, args.destGUID)
---			timerShadowCageCD:Start(6.9, args.destGUID)
+			timerShadowGauntletCD:Start(6.2, args.destGUID)
 			--If starting timer object here, no reason for mythic check
 			self.vb.debuffsCount = 0
 			timerMythicDebuffs:Start(6.9, 1)
