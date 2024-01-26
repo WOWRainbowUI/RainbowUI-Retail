@@ -503,7 +503,7 @@ function lib:AddButtonToCompartment(buttonName, customIcon)
 			object.db.showInCompartment = true
 		end
 		object.compartmentData = {
-			text = buttonName,
+			text = object.dataObject.text or buttonName,
 			icon = customIcon or object.dataObject.icon,
 			notCheckable = true,
 			registerForAnyClick = true,
