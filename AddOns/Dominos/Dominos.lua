@@ -4,15 +4,7 @@ local Addon = LibStub('AceAddon-3.0'):NewAddon(AddonTable, AddonName, 'AceEvent-
 local L = LibStub('AceLocale-3.0'):GetLocale(AddonName)
 local KeyBound = LibStub('LibKeyBound-1.0')
 
-local ADDON_VERSION
-if type(GetAddOnMetadata) == "function" then
-    ADDON_VERSION = GetAddOnMetadata(AddonName, 'Version')
-elseif type(C_AddOns) == "table" then
-    ADDON_VERSION = C_AddOns.GetAddOnMetadata(AddonName, 'Version')
-elseif type(C_Addons) == "table" then
-    ADDON_VERSION = C_Addons.GetAddOnMetadata(AddonName, 'Version')
-end
-
+local ADDON_VERSION = C_AddOns.GetAddOnMetadata(AddonName, 'Version')
 local CONFIG_ADDON_NAME = AddonName .. '_Config'
 local DB_SCHEMA_VERSION = 2
 local BINDINGS_VERSION = 3
@@ -49,7 +41,10 @@ function Addon:OnEnable()
     -- watch for binding updates, updating all bars on the last one that happens
     -- in rapid sequence
     self.UpdateHotkeys = self:Debounce(function()
-        self.Frame:ForEach('ForButtons', 'UpdateOverrideBindings')
+        if not InCombatLockdown() then
+            self.Frame:ForEach('ForButtons', 'UpdateOverrideBindings')
+        end
+
         self.Frame:ForEach('ForButtons', 'UpdateHotkeys')
     end, 0.01)
 
@@ -440,7 +435,11 @@ end
 --------------------------------------------------------------------------------
 
 function Addon:ShowOptionsFrame()
-    if self:IsConfigAddonEnabled() and LoadAddOn(CONFIG_ADDON_NAME) then
+    if not self:IsConfigAddonEnabled() then
+        return false
+    end
+
+    if self:LoadConfigAddon() then
         local dialog = LibStub('AceConfigDialog-3.0')
 
         dialog:Open(AddonName)
@@ -453,21 +452,27 @@ function Addon:ShowOptionsFrame()
 end
 
 function Addon:NewMenu()
-    if not self:IsConfigAddonEnabled() then
-        return
+    if self:IsConfigAddonEnabled() and self:LoadConfigAddon() then
+        return self.Options.Menu:New()
     end
-
-    if not IsAddOnLoaded(CONFIG_ADDON_NAME) then
-        LoadAddOn(CONFIG_ADDON_NAME)
-    end
-
-    return self.Options.Menu:New()
 end
 
 function Addon:IsConfigAddonEnabled()
-    if GetAddOnEnableState(UnitName('player'), CONFIG_ADDON_NAME) >= 1 then
-        return true
+    local player = UnitName('player')
+
+    if type(GetAddOnEnableState) == "function" then
+        return GetAddOnEnableState(player, CONFIG_ADDON_NAME) > 0
     end
+
+    return C_AddOns.GetAddOnEnableState(CONFIG_ADDON_NAME, player) > 0
+end
+
+function Addon:LoadConfigAddon()
+    if not (C_AddOns.IsAddOnLoaded or IsAddOnLoaded)(CONFIG_ADDON_NAME) then
+        return (C_AddOns.LoadAddOn or LoadAddOn)(CONFIG_ADDON_NAME)
+    end
+
+    return true
 end
 
 --------------------------------------------------------------------------------
@@ -498,15 +503,10 @@ function Addon:SetLock(locked)
 
     if locked and (not self:Locked()) then
         self.locked = true
-
         self.callbacks:Fire('CONFIG_MODE_DISABLED')
     elseif (not locked) and self:Locked() then
         self.locked = false
-
-        if not IsAddOnLoaded(CONFIG_ADDON_NAME) then
-            LoadAddOn(CONFIG_ADDON_NAME)
-        end
-
+        self:LoadConfigAddon()
         self.callbacks:Fire('CONFIG_MODE_ENABLED')
     end
 end
