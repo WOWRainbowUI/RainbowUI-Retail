@@ -941,7 +941,10 @@ L["Add/Remove From Leveling Queue"] = "加入/移出練等佇列"
 L["Remove Pet Tags"] = "移除寵物標籤"
 L["Set/Remove Pet Tag: %s"] = "設定/移除寵物標籤: %s"
 
-
+-- Version: 5.1.1 --
+L["This is a system group that cannot be deleted."] = "此為系統群組，無法刪除。"
+L["Delete Teams"] = "刪除隊伍"
+L["This group has no teams."] = "此群組沒有隊伍。"
 
 -- grey panel buttons have text defined here so localized text doesn't run off the edges of the buttons
 L["FILTER"] = "過濾"
