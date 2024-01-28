@@ -945,6 +945,9 @@ L["Set/Remove Pet Tag: %s"] = "設定/移除寵物標籤: %s"
 L["This is a system group that cannot be deleted."] = "此為系統群組，無法刪除。"
 L["Delete Teams"] = "刪除隊伍"
 L["This group has no teams."] = "此群組沒有隊伍。"
+L["Delete Group Teams"] = "刪除群組隊伍"
+L["There are %s%d\124r teams in the group %s."] = "有 %s%d\124r 個隊伍在 %s 群組中。"
+L["%sAre you sure you want to %sdelete\124r these teams? This cannot be undone."] = "%s是否確定要%s刪除\124r這些隊伍? 此操作無法還原!"
 
 -- grey panel buttons have text defined here so localized text doesn't run off the edges of the buttons
 L["FILTER"] = "過濾"
