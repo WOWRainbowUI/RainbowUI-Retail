@@ -1,3 +1,7 @@
+Version 1.27
+
+- Updated for MDT 4.3.2.*
+
 Version 1.26
 
 - Updated for MDT 4.3.1.*
