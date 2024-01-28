@@ -109,7 +109,7 @@ L["Healthbar color is based on the current health value"] = true
 L["Healthbar color is based on the current health value.\n\n" ..
     "This option excludes the option 'Class colored healthbars'"] = true
 L["Custom buffsize"] = true
-L["Buffs settings (like custom buffsize, highlight dispelled buffs, etc)"] = true
+L["Buffs settings (like custom buffsize, max buffs count, etc)"] = true
 L["Turn on custom buffsize"] = true
 L["Turn on custom target and focus frames buffsize"] = true
 L["Buffs"] = true
