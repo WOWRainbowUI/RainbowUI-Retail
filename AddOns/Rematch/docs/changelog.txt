@@ -1,3 +1,9 @@
+01/27/2024 version 5.1.1
+- Updated the import dialog to allow picking a group the imported team(s) would go to (unless there's any group definitions in the import) first
+- Added 'Import Teams' to group right-click menus to import teams into the same group unless the import includes group definitions
+- Added 'Delete Teams' to group right-click menus to delete all teams within a group without deleting the group
+- Rather than hide the 'Delete Group' menu option from the right-click menu of Favorite Teams and Ungrouped Teams groups, the option is disabled with a tooltip to explain these are system groups that cannot be deleted
+
 01/16/2024 version 5.1.0
 - Added a Pet Herder tool to the Filters menu, to more easily and selectively cage, favorite, level or tag many pets without using a right-click menu. For instance, to cage many pets: go to Filters -> Pet Herder and choose the 'Cage Pet' action. A little cage icon will appear beside all pets that can be caged and clicking the pet will cage the pet without confirmation. When done caging pets, click Done or dismiss the dialog.
 - Pet Markers are renamed to Pet Tags in the UI (internally it will remain Pet Markers as petTags refer to short strings to identify pets)
