@@ -105,7 +105,7 @@ L["Healthbar color is based on the current health value.\n\n" ..
     "This option excludes the option 'Class colored healthbars'"] = "Цвет фреймов основан на текущем значении здоровья.\n\n" ..
     "Эта настройка исключает настройку 'Раскрасить фреймы здоровья в цвет класса'"
 L["Custom buffsize"] = "Собственный размер бафов"
-L["Buffs settings (like custom buffsize, highlight dispelled buffs, etc)"] = "Настройки бафов (использовать собственный размер бафов, подсвечивать бафы, которые могут быть рассеяны и другие)"
+L["Buffs settings (like custom buffsize, max buffs count, etc)"] = "Настройки бафов (использовать собственный размер бафов, макс. количество бафов и другие)"
 L["Turn on custom buffsize"] = "Собственный размер бафов"
 L["Turn on custom target and focus frames buffsize"] = "Включить собственный размер бафов у цели и фокус фреймов"
 L["Buffs"] = "Бафы"

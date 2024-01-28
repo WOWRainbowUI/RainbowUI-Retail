@@ -48,8 +48,6 @@ function Core:OnInitialize()
 end
 
 function Core:OnEnable()
-    --self:RegisterEvent("UNIT_AURA", "UnitAura")
-    --self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", "UnitClassificationChanged")
     --self:RegisterEvent("UPDATE_SHAPESHIFT_COOLDOWN", "UpdateShapeshiftForm") -- This is used for shapeshifts/stances
 
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "PlayerEnteringWorld")
@@ -104,6 +102,8 @@ function Core:OnEnable()
         hooksecurefunc(FocusFrame, "CheckClassification", function()
             self:CheckClassificationForNonEFMode(FocusFrame)
         end)
+
+        self:MovePlayerFrameBarsForNonEFMode()
     end
 
     if (db.general.showWelcomeMessage) then
@@ -387,16 +387,8 @@ function Core:GroupRosterUpdate()
     end
 end
 
-function Core:UnitAura()
-
-end
-
 function Core:UnitDisplaypower()
     self:MovePlayerPowerBar()
-end
-
-function Core:UnitClassificationChanged()
-
 end
 
 function Core:UnitFrameHealthBar_Update(frame)
@@ -663,6 +655,10 @@ function Core:MovePlayerFrameBars(isVehicle)
 
         self:MoveRegion(manaBar, "TOPLEFT", playerFrameContentMain.ManaBarArea, "TOPLEFT", 91, -61)
     end
+end
+
+function Core:MovePlayerFrameBarsForNonEFMode()
+
 end
 
 function Core:MovePlayerFrameAlternateManaBar()

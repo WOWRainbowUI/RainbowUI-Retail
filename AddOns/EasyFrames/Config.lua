@@ -316,7 +316,7 @@ local generalOptions = {
                 description = {
                     type = "description",
                     order = 2,
-                    name = "[IN DEVELOPING]\n" .. L["Buffs settings (like custom buffsize, highlight dispelled buffs, etc)"],
+                    name = L["Buffs settings (like custom buffsize, max buffs count, etc)"],
                 },
 
                 customBuffSize = {
@@ -329,8 +329,6 @@ local generalOptions = {
                         EasyFrames:GetModule("General"):SetCustomBuffSize(value)
                     end,
                     arg = "general",
-
-                    disabled = true,
                 },
 
                 buffSize = {
@@ -352,8 +350,6 @@ local generalOptions = {
                         end
                     end,
                     arg = "general",
-
-                    disabled = true,
                 },
 
                 selfBuffSize = {
@@ -375,64 +371,6 @@ local generalOptions = {
                         end
                     end,
                     arg = "general",
-
-                    disabled = true,
-                },
-
-                highlightDispelledBuff = {
-                    type = "toggle",
-                    order = 6,
-                    name = L["Highlight dispelled buffs"],
-                    desc = L["Highlight buffs that can be dispelled from target frame"],
-                    set = function(info, value)
-                        setOpt(info, value)
-                        EasyFrames:GetModule("General"):SetHighlightDispelledBuff()
-                    end,
-                    arg = "general",
-
-                    disabled = true,
-                },
-
-                ifPlayerCanDispelBuff = {
-                    type = "toggle",
-                    order = 7,
-                    name = L["Only if player can dispel them"],
-                    desc = L["Highlight dispelled buffs only if player can dispel them"],
-                    set = function(info, value)
-                        setOpt(info, value)
-                        EasyFrames:GetModule("General"):SetHighlightDispelledBuff()
-                    end,
-                    disabled = function()
-                        local diabled = EasyFrames.db.profile.general.highlightDispelledBuff
-                        if (diabled == false) then
-                            return true
-                        end
-                    end,
-                    arg = "general",
-
-                    disabled = true,
-                },
-
-                dispelledBuffScale = {
-                    type = "range",
-                    order = 8,
-                    name = L["Dispelled buff scale"],
-                    desc = L["Dispelled buff scale that can be dispelled from target frame"],
-                    min = 1,
-                    max = 1.5,
-                    set = function(info, value)
-                        setOpt(info, value)
-                        EasyFrames:GetModule("General"):TargetFrame_UpdateAuras(TargetFrame)
-                    end,
-                    disabled = function()
-                        local diabled = EasyFrames.db.profile.general.highlightDispelledBuff
-                        if (diabled == false) then
-                            return true
-                        end
-                    end,
-                    arg = "general",
-
-                    disabled = true,
                 },
 
                 showOnlyMyDebuff = {
