@@ -37,14 +37,12 @@ Addon.COLOR_CURR = { 0.13, 1, 1 }
 Addon.COLOR_DEAD = { 0.55, 0.13, 0.13 }
 Addon.DEBUG = false
 Addon.PATTERN_INSTANCE_RESET = "^" .. INSTANCE_RESET_SUCCESS:gsub("%%s", ".+") .. "$"
-Addon.MDT_VERSION = "4.3.2.*"
 
 local toggleBtn, currentPullBtn, announceBtn
 local hideFrames, hoverFrames
 local zoomAnimGrp, fadeAnimGrp
 local fadeTicker, isFaded
 local isHidden
-local mdtVersionMismatch
 local previousSublevel
 
 -- ---------------------------------------
@@ -679,39 +677,6 @@ function Addon.IsInRun()
     return Addon.IsActive() and Addon.IsCurrentInstance() and Addon.GetEnemyForces() and true
 end
 
-function Addon.CheckMDTVersion()
-    if mdtVersionMismatch ~= nil then return end
-
-    local cmp = 0
-
-    local a = C_AddOns.GetAddOnMetadata("MythicDungeonTools", "Version")
-
-    if not a then
-        cmp = -1
-    else
-        local b = Addon.MDT_VERSION
-        local ta, tb = { strsplit(".", a) }, { strsplit(".", b) }
-
-        for i = 1, max(#ta, #tb) do
-            if tb[i] == "*" then break end
-            local va, vb = tonumber(ta[i]) or 0, tonumber(tb[i]) or 0
-            if va < vb then cmp = -1 break end
-            if va > vb then cmp = 1 break end
-        end
-    end
-
-    mdtVersionMismatch = cmp ~= 0
-
-    if mdtVersionMismatch then
-        Addon.Error("============================================")
-        Addon.Error("Unsupported Mythic Dungeon Tools version %s detected!", a or "?")
-        Addon.Error("MDTGuide only supports MDT versions %s.", Addon.MDT_VERSION)
-        Addon.Error("Please update your %s to the newest version.", cmp < 0 and "MDT" or "MDTGuide")
-        Addon.Error("If your MDT window is broken run the following: |cffcccccc/mdt reset|r")
-        Addon.Error("============================================")
-    end
-end
-
 -- ---------------------------------------
 --              Events/Hooks
 -- ---------------------------------------
@@ -721,18 +686,12 @@ local Frame = CreateFrame("Frame")
 -- Event listeners
 local OnEvent = function(_, ev, ...)
     if not MDT or MDT:GetDB().devMode then return end
-    if mdtVersionMismatch then return end
 
     if ev == "ADDON_LOADED" then
         if ... == Name then
             Frame:UnregisterEvent("ADDON_LOADED")
 
             Addon.MigrateOptions()
-
-            -- Check MDT version
-            Addon.CheckMDTVersion()
-
-            if mdtVersionMismatch then return end
 
             -- Hook showing interface
             local initialized = false
@@ -955,7 +914,6 @@ Frame:SetScript("OnUpdate", OnUpdate)
 SLASH_MDTG1 = "/mdtg"
 
 function SlashCmdList.MDTG(args)
-    if mdtVersionMismatch then return end
 
     local op = MDTGuideDB.options
     local cmd, arg1, arg2 = strsplit(' ', args)
