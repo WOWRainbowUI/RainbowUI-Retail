@@ -11,8 +11,10 @@ rematch.events:Register(rematch.importDialog,"PLAYER_LOGIN",function(self)
         accept = SAVE,
         cancel = CANCEL,
         other = L["Load"],
+        width = 290,
+        minHeight = 232,
         layouts = {
-            Default = {"Text","MultiLineEditBox","CheckButton"},
+            Default = {"Text","MultiLineEditBox","CheckButton","GroupSelect"},
             Invalid = {"Text","MultiLineEditBox","CheckButton","Feedback"},
             SingleTeam = {"Text","MultiLineEditBox","CheckButton","TeamWithAbilities","GroupSelect"},
             SingleTeamConflict = {"Text","MultiLineEditBox","CheckButton","GroupSelect","TeamWithAbilities","Feedback","ConflictRadios"},
@@ -41,6 +43,7 @@ rematch.events:Register(rematch.importDialog,"PLAYER_LOGIN",function(self)
                     settings.ImportConflictOverwrite = false
                 end
                 self.ConflictRadios:Update()
+                self.GroupPicker:SetReturn("Default")
                 rematch.importDialog.UpdateLayout(self)
             end
             self.GroupSelect:Fill(settings.LastSelectedGroup)
@@ -74,6 +77,7 @@ function rematch.importDialog:UpdateLayout()
     local openLayout = rematch.dialog:GetOpenLayout()
     if isEmpty then
         if openLayout~="Default" then
+            self.GroupPicker:SetReturn("Default")
             rematch.dialog:ChangeLayout("Default")
         end
     elseif isInvalid then

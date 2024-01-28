@@ -15,8 +15,12 @@ rematch.events:Register(rematch.teamMenu,"PLAYER_LOGIN",function(self)
         {text=L["Create New Group"], func=function(groupID) tm:EditGroup() end}, -- EditGroup needs nil to create new group
         {text=L["Edit Group"], func=tm.EditGroup},
         {text=L["Move Group"], func=tm.MoveGroup},
-        {text=L["Delete Group"], hidden=tm.IsUndeletable, func=tm.DeleteGroup},
+        {text=L["Delete Group"], isDisabled=tm.IsUndeletable, disabledTooltip=L["This is a system group that cannot be deleted."], func=tm.DeleteGroup},
         {text=L["Export Group"], func=tm.ExportGroup},
+        {spacer=true},
+        {text=L["Import Teams"], func=tm.ImportGroupTeams},
+        {text=L["Delete Teams"], isDisabled=tm.IsGroupEmpty, disabledTooltip=L["This group has no teams."], func=tm.DeleteGroupTeams},
+        {spacer=true},
         {text = tm.HideShowGroupTabText, hidden=tm.IsHideShowGroupTabHidden, isDisabled=tm.IsHideShowGroupTabDisabled, disabledTooltip=tm.HideShowGroupTabDisabledTooltip, func=tm.HideShowGroupTab},
         {text=CANCEL},
     }
@@ -216,6 +220,27 @@ rematch.events:Register(rematch.teamMenu,"PLAYER_LOGIN",function(self)
             rematch.savedGroups:Delete(subject)
             rematch.savedGroups:Update() -- just in case anything weird happened
             rematch.teamsPanel:Update()
+        end
+    })
+
+    rematch.dialog:Register("DeleteGroupTeams",{
+        title = L["Delete Group Teams"],
+        accept = YES,
+        cancel = NO,
+        layout = {"Text","Feedback"},
+        refreshFunc = function(self,info,subject,firstRun)
+            self.Text:SetText(format(L["There are %s%d\124r teams in the group %s."],C.HEX_WHITE,#rematch.savedGroups[subject].teams,rematch.utils:GetFormattedGroupName(subject)))
+            self.Feedback:Set("warning",format(L["%sAre you sure you want to %sdelete\124r these teams? This cannot be undone."],C.HEX_GOLD,C.HEX_WHITE))
+        end,
+        acceptFunc = function(self,info,subject)
+            for teamID,team in rematch.savedTeams:AllTeams() do
+                if team.groupID==subject then
+                    rematch.savedTeams[teamID] = nil -- delete team
+                end
+            end
+            rematch.savedGroups:Update()
+            rematch.teamsPanel:Update()
+            rematch.teamsPanel.List:BlingData(subject)
         end
     })
 
@@ -436,6 +461,13 @@ function rematch.teamMenu:ImportTeams()
     rematch.dialog:ShowDialog("ImportTeams")
 end
 
+function rematch.teamMenu:ImportGroupTeams(groupID)
+    if rematch.savedGroups[groupID] then
+        settings.LastSelectedGroup = groupID
+    end
+    rematch.dialog:ShowDialog("ImportTeams")
+end
+
 function rematch.teamMenu:SendTeam(teamID)
     rematch.dialog:ShowDialog("SendTeam",{teamID=teamID})
 end
@@ -483,7 +515,7 @@ function rematch.teamMenu:BuildTargetSubMenu(teamID,menu,func)
         for _,npcID in ipairs(targets) do
             local name = rematch.utils:GetFormattedTargetName(npcID)
             if name==C.CACHE_RETRIEVING then -- name is not cached, need to rebuild this in a bit
-                
+
             end
             tinsert(def,{text=name,npcID=npcID,func=func})
         end
@@ -531,4 +563,13 @@ function rematch.teamMenu:EditSavedTarget(teamID)
         rematch.teamMenu:EditTeamTarget(teamID,targets[1])
     end
     rematch.menus:Hide()
+end
+
+function rematch.teamMenu:IsGroupEmpty(groupID)
+    local group = rematch.savedGroups[groupID]
+    return not group or not group.teams or #group.teams==0
+end
+
+function rematch.teamMenu:DeleteGroupTeams(groupID)
+    rematch.dialog:ShowDialog("DeleteGroupTeams",groupID)
 end
