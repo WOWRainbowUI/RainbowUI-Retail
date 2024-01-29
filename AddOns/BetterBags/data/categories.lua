@@ -12,22 +12,22 @@ local items = addon:GetModule('Items')
 ---@class Events: AceModule
 local events = addon:GetModule('Events')
 
----@class Categories: AceModule
----@field private itemToCategory table<number, string>
----@field private functionCategories table<number, string>
+---@class (exact) Categories: AceModule
 ---@field private itemsWithNoCategory table<number, boolean>
 ---@field private categoryFunctions table<string, fun(data: ItemData): string>
----@field private categoryList table<string, number[]>
 ---@field private categoryCount number
 local categories = addon:NewModule('Categories')
 
 function categories:OnInitialize()
-  self.itemToCategory = {}
-  self.functionCategories = {}
   self.categoryFunctions = {}
   self.itemsWithNoCategory = {}
-  self.categoryList = {}
   self.categoryCount = 0
+end
+
+function categories:OnEnable()
+  for _ in pairs(database:GetAllItemCategories()) do
+    self.categoryCount = self.categoryCount + 1
+  end
 end
 
 ---@return number
@@ -36,19 +36,19 @@ function categories:GetCategoryCount()
 end
 
 -- GetAllCategories returns a list of all custom categories.
----@return table<string, number[]>
+---@return table<string, CustomCategoryFilter>
 function categories:GetAllCategories()
-  return self.categoryList
+  return database:GetAllItemCategories()
 end
 
 -- AddItemToCategory adds an item to a custom category by its ItemID.
 ---@param id number The ItemID of the item to add to a custom category.
 ---@param category string The name of the custom category to add the item to.
 function categories:AddItemToCategory(id, category)
-  self.itemToCategory[id] = category
-  local found = self.categoryList[category] and true or false
-  self.categoryList[category] = self.categoryList[category] or {}
-  table.insert(self.categoryList[category], id)
+  assert(id, format("Attempted to add item to category %s, but the item ID is nil.", category))
+  assert(category ~= nil, format("Attempted to add item %d to a nil category.", id))
+  assert(GetItemInfoInstant(id), format("Attempted to add item %d to category %s, but the item does not exist.", id, category))
+  local found = database:ItemCategoryExists(category)
   database:SaveItemToCategory(id, category)
   if not found then
     self.categoryCount = self.categoryCount + 1
@@ -59,12 +59,7 @@ end
 -- WipeCategory removes all items from a custom category, but does not delete the category.
 ---@param category string The name of the custom category to wipe.
 function categories:WipeCategory(category)
-  if not self.categoryList[category] then return end
-  for _, id in pairs(self.categoryList[category]) do
-    self.itemToCategory[id] = nil
-  end
   database:WipeItemCategory(category)
-  self.categoryList[category] = nil
   events:SendMessage('categories/Changed')
 end
 
@@ -94,6 +89,17 @@ function categories:SetCategoryState(category, enabled)
   database:SetItemCategoryEnabled(category, enabled)
 end
 
+function categories:CreateCategory(category)
+  database:CreateCategory(category)
+  events:SendMessage('categories/Changed')
+end
+
+function categories:DeleteCategory(category)
+  database:DeleteItemCategory(category)
+  events:SendMessage('categories/Changed')
+  items:RefreshAll()
+end
+
 -- GetCustomCategory returns the custom category for an item, or nil if it doesn't have one.
 -- This will JIT call all registered functions the first time an item is seen, returning
 -- the custom category if one is found. If no custom category is found, nil is returned.
@@ -103,24 +109,9 @@ function categories:GetCustomCategory(data)
   local itemID = data.itemInfo.itemID
   if not itemID then return nil end
 
-  -- Check for categories manually set by item.
-  local category = self.itemToCategory[itemID]
-  if category then
-    if self:IsCategoryEnabled(category) then
-      return category
-    else
-      return nil
-    end
-  end
-
-  -- Check for categories set by registered functions.
-  category = self.functionCategories[itemID]
-  if category then
-    if self:IsCategoryEnabled(category) then
-      return category
-    else
-      return nil
-    end
+  local filter = database:GetItemCategoryByItemID(itemID)
+  if filter.enabled then
+    return filter.name
   end
 
   -- Check for items that had no category previously. This
@@ -129,12 +120,10 @@ function categories:GetCustomCategory(data)
   if self.itemsWithNoCategory[itemID] then return nil end
 
   for _, func in pairs(self.categoryFunctions) do
-    category = func(data)
+    local category = func(data)
     if category then
-      self.functionCategories[itemID] = category
-      local found = self.categoryList[category] and true or false
-      self.categoryList[category] = self.categoryList[category] or {}
-      table.insert(self.categoryList[category], itemID)
+      local found = database:ItemCategoryExists(category)
+      database:SaveItemToCategory(itemID, category)
       if not found then
         self.categoryCount = self.categoryCount + 1
         events:SendMessage('categories/Changed')
@@ -152,7 +141,7 @@ end
 
 ---@param id number The ItemID of the item to remove from a custom category.
 function categories:RemoveItemFromCategory(id)
-  self.itemToCategory[id] = nil
+  database:DeleteItemFromCategory(id, database:GetItemCategoryByItemID(id).name)
 end
 
 -- RegisterCategoryFunction registers a function that will be called to get the category name for all items.
@@ -160,14 +149,12 @@ end
 -- function will clear the cache. Do not abuse this API,
 -- as it has the potential to cause a significant amount of CPU usage the first time an item is rendered,
 -- which at game load time, is every item.
--- Categories functions are not saved to the database, and must be registered every time the addon is loaded.
 ---@param id string A unique identifier for the category function. This is not used for the category name!
 ---@param func fun(data: ItemData): string|nil The function to call to get the category name for an item.
 function categories:RegisterCategoryFunction(id, func)
   assert(not self.categoryFunctions[id], 'category function already registered: '.. id)
   self.categoryFunctions[id] = func
   wipe(self.itemsWithNoCategory)
-  wipe(self.functionCategories)
 end
 
 -- ReprocessAllItems will wipe the category cache and cause all items to be fully reprocessed, recategoried,
@@ -176,6 +163,5 @@ end
 -- reprocessed and re-categorized.
 function categories:ReprocessAllItems()
   wipe(self.itemsWithNoCategory)
-  wipe(self.functionCategories)
   items:RefreshAll()
 end
