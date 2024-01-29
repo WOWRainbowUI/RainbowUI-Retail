@@ -1,6 +1,6 @@
 ## Interface: 100205
 ## Title: Edit Mode Expanded
-## Version: 10.2-014
+## Version: 10.2-015
 ## Notes: Expands Edit Mode to apply to other frames
 ## Author: Teelo
 ## SavedVariables: EditModeExpandedADB
@@ -47,6 +47,7 @@ FrameHandlers\ClassResources\Runes.lua
 FrameHandlers\ClassResources\SoulShards.lua
 
 Options.lua
+AnchorToDropdown.lua
 MicroMenu.lua
 RegisteredSystemFrames.lua
 CombatManager.lua
