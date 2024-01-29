@@ -44,7 +44,9 @@ function itemRowProto:SetItem(data)
   self.button.frame:SetPoint("LEFT", self.frame)
 
   local bagid, slotid = data.bagid, data.slotid
-  self.rowButton:SetID(slotid)
+  if slotid then
+    self.rowButton:SetID(slotid)
+  end
   self.rowButton:SetHasItem(data.itemInfo.itemIcon)
 
   local quality = data.itemInfo.itemQuality
@@ -52,11 +54,22 @@ function itemRowProto:SetItem(data)
   self.rowButton.HighlightTexture:SetGradient("HORIZONTAL", CreateColor(unpack(const.ITEM_QUALITY_COLOR_HIGH[quality])), CreateColor(unpack(const.ITEM_QUALITY_COLOR_LOW[quality])))
 
   self.button:SetSize(32, 32)
-  self.frame:SetID(bagid)
+  if bagid then
+    self.frame:SetID(bagid)
+  end
   self.text:SetText(data.itemInfo.itemName)
+  self.rowButton:SetScript("OnEnter", function(s)
+    s.HighlightTexture:Show()
+    GameTooltip:SetOwner(self.button.frame, "ANCHOR_LEFT")
+    if bagid and slotid then
+      GameTooltip:SetBagItem(bagid, slotid)
+    else
+      GameTooltip:SetItemByID(data.itemInfo.itemID)
+    end
+    GameTooltip:Show()
+  end)
   self.frame:Show()
   self.rowButton:Show()
-
 end
 
 function itemRowProto:ClearItem()
@@ -67,6 +80,10 @@ function itemRowProto:ClearItem()
   self.frame:Hide()
   self.rowButton:Hide()
   self.rowButton:SetScript("OnMouseWheel", nil)
+  self.rowButton:SetScript("OnEnter", function(s)
+    ---@cast s ItemButton
+    s.HighlightTexture:Show()
+  end)
   self.data = nil
 end
 
@@ -178,11 +195,9 @@ function item:_DoCreate()
   highlight:SetTexture("Interface/Buttons/WHITE8x8")
   highlight:Hide()
   rowButton.HighlightTexture = highlight
-  rowButton:SetScript("OnEnter", function(s)
-    s.HighlightTexture:Show()
-  end)
   rowButton:SetScript("OnLeave", function(s)
     s.HighlightTexture:Hide()
+    GameTooltip:Hide()
   end)
   i.frame:SetSize(350, 34)
 
