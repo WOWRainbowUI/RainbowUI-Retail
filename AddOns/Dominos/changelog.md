@@ -1,5 +1,15 @@
 # Dominos Changelog
 
+## 10.2.11
+
+* (Retail) Fix issues causing keybindings to not properly from and to the Override UI
+* Revert Override UI detection implementation to the 10.2.1 version
+
+## 10.2.10
+
+* (Retail) `/click` macros should work a bit better when CastOnKeyDown is enabled
+* Cleanup code a bit
+
 ## 10.2.9
 
 * (Retail) Fix Override Bar micro menu button positioning
