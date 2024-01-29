@@ -701,6 +701,7 @@ end
 -- override ui
 function Addon:SetUseOverrideUI(enable)
     self.db.profile.useOverrideUI = enable and true
+    self.callbacks:Fire("USE_OVERRRIDE_UI_CHANGED", self:UsingOverrideUI())
     self:UpdateUseOverrideUI()
 end
 

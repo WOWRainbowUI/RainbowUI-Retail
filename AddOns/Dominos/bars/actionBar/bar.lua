@@ -208,7 +208,7 @@ function ActionBar:AcquireButton(index)
 
     button:Show()
 
-    button.displayName = L.ActionBarButtonDisplayName:format(self.id, index)
+    button:SetAttributeNoHandler("displayName", L.ActionBarButtonDisplayName:format(self.id, index))
 
     return button
 end
