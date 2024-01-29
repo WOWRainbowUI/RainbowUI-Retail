@@ -49,7 +49,7 @@ local data = {
 
     -- Evoker: Devastation -- https://www.icy-veins.com/wow/devastation-evoker-pve-dps-stat-priority
     [1467] = {
-        {"Intellect > Critical Strike >= Versatility = Mastery = Haste"},
+        {"Intellect > Critical Strike > Versatility = Mastery = Haste"},
     },
     -- Evoker: Preservation -- https://www.icy-veins.com/wow/preservation-evoker-pve-healing-stat-priority
     [1468] = {

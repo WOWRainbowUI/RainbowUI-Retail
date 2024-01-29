@@ -151,9 +151,9 @@ local colorPicker
 local function IVSPColorCallback(restore)
     local newR, newG, newB, newA
     if restore then -- canceled
-        newR, newG, newB, newA = unpack(restore)
+        newR, newG, newB, newA = restore.r, restore.g, restore.b, restore.a
     else
-        newA, newR, newG, newB = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
+        newA, newR, newG, newB = ColorPickerFrame:GetColorAlpha(), ColorPickerFrame:GetColorRGB()
     end
     
     colorPicker:SetBackdropColor(newR, newG, newB, newA)
@@ -178,16 +178,24 @@ local function IVSPColorCallback(restore)
 end
 
 local function ShowColorPicker(colorTable, changedCallback)
+    ColorPickerFrame:Hide() -- reset
+
     local r, g, b, a = unpack(colorTable)
-    ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = (a ~= nil), a
-    ColorPickerFrame.previousValues = {r, g, b, a}
-    ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = 
-        changedCallback, changedCallback, changedCallback
-    ColorPickerFrame:SetColorRGB(r, g, b)
-    ColorPickerFrame:Hide() -- Need to run the OnShow handler.
-    ColorPickerFrame:Show()
-    ColorPickerFrame:ClearAllPoints()
-    ColorPickerFrame:SetPoint("CENTER", UIParent)
+
+    ColorPickerFrame:SetupColorPickerAndShow({
+        r = r,
+        g = g,
+        b = b,
+        hasOpacity = a ~= nil,
+        opacity = a,
+        swatchFunc = changedCallback,
+        opacityFunc = changedCallback,
+        cancelFunc  = changedCallback,
+        previousValues = colorTable,
+    })
+
+    -- ColorPickerFrame:ClearAllPoints()
+    -- ColorPickerFrame:SetPoint("CENTER", UIParent)
 end
 
 local function CreateColorPicker(name, colorTable, tooltip)
@@ -204,7 +212,7 @@ local function CreateColorPicker(name, colorTable, tooltip)
             ShowColorPicker(IVSP_Config[colorTable], IVSPColorCallback)
         elseif button == "RightButton" then
             if colorTable == "bgColor" then
-                IVSP_Config["bgColor"] = {.1, .1, .1, .9}
+                IVSP_Config["bgColor"] = {0.1, 0.1, 0.1, 0.9}
                 frame:SetBackdropColor(unpack(IVSP_Config["bgColor"]))
                 for _, i in pairs(items) do
                     i:SetBackdropColor(unpack(IVSP_Config["bgColor"]))
@@ -261,7 +269,7 @@ local function ShowCustomFrame(sp, desc, k, isSelected)
             for _, item in pairs(items) do
                 if item.del then
                     item.del:SetEnabled(true)
-                    item.del:SetBackdropColor(.6, .1, .1, 1)
+                    item.del:SetBackdropColor(0.6, 0.1, 0.1, 1)
                 end
             end
         end)
@@ -270,7 +278,7 @@ local function ShowCustomFrame(sp, desc, k, isSelected)
             for _, item in pairs(items) do
                 if item.del then
                     item.del:SetEnabled(false)
-                    item.del:SetBackdropColor(.4, .4, .4, 1)
+                    item.del:SetBackdropColor(0.4, 0.4, 0.4, 1)
                 end
             end
         end)
@@ -279,7 +287,7 @@ local function ShowCustomFrame(sp, desc, k, isSelected)
 
         customFrame.eb1 = CreateFrame("EditBox", nil, customFrame, "BackdropTemplate")
         customFrame.eb1:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1})
-        customFrame.eb1:SetBackdropColor(.1, .1, .1, .9)
+        customFrame.eb1:SetBackdropColor(0.1, 0.1, 0.1, 0.9)
         customFrame.eb1:SetBackdropBorderColor(0, 0, 0, 1)
         customFrame.eb1:SetFontObject(IVSP_FONT)
         customFrame.eb1:SetMultiLine(false)
@@ -297,7 +305,7 @@ local function ShowCustomFrame(sp, desc, k, isSelected)
         
         customFrame.eb2 = CreateFrame("EditBox", nil, customFrame, "BackdropTemplate")
         customFrame.eb2:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1})
-        customFrame.eb2:SetBackdropColor(.1, .1, .1, .9)
+        customFrame.eb2:SetBackdropColor(0.1, 0.1, 0.1, 0.9)
         customFrame.eb2:SetBackdropBorderColor(0, 0, 0, 1)
         customFrame.eb2:SetFontObject(IVSP_FONT)
         customFrame.eb2:SetMultiLine(false)
@@ -333,10 +341,10 @@ local function ShowCustomFrame(sp, desc, k, isSelected)
 
             if customFrame.eb1.valid and customFrame.eb2.valid then
                 customFrame.confirmBtn:SetEnabled(true)
-                customFrame.confirmBtn:SetBackdropColor(.1, .6, .1, 1)
+                customFrame.confirmBtn:SetBackdropColor(0.1, 0.6, 0.1, 1)
             else
                 customFrame.confirmBtn:SetEnabled(false)
-                customFrame.confirmBtn:SetBackdropColor(.4, .4, .4, 1)
+                customFrame.confirmBtn:SetBackdropColor(0.4, 0.4, 0.4, 1)
             end
         end)
         customFrame.eb2:SetScript("OnTextChanged", function(self, userInput)
@@ -350,10 +358,10 @@ local function ShowCustomFrame(sp, desc, k, isSelected)
 
             if customFrame.eb1.valid and customFrame.eb2.valid then
                 customFrame.confirmBtn:SetEnabled(true)
-                customFrame.confirmBtn:SetBackdropColor(.1, .6, .1, 1)
+                customFrame.confirmBtn:SetBackdropColor(0.1, 0.6, 0.1, 1)
             else
                 customFrame.confirmBtn:SetEnabled(false)
-                customFrame.confirmBtn:SetBackdropColor(.4, .4, .4, 1)
+                customFrame.confirmBtn:SetBackdropColor(0.4, 0.4, 0.4, 1)
             end
         end)
     end
@@ -393,7 +401,7 @@ local function AddItem(text, k)
 
     -- highlight texture
     item.highlight = item:CreateTexture()
-    item.highlight:SetColorTexture(.5, 1, 0, 1)
+    item.highlight:SetColorTexture(0.5, 1, 0, 1)
     item.highlight:SetSize(5, item:GetHeight() - 2)
     item.highlight:SetPoint("LEFT", 1, 0)
     item.highlight:Hide()
@@ -725,7 +733,7 @@ function frame:ADDON_LOADED(arg1)
         if type(IVSP_Config["show"]) ~= "boolean" then IVSP_Config["show"] = true end
         if type(IVSP_Config["bgColor"]) ~= "table" then IVSP_Config["bgColor"] = {0.1, 0.1, 0.1, 0.9} end
         if type(IVSP_Config["borderColor"]) ~= "table" then IVSP_Config["borderColor"] = {0, 0, 0, 1} end
-        if type(IVSP_Config["fontColor"]) ~= "table" then IVSP_Config["fontColor"] = {1, 1, 1, 1} end
+        if type(IVSP_Config["fontColor"]) ~= "table" then IVSP_Config["fontColor"] = {1, 1, 1} end
         if type(IVSP_Config["fontSize"]) ~= "number" then IVSP_Config["fontSize"] = 13 end
         if type(IVSP_Config["selected"]) ~= "table" then IVSP_Config["selected"] = {} end
         if type(IVSP_Config["helpViewed"]) ~= "boolean" then IVSP_Config["helpViewed"] = false end
