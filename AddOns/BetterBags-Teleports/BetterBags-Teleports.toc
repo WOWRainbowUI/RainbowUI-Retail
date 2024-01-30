@@ -1,7 +1,7 @@
 ## Interface: 100205
 ## Title: BetterBags - Teleports
 ## Author: Sauravisus
-## Version: 1.0.2
+## Version: 1.0.3
 ## Notes: Puts all your hearthstones, and teleport items in one category.
 ## X-Curse-Project-ID: 956341
 ## Dependencies: BetterBags
