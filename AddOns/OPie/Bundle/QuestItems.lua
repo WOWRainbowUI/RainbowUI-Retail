@@ -273,10 +273,7 @@ local edFrame = CreateFrame("Frame") do
 	local bar = XU:Create("ScrollBar", nil, edFrame)
 	bar:SetPoint("TOPRIGHT", -1, 0)
 	bar:SetPoint("BOTTOMRIGHT", -1, 0)
-	local cover = CreateFrame("Frame", nil, clipRoot)
-	cover:SetAllPoints()
-	cover:EnableMouseMotion(true)
-	cover:Hide()
+	bar:SetCoverTarget(clipRoot)
 
 	local rows, controller, idList, numRowsPV, visibleRange = {}, {}, {}, 2, 0 do
 		clipRoot:SetScript("OnSizeChanged", function(self)
@@ -292,10 +289,8 @@ local edFrame = CreateFrame("Frame") do
 		edFrame:SetScript("OnMouseWheel", function(_, delta)
 			bar:Step(-delta*math.max(1, math.ceil(numRowsPV/4)), true)
 		end)
-		bar:SetScript("OnValueChanged", function(self, nv, isInternal)
+		bar:SetScript("OnValueChanged", function(_, nv, isInternal)
 			controller:SetOffset(nv, isInternal)
-			cover:SetShown(not self:IsValueAtRest())
-			cover:SetFrameLevel(edFrame:GetFrameLevel()+20)
 		end)
 		edFrame:SetScript("OnEvent", function(_, e, iid, ok)
 			if e == "GET_ITEM_INFO_RECEIVED" and iid and ok then

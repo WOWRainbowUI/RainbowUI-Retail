@@ -653,15 +653,24 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		local ctex = b:GetNormalTexture()
 		ctex:SetSnapToPixelGrid(false)
 		ctex:SetTexelSnappingBias(0)
-		local function update(v)
-			if ColorPickerFrame:IsShown() or v then return end
-			api.setSliceProperty("color", ColorPickerFrame:GetColorRGB())
+		local function update()
+			if not ColorPickerFrame:IsShown() or ColorPickerFrame.Footer and ColorPickerFrame.Footer.OkayButton:GetButtonState() == "PUSHED" then
+				api.setSliceProperty("color", ColorPickerFrame:GetColorRGB())
+			end
 		end
 		b:SetScript("OnClick", function()
-			local cp = ColorPickerFrame
-			cp.previousValues, cp.hasOpacity, cp.func, cp.cancelFunc = true
-			cp:SetColorRGB(ctex:GetVertexColor()) cp:Show()
-			cp.func, cp.cancelFunc = update, update
+			local cp, r,g,b = ColorPickerFrame, ctex:GetVertexColor()
+			cp.previousValues, cp.hasOpacity, cp.func, cp.cancelFunc, cp.swatchFunc, cp.opacityFunc = true
+			if cp.SetColorRGB then
+				cp:SetColorRGB(r,g,b)
+				cp.func = update
+			else
+				cp.Content.ColorSwatchOriginal:SetColorTexture(r,g,b)
+				cp.Content.HexBox:OnColorSelect(r,g,b)
+				cp.Content.ColorPicker:SetColorRGB(r,g,b)
+				cp.swatchFunc = update
+			end
+			cp:Show()
 		end)
 		local ceil = math.ceil
 		function c:SetColor(r,g,b, custom)
@@ -676,6 +685,7 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		end
 	end
 	sliceDetail.icon = CreateFrame("Button", nil, sliceDetail) do
+		local icons, icontex, selectedIcon, initTexture = {}, {}, nil
 		local f = sliceDetail.icon
 		f:SetHitRectInsets(0,-280,0,0) f:SetSize(18, 18)
 		f:SetPoint("TOPLEFT", 270, -oy-2)
@@ -688,16 +698,24 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		f.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -119)
 		f.label:SetText(L"Icon:")
 		
-		local frame = CreateFrame("Frame", nil, f)
+		local frame, clipRoot, origin = CreateFrame("Frame", nil, f)
+		clipRoot = CreateFrame("Frame", nil, frame)
+		clipRoot:SetPoint("TOPLEFT", 12, -12)
+		clipRoot:SetPoint("BOTTOMRIGHT", -31, 12)
+		clipRoot:SetClipsChildren(true)
+		origin = CreateFrame("Frame", nil, clipRoot)
+		origin:SetSize(1,1)
+		origin:SetPoint("TOPLEFT")
+		origin:Hide()
 		local ICONGRID_ROWS, ICONGRID_COLUMNS, ICONGRID_CELL_WIDTH, ICONGRID_CELL_HEIGHT = 7, 14, 36, 36
-		CreateEdge(frame, {bgFile = "Interface/ChatFrame/ChatFrameBackground", edgeFile = "Interface/DialogFrame/UI-DialogBox-Border", tile = true, tileSize = 32, edgeSize = 32, insets = { left = 11, right = 11, top = 12, bottom = 10 }}, 0xd8000000)
+		CreateEdge(frame, {bgFile = "Interface/ChatFrame/ChatFrameBackground", edgeFile = "Interface/DialogFrame/UI-DialogBox-Border", tile = true, tileSize = 32, edgeSize = 32, insets = { left = 11, right = 11, top = 11, bottom = 10 }}, 0xd8000000)
 		frame:SetSize(42+ICONGRID_COLUMNS*ICONGRID_CELL_WIDTH, 20+ICONGRID_CELL_HEIGHT*ICONGRID_ROWS)
 		frame:SetPoint("TOPLEFT", f, "TOPLEFT", -268, -18)
 		frame:EnableMouse(1) frame:SetToplevel(1) frame:Hide()
 		f:SetScript("OnClick", function() frame:SetShown(not frame:IsShown()) PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON) end)
 		frame:SetScript("OnHide", frame.Hide)
-		do
-			local ed = TS:CreateLineInputBox(frame, false, 280)
+		do -- manual input
+			local ed = TS:CreateLineInputBox(frame, false, 238)
 			local hint = ed:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 			hint:SetPoint("CENTER")
 			hint:SetText("|cffa0a0a0" .. L"(enter an icon name or path here)")
@@ -705,8 +723,9 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 			bg:SetColorTexture(0,0,0,0.95)
 			bg:SetPoint("TOPLEFT", -3, 3)
 			bg:SetPoint("BOTTOMRIGHT", 3, -3)
-			ed:SetPoint("BOTTOM", 0, 8)
+			ed:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -10, -3)
 			ed:SetFrameLevel(ed:GetFrameLevel()+5)
+			ed:SetHitRectInsets(-5, 0, -1, -1)
 			ed:SetScript("OnEditFocusGained", function() hint:Hide() end)
 			ed:SetScript("OnEditFocusLost", function(self) hint:SetShown(not self:GetText():match("%S")) end)
 			ed:SetScript("OnEnterPressed", function(self)
@@ -729,29 +748,31 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 				end
 			end)
 		end
-		local icons, selectedIcon = {}
 		local function onClick(self)
 			if selectedIcon then selectedIcon:SetChecked(nil) end
 			PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
 			api.setSliceProperty("icon", self:GetChecked() and self.tex:GetTexture() or nil)
 			selectedIcon = self:GetChecked() and self or nil
 		end
-		for i=0,(ICONGRID_COLUMNS*ICONGRID_ROWS)-1 do
-			local j = createIconButton(nil, frame, i)
-			j:SetPoint("TOPLEFT", 12 + (i % ICONGRID_COLUMNS)*ICONGRID_CELL_WIDTH, -12 - ICONGRID_CELL_HEIGHT*math.floor(i / ICONGRID_COLUMNS))
+		for i=0,(ICONGRID_COLUMNS*(ICONGRID_ROWS+1))-1 do
+			local j = createIconButton(nil, clipRoot, i)
+			j:SetPoint("TOPLEFT", origin, (i % ICONGRID_COLUMNS)*ICONGRID_CELL_WIDTH, - ICONGRID_CELL_HEIGHT*math.floor(i / ICONGRID_COLUMNS))
 			j:SetScript("OnClick", onClick)
 			icons[i] = j
 		end
-		local icontex, initTexture = {}, nil
-		local slider = CreateFrame("Slider", "RKC_IconSelectionSlider", frame, "UIPanelScrollBarTrimTemplate")
-			slider:SetPoint("TOPRIGHT",-11, -26) slider:SetPoint("BOTTOMRIGHT", -11, 25)
-			slider:SetValueStep(ICONGRID_COLUMNS) slider:SetObeyStepOnDrag(true) slider.scrollStep = ICONGRID_COLUMNS*4
-			slider.Up, slider.Down = RKC_IconSelectionSliderScrollUpButton, RKC_IconSelectionSliderScrollDownButton
-			slider:SetScript("OnValueChanged", function(self, value)
-				self.Up:SetEnabled(value > 1)
-				self.Down:SetEnabled(icontex[value + #icons + 1] ~= nil)
+		local slider = XU:Create("ScrollBar", nil, frame) do
+			slider:SetStyle("common")
+			slider:SetPoint("TOPRIGHT", -9, -11)
+			slider:SetPoint("BOTTOMRIGHT", -9, 9)
+			slider:SetWheelScrollTarget(clipRoot, 0, -5, 0, 0)
+			slider:SetStepsPerPage(7, 5)
+			slider:SetWindowRange(ICONGRID_ROWS)
+			slider:SetScript("OnValueChanged", function(_, value)
+				local co = value % 1
+				origin:SetPoint("TOPLEFT", 0, co*ICONGRID_CELL_HEIGHT)
+				value = (value - co) * ICONGRID_COLUMNS
 				for i=0,#icons do
-					local ico, tex = icons[i].tex, i == 0 and value == 1 and (initTexture or "Interface/Icons/INV_Misc_QuestionMark") or icontex[i+value-1]
+					local ico, tex = icons[i].tex, i == 0 and value == 0 and (initTexture or "Interface/Icons/INV_Misc_QuestionMark") or icontex[i+value]
 					icons[i]:SetShown(not not tex)
 					if tex then
 						ico:SetTexture(tex)
@@ -761,6 +782,7 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 					end
 				end
 			end)
+		end
 		local function FixLooseIcons(f, t)
 			local c = #t
 			f(t)
@@ -780,15 +802,12 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 			FixLooseIcons(GetLooseMacroIcons, icontex)
 			GetMacroItemIcons(icontex)
 			FixLooseIcons(GetLooseMacroItemIcons, icontex)
-			slider:SetMinMaxValues(1, #icontex-#icons+16)
-			if slider:GetValue() == 1 then
+			slider:SetMinMaxValues(0, math.ceil((#icontex-ICONGRID_COLUMNS*ICONGRID_ROWS)/ICONGRID_COLUMNS))
+			if slider:GetValue() == 0 then
 				slider:GetScript("OnValueChanged")(slider, slider:GetValue())
 			else
-				slider:SetValue(1)
+				slider:SetValue(0)
 			end
-		end)
-		frame:SetScript("OnMouseWheel", function(_, delta)
-			slider:SetValue(slider:GetValue()-delta*15)
 		end)
 		function f:SetIcon(ico, forced, ext)
 			initTexture = setIcon(self.icon, forced or ico, ext)
@@ -924,13 +943,8 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		s:SetMinMaxValues(0, 20)
 		s:SetValueStep(1)
 		s:SetWindowRange(NUM_VISIBLE_CATS)
-		s:SetStepsPerPage(NUM_VISIBLE_CATS-2)
-		local cap = CreateFrame("Frame", nil, newSlice)
-		cap:SetPoint("TOPLEFT")
-		cap:SetPoint("BOTTOMRIGHT", s, "BOTTOMRIGHT")
-		cap:SetScript("OnMouseWheel", function(_, delta)
-			s:Step(-5*delta, true)
-		end)
+		s:SetStepsPerPage(5)
+		s:SetStyle("common")
 	end
 	
 	local cats, actions, searchCat, selectCategory, selectedCategory, selectedCategoryId = {}, {}
@@ -997,6 +1011,7 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 	catContainer:SetClipsChildren(true)
 	catContainer:SetSize(159, NUM_VISIBLE_CATS*20)
 	catContainer:SetPoint("TOPLEFT", 2, -22)
+	newSlice.slider:SetWheelScrollTarget(catContainer)
 	local catOrigin = CreateFrame("Frame", nil, catContainer)
 	catOrigin:Hide()
 	catOrigin:SetSize(159, 1)
@@ -1046,15 +1061,8 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		s:SetPoint("TOPRIGHT", -2, COMPAT > 11403 and -26 or -22)
 		s:SetPoint("BOTTOMRIGHT", -2, 2)
 		s:SetMinMaxValues(0, 20)
-		s:SetValueStep(1)
-		s:SetStepsPerPage(NUM_VISIBLE_ACTION_ROWS-2)
 		s:SetWindowRange(NUM_VISIBLE_ACTION_ROWS)
-		local cap = CreateFrame("Frame", nil, newSlice)
-		cap:SetPoint("TOPRIGHT")
-		cap:SetPoint("BOTTOMLEFT", newSlice.slider, "BOTTOMRIGHT")
-		cap:SetScript("OnMouseWheel", function(_, delta)
-			s:Step(-4*delta, true)
-		end)
+		s:SetStepsPerPage(4)
 	end
 
 	local function onClick(self)
@@ -1100,6 +1108,7 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		actionsContainer:SetClipsChildren(true)
 		actionsContainer:SetPoint("TOPLEFT", newSlice.desc, "BOTTOMLEFT", 0, 8)
 		actionsContainer:SetSize(344, 36*NUM_VISIBLE_ACTION_ROWS-1)
+		newSlice.slider2:SetWheelScrollTarget(actionsContainer)
 	local actionsOrigin = CreateFrame("Frame", nil, actionsContainer)
 		actionsOrigin:SetSize(1,1)
 		actionsOrigin:SetPoint("TOPLEFT")
@@ -1215,11 +1224,6 @@ local function isCollectionSlice(...)
 	if aid then
 		return AB:GetSlotImplementation(aid) == "collection"
 	end
-end
-local function dropKeys(t, k, ...)
-	if k == nil then return end
-	t[k] = nil
-	return dropKeys(t, ...)
 end
 local decodeConstantList do
 	local stringEscapes = {a="\a",b="\b",f="\f",n="\n",r="\r",t="\t",v="\v",["\\"]="\\",["'"]="'",['"']='"'}
@@ -1748,13 +1752,11 @@ end
 function api.addSlice(pos, ...)
 	local wasRepick
 	if pos == nil and repickSlice then
-		local otid = repickSlice[1]
 		for k in pairs(repickSlice) do
 			if type(k) == "number" then
 				repickSlice[k] = nil
 			end
 		end
-		dropKeys(repickSlice, AB:GetActionOptions(otid))
 		for i=1,select("#", ...),2 do
 			repickSlice[i], repickSlice[i+1] = select(i, ...)
 		end
