@@ -21,6 +21,32 @@ local CreateIndicator, ActiveIndicatorFactory, LastRegisteredIndicatorFactory = 
 local function assert(condition, text, level)
 	return condition or error(text, (level or 1)+1)((0)[0])
 end
+local CreateQuadTexture do
+	local function qf(f)
+		return function (self, ...)
+			for i=1,4 do
+				local v = self[i]
+				v[f](v, ...)
+			end
+		end
+	end
+	local quadPoints, quadTemplate = {"BOTTOMRIGHT", "BOTTOMLEFT", "TOPLEFT", "TOPRIGHT"}, {__index={SetVertexColor=qf("SetVertexColor"), SetAlpha=qf("SetAlpha"), SetShown=qf("SetShown")}}
+	function CreateQuadTexture(layer, size, file, parent, qparent)
+		local group, size = setmetatable({}, quadTemplate), size/2
+		for i=1,4 do
+			local tex, d, l = (parent or qparent[i]):CreateTexture(nil, layer), i > 2, 2 > i or i > 3
+			tex:SetSize(size,size)
+			tex:SetTexture(file)
+			tex:SetTexCoord(l and 0 or 1, l and 1 or 0, d and 1 or 0, d and 0 or 1)
+			tex:SetTexelSnappingBias(0)
+			tex:SetSnapToPixelGrid(false)
+			tex:SetPoint(quadPoints[i], parent or qparent[i], parent and "CENTER" or quadPoints[i])
+			group[i] = tex
+		end
+		return group
+	end
+	T.CreateQuadTexture = CreateQuadTexture
+end
 
 local gfxBase = ([[Interface\AddOns\%s\gfx\]]):format((...))
 local anchorFrame = CreateFrame("Frame")
@@ -44,8 +70,8 @@ local ringQuad, setRingRotationPeriod, centerCircle, centerGlow = {} do
 		qf:SetPoint(quadPoints[i], mainFrame, "CENTER")
 		ringQuad[i] = qf
 	end
-	centerCircle = T.CreateQuadTexture("ARTWORK", 64, gfxBase .. "circle", nil, ringQuad)
-	centerGlow = T.CreateQuadTexture("BACKGROUND", 128, gfxBase .. "glow", nil, ringQuad)
+	centerCircle = CreateQuadTexture("ARTWORK", 64, gfxBase .. "circle", nil, ringQuad)
+	centerGlow = CreateQuadTexture("BACKGROUND", 128, gfxBase .. "glow", nil, ringQuad)
 	for i=1,4 do
 		local g, a = ringQuad[i]:CreateAnimationGroup()
 		g:SetLooping("REPEAT")
@@ -269,7 +295,7 @@ local SwitchIndicatorFactory, ValidateIndicator do
 	end
 end
 
-local tokenR, tokenG, tokenB, tokenIcon, tokenQuest = {}, {}, {}, {}, {}
+local tokenR, tokenG, tokenB, tokenIcon, iconIsAtlas, tokenQuest = {}, {}, {}, {}, {}, {}
 local qualMap, qualMod, qualModLow = {}, 131072, 16384 do
 	for v=qualModLow, qualMod-1, qualModLow do
 		qualMap[v] = v/qualModLow
@@ -283,17 +309,34 @@ local atlasRatio = setmetatable({}, {__index=function(t,k)
 	end
 	return r
 end})
+local IsControllerBinding do
+	local mem = {}
+	function IsControllerBinding(b)
+		local r = mem[b]
+		if r == nil and b and b ~= "" then
+			r = b:match("PAD") ~= nil
+			mem[b] = r
+		end
+		return r == true
+	end
+end
 
-local getSliceColor do
+local getSliceColor, setIconColorOverride do
+	local overR, overG, overB = {}, {}, {}
 	local ici, pal = T.Niji._tex, T.Niji._pal
 	function getSliceColor(token, icon, token2)
 		if tokenR[token] then
 			return tokenR[token], tokenG[token], tokenB[token]
 		elseif tokenR[token2] then
 			return tokenR[token2], tokenG[token2], tokenB[token2]
+		elseif overR[icon] then
+			return overR[icon], overG[icon], overB[icon]
 		end
 		local li = ici[icon] or -3
 		return pal[li] or 0.7, pal[li+1] or 1, pal[li+2] or 0.6
+	end
+	function setIconColorOverride(icon, r,g,b)
+		overR[icon], overG[icon], overB[icon] = r,g,b
 	end
 end
 local checkTipThrottle do
@@ -380,13 +423,13 @@ local function updateCentralElements(self, si, _, tok, usable, state, icon, capt
 	self.oldSlice = si
 end
 local function updateSlice(self, originAngle, selected, tok, usable, state, icon, _, count, cd, cd2, _tf, _ta, ext, stext)
-	local isJump, origIcon, jumpOtherTok, isJumpIconOverlay, isAtlasIcon = false, icon
+	local isJump, origIcon, tokIcon, jumpOtherTok, isJumpIconOverlay, isAtlasIcon = false, icon, tokenIcon[tok]
 	state, usable, ext = state or 0, usable or (state and usable ~= false) or false, not tokenIcon[tok] and ext or nil
 	if state % 8192 >= 4096 then
 		icon, jumpOtherTok, isJump, count = 188515, count, true, 0
 	end
-	icon = tokenIcon[tok] or icon or "Interface/Icons/INV_Misc_QuestionMark"
-	isJumpIconOverlay, isAtlasIcon = isJump and icon == 188515, icon == origIcon and state % 524288 >= 262144
+	icon = tokIcon or icon or "Interface/Icons/INV_Misc_QuestionMark"
+	isJumpIconOverlay, isAtlasIcon = isJump and icon == 188515, icon == origIcon and state % 524288 >= 262144 or tokIcon and icon == tokIcon and iconIsAtlas[icon]
 	local active, overlay, faded, usableCharge = state % 2 >= 1, state % 4 >= 2, not usable, usable or (state % 128 >= 64)
 	local isInContainer, isInInventory, isQuestStartItem = state % 256 >= 128, state % 512 >= 256, tokenQuest[tok] or (state % 64 >= 32)
 	local isDisenchanting = state % 262144 >= 131072
@@ -446,6 +489,25 @@ end
 local function callElementUpdate(self, f, si, ni, a1, a2)
 	return true, f(self, a1, a2, ambiguateToken(PC:GetOpenRingSliceAction(si, ni)))
 end
+local function updateSliceBindings(imode)
+	local showSliceBinds, _, sliceBind, sliceBind2 = configCache.ShowKeys
+	imode = showSliceBinds and (imode or PC:GetCurrentInputs())
+	for i=1, mainFrame.count do
+		if showSliceBinds then
+			_, _, sliceBind, sliceBind2 = PC:GetOpenRingSlice(i)
+			if sliceBind2 then
+				local c1, c2 = IsControllerBinding(sliceBind), IsControllerBinding(sliceBind2)
+				if c1 ~= c2 and (imode == "stick") == c2 then
+					sliceBind = sliceBind2
+				else
+					sliceBind = sliceBind or sliceBind2
+				end
+			end
+		end
+		Slices[i]:SetBinding(sliceBind or nil)
+	end
+	configCache.lastBindingMode = imode
+end
 
 local lastConAngle = nil
 local function OnUpdate_CheckAlpha(self, count)
@@ -457,7 +519,7 @@ local function OnUpdate_CheckAlpha(self, count)
 	end
 end
 local function OnUpdate_Main(self, elapsed)
-	local count, offset = self.count, self.offset
+	local count, offset, lastBindingMode = self.count, self.offset, configCache.lastBindingMode
 	local imode, qaid, angle, isActiveRadius, stl = PC:GetCurrentInputs()
 	local radius, miScaleAdd, frameRate = self.radius, configCache.MIScaleAdd, LOCKED_FRAMERATE or GetFramerate()
 
@@ -508,7 +570,7 @@ local function OnUpdate_Main(self, elapsed)
 			securecall(callElementUpdate, Slices[i], updateSlice, i, nil, originAngle, si == i)
 		end
 		if configCache.GhostMIRings then
-			local _, _, _, nestedCount, atype, isNested = PC:GetOpenRingSlice(si or 0)
+			local _, _, _, _, nestedCount, atype, isNested = PC:GetOpenRingSlice(si or 0)
 			if (nestedCount or 0) == 0 then
 				GhostIndication:Deactivate()
 			else
@@ -521,6 +583,9 @@ local function OnUpdate_Main(self, elapsed)
 				end
 			end
 		end
+	end
+	if lastBindingMode and lastBindingMode ~= imode then
+		updateSliceBindings(imode)
 	end
 	GhostIndication:OnUpdate(elapsed)
 end
@@ -576,9 +641,8 @@ function iapi:Show(_, _, fastOpen)
 
 	local astep = count == 0 and 0 or -360/count
 	for i=1, count do
-		local indic, _, _, sliceBind = Slices[i] or rawset(Slices, i, next(ActiveIndicatorFactory.mainPool) or CreateIndicator(nil, mainFrame, 48))[i], PC:GetOpenRingSlice(i)
+		local indic = Slices[i] or rawset(Slices, i, next(ActiveIndicatorFactory.mainPool) or CreateIndicator(nil, mainFrame, 48))[i]
 		ActiveIndicatorFactory.mainPool[indic] = nil
-		indic:SetBinding(configCache.ShowKeys and sliceBind or nil)
 		SetAngle(indic, (i - 1) * astep - mainFrame.offset, radius)
 		if ActiveIndicatorFactory.supportsCooldownNumbers then
 			indic:SetCooldownTextShown(configCache.ShowCooldowns, configCache.ShowRecharge)
@@ -589,6 +653,7 @@ function iapi:Show(_, _, fastOpen)
 	for i=count+1, #Slices do
 		Slices[i]:SetShown(false)
 	end
+	updateSliceBindings(nil)
 
 	configCache.RingScale = max(0.1, configCache.RingScale)
 	mainFrame:SetScale(configCache.RingScale)
@@ -613,6 +678,9 @@ end
 
 function api:SetDisplayOptions(token, icon, _, r,g,b)
 	if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" then r,g,b = nil end
+	if iconIsAtlas[icon] or type(icon) == "string" and not GetFileIDFromPath(icon) and C_Texture.GetAtlasInfo(icon) then
+		iconIsAtlas[icon] = true
+	end
 	tokenR[token], tokenG[token], tokenB[token], tokenIcon[token] = r,g,b, icon
 end
 function api:SetQuestHint(sliceToken, hint)
@@ -620,6 +688,13 @@ function api:SetQuestHint(sliceToken, hint)
 end
 function api:GetTexColor(icon)
 	return getSliceColor(nil, icon)
+end
+function api:SetIconDefaultColor(icon, r,g,b)
+	assert(type(icon) == "string" or type(icon) == "number", 'Syntax: OPieUI:SetIconDefaultColor(icon, r,g,b)')
+	assert(type(r) == "number" and type(g) == "number" and type(b) == "number"
+	       and r >= 0 and g >= 0 and b >= 0 and r <= 1 and g <= 1 and b <= 1
+	       or r == nil and g == nil and b == nil, 'SetIconDefaultColor: invalid color')
+	setIconColorOverride(icon, r,g,b)
 end
 
 function api:RegisterIndicatorConstructor(key, info)

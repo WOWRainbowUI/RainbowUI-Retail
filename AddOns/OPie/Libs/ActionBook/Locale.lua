@@ -22,11 +22,11 @@ V =
       z, "Mostrar sólo al equipar", z, "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Mostrar esta rodaja siempre", "Hechizo", "Juegete",
       z, z, z, z,
     }
-    or C == "frFR" and { -- 30/34 (88%)
-      "Compétences", "Également utiliser l'élément avec le même nom", "Mascotte de combat", "Mascottes de combat", z, "Macro personnalisée", "Monture draconique", "Set d'équipement", "Équipement de sets", "Bouton d'action supplémentaire",
+    or C == "frFR" and { -- 31/34 (91%)
+      "Compétences", "Également utiliser l'élément avec le même nom", "Mascotte de combat", "Mascottes de combat", "Calendrier", "Macro personnalisée", "Monture draconique", "Set d'équipement", "Équipement de sets", "Bouton d'action supplémentaire",
       "Montures volantes", "Monture terrestre", z, "Objet", "Objets", "Macro", "Macros", "Divers", "Monture", "Montures",
       "Nouvelle Macro", "Afficher seulement quand équipé", "Compétence du Familier", "Compétences du familier", "Marqueur de Raid", "Marqueur de Terrain", "Marqueurs de Raid", "Afficher un remplacement quand indisponible", "Sort", "Jouet",
-      "Jouets", z, "Utiliser le rang connu le plus élevé", z,
+      "Jouets", z, "Utiliser le rang le plus élevé connu", z,
     }
     or C == "koKR" and { -- 29/34 (85%)
       "능력", "같은 이름의 아이템 사용", "애완동물 대전", "전투 애완동물", z, "사용자 정의 매크로", z, "장비 구성", "장비 구성", "추가 행동 버튼",
@@ -55,8 +55,8 @@ V =
     or C == "ptBR" and { -- 34/34 (100%)
       "Habilidades", "Também usar itens com o mesmo nome", "Batalha de mascote", "Mascotes de batalha", "Calendário", "Macro Personalizada", "Montaria de Dragonaria", "Conjunto de equipamento", "Conjuntos de equipamentos", "Botão de ação extra",
       "Montaria Voadora", "Montaria Terrestre", "Painel de Interface", "Item", "Itens", "Macro", "Macros", "Variados", "Montaria", "Montarias",
-      "Novo Macro", "Apenas mostrar quando equipado", "Habilidade de Mascote", "Habilidades de Mascote", "Marcadores de Reide", "Marcadores Globais de Reide", "Marcadores de reide", "Sempre mostrar essa fatia quando indisponível", "Feitiço ", "Brinquedo",
-      "Bringquedos", "Painel de UI", "Usar o maior rank conhecido", "Habilidades de Área",
+      "Novo Macro", "Apenas mostrar quando equipado", "Habilidade de Mascote", "Habilidades de Mascote", "Marcadores de Raide", "Marcadores Globais de Raide", "Marcadores de raide", "Sempre mostrar essa fatia quando indisponível", "Feitiço", "Brinquedo",
+      "Bringquedos", "Painéis de UI", "Usar o mais alto ranque conhecido", "Habilidades da Zona",
     } or nil
 
 K = V and {

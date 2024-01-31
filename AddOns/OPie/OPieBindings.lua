@@ -42,15 +42,9 @@ local bindZoneBar = XU:Create("ScrollBar", nil, frame)
 	bindZoneBar:SetPoint("BOTTOMLEFT", bindZone, "BOTTOMRIGHT", 1, -10)
 	bindZoneBar:SetWindowRange(#bindLines-1)
 	bindZoneBar:SetStepsPerPage(#bindLines-5)
-local bindZoneCover = CreateFrame("Frame", nil, bindZone)
-	bindZoneCover:SetAllPoints()
-	bindZoneCover:EnableMouse(true)
-	bindZoneCover:Hide()
-	bindZoneCover:SetScript("OnShow", function(self)
-		self:SetFrameLevel(bindLines[#bindLines]:GetFrameLevel()+10)
-	end)
+	bindZoneBar:SetCoverTarget(bindZone)
 
-local ringBindings = {map={}, name=L"Ring Bindings", TwoBindingSlots=true}
+local ringBindings = {map={}, name=L"Ring Bindings"}
 function ringBindings:refresh()
 	local pos, map = 1, self.map
 	for key in PC:IterateRings(IsAltKeyDown()) do
@@ -120,7 +114,7 @@ end
 local subBindings = { name=L"In-Ring Bindings",
 	options={"ScrollNestedRingUpButton", "ScrollNestedRingDownButton", "OpenNestedRingButton", "SelectedSliceBind"},
 	optionNames={L"Scroll nested ring (up)", L"Scroll nested ring (down)", L"Open nested ring", L"Selected slice (keep ring open)"},
-	count=0, t={},
+	count=0, t={}
 }
 function subBindings.allowWheel(btn)
 	return btn:GetID() <= 2 and not subBindings.scope
@@ -129,57 +123,73 @@ function subBindings:refresh(scope)
 	local ringName = scope and PC:GetRingInfo(scope)
 	scope = ringName and scope or nil
 	self.scope, self.nameSuffix = scope, scope and (" (|cffacd7e6" ..  ringName .. "|r)") or (" (" .. L"Defaults" .. ")")
-	local t, ni = self.t, 1
-	for s in PC:GetOption("SliceBindingString", scope):gmatch("%S+") do
-		t[ni], ni = s, ni + 1
+	local t, ni = {}, 1
+	for s, s2 in PC:GetOption("SliceBindingString", scope):gmatch("([^%s\31]+)\31?(%S*)") do
+		t[ni], t[ni+0.5], ni = s, s2, ni + 1
 	end
-	for i=#t,ni,-1 do t[i] = nil end
-	subBindings.count = ni+(scope and 1 or 4)
+	subBindings.t, subBindings.count = t, ni+(scope and 1 or 4)
 end
 function subBindings:get(id)
 	local firstListSize = self.scope and 1 or 4
 	if id <= firstListSize then
 		id = (self.scope and 3 or 0) + id
 		local value, setting = PC:GetOption(self.options[id], self.scope)
-		return value, self.optionNames[id], setting and "|cffffffff" or nil
-	else
-		id = id - firstListSize
+		local value2, setting2 = PC:GetOption(self.options[id] .. "2", self.scope)
+		return value, self.optionNames[id], setting and "|cffffffff" or nil, nil, nil, nil, nil, value2, setting2 and "|cffffffff" or nil
 	end
-	return self.t[id] == "false" and "" or self.t[id], (L"Slice #%d"):format(id)
+	id = id - firstListSize
+	local b, b2 = self.t[id], self.t[id+0.5]
+	b, b2 = b ~= "false" and b or "", b2 ~= "false" and b2 or ""
+	return b, (L"Slice #%d"):format(id), nil, nil, nil, nil, nil, b2
 end
-function subBindings:set(id, bind)
+function subBindings:set(id, bind, bidx)
 	local firstListSize = self.scope and 1 or 4
-	if id <= firstListSize then
-		id = (self.scope and 3 or 0) + id
-		config.undo:saveActiveProfile()
-		PC:SetOption(self.options[id], bind == false and "" or bind, self.scope)
-		return
-	else
-		id = id - firstListSize
+	if id > firstListSize then
+		return subBindings:setSliceBinding(id - firstListSize, bind, bidx, firstListSize)
 	end
+	id = (self.scope and 3 or 0) + id
+	config.undo:saveActiveProfile()
+	local opt = self.options[id] .. (bidx == 2 and "2" or "")
+	PC:SetOption(opt, bind or nil, self.scope)
+	if not bind and PC:GetOption(opt, self.scope) ~= "" then
+		PC:SetOption(opt, "", self.scope)
+	end
+end
+function subBindings:setSliceBinding(sliceIdx, bind, bidx, firstListSize)
 	if bind == nil then
 		local i, s, s2 = 1, select(self.scope == nil and 5 or 4, PC:GetOption("SliceBindingString", self.scope))
-		for f in (s or s2):gmatch("%S+") do
-			if i == id then bind = f break end
+		for f, f2 in (s or s2):gmatch("([^%s\31]+)\31?(%S*)") do
+			if i == sliceIdx then
+				bind = bidx == 2 and f2 or f
+				bind = bind ~= "" and bind or nil
+				break
+			end
 			i = i + 1
 		end
 	end
 
-	local t, bind = self.t, bind or "false"
-	if bind ~= "false" then
-		for i=1,#t do
-			if t[i] == bind then
-				t[i] = "false"
-			end
+	local t, setIdx, setIdx2 = self.t, sliceIdx + (bidx == 2 and 0.5 or 0)
+	t[setIdx], setIdx2 = bind or "false", setIdx - 0.5
+	local o, nt, finalIndex = {}, {}
+	for j=math.max(sliceIdx, #t), 1, -1 do
+		local b1, b2 = t[j], t[j+0.5]
+		local h1, h2 = b1 and b1 ~= "false" and b1 ~= "" and (b1 ~= bind or j == setIdx), b2 and b2 ~= "false" and b2 ~= "" and (b2 ~= bind or j == setIdx2)
+		if (h1 and h2) then
+			o[j], finalIndex = b1 .. "\31" .. b2, finalIndex or j
+			nt[j], nt[j+0.5] = b1, b2
+		elseif h1 or h2 or finalIndex then
+			o[j], finalIndex = (h1 and b1 or h2 and b2 or "false"), finalIndex or j
+			nt[j], nt[j+0.5] = o[j], ""
 		end
 	end
-	t[id] = bind
-	for j=#t,1,-1 do if t[j] == "false" then t[j] = nil else break end end
-	self.count = #t + firstListSize + 1
+	
+	self.t, self.count = nt, (finalIndex or 0) + firstListSize + 1
 	local _, _, _, global, default = PC:GetOption("SliceBindingString", self.scope)
-	local v = table.concat(t, " ")
-	if self.scope == nil and v == default then v = nil
-	elseif self.scope ~= nil and v == (global or default) then v = nil end
+	local v = table.concat(o, " ")
+	if self.scope == nil and v == default or
+	   self.scope ~= nil and v == (global or default) then
+		v = nil
+	end
 	config.undo:saveActiveProfile()
 	PC:SetOption("SliceBindingString", v, self.scope)
 end
@@ -232,18 +242,9 @@ local function updatePanelContent()
 			e.warn:SetShown(showWarningIcon or warning2)
 			e:SetBindingText(binding, prefix)
 			e:SetID(j) e:Hide() e:Show()
-			e2:Hide()
-			if currentOwner.TwoBindingSlots then
-				e2.bindingName, e2.tooltipTitle, e2.tooltipText = text, title2, tip2
-				e2:SetBindingText(binding2, prefix2)
-				e2:SetID(-j)
-				e2:Show()
-				e:SetPoint("TOPLEFT", bindZoneOrigin, "TOPLEFT", 221, 22-24*i)
-				e:SetWidth(170)
-			else
-				e:SetPoint("TOPLEFT", bindZoneOrigin, "TOPLEFT", 350, 22-24*i)
-				e:SetWidth(215)
-			end
+			e2.bindingName, e2.tooltipTitle, e2.tooltipText = text, title2, tip2
+			e2:SetBindingText(binding2, prefix2)
+			e2:SetID(-j) e2:Hide() e2:Show()
 		end
 	end
 	bindZone.OnBindingAltClick = currentOwner.altClick
@@ -260,8 +261,7 @@ bindZone:SetScript("OnMouseWheel", function(_, delta)
 	bindZoneBar:Step(-delta*6, true)
 	updatePanelContent()
 end)
-bindZoneBar:SetScript("OnValueChanged", function(self, _, userEvent)
-	bindZoneCover:SetShown(not self:IsValueAtRest())
+bindZoneBar:SetScript("OnValueChanged", function(_, _, userEvent)
 	if userEvent then
 		updatePanelContent()
 	end
