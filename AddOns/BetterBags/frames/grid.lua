@@ -30,10 +30,12 @@ local cellProto = {}
 ---@field package box WowScrollBox
 ---@field package view Frame
 ---@field cells Cell[]|Item[]|Section[]
+---@field idToCell table<string, Cell|Item|Section|BagButton>
 ---@field headers Section[]
 ---@field columns Column[]
 ---@field cellToColumn table<Cell|Item|Section, Column>
 ---@field maxCellWidth number The maximum number of cells per row.
+---@field spacing number
 ---@field compactStyle GridCompactStyle
 ---@field private scrollable boolean
 ---@field package scrollBox WowScrollBox
@@ -63,13 +65,14 @@ function gridProto:AddCellToLastColumn(id, cell)
 end
 
 -- AddCell will add a cell to this grid.
----@param id string|nil
+---@param id string
 ---@param cell Cell|Section|Item|BagButton
 function gridProto:AddCell(id, cell)
   assert(id, 'id is required')
   assert(cell, 'cell is required')
   assert(cell.frame, 'the added cell must have a frame')
   table.insert(self.cells, cell)
+  self.idToCell[id] = cell
 end
 
 -- RemoveCell will removed a cell from this grid.
@@ -78,6 +81,7 @@ end
 function gridProto:RemoveCell(id, cell)
   assert(id, 'id is required')
   assert(cell, 'cell is required')
+  self.idToCell[id] = nil
   for i, c in ipairs(self.cells) do
     if c == cell then
       table.remove(self.cells, i)
@@ -88,6 +92,10 @@ function gridProto:RemoveCell(id, cell)
     end
   end
   --assert(false, 'cell not found')
+end
+
+function gridProto:GetCell(id)
+  return self.idToCell[id]
 end
 
 ---@param header Section
@@ -152,6 +160,7 @@ function gridProto:Draw()
         -- Create the column if it doesn't exist and position it within
         -- the grid.
         column = columnFrame:Create()
+        column.spacing = self.spacing
         column.frame:SetParent(self.inner)
         self.columns[i % self.maxCellWidth] = column
         if i == 1 then
@@ -210,6 +219,7 @@ function gridProto:Wipe()
   wipe(self.cellToColumn)
   wipe(self.columns)
   wipe(self.cells)
+  wipe(self.idToCell)
 end
 
 local scrollFrameCounter = 0
@@ -256,11 +266,13 @@ function grid:Create(parent)
   g.frame = f
   g.inner = c
   g.cells = {}
+  g.idToCell = {}
   g.columns = {}
   g.cellToColumn = {}
   g.headers = {}
   g.maxCellWidth = 5
   g.compactStyle = const.GRID_COMPACT_STYLE.NONE
+  g.spacing = 4
   g.bar:Show()
   --g.scrollBox = grid:CreateScrollFrame(f)
   --g.scrollBox:Hide()
