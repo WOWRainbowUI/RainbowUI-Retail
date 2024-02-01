@@ -40,6 +40,8 @@ if GetLocale() == "zhTW" then
 	L.data["Click to deposit all reagents into your reagent bank."] = "點一下將所有材料存放到材料銀行。"
 	L.data["Show Bags"] = "顯示背包欄位"
 	L.data["Click to toggle the display of the bag slots."] = "點一下切換顯示裝備背包的欄位，方便更換背包。"
+	L.data["Show Currencies"] = "顯示兌換通貨"
+	L.data["Click to toggle the display of the currencies side panel."] = "點一下切換顯示兌換通貨的面板。"
 	L.data["Show Bag Button"] = "顯示背包按鈕"
 	L.data["Click to toggle the display of the Blizzard bag button."] = "點一下切換顯示遊戲內建的背包按鈕。"
 	L.data["Open Options Screen"] = "打開選項"
