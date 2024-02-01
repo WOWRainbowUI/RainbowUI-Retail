@@ -333,7 +333,7 @@ function TravelModule:SetHearthColor()
         end
     end
 
-    self.hearthButton:SetAttribute("macrotext", "/cast " .. hearthName)
+    self.hearthButton:SetAttribute("macrotext", "/cast " .. (hearthName or "爐石"))  -- 暫時修正
 
     if not hearthActive then
         self.hearthIcon:SetVertexColor(db.color.inactive.r, db.color.inactive.g,
