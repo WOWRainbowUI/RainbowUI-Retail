@@ -936,11 +936,10 @@ addon.db = {
 	},
 	["Treasure Sacks"] = {
 		199341, -- Regurgitated Sack of Swog Treasures
-		202104, -- Weighted Sac of Swog Treasures
 		199342, -- Weighted Sack of Swog Treasures
-		202103, -- Immaculate Sac of Swog Treasures
-		202102, -- Immaculate Sac of Swog Treasures
 		199343, -- Immaculate Sack of Swog Treasures
+		202102, -- Immaculate Sac of Swog Treasures
+		202103, -- Immaculate Sac of Swog Treasures
 	},
 	["Darkmoon Cards"] = {
 		198614, -- Soggy Clump of Darkmoon Cards
