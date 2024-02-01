@@ -150,6 +150,9 @@ L['Remaining'] = true;
 L['Available Ranks'] = true;
 L['Artifact Knowledge'] = true;
 
+-- Travel
+L['Use Random Hearthstone'] = true;
+
 -- 自行加入
 L["XIV Bar Continued"] = true;
 L['Profiles'] = true;

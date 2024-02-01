@@ -152,6 +152,9 @@ L['Remaining'] = "還需要";
 L['Available Ranks'] = "神兵武器等級";
 L['Artifact Knowledge'] = "神兵知識等級";
 
+-- Travel
+L['Use Random Hearthstone'] = "使用隨機爐石";
+
 -- 自行加入
 L["XIV Bar Continued"] = "資訊列";
 L['Profiles'] = "設定檔";
