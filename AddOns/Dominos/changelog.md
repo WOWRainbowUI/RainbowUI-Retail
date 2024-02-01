@@ -1,5 +1,27 @@
 # Dominos Changelog
 
+## 10.2.14b
+
+* Make workaround a bit more consistent
+
+## 10.2.14
+
+* Add a workaround for missing icons when switching forms/etc
+* Fix typo in pet battle detection
+
+## 10.2.13
+
+* (Retail) Reimplement cast on key press support
+
+## 10.2.12b
+
+* Fix error on load in Classic
+
+## 10.2.12
+
+* (Retail) Revert back most of the post 10.2.1 changes
+* (Retail) Added an option to toggle spell animations
+
 ## 10.2.11
 
 * (Retail) Fix issues causing keybindings to not properly from and to the Override UI
