@@ -143,6 +143,7 @@ for i = 0, 8 do
 		["paddingX"] = -1,
 		["paddingY"] = -1,
 		["showName"] = true,
+		["classColor"] = true,
 		["nameOfsY"] = 0,
 		["truncateIconName"] = 6,
 		["growUpward"] = false,

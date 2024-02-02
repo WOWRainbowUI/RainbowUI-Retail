@@ -5,7 +5,7 @@
 ---------------------------------------------------------------------------------
 -- Parameters for dropdown with disable item support:
 -- type = "select",
--- disabledItem = function() return key end, -- wrap in a function if key is a string, else you can return func, number, table keys(multiple items)
+-- disabledItem = function() return key end, -- member can be number, hash table(multiple items), methodname or func to return string, number, table
 
 -- type = "multiselect",
 -- dialogControl = "Dropdown-OmniCD",

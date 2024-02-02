@@ -1,6 +1,12 @@
 ------------------------------------------------------------------------------
 -- Dragonflight
 --
+v10.2.5.2781
+	Fixed option panel color picker for 10.2.5
+	Fixed option panel nil err (iss#672)
+	Added option to use class colors on icon names
+	JANUARY 23. 2024 - Anger Management (Fury Warrior) CDR is now 1 second per 15 rage spent (was 20 rage).
+
 v10.2.5.2780
 	Missing talent abilities after 10.2.5 will correctly show
 	Addon will no longer sync with older versions

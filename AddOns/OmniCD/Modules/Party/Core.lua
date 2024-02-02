@@ -1,9 +1,6 @@
 local E = select(2, ...):unpack()
 local P, CM, CD = E.Party, E.Comm, E.Cooldowns
 
-local UnitBuff = UnitBuff
-local UnitDebuff = UnitDebuff
-
 P.spell_enabled = {}
 
 function P:Enable()
@@ -212,42 +209,80 @@ end
 
 
 
-P.GetBuffDuration = E.isClassic and function(P, unit, spellID)
-	for i = 1, 50 do
-		local _,_,_,_,_,_,_,_,_, id = UnitBuff(unit, i)
-		if not id then return end
-		id = E.spell_merged[id] or id
-		if id == spellID then
-			return true
+if AuraUtil and AuraUtil.ForEachAura then
+	P.GetBuffDuration = function(P, unit, spellID)
+		local remainingTime, sourceUnit
+		AuraUtil.ForEachAura(unit, "HELPFUL", nil, function(_,_,_,_, duration, expTime, source, _,_, id)
+			if id == spellID then
+				remainingTime = duration > 0 and expTime - GetTime()
+				sourceUnit = source
+				return true
+			end
+		end)
+		return remainingTime, sourceUnit
+	end
+
+	P.IsDebuffActive = function(P, unit, spellID)
+		local isActive
+		AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(_,_,_,_,_,_,_,_,_, id)
+			if id == spellID then
+				isActive = true
+				return true
+			end
+		end)
+		return isActive
+	end
+
+	P.GetDebuffDuration = function(P, unit, spellID)
+		local remainingTime
+		AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(_,_,_,_, duration, expTime, _,_,_, id)
+			if id == spellID then
+				remainingTime = duration > 0 and expTime - GetTime()
+				return true
+			end
+		end)
+		return remainingTime
+	end
+else
+	local UnitBuff = UnitBuff
+	local UnitDebuff = UnitDebuff
+
+	P.GetBuffDuration = E.isClassic and function(P, unit, spellID)
+		for i = 1, 50 do
+			local _,_,_,_,_,_,_,_,_, id = UnitBuff(unit, i)
+			if not id then return end
+			id = E.spell_merged[id] or id
+			if id == spellID then
+				return true
+			end
+		end
+	end or function(P, unit, spellID)
+		for i = 1, 50 do
+			local _,_,_,_, duration, expTime, source, _,_, id = UnitBuff(unit, i)
+			if not id then return end
+			if id == spellID then
+				return duration > 0 and expTime - GetTime(), source
+			end
 		end
 	end
 
-end or function(P, unit, spellID)
-	for i = 1, 50 do
-		local _,_,_,_, duration, expTime, source, _,_, id = UnitBuff(unit, i)
-		if not id then return end
-		if id == spellID then
-			return duration > 0 and expTime - GetTime(), source
+	P.IsDebuffActive = function(P, unit, spellID)
+		for i = 1, 50 do
+			local _,_,_,_,_,_,_,_,_, id = UnitDebuff(unit, i)
+			if not id then return end
+			if id == spellID then
+				return true
+			end
 		end
 	end
-end
 
-function P:IsDebuffActive(unit, spellID)
-	for i = 1, 50 do
-		local _,_,_,_,_,_,_,_,_, id = UnitDebuff(unit, i)
-		if not id then return end
-		if id == spellID then
-			return true
-		end
-	end
-end
-
-function P:GetDebuffDuration(unit, spellID)
-	for i = 1, 50 do
-		local _,_,_,_, duration, expTime,_,_,_, id = UnitDebuff(unit, i)
-		if not id then return end
-		if id == spellID then
-			return duration > 0 and expTime - GetTime()
+	P.GetDebuffDuration = function(P, unit, spellID)
+		for i = 1, 50 do
+			local _,_,_,_, duration, expTime,_,_,_, id = UnitDebuff(unit, i)
+			if not id then return end
+			if id == spellID then
+				return duration > 0 and expTime - GetTime()
+			end
 		end
 	end
 end
