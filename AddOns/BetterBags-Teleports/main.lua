@@ -23,23 +23,23 @@ local teleporters = {
     { itemID = 17907, itemName = "Frostwolf Insignia Rank 4" },
     { itemID = 17908, itemName = "Frostwolf Insignia Rank 5" },
     { itemID = 17909, itemName = "Frostwolf Insignia Rank 6" },
-    { itemID = 18149, itemName = "Rune of Recall (Frostwolf Keep)" },
-    { itemID = 18150, itemName = "Rune of Recall (Dun Baldar)" },
+    -- { itemID = 18149, itemName = "Rune of Recall (Frostwolf Keep)" }, -- Not obtainable anymore
+    -- { itemID = 18150, itemName = "Rune of Recall (Dun Baldar)" }, -- Not obtainable anymore
     { itemID = 18984, itemName = "Dimensional Ripper - Everlook" },
     { itemID = 18986, itemName = "Ultrasafe Transporter - Gadgetzan" },
-    { itemID = 22589, itemName = "Atiesh, Greatstaff of the Guardian (Mage)" },
-    { itemID = 22630, itemName = "Atiesh, Greatstaff of the Guardian (Warlock)" },
-    { itemID = 22631, itemName = "Atiesh, Greatstaff of the Guardian (Priest)" },
-    { itemID = 22632, itemName = "Atiesh, Greatstaff of the Guardian (Druid)" },
+    -- { itemID = 22589, itemName = "Atiesh, Greatstaff of the Guardian (Mage)" }, -- Not obtainable anymore
+    -- { itemID = 22630, itemName = "Atiesh, Greatstaff of the Guardian (Warlock)" }, -- Not obtainable anymore
+    -- { itemID = 22631, itemName = "Atiesh, Greatstaff of the Guardian (Priest)" }, -- Not obtainable anymore
+    -- { itemID = 22632, itemName = "Atiesh, Greatstaff of the Guardian (Druid)" }, -- Not obtainable anymore
     { itemID = 28585, itemName = "Ruby Slippers" },
     { itemID = 29796, itemName = "Socrethar's Teleportation Stone" },
     { itemID = 30542, itemName = "Dimensional Ripper - Area 52" },
     { itemID = 32757, itemName = "Blessed Medallion of Karabor" },
     { itemID = 35230, itemName = "Darnarian's Scroll of Teleportation" },
-    { itemID = 36955, itemName = "Ultrasafe Transporter - Toshley's Station" },
+    -- { itemID = 36955, itemName = "Ultrasafe Transporter - Toshley's Station" }, -- Not obtainable anymore
     { itemID = 37118, itemName = "Scroll of Recall" },
     { itemID = 37863, itemName = "Direbrew's Remote" },
-    { itemID = 38685, itemName = "Teleport Scroll: Zul'Farrak" },
+    -- { itemID = 38685, itemName = "Teleport Scroll: Zul'Farrak" }, -- Not obtainable anymore
     { itemID = 40585, itemName = "Signet of the Kirin Tor" },
     { itemID = 40586, itemName = "Band of the Kirin Tor" },
     { itemID = 43824, itemName = "The Schools of Arcane Magic - Mastery (spires atop the Violet Citadel)" },
@@ -124,7 +124,7 @@ local teleporters = {
     { itemID = 144392, itemName = "Pugilist's Powerful Punching Ring (Horde)" },
     { itemID = 150733, itemName = "Scroll of Town Portal (Ar'gorok in Arathi)" },
     { itemID = 151652, itemName = "Wormhole Generator: Argus" },
-    { itemID = 158897, itemName = "Improved Flight Master's Whistle" },
+    -- { itemID = 158897, itemName = "Improved Flight Master's Whistle" }, -- Not obtainable anymore
     { itemID = 159224, itemName = "Zuldazar Hearthstone" },
     { itemID = 160219, itemName = "Scroll of Town Portal (Stromgarde in Arathi)" },
     { itemID = 162973, itemName = "Greatfather Winter's Hearthstone" },
