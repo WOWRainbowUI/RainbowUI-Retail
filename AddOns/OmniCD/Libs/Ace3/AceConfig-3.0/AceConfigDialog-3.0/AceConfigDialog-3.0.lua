@@ -249,7 +249,7 @@ local allIsLiteral = {
 	descStyle = true,
 	imageWidth = true,
 	imageHeight = true,
-	justifyH = true, -- s a; Add to AceConfigregistery-3.0 typedkeys to validate
+	justifyH = true, -- s a -- Add justifyH to AceConfigregistery-3.0 typedkeys to validate
 }
 
 --gets the value for a member that could be a function

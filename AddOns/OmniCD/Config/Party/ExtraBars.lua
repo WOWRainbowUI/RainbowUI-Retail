@@ -79,6 +79,7 @@ local interruptBarSortByDesc = format("%s.\n%s.\n%s.\n%s.\n%s.\n%s.", sortByValu
 local raidBarSortByDesc = format("%s.\n%s.\n%s.\n%s.", sortByValues.raidBar1[3], sortByValues.raidBar1[4], sortByValues.raidBar1[9], sortByValues.raidBar1[10])
 
 local notTextColor = function(info) return info[#info-1] ~= "textColors" end
+local isIconNameHidden = function(info) return not E.profile.Party[ info[2] ].extraBars[ info[4] ].showName or isEnabledProgressBar(info) end
 
 local progressBarColorInfo = {
 	lb1 = {
@@ -358,6 +359,7 @@ local extraBarsInfo = {
 				},
 				nameOfsY = {
 					hidden = isUnitBar,
+					disabled = isIconNameHidden,
 					name = L["Name Offset Y"],
 					order = 3,
 					type = "range",
@@ -365,12 +367,19 @@ local extraBarsInfo = {
 				},
 				truncateIconName = {
 					hidden = isUnitBar,
-					disabled = function(info) return not E.profile.Party[ info[2] ].extraBars[ info[4] ].showName or isEnabledProgressBar(info) end,
+					disabled = isIconNameHidden,
 					name = L["Truncate Name"],
 					desc = L["Adjust value until the truncate symbol [...] disappears.\n|cffff20200: Disable option"],
 					order = 4,
 					type = "range",
 					min = 0, max = 20, step = 1,
+				},
+				classColor = {
+					hidden = isUnitBar,
+					disabled = isIconNameHidden,
+					name = E.STR.WHATS_NEW_ESCSEQ .. CLASS_COLORS,
+					order = 5,
+					type = "toggle",
 				},
 			}
 		},
@@ -707,7 +716,7 @@ function P:ConfigExBar(key, arg)
 		elseif arg == "useIconAlpha" then
 			self:SetExStatusBarColor(icon, key)
 			self:SetOpacity(icon, db_icon, statusBar and not db.useIconAlpha)
-		elseif arg == "showName" or arg == "truncateIconName" or arg == "nameOfsY" then
+		elseif arg == "showName" or arg == "truncateIconName" or arg == "nameOfsY" or arg == "classColor" then
 			self:SetExIconName(icon, db)
 		elseif arg == "barColors" or arg == "bgColors" or arg == "textColors" or arg == "reverseFill" or arg == "hideSpark" then
 			self.CastingBarFrame_OnLoad(statusBar.CastingBar, db, icon)

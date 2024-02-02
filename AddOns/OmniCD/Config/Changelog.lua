@@ -18,20 +18,15 @@ v3.4.3.2773
 
 ]=]
 else E.changelog = [=[
-v10.2.5.2780
-	Missing talent abilities after 10.2.5 will correctly show
-	Addon will no longer sync with older versions
+v10.2.5.2781
+	Fixed option panel color picker for 10.2.5
+	Fixed option panel nil err (iss#672)
+	Added option to use class colors on icon names
 
-v10.2.5.2777
-	Fixed Cycle of Binding CDR when auras are refreshed.
-	Fixed Illuminated Sigils not adding a charge to Elysian Decree.
+	January 23. 2024 Hotfixes
+	  Fury, PvP only
+	    Anger Management now reduces Recklessness and Ravager’s cooldown by 1 second per 15 rage spent (was 20 rage).
 
-v10.2.5.2776
-	Patch 10.2.5 - shared cd for healer pvp trinket updated
-	Added Sundering (Enhance Shaman, talent).
-	Added highlighting for key Summon abilities (e.g. Gargoyle, Demonic Tyrant, Infernal, Darkglare).
-	Berserk (Druid, Feral) spell-type fixed from CC to Offensive. This also fixes highlighting.
-	Cycle of Binding (Vengeance DH, talent) fixed: Elysian Decree will correctly reduce other Sigils' remaining CD.
 ]=]
 end
 

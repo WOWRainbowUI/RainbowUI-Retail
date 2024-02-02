@@ -520,6 +520,14 @@ function P:SetExIconName(icon, db)
 		if numChar > 0 then
 			unitName = string.utf8sub(unitName, 1, numChar)
 		end
+		if db.classColor then
+			local c = RAID_CLASS_COLORS[icon.class]
+			if c and c.r then
+				icon.name:SetTextColor(c.r, c.g, c.b)
+			end
+		else
+			icon.name:SetTextColor(1, 1, 1)
+		end
 		icon.name:SetText(unitName)
 		icon.name:Show()
 	end
