@@ -1,4 +1,7 @@
+local DragonRider, DR = ...
 local _, L = ...
+
+
 
 local defaultsTable = {
 	toggleModels = true,
@@ -171,11 +174,6 @@ local function TextHighColor(restore)
 	 -- And update any UI elements that use this color...
 	DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b = newR, newG, newB;
 end
-
-
-
-
-local DR = CreateFrame("Frame", nil, UIParent)
 
 function DR:ShowColorPicker(r, g, b, a, callbackFunc)
 	if ColorPickerFrame.SetupColorPickerAndShow then
@@ -478,9 +476,7 @@ function DR.updateSpeed()
 	local movespeed = Round(base / BASE_MOVEMENT_SPEED * 100)
 	local roundedSpeed = Round(forwardSpeed, 3)
 	local NotDragonIsles = C_UnitAuras.GetPlayerAuraBySpellID(432503)
-	if UIWidgetPowerBarContainerFrame:HasAnyWidgetsShowing() == true then
-		DR:Show();
-	end
+
 	if NotDragonIsles then
 		DR.statusbar:SetMinMaxValues(0, 85)
 		if forwardSpeed > 85*.65 then
@@ -589,13 +585,17 @@ end
 
 DR.vigorEvent:SetScript("OnEvent", DR.vigorCounter)
 
-DR:RegisterEvent("ADDON_LOADED")
-DR:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
-DR:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
-DR:RegisterEvent("LEARNED_SPELL_IN_TAB")
-DR:RegisterEvent("PLAYER_CAN_GLIDE_CHANGED")
-DR:RegisterEvent("COMPANION_UPDATE")
-DR:RegisterEvent("PLAYER_LOGIN")
+DR.EventsList = CreateFrame("Frame")
+
+DR.EventsList:RegisterEvent("ADDON_LOADED")
+DR.EventsList:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
+DR.EventsList:RegisterEvent("MOUNT_JOURNAL_USABILITY_CHANGED")
+DR.EventsList:RegisterEvent("LEARNED_SPELL_IN_TAB")
+DR.EventsList:RegisterEvent("PLAYER_CAN_GLIDE_CHANGED")
+DR.EventsList:RegisterEvent("COMPANION_UPDATE")
+DR.EventsList:RegisterEvent("PLAYER_LOGIN")
+DR.EventsList:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
+
 
 
 function DR.GetWidgetAlpha()
@@ -604,14 +604,24 @@ function DR.GetWidgetAlpha()
 	end
 end
 
-function DR.WidgetTooltipFallback_OnEnter(frame, tooltip)
-	GameTooltip_SetDefaultAnchor(GameTooltip, frame);
+local function getAnchors(frame)
+	local x, y = frame:GetCenter()
+	if not x or not y then return "CENTER" end
+	local hhalf = (x > UIParent:GetWidth()*2/3) and "RIGHT" or (x < UIParent:GetWidth()/3) and "LEFT" or ""
+	local vhalf = (y > UIParent:GetHeight()/2) and "TOP" or "BOTTOM"
+	return vhalf..hhalf, frame, (vhalf == "TOP" and "BOTTOM" or "TOP")..hhalf
+end
+
+function DR.tooltip_OnEnter(frame, tooltip)
+	GameTooltip:SetOwner(frame, "ANCHOR_NONE")
+	GameTooltip:SetPoint(getAnchors(frame))
+	--GameTooltip_SetDefaultAnchor(GameTooltip, frame);
 	--GameTooltip_SetTitle(GameTooltip);
 	GameTooltip_AddNormalLine(GameTooltip, tooltip);
 	GameTooltip:Show();
 end
 
-function DR.WidgetTooltipFallback_OnLeave()
+function DR.tooltip_OnLeave()
 	GameTooltip:Hide();
 end
 
@@ -631,7 +641,7 @@ function DR.FixBlizzFrames()
 	for k, v in pairs(DR.WidgetFrameIDs) do
 
 		if UIWidgetPowerBarContainerFrame.widgetFrames[v] ~= nil then
-			DR:SetScript("OnUpdate", function()
+			DR.EventsList:SetScript("OnUpdate", function()
 				if UIWidgetPowerBarContainerFrame.numWidgetsShowing > 1 then
 						if UIWidgetPowerBarContainerFrame.widgetFrames[v] then
 							UIWidgetPowerBarContainerFrame.widgetFrames[v]:Hide();
@@ -665,8 +675,8 @@ function DR.DoWidgetThings()
 				if DragonRider_DB.showtooltip == false then
 					UIWidgetPowerBarContainerFrame.widgetFrames[v]:SetScript("OnEnter", nil)
 				else
-					UIWidgetPowerBarContainerFrame.widgetFrames[v]:SetScript("OnEnter", function() if UIWidgetPowerBarContainerFrame.widgetFrames[v] then DR.WidgetTooltipFallback_OnEnter(UIWidgetPowerBarContainerFrame.widgetFrames[v], UIWidgetPowerBarContainerFrame.widgetFrames[v].tooltip); end end )
-					UIWidgetPowerBarContainerFrame.widgetFrames[v]:SetScript("OnLeave", function() DR.WidgetTooltipFallback_OnLeave(); end )
+					UIWidgetPowerBarContainerFrame.widgetFrames[v]:SetScript("OnEnter", function() if UIWidgetPowerBarContainerFrame.widgetFrames[v] then DR.tooltip_OnEnter(UIWidgetPowerBarContainerFrame.widgetFrames[v], UIWidgetPowerBarContainerFrame.widgetFrames[v].tooltip); end end )
+					UIWidgetPowerBarContainerFrame.widgetFrames[v]:SetScript("OnLeave", function() DR.tooltip_OnLeave(); end )
 				end
 			end
 
@@ -704,7 +714,9 @@ function DR.setPositions()
 		DR.statusbar:SetPoint("LEFT", ParentFrame, "RIGHT", DragonRider_DB.speedometerPosX, DragonRider_DB.speedometerPosY);
 	end
 
-	DR.charge[1]:SetPoint("CENTER", ParentFrame, -61,15)
+	DR.charge[1]:SetPoint("TOPLEFT", ParentFrame, "TOPLEFT", 45,8)
+	DR.charge[1]:SetParent(ParentFrame)
+	DR.charge[1]:SetScale(1.5625)
 	for i = 1, 10 do
 		if C_UnitAuras.GetPlayerAuraBySpellID(417888) and DragonRider_DB.lightningRush == true then
 			DR.charge[i]:Show();
@@ -744,24 +756,30 @@ function DR.setPositions()
 				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -175+(i*spacing), 14);
 			end
 		elseif IsPlayerSpell(377921) == true then -- 5 vigor
-			for i = 1,5 do 
+			for i = 1,5 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -150+(i*spacing), 14);
 			end
 			for i = 6,6,-1 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:Hide()
 			end
 		elseif IsPlayerSpell(377920) == true then -- 4 vigor
-			for i = 1,4 do 
+			for i = 1,4 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -125+(i*spacing), 14);
 			end
 			for i = 6,5,-1 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:Hide()
 			end
 		else
-			for i = 1,3 do 
+			for i = 1,3 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -100+(i*spacing), 14);
 			end
 			for i = 6,4,-1 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:Hide()
 			end
 		end
@@ -774,28 +792,35 @@ function DR.setPositions()
 		end
 		--dragonriding is a spacing diff of 42
 		if IsPlayerSpell(377922) == true then -- 6 vigor
-			for i = 1,6 do 
+			for i = 1,6 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -147+(i*spacing), 14);
 			end
 		elseif IsPlayerSpell(377921) == true then -- 5 vigor
-			for i = 1,5 do 
+			for i = 1,5 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -126+(i*spacing), 14);
 			end
 			for i = 6,6,-1 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:Hide()
 			end
 		elseif IsPlayerSpell(377920) == true then -- 4 vigor
 			for i = 1,4 do 
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -105+(i*spacing), 14);
 			end
 			for i = 6,5,-1 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:Hide()
 			end
 		else
-			for i = 1,3 do 
+			for i = 1,3 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:SetPoint("CENTER", ParentFrame, "CENTER", -84+(i*spacing), 14);
 			end
 			for i = 6,4,-1 do
+				DR.modelScene[i]:SetParent(ParentFrame)
 				DR.modelScene[i]:Hide()
 			end
 		end
@@ -856,8 +881,134 @@ end
 DR.clearPositions();
 
 
+local function Print(...)
+	local prefix = string.format("|cFFFFF569"..L["DragonRider"] .. "|r:");
+	DEFAULT_CHAT_FRAME:AddMessage(string.join(" ", prefix, ...));
+end
+
+DR.commands = {
+	[L["COMMAND_journal"]] = function()
+		DR.mainFrame:Show();
+	end,
+
+	--[[
+	["test"] = function()
+		Print("Test.");
+	end,
+
+	["hello"] = function(subCommand)
+		if not subCommand or subCommand == "" then
+			Print("No Command");
+		elseif subCommand == "world" then
+			Print("Specified Command");
+		else
+			Print("Invalid Sub-Command");
+		end
+	end,
+	]]
+
+	[L["COMMAND_help"]] = function() --because there's not a lot of commands, don't use this yet.
+		local concatenatedString
+		for k, v in pairs(DR.commands) do
+			if concatenatedString == nil then
+				concatenatedString = "|cFF00D1FF"..k.."|r"
+			else
+				concatenatedString = concatenatedString .. ", ".. "|cFF00D1FF"..k.."|r"
+			end
+			
+		end
+		Print(L["COMMAND_listcommands"] .. " " .. concatenatedString)
+	end
+};
+
+local function HandleSlashCommands(str)
+	if (#str == 0) then
+		DR.commands[L["COMMAND_journal"]]();
+		return;
+		end
+
+		local args = {};
+		for _dummy, arg in ipairs({ string.split(' ', str) }) do
+		if (#arg > 0) then
+			table.insert(args, arg);
+			end
+			end
+
+			local path = DR.commands; -- required for updating found table.
+
+			for id, arg in ipairs(args) do
+
+			if (#arg > 0) then --if string length is greater than 0
+			arg = arg:lower();          
+			if (path[arg]) then
+				if (type(path[arg]) == "function") then
+					-- all remaining args passed to our function!
+					path[arg](select(id + 1, unpack(args))); 
+					return;                 
+				elseif (type(path[arg]) == "table") then
+					path = path[arg]; -- another sub-table found!
+				end
+				else
+					DR.commands[L["COMMAND_journal"]]();
+				return;
+			end
+		end
+	end
+end
+
+local goldTime
+local silverTime
+local currentRace
+
 function DR:toggleEvent(event, arg1)
+
+	if event == "CURRENCY_DISPLAY_UPDATE" then
+		if arg1 == 2019 then
+			silverTime = C_CurrencyInfo.GetCurrencyInfo(arg1).quantity;
+		end
+		if arg1 == 2020 then
+			goldTime = C_CurrencyInfo.GetCurrencyInfo(arg1).quantity;
+		end
+		for k, v in pairs(DR.DragonRaceCurrencies) do
+			if arg1 == v then
+				currentRace = arg1
+				if DragonRider_DB.raceDataCollector == nil then
+					DragonRider_DB.raceDataCollector = {};
+				end
+				for a, b in pairs(DR.RaceData) do
+					for c, d in pairs(b) do
+						if d["currencyID"] == currentRace then
+							if d["goldTime"] == nil or d["silverTime"] == nil then
+								if DragonRider_DB.raceDataCollector[currentRace] == nil then
+									DragonRider_DB.raceDataCollector[currentRace] = {currencyID = currentRace,goldTime=goldTime, silverTime=silverTime};
+									if DragonRider_DB.debug == true then
+										Print("Saving Temp Race Data")
+									end
+								end
+							end
+						end
+					end
+				end
+				DR.mainFrame.UpdatePopulation()
+				if DragonRider_DB.debug == true then
+					Print(arg1 .. ": " .. C_CurrencyInfo.GetCurrencyInfo(arg1).name)
+					Print(C_CurrencyInfo.GetCurrencyInfo(arg1).quantity/1000)
+					Print(currentRace .. ": " .. "gold: " .. goldTime .. ", silver: " .. silverTime);
+				end
+			end
+		end
+	end
+
+	if event == "PLAYER_LOGIN" then
+		DR.mainFrame.DoPopulationStuff()
+	end
+
 	if event == "ADDON_LOADED" and arg1 == "DragonRider" then
+		local realmKey = GetRealmName()
+		local charKey = UnitName("player") .. " - " .. realmKey
+
+		SLASH_DRAGONRIDER1 = "/"..L["COMMAND_dragonrider"]
+		SlashCmdList.DRAGONRIDER = HandleSlashCommands;
 		
 		if DragonRider_DB == nil then
 			DragonRider_DB = CopyTable(defaultsTable)
@@ -893,6 +1044,24 @@ function DR:toggleEvent(event, arg1)
 			elseif C_CVar.GetCVar("AdvFlyingDynamicFOVEnabled") == "0" then
 				DragonRider_DB.DynamicFOV = false
 			end
+		end
+		if DragonRider_DB.mainFrameSize == nil then
+			DragonRider_DB.mainFrameSize = {
+				width = 550,
+				height = 525,
+			};
+		end
+		if DragonRider_DB.mainFrameSize ~= nil then
+			DR.mainFrame:SetSize(DragonRider_DB.mainFrameSize.width, DragonRider_DB.mainFrameSize.height);
+		end
+		if DragonRider_DB.useAccountData == nil then
+			DragonRider_DB.useAccountData = false;
+		else
+			DR.mainFrame.accountAll_Checkbox:SetChecked(DragonRider_DB.useAccountData)
+		end
+		if DragonRider_DB.raceData == nil then
+			DragonRider_DB.raceData = {};
+			DragonRider_DB.raceData[charKey] = {};
 		end
 
 
@@ -1221,6 +1390,39 @@ function DR:toggleEvent(event, arg1)
 
 
 
+		function DragonRider_OnAddonCompartmentClick(addonName, buttonName, menuButtonFrame)
+			if buttonName == "RightButton" then
+				Settings.OpenToCategory(category.ID);
+			else
+				DR.mainFrame:Show();
+			end
+		end
+
+		function DragonRider_OnAddonCompartmentEnter(addonName, menuButtonFrame)
+			local tooltipData = {
+				[1] = L["DragonRider"],
+				[2] = L["RightClick_TT_Line"],
+				[3] = L["LeftClick_TT_Line"],
+				[4] = L["SlashCommands_TT_Line"]
+			}
+			local concatenatedString
+			for k, v in ipairs(tooltipData) do
+				if concatenatedString == nil then
+					concatenatedString = v
+				else
+					concatenatedString = concatenatedString .. "\n".. v
+				end
+				
+			end
+			DR.tooltip_OnEnter(menuButtonFrame, concatenatedString);
+		end
+
+		function DragonRider_OnAddonCompartmentLeave(addonName, menuButtonFrame)
+			DR.tooltip_OnLeave();
+		end
+
+
+
 		---------------------------------------------------------------------------------------------------------------------------------
 		---------------------------------------------------------------------------------------------------------------------------------
 		---------------------------------------------------------------------------------------------------------------------------------
@@ -1267,4 +1469,4 @@ function DR:toggleEvent(event, arg1)
 end
 
 
-DR:SetScript("OnEvent", DR.toggleEvent)
+DR.EventsList:SetScript("OnEvent", DR.toggleEvent)
