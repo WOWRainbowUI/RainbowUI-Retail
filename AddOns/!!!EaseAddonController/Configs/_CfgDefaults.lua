@@ -657,8 +657,8 @@ D["CraftSim"] = {
 D["CursorTrail"] = {
     defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
-	title = "滑鼠的尾巴",
-	desc = "移動滑鼠時會出現漂亮的彩虹，讓你能夠輕鬆的找到滑鼠游標在哪裡。``有多種滑鼠圖形和尾巴特效可供選擇。`",
+	title = "鼠之軌跡",
+	desc = "移動滑鼠時會出現漂亮的彩虹，讓你能夠輕鬆的找到滑鼠游標在哪裡。``有多種滑鼠圖形和軌跡特效可供選擇。`",
 	modifier = "彩虹ui",
 	{
         text = "設定選項",

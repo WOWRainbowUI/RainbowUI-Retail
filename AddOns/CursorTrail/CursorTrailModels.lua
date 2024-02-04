@@ -37,9 +37,9 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kBaseMult = 0.0001  -- A mulitplier applied to base values to reduce the # of decimal positions needed.
 kCategory = {
     Glow    = "發光 - ",    -- Effects that do not have any motion trail.
-    Object  = "物件 - ",  -- Effects that are shapes or images, and have no motion trail.
-    Spots   = "間歇尾巴 - ",   -- Effects that have an intermittent motion trail.
-    Trail   = "連續尾巴 - ",   -- Effects that have a continuous motion trail.
+    Object  = "圖形 - ",  -- Effects that are shapes or images, and have no motion trail.
+    Spots   = "間歇軌跡 - ",   -- Effects that have an intermittent motion trail.
+    Trail   = "連續軌跡 - ",   -- Effects that have a continuous motion trail.
 }
 kModelConstants = 
 {

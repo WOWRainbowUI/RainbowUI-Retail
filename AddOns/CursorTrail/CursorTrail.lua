@@ -363,7 +363,7 @@ Globals.SlashCmdList[kAddonName] = function (params)
         PlayerConfig_SetDefaults()
         CursorTrail_Load()
         CursorTrail_ON()
-        printMsg("滑鼠的尾巴".." 重置為原本的設定。")
+        printMsg("鼠之軌跡".." 重置為原本的設定。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif (params == "reload") then
         if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
@@ -371,19 +371,19 @@ Globals.SlashCmdList[kAddonName] = function (params)
         CursorTrail_Load()
         CursorTrail_ON()
         ----if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame_UpdateUI(PlayerConfig) end
-        printMsg("滑鼠的尾巴".." 設定已載入。")
+        printMsg("鼠之軌跡".." 設定已載入。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif (params == "resetnewfeatures") then  -- For development use.
         if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
         Globals.CursorTrail_Config.NewFeaturesSeen = {}
-        printMsg("滑鼠的尾巴".." 重置新功能通知。")
+        printMsg("鼠之軌跡".." 重置新功能通知。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif (params == "combat") then
         PlayerConfig.UserShowOnlyInCombat = not PlayerConfig.UserShowOnlyInCombat
         PlayerConfig_Save()
         CursorTrail_Load(PlayerConfig)
         if OptionsFrame:IsShown() then OptionsFrame_Value("combat", PlayerConfig.UserShowOnlyInCombat) end
-        printMsg("滑鼠的尾巴"..GREEN2.." '只在戰鬥中顯示' |r= "
+        printMsg("鼠之軌跡"..GREEN2.." '只在戰鬥中顯示' |r= "
             ..ORANGE..(PlayerConfig.UserShowOnlyInCombat==true and "開啟" or "關閉"))
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif (params == "mouselook") then
@@ -391,7 +391,7 @@ Globals.SlashCmdList[kAddonName] = function (params)
         PlayerConfig_Save()
         CursorTrail_Load(PlayerConfig)
         if OptionsFrame:IsShown() then OptionsFrame_Value("mouselook", PlayerConfig.UserShowMouseLook) end
-        printMsg("滑鼠的尾巴"..GREEN2.." '用滑鼠控制視角時要顯示' |r= "
+        printMsg("鼠之軌跡"..GREEN2.." '用滑鼠控制視角時要顯示' |r= "
             ..ORANGE..(PlayerConfig.UserShowMouseLook==true and "開啟" or "關閉"))
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif (params == "fade") then
@@ -400,14 +400,14 @@ Globals.SlashCmdList[kAddonName] = function (params)
         CursorTrail_Load(PlayerConfig)
         if OptionsFrame:IsShown() then OptionsFrame_Value("fade", PlayerConfig.FadeOut) end
         if (PlayerConfig.FadeOut == true) then gMotionIntensity = 0.5 end
-        printMsg("滑鼠的尾巴"..GREEN2.." '滑鼠不動時隱藏' |r= "
+        printMsg("鼠之軌跡"..GREEN2.." '滑鼠不動時隱藏' |r= "
             ..ORANGE..(PlayerConfig.FadeOut==true and "開啟" or "關閉"))
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif (params == "sparkle") then
         if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
         CursorTrail_SetShapeSparkle( not PlayerConfig.ShapeSparkle )
         PlayerConfig_Save()
-        printMsg("滑鼠的尾巴"..GREEN2.." '圖形閃閃發光' |r= "
+        printMsg("鼠之軌跡"..GREEN2.." '圖形閃閃發光' |r= "
             ..ORANGE..(PlayerConfig.ShapeSparkle==true and "開啟" or "關閉"))
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif (params:sub(1,4) == "list") then
@@ -432,7 +432,7 @@ Globals.SlashCmdList[kAddonName] = function (params)
     elseif (params == "off") then
         CursorTrail_OFF()
         CursorTrail_Hide()
-        printMsg("滑鼠的尾巴"..": "..ORANGE.."關閉|r  (下次重新載入時會再次開啟，或是從選項視窗開啟。)")
+        printMsg("鼠之軌跡"..": "..ORANGE.."關閉|r  (下次重新載入時會再次開啟，或是從選項視窗開啟。)")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 --~     elseif (params == "test") then
 --~         ----print("UIParent:GetEffectiveScale():", UIParent:GetEffectiveScale())
@@ -440,7 +440,7 @@ Globals.SlashCmdList[kAddonName] = function (params)
 --~         updateScaleVars()
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif not HandleToolSwitches(params) then
-        printMsg("滑鼠的尾巴"..": 無效的指令 ("..params..")。")
+        printMsg("鼠之軌跡"..": 無效的指令 ("..params..")。")
         ----DebugText(kAddonName..": Invalid slash command ("..params..").")
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -826,7 +826,7 @@ function CursorTrail_ON(bPrintMsg)
         ----print(kAddonName..": Setting EventFrame's OnUpdate script.")
         EventFrame:SetScript("OnUpdate", CursorTrail_OnUpdate)
     end
-    if bPrintMsg then printMsg("滑鼠的尾巴"..": "..ORANGE.."開啟") end
+    if bPrintMsg then printMsg("鼠之軌跡"..": "..ORANGE.."開啟") end
 end
 
 -------------------------------------------------------------------------------
@@ -1005,7 +1005,7 @@ function CursorTrail_ApplyModelSettings(userScale, userOfsX, userOfsY, userAlpha
     CursorModel:SetScale(finalScale)
     CursorModel:SetAlpha(userAlpha)
     ----print("CursorModel:GetEffectiveScale():", CursorModel:GetEffectiveScale()) -- i.e. finalScale * kGameFrame:GetEffectiveScale()
-    ----if (CursorModel:GetEffectiveScale() < 0.0113) then printMsg("滑鼠的尾巴".." WARNING - Model scaled too small.  ") end
+    ----if (CursorModel:GetEffectiveScale() < 0.0113) then printMsg("鼠之軌跡".." WARNING - Model scaled too small.  ") end
 
     -- Compute model step size and offset.
     CursorModel.StepX = CursorModel.Constants.BaseStepX * mult * finalScale
@@ -1249,7 +1249,7 @@ function Profiles_List(profileName)
     end
     table.sort(names)
 
-    printMsg("滑鼠的尾巴".." 設定檔:")
+    printMsg("鼠之軌跡".." 設定檔:")
     if (#names == 0) then
         printMsg("    (無)")
     else
@@ -1262,39 +1262,39 @@ end
 -------------------------------------------------------------------------------
 function Profiles_Load(profileName)
     if (profileName == nil or profileName == "") then
-        printMsg("滑鼠的尾巴"..": 錯誤 - 沒有指定設定檔名稱。")
+        printMsg("鼠之軌跡"..": 錯誤 - 沒有指定設定檔名稱。")
     elseif isEmpty(Globals.CursorTrail_Config.Profiles[profileName]) then
-        printMsg("滑鼠的尾巴"..": 錯誤 - '"..ORANGE..profileName.."|r' 不存在。")
+        printMsg("鼠之軌跡"..": 錯誤 - '"..ORANGE..profileName.."|r' 不存在。")
     else
         if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
         PlayerConfig = CopyTable( Globals.CursorTrail_Config.Profiles[profileName] )
         PlayerConfig_Validate()
         CursorTrail_Load()
         CursorTrail_ON()
-        printMsg("滑鼠的尾巴"..": 已載入 '"..ORANGE..profileName.."|r'。")
+        printMsg("鼠之軌跡"..": 已載入 '"..ORANGE..profileName.."|r'。")
     end
 end
 
 -------------------------------------------------------------------------------
 function Profiles_Save(profileName)
     if (profileName == nil or profileName == "") then
-        printMsg("滑鼠的尾巴"..": 錯誤 - 沒有指定設定檔名稱。")
+        printMsg("鼠之軌跡"..": 錯誤 - 沒有指定設定檔名稱。")
     else
         PlayerConfig_Validate()
         Globals.CursorTrail_Config.Profiles[profileName] = CopyTable(PlayerConfig)
-        printMsg("滑鼠的尾巴"..": 已儲存 '"..ORANGE..profileName.."|r'。")
+        printMsg("鼠之軌跡"..": 已儲存 '"..ORANGE..profileName.."|r'。")
     end
 end
 
 -------------------------------------------------------------------------------
 function Profiles_Delete(profileName)
     if (profileName == nil or profileName == "") then
-        printMsg("滑鼠的尾巴"..": 錯誤 - 沒有指定設定檔名稱。")
+        printMsg("鼠之軌跡"..": 錯誤 - 沒有指定設定檔名稱。")
     elseif isEmpty(Globals.CursorTrail_Config.Profiles[profileName]) then
-        printMsg("滑鼠的尾巴"..": 錯誤 - '"..ORANGE..profileName.."|r' 不存在。")
+        printMsg("鼠之軌跡"..": 錯誤 - '"..ORANGE..profileName.."|r' 不存在。")
     else
         Globals.CursorTrail_Config.Profiles[profileName] = nil
-        printMsg("滑鼠的尾巴"..": 已刪除 '"..ORANGE..profileName.."|r'。")
+        printMsg("鼠之軌跡"..": 已刪除 '"..ORANGE..profileName.."|r'。")
     end
 end
 

@@ -142,7 +142,7 @@ function StandardPanel_Create(buttonText, buttonW, buttonH)
 
     local headingText = StandardPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     headingText:SetPoint("TOPLEFT", 16, -16)
-    headingText:SetText("滑鼠的尾巴".."  "..kAddonVersion)
+    headingText:SetText("鼠之軌跡".."  "..kAddonVersion)
 
     local descText = StandardPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     descText:SetPoint("TOPLEFT", headingText, "BOTTOMLEFT", ofs, -ofs)
@@ -450,7 +450,7 @@ function OptionsFrame_Create()
     yPos = yPos - kRowHeight - kRowSpacing
 
     -- MODEL --
-    OptionsFrame.ModelLabel = OptionsFrame_CreateLabel("尾巴:", xPos, yPos)
+    OptionsFrame.ModelLabel = OptionsFrame_CreateLabel("軌跡:", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.ModelDropDown = OptionsFrame_CreateModelDropDown(xPos, yPos, kColumnWidth2)
 
