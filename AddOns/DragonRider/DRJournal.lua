@@ -513,13 +513,15 @@ local function disp_time(seconds)
 
 	local seconds = tonumber(seconds)
 
-	if seconds <= 0 then
-		return "00:00:00";
-	else
-		hours = string.format("%02.f", math.floor(seconds/3600));
-		mins = string.format("%02.f", math.floor(seconds/60 - (hours*60)));
-		secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
-		return hours..":"..mins..":"..secs
+	if seconds then
+		if seconds <= 0 then
+			return "00:00:00";
+		else
+			hours = string.format("%02.f", math.floor(seconds/3600));
+			mins = string.format("%02.f", math.floor(seconds/60 - (hours*60)));
+			secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
+			return hours..":"..mins..":"..secs
+		end
 	end
 end
 
@@ -543,7 +545,11 @@ function DR.mainFrame.multiplayerRace_TT()
 			activePOI_Y = C_AreaPoiInfo.GetAreaPOIInfo(k, v).position.y
 			local timeConverted = disp_time(C_AreaPoiInfo.GetAreaPOISecondsLeft(v));
 			tooltipInfo = C_AreaPoiInfo.GetAreaPOIInfo(k, v).name;
-			tooltipInfo = tooltipInfo .. "\n" ..C_AreaPoiInfo.GetAreaPOIInfo(k, v).description .. "\n" .. timeConverted;
+
+			tooltipInfo = tooltipInfo .. "\n" ..C_AreaPoiInfo.GetAreaPOIInfo(k, v).description;
+			if timeConverted ~= nil then
+				tooltipInfo = tooltipInfo .. "\n" .. timeConverted;
+			end
 		end
 	end
 	return activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo;
