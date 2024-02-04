@@ -654,6 +654,25 @@ D["CraftSim"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
+D["CursorTrail"] = {
+    defaultEnable = 0,
+	tags = { "ENHANCEMENT" },
+	title = "滑鼠的尾巴",
+	desc = "移動滑鼠時會出現漂亮的彩虹，讓你能夠輕鬆的找到滑鼠游標在哪裡。``有多種滑鼠圖形和尾巴特效可供選擇。`",
+	modifier = "彩虹ui",
+	{
+        text = "設定選項",
+        callback = function(cfg, v, loading) SlashCmdList["CursorTrail"]("") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+	{
+		type = "text",
+        text = "設定是每個角色分開儲存的，若要共用需使用 /ct 相關指命，詳細請在設定選項中按 '設定檔' 按鈕來查看。",       
+	},
+};
 D["DBM-StatusBarTimers"] = {
     defaultEnable = 1,
 	tags = { "BOSSRAID" },

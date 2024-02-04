@@ -1,0 +1,21 @@
+## Interface: 100205
+## Title: CursorTrail
+## Notes: Adds a shape, shadow, and glowing trail effect to your mouse cursor.
+## Author: UppyDan
+## Version: 10.2.5.2
+## IconTexture: Interface\Icons\INV_Enchant_EssenceEternalLarge
+## SavedVariables: CursorTrail_Config
+## SavedVariablesPerCharacter: CursorTrail_PlayerConfig
+
+## Title-zhTW: |cff0099FF[介面]|r 滑鼠的尾巴
+## Notes-zhTW: CursorTrail |n|n移動滑鼠時會出現漂亮的彩虹，讓你能夠輕鬆的找到滑鼠游標在哪裡。|n|n有多種滑鼠圖形和尾巴特效可供選擇。|n|n|cffffd200使用方法: |r從Esc>選項>插件>滑鼠，進行設定。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+
+Controls.lua
+CursorTrail.lua
+CursorTrailConfig.lua
+CursorTrailTools.lua
+CursorTrailModels.lua
+CursorTrailShapes.lua
+CursorTrailHelp.lua
