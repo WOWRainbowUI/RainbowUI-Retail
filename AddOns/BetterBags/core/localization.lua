@@ -133,6 +133,9 @@ if GetLocale() == "zhTW" then
 	L.data["Drag an item here from your inventory, bank, or another source to add it to this category."] = "將物品從背包、銀行或其他地方拖曳到這裡，便可加入此分類。"
 	L.data["Remove"] = "移除"
 	
+	-- frames\currency.lua
+	L.data["Click to add or remove this currency to and from your backpack."] = "點一下將此貨幣加入背包或從背包中移除。"
+	
 	-- BetterBags-Teleports
 	L.data["Teleporters"] = "傳送"
 	
