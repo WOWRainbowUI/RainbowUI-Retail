@@ -33,8 +33,9 @@ XIVBar.defaults = {
             barPosition = "BOTTOM",
             barPadding = 3,
             moduleSpacing = 30,
+            barMargin = 0,
             barFullscreen = false,
-            barWidth = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and math.floor(GetScreenWidth())-550 or math.floor(GetScreenWidth())),
+            barWidth = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and (GetScreenWidth()-550) or GetScreenWidth()),
             barHoriz = 'CENTER',
 			barCombatHide = false,
             barFlightHide = false,
@@ -134,8 +135,9 @@ function XIVBar:OnInitialize()
 
     self.timerRefresh = false
 
+    self:RegisterChatCommand('xivc', 'ToggleConfig')
     self:RegisterChatCommand('xivbar', 'ToggleConfig')
-    self:RegisterChatCommand('xb', 'ToggleConfig')
+    self:RegisterChatCommand('xbc', 'ToggleConfig')
 end
 
 function XIVBar:OnEnable()
@@ -309,8 +311,8 @@ function XIVBar:Refresh()
     self.frames.bar:ClearAllPoints()
     self.frames.bar:SetPoint(self.db.profile.general.barPosition)
     if self.db.profile.general.barFullscreen then
-        self.frames.bar:SetPoint("LEFT")
-        self.frames.bar:SetPoint("RIGHT")
+        self.frames.bar:SetPoint("LEFT", self.db.profile.general.barMargin, 0)
+        self.frames.bar:SetPoint("RIGHT", -self.db.profile.general.barMargin, 0)
     else
         local relativePoint = self.db.profile.general.barHoriz
         if relativePoint == 'CENTER' then
@@ -510,6 +512,7 @@ function XIVBar:GetGeneralOptions()
 						name = L['Hide Bar in combat'],
 						type = "toggle",
 						order = 9,
+                        width = "full",
 						get = function() return self.db.profile.general.barCombatHide; end,
 						set = function(_,val) self.db.profile.general.barCombatHide = val; self:Refresh(); end
                     },
@@ -533,10 +536,27 @@ function XIVBar:GetGeneralOptions()
 						get = function() return self.db.profile.general.moduleSpacing; end,
 						set = function(info, val) self.db.profile.general.moduleSpacing = val; self:Refresh(); end
                     },
+                    barMargin = {
+                        name = L['Bar Margin'],
+                        desc = L["Leftmost and rightmost margin of the bar modules"],
+                        type = 'range',
+                        order = 12,
+                        min = 0,
+                        max = 80,
+                        step = 1,
+                        get = function()
+                            return self.db.profile.general.barMargin;
+                        end,
+                        set = function(info, val)
+                            self.db.profile.general.barMargin = val;
+                            self:Refresh();
+                        end
+                    },
                     useElvUI = {
                         name = L['Use ElvUI for tooltips'],
                         type = "toggle",
-                        order = 12,
+                        order = 13,
+                        width = "full",
                         get = function() return self.db.profile.general.useElvUI; end,
                         set = function(_, val) self.db.profile.general.useElvUI = val; self:Refresh(); end
                     }

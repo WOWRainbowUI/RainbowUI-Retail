@@ -25,8 +25,10 @@ L['Bar Color'] = "資訊列顏色";
 L['Use Class Color for Bar'] = "使用職業顏色";
 L["Miscellaneous"] = "其他";
 L['Hide Bar in combat'] = "戰鬥中隱藏";
-L['Bar Padding'] = "資訊列內距 (縮放大小)";
+L['Bar Padding'] = "資訊列內距";
 L['Module Spacing'] = "模組間距";
+L['Bar Margin'] = "資訊列間距";
+L["Leftmost and rightmost margin of the bar modules"] = "資訊列模組最左邊和最右邊的間距";
 L['Hide order hall bar'] = "隱藏職業大廳列";
 L['Use ElvUI for tooltips'] = "使用ElvUI浮動提示";
 
@@ -154,6 +156,8 @@ L['Artifact Knowledge'] = "神兵知識等級";
 
 -- Travel
 L['Use Random Hearthstone'] = "使用隨機爐石";
+L['Hearthstones Select'] = "選擇爐石";
+L['Hearthstones Select Desc'] = "選擇要使用哪些爐石 (如果選擇了多個爐石，請勾選 '選擇爐石' 選項)";
 
 -- 自行加入
 L["XIV Bar Continued"] = "資訊列";

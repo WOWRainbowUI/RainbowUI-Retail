@@ -23,6 +23,8 @@ L["Miscellaneous"] = "杂项";
 L['Hide Bar in combat'] = "战斗中隐藏";
 L['Bar Padding'] = "条填充";
 L['Module Spacing'] = "模块间距";
+L['Bar Margin'] = "条形边距";
+L["Leftmost and rightmost margin of the bar modules"] = true; -- Need translation
 L['Hide order hall bar'] = "隐藏职业大厅条";
 L['Use ElvUI for tooltips'] = "使用ElvUI作為工具提示";
 
@@ -147,5 +149,7 @@ L['Remaining'] = "剩余";
 L['Available Ranks'] = "神器等级";
 L['Artifact Knowledge'] = "神器知识";
 
--- Travel
-L['Use Random Hearthstone'] = true; -- Translation needed
+-- Travel (Translation needed)
+L['Use Random Hearthstone'] = true;
+L['Hearthstones Select'] = true;
+L['Hearthstones Select Desc'] = "Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";
