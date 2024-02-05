@@ -66,16 +66,16 @@ local function PrintOptions()
 end
 
 local function SetFont(args)
+    local path, size, flags
     for _,arg in ipairs(args) do
         if arg == 'default' then
-            path, size, flags = arg, arg, arg
+            path, size, flags = 'default', 'default', 'default'
         elseif _G[arg] and _G[arg].GetFont then
-            fontName = arg
             path, size, flags = _G[arg]:GetFont()
         elseif tonumber(arg) then
             size = math.floor(tonumber(arg) + 0.5)
         elseif arg:find("\\") then
-            name = arg
+            path = arg
         else
             flags = arg
         end
@@ -153,9 +153,9 @@ local function DenyCommand(argstr)
     if cmd == 'list' then
         PrintDenyList()
     elseif cmd == 'default' then
-        LBA.DefaultDenyList()
+        LBA.DefaultDenySpells()
     elseif cmd == 'wipe' then
-        LBA.WipeDenyList()
+        LBA.WipeDenySpells()
     elseif cmd == 'add' and spell then
         local id = select(7, GetSpellInfo(spell))
         if id then

@@ -1,10 +1,9 @@
 # LiteButtonAuras
 
-## [10.2.5-2](https://github.com/xod-wow/LiteButtonAuras/tree/10.2.5-2) (2024-01-18)
-[Full Changelog](https://github.com/xod-wow/LiteButtonAuras/compare/10.2.5-1...10.2.5-2) [Previous Releases](https://github.com/xod-wow/LiteButtonAuras/releases)
+## [10.2.5-3](https://github.com/xod-wow/LiteButtonAuras/tree/10.2.5-3) (2024-02-05)
+[Full Changelog](https://github.com/xod-wow/LiteButtonAuras/compare/10.2.5-2...10.2.5-3) [Previous Releases](https://github.com/xod-wow/LiteButtonAuras/releases)
 
-- Support new Dominos with its own ActionButtons  
-- Fix warlock interrupt spell  
-- Update README.md  
-    Fix typo  
-- Update README.md  
+- Dominos classic is still re-using the Blizzard buttons, fix #28  
+- Fix deny slash commands  
+- Fix globals leak in slash command  
+- Classic now has durations and interrupts baseline  
