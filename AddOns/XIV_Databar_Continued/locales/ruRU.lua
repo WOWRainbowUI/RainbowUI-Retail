@@ -23,6 +23,8 @@ L["Miscellaneous"] = "Разное";
 L['Hide Bar in combat'] = "Прятать полосу во время боя";
 L['Bar Padding'] = "Заполнение";
 L['Module Spacing'] = "Расстояние между модулями";
+L['Bar Margin'] = "Маржа бара"; -- Need Translation ?
+L["Leftmost and rightmost margin of the bar modules"] = true; -- Need translation
 L['Hide order hall bar'] = "Прятать полосу оплота класса";
 L['Use ElvUI for tooltips'] = "Используйте ElvUI для подсказок";
 
@@ -148,5 +150,7 @@ L['Remaining'] = "Осталось";
 L['Available Ranks'] = "Доступно уровней";
 L['Artifact Knowledge'] = "Знание артефакта";
 
--- Travel
-L['Use Random Hearthstone'] = true; -- Translation needed
+-- Travel (Translation needed)
+L['Use Random Hearthstone'] = true;
+L['Hearthstones Select'] = true;
+L['Hearthstones Select Desc'] = "Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";

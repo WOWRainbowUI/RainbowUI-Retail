@@ -1,8 +1,11 @@
 # XIV_Databar Continued
 
-## [2.4](https://github.com/ZelionGG/XIV_Databar-Continued/tree/v2.4) (2024-01-31)
+## [2.6](https://github.com/ZelionGG/XIV_Databar-Continued/tree/v2.6) (2024-02-03)
 
-[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/v2.3.3...v2.4) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
+[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/v2.5...v2.6) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
 
-##### _Retail :_
-- Added a "Use Random Hearthstone" option in the Travel module options.
+- Added Localization needs to README
+
+### _Retail :_
+
+- Added an Hearthstones Selector option to allow favoriting of Hearthstones

@@ -23,6 +23,8 @@ L["Miscellaneous"] = "Divers";
 L['Hide Bar in combat'] = "Cacher la barre en combat";
 L['Bar Padding'] = "Décalage de la barre";
 L['Module Spacing'] = "Espacement des modules";
+L['Bar Margin'] = "Marge des modules en bord d'écran";
+L["Leftmost and rightmost margin of the bar modules"] = "Décalage des modules en bord d'écran";
 L['Hide order hall bar'] = "Cacher la barre du hall de classe";
 L['Use ElvUI for tooltips'] = "Utiliser ElvUI pour les info-bulles";
 
@@ -150,3 +152,5 @@ L['Artifact Knowledge'] = "Connaissance de l'arme prodigieuse";
 
 -- Travel
 L['Use Random Hearthstone'] = "Utiliser une pierre de foyer aléatoire";
+L['Hearthstones Select'] = "Sélection des pierres de foyers";
+L['Hearthstones Select Desc'] = "Sélectionner les pierres de foyers à utiliser (Attention, si vous sélectionnez plusieurs pierres de foyers, il faudrait cocher l'option 'Sélection des pierres de foyers')";
