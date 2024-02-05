@@ -195,6 +195,7 @@ function ActionBar:AcquireButton(index)
 
     button:SetAttributeNoHandler('index', index)
     button:SetAttributeNoHandler('statehidden', nil)
+    button:SetAttributeNoHandler("displayName", L.ActionBarButtonDisplayName:format(self.id, index))
 
     -- set a handler for updating the action from a parent frame
     button:SetAttributeNoHandler('_childupdate-offset', [[
@@ -205,10 +206,6 @@ function ActionBar:AcquireButton(index)
             self:SetAttribute('action', id)
         end
     ]])
-
-    button:Show()
-
-    button:SetAttributeNoHandler("displayName", L.ActionBarButtonDisplayName:format(self.id, index))
 
     return button
 end
