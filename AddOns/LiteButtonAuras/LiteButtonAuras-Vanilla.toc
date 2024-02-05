@@ -1,9 +1,9 @@
 ## Interface: 11500
 ## Title: LiteButtonAuras
-## Version: 10.2.5-2
+## Version: 10.2.5-3
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
-## OptionalDeps: Bartender4, Dominos, ElvUI, Masque, LibClassicDurations, LibClassicCasterino
+## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
 ## SavedVariables: LiteButtonAurasDB
 ## X-Curse-Project-ID: 526431
 ## X-WoWI-ID: 26528
