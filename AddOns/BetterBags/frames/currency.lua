@@ -58,9 +58,9 @@ end
 
 ---@param index number
 ---@param info CurrencyInfo
----@return CurrencyItem
+---@return CurrencyItem|nil
 function CurrencyFrame:GetCurrencyItem(index, info)
-  if not info then return end -- 暫時修正
+  if not info then return nil end
   local item = self.currencyItems[info.name]
   if not item then
     item = self:CreateCurrencyItem(index, info.isHeader)
@@ -214,6 +214,7 @@ function currency:Create(parent)
   frame:SetPoint('BOTTOMRIGHT', parent, 'BOTTOMLEFT', -10, 0)
   frame:SetPoint('TOPRIGHT', parent, 'TOPLEFT', -10, 0)
   frame:SetWidth(260)
+  frame:SetTitle("Currencies")
   frame:SetScript('OnShow', function()
     PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
   end)
