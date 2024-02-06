@@ -11,7 +11,7 @@ L['M'] = "百萬"; -- short for 1000000
 L['B'] = "十億"; -- short for 1000000000
 L['L'] = "本地"; -- For the local ping
 L['W'] = "世界"; -- For the world ping
-L['w'] = "萬";	-- short for 10000 used in zhCN and zhTW
+L['w'] = "萬";	-- short for 10000, used in zhCN and zhTW
 L['e'] = "億"; -- short for 100000000
 L['c'] = "兆"; -- short for 1000000000000
 
@@ -155,8 +155,9 @@ L['Artifact Knowledge'] = "神兵知識等級";
 
 -- Travel
 L['Use Random Hearthstone'] = "使用隨機爐石";
+L['Empty Hearthstones List'] = "如果下方的清單是空的，請在初始載入後幾秒再重新載入介面 (暴雪使用非同步的方式載入物品資訊，這是目前唯一的解決方法)。"
 L['Hearthstones Select'] = "選擇爐石";
-L['Hearthstones Select Desc'] = "選擇要使用哪些爐石 (如果選擇了多個爐石，請勾選 '選擇爐石' 選項)";
+L['Hearthstones Select Desc'] = "選擇要使用哪個爐石 (如果選擇了多個爐石，請勾選 \"使用隨機爐石\" 選項)";
 
 -- Additional
 L["XIV Bar Continued"] = "資訊列";  -- used for config menu
