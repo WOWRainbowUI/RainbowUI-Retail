@@ -179,9 +179,7 @@ function ClockModule:RegisterFrameEvents()
             date(ClockModule.timeFormats[xb.db.profile.modules.clock.timeFormat], clockTime), r, g, b, 1, 1, 1)
         GameTooltip:AddDoubleLine(L['Realm Time'], realmTime, r, g, b, 1, 1, 1)
         GameTooltip:AddLine(" ")
-        if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then -- 自行加入
-			GameTooltip:AddDoubleLine('<' .. L['Left-Click'] .. '>', L['Open Calendar'], r, g, b, 1, 1, 1)
-		end
+		GameTooltip:AddDoubleLine('<' .. L['Left-Click'] .. '>', L['Open Calendar'], r, g, b, 1, 1, 1)
         GameTooltip:AddDoubleLine('<' .. L['Right-Click'] .. '>', L['Open Clock'], r, g, b, 1, 1, 1)
         GameTooltip:Show()
     end)
@@ -199,7 +197,11 @@ function ClockModule:RegisterFrameEvents()
             return;
         end
         if button == 'LeftButton' then
-            if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then -- 自行加入
+            if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then -- 自行加入
+				if IsAddOnLoaded("ClassicCalendar") then
+					Calendar_Toggle()
+				end
+			else
 				ToggleCalendar()
 			end
         elseif button == 'RightButton' then
