@@ -18,14 +18,10 @@ v3.4.3.2773
 
 ]=]
 else E.changelog = [=[
-v10.2.5.2781
-	Fixed option panel color picker for 10.2.5
-	Fixed option panel nil err (iss#672)
-	Added option to use class colors on icon names
-
-	January 23. 2024 Hotfixes
-	  Fury, PvP only
-	    Anger Management now reduces Recklessness and Ravager’s cooldown by 1 second per 15 rage spent (was 20 rage).
+v10.2.5.2782
+	Shadowfield will correctly be replaced by Mindbender
+	Void Summoner will correctly reduce the remaining Cd of Mindbender
+	Highlighting fixed/added for numerous spells
 
 ]=]
 end

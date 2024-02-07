@@ -1,11 +1,24 @@
 ------------------------------------------------------------------------------
 -- Dragonflight
 --
+v10.2.5.2782
+	Shadowfield will correctly be replaced by Mindbender (disc, talent)
+	Void Summoner (disc, talent) will correctly reduce the remaining Cd of Mindbender
+	Highlighting fixed/added for numerous spells
+	 - Ebon Might
+	 - Invoke Xuen, the White Tiger
+	 - Ultimate Sacrifice, Guardian of the Forgotten Queen, Blessing of Sanctuary, Divine Stead, Eye of Tyr
+	 - Empyreal Blaze, Ray of Hope, Shadowfiend, Mindbender
+	 - Feral Spirit, Healing Tide Totem, Earth/Fire/Storm Elemental
+
 v10.2.5.2781
 	Fixed option panel color picker for 10.2.5
 	Fixed option panel nil err (iss#672)
 	Added option to use class colors on icon names
-	JANUARY 23. 2024 - Anger Management (Fury Warrior) CDR is now 1 second per 15 rage spent (was 20 rage).
+
+	January 23. 2024 Hotfixes
+	  Fury, PvP only
+	    Anger Management now reduces Recklessness and Ravager’s cooldown by 1 second per 15 rage spent (was 20 rage).
 
 v10.2.5.2780
 	Missing talent abilities after 10.2.5 will correctly show

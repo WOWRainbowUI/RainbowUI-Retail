@@ -345,7 +345,7 @@ local customSpellInfo = {
 			return not E.L_HIGHLIGHTS[OmniCDDB.cooldowns[id].type]
 		end,
 		name = L["Buff ID (Optional)"],
-		desc = L["Enter buff ID if it differs from spell ID for Highlights to work"],
+		desc = format("%s\n\n|cffff2020%s", L["Enter buff ID if it differs from spell ID for Highlights to work"], L["0: Disable option"]),
 		order = 15,
 		type = "input",
 		get = function(info)

@@ -341,7 +341,7 @@ E.spell_db = {
 		{ ["class"]="EVOKER",["type"]="other",["buff"]=404977,["spec"]=true,["name"]="Time Skip",["duration"]=180,["icon"]=5201905,["spellID"]=404977,["talent"]=412713, },
 		{ ["class"]="EVOKER",["type"]="defensive",["buff"]=360827,["spec"]=true,["name"]="Blistering Scales",["duration"]=30,["icon"]=5199621,["spellID"]=360827, },
 		{ ["class"]="EVOKER",["type"]="disarm",["buff"]=396286,["spec"]=true,["name"]="Upheaval",["duration"]=40,["icon"]=5199647,["spellID"]=396286, },
-		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=395152,["spec"]=true,["name"]="Ebon Might",["duration"]=30,["icon"]=5061347,["spellID"]=395152, },
+		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=395296,["spec"]=true,["name"]="Ebon Might",["duration"]=30,["icon"]=5061347,["spellID"]=395152, },
 		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=403631,["spec"]=true,["name"]="Breath of Eons",["duration"]=120,["icon"]=5199622,["spellID"]=403631, },
 		{ ["class"]="EVOKER",["type"]="defensive",["buff"]=404381,["spec"]=404195,["name"]="Defy Fate",["duration"]=360,["icon"]=5199625,["spellID"]=404381, },
 	},
@@ -481,9 +481,9 @@ E.spell_db = {
 		{ ["class"]="PRIEST",["type"]="offensive",["buff"]=123040,["spec"]=true,["name"]="Mindbender",["duration"]=60,["icon"]=136214,["spellID"]=123040, },
 		{ ["class"]="PRIEST",["type"]="externalDefensive",["buff"]=33206,["spec"]=true,["name"]="Pain Suppression",["duration"]=180,["icon"]=135936,["spellID"]=33206, },
 		{ ["class"]="PRIEST",["type"]="offensive",["buff"]=47536,["spec"]=true,["name"]="Rapture",["duration"]=90,["icon"]=237548,["spellID"]=47536, },
-		{ ["class"]="PRIEST",["type"]="raidDefensive",["buff"]=372835,["spec"]=true,["name"]="Lightwell",["duration"]=120,["icon"]=135980,["spellID"]=372835, },
+		{ ["class"]="PRIEST",["type"]="raidDefensive",["buff"]=0,["spec"]=true,["name"]="Lightwell",["duration"]=120,["icon"]=135980,["spellID"]=372835, },
 		{ ["class"]="PRIEST",["type"]="defensive",["buff"]=391124,["spec"]=true,["name"]="Restitution",["duration"]=600,["icon"]=1295528,["spellID"]=391124, },
-		{ ["class"]="PRIEST",["type"]="offensive",["buff"]=372616,["spec"]=true,["name"]="Empyreal Blaze",["duration"]=60,["icon"]=4667419,["spellID"]=372616, },
+		{ ["class"]="PRIEST",["type"]="offensive",["buff"]=372617,["spec"]=true,["name"]="Empyreal Blaze",["duration"]=60,["icon"]=4667419,["spellID"]=372616, },
 		{ ["class"]="PRIEST",["type"]="offensive",["buff"]=200183,["spec"]=true,["name"]="Apotheosis",["duration"]=120,["icon"]=1060983,["spellID"]=200183, },
 		{ ["class"]="PRIEST",["type"]="raidDefensive",["buff"]=265202,["spec"]=true,["name"]="Holy Word: Salvation",["duration"]=720,["icon"]=458225,["spellID"]=265202, },
 		{ ["class"]="PRIEST",["type"]="other",["buff"]=64901,["spec"]=true,["name"]="Symbol of Hope",["duration"]=180,["icon"]=135982,["spellID"]=64901, },
@@ -512,7 +512,7 @@ E.spell_db = {
 		{ ["class"]="PRIEST",["type"]="disarm",["buff"]=108920,["spec"]=true,["name"]="Void Tendrils",["duration"]=60,["icon"]=537022,["spellID"]=108920, },
 		{ ["class"]="PRIEST",["type"]="cc",["buff"]=205364,["spec"]=true,["name"]="Dominate Mind",["duration"]=30,["icon"]=1386549,["spellID"]=205364, },
 		{ ["class"]="PRIEST",["type"]="counterCC",["buff"]=32379,["spec"]=true,["name"]="Shadow Word: Death",["charges"]=1,["duration"]=10,["icon"]=136149,["spellID"]=32379, },
-		{ ["class"]="PRIEST",["type"]="offensive",["buff"]=34433,["spec"]=true,["name"]="Shadowfiend",["duration"]=180,["icon"]=136199,["spellID"]=34433,["talent"]=200174, },
+		{ ["class"]="PRIEST",["type"]="offensive",["buff"]=34433,["spec"]=true,["name"]="Shadowfiend",["duration"]=180,["icon"]=136199,["spellID"]=34433,["talent"]={200174,123040}, },
 		{ ["class"]="PRIEST",["type"]="other",["buff"]=73325,["spec"]=true,["name"]="Leap of Faith",["duration"]=90,["icon"]=463835,["spellID"]=73325, },
 		{ ["class"]="PRIEST",["type"]="raidDefensive",["buff"]=271466,["spec"]=true,["name"]="Luminous Barrier",["duration"]=180,["icon"]=537078,["spellID"]=271466, },
 		{ ["class"]="PRIEST",["type"]="defensive",["buff"]=421453,["spec"]=true,["name"]="Ultimate Penitence",["duration"]=240,["icon"]=1060982,["spellID"]=421453, },
@@ -568,14 +568,14 @@ E.spell_db = {
 		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=105809,["spec"]=true,["name"]="Holy Avenger",["duration"]=180,["icon"]=571555,["spellID"]=105809, },
 		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=152262,["spec"]=true,["name"]="Seraphim",["duration"]=45,["icon"]=1030103,["spellID"]=152262, },
 		{ ["class"]="PALADIN",["type"]="cc",["buff"]=10326,["spec"]=true,["name"]="Turn Evil",["duration"]=15,["icon"]=571559,["spellID"]=10326, },
-		{ ["class"]="PALADIN",["type"]="other",["buff"]=221886,["spec"]=true,["name"]="Divine Steed",["charges"]=1,["duration"]=45,["icon"]=1360759,["spellID"]=190784, },
+		{ ["class"]="PALADIN",["type"]="other",["buff"]=276111,["spec"]=true,["name"]="Divine Steed",["charges"]=1,["duration"]=45,["icon"]=1360759,["spellID"]=190784, },
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=204018,["spec"]=true,["name"]="Blessing of Spellwarding",["charges"]=1,["duration"]=300,["icon"]=135880,["spellID"]=204018, },
 
 
 		{ ["class"]="PALADIN",["type"]="other",["buff"]=414170,["spec"]=true,["name"]="Daybreak",["duration"]=60,["icon"]=237537,["spellID"]=414170, },
 	},
 	["SHAMAN"] = {
-		{ ["class"]="SHAMAN",["type"]="immunity",["buff"]=409293,["spec"]=true,["name"]="Burrow",["duration"]=120,["icon"]=136025,["spellID"]=409293, },
+		{ ["class"]="SHAMAN",["type"]="immunity",["buff"]=409293,["spec"]=true,["name"]="Burrow",["duration"]=120,["icon"]=5260435,["spellID"]=409293, },
 		{ ["class"]="SHAMAN",["type"]="other",["buff"]=2484,["name"]="Earthbind Totem",["duration"]=30,["icon"]=136102,["spellID"]=2484,["talent"]=51485, },
 
 
@@ -592,10 +592,11 @@ E.spell_db = {
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=384352,["spec"]=true,["name"]="Doom Winds",["duration"]=90,["icon"]=1035054,["spellID"]=384352, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=375982,["spec"]={375982,321078},["name"]="Primordial Wave",["charges"]=1,["duration"]=45,["icon"]=3578231,["spellID"]=375982, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=375982,["spec"]=true,["name"]="Primordial Wave",["charges"]=1,["duration"]=45,["icon"]=3578231,["spellID"]=428332, },
-		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=51533,["spec"]=true,["name"]="Feral Spirit",["duration"]=90,["icon"]=237577,["spellID"]=51533, },
+		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=333957,["spec"]=true,["name"]="Feral Spirit",["duration"]=90,["icon"]=237577,["spellID"]=51533, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=198067,["spec"]=true,["name"]="Fire Elemental",["charges"]=1,["duration"]=150,["icon"]=135790,["spellID"]=198067, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=192249,["spec"]=true,["name"]="Storm Elemental",["charges"]=1,["duration"]=150,["icon"]=2065626,["spellID"]=192249, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=191634,["spec"]=true,["name"]="Stormkeeper",["duration"]=60,["icon"]=839977,["spellID"]=191634, },
+		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=383009,["spec"]=true,["name"]="Stormkeeper",["duration"]=60,["icon"]=839977,["spellID"]=383009, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=210714,["spec"]=true,["name"]="Icefury",["duration"]=30,["icon"]=135855,["spellID"]=210714, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=114050,["spec"]=true,["name"]="Ascendance",["duration"]=180,["icon"]=135791,["spellID"]=114050, },
 		{ ["class"]="SHAMAN",["type"]="offensive",["buff"]=192222,["spec"]=true,["name"]="Liquid Magma Totem",["duration"]=60,["icon"]=971079,["spellID"]=192222, },
@@ -764,14 +765,14 @@ E.spell_db = {
 E.iconFix = {}
 E.buffFix = {
 
-	[51052] = 145629,
+
 	[196718] = 209426,
-
-
+	[51052] = 145629,
 	[116011] = 116014,
-
-	[228049] = 228050,
 	[62618] = 81782,
+
+
+	[204336] = 8178,
 	[236320] = 236321,
 }
 
@@ -780,10 +781,26 @@ E.buffFixNoCLEU = {
 }
 
 E.summonedBuffDuration = {
+
 	[49206] = 25,
+	[123904] = 20,
+	[34433] = 15,
+	[123040] = 12,
+	[200174] = 12,
+	[108280] = 10,
+	[198103] = 60,
+	[198067] = 30,
+	[192249] = 30,
 	[265187] = 15,
 	[1122] = 30,
 	[205180] = 20,
+
+	[387174] = 9,
+	[199448] = 6,
+	[210256] = 5,
+	[197268] = 6,
+
+	[265206] = 2,
 }
 
 E.spellDefaults = {
