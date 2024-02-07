@@ -15,6 +15,9 @@ local L = WeakAuras.L
 	L["%d |4aura:auras; deleted"] = "%d 個提醒效果; 已刪除"
 	L["%d |4aura:auras; modified"] = "%d 個提醒效果; 已更改"
 	L["%d |4aura:auras; with meta data modified"] = "%d |4aura:auras; 元數據已修改"
+	L["%d displays loaded"] = "%d 顯示已載入"
+	L["%d displays not loaded"] = "%d 顯示未載入"
+	L["%d displays on standby"] = "%d 顯示待命中"
 	L["%i auras selected"] = "已選擇 %i 個提醒效果"
 	L["%i."] = "%i。"
 	L["%i. %s"] = "%i。%s"
@@ -453,6 +456,7 @@ Can use \ to escape -.]=] ] = "過濾格式: '名字'、'名字-伺服器'、'-�
 	L["Grid direction"] = "網格方向"
 	L["Group"] = "群組"
 	L["Group (verb)"] = "群組"
+	L["Group Alpha"] = "隊伍透明度"
 	L[ [=[Group and anchor each auras by frame.
 
 - Nameplates: attach to nameplates per unit.
@@ -507,6 +511,7 @@ Can use \ to escape -.]=] ] = "過濾格式: '名字'、'名字-伺服器'、'-�
 	L["Icon Source"] = "圖示來源"
 	L["If"] = "(if) 當"
 	L["If %s"] = "如果 %s"
+	L["If checked, then the combo box in the User settings will be sorted."] = "勾選後，玩家設定中的組合複選框將被排序。"
 	L["If checked, then the user will see a multi line edit box. This is useful for inputting large amounts of text."] = "勾選時，使用者會看到多行的文字編輯方塊，適用於輸入大量文字。"
 	L["If checked, then this group will not merge with other group when selecting multiple auras."] = "勾選時，選擇多個提醒效果的時候，這個群組不會和其他群組合併。"
 	L["If checked, then this option group can be temporarily collapsed by the user."] = "勾選時，使用者可以將群組暫時摺疊收起來。"

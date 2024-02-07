@@ -1275,6 +1275,8 @@ loadedFrame:SetScript("OnEvent", function(self, event, addon)
 
       db.displays = db.displays or {};
       db.registered = db.registered or {};
+      db.migrationCutoff = db.migrationCutoff or 730
+      db.historyCutoff = db.historyCutoff or 730
 
       Private.UpdateCurrentInstanceType();
       Private.SyncParentChildRelationships();
@@ -2538,11 +2540,16 @@ function Private.AddMany(tbl, takeSnapshots)
   coroutine.yield()
   local groups = {}
   for _, data in ipairs(order) do
-    WeakAuras.Add(data, takeSnapshots);
-    coroutine.yield()
+    WeakAuras.PreAdd(data)
     if data.regionType == "dynamicgroup" or data.regionType == "group" then
       groups[data] = true
     end
+    coroutine.yield()
+  end
+
+  for _, data in ipairs(order) do
+    WeakAuras.Add(data, takeSnapshots);
+    coroutine.yield()
   end
 
   for id in pairs(anchorTargets) do
@@ -2818,30 +2825,53 @@ local oldDataStub2 = {
 }
 
 function Private.UpdateSoundIcon(data)
-  local function anySoundCondition()
+  local function testConditions()
+    local sound, tts
     if data.conditions then
       for _, condition in ipairs(data.conditions) do
         for changeIndex, change in ipairs(condition.changes) do
           if change.property == "sound" then
-            return true
+            sound = true
           end
+          if change.property == "chat" and change.value and change.value.message_type == "TTS" then
+            tts = true
+          end
+          if sound and tts then break end
         end
       end
     end
+    return sound, tts
   end
 
+  local soundCondition, ttsCondition = testConditions()
+
+  -- sound
   if data.actions.start.do_sound or data.actions.finish.do_sound then
     Private.AuraWarnings.UpdateWarning(data.uid, "sound_action", "sound", L["This aura plays a sound via an action."])
   else
     Private.AuraWarnings.UpdateWarning(data.uid, "sound_action")
   end
 
-  if anySoundCondition() then
+  if soundCondition then
     Private.AuraWarnings.UpdateWarning(data.uid, "sound_condition", "sound", L["This aura plays a sound via a condition."])
   else
     Private.AuraWarnings.UpdateWarning(data.uid, "sound_condition")
   end
 
+  -- tts
+  if (data.actions.start.do_message and data.actions.start.message_type == "TTS")
+  or (data.actions.finish.do_message and data.actions.finish.message_type == "TTS")
+  then
+    Private.AuraWarnings.UpdateWarning(data.uid, "tts_action", "tts", L["This aura plays a Text To Speech via an action."])
+  else
+    Private.AuraWarnings.UpdateWarning(data.uid, "tts_action")
+  end
+
+  if ttsCondition then
+    Private.AuraWarnings.UpdateWarning(data.uid, "tts_condition", "tts", L["This aura plays a Text To Speech via a condition."])
+  else
+    Private.AuraWarnings.UpdateWarning(data.uid, "tts_condition")
+  end
 end
 
 function WeakAuras.PreAdd(data)
