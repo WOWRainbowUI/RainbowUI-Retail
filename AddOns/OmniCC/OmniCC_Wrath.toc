@@ -7,7 +7,7 @@
 ## Notes-ptBR: Contagem de tempo de recarga
 ## Notes-frFR: Compte à rebours du temps de recharge
 ## Author: Tuller
-## Version: 10.2.2
+## Version: 10.2.4
 ## SavedVariables: OmniCCDB, OmniCC4Config
 ## IconTexture: Interface/Icons/spell_nature_timestop
 ## AddonCompartmentFunc: OmniCC_Launch
