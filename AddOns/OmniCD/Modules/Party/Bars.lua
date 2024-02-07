@@ -553,6 +553,31 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 		end
 	end
 
+
+	if AuraUtil and AuraUtil.ForEachAura then
+		if info.auras.hasWeyrnstone then
+			info.itemData[205146] = true
+		end
+		AuraUtil.ForEachAura(unit, "HELPFUL", nil, function(_,_,_,_,_,_, source, _,_, id)
+
+			if id == 423510 then
+				if not info.auras[2050] then
+					info.auras[2050] = true
+					info.auras[34861] = true
+				end
+
+			elseif id == 410318 then
+				if not info.itemData[205146] then
+					local pairedUnit = UnitGUID(source)
+					if pairedUnit then
+						info.auras.hasWeyrnstone = pairedUnit
+						info.itemData[205146] = true
+					end
+				end
+			end
+		end)
+	end
+
 	for i = 1, 7 do
 		local spells = (i == 1 and E.spell_db.PVPTRINKET)
 			or (i == 2 and E.spell_db.RACIAL)
@@ -593,33 +618,11 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 							isValidSpell = (not E.postBFA or not E.covenant_abilities[spellID] or self.isInShadowlands)
 								and self:IsSpecOrTalentForPvpStatus(spec==true and spellID or spec, info, lvl >= GetSpellLevelLearned(spellID), disabledSpec and disabledSpec[info.spec])
 								and (not talent or not self:IsSpecOrTalentForPvpStatus(talent, info, true))
-
-							if ( isValidSpell and info.spec == 257 and not info.auras[2050] ) then
-								local _, src = P:GetBuffDuration(unit, 423510)
-								if ( src ) then
-									info.auras[2050] = true
-									info.auras[34861] = true
-								end
-							end
 						elseif i == 5 then
 							isValidSpell = self.isInShadowlands and self:IsSpecOrTalentForPvpStatus(spec==true and spellID or spec, info, true)
 						elseif i == 4 then
 							isValidSpell = info.talentData[spec]
 						else
-
-
-							if info.auras.hasWeyrnstone then
-								info.itemData[205146] = true
-							else
-								local _, pairedUnit = P:GetBuffDuration(unit, 410318)
-								if pairedUnit then
-									pairedUnit = UnitGUID(pairedUnit)
-									if pairedUnit then
-										info.auras.hasWeyrnstone = pairedUnit
-										info.itemData[205146] = true
-									end
-								end
-							end
 							isValidSpell = self:IsEquipped(info, item, item2)
 						end
 					else

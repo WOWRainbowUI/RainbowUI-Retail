@@ -29,6 +29,8 @@ E.spell_marked = {
 
 
 	[360806] = 410962,
+	[34433] = 314867,
+	[123040] = 314867,
 }
 
 function E:ProcessSpellDB()
