@@ -16,6 +16,12 @@ local L = WeakAuras.L
 	L["%d |4aura:auras; modified"] = "已修改%d个光环"
 	--[[Translation missing --]]
 	L["%d |4aura:auras; with meta data modified"] = "%d |4aura:auras; with meta data modified"
+	--[[Translation missing --]]
+	L["%d displays loaded"] = "%d displays loaded"
+	--[[Translation missing --]]
+	L["%d displays not loaded"] = "%d displays not loaded"
+	--[[Translation missing --]]
+	L["%d displays on standby"] = "%d displays on standby"
 	L["%i auras selected"] = "已选中%i个光环"
 	L["%i."] = "%i"
 	L["%i. %s"] = "%i. %s"
@@ -464,6 +470,8 @@ Can use \ to escape -.]=] ] = [=[过滤格式：'名称'，'名称-服务器'，
 	L["Grid direction"] = "盒方向"
 	L["Group"] = "组"
 	L["Group (verb)"] = "加入组"
+	--[[Translation missing --]]
+	L["Group Alpha"] = "Group Alpha"
 	L[ [=[Group and anchor each auras by frame.
 
 - Nameplates: attach to nameplates per unit.
@@ -518,6 +526,8 @@ Can use \ to escape -.]=] ] = [=[过滤格式：'名称'，'名称-服务器'，
 	L["Icon Source"] = "图标来源"
 	L["If"] = "如果"
 	L["If %s"] = "如果 %s"
+	--[[Translation missing --]]
+	L["If checked, then the combo box in the User settings will be sorted."] = "If checked, then the combo box in the User settings will be sorted."
 	L["If checked, then the user will see a multi line edit box. This is useful for inputting large amounts of text."] = "勾选后，用户可以看见一个多行的输入框，在输入大量文本时很有用。"
 	L["If checked, then this group will not merge with other group when selecting multiple auras."] = "勾选后，在选中多个光环的情况下，此组将不会和其他组合并。"
 	L["If checked, then this option group can be temporarily collapsed by the user."] = "勾选后，选项组可以临时被用户折叠"

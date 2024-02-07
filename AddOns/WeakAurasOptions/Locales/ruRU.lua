@@ -16,6 +16,12 @@ local L = WeakAuras.L
 	L["%d |4aura:auras; modified"] = "%d |4индикация изменена:индикации изменены:индикаций изменено;"
 	--[[Translation missing --]]
 	L["%d |4aura:auras; with meta data modified"] = "%d |4aura:auras; with meta data modified"
+	--[[Translation missing --]]
+	L["%d displays loaded"] = "%d displays loaded"
+	--[[Translation missing --]]
+	L["%d displays not loaded"] = "%d displays not loaded"
+	--[[Translation missing --]]
+	L["%d displays on standby"] = "%d displays on standby"
 	L["%i auras selected"] = "%i |4индикация выбрана:индикации выбраны:индикаций выбрано;"
 	L["%i."] = "%i."
 	L["%i. %s"] = "%i. %s"
@@ -45,7 +51,6 @@ local L = WeakAuras.L
 	L["%s %s, Lines: %d, Frequency: %0.2f, Length: %d, Thickness: %d"] = "%s %s; Линии %d; Частота %.3g; Длина %0.3g; Толщина %0.3g"
 	L["%s %s, Particles: %d, Frequency: %0.2f, Scale: %0.2f"] = "%s %s; Частицы %d; Частота %.3g; Масштаб %.3g"
 	L["%s %u. Overlay Function"] = "%s Функция наложения %u"
-	--[[Translation missing --]]
 	L["%s (%s)"] = "%s (%s)"
 	L["%s Alpha: %d%%"] = "%s Прозрачность %d%%"
 	L["%s Color"] = "%s "
@@ -478,6 +483,8 @@ Can use \ to escape -.]=] ] = [=[Формат записи: Имя, Имя-Иг�
 	L["Group"] = "Группа"
 	L["Group (verb)"] = "Группировать"
 	--[[Translation missing --]]
+	L["Group Alpha"] = "Group Alpha"
+	--[[Translation missing --]]
 	L[ [=[Group and anchor each auras by frame.
 
 - Nameplates: attach to nameplates per unit.
@@ -534,6 +541,8 @@ Can use \ to escape -.]=] ] = [=[Формат записи: Имя, Имя-Иг�
 	L["Icon Source"] = "Источник иконки"
 	L["If"] = "Если"
 	L["If %s"] = "Если %s"
+	--[[Translation missing --]]
+	L["If checked, then the combo box in the User settings will be sorted."] = "If checked, then the combo box in the User settings will be sorted."
 	L["If checked, then the user will see a multi line edit box. This is useful for inputting large amounts of text."] = "Если флажок установлен, то строка преобразуется в многострочное текстовое поле. Это удобная форма для ввода большого количества текста."
 	L["If checked, then this group will not merge with other group when selecting multiple auras."] = "Если флажок установлен, то группа не будет объединена с другой группой при выборе нескольких индикаций."
 	L["If checked, then this option group can be temporarily collapsed by the user."] = "Если флажок установлен, то пользователь может свернуть и развернуть эту группу параметров."

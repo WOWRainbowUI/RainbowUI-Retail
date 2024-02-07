@@ -103,6 +103,8 @@ L["Afk"] = "Afk"
 L["Aggro"] = "Aggro"
 L["Agility"] = "Agilité"
 L["Ahn'Qiraj"] = "Ahn'Qiraj"
+--[[Translation missing --]]
+L["Aku'mai"] = "Aku'mai"
 L["Alert Type"] = "Type d'alerte"
 --[[Translation missing --]]
 L["Algalon the Observer"] = "Algalon the Observer"
@@ -208,6 +210,8 @@ L["Background Color"] = "Couleur d'arrière-plan"
 L["Baltharus the Warborn"] = "Baltharus the Warborn"
 --[[Translation missing --]]
 L["Bar Color/Gradient Start"] = "Bar Color/Gradient Start"
+--[[Translation missing --]]
+L["Baron Aquanis"] = "Baron Aquanis"
 L["Baron Geddon"] = "Baron Geddon"
 --[[Translation missing --]]
 L["Battle for Azeroth"] = "Battle for Azeroth"
@@ -228,6 +232,8 @@ L["BigWigs Stage"] = "BigWigs Stage"
 L["BigWigs Timer"] = "Temps BigWigs"
 --[[Translation missing --]]
 L["Black Wing Lair"] = "Black Wing Lair"
+--[[Translation missing --]]
+L["Blackfathom Deeps"] = "Blackfathom Deeps"
 L["Blizzard Combat Text"] = "Texte de Combat Blizzard"
 --[[Translation missing --]]
 L["Blizzard Cooldown Reduction"] = "Blizzard Cooldown Reduction"
@@ -747,6 +753,8 @@ L["Garr"] = "Garr"
 --[[Translation missing --]]
 L["Gehennas"] = "Gehennas"
 --[[Translation missing --]]
+L["Gelihast"] = "Gelihast"
+--[[Translation missing --]]
 L["General"] = "General"
 --[[Translation missing --]]
 L["General Rajaxx"] = "General Rajaxx"
@@ -756,6 +764,8 @@ L["General Vezax"] = "General Vezax"
 L["General Zarithrian"] = "General Zarithrian"
 --[[Translation missing --]]
 L["GetNameAndIcon Function (fallback state)"] = "GetNameAndIcon Function (fallback state)"
+--[[Translation missing --]]
+L["Ghamoo-ra"] = "Ghamoo-ra"
 L["Glancing"] = "Erafle"
 L["Global Cooldown"] = "Temps de recharge global"
 L["Glow"] = "Brillance"
@@ -920,6 +930,8 @@ L["Inverse Pet Behavior"] = "Inverser le Comportement du Familier"
 --[[Translation missing --]]
 L["Is Away from Keyboard"] = "Is Away from Keyboard"
 --[[Translation missing --]]
+L["Is Current Specialization"] = "Is Current Specialization"
+--[[Translation missing --]]
 L["Is Death Rune"] = "Is Death Rune"
 L["Is Exactly"] = "Est exactement"
 L["Is Moving"] = "Est en mouvement"
@@ -968,6 +980,8 @@ L["Koralon the Flame Watcher"] = "Koralon the Flame Watcher"
 L["Kurinnaxx"] = "Kurinnaxx"
 --[[Translation missing --]]
 L["Lady Deathwhisper"] = "Lady Deathwhisper"
+--[[Translation missing --]]
+L["Lady Sarevess"] = "Lady Sarevess"
 L["Large"] = "Large"
 --[[Translation missing --]]
 L["Latency"] = "Latency"
@@ -1006,9 +1020,17 @@ L["Loop"] = "Boucle"
 --[[Translation missing --]]
 L["Loot"] = "Loot"
 --[[Translation missing --]]
+L["Loot Specialization"] = "Loot Specialization"
+--[[Translation missing --]]
+L["Loot Specialization Id"] = "Loot Specialization Id"
+--[[Translation missing --]]
+L["Loot Specialization Name"] = "Loot Specialization Name"
+--[[Translation missing --]]
 L["Lord Jaraxxus"] = "Lord Jaraxxus"
 --[[Translation missing --]]
 L["Lord Marrowgar"] = "Lord Marrowgar"
+--[[Translation missing --]]
+L["Lorgus Jett"] = "Lorgus Jett"
 L["Lost"] = "Perdu"
 L["Low Damage"] = "Dégâts faibles"
 L["Lower Than Tank"] = "Plus bas que le tank"
@@ -1701,6 +1723,8 @@ L["Targeted"] = "Ciblé"
 L["Tenebron"] = "Tenebron"
 L["Text"] = "Texte"
 --[[Translation missing --]]
+L["Text To Speech"] = "Text To Speech"
+--[[Translation missing --]]
 L["Text-to-speech"] = "Text-to-speech"
 --[[Translation missing --]]
 L["Texture Function"] = "Texture Function"
@@ -1744,6 +1768,10 @@ L["This aura is saving %s KB of data"] = "This aura is saving %s KB of data"
 L["This aura plays a sound via a condition."] = "This aura plays a sound via a condition."
 --[[Translation missing --]]
 L["This aura plays a sound via an action."] = "This aura plays a sound via an action."
+--[[Translation missing --]]
+L["This aura plays a Text To Speech via a condition."] = "This aura plays a Text To Speech via a condition."
+--[[Translation missing --]]
+L["This aura plays a Text To Speech via an action."] = "This aura plays a Text To Speech via an action."
 --[[Translation missing --]]
 L["Thorim"] = "Thorim"
 --[[Translation missing --]]
@@ -1827,6 +1855,8 @@ L["Trivial (Low Level)"] = "Trivial (Low Level)"
 L["True"] = "Vrai"
 --[[Translation missing --]]
 L["Trying to repair broken conditions in %s likely caused by a WeakAuras bug."] = "Trying to repair broken conditions in %s likely caused by a WeakAuras bug."
+--[[Translation missing --]]
+L["Twilight Lord Kelris"] = "Twilight Lord Kelris"
 --[[Translation missing --]]
 L["Twin Emperors"] = "Twin Emperors"
 L["Type"] = "Type"

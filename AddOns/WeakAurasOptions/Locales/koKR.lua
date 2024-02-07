@@ -19,6 +19,12 @@ local L = WeakAuras.L
 	L["%d |4aura:auras; modified"] = "%d |4aura:auras; modified"
 	--[[Translation missing --]]
 	L["%d |4aura:auras; with meta data modified"] = "%d |4aura:auras; with meta data modified"
+	--[[Translation missing --]]
+	L["%d displays loaded"] = "%d displays loaded"
+	--[[Translation missing --]]
+	L["%d displays not loaded"] = "%d displays not loaded"
+	--[[Translation missing --]]
+	L["%d displays on standby"] = "%d displays on standby"
 	L["%i auras selected"] = "효과 %i개 선택됨"
 	--[[Translation missing --]]
 	L["%i."] = "%i."
@@ -576,6 +582,8 @@ Can use \ to escape -.]=] ] = "필터 형식: '이름', '이름-서버', '-서�
 	L["Group"] = "그룹"
 	L["Group (verb)"] = "그룹시키기"
 	--[[Translation missing --]]
+	L["Group Alpha"] = "Group Alpha"
+	--[[Translation missing --]]
 	L[ [=[Group and anchor each auras by frame.
 
 - Nameplates: attach to nameplates per unit.
@@ -636,6 +644,8 @@ Can use \ to escape -.]=] ] = "필터 형식: '이름', '이름-서버', '-서�
 	L["If"] = "If"
 	--[[Translation missing --]]
 	L["If %s"] = "If %s"
+	--[[Translation missing --]]
+	L["If checked, then the combo box in the User settings will be sorted."] = "If checked, then the combo box in the User settings will be sorted."
 	L["If checked, then the user will see a multi line edit box. This is useful for inputting large amounts of text."] = "체크하면 넓은 편집툴이 표시됩니다. 많은 양의 텍스트를 입력 할 때 유용합니다."
 	--[[Translation missing --]]
 	L["If checked, then this group will not merge with other group when selecting multiple auras."] = "If checked, then this group will not merge with other group when selecting multiple auras."

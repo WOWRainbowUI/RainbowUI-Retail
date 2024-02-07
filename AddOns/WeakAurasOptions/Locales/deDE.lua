@@ -18,6 +18,12 @@ local L = WeakAuras.L
 	L["%d |4aura:auras; modified"] = "%d |4aura:auras; geändert"
 	--[[Translation missing --]]
 	L["%d |4aura:auras; with meta data modified"] = "%d |4aura:auras; with meta data modified"
+	--[[Translation missing --]]
+	L["%d displays loaded"] = "%d displays loaded"
+	--[[Translation missing --]]
+	L["%d displays not loaded"] = "%d displays not loaded"
+	--[[Translation missing --]]
+	L["%d displays on standby"] = "%d displays on standby"
 	L["%i auras selected"] = "%i Auren ausgew\\195\\164hlt"
 	--[[Translation missing --]]
 	L["%i."] = "%i."
@@ -683,6 +689,8 @@ Can use \ to escape -.]=]
 	L["Group"] = "Gruppe"
 	L["Group (verb)"] = "Gruppieren"
 	--[[Translation missing --]]
+	L["Group Alpha"] = "Group Alpha"
+	--[[Translation missing --]]
 	L[ [=[Group and anchor each auras by frame.
 
 - Nameplates: attach to nameplates per unit.
@@ -755,6 +763,8 @@ Falls die Zahl als Dezimalzahl (z.B. 0.5), Bruch (z.B. 1/2) oder Prozentsatz (z.
 	L["If"] = "Falls"
 	--[[Translation missing --]]
 	L["If %s"] = "If %s"
+	--[[Translation missing --]]
+	L["If checked, then the combo box in the User settings will be sorted."] = "If checked, then the combo box in the User settings will be sorted."
 	--[[Translation missing --]]
 	L["If checked, then the user will see a multi line edit box. This is useful for inputting large amounts of text."] = "If checked, then the user will see a multi line edit box. This is useful for inputting large amounts of text."
 	--[[Translation missing --]]

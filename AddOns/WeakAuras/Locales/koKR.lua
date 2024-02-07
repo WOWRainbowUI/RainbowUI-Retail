@@ -107,6 +107,8 @@ L["Afk"] = "자리 비움"
 L["Aggro"] = "어그로"
 L["Agility"] = "민첩성"
 L["Ahn'Qiraj"] = "안퀴라즈"
+--[[Translation missing --]]
+L["Aku'mai"] = "Aku'mai"
 L["Alert Type"] = "경보 유형"
 L["Algalon the Observer"] = "관찰자 알갈론"
 L["Alive"] = "생존"
@@ -201,6 +203,8 @@ L["Background Color"] = "배경 색상"
 L["Baltharus the Warborn"] = "전쟁의 아들 발타루스"
 --[[Translation missing --]]
 L["Bar Color/Gradient Start"] = "Bar Color/Gradient Start"
+--[[Translation missing --]]
+L["Baron Aquanis"] = "Baron Aquanis"
 L["Baron Geddon"] = "남작 게돈"
 L["Battle for Azeroth"] = "격전의 아제로스"
 L["Battle.net Whisper"] = "Battle.net 귓속말"
@@ -216,6 +220,8 @@ L["BigWigs Message"] = "BigWigs 메시지"
 L["BigWigs Stage"] = "BigWigs 단계"
 L["BigWigs Timer"] = "BigWigs 타이머"
 L["Black Wing Lair"] = "검은날개 둥지"
+--[[Translation missing --]]
+L["Blackfathom Deeps"] = "Blackfathom Deeps"
 L["Blizzard Combat Text"] = "블리자드 전투 문자"
 L["Blizzard Cooldown Reduction"] = "블리자드 재사용 대기시간 감소"
 L["Block"] = "방어함"
@@ -683,12 +689,16 @@ L["Gained"] = "획득"
 L["Garr"] = "가르"
 L["Gehennas"] = "게헨나스"
 --[[Translation missing --]]
+L["Gelihast"] = "Gelihast"
+--[[Translation missing --]]
 L["General"] = "General"
 L["General Rajaxx"] = "장군 라작스"
 L["General Vezax"] = "장군 베작스"
 L["General Zarithrian"] = "장군 자리스리안"
 --[[Translation missing --]]
 L["GetNameAndIcon Function (fallback state)"] = "GetNameAndIcon Function (fallback state)"
+--[[Translation missing --]]
+L["Ghamoo-ra"] = "Ghamoo-ra"
 L["Glancing"] = "빗맞음"
 L["Global Cooldown"] = "전역 재사용 대기시간"
 L["Glow"] = "반짝임"
@@ -823,6 +833,8 @@ L["Inverse"] = "반대로"
 L["Inverse Pet Behavior"] = "역행 소환수 행동"
 L["Is Away from Keyboard"] = "자리비움"
 --[[Translation missing --]]
+L["Is Current Specialization"] = "Is Current Specialization"
+--[[Translation missing --]]
 L["Is Death Rune"] = "Is Death Rune"
 L["Is Exactly"] = "정확할 때"
 L["Is Moving"] = "이동 중일 때"
@@ -856,6 +868,8 @@ L["Kologarn"] = "콜로간"
 L["Koralon the Flame Watcher"] = "화염 감시자 코랄론"
 L["Kurinnaxx"] = "쿠린낙스"
 L["Lady Deathwhisper"] = "여교주 데스위스퍼"
+--[[Translation missing --]]
+L["Lady Sarevess"] = "Lady Sarevess"
 L["Large"] = "큰"
 --[[Translation missing --]]
 L["Latency"] = "Latency"
@@ -889,8 +903,16 @@ L["Looking for Raid"] = "공격대 찾기"
 L["Loop"] = "반복"
 --[[Translation missing --]]
 L["Loot"] = "Loot"
+--[[Translation missing --]]
+L["Loot Specialization"] = "Loot Specialization"
+--[[Translation missing --]]
+L["Loot Specialization Id"] = "Loot Specialization Id"
+--[[Translation missing --]]
+L["Loot Specialization Name"] = "Loot Specialization Name"
 L["Lord Jaraxxus"] = "군주 자락서스"
 L["Lord Marrowgar"] = "군주 매로우가르"
+--[[Translation missing --]]
+L["Lorgus Jett"] = "Lorgus Jett"
 L["Lost"] = "손실"
 L["Low Damage"] = "낮은 피해"
 L["Lower Than Tank"] = "탱커보다 낮을 때"
@@ -1515,6 +1537,8 @@ L["Targeted"] = "Targeted"
 L["Tenebron"] = "테네브론"
 L["Text"] = "문자"
 --[[Translation missing --]]
+L["Text To Speech"] = "Text To Speech"
+--[[Translation missing --]]
 L["Text-to-speech"] = "Text-to-speech"
 --[[Translation missing --]]
 L["Texture Function"] = "Texture Function"
@@ -1546,6 +1570,10 @@ L["This aura has caused a Lua error."] = "이 효과는 Lua 오류를 일으켰�
 L["This aura is saving %s KB of data"] = "This aura is saving %s KB of data"
 L["This aura plays a sound via a condition."] = "이 효과는 조건을 통해 소리를 재생합니다."
 L["This aura plays a sound via an action."] = "이 효과는 동작을 통해 소리를 재생합니다."
+--[[Translation missing --]]
+L["This aura plays a Text To Speech via a condition."] = "This aura plays a Text To Speech via a condition."
+--[[Translation missing --]]
+L["This aura plays a Text To Speech via an action."] = "This aura plays a Text To Speech via an action."
 L["Thorim"] = "토림"
 L["Threat Percent"] = "위협 수준 백분율"
 L["Threat Situation"] = "위협 수준 상황"
@@ -1614,6 +1642,8 @@ L["Trivial (Low Level)"] = "Trivial (Low Level)"
 L["True"] = "참"
 --[[Translation missing --]]
 L["Trying to repair broken conditions in %s likely caused by a WeakAuras bug."] = "Trying to repair broken conditions in %s likely caused by a WeakAuras bug."
+--[[Translation missing --]]
+L["Twilight Lord Kelris"] = "Twilight Lord Kelris"
 L["Twin Emperors"] = "쌍둥이 제왕"
 L["Type"] = "유형"
 L["Ulduar"] = "울두아르"

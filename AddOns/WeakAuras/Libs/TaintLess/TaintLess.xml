@@ -1,6 +1,6 @@
 <Ui><Script><![CDATA[--[[
 
-TaintLess [23-09-09]
+TaintLess [24-01-20]
 https://www.townlong-yak.com/addons/taintless
 
 All rights reserved.
@@ -133,7 +133,7 @@ patch("CUF_PROFILE_ACTIVATE_PATCH_VERSION", 1, function(V)
 		getmetatable(sv[3]).__len = function()
 			return "UIDROPDOWNMENU_MENU_LEVEL"
 		end
-		setmetatable(o, {__index=function(t,k)
+		setmetatable(o, {__index=function(_,k)
 			s, sv[2][1] = k == sk[s] and s+1 or 1
 			return sv[s-1]
 		end})
