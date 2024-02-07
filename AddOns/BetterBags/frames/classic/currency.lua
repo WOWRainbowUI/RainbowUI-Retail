@@ -16,14 +16,8 @@ local const = addon:GetModule('Constants')
 ---@class Events: AceModule
 local events = addon:GetModule('Events')
 
----@class Localization: AceModule
-local L =  addon:GetModule('Localization')
-
 ---@class Debug: AceModule
 local debug = addon:GetModule('Debug')
-
----@class Animations: AceModule
-local animations = addon:GetModule('Animations')
 
 ---@class CurrencyGrid
 ---@field frame Frame
@@ -47,20 +41,16 @@ end
 ---@field content Grid
 ---@field iconGrid Grid
 ---@field loaded boolean
----@field private fadeIn AnimationGroup
----@field private fadeOut AnimationGroup
 ---@field private iconIndex CurrencyItem[]
 ---@field private currencyItems CurrencyItem[]
 local CurrencyFrame = {}
 
 function CurrencyFrame:Show()
-  PlaySound(SOUNDKIT.GUILD_BANK_OPEN_BAG)
-  self.fadeIn:Play()
+  self.frame:Show()
 end
 
 function CurrencyFrame:Hide()
-  PlaySound(SOUNDKIT.GUILD_BANK_OPEN_BAG)
-  self.fadeOut:Play()
+  self.frame:Hide()
 end
 
 function CurrencyFrame:IsShown()
@@ -69,25 +59,24 @@ end
 
 ---@param index number
 ---@param info CurrencyInfo
----@return CurrencyItem|nil
+---@return CurrencyItem
 function CurrencyFrame:GetCurrencyItem(index, info)
-  if not info then return nil end
   local item = self.currencyItems[info.name]
   if not item then
     item = self:CreateCurrencyItem(index, info.isHeader)
-    item.frame:SetSize(232, 30)
+    item.frame:SetSize(234, 30)
     item.frame:SetScript('OnEnter', function()
       GameTooltip:SetOwner(item.frame, "ANCHOR_RIGHT")
       GameTooltip:SetCurrencyToken(item.index)
       GameTooltip:AddLine(" ")
-      GameTooltip:AddLine(L:G("Click to add or remove this currency to and from your backpack."), 1, 1, 1, true)
+      GameTooltip:AddLine("Click to add or remove this currency to and from your backpack.", 1, 1, 1, true)
       GameTooltip:Show()
     end)
     item.frame:SetScript('OnEnter', function()
       GameTooltip:SetOwner(item.frame, "ANCHOR_RIGHT")
       GameTooltip:SetCurrencyToken(item.index)
       GameTooltip:AddLine(" ")
-      GameTooltip:AddLine(L:G("Click to add or remove this currency to and from your backpack."), 1, 1, 1, true)
+      GameTooltip:AddLine("Click to add or remove this currency to and from your backpack.", 1, 1, 1, true)
       GameTooltip:Show()
     end)
     item.frame:SetScript('OnLeave', function()
@@ -225,14 +214,18 @@ function currency:Create(parent)
   frame:SetPoint('BOTTOMRIGHT', parent, 'BOTTOMLEFT', -10, 0)
   frame:SetPoint('TOPRIGHT', parent, 'TOPLEFT', -10, 0)
   frame:SetWidth(260)
-  frame:SetTitle(CURRENCY)
-
-  b.fadeIn, b.fadeOut = animations:AttachFadeAndSlideLeft(frame)
+  frame:SetTitle("Currencies")
+  frame:SetScript('OnShow', function()
+    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
+  end)
+  frame:SetScript('OnHide', function()
+    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE)
+  end)
   b.frame = frame
 
   local g = grid:Create(b.frame)
   g:GetContainer():SetPoint("TOPLEFT", b.frame, "TOPLEFT", const.OFFSETS.BAG_LEFT_INSET+4, const.OFFSETS.BAG_TOP_INSET)
-  g:GetContainer():SetPoint("BOTTOMRIGHT", b.frame, "BOTTOMRIGHT", const.OFFSETS.BAG_RIGHT_INSET, const.OFFSETS.BAG_BOTTOM_INSET)
+  g:GetContainer():SetPoint("BOTTOMRIGHT", b.frame, "BOTTOMRIGHT", const.OFFSETS.BAG_RIGHT_INSET-4, const.OFFSETS.BAG_BOTTOM_INSET)
   g.maxCellWidth = 1
   g.spacing = 0
   b.content = g

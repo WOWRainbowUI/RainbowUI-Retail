@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 11501
 
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
@@ -11,16 +11,21 @@
 ## X-Wago-ID: aNDmy96o
 ## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog
 
-## Title-zhTW: |cffB973CC[背包]|r 掰特包
-## Notes-zhTW: BetterBags |n|nAdi 背包的進化版，效能好、bug 少、東西不亂跑，分類清楚好好找。|n|n|cffffd200使用方法: |r點背包視窗左上角的背包圖示顯示設定選單，或是從Esc>選項>插件>背包，進行設定。
-## X-Category-zhTW: 物品
-## IconTexture: Interface\Icons\reliquarybag_icon
-## DefaultState: disabled
-
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\AceHook-3.0\AceHook-3.0.xml
+libs\AceConsole-3.0\AceConsole-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+libs\LibSharedMedia-3.0\lib.xml
 libs\LibWindow-1.1\LibWindow-1.1.lua
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
 
-templates\container.xml
+templates\classic\container.xml
 
 core\boot.lua
 
@@ -31,7 +36,7 @@ debug\frames.lua
 
 core\events.lua
 core\localization.lua
-core\constants.lua
+core\classic\constants.lua
 core\database.lua
 core\hooks.lua
 
@@ -47,15 +52,15 @@ util\sort.lua
 util\bucket.lua
 
 frames\slider.lua
-frames\money.lua
-frames\context.lua
+frames\classic\money.lua
+frames\classic\context.lua
 frames\column.lua
 frames\grid.lua
-frames\item.lua
-frames\itemrow.lua
+frames\classic\item.lua
+frames\classic\itemrow.lua
 frames\section.lua
-frames\bagbutton.lua
-frames\bagslots.lua
+frames\classic\bagbutton.lua
+frames\classic\bagslots.lua
 frames\currency.lua
 
 views\views.lua
@@ -63,12 +68,12 @@ views\gridview.lua
 views\oneview.lua
 views\listview.lua
 
-frames\bag.lua
+frames\classic\bag.lua
 
 config\config.lua
 config\help.lua
-config\bags.lua
+config\classic\bags.lua
 config\itemlist.lua
 config\customcat.lua
 
-core\init.lua
+core\classic\init.lua
