@@ -3,9 +3,9 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.0.91
+## Version: v0.0.94
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-02-06T20:46:32Z
+## X-Date: 2024-02-08T03:59:06Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
@@ -36,6 +36,7 @@ debug\frames.lua
 
 core\events.lua
 core\localization.lua
+core\constants.lua
 core\classic\constants.lua
 core\database.lua
 core\hooks.lua
@@ -52,14 +53,19 @@ util\sort.lua
 util\bucket.lua
 
 frames\slider.lua
+frames\money.lua
 frames\classic\money.lua
 frames\classic\context.lua
 frames\column.lua
 frames\grid.lua
+frames\item.lua
 frames\classic\item.lua
+frames\itemrow.lua
 frames\classic\itemrow.lua
 frames\section.lua
+frames\bagbutton.lua
 frames\classic\bagbutton.lua
+frames\bagslots.lua
 frames\classic\bagslots.lua
 frames\currency.lua
 
@@ -68,6 +74,7 @@ views\gridview.lua
 views\oneview.lua
 views\listview.lua
 
+frames\bag.lua
 frames\classic\bag.lua
 
 config\config.lua
@@ -76,4 +83,5 @@ config\classic\bags.lua
 config\itemlist.lua
 config\customcat.lua
 
+core\init.lua
 core\classic\init.lua

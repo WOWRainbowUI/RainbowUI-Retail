@@ -29,17 +29,16 @@ local debug = addon:GetModule('Debug')
 ---@class Animations: AceModule
 local animations = addon:GetModule('Animations')
 
----@class bagButton
-local bagButtonProto = {}
 
 ---@class bagSlots
 ---@field frame Frame
 ---@field content Grid
+---@field kind BagKind
 ---@field fadeInGroup AnimationGroup
 ---@field fadeOutGroup AnimationGroup
-local bagSlotProto = {}
+BagSlots.bagSlotProto = {}
 
-function bagSlotProto:Draw()
+function BagSlots.bagSlotProto:Draw()
   for _, cell in ipairs(self.content.cells) do
     cell:Draw(const.BAG_KIND.UNDEFINED, const.BAG_VIEW.UNDEFINED)
   end
@@ -48,7 +47,7 @@ function bagSlotProto:Draw()
   self.frame:SetHeight(h + 42)
 end
 
-function bagSlotProto:SetShown(shown)
+function BagSlots.bagSlotProto:SetShown(shown)
   if shown then
     self:Show()
   else
@@ -56,17 +55,17 @@ function bagSlotProto:SetShown(shown)
   end
 end
 
-function bagSlotProto:Show()
+function BagSlots.bagSlotProto:Show()
   PlaySound(SOUNDKIT.GUILD_BANK_OPEN_BAG)
   self.fadeInGroup:Play()
 end
 
-function bagSlotProto:Hide()
+function BagSlots.bagSlotProto:Hide()
   PlaySound(SOUNDKIT.GUILD_BANK_OPEN_BAG)
   self.fadeOutGroup:Play()
 end
 
-function bagSlotProto:IsShown()
+function BagSlots.bagSlotProto:IsShown()
   return self.frame:IsShown()
 end
 
@@ -75,7 +74,7 @@ end
 function BagSlots:CreatePanel(kind)
   ---@class bagSlots
   local b = {}
-  setmetatable(b, {__index = bagSlotProto})
+  setmetatable(b, {__index = BagSlots.bagSlotProto})
   local name = kind == const.BAG_KIND.BACKPACK and "Backpack" or "Bank"
   ---@class Frame: BackdropTemplate
   local f = CreateFrame("Frame", name .. "BagSlots", UIParent, "BetterBagsBagSlotPanelTemplate")
@@ -98,7 +97,22 @@ function BagSlots:CreatePanel(kind)
   end
 
   b.fadeInGroup, b.fadeOutGroup = animations:AttachFadeAndSlideTop(b.frame)
+  b.fadeInGroup:HookScript("OnFinished", function()
+    if b.kind == const.BAG_KIND.BACKPACK then
+      addon.Bags.Backpack:Refresh()
+    elseif b.kind == const.BAG_KIND.BANK then
+      addon.Bags.Bank:Refresh()
+    end
+  end)
+  b.fadeOutGroup:HookScript("OnFinished", function()
+    if b.kind == const.BAG_KIND.BACKPACK and addon.Bags.Backpack then
+      addon.Bags.Backpack:Refresh()
+    elseif b.kind == const.BAG_KIND.BANK and addon.Bags.Bank then
+      addon.Bags.Bank:Refresh()
+    end
+  end)
   events:RegisterEvent("BAG_CONTAINER_UPDATE", function() b:Draw() end)
+  b.kind = kind
   b:Hide()
   return b
 end
