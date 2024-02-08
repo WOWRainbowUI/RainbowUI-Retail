@@ -1,9 +1,22 @@
 # WIM
 
-## [3.10.18-8-gf8d26bf](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/tree/f8d26bf865897d8ce40e907acbe3380785bc12ae) (2024-01-16)
-[Full Changelog](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/compare/3.10.18...f8d26bf865897d8ce40e907acbe3380785bc12ae) [Previous Releases](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/releases)
+## [3.10.19](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/tree/3.10.19) (2024-01-29)
+[Full Changelog](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/compare/3.10.18...3.10.19) [Previous Releases](https://github.com/Legacy-of-Sylvanaar/wow-instant-messenger/releases)
 
+- Merge pull request #64 from anon1231823/patch-15  
+    Update esES.lua  
+- Update esES.lua  
+- Merge pull request #63 from anon1231823/patch-14  
+    Update ptBR.lua  
+- Update ptBR.lua  
+- Update ptBR.lua  
+- Merge pull request #60 from anon1231823/patch-12  
+    Update esES.lua  
+- Merge pull request #61 from anon1231823/patch-13  
+    Update frFR.lua  
 - Bump toc for 10.2.5  
+- Update frFR.lua  
+- Update esES.lua  
 - Merge pull request #59 from anon1231823/patch-11  
     Update frFR.lua  
 - Update frFR.lua  
