@@ -72,7 +72,7 @@ if GetLocale() == "zhTW" then
 	L.data["No custom categories have been created yet."] = "尚未建立自訂分類。"
 	L.data["Select which custom categories to show in this bag. If an option is checked, items that belong to the checked category will be put into a section for that category."] = "選擇要在背包中顯示的自訂分類。勾選後，屬於該分類的物品將會放入該分類的區塊中。"
 	L.data["Categories"] = "分類"
-	L.data["Subtype"] = "子分類"
+	L.data["Subtype"] = "物品子類型"
 	L.data["Expansion"] = "資料片"
 	L.data["Trade Skill"] = "交易技能"
 	L.data["Select which categories to show in this bag. If an option is checked, items that belong to the checked category will be put into a section for that category."] = "選擇要在背包中顯示的分類。勾選後，屬於該分類的物品將會放入該分類的區塊中。"
