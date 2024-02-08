@@ -1,4 +1,4 @@
-## Interface: 11501
+## Interface: 30403
 
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
@@ -10,10 +10,6 @@
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
 ## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog
-
-## Title-zhTW: |cffB973CC[背包]|r 掰特包
-## Notes-zhTW: BetterBags |n|nAdi 背包的進化版，效能好、bug 少、東西不亂跑，分類清楚好好找。|n|n|cffffd200使用方法: |r點背包視窗左上角的背包圖示顯示設定選單，或是從Esc>選項>插件>背包，進行設定。
-## X-Category-zhTW: 物品
 
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
