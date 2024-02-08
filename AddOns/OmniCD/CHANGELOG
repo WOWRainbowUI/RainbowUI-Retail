@@ -1,6 +1,10 @@
 ------------------------------------------------------------------------------
 -- Dragonflight
 --
+v10.2.5.2783
+	Fixed Void Summoner CDR to include Smite by 4pc set bonus and Dark Reprimand
+	Death and Madness CD fixed to 10s (was 20s)
+
 v10.2.5.2782
 	Shadowfield will correctly be replaced by Mindbender (disc, talent)
 	Void Summoner (disc, talent) will correctly reduce the remaining Cd of Mindbender
