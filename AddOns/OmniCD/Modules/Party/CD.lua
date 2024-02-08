@@ -3328,7 +3328,7 @@ registeredEvents['SPELL_DAMAGE'][32379] = function(info, _,_,_,_,_,_, overkill, 
 			if icon and icon.active then
 				P:ResetCooldown(icon)
 			end
-			info.auras.time_shadowworddeath_reset = timestamp + 20
+			info.auras.time_shadowworddeath_reset = timestamp + 10
 		end
 		info.auras.isDeathTargetUnder20 = nil
 	end
@@ -3563,6 +3563,25 @@ registeredEvents['SPELL_AURA_APPLIED'][423510] = function(info)
 	info.auras[34861] = true
 end
 
+
+
+registeredEvents['SPELL_DAMAGE'][425529] = function(info, srcGUID, spellID, destGUID)
+	if info.talentData[390770] then
+		local icon = info.spellIcons[34433]
+		if icon then
+			if icon.active then
+				P:UpdateCooldown(icon, 4)
+			end
+			return
+		end
+		icon =	info.spellIcons[123040]
+		if icon then
+			if icon.active then
+				P:UpdateCooldown(icon, 2)
+			end
+		end
+	end
+end
 
 
 
