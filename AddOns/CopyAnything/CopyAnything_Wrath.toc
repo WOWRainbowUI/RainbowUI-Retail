@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 30403
 ## Title: Copy Anything
 ## Notes: Copy text from any frame.
 ## Author: Oppzippy
@@ -12,9 +12,8 @@
 ## Title-zhTW: |cffFF9999[聊天]|r 快速複製文字
 ## Notes-zhTW: Copy Anything |n|n複製聊天視窗的文字，或是任何框架上面的文字都可以複製!|n|n|cffffd200使用方法: |r|n|n1. 先在 Esc>選項>按鍵綁定>插件>複製文字，設定快速鍵 (建議設為 Ctrl+C)。|n|n2. 將滑鼠指向要複製的文字，按下快速鍵 (例如 Ctrl+C)。|n|n3. 在彈出的視窗中預設會選好整段文字，直接按下 Ctrl+C 來複製文字。複製成功視窗會自動關閉。|n|n4. 在要貼上文字的地方，例如聊天視窗的輸入框，按下 Ctrl+V 貼上文字。|n|n簡單來說就是滑鼠指向要複製的文字，然後連按兩次 Ctrl+C 就複製好了!|n從Esc>選項>插件>複製文字，進行設定。
 ## X-Category-zhTW: 社交
-## IconTexture: Interface\Icons\boss_odunrunes_orange
 
-Libs\LibCopyPaste-1.0\LibCopyPaste-1.0.lua
+Libs.xml
 Locales\locales.xml
 Bindings.lua
 Core.lua
