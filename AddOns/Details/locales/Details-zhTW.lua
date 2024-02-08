@@ -2638,7 +2638,7 @@ L["Details! Mythic Run Completed!"] = "Details! 傳奇地城通關!"
 L["Show Damage Graphic"] = "顯示傷害圖表"
 L["Time not in combat:"] = "沒有戰鬥的時間:"
 L["Run Time:"] = "通關時間:"
-L["You are seeing this because it's a 28 or above. Under development."] = "看到這段訊息表示這是 28 層或以上，相關功能仍在開發中。"
+L["Under development."] = "開發中。"
 L["Show Breakdown"] = "顯示分析"
 L["Unknown for this run"] = "此次通關未知"
 
