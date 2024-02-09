@@ -4119,7 +4119,8 @@ addon.data.nondisenchantable = {
 	[209066] = true, -- Ensemble: Chromatically Calibrated Cranial Cannons
 	[209067] = true, -- Ensemble: Chromatically Calibrated Ectoplasmic Specs
 	[210008] = true, -- Smoldering Rune of Binding
-	[210424] = true, -- Darnassian Tabard
 	[210501] = true, -- Dream Wardens Tabard
 	[210523] = true, -- Timerunning Neck
+	[211873] = true, -- Reins of the Gilnean Prowler
+	[212522] = true, -- Compass Rose
 }

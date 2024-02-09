@@ -1,20 +1,17 @@
 local _, addon = ...
 
 -- game version API
+local _, _, _, interfaceVersion = GetBuildInfo()
 function addon:IsRetail()
-	return _G.WOW_PROJECT_ID == _G.WOW_PROJECT_MAINLINE
+	return interfaceVersion >= 100000
 end
 
 function addon:IsClassic()
-	return _G.WOW_PROJECT_ID == _G.WOW_PROJECT_CLASSIC
+	return interfaceVersion >= 20000 and interfaceVersion < 100000
 end
 
-function addon:IsClassicTBC()
-	return _G.WOW_PROJECT_ID == _G.WOW_PROJECT_BURNING_CRUSADE_CLASSIC
-end
-
-function addon:IsClassicWrath()
-	return _G.WOW_PROJECT_ID == _G.WOW_PROJECT_WRATH_CLASSIC
+function addon:IsClassicEra()
+	return interfaceVersion < 20000
 end
 
 -- easy frame "removal"
@@ -68,12 +65,6 @@ end
 function addon:GetPlayerMapID()
 	-- TODO: maybe use HBD data if it's available
 	return C_Map.GetBestMapForUnit('player') or -1
-end
-
-function addon:SetPixelScale(object)
-	local _, screenHeight = GetPhysicalScreenSize()
-	object:SetIgnoreParentScale(true)
-	object:SetScale(768 / screenHeight)
 end
 
 function addon:tsize(tbl)
