@@ -10,6 +10,9 @@ local optionIndexes = {}
 -- indexed by var, sub-tables of ordered list of option indexes that are dependent on this index (for search hits)
 searchDependencies = {}
 
+-- indexed by dropdown setting name (var in optionsList), the listbutton control made for the setting
+local dropDownFrames = {}
+
 rematch.events:Register(rematch.optionsPanel,"PLAYER_LOGIN",function(self)
     self.Top.SearchBox.Instructions:SetText(L["Search Options"])
     -- expanded headers savedvar
@@ -38,7 +41,7 @@ rematch.events:Register(rematch.optionsPanel,"PLAYER_LOGIN",function(self)
     if GetCVar("SoftTargetInteract")~="3" then
         for index=#rematch.optionsList,1,-1 do
             local info = rematch.optionsList[index]
-            if info.parentKey=="InteractOnSoftInteractWidget" then
+            if info.var=="InteractOnSoftInteract" then
                 tremove(rematch.optionsList,index)
             end
         end
@@ -201,6 +204,45 @@ function rematch.optionsPanel:Update()
     end
 end
 
+-- returns the dropdown listbutton frame for the given variable, creating and initializing it if needed
+function rematch.optionsPanel:GetDropDownFrame(var)
+    local frame = var and dropDownFrames[var]
+    if frame then
+        return frame
+    elseif var then -- frame for this dropdown doesn't exist, go get its details and build it
+        for _,info in ipairs(rematch.optionsList) do
+            if info.var==var then
+                frame = CreateFrame("Button",nil,self,"RematchOptionsDropDownTemplate")
+                if info.tooltip then
+                    frame.tooltipTitle = info.text
+                    frame.tooltipBody = info.tooltip
+                end
+                frame.Label:SetText(info.text..":")
+                frame.DropDown:BasicSetup(info.menu,function(value)
+                    settings[var] = value
+                    if info.func and self.funcs[info.func] then
+                        self.funcs[info.func](frame,value)
+                    end
+                    if info.update then
+                        rematch.frame:Update()
+                    end
+                end)
+                frame.DropDown:SetSelection(settings[var])
+                dropDownFrames[var] = frame
+                return frame
+            end
+        end
+    end
+end
+
+-- when a dropdown affects other dropdowns, this should be called on those others to change their value
+function rematch.optionsPanel:UpdateDropDown(var)
+    local frame = var and dropDownFrames[var]
+    if frame then
+        frame.DropDown:SetSelection(settings[var])
+    end
+end
+
 -- returns true if the index is a header
 function rematch.optionsPanel:HeaderCriteria(index)
     local info = rematch.optionsList[index]
@@ -248,6 +290,16 @@ function rematch.optionsPanel:FillNormal(index)
         self.Text:SetTextColor(0.9,0.9,0.9)
         self.Text:SetPoint("LEFT",6,0)
         self.Text:SetText(self.info.text)
+    elseif self.info.type=="dropdown" then
+        self.Check:Hide()
+        self.Text:Hide()
+        clearWidget(self)
+        local dropdown = rematch.optionsPanel:GetDropDownFrame(self.info.var)
+        dropdown:ClearAllPoints()
+        dropdown:SetParent(self)
+        dropdown:SetAllPoints(true)
+        dropdown:Show()
+        self.widget = dropdown
     elseif self.info.type=="widget" then
         self.Check:Hide()
         self.Text:Hide()
@@ -338,6 +390,55 @@ end
 
 rematch.optionsPanel.funcs = {}
 
+function rematch.optionsPanel.funcs:InteractOnTarget(value)
+    if value~=C.INTERACT_NONE then
+        settings.InteractOnSoftInteract = C.INTERACT_NONE
+        settings.InteractOnMouseover = C.INTERACT_NONE
+        rematch.optionsPanel:UpdateDropDown("InteractOnSoftInteract")
+        rematch.optionsPanel:UpdateDropDown("InteractOnMouseover")
+    end
+    rematch.interact:Update()
+end
+
+function rematch.optionsPanel.funcs:InteractOnSoftInteract(value)
+    if value~=C.INTERACT_NONE then
+        settings.InteractOnTarget = C.INTERACT_NONE
+        settings.InteractOnMouseover = C.INTERACT_NONE
+        rematch.optionsPanel:UpdateDropDown("InteractOnTarget")
+        rematch.optionsPanel:UpdateDropDown("InteractOnMouseover")
+    end
+    rematch.interact:Update()
+end
+
+function rematch.optionsPanel.funcs:InteractOnMouseover(value)
+    if value~=C.INTERACT_NONE then
+        settings.InteractOnTarget = C.INTERACT_NONE
+        settings.InteractOnSoftInteract = C.INTERACT_NONE
+        rematch.optionsPanel:UpdateDropDown("InteractOnTarget")
+        rematch.optionsPanel:UpdateDropDown("InteractOnSoftInteract")
+    end
+    rematch.interact:Update()
+end
+
+function rematch.optionsPanel.funcs:Anchor(anchor)
+    -- changing anchor while in journal mode (or while window is not on screen) messes up anchoring
+    if rematch.journal:IsActive() then
+        rematch.frame:Toggle() -- hide journal
+        rematch.frame:Toggle() -- show standalone window
+        if rematch.layout:GetMode()==0 then
+            rematch.frame:ToggleMinimized()
+        end
+    end
+    rematch.frame:ChangeAnchor(anchor)
+    rematch.optionsPanel:UpdateDropDown("PanelTabAnchor")
+end
+
+function rematch.optionsPanel.funcs:PanelTabAnchor(anchor)
+    if rematch.frame:IsVisible() and not rematch.journal:IsActive() then
+        rematch.frame:Configure(C.CURRENT)
+    end    
+end
+
 -- when checking UseDefaultJournal while in the journal, turn off the journal (like bottombar's rematch checkbutton)
 function rematch.optionsPanel.funcs:UseDefaultJournal()
     if settings.UseDefaultJournal and rematch.journal:IsActive() then
@@ -347,7 +448,6 @@ function rematch.optionsPanel.funcs:UseDefaultJournal()
         PetJournal_UpdatePetLoadOut() -- in case journal wasn't keeping up while rematch was doing stuff
     end
 end
-
 
 -- Standalone Window Options: Lower Window Behind UI; toggles the framestrata between LOW and MEDIUM
 function rematch.optionsPanel.funcs:LowerStrata()
@@ -459,246 +559,37 @@ function rematch.optionsPanel.funcs:HideNotesButtonInBattle()
     rematch.battle.NotesButton:SetShown(not settings.HideNotesButtonInBattle)
 end
 
+function rematch.optionsPanel.funcs:NotesFont()
+    rematch.notes:UpdateFont()
+end
+
+function rematch.optionsPanel.funcs:BreedSource(value)
+    if value=="BattlePetBreedID" and settings.BreedFormat==C.BREED_FORMAT_ICONS then
+        settings.BreedFormat = C.BREED_FORMAT_LETTERS -- if changing to BattlePetBreedID and format is icons, change format to letters
+    end
+    rematch.breedInfo:ResetBreedSource()
+    rematch.optionsPanel:UpdateDropDown("BreedSource") -- in case ResetBreedSource asserts a different one
+    rematch.optionsPanel:UpdateDropDown("BreedFormat")
+    rematch.frame:Update()
+end
+
+function rematch.optionsPanel.funcs:BreedFormat(value)
+    if value==C.BREED_FORMAT_ICONS and settings.BreedSource=="BattlePetBreedID" then
+        settings.BreedSource = "PetTracker" -- if changing to Icons and source isn't PetTracker, change source to PetTracker
+        rematch.breedInfo:ResetBreedSource()
+    end
+    rematch.optionsPanel:UpdateDropDown("BreedSource")
+    rematch.optionsPanel:UpdateDropDown("BreedFormat")
+    rematch.frame:Update()
+end
+
+function rematch.optionsPanel.funcs:MousewheelSpeed(speed)
+    rematch.optionsPanel.List:SetSpeed(speed)
+end
+
 --[[ widget setups ]]
 
 rematch.optionsPanel.widgetSetup = {}
-
--- sets up the AnchorWidget and its dropdown control
-function rematch.optionsPanel.widgetSetup:AnchorWidget()
-    self.tooltipTitle = L["Anchor To"]
-    self.tooltipBody = L["When the standalone window is minimized or maximized, use the chosen corner/edge as the anchor."]
-    self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({
-            {text="Bottom Left", value="BOTTOMLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0.5,0.75}},
-            {text="Bottom Center", value="BOTTOM", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0.5,0.75}},
-            {text="Bottom Right", value="BOTTOMRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0.5,0.75}},
-            {text="Top Right", value="TOPRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0,0.25}},
-            {text="Top Center", value="TOP", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0,0.25}},
-            {text="Top Left", value="TOPLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0,0.25}}},
-            function(value)
-                -- changing anchor while in journal mode (or while window is not on screen) messes up anchoring
-                if rematch.journal:IsActive() then
-                    rematch.frame:Toggle() -- hide journal
-                    rematch.frame:Toggle() -- show standalone window
-                end
-                rematch.frame:ChangeAnchor(value)
-            end
-    )
-    self.DropDown:SetSelection(settings.Anchor)
-end
-
--- sets up the AnchorWidget and its dropdown control
-function rematch.optionsPanel.widgetSetup:PanelTabAnchorWidget()
-    self.tooltipTitle = L["Panel Tabs"]
-    self.tooltipBody = L["Choose which corner of the standalone Rematch window to anchor panel tabs such as Pets, Teams, Targets, etc.\n\nNote: Choosing a new anchor for the whole window will change the tabs anchor to match. You can change this tabs anchor again anytime."]
-    self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({
-            {text="Bottom Left", value="BOTTOMLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0.5,0.75}},
-            {text="Bottom Center", value="BOTTOM", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0.5,0.75}},
-            {text="Bottom Right", value="BOTTOMRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0.5,0.75}},
-            {text="Top Right", value="TOPRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0,0.25}},
-            {text="Top Center", value="TOP", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0,0.25}},
-            {text="Top Left", value="TOPLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0,0.25}}},
-            function(value)
-                rematch.frame:ChangePanelTabAnchor(value)
-            end
-    )
-    self.DropDown:SetSelection(settings.PanelTabAnchor)
-end
-
-function rematch.optionsPanel.widgetSetup:TooltipBehaviorWidget()
-    self.tooltipTitle = L["Tooltip Speed"]
-    self.tooltipBody = L["Choose how quickly you prefer the tooltips (including pet ability tooltips) to be shown."]
-    self.Label:SetText(L["Tooltip Speed:"])
-    self.DropDown:BasicSetup({
-        {text=L["Slow"], value="Slow", tooltipTitle=L["Slow Mouseover"], tooltipBody=L["Wait three quarters of a second for the tooltip to appear when you mouseover a button with a tooltip."]},
-        {text=L["Normal"], value="Normal", tooltipTitle=L["Normal Mouseover"], tooltipBody=L["Wait a quarter of a second for the tooltip to appear when you mouseover a button with a tooltip."]},
-        {text=L["Fast"], value="Fast", tooltipTitle=L["Fast Mouseover"], tooltipBody=L["Immediately show the tooltip when you mouseover a button with a tooltip."]}},
-        function(value) settings.TooltipBehavior=value end)
-    self.DropDown:SetSelection(settings.TooltipBehavior)
-end
-
-function rematch.optionsPanel.widgetSetup:CardBehaviorWidget()
-    self.tooltipTitle = L["Card Speed"]
-    self.tooltipBody = L["Choose how quickly you prefer the pet card and notes to be shown when you mouseover a pet or notes button."]
-    self.Label:SetText(L["Card Speed:"])
-    self.DropDown:BasicSetup({
-        {text=L["Slow"], value="Slow", tooltipTitle=L["Slow Mouseover"], tooltipBody=L["Wait three quarters of a second for the pet card or notes to appear when you mouseover a pet or notes button."]},
-        {text=L["Normal"], value="Normal", tooltipTitle=L["Normal Mouseover"], tooltipBody=L["Wait a quarter of a second for the pet card or notes to appear when you mouseover a pet or notes button."]},
-        {text=L["Fast"], value="Fast", tooltipTitle=L["Fast Mouseover"], tooltipBody=L["Immediately show the pet card or notes when you mouseover a pet or notes button."]},
-        {text=L["On Click"], value="Click", tooltipTitle=L["On Click"], tooltipBody=L["Only show the pet card or notes when you click a pet or notes button."]}},
-        function(value) settings.CardBehavior=value end)
-    self.DropDown:SetSelection(settings.CardBehavior)
-end
-
--- sets up the FlipKeyWidget and its dropdown control
-function rematch.optionsPanel.widgetSetup:FlipKeyWidget()
-    self.tooltipTitle = L["Flip Modifier Key"]
-    self.tooltipBody = L["The modifier key that will flip the pet card over. Regardless of this setting, you can flip the pet card over by mouseover of the pet's icon at the top of the card."]
-    self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({{text="Alt Key", value="Alt"},{text="Shift Key", value="Shift"},{text="Ctrl Key", value="Ctrl"},{text="None", value="None"}},
-                            function(value) settings.PetCardFlipKey=value rematch.petCard:Update() end)
-    self.DropDown:SetSelection(settings.PetCardFlipKey)
-end
-
-function rematch.optionsPanel.widgetSetup:CardBackWidget()
-    self.tooltipTitle = L["Card Background"]
-    self.tooltipBody = L["The artwork displayed in the background on the front of pet cards."]
-    self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({{text=L["Expansion Art"], value="Expansion"},{text=L["Portrait Art"], value="Portrait"},{text=L["Icon Art"], value="Icon"},{text=L["Type Art"], value="Type"},{text=L["None"], value="None"}},
-                            function(value) settings.PetCardBackground=value rematch.petCard:Update() end)
-    self.DropDown:SetSelection(settings.PetCardBackground)
-end
-
-function rematch.optionsPanel.widgetSetup:AbilityBackWidget()
-    self.tooltipTitle = L["Ability Background"]
-    self.tooltipBody = L["The artwork displayed in the background of ability tooltips."]
-    self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({{text=L["Icon Art"], value="Icon"},{text=L["Type Art"], value="Type"},{text=L["None"], value="None"}},
-        function(value) settings.AbilityBackground=value end)
-    self.DropDown:SetSelection(settings.AbilityBackground)
-end
-
-function rematch.optionsPanel.widgetSetup:RandomPetRulesWidget()
-    self.tooltipTitle = L["Random Pet Rules"]
-    self.tooltipBody = L["Rules to apply when loading a random pet. The more strict rules will limit the pool of random pets to choose from.\n\nNote: When a team loads with random pets in all three slots, 'Lenient' rules are used regardless of this setting."]
-    self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({
-        {text=L["Strict"], value=C.RANDOM_RULES_STRICT, tooltipTitle=L["Scrict Rules"], tooltipBody=L["When a random pet is chosen, never pick pets saved in a team and never pick injured pets."]},
-        {text=L["Normal"], value=C.RANDOM_RULES_NORMAL, tooltipTitle=L["Normal Rules"], tooltipBody=L["When a random pet is chosen, prefer pets not saved in a team and prefer uninjured pets."]},
-        {text=L["Lenient"], value=C.RANDOM_RULES_LENIENT, tooltipTitle=L["Lenient Rules"], tooltipBody=L["When a random pet is chosen, allow pets saved in a team and prefer uninjured pets."]}
-        },
-        function(value) settings.RandomPetRules=value end)
-    self.DropDown:SetSelection(settings.RandomPetRules)
-end
-
-function rematch.optionsPanel.widgetSetup:BreedSourceWidget()
-    self.tooltipTitle = L["Breed Source"]
-    self.tooltipBody = L["Which enabled addon you want to use to supply breed data."]
-    self.Label:SetText(self.tooltipTitle..":")
-    local sources = {{text=L["None"], value="None", tooltipTitle=L["None"], tooltipBody=L["No breed information will be shown if this is selected. Rematch does not maintain its own breed data."]}}
-
-    if IsAddOnLoaded("BattlePetBreedID") then
-        tinsert(sources,{text="Battle Pet Breed ID", value="BattlePetBreedID"})
-    end
-    if IsAddOnLoaded("PetTracker") then
-        tinsert(sources,{text="PetTracker", value="PetTracker"})
-    end
-    self.DropDown:BasicSetup(sources,function(value)
-        if value=="BattlePetBreedID" and settings.BreedFormat==C.BREED_FORMAT_ICONS then
-            settings.BreedFormat = C.BREED_FORMAT_LETTERS -- if changing to BattlePetBreedID and format is icons, change format to letters
-        end
-        settings.BreedSource=value
-        rematch.breedInfo:ResetBreedSource()
-        rematch.frame:Update()
-    end)
-    self.DropDown:SetSelection(rematch.breedInfo:GetBreedSource() or "None")
-end
-
-function rematch.optionsPanel.widgetSetup:BreedFormatWidget()
-    self.tooltipTitle = L["Breed Format"]
-    self.tooltipBody = L["How breeds should display."]
-    self.Label:SetText(self.tooltipTitle..":")
-    local formats = {{text=L["Letters"], value=C.BREED_FORMAT_LETTERS},
-                     {text=L["Numbers"], value=C.BREED_FORMAT_NUMBERS}}
-    if IsAddOnLoaded("PetTracker") then
-        tinsert(formats,{text=L["Icons"], value=C.BREED_FORMAT_ICONS})
-    elseif settings.BreedFormat==C.BREED_FORMAT_ICONS then -- if PetTracker not enabled and breed format is icons, change to letters
-        settings.BreedFormat = C.BREED_FORMAT_LETTERS
-    end
-    self.DropDown:BasicSetup(formats,function(value)
-        if value==C.BREED_FORMAT_ICONS and settings.BreedSource=="BattlePetBreedID" then
-            settings.BreedSource = "PetTracker" -- if changing to Icons and source isn't PetTracker, change source to PetTracker
-            rematch.breedInfo:ResetBreedSource()
-        end
-        settings.BreedFormat=value
-        rematch.frame:Update()
-    end)
-    self.DropDown:SetSelection(settings.BreedFormat)
-end
-
-function rematch.optionsPanel.widgetSetup:InteractOnTargetWidget()
-    self.tooltipTitle = L["Interact On Target"]
-    self.tooltipBody = L["Choose the action to take when you target an NPC with a saved team that's not already loaded."]
-    self.Label:SetText(L["On Target:"])
-    self.DropDown:BasicSetup({
-            {text=L["Do Nothing"], value=C.INTERACT_NONE, tooltipTitle=L["Do Nothing"], tooltipBody=L["When targeting an NPC with a saved team not already loaded, do nothing."]},
-            {text=L["Prompt To Load"], value=C.INTERACT_PROMPT, tooltipTitle=L["Prompt To Load"], tooltipBody=L["When targeting an NPC with a saved team not already loaded, show a prompt to load the save team."]},
-            {text=L["Show Window"], value=C.INTERACT_WINDOW, tooltipTitle=L["Show Window"], tooltipBody=L["When targeting an NPC with a saved team not already loaded, show the standalone Rematch window."]},
-            {text=L["Auto Load"], value=C.INTERACT_AUTOLOAD, tooltipTitle=L["Auto Load"], tooltipBody=format(L["When targeting an NPC with a saved team not already loaded, automatically load the saved team.\n\n%sWarning\124r: If you target with right click and immediately enter battle, it may be too late to load a team. %sAuto Load is not recommended for On Target.\124r Use On Mouseover for Auto Load instead."],C.HEX_RED,C.HEX_WHITE)}
-        },
-        function(value)
-        settings.InteractOnTarget = value
-        if value~=C.INTERACT_NONE then
-            settings.InteractOnSoftInteract = C.INTERACT_NONE
-            settings.InteractOnMouseover = C.INTERACT_NONE
-            rematch.optionsPanel:Update()
-            rematch.interact:Update()
-        end
-    end)
-    self.DropDown:SetSelection(settings.InteractOnTarget)
-end
-
-function rematch.optionsPanel.widgetSetup:InteractOnSoftInteractWidget()
-    self.tooltipTitle = L["Interact On Soft Interact"]
-    self.tooltipBody = format(L["Choose the action to take when you soft interact with an NPC with a saved team that's not already loaded.\n\n%sNote\124r: This option is only available if SoftTargetInteract cvar is fully enabled (3). It will be hidden otherwise."],C.HEX_WHITE)
-    self.Label:SetText(L["On Soft Interact:"])
-    self.DropDown:BasicSetup({
-            {text=L["Do Nothing"], value=C.INTERACT_NONE, tooltipTitle=L["Do Nothing"], tooltipBody=L["When soft interactiong with an NPC with a saved team not already loaded, do nothing."]},
-            {text=L["Prompt To Load"], value=C.INTERACT_PROMPT, tooltipTitle=L["Prompt To Load"], tooltipBody=L["When soft interacting with an NPC with a saved team not already loaded, show a prompt to load the save team."]},
-            {text=L["Show Window"], value=C.INTERACT_WINDOW, tooltipTitle=L["Show Window"], tooltipBody=L["When soft interacting with an NPC with a saved team not already loaded, show the standalone Rematch window."]},
-            {text=L["Auto Load"], value=C.INTERACT_AUTOLOAD, tooltipTitle=L["Auto Load"], tooltipBody=format(L["When soft interacting with an NPC with a saved team not already loaded, automatically load the saved team."],C.HEX_RED,C.HEX_WHITE)}
-        },
-        function(value)
-        settings.InteractOnSoftInteract = value
-        if value~=C.INTERACT_NONE then
-            settings.InteractOnTarget = C.INTERACT_NONE
-            settings.InteractOnMouseover = C.INTERACT_NONE
-            rematch.optionsPanel:Update()
-            rematch.interact:Update()
-        end
-    end)
-    self.DropDown:SetSelection(settings.InteractOnSoftInteract)
-end
-
-function rematch.optionsPanel.widgetSetup:InteractOnMouseoverWidget()
-    self.tooltipTitle = L["Interact On Mouseover"]
-    self.tooltipBody = L["Choose the action to take when the mouse moves over an NPC with a saved team that's not already loaded."]
-    self.Label:SetText(L["On Mouseover:"])
-    self.DropDown:BasicSetup({
-            {text=L["Do Nothing"], value=C.INTERACT_NONE, tooltipTitle=L["Do Nothing"], tooltipBody=L["When the mouse moves over an NPC with a saved team not already loaded, do nothing."]},
-            {text=L["Prompt To Load"], value=C.INTERACT_PROMPT, tooltipTitle=L["Prompt To Load"], tooltipBody=L["When the mouse moves over an NPC with a saved team not already loaded, show a prompt to load the save team."]},
-            {text=L["Show Window"], value=C.INTERACT_WINDOW, tooltipTitle=L["Show Window"], tooltipBody=L["When the mouse moves over an NPC with a saved team not already loaded, show the standalone Rematch window."]},
-            {text=L["Auto Load"], value=C.INTERACT_AUTOLOAD, tooltipTitle=L["Auto Load"], tooltipBody=L["When the mouse moves over an NPC with a saved team not already loaded, automatically load the saved team."]}
-        },
-        function(value)
-        settings.InteractOnMouseover = value
-        if value~=C.INTERACT_NONE then
-            settings.InteractOnTarget = C.INTERACT_NONE
-            settings.InteractOnSoftInteract = C.INTERACT_NONE
-            rematch.optionsPanel:Update()
-            rematch.interact:Update()
-        end
-    end)
-    self.DropDown:SetSelection(settings.InteractOnMouseover)
-end
-
-function rematch.optionsPanel.widgetSetup:NotesFontWidget()
-    self.tooltipTitle = L["Notes Size"]
-    self.tooltipBody = L["Choose the size of the text in the pet and team notes."]
-    self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({
-            {text=L["Small"], value="GameFontHighlightSmall"},
-            {text=L["Medium"], value="GameFontHighlight"},
-            {text=L["Large"], value="GameFontHighlightLarge"},
-        },
-        function(value)
-            settings.NotesFont = value
-            rematch.notes:UpdateFont()
-        end
-    )
-    self.DropDown:SetSelection(settings.NotesFont)
-end
 
 function rematch.optionsPanel.widgetSetup:UseCustomScaleWidget()
     self.tooltipTitle = L["Use Custom Scale"]
@@ -738,7 +629,6 @@ function rematch.optionsPanel.UseCustomScaleWidget.ScaleButton:OnClick()
     rematch.dialog:ShowDialog("CustomScaleDialog")
 end
 
--- sets up the AnchorWidget and its dropdown control
 function rematch.optionsPanel.widgetSetup:OptionsManagementWidget()
     self.Label:SetText(L["All Options:"])
     self.ResetButton:SetText(L["Reset"])
@@ -770,85 +660,15 @@ function rematch.optionsPanel.OptionsManagementWidget.ResetButton:OnClick()
     rematch.dialog:ShowDialog("ResetOptions")
 end
 
--- sets up the CombineGroupKeyWidget and its dropdown control
-function rematch.optionsPanel.widgetSetup:CombineGroupKeyWidget()
-    self.tooltipTitle = L["Combine Groups Key"]
-    self.tooltipBody = L["While dragging a team group in the team list, holding this modifier key when you click another group will combine the two groups by moving all teams in the group on the cursor into the clicked group."]
-    self.Label:SetText(self.tooltipTitle..":")
-    self.DropDown:BasicSetup({{text="Alt Key", value="Alt"},{text="Shift Key", value="Shift"},{text="Ctrl Key", value="Ctrl"},{text="None", value="None"}},
-                            function(value) settings.CombineGroupKey=value rematch.petCard:Update() end)
-    self.DropDown:SetSelection(settings.CombineGroupKey)
-end
-
 --[[ widget updates ]]
 
 rematch.optionsPanel.widgetUpdate = {}
-
-function rematch.optionsPanel.widgetUpdate:AnchorWidget()
-    self.DropDown:SetSelection(settings.Anchor)
-end
-
-function rematch.optionsPanel.widgetUpdate:PanelTabAnchorWidget()
-    self.DropDown:SetSelection(settings.PanelTabAnchor)
-end
-
-function rematch.optionsPanel.widgetUpdate:TooltipBehaviorWidget()
-    self.DropDown:SetSelection(settings.TooltipBehavior)
-end
-
-function rematch.optionsPanel.widgetUpdate:CardBehaviorWidget()
-    self.DropDown:SetSelection(settings.CardBehavior)
-end
-
-function rematch.optionsPanel.widgetUpdate:FlipKeyWidget()
-    self.DropDown:SetSelection(settings.PetCardFlipKey)
-end
-
-function rematch.optionsPanel.widgetUpdate:CardBackWidget()
-    self.DropDown:SetSelection(settings.PetCardBackground)
-end
-
-function rematch.optionsPanel.widgetUpdate:AbilityBackWidget()
-    self.DropDown:SetSelection(settings.AbilityBackground)
-end
-
-function rematch.optionsPanel.widgetUpdate:RandomPetRulesWidget()
-    self.DropDown:SetSelection(settings.RandomPetRules)
-end
-
-function rematch.optionsPanel.widgetUpdate:BreedSourceWidget()
-    self.DropDown:SetSelection(rematch.breedInfo:GetBreedSource() or "None")
-end
-
-function rematch.optionsPanel.widgetUpdate:BreedFormatWidget()
-    self.DropDown:SetSelection(settings.BreedFormat)
-end
-
-function rematch.optionsPanel.widgetUpdate:InteractOnTargetWidget()
-    self.DropDown:SetSelection(settings.InteractOnTarget)
-end
-
-function rematch.optionsPanel.widgetUpdate:InteractOnSoftInteractWidget()
-    self.DropDown:SetSelection(settings.InteractOnSoftInteract)
-end
-
-function rematch.optionsPanel.widgetUpdate:InteractOnMouseoverWidget()
-    self.DropDown:SetSelection(settings.InteractOnMouseover)
-end
-
-function rematch.optionsPanel.widgetUpdate:NotesFontWidget()
-    self.DropDown:SetSelection(settings.NotesFont)
-end
 
 function rematch.optionsPanel.widgetUpdate:UseCustomScaleWidget()
     local xoff = settings.CustomScale and 0.25 or 0
     self.Check:SetTexCoord(0+xoff,0.25+xoff,0.5,0.75)
     self.ScaleButton:SetShown(settings.CustomScale)
     self.ScaleButton:SetText(format("%d%%",settings.CustomScaleValue or 0))
-end
-
-function rematch.optionsPanel.widgetUpdate:CombineGroupKeyWidget()
-    self.DropDown:SetSelection(settings.CombineGroupKey)
 end
 
 -- resets all non-table options to default, sets non-table options in import to given values, then reloads the UI

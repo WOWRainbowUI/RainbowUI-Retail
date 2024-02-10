@@ -402,14 +402,6 @@ function rematch.frame:ChangeAnchor(anchor)
     end
 end
 
-function rematch.frame:ChangePanelTabAnchor(anchor)
-    assert(anchor=="BOTTOMLEFT" or anchor=="TOPLEFT" or anchor=="TOP" or anchor=="TOPRIGHT" or anchor=="BOTTOMRIGHT" or anchor=="BOTTOM","Anchor "..(anchor or nil).." is invalid.")
-    rematch.settings.PanelTabAnchor = anchor
-    if rematch.frame:IsVisible() and not rematch.journal:IsActive() then
-        rematch.frame:Configure(C.CURRENT)
-    end
-end
-
 -- only standalone window can scale; call this for each configure and when scale settings change
 function rematch.frame:UpdateScale()
     if settings.CustomScale and not rematch.journal:IsActive() then

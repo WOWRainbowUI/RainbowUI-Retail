@@ -424,5 +424,10 @@ rematch.constants = {
     HELP_TEXT_PET_FILTER = L["In addition to the filters in this menu, you can further refine the pet list with the search box. Some search examples:\n\nPets: %sBlack Tabby\124r\nZones: %sSilithus\124r\nAbilities: %sSandstorm\124r\nText in abilities: %sBleed\124r\nLevels: %slevel=21-23\124r\nStats: %sspeed>300\124r\n\nSearches in \"quotes\" will limit results to only complete matches.\n\nSearch results will be sorted by relevance unless the option %sDon't Sort By Relevance\124r is checked in the Options tab."],
     HELP_TEXT_MULTI_CHECK = L["In filter menus, checkbox groups assume if nothing is checked you want to view all choices.\n\nYou can also:\n\n%s[Shift]+Click\124r to check all except the box clicked.\n\n%s[Alt]+Click\124r to uncheck all except the box clicked."],
     HELP_TEXT_PET_TAGS = L["Pet Tags are a way to categorize pets for any meaning you choose. You can then filter by specific tags.\n\nTo tag a pet, right-click a pet in the pet list and choose a tag from the Pet Tags menu.\n\nTo easily tag multiple pets, choose the %sPet Herder\124r option in the main Filters menu.\n\nYou can rename a tag by moving the mouse over a tag in a Pet Tags menu and clicking the %s that appears to the right of the tag's name.\n\nFor instance you can rename %s to Wild Pets To Get, tag pets you'd like to capture with a %s, and the pet card and other places will use the new name for the tag."],
-
+    -- for mouse behavior speed (mouseover/mousewheel)
+    MOUSE_SPEED_SLOW = "Slow",
+    MOUSE_SPEED_NORMAL = "Normal",
+    MOUSE_SPEED_MEDIUM = "Medium",
+    MOUSE_SPEED_FAST = "Fast",
+    MOUSE_SPEED_CLICK = "Click",
 }

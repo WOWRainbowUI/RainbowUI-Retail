@@ -184,11 +184,11 @@ function rematch.cardManager:OnEnter(frame,relativeTo,subject)
 
     local frameNotLocked = not (frame:IsVisible() and info.locked)
 
-    if behavior=="Slow" and frameNotLocked then
+    if behavior==C.MOUSE_SPEED_SLOW and frameNotLocked then
         rematch.timer:Start(C.CARD_MANAGER_DELAY_SLOW,info.timer)
-    elseif behavior=="Normal" and frameNotLocked then
+    elseif behavior==C.MOUSE_SPEED_NORMAL and frameNotLocked then
         rematch.timer:Start(C.CARD_MANAGER_DELAY_NORMAL,info.timer)
-    elseif behavior=="Fast" and frameNotLocked then
+    elseif behavior==C.MOUSE_SPEED_FAST and frameNotLocked then
         frame:Show()
         info.update(frame,info.enteredSubject)
         rematch.cardManager:UnlockCard(frame)
@@ -212,13 +212,13 @@ function rematch.cardManager:OnLeave(frame)
     info.enteredRelativeTo = nil
     info.enteredSubject = nil
 
-    if behavior=="Normal" or behavior=="Slow" then
+    if behavior==C.MOUSE_SPEED_NORMAL or behavior==C.MOUSE_SPEED_SLOW then
         if not frame:IsVisible() and rematch.timer:IsRunning(info.timer) then
             rematch.timer:Stop(info.timer)
         elseif frame:IsVisible() and not info.locked then
             frame:Hide()
         end
-    elseif behavior=="Fast" then
+    elseif behavior==C.MOUSE_SPEED_FAST then
         if frame:IsVisible() and not info.locked then
             frame:Hide()
         end
@@ -258,7 +258,7 @@ function rematch.cardManager:OnClick(frame,relativeTo,subject)
     end
 
     -- both normal and fast behavior share same behavior if card shown+locked+subject changed, shown+not locked, shown+locked
-    if behavior=="Normal" or behavior=="Slow" or behavior=="Fast" then
+    if behavior==C.MOUSE_SPEED_NORMAL or behavior==C.MOUSE_SPEED_SLOW or behavior==C.MOUSE_SPEED_FAST then
         -- special case for normal where card is waiting to be shown (or it wasn't shown due to being dismissed and new pet clicked)
         if not isVisible then
             if rematch.timer:IsRunning(info.timer) then
@@ -288,7 +288,7 @@ function rematch.cardManager:OnClick(frame,relativeTo,subject)
             rematch.cardManager:UnlockCard(frame)
         end
     end
-    if behavior=="Click" then
+    if behavior==C.MOUSE_SPEED_CLICK then
         if isVisible and (not info.lockedSubject or subject==info.lockedSubject) then
             frame:Hide()
         elseif isVisible and subject~=info.lockedSubject then
