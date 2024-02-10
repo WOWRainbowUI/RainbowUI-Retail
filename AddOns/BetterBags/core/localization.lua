@@ -17,7 +17,9 @@ if GetLocale() == "zhTW" then
 	L.data["Bank"] = "銀行"
 	L.data["Backpack"] = "背包"
 	L.data["Left Click to open the menu."] = "點一下顯示選單"
+	L.data["Left Click to open the menu, right click sort your bags and clear recent items."] = "左鍵: 顯示選單，右鍵: 整理背包並歸類新物品。"
 	L.data["Left Click to open the menu, right click to swap to reagent bank and back."] = "左鍵: 顯示選單，右鍵: 切換材料銀行。"
+	L.data["Left Click to open the menu, right click to clear recent items."] = "左鍵: 顯示選單，右鍵: 將新物品歸類。"
 	L.data["Recent Items"] = "新物品"
 	L.data["Free Slots"] = "空格"
 	
