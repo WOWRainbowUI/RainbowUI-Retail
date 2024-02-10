@@ -690,6 +690,30 @@ L["STRING_OPTIONS_MINIMAP_ANCHOR"] = "Minimapa:"
 L["STRING_OPTIONS_MINIMAP_DESC"] = "Mostrar el icono en el minimapa."
 L["STRING_OPTIONS_MISCTITLE"] = "Opciones misceláneas"
 L["STRING_OPTIONS_MISCTITLE2"] = "Estas opciones se permiten configurar los ajustes que no pertenecen en ninguna otra categoría."
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT"] = "New Combat on Boss Pull"
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_BOSSNEWCOMBAT_DESC"] = "If a boss is pulled while in combat, this option closes the current combat encounter and initiates a new one for the boss."
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_DPS_ANCHOR"] = "Overall Segment DPS Calculation"
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_MAKEOVERALL"] = "Make Overall Segment"
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_MAKEOVERALL_DESC"] = "After the run is completed, this option creates a new segment containing all combat data from the run."
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_MERGETRASH"] = "Merge Trash"
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_PANELS_ANCHOR"] = "Panels"
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_SHOWENDPANEL"] = "Show End of M+ Panel"
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_TIME_INCOMBAT"] = "Time in Combat"
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_TIME_INCOMBAT_DESC"] = "The overall segment for the Mythic+ run will use 'totalDamage / totalCombatTime' to calculate DPS."
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_TIME_RUNTIME"] = "Dungeon Run Time"
+--[[Translation missing --]]
+L["STRING_OPTIONS_MPLUS_TIME_RUNTIME_DESC"] = "The overall segment for the Mythic+ run will calculate DPS using 'totalDamage / runTime'."
 L["STRING_OPTIONS_NICKNAME"] = "Apodo"
 L["STRING_OPTIONS_NICKNAME_DESC"] = "Reemplazar el nombre de su personaje. El apodo se envía a los miembres de la hermandad, y se muestra en Details! en vez del nombre de su personaje."
 L["STRING_OPTIONS_OPEN_ROWTEXT_EDITOR"] = "Editor de texto de fila"
