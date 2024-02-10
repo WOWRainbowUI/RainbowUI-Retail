@@ -726,7 +726,7 @@ function rematch.petCard:GetPossibleBreedList(petInfo)
         if not petInfo.possibleBreedNames or #petInfo.possibleBreedNames==0 then
             list = UNKNOWN
         else
-            list = table.concat(petInfo.possibleBreedNames,rematch.breedInfo:GetBreedFormat()=="icon" and " " or ", ")
+            list = table.concat(petInfo.possibleBreedNames,rematch.breedInfo:GetBreedFormat()==C.BREED_FORMAT_ICONS and " " or ", ")
         end
         return format("%s: \124cffe5e5e5%s",L["Possible Breeds"],list)
     end
@@ -751,7 +751,7 @@ function rematch.petCard:GetCollectedList(petInfo)
 				end
 			end
         end
-		return format("%s: %s",collected,table.concat(collectedPets,rematch.breedInfo:GetBreedFormat()=="icon" and " " or ", "))
+		return format("%s: %s",collected,table.concat(collectedPets,rematch.breedInfo:GetBreedFormat()==C.BREED_FORMAT_ICONS and " " or ", "))
     end
 end
 

@@ -45,9 +45,9 @@ function rematch.tooltipManager:AddBehavior(tooltip)
             tooltipInfo[self].oldShow(self)
             self.fadeWait = C.TOOLTIP_FADE_WAIT
             self.fadeAlpha = C.TOOLTIP_FADE_ALPHA
-        elseif settings.TooltipBehavior=="Slow" then
+        elseif settings.TooltipBehavior==C.MOUSE_SPEED_SLOW then
             rematch.timer:Start(C.CARD_MANAGER_DELAY_SLOW,timer)
-        elseif settings.TooltipBehavior=="Normal" then
+        elseif settings.TooltipBehavior==C.MOUSE_SPEED_NORMAL then
             rematch.timer:Start(C.CARD_MANAGER_DELAY_NORMAL,timer)
         else -- if settings.TooltipBehavior=="Fast" then
             tooltipInfo[self].oldShow(self)

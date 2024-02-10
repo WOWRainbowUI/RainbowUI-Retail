@@ -1,5 +1,6 @@
 local _,rematch = ...
 local C = rematch.constants
+local settings = rematch.settings
 
 --[[
     Wrapper for Blizzard's recently expanded ScrollBox control with support for expanding/collapsing headers,
@@ -94,10 +95,12 @@ local C = rematch.constants
 
 ]]
 
-local setView, populateList, handleSelect, setupSelect, getDataHeight -- local functions defined at end
+local setView, populateList, handleSelect, setupSelect, getDataHeight, updateListSpeed -- local functions defined at end
 local disableSearch = false -- set to true during a setView
 
 local selectFrames = {} -- indexed by autoscrollbox(self), unordered {selectName=Frame,selectName=Frame,etc}
+
+local allLists = {} -- lookup table of all AutoScrollBox frames that get set up (indexed by autoscrollbox)
 
 RematchAutoScrollBoxMixin = {}
 
@@ -175,7 +178,16 @@ function RematchAutoScrollBoxMixin:Setup(definition)
         end
     end)
 
+    self.ScrollBox:RegisterCallback("OnUpdate",function(...)
+        updateListSpeed(self)
+    end)
+
     setView(self) -- create view (local so it can't be called from outside here or SetCompactMode)
+
+    self.ScrollBox:SetPanExtent(self.isCompact and self.compactHeight or self.normalHeight)
+
+    allLists[self] = true
+    updateListSpeed(self)
 
     self.isSetup = true
 end
@@ -211,6 +223,18 @@ function RematchAutoScrollBoxMixin:Update()
         end
         self.CaptureButton:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",-29,4)
         self.CaptureButton:Show()
+    end
+end
+
+-- if any list has a speed set, all lists are set to the same speed
+function RematchAutoScrollBoxMixin:SetSpeed(speed)
+    if speed==C.MOUSE_SPEED_SLOW or speed==C.MOUSE_SPEED_NORMAL or speed==C.MOUSE_SPEED_MEDIUM or speed==C.MOUSE_SPEED_FAST then
+        settings.MousewheelSpeed = speed
+    else
+        settings.MousewheelSpeed = C.MOUSE_SPEED_NORMAL
+    end
+    for list in pairs(allLists) do
+        updateListSpeed(list)
     end
 end
 
@@ -283,6 +307,7 @@ function RematchAutoScrollBoxMixin:SetCompactMode(isCompact)
     if self:GetCompactMode()~=newCompact then -- only need to change if value is different
         self.isCompact = newCompact
         setView(self)
+        self.ScrollBox:SetPanExtent(self.isCompact and self.compactHeight or self.normalHeight)
     end
 end
 
@@ -831,5 +856,28 @@ function getDataHeight(self,data)
         return self.compactHeight
     else
         return self.normalHeight
+    end
+end
+
+-- updates the list (autoscrollbox) wheelPanScalar to adjust scroll speed to settings.MousewheelSpeed
+function updateListSpeed(list)
+    if allLists[list] then
+        local speed = settings.MousewheelSpeed
+        local scrollBox = list.ScrollBox
+        local wheelPanScalar
+        if speed==C.MOUSE_SPEED_SLOW then
+            wheelPanScalar = 1
+        elseif speed==C.MOUSE_SPEED_NORMAL then
+            wheelPanScalar = 2
+        else -- the other speeds are based on height of the list (autoscrollbox)
+            local panExtent = max(scrollBox:GetPanExtent() or 0,1)
+            local height = list:GetHeight()-panExtent
+            if speed==C.MOUSE_SPEED_MEDIUM then
+                wheelPanScalar = (height/2-(height/2)%panExtent)/panExtent
+            elseif speed==C.MOUSE_SPEED_FAST then
+                wheelPanScalar = (height-height%panExtent)/panExtent
+            end
+        end
+        scrollBox.wheelPanScalar = (wheelPanScalar and wheelPanScalar>0) and wheelPanScalar or 2
     end
 end

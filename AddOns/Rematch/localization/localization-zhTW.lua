@@ -941,20 +941,39 @@ L["Add/Remove From Leveling Queue"] = "加入/移出練等佇列"
 L["Remove Pet Tags"] = "移除寵物標籤"
 L["Set/Remove Pet Tag: %s"] = "設定/移除寵物標籤: %s"
 
--- Version: 5.1.1 --
-L["This is a system group that cannot be deleted."] = "此為系統群組，無法刪除。"
-L["Delete Teams"] = "刪除隊伍"
-L["This group has no teams."] = "此群組沒有隊伍。"
-L["Delete Group Teams"] = "刪除群組隊伍"
-L["There are %s%d\124r teams in the group %s."] = "有 %s%d\124r 個隊伍在 %s 群組中。"
-L["%sAre you sure you want to %sdelete\124r these teams? This cannot be undone."] = "%s是否確定要%s刪除\124r這些隊伍? 此操作無法還原!"
-
 -- grey panel buttons have text defined here so localized text doesn't run off the edges of the buttons
 L["FILTER"] = "過濾"
 -- typebar tab in the pet panel
 L["TYPEBAR_TAB_TYPE"] = "類型"
 L["TYPEBAR_TAB_STRONG_VS"] = "強力 Vs"
 L["TYPEBAR_TAB_TOUGH_VS"] = "抗性 Vs"
+
+-- Version: 5.1.2 --
+
+
+-- menus\teamMenu.lua
+
+L["This is a system group that cannot be deleted."] = "此為系統群組，無法刪除。"
+L["Delete Teams"] = "刪除隊伍"
+L["This group has no teams."] = "此群組沒有隊伍。"
+L["Delete Group Teams"] = "刪除群組隊伍"
+L["There are %s%d\124r teams in the group %s."] = "有 %s%d\124r 個隊伍在群組 %s 裡面。"
+L["%sAre you sure you want to %sdelete\124r these teams? This cannot be undone."] = "%s是否確定要%s刪除\124r這些隊伍? 此操作無法還原!"
+
+-- panels\optionsList.lua
+
+L["Mousewheel Speed"] = "滑鼠滾輪速度"
+L["Choose how quickly you prefer lists to scroll when you mousewheel up or down over a list."] = "當你在選項列表上使用滑鼠滾輪向上或向下滾動時，請選擇你偏好的捲動速度。"
+L["Slow Mousewheel"] = "慢速滑鼠滾輪"
+L["Scroll one line at a time."] = "一次捲動一行"
+L["Normal Mousewheel"] = "正常滑鼠滾輪"
+L["Scroll two lines at a time."] = "一次捲動兩行"
+L["Medium Mousewheel"] = "中等滑鼠滾輪"
+L["Scroll roughly half a page at a time."] = "每次大約捲動半頁。"
+L["Fast Mousewheel"] = "快速滑鼠滾輪"
+L["Scroll nearly a whole page at a time."] = "每次將近捲動一整頁。"
+L["Battle Pet Breed ID"] = "戰寵品級 ID"
+L["PetTracker"] = "戰寵助手"
 
 -- 自行加入
 L["Recent Targets"] = "近期對手"

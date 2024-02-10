@@ -35,7 +35,7 @@ end
 function rematch.textureDrag:GLOBAL_MOUSE_DOWN(button)
     if button=="LeftButton" and not GetCursorInfo() then
         local focus = GetMouseFocus()
-        if focus and focus:GetObjectType()=="Texture" and focus.draggable then
+        if focus and not focus:IsForbidden() and focus:GetObjectType()=="Texture" and focus.draggable then
             isDragging = true
             dragSource = focus
         end

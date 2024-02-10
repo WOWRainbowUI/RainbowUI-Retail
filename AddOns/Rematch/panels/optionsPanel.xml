@@ -1,7 +1,7 @@
 <Ui>
 
     <!-- DropDown widgets all have a label to the left with a RematchDropDown taking up the remaining space -->
-    <Button name="RematchOptionsDropDownTemplate" inherits="RematchTooltipScripts" virtual="true">
+    <Button name="RematchOptionsDropDownTemplate" inherits="RematchTooltipScripts" virtual="true" hidden="true">
         <Size x="0" y="26"/>
         <KeyValues>
             <KeyValue key="isOption" value="true" type="boolean"/>
@@ -112,36 +112,8 @@
 
             <!-- widgets are single controls that are placed within the list and should be a direct child of the OptionPanel frame -->
 
-            <!-- Standalone Window Options: Anchor -->
-            <Button parentKey="AnchorWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Standalone Window Options: Anchor -->
-            <Button parentKey="PanelTabAnchorWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Behavior Options: Tooltip Speed -->
-            <Button parentKey="TooltipBehaviorWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Pet Card Options: Pet Card Speed-->
-            <Button parentKey="CardBehaviorWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Ability Tooltip Options: Ability Background -->
-            <Button parentKey="AbilityBackWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Pet Card Options: Flip Modifier Key -->
-            <Button parentKey="FlipKeyWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Pet Card Options: Card Background -->
-            <Button parentKey="CardBackWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Team Options: Random Pet Rules -->
-            <Button parentKey="RandomPetRulesWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Breed Options: Breed Source -->
-            <Button parentKey="BreedSourceWidget" inherits="RematchOptionsDropDownTemplate"/>
             <!-- Breed Options: Breed Format -->
             <Button parentKey="BreedFormatWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Interaction Options: On Target -->
-            <Button parentKey="InteractOnTargetWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Interaction Options: On Mouseover -->
-            <Button parentKey="InteractOnSoftInteractWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Interaction Options: On Mouseover -->
-            <Button parentKey="InteractOnMouseoverWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Notes Options: Notes Size -->
-            <Button parentKey="NotesFontWidget" inherits="RematchOptionsDropDownTemplate"/>
-            <!-- Team Options: Combine Groups Key -->
-            <Button parentKey="CombineGroupKeyWidget" inherits="RematchOptionsDropDownTemplate"/>
 
             <!-- Standalone Window Options: Use Custom Scale -->
             <Button parentKey="UseCustomScaleWidget">

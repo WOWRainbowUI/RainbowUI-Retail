@@ -44,6 +44,9 @@ function rematch.breedInfo:GetBreedSource()
             breedSource = false -- none found, only attempt to find a source once
         end
     end
+    if breedSource~="PetTracker" and settings.BreedFormat==C.BREED_FORMAT_ICONS then
+        settings.BreedFormat = C.BREED_FORMAT_LETTERS
+    end
     return breedSource,breedSourceName
 end
 
@@ -58,15 +61,17 @@ end
 
 -- returns either "text" or "icon", the format of breed to display
 function rematch.breedInfo:GetBreedFormat()
-    if breedSource=="PetTracker" and not settings.PetTrackerLetterBreeds then
-        return "icon"
-    else
-        return "text"
+    if breedSource~="PetTracker" and settings.BreedFormat==C.BREED_FORMAT_ICONS then
+        settings.BreedFormat = C.BREED_FORMAT_LETTERS
     end
+    return settings.BreedFormat
 end
 
 -- returns the name of a breed by its ID; full is true if the icon+name should be used if PetTracker enabled
 function rematch.breedInfo:GetBreedNameByID(breedID,full)
+    if breedSource~="PetTracker" and settings.BreedFormat==C.BREED_FORMAT_ICONS then
+        settings.BreedFormat = C.BREED_FORMAT_LETTERS
+    end
     if settings.BreedFormat==C.BREED_FORMAT_NUMBERS then
         return breedNames[breedID] and breedID
     elseif settings.BreedFormat==C.BREED_FORMAT_LETTERS then

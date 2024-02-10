@@ -61,9 +61,24 @@ rematch.optionsList = {
 	--{type="header", group=0, text=L["All Options"]},
 	-- Targeting Options
 	{type="header", group=1, text=L["Interaction Options"]},
-	{type="widget", group=1, text=L["On Target"], parentKey="InteractOnTargetWidget"},
-	{type="widget", group=1, text=L["On Mouseover"], parentKey="InteractOnMouseoverWidget"},
-	{type="widget", group=1, text=L["On Soft Interact"], parentKey="InteractOnSoftInteractWidget"},
+	{type="dropdown", group=1, text=L["On Target"], var="InteractOnTarget", func="InteractOnTarget", tooltip=L["Choose the action to take when you target an NPC with a saved team that's not already loaded."],
+		menu = {{text=L["Do Nothing"], value=C.INTERACT_NONE, tooltipTitle=L["Do Nothing"], tooltipBody=L["When targeting an NPC with a saved team not already loaded, do nothing."]},
+				{text=L["Prompt To Load"], value=C.INTERACT_PROMPT, tooltipTitle=L["Prompt To Load"], tooltipBody=L["When targeting an NPC with a saved team not already loaded, show a prompt to load the save team."]},
+				{text=L["Show Window"], value=C.INTERACT_WINDOW, tooltipTitle=L["Show Window"], tooltipBody=L["When targeting an NPC with a saved team not already loaded, show the standalone Rematch window."]},
+				{text=L["Auto Load"], value=C.INTERACT_AUTOLOAD, tooltipTitle=L["Auto Load"], tooltipBody=format(L["When targeting an NPC with a saved team not already loaded, automatically load the saved team.\n\n%sWarning\124r: If you target with right click and immediately enter battle, it may be too late to load a team. %sAuto Load is not recommended for On Target.\124r Use On Mouseover for Auto Load instead."],C.HEX_RED,C.HEX_WHITE)}}
+	},
+	{type="dropdown", group=1, text=L["On Mouseover"], var="InteractOnMouseover", func="InteractOnMouseover", tooltip=L["Choose the action to take when the mouse moves over an NPC with a saved team that's not already loaded."],
+		menu = {{text=L["Do Nothing"], value=C.INTERACT_NONE, tooltipTitle=L["Do Nothing"], tooltipBody=L["When the mouse moves over an NPC with a saved team not already loaded, do nothing."]},
+				{text=L["Prompt To Load"], value=C.INTERACT_PROMPT, tooltipTitle=L["Prompt To Load"], tooltipBody=L["When the mouse moves over an NPC with a saved team not already loaded, show a prompt to load the save team."]},
+				{text=L["Show Window"], value=C.INTERACT_WINDOW, tooltipTitle=L["Show Window"], tooltipBody=L["When the mouse moves over an NPC with a saved team not already loaded, show the standalone Rematch window."]},
+				{text=L["Auto Load"], value=C.INTERACT_AUTOLOAD, tooltipTitle=L["Auto Load"], tooltipBody=L["When the mouse moves over an NPC with a saved team not already loaded, automatically load the saved team."]}}
+	},
+	{type="dropdown", group=1, text=L["On Soft Interact"], var="InteractOnSoftInteract", func="InteractOnSoftInteract", tooltip=format(L["Choose the action to take when you soft interact with an NPC with a saved team that's not already loaded.\n\n%sNote\124r: This option is only available if SoftTargetInteract cvar is fully enabled (3). It will be hidden otherwise."],C.HEX_WHITE),
+		menu = {{text=L["Do Nothing"], value=C.INTERACT_NONE, tooltipTitle=L["Do Nothing"], tooltipBody=L["When soft interactiong with an NPC with a saved team not already loaded, do nothing."]},
+				{text=L["Prompt To Load"], value=C.INTERACT_PROMPT, tooltipTitle=L["Prompt To Load"], tooltipBody=L["When soft interacting with an NPC with a saved team not already loaded, show a prompt to load the save team."]},
+				{text=L["Show Window"], value=C.INTERACT_WINDOW, tooltipTitle=L["Show Window"], tooltipBody=L["When soft interacting with an NPC with a saved team not already loaded, show the standalone Rematch window."]},
+				{text=L["Auto Load"], value=C.INTERACT_AUTOLOAD, tooltipTitle=L["Auto Load"], tooltipBody=format(L["When soft interacting with an NPC with a saved team not already loaded, automatically load the saved team."],C.HEX_RED,C.HEX_WHITE)}}
+	},
 	{type="check", group=1, text=L["Always Interact"], var="InteractAlways", tooltip=L["The default behavior is to perform the target or mouseover interaction once until you interact with another NPC with a saved team. Check this to always interact with NPCs that have a saved team not already loaded."]},
 	{type="check", group=1, text=L["Prefer Uninjured Teams"], var="InteractPreferUninjured", tooltip=L["When you interact with an NPC that has more than one team saved to it, choose the team with no injured pets instead of the topmost team for the target. On Prompt To Load and Show Window options where you can choose which team to load before loading, start with the healthiest team."]},
 	{type="check", group=1, text=L["Show Window After Loading"], var="InteractShowAfterLoad", tooltip=L["When a team is loaded from an interaction (target or mouseover) and the Rematch window is not on screen, summon the standalone Rematch window."]},
@@ -71,8 +86,22 @@ rematch.optionsList = {
 
 	-- Standalone Window Options
 	{type="header", group=2, text=L["Standalone Window Options"]},
-	{type="widget", group=2, text=L["Anchor To"], parentKey="AnchorWidget"},
-	{type="widget", group=2, text=L["Tab Anchor"], parentKey="PanelTabAnchorWidget"},
+	{type="dropdown", group=2, text=L["Anchor To"], var="Anchor", func="Anchor", tooltip=L["When the standalone window is minimized or maximized, use the chosen corner/edge as the anchor."],
+		menu = {{text="Bottom Left", value="BOTTOMLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0.5,0.75}},
+				{text="Bottom Center", value="BOTTOM", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0.5,0.75}},
+				{text="Bottom Right", value="BOTTOMRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0.5,0.75}},
+				{text="Top Right", value="TOPRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0,0.25}},
+				{text="Top Center", value="TOP", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0,0.25}},
+				{text="Top Left", value="TOPLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0,0.25}}}
+	},
+	{type="dropdown", group=2, text=L["Panel Tabs"], var="PanelTabAnchor", func="PanelTabAnchor", tooltip=L["Choose which corner of the standalone Rematch window to anchor panel tabs such as Pets, Teams, Targets, etc.\n\nNote: Choosing a new anchor for the whole window will change the tabs anchor to match. You can change this tabs anchor again anytime."],
+		menu = {{text="Bottom Left", value="BOTTOMLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0.5,0.75}},
+				{text="Bottom Center", value="BOTTOM", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0.5,0.75}},
+				{text="Bottom Right", value="BOTTOMRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0.5,0.75}},
+				{text="Top Right", value="TOPRIGHT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.5,0.75,0,0.25}},
+				{text="Top Center", value="TOP", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0.25,0.5,0,0.25}},
+				{text="Top Left", value="TOPLEFT", icon="Interface\\AddOns\\Rematch\\textures\\arrows", iconCoords={0,0.25,0,0.25}}}
+	},
 	{type="check", group=2, text=L["Prefer Minimized Window"], var="PreferMinimized", tooltip=L["When the window is automatically summoned such as from an Interact Option or Safari Hat Reminder, summon the window in minimized mode."]},
 	{type="widget", group=2, text=L["Use Custom Scale"], parentKey="UseCustomScaleWidget"},
 	{type="check", group=2, text=L["Keep Window On Screen"], var="LockWindow", tooltip=L["Don't hide the standalone window when the ESCape key is pressed or most other times it would hide, such as going to the game menu."]},
@@ -112,9 +141,23 @@ rematch.optionsList = {
 	
 	-- Behavior Options
 	{type="header", group=14, text=L["Behavior Options"]},
-	--{type="widget", group=14, parentKey="MousewheelSpeedWidget"}, -- Mousewheel Scroll Speed:
-	{type="widget", group=14, text=L["Card Speed"], parentKey="CardBehaviorWidget", tooltip=L["Choose how quickly you prefer the pet card and notes to be shown when you mouseover a pet or notes button."]}, -- Card Behavior:
-	{type="widget", group=14, text=L["Tooltip Speed"], parentKey="TooltipBehaviorWidget"}, -- Tooltip Behavior
+	{type="dropdown", group=14, text=L["Card Speed"], var="CardBehavior", tooltip=L["Choose how quickly you prefer the pet card and notes to be shown when you mouseover a pet or notes button."],
+		menu = {{text=L["Slow"], value=C.MOUSE_SPEED_SLOW, tooltipTitle=L["Slow Mouseover"], tooltipBody=L["Wait three quarters of a second for the pet card or notes to appear when you mouseover a pet or notes button."]},
+				{text=L["Normal"], value=C.MOUSE_SPEED_NORMAL, tooltipTitle=L["Normal Mouseover"], tooltipBody=L["Wait a quarter of a second for the pet card or notes to appear when you mouseover a pet or notes button."]},
+				{text=L["Fast"], value=C.MOUSE_SPEED_FAST, tooltipTitle=L["Fast Mouseover"], tooltipBody=L["Immediately show the pet card or notes when you mouseover a pet or notes button."]},
+				{text=L["On Click"], value=C.MOUSE_SPEED_CLICK, tooltipTitle=L["On Click"], tooltipBody=L["Only show the pet card or notes when you click a pet or notes button."]}}
+	},
+	{type="dropdown", group=14, text=L["Tooltip Speed"], var="TooltipBehavior", tooltip=L["Choose how quickly you prefer the tooltips (including pet ability tooltips) to be shown."],
+		menu = {{text=L["Slow"], value=C.MOUSE_SPEED_SLOW, tooltipTitle=L["Slow Mouseover"], tooltipBody=L["Wait three quarters of a second for the tooltip to appear when you mouseover a button with a tooltip."]},
+				{text=L["Normal"], value=C.MOUSE_SPEED_NORMAL, tooltipTitle=L["Normal Mouseover"], tooltipBody=L["Wait a quarter of a second for the tooltip to appear when you mouseover a button with a tooltip."]},
+				{text=L["Fast"], value=C.MOUSE_SPEED_FAST, tooltipTitle=L["Fast Mouseover"], tooltipBody=L["Immediately show the tooltip when you mouseover a button with a tooltip."]}}
+	},
+	{type="dropdown", group=14, text=L["Mousewheel Speed"], var="MousewheelSpeed", func="MousewheelSpeed", tooltip=L["Choose how quickly you prefer lists to scroll when you mousewheel up or down over a list."],
+		menu = {{text=L["Slow"], value=C.MOUSE_SPEED_SLOW, tooltipTitle=L["Slow Mousewheel"], tooltipBody=L["Scroll one line at a time."]},
+				{text=L["Normal"], value=C.MOUSE_SPEED_NORMAL, tooltipTitle=L["Normal Mousewheel"], tooltipBody=L["Scroll two lines at a time."]},
+				{text=L["Medium"], value=C.MOUSE_SPEED_MEDIUM, tooltipTitle=L["Medium Mousewheel"], tooltipBody=L["Scroll roughly half a page at a time."]},
+				{text=L["Fast"], value=C.MOUSE_SPEED_FAST, tooltipTitle=L["Fast Mousewheel"], tooltipBody=L["Scroll nearly a whole page at a time."]}}
+	},
 	{type="check", group=14, text=L["Collapse Lists With ESC Key"], var="CollapseOnEsc", tooltip=L["When the ESCape key (or game menu key) is pressed, collapse any expanded list--such as this options list, teams or targets."]},
 
 	-- Toolbar Options
@@ -140,16 +183,28 @@ rematch.optionsList = {
 
 	-- Breed Options
 	{type="header", group=18, text=L["Breed Options"]},
-	{type="widget", group=18, text=L["Breed Source"], parentKey="BreedSourceWidget"}, -- Breed Source:
-	{type="widget", group=18, text=L["Breed Format"], parentKey="BreedFormatWidget"}, -- Breed Format:
+	{type="dropdown", group=18, text=L["Breed Source"], var="BreedSource", func="BreedSource", tooltip=L["Which enabled addon you want to use to supply breed data."],
+		menu = {{text=L["None"], value="None", tooltipTitle=L["None"], tooltipBody=L["No breed information will be shown if this is selected. Rematch does not maintain its own breed data."]},
+				{text=L["Battle Pet Breed ID"], value="BattlePetBreedID", hidden=function() return not IsAddOnLoaded("BattlePetBreedID") end},
+				{text=L["PetTracker"], value="PetTracker", hidden=function() return not IsAddOnLoaded("PetTracker") end}}
+	},
+	{type="dropdown", group=18, text=L["Breed Format"], var="BreedFormat", func="BreedFormat", tooltip=L["How breeds should display."],
+		menu = {{text=L["Letters"], value=C.BREED_FORMAT_LETTERS},
+				{text=L["Numbers"], value=C.BREED_FORMAT_NUMBERS},
+				{text=L["Icons"], value=C.BREED_FORMAT_ICONS, hidden=function() return not IsAddOnLoaded("PetTracker") end}}
+	},
 	{type="check", group=18, text=L["Hide Breed In Lists"], var="HideBreedsLists", update=true, tooltip=L["Hide the breeds displayed in lists. Breeds will still be visible in pet cards."]},
 	{type="check", group=18, text=L["Hide Breed In Pet Slots"], var="HideBreedsLoadouts", update=true, tooltip=L["Hide the breeds displayed on pet slots. Breeds will still be visible in pet cards."]},
 	{type="check", group=18, text=L["Larger Breed Text"], var="LargerBreedText", update=true, tooltip=L["Increase the size of breed text (such as B/B or H/P) on pet list buttons and pet slots."]},
 
 	-- Pet Card Options
 	{type="header", group=4, text=L["Pet Card Options"]},
-	{type="widget", group=4, text=L["Card Background"], parentKey="CardBackWidget"}, -- Card Background:
-	{type="widget", group=4, text=L["Flip Modifier Key"], parentKey="FlipKeyWidget"}, -- Flip Modifier Key:
+	{type="dropdown", group=4, text=L["Card Background"], var="PetCardBackground", func="UpdatePetCard", tooltip=L["The artwork displayed in the background on the front of pet cards."],
+		menu = {{text=L["Expansion Art"], value="Expansion"},{text=L["Portrait Art"], value="Portrait"},{text=L["Icon Art"], value="Icon"},{text=L["Type Art"], value="Type"},{text=L["None"], value="None"}}
+	},
+	{type="dropdown", group=4, text=L["Flip Modifier Key"], var="PetCardFlipKey", func="UpdatePetCard", tooltip=L["The modifier key that will flip the pet card over. Regardless of this setting, you can flip the pet card over by mouseover of the pet's icon at the top of the card."],
+		menu = {{text="Alt Key", value="Alt"},{text="Shift Key", value="Shift"},{text="Ctrl Key", value="Ctrl"},{text="None", value="None"}}
+	},
 	{type="check", group=4, text=L["Don't Flip On Mouseover"], var="PetCardNoMouseoverFlip", tooltip=L["When you mouseover the pet icon or type icon at the top of the pet card, don't flip to the back of the card. Instead, flip the card only by clicking the pet or type icon at the top of the pet card; or by the flip modifier key if defined."]},
 	{type="check", group=4, text=L["Allow Pet Cards To Be Pinned"], var="PetCardCanPin", func="UpdatePetCardPin", tooltip=L["When dragging a pet card to another part of the screen, pin the card so all future pet cards display in the same spot, until the pet card is moved again or the unpin button is clicked."]},
 	{type="check", group=4, text=L["Always Show Health Bar"], var="PetCardAlwaysShowHPBar", func="UpdatePetCard", tooltip=L["On the pet card, always display the health bar if a pet can battle and has health. While unchecked, the health bar is only displayed for injured pets."]},
@@ -170,12 +225,16 @@ rematch.optionsList = {
 	{type="check", group=17, text=L["Show Notes When Teams Load"], var="ShowNotesOnLoad", tooltip=L["When a team with notes is loaded, display the notes for the team."]},
 	{type="check", group=17, text=L["Show Notes In Battle"], var="ShowNotesInBattle", tooltip=L["If the loaded team has notes, display and lock the notes when you enter a pet battle."]},
 	{type="check", group=17, text=L["Only Once Per Team"], var="ShowNotesOnce", dependency="ShowNotesInBattle", tooltip=L["Only display notes automatically the first time entering battle, until another team is loaded."]},
-	{type="widget", group=17, text=L["Notes Size"], parentKey="NotesFontWidget"}, -- Notes Size:
+	{type="dropdown", group=17, text=L["Notes Size"], var="NotesFont", func="NotesFont", tooltip=L["Choose the size of the text in the pet and team notes."],
+		menu = {{text=L["Small"], value="GameFontHighlightSmall"},{text=L["Medium"], value="GameFontHighlight"},{text=L["Large"], value="GameFontHighlightLarge"}}
+	},
 	{type="check", group=17, text=L["Hide Notes Button In Battle"], var="HideNotesButtonInBattle", func="HideNotesButtonInBattle", tooltip=L["In the Battle UI, hide the notes \"micro\" button to show notes for the currently-loaded team. Enable this option if another addon wants to use the same space."]},
 
 	-- Ability Tooltip Options
 	{type="header", group=16, text=L["Ability Tooltip Options"]},
-	{type="widget", group=16, text=L["Ability Background"], parentKey="AbilityBackWidget"},
+	{type="dropdown", group=16, text=L["Ability Background"], var="AbilityBackground", tooltip=L["The artwork displayed in the background of ability tooltips."],
+		menu = {{text=L["Icon Art"], value="Icon"},{text=L["Type Art"], value="Type"},{text=L["None"], value="None"}}
+	},
 	{type="check", group=16, text=L["Show Ability IDs"], var="ShowAbilityID", tooltip=L["Show the ability ID for the ability being viewed in the ability tooltip."]},
 
 	-- Team Options
@@ -189,13 +248,19 @@ rematch.optionsList = {
 	{type="check", group=10, text=L["Display Where Teams Dragged"], var="EchoTeamDrag", tooltip=L["When a team is dragged to another group, print in the chat window where the team was moved to."]},
 	{type="check", group=10, text=L["Enable Dragging To Move Teams"], var="EnableDrag", tooltip=L["Allow moving teams or groups by dragging them. When this is unchecked you can still move a team or group from its right-click menu."]},
 	{type="check", group=10, text=L["Require Click To Drag Teams"], var="ClickToDrag", dependency="EnableDrag", tooltip=L["When dragging teams or groups to move them, release of the mouse button at the end of the drag will not move the team or group. A separate click is needed."]},
-	{type="widget", group=10, text=L["Combine Group Key"], parentKey="CombineGroupKeyWidget"},
+	{type="dropdown", group=10, text=L["Combine Group Key"], var="CombineGroupKey", tooltip=L["While dragging a team group in the team list, holding this modifier key when you click another group will combine the two groups by moving all teams in the group on the cursor into the clicked group."],
+		menu = {{text="Alt Key", value="Alt"},{text="Shift Key", value="Shift"},{text="Ctrl Key", value="Ctrl"},{text=L["None"], value="None"}}
+	},
 	{type="check", group=10, text=L["Prioritize Breed On Import"], var="PrioritizeBreedOnImport", tooltip=L["When importing or receiving teams, fill the team with the best matched breed as the first priority instead of the highest level."]},
 	{type="check", group=10, text=L["Remember Import Override"], var="ImportRememberOverride", tooltip=L["Rather than resetting to 'Create a new copy' everytime a team is imported and another team shares the same name, remember the last-chosen option without resetting."]},
 
 	-- Random Pet Options
 	{type="header", group=21, text=L["Random Pet Options"]},
-	{type="widget", group=21, text=L["Random Pet Rules"], parentKey="RandomPetRulesWidget"},
+	{type="dropdown", group=21, text=L["Random Pet Rules"], var="RandomPetRules", tooltip=L["Rules to apply when loading a random pet. The more strict rules will limit the pool of random pets to choose from.\n\nNote: When a team loads with random pets in all three slots, 'Lenient' rules are used regardless of this setting."],
+		menu = {{text=L["Strict"], value=C.RANDOM_RULES_STRICT, tooltipTitle=L["Scrict Rules"], tooltipBody=L["When a random pet is chosen, never pick pets saved in a team and never pick injured pets."]},
+				{text=L["Normal"], value=C.RANDOM_RULES_NORMAL, tooltipTitle=L["Normal Rules"], tooltipBody=L["When a random pet is chosen, prefer pets not saved in a team and prefer uninjured pets."]},
+				{text=L["Lenient"], value=C.RANDOM_RULES_LENIENT, tooltipTitle=L["Lenient Rules"], tooltipBody=L["When a random pet is chosen, allow pets saved in a team and prefer uninjured pets."]}}
+	},
 	{type="check", group=21, text=L["Pick Aggressive Counters"], var="PickAggressiveCounters", tooltip=L["When using a Load Random Pets button for random pets to counter a target, prefer pets with more Strong attacks over pets that are Tough vs opponent attacks."]},
 	{type="check", group=21, text=L["Random Abilities Too"], var="RandomAbilitiesToo", tooltip=L["For random pets, choose random abilities too."] },
 	{type="check", group=21, text=L["Warn For Pets Below Max Level"], var="WarnWhenRandomNot25", tooltip=L["Show a warning dialog when a random pet is chosen below level 25. (This is recommended if you're doing Family Familiar achievements with random pets.)\n\nWhen possible, random pets will be from a pool of your max-level pets. However, depending on your collected pets and the other random pet options you've chosen, the random pool may include pets not at max level."]},
@@ -255,11 +320,11 @@ rematch.optionsList = {
 	{type="header", group=20, text=L["About Rematch"]},
 	{type="widget", group=20, text=L["All Options Troubleshoot Export Reset"], parentKey="OptionsManagementWidget"},
 	{type="text", group=20, text=L["Version "]..(C_AddOns.GetAddOnMetadata("Rematch","Version") or "")},
-	-- {type="text", group=20, text=rematch.utils:GetBadgeAsText(12,16,true).."\124cffb0b0b0 "..L["Target or pet is in a team"]},
-	-- {type="text", group=20, text=rematch.utils:GetBadgeAsText(11,16,true).."\124cffb0b0b0 "..L["Pet is in the leveling queue"]},
-	-- {type="text", group=20, text=rematch.utils:GetBadgeAsText(13,16,true).."\124cffb0b0b0 "..L["Team or pet has notes"]},
-	-- {type="text", group=20, text=rematch.utils:GetBadgeAsText(27,16,true).."\124cffb0b0b0 "..L["Team has at least one target"]},
-	-- {type="text", group=20, text=rematch.utils:GetBadgeAsText(14,16,true).."\124cffb0b0b0 "..L["Team or group has preferences"]},
+	{type="text", group=20, isHelp=true, text=rematch.utils:GetBadgeAsText(12,16,true).."\124cffb0b0b0 "..L["Target or pet is in a team"]},
+	{type="text", group=20, isHelp=true, text=rematch.utils:GetBadgeAsText(11,16,true).."\124cffb0b0b0 "..L["Pet is in the leveling queue"]},
+	{type="text", group=20, isHelp=true, text=rematch.utils:GetBadgeAsText(27,16,true).."\124cffb0b0b0 "..L["Team has at least one target"]},
+	{type="text", group=20, isHelp=true, text=rematch.utils:GetBadgeAsText(14,16,true).."\124cffb0b0b0 "..L["Team or group has preferences"]},
+	{type="text", group=20, isHelp=true, text=rematch.utils:GetBadgeAsText(13,16,true).."\124cffb0b0b0 "..L["Team or pet has notes"]},
 
 }
 

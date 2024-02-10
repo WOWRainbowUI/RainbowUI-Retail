@@ -117,15 +117,16 @@ local defaults = {
     HideNotesBadges = false, -- HideNotesBadges
    
     -- Behavior Options
-    CardBehavior = "Normal", -- Card Speed (dropdown)
-    TooltipBehavior = "Normal", -- Tooltip Speed (dropdown)
+    CardBehavior = C.MOUSE_SPEED_NORMAL, -- Card Speed (dropdown)
+    TooltipBehavior = C.MOUSE_SPEED_NORMAL, -- Tooltip Speed (dropdown)
     CollapseOnEsc = false, -- Collapse Lists With ESC Key
-    AlwaysUsePetSatchel = false, -- Always Use Pet Satchel
+    MousewheelSpeed = C.MOUSE_SPEED_NORMAL, -- Mousewheel Speed
 
     -- Toolbar Options
     ReverseToolbar = false, -- Reverse Toolbar Buttons
     ToolbarDismiss = false, -- Hide Toolbar On Right Click
     SafariHatShine = false, -- Safari Hat Reminder
+    AlwaysUsePetSatchel = false, -- Always Use Pet Satchel
 
     -- Miscellaneous Options
     UseDefaultJournal = false, -- Use Default Journal

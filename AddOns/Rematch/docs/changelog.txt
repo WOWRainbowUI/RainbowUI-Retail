@@ -1,3 +1,11 @@
+ 02/10/2024 version 5.1.2
+- Added new Behavior Option 'Mousewheel Speed' to change how fast lists scroll via mousewheel
+- Target and team list scroll speed is now based on the height of the target or team instead of their headers
+- Reworked dropdowns in options to only create them when needed and moved their definitions to the main table
+- Added a legend to About Rematch to explain what badge icons mean
+- Fix for potential lua error when interacting with forbidden objects while Rematch is on screen
+- Localization template updated with unused strings now commented out going forward
+
 01/27/2024 version 5.1.1
 - Updated the import dialog to allow picking a group the imported team(s) would go to (unless there's any group definitions in the import) first
 - Added 'Import Teams' to group right-click menus to import teams into the same group unless the import includes group definitions
