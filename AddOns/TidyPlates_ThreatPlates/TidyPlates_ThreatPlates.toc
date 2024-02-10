@@ -1,7 +1,7 @@
 ## Interface: 100205
 
 ## Title: Threat Plates
-## Version: 11.1.37
+## Version: 11.1.38
 ## Notes: Threat-reactive nameplates.
 ## Notes-deDE: Bedrohungsreaktive Namensplaketten.
 ## Notes-esES: Placas Identificativas de Amenaza
@@ -25,7 +25,7 @@
 ## X-Category-zhTW: 介面
 ## IconTexture: Interface\Icons\ability_warrior_innerrage
 
-Libs\ForAllIndentsAndPurposes\indent.lua
+Libs\Libs.xml
 Locales\Locales.xml
 
 Init.lua
