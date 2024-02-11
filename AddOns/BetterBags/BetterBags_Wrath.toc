@@ -3,9 +3,9 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.0.96
+## Version: v0.0.99
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-02-09T02:40:40Z
+## X-Date: 2024-02-10T17:25:07Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
@@ -52,6 +52,7 @@ util\resize.lua
 util\sort.lua
 util\bucket.lua
 
+frames\search.lua
 frames\slider.lua
 frames\money.lua
 frames\classic\money.lua
