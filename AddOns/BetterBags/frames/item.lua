@@ -68,21 +68,77 @@ local children = {
   "ItemContextOverlay"
 }
 
+-- parseQuery will parse a query string and return a set of boolean
+-- filters that can be matched against an item.
+---@param query string
+---@return string[]
+local function parseQuery(query)
+  local filters = {}
+  for filter in string.gmatch(query, "([^&]+)") do
+      table.insert(filters, string.trim(filter))
+  end
+  return filters
+end
+
+---@param filter string
+---@param data ItemData
+---@return boolean
+local function matchFilter(filter, data)
+  if filter == "" then return true end
+  ---@type string, string
+  local prefix, value = strsplit(":", filter, 2)
+  -- If no prefix is provided, assume the filter is a name or type filter.
+  if value == nil then
+    if
+    string.find(data.itemInfo.itemName:lower(), prefix, 1, true) or
+    string.find(data.itemInfo.itemType:lower(), prefix, 1, true) or
+    string.find(data.itemInfo.itemSubType:lower(), prefix, 1, true) then
+      return true
+    end
+    return false
+  -- If the value exists but is empty, user is typing and we should not match.
+  elseif value == "" then return false end
+
+  -- If a prefix is provided, match against the prefix first. Prefix
+  -- keywords are exact matches.
+  if prefix == "type" then
+    if string.find(data.itemInfo.itemType:lower(), value, 1, true) then
+      return true
+    end
+  elseif prefix == "subtype" then
+    if string.find(data.itemInfo.itemSubType:lower(), value, 1, true) then
+      return true
+    end
+  elseif prefix == "name" then
+    if string.find(data.itemInfo.itemName:lower(), value, 1, true) then
+      return true
+    end
+  elseif prefix == "exp" and data.itemInfo.expacID ~= nil and const.BRIEF_EXPANSION_MAP[data.itemInfo.expacID] ~= nil then
+    if string.find(const.BRIEF_EXPANSION_MAP[data.itemInfo.expacID]:lower(), value, 1, true) then
+      return true
+    end
+  elseif prefix == "gear" and data.itemInfo.equipmentSet ~= nil then
+    if string.find(data.itemInfo.equipmentSet:lower(), value, 1, true) then
+      return true
+    end
+  end
+  return false
+end
+
 ---@param text? string
 function itemFrame.itemProto:UpdateSearch(text)
   if not text or text == "" then
     self.button:SetMatchesSearch(true)
     return
   end
-  local lowerText = string.lower(text)
-  if string.find(string.lower(self.data.itemInfo.itemName), lowerText, 1, true) or
-  string.find(string.lower(self.data.itemInfo.itemType), lowerText, 1, true) or
-  string.find(string.lower(self.data.itemInfo.itemSubType), lowerText, 1, true) then
-    self.button:SetMatchesSearch(true)
-    return
+  local filters = parseQuery(string.lower(text))
+  for _, filter in pairs(filters) do
+    if not matchFilter(filter, self.data) then
+      self.button:SetMatchesSearch(false)
+      return
+    end
   end
-
-  self.button:SetMatchesSearch(false)
+  self.button:SetMatchesSearch(true)
 end
 
 function itemFrame.itemProto:UpdateCooldown()
@@ -118,7 +174,7 @@ function itemFrame.itemProto:SetItem(data)
   local bound = data.itemInfo.isBound
 
   local ilvlOpts = database:GetItemLevelOptions(self.kind)
-  if (ilvlOpts.enabled and data.itemInfo.currentItemLevel > 0) and
+  if (ilvlOpts.enabled and data.itemInfo.currentItemLevel > 0 and data.itemInfo.currentItemCount == 1) and
     (data.itemInfo.classID == Enum.ItemClass.Armor or
     data.itemInfo.classID == Enum.ItemClass.Weapon or
     data.itemInfo.classID == Enum.ItemClass.Gem) then

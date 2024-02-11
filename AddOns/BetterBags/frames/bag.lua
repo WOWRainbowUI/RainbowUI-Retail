@@ -55,6 +55,9 @@ local Window = LibStub('LibWindow-1.1')
 ---@class Currency: AceModule
 local currency = addon:GetModule('Currency')
 
+---@class Search: AceModule
+local search = addon:GetModule('Search')
+
 -------
 --- Bag Prototype
 -------
@@ -91,6 +94,7 @@ function bagFrame.bagProto:Show()
   if self.frame:IsShown() then
     return
   end
+  addon.ForceShowBlizzardBags()
   PlaySound(self.kind == const.BAG_KIND.BANK and SOUNDKIT.IG_MAINMENU_OPEN or SOUNDKIT.IG_BACKPACK_OPEN)
   self.frame:Show()
 end
@@ -99,6 +103,7 @@ function bagFrame.bagProto:Hide()
   if not self.frame:IsShown() then
     return
   end
+  addon.ForceHideBlizzardBags()
   PlaySound(self.kind == const.BAG_KIND.BANK and SOUNDKIT.IG_MAINMENU_CLOSE or SOUNDKIT.IG_BACKPACK_CLOSE)
   self.frame:Hide()
   if self.drawOnClose and self.kind == const.BAG_KIND.BACKPACK then
@@ -206,7 +211,7 @@ function bagFrame.bagProto:Draw(dirtyItems)
     views:ListView(self, dirtyItems)
   end
   self.frame:SetScale(database:GetBagSizeInfo(self.kind, database:GetBagView(self.kind)).scale / 100)
-  local text = self.frame.SearchBox:GetText()
+  local text = search:GetText()
   self:Search(text)
   self:KeepBagInBounds()
 end
@@ -410,9 +415,13 @@ function bagFrame:Create(kind)
     end
     GameTooltip:SetOwner(bagButton, "ANCHOR_LEFT")
     if kind == const.BAG_KIND.BACKPACK then
-      GameTooltip:SetText(L:G("Left Click to open the menu, right click sort your bags and clear recent items."))
+      GameTooltip:AddDoubleLine(L:G("Left Click"), L:G("Open Menu"), 1, 0.81, 0, 1, 1, 1)
+      GameTooltip:AddDoubleLine(L:G("Shift Left Click"), L:G("Search Bags"), 1, 0.81, 0, 1, 1, 1)
+      GameTooltip:AddDoubleLine(L:G("Right Click"), L:G("Sort Bags"), 1, 0.81, 0, 1, 1, 1)
     else
-      GameTooltip:SetText(L:G("Left Click to open the menu, right click to swap to reagent bank and back."))
+      GameTooltip:AddDoubleLine(L:G("Left Click"), L:G("Open Menu"), 1, 0.81, 0, 1, 1, 1)
+      GameTooltip:AddDoubleLine(L:G("Shift Left Click"), L:G("Search Bags"), 1, 0.81, 0, 1, 1, 1)
+      GameTooltip:AddDoubleLine(L:G("Right Click"), L:G("Swap Between Bank/Reagent Bank"), 1, 0.81, 0, 1, 1, 1)
     end
     GameTooltip:Show()
   end)
@@ -433,7 +442,12 @@ function bagFrame:Create(kind)
         anig:SetLooping("NONE")
         anig:Restart()
       end
-      context:Show(b.menuList)
+      if IsShiftKeyDown() then
+        BetterBags_ToggleSearch()
+      else
+        context:Show(b.menuList)
+      end
+
     elseif e == "RightButton" and kind == const.BAG_KIND.BANK then
       b:ToggleReagentBank()
     elseif e == "RightButton" and kind == const.BAG_KIND.BACKPACK then
@@ -478,33 +492,9 @@ function bagFrame:Create(kind)
   slots.frame:Hide()
   b.slots = slots
 
-  -- Setup the search box events.
-  b.frame.SearchBox:SetAlpha(0)
-  b.frame.SearchBox:SetScript("OnEnter", function()
-    b.frame.SearchBox:SetAlpha(1)
-  end)
-  b.frame.SearchBox:SetScript("OnLeave", function()
-    if b.frame.SearchBox:HasFocus() then return end
-    if b.frame.SearchBox:GetText() ~= "" then return end
-    b.frame.SearchBox:SetAlpha(0)
-  end)
-  b.frame.SearchBox:SetScript("OnEditFocusGained", function()
-    b.frame.SearchBox:SetAlpha(1)
-  end)
-  b.frame.SearchBox:SetScript("OnEditFocusLost", function()
-    if b.frame.SearchBox:GetText() ~= "" then return end
-    b.frame.SearchBox:SetAlpha(0)
-  end)
-
-  b.frame.SearchBox:SetScript("OnTextChanged", function()
-    local text = b.frame.SearchBox:GetText()
-    if text == "" or text == nil then
-      b.frame.SearchBox.Instructions:Show()
-    else
-      b.frame.SearchBox.Instructions:Hide()
-    end
-    b:Search(text)
-  end)
+  if kind == const.BAG_KIND.BACKPACK then
+    search:Create(b.frame)
+  end
 
   if kind == const.BAG_KIND.BACKPACK then
     local currencyFrame = currency:Create(b.frame)
