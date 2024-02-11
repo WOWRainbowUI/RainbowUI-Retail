@@ -177,12 +177,12 @@ if LOCALE == "zhCN" then
 	L["LightningRushTT"] = "切换为阿加驭雷者“奔雷疾冲”技能使用的静电光环制作的自定义框架。"
 	L["DynamicFOV"] = "动态视野"
 	L["DynamicFOVTT"] = "能够根据飞行速度调整镜头视野。"
-	--non-official translations
-	L["Normal"] = "普通的"
-	L["Advanced"] = "先进的"
-	L["Reverse"] = "撤销"
-	L["Challenge"] = "挑战"
-	L["ReverseChallenge"] = "反向挑战"
+	L["Normal"] = "普通" -- translated (https://legacy.curseforge.com/wow/addons/dragon-rider#c43)
+	L["Advanced"] = "进阶版" -- translated
+	L["Reverse"] = "反向版" -- translated
+	L["Challenge"] = "挑战" -- translated
+	L["ReverseChallenge"] = "反向版挑战" -- translated
+	L["Storm"] = "风暴" -- translated
 	L["COMMAND_help"] = "帮助"
 	L["COMMAND_journal"] = "日志"
 	L["COMMAND_listcommands"] = "命令列表:"
@@ -195,13 +195,14 @@ if LOCALE == "zhCN" then
 	L["Guide"] = "指南"
 	L["Settings"] = "设置"
 	L["ComingSoon"] = "即将推出"
-	L["UseAccountScores"] = "使用账户分数"
-	L["UseAccountScoresTT"] = "这将显示您的账户中最高的种族得分，而不是您角色的得分。账户得分用星号 (*) 表示。"
+	L["UseAccountScores"] = "使用账号分数" -- translated
+	L["UseAccountScoresTT"] = "这将显示您账号中最高的得分，而不是您当前角色的得分。账号得分用星号 (*) 表示。" -- translated
 	L["PersonalBest"] = "个人最佳: "
-	L["AccountBest"] = "账户最佳: "
+	L["AccountBest"] = "账号最佳: " -- translated
 	L["BestCharacter"] = "最佳角色: "
 	L["GoldTime"] = "金牌时间: "
 	L["SilverTime"] = "银牌时间: "
+	--non-official translations
 
 return end
 

@@ -1364,8 +1364,8 @@ function DR:toggleEvent(event, arg1)
 
 		StaticPopupDialogs["DRAGONRIDER_RESET_SETTINGS"] = {
 			text = L["ResetAllSettingsConfirm"],
-			button1 = "Yes",
-			button2 = "No",
+			button1 = YES,
+			button2 = NO,
 			OnAccept = function()
 				DragonRider_DB = nil;
 				DragonRider_DB = CopyTable(defaultsTable);

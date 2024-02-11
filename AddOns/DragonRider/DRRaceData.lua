@@ -16,6 +16,78 @@ DR.DragonRaceZones = {
 	[11] = 113,
 };
 
+DR.ZoneIcons = {
+	[2022] = 4672500, --  Waking Shores
+	[2023] = 4672498, -- Ohn'ahran Plains
+	[2024] = 4672495, -- The Azure Span
+	[2025] = 4672499, -- Thaldraszus
+	[2151] = 4672496, -- Forbidden Reach
+	[2133] = 5140838, -- Zaralek Caverns
+	[2200] = 5390645, -- Emerald Dream
+
+};
+
+DR.WorldQuestIDs = {
+	-- The Waking Shores
+	70415,
+	70410,
+	70416,
+	70382,
+	70412,
+	70417,
+	70413,
+	70418,
+
+	--Ohn'ahran Plains
+	70420,
+	70424,
+	70712,
+	70421,
+	70423,
+	70422,
+	70419,
+
+	--The Azure Span
+	70425,
+	70430,
+	70429,
+	70427,
+	70426,
+	70428,
+
+	--Thaldraszus
+	70436,
+	70432,
+	70431,
+	70435,
+	70434,
+	70433,
+
+	--The Forbidden Reach
+	73083,
+	73084,
+	73078,
+	73079,
+	73080,
+	73082,
+
+	-- Zaralek Cavern
+	75122,
+	75119,
+	75123,
+	75121,
+	75120,
+	75124,
+
+	--Emerald Dream
+	78434,
+	78438,
+	78435,
+	78437,
+	78436,
+	78439,
+};
+
 DR.DragonRaceCurrencies = {
 -- Waking Shores - 2022
 	2042, 2044, 2154, 2421, 2422, 2664,	 -- Ruby Lifeshrine Loop
