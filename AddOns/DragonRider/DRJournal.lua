@@ -44,6 +44,45 @@ function DR.mainFrame.width()
 	return DR.mainFrame:GetWidth();
 end
 
+local function disp_time(seconds)
+	local time
+	if seconds then
+		time = string.format(SecondsToTime(seconds))
+	end
+
+	return time
+end
+
+
+function DR.mainFrame.multiplayerRace_TT()
+	local zonesPOICombo = {
+		[2022] = 7261, -- Waking Shores
+		[2023] = 7262, -- Ohn'ahran Plains
+		[2024] = 7263, -- Azure Span
+		[2025] = 7264, -- Thaldraszus
+	};
+	local tooltipInfo;
+	local activeMapID;
+	local activePOI;
+	local activePOI_X;
+	local activePOI_Y;
+	for k, v in pairs(zonesPOICombo) do
+		if C_AreaPoiInfo.GetAreaPOIInfo(k, v) ~= nil then
+			activeMapID = k;
+			activePOI = v;
+			activePOI_X = C_AreaPoiInfo.GetAreaPOIInfo(k, v).position.x
+			activePOI_Y = C_AreaPoiInfo.GetAreaPOIInfo(k, v).position.y
+			local timeConverted = disp_time(C_AreaPoiInfo.GetAreaPOISecondsLeft(v));
+			tooltipInfo = C_AreaPoiInfo.GetAreaPOIInfo(k, v).name;
+
+			tooltipInfo = tooltipInfo .. "\n" ..C_AreaPoiInfo.GetAreaPOIInfo(k, v).description;
+			if timeConverted ~= nil then
+				tooltipInfo = tooltipInfo .. "\n" .. timeConverted;
+			end
+		end
+	end
+	return activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo;
+end
  
 DR.mainFrame:SetResizable(true);
 DR.mainFrame:SetResizeBounds(338,424,992,534)
@@ -57,8 +96,8 @@ DR.mainFrame.resizeButton:SetParent(DR.mainFrame)
 DR.mainFrame.resizeButton:SetFrameLevel(5)
  
 DR.mainFrame.resizeButton:SetScript("OnMouseDown", function(self, button)
-    DR.mainFrame:StartSizing("BOTTOMRIGHT")
-    --DR.mainFrame:SetUserPlaced(true)
+	DR.mainFrame:StartSizing("BOTTOMRIGHT")
+	--DR.mainFrame:SetUserPlaced(true)
 end)
  
 DR.mainFrame.resizeButton:SetScript("OnMouseUp", function(self, button)
@@ -219,11 +258,97 @@ end })
 
 DR.mainFrame.isPopulated = false;
 
+function DR.mainFrame.WorldQuestHandler()
+	local WorldQuestPlacement = 1
+	for k, v in pairs(DR.WorldQuestIDs) do
+		if C_TaskQuest.IsActive(v) == true then
+			WorldQuestPlacement = WorldQuestPlacement +1
+			if not DR.mainFrame["WorldQuestList_"..v] then
+				DR.mainFrame["WorldQuestList_"..v] = CreateFrame("Button", nil, content1);
+				DR.mainFrame["WorldQuestList_"..v].texlower = DR.mainFrame["WorldQuestList_"..v]:CreateTexture(nil, "OVERLAY", nil, 0);
+				DR.mainFrame["WorldQuestList_"..v].texlower:SetPoint("CENTER", DR.mainFrame["WorldQuestList_"..v],"CENTER", 0,0);
+				DR.mainFrame["WorldQuestList_"..v].texlower:SetSize(35,35);
+				DR.mainFrame["WorldQuestList_"..v].texmiddle = DR.mainFrame["WorldQuestList_"..v]:CreateTexture(nil, "OVERLAY", nil, 1);
+				DR.mainFrame["WorldQuestList_"..v].texmiddle:SetAllPoints(DR.mainFrame["WorldQuestList_"..v]);
+				DR.mainFrame["WorldQuestList_"..v].texupper = DR.mainFrame["WorldQuestList_"..v]:CreateTexture(nil, "OVERLAY", nil, 2);
+				DR.mainFrame["WorldQuestList_"..v].texupper:SetPoint("CENTER", DR.mainFrame["WorldQuestList_"..v],"CENTER", 5,-5);
+				DR.mainFrame["WorldQuestList_"..v].texupper:SetSize(16,16);
+			end
+			--DR.mainFrame["WorldQuestList_"..v].tex:SetTexture(DR.ZoneIcons[C_Map.GetMapInfo(C_TaskQuest.GetQuestZoneID(v)).mapID])
+			DR.mainFrame["WorldQuestList_"..v].texlower:SetAtlas("UI-QuestPoi-QuestNumber");
+			DR.mainFrame["WorldQuestList_"..v].texupper:SetAtlas("worldquest-icon-race");
+			SetPortraitToTexture(DR.mainFrame["WorldQuestList_"..v].texmiddle, DR.ZoneIcons[C_Map.GetMapInfo(C_TaskQuest.GetQuestZoneID(v)).mapID]);
+			DR.mainFrame["WorldQuestList_"..v]:SetPoint("TOPLEFT", content1, "TOPLEFT", 25*WorldQuestPlacement-40, -47);
+			--DR.mainFrame["WorldQuestList_"..v]:SetParent(content1)
+			DR.mainFrame["WorldQuestList_"..v]:SetSize(20,20);
+		end
+
+		if DR.mainFrame["WorldQuestList_"..v] and C_QuestLog.IsQuestFlaggedCompleted(v) then
+
+			if DR.mainFrame["WorldQuestList_"..v]:IsShown() then
+				DR.mainFrame["WorldQuestList_"..v]:Hide()
+			end
+		end
+		if DR.mainFrame["WorldQuestList_"..v] and C_TaskQuest.IsActive(v) == true then
+			DR.mainFrame["WorldQuestList_"..v].texlower:SetAtlas("UI-QuestPoi-QuestNumber");
+			DR.mainFrame["WorldQuestList_"..v].texupper:SetAtlas("worldquest-icon-race");
+			SetPortraitToTexture(DR.mainFrame["WorldQuestList_"..v].texmiddle, DR.ZoneIcons[C_Map.GetMapInfo(C_TaskQuest.GetQuestZoneID(v)).mapID]);
+			DR.mainFrame["WorldQuestList_"..v]:SetPoint("TOPLEFT", content1, "TOPLEFT", 25*WorldQuestPlacement-40, -47);
+
+			DR.mainFrame["WorldQuestList_"..v]:SetScript("OnEnter", function(self)
+
+				DR.mainFrame["WorldQuestList_"..v]:SetScript("OnMouseDown", function(self)
+					DR.mainFrame["WorldQuestList_"..v].texmiddle:SetTexCoord(-.07,1.07,-.07,1.07)
+				end);
+
+				DR.mainFrame["WorldQuestList_"..v]:SetScript("OnMouseUp", function(self)
+					DR.mainFrame["WorldQuestList_"..v].texmiddle:SetTexCoord(0,1,0,1)
+				end);
+
+				DR.mainFrame["WorldQuestList_"..v]:SetScript("OnClick", function(self)
+					BonusObjectiveTracker_TrackWorldQuest(v, 1)
+					C_SuperTrack.SetSuperTrackedQuestID(v);
+					PlaySound(170270);
+				end);
+
+				DR.mainFrame["WorldQuestList_"..v]:SetScript("OnUpdate", function(self)
+					local taskInfo = ""
+
+					if C_TaskQuest.GetQuestZoneID(v) then
+						if C_Map.GetMapInfo(C_TaskQuest.GetQuestZoneID(v)).name then
+							taskInfo = taskInfo .. C_Map.GetMapInfo(C_TaskQuest.GetQuestZoneID(v)).name;
+						end
+					end
+					if C_TaskQuest.GetQuestInfoByQuestID(v) then
+						taskInfo = taskInfo .. "\n" .. C_TaskQuest.GetQuestInfoByQuestID(v);
+					end
+					if disp_time(C_TaskQuest.GetQuestTimeLeftSeconds(v)) then
+						taskInfo = taskInfo .. "\n" .. disp_time(C_TaskQuest.GetQuestTimeLeftSeconds(v));
+					end
+					DR.tooltip_OnEnter(self, taskInfo);
+				end);
+
+			end);
+			DR.mainFrame["WorldQuestList_"..v]:SetScript("OnLeave", function(self)
+				DR.tooltip_OnLeave();
+
+				DR.mainFrame["WorldQuestList_"..v]:SetScript("OnUpdate", nil);
+
+			end);
+		end
+	end
+end
+
+DR.mainFrame:RegisterEvent("QUEST_REMOVED")
+DR.mainFrame:SetScript("OnEvent", DR.mainFrame.WorldQuestHandler)
+
+
 function DR.mainFrame.PopulationData(continent)
 	local placeValueX = 1
 	local placeValueY = 1
 	local realmKey = GetRealmName()
 	local charKey = UnitName("player") .. " - " .. realmKey
+	DR.mainFrame.WorldQuestHandler()
 
 	if DR.mainFrame.isPopulated == true then
 		--The same as below, but stripped of creating frames. This should only be used to update existing data.
@@ -509,52 +634,6 @@ end
 
 DR.mainFrame.resizeFrames = {}
 
-local function disp_time(seconds)
-
-	local seconds = tonumber(seconds)
-
-	if seconds then
-		if seconds <= 0 then
-			return "00:00:00";
-		else
-			hours = string.format("%02.f", math.floor(seconds/3600));
-			mins = string.format("%02.f", math.floor(seconds/60 - (hours*60)));
-			secs = string.format("%02.f", math.floor(seconds - hours*3600 - mins *60));
-			return hours..":"..mins..":"..secs
-		end
-	end
-end
-
-function DR.mainFrame.multiplayerRace_TT()
-	local zonesPOICombo = {
-		[2022] = 7261, -- Waking Shores
-		[2023] = 7262, -- Ohn'ahran Plains
-		[2024] = 7263, -- Azure Span
-		[2025] = 7264, -- Thaldraszus
-	};
-	local tooltipInfo;
-	local activeMapID;
-	local activePOI;
-	local activePOI_X;
-	local activePOI_Y;
-	for k, v in pairs(zonesPOICombo) do
-		if C_AreaPoiInfo.GetAreaPOIInfo(k, v) ~= nil then
-			activeMapID = k;
-			activePOI = v;
-			activePOI_X = C_AreaPoiInfo.GetAreaPOIInfo(k, v).position.x
-			activePOI_Y = C_AreaPoiInfo.GetAreaPOIInfo(k, v).position.y
-			local timeConverted = disp_time(C_AreaPoiInfo.GetAreaPOISecondsLeft(v));
-			tooltipInfo = C_AreaPoiInfo.GetAreaPOIInfo(k, v).name;
-
-			tooltipInfo = tooltipInfo .. "\n" ..C_AreaPoiInfo.GetAreaPOIInfo(k, v).description;
-			if timeConverted ~= nil then
-				tooltipInfo = tooltipInfo .. "\n" .. timeConverted;
-			end
-		end
-	end
-	return activeMapID, activePOI, activePOI_X, activePOI_Y, tooltipInfo;
-end
-
 function DR.mainFrame.DoPopulationStuff()
 
 	for k, v in ipairs(DR.DragonRaceZones) do
@@ -563,8 +642,8 @@ function DR.mainFrame.DoPopulationStuff()
 
 		if k == 1 then
 			DR.mainFrame["backFrame"..k] = CreateFrame("Frame", nil, content1, "BackdropTemplate");
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPLEFT", content1, "TOPLEFT", 0, -65);
-			DR.mainFrame["backFrame"..k]:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -18, -65);
+			DR.mainFrame["backFrame"..k]:SetPoint("TOPLEFT", content1, "TOPLEFT", 0, -70);
+			DR.mainFrame["backFrame"..k]:SetPoint("TOPRIGHT", DR.mainFrame, "TOPRIGHT", -18, -70);
 			DR.mainFrame["titleText"..k] = content1:CreateFontString();
 			DR.mainFrame["titleText"..k]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..k], "TOPLEFT", 10, -5);
 			DR.mainFrame["titleText"..k]:SetParent(DR.mainFrame["backFrame"..k])

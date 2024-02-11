@@ -277,6 +277,7 @@ if LOCALE == "deDE" then
 	L["Reverse"] = "Umgekehrt"
 	L["Challenge"] = "Herausforderung"
 	L["ReverseChallenge"] = "Umgekehrte Herausforderung"
+	L["Storm"] = "Sturm"
 	L["COMMAND_help"] = "hilfe"
 	L["COMMAND_journal"] = "tagebuch"
 	L["COMMAND_listcommands"] = "Eine Liste der Befehle:"
@@ -372,6 +373,7 @@ if LOCALE == "frFR" then
 	L["Reverse"] = "Inversée"
 	L["Challenge"] = "Défi"
 	L["ReverseChallenge"] = "Défi Inversé"
+	L["Storm"] = "Tempête"
 	L["COMMAND_help"] = "aide"
 	L["COMMAND_journal"] = "journal"
 	L["COMMAND_listcommands"] = "Liste des commandes :"
@@ -467,6 +469,7 @@ if LOCALE == "itIT" then
 	L["Reverse"] = "Inverso"
 	L["Challenge"] = "Sfida"
 	L["ReverseChallenge"] = "Sfida Inversa"
+	L["Storm"] = "Tempesta"
 	L["COMMAND_help"] = "aiuto"
 	L["COMMAND_journal"] = "diario"
 	L["COMMAND_listcommands"] = "Lista dei comandi:"
@@ -562,6 +565,7 @@ if LOCALE == "ptBR" then
 	L["Reverse"] = "Invertida"
 	L["Challenge"] = "Desafio"
 	L["ReverseChallenge"] = "Desafio Invertida"
+	L["Storm"] = "Tempestade"
 	L["COMMAND_help"] = "ajuda"
 	L["COMMAND_journal"] = "diário"
 	L["COMMAND_listcommands"] = "Lista de comandos:"
@@ -659,6 +663,7 @@ if LOCALE == "ruRU" then
 	L["Reverse"] = "обратный маршрут"
 	L["Challenge"] = "испытание"
 	L["ReverseChallenge"] = "обратный маршрут"
+	L["Storm"] = "Буря"
 	L["COMMAND_help"] = "помощь"
 	L["COMMAND_journal"] = "журнал"
 	L["COMMAND_listcommands"] = "Список команд:"
@@ -755,6 +760,7 @@ if LOCALE == "koKR" then
 	L["Reverse"] = "뒤집다"
 	L["Challenge"] = "도전"
 	L["ReverseChallenge"] = "역방향 도전"
+	L["Storm"] = "폭풍"
 	L["COMMAND_help"] = "도움말"
 	L["COMMAND_journal"] = "일지"
 	L["COMMAND_listcommands"] = "명령어 목록:"
@@ -847,12 +853,12 @@ if LOCALE == "zhCN" then
 	L["LightningRushTT"] = "切换为阿加驭雷者“奔雷疾冲”技能使用的静电光环制作的自定义框架。"
 	L["DynamicFOV"] = "动态视野"
 	L["DynamicFOVTT"] = "能够根据飞行速度调整镜头视野。"
-	--non-official translations
-	L["Normal"] = "普通的"
-	L["Advanced"] = "先进的"
-	L["Reverse"] = "撤销"
-	L["Challenge"] = "挑战"
-	L["ReverseChallenge"] = "反向挑战"
+	L["Normal"] = "普通" -- translated (https://legacy.curseforge.com/wow/addons/dragon-rider#c43)
+	L["Advanced"] = "进阶版" -- translated
+	L["Reverse"] = "反向版" -- translated
+	L["Challenge"] = "挑战" -- translated
+	L["ReverseChallenge"] = "反向版挑战" -- translated
+	L["Storm"] = "风暴" -- translated
 	L["COMMAND_help"] = "帮助"
 	L["COMMAND_journal"] = "日志"
 	L["COMMAND_listcommands"] = "命令列表:"
@@ -865,13 +871,14 @@ if LOCALE == "zhCN" then
 	L["Guide"] = "指南"
 	L["Settings"] = "设置"
 	L["ComingSoon"] = "即将推出"
-	L["UseAccountScores"] = "使用账户分数"
-	L["UseAccountScoresTT"] = "这将显示您的账户中最高的种族得分，而不是您角色的得分。账户得分用星号 (*) 表示。"
+	L["UseAccountScores"] = "使用账号分数" -- translated
+	L["UseAccountScoresTT"] = "这将显示您账号中最高的得分，而不是您当前角色的得分。账号得分用星号 (*) 表示。" -- translated
 	L["PersonalBest"] = "个人最佳: "
-	L["AccountBest"] = "账户最佳: "
+	L["AccountBest"] = "账号最佳: " -- translated
 	L["BestCharacter"] = "最佳角色: "
 	L["GoldTime"] = "金牌时间: "
 	L["SilverTime"] = "银牌时间: "
+	--non-official translations
 
 return end
 
@@ -948,6 +955,7 @@ if LOCALE == "zhTW" then
 	L["Reverse"] = "反向"
 	L["Challenge"] = "挑戰"
 	L["ReverseChallenge"] = "反向挑戰"
+	L["Storm"] = "風暴"
 	L["COMMAND_help"] = "幫助"
 	L["COMMAND_journal"] = "日誌"
 	L["COMMAND_listcommands"] = "指令列表:"
