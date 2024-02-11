@@ -4,11 +4,12 @@ end
 local mod	= DBM:NewMod("z727", "DBM-PvP")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20220126115338")
+mod:SetRevision("20240203195924")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
-	"ZONE_CHANGED_NEW_AREA"
+	"ZONE_CHANGED_NEW_AREA",
+	"PLAYER_ENTERING_WORLD"
 )
 
 do

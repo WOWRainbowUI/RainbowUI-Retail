@@ -1,11 +1,12 @@
 local mod	= DBM:NewMod("z30", "DBM-PvP")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231215150010")
+mod:SetRevision("20240203195924")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
-	"ZONE_CHANGED_NEW_AREA"
+	"ZONE_CHANGED_NEW_AREA",
+	"PLAYER_ENTERING_WORLD"
 )
 
 mod:AddBoolOption("AutoTurnIn")

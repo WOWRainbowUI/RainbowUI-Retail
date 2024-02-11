@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2557, "DBM-Raids-Dragonflight", 1, 1207)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240110082433")
+mod:SetRevision("20240207092305")
 mod:SetCreatureID(208478)
 mod:SetEncounterID(2737)
 mod:SetUsedIcons(1, 2, 3, 4)
@@ -12,7 +12,7 @@ mod.respawnTime = 29
 mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
-	"SPELL_CAST_START 421672 425401 425400 420933 421616 420415 423117 421703",
+	"SPELL_CAST_START 421672 420933 421616 420415 423117 421703",
 	"SPELL_CAST_SUCCESS 421284",
 	"SPELL_SUMMON 420421",
 	"SPELL_AURA_APPLIED 421207 419054 427201",
@@ -27,7 +27,7 @@ mod:RegisterEventsInCombat(
 )
 
 --[[
-(ability.id = 421672 or ability.id = 425401 or ability.id = 425400 or ability.id = 420933 or ability.id = 421616 or ability.id = 420415 or ability.id = 423117 or ability.id = 421703) and type = "begincast"
+(ability.id = 421672 or ability.id = 420933 or ability.id = 421616 or ability.id = 420415 or ability.id = 423117 or ability.id = 421703) and type = "begincast"
  or ability.id = 421284 and type = "cast"
  or ability.id = 420421
 --]]
@@ -85,7 +85,7 @@ local allTimers = {
 	--Volcanic Disgorge
 	[421616] = {29.9, 20.0, 40.0, 10.0, 10.0, 10.0, 10.0, 30.0, 10.0, 10.0, 10.0, 10.0, 40.0, 20.0},
 	--Scorchtail Crash
-	[420421] = {19.9, 20, 20, 30, 7.5, 7.4, 7.4, 7.3, 27.5, 7.4, 7.5, 7.5, 7.4, 27, 19.9, 20}
+	[420421] = {19.9, 20, 20, 30, 7.5, 7.4, 7.4, 7.3, 27.5, 7.4, 7.5, 7.5, 7.4, 27, 17.4, 20}
 }
 
 function mod:DisgorgeTarget(targetname, uId)
@@ -116,7 +116,7 @@ end
 
 function mod:SPELL_CAST_START(args)
 	local spellId = args.spellId
-	if spellId == 421672 or spellId == 425401 or spellId == 425400 then--herioc, Unknown, Mythic?
+	if spellId == 421672 then
 		self.vb.furyCount = self.vb.furyCount + 1
 		self.vb.flamesIcon = 1
 		warnSperentsFury:Show(self.vb.furyCount)

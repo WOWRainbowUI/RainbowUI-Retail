@@ -3,12 +3,13 @@ if WOW_PROJECT_ID ~= (WOW_PROJECT_WRATH_CLASSIC or 11) then -- Added in Wrath, r
 end
 local mod	= DBM:NewMod("z607", "DBM-PvP")
 
-mod:SetRevision("20230128190440")
+mod:SetRevision("20240203195924")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
-	"ZONE_CHANGED_NEW_AREA"
+	"ZONE_CHANGED_NEW_AREA",
+	"PLAYER_ENTERING_WORLD"
 )
 
 do

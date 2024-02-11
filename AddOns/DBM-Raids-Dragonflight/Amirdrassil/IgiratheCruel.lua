@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2554, "DBM-Raids-Dragonflight", 1, 1207)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240112060931")
+mod:SetRevision("20240208053057")
 mod:SetCreatureID(200926)
 mod:SetEncounterID(2709)
 mod:SetUsedIcons(1, 2, 3, 4, 5, 6)
@@ -30,6 +30,7 @@ mod:RegisterEventsInCombat(
 --]]
 --TODO, secondary warning for https://wowhead.com/ptr-2/spell=424347 ?
 --TODO, Smashing Viscera is a hidden aura that's not logged, but UNIT_AURA might work
+--TODO, spears 13 is long by 2.3?
 --https://www.warcraftlogs.com/reports/N2k1xpg9rVqRDyQZ#fight=11&pins=2%24Off%24%23244F4B%24expression%24(ability.id%20%3D%20414425%20or%20ability.id%20%3D%20416996%20or%20ability.id%20%3D%20422776%20or%20ability.id%20%3D%20419048%20or%20ability.id%20%3D%20416048%20or%20ability.id%20%3D%20418531%20or%20ability.id%20%3D%20415624)%20and%20type%20%3D%20%22begincast%22%0A%20or%20ability.id%20%3D%20424456%20and%20type%20%3D%20%22cast%22%0A%20or%20ability.id%20%3D%20415020%20or%20ability.id%20%3D%20415094%20or%20ability.id%20%3D%20415090%20or%20ability.id%20%3D%20425282%20or%20ability.id%20%3D%20425283%20or%20ability.id%20%3D%20414357%0A%20or%20ability.name%20%3D%20%22Heart%20Stopper%22&view=events
 local warnDrenchedBlades							= mod:NewStackAnnounce(414340, 2, nil, "Tank|Healer")
 local warnBlisteringSpear							= mod:NewTargetCountAnnounce(414888, 3, nil, nil, 282481, nil, nil, nil, true)
@@ -52,7 +53,7 @@ local yellBlisteringTorment							= mod:NewShortYell(414770, 184656)
 local specWarnTwistingBlade							= mod:NewSpecialWarningDodgeCount(416996, nil, 138737, nil, 2, 2)
 local specWarnRuinousEnd							= mod:NewSpecialWarningSpell(419048, nil, nil, nil, 3, 2)
 --Torments
-local specWarnUmbralDestruction						= mod:NewSpecialWarningCount(416048, nil, nil, nil, 2, 2)
+local specWarnUmbralDestruction						= mod:NewSpecialWarningCount(416048, nil, nil, nil, 2, 14)
 local specWarnSmashingViscera						= mod:NewSpecialWarningYou(424456, nil, 47482, nil, 1, 2)--Not in combat log
 local yellSmashingViscera							= mod:NewShortYell(424456, 47482)
 local yellSmashingVisceraFades						= mod:NewShortFadesYell(424456)
@@ -92,6 +93,7 @@ mod.vb.heartCount = 0
 mod.vb.smashingCount = 0
 mod.vb.useHeartStopperBackup = false
 local tormentOverTime = 0
+local playerHearted = false
 
 function mod:OnCombatStart(delay)
 	self:SetStage(1)
@@ -157,9 +159,21 @@ function mod:SPELL_CAST_START(args)
 	elseif spellId == 416048 then
 		self.vb.umbralCount = self.vb.umbralCount + 1
 		specWarnUmbralDestruction:Show(self.vb.umbralCount)
-		specWarnUmbralDestruction:Play("specialsoon")--Vague voice instead of backseating til more time to review strategies
 		if self.vb.umbralCount == 1 then
+			if not playerHearted then--Didn't get hearts in last debuffs, give the share count (player can still determine if they soak or not)
+				specWarnUmbralDestruction:Play("shareone")
+			else--Player DID have heart in last soak, make sure that player stays out
+				playerHearted = false--Clear them for next soak
+				specWarnUmbralDestruction:Play("otherout")
+			end
 			timerUmbralDestructionCD:Start(self:IsMythic() and 32.7 or self:IsHeroic() and 25 or 30, 2)
+		else
+			if not playerHearted then
+				specWarnUmbralDestruction:Play("sharetwo")
+			else
+				--Don't need to reset variable on 2nd cast
+				specWarnUmbralDestruction:Play("otherout")
+			end
 		end
 	elseif spellId == 418531 then
 		self.vb.smashingCount = self.vb.smashingCount + 1
@@ -229,6 +243,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			end
 		end
 		if args:IsPlayer() then
+			playerHearted = true
 			specWarnHeartStopper:Show()
 			specWarnHeartStopper:Play("targetyou")
 			yellHeartStopperFades:Countdown(spellId)--, nil, icon
@@ -292,6 +307,7 @@ function mod:SPELL_AURA_REMOVED(args)
 		--Handle initial timer resets
 		self.vb.spearCount = 0
 		self.vb.TwistingCount = 0
+		playerHearted = false
 	end
 end
 

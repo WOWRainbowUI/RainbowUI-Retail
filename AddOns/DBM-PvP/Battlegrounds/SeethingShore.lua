@@ -3,11 +3,12 @@ if WOW_PROJECT_ID ~= (WOW_PROJECT_MAINLINE or 1) then -- Added in Legion
 end
 local mod	= DBM:NewMod("z1803", "DBM-PvP")
 
-mod:SetRevision("20231224194029")
+mod:SetRevision("20240203195924")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
-	"ZONE_CHANGED_NEW_AREA"
+	"ZONE_CHANGED_NEW_AREA",
+	"PLAYER_ENTERING_WORLD"
 )
 
 do

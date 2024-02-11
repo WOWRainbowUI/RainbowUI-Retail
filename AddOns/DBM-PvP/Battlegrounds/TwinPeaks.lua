@@ -3,11 +3,12 @@ if WOW_PROJECT_ID ~= (WOW_PROJECT_MAINLINE or 1) then -- Added in Cata
 end
 local mod	= DBM:NewMod("z726", "DBM-PvP")
 
-mod:SetRevision("20210519214524")
+mod:SetRevision("20240203195924")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
-	"ZONE_CHANGED_NEW_AREA"
+	"ZONE_CHANGED_NEW_AREA",
+	"PLAYER_ENTERING_WORLD"
 )
 
 do

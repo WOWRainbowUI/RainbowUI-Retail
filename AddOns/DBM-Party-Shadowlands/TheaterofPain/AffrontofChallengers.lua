@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2397, "DBM-Party-Shadowlands", 6, 1187)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240106080507")
+mod:SetRevision("20240203193824")
 mod:SetCreatureID(164451, 164463, 164461)--Dessia, Paceran, Sathel
 mod:SetEncounterID(2391)
 mod:SetHotfixNoticeRev(20220416000000)
@@ -15,7 +15,8 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_APPLIED 320069 324085 320272 320293 333231 333222 333540 326892",
 	"SPELL_PERIODIC_DAMAGE 320180",
 	"SPELL_PERIODIC_MISSED 320180",
-	"UNIT_SPELLCAST_SUCCEEDED boss1 boss2 boss3"
+	"UNIT_SPELLCAST_SUCCEEDED boss1 boss2 boss3",
+	"UNIT_DIED"
 )
 
 --[[

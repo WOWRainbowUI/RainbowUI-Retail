@@ -1,12 +1,12 @@
 local mod	= DBM:NewMod(2519, "DBM-Raids-Dragonflight", 1, 1207)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240120080957")
+mod:SetRevision("20240206205855")
 mod:SetCreatureID(204931)
 
 mod:SetEncounterID(2677)
 --mod:SetUsedIcons(1, 2, 3)
-mod:SetHotfixNoticeRev(20231212000000)
+mod:SetHotfixNoticeRev(20240206000000)
 mod:SetMinSyncRevision(20231208000000)
 mod.respawnTime = 29
 
@@ -15,7 +15,7 @@ mod:RegisterCombat("combat")
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 419506 420422 417455 417431 412761 428963 428400 428971 428968 428965 419123 422837 410223 425492 422518 419144",
 	"SPELL_CAST_SUCCESS 430441 422935 422524 426368",
-	"SPELL_AURA_APPLIED 417807 417443 429866 423717 425494 422517",
+	"SPELL_AURA_APPLIED 417807 417443 429866 423717 425494 422517 429903 429906",
 	"SPELL_AURA_APPLIED_DOSE 417807 417443 429866 425494",
 	"SPELL_AURA_REMOVED 419144",
 	"SPELL_PERIODIC_DAMAGE 419504 425483",
@@ -75,6 +75,8 @@ local warnShadowflameEruption						= mod:NewCountAnnounce(429866, 4, nil, false,
 
 local specWarnIncarnate								= mod:NewSpecialWarningDodgeCount(412761, nil, 374763, nil, 2, 2)
 local specWarnShadowflameBreath						= mod:NewSpecialWarningDodgeCount(410223, nil, 17088, nil, 2, 2)
+local specWarnFlamebound							= mod:NewSpecialWarningYou(429903, nil, nil, nil, 1, 15, 4)
+local specWarnShadowbound							= mod:NewSpecialWarningYou(429906, nil, nil, nil, 1, 15, 4)
 
 local timerCorrupt									= mod:NewCastTimer(13, 419144, nil, nil, nil, 6)
 local timerShadowflameOrbsCD						= mod:NewCDCountTimer(49, 421937, nil, nil, nil, 5)
@@ -82,8 +84,8 @@ local timerIncarnateCD								= mod:NewCDCountTimer(8.5, 412761, 374763, nil, ni
 --local timerIncarnate								= mod:NewCastTimer(8.5, 412761, 374763, nil, nil, 2)
 local timerShadowflameBreathCD						= mod:NewCDCountTimer(49, 410223, 17088, nil, nil, 3, nil, DBM_COMMON_L.DEADLY_ICON)
 
-mod:AddPrivateAuraSoundOption(429903, true, 429903, 1)--Flamebound
-mod:AddPrivateAuraSoundOption(429906, true, 429906, 1)--Shadowbound
+--mod:AddPrivateAuraSoundOption(429903, true, 429903, 1)--Flamebound
+--mod:AddPrivateAuraSoundOption(429906, true, 429906, 1)--Shadowbound
 --Stage Two: Children of the Stars
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(26668))
 local warnSpirits									= mod:NewCountAnnounce(422032, 3, nil, nil, 263222)
@@ -154,7 +156,7 @@ mod.vb.swirlCount = 0
 local allTimers = {
 	[1.5] = {
 		--Blaze (Mythic Only intermission Blaze)
-		[414186] = {29, 8},--29 guessed
+		[4141862] = {28, 8},
 		--Shadowflame Orbs
 		[421937] = {3.5, 6, 6},
 	},
@@ -170,7 +172,9 @@ local allTimers = {
 		--Spirits of the Kaldorai
 		[422032] = {20, 20, 20, 25, 26, 25, 25, 25},
 		--Blaze (Heroic+ only)
-		[414186] = {20.7, 14.9, 25, 30, 26.9, 23, 30, 25},
+		[414186] = {20, 14.9, 25, 30, 26.9, 23, 30, 25},
+		--Blaze (Mythic only)
+		[4141862] = {20, 14.9, 25, 33.9, 22.9, 23, 33.9, 21},
 		--Incarnate
 		[412761] = {44.6, 80.0, 79.5},
 		--Aflame (Heroic)
@@ -197,7 +201,7 @@ local function blazeLoop(self)
 			timer = self.vb.blazeCount % 2 == 0 and 29.5 or 23.9
 		end
 	elseif stage == 1.5 or stage == 2 then--Still best sequenced sine it's larger pattern
-		timer = self:GetFromTimersTable(allTimers, false, self.vb.phase, 414186, self.vb.blazeCount+1)
+		timer = self:GetFromTimersTable(allTimers, false, self.vb.phase, self:IsMythic() and 4141862 or 414186, self.vb.blazeCount+1)
 	else--Stage 3
 		timer = self:IsMythic() and (self.vb.blazeCount % 2 == 0 and 33 or 13) or (self.vb.blazeCount % 2 == 0 and 28 or 13)
 	end
@@ -275,8 +279,8 @@ function mod:OnCombatStart(delay)
 	self:EnablePrivateAuraSound(425525, "runout", 2)--Eternal Firestorm
 	if self:IsMythic() then
 		self:EnablePrivateAuraSound(426370, "gathershare", 2)--Darkflame Cleave
-		self:EnablePrivateAuraSound(429903, "flameyou", 15)--Flamebound
-		self:EnablePrivateAuraSound(429906, "shadowyou", 15)--Shadowbound
+--		self:EnablePrivateAuraSound(429903, "flameyou", 15)--Flamebound
+--		self:EnablePrivateAuraSound(429906, "shadowyou", 15)--Shadowbound
 		self:EnablePrivateAuraSound(428988, "flameyou", 15)--Molten Eruption (because both molten and shadow are bombs, can't just use bombyou for both, so better to elemental asign)
 		self:EnablePrivateAuraSound(428970, "shadowyou", 15)--Shadow Cage (because both molten and shadow are bombs, can't just use bombyou for both, so better to elemental asign)
 		timerWildFireCD:Start(4, 1)
@@ -368,8 +372,8 @@ function mod:SPELL_CAST_START(args)
 			timerDarkflameCleaveCD:Stop()--Mythic Only
 			timerCorrupt:Start(13)
 			if self:IsMythic() then
-				timerBlazeCD:Start(29, 1)--Mythic only
-				self:Schedule(29, blazeLoop, self)
+				timerBlazeCD:Start(28, 1)--Mythic only
+				self:Schedule(28, blazeLoop, self)
 			end
 		else
 			if self.vb.incarnCount == 3 then--only two sets of adds, 3rd one is only a knockback cause he's going dragon again
@@ -470,7 +474,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 		warnDarkflameCleave:Show(self.vb.darkflameCleaveCount)
 		timerDarkflameCleave:Start(4, self.vb.darkflameCleaveCount)
 		timerDarkflameCleaveCD:Start(61, self.vb.darkflameCleaveCount+1)
-	elseif spellId == 422935 then
+	elseif spellId == 422935 then--Eternal Firestorm
 		if self:GetStage(3, 1) then
 			self:SetStage(3)
 			warnPhase:Show(DBM_CORE_L.AUTO_ANNOUNCE_TEXTS.stage:format(3))
@@ -575,6 +579,12 @@ function mod:SPELL_AURA_APPLIED(args)
 			timerMythicDebuffs:Start(6.9, 1)
 			self:Schedule(6.9, mythicDebuffs, self)
 		end
+	elseif spellId == 429903 and args:IsPlayer() then
+		specWarnFlamebound:Show()
+		specWarnFlamebound:Play("flameyou")
+	elseif spellId == 429906 and args:IsPlayer() then
+		specWarnShadowbound:Show()
+		specWarnShadowbound:Play("shadowyou")
 	end
 end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED

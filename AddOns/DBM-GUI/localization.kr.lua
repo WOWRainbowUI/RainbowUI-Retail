@@ -17,7 +17,7 @@ L.OTabPlugins						= "기타"--Scenarios, PVP, Delves (11.x), Solo/Challenge con
 L.OTabOptions					= "핵심 설정"
 L.OTabAbout						= "소개"
 
---L.FOLLOWER						= "추종자"--i.e. the new dungeon type in 10.2.5. I haven't found a translated string yet
+L.FOLLOWER						= "추종자"--i.e. the new dungeon type in 10.2.5. I haven't found a translated string yet
 
 L.TabCategory_CURRENT_SEASON		= "현재 시즌"
 
@@ -355,6 +355,10 @@ L.CBTRole							= "특정 역할 전용 주문"
 L.CBTPhase							= "페이즈 전환"
 L.CBTImportant						= "사용자 지정 중요 주문"
 --Dropdown Options
+L.SAOne						= "일반 음성 1 (개인 알림)"
+L.SATwo						= "일반 음성 2 (전체 알림)"
+L.SAThree					= "일반 음성 3 (동작 1순위)"
+L.SAFour					= "일반 음성 4 (도망치기 1순위)"
 L.ColorDropGeneric					= "일반 (기본 설정)"
 L.ColorDrop1						= "색상 1"
 L.ColorDrop2						= "색상 2"
@@ -468,7 +472,7 @@ L.FilterVoidFormSay			= "공허의 형상일땐 공격대 징표나 초읽기를
 L.Area_SpecFilter			= "역할 관련 필터 설정"
 L.FilterTankSpec			= "방어 전담이 아닐땐 방어 전담용 알림 보지 않기 (참고: '도발' 알림은 현재 전부 기본값으로 켜짐 상태이기 때문에 대부분의 이용자는 설정을 끄지 않는 것을 권장합니다.)"
 L.FilterDispels				= "해제 주문이 쿨타임일땐 해제 알림 보지 않기"
---L.FilterCrowdControl				= "Filter announcements for crowd control based interrupts if your CC is on cooldown"
+L.FilterCrowdControl			= "메즈기가 쿨타임일땐 메즈 기반 차단 알림 보지 않기"
 L.FilterTrashWarnings		= "추종자, 일반, 영웅, 이전 확장팩 던전에선 일반몹 알림 보지 않기"
 
 L.Area_BInterruptFilter				= "보스 차단 알림 필터 설정"
@@ -493,25 +497,35 @@ L.SpamSpecRoleSwitch				= "'대상 변경' &amp; '쫄 등장' 경고 빼기 (텍
 L.SpamSpecRoleGTFO					= "'바닥 피하기' 경고 빼기 (텍스트와 효과음 전부)"
 
 -- Panel: Blizzard Features
-L.Panel_HideBlizzard		= "블리자드 기능 차단"
-L.Area_HideBlizzard			= "블리자드 기능 끄기 및 숨김"
-L.HideBossEmoteFrame		= "보스 전투중 보스 감정표현 숨기기"
-L.HideWatchFrame			= "추적중인 업적이 없고 신화+ 난이도가 아니라면 보스 전투시 퀘스트 추적 프레임을 숨깁니다."
-L.HideGarrisonUpdates		= "보스 전투중 추종자 팝업 알림 숨기기"
-L.HideGuildChallengeUpdates	= "보스 전투중 길드 도전 과제 알림 숨기기"
-L.HideQuestTooltips			= "보스 전투중 툴팁에서 퀘스트 정보 숨기기"
-L.HideTooltips				= "보스 전투중 모든 툴팁 숨기기"
-L.DisableSFX				= "보스 전투중 소리 채널 (효과음) 끄기 (알림: 이 설정을 켜면 효과음을 켜지 않았어도 전투가 끝난 후 자동으로 켜집니다)"
-L.DisableCinematics			= "게임 내 영상 끄기"
-L.OnlyFight					= "전투중일 때 한번만 재생"
-L.AfterFirst				= "인스턴스 던전에 있을 때 한번만 재생"
-L.CombatOnly				= "전투중 차단 (모든 전투)"
-L.RaidCombat				= "전투중 차단 (보스만)"
+L.Panel_HideBlizzard				= "블리자드 기능 차단"
+--Toast
+L.Area_HideToast					= "블리자드 토스트 알림 비활성화 (팝업)"
+L.HideGarrisonUpdates				= "보스 전투중 추종자 토스트 알림 숨기기"
+L.HideGuildChallengeUpdates			= "보스 전투중 길드 도전 과제 토스트 알림 숨기기"
+--L.HideBossKill				= "보스 처치 토스트 알림 숨기기"--NYI
+--L.HideVaultUnlock					= "금고 잠금 해제 토스트 알림 숨기기"--NYI
+--Cut Scenes
+L.Area_Cinematics					= "게임내 시네마틱 재생 차단"
+L.DuringFight						= "보스 전투중 컷신 재생 차단"--uses explicite IsEncounterInProgress check
+L.InstanceAnywhere					= "던전이나 공격대 인스턴스에서 비전투 컷신 재생 차단"
+L.NonInstanceAnywhere				= "위험: 야외 컷신 재생 차단 (권장하지 않음)"
+L.OnlyAfterSeen						= "한번 봤던 컷신만 재생 차단 (강력 권장, 한번은 스토리를 보는게 좋습니다)"
+--Sound
+L.Area_Sound						= "게임내 소리 차단"
+L.DisableSFX					= "보스 전투중 효과 음량 비활성화"
+L.DisableAmbiance					= "보스 전투중 환경 음량 비활성화"
+L.DisableMusic						= "보스 전투중 배경음악 음량 비활성화 (알림: 옵션을 켜면 이벤트 효과음에서 보스 전투 배경음을 설정해도 재생이 되지 않습니다)"
+--Other
+L.Area_HideBlizzard			= "다른 블리자드 성가신 요소 비활성화 및 숨김"
+L.HideBossEmoteFrame		= "보스 전투중 보스 감정표현 프레임 숨기기"
+L.HideWatchFrame			= "추적중인 업적이 없고 신화+ 난이도가 아니라면 보스 전투시 퀘스트 추적 프레임 숨기기"
+L.HideQuestTooltips			= "보스 전투중 툴팁에서 퀘스트 목표 숨기기"--Currently hidden (NYI)
+L.HideTooltips				= "보스 전투중 툴팁 완전히 숨기기"
 
 -- Panel: Raid Leader Controls
 L.Tab_RLControls					= "공대장 제어 설정"
 L.Area_FeatureOverrides				= "기능 무시 설정"
-L.OverrideIcons 					= "공격대에서 자신 포함 모든 사용자들의 공격대 징표 설정을 비활성화 (DBM이 원하는 방식대로 징표를 지정하게 만들려면 비활성화 대신 강제 적용 설정을 사용하세요)"
+L.OverrideIcons 					= "공격대에서 자신 포함 모든 사용자들의 공격대 징표 설정을 비활성화"-- (Use override instead of disable if you want DBM to do marking under your terms)
 L.OverrideSay						= "공격대에서 자신 포함 모든 사용자들의 말풍선/일반 대화 메시지 설정 비활성화"
 L.DisableStatusWhisperShort			= "공격대/파티의 현재 상태/답변 귓속말 비활성화"--Duplicated from privacy but makes sense to include option in both panels
 L.DisableGuildStatusShort			= "공격대/파티의 길드와 연동된 공략 진도 메시지 비활성화"--Duplicated from privacy but makes sense to include option in both panels
