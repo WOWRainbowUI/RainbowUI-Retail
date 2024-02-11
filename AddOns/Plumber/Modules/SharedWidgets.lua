@@ -36,6 +36,8 @@ do  -- Slice Frame
         WhiteBorderBlackBackdrop = true,
         Tooltip_Brown = true,
         Menu_Black = true,
+        NineSlice_GenericBox = true,            --used by BackpackItemTracker
+        NineSlice_GenericBox_Border = true,     --used by BackpackItemTracker
     };
 
     local ThreeSliceLayouts = {
@@ -732,6 +734,7 @@ end
 
 do  -- PeudoActionButton (a real ActionButtonTemplate will be attached to the button onMouseOver)
     local PostClickOverlay;
+    local GetItemMaxStackSizeByID = C_Item.GetItemMaxStackSizeByID;
 
     local function PostClickOverlay_OnUpdate(self, elapsed)
         self.t = self.t + elapsed;
@@ -790,6 +793,8 @@ do  -- PeudoActionButton (a real ActionButtonTemplate will be attached to the bu
         self:SetIcon(icon);
         self.id = item;
         self.actionType = "item";
+        local stackSize = GetItemMaxStackSizeByID(item)
+        self.stackable = stackSize and stackSize > 1;
         self:UpdateCount();
     end
 
@@ -798,7 +803,11 @@ do  -- PeudoActionButton (a real ActionButtonTemplate will be attached to the bu
 
         if self.actionType == "item" then
             count = GetItemCount(self.id);
-            self.Count:SetText(count);
+            if self.stackable then
+                self.Count:SetText(count);
+            else
+                self.Count:SetText("");
+            end
         elseif self.actionType == "spell" then
             local currentCharges, maxCharges = GetSpellCharges();
             if currentCharges then

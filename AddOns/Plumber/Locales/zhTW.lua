@@ -6,7 +6,7 @@ local L = addon.L;
 
 --Module Control Panel
 L["Module Control"] = "功能選項";
-L["Quick Slot Generic Description"] = "\n\n*快捷按鈕是一組在特定情形下出現的、可交互的按鈕。";
+L["Quick Slot Generic Description"] = "\n\n*快捷按鈕是一組在特定情形下出現的、可互動的按鈕。";
 L["Restriction Combat"] = "戰鬥中不可用";    --Indicate a feature can only work when out of combat
 L["Map Pin Change Size Method"] = "\n\n*如需更改標記大小，請打開 世界地圖 - 地圖篩選 - Plumber";
 
@@ -21,6 +21,8 @@ L["Module Category NPC Interaction"] = "NPC 互動";
 L["Module Category Class"] = "職右";   --Player Class (rogue, paladin...)
 --- order: 4
 L["Module Category Dreamseeds"] = "夢境種子";     --Added in patch 10.2.0
+--- order: 5
+L["Module Category AzerothianArchives"] = "艾澤拉斯檔案館";     --Added in patch 10.2.5
 
 --AutoJoinEvents
 L["ModuleName AutoJoinEvents"] = "自動加入活動";
@@ -45,6 +47,8 @@ L["Numbers Of Earned"] = "已獲取";    --The number of stuff the player has ea
 L["Track Upgrade Currency"] = "追蹤紋章";     --Crest: e.g. Drake’s Dreaming Crest
 L["Track Upgrade Currency Tooltip"] = "在最左側顯示你已獲得的最高等級的紋章。";
 L["Currently Pinned Colon"] = "當前顯示: ";     --Tells the currently pinned item
+L["Bar Inside The Bag"] = "顯示在背包內部";     --Put the bar inside the bag UI (below money/currency)
+L["Bar Inside The Bag Tooltip"] = "將工具列顯示在背包裡面。\n\n只支援遊戲內建的個別背包。";
 
 
 --GossipFrameMedal
@@ -102,8 +106,8 @@ L["TalkingHead Option Condition Instance Tooltip"] = "在副本中時隱藏對�
 
 
 --AzerothianArchives
-L["ModuleName AzerothianArchives"] = "對話頭像: Azerothian Archives";
-L["ModuleDescription AzerothianArchives"] = "在你為艾澤拉斯檔案館辦事時，替換預設的對話頭像介面。";
+L["ModuleName Technoscryers"] = "快捷按鈕: 科技占卜器";
+L["ModuleDescription Technoscryers"] = "在你做「科技考古」世界任務時顯示一個可以讓你直接戴上科技占卜器的按鈕。"..L["Quick Slot Generic Description"];
 
 
 --Navigator(Waypoint/SuperTrack) Shared Strings

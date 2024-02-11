@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v1.2.1";
-local VERSION_DATE = 1706115215;
+local VERSION_TEXT = "v1.2.4";
+local VERSION_DATE = 1707324000;
 
 
 local addonName, addon = ...
@@ -17,12 +17,14 @@ local DefaultValues = {
         HideZeroCountItem = true,
         ConciseTokenTooltip = true,
         TrackItemUpgradeCurrency = true,
+        TrackerBarInsideSeparateBag = false,
     DruidModelFix = true,               --Remove after 10.2.0
     GossipFrameMedal = true,
     EmeraldBountySeedList = true,       --Show a list of Dreamseed when appoaching Emarad Bounty Soil
     WorldMapPinSeedPlanting = true,     --Aditional Map Pin: Dreamseed
     AlternativePlayerChoiceUI = true,   --Revamp PlayerChoiceFrame for Dreamseed Nurturing
     HandyLockpick = true,               --Right-click to lockpick inventory items (Rogue/Mechagnome)
+    Technoscryers = true,               --Show Technoscryers on QuickSlot (Azerothian Archives World Quest)
 
     --Modify default interface behavior:
     BlizzFixEventToast = true,          --Make Toast non-interactable
