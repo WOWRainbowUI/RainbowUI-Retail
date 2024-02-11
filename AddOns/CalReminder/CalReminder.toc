@@ -1,13 +1,14 @@
-## Interface: 100205## IconTexture: 982414
+## Interface: 100205
 ## Title: CalReminder
+## IconTexture: Interface\Icons\inv_misc_pocketwatch_01.blp
+## AddonCompartmentFunc: CalReminder_OpenOptions
+## Version: 1.2.3
+## Author: Xam_insight
+## SavedVariables: maxDaysToCheck, CalReminderOptionsData
+
 ## Title-zhTW: |cffFF7F00[團隊]|r 行事曆活動提醒
 ## Notes-zhTW: CalReminder |n|n當行事曆中今天和明天有公會或社群活動，但是你還沒有回覆是否要參加時，會有 NPC 來提醒你。|n|n|cffffd200使用方法: |r從Esc>選項>插件>活動提醒，進行設定。
 ## X-Category-zhTW: 團隊
-## IconTexture: Interface\Icons\inv_misc_pocketwatch_01.blp
-## AddonCompartmentFunc: CalReminder_OpenOptions
-## Version: 1.2.2
-## Author: Xam_insight
-## SavedVariables: maxDaysToCheck, CalReminderOptionsData
 
 Libs\EZBlizzardUiPopups\EZBlizzardUiPopups.lua
 

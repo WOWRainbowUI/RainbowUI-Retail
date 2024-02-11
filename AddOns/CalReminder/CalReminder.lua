@@ -29,7 +29,7 @@ function CalReminder:OnEnable()
 	-- Called when the addon is enabled
 	C_Calendar.OpenCalendar()
 
-	self:RegisterEvent("PLAYER_STARTED_MOVING", "ReloadData")
+	self:RegisterEvent("PLAYER_STARTED_MOVING", "ReloadData") -- Not SPELLS_CHANGED we want to be sure the player is not afk.
     --self:RegisterEvent("CALENDAR_ACTION_PENDING", "ReloadData")
 
 	loadCalReminderOptions()
