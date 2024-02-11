@@ -40,7 +40,6 @@ local function GetActionButtonCommand(id)
     end
 end
 
-
 function ActionButton:OnCreate(id)
     -- initialize secure state
     self:SetAttributeNoHandler("action", 0)
@@ -55,6 +54,15 @@ function ActionButton:OnCreate(id)
     self:RegisterForClicks("AnyUp", "AnyDown")
 
     -- secure handlers
+    self:SetAttributeNoHandler('_childupdate-offset', [[
+        local offset = message or 0
+        local id = self:GetAttribute('index') + offset
+
+        if self:GetAttribute('action') ~= id then
+            self:SetAttribute('action', id)
+        end
+    ]])
+
     self:SetAttributeNoHandler("SetShowGrid", [[
         local show, reason, force = ...
         local value = self:GetAttribute("showgrid")
