@@ -1668,7 +1668,7 @@ D["NoAutoClose"] = {
     defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
 	title = "同時打開多個視窗",
-	desc = "打開新視窗時，讓其他視窗不會自動關閉。``|cffFF2D2D特別注意：使用此插件時，大部分的視窗都會在畫面正中間打開，不會記錄移動過的位置。|r`",
+	desc = "打開新視窗時，讓其他視窗不會自動關閉。",
 };
 D["NugComboBar"] = {
     defaultEnable = 0,
