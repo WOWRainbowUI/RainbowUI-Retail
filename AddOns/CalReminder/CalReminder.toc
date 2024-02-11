@@ -1,0 +1,13 @@
+## Interface: 100200
+## Title: CalReminder
+## IconTexture: Interface\Icons\inv_misc_pocketwatch_01.blp
+## AddonCompartmentFunc: CalReminder_OpenOptions
+## Version: 1.2.2
+## Author: Xam_insight
+## SavedVariables: maxDaysToCheck, CalReminderOptionsData
+
+Libs\Ace3\LibStub\LibStub.lua
+Libs\Ace3\AceLocale-3.0\AceLocale-3.0.xml
+Libs\EZBlizzardUiPopups\EZBlizzardUiPopups.lua
+
+embeds.xml
