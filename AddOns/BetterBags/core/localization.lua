@@ -131,13 +131,68 @@ if GetLocale() == "zhTW" then
 	L.data["If you delete a custom category that was created by another addon/plugin, it will reappear the next time you log in/reload. To permanently delete a custom category created by a plugin/another addon, you must disable the addon creating the category and then delete the category in the UI."] = "如果刪除的是由其他插件建立的自訂分類，下次登入/重新載入介面時它會重新出現。要永久刪除由其他插件建立的自訂分類，必須停用建立該分類的插件，然後在設定選項中刪除該分類。"
 	L.data["How do I delete an item from a custom category?"] = "如何從自訂分類中刪除物品?"
 	L.data["When viewing a custom category configuration, you can right click on an item to open it's menu and select 'delete' to delete it from the category."] = "在設定選項中查看自訂分類時，在要刪除的物品名稱上面點右鍵選擇 '移除'。"
+	L.data["Search"] = "搜尋"
+	L.data["How do I search for items?"] = "我該如何搜尋物品?"
+	L.data[ [[
+    You can bind a key to open the search bar in the World of Warcraft keybindings menu. You can also open the search bar by shift clicking on the bag button at the top of the bag frame.
+    Once the search bar is open, you can type in the name of an item to search for it. You can also use the following search operators:
+    - `type:` to search for items of a specific type (e.g. `type:weapon`)
+    - `subtype:` to search for items of a specific subtype (e.g. `subtype:axe`)
+    - `name:` to search for items with a specific name (e.g. `name:axe`)
+    - `gear:` to search for items that are part of an equipment set (e.g. `gear:tank`)
+    - `exp:` to search for items from a specific expansion (e.g. `exp:shadowlands`)
+    
+    For expansions, you can use the following expansions shortcuts (e.g. `exp:classic`):
+    - `classic`
+    - `tbc`
+    - `wotlk`
+    - `cata`
+    - `mop`
+    - `wod`
+    - `legion`
+    - `bfa`
+    - `shadowlands`
+    - `dragonflight`
+  ]] ] = [[
+    可以在遊戲選項的按鍵綁定中設定一個快速鍵來打開搜尋欄，也可以用 Shift+左鍵點擊背包視窗左上角的背包圖示來打開搜尋欄。
+    搜索欄打開後，可以輸入物品名稱來進行搜尋。還可以使用下面的搜尋運算符：
+    - `type:` 用來搜尋指定類型的物品 (例如 `type:武器`)
+    - `subtype:` 用來搜尋指定子類型的物品 (例如 `subtype:斧`)
+    - `name:` 用來搜尋指定名稱的物品 (例如 `name:斧`)
+    - `gear:` 用來搜尋套裝設定中的物品 (例如 `gear:坦克`)
+    - `exp:` 用來搜尋指定資料片的物品 (例如 `exp:暗影之境`)
+    
+    資料片可以使用下面的英文縮寫 (例如 `exp:classic`):
+    - `classic`
+    - `tbc`
+    - `wotlk`
+    - `cata`
+    - `mop`
+    - `wod`
+    - `legion`
+    - `bfa`
+    - `shadowlands`
+    - `dragonflight`
+  ]]
 	
 	-- config\itemlist.lua
 	L.data["Drag an item here from your inventory, bank, or another source to add it to this category."] = "將物品從背包、銀行或其他地方拖曳到這裡，便可加入此分類。"
 	L.data["Remove"] = "移除"
 	
+	-- frames\bags.lua
+	L.data["Left Click"] = "左鍵"
+	L.data["Open Menu"] = "打開選單"
+	L.data["Shift Left Click"] = "Shift+左鍵"
+	L.data["Search Bags"] = "搜尋背包"
+	L.data["Right Click"] = "右鍵"
+	L.data["Sort Bags"] = "整理背包"
+	L.data["Swap Between Bank/Reagent Bank"] = "切換銀行/材料銀行"
+	
 	-- frames\currency.lua
 	L.data["Click to add or remove this currency to and from your backpack."] = "點一下將此貨幣加入背包或從背包中移除。"
+	
+	-- frames\search.lua
+	L.data["Start typing to search your bags..."] = "輸入文字來搜尋背包中的物品..."
 	
 	-- BetterBags-Teleports
 	L.data["Teleporters"] = "傳送"

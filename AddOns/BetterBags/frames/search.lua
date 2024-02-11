@@ -13,6 +13,9 @@ local events = addon:GetModule('Events')
 ---@field searchFrame SearchFrame
 local search = addon:NewModule('Search')
 
+---@class Localization: AceModule
+local L = addon:GetModule('Localization')
+
 ---@class (exact) SearchFrame
 ---@field frame Frame
 ---@field fadeInGroup AnimationGroup
@@ -94,7 +97,7 @@ function search:Create(parent)
 
   local helpText = textBox:CreateFontString("BetterBagsSearchHelpText", "ARTWORK", "GameFontDisableLarge")
   helpText:SetPoint("CENTER", textBox, "CENTER", 0, 0)
-  helpText:SetText("Start typing to search your bags...")
+  helpText:SetText(L:G("Start typing to search your bags..."))
   helpText:Show()
   sf.helpText = helpText
 
