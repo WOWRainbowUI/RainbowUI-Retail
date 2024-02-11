@@ -1,8 +1,8 @@
-## Interface: 100200
+## Interface: 100205
 ## Title: CalReminder
 ## IconTexture: Interface\Icons\inv_misc_pocketwatch_01.blp
 ## AddonCompartmentFunc: CalReminder_OpenOptions
-## Version: 1.2.2
+## Version: 1.2.3
 ## Author: Xam_insight
 ## SavedVariables: maxDaysToCheck, CalReminderOptionsData
 
