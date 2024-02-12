@@ -1,0 +1,11 @@
+## Interface: 100205
+## Title: |cff3399FF预组过滤增强|r
+## Author: Tomato#4822(国际服)
+## Version: 1.0
+
+## Title-zhTW: |cffFF7F00[副本]|r 預組語言過濾
+## Notes-zhTW: JsFilter |n|n在預組隊伍視窗上方新增過濾方式，可以篩選是否要看到簡體中文和英文的隊伍。|n|n|cffFF2D2D特別注意: |r切換過濾方式後，需要按一下重新搜尋按鈕，隊伍列表才會更新。
+## X-Category-zhTW: 團隊
+## IconTexture: Interface\Icons\inv_10_jewelcrafting3_rainbowprism_color1
+
+JsFilter.lua

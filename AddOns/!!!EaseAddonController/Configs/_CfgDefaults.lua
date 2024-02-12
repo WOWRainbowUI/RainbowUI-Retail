@@ -1266,6 +1266,13 @@ D["iPMythicTimer"] = {
         text = "點小地圖按鈕的 'M+ 時間' 按鈕也可以打開設定選項。|n|n移動位置：打開設定選項後，拖曳框架中空白的地方來移動。|n",
     },
 };
+D["JsFilter"] = {
+    defaultEnable = 1,
+	tags = { "BOSSRAID" },
+	title = "預組語言過濾",
+	icon = "Interface\\Icons\\inv_10_jewelcrafting3_rainbowprism_color1",
+	desc = "在預組隊伍視窗上方新增過濾方式，可以篩選是否要看到簡體中文和英文的隊伍。``|cffFF2D2D特別注意：切換過濾方式後，需要按一下重新搜尋按鈕，隊伍列表才會更新。|r`",
+};
 D["KeystoneLoot"] = {
     defaultEnable = 0,
 	tags = { "BOSSRAID" },
