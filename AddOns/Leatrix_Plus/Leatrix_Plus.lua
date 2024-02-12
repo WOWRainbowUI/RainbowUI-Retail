@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 10.2.10 (16th January 2024)
+-- 	Leatrix Plus 10.2.14 (7th February 2024)
 ----------------------------------------------------------------------
 
 --	01:Functns, 02:Locks, 03:Restart, 20:Live, 30:Isolated, 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "10.2.10"
+	LeaPlusLC["AddonVer"] = "10.2.14"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -979,10 +979,11 @@
 			LeaPlusLC:MakeCB(SoundPanel, "MuteAnima", "Anima", 284, -92, false, "If checked, the Experimental Anima Cell toy will be quieter.")
 			LeaPlusLC:MakeCB(SoundPanel, "MuteBalls", "Balls", 284, -112, false, "If checked, the Foot Ball sounds will be muted.")
 			LeaPlusLC:MakeCB(SoundPanel, "MuteHarp", "Harp", 284, -132, false, "If checked, the Fae Harp toy will be muted.")
+			LeaPlusLC:MakeCB(SoundPanel, "MuteMeerah", "Meerah", 284, -152, false, "If checked, Meerah's Jukebox wil be muted.")
 
-			LeaPlusLC:MakeTx(SoundPanel, "Combat", 284, -172)
-			LeaPlusLC:MakeCB(SoundPanel, "MuteArena", "Arena", 284, -192, false, "If checked, arena announcers will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteBattleShouts", "Shouts", 284, -212, false, "If checked, your character will not shout and wail during combat.")
+			LeaPlusLC:MakeTx(SoundPanel, "Combat", 284, -192)
+			LeaPlusLC:MakeCB(SoundPanel, "MuteArena", "Arena", 284, -212, false, "If checked, arena announcers will be muted.")
+			LeaPlusLC:MakeCB(SoundPanel, "MuteBattleShouts", "Shouts", 284, -232, false, "If checked, your character will not shout and wail during combat.")
 
 			LeaPlusLC:MakeTx(SoundPanel, "Misc", 418, -72)
 			LeaPlusLC:MakeCB(SoundPanel, "MuteDucks", "Ducks", 418, -92, false, "If checked, duck greetings will be muted.|n|nUse this if you like to do your Valdrakken banking in peace.")
@@ -3251,7 +3252,7 @@
 			eb.Text = eb.scroll.EditBox
 			eb.Text:SetWidth(150)
 			eb.Text:SetPoint("TOPLEFT", eb.scroll)
-			eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll)
+			eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll, -12, 0)
 			eb.Text:SetMaxLetters(2000)
 			eb.Text:SetFontObject(GameFontNormalLarge)
 			eb.Text:SetAutoFocus(false)
@@ -4384,7 +4385,7 @@
 			eb.Text:SetWidth(494)
 			eb.Text:SetHeight(230)
 			eb.Text:SetPoint("TOPLEFT", eb.scroll)
-			eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll)
+			eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll, -12, 0)
 			eb.Text:SetMaxLetters(2000)
 			eb.Text:SetFontObject(GameFontNormalLarge)
 			eb.Text:SetAutoFocus(false)
@@ -4925,7 +4926,7 @@
 				eb.Text:SetWidth(494)
 				eb.Text:SetHeight(230)
 				eb.Text:SetPoint("TOPLEFT", eb.scroll)
-				eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll)
+				eb.Text:SetPoint("BOTTOMRIGHT", eb.scroll, -12, 0)
 				eb.Text:SetMaxLetters(1200)
 				eb.Text:SetFontObject(GameFontNormalLarge)
 				eb.Text:SetAutoFocus(false)
@@ -5143,7 +5144,7 @@
 				-- Set top level to ensure button frame shows on top of frames such as the main action bar
 				bFrame:SetToplevel(true)
 
-				-- Set buttm frame scale to match minimap cluster scale
+				-- Set button frame scale to match minimap cluster scale
 				bFrame:SetScale(MinimapCluster:GetScale())
 				MinimapCluster:HookScript("OnSizeChanged", function()
 					bFrame:SetScale(MinimapCluster:GetScale())
@@ -5467,6 +5468,24 @@
 
 					if not finalTex then finalTex = "Interface\\HELPFRAME\\HelpIcon-KnowledgeBase" end
 
+					-- Function to anchor the tooltip to the custom button or the minimap
+					local function ReanchorTooltip(tip, myButton)
+						tip:ClearAllPoints()
+						if LeaPlusLC["CombineAddonButtons"] == "On" then
+							if LeaPlusLC.bFrame and LeaPlusLC.bFrame:GetPoint() == "BOTTOMLEFT" then
+								tip:SetPoint("TOPLEFT", Minimap, "BOTTOMLEFT", 0, -6)
+							else
+								tip:SetPoint("TOPRIGHT", Minimap, "BOTTOMRIGHT", 0, -6)
+							end
+						else
+							if Minimap:GetCenter() * Minimap:GetEffectiveScale() > (GetScreenWidth() * UIParent:GetEffectiveScale() / 2) then
+								tip:SetPoint("TOPRIGHT", myButton, "BOTTOMRIGHT", 0, -6)
+							else
+								tip:SetPoint("TOPLEFT", myButton, "BOTTOMLEFT", 0, -6)
+							end
+						end
+					end
+
 					local zeroButton = LibStub("LibDataBroker-1.1"):NewDataObject("LeaPlusCustomIcon_" .. name, {
 						type = "data source",
 						text = name,
@@ -5488,17 +5507,78 @@
 								end
 							end
 						end,
-						OnTooltipShow = function(tooltip)
-							if not tooltip or not tooltip.AddLine then return end
-							tooltip:AddLine(name)
-							tooltip:AddLine(L["This addon uses a custom button."], 1, 1, 1)
-						end,
 					})
 					LeaPlusDB["CustomAddonButtons"][name] = LeaPlusDB["CustomAddonButtons"][name] or {}
 					LeaPlusDB["CustomAddonButtons"][name].hide = false
 					CustomAddonTable[name] = name
 					local icon = LibStub("LibDBIcon-1.0", true)
 					icon:Register("LeaPlusCustomIcon_" .. name, zeroButton, LeaPlusDB["CustomAddonButtons"][name])
+					-- Custom buttons
+					if name == "AllTheThings-Minimap" then
+						-- AllTheThings
+						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
+						myButton.icon:SetTexture("Interface\\AddOns\\AllTheThings\\assets\\logo_tiny")
+						myButton:HookScript("OnEnter", function()
+							_G[name]:GetScript("OnEnter")(_G[name], true)
+							ReanchorTooltip(GameTooltip, myButton)
+						end)
+						myButton:HookScript("OnLeave", function()
+							_G[name]:GetScript("OnLeave")()
+						end)
+					elseif name == "AltoholicMinimapButton" then
+						-- Altoholic
+						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
+						myButton.icon:SetTexture("Interface\\Icons\\INV_Drink_13")
+						myButton:HookScript("OnEnter", function()
+							_G[name]:GetScript("OnEnter")(_G[name], true)
+							ReanchorTooltip(AddonFactory_Tooltip, myButton)
+						end)
+						myButton:HookScript("OnLeave", function()
+							_G[name]:GetScript("OnLeave")()
+						end)
+					elseif name == "WIM3MinimapButton" then
+						-- WIM
+						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
+						myButton:HookScript("OnEnter", function()
+							_G[name]:GetScript("OnEnter")(_G[name], true)
+							GameTooltip:SetOwner(myButton, "ANCHOR_TOP")
+							GameTooltip:AddLine(name)
+							GameTooltip:Show()
+							ReanchorTooltip(GameTooltip, myButton)
+						end)
+						myButton:HookScript("OnLeave", function()
+							_G["WIM3MinimapButton"]:GetScript("OnLeave")()
+							GameTooltip:Hide()
+						end)
+					elseif name == "BtWQuestsMinimapButton"				-- BtWQuests
+						or name == "TomCats-MinimapButton"				-- TomCat's Tours
+						or name == "TomCats-LoveIsInTheAirMinimapButton2023"
+						or name == "TomCats-LunarFestivalMinimapButton2023"
+						or name == "LibDBIcon10_MethodRaidTools"		-- Method Raid Tools
+						or name == "wlMinimapButton"					-- Wowhead Looter (part of Wowhead client)
+						then
+						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
+						myButton:HookScript("OnEnter", function()
+							_G[name]:GetScript("OnEnter")(_G[name], true)
+							ReanchorTooltip(GameTooltip, myButton)
+						end)
+						myButton:HookScript("OnLeave", function()
+							GameTooltip:Hide()
+						end)
+					else
+						-- Unknown custom buttons
+						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
+						myButton:HookScript("OnEnter", function()
+							GameTooltip:SetOwner(myButton, "ANCHOR_TOP")
+							GameTooltip:AddLine(name)
+							GameTooltip:AddLine(L["This is a custom button.  Please ask the addon author to use the standard LibDBIcon library instead."], 1, 1, 1, true)
+							GameTooltip:Show()
+							ReanchorTooltip(GameTooltip, myButton)
+						end)
+						myButton:HookScript("OnLeave", function()
+							GameTooltip:Hide()
+						end)
+					end
 				end
 
 				-- Create LibDBIcon buttons for these addons that have LibDBIcon prefixes
@@ -5511,6 +5591,11 @@
 					"SexyMapZoneTextButton", -- SexyMap
 				}
 
+				-- Some buttons have less than 3 regions.  These need to be manually defined below.
+				local LowRegionCountButtons = {
+					"AllTheThings-Minimap", -- AllTheThings
+				}
+
 				-- Function to loop through minimap children to find non-standard addon buttons
 				local function MakeButtons()
 					local temp = {Minimap:GetChildren()}
@@ -5519,7 +5604,7 @@
 							local btn = temp[i]
 							local name = btn:GetName()
 							local btype = btn:GetObjectType()
-							if name and btype == "Button" and not CustomAddonTable[name] and btn:GetNumRegions() >= 3 and not issecurevariable(name) and btn:IsShown() then
+							if name and btype == "Button" and not CustomAddonTable[name] and (btn:GetNumRegions() >= 3 or tContains(LowRegionCountButtons, name)) and not issecurevariable(name) and btn:IsShown() then
 								if not strfind(strlower(LeaPlusDB["MiniExcludeList"]), strlower("##" .. name)) then
 									if not string.find(name, "LibDBIcon") and not tContains(BypassButtonTable, name) or tContains(customButtonTable, name) then
 										CreateBadButton(name)
@@ -5533,7 +5618,7 @@
 				end
 
 				-- Run the function a few times on startup
-				C_Timer.NewTicker(2, MakeButtons, 3)
+				C_Timer.NewTicker(2, MakeButtons, 8)
 				C_Timer.After(0.1, MakeButtons)
 
 			end
@@ -7853,6 +7938,7 @@
 					_G["ChatFrame" .. i .. "Tab"]:HookScript("OnClick", function()
 						if IsControlKeyDown() then
 							editBox:SetFont(_G["ChatFrame" .. i]:GetFont())
+							editFrame:SetPanExtent(select(2, _G["ChatFrame" .. i]:GetFont()))
 							ShowChatbox(_G["ChatFrame" .. i])
 						end
 					end)
@@ -7866,6 +7952,7 @@
 					_G[cf .. "Tab"]:HookScript("OnClick", function()
 						if IsControlKeyDown() then
 							editBox:SetFont(_G[cf]:GetFont())
+							editFrame:SetPanExtent(select(2, _G[cf]:GetFont()))
 							ShowChatbox(_G[cf])
 						end
 					end)
@@ -8517,6 +8604,11 @@
 				if LeaPlusLC.totalRP3 and TRP3_MainTooltip and TRP3_CharacterTooltip then
 					TRP3_MainTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"])
 					TRP3_CharacterTooltip:SetScale(LeaPlusLC["LeaPlusTipSize"])
+				end
+
+				-- Altoholic
+				if AddonFactory_Tooltip then
+					AddonFactory_Tooltip:SetScale(LeaPlusLC["LeaPlusTipSize"])
 				end
 
 				-- Set slider formatted text
