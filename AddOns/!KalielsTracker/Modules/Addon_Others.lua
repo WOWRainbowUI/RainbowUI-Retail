@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2023, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -48,7 +48,7 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "13.40", true) then
+    if KT:CheckAddOn("ElvUI", "13.58", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
         B.SetObjectiveFrameHeight = function() end    -- preventive
@@ -76,7 +76,7 @@ end
 
 -- Tukui
 local function Tukui_SetSupport()
-    if KT:CheckAddOn("Tukui", "20.38", true) then
+    if KT:CheckAddOn("Tukui", "20.41", true) then
         local T = unpack(_G.Tukui)
         T.Miscellaneous.ObjectiveTracker.Enable = function() end
     end
@@ -91,7 +91,7 @@ local function RealUI_SetSupport()
             R:SetModuleEnabled(module, false)
             StaticPopup_Show(addonName.."_ReloadUI", nil, "Activate changes for |cff00ffe3RealUI|r.")
         end
-        if not IsAddOnLoaded("Aurora_Extension") then
+        if not C_AddOns.IsAddOnLoaded("Aurora_Extension") then
             StaticPopup_Show(addonName.."_Info", nil, "Please install / activate addon |cff00ffe3Aurora - Extension|r\nand disable Objective Tracker skin.")
         end
     end
@@ -145,7 +145,7 @@ end
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
-    self.isLoadedMasque = (KT:CheckAddOn("Masque", "10.1.7") and db.addonMasque)
+    self.isLoadedMasque = (KT:CheckAddOn("Masque", "10.2.5") and db.addonMasque)
 
     if self.isLoadedMasque then
         KT:Alert_IncompatibleAddon("Masque", "10.0.1")

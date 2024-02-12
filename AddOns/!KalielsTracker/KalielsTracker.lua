@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2023, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -7,8 +7,8 @@
 local addonName, addon = ...
 local KT = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-ProtRouter-1.0")
 KT:SetDefaultModuleState(false)
-KT.title = GetAddOnMetadata(addonName, "Title")
-KT.version = GetAddOnMetadata(addonName, "Version")
+KT.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
+KT.version = C_AddOns.GetAddOnMetadata(addonName, "Version")
 KT.gameVersion = GetBuildInfo()
 KT.locale = GetLocale()
 
@@ -16,7 +16,6 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 -- Lua API
-local abs = math.abs
 local floor = math.floor
 local fmod = math.fmod
 local format = string.format
@@ -41,7 +40,6 @@ local InCombatLockdown = InCombatLockdown
 local FormatLargeNumber = FormatLargeNumber
 local UIParent = UIParent
 
-local trackerWidth = 280
 local paddingBottom = 15
 local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
 local testLine
@@ -341,7 +339,7 @@ end
 
 local function SetFrames()
 	-- Main frame
-	KTF:SetWidth(trackerWidth)
+	KTF:SetWidth(db.width)
 	KTF:SetFrameStrata(db.frameStrata)
 	KTF:SetFrameLevel(KTF:GetFrameLevel() + 25)
 
@@ -535,7 +533,7 @@ local function SetFrames()
 
 	-- Scroll child frame
 	local Child = CreateFrame("Frame", addonName.."ScrollChild", KTF.Scroll)
-	Child:SetSize(trackerWidth-8, 8000)
+	Child:SetSize(db.width - 8, 8000)
 	KTF.Scroll:SetScrollChild(Child)
 	KTF.Child = Child
 
@@ -565,7 +563,7 @@ local function SetFrames()
 	OTFHeader.Title.ClearAllPoints = function() end
 	OTFHeader.Title:SetPoint("LEFT", -5, -1)
 	OTFHeader.Title.SetPoint = function() end
-	OTFHeader.Title:SetWidth(trackerWidth - 40)
+	OTFHeader.Title:SetWidth(db.width - 40)
 	OTFHeader.Title:SetWordWrap(false)
 	KT_ScenarioBlocksFrame:SetWidth(243)
 	MawBuffs.List:SetParent(UIParent)
@@ -1925,7 +1923,7 @@ local function SetHooks()
 		return addedQuestCurrencies, alreadyUsedCurrencyContainerId > 0;
 	end
 
-	hooksecurefunc(QuestUtil, "SetupWorldQuestButton", function(button, worldQuestType, rarity, isElite, tradeskillLineIndex, inProgress, selected, isCriteria, isSpellTarget, isEffectivelyTracked)
+	hooksecurefunc(QuestUtil, "SetupWorldQuestButton", function(button, info, inProgress, selected, isCriteria, isSpellTarget, isEffectivelyTracked)
         button.Glow:SetShown(false)
     end)
 
@@ -2475,7 +2473,7 @@ function KT:SetSize()
 	_DBG(" - height = "..OTF.BlocksFrame.contentsHeight)
 	if not dbChar.collapsed and not self:IsTrackerEmpty() then
 		-- width
-		KTF:SetWidth(trackerWidth)
+		KTF:SetWidth(db.width)
 
 		-- height
 		if KT_BONUS_OBJECTIVE_TRACKER_MODULE.firstBlock then
@@ -2516,7 +2514,7 @@ function KT:SetSize()
 		if db.hdrCollapsedTxt == 1 then
 			KTF:SetWidth(KTF.HeaderButtons:GetWidth() + 8)
 		else
-			KTF:SetWidth(trackerWidth)
+			KTF:SetWidth(db.width)
 		end
 
 		-- height
@@ -2541,26 +2539,6 @@ function KT:MoveTracker()
 	KTF:SetPoint(db.anchorPoint, UIParent, db.anchorPoint, db.xOffset, db.yOffset)
 	KTF.directionUp = (db.anchorPoint == "BOTTOMLEFT" or db.anchorPoint == "BOTTOMRIGHT")
 	KTF.anchorLeft = (db.anchorPoint == "TOPLEFT" or db.anchorPoint == "BOTTOMLEFT")
-
-	local options = self.options.args.general.args.sec1.args
-	if KTF.anchorLeft then
-		options.xOffset.min = 0
-		options.xOffset.max = self.screenWidth - trackerWidth
-	else
-		options.xOffset.min = -(self.screenWidth - trackerWidth)
-		options.xOffset.max = 0
-	end
-
-	if KTF.directionUp then
-		options.yOffset.min = 0
-		options.yOffset.max = self.screenHeight - options.maxHeight.min
-	else
-		options.yOffset.min = -(self.screenHeight - options.maxHeight.min)
-		options.yOffset.max = 0
-	end
-
-	options.maxHeight.max = self.screenHeight - abs(db.yOffset)
-	db.maxHeight = (abs(db.yOffset)+db.maxHeight > self.screenHeight) and options.maxHeight.max or db.maxHeight
 
 	self:MoveButtons()
 end
@@ -3049,9 +3027,6 @@ function KT:OnEnable()
 	if self.db.global.version ~= self.version then
 		self.db.global.version = self.version
 	end
-
-	self.screenWidth = round(GetScreenWidth())
-	self.screenHeight = round(GetScreenHeight())
 
 	local i = 1
 	local isChange = false

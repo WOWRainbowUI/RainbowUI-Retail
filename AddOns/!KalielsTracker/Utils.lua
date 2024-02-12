@@ -1,11 +1,11 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2023, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
 
 local addonName, KT = ...
-KT.title = GetAddOnMetadata(addonName, "Title")
+KT.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
 
 -- Lua API
 local floor = math.floor
@@ -520,9 +520,9 @@ function KT:Alert_ResetIncompatibleProfiles(version)
 end
 
 function KT:Alert_IncompatibleAddon(addon, version)
-    if not self.IsHigherVersion(GetAddOnMetadata(addon, "Version"), version) then
+    if not self.IsHigherVersion(C_AddOns.GetAddOnMetadata(addon, "Version"), version) then
         self.db.profile["addon"..addon] = false
-        StaticPopup_Show(addonName.."_ReloadUI", nil, "|cff00ffe3%s|r support has been disabled. Please install version |cff00ffe3%s|r or later and enable addon support.", { GetAddOnMetadata(addon, "Title"), version })
+        StaticPopup_Show(addonName.."_ReloadUI", nil, "|cff00ffe3%s|r support has been disabled. Please install version |cff00ffe3%s|r or later and enable addon support.", { C_AddOns.GetAddOnMetadata(addon, "Title"), version })
     end
 end
 

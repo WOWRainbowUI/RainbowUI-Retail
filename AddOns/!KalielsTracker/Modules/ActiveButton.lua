@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2023, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -257,9 +257,9 @@ end
 
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-	isBartender = IsAddOnLoaded("Bartender4")
-	isElvui = IsAddOnLoaded("ElvUI")
-	isTukui = IsAddOnLoaded("Tukui")
+	isBartender = C_AddOns.IsAddOnLoaded("Bartender4")
+	isElvui = C_AddOns.IsAddOnLoaded("ElvUI")
+	isTukui = C_AddOns.IsAddOnLoaded("Tukui")
 
 	SetFrames()
 	self.initialized = true

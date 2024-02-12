@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2023, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -14,12 +14,16 @@ local WidgetLists = AceGUIWidgetLSMlists
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 -- Lua API
+local abs = math.abs
 local floor = math.floor
 local fmod = math.fmod
 local format = string.format
+local gsub = string.gsub
 local ipairs = ipairs
 local pairs = pairs
+local round = function(n) return floor(n + 0.5) end
 local strlen = string.len
+local strsplit = string.split
 local strsub = string.sub
 
 local db, dbChar
@@ -43,13 +47,14 @@ local OTF = KT_ObjectiveTrackerFrame
 local overlay
 local overlayShown = false
 
-local OverlayFrameUpdate, OverlayFrameHide, GetModulesOptionsTable, MoveModule, SetSharedColor, IsSpecialLocale	-- functions
+local OverlayFrameUpdate, OverlayFrameHide, GetModulesOptionsTable, MoveModule, SetSharedColor, IsSpecialLocale, UpdateOptions  -- functions
 
 local defaults = {
 	profile = {
 		anchorPoint = "TOPRIGHT",
 		xOffset = -115,
 		yOffset = -280,
+		width = 280,
 		maxHeight = 400,
 		frameScrollbar = true,
 		frameStrata = "LOW",
@@ -236,6 +241,7 @@ local options = {
 								db.anchorPoint = anchors[value]
 								db.xOffset = 0
 								db.yOffset = 0
+								UpdateOptions()
 								KT:MoveTracker()
 								OverlayFrameUpdate()
 								KT_ObjectiveTracker_Collapse()
@@ -265,6 +271,7 @@ local options = {
 							step = 2,
 							set = function(_, value)
 								db.yOffset = value
+								UpdateOptions(true)
 								KT:MoveTracker()
 								KT:SetSize()
 								OverlayFrameUpdate()
@@ -1007,7 +1014,7 @@ local options = {
 							name = "Masque",
 							type = "execute",
 							disabled = function()
-								return (not IsAddOnLoaded("Masque") or not db.addonMasque or not KT.AddonOthers:IsEnabled())
+								return (not C_AddOns.IsAddOnLoaded("Masque") or not db.addonMasque or not KT.AddonOthers:IsEnabled())
 							end,
 							func = function()
 								SlashCmdList["MASQUE"]()
@@ -1282,7 +1289,7 @@ local options = {
 							confirm = true,
 							confirmText = warning,
 							disabled = function()
-								return (not IsAddOnLoaded("Masque") or not KT.AddonOthers:IsEnabled())
+								return (not C_AddOns.IsAddOnLoaded("Masque") or not KT.AddonOthers:IsEnabled())
 							end,
 							set = function()
 								db.addonMasque = not db.addonMasque
@@ -1305,12 +1312,12 @@ local options = {
 							confirm = true,
 							confirmText = warning,
 							disabled = function()
-								return not IsAddOnLoaded("PetTracker")
+								return not C_AddOns.IsAddOnLoaded("PetTracker")
 							end,
 							set = function()
 								db.addonPetTracker = not db.addonPetTracker
 								if PetTracker.sets then
-									PetTracker.sets.trackPets = db.addonPetTracker
+									PetTracker.sets.zoneTracker = db.addonPetTracker
 								end
 								db.modulesOrder = nil
 								ReloadUI()
@@ -1332,7 +1339,7 @@ local options = {
 							confirm = true,
 							confirmText = warning,
 							disabled = function()
-								return not IsAddOnLoaded("TomTom")
+								return not C_AddOns.IsAddOnLoaded("TomTom")
 							end,
 							set = function()
 								db.addonTomTom = not db.addonTomTom
@@ -1440,8 +1447,9 @@ function KT:CheckAddOn(addon, version, isUI)
 	local ver = isUI and "" or "---"
 	local result = false
 	local path
-	if IsAddOnLoaded(addon) then
-		local actualVersion = GetAddOnMetadata(addon, "Version") or "unknown"
+	if C_AddOns.IsAddOnLoaded(addon) then
+		local actualVersion = C_AddOns.GetAddOnMetadata(addon, "Version") or "unknown"
+		actualVersion = gsub(actualVersion, "(.*%S)%s+", "%1")
 		ver = isUI and "  -  " or ""
 		ver = (ver.."|cff%s"..actualVersion.."|r"):format(actualVersion == version and "00d200" or "ff0000")
 		result = true
@@ -1550,7 +1558,7 @@ end)
 
 function OverlayFrameUpdate()
 	if overlay then
-		overlay:SetSize(280, db.maxHeight)
+		overlay:SetSize(db.width, db.maxHeight)
 		overlay:ClearAllPoints()
 		overlay:SetPoint(db.anchorPoint, 0, 0)
 	end
@@ -1682,9 +1690,59 @@ function IsSpecialLocale()
 			KT.locale == "ruRU")
 end
 
+function UpdateOptions(updateValues)
+	local options = options.args.general.args.sec1.args
+	local screenWidth = round(GetScreenWidth())
+	local screenHeight = round(GetScreenHeight())
+	local xOffsetMax = screenWidth - db.width
+	local yOffsetMax = screenHeight - options.maxHeight.min
+	local anchorLeft = (db.anchorPoint == "TOPLEFT" or db.anchorPoint == "BOTTOMLEFT")
+	local directionUp = (db.anchorPoint == "BOTTOMLEFT" or db.anchorPoint == "BOTTOMRIGHT")
+
+	if anchorLeft then
+		options.xOffset.min = 0
+		options.xOffset.max = xOffsetMax
+	else
+		options.xOffset.min = xOffsetMax * -1
+		options.xOffset.max = 0
+	end
+
+	if directionUp then
+		options.yOffset.min = 0
+		options.yOffset.max = yOffsetMax
+	else
+		options.yOffset.min = yOffsetMax * -1
+		options.yOffset.max = 0
+	end
+
+	options.maxHeight.max = screenHeight - abs(db.yOffset)
+
+	if updateValues then
+		if abs(db.yOffset) + db.maxHeight > screenHeight then
+			db.maxHeight = options.maxHeight.max
+		end
+	end
+end
+
 -- Init
 OTF:HookScript("OnEvent", function(self, event)
 	if event == "PLAYER_ENTERING_WORLD" and not KT.initialized then
 		modules.sec1.args = GetModulesOptionsTable()
 	end
+end)
+
+local eventFrame = CreateFrame("Frame")
+eventFrame:SetScript("OnEvent", function(self, event, ...)
+	if event == "PLAYER_ENTERING_WORLD" then
+		UpdateOptions()
+		self:RegisterEvent("UI_SCALE_CHANGED")
+		self:UnregisterEvent(event)
+	elseif event == "UI_SCALE_CHANGED" then
+		UpdateOptions()
+	end
+end)
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+hooksecurefunc(UIParent, "SetScale", function(self)
+	UpdateOptions()
 end)
