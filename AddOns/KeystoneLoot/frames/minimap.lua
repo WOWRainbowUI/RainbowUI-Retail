@@ -161,7 +161,7 @@ IconBorder:SetTexture('Interface\\Minimap\\MiniMap-TrackingBorder');
 
 
 AddonCompartmentFrame:RegisterAddon({
-	text = 'KeystoneLoot',
+	text = C_AddOns.GetAddOnMetadata('KeystoneLoot', 'Title'), -- 自行修改
 	icon = 'Interface\\Icons\\INV_Relics_Hourglass_02',
 	notCheckable = true,
 	registerForAnyClick = true,
