@@ -2,7 +2,7 @@
 
 All items are broken down into categories, with itemID followed by the Item name.
 
-Latest version: 2.3.32
+Latest version: 2.3.33
 
 ## Achievements & Unlockables
 
@@ -89,10 +89,10 @@ Default Color: ![1d24e2](https://via.placeholder.com/16/1d24e2/e2db1d?text=1d24e
 * 199338 - Copper Coin of the Isles
 * 199339 - Silver Coin of the Isles
 * 199340 - Gold Coin of the Isles
-* 202061 - ERROR1
-* 202066 - ERROR1
-* 202068 - ERROR1
-* 202069 - ERROR1
+* 202061 - Empty Fish Barrel
+* 202066 - Half-Filled Fish Barrel
+* 202068 - Brimming Fish Barrel
+* 202069 - Overflowing Fish Barrel
 * 202072 - Frigid Floe Fish
 * 202073 - Calamitous Carp
 * 202074 - Kingfin, the Wise Whiskerfish
@@ -127,8 +127,8 @@ To get Temperamental Skyclaw you have to collect these 3 types of food and turn 
 
 Default Color: ![f55d3e](https://via.placeholder.com/16/f55d3e/0aa2c1?text=f55d3e)
 
-* 201420 - ERROR1
-* 201421 - ERROR1
+* 201420 - Gnolan's House Special
+* 201421 - Tuskarr Jerky
 * 201422 - Flash Frozen Meat
 
 ### Tetrachromancer (Achievement)
@@ -240,7 +240,7 @@ Default Color: ![ebb134](https://via.placeholder.com/16/ebb134/144ecb?text=ebb13
 * 191346 - Steaming Phial of Finesse
 * 191347 - Steaming Phial of Finesse
 * 191354 - Crystalline Phial of Perception
-* 191355 - ERROR2
+* 191355 - Crystalline Phial of Perception
 * 191356 - Crystalline Phial of Perception
 * 197720 - Aerated Phial of Quick Hands
 * 197721 - Aerated Phial of Quick Hands
@@ -403,7 +403,6 @@ Default Color: ![34eb9e](https://via.placeholder.com/16/34eb9e/cb1461?text=34eb9
 * 205693 - Latticed Stinkhorn
 * 205793 - Skitter Souf-fly
 * 205794 - Beetle Juice
-* 205960 - ERROR1
 * 206139 - Volatile Crimson Embers
 * 206140 - Soothing Emerald Tea
 * 206141 - Prismatic Snail Mucus
@@ -527,7 +526,7 @@ Default Color: ![ebb134](https://via.placeholder.com/16/ebb134/144ecb?text=ebb13
 * 207023 - Dreamwalker's Healing Potion
 * 207039 - Potion of Withering Dreams
 * 207040 - Potion of Withering Dreams
-* 207041 - ERROR2
+* 207041 - Potion of Withering Dreams
 
 ### Ruby Feast
 
@@ -867,9 +866,9 @@ Default Color: ![06ff00](https://via.placeholder.com/16/06ff00/f900ff?text=06ff0
 * 191532 - Potion Absorption Inhibitor
 * 191533 - Potion Absorption Inhibitor
 * 191534 - Potion Absorption Inhibitor
-* 191535 - ERROR1
-* 191536 - ERROR1
-* 191537 - ERROR1
+* 191535 - zzOldAlchemical Flavor Pocket
+* 191536 - zzOldAlchemical Flavor Pocket
+* 191537 - zzOldAlchemical Flavor Pocket
 * 191872 - Armor Spikes
 * 191873 - Armor Spikes
 * 193468 - Fang Adornments
@@ -1546,7 +1545,7 @@ Default Color: ![33937f](https://via.placeholder.com/16/33937f/cc6c80?text=33937
 * 197129 - Highland Drake: Sleek Horns
 * 197130 - Highland Drake: Stag Horns
 * 197131 - Highland Drake: Hairy Cheek
-* 197132 - ERROR2
+* 197132 - Highland Drake: Spiked Cheek
 * 197133 - Highland Drake: Spined Cheek
 * 197134 - Highland Drake: Spiked Legs
 * 197135 - Highland Drake: Toothy Mouth
@@ -1598,7 +1597,7 @@ Default Color: ![33937f](https://via.placeholder.com/16/33937f/cc6c80?text=33937
 * 197370 - Renewed Proto-Drake: Red Hair
 * 197371 - Renewed Proto-Drake: Green Hair
 * 197372 - Renewed Proto-Drake: Purple Hair
-* 197373 - ERROR2
+* 197373 - Renewed Proto-Drake: Helm
 * 197374 - Renewed Proto-Drake: Swept Horns
 * 197375 - Renewed Proto-Drake: Curled Horns
 * 197376 - Renewed Proto-Drake: Ears
@@ -1701,14 +1700,10 @@ Default Color: ![33937f](https://via.placeholder.com/16/33937f/cc6c80?text=33937
 * 202278 - Renewed Proto-Drake: Antlers
 * 202279 - Renewed Proto-Drake: Malevolent Horns
 * 202280 - Renewed Proto-Drake: Pronged Tail
-* 203298 - ERROR1
 * 203299 - Winding Slitherdrake: Green and Bronze Armor
 * 203300 - Winding Slitherdrake: Blue and Silver Armor
-* 203301 - ERROR1
-* 203302 - ERROR1
 * 203303 - Winding Slitherdrake: Red and Gold Armor
 * 203304 - Winding Slitherdrake: Yellow and Silver Armor
-* 203305 - ERROR1
 * 203306 - Winding Slitherdrake: Horned Brow
 * 203307 - Winding Slitherdrake: Plated Brow
 * 203308 - Winding Slitherdrake: Hairy Brow
@@ -1729,7 +1724,6 @@ Default Color: ![33937f](https://via.placeholder.com/16/33937f/cc6c80?text=33937
 * 203323 - Winding Slitherdrake: Brown Hair
 * 203324 - Winding Slitherdrake: White Hair
 * 203325 - Winding Slitherdrake: Red Hair
-* 203326 - ERROR1
 * 203327 - Winding Slitherdrake: Tan Horns
 * 203328 - Winding Slitherdrake: White Horns
 * 203329 - Winding Slitherdrake: Heavy Horns
@@ -1799,8 +1793,8 @@ Default Color: ![33937f](https://via.placeholder.com/16/33937f/cc6c80?text=33937
 * 208104 - Renewed Proto-Drake: Infinite Scales
 * 208105 - Windborne Velocidrake: Infinite Scales
 * 208106 - Winding Slitherdrake: Infinite Scales
-* 208200 - ERROR1
-* 208550 - ERROR1
+* 208200 - Dragon Isles Drakes: Gilded Armor
+* 208550 - Dragon Isles Drakes: White Scales
 * 208680 - Windborne Velocidrake: Hallow's End Armor
 * 208742 - Renewed Proto-Drake: Brewfest Armor
 * 208858 - Highland Drake: Pirates' Day Armor
@@ -1869,7 +1863,7 @@ Dreamsurges are the part of the content of 10.1.7.
 Default Color: ![60ff00](https://via.placeholder.com/16/60ff00/9f00ff?text=60ff00)
 
 * 207026 - Dreamsurge Coalescence
-* 208153 - ERROR1
+* 208153 - Dreamsurge Chrysalis
 * 209419 - Charred Elemental Remains
 
 ### Fortune Cards
@@ -2062,10 +2056,8 @@ Default Color: ![fff000](https://via.placeholder.com/16/fff000/000fff?text=fff00
 
 * 199341 - Regurgitated Sac of Swog Treasures
 * 199342 - Weighted Sac of Swog Treasures
-* 199343 - ERROR1
+* 199343 - Immaculate Sack of Swog Treasures
 * 202102 - Immaculate Sac of Swog Treasures
-* 202103 - ERROR1
-* 202104 - ERROR1
 
 ## PreEvent
 
@@ -2555,13 +2547,11 @@ Default Color: ![514dfa](https://via.placeholder.com/16/514dfa/aeb205?text=514df
 * 202050 - Keeper's Glory
 * 202051 - Earthwarden's Prize
 * 202052 - Timewatcher's Patience
-* 202053 - ERROR1
 * 202054 - Queen's Gift
 * 202055 - Dreamer's Vision
 * 202056 - Keeper's Glory
 * 202057 - Earthwarden's Prize
 * 202058 - Timewatcher's Patience
-* 202059 - ERROR1
 
 ### Leather
 

@@ -1,7 +1,7 @@
 --[[
 AdiBags - Dragonflight
 by Zottelchen
-version: 2.3.32
+version: 2.3.33
 Items from the Dragonflight expansion.
 ]]
 
@@ -81,10 +81,10 @@ database["OttoMount"] = {
   199338, -- Copper Coin of the Isles
   199339, -- Silver Coin of the Isles
   199340, -- Gold Coin of the Isles
-  202061, -- ERROR1
-  202066, -- ERROR1
-  202068, -- ERROR1
-  202069, -- ERROR1
+  202061, -- Empty Fish Barrel
+  202066, -- Half-Filled Fish Barrel
+  202068, -- Brimming Fish Barrel
+  202069, -- Overflowing Fish Barrel
   202072, -- Frigid Floe Fish
   202073, -- Calamitous Carp
   202074, -- Kingfin, the Wise Whiskerfish
@@ -110,8 +110,8 @@ database["ScrappyWorldsnailMount"] = {
 
 -- Temperamental Skyclaw (Mount)
 database["TemperamentalSkyclawMount"] = {
-  201420, -- ERROR1
-  201421, -- ERROR1
+  201420, -- Gnolan's House Special
+  201421, -- Tuskarr Jerky
   201422, -- Flash Frozen Meat
 }
 
@@ -199,7 +199,7 @@ database["CraftingPotions"] = {
   191346, -- Steaming Phial of Finesse
   191347, -- Steaming Phial of Finesse
   191354, -- Crystalline Phial of Perception
-  191355, -- ERROR2
+  191355, -- Crystalline Phial of Perception
   191356, -- Crystalline Phial of Perception
   197720, -- Aerated Phial of Quick Hands
   197721, -- Aerated Phial of Quick Hands
@@ -359,7 +359,6 @@ database["Food"] = {
   205693, -- Latticed Stinkhorn
   205793, -- Skitter Souf-fly
   205794, -- Beetle Juice
-  205960, -- ERROR1
   206139, -- Volatile Crimson Embers
   206140, -- Soothing Emerald Tea
   206141, -- Prismatic Snail Mucus
@@ -474,7 +473,7 @@ database["Potions"] = {
   207023, -- Dreamwalker's Healing Potion
   207039, -- Potion of Withering Dreams
   207040, -- Potion of Withering Dreams
-  207041, -- ERROR2
+  207041, -- Potion of Withering Dreams
 }
 
 -- Ruby Feast
@@ -742,9 +741,9 @@ database["Embellishments"] = {
   191532, -- Potion Absorption Inhibitor
   191533, -- Potion Absorption Inhibitor
   191534, -- Potion Absorption Inhibitor
-  191535, -- ERROR1
-  191536, -- ERROR1
-  191537, -- ERROR1
+  191535, -- zzOldAlchemical Flavor Pocket
+  191536, -- zzOldAlchemical Flavor Pocket
+  191537, -- zzOldAlchemical Flavor Pocket
   191872, -- Armor Spikes
   191873, -- Armor Spikes
   193468, -- Fang Adornments
@@ -1385,7 +1384,7 @@ database["DrakewatcherManuscripts"] = {
   197129, -- Highland Drake: Sleek Horns
   197130, -- Highland Drake: Stag Horns
   197131, -- Highland Drake: Hairy Cheek
-  197132, -- ERROR2
+  197132, -- Highland Drake: Spiked Cheek
   197133, -- Highland Drake: Spined Cheek
   197134, -- Highland Drake: Spiked Legs
   197135, -- Highland Drake: Toothy Mouth
@@ -1437,7 +1436,7 @@ database["DrakewatcherManuscripts"] = {
   197370, -- Renewed Proto-Drake: Red Hair
   197371, -- Renewed Proto-Drake: Green Hair
   197372, -- Renewed Proto-Drake: Purple Hair
-  197373, -- ERROR2
+  197373, -- Renewed Proto-Drake: Helm
   197374, -- Renewed Proto-Drake: Swept Horns
   197375, -- Renewed Proto-Drake: Curled Horns
   197376, -- Renewed Proto-Drake: Ears
@@ -1540,14 +1539,10 @@ database["DrakewatcherManuscripts"] = {
   202278, -- Renewed Proto-Drake: Antlers
   202279, -- Renewed Proto-Drake: Malevolent Horns
   202280, -- Renewed Proto-Drake: Pronged Tail
-  203298, -- ERROR1
   203299, -- Winding Slitherdrake: Green and Bronze Armor
   203300, -- Winding Slitherdrake: Blue and Silver Armor
-  203301, -- ERROR1
-  203302, -- ERROR1
   203303, -- Winding Slitherdrake: Red and Gold Armor
   203304, -- Winding Slitherdrake: Yellow and Silver Armor
-  203305, -- ERROR1
   203306, -- Winding Slitherdrake: Horned Brow
   203307, -- Winding Slitherdrake: Plated Brow
   203308, -- Winding Slitherdrake: Hairy Brow
@@ -1568,7 +1563,6 @@ database["DrakewatcherManuscripts"] = {
   203323, -- Winding Slitherdrake: Brown Hair
   203324, -- Winding Slitherdrake: White Hair
   203325, -- Winding Slitherdrake: Red Hair
-  203326, -- ERROR1
   203327, -- Winding Slitherdrake: Tan Horns
   203328, -- Winding Slitherdrake: White Horns
   203329, -- Winding Slitherdrake: Heavy Horns
@@ -1638,8 +1632,8 @@ database["DrakewatcherManuscripts"] = {
   208104, -- Renewed Proto-Drake: Infinite Scales
   208105, -- Windborne Velocidrake: Infinite Scales
   208106, -- Winding Slitherdrake: Infinite Scales
-  208200, -- ERROR1
-  208550, -- ERROR1
+  208200, -- Dragon Isles Drakes: Gilded Armor
+  208550, -- Dragon Isles Drakes: White Scales
   208680, -- Windborne Velocidrake: Hallow's End Armor
   208742, -- Renewed Proto-Drake: Brewfest Armor
   208858, -- Highland Drake: Pirates' Day Armor
@@ -1702,7 +1696,7 @@ database["DreamboundArmor"] = {
 -- Dreamsurge
 database["Dreamsurge"] = {
   207026, -- Dreamsurge Coalescence
-  208153, -- ERROR1
+  208153, -- Dreamsurge Chrysalis
   209419, -- Charred Elemental Remains
 }
 
@@ -1880,10 +1874,8 @@ database["TreasureMaps"] = {
 database["TreasureSacks"] = {
   199341, -- Regurgitated Sac of Swog Treasures
   199342, -- Weighted Sac of Swog Treasures
-  199343, -- ERROR1
+  199343, -- Immaculate Sack of Swog Treasures
   202102, -- Immaculate Sac of Swog Treasures
-  202103, -- ERROR1
-  202104, -- ERROR1
 }
 
 -- PreEvent Currency
@@ -2295,13 +2287,11 @@ database["Jewelcrafting"] = {
   202050, -- Keeper's Glory
   202051, -- Earthwarden's Prize
   202052, -- Timewatcher's Patience
-  202053, -- ERROR1
   202054, -- Queen's Gift
   202055, -- Dreamer's Vision
   202056, -- Keeper's Glory
   202057, -- Earthwarden's Prize
   202058, -- Timewatcher's Patience
-  202059, -- ERROR1
 }
 
 -- Leather
@@ -3747,7 +3737,7 @@ end
 local setFilter = AdiBags:RegisterFilter("Dragonflight", 98, "ABEvent-1.0")
 setFilter.uiName = string.format("|cffa00000%s|r", L["Dragonflight"])
 setFilter.uiDesc = string.format(
-  "%s\n|cffffd800%s: 2.3.32|r",
+  "%s\n|cffffd800%s: 2.3.33|r",
   L["Items from the Dragonflight expansion."],
   L["Filter version"]
 )
