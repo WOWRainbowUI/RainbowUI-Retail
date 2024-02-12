@@ -2047,7 +2047,7 @@ L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:224:306|
 L["|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t Refresh Talents"] = "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:12:0:1:512:512:8:70:328:409|t 刷新天賦"
 L["M+ Score:"] = "M+ 分數:"
 L["Remove Common Segments"] = "移除一般戰鬥記錄"
-L["Reset, but keep Mythic+ Overall Segments"] = "重置，但是保留 M+ 整體戰鬥記錄"
+L["Reset, but keep Mythic+ Overall Segments"] = "重置，但是保留 M+ 整場戰鬥記錄"
 L["Remove Battleground Segments"] = "移除戰場戰鬥記錄"
 
 -- frames\window_news.lua
@@ -2292,7 +2292,7 @@ L["Auto Erase:"] = "自動刪除:"
 L["Death Log Options:"] = "死亡記錄選項:"
 L["Invert Death Log (Raid)"] = "反向死亡記錄 (團隊)"
 L["Invert Death Log (M+)"] = "反向死亡記錄 (M+)"
-L["Invert Death Log (Overall Data)"] = "反向死亡記錄 (整體資料)"
+L["Invert Death Log (Overall Data)"] = "反向死亡記錄 (整場資料)"
 L["Damage Options:"] = "傷害輸出選項:"
 L["Merge Primordial Stones 10.0.7"] = "合併原初之石 10.0.7"
 L["Class Options:"] = "職業選項:"
