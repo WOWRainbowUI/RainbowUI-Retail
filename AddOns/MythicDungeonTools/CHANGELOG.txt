@@ -1,3 +1,27 @@
+- v4.3.4.3 (2024-02-04)
+  - added MDT keybind once again
+  - removed fear susceptibility from BRH Lancers and Atal Shieldbearers
+- v4.3.4.2 (2024-02-04)
+  - updated addon conflict detection
+- v4.3.4.1 (2024-02-04)
+  - updated addon conflict detection
+- v4.3.4.0 (2024-02-01)
+  - localization update
+- v4.3.3.9 (2024-01-31)
+  - BRH: disconnected Felspit Dominator groupings
+  - Layout fixes in settings frame
+- v4.3.3.8 (2024-01-29)
+  - fix colorpicker not working
+- v4.3.3.7 (2024-01-29)
+  - Add AddonLocale support: Install the AddOn "AddonLocale" and use the MDT settings dialog to change the MDT language
+- v4.3.3.6 (2024-01-28)
+  - nil error fix
+- v4.3.3.5 (2024-01-28)
+  - Darkheart Thicket: Replace Poisoner with Ruiner in G5
+  - Clicking an enemy will now deselect the currently selected Tool
+  - Fixed an issue where pull outlines would not properly update when deleting multiple pulls at once
+  - MDT will now only automatically swap dungeon based on zone while no keystone is active
+  - Add "G" letter to the group number indicator when holding the ALT key
 - v4.3.3.4 (2024-01-25)
   - Darkheart Thicket: removed various wrong characteristics
   - added a warning for when a route is shared and the user has their chat set to noninteractive

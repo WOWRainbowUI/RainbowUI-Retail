@@ -28,6 +28,9 @@ MDT.externalLinks = {
   },
 }
 
+BINDING_HEADER_MDT = "Mythic Dungeon Tools (MDT)"
+BINDING_NAME_MDTTOGGLE = L["Toggle MDT"]
+
 local mythicColor = "|cFFFFFFFF"
 MDT.BackdropColor = { 0.058823399245739, 0.058823399245739, 0.058823399245739, 0.9 }
 
@@ -213,6 +216,7 @@ do
   function MDT.ADDON_LOADED(self, addon)
     if addon == "MythicDungeonTools" then
       db = LibStub("AceDB-3.0"):New("MythicDungeonToolsDB", defaultSavedVars).global
+      if not db then return end
       ---@diagnostic disable-next-line: param-type-mismatch
       minimapIcon:Register("MythicDungeonTools", LDB, db.minimap)
       if not db.minimap.hide then
@@ -2339,11 +2343,11 @@ function MDT:ToggleSettingsDialog()
   end
 end
 
-function MDT:OpenCustomColorsDialog(frame)
+function MDT:OpenCustomColorsDialog()
   MDT:HideAllDialogs()
   MDT.main_frame.settingsFrame:Show() --Not the prettiest way to handle this, but it works.
   MDT.main_frame.settingsFrame.CustomColorFrame:ClearAllPoints()
-  MDT.main_frame.settingsFrame.CustomColorFrame:SetPoint("CENTER", 264, -7)
+  MDT.main_frame.settingsFrame.CustomColorFrame:SetPoint("TOPLEFT", MDT.main_frame.settingsFrame.frame, "TOPRIGHT", 1, 0)
   MDT.main_frame.settingsFrame.CustomColorFrame:SetStatusText("")
   MDT.main_frame.settingsFrame.CustomColorFrame:Show()
 end
@@ -2637,6 +2641,7 @@ MDT.zoneIdToDungeonIdx = {}
 
 local lastUpdatedDungeonIdx
 function MDT:CheckCurrentZone(init)
+  if C_ChallengeMode.IsChallengeModeActive() then return end
   local zoneId = C_Map.GetBestMapForUnit("player")
   local dungeonIdx = MDT.zoneIdToDungeonIdx[zoneId]
   if dungeonIdx and (not lastUpdatedDungeonIdx or dungeonIdx ~= lastUpdatedDungeonIdx) then
@@ -3265,7 +3270,7 @@ function MDT:MakeCustomColorFrame(frame)
     ColorPicker[i]:SetLabel(" "..i)
     ColorPicker[i]:SetRelativeWidth(0.25)
     ColorPicker[i]:SetHeight(15)
-    ColorPicker[i]:SetCallback("OnValueConfirmed", function(widget, event, r, g, b)
+    ColorPicker[i]:SetCallback("OnValueChanged", function(widget, event, r, g, b)
       db.colorPaletteInfo.customPaletteValues[i] = { r, g, b }
       MDT:SetPresetColorPaletteInfo()
       MDT:ReloadPullButtons()
@@ -3278,8 +3283,9 @@ end
 function MDT:MakeSettingsFrame(frame)
   frame.settingsFrame = AceGUI:Create("Frame")
   frame.settingsFrame:SetTitle(L["Settings"])
-  frame.settingsFrame:SetWidth(240)
-  frame.settingsFrame:SetHeight(270)
+  local frameWidth = 300
+  frame.settingsFrame:SetWidth(frameWidth)
+  frame.settingsFrame:SetHeight(350)
   frame.settingsFrame:EnableResize(false)
   frame.settingsFrame:SetLayout("Flow")
   frame.settingsFrame.statustext:GetParent():Hide()
@@ -3287,6 +3293,7 @@ function MDT:MakeSettingsFrame(frame)
 
   frame.minimapCheckbox = AceGUI:Create("CheckBox")
   frame.minimapCheckbox:SetLabel(L["Enable Minimap Button"])
+  frame.minimapCheckbox:SetWidth(frameWidth-10)
   frame.minimapCheckbox:SetValue(not db.minimap.hide)
   frame.minimapCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
     db.minimap.hide = not value
@@ -3300,6 +3307,7 @@ function MDT:MakeSettingsFrame(frame)
 
   frame.compartmentCheckbox = AceGUI:Create("CheckBox")
   frame.compartmentCheckbox:SetLabel(L["Enable Compartment Button"])
+  frame.compartmentCheckbox:SetWidth(frameWidth-10)
   frame.compartmentCheckbox:SetValue(not db.minimap.compartmentHide)
   frame.compartmentCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
     db.minimap.compartmentHide = not value
@@ -3313,6 +3321,7 @@ function MDT:MakeSettingsFrame(frame)
 
   frame.forcesCheckbox = AceGUI:Create("CheckBox")
   frame.forcesCheckbox:SetLabel(L["Use forces count"])
+  frame.forcesCheckbox:SetWidth(frameWidth-10)
   frame.forcesCheckbox:SetValue(db.useForcesCount)
   frame.forcesCheckbox:SetCallback("OnValueChanged", function(widget, callbackName, value)
     db.useForcesCount = value
@@ -3322,15 +3331,14 @@ function MDT:MakeSettingsFrame(frame)
 
   frame.AutomaticColorsCheck = AceGUI:Create("CheckBox")
   frame.AutomaticColorsCheck:SetLabel(L["Automatically color pulls"])
+  frame.AutomaticColorsCheck:SetWidth(frameWidth-10)
   frame.AutomaticColorsCheck:SetValue(db.colorPaletteInfo.autoColoring)
   frame.AutomaticColorsCheck:SetCallback("OnValueChanged", function(widget, callbackName, value)
     db.colorPaletteInfo.autoColoring = value
     MDT:SetPresetColorPaletteInfo()
-    if value == true then
-      frame.toggleForceColorBlindMode:SetDisabled(false)
-      MDT:ReloadPullButtons()
-    else
-      frame.toggleForceColorBlindMode:SetDisabled(true)
+    frame.toggleForceColorBlindMode:SetDisabled(not value)
+    if value then
+      MDT:ReloadPullButtons(true)
     end
   end)
   frame.settingsFrame:AddChild(frame.AutomaticColorsCheck)
@@ -3338,17 +3346,19 @@ function MDT:MakeSettingsFrame(frame)
   --Toggle local color blind mode
   frame.toggleForceColorBlindMode = AceGUI:Create("CheckBox")
   frame.toggleForceColorBlindMode:SetLabel(L["Local color blind mode"])
+  frame.toggleForceColorBlindMode:SetWidth(frameWidth-10)
   frame.toggleForceColorBlindMode:SetValue(db.colorPaletteInfo.forceColorBlindMode)
   frame.toggleForceColorBlindMode:SetCallback("OnValueChanged", function(widget, callbackName, value)
     db.colorPaletteInfo.forceColorBlindMode = value
     MDT:SetPresetColorPaletteInfo()
-    MDT:ReloadPullButtons()
+    MDT:ReloadPullButtons(true)
   end)
   frame.settingsFrame:AddChild(frame.toggleForceColorBlindMode)
 
   frame.PaletteSelectDropdown = AceGUI:Create("Dropdown")
   frame.PaletteSelectDropdown:SetList(colorPaletteNames)
   frame.PaletteSelectDropdown:SetLabel(L["Choose preferred color palette"])
+  frame.PaletteSelectDropdown:SetWidth(frameWidth-10)
   frame.PaletteSelectDropdown:SetValue(db.colorPaletteInfo.colorPaletteIdx)
   frame.PaletteSelectDropdown:SetCallback("OnValueChanged", function(widget, callbackName, value)
     if value == 6 then
@@ -3359,7 +3369,7 @@ function MDT:MakeSettingsFrame(frame)
       db.colorPaletteInfo.colorPaletteIdx = value
     end
     MDT:SetPresetColorPaletteInfo()
-    MDT:ReloadPullButtons()
+    MDT:ReloadPullButtons(true)
   end)
   frame.settingsFrame:AddChild(frame.PaletteSelectDropdown)
 
@@ -3367,6 +3377,7 @@ function MDT:MakeSettingsFrame(frame)
   -- Without the need to untoggle/toggle or swap back and forth in the PaletteSelectDropdown
   frame.button = AceGUI:Create("Button")
   frame.button:SetText(L["Apply to preset"])
+  frame.button:SetWidth(frameWidth-10)
   frame.button:SetCallback("OnClick", function(widget, callbackName)
     if not db.colorPaletteInfo.autoColoring then
       db.colorPaletteInfo.autoColoring = true
@@ -3374,9 +3385,35 @@ function MDT:MakeSettingsFrame(frame)
       frame.toggleForceColorBlindMode:SetDisabled(false)
     end
     MDT:SetPresetColorPaletteInfo()
-    MDT:ReloadPullButtons()
+    MDT:ReloadPullButtons(true)
   end)
   frame.settingsFrame:AddChild(frame.button)
+
+  frame.localeHeading = AceGUI:Create("Heading")
+  frame.localeHeading:SetText(L["Language"])
+  frame.localeHeading:SetFullWidth(true)
+  frame.settingsFrame:AddChild(frame.localeHeading)
+
+  frame.localeButton = AceGUI:Create("Button")
+  frame.localeButton:SetText(L["Change Language"])
+  frame.localeButton:SetWidth(frameWidth-10)
+  local slashToFire = _G.SlashCmdList["ADDONLOCALE"]
+  if not slashToFire then
+    frame.localeButton:SetDisabled(true)
+  else
+    frame.localeButton:SetCallback("OnClick", function(widget, callbackName)
+      slashToFire("")
+    end)
+  end
+  frame.settingsFrame:AddChild(frame.localeButton)
+
+  frame.localeLabel = AceGUI:Create("Label")
+  if not slashToFire then
+    frame.localeLabel:SetText("|cff808080" .. L["localeButtonTooltip1"] .. "|r")
+  else
+    frame.localeLabel:SetText(L["localeButtonTooltip2"] )
+  end
+  frame.settingsFrame:AddChild(frame.localeLabel)
 
   frame.settingsFrame:Hide()
 end

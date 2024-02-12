@@ -69,7 +69,7 @@ end
 function MDT:DisplayBlipModifierLabels(modifier)
   for _, blip in pairs(blips) do
     blip.textLocked = true
-    local text = (modifier == "alt" and blip.clone.g) or (modifier == "ctrl" and blip.data.count) or ""
+    local text = (modifier == "alt" and blip.clone.g and "G"..blip.clone.g) or (modifier == "ctrl" and blip.data.count) or ""
     blip.fontstring_Text1:SetText(text)
     blip.fontstring_Text1:Show()
   end
@@ -336,6 +336,8 @@ local function setUpMouseHandlersAwakened(self, clone, scale, riftOffsets)
 end
 
 function MDTDungeonEnemyMixin:OnClick(button, down)
+  --always deselect toolbar tool
+  MDT:UpdateSelectedToolbarTool()
   if button == "LeftButton" then
     if IsShiftKeyDown() and not self.selected then
       local newPullIdx = MDT:GetCurrentPull() + 1
