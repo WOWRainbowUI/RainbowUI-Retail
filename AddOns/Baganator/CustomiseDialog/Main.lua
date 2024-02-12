@@ -68,6 +68,11 @@ local WINDOW_OPTIONS = {
     option = "reduce_spacing",
   },
   {
+    type = "checkbox",
+    text = BAGANATOR_L_SHOW_BUTTONS_ON_ALT,
+    option = "show_buttons_on_alt",
+  },
+  {
     type = "header",
     text = BAGANATOR_L_JUNK_DETECTION,
     level = 2,
@@ -411,6 +416,7 @@ function BaganatorCustomiseDialogMixin:SetIndex(index)
   self.Views[index]:Show()
 
   PanelTemplates_SetTab(self, index)
+  self.lastIndex = index
 end
 
 function BaganatorCustomiseDialogMixin:SetupWindow()
@@ -617,6 +623,6 @@ function BaganatorCustomiseDialogMixin:RefreshOptions()
 end
 
 function BaganatorCustomiseDialogMixin:OnShow()
-  self:SetIndex(1)
+  self:SetIndex(self.lastIndex or 1)
   self:RefreshOptions()
 end

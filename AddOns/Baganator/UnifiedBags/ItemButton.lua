@@ -4,7 +4,6 @@ addonTable.JunkPlugins = {}
 
 Baganator.ItemButtonUtil = {}
 
-local IsEquipment = Baganator.Utilities.IsEquipment
 local equipmentSetBorder = CreateColor(198/255, 166/255, 0/255)
 
 local itemCallbacks = {}
@@ -100,11 +99,15 @@ local function GetExtraInfo(self, itemID, itemLink, data)
   if itemLink:find("battlepet:", nil, true) then
     self.itemInfoWaiting = false
     self.BGR.itemInfoWaiting = false
-    local petID = tonumber(itemLink:match("battlepet:(%d+)"))
-    self.BGR.itemName = C_PetJournal.GetPetInfoBySpeciesID(petID)
+    local petID, level = itemLink:match("battlepet:(%d+):(%d*)")
+
+    self.BGR.itemName = C_PetJournal.GetPetInfoBySpeciesID(tonumber(petID))
     self.BGR.isCraftingReagent = false
     self.BGR.classID = Enum.ItemClass.Battlepet
     self.BGR.isCosmetic = false
+    if level and level ~= "" then
+      self.BGR.itemLevel = tonumber(level)
+    end
 
   elseif C_Item.IsItemDataCachedByID(itemID) then
     self.BGR.itemInfoWaiting = false
@@ -198,10 +201,6 @@ local function SearchCheck(self, text)
     return
   end
 
-  if text ~= "" then
-    self.BGR.itemNameLower = self.BGR.itemNameLower or self.BGR.itemName:lower()
-  end
-  local currentBGR = self.BGR
   return Baganator.UnifiedBags.Search.CheckItem(self.BGR, text)
 end
 
@@ -445,7 +444,7 @@ function BaganatorRetailLiveItemButtonMixin:MyOnLoad()
     end
   end)
   self:HookScript("OnLeave", function()
-    if BankFrame:IsShown() and self.BGR.isCraftingReagent then
+    if BankFrame:IsShown() and self.BGR and self.BGR.isCraftingReagent then
       BankFrame.selectedTab = 1
     end
   end)
@@ -518,7 +517,7 @@ function BaganatorRetailLiveItemButtonMixin:SetItemDetails(cacheData)
   self.BGR.itemNameLower = nil
   self.BGR.tooltipGetter = function() return C_TooltipInfo.GetBagItem(self:GetBagID(), self:GetID()) end
   self.BGR.hasNoValue = noValue
-  self.BGR.setInfo = Baganator.UnifiedBags.EquipmentSetTracker:Get(ItemLocation:CreateFromBagAndSlot(self:GetBagID(), self:GetID()))
+  self.BGR.setInfo = Baganator.UnifiedBags.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetBagID(), self:GetID()))
 
   self:BGRUpdateQuests()
 
@@ -543,6 +542,7 @@ end
 function BaganatorRetailLiveItemButtonMixin:BGRUpdateQuests()
   local questInfo = C_Container.GetContainerItemQuestInfo(self:GetBagID(), self:GetID());
   local isQuestItem = questInfo.isQuestItem;
+  self.BGR.isQuestItem = questInfo.isQuestItem or questInfo.questID
   local questID = questInfo.questID;
   local isActive = questInfo.isActive;
   self:UpdateQuestItem(isQuestItem, questID, isActive);
@@ -704,6 +704,7 @@ if Baganator.Constants.IsVanilla then
 else
   UpdateQuestItemClassic = function(self)
     local questInfo = C_Container.GetContainerItemQuestInfo(self:GetParent():GetID(), self:GetID());
+    self.BGR.isQuestItem = questInfo.isQuestItem or questInfo.questId
 
     questTexture = _G[self:GetName().."IconQuestTexture"];
 
@@ -800,7 +801,7 @@ function BaganatorClassicLiveItemButtonMixin:SetItemDetails(cacheData)
       end
     end)
   end
-  self.BGR.setInfo = Baganator.UnifiedBags.EquipmentSetTracker:Get(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()))
+  self.BGR.setInfo = Baganator.UnifiedBags.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()))
 
   -- Copied code from Blizzard Container Frame logic
   local tooltipOwner = GameTooltip:GetOwner()

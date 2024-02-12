@@ -14,7 +14,7 @@ local function OnBagSlotClick(self)
 end
 
 local function ShowBagSlotTooltip(self)
-  Baganator.CallbackRegistry:TriggerEvent("HighlightBagItems", self:GetID())
+  Baganator.CallbackRegistry:TriggerEvent("HighlightBagItems", {[self:GetID()] = true})
   GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
   GameTooltip:SetInventoryItem("player", GetBagInventorySlot(self))
   GameTooltip:Show()
@@ -36,6 +36,12 @@ function BaganatorRetailBagSlotButtonMixin:Init()
   end
 
   self:SetItemButtonTexture(texture)
+  local itemID = GetInventoryItemID("player", inventorySlot)
+  if itemID ~= nil then
+    Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
+      self:SetItemButtonQuality(GetInventoryItemQuality("player", inventorySlot))
+    end)
+  end
   self:SetItemButtonQuality(GetInventoryItemQuality("player", inventorySlot))
   self:SetItemButtonCount(C_Container.GetContainerNumFreeSlots(self:GetID()))
 end
@@ -77,6 +83,12 @@ function BaganatorClassicBagSlotButtonMixin:Init()
   end
 
   SetItemButtonTexture(self, texture)
+  local itemID = GetInventoryItemID("player", inventorySlot)
+  if itemID ~= nil then
+    Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
+      SetItemButtonQuality(self, GetInventoryItemQuality("player", inventorySlot))
+    end)
+  end
   SetItemButtonQuality(self, GetInventoryItemQuality("player", inventorySlot))
 end
 
@@ -134,12 +146,12 @@ local function OnBankSlotClick(self)
 end
 
 local function ShowBankSlotTooltip(self)
-  Baganator.CallbackRegistry:TriggerEvent("HighlightBagItems", Baganator.Constants.AllBankIndexes[self:GetID() + 1])
+  Baganator.CallbackRegistry:TriggerEvent("HighlightBagItems", {[Baganator.Constants.AllBankIndexes[self:GetID() + 1]] = true})
 
   GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
   if self.needPurchase then
     GameTooltip:SetText(BANK_BAG_PURCHASE)
-    GameTooltip:AddLine(GetMoneyString(GetBankSlotCost(GetNumBankSlots()), true), 1, 1, 1)
+    GameTooltip:AddLine(Baganator.Utilities.GetMoneyString(GetBankSlotCost(GetNumBankSlots()), true), 1, 1, 1)
   else
     GameTooltip:SetInventoryItem("player", GetBankInventorySlot(self))
   end
@@ -160,7 +172,8 @@ function BaganatorRetailBankButtonMixin:Init()
   self.needPurchase = true
 
   local _, texture = GetInventorySlotInfo("Bag1")
-  self.icon:SetTexture(texture)
+  self:SetItemButtonTexture(texture)
+  self:SetItemButtonQuality(nil)
   if self:GetID() > GetNumBankSlots() then
     SetItemButtonTextureVertexColor(self, 1.0,0.1,0.1)
     return
@@ -173,6 +186,9 @@ function BaganatorRetailBankButtonMixin:Init()
   end
   self:SetItemButtonTexture(info.iconFileID)
   self:SetItemButtonQuality(info.quality)
+  Item:CreateFromItemID(info.itemID):ContinueOnItemLoad(function()
+    self:SetItemButtonQuality(C_Item.GetItemQualityByID(info.itemID))
+  end)
 end
 
 function BaganatorRetailBankButtonMixin:OnClick()
@@ -205,7 +221,8 @@ function BaganatorClassicBankButtonMixin:Init()
   SetItemButtonCount(self, C_Container.GetContainerNumFreeSlots(Baganator.Constants.AllBankIndexes[self:GetID() + 1]))
 
   local _, texture = GetInventorySlotInfo("Bag1")
-  self.icon:SetTexture(texture)
+  SetItemButtonTexture(self, texture)
+  SetItemButtonQuality(self, nil)
   if self:GetID() > GetNumBankSlots() then
     SetItemButtonTextureVertexColor(self, 1.0,0.1,0.1)
     return
@@ -218,6 +235,9 @@ function BaganatorClassicBankButtonMixin:Init()
   end
   SetItemButtonTexture(self, info.iconFileID)
   SetItemButtonQuality(self, info.quality)
+  Item:CreateFromItemID(info.itemID):ContinueOnItemLoad(function()
+    SetItemButtonQuality(self, C_Item.GetItemQualityByID(info.itemID))
+  end)
 end
 
 function BaganatorClassicBankButtonMixin:OnClick()

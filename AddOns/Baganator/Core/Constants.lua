@@ -35,7 +35,7 @@ Baganator.Constants = {
   MaxPinnedCurrencies = 3,
 }
 
-if Baganator.Constants.IsWrath then
+if not Baganator.Constants.IsRetail then
   table.insert(Baganator.Constants.AllBagIndexes, Enum.BagIndex.Keyring)
 end
 if Baganator.Constants.IsRetail then
@@ -71,6 +71,7 @@ Baganator.Constants.Events = {
   "BagShow",
   "BagHide",
   "CharacterSelect",
+  "SpecialBagToggled",
 
   "ShowCustomise",
   "ResetFramePositions",
@@ -103,21 +104,27 @@ Baganator.Constants.SampleSearchTerms = {
   INVTYPE_SHOULDER:lower(),
   INVTYPE_TRINKET:lower(),
   BAGANATOR_L_KEYWORD_FOOD .. "|" ..  BAGANATOR_L_KEYWORD_POTION,
-  BAGANATOR_L_KEYWORD_SOCKET,
   BAGANATOR_L_KEYWORD_EQUIPMENT,
   BAGANATOR_L_KEYWORD_GEAR,
   BAGANATOR_L_KEYWORD_SOULBOUND,
   "~" .. BAGANATOR_L_KEYWORD_EQUIPMENT,
   "200-300",
   BAGANATOR_L_KEYWORD_GEAR .. "&" .. BAGANATOR_L_KEYWORD_SOULBOUND .. "&" .. BAGANATOR_L_KEYWORD_JUNK,
-  EMPTY_SOCKET_BLUE:lower(),
   ITEM_QUALITY3_DESC:lower(),
   ITEM_QUALITY2_DESC:lower(),
   BAGANATOR_L_KEYWORD_BOA,
   BAGANATOR_L_KEYWORD_REPUTATION,
   BAGANATOR_L_KEYWORD_AXE,
   BAGANATOR_L_KEYWORD_SWORD,
+  MOUNT:lower(),
 }
+if not Baganator.Constants.IsEra then
+  local socketSearchTerms = {
+    BAGANATOR_L_KEYWORD_SOCKET,
+    EMPTY_SOCKET_BLUE:lower(),
+  }
+  tAppendAll(Baganator.Constants.SampleSearchTerms, socketSearchTerms)
+end
 if Baganator.Constants.IsRetail then
   local retailSearchTerms = {
     "dragonflight",
@@ -126,6 +133,8 @@ if Baganator.Constants.IsRetail then
     BAGANATOR_L_KEYWORD_EQUIPMENT .. "&" .. "classic",
     BAGANATOR_L_KEYWORD_COSMETIC,
     BAGANATOR_L_KEYWORD_REAGENT,
+    BAGANATOR_L_KEYWORD_MANUSCRIPT,
+    TOY:lower(),
   }
   tAppendAll(Baganator.Constants.SampleSearchTerms, retailSearchTerms)
 end
