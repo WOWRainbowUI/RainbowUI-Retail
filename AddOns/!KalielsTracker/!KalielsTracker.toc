@@ -1,18 +1,18 @@
 ## Interface: 100205
 ## Title: Kaliel's Tracker
 ## Notes: Improved Blizzard Objective Tracker
-## Title-zhTW: |cff00FFFF[任務]|r 追蹤清單增強
-## Notes-zhTW: Kaliel's Tracker |n|n增強畫面右方任務追蹤清單的功能。|n|n|cffffd200使用方法: |r從Esc>選項>插件>任務-追蹤清單，進行設定和移動位置。
-## X-Category-zhTW: 任務
-## IconTexture: Interface\Icons\inv_inscription_armorscroll02
-## DefaultState: disabled
-## Version: 6.4.0
+## Version: 6.5.0
 ## Author: Kaliel (Marouan Sabbagh)
 ## IconTexture: Interface\Addons\!KalielsTracker\Media\KT_logo
 
 ## SavedVariables: KalielsTrackerDB
 ## Dependencies: Blizzard_UIWidgets, Blizzard_MawBuffs
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0, MSA-DropDownMenu-1.0, Masque, PetTracker, TomTom
+
+## Title-zhTW: |cff00FFFF[任務]|r 追蹤清單增強
+## Notes-zhTW: Kaliel's Tracker |n|n增強畫面右方任務追蹤清單的功能。|n|n|cffffd200使用方法: |r從Esc>選項>插件>任務-追蹤清單，進行設定和移動位置。
+## X-Category-zhTW: 任務
+## DefaultState: disabled
 
 Core.xml
 

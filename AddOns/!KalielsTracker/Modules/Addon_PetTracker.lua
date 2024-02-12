@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2023, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -37,6 +37,10 @@ local function SetHooks_Init()
 		PetTracker.Objectives.OnEnable = function() end
 
 		if not db.addonPetTracker then
+			hooksecurefunc(PetTracker, "OnEnable", function(self)
+				self.sets.zoneTracker = false
+			end)
+
 			PetTracker.Objectives.Update = function() end
 		end
 	end
@@ -49,10 +53,10 @@ local function SetHooks()
 	end)
 
 	function PetTracker.Objectives:Update()  -- R
-		if PetTracker.sets.trackPets then
+		if PetTracker.sets.zoneTracker then
 			self:GetClass().Update(self)
 		end
-		self:SetShown(PetTracker.sets.trackPets and self.Bar:IsShown())
+		self:SetShown(PetTracker.sets.zoneTracker and self.Bar:IsShown())
 		KT_ObjectiveTracker_Update(OBJECTIVE_TRACKER_UPDATE_PETTRACKER)
 	end
 
@@ -101,7 +105,7 @@ local function SetHooks_PetTracker_Journal()
 		PetTrackerTrackToggle:Disable()
 		PetTrackerTrackToggle.Text:SetTextColor(0.5, 0.5, 0.5)
 		local infoFrame = CreateFrame("Frame", nil, PetJournal)
-		infoFrame:SetSize(130, 25)
+		infoFrame:SetSize(PetTrackerTrackToggle:GetWidth() + PetTrackerTrackToggle.Text:GetWidth(), PetTrackerTrackToggle:GetHeight())
 		infoFrame:SetPoint("TOPLEFT", PetTrackerTrackToggle, 0, 0)
 		infoFrame:SetFrameLevel(PetTrackerTrackToggle:GetFrameLevel() + 1)
 		infoFrame:SetScript("OnEnter", function(self)
@@ -115,7 +119,7 @@ local function SetHooks_PetTracker_Journal()
 		end)
 	else
 		PetTrackerTrackToggle:HookScript("OnClick", function()
-			if dbChar.collapsed and PetTracker.sets.trackPets then
+			if dbChar.collapsed and PetTracker.sets.zoneTracker then
 				KT:MinimizeButton_OnClick(true)
 			end
 		end)
@@ -139,7 +143,7 @@ local function SetFrames_Init()
 			end
 		end)
 	end
-	if not IsAddOnLoaded("PetTracker_Journal") then
+	if not C_AddOns.IsAddOnLoaded("PetTracker_Journal") then
 		eventFrame:RegisterEvent("ADDON_LOADED")
 	else
 		SetHooks_PetTracker_Journal()
@@ -238,10 +242,10 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	self.isLoaded = (KT:CheckAddOn("PetTracker", "10.1") and db.addonPetTracker)
+	self.isLoaded = (KT:CheckAddOn("PetTracker", "10.2.4") and db.addonPetTracker)
 
 	if self.isLoaded then
-		KT:Alert_IncompatibleAddon("PetTracker", "10.0")
+		KT:Alert_IncompatibleAddon("PetTracker", "10.2.4")
 
 		tinsert(KT.db.defaults.profile.modulesOrder, "PETTRACKER_TRACKER_MODULE")
 		KT.db:RegisterDefaults(KT.db.defaults)
@@ -265,7 +269,7 @@ end
 
 function M:IsShown()
 	return (self.isLoaded and
-			(PetTracker.sets and PetTracker.sets.trackPets) and
+			(PetTracker.sets and PetTracker.sets.zoneTracker) and
 			PetTracker.Objectives:IsShown())
 end
 

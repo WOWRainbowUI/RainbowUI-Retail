@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2023, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -723,10 +723,10 @@ function DropDown_Initialize(self, level)
 			info.notCheckable = false
 
 			info.text = KT.AddonPetTracker.Texts.TrackPets
-			info.checked = (PetTracker.sets.trackPets)
+			info.checked = (PetTracker.sets.zoneTracker)
 			info.func = function()
 				PetTracker.Tracker:Toggle()
-				if dbChar.collapsed and PetTracker.sets.trackPets then
+				if dbChar.collapsed and PetTracker.sets.zoneTracker then
 					KT:MinimizeButton_OnClick(true)
 				end
 			end

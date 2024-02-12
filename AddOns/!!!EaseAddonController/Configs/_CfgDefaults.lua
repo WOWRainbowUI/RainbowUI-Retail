@@ -59,7 +59,6 @@ D["!KalielsTracker"] = {
 	title = "任務追蹤清單增強",
 	desc = "增強畫面右方任務追蹤清單的功能。在設定選項中可以調整位置和文字大小。`",
 	modifier = "BNS, 彩虹ui",
-	icon = "Interface\\Icons\\inv_inscription_armorscroll02",
 	img = true,
     {
         text = "設定選項",

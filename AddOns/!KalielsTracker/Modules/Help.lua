@@ -1,5 +1,5 @@
 --- Kaliel's Tracker
---- Copyright (c) 2012-2023, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2012-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- This file is part of addon Kaliel's Tracker.
@@ -36,8 +36,8 @@ local KTF = KT.frame
 
 local function AddonInfo(name)
 	local info = "\n插件 "..name
-	if IsAddOnLoaded(name) then
-		info = info.." |cff00ff00已安裝|r。可以在設定選項中啟用/停用支援插件。"
+	if C_AddOns.IsAddOnLoaded(name) then
+		info = info.." |cff00ff00is installed|r. Support you can enable/disable in Options."
 	else
 		info = info.." |cffff0000未安裝|r。"
 	end
@@ -249,15 +249,19 @@ local function SetupTutorials()
 		},
 		{	-- 12
 			text = cTitle.."         更新資訊|r\n\n"..
-					cTitle.."6.4.0 版本|r\n"..
-					"- 新增 - 支援魔獸世界 10.1.7\n"..
-                    "- 修正 - 選項 - Masque 按鈕\n"..
-                    "- 更新 - 支援插件 - Masque 10.1.7\n"..
-                    "- 更新 - 支援插件 - ElvUI 13.40, Tukui 20.38\n"..
-                    "- 更新 - 支援插件 - SpartanUI 6.2.21\n"..
-                    "- 更新 - 函式庫\n\n"..
+					cTitle.."6.5.0 版本|r\n"..
+					"- 新增 - 支援魔獸世界 10.2.5\n"..
+					"- 新增 - 支援魔獸世界 10.2.0\n"..
+					"- 更新 - WoW 10.2.0 移除的函數\n"..
+					"- 更新 - WoW 10.1.0 移除的函數\n"..
+					"- 更新 - 選項 - 螢幕解析度大於 1920x1200 的位置 / 大小\n"..
+					"- 更新 - 支援插件 - Masque 10.2.5\n"..
+					"- 更新 - 支援插件 - PetTracker 10.2.4\n"..
+					"- 更新 - 支援插件 - TomTom 3.5.5-release\n"..
+					"- 更新 - 支援插件 - ElvUI 13.58, Tukui 20.41\n"..
+					"- 更新 - 函式庫\n\n"..
 
-					cTitle.."WoW 10.1.7 - 尚無解決方法的已知問題|r\n"..
+					cTitle.."WoW 10.2.5 - 尚無解決方法的已知問題|r\n"..
 					"- 戰鬥中點擊追蹤的任務或成就不會有反應。\n"..
 					"- 戰鬥中標題列的 Q 和 A 按鈕無法運作。\n\n"..
 
