@@ -1,4 +1,4 @@
-if not (GetLocale() == "koKR") then
+if not ((GAME_LOCALE or GetLocale()) == "koKR") then
   return
 end
 local addonName, MDT = ...
@@ -329,6 +329,8 @@ L["Chamber Sentinel"] = "묘실의 파수병"
 L["ChamberOfFlames"] = "Chamber of Flames"
 L["Champion Druna"] = "용사 드루나"
 L["Champion of Hodir"] = "호디르의 용사"
+--[[Translation missing --]]
+L["Change Language"] = "Change Language"
 L["Channeler Varisz"] = "역술사 바리즈"
 L["Chaotic Rift"] = "혼돈의 균열"
 L["Chargath, Bane of Scales"] = "비늘의 파멸 차르가스"
@@ -743,7 +745,7 @@ L["Error Message:"] = "Error Message:"
 --[[Translation missing --]]
 L["errorLabel1"] = "MDT has encountered errors."
 --[[Translation missing --]]
-L["errorLabel2"] = "Please visist either GitHub or Discord and report the error message below."
+L["errorLabel2"] = "Please visit either GitHub or Discord and report the error message below."
 --[[Translation missing --]]
 L["errorLabel3"] = "Press CTRL + C to copy!"
 L["Erudite Slayer"] = "똘똘한 학살자"
@@ -1289,6 +1291,10 @@ L["Living Rot"] = "살아있는 부패물"
 L["Living Waste"] = "살아 있는 폐기물"
 L["Loatheb"] = "로데브"
 L["Local color blind mode"] = "현재 색각 보정 필터"
+--[[Translation missing --]]
+L["localeButtonTooltip1"] = "Requires the \"AddonLocale\" AddOn"
+--[[Translation missing --]]
+L["localeButtonTooltip2"] = "Click to start settings dialog in chat"
 L["Locked"] = "잠김"
 L["Loken"] = "로켄"
 L["Lord Chamberlain"] = "시종장"
@@ -2299,6 +2305,8 @@ L["T'lonja"] = "트론자"
 --[[Translation missing --]]
 L["To share a different preset while the live session is active simply navigate to the preferred preset and click the new 'Set to Live' Button next to the preset-dropdown"] = "To share a different route while the live session is active simply navigate to the preferred route and click the new 'Set to Live' Button next to the route-dropdown"
 L["tocNotes"] = "신화 쐐기돌 던전을 계획하고 최적화하기를 위한 도구입니다"
+--[[Translation missing --]]
+L["Toggle MDT"] = "Toggle MDT"
 L["Toggle Window"] = "창을 열기/닫기"
 L["Toiling Groundskeeper"] = "느릿느릿한 관리인"
 L["Tol Dagor"] = "톨 다고르"

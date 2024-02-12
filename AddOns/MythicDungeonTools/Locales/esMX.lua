@@ -1,4 +1,4 @@
-if not (GetLocale() == "esMX") then
+if not ((GAME_LOCALE or GetLocale()) == "esMX") then
   return
 end
 local addonName, MDT = ...
@@ -328,6 +328,8 @@ L["Chamber Sentinel"] = "Centinela de la cámara"
 L["ChamberOfFlames"] = "Chamber of Flames"
 L["Champion Druna"] = "Campeona Druna"
 L["Champion of Hodir"] = "Campeón de Hodir"
+--[[Translation missing --]]
+L["Change Language"] = "Change Language"
 L["Channeler Varisz"] = "Canalizadora Varisz"
 L["Chaotic Rift"] = "Falla caótica"
 L["Chargath, Bane of Scales"] = "Chargath, Perdición de las Escamas"
@@ -732,7 +734,7 @@ L["Error Message:"] = "Error Message:"
 --[[Translation missing --]]
 L["errorLabel1"] = "MDT has encountered errors."
 --[[Translation missing --]]
-L["errorLabel2"] = "Please visist either GitHub or Discord and report the error message below."
+L["errorLabel2"] = "Please visit either GitHub or Discord and report the error message below."
 --[[Translation missing --]]
 L["errorLabel3"] = "Press CTRL + C to copy!"
 L["Erudite Slayer"] = "Asesina erudita"
@@ -1276,6 +1278,10 @@ L["Living Rot"] = "Putrefacción viva"
 L["Living Waste"] = "Residuo viviente"
 L["Loatheb"] = "Loatheb"
 L["Local color blind mode"] = "Modo daltónicos local"
+--[[Translation missing --]]
+L["localeButtonTooltip1"] = "Requires the \"AddonLocale\" AddOn"
+--[[Translation missing --]]
+L["localeButtonTooltip2"] = "Click to start settings dialog in chat"
 L["Locked"] = "Bloqueada"
 L["Loken"] = "Loken"
 L["Lord Chamberlain"] = "Lord chambelán"
@@ -2324,6 +2330,8 @@ L["Titanium Vanguard"] = "Vanguardia de titanio"
 L["T'lonja"] = "T'lonja"
 L["To share a different preset while the live session is active simply navigate to the preferred preset and click the new 'Set to Live' Button next to the preset-dropdown"] = "Para compartir una ruta diferente mientras la Sesión en vivo está activa, simplemente navegé a la ruta preferida y haga click en el nuevo botón 'Establecer en Directo' junto al menú desplegable de rutas"
 L["tocNotes"] = "Herramienta para planificar y optimizar las rutas de mazmorras de Piedras Angulares"
+--[[Translation missing --]]
+L["Toggle MDT"] = "Toggle MDT"
 L["Toggle Window"] = "Activar Ventana"
 L["Toiling Groundskeeper"] = "Guardés esforzado"
 L["Tol Dagor"] = "Tol Dagor"
