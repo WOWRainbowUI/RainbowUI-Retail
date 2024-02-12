@@ -58,6 +58,14 @@ local function SwordCheck(details)
   return details.classID == Enum.ItemClass.Weapon and (details.subClassID == Enum.ItemWeaponSubclass.Sword2H or details.subClassID == Enum.ItemWeaponSubclass.Sword1H)
 end
 
+local function StaffCheck(details)
+  return details.classID == Enum.ItemClass.Weapon and (details.subClassID == Enum.ItemWeaponSubclass.Stave)
+end
+
+local function MountCheck(details)
+  return details.classID == Enum.ItemClass.Miscellaneous and details.subClassID == Enum.ItemMiscellaneousSubclass.Mount
+end
+
 local function GetTooltipInfoSpell(details)
   if details.tooltipInfoSpell then
     return
@@ -68,14 +76,10 @@ local function GetTooltipInfoSpell(details)
     C_Spell.RequestLoadSpellData(spellID)
     return
   end
-  details.tooltipInfoSpell = details.tooltipGetter()
+  details.tooltipInfoSpell = details.tooltipGetter() or {lines={}}
 end
 
-local function ReputationCheck(details)
-  if not details.itemLink:find("item:", nil, true) then
-    return false
-  end
-
+--[[local function ReputationCheck(details)
   GetTooltipInfoSpell(details)
 
   if details.tooltipInfoSpell then
@@ -88,10 +92,10 @@ local function ReputationCheck(details)
   else
     return nil
   end
-end
+end]]
 
 local function BindOnAccountCheck(details)
-  if not details.isBound or not details.itemLink:find("item:", nil, true) then
+  if not details.isBound then
     return false
   end
 
@@ -108,10 +112,6 @@ local function BindOnAccountCheck(details)
 end
 
 local function UseCheck(details)
-  if not details.itemLink:find("item:", nil, true) then
-    return false
-  end
-
   GetTooltipInfoSpell(details)
 
   local usableSeen = false
@@ -134,7 +134,6 @@ local function OpenCheck(details)
 
   GetTooltipInfoSpell(details)
 
-  local usableSeen = false
   if details.tooltipInfoSpell then
     for _, row in ipairs(details.tooltipInfoSpell.lines) do
       if row.leftText == ITEM_OPENABLE then
@@ -144,6 +143,19 @@ local function OpenCheck(details)
     return false
   end
 end
+
+--[[local function ManuscriptCheck(details)
+  GetTooltipInfoSpell(details)
+
+  if details.tooltipInfoSpell then
+    for _, row in ipairs(details.tooltipInfoSpell.lines) do
+      if row.leftText:lower():find(BAGANATOR_L_KEYWORD_MANUSCRIPT, nil, true) then
+        return true
+      end
+    end
+    return false
+  end
+end]]
 
 local function SaveBaseStats(details)
   if not Baganator.Utilities.IsEquipment(details.itemLink) then
@@ -168,6 +180,15 @@ local function SocketCheck(details)
   return false
 end
 
+local function ToyCheck(details)
+  if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+    return nil
+  end
+
+  return C_ToyBox.GetToyInfo(details.itemID) ~= nil
+end
+
 local KEYWORDS_TO_CHECK = {
   [BAGANATOR_L_KEYWORD_PET] = PetCheck,
   [BAGANATOR_L_KEYWORD_BATTLE_PET] = PetCheck,
@@ -178,6 +199,7 @@ local KEYWORDS_TO_CHECK = {
   [BAGANATOR_L_KEYWORD_AXE] = AxeCheck,
   [BAGANATOR_L_KEYWORD_MACE] = MaceCheck,
   [BAGANATOR_L_KEYWORD_SWORD] = SwordCheck,
+  [BAGANATOR_L_KEYWORD_STAFF] = StaffCheck,
   [BAGANATOR_L_KEYWORD_REAGENT] = ReagentCheck,
   [BAGANATOR_L_KEYWORD_FOOD] = FoodCheck,
   [BAGANATOR_L_KEYWORD_DRINK] = FoodCheck,
@@ -186,14 +208,17 @@ local KEYWORDS_TO_CHECK = {
   [BAGANATOR_L_KEYWORD_SOCKET] = SocketCheck,
   [BAGANATOR_L_KEYWORD_JUNK] = JunkCheck,
   [BAGANATOR_L_KEYWORD_TRASH] = JunkCheck,
-  [BAGANATOR_L_KEYWORD_REPUTATION] = ReputationCheck,
+  --[BAGANATOR_L_KEYWORD_REPUTATION] = ReputationCheck,
   [BAGANATOR_L_KEYWORD_BOA] = BindOnAccountCheck,
   [BAGANATOR_L_KEYWORD_USE] = UseCheck,
   [BAGANATOR_L_KEYWORD_OPEN] = OpenCheck,
+  [MOUNT:lower()] = MountCheck,
 }
 
 if Baganator.Constants.IsRetail then
   KEYWORDS_TO_CHECK[BAGANATOR_L_KEYWORD_COSMETIC] = CosmeticCheck
+  --KEYWORDS_TO_CHECK[BAGANATOR_L_KEYWORD_MANUSCRIPT] = ManuscriptCheck
+  KEYWORDS_TO_CHECK[TOY:lower()] = ToyCheck
 end
 
 local sockets = {
@@ -266,6 +291,29 @@ for _, slot in ipairs(inventorySlots) do
   end
 end
 
+KEYWORDS_TO_CHECK[BAGANATOR_L_KEYWORD_OFF_HAND] = function(details)
+  return details.invType == "INVTYPE_HOLDABLE" or details.invType == "INVTYPE_SHIELD"
+end
+
+local moreSlotMappings = {
+  [BAGANATOR_L_KEYWORD_HELM] = "INVTYPE_HEAD",
+  [BAGANATOR_L_KEYWORD_CLOAK] = "INVTYPE_CLOAK",
+  [BAGANATOR_L_KEYWORD_BRACERS] = "INVTYPE_WRIST",
+  [BAGANATOR_L_KEYWORD_GLOVES] = "INVTYPE_HAND",
+  [BAGANATOR_L_KEYWORD_BELT] = "INVTYPE_WAIST",
+  [BAGANATOR_L_KEYWORD_BOOTS] = "INVTYPE_FEET",
+}
+
+for keyword, slot in pairs(moreSlotMappings) do
+  KEYWORDS_TO_CHECK[keyword] = function(details) return details.invType == slot end
+end
+
+if Baganator.Constants.IsRetail then
+  KEYWORDS_TO_CHECK[BAGANATOR_L_KEYWORD_AZERITE] = function(details)
+    return C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItemByID(details.itemID)
+  end
+end
+
 local TextToExpansion = {
   ["classic"] = 0,
   ["vanilla"] = 0,
@@ -301,6 +349,32 @@ if Baganator.Constants.IsRetail then
   end
 end
 
+local BAG_TYPES = {
+  [BAGANATOR_L_SOUL] = 12,
+  [BAGANATOR_L_HERBALISM] = 6,
+  [BAGANATOR_L_ENCHANTING] = 7,
+  [BAGANATOR_L_ENGINEERING] = 8,
+  [BAGANATOR_L_GEMS] = 10,
+  [BAGANATOR_L_MINING] = 11,
+  [BAGANATOR_L_LEATHERWORKING] = 4,
+  [BAGANATOR_L_INSCRIPTION] = 5,
+  [BAGANATOR_L_FISHING] = 16,
+  [BAGANATOR_L_COOKING] = 17,
+  [BAGANATOR_L_JEWELCRAFTING] = 25,
+}
+
+for keyword, bagBit in pairs(BAG_TYPES) do
+  local bagFamily = bit.lshift(1, bagBit - 1)
+  KEYWORDS_TO_CHECK[keyword:lower()] = function(details)
+    local itemFamily = GetItemFamily(details.itemID)
+    if itemFamily == nil then
+      return
+    else
+      return bit.band(bagFamily, itemFamily) ~= 0
+    end
+  end
+end
+
 -- Sorted in initialize function later
 local sortedKeywords = {}
 
@@ -326,7 +400,9 @@ local function BinarySmartSearch(text)
 end
 
 local function ItemLevelPatternCheck(details, text)
-  if not Baganator.Utilities.IsEquipment(details.itemLink) then
+  -- Special check for details.itemLevel as pets may have one assigned for searhing
+  -- despite not being equipment.
+  if not details.itemLevel and not Baganator.Utilities.HasItemLevel(details.itemLink) then
     return false
   end
   details.itemLevel = details.itemLevel or GetDetailedItemLevelInfo(details.itemLink)
@@ -335,8 +411,12 @@ local function ItemLevelPatternCheck(details, text)
   return details.itemLevel and details.itemLevel == wantedItemLevel
 end
 
+local function ExactItemLevelPatternCheck(details, text)
+  return ItemLevelPatternCheck(details, (text:match("%d+")))
+end
+
 local function ItemLevelRangePatternCheck(details, text)
-  if not Baganator.Utilities.IsEquipment(details.itemLink) then
+  if not details.itemLevel and not Baganator.Utilities.HasItemLevel(details.itemLink) then
     return false
   end
   details.itemLevel = details.itemLevel or GetDetailedItemLevelInfo(details.itemLink)
@@ -346,7 +426,7 @@ local function ItemLevelRangePatternCheck(details, text)
 end
 
 local function ItemLevelMinPatternCheck(details, text)
-  if not Baganator.Utilities.IsEquipment(details.itemLink) then
+  if not details.itemLevel and not Baganator.Utilities.HasItemLevel(details.itemLink) then
     return false
   end
   details.itemLevel = details.itemLevel or GetDetailedItemLevelInfo(details.itemLink)
@@ -356,7 +436,7 @@ local function ItemLevelMinPatternCheck(details, text)
 end
 
 local function ItemLevelMaxPatternCheck(details, text)
-  if not Baganator.Utilities.IsEquipment(details.itemLink) then
+  if not details.itemLevel and not Baganator.Utilities.HasItemLevel(details.itemLink) then
     return false
   end
   details.itemLevel = details.itemLevel or GetDetailedItemLevelInfo(details.itemLink)
@@ -367,20 +447,61 @@ end
 
 local patterns = {
   ["^%d+$"] = ItemLevelPatternCheck,
+  ["^=%d+$"] = ExactItemLevelPatternCheck,
   ["^%d+%-%d+$"] = ItemLevelRangePatternCheck,
   ["^%>%d+$"] = ItemLevelMaxPatternCheck,
   ["^%<%d+$"] = ItemLevelMinPatternCheck,
 }
 
+local function GetTooltipSpecialTerms(details)
+  if details.searchKeywords then
+    return
+  end
+
+  GetTooltipInfoSpell(details)
+
+  if not details.tooltipInfoSpell then
+    return
+  end
+
+  details.searchKeywords = {details.itemName:lower()}
+  for _, line in ipairs(details.tooltipInfoSpell.lines) do
+    local color, term = line.leftText:match("^|cFF(......)([^\n]*)|r$")
+    if term and color ~= "808080" then
+      table.insert(details.searchKeywords, term:lower())
+    else
+      local match = line.leftText:match("^" .. USE_COLON .. "(.*)$") or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP .. "(.*)$")
+      if details.classID ~= Enum.ItemClass.Recipe and match then
+        table.insert(details.searchKeywords, match:lower())
+      end
+    end
+  end
+end
+
 local function MatchesText(details, searchString)
-  return details.itemNameLower:find(searchString, nil, true) ~= nil
+  GetTooltipSpecialTerms(details)
+
+  if not details.searchKeywords then
+    return nil
+  end
+
+  for _, term in ipairs(details.searchKeywords) do
+    if term:find(searchString, nil, true) ~= nil then
+      return true
+    end
+  end
+  return false
 end
 
 local function PatternSearch(searchString)
   for pat, check in pairs(patterns) do
     if searchString:match(pat) then
       return function(...)
-        return MatchesText(...) or check(...)
+        local match = MatchesText(...)
+        if match == nil then
+          return nil
+        end
+        return match or check(...)
       end
     end
   end
@@ -405,7 +526,10 @@ local function ApplyKeyword(searchString)
       -- Work through each keyword that matches the search string and check if
       -- the details match the keyword's criteria
       local check = function(details)
-        if MatchesText(details, searchString) then
+        local matches = MatchesText(details, searchString)
+        if matches == nil then
+          return nil
+        elseif matches then
           return true
         end
         -- Cache results for each keyword to speed up continuing searches
@@ -445,7 +569,7 @@ local function ApplyKeyword(searchString)
     if patternChecker then
       matches[searchString] = patternChecker
       return function(details)
-        return MatchesText(details, searchString) or patternChecker(details, searchString)
+        return patternChecker(details, searchString)
       end
     end
 
@@ -557,6 +681,12 @@ function Baganator.UnifiedBags.Search.Initialize()
     2, -- leather
     3, -- mail
     4, -- plate
+    6, -- shield
+    7, -- libram
+    8, -- idol
+    9, -- totem
+    10,-- sigil
+    11,-- relic
   }
   for _, subClass in ipairs(armorTypesToCheck) do
     local keyword = GetItemSubClassInfo(Enum.ItemClass.Armor, subClass)

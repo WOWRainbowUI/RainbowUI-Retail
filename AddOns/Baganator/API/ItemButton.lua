@@ -1,6 +1,7 @@
 local iconSettings = {}
 
 local IsEquipment = Baganator.Utilities.IsEquipment
+local HasItemLevel = Baganator.Utilities.HasItemLevel
 
 local qualityColors = {
   [0] = CreateColor(157/255, 157/255, 157/255), -- Poor
@@ -46,7 +47,7 @@ local function textInit(itemButton)
 end
 
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_ITEM_LEVEL, "item_level", function(ItemLevel, details)
-  if IsEquipment(details.itemLink) and not details.isCosmetic then
+  if HasItemLevel(details.itemLink) and not details.isCosmetic then
     if not details.itemLevel then
       details.itemLevel = GetDetailedItemLevelInfo(details.itemLink)
     end
@@ -103,6 +104,38 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOA, "boa", function(BindingText,
   end
 end, textInit)
 
+local TRADEABLE_LOOT_PATTERN = BIND_TRADE_TIME_REMAINING:gsub("([^%w])", "%%%1"):gsub("%%%%s", ".*")
+
+local function IsTradeableLoot(details)
+  if not details.isBound then
+    return false
+  end
+  if not details.tooltipInfo then
+    details.tooltipInfo = details.tooltipGetter()
+  end
+  if details.tooltipInfo then
+    for _, row in ipairs(details.tooltipInfo.lines) do
+      if row.leftText:match(TRADEABLE_LOOT_PATTERN) then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+Baganator.API.RegisterCornerWidget(BAGANATOR_L_TRADEABLE_LOOT_TL, "tl", function(BindingText, details)
+  if IsTradeableLoot(details) then
+    BindingText:SetText(BAGANATOR_L_TL)
+    if iconSettings.useQualityColors then
+      local color = qualityColors[details.quality]
+      BindingText:SetTextColor(color.r, color.g, color.b)
+    else
+      BindingText:SetTextColor(1,1,1)
+    end
+    return true
+  end
+end, textInit)
+
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_QUANTITY, "quantity", function(_, details)
   return details.itemCount > 1
 end, function(itemButton)
@@ -132,7 +165,7 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_EQUIPMENT_SET, "equipment_set", f
   return details.setInfo ~= nil
 end, function(itemButton)
   local EquipmentSet = itemButton:CreateTexture(nil, "ARTWORK")
-  EquipmentSet:SetTexture("interface\\groupframe\\ui-group-maintankicon")
+  EquipmentSet:SetTexture("interface\\addons\\baganator\\assets\\equipment-set-shield")
   EquipmentSet:SetSize(15, 15)
   return EquipmentSet
 end)

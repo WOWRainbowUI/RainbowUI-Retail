@@ -80,8 +80,11 @@ L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 L["REDUCE_SPACING_BETWEEN_UI_COMPONENTS"] = "Reduce spacing between UI components"
 L["SHOW_TRANSFER_BUTTON"] = "Show Transfer button"
 L["TRANSFERS"] = "Transfers"
+L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
 
 L["INVENTORY_TOTALS_COLON"] = "Inventory Totals:"
+L["INVENTORY"] = "Inventory"
+L["TOTAL_X"] = "Total: %s"
 L["BAGS_X"] = "Bags: %s"
 L["BANKS_X"] = "Banks: %s"
 L["MAILS_X"] = "Mails: %s"
@@ -99,6 +102,8 @@ L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 
 L["BOE"] = "BoE"
 L["BOA"] = "BoA"
+L["TL"] = "TL"
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 L["JUNK"] = "Junk"
 L["ADD_A_CORNER_ITEM"] = "Add a corner item"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be shown in each corner of the icon on an item's button and prioritise the most wanted information."
@@ -133,6 +138,16 @@ L["KEYWORD_MACE"] = "mace"
 L["KEYWORD_SWORD"] = "sword"
 L["KEYWORD_USE"] = "use"
 L["KEYWORD_OPEN"] = "open"
+L["KEYWORD_MANUSCRIPT"] = "manuscript"
+L["KEYWORD_STAFF"] = "staff"
+L["KEYWORD_HELM"] = "helm"
+L["KEYWORD_CLOAK"] = "cloak"
+L["KEYWORD_BRACERS"] = "bracers"
+L["KEYWORD_GLOVES"] = "gloves"
+L["KEYWORD_BELT"] = "belt"
+L["KEYWORD_BOOTS"] = "boots"
+L["KEYWORD_OFF_HAND"] = "off-hand"
+L["KEYWORD_AZERITE"] = "azerite"
 
 L["SEARCH_TRY_X"] = "Search, try %s"
 
@@ -152,6 +167,7 @@ L["JUNK_DETECTION"] = "Junk Detection"
 L["REALM_WIDE_GOLD_X"] = "Realm-wide gold: %s"
 L["ACCOUNT_GOLD_X"] = "Account gold: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
 
 L["CRAFTING_WINDOW"] = "Crafting Window"
 L["AUCTION_HOUSE"] = "Auction House"
@@ -169,9 +185,25 @@ L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the ban
 L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
+
+L["SOUL"] = "Soul"
+L["HERBALISM"] = "Herbalism"
+L["ENCHANTING"] = "Enchanting"
+L["ENGINEERING"] = "Engineering"
+L["GEMS"] = "Gems"
+L["MINING"] = "Mining"
+L["LEATHERWORKING"] = "Leatherworking"
+L["INSCRIPTION"] = "Inscription"
+L["FISHING"] = "Fishing"
+L["COOKING"] = "Cooking"
+L["JEWELCRAFTING"] = "Jewelcrafting"
 
 local L = Locales.frFR
 --[[Translation missing --]]
@@ -219,11 +251,15 @@ L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
+--[[Translation missing --]]
+L["COOKING"] = "Cooking"
 --[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
@@ -241,11 +277,19 @@ L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["ENABLE_BAG_VIEWS_2"] = "Use Baganator bag/bank views (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
+L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
 --[[Translation missing --]]
@@ -253,9 +297,13 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
 --[[Translation missing --]]
 L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
 --[[Translation missing --]]
@@ -266,6 +314,10 @@ L["ICON_CORNERS"] = "Icon Corners"
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
+--[[Translation missing --]]
+L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
 L["INVENTORY_TOTALS_COLON"] = "Inventory Totals:"
 --[[Translation missing --]]
@@ -285,6 +337,8 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
@@ -295,9 +349,17 @@ L["KEYWORD_AXE"] = "axe"
 --[[Translation missing --]]
 L["KEYWORD_BATTLE_PET"] = "battle pet"
 --[[Translation missing --]]
+L["KEYWORD_BELT"] = "belt"
+--[[Translation missing --]]
 L["KEYWORD_BOA"] = "boa"
 --[[Translation missing --]]
 L["KEYWORD_BOE"] = "boe"
+--[[Translation missing --]]
+L["KEYWORD_BOOTS"] = "boots"
+--[[Translation missing --]]
+L["KEYWORD_BRACERS"] = "bracers"
+--[[Translation missing --]]
+L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
@@ -309,9 +371,19 @@ L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 --[[Translation missing --]]
+L["KEYWORD_GLOVES"] = "gloves"
+--[[Translation missing --]]
+L["KEYWORD_HELM"] = "helm"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
+--[[Translation missing --]]
+L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_OFF_HAND"] = "off-hand"
+--[[Translation missing --]]
+L["KEYWORD_OPEN"] = "open"
 --[[Translation missing --]]
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
@@ -327,9 +399,15 @@ L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
+L["KEYWORD_STAFF"] = "staff"
+--[[Translation missing --]]
 L["KEYWORD_SWORD"] = "sword"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
+--[[Translation missing --]]
+L["KEYWORD_USE"] = "use"
+--[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
 L["LOCK_BAGS_BANKS_FRAMES"] = "Lock Bags/Bank frames"
 --[[Translation missing --]]
@@ -338,6 +416,8 @@ L["MAIL"] = "Mail"
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
+--[[Translation missing --]]
+L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -383,6 +463,8 @@ L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
 --[[Translation missing --]]
 L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 --[[Translation missing --]]
+L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
+--[[Translation missing --]]
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
 --[[Translation missing --]]
 L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
@@ -417,11 +499,21 @@ L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
 --[[Translation missing --]]
+L["SOUL"] = "Soul"
+--[[Translation missing --]]
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+--[[Translation missing --]]
+L["TL"] = "TL"
+--[[Translation missing --]]
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 --[[Translation missing --]]
 L["TOOLTIPS"] = "Tooltips"
 --[[Translation missing --]]
+L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
 L["TRADE"] = "Trade"
+--[[Translation missing --]]
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
@@ -431,7 +523,11 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from th
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -514,11 +610,15 @@ L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
+--[[Translation missing --]]
+L["COOKING"] = "Cooking"
 --[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
@@ -536,11 +636,19 @@ L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["ENABLE_BAG_VIEWS_2"] = "Use Baganator bag/bank views (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
+L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
 --[[Translation missing --]]
@@ -548,9 +656,13 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
 --[[Translation missing --]]
 L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
 --[[Translation missing --]]
@@ -561,6 +673,10 @@ L["ICON_CORNERS"] = "Icon Corners"
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
+--[[Translation missing --]]
+L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
 L["INVENTORY_TOTALS_COLON"] = "Inventory Totals:"
 --[[Translation missing --]]
@@ -580,6 +696,8 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
@@ -590,9 +708,17 @@ L["KEYWORD_AXE"] = "axe"
 --[[Translation missing --]]
 L["KEYWORD_BATTLE_PET"] = "battle pet"
 --[[Translation missing --]]
+L["KEYWORD_BELT"] = "belt"
+--[[Translation missing --]]
 L["KEYWORD_BOA"] = "boa"
 --[[Translation missing --]]
 L["KEYWORD_BOE"] = "boe"
+--[[Translation missing --]]
+L["KEYWORD_BOOTS"] = "boots"
+--[[Translation missing --]]
+L["KEYWORD_BRACERS"] = "bracers"
+--[[Translation missing --]]
+L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
@@ -604,9 +730,19 @@ L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 --[[Translation missing --]]
+L["KEYWORD_GLOVES"] = "gloves"
+--[[Translation missing --]]
+L["KEYWORD_HELM"] = "helm"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
+--[[Translation missing --]]
+L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_OFF_HAND"] = "off-hand"
+--[[Translation missing --]]
+L["KEYWORD_OPEN"] = "open"
 --[[Translation missing --]]
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
@@ -622,9 +758,15 @@ L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
+L["KEYWORD_STAFF"] = "staff"
+--[[Translation missing --]]
 L["KEYWORD_SWORD"] = "sword"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
+--[[Translation missing --]]
+L["KEYWORD_USE"] = "use"
+--[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
 L["LOCK_BAGS_BANKS_FRAMES"] = "Lock Bags/Bank frames"
 --[[Translation missing --]]
@@ -633,6 +775,8 @@ L["MAIL"] = "Mail"
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
+--[[Translation missing --]]
+L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -678,6 +822,8 @@ L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
 --[[Translation missing --]]
 L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 --[[Translation missing --]]
+L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
+--[[Translation missing --]]
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
 --[[Translation missing --]]
 L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
@@ -712,11 +858,21 @@ L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
 --[[Translation missing --]]
+L["SOUL"] = "Soul"
+--[[Translation missing --]]
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+--[[Translation missing --]]
+L["TL"] = "TL"
+--[[Translation missing --]]
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 --[[Translation missing --]]
 L["TOOLTIPS"] = "Tooltips"
 --[[Translation missing --]]
+L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
 L["TRADE"] = "Trade"
+--[[Translation missing --]]
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
@@ -726,7 +882,11 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from th
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -809,11 +969,15 @@ L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
+--[[Translation missing --]]
+L["COOKING"] = "Cooking"
 --[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
@@ -831,11 +995,19 @@ L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["ENABLE_BAG_VIEWS_2"] = "Use Baganator bag/bank views (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
+L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
 --[[Translation missing --]]
@@ -843,9 +1015,13 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
 --[[Translation missing --]]
 L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
 --[[Translation missing --]]
@@ -856,6 +1032,10 @@ L["ICON_CORNERS"] = "Icon Corners"
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
+--[[Translation missing --]]
+L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
 L["INVENTORY_TOTALS_COLON"] = "Inventory Totals:"
 --[[Translation missing --]]
@@ -875,6 +1055,8 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
@@ -885,9 +1067,17 @@ L["KEYWORD_AXE"] = "axe"
 --[[Translation missing --]]
 L["KEYWORD_BATTLE_PET"] = "battle pet"
 --[[Translation missing --]]
+L["KEYWORD_BELT"] = "belt"
+--[[Translation missing --]]
 L["KEYWORD_BOA"] = "boa"
 --[[Translation missing --]]
 L["KEYWORD_BOE"] = "boe"
+--[[Translation missing --]]
+L["KEYWORD_BOOTS"] = "boots"
+--[[Translation missing --]]
+L["KEYWORD_BRACERS"] = "bracers"
+--[[Translation missing --]]
+L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
@@ -899,9 +1089,19 @@ L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 --[[Translation missing --]]
+L["KEYWORD_GLOVES"] = "gloves"
+--[[Translation missing --]]
+L["KEYWORD_HELM"] = "helm"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
+--[[Translation missing --]]
+L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_OFF_HAND"] = "off-hand"
+--[[Translation missing --]]
+L["KEYWORD_OPEN"] = "open"
 --[[Translation missing --]]
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
@@ -917,9 +1117,15 @@ L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
+L["KEYWORD_STAFF"] = "staff"
+--[[Translation missing --]]
 L["KEYWORD_SWORD"] = "sword"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
+--[[Translation missing --]]
+L["KEYWORD_USE"] = "use"
+--[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
 L["LOCK_BAGS_BANKS_FRAMES"] = "Lock Bags/Bank frames"
 --[[Translation missing --]]
@@ -928,6 +1134,8 @@ L["MAIL"] = "Mail"
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
+--[[Translation missing --]]
+L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -973,6 +1181,8 @@ L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
 --[[Translation missing --]]
 L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 --[[Translation missing --]]
+L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
+--[[Translation missing --]]
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
 --[[Translation missing --]]
 L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
@@ -1007,11 +1217,21 @@ L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
 --[[Translation missing --]]
+L["SOUL"] = "Soul"
+--[[Translation missing --]]
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+--[[Translation missing --]]
+L["TL"] = "TL"
+--[[Translation missing --]]
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 --[[Translation missing --]]
 L["TOOLTIPS"] = "Tooltips"
 --[[Translation missing --]]
+L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
 L["TRADE"] = "Trade"
+--[[Translation missing --]]
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
@@ -1021,7 +1241,11 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from th
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -1104,11 +1328,15 @@ L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
+--[[Translation missing --]]
+L["COOKING"] = "Cooking"
 --[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
@@ -1126,11 +1354,19 @@ L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["ENABLE_BAG_VIEWS_2"] = "Use Baganator bag/bank views (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
+L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
 --[[Translation missing --]]
@@ -1138,9 +1374,13 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
 --[[Translation missing --]]
 L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
 --[[Translation missing --]]
@@ -1151,6 +1391,10 @@ L["ICON_CORNERS"] = "Icon Corners"
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
+--[[Translation missing --]]
+L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
 L["INVENTORY_TOTALS_COLON"] = "Inventory Totals:"
 --[[Translation missing --]]
@@ -1170,6 +1414,8 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
@@ -1180,9 +1426,17 @@ L["KEYWORD_AXE"] = "axe"
 --[[Translation missing --]]
 L["KEYWORD_BATTLE_PET"] = "battle pet"
 --[[Translation missing --]]
+L["KEYWORD_BELT"] = "belt"
+--[[Translation missing --]]
 L["KEYWORD_BOA"] = "boa"
 --[[Translation missing --]]
 L["KEYWORD_BOE"] = "boe"
+--[[Translation missing --]]
+L["KEYWORD_BOOTS"] = "boots"
+--[[Translation missing --]]
+L["KEYWORD_BRACERS"] = "bracers"
+--[[Translation missing --]]
+L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
@@ -1194,9 +1448,19 @@ L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 --[[Translation missing --]]
+L["KEYWORD_GLOVES"] = "gloves"
+--[[Translation missing --]]
+L["KEYWORD_HELM"] = "helm"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
+--[[Translation missing --]]
+L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_OFF_HAND"] = "off-hand"
+--[[Translation missing --]]
+L["KEYWORD_OPEN"] = "open"
 --[[Translation missing --]]
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
@@ -1212,9 +1476,15 @@ L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
+L["KEYWORD_STAFF"] = "staff"
+--[[Translation missing --]]
 L["KEYWORD_SWORD"] = "sword"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
+--[[Translation missing --]]
+L["KEYWORD_USE"] = "use"
+--[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
 L["LOCK_BAGS_BANKS_FRAMES"] = "Lock Bags/Bank frames"
 --[[Translation missing --]]
@@ -1223,6 +1493,8 @@ L["MAIL"] = "Mail"
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
+--[[Translation missing --]]
+L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -1268,6 +1540,8 @@ L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
 --[[Translation missing --]]
 L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 --[[Translation missing --]]
+L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
+--[[Translation missing --]]
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
 --[[Translation missing --]]
 L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
@@ -1302,11 +1576,21 @@ L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
 --[[Translation missing --]]
+L["SOUL"] = "Soul"
+--[[Translation missing --]]
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+--[[Translation missing --]]
+L["TL"] = "TL"
+--[[Translation missing --]]
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 --[[Translation missing --]]
 L["TOOLTIPS"] = "Tooltips"
 --[[Translation missing --]]
+L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
 L["TRADE"] = "Trade"
+--[[Translation missing --]]
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
@@ -1316,7 +1600,11 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from th
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -1399,11 +1687,15 @@ L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
+--[[Translation missing --]]
+L["COOKING"] = "Cooking"
 --[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
@@ -1421,11 +1713,19 @@ L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["ENABLE_BAG_VIEWS_2"] = "Use Baganator bag/bank views (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
+L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
 --[[Translation missing --]]
@@ -1433,9 +1733,13 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
 --[[Translation missing --]]
 L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
 --[[Translation missing --]]
@@ -1446,6 +1750,10 @@ L["ICON_CORNERS"] = "Icon Corners"
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
+--[[Translation missing --]]
+L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
 L["INVENTORY_TOTALS_COLON"] = "Inventory Totals:"
 --[[Translation missing --]]
@@ -1465,6 +1773,8 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
@@ -1475,9 +1785,17 @@ L["KEYWORD_AXE"] = "axe"
 --[[Translation missing --]]
 L["KEYWORD_BATTLE_PET"] = "battle pet"
 --[[Translation missing --]]
+L["KEYWORD_BELT"] = "belt"
+--[[Translation missing --]]
 L["KEYWORD_BOA"] = "boa"
 --[[Translation missing --]]
 L["KEYWORD_BOE"] = "boe"
+--[[Translation missing --]]
+L["KEYWORD_BOOTS"] = "boots"
+--[[Translation missing --]]
+L["KEYWORD_BRACERS"] = "bracers"
+--[[Translation missing --]]
+L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
@@ -1489,9 +1807,19 @@ L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 --[[Translation missing --]]
+L["KEYWORD_GLOVES"] = "gloves"
+--[[Translation missing --]]
+L["KEYWORD_HELM"] = "helm"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
+--[[Translation missing --]]
+L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_OFF_HAND"] = "off-hand"
+--[[Translation missing --]]
+L["KEYWORD_OPEN"] = "open"
 --[[Translation missing --]]
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
@@ -1507,9 +1835,15 @@ L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
+L["KEYWORD_STAFF"] = "staff"
+--[[Translation missing --]]
 L["KEYWORD_SWORD"] = "sword"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
+--[[Translation missing --]]
+L["KEYWORD_USE"] = "use"
+--[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
 L["LOCK_BAGS_BANKS_FRAMES"] = "Lock Bags/Bank frames"
 --[[Translation missing --]]
@@ -1518,6 +1852,8 @@ L["MAIL"] = "Mail"
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
+--[[Translation missing --]]
+L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -1563,6 +1899,8 @@ L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
 --[[Translation missing --]]
 L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 --[[Translation missing --]]
+L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
+--[[Translation missing --]]
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
 --[[Translation missing --]]
 L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
@@ -1597,11 +1935,21 @@ L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
 --[[Translation missing --]]
+L["SOUL"] = "Soul"
+--[[Translation missing --]]
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+--[[Translation missing --]]
+L["TL"] = "TL"
+--[[Translation missing --]]
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 --[[Translation missing --]]
 L["TOOLTIPS"] = "Tooltips"
 --[[Translation missing --]]
+L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
 L["TRADE"] = "Trade"
+--[[Translation missing --]]
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
@@ -1611,7 +1959,11 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from th
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]
@@ -1671,9 +2023,11 @@ L["BOA"] = "帳綁"
 L["BOE"] = "裝綁"
 L["BUY_REAGENT_BANK"] = "購買材料銀行"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "無法在此交易加入更多物品"
 L["COMBINE_STACKS_ONLY"] = "只合併整組"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "您想轉移背包中的全部物品嗎？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "您想轉移銀行中的全部物品嗎？"
+L["COOKING"] = "烹飪"
 L["CRAFTING_WINDOW"] = "製作視窗"
 L["CUSTOMISE_BAGANATOR"] = "自定義Baganator"
 L["CUSTOMISE_EMPTY_SLOTS"] = "隱藏空格的背景"
@@ -1682,19 +2036,27 @@ L["CUSTOMISE_SHOW_TABS"] = "顯示最近角色的標籤"
 L["DELETE_CHARACTER"] = "刪除角色"
 L["DEPOSIT_REAGENTS"] = "存放材料"
 L["ENABLE_BAG_VIEWS_2"] = "使用 Baganator 背包/銀行視窗（需要重載）"
+L["ENCHANTING"] = "附魔"
+L["ENGINEERING"] = "工程"
 L["EQUIPMENT_SET"] = "裝備套裝"
 L["EQUIPPED_X"] = "裝備：%s"
 L["EXPANSION"] = "資料片"
+L["FISHING"] = "釣魚"
+L["GEMS"] = "珠寶"
 L["GUILD_BANK"] = "公會銀行"
 L["GUILD_X"] = "公會：%s"
 L["GUILDS_X"] = "公會：%s"
+L["HERBALISM"] = "草藥"
 L["HIDE_BOE_STATUS_ON_COMMON"] = "在垃圾/普通品質物品上隱藏任何裝綁狀態"
 L["HIDE_IN_TOOLTIPS"] = "在工具提示中隱藏"
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<按住shift來顯示帳號總計>"
 L["ICON_CORNER_PRIORITIES"] = "圖示角落優先級"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "選擇在物品按鈕圖示的每個角落都顯示哪些訊息，並優先考慮最需要的訊息。"
 L["ICON_CORNERS"] = "圖示指示角落選項"
 L["ICON_GREY_JUNK_ITEMS"] = "透過使圖示變灰來標記垃圾物品"
 L["ICONS"] = "圖示"
+L["INSCRIPTION"] = "銘文"
+L["INVENTORY"] = "庫存"
 L["INVENTORY_TOTALS_COLON"] = "庫存總計："
 L["ITEM_LEVEL"] = "物品等級"
 L["ITEM_QUALITY"] = "物品品質"
@@ -1704,20 +2066,30 @@ L["ITEM_TYPE"] = "物品類型"
 L["ITEM_TYPE_BASIC"] = "物品類型 (基本)"
 L["ITEM_TYPE_ENHANCED"] = "物品類型 (增強)"
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "[Alt]+點擊可高亮所有相同物品"
+L["JEWELCRAFTING"] = "珠寶"
 L["JUNK"] = "垃圾"
 L["JUNK_DETECTION"] = "垃圾偵測"
 L["KEYS"] = "鑰匙"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_BATTLE_PET"] = "戰寵"
+L["KEYWORD_BELT"] = "腰帶"
 L["KEYWORD_BOA"] = "帳綁"
 L["KEYWORD_BOE"] = "裝綁"
+L["KEYWORD_BOOTS"] = "靴子"
+L["KEYWORD_BRACERS"] = "護腕"
+L["KEYWORD_CLOAK"] = "披風"
 L["KEYWORD_COSMETIC"] = "外型"
 L["KEYWORD_DRINK"] = "飲料"
 L["KEYWORD_EQUIPMENT"] = "裝備"
 L["KEYWORD_FOOD"] = "食物"
 L["KEYWORD_GEAR"] = "裝備"
+L["KEYWORD_GLOVES"] = "手套"
+L["KEYWORD_HELM"] = "頭盔"
 L["KEYWORD_JUNK"] = "垃圾"
 L["KEYWORD_MACE"] = "錘"
+L["KEYWORD_MANUSCRIPT"] = "手稿"
+L["KEYWORD_OFF_HAND"] = "副手"
+L["KEYWORD_OPEN"] = "開啟"
 L["KEYWORD_PET"] = "寵物"
 L["KEYWORD_POTION"] = "藥水"
 L["KEYWORD_REAGENT"] = "配方"
@@ -1725,12 +2097,16 @@ L["KEYWORD_REPUTATION"] = "聲望"
 L["KEYWORD_SET"] = "套裝"
 L["KEYWORD_SOCKET"] = "插槽"
 L["KEYWORD_SOULBOUND"] = "靈魂綁定"
+L["KEYWORD_STAFF"] = "法杖"
 L["KEYWORD_SWORD"] = "劍"
 L["KEYWORD_TRASH"] = "垃圾"
+L["KEYWORD_USE"] = "使用"
+L["LEATHERWORKING"] = "製皮"
 L["LOCK_BAGS_BANKS_FRAMES"] = "鎖定背包/銀行框架"
 L["MAIL"] = "信箱"
 L["MAIL_X"] = "信箱：%s"
 L["MAILS_X"] = "信箱：%s"
+L["MINING"] = "採礦"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "在庫存上只使用相同連結伺服器"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "在庫存上只使用相同陣營角色"
 L["OPEN_OPTIONS"] = "開啟選項"
@@ -1753,6 +2129,7 @@ L["SEARCH_TRY_X"] = "搜尋，嘗試 %s"
 L["SELLJUNK"] = "賣出垃圾"
 L["SHOW_BOA_STATUS"] = "顯示帳號綁定狀態 (慢)"
 L["SHOW_BOE_STATUS"] = "顯示裝備綁定狀態"
+L["SHOW_BUTTONS_ON_ALT"] = "只在按住 Alt 時顯示切換按鈕"
 L["SHOW_CAN_I_MOG_IT_ICON"] = "顯示 Can I Mog It 圖示如插件已啟用"
 L["SHOW_CURRENCY_TOOLTIPS"] = "在提示中顯示其他角色的兌換通貨"
 L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "在庫存提示中顯示公會銀行"
@@ -1770,14 +2147,21 @@ L["SORT_METHOD"] = "排序方式"
 L["SORT_START_AT_BOTTOM"] = "從背包底部開始排序物品"
 L["SORTBAGS"] = "排序背包"
 L["SORTING"] = "排序"
+L["SOUL"] = "靈魂"
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "商店不想要任何這些物品"
+L["TL"] = "交"
 L["TO_OPEN_OPTIONS_X"] = "輸入 /bgr 開啟選項"
 L["TOOLTIPS"] = "工具提示"
+L["TOTAL_X"] = "總計：%s"
 L["TRADE"] = "交易"
+L["TRADEABLE_LOOT_TL"] = "可交易的拾取 (TL)"
 L["TRANSFER"] = "轉移"
 L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "將銀行搜尋的物品轉移放入背包中。"
 L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "將背包搜尋的物品轉移放入銀行中。"
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "將搜尋到的物品附加到郵件中發送。"
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "將搜尋到的商品出售給商店（最多 12 件）。"
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "將可報廢的物品放入破爛回收機。"
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "將搜尋到的商品加入交易視窗（最多 6 個商品）。"
 L["TRANSFERS"] = "轉移"
 L["TYPE"] = "類型"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "圖示上文字根據物品品質著色"
@@ -1820,9 +2204,12 @@ L["BOA"] = "帐绑"
 L["BOE"] = "装绑"
 L["BUY_REAGENT_BANK"] = "购买材料银行"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
+--[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
 L["COMBINE_STACKS_ONLY"] = "仅合并堆叠"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "你想转移背包内的所有物品？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "你想转移银行内的所有物品？"
+L["COOKING"] = "烹饪"
 L["CRAFTING_WINDOW"] = "专业窗口"
 L["CUSTOMISE_BAGANATOR"] = "自定义Baganator设置"
 L["CUSTOMISE_EMPTY_SLOTS"] = "隐藏空位的背景"
@@ -1831,19 +2218,27 @@ L["CUSTOMISE_SHOW_TABS"] = "显示最近角色使用的记录"
 L["DELETE_CHARACTER"] = "删除角色"
 L["DEPOSIT_REAGENTS"] = "存放材料"
 L["ENABLE_BAG_VIEWS_2"] = "使用Baganator背包/银行窗口（需重载界面）"
+L["ENCHANTING"] = "附魔"
+L["ENGINEERING"] = "工程"
 L["EQUIPMENT_SET"] = "装备方案"
 L["EQUIPPED_X"] = "装备：%s"
 L["EXPANSION"] = "展开"
+L["FISHING"] = "钓鱼"
+L["GEMS"] = "珠宝"
 L["GUILD_BANK"] = "公会银行"
 L["GUILD_X"] = "公会：%s"
 L["GUILDS_X"] = "公会：%s"
+L["HERBALISM"] = "草药"
 L["HIDE_BOE_STATUS_ON_COMMON"] = "隐藏垃圾/普通品质物品上的装绑状态"
 L["HIDE_IN_TOOLTIPS"] = "在鼠标提示中隐藏"
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<按住 shift 键显示账号总计>"
 L["ICON_CORNER_PRIORITIES"] = "边角图标优先显示"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "选择在物品图标的角落位置显示哪些信息，并优先显示最需要的信息。"
 L["ICON_CORNERS"] = "图标显示位"
 L["ICON_GREY_JUNK_ITEMS"] = "图标变灰来标记垃圾物品"
 L["ICONS"] = "图标"
+L["INSCRIPTION"] = "铭文"
+L["INVENTORY"] = "库存"
 L["INVENTORY_TOTALS_COLON"] = "统计："
 L["ITEM_LEVEL"] = "物品等级"
 L["ITEM_QUALITY"] = "物品品质"
@@ -1853,20 +2248,31 @@ L["ITEM_TYPE"] = "物品类型"
 L["ITEM_TYPE_BASIC"] = "物品类型（基础）"
 L["ITEM_TYPE_ENHANCED"] = "物品类型（增强）"
 L["ITEMS_FLASH_ON_ALT_CLICK"] = " [Alt]+ 点击时高亮所有相同物品"
+--[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
 L["JUNK"] = "垃圾"
 L["JUNK_DETECTION"] = "扫描垃圾"
 L["KEYS"] = "钥匙"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_BATTLE_PET"] = "战宠"
+L["KEYWORD_BELT"] = "腰部"
 L["KEYWORD_BOA"] = "帐绑"
 L["KEYWORD_BOE"] = "装绑"
+L["KEYWORD_BOOTS"] = "脚部"
+L["KEYWORD_BRACERS"] = "腕部"
+L["KEYWORD_CLOAK"] = "背部"
 L["KEYWORD_COSMETIC"] = "外观"
 L["KEYWORD_DRINK"] = "饮水"
 L["KEYWORD_EQUIPMENT"] = "装备"
 L["KEYWORD_FOOD"] = "食物"
 L["KEYWORD_GEAR"] = "装备"
+L["KEYWORD_GLOVES"] = "手部"
+L["KEYWORD_HELM"] = "头部"
 L["KEYWORD_JUNK"] = "垃圾"
 L["KEYWORD_MACE"] = "锤"
+L["KEYWORD_MANUSCRIPT"] = "手稿"
+L["KEYWORD_OFF_HAND"] = "副手"
+L["KEYWORD_OPEN"] = "打开"
 L["KEYWORD_PET"] = "宠物"
 L["KEYWORD_POTION"] = "药水"
 L["KEYWORD_REAGENT"] = "配方"
@@ -1874,12 +2280,16 @@ L["KEYWORD_REPUTATION"] = "声望"
 L["KEYWORD_SET"] = "套装"
 L["KEYWORD_SOCKET"] = "插槽"
 L["KEYWORD_SOULBOUND"] = "灵魂绑定"
+L["KEYWORD_STAFF"] = "法杖"
 L["KEYWORD_SWORD"] = "剑"
 L["KEYWORD_TRASH"] = "垃圾"
+L["KEYWORD_USE"] = "使用（use）"
+L["LEATHERWORKING"] = "制皮"
 L["LOCK_BAGS_BANKS_FRAMES"] = "锁定背包/银行框体"
 L["MAIL"] = "信箱"
 L["MAIL_X"] = "信箱：%s"
 L["MAILS_X"] = "信箱：%s"
+L["MINING"] = "采矿"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "仅显示互通服务器角色的库存"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "仅显示同阵营角色的库存"
 L["OPEN_OPTIONS"] = "打开选项"
@@ -1902,6 +2312,7 @@ L["SEARCH_TRY_X"] = "搜索，尝试 %s"
 L["SELLJUNK"] = "出售垃圾"
 L["SHOW_BOA_STATUS"] = "显示帐绑状态（慢）"
 L["SHOW_BOE_STATUS"] = "显示装绑状态"
+L["SHOW_BUTTONS_ON_ALT"] = "仅在按住 Alt 时显示切换按钮"
 L["SHOW_CAN_I_MOG_IT_ICON"] = "显示 Can I Mog It 提示图标需启用插件"
 L["SHOW_CURRENCY_TOOLTIPS"] = "在鼠标提示中显示其他角色的货币"
 L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "在鼠标提示中显示公会银行库存"
@@ -1919,14 +2330,26 @@ L["SORT_METHOD"] = "排序方式"
 L["SORT_START_AT_BOTTOM"] = "将分类好的物品放在背包底部"
 L["SORTBAGS"] = "SortBags"
 L["SORTING"] = "排序"
+L["SOUL"] = "魂"
+--[[Translation missing --]]
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+--[[Translation missing --]]
+L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "输入/bgr 打开选项"
 L["TOOLTIPS"] = "鼠标提示"
+L["TOTAL_X"] = "总计：%s"
 L["TRADE"] = "交易"
+--[[Translation missing --]]
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 L["TRANSFER"] = "转移"
 L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "将在银行搜索出来的物品转移到背包中。"
 L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "将背包内搜索出来的物品转移到银行。"
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "将搜索到的物品添加到邮件内并发送。"
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "将可拆解物品放入拆解机内。"
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 L["TRANSFERS"] = "转移"
 L["TYPE"] = "类型"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "图标上的文字根据物品的品质着色"
@@ -1976,11 +2399,15 @@ L["BOE"] = "BoE"
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
+--[[Translation missing --]]
+L["COOKING"] = "Cooking"
 L["CRAFTING_WINDOW"] = "제작창"
 L["CUSTOMISE_BAGANATOR"] = "Baganator 설정"
 L["CUSTOMISE_EMPTY_SLOTS"] = "빈 공간의 배경 숨기기"
@@ -1990,15 +2417,27 @@ L["DELETE_CHARACTER"] = "캐릭터 삭제"
 --[[Translation missing --]]
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 L["ENABLE_BAG_VIEWS_2"] = "Baganator 가방/은행을 사용(UI 재시작 필요)"
+--[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
 L["EQUIPMENT_SET"] = "착용 세트"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 L["EXPANSION"] = "확장팩"
+--[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
+L["GEMS"] = "Gems"
 L["GUILD_BANK"] = "길드 은행"
 L["GUILD_X"] = "길드: %s"
 L["GUILDS_X"] = "길드: %s"
+--[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
 L["HIDE_BOE_STATUS_ON_COMMON"] = "하급/일반 아이템의 착용 시 귀속 상태 숨김"
 L["HIDE_IN_TOOLTIPS"] = "툴팁 숨기기"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
 --[[Translation missing --]]
 L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
 --[[Translation missing --]]
@@ -2006,6 +2445,10 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_CORNERS"] = "아이콘 모서리"
 L["ICON_GREY_JUNK_ITEMS"] = "불필요한 아이템을 회색 아이콘으로 표시"
 L["ICONS"] = "아이콘"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
+--[[Translation missing --]]
+L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
 L["INVENTORY_TOTALS_COLON"] = "Inventory Totals:"
 L["ITEM_LEVEL"] = "아이템 레벨"
@@ -2021,6 +2464,8 @@ L["ITEM_TYPE_BASIC"] = "Item Type (basic)"
 L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "아이템을 Alt+클릭할 때, 동일한 아이템은 반짝거리게 표시"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 L["JUNK_DETECTION"] = "필요없는 아이템 감지"
 --[[Translation missing --]]
@@ -2029,9 +2474,17 @@ L["KEYS"] = "Keys"
 L["KEYWORD_AXE"] = "axe"
 L["KEYWORD_BATTLE_PET"] = "전투 애완 동물"
 --[[Translation missing --]]
+L["KEYWORD_BELT"] = "belt"
+--[[Translation missing --]]
 L["KEYWORD_BOA"] = "boa"
 --[[Translation missing --]]
 L["KEYWORD_BOE"] = "boe"
+--[[Translation missing --]]
+L["KEYWORD_BOOTS"] = "boots"
+--[[Translation missing --]]
+L["KEYWORD_BRACERS"] = "bracers"
+--[[Translation missing --]]
+L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
@@ -2043,9 +2496,19 @@ L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 --[[Translation missing --]]
+L["KEYWORD_GLOVES"] = "gloves"
+--[[Translation missing --]]
+L["KEYWORD_HELM"] = "helm"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
+--[[Translation missing --]]
+L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_OFF_HAND"] = "off-hand"
+--[[Translation missing --]]
+L["KEYWORD_OPEN"] = "open"
 --[[Translation missing --]]
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
@@ -2061,13 +2524,21 @@ L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
+L["KEYWORD_STAFF"] = "staff"
+--[[Translation missing --]]
 L["KEYWORD_SWORD"] = "sword"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
+--[[Translation missing --]]
+L["KEYWORD_USE"] = "use"
+--[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
 L["LOCK_BAGS_BANKS_FRAMES"] = "가방/은행 창의 위치를 고정합니다."
 L["MAIL"] = "우편함"
 L["MAIL_X"] = "우편함: %s"
 L["MAILS_X"] = "우편함: %s"
+--[[Translation missing --]]
+L["MINING"] = "Mining"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "동일 서버의 소지품만 표시"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "동일 진영의 소지품만 표시"
 --[[Translation missing --]]
@@ -2101,6 +2572,8 @@ L["SHOW_BOA_STATUS"] = "계정귀속 아이템 상태 표시 (느림)"
 --[[Translation missing --]]
 L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 --[[Translation missing --]]
+L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
+--[[Translation missing --]]
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
 --[[Translation missing --]]
 L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
@@ -2128,9 +2601,19 @@ L["SORT_START_AT_BOTTOM"] = "Start the sorted items at the bottom of bag"
 L["SORTBAGS"] = "SortBags"
 L["SORTING"] = "정렬"
 --[[Translation missing --]]
+L["SOUL"] = "Soul"
+--[[Translation missing --]]
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+--[[Translation missing --]]
+L["TL"] = "TL"
+--[[Translation missing --]]
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 L["TOOLTIPS"] = "툴팁"
+--[[Translation missing --]]
+L["TOTAL_X"] = "Total: %s"
 L["TRADE"] = "거래"
+--[[Translation missing --]]
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
@@ -2140,7 +2623,11 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from th
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 L["TYPE"] = "유형"
@@ -2210,11 +2697,15 @@ L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
+--[[Translation missing --]]
+L["COOKING"] = "Cooking"
 --[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
@@ -2232,11 +2723,19 @@ L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["ENABLE_BAG_VIEWS_2"] = "Use Baganator bag/bank views (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
+L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
 --[[Translation missing --]]
@@ -2244,9 +2743,13 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
 --[[Translation missing --]]
 L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
 --[[Translation missing --]]
@@ -2257,6 +2760,10 @@ L["ICON_CORNERS"] = "Icon Corners"
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
+--[[Translation missing --]]
+L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
 L["INVENTORY_TOTALS_COLON"] = "Inventory Totals:"
 --[[Translation missing --]]
@@ -2276,6 +2783,8 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
@@ -2286,9 +2795,17 @@ L["KEYWORD_AXE"] = "axe"
 --[[Translation missing --]]
 L["KEYWORD_BATTLE_PET"] = "battle pet"
 --[[Translation missing --]]
+L["KEYWORD_BELT"] = "belt"
+--[[Translation missing --]]
 L["KEYWORD_BOA"] = "boa"
 --[[Translation missing --]]
 L["KEYWORD_BOE"] = "boe"
+--[[Translation missing --]]
+L["KEYWORD_BOOTS"] = "boots"
+--[[Translation missing --]]
+L["KEYWORD_BRACERS"] = "bracers"
+--[[Translation missing --]]
+L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
@@ -2300,9 +2817,19 @@ L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 --[[Translation missing --]]
+L["KEYWORD_GLOVES"] = "gloves"
+--[[Translation missing --]]
+L["KEYWORD_HELM"] = "helm"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
+--[[Translation missing --]]
+L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_OFF_HAND"] = "off-hand"
+--[[Translation missing --]]
+L["KEYWORD_OPEN"] = "open"
 --[[Translation missing --]]
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
@@ -2318,9 +2845,15 @@ L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
+L["KEYWORD_STAFF"] = "staff"
+--[[Translation missing --]]
 L["KEYWORD_SWORD"] = "sword"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
+--[[Translation missing --]]
+L["KEYWORD_USE"] = "use"
+--[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
 L["LOCK_BAGS_BANKS_FRAMES"] = "Lock Bags/Bank frames"
 --[[Translation missing --]]
@@ -2329,6 +2862,8 @@ L["MAIL"] = "Mail"
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
+--[[Translation missing --]]
+L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -2374,6 +2909,8 @@ L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
 --[[Translation missing --]]
 L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 --[[Translation missing --]]
+L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
+--[[Translation missing --]]
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
 --[[Translation missing --]]
 L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
@@ -2408,11 +2945,21 @@ L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
 --[[Translation missing --]]
+L["SOUL"] = "Soul"
+--[[Translation missing --]]
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
+--[[Translation missing --]]
+L["TL"] = "TL"
+--[[Translation missing --]]
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 --[[Translation missing --]]
 L["TOOLTIPS"] = "Tooltips"
 --[[Translation missing --]]
+L["TOTAL_X"] = "Total: %s"
+--[[Translation missing --]]
 L["TRADE"] = "Trade"
+--[[Translation missing --]]
+L["TRADEABLE_LOOT_TL"] = "Tradeable Loot (TL)"
 --[[Translation missing --]]
 L["TRANSFER"] = "Transfer"
 --[[Translation missing --]]
@@ -2422,7 +2969,11 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from th
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
 L["TRANSFERS"] = "Transfers"
 --[[Translation missing --]]

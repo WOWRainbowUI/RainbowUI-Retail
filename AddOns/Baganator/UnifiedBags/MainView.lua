@@ -4,6 +4,17 @@ local classicTabObjectCounter = 0
 
 BaganatorMainViewMixin = {}
 
+local function PreallocateItemButtons(pool, buttonCount)
+  local frame = CreateFrame("Frame")
+  frame:RegisterEvent("PLAYER_LOGIN")
+  frame:SetScript("OnEvent", function()
+    for i = 1, buttonCount do
+      pool:Acquire()
+    end
+    pool:ReleaseAll()
+  end)
+end
+
 function BaganatorMainViewMixin:OnLoad()
   ButtonFrameTemplate_HidePortrait(self)
   ButtonFrameTemplate_HideButtonBar(self)
@@ -11,15 +22,18 @@ function BaganatorMainViewMixin:OnLoad()
   self:RegisterForDrag("LeftButton")
   self:SetMovable(true)
 
+  self.liveItemButtonPool = Baganator.UnifiedBags.GetLiveItemButtonPool(self)
+  self.unallocatedItemButtonPool = Baganator.UnifiedBags.GetLiveItemButtonPool(self)
+  self.BagLive:SetPool(self.liveItemButtonPool)
+  self.CollapsingBagSectionsPool = Baganator.UnifiedBags.GetCollapsingBagSectionsPool(self)
+  self.CollapsingBags = {}
+  self.CollapsingBankBags = {}
+
   -- DO NOT REMOVE
   -- Preallocating is necessary to avoid taint issues if a
   -- player logs in or first opens their bags when in combat
-  if Baganator.Constants.IsClassic then
-    self.BagLive:PreallocateButtons(Baganator.Constants.MaxBagSize * 6) -- bags and keyring
-  else
-    self.BagLive:PreallocateButtons(Baganator.Constants.MaxBagSize * 5) -- bags and backpack
-    self.ReagentBagLive:PreallocateButtons(Baganator.Constants.MaxBagSize) -- reagent bag only
-  end
+  -- 6 is bags + reagent bag (retail) or bags + keyring (wrath)
+  PreallocateItemButtons(self.liveItemButtonPool, Baganator.Constants.MaxBagSize * 6)
 
   Baganator.Utilities.AddBagSortManager(self) -- self.sortManager
   Baganator.Utilities.AddBagTransferManager(self) -- self.transferManager
@@ -103,6 +117,8 @@ function BaganatorMainViewMixin:OnLoad()
       end
     elseif settingName == Baganator.Config.Options.MAIN_VIEW_SHOW_BAG_SLOTS then
       self:UpdateBagSlots()
+    elseif settingName == Baganator.Config.Options.SHOW_BUTTONS_ON_ALT then
+      self:UpdateAllButtons()
     end
   end)
 
@@ -113,6 +129,12 @@ function BaganatorMainViewMixin:OnLoad()
   Baganator.CallbackRegistry:RegisterCallback("CharacterSelect", function(_, character)
     self:AddNewRecent(character)
     self:UpdateForCharacter(character, self.liveCharacter == character)
+  end)
+
+  Baganator.CallbackRegistry:RegisterCallback("SpecialBagToggled", function(_, character)
+    if self:IsVisible() and self.lastCharacter ~= nil then
+      self:UpdateForCharacter(self.lastCharacter, self.isLive)
+    end
   end)
 
   Baganator.CallbackRegistry:RegisterCallback("CharacterDeleted", function(_, character)
@@ -176,6 +198,7 @@ function BaganatorMainViewMixin:OnShow()
     end)
   end
   self.SearchBox.Instructions:SetText(Baganator.Utilities.GetRandomSearchesText())
+  self:RegisterEvent("MODIFIER_STATE_CHANGED")
 
   PlaySound(SOUNDKIT.IG_BACKPACK_OPEN);
 end
@@ -184,8 +207,32 @@ function BaganatorMainViewMixin:OnHide()
   Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
   Baganator.UnifiedBags.Search.ClearCache()
   self.CharacterSelect:Hide()
+  self:UnregisterEvent("MODIFIER_STATE_CHANGED")
 
   PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE);
+end
+
+function BaganatorMainViewMixin:AllocateBags(character)
+  local newDetails = Baganator.UnifiedBags.GetCollapsingBagDetails(character, "bags", Baganator.Constants.AllBagIndexes, Baganator.Constants.BagSlotsCount)
+
+  if self.lastBagDetails == nil or not tCompare(self.lastBagDetails, newDetails, 15) then
+    self.CollapsingBags = Baganator.UnifiedBags.AllocateCollapsingSections(
+      character, "bags", Baganator.Constants.AllBagIndexes,
+      newDetails, self.CollapsingBags,
+      self.CollapsingBagSectionsPool, self.liveItemButtonPool)
+    self.lastBagDetails = newDetails
+  end
+end
+
+function BaganatorMainViewMixin:AllocateBankBags(character)
+  local newDetails = Baganator.UnifiedBags.GetCollapsingBagDetails(character, "bank", Baganator.Constants.AllBankIndexes, Baganator.Constants.BankBagSlotsCount)
+  if self.lastBankBagDetails == nil or not tCompare(self.lastBankBagDetails, newDetails, 5) then
+    self.CollapsingBankBags = Baganator.UnifiedBags.AllocateCollapsingSections(
+      character, "bank", Baganator.Constants.AllBankIndexes,
+      newDetails, self.CollapsingBankBags,
+      self.CollapsingBagSectionsPool, self.unallocatedItemButtonPool)
+    self.lastBankBagDetails = newDetails
+  end
 end
 
 function BaganatorMainViewMixin:ApplySearch(text)
@@ -197,18 +244,26 @@ function BaganatorMainViewMixin:ApplySearch(text)
 
   if self.isLive then
     self.BagLive:ApplySearch(text)
-    self.ReagentBagLive:ApplySearch(text)
+    for _, bagGroup in ipairs(self.CollapsingBags) do
+      bagGroup.live:ApplySearch(text)
+    end
   else
     self.BagCached:ApplySearch(text)
-    self.ReagentBagCached:ApplySearch(text)
+    for _, bagGroup in ipairs(self.CollapsingBags) do
+      bagGroup.cached:ApplySearch(text)
+    end
   end
 
   if self.BankLive:IsShown() then
     self.BankLive:ApplySearch(text)
-    self.ReagentBankLive:ApplySearch(text)
+    for _, layouts in ipairs(self.CollapsingBankBags) do
+      layouts.live:ApplySearch(text)
+    end
   elseif self.BankCached:IsShown() then
     self.BankCached:ApplySearch(text)
-    self.ReagentBankCached:ApplySearch(text)
+    for _, layouts in ipairs(self.CollapsingBankBags) do
+      layouts.cached:ApplySearch(text)
+    end
   end
 end
 
@@ -244,6 +299,8 @@ function BaganatorMainViewMixin:OnEvent(eventName)
       SetItemButtonDesaturated(button, false)
       button:Enable()
     end
+  elseif eventName == "MODIFIER_STATE_CHANGED" then
+    self:UpdateAllButtons()
   end
 end
 
@@ -261,10 +318,7 @@ function BaganatorMainViewMixin:CreateBagSlots()
     local bb = GetBagSlotButton()
     table.insert(self.liveBagSlots, bb)
     bb:SetID(index)
-    if #self.liveBagSlots == 1 then
-      bb:SetPoint("BOTTOM", self, "TOP")
-      bb:SetPoint("LEFT", self.ToggleBankButton, "LEFT", 2, 0)
-    else
+    if #self.liveBagSlots ~= 1 then
       bb:SetPoint("TOPLEFT", self.liveBagSlots[#self.liveBagSlots - 1], "TOPRIGHT")
     end
   end
@@ -288,15 +342,12 @@ function BaganatorMainViewMixin:CreateBagSlots()
     table.insert(self.cachedBagSlots, bb)
     bb:SetID(index)
     bb:HookScript("OnEnter", function(self)
-      Baganator.CallbackRegistry:TriggerEvent("HighlightBagItems", self:GetID())
+      Baganator.CallbackRegistry:TriggerEvent("HighlightBagItems", {[self:GetID()] = true})
     end)
     bb:HookScript("OnLeave", function(self)
       Baganator.CallbackRegistry:TriggerEvent("ClearHighlightBag")
     end)
-    if #self.cachedBagSlots == 1 then
-      bb:SetPoint("BOTTOM", self, "TOP")
-      bb:SetPoint("LEFT", self.SearchBox, "LEFT", -15, 0)
-    else
+    if #self.cachedBagSlots ~= 1 then
       bb:SetPoint("TOPLEFT", self.cachedBagSlots[#self.cachedBagSlots - 1], "TOPRIGHT")
     end
   end
@@ -482,14 +533,24 @@ end
 
 function BaganatorMainViewMixin:NotifyBagUpdate(updatedBags)
   self.BagLive:MarkBagsPending("bags", updatedBags)
-  self.ReagentBagLive:MarkBagsPending("bags", updatedBags)
+  for _, bagGroup in ipairs(self.CollapsingBags) do
+    bagGroup.live:MarkBagsPending("bags", updatedBags)
+  end
+  for _, bagGroup in ipairs(self.CollapsingBankBags) do
+    bagGroup.live:MarkBagsPending("bank", updatedBags)
+  end
   self.BankLive:MarkBagsPending("bank", updatedBags)
   self.ReagentBankLive:MarkBagsPending("bank", updatedBags)
 
   -- Update cached views with current items when bank closed or on login
   if self.isLive == nil or self.isLive == true then
     self.BagCached:MarkBagsPending("bags", updatedBags)
-    self.ReagentBagCached:MarkBagsPending("bags", updatedBags)
+    for _, bagGroup in ipairs(self.CollapsingBags) do
+      bagGroup.cached:MarkBagsPending("bags", updatedBags)
+    end
+    for _, bagGroup in ipairs(self.CollapsingBankBags) do
+      bagGroup.cached:MarkBagsPending("bank", updatedBags)
+    end
     self.BankCached:MarkBagsPending("bank", updatedBags)
     self.ReagentBankCached:MarkBagsPending("bank", updatedBags)
   end
@@ -500,6 +561,8 @@ function BaganatorMainViewMixin:UpdateForCharacter(character, isLive, updatedBag
   Baganator.Utilities.ApplyVisuals(self)
   self:SetupTabs()
   self:SelectTab(character)
+  self:AllocateBags(character)
+  self:AllocateBankBags(character)
 
   local oldLast = self.lastCharacter
   self.lastCharacter = character
@@ -513,134 +576,133 @@ function BaganatorMainViewMixin:UpdateForCharacter(character, isLive, updatedBag
 
   local characterData = BAGANATOR_DATA.Characters[character]
 
-  -- Used to change the alignment of the title based on the current layout
-  local titleOffset = Baganator.Constants.IsClassic and 60 or 0
-  local titleText = _G[self:GetName() .. "TitleText"]
-
   if not characterData then
     self:SetTitle("")
   elseif self.viewBankShown then
     self:SetTitle(BAGANATOR_L_XS_BANK_AND_BAGS:format(characterData.details.character))
-
-    -- Left aligned
-    titleText:SetPoint("LEFT", Baganator.Constants.ButtonFrameOffset + 15 + titleOffset, 0)
-    titleText:SetPoint("RIGHT", self.ToggleBankButton, "LEFT", -15, 0)
   else
     self:SetTitle(BAGANATOR_L_XS_BAGS:format(characterData.details.character))
-
-    -- Centred
-    titleText:SetPoint("LEFT", titleOffset, 0)
-    titleText:SetPoint("RIGHT", -titleOffset, 0)
   end
 
   self.SortButton:SetShown(Baganator.Utilities.ShouldShowSortButton() and isLive)
   self:UpdateTransferButton()
-  self.TransferButton:ClearAllPoints()
-  if self.SortButton:IsShown() then
-    self.TransferButton:SetPoint("RIGHT", self.SortButton, "LEFT")
-  else
-    self.TransferButton:SetPoint("RIGHT", self.CustomiseButton, "LEFT")
-  end
 
   local showReagents = Baganator.Config.Get(Baganator.Config.Options.SHOW_REAGENTS)
 
   self.BagLive:SetShown(isLive)
-  self.ReagentBagLive:SetShown(isLive and showReagents)
   self.BagCached:SetShown(not isLive)
-  self.ReagentBagCached:SetShown(not isLive and showReagents)
+
+  for _, layouts in ipairs(self.CollapsingBags) do
+    layouts.live:SetShown(isLive)
+    layouts.cached:SetShown(not isLive)
+  end
 
   self.BankLive:SetShown(self.viewBankShown and (isLive and self.blizzardBankOpen))
-  self.ReagentBankLive:SetShown(self.viewBankShown and showReagents and (isLive and self.blizzardBankOpen))
   self.BankCached:SetShown(self.viewBankShown and (not isLive or not self.blizzardBankOpen))
-  self.ReagentBankCached:SetShown(self.viewBankShown and showReagents and (not isLive or not self.blizzardBankOpen))
+
+  for _, layouts in ipairs(self.CollapsingBankBags) do
+    layouts.live:SetShown(self.viewBankShown and (isLive and self.blizzardBankOpen))
+    layouts.cached:SetShown(self.viewBankShown and (not isLive or not self.blizzardBankOpen))
+  end
 
   self:NotifyBagUpdate(updatedBags)
 
   local searchText = self.SearchBox:GetText()
 
-  local bagIndexesToUse = {
-    [1] = true, [2] = true, [3] = true, [4] = true, [5] = true
-  }
-  -- Works on retail for the reagent bag and on wrath for the keyring
-  local reagentBagIndexesToUse = {}
-  if not Baganator.Constants.IsEra then
-    reagentBagIndexesToUse = {
-      [6] = true
-    }
-  end
-
-  local bankIndexesToUse = {
-    [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true
-  }
-  local reagentBankIndexesToUse = {}
-  if Baganator.Constants.IsRetail and (not isLive or IsReagentBankUnlocked()) then
-    reagentBankIndexesToUse = {
-      [9] = true
-    }
-  end
-
-  local activeBag, activeReagentBag, activeBank, activeReagentBank
+  local activeBag, activeBagCollapsibles, activeBank, activeBankCollapsibles = nil, {}, nil, {}
 
   if self.BagLive:IsShown() then
     activeBag = self.BagLive
-    activeReagentBag = self.ReagentBagLive
+    for _, layouts in ipairs(self.CollapsingBags) do
+      table.insert(activeBagCollapsibles, layouts.live)
+    end
   else
     activeBag = self.BagCached
-    activeReagentBag = self.ReagentBagCached
+    for _, layouts in ipairs(self.CollapsingBags) do
+      table.insert(activeBagCollapsibles, layouts.cached)
+    end
   end
 
   if self.BankLive:IsShown() then
     activeBank = self.BankLive
-    activeReagentBank = self.ReagentBankLive
+    for _, layouts in ipairs(self.CollapsingBankBags) do
+      table.insert(activeBankCollapsibles, layouts.live)
+    end
   elseif self.BankCached:IsShown() then
     activeBank = self.BankCached
-    activeReagentBank = self.ReagentBankCached
+    for _, layouts in ipairs(self.CollapsingBankBags) do
+      table.insert(activeBankCollapsibles, layouts.cached)
+    end
   end
 
   local bagWidth = Baganator.Config.Get(Baganator.Config.Options.BAG_VIEW_WIDTH)
+  local bankWidth = Baganator.Config.Get(Baganator.Config.Options.BANK_VIEW_WIDTH)
 
-  activeBag:ShowCharacter(character, "bags", Baganator.Constants.AllBagIndexes, bagIndexesToUse, bagWidth)
-  activeBag:ApplySearch(searchText)
+  activeBag:ShowCharacter(character, "bags", Baganator.Constants.AllBagIndexes, self.lastBagDetails.mainIndexesToUse, bagWidth)
 
-  activeReagentBag:ShowCharacter(character, "bags", Baganator.Constants.AllBagIndexes, reagentBagIndexesToUse, bagWidth)
-  activeReagentBag:ApplySearch(searchText)
+  for index, layout in ipairs(activeBagCollapsibles) do
+    layout:ShowCharacter(character, "bags", Baganator.Constants.AllBagIndexes, self.CollapsingBags[index].indexesToUse, bagWidth)
+  end
 
-  local sideSpacing = 13
+  for index, layout in ipairs(activeBankCollapsibles) do
+    layout:ShowCharacter(character, "bank", Baganator.Constants.AllBankIndexes, self.CollapsingBankBags[index].indexesToUse, bankWidth)
+  end
+
+  self:ApplySearch(searchText)
+
+  local sideSpacing, topSpacing, dividerOffset, endPadding = 13, 14, 2, 0
   if Baganator.Config.Get(Baganator.Config.Options.REDUCE_SPACING) then
     sideSpacing = 8
+    topSpacing = 7
+    dividerOffset = 1
+    endPadding = 3
   end
 
-  local bagHeight = activeBag:GetHeight() + 6
-  if activeReagentBag:GetHeight() > 0 then
-    if showReagents then
-      bagHeight = bagHeight + activeReagentBag:GetHeight() + 14
-    else
-      bagHeight = bagHeight
+  local bagHeight = activeBag:GetHeight() + topSpacing / 2
+
+  local function ArrangeCollapsibles(activeCollapsibles, originBag, originCollapsibles)
+    local lastCollapsible
+    local addedHeight = 0
+    for index, layout in ipairs(activeCollapsibles) do
+      local key = originCollapsibles[index].key
+      local hidden = Baganator.Config.Get(Baganator.Config.Options.HIDE_SPECIAL_CONTAINER)[key]
+      local divider = originCollapsibles[index].divider
+      if hidden then
+        divider:Hide()
+        layout:Hide()
+      else
+        divider:SetPoint("BOTTOM", layout, "TOP", 0, topSpacing / 2 + dividerOffset)
+        divider:SetPoint("LEFT", layout)
+        divider:SetPoint("RIGHT", layout)
+        divider:SetShown(layout:GetHeight() > 0)
+        if layout:GetHeight() > 0 then
+          addedHeight = addedHeight + layout:GetHeight() + topSpacing
+          if lastCollapsible == nil then
+            layout:SetPoint("TOP", originBag, "BOTTOM", 0, -topSpacing)
+          else
+            layout:SetPoint("TOP", lastCollapsible, "BOTTOM", 0, -topSpacing)
+          end
+          lastCollapsible = layout
+        end
+      end
     end
-  else
-    activeReagentBag:Hide()
+    return addedHeight + endPadding
   end
 
+  bagHeight = bagHeight + ArrangeCollapsibles(activeBagCollapsibles, activeBag, self.CollapsingBags)
   local height = bagHeight
 
   if activeBank then
     local bankWidth = Baganator.Config.Get(Baganator.Config.Options.BANK_VIEW_WIDTH)
 
-    activeBank:ShowCharacter(character, "bank", Baganator.Constants.AllBankIndexes, bankIndexesToUse, bankWidth)
-    activeReagentBank:ShowCharacter(character, "bank", Baganator.Constants.AllBankIndexes, reagentBankIndexesToUse, bankWidth)
+    activeBank:ShowCharacter(character, "bank", Baganator.Constants.AllBankIndexes, self.lastBankBagDetails.mainIndexesToUse, bankWidth)
     activeBank:ApplySearch(searchText)
-    activeReagentBank:ApplySearch(searchText)
-
-    local bankHeight = activeBank:GetHeight() + 6
-    if activeReagentBank:GetHeight() > 0 then
-      if showReagents then
-        bankHeight = bankHeight + activeReagentBank:GetHeight() + 14
-      else
-        bankHeight = bankHeight
-      end
-    else
-      activeReagentBank:Hide()
+    for index, layout in ipairs(activeBankCollapsibles) do
+      layout:ShowCharacter(character, "bank", Baganator.Constants.AllBankIndexes, self.CollapsingBankBags[index].indexesToUse, bankWidth)
+      layout:ApplySearch(searchText)
     end
+
+    local bankHeight = activeBank:GetHeight() + 6 + ArrangeCollapsibles(activeBankCollapsibles, activeBank, self.CollapsingBankBags)
     height = math.max(bankHeight, height)
     activeBank:SetPoint("TOPLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset, - (height - bankHeight)/2 - 50)
   end
@@ -656,34 +718,81 @@ function BaganatorMainViewMixin:UpdateForCharacter(character, isLive, updatedBag
   self.SearchBox:ClearAllPoints()
   self.SearchBox:SetPoint("RIGHT", -sideSpacing, 0)
   self.SearchBox:SetPoint("BOTTOMLEFT", activeBag, "TOPLEFT", 5, 3)
-  self.ToggleBankButton:ClearAllPoints()
-  self.ToggleBankButton:SetPoint("TOP")
-  self.ToggleBankButton:SetPoint("LEFT", activeBag, -sideSpacing + 2, 0)
+  self.TopButtons[1]:ClearAllPoints()
+  self.TopButtons[1]:SetPoint("TOP", self)
+  self.TopButtons[1]:SetPoint("LEFT", activeBag, -sideSpacing + 2, 0)
+  self.cachedBagSlots[1]:ClearAllPoints()
+  self.cachedBagSlots[1]:SetPoint("BOTTOM", self, "TOP")
+  self.cachedBagSlots[1]:SetPoint("LEFT", activeBag, -sideSpacing + 4, 0)
+  self.liveBagSlots[1]:ClearAllPoints()
+  self.liveBagSlots[1]:SetPoint("BOTTOM", self, "TOP")
+  self.liveBagSlots[1]:SetPoint("LEFT", activeBag, -sideSpacing + 4, 0)
+
+
+  -- Used to change the alignment of the title based on the current layout
+  local titleOffset = Baganator.Constants.IsClassic and 60 or 0
+  local titleText = _G[self:GetName() .. "TitleText"]
+
+  if self.viewBankShown then
+    -- Left aligned
+    titleText:SetPoint("LEFT", Baganator.Constants.ButtonFrameOffset + 15 + titleOffset, 0)
+    titleText:SetPoint("RIGHT", activeBag, "LEFT", -sideSpacing + 2, 0)
+  else
+    -- Centred
+    titleText:SetPoint("LEFT", titleOffset, 0)
+    titleText:SetPoint("RIGHT", -titleOffset, 0)
+  end
+
   self:SetSize(
     activeBag:GetWidth() + sideSpacing * 2 + Baganator.Constants.ButtonFrameOffset - 2 + (activeBank and (activeBank:GetWidth() + sideSpacing * 1 + Baganator.Constants.ButtonFrameOffset - 2) or 0),
     height + 74
   )
 
+  self.AllButtons = {}
+  tAppendAll(self.AllButtons, self.AllFixedButtons)
+  tAppendAll(self.AllButtons, self.TopButtons)
+
   self:HideExtraTabs()
 
-  self.ToggleReagentsButton:SetShown(activeReagentBag:GetHeight() > 0 or activeReagentBag:IsShown())
-  if self.ToggleReagentsButton:IsShown() then
-    self.ToggleReagentsButton:ClearAllPoints()
-    self.ToggleReagentsButton:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
-    self.ToggleReagentsButton:SetPoint("LEFT", activeBag, -2, -2)
+  local lastButton = nil
+  for index, layout in ipairs(activeBagCollapsibles) do
+    local button = self.CollapsingBags[index].button
+    button:SetShown(layout:GetHeight() > 0)
+    if button:IsShown() then
+      if lastButton then
+        button:SetPoint("LEFT", lastButton, "RIGHT", 5, 0)
+      else
+        button:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
+        button:SetPoint("LEFT", activeBag, -2, 0)
+      end
+      lastButton = button
+      table.insert(self.AllButtons, button)
+    end
   end
-  self.ToggleReagentsBankButton:SetShown(activeReagentBank and activeReagentBank:GetHeight() > 0)
-  if self.ToggleReagentsBankButton:IsShown() then
-    self.ToggleReagentsBankButton:ClearAllPoints()
-    self.ToggleReagentsBankButton:SetPoint("LEFT", activeBank, "LEFT", -2, -4)
-    self.ToggleReagentsBankButton:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
+
+  local lastButton = nil
+  for index, layout in ipairs(activeBankCollapsibles) do
+    local button = self.CollapsingBankBags[index].button
+    button:SetShown(self.viewBankShown and layout:GetHeight() > 0)
+    if button:IsShown() then
+      if lastButton then
+        button:SetPoint("LEFT", lastButton, "RIGHT", 5, 0)
+      else
+        button:SetPoint("BOTTOM", self, "BOTTOM", 0, 6)
+        button:SetPoint("LEFT", activeBank, -2, 0)
+      end
+      table.insert(self.AllButtons, button)
+      lastButton = button
+    end
   end
+
+  self:UpdateAllButtons()
 
   self:UpdateCurrencies(character)
 end
 
 function BaganatorMainViewMixin:UpdateCurrencies(character)
-  self.Money:SetText(GetMoneyString(BAGANATOR_DATA.Characters[character].money, true))
+  self.Money:SetText(Baganator.Utilities.GetMoneyString(BAGANATOR_DATA.Characters[character].money, true))
 
   local characterCurrencies = BAGANATOR_DATA.Characters[character].currencies
 
@@ -758,10 +867,18 @@ function BaganatorMainViewMixin:CombineStacks(callback)
 end
 
 function BaganatorMainViewMixin:UpdateTransferButton()
+  self.TransferButton:ClearAllPoints()
+  if self.SortButton:IsShown() then
+    self.TransferButton:SetPoint("RIGHT", self.SortButton, "LEFT")
+  else
+    self.TransferButton:SetPoint("RIGHT", self.CustomiseButton, "LEFT")
+  end
+
   if not Baganator.Config.Get(Baganator.Config.Options.SHOW_TRANSFER_BUTTON) then
     self.TransferButton:Hide()
     return
   end
+
   for _, info in ipairs(addonTable.BagTransfers) do
     if info.condition() then
       self.TransferButton:Show()
@@ -772,10 +889,29 @@ function BaganatorMainViewMixin:UpdateTransferButton()
   self.TransferButton:Hide()
 end
 
+local hiddenParent = CreateFrame("Frame")
+hiddenParent:Hide()
+
+function BaganatorMainViewMixin:UpdateAllButtons()
+  if not self.AllButtons then
+    return
+  end
+
+  local parent = self
+  if Baganator.Config.Get(Baganator.Config.Options.SHOW_BUTTONS_ON_ALT) and not IsAltKeyDown() then
+    parent = hiddenParent
+  end
+  for _, button in ipairs(self.AllButtons) do
+    button:SetParent(parent)
+    button:SetFrameLevel(700)
+  end
+end
+
 function BaganatorMainViewMixin:GetMatches()
   local matches = {}
-  for _, layout in ipairs({self.BagLive, self.ReagentBagLive}) do
-    tAppendAll(matches, layout.SearchMonitor:GetMatches())
+  tAppendAll(matches, self.BagLive.SearchMonitor:GetMatches())
+  for _, layouts in ipairs(self.CollapsingBags) do
+    tAppendAll(matches, layouts.live.SearchMonitor:GetMatches())
   end
   return matches
 end
