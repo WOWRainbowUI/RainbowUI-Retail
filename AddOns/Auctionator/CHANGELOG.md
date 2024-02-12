@@ -1,10 +1,8 @@
 # Auctionator
 
-## [10.2.13](https://github.com/Auctionator/Auctionator/tree/10.2.13) (2024-01-16)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/10.2.12...10.2.13) 
+## [10.2.24](https://github.com/Auctionator/Auctionator/tree/10.2.24) (2024-02-11)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/10.2.23...10.2.24) 
 
-- Update toc for 10.2.5  
-- Selling: Add hidden option to prevent groups using global quantity settings  
-    To activate use /atr config selling\_allow\_global\_quantity\_override false  
-- Update wording for favourites/custom groups options to better reflect usage  
-- [Fixes #1479] Shopping: Stop shopping list search when buy screens opened  
+- Remove lesser used feature: Selling groups and associated post settings  
+    Right-click an item in the Selling bag view to add it to your favourites  
+    group without using the removed UI  
