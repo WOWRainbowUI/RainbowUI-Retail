@@ -1,6 +1,6 @@
 ## Interface: 100205
 ## Title: Baganator
-## Version: 150
+## Version: 151
 ## Author: plusmouse
 ## OptionalDeps: Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA, BAGANATOR_SUMMARIES
