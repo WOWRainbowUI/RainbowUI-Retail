@@ -1,8 +1,8 @@
 # Baganator
 
-## [150](https://github.com/plusmouse/Baganator/tree/150) (2024-02-12)
-[Full Changelog](https://github.com/plusmouse/Baganator/compare/149...150) 
+## [151](https://github.com/plusmouse/Baganator/tree/151) (2024-02-13)
+[Full Changelog](https://github.com/plusmouse/Baganator/compare/150...151) 
 
-- Fix nil reference error  
-- Retail: Add "azerite" search keyword  
-- Add = search prefix to limit exact item level searches to only item level items  
+- Add more sample search terms to search hints  
+- Prevent "use" and "equipment" keywords and item level terms matching wrong items  
+- Add "tradeable loot" search keyword for tradeable loot for other players  
