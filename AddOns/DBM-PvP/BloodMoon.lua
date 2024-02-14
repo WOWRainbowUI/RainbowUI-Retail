@@ -5,7 +5,7 @@ local MAP_STRANGLETHORN = 1434
 local mod = DBM:NewMod("m" .. MAP_STRANGLETHORN, "DBM-PvP")
 local L = mod:GetLocalizedStrings()
 
-mod:SetRevision("20240210222413")
+mod:SetRevision("20240213233648")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
@@ -83,7 +83,7 @@ function mod:UPDATE_UI_WIDGET(tbl)
 		if info and info.state ~= Enum.IconAndTextWidgetState.Hidden and info.text then
 			local timeRemaining = info.text:match(L.ParseTimeFromWidget)
 			timeRemaining = tonumber(timeRemaining) or -1
-			self:startEvent(timeRemaining + 1.1) -- Event goes on for a bit longer than a minute after it updates to 0 minutes remaining
+			self:startEvent(timeRemaining - 0.05) -- Event ends a few seconds early
 		end
 	end
 end
