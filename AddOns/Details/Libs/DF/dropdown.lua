@@ -814,7 +814,7 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						thisOptionFrame.label:SetFont(overrideFont, 14)
 
 					elseif (thisOption.font) then
-						thisOptionFrame.label:SetFont(thisOption.font, 145)
+						thisOptionFrame.label:SetFont(thisOption.font, 14)
 
 					else
 						thisOptionFrame.label:SetFont("GameFontHighlight", 14)
@@ -1013,6 +1013,9 @@ end
 --template
 
 function DropDownMetaFunctions:SetTemplate(template)
+	
+	if (not template) then return end -- 暫時修正
+
 	if (type(template) == "string") then
 		local templateName = template
 		template = DF:GetTemplate("dropdown", templateName)

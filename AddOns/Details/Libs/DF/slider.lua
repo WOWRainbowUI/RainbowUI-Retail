@@ -1055,6 +1055,9 @@ function DF:NewSwitch(parent, container, name, member, width, height, leftText, 
 end
 
 function DFSliderMetaFunctions:SetTemplate(template)
+	
+	if (not template) then return end -- 暫時修正
+	
 	if (type(template) == "string") then
 		local templateName = template
 		template = DF:GetTemplate("switch", templateName)
