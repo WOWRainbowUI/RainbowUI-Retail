@@ -95,13 +95,15 @@ local function SetWaypointTag(button, show)
 		if button.KTtomtom then
 			button.KTtomtom:Show()
 		else
-			button.KTtomtom = button.Display:CreateTexture(nil, "OVERLAY")
-			button.KTtomtom:SetTexture(mediaPath.."KT-TomTomTag")
-			button.KTtomtom:SetPoint("CENTER")
+			if button.Display then
+				button.KTtomtom = button.Display:CreateTexture(nil, "OVERLAY")
+				button.KTtomtom:SetTexture(mediaPath.."KT-TomTomTag")
+				button.KTtomtom:SetPoint("CENTER")
+			end
 		end
 
 		-- Set Waypoint Tag size, but not for WQ
-		if button.pinScale then
+		if button.KTtomtom and button.pinScale then
 			local scale = button.KTtomtom:GetParent():GetPinScale()
 			button.KTtomtom:SetSize(scale * 32, scale * 32)
 		end
@@ -256,7 +258,7 @@ local function SetHooks()
 		end
 	end)
 
-	hooksecurefunc(QuestUtil, "SetupWorldQuestButton", function(button, worldQuestType, rarity, isElite, tradeskillLineIndex, inProgress, selected, isCriteria, isSpellTarget, isEffectivelyTracked)
+	hooksecurefunc(QuestUtil, "SetupWorldQuestButton", function(button, info, inProgress, selected, isCriteria, isSpellTarget, isEffectivelyTracked)
 		SetWaypointTag(button, questWaypoints[button.questID])
 	end)
 

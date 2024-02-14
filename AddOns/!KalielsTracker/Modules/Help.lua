@@ -125,11 +125,11 @@ local function SetupTutorials()
 					"任務標題的前方可以看到像是這樣的標籤 |cffff8000[100|r|cff00b3ffhc!|r|cffff8000]|r。\n"..
 					"任務日誌中的標題也會顯示任務標籤。\n\n"..
 					"|cff00b3ff!|r|T:14:3|t "..cDots..".......|r 每日任務|T:14:104|t|cff00b3ffr|r "..cDots.."........|r 團隊任務\n"..
-					"|cff00b3ff!!|r "..cDots.."........|r 每週任務|T:14:100|t|cff00b3ffr10|r "..cDots.."....|r 10人團隊任務\n"..
-					"|cff00b3ffg3|r "..cDots..".....|r 組隊任務 (含隊伍人數)|T:14:18|t|cff00b3ffr25|r "..cDots.."...|r 25人團隊任務\n"..
-					"|cff00b3ffpvp|r "..cDots.."...|r PvP 任務|T:14:98|t|cff00b3ffs|r "..cDots.."........|r 事件任務\n"..
-					"|cff00b3ffd|r "..cDots..".......|r 地城任務|T:14:101|t|cff00b3ffa|r "..cDots.."........|r 帳號共通任務\n"..
-					"|cff00b3ffhc|r "..cDots..".....|r 英雄任務|T:14:102|t|cff00b3ffleg|r "..cDots..".....|r 傳說任務",
+					"|cff00b3ff!!|r "..cDots.."........|r 每週任務|T:14:101|t|cff00b3ffr10|r "..cDots.."....|r 10人團隊任務\n"..
+					"|cff00b3ffg3|r "..cDots..".....|r 組隊任務 (含隊伍人數)|T:14:22|t|cff00b3ffr25|r "..cDots.."...|r 25人團隊任務\n"..
+					"|cff00b3ffpvp|r "..cDots.."...|r PvP 任務|T:14:105|t|cff00b3ffs|r "..cDots.."........|r 事件任務\n"..
+					"|cff00b3ffd|r "..cDots..".......|r 地城任務|T:14:102|t|cff00b3ffa|r "..cDots.."........|r 帳號共通任務\n"..
+					"|cff00b3ffhc|r "..cDots..".....|r 英雄任務|T:14:103|t|cff00b3ffleg|r "..cDots..".....|r 傳說任務",
 			shineTop = 10,
 			shineBottom = -9,
 			shineLeft = -12,
@@ -249,9 +249,14 @@ local function SetupTutorials()
 		},
 		{	-- 12
 			text = cTitle.."         更新資訊|r\n\n"..
+					cTitle.."6.5.1 版本|r\n"..
+					"- 修正 - TomTom - WQ 未知的錯誤 ('顯示' nil 值)\n"..
+					"- 更新 - 說明 - Active Patrons\n"..
+					"- 更新 - 函式庫\n\n"..
+
 					cTitle.."6.5.0 版本|r\n"..
-					"- 新增 - 支援魔獸世界 10.2.5\n"..
-					"- 新增 - 支援魔獸世界 10.2.0\n"..
+					"- ADDED - 支援 WoW 10.2.5\n"..
+					"- ADDED - 支援 WoW 10.2.0\n"..
 					"- 更新 - WoW 10.2.0 移除的函數\n"..
 					"- 更新 - WoW 10.1.0 移除的函數\n"..
 					"- 更新 - 選項 - 螢幕解析度大於 1920x1200 的位置 / 大小\n"..
@@ -327,29 +332,20 @@ local function SetupTutorials()
 		imageHeight = 256,
 		{	-- 1
 			text = cTitle.."         成為贊助者|r\n\n"..
-					"如果你喜歡 "..KT.title.."，請在 |cfff34a54Patreon|r 贊助我。\n\n"..
-					"在 CurseForge 的插件頁面點一下 |T"..helpPath.."help_patreon:20:154:1:0:256:32:0:156:0:20|t 按鈕。\n\n"..
-					"經過了 10 年的插件工作後，我啟用了 Patreon，當作是開發插件所需時間的補償。\n\n"..
+					"如果你喜歡 "..KT.title..", 請在 |cfff34a54Patreon|r 贊助我。\n\n"..
+					"在 CurseForge 的插件頁面點一下  |T"..helpPath.."help_patreon:20:154:1:0:256:32:0:156:0:20|t 按鈕。\n\n"..
+					"經過了 10 年的插件工作後，我啟用了 Patreon，作為開發插件所需時間的補償。\n\n"..
 					"                                    非常感謝所有贊助者  |T"..helpPath.."help_patreon:16:16:0:0:256:32:157:173:0:16|t\n\n"..
-					cTitle.."Patrons|r\n"..
-					SetFormatedPatronName("Legendary", "FrankN'Furter")..
-					SetFormatedPatronName("Legendary", "Zayah", "Vek'nilash")..
+					cTitle.."Active Patrons|r\n"..
 					SetFormatedPatronName("Epic", "Haekwon", "Elune")..
-					SetFormatedPatronName("Epic", "Monty", "Winterhoof")..
-					SetFormatedPatronName("Epic", "Squishses", "Area 52")..
-					SetFormatedPatronName("Rare", "Liothen", "Emerald Dream")..
+					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
-					SetFormatedPatronName("Uncommon", "Chris J")..
 					SetFormatedPatronName("Uncommon", "Flex (drantor)")..
-					SetFormatedPatronName("Uncommon", "Jason")..
-					SetFormatedPatronName("Uncommon", "Kevin Costa")..
-					SetFormatedPatronName("Uncommon", "Kyle Fuller")..
-					SetFormatedPatronName("Uncommon", "Pablo Sebastián Molina Silva")..
+					SetFormatedPatronName("Uncommon", "Jeffrey Hofer")..
+					SetFormatedPatronName("Uncommon", "Mystekal")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Sopleb")..
-					SetFormatedPatronName("Uncommon", "Torresman", "Drak'thul")..
-					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
 					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..
