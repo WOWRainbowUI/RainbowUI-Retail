@@ -250,6 +250,11 @@ local function SetupTutorials()
 		},
 		{	-- 12
 			text = cTitle.."         What's New|r\n\n"..
+					cTitle.."Version 6.5.1|r\n"..
+					"- FIXED - TomTom - Unknown error with WQ ('Display' a nil value)\n"..
+					"- UPDATED - Help - Active Patrons\n"..
+					"- UPDATED - Libs\n\n"..
+
 					cTitle.."Version 6.5.0|r\n"..
 					"- ADDED - Support for WoW 10.2.5\n"..
 					"- ADDED - Support for WoW 10.2.0\n"..
@@ -333,25 +338,16 @@ local function SetupTutorials()
 					"After 10 years of working on an addon, I started Patreon. It's created as\na compensation for the amount "..
 					"of time that addon development requires.\n\n"..
 					"                                    Many thanks to all supporters  |T"..helpPath.."help_patreon:16:16:0:0:256:32:157:173:0:16|t\n\n"..
-					cTitle.."Patrons|r\n"..
-					SetFormatedPatronName("Legendary", "FrankN'Furter")..
-					SetFormatedPatronName("Legendary", "Zayah", "Vek'nilash")..
+					cTitle.."Active Patrons|r\n"..
 					SetFormatedPatronName("Epic", "Haekwon", "Elune")..
-					SetFormatedPatronName("Epic", "Monty", "Winterhoof")..
-					SetFormatedPatronName("Epic", "Squishses", "Area 52")..
-					SetFormatedPatronName("Rare", "Liothen", "Emerald Dream")..
+					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
-					SetFormatedPatronName("Uncommon", "Chris J")..
 					SetFormatedPatronName("Uncommon", "Flex (drantor)")..
-					SetFormatedPatronName("Uncommon", "Jason")..
-					SetFormatedPatronName("Uncommon", "Kevin Costa")..
-					SetFormatedPatronName("Uncommon", "Kyle Fuller")..
-					SetFormatedPatronName("Uncommon", "Pablo Sebastián Molina Silva")..
+					SetFormatedPatronName("Uncommon", "Jeffrey Hofer")..
+					SetFormatedPatronName("Uncommon", "Mystekal")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Sopleb")..
-					SetFormatedPatronName("Uncommon", "Torresman", "Drak'thul")..
-					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
 					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..
