@@ -1,5 +1,5 @@
 <Bindings>
-  <Binding name="MDTTOGGLE" Category="BINDING_HEADER_MDT">
+  <Binding name="MDTTOGGLE" header="BINDING_HEADER_MDT" Category="ADDONS">
     MDT:ShowInterface()
   </Binding>
 </Bindings>

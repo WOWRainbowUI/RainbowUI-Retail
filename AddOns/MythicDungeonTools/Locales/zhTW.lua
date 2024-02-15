@@ -2834,7 +2834,7 @@ L["To share a different preset while the live session is active simply navigate 
 L["tocNotes"] = "幫助你計算 M+ 的小怪%，規劃出最佳拉怪路線。"
 --[[Translation missing --]]
 L["Toggle MDT"] = "切換顯示 MDT"
-L["Toggle Window"] = "切換顯示視窗"
+L["Toggle Window"] = "切換顯示地城規劃工具"
 L["Toiling Groundskeeper"] = "劳苦的管理员"
 L["Tol Dagor"] = "托達戈爾"
 L["Tol Dagor Sublevel1"] = "托達戈爾"
