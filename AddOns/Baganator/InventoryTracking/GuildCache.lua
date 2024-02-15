@@ -106,34 +106,64 @@ function BaganatorGuildCacheMixin:ScanBank()
   end
 
   local tabIndex = GetCurrentGuildBankTab()
+
+  local function FireGuildChange()
+    if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
+      print("guild tab " .. tabIndex .. " took", debugprofilestop() - start)
+    end
+    Baganator.CallbackRegistry:TriggerEvent("GuildCacheUpdate", key)
+  end
+
   local tab = data.bank[tabIndex]
   tab.slots = {}
+  local waiting = 0
   if tab.isViewable then
-    for slotIndex = 1, Baganator.Constants.MaxGuildBankTabItemSlots do
+    local function DoSlot(slotIndex, itemID)
+      local itemLink = GetGuildBankItemLink(tabIndex, slotIndex)
+
+      if itemLink == nil then
+        return
+      end
+
+      if itemID == Baganator.Constants.BattlePetCageID then
+        local tooltipInfo = C_TooltipInfo.GetGuildBankItem(tabIndex, slotIndex)
+        itemLink = Baganator.Utilities.RecoverBattlePetLink(tooltipInfo)
+      end
+
       local texture, itemCount, locked, isFiltered, quality = GetGuildBankItemInfo(tabIndex, slotIndex)
-      if texture == nil then
-        tab.slots[slotIndex] = {}
-      else
-        local itemLink = GetGuildBankItemLink(tabIndex, slotIndex)
+      tab.slots[slotIndex] = {
+        itemID = itemID,
+        iconTexture = texture,
+        itemCount = itemCount,
+        itemLink = itemLink,
+        quality = quality,
+      }
+    end
+
+    local loopComplete = false
+    for slotIndex = 1, Baganator.Constants.MaxGuildBankTabItemSlots do
+      local itemLink = GetGuildBankItemLink(tabIndex, slotIndex)
+      tab.slots[slotIndex] = {}
+      if itemLink ~= nil then
         local itemID = GetItemInfoInstant(itemLink)
-        if itemID == Baganator.Constants.BattlePetCageID then
-          local tooltipInfo = C_TooltipInfo.GetGuildBankItem(tabIndex, slotIndex)
-          itemLink = Baganator.Utilities.RecoverBattlePetLink(tooltipInfo)
+        if C_Item.IsItemDataCachedByID(itemID) then
+          DoSlot(slotIndex, itemID)
+        else
+          waiting = waiting + 1
+          local item = Item:CreateFromItemID(itemID)
+          item:ContinueOnItemLoad(function()
+            DoSlot(slotIndex, itemID)
+            waiting = waiting - 1
+            if loopComplete and waiting == 0 then
+              FireGuildChange()
+            end
+          end)
         end
-        tab.slots[slotIndex] = {
-          itemID = itemID,
-          iconTexture = texture,
-          itemCount = itemCount,
-          itemLink = itemLink,
-          quality = quality,
-        }
       end
     end
+    loopComplete = true
   end
-
-  if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
-    print("guild tab " .. tabIndex .. " took", debugprofilestop() - start)
+  if waiting == 0 then
+    FireGuildChange()
   end
-
-  Baganator.CallbackRegistry:TriggerEvent("GuildCacheUpdate", key)
 end
