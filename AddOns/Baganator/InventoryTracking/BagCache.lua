@@ -209,7 +209,7 @@ function BaganatorBagCacheMixin:OnUpdate()
   local waiting = 0
   local loopsFinished = false
 
-  local function GetInfo(slotInfo, itemGUID)
+  local function GetInfo(slotInfo)
     return {
       itemID = slotInfo.itemID,
       itemCount = slotInfo.stackCount,
@@ -217,7 +217,6 @@ function BaganatorBagCacheMixin:OnUpdate()
       itemLink = slotInfo.hyperlink,
       quality = slotInfo.quality,
       isBound = slotInfo.isBound,
-      hasNoValue = slotInfo.hasNoValue or nil,
     }
   end
 
@@ -228,11 +227,10 @@ function BaganatorBagCacheMixin:OnUpdate()
       local itemID = C_Item.DoesItemExist(location) and C_Item.GetItemID(location)
       bag[slotID] = {}
       if itemID then
-        local itemGUID = C_Item.GetItemGUID(location)
         if C_Item.IsItemDataCachedByID(itemID) then
           local slotInfo = C_Container.GetContainerItemInfo(bagID, slotID)
           if slotInfo then
-            bag[slotID] = GetInfo(slotInfo, itemGUID)
+            bag[slotID] = GetInfo(slotInfo)
           end
         else
           waiting = waiting + 1
@@ -240,7 +238,7 @@ function BaganatorBagCacheMixin:OnUpdate()
           item:ContinueOnItemLoad(function()
             local slotInfo = C_Container.GetContainerItemInfo(bagID, slotID)
             if slotInfo and slotInfo.itemID == itemID then
-              bag[slotID] = GetInfo(slotInfo, itemGUID)
+              bag[slotID] = GetInfo(slotInfo)
             end
             waiting = waiting - 1
             if loopsFinished and waiting == 0 then
