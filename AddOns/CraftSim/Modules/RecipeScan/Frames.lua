@@ -53,7 +53,7 @@ function CraftSim.RECIPE_SCAN.FRAMES:Init()
         ---@class CraftSim.RECIPE_SCAN.RECIPE_SCAN_TAB : GGUI.BlizzardTab
         frame.content.recipeScanTab = GGUI.BlizzardTab {
             buttonOptions = {
-                label = "Recipe Scan",
+                label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_LABEL_SCAN),
                 offsetY = -3,
             },
             parent = frame.content, anchorParent = frame.content, initialTab = true,
@@ -66,7 +66,7 @@ function CraftSim.RECIPE_SCAN.FRAMES:Init()
         ---@class CraftSim.RECIPE_SCAN.SCAN_OPTIONS_TAB : GGUI.BlizzardTab
         frame.content.scanOptionsTab = GGUI.BlizzardTab {
             buttonOptions = {
-                label = "Scan Options",
+                label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_LABEL_OPTIONS),
                 anchorA = "LEFT", anchorB = "RIGHT", anchorParent = frame.content.recipeScanTab.button
             },
             parent = frame.content, anchorParent = frame.content,
@@ -224,8 +224,10 @@ function CraftSim.RECIPE_SCAN.FRAMES:UpdateProfessionList()
 end
 
 function CraftSim.RECIPE_SCAN.FRAMES:UpdateProfessionListDisplay()
+    print("update prof list display")
     local content = CraftSim.RECIPE_SCAN.frame.content.recipeScanTab
         .content --[[@as CraftSim.RECIPE_SCAN.RECIPE_SCAN_TAB.CONTENT]]
+    local sortCallCounter = 1
     content.professionList:UpdateDisplay(
     ---@param rowA CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
     ---@param rowB CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
@@ -249,21 +251,21 @@ function CraftSim.RECIPE_SCAN.FRAMES:UpdateProfessionListDisplay()
                 return false
             end
 
-            -- if both are the playerCrafterUID, prefer the playerCrafterProfessionUID
+            -- -- if both are the playerCrafterUID, prefer the playerCrafterProfessionUID
 
-            if playerCrafterProfessionUIDA == playerCrafterProfessionUID and playerCrafterProfessionUIDB ~= playerCrafterProfessionUID then
-                return true
-            end
+            -- if playerCrafterProfessionUIDA == playerCrafterProfessionUID and playerCrafterProfessionUIDB ~= playerCrafterProfessionUID then
+            --     return true
+            -- end
 
-            if playerCrafterProfessionUIDA ~= playerCrafterProfessionUID and playerCrafterProfessionUIDB == playerCrafterProfessionUID then
-                return false
-            end
+            -- if playerCrafterProfessionUIDA ~= playerCrafterProfessionUID and playerCrafterProfessionUIDB == playerCrafterProfessionUID then
+            --     return false
+            -- end
 
-            -- if not the player prefer same crafterUID
+            -- -- if not the player prefer same crafterUID
 
-            if crafterUIDA == crafterUIDB then
-                return true
-            end
+            -- if crafterUIDA == crafterUIDB then
+            --     return true
+            -- end
 
 
             return false
@@ -832,7 +834,7 @@ function CraftSim.RECIPE_SCAN.FRAMES:AddRecipe(row, recipeData)
             -- show reagents in tooltip when recipe is hovered
 
             row.tooltipOptions = {
-                text = recipeData.reagentData:GetTooltipText(),
+                text = recipeData.reagentData:GetTooltipText(1, recipeData:GetCrafterUID()),
                 owner = row.frame,
                 anchor = "ANCHOR_CURSOR",
             }

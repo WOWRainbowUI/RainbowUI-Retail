@@ -43,6 +43,7 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
     self.professionData = CraftSim.ProfessionData(self, recipeID)
     self.professionInfoCached = self.professionData.professionInfoCached
 
+
     if isWorkOrder then
         ---@type CraftingOrderInfo
         self.orderData = ProfessionsFrame.OrdersPage.OrderView.order
@@ -52,7 +53,6 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
     end
 
     CraftSimRecipeDataCache.recipeInfoCache[crafterUID] = CraftSimRecipeDataCache.recipeInfoCache[crafterUID] or {}
-
     if self:IsCrafter() then
         self.recipeInfo = C_TradeSkillUI.GetRecipeInfo(recipeID) -- only partial info is returned when not the crafter, so we need to cache it
 
@@ -72,7 +72,6 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
             self.recipeInfoCached = true
         end
     end
-
 
     if not self.recipeInfo then
         print("Could not create recipeData: recipeInfo nil")
@@ -126,6 +125,8 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
         self.specializationData = self:GetSpecializationDataForRecipeCrafter()
     end
 
+    self.cooldownData = self:GetCooldownDataForRecipeCrafter()
+
     local schematicInfo = C_TradeSkillUI.GetRecipeSchematic(self.recipeID, self.isRecraft) -- is working even if profession is not learned on the character!
     if not schematicInfo then
         print("No RecipeData created: SchematicInfo not found")
@@ -158,6 +159,7 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
     self.professionGearSet = CraftSim.ProfessionGearSet(self)
     self.professionGearSet:LoadCurrentEquippedSet()
 
+    CraftSim.UTIL:StartProfiling("- RD: OperationInfo")
     self.baseOperationInfo = nil
     if self.orderData then
         self.baseOperationInfo = C_TradeSkillUI.GetCraftingOperationInfoForOrder(self.recipeID, {},
@@ -174,6 +176,7 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
     self.professionStatModifiers = CraftSim.ProfessionStats()
 
     self.baseProfessionStats:SetStatsByOperationInfo(self, self.baseOperationInfo)
+    CraftSim.UTIL:StopProfiling("- RD: OperationInfo")
 
     -- exception: when salvage recipe, then resourcefulness is supported!
     if self.isSalvageRecipe then
@@ -183,8 +186,10 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
     self.baseProfessionStats:SetInspirationBaseBonusSkill(self.baseProfessionStats.recipeDifficulty.value,
         self.maxQuality)
 
+    CraftSim.UTIL:StartProfiling("- RD: ProfessionGearCache")
     -- cache available profession gear by calling this once
     CraftSim.TOPGEAR:GetProfessionGearFromInventory(self)
+    CraftSim.UTIL:StopProfiling("- RD: ProfessionGearCache")
 
     self.baseProfessionStats:subtract(self.professionGearSet.professionStats)
 
@@ -220,6 +225,7 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
     -- print("RecipeData: " .. self.recipeName)
     -- print("- isCrafter: " .. tostring(isCrafter))
     -- print("- IsProfessionOpen: " .. tostring(IsProfessionOpen))
+    CraftSim.UTIL:StartProfiling("- RD: Cache Data")
     if isCrafter and IsProfessionOpen then
         -- print("- Caching Recipe!")
         CraftSimRecipeDataCache.cachedRecipeIDs[crafterUID] = CraftSimRecipeDataCache.cachedRecipeIDs[crafterUID] or {}
@@ -227,10 +233,16 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
             CraftSimRecipeDataCache.cachedRecipeIDs[crafterUID][self.professionData.professionInfo.profession] or {}
         table.insert(CraftSimRecipeDataCache.cachedRecipeIDs[crafterUID][self.professionData.professionInfo.profession],
             self.recipeID)
+        CraftSim.UTIL:StartProfiling("- RD: Cache Data To Set")
         CraftSimRecipeDataCache.cachedRecipeIDs[crafterUID][self.professionData.professionInfo.profession] = GUTIL:ToSet(
             CraftSimRecipeDataCache.cachedRecipeIDs[crafterUID][self.professionData.professionInfo.profession])
+        CraftSim.UTIL:StopProfiling("- RD: Cache Data To Set")
 
+        CraftSim.UTIL:StartProfiling("- RD: Cache Data ClassApi")
         CraftSimRecipeDataCache.altClassCache[crafterUID] = select(2, UnitClass("player"))
+        CraftSim.UTIL:StopProfiling("- RD: Cache Data ClassApi")
+
+        CraftSim.UTIL:StopProfiling("- RD: Cache Data")
     end
 end
 
@@ -678,11 +690,18 @@ function CraftSim.RecipeData:CanCraft(amount)
     end
 
     -- check amount of materials in players inventory + bank
-    local hasEnoughReagents = self.reagentData:HasEnough(amount)
+    local hasEnoughReagents = self.reagentData:HasEnough(amount, self:GetCrafterUID())
 
-    local craftAbleAmount = self.reagentData:GetCraftableAmount()
+    local craftAbleAmount = self.reagentData:GetCraftableAmount(self:GetCrafterUID())
 
-    return hasEnoughReagents, craftAbleAmount
+    local isChargeRecipe = self.cooldownData.maxCharges > 0
+
+    if not isChargeRecipe then
+        return hasEnoughReagents, craftAbleAmount
+    else
+        -- limit by current charge amount
+        return hasEnoughReagents, math.min(craftAbleAmount, self.cooldownData:GetCurrentCharges())
+    end
 end
 
 ---@return boolean true of the profession the recipe belongs to is opened
@@ -698,23 +717,9 @@ function CraftSim.RecipeData:IsProfessionOpen()
     return openProfessionID == self.professionData.professionInfo.profession
 end
 
----@class CraftSim.RecipeData.CooldownInformation
----@field onCooldown boolean
----@field duration number
----@field cooldownStart number
----@field spellEnabled boolean
----@field cooldownMod number
-
----@return CraftSim.RecipeData.CooldownInformation cooldownInformation
-function CraftSim.RecipeData:GetCooldownInformation()
-    local start, duration, enabled, mod = GetSpellCooldown(self.recipeID)
-    return {
-        onCooldown = duration and duration > 0,
-        duration = duration or 0,
-        cooldownStart = start or 0,
-        spellEnabled = enabled,
-        cooldownMod = mod or 1
-    }
+---@return boolean onCooldown
+function CraftSim.RecipeData:OnCooldown()
+    return self.cooldownData:OnCooldown()
 end
 
 --- Returns either the current characters CraftingOperationInfo or the cached info from the recipe's crafter
@@ -742,6 +747,7 @@ function CraftSim.RecipeData:GetCraftingOperationInfoForRecipeCrafter()
     return operationInfo
 end
 
+---@return CraftSim.SpecializationData
 function CraftSim.RecipeData:GetSpecializationDataForRecipeCrafter()
     local crafterUID = self:GetCrafterUID()
 
@@ -772,6 +778,26 @@ function CraftSim.RecipeData:GetSpecializationDataForRecipeCrafter()
 
         return specializationData
     end
+end
+
+---@return CraftSim.CooldownData
+function CraftSim.RecipeData:GetCooldownDataForRecipeCrafter()
+    local crafterUID = self:GetCrafterUID()
+    local cooldownData
+
+    if self:IsCrafter() then
+        cooldownData = CraftSim.CooldownData(self.recipeID)
+        cooldownData:Update()
+
+        -- cache only learned recipes from current expac that can be on cooldown
+        if cooldownData.isCooldownRecipe and self.recipeInfo.learned and not self.isOldWorldRecipe then
+            cooldownData:Save(crafterUID)
+        end
+    else
+        cooldownData = CraftSim.CooldownData:DeserializeForCrafter(crafterUID, self.recipeID)
+    end
+
+    return cooldownData
 end
 
 function CraftSim.RecipeData:IsCrafterInfoCached()

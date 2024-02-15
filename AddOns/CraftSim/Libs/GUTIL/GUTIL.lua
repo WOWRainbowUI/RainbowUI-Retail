@@ -1,5 +1,5 @@
 ---@class GUTIL-2.0
-local GUTIL = LibStub:NewLibrary("GUTIL-2.0", 6)
+local GUTIL = LibStub:NewLibrary("GUTIL-2.0", 8)
 if not GUTIL then return end
 
 --- CLASSICS insert
@@ -133,23 +133,25 @@ end
 ---makes a table unique
 ---@generic V
 ---@param t V[]
----@param compareFunc? fun(element: V): any return a value with that the elements should be compared with
+---@param compareFunc? fun(element: V): any return a value with that the elements should be compared with in uniqueness
 ---@return V[]
 function GUTIL:ToSet(t, compareFunc)
   local set = {}
+  local containedMap = {} -- to speed things up
 
   if not compareFunc then
     for _, element in pairs(t) do
-      if not tContains(set, element) then
+      if not containedMap[element] then
         table.insert(set, element)
+        containedMap[element] = true
       end
     end
   else
     for _, element in pairs(t) do
-      if not GUTIL:Some(set, function(setElement)
-            return compareFunc(element) == compareFunc(setElement)
-          end) then
+      local uniqueValue = compareFunc(element)
+      if not containedMap[uniqueValue] then
         table.insert(set, element)
+        containedMap[uniqueValue] = true
       end
     end
   end
@@ -504,8 +506,15 @@ end
 ---@param conditionCallback fun(): boolean
 ---@param callback function will be executed as soon as the condition is fulfilled
 ---@param checkInterval number? Seconds - Default: 0 (once per frame).
-function GUTIL:WaitFor(conditionCallback, callback, checkInterval)
+---@param maxWaitSeconds number? Maximum Seconds to wait, default: 10. No callback called when timeout triggered
+function GUTIL:WaitFor(conditionCallback, callback, checkInterval, maxWaitSeconds)
+  maxWaitSeconds = maxWaitSeconds or 10
+  local startTime = GetTimePreciseSec()
   local function checkCondition()
+    local secondsElapsed = GetTimePreciseSec() - startTime
+    if secondsElapsed >= maxWaitSeconds then
+      return
+    end
     if conditionCallback() then
       callback()
     else
@@ -514,6 +523,31 @@ function GUTIL:WaitFor(conditionCallback, callback, checkInterval)
   end
 
   checkCondition()
+end
+
+---@param event WowEvent
+---@param callback function
+---@param maxWaitSeconds number?
+function GUTIL:WaitForEvent(event, callback, maxWaitSeconds)
+  local frame = CreateFrame("frame")
+  frame:RegisterEvent(event)
+
+  local unregistered = false
+  local function unregister()
+    if unregistered then return end
+    unregistered = true
+    frame:UnregisterEvent(event)
+    frame:SetScript("OnEvent", nil)
+  end
+
+  frame:SetScript("OnEvent", function(_, ...)
+    callback(...)
+    unregister()
+  end)
+
+  if maxWaitSeconds then
+    C_Timer.After(maxWaitSeconds, unregister)
+  end
 end
 
 function GUTIL:EquipItemByLink(link)
@@ -642,29 +676,15 @@ end
 ---@generic K
 ---@generic V
 ---@param t table<K, V>
----@param foldFunction fun(foldValue: any, nextElement: V): any
----@param startAtZero boolean wether the table starts with index 0
-function GUTIL:Fold(t, foldFunction, startAtZero)
-  local foldedValue = nil
-  if #t < 2 and not startAtZero then
-    return t[1]
-  elseif #t < 1 and startAtZero then
-    return t[0]
+---@param initialValue any
+---@param foldFunction fun(foldValue: any, nextElement: V, key: K): any
+function GUTIL:Fold(t, initialValue, foldFunction)
+  local accumulator = initialValue
+  for key, value in pairs(t) do
+    accumulator = foldFunction(accumulator, value, key)
   end
 
-  local startIndex = 1
-  if startAtZero then
-    startIndex = 0
-  end
-  for index = startIndex, #t, 1 do
-    if foldedValue == nil then
-      foldedValue = foldFunction(t[startIndex], t[startIndex + 1])
-    elseif index < #t then
-      foldedValue = foldFunction(foldedValue, t[index + 1])
-    end
-  end
-
-  return foldedValue
+  return accumulator
 end
 
 --- splits a table into two tables, elements that resolve into true for the given function will be put into the first table
