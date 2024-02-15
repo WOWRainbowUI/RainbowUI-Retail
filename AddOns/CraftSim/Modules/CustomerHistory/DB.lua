@@ -88,7 +88,7 @@ end
 
 function CraftSim.CUSTOMER_HISTORY.DB:PurgeZeroTipCustomers()
     for key, customerHistory in pairs(CraftSimCustomerHistoryV2 or {}) do
-        if customerHistory.totalTip <= 0 then
+        if not customerHistory.totalTip or customerHistory.totalTip <= 0 then
             CraftSimCustomerHistoryV2[key] = nil
         end
     end
@@ -97,7 +97,7 @@ end
 -- MIGRATIONS
 
 function CraftSim.CUSTOMER_HISTORY.DB:MigrateDataV2()
-    print("Starting CustomerHistoryLegacy Migration")
+    -- print("Starting CustomerHistoryLegacy Migration")
     -- force a purge of zero tip customers for players who did not apply the workaround but still have problems with bloated history
     CraftSim.CUSTOMER_HISTORY:PurgeZeroTipCustomers()
     local playerRealm = GetRealmName()

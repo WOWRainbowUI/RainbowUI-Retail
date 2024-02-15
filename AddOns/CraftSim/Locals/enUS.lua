@@ -15,6 +15,10 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.ENCHANTED_MATCH_STRING] = "Enchanted:",
 
         -- OPTIONAL (Defaulting to EN if not available):
+
+        -- shared prof cds
+        [CraftSim.CONST.TEXT.DF_ALCHEMY_TRANSMUTATIONS] = "DF - Transmutations",
+
         -- expansions
 
         [CraftSim.CONST.TEXT.EXPANSION_VANILLA] = "Classic",
@@ -292,58 +296,15 @@ function CraftSim.LOCAL_EN:GetData()
             f.l("OR") ..
             " .. Price Override\n" ..
             f.bb("Any Name") ..
-            " .. Expected Costs from Craft Data for this Crafter\n\n" ..
+            " .. Expected Costs from crafting it yourself" .. f.r(" (Work in Progress)\n\n") ..
             f.l("OR") ..
-            " will always be used if set. " .. f.bb("Craft Data") .. " will only be used if lower than " .. f.g("AH"),
+            " will always be used if set. " .. f.bb("Crafting Costs") .. " will only be used if lower than " .. f.g("AH"),
         [CraftSim.CONST.TEXT.COST_DETAILS_CRAFTING_COSTS] = "Crafting Costs: ",
         [CraftSim.CONST.TEXT.COST_DETAILS_ITEM_HEADER] = "Item",
         [CraftSim.CONST.TEXT.COST_DETAILS_AH_PRICE_HEADER] = "AH Price",
         [CraftSim.CONST.TEXT.COST_DETAILS_OVERRIDE_HEADER] = "Override",
-        [CraftSim.CONST.TEXT.COST_DETAILS_CRAFT_DATA_HEADER] = "Craft Data",
+        [CraftSim.CONST.TEXT.COST_DETAILS_CRAFTING_HEADER] = "Crafting",
         [CraftSim.CONST.TEXT.COST_DETAILS_USED_SOURCE] = "Used Source",
-
-        -- Craft Data Frame
-        [CraftSim.CONST.TEXT.CRAFT_DATA_TITLE] = "CraftSim Craft Data",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_EXPLANATION] = "Here you can take a " ..
-            f.bb("'Snapshot'") ..
-            " of your current recipe configuration for a target item\nThe saved data includes a snapshot of your current " ..
-            f.bb("Profession Stats") ..
-            "\nand calculates the " ..
-            f.l("Expected Costs") ..
-            " for an item based on that.\nYou can use " .. f.bb("Simulation Mode") .. " to finetune your configurations!",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_RECIPE_ITEMS] = "Recipe Items",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_DELETE_ALL] = "Delete for all Recipes",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_DELETE_RECIPE] = "Delete for Recipe",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_CRAFTER] = "Crafter: ",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_EXPECTED_CRAFTS] = "Expected Crafts: ",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_EXPECTED_CRAFTS_EXPLANATION] =
-            "The expected number of crafts for an item is based on your " ..
-            f.bb("Inspiration") .. ", " .. f.l("HSV Chance") .. " and " .. f.bb("Multicraft"),
-        [CraftSim.CONST.TEXT.CRAFT_DATA_CRAFTING_CHANCE] = "Crafting Chance: ",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_UPGRADE_CHANCE_EXPLANATION] = "The craft chance for an item is based on your\n" ..
-            f.bb("Inspiration ") .. "and " .. f.l("HSV Chance"),
-        [CraftSim.CONST.TEXT.CRAFT_DATA_EXPECTED_COSTS] = "Expected Costs: ",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_EXPECTED_COSTS_EXPLANATION] = "The expected costs of an item is based on the " ..
-            f.bb("Expected Crafts") ..
-            ", the " ..
-            f.bb("Crafting Costs") .. ", and your " .. f.bb("Resourcefulness") .. " and " .. f.bb("Multicraft"),
-        [CraftSim.CONST.TEXT.CRAFT_DATA_MINIMUM_COST] = "Minimum Costs: ",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_SAVE] = "Save",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_UPDATE] = "Update",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_UNREACHABLE] = "Unreachable",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_DELETE] = "Delete",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_SEND] = "Send to Player",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_SAVED_MATERIALS] = "Saved Material Configuration",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_NO_DATA] = "No data found for this item",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_OPTIONAL_MATERIALS] = "Optional Reagents",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_ITEM_HEADER] = "Item",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_CRAFTER_HEADER] = "Crafter",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_EXPECTED_COST_HEADER] = "Expected Cost",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_CHANCE_HEADER] = "Chance",
-        [CraftSim.CONST.TEXT.CRAFT_DATA_OVERRIDE_EXPLANATION] = "If this is checked, the item price will be the " ..
-            f.l("Expected Costs") ..
-            " of the saved Craft Data of this item.\nIf no Craft Data for this item exists " ..
-            f.bb("OR") .. " the Auction House Price is lower, the Auction House price will be taken.",
 
         -- Statistics Frame
         [CraftSim.CONST.TEXT.STATISTICS_TITLE] = "CraftSim Statistics",
@@ -486,6 +447,8 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.RECIPE_SCAN_ALTPROFESSIONS_FILTER_BUTTON] = "Alt Professions",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_SCAN_ALL_BUTTON_READY] = "Scan Professions",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_SCAN_ALL_BUTTON_SCANNING] = "Scanning...",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_LABEL_SCAN] = "Recipe Scan",
+        [CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_LABEL_OPTIONS] = "Scan Options",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_IMPORT_ALL_PROFESSIONS_CHECKBOX_LABEL] = "All Scanned Professions",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_IMPORT_ALL_PROFESSIONS_CHECKBOX_TOOLTIP] = f.g("True: ") ..
             "Import Scan Results from all enabled and scanned professions\n\n" ..
@@ -587,10 +550,7 @@ function CraftSim.LOCAL_EN:GetData()
         "Suggests the cheapest materials to reach the highest quality/inspiration threshold.",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_PRICE_OVERRIDES_LABEL] = "Price Overrides",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_PRICE_OVERRIDES_TOOLTIP] =
-        "Override prices of any materials, optional materials and craft results for all recipes or for one recipe specifically. You can also set an item to use Craft Data as price.",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_DATA_LABEL] = "Craft Data",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_DATA_TOOLTIP] =
-        "Edit the saved configurations for crafting commodities of different qualities to show in tooltips and to calculate crafting costs",
+        "Override prices of any materials, optional materials and craft results for all recipes or for one recipe specifically.",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_SPECIALIZATION_INFO_LABEL] = "Specialization Info",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_SPECIALIZATION_INFO_TOOLTIP] =
         "Shows how your profession specializations affect this recipe and makes it possible to simulate any configuration!",
@@ -675,12 +635,16 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_WRONG_PROFESSION] = "Wrong Profession",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_ON_COOLDOWN] = "On Cooldown",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_WRONG_CRAFTER] = "Wrong Crafter",
-        [CraftSim.CONST.TEXT.CRAFT_QUEUE_REAGENT_INFO_HEADER] = "Reagents",
-        [CraftSim.CONST.TEXT.CRAFT_QUEUE_REAGENT_INFO_BUTTON_LABEL] = "?",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_RECIPE_STATUS_HEADER] = "Status",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_NEXT_BUTTON_LABEL] = "Craft Next",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_AVAILABLE_AMOUNT] = "Craftable",
         [CraftSim.CONST.TEXT.CRAFTQUEUE_AUCTIONATOR_SHOPPING_LIST_BUTTON_LABEL] = "Create Auctionator Shopping List",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_QUEUE_TAB_LABEL] = "Craft Queue",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_FLASH_TASKBAR_OPTION_LABEL] = "Flash Taskbar on " ..
+            f.bb("CraftQueue") .. " craft finished",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_FLASH_TASKBAR_OPTION_TOOLTIP] =
+            "When your WoW Game is minimized and a recipe has finished crafting in the " .. f.bb("CraftQueue") ..
+            "," .. f.l(" CraftSim") .. " will flash your Taskbar WoW Icon",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_RESTOCK_OPTIONS_TAB_LABEL] = "Restock Options",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_RESTOCK_OPTIONS_GENERAL_PROFIT_THRESHOLD_LABEL] = "Profit Threshold:",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_RESTOCK_OPTIONS_SALE_RATE_INPUT_LABEL] = "Sale Rate Threshold:",
@@ -718,6 +682,9 @@ greater or equal the configured sale rate threshold.
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_CRAFTING_COSTS_LABEL] = "Crafting Costs: ",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_AVERAGE_PROFIT_LABEL] = "Average Profit: ",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_RESULTS_LABEL] = "Results",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_AUCTIONATOR_SHOPPING_LIST_PER_CHARACTER_CHECKBOX] = "Per Character",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_AUCTIONATOR_SHOPPING_LIST_PER_CHARACTER_CHECKBOX_TOOLTIP] = "Create an " ..
+            f.bb("Auctionator Shopping List") .. " for each crafter character\ninstead of one shopping list for all",
 
         -- craft buffs
 
@@ -726,10 +693,24 @@ greater or equal the configured sale rate threshold.
         [CraftSim.CONST.TEXT.CRAFT_BUFF_CHEFS_HAT_TOOLTIP] = f.bb("Wrath of the Lich King Toy.") ..
             "\nRequires Northrend Cooking\nSets Crafting Speed to " .. f.g("0.5 seconds"),
 
+        -- cooldowns module
+
+        [CraftSim.CONST.TEXT.COOLDOWNS_TITLE] = "CraftSim Cooldowns",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COOLDOWNS_LABEL] = "Cooldowns",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COOLDOWNS_TOOLTIP] = "Overview for your account's " ..
+            f.bb("Profession Cooldowns"),
+        [CraftSim.CONST.TEXT.COOLDOWNS_CRAFTER_HEADER] = "Crafter",
+        [CraftSim.CONST.TEXT.COOLDOWNS_RECIPE_HEADER] = "Recipe",
+        [CraftSim.CONST.TEXT.COOLDOWNS_CHARGES_HEADER] = "Charges",
+        [CraftSim.CONST.TEXT.COOLDOWNS_NEXT_HEADER] = "Next Charge",
+        [CraftSim.CONST.TEXT.COOLDOWNS_ALL_HEADER] = "Charges Full",
+
         -- static popups
         [CraftSim.CONST.TEXT.STATIC_POPUPS_YES] = "Yes",
         [CraftSim.CONST.TEXT.STATIC_POPUPS_NO] = "No",
-		[CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_RECIPE_SCAN] = "Recipe Scan",
-		[CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_SCAN_OPTIONS] = "Scan Options",
+		
+		-- 自行加入
+        [CraftSim.CONST.TEXT.OPTIONS_CRAFTS] = "crafts",
+        [CraftSim.CONST.TEXT.OPTIONS_CRAFTSIM] = "CraftSim",
     }
 end

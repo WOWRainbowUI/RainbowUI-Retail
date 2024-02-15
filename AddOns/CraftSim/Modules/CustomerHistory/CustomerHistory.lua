@@ -16,7 +16,7 @@ function CraftSim.CUSTOMER_HISTORY:Init()
         if not s then
             print(CraftSim.UTIL:GetFormatter().r("CustomerHistoryLegacy Migration failed:\n" .. tostring(e)))
         else
-            print(CraftSim.UTIL:GetFormatter().g("CustomerHistoryLegacy Migration succeded"))
+            -- print(CraftSim.UTIL:GetFormatter().g("CustomerHistoryLegacy Migration succeded"))
             CraftSimOptions.customerHistoryMigrationDoneV3 = true
         end
     end

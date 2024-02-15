@@ -1,6 +1,7 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
+---@class CraftSim.SUPPORTERS
 CraftSim.SUPPORTERS = {}
 
 ---@class Supporter
@@ -13,6 +14,24 @@ function CraftSim.SUPPORTERS:GetList()
     local kofi = CraftSim.MEDIA:GetAsTextIcon(CraftSim.MEDIA.IMAGES.KOFI, 0.45)
     local paypal = " " .. CraftSim.MEDIA:GetAsTextIcon(CraftSim.MEDIA.IMAGES.PAYPAL, 0.35)
     return {
+        {
+            name = f.bb("Darrell L."),
+            type = paypal,
+            message = "Craftsim is great.",
+            date = "30.01.2024",
+        },
+        {
+            name = f.bb("Holyrain"),
+            type = kofi,
+            message = "Thank you for an amazing add-on!",
+            date = "24.01.2024",
+        },
+        {
+            name = f.bb("Stargrace"),
+            type = kofi,
+            message = "Your addon is amazing. Thank you",
+            date = "20.01.2024",
+        },
         {
             name = f.bb("from S.Korea"),
             type = kofi,

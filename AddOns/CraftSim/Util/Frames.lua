@@ -128,7 +128,6 @@ function CraftSim.FRAME:RestoreModulePositions()
     CraftSim.COST_DETAILS.frameWO:RestoreSavedConfig(ProfessionsFrame)
     materialOptimizationFrame:RestoreSavedConfig(ProfessionsFrame)
     materialOptimizationFrameWO:RestoreSavedConfig(ProfessionsFrame)
-    CraftSim.CRAFTDATA.frame:RestoreSavedConfig(ProfessionsFrame)
     CraftSim.CRAFTQ.frame:RestoreSavedConfig(ProfessionsFrame)
 
     CraftSim.CRAFT_BUFFS.frame:RestoreSavedConfig(ProfessionsFrame.CraftingPage)
@@ -609,6 +608,21 @@ function CraftSim.FRAME:InitDebugFrame()
             CraftSim.CACHE:ClearAll()
         end
     })
+
+    controlPanel.content.addToVDTButton = CraftSim.GGUI.Button {
+        label = "Add2VDT",
+        parent = controlPanel.content,
+        anchorParent = controlPanel.content.clearButton.frame,
+        anchorA = "LEFT", anchorB = "RIGHT",
+        adjustWidth = true, sizeX = 15, sizeY = 25,
+        clickCallback = function()
+            if DevTool then
+                local CraftSim = CraftSim_DEBUG:RUN()
+                DevTool:AddData(CraftSim, "CraftSim")
+                DevTool:AddData(CraftSim.MAIN.currentRecipeData, "CurrentRecipeData")
+            end
+        end
+    }
 
     controlPanel.content.debugIDScrollFrame, controlPanel.content.debugIDSFrame = CraftSim.FRAME:CreateScrollFrame(
         controlPanel.content, -130, 10, -40, 20)

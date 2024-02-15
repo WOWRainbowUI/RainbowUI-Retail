@@ -326,7 +326,6 @@ function CraftSim.CUSTOMER_HISTORY.FRAMES:UpdateCustomerHistoryList()
     for _, customerHistory in pairs(CraftSimCustomerHistoryV2) do
         customerList:Add(
             function(row)
-                row = row
                 local columns = row.columns
                 local customerColumn = columns[1]
                 local tipColumn = columns[2]
@@ -353,20 +352,15 @@ function CraftSim.CUSTOMER_HISTORY.FRAMES:UpdateCustomerHistoryList()
 
     customerList:UpdateDisplay(
         function(rowA, rowB)
-            if rowA.customerHistory.totalTip and rowB.customerHistory.totalTip then
-                if rowA.customerHistory.totalTip > rowB.customerHistory.totalTip then
-                    return true
-                end
-                if rowA.customerHistory.totalTip < rowB.customerHistory.totalTip then
-                    return false
-                end
-                if rowA.customerHistory.totalTip == rowB.customerHistory.totalTip then
-                    return true
-                end
-                return false
-            else
+            if rowA and not rowB then
+                return true
+            end
+            if rowB and not rowA then
                 return false
             end
+            local totalTipA = rowA.customerHistory.totalTip or 0;
+            local totalTipB = rowB.customerHistory.totalTip or 0;
+            return totalTipA > totalTipB;
         end)
 
     if not customerList.selectedRow then
@@ -528,25 +522,16 @@ function CraftSim.CUSTOMER_HISTORY.FRAMES:UpdateCustomerChatHistory(customer, ch
     end)
 end
 
-local function normalize(dateNumber)
-    dateNumber = tostring(dateNumber)
-    if #dateNumber == 2 then
-        return dateNumber
-    else
-        return "0" .. dateNumber
-    end
-end
-
 ---@param timestamp number
 ---@return string
 function CraftSim.CUSTOMER_HISTORY.FRAMES:GetNormalizedDayString(timestamp)
     local date = date("*t", timestamp)
-    return string.format("%s.%s.%s", normalize(date.day), normalize(date.month), date.year)
+    return string.format("%02d.%02d.%02d", date.day, date.month, date.year)
 end
 
 ---@param timestamp number
 ---@return string
 function CraftSim.CUSTOMER_HISTORY.FRAMES:GetNormalizedTimeString(timestamp)
     local date = date("*t", timestamp)
-    return string.format("%s:%s:%s", normalize(date.hour), normalize(date.min), normalize(date.sec))
+    return string.format("%02d:%02d:%02d", date.hour, date.min, date.sec)
 end

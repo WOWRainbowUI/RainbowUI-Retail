@@ -48,6 +48,7 @@ end
 ---@param recipeData CraftSim.RecipeData
 ---@param amount number
 ---@param relative boolean? increment/decrement relative or set amount directly
+---@return number? newAmount amount after adjustment, nil if recipe could not be adjusted
 function CraftSim.CraftQueue:SetAmount(recipeData, amount, relative)
     relative = relative or false
     local craftQueueItem, index = self:FindRecipe(recipeData)
@@ -63,23 +64,21 @@ function CraftSim.CraftQueue:SetAmount(recipeData, amount, relative)
         if craftQueueItem.amount <= 0 then
             self.craftQueueItems[index] = nil
         end
+
+        return craftQueueItem.amount
     end
+    return nil
 end
 
 ---@param recipeData CraftSim.RecipeData
 ---@return CraftSim.CraftQueueItem | nil craftQueueItem, number? index
 function CraftSim.CraftQueue:FindRecipe(recipeData)
-    -- local craftQueueItem, index = GUTIL:Find(self.craftQueueItems,
-    -- ---@param cqi CraftSim.CraftQueueItem
-    -- function (cqi)
-    --     return cqi.recipeData:EqualCraftSetup(recipeData)
-    -- end)
-    -- return craftQueueItem, index
-
     local craftQueueItem, index = GUTIL:Find(self.craftQueueItems,
         ---@param cqi CraftSim.CraftQueueItem
         function(cqi)
-            return cqi.recipeData.recipeID == recipeData.recipeID
+            local sameID = cqi.recipeData.recipeID == recipeData.recipeID
+            local sameCrafter = cqi.recipeData:GetCrafterUID() == recipeData:GetCrafterUID()
+            return sameID and sameCrafter
         end)
     return craftQueueItem, index
 end
@@ -107,7 +106,7 @@ end
 
 function CraftSim.CraftQueue:RestoreFromCache()
     CraftSim.UTIL:StartProfiling("CraftQueue Item Restoration")
-
+    print("Restore CraftQ From Cache Start...")
     local function load()
         print("Loading Cached CraftQueue...")
         self.craftQueueItems = GUTIL:Map(CraftSimCraftQueueCache, function(craftQueueItemSerialized)
@@ -126,9 +125,22 @@ function CraftSim.CraftQueue:RestoreFromCache()
 
     -- wait til necessary info is loaded, then put deserialized items into queue
     GUTIL:WaitFor(function()
+            print("Wait for professionInfo loaded or cached")
             return GUTIL:Every(CraftSimCraftQueueCache,
                 function(craftQueueItemSerialized)
-                    local professionInfo = C_TradeSkillUI.GetProfessionInfoByRecipeID(craftQueueItemSerialized.recipeID)
+                    -- from cache?
+                    CraftSimRecipeDataCache.professionInfoCache[CraftSim.UTIL:GetCrafterUIDFromCrafterData(craftQueueItemSerialized.crafterData)] =
+                        CraftSimRecipeDataCache.professionInfoCache
+                        [CraftSim.UTIL:GetCrafterUIDFromCrafterData(craftQueueItemSerialized.crafterData)] or {}
+                    local cachedProfessionInfos = CraftSimRecipeDataCache.professionInfoCache
+                        [CraftSim.UTIL:GetCrafterUIDFromCrafterData(craftQueueItemSerialized.crafterData)]
+                    local professionInfo = cachedProfessionInfos[craftQueueItemSerialized.recipeID]
+
+                    if not professionInfo then
+                        -- get from api
+                        professionInfo = C_TradeSkillUI.GetProfessionInfoByRecipeID(craftQueueItemSerialized
+                            .recipeID)
+                    end
 
                     return professionInfo and professionInfo.profession --[[@as boolean]]
                 end)
