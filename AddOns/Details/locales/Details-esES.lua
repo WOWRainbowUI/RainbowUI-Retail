@@ -1230,6 +1230,8 @@ L["STRING_REPORT_SINGLE_BUFFUPTIME"] = "tiempo de actividad de beneficiosos para
 L["STRING_REPORT_SINGLE_COOLDOWN"] = "reutilizaciones usado por"
 L["STRING_REPORT_SINGLE_DEATH"] = "Muerte de"
 L["STRING_REPORT_SINGLE_DEBUFFUPTIME"] = "tiempo de actividad de perjuicios para"
+--[[Translation missing --]]
+L["STRING_REPORT_TEXT"] = "Report"
 L["STRING_REPORT_TOOLTIP"] = "Informa de resultados"
 L["STRING_REPORTFRAME_COPY"] = "Copiar y empastar"
 L["STRING_REPORTFRAME_CURRENT"] = "Actual"
