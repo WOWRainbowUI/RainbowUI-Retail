@@ -1,6 +1,7 @@
 local GlobalAddonName, ExRT = ...
 
 local IsEncounterInProgress, GetTime = IsEncounterInProgress, GetTime
+local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 
 local VMRT = nil
 
@@ -3702,12 +3703,12 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 		end
 
 		local runeCount = GetItemCount(rune_item_id,false,true)
-		local runeUnlim = ExRT.is10 and 0 or GetItemCount(190384,false,true)
+		local runeUnlim = ExRT.is10 and GetItemCount(211495,false,true) or GetItemCount(190384,false,true)
 		if runeUnlim and runeUnlim > 0 then
 			self.buttons.rune.count:SetText("")
 			if not InCombatLockdown() then
-				self.buttons.rune.texture:SetTexture(4224736)
-				local itemName = GetItemInfo(190384)
+				self.buttons.rune.texture:SetTexture(ExRT.is10 and 348535 or 4224736)
+				local itemName = GetItemInfo(ExRT.is10 and 211495 or 190384)
 				if itemName then
 					self.buttons.rune.click:SetAttribute("macrotext1", format("/stopmacro [combat]\n/use %s", itemName))
 					self.buttons.rune.click:Show()

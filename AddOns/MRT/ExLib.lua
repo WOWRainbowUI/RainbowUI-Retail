@@ -4611,7 +4611,7 @@ function ELib.ScrollDropDown.OnButtonEnter(self)
 	end
 	if self.tooltip then
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(self.tooltip)
+		GameTooltip:AddLine(type(self.tooltip)=="function" and self.tooltip() or self.tooltip)
 		GameTooltip:Show()
 	end
 	ELib.ScrollDropDown:CloseSecondLevel(self.Level)

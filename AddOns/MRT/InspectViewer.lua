@@ -237,6 +237,9 @@ module.db.topEnchGems = IS_SL and {
 
 module.db.achievementsList = {
 	{	--A
+		L.S_ZoneT31,
+		19344,19345,19346,19347,19335,19336,19337,19338,19339,19340,19341,19342,19343,19350,19351,
+	},{	--A
 		L.S_ZoneT30,
 		18160,18163,18164,18165,18167,18151,18152,18153,18154,18155,18156,18157,18158,18159,
 	},{	--VotI
@@ -321,6 +324,8 @@ module.db.achievementsList = {
 }
 module.db.achievementsList_statistic = {
 	{	--A
+
+	},{	--A
 
 	},{	--VotI
 
@@ -639,8 +644,8 @@ function module.options:Load()
 		colorizeLowIlvl685 = 120
 	end
 	if IS_DF then
-		colorizeLowIlvl630 = 376
-		colorizeLowIlvl685 = 398
+		colorizeLowIlvl630 = 460
+		colorizeLowIlvl685 = 482
 	end
 
 	self.chkItemsTrackDropDown = ELib:DropDown(self,300,6):Point(50,0):Size(50)

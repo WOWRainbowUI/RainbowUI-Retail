@@ -1,6 +1,24 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4820
+* New module: Interrupts
+* New module: Automarking
+* Raid cooldowns: added separate dispel spell for evoker healer
+* Raid Check: added DF rune
+* Fixes
+
+v.4820-LK
+* New module: Interrupts
+* New module: Automarking
+* toc update
+
+v.4820-Classic
+* New module: Interrupts
+* New module: Automarking
+* Saving log: added SoD raids
+* toc update
+
 v.4810
 * Minor fixes
 
