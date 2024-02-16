@@ -3,7 +3,7 @@
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 4810
+## Version: 4820
 ## AddonCompartmentFunc: MRT_MinimapClickFunction
 ## IconTexture: Interface\AddOns\MRT\media\MiniMap.tga
 
@@ -33,6 +33,8 @@ InviteTool.lua
 RaidGroups.lua
 MarksBar.lua
 Marks.lua
+MarksSimple.lua
+Interrupts.lua
 BattleRes.lua
 Timers.lua
 RaidAttendance.lua

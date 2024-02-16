@@ -6022,7 +6022,11 @@ function BWInterfaceFrameLoad()
 					end
 				end
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT", -AurasTab_Variables.WorkWidth, 0)
-				GameTooltip:SetHyperlink(self.spellLink)
+				if type(self.spellLink) == "string" and not self.spellLink:find("spell:") then
+					GameTooltip:AddLine(self.spellLink)
+				else
+					GameTooltip:SetHyperlink(self.spellLink)
+				end
 
 				local greenCount = #self.greenTooltips
 				for i=1,greenCount do

@@ -2703,6 +2703,23 @@ function module.options:Load()
 	--- Sync & data funcs ------
 	----------------------------
 
+	local function ConvertMapIDToString(n)
+		local res={} 
+		repeat 
+			table.insert(res,1,n%253) 
+			n=floor(n/253) 
+		until n==0 
+		for i=2,#res do 
+			res[i]=res[i]+1 
+		end 
+
+		local r = ""
+		for i=1,#res do 
+			r = r .. string.char(res[i])
+		end
+		return r
+	end
+
 	function self:GenerateString(live)
 		self:SaveData()
 
@@ -2731,7 +2748,7 @@ function module.options:Load()
 		byte: map number
 		]]
 
-		local str = live and "" or (string.char(254)..string.char(1)..string.char(DATA_VERSION)..string.char(#curr_data[1])..curr_data[1]..string.char(#(curr_data.name or "")+1)..(curr_data.name or "")..string.char(254)..string.char(2)..string.char(curr_map))
+		local str = live and "" or (string.char(254)..string.char(1)..string.char(DATA_VERSION)..string.char(#curr_data[1])..curr_data[1]..string.char(#(curr_data.name or "")+1)..(curr_data.name or "")..string.char(254)..string.char(2)..ConvertMapIDToString(curr_map))
 		local prevGroup,prevX,prevY,prevDiffX,prevDiffY
 
 		local function UpdateHeader(i)
