@@ -12,10 +12,14 @@ local const = addon:GetModule('Constants')
 ---@class EquipmentSets: AceModule
 local equipmentSets = addon:GetModule('EquipmentSets')
 
+---@class Database: AceModule
+local database = addon:GetModule('Database')
+
 ---@class Debug: AceModule
 local debug = addon:GetModule('Debug')
 
 ---@class (exact) ItemData
+---@field basic boolean
 ---@field itemInfo ExpandedItemInfo
 ---@field containerInfo ContainerItemInfo
 ---@field questInfo ItemQuestInfo
@@ -42,10 +46,19 @@ function items:OnInitialize()
 end
 
 function items:OnEnable()
-  --events:RegisterMessage('items/RefreshAllItems/Done', printDirtyItems)
-  --events:RegisterEvent('BAG_UPDATE_DELAYED', self.RefreshAll, self)
+
   events:RegisterEvent('EQUIPMENT_SETS_CHANGED', function() self:RefreshAll() end)
-  events:BucketEvent('BAG_UPDATE_DELAYED', function() self:RefreshAll() end)
+  local eventList = {
+    'BAG_UPDATE_DELAYED',
+    'PLAYERBANKSLOTS_CHANGED',
+  }
+
+  if addon.isRetail then
+    table.insert(eventList, 'PLAYERREAGENTBANKSLOTS_CHANGED')
+  end
+
+  events:GroupBucketEvent(eventList, function() self:RefreshAll() end)
+
   events:RegisterEvent('BANKFRAME_OPENED', function()
     addon.atBank = true
     self:RefreshBank()
@@ -179,8 +192,10 @@ function items:AttachItemInfo(data)
   local itemLocation = itemMixin:GetItemLocation() --[[@as ItemLocationMixin]]
   local bagid, slotid = data.bagid, data.slotid
   local itemID = C_Container.GetContainerItemID(bagid, slotid)
+  data.basic = false
   if itemID == nil then
     data.isItemEmpty = true
+    data.itemInfo = {} --[[@as table]]
     return
   end
   data.isItemEmpty = false
@@ -218,13 +233,17 @@ function items:AttachItemInfo(data)
     baseIlvl = baseIlvl --[[@as number]],
     itemIcon = C_Item.GetItemIconByID(itemID),
     isBound = C_Item.IsBound(itemLocation),
-    isLocked = C_Item.IsLocked(itemLocation),
+    isLocked = false,
     isNewItem = C_NewItems.IsNewItem(bagid, slotid),
     currentItemCount = C_Item.GetStackCount(itemLocation),
     category = "",
     currentItemLevel = C_Item.GetCurrentItemLevel(itemLocation) --[[@as number]],
     equipmentSet = equipmentSets:GetItemSet(bagid, slotid),
   }
+
+  if database:GetItemLock(data.itemInfo.itemGUID) then
+    data.itemInfo.isLocked = true
+  end
 end
 
 ---@param itemID number
@@ -240,6 +259,7 @@ function items:AttachBasicItemInfo(itemID, data)
     isActive = false,
     isQuestItem = false,
   }
+  data.basic = true
   data.itemInfo = {
     itemID = itemID,
     itemGUID = "",
