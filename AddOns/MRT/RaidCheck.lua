@@ -1374,6 +1374,37 @@ function module.options:Load()
 		VMRT.RaidCheck.ConsDisableForStarter = self:GetChecked()
 	end)
 
+	--[[
+	self.chkReadyCheckConsumablesFlaskClick = ELib:Check(self.tab.tabs[3],L.RaidCheckConsFlaskClick,VMRT.RaidCheck.ConsFlaskClick):Point("TOPLEFT",self.chkReadyCheckConsumablesDisableForRL,"BOTTOMLEFT",0,-15):OnClick(function(self) 
+		VMRT.RaidCheck.ConsFlaskClick = self:GetChecked()
+	end)
+
+	self.chkReadyCheckConsumablesFlaskName = ELib:Edit(self.tab.tabs[3]):Size(100,20):Point("TOPLEFT",self.chkReadyCheckConsumablesFlaskClick,"BOTTOMLEFT",200,-5):Text(VMRT.RaidCheck.ConsFlaskName or "191320"):OnChange(function(self)
+		VMRT.RaidCheck.ConsFlaskName = tonumber(self:GetText() or "") or self:GetText()
+		if VMRT.RaidCheck.ConsFlaskName == "" then
+			VMRT.RaidCheck.ConsFlaskName = nil
+		end
+		local icon, name
+		if VMRT.RaidCheck.ConsFlaskName then
+			icon = select(5, GetItemInfoInstant(VMRT.RaidCheck.ConsFlaskName))
+
+			name = GetItemInfo(VMRT.RaidCheck.ConsFlaskName)
+
+			if not name and type(VMRT.RaidCheck.ConsFlaskName) == "number" then
+				local item = Item:CreateFromItemID(VMRT.RaidCheck.ConsFlaskName)
+				
+				item:ContinueOnItemLoad(function()
+					local name = item:GetItemName() 
+					local icon = item:GetItemIcon()
+					self:RightText((icon and "|T"..icon..":0|t" or "")..(name or "???"))
+				end)
+			end
+		end
+		self:RightText((icon and "|T"..icon..":0|t" or "")..(name or "???"))
+	end):LeftText(L.RaidCheckConsFlaskName):Tooltip(L.RaidCheckConsFlaskNameTooltip)
+	]]
+
+
 	if ExRT.isClassic then
 		self.tab.tabs[3].button:Hide()
 		--self.tab.tabs[1].button:Hide()
