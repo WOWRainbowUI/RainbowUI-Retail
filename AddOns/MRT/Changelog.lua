@@ -1,6 +1,15 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4825
+* Fixes
+
+v.4825-LK
+* Fixes
+
+v.4825-Classic
+* Fixes
+
 v.4820
 * New module: Interrupts
 * New module: Automarking

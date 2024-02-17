@@ -1188,6 +1188,10 @@ L.InterruptsPosTop = "上"
 L.InterruptsPosBottom = "下"
 L.InterruptsPosLeft = "左"
 L.InterruptsPosRight = "右"
+L.InterruptsGetList = "取得清單"
+L.InterruptsGetListTooltip = "目前筆記的文字格式設定。\n按住 SHIFT 鍵以獲取只有來自團隊的玩家清單。"
+L.InterruptsFromNote = "來自筆記"
+L.InterruptsFromNoteTooltip = "從筆記中添加此法術的任務設置。"
 
 L.creatureNames = {	--> Used LibBabble-CreatureType and WowHead
 	Abyssal = "Abyssal",

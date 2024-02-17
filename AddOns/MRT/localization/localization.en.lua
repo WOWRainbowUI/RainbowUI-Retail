@@ -1167,6 +1167,10 @@ L.InterruptsPosTop = "Top"
 L.InterruptsPosBottom = "Bottom"
 L.InterruptsPosLeft = "Left"
 L.InterruptsPosRight = "Right"
+L.InterruptsGetList = "Get List"
+L.InterruptsGetListTooltip = "Text format of current setup for note.\nHold SHIFT for list of only players from raid"
+L.InterruptsFromNote = "From Note"
+L.InterruptsFromNoteTooltip = "Add assignments setup for this spell from note."
 
 L.OtherCovHelper = "Help me with choice"
 

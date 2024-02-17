@@ -104,7 +104,7 @@ end
 function module.options:Load()
 	self:CreateTilte()
 
-	ExRT.lib:Text(self,"v."..VERSION,10):Point("BOTTOMLEFT",self.title,"BOTTOMRIGHT",5,2)
+	--ExRT.lib:Text(self,"v."..VERSION,10):Point("BOTTOMLEFT",self.title,"BOTTOMRIGHT",5,2)
 
 	self.decorationLine = ELib:DecorationLine(self,true,"BACKGROUND",-5):Point("TOPLEFT",self,0,-25):Point("BOTTOMRIGHT",self,"TOPRIGHT",0,-45)
 
@@ -262,6 +262,7 @@ function module.options:Load()
 
 
 	local npcIDtoName = {}
+	local npcIDawait = {}
 
 	local function LineNpcIDEditOnChange(self,isUser)
 		self:BackgroundTextCheck()
@@ -276,6 +277,11 @@ function module.options:Load()
 				local tooltip = C_TooltipInfo.GetHyperlink("unit:Creature-0-0-0-0-"..text)
 				if tooltip and tooltip.lines and tooltip.lines[1] and tooltip.lines[1].leftText ~= "" then
 					npcName = tooltip.lines[1].leftText
+				elseif not npcIDawait[text] then
+					npcIDawait[text] = true
+					C_Timer.After(0.5,function()
+						LineNpcIDEditOnChange(self,false)
+					end)
 				end
 				if npcName and npcName ~= "" then
 					npcIDtoName[text] = npcName
@@ -340,6 +346,9 @@ function module.options:Load()
 		local name = self:GetText()
 		if name and UnitName(name) then
 			local r,g,b = ExRT.F.classColorNum(select(2,UnitClass(name)))
+			self:SetTextColor(r,g,b,1)
+		elseif name and name:find("%-") and UnitName(strsplit("-",name),nil) then
+			local r,g,b = ExRT.F.classColorNum(select(2,UnitClass(strsplit("-",name),nil)))
 			self:SetTextColor(r,g,b,1)
 		else
 			self:SetTextColor(.7,.7,.7,1)
@@ -524,6 +533,8 @@ function module.options:Load()
 	for k, v in pairs(ICON_TAG_LIST) do
 		translateERT[k] = v
 	end
+	translateERT["-1"] = -1	--Any
+	translateERT["0 "] = 0	--No mark
 	local function LineButtonFromNote(self)
 		local data = self:GetParent().data.spellData.assignments
 
@@ -539,26 +550,38 @@ function module.options:Load()
 				if betweenLine then
 				--checks if your name is found inbetween startLine and endLine
 					local mark = line:match("^{([^}]+)}")
+					if not mark then
+						mark = line:match("^Any ")
+						if mark then mark = "-1" end
+					end
+					if not mark then
+						mark = line:match("^0 ")
+					end
 					if mark and translateERT[mark] then
+						line = line:gsub("^[^ ]+ +","")
 						local turn = 0
 						local backupsList = {}
 						for backups in line:gmatch("%(([^)]*)%)") do
 							local isbackup = false
-							for name in backups:gmatch("|c%x%x%x%x%x%x%x%x([^|]+)|") do
+							for name in backups:gmatch("[^ ,]+") do
+								name = name:gsub("|+c%x%x%x%x%x%x%x%x",""):gsub("|+r","")
 								if isbackup then
 									backupsList[name] = true
 								end
 								isbackup = true
 							end 
 						end
-						for name in line:gmatch("|c%x%x%x%x%x%x%x%x([^|]+)|") do
+						for name in line:gmatch("[^ ,%(%)]+") do
+							name = name:gsub("|+c%x%x%x%x%x%x%x%x",""):gsub("|+r","")
 							if not backupsList[name] then
 								turn = turn + 1
 							else
 								backupsList[name] = nil
 							end
 
-							data[#data+1] = {pos = turn, name = name, mark = translateERT[mark]}
+							local markID = translateERT[mark]
+							if markID == -1 then markID = nil end
+							data[#data+1] = {pos = turn, name = name, mark = markID}
 						end 
 					end
 				end
@@ -864,10 +887,10 @@ function module.options:Load()
 		line.newSpell = ELib:Button(line,"+spell"):Size(0,20):Point("LEFT",line.spellid,0,0):Point("RIGHT",line.removeSpell,0,0):OnClick(LineButtonAddSpell)
 		line.newSpell.Ltype = 4
 
-		line.getList = ELib:Button(line,"Get List"):Size(90,20):Point("RIGHT",line.removePlayer,0,0):OnClick(LineButtonGetList):Tooltip("Hold SHIFT for list of only players from raid")
+		line.getList = ELib:Button(line,L.InterruptsGetList):Size(90,20):Point("RIGHT",line.removePlayer,0,0):OnClick(LineButtonGetList):Tooltip(L.InterruptsGetListTooltip)
 		line.getList.Ltype = 5
 
-		line.fromNote = ELib:Button(line,"From note"):Size(90,20):Point("RIGHT",line.getList,"LEFT",-5,0):OnClick(LineButtonFromNote)
+		line.fromNote = ELib:Button(line,L.InterruptsFromNote):Size(90,20):Point("RIGHT",line.getList,"LEFT",-5,0):OnClick(LineButtonFromNote):Tooltip(L.InterruptsFromNoteTooltip)
 		line.fromNote.Ltype = 5
 
 		line.newPlayer = ELib:Button(line,"+player"):Size(0,20):Point("LEFT",line.player,0,0):Point("RIGHT",line.fromNote,"LEFT",-5,0):OnClick(LineButtonAddPlayer)
@@ -987,6 +1010,9 @@ function module.options:Load()
 					line.npcid.npcname:Hide()
 				end
 				--line.npcid.npcname:SetShown(list[i+1] and not list[i+1][1] and not list[i+1][6])
+			else
+				line.npcid:SetText("")
+				line.npcid.npcname:Hide()
 			end
 			if data.spellData then
 				line.spellid:SetText(data.spellData.spellID or "")
@@ -1613,6 +1639,7 @@ function module:GetFrame()
 	frame.color_minecast_text = VMRT.Interrupts.minecast_text or defOption.minecast_text
 
 	--frame:SetFrameStrata("HIGH")
+	ExRT.F:FireCallback("Interrupts_FrameStyle",frame)
 
 	return frame
 end
@@ -1686,7 +1713,7 @@ function module:UpdateVisual()
 
 		frame.back:SetColorTexture(unpack(frame.color_nocast))
 
-		MRT.F:FireCallback("Interrupts_FrameStyle",frame)
+		ExRT.F:FireCallback("Interrupts_FrameStyle",frame)
 		if frame.isPreview then
 			module:UpdateFrame2(frame,unpack(frame.prevUpdate))
 		end
@@ -1711,7 +1738,7 @@ function module:UpdateData()
 					if #spellData.assignments > 0 then
 						for k=1,#spellData.assignments do
 							local assignment = spellData.assignments[k]
-							if assignment.pos and assignment.name == ExRT.SDB.charName then
+							if assignment.pos and (assignment.name == ExRT.SDB.charName or (type(assignment.name)=="string" and strsplit("-",assignment.name) == ExRT.SDB.charName)) then
 								if assignment.mark then
 									if type(mineConditions) == "boolean" then
 										mineConditions = {}
@@ -1905,7 +1932,7 @@ end
 local function GetOwnAssignment(spellData,castNum,targetMark)
 	for i=1,#spellData.assignments do
 		local assignment = spellData.assignments[i]
-		if assignment.name == ExRT.SDB.charName and assignment.pos == castNum and (not assignment.mark or (assignment.mark == targetMark)) then
+		if (assignment.name == ExRT.SDB.charName or (type(assignment.name)=="string" and strsplit("-",assignment.name) == ExRT.SDB.charName)) and assignment.pos == castNum and (not assignment.mark or (assignment.mark == targetMark)) then
 			return assignment
 		end
 	end
@@ -1943,7 +1970,7 @@ local function GetOwnAssignmentGlobal(npcID,castNum,targetMark)
 				spellData = data.spellData[j]
 				for k=1,#spellData.assignments do
 					assignment = spellData.assignments[k]
-					if assignment.name == ExRT.SDB.charName and assignment.pos == castNum and (not assignment.mark or (assignment.mark == targetMark)) then
+					if (assignment.name == ExRT.SDB.charName or (type(assignment.name)=="string" and strsplit("-",assignment.name) == ExRT.SDB.charName)) and assignment.pos == castNum and (not assignment.mark or (assignment.mark == targetMark)) then
 						return assignment
 					end
 				end
@@ -2047,22 +2074,24 @@ function module.main:NAME_PLATE_UNIT_ADDED(unit)
 			local markIndex = GetRaidTargetIndex(unit) or 0
 			currMark[guid] = markIndex
 			if mobData[npcID] == true or mobData[npcID][markIndex] then
-				local frame = module:GetFrame()
-				module.db.guidToFrame[guid] = frame
-	
 				local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
-				frame:ClearAllPoints()
+				if nameplate then
+					local frame = module:GetFrame()
+					module.db.guidToFrame[guid] = frame
 
-				frame:SetPoint(frame.anchor1,nameplate,frame.anchor2,frame.anchorOffsetX,frame.anchorOffsetY)
-				frame:SetFrameStrata( nameplate:GetFrameStrata() )
-				frame.frameLevel = tonumber(unit:match("%d+"),10) + 1
-				frame:SetFrameLevel(frame.frameLevel)
-
-				local isMine = GetOwnAssignmentGlobal(npcID,counter[guid] or 1,GetRaidTargetIndex(unit) or 0)
-				local assignedNames = GetAllAssignments(npcID,counter[guid] or 1,GetRaidTargetIndex(unit) or 0)
-				module:UpdateFrame(frame,guid,isMine,assignedNames)
-
-				frame:Show()
+					frame:ClearAllPoints()
+	
+					frame:SetPoint(frame.anchor1,nameplate,frame.anchor2,frame.anchorOffsetX,frame.anchorOffsetY)
+					frame:SetFrameStrata( nameplate:GetFrameStrata() )
+					frame.frameLevel = tonumber(unit:match("%d+"),10) + 1
+					frame:SetFrameLevel(frame.frameLevel)
+	
+					local isMine = GetOwnAssignmentGlobal(npcID,counter[guid] or 1,GetRaidTargetIndex(unit) or 0)
+					local assignedNames = GetAllAssignments(npcID,counter[guid] or 1,GetRaidTargetIndex(unit) or 0)
+					module:UpdateFrame(frame,guid,isMine,assignedNames)
+	
+					frame:Show()
+				end
 			end
 		end
 	end
@@ -2148,7 +2177,13 @@ function module:ProcessTextToData(text,isImport)
 	if data[1] ~= tostring(SENDER_VERSION) then
 		return
 	end
-	wipe(VMRT.Interrupts.Data[0])
+	local workingArray
+	if isImport then
+		workingArray = CURRENT_DATA
+	else
+		workingArray = VMRT.Interrupts.Data[0]
+	end
+	wipe(workingArray)
 	for i=2,#data do
 		local npcID,rest = strsplit("^",data[i],2)
 		
@@ -2188,10 +2223,14 @@ function module:ProcessTextToData(text,isImport)
 			end
 		end
 
-		VMRT.Interrupts.Data[0][#VMRT.Interrupts.Data[0]+1] = new
+		workingArray[#workingArray+1] = new
 	end
 
-	module:SetProfile(0)
+	if isImport then
+		module:SetProfile(VMRT.Interrupts.Profile)
+	else
+		module:SetProfile(0)
+	end
 end
 
 
