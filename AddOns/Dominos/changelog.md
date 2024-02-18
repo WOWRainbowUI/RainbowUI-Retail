@@ -1,5 +1,9 @@
 # Dominos Changelog
 
+## 10.2.19
+
+* (Classic) Update Shadowform and Metamorphosis conditionals to not check for a result from
+* (Classic) Add some workarounds to prevent cooldown flashes from showing up on the stance and pet bars when they're transparent but not hidden.
 ## 10.2.18
 
 * Action Buttons that have been hidden by shrinking the size of the bar are now
