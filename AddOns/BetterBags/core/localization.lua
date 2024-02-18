@@ -112,6 +112,8 @@ if GetLocale() == "zhTW" then
 	L.data["General"] = "一般"
 	L.data["Show Blizzard Bag Button"] = "顯示背包按鈕"
 	L.data["Show or hide the default Blizzard bag button."] = "顯示畫面右下角，遊戲內建的背包按鈕。"
+	L.data["New Item Duration"] = "新物品持續時間"
+	L.data["The time, in minutes, to consider an item a new item."] = "新的物品要保留多久時間後自動歸類，以分鐘為單位。"
 	
 	-- config\customcat.lua 
 	L.data["Items"] = "物品"
