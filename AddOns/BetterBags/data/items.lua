@@ -26,6 +26,8 @@ local debug = addon:GetModule('Debug')
 ---@field bagid number
 ---@field slotid number
 ---@field isItemEmpty boolean
+---@field kind BagKind
+---@field newItemTime number
 local itemDataProto = {}
 
 ---@class (exact) Items: AceModule
@@ -36,6 +38,7 @@ local itemDataProto = {}
 ---@field _container ContinuableContainer
 ---@field _bankContainer ContinuableContainer
 ---@field _doingRefreshAll boolean
+---@field _newItemTimers table<string, number>
 local items = addon:NewModule('Items')
 
 function items:OnInitialize()
@@ -43,6 +46,7 @@ function items:OnInitialize()
   self.dirtyBankItems = {}
   self.itemsByBagAndSlot = {}
   self.previousItemGUID = {}
+  self._newItemTimers = {}
 end
 
 function items:OnEnable()
@@ -80,6 +84,7 @@ function items:RemoveNewItemFromAllItems()
       end
     end
   end
+  wipe(self._newItemTimers)
 end
 
 function items:RefreshAll()
@@ -160,7 +165,7 @@ end
 function items:ProcessContainer()
   self._container:ContinueOnLoad(function()
     for _, data in pairs(items.dirtyItems) do
-      items:AttachItemInfo(data)
+      items:AttachItemInfo(data, const.BAG_KIND.BACKPACK)
     end
 
     -- All items in all bags have finished loading, fire the all done event.
@@ -176,7 +181,7 @@ end
 function items:ProcessBankContainer()
   self._bankContainer:ContinueOnLoad(function()
     for _, data in pairs(items.dirtyBankItems) do
-      items:AttachItemInfo(data)
+      items:AttachItemInfo(data, const.BAG_KIND.BANK)
     end
     -- All items in all bags have finished loading, fire the all done event.
     events:SendMessage('items/RefreshBank/Done', items.dirtyBankItems)
@@ -187,11 +192,13 @@ function items:ProcessBankContainer()
 end
 
 ---@param data ItemData
-function items:AttachItemInfo(data)
+---@param kind BagKind
+function items:AttachItemInfo(data, kind)
   local itemMixin = Item:CreateFromBagAndSlot(data.bagid, data.slotid) --[[@as ItemMixin]]
   local itemLocation = itemMixin:GetItemLocation() --[[@as ItemLocationMixin]]
   local bagid, slotid = data.bagid, data.slotid
   local itemID = C_Container.GetContainerItemID(bagid, slotid)
+  data.kind = kind
   data.basic = false
   if itemID == nil then
     data.isItemEmpty = true
@@ -243,6 +250,10 @@ function items:AttachItemInfo(data)
 
   if database:GetItemLock(data.itemInfo.itemGUID) then
     data.itemInfo.isLocked = true
+  end
+
+  if data.itemInfo.isNewItem and self._newItemTimers[data.itemInfo.itemGUID] == nil then
+    self._newItemTimers[data.itemInfo.itemGUID] = time()
   end
 end
 
@@ -348,4 +359,20 @@ function items:GetItemData(itemList, callback)
     end
     callback(dataList)
   end)
+end
+
+---@param data ItemData
+---@return boolean
+function items:IsNewItem(data)
+  if not data then return false end
+  if (self._newItemTimers[data.itemInfo.itemGUID] ~= nil and time() - self._newItemTimers[data.itemInfo.itemGUID] < database:GetNewItemTime()) or
+      data.itemInfo.isNewItem then
+    return true
+  end
+  self._newItemTimers[data.itemInfo.itemGUID] = nil
+  return false
+end
+
+function items:ClearNewItems()
+  wipe(self._newItemTimers)
 end
