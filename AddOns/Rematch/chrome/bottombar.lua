@@ -60,8 +60,11 @@ function rematch.bottombar:Update()
         if rematch.petCard.petID==petID then
             self.SummonButton:SetText(PET_DISMISS)
             self.SummonButton.tooltipTitle = PET_DISMISS
-        else
+        elseif rematch.petInfo:Fetch(rematch.petCard.petID).isOwned then
             self.SummonButton:SetText(BATTLE_PET_SUMMON)
+            self.SummonButton.tooltipTitle = BATTLE_PET_SUMMON
+        else
+            self.SummonButton:Disable()
             self.SummonButton.tooltipTitle = BATTLE_PET_SUMMON
         end
     else

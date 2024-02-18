@@ -71,7 +71,7 @@ function RematchCommonPetListButtonMixin:OnDoubleClick()
             rematch.queue:BlingPetID(self.petID)
         end
         rematch.petCard:Hide()
-    elseif not settings.NoSummonOnDblClick then
+    elseif not settings.NoSummonOnDblClick and rematch.petInfo:Fetch(self.petID).isOwned then
         C_PetJournal.SummonPetByGUID(self.petID)
         rematch.petCard:Hide()
     end
@@ -256,7 +256,7 @@ function RematchPetPickupIconMixin:OnMouseDown(button)
     rematch.textureHighlight:Hide()
 end
 
-function RematchPetPickupIconMixin:OnMouseUp()
+function RematchPetPickupIconMixin:OnMouseUp(button)
     if GetMouseFocus()==self then
         rematch.textureHighlight:Show(self,self:GetParent().Back)
         local parent = self:GetParent()
@@ -283,7 +283,13 @@ function RematchPetPickupIconMixin:OnMouseUp()
             end
         end
 
-        if petInfo.isOwned and petInfo.idType=="pet" and not self:GetParent().noPickup then
+        if button=="RightButton" and not self.noPickup then -- on right-click summon menu
+            rematch.menus:Show(self:GetParent().forQueue and "QueueListMenu" or "PetMenu",self,petID,"cursor")
+        elseif petInfo.isOwned and petInfo.idType=="pet" and not self:GetParent().noPickup then
+            -- ordinarily handled in card manager clicks: if casting leveling/rarity stone or shift-clicking pet
+            if rematch.utils:HandleSpecialPetClicks(petID) then
+                return
+            end
             C_PetJournal.PickupPet(petID)
         end
     end
