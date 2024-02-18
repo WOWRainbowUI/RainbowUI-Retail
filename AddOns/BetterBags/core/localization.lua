@@ -20,8 +20,6 @@ if GetLocale() == "zhTW" then
 	L.data["Left Click to open the menu, right click sort your bags and clear recent items."] = "左鍵: 顯示選單，右鍵: 整理背包並歸類新物品。"
 	L.data["Left Click to open the menu, right click to swap to reagent bank and back."] = "左鍵: 顯示選單，右鍵: 切換材料銀行。"
 	L.data["Left Click to open the menu, right click to clear recent items."] = "左鍵: 顯示選單，右鍵: 將新物品歸類。"
-	L.data["Recent Items"] = "新物品"
-	L.data["Free Slots"] = "空格"
 	
 	-- bagbutton.lua
 	L.data["Empty Bag Slot"] = "空的背包格子"
@@ -78,6 +76,7 @@ if GetLocale() == "zhTW" then
 	L.data["Expansion"] = "資料片"
 	L.data["Trade Skill"] = "交易技能"
 	L.data["Select which categories to show in this bag. If an option is checked, items that belong to the checked category will be put into a section for that category."] = "選擇要在背包中顯示的分類。勾選後，屬於該分類的物品將會放入該分類的區塊中。"
+	L.data["Recent Items"] = "新物品"
 	L.data["Type"] = "物品類型"
 	L.data["Item Compaction"] = "精簡版面"
 	L.data["If Simple is selected, item sections will be sorted from left to right, however if a section can fit in the same row as the section above it, the section will move up."] = "選擇 \"簡單\" 時，物品區塊會從左到右排序，如果某個區塊可以與上方的區塊放在同一列，該區塊會移至上方。"
@@ -195,6 +194,9 @@ if GetLocale() == "zhTW" then
 	
 	-- frames\search.lua
 	L.data["Start typing to search your bags..."] = "輸入文字來搜尋背包中的物品..."
+	
+	-- util\sort.lua
+	L.data["Free Space"] = "空格"
 	
 	-- BetterBags-Teleports
 	L.data["Teleporters"] = "傳送"
