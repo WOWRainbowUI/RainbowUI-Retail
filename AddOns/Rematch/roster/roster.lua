@@ -49,10 +49,16 @@ rematch.events:Register(rematch.roster,"PLAYER_LOGIN",function(self)
     end)
 end)
 
--- experimenting: is this a reliable event that fires on login after pets are ready?
+-- in 5.1.2 and earlier, the first time this event fires started a 0-frame wait for roster:Update() to set up inital pets.
+-- however, it seems that if the default journal had anything searched before reload/login, then at this point in next
+-- login, the search is still limiting pets (without any way to know if a search was used if no addons enabled)
+-- in 5.1.3 this now does a ClearSearchFilter to clear the potential search and trigger a one-off PET_JOURNAL_LIST_UPDATE
+-- to do the initial update. (in the default journal, searches don't carry across sessions so this is safe to clear but
+-- imho these steps shouldn't be necessary)
 function rematch.roster:UPDATE_SUMMONPETS_ACTION(...)
-    rematch.timer:Start(0,rematch.roster.Update) -- update allPets and allSpecies
     rematch.events:Unregister(rematch.roster,"UPDATE_SUMMONPETS_ACTION") -- it served its purpose, now rely on add/delete
+    rematch.events:Register(rematch.roster,"PET_JOURNAL_LIST_UPDATE",rematch.roster.PET_JOURNAL_LIST_UPDATE) -- ClearSearchFilter will trigger this event
+    C_PetJournal.ClearSearchFilter() -- without this line, then a search-filtered default journal in prior session may remain filtered
 end
 
 -- fires when a new pet is added to the journal
@@ -68,6 +74,7 @@ function rematch.roster:PET_JOURNAL_PET_DELETED(...)
     rematch.timer:Start(0,rematch.roster.Update) -- update allPets and allSpecies
 end
 
+-- this is only called in response to a UPDATE_SUMMONPETS_ACTION on login
 function rematch.roster:PET_JOURNAL_LIST_UPDATE(...)
     rematch.events:Unregister(rematch.roster,"PET_JOURNAL_LIST_UPDATE") -- this should've been a one-off call for releasing a pet
     rematch.timer:Start(0,rematch.roster.Update) -- update allPets and allSpecies
@@ -91,7 +98,10 @@ function rematch.roster:Update()
     for speciesID,petIDs in pairs(speciesPetIDs) do
         wipe(petIDs)
     end
-    for i=1,C_PetJournal.GetNumPets() do
+
+    local numPets = C_PetJournal.GetNumPets()
+
+    for i=1,numPets do
         local petID,speciesID = C_PetJournal.GetPetInfoByIndex(i)
         tinsert(allPets,petID or speciesID)
         if not speciesPetIDs[speciesID] then
@@ -113,7 +123,6 @@ function rematch.roster:Update()
     end
 
     rematch.filters:ForceUpdate() -- set dirty flag on filter so list updates
-
     rematch.timer:Start(0,rematch.roster.FinishUpdatingRoster)
 end
 

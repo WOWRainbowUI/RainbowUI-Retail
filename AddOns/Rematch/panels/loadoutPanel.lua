@@ -320,7 +320,13 @@ function rematch.loadoutPanel:PetOnClick(button)
     else
         local petInfo = rematch.petInfo:Fetch(self.petID)
         if petInfo.isOwned and petInfo.idType=="pet" then
-            C_PetJournal.PickupPet(self.petID)
+            if button=="RightButton" then
+                rematch.menus:Show("LoadoutMenu",self,{slot=self:GetParent():GetID(),petID=self.petID},"cursor")
+            elseif rematch.utils:HandleSpecialPetClicks(self.petID) then
+                -- if stone targeting or shift-clicking handled, do nothing
+            else
+                C_PetJournal.PickupPet(self.petID)
+            end
         end
     end
 end

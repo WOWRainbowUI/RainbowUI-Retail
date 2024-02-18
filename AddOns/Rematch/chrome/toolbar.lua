@@ -161,6 +161,10 @@ function rematch.toolbar:SPELL_UPDATE_COOLDOWN()
     self.SafariHatButton.Cooldown:SetCooldown(GetItemCooldown(C.SAFARI_HAT_ITEM_ID))
     self.BandageButton.Cooldown:SetCooldown(GetItemCooldown(C.BANDAGE_ITEM_ID))
     self.SummonPetButton.Cooldown:SetCooldown(GetSpellCooldown(C.GCD_SPELL_ID))
+    if self.LevelingStoneButton:IsVisible() then
+        self.LevelingStoneButton.Cooldown:SetCooldown(GetItemCooldown(self.LevelingStoneButton:GetAttribute("item")))
+        self.RarityStoneButton.Cooldown:SetCooldown(GetItemCooldown(self.RarityStoneButton:GetAttribute("item")))
+    end
 end
 
 function rematch.toolbar:COMPANION_UPDATE()
