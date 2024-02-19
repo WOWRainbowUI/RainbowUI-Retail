@@ -3,13 +3,13 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.3
+## Version: v0.1.4
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-02-17T18:35:54Z
+## X-Date: 2024-02-18T22:09:48Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
-## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog
+## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort
 
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包
 ## Notes-zhTW: BetterBags |n|nAdi 背包的進化版，效能好、bug 少、東西不亂跑，分類清楚好好找。|n|n|cffffd200使用方法: |r點背包視窗左上角的背包圖示顯示設定選單，或是從Esc>選項>插件>背包，進行設定。
@@ -71,5 +71,7 @@ config\help.lua
 config\bags.lua
 config\itemlist.lua
 config\customcat.lua
+
+integrations\consoleport.lua
 
 core\init.lua
