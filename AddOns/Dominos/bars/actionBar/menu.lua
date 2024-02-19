@@ -82,16 +82,6 @@ function Addon.ActionBar:OnCreateMenu(menu)
     local function addLayoutPanel()
         local panel = menu:NewPanel(L.Layout)
 
-        panel:NewCheckButton {
-            name = L.ShowEmptyButtons,
-            get = function()
-                return panel.owner:ShowingEmptyButtons()
-            end,
-            set = function(_, enable)
-                panel.owner:SetShowEmptyButtons(enable)
-            end
-        }
-
         panel.sizeSlizer = panel:NewSlider {
             name = L.Size,
             min = 1,
@@ -114,6 +104,23 @@ function Addon.ActionBar:OnCreateMenu(menu)
         return panel
     end
 
+    local function addButtonPanel()
+        local panel = menu:NewPanel(L.Buttons)
+
+        for _, prop in ipairs(self.ButtonProps) do
+            panel:NewCheckButton {
+                -- a hack to work around naming consistency on my part
+                name = L[(prop == "Counts" and "ShowCountText") or ("Show" .. prop)],
+                get = function()
+                    return panel.owner["Showing" .. prop](panel.owner)
+                end,
+                set = function(_, enable)
+                    panel.owner["SetShow" .. prop](panel.owner, enable)
+                end
+            }
+        end
+    end
+
     local function addPagingPanel()
         local panel = menu:NewPanel(L.Paging)
 
@@ -127,6 +134,7 @@ function Addon.ActionBar:OnCreateMenu(menu)
 
     -- add panels
     addLayoutPanel()
+    addButtonPanel()
     addPagingPanel()
     menu:AddFadingPanel()
     menu:AddAdvancedPanel()
