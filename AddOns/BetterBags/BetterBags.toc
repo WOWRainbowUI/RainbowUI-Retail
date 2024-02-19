@@ -3,13 +3,13 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.3
+## Version: v0.1.4
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-02-17T18:35:54Z
+## X-Date: 2024-02-18T22:09:48Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
-## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog
+## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort
 
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
@@ -76,5 +76,7 @@ config\help.lua
 config\bags.lua
 config\itemlist.lua
 config\customcat.lua
+
+integrations\consoleport.lua
 
 core\init.lua
