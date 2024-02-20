@@ -1,16 +1,10 @@
-lightweight tag 7f04e704999a44a2c39f72a914834301ac30bc07 v1.10.23
-Author:	GitHub <noreply@github.com>
-Date:	Sun Dec 3 22:02:26 2023 -0800
+lightweight tag 78b5a5b30ad3a91007417c936c6491d9c2348894 v1.10.24
+Author:	Antonio Lobato <aj.lobato@gmail.com>
+Date:	Sun Feb 18 21:29:34 2024 -0800
 
-commit 7f04e704999a44a2c39f72a914834301ac30bc07
-Author: Matt Whittington <struz@users.noreply.github.com>
-Date:   Mon Dec 4 17:02:26 2023 +1100
+commit 78b5a5b30ad3a91007417c936c6491d9c2348894
+Author: Antonio Lobato <aj.lobato@gmail.com>
+Date:   Sun Feb 18 21:29:34 2024 -0800
 
-    Fix for Season of Discovery custom max levels per phase (#998)
-    
-    * Fix for Season of Discovery custom max levels per phase
-    
-    _G.MAX_PLAYER_LEVEL is set to the max level for the phase after a /reloadui in game. When logging in initially it is 60 but after reloading or changing zones the change causes a LUA error every time the bags are opened.
-    
-    * Update Classic Era TOC version
+    Added deprecation warning to all versions of the game.
 
