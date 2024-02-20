@@ -13,10 +13,12 @@ local sCurrentFocus = nil;
 
 --
 function VUHDO_combatLogInitLocalOverrides()
+
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_RAID_GUIDS = _G["VUHDO_RAID_GUIDS"];
 	VUHDO_INTERNAL_TOGGLES = _G["VUHDO_INTERNAL_TOGGLES"];
-	VUHDO_updateHealth = _G["VUHDO_updateHealth"];
+	VUHDO_updateHealth = _G["VUHDO_deferUpdateHealth"];
+
 end
 
 
