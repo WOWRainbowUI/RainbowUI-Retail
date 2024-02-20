@@ -215,7 +215,6 @@ end
 function ActionBar:OnAttachButton(button)
     button:SetAttribute("action", button:GetAttribute("index") + (self:GetAttribute("actionOffset") or 0))
     button:SetFlyoutDirectionInsecure(self:GetFlyoutDirection())
-    button:SetShowGridInsecure(Addon:ShowGrid(), Addon.ActionButtons.ShowGridReasons.SHOW_EMPTY_BUTTONS)
 
     for _, prop in pairs(self.ButtonProps) do
         button['SetShow' .. prop](button, self['Showing' .. prop](self))
@@ -463,7 +462,7 @@ for _, prop in pairs(ActionBar.ButtonProps) do
     ActionBar[setterName] = function(self, show, ...)
         show = show and true
 
-        if self.sets[settingKey] == Addon.db.profile[settingKey] then
+        if show == Addon.db.profile[settingKey] then
             self.sets[settingKey] = nil
         else
             self.sets[settingKey] = show
