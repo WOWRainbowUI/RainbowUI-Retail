@@ -34,7 +34,6 @@ local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 -- Tooltip used for scanning.
 -- Let's keep this name for all scanner addons.
 local _SCANNER = "AVY_ScannerTooltip"
-local Scanner = _G[_SCANNER] or CreateFrame("GameTooltip", _SCANNER, UIParent)
 
 -- Use this API to register a function that will be called for every item in the player's bags.
 -- The function you provide will be given an ItemData table, which contains all properties of an item
@@ -51,7 +50,7 @@ categories:RegisterCategoryFunction("BoEBoAItemsCategoryFilter", function(data)
 	-- Only parse items that are Common (1) and above, and are of type BoP, BoE, and BoU
 	local junk = quality ~= nil and quality == 0
 	if (not junk or (bindType ~= nil and bindType > 0 and bindType < 4)) then
-		local category = GetItemCategory(data.bagid, data.slotid)
+		local category = GetItemCategory(data.bagid, data.slotid, data.itemInfo)
 		if (category == S_BOE or category == S_BOA) then
 			return L:G(category)
 		end
@@ -63,8 +62,9 @@ end)
 --- Get the category of an item.
 ---@param bagIndex number
 ---@param slotIndex number
+---@param itemInfo ExpandedItemInfo
 ---@return string|nil
-function GetItemCategory(bagIndex, slotIndex)
+function GetItemCategory(bagIndex, slotIndex, itemInfo)
 	local category = nil
 
 	if (IsRetail) then
@@ -82,27 +82,29 @@ function GetItemCategory(bagIndex, slotIndex)
 			end
 		end
 	else
-		Scanner:ClearLines()
-		Scanner:SetOwner(UIParent, "ANCHOR_NONE")
-		if bagIndex == BANK_CONTAINER then
-			Scanner:SetInventoryItem("player", BankButtonIDToInvSlotID(slotIndex, nil))
-		else
-			Scanner:SetBagItem(bagIndex, slotIndex)
-		end
-		for i = 2, 4 do
-			local line = _G[_SCANNER .. "TextLeft" .. i]
-			if (not line) then
-				break
+		if (itemInfo.bindType == 2 or itemInfo.bindType == 3) then
+			local Scanner = CreateFrame("GameTooltip", _SCANNER .. itemInfo.itemGUID, nil, "GameTooltipTemplate")
+			Scanner:SetOwner(WorldFrame, "ANCHOR_NONE")
+			Scanner:ClearLines()
+			if bagIndex == BANK_CONTAINER then
+				Scanner:SetInventoryItem("player", BankButtonIDToInvSlotID(slotIndex, nil))
+			else
+				Scanner:SetBagItem(bagIndex, slotIndex)
 			end
-			local bind = GetBindString(line:GetText())
-			if (bind) then
-				category = bind
-				break
+			local lines = GetTooltipLines(Scanner)
+			for _, line in ipairs(lines) do
+				if (line == '') then
+					break
+				end
+				local bind = GetBindString(line)
+				if (bind) then
+					category = bind
+					break
+				end
 			end
+			Scanner:Hide()
 		end
-		Scanner:Hide()
 	end
-
 	return category
 end
 
@@ -114,4 +116,16 @@ function GetBindString(msg)
 			return S_BOE
 		end
 	end
+end
+
+---@param tooltip GameTooltip
+function GetTooltipLines(tooltip)
+	local textLines = {}
+	local regions = { tooltip:GetRegions() }
+	for _, r in ipairs(regions) do
+		if r:IsObjectType("FontString") then
+			table.insert(textLines, r:GetText())
+		end
+	end
+	return textLines
 end
