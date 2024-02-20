@@ -22,9 +22,9 @@
 ## Title: AdiBags
 ## Notes: Adirelle's bag addon.
 ## Author: Adirelle
-## Version: v1.10.23
+## Version: v1.10.24
 ## SavedVariables: AdiBagsDB
-## X-Date: 2023-12-04T6:02:26Z
+## X-Date: 2024-02-19T5:29:34Z
 ## X-License: GPL v3
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, Scrap, BrainDead, SyLevel
 #@alpha@
@@ -82,6 +82,7 @@ modules\Masque.lua
 
 core\ItemDatabase.lua
 core\DefaultFilters.lua
+core\Deprecation.lua
 
 #@debug@
 # ## Version: DEV
