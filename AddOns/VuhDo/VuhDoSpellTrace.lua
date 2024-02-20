@@ -27,7 +27,7 @@ local VUHDO_ACTIVE_TRACE_GUIDS = {
 	--		["dstGuid"] = <destination unit GUID>,
 	--	},
 	-- },
-}
+};
 
 local VUHDO_SPELL_TRACE_TYPE_INCOMING = -1;
 local VUHDO_SPELL_TRACE_TYPE_HEAL = -2;
@@ -42,6 +42,7 @@ local sTrailOfLightIcon = nil;
 
 
 --
+local VUHDO_updateBouquetsForEvent;
 local VUHDO_PLAYER_GUID = -1;
 local VUHDO_RAID_GUIDS = { };
 local VUHDO_INTERNAL_TOGGLES = { };
@@ -52,6 +53,8 @@ local sShowIncomingBossOnly = nil;
 local sSpellTraceStoredSettings = nil;
 local sSpellTraceDefaultDuration = nil;
 function VUHDO_spellTraceInitLocalOverrides()
+
+	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquets"];
 
 	VUHDO_PLAYER_GUID = UnitGUID("player");
 	VUHDO_RAID_GUIDS = _G["VUHDO_RAID_GUIDS"];

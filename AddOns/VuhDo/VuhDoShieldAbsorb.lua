@@ -143,13 +143,22 @@ local GetSpellInfo = GetSpellInfo;
 
 
 --
+local VUHDO_updateBouquetsForEvent;
+local VUHDO_updateShieldBar;
+local VUHDO_updateHealAbsorbBar;
 local VUHDO_PLAYER_GUID = -1;
 local sIsPumpAegis = false;
 local sShowAbsorb = false;
 function VUHDO_shieldAbsorbInitLocalOverrides()
+
+	VUHDO_updateBouquetsForEvent = _G["VUHDO_deferUpdateBouquets"];
+	VUHDO_updateShieldBar = _G["VUHDO_deferUpdateShieldBar"];
+	VUHDO_updateHealAbsorbBar = _G["VUHDO_deferUpdateHealAbsorbBar"];
+
 	VUHDO_PLAYER_GUID = UnitGUID("player");
 	sShowAbsorb = VUHDO_PANEL_SETUP["BAR_COLORS"]["HOTS"]["showShieldAbsorb"];
 	sIsPumpAegis = VUHDO_PANEL_SETUP["BAR_COLORS"]["HOTS"]["isPumpDivineAegis"];
+
 end
 
 

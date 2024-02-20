@@ -13,6 +13,27 @@ local VUHDO_RAID;
 local VUHDO_PANEL_SETUP;
 VUHDO_RELOAD_UI_IS_LNF = false;
 
+local VUHDO_DEFERRED_UPDATES = {
+	-- [VUHDO_UPDATE_<HEALTH | BOUQUETS | SHIELD_BAR | HEAL_ABSORB_BAR>] = {
+	--	[<update mode e.g. VUHDO_UPDATE_SHIELD>] = {
+	--		<unit token> = boolean,
+	--	},
+	-- },
+};
+
+local VUHDO_DEFER_HEALTH = 1;
+local VUHDO_DEFER_BOUQUETS = 2;
+local VUHDO_DEFER_SHIELD_BAR = 3;
+local VUHDO_DEFER_HEAL_ABSORB_BAR = 4;
+
+local VUHDO_DEFERRED_UPDATE_TYPES = {
+	VUHDO_DEFER_HEALTH,
+	VUHDO_DEFER_BOUQUETS,
+	VUHDO_DEFER_SHIELD_BAR,
+	VUHDO_DEFER_HEAL_ABSORB_BAR,
+};
+
+
 local VUHDO_parseAddonMessage;
 local VUHDO_spellcastFailed;
 local VUHDO_spellcastSucceeded;
@@ -69,8 +90,11 @@ local sAoeRefreshSecs = 1.3;
 local sBuffsRefreshSecs;
 local sParseCombatLog;
 local VuhDoDirectionFrame;
+local sDeferredUpdateDelegates;
+
 
 local function VUHDO_eventHandlerInitLocalOverrides()
+
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 
@@ -121,6 +145,14 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	sBuffsRefreshSecs = VUHDO_BUFF_SETTINGS["CONFIG"]["REFRESH_SECS"];
 
 	sParseCombatLog = VUHDO_CONFIG["PARSE_COMBAT_LOG"];
+
+	sDeferredUpdateDelegates = {
+		VUHDO_DEFER_HEALTH = _G["VUHDO_updateHealth"],
+		VUHDO_DEFER_BOUQUETS = _G["VUHDO_updateBouquetsForEvent"],
+		VUHDO_DEFER_SHIELD_BAR = _G["VUHDO_updateShieldBar"],
+		VUHDO_DEFER_HEAL_ABSORB_BAR = _G["VUHDO_updateHealAbsorbBar"],
+	};
+
 end
 
 ----------------------------------------------------
@@ -1380,6 +1412,9 @@ function VUHDO_OnUpdate(_, aTimeDelta)
 	-- Own frame flash routines to avoid taints
 	VUHDO_UIFrameFlash_OnUpdate(aTimeDelta);
 
+	-- run deferred updates once per frame
+	VUHDO_updateAllDeferred();
+
 
 	---------------------------------------------------------
 	-- From here 0.08 (80 msec) sec tick should be sufficient
@@ -1659,4 +1694,100 @@ function VUHDO_OnLoad(anInstance)
 	anInstance:SetScript("OnUpdate", VUHDO_OnUpdate);
 
 	VUHDO_printAbout();
+end
+
+
+
+--
+local function VUHDO_deferUpdate(aType, aUnit, aMode)
+
+	if not aType or not aUnit or not aMode then
+		return;
+	end
+
+	if not VUHDO_DEFERRED_UPDATES[aType] then
+		VUHDO_DEFERRED_UPDATES[aType] = { };
+	end
+
+	if not VUHDO_DEFERRED_UPDATES[aType][aMode] then
+		VUHDO_DEFERRED_UPDATES[aType][aMode] = { };
+	end
+
+	VUHDO_DEFERRED_UPDATES[aType][aMode][aUnit] = true;
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_deferUpdateHealth(aUnit, aMode)
+
+	VUHDO_deferUpdate(VUHDO_DEFER_HEALTH, aUnit, aMode);
+
+end
+
+
+
+--
+function VUHDO_deferUpdateBouquets(aUnit, aMode)
+
+	VUHDO_deferUpdate(VUHDO_DEFER_BOUQUETS, aUnit, aMode);
+
+end
+
+
+
+--
+function VUHDO_deferUpdateShieldBar(aUnit)
+
+	VUHDO_deferUpdate(VUHDO_DEFER_SHIELD_BAR, aUnit, 1);
+
+end
+
+
+
+--
+function VUHDO_deferUpdateHealAbsorbBar(aUnit)
+
+	VUHDO_deferUpdate(VUHDO_DEFER_HEAL_ABSORB_BAR, aUnit, 1);
+
+end
+
+
+
+--
+local tDelegate;
+function VUHDO_updateAllDeferred()
+
+	for tType in pairs(VUHDO_DEFERRED_UPDATE_TYPES) do
+		if VUHDO_DEFERRED_UPDATES[tType] then
+			tDelegate = sDeferredUpdateDelegates[tType] or function() end;
+
+			for tMode, tModeUnits in pairs(VUHDO_DEFERRED_UPDATES[tType]) do
+				for tUnit, _ in pairs(tModeUnits) do
+					tDelegate(tUnit, tMode);
+
+					VUHDO_DEFERRED_UPDATES[tType][tMode][tUnit] = nil;
+				end
+			end
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_getDeferredUpdates(aType)
+
+	if not aType then
+		return VUHDO_DEFERRED_UPDATES;
+	end
+
+	return VUHDO_DEFERRED_UPDATES[aType];
+
 end
