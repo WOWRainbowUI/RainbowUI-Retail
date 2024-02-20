@@ -45,7 +45,8 @@ local children = {
   "NormalTexture",
   "NewItemTexture",
   "IconOverlay2",
-  "ItemContextOverlay"
+  "ItemContextOverlay",
+  "IconBorder"
 }
 
 function itemFrame.itemProto:UpdateCooldown()
@@ -93,9 +94,12 @@ function itemFrame.itemProto:SetItem(data)
   end
 
   SetItemButtonTexture(self.button, data.itemInfo.itemIcon)
-  SetItemButtonQuality(self.button, data.itemInfo.itemQuality, data.itemInfo.itemLink, data.itemInfo.isBound)
+  self.button.IconBorder:SetTexture([[Interface\Common\WhiteIconFrame]])
+  self.button.IconBorder:SetVertexColor(unpack(const.ITEM_QUALITY_COLOR[data.itemInfo.itemQuality]))
+  self.button.IconBorder:Show()
   SetItemButtonCount(self.button, data.itemInfo.currentItemCount)
   SetItemButtonDesaturated(self.button, data.itemInfo.isLocked)
+  self.IconQuestTexture:Hide()
   self:SetLock(data.itemInfo.isLocked)
   if data.bagid ~= nil then
     ContainerFrame_UpdateCooldown(data.bagid, self.button)
@@ -107,7 +111,6 @@ function itemFrame.itemProto:SetItem(data)
   --self.button:SetItemButtonTexture(data.itemInfo.itemIcon)
   --self.button.
 --[[
-  self.button.ItemSlotBackground:Hide()
   ClearItemButtonOverlay(self.button)
   self.button:SetHasItem(data.itemInfo.itemIcon)
   self.button:SetItemButtonTexture(data.itemInfo.itemIcon)
@@ -154,7 +157,11 @@ function itemFrame.itemProto:SetFreeSlots(bagid, slotid, count, reagent)
   SetItemButtonCount(self.button, count)
   SetItemButtonQuality(self.button, false)
   SetItemButtonDesaturated(self.button, false)
-  SetItemButtonTexture(self.button, 0)
+  SetItemButtonTexture(self.button, [[Interface\PaperDoll\UI-Backpack-EmptySlot]])
+  self.button.IconBorder:SetTexture([[Interface\Common\WhiteIconFrame]])
+  self.button.IconBorder:SetVertexColor(unpack(const.ITEM_QUALITY_COLOR[Enum.ItemQuality.Common]))
+  self.button.IconBorder:Show()
+  self.IconQuestTexture:Hide()
   self.button.BattlepayItemTexture:SetShown(false)
   self.button.NewItemTexture:Hide()
   self.ilvlText:SetText("")
@@ -197,7 +204,6 @@ function itemFrame.itemProto:ClearItem()
   self.button.BattlepayItemTexture:SetShown(false)
   self.button.NewItemTexture:Hide()
   --ClearItemButtonOverlay(self.button)
-  --self.button.ItemSlotBackground:Hide()
   self.frame:SetID(0)
   self.button:SetID(0)
   self.button.minDisplayCount = 1
@@ -262,9 +268,6 @@ function itemFrame:_DoCreate()
       me.searchOverlay:Show()
     end
   end
-  button.ItemSlotBackground = button:CreateTexture(nil, "BACKGROUND");
-  button.ItemSlotBackground:SetAllPoints(button)
-  button.ItemSlotBackground:SetTexture([[Interface\PaperDoll\UI-Backpack-EmptySlot]])
 
   button.GetInventorySlot = ButtonInventorySlot
   button.UpdateTooltip = function() i:UpdateTooltip() end
