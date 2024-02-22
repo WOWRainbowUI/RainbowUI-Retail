@@ -1,8 +1,7 @@
 # BagSync
 
-## [v19.25](https://github.com/Xruptor/BagSync/tree/v19.25) (2024-01-18)
-[Full Changelog](https://github.com/Xruptor/BagSync/compare/v19.24...v19.25) [Previous Releases](https://github.com/Xruptor/BagSync/releases)
+## [v19.26](https://github.com/Xruptor/BagSync/tree/v19.26) (2024-02-16)
+[Full Changelog](https://github.com/Xruptor/BagSync/compare/v19.25...v19.26) [Previous Releases](https://github.com/Xruptor/BagSync/releases)
 
-- Merge pull request #323 from nanjuekaien1/patch-59  
-    Update BagSync.toc  
-- Update BagSync.toc  
+- DB Check Fix  
+    * Removed an old DB refresh check that was used to check for older database formats.  It was causing issues with those whom were using symlinks to combine multiple accounts together.  (Fixed #324)  
