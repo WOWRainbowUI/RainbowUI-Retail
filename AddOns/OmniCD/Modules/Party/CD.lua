@@ -299,7 +299,7 @@ local function ProcessSpell(spellID, guid)
 
 		local updateSpell = E.spell_merged_updateoncast[spellID]
 		if updateSpell then
-			local cd = updateSpell[1]
+			local cd = updateSpell[1] or icon.duration
 
 			if mergedID == 272651 and P.isPvP and info.talentData[356962] then
 				cd = cd / 2

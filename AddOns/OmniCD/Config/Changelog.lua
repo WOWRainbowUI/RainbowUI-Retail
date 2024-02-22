@@ -18,14 +18,11 @@ v3.4.3.2773
 
 ]=]
 else E.changelog = [=[
-v10.2.5.2783
-	Fixed Void Summoner CDR to include Smite by 4pc set bonus and Dark Reprimand
-	Death and Madness CD fixed to 10s (was 20s)
-
-v10.2.5.2782
-	Shadowfield will correctly be replaced by Mindbender
-	Void Summoner will correctly reduce the remaining Cd of Mindbender
-	Highlighting fixed/added for numerous spells
+v10.2.5.2784
+	Dark Arbiter will correctly replace Summon Gargoyle.
+	Searing Glare cd fix.
+	Purification id fix.
+	nil err fix (on entering instance w/ Weyrnstone buff).
 
 ]=]
 end

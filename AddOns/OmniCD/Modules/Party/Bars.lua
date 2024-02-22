@@ -567,7 +567,7 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 				end
 
 			elseif id == 410318 then
-				if not info.itemData[205146] then
+				if source and not info.itemData[205146] then
 					local pairedUnit = UnitGUID(source)
 					if pairedUnit then
 						info.auras.hasWeyrnstone = pairedUnit
