@@ -519,7 +519,7 @@ E.spell_db = {
 		{ ["class"]="PRIEST",["type"]="offensive",["buff"]=8092,["spec"]={256,258},["name"]="Mind Blast",["duration"]={[256]=24,[258]=9},["icon"]=136224,["spellID"]=8092, },
 	},
 	["PALADIN"] = {
-		{ ["class"]="PALADIN",["type"]="disarm",["buff"]=410126,["spec"]=true,["duration"]=60,["name"]="Searing Glare",["icon"]=135909,["spellID"]=410126, },
+		{ ["class"]="PALADIN",["type"]="disarm",["buff"]=410126,["spec"]=true,["duration"]=45,["name"]="Searing Glare",["icon"]=135909,["spellID"]=410126, },
 		{ ["class"]="PALADIN",["type"]="dispel",["buff"]=4987,["spec"]=65,["duration"]=8,["name"]="Cleanse",["icon"]=135949,["spellID"]=4987, },
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=199448,["spec"]=199452,["duration"]=120,["name"]="Ultimate Sacrifice",["icon"]=135966,["spellID"]=199448, },
 		{ ["class"]="PALADIN",["type"]="disarm",["buff"]=215652,["spec"]=true,["duration"]=45,["name"]="Shield of Virtue",["icon"]=237452,["spellID"]=215652, },
