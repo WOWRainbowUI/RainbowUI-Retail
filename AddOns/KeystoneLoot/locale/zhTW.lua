@@ -10,6 +10,7 @@ Translate['Left click: Open overview'] = '點一下查詢裝備';
 Translate['Right click: Open settings'] = '右鍵: 設定選項';
 Translate['Enable Minimap Button'] = '啟用小地圖按鈕';
 Translate['Enable Loot Reminder'] = '啟用戰利品提醒';
+Translate['Favorites Show All Specializations'] = '最愛顯示所有專精';
 Translate['%s (%s Season %d)'] = '%s（%s 第 %d 賽季）';
 Translate['Veteran'] = '老兵';
 Translate['Champion'] = '勇士';

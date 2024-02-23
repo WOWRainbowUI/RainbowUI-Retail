@@ -185,7 +185,11 @@ function Catalyst:Update()
 	local _itemList = {};
 
 	if (slotID == -1) then
-		_itemList = Addon.Database:GetFavorites(mapID, specID) or {};
+		if (Addon.Database:IsFavoritesShowAllSpecs()) then
+			_itemList = Addon.Database:GetFavoritesForMapID(mapID);
+		else
+			_itemList = Addon.Database:GetFavorites(mapID, specID);
+		end
 	elseif (catalystItemList[slotID] ~= nil) then
 		local itemInfo = catalystItemList[slotID][classID];
 
@@ -194,12 +198,13 @@ function Catalyst:Update()
 		};
 	end
 
-	for itemID, itemInfo in next, _itemList do
+	for itemID, itemInfo in next, _itemList or {} do
 		numItems = numItems + 1;
 
 		local Frame = GetItemFrame(numItems);
 		local FavoriteStar = Frame.FavoriteStar;
 
+		specID = itemInfo.specID or specID;
 		local isFavoriteItem = Addon.Database:GetFavorite(mapID, specID, itemID) ~= nil;
 
 		FavoriteStar:SetDesaturated(not isFavoriteItem);
@@ -207,6 +212,7 @@ function Catalyst:Update()
 
 		Frame.isFavorite = isFavoriteItem;
 		Frame.itemID = itemID;
+		Frame.specID = specID;
 		Frame.Icon:SetTexture(itemInfo.icon);
 		Frame:Show();
 	end
