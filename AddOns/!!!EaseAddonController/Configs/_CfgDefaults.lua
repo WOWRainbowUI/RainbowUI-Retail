@@ -1284,6 +1284,10 @@ D["KeystoneLoot"] = {
     },
 	{
 		type = "text",
+		text = "|cffFF2D2D第一次啟用插件後需要重新登入角色。|r",
+	},
+	{
+		type = "text",
         text = "點小地圖按鈕的 'M+ 裝備查詢' 按鈕也可以打開主視窗。",
     },
 };
