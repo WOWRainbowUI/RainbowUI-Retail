@@ -1,8 +1,7 @@
 # NoAutoClose
 
-## [v1.1.15](https://github.com/NumyAddon/NoAutoClose/tree/v1.1.15) (2024-02-10)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.1.14...v1.1.15) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.2.0](https://github.com/NumyAddon/NoAutoClose/tree/v1.2.0) (2024-02-24)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.1.15...v1.2.0) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- Add classic support  
-- minor cleanup  
-- Add support for Carbonite  
+- "Protected" frames like the spellbook, can now be properly closed with ESC while in combat  
+- Update release process  
