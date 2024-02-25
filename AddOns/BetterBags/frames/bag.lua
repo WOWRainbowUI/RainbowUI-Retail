@@ -86,6 +86,7 @@ local search = addon:GetModule('Search')
 ---@field toRelease Item[]
 ---@field toReleaseSections Section[]
 ---@field views table<BagView, view>
+---@field searchBox SearchFrame
 bagFrame.bagProto = {}
 
 function bagFrame.bagProto:Show()
@@ -147,6 +148,7 @@ function bagFrame.bagProto:Sort()
   PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
   items:RemoveNewItemFromAllItems()
   C_Container:SortBags()
+  items:RefreshAll()
 
   for _, item in pairs(lockList) do
     item:Lock()
@@ -195,10 +197,6 @@ end
 ---@param dirtyItems ItemData[]
 function bagFrame.bagProto:Draw(dirtyItems)
   local view = self.views[database:GetBagView(self.kind)]
-  -- TODO(lobato): Implement slots view, maybe.
-  if self.slots:IsShown() then
-    self:Wipe()
-  end
 
   if view == nil then
     assert(view, "No view found for bag view: "..database:GetBagView(self.kind))
@@ -211,7 +209,9 @@ function bagFrame.bagProto:Draw(dirtyItems)
     self.currentView:GetContent():Hide()
   end
 
+  debug:StartProfile('Bag Render')
   view:Render(self, dirtyItems)
+  debug:EndProfile('Bag Render')
   view:GetContent():Show()
   self.currentView = view
   self.frame:SetScale(database:GetBagSizeInfo(self.kind, database:GetBagView(self.kind)).scale / 100)
@@ -242,14 +242,24 @@ function bagFrame.bagProto:ToggleReagentBank()
   self.isReagentBank = not self.isReagentBank
   if self.isReagentBank then
     BankFrame.selectedTab = 2
-    self.frame:SetTitle(L:G("Reagent Bank"))
+    if self.searchBox.frame:IsShown() then
+      self.frame:SetTitle("")
+      self.searchBox.helpText:SetText(L:G("Search Reagent Bank"))
+    else
+      self.frame:SetTitle(L:G("Reagent Bank"))
+    end
     self.currentItemCount = -1
     --self:ClearRecentItems()
     self:Wipe()
     items:RefreshReagentBank()
   else
     BankFrame.selectedTab = 1
-    self.frame:SetTitle(L:G("Bank"))
+    if self.searchBox.frame:IsShown() then
+      self.frame:SetTitle("")
+      self.searchBox.helpText:SetText(L:G("Search Bank"))
+    else
+      self.frame:SetTitle(L:G("Bank"))
+    end
     self.currentItemCount = -1
     --self:ClearRecentItems()
     self:Wipe()
@@ -261,7 +271,12 @@ function bagFrame.bagProto:SwitchToBank()
   if self.kind == const.BAG_KIND.BACKPACK then return end
   self.isReagentBank = false
   BankFrame.selectedTab = 1
-  self.frame:SetTitle(L:G("Bank"))
+  if self.searchBox.frame:IsShown() then
+    self.frame:SetTitle("")
+    self.searchBox.helpText:SetText(L:G("Search Bank"))
+  else
+    self.frame:SetTitle(L:G("Bank"))
+  end
   self:Wipe()
 end
 
@@ -431,6 +446,15 @@ function bagFrame:Create(kind)
     search:Create(b.frame)
   end
 
+  local searchBox = search:CreateBox(kind, b.frame)
+  searchBox.frame:SetPoint("TOP", b.frame, "TOP", 0, -2)
+  searchBox.frame:SetSize(150, 20)
+  if database:GetInBagSearch() then
+    searchBox.frame:Show()
+    b.frame:SetTitle("")
+  end
+  b.searchBox = searchBox
+
   if kind == const.BAG_KIND.BACKPACK then
     local currencyFrame = currency:Create(b.frame)
     currencyFrame:Hide()
@@ -466,5 +490,14 @@ function bagFrame:Create(kind)
     events:BucketEvent('BAG_UPDATE_COOLDOWN',function(_) b:OnCooldown() end)
   end
 
+  events:RegisterMessage('search/SetInFrame', function (_, shown)
+    if shown then
+      b.searchBox.frame:Show()
+      b.frame:SetTitle("")
+    else
+      b.searchBox.frame:Hide()
+      b.frame:SetTitle(L:G(kind == const.BAG_KIND.BACKPACK and "Backpack" or "Bank"))
+    end
+  end)
   return b
 end

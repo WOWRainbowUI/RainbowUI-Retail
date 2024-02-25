@@ -3,13 +3,13 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.7
+## Version: v0.1.8
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-02-20T22:58:52Z
+## X-Date: 2024-02-24T20:26:55Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
-## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort
+## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort, Pawn
 
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包
 ## Notes-zhTW: BetterBags |n|nAdi 背包的進化版，效能好、bug 少、東西不亂跑，分類清楚好好找。|n|n|cffffd200使用方法: |r點背包視窗左上角的背包圖示顯示設定選單，或是從Esc>選項>插件>背包，進行設定。
@@ -21,6 +21,7 @@ libs\LibWindow-1.1\LibWindow-1.1.lua
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 templates\container.xml
+templates\debug.xml
 
 core\boot.lua
 
@@ -28,14 +29,13 @@ animations\fade.lua
 
 debug\debug.lua
 debug\frames.lua
+debug\profile.lua
 
 core\events.lua
 core\localization.lua
 core\constants.lua
 core\database.lua
 core\hooks.lua
-
-theme\masque.lua
 
 data\equipmentsets.lua
 data\items.lua
@@ -58,6 +58,7 @@ frames\section.lua
 frames\bagbutton.lua
 frames\bagslots.lua
 frames\currency.lua
+frames\debug.lua
 
 views\views.lua
 views\gridview.lua
@@ -73,5 +74,7 @@ config\itemlist.lua
 config\customcat.lua
 
 integrations\consoleport.lua
+integrations\pawn.lua
+integrations\masque.lua
 
 core\init.lua

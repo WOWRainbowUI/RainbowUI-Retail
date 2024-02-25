@@ -14,7 +14,9 @@ L.data = {}
 if GetLocale() == "zhTW" then
 	-- bag.lua
 	L.data["Reagent Bank"] = "材料銀行"
+	L.data["Search Reagent Bank"] = "搜尋材料銀行"
 	L.data["Bank"] = "銀行"
+	L.data["Search Bank"] = "搜尋銀行"
 	L.data["Backpack"] = "背包"
 	L.data["Left Click to open the menu."] = "點一下顯示選單"
 	L.data["Left Click to open the menu, right click sort your bags and clear recent items."] = "左鍵: 顯示選單，右鍵: 整理背包並歸類新物品。"
@@ -109,6 +111,8 @@ if GetLocale() == "zhTW" then
 	
 	-- config\config.lua
 	L.data["General"] = "一般"
+	L.data["Enable In-Bag Search"] = "啟用搜尋列"
+	L.data["If enabled, a search bar will appear at the top of your bags."] = "啟用時，背包上方會顯示搜尋列。"
 	L.data["Show Blizzard Bag Button"] = "顯示背包按鈕"
 	L.data["Show or hide the default Blizzard bag button."] = "顯示畫面右下角，遊戲內建的背包按鈕。"
 	L.data["New Item Duration"] = "新物品持續時間"
@@ -194,6 +198,7 @@ if GetLocale() == "zhTW" then
 	
 	-- frames\search.lua
 	L.data["Start typing to search your bags..."] = "輸入文字來搜尋背包中的物品..."
+	L.data["Search Backpack"] = "搜尋背包"
 	
 	-- util\sort.lua
 	L.data["Free Space"] = "空格"
