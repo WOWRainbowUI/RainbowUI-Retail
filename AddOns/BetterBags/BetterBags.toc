@@ -3,13 +3,13 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.7
+## Version: v0.1.8
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-02-20T22:58:52Z
+## X-Date: 2024-02-24T20:26:55Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
-## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort
+## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort, Pawn
 
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
@@ -26,6 +26,7 @@ libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
 
 templates\container.xml
+templates\debug.xml
 
 core\boot.lua
 
@@ -33,14 +34,13 @@ animations\fade.lua
 
 debug\debug.lua
 debug\frames.lua
+debug\profile.lua
 
 core\events.lua
 core\localization.lua
 core\constants.lua
 core\database.lua
 core\hooks.lua
-
-theme\masque.lua
 
 data\equipmentsets.lua
 data\items.lua
@@ -63,6 +63,7 @@ frames\section.lua
 frames\bagbutton.lua
 frames\bagslots.lua
 frames\currency.lua
+frames\debug.lua
 
 views\views.lua
 views\gridview.lua
@@ -78,5 +79,7 @@ config\itemlist.lua
 config\customcat.lua
 
 integrations\consoleport.lua
+integrations\pawn.lua
+integrations\masque.lua
 
 core\init.lua

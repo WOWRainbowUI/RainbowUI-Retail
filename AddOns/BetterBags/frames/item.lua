@@ -7,9 +7,6 @@ local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 ---@class Constants: AceModule
 local const = addon:GetModule('Constants')
 
----@class MasqueTheme: AceModule
-local masque = addon:GetModule('Masque')
-
 ---@class ItemFrame: AceModule
 local itemFrame = addon:NewModule('ItemFrame')
 
@@ -52,11 +49,12 @@ local debug = addon:GetModule('Debug')
 ---@field IconQuestTexture Texture
 ---@field NormalTexture Texture
 ---@field NewItemTexture Texture
----@field IconOverlay2 Texture
+---@field IconOverlay Texture
 ---@field ItemContextOverlay Texture
 ---@field Cooldown Cooldown
 ---@field UpdateTooltip function
 ---@field LockTexture Texture
+---@field IconQuestTexture Texture
 itemFrame.itemProto = {}
 
 local buttonCount = 0
@@ -69,8 +67,8 @@ local children = {
   "Cooldown",
   "NormalTexture",
   "NewItemTexture",
-  "IconOverlay2",
-  "ItemContextOverlay"
+  "ItemContextOverlay",
+  "UpgradeIcon"
 }
 
 -- parseQuery will parse a query string and return a set of boolean
@@ -96,9 +94,10 @@ local function matchFilter(filter, data)
   -- If no prefix is provided, assume the filter is a name or type filter.
   if value == nil then
     if
+    data.itemInfo.itemName and (
     string.find(data.itemInfo.itemName:lower(), prefix, 1, true) or
     string.find(data.itemInfo.itemType:lower(), prefix, 1, true) or
-    string.find(data.itemInfo.itemSubType:lower(), prefix, 1, true) then
+    string.find(data.itemInfo.itemSubType:lower(), prefix, 1, true)) then
       return true
     end
     return false
@@ -191,8 +190,30 @@ function itemFrame.itemProto:Unlock()
   self.data.itemInfo.isLocked = false
   SetItemButtonDesaturated(self.button, self.data.itemInfo.isLocked)
   self.LockTexture:Hide()
-  self.ilvlText:Show()
+  self:DrawItemLevel()
   database:SetItemLock(self.data.itemInfo.itemGUID, false)
+end
+
+function itemFrame.itemProto:DrawItemLevel()
+  local data = self.data
+  local ilvlOpts = database:GetItemLevelOptions(self.kind)
+  local ilvl = data.itemInfo.currentItemLevel
+  if (ilvlOpts.enabled and ilvl and ilvl > 1 and data.itemInfo.currentItemCount == 1) and
+    (data.itemInfo.classID == Enum.ItemClass.Armor or
+    data.itemInfo.classID == Enum.ItemClass.Weapon or
+    data.itemInfo.classID == Enum.ItemClass.Gem) then
+      self.ilvlText:SetText(tostring(ilvl))
+      if ilvlOpts.color then
+        local r, g, b = color:GetItemLevelColor(ilvl)
+        self.ilvlText:SetTextColor(r, g, b, 1)
+      else
+        self.ilvlText:SetTextColor(1, 1, 1, 1)
+      end
+      self.ilvlText:Show()
+  else
+    self.ilvlText:Hide()
+  end
+
 end
 
 ---@param data ItemData
@@ -229,24 +250,8 @@ function itemFrame.itemProto:SetItem(data)
 
   local bound = data.itemInfo.isBound
 
-  local ilvlOpts = database:GetItemLevelOptions(self.kind)
-  if (ilvlOpts.enabled and data.itemInfo.currentItemLevel > 0 and data.itemInfo.currentItemCount == 1) and
-    (data.itemInfo.classID == Enum.ItemClass.Armor or
-    data.itemInfo.classID == Enum.ItemClass.Weapon or
-    data.itemInfo.classID == Enum.ItemClass.Gem) then
-      self.ilvlText:SetText(tostring(data.itemInfo.currentItemLevel) or "")
-      if ilvlOpts.color then
-        local r, g, b = color:GetItemLevelColor(data.itemInfo.currentItemLevel)
-        self.ilvlText:SetTextColor(r, g, b, 1)
-      else
-        self.ilvlText:SetTextColor(1, 1, 1, 1)
-      end
-      self.ilvlText:Show()
-  else
-    self.ilvlText:Hide()
-  end
-
-
+  self.button.minDisplayCount = 1
+  self:DrawItemLevel()
   self.button.ItemSlotBackground:Hide()
   ClearItemButtonOverlay(self.button)
   self.button:SetHasItem(data.itemInfo.itemIcon)
@@ -263,22 +268,26 @@ function itemFrame.itemProto:SetItem(data)
   self.button:SetReadable(readable)
   self.button:CheckUpdateTooltip(tooltipOwner)
   self.button:SetMatchesSearch(not isFiltered)
-  self.button.minDisplayCount = 1
 
-  if self.kind == const.BAG_KIND.BANK then
-    self:AddToMasqueGroup(const.BAG_KIND.BANK)
-  else
-    self:AddToMasqueGroup(const.BAG_KIND.BACKPACK)
-  end
-  self.button.IconBorder:SetBlendMode("BLEND")
   self:SetAlpha(1)
+  events:SendMessage('item/Updated', self)
   self.frame:Show()
   self.button:Show()
+end
+
+function itemFrame.itemProto:ResetSize()
+  self:SetSize(37, 37)
+  self.button.NormalTexture:SetSize(64, 64)
 end
 
 function itemFrame.itemProto:SetSize(width, height)
   self.frame:SetSize(width, height)
   self.button:SetSize(width, height)
+  self.button.IconBorder:SetSize(width, height)
+  self.button.NormalTexture:SetSize(64/width, 64/height)
+  self.IconQuestTexture:SetSize(width, height)
+  self.IconTexture:SetSize(width, height)
+  self.IconOverlay:SetSize(width, height)
 end
 
 -- SetFreeSlots will set the item button to a free slot.
@@ -297,11 +306,11 @@ function itemFrame.itemProto:SetFreeSlots(bagid, slotid, count, reagent)
     self.button:Disable()
   else
     self.button:Enable()
+    self.button:SetID(slotid)
+    self.frame:SetID(bagid)
   end
 
   self.button.minDisplayCount = -1
-  self.button:SetID(slotid)
-  self.frame:SetID(bagid)
 
   ClearItemButtonOverlay(self.button)
   self.button:SetHasItem(false)
@@ -313,7 +322,9 @@ function itemFrame.itemProto:SetFreeSlots(bagid, slotid, count, reagent)
   self.button:UpdateItemContextMatching()
   SetItemButtonDesaturated(self.button, false)
   self.ilvlText:SetText("")
+  self.ilvlText:Hide()
   self.LockTexture:Hide()
+  self.button.UpgradeIcon:SetShown(false)
 
   if reagent then
     SetItemButtonQuality(self.button, Enum.ItemQuality.Artifact, nil, false, false)
@@ -321,16 +332,10 @@ function itemFrame.itemProto:SetFreeSlots(bagid, slotid, count, reagent)
     SetItemButtonQuality(self.button, Enum.ItemQuality.Common, nil, false, false)
   end
 
-  if self.kind == const.BAG_KIND.BANK then
-    self:AddToMasqueGroup(const.BAG_KIND.BANK)
-  else
-    self:AddToMasqueGroup(const.BAG_KIND.BACKPACK)
-  end
-  self.button.IconBorder:SetBlendMode("BLEND")
-
   self.isFreeSlot = true
   self.button.ItemSlotBackground:Show()
   self.frame:SetAlpha(1)
+  events:SendMessage('item/Updated', self)
   self.frame:Show()
   self.button:Show()
 end
@@ -366,17 +371,17 @@ function itemFrame.itemProto:GetCategory()
     end
   end
 
-  -- Return the custom category if it exists.
+  -- Check for equipment sets first, as it doesn't make sense to put them anywhere else..
+  if self.data.itemInfo.equipmentSet then
+    self.data.itemInfo.category = "Gear: " .. self.data.itemInfo.equipmentSet
+    return self.data.itemInfo.category
+  end
+
+  -- Return the custom category if it exists next.
   local customCategory = categories:GetCustomCategory(self.kind, self.data)
   if customCategory then
     self.data.itemInfo.category = customCategory
     return customCategory
-  end
-
-  -- Check for equipment sets next.
-  if self.data.itemInfo.equipmentSet then
-    self.data.itemInfo.category = "Gear: " .. self.data.itemInfo.equipmentSet
-    return self.data.itemInfo.category
   end
 
   if not self.kind then return L:G('Everything') end
@@ -457,8 +462,7 @@ function itemFrame.itemProto:Wipe()
 end
 
 function itemFrame.itemProto:ClearItem()
-  masque:RemoveButtonFromGroup(self.masqueGroup, self.button)
-  self.masqueGroup = nil
+  events:SendMessage('item/Clearing', self)
   self.kind = nil
   self.frame:ClearAllPoints()
   self.frame:SetParent(nil)
@@ -471,30 +475,21 @@ function itemFrame.itemProto:ClearItem()
   self.button:UpdateJunkItem(false, false)
   self.button:UpdateItemContextMatching()
   SetItemButtonQuality(self.button, false)
+  self.button.minDisplayCount = 1
   SetItemButtonCount(self.button, 0)
   SetItemButtonDesaturated(self.button, false)
   ClearItemButtonOverlay(self.button)
   self.button.ItemSlotBackground:Hide()
   self.frame:SetID(0)
   self.button:SetID(0)
-  self.button.minDisplayCount = 1
   self.button:Enable()
   self.ilvlText:SetText("")
+  self.ilvlText:Hide()
   self.LockTexture:Hide()
-  self:SetSize(37, 37)
+  self:ResetSize()
   self.data = nil
   self.isFreeSlot = false
-end
-
----@param kind BagKind
-function itemFrame.itemProto:AddToMasqueGroup(kind)
-  if kind == const.BAG_KIND.BANK then
-    self.masqueGroup = "Bank"
-    masque:AddButtonToGroup(self.masqueGroup, self.button)
-  else
-    self.masqueGroup = "Backpack"
-    masque:AddButtonToGroup(self.masqueGroup, self.button)
-  end
+  self.button.UpgradeIcon:SetShown(false)
 end
 
 function itemFrame:OnInitialize()
@@ -539,8 +534,9 @@ function itemFrame:_DoCreate()
     i[child] = _G[name..child] ---@type texture
   end
 
-  p:SetSize(37, 37)
-  button:SetSize(37, 37)
+  -- Small fix for missing texture
+  i.IconOverlay = button['IconOverlay']
+
   button:RegisterForDrag("LeftButton")
   button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
   i.button = button
