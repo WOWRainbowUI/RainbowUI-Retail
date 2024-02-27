@@ -854,11 +854,11 @@ if LOCALE == "zhCN" then
 	L["DynamicFOV"] = "动态视野"
 	L["DynamicFOVTT"] = "能够根据飞行速度调整镜头视野。"
 	L["Normal"] = "普通" -- translated (https://legacy.curseforge.com/wow/addons/dragon-rider#c43)
-	L["Advanced"] = "进阶版" -- translated
-	L["Reverse"] = "反向版" -- translated
+	L["Advanced"] = "进阶" -- translated
+	L["Reverse"] = "反向" -- translated
 	L["Challenge"] = "挑战" -- translated
-	L["ReverseChallenge"] = "反向版挑战" -- translated
-	L["Storm"] = "风暴" -- translated
+	L["ReverseChallenge"] = "反向挑战" -- translated
+	L["Storm"] = "风暴之速" -- translated
 	L["COMMAND_help"] = "帮助"
 	L["COMMAND_journal"] = "日志"
 	L["COMMAND_listcommands"] = "命令列表:"
