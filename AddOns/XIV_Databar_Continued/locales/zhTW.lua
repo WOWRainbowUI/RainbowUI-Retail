@@ -155,9 +155,9 @@ L['Artifact Knowledge'] = "神兵知識等級";
 
 -- Travel
 L['Use Random Hearthstone'] = "使用隨機爐石";
-L['Empty Hearthstones List'] = "If you see an empty list, /reload your UI a few seconds after the initial loading (Blizzard is loading items informations asynchronously so that's the only solution for now)."
+L['Empty Hearthstones List'] = "如果下方的清單是空的，或是沒有完整顯示出你擁有的爐石，請等幾秒後再重新載入介面 (暴雪使用非同步的方式載入物品資訊，這是目前唯一的解決方法)。"
 L['Hearthstones Select'] = "選擇爐石";
-L['Hearthstones Select Desc'] = "選擇要使用哪些爐石 (如果選擇了多個爐石，請勾選 '選擇爐石' 選項)";
+L['Hearthstones Select Desc'] = "選擇要使用哪個爐石 (如果選擇了多個爐石，請勾選 \"使用隨機爐石\" 選項)";
 
 -- Additional
 L["XIV Bar Continued"] = "資訊列";  -- used for config menu
@@ -192,3 +192,11 @@ L["Diablo 4"] = "暗黑破壞神IV"
 L["Blizzard Arcade Collection"] = "暴雪遊樂場典藏系列"
 L["Crash Bandicoot 4"] = "袋狼大進擊4"
 L["Hide Friends Playing Other Games"] = "隱藏其他遊戲好友"; -- used for the friend list function I added myself
+
+-- Changelog
+L["%month%-%day%-%year%"] = "%year%年%month%月%day%日"
+L["Version"] = "版本"
+L["Important"] = "重要"
+L["New"] = "新增"
+L["Improvement"] = "改善"
+L["Changelog"] = "更新記錄"
