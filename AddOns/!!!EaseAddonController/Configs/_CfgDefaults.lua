@@ -889,7 +889,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的歌曲是：`飛天`by AyaseＸR-指定``",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`Biri-Biri`by YOASOBI`https://www.youtube.com/watch?v=I2i8ILhpzyU",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
@@ -902,7 +902,7 @@ D["EnhBloodlust"] = {
     },
 	{
 		type = "text",
-        text = "|cffFF2D2D需要進入戰鬥中再開嗜血才有音樂，非戰鬥中開嗜血沒有音樂。|r\n\n測試音樂則不需要進入戰鬥，任何職業都可以測試音樂。\n\n音樂中斷的解決方法請看\nhttp://bit.ly/wowsoundfix",       
+        text = "|cffFF2D2D需要進入戰鬥中再開嗜血才有音樂，非戰鬥中開嗜血沒有音樂。|r\n\n測試音樂則不需要進入戰鬥，任何職業都可以測試音樂。",       
 	},
 	{
 		type = "text",
