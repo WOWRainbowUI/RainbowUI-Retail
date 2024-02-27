@@ -112,7 +112,7 @@ function context:CreateContextMenu(bag)
 		text = addonName..' Dev Mode',
 		--@end-debug@]==]
 		--@non-debug@
-		text = addonName..' v0.1.8',
+		text = addonName..' v0.1.9',
 		--@end-non-debug@
     isTitle = true,
     notCheckable = true
@@ -133,7 +133,7 @@ function context:CreateContextMenu(bag)
         func = function()
           context:Hide()
           database:SetBagView(bag.kind, const.BAG_VIEW.ONE_BAG)
-          items:FullRefreshAll()
+          events:SendMessage('bags/FullRefreshAll')
         end
       },
       {
@@ -147,7 +147,7 @@ function context:CreateContextMenu(bag)
           database:SetBagView(bag.kind, const.BAG_VIEW.SECTION_GRID)
           bag.drawOnClose = true
           bag.currentItemCount = -1
-          items:FullRefreshAll()
+          events:SendMessage('bags/FullRefreshAll')
         end
       },
       {
@@ -159,7 +159,7 @@ function context:CreateContextMenu(bag)
         func = function()
           context:Hide()
           database:SetBagView(bag.kind, const.BAG_VIEW.LIST)
-          items:FullRefreshAll()
+          events:SendMessage('bags/FullRefreshAll')
         end
       }
     }
