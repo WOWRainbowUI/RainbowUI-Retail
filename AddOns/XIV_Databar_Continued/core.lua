@@ -37,7 +37,7 @@ XIVBar.defaults = {
             moduleSpacing = 30,
             barMargin = 0,
             barFullscreen = false,
-            barWidth = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and math.floor(GetScreenWidth())-600 or math.floor(GetScreenWidth())),
+            barWidth = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and math.floor(GetScreenWidth())-650 or math.floor(GetScreenWidth())),
             barHoriz = 'CENTER',
             barCombatHide = false,
             barFlightHide = false,
