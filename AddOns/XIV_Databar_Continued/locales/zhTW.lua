@@ -120,7 +120,7 @@ L['Session Total'] = "本次登入總計";
 
 L['Show XP Bar Below Max Level'] = "未滿等時顯示經驗條";
 L['Use Class Colors for XP Bar'] = "使用職業顏色";
-L['Show Tooltips'] = "顯示滑鼠提示";
+L['Show Tooltips'] = "顯示浮動提示資訊";
 L['Text on Right'] = "文字在右側";
 L['Currency Select'] = "要顯示的兌換通貨";
 L['First Currency'] = "第一種兌換通貨";
@@ -192,3 +192,11 @@ L["Diablo 4"] = "暗黑破壞神IV"
 L["Blizzard Arcade Collection"] = "暴雪遊樂場典藏系列"
 L["Crash Bandicoot 4"] = "袋狼大進擊4"
 L["Hide Friends Playing Other Games"] = "隱藏其他遊戲好友"; -- used for the friend list function I added myself
+
+-- Changelog
+L["%month%-%day%-%year%"] = "%year%年%month%月%day%日"
+L["Version"] = "版本"
+L["Important"] = "重要"
+L["New"] = "新增"
+L["Improvement"] = "改善"
+L["Changelog"] = "更新記錄"

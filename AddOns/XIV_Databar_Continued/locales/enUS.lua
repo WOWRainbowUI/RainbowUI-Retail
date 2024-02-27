@@ -158,6 +158,14 @@ L['Empty Hearthstones List'] = "If you see an empty list, /reload your UI a few 
 L['Hearthstones Select'] = true;
 L['Hearthstones Select Desc'] = "Select which hearthstones to use (be careful if you select multiple hearthstones, you might want to check the 'Hearthstones Select' option)";
 
+-- Changelog
+L["%month%-%day%-%year%"] = true;
+L["Version"] = true;
+L["Important"] = true;
+L["New"] = true;
+L["Improvement"] = true;
+L["Changelog"] = true;
+
 -- 自行加入
 L["XIV Bar Continued"] = true;
 L['Profiles'] = true;
