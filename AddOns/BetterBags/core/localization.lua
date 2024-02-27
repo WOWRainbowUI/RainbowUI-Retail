@@ -12,17 +12,6 @@ local L = addon:NewModule('Localization')
 L.data = {}
 
 if GetLocale() == "zhTW" then
-	-- bag.lua
-	L.data["Reagent Bank"] = "材料銀行"
-	L.data["Search Reagent Bank"] = "搜尋材料銀行"
-	L.data["Bank"] = "銀行"
-	L.data["Search Bank"] = "搜尋銀行"
-	L.data["Backpack"] = "背包"
-	L.data["Left Click to open the menu."] = "點一下顯示選單"
-	L.data["Left Click to open the menu, right click sort your bags and clear recent items."] = "左鍵: 顯示選單，右鍵: 整理背包並歸類新物品。"
-	L.data["Left Click to open the menu, right click to swap to reagent bank and back."] = "左鍵: 顯示選單，右鍵: 切換材料銀行。"
-	L.data["Left Click to open the menu, right click to clear recent items."] = "左鍵: 顯示選單，右鍵: 將新物品歸類。"
-	
 	-- bagbutton.lua
 	L.data["Empty Bag Slot"] = "空的背包格子"
 	
@@ -65,6 +54,11 @@ if GetLocale() == "zhTW" then
 
 	-- section.lua
 	L.data["Item Count: "] = "物品數: " 
+	L.data["Drop "] = "將 " 
+	L.data[" here to add it to "] = " 拖放到這裡以加入" 
+	L.data["."] = "。" 
+	L.data["Hold shift to add "] = "按住 Shift 將 " 
+	L.data[" to "] = " 加入" 
 	
 	-- masque.lua
 	L.data["BetterBags"] = "掰特包"
@@ -185,6 +179,13 @@ if GetLocale() == "zhTW" then
 	L.data["Remove"] = "移除"
 	
 	-- frames\bags.lua
+	L.data["Search Reagent Bank"] = "搜尋材料銀行"
+	L.data["Reagent Bank"] = "材料銀行"
+	L.data["Search Bank"] = "搜尋銀行"
+	L.data["Bank"] = "銀行"
+	L.data["Backpack"] = "背包"
+	L.data["Create Category"] = "建立新分類"
+	L.data["What would you like to name the new category for %s?"] = "請輸入 %s 的新分類名稱:"
 	L.data["Left Click"] = "左鍵"
 	L.data["Open Menu"] = "打開選單"
 	L.data["Shift Left Click"] = "Shift+左鍵"
@@ -192,6 +193,7 @@ if GetLocale() == "zhTW" then
 	L.data["Right Click"] = "右鍵"
 	L.data["Sort Bags"] = "整理背包"
 	L.data["Swap Between Bank/Reagent Bank"] = "切換銀行/材料銀行"
+	L.data["Drop %s here to create a new category for it."] = "將 %s 拖放到這裡來建立新分類。"
 	
 	-- frames\currency.lua
 	L.data["Click to add or remove this currency to and from your backpack."] = "點一下將此貨幣加入背包或從背包中移除。"

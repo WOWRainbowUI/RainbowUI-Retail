@@ -1,32 +1,19 @@
 # BetterBags
 
-## [v0.1.8](https://github.com/Cidan/BetterBags/tree/v0.1.8) (2024-02-24)
-[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.7...v0.1.8) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
+## [v0.1.9](https://github.com/Cidan/BetterBags/tree/v0.1.9) (2024-02-26)
+[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.8...v0.1.9) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
 
-- Ported sizing code to Classic. (#225)  
-- Fixed a bug with normal textures showing up as squares. (#222)  
-- Masque Integration Update (#221)  
-    * Masque integration is now evented instead of in-line.  
-    * Item frame resizing now resizes all properties manually.  
-- Fixed a lua error when selling items with bag slots open. (#220)  
-- Tutorial Fix  
-    * Fixed some tutorials that would not go away/could not be dismissed.  
-- Bugfix.0.1.8 2 (#216)  
-    * Fixed a bug with pawn integrations setting upgrade status on invalid items.  
-    * Overhaul of the debug log frame -- no longer lags and can infinite scroll.  
-    * Added a forced refresh all when sorting bags.  
-    * Fixed a bug in new item detection that would cause weird issues with new items.  
-    * Forcefully check for new items that don't belong as new items.  
-- Search Expanded (again!) (#212)  
-    * Added optional in-bag search for bank and bag.  
-    * Fixed a few bugs around categories not refreshing for bags.  
-- Bugfix 0.1.8 (#205)  
-    * Fixed a bug when dragging and dropping items with an item level that would cause the item level to appear on other items.  
-    * Added currency and money delimiters.  
-    * Gems should no longer show an ilevel if they are stacked.  
-    * The addon will now display the current version in the context window.  
-    * Gear Sets for WotLK have been implemented.  
-    * The much loved, and missed, Pawn item level icon has returned for all versions of WoW.  
-    * Using items no longer causes frames to skip/the game to lag.  
-    * Fixed a bug where the bags would error out if bags changed in any way during combat.  
-- feat: create alpha release workflow (#170)  
+- Section Drop Part 2! (#247)  
+    * Dragging an item to the bag button will now prompt the user to make a new category for that item.  
+    * Disabled gearsets in WotLK on Mac clients due to a crash bug.  
+    * Fixed a few bag draw bugs.  
+- Section Drop and More (#242)  
+    * Fixed a small pawn bug with list view  
+    * Added the ability to click and drag items onto section names to recategorize items from the bag view  
+    * Fixed debug panel close button  
+    * Fixed a bug where bag slots weren't redrawing when purchasing bag slots  
+    * Fixed race condition on setting full refresh  
+    * Added proper reagent bag free slot tooltip  
+    * Free and release all free slot buttons when bag slot is shown  
+- Fixed a bug in pawn arrow's that would cause them to be inconsistent when equipping items. (#228)  
+- Fixed a bug where some items did not show pawn upgrade arrows in Classic. (#226)  
