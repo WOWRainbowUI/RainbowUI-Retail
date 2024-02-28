@@ -31,7 +31,7 @@ XIVBar.Changelog[2700] = {
         ["koKR"] = {},
         ["ruRU"] = {}
     },
-    improvement = {
+    improvment = {
         ["zhCN"] = {},
         ["zhTW"] = {
             "[正式版] 修正 [兌換通貨] 模組的經驗條顏色和材質。",
