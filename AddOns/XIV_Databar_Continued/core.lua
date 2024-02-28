@@ -154,7 +154,7 @@ function XIVBar:OnInitialize()
 
         -- Checking localized "Important" category
         local important_localized = {}
-        if next(data.important[GetLocale()]) ~= nil then
+        if data.important[GetLocale()] ~= nil and next(data.important[GetLocale()]) ~= nil then
             important_localized = data.important[GetLocale()]
         else 
             important_localized = data.important["enUS"]
@@ -184,7 +184,7 @@ function XIVBar:OnInitialize()
 
         -- Checking localized "New" category
         local new_localized = {}
-        if next(data.new[GetLocale()]) ~= nil then
+        if data.new[GetLocale()] ~= nil and next(data.new[GetLocale()]) ~= nil then
             new_localized = data.new[GetLocale()]
         else 
             new_localized = data.new["enUS"]
@@ -214,25 +214,25 @@ function XIVBar:OnInitialize()
 
         -- Checking localized "Improvment" category
         local improvment_localized = {}
-        if next(data.improvement[GetLocale()]) ~= nil then
-            improvment_localized = data.improvement[GetLocale()]
+        if data.improvment[GetLocale()] ~= nil and next(data.improvment[GetLocale()]) ~= nil then
+            improvment_localized = data.improvment[GetLocale()]
         else 
-            improvment_localized = data.improvement["enUS"]
+            improvment_localized = data.improvment["enUS"]
         end
 
-        local improvement = data.improvement and improvment_localized
-        if improvement and #improvement > 0 then
-            page.improvementHeader = {
+        local improvment = data.improvment and improvment_localized
+        if improvment and #improvment > 0 then
+            page.improvmentHeader = {
                 order = 7,
                 type = "header",
-                name = orange(L["Improvement"])
+                name = orange(L["Improvment"])
             }
-            page.improvement = {
+            page.improvment = {
                 order = 8,
                 type = "description",
                 name = function()
                     local text = ""
-                    for index, line in ipairs(improvement) do
+                    for index, line in ipairs(improvment) do
                         text = text .. index .. ". " ..
                                    renderChangelogLine(line) .. "\n"
                     end
