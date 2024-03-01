@@ -1,19 +1,12 @@
 # BetterBags
 
-## [v0.1.9](https://github.com/Cidan/BetterBags/tree/v0.1.9) (2024-02-26)
-[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.8...v0.1.9) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
+## [v0.1.10](https://github.com/Cidan/BetterBags/tree/v0.1.10) (2024-02-28)
+[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.9...v0.1.10) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
 
-- Section Drop Part 2! (#247)  
-    * Dragging an item to the bag button will now prompt the user to make a new category for that item.  
-    * Disabled gearsets in WotLK on Mac clients due to a crash bug.  
-    * Fixed a few bag draw bugs.  
-- Section Drop and More (#242)  
-    * Fixed a small pawn bug with list view  
-    * Added the ability to click and drag items onto section names to recategorize items from the bag view  
-    * Fixed debug panel close button  
-    * Fixed a bug where bag slots weren't redrawing when purchasing bag slots  
-    * Fixed race condition on setting full refresh  
-    * Added proper reagent bag free slot tooltip  
-    * Free and release all free slot buttons when bag slot is shown  
-- Fixed a bug in pawn arrow's that would cause them to be inconsistent when equipping items. (#228)  
-- Fixed a bug where some items did not show pawn upgrade arrows in Classic. (#226)  
+- Bugfix.v0.1.9 (#251)  
+    * Added an option to disable Gear Set categories in Retail.  
+    * All config changes now do a full refresh.  
+    * Made some internal changes to how the "show bags" view is shown on screen, fixing a few bugs.  
+    * When opening and closing bag view, the previous view selected is remembered.  
+    * Changing views while in bag view will now switch you to that view when bags close.  
+    * Increased max scale for bags to 160%  
