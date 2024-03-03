@@ -889,7 +889,7 @@ D["EnhBloodlust"] = {
 	defaultEnable = 1,
 	tags = { "COMBAT" },
 	title = "嗜血音樂",
-	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`Biri-Biri`by YOASOBI`https://www.youtube.com/watch?v=I2i8ILhpzyU",
+	desc = "為嗜血和英勇效果添加超棒的音樂。``這次的音樂是：`Biri-Biri`by YOASOBI``https://www.youtube.com/watch?v=I2i8ILhpzyU",
 	icon = "Interface\\Icons\\spell_nature_bloodlust",
 	img = true,
 	{
