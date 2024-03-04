@@ -113,7 +113,7 @@ function context:CreateContextMenu(bag)
 		text = addonName..' Dev Mode',
 		--@end-debug@]==]
 		--@non-debug@
-		text = addonName..' v0.1.10',
+		text = addonName..' v0.1.14',
 		--@end-non-debug@
     isTitle = true,
     notCheckable = true
@@ -142,6 +142,7 @@ function context:CreateContextMenu(bag)
             database:SetPreviousView(bag.kind, const.BAG_VIEW.ONE_BAG)
           else
             database:SetBagView(bag.kind, const.BAG_VIEW.ONE_BAG)
+            database:SetPreviousView(bag.kind, const.BAG_VIEW.ONE_BAG)
             events:SendMessage('bags/FullRefreshAll')
           end
         end
@@ -162,6 +163,7 @@ function context:CreateContextMenu(bag)
           if database:GetBagView(bag.kind) == const.BAG_VIEW.SECTION_ALL_BAGS then
             database:SetPreviousView(bag.kind, const.BAG_VIEW.SECTION_GRID)
           else
+            database:SetPreviousView(bag.kind, const.BAG_VIEW.SECTION_GRID)
             database:SetBagView(bag.kind, const.BAG_VIEW.SECTION_GRID)
             events:SendMessage('bags/FullRefreshAll')
           end
@@ -183,6 +185,7 @@ function context:CreateContextMenu(bag)
           if database:GetBagView(bag.kind) == const.BAG_VIEW.SECTION_ALL_BAGS then
             database:SetPreviousView(bag.kind, const.BAG_VIEW.LIST)
           else
+            database:SetPreviousView(bag.kind, const.BAG_VIEW.LIST)
             database:SetBagView(bag.kind, const.BAG_VIEW.LIST)
             events:SendMessage('bags/FullRefreshAll')
           end
