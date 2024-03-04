@@ -31,6 +31,7 @@ if GetLocale() == "zhTW" then
 	L.data["Click to deposit all reagents into your reagent bank."] = "點一下將所有材料存放到材料銀行。"
 	L.data["Show Bags"] = "顯示背包欄位"
 	L.data["Click to toggle the display of the bag slots."] = "點一下切換顯示裝備背包的欄位，方便更換背包。"
+	L.data["Cannot toggle bag slots in combat."] = "戰鬥中無法顯示裝備背包的欄位。"
 	L.data["Show Currencies"] = "顯示兌換通貨"
 	L.data["Click to toggle the display of the currencies side panel."] = "點一下切換顯示兌換通貨的面板。"
 	L.data["Show Bag Button"] = "顯示背包按鈕"
@@ -195,6 +196,9 @@ if GetLocale() == "zhTW" then
 	L.data["Sort Bags"] = "整理背包"
 	L.data["Swap Between Bank/Reagent Bank"] = "切換銀行/材料銀行"
 	L.data["Drop %s here to create a new category for it."] = "將 %s 拖放到這裡來建立新分類。"
+	
+	-- frames\bagbutton.lua
+	L.data["Cannot change bags in combat."] = "戰鬥中無法更換背包。"
 	
 	-- frames\currency.lua
 	L.data["Click to add or remove this currency to and from your backpack."] = "點一下將此貨幣加入背包或從背包中移除。"

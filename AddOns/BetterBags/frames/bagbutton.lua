@@ -133,7 +133,7 @@ end
 
 function BagButtonFrame.bagButtonProto:OnClick()
   if InCombatLockdown() then
-    print("BetterBags: "..L:G("Cannot change bags in combat."))
+    print(L:G("BetterBags")..": "..L:G("Cannot change bags in combat."))
     return
   end
   if self.empty and self.kind == const.BAG_KIND.BANK and self.canBuy then self:CheckForPurchase() return end
@@ -146,7 +146,7 @@ end
 
 function BagButtonFrame.bagButtonProto:OnDragStart()
   if InCombatLockdown() then
-    print("BetterBags: "..L:G("Cannot change bags in combat."))
+    print(L:G("BetterBags")..": "..L:G("Cannot change bags in combat."))
     return
   end
   PickupBagFromSlot(self.invID)
@@ -154,7 +154,7 @@ end
 
 function BagButtonFrame.bagButtonProto:OnReceiveDrag()
   if InCombatLockdown() then
-    print("BetterBags: "..L:G("Cannot change bags in combat."))
+    print(L:G("BetterBags")..": "..L:G("Cannot change bags in combat."))
     return
   end
   PutItemInBag(self.invID)
