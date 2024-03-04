@@ -250,7 +250,7 @@ function Tooltip:ColorizeUnit(unitObj, bypass, forceRealm, forceXRBNET, tagAtEnd
 	if BSYC.options.enableCurrentRealmName and unitObj.realm == _G.GetRealmName() then
 		realm = unitObj.realm
 		if BSYC.options.enableCurrentRealmShortName then
-			realm = string.sub(realm, 1, 5)
+			realm = string.sub(realm, 1, 6) -- 暫時修正
 		end
 		addStr = self:HexColor(BSYC.colors.currentrealm, "["..realm.."]")
 	end

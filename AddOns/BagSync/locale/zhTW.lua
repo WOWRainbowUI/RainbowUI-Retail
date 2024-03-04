@@ -183,9 +183,15 @@ L.DisplayFaction = "同時顯示雙方陣營的物品 (|cff3587ff聯盟|r/|cFFDF
 L.DisplayClassColor = "職業顏色"
 L.DisplayItemTotalsByClassColor = "物品總計顯示職業顏色"
 L.DisplayTooltipOnlySearch = "僅在 BagSync 搜尋視窗內顯示修改過的浮動提示資訊"
+L.DisplayTooltipCurrencyData = "兌換通貨顯示 BagSync 浮動提示資訊"
 L.DisplayLineSeparator = "顯示空行分隔線"
+L.DisplayCurrentPlayer = "當前角色"
+L.DisplayCurrentPlayerOnly = "|cFFFFD700只顯示|r當前角色的 BagSync 浮動提示資訊!"
+L.DisplayCurrentPlayerWarn = "|cFF99CC33[會停用公會]|r |cFFDF2B2B(不建議)|r"
+L.DisplayCurrentRealmName = "顯示角色的 |cFF4CBB17[所在伺服器]|r"
+L.DisplayCurrentRealmShortName = "|cFF4CBB17[所在伺服器]|r 顯示短名稱"
 L.DisplayCR = "顯示跨伺服器 / |cffff7d0a[連結伺服器]|r 角色 |cffff7d0a[CR]|r"
-L.DisplayBNET = "顯示所有戰網帳號角色 |cff3587ff[BNet]|r |cFFDF2B2B(不推薦)|r"
+L.DisplayBNET = "顯示所有戰網帳號角色 |cff3587ff[BNet]|r |cFFDF2B2B(不建議)|r"
 L.DisplayItemID = "顯示 [物品ID] "
 L.DisplaySourceDebugInfo = "顯示有用的 [除錯] 訊息"
 L.DisplayWhiteListOnly = "只有白名單的物品顯示總數"
@@ -224,7 +230,7 @@ L.CustomSortInfoWarn = "|cFF99CC33注意: 只用使用數字! (-1,0,3,4)|r"
 L.DisplayShowUniqueItemsTotals = "啟用該選項將允許物品總數量增加獨特的物品，無論物品的統計訊息。|cFF99CC33(推薦)|r"
 L.DisplayShowUniqueItemsTotals_2 = [[
 某些物品例如 |cffff7d0a[Legendaries]|r 可以共享相同的名字但具有不同的統計數據。由於這些物品是彼此獨立處理，因此有時不計入總物品數。啟用此選項將完全忽略獨特的物品統計數據並一視同仁，只要它們共享相同的物品名稱。
-停用此選項將獨立顯示物品計數，因此將考慮物品統計訊息。物品總數將只顯示每個游戲角色共享相同的唯一物品和完全相同的統計數據。|cFFDF2B2B(不推薦)|r
+停用此選項將獨立顯示物品計數，因此將考慮物品統計訊息。物品總數將只顯示每個游戲角色共享相同的唯一物品和完全相同的統計數據。|cFFDF2B2B(不建議)|r
 ]]
 L.DisplayShowUniqueItemsTotalsTitle = "在浮動提示資訊上顯示唯一物品的總數"
 L.DisplayShowUniqueItemsEnableText = "啟用唯一物品的總數"
@@ -232,6 +238,7 @@ L.ColorPrimary = "主要 BagSync 提示顏色"
 L.ColorSecondary = "輔助 BagSync 提示顏色"
 L.ColorTotal = "BagSync [總計] 提示顏色"
 L.ColorGuild = "BagSync [公會] 提示顏色"
+L.ColorCurrentRealm = "BagSync [所在伺服器] 提示顏色"
 L.ColorCR = "BagSync [連結伺服器] 提示顏色"
 L.ColorBNET = "BagSync [戰網] 提示顏色"
 L.ColorItemID = "BagSync [物品ID] 提示顏色"
