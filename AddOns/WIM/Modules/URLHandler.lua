@@ -33,9 +33,13 @@ armoryLinks = {
 		url = "https://raider.io/characters/tw/{realm}/{user}"
 	},
 	{
-		title = "Warcraftlogs (WCL)",
+		title = "WCL",
 		url = "https://www.warcraftlogs.com/character/tw/{realm}/{user}"
 	},
+	{
+        title = "WCL 經典版",
+        url = "https://vanilla.warcraftlogs.com/character/tw/{realm}/{user}"
+    },
 	{
         title = "WoW Armory",
 		--https://worldofwarcraft.blizzard.com/en-us/character/us/moon-guard/zincarla
@@ -45,23 +49,10 @@ armoryLinks = {
 		title = "Wowhead Profiler",
 		url = "http://www.wowhead.com/profile={eu/us}.{realm-}.{user}",
     },
-    {
-        title = "WoWProgress",
-        url = "http://www.wowprogress.com/character/{eu/us}/{realm}/{user}"
-    },
-    {
-        title = "AskMrRobot",
-        --url = "http://www.askmrrobot.com/wow/player/{eu/us}/{realm}/{user}"
-				url = "https://www.askmrrobot.com/optimizer#{eu/us}/{realm}/{user}"
-    },
-    {
-        title = "WoWTrack",
-        url = "https://wowtrack.org/characters/{eu/us}/{realm}/{user}"
-    },
-		{
-				title = "複製角色名稱",
-				url = "{user}"
-		}
+	{
+			title = "複製角色名稱",
+			url = "{user}"
+	}
 };
 
 -- patterns created by Sylvanaar & used in Prat
@@ -266,7 +257,8 @@ local function MENU_ARMORY_CLICKED(self)
     local link = self.value;
     link = link:gsub("{eu/www}", eu_www);
 	realm = string.gsub(realm, "'", "")
-    link = link:gsub("{realm}", realm);
+    --link = link:gsub("{realm}", realm);
+    link = link:gsub("{realm}", (string.gsub(realm,"  ","-")));
     link = link:gsub("{realm%-}", (string.gsub(realm," ","-")));
     link = link:gsub("{user}", user);
     link = link:gsub("{eu/us}", eu_us);
