@@ -34,7 +34,7 @@ ELib:ShadowInside(Options)
 Options.bossButton:Hide()
 Options.backToInterface:SetScript("OnClick",function ()
 	MRT.Options.Frame:Hide()
-	if MRT.is10 or SettingsPanel then
+	if SettingsPanel then
 		SettingsPanel:Show()
 	else
 		InterfaceOptionsFrame:Show()
@@ -146,9 +146,9 @@ Options.modulesList:Update()
 ------------------------------------------------------------
 --[[ 不顯示選項
 MRT.Options.InBlizzardInterface = CreateFrame( "Frame", nil )
-MRT.Options.InBlizzardInterface.name = L.optionframename
-if MRT.is10 or SettingsPanel then
-	local category = Settings.RegisterCanvasLayoutCategory(MRT.Options.InBlizzardInterface, L.optionframename)
+MRT.Options.InBlizzardInterface.name = "Method Raid Tools"
+if SettingsPanel then
+	local category = Settings.RegisterCanvasLayoutCategory(MRT.Options.InBlizzardInterface, "Method Raid Tools")
 	Settings.RegisterAddOnCategory(category)
 else
 	InterfaceOptions_AddCategory(MRT.Options.InBlizzardInterface)
@@ -156,7 +156,7 @@ end
 MRT.Options.InBlizzardInterface:Hide()
 
 MRT.Options.InBlizzardInterface:SetScript("OnShow",function (self)
-	if MRT.is10 or SettingsPanel then
+	if SettingsPanel then
 		if SettingsPanel:IsShown() then
 			HideUIPanel(SettingsPanel)
 		end
@@ -169,8 +169,8 @@ MRT.Options.InBlizzardInterface:SetScript("OnShow",function (self)
 	self:SetScript("OnShow",nil)
 end)
 
-MRT.Options.InBlizzardInterface.button = ELib:Button(MRT.Options.InBlizzardInterface,L.openoptionframe,0):Size(400,25):Point("TOP",0,-100):OnClick(function ()
-	if MRT.is10 or SettingsPanel then
+MRT.Options.InBlizzardInterface.button = ELib:Button(MRT.Options.InBlizzardInterface,"Method Raid Tools",0):Size(400,25):Point("TOP",0,-100):OnClick(function ()
+	if SettingsPanel then
 		if SettingsPanel:IsShown() then
 			HideUIPanel(SettingsPanel)
 		end
@@ -260,7 +260,7 @@ MiniMapIcon:SetScript("OnLeave", function(self)
 	self.anim:Stop()
 	self.iconMini:Hide()
 end)
-if MRT.is10 then
+if not MRT.isClassic then
 	MiniMapIcon.icon:SetSize(20,20)
 	MiniMapIcon.iconMini:SetSize(20,20)
 	MiniMapIcon.icon:SetPoint("CENTER",1,0)

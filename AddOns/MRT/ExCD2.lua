@@ -5741,7 +5741,7 @@ function module.options:Load()
 
 	self.decorationLine = ELib:DecorationLine(self,true,"BACKGROUND",-5):Point("TOPLEFT",self,0,-25):Point("BOTTOMRIGHT",self,"TOPRIGHT",0,-45)
 
-	self.chkEnable = ELib:Check(self,L.Enable,VMRT.ExCD2.enabled):Point(720,-26):Size(18,18):Tooltip("/rt cd"):AddColorState():OnClick(function(self) 
+	self.chkEnable = ELib:Check(self,L.Enable,VMRT.ExCD2.enabled):Point(720,-26):Size(18,18):Tooltip("/rt cd"):AddColorState():TextButton():OnClick(function(self) 
 		if self:GetChecked() then
 			module:Enable()
 		else
@@ -6018,11 +6018,7 @@ function module.options:Load()
 		if self:IsMouseOver() and not ExRT.lib.ScrollDropDown.DropDownList[1]:IsShown() then
 			alpha = 0.8
 		end
-		if ExRT.is10 or ExRT.isLK1 then
-			self.backClassColor:SetGradient("HORIZONTAL",CreateColor(self.backClassColorR, self.backClassColorG, self.backClassColorB, alpha), CreateColor(self.backClassColorR, self.backClassColorG, self.backClassColorB, 0))
-		else
-			self.backClassColor:SetGradientAlpha("HORIZONTAL", self.backClassColorR, self.backClassColorG, self.backClassColorB, alpha, self.backClassColorR, self.backClassColorG, self.backClassColorB, 0)
-		end
+		self.backClassColor:SetGradient("HORIZONTAL",CreateColor(self.backClassColorR, self.backClassColorG, self.backClassColorB, alpha), CreateColor(self.backClassColorR, self.backClassColorG, self.backClassColorB, 0))
 
 		if self:IsMouseOver() and not self.colExpand:IsShown() and self.colBack:IsShown() then
 			self.colExpand:Show()
@@ -6461,11 +6457,7 @@ function module.options:Load()
 		line.colBack:SetPoint("RIGHT",line.col)
 
 		line.colExpand = ELib:Button(line,L.cd2BySpec):Size(120,8):Point("LEFT",line.col,0,0):Point("BOTTOM",line,0,0):OnClick(SpellsListLineColExpand)
-		if ExRT.is10 or ExRT.isLK1 then
-			line.colExpand.Texture:SetGradient("VERTICAL",CreateColor(0.05,0.26,0.09,1), CreateColor(0.20,0.41,0.25,1))
-		else
-			line.colExpand.Texture:SetGradientAlpha("VERTICAL",0.05,0.26,0.09,1, 0.20,0.41,0.25,1)
-		end
+		line.colExpand.Texture:SetGradient("VERTICAL",CreateColor(0.05,0.26,0.09,1), CreateColor(0.20,0.41,0.25,1))
 		local textObj = line.colExpand:GetTextObj()
 		textObj:SetFont(textObj:GetFont(),8,"")
 
@@ -8043,7 +8035,7 @@ function module.options:Load()
 	end)
 	self.optColSet.colorPickerBorder = ExRT.lib.CreateColorPickButton(self.optColSet.superTabFrame.tab[3],20,20,nil,361,-65)
 	self.optColSet.colorPickerBorder:SetScript("OnClick",function (self)
-		if ColorPickerFrame.SetColorRGB then
+		if not ColorPickerFrame.SetupColorPickerAndShow then
 			ColorPickerFrame.previousValues = {currColOpt.textureBorderColorR or module.db.colsDefaults.textureBorderColorR,currColOpt.textureBorderColorG or module.db.colsDefaults.textureBorderColorG,currColOpt.textureBorderColorB or module.db.colsDefaults.textureBorderColorB, currColOpt.textureBorderColorA or module.db.colsDefaults.textureBorderColorA}
 			ColorPickerFrame.hasOpacity = true
 			local nilFunc = ExRT.NULLfunc
@@ -8146,7 +8138,7 @@ function module.options:Load()
 	self.colorSetupFrame.backCooldownAlpha.inOptName = "textureAlphaCooldown"
 
 	local function colorPickerButtonClick(self)
-		if ColorPickerFrame.SetColorRGB then
+		if not ColorPickerFrame.SetupColorPickerAndShow then
 			ColorPickerFrame.previousValues = {currColOpt[self.inOptName.."R"] or module.db.colsDefaults[self.inOptName.."R"],currColOpt[self.inOptName.."G"] or module.db.colsDefaults[self.inOptName.."G"],currColOpt[self.inOptName.."B"] or module.db.colsDefaults[self.inOptName.."B"], 1}
 			local nilFunc = ExRT.NULLfunc
 			local function changedCallback(restore)

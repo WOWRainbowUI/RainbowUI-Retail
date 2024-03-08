@@ -15,8 +15,8 @@ local defOption = {
 	Size = 45,
 	FontSize = 40,
 	Font = "Fonts\\ARIALN.TTF",
-	SoundNext = "Interface\\AddOns\\SharedMedia_Causese\\sound\\Next.ogg",
-	SoundKick = "Interface\\AddOns\\SharedMedia_Causese\\sound\\Interrupt.ogg",
+	SoundNext = "Interface\\AddOns\\MRT\\media\\Sounds\\Next.ogg",
+	SoundKick = "Interface\\AddOns\\MRT\\media\\Sounds\\Interrupt.ogg",
 	Anchor = 1,
 	AnchorOffsetY = 3,
 	AnchorOffsetX = 0,
@@ -108,7 +108,7 @@ function module.options:Load()
 
 	self.decorationLine = ELib:DecorationLine(self,true,"BACKGROUND",-5):Point("TOPLEFT",self,0,-25):Point("BOTTOMRIGHT",self,"TOPRIGHT",0,-45)
 
-	local chkEnable = ELib:Check(self,L.Enable,VMRT.Interrupts.enabled):Point(560,-26):Size(18,18):AddColorState():OnClick(function(self) 
+	local chkEnable = ELib:Check(self,L.Enable,VMRT.Interrupts.enabled):Point(560,-26):Size(18,18):AddColorState():TextButton():OnClick(function(self) 
 		VMRT.Interrupts.enabled = self:GetChecked() 
 		if VMRT.Interrupts.enabled then
 			module:Enable()
@@ -1215,11 +1215,11 @@ function module.options:Load()
 
 	local sounds = {
 		{"","No sound"},
-		{"Interface\\AddOns\\WeakAuras\\Media\\Sounds\\RingingPhone.ogg","RingingPhone"},
-		{"Interface\\AddOns\\SharedMedia_Causese\\sound\\Next.ogg","Next"},
-		{"Interface\\AddOns\\SharedMedia_Causese\\sound\\Interrupt.ogg","Interrupt"},
-		{"Interface\\AddOns\\WeakAuras\\Media\\Sounds\\AirHorn.ogg","AirHorn"},
-		{"Interface\\AddOns\\WeakAuras\\Media\\Sounds\\BikeHorn.ogg","BikeHorn"},
+		{"Interface\\AddOns\\MRT\\media\\Sounds\\RingingPhone.ogg","RingingPhone"},
+		{"Interface\\AddOns\\MRT\\media\\Sounds\\Next.ogg","Next"},
+		{"Interface\\AddOns\\MRT\\media\\Sounds\\Interrupt.ogg","Interrupt"},
+		{"Interface\\AddOns\\MRT\\media\\Sounds\\AirHorn.ogg","AirHorn"},
+		{"Interface\\AddOns\\MRT\\media\\Sounds\\BikeHorn.ogg","BikeHorn"},
 	}
 
 	self.dropDownSoundNext = ELib:DropDown(self.tab.tabs[2],350,10):Size(320):Point("TOPLEFT",100,-110):SetText(VMRT.Interrupts.SoundNext or defOption.SoundNext):AddText(L.InterruptsSoundNext..":")
@@ -1427,7 +1427,7 @@ function module.options:Load()
 			self.color:SetColorTexture(newR,newG,newB,1)
 		end
 
-		if ColorPickerFrame.SetColorRGB then
+		if not ColorPickerFrame.SetupColorPickerAndShow then
 			ColorPickerFrame.previousValues = {color[1],color[2],color[3],1}
 			ColorPickerFrame.hasOpacity = false
 			ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = nilFunc, nilFunc, nilFunc
@@ -1656,7 +1656,7 @@ function module:UpdateVisual()
 	elseif anchor == 3 then anchor1, anchor2 = "RIGHT","LEFT"
 	elseif anchor == 4 then anchor1, anchor2 = "LEFT","RIGHT" end
 	local showColor = not VMRT.Interrupts.NotShowColor
-	local showGlow = VMRT.Interrupts.ShowGlow and type(WeakAuras)=='table'
+	local showGlow = VMRT.Interrupts.ShowGlow and LCG
 	local alpha = VMRT.Interrupts.Alpha or defOption.Alpha
 	local hideNext = VMRT.Interrupts.HideNext
 	local fontKickerSize = VMRT.Interrupts.KickerFontSize or defOption.KickerFontSize
@@ -1698,8 +1698,8 @@ function module:UpdateVisual()
 			frame.text:SetPoint("CENTER")
 		end
 
-		if type(WeakAuras)=='table' then
-			WeakAuras.HideOverlayGlow(frame)
+		if LCG then
+			LCG.ButtonGlow_Stop(frame)
 		end
 
 		frame.color_nocast = VMRT.Interrupts.nocast or defOption.nocast
