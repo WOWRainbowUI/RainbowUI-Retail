@@ -1,6 +1,18 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4840
+* New module: Reminder
+* Minor fixes
+
+v.4840-LK
+* New module: Reminder
+* Minor fixes
+
+v.4840-Classic
+* New module: Reminder
+* Minor fixes
+
 v.4825
 * Fixes
 
