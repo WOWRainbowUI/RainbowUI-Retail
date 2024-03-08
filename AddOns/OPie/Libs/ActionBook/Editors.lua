@@ -1,4 +1,5 @@
 local _, T = ...
+if T.SkipLocalActionBook then return end
 
 local AB = T.ActionBook:compatible(2, 36)
 assert(AB and 1, "Incompatible library bundle")

@@ -172,7 +172,7 @@ end
 do -- ObjectGroup
 	local mcache = {}
 	local function genMethod(t, k)
-		if k ~= nil and type(t[1][k]) == "function" then
+		if type(k) == "string" and type(t[1][k]) == "function" then
 			local r = mcache[k]
 			if r == nil then
 				r = function(self, ...)

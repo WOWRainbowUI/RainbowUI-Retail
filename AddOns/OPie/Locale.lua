@@ -3,7 +3,7 @@ local _, T = ...
 
 local C, z, V, K = GetLocale(), nil
 V =
-    C == "deDE" and { -- 177/177 (100%)
+    C == "deDE" and { -- 177/180 (98%)
       "%d |4minute:minuten; früher (%s)", "%s, um abzubrechen", "%s, um in aktuellen Ergebnissen zu suchen", "(Standard)", "(Gebe hier einen Icon-Namen oder Pfad ein)", "Mit Linksklick aktivieren", "Ring hinzufügen", "Neuen Abschnitt hinzufügen", "Weiter drehen nach Gebrauch", "Alle %s-Charaktere",
       "Alle %s-Spezialisierungen", "Alle Einstellungen", "Alle Charaktere", "Als Schnellaktion erlauben", "Klicke bei gedrückter Alt-Taste, um die bedingte Bindung festzulegen", "Übergänge animieren", "Animation", "Aussehen", "Aspekte", "Allen Spezialisierungen zuweisen",
       "Basiert auf der Aktion des Abschnitts", "Verhalten", "Tastaturbelegungskonflikt", "Tastaturbelegung:", "Kamera-Analogstick", "Abbrechen", "Ringe am Mauszeiger zentrieren", "Aktion ändern", "Änderungen werden nicht gespeichert", "Wähle eine Tastenbelegung für diesen Ring aus oder aktiviere die Option %s in den OPie-Optionen.",
@@ -23,7 +23,7 @@ V =
       "Verstanden. Trotzdem bearbeiten.", "Änderungen rückgängig machen", "Update erforderlich", "Standardbelegungen nutzen", "Benutze den ersten Abschnitt beim öffnen", "Verwende globale Einstellungen", "Nützlichkeit", "Virtueller Mauszeiger", "Sichtbarkeitsbedingung:", "Hexenmeister - Kampf",
       "Hexenmeister - Allgemein", "Weltmarkierungen", "World of Warcraft könnte die Einstellungen von OPie aufgrund unzureichenden Speichers nicht laden. Versucht, einige Addons zu deaktivieren.\n\nAlle jetzt getätigten Änderungen werden nicht gespeichert.", "Du kannst den Vorgang später abbrechen oder zu den vorherigen Einstellungen zurückkehren.", "Man kann erweiterte Makro-Bedingungen benutzen; siehe %s für Details.", "Um die Schnellwahl nutzen zu können, muss die Option %s in den OPie-Einstellungen aktiviert sein.", "Standard",
     }
-    or C == "esES" and { -- 164/177 (92%)
+    or C == "esES" and { -- 164/180 (91%)
       z, "%s para cancelar", "%s para buscar dentro de los resultados actuales", "(predeterminado)", "(introduzca aquí un nombre de icono o ruta)", "Activar con clic izquierdo", "Añadir anillo", "Añadir una nueva rodaja", "Rotación avanzada después de usar", "Todos los personajes %s",
       "Todas las especializaciones %s", "Restablecer todo", "Todos los personajes", "Permitir como acción rapida", z, "Animar transiciones", "Animación", "Apariencia", "Aspectos", "Asignar a todas las especializaciones",
       "Basado en la acción de la rodaja", "Comportamiento", "Conflicto de atajos", "Atajo:", "Control analógico de cámara", "Cancelar", "Centrar anillos al ratón", "Cambiar acción", "No se guardarán los cambios", "Asigne un atajo para este anillo, o active la opción %s en las opciones de OPie.",
@@ -43,7 +43,7 @@ V =
       "Entiendo. Cambiarla en cualquier caso.", "Deshacer cambios", z, "Usar teclados de anillo predeterminados", z, z, "Utilidades", z, "Condición de visibilidad:", "Brujo - Combate",
       "Brujo - General", "Marcadores del mundo", "World of Warcraft no se ha podido cargar las variables guardadas de OPie debido a la falta de memoria. Trate a desactivar algunos otros addons.\n\nLos cambios realizados ahora no se guardarán.", z, "Es posible usar condiciones de macro extendidas; consulte %s para detalles.", "Debes activar la opción %s para este anillo en la configuración de OPie para usar acciones rapidas.", z,
     }
-    or C == "esMX" and { -- 161/177 (90%)
+    or C == "esMX" and { -- 161/180 (89%)
       z, "%s para cancelar", "%s para buscar dentro de los resultados actuales", "(predeterminado)", "(introduzca aquí un nombre de icono o ruta)", "Activar con clic izquierdo", "Añadir anillo", "Añadir una nueva rodaja", "Rotación avanzada después de usar", "Todos los personajes %s",
       "Todas las especializaciones %s", "Restablecer todo", "Todos los personajes", "Permitir al acción rapida", z, z, "Animación", "Apariencia", "Aspectos", "Asignar a todas las especializaciones",
       "Basado en la acción de la rodaja", "Comportamiento", "Conflicto de atajos", "Atajo:", "Control analógico de cámara", "Cancelar", "Centrar anillos al ratón", "Cambiar acción", "No se guardarán los cambios", "Asigne un atajo para este anillo, o active la opción %s en las opciones de OPie.",
@@ -63,7 +63,7 @@ V =
       "Entiendo. Cambiarla en cualquier caso.", "Deshacer cambios", z, "Usar teclados de anillo predeterminados", z, z, "Utilidades", z, "Condición de visibilidad:", "Brujo - Combate",
       "Brujo - General", "Marcadores del mundo", "World of Warcraft no se ha podido cargar las variables guardadas de OPie debido a la falta de memoria. Trate a desactivar algunos otros addons.\n\nLos cambios realizados ahora no se guardarán.", z, "Es posible usar condiciones de macro extendidas; consulte %s para detalles.", "Debes activar la opción %s para este anillo en la configuración de OPie para usar acciones rapidas.", z,
     }
-    or C == "frFR" and { -- 168/177 (94%)
+    or C == "frFR" and { -- 168/180 (93%)
       z, "%s pour annuler", "%s pour rechercher dans les résultats actuels", "(défaut)", "(Entrer le nom ou le chemin de l’icône ici)", "Activer lors du clic gauche", "Ajouter un cercle", "Ajouter une nouvelle action", "Continuer la rotation après utilisation", "Tous les personnages %s",
       "Toutes les spécialisations des %s", "Tous les réglages", "Tous les personnages", "Permettre en tant qu'action rapide", "Alt + clic pour définir des touches avec conditions", z, "Animation", "Apparence", "Aspects", "Assigne à toutes les spécialisations",
       "Selon l'action", "Comportement", "Conflit de raccourcis", "Raccourcis:", "Stick analogique de caméra", "Annuler", "Centrer les anneaux sur la souris", "Changer l'action", "Les changements ne seront pas enregistrés", "Choisissez un raccourcis pour ce cercle, ou activer l'option %s dans les options Opie.",
@@ -83,7 +83,7 @@ V =
       "Compris; modifier de toute façon", "Annuler les modifications", "Mise à jour requise", "Utiliser les raccourcis par défaut", "Utiliser la première action quand ouvert", "Utiliser le paramètre global", "Utilitaire", "Curseur virtuel", "Condition de visibilité", "Démoniste Combat",
       "Démoniste Général", "Marqueurs de Terrain", "World of Warcraft n'a pas pu charger les variables enregistrées d'OPie en raison d'un manque de mémoire. Essayez de désactiver d'autres addons.\n\nToutes les modifications que vous effectuez maintenant ne seront pas sauvegardées.", z, "Vous pouvez utiliser les macro conditionnelles étendues; voir %s pour plus de détails", "Vous devez activer l'option %s pour ce cercle dans les options Opie pour utiliser des actions rapides.", "Défaut",
     }
-    or C == "itIT" and { -- 147/177 (83%)
+    or C == "itIT" and { -- 147/180 (81%)
       z, "%s per annullare", "%s per cercare nei risultati correnti", "(predefinito)", "(inserisci qui il nome o il percorso di un'icona)", "Attivazione al click sinistro", "Aggiungi anello", "Aggiungi una nuova sezione", "Avanzare dopo l'uso", "Tutti i %s personaggi",
       "Tutte le %s specializzazioni", "Tutte", "Tutti i personaggi", "Consenti come azione rapida", z, z, "Animazione", "Apparenza", "Aspetti", z,
       "Basato sull'azione della sezione", "Comportamento", "Conflitto di collegamento", "Collegamento:", z, "Annulla", "Anelli centrati sul mouse", "Cambia azione", "Le modifiche non verranno salvate", "Scegli un collegamento per questo anello o abilita l'opzione %s nelle opzioni OPie.",
@@ -103,7 +103,7 @@ V =
       "Capito; modifica comunque", "Cancella i cambiamenti", z, z, z, z, z, z, z, z,
       z, z, z, z, z, z, "predefinito",
     }
-    or C == "koKR" and { -- 152/177 (85%)
+    or C == "koKR" and { -- 152/180 (84%)
       z, "%s 로 취소", "%s 로 현재 결과 내에서 검색하기", "(기본값)", "(여기에 아이콘 이름이나 경로를 입력하세요)", "좌클릭으로 작동", "고리 추가", "새로운 조각 추가", "사용 후 앞으로 회전", "모든 %s 캐릭터",
       "모든 %s  전문화", "모든 설정", "모든 캐릭터", "빠른 행동으로 허용", z, z, "애니메이션", "모양", "상", z,
       "조각 행동 기반", "동작", "단축키 중복", "단축키:", "카메라 아날로그 스틱", "취소", "고리 중앙을 마우스에", "행동 바꾸기", "변경 사항이 저장되지 않습니다.", "이 고리에 대해 단축키를 선택하거나, OPie 옵션의 %s 설정을 사용합니다.",
@@ -123,27 +123,27 @@ V =
       "이해하지만, 어쨌든 수정합니다.", "변경 사항 취소", z, "기본 고리 단축키 사용", "열렸을 때 첫 번째 조각 사용", z, "유틸기", z, "조각 보임 조건:", "흑마법사 전투",
       "흑마법사 일반", "위치 표시기", "월드오브 워 크래프트가 메모리 부족으로 OPie의 저장된 변수들을 불러올 수 없습니다. 다른 애드온을 비활성화하고 다시 시도하십시오.", z, "확장 매크로 조건들을 사용하려면, 자세한 사항은 %s를 참조하십시오.", "이 고리의 빠른 행동을 사용하려면 OPie 옵션의 %s 설정을 사용해야 합니다.", "기본값",
     }
-    or C == "ruRU" and { -- 134/177 (75%)
+    or C == "ruRU" and { -- 139/180 (77%)
       "%d |4минуту:минуты:минут; назад (%s)", "%s для отмены", "%s для поиска в текущих результатах", "(по умолчанию)", "(введите название иконки или путь к ней)", "Активация левой кнопкой", "Создать кольцо", "Добавить новый фрагмент", z, "Все персонажи   %s",
       "Все специализаций  %s", "Все параметры", "Все персонажи", "Разрешить быстрое применение", "Нажать Alt для установки условной привязки", "Анимировать переходы", "Анимация", "Внешний вид", "Аспекты", "Присвоить всем специализациям",
       "Нажмите, чтобы изменить иконку", "Поведение", "Противоречие назначения горячей клавиши", "Назначение клавиши:", "Аналоговый стик камеры", "Отмена", "Показывать под курсором", "Изменить действие", "Изменения не будут сохранены", "Выберите горячую клавишу для этого кольца, или включите опцию %s в настройках OPie.",
       "Цвет:", "Бой", "Условные привязки", "Условная видимость", "Противоречие с: %s", "Режим взаимодействия с контроллером", "Создать профиль", "Создание Нового профиля", "Создание нового кольца", "Создать новый профиль",
       "Пользовательские Кольца", z, "Настройте OPie путем изменения существующих колец, или создайте Ваше собственное.", "Настройте привязки клавиш OPie ниже. |cffa0a0a0Gray|r и |cffFA2800red|r привязки конфликтуют с другими и в настоящее время не активны.", "Настройте внешний вид и поведение OPie. ПКМ по флажку восстанавливает его в состояние по умолчанию.", "Модификация назначенных клавиш", "Модификация настроек", "Кастомизация иконки", "Назначение клавиш по умолчанию отключено", "По умолчанию",
-      "По умолчанию для всех колец", "Удалить текущий профиль", "Удалить кольцо", "Удалить фрагмент", "Демоны", z, "Отображать как вложенное кольцо", "Отображать как:", z, "Встраивать в другие кольца по умолчанию",
+      "По умолчанию для всех колец", "Удалить текущий профиль", "Удалить кольцо", "Удалить фрагмент", "Демоны", z, "Отображать как вложенное кольцо", "Отображать как:", "Вы точно хотите вернуть все настройки %s к значениям по умолчанию или только настройки в категории %s?", "Встраивать в другие кольца по умолчанию",
       "Вставить часть в это кольцо", "Пустое кольцо", "Увеличивать выбранный фрагмент", "Надеть комплект брони:", "Пример: %s.", "Дополнительные порталы", "Сила Зверя", "Камни возвращения", "Скрытые кольца", "Скрыть панель стоек",
       "Скрыть это кольцо", "Иконка:", z, z, "Импорт снимка", z, z, "Неактивные кольца", "Включая вложенные кольца", z,
       z, "Не сворачивать после использования", "Показывать кольцо поверху", "Сделать это кольцо доступным:", "Отслеживание на миникарте", "Перемещение кольца по вертикали", "Перемещение кольца по горизонтали", z, "Вложенное кольцо: %s", "Многоуровневые кольца",
       "Новое кольцо...", "Новое имя профиля:", z, "Ничего", "Не назначено", "Не настроено", "Не поддерживается выбранным внешним видом", "OPie Кольцо", "OPie кольцо: %s", "OPie кольца",
       "Только %s", "Открыть вложенное кольцо", "Параметры:", "Увеличивать спираль при сворачивании", "Использовать клавиши цифр", "Питомцы", "Превращения", "Порталы и Телепорты", z, "Нажмите %s для сохранения.",
       "Нажмите %s для поиска", "Профиль", "Профиль активируется автоматически, когда вы меняете специализацию.", "Профили сохраняют параметры и привязку клавиш.", "Предметы для заданий", "Быстрое действие в центре кольца", "Быстрое действие если мышь остаётся неподвижной", z, z, z,
-      z, z, "Восстановить настройки по умолчанию", z, z, z, "Название кольца:", "Масштаб кольца", "Кольцо: %s", "Вращение:",
+      z, "Восстановить по умолчанию", "Восстановить настройки по умолчанию", z, "ПКМ чтобы отвязать", z, "Название кольца:", "Масштаб кольца", "Кольцо: %s", "Вращение:",
       z, z, "Чувствительность колеса прокрутки", "Поиск", "Выберите кольцо для изменения", "Дважды щелкните, чтобы добавить в кольцо.", z, z, "Поделиться кольцом", z,
       "Показывать время востановления", "Показать время восстановления", z, "Показать этот фрагмент для:", "Показать всплывающие подсказки", z, "Фрагмент #%d", z, "Снимок:", z,
       "Сделайте снимок этого кольца, чтобы поделиться им с другими.", "Метка цели", z, z, "Этот раздел", z, "Данное сочетание клавиш уже используется другим аддоном.", z, "Профессиональные навыки", "Аксессуары",
-      z, "Отменить изменения", z, "Использовать привязку  для колец по умолчанию", z, z, z, z, "Видимые условия:", z,
+      z, "Отменить изменения", "Требуется обновление", "Использовать привязку  для колец по умолчанию", z, "Использовать глобальные настройки", z, z, "Видимые условия:", z,
       z, "Световые метки", "World of Warcraft не удалось загрузить сохраненные переменные OPie из-за нехватки памяти. Попробуйте отключить другие аддоны.\n\nВсе внесенные изменения в настоящее время не будут сохраняться.", z, "Вы можете использовать расширенные макро условия; см. %s.", "Вы должны включить опцию %s в настройках OPie.", "по умолчанию",
     }
-    or C == "zhCN" and { -- 145/177 (81%)
+    or C == "zhCN" and { -- 145/180 (80%)
       z, "%s取消", "%s在当前结果内搜索", "(默认)", "（输入图标名称或路径）", "左键点击时激活", "添加环", "添加一个新功能", z, "所有%s角色",
       "%s的所有专精", "所有设置", "全部角色", "允许作为快捷动作", z, z, "动画", "外观", z, z,
       "按功能显示", "行为", "快捷键冲突", "快捷键：", z, "取消", "在鼠标位置打开环", z, "修改将不被保存", "为此环绑定快捷键，或在OPie设置中启用%s选项。",
@@ -163,7 +163,7 @@ V =
       "明白了；继续编辑", "撤销变动", z, "使用默认环快捷键", "打开时使用第一个功能", "使用全局设定", "工具", z, "可见条件：", "术士战斗",
       "术士通用", "世界标记", "由于内存不足，魔兽世界不能加载已保存的OPie变量。请尝试禁用其他插件。现在你所做的任何改动都不会被保存。", z, "你可以使用扩展的宏条件；详情见%s。", "必须为此环启用%s选项以使用快捷动作。", "默认",
     }
-    or C == "zhTW" and { -- 177/177 (100%)
+    or C == "zhTW" and { -- 177/180 (98%)
       "%d 分鐘前 (%s)", "%s取消", "%s在目前的結果內搜尋", "(預設)", "(在此輸入圖示名稱或路徑)", "左鍵點擊使用", "新增環", "加入一個新的功能", "使用後進階顯示", "所有 %s 角色",
       "所有 %s 專精", "所有設定", "所有角色", "設為快速動作", "Alt+左鍵 設定條件式綁定", "轉換動畫", "動畫", "外觀", "守護", "給所有專精使用",
       "依據自身的功能顯示圖示", "行為", "按鍵已被使用", "按鍵綁定:", "移動視角用的類比搖桿", "取消", "在滑鼠位置顯示環", "更改動作", "不會儲存變更", "選擇這個環的按鍵綁定，或是在 OPie 選項中啟用 %s。",
@@ -183,7 +183,7 @@ V =
       "瞭解; 仍要繼續編輯", "復原變更", "需要更新", "使用預設的環按鍵綁定", "展開時使用第一個功能", "使用整體設定", "工具", "虛擬滑鼠游標", "顯示條件:", "術士戰鬥",
       "術士一般", "世界標記圖示", "記憶體不足! 魔獸世界無法載入 OPie 已儲存的變數，請停用其它插件。\n\n現在做的任何變更都不會被儲存。", "稍後可以取消或還原成先前的設定。", "可以使用擴充的巨集條件式；詳細內容請看 %s。", "要使用快速功能，必須在 OPie 選項中替這個環啟用 %s。", "預設",
     }
-    or C == "ptBR" and { -- 177/177 (100%)
+    or C == "ptBR" and { -- 177/180 (98%)
       "%d |4minuto:minutos; atrás(%s)", "%s para cancelar", "%s para procurar dentro dos resultados atuais", "(padrão)", "(insira o nome ou o caminho do ícone aqui)", "Ativa com botão esquerdo do mouse.", "Adicionar anel", "Adicionar nova fatia", "Avançar rotação após o uso", "Todos os personagens %s",
       "Todas as especializações de %s", "Todas Configurações", "Todos os personagens", "Permitir como ação rápida", "Alt e clique para definir atalho condicional", "Animar Transições", "Animação", "Aparência", "Aspectos", "Atribuir a todas as especializações",
       "Baseado na ação da fatia", "Comportamento", "Conflito de atalhos", "Atalho:", "Joystick de camera", "Cancelar", "Centralizar os anéis no cursor", "Mudar ação", "As alterações não serão salvas", "Escolha um atalho para este anel ou ative a opção de %s nas opções do OPie.",

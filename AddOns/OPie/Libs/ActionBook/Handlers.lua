@@ -53,7 +53,7 @@ if MODERN_MOUNTS then -- mount: mount ID
 				local sf = GetShapeshiftForm()
 				local _, _, _, fsid = GetShapeshiftFormInfo(sf ~= 0 and sf or -1)
 				local n = GetSpellInfo(fsid or -1)
-				if not (InCombatLockdown() or n == MOONKIN_FORM) then
+				if not (InCombatLockdown() or MODERN and n == MOONKIN_FORM) then
 					b:SetAttribute("type", "macro")
 				end
 			end)
@@ -83,8 +83,8 @@ if MODERN_MOUNTS then -- mount: mount ID
 	function mountHint(id)
 		local usable = (not (InCombatLockdown() or IsIndoors())) and HasFullControl() and not UnitIsDeadOrGhost("player")
 		local cname, sid, icon, active, usable2 = C_MountJournal.GetMountInfoByID(id)
-		local time, cdStart, cdLength = GetTime(), GetSpellCooldown(sid)
-		return usable and cdStart == 0 and usable2, active and 1 or 0, icon, cname, 0, (cdStart or 0) > 0 and (cdStart+cdLength-time) or 0, cdLength, callMethod.SetMountBySpellID, sid
+		local cdStart, cdLength = GetSpellCooldown(sid)
+		return usable and cdStart == 0 and usable2, active and 1 or 0, icon, cname, 0, (cdStart or 0) > 0 and (cdStart+cdLength-GetTime()) or 0, cdLength, callMethod.SetMountBySpellID, sid
 	end
 	local actionMap = {}
 	local function createMount(id)
@@ -165,13 +165,24 @@ do -- spell: spell ID + mount spell ID
 			function SetSpellByID(self, ...)
 				return SetRankText(self, (...), self:SetSpellByID(...))
 			end
-			SetSpellByExactID = SetSpellByID
+			function SetSpellByExactID(self, sid)
+				return SetRankText(self, sid, self:SetSpellByID(sid, nil, nil, true))
+			end
 		end
 	end
 	local getSpellIDFromName = CI_ERA and function(n)
 		return (select(7, GetSpellInfo(n or "")))
 	end or function(n)
 		return tonumber(((GetSpellLink(n) or ""):match("spell:(%d+)")))
+	end
+	local RUNE_BASESPELL_CACHE, RUNE_SPELLS = {}, {} if CI_ERA then
+		for sid in ("399967 417346 399954 417347 415450 417345 399966 417348 415449"):gmatch("%d+") do
+			RUNE_SPELLS[sid+0] = GetSpellInfo(sid+0)
+		end
+		setmetatable(RUNE_BASESPELL_CACHE, {__index=function(t, k)
+			t[k] = RUNE_SPELLS[FindBaseSpellByID(k)] or false
+			return t[k]
+		end})
 	end
 	local function spellHint(n, _modState, target)
 		if not n then return end
@@ -180,7 +191,7 @@ do -- spell: spell ID + mount spell ID
 		if mjID then return mountHint(mjID) end
 		if not sname then return end
 		local time, msid = GetTime(), spellMap[lowered[n]] or sid
-		local inRange, usable, nomana, hasRange = NormalizeInRange[IsSpellInRange(n, target or "target")], IsUsableSpell(n)
+		local inRange, usable, nomana, hasRange = NormalizeInRange[IsSpellInRange(sid and RUNE_BASESPELL_CACHE[sid] or n, target or "target")], IsUsableSpell(n)
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
 		local cooldown, cdLength, enabled = GetSpellCooldown(n)
 		local cdLeft = (cooldown or 0) > 0 and (enabled ~= 0) and (cooldown + cdLength - time) or 0
@@ -242,10 +253,12 @@ do -- spell: spell ID + mount spell ID
 		local name2, sid2, icon2, rank, name, _, icon, _, _, _, _, icon1 = nil, nil, nil, GetSpellSubtext(id), GetSpellInfo(id)
 		local laxRank = CF_CLASSIC and flags ~= 16 and "lax-rank"
 		local _, castType = RW:IsSpellCastable(id, nil, laxRank)
-		if name and castType ~= "forced-id-cast" then
+		if castType == "rune-ability-spell" then
+			_, icon2 = GetSpellTexture(id)
+		elseif name and castType ~= "forced-id-cast" then
 			local qRank = (MODERN or q == "list-query" or not laxRank) and rank or nil
 			rank, name2, _, icon2, _, _, _, sid2 = GetSpellSubtext(name, rank), GetSpellInfo(name, qRank)
-			if MODERN and sid2 and IsPassiveSpell(sid2) then
+			if MODERN and sid2 and IsPassiveSpell(sid2) or RUNE_SPELLS[id] then
 				icon, name2, icon2 = icon1 or icon, nil, nil
 			end
 		end
@@ -263,6 +276,7 @@ do -- spell: spell ID + mount spell ID
 	end
 	
 	function EV.SPELLS_CHANGED()
+		wipe(RUNE_BASESPELL_CACHE)
 		for k, v in pairs(spellMap) do
 			if v ~= 161691 then
 				spellMap[k] = nil
@@ -322,10 +336,11 @@ do -- item: items ID/inventory slot
 			return toyHint(iid, nil, target)
 		elseif iid then
 			cdStart, cdLen, enabled = C_Container.GetItemCooldown(iid)
-			local time = GetTime()
-			cdLeft = (cdStart or 0) > 0 and (enabled ~= 0) and (cdStart + cdLen - time)
+			cdLeft = (cdStart or 0) > 0 and (enabled ~= 0) and (cdStart + cdLen - GetTime())
 		end
-		local inRange, hasRange = NormalizeInRange[(not (MODERN and InCombatLockdown()) or nil) and IsItemInRange(ident, target or "target")]
+		-- TODO: Unconditional after 3.4.3
+		local canRange = not (COMPAT ~= 30403 and InCombatLockdown() and UnitIsFriend("player", target or "target")) or nil
+		local inRange, hasRange = canRange and NormalizeInRange[IsItemInRange(ident, target or "target")]
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
 		if ibag and islot then
 			bag, slot = ibag, islot
@@ -792,8 +807,7 @@ do -- extrabutton
 		              (at == "spell" and IsSpellOverlayed(aid) and 2 or 0) +
 		              (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024)
 		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
-			local time = GetTime()
-			cdLeft, cdLength = chargeStart-time + chargeDuration, chargeDuration
+			cdLeft, cdLength = chargeStart + chargeDuration - GetTime(), chargeDuration
 		end
 		usable = not not (usable and inRange and ((cooldown == nil or cooldown == 0) or (enabled == 0) or (charges > 0)))
 		return usable, state, GetActionTexture(slot), GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)), count <= 1 and charges or count, cdLeft, cdLength, callMethod.SetAction, slot
@@ -1098,8 +1112,8 @@ do -- disenchant: iid
 		local name = GetItemInfo(ident)
 		local qual = MODERN and ident and (C_TradeSkillUI.GetItemReagentQualityByItemInfo(ident) or C_TradeSkillUI.GetItemCraftedQualityByItemInfo(ident))
 		qual = qual and qual > 0 and qual < 8 and (qual * 16384) or 0
-		local time, cdStart, cdLength = GetTime(), GetSpellCooldown(DISENCHANT_SID)
-		local cdLeft = (cdStart or 0) > 0 and (cdStart + cdLength - time) or 0
+		local cdStart, cdLength = GetSpellCooldown(DISENCHANT_SID)
+		local cdLeft = (cdStart or 0) > 0 and (cdStart + cdLength - GetTime()) or 0
 		local state = (IsCurrentItem(ident) and 1 or 0) + (usable and 0 or 1024) + qual + 131072
 		local disName = ICON_PREFIX .. (name or ("item:" .. ident))
 		return not not (usable and (cdLength or 0) == 0), state, GetItemIcon(ident), disName, count,
@@ -1142,7 +1156,10 @@ if MODERN then -- /ping
 		if clause then
 			clause = lowered[clause]
 			local ci = INFO[TOKENS[clause] or clause] or INFO[C_Ping.GetContextualPingTypeForUnit(UnitGUID(target ~= "cursor" and target or "mouseover") or nil) == 4 and 2 or 1]
-			return true, true, 262144, ci[2], ci[1], 0, 0, 0
+			local perm = (not IsInRaid() or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player") or not C_PartyInfo.GetRestrictPings())
+			local cdInfo, nowMs = C_Ping.GetCooldownInfo(), GetTime()*1000
+			local cd = cdInfo.endTimeMs > nowMs and (cdInfo.endTimeMs-nowMs)/1000 or 0
+			return true, perm and cd == 0 or false, 262144, ci[2], ci[1], 0, cd, cd > 0 and (cdInfo.endTimeMs-cdInfo.startTimeMs)/1000 or 0
 		end
 	end)
 end

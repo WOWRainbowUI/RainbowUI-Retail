@@ -6,19 +6,19 @@ local HOLD_ACTION_DELAY, PAGE_DELAY, STEPPER_REPEAT_DELAY = 0.15, 0.25, 1/3
 local MIN_ANIMATION_FRAMERATE, ANIMATION_TARGET_DURATION = 45, 0.2
 local STYLES, DEFAULT_STYLE = {}, "minimal" do
 	STYLES.common = {
-		trackWidth = 20, stepperReserve = 18.5, stepperMarginY = 1, stepperTrack = true, thumbMinSize=22,
+		trackWidth = 20, stepperReserve = 18.5, stepperMarginY = 1, stepperTrack = true, thumbMinSize=16,
 		trackTop = {"t", "Interface/PaperDollInfoFrame/UI-Character-ScrollBar", tc={2/64, 29/64, 0/256, 32/256}, w=22, h=22/27*32},
 		trackTopBare = {tc={2/64, 29/64, 21/256, 32/256}, h=22/27*11},
 		trackMid = {"t", "Interface/PaperDollInfoFrame/UI-Character-ScrollBar", tc={2/64, 29/64, 28/256, 1}},
 		trackBot = {"t", "Interface/PaperDollInfoFrame/UI-Character-ScrollBar", tc={35/64, 62/64, 228/256, 255/256}, w=22, h=22},
 		trackBotBare = {tc={35/64, 62/64, 228/256, 234/256}, h=22/27*6},
 		trackBack = {"c", 0x5a000000, insetH=2, insetV=1},
-		thumb = {w=17, h=20, ofsX=0.25, midOfsB=6, midOfsT=12},
-		thumbTop = {"a", "UI-ScrollBar-Knob-EndCap-Top"},
+		thumb = {w=15, h=20, ofsX=0.25, midOfsAbsolute=true, midOfsB=6, midOfsT=6},
+		thumbTop = {"a", "UI-ScrollBar-Knob-EndCap-Top", hcB=28, h=20, hcT=1},
 		thumbTopH = {"a", "UI-ScrollBar-Knob-MouseOver-EndCap-Top"},
 		thumbMid = {"a", "UI-ScrollBar-Knob-Center", h=0, tch=1022},
 		thumbMidH = {"a", "UI-ScrollBar-Knob-MouseOver-Center", h=0, tch=1022},
-		thumbBot = {"a", "UI-ScrollBar-Knob-EndCap-Bottom"},
+		thumbBot = {"a", "UI-ScrollBar-Knob-EndCap-Bottom", hcB=28, h=20},
 		thumbBotH = {"a", "UI-ScrollBar-Knob-MouseOver-EndCap-Bottom"},
 		step = {w=18, h=16, tc={0.20, 0.80, 0.25, 0.75}},
 		stepUp = {"t", "Interface/Buttons/UI-ScrollBar-ScrollUpButton-Up"},
@@ -81,11 +81,13 @@ function ScrollBar:GetValue()
 	local d = assert(getWidgetData(self, ScrollBarData), "Invalid object type")
 	return d.val
 end
-function ScrollBar:SetValue(value)
+function ScrollBar:SetValue(value, forceNotify)
 	local d = assert(getWidgetData(self, ScrollBarData), "Invalid object type")
-	assert(type(value) == "number", 'Syntax: ScrollBar:SetValue(value)')
+	assert(type(value) == "number", 'Syntax: ScrollBar:SetValue(value[, forceNotify])')
 	if d.val ~= value then
 		iSB.SetValue(d, value, false, true)
+	elseif forceNotify then
+		iSB.NotifyValueChanged(d, false, false)
 	end
 end
 function ScrollBar:GetMinMaxValues()
@@ -230,7 +232,7 @@ function ScrollBar:GetAnimationMaxSteps()
 	return d.maxAnimSteps
 end
 
-local confTexture do
+local confTexture, confTextureS do
 	local p0, p1, p2
 	local function p(k)
 		local s = p0 and p0[k] ~= nil and p0 or
@@ -244,10 +246,10 @@ local confTexture do
 		end
 		return ...
 	end
-	function confTexture(tex, ...) -- (tex, p0, p1, p2)
+	function confTextureS(tex, sz, ...) -- (tex, sz, p0, p1, p2)
 		p0, p1, p2 = ...
 		local at, av, w, h, blend, desat, tc, vc = p(1), p(2), p("w"), p("h"), p("blend"), p("desat"), p("tc"), p("vc")
-		local asize = at == "a" and p("asize")
+		local asize, hcB, hcT, cutB, cutT = at == "a" and p("asize"), p("hcB"), p("hcT"), 0, 0
 		if at == "a" then
 			tex:SetAtlas(av, not not asize)
 		elseif at == "t" then
@@ -258,13 +260,20 @@ local confTexture do
 			a, r, g, b = (a - a % 1)/255, (r - r % 1)/255, (g - g % 1)/255, (b - b % 1)/255
 			tex:SetColorTexture(r, g, b, a)
 		end
+		if sz and hcB and sz < hcB then
+			local cut = 1-sz/hcB
+			h, cutB, cutT = h - hcB + sz, hcT and 0 or cut, hcT and cut or 0
+		end
 		if not asize then
 			tex:SetSize(w or 0, h or 0)
 		end
 		tex:SetBlendMode(blend or "BLEND")
 		tex:SetDesaturated(desat or false)
-		tex:SetTexCoord(readpack(tc, 0,1, 0,1))
+		tex:SetTexCoord(readpack(tc, 0,1, cutB,1-cutT))
 		tex:SetVertexColor(readpack(vc, 1,1,1,1))
+	end
+	function confTexture(tex, ...)
+		return confTextureS(tex, nil, ...)
 	end
 end
 local function anchorTexTrio(t, useAbsoluteOffsets, ofsStart, ofsEnd, xShift, yShift)
@@ -474,8 +483,11 @@ function iSB.SetValueAnimated(d, nv, isInternalChange, targetDuration)
 	end
 	local et, ad, sv, now = d.animEnd, d.animDur, d.val, GetTime()
 	local r0, r1 = et and (at-d.animStart), nv - sv
+	d.animTarget, d.animEnd = nv, now + targetDuration - 1/60
+	d.Track:SetScript("OnUpdate", iSB.OnTrackUpdate)
 	if et == nil or et <= now or (r0 < 0) ~= (r1 < 0) or r1 == 0 then
 		d.animStart, d.animDur = at or sv, targetDuration
+		iSB.OnTrackUpdate(d.Track)
 	else
 		r0, r1 = r0 < 0 and -r0 or r0, r1 < 0 and -r1 or r1
 		local p = 1-(et-now)/ad
@@ -485,8 +497,6 @@ function iSB.SetValueAnimated(d, nv, isInternalChange, targetDuration)
 		local d1 = p1*(nv-sv)/(1-p1)
 		d.animStart, d.animDur = sv-d1, targetDuration/(1-x1)
 	end
-	d.animTarget, d.animEnd = nv, now+targetDuration
-	d.Track:SetScript("OnUpdate", iSB.OnTrackUpdate)
 	iSB.UpdateCover(d)
 	return true
 end
@@ -538,15 +548,15 @@ function iSB.UpdateThumbTextures(d, tsz)
 	local isSmall = stt and tsz < stt
 	sth, sbot = isSmall and sty.thumbS or sty.thumb, isSmall and sty.thumbBotS or sty.thumbBot
 	mct = isSmall and (sty.thumbMidS or sty.thumbMid).tch or sty.thumbMid.tch
-	confTexture(n[1], sty.thumbTop, sth)
+	confTextureS(n[1], tsz, sty.thumbTop, sth)
 	confTexture(n[2], sty.thumbMid, sth)
-	confTexture(n[3], sbot, sth)
-	confTexture(h[1], sty.thumbTopH, sty.thumbTop, sth)
+	confTextureS(n[3], tsz, sbot, sth)
+	confTextureS(h[1], tsz, sty.thumbTopH, sty.thumbTop, sth)
 	confTexture(h[2], sty.thumbMidH, sty.thumbMid, sth)
-	confTexture(h[3], isSmall and sty.thumbBotHS or sty.thumbBotH, sbot, sth)
-	confTexture(p[1], sty.thumbTopP, sty.thumbTop, sth)
+	confTextureS(h[3], tsz, isSmall and sty.thumbBotHS or sty.thumbBotH, sbot, sth)
+	confTextureS(p[1], tsz, sty.thumbTopP, sty.thumbTop, sth)
 	confTexture(p[2], sty.thumbMidP, sty.thumbMid, sth)
-	confTexture(p[3], isSmall and sty.thumbBotPS or sty.thumbBotP, sbot, sth)
+	confTextureS(p[3], tsz, isSmall and sty.thumbBotPS or sty.thumbBotP, sbot, sth)
 	m:SetTexCoord(0,1, 0,mct and tsz < mct and tsz/mct or 1)
 	local isAbs, st, sb, ox, oy = sth.midOfsAbsolute, sth.midOfsT, sth.midOfsB, sth.ofsX, sth.ofsY
 	anchorTexTrio(d.ThumbTexN, isAbs, st, sb, ox, oy)

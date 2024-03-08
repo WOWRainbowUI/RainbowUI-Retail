@@ -40,7 +40,6 @@ if TS and TS.Localize then
 end
 
 local KR, PC = T.ActionBook:compatible("Kindred",1,0), T.OPieCore
-local CreateEdge = T.CreateEdge
 
 do -- config.ui
 	config.ui = {}
@@ -97,7 +96,7 @@ do -- config.bind
 	local activeCaptureButton
 	local alternateFrame = CreateFrame("Frame", nil, UIParent) do
 		alternateFrame:Hide()
-		CreateEdge(alternateFrame, { bgFile="Interface/ChatFrame/ChatFrameBackground", edgeFile="Interface/DialogFrame/UI-DialogBox-Border", tile=true, tileSize=32, edgeSize=32, insets={left=11, right=11, top=11, bottom=10}}, 0xd8000000)
+		XU:Create("Backdrop", alternateFrame, { bgFile="Interface/ChatFrame/ChatFrameBackground", edgeFile="Interface/DialogFrame/UI-DialogBox-Border", tile=true, tileSize=32, edgeSize=32, insets={left=11, right=11, top=11, bottom=10}, bgColor=0xd8000000})
 		alternateFrame:SetSize(380, 115)
 		alternateFrame:EnableMouse(1)
 		alternateFrame:SetScript("OnHide", alternateFrame.Hide)
