@@ -1,7 +1,7 @@
 local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 local MODERN = COMPAT >= 8e4
-local CF_WRATH = not MODERN and COMPAT >= 3e4
+local CF_WRATH, CI_ERA = not MODERN and COMPAT >= 3e4, COMPAT <= 2e4
 local AB = T.ActionBook:compatible(2,21)
 local RW = T.ActionBook:compatible("Rewire", 1,27)
 assert(AB and RW and 1, "Incompatible library bundle")
@@ -25,6 +25,16 @@ do -- spellbook
 				if (not ik) == (not knownFilter) then
 					procSpellBookEntry(add, at, knownFilter, sourceKnown, true, ik and "SPELL" or "FUTURESPELL", asid)
 				end
+			end
+		end
+	end
+	local function procRuneBookEntry(add, _ok, st, sid)
+		if st == "SPELL" and sid then
+			local n1 = GetSpellInfo(sid)
+			local n2, _, _, _, _, _, sid2 = GetSpellInfo(n1 or "")
+			if n2 ~= n1 and sid2 and not IsPassiveSpell(sid2) and not mark[sid2] then
+				mark[sid2] = 1
+				add("spell", sid2)
 			end
 		end
 	end
@@ -83,8 +93,11 @@ do -- spellbook
 			SetCVar("showAllSpellRanks", "1")
 		end
 		for i=1,GetNumSpellTabs()+12 do
-			local _, _, ofs, c, _, otherSpecID = GetSpellTabInfo(i)
+			local _, ico, ofs, c, _, otherSpecID = GetSpellTabInfo(i)
 			local isNotOffspec = otherSpecID == 0
+			for j=ofs+1, knownFilter and CI_ERA and ico == 134419 and ofs+c or 0 do
+				procRuneBookEntry(add, pcall(GetSpellBookItemInfo, j, "spell"))
+			end
 			for j=ofs+1,(isNotOffspec or not knownFilter) and (ofs+c) or 0 do
 				procSpellBookEntry(add, "spell", knownFilter, isNotOffspec, pcall(GetSpellBookItemInfo, j, "spell"))
 			end

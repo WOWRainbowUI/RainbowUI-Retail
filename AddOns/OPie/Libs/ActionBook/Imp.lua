@@ -1,10 +1,10 @@
-local MAJ, REV, COMPAT, _, T = 1, 5, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 6, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 
 local EV, AB, RW = T.Evie, T.ActionBook:compatible(2,34), T.ActionBook:compatible("Rewire", 1,27)
 assert(EV and AB and RW and 1, "Incompatible library bundle")
 local MODERN, CF_WRATH, CI_ERA = COMPAT >= 10e4, COMPAT < 10e4 and COMPAT >= 3e4, COMPAT < 2e4
-local IM, L, CreateEdge = {}, T.ActionBook.L, T.CreateEdge
+local IM, L, XU = {}, T.ActionBook.L, T.exUI
 
 local function assert(condition, text, level, ...)
 	return condition or error(tostring(text):format(...), 1 + (level or 1))((0)[0])
@@ -314,12 +314,22 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 				k = nl .. " (" .. sr:lower() .. ")"; spells[k] = spells[k] or id
 			end
 		end
-		local function addSpellBookTab(ofs, c, allowGenericOverwrite)
+		local function addSpellBookTab(ofs, c, allowGenericOverwrite, isRuneBook)
 			for j=ofs+1,ofs+c do
 				local n, st, id = GetSpellBookItemName(j, "spell"), GetSpellBookItemInfo(j, "spell")
 				if type(n) ~= "string" or not id then
 				elseif st == "SPELL" or st == "FUTURESPELL" then
-					addSpell(n, id, allowGenericOverwrite and st == "SPELL")
+					local ao = allowGenericOverwrite and st == "SPELL" and not isRuneBook
+					if isRuneBook then
+						local sn, id2 = GetSpellInfo(id), select(7, GetSpellInfo(n))
+						if sn ~= n then
+							addSpell(sn, id, ao)
+						end
+						if id2 and id2 ~= id then
+							addSpell(n, id2, ao)
+						end
+					end
+					addSpell(n, id, ao)
 				elseif st == "FLYOUT" then
 					for j=1,select(3,GetFlyoutInfo(id)) do
 						local sid, _, _, sname = GetFlyoutSlotInfo(id, j)
@@ -355,9 +365,9 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 			end
 			for curSpec=0,1 do
 				for i=GetNumSpellTabs()+12,1,-1 do
-					local _, _, ofs, c, _, sid = GetSpellTabInfo(i)
+					local _, ico, ofs, c, _, sid = GetSpellTabInfo(i)
 					if ((curSpec == 0) == (sid == 0)) then
-						addSpellBookTab(ofs, c, not MODERN)
+						addSpellBookTab(ofs, c, not MODERN, CI_ERA and ico == 134419)
 					end
 				end
 			end
@@ -605,7 +615,9 @@ do -- Editor UI
 	end
 
 	local bg = CreateFrame("Frame")
-	CreateEdge(bg, {edgeFile="Interface/Tooltips/UI-Tooltip-Border", bgFile="Interface/DialogFrame/UI-DialogBox-Background-Dark", tile=true, edgeSize=16, tileSize=16, insets={left=4,right=4,bottom=4,top=4}}, 0xb2000000, 0xb2b2b2)
+	if XU then
+		XU:Create("Backdrop", bg, {edgeFile="Interface/Tooltips/UI-Tooltip-Border", bgFile="Interface/DialogFrame/UI-DialogBox-Background-Dark", tile=true, edgeSize=16, tileSize=16, insets={left=4,right=4,bottom=4,top=4}, bgColor=0xb2000000, edgeColor=0xb2b2b2})
+	end
 	bg:Hide()
 	local eb, scroll = multilineInput("ABE_MacroInput", bg, 100)
 	eb:SetScript("OnEscapePressed", eb.ClearFocus)

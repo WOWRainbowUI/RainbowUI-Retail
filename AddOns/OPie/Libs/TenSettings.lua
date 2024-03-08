@@ -1,5 +1,5 @@
 local M, I, COMPAT, _, T = {}, {}, select(4, GetBuildInfo()), ...
-local EV, CreateEdge, noop = T.Evie, T.CreateEdge, function() end
+local EV, XU, noop = T.Evie, T.exUI, function() end
 local MODERN = COMPAT > 10e4
 T.TenSettings = M
 
@@ -664,31 +664,6 @@ function I.HandlePanelNotification(notification)
 	end
 end
 
-function M:CreateLineInputBox(parent, common, width)
-	local input = CreateFrame("EditBox", nil, parent)
-	input:SetAutoFocus(nil) input:SetSize(width or 150, 20)
-	input:SetFontObject(ChatFontNormal)
-	input:SetScript("OnEscapePressed", input.ClearFocus)
-	local l, m, r = input:CreateTexture(nil, "BACKGROUND"), input:CreateTexture(nil, "BACKGROUND"), input:CreateTexture(nil, "BACKGROUND")
-	l:SetSize(common and 8 or 32, common and 20 or 32)
-	l:SetPoint("LEFT", common and -5 or -10, 0)
-	l:SetTexture(common and "Interface\\Common\\Common-Input-Border" or "Interface\\ChatFrame\\UI-ChatInputBorder-Left2")
-	r:SetSize(common and 8 or 32, common and 20 or 32)
-	r:SetPoint("RIGHT", common and 0 or 10, 0)
-	r:SetTexture(common and "Interface\\Common\\Common-Input-Border" or "Interface\\ChatFrame\\UI-ChatInputBorder-Right2")
-	m:SetHeight(common and 20 or 32)
-	m:SetPoint("LEFT", l, "RIGHT")
-	m:SetPoint("RIGHT", r, "LEFT")
-	m:SetTexture(common and "Interface\\Common\\Common-Input-Border" or "Interface\\ChatFrame\\UI-ChatInputBorder-Mid2")
-	if common then
-		l:SetTexCoord(0,1/16, 0,5/8)
-		r:SetTexCoord(15/16,1, 0,5/8)
-		m:SetTexCoord(1/16,15/16, 0,5/8)
-	else
-		m:SetHorizTile(true)
-	end
-	return input
-end
 function M:CreateOptionsSlider(parent, name, width)
 	local s, t = CreateFrame("Slider", name, parent, "MinimalSliderTemplate")
 	s:SetWidth(width)
@@ -723,7 +698,7 @@ do -- M:ShowFrameOverlay(self, overlayFrame)
 		local close = CreateFrame("Button", nil, container, "UIPanelCloseButton")
 		close:SetPoint("TOPRIGHT", MODERN and -5 or 0, MODERN and -5 or 0)
 		close:SetScript("OnClick", function() container:Hide() end)
-		CreateEdge(container, {edgeFile="Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize=32, bgFile="Interface\\FrameGeneral\\UI-Background-Rock", tile=true, tileSize=256, insets={left=10,right=10,top=10,bottom=10}}, 0x4c667f, -5)
+		XU:Create("Backdrop", container, {edgeFile="Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize=32, bgFile="Interface\\FrameGeneral\\UI-Background-Rock", tile=true, tileSize=256, insets={left=10,right=10,top=10,bottom=10}, bgColor=0x4c667f, subLevel=-5})
 		watcher:SetScript("OnHide", function()
 			if occupant then
 				container:Hide()
@@ -768,7 +743,9 @@ do -- M:ShowPromptOverlay(...)
 		promptFrame:SetSize(400, 130)
 		promptInfo.title = promptFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 		promptInfo.prompt = promptFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		promptInfo.editBox = M:CreateLineInputBox(promptFrame, false, 300)
+		promptInfo.editBox = XU:Create("LineInput", nil, promptFrame)
+		promptInfo.editBox:SetStyle("chat")
+		promptInfo.editBox:SetWidth(300)
 		promptInfo.accept = CreateFrame("Button", nil, promptFrame, "UIPanelButtonTemplate")
 		promptInfo.cancel = CreateFrame("Button", nil, promptFrame, "UIPanelButtonTemplate")
 		promptInfo.detail = promptFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")

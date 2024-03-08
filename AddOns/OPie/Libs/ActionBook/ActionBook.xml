@@ -8,4 +8,6 @@
 	<Script file="Handlers.lua" />
 	<Script file="Imp.lua" />
 	<Script file="Quirks.lua" />
+	<Script file="Categories.lua" />
+	<Script file="Editors.lua" />
 </Ui>

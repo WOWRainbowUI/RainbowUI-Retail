@@ -80,8 +80,8 @@ R:AddDefaultRing("DruidFeral", {
 	{id=61336, _u="i"}, -- survival instincts
 	{id=102401, _u="c"}, -- feral charge
 	{id="/cast {{spell:102543/102558}}", _u="n"}, -- Incarnation
-	{id="#nounshift [combat,form:cat]\n/cast [nomod,@player][mod,@none] {{spell:8936}}", show="[spec:102/104/105] hide;", _u="h"}, -- Regrowth
-	name=L"Feral", hotkey="[form:bear/cat] BUTTON5; ALT-BUTTON5", limit="DRUID", _u="OPCDF", v=1
+	{id="/cast [nomod,@player][@none] {{spell:8936}}", show="[spec:102/104/105] hide;", _u="h"}, -- Regrowth
+	name=L"Feral", hotkey="[form:bear/cat] BUTTON5; ALT-BUTTON5", limit="DRUID", _u="OPCDF", v=2
 })
 
 do -- Hunter Pets
@@ -251,13 +251,14 @@ R:AddDefaultRing("CommonHearth", {
 	{"toy", 180290, _u="nf"},
 	{"toy", 183716, _u="ve"},
 	{"toy", 188952, _u="do"},
+	{"toy", 190196, _u="en"},
 	{"toy", 190237, _u="bt"},
 	{"toy", 193588, _u="tw"},
 	{"toy", 200630, _u="ws"},
 	{"toy", 206195, _u="pn"},
 	{"toy", 208704, _u="dd"},
 	{"toy", 209035, _u="df"},
-	name=L"Hearthstones", internal=true, _u="OPCHS", v=2
+	name=L"Hearthstones", internal=true, _u="OPCHS", v=3
 })
 R:AddDefaultRing("SpecMenu", {
 	{"specset", 1, _u="1"},

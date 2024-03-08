@@ -2,7 +2,7 @@ local COMPAT, api, _, T = select(4,GetBuildInfo()), {}, ...
 local PC, RK, ORI, config = T.OPieCore, T.RingKeeper, OPie.UI, T.config
 local L, MODERN = T.L, COMPAT >= 8e4
 local AB = assert(T.ActionBook:compatible(2,23), "A compatible version of ActionBook is required")
-local EV, TS, XU, CreateEdge = T.Evie, T.TenSettings, T.exUI, T.CreateEdge
+local EV, TS, XU = T.Evie, T.TenSettings, T.exUI
 local GameTooltip = T.NotGameTooltip or GameTooltip
 
 local FULLNAME, SHORTNAME do
@@ -119,8 +119,9 @@ local function CreateButton(parent, width)
 	return btn
 end
 local function setIcon(self, path, ext)
-	local plainTexturePath
-	if type(path) == "string" and GetFileIDFromPath(path) == nil then
+	local plainTexturePath, atlasName
+	if type(path) == "string" and GetFileIDFromPath(path) == nil and C_Texture.GetAtlasInfo(path) then
+		atlasName = path
 		self:SetAtlas(path)
 	else
 		plainTexturePath = path
@@ -139,11 +140,7 @@ local function setIcon(self, path, ext)
 			plainTexturePath = nil
 		end
 	end
-	return plainTexturePath
-end
-local function GetPositiveFileIDFromPath(path)
-	local id = GetFileIDFromPath(path)
-	return id and id > 0 and id or nil
+	return plainTexturePath, atlasName
 end
 
 local ringContainer, ringDetail, sliceDetail, newSlice, newRing, editorHost
@@ -168,7 +165,7 @@ newRing = CreateFrame("Frame") do
 	newRing:Hide()
 	local title = newRing:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	local toggle1, toggle2 = CreateToggleButton(newRing), CreateToggleButton(newRing)
-	local name, snap = TS:CreateLineInputBox(newRing, true, 240), TS:CreateLineInputBox(newRing, true, 240)
+	local name, snap = XU:Create("LineInput", nil, newRing), XU:Create("LineInput", nil, newRing)
 	local nameLabel, snapLabel = newRing:CreateFontString(nil, "OVERLAY", "GameFontHighlight"), snap:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	local accept, cancel = CreateButton(newRing, 125), CreateButton(newRing, 125)
 	local importNested = TS:CreateOptionsCheckButton(nil, newRing)
@@ -177,8 +174,10 @@ newRing = CreateFrame("Frame") do
 	toggle1:SetPoint("TOPLEFT", 20, -25)
 	toggle2:SetPoint("TOPRIGHT", -20, -25)
 	name:SetPoint("TOPRIGHT", -15, -62)
+	name:SetWidth(240)
 	nameLabel:SetPoint("TOPLEFT", newRing, "TOPLEFT", 15, -67)
 	snap:SetPoint("TOPRIGHT", -15, -85)
+	snap:SetWidth(240)
 	snapLabel:SetPoint("TOPLEFT", newRing, "TOPLEFT", 15, -90)
 	accept:SetPoint("BOTTOMRIGHT", newRing, "BOTTOM", -2, 4)
 	cancel:SetPoint("BOTTOMLEFT", newRing, "BOTTOM", 2, 4)
@@ -315,7 +314,7 @@ ringContainer = CreateFrame("Frame", nil, panel) do
 	ringContainer:SetPoint("BOTTOM", panel, 0, 6)
 	ringContainer:SetPoint("LEFT", panel, 50, 0)
 	ringContainer:SetPoint("RIGHT", panel, -10, 0)
-	CreateEdge(ringContainer, {edgeFile="Interface/Tooltips/UI-Tooltip-Border", tile=true, edgeSize=14}, nil, 0x7f7f7f)
+	XU:Create("Backdrop", ringContainer, {edgeFile="Interface/Tooltips/UI-Tooltip-Border", tile=true, edgeSize=14, edgeColor=0x7f7f7f})
 	local function UpdateOnShow(self) self:SetScript("OnUpdate", nil) api.refreshDisplay() end
 	ringContainer:SetScript("OnHide", function(self) if self:IsShown() then self:SetScript("OnUpdate", UpdateOnShow) end end)
 	do -- up/down arrow buttons: ringContainer.prev and ringContainer.next
@@ -551,7 +550,7 @@ ringDetail = CreateFrame("Frame", nil, ringContainer) do
 	end
 	
 	local exportBg, scroll = CreateFrame("Frame", nil, ringDetail)
-	CreateEdge(exportBg, {edgeFile="Interface/Tooltips/UI-Tooltip-Border", bgFile="Interface/DialogFrame/UI-DialogBox-Background-Dark", tile=true, edgeSize=16, tileSize=16, insets={left=4,right=4,bottom=4,top=4}}, 0xb2000000, 0xb2b2b2)
+	XU:Create("Backdrop", exportBg, {edgeFile="Interface/Tooltips/UI-Tooltip-Border", bgFile="Interface/DialogFrame/UI-DialogBox-Background-Dark", tile=true, edgeSize=16, tileSize=16, insets={left=4,right=4,bottom=4,top=4}, bgColor=0xb2000000, edgeColor=0xb2b2b2})
 	exportBg:SetSize(265, 124) exportBg:Hide()
 	exportBg:SetPoint("TOPLEFT", ringDetail.shareLabel2, "BOTTOMLEFT", -2, -2)
 	ringDetail.exportFrame, ringDetail.exportInput, scroll = exportBg, config.ui.multilineInput("RKC_ExportInput", exportBg, 235)
@@ -586,7 +585,17 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 	sliceDetail:SetAllPoints()
 	sliceDetail.desc = sliceDetail:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	sliceDetail.desc:SetPoint("TOPLEFT", 7, -9) sliceDetail.desc:SetPoint("TOPRIGHT", -7, -7) sliceDetail.desc:SetJustifyH("LEFT")
-	TS:EscapeCallback(sliceDetail, function() api.selectSlice() end)
+	TS:EscapeCallback(sliceDetail, "TAB", function(_, key)
+		if sliceDetail.iconSelector:IsShown() then
+			if key == "TAB" then
+				sliceDetail.iconSelector:FocusManualInput()
+			else
+				sliceDetail.iconSelector:Hide()
+			end
+		elseif key == "ESCAPE" then
+			api.selectSlice()
+		end
+	end)
 	local oy = 37
 	sliceDetail.skipSpecs = CreateFrame("Frame", "RKC_SkipSpecDropdown", sliceDetail, "UIDropDownMenuTemplate") do
 		local s = sliceDetail.skipSpecs
@@ -597,8 +606,9 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		s.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -47)
 		s.label:SetText(L"Show this slice for:")
 	end
-	sliceDetail.showConditional = TS:CreateLineInputBox(sliceDetail, true, 260) do
+	sliceDetail.showConditional = XU:Create("LineInput", nil, sliceDetail) do
 		local c = sliceDetail.showConditional
+		c:SetWidth(260)
 		c:SetPoint("TOPLEFT", 274, -oy)
 		oy = oy + 23
 		c.label = c:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -616,9 +626,10 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		end)
 		c:SetScript("OnLeave", config.ui.HideTooltip)
 	end
-	sliceDetail.color = TS:CreateLineInputBox(sliceDetail, true, 85) do
+	sliceDetail.color = XU:Create("LineInput", nil, sliceDetail) do
 		local c = sliceDetail.color
 		c:SetPoint("TOPLEFT", 274, -oy)
+		c:SetWidth(85)
 		oy = oy + 23
 		c:SetTextInsets(22, 0, 0, 0) c:SetMaxBytes(7)
 		prepEditBox(c, function(self)
@@ -685,7 +696,6 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		end
 	end
 	sliceDetail.icon = CreateFrame("Button", nil, sliceDetail) do
-		local icons, icontex, selectedIcon, initTexture = {}, {}, nil
 		local f = sliceDetail.icon
 		f:SetHitRectInsets(0,-280,0,0) f:SetSize(18, 18)
 		f:SetPoint("TOPLEFT", 270, -oy-2)
@@ -698,125 +708,41 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		f.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -119)
 		f.label:SetText(L"Icon:")
 		
-		local frame, clipRoot, origin = CreateFrame("Frame", nil, f)
-		clipRoot = CreateFrame("Frame", nil, frame)
-		clipRoot:SetPoint("TOPLEFT", 12, -12)
-		clipRoot:SetPoint("BOTTOMRIGHT", -31, 12)
-		clipRoot:SetClipsChildren(true)
-		origin = CreateFrame("Frame", nil, clipRoot)
-		origin:SetSize(1,1)
-		origin:SetPoint("TOPLEFT")
-		origin:Hide()
-		local ICONGRID_ROWS, ICONGRID_COLUMNS, ICONGRID_CELL_WIDTH, ICONGRID_CELL_HEIGHT = 7, 14, 36, 36
-		CreateEdge(frame, {bgFile = "Interface/ChatFrame/ChatFrameBackground", edgeFile = "Interface/DialogFrame/UI-DialogBox-Border", tile = true, tileSize = 32, edgeSize = 32, insets = { left = 11, right = 11, top = 11, bottom = 10 }}, 0xd8000000)
-		frame:SetSize(42+ICONGRID_COLUMNS*ICONGRID_CELL_WIDTH, 20+ICONGRID_CELL_HEIGHT*ICONGRID_ROWS)
-		frame:SetPoint("TOPLEFT", f, "TOPLEFT", -268, -18)
-		frame:EnableMouse(1) frame:SetToplevel(1) frame:Hide()
-		f:SetScript("OnClick", function() frame:SetShown(not frame:IsShown()) PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON) end)
-		frame:SetScript("OnHide", frame.Hide)
-		do -- manual input
-			local ed = TS:CreateLineInputBox(frame, false, 238)
-			local hint = ed:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-			hint:SetPoint("CENTER")
-			hint:SetText("|cffa0a0a0" .. L"(enter an icon name or path here)")
-			local bg = ed:CreateTexture(nil, "BACKGROUND", nil, -8)
-			bg:SetColorTexture(0,0,0,0.95)
-			bg:SetPoint("TOPLEFT", -3, 3)
-			bg:SetPoint("BOTTOMRIGHT", 3, -3)
-			ed:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -10, -3)
-			ed:SetFrameLevel(ed:GetFrameLevel()+5)
-			ed:SetHitRectInsets(-5, 0, -1, -1)
-			ed:SetScript("OnEditFocusGained", function() hint:Hide() end)
-			ed:SetScript("OnEditFocusLost", function(self) hint:SetShown(not self:GetText():match("%S")) end)
-			ed:SetScript("OnEnterPressed", function(self)
-				local text = self:GetText()
-				if text:match("%S") then
-					local path = GetPositiveFileIDFromPath(text)
-					path = path or GetPositiveFileIDFromPath("Interface\\Icons\\" .. text)
-					api.setSliceProperty("icon", path or text)
-				end
-				self:SetText("")
-				self:ClearFocus()
-			end)
-			ed:SetScript("OnEscapePressed", function(self) self:SetText("") self:ClearFocus() end)
-			frame.textInput, frame.textInputHint = ed, hint
-			TS:EscapeCallback(frame, "TAB", function(_, key)
-				if key == "TAB" then
-					ed:SetFocus()
-				else
-					frame:Hide()
-				end
-			end)
-		end
-		local function onClick(self)
-			if selectedIcon then selectedIcon:SetChecked(nil) end
+		local isd = XU:Create("IconSelector", nil, sliceDetail)
+		isd:SetPoint("TOPLEFT", f, "TOPLEFT", -268, -18)
+		isd:SetManualInputHintText("|cffa0a0a0" .. L"(enter an icon name or path here)")
+		sliceDetail.iconSelector = isd
+		f:SetScript("OnClick", function()
+			isd:SetShown(not isd:IsShown())
 			PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
-			api.setSliceProperty("icon", self:GetChecked() and self.tex:GetTexture() or nil)
-			selectedIcon = self:GetChecked() and self or nil
-		end
-		for i=0,(ICONGRID_COLUMNS*(ICONGRID_ROWS+1))-1 do
-			local j = createIconButton(nil, clipRoot, i)
-			j:SetPoint("TOPLEFT", origin, (i % ICONGRID_COLUMNS)*ICONGRID_CELL_WIDTH, - ICONGRID_CELL_HEIGHT*math.floor(i / ICONGRID_COLUMNS))
-			j:SetScript("OnClick", onClick)
-			icons[i] = j
-		end
-		local slider = XU:Create("ScrollBar", nil, frame) do
-			slider:SetStyle("common")
-			slider:SetPoint("TOPRIGHT", -9, -11)
-			slider:SetPoint("BOTTOMRIGHT", -9, 9)
-			slider:SetWheelScrollTarget(clipRoot, 0, -5, 0, 0)
-			slider:SetStepsPerPage(7, 5)
-			slider:SetWindowRange(ICONGRID_ROWS)
-			slider:SetScript("OnValueChanged", function(_, value)
-				local co = value % 1
-				origin:SetPoint("TOPLEFT", 0, co*ICONGRID_CELL_HEIGHT)
-				value = (value - co) * ICONGRID_COLUMNS
-				for i=0,#icons do
-					local ico, tex = icons[i].tex, i == 0 and value == 0 and (initTexture or "Interface/Icons/INV_Misc_QuestionMark") or icontex[i+value]
-					icons[i]:SetShown(not not tex)
-					if tex then
-						ico:SetTexture(tex)
-						local tex = ico:GetTexture()
-						icons[i]:SetChecked(f.selection == tex)
-						selectedIcon = f.selection == tex and icons[i] or selectedIcon
-					end
-				end
-			end)
-		end
-		local function FixLooseIcons(f, t)
-			local c = #t
-			f(t)
-			for i=c+1,#t do
-				local e = t[i]
-				if type(e) == "string" and not GetFileIDFromPath(e) then
-					local c1 = e:gsub("%.$", "")
-					local c2 = "Interface/Icons/" .. c1
-					local c3 = "Interface/Icons/" .. e
-					t[i] = GetFileIDFromPath(c1) and c1 or GetFileIDFromPath(c2) and c2 or GetFileIDFromPath(c3) and c3 or e
-				end
-			end
-		end
-		frame:SetScript("OnShow", function(self)
-			self:SetFrameLevel(math.min(9990, sliceDetail.icon:GetFrameLevel()+200))
-			icontex = GetMacroIcons()
-			FixLooseIcons(GetLooseMacroIcons, icontex)
-			GetMacroItemIcons(icontex)
-			FixLooseIcons(GetLooseMacroItemIcons, icontex)
-			slider:SetMinMaxValues(0, math.ceil((#icontex-ICONGRID_COLUMNS*ICONGRID_ROWS)/ICONGRID_COLUMNS))
-			if slider:GetValue() == 0 then
-				slider:GetScript("OnValueChanged")(slider, slider:GetValue())
+		end)
+		isd:SetScript("OnIconSelect", function(_, asset)
+			api.setSliceProperty("icon", asset)
+		end)
+		isd:SetScript("OnEditFocusGained", function(self, editbox)
+			local nc = NORMAL_FONT_COLOR
+			GameTooltip:SetOwner(editbox, "ANCHOR_NONE")
+			GameTooltip:SetPoint("BOTTOMLEFT", editbox, "TOPLEFT", -6, 0)
+			GameTooltip:AddLine(L"Override Icon", 1,1,1)
+			GameTooltip:AddLine(L"Specify an icon by entering an icon file name, texture path, atlas name, or a known ability name.", nc.r, nc.g, nc.b, 1)
+			if self:IsSearchPossible() then
+				GameTooltip:AddLine((L"Press %s to search"):format(HIGHLIGHT_FONT_COLOR_CODE .. GetBindingText("ALT-ENTER") .. "|r"), nc.r, nc.g, nc.b, 1)
 			else
-				slider:SetValue(0)
+				local at = HIGHLIGHT_FONT_COLOR_CODE .. "IconFileNames |cff606060<|cff40a0ffhttps://townlong-yak.com/addons/iconfilenames|r>|r|r"
+				GameTooltip:AddLine((L"Install and enable %s to search by file name."):format(at), nc.r, nc.g, nc.b, 1)
+			end
+			GameTooltip:Show()
+		end)
+		isd:SetScript("OnEditFocusLost", function(_, editbox)
+			if GameTooltip:IsOwned(editbox) then
+				GameTooltip:Hide()
 			end
 		end)
 		function f:SetIcon(ico, forced, ext)
-			initTexture = setIcon(self.icon, forced or ico, ext)
-			self.selection = forced
+			local plainTexture, atlas = setIcon(self.icon, forced or ico, ext)
 			self:SetText(forced and L"Customized icon" or L"Based on slice action")
-			if frame:IsShown() then slider:GetScript("OnValueChanged")(slider, slider:GetValue()) end
-		end
-		function f:HidePanel()
-			frame:Hide()
+			isd:SetFirstAsset(atlas or plainTexture)
+			isd:SetSelectedAsset(forced)
 		end
 	end
 	sliceDetail.fastClick = TS:CreateOptionsCheckButton(nil, sliceDetail) do
@@ -968,7 +894,8 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		end
 	end
 	do -- newSlice.search
-		local s = TS:CreateLineInputBox(newSlice, true, 153)
+		local s = XU:Create("LineInput", nil, newSlice)
+		s:SetWidth(153)
 		s:SetPoint("TOPLEFT", 7, -1) s:SetTextInsets(16, 0, 0, 0)
 		local i = s:CreateTexture(nil, "OVERLAY")
 		i:SetSize(14, 14) i:SetPoint("LEFT", 0, -1)
@@ -1656,7 +1583,7 @@ function api.updateSliceDisplay(_id, desc)
 		sliceDetail.desc:SetText(stype or "?")
 	end
 	local skipSpecs, showConditional = (desc.show or ""):match("^%[spec:([%d/]+)%] hide;(.*)")
-	sliceDetail.icon:HidePanel()
+	sliceDetail.iconSelector:Hide()
 	sliceDetail.icon:SetIcon(sicon, desc.icon, icoext)
 	sliceDetail.color:SetColor(getSliceColor(desc, sicon))
 	sliceDetail.skipSpecs:SetValue(skipSpecs)
