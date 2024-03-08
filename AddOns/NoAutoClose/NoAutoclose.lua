@@ -179,11 +179,12 @@ function ns:ConfigureSecureEscHandler(frame)
     escHandler:HookScript('OnEvent', function(handlerFrame, event)
         if event == 'PLAYER_REGEN_ENABLED' then
             ClearOverrideBindings(handlerFrame);
-        elseif event == 'PLAYER_REGEN_DISABLED' then
+        elseif event == 'PLAYER_REGEN_DISABLED' and frame:IsVisible() then
             SetOverrideBindingClick(handlerFrame, true, 'ESCAPE', handlerFrame.name);
         end
     end);
     escHandler:SetAttribute('_onclick', [[
+        self:ClearBindings(); -- clear the bindings, just in case something is preventing the _onhide from firing
         local panel = self:GetFrameRef('panel');
         if panel:IsShown() then
             panel:Hide();
