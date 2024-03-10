@@ -1,3 +1,6 @@
-# 11.1.39 (2024-02-26)
+# 11.1.40 (2024-03-08)
 
-* Upgraded integrated library Ace3 r1320 to fix an issue with the color picker [Comment #7208]. 
+* Changed icons for configuration mode of Boss Mods widget to icons that are also available in WoW Classic.
+* Removed LibClassicCasterino as cast information is provided by the WoW API since WoW Classic Patch 1.15.0.
+* Fixed a Lua error in Boss Mods widget that occurred when configuration mode was enabled on units without a nameplate [Comment #7223].
+
