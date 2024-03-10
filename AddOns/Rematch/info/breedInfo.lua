@@ -18,7 +18,7 @@ rematch.breedInfo = {}
 local breedSource -- addon that's providing breed data: "BattlePetBreedID", "PetTracker" or "LibPetBreedInfo-1.0"
 local breedSourceName -- name of the addon from its metadata (## Title): "Battle Pet BreedID" or "PetTracker"
 local breedLib -- for LibPetBreedInfo-1.0 only
-local breedNames = {nil,nil,"B/B","P/P","S/S","H/H","H/P","P/S","H/S","P/B","S/B","H/B"}
+local breedNames = {nil,nil,"平/平","攻/攻","速/速","血/血","血/攻","攻/速","血/速","攻/平","速/平","血/平"}
 
 -- the first time this runs it looks for a breed addon enabled and returns it
 -- future runs will just return the saved source (so this only looks for a breed addon once)
