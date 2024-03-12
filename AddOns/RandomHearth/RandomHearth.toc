@@ -1,0 +1,11 @@
+## Interface: 100205
+## Title: Random Hearthstone
+## Author: Jamien
+## Version: 1.2.3
+## Notes: Uses a random hearthstone toy
+## SavedVariables: rhOptions, rhOverrideChk
+
+## X-Localizations: enUS, enGB
+## X-CompatibleLocales: enUS, enGB
+
+RandomHearth.lua
