@@ -11,6 +11,7 @@ function TravelModule:OnInitialize()
     self.iconPath = xb.constants.mediaPath .. 'datatexts\\repair'
     self.garrisonHearth = 110560
     self.hearthstones = {
+        212337, -- Stone of the Hearth
         209035, -- Hearthstone of the Flame
         208704, -- Deepdweller's Earthen Hearthstone
         54452, -- Ethereal Portal
@@ -205,11 +206,11 @@ end
 
 function TravelModule:UpdatePortOptions()
     if not self.portOptions then self.portOptions = {} end
-    if PlayerHasToy(128353) and not self.portOptions[128353] then
+    if IsUsableItem(128353) and not self.portOptions[128353] then
         self.portOptions[128353] = {portId = 128353, text = GetItemInfo(128353)} -- admiral's compass
     end
     if PlayerHasToy(140192) and not self.portOptions[140192] then
-        self.portOptions[140192] = {portId = 140192, text = GetItemInfo(140192)} -- dalaran hearthstone
+        self.portOptions[140192] = {portId = 140192, text = xb.db.profile.dalaran_hs_string or GetItemInfo(140192)} -- dalaran hearthstone
     end
     if PlayerHasToy(self.garrisonHearth) and
         not self.portOptions[self.garrisonHearth] then
@@ -388,6 +389,17 @@ function TravelModule:SetPortColor()
     else
         local hearthname = ''
         local hearthActive = false
+
+        if IsUsableItem(v) then
+            if GetItemCooldown(v) == 0 then
+                hearthName, _ = GetItemInfo(v)
+                if hearthName ~= nil then
+                    hearthActive = true
+                    self.portButton:SetAttribute("macrotext",
+                                                 "/cast " .. hearthName)
+                end
+            end
+        end -- if item
         if PlayerHasToy(v) then
             if GetItemCooldown(v) == 0 then
                 _, hearthName, _, _, _, _ = C_ToyBox.GetToyInfo(v)
@@ -397,7 +409,7 @@ function TravelModule:SetPortColor()
                                                  "/cast " .. hearthName)
                 end
             end
-        end -- if toy/item
+        end -- if toy
         if IsPlayerSpell(v) then
             if GetSpellCooldown(v) == 0 then
                 hearthName, _ = GetSpellInfo(v)
@@ -443,7 +455,7 @@ function TravelModule:CreatePortPopup()
     local changedWidth = false
     for i, v in pairs(self.portOptions) do
         if self.portButtons[v.portId] == nil then
-            if PlayerHasToy(v.portId) or IsPlayerSpell(v.portId) then
+            if PlayerHasToy(v.portId) or IsPlayerSpell(v.portId) or IsUsableItem(v.portId) then
                 local button = CreateFrame('BUTTON', nil, self.portPopup)
                 local buttonText = button:CreateFontString(nil, 'OVERLAY')
 
@@ -482,7 +494,7 @@ function TravelModule:CreatePortPopup()
                 end
             end -- if usable item or spell
         else
-            if not (PlayerHasToy(v.portId) or IsPlayerSpell(v.portId)) then
+            if not (PlayerHasToy(v.portId) or IsPlayerSpell(v.portId) or IsUsableItem(v.portId)) then
                 self.portButtons[v.portId].isSettable = false
             end
         end -- if nil
@@ -689,6 +701,12 @@ function TravelModule:RefreshHearthstonesList()
             -- end
             xb.db.profile.hearthstonesList[i] = hearthName
         end
+    end
+
+    -- Dalaran Hearthstone
+    if xb.db.profile.dalaran_hs_string == nil then
+        local _, hearthName, _, _, _, _ = C_ToyBox.GetToyInfo(140192)
+        xb.db.profile.dalaran_hs_string = hearthName
     end
 end
 
