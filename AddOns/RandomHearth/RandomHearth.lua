@@ -3,6 +3,11 @@ local addon = ...
 
 --------------------------------------------------------------------
 -- Hearthstone List
+-- ----------------
+-- If there's a new hearthstone but the addon isn't being updated
+-- simply add it to the bottom of the list below, following the
+-- format of the items listed. ItemID can be found from the URL
+-- of the item page on Wowhead.com
 --------------------------------------------------------------------
 local rhToys = {
 	{180290, "暗夜妖精爐石"},
@@ -24,10 +29,13 @@ local rhToys = {
 	{172179, "永恆旅者的爐石"},
 	{193588, "時空漫遊者的爐石"},
 	{188952, "統御的爐石"},
-	{200630, "Ohnir Windsage's Hearthstone"},
+	{200630, "雍伊爾風之賢者爐石"},
 	{190237, "仲介者傳送矩陣"},
-	{190196, "Enlightened Hearthstone"},
+	{190196, "受啟迪的爐石"},
 	{163206, "Weary Spirit Binding"},
+	{209035, "烈焰爐石"},
+	{208704, "深淵居者的大地爐石"},
+	{206195, "那魯之道"},
 	}
 
 --------------------------------------------------------------------
