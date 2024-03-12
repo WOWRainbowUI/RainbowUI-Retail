@@ -5,7 +5,10 @@ XIVBar.Changelog[2702] = {
     release_date = "2024/03/12",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {},
+        ["zhTW"] = {
+            "[正式版] 修正 [旅行] 模組中傳送物品的 bug (Admiral's Compass, ...)。",
+            "[正式版] 新增達拉然爐石的資料庫變數到 [旅行] 模組。"
+        },
         ["enUS"] = {
             "[Retail] Fixed a bug with teleport items (Admiral's Compass, ...) in the [Travel] module.",
             "[Retail] Added a database variable for the Dalaran Hearthstone string in the [Travel] module."
@@ -19,7 +22,9 @@ XIVBar.Changelog[2702] = {
     },
     new = {
         ["zhCN"] = {},
-        ["zhTW"] = {},
+        ["zhTW"] = {
+            "[正式版] 新增爐石戰記十週年活動爐石到 [旅行] 模組。"
+        },
         ["enUS"] = {
             "[Retail] Added the Stone of the Hearth from the Hearthstone's 10th Anniversary event to the [Travel] module."
         },
