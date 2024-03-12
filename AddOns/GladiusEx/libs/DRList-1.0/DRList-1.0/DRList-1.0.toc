@@ -5,7 +5,7 @@
 ## Interface-Wrath: 30403
 ## IconTexture: Interface\Icons\Spell_nature_heavypolymorph1
 ## Title: Lib: DRList-1.0
-## Version: e4ea6d2
+## Version: ea603dd
 ## X-Category: Library
 ## X-License: MIT
 ## X-Curse-Project-ID: 315757
