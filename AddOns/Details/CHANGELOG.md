@@ -1,7 +1,61 @@
 # Details! Damage Meter
 
-## [Details.20240219.12330.155](https://github.com/Tercioo/Details-Damage-Meter/tree/Details.20240219.12330.155) (2024-02-19)
-[Full Changelog](https://github.com/Tercioo/Details-Damage-Meter/compare/Details.20240218.12329.155...Details.20240219.12330.155) 
+## [Details.20240313.12550.156](https://github.com/Tercioo/Details-Damage-Meter/tree/Details.20240313.12550.156) (2024-03-13)
+[Full Changelog](https://github.com/Tercioo/Details-Damage-Meter/compare/Details.20240219.12330.155...Details.20240313.12550.156) 
 
-- Version Dump  
-- Framework Update  
+- Changelogs  
+- Added combat:GetBossHealth(); combat:GetBossName(); combat:GetCurrentPhase()  
+- General round of fixes, implementations and polishing  
+    - Polished tooltips from damage and healing done.  
+    - Added new sound: "Details Truck".  
+    - Added 'right click to close' icons before the phrase, also the text is move visible now.  
+    - Added ReopenAllWindows() as alias for a Portuguese function named ReabrirTodasInstancias().  
+    - Added a close button for the breakdown options panel.  
+    - Added support for mask in the spec icons shown in the regular window. Require to add: Instance.row\_info.icon\_mas = masktexture.  
+    - Event "COMBAT\_MYTHICPLUS\_OVERALL\_READY" now sends the overall mythic+ combat as payload.  
+- Another round of polishing and few aditions  
+    - Added bar texture "Skyline Compact".  
+    - Tooltip show 8 spells, up from 6.  
+    - Breakdown color scheme improved.  
+    - Backend changes.  
+- Several tooltips now has thicker lines, bigger icons and smooth rounded corners  
+- End of mythic+ panel updates, training dummy icon, etc.  
+    - Added a round of polishing into the end of mythic+ panel.  
+    - Added: Details:RegisterFrameToColor(frame) the registered frame will use the same color scheme of all the other frames from Details!.  
+    - Segments menu will show a different icon for training dummies.  
+    - Fixed functions that retrieve information about a dungeon.  
+    - Fixed an issue while trying to report using the "Report Results" from the report results tooltip.  
+- Fixed "Time out of combat" after mythic+ and another round of polishing frames and menus  
+- Polishing the background of many Details! window, they all now share the same color, the color can be set with Details:SetWindowColor(r, g, b, a)  
+- Another round of polishing  
+- Applied a round of polishing to the Breakdown Window  
+- Polishing the segments menu  
+- Set as trash combats not insided mythic+ or boss fights  
+- Fixed mythic+ segments being considered trash.  
+- More bug fixes and implementations on the backend of mythic dungeons handling.  
+- Another round of bug fixes  
+- Breakdown expand arrows, now point to the right when collapsed (was pointing up)  
+- Bug Fixes  
+- Bug Fix  
+- Added option to Enable/Disable augmentation extra bar; Disabled DataStorage for 11.0 revamp  
+- Added Compare between segments in the Breakdown Compare tab  
+- Bug fixes, Framework update, General changes to accommodate new systems.  
+- Added segments list for the breakdown window  
+- Added report to breakdown window  
+- Plugin options frame  
+    Added a new skin for plugin options: rounded panel, this is the new default and identified by template id 3.  
+- Instance class changes  
+    - Added GetActorBySubDisplayAndRank(displayId, subDisplayId, rankIndex): return an actorObject for the given sub display and rank.  
+- Class combat updates  
+    - Added combat type DETAILS\_SEGMENTTYPE\_EVENT\_VALENTINEDAY.  
+    - Added: SetDateToNow(bSetStartDate, bSetEndDate), set the start or end data to the current time.  
+    - Added: GetEncounterName(): return the encounter name if any.  
+    - Added: GetBossImage(): return the boss face.  
+    - Added: GetSegmentSlotId(): return which slot in the segments table this combat is in.  
+    - Added: GetCombatIcon(): return an atlastable containing texture information for the combat icon. example: a skull for a boss fight.  
+    - Added: GetCombatName(bOnlyName, bTryFind): return a name for the combat.  
+    - Added: GetTrinketProcsForPlayer(playerName): return table<spellid, trinketprocdata>.  
+    - Added: GetFormattedCombatTime(): return elapsed time as string, format: "minute:seconds".  
+    - Added combat.zoneName and combat.mapId.  
+    - Renamed InstanceType() to GetInstanceType().  
+    - Renamed: GetFormatedCombatTime() to GetMSTime(): return floors minute, second.  
