@@ -505,15 +505,18 @@ do
 
 	function Details222.EJCache.GetInstanceDataByName(instanceName)
 		local raidData = Details222.EJCache.CacheRaidData_ByInstanceName[instanceName]
-		return raidData
+		local dungeonData = Details222.EJCache.CacheDungeonData_ByInstanceName[instanceName]
+		return raidData or dungeonData
 	end
 	function Details222.EJCache.GetInstanceDataByInstanceId(instanceId)
 		local raidData = Details222.EJCache.CacheRaidData_ByInstanceId[instanceId]
-		return raidData
+		local dungeonData = Details222.EJCache.CacheDungeonData_ByInstanceId[instanceId]
+		return raidData or dungeonData
 	end
 	function Details222.EJCache.GetInstanceDataByMapId(mapId)
 		local raidData = Details222.EJCache.CacheRaidData_ByMapId[mapId]
-		return raidData
+		local dungeonData = Details222.EJCache.CacheDungeonData_ByMapId[mapId]
+		return raidData or dungeonData
 	end
 
 	function Details222.EJCache.GetRaidDataByName(instanceName)
@@ -527,13 +530,13 @@ do
 	end
 
 	function Details222.EJCache.GetDungeonDataByName(instanceName)
-		return Details222.EJCache.CacheRaidData_ByInstanceName[instanceName]
+		return Details222.EJCache.CacheDungeonData_ByInstanceName[instanceName]
 	end
 	function Details222.EJCache.GetDungeonDataByInstanceId(instanceId)
-		return Details222.EJCache.CacheRaidData_ByInstanceId[instanceId]
+		return Details222.EJCache.CacheDungeonData_ByInstanceId[instanceId]
 	end
 	function Details222.EJCache.GetDungeonDataByMapId(instanceId)
-		return Details222.EJCache.CacheRaidData_ByMapId[instanceId]
+		return Details222.EJCache.CacheDungeonData_ByMapId[instanceId]
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

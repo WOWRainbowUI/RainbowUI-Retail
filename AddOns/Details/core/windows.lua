@@ -720,9 +720,8 @@
 					self.barras [index]:SetWidth(self.baseframe:GetWidth()+self.bar_mod)
 				end
 			else
-				local rightOffset = self.row_info.row_offsets.right
 				for index = 1, self.rows_fit_in_window do
-					self.barras [index]:SetWidth(self.baseframe:GetWidth()+self.row_info.space.right + rightOffset)
+					self.barras [index]:SetWidth(self.baseframe:GetWidth()+self.row_info.space.right)
 				end
 			end
 

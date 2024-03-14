@@ -381,8 +381,6 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 		end
 	end
 
-	local noColor = {1, 1, 1, 1}
-
 	---add an icon to the left of the button text
 	---short method truncates the text: false = do nothing, nil = increate the button width, 1 = decrease the font size, 2 = truncate the text
 	---@param texture any
@@ -405,16 +403,6 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 			self.widget.text:SetPoint("left", self.icon, "right", textDistance or 2, 0 + (textHeight or 0))
 		end
 
-		overlay = overlay or noColor
-		local red, green, blue, alpha = detailsFramework:ParseColors(overlay or noColor)
-
-		local left, right, top, bottom = texcoord and texcoord[1], texcoord and texcoord[2], texcoord and texcoord[3], texcoord and texcoord[4]
-		texture, width, height, left, right, top, bottom, red, green, blue, alpha = detailsFramework:ParseTexture(texture, width, height, left, right, top, bottom, red, green, blue, alpha)
-
-		if (red == nil) then
-			red, green, blue, alpha = 1, 1, 1, 1
-		end
-
 		if (type(texture) == "string") then
 			local isAtlas = C_Texture.GetAtlasInfo(texture)
 			if (isAtlas) then
@@ -426,17 +414,33 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 			else
 				self.icon:SetTexture(texture)
 			end
+
+		elseif (type(texture) == "table") then
+			local r, g, b, a = detailsFramework:ParseColors(texture)
+			self.icon:SetColorTexture(r, g, b, a)
 		else
 			self.icon:SetTexture(texture)
 		end
 
 		self.icon:SetSize(width or self.height * 0.8, height or self.height * 0.8)
-
 		self.icon:SetDrawLayer(layout or "artwork")
 
-		self.icon:SetTexCoord(left, right, top, bottom)
+		if (texcoord) then
+			self.icon:SetTexCoord(unpack(texcoord))
+		else
+			self.icon:SetTexCoord(0, 1, 0, 1)
+		end
 
-		self.icon:SetVertexColor(red, green, blue, alpha)
+		if (overlay) then
+			if (type(overlay) == "string") then
+				local r, g, b, a = detailsFramework:ParseColors(overlay)
+				self.icon:SetVertexColor(r, g, b, a)
+			else
+				self.icon:SetVertexColor(unpack(overlay))
+			end
+		else
+			self.icon:SetVertexColor(1, 1, 1, 1)
+		end
 
 		local buttonWidth = self.button:GetWidth()
 		local iconWidth = self.icon:GetWidth()
@@ -735,7 +739,9 @@ detailsFramework:Mixin(ButtonMetaFunctions, detailsFramework.ScriptHookMixin)
 ---width, height, icon|table, textcolor, textsize, textfont, textalign, backdrop, backdropcolor, backdropbordercolor, onentercolor, onleavecolor, onenterbordercolor, onleavebordercolor
 ---@param template table|string
 function ButtonMetaFunctions:SetTemplate(template)
-	template = detailsFramework:ParseTemplate(self.type, template)
+	if (type(template) == "string") then
+		template = detailsFramework:GetTemplate("button", template)
+	end
 
 	if (not template) then
 		detailsFramework:Error("template not found")
@@ -857,7 +863,7 @@ end
 		self:SetScript("OnEnable", onEnableFunc)
 	end
 
-	---@class df_button : button, df_scripthookmixin, df_widgets
+	---@class df_button : button, df_scripthookmixin
 	---@field widget button
 	---@field tooltip string
 	---@field shown boolean

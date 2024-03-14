@@ -43,9 +43,7 @@ do
 		end
 
 		local buildOptionsPanel = function()
-			local pluginIcon = "Interface\\AddOns\\Details_EncounterDetails\\images\\icon"
-			local pluginIconCoords = {0.15, 0.85, 0.15, 0.85}
-			local optionsFrame = encounterDetails:CreatePluginOptionsFrame("EncounterDetailsOptionsWindow", "Encounter Breakdown Options", 3, pluginIcon, pluginIconCoords)
+			local optionsFrame = encounterDetails:CreatePluginOptionsFrame("EncounterDetailsOptionsWindow", "Encounter Breakdown Options")
 			-- 1 = only when inside a raid map
 			-- 2 = only when in raid group
 			-- 3 = only after a boss encounter
@@ -133,13 +131,7 @@ do
 
 			}
 
-			local options_text_template = detailsFramework:GetTemplate("font", "OPTIONS_FONT_TEMPLATE")
-			local options_dropdown_template = detailsFramework:GetTemplate("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
-			local options_switch_template = detailsFramework:GetTemplate("switch", "OPTIONS_CHECKBOX_TEMPLATE")
-			local options_slider_template = detailsFramework:GetTemplate("slider", "OPTIONS_SLIDER_TEMPLATE")
-			local options_button_template = detailsFramework:GetTemplate("button", "OPTIONS_BUTTON_TEMPLATE")
-
-			detailsFramework:BuildMenu(optionsFrame, menu, 15, -75, 260, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+			detailsFramework:BuildMenu(optionsFrame, menu, 15, -75, 260)
 		end
 
 		encounterDetails.OpenOptionsPanel = function()
@@ -471,14 +463,15 @@ do
 		end
 
 		--segment selection
-		C_Timer.After(5, function()
+		C_Timer.After(1, function()
 			local buildSegmentosMenu = function(self)
 				local segmentList = Details:GetCombatSegments()
 				local resultTable = {}
 
 				for index, combate in ipairs(segmentList) do
 					if (combate.is_boss and combate.is_boss.index) then
-						local bossIcon = Details:GetBossEncounterTexture(combate.is_boss.id or combate.is_boss.encounter or combate.is_boss.name)
+						--local l, r, t, b, icon = Details:GetBossIcon(combate.is_boss.mapid, combate.is_boss.index)
+						local bossIcon = Details:GetBossEncounterTexture(combate.is_boss.name)
 						resultTable[#resultTable+1] = {value = index, label = "#" .. index .. " " .. combate.is_boss.name, icon = bossIcon, iconsize = {32, 20}, texcoord = {0, 1, 0, 0.9}, onclick = encounterDetails.OpenAndRefresh}
 					end
 				end

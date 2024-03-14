@@ -4,8 +4,6 @@ if (not DF or not DetailsFrameworkCanLoad) then
 	return
 end
 
-local detailsFramework = DF
-
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local _
 
@@ -17,7 +15,7 @@ local max = math.max
 
 --api locals
 local PixelUtil = PixelUtil or DFPixelUtil
-local version = 23
+local version = 20
 
 local CONST_MENU_TYPE_MAINMENU = "main"
 local CONST_MENU_TYPE_SUBMENU = "sub"
@@ -36,7 +34,6 @@ function DF:CreateCoolTip()
 	tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}}
 	local defaultBackdropColor = {0.1215, 0.1176, 0.1294, 0.8000}
 	local defaultBackdropBorderColor = {0.05, 0.05, 0.05, 1}
-	local defaultTexCoord = {0, 1, 0, 1}
 
 	--initialize
 	local gameCooltip = {
@@ -106,7 +103,7 @@ function DF:CreateCoolTip()
 
 	--options table
 	gameCooltip.OptionsList = {
-		["RightTextMargin"] = true, --offset between the right text to the right icon, default: -3
+		["RightTextMargin"] = true,
 		["IconSize"] = true,
 		["HeightAnchorMod"] = true,
 		["WidthAnchorMod"] = true,
@@ -122,10 +119,10 @@ function DF:CreateCoolTip()
 		["TextHeightMod"] = true,
 		["ButtonHeightMod"] = true,
 		["ButtonHeightModSub"] = true,
-		["YSpacingMod"] = true, --space between each line, does not work with 'IgnoreButtonAutoHeight' and 'AlignAsBlizzTooltip'
+		["YSpacingMod"] = true,
 		["YSpacingModSub"] = true,
-		["ButtonsYMod"] = true, --amount of space to leave between the top border and the first line of the tooltip, default: 0
-		["ButtonsYModSub"] = true, --amount of space to leave between the top border and the first line of the tooltip, default: 0
+		["ButtonsYMod"] = true,
+		["ButtonsYModSub"] = true,
 		["IconHeightMod"] = true,
 		["StatusBarHeightMod"] = true,
 		["StatusBarTexture"] = true,
@@ -144,8 +141,8 @@ function DF:CreateCoolTip()
 		["RelativeAnchor"] = true,
 		["NoLastSelectedBar"] = true,
 		["SubMenuIsTooltip"] = true,
-		["LeftBorderSize"] = true, --offset between the left border and the left icon, default: 10 + offset
-		["RightBorderSize"] = true, --offset between the right border and the right icon, default: -10 + offset
+		["LeftBorderSize"] = true,
+		["RightBorderSize"] = true,
 		["HeighMod"] = true,
 		["HeighModSub"] = true,
 		["IconBlendMode"] = true,
@@ -192,7 +189,7 @@ function DF:CreateCoolTip()
 
 		--move each line in the Y axis (vertical offsett)
 		["LineYOffset"] = "ButtonsYMod",
-		["VerticalOffset"] = "ButtonsYMod", --amount of space to leave between the top border and the first line of the tooltip, default: 0
+		["VerticalOffset"] = "ButtonsYMod",
 		["LineYOffsetSub"] = "ButtonsYModSub",
 		["VerticalOffsetSub"] = "ButtonsYModSub",
 	}
@@ -232,7 +229,7 @@ function DF:CreateCoolTip()
 
 	gameCooltip.RoundedFramePreset = {
 		color = {.075, .075, .075, 1},
-		border_color = {.3, .3, .3, 1},
+		border_color = {.2, .2, .2, 1},
 		roundness = 8,
 	}
 
@@ -378,9 +375,6 @@ function DF:CreateCoolTip()
 
 		frame1.frameBackgroundTexture:Hide()
 		frame2.frameBackgroundTexture:Hide()
-
-		frame1.gradientTexture:Hide()
-		frame2.gradientTexture:Hide()
 	end
 
 	function GameCooltip:HideRoundedCorner()
@@ -393,9 +387,6 @@ function DF:CreateCoolTip()
 
 		frame1.frameBackgroundTexture:Show()
 		frame2.frameBackgroundTexture:Show()
-
-		frame1.gradientTexture:Show()
-		frame2.gradientTexture:Show()
 	end
 
 	gameCooltip.frame1 = frame1
@@ -619,17 +610,9 @@ function DF:CreateCoolTip()
 		statusbar.leftIcon:SetSize(16, 16)
 		statusbar.leftIcon:SetPoint("LEFT", statusbar, "LEFT", 0, 0)
 
-		statusbar.leftIconMask = statusbar:CreateMaskTexture("$parent_LeftIconMask", "artwork")
-		statusbar.leftIconMask:SetAllPoints(statusbar.leftIcon)
-		statusbar.leftIcon:AddMaskTexture(statusbar.leftIconMask)
-
 		statusbar.rightIcon = statusbar:CreateTexture("$parent_RightIcon", "OVERLAY")
 		statusbar.rightIcon:SetSize(16, 16)
 		statusbar.rightIcon:SetPoint("RIGHT", statusbar, "RIGHT", 0, 0)
-
-		statusbar.rightIconMask = statusbar:CreateMaskTexture("$parent_RightIconMask", "artwork")
-		statusbar.rightIconMask:SetAllPoints(statusbar.rightIcon)
-		statusbar.rightIcon:AddMaskTexture(statusbar.rightIconMask)
 
 		statusbar.spark2 = statusbar:CreateTexture("$parent_Spark2", "OVERLAY")
 		statusbar.spark2:SetSize(32, 32)
@@ -673,8 +656,6 @@ function DF:CreateCoolTip()
 		self:RegisterForClicks("LeftButtonDown")
 		self.leftIcon = self.statusbar.leftIcon
 		self.rightIcon = self.statusbar.rightIcon
-		self.leftIconMask = self.statusbar.leftIconMask
-		self.rightIconMask = self.statusbar.rightIconMask
 		self.texture = self.statusbar.texture
 		self.spark = self.statusbar.spark
 		self.spark2 = self.statusbar.spark2
@@ -953,7 +934,7 @@ function DF:CreateCoolTip()
 		if (gameCooltip.FunctionsTableMain[self.index]) then
 			local parameterTable = gameCooltip.ParametersTableMain[self.index]
 			local func = gameCooltip.FunctionsTableMain[self.index]
-			local okay, errortext = xpcall(func, geterrorhandler(), gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
+			local okay, errortext = pcall(func, gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
 			if (not okay) then
 				print("Cooltip OnClick Error:", errortext)
 			end
@@ -967,7 +948,7 @@ function DF:CreateCoolTip()
 		if (gameCooltip.FunctionsTableSub[self.mainIndex] and gameCooltip.FunctionsTableSub[self.mainIndex][self.index]) then
 			local parameterTable = gameCooltip.ParametersTableSub[self.mainIndex][self.index]
 			local func = gameCooltip.FunctionsTableSub[self.mainIndex][self.index]
-			local okay, errortext = xpcall(func, geterrorhandler(), gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
+			local okay, errortext = pcall(func, gameCooltip.Host, gameCooltip.FixedValue, parameterTable[1], parameterTable[2], parameterTable[3], button)
 			if (not okay) then
 				print("Cooltip OnClick Error:", errortext)
 			end
@@ -1199,12 +1180,6 @@ function DF:CreateCoolTip()
 			textureObject:SetHeight(leftIconSettings[3])
 			textureObject:SetTexCoord(leftIconSettings[4], leftIconSettings[5], leftIconSettings[6], leftIconSettings[7])
 
-			if (leftIconSettings[10]) then
-				menuButton.leftIconMask:SetTexture(leftIconSettings[10])
-			else
-				menuButton.leftIconMask:SetTexture([[Interface\COMMON\common-iconmask]])
-			end
-
 			local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(leftIconSettings[8])
 			textureObject:SetVertexColor(colorRed, colorGreen, colorBlue, colorAlpha)
 
@@ -1261,12 +1236,6 @@ function DF:CreateCoolTip()
 			menuButton.rightIcon:SetWidth(rightIconSettings[2])
 			menuButton.rightIcon:SetHeight(rightIconSettings[3])
 			menuButton.rightIcon:SetTexCoord(rightIconSettings[4], rightIconSettings[5], rightIconSettings[6], rightIconSettings[7])
-
-			if (rightIconSettings[10]) then
-				menuButton.rightIconMask:SetTexture(rightIconSettings[10])
-			else
-				menuButton.rightIconMask:SetTexture([[Interface\COMMON\common-iconmask]])
-			end
 
 			local colorRed, colorGreen, colorBlue, colorAlpha = DF:ParseColors(rightIconSettings[8])
 			menuButton.rightIcon:SetVertexColor(colorRed, colorGreen, colorBlue, colorAlpha)
@@ -1527,9 +1496,6 @@ function DF:CreateCoolTip()
 			wallpaper:SetDesaturated(true)
 		else
 			wallpaper:SetDesaturated(false)
-			if (wallpaperTable[8]) then
-				wallpaper:SetDesaturation(wallpaperTable[8])
-			end
 		end
 
 		wallpaper:Show()
@@ -3035,16 +3001,7 @@ function DF:CreateCoolTip()
 
 	frame1.frameWallpaper:Hide()
 	frame2.frameWallpaper:Hide()
-
-	---set an image as wallpaper for the cooltip frame
-	---@param menuType any
-	---@param texture any
-	---@param texcoord table
-	---@param color any
-	---@param bDesaturated boolean?
-	---@param desaturation number?
-	---@return nil
-	function gameCooltip:SetWallpaper(menuType, texture, texcoord, color, bDesaturated, desaturation)
+	function gameCooltip:SetWallpaper(menuType, texture, texcoord, color, desaturate)
 		if (gameCooltip.Indexes == 0) then
 			return gameCooltip:PrintDebug("SetWallpaper() requires an already added line (Cooltip:AddLine()).")
 		end
@@ -3067,18 +3024,20 @@ function DF:CreateCoolTip()
 			wallpaperTable = subMenuContainerWallpapers
 		end
 
-		texcoord = texcoord or defaultTexCoord
-
-		--parse the texure
-		local iconTexture, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, red, green, blue, alpha = detailsFramework:ParseTexture(texture, 1, 1, texcoord[1], texcoord[2], texcoord[3], texcoord[4], color)
-		wallpaperTable[1] = iconTexture
-		wallpaperTable[2] = leftCoord
-		wallpaperTable[3] = rightCoord
-		wallpaperTable[4] = topCoord
-		wallpaperTable[5] = bottomCoord
-		wallpaperTable[6] = {red, green, blue, alpha}
-		wallpaperTable[7] = bDesaturated or false
-		wallpaperTable[8] = desaturation
+		wallpaperTable[1] = texture
+		if (texcoord) then
+			wallpaperTable[2] = texcoord[1]
+			wallpaperTable[3] = texcoord[2]
+			wallpaperTable[4] = texcoord[3]
+			wallpaperTable[5] = texcoord[4]
+		else
+			wallpaperTable[2] = 0
+			wallpaperTable[3] = 1
+			wallpaperTable[4] = 0
+			wallpaperTable[5] = 1
+		end
+		wallpaperTable[6] = color
+		wallpaperTable[7] = desaturate
 	end
 
 	function gameCooltip:SetBannerText(menuType, index, text, anchor, color, fontSize, fontFace, fontFlag)
@@ -3214,24 +3173,14 @@ function DF:CreateCoolTip()
 		return gameCooltip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated)
 	end
 
-	function gameCooltip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated, mask)
+	function gameCooltip:AddIcon(iconTexture, menuType, side, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor, point, desaturated)
 		--need a previous line
 		if (gameCooltip.Indexes == 0) then
 			return gameCooltip:PrintDebug("AddIcon() requires an already added line (Cooltip:AddLine()).")
 		end
-
 		--check data integrity
-		local bCheckTextureObject = true
-		if (not detailsFramework:IsTexture(iconTexture, bCheckTextureObject)) then
-			return gameCooltip:PrintDebug("AddIcon() invalid texture.")
-		end
-
-		--parse the texure
-		local red, green, blue, alpha
-		iconTexture, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, red, green, blue, alpha = detailsFramework:ParseTexture(iconTexture, iconWidth, iconHeight, leftCoord, rightCoord, topCoord, bottomCoord, overlayColor)
-
-		if (not overlayColor and red) then
-			overlayColor = {red, green, blue, alpha}
+		if ((type(iconTexture) ~= "string" and type(iconTexture) ~= "number") and (type(iconTexture) ~= "table" or not iconTexture.GetObjectType or iconTexture:GetObjectType() ~= "Texture")) then
+			return gameCooltip:PrintDebug("AddIcon() invalid parameters.")
 		end
 
 		side = side or 1
@@ -3276,7 +3225,6 @@ function DF:CreateCoolTip()
 				gameCooltip.TopIconTableSub[gameCooltip.Indexes][7] = bottomCoord or 1
 				gameCooltip.TopIconTableSub[gameCooltip.Indexes][8] = overlayColor or defaultWhiteColor
 				gameCooltip.TopIconTableSub[gameCooltip.Indexes][9] = desaturated
-				gameCooltip.TopIconTableSub[gameCooltip.Indexes][10] = mask
 				return
 			end
 
@@ -3309,7 +3257,6 @@ function DF:CreateCoolTip()
 		iconTable[7] = bottomCoord or 1 --default 1
 		iconTable[8] = overlayColor or defaultWhiteColor --default 1, 1, 1
 		iconTable[9] = desaturated
-		iconTable[10] = mask
 
 		return true
 	end

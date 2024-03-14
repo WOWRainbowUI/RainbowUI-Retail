@@ -1,10 +1,5 @@
 
----@type details
 local Details = _G.Details
-
----@type detailsframework
-local detailsFramework = DetailsFramework
-
 local _
 local addonName, Details222 = ...
 
@@ -12,8 +7,6 @@ local combatClass = Details.combate
 local segmentClass = Details.historico
 local bitBand = bit.band
 local wipe = table.wipe
-
-local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --API
@@ -41,10 +34,6 @@ function Details:GetOverallCombat()
 	return Details.tabela_overall
 end
 
----return a combat object for the given segment identifier
----@param self details
----@param combat any
----@return combat|nil
 function Details:GetCombat(combat)
 	if (not combat) then
 		return Details:GetCurrentCombat()
@@ -153,8 +142,6 @@ function segmentClass:CreateNewSegmentDatabase()
 	return newSegmentDatabase
 end
 
----comment
----@param combatObject combat
 function segmentClass:AddToOverallData(combatObject)
 	local zoneName, zoneType = GetInstanceInfo()
 	if (zoneType ~= "none" and combatObject:GetCombatTime() <= Details.minimum_overall_combat_time) then
@@ -196,48 +183,49 @@ function segmentClass:AddToOverallData(combatObject)
 		end
 	end
 
-	---@type combat
-	local overallCombat = Details:GetOverallCombat()
-
 	--store the segments added to the overall data
-	overallCombat.segments_added = overallCombat.segments_added or {}
+	Details.tabela_overall.segments_added = Details.tabela_overall.segments_added or {}
+	local startDate = combatObject.data_inicio
 
-	local combatStartDate = combatObject:GetDate()
-	local combatName = combatObject:GetCombatName(false, true)
+	local combatName = combatObject:GetCombatName(true)
 	local combatTime = combatObject:GetCombatTime()
 	local combatType = combatObject:GetCombatType()
 
-	table.insert(overallCombat.segments_added, 1, {name = combatName, elapsed = combatTime, clock = combatStartDate, type = combatType})
+	table.insert(Details.tabela_overall.segments_added, 1, {name = combatName, elapsed = combatTime, clock = startDate, type = combatType})
 
-	if (#overallCombat.segments_added > 40) then
-		table.remove(overallCombat.segments_added, 41)
+	if (#Details.tabela_overall.segments_added > 40) then
+		table.remove(Details.tabela_overall.segments_added, 41)
 	end
 
-	overallCombat = overallCombat + combatObject
+	if (Details.debug) then
+		--Details:Msg("(debug) adding the segment to overall data: " .. (combatObject:GetCombatName(true) or "no name") .. " with time of: " .. (combatObject:GetCombatTime() or "no time"))
+	end
+
+	Details.tabela_overall = Details.tabela_overall + combatObject
 	combatObject.overall_added = true
 
-	if (not overallCombat.overall_enemy_name) then
-		overallCombat.overall_enemy_name = combatObject.is_boss and combatObject.is_boss.name or combatObject.enemy
+	if (not Details.tabela_overall.overall_enemy_name) then
+		Details.tabela_overall.overall_enemy_name = combatObject.is_boss and combatObject.is_boss.name or combatObject.enemy
 	else
-		if (overallCombat.overall_enemy_name ~= (combatObject.is_boss and combatObject.is_boss.name or combatObject.enemy)) then
-			overallCombat.overall_enemy_name = "-- x -- x --"
+		if (Details.tabela_overall.overall_enemy_name ~= (combatObject.is_boss and combatObject.is_boss.name or combatObject.enemy)) then
+			Details.tabela_overall.overall_enemy_name = "-- x -- x --"
 		end
 	end
 
-	if (overallCombat.start_time == 0) then
-		overallCombat:SetStartTime(combatObject.start_time)
-		overallCombat:SetEndTime(combatObject.end_time)
+	if (Details.tabela_overall.start_time == 0) then
+		Details.tabela_overall:SetStartTime(combatObject.start_time)
+		Details.tabela_overall:SetEndTime(combatObject.end_time)
 	else
-		overallCombat:SetStartTime(combatObject.start_time - overallCombat:GetCombatTime())
-		overallCombat:SetEndTime(combatObject.end_time)
+		Details.tabela_overall:SetStartTime(combatObject.start_time - Details.tabela_overall:GetCombatTime())
+		Details.tabela_overall:SetEndTime(combatObject.end_time)
 	end
 
-	local overallStartDate = overallCombat:GetDate()
-	if (overallStartDate == 0) then
-		overallCombat:SetDate(combatStartDate or 0)
+	local currentCombat = Details:GetCurrentCombat()
+	if (Details.tabela_overall.data_inicio == 0) then
+		Details.tabela_overall.data_inicio = currentCombat.data_inicio or 0
 	end
 
-	overallCombat:SetDateToNow(false, true)
+	Details.tabela_overall:seta_data(Details._detalhes_props.DATA_TYPE_END)
 	Details:ClockPluginTickOnSegment()
 
 	for id, instance in Details:ListInstances() do
@@ -259,8 +247,6 @@ function Details:CanAddCombatToOverall(combatObject)
 		return false
 	end
 
-	local combatType = combatObject:GetCombatType()
-
 	--special cases
 	local mythicInfo = combatObject.is_mythic_dungeon
 	if (mythicInfo) then
@@ -275,7 +261,7 @@ function Details:CanAddCombatToOverall(combatObject)
 
 	--raid boss - flag 0x1
 	if (bitBand(Details.overall_flag, 0x1) ~= 0) then
-		if (combatObject.is_boss and combatObject:GetInstanceType() == "raid" and not combatObject.is_pvp) then
+		if (combatObject.is_boss and combatObject.instance_type == "raid" and not combatObject.is_pvp) then
 			if (combatObject:GetCombatTime() >= 30) then
 				return true
 			end
@@ -284,21 +270,21 @@ function Details:CanAddCombatToOverall(combatObject)
 
 	--raid trash - flag 0x2
 	if (bitBand(Details.overall_flag, 0x2) ~= 0) then
-		if (combatObject.is_trash and combatObject:GetInstanceType() == "raid") then
+		if (combatObject.is_trash and combatObject.instance_type == "raid") then
 			return true
 		end
 	end
 
 	--dungeon boss - flag 0x4
 	if (bitBand(Details.overall_flag, 0x4) ~= 0) then
-		if (combatObject.is_boss and combatObject:GetInstanceType() == "party" and combatType ~= DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND) then
+		if (combatObject.is_boss and combatObject.instance_type == "party" and not combatObject.is_pvp) then
 			return true
 		end
 	end
 
 	--dungeon trash - flag 0x8
 	if (bitBand(Details.overall_flag, 0x8) ~= 0) then
-		if ((combatObject.is_trash or combatType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) and combatObject:GetInstanceType() == "party") then
+		if ((combatObject.is_trash or combatObject.is_mythic_dungeon_trash) and combatObject.instance_type == "party") then
 			return true
 		end
 	end
@@ -309,7 +295,7 @@ function Details:CanAddCombatToOverall(combatObject)
 	end
 
 	--is a PvP combat
-	if (combatType == DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND or combatType == DETAILS_SEGMENTTYPE_PVP_ARENA) then
+	if (combatObject.is_pvp or combatObject.is_arena) then
 		return true
 	end
 
@@ -993,3 +979,36 @@ function Details.refresh:r_historico(este_historico)
 	setmetatable(este_historico, segmentClass)
 	--este_historico.__index = historico
 end
+
+--[[
+		elseif (_detalhes.trash_concatenate) then
+
+			if (true) then
+				return
+			end
+
+			if (_terceiro_combate) then
+				if (_terceiro_combate.is_trash and _segundo_combate.is_trash and not _terceiro_combate.is_boss and not _segundo_combate.is_boss) then
+					--tabela 2 deve ser deletada e somada a tabela 1
+					if (_detalhes.debug) then
+						detalhes:Msg("(debug) concatenating two trash segments.")
+					end
+
+					_segundo_combate = _segundo_combate + _terceiro_combate
+					_detalhes.tabela_overall = _detalhes.tabela_overall - _terceiro_combate
+
+					_segundo_combate.is_trash = true
+
+					--verificar novamente a time machine
+					for _, jogador in ipairs(_terceiro_combate [1]._ActorTable) do --damage
+						Details222.TimeMachine.RemoveActor(jogador)
+					end
+					for _, jogador in ipairs(_terceiro_combate [2]._ActorTable) do --heal
+						Details222.TimeMachine.RemoveActor(jogador)
+					end
+					--remover
+					_table_remove(self.tabelas, 3)
+					_detalhes:SendEvent("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
+				end
+			end
+--]]

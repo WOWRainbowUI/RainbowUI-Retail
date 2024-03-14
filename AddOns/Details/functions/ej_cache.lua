@@ -60,14 +60,9 @@ function Details:GetEncounterInfo(id)
     end
 end
 
----@param id instanceid|instancename|mapid
 ---@return details_instanceinfo?
 function Details:GetInstanceInfo(id)
-    if (id == 463) then --fall
-        id = 1209
-    end
-
-    ---@type details_instanceinfo
+    ---@type details_encounterinfo
     local instanceData = Details222.EJCache.CacheRaidData_ByInstanceId[id]
     if (instanceData) then
         return instanceData
@@ -82,10 +77,21 @@ function Details:GetInstanceInfo(id)
     if (instanceData) then
         return instanceData
     end
-end
 
-function Details:DumpInstanceInfo()
-    dumpt(Details222.EJCache.CacheRaidData_ByInstanceId)
+    instanceData = Details222.EJCache.CacheDungeonData_ByInstanceId[id]
+    if (instanceData) then
+        return instanceData
+    end
+
+    instanceData = Details222.EJCache.CacheDungeonData_ByInstanceName[id]
+    if (instanceData) then
+        return instanceData
+    end
+
+    instanceData = Details222.EJCache.CacheDungeonData_ByMapId[id]
+    if (instanceData) then
+        return instanceData
+    end
 end
 
 function Details:GetInstanceEJID(...)
@@ -102,6 +108,9 @@ function Details222.EJCache.CreateEncounterJournalDump()
     Details222.EJCache.CacheRaidData_ByInstanceId = {}
     Details222.EJCache.CacheRaidData_ByInstanceName = {} --this is localized name
     Details222.EJCache.CacheRaidData_ByMapId = {} --retrivied from GetInstanceInfo()
+    Details222.EJCache.CacheDungeonData_ByInstanceId = {}
+    Details222.EJCache.CacheDungeonData_ByInstanceName = {}
+    Details222.EJCache.CacheDungeonData_ByMapId = {}
     Details222.EJCache.CacheEncountersByEncounterName = {}
     Details222.EJCache.CacheEncountersBy_EncounterName = {}
     Details222.EJCache.CacheEncountersBy_EncounterId = {}
