@@ -36,6 +36,7 @@ local rhToys = {
 	{209035, "Hearthstone of the Flame"},
 	{208704, "Deepdweller's Earthen Hearthstone"},
 	{206195, "Path of the Naaru"},
+	{212337, "Stone of the Hearth"},
 	}
 
 --------------------------------------------------------------------

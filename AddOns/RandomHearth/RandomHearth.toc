@@ -1,7 +1,7 @@
 ## Interface: 100205
 ## Title: Random Hearthstone
 ## Author: Jamien
-## Version: 1.2.3
+## Version: 1.2.4
 ## Notes: Uses a random hearthstone toy
 ## SavedVariables: rhOptions, rhOverrideChk
 
