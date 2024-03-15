@@ -23,7 +23,6 @@ local UnitThreatSituation = _G.UnitThreatSituation
 local UnitPlayerControlled = _G.UnitPlayerControlled
 local UnitAffectingCombat = _G.UnitAffectingCombat
 local C_NamePlate = _G.C_NamePlate
-local InterfaceOptionsFrame_OpenToCategory = _G.InterfaceOptionsFrame_OpenToCategory
 local IsControlKeyDown = _G.IsControlKeyDown
 local StaticPopup_Show = _G.StaticPopup_Show
 local StaticPopupDialogs = _G.StaticPopupDialogs
@@ -36,6 +35,8 @@ local name, ns = ...
 
 local MMPE = LibStub('AceAddon-3.0'):NewAddon(name, 'AceConsole-3.0', 'AceHook-3.0', 'AceEvent-3.0');
 if not MMPE then return end
+
+local L = LibStub('AceLocale-3.0'):GetLocale(name)
 
 -- expose to the world, that we exist
 _G['MMPE'] = MMPE
@@ -167,7 +168,7 @@ end
 
 function MMPE:GetSetting(setting)
     if (not setting or self.DB.settings[setting] == nil) then
-        self:PrintWarning("MPP attempted to get missing setting: " .. (setting or "nil"))
+        self:PrintWarning(L["MPP attempted to get missing setting:"] .. " " .. (setting or "nil"))
         return
     end
     return self.DB.settings[setting]
@@ -175,7 +176,7 @@ end
 
 function MMPE:SetSetting(setting, value)
     if (not setting or self.DB.settings[setting] == nil) then
-        self:PrintWarning("MPP attempted to set missing setting: " .. (setting or "nil"))
+        self:PrintWarning(L["MPP attempted to set missing setting:"] .. " " .. (setting or "nil"))
         return
     end
     self.DB.settings[setting] = value
@@ -475,7 +476,7 @@ end
 
 function MMPE:VerifyDB(fullWipe, npcDataWipe)
     if not self.DB or not self.DB.settings or not self.DB.npcData or fullWipe then
-        self:Print("Running first time setup. This should only happen once. Enjoy! ;)")
+        self:Print(L["Running first time setup. This should only happen once. Enjoy! ;)"])
         wipe(MMPEDB)
         self.DB = MMPEDB
         self.DB.settings = {}
@@ -530,13 +531,13 @@ function MMPE:ShouldAddTooltip(unit)
 end
 
 function MMPE:GetTooltipMessage(npcID)
-    local message = "|cFF"..self:GetSetting("tooltipColor") .. "M+Progress: "
+    local message = "|cFF"..self:GetSetting("tooltipColor") .. L["M+Progress:"] .. " "
     local estimatedProgress, count, maxCount = self:GetEstimatedProgress(npcID)
     if not estimatedProgress then
-        return message .. "No record."
+        return message .. L["No record."]
     end
     if estimatedProgress == 0 then
-        return message .. "No Progress."
+        return message .. L["No Progress."]
     end
     local mobsLeft = (maxCount - self:GetCurrentQuantity()) / count
     if self:GetSetting('includeCountInTooltip') then
@@ -585,7 +586,7 @@ function MMPE:CreatePullFrame()
 
     self.currentPullString = self.currentPullFrame:CreateFontString(nil, "BACKGROUND", "GameFontHighlightLarge")
     self.currentPullString:SetPoint("CENTER");
-    self.currentPullString:SetText("MPP String Uninitialized.")
+    self.currentPullString:SetText(L["MPP String Uninitialized."])
 end
 
 
@@ -655,10 +656,10 @@ function MMPE:UpdateCurrentPullEstimate()
     local currentCount = self:GetCurrentQuantity()
     local totalCount = (estimatedCount + currentCount)
     if estimatedCount == 0 then
-        message = "No recorded mobs pulled or nameplates inactive."
+        message = L["No recorded mobs pulled or nameplates inactive."]
     else
         message = string.format(
-            "Current pull: %.2f%% + %.2f%% = %.2f%%",
+            L["Current pull:"] .. " %.2f%% + %.2f%% = %.2f%%",
             (currentCount / maxCount) * 100,
             (estimatedCount / maxCount) * 100,
             (totalCount / maxCount) * 100
@@ -820,8 +821,8 @@ end
 function MMPE:InitPopup()
     if not StaticPopupDialogs["MPPEDataExportDialog"] then
         StaticPopupDialogs["MPPEDataExportDialog"] = {
-            text = "CTRL-C to copy",
-            button1 = "Close",
+            text = L["CTRL-C to copy"],
+            button1 = CLOSE,
             OnShow = function(dialog, data)
                 local function HidePopup()
                     dialog:Hide();
@@ -855,27 +856,27 @@ function MMPE:InitConfig()
     local options = {
         type = "group",
         childGroups = "tab",
-        name = "Mythic Plus Progress",
-        desc = "Mythic Plus Progress tracker",
+        name = L["Mythic Plus Progress"],
+        desc = L["Mythic Plus Progress tracker"],
         get = function(info) return self:GetSetting(info[#info]) end,
         set = function(info, value) self:SetSetting(info[#info], value) end,
         args = {
             version = {
                 order = increment(),
                 type = "description",
-                name = "Version: " .. self.version,
+                name = L["Version:"] .. " " .. self.version,
             },
             enabled = {
                 order = increment(),
                 type = "toggle",
-                name = "Enabled",
-                desc = "Enable/Disable the addon",
+                name = L["Enabled"],
+                desc = L["Enable/Disable the addon"],
             },
             wipesettings = {
                 order = increment(),
                 type = "execute",
-                name = "Reset Settings to default",
-                desc = "Reset Settings to default",
+                name = L["Reset Settings to default"],
+                desc = L["Reset Settings to default"],
                 func = function()
                     self:VerifySettings(true)
                 end,
@@ -923,51 +924,51 @@ function MMPE:InitConfig()
             mainOptions = {
                 order = increment(),
                 type = "group",
-                name = "Main Options",
+                name = L["Main Options"],
                 args = {
                     tooltip = {
                         order = increment(),
                         type = "group",
-                        name = "Tooltip",
+                        name = L["Tooltip"],
                         inline = true,
                         args = {
                             enableTooltip = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Enable Tooltip",
-                                desc = "Adds percentage info to the unit tooltip",
+                                name = L["Enable Tooltip"],
+                                desc = L["Adds percentage info to the unit tooltip"],
                             },
                             includeCountInTooltip = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Include Count",
-                                desc = "Include the raw count value in the tooltip, as well as the percentage",
+                                name = L["Include Count"],
+                                desc = L["Include the raw count value in the tooltip, as well as the percentage"],
                             },
                         },
                     },
                     pullEstimateFrame = {
                         order = increment(),
                         type = "group",
-                        name = "Pull Estimate frame",
+                        name = L["Pull Estimate frame"],
                         inline = true,
                         args = {
                             enablePullEstimate = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Enable Current Pull frame",
-                                desc = "Display a frame with current pull information",
+                                name = L["Enable Current Pull frame"],
+                                desc = L["Display a frame with current pull information"],
                             },
                             pullEstimateCombatOnly = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Only in combat",
-                                desc = "Only show the frame when you are in combat",
+                                name = L["Only in combat"],
+                                desc = L["Only show the frame when you are in combat"],
                             },
                             lockPullFrame = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Lock frame",
-                                desc = "Lock the frame in place",
+                                name = L["Lock frame"],
+                                desc = L["Lock the frame in place"],
                                 set = function(info, value)
                                     self:SetSetting(info[#info], value)
                                     self.currentPullFrame:EnableMouse(not value)
@@ -976,8 +977,8 @@ function MMPE:InitConfig()
                             reset = {
                                 order = increment(),
                                 type = "execute",
-                                name = "Reset position",
-                                desc = "Reset position of Current Pull frame to the default",
+                                name = L["Reset position"],
+                                desc = L["Reset position of Current Pull frame to the default"],
                                 func = function()
                                     self.DB.settings.pullFramePoint = self.defaultSettings.pullFramePoint
                                     SetFramePoint(self.currentPullFrame, self.DB.settings.pullFramePoint)
@@ -988,21 +989,20 @@ function MMPE:InitConfig()
                     nameplate = {
                         order = increment(),
                         type = "group",
-                        name = "Nameplate",
+                        name = L["Nameplate"],
                         inline = true,
                         args = {
                             enableNameplateText = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "Enable Nameplate Text",
-                                desc = "Adds the % info to the enemy nameplates",
-                                descStyle = "inline",
+                                name = L["Enable Nameplate Text"],
+                                desc = L["Adds the % info to the enemy nameplates"],
                             },
                             nameplateTextColor = {
                                 order = increment(),
                                 type = "color",
-                                name = "Nameplate Text Color",
-                                desc = "Color of the text on the enemy nameplates",
+                                name = L["Nameplate Text Color"],
+                                desc = L["Color of the text on the enemy nameplates"],
                                 hasAlpha = true,
                                 get = function(info)
                                     local hex = self:GetSetting(info[#info])
@@ -1015,8 +1015,8 @@ function MMPE:InitConfig()
                             offsetx = {
                                 order = increment(),
                                 type = "range",
-                                name = "Horizontal offset ( <-> )",
-                                desc = "Horizontal offset of the nameplate text",
+                                name = L["Horizontal offset ( <-> )"],
+                                desc = L["Horizontal offset of the nameplate text"],
                                 width = "double",
                                 softMin = -100,
                                 softMax = 100,
@@ -1025,8 +1025,8 @@ function MMPE:InitConfig()
                             offsety = {
                                 order = increment(),
                                 type = "range",
-                                name = "Vertical Offset ( | )",
-                                desc = "Vertical offset of the nameplate text",
+                                name = L["Vertical Offset ( | )"],
+                                desc = L["Vertical offset of the nameplate text"],
                                 width = "double",
                                 softMin = -100,
                                 softMax = 100,
@@ -1037,30 +1037,30 @@ function MMPE:InitConfig()
                     experimental = {
                         order = increment(),
                         type = "group",
-                        name = "Experimental",
+                        name = L["Experimental"],
                         inline = true,
                         args = {
                             description = {
                                 order = increment(),
                                 type = "description",
-                                name = "These options are experimental and may not work as intended.",
+                                name = L["These options are experimental and may not work as intended."],
                             },
                             mdtEmulation = {
                                 order = increment(),
                                 type = "group",
                                 inline = true,
-                                name = "MDT Emulation",
+                                name = L["MDT Emulation"],
                                 args = {
                                     mdtEmulationDescription = {
                                         order = increment(),
                                         type = "description",
-                                        name = mdtLoaded and "Disabled when MythicDungeonTools is loaded" or "Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead.",
-                                        width = "double",
+                                        name = mdtLoaded and L["Disabled when MythicDungeonTools is loaded"] or L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."],
+                                        width = "full",
                                     },
                                     enableMdtEmulation = {
                                         order = increment(),
                                         type = "toggle",
-                                        name = "Enable MDT Emulation",
+                                        name = L["Enable MDT Emulation"],
                                         desc = "",
                                         set = function(info, value)
                                             self:SetSetting(info[#info], value)
@@ -1077,32 +1077,32 @@ function MMPE:InitConfig()
             devOptions = {
                 order = increment(),
                 type = "group",
-                name = "Developer Options",
+                name = L["Developer Options"],
                 args = {
                     debug = {
                         order = increment(),
                         type = "toggle",
-                        name = "Debug",
-                        desc = "Enable/Disable debug prints",
+                        name = L["Debug"],
+                        desc = L["Enable/Disable debug prints"],
                     },
                     debugNewNPCScores = {
                         order = increment(),
                         type = "toggle",
-                        name = "Debug New NPC Scores",
-                        desc = "Enable/Disable debug prints for new NPC scores",
+                        name = L["Debug New NPC Scores"],
+                        desc = L["Enable/Disable debug prints for new NPC scores"],
                     },
                     exportData = {
                         order = increment(),
                         type = "execute",
-                        name = "Export NPC data",
-                        desc = "Opens a popup which allows copying the data",
+                        name = L["Export NPC data"],
+                        desc = L["Opens a popup which allows copying the data"],
                         func = function() self:ExportData() end,
                     },
                     exportUpdatedData = {
                         order = increment(),
                         type = "execute",
-                        name = "Export updated NPC data",
-                        desc = "Export only data that is different from the default values",
+                        name = L["Export updated NPC data"],
+                        desc = L["Export only data that is different from the default values"],
                         func = function() self:ExportData(true) end,
                     },
                     npcDataPatchVersion = {
@@ -1110,7 +1110,7 @@ function MMPE:InitConfig()
                         type = "description",
                         name = function() return
                         string.format(
-                                "NPC data patch version: %s, build %d (ts %d)",
+                                L["NPC data patch version: %s, build %d (ts %d)"],
                                 self.DB.npcDataPatchVersionInfo.version,
                                 self.DB.npcDataPatchVersionInfo.build,
                                 self.DB.npcDataPatchVersionInfo.timestamp
@@ -1120,17 +1120,17 @@ function MMPE:InitConfig()
                     resetNpcData = {
                         order = increment(),
                         type = "execute",
-                        name = "Reset NPC data",
-                        desc = "Reset the NPC data to the default values",
+                        name = L["Reset NPC data"],
+                        desc = L["Reset the NPC data to the default values"],
                         func = function() self:VerifyDB(false, true) end,
                         confirm = true,
-                        confirmText = "Are you sure you want to reset the NPC data to the defaults?",
+                        confirmText = L["Are you sure you want to reset the NPC data to the defaults?"],
                     },
                     simulationActive = {
                         order = increment(),
                         type = "toggle",
-                        name = "Simulation Mode",
-                        desc = "Enable/Disable Simulation Mode",
+                        name = L["Simulation Mode"],
+                        desc = L["Enable/Disable Simulation Mode"],
                         width = "double",
                         get = function(info) return self.simulationActive end,
                         set = function(info, value) self.simulationActive = value end,
@@ -1138,8 +1138,8 @@ function MMPE:InitConfig()
                     simulationMax = {
                         order = increment(),
                         type = "range",
-                        name = "Simulation Required Points",
-                        desc = "Simulated number of 'points' required to complete the run",
+                        name = L["Simulation Required Points"],
+                        desc = L["Simulated number of 'points' required to complete the run"],
                         softMin = 1,
                         softMax = 100,
                         bigStep = 1,
@@ -1149,8 +1149,8 @@ function MMPE:InitConfig()
                     simulationCurrent = {
                         order = increment(),
                         type = "range",
-                        name = "Simulation Current Points",
-                        desc = "Simulated number of 'points' currently earned",
+                        name = L["Simulation Current Points"],
+                        desc = L["Simulated number of 'points' currently earned"],
                         softMin = 1,
                         softMax = 100,
                         bigStep = 1,
@@ -1160,11 +1160,11 @@ function MMPE:InitConfig()
                     wipeAll = {
                         order = increment(),
                         type = "execute",
-                        name = "Wipe All Data",
-                        desc = "Wipe all data",
+                        name = L["Wipe All Data"],
+                        desc = L["Wipe all data"],
                         func = function() self:VerifyDB(true) end,
                         confirm = true,
-                        confirmText = "Are you sure you want to wipe all data?",
+                        confirmText = L["Are you sure you want to wipe all data?"],
                     },
                 },
             },
@@ -1177,8 +1177,7 @@ function MMPE:InitConfig()
 end
 
 function MMPE:OpenConfig()
-    InterfaceOptionsFrame_OpenToCategory(self.configCategory);
-    InterfaceOptionsFrame_OpenToCategory(self.configCategory);
+    Settings.OpenToCategory(self.configCategory);
 end
 
 function MMPE:OnUpdate(elapsed)
