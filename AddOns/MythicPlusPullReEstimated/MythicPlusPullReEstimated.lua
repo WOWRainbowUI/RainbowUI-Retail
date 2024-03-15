@@ -74,8 +74,8 @@ MMPE.defaultSettings = {
 
     nameplateUpdateRate = 200, -- Rate (in milliseconds) at which we update the progress we get from the current pull, as estimated by active name plates you're in combat with. Also the update rate of getting new values for nameplate text overlay if enabled.
 
-    offsetx = 0, -- extra offset for nameplate text
-    offsety = 0,
+    offsetx = 10, -- extra offset for nameplate text
+    offsety = 10, -- 更改預設值
 
     enableNameplateText = false, -- 更改預設值
     nameplateTextColor = "FFFFFFFF",
