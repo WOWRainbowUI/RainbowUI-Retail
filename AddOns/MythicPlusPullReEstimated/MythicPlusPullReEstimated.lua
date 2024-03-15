@@ -23,7 +23,6 @@ local UnitThreatSituation = _G.UnitThreatSituation
 local UnitPlayerControlled = _G.UnitPlayerControlled
 local UnitAffectingCombat = _G.UnitAffectingCombat
 local C_NamePlate = _G.C_NamePlate
-local InterfaceOptionsFrame_OpenToCategory = _G.InterfaceOptionsFrame_OpenToCategory
 local IsControlKeyDown = _G.IsControlKeyDown
 local StaticPopup_Show = _G.StaticPopup_Show
 local StaticPopupDialogs = _G.StaticPopupDialogs
@@ -36,6 +35,8 @@ local name, ns = ...
 
 local MMPE = LibStub('AceAddon-3.0'):NewAddon(name, 'AceConsole-3.0', 'AceHook-3.0', 'AceEvent-3.0');
 if not MMPE then return end
+
+local L = LibStub('AceLocale-3.0'):GetLocale(name)
 
 -- expose to the world, that we exist
 _G['MMPE'] = MMPE
@@ -167,7 +168,7 @@ end
 
 function MMPE:GetSetting(setting)
     if (not setting or self.DB.settings[setting] == nil) then
-        self:PrintWarning("M+小怪% 嘗試取得缺少的設定: " .. (setting or "nil"))
+        self:PrintWarning(L["MPP attempted to get missing setting:"] .. " " .. (setting or "nil"))
         return
     end
     return self.DB.settings[setting]
@@ -175,7 +176,7 @@ end
 
 function MMPE:SetSetting(setting, value)
     if (not setting or self.DB.settings[setting] == nil) then
-        self:PrintWarning("M+小怪% 嘗試設定缺少的設定: " .. (setting or "nil"))
+        self:PrintWarning(L["MPP attempted to set missing setting:"] .. " " .. (setting or "nil"))
         return
     end
     self.DB.settings[setting] = value
@@ -344,7 +345,7 @@ function MMPE:UpdateValue(npcID, value, npcName, updatedFromCombat, forceUpdate)
     end
 
     if(updatedFromCombat and value == bestValue and value ~= previousBestValue and self:GetSetting('debugNewNPCScores')) then
-        self:Print(string.format("%s (%d) 的新分數是:  %d，舊的是: %d", npcName, npcID, value, previousBestValue))
+        self:Print(string.format("New score for %s (%d): %d, old value: %d", npcName, npcID, value, previousBestValue))
     end
 
     return newValue
@@ -475,7 +476,7 @@ end
 
 function MMPE:VerifyDB(fullWipe, npcDataWipe)
     if not self.DB or not self.DB.settings or not self.DB.npcData or fullWipe then
-        self:Print("正在執行第一次設定，這個動作只會執行一次，請好好享受這個插件! :)")
+        self:Print(L["Running first time setup. This should only happen once. Enjoy! ;)"])
         wipe(MMPEDB)
         self.DB = MMPEDB
         self.DB.settings = {}
@@ -530,19 +531,19 @@ function MMPE:ShouldAddTooltip(unit)
 end
 
 function MMPE:GetTooltipMessage(npcID)
-    local message = "|cFF"..self:GetSetting("tooltipColor") .. "小怪%: "
+    local message = "|cFF"..self:GetSetting("tooltipColor") .. L["M+Progress:"] .. " "
     local estimatedProgress, count, maxCount = self:GetEstimatedProgress(npcID)
     if not estimatedProgress then
-        return message .. "沒有記錄。"
+        return message .. L["No record."]
     end
     if estimatedProgress == 0 then
-        return message .. "沒有進度。"
+        return message .. L["No Progress."]
     end
     local mobsLeft = (maxCount - self:GetCurrentQuantity()) / count
     if self:GetSetting('includeCountInTooltip') then
         message = string.format("%s%.2f%% %i/%i (%i left)", message, estimatedProgress, count, maxCount, math.ceil(mobsLeft))
     else
-        message = string.format("%s%.2f%% (還差 %i)", message, estimatedProgress, math.ceil(mobsLeft))
+        message = string.format("%s%.2f%% (%i left)", message, estimatedProgress, math.ceil(mobsLeft))
     end
 
     return message
@@ -585,7 +586,7 @@ function MMPE:CreatePullFrame()
 
     self.currentPullString = self.currentPullFrame:CreateFontString(nil, "BACKGROUND", "GameFontHighlightLarge")
     self.currentPullString:SetPoint("CENTER");
-    self.currentPullString:SetText("M+ 小怪% 字串未初始化。")
+    self.currentPullString:SetText(L["MPP String Uninitialized."])
 end
 
 
@@ -655,10 +656,10 @@ function MMPE:UpdateCurrentPullEstimate()
     local currentCount = self:GetCurrentQuantity()
     local totalCount = (estimatedCount + currentCount)
     if estimatedCount == 0 then
-        message = "沒有拉怪或沒有開啟血條。"
+        message = L["No recorded mobs pulled or nameplates inactive."]
     else
         message = string.format(
-            "目前拉怪: %.2f%% + %.2f%% = %.2f%%",
+            L["Current pull:"] .. " %.2f%% + %.2f%% = %.2f%%",
             (currentCount / maxCount) * 100,
             (estimatedCount / maxCount) * 100,
             (totalCount / maxCount) * 100
@@ -676,7 +677,7 @@ function MMPE:CreateNameplateText(unit)
         local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
         if nameplate then
             self.activeNameplates[unit] = nameplate:CreateFontString(unit .."mppProgress", "OVERLAY", "NumberFontNormal") -- 更改字體
-            self.activeNameplates[unit]:SetFont(STANDARD_TEXT_FONT, 8, "")
+			self.activeNameplates[unit]:SetFont(STANDARD_TEXT_FONT, 8, "") -- 自行修改
             self.activeNameplates[unit]:SetText("+?%")
         end
     end
@@ -821,8 +822,8 @@ end
 function MMPE:InitPopup()
     if not StaticPopupDialogs["MPPEDataExportDialog"] then
         StaticPopupDialogs["MPPEDataExportDialog"] = {
-            text = "Ctrl+C 複製",
-            button1 = "關閉",
+            text = L["CTRL-C to copy"],
+            button1 = CLOSE,
             OnShow = function(dialog, data)
                 local function HidePopup()
                     dialog:Hide();
@@ -856,27 +857,27 @@ function MMPE:InitConfig()
     local options = {
         type = "group",
         childGroups = "tab",
-        name = "M+ 小怪%",
-        desc = "M+ 部隊進度追蹤",
+        name = L["Mythic Plus Progress"],
+        desc = L["Mythic Plus Progress tracker"],
         get = function(info) return self:GetSetting(info[#info]) end,
         set = function(info, value) self:SetSetting(info[#info], value) end,
         args = {
             version = {
                 order = increment(),
                 type = "description",
-                name = "版本: " .. self.version,
+                name = L["Version:"] .. " " .. self.version,
             },
             enabled = {
                 order = increment(),
                 type = "toggle",
-                name = "啟用",
-                desc = "啟用/停用插件",
+                name = L["Enabled"],
+                desc = L["Enable/Disable the addon"],
             },
             wipesettings = {
                 order = increment(),
                 type = "execute",
-                name = "重置設定成預設值",
-                desc = "重置設定成預設值",
+                name = L["Reset Settings to default"],
+                desc = L["Reset Settings to default"],
                 func = function()
                     self:VerifySettings(true)
                 end,
@@ -886,23 +887,23 @@ function MMPE:InitConfig()
 --[[            scores = {
 --                order = increment(),
 --                type = "group",
---                name = "自動學習分數",
+--                name = "Auto Learn Scores",
 --                args = {
 --                    autoLearnScores = {
 --                        order = increment(),
---                        name = "自動學習分數",
---                        desc = "只有新的 >> 只會學習新的 NPC 的分數。當插件還沒更新時，對於新的地城很有幫助。\n總是 >> 總是學習更新的分數。可能會使百分比不正確。\n關閉 >> 不要學習分數。",
+--                        name = "Auto Learn Scores",
+--                        desc = "New Only >> Only learn scores that for new NPCs. Useful for new dungeons, and the addon isn't updated yet.\nAlways >> Always learn updated scores. This might make the percentage inaccurate.\nOff >> Don't learn scores.",
 --                        type = "select",
 --                        values = {
---                            newOnly = "只有新的 (建議)",
---                            always = "永遠 (有風險)",
---                            off = "關閉",
+--                            newOnly = "New Only (Recommended)",
+--                            always = "Always (Risky)",
+--                            off = "Off",
 --                        },
 --                    },
 --                    inconclusiveDataThreshold = {
 --                        order = increment(),
---                        name = "不確定資料的時間",
---                        desc = "在此時間 (毫秒)  之內殺死的怪物不會處理，因為我們更新的速度不夠快，無法知道哪隻怪提供了多少進度。",
+--                        name = "Inconclusive Data Threshold",
+--                        desc = "Mobs killed within this span of time (in milliseconds) will not be processed since we might not get the criteria update fast enough to know which mob gave what progress.",
 --                        type = "range",
 --                        min = 50,
 --                        max = 400,
@@ -911,8 +912,8 @@ function MMPE:InitConfig()
 --                    },
 --                    maxTimeSinceKill = {
 --                        order = increment(),
---                        name = "擊殺後最大時間",
---                        desc = "怪物死掉和進度更新之間的延遲容許度，以毫秒為單位。",
+--                        name = "Max Time Since Kill",
+--                        desc = "Lag tolerance between a mob dying and the progress criteria updating, in milliseconds.",
 --                        type = "range",
 --                        min = 0,
 --                        max = 1000,
@@ -924,51 +925,51 @@ function MMPE:InitConfig()
             mainOptions = {
                 order = increment(),
                 type = "group",
-                name = "主要選項",
+                name = L["Main Options"],
                 args = {
                     tooltip = {
                         order = increment(),
                         type = "group",
-                        name = "浮動提示資訊",
+                        name = L["Tooltip"],
                         inline = true,
                         args = {
                             enableTooltip = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "浮動提示資訊",
-                                desc = "在單位的浮動提示中加入百分比資訊",
+                                name = L["Enable Tooltip"],
+                                desc = L["Adds percentage info to the unit tooltip"],
                             },
                             includeCountInTooltip = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "包含數量",
-                                desc = "除了百分比，也要在浮動提示資訊中包含數量",
+                                name = L["Include Count"],
+                                desc = L["Include the raw count value in the tooltip, as well as the percentage"],
                             },
                         },
                     },
                     pullEstimateFrame = {
                         order = increment(),
                         type = "group",
-                        name = "拉怪估計框架",
+                        name = L["Pull Estimate frame"],
                         inline = true,
                         args = {
                             enablePullEstimate = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "啟用當前拉怪框架",
-                                desc = "顯示當前拉怪資訊的框架",
+                                name = L["Enable Current Pull frame"],
+                                desc = L["Display a frame with current pull information"],
                             },
                             pullEstimateCombatOnly = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "只有戰鬥中",
-                                desc = "只有戰鬥中時才顯示框架",
+                                name = L["Only in combat"],
+                                desc = L["Only show the frame when you are in combat"],
                             },
                             lockPullFrame = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "鎖定框架",
-                                desc = "鎖定框架的位置",
+                                name = L["Lock frame"],
+                                desc = L["Lock the frame in place"],
                                 set = function(info, value)
                                     self:SetSetting(info[#info], value)
                                     self.currentPullFrame:EnableMouse(not value)
@@ -977,8 +978,8 @@ function MMPE:InitConfig()
                             reset = {
                                 order = increment(),
                                 type = "execute",
-                                name = "重置位置",
-                                desc = "將當前拉怪框架的位置恢復成預設值",
+                                name = L["Reset position"],
+                                desc = L["Reset position of Current Pull frame to the default"],
                                 func = function()
                                     self.DB.settings.pullFramePoint = self.defaultSettings.pullFramePoint
                                     SetFramePoint(self.currentPullFrame, self.DB.settings.pullFramePoint)
@@ -989,21 +990,20 @@ function MMPE:InitConfig()
                     nameplate = {
                         order = increment(),
                         type = "group",
-                        name = "血條",
+                        name = L["Nameplate"],
                         inline = true,
                         args = {
                             enableNameplateText = {
                                 order = increment(),
                                 type = "toggle",
-                                name = "啟用血條文字",
-                                desc = "在敵人血條旁加上 % 資訊",
-                                descStyle = "inline",
+                                name = L["Enable Nameplate Text"],
+                                desc = L["Adds the % info to the enemy nameplates"],
                             },
                             nameplateTextColor = {
                                 order = increment(),
                                 type = "color",
-                                name = "血條文字顏色",
-                                desc = "敵人血條旁文字的顏色",
+                                name = L["Nameplate Text Color"],
+                                desc = L["Color of the text on the enemy nameplates"],
                                 hasAlpha = true,
                                 get = function(info)
                                     local hex = self:GetSetting(info[#info])
@@ -1016,8 +1016,8 @@ function MMPE:InitConfig()
                             offsetx = {
                                 order = increment(),
                                 type = "range",
-                                name = "水平位置 ( <-> )",
-                                desc = "血條文字的水平偏移位置",
+                                name = L["Horizontal offset ( <-> )"],
+                                desc = L["Horizontal offset of the nameplate text"],
                                 width = "double",
                                 softMin = -100,
                                 softMax = 100,
@@ -1026,8 +1026,8 @@ function MMPE:InitConfig()
                             offsety = {
                                 order = increment(),
                                 type = "range",
-                                name = "垂直位置 ( | )",
-                                desc = "血條文字的垂直偏移位置",
+                                name = L["Vertical Offset ( | )"],
+                                desc = L["Vertical offset of the nameplate text"],
                                 width = "double",
                                 softMin = -100,
                                 softMax = 100,
@@ -1038,30 +1038,30 @@ function MMPE:InitConfig()
                     experimental = {
                         order = increment(),
                         type = "group",
-                        name = "實驗性",
+                        name = L["Experimental"],
                         inline = true,
                         args = {
                             description = {
                                 order = increment(),
                                 type = "description",
-                                name = "這些是實驗性的選項，可能不會如預期的運作。",
+                                name = L["These options are experimental and may not work as intended."],
                             },
                             mdtEmulation = {
                                 order = increment(),
                                 type = "group",
                                 inline = true,
-                                name = "模擬 MDT",
+                                name = L["MDT Emulation"],
                                 args = {
                                     mdtEmulationDescription = {
                                         order = increment(),
                                         type = "description",
-                                        name = mdtLoaded and "載入 MythicDungeonTools 時停用" or "允許使用 MythicDungeonTools 來取得 % 資訊的插件或 WA 改用本插件。",
-                                        width = "double",
+                                        name = mdtLoaded and L["Disabled when MythicDungeonTools is loaded"] or L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."],
+                                        width = "full",
                                     },
                                     enableMdtEmulation = {
                                         order = increment(),
                                         type = "toggle",
-                                        name = "啟用模擬 MDT",
+                                        name = L["Enable MDT Emulation"],
                                         desc = "",
                                         set = function(info, value)
                                             self:SetSetting(info[#info], value)
@@ -1078,32 +1078,32 @@ function MMPE:InitConfig()
             devOptions = {
                 order = increment(),
                 type = "group",
-                name = "開發者選項",
+                name = L["Developer Options"],
                 args = {
                     debug = {
                         order = increment(),
                         type = "toggle",
-                        name = "除錯",
-                        desc = "啟用/停用除錯資訊",
+                        name = L["Debug"],
+                        desc = L["Enable/Disable debug prints"],
                     },
                     debugNewNPCScores = {
                         order = increment(),
                         type = "toggle",
-                        name = "除錯新 NPC 分數",
-                        desc = "啟用/停用輸出新 NPC 分數的除錯資訊",
+                        name = L["Debug New NPC Scores"],
+                        desc = L["Enable/Disable debug prints for new NPC scores"],
                     },
                     exportData = {
                         order = increment(),
                         type = "execute",
-                        name = "匯出 NPC 資料",
-                        desc = "打開彈出視窗以便複製資料",
+                        name = L["Export NPC data"],
+                        desc = L["Opens a popup which allows copying the data"],
                         func = function() self:ExportData() end,
                     },
                     exportUpdatedData = {
                         order = increment(),
                         type = "execute",
-                        name = "匯出更新的 NPC 資料",
-                        desc = "只匯出和預設數值不同的資料",
+                        name = L["Export updated NPC data"],
+                        desc = L["Export only data that is different from the default values"],
                         func = function() self:ExportData(true) end,
                     },
                     npcDataPatchVersion = {
@@ -1111,7 +1111,7 @@ function MMPE:InitConfig()
                         type = "description",
                         name = function() return
                         string.format(
-                                "NPC 資料版本: %s, build %d (ts %d)",
+                                L["NPC data patch version: %s, build %d (ts %d)"],
                                 self.DB.npcDataPatchVersionInfo.version,
                                 self.DB.npcDataPatchVersionInfo.build,
                                 self.DB.npcDataPatchVersionInfo.timestamp
@@ -1121,17 +1121,17 @@ function MMPE:InitConfig()
                     resetNpcData = {
                         order = increment(),
                         type = "execute",
-                        name = "重置 NPC 資料",
-                        desc = "將 NPC 資料恢復成預設值",
+                        name = L["Reset NPC data"],
+                        desc = L["Reset the NPC data to the default values"],
                         func = function() self:VerifyDB(false, true) end,
                         confirm = true,
-                        confirmText = "是否確定要重置 NPC 資料，恢復成預設值?",
+                        confirmText = L["Are you sure you want to reset the NPC data to the defaults?"],
                     },
                     simulationActive = {
                         order = increment(),
                         type = "toggle",
-                        name = "模擬模式",
-                        desc = "啟用/停用模擬模式",
+                        name = L["Simulation Mode"],
+                        desc = L["Enable/Disable Simulation Mode"],
                         width = "double",
                         get = function(info) return self.simulationActive end,
                         set = function(info, value) self.simulationActive = value end,
@@ -1139,8 +1139,8 @@ function MMPE:InitConfig()
                     simulationMax = {
                         order = increment(),
                         type = "range",
-                        name = "模擬尚需點數",
-                        desc = "模擬打完整場還需要多少 '點數'",
+                        name = L["Simulation Required Points"],
+                        desc = L["Simulated number of 'points' required to complete the run"],
                         softMin = 1,
                         softMax = 100,
                         bigStep = 1,
@@ -1150,8 +1150,8 @@ function MMPE:InitConfig()
                     simulationCurrent = {
                         order = increment(),
                         type = "range",
-                        name = "模擬當前點數",
-                        desc = "模擬目前已經獲得多少 '點數'",
+                        name = L["Simulation Current Points"],
+                        desc = L["Simulated number of 'points' currently earned"],
                         softMin = 1,
                         softMax = 100,
                         bigStep = 1,
@@ -1161,11 +1161,11 @@ function MMPE:InitConfig()
                     wipeAll = {
                         order = increment(),
                         type = "execute",
-                        name = "清空所有資料",
-                        desc = "清空所有資料",
+                        name = L["Wipe All Data"],
+                        desc = L["Wipe all data"],
                         func = function() self:VerifyDB(true) end,
                         confirm = true,
-                        confirmText = "是否確定要清空所有資料?",
+                        confirmText = L["Are you sure you want to wipe all data?"],
                     },
                 },
             },
@@ -1174,12 +1174,11 @@ function MMPE:InitConfig()
 
     self.configCategory = "MythicPlusProgress"
     LibStub("AceConfig-3.0"):RegisterOptionsTable(self.configCategory, options)
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.configCategory, "M+ 小怪%")
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.configCategory, L["Mythic Plus Progress"])
 end
 
 function MMPE:OpenConfig()
-    InterfaceOptionsFrame_OpenToCategory(self.configCategory);
-    InterfaceOptionsFrame_OpenToCategory(self.configCategory);
+    Settings.OpenToCategory(self.configCategory);
 end
 
 function MMPE:OnUpdate(elapsed)
