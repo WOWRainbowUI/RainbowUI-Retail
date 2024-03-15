@@ -1,0 +1,49 @@
+## Interface: 100205
+## Title: Astral |cffff8000Keys|r
+## Notes: Keystone Manager for Guilds and Friends
+## Author: Astral
+## Version: 3.99
+## SavedVariables: AstralKeys, AstralCharacters, AstralKeysSettings, AstralMinimap, AstralAffixes, AstralLists, AstralUnits
+## X-Wago-ID: baNDZoKo
+## X-Curse-Project-ID: 265199
+## IconTexture: Interface\AddOns\AstralKeys\Media\Texture\Logo@2x
+## AddonCompartmentFunc: OpenAstralKeysWindow
+
+Init.lua
+Localization\Localization.lua
+Localization\deDE.lua
+Localization\enUS.lua
+Localization\esES.lua
+Localization\esMX.lua
+Localization\frFR.lua
+Localization\itIT.lua
+Localization\koKR.lua
+Localization\ptBR.lua
+Localization\ruRU.lua
+Localization\zhCN.lua
+Localization\zhTW.lua
+
+embeds.xml
+fonts.xml
+Events.lua
+Tables.lua
+Settings.lua
+Dialog.lua
+Communications.lua
+
+Lists.lua
+Lists\Lists.lua
+Lists\Friends.lua
+Lists\Guild.lua
+
+Affixes.lua
+Unit Information.lua
+Character Info.lua
+Dungeons.lua
+Keystone.lua
+
+AstralKeys.lua
+Frame Functions.lua
+Frame.xml
+MinimapButton.lua
+Options.lua
