@@ -1,13 +1,9 @@
 # Astral Keys
 
-## [3.97](https://github.com/astralguild/AstralKeys/tree/3.97) (2023-11-29)
-[Full Changelog](https://github.com/astralguild/AstralKeys/compare/3.96...3.97) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
+## [4.00](https://github.com/astralguild/AstralKeys/tree/4.00) (2024-03-14)
+[Full Changelog](https://github.com/astralguild/AstralKeys/compare/3.99...4.00) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
 
 - Update AstralKeys.toc  
-- Merge branch 'main' of https://github.com/astralguild/AstralKeys  
-- Rest of affix rotation  
-- Merge pull request #110 from zs00556266/patch-2  
-    Update zhCN.lua  
-- Update zhCN.lua  
-- Merge branch 'main' of https://github.com/astralguild/AstralKeys  
-- Update affixes (2/10)  
+- Merge pull request #113 from Numynum/patch-2  
+    Fix non-bnet friends not showing up in the Friends UI  
+- Fix non-bnet friends not showing up in the Friends UI  
