@@ -2554,6 +2554,7 @@ L["Total"] = "總計"
 L["Length"] = "時間"
 L["Item Level"] = "裝等"
 L["Date"] = "日期"
+L["Failled to load statistics, Details! Storage is disabled?"] = "無法載入統計資料，Details! Storage 是否被停用?"
 
 -- frames\window_switch.lua 更改字體大小
 L["Plugin not found."] = "無法找到外掛套件。"
