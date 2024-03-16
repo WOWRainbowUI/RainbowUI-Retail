@@ -85,7 +85,7 @@ kModelConstants =
     [165728] = {  -- "spells/bloodlust_state_hand.m2"
         Name = kCategory.Glow .. "Cloud, Flame",
         BaseScale = 0.08, BaseFacing = 0,
-        BaseOfsX = 0.225, BaseOfsY = -0.15,
+        BaseOfsX = 0.03, BaseOfsY = -0.04,
         BaseStepX = 3420, BaseStepY = 3150,
         IsSkewed = true, HorizontalSlope = 2, 
     },
@@ -99,7 +99,7 @@ kModelConstants =
     [166991] = {  -- "spells/summon_precast_hand.m2"
         Name = kCategory.Glow .. "Cloud, Purple (Soft)",
         BaseScale = 0.18, BaseFacing = 0,
-        BaseOfsX = 0.075, BaseOfsY = -0.05,
+        BaseOfsX = 0.175, BaseOfsY = 0.185,
         BaseStepX = 3432, BaseStepY = 3150,
         IsSkewed = true, HorizontalSlope = 0,
     },
