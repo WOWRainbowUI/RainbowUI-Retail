@@ -690,7 +690,7 @@ end
 
 -------------------------------------------------------------------------------
 function OptionsFrame_HandleNewFeatures()
-    local newFeatureIndicator = GREEN.."::::[NEW]::::|r"
+    local newFeatureIndicator = GREEN.."::::[新的]::::|r"
     local bNewFeaturesShown = false
 
     -- Loop through all new features and for each one the user has not yet seen, change
@@ -742,7 +742,7 @@ function OptionsFrame_HandleNewFeatures()
     end
 
     if (bNewFeaturesShown == true) then
-        print(kAddonAlertHeading.."New feature(s) have "..newFeatureIndicator.." near their name.  (Cleared at next reload.)")
+        print(kAddonAlertHeading.."新功能的名稱旁會顯示 "..newFeatureIndicator.."。 (下次重新載入後便不再顯示)")
         PlaySound(1440, "MASTER") -- 1440=LevelUp, 171006=ReputationLevelUp
     end
 end

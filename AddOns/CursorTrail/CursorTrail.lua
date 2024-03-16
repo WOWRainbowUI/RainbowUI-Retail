@@ -838,9 +838,9 @@ end
 
 -------------------------------------------------------------------------------
 function printNewFeaturesMsg(bIncludeInstructions)
-    local msg = kAddonAlertHeading..GREEN.."NEW FEATURES available!"..kTextColorDefault
+    local msg = kAddonAlertHeading..GREEN.."有新功能!"..kTextColorDefault
     if bIncludeInstructions then
-        msg = msg.."  (Type either "..WHITE.."/ct|r or "..WHITE.."/"..kAddonName.."|r to see them.)"
+        msg = msg.."  (輸入 "..WHITE.."/ct|r 或 "..WHITE.."/"..kAddonName.."|r 來查看。)"
     end
     printMsg(msg)
 end
