@@ -14,6 +14,17 @@ REQUIREMENTS / DEPENDANCIES:
 USAGE:  See examples at end of this comment block.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Mar 06, 2024
+        - Added SetBackColor()/GetBackColor() to the groupbox control, for changing its background color.
+        - Added MsgBox().
+        - Added a parameter to DropDown_Sort() for optionally sorting while ignoring upper/lower case.
+        - Fixed listbox so hovering or clicking over empty lines at the bottom of it do nothing, especially
+          if another frame underneath the listbox processes "OnEnter", "OnLeave", or "OnClick" events.
+        - Fixed ListBox_SelectItem() so the lower bounds no longer can be a negative number.
+        - Fixed bugs in code and examples where CreateFontString() parameters were in the wrong order.
+        - Updated listbox comments to include GetSelectedItemNumber() as an available function.
+        - Added ListBox_SelectItemText() and ListBox_ClearSelection().
+        - Updated local aliases to certain global variables for faster access to them.
     Jan 23, 2024
         - Updated example for customizing listbox lines.
         - Removed dropdown.listbox variable since it created cyclic references.
@@ -31,7 +42,7 @@ CHANGE HISTORY:
         - Added GetSelectedItemNumber() to listboxes.
         - Updated ListBox_SelectItem() with a 'bScrollIntoView' parameter to
           automatically scroll the selected item into view.
-        - Added a smart delay to ListBox_ScrollSelectionIntoView() and 
+        - Added a smart delay to ListBox_ScrollSelectionIntoView() and
           TextScrollFrame's SetVerticalScroll() in case they are called shortly after
           the control was created.  This gives the control enough time to fully initialize
           itself so scrolling, and the scrollbar thumb position, work properly.
@@ -82,6 +93,8 @@ CHANGE HISTORY:
                                   Ideally, register this event when your UI is shown, and unregister it
                                   when your UI is closed.  This will minimize event handling to just
                                   while the UI is open.
+        MsgBox()                - Shows a window that displays a text message and up to two buttons
+                                  with corresponding handler functions that can process custom data.
 
 ~~~~~~~~~~~~~~~
    CheckBox
@@ -173,6 +186,7 @@ CHANGE HISTORY:
     Functions:
         AddItem( text, bScrollIntoView )
         Clear()
+        ClearSelection()
         Configure()
         Disable()
         Enable()
@@ -182,13 +196,15 @@ CHANGE HISTORY:
         GetNumLines()
         GetOffset()
         GetSelectedItem()   - Returns selected item (text).
+        GetSelectedItemNumber() - Returns the selected line number.
         Refresh()
         RemoveItem()
         SetClickHandler( func )
         SetCreateLineHandler( func )
         SetDisplayHandler( func )
         SetOffset()
-        SelectItem( itemNumber )
+        SelectItem( itemNumber, bScrollIntoView )
+        SelectItemText( text, bScrollIntoView )
 
     Callbacks:
         clickHandler()      - Called when a line in the listbox is clicked.
@@ -254,10 +270,12 @@ CHANGE HISTORY:
 ~~~~~~~~~~~~~~
 
     Functions:
+        SetBackColor
         SetTitleBackColor
         UpdateTitleSize
 
     Variables:
+        background
         title
         titleBackground
 
@@ -383,7 +401,8 @@ CHANGE HISTORY:
         .
 
     local groupbox = private.Controls.CreateGroupBox("Options", "TOPLEFT", YourOptionsFrame, "TOPLEFT", x, y, width, height)
-    groupbox:SetBackdropColor(0,0,0, 0.3)        -- (Optional) Darken the area inside the groupbox.
+    groupbox:SetBackColor(0.0, 0.0, 0.2, 1.0)   -- (Optional) Change groupbox background color.
+    groupbox:SetBackdropBorderColor(0.6 ,0.6, 0.6) -- (Optional) Darken the border edges.
     groupbox.title:SetPoint("TOPLEFT", 10, 3)    -- (Optional) Reposition the title.
     groupbox.title:SetTextColor(1, 1, 1)         -- (Optional) Make the title text white.
     groupbox:SetTitleBackColor(0.15, 0.15, 0.15) -- (Optional) Give the title a solid background color.
@@ -467,6 +486,11 @@ CHANGE HISTORY:
 
     YourOptionsFrame.listbox = listbox
 
+~~~~~~~~~~~~~~~~
+ MsgBox Example
+~~~~~~~~~~~~~~~~
+    See the examples documented in the implementation of MsgBox().
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~
  TextScrollFrame Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -478,16 +502,16 @@ CHANGE HISTORY:
 
     local tsf = private.Controls.CreateTextScrollFrame(YourOptionsFrame, "*** Scroll Window Test ***", 333)
 
-    local title = tsf.scrollChild:CreateFontString("ARTWORK", nil, "GameFontNormalLarge")
+    local title = tsf.scrollChild:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -4)
     title:SetText("General Info")
 
-    local firstLine = tsf.scrollChild:CreateFontString("ARTWORK", nil, "GameFontNormal")
+    local firstLine = tsf.scrollChild:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     firstLine:SetPoint("TOP", title, "BOTTOM", 0, -1)
     firstLine:SetJustifyH("LEFT")  -- Specify this when using text with carriage returns in it.
     firstLine:SetText("This is the first line.\n  (Scroll way down to see the last!)")
 
-    local footer = tsf.scrollChild:CreateFontString("ARTWORK", nil, "GameFontNormal")
+    local footer = tsf.scrollChild:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     footer:SetPoint("TOP", 0, -5000)
     footer:SetText("This is 5000 pixels below the top, so scrollChild automatically adjusts its height.")
 
@@ -520,7 +544,7 @@ local ColorPickerFrame = ColorPickerFrame
 local CreateFrame = CreateFrame
 local DevTools_Dump = DevTools_Dump
 local GameTooltip = GameTooltip
-local GetAddOnMetadata = GetAddOnMetadata
+local GetAddOnMetadata = GetAddOnMetadata or C_AddOns.GetAddOnMetadata
 local GetBuildInfo = GetBuildInfo
 local GetTime = GetTime
 local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
@@ -529,6 +553,8 @@ local ipairs = ipairs
 local math = math
 local next = next
 local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
+local OpacityFrameSlider = OpacityFrameSlider  -- WoW 10.2.5 and newer.
+local OpacitySliderFrame = OpacitySliderFrame  -- WoW 10.2 and older.
 local pairs = pairs
 local PlaySound = PlaySound
 local PlaySoundFile = PlaySoundFile
@@ -541,6 +567,15 @@ local tinsert = tinsert
 local type = type
 local UIParent = UIParent
 local unpack = unpack
+
+
+-------------------------------------------------------------------------------
+--[[                        Development Switches                             ]]
+-------------------------------------------------------------------------------
+
+----> Enable next 2 lines to find missing aliases to global things.  Reload afterwards to trigger errors.
+--~     local _G = _G
+--~     setfenv(1, private)  -- Everything after this uses our namespace rather than _G.
 
 
 --#############################################################################
@@ -578,6 +613,8 @@ local kColorPickerDefaultHeight = kMinVer_10_2_5 and 210 or 200
 local kColorPickerButtonWidth = kMinVer_10_2_5 and 150 or 138  -- Default width is 144.
 local gColorPaletteFrame
 
+-- Misc constants.
+local kTexture_White8x8 = "Interface\\Buttons\\WHITE8X8"
 
 --#############################################################################
 -------------------------------------------------------------------------------
@@ -641,7 +678,7 @@ end
 
 
 -- ****************************************************************************
--- Calls GetPoint() for the specified frame and returns a single table 
+-- Calls GetPoint() for the specified frame and returns a single table
 -- containing all the parameters returned by that function.
 -- ****************************************************************************
 local function getPointTable(frame)
@@ -1096,12 +1133,43 @@ local function ListBox_SelectItem(this, itemNumber, bScrollIntoView)  --DJUadded
     itemNumber = itemNumber or 0  --DJUadded
     if type(itemNumber) ~= "number" then itemNumber = 0 end  --DJUadded
 
-    this.selectedItem = itemNumber <= #this.items and itemNumber or 0
+    --DJUremoved:  this.selectedItem = itemNumber <= #this.items and itemNumber or 0
+    if itemNumber < 0 or itemNumber > #this.items then itemNumber = 0 end  --DJUadded
+    this.selectedItem = itemNumber  --DJUadded
+
     if bScrollIntoView then ListBox_ScrollSelectionIntoView(this) end  --DJUadded
 
     -- Highlight the selected line if it's visible.
     local line = this.lines[this.selectedItem - ListBox_GetOffset(this)]
     if (line) then ListBox_ShowHighlight(this, line) end
+end
+
+
+-- ****************************************************************************
+-- Clears the listbox selection (so nothing is selected).
+-- ****************************************************************************
+local function ListBox_ClearSelection(this)   --DJUadded
+    ListBox_SelectItem(this, 0)  -- Clears selection.
+end
+
+
+-- ****************************************************************************
+-- Selects the specified item text in the listbox.
+-- ****************************************************************************
+local function ListBox_SelectItemText(this, text, bScrollIntoView)  --DJUadded
+    -- Don't do anything if the listbox isn't configured.
+    if (not ListBox_IsConfigured(this)) then return end
+
+    if text then
+        local items = this.items
+        for i = 1, #items do
+            if items[i] == text then
+                return ListBox_SelectItem(this, i, bScrollIntoView) -- SUCCESS.
+            end
+        end
+    end
+
+    ListBox_ClearSelection(this)
 end
 
 
@@ -1150,11 +1218,8 @@ local function ListBox_Clear(this)
         items[k] = nil
     end
 
-    -- Set the new max offset value.
-    this.sliderFrame:SetMinMaxValues(0, 0)
-
+    this.sliderFrame:SetMinMaxValues(0, 0)  -- Set the new max offset value.
     this.selectedItem = 0
-
     ListBox_Refresh(this)
 end
 
@@ -1197,7 +1262,19 @@ local function CreateListBox(parent, bHideBorder)  --DJUadded 'bHideBorder' to t
     end
 
     -- Create container frame.
-    local listbox = CreateFrame("Frame", nil, parent, bHideBorder or "InsetFrameTemplate")
+    local listbox = CreateFrame("Frame", nil, parent, (not bHideBorder and "InsetFrameTemplate") or nil)
+    ----local listbox = CreateFrame("Frame", nil, parent, bHideBorder or "InsetFrameTemplate3")  -- Nice rect frame with thin bg.
+    ----local listbox = CreateFrame("Frame", nil, parent, bHideBorder or "ThinBorderTemplate") -- Nice rect frame.  Just add color!
+    ----local listbox = CreateFrame("Frame", nil, parent, bHideBorder or "GlowBoxTemplate") -- Bright yellow border with black-to-yellow gradient background.
+    ----local listbox = CreateFrame("Frame", nil, parent, bHideBorder or "BackdropTemplate") --DJUadded
+    ----listbox:SetBackdrop{  --DJUadded
+    ----    ----bgFile = kTexture_White8x8,
+    ----    bgFile ="Interface\\FrameGeneral\\UI-Background-Marble",
+    ----    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+    ----    insets = {left=3, right=3, top=2, bottom=3},  edgeSize=16,
+    ----}
+    ----listbox:SetBackdropColor(0,0,0, 1)  --DJUadded
+    ----listbox:SetBackdropBorderColor(0.9, 0.9, 0.0)  -- (Optional) Colorize the edges.  --DJUadded
     listbox.bHideBorder = bHideBorder
 
     -- Highlight frame.
@@ -1214,6 +1291,12 @@ local function CreateListBox(parent, bHideBorder)  --DJUadded 'bHideBorder' to t
     display.margin = 0
     display:SetPoint("TOPLEFT", listbox, "TOPLEFT")
     display:SetPoint("BOTTOMRIGHT", listbox, "BOTTOMRIGHT")
+
+    -- Prevent highlight changes or mouse clicks from doing anything over empty lines.
+    display:SetScript("OnEnter", function(self) end)  -- Do nothing.  --DJUadded
+    display:SetScript("OnLeave", function(self) end)  -- Do nothing.  --DJUadded
+    display:SetScript("OnMouseDown", function(self) end)  -- Do nothing.  --DJUadded
+    display:SetScript("OnMouseUp", function(self) end)  -- Do nothing.  --DJUadded
 
     -- Create slider (scrollbar) to track the position.
     local slider = CreateFrame("Slider", nil, listbox)
@@ -1278,6 +1361,8 @@ local function CreateListBox(parent, bHideBorder)  --DJUadded 'bHideBorder' to t
     listbox.GetSelectedItem         = ListBox_GetSelectedItem
     listbox.GetSelectedItemNumber   = ListBox_GetSelectedItemNumber  --DJUadded
     listbox.SelectItem              = ListBox_SelectItem
+    listbox.SelectItemText          = ListBox_SelectItemText  --DJUadded
+    listbox.ClearSelection          = ListBox_ClearSelection  --DJUadded
     listbox.GetLine                 = ListBox_GetLine
     listbox.GetNumItems             = ListBox_GetNumItems
     listbox.GetNumLines             = ListBox_GetNumLines
@@ -1859,7 +1944,7 @@ end
 
 
 -- ****************************************************************************
--- Returns the common listbox frame used by all dropdown menus to display 
+-- Returns the common listbox frame used by all dropdown menus to display
 -- their items when clicked open.
 -- ****************************************************************************
 local function DropDown_GetListBoxFrame(this)  --DJUadded
@@ -1877,7 +1962,7 @@ local function DropDown_OnClick(this)
         gDropDownListBoxFrame:Hide()
         return
     end
-    ----vdt_dump(gDropDownListBoxFrame, "gDropDownListBoxFrame")    
+    ----vdt_dump(gDropDownListBoxFrame, "gDropDownListBoxFrame")
 
     -- Resize and move the dropdown listbox frame for the clicked dropdown.
     local kListBoxBottomMargin = 18  --DJUadded and changed value from 24 to 18.
@@ -2230,7 +2315,7 @@ end
 -- ****************************************************************************
 -- Sorts the contents of the dropdown.
 -- ****************************************************************************
-local function DropDown_Sort(this)
+local function DropDown_Sort(this, bCaseInsensitive)
     local selectedID = DropDown_GetSelectedID(this)
 
     -- Sort the dropdown items and associated IDs using an insertion sort.
@@ -2241,10 +2326,18 @@ local function DropDown_Sort(this)
         tempItem = items[i]
         tempID = itemIDs[i]
         j = i - 1
-        while (j > 0 and items[j] > tempItem) do
-            items[j + 1] = items[j]
-            itemIDs[j + 1] = itemIDs[j]
-            j = j - 1
+        if bCaseInsensitive then
+            while (j > 0 and string.lower(items[j]) > string.lower(tempItem)) do
+                items[j + 1] = items[j]
+                itemIDs[j + 1] = itemIDs[j]
+                j = j - 1
+            end
+        else -- Case sensitive sort.
+            while (j > 0 and items[j] > tempItem) do
+                items[j + 1] = items[j]
+                itemIDs[j + 1] = itemIDs[j]
+                j = j - 1
+            end
         end
         items[j + 1] = tempItem
         itemIDs[j + 1] = tempID
@@ -2301,6 +2394,7 @@ end
 -- Creates the listbox frame that dropdowns use.
 -- ****************************************************************************
 local function DropDown_CreateListBoxFrame(parent, bDropDown)  --DJUchanged: Added bDropDown.
+    assert(not gDropDownListBoxFrame)  --DJUadded
     gDropDownListBoxFrame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     gDropDownListBoxFrame:EnableMouse(true)
     gDropDownListBoxFrame:SetToplevel(true)
@@ -2308,7 +2402,7 @@ local function DropDown_CreateListBoxFrame(parent, bDropDown)  --DJUchanged: Add
     gDropDownListBoxFrame:SetBackdrop{  --DJUchanged ...
         ----bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
         -----bgFile = "Interface\\Addons\\" .. kAddonFolderName .. "\\Controls-Background-SolidBlack",
-        bgFile ="Interface\\Buttons\\WHITE8X8",
+        bgFile = kTexture_White8x8,
         ----edgeFile = (not bDropDown and "Interface\\Tooltips\\UI-Tooltip-Border") or nil,
         ----edgeFile = (bDropDown and "Interface\\DialogFrame\\UI-DialogBox-Gold-Border") or "Interface\\DialogFrame\\UI-DialogBox-Border",
         edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -2710,7 +2804,7 @@ end
 
 
 -- ****************************************************************************
--- Returns true if the standard color picker has been modified by functions 
+-- Returns true if the standard color picker has been modified by functions
 -- in this file.  Returns nil if it is in its original state.
 -- ****************************************************************************
 local function isColorPickerCustomized()
@@ -2774,7 +2868,7 @@ local function ColorPickerFrame_SaveAttributes()
         if ColorPickerFrame.Content and ColorPickerFrame.Content.HexBox then
             orig.hexBoxPoint = getPointTable( ColorPickerFrame.Content.HexBox )
         end
-        
+
         if ColorPickerFrame.Header then
             orig.titleWidth = ColorPickerFrame.Header:GetWidth()
             orig.title = ColorPickerFrame.Header.Text:GetText()
@@ -2895,8 +2989,8 @@ local function ColorSwatch_CreateColorPalette()
         local margin = 0
         local swatchSize = 20
         local bgtable = {
-                bgFile = "Interface\\Buttons\\WHITE8X8",
-                edgeFile = "Interface\\Buttons\\WHITE8X8",
+                bgFile = kTexture_White8x8,
+                edgeFile = kTexture_White8x8,
                 tile = false,
                 tileSize = 16,
                 edgeSize = 1,
@@ -2957,7 +3051,7 @@ end
 local function ColorSwatch_ShowColorPicker(swatchBtn)
     if ColorPickerFrame:IsShown() then
         if isColorPickerCustomized() then return end  -- Already shown.  Do nothing else.
-        
+
         -- Otherwise, color picker is opened by another addon.  Close that one so we can show ours (later).
         ColorPickerFrame:Hide()
     end
@@ -2966,7 +3060,7 @@ local function ColorSwatch_ShowColorPicker(swatchBtn)
     ColorPickerFrame_SaveAttributes()
     ColorPickerFrame[kCustomizedTag] = true  -- So we restore the color picker to original state when it is closed.
     gAssociatedColorSwatch = swatchBtn
-    
+
     swatchBtn.r = swatchBtn.r or 1
     swatchBtn.g = swatchBtn.g or 1
     swatchBtn.b = swatchBtn.b or 1
@@ -2980,13 +3074,13 @@ local function ColorSwatch_ShowColorPicker(swatchBtn)
         ColorPickerFrame.opacity = nil
     end
 
-    ColorPickerFrame.func = ColorSwatch_Callback
+    ColorPickerFrame.func = ColorSwatch_Callback  -- Old Blizzard name.  (Does same thing as 'swatchFunc'.)
+    ColorPickerFrame.swatchFunc = ColorSwatch_Callback  -- New Blizzard name (10.2.5 and later).
     ColorPickerFrame.opacityFunc = ColorSwatch_Callback
     ColorPickerFrame.cancelFunc = ColorSwatch_Callback
 
     if kMinVer_10_2_5 then  -- WoW 10.2.5 or newer?
         -- Set new API stuff.
-        ColorPickerFrame.swatchFunc = ColorSwatch_Callback
         ColorPickerFrame.Content.ColorSwatchOriginal:SetColorTexture(swatchBtn.r, swatchBtn.g, swatchBtn.b)
         ColorPickerFrame.Content.HexBox:OnColorSelect(swatchBtn.r, swatchBtn.g, swatchBtn.b)
     end
@@ -3004,7 +3098,7 @@ local function ColorSwatch_ShowColorPicker(swatchBtn)
     ColorPickerFrame:SetPoint("TOPLEFT", swatchBtn:GetParent(), "TOPRIGHT", -12, -6)
     ColorPickerFrame:SetClampedToScreen(true)  -- Keep color picker frame on screen.
     ColorPickerFrame:SetClampRectInsets(12, -12, -12, 12) -- Allow for dragging partially off screen.
-    
+
     -- Verify no other addon customtized the color picker.  (Check its height.)
     if (ColorPickerFrame:GetHeight() <  kColorPickerDefaultHeight+1) then
         -- Change title text.
@@ -3231,7 +3325,7 @@ local function CreateTextScrollFrame(parent, title, width, height)  --DJUadded
 
     -- Create title banner.
     if title then
-        containerFrame.title = containerFrame:CreateFontString("ARTWORK", nil, "SplashHeaderFont")  -- "GameFontNormalLarge"?
+        containerFrame.title = containerFrame:CreateFontString(nil, "ARTWORK", "SplashHeaderFont")  -- "GameFontNormalLarge"?
         containerFrame.title:SetPoint("TOP", 0, -margin-1)
         ----local titleFont = containerFrame.title:GetFontObject()
         ----titleFont:SetTextColor(1,1,1)
@@ -3308,7 +3402,7 @@ local function CreateTextScrollFrame(parent, title, width, height)  --DJUadded
 
             local numStrings = #containerFrame.strings
             numStrings = numStrings + 1
-            local str = self.scrollChild:CreateFontString("ARTWORK", nil, fontName or "GameFontNormal")
+            local str = self.scrollChild:CreateFontString(nil, "ARTWORK", fontName or "GameFontNormal")
             str:SetJustifyH("LEFT")  -- Required when using carriage returns or wordwrap.
             str:SetText(text)
             str:SetPoint("LEFT", dx+2, 0)
@@ -3396,11 +3490,25 @@ end
 -- ****************************************************************************
 local function GroupBox_SetTitleBackColor(self, r, g, b, alpha)
     if not self.titleBackground then
-        self.titleBackground = self:CreateTexture()
-        self.titleBackground:SetTexture("Interface\\Buttons\\WHITE8X8")
+        self.titleBackground = self:CreateTexture(nil, "BACKGROUND")
+        self.titleBackground:SetTexture(kTexture_White8x8)
     end
     self.titleBackground:SetVertexColor(r, g, b, alpha)
     GroupBox_UpdateTitleSize(self, {left=1, right=1, top=1, bottom=1})  -- Make background size same as title size.
+end
+
+-- ****************************************************************************
+-- Sets the color of the groupbox background.
+-- ****************************************************************************
+local function GroupBox_SetBackColor(self, r, g, b, alpha)
+    self.background:SetVertexColor(r, g, b, alpha or 1)
+end
+
+-- ****************************************************************************
+-- Gets the color of the groupbox background.
+-- ****************************************************************************
+local function GroupBox_GetBackColor(self)
+    return self.background:GetVertexColor()
 end
 
 -- ****************************************************************************
@@ -3411,10 +3519,10 @@ end
 -- ****************************************************************************
 local function CreateGroupBox(title, anchor, parent, relativeAnchor, x, y, width, height)  --DJUadded
     ----local groupbox = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-    ----groupbox:SetBackdrop{
-    ----    bgFile ="Interface\\Buttons\\WHITE8X8",
-    ----    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-    ----    insets = {left=3, right=3, top=2, bottom=3},  edgeSize=12,
+    ----groupbox:SetBackdrop{  -- See WoW file, Backdrop.lua, for many sample backdrop tables.
+    ----    bgFile = kTexture_White8x8,  ----tile=true,  tileSize=8,
+    ----    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",  tileEdge=true,  edgeSize=16,
+    ----    insets = {left=4, right=4, top=4, bottom=4},
     ----}
     local groupbox = CreateFrame("Frame", nil, parent, kBoxTemplate)
 
@@ -3430,6 +3538,14 @@ local function CreateGroupBox(title, anchor, parent, relativeAnchor, x, y, width
         groupbox:SetPoint("BOTTOM", 0, -16)
     end
 
+    groupbox.background = groupbox:CreateTexture(nil, "BACKGROUND")
+    groupbox.background:SetTexture(kTexture_White8x8)
+    local margin = 4
+    groupbox.background:SetPoint("TOPLEFT", margin, -margin)
+    groupbox.background:SetPoint("BOTTOMRIGHT", -margin, margin)
+    groupbox.background:SetVertexColor(0.1, 0.1, 0.1,  0.5)  -- Set a color so the background isn't transparent.
+    ----GroupBox_SetBackColor(groupbox, 1,0,1, 1)  -- FOR TESTING.
+
     if title then
         groupbox.title = groupbox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         groupbox.title:SetPoint("TOPLEFT", 6, 12)
@@ -3437,6 +3553,8 @@ local function CreateGroupBox(title, anchor, parent, relativeAnchor, x, y, width
     end
 
     -- Extension functions.
+    groupbox.GetBackColor       = GroupBox_GetBackColor
+    groupbox.SetBackColor       = GroupBox_SetBackColor
     groupbox.SetTitleBackColor  = GroupBox_SetTitleBackColor
     groupbox.UpdateTitleSize    = GroupBox_UpdateTitleSize
 
@@ -3497,14 +3615,100 @@ private.Controls.DisplayAllFonts = function(width, height)
                     ----print("DBG: fontNames["..i.."]:", name)
                     _G.FontNamesScrollFrame:AddText(name, nil, nil, name)
                 end
-            end    
+            end
         end
-        
+
         -- Show the fonts frame.
         _G.FontNamesScrollFrame:Show()
     end
 
-    
+-------------------------------------------------------------------------------
+private.Controls.MsgBox = function( msg,
+                                    btnText1, btnFunc1,
+                                    btnText2, btnFunc2,
+                                    customData, customData2, -- Can be tables of values if more than two data parameters are needed.
+                                    bShowAlertIcon, soundID, timeoutSecs, preferredIndex)
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+--~ EXAMPLE 1: Basic message with a single "Okay" button.
+--~     MsgBox("Job done.")
+--~
+--~ EXAMPLE 2: A prompt with two choices that each call a function that uses a custom data buffer (myDataBuffer).
+--~     MsgBox("Bad data found!  Click OK to use it anyway, or CANCEL to restore defaults.",
+--~             "Okay", function(thisStaticPopupTable, data, data2)  -- 'data2' unused in this example.
+--~                             local dataBuffer = data
+--~                             saveMyData(dataBuffer)
+--~                         end,
+--~             "Cancel", function(thisStaticPopupTable, data, reason)  -- 'reason' can be "clicked", "timeout", or "override".
+--~                             local dataBuffer = data
+--~                             restoreMyDefaultData(dataBuffer)
+--~                         end,
+--~             myDataBuffer, nil,  -- data1, data2
+--~             true, SOUNDKIT.IG_MAINMENU_OPEN)
+--~
+--~ EXAMPLE 3: A Yes/No prompt with a single function for "Yes", and a 15 second time limit.
+--~     MsgBox("Uh oh! Show help?\n\n(This message goes away after 15 seconds.)",
+--~             "Yes", showMyHelp,
+--~             "No", nil,
+--~             nil, nil,  -- data1, data2
+--~             false, SOUNDKIT.ALARM_CLOCK_WARNING_3, 15)
+--~
+--~ EXAMPLE 4: Demonstrates how to pass more than two parameters to a button's handler function.
+--~     local SrcName = "My DPS Profile"
+--~     local DestName = "My Tank Profile"
+--~     msgBox( 'Are you sure?\n\nThe profile "'..SrcName..'" will be copied to "'..DestName..'".',
+--~             "Copy Profile", function(thisStaticPopupTable, data, data2)  -- 'data2' unused in this example.
+--~                                 data.profileFrame:copyProfile( data.srcName, data.destName )
+--~                             end,
+--~             "Cancel", nil,
+--~             {profileFrame=ProfileFrame, srcName=SrcName, destName=DestName}, nil,  -- data1, data2
+--~             false, SOUNDKIT.IG_MAINMENU_OPEN)
+--~
+--~ For more info, see ...
+--~     https://wowpedia.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
+--~     https://wowwiki-archive.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    local msgboxID = "MSGBOX_FOR_" .. kAddonFolderName
+
+    assert(msg and type(msg) == "string" and msg ~= "")
+    assert(btnFunc1 == nil or type(btnFunc1) == "function")
+    assert(btnFunc2 == nil or type(btnFunc2) == "function")
+    assert(bShowAlertIcon == true or bShowAlertIcon == false or bShowAlertIcon == nil)
+
+    if (btnText1 == "" or btnText1 == nil) then btnText1 = "Okay" end
+    if (btnText2 == "") then btnText2 = nil end
+    if (bShowAlertIcon ~= true) then bShowAlertIcon = nil end  -- Forces it to be 'true' or 'nil'.
+
+    _G.StaticPopupDialogs[msgboxID] =
+    {
+        text = (msg or ""),
+        showAlert = bShowAlertIcon,
+        sound = soundID,
+        timeout = timeoutSecs,
+
+        enterClicksFirstButton = true,
+        hideOnEscape = true,
+        whileDead = true,
+        exclusive = true,  -- Makes the popup go away if any other popup is displayed.
+        preferredIndex = preferredIndex or 3,  -- Which of the global StaticPopup frames to use (if available).
+
+        button1 = btnText1,
+        OnAccept = btnFunc1,
+
+        button2 = btnText2,
+        OnCancel = btnFunc2,
+
+        OnHide = function(thisStaticPopupTable) thisStaticPopupTable.data = nil; thisStaticPopupTable.data2 = nil; end,
+    }
+
+    local msgbox = _G.StaticPopup_Show(msgboxID)
+    if msgbox then
+        -- Note: 'data' and 'data2' get passed to your OnAccept() function, and 'data' also is passed to OnCancel().
+        msgbox.data = customData
+        msgbox.data2 = customData2
+    end
+    return msgbox
+end
+
 --#############################################################################
 -------------------------------------------------------------------------------
 -- Module interface.

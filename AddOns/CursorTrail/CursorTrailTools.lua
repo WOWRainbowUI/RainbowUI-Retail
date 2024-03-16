@@ -54,12 +54,16 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --[[                       Helper Functions                                  ]]
 
 -------------------------------------------------------------------------------
+msgBox = private.Controls.MsgBox
+
+-------------------------------------------------------------------------------
 function printMsg(msg)
 	(Globals.SELECTED_CHAT_FRAME or Globals.DEFAULT_CHAT_FRAME):AddMessage(msg)
 end
 
 -------------------------------------------------------------------------------
 function vdt_dump(varValue, varDescription)  -- e.g.  vdt_dump(someVar, "Checkpoint 1")
+    assert(varDescription == nil or type(varDescription) == "string")
     if Globals.ViragDevTool_AddData then
         Globals.ViragDevTool_AddData(varValue, varDescription)
     end
@@ -351,61 +355,6 @@ function DebugText(txt, width, height)
 end
 
 -------------------------------------------------------------------------------
-function msgBox(msg,
-                btnText1, btnFunc1,
-                btnText2, btnFunc2,
-                customData, bShowAlertIcon, soundID, timeoutSecs)
--- REQUIRES:    'kAddonName' to have been set to the addon's name.  i.e. First line
---              of your lua file should look like this -->  local kAddonName = ...
--- Examples:
---      msgBox("Job done.")
---      msgBox("Bad data found!  Click OK to use it anyway, or CANCEL to restore defaults.",
---              "OK", saveMyData,
---              "Cancel", restoreMyDefaultData,
---              myDataBuffer, true, SOUNDKIT.ALARM_CLOCK_WARNING_2)
---      msgBox("Uh oh! Show help?\n\n(This message goes away after 15 seconds.)",
---              "Yes", showMyHelp,
---              "No", nil,
---              nil, false, SOUNDKIT.ALARM_CLOCK_WARNING_3, 15)
---
--- For more info, see...
---      https://wowwiki-archive.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
-    local dialogID = "MSGBOX_FOR_" .. kAddonName
-
-    if (btnText1 == "" or btnText1 == nil) then btnText1 = "OK" end
-    if (btnText2 == "") then btnText2 = nil end
-    if (bShowAlertIcon ~= true) then bShowAlertIcon = nil end  -- Forces it to be 'true' or 'nil'.
-
-    Globals.StaticPopupDialogs[dialogID] =
-    {
-        text = (msg or ""),
-        showAlert = bShowAlertIcon,
-        sound = soundID,
-        timeout = timeoutSecs,
-
-        enterClicksFirstButton = true,
-        hideOnEscape = true,
-        whileDead = true,
-        ----exclusive = true,  -- Makes the popup go away if any other popup is displayed.
-        ----preferredIndex = 3,
-
-        button1 = btnText1,
-        OnAccept = btnFunc1,
-
-        button2 = btnText2,
-        OnCancel = btnFunc2,
-
-        OnHide = function(self) self.data = nil; self.selectedIcon = nil; end,
-    }
-
-    local dlgBox = Globals.StaticPopup_Show(dialogID)
-    if dlgBox then
-        dlgBox.data = customData
-        ----dlgBox.data2 = customData2
-    end
-end
-
--------------------------------------------------------------------------------
 function showErrMsg(msg)
 -- REQUIRES:    'kAddonName' to have been set to the addon's name.  i.e. First line
 --              of your lua file should look like this -->  local kAddonName = ...
@@ -413,7 +362,7 @@ function showErrMsg(msg)
     msgBox( bar.." [ "..kAddonName.." ] "..bar.."\n\n"..msg,
             nil, nil,
             nil, nil,
-            nil, true, SOUNDKIT.ALARM_CLOCK_WARNING_3 )
+            nil, nil, true, SOUNDKIT.ALARM_CLOCK_WARNING_3 )
 end
 
 --[[                          Tool Functions                                 ]]

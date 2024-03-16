@@ -437,7 +437,8 @@ Globals.SlashCmdList[kAddonName] = function (params)
 --~     elseif (params == "test") then
 --~         ----print("UIParent:GetEffectiveScale():", UIParent:GetEffectiveScale())
 --~         ----UIParent:SetScale(0.7)
---~         updateScaleVars()
+--~         ----updateScaleVars()
+--~         msgBox("CursorTrail message box test message.")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif not HandleToolSwitches(params) then
         printMsg("鼠之軌跡"..": 無效的指令 ("..params..")。")
