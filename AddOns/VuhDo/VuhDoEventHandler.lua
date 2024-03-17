@@ -147,10 +147,10 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	sParseCombatLog = VUHDO_CONFIG["PARSE_COMBAT_LOG"];
 
 	sDeferredUpdateDelegates = {
-		VUHDO_DEFER_HEALTH = _G["VUHDO_updateHealth"],
-		VUHDO_DEFER_BOUQUETS = _G["VUHDO_updateBouquetsForEvent"],
-		VUHDO_DEFER_SHIELD_BAR = _G["VUHDO_updateShieldBar"],
-		VUHDO_DEFER_HEAL_ABSORB_BAR = _G["VUHDO_updateHealAbsorbBar"],
+		[VUHDO_DEFER_HEALTH] = _G["VUHDO_updateHealth"],
+		[VUHDO_DEFER_BOUQUETS] = _G["VUHDO_updateBouquetsForEvent"],
+		[VUHDO_DEFER_SHIELD_BAR] = _G["VUHDO_updateShieldBar"],
+		[VUHDO_DEFER_HEAL_ABSORB_BAR] = _G["VUHDO_updateHealAbsorbBar"],
 	};
 
 end
