@@ -1,3 +1,29 @@
+Version 3.161  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed 'Special Dot' indicator bar glow color  
+-- Fixed HoT display when tracking the same aura in multiple indicators  
+-- Fixed throttling of combat log event triggered updates  
+  
+  
+Improvements:  
+-- Added option to show effective health text  
+-- Added import and export of the standard debuff ignore list  
+  
+  
+--------------------------------------------------------------  
 Version 3.160  
   
   

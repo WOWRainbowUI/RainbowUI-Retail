@@ -29,6 +29,7 @@ local VUHDO_updateClusterHighlights;
 local VUHDO_customizeTargetBar;
 local VUHDO_getColoredString;
 local VUHDO_textColor;
+local VUHDO_getUnitOverallShieldRemain;
 
 local VUHDO_PANEL_SETUP;
 local VUHDO_BUTTON_CACHE;
@@ -91,6 +92,7 @@ function VUHDO_customHealthInitLocalOverrides()
 	VUHDO_getColoredString = _G["VUHDO_getColoredString"];
 	VUHDO_textColor = _G["VUHDO_textColor"];
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
+	VUHDO_getUnitOverallShieldRemain = _G["VUHDO_getUnitOverallShieldRemain"];
 
 	sIsOverhealText = VUHDO_CONFIG["SHOW_TEXT_OVERHEAL"]
 	sIsAggroText = VUHDO_CONFIG["THREAT"]["AGGRO_USE_TEXT"];
@@ -242,6 +244,7 @@ local tHealthBar, tHealthBarWidth, tHealthBarHeight, tHealthDeficit;
 local tOvershieldBar, tOvershieldBarSize, tOvershieldBarSizePercent, tOvershieldBarOffset, tOvershieldBarOffsetPercent;
 local tVisibleAmountInc;
 local tOrientation, tOrientationOvershield;
+local tPanelNum;
 function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 	if not VUHDO_CONFIG["SHOW_SHIELD_BAR"] then 
 		return; 
@@ -365,6 +368,12 @@ function VUHDO_updateShieldBar(aUnit, aHealthPlusIncQuota, aAmountInc)
 			tOvershieldBar:Show();
 		else
 			tOvershieldBar:Hide();
+		end
+
+		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
+
+		if VUHDO_PANEL_SETUP[tPanelNum]["LIFE_TEXT"]["showEffectiveHp"] then
+			VUHDO_customizeText(tButton, 2, false); -- VUHDO_UPDATE_HEALTH
 		end
 	end
 end
@@ -622,6 +631,7 @@ local tLifeString;
 local tUnit, tInfo;
 local tIsShowLife;
 local tLifeAmount;
+local tShieldLeft;
 local tIsHideIrrel;
 local tIndex;
 local tTagText;
@@ -717,8 +727,17 @@ function VUHDO_customizeText(aButton, aMode, anIsTarget)
 
 	-- Life Text
 	if tIsLife and tIsShowLife then
-		tLifeAmount = sIsOverhealText
-			and tInfo["health"] + VUHDO_getIncHealOnUnit(tUnit) or tInfo["health"];
+		tLifeAmount = tInfo["health"];
+
+		if tLifeConfig["showEffectiveHp"] then
+			tShieldLeft = VUHDO_getUnitOverallShieldRemain(tInfo["unit"]);
+
+			tLifeAmount = tLifeAmount + tShieldLeft;
+		end
+
+		if sIsOverhealText then
+			tLifeAmount = tLifeAmount + VUHDO_getIncHealOnUnit(tUnit);
+		end
 
 		if tTagText ~= "" or tIsHideIrrel then
 			tLifeString = "";
@@ -739,8 +758,15 @@ function VUHDO_customizeText(aButton, aMode, anIsTarget)
 					tLifeString = VUHDO_getKiloText(tMissLife, tInfo["healthmax"], tSetup);
 				end
 			else
-				tLifeString = tLifeConfig["showTotalHp"]
-					and VUHDO_getKiloText(tInfo["healthmax"], tInfo["healthmax"], tSetup) or "";
+				if tLifeConfig["showTotalHp"] then
+					if tLifeConfig["showEffectiveHp"] then
+						tLifeString = VUHDO_getKiloText(tInfo["healthmax"] + tShieldLeft, tInfo["healthmax"] + tShieldLeft, tSetup);
+					else
+						tLifeString = VUHDO_getKiloText(tInfo["healthmax"], tInfo["healthmax"], tSetup);
+					end
+				else
+					tLifeString = "";
+				end
 			end
 		else -- VUHDO_LT_MODE_LEFT
 

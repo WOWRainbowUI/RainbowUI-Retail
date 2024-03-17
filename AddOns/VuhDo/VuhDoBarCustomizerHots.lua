@@ -602,7 +602,6 @@ local tCaster;
 local tBuffName;
 local tStart, tEnabled;
 local tSmDuration;
-local tHotFromBuff;
 local tIsCastByPlayer;
 local tDuration;
 local tSpellId, tDebuffOffset;
@@ -672,19 +671,17 @@ local function VUHDO_updateHots(aUnit, anInfo)
 			end
 
 			if not VUHDO_IGNORE_HOT_IDS[tSpellId] then 
-				tHotFromBuff = nil;
-
-				if VUHDO_ACTIVE_HOTS[tostring(tSpellId or -1)] then
-					tHotFromBuff = tostring(tSpellId);
-				elseif VUHDO_ACTIVE_HOTS[tBuffName] then
-					tHotFromBuff = tBuffName;
-				end
-
-				if tHotFromBuff then
+				if VUHDO_ACTIVE_HOTS[tostring(tSpellId or -1)] or VUHDO_ACTIVE_HOTS[tBuffName] then
 					tRest = tExpiry - tNow;
 
 					if tRest > 0 then
-						VUHDO_snapshotHot(tHotFromBuff, tRest, tStacks, tBuffIcon, tIsCastByPlayer, tDuration, aUnit, tExpiry);
+						if VUHDO_ACTIVE_HOTS[tostring(tSpellId or -1)] then
+							VUHDO_snapshotHot(tostring(tSpellId), tRest, tStacks, tBuffIcon, tIsCastByPlayer, tDuration, aUnit, tExpiry);
+						end
+
+						if VUHDO_ACTIVE_HOTS[tBuffName] then
+							VUHDO_snapshotHot(tBuffName, tRest, tStacks, tBuffIcon, tIsCastByPlayer, tDuration, aUnit, tExpiry);
+						end
 					end
 				end
 			end
@@ -748,10 +745,10 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 				VUHDO_LibCustomGlow.PixelGlow_Start(
 					tButton, 
 					{ 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["R"], 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["R"], 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["B"], 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["O"] 
+						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["R"],
+						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["G"],
+						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["B"],
+						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["O"]
 					}, 
 					14,                             -- number of particles
 					0.3,                            -- frequency
@@ -768,10 +765,10 @@ function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTim
 				VUHDO_LibCustomGlow.PixelGlow_Start(
 					tIcon, 
 					{ 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["R"], 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["R"], 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["B"], 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["O"] 
+						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["R"],
+						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["G"],
+						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["B"],
+						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["O"]
 					}, 
 					8,                                           -- number of particles
 					0.3,                                         -- frequency

@@ -586,29 +586,29 @@ VUHDO_I18N_BUFFC_EARTH_SHIELD = "Щит земли (Свой)";
 VUHDO_I18N_ADDON_COMPARTMENT_ICON = "Иконка в списке аддонов: ";
 
 -- 3.152
-VUHDO_I18N_SPELL_TRACE_SINGLE = "Иконка: Отслеживание Спеллов (Single)";
+VUHDO_I18N_SPELL_TRACE_SINGLE = "Иконка: Отслеживание Спеллов (Одиночное)";
 
 -- 3.154
 VUHDO_I18N_SPELL_TRACE_INCOMING = "Иконка: Отслеживание Спеллов (Входящие)";
 VUHDO_I18N_SPELL_TRACE_HEAL = "Иконка: Отслеживание Спеллов (Исцеление)";
 
 -- 3.157
-VUHDO_I18N_TEXT_PROVIDER_OVERHEAL = "Overheal: <#nk>";
-VUHDO_I18N_TEXT_PROVIDER_OVERHEAL_PLUS = "Overheal: +<#n>k";
-VUHDO_I18N_TEXT_PROVIDER_INCOMING_HEAL = "Incoming Heal: <#nk>";
-VUHDO_I18N_TEXT_PROVIDER_SHIELD_ABSORB = "Shield absorb total: <#nk>";
-VUHDO_I18N_TEXT_PROVIDER_HEAL_ABSORB = "Heal absorb total: <#nk>";
-VUHDO_I18N_TEXT_PROVIDER_THREAT = "Threat: <#n>%";
-VUHDO_I18N_TEXT_PROVIDER_CHI = "Chi: <#n>";
-VUHDO_I18N_TEXT_PROVIDER_HOLY_POWER = "Holy Power: <#n>";
-VUHDO_I18N_TEXT_PROVIDER_COMBO_POINTS = "Combo Points: <#n>";
-VUHDO_I18N_TEXT_PROVIDER_SOUL_SHARDS = "Soul Shards: <#n>";
-VUHDO_I18N_TEXT_PROVIDER_RUNES = "Runes: <#n>";
-VUHDO_I18N_TEXT_PROVIDER_ARCANE_CHARGES = "Arcane Charges: <#n>";
-VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT = "Mana: <#n>%";
-VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT_TENTH = "Mana: <#n/10%>";
-VUHDO_I18N_TEXT_PROVIDER_MANA_UNIT_OF = "Mana: <#n>/<#n>";
-VUHDO_I18N_TEXT_PROVIDER_MANA_KILO_OF = "Mana: <#nk>/<#nk>";
-VUHDO_I18N_TEXT_PROVIDER_MANA = "Mana: <#n>";
-VUHDO_I18N_TEXT_PROVIDER_MANA_KILO = "Mana: <#nk>";
-VUHDO_I18N_BOUQUET_STATUS_HEALTH_IF_ACTIVE = "Statusbar: Health % if active";
+VUHDO_I18N_TEXT_PROVIDER_OVERHEAL = "Избыточное исцеление: <#nk>";
+VUHDO_I18N_TEXT_PROVIDER_OVERHEAL_PLUS = "Избыточное исцеление: +<#n>k";
+VUHDO_I18N_TEXT_PROVIDER_INCOMING_HEAL = "Входящее исцеление: <#nk>";
+VUHDO_I18N_TEXT_PROVIDER_SHIELD_ABSORB = "Защищающий щит: <#nk>"; -- might want to check later
+VUHDO_I18N_TEXT_PROVIDER_HEAL_ABSORB = "Общее поглощение исцеления: <#nk>"; 
+VUHDO_I18N_TEXT_PROVIDER_THREAT = "Угроза: <#n>%";
+VUHDO_I18N_TEXT_PROVIDER_CHI = "Ци: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_HOLY_POWER = "Энергия света: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_COMBO_POINTS = "Очки комбо: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_SOUL_SHARDS = "Осколки души: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_RUNES = "Руны: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_ARCANE_CHARGES = "Чародейские заряды: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT = "Мана: <#n>%";
+VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT_TENTH = "Мана: <#n/10%>";
+VUHDO_I18N_TEXT_PROVIDER_MANA_UNIT_OF = "Мана: <#n>/<#n>";
+VUHDO_I18N_TEXT_PROVIDER_MANA_KILO_OF = "Мана: <#nk>/<#nk>";
+VUHDO_I18N_TEXT_PROVIDER_MANA = "Мана: <#n>";
+VUHDO_I18N_TEXT_PROVIDER_MANA_KILO = "Мана: <#nk>";
+VUHDO_I18N_BOUQUET_STATUS_HEALTH_IF_ACTIVE = "Панель статуса: Здоровье % если активно";
