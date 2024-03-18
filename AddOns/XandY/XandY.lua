@@ -3,7 +3,7 @@
 
                                                X and Y
 
-                                     v2.33 - 10th December 2023
+                                       v2.36 - 18th March 2024
                                 Copyright (C) Taraezor / Chris Birch
                                          All Rights Reserved
 
@@ -264,11 +264,13 @@ local function OnUpdate()
 			elseif ( mini.degrees == 45 ) or ( mini.degrees == 135 ) or ( mini.degrees == 225 ) or ( mini.degrees == 315 ) then
 				mini.colourText = ns.colour.highlight
 			end
-			if XandYDB.showMiniZoneText == true then
-				mini.xPlayerF, mini.yPlayerF = FormattedXY( mini.xPlayer, mini.yPlayer )
-				MinimapZoneText:SetText( mini.colourText.. "(".. mini.xPlayerF.. ":".. mini.yPlayerF.. ") ".. mini.zoneText )
-			else
-				MinimapZoneText:SetText( mini.zoneText )
+			if XandYDB then
+				if XandYDB.showMiniZoneText == true then
+					mini.xPlayerF, mini.yPlayerF = FormattedXY( mini.xPlayer, mini.yPlayer )
+					MinimapZoneText:SetText( mini.colourText.. "(".. mini.xPlayerF.. ":".. mini.yPlayerF.. ") ".. mini.zoneText )
+				else
+					MinimapZoneText:SetText( mini.zoneText )
+				end
 			end
 		end
 	end
