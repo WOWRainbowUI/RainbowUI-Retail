@@ -1,6 +1,6 @@
 ## Interface: 100205
 ## Title: OPie
-## Version: Zeta 4.5
+## Version: Zeta 4.5a
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
