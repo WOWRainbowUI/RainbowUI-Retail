@@ -1,5 +1,5 @@
-## Interface: 100205
-## Version: 2.34
+## Interface: 100206
+## Version: 2.36
 ## Author: Taraezor
 ## IconTexture: Interface\Icons\Inv_10_dungeonjewelry_explorer_trinket_1compass_color1
 ## Title: X and Y
@@ -34,6 +34,7 @@
 ## Title-zhTW: |cff4DFF4D[地圖]|r 座標
 ## Notes-zhTW: X and Y |n|n在世界地圖的標題列，和小地圖地名旁邊顯示座標值。
 ## X-Category-zhTW: 地圖
+## DefaultState: disabled
 
 XandY.xml
 XandY.lua
