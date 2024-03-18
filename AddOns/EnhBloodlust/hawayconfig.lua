@@ -18,7 +18,8 @@ config.sound = {
 	-- 每一行前面加上兩條橫線的歌曲不會播放。
 	-- "Interface\\AddOns\\EnhBloodlust\\音樂檔案名稱.副檔名",
 	"Interface/AddOns/EnhBloodlust/Bling-Bang-Bang-Born.mp3",
-	"Interface/AddOns/EnhBloodlust/Bling-Bang-Bang-Born2.mp3"
+	"Interface/AddOns/EnhBloodlust/Bling-Bang-Bang-Born2.mp3",
+	"Interface/AddOns/EnhBloodlust/IDOLxBling-Bang-Bang-Born.mp3"
 }
 
 config.soundShort = {
