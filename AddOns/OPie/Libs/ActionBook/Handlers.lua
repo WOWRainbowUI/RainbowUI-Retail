@@ -338,9 +338,10 @@ do -- item: items ID/inventory slot
 			cdStart, cdLen, enabled = C_Container.GetItemCooldown(iid)
 			cdLeft = (cdStart or 0) > 0 and (enabled ~= 0) and (cdStart + cdLen - GetTime())
 		end
+		target = target or "target"
 		-- TODO: Unconditional after 3.4.3
-		local canRange = not (COMPAT ~= 30403 and InCombatLockdown() and UnitIsFriend("player", target or "target")) or nil
-		local inRange, hasRange = canRange and NormalizeInRange[IsItemInRange(ident, target or "target")]
+		local canRange = not (COMPAT ~= 30403 and InCombatLockdown() and (UnitIsFriend("player", target) or not UnitExists(target))) or nil
+		local inRange, hasRange = canRange and NormalizeInRange[IsItemInRange(ident, target)]
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
 		if ibag and islot then
 			bag, slot = ibag, islot
