@@ -2549,7 +2549,7 @@ D["WorldQuestTab"] = {
 	},
 };
 D["XandY"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "MAP" },
 	title = "地圖座標",
 	desc = "簡單的小插件，在世界地圖的標題列，和小地圖地名旁邊顯示座標值。`",

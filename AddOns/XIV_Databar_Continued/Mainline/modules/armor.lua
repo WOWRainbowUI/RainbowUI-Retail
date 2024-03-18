@@ -250,7 +250,7 @@ function ArmorModule:GetDefaultOptions()
       enabled = true,
       warningDurability = 20,
       showIlvl = true,
-      showCoords = false
+      showCoords = true
     }
 end
 
