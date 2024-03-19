@@ -1,10 +1,13 @@
 # BagSync
 
-## [v19.28](https://github.com/Xruptor/BagSync/tree/v19.28) (2024-03-04)
-[Full Changelog](https://github.com/Xruptor/BagSync/compare/v19.27...v19.28) [Previous Releases](https://github.com/Xruptor/BagSync/releases)
+## [v19.30](https://github.com/Xruptor/BagSync/tree/v19.30) (2024-03-18)
+[Full Changelog](https://github.com/Xruptor/BagSync/compare/v19.29...v19.30) [Previous Releases](https://github.com/Xruptor/BagSync/releases)
 
-- Currency Fixes  
-    * Fixed an issue where the new option to toggle the Currency tooltip display was disabling it within the BagSync Currency window.  (Fixes #325)  
-    * Fixed an issue where the BagSync Tooltip modifier key was not properly being ignored in the BagSync Search window.  
-    * Fixed an issue where the BagSync Tooltip modifier key was not properly being ignored in the BagSync Currency window.  
-    * Added the "Trader's Tender" to show ONLY for the current player.  A warning about it being "[Account-Wide]" has been added to remind people.  
+- Small Change  
+    * Reverted a small change in config panel.  It wasn't needed.  
+- Small update to config window  
+    * Fixed a slight issue in regards to the config window occasionally hidding for no reason.  
+- Merge pull request #327 from nanjuekaien1/patch-60  
+    Update zhCN.lua  
+- Update zhCN.lua  
+- Update zhCN.lua  
