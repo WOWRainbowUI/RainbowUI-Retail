@@ -74,7 +74,7 @@
                 </FontString>
                 <FontString parentKey="Breed" inherits="GameFontHighlightSmall">
                     <Anchors>
-                        <Anchor point="CENTER" relativePoint="BOTTOMRIGHT" x="-14" y="11"/>
+                        <Anchor point="CENTER" relativePoint="BOTTOMRIGHT" x="-24" y="11"/> <!-- 品級文字的位置 -->
                     </Anchors>
                     <Color r="0.8" g="0.8" b="0.8"/>
                 </FontString>

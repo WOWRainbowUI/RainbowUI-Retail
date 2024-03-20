@@ -975,6 +975,13 @@ L["Scroll nearly a whole page at a time."] = "每次將近捲動一整頁。"
 L["Battle Pet Breed ID"] = "戰寵品級 ID"
 L["PetTracker"] = "戰寵助手"
 
+-- Version: 5.1.4 --
+
+-- panels\optionsList.lua
+
+L["Even If Team Already Loaded"] = "即使已經載入隊伍"
+L["Always interact with a saved target even if a team is already loaded for that target."] = "永遠都要和已儲存的對手互動，就算已經為該對手載入隊伍了。"
+
 -- 自行加入
 L["Recent Targets"] = "近期對手"
 L["Bottom Left"] = "左下"
@@ -984,4 +991,5 @@ L["Top Right"] = "右上"
 L["Top Center"] = "中上"
 L["Top Left"] = "左上"
 L["None"] = "無"
+L["NEW"] = "新的!"
 end

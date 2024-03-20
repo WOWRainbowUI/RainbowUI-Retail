@@ -444,7 +444,7 @@ function funcs:Breed()
         end
         if type(breedID)~="number" then
             breedID = 0
-            breedName = self.numPossibleBreeds==0 and "NEW" or "???"
+            breedName = self.numPossibleBreeds==0 and L["NEW"] or "???"
         end
         self.breedID = breedID
         self.breedName = breedName or rematch.breedInfo:GetBreedNameByID(breedID)
