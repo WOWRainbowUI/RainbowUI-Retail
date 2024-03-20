@@ -11,28 +11,39 @@ end
 local WINDOW_OPTIONS = {
   {
     type = "checkbox",
-    text = BAGANATOR_L_ENABLE_BAG_VIEWS_2,
-    option = "enable_unified_bags",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_LOCK_BAGS_BANKS_FRAMES,
+    text = BAGANATOR_L_LOCK_INVENTORY_FRAMES,
     option = "lock_frames",
   },
   {
     type = "checkbox",
-    text = BAGANATOR_L_CUSTOMISE_REMOVE_BORDERS,
-    option = "no_frame_borders",
+    text = BAGANATOR_L_ENABLE_BACKPACK_VIEW,
+    option = "enable_backpack_view",
   },
   {
     type = "checkbox",
-    text = BAGANATOR_L_CUSTOMISE_SHOW_TABS,
-    option = "show_recents_tabs_main_view",
+    text = BAGANATOR_L_ENABLE_BANK_VIEW,
+    option = "enable_bank_view",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_ENABLE_GUILD_VIEW,
+    option = "enable_guild_view",
+    check = NotIsEraCheck,
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_REMOVE_INVENTORY_BORDERS,
+    option = "no_frame_borders",
   },
   {
     type = "checkbox",
     text = BAGANATOR_L_PLACE_BAG_ROW_WITH_MISSING_SLOTS_AT_THE_TOP,
     option = "bag_empty_space_at_top",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_SHOW_CHARACTER_RACE_ICONS,
+    option = "show_character_race_icons",
   },
   {
     type = "slider",
@@ -63,14 +74,18 @@ local WINDOW_OPTIONS = {
     option = "bank_view_width",
   },
   {
-    type = "checkbox",
-    text = BAGANATOR_L_REDUCE_SPACING_BETWEEN_UI_COMPONENTS,
-    option = "reduce_spacing",
+    type = "slider",
+    min = 1,
+    max = 42,
+    lowText = "1",
+    highText = "42",
+    valuePattern = BAGANATOR_L_X_GUILD_COLUMNS,
+    option = "guild_view_width",
   },
   {
     type = "checkbox",
-    text = BAGANATOR_L_SHOW_BUTTONS_ON_ALT,
-    option = "show_buttons_on_alt",
+    text = BAGANATOR_L_REDUCE_SPACING_BETWEEN_UI_COMPONENTS,
+    option = "reduce_spacing",
   },
   {
     type = "header",
@@ -129,55 +144,6 @@ local ICON_OPTIONS = {
     level = 2,
   },
 }
-
-local TOOLTIP_OPTIONS = {
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SHOW_INVENTORY_IN_TOOLTIPS,
-    option = "show_inventory_tooltips",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SHOW_CURRENCY_TOOLTIPS,
-    option = "show_currency_tooltips",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_PRESS_SHIFT_TO_SHOW_TOOLTIPS,
-    option = "show_tooltips_on_shift",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS,
-    option = "show_guild_banks_in_tooltips",
-    check = NotIsEraCheck,
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_ONLY_USE_SAME_CONNECTED_REALMS,
-    option = "tooltips_connected_realms_only",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_ONLY_USE_SAME_FACTION_CHARACTERS,
-    option = "tooltips_faction_only",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SORT_BY_CHARACTER_NAME,
-    option = "tooltips_sort_by_name",
-  },
-  {
-    type = "slider",
-    min = 1,
-    max = 40,
-    lowText = "1",
-    highText = "40",
-    valuePattern = BAGANATOR_L_X_CHARACTERS_SHOWN,
-    option = "tooltips_character_limit",
-  },
-}
-
 local OPEN_CLOSE_OPTIONS = {
   {
     type = "checkbox",
@@ -243,13 +209,21 @@ local OPEN_CLOSE_OPTIONS = {
     root = "auto_open",
     check = IsRetailCheck,
   },
-}
-local SORTING_OPTIONS = {
   {
     type = "checkbox",
-    text = BAGANATOR_L_SHOW_SORT_BUTTON,
-    option = "show_sort_button_2",
+    text = BAGANATOR_L_FORGE_OF_BONDS,
+    option = "forge_of_bonds",
+    root = "auto_open",
+    check = IsRetailCheck,
   },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_CHARACTER_PANEL,
+    option = "character_panel",
+    root = "auto_open",
+  },
+}
+local SORTING_OPTIONS = {
   {
     type = "checkbox",
     text = BAGANATOR_L_AUTO_SORT_ON_OPENING_BAGS,
@@ -271,25 +245,54 @@ local SORTING_OPTIONS = {
     max = 128,
     lowText = "0",
     highText = "128",
-    valuePattern = BAGANATOR_L_X_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC,
+    valuePattern = BAGANATOR_L_X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC,
     option = "sort_ignore_slots_count_2",
+  },
+  {
+    type = "slider",
+    min = 0,
+    max = 500,
+    lowText = "0",
+    highText = "500",
+    valuePattern = BAGANATOR_L_X_BANK_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC,
+    option = "sort_ignore_bank_slots_count",
   },
   {
     type = "checkbox",
     text = BAGANATOR_L_REVERSE_GROUPS_SORT_ORDER,
     option = "reverse_groups_sort_order",
   },
-  {
-    type = "header",
+  { type = "header",
     text = BAGANATOR_L_SORT_METHOD,
     level = 2,
   },
 }
-local TRANSFERS_OPTIONS = {
+local BUTTONS_OPTIONS = {
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_CUSTOMISE_SHOW_TABS,
+    option = "show_recents_tabs_main_view",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_SHOW_BUTTONS_ON_ALT,
+    option = "show_buttons_on_alt",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_SHOW_SORT_BUTTON,
+    option = "show_sort_button_2",
+  },
   {
     type = "checkbox",
     text = BAGANATOR_L_SHOW_TRANSFER_BUTTON,
     option = "show_transfer_button",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED,
+    option = "show_guild_bank_button",
+    check = NotIsEraCheck,
   },
 }
 
@@ -387,10 +390,10 @@ function BaganatorCustomiseDialogMixin:OnLoad()
 
   self:SetupWindow()
   self:SetupIcon()
-  self:SetupTooltip()
   self:SetupOpenClose()
   self:SetupSorting()
-  self:SetupTransfers()
+  self:SetupButtonsOptions()
+  self:SetupTooltipsLink()
 
   PanelTemplates_SetNumTabs(self, #self.Tabs)
 
@@ -426,7 +429,7 @@ function BaganatorCustomiseDialogMixin:SetupWindow()
   local frame = GetWrapperFrame(self)
 
   frame.ResetFramePositions = CreateFrame("Button", nil, frame, "UIPanelDynamicResizeButtonTemplate")
-  frame.ResetFramePositions:SetPoint("TOPRIGHT", frame, -20, -46)
+  frame.ResetFramePositions:SetPoint("TOPRIGHT", frame, -20, -8)
   frame.ResetFramePositions:SetText(BAGANATOR_L_RESET_POSITIONS)
   DynamicResizeButton_Resize(frame.ResetFramePositions)
   frame.ResetFramePositions:SetScript("OnClick", function()
@@ -434,7 +437,9 @@ function BaganatorCustomiseDialogMixin:SetupWindow()
   end)
 
   do
-    local junkPlugins = {}
+    local junkPlugins = {
+      {label = BAGANATOR_L_POOR_QUALITY, id = "poor_quality"},
+    }
     for id, pluginDetails in pairs(addonTable.JunkPlugins) do
       table.insert(junkPlugins, {
         label = pluginDetails.label,
@@ -447,16 +452,15 @@ function BaganatorCustomiseDialogMixin:SetupWindow()
     local dropdown = {
       type = "dropdown",
       option = "junk_plugin",
-      entries = {
-        BAGANATOR_L_POOR_QUALITY,
-      },
-      values = {
-        "poor_quality",
-      },
+      entries = {},
+      values = {},
     }
     for _, pluginInfo in ipairs(junkPlugins) do
       table.insert(dropdown.entries, pluginInfo.label)
       table.insert(dropdown.values, pluginInfo.id)
+    end
+    if addonTable.JunkPlugins[Baganator.Config.Get("junk_plugin")] == nil then
+      Baganator.Config.ResetOne("junk_plugin")
     end
 
     table.insert(WINDOW_OPTIONS, dropdown)
@@ -506,23 +510,6 @@ function BaganatorCustomiseDialogMixin:SetupIcon()
       if frame.SetValue then
         frame:SetValue(Baganator.Config.Get(frame.option))
       end
-    end
-  end)
-
-  table.insert(self.lowestFrames, allFrames[#allFrames])
-end
-
-function BaganatorCustomiseDialogMixin:SetupTooltip()
-  local tab = GetTab(self)
-  tab:SetText(BAGANATOR_L_TOOLTIPS)
-
-  local frame = GetWrapperFrame(self)
-
-  local allFrames = GenerateFrames(TOOLTIP_OPTIONS, frame)
-
-  frame:SetScript("OnShow", function()
-    for index, frame in ipairs(allFrames) do
-      frame:SetValue(Baganator.Config.Get(frame.option))
     end
   end)
 
@@ -596,13 +583,13 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
   table.insert(self.lowestFrames, allFrames[#allFrames])
 end
 
-function BaganatorCustomiseDialogMixin:SetupTransfers()
+function BaganatorCustomiseDialogMixin:SetupButtonsOptions()
   local tab = GetTab(self)
-  tab:SetText(BAGANATOR_L_TRANSFERS)
+  tab:SetText(BAGANATOR_L_BUTTONS)
 
   local frame = GetWrapperFrame(self)
 
-  local allFrames = GenerateFrames(TRANSFERS_OPTIONS, frame)
+  local allFrames = GenerateFrames(BUTTONS_OPTIONS, frame)
 
   frame:SetScript("OnShow", function()
     for index, frame in ipairs(allFrames) do
@@ -611,6 +598,21 @@ function BaganatorCustomiseDialogMixin:SetupTransfers()
   end)
 
   table.insert(self.lowestFrames, allFrames[#allFrames])
+end
+
+function BaganatorCustomiseDialogMixin:SetupTooltipsLink()
+  local tab = GetTab(self)
+  tab:SetText(BAGANATOR_L_TOOLTIPS)
+
+  local frame = GetWrapperFrame(self)
+
+  frame:SetScript("OnShow", function()
+    local lastIndex = self.lastIndex
+    C_Timer.After(0, function()
+      self:SetIndex(lastIndex)
+    end)
+    Settings.OpenToCategory(SYNDICATOR_L_SYNDICATOR)
+  end)
 end
 
 function BaganatorCustomiseDialogMixin:RefreshOptions()

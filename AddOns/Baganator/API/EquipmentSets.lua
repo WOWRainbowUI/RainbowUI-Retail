@@ -1,3 +1,4 @@
+-- Blizzard Equipment sets (Wrath onwards)
 do
   local BlizzardSetTracker = CreateFrame("Frame")
 
@@ -30,16 +31,6 @@ do
 
   -- Determine the GUID of all accessible items in an equipment set
   function BlizzardSetTracker:ScanEquipmentSets()
-    -- Option is disabled on classic WoW for Macs because there is a crash when
-    -- all 19 set item slots are occupied, see https://github.com/Stanzilla/WoWUIBugs/issues/511
-    if IsMacClient() and not Baganator.Constants.IsRetail then
-      return
-    end
-
-    if not Baganator.Config.Get(Baganator.Config.Options.ENABLE_EQUIPMENT_SET_INFO) then
-      return
-    end
-
     local start = debugprofilestop()
 
     local oldSetInfo = CopyTable(self.equipmentSetInfo)
@@ -64,7 +55,7 @@ do
             slotID = slot
             location = ItemLocation:CreateFromBagAndSlot(bagID, slotID)
           elseif bank and not bags then
-            bagID = Baganator.Constants.AllBankIndexes[1]
+            bagID = Syndicator.Constants.AllBankIndexes[1]
             slotID = slot - BankButtonIDToInvSlotID(0)
             location = ItemLocation:CreateFromBagAndSlot(bagID, slotID)
           elseif player then
@@ -88,4 +79,69 @@ do
       Baganator.API.RequestItemButtonsRefresh()
     end
   end
+end
+
+-- ItemRack Classic
+if not Baganator.Constants.IsRetail then
+  Baganator.Utilities.OnAddonLoaded("ItemRack", function()
+    local equipmentSetInfo = {}
+    local function ItemRackUpdated()
+      equipmentSetInfo = {}
+      for name, details in pairs(ItemRackUser.Sets) do
+        if name:sub(1, 1) ~= "~" then
+          local setInfo = {name = name, icon = details.icon}
+          for _, itemRef in pairs(details.equip) do
+            if not equipmentSetInfo[itemRef] then
+              equipmentSetInfo[itemRef] = {}
+            end
+            table.insert(equipmentSetInfo[itemRef], setInfo)
+          end
+        end
+      end
+
+      Baganator.API.RequestItemButtonsRefresh()
+    end
+    ItemRackUpdated()
+
+    ItemRack:RegisterExternalEventListener("ITEMRACK_SET_SAVED", ItemRackUpdated)
+    ItemRack:RegisterExternalEventListener("ITEMRACK_SET_DELETED", ItemRackUpdated)
+
+    Baganator.API.RegisterItemSetSource("ItemRack", "item_rack_classic", function(itemLocation, guid, itemLink)
+      if not guid then
+        return
+      end
+
+      if not Syndicator.Utilities.IsEquipment(itemLink) then
+        return
+      end
+
+      local id = ItemRack.GetIRString(itemLink)
+      -- Workaround for ItemRack classic not getting the run id correctly for
+      -- bag items
+      if ItemRack.AppendRuneID then
+        local bagID, slotID = itemLocation:GetBagAndSlot()
+        local isEngravable = false
+        local runeInfo = nil
+        if bagID == Enum.BagIndex.Bank then
+          local invID = BankButtonIDToInvSlotID(slotID)
+          isEngravable = C_Engraving.IsEquipmentSlotEngravable(invID)
+          if isEngravable then
+            runeInfo = C_Engraving.GetRuneForEquipmentSlot(invID)
+          end
+        elseif bagID >= 0 and C_Engraving.IsInventorySlotEngravable(bagID, slotID) then
+          isEngravable = true
+          runeInfo = C_Engraving.GetRuneForInventorySlot(bagID, slotID)
+        end
+
+        if isEngravable then
+          if runeInfo then
+            id = id .. ":runeid:" .. tostring(runeInfo.skillLineAbilityID)
+          else
+            id = id .. ":runeid:0"
+          end
+        end
+      end
+      return equipmentSetInfo[id]
+    end)
+  end)
 end

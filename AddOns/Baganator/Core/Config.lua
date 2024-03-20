@@ -3,6 +3,7 @@ Baganator.Config = {}
 Baganator.Config.Options = {
   BAG_VIEW_WIDTH = "bag_view_width",
   BANK_VIEW_WIDTH = "bank_view_width",
+  GUILD_VIEW_WIDTH = "guild_view_width",
   BAG_ICON_SIZE = "bag_icon_size",
   VIEW_ALPHA = "view_alpha",
   LOCK_FRAMES = "lock_frames",
@@ -12,21 +13,25 @@ Baganator.Config.Options = {
   HIDE_SPECIAL_CONTAINER = "hide_special_container",
   SHOW_SORT_BUTTON = "show_sort_button_2",
   SHOW_TRANSFER_BUTTON = "show_transfer_button",
+  SHOW_GUILD_BANK_BUTTON = "show_guild_bank_button",
   SORT_METHOD = "sort_method",
   REVERSE_GROUPS_SORT_ORDER = "reverse_groups_sort_order",
   SORT_START_AT_BOTTOM = "sort_start_at_bottom",
   SORT_IGNORE_SLOTS_AT_END = "sort_ignore_slots_at_end",
-  SORT_IGNORE_SLOTS_COUNT = "sort_ignore_slots_count_2",
+  SORT_IGNORE_BAG_SLOTS_COUNT = "sort_ignore_slots_count_2",
+  SORT_IGNORE_BANK_SLOTS_COUNT = "sort_ignore_bank_slots_count",
   SHOW_RECENTS_TABS = "show_recents_tabs_main_view",
   AUTO_SORT_ON_OPEN = "auto_sort_on_open",
   BAG_EMPTY_SPACE_AT_TOP = "bag_empty_space_at_top",
   REDUCE_SPACING = "reduce_spacing",
+  SHOW_CHARACTER_RACE_ICONS = "show_character_race_icons",
 
   RECENT_CHARACTERS_MAIN_VIEW = "recent_characters_main_view",
 
   INVERTED_BAG_SHORTCUTS = "inverted_bag_shortcuts",
   SHOW_INVENTORY_TOOLTIPS = "show_inventory_tooltips",
   SHOW_GUILD_BANKS_IN_TOOLTIPS = "show_guild_banks_in_tooltips",
+  SHOW_EQUIPPED_ITEMS_IN_TOOLTIPS = "show_equipped_items_in_tooltips",
   SHOW_CURRENCY_TOOLTIPS = "show_currency_tooltips",
   SHOW_TOOLTIPS_ON_SHIFT = "show_tooltips_on_shift",
   TOOLTIPS_CONNECTED_REALMS_ONLY = "tooltips_connected_realms_only",
@@ -52,6 +57,8 @@ Baganator.Config.Options = {
   MAIN_VIEW_SHOW_BAG_SLOTS = "main_view_show_bag_slots",
   BANK_ONLY_VIEW_POSITION = "bank_only_view_position",
   BANK_ONLY_VIEW_SHOW_BAG_SLOTS = "bank_only_view_show_bag_slots",
+  GUILD_VIEW_POSITION = "guild_view_position",
+  GUILD_VIEW_DIALOG_POSITION = "guild_view_dialog_position",
   SHOW_BUTTONS_ON_ALT = "show_buttons_on_alt",
 
   DEBUG = "debug",
@@ -59,13 +66,15 @@ Baganator.Config.Options = {
 
   AUTO_OPEN = "auto_open",
 
-  ENABLE_UNIFIED_BAGS = "enable_unified_bags",
-  ENABLE_EQUIPMENT_SET_INFO = "enable_equipment_set_info_3",
+  ENABLE_BACKPACK_VIEW = "enable_backpack_view",
+  ENABLE_BANK_VIEW = "enable_bank_view",
+  ENABLE_GUILD_VIEW = "enable_guild_view",
 }
 
 Baganator.Config.Defaults = {
   [Baganator.Config.Options.BAG_VIEW_WIDTH] = 12,
   [Baganator.Config.Options.BANK_VIEW_WIDTH] = Baganator.Constants.IsRetail and 24 or 18,
+  [Baganator.Config.Options.GUILD_VIEW_WIDTH] = 14,
   [Baganator.Config.Options.BAG_ICON_SIZE] = 37,
   [Baganator.Config.Options.VIEW_ALPHA] = 1,
   [Baganator.Config.Options.LOCK_FRAMES] = false,
@@ -75,16 +84,20 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.HIDE_SPECIAL_CONTAINER] = {},
   [Baganator.Config.Options.SHOW_SORT_BUTTON] = true,
   [Baganator.Config.Options.SHOW_TRANSFER_BUTTON] = true,
+  [Baganator.Config.Options.SHOW_GUILD_BANK_BUTTON] = true,
   [Baganator.Config.Options.INVERTED_BAG_SHORTCUTS] = false,
   [Baganator.Config.Options.RECENT_CHARACTERS_MAIN_VIEW] = {},
   [Baganator.Config.Options.HIDE_BOE_ON_COMMON] = false,
   [Baganator.Config.Options.SHOW_RECENTS_TABS] = true,
   [Baganator.Config.Options.SHOW_INVENTORY_TOOLTIPS] = true,
   [Baganator.Config.Options.SHOW_GUILD_BANKS_IN_TOOLTIPS] = true,
+  [Baganator.Config.Options.SHOW_EQUIPPED_ITEMS_IN_TOOLTIPS] = true,
   [Baganator.Config.Options.SHOW_CURRENCY_TOOLTIPS] = true,
   [Baganator.Config.Options.ICON_TEXT_QUALITY_COLORS] = false,
   [Baganator.Config.Options.MAIN_VIEW_POSITION] = {"RIGHT", -20, 0},
   [Baganator.Config.Options.BANK_ONLY_VIEW_POSITION] = {"LEFT", 20, 0},
+  [Baganator.Config.Options.GUILD_VIEW_POSITION] = {"LEFT", 20, 0},
+  [Baganator.Config.Options.GUILD_VIEW_DIALOG_POSITION] = {"BOTTOM", "Baganator_GuildViewFrame", "TOP", 0, 0},
   [Baganator.Config.Options.SHOW_TOOLTIPS_ON_SHIFT] = false,
   [Baganator.Config.Options.TOOLTIPS_CONNECTED_REALMS_ONLY] = true,
   [Baganator.Config.Options.TOOLTIPS_SORT_BY_NAME] = false,
@@ -109,19 +122,23 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.SORT_START_AT_BOTTOM] = false,
   [Baganator.Config.Options.ICON_FLASH_SIMILAR_ALT] = false,
   [Baganator.Config.Options.SORT_IGNORE_SLOTS_AT_END] = false,
-  [Baganator.Config.Options.SORT_IGNORE_SLOTS_COUNT] = 0,
+  [Baganator.Config.Options.SORT_IGNORE_BAG_SLOTS_COUNT] = 0,
+  [Baganator.Config.Options.SORT_IGNORE_BANK_SLOTS_COUNT] = 0,
   [Baganator.Config.Options.AUTO_SORT_ON_OPEN] = false,
   [Baganator.Config.Options.JUNK_PLUGIN] = "poor_quality",
+  [Baganator.Config.Options.SHOW_CHARACTER_RACE_ICONS] = true,
 
   [Baganator.Config.Options.DEBUG] = false,
   [Baganator.Config.Options.DEBUG_TIMERS] = false,
 
-  [Baganator.Config.Options.ENABLE_UNIFIED_BAGS] = true,
-  [Baganator.Config.Options.ENABLE_EQUIPMENT_SET_INFO] = true,
+  [Baganator.Config.Options.ENABLE_BACKPACK_VIEW] = true,
+  [Baganator.Config.Options.ENABLE_BANK_VIEW] = true,
+  [Baganator.Config.Options.ENABLE_GUILD_VIEW] = true,
 }
 
 Baganator.Config.IsCharacterSpecific = {
-  [Baganator.Config.Options.SORT_IGNORE_SLOTS_COUNT] = true,
+  [Baganator.Config.Options.SORT_IGNORE_BAG_SLOTS_COUNT] = true,
+  [Baganator.Config.Options.SORT_IGNORE_BANK_SLOTS_COUNT] = true,
 }
 
 Baganator.Config.VisualsFrameOnlySettings = {
@@ -134,9 +151,11 @@ Baganator.Config.ItemButtonsRelayoutSettings = {
   Baganator.Config.Options.EMPTY_SLOT_BACKGROUND,
   Baganator.Config.Options.BAG_VIEW_WIDTH,
   Baganator.Config.Options.BANK_VIEW_WIDTH,
+  Baganator.Config.Options.GUILD_VIEW_WIDTH,
   Baganator.Config.Options.SHOW_REAGENTS,
   Baganator.Config.Options.SHOW_SORT_BUTTON,
   Baganator.Config.Options.SHOW_TRANSFER_BUTTON,
+  Baganator.Config.Options.SHOW_GUILD_BANK_BUTTON,
   Baganator.Config.Options.HIDE_BOE_ON_COMMON,
   Baganator.Config.Options.ICON_TEXT_QUALITY_COLORS,
   Baganator.Config.Options.ICON_TEXT_FONT_SIZE,
