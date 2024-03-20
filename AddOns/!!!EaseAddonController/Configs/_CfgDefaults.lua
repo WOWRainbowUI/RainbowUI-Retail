@@ -278,8 +278,8 @@ D["Baganator"] = {
 	},
 };
 D["BagSync"] = {
-	defaultEnable = 1,
-	title = "物品數量統計",
+	defaultEnable = 0,
+	title = "物品數量統計 (舊版)",
 	desc = "在物品的滑鼠提示中顯示所有角色擁有相同物品的數量。``|cffFF2D2D需要將其他角色登入一次才會計算該角色的物品數量。|r`",
 	modifier = "BNS, 彩虹ui",
     {
@@ -2244,6 +2244,23 @@ D["Stuf"] = {
 	{
 		type = "text",
         text = " ",       
+	},
+};
+D["Syndicator"] = {
+    defaultEnable = 1,
+	tags = { "ITEM" },
+	title = "多角色物品統計",
+	desc = "在物品的浮動提示資訊中顯示其他角色擁有此物品的數量，可在設定選項中調整要顯示幾個角色。``可搭配內建背包或任意背包插件一起使用。``|cffFF2D2D其他角色需要登入一次並且打開銀行後，才會記錄該角色的物品。|r`",
+	modifier = "BNS, plusmouse, 彩虹ui",
+    {
+        text = "設定選項",
+        callback = function(cfg, v, loading)
+			Settings.OpenToCategory("物品統計")
+		end,
+    },
+	{
+		type = "text",
+        text = "\n隱藏角色資料: 請輸入\n /syn hide 角色名字-伺服器\n\n刪除角色資料: 請輸入\n /syn remove 角色名字-伺服器\n\n|cffFF2D2D隱藏或刪除完後，若物品的浮動提示出現大量資訊，按一下 Shift 鍵即可。|r\n",       
 	},
 };
 D["TankMD"] = {

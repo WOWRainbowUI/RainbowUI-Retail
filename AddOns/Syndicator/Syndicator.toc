@@ -1,0 +1,50 @@
+## Interface: 100206
+## Title: Syndicator
+## Version: 7
+## Author: plusmouse
+## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
+## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
+
+## Title-zhTW: |cffB973CC[物品]|r 多角色物品統計
+## Notes-zhTW: Syndicator |n|n在物品的浮動提示資訊中顯示所有角色擁有此物品的數量。|n|n|cffffd200使用方法: |r從Esc>選項>插件>物品統計，進行設定。
+## X-Category-zhTW: 物品
+
+Locales.lua
+
+Libs\LibBattlePetTooltipLine\LibStub\LibStub.lua
+Libs\LibBattlePetTooltipLine\LibBattlePetTooltipLine.xml
+
+Core\Objects.lua
+Core\Locales.lua
+Core\Constants.lua
+Core\Config.lua
+Core\Utilities.lua
+Core\SlashCmd.lua
+Core\Main.lua
+
+Options\Initialize.lua
+
+Tracking\Utilities.lua
+Tracking\BagCache.lua
+Tracking\MailCache.lua
+Tracking\EquippedCache.lua
+Tracking\CurrencyCache.lua
+Tracking\GuildCache.lua
+Tracking\VoidCache.lua
+Tracking\AuctionCacheRetail.lua
+Tracking\AuctionCacheClassic.lua
+Tracking\ItemSummaries.lua
+Tracking\Tooltips.lua
+Tracking\CurrencyTooltipData.lua
+Tracking\Main.lua
+
+Search\Initialize.lua
+Search\BaseInfo.lua
+Search\CheckItem.lua
+Search\GetGroupingKey.lua
+Search\OfflineList.lua
+Search\OfflineList.xml
+Search\MegaSearch.lua
+Search\Utilities.lua
+
+API\Main.lua
