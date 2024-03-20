@@ -1,5 +1,9 @@
 ## Revision History:
 
+#### v12 (March 20, 2024)
+-------------------------------
+* Bump .toc to 100206
+
 #### v11 (January 17, 2024)
 -------------------------------
 * Added level requirements for the Portal to The Timeways and Portal to Central Encampment.
