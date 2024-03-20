@@ -442,6 +442,12 @@ GTFO.SpellID["238027"] = {
   sound = 3;
 };
 
+GTFO.SpellID["286002"] = {
+  --desc = "Explode (Bomb Bot)";
+  sound = 3;
+  vehicle = true;
+};
+
 -- *******************
 -- * Brawler's Guild *
 -- *******************

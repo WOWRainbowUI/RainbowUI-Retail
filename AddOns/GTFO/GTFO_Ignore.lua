@@ -171,5 +171,5 @@ GTFO.IgnoreScan["423705"] = true; -- Burning Scales
 GTFO.IgnoreScan["418978"] = true; -- Burning Presence
 GTFO.IgnoreScan["420714"] = true; -- Noxious Blossom
 GTFO.IgnoreScan["425461"] = true; -- Tainted Heart
-
-
+GTFO.IgnoreScan["295625"] = true; -- Anger of the Bloodfin
+GTFO.IgnoreScan["422750"] = true; -- Shadowflame Rage

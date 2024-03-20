@@ -1,26 +1,29 @@
-## Interface: 100206
+## Interface: 40400
 ## X-Min-Interface: 100206
 ## X-Min-Interface-Classic: 11501
 ## X-Min-Interface-BCC: 20504
 ## X-Min-Interface-Wrath: 30403
+## X-Min-Interface-Cata: 40400
 ## Title: GTFO
 ## Notes: GTFO, you're dying!
 ## Author: Zensunim of Dragonblight
 ## Version: 5.7
 ## DefaultState: Enabled
 ## SavedVariables: GTFOData
-## X-WoWI-ID: 17996
+## X-WoWI-ID: 17996 
 ## X-Curse-Project-ID: 20697
 ## X-Wago-ID: PANz0MK4
 ## IconTexture: Interface\Icons\spell_fire_fire
-
-## Title-zhTW: |cffFF2D2D[戰鬥]|r 地板傷害警報
-## Notes-zhTW: GTFO |n|n你快死了! 踩在會受到傷害的區域上面時會發出警報聲，趕快離開吧!|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰鬥-警報，調整音量和進行設定。
-## X-Category-zhTW: 戰鬥
-
 Localization\enUS.lua
+Localization\esES.lua
+Localization\esMX.lua
+Localization\deDE.lua
+Localization\ruRU.lua
+Localization\frFR.lua
 Localization\zhCN.lua
 Localization\zhTW.lua
+Localization\koKR.lua
+Localization\ptBR.lua
 Localization\Boss.lua
 GTFO_PowerAuras.lua
 GTFO_WeakAuras.lua

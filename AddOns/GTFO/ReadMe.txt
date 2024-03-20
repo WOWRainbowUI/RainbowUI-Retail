@@ -2008,3 +2008,12 @@ Change Log:
 * Added Dragonflight spells for Amirdrassil, The Dream's Hope
 * Added Cataclysm spells for Throne of the Tides (Mythic+) (thanks aisenfaire)
 * Fixed Legion spells for Black Rook Hold
+
+5.7
+* Cataclysm Classic support
+* Updated for patch 10.2.6
+* Updated ToC for WoW Classic 1.15.1
+* Added Dragonflight spells (world)
+* Added Legion spells for The Broken Isles (world)
+* Added Battle for Azeroth spells (world)
+* Added BFA spells for Mechagon
