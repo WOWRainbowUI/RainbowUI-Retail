@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100206
 ## Title: |cFFFFFF00<WA Soundpack>|r |cff69ccf0by Causese|r
 ## Title-zhTW: |cffFF9900[進階]|r Causese x 安格斯 WA 語音包
 ## Notes-zhTW: SharedMedia_Causese |n|n此為 WA 用的語音包，原版為英文語音，已替換為安格斯中文語音，需同時載入 'WA 技能提醒' 插件，並且匯入相關的 WA 字串後才能使用。|n安格斯 WA 字串下載網址：https://addons.miliui.com/show/157
