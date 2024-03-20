@@ -80,6 +80,7 @@ rematch.optionsList = {
 				{text=L["Auto Load"], value=C.INTERACT_AUTOLOAD, tooltipTitle=L["Auto Load"], tooltipBody=format(L["When soft interacting with an NPC with a saved team not already loaded, automatically load the saved team."],C.HEX_RED,C.HEX_WHITE)}}
 	},
 	{type="check", group=1, text=L["Always Interact"], var="InteractAlways", tooltip=L["The default behavior is to perform the target or mouseover interaction once until you interact with another NPC with a saved team. Check this to always interact with NPCs that have a saved team not already loaded."]},
+	{type="check", group=1, text=L["Even If Team Already Loaded"], var="InteractAlwaysEvenLoaded", dependency="InteractAlways", tooltip=L["Always interact with a saved target even if a team is already loaded for that target."]},
 	{type="check", group=1, text=L["Prefer Uninjured Teams"], var="InteractPreferUninjured", tooltip=L["When you interact with an NPC that has more than one team saved to it, choose the team with no injured pets instead of the topmost team for the target. On Prompt To Load and Show Window options where you can choose which team to load before loading, start with the healthiest team."]},
 	{type="check", group=1, text=L["Show Window After Loading"], var="InteractShowAfterLoad", tooltip=L["When a team is loaded from an interaction (target or mouseover) and the Rematch window is not on screen, summon the standalone Rematch window."]},
 	{type="check", group=1, text=L["Only When Any Pets Injured"], var="InteractOnlyWhenInjured", dependency="InteractShowAfterLoad", tooltip=L["If a team is loaded but no pets are injured, don't summon the Rematch window."]},
@@ -138,7 +139,7 @@ rematch.optionsList = {
 	{type="check", group=23, text=format(L["Hide Preference Badges %s"],rematch.utils:GetBadgeAsText(14,14,true)), var="HidePreferenceBadges", update=true, tooltip=format(L["Hide the %s badge on teams that indicate the team contains leveling preferences."],rematch.utils:GetBadgeAsText(14,14,true))},
 	{type="check", group=23, text=format(L["Hide Notes Badges %s"],rematch.utils:GetBadgeAsText(13,16,false)), var="HideNotesBadges", update=true, tooltip=format(L["Hide the %s badge/button on pets and teams that indicate the pet or team has saved notes."],rematch.utils:GetBadgeAsText(13,16,false))},
 	-- {type="check", group=23, text=format(L["Hide External Badges %s"],rematch.utils:GetBadgeAsText(33,16,true)), var="HideExternalBadges", update=true, tooltip=L["Try to hide any badges added to lists from an external source like a third-party addon. (Rematch has no control over what outside addons do, so some addon's badges may not hide with this option.)"]},
-	
+
 	-- Behavior Options
 	{type="header", group=14, text=L["Behavior Options"]},
 	{type="dropdown", group=14, text=L["Card Speed"], var="CardBehavior", tooltip=L["Choose how quickly you prefer the pet card and notes to be shown when you mouseover a pet or notes button."],

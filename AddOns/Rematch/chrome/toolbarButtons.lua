@@ -344,6 +344,14 @@ function RematchToolbarButtonMixin:PostClick(mouseButton,down)
     end
 end
 
+function RematchToolbarButtonMixin:OnDragStart()
+    if self:GetAttribute("item") then
+        PickupItem(self:GetAttribute("item"))
+    elseif self:GetAttribute("spell") then
+        PickupSpell(self:GetAttribute("spell"))
+    end
+end
+
 -- all buttons share this Update which calls the updates[] function indexed by button parentKey (self.button)
 function RematchToolbarButtonMixin:Update(fromEvent)
     local button = self.button

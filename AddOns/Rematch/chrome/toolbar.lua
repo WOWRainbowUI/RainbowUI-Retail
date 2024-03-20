@@ -158,12 +158,16 @@ end
 
 function rematch.toolbar:SPELL_UPDATE_COOLDOWN()
     self.HealButton.Cooldown:SetCooldown(GetSpellCooldown(C.REVIVE_SPELL_ID))
-    self.SafariHatButton.Cooldown:SetCooldown(GetItemCooldown(C.SAFARI_HAT_ITEM_ID))
-    self.BandageButton.Cooldown:SetCooldown(GetItemCooldown(C.BANDAGE_ITEM_ID))
+    CooldownFrame_Set(self.SafariHatButton.Cooldown,GetItemCooldown(C.SAFARI_HAT_ITEM_ID))
+    CooldownFrame_Set(self.BandageButton.Cooldown,GetItemCooldown(C.BANDAGE_ITEM_ID))
+    --self.SafariHatButton.Cooldown:SetCooldown(GetItemCooldown(C.SAFARI_HAT_ITEM_ID))
+    --self.BandageButton.Cooldown:SetCooldown(GetItemCooldown(C.BANDAGE_ITEM_ID))
     self.SummonPetButton.Cooldown:SetCooldown(GetSpellCooldown(C.GCD_SPELL_ID))
     if self.LevelingStoneButton:IsVisible() then
-        self.LevelingStoneButton.Cooldown:SetCooldown(GetItemCooldown(self.LevelingStoneButton:GetAttribute("item")))
-        self.RarityStoneButton.Cooldown:SetCooldown(GetItemCooldown(self.RarityStoneButton:GetAttribute("item")))
+        CooldownFrame_Set(self.LevelingStoneButton.Cooldown,GetItemCooldown(self.LevelingStoneButton:GetAttribute("item")))
+        CooldownFrame_Set(self.RarityStoneButton.Cooldown,GetItemCooldown(self.RarityStoneButton:GetAttribute("item")))
+        --self.LevelingStoneButton.Cooldown:SetCooldown(GetItemCooldown(self.LevelingStoneButton:GetAttribute("item")))
+        --self.RarityStoneButton.Cooldown:SetCooldown(GetItemCooldown(self.RarityStoneButton:GetAttribute("item")))
     end
 end
 
