@@ -89,6 +89,17 @@
                         </FontString>
                     </Layer>
                 </Layers>
+                <Animations>
+                    <!-- animation to flash the injured/dead red texture when shown -->
+                    <AnimationGroup parentKey="InjuredFlash" looping="NONE">
+                        <Alpha childKey="Status" fromAlpha="1" toAlpha="0.5" duration="0.25" order="1"/>
+                        <Alpha childKey="Status" fromAlpha="0.5" toAlpha="1" duration="0.25" order="2"/>
+                        <Alpha childKey="Status" fromAlpha="1" toAlpha="0.5" duration="0.25" order="3"/>
+                        <Alpha childKey="Status" fromAlpha="0.5" toAlpha="1" duration="0.25" order="4"/>
+                        <Alpha childKey="Status" fromAlpha="1" toAlpha="0.5" duration="0.25" order="5"/>
+                        <Alpha childKey="Status" fromAlpha="0.5" toAlpha="1" duration="0.25" order="6"/>
+                    </AnimationGroup>
+                </Animations>
                 <Scripts>
                     <OnEnter>
                         self:GetParent():GetParent().PetOnEnter(self)
@@ -374,8 +385,8 @@
                 </FontString>
             </Layer>
         </Layers>
-        <!-- animation for the glowing of the yellow highlight around a pet icon while a pet is on the cursor -->
         <Animations>
+            <!-- animation for the glowing of the yellow highlight around a pet icon while a pet is on the cursor -->
             <AnimationGroup parentKey="Animation" looping="BOUNCE">
                 <Alpha childKey="Glow" fromAlpha="0.25" toAlpha="1" duration="0.9" order="1"/>
                 <Alpha childKey="Glow" fromAlpha="1" toAlpha="0.25" duration="0.9" order="2"/>

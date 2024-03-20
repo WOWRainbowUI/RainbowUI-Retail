@@ -1,3 +1,15 @@
+03/19/2024 version 5.1.4
+- Added option 'Even If Team Already Loaded' under Interact Options -> Always Interact to always interact with a target even if the team is already loaded
+- Dragging an item or spell off the toolbar (Revive Battle Pets, Battle Pet Bandagess, Safari Hat, etc.) will pick up the related item or spell onto the cursor
+- When Interact Options 'Show Window After Loading' -> 'Only When Any Pets Injured' are checked, then the pets' injured/dead indicators will briefly flash when the window is shown
+- Fix for potential lua error when clicking a learned pet's alert popup while filters are enabled
+- Fix for lua error in 10.2.6 patch relating to cooldowns on toolbar items
+- Updated toc for 10.2.6 patch
+
+Notes:
+- Items or spells dragged from the Rematch toolbar will not inherit any extra functionality from the Rematch toolbar, such as not wasting a cooldown/bandage if pets are already healed, or taking off the Safari Hat if it's already on. You are picking up the actual item or spell as defined by Blizzard and not Rematch's implementation of it.
+- If your ActionButtonUseKeyDown cvar is enabled (so action buttons trigger on key down rather than key up), dragging an item or spell off the toolbar will also attempt to use it. This is a consequence of secure button behavior changes by Blizzard.
+
 02/17/2024 version 5.1.3
 - zhTW localization provided by RainbowUI
 - Updated the initialization sequence of events before pets are loaded into Rematch on login/reload

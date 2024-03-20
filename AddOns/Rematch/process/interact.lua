@@ -52,7 +52,7 @@ function rematch.interact:Update()
             foundInteract = true
         end
     end
-    
+
     -- all interacts register for target changes
     if not foundInteract then
         rematch.events:Unregister(self,"REMATCH_TARGET_CHANGED")
@@ -91,7 +91,7 @@ function rematch.interact:ShouldInteract(npcID)
     local currentTeamID = settings.currentTeamID
     if settings.InteractAlways then
         local teams,index = rematch.savedTargets:GetTeams(npcID)
-        if index and teams[index]~=currentTeamID then
+        if index and (settings.InteractAlwaysEvenLoaded or teams[index]~=currentTeamID) then
             return true -- if Interact Always enabled and a different team would load, interact
         end
     end
@@ -119,6 +119,17 @@ function rematch.interact:AfterTeamLoaded()
         end
         if anyInjured or not settings.InteractOnlyWhenInjured then
             rematch.frame:Toggle(true)
+            -- if any pets were injured, flash their status
+            for slot=1,3 do
+                local petInfo = rematch.petInfo:Fetch(rematch.loadouts:GetLoadoutInfo(slot))
+                if petInfo.isInjured then
+                    if rematch.miniLoadoutPanel:IsVisible() then
+                        rematch.miniLoadoutPanel.Loadouts[slot].InjuredFlash:Play()
+                    else
+                        rematch.loadoutPanel.Loadouts[slot].Pet.InjuredFlash:Play()
+                    end
+                end
+            end
         end
     end
     rematch.events:Unregister(self,"REMATCH_TEAM_LOADED")

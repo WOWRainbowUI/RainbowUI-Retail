@@ -74,6 +74,7 @@ local defaults = {
     InteractOnSoftInteract = C.INTERACT_NONE, -- On Soft Target (dropdown)
     InteractOnMouseover = C.INTERACT_NONE, -- On Mouseover (dropdown)
     InteractAlways = false, -- Always Interact
+    InteractAlwaysEvenLoaded = false, -- Even If Team Loaded (suboption of Always Interact)
     InteractPreferUninjured = false, -- Prefer Uninjured Teams
     InteractShowAfterLoad = false, -- Show Window After Loading
     InteractOnlyWhenInjured = false, -- Only When Any Pets Injured
@@ -115,7 +116,7 @@ local defaults = {
     HideTargetBadges = false, -- Hide Target Badges
     HidePreferenceBadges = false, -- Hide Preference Badges
     HideNotesBadges = false, -- HideNotesBadges
-   
+
     -- Behavior Options
     CardBehavior = C.MOUSE_SPEED_NORMAL, -- Card Speed (dropdown)
     TooltipBehavior = C.MOUSE_SPEED_NORMAL, -- Tooltip Speed (dropdown)

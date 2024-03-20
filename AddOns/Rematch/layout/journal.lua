@@ -73,7 +73,8 @@ function rematch.journal:ADDON_LOADED(addon)
                 -- if any filters/search happening, clear them
                 if not rematch.filters:IsAllClear() or not rematch.filters:IsClear("Search") then
                     rematch.filters:ClearAll()
-                    local exactSearch = '"'..rematch.petInfo:Fetch(petID).speciesName..'"'
+                    local speciesName = rematch.petInfo:Fetch(petID).speciesName
+                    local exactSearch = speciesName and '"'..speciesName..'"' or ""
                     rematch.filters:SetSearch(exactSearch)
                     rematch.petsPanel.Top.SearchBox:SetText(exactSearch)
                     rematch.petsPanel:Update()
