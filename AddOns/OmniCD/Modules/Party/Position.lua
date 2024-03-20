@@ -64,7 +64,7 @@ function P:FindRelativeFrame(guid)
 			end
 			return
 		end
-		for addon, data in pairs(E.customUF.enabledList) do
+		for _, data in pairs(E.customUF.enabledList) do
 			local frames, unitKey = data.frames, data.unit
 			local n = #frames
 			for i = 1, n do

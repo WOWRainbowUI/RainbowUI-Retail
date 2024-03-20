@@ -1,6 +1,5 @@
 local AceGUI = LibStub("AceGUI-3.0")
 
-local math_max = math.max
 local xpcall = xpcall
 
 local function errorhandler(err)
@@ -11,13 +10,6 @@ local function safecall(func, ...)
 	if func then
 		return xpcall(func, errorhandler, ...)
 	end
-end
-
-local layoutrecursionblock = nil
-local function safelayoutcall(object, func, ...)
-	layoutrecursionblock = true
-	object[func](object, ...)
-	layoutrecursionblock = nil
 end
 
 AceGUI:RegisterLayout("Flow-Nowrap-OmniCD", -- multiselect items

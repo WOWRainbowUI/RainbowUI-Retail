@@ -111,7 +111,7 @@ local noCfgZone = {
 	}
 }
 
-for key, name in pairs(E.L_CFG_ZONE) do
+for key in pairs(E.L_CFG_ZONE) do
 	P.options.args[key] = cfgZone
 end
 P.options.args.none = noCfgZone

@@ -4,6 +4,12 @@ L = L or {}
 L[ [=[%d: spellID.
 %d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: 주문ID.
 %d-%d: 주문ID-특성ID (특성 선택시에만 표기).]=]
+--[[Translation missing --]]
+L[ [=[%d: spellID.
+%d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: spellID.
+%d-%d: spellID-talentID (Mark spell if talent is selected).]=]
+--[[Translation missing --]]
+L["[Show Numbers for Cooldowns] must be disabled in Blizzard's 'Options/Action Bars' menu."] = "[Show Numbers for Cooldowns] must be disabled in Blizzard's 'Options/Action Bars' menu."
 L["[Show Numbers for Cooldowns] must be enabled in Blizzard's 'Options/Action Bars' menu when using Blizzard's cooldown numbers."] = "블리자드의 재사용 대기시간 숫자를 사용할 경우 '게임 메뉴/설정/행동 단축바/재사용 대기시간 숫자 보이기'를 활성화해야 합니다."
 L["|cff9d9d9d * Scenarios and Outdoor Zones will use Arena settings."] = "|cff9d9d9d * 시나리오와 야외에서는 투기장 설정을 사용."
 L["|cffff2020Friendly CD module must be enabled for the corresponding instance zone."] = "|cffff2020아군 쿨기 모듈이 해당 인스턴스 영역에 활성화 되어 있어야 합니다."
@@ -24,6 +30,10 @@ L["Addons with raid frame scaling will also cause the icons to scale."] = "레�
 L[ [=[Adjust value until the truncate symbol [...] disappears.
 |cffff20200: Disable option]=] ] = [=[생략 부호 [...]가 사라질 때까지 설정 값을 조정하십시오.
 |cffff20200: 옵션 비활성화]=]
+--[[Translation missing --]]
+L[ [=[Adjust value until the truncate symbol [...] disappears.
+|cffff20200: Disable option]=] ] = [=[Adjust value until the truncate symbol [...] disappears.
+|cffff20200: Disable option]=]
 L["Alerts"] = "경보"
 L["All user set values will be lost. Do you want to proceed?"] = "모든 사용자 설정이 삭제됩니다. 진행 하시겠습니까?"
 L["Always attach to Blizzard frames. By default, bars attach to whichever frame is visible, and if both are visible UF addon take precedence over Blizzard"] = "항상 블리자드 프레임에 부착. (기본 설정에서 주문 바는 보이는 프레임에 자동 부착 되며, 둘 다 표시되는 경우 UF 애드온이 블리자드보다 우선합니다)"
@@ -39,6 +49,8 @@ L["Ascending"] = "오름차순"
 L["Assign Raid Cooldowns."] = "공대 생존기 지정"
 L["Attach Name Bar to the left of icon"] = "네임 바를 아이콘 왼쪽으로"
 L["Attach to Blizzard Frames"] = "블리자드 프레임에 부착"
+--[[Translation missing --]]
+L["Attach to Raid Frame"] = "Attach to Raid Frame"
 L["Attachment Point"] = "부착점"
 L["Author"] = "제작자"
 L["Auto"] = "자동"
@@ -76,9 +88,13 @@ L["Column"] = "열"
 L["Column Padding"] = "열 간격"
 L["Commands:"] = "명령어:"
 L["Convert the status bar timer to a simple name display by disabling all timer functions. The 'Name' color scheme will be retained."] = "진행 바 타이머를 네임 바로 전환. '이름' 색상 설정은 유지 됩니다."
+--[[Translation missing --]]
+L["Convert to additional CD bars that attach to each unit's raid frame."] = "Convert to additional CD bars that attach to each unit's raid frame."
 L["Convert to Name Bar"] = "네임 바로 전환"
 L["Cooldown"] = "재사용 대기시간"
 L["Cooldown Remaining"] = "남은 재사용 대기시간"
+--[[Translation missing --]]
+L["Cooldown Timer"] = "Cooldown Timer"
 L["Copy"] = "복사"
 L["Copy Default"] = "기본값 복사"
 L["Copy selected zone settings to the current zone"] = "선택한 영역의 설정을 현 영역 설정에 복사"
@@ -149,11 +165,13 @@ L["Font Outline"] = "글자 윤곽선"
 L["Font Shadow"] = "글자 그림자"
 L["Fonts"] = "폰트"
 L["For double/triple layout, it will limit the number of icons per line"] = "두줄/세줄 배열의 경우 라인당 아이콘 수가 제한됩니다"
+--[[Translation missing --]]
+L["Force Disable"] = "Force Disable"
 L["Glow Icons"] = "아이콘 활성 효과"
 L["Group member must have OmniCD to detect cooldown reduction by Glyphs."] = "문양에 의한 재사용 대기시간 감소는 파티원도 OmniCD를 사용하는 경우에만 감지됩니다."
 L["Group member must have OmniCD to detect cooldown reduction with a chance to proc and Soulbind Conduits."] = "확율과 도관에 의한 재사용 대기시간 감소는 파티원도 OmniCD를 사용하는 경우에만 감지됩니다."
 L["Group member must have OmniCD to detect cooldown reduction with a chance to proc."] = "확율에 의한 재사용 대기시간 감소는 파티원도 OmniCD를 사용하는 경우에만 감지됩니다."
-L["Group member must have OmniCD to detect Talents."] = "Group member must have OmniCD to detect Talents."
+L["Group member must have OmniCD to detect Talents."] = true
 L["Group Padding"] = "그룹간 여백"
 L["Group Size"] = "파티 크기"
 L["Group Type"] = "파티 종류"
@@ -177,6 +195,8 @@ L["Horizontal + CD Groups"] = "수평 + CD 그룹"
 L["Hotfix"] = "핫픽스"
 L["Icon"] = "아이콘"
 L["Icon Alignment"] = "아이콘 정렬"
+--[[Translation missing --]]
+L["Icon ID (Optional)"] = "Icon ID (Optional)"
 L["Icon Opacity"] = "아이콘 불투명도"
 L["Icon Position"] = "아이콘 위치"
 L["Icon Scale Changed."] = "아이콘 크기가 변경 되었습니다."
@@ -236,11 +256,15 @@ L["Notify Updates"] = "업데이트 알림"
 L["Offensive"] = "공격"
 L["Offset X"] = "오프셋 X"
 L["Offset Y"] = "오프셋 Y"
+--[[Translation missing --]]
+L[ [=[Only for talent abilities.
+Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=] ] = [=[Only for talent abilities.
+Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=]
 L["Padding"] = "여백"
 L["Padding X"] = "여백 X"
 L["Padding Y"] = "여백 Y"
 L["Pending user input..."] = "사용자 입력 대기 중..."
-L["Pixel Perfect"] = "Pixel Perfect"
+L["Pixel Perfect"] = true
 L["Pixel Perfect ON."] = "Pixel Perfect 켜짐."
 L["Player Frame in Party"] = "파티 내 플레이어 프레임"
 L["Plugins"] = "플러그인"
@@ -296,7 +320,7 @@ L["Select the icon layout"] = "아이콘 배열 선택"
 L["Select the spell types you want to display on this column."] = "이 그룹에 표시할 주문 유형 선택."
 L["Select the spells you want to move from the 'Raid CD' tab. The spell must be enabled from the 'Spells' tab first."] = "추가 바로 이동하려는 주문을 '공대 주문' 탭에서 선택하십시오. 먼저 '주문' 탭에서 주문을 활성화해야 합니다."
 L["Select the spells you want to show on Raid Bar 1-8 instead of the default Unit Bar"] = "기본 바 대신 추가 바 1-8에 표시할 주문을 선택하십시오"
-L["Select the spells you want to track."] = "Select the spells you want to track."
+L["Select the spells you want to track."] = true
 L["Select the zone setting to use for this zone."] = "이 영역에 사용할 영역 설정을 선택."
 L["Select the zone you want to copy settings from."] = "복사할 영역 설정을 선택"
 L["Select your default party frame layout"] = "기본 파티 프레임의 배열 방향 선택"
@@ -393,6 +417,8 @@ L["Use a semi-colon(;) to seperate multiple IDs."] = "여러 주문을 입력시
 L["Use Default"] = "기본 배열 사용"
 L["Use Double Column"] = "두줄 수직배열"
 L["Use Double Row"] = "두줄 수평배열"
+--[[Translation missing --]]
+L["Use ElvUI Timer"] = "Use ElvUI Timer"
 L["Use Icon Alpha"] = "아이콘 투명도 사용"
 L["Use Relative Size"] = "상대적 크기 사용"
 L["Use this setting for all group sizes"] = "이 설정을 모든 그룹 크기에 적용"

@@ -19,7 +19,7 @@
 InlineGroup Container
 Simple container widget that creates a visible "box" with an optional title.
 -------------------------------------------------------------------------------]]
-local Type, Version = "InlineGroupList-OmniCD", 25
+local Type, Version = "InlineGroupList-OmniCD", 26
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 local OmniCDC = LibStub("OmniCDC", true)
@@ -72,6 +72,10 @@ local function OptionOnMouseOver(title) -- frame = title frame
 		local linktype = desc:match(".*|H(%a+):.+|h.+|h.*");
 		if ( linktype ) then
 			tooltip:SetHyperlink(desc);
+			local spellID = strmatch(desc, "spell:(%d+):")
+			if spellID then
+				tooltip:AddLine("\nID: " .. spellID, 1, 1, 1, true)
+			end
 		else
 			local frame = title:GetParent()
 			local name = frame.obj.titletext:GetText();

@@ -210,7 +210,7 @@ end
 
 
 if AuraUtil and AuraUtil.ForEachAura then
-	P.GetBuffDuration = function(P, unit, spellID)
+	P.GetBuffDuration = function(_, unit, spellID)
 		local remainingTime, sourceUnit
 		AuraUtil.ForEachAura(unit, "HELPFUL", nil, function(_,_,_,_, duration, expTime, source, _,_, id)
 			if id == spellID then
@@ -222,7 +222,7 @@ if AuraUtil and AuraUtil.ForEachAura then
 		return remainingTime, sourceUnit
 	end
 
-	P.IsDebuffActive = function(P, unit, spellID)
+	P.IsDebuffActive = function(_, unit, spellID)
 		local isActive
 		AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(_,_,_,_,_,_,_,_,_, id)
 			if id == spellID then
@@ -233,7 +233,7 @@ if AuraUtil and AuraUtil.ForEachAura then
 		return isActive
 	end
 
-	P.GetDebuffDuration = function(P, unit, spellID)
+	P.GetDebuffDuration = function(_, unit, spellID)
 		local remainingTime
 		AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(_,_,_,_, duration, expTime, _,_,_, id)
 			if id == spellID then
@@ -247,7 +247,7 @@ else
 	local UnitBuff = UnitBuff
 	local UnitDebuff = UnitDebuff
 
-	P.GetBuffDuration = E.isClassic and function(P, unit, spellID)
+	P.GetBuffDuration = E.isClassic and function(_, unit, spellID)
 		for i = 1, 50 do
 			local _,_,_,_,_,_,_,_,_, id = UnitBuff(unit, i)
 			if not id then return end
@@ -256,7 +256,7 @@ else
 				return true
 			end
 		end
-	end or function(P, unit, spellID)
+	end or function(_, unit, spellID)
 		for i = 1, 50 do
 			local _,_,_,_, duration, expTime, source, _,_, id = UnitBuff(unit, i)
 			if not id then return end
@@ -266,7 +266,7 @@ else
 		end
 	end
 
-	P.IsDebuffActive = function(P, unit, spellID)
+	P.IsDebuffActive = function(_, unit, spellID)
 		for i = 1, 50 do
 			local _,_,_,_,_,_,_,_,_, id = UnitDebuff(unit, i)
 			if not id then return end
@@ -276,7 +276,7 @@ else
 		end
 	end
 
-	P.GetDebuffDuration = function(P, unit, spellID)
+	P.GetDebuffDuration = function(_, unit, spellID)
 		for i = 1, 50 do
 			local _,_,_,_, duration, expTime,_,_,_, id = UnitDebuff(unit, i)
 			if not id then return end

@@ -671,6 +671,9 @@ E.spellcast_cdr = {
 		{ 390996, { .5, 1 }, 375901 },
 		{ 390994, { 2, 4 }, 88625 },
 	},
+	[132157] = {
+		{ 390994, { 2, 4 }, 88625 },
+	},
 	[139] = { nil, 2, 34861 },
 	[596] = {
 		{ nil, 6, 34861 },
@@ -681,10 +684,12 @@ E.spellcast_cdr = {
 
 	},
 	[2061] = { nil, 6, 2050 },
-	[2050] = { nil, 15, 265202 },
-	[34861] = { nil, 15, 265202 },
+	[2050] = { nil, nil, {[265202]=15, [372835]=3} },
+	[34861] = { nil, nil, {[265202]=15, [372835]=3} },
 	[204883] = { 390994, { 2, 4 }, 34861 },
 	[33076] = { 390994, { 2, 4 }, 2050 },
+
+	[88625] = { nil, 15, 88625, nil, "hasDivineWord" },
 
 	[1856] = { 382523, { 15, 30 } },
 
@@ -1195,16 +1200,14 @@ E.item_equip_bonus = E.BLANK
 
 local class_set_bonus = {
 
-	--[[
-	DRUID = {
+	DRUID100 = {
 		[105] = { 393641, 4 },
 	},
 
 
-	HUNTER = {
+	HUNTER100 = {
 		[253] = { 393646, 2 },
 	},
-	]]
 
 	WARRIOR101 = {
 		[73] = { 405581, 2 },
@@ -1248,18 +1251,17 @@ local class_set_bonus = {
 }
 
 E.item_set_bonus = {
-	--[[ 10.0
-	[200354] = class_set_bonus.DRUID,
-	[200356] = class_set_bonus.DRUID,
-	[200351] = class_set_bonus.DRUID,
-	[200353] = class_set_bonus.DRUID,
-	[200355] = class_set_bonus.DRUID,
-	[200390] = class_set_bonus.HUNTER,
-	[200392] = class_set_bonus.HUNTER,
-	[200387] = class_set_bonus.HUNTER,
-	[200389] = class_set_bonus.HUNTER,
-	[200391] = class_set_bonus.HUNTER,
-	]]
+
+	[200354] = class_set_bonus.DRUID100,
+	[200356] = class_set_bonus.DRUID100,
+	[200351] = class_set_bonus.DRUID100,
+	[200353] = class_set_bonus.DRUID100,
+	[200355] = class_set_bonus.DRUID100,
+	[200390] = class_set_bonus.HUNTER100,
+	[200392] = class_set_bonus.HUNTER100,
+	[200387] = class_set_bonus.HUNTER100,
+	[200389] = class_set_bonus.HUNTER100,
+	[200391] = class_set_bonus.HUNTER100,
 
 	[202443] = class_set_bonus.WARRIOR101,
 	[202441] = class_set_bonus.WARRIOR101,

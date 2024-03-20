@@ -1,4 +1,4 @@
-local E, L, C = select(2, ...):unpack()
+local E, L = select(2, ...):unpack()
 
 local DB_VERSION = 3
 
@@ -31,8 +31,7 @@ local function OmniCD_OnEvent(self, event, ...)
 			if type(func) == "function" and module.isInTestMode then
 				func(module)
 			end
-
-			local func = module.HideAllBars
+			func = module.HideAllBars
 			if type(func) == "function" then
 				func(module)
 			end

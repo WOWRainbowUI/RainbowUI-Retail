@@ -36,9 +36,9 @@ Support functions
 
 -- START DF
 local function PanelTemplates_TabResize(tab, padding, absoluteSize, minWidth, maxWidth, absoluteTextSize)
+	--[[ s r
 	local tabName = tab:GetName();
 
-	--[[ s r
 	local buttonMiddle = tab.Middle or tab.middleTexture or _G[tabName.."Middle"];
 	local buttonMiddleDisabled = tab.MiddleDisabled or (tabName and _G[tabName.."MiddleDisabled"]);
 	local left = tab.Left or tab.leftTexture or _G[tabName.."Left"];
@@ -170,8 +170,8 @@ local function PanelTemplates_SelectTab(tab)
 end
 
 local function PanelTemplates_SetDisabledTabState(tab)
-	local name = tab:GetName();
 	--[[ s -r
+	local name = tab:GetName();
 	local left = tab.Left or _G[name.."Left"];
 	local middle = tab.Middle or _G[name.."Middle"];
 	local right = tab.Right or _G[name.."Right"];

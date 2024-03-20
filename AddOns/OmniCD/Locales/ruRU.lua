@@ -3,6 +3,12 @@ local L = LibStub("AceLocale-3.0"):NewLocale("OmniCD", "ruRU")
 L = L or {}
 L[ [=[%d: spellID.
 %d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = "%d: ID способности. %d-%d: ID способности - ID таланта (помечает способность, если выбран талант)."
+--[[Translation missing --]]
+L[ [=[%d: spellID.
+%d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: spellID.
+%d-%d: spellID-talentID (Mark spell if talent is selected).]=]
+--[[Translation missing --]]
+L["[Show Numbers for Cooldowns] must be disabled in Blizzard's 'Options/Action Bars' menu."] = "[Show Numbers for Cooldowns] must be disabled in Blizzard's 'Options/Action Bars' menu."
 L["[Show Numbers for Cooldowns] must be enabled in Blizzard's 'Options/Action Bars' menu when using Blizzard's cooldown numbers."] = "Необходимо включить [Показывать Обратный Отчет для Способностей] в меню 'Настройки/Панели команд' если Вы используете обратный отчет Blizzard для иконок способностей."
 L["|cff9d9d9d * Scenarios and Outdoor Zones will use Arena settings."] = "|cff9d9d9d * Сценарии и зоны мира будут использовать настройки 'Арены'."
 L["|cffff2020Friendly CD module must be enabled for the corresponding instance zone."] = "|cffff2020Модуль перезарядки союзников должен быть включен в соответсвующей зоне."
@@ -22,6 +28,10 @@ L["Add to Alerts"] = "Добавить к оповещениям"
 L["Addons with raid frame scaling will also cause the icons to scale."] = "Аддоны, изменяющие размеры панелей рейда также изменят размер иконок."
 L[ [=[Adjust value until the truncate symbol [...] disappears.
 |cffff20200: Disable option]=] ] = "Изменяйте значение пока символ укорачивания [...] не пропадет. |cffff20200: Выключить опцию"
+--[[Translation missing --]]
+L[ [=[Adjust value until the truncate symbol [...] disappears.
+|cffff20200: Disable option]=] ] = [=[Adjust value until the truncate symbol [...] disappears.
+|cffff20200: Disable option]=]
 L["Alerts"] = "Оповещения"
 L["All user set values will be lost. Do you want to proceed?"] = "Все настройки будут сброшены. Вы хотите продолжить?"
 L["Always attach to Blizzard frames. By default, bars attach to whichever frame is visible, and if both are visible UF addon take precedence over Blizzard"] = "Всегда прикрепляться к фреймам Blizzard. По умолчанию иконки прикрепляются к видимому фрейму, и если оба видимы, то прикрепляется к аддону для юнитфреймов"
@@ -37,6 +47,8 @@ L["Ascending"] = "По возрастанию"
 L["Assign Raid Cooldowns."] = "Задать Рейд-способности."
 L["Attach Name Bar to the left of icon"] = "Прикрепить Полосу Имени с левой стороны иконки"
 L["Attach to Blizzard Frames"] = "Прикрепить к фреймам Blizzard"
+--[[Translation missing --]]
+L["Attach to Raid Frame"] = "Attach to Raid Frame"
 L["Attachment Point"] = "Точка соединения"
 L["Author"] = "Автор"
 L["Auto"] = "Автоматически"
@@ -74,9 +86,13 @@ L["Column"] = "Колонки"
 L["Column Padding"] = "Промежуток между колонками"
 L["Commands:"] = "Команды: "
 L["Convert the status bar timer to a simple name display by disabling all timer functions. The 'Name' color scheme will be retained."] = "Преобразует полосу статуса с таймером в простое имя и выключает всю функциональность таймера. Будет использоваться цветовая схема 'Имя'."
+--[[Translation missing --]]
+L["Convert to additional CD bars that attach to each unit's raid frame."] = "Convert to additional CD bars that attach to each unit's raid frame."
 L["Convert to Name Bar"] = "Преобразовать в именную полосу"
 L["Cooldown"] = "Перезарядка"
 L["Cooldown Remaining"] = "Времени перезарядки осталось"
+--[[Translation missing --]]
+L["Cooldown Timer"] = "Cooldown Timer"
 L["Copy"] = "Скопировать"
 L["Copy Default"] = "Скопировать по умолчанию"
 L["Copy selected zone settings to the current zone"] = "Скопировать выбранные настройки зоны в текущую зону"
@@ -147,6 +163,8 @@ L["Font Outline"] = "Окантовка шрифта"
 L["Font Shadow"] = "Тень шрифта"
 L["Fonts"] = "Шрифты"
 L["For double/triple layout, it will limit the number of icons per line"] = "Для расположения иконок, использующих двойной/тройной ряд/столбец, ограничит количество иконок в ряду"
+--[[Translation missing --]]
+L["Force Disable"] = "Force Disable"
 L["Glow Icons"] = "Подсвечивать иконки"
 L["Group member must have OmniCD to detect cooldown reduction by Glyphs."] = "У члена группы должен быть OmniCD, чтобы обнаружить уменьшение времени восстановления с помощью символов."
 L["Group member must have OmniCD to detect cooldown reduction with a chance to proc and Soulbind Conduits."] = "У члена группы должен быть OmniCD, чтобы обнаружить сокращение времени восстановления с шансом срабатывания и связывания душ."
@@ -175,6 +193,8 @@ L["Horizontal + CD Groups"] = "Горизонтально с КД-Группам
 L["Hotfix"] = "Хотфикс"
 L["Icon"] = "Иконка"
 L["Icon Alignment"] = "Расположение иконки"
+--[[Translation missing --]]
+L["Icon ID (Optional)"] = "Icon ID (Optional)"
 L["Icon Opacity"] = "Прозрачность иконки"
 L["Icon Position"] = "Позиция иконки"
 L["Icon Scale Changed."] = "Размер иконки был изменен."
@@ -234,11 +254,15 @@ L["Notify Updates"] = "Оповещать об обновлениях"
 L["Offensive"] = "Атакующие"
 L["Offset X"] = "Сдвиг по X"
 L["Offset Y"] = "Сдвиг по Y"
+--[[Translation missing --]]
+L[ [=[Only for talent abilities.
+Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=] ] = [=[Only for talent abilities.
+Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=]
 L["Padding"] = "Промежуток"
 L["Padding X"] = "Промежуток по X"
 L["Padding Y"] = "Промежуток по Y"
 L["Pending user input..."] = "Ожидается ввод от пользователя..."
-L["Pixel Perfect"] = "Pixel Perfect"
+L["Pixel Perfect"] = true
 L["Pixel Perfect ON."] = "Pixel Perfect ВКЛЮЧЕН."
 L["Player Frame in Party"] = "Фрейм игрока в группе"
 L["Plugins"] = "Плагины"
@@ -391,6 +415,8 @@ L["Use a semi-colon(;) to seperate multiple IDs."] = "Используйте о�
 L["Use Default"] = "Использовать по умолчанию"
 L["Use Double Column"] = "Двойная колонка"
 L["Use Double Row"] = "Двойная строка"
+--[[Translation missing --]]
+L["Use ElvUI Timer"] = "Use ElvUI Timer"
 L["Use Icon Alpha"] = "Использовать прозрачность иконок"
 L["Use Relative Size"] = "Использовать относительный размер"
 L["Use this setting for all group sizes"] = "Использовать эту настройку для групп любых размеров"

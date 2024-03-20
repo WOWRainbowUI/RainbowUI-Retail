@@ -76,7 +76,7 @@ function E:SetFontProperties(fontString, db)
 	fontString:SetShadowOffset(ofsX, -ofsX)
 	fontString:SetShadowColor(db.r, db.g, db.b, ofsX == 0 and 0 or 1)
 
-	flag = (E.isDF or E.isWOTLKC341 or E.isClassic1144) and flagFixForDF[flag] or flag
+	flag = (self.isDF or self.isWOTLKC341 or self.isClassic1144) and flagFixForDF[flag] or flag
 	fontString:SetFont(LSM:Fetch("font", db.font), db.size, flag)
 end
 
@@ -229,8 +229,8 @@ local General = {
 							name = L["Use ElvUI Timer"],
 							desc = L["[Show Numbers for Cooldowns] must be disabled in Blizzard's \'Options/Action Bars\' menu."],
 							type = "toggle",
-							get = function(info) return E.profile.General.cooldownText.useElvUICooldownTimer end,
-							set = function(info, value)
+							get = function() return E.profile.General.cooldownText.useElvUICooldownTimer end,
+							set = function(_, value)
 								E.profile.General.cooldownText.useElvUICooldownTimer = value
 								E.Libs.OmniCDC.StaticPopup_Show("OMNICD_RELOADUI", E.STR.RELOAD_UI)
 							end,

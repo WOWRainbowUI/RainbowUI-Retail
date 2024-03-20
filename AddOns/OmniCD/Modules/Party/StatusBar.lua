@@ -9,7 +9,7 @@ local unusedStatusBars = {}
 local numStatusBars = 0
 
 local CASTING_BAR_ALPHA_STEP = 0.05;
-local CASTING_BAR_FLASH_STEP = 0.2;
+
 local CASTING_BAR_HOLD_TIME = 1;
 local SECONDS_PER_MIN = 60
 

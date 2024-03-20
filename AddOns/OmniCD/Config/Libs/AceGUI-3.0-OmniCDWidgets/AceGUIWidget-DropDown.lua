@@ -24,7 +24,7 @@ local select, pairs, ipairs, type, tostring = select, pairs, ipairs, type, tostr
 local tsort = table.sort
 
 -- WoW APIs
-local PlaySound = PlaySound
+--local PlaySound = PlaySound -- s r
 local UIParent, CreateFrame = UIParent, CreateFrame
 local _G = _G
 

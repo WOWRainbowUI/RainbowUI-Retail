@@ -7,23 +7,6 @@ local LibDeflate = LibStub("LibDeflate")
 local ACD_Tooltip = E.Libs.ACD.tooltip
 local Dialog
 
-local function Button_OnLeave(self)
-	local fadeIn = self.fadeIn
-	if fadeIn:IsPlaying() then
-		fadeIn:Stop()
-	end
-	self.fadeOut:Play()
-end
-
-local function Button_OnEnter(self)
-	PlaySound(1217)
-	local fadeOut = self.fadeOut
-	if fadeOut:IsPlaying() then
-		fadeOut:Stop()
-	end
-	self.fadeIn:Play()
-end
-
 local function Move_OnMouseDown(self, button)
 	if button == "LeftButton" and not self.isMoving then
 		self:StartMoving()
