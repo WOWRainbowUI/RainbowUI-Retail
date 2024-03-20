@@ -541,6 +541,14 @@ GTFO.SpellID["430267"] = {
   sound = 1;
 };
 
+GTFO.SpellID["414235"] = {
+  --desc = "Ashen Dreams";
+  minimumStacks = 1;
+  sound = 2;
+};
+
+
+
 --- *******************
 --- * Ruby Life Pools *
 --- *******************

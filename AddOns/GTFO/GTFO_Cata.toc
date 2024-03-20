@@ -1,4 +1,4 @@
-## Interface: 30403
+## Interface: 40400
 ## X-Min-Interface: 100206
 ## X-Min-Interface-Classic: 11501
 ## X-Min-Interface-BCC: 20504

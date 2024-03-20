@@ -1210,6 +1210,33 @@ GTFO.SpellID["430218"] = {
   sound = 3;
 };
 
+GTFO.SpellID["396887"] = {
+  --desc = "Flames (Dragonriding Races)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["431065"] = {
+  --desc = "Shadowflame Vomit (Doomshadow)";
+  sound = 3;
+};
+
+GTFO.SpellID["414239"] = {
+  --desc = "Ashen Dreams";
+  sound = 3;
+};
+
+GTFO.SpellID["414171"] = {
+  --desc = "Incarnate's Wrath (Fyrakk)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["414167"] = {
+  --desc = "Incarnate's Wrath (Vyranoth)";
+  applicationOnly = true;
+  sound = 3;
+};
 
 
 --- *******************

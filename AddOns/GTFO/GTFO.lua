@@ -26,12 +26,13 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.6.2"; -- Version number (text format)
+	Version = "5.7"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 50602; -- Numeric version number for checking out-of-date clients (retail)
-	ClassicVersionNumber = 50602; -- Numeric version number for checking out-of-date clients (Vanilla classic)
+	RetailVersionNumber = 50700; -- Numeric version number for checking out-of-date clients (retail)
+	ClassicVersionNumber = 50700; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
+	CataclysmVersionNumber = 50700; -- Numeric version number for checking out-of-date clients (Wrath classic)
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking
@@ -78,6 +79,7 @@ GTFO = {
 	ClassicMode = nil; -- WoW Classic client detection
 	BurningCrusadeMode = nil; -- WoW TBC client detection
 	WrathMode = nil; -- WoW Wrath client detection
+	CataclysmMode = nil; -- WoW Cataclysm client detection
 	NewSettingsUIMode = nil; -- New WoW UI Settings system
 	SoundChannels = { 
 		{ Code = "Master", Name = _G.MASTER_VOLUME },
@@ -113,6 +115,10 @@ elseif (buildNumber <= 30000) then
 elseif (buildNumber <= 40000) then
 	GTFO.WrathMode = true;
 	GTFO.VersionNumber = GTFO.WrathVersionNumber;
+	GTFO.NewSettingsUIMode = true;
+elseif (buildNumber <= 50000) then
+	GTFO.CataclysmMode = true;
+	GTFO.VersionNumber = GTFO.CataclysmVersionNumber;
 	GTFO.NewSettingsUIMode = true;
 else
 	GTFO.RetailMode = true;
