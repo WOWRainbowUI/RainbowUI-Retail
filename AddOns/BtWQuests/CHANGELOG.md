@@ -1,3 +1,7 @@
+# v2.36.0
+
+- Updated for 10.2.6
+
 # v2.35.0
 
 - Added A Dream of Fields and Fire quest line
