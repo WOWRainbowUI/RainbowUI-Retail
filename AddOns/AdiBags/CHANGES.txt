@@ -1,10 +1,10 @@
-lightweight tag 78b5a5b30ad3a91007417c936c6491d9c2348894 v1.10.24
+lightweight tag 8d85fa2af063a4b8d3cd2062be82272c4d78b9c7 v1.10.25
 Author:	Antonio Lobato <aj.lobato@gmail.com>
-Date:	Sun Feb 18 21:29:34 2024 -0800
+Date:	Tue Mar 19 15:44:35 2024 -0700
 
-commit 78b5a5b30ad3a91007417c936c6491d9c2348894
+commit 8d85fa2af063a4b8d3cd2062be82272c4d78b9c7
 Author: Antonio Lobato <aj.lobato@gmail.com>
-Date:   Sun Feb 18 21:29:34 2024 -0800
+Date:   Tue Mar 19 15:44:35 2024 -0700
 
-    Added deprecation warning to all versions of the game.
+    Fixed a bug with 10.2.6 startup
 
