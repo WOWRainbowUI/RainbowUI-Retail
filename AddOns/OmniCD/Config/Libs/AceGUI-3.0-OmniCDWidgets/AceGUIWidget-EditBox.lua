@@ -23,7 +23,7 @@ local tostring, pairs = tostring, pairs
 local PlaySound = PlaySound
 local GetCursorInfo, ClearCursor, GetSpellInfo = GetCursorInfo, ClearCursor, GetSpellInfo
 local CreateFrame, UIParent = CreateFrame, UIParent
-local _G = _G
+--local _G = _G -- s r
 
 --[[-----------------------------------------------------------------------------
 Support functions

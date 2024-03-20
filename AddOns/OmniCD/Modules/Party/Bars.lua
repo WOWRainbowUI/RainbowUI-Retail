@@ -16,7 +16,7 @@ SpellTooltip.updateTooltipTimer = TOOLTIP_UPDATE_TIME
 
 local FEIGN_DEATH = 5384
 local TOUCH_OF_KARMA = 125174
-local DEBUFF_HEARTSTOP_AURA = 214975
+
 
 local unitBars = {}
 local unusedBars = {}
@@ -594,7 +594,7 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 
 				local isValidSpell
 				local enabledSpell = self.spell_enabled[spellID]
-				local extraBarKey, extraBarFrame, isUnitBar
+				local extraBarKey, extraBarFrame
 				if type(enabledSpell) == "number" then
 					extraBarKey = "raidBar" .. enabledSpell
 					extraBarFrame = E.db.extraBars[extraBarKey].enabled and self.extraBars[extraBarKey]

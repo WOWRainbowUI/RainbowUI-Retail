@@ -18,11 +18,18 @@ v3.4.3.2773
 
 ]=]
 else E.changelog = [=[
-v10.2.5.2784
-	Dark Arbiter will correctly replace Summon Gargoyle.
-	Searing Glare cd fix.
-	Purification id fix.
-	nil err fix (on entering instance w/ Weyrnstone buff).
+v10.2.6.2786
+	bump toc
+	10.2.6 Class Updates
+		Casting Holy Word: Chastise with Divine Word active now refunds 15 seconds from the cooldown of Holy Word: Chastise.
+		Voice of Harmony now causes Holy Nova to reduce the cooldown of Chastise in addition to Holy Fire.
+		Lightwell cooldown reduced by 3 seconds when you cast Holy Word: Serenity or Holy Word: Sanctify.
+	Talent trees updated
+
+v10.2.5.2785
+	Float Like a Butterfly will correctly reduce Evasion and Feint by 0.5 sec per combo point spent.
+	Hotfixes: March 12, 2024
+		Float Like a Butterfly (talent) effectiveness is now reduced by 50% in PvP combat.
 
 ]=]
 end

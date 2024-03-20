@@ -61,7 +61,7 @@ function P:CreateExtraBarFrames()
 end
 
 function P:UpdateExBarPositionValues()
-	for key, frame in pairs(self.extraBars) do
+	for _, frame in pairs(self.extraBars) do
 		local db = frame.db
 		local isUnitBar = db.unitBar
 		local pixel = (isUnitBar and E.db.general.showRange and self.effectivePixelMult or E.PixelMult) / db.scale

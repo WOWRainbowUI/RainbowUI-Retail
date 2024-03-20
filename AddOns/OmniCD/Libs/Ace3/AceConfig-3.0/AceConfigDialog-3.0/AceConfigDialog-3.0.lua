@@ -17,7 +17,7 @@ local OmniCDC =	 LibStub("OmniCDC")
 --[[ s r
 local MAJOR, MINOR = "AceConfigDialog-3.0", 85
 ]]
-local MAJOR, MINOR = "AceConfigDialog-3.0-OmniCD", 93 -- 82 DF -- 87 backdrop
+local MAJOR, MINOR = "AceConfigDialog-3.0-OmniCD", 94 -- 82 DF -- 87 backdrop
 -- e
 local AceConfigDialog, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
@@ -625,9 +625,10 @@ local function OptionOnMouseOver(widget, event)
 		local linktype = desc:match(".*|H(%a+):.+|h.+|h.*")
 		if linktype then
 			tooltip:SetHyperlink(desc)
-			--local spellID = strmatch(desc, "spell:(%d+):")
-			local spellID = opt.arg -- get it directly vs GetOptionsMemberValue("arg", opt, options, path, appName)
-			if type(spellID) == "number" then
+			--local spellID = opt.arg -- get it directly vs GetOptionsMemberValue("arg", opt, options, path, appName)
+			--if type(spellID) == "number" then
+			local spellID = strmatch(desc, "spell:(%d+):")
+			if spellID then
 				tooltip:AddLine("\nID: " .. spellID, 1, 1, 1, true)
 			end
 		else
@@ -1275,8 +1276,6 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 			else
 				--Control to feed
 				local control
-
-				local name = GetOptionsMemberValue("name", v, options, path, appName)
 
 				if v.type == "execute" then
 
