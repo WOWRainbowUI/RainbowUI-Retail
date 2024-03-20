@@ -119,6 +119,7 @@ LSM:Register("sound", "#|cff00c0ff語音：注意寶珠|r", [[Interface\Addons\S
 LSM:Register("sound", "#|cff00c0ff語音：小怪快打|r", [[Interface\Addons\SharedMedia_BNS\sound\killmob.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：受難出現|r", [[Interface\Addons\SharedMedia_BNS\sound\shounanchuxian.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：虛体出現|r", [[Interface\Addons\SharedMedia_BNS\sound\xutichuxian.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：你被強化|r", [[Interface\Addons\SharedMedia_BNS\sound\你被強化.ogg]])
 LSM:Register("sound", "!|cff00c0ffJoJo冒險野郎1|r", [[Interface\Addons\SharedMedia_BNS\sound\Fists of Fury_1.ogg]]) 
 LSM:Register("sound", "!|cff00c0ffJoJo冒險野郎2|r", [[Interface\Addons\SharedMedia_BNS\sound\Fists of Fury_2.ogg]]) 
 LSM:Register("sound", "!|cff00c0ffJoJo冒險野郎3|r", [[Interface\Addons\SharedMedia_BNS\sound\Fists of Fury_3.ogg]]) 
