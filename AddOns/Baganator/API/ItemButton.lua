@@ -1,7 +1,17 @@
 local iconSettings = {}
 
-local IsEquipment = Baganator.Utilities.IsEquipment
-local HasItemLevel = Baganator.Utilities.HasItemLevel
+local IsEquipment = Syndicator and Syndicator.Utilities.IsEquipment
+
+local function HasItemLevel(details)
+  local classID = select(6, GetItemInfoInstant(details.itemLink))
+  return
+    -- Regular equipment
+    classID == Enum.ItemClass.Armor or classID == Enum.ItemClass.Weapon
+    -- Profession equipment (retail only)
+    or classID == Enum.ItemClass.Profession
+    -- Legion Artifact relics (retail only)
+    or (classID == Enum.ItemClass.Gem and IsArtifactRelicItem and IsArtifactRelicItem(details.itemLink))
+end
 
 local qualityColors = {
   [0] = CreateColor(157/255, 157/255, 157/255), -- Poor
@@ -17,9 +27,9 @@ local qualityColors = {
 
 local expansionIDToText = {
   [0] = "Cla",
-  [1] = "BC",
-  [2] = "W",
-  [3] = "Cata",
+  [1] = "TBC",
+  [2] = "Wra",
+  [3] = "Cat",
   [4] = "MoP",
   [5] = "Dra",
   [6] = "Leg",
@@ -47,7 +57,7 @@ local function textInit(itemButton)
 end
 
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_ITEM_LEVEL, "item_level", function(ItemLevel, details)
-  if HasItemLevel(details.itemLink) and not details.isCosmetic then
+  if HasItemLevel(details) and not (IsCosmeticItem and IsCosmeticItem(details.itemLink)) then
     if not details.itemLevel then
       details.itemLevel = GetDetailedItemLevelInfo(details.itemLink)
     end
@@ -61,6 +71,7 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_ITEM_LEVEL, "item_level", functio
     return true
   end
 end, textInit)
+
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOE, "boe", function(BindingText, details)
   if IsEquipment(details.itemLink) and not details.isBound and (iconSettings.boe_on_common or details.quality > 1) then
       BindingText:SetText(BAGANATOR_L_BOE)
@@ -83,7 +94,7 @@ local function IsBindOnAccount(details)
   end
   if details.tooltipInfo then
     for _, row in ipairs(details.tooltipInfo.lines) do
-      if tIndexOf(Baganator.Constants.AccountBoundTooltipLines, row.leftText) ~= nil then
+      if tIndexOf(Syndicator.Constants.AccountBoundTooltipLines, row.leftText) ~= nil then
         return true
       end
     end
@@ -94,6 +105,39 @@ end
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOA, "boa", function(BindingText, details)
   if IsBindOnAccount(details) then
     BindingText:SetText(BAGANATOR_L_BOA)
+    if iconSettings.useQualityColors then
+      local color = qualityColors[details.quality]
+      BindingText:SetTextColor(color.r, color.g, color.b)
+    else
+      BindingText:SetTextColor(1,1,1)
+    end
+    return true
+  end
+end, textInit)
+
+local function IsBindOnUse(details)
+  if details.isBound then
+    return false
+  end
+  if C_ToyBox and C_ToyBox.GetToyInfo(details.itemID) then
+    return true
+  end
+  if not details.tooltipInfo then
+    details.tooltipInfo = details.tooltipGetter()
+  end
+  if details.tooltipInfo then
+    for _, row in ipairs(details.tooltipInfo.lines) do
+      if row.leftText == ITEM_BIND_ON_USE then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOU, "bou", function(BindingText, details)
+  if IsBindOnUse(details) then
+    BindingText:SetText(BAGANATOR_L_BOU)
     if iconSettings.useQualityColors then
       local color = qualityColors[details.quality]
       BindingText:SetTextColor(color.r, color.g, color.b)
@@ -123,7 +167,7 @@ local function IsTradeableLoot(details)
   return false
 end
 
-Baganator.API.RegisterCornerWidget(BAGANATOR_L_TRADEABLE_LOOT_TL, "tl", function(BindingText, details)
+Baganator.API.RegisterCornerWidget(BAGANATOR_L_TRADEABLE_LOOT, "tl", function(BindingText, details)
   if IsTradeableLoot(details) then
     BindingText:SetText(BAGANATOR_L_TL)
     if iconSettings.useQualityColors then
@@ -155,6 +199,7 @@ end)
 
 if Baganator.Constants.IsRetail then
   Baganator.API.RegisterCornerWidget(BAGANATOR_L_EXPANSION, "expansion", function(Expansion, details)
+    details.expacID = details.expacID or Syndicator.Search.GetExpansion(details)
     local xpacText = expansionIDToText[details.expacID]
     Expansion:SetText(xpacText or "")
     return xpacText ~= nil
@@ -203,3 +248,60 @@ Baganator.Utilities.OnAddonLoaded("CanIMogIt", function()
     return itemButton.CanIMogItOverlay
   end, {corner = "top_right", priority = 1})
 end)
+
+Baganator.Utilities.OnAddonLoaded("BattlePetBreedID", function()
+  if not BPBID_Internal or not BPBID_Internal.CalculateBreedID or not BPBID_Internal.RetrieveBreedName then
+    return
+  end
+
+  Baganator.API.RegisterCornerWidget(BAGANATOR_L_BATTLE_PET_BREEDID, "battle_pet_breed_id", function(Breed, details)
+    if not details.itemLink:find("battlepet", nil, true) then
+      return false
+    end
+    local speciesID, level, rarity, maxHealth, power, speed = BattlePetToolTip_UnpackBattlePetLink(details.itemLink)
+    local breednum = BPBID_Internal.CalculateBreedID(speciesID, rarity + 1, level, maxHealth, power, speed, false, false)
+    local name = BPBID_Internal.RetrieveBreedName(breednum):gsub("/", "")
+    Breed:SetText(name)
+    if iconSettings.useQualityColors then
+      local color = qualityColors[details.quality]
+      Breed:SetTextColor(color.r, color.g, color.b)
+    else
+      Breed:SetTextColor(1,1,1)
+    end
+    return true
+  end,
+  textInit, {corner = "bottom_left", priority = 1})
+end)
+
+if Baganator.Constants.IsRetail then
+  Baganator.API.RegisterCornerWidget(BAGANATOR_L_BATTLE_PET_LEVEL, "battle_pet_level", function(Level, details)
+    if not details.itemID == Syndicator.Constants.BattlePetCageID then
+      return false
+    end
+    if iconSettings.useQualityColors then
+      local color = qualityColors[details.quality]
+      Level:SetTextColor(color.r, color.g, color.b)
+    else
+      Level:SetTextColor(1,1,1)
+    end
+    Level:SetText((details.itemLink:match("battlepet:.-:(%d+)")))
+    return true
+  end,
+  textInit, {corner = "top_left", priority = 2})
+end
+
+if C_Engraving and C_Engraving.IsEngravingEnabled() then
+  Baganator.API.RegisterCornerWidget(BAGANATOR_L_ENGRAVED_RUNE, "engraved_rune", function(RuneTexture, details)
+    if details.engravingInfo then
+      RuneTexture:SetTexture(details.engravingInfo.iconTexture)
+      return true
+    else
+      return false
+    end
+  end, function(itemButton)
+    local texture = itemButton:CreateTexture(nil, "OVERLAY")
+    texture:SetSize(16, 16)
+    texture.padding = 0
+    return texture
+  end, {corner = "top_right", priority = 1})
+end

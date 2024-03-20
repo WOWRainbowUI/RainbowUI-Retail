@@ -1,15 +1,10 @@
-## Interface: 30403
+## Interface: 40400
 ## Title: Baganator
 ## Version: 228
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
 ## IconTexture: Interface\AddOns\Baganator\Assets\logo.tga
-
-## Title-zhTW: |cffB973CC[背包]|r 多角色整合背包
-## Notes-zhTW: Baganator |n|n不分類的整合大背包，可以隨時隨地查看銀行和分身的背包/銀行，還有物品數量統計的功能。|n|n|cffffd200使用方法: |r點背包視窗右上角的小齒輪按鈕打開設定選項。
-## X-Category-zhTW: 物品
-## DefaultState: disabled
 
 Locales.lua
 
