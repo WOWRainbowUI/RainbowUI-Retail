@@ -1,8 +1,9 @@
-## Interface: 100205
+## Interface: 100206
 ## Title: HandyNotes
 ## Notes: Handy notes for your maps
+## Notes-frFR: Notes pratiques pour vos cartes.
 ## Author: Xinhuan
-## Version: v1.6.16
+## Version: v1.6.18
 ## DefaultState: enabled
 ## X-Category: Map
 ## X-eMail: xinhuan @ gmail DOT com
@@ -10,15 +11,15 @@
 ## X-Curse-Project-ID: 14154
 ## X-WoWI-ID: 15716
 
-## Title-zhTW: |cff4DFF4D[地圖]|r 地圖標記
-## Notes-zhTW: HandyNotes |n|n在地圖上提供方便的標註功能，搭配相關模組一起使用，可以在地圖上顯示寶箱、稀有怪...的位置。|n|n|cffffd200使用方法: |r從Esc>選項>插件>地圖標記，進行設定。
-## X-Category-zhTW: 地圖
-## IconTexture: Interface\Icons\icon_treasuremap
-
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
 
 ## SavedVariables: HandyNotesDB, HandyNotes_HandyNotesDB
+
+## Title-zhTW: |cff4DFF4D[地圖]|r 地圖標記
+## Notes-zhTW: HandyNotes |n|n在地圖上提供方便的標註功能，搭配相關模組一起使用，可以在地圖上顯示寶箱、稀有怪...的位置。|n|n|cffffd200使用方法: |r從Esc>選項>插件>地圖標記，進行設定。
+## X-Category-zhTW: 地圖
+## IconTexture: Interface\Icons\inv_misc_map_01
 
 # Locale files
 Locales\Locale-enUS.lua
