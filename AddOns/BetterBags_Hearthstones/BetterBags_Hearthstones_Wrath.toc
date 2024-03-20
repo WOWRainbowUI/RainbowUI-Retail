@@ -1,0 +1,27 @@
+## Interface: 30403
+## Title: BetterBags - Hearthstones
+## Notes: Adds various hearthing items to BetterBags virtual groups
+## Notes-ruRU: @localization(locale="ruRU")@
+## Notes-deDE: @localization(locale="deDE")@
+## Notes-koKR: @localization(locale="koKR")@
+## Notes-esMX: @localization(locale="esMX")@
+## Notes-esES: @localization(locale="esES")@
+## Notes-ptBR: @localization(locale="ptBR")@
+## Notes-zhCN: @localization(locale="zhCN")@
+## Notes-zhTW: @localization(locale="zhTW")@
+## Notes-itIT: @localization(locale="itIT")@
+## Notes-frFR: @localization(locale="frFR")@
+## IconTexture: Interface\ICONS\Inv_misc_rune_01
+
+## Version: 1.07
+## Author: Sygon of Lightbringer-US (Crimson Embers, Alliance)
+## X-Date: 2024-03-20T02:21:24Z
+## X-License: Copyright (c) 2024 Paul Vandersypen. All Rights Reserved
+## X-Category: Bags & Inventory
+## Dependencies: BetterBags
+## X-Curse-Project-ID: 973173
+## X-WoWI-ID: 26689
+## X-Wago-ID: QKywxnN7
+
+Database.lua
+Core.lua
