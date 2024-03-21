@@ -11,7 +11,7 @@ end
 
 L.HOW_TO_USE_MOD					= "Benvenuto in "..L.DBM..". Scrivi /dbm help per avere una lista dei comandi supportati. Per accedere alle opzioni scrivi in chat /dbm. Carica le zone specifiche per configurare manualmente ogni settaggio di ogni boss. "..L.DBM.." prova a farlo per te controllando la tua specializzazione alla prima esecuzione, ma alcuni potrebbero volere alcune opzioni attivate."
 L.SILENT_REMINDER					= "Avviso: "..L.DBM.." è in modalità silente."
---L.NEWS_UPDATE							= "|h|c11ff1111News|r|h: This update is basically a re-release of 9.1.9 to clear a false malware detection on the hash of the previous file release. Read more about it |Hgarrmission:DBM:news|h|cff3588ff[here]|r|h"
+L.NEWS_UPDATE						= "|h|c11ff1111News|r|h: This update changes mod structure around so classic and mainline now use unified (same) modules. This means that Vanilla, TBC, Wrath, and Cata modules are now installed separately using same packages as retail. Read more about it |Hgarrmission:DBM:news|h|cff3588ff[here]|r|h"--UPDATE ME
 
 --L.COPY_URL_DIALOG_NEWS					= "To read latest news, visit link below"
 
@@ -237,6 +237,7 @@ L.RANGERADAR_IN_RANGE_TEXT	= "%d vicini (%0.1fm)" -- Multi
 L.RANGECHECK_IN_RANGE_TEXT	= "%d vicini" -- Text based doesn't need (%dyd), especially since it's not very accurate to the specific yard anyways
 L.RANGERADAR_IN_RANGE_TEXTONE= "%s (%0.1fm)" -- One target
 
+--L.INFOFRAME_TITLE						= "DBM Info Frame"
 L.INFOFRAME_SHOW_SELF		= "Visualizza sempre la tua forza"		-- Always show your own power value even if you are below the threshold
 L.INFOFRAME_SETLINES			= "Imposta linee massime"
 --L.INFOFRAME_SETCOLS						= "Set max columns"
@@ -498,12 +499,14 @@ L.AUTO_TIMER_OPTIONS.cdcount		= "Mostra temporizzatore ricarica cooldown $spell:
 --L.AUTO_TIMER_OPTIONS.cdnpcount							= "Show nameplate only timer (with count) for $spell:%s cooldown"
 L.AUTO_TIMER_OPTIONS.cdsource	= "Mostra temporizzatore (con sorgente) ricarica $spell:%s"
 L.AUTO_TIMER_OPTIONS.cdspecial	= "Mostra temporizzatore ricarica dell'abilità speciale"
+--L.AUTO_TIMER_OPTIONS.cdcombo								= "Show timer for ability combo cooldown"--Used for combining 2 abilities into a single timer
 L.AUTO_TIMER_OPTIONS.next		= "Mostra temporizzatore prossima $spell:%s"
 L.AUTO_TIMER_OPTIONS.nextcount	= "Mostra temporizzatore prossima $spell:%s"
 --L.AUTO_TIMER_OPTIONS.nextnp								= "Show nameplate only timer for next $spell:%s"
 --L.AUTO_TIMER_OPTIONS.nextnpcount							= "Show nameplate only timer (with count) for next $spell:%s"
 L.AUTO_TIMER_OPTIONS.nextsource	= "Mostra temporizzatore (con sorgente) per prossima $spell:%s"
 L.AUTO_TIMER_OPTIONS.nextspecial	= "Mostra temporizzatore prossima abilità speciale"
+--L.AUTO_TIMER_OPTIONS.nextcombo							= "Show timer for next ability combo"--Used for combining 2 abilities into a single timer
 L.AUTO_TIMER_OPTIONS.achievement	= "Mostra temporizzatore %s"
 L.AUTO_TIMER_OPTIONS.stage		= "Mostra temporizzatore per prossima fase"
 --L.AUTO_TIMER_OPTIONS.stagecount							= "Show timer (with count) for next stage"

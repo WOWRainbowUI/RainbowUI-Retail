@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2519, "DBM-Raids-Dragonflight", 1, 1207)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240206205855")
+mod:SetRevision("20240303162653")
 mod:SetCreatureID(204931)
 
 mod:SetEncounterID(2677)
@@ -26,7 +26,7 @@ mod:RegisterEventsInCombat(
 
 --[[
 (ability.id = 419506 or ability.id = 420422 or ability.id = 417455 or ability.id = 417431 or ability.id = 419144 or ability.id = 412761 or ability.id = 428963 or ability.id = 428400 or ability.id = 428971 or ability.id = 428968 or ability.id = 428965 or ability.id = 419123 or ability.id = 422837 or ability.id = 410223 or ability.id = 425492 or ability.id = 422518) and type = "begincast"
- or (ability.id = 430441 or ability.id = 414186 or ability.id = 421937 or ability.id = 422935 or ability.id = 429875 or ability.id = 429876 or ability.id = 422524 or ability.id = 426368) and type = "cast"
+ or (ability.id = 430441 or ability.id = 414186 or ability.id = 421937 or ability.id = 422935 or ability.id = 429875 or ability.id = 429876 or ability.id = 422524 or ability.id = 426368 or ability.id = 414186 or ability.id = 422032) and type = "cast"
  or ability.id = 419144 and (type = "applybuff" or type = "removebuff")
  or (ability.id = 414187 or ability.id = 425525 or ability.id = 428988 or ability.id = 428970) and type = "applydebuff"
  or ability.id = 422517 and type = "applybuff"
@@ -55,9 +55,9 @@ local specWarnDreamRend								= mod:NewSpecialWarningRunCount(417455, nil, nil,
 local specWarnFyralathsBite							= mod:NewSpecialWarningDefensive(417431, nil, nil, nil, 1, 2)
 local specWarnFyralathsMark							= mod:NewSpecialWarningTaunt(417443, nil, 37454, nil, 1, 2)
 
-local timerDarkflameShadesCD						= mod:NewCDCountTimer(49, 430441, nil, false, nil, 3, nil, DBM_CORE_L.MYTHIC_ICON)
-local timerDarkflameCleaveCD						= mod:NewCDCountTimer(49, 426368, 845, nil, nil, 3, nil, DBM_CORE_L.MYTHIC_ICON)--Shortname "Cleave"
-local timerDarkflameCleave							= mod:NewCastCountTimer(4, 426368, 845, nil, nil, 5, nil, DBM_CORE_L.MYTHIC_ICON)
+local timerDarkflameShadesCD						= mod:NewCDCountTimer(49, 430441, nil, false, nil, 3, nil, DBM_COMMON_L.MYTHIC_ICON)
+local timerDarkflameCleaveCD						= mod:NewCDCountTimer(49, 426368, 845, nil, nil, 3, nil, DBM_COMMON_L.MYTHIC_ICON)--Shortname "Cleave"
+local timerDarkflameCleave							= mod:NewCastCountTimer(4, 426368, 845, nil, nil, 5, nil, DBM_COMMON_L.MYTHIC_ICON)
 local timerFirestormCD								= mod:NewCDCountTimer(49, 419506, nil, nil, nil, 3)
 local timerWildFireCD								= mod:NewCDCountTimer(49, 420422, nil, nil, nil, 2)
 local timerDreamRendCD								= mod:NewCDCountTimer(49, 417455, nil, nil, nil, 3)--"Pull" short text. MIght change to "Pull in" though if it's unclear to users

@@ -191,6 +191,10 @@ L:SetOptionLocalization({
 	Hybrid					= "Show Oppressing Howl stacks in stage 1 and Oblivion stacks in stages 2 and 3"
 })
 
+L:SetMiscLocalization({
+	EarlyStaging			= "Stage terminated early by health threshold"
+})
+
 -------------
 --  Trash  --
 -------------
@@ -211,11 +215,7 @@ L:SetGeneralLocalization({
 ---------------------------
 --  Igira the Cruel --
 ---------------------------
-L= DBM:GetModLocalization(2554)
-
-L:SetMiscLocalization({
-	HealAbsorb	= "Heal Absorb (%s)"--Might be common localized later
-})
+--L= DBM:GetModLocalization(2554)
 
 ---------------------------
 --  Volcoross --

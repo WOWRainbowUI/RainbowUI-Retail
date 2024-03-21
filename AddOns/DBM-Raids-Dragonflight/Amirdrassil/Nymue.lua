@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2556, "DBM-Raids-Dragonflight", 1, 1207)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240108002949")
+mod:SetRevision("20240305165926")
 mod:SetCreatureID(206172)
 mod:SetEncounterID(2708)
 mod:SetUsedIcons(8, 7, 6)
@@ -18,8 +18,8 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_APPLIED 420554 425745 425781 423195 427722 428479 429983",
 	"SPELL_AURA_APPLIED_DOSE 420554 428479 429983",
 	"SPELL_AURA_REMOVED 423195",
-	"UNIT_DIED",
-	"RAID_BOSS_WHISPER"
+	"UNIT_DIED"
+--	"RAID_BOSS_WHISPER"
 )
 
 --[[
@@ -42,6 +42,7 @@ local warnEphemeralFlora							= mod:NewCountAnnounce(430563, 3)
 local warnLucidVulnerability						= mod:NewCountAnnounce(428479, 4, nil, nil, DBM_CORE_L.AUTO_ANNOUNCE_OPTIONS.stack:format(428479))--Player
 
 local specWarnImpendingLoom							= mod:NewSpecialWarningDodgeCount(429615, nil, nil, nil, 2, 2)
+local specWarnEphemeralFlora						= mod:NewSpecialWarningSoakCount(430563, "Melee", nil, nil, 2, 2)
 local specWarnViridianRain							= mod:NewSpecialWarningDodgeCount(420907, nil, nil, nil, 2, 2)
 local specWarnWeaversBurden							= mod:NewSpecialWarningMoveAway(426519, nil, 37859, nil, 1, 2)
 local yellWeaversBurden								= mod:NewShortYell(426519, 37859)--ST "Bomb"
@@ -49,8 +50,10 @@ local yellWeaversBurden								= mod:NewShortYell(426519, 37859)--ST "Bomb"
 local specWarnWeaversBurdenOther					= mod:NewSpecialWarningTaunt(426519, nil, 37859, nil, 1, 2)
 local specWarnGTFO									= mod:NewSpecialWarningGTFO(428474, nil, nil, nil, 1, 8)
 
+local colorRed = DBM:GetSpellInfo(291520)
+
 local timerImpendingLoomCD							= mod:NewCDCountTimer(23.8, 429615, L.Threads, nil, nil, 3)
-local timerEphemeralFloraCD							= mod:NewCDCountTimer(49, 430563, nil, nil, nil, 3, nil, DBM_COMMON_L.MYTHIC_ICON)
+local timerEphemeralFloraCD							= mod:NewCDCountTimer(49, 430563, colorRed.." "..DBM_COMMON_L.GROUPSOAKS.." (%s)", nil, nil, 3, nil, DBM_COMMON_L.MYTHIC_ICON)
 local timerSurgingGrowthCD							= mod:NewCDCountTimer(7, 429983, DBM_COMMON_L.GROUPSOAKS.." (%s)", nil, nil, 3)--5.1-9, usually 8-9
 local timerViridianRainCD							= mod:NewCDCountTimer(19.1, 420907, DBM_COMMON_L.AOEDAMAGE.." (%s)", nil, nil, 3)
 local timerWeaversBurdenCD							= mod:NewCDCountTimer(17.8, 426519, 167180, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)--ST "Bombs"
@@ -61,7 +64,7 @@ mod:AddPrivateAuraSoundOption(427722, true, 426519, 1)--Weaver's Burden
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(28356))
 local warnFullBloom									= mod:NewCountAnnounce(426855, 2)
 local warnRadialFlourish							= mod:NewCountAnnounce(422721, 2, nil, false)
-local warnWakingDecimation							= mod:NewCountAnnounce(428471, 4)
+local warnWakingDecimation							= mod:NewCastAnnounce(428471, 4, 35)
 
 local specWarnLumberingSlam							= mod:NewSpecialWarningDodge(429108, nil, nil, nil, 2, 2)
 
@@ -86,7 +89,12 @@ local playerInflorescence = false
 
 local function blizzardHatesCombatLogLoop(self, isLoop)
 	self.vb.floraCount = self.vb.floraCount + 1
-	warnEphemeralFlora:Show(self.vb.floraCount)
+	if self.Options.SpecWarn430563soakcount then
+		specWarnEphemeralFlora:Show(self.vb.floraCount)
+		specWarnEphemeralFlora:Play("helpsoak")
+	else
+		warnEphemeralFlora:Show(self.vb.floraCount)
+	end
 	if not isLoop then--Loop single time per rotation
 		timerEphemeralFloraCD:Start(27, self.vb.floraCount+1)
 		self:Schedule(27, blizzardHatesCombatLogLoop, self, true)
@@ -144,7 +152,9 @@ function mod:SPELL_CAST_START(args)
 		--"<115.76 10:52:40> [CLEU] SPELL_CAST_START#Creature-0-1471-2549-13215-206172-0000588831#Nymue(70.4%-0.0%)##nil#420846#Continuum#nil#nil",
 		--"<117.10 10:52:42> [CLEU] SPELL_AURA_APPLIED_DOSE#Creature-0-1471-2549-13215-206172-0000588831#Nymue#Player-1084-0A94E8A7#****#429983#Surging Growth#DEBUFF#4",
 		--"<143.10 10:53:08> [CLEU] SPELL_AURA_REMOVED_DOSE#Creature-0-1471-2549-13215-206172-0000588831#Nymue#Player-1084-0A59CE90#****#429983#Surging Growth#DEBUFF#3",
-		timerSurgingGrowthCD:Start(21, 1)--self.vb.surgingCount+1
+		if not self:IsMythic() then
+			timerSurgingGrowthCD:Start(21, 1)--self.vb.surgingCount+1
+		end
 		timerWeaversBurdenCD:Start(34.7, 1)--self.vb.burdenCount+1
 		timerViridianRainCD:Start(36.7, 1)--self.vb.rainCount+1
 		timerImpendingLoomCD:Start(40.6, 1)--self.vb.loomCount+1

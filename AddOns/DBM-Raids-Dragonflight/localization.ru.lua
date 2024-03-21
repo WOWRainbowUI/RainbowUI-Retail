@@ -192,6 +192,10 @@ L:SetOptionLocalization({
 	Hybrid					= "Показывать стаки Подавляющего воя на 1-й фазе и стаки Забвения на фазах 2 и 3"
 })
 
+L:SetMiscLocalization({
+	EarlyStaging			= "Фаза завершилась досрочно из-за предела здоровья"
+})
+
 -------------
 --  Trash  --
 -------------
@@ -212,11 +216,7 @@ L:SetGeneralLocalization({
 ---------------------------
 --  Igira the Cruel --
 ---------------------------
-L= DBM:GetModLocalization(2554)
-
-L:SetMiscLocalization({
-	HealAbsorb	= "Поглощение исцеления (%s)"
-})
+--L= DBM:GetModLocalization(2554)
 
 ---------------------------
 --  Volcoross --

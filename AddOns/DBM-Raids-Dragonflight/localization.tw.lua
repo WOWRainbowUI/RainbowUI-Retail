@@ -212,11 +212,7 @@ L:SetGeneralLocalization({
 ---------------------------
 --  Igira the Cruel --
 ---------------------------
-L= DBM:GetModLocalization(2554)
-
-L:SetMiscLocalization({
-	HealAbsorb	= "治療吸收 (%s)"--Might be common localized later
-})
+--L= DBM:GetModLocalization(2554)
 
 ---------------------------
 --  Volcoross --
@@ -254,7 +250,7 @@ L:SetMiscLocalization({
 L= DBM:GetModLocalization(2556)
 
 L:SetMiscLocalization({
-	Threads			= "絲線 (%s)"
+	Threads			= "織物 (%s)"
 })
 
 ---------------------------
@@ -269,7 +265,8 @@ L= DBM:GetModLocalization(2565)
 
 L:SetMiscLocalization({
 	TreeForm			= "樹人型態",
-	MoonkinForm			= "梟獸型態"
+	MoonkinForm			= "梟獸型態",
+	Feathers			= "羽毛"
 })
 
 ---------------------------
@@ -297,4 +294,8 @@ L = DBM:GetModLocalization("AmirdrassilTrash")
 
 L:SetGeneralLocalization({
 	name =	"埃達希爾小怪"
+})
+
+L:SetMiscLocalization({
+	FyrakkRP			= "又來了。可惜我沒時間親自動手。"
 })
