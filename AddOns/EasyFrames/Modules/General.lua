@@ -410,7 +410,7 @@ function General:UpdateAuras(selfFrame)
         local playerIsTarget = UnitIsUnit(PlayerFrame.unit, selfFrame.unit);
         local numBuffs = 0;
         local numDebuffs = 0;
-        selfFrame.auraPools:ReleaseAll();
+        selfFrame.auraPools:ReleaseAll(); -- TODO: here is the bug with 'StatusBar:Show()'.
 
         local function UpdateAuraFrame(frame, aura)
             frame.unit = selfFrame.unit;

@@ -107,6 +107,7 @@ function Player:PlayerFrameToPlayerArt()
     --Core:MovePlayerFramesBarsTextString()
 
     -- The API changes the texture every time. It is necessary to change it back to own after the changes.
+    PlayerFrame.PlayerFrameContainer.FrameTexture:SetTexture(Media:Fetch("frames", "default"))
     PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexture(Media:Fetch("misc", "player-status"))
     PlayerFrame.PlayerFrameContainer.FrameFlash:SetTexture(Media:Fetch("misc", "player-status-flash"))
 
