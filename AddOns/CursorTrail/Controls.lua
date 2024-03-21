@@ -14,6 +14,8 @@ REQUIREMENTS / DEPENDANCIES:
 USAGE:  See examples at end of this comment block.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Mar 15, 2024
+        - Added CreateTexture_NEW().
     Mar 06, 2024
         - Added SetBackColor()/GetBackColor() to the groupbox control, for changing its background color.
         - Added MsgBox().
@@ -3564,13 +3566,13 @@ end
 
 --#############################################################################
 -------------------------------------------------------------------------------
--- Exposed utility functions.
+-- Utility Functions.  --DJUadded--
 -------------------------------------------------------------------------------
 --#############################################################################
 
 
--------------------------------------------------------------------------------
-private.Controls.handleGlobalMouseClick = function(button)  --DJUadded
+-- ****************************************************************************
+local function handleGlobalMouseClick(button)
     -- Closes any open dropdown list if user clicks outside of it.
     -- Call this function from a GLOBAL_MOUSE_DOWN event handler in your addon.
     -- Based on \Interface\SharedXML\UIDropDownMenu.lua, UIDropDownMenu_HandleGlobalMouseEvent().
@@ -3597,8 +3599,8 @@ private.Controls.handleGlobalMouseClick = function(button)  --DJUadded
 --~     hooksecurefunc("UIDropDownMenu_HandleGlobalMouseEvent", private.Controls.handleGlobalMouseClick)
 
 
--------------------------------------------------------------------------------
-private.Controls.DisplayAllFonts = function(width, height)
+-- ****************************************************************************
+local function DisplayAllFonts(width, height)
         -- Create the fonts frame, if necessary.
         if (_G.FontNamesScrollFrame == nil) then
             _G.FontNamesScrollFrame = CreateTextScrollFrame(UIParent, "*** Available Game Fonts ***", width or 1000, height or 600)
@@ -3622,12 +3624,12 @@ private.Controls.DisplayAllFonts = function(width, height)
         _G.FontNamesScrollFrame:Show()
     end
 
--------------------------------------------------------------------------------
-private.Controls.MsgBox = function( msg,
-                                    btnText1, btnFunc1,
-                                    btnText2, btnFunc2,
-                                    customData, customData2, -- Can be tables of values if more than two data parameters are needed.
-                                    bShowAlertIcon, soundID, timeoutSecs, preferredIndex)
+-- ****************************************************************************
+local function MsgBox( msg,
+                    btnText1, btnFunc1,
+                    btnText2, btnFunc2,
+                    customData, customData2, -- Can be tables of values if more than two data parameters are needed.
+                    bShowAlertIcon, soundID, timeoutSecs, preferredIndex)
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 --~ EXAMPLE 1: Basic message with a single "Okay" button.
 --~     MsgBox("Job done.")
@@ -3709,6 +3711,31 @@ private.Controls.MsgBox = function( msg,
     return msgbox
 end
 
+-- ****************************************************************************
+-- Creates the "new feature" glowy text used in the Blizzard UI for new features.
+-- ****************************************************************************
+local function CreateTexture_NEW(parent, bRightJustify, x, y)
+    local anchor = parent
+    if parent:GetObjectType() ~= "Frame" then
+        parent = parent:GetParent()  -- In case caller sent us a FontString, for example.
+        assert(parent:GetObjectType() == "Frame") -- Fails if we can't find a frame to use.
+    end
+    local tex = parent:CreateTexture(nil, "OVERLAY")
+    tex:SetTexture("Interface\\Glues\\CHARACTERCREATE\\NewCharacterNotification")
+    local minX, maxX, minY, maxY = 0.0, 1.0,  0.0, 0.5  -- (0.0% to 1.0%)
+    if bRightJustify then
+        minY, maxY = 0.5, 1.0
+        tex:SetPoint("LEFT", anchor, "RIGHT", (x or 0), (y or 0))
+    else -- Left justify.
+        tex:SetPoint("RIGHT", anchor, "LEFT", (x or 0), (y or 0))
+    end
+    tex:SetTexCoord(minX, maxX, minY, maxY)
+    tex:SetSize(128, 64)
+    tex:SetScale(0.65)
+    return tex
+end
+
+
 --#############################################################################
 -------------------------------------------------------------------------------
 -- Module interface.
@@ -3727,5 +3754,11 @@ private.Controls.CreateDropDown         = CreateDropDown
 private.Controls.CreateColorSwatch      = CreateColorSwatch  --DJUadded
 private.Controls.CreateTextScrollFrame  = CreateTextScrollFrame  --DJUadded
 private.Controls.CreateGroupBox         = CreateGroupBox  --DJUadded
+
+-- Exposed Utility Functions.  --DJUadded--
+private.Controls.handleGlobalMouseClick = handleGlobalMouseClick
+private.Controls.DisplayAllFonts        = DisplayAllFonts
+private.Controls.MsgBox                 = MsgBox
+private.Controls.CreateTexture_NEW      = CreateTexture_NEW
 
 --- End of File ---
