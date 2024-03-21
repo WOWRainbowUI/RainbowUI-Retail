@@ -1,28 +1,22 @@
-# [5.10.1](https://github.com/WeakAuras/WeakAuras2/tree/5.10.1) (2024-02-09)
+# [5.12.1](https://github.com/WeakAuras/WeakAuras2/tree/5.12.1) (2024-03-20)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.10.0...5.10.1)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.12.0...5.12.1)
 
 ## Highlights
 
- - Bug Fixes 
+ For tracking a specific charge, don't use static progress 
 
 ## Commits
 
-Putro (1):
+InfusOnWoW (5):
 
-- Localize the title in AuraWarnings
+- For tracking a specific charge, don't use static progress
+- ProgressTexture: Fix switching from timed to static progress
+- Change EnsureRegion to not create child regions for dynamic groups
+- Progress Source: Ignore max progress setting for no duration timers
+- Icon: Fix inverse not probably being effective
 
-Stanzilla (3):
+mrbuds (1):
 
-- Add more types to Types
-- A few type and spelling fixes
-- Add workaround for actions/checkout#290
-
-dependabot[bot] (1):
-
-- Bump peter-evans/create-pull-request from 5 to 6
-
-emptyrivers (1):
-
-- move type checking code for WeakAurasArchive
+- make sure deferred group's custom anchors are actually anchored
 

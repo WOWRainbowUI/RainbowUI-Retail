@@ -291,7 +291,6 @@ Off Screen]=]
 	L["Aura: '%s'"] = "Aura: '%s'"
 	L["Author Options"] = "Opzioni Autore"
 	L["Auto-Clone (Show All Matches)"] = "Auto-Clona (Mostra tutte le corrispondenze)"
-	L["Auto-cloning enabled"] = "Auto-Clona abilitato"
 	L["Automatic"] = "Automatico"
 	--[[Translation missing --]]
 	L["Automatic length"] = "Automatic length"
@@ -344,6 +343,8 @@ Off Screen]=]
 	L["Can set to 0 if Rows * Height equal File Height"] = "Can set to 0 if Rows * Height equal File Height"
 	L["Cancel"] = "Cancella"
 	--[[Translation missing --]]
+	L["Case Insensitive"] = "Case Insensitive"
+	--[[Translation missing --]]
 	L["Cast by a Player Character"] = "Cast by a Player Character"
 	--[[Translation missing --]]
 	L["Categories to Update"] = "Categories to Update"
@@ -382,8 +383,8 @@ Off Screen]=]
 	L["Collapse all pending Import"] = "Collapse all pending Import"
 	--[[Translation missing --]]
 	L["Collapsible Group"] = "Collapsible Group"
-	L["color"] = "Colore"
 	L["Color"] = "Colore"
+	L["color"] = "Colore"
 	L["Column Height"] = "Altezza Colonna"
 	--[[Translation missing --]]
 	L["Column Space"] = "Column Space"
@@ -601,6 +602,8 @@ Off Screen]=]
 	--[[Translation missing --]]
 	L["Enter in a value for the tick's placement."] = "Enter in a value for the tick's placement."
 	--[[Translation missing --]]
+	L["Enter static or relative values with %"] = "Enter static or relative values with %"
+	--[[Translation missing --]]
 	L["Enter User Mode"] = "Enter User Mode"
 	--[[Translation missing --]]
 	L["Enter user mode."] = "Enter user mode."
@@ -649,10 +652,6 @@ Off Screen]=]
 	L["Fade In"] = "Fade In"
 	--[[Translation missing --]]
 	L["Fade Out"] = "Fade Out"
-	--[[Translation missing --]]
-	L["Fallback"] = "Fallback"
-	--[[Translation missing --]]
-	L["Fallback Icon"] = "Fallback Icon"
 	--[[Translation missing --]]
 	L["False"] = "False"
 	--[[Translation missing --]]
@@ -703,6 +702,8 @@ Can use \ to escape -.]=]
 	L["Finishing..."] = "Finishing..."
 	--[[Translation missing --]]
 	L["Fire Orb"] = "Fire Orb"
+	--[[Translation missing --]]
+	L["Flat Framelevels"] = "Flat Framelevels"
 	--[[Translation missing --]]
 	L["Font"] = "Font"
 	--[[Translation missing --]]
@@ -996,6 +997,12 @@ Can use \ to escape -.]=]
 	--[[Translation missing --]]
 	L["Main"] = "Main"
 	--[[Translation missing --]]
+	L["Manual"] = "Manual"
+	--[[Translation missing --]]
+	L["Manual Icon"] = "Manual Icon"
+	--[[Translation missing --]]
+	L["Manual with %i/%i"] = "Manual with %i/%i"
+	--[[Translation missing --]]
 	L["Match Count"] = "Match Count"
 	--[[Translation missing --]]
 	L["Match Count per Unit"] = "Match Count per Unit"
@@ -1005,6 +1012,8 @@ Can use \ to escape -.]=]
 	L["Max"] = "Max"
 	--[[Translation missing --]]
 	L["Max Length"] = "Max Length"
+	--[[Translation missing --]]
+	L["Maximum"] = "Maximum"
 	--[[Translation missing --]]
 	L["Media Type"] = "Media Type"
 	--[[Translation missing --]]
@@ -1019,6 +1028,8 @@ Can use \ to escape -.]=]
 	L["Message Type"] = "Message Type"
 	--[[Translation missing --]]
 	L["Min"] = "Min"
+	--[[Translation missing --]]
+	L["Minimum"] = "Minimum"
 	--[[Translation missing --]]
 	L["Mirror"] = "Mirror"
 	--[[Translation missing --]]
@@ -1097,6 +1108,8 @@ Can use \ to escape -.]=]
 	L["Not Loaded"] = "Not Loaded"
 	--[[Translation missing --]]
 	L["Note: Automated Messages to SAY and YELL are blocked outside of Instances."] = "Note: Automated Messages to SAY and YELL are blocked outside of Instances."
+	--[[Translation missing --]]
+	L["Note: This progress source does not provide a total value/duration. A total value/duration must be set via \"Set Maximum Progress\""] = "Note: This progress source does not provide a total value/duration. A total value/duration must be set via \"Set Maximum Progress\""
 	--[[Translation missing --]]
 	L["Npc ID"] = "Npc ID"
 	--[[Translation missing --]]
@@ -1226,6 +1239,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=]
 	--[[Translation missing --]]
 	L["Progress Bar Settings"] = "Progress Bar Settings"
 	--[[Translation missing --]]
+	L["Progress Settings"] = "Progress Settings"
+	--[[Translation missing --]]
+	L["Progress Source"] = "Progress Source"
+	--[[Translation missing --]]
 	L["Progress Texture"] = "Progress Texture"
 	--[[Translation missing --]]
 	L["Progress Texture Settings"] = "Progress Texture Settings"
@@ -1329,6 +1346,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=]
 	L["Separator Text"] = "Separator Text"
 	--[[Translation missing --]]
 	L["Separator text"] = "Separator text"
+	--[[Translation missing --]]
+	L["Set Maximum Progress"] = "Set Maximum Progress"
+	--[[Translation missing --]]
+	L["Set Minimum Progress"] = "Set Minimum Progress"
 	--[[Translation missing --]]
 	L["Set Parent to Anchor"] = "Set Parent to Anchor"
 	--[[Translation missing --]]
@@ -1536,6 +1557,8 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=]
 	--[[Translation missing --]]
 	L["The duration of the animation in seconds. The finish animation does not start playing until after the display would normally be hidden."] = "The duration of the animation in seconds. The finish animation does not start playing until after the display would normally be hidden."
 	--[[Translation missing --]]
+	L["The group and all direct children will share the same base frame level."] = "The group and all direct children will share the same base frame level."
+	--[[Translation missing --]]
 	L["The type of trigger"] = "The type of trigger"
 	--[[Translation missing --]]
 	L["Then "] = "Then "
@@ -1626,6 +1649,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["Top Right"] = "Top Right"
 	--[[Translation missing --]]
+	L["Total"] = "Total"
+	--[[Translation missing --]]
 	L["Total Angle"] = "Total Angle"
 	--[[Translation missing --]]
 	L["Total Time"] = "Total Time"
@@ -1688,9 +1713,15 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["Uses UnitIsVisible() to check if game client has loaded a object for this unit. This distance is around 100 yards. This is polled every second."] = "Uses UnitIsVisible() to check if game client has loaded a object for this unit. This distance is around 100 yards. This is polled every second."
 	--[[Translation missing --]]
+	L["Value"] = "Value"
+	--[[Translation missing --]]
 	L["Value %i"] = "Value %i"
 	--[[Translation missing --]]
 	L["Values are in normalized rgba format."] = "Values are in normalized rgba format."
+	--[[Translation missing --]]
+	L["Values/Remaining Time above this value are displayed as full progress."] = "Values/Remaining Time above this value are displayed as full progress."
+	--[[Translation missing --]]
+	L["Values/Remaining Time below this value are displayed as zero progress."] = "Values/Remaining Time below this value are displayed as zero progress."
 	--[[Translation missing --]]
 	L["Values:"] = "Values:"
 	--[[Translation missing --]]
@@ -1724,9 +1755,9 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["X Scale"] = "X Scale"
 	--[[Translation missing --]]
-	L["X-Offset"] = "X-Offset"
-	--[[Translation missing --]]
 	L["x-Offset"] = "x-Offset"
+	--[[Translation missing --]]
+	L["X-Offset"] = "X-Offset"
 	--[[Translation missing --]]
 	L["Y Offset"] = "Y Offset"
 	--[[Translation missing --]]

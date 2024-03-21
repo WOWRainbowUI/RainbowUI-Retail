@@ -370,7 +370,7 @@ Private.format_types = {
         disabled = function() return get(symbol .. "_time_format", 0) ~= 0 end
       })
     end,
-    CreateFormatter = function(symbol, get)
+    CreateFormatter = function(symbol, get, wihoutColor, data)
       local format = get(symbol .. "_time_format", 0)
       local threshold = get(symbol .. "_time_dynamic_threshold", 60)
       local precision = get(symbol .. "_time_precision", 1)
@@ -385,33 +385,98 @@ Private.format_types = {
       end
       local mainFormater = simpleFormatters.time[format]
 
+      local modRateProperty = {}
+      local timePointProperty = {}
+
+      -- For the mod rate support, we need to know which state member is the modRate, as
+      -- different progressSources can have different modRates
+      -- Here, we only collect the names, so that the actual formatter can quickly lookup
+      -- the property
+      -- This is somewhat complicated by legacy behaviour (for %p, %t) and that %foo, can
+      -- be the foo of different triggers that might use different modRate properties
+      -- Similarly to distinguish between time formaters for durations and timepoints,
+      -- we maintain a lookup table for time points
+      -- Timepoint formatters need to run every frame, so we rturn true if we
+      -- are formatting a timepoint
+      local triggerNum, sym = string.match(symbol, "(.+)%.(.+)")
+      triggerNum = triggerNum and tonumber(triggerNum)
+      sym = sym or symbol
+
+      if triggerNum then
+        if sym == "p" or sym == "t" then
+          if modRate then
+            modRateProperty[triggerNum] = "modRate"
+          end
+        else
+          local progressSource = Private.GetProgressSourceFor(data, triggerNum, sym)
+          if progressSource then
+            if modRate and progressSource[5] then
+              modRateProperty[triggerNum] = progressSource[5]
+            end
+            if progressSource[2] == "timer" or progressSource[2] == "elapsedTimer" then
+              timePointProperty[triggerNum] = true
+            end
+          end
+        end
+      else
+        if symbol == "p" or symbol == "t" then
+          for i = 1, #data.triggers do
+            if modRate then
+              modRateProperty[i] = "modRate"
+            end
+          end
+        else
+          for i = 1, #data.triggers do
+            local progressSource = Private.GetProgressSourceFor(data, i, symbol)
+            if progressSource then
+              if modRate and progressSource[5] then
+                modRateProperty[i] = progressSource[5]
+              end
+              if progressSource[2] == "timer" or progressSource[2] == "elapsedTimer" then
+                timePointProperty[i] = true
+              end
+            end
+          end
+        end
+      end
+
       local formatter
       if threshold == 0 then
-        formatter = function(value, state)
+        formatter = function(value, state, trigger)
           if type(value) ~= 'number' or value == math.huge then
             return ""
           end
+
+          if timePointProperty[trigger] then
+            value = abs(GetTime() - value)
+          end
+
           if value <= 0 then
             return ""
           end
 
-          if modRate then
-            value = value / (state.modRate or 1.0)
+          if modRate and trigger and modRateProperty[trigger] then
+            value = value / (state[modRateProperty[trigger]] or 1.0)
           end
 
           return mainFormater(value)
         end
       else
         local formatString = "%." .. precision .. "f"
-        formatter = function(value, state)
+        formatter = function(value, state, trigger)
           if type(value) ~= 'number' or value == math.huge then
             return ""
           end
+
+          if timePointProperty[trigger] then
+            value = abs(GetTime() - value)
+          end
+
           if value <= 0 then
             return ""
           end
-          if modRate then
-            value = value / (state.modRate or 1.0)
+          if modRate and trigger and modRateProperty[trigger] then
+            value = value / (state[modRateProperty[trigger]] or 1.0)
           end
           if value < threshold then
             return string.format(formatString, value)
@@ -421,20 +486,18 @@ Private.format_types = {
         end
       end
 
-      local triggerNum, sym = string.match(symbol, "(.+)%.(.+)")
-      sym = sym or symbol
       if sym == "p" or sym == "t" then
         -- Special case %p and %t. Since due to how the formatting
         -- work previously, the time formatter only formats %p and %t
         -- if the progress type is timed!
-        return function(value, state)
+        return function(value, state, trigger)
           if not state or state.progressType ~= "timed" then
             return value
           end
-          return formatter(value, state)
-        end
+          return formatter(value, state, trigger)
+        end, next(timePointProperty) ~= nil
       else
-        return formatter
+        return formatter, next(timePointProperty) ~= nil
       end
     end
   },
@@ -498,7 +561,7 @@ Private.format_types = {
     end
   },
   Unit = {
-    display = L["Formats |cFFFF0000%unit|r"],
+    display = L["Formats |cFFFFCC00%unit|r"],
     AddOptions = function(symbol, hidden, addOption, get, withoutColor)
       if not withoutColor then
         addOption(symbol .. "_color", {
@@ -626,7 +689,7 @@ Private.format_types = {
     end
   },
   guid = {
-    display = L["Formats Player's |cFFFF0000%guid|r"],
+    display = L["Formats Player's |cFFFFCC00%guid|r"],
     AddOptions = function(symbol, hidden, addOption, get, withoutColor)
       if not withoutColor then
         addOption(symbol .. "_color", {
@@ -1379,6 +1442,12 @@ Private.power_types = {
 if WeakAuras.IsRetail() then
   Private.power_types[99] = STAGGER
   Private.power_types[19] = POWER_TYPE_ESSENCE
+elseif WeakAuras.IsCataClassic() then
+  Private.power_types[12] = nil
+  Private.power_types[13] = nil
+  Private.power_types[16] = nil
+  Private.power_types[17] = nil
+  Private.power_types[18] = nil
 end
 
 ---@class Private
@@ -1490,7 +1559,7 @@ if WeakAuras.IsRetail() then
   Private.GetCurrencyIDFromLink = C_CurrencyInfo.GetCurrencyIDFromLink
   Private.ExpandCurrencyList = C_CurrencyInfo.ExpandCurrencyList
   Private.GetCurrencyListInfo = C_CurrencyInfo.GetCurrencyListInfo
-elseif WeakAuras.IsWrathClassic() then
+elseif WeakAuras.IsWrathOrCata() then
   Private.GetCurrencyListSize = GetCurrencyListSize
   Private.GetCurrencyIDFromLink = function(currencyLink)
     local currencyID = string.match(currencyLink, "|Hcurrency:(%d+):")
@@ -2232,7 +2301,7 @@ if WeakAuras.IsClassicEra() then -- Classic
       runes[tostring(v)] = nil
     end
   end
-elseif WeakAuras.IsWrathClassic() then
+elseif WeakAuras.IsWrathOrCata() then
   Private.texture_types["Blizzard Alerts"] = nil
   do
     local beams = Private.texture_types["Beams"]
@@ -2469,7 +2538,7 @@ end
 ---@class Private
 ---@field rune_specific_types table<number, string>
 ---@field essence_specific_types table<number, string>
-if WeakAuras.IsWrathClassic() then
+if WeakAuras.IsWrathOrCata() then
   Private.rune_specific_types = {
     [1] = L["Blood Rune #1"],
     [2] = L["Blood Rune #2"],
@@ -2852,11 +2921,18 @@ elseif WeakAuras.IsWrathClassic() then
     normal = PLAYER_DIFFICULTY1,
     heroic = PLAYER_DIFFICULTY2,
   }
+elseif WeakAuras.IsCataClassic() then
+  Private.difficulty_types = {
+    none = L["None"],
+    lfr = PLAYER_DIFFICULTY3,
+    normal = PLAYER_DIFFICULTY1,
+    heroic = PLAYER_DIFFICULTY2,
+  }
 end
 
 ---@class Private
 ---@field raid_role_types table<string, string>
-if WeakAuras.IsClassicEraOrWrath() then
+if WeakAuras.IsClassicEraOrWrathOrCata() then
   Private.raid_role_types = {
     MAINTANK = "|TInterface\\GroupFrame\\UI-Group-maintankIcon:16:16|t "..MAINTANK,
     MAINASSIST = "|TInterface\\GroupFrame\\UI-Group-mainassistIcon:16:16|t "..MAINASSIST,
@@ -2866,7 +2942,7 @@ end
 
 ---@class Private
 ---@field role_types table<string, string>
-if WeakAuras.IsWrathOrRetail() then
+if WeakAuras.IsWrathOrCataOrRetail() then
   Private.role_types = {
     TANK = INLINE_TANK_ICON.." "..TANK,
     DAMAGER = INLINE_DAMAGER_ICON.." "..DAMAGER,
@@ -3944,7 +4020,7 @@ for i = 1, 4 do
   Private.multiUnitUnits.party["partypet"..i] = true
 end
 
-if WeakAuras.IsWrathOrRetail() then
+if WeakAuras.IsWrathOrCataOrRetail() then
   for i = 1, 10 do
     Private.baseUnitId["boss"..i] = true
     Private.multiUnitUnits.boss["boss"..i] = true
@@ -4703,9 +4779,11 @@ if WeakAuras.IsClassicEra() then
   end
 end
 
-if WeakAuras.IsWrathClassic() then
-  Private.item_slot_types[0] = AMMOSLOT
-  Private.item_slot_types[18] = RANGEDSLOT
+if WeakAuras.IsWrathOrCata() then
+  if not WeakAuras.IsCataClassic() then
+    Private.item_slot_types[0] = AMMOSLOT
+    Private.item_slot_types[18] = RANGEDSLOT
+  end
   for slot = 20, 28 do
     Private.item_slot_types[slot] = nil
   end
