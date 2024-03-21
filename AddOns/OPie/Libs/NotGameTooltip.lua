@@ -3,7 +3,13 @@ local _, T = ...
 local suf, tn = 1 repeat
 	tn, suf = "NotGameTooltip" .. suf, suf + 1
 until _G[tn] == nil
-local tip = CreateFrame("GameTooltip", tn, UIParent, "GameTooltipTemplate") do
+
+-- External addons: please treat this as you would treat _G.GameTooltip
+local tip = CreateFrame("GameTooltip", tn, UIParent, "GameTooltipTemplate")
+tip.LIKE_GLOBAL_GAMETOOLTIP = true
+T.NotGameTooltip = tip
+
+do -- Avoid showing both at the same time
 	local skipHide
 	tip:SetScript("OnShow", function(self)
 		if GameTooltip:IsForbidden() then
@@ -24,5 +30,3 @@ local tip = CreateFrame("GameTooltip", tn, UIParent, "GameTooltipTemplate") do
 		end
 	end)
 end
-
-T.NotGameTooltip = tip
