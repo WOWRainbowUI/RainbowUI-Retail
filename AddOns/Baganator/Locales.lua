@@ -178,11 +178,6 @@ L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auct
 L["THAT_ITEM_IS_IN_A_MAILBOX"] = "That item is in a mailbox"
 L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "That item is in void storage"
 
-L["THAT_ITEM_IS_EQUIPPED"] = "That item is equipped"
-L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auction house"
-L["THAT_ITEM_IS_IN_A_MAILBOX"] = "That item is in a mailbox"
-L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "That item is in void storage"
-
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 
