@@ -7,7 +7,7 @@
 ## X-Category: Library
 ## X-Category-zhTW: 系統
 ## X-License: Limited BSD
-## Version: r1321
+## Version: r1328
 ## IconTexture: 135453
 
 ## Title-zhTW: |cffffffff[不要關閉]|r Ace3 共用函式庫
