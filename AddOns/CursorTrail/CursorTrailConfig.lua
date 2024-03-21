@@ -217,13 +217,11 @@ function OptionsFrame_Create()
     OptionsFrame.modified = false
     OptionsFrame.OriginalConfig = nil
 
-    -- Backdrop overlay (for making the window less transparent).
-    OptionsFrame.BackdropOverlay = OptionsFrame_CreateSolidRect(0, 0, 10, 10,  0.0, 0.0, 0.0, 0.3)
-    OptionsFrame.BackdropOverlay:ClearAllPoints()
+    -- Dark background (for making the window less transparent).
+    OptionsFrame.BackdropOverlay = OptionsFrame:CreateTexture(nil, "BACKGROUND")
+    OptionsFrame.BackdropOverlay:SetColorTexture(0.03, 0.03, 0.03,  0.5)
     OptionsFrame.BackdropOverlay:SetPoint("TOPLEFT", 8, -8)
     OptionsFrame.BackdropOverlay:SetPoint("BOTTOMRIGHT", -8, 8)
-    OptionsFrame.BackdropOverlay:SetFrameStrata("BACKGROUND")
-    OptionsFrame.BackdropOverlay:SetFrameLevel(1)
 
     -- TOOLTIP:
     OptionsFrame.WarnTooltip = CreateFrame("GameTooltip", kAddonName.."WarnTooltip", OptionsFrame, "GameTooltipTemplate")
