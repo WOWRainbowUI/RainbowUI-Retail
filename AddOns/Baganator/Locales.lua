@@ -219,6 +219,8 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Impossible d’ajouter d’autre
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifier cet onglet"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Impossible d’effectuer une recherche par lien d’objet"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
+--[[Translation missing --]]
+L["CHARACTER_PANEL"] = "Character Panel"
 L["COMBINE_STACKS_ONLY"] = "Combiner uniquement les piles"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Voulez-vous transférer TOUS les objets dans vos sacs ?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Voulez-vous transférer TOUS les objets de la banque ?"
@@ -402,6 +404,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit thi
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
@@ -720,6 +724,8 @@ L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 --[[Translation missing --]]
+L["CHARACTER_PANEL"] = "Character Panel"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
@@ -1036,6 +1042,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit thi
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
@@ -1354,6 +1362,8 @@ L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 --[[Translation missing --]]
+L["CHARACTER_PANEL"] = "Character Panel"
+--[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
@@ -1646,6 +1656,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "無法在此交易加入更多�
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您沒有權限編輯此標籤頁"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "無法透過物品連結搜尋"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "無法從公會銀行提取更多物品"
+L["CHARACTER_PANEL"] = "角色面板"
 L["COMBINE_STACKS_ONLY"] = "只合併整組"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "您想轉移背包中的全部物品嗎？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "您想轉移銀行中的全部物品嗎？"
@@ -1803,6 +1814,8 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "无法添加更多物品到此�
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您无权编辑此选项"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "无法通过物品链接搜索"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "无法从公会银行提取更多物品"
+--[[Translation missing --]]
+L["CHARACTER_PANEL"] = "Character Panel"
 L["COMBINE_STACKS_ONLY"] = "仅合并堆叠"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "你想转移背包内的所有物品？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "你想转移银行内的所有物品？"
@@ -1965,6 +1978,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit thi
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]
@@ -2211,6 +2226,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit thi
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
 L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
 --[[Translation missing --]]

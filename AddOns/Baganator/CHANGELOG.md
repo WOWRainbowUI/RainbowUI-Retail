@@ -1,7 +1,6 @@
 # Baganator
 
-## [228](https://github.com/Baganator/Baganator/tree/228) (2024-03-19)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/227...228) 
+## [229](https://github.com/Baganator/Baganator/tree/229) (2024-03-21)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/228...229) 
 
-- Update toc for 10.2.6  
-- Option to automatically open bags when character panel opens  
+- Fix guild search not fading tabs with no matching results  
