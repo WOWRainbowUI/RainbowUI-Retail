@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100206
 #@non-debug@
 ## Title: World Map Tracking Enhanced
 ## Title-deDE: World Map Tracking Enhanced

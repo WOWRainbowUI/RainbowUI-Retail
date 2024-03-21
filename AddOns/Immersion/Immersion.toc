@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100206
 ## IconTexture: Interface\AddOns\Immersion\Textures\Logo
 ## Title: Immersion
 ## Notes: Immersive replacement for quest & gossip

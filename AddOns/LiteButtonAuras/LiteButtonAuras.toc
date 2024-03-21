@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100206
 ## Title: LiteButtonAuras
 ## Version: 10.2.5-5
 ## Author: Xodiv-Nagrand

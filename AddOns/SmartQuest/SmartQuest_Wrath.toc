@@ -1,5 +1,5 @@
 ## Interface: 30403
-## X-Min-Interface: 100205
+## X-Min-Interface: 100206
 ## X-Min-Interface-Classic: 11404
 ## X-Min-Interface-BCC: 20504
 ## X-Min-Interface-Wrath: 30403

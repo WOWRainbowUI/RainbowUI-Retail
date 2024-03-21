@@ -1,4 +1,4 @@
-## Interface: 100205## IconTexture: 982414
+## Interface: 100206## IconTexture: 982414
 ## Title: YouGotMail
 ## Notes: Simple addon for Classic WoW to play the familiar "You got mail" when you receive mail.
 ## Title-zhTW: |cffB973CC[物品]|r 新郵件通知音效 

@@ -1,4 +1,4 @@
-## Interface: 100205## IconTexture: 982414
+## Interface: 100206## IconTexture: 982414
 ## Title: xanSoundAlerts
 ## Notes: Plays a sound when your health or mana is low.
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 血量/法力過低音效

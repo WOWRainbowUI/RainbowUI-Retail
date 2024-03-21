@@ -1,8 +1,8 @@
-## Interface: 100205
+## Interface: 100206
 ## Interface-Retail: 100200
 ## Interface-Classic: 11404
 ## Interface-Wrath: 30403
-## X-Max-Interface: 100205
+## X-Max-Interface: 100206
 ## X-Min-Interface: 11404
 
 ## Title: example

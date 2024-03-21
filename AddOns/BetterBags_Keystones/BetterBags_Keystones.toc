@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100206
 
 ## Title: BetterBags - Keystones
 ## Notes: Adds a Mythic+ Keystones filter to BetterBags.

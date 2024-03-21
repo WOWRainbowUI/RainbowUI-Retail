@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100206
 ## Title: AdiBags - Archaeology
 ## Notes: Adds Archaeology items to AdiBags virtual groups
 ## Notes-zhCN: 将考古项目添加到AdiBags虚拟组

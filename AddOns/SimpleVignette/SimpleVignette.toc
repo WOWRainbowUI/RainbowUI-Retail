@@ -1,4 +1,4 @@
-## Interface: 100205## IconTexture: 982414
+## Interface: 100206## IconTexture: 982414
 
 ## Title: SimpleVignette
 ## Notes: Visual and audible warnings for rare spawns, items and chests.

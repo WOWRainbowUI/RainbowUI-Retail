@@ -1,4 +1,4 @@
-﻿## Interface: 100205## IconTexture: 982414
+﻿## Interface: 100206## IconTexture: 982414
 ## Title: InterruptedIn
 ## Notes: Simple countdown announcment command which can be interrupted.
 ## Notes-zhCN:中断式倒数发话指令

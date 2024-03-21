@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 100206
 ## Title: BetterBags - Appearances
 ## Author: Sauravisus
 ## Version: 1.0.3
