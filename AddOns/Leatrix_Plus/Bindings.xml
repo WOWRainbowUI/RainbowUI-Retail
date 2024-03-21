@@ -1,4 +1,4 @@
-<Bindings>
+﻿<Bindings>
 
 	<!-- Toggle panel -->
 	<Binding name="LEATRIX_PLUS_GLOBAL_TOGGLE" header = "Leatrix Plus" category = "ADDONS">
