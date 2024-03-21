@@ -598,12 +598,25 @@ end
 
 
 --
+local tSpellId;
 function VUHDO_isSpellKnown(aSpellName)
-	return (type(aSpellName) == "number" and IsSpellKnown(aSpellName))
+
+	if (type(aSpellName) == "number" and IsSpellKnown(aSpellName))
 		or (type(aSpellName) == "number" and IsSpellKnownOrOverridesKnown(aSpellName))
 		or (type(aSpellName) == "number" and IsPlayerSpell(aSpellName))
 		or GetSpellBookItemInfo(aSpellName) ~= nil
-		or VUHDO_NAME_TO_SPELL[aSpellName] ~= nil and GetSpellBookItemInfo(VUHDO_NAME_TO_SPELL[aSpellName]);
+		or VUHDO_NAME_TO_SPELL[aSpellName] ~= nil and GetSpellBookItemInfo(VUHDO_NAME_TO_SPELL[aSpellName]) then
+		return true;
+	elseif type(aSpellName) ~= "number" then
+		_, _, _, _, _, _, tSpellId = GetSpellInfo(aSpellName);
+
+		if tSpellId then
+			return IsSpellKnownOrOverridesKnown(tSpellId);
+		end
+	end
+
+	return false;
+
 end
 
 
