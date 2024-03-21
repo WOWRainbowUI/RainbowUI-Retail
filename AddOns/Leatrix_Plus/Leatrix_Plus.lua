@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 10.2.15 (14th February 2024)
+-- 	Leatrix Plus 10.2.20 (20th March 2024)
 ----------------------------------------------------------------------
 
 --	01:Functns, 02:Locks, 03:Restart, 20:Live, 30:Isolated, 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "10.2.15"
+	LeaPlusLC["AddonVer"] = "10.2.20"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -2007,6 +2007,13 @@
 			-- Hide controls for dressing room
 			DressUpFrame.ModelScene.ControlFrame:HookScript("OnShow", DressUpFrame.ModelScene.ControlFrame.Hide)
 
+			-- Hide controls for shop
+			ModelPreviewFrame.Display.ModelScene.ControlFrame:HookScript("OnShow", function()
+				if StorePreviewFrame and StorePreviewFrame:IsShown() then
+					ModelPreviewFrame.Display.ModelScene.ControlFrame:Hide()
+				end
+			end)
+
 			----------------------------------------------------------------------
 			-- Wardrobe and inspect system
 			----------------------------------------------------------------------
@@ -2716,7 +2723,6 @@
 						or npcID == "142159" 	-- Zen'kin (Dazar'alor)
 						-- Dragonflight
 						or npcID == "193110" 	-- Khadin <Master Artisan> (Ohn'ahran Plains)
-						or npcID == "194584" 	-- Khuri <Fishing Trainer> (The Waking Shores)
 						then
 							return true
 						end
@@ -2747,6 +2753,15 @@
 					or questID == 71178		-- Waygate: Shady Sanctuary (Thaelin Darkanvil, Dragonflight)
 					or questID == 71157		-- Waygate: Skytop Observatory (Thaelin Darkanvil, Dragonflight)
 					or questID == 71161		-- Waygate: Vakthros (Thaelin Darkanvil, Dragonflight)
+
+					-- Khuri (The Dragon Isles) (Catch and Release quests) (don't select and accept quest if requirements aren't met including bank storage)
+					or questID == 70199 and GetItemCount(194730, true, true, true) < 20 -- Scalebelly Mackerel
+					or questID == 70200 and GetItemCount(194966, true, true, true) < 20 -- Thousandbite Piranha
+					or questID == 70201 and GetItemCount(194967, true, true, true) < 20 -- Aileron Seamoth
+					or questID == 70202 and GetItemCount(194968, true, true, true) < 20 -- Cerulean Spinefish
+					or questID == 70203 and GetItemCount(194969, true, true, true) < 20 -- Temporal Dragonhead
+					or questID == 70935 and GetItemCount(194970, true, true, true) < 20 -- Islefin Dorado
+
 					then
 						return true
 					end
@@ -3841,13 +3856,8 @@
 		----------------------------------------------------------------------
 
 		if LeaPlusLC["NoHitIndicators"] == "On" and not LeaLockList["NoHitIndicators"] then
-			if LeaPlusLC.NewPatch then
-				PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HitIndicator:Hide()
-				hooksecurefunc(PetHitIndicator, "Show", PetHitIndicator.Hide)
-			else
-				hooksecurefunc(PlayerHitIndicator, "Show", PlayerHitIndicator.Hide)
-				hooksecurefunc(PetHitIndicator, "Show", PetHitIndicator.Hide)
-			end
+			PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HitIndicator:Hide()
+			hooksecurefunc(PetHitIndicator, "Show", PetHitIndicator.Hide)
 		end
 
 		----------------------------------------------------------------------
@@ -5241,6 +5251,16 @@
 							-- Show button frame
 							local x, y, row, col = 0, 0, 0, 0
 							local buttons = LibDBIconStub:GetButtonList()
+							-- Sort the button table
+							table.sort(buttons, function(a, b)
+								if string.find(a, "LeaPlusCustomIcon_") then
+									a = string.gsub(a, "LeaPlusCustomIcon_", "")
+								end
+								if string.find(b, "LeaPlusCustomIcon_") then
+									b = string.gsub(b, "LeaPlusCustomIcon_", "")
+								end
+								return a:lower() < b:lower()
+							end)
 							-- Calculate buttons per row
 							local buttonsPerRow
 							local totalButtons = #buttons
@@ -5271,9 +5291,9 @@
 												button:SetPoint("TOPLEFT", bFrame, "TOPLEFT", x, y)
 												col = col + 1; if col >= buttonsPerRow then col = 0; row = row + 1; x = 0; y = y - 30 else x = x + 30 end
 											else
-												-- Minimap is on right side of screen
-												button:SetPoint("TOPRIGHT", bFrame, "TOPRIGHT", x, y)
-												col = col + 1; if col >= buttonsPerRow then col = 0; row = row + 1; x = 0; y = y - 30 else x = x - 30 end
+												-- Minimap is on right side of screen (changed from TOPRIGHT to TOPLEFT and x - 30 to x + 30 to make sorting work)
+												button:SetPoint("TOPLEFT", bFrame, "TOPLEFT", x, y)
+												col = col + 1; if col >= buttonsPerRow then col = 0; row = row + 1; x = 0; y = y - 30 else x = x + 30 end
 											end
 											if totalButtons <= buttonsPerRow then
 												bFrame:SetWidth(totalButtons * 30)
@@ -6284,6 +6304,7 @@
 			LeaPlusLC:MakeCB(ChatFilterPanel, "BlockSpellLinks", "Block spell links during combat", 16, -92, false, "If checked, messages containing spell links will be blocked while you are in combat.|n|nThis is useful for blocking spell interrupt spam.|n|nThis applies to the say, party, raid, instance, emote and yell channels.")
 			LeaPlusLC:MakeCB(ChatFilterPanel, "BlockDrunkenSpam", "Block drunken spam", 16, -112, false, "If checked, drunken messages will be blocked unless they apply to your character.|n|nThis applies to the system channel.")
 			LeaPlusLC:MakeCB(ChatFilterPanel, "BlockDuelSpam", "Block duel spam", 16, -132, false, "If checked, duel victory and retreat messages will be blocked unless your character took part in the duel.|n|nThis applies to the system channel.")
+			LeaPlusLC:MakeCB(ChatFilterPanel, "BlockAngelisSinny", "Block Angelis and Sinny spam", 16, -152, false, "If checked, messages from Angelis and Sinny (part of Bondable Val'kyr Diadem and Bondable Sinstone toys) will be blocked.|n|nThis applies to the monster whisper channel.")
 
 			-- Lock block drunken spam option for zhTW
 			if GameLocale == "zhTW" then
@@ -6306,8 +6327,21 @@
 			local charRealm = GetNormalizedRealmName()
 			local nameRealm = charName .. "%%-" .. charRealm
 
+			-- Localise Angelis and Sinny spam
+				if GameLocale == "frFR" then L["Sinny"] = "Stèlon"		; L["Angelis"] = "Angélis"
+			elseif GameLocale == "ptBR" then L["Sinny"] = "Pecadito"	; L["Angelis"] = "Ângelis"
+			elseif GameLocale == "ruRU" then L["Sinny"] = "Грешок"		; L["Angelis"] = "Ангелис"
+			elseif GameLocale == "koKR" then L["Sinny"] = "죄악이"			; L["Angelis"] = "안젤리스"
+			elseif GameLocale == "zhTW" then L["Sinny"] = "罪罪"			; L["Angelis"] = "安吉莉丝"
+			elseif GameLocale == "zhCN" then L["Sinny"] = "罪罪"			; L["Angelis"] = "安吉莉丝"
+			elseif GameLocale == "deDE" then L["Sinny"] = "Sündi"
+			elseif GameLocale == "esES" then L["Sinny"] = "Pecadín"
+			elseif GameLocale == "esMX" then L["Sinny"] = "Pecadín"
+			elseif GameLocale == "itIT" then L["Sinny"] = "Peccatello"
+			end
+
 			-- Chat filter
-			local function ChatFilterFunc(self, event, msg)
+			local function ChatFilterFunc(self, event, msg, sender)
 				-- Block duel spam
 				if LeaPlusLC["BlockDuelSpam"] == "On" then
 					-- Block duel messages unless you are part of the duel
@@ -6336,6 +6370,14 @@
 						local drunk1 = _G["DRUNK_MESSAGE_ITEM_OTHER"..i]:gsub("%%s", "%s-")
 						local drunk2 = _G["DRUNK_MESSAGE_OTHER"..i]:gsub("%%s", "%s-")
 						if msg:match(drunk1) or msg:match(drunk2) then
+							return true
+						end
+					end
+				end
+				-- Block Angelis and Sinny spam
+				if LeaPlusLC["BlockAngelisSinny"] == "On" then
+					if sender then
+						if sender == L["Angelis"] or sender == L["Sinny"] then
 							return true
 						end
 					end
@@ -6370,12 +6412,18 @@
 				else
 					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_SYSTEM", ChatFilterFunc)
 				end
+				if LeaPlusLC["BlockAngelisSinny"] == "On" then
+					ChatFrame_AddMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
+				else
+					ChatFrame_RemoveMessageEventFilter("CHAT_MSG_MONSTER_WHISPER", ChatFilterFunc)
+				end
 			end
 
 			-- Set chat filter when settings are clicked and on startup
 			LeaPlusCB["BlockSpellLinks"]:HookScript("OnClick", SetChatFilter)
 			LeaPlusCB["BlockDrunkenSpam"]:HookScript("OnClick", SetChatFilter)
 			LeaPlusCB["BlockDuelSpam"]:HookScript("OnClick", SetChatFilter)
+			LeaPlusCB["BlockAngelisSinny"]:HookScript("OnClick", SetChatFilter)
 			SetChatFilter()
 
 			-- Reset button handler
@@ -6385,6 +6433,7 @@
 				LeaPlusLC["BlockSpellLinks"] = "Off"
 				LeaPlusLC["BlockDrunkenSpam"] = "Off"
 				LeaPlusLC["BlockDuelSpam"] = "Off"
+				LeaPlusLC["BlockAngelisSinny"] = "Off"
 				SetChatFilter()
 
 				-- Refresh configuration panel
@@ -6399,6 +6448,7 @@
 					LeaPlusLC["BlockSpellLinks"] = "On"
 					LeaPlusLC["BlockDrunkenSpam"] = "On"
 					LeaPlusLC["BlockDuelSpam"] = "On"
+					LeaPlusLC["BlockAngelisSinny"] = "On"
 					SetChatFilter()
 				else
 					ChatFilterPanel:Show()
@@ -9611,14 +9661,12 @@
 
 			-- Show relevant list items
 			local function UpdateList()
-				FauxScrollFrame_Update(scrollFrame, #ListData, numButtons, 16)
-				for index = 1, numButtons do
-					local offset = index + FauxScrollFrame_GetOffset(scrollFrame)
-					local button = scrollFrame.buttons[index]
-					button.index = offset
-					if offset <= #ListData then
+				local offset = max(0, floor(scrollFrame:GetVerticalScroll() + 0.5))
+				for i, button in ipairs(scrollFrame.buttons) do
+					local index = offset + i
+					if index <= #ListData then
 						-- Show zone listing or track listing
-						button:SetText(ListData[offset].zone or ListData[offset])
+						button:SetText(ListData[index].zone or ListData[index])
 						-- Set width of highlight texture
 						if button:GetTextWidth() > 290 then
 							button.t:SetSize(290, 16)
@@ -9661,6 +9709,7 @@
 						button:Hide()
 					end
 				end
+				scrollFrame.child:SetSize(200, #ListData + (14*19.6) - 1) --++ LeaSoundsLC.NewPatch
 			end
 
 			-- Give function file level scope (it's used in SetPlusScale to set the highlight bar scale)
@@ -9781,13 +9830,15 @@
 			end
 
 			-- Create scroll bar
-			scrollFrame = CreateFrame("ScrollFrame", "LeaPlusScrollFrame", LeaPlusLC["Page9"], "FauxScrollFrameTemplate")
+			scrollFrame = CreateFrame("ScrollFrame", nil, LeaPlusLC["Page9"], "ScrollFrameTemplate")
 			scrollFrame:SetPoint("TOPLEFT", 0, -32)
 			scrollFrame:SetPoint("BOTTOMRIGHT", -30, 50)
-			scrollFrame:SetFrameLevel(10)
-			scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
-				FauxScrollFrame_OnVerticalScroll(self, offset, 16, UpdateList)
-			end)
+			scrollFrame:SetPanExtent(1)
+			scrollFrame:SetScript("OnVerticalScroll", UpdateList)
+
+			-- Create the scroll child
+			scrollFrame.child = CreateFrame("Frame", nil, scrollFrame)
+			scrollFrame:SetScrollChild(scrollFrame.child)
 
 			-- Add stop button
 			local stopBtn = LeaPlusLC:CreateButton("StopMusicBtn", LeaPlusLC["Page9"], "Stop", "TOPLEFT", 146, -292, 0, 25, true, "")
@@ -9916,8 +9967,7 @@
 				-- Traverse music listing and populate ListData
 				if searchText ~= "" then
 					local word1, word2, word3, word4, word5 = strsplit(" ", (strtrim(searchText):gsub("%s+", " ")))
-					_G.LeaPlusGlobalHash = {}
-					local hash = LeaPlusGlobalHash
+					local hash = {}
 					local trackCount = 0
 					for i, e in pairs(ZoneList) do
 						if ZoneList[e] then
@@ -10215,9 +10265,6 @@
 					end
 				end
 			end)
-
-			-- Delete the global scroll frame pointer
-			_G.LeaPlusScrollFrame = nil
 
 			-- Set zone listing on startup
 			if LeaPlusDB["MusicContinent"] and LeaPlusDB["MusicContinent"] ~= "" then
@@ -10784,6 +10831,7 @@
 				LeaPlusLC:LoadVarChk("BlockSpellLinks", "Off")				-- Block spell links
 				LeaPlusLC:LoadVarChk("BlockDrunkenSpam", "Off")				-- Block drunken spam
 				LeaPlusLC:LoadVarChk("BlockDuelSpam", "Off")				-- Block duel spam
+				LeaPlusLC:LoadVarChk("BlockAngelisSinny", "Off")			-- Block Angelis and Sinny spam
 				LeaPlusLC:LoadVarChk("RestoreChatMessages", "Off")			-- Restore chat messages
 
 				-- Text
@@ -11136,6 +11184,7 @@
 			LeaPlusDB["BlockSpellLinks"]		= LeaPlusLC["BlockSpellLinks"]
 			LeaPlusDB["BlockDrunkenSpam"]		= LeaPlusLC["BlockDrunkenSpam"]
 			LeaPlusDB["BlockDuelSpam"]			= LeaPlusLC["BlockDuelSpam"]
+			LeaPlusDB["BlockAngelisSinny"]		= LeaPlusLC["BlockAngelisSinny"]
 			LeaPlusDB["RestoreChatMessages"]	= LeaPlusLC["RestoreChatMessages"]
 
 			-- Text
@@ -11516,7 +11565,7 @@
 			Side.backFrame:SetBackdropColor(0, 0, 1, 0.5)
 
 			-- Create scroll frame
-			Side.scrollFrame = CreateFrame("ScrollFrame", "LeaPlusGlobal" .. globref .. "ScrollFrame", Side.backFrame, "LeaPlusConfigurationPanelScrollFrameTemplate")
+			Side.scrollFrame = CreateFrame("ScrollFrame", nil, Side.backFrame, "LeaPlusConfigurationPanelScrollFrameTemplate")
 			Side.scrollChild = CreateFrame("Frame", nil, Side.scrollFrame)
 
 			Side.scrollChild:SetSize(1, 1)
@@ -12078,6 +12127,26 @@
 							C_QuestLog.AbandonQuest()
 						end
 						LeaPlusLC:Print(L["Quest log wiped."])
+						return
+					elseif arg1 == "clone" and GetNumSubgroupMembers(1) > 0 then
+						-- Share all quests
+						local i = 0
+						C_Timer.NewTicker(0.3, function()
+							i = i + 1
+							local selectedQuest = C_QuestLog.GetInfo(i)
+							if selectedQuest then
+								C_QuestLog.SetSelectedQuest(selectedQuest.questID)
+								local title = C_QuestLog.GetTitleForQuestID(selectedQuest.questID)
+								if title then
+									print(title)
+									if C_QuestLog.IsPushableQuest(selectedQuest.questID) then
+										QuestLogPushQuest(i)
+									else
+										LeaPlusLC:Print(L["Not applicable."])
+									end
+								end
+							end
+						end, C_QuestLog.GetNumQuestLogEntries())
 						return
 					elseif tonumber(arg1) and tonumber(arg1) < 999999999 then
 						-- Show quest information
@@ -13358,11 +13427,15 @@
 				end
 				return
 			elseif str == "click" then
-				-- Click a button so a user can test if it is allowed
+				-- Click a button so a user can test if it is allowed (optional number of times to click)
 				local frame = GetMouseFocus()
 				local ftype = frame:GetObjectType()
 				if frame and ftype and ftype == "Button" then
-					frame:Click()
+					if arg1 and tonumber(arg1) > 1 and tonumber(arg1) < 1000 then
+						for i =1, tonumber(arg1) do C_Timer.After(0.1 * i, function() frame:Click() end) end
+					else
+						frame:Click()
+					end
 				else
 					LeaPlusLC:Print("Hover the pointer over a button.")
 				end
@@ -13868,6 +13941,7 @@
 				LeaPlusDB["BlockSpellLinks"] = "On"				-- Block spell links
 				LeaPlusDB["BlockDrunkenSpam"] = "On"			-- Block drunken spam
 				LeaPlusDB["BlockDuelSpam"] = "On"				-- Block duel spam
+				LeaPlusDB["BlockAngelisSinny"] = "On"			-- Block Angelis and Sinny spam
 				LeaPlusDB["RestoreChatMessages"] = "On"			-- Restore chat messages
 
 				-- Text
