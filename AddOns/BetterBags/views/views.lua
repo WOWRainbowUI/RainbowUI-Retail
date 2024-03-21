@@ -15,7 +15,7 @@ local views = addon:NewModule('Views')
 ---@class ItemFrame: AceModule
 local itemFrame = addon:GetModule('ItemFrame')
 
----@class view
+---@class (exact) view
 ---@field sections table<string, Section>
 ---@field content Grid
 ---@field kind BagView
@@ -29,10 +29,10 @@ local itemFrame = addon:GetModule('ItemFrame')
 views.viewProto = {}
 
 ---@param bag Bag
----@param dirtyItems ItemData[]
-function views.viewProto:Render(bag, dirtyItems)
+---@param slotInfo ExtraSlotInfo
+function views.viewProto:Render(bag, slotInfo)
   _ = bag
-  _ = dirtyItems
+  _ = slotInfo
   error('Render method not implemented')
 end
 

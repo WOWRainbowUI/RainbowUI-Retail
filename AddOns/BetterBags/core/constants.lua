@@ -96,6 +96,21 @@ const.BACKPACK_ONLY_REAGENT_BAGS = {
   [Enum.BagIndex.ReagentBag] = Enum.BagIndex.ReagentBag,
 }
 
+const.ITEM_BAG_FAMILY = {
+  [0] = L:G("Bags"),
+  [1] = L:G("Quiver"),
+  [2] = L:G("Ammo Pouch"),
+  [4] = L:G("Soul Bag"),
+  [8] = L:G("Leatherworking Bag"),
+  [16] = L:G("Inscription Bag"),
+  [32] = L:G("Herb Bag"),
+  [64] = L:G("Enchanting Bag"),
+  [128] = L:G("Engineering Bag"),
+  [256] = L:G("Keyring"),
+  [512] = L:G("Gem Bag"),
+  [1024] = L:G("Mining Bag"),
+}
+
 ---@enum BagView
 const.BAG_VIEW = {
   UNDEFINED = 0,
@@ -290,6 +305,18 @@ const.DATABASE_DEFAULTS = {
     showBagButton = true,
     debug = false,
     inBagSearch = false,
+    stacking = {
+      [const.BAG_KIND.BACKPACK]  = {
+        mergeStacks = true,
+        mergeUnstackable = true,
+        unmergeAtShop = true,
+      },
+      [const.BAG_KIND.BANK]  = {
+        mergeStacks = true,
+        mergeUnstackable = true,
+        unmergeAtShop = true,
+      }
+    },
     itemLevel = {
       [const.BAG_KIND.BACKPACK] = {
         enabled = true,

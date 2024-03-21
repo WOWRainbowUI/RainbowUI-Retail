@@ -145,7 +145,7 @@ function bagFrame.bagProto:Sort()
   ---@type Item[]
   local lockList = {}
   for _, item in pairs(self.currentView:GetItemsByBagAndSlot()) do
-    if item.data.itemInfo.isLocked then
+    if item.data and not item.data.isItemEmpty and item.data.itemInfo.isLocked then
       table.insert(lockList, item)
       item:Unlock()
     end
@@ -154,7 +154,7 @@ function bagFrame.bagProto:Sort()
   PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
   items:RemoveNewItemFromAllItems()
   C_Container:SortBags()
-  items:RefreshAll()
+  --events:SendMessage('bags/FullRefreshAll')
 
   for _, item in pairs(lockList) do
     item:Lock()
@@ -200,8 +200,8 @@ function bagFrame.bagProto:Search(text)
 end
 
 -- Draw will draw the correct bag view based on the bag view configuration.
----@param dirtyItems ItemData[]
-function bagFrame.bagProto:Draw(dirtyItems)
+---@param slotInfo ExtraSlotInfo
+function bagFrame.bagProto:Draw(slotInfo)
   local view = self.views[database:GetBagView(self.kind)]
 
   if view == nil then
@@ -215,7 +215,7 @@ function bagFrame.bagProto:Draw(dirtyItems)
   end
 
   debug:StartProfile('Bag Render')
-  view:Render(self, dirtyItems)
+  view:Render(self, slotInfo)
   debug:EndProfile('Bag Render')
   view:GetContent():Show()
   self.currentView = view
