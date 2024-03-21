@@ -528,9 +528,17 @@ function VUHDO_initDebuffs()
 	for tDebuffType, tAbilities in pairs(VUHDO_INIT_DEBUFF_ABILITIES[tClass] or sEmpty) do
 		for tCnt = 1, #tAbilities do
 			tAbility = tAbilities[tCnt];
+
 --			VUHDO_Msg("check: " .. tAbility);
 			if VUHDO_isSpellKnown(tAbility) or tAbility == "*" then
-				VUHDO_PLAYER_ABILITIES[tDebuffType] = VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility] or tAbility;
+				if VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility] then
+					tAbility = VUHDO_SPEC_TO_DEBUFF_ABIL[tAbility];
+				elseif type(tAbility) == "number" then
+					tAbility = GetSpellInfo(tAbility);
+				end
+
+				VUHDO_PLAYER_ABILITIES[tDebuffType] = tAbility;
+
 --				VUHDO_Msg("KEEP: Type " .. tDebuffType .. " because of spell " .. VUHDO_PLAYER_ABILITIES[tDebuffType]);
 				break;
 			end
