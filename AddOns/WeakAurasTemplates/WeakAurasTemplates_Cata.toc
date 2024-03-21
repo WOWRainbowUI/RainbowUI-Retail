@@ -1,22 +1,18 @@
-## Interface: 100206
+## Interface: 40400
 ## Title: WeakAuras Templates
 ## Author: The WeakAuras Team
 ## Version: 5.12.1
-## IconTexture: Interface\AddOns\WeakAuras\Media\Textures\icon.blp
 ## Notes: Templates for WeakAuras
 ## X-Category: Interface Enhancements
 ## Globe-Main: WeakAuras
+## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras, WeakAurasOptions
-
-## Title-zhTW: |cffFF9900[進階]|r WA技能提醒-範本
-## Notes-zhTW: WeakAuras Templates |n|nWA技能提醒的快速套用範本
-## X-Category-zhTW: 進階
-## DefaultState: disabled
+## AllowLoadGameType: cata
 
 locales.xml
 
 TriggerTemplates.lua
-TriggerTemplatesData.lua
+TriggerTemplatesDataWrath.lua
 
 AceGUI-Widgets\AceGUIContainer-WeakAurasTemplateGroup.lua

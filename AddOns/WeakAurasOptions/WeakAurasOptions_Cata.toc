@@ -1,8 +1,7 @@
-## Interface: 100206
+## Interface: 40400
 ## Title: WeakAuras Options
 ## Author: The WeakAuras Team
 ## Version: 5.12.1
-## IconTexture: Interface\AddOns\WeakAuras\Media\Textures\icon.blp
 ## Notes: Options for WeakAuras
 ## Notes-esES: Opciones para WeakAuras
 ## Notes-deDE: Optionen für WeakAuras
@@ -10,14 +9,11 @@
 ## Notes-zhTW: WeakAuras的設定
 ## X-Category: Interface Enhancements
 ## Globe-Main: WeakAuras
+## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WeakAuras
 ## SavedVariables: WeakAurasOptionsSaved
-
-## Title-zhTW: |cffFF9900[進階]|r WA技能提醒-設定選項
-## Notes-zhTW: WeakAuras Options |n|nWA技能提醒的設定。|n|n|cffffd200使用方法: |r輸入 /wa 開啟設定。
-## X-Category-zhTW: 進階
-## DefaultState: disabled
+## AllowLoadGameType: cata
 
 locales.xml
 
@@ -100,7 +96,7 @@ AceGUI-Widgets\AceGUIWidget-WeakAurasExpandAnchor.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasSpacer.lua
 AceGUI-Widgets\AceGuiWidget-WeakAurasProgressBar.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasSpinBox.lua
-AceGUI-Widgets\AceGUIWidget-WeakAurasMiniTalent_Dragonflight.lua
+AceGUI-Widgets\AceGUIWidget-WeakAurasMiniTalent_Cata.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasScrollArea.lua
 AceGUI-Widgets\AceGUIWidget-WeakAurasInputFocus.lua
 AceGUI-Widgets\AceGuiWidget-WeakAurasMediaSound.lua
