@@ -1,3 +1,12 @@
+﻿10.2.20 - 20th March 2024
+- Updated for game patch 10.2.6.
+
+10.2.18 - 6th March 2024
+- For 'Show additional icons', added 'Badlands' portal icon to Valdrakken.
+
+10.2.17 - 28th February 2024
+- For 'Show additional icons', added 'Emerald Dream' portal icons to Valdrakken, Emerald Dream and Ohn'ahran Plains.
+
 10.2.10 - 16th January 2024
 - Preliminary update for game patch 10.2.5.
 
