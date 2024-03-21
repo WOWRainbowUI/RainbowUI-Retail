@@ -6,8 +6,10 @@ local GameTooltip = T.NotGameTooltip or GameTooltip
 
 local exclude, questItems, IsQuestItem, disItems = PC:RegisterPVar("AutoQuestExclude", {}), {}
 local function getContainerItemQuestInfo(bag, slot)
-	local iqi = C_Container.GetContainerItemQuestInfo(bag, slot)
-	return iqi.isQuestItem, iqi.questID, iqi.isActive
+	if bag and slot then
+		local iqi = C_Container.GetContainerItemQuestInfo(bag, slot)
+		return iqi.isQuestItem, iqi.questID, iqi.isActive
+	end
 end
 if MODERN then
 	questItems[30148] = {72986, 72985}
@@ -58,8 +60,11 @@ if MODERN then
 		[204561]=1,
 	}})
 	function IsQuestItem(iid, bag, slot)
-		if exclude[iid] then return false end
-		if disItems[iid] then return true, false, disItems[iid] end
+		if exclude[iid] or not iid then
+			return false
+		elseif disItems[iid] then
+			return true, false, disItems[iid]
+		end
 		local inc, isQuest, startQuestId, isQuestActive = include[iid], getContainerItemQuestInfo(bag, slot)
 		isQuest = iid and ((isQuest and GetItemSpell(iid)) or (inc == true) or (startQuestId and not isQuestActive and not C_QuestLog.IsQuestFlaggedCompleted(startQuestId)))
 		local tinc, rcat = inc and not isQuest and type(inc), nil
@@ -99,9 +104,11 @@ else
 	local QUEST_ITEM = Enum.ItemClass.Questitem
 	function IsQuestItem(iid, bag, slot, skipTypeCheck)
 		local isQuest, startsQuest = false, false
-		if include[iid] then
+		if exclude[iid] or not iid then
+			return false
+		elseif include[iid] then
 			isQuest = true
-		elseif not (iid and GetItemSpell(iid) and not exclude[iid]) then
+		elseif not (GetItemSpell(iid) and not exclude[iid]) then
 		elseif select(12, GetItemInfo(iid)) == QUEST_ITEM then
 			isQuest = true
 		elseif skipTypeCheck then

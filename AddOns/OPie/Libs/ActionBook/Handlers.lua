@@ -286,7 +286,7 @@ do -- spell: spell ID + mount spell ID
 	end
 end
 do -- item: items ID/inventory slot
-	local actionMap, itemIdMap, lastSlot = {}, {}, INVSLOT_LAST_EQUIPPED
+	local actionMap, itemIdMap, LAST_EQUIP_SLOT = {}, {}, INVSLOT_LAST_EQUIPPED
 	local function containerTip(self, bagslot)
 		local slot = bagslot % 100
 		self:SetBagItem((bagslot-slot)/100, slot)
@@ -296,7 +296,7 @@ do -- item: items ID/inventory slot
 	end
 	local function GetItemLocation(iid, name, name2)
 		local name2, cb, cs, n = name2 and lowered[name2]
-		for i=1, lastSlot do
+		for i=1, LAST_EQUIP_SLOT do
 			if GetInventoryItemID("player", i) == iid then
 				n = GetItemInfo(GetInventoryItemLink("player", i))
 				if n == name or n and name2 and lowered[n] == name2 then
@@ -323,13 +323,15 @@ do -- item: items ID/inventory slot
 	end
 	function itemHint(ident, _modState, target, purpose, ibag, islot)
 		local name, link, icon, _, bag, slot, tip, tipArg
-		if type(ident) == "number" and ident <= lastSlot then
+		if type(ident) == "number" and ident <= LAST_EQUIP_SLOT then
 			local invid = GetInventoryItemID("player", ident)
 			if invid == nil then return end
 			bag, slot, name, link = nil, invid, GetItemInfo(GetInventoryItemLink("player", ident) or invid)
-			if name then ident = name end
+			ident = name or ident
 		elseif ident then
 			name, link, _, _, _, _, _, _, _, icon = GetItemInfo(ident)
+		else
+			return
 		end
 		local iid, cdStart, cdLen, enabled, cdLeft = (link and tonumber(link:match("item:([x%x]+)"))) or itemIdMap[ident]
 		if MODERN and iid and PlayerHasToy(iid) and GetItemCount(iid) == 0 then
@@ -339,7 +341,7 @@ do -- item: items ID/inventory slot
 			cdLeft = (cdStart or 0) > 0 and (enabled ~= 0) and (cdStart + cdLen - GetTime())
 		end
 		target = target or "target"
-		-- TODO: Unconditional after 3.4.3
+		-- TODO: Drop the 3.4.3 condition after 3.4.3/when the client aligns
 		local canRange = not (COMPAT ~= 30403 and InCombatLockdown() and (UnitIsFriend("player", target) or not UnitExists(target))) or nil
 		local inRange, hasRange = canRange and NormalizeInRange[IsItemInRange(ident, target)]
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
@@ -369,8 +371,8 @@ do -- item: items ID/inventory slot
 		if type(flags) == "number" then
 			byName, forceShow, onlyEquipped = flags % 4 >= 2, flags % 2 >= 1, flags % 8 >= 4
 		end
-		local name = id <= lastSlot and id or (byName and GetItemInfo(id) or ("item:" .. id))
-		if not forceShow and onlyEquipped and not ((id > lastSlot and IsEquippedItem(name)) or (id <= lastSlot and GetInventoryItemLink("player", id))) then return end
+		local name = id <= LAST_EQUIP_SLOT and id or (byName and GetItemInfo(id) or ("item:" .. id))
+		if not forceShow and onlyEquipped and not ((id > LAST_EQUIP_SLOT and IsEquippedItem(name)) or (id <= LAST_EQUIP_SLOT and GetInventoryItemLink("player", id))) then return end
 		if not forceShow and GetItemCount(name) == 0 then return end
 		if not actionMap[name] then
 			actionMap[name], itemIdMap[name] = AB:CreateActionSlot(itemHint, name, "attribute", "type","item", "item",name, "checkselfcast",true, "checkfocuscast",true), id
