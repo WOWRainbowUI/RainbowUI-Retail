@@ -3,8 +3,8 @@ local _, addonTable = ...
 -- Returns details about which characters and owned guilds contain items
 -- matching the item link.
 --   itemLink: string
---   onlyConnectedRealms: boolean
---   onlyCurrentFaction: boolean
+--   sameConnectedRealms: boolean
+--   sameCurrentFaction: boolean
 function Syndicator.API.GetInventoryInfo(itemLink, sameConnectedRealm, sameFaction)
   local success, key = pcall(Syndicator.Utilities.GetItemKey, itemLink)
   if not success then
@@ -13,6 +13,22 @@ function Syndicator.API.GetInventoryInfo(itemLink, sameConnectedRealm, sameFacti
   end
 
   return Syndicator.ItemSummaries:GetTooltipInfo(key, sameConnectedRealm == true, sameFaction == true)
+end
+
+Syndicator.API.GetInventoryInfoByItemLink = Syndicator.API.GetInventoryInfo
+
+function Syndicator.API.GetInventoryInfoByItemID(itemID, sameConnectedRealm, sameFaction)
+  local key = Syndicator.Utilities.GetItemKeyByItemID(itemID)
+  return Syndicator.ItemSummaries:GetTooltipInfo(key, sameConnectedRealm == true, sameFaction == true)
+end
+
+-- Returns currency counts for a specific currency on all characters
+--   currencyID: number
+--   sameConnectedRealms: boolean
+--   sameCurrentFaction: boolean
+function Syndicator.API.GetCurrencyInfo(currencyID, sameConnectedRealm, sameFaction)
+  assert(type(currencyID) == "number")
+  return Syndicator.Tracking.GetCurrencyTooltipData(currencyID, sameConnectedRealm == true, sameFaction == true)
 end
 
 -- Set the callback used when an item's location is clicked in the /syns search results
@@ -24,4 +40,34 @@ end
 --    searchText: Search text to help focus the item
 function Syndicator.API.RegisterShowItemLocation(callback)
   addonTable.ShowItemLocationCallback = callback
+end
+
+function Syndicator.API.GetAllCharacters()
+  return GetKeysArray(SYNDICATOR_DATA.Characters)
+end
+
+-- characterFullName: string, e.g. "Martin-NormalizedRealmName"
+function Syndicator.API.GetByCharacterFullName(characterFullName)
+  return SYNDICATOR_DATA.Characters[characterFullName]
+end
+
+function Syndicator.API.GetAllGuilds()
+  return GetKeysArray(SYNDICATOR_DATA.Guilds)
+end
+
+-- guildFullName: string, e.g. "The Jokesters-NormalizedRealmName"
+function Syndicator.API.GetByGuildFullName(guildFullName)
+  if SYNDICATOR_DATA.Guilds[guildFullName] then
+    return SYNDICATOR_DATA.Guilds[guildFullName]
+  end
+
+  local guildName, realmName = strsplit("-", guildFullName)
+
+  -- The guild isn't stored in Syndicator against this realmName, so it must be
+  -- stored against another connected realm's name, try to find it.
+  for guild, data in pairs(SYNDICATOR_DATA.Guilds) do
+    if data.details.guildName == guildName and tIndexOf(data.details.realms, realmName) ~= nil then
+      return data, guild
+    end
+  end
 end
