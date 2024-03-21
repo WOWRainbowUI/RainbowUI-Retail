@@ -5,14 +5,16 @@
 ## Title: LS: |cffe0bc5bGlass|r
 ## Notes: Smooth as glass.
 ## IconTexture: Interface\AddOns\ls_Glass\assets\logo-64
-## Title-zhTW: |cffFF9999[聊天]|r 視窗美化
-## Notes-zhTW: LS: |cffe0bc5bGlass|r |n|n沉浸式極簡風格的聊天視窗，提供更多自訂選項。|n|n|cffffd200使用方法: |rEsc>選項>插件>聊天視窗>開啟設定。
-## X-Category-zhTW: 社交
 ## SavedVariables: LS_GLASS_GLOBAL_CONFIG
 
-embeds\LibEasing\LibEasing.lua
+## Title-zhTW: |cffFF9999[聊天]|r [暫時停用] 視窗美化
+## Notes-zhTW: LS: |cffe0bc5bGlass|r |n|n沉浸式極簡風格的聊天視窗，提供更多自訂選項。|n|n|cffffd200使用方法: |rEsc>選項>插件>聊天視窗>開啟設定。
+## X-Category-zhTW: 社交
+## DefaultState: disabled
 
-locales\_locales.xml
+## embeds\LibEasing\LibEasing.lua
 
-core\_core.xml
-init.lua
+## locales\_locales.xml
+
+## core\_core.xml
+## init.lua

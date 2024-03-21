@@ -1371,9 +1371,9 @@ D["LOIHLoot"] = {
 	},
 };
 D["ls_Glass"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "SOCIAL" },
-	title = "聊天視窗美化",
+	title = "(暫時停用) 聊天視窗美化",
 	desc = "極簡風格的聊天視窗，會自動淡出聊天文字，讓你更能沉浸在遊戲中，並且提供更多的選項來自訂聊天視窗。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_evoker_powerswell",
