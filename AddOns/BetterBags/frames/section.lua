@@ -45,11 +45,10 @@ local sectionProto = {}
 ---@param kind BagKind
 ---@param view BagView
 ---@param freeSpaceShown boolean
----@param nosort? boolean
 ---@return number width
 ---@return number height
-function sectionProto:Draw(kind, view, freeSpaceShown, nosort)
-  return self:Grid(kind, view, freeSpaceShown, nosort)
+function sectionProto:Draw(kind, view, freeSpaceShown)
+  return self:Grid(kind, view, freeSpaceShown)
 end
 
 -- SetTitle will set the title of the section.
@@ -81,11 +80,6 @@ end
 
 function sectionProto:SetFillWidth(fill)
   self.fillWidth = fill
-end
-
----@return boolean
-function sectionProto:GetFillWidth()
-  return self.fillWidth
 end
 
 function sectionProto:GetContent()
@@ -131,20 +125,6 @@ function sectionProto:GetAllCells()
   return self.content.idToCell
 end
 
----@return string[]
-function sectionProto:GetKeys()
-  local keys  = {}
-  for k, _ in pairs(self.content.idToCell) do
-    table.insert(keys, k)
-  end
-  return keys
-end
-
----@return Cell[]|Item[]|Section[]
-function sectionProto:GetRawCells()
-  return self.content.cells
-end
-
 function sectionProto:Release()
   sectionFrame._pool:Release(self)
 end
@@ -153,16 +133,13 @@ end
 ---@param kind BagKind
 ---@param view BagView
 ---@param freeSpaceShown boolean
----@param nosort? boolean
 ---@return number width
 ---@return number height
-function sectionProto:Grid(kind, view, freeSpaceShown, nosort)
-  if not nosort then
-    if freeSpaceShown then
-      self.content:Sort(sort.GetItemSortBySlot)
-    else
-      self.content:Sort(sort:GetItemSortFunction(kind, view))
-    end
+function sectionProto:Grid(kind, view, freeSpaceShown)
+  if freeSpaceShown then
+    self.content:Sort(sort.GetItemSortBySlot)
+  else
+    self.content:Sort(sort:GetItemSortFunction(kind, view))
   end
   local w, h = self.content:Draw()
   self.content:GetContainer():SetPoint("TOPLEFT", self.title, "BOTTOMLEFT", 0, 0)
@@ -172,12 +149,9 @@ function sectionProto:Grid(kind, view, freeSpaceShown, nosort)
     self.frame:Hide()
     return 0, 0
   end
-  if self.fillWidth then
-    w = math.max(w, self.title:GetTextWidth())
-  end
   self.frame:SetSize(w + 12, h + self.title:GetHeight() + 6)
   self.frame:Show()
-  return w + 12, h + self.title:GetHeight() + 6
+  return w+12, h + self.title:GetHeight() + 6
 end
 
 -------

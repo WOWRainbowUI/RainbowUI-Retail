@@ -2,8 +2,6 @@ local addonName = ... ---@type string
 
 ---@class BetterBags: AceAddon
 ---@field backpackShouldOpen boolean
----@field backpackShouldClose boolean
----@field atInteracting boolean
 local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 ---@cast addon +AceHook-3.0
 
@@ -15,16 +13,6 @@ local events = addon:GetModule('Events')
 
 addon.backpackShouldOpen = false
 addon.backpackShouldClose = false
-
-local interactionEvents = {
-  [Enum.PlayerInteractionType.TradePartner] = true,
-  [Enum.PlayerInteractionType.Banker] = true,
-  [Enum.PlayerInteractionType.Merchant] = true,
-  [Enum.PlayerInteractionType.MailInfo] = true,
-  [Enum.PlayerInteractionType.Auctioneer] = true,
-  [Enum.PlayerInteractionType.GuildBanker] = true,
-  [Enum.PlayerInteractionType.VoidStorageBanker] = true,
-}
 
 function addon.ForceHideBlizzardBags()
   for i = 1, NUM_TOTAL_BAG_FRAMES, 1 do
@@ -44,9 +32,6 @@ function addon.OnUpdate()
     addon.backpackShouldOpen = false
     addon.backpackShouldClose = false
     addon.Bags.Backpack:Show()
-    if addon.atInteracting then
-      events:SendMessage('bags/RefreshAll')
-    end
   elseif addon.backpackShouldClose then
     debug:Log('Hooks', 'OnUpdate', addon.backpackShouldOpen, addon.backpackShouldClose)
     addon.backpackShouldClose = false
@@ -54,31 +39,67 @@ function addon.OnUpdate()
   end
 end
 
----@param interactionType Enum.PlayerInteractionType
-function addon:OpenInteractionWindow(interactionType)
-  if interactionEvents[interactionType] == nil then return end
-  if GameMenuFrame:IsShown() then
-    return
-  end
-  debug:Log("Interaction", "OpenInteractionWindow", interactionType)
-  addon.atInteracting = true
+function addon:OpenAllBags(interactingFrame)
+  if interactingFrame ~= nil then return end
+  debug:Log('Hooks', 'OpenAllBags')
   addon.backpackShouldOpen = true
   events:SendMessageLater('bags/OpenClose')
 end
 
----@param interactionType Enum.PlayerInteractionType
-function addon:CloseInteractionWindow(interactionType)
-  if interactionEvents[interactionType] == nil then return end
-  debug:Log("Interaction", "CloseInteractionWindow", interactionType)
-  addon.atInteracting = false
+---@param interactingFrame Frame
+function addon:CloseAllBags(interactingFrame)
+  if interactingFrame ~= nil then return end
+  debug:Log('Hooks', 'CloseAllBags')
   addon.backpackShouldClose = true
-  events:SendMessage('bags/RefreshAll')
+  events:SendMessageLater('bags/OpenClose')
+end
+
+function addon:CloseBackpack(interactingFrame)
+  if interactingFrame ~= nil then return end
+  debug:Log('Hooks', 'CloseBackpack')
+  addon.backpackShouldClose = true
+  events:SendMessageLater('bags/OpenClose')
+end
+
+function addon:OpenBackpack(interactingFrame)
+  if interactingFrame ~= nil then return end
+  debug:Log('Hooks', 'OpenBackpack')
+  addon.backpackShouldOpen = true
+  events:SendMessageLater('bags/OpenClose')
+end
+
+function addon:ToggleBag(interactingFrame)
+  if interactingFrame ~= nil then return end
+  debug:Log('Hooks', 'ToggleBag')
+  if addon.Bags.Backpack:IsShown() then
+    addon.backpackShouldClose = true
+  else
+    addon.backpackShouldOpen = true
+  end
+  events:SendMessageLater('bags/OpenClose')
+end
+
+function addon:CloseBag(interactingFrame)
+  if interactingFrame ~= nil then return end
+  debug:Log('Hooks', 'CloseBag')
+  addon.backpackShouldClose = true
   events:SendMessageLater('bags/OpenClose')
 end
 
 function addon:ToggleAllBags(interactingFrame)
   if interactingFrame ~= nil then return end
   debug:Log('Hooks', 'ToggleAllBags')
+  if addon.Bags.Backpack:IsShown() then
+    addon.backpackShouldClose = true
+  else
+    addon.backpackShouldOpen = true
+  end
+  events:SendMessageLater('bags/OpenClose')
+end
+
+function addon:ToggleBackpack(interactingFrame)
+  if interactingFrame ~= nil then return end
+  debug:Log('Hooks', 'ToggleBackpack')
   if addon.Bags.Backpack:IsShown() then
     addon.backpackShouldClose = true
   else
@@ -100,9 +121,6 @@ end
 
 function addon:OpenBank(interactingFrame)
   if interactingFrame ~= nil then return end
-  if GameMenuFrame:IsShown() then
-    return
-  end
   debug:Log('Hooks', 'OpenBank')
   addon.Bags.Bank:Show()
   addon.Bags.Backpack:Show()

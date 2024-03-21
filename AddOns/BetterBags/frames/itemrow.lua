@@ -115,7 +115,7 @@ end
 
 ---@return string
 function item.itemRowProto:GetCategory()
-  return self.button.data.itemInfo.category
+  return self.button:GetCategory()
 end
 
 ---@return boolean

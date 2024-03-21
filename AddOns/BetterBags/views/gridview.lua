@@ -56,76 +56,68 @@ local function Wipe(view)
 end
 
 ---@param view view
----@param data ItemData
----@return boolean
-local function drawDirtyItemUnstacked(view, data)
-  local categoryChanged = false
-  local bagid = data.bagid
-  local slotkey = view:GetSlotKey(data)
-  -- Create or get the item frame for this slot.
-  local itemButton = view.itemsByBagAndSlot[slotkey] --[[@as Item]]
-  if itemButton == nil then
-    itemButton = itemFrame:Create()
-    view.itemsByBagAndSlot[slotkey] = itemButton
-  end
-
-  -- Set the item data on the item frame.
-  itemButton:SetItem(data)
-
-  -- Add the item to the correct category section, skipping the keyring unless we're showing bag slots.
-  if (not data.isItemEmpty and bagid ~= Enum.BagIndex.Keyring) then
-    local section = view:GetOrCreateSection(data.itemInfo.category)
-    section:AddCell(slotkey, itemButton)
-  end
-  return categoryChanged
-end
-
---local stacks = {}
-
----@param view view
 ---@param bag Bag
----@param slotInfo ExtraSlotInfo
-local function GridView(view, bag, slotInfo)
+---@param dirtyItems ItemData[]
+local function GridView(view, bag, dirtyItems)
   if view.fullRefresh then
     view:Wipe()
     view.fullRefresh = false
   end
-  local dirtyItems = slotInfo.dirtyItems
   local sizeInfo = database:GetBagSizeInfo(bag.kind, database:GetBagView(bag.kind))
   local categoryChanged = false
+  local extraSlotInfo = items:GetExtraSlotInfo(bag.kind)
   view.content.compactStyle = database:GetBagCompaction(bag.kind)
-
   debug:Log("Draw", "Rendering grid view for bag", bag.kind, "with", #dirtyItems, "dirty items")
   debug:StartProfile('Dirty Item Stage')
   for _, data in pairs(dirtyItems) do
-    if data.stackedOn == nil or data.isItemEmpty then
-      debug:Log("Draw", "Drawing dirty item", data.itemInfo and data.itemInfo.itemLink or nil, "in bag", data.bagid, "slot", data.slotid)
-      local change = drawDirtyItemUnstacked(view, data)
-      if categoryChanged == false and change == true then
+    local bagid = data.bagid
+    local slotkey = view:GetSlotKey(data)
+
+    -- Create or get the item frame for this slot.
+    local itemButton = view.itemsByBagAndSlot[slotkey] --[[@as Item]]
+    if itemButton == nil then
+      itemButton = itemFrame:Create()
+      view.itemsByBagAndSlot[slotkey] = itemButton
+    end
+
+    -- Get the previous category for this slotkey.
+    local previousCategory = itemButton.data and itemButton.data.itemInfo and itemButton.data.itemInfo.category
+
+    -- Set the item data on the item frame.
+    itemButton:SetItem(data)
+
+    -- Add the item to the correct category section, skipping the keyring unless we're showing bag slots.
+    if (not data.isItemEmpty and bagid ~= Enum.BagIndex.Keyring) then
+      local category = itemButton:GetCategory()
+      local section = view:GetOrCreateSection(category)
+      section:AddCell(slotkey, itemButton)
+      if previousCategory ~= category then
         categoryChanged = true
       end
     end
   end
   debug:EndProfile('Dirty Item Stage')
 
-  view.defer = slotInfo.deferDelete
+  if (extraSlotInfo.totalItems < view.itemCount and not categoryChanged) then
+    view.defer = true
+  else
+    view.defer = false
+  end
 
   debug:StartProfile('Reconcile Stage')
   -- Loop through all sections and reconcile the items.
   for sectionName, section in pairs(view:GetAllSections()) do
-    local allCells = section:GetKeys()
-    for _, slotkey in pairs(allCells) do
-      local button = view.itemsByBagAndSlot[slotkey]
-      local data = button and button.data or nil
-      if button == nil then
+    for slotkey, _ in pairs(section:GetAllCells()) do
+      if view.itemsByBagAndSlot[slotkey] == nil then
         debug:Log("RemoveCell", "Removed because not in itemsByBagAndSlot", slotkey)
         section:RemoveCell(slotkey)
-      else
+      elseif slotkey ~= 'freeSlot' and slotkey ~= 'freeReagentSlot' then
+        -- Get the bag and slot id from the slotkey.
+        local data = view.itemsByBagAndSlot[slotkey].data
         -- Remove item buttons that are empty or don't match the category.
-        if data.isItemEmpty or data.stackedOn ~= nil then
-          if view.defer and not data.forceClear then
-            debug:Log("RemoveCell", "Removed because empty (defer)", slotkey, data.itemInfo.itemLink)
-            view.itemsByBagAndSlot[slotkey]:SetFreeSlots(data.bagid, data.slotid, -1, "Recently Deleted")
+        if data.isItemEmpty then
+          if view.defer then
+            view.itemsByBagAndSlot[slotkey]:SetFreeSlots(data.bagid, data.slotid, -1, const.BACKPACK_ONLY_REAGENT_BAGS[data.bagid] ~= nil)
             bag.drawOnClose = true
           else
             debug:Log("RemoveCell", "Removed because empty", slotkey, data.itemInfo.itemLink)
@@ -136,30 +128,20 @@ local function GridView(view, bag, slotInfo)
           end
         elseif data.itemInfo.category ~= sectionName then
           if view.defer then
-            debug:Log("RemoveCell", "Removed because category mismatch (defer)", slotkey, data.itemInfo.itemLink)
-            view.itemsByBagAndSlot[slotkey]:SetFreeSlots(data.bagid, data.slotid, -1, "Recently Deleted")
+            view.itemsByBagAndSlot[slotkey]:SetFreeSlots(data.bagid, data.slotid, -1, const.BACKPACK_ONLY_REAGENT_BAGS[data.bagid] ~= nil)
             bag.drawOnClose = true
           else
-            debug:Log("RemoveCell", "Removed because category mismatch", slotkey, data.itemInfo.itemLink)
+            debug:Log("RemoveCell", "Removed because category mismatch", slotkey)
             section:RemoveCell(slotkey)
             bag.drawOnClose = false
           end
         end
       end
     end
-  end
-  debug:EndProfile('Reconcile Stage')
 
-  debug:StartProfile("Stacking Stage")
-  for _, item in pairs(view.itemsByBagAndSlot) do
-    item:UpdateCount()
-  end
-  debug:EndProfile("Stacking Stage")
-
-  debug:StartProfile('Section Draw Stage')
-  for sectionName, section in pairs(view:GetAllSections()) do
+    if not view.defer then
       -- Remove the section if it's empty, otherwise draw it.
-      if section:GetCellCount() == 0 and not view.defer then
+      if section:GetCellCount() == 0 then
         debug:Log("RemoveSection", "Removed because empty", sectionName)
         view:RemoveSection(sectionName)
         section:ReleaseAllCells()
@@ -169,26 +151,37 @@ local function GridView(view, bag, slotInfo)
         section:SetMaxCellWidth(sizeInfo.itemsPerRow)
         section:Draw(bag.kind, database:GetBagView(bag.kind), false)
       end
+    end
   end
-  debug:EndProfile('Section Draw Stage')
+  debug:EndProfile('Reconcile Stage')
 
   -- Get the free slots section and add the free slots to it.
   local freeSlotsSection = view:GetOrCreateSection(L:G("Free Space"))
-  for name, freeSlotCount in pairs(slotInfo.emptySlots) do
-    if slotInfo.freeSlotKeys[name] ~= nil then
-      local itemButton = view.itemsByBagAndSlot[name]
-      if itemButton == nil then
-        itemButton = itemFrame:Create()
-        view.itemsByBagAndSlot[name] = itemButton
-      end
-      local freeSlotBag, freeSlotID = view:ParseSlotKey(slotInfo.freeSlotKeys[name])
-      itemButton:SetFreeSlots(freeSlotBag, freeSlotID, freeSlotCount, name)
-      freeSlotsSection:AddCell(name, itemButton)
+  view.freeSlot = view.freeSlot or itemFrame:Create()
+  if extraSlotInfo.emptySlots > 0 then
+    local freeSlotBag, freeSlotID = view:ParseSlotKey(extraSlotInfo.freeSlotKey)
+    view.freeSlot:SetFreeSlots(freeSlotBag, freeSlotID, extraSlotInfo.emptySlots, false)
+  else
+    view.freeSlot:SetFreeSlots(0, 0, 0, false)
+  end
+  freeSlotsSection:AddCell('freeSlot', view.freeSlot)
+
+  -- Only add the reagent free slot to the backbag view.
+  if bag.kind == const.BAG_KIND.BACKPACK and addon.isRetail then
+    view.freeReagentSlot = view.freeReagentSlot or itemFrame:Create()
+    if extraSlotInfo.emptyReagentSlots > 0 then
+      local freeReagentSlotBag, freeReagentSlotID = view:ParseSlotKey(extraSlotInfo.freeReagentSlotKey)
+      view.freeReagentSlot:SetFreeSlots(freeReagentSlotBag, freeReagentSlotID, extraSlotInfo.emptyReagentSlots, true)
+    else
+      view.freeReagentSlot:SetFreeSlots(0, 0, 0, true)
     end
+    freeSlotsSection:AddCell('freeReagentSlot', view.freeReagentSlot)
   end
 
+  -- Draw the free slots section.
   freeSlotsSection:SetMaxCellWidth(2)
   freeSlotsSection:Draw(bag.kind, database:GetBagView(bag.kind), false)
+
   view.content.maxCellWidth = sizeInfo.columnCount
   -- Sort the sections.
   view.content:Sort(sort:GetSectionSortFunction(bag.kind, const.BAG_VIEW.SECTION_GRID))
@@ -213,7 +206,7 @@ local function GridView(view, bag, slotInfo)
     const.OFFSETS.BOTTOM_BAR_HEIGHT + const.OFFSETS.BOTTOM_BAR_BOTTOM_INSET
     bag.frame:SetHeight(bagHeight)
   end
-  view.itemCount = slotInfo.totalItems
+  view.itemCount = extraSlotInfo.totalItems
 end
 
 ---@param parent Frame

@@ -113,7 +113,7 @@ function context:CreateContextMenu(bag)
 		text = addonName..' Dev Mode',
 		--@end-debug@]==]
 		--@non-debug@
-		text = addonName..' v0.1.14-18-g975f2a5',
+		text = addonName..' v0.1.14',
 		--@end-non-debug@
     isTitle = true,
     notCheckable = true

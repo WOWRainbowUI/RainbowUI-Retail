@@ -57,45 +57,58 @@ end
 
 ---@param view view
 ---@param bag Bag
----@param slotInfo ExtraSlotInfo
-local function ListView(view, bag, slotInfo)
+---@param dirtyItems ItemData[]
+local function ListView(view, bag, dirtyItems)
   if view.fullRefresh then
     view:Wipe()
     view.fullRefresh = false
   end
+  local freeSlotsData = {count = 0, bagid = 0, slotid = 0}
+  local freeReagentSlotsData = {count = 0, bagid = 0, slotid = 0}
   view.content.compactStyle = const.GRID_COMPACT_STYLE.NONE
-  local dirtyItems = slotInfo.dirtyItems
   for _, data in pairs(dirtyItems) do
-    if data.stackedOn == nil or data.isItemEmpty then
-      local slotkey = view:GetSlotKey(data)
+    local bagid, slotid = data.bagid, data.slotid
+    local slotkey = view:GetSlotKey(data)
 
-      local itemButton = view.itemsByBagAndSlot[slotkey] --[[@as ItemRow]]
-      if itemButton == nil then
-        itemButton = itemRowFrame:Create()
-        itemButton.rowButton:SetScript("OnMouseWheel", function(_, delta)
-          view.content:GetContainer():OnMouseWheel(delta)
-        end)
-        --itemButton:AddToMasqueGroup(bag.kind)
-        view.itemsByBagAndSlot[slotkey] = itemButton --[[@as Item]]
+    -- Capture information about free slots.
+    if data.isItemEmpty then
+      if bagid == const.BACKPACK_ONLY_REAGENT_BAGS[bagid] ~= nil then
+        freeReagentSlotsData.count = freeReagentSlotsData.count + 1
+        freeReagentSlotsData.bagid = bagid
+        freeReagentSlotsData.slotid = slotid
+      elseif bagid ~= Enum.BagIndex.Keyring then
+        freeSlotsData.count = freeSlotsData.count + 1
+        freeSlotsData.bagid = bagid
+        freeSlotsData.slotid = slotid
       end
+    end
 
-      itemButton:SetItem(data)
+    local itemButton = view.itemsByBagAndSlot[slotkey] --[[@as ItemRow]]
+    if itemButton == nil then
+      itemButton = itemRowFrame:Create()
+      itemButton.rowButton:SetScript("OnMouseWheel", function(_, delta)
+        view.content:GetContainer():OnMouseWheel(delta)
+      end)
+      --itemButton:AddToMasqueGroup(bag.kind)
+      view.itemsByBagAndSlot[slotkey] = itemButton --[[@as Item]]
+    end
 
-      if not data.isItemEmpty then
-        local category = itemButton:GetCategory()
-        local section = view:GetOrCreateSection(category)
-        section:GetContent():GetContainer():SetScript("OnMouseWheel", function(_, delta)
-          view.content:GetContainer():OnMouseWheel(delta)
-        end)
-        section:AddCell(slotkey, itemButton)
-      end
+    itemButton:SetItem(data)
+
+    if not data.isItemEmpty then
+      local category = itemButton:GetCategory()
+      local section = view:GetOrCreateSection(category)
+      section:GetContent():GetContainer():SetScript("OnMouseWheel", function(_, delta)
+        view.content:GetContainer():OnMouseWheel(delta)
+      end)
+      section:AddCell(slotkey, itemButton)
     end
   end
 
   for sectionName, section in pairs(view:GetAllSections()) do
     for slotkey, _ in pairs(section:GetAllCells()) do
       local data = view.itemsByBagAndSlot[slotkey].data
-      if data.isItemEmpty or data.stackedOn ~= nil then
+      if data.isItemEmpty then
         section:RemoveCell(slotkey)
         view.itemsByBagAndSlot[slotkey]:Wipe()
       elseif data.itemInfo.category ~= sectionName then
@@ -111,12 +124,7 @@ local function ListView(view, bag, slotInfo)
       section:Draw(bag.kind, database:GetBagView(bag.kind), bag.slots:IsShown())
     end
   end
-  --[[
-  for _, item in pairs(view.itemsByBagAndSlot) do
-    -- TODO(lobato): Implement UpdateCount
-    --item:UpdateCount()
-  end
-  ]]--
+
   view.content.maxCellWidth = 1
   view.content:Sort(sort:GetSectionSortFunction(bag.kind, const.BAG_VIEW.LIST))
   local w, h = view.content:Draw()
