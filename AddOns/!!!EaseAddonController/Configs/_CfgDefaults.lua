@@ -1960,6 +1960,14 @@ D["RangeDisplay"] = {
         text = " ",       
 	},
 };
+D["ReloadUI"] = {
+	defaultEnable = 1,
+	tags = { "MISC" },
+	title = "重新載入按鈕",
+	desc = "在按 Esc 的遊戲選單和選項視窗加上重新載入按鈕，調整UI或遇到汙染問題，需要常常 /reload 時非常好用。`",
+	modifier = "彩虹ui",
+	icon = "Interface\\Icons\\ability_vehicle_loadselfcatapult",
+};
 D["Rematch"] = {
 	defaultEnable = 0,
 	title = "寵物再戰",
