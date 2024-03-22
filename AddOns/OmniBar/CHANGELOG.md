@@ -1,1 +1,1 @@
-- This release resolves the infamous blocked addon errors. Credit to AdamPavlis90 for submitting this patch.
+- Update compatibility
