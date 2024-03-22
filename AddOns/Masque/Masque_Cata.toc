@@ -1,11 +1,11 @@
-## Interface: 11501
+## Interface: 40400
 
 ## Author: StormFX, JJSheets
 ## Title: Masque
 ## Version: 10.2.6
 
 ## IconTexture: Interface\AddOns\Masque\Textures\Icon
-## OptionalDeps: Ace3, AceGUI-3.0_SFX-Widgets, LibDBIcon-1.0
+## OptionalDeps: Ace3, AceGUI-3.0_SFX-Widgets, LibDBIcon-1.0, LibDualSpec-1.0
 ## SavedVariables: MasqueDB
 
 ## Notes: A skinning engine for button-based add-ons.
@@ -28,6 +28,7 @@
 
 # Libraries
 Libs\Libs.xml
+Libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
 
 # Locales
 Locales\Locales.xml
