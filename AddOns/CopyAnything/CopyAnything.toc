@@ -1,8 +1,8 @@
-## Interface: 100205
+## Interface: 100206
 ## Title: Copy Anything
 ## Notes: Copy text from any frame.
 ## Author: Oppzippy
-## Version: v1.1.26
+## Version: v1.1.27
 ## OptionalDeps: LibCopyPaste-1.0, Ace3
 ## SavedVariables: CopyAnythingDB
 ## X-Curse-Project-ID: 341960
