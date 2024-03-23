@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 2
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 3
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -149,7 +149,7 @@ menuStyles.menuBackdrop = function(parent)
 end
 
 
-local function CreateMenuStyle(menu, name, frameFunc)
+function v.createMenuStyle(menu, name, frameFunc)
 	local f = frameFunc(menu)
 	f:SetFrameLevel(menu:GetFrameLevel())
 	if not f:GetPoint() then
@@ -159,7 +159,7 @@ local function CreateMenuStyle(menu, name, frameFunc)
 end
 
 
-local function setIcon(texture, icon, info)
+function v.setIcon(texture, icon, info)
 	local iconWrap
 	if info then
 		texture:SetSize(info.tSizeX or DropDownMenuButtonHeight, info.tSizeY or DropDownMenuButtonHeight)
@@ -175,7 +175,7 @@ local function setIcon(texture, icon, info)
 end
 
 
-local function getNextWidgetName(widgetType)
+function v.getNextWidgetName(widgetType)
 	v.widgetNum = v.widgetNum or {}
 	v.widgetNum[widgetType] = (v.widgetNum[widgetType] or 0) + 1
 	return MAJOR_VERSION..widgetType..v.widgetNum[widgetType]
@@ -185,22 +185,22 @@ end
 ---------------------------------------------------
 -- FONT
 ---------------------------------------------------
-local function getFontObject(self, font, fontObject)
+function v.getFontObject(self, font, fontObject)
 	if not self._fontObject then
-		self._fontObject = CreateFont(getNextWidgetName("font"))
+		self._fontObject = CreateFont(v.getNextWidgetName("font"))
 		self._fontObject:CopyFontObject(GameFontHighlightSmallLeft)
 	end
-	local _, size, outline = (fontObject or self._fontObject):GetFont()
+	local _, size, outline = (fontObject or GameFontHighlightSmallLeft):GetFont()
 	self._fontObject:SetFont(font, size, outline)
 	return self._fontObject
 end
 
 
-local function setButtonFont(btn)
+function v.setButtonFont(btn)
 	btn:SetDisabledFontObject(btn.isTitle and GameFontNormalSmallLeft or GameFontDisableSmallLeft)
 	local fontObject = btn.fontObject or GameFontHighlightSmallLeft
 	if btn.font then
-		fontObject = getFontObject(btn.NormalText, btn.font, fontObject)
+		fontObject = v.getFontObject(btn.NormalText, btn.font, fontObject)
 	end
 	btn:SetNormalFontObject(fontObject)
 	btn:SetHighlightFontObject(fontObject)
@@ -299,7 +299,7 @@ local function CreateDropDownMenuList(parent)
 
 	menu.styles = {}
 	for name, frameFunc in next, menuStyles do
-		CreateMenuStyle(menu, name, frameFunc)
+		v.createMenuStyle(menu, name, frameFunc)
 	end
 
 	return menu
@@ -561,7 +561,7 @@ function v.widgetInit(parent)
 		btn:SetSize(info.width or DropDownMenuButtonHeight, info.height or DropDownMenuButtonHeight)
 		btn:SetPoint("RIGHT", position, 0)
 		btn.OnClick = info.OnClick
-		setIcon(btn.icon, info.icon, info.iconInfo)
+		v.setIcon(btn.icon, info.icon, info.iconInfo)
 		btn:Show()
 		position = position - btn:GetWidth()
 	end
@@ -743,7 +743,7 @@ local function DropDownMenuSearchButtonInit(btn, info)
 
 	btn._text = btn.text
 	if btn._text then
-		setButtonFont(btn)
+		v.setButtonFont(btn)
 		if type(btn._text) == "function" then btn._text = btn:_text(btn.arg1, btn.arg2) end
 		btn:SetText(btn._text)
 	else
@@ -791,7 +791,7 @@ local function DropDownMenuSearchButtonInit(btn, info)
 	end
 
 	if btn.icon then
-		setIcon(btn.Icon, btn.icon, btn.iconInfo)
+		v.setIcon(btn.Icon, btn.icon, btn.iconInfo)
 
 		if btn.iconOnly then
 			btn.Icon:SetPoint("RIGHT")
@@ -982,7 +982,7 @@ function DropDownMenuSearchMixin:addButton(info)
 			btn:Enable()
 		end
 
-		setButtonFont(btn)
+		v.setButtonFont(btn)
 		btn:SetText(type(btn.text) == "function" and btn:text(btn.arg1, btn.arg2) or btn.text)
 		width = width + btn.NormalText:GetWidth()
 	end
@@ -1043,7 +1043,7 @@ local function CreateDropDownMenuSearch()
 	f:Hide()
 	f:SetScript("OnHide", OnHide)
 
-	f.searchBox = CreateFrame("EditBox", getNextWidgetName("SearchBox"), f, "SearchBoxTemplate")
+	f.searchBox = CreateFrame("EditBox", v.getNextWidgetName("SearchBox"), f, "SearchBoxTemplate")
 	f.searchBox:SetMaxLetters(40)
 	f.searchBox:SetHeight(20)
 	f.searchBox:SetPoint("TOPLEFT", 5, -3)
@@ -1097,17 +1097,13 @@ end
 ---------------------------------------------------
 -- UPDATE OLD VERSION
 ---------------------------------------------------
--- if oldminor < MINOR_VERSION then
--- 	for i = 1, #dropDownSearchFrames do
--- 		local f = dropDownSearchFrames[i]
--- 		f.refresh = DropDownMenuSearchMixin.refresh
--- 		f.addButton = DropDownMenuSearchMixin.addButton
--- 	end
-
--- 	for i = 1, #colorSwatchFrames do
--- 		colorSwatchFrames[i]:SetScript("OnClick", ColorSwatch_OnClick)
--- 	end
--- end
+if oldminor < 3 then
+	for i = 1, #dropDownSearchFrames do
+		local f = dropDownSearchFrames[i]
+		f.view:SetElementInitializer("LibSFDropDownMenuButton", DropDownMenuSearchButtonInit)
+		f.addButton = DropDownMenuSearchMixin.addButton
+	end
+end
 
 
 ---------------------------------------------------
@@ -1222,7 +1218,7 @@ end
 function DropDownButtonMixin:ddSetSelectedText(text, icon, iconInfo, iconOnly, fontObject, font)
 	local normalFontObject = fontObject or GameFontHighlightSmall
 	if font then
-		self.Text:SetFontObject(getFontObject(self.Text, font, normalFontObject))
+		self.Text:SetFontObject(v.getFontObject(self.Text, font, normalFontObject))
 	else
 		self.Text:SetFontObject(normalFontObject)
 	end
@@ -1231,7 +1227,7 @@ function DropDownButtonMixin:ddSetSelectedText(text, icon, iconInfo, iconOnly, f
 	if not self.Icon then return end
 	if icon then
 		self.Icon:Show()
-		setIcon(self.Icon, icon, iconInfo)
+		v.setIcon(self.Icon, icon, iconInfo)
 
 		if iconOnly then
 			self.Text:SetPoint("LEFT", self.Left, "RIGHT", 0, 1)
@@ -1571,7 +1567,7 @@ function DropDownButtonMixin:ddAddButton(info, level)
 
 	btn._text = btn.text
 	if btn._text then
-		setButtonFont(btn)
+		v.setButtonFont(btn)
 		if type(btn._text) == "function" then btn._text = btn:_text(btn.arg1, btn.arg2) end
 		btn:SetText(btn._text)
 		width = width + btn.NormalText:GetWidth()
@@ -1615,7 +1611,7 @@ function DropDownButtonMixin:ddAddButton(info, level)
 	end
 
 	if btn.icon then
-		setIcon(btn.Icon, btn.icon, btn.iconInfo)
+		v.setIcon(btn.Icon, btn.icon, btn.iconInfo)
 
 		if btn.iconOnly then
 			btn.Icon:SetPoint("RIGHT")
@@ -1801,7 +1797,7 @@ function libMethods:CreateMenuStyle(name, overwrite, frameFunc)
 			end
 		end
 		for i = 1, #dropDownMenusList do
-			CreateMenuStyle(dropDownMenusList[i], name, frameFunc)
+			self._v.createMenuStyle(dropDownMenusList[i], name, frameFunc)
 		end
 		menuStyles[name] = frameFunc
 		return true
