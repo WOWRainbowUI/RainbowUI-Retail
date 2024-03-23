@@ -5,7 +5,9 @@ XIVBar.Changelog[2703] = {
     release_date = "2024/03/22",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {},
+        ["zhTW"] = {
+            "[正式版] TOC 檔的遊戲版本編號更新到 10.2.6。",
+        },
         ["enUS"] = {
             "[Retail] TOC update for Retail 10.2.6.",
         },
