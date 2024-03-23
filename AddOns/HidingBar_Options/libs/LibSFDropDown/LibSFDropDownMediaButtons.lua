@@ -259,7 +259,6 @@ do
 
 		local btn = self:CreateButtonOriginal(...)
 		return mediaFontInit(btn)
-
 	end
 
 	function libMethods:CreateMediaFontButton(...)
