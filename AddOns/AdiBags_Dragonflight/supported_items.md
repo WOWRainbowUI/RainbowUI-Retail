@@ -2,7 +2,7 @@
 
 All items are broken down into categories, with itemID followed by the Item name.
 
-Latest version: 2.3.33
+Latest version: 2.3.34
 
 ## Achievements & Unlockables
 
@@ -2651,26 +2651,733 @@ Default Color: ![898396](https://via.placeholder.com/16/898396/767c69?text=89839
 * 190538 - Infurious Alloy
 * 194545 - Prismatic Ore
 
-### Recipes
+## Recipes
 
-Recipes teach you new ways to craft items.
+Recipes for all professions.
 
-Default Color: ![8f541a](https://via.placeholder.com/16/8f541a/70abe5?text=8f541a)
+Default Color: ![68d080](https://via.placeholder.com/16/68d080/972f7f?text=68d080)
 
+### Alchemy Recipes
+
+Recipes for crafting potions, elixirs, and transmuting materials.
+
+Default Color: ![4e9a06](https://via.placeholder.com/16/4e9a06/b165f9?text=4e9a06)
+
+* 191429 - Recipe: Phial of the Eye in the Storm
+* 191430 - Recipe: Phial of Still Air
+* 191431 - Recipe: Phial of Icy Preservation
+* 191432 - Recipe: Iced Phial of Corrupting Rage
+* 191433 - Recipe: Phial of Charged Isolation
+* 191434 - Recipe: Phial of Glacial Fury
+* 191435 - Recipe: Phial of Static Empowerment
+* 191436 - Recipe: Phial of Tepid Versatility
+* 191437 - Recipe: Aerated Phial of Deftness
+* 191438 - Recipe: Steaming Phial of Finesse
+* 191439 - Recipe: Charged Phial of Alacrity
+* 191440 - Recipe: Potion of Frozen Fatality
+* 191441 - Recipe: Crystalline Phial of Perception
+* 191442 - Recipe: Phial of Elemental Chaos
+* 191443 - Recipe: Bottled Putrescence
+* 191444 - Recipe: Potion of Frozen Focus
+* 191445 - Recipe: Potion of Chilled Clarity
+* 191446 - Recipe: Potion of Withering Vitality
+* 191447 - Recipe: Residual Neural Channeling Agent
+* 191448 - Recipe: Delicate Suspension of Spores
+* 191449 - Recipe: Refreshing Healing Potion
+* 191450 - Recipe: Elemental Potion of Ultimate Power
+* 191451 - Recipe: Aerated Mana Potion
+* 191452 - Recipe: Elemental Potion of Power
+* 191454 - Recipe: Potion of the Hushed Zephyr
+* 191455 - Recipe: Potion of Gusts
+* 191456 - Recipe: Potion of Shocking Disclosure
+* 191542 - Recipe: Potion Cauldron of Power
+* 191543 - Recipe: Potion Cauldron of Ultimate Power
 * 191544 - Recipe: Cauldron of the Pooka
 * 191545 - Recipe: Sustaining Alchemist's Stone
 * 191547 - Recipe: Alacritous Alchemist Stone
 * 191578 - Recipe: Transmute: Awakened Fire
 * 191579 - Recipe: Transmute: Awakened Frost
 * 191580 - Recipe: Transmute: Awakened Earth
+* 191581 - Recipe: Transmute: Awakened Air
+* 191582 - Recipe: Transmute: Decay to Elements
+* 191583 - Recipe: Transmute: Order to Elements
+* 191584 - Recipe: Primal Convergent
+* 191585 - Recipe: Omnium Draconis
 * 191586 - Recipe: Sagacious Incense
 * 191587 - Recipe: Somniferous Incense
 * 191588 - Recipe: Exultant Incense
 * 191589 - Recipe: Fervid Incense
 * 191590 - Recipe: Stable Fluidic Draconium
+* 191591 - Recipe: Brood Salt
+* 191592 - Recipe: Writhefire Oil
 * 191593 - Recipe: Agitating Potion Augmentation
 * 191594 - Recipe: Reactive Phial Embellishment
+* 191595 - ERROR1
+* 191596 - Recipe: Illustrious Insight
 * 191597 - Recipe: Potion Absorption Inhibitor
+* 191598 - ERROR1
+* 191599 - Recipe: Basic Potion Experimentation
+* 191600 - Recipe: Advanced Potion Experimentation
+* 191601 - Recipe: Basic Phial Experimentation
+* 191602 - Recipe: Advanced Phial Experimentation
+* 192180 - Basic Phial Alchemical Experimentation
+* 193365 - Basic Potion Alchemical Experimentation
+* 193366 - Advanced Phial Alchemical Experimentation
+* 193367 - Advanced Potion Alchemical Experimentation
+* 194973 - Reclaim Concoctions
+* 198533 - Recipe: Aerated Phial of Quick Hands
+* 201740 - Elemental Codex of Ultimate Power
+* 203420 - Recipe: Draconic Suppression Powder
+* 204631 - Recipe: Transmute: Dracothyst
+* 204695 - Recipe: Cauldron of Extracted Putrescence
+* 204696 - Recipe: Draconic Phial Cauldron
+* 204984 - Recipe: Stinky Bright Potion
+* 210241 - Recipe: Dreamwalker's Healing Potion
+
+### Blacksmithing Recipes
+
+Recipes for forging metal armor, weapons, and enhancements.
+
+Default Color: ![8f8f8f](https://via.placeholder.com/16/8f8f8f/707070?text=8f8f8f)
+
+* 194453 - Plans: Crimson Combatant's Draconium Helm
+* 194454 - Plans: Crimson Combatant's Draconium Breastplate
+* 194455 - Plans: Crimson Combatant's Draconium Greaves
+* 194456 - Plans: Crimson Combatant's Draconium Pauldrons
+* 194457 - Plans: Crimson Combatant's Draconium Gauntlets
+* 194458 - Plans: Crimson Combatant's Draconium Sabatons
+* 194459 - Plans: Crimson Combatant's Draconium Armguards
+* 194460 - Plans: Crimson Combatant's Draconium Waistguard
+* 194461 - Plans: Primal Molten Helm
+* 194462 - Plans: Primal Molten Breastplate
+* 194463 - Plans: Primal Molten Legplates
+* 194464 - Plans: Primal Molten Pauldrons
+* 194465 - Plans: Primal Molten Gauntlets
+* 194466 - Plans: Primal Molten Sabatons
+* 194467 - Plans: Primal Molten Vambraces
+* 194468 - Plans: Primal Molten Greatbelt
+* 194469 - Plans: Primal Molten Defender
+* 194470 - Plans: Primal Molten Shortblade
+* 194471 - Plans: Primal Molten Spellblade
+* 194472 - Plans: Primal Molten Longsword
+* 194473 - Plans: Primal Molten Warglaive
+* 194474 - Plans: Primal Molten Mace
+* 194475 - Plans: Primal Molten Greataxe
+* 194476 - Plans: Obsidian Seared Hexsword
+* 194477 - Plans: Obsidian Seared Runeaxe
+* 194478 - Plans: Obsidian Seared Facesmasher
+* 194479 - Plans: Obsidian Seared Claymore
+* 194480 - Plans: Obsidian Seared Halberd
+* 194481 - Plans: Obsidian Seared Crusher
+* 194482 - Plans: Obsidian Seared Invoker
+* 194483 - Plans: Obsidian Seared Slicer
+* 194484 - Plans: Infurious Helm of Vengeance
+* 194485 - Plans: Infurious Warboots of Impunity
+* 194486 - Plans: Shield of the Hearth
+* 194487 - ERROR1
+* 194488 - ERROR1
+* 194489 - Plans: Allied Chestplate of Generosity
+* 194490 - Plans: Allied Wristguard of Companionship
+* 194491 - Plans: Frostfire Legguards of Preparation
+* 194492 - Plans: Unstable Frostfire Belt
+* 194493 - Plans: Armor Spikes
+* 194495 - Plans: Khaz'gorite Sickle
+* 194496 - Plans: Khaz'gorite Pickaxe
+* 194497 - Plans: Khaz'gorite Skinning Knife
+* 194498 - Plans: Khaz'gorite Needle Set
+* 194499 - Plans: Khaz'gorite Leatherworker's Knife
+* 194500 - Plans: Khaz'gorite Leatherworker's Toolset
+* 194501 - Plans: Khaz'gorite Blacksmith's Hammer
+* 194502 - Plans: Khaz'gorite Blacksmith's Toolbox
+* 194503 - Plans: Black Dragon Touched Hammer
+* 194504 - Plans: Primal Whetstone
+* 194505 - Plans: Primal Weightstone
+* 194506 - Plans: Primal Razorstone
+* 194507 - Plans: Serevite Skeleton Key
+* 194508 - Plans: Alvin the Anvil
+* 194963 - Plans: Obsidian Seared Alloy
+* 198713 - Plans: Prototype Explorer's Barding Framework
+* 198714 - Plans: Prototype Regal Barding Framework
+* 198719 - Plans: Sturdy Expedition Shovel
+* 200102 - Plans: Infurious Alloy
+* 201256 - Bloodstained Plans: Infurious Alloy
+* 202223 - Plans: Impressive Steelforged Essence
+* 202224 - Plans: Remarkable Steelforged Essence
+* 202226 - Plans: Impressive Truesteel Essence
+* 202227 - Plans: Remarkable Truesteel Essence
+* 203421 - Plans: Ancient Ceremonial Trident
+* 203824 - Ancient Plans: Gurubashi Headplate
+* 203825 - Ancient Plans: Gurubashi Carver
+* 203826 - Ancient Plans: Venomfang
+* 203827 - Ancient Plans: Gurubashi Poker
+* 203828 - Ancient Plans: Gurubashi Grinder
+* 203829 - Ancient Plans: Gurubashi Hexxer
+* 203830 - Ancient Plans: Sceptre of Hexing
+* 203831 - Ancient Plans: Gurubashi Crusher
+* 203832 - Ancient Plans: Pitchfork of Mojo Madness
+* 203833 - Ancient Plans: Bloodherald
+* 203834 - Ancient Plans: Bloodlord's Reaver
+* 203835 - Ancient Plans: Fiery Vengeance
+* 203836 - Ancient Plans: Warblades of the Hakkari, Reborn
+* 203837 - Ancient Plans: Gurubashi Slicer
+* 203861 - Ancient Plans: Venomreaver
+* 204138 - Plans: Obsidian Combatant's Draconium Helm
+* 204139 - Plans: Obsidian Combatant's Draconium Breastplate
+* 204140 - Plans: Obsidian Combatant's Draconium Greaves
+* 204141 - Plans: Obsidian Combatant's Draconium Pauldrons
+* 204142 - Plans: Obsidian Combatant's Draconium Gauntlets
+* 204143 - Plans: Obsidian Combatant's Draconium Sabatons
+* 204144 - Plans: Obsidian Combatant's Draconium Armguards
+* 204145 - Plans: Obsidian Combatant's Draconium Waistguard
+* 205137 - Plans: Shadowed Alloy
+* 205143 - Plans: Shadowed Belt Clasp
+* 205144 - Plans: Shadowed Razing Annihilator
+* 205145 - Plans: Shadowed Impact Buckler
+* 205161 - Plans: Heat-Resistant Rescue Ring
+* 206351 - Plans: Truesilver Champion
+* 206352 - Plans: The Shatterer
+* 206419 - Plans: Icebane Coif
+* 206420 - Plans: Icebane Mantle
+* 206421 - Plans: Icebane Breastplate
+* 206422 - Plans: Icebane Bracers
+* 206423 - Plans: Icebane Gauntlets
+* 206424 - Plans: Icebane Waistguard
+* 206425 - Plans: Icebane Leggings
+* 206426 - Plans: Icebane Trudgers
+* 206522 - Ancient Plans: Warsword of Caer Darrow
+* 206525 - Ancient Plans: Darrowdirk
+* 206526 - Ancient Plans: Darrowshire Protector
+* 206527 - Ancient Plans: Mirah's Lullaby
+* 206531 - Ancient Plans: Strength of Menethil
+* 206533 - Ancient Plans: Midnight's Graze
+* 206534 - Ancient Plans: Weaver's Fang
+* 206535 - Ancient Plans: Widow's Weep
+* 206536 - Ancient Plans: Shade's Blade
+* 206537 - Ancient Plans: Edict of the Redeemed Crusader
+* 206539 - Ancient Plans: Blade of Unholy Might
+* 206540 - Ancient Plans: Axe of Sundered Bone
+* 206541 - Ancient Plans: The Plague Belcher
+* 206542 - Ancient Plans: Bracers of Vengeance
+* 206544 - Ancient Plans: The Final Dream
+* 206545 - Ancient Plans: Plated Construct's Ribcage
+* 206546 - Ancient Plans: Blade of the Fallen Seraph
+* 206549 - Ancient Plans: The Face of Doom
+* 206550 - Ancient Plans: Harbinger of Death
+* 206553 - Ancient Plans: Dawn of Demise
+* 206555 - Ancient Plans: Gauntlets of the Unrelenting
+* 206557 - Ancient Plans: Death's Gamble
+* 206558 - Ancient Plans: Belt of the Mentor
+* 206560 - Ancient Plans: Stygian Shield
+* 206774 - Plans: Undeath Metal
+* 206805 - Ancient Plans: Bucket Kickers
+* 207567 - Ancient Plans: Intrepid Shortblade
+* 207568 - Ancient Plans: Valiant Shortblade
+* 207572 - Ancient Plans: Sacred Guardian
+* 207573 - Ancient Plans: Ichor Slicer
+* 208281 - Plans: Verdant Combatant's Draconium Helm
+* 208282 - Plans: Verdant Combatant's Draconium Breastplate
+* 208283 - Plans: Verdant Combatant's Draconium Greaves
+* 208284 - Plans: Verdant Combatant's Draconium Pauldrons
+* 208285 - Plans: Verdant Combatant's Draconium Gauntlets
+* 208286 - Plans: Verdant Combatant's Draconium Sabatons
+* 208287 - Plans: Verdant Combatant's Draconium Armguards
+* 208288 - Plans: Verdant Combatant's Draconium Waistguard
+* 210644 - Plans: Flourishing Dream Helm
+* 211580 - Plans: Draconic Combatant's Draconium Helm
+* 211581 - Plans: Draconic Combatant's Draconium Breastplate
+* 211582 - Plans: Draconic Combatant's Draconium Greaves
+* 211583 - Plans: Draconic Combatant's Draconium Pauldrons
+* 211584 - Plans: Draconic Combatant's Draconium Gauntlets
+* 211585 - Plans: Draconic Combatant's Draconium Sabatons
+* 211586 - Plans: Draconic Combatant's Draconium Armguards
+* 211587 - Plans: Draconic Combatant's Draconium Waistguard
+
+### Cooking Recipes
+
+Recipes for preparing food that provides buffs.
+
+Default Color: ![e9b96e](https://via.placeholder.com/16/e9b96e/164691?text=e9b96e)
+
+* 194964 - Recipe: Thrice-Spiced Mammoth Kabob
+* 194965 - Recipe: Yusa's Hearty Stew
+* 195881 - Recipe: Charred Hornswog Steaks
+* 198092 - Recipe: Twice-Baked Potato
+* 198093 - Recipe: Cheese and Quackers
+* 198094 - Recipe: Mackerel Snackerel
+* 198095 - Recipe: Probably Protein
+* 198096 - Recipe: Sweet and Sour Clam Chowder
+* 198097 - Recipe: Hungry Whelpling Breakfast
+* 198098 - Recipe: Ooey-Gooey Chocolate
+* 198099 - Recipe: Pebbled Rock Salts
+* 198100 - Recipe: Assorted Exotic Spices
+* 198101 - Recipe: Salad on the Side
+* 198102 - Recipe: Impossibly Sharp Cutting Knife
+* 198103 - Recipe: Snow in a Cone
+* 198104 - Recipe: Blubbery Muffin
+* 198105 - Recipe: Celebratory Cake
+* 198106 - Recipe: Tasty Hatchling's Treat
+* 198107 - Recipe: Zesty Water
+* 198108 - Recipe: Delicious Dragon Spittle
+* 198109 - Recipe: Churnbelly Tea
+* 198110 - ERROR1
+* 198111 - Recipe: Scrambled Basilisk Eggs
+* 198112 - Recipe: Hopefully Healthy
+* 198113 - Recipe: Timely Demise
+* 198114 - Recipe: Filet of Fangs
+* 198115 - Recipe: Seamoth Surprise
+* 198116 - Recipe: Salt-Baked Fishcake
+* 198117 - Recipe: Feisty Fish Sticks
+* 198118 - Recipe: Aromatic Seafood Platter
+* 198119 - Recipe: Sizzling Seafood Medley
+* 198120 - Recipe: Revenge, Served Cold
+* 198121 - Recipe: Thousandbone Tongueslicer
+* 198122 - Recipe: Great Cerulean Sea
+* 198123 - Recipe: Braised Bruffalon Brisket
+* 198124 - Recipe: Riverside Picnic
+* 198125 - Recipe: Roast Duck Delight
+* 198126 - Recipe: Salted Meat Mash
+* 198127 - Recipe: Fated Fortune Cookie
+* 198129 - Recipe: Gral's Reverence
+* 198130 - Recipe: Gral's Veneration
+* 198131 - Recipe: Gral's Devotion
+* 198132 - Recipe: Hoard of Draconic Delicacies
+* 201784 - Recipe: Timely Demise
+* 201785 - Recipe: Seamoth Surprise
+* 201786 - Recipe: Salt-Baked Fishcake
+* 201787 - Recipe: Filet of Fangs
+* 202249 - Recipe: Goldthorn Tea
+* 202289 - Recipe: Firewater Sorbet
+* 203422 - Recipe: Sparkling Spice Pouch
+* 204073 - Ratcipe: Deviously Deviled Eggs
+* 204847 - Recipe: Rocks on the Rocks
+* 204849 - Ratcipe: Charitable Cheddar
+* 210242 - Recipe: Slumbering Peacebloom Tea
+* 210496 - ERROR1
+
+### Enchanting Recipes
+
+Recipes for enchanting gear with magical properties.
+
+Default Color: ![5c3566](https://via.placeholder.com/16/5c3566/a3ca99?text=5c3566)
+
+* 199802 - Formula: Enchant Tool - Draconic Finesse
+* 199803 - Formula: Enchant Tool - Draconic Perception
+* 199804 - Formula: Enchant Tool - Draconic Deftness
+* 199811 - Formula: Enchant Cloak - Graceful Avoidance
+* 199812 - Formula: Enchant Boots - Rider's Reassurance
+* 199813 - Formula: Enchant Chest - Sustained Strength
+* 199814 - Formula: Enchant Boots - Plainsrunner's Breeze
+* 199815 - Formula: Enchant Cloak - Regenerative Leech
+* 199816 - Formula: Enchant Chest - Accelerated Agility
+* 199817 - Formula: Enchant Cloak - Homebound Speed
+* 199818 - Formula: Enchant Boots - Watcher's Loam
+* 200911 - Formula: Illusion: Primal Air
+* 200912 - Formula: Illusion: Primal Earth
+* 200913 - Formula: Illusion: Primal Fire
+* 200914 - Formula: Illusion: Primal Frost
+* 200916 - Formula: Illusion: Primal Mastery
+* 203423 - Formula: Glowing Crystal Bookmark
+* 203838 - Ancient Formula: Mindslave's Reach
+* 204975 - Formula: Enchant Weapon - Shadowflame Wreathe
+* 204976 - Formula: Spore Keeper's Baton
+* 204977 - Formula: Illusory Adornment: Spores
+* 204978 - Formula: Enchant Weapon - Spore Tender
+* 205337 - Formula: Titan Training Matrix V
+* 205338 - Formula: Enchanted Whelpling's Shadowflame Crest
+* 205339 - Formula: Enchanted Wyrm's Shadowflame Crest
+* 205340 - Formula: Enchanted Aspect's Shadowflame Crest
+* 207569 - Ancient Formula: Magebane Nexus
+* 207570 - Ancient Formula: Smoked Fireshooter
+* 207571 - Ancient Formula: Stormwatcher
+* 210171 - Formula: Enchanted Aspect's Dreaming Crest
+* 210172 - Formula: Enchanted Wyrm's Dreaming Crest
+* 210173 - Formula: Enchanted Whelpling's Dreaming Crest
+* 210174 - Formula: Illusory Adornment: Dreams
+* 210175 - Formula: Enchant Weapon - Dreaming Devotion
+* 211524 - ERROR1
+* 211525 - ERROR1
+* 211526 - ERROR1
+* 218269 - Draconic Tome of Awakening
+
+### Engineering Recipes
+
+Recipes for creating gadgets, explosives, and mechanical devices.
+
+Default Color: ![c4a000](https://via.placeholder.com/16/c4a000/3b5fff?text=c4a000)
+
+* 198780 - ERROR1
+* 198781 - Schematic: Gravitational Displacer
+* 198782 - Schematic: Bottomless Mireslush Ore Satchel
+* 198783 - Schematic: Spring-Loaded Khaz'gorite Fabric Cutters
+* 198784 - Schematic: Primal Deconstruction Charge
+* 198785 - Schematic: Quack-E
+* 199221 - Schematic: Element-Infused Rocket Helmet
+* 199222 - Schematic: Overengineered Sleeve Extenders
+* 199223 - Schematic: Needlessly Complex Wristguards
+* 199224 - Schematic: Complicated Cuffs
+* 199225 - Schematic: Difficult Wrist Protectors
+* 199226 - Schematic: P.E.W. x2
+* 199227 - Schematic: Ol' Smoky
+* 199228 - Schematic: Grease Grenade
+* 199229 - Schematic: Tinker: Breath of Neltharion
+* 199230 - Schematic: Projectile Propulsion Pinion
+* 199231 - Schematic: High Intensity Thermal Scanner
+* 199232 - Schematic: Bundle of Fireworks
+* 199233 - Schematic: S.A.V.I.O.R.
+* 199234 - Schematic: Khaz'gorite Fisherfriend
+* 199235 - Schematic: Creature Combustion Canister
+* 199236 - Schematic: D.U.C.K.O.Y.
+* 199238 - Schematic: Sticky Warp Grenade
+* 199239 - Schematic: Tinker: Alarm-O-Turret
+* 199240 - Schematic: Green Fireflight
+* 199241 - Schematic: H.E.L.P.
+* 199242 - Schematic: Portable Alchemist's Lab Bench
+* 199243 - Schematic: Portable Tinker's Workbench
+* 199244 - Schematic: Khaz'gorite Delver's Helmet
+* 199245 - Schematic: Lapidary's Khaz'gorite Clamps
+* 199246 - Schematic: Tinker: Grounded Circuitry
+* 199247 - Schematic: Haphazardly Tethered Wires
+* 199248 - Schematic: Overcharged Overclocker
+* 199249 - Schematic: Critical Failure Prevention Unit
+* 199250 - Schematic: Calibrated Safety Switch
+* 199251 - Schematic: Magazine of Healing Darts
+* 199252 - Schematic: I.W.I.N. Button Mk10
+* 199253 - Schematic: Suspiciously Ticking Crate
+* 199254 - Schematic: EZ-Thro Creature Combustion Canister
+* 199255 - Schematic: EZ-Thro Gravitational Displacer
+* 199256 - Schematic: EZ-Thro Primal Deconstruction Charge
+* 199257 - Schematic: Suspiciously Silent Crate
+* 199258 - Schematic: Tinker: Supercollide-O-Tron
+* 199259 - Schematic: Razor-Sharp Gear
+* 199260 - Schematic: Rapidly Ticking Gear
+* 199261 - Schematic: Meticulously Tuned Gear
+* 199262 - Schematic: One-Size-Fits-All Gear
+* 199263 - Schematic: Completely Safe Rockets
+* 199264 - Schematic: Endless Stack of Needles
+* 199265 - Schematic: Wyrmhole Generator
+* 199266 - Schematic: Centralized Precipitation Emitter
+* 199267 - Schematic: Environmental Emulator
+* 199268 - Schematic: Giggle Goggles
+* 199270 - Schematic: Quality-Assured Optics
+* 199271 - Schematic: Milestone Magnifiers
+* 199272 - Schematic: Deadline Deadeyes
+* 199273 - Schematic: Sentry's Stabilized Specs
+* 199274 - Schematic: Lightweight Ocular Lenses
+* 199275 - Schematic: Peripheral Vision Projectors
+* 199276 - Schematic: Oscillating Wilderness Opticals
+* 199277 - Schematic: Battle-Ready Binoculars
+* 199278 - Schematic: Draconium Delver's Helmet
+* 199279 - Schematic: Bottomless Stonecrust Ore Satchel
+* 199280 - Schematic: Draconium Fisherfriend
+* 199281 - Schematic: Lapidary's Draconium Clamps
+* 199282 - Schematic: Spring-Loaded Draconium Fabric Cutters
+* 199283 - Schematic: Draconium Encased Samophlange
+* 199284 - Schematic: Draconium Brainwave Amplifier
+* 199285 - Schematic: Khaz'gorite Encased Samophlange
+* 199286 - Schematic: Khaz'gorite Brainwave Amplifier
+* 199287 - Schematic: Tinker: Plane Displacer
+* 199288 - Schematic: Gyroscopic Kaleidoscope
+* 199289 - Schematic: Blue Fireflight
+* 199290 - Schematic: Red Fireflight
+* 199291 - ERROR1
+* 199292 - ERROR1
+* 199293 - Schematic: Neural Silencer Mk3
+* 199294 - Schematic: Atomic Recalibrator
+* 199295 - Schematic: Black Fireflight
+* 199296 - Schematic: Bronze Fireflight
+* 199297 - Schematic: Spring-Loaded Capacitor Casing
+* 199298 - ERROR1
+* 199299 - Schematic: Tinker: Polarity Amplifier
+* 199300 - Schematic: EZ-Thro Grease Grenade
+* 199415 - Schematic: Zapthrottle Soul Inhaler
+* 199685 - ERROR1
+* 201794 - Schematic: Tranquil Mechanical Yeti
+* 202228 - Schematic: Impressive Linkgrease Locksprocket
+* 202229 - Schematic: Remarkable Linkgrease Locksprocket
+* 202230 - Schematic: Impressive True Iron Trigger
+* 202231 - Schematic: Remarkable True Iron Trigger
+* 203424 - Schematic: Gnomish Voicebox
+* 204844 - Schematic: Polarity Bomb
+* 205036 - Schematic: Tinker: Shadowflame Rockets
+* 205178 - Schematic: Mallard Mortar
+* 205282 - Schematic: Obsidian Combatant's Cloth Goggles
+* 205283 - Schematic: Obsidian Combatant's Leather Goggles
+* 205284 - Schematic: Obsidian Combatant's Mail Goggles
+* 205285 - Schematic: Obsidian Combatant's Plate Goggles
+* 206559 - Ancient Schematic: Replaced Servo Arm
+* 207461 - Schematic: Portable Party Platter
+* 207574 - Ancient Schematic: Skullstone Bludgeon
+* 207576 - Ancient Schematic: Refurbished Purifier
+* 208317 - Schematic: Verdant Combatant's Cloth Goggles
+* 208318 - Schematic: Verdant Combatant's Leather Goggles
+* 208319 - Schematic: Verdant Combatant's Mail Goggles
+* 208320 - Schematic: Verdant Combatant's Plate Goggles
+* 211616 - Schematic: Draconic Combatant's Cloth Goggles
+* 211617 - Schematic: Draconic Combatant's Leather Goggles
+* 211618 - Schematic: Draconic Combatant's Mail Goggles
+* 211619 - Schematic: Draconic Combatant's Plate Goggles
+
+### Inscription Recipes
+
+Recipes for scribing glyphs and crafting scrolls and tomes.
+
+Default Color: ![855c33](https://via.placeholder.com/16/855c33/7aa3cc?text=855c33)
+
+* 198390 - Milling
+* 198598 - Technique: Scroll of Sales
+* 198788 - Technique: Contract: Dragonscale Expedition
+* 198874 - Technique: Kinetic Pillar of the Isles
+* 198875 - Technique: Illuminating Pillar of the Isles
+* 198876 - Technique: Weathered Explorer's Stave
+* 198877 - Technique: Pioneer's Writhebark Stave
+* 198878 - Technique: Overseer's Writhebark Stave
+* 198879 - Technique: Draconic Treatise on Alchemy
+* 198880 - Technique: Draconic Treatise on Engineering
+* 198881 - Technique: Draconic Treatise on Blacksmithing
+* 198882 - Technique: Bundle O' Cards: Dragon Isles
+* 198883 - Technique: Draconic Treatise on Enchanting
+* 198884 - Technique: Draconic Treatise on Herbalism
+* 198885 - Technique: Draconic Treatise on Inscription
+* 198886 - Technique: Draconic Treatise on Jewelcrafting
+* 198887 - Technique: Draconic Treatise on Leatherworking
+* 198888 - Technique: Draconic Treatise on Mining
+* 198889 - Technique: Draconic Treatise on Tailoring
+* 198891 - Technique: Cliffside Wylderdrake: Conical Head
+* 198892 - Technique: Cliffside Wylderdrake: Red Hair
+* 198893 - Technique: Cliffside Wylderdrake: Triple Head Horns
+* 198894 - Technique: Highland Drake: Black Hair
+* 198895 - Technique: Highland Drake: Spined Head
+* 198896 - Technique: Highland Drake: Spined Neck
+* 198899 - Technique: Renewed Proto-Drake: Predator Pattern
+* 198901 - Technique: Renewed Proto-Drake: Spined Crest
+* 198902 - Technique: Windborne Velocidrake: Black Fur
+* 198903 - Technique: Windborne Velocidrake: Spined Head
+* 198904 - Technique: Windborne Velocidrake: Windswept Pattern
+* 198905 - Technique: Illusion Parchment: Aqua Torrent
+* 198906 - Technique: Illusion Parchment: Arcane Burst
+* 198907 - Technique: Illusion Parchment: Chilling Wind
+* 198908 - Technique: Illusion Parchment: Love Charm
+* 198909 - Technique: Illusion Parchment: Magma Missile
+* 198910 - Technique: Illusion Parchment: Shadow Orb
+* 198911 - Technique: Illusion Parchment: Spell Shield
+* 198912 - Technique: Illusion Parchment: Whirling Breeze
+* 198913 - Technique: Chilled Rune
+* 198914 - Technique: Flourishing Fortune
+* 198915 - Technique: Blazing Fortune
+* 198916 - Technique: Serene Fortune
+* 198917 - Technique: Buzzing Rune
+* 198918 - Technique: Howling Rune
+* 198919 - Technique: Chirping Rune
+* 198920 - Technique: Draconic Missive of the Fireflash
+* 198921 - Technique: Draconic Missive of the Peerless
+* 198922 - Technique: Azurescale Sigil
+* 198923 - Technique: Sagescale Sigil
+* 198924 - Technique: Emberscale Sigil
+* 198925 - Technique: Bronzescale Sigil
+* 198926 - Technique: Jetscale Sigil
+* 198927 - Technique: Draconic Missive of the Quickblade
+* 198928 - Technique: Draconic Missive of the Aurora
+* 198929 - Technique: Draconic Missive of the Harmonious
+* 198930 - Technique: Runed Writhebark
+* 198931 - Technique: Draconic Missive of the Feverflare
+* 198932 - Technique: Burnished Ink
+* 198933 - Technique: Cosmic Ink
+* 198934 - Technique: Blazing Ink
+* 198935 - Technique: Flourishing Ink
+* 198936 - Technique: Serene Ink
+* 198937 - Technique: Contract: Maruuk Centaur
+* 198938 - Technique: Contract: Artisan's Consortium
+* 198940 - Technique: Contract: Iskaara Tuskarr
+* 198941 - Technique: Contract: Valdrakken Accord
+* 198942 - Technique: Alchemist's Sturdy Mixing Rod
+* 198943 - Technique: Alchemist's Brilliant Mixing Rod
+* 198946 - Technique: Chef's Smooth Rolling Pin
+* 198947 - Technique: Chef's Splendid Rolling Pin
+* 198950 - Technique: Scribe's Fastened Quill
+* 198951 - Technique: Scribe's Resplendent Quill
+* 198952 - Technique: Darkmoon Deck Box: Dance
+* 198953 - Technique: Darkmoon Deck Box: Watcher
+* 198954 - Technique: Darkmoon Deck Box: Rime
+* 198955 - Technique: Darkmoon Deck Box: Inferno
+* 198956 - Technique: Vantus Rune: Vault of the Incarnates
+* 198957 - Technique: Crackling Codex of the Isles
+* 198958 - Technique: Core Explorer's Compendium
+* 199901 - Extraction: Awakened Fire
+* 199903 - Extraction: Awakened Frost
+* 199904 - Extraction: Awakened Air
+* 199905 - Extraction: Awakened Earth
+* 199927 - ERROR1
+* 200599 - Technique: Draconic Missive of Inspiration
+* 200600 - Technique: Draconic Missive of Resourcefulness
+* 200601 - Technique: Draconic Missive of Multicraft
+* 200602 - Technique: Draconic Missive of Crafting Speed
+* 200603 - Technique: Draconic Missive of Finesse
+* 200604 - Technique: Draconic Missive of Perception
+* 200605 - Technique: Draconic Missive of Deftness
+* 201026 - Technique: Draconic Treatise on Skinning
+* 201734 - Technique: Cliffside Wylderdrake: Silver and Blue Armor
+* 201735 - Technique: Highland Drake: Silver and Blue Armor
+* 201736 - Technique: Cliffside Wylderdrake: Steel and Yellow Armor
+* 201737 - Technique: Highland Drake: Steel and Yellow Armor
+* 201738 - Technique: Renewed Proto-Drake: Steel and Yellow Armor
+* 201739 - Technique: Windborne Velocidrake: Steel and Yellow Armor
+* 201741 - Technique: Renewed Proto-Drake: Bovine Horns
+* 201742 - Technique: Renewed Proto-Drake: Silver and Blue Armor
+* 201743 - Technique: Windborne Velocidrake: Silver and Blue Armor
+* 202236 - Technique: Impressive Weapon Crystal
+* 202237 - Technique: Remarkable Weapon Crystal
+* 203378 - Technique: Crimson Combatant's Medallion
+* 203379 - Technique: Crimson Combatant's Insignia of Alacrity
+* 203380 - Technique: Crimson Combatant's Emblem
+* 203425 - Technique: Arcane Dispelling Rune
+* 203839 - Ancient Technique: Gurubashi Hoodoo Stick
+* 203840 - Ancient Technique: Judgment of the Gurubashi
+* 203841 - Ancient Technique: Gurubashi Ceremonial Staff
+* 204167 - Technique: Obsidian Combatant's Medallion
+* 204168 - Technique: Obsidian Combatant's Insignia of Alacrity
+* 204169 - Technique: Obsidian Combatant's Emblem
+* 205127 - Technique: Winding Slitherdrake: Blue and Silver Armor
+* 205128 - Technique: Winding Slitherdrake: Yellow and Silver Armor
+* 205129 - Technique: Winding Slitherdrake: Curved Chin Horn
+* 205130 - Technique: Winding Slitherdrake: White Hair
+* 205131 - Technique: Winding Slitherdrake: Small Finned Throat
+* 205132 - Technique: Glyph of the Chosen Glaive
+* 205133 - Technique: Glyph of the Heaved Armament
+* 205134 - Technique: Vantus Rune: Aberrus, the Shadowed Crucible
+* 205135 - Technique: Hissing Rune
+* 205136 - Technique: Contract: Loamm Niffen
+* 206528 - Ancient Technique: Shifting Sliver
+* 206532 - Ancient Technique: Soulscryer
+* 206548 - Ancient Technique: Encased Frigid Heart
+* 207091 - Technique: Glyph of the Shath'Yar
+* 207575 - Ancient Technique: Wanderer's Guide
+* 208310 - Technique: Verdant Combatant's Medallion
+* 208311 - Technique: Verdant Combatant's Insignia of Alacrity
+* 208312 - Technique: Verdant Combatant's Emblem
+* 210243 - Technique: Contract: Dream Wardens
+* 210490 - Technique: Vantus Rune: Amirdrassil, the Dream's Hope
+* 210491 - Technique: Winding Slitherdrake: Hairy Chin
+* 210492 - Technique: Grotto Netherwing Drake: Chin Tendrils
+* 210493 - Technique: Grotto Netherwing Drake: Spiked Jaw
+* 211065 - Technique: Mark of the Auric Dreamstag
+* 211399 - Technique: Glyph of the Lunar Chameleon
+* 211609 - Technique: Draconic Combatant's Medallion
+* 211610 - Technique: Draconic Combatant's Insignia of Alacrity
+* 211611 - Technique: Draconic Combatant's Emblem
+
+### Jewelcrafting Recipes
+
+Recipes for cutting gems and crafting jewelry.
+
+Default Color: ![ad7fa8](https://via.placeholder.com/16/ad7fa8/528057?text=ad7fa8)
+
+* 194596 - Design: Crafty Queen's Ruby
+* 194597 - Design: Zen Mystic Sapphire
+* 194598 - Design: Energized Vibrant Emerald
+* 194599 - Design: Sensei's Sundered Onyx
+* 194600 - Design: Solid Eternity Amber
+* 194601 - Design: Crafty Alexstraszite
+* 194602 - Design: Sensei's Alexstraszite
+* 194603 - Design: Radiant Alexstraszite
+* 194604 - Design: Deadly Alexstraszite
+* 194605 - Design: Radiant Malygite
+* 194606 - Design: Energized Malygite
+* 194607 - Design: Zen Malygite
+* 194608 - Design: Stormy Malygite
+* 194609 - Design: Crafty Ysemerald
+* 194610 - Design: Keen Ysemerald
+* 194611 - Design: Energized Ysemerald
+* 194612 - Design: Quick Ysemerald
+* 194613 - Design: Sensei's Neltharite
+* 194614 - Design: Keen Neltharite
+* 194615 - Design: Zen Neltharite
+* 194616 - Design: Fractured Neltharite
+* 194617 - Design: Jagged Nozdorite
+* 194618 - Design: Forceful Nozdorite
+* 194619 - Design: Puissant Nozdorite
+* 194620 - Design: Steady Nozdorite
+* 194621 - Design: Inscribed Illimited Diamond
+* 194622 - Design: Fierce Illimited Diamond
+* 194623 - Design: Skillful Illimited Diamond
+* 194624 - Design: Resplendent Illimited Diamond
+* 194625 - Design: Tiered Medallion Setting
+* 194626 - Design: Shimmering Clasp
+* 194627 - Design: Draconic Vial
+* 194628 - Design: Frameless Lens
+* 194629 - Design: Chiseled Stone Block
+* 194630 - Design: Blotting Sand
+* 194631 - Design: Pounce
+* 194632 - Design: Idol of the Life-Binder
+* 194633 - Design: Idol of the Spell-Weaver
+* 194634 - Design: Idol of the Dreamer
+* 194635 - Design: Idol of the Earth-Warder
+* 194636 - Design: Pendant of Impending Perils
+* 194637 - Design: Crimson Combatant's Jeweled Amulet
+* 194638 - Design: Crimson Combatant's Jeweled Signet
+* 194639 - ERROR1
+* 194640 - Design: Ring-Bound Hourglass
+* 194641 - Design: Elemental Lariat
+* 194642 - Design: Choker of Shielding
+* 194643 - Design: Narcissist's Sculpture
+* 194644 - Design: Revitalizing Red Carving
+* 194645 - Design: Statue of Tyr's Herald
+* 194646 - Design: Djaradin's "Pinata"
+* 194647 - Design: Jeweled Ruby Whelpling
+* 194648 - Design: Jeweled Emerald Whelpling
+* 194649 - Design: Jeweled Sapphire Whelpling
+* 194650 - Design: Jeweled Onyx Whelpling
+* 194651 - Design: Jeweled Amber Whelpling
+* 194652 - Design: Projection Prism
+* 194653 - Design: Jeweled Offering
+* 194654 - Design: Convergent Prism
+* 194656 - Design: Bold-Print Bifocals
+* 194657 - Design: Left-Handed Magnifying Glass
+* 194658 - Design: Sundered Onyx Loupes
+* 194659 - Design: Chromatic Focus
+* 194660 - Design: Fine-Print Trifocals
+* 194661 - Design: Magnificent Margin Magnifier
+* 194662 - Design: Alexstraszite Loupes
+* 194663 - Design: Resonant Focus
+* 194664 - Design: Queen's Gift
+* 194665 - Design: Dreamer's Vision
+* 194666 - Design: Keeper's Glory
+* 194667 - Design: Earthwarden's Prize
+* 194668 - Design: Timewatcher's Patience
+* 194669 - Design: Jeweled Dragon's Heart
+* 194670 - Design: Elemental Harmony
+* 194671 - Design: "Rhinestone" Sunglasses
+* 194672 - Design: Band of New Beginnings
+* 194674 - Design: Soul Drainer
+* 194709 - Prospecting
+* 194726 - Design: Kalu'ak Figurine
+* 194749 - Design: Split-Lens Specs
+* 198839 - Design: Signet of Titanic Insight
+* 201926 - Crushing
+* 203426 - Design: Crystal Tuning Fork
+* 204146 - Design: Obsidian Combatant's Jeweled Amulet
+* 204147 - Design: Obsidian Combatant's Jeweled Signet
+* 204216 - Primordial Pulverizing
+* 204218 - Design: Primordial Pulverizing
+* 204219 - Design: Unstable Elementium
+* 204406 - Ancient Design: Square Holders
+* 205174 - Design: B.B.F. Fist
+* 205175 - Design: Statuette of Foreseen Power
+* 205176 - Design: Figurine of the Gathering Storm
+* 206543 - Ancient Design: Gem of the Nerubians
+* 206551 - Ancient Design: Frostwyrm's Icy Gaze
+* 206552 - Ancient Design: Frostwyrm's Frigid Stare
+* 208289 - Design: Verdant Combatant's Jeweled Amulet
+* 208290 - Design: Verdant Combatant's Jeweled Signet
+* 210170 - Design: Dreamtender's Charm
+* 211588 - Design: Draconic Combatant's Jeweled Amulet
+* 211589 - Design: Draconic Combatant's Jeweled Signet
+
+### Leatherworking Recipes
+
+Recipes for crafting leather and mail armor.
+
+Default Color: ![8b4513](https://via.placeholder.com/16/8b4513/74baec?text=8b4513)
+
 * 193868 - Pattern: Slimy Expulsion Boots
 * 193869 - Pattern: Toxic Thorn Footwraps
 * 193870 - Pattern: Allied Legguards of Sansok Khan
@@ -2687,6 +3394,136 @@ Default Color: ![8f541a](https://via.placeholder.com/16/8f541a/70abe5?text=8f541
 * 193882 - Pattern: Acidic Hailstone Treads
 * 193883 - Pattern: Venom-Steeped Stompers
 * 193884 - Pattern: Infurious Chainhelm Protector
+* 194311 - Pattern: Tuskarr Beanbag
+* 194312 - Pattern: Gnoll Tent
+* 197964 - Pattern: Crimson Combatant's Resilient Mask
+* 197965 - Pattern: Crimson Combatant's Resilient Chestpiece
+* 197966 - Pattern: Crimson Combatant's Resilient Trousers
+* 197967 - Pattern: Crimson Combatant's Resilient Shoulderpads
+* 197968 - Pattern: Crimson Combatant's Resilient Boots
+* 197969 - Pattern: Crimson Combatant's Resilient Gloves
+* 197970 - Pattern: Crimson Combatant's Resilient Wristwraps
+* 197971 - Pattern: Crimson Combatant's Resilient Belt
+* 197972 - Pattern: Crimson Combatant's Adamant Cowl
+* 197973 - Pattern: Crimson Combatant's Adamant Chainmail
+* 197974 - Pattern: Crimson Combatant's Adamant Leggings
+* 197975 - Pattern: Crimson Combatant's Adamant Epaulettes
+* 197976 - Pattern: Crimson Combatant's Adamant Treads
+* 197977 - Pattern: Crimson Combatant's Adamant Gauntlets
+* 197978 - Pattern: Crimson Combatant's Adamant Cuffs
+* 197979 - Pattern: Crimson Combatant's Adamant Girdle
+* 197981 - Pattern: Finished Prototype Regal Barding
+* 197982 - Pattern: Finished Prototype Explorer's Barding
+* 198457 - Pattern: Masterwork Smock
+* 198458 - Pattern: Resplendent Cover
+* 198459 - Pattern: Lavish Floral Pack
+* 198461 - Pattern: Shockproof Gloves
+* 198462 - Pattern: Flameproof Apron
+* 198463 - Pattern: Expert Alchemist's Hat
+* 198464 - Pattern: Reinforced Pack
+* 198465 - Pattern: Expert Skinner's Cap
+* 198618 - Pattern: Artisan's Sign
+* 200103 - Pattern: Infurious Hide
+* 200104 - Pattern: Infurious Scales
+* 201257 - Bloodstained Pattern: Infurious Hide
+* 201259 - Bloodstained Pattern: Infurious Scales
+* 201732 - Pattern: Fierce Armor Kit
+* 201733 - Pattern: Frosted Armor Kit
+* 202232 - Pattern: Impressive Burnished Essence
+* 202233 - Pattern: Remarkable Burnished Essence
+* 203427 - Pattern: Reinforced Pristine Leather
+* 203842 - Ancient Pattern: Animist's Footwraps
+* 203843 - Ancient Pattern: Animist's Legguards
+* 203844 - Ancient Pattern: Gloves of the Tormentor
+* 203845 - Ancient Pattern: Junglefury Gauntlets
+* 203846 - Ancient Pattern: Junglefury Leggings
+* 203847 - Ancient Pattern: Gurubashi's Grasp
+* 203968 - Ancient Pattern: Cord of Shriveled Heads
+* 204148 - Pattern: Obsidian Combatant's Resilient Mask
+* 204149 - Pattern: Obsidian Combatant's Resilient Chestpiece
+* 204150 - Pattern: Obsidian Combatant's Resilient Trousers
+* 204151 - Pattern: Obsidian Combatant's Resilient Shoulderpads
+* 204152 - Pattern: Obsidian Combatant's Resilient Boots
+* 204153 - Pattern: Obsidian Combatant's Resilient Gloves
+* 204154 - Pattern: Obsidian Combatant's Resilient Wristwraps
+* 204155 - Pattern: Obsidian Combatant's Resilient Belt
+* 204156 - Pattern: Obsidian Combatant's Adamant Cowl
+* 204157 - Pattern: Obsidian Combatant's Adamant Chainmail
+* 204158 - Pattern: Obsidian Combatant's Adamant Leggings
+* 204159 - Pattern: Obsidian Combatant's Adamant Epaulettes
+* 204160 - Pattern: Obsidian Combatant's Adamant Treads
+* 204161 - Pattern: Obsidian Combatant's Adamant Gauntlets
+* 204162 - Pattern: Obsidian Combatant's Adamant Cuffs
+* 204163 - Pattern: Obsidian Combatant's Adamant Girdle
+* 204968 - Pattern: Shadowflame-Tempered Armor Patch
+* 204969 - Pattern: Spore Colony Shoulderguards
+* 204970 - Pattern: Adaptive Dracothyst Armguards
+* 204974 - Pattern: Lambent Armor Kit
+* 206403 - Pattern: Polar Helm
+* 206404 - Pattern: Polar Spaulders
+* 206405 - Pattern: Polar Tunic
+* 206406 - Pattern: Polar Bracers
+* 206407 - Pattern: Polar Gloves
+* 206408 - Pattern: Polar Belt
+* 206409 - Pattern: Polar Leggings
+* 206410 - Pattern: Polar Footwarmers
+* 206411 - Pattern: Icy Scale Crown
+* 206412 - Pattern: Icy Scale Shoulderpads
+* 206413 - Pattern: Icy Scale Breastplate
+* 206414 - Pattern: Icy Scale Bracers
+* 206415 - Pattern: Icy Scale Gauntlets
+* 206416 - Pattern: Icy Scale Waistwrap
+* 206417 - Pattern: Icy Scale Leggings
+* 206418 - Pattern: Icy Scale Stompers
+* 206529 - Ancient Pattern: Helm of Lingering Power
+* 206530 - Ancient Pattern: Skyfury Headdress
+* 206538 - Ancient Pattern: Nerubian Persuader
+* 206556 - Ancient Pattern: Displacement Boots
+* 206561 - Ancient Pattern: Lucien's Lost Soles
+* 206772 - Pattern: Languished Leather
+* 206773 - Pattern: Scourged Scales
+* 207577 - Ancient Pattern: Sanctified Leather Hat
+* 208291 - Pattern: Verdant Combatant's Resilient Mask
+* 208292 - Pattern: Verdant Combatant's Resilient Chestpiece
+* 208293 - Pattern: Verdant Combatant's Resilient Trousers
+* 208294 - Pattern: Verdant Combatant's Resilient Shoulderpads
+* 208295 - Pattern: Verdant Combatant's Resilient Boots
+* 208296 - Pattern: Verdant Combatant's Resilient Gloves
+* 208297 - Pattern: Verdant Combatant's Resilient Wristwraps
+* 208298 - Pattern: Verdant Combatant's Resilient Belt
+* 208299 - Pattern: Verdant Combatant's Adamant Cowl
+* 208300 - Pattern: Verdant Combatant's Adamant Chainmail
+* 208301 - Pattern: Verdant Combatant's Adamant Leggings
+* 208302 - Pattern: Verdant Combatant's Adamant Epaulets
+* 208303 - Pattern: Verdant Combatant's Adamant Treads
+* 208304 - Pattern: Verdant Combatant's Adamant Gauntlets
+* 208305 - Pattern: Verdant Combatant's Adamant Cuffs
+* 208306 - Pattern: Verdant Combatant's Adamant Girdle
+* 210169 - Pattern: Verdant Conduit
+* 211590 - Pattern: Draconic Combatant's Resilient Mask
+* 211591 - Pattern: Draconic Combatant's Resilient Chestpiece
+* 211592 - Pattern: Draconic Combatant's Resilient Trousers
+* 211593 - Pattern: Draconic Combatant's Resilient Shoulderpads
+* 211594 - Pattern: Draconic Combatant's Resilient Boots
+* 211595 - Pattern: Draconic Combatant's Resilient Gloves
+* 211596 - Pattern: Draconic Combatant's Resilient Wristwraps
+* 211597 - Pattern: Draconic Combatant's Resilient Belt
+* 211598 - Pattern: Draconic Combatant's Adamant Cowl
+* 211599 - Pattern: Draconic Combatant's Adamant Chainmail
+* 211600 - Pattern: Draconic Combatant's Adamant Leggings
+* 211601 - Pattern: Draconic Combatant's Adamant Epaulets
+* 211602 - Pattern: Draconic Combatant's Adamant Treads
+* 211603 - Pattern: Draconic Combatant's Adamant Gauntlets
+* 211604 - Pattern: Draconic Combatant's Adamant Cuffs
+* 211605 - Pattern: Draconic Combatant's Adamant Girdle
+
+### Tailoring Recipes
+
+Recipes for weaving cloth armor and other cloth items.
+
+Default Color: ![d3d7cf](https://via.placeholder.com/16/d3d7cf/2c2830?text=d3d7cf)
+
+* 194127 - Dragon Isles Unravelling
 * 194255 - Pattern: Amice of the Blue
 * 194256 - Pattern: Hood of Surging Time
 * 194257 - Pattern: Infurious Binding of Gesticulation
@@ -2695,6 +3532,8 @@ Default Color: ![8f541a](https://via.placeholder.com/16/8f541a/70abe5?text=8f541
 * 194260 - Pattern: Blue Dragon Soles
 * 194261 - Pattern: Frozen Spellthread
 * 194262 - Pattern: Temporal Spellthread
+* 194263 - Pattern: Blue Dragon Rider's Robe
+* 194264 - Pattern: Bronze Dragon Rider's Wraps
 * 194265 - Pattern: Blue Silken Lining
 * 194266 - Pattern: Bronzed Grip Wrappings
 * 194267 - Pattern: Shimmering Embroidery Thread
@@ -2714,6 +3553,7 @@ Default Color: ![8f541a](https://via.placeholder.com/16/8f541a/70abe5?text=8f541
 * 194281 - Pattern: Cold Cushion
 * 194282 - Pattern: Cushion of Time Travel
 * 194283 - Pattern: Duck-Stuffed Duck Lovie
+* 194284 - Pattern: Wildercloth Weapon Upholstery
 * 194285 - Pattern: Azureweave Expedition Pack
 * 194286 - Pattern: Chromatic Embroidery Thread
 * 194287 - Pattern: Chronocloth Reagent Bag
@@ -2725,354 +3565,32 @@ Default Color: ![8f541a](https://via.placeholder.com/16/8f541a/70abe5?text=8f541
 * 194293 - Pattern: Vibrant Polishing Cloth
 * 194294 - Pattern: Explorer's Banner of Herbology
 * 194295 - Pattern: Explorer's Banner of Geology
+* 194296 - Pattern: Fiddle with Draconium Fabric Cutters
+* 194297 - Pattern: Fiddle with Khaz'gorite Fabric Cutters
 * 194298 - Pattern: Forlorn Funeral Pall
-* 194311 - Pattern: Tuskarr Beanbag
-* 194312 - Pattern: Gnoll Tent
-* 194453 - Plans: Crimson Combatant's Draconium Helm
-* 194454 - Plans: Crimson Combatant's Draconium Breastplate
-* 194455 - Plans: Crimson Combatant's Draconium Greaves
-* 194456 - Plans: Crimson Combatant's Draconium Pauldrons
-* 194457 - Plans: Crimson Combatant's Draconium Gauntlets
-* 194458 - Plans: Crimson Combatant's Draconium Sabatons
-* 194459 - Plans: Crimson Combatant's Draconium Armguards
-* 194460 - Plans: Crimson Combatant's Draconium Waistguard
-* 194476 - Plans: Obsidian Seared Hexsword
-* 194477 - Plans: Obsidian Seared Runeaxe
-* 194478 - Plans: Obsidian Seared Facesmasher
-* 194479 - Plans: Obsidian Seared Claymore
-* 194480 - Plans: Obsidian Seared Halberd
-* 194481 - Plans: Obsidian Seared Crusher
-* 194482 - Plans: Obsidian Seared Invoker
-* 194483 - Plans: Obsidian Seared Slicer
-* 194484 - Plans: Infurious Helm of Vengeance
-* 194485 - Plans: Infurious Warboots of Impunity
-* 194486 - Plans: Shield of the Hearth
-* 194489 - Plans: Allied Chestplate of Generosity
-* 194490 - Plans: Allied Wristguard of Companionship
-* 194491 - Plans: Frostfire Legguards of Preparation
-* 194492 - Plans: Unstable Frostfire Belt
-* 194493 - Plans: Armor Spikes
-* 194495 - Plans: Khaz'gorite Sickle
-* 194497 - Plans: Khaz'gorite Skinning Knife
-* 194498 - Plans: Khaz'gorite Needle Set
-* 194499 - Plans: Khaz'gorite Leatherworker's Knife
-* 194500 - Plans: Khaz'gorite Leatherworker's Toolset
-* 194503 - Plans: Black Dragon Touched Hammer
-* 194506 - Plans: Primal Razorstone
-* 194507 - Plans: Serevite Skeleton Key
-* 194508 - Plans: Alvin the Anvil
-* 194602 - Design: Sensei's Alexstraszite
-* 194603 - Design: Radiant Alexstraszite
-* 194605 - Design: Radiant Malygite
-* 194606 - Design: Energized Malygite
-* 194610 - Design: Keen Ysemerald
-* 194611 - Design: Energized Ysemerald
-* 194613 - Design: Sensei's Neltharite
-* 194614 - Design: Keen Neltharite
-* 194632 - Design: Idol of the Life-Binder
-* 194633 - Design: Idol of the Spell-Weaver
-* 194634 - Design: Idol of the Dreamer
-* 194635 - Design: Idol of the Earth-Warder
-* 194637 - Design: Crimson Combatant's Jeweled Amulet
-* 194638 - Design: Crimson Combatant's Jeweled Signet
-* 194640 - Design: Ring-Bound Hourglass
-* 194641 - Design: Elemental Lariat
-* 194642 - Design: Choker of Shielding
-* 194646 - Design: Djaradin's "Pinata"
-* 194647 - Design: Jeweled Ruby Whelpling
-* 194648 - Design: Jeweled Emerald Whelpling
-* 194649 - Design: Jeweled Sapphire Whelpling
-* 194650 - Design: Jeweled Onyx Whelpling
-* 194651 - Design: Jeweled Amber Whelpling
-* 194654 - Design: Convergent Prism
-* 194660 - Design: Fine-Print Trifocals
-* 194661 - Design: Magnificent Margin Magnifier
-* 194662 - Design: Alexstraszite Loupes
-* 194663 - Design: Resonant Focus
-* 194726 - Design: Kalu'ak Figurine
-* 194963 - Plans: Obsidian Seared Alloy
-* 194964 - Recipe: Thrice-Spiced Mammoth Kabob
-* 194965 - Recipe: Yusa's Hearty Stew
-* 197964 - Pattern: Crimson Combatant's Resilient Mask
-* 197965 - Pattern: Crimson Combatant's Resilient Chestpiece
-* 197966 - Pattern: Crimson Combatant's Resilient Trousers
-* 197967 - Pattern: Crimson Combatant's Resilient Shoulderpads
-* 197968 - Pattern: Crimson Combatant's Resilient Boots
-* 197969 - Pattern: Crimson Combatant's Resilient Gloves
-* 197970 - Pattern: Crimson Combatant's Resilient Wristwraps
-* 197971 - Pattern: Crimson Combatant's Resilient Belt
-* 197972 - Pattern: Crimson Combatant's Adamant Cowl
-* 197973 - Pattern: Crimson Combatant's Adamant Chainmail
-* 197974 - Pattern: Crimson Combatant's Adamant Leggings
-* 197975 - Pattern: Crimson Combatant's Adamant Epaulettes
-* 197976 - Pattern: Crimson Combatant's Adamant Treads
-* 197977 - Pattern: Crimson Combatant's Adamant Gauntlets
-* 197978 - Pattern: Crimson Combatant's Adamant Cuffs
-* 197979 - Pattern: Crimson Combatant's Adamant Girdle
-* 197981 - Pattern: Finished Prototype Regal Barding
-* 197982 - Pattern: Finished Prototype Explorer's Barding
-* 198098 - Recipe: Ooey-Gooey Chocolate
-* 198101 - Recipe: Salad on the Side
-* 198102 - Recipe: Impossibly Sharp Cutting Knife
-* 198103 - Recipe: Snow in a Cone
-* 198104 - Recipe: Blubbery Muffin
-* 198105 - Recipe: Celebratory Cake
-* 198106 - Recipe: Tasty Hatchling's Treat
-* 198109 - Recipe: Churnbelly Tea
-* 198113 - Recipe: Timely Demise
-* 198114 - Recipe: Filet of Fangs
-* 198115 - Recipe: Seamoth Surprise
-* 198116 - Recipe: Salt-Baked Fishcake
-* 198129 - Recipe: Gral's Reverence
-* 198130 - Recipe: Gral's Veneration
-* 198131 - Recipe: Gral's Devotion
-* 198132 - Recipe: Hoard of Draconic Delicacies
-* 198457 - Pattern: Masterwork Smock
-* 198458 - Pattern: Resplendent Cover
-* 198459 - Pattern: Lavish Floral Pack
-* 198461 - Pattern: Shockproof Gloves
-* 198462 - Pattern: Flameproof Apron
-* 198463 - Pattern: Expert Alchemist's Hat
-* 198464 - Pattern: Reinforced Pack
-* 198465 - Pattern: Expert Skinner's Cap
-* 198533 - Recipe: Aerated Phial of Quick Hands
-* 198598 - Technique: Scroll of Sales
-* 198618 - Pattern: Artisan's Sign
-* 198713 - Plans: Prototype Explorer's Barding Framework
-* 198714 - Plans: Prototype Regal Barding Framework
-* 198719 - Plans: Sturdy Expedition Shovel
-* 198781 - Schematic: Gravitational Displacer
-* 198782 - Schematic: Bottomless Mireslush Ore Satchel
-* 198783 - Schematic: Spring-Loaded Khaz'gorite Fabric Cutters
-* 198784 - Schematic: Primal Deconstruction Charge
-* 198785 - Schematic: Quack-E
-* 198788 - Technique: Contract: Dragonscale Expedition
-* 198876 - Technique: Weathered Explorer's Stave
-* 198891 - Technique: Cliffside Wylderdrake: Conical Head
-* 198892 - Technique: Cliffside Wylderdrake: Red Hair
-* 198893 - Technique: Cliffside Wylderdrake: Triple Head Horns
-* 198894 - Technique: Highland Drake: Black Hair
-* 198895 - Technique: Highland Drake: Spined Head
-* 198896 - Technique: Highland Drake: Spined Neck
-* 198899 - Technique: Renewed Proto-Drake: Predator Pattern
-* 198901 - Technique: Renewed Proto-Drake: Spined Crest
-* 198902 - Technique: Windborne Velocidrake: Black Fur
-* 198903 - Technique: Windborne Velocidrake: Spined Head
-* 198904 - Technique: Windborne Velocidrake: Windswept Pattern
-* 198905 - Technique: Illusion Parchment: Aqua Torrent
-* 198906 - Technique: Illusion Parchment: Arcane Burst
-* 198907 - Technique: Illusion Parchment: Chilling Wind
-* 198908 - Technique: Illusion Parchment: Love Charm
-* 198909 - Technique: Illusion Parchment: Magma Missile
-* 198910 - Technique: Illusion Parchment: Shadow Orb
-* 198912 - Technique: Illusion Parchment: Whirling Breeze
-* 198937 - Technique: Contract: Maruuk Centaur
-* 198938 - Technique: Contract: Artisan's Consortium
-* 198940 - Technique: Contract: Iskaara Tuskarr
-* 198941 - Technique: Contract: Valdrakken Accord
-* 198943 - Technique: Alchemist's Brilliant Mixing Rod
-* 198947 - Technique: Chef's Splendid Rolling Pin
-* 199227 - Schematic: Ol' Smoky
-* 199228 - Schematic: Grease Grenade
-* 199229 - Schematic: Tinker: Breath of Neltharion
-* 199230 - Schematic: Projectile Propulsion Pinion
-* 199232 - Schematic: Bundle of Fireworks
-* 199234 - Schematic: Khaz'gorite Fisherfriend
-* 199236 - Schematic: D.U.C.K.O.Y.
-* 199238 - Schematic: Sticky Warp Grenade
-* 199239 - Schematic: Tinker: Alarm-O-Turret
-* 199240 - Schematic: Green Fireflight
-* 199241 - Schematic: H.E.L.P.
-* 199242 - Schematic: Portable Alchemist's Lab Bench
-* 199243 - Schematic: Portable Tinker's Workbench
-* 199244 - Schematic: Khaz'gorite Delver's Helmet
-* 199245 - Schematic: Lapidary's Khaz'gorite Clamps
-* 199246 - Schematic: Tinker: Grounded Circuitry
-* 199285 - Schematic: Khaz'gorite Encased Samophlange
-* 199286 - Schematic: Khaz'gorite Brainwave Amplifier
-* 199289 - Schematic: Blue Fireflight
-* 199290 - Schematic: Red Fireflight
-* 199295 - Schematic: Black Fireflight
-* 199299 - Schematic: Tinker: Polarity Amplifier
-* 199802 - Formula: Enchant Tool - Draconic Finesse
-* 199803 - Formula: Enchant Tool - Draconic Perception
-* 199804 - Formula: Enchant Tool - Draconic Deftness
-* 199811 - Formula: Enchant Cloak - Graceful Avoidance
-* 199812 - Formula: Enchant Boots - Rider's Reassurance
-* 199813 - Formula: Enchant Chest - Sustained Strength
-* 199814 - Formula: Enchant Boots - Plainsrunner's Breeze
-* 199815 - Formula: Enchant Cloak - Regenerative Leech
-* 199816 - Formula: Enchant Chest - Accelerated Agility
-* 199817 - Formula: Enchant Cloak - Homebound Speed
-* 199818 - Formula: Enchant Boots - Watcher's Loam
-* 200103 - Pattern: Infurious Hide
-* 200599 - Technique: Draconic Missive of Inspiration
-* 200600 - Technique: Draconic Missive of Resourcefulness
-* 200601 - Technique: Draconic Missive of Multicraft
-* 200602 - Technique: Draconic Missive of Crafting Speed
-* 200603 - Technique: Draconic Missive of Finesse
-* 200604 - Technique: Draconic Missive of Perception
-* 200605 - Technique: Draconic Missive of Deftness
-* 200911 - Formula: Illusion: Primal Air
-* 200912 - Formula: Illusion: Primal Earth
-* 200913 - Formula: Illusion: Primal Fire
-* 200914 - Formula: Illusion: Primal Frost
-* 200916 - Formula: Illusion: Primal Mastery
-* 201256 - Bloodstained Plans: Infurious Alloy
-* 201257 - Bloodstained Pattern: Infurious Hide
+* 194537 - Fiddle with Draconium Fabric Cutters
+* 194538 - Fiddle with Khaz'gorite Fabric Cutters
 * 201258 - Bloodstained Pattern: Infurious Wildercloth Bolt
-* 201259 - Bloodstained Pattern: Infurious Scales
-* 201732 - Pattern: Fierce Armor Kit
-* 201733 - Pattern: Frosted Armor Kit
-* 201734 - Technique: Cliffside Wylderdrake: Silver and Blue Armor
-* 201735 - Technique: Highland Drake: Silver and Blue Armor
-* 201736 - Technique: Cliffside Wylderdrake: Steel and Yellow Armor
-* 201737 - Technique: Highland Drake: Steel and Yellow Armor
-* 201738 - Technique: Renewed Proto-Drake: Steel and Yellow Armor
-* 201739 - Technique: Windborne Velocidrake: Steel and Yellow Armor
-* 201740 - Elemental Codex of Ultimate Power
-* 201741 - Technique: Renewed Proto-Drake: Bovine Horns
-* 201742 - Technique: Renewed Proto-Drake: Silver and Blue Armor
-* 201743 - Technique: Windborne Velocidrake: Silver and Blue Armor
-* 201784 - Recipe: Timely Demise
-* 201785 - Recipe: Seamoth Surprise
-* 201794 - Schematic: Tranquil Mechanical Yeti
-* 202223 - Plans: Impressive Steelforged Essence
-* 202224 - Plans: Remarkable Steelforged Essence
-* 202226 - Plans: Impressive Truesteel Essence
-* 202227 - Plans: Remarkable Truesteel Essence
-* 202228 - Schematic: Impressive Linkgrease Locksprocket
-* 202229 - Schematic: Remarkable Linkgrease Locksprocket
-* 202230 - Schematic: Impressive True Iron Trigger
-* 202231 - Schematic: Remarkable True Iron Trigger
-* 202232 - Pattern: Impressive Burnished Essence
-* 202233 - Pattern: Remarkable Burnished Essence
 * 202234 - Pattern: Impressive Hexweave Essence
 * 202235 - Pattern: Remarkable Hexweave Essence
-* 202236 - Technique: Impressive Weapon Crystal
-* 202237 - Technique: Remarkable Weapon Crystal
-* 202289 - Recipe: Firewater Sorbet
-* 203378 - Technique: Crimson Combatant's Medallion
-* 203379 - Technique: Crimson Combatant's Insignia of Alacrity
-* 203380 - Technique: Crimson Combatant's Emblem
-* 203420 - Recipe: Draconic Suppression Powder
-* 203421 - Plans: Ancient Ceremonial Trident
-* 203422 - Recipe: Sparkling Spice Pouch
-* 203423 - Formula: Glowing Crystal Bookmark
-* 203424 - Schematic: Gnomish Voicebox
-* 203425 - Technique: Arcane Dispelling Rune
-* 203426 - Design: Crystal Tuning Fork
-* 203427 - Pattern: Reinforced Pristine Leather
 * 203428 - Pattern: Traditional Morqut Kite
-* 203824 - Ancient Plans: Gurubashi Headplate
-* 203825 - Ancient Plans: Gurubashi Carver
-* 203826 - Ancient Plans: Venomfang
-* 203827 - Ancient Plans: Gurubashi Poker
-* 203828 - Ancient Plans: Gurubashi Grinder
-* 203829 - Ancient Plans: Gurubashi Hexxer
-* 203830 - Ancient Plans: Sceptre of Hexing
-* 203831 - Ancient Plans: Gurubashi Crusher
-* 203832 - Ancient Plans: Pitchfork of Mojo Madness
-* 203833 - Ancient Plans: Bloodherald
-* 203834 - Ancient Plans: Bloodlord's Reaver
-* 203835 - Ancient Plans: Fiery Vengeance
-* 203836 - Ancient Plans: Warblades of the Hakkari, Reborn
-* 203837 - Ancient Plans: Gurubashi Slicer
-* 203838 - Ancient Formula: Mindslave's Reach
-* 203839 - Ancient Technique: Gurubashi Hoodoo Stick
-* 203840 - Ancient Technique: Judgment of the Gurubashi
-* 203841 - Ancient Technique: Gurubashi Ceremonial Staff
-* 203842 - Ancient Pattern: Animist's Footwraps
-* 203843 - Ancient Pattern: Animist's Legguards
-* 203844 - Ancient Pattern: Gloves of the Tormentor
-* 203845 - Ancient Pattern: Junglefury Gauntlets
-* 203846 - Ancient Pattern: Junglefury Leggings
-* 203847 - Ancient Pattern: Gurubashi's Grasp
 * 203848 - Ancient Pattern: Bloodlord's Embrace
 * 203849 - Ancient Pattern: Gurubashi Tigerhide Cloak
 * 203850 - Ancient Pattern: Gurubashi Headdress
 * 203851 - Ancient Pattern: Ritualistic Legwarmers
-* 203861 - Ancient Plans: Venomreaver
-* 203968 - Ancient Pattern: Cord of Shriveled Heads
-* 204073 - Ratcipe: Deviously Deviled Eggs
 * 204129 - Pattern: Obsidian Combatant's Wildercloth Bands
 * 204130 - Pattern: Obsidian Combatant's Wildercloth Cloak
 * 204131 - Pattern: Obsidian Combatant's Wildercloth Gloves
 * 204132 - Pattern: Obsidian Combatant's Wildercloth Hood
 * 204133 - Pattern: Obsidian Combatant's Wildercloth Leggings
+* 204134 - Pattern: Obsidian Combatant's Wildercloth Sash
 * 204135 - Pattern: Obsidian Combatant's Wildercloth Shoulderpads
 * 204136 - Pattern: Obsidian Combatant's Wildercloth Treads
-* 204141 - Plans: Obsidian Combatant's Draconium Pauldrons
-* 204143 - Plans: Obsidian Combatant's Draconium Sabatons
-* 204144 - Plans: Obsidian Combatant's Draconium Armguards
-* 204145 - Plans: Obsidian Combatant's Draconium Waistguard
-* 204146 - Design: Obsidian Combatant's Jeweled Amulet
-* 204147 - Design: Obsidian Combatant's Jeweled Signet
-* 204149 - Pattern: Obsidian Combatant's Resilient Chestpiece
-* 204150 - Pattern: Obsidian Combatant's Resilient Trousers
-* 204151 - Pattern: Obsidian Combatant's Resilient Shoulderpads
-* 204154 - Pattern: Obsidian Combatant's Resilient Wristwraps
-* 204155 - Pattern: Obsidian Combatant's Resilient Belt
-* 204156 - Pattern: Obsidian Combatant's Adamant Cowl
-* 204157 - Pattern: Obsidian Combatant's Adamant Chainmail
-* 204158 - Pattern: Obsidian Combatant's Adamant Leggings
-* 204159 - Pattern: Obsidian Combatant's Adamant Epaulettes
-* 204160 - Pattern: Obsidian Combatant's Adamant Treads
-* 204161 - Pattern: Obsidian Combatant's Adamant Gauntlets
-* 204163 - Pattern: Obsidian Combatant's Adamant Girdle
-* 204167 - Technique: Obsidian Combatant's Medallion
-* 204168 - Technique: Obsidian Combatant's Insignia of Alacrity
-* 204169 - Technique: Obsidian Combatant's Emblem
-* 204219 - Design: Unstable Elementium
-* 204340 - Torn Recipe Scrap
-* 204406 - Ancient Design: Square Holders
-* 204631 - Recipe: Transmute: Dracothyst
+* 204137 - Pattern: Obsidian Combatant's Wildercloth Tunic
 * 204678 - Pattern: Paw-Made Winterpelt Reagent Bag
-* 204695 - Recipe: Cauldron of Extracted Putrescence
-* 204696 - Recipe: Draconic Phial Cauldron
-* 204844 - Schematic: Polarity Bomb
-* 204847 - Recipe: Rocks on the Rocks
-* 204849 - Ratcipe: Charitable Cheddar
-* 204968 - Pattern: Shadowflame-Tempered Armor Patch
-* 204969 - Pattern: Spore Colony Shoulderguards
-* 204970 - Pattern: Adaptive Dracothyst Armguards
-* 204974 - Pattern: Lambent Armor Kit
-* 204975 - Formula: Enchant Weapon - Shadowflame Wreathe
-* 204976 - Formula: Spore Keeper's Baton
-* 204977 - Formula: Illusory Adornment: Spores
-* 204978 - Formula: Enchant Weapon - Spore Tender
-* 204984 - Recipe: Stinky Bright Potion
-* 205036 - Schematic: Tinker: Shadowflame Rockets
-* 205127 - Technique: Winding Slitherdrake: Blue and Silver Armor
-* 205128 - Technique: Winding Slitherdrake: Yellow and Silver Armor
-* 205129 - Technique: Winding Slitherdrake: Curved Chin Horn
-* 205130 - Technique: Winding Slitherdrake: White Hair
-* 205131 - Technique: Winding Slitherdrake: Small Finned Throat
-* 205132 - Technique: Glyph of the Chosen Glaive
-* 205133 - Technique: Glyph of the Heaved Armament
-* 205134 - Technique: Vantus Rune: Aberrus, the Shadowed Crucible
-* 205135 - Technique: Hissing Rune
-* 205136 - Technique: Contract: Loamm Niffen
-* 205137 - Plans: Shadowed Alloy
 * 205138 - Pattern: Medical Wrap Kit
 * 205139 - Pattern: Reserve Parachute
 * 205140 - Pattern: Undulating Sporecloak
-* 205143 - Plans: Shadowed Belt Clasp
-* 205144 - Plans: Shadowed Razing Annihilator
-* 205145 - Plans: Shadowed Impact Buckler
-* 205161 - Plans: Heat-Resistant Rescue Ring
-* 205174 - Design: B.B.F. Fist
-* 205175 - Design: Statuette of Foreseen Power
-* 205176 - Design: Figurine of the Gathering Storm
-* 205178 - Schematic: Mallard Mortar
-* 205282 - Schematic: Obsidian Combatant's Cloth Goggles
-* 205284 - Schematic: Obsidian Combatant's Mail Goggles
-* 205337 - Formula: Titan Training Matrix V
-* 205338 - Formula: Enchanted Whelpling's Shadowflame Crest
-* 205339 - Formula: Enchanted Wyrm's Shadowflame Crest
-* 205340 - Formula: Enchanted Aspect's Shadowflame Crest
-* 206351 - Plans: Truesilver Champion
-* 206352 - Plans: The Shatterer
 * 206393 - Pattern: Glacial Cloak
 * 206395 - Pattern: Glacial Chapeau
 * 206396 - Pattern: Glacial Epaulets
@@ -3082,88 +3600,30 @@ Default Color: ![8f541a](https://via.placeholder.com/16/8f541a/70abe5?text=8f541
 * 206400 - Pattern: Glacial Tether
 * 206401 - Pattern: Glacial Leggings
 * 206402 - Pattern: Glacial Footwear
-* 206403 - Pattern: Polar Helm
-* 206404 - Pattern: Polar Spaulders
-* 206405 - Pattern: Polar Tunic
-* 206406 - Pattern: Polar Bracers
-* 206407 - Pattern: Polar Gloves
-* 206408 - Pattern: Polar Belt
-* 206409 - Pattern: Polar Leggings
-* 206410 - Pattern: Polar Footwarmers
-* 206411 - Pattern: Icy Scale Crown
-* 206412 - Pattern: Icy Scale Shoulderpads
-* 206413 - Pattern: Icy Scale Breastplate
-* 206414 - Pattern: Icy Scale Bracers
-* 206415 - Pattern: Icy Scale Gauntlets
-* 206416 - Pattern: Icy Scale Waistwrap
-* 206417 - Pattern: Icy Scale Leggings
-* 206418 - Pattern: Icy Scale Stompers
-* 206419 - Plans: Icebane Coif
-* 206420 - Plans: Icebane Mantle
-* 206421 - Plans: Icebane Breastplate
-* 206422 - Plans: Icebane Bracers
-* 206423 - Plans: Icebane Gauntlets
-* 206424 - Plans: Icebane Waistguard
-* 206425 - Plans: Icebane Leggings
-* 206426 - Plans: Icebane Trudgers
-* 206522 - Ancient Plans: Warsword of Caer Darrow
-* 206525 - Ancient Plans: Darrowdirk
-* 206526 - Ancient Plans: Darrowshire Protector
-* 206527 - Ancient Plans: Mirah's Lullaby
-* 206528 - Ancient Technique: Shifting Sliver
-* 206529 - Ancient Pattern: Helm of Lingering Power
-* 206530 - Ancient Pattern: Skyfury Headdress
-* 206531 - Ancient Plans: Strength of Menethil
-* 206532 - Ancient Technique: Soulscryer
-* 206533 - Ancient Plans: Midnight's Graze
-* 206534 - Ancient Plans: Weaver's Fang
-* 206535 - Ancient Plans: Widow's Weep
-* 206536 - Ancient Plans: Shade's Blade
-* 206537 - Ancient Plans: Edict of the Redeemed Crusader
-* 206538 - Ancient Pattern: Nerubian Persuader
-* 206539 - Ancient Plans: Blade of Unholy Might
-* 206540 - Ancient Plans: Axe of Sundered Bone
-* 206541 - Ancient Plans: The Plague Belcher
-* 206542 - Ancient Plans: Bracers of Vengeance
-* 206543 - Ancient Design: Gem of the Nerubians
-* 206544 - Ancient Plans: The Final Dream
-* 206545 - Ancient Plans: Plated Construct's Ribcage
-* 206546 - Ancient Plans: Blade of the Fallen Seraph
 * 206547 - Ancient Pattern: Bindings of the Harvested Soul
-* 206548 - Ancient Technique: Encased Frigid Heart
-* 206549 - Ancient Plans: The Face of Doom
-* 206550 - Ancient Plans: Harbinger of Death
-* 206551 - Ancient Design: Frostwyrm's Icy Gaze
-* 206552 - Ancient Design: Frostwyrm's Frigid Stare
-* 206553 - Ancient Plans: Dawn of Demise
 * 206554 - Ancient Pattern: Necrotic Gown
-* 206555 - Ancient Plans: Gauntlets of the Unrelenting
-* 206556 - Ancient Pattern: Displacement Boots
-* 206557 - Ancient Plans: Death's Gamble
-* 206558 - Ancient Plans: Belt of the Mentor
-* 206559 - Ancient Schematic: Replaced Servo Arm
-* 206560 - Ancient Plans: Stygian Shield
-* 206561 - Ancient Pattern: Lucien's Lost Soles
 * 206563 - Ancient Pattern: Shroud of Forbidden Magic
 * 206583 - Ancient Pattern: Peculiar Glacial Mantle
 * 206771 - Pattern: Cursed Cloth
-* 206772 - Pattern: Languished Leather
-* 206773 - Pattern: Scourged Scales
-* 206774 - Plans: Undeath Metal
-* 206805 - Ancient Plans: Bucket Kickers
-* 207091 - Technique: Glyph of the Shath'Yar
-* 207567 - Ancient Plans: Intrepid Shortblade
-* 207568 - Ancient Plans: Valiant Shortblade
-* 207569 - Ancient Formula: Magebane Nexus
-* 207570 - Ancient Formula: Smoked Fireshooter
-* 207571 - Ancient Formula: Stormwatcher
-* 207572 - Ancient Plans: Sacred Guardian
-* 207573 - Ancient Plans: Ichor Slicer
-* 207574 - Ancient Schematic: Skullstone Bludgeon
-* 207575 - Ancient Technique: Wanderer's Guide
-* 207576 - Ancient Schematic: Refurbished Purifier
-* 207577 - Ancient Pattern: Sanctified Leather Hat
-* 210241 - Recipe: Dreamwalker's Healing Potion
+* 208272 - Pattern: Verdant Combatant's Wildercloth Bands
+* 208273 - Pattern: Verdant Combatant's Wildercloth Cloak
+* 208274 - Pattern: Verdant Combatant's Wildercloth Gloves
+* 208275 - Pattern: Verdant Combatant's Wildercloth Hood
+* 208276 - Pattern: Verdant Combatant's Wildercloth Leggings
+* 208277 - Pattern: Verdant Combatant's Wildercloth Sash
+* 208278 - Pattern: Verdant Combatant's Wildercloth Shoulderpads
+* 208279 - Pattern: Verdant Combatant's Wildercloth Treads
+* 208280 - Pattern: Verdant Combatant's Wildercloth Tunic
+* 210670 - Pattern: Verdant Tether
+* 211571 - Pattern: Draconic Combatant's Wildercloth Bands
+* 211572 - Pattern: Draconic Combatant's Wildercloth Cloak
+* 211573 - Pattern: Draconic Combatant's Wildercloth Gloves
+* 211574 - Pattern: Draconic Combatant's Wildercloth Hood
+* 211575 - Pattern: Draconic Combatant's Wildercloth Leggings
+* 211576 - Pattern: Draconic Combatant's Wildercloth Sash
+* 211577 - Pattern: Draconic Combatant's Wildercloth Shoulderpads
+* 211578 - Pattern: Draconic Combatant's Wildercloth Treads
+* 211579 - Pattern: Draconic Combatant's Wildercloth Tunic
 
 ## Temporary & Permanent Enhancements
 

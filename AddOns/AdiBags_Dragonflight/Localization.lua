@@ -1,7 +1,7 @@
 --[[
 AdiBags - Dragonflight - Localization
 by Zottelchen
-version: 2.3.33
+version: 2.3.34
 This file contains translations for this filter.
 ]]
 local addonName, addon = ...
@@ -49,6 +49,7 @@ L["A mount that can be unlocked in Ohn'iri Springs in the Ohn'ahran Plains. Requ
   true
 L["Achievements & Unlockables"] = true
 L["Alchemy Flasks"] = true
+L["Alchemy Recipes"] = true
 L["Artifacts"] = true
 L["Artisan Curious"] = true
 L["Awakened Elementals"] = true
@@ -56,6 +57,7 @@ L["Awakened and Rousing Elemental Trade Goods"] = true
 L["Baits to attract skinnable creatures"] = true
 L["Bandages"] = true
 L["Bandages, to patch up your broken friends :)"] = true
+L["Blacksmithing Recipes"] = true
 L["CONTAINS ITEMS FROM OTHER CATEGORIES! These items can be handed in the Ohn'ahran Plains (while under the effect of Essence of Awakening) to get this achievement."] =
   true
 L["Catch-Up Accessories - contains Rings, Necklaces, Trinkets & Cloaks."] = true
@@ -77,6 +79,7 @@ L["Contains various tools, helpful in the Dragon Isles."] = true
 L["Contracts"] = true
 L["Contracts give additional reputation when completing world quests in the Dragon Isles."] = true
 L["Cooking"] = true
+L["Cooking Recipes"] = true
 L["Crafting Potions"] = true
 L["Crafting Reagents categorically belonging to Alchemy"] = true
 L["Crafting Reagents categorically belonging to Cloth"] = true
@@ -106,7 +109,9 @@ L["Emerald Bounties are triggered once you plant any dreamseeds at Emerald Bount
   true
 L["Enchanting"] = true
 L["Enchanting - Insight of the Blue"] = true
+L["Enchanting Recipes"] = true
 L["Engineering"] = true
+L["Engineering Recipes"] = true
 L["Fishing Lures"] = true
 L["Fishing Lures for catching specific fish"] = true
 L["Food"] = true
@@ -127,6 +132,7 @@ L["Honor Our Ancestors"] = true
 L["Incense"] = true
 L["Incense to improve crafting ability or just for a nice smell"] = true
 L["Inscription"] = true
+L["Inscription Recipes"] = true
 L["Item Level Upgrades"] = true
 L["Items found or used in the Zskera Vault."] = true
 L["Items from the Dragonflight Pre-Event."] = true
@@ -144,9 +150,11 @@ L["Items which can be found and used in the Zaralek Cavern."] = true
 L["Items which upgrade the item level of crafted gear."] = true
 L["Items you can eat or use to improve yourself"] = true
 L["Jewelcrafting"] = true
+L["Jewelcrafting Recipes"] = true
 L["Leather"] = true
 L["Leather - Bait"] = true
 L["Leather Catch-Up Gear."] = true
+L["Leatherworking Recipes"] = true
 L["Leftover Elemental Slime"] = true
 L["Librarian of the Reach (Achievement)"] = true
 L["Lizis Reins (Mount)"] = true
@@ -183,7 +191,16 @@ L["Profession Gear"] = true
 L["Profession Knowledge"] = true
 L["Professions"] = true
 L["Recipes"] = true
-L["Recipes teach you new ways to craft items."] = true
+L["Recipes for all professions."] = true
+L["Recipes for crafting leather and mail armor."] = true
+L["Recipes for crafting potions, elixirs, and transmuting materials."] = true
+L["Recipes for creating gadgets, explosives, and mechanical devices."] = true
+L["Recipes for cutting gems and crafting jewelry."] = true
+L["Recipes for enchanting gear with magical properties."] = true
+L["Recipes for forging metal armor, weapons, and enhancements."] = true
+L["Recipes for preparing food that provides buffs."] = true
+L["Recipes for scribing glyphs and crafting scrolls and tomes."] = true
+L["Recipes for weaving cloth armor and other cloth items."] = true
 L["Reputation Items"] = true
 L["Rousing Elementals"] = true
 L["Ruby Feast"] = true
@@ -196,6 +213,7 @@ L["Shadowflame Crests"] = true
 L["Specialized gear which improves your profession"] = true
 L["Statues"] = true
 L["Statues crafted by Jewelcrafters. They improve various things."] = true
+L["Tailoring Recipes"] = true
 L["Temperamental Skyclaw (Mount)"] = true
 L["Temporary & Permanent Enhancements"] = true
 L["Temporary Enhancements"] = true
