@@ -753,7 +753,7 @@ end
 		GameCooltip:SetOption("AlignAsBlizzTooltip", false)
 		GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
 		GameCooltip:SetOption("YSpacingMod", -6)
-		GameCooltip:ShowRoundedCorner()
+		Details:AddRoundedCornerToTooltip()
 
 		for index, t in ipairs(Targets) do
 			GameCooltip:AddLine(Details:GetOnlyName(t[1]), Details:ToK(t[2]) .. " (" .. format("%.1f", t[2]/total*100) .. "%)")
@@ -1182,7 +1182,7 @@ end
 			GameCooltip:SetOption("AlignAsBlizzTooltip", false)
 			GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
 			GameCooltip:SetOption("YSpacingMod", -6)
-			GameCooltip:ShowRoundedCorner()
+			Details:AddRoundedCornerToTooltip()
 
 			--Details:AddTooltipSpellHeaderText (Loc ["STRING_DAMAGE_FROM"], headerColor, #damage_taken_table, [[Interface\Addons\Details\images\icons]], 0.126953125, 0.1796875, 0, 0.0546875)
 			--Details:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
@@ -1617,7 +1617,7 @@ end
 		GameCooltip:SetOption("AlignAsBlizzTooltip", false)
 		GameCooltip:SetOption("AlignAsBlizzTooltipFrameHeightOffset", -6)
 		GameCooltip:SetOption("YSpacingMod", -6)
-		GameCooltip:ShowRoundedCorner()
+		Details:AddRoundedCornerToTooltip()
 
 		--local lineHeight = Details.tooltip.line_height
 
@@ -3615,7 +3615,7 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 		local combatTimeMinutes, combatTimeSeconds = math.floor(combatTime / 60), math.floor(combatTime % 60)
 		GameCooltip:AddLine("Combat Time", combatTimeMinutes .. Loc["m "] .. combatTimeSeconds .. Loc["s"] .. " (" .. format("%.1f", 100) .. "%)")
 		GameCooltip:AddIcon([[Interface\TARGETINGFRAME\UnitFrameIcons]], nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
-		Details:AddTooltipBackgroundStatusbar(false, 100, true, "limegreen")
+		Details:AddTooltipBackgroundStatusbar(false, 100, true, "darkgreen")
 
 		GameCooltip:AddLine("", "")
 		GameCooltip:AddIcon("", nil, nil, 1, 1)
@@ -3631,10 +3631,10 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 				local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
 				if (minutes > 0) then
 					GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "limegreen")
+					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "darkgreen")
 				else
 					GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "limegreen")
+					Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "darkgreen")
 				end
 
 				GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
@@ -3659,10 +3659,10 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 							local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
 							if (minutes > 0) then
 								GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "limegreen")
+								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "darkgreen")
 							else
 								GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "limegreen")
+								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "darkgreen")
 							end
 
 							GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
@@ -3679,10 +3679,10 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 							local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
 							if (minutes > 0) then
 								GameCooltip:AddLine(spellName, minutes .. "m " .. seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "limegreen")
+								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "darkgreen")
 							else
 								GameCooltip:AddLine(spellName, seconds .. "s" .. " (" .. format("%.1f", uptimePercent) .. "%)")
-								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "limegreen")
+								Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, "darkgreen")
 							end
 
 							GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
@@ -3723,10 +3723,10 @@ function damageClass.PredictedAugSpellsOnEnter(self)
 						local minutes, seconds = math.floor(uptime / 60), math.floor(uptime % 60)
 						if (minutes > 0) then
 							GameCooltip:AddLine(spellName, minutes .. Loc["m "] .. seconds .. Loc["s"] .. " (" .. format("%.1f", uptimePercent) .. "%)")
-							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "limegreen")
+							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "darkgreen")
 						else
 							GameCooltip:AddLine(spellName, seconds .. Loc["s"] .. " (" .. format("%.1f", uptimePercent) .. "%)")
-							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "limegreen")
+							Details:AddTooltipBackgroundStatusbar(false, uptimePercent, true, sourceName and "darkgreen")
 						end
 
 						GameCooltip:AddIcon(spellIcon, nil, nil, iconSize, iconSize, iconBorderInfo.L, iconBorderInfo.R, iconBorderInfo.T, iconBorderInfo.B)
