@@ -2281,7 +2281,7 @@ local iconFrame_OnEnter = function(self)
 			GameCooltip:SetOption("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
 			GameCooltip:SetOption("FixedHeight", height+11)
 			GameCooltip:SetOption("LineHeightSizeOffset", -8)
-			GameCooltip:ShowRoundedCorner()
+			Details:AddRoundedCornerToTooltip()
 			GameCooltip:ShowCooltip()
 
 			self.unitname = name
@@ -4440,6 +4440,7 @@ function Details:SetBarSpecIconSettings(enabled, iconfile, fulltrack)
 			Details.track_specs = true
 			Details:TrackSpecsNow (fulltrack)
 		end
+		self.row_info.no_icon = false
 	else
 		local have_enabled
 		for _, instance in ipairs(Details.tabela_instancias) do
@@ -6066,7 +6067,7 @@ local build_mode_list = function(self, deltaTime)
 		gameCooltip:AddMenu(1, function() instance:SetMode(4) end)
 		gameCooltip:AddIcon([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*3, 32/256*4, 0, 1)
 
-		gameCooltip:ShowRoundedCorner()
+		Details:AddRoundedCornerToTooltip()
 
 		--build raid plugins list
 		local raidPlugins = Details.RaidTables:GetAvailablePlugins()
@@ -6376,7 +6377,7 @@ local buildSegmentTooltip = function(self, deltaTime)
 		gameCooltip:SetOption("RightTextHeight", 12)
 		gameCooltip:SetOption("SubFollowButton", true)
 
-		gameCooltip:ShowRoundedCorner()
+		Details:AddRoundedCornerToTooltip()
 
 		local menuIndex = 0
 		Details.segments_amount = floor(Details.segments_amount)
@@ -6625,14 +6626,20 @@ local buildSegmentTooltip = function(self, deltaTime)
 
 						local combatIcon, categoryIcon = thisCombat:GetCombatIcon()
 
+						--remove anything after the first comma from the combat name
+						local commaIndex = string.find(combatName, ",")
+						if (commaIndex) then
+							combatName = string.sub(combatName, 1, commaIndex - 1)
+						end
+
 						if (combatInstanceType == "party") then
 							gameCooltip:AddLine(combatName, formattedElapsedTime, 1, dungeonColor, combatTimeColor)
 
 						elseif (bossInfo.killed) then
 							gameCooltip:AddLine(combatName, formattedElapsedTime, 1, "lime", combatTimeColor)
 						else
-							--include phase string: "P" .. thisCombat:GetCurrentPhase() .. " " ..  
-							gameCooltip:AddLine(combatName, math.floor(thisCombat:GetBossHealth()*100) .. "%", 1, "orange", combatTimeColor) --formattedElapsedTime
+							local bossHealth = thisCombat:GetBossHealthString()
+							gameCooltip:AddLine(combatName,  "P" .. thisCombat:GetCurrentPhase() .. "  " ..  bossHealth .. "%  " .. formattedElapsedTime, 1, "orange", combatTimeColor) --formattedElapsedTime
 						end
 
 						gameCooltip:AddIcon(combatIcon, "main", "left")
@@ -9085,7 +9092,7 @@ end
 
 		Details:SetMenuOwner(self, self.instance)
 
-		gameCooltip:ShowRoundedCorner()
+		Details:AddRoundedCornerToTooltip()
 
 		gameCooltip:ShowCooltip()
 	end
@@ -9242,7 +9249,7 @@ local reportButton_OnEnter = function(self, motion, forced)
 
 	Details:SetTooltipMinWidth()
 
-	GameCooltip:ShowRoundedCorner()
+	Details:AddRoundedCornerToTooltip()
 
 	Details:CheckLastReportsIntegrity()
 
@@ -9348,7 +9355,7 @@ local attributeButton_OnEnter = function(self, motion, forced, from_click)
 	GameCooltip:SetOption("TextSize", Details.font_sizes.menus)
 	Details:SetMenuOwner(self, instancia)
 
-	GameCooltip:ShowRoundedCorner()
+	Details:AddRoundedCornerToTooltip()
 
 	GameCooltip:ShowCooltip()
 end
