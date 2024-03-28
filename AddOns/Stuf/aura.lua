@@ -519,7 +519,7 @@ do 	-- Aura handlers -----------------------------------------------------------
 		for i = 1, 40, 1 do  -- update debuffgroup
 			if allow then  -- prevents calling UnitDebuff when it's useless
 				name, icon, count, atype, duration, endtime, ismine, isstealable = UnitDebuff(unit, i, dfilter)
-				ismine = ismine == "player" or ismine == "vehicle" or (showpet and ismine == "pet")
+				ismine = ismine == "player" or ismine == "boss1" or ismine == "boss2" or ismine == "boss3" or ismine == "boss4" or ismine == "vehicle" or (showpet and ismine == "pet") -- 自行修改，加上 BOSS 的
 				clr = dbgaura[atype or "none"] or dbgaura.none
 				allow = name and (not onlymined or ismine)
 			end

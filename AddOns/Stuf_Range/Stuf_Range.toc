@@ -8,7 +8,7 @@
 ## IconTexture: Interface\Icons\inv_pet_riverotter_red
 
 ## Dependencies: Stuf
-## OptionalDeps: LibRangeCheck-2.0
+## OptionalDeps: LibRangeCheck-3.0
 
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
