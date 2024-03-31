@@ -208,8 +208,10 @@ end
 
 ---@param category string
 function DB:DeleteItemCategory(category)
-  for itemID, _ in pairs(DB.data.profile.customCategoryFilters[category].itemList) do
-    DB:DeleteItemFromCategory(itemID, category)
+  if DB.data.profile.customCategoryFilters[category] ~= nil then
+    for itemID, _ in pairs(DB.data.profile.customCategoryFilters[category].itemList) do
+      DB:DeleteItemFromCategory(itemID, category)
+    end
   end
   DB.data.profile.customCategoryFilters[category] = nil
 end
@@ -300,6 +302,34 @@ end
 ---@return boolean
 function DB:GetInBagSearch()
   return DB.data.profile.inBagSearch
+end
+
+function DB:GetStackingOptions(kind)
+  return DB.data.profile.stacking[kind]
+end
+
+function DB:SetMergeItems(kind, value)
+  DB.data.profile.stacking[kind].mergeStacks = value
+end
+
+function DB:SetMergeUnstackable(kind, value)
+  DB.data.profile.stacking[kind].mergeUnstackable = value
+end
+
+function DB:SetUnmergeAtShop(kind, value)
+  DB.data.profile.stacking[kind].unmergeAtShop = value
+end
+
+function DB:SetDontMergePartial(kind, value)
+  DB.data.profile.stacking[kind].dontMergePartial = value
+end
+
+function DB:GetShowKeybindWarning()
+  return DB.data.profile.showKeybindWarning
+end
+
+function DB:SetShowKeybindWarning(value)
+  DB.data.profile.showKeybindWarning = value
 end
 
 function DB:Migrate()

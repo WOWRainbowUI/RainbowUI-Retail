@@ -140,25 +140,24 @@ end
 
 function bagFrame.bagProto:Sort()
   if self.kind ~= const.BAG_KIND.BACKPACK then return end
-
+  --[[
   -- Unlock all locked items so they can be sorted.
   ---@type Item[]
   local lockList = {}
   for _, item in pairs(self.currentView:GetItemsByBagAndSlot()) do
-    if item.data.itemInfo.isLocked then
+    if item.data and not item.data.isItemEmpty and item.data.itemInfo.isLocked then
       table.insert(lockList, item)
       item:Unlock()
     end
   end
-
+  --]]
   PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
-  items:RemoveNewItemFromAllItems()
-  C_Container:SortBags()
-  items:RefreshAll()
-
+  events:SendMessage('bags/SortBackpack')
+--[[
   for _, item in pairs(lockList) do
     item:Lock()
   end
+--]]
 end
 
 -- Wipe will wipe the contents of the bag and release all cells.
@@ -200,8 +199,8 @@ function bagFrame.bagProto:Search(text)
 end
 
 -- Draw will draw the correct bag view based on the bag view configuration.
----@param dirtyItems ItemData[]
-function bagFrame.bagProto:Draw(dirtyItems)
+---@param slotInfo ExtraSlotInfo
+function bagFrame.bagProto:Draw(slotInfo)
   local view = self.views[database:GetBagView(self.kind)]
 
   if view == nil then
@@ -215,7 +214,7 @@ function bagFrame.bagProto:Draw(dirtyItems)
   end
 
   debug:StartProfile('Bag Render')
-  view:Render(self, dirtyItems)
+  view:Render(self, slotInfo)
   debug:EndProfile('Bag Render')
   view:GetContent():Show()
   self.currentView = view
@@ -531,12 +530,6 @@ function bagFrame:Create(kind)
     else
       b.searchBox.frame:Hide()
       b.frame:SetTitle(L:G(kind == const.BAG_KIND.BACKPACK and "Backpack" or "Bank"))
-    end
-  end)
-
-  events:RegisterMessage('bags/FullRefreshAll', function()
-    if b.currentView then
-      b.currentView.fullRefresh = true
     end
   end)
 
