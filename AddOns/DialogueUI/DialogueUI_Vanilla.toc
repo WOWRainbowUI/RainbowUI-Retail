@@ -1,5 +1,5 @@
 ## Interface: 11501
-## Version: 0.2.1
+## Version: 0.2.3
 
 ## Title: Dialogue UI
 
@@ -29,3 +29,5 @@ Code\GossipDataProvider.xml
 Code\NameplateGossip.lua
 Code\UI.xml
 Code\Core.lua
+
+Code\SupportedAddOns\SupportedAddOns.xml

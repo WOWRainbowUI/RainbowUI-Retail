@@ -49,7 +49,8 @@ L["Paragon Reputation"] = "Paragon";
 L["Different Item Types Alert"] = "The item types are different!";
 L["Click To Read"] = "Left Click to Read";
 L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "Item Level";
-
+L["Gossip Quest Option Prepend"] = "(Quest)";   --Some gossip options start with blue (Quest), we prioritize them when sorting. See GOSSIP_QUEST_OPTION_PREPEND
+L["TTS Button Tooltip"] = "Left Click: Play/Stop Reading.\nRight Click: Toggle Auto Play";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -69,13 +70,17 @@ L["Format Copper Amount"] = COPPER_AMOUNT or "%d Copper";
 L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "Level %d";
 L["Format Replace Item"] = "Replace %s";
 L["Format Item Level"] = "Item Level %d";   --_G.ITEM_LEVEL in Classic is different
-
+L["Format Breadcrumb Quests Available"] = "Available Breadcrumb Quests: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 
 --Settings
 L["UI"] = "UI";
 L["Camera"] = "Camera";
 L["Control"] = "Control";
 L["Gameplay"] = SETTING_GROUP_GAMEPLAY or "Gameplay";
+L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "Accessibility";
+
+L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "Enabled";
+L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Disabled";
 
 L["Quest"] = "Quest";
 L["Gossip"] = "Gossip";
@@ -84,7 +89,7 @@ L["Theme Desc"] = "Select a color theme for the UI.";
 L["Theme Brown"] = "Brown";
 L["Theme Dark"] = "Dark";
 L["Frame Size"] = "Frame Size";
-L["Frame Size Desc"] = "Set the size of the dialog UI.\n\nDefault: Medium";
+L["Frame Size Desc"] = "Set the size of the dialogue UI.\n\nDefault: Medium";
 L["Size Extra Small"] = "Extra Small";
 L["Size Small"] = "Small";
 L["Size Medium"] = "Medium";
@@ -96,7 +101,7 @@ L["Hide UI Desc"] = "Fade out the game UI when you interact with an NPC.";
 L["Hide Unit Names"] = "Hide Unit Names";
 L["Hide Unit Names Desc"] = "Hide players and other NPC names when you interact with an NPC.";
 L["Show Copy Text Button"] = "Show Copy Text Button";
-L["Show Copy Text Button Desc"] = "Show Copy Text button on the top right of the dialog UI.";
+L["Show Copy Text Button Desc"] = "Show Copy Text button on the top right of the dialogue UI.";
 L["Show Quest Type Text"] = "Show Quest Type Text";
 L["Show Quest Type Text Desc"] = "Show quest type on the right of the option if it's special.\n\nLow level quests are always labeled.";
 L["Show NPC Name On Page"] = "Show NPC Name";
@@ -132,7 +137,10 @@ L["Press Button To Scroll Down Desc"] = "If the content is taller than the viewp
 L["Key Space"] = "Space";
 L["Key Interact"] = "Interact";
 L["Cannot Use Key Combination"] = "Key combination is not supported.";
-L["Interact Key Not Set"] = "You haven't set an Interact Key."
+L["Interact Key Not Set"] = "[KEY:PC:INVALID] You haven't set an Interact Key."
+L["Use Default Control Key Alert"] = "We will still use [KEY:PC:SPACE] as the Confirm Button.";
+L["Key Disabled"] = "Disabled";
+L["Key Disabled Tooltip"] = "Confirm Button has been disabled.\n\nYou will not be able to accept quest by pressing keys.";
 
 L["Quest Item Display"] = "Quest Item Display";
 L["Quest Item Display Desc"] = "Auto display the quest item's description and allow you to use it without opening bags.";
@@ -140,12 +148,23 @@ L["Quest Item Display Hide Seen"] = "Ignore Seen Items";
 L["Quest Item Display Hide Seen Desc"] = "Ignore items that have been discovered by any of your characters.";
 L["Auto Select"] = "Auto Select";
 L["Auto Select Gossip"] = "Auto Select Option";
-L["Auto Select Gossip Desc"] = "Automatically select the best dialog option when interacting with certain NPC.";
+L["Auto Select Gossip Desc"] = "Automatically select the best dialogue option when interacting with certain NPC.";
 L["Force Gossip"] = "Force Gossip";
-L["Force Gossip Desc"] = "By default, the game sometimes automatically selects the first option without showing the dialog. By enabling Force Gossip, the dialog will become visible.";
-L["Nameplate Dialog"] = "Display Dialog On Nameplate";
-L["Nameplate Dialog Desc"] = "Display the dialog on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
+L["Force Gossip Desc"] = "By default, the game sometimes automatically selects the first option without showing the dialog. By enabling Force Gossip, the dialogue will become visible.";
+L["Nameplate Dialog"] = "Display Dialogue On Nameplate";
+L["Nameplate Dialog Desc"] = "Display the dialogue on the NPC nameplate if they offer no choice.\n\nThis option modifies CVar \"SoftTarget Nameplate Interact\".";
 
+L["TTS"] = TEXT_TO_SPEECH or "Text To Speech";
+L["TTS Desc"] = "Read dialogue text out loud by clicking the button on the top left of the UI.\n\nVoice, volume and speed follow your game's text-to-speech settings.";
+L["TTS Use Hotkey"] = "Use Hotkey";
+L["TTS Use Hotkey Desc"] = "Start or stop reading by pressing:";
+L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
+L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
+L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
+L["TTS Auto Play"] = "Auto Play";
+L["TTS Auto Play Desc"] = "Auto play dialogue texts.";
+L["TTS Auto Stop"] = "Stop When Leaving";
+L["TTS Auto Stop Desc"] = "Stop reading when you leave the NPC.";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";
