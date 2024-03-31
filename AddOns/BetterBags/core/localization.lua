@@ -49,9 +49,6 @@ if GetLocale() == "zhTW" then
 	
 	-- item.lua
 	L.data["Gear: "] = "裝備: "
-	L.data["Everything"] = "全部"
-	L.data["Junk"] = "垃圾"
-	L.data["Unknown"] = "未知"
 
 	-- section.lua
 	L.data["Item Count: "] = "物品數: " 
@@ -89,6 +86,17 @@ if GetLocale() == "zhTW" then
 	L.data["Select how items should be sorted."] = "選擇物品該如何排列順序。"
 	L.data["Quality, then Alphabetically"] = "先品質、再名稱"
 	L.data["Alphabetically, then Quality"] = "先名稱、再品質"
+	L.data["Stacking"] = "物品堆疊"
+	L.data["Merge Stacks"] = "合併堆疊"
+	L.data["Merge stacks of the same item into a single stack."] = "將相同物品的堆疊合併成單一個堆疊。"
+	L.data["Merge stacks of the same item into a single stack, i.e. 20x [Linen Cloth] + 20x [Linen Cloth] = 40x [Linen Cloth] in one stack."] = "將相同物品的堆疊合併成單一個堆疊。例如 20x [亞麻布] + 20x [亞麻布] = 一疊 40x [亞麻布]。"
+	L.data["Merge Unstackable"] = "物品無法堆疊"
+	L.data["Merge unstackable items of the same kind into a single stack, such as armors, bags, etc."] = "將無法堆疊的同類物品的合併成單一個堆疊，例如護甲、背包...等。"
+	L.data["Unmerge at Shop"] = "商店時取消堆疊"
+	L.data["Unmerge all items when visiting a vendor."] = "拜訪商人時不要堆疊所有物品。"
+	L.data["Don't Merge Partial"] = "不合併未滿的"
+	L.data["Don't merge stacks of items that aren't full stacks."] = "不要合併那些堆疊數量未滿的物品堆疊。"
+	L.data["Don't merge stacks of items that aren't full stacks."] = "不要合併那些堆疊數量未滿的物品堆疊。"
 	L.data["Item Level"] = "物品等級"
 	L.data["Enabled"] = "啟用"
 	L.data["Show the item level of items in this bag."] = "顯示背包中物品的等級。"
@@ -180,6 +188,20 @@ if GetLocale() == "zhTW" then
 	L.data["Drag an item here from your inventory, bank, or another source to add it to this category."] = "將物品從背包、銀行或其他地方拖曳到這裡，便可加入此分類。"
 	L.data["Remove"] = "移除"
 	
+	-- core/constants.lua
+	L.data["Bags"] = "背包"
+	L.data["Quiver"] = "箭袋"
+	L.data["Ammo Pouch"] = "彈藥袋"
+	L.data["Soul Bag"] = "靈魂袋"
+	L.data["Leatherworking Bag"] = "剝皮包"
+	L.data["Inscription Bag"] = "銘文包"
+	L.data["Herb Bag"] = "草藥包"
+	L.data["Enchanting Bag"] = "附魔包"
+	L.data["Engineering Bag"] = "工程包"
+	L.data["Keyring"] = "鑰匙圈"
+	L.data["Gem Bag"] = "寶石包"
+	L.data["Mining Bag"] = "採礦包"
+
 	-- frames\bags.lua
 	L.data["Search Reagent Bank"] = "搜尋材料銀行"
 	L.data["Reagent Bank"] = "材料銀行"

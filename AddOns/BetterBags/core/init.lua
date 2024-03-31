@@ -53,6 +53,9 @@ local consoleport = addon:GetModule('ConsolePort')
 ---@class Pawn: AceModule
 local pawn = addon:GetModule('Pawn')
 
+---@class Question: AceModule
+local question = addon:GetModule('Question')
+
 ---@class Debug: AceModule
 local debug = addon:GetModule('Debug')
 
@@ -106,6 +109,17 @@ function addon:HideBlizzardBags()
   BankFrame:SetScript("OnEvent", nil)
 end
 
+local function CheckKeyBindings()
+  if not database:GetShowKeybindWarning() then return end
+  if GetBindingKey("OPENALLBAGS") == nil or GetBindingKey("OPENALLBAGS") == "SHIFT-B" then
+    question:Alert("No Binding Set", [[
+      Better Bags does not have a key binding set for opening all bags, or the binding is currently set to shift+B, which you probably don't want.
+      Please set a key binding for "Open All Bags" in the key bindings menu.
+    ]])
+    database:SetShowKeybindWarning(false)
+  end
+end
+
 -- OnEnable is called when the addon is enabled.
 function addon:OnEnable()
   itemFrame:Enable()
@@ -118,6 +132,7 @@ function addon:OnEnable()
   currency:Enable()
   search:Enable()
   pawn:Enable()
+  question:Enable()
 
   self:HideBlizzardBags()
   addon.Bags.Backpack = BagFrame:Create(const.BAG_KIND.BACKPACK)
@@ -125,16 +140,12 @@ function addon:OnEnable()
 
   consoleport:Enable()
 
-  self:SecureHook('OpenBackpack')
-  self:SecureHook('OpenAllBags')
-  self:SecureHook('CloseBackpack')
-  self:SecureHook('CloseAllBags')
-  self:SecureHook('ToggleBackpack')
   self:SecureHook('ToggleAllBags')
-  self:SecureHook('ToggleBag')
   self:SecureHook('CloseSpecialWindows')
 
   events:RegisterEvent('BANKFRAME_CLOSED', self.CloseBank)
+  events:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW', self.OpenInteractionWindow)
+  events:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE', self.CloseInteractionWindow)
 
   events:RegisterMessage('items/RefreshBackpack/Done', function(_, args)
     debug:Log("init/OnInitialize/items", "Drawing bag")
@@ -143,6 +154,9 @@ function addon:OnEnable()
 
   events:RegisterMessage('items/RefreshBank/Done', function(_, itemData)
    debug:Log("init/OnInitialize/items", "Drawing bank")
+   if addon.Bags.Bank.currentView then
+    addon.Bags.Bank.currentView.fullRefresh = true
+   end
    addon.Bags.Bank:Draw(itemData)
 
   end)
@@ -162,12 +176,14 @@ function addon:OnEnable()
 
   --This tutorial bitfield change does not persist when set in OnInitialize()
   if addon.isRetail then
-  -- Disable the mount equipment tutorial as it triggers a taint error from micromenu flashing.
-  -- BetterBags blamed because of ContainerFrameItemButtonTemplate hooking by Tutorials
-  -- https://github.com/Stanzilla/WoWUIBugs/issues/434
-  C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_MOUNT_EQUIPMENT_SLOT_FRAME --[[@as number]], true)
-  -- Disable the reagent bag tutorial, as Better Bags does not match
-  -- the base UI/UX these screens refer to.
-  C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_EQUIP_REAGENT_BAG --[[@as number]], true)
+    -- Disable the mount equipment tutorial as it triggers a taint error from micromenu flashing.
+    -- BetterBags blamed because of ContainerFrameItemButtonTemplate hooking by Tutorials
+    -- https://github.com/Stanzilla/WoWUIBugs/issues/434
+    C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_MOUNT_EQUIPMENT_SLOT_FRAME --[[@as number]], true)
+    -- Disable the reagent bag tutorial, as Better Bags does not match
+    -- the base UI/UX these screens refer to.
+    C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_EQUIP_REAGENT_BAG --[[@as number]], true)
   end
+
+  C_Timer.After(5, CheckKeyBindings)
 end

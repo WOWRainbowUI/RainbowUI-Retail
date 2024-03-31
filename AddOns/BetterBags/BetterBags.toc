@@ -3,9 +3,9 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.14
+## Version: v0.1.16
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-03-03T23:40:13Z
+## X-Date: 2024-03-30T18:06:09Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
@@ -30,6 +30,7 @@ animations\fade.lua
 debug\debug.lua
 debug\frames.lua
 debug\profile.lua
+debug\items.lua
 
 core\events.lua
 core\localization.lua
@@ -38,8 +39,8 @@ core\database.lua
 core\hooks.lua
 
 data\equipmentsets.lua
-data\items.lua
 data\categories.lua
+data\items.lua
 
 util\color.lua
 util\resize.lua

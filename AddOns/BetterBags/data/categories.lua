@@ -6,9 +6,6 @@ local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 ---@class Database: AceModule
 local database = addon:GetModule('Database')
 
----@class Items: AceModule
-local items = addon:GetModule('Items')
-
 ---@class Events: AceModule
 local events = addon:GetModule('Events')
 
@@ -134,8 +131,9 @@ function categories:GetCustomCategory(kind, data)
   if self.itemsWithNoCategory[itemID] then return nil end
 
   for _, func in pairs(self.categoryFunctions) do
-    local category = func(data)
-    if category then
+    local success, args = xpcall(func, geterrorhandler(), data)
+    if success and args ~= nil then
+      local category = select(1, args) --[[@as string]]
       local found = database:ItemCategoryExists(category)
       database:SaveItemToCategory(itemID, category)
       if not found then

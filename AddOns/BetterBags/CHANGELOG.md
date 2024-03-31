@@ -1,6 +1,6 @@
 # BetterBags
 
-## [v0.1.14](https://github.com/Cidan/BetterBags/tree/v0.1.14) (2024-03-03)
-[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.13...v0.1.14) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
+## [v0.1.16](https://github.com/Cidan/BetterBags/tree/v0.1.16) (2024-03-30)
+[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.15...v0.1.16) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
 
-- Bag slots now correctly show on reload/load if bag view is enabled. (#269)  
+- Added a warning for shift+B bag opening.  
