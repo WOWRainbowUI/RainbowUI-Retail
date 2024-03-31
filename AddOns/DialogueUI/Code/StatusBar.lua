@@ -80,6 +80,7 @@ function StatusBarMixin:OnLoad()
         self.Fill:SetTextureSliceMode(1);
         local margin = 6;
         self.Fill:SetTextureSliceMargins(margin, margin, margin, margin);
+        self.Fill:SetWidth(0.1);
         self.Fill:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0);
         self.Fill:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0);
         self.Fill:SetTexture(FILE_PATH.."StatusBar-FillShort-Purple.png");
@@ -357,7 +358,10 @@ function PlayerXPDataProvider:OnLoad(bar)
 end
 
 function PlayerXPDataProvider:OnShow(bar)
-    if self.isCapped then return end;
+    if self.isCapped then
+        bar:Hide();
+        return
+    end
 
     self.isCapped = API.IsPlayerAtMaxLevel();
 

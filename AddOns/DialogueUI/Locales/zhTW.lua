@@ -49,6 +49,8 @@ L["Paragon Reputation"] = "巔峰";
 L["Different Item Types Alert"] = "物品類型不同!";
 L["Click To Read"] = "點一下左鍵來閱讀";
 L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "物品等級";
+L["Gossip Quest Option Prepend"] = "(任務)";   --Some gossip options start with blue (Quest), we prioritize them when sorting. See GOSSIP_QUEST_OPTION_PREPEND
+L["TTS Button Tooltip"] = "左鍵: 開始/停止唸出文字\n右鍵: 開啟/關閉自動播放";
 
 
 --String Format
@@ -69,20 +71,24 @@ L["Format Copper Amount"] = COPPER_AMOUNT or "%d 銅";
 L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "等級 %d";
 L["Format Replace Item"] = "取代 %s";
 L["Format Item Level"] = "物品等級 %d";   --_G.ITEM_LEVEL in Classic is different
-
+L["Format Breadcrumb Quests Available"] = "可接的系列任務: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 
 --Settings
 L["UI"] = "介面";
 L["Camera"] = "鏡頭";
 L["Control"] = "控制";
 L["Gameplay"] = SETTING_GROUP_GAMEPLAY or "遊戲體驗";
+L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "協助工具";
+
+L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "啟用";
+L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "停用";
 
 L["Quest"] = "任務";
 L["Gossip"] = "閒聊";
 L["Theme"] = "主題";
 L["Theme Desc"] = "選擇介面的顏色主題。";
 L["Theme Brown"] = "羊皮紙";
-L["Theme Dark"] = "暗色";
+L["Theme Dark"] = "暗黑";
 L["Frame Size"] = "框架大小";
 L["Frame Size Desc"] = "設定對話介面的大小。\n\n預設: 中";
 L["Size Extra Small"] = "特別小";
@@ -132,7 +138,10 @@ L["Press Button To Scroll Down Desc"] = "如果內容超出可以看見的範圍
 L["Key Space"] = "空白";
 L["Key Interact"] = "互動";
 L["Cannot Use Key Combination"] = "不支援按鈕組合";
-L["Interact Key Not Set"] = "尚未設定互動按鍵。"
+L["Interact Key Not Set"] = "[KEY:PC:INVALID] 尚未設定互動按鍵。"
+L["Use Default Control Key Alert"] = "將會使用 [KEY:PC:SPACE] 作為確認按鈕。";
+L["Key Disabled"] = "已停用";
+L["Key Disabled Tooltip"] = "確認按鈕已被停用。\n\n你將無法使用按鍵來接受任務。";
 
 L["Quest Item Display"] = "顯示任務物品";
 L["Quest Item Display Desc"] = "自動顯示任務物品的說明，無需打開袋子即可使用它。";
@@ -146,6 +155,17 @@ L["Force Gossip Desc"] = "預設情況下，遊戲有時會自動選擇第一個
 L["Nameplate Dialog"] = "在名條上顯示對話";
 L["Nameplate Dialog Desc"] = "如果 NPC 沒有提供選擇，則在 NPC 名條上顯示對話。\n\n此選項會修改 CVar \"SoftTarget Nameplate Interact\"。";
 
+L["TTS"] = TEXT_TO_SPEECH or "文字轉語音";
+L["TTS Desc"] = "點一下介面左上方的按鈕將對話內容文字大聲唸出來。\n\n語音、音量和速度會依據遊戲內建的文字轉語音設定。";
+L["TTS Use Hotkey"] = "使用快速鍵";
+L["TTS Use Hotkey Desc"] = "開始和停止唸出文字請按下:";
+L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
+L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
+L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
+L["TTS Auto Play"] = "自動唸出";
+L["TTS Auto Play Desc"] = "自動唸出對話內容文字。";
+L["TTS Auto Stop"] = "離開時停止";
+L["TTS Auto Stop Desc"] = "離開 NPC 時停止唸出文字。";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 打開設定";

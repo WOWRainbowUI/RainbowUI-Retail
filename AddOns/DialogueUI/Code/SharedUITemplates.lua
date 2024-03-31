@@ -893,6 +893,7 @@ end
 local HotkeyIcons = {
     SPACE = {file = "SPACE.png", ratio = 1, rightCoord = 1, tint = true},
     ERROR = {file = "ERROR.png", ratio = 1, rightCoord = 1},
+    DISABLED = {file = "DISABLED.png", ratio = 1, rightCoord = 1},
 
     XBOX_PADLSHOULDER = {file = "HotkeyBackground-LB.png", themed = true, text = "LB", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     XBOX_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "RB", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
@@ -966,7 +967,7 @@ function DUIDialogHotkeyFrameMixin:SetKey(key)
         return true
     end
 
-    if key then
+    if key and not (key == "DISABLED" and not self.showDisabledKey) then
         local height = self.baseHeight;
         local width;
         if HotkeyIcons[key] then
@@ -1038,6 +1039,9 @@ function DUIDialogHotkeyFrameMixin:ClearKey()
     self:Hide();
 end
 
+function DUIDialogHotkeyFrameMixin:SetShowDisabledKey(showDisabledKey)
+    self.showDisabledKey = showDisabledKey == true or nil;
+end
 
 
 
@@ -1531,7 +1535,7 @@ function DUIDialogItemButtonMixin:SetCurrency(sourceType, index)
     self.Icon:SetTexture(texture);
     self.Count:SetText(AbbreviateNumbers(amount));
 
-    if API.WillCurrencyRewardOverflow(currencyID, amount) then
+    if (sourceType ~= "required") and API.WillCurrencyRewardOverflow(currencyID, amount) then
         self.Count:SetTextColor(1.000, 0.125, 0.125);   --RED_FONT_COLOR
         self:ShowOverflowIcon();
     else
