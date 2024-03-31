@@ -50,7 +50,7 @@ L["Different Item Types Alert"] = "物品類型不同!";
 L["Click To Read"] = "點一下左鍵來閱讀";
 L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "物品等級";
 L["Gossip Quest Option Prepend"] = "(任務)";   --Some gossip options start with blue (Quest), we prioritize them when sorting. See GOSSIP_QUEST_OPTION_PREPEND
-L["TTS Button Tooltip"] = "左鍵: 開始/停止唸出文字\n右鍵: 開啟/關閉自動播放";
+L["TTS Button Tooltip"] = "左鍵: 開始/停止唸出內容\n右鍵: 開啟/關閉自動播放";
 
 
 --String Format
@@ -158,14 +158,14 @@ L["Nameplate Dialog Desc"] = "如果 NPC 沒有提供選擇，則在 NPC 名條�
 L["TTS"] = TEXT_TO_SPEECH or "文字轉語音";
 L["TTS Desc"] = "點一下介面左上方的按鈕將對話內容文字大聲唸出來。\n\n語音、音量和速度會依據遊戲內建的文字轉語音設定。";
 L["TTS Use Hotkey"] = "使用快速鍵";
-L["TTS Use Hotkey Desc"] = "開始和停止唸出文字請按下:";
+L["TTS Use Hotkey Desc"] = "開始和停止唸出內容請按下:";
 L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
 L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
 L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
-L["TTS Auto Play"] = "自動唸出";
-L["TTS Auto Play Desc"] = "自動唸出對話內容文字。";
+L["TTS Auto Play"] = "自動唸出內容";
+L["TTS Auto Play Desc"] = "自動唸出對話內容。";
 L["TTS Auto Stop"] = "離開時停止";
-L["TTS Auto Stop Desc"] = "離開 NPC 時停止唸出文字。";
+L["TTS Auto Stop Desc"] = "離開 NPC 時停止唸出內容。";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 打開設定";
