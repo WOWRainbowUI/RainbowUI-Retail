@@ -49,6 +49,8 @@ if GetLocale() == "zhTW" then
 	
 	-- item.lua
 	L.data["Gear: "] = "裝備: "
+	L.data["Everything"] = "全部"
+	L.data["Junk"] = "垃圾"
 
 	-- section.lua
 	L.data["Item Count: "] = "物品數: " 
@@ -236,10 +238,9 @@ if GetLocale() == "zhTW" then
 	L.data["Teleporters"] = "傳送"
 	
 	-- BetterBags-Appearances
-	L.data["Known - BoE"] = "裝備綁定 (已收集外觀) "
-	L.data["Known - BoP"] = "靈魂綁定 (已收集外觀) "
-	L.data["Unknown - "] = "外觀 (未收集) "
-	L.data["Unknown - Other Classes"] = "外觀 (未收集) "
+	L.data["Mog - Learnable"] = "外觀 (可學習)"
+	L.data["Mog - Tradable"] = "外觀 (可交易)"
+	L.data["Mog - Sellable"] = "外觀 (可賣出)"
 	
 	-- BetterBags-Bound
 	L.data["BoA"] = "帳號綁定"
