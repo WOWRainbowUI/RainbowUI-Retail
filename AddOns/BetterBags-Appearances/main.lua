@@ -1,298 +1,53 @@
 -- Variables --
 ---@class BetterBags: AceAddon
-local addon = LibStub('AceAddon-3.0'):GetAddon("BetterBags")
+local BetterBags = LibStub('AceAddon-3.0'):GetAddon("BetterBags")
+assert(BetterBags, "BetterBags - Appearances requires BetterBags")
 
 ---@class Categories: AceModule
-local categories = addon:GetModule('Categories')
+local categories = BetterBags:GetModule('Categories')
 
 ---@class Localization: AceModule
-local L = addon:GetModule('Localization')
+local L = BetterBags:GetModule('Localization')
 
--- Get the player's class
-local className, classFilename, classId = UnitClass("player")
+---@class Appearances: AceModule
+local Appearances = BetterBags:NewModule('Appearances')
 
-local HEAD = "INVTYPE_HEAD"
-local SHOULDER = "INVTYPE_SHOULDER"
-local BODY = "INVTYPE_BODY"
-local CHEST = "INVTYPE_CHEST"
-local ROBE = "INVTYPE_ROBE"
-local WAIST = "INVTYPE_WAIST"
-local LEGS = "INVTYPE_LEGS"
-local FEET = "INVTYPE_FEET"
-local WRIST = "INVTYPE_WRIST"
-local HAND = "INVTYPE_HAND"
-local CLOAK = "INVTYPE_CLOAK"
-local WEAPON = "INVTYPE_WEAPON"
-local TWOHANDEDWEAPON = "INVTYPE_2HWEAPON"
-local RANGED = "INVTYPE_RANGED"
-local RANGEDRIGHT = "INVTYPE_RANGEDRIGHT"
-local SHIELD = "INVTYPE_SHIELD"
-local TABARD = "INVTYPE_TABARD"
-local BAG = "INVTYPE_BAG"
-local PROFESSION_TOOL = "INVTYPE_PROFESSION_TOOL"
-local RING = "INVTYPE_FINGER"
-local TRINKET = "INVTYPE_TRINKET"
-local NECK = "INVTYPE_NECK"
-
-local MISC = "MISCELLANEOUS"
-local CLOTH = "CLOTH"
-local LEATHER = "LEATHER"
-local MAIL = "MAIL"
-local PLATE = "PLATE"
-local COSMETIC = "COSMETIC"
-
-local classArmorTypeMap = {
-    ["DEATHKNIGHT"] = PLATE,
-    ["DEMONHUNTER"] = LEATHER,
-    ["DRUID"] = LEATHER,
-    ["EVOKER"] = MAIL,
-    ["HUNTER"] = MAIL,
-    ["MAGE"] = CLOTH,
-    ["MONK"] = LEATHER,
-    ["PALADIN"] = PLATE,
-    ["PRIEST"] = CLOTH,
-    ["ROGUE"] = LEATHER,
-    ["SHAMAN"] = MAIL,
-    ["WARLOCK"] = CLOTH,
-    ["WARRIOR"] = PLATE,
+local nonEquippableTypes = {
+    ["INVTYPE_NON_EQUIP_IGNORE"] = true,
+    ["INVTYPE_TRINKET"] = true,
+    ["INVTYPE_FINGER"] = true,
+    ["INVTYPE_NECK"] = true,
+    ["INVTYPE_CLOAK"] = true
 }
 
-local classWeaponTypeMap = {
-    ["DEATHKNIGHT"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = false,
-        ["Fist Weapons"]        = false,
-        ["Two-Handed Axes"]     = true,
-        ["Two-Handed Maces"]    = true,
-        ["Two-Handed Swords"]   = true,
-        ["Staves"]              = false,
-        ["Polearms"]            = true,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = false,
-        ["Shields"]             = false,
-    },
-    ["DEMONHUNTER"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = false,
-        ["Daggers"]             = false,
-        ["Fist Weapons"]        = true,
-        ["Two-Handed Axes"]     = false,
-        ["Two-Handed Maces"]    = false,
-        ["Two-Handed Swords"]   = false,
-        ["Staves"]              = false,
-        ["Polearms"]            = false,
-        ["Warglaives"]          = true,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = false,
-        ["Shields"]             = false,
-    },
-    ["DRUID"] = {
-        ["One-Handed Axes"]     = false,
-        ["One-Handed Swords"]   = false,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = true,
-        ["Two-Handed Axes"]     = false,
-        ["Two-Handed Maces"]    = true,
-        ["Two-Handed Swords"]   = false,
-        ["Staves"]              = true,
-        ["Polearms"]            = true,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = false,
-        ["Shields"]             = false,
-    },
-    ["EVOKER"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = true,
-        ["Two-Handed Axes"]     = true,
-        ["Two-Handed Maces"]    = true,
-        ["Two-Handed Swords"]   = true,
-        ["Staves"]              = true,
-        ["Polearms"]            = false,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = false,
-        ["Shields"]             = false,
-    },
-    ["HUNTER"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = false,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = true,
-        ["Two-Handed Axes"]     = true,
-        ["Two-Handed Maces"]    = false,
-        ["Two-Handed Swords"]   = true,
-        ["Staves"]              = true,
-        ["Polearms"]            = true,
-        ["Warglaives"]          = false,
-        ["Bows"]                = true,
-        ["Crossbows"]           = true,
-        ["Guns"]                = true,
-        ["Wand"]                = false,
-        ["Shields"]             = false,
-    },
-    ["MAGE"] = {
-        ["One-Handed Axes"]     = false,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = false,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = false,
-        ["Two-Handed Axes"]     = false,
-        ["Two-Handed Maces"]    = false,
-        ["Two-Handed Swords"]   = false,
-        ["Staves"]              = true,
-        ["Polearms"]            = true,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = true,
-        ["Shields"]             = false,
-    },
-    ["MONK"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = false,
-        ["Fist Weapons"]        = true,
-        ["Two-Handed Axes"]     = false,
-        ["Two-Handed Maces"]    = false,
-        ["Two-Handed Swords"]   = false,
-        ["Staves"]              = true,
-        ["Polearms"]            = true,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = false,
-        ["Shields"]             = false,
-    },
-    ["PALADIN"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = false,
-        ["Fist Weapons"]        = false,
-        ["Two-Handed Axes"]     = true,
-        ["Two-Handed Maces"]    = true,
-        ["Two-Handed Swords"]   = true,
-        ["Staves"]              = false,
-        ["Polearms"]            = true,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = false,
-        ["Shields"]             = true,
-    },
-    ["PRIEST"] = {
-        ["One-Handed Axes"]     = false,
-        ["One-Handed Swords"]   = false,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = false,
-        ["Two-Handed Axes"]     = false,
-        ["Two-Handed Maces"]    = false,
-        ["Two-Handed Swords"]   = false,
-        ["Staves"]              = true,
-        ["Polearms"]            = false,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = true,
-        ["Shields"]             = false,
-    },
-    ["ROGUE"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = true,
-        ["Two-Handed Axes"]     = false,
-        ["Two-Handed Maces"]    = false,
-        ["Two-Handed Swords"]   = false,
-        ["Staves"]              = false,
-        ["Polearms"]            = false,
-        ["Warglaives"]          = false,
-        ["Bows"]                = true,
-        ["Crossbows"]           = true,
-        ["Guns"]                = true,
-        ["Wand"]                = false,
-        ["Shields"]             = false,
-    },
-    ["SHAMAN"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = false,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = true,
-        ["Two-Handed Axes"]     = true,
-        ["Two-Handed Maces"]    = true,
-        ["Two-Handed Swords"]   = false,
-        ["Staves"]              = true,
-        ["Polearms"]            = false,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = false,
-        ["Shields"]             = true,
-    },
-    ["WARLOCK"] = {
-        ["One-Handed Axes"]     = false,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = false,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = false,
-        ["Two-Handed Axes"]     = false,
-        ["Two-Handed Maces"]    = false,
-        ["Two-Handed Swords"]   = false,
-        ["Staves"]              = true,
-        ["Polearms"]            = false,
-        ["Warglaives"]          = false,
-        ["Bows"]                = false,
-        ["Crossbows"]           = false,
-        ["Guns"]                = false,
-        ["Wand"]                = true,
-        ["Shields"]             = false,
-    },
-    ["WARRIOR"] = {
-        ["One-Handed Axes"]     = true,
-        ["One-Handed Swords"]   = true,
-        ["One-Handed Maces"]    = true,
-        ["Daggers"]             = true,
-        ["Fist Weapons"]        = true,
-        ["Two-Handed Axes"]     = true,
-        ["Two-Handed Maces"]    = true,
-        ["Two-Handed Swords"]   = true,
-        ["Staves"]              = true,
-        ["Polearms"]            = true,
-        ["Warglaives"]          = false,
-        ["Bows"]                = true,
-        ["Crossbows"]           = true,
-        ["Guns"]                = true,
-        ["Wand"]                = false,
-        ["Shields"]             = true,
-    },
-}
+-- Create a hidden tooltip for scanning
+local scanTooltip = CreateFrame("GameTooltip", "BindCheckTooltipScanner", nil, "GameTooltipTemplate")
+scanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+
+-- Functions --
+-- On plugin load, wipe the categories we've added
+function Appearances:OnInitialize()
+    categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Learnable"), "ff00ff00"))
+    categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00"))
+    categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00"))
+end
+
+-- Debug dump functions
+-- @debug@
+function dump(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k, v in pairs(o) do
+            if type(k) ~= 'number' then
+                k = '"' .. k .. '"'
+            end
+            s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(o)
+    end
+end
 
 function printTable(tbl, indent)
     if not indent then indent = 0 end
@@ -308,54 +63,82 @@ function printTable(tbl, indent)
         end
     end
 end
+-- @end-debug@
 
-function isKnown(itemID)
-    return C_TransmogCollection.PlayerHasTransmog(itemID)
+function isEquipabble(itemInfo)
+    return not nonEquippableTypes[itemInfo.itemEquipLoc]
 end
 
-function isUsableByCurrentClass(data)
-    local itemType = data.itemInfo.itemSubType or "" -- 暫時修正
-    local upperItemType = string.upper(data.itemInfo.itemSubType or "") -- 暫時修正
-    local equipLoc = data.itemInfo.itemEquipLoc
+function canLearnAppearance(data)
+    local canCollect = false
+    local itemLink = C_Container.GetContainerItemLink(data.bagid, data.slotid)
+    local _, _, transmogSource, _ = C_Transmog.CanTransmogItem(itemLink)
+    if not transmogSource then
+        return nil
+    end
+    local itemAppearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLink)
+    if sourceID then
+        _, canCollect = C_TransmogCollection.PlayerCanCollectSource(sourceID)
+        local sources = C_TransmogCollection.GetAllAppearanceSources(itemAppearanceID)
+        for _, v in pairs(sources) do
+            local _,_,_,_,isCollected = C_TransmogCollection.GetAppearanceSourceInfo(v)
+            -- If any source is collected, we can't collect it.
+            if isCollected then
+                canCollect = false
+                break
+            end
+        end
+        return canCollect
+    end
+end
 
-    if equipLoc == WEAPON or equipLoc == TWOHANDEDWEAPON or equipLoc == SHIELD or equipLoc == RANGED or equipLoc == RANGEDRIGHT then
-        if classWeaponTypeMap[classFilename][itemType] then
-            return true
+function checkItemBindStatus(itemLink)
+    scanTooltip:ClearLines() -- Reset the tooltip
+    scanTooltip:SetHyperlink(itemLink) -- Set the item's hyperlink to fill the tooltip with item info
+
+    for i = 2, scanTooltip:NumLines() do -- Start at 2 to skip the item name
+        local line = _G["BindCheckTooltipScannerTextLeft" .. i]:GetText()
+        if line then
+            if line:find(ITEM_BIND_ON_EQUIP) then
+                return "BoE"
+            elseif line:find(ITEM_ACCOUNTBOUND) or line:find(ITEM_BIND_TO_ACCOUNT) or line:find(ITEM_BIND_TO_BNETACCOUNT) or line:find(ITEM_BNETACCOUNTBOUND) then
+                return "BoA"
+            elseif line:find(ITEM_BIND_ON_PICKUP) then
+                return "BoP"
+            end
         end
     end
-    if classArmorTypeMap[classFilename] == upperItemType or equipLoc == CLOAK or upperItemType == COSMETIC or upperItemType == MISC then
-        return true
-    end
-    return false
+    return "None" -- No bind information found
 end
 
-categories:RegisterCategoryFunction("SetAppearanceItemCategories", function (data)
-    local equipLoc = data.itemInfo.itemEquipLoc
-
-    -- Guard clauses
-    if equipLoc == "" then
+-- Register the category function
+categories:RegisterCategoryFunction("MogCategorization", function(data)
+    -- If we can't ever equip it, don't bother.
+    if not isEquipabble(data.itemInfo) then
         return nil
     end
 
-    if equipLoc == PROFESSION_TOOL or equipLoc == BAG or equipLoc == RING or equipLoc == TRINKET or equipLoc == NECK then
+    -- If it's the Underlight Angler artifact, also don't bother.
+    if data.itemInfo.itemID == 133755 then
         return nil
     end
-    -- End of guard clauses
-	
-	if isKnown(data.itemInfo.itemID) then 
-        return nil -- 自行修改，避免和 BetterBags_Bound 衝突
-		--[[
-		if(data.itemInfo.bindType == 2) then
-            return L:G("Known - BoE")
-        else
-            return L:G("Known - BoP")
+
+    local bindType = checkItemBindStatus(data.itemInfo.itemLink)
+
+    -- Current character can't learn the appearance for whatever reason
+    if not canLearnAppearance(data) then
+        if bindType == "BoE" or bindType == "BoA" then
+            -- If BoE or BoA, it should be categorized in "Mog - Tradable"
+            return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
         end
-		--]]
+
+        -- If BoP, it should be categorized in "Mog - Sell"
+        if bindType == "BoP" then
+            return WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00")
+        end
     end
 
-    if isUsableByCurrentClass(data) then
-        return L:G("Unknown - ") .. className
-    else
-        return L:G("Unknown - Other Classes")
+    if canLearnAppearance(data) then
+        return WrapTextInColorCode(L:G("Mog - Learnable"), "ff00ff00")
     end
 end)
