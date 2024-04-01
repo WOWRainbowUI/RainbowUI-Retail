@@ -1,6 +1,11 @@
 # BetterBags
 
-## [v0.1.16](https://github.com/Cidan/BetterBags/tree/v0.1.16) (2024-03-30)
-[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.15...v0.1.16) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
+## [v0.1.17](https://github.com/Cidan/BetterBags/tree/v0.1.17) (2024-04-01)
+[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.16...v0.1.17) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
 
-- Added a warning for shift+B bag opening.  
+- Fixed bindings so all key binds work.  
+- question box should be on top (#316)  
+    * Prompts are always on top  
+    * Battle pets now correctly render the pet icon  
+- Fixed cooldowns in Classic  
+- Fixed a bug where cooldown text was not being cleared.  
