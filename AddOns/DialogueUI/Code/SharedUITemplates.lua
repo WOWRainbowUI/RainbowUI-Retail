@@ -135,8 +135,8 @@ local function OnClickFunc_SelectOption(gossipButton)
     gossipButton.owner:SetSelectedGossipIndex(gossipButton.id);     --For Dialogue History: Grey out other buttons
 
     --Classic
-    if gossipButton.isTrainer then
-        addon.CallbackRegistry:Trigger("PlayerInteraction.Trainer", true);
+    if gossipButton.isTrainer or addon.DoesOptionOpenUI(gossipButton.gossipOptionID) then
+        addon.CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
     end
 
     C_GossipInfo.SelectOptionByIndex(gossipButton.id);
@@ -1478,9 +1478,9 @@ function DUIDialogItemButtonMixin:SetItem(sourceType, index)
 
     if not isUsable then
         itemOverlayID = "alert";
-    elseif IsCosmeticItem(itemID) then
+    elseif itemID and IsCosmeticItem(itemID) then
         itemOverlayID = "cosmetic";
-    elseif IsEquippableItem(itemID) then
+    elseif itemID and IsEquippableItem(itemID) then
         itemOverlayID = quality;
     else
         itemOverlayID = quality;
