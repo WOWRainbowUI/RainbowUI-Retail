@@ -319,8 +319,8 @@ function ArmorModule:UpdatePlayerCoordinates()
     if not x then
         return
     end
-    x = floor(((x - rects[1]) / rects[3]) * 10000) / 100
-    y = floor(((y - rects[2]) / rects[4]) * 10000) / 100
+    x = floor(((x - rects[1]) / rects[3]) * 100)
+    y = floor(((y - rects[2]) / rects[4]) * 100)
 
     self.coordText:SetText(y .. ', ' .. x)
 end
