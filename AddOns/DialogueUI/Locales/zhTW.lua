@@ -72,6 +72,7 @@ L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "等級 %d";
 L["Format Replace Item"] = "取代 %s";
 L["Format Item Level"] = "物品等級 %d";   --_G.ITEM_LEVEL in Classic is different
 L["Format Breadcrumb Quests Available"] = "可接的系列任務: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
+L["Format Functionality Handled By"] = "此功能由 %s 提供";      --A functionality is provided by [another addon name] (Used in Settings.lua)
 
 --Settings
 L["UI"] = "介面";
@@ -82,6 +83,7 @@ L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "協助工具";
 
 L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "啟用";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "停用";
+L["Reset Position"] = RESET_POSITION or "重置位置";
 
 L["Quest"] = "任務";
 L["Gossip"] = "閒聊";
@@ -111,6 +113,9 @@ L["Simplify Currency Rewards"] = "簡化貨幣獎勵";
 L["Simplify Currency Rewards Desc"] = "貨幣獎勵顯示為小圖示並省略名稱。";
 L["Mark Highest Sell Price"] = "標示售價最高的";
 L["Mark Highest Sell Price Desc"] = "選擇獎勵時，顯示哪件商品的售價最高。";
+L["Roleplaying"] = GDAPI_REALMTYPE_RP or "角色扮演";
+L["Use RP Name In Dialogues"] = "對話視窗使用 RP 名字";
+L["Use RP Name In Dialogues Desc"] = "將對話視窗文字中，你的角色名字換成你的 RP 名字。";
 
 L["Camera Movement"] = "鏡頭移動";
 L["Camera Movement Off"] = "關閉";
@@ -147,6 +152,7 @@ L["Quest Item Display"] = "顯示任務物品";
 L["Quest Item Display Desc"] = "自動顯示任務物品的說明，無需打開袋子即可使用它。";
 L["Quest Item Display Hide Seen"] = "忽略已看見的物品";
 L["Quest Item Display Hide Seen Desc"] = "忽略你的任何角色已發現過的物品。";
+L["Quest Item Display Reset Position Desc"] = "重置視窗的位置。";
 L["Auto Select"] = "自動選擇";
 L["Auto Select Gossip"] = "自動選擇選項";
 L["Auto Select Gossip Desc"] = "與特定 NPC 互動時自動選擇最佳的對話選項。";
