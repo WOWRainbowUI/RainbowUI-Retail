@@ -278,6 +278,10 @@ if GetLocale() == "zhTW" then
 	L.data["|cff67CF9EDreamsurge|r"] = "|cff67CF9E夢境湧現|r"
 	L.data["|cff67CF9ESuperbloom|r"] = "|cff67CF9E繁盛綻放|r"
 	
+	-- BetterBags_WorldEvents
+	L.data["Noblegarden"] = "貴族花園"
+	L.data["Darkmoon Faire"] = "暗月馬戲團"
+	
 	
 end
 

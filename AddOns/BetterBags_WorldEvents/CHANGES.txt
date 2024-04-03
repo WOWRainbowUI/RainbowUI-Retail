@@ -1,0 +1,10 @@
+lightweight tag 5a04234edc15f9675f8d98fcef20fb98e051cc9e v1.0.2
+Author:	GitHub <noreply@github.com>
+Date:	Tue Apr 2 18:46:37 2024 +0200
+
+commit 5a04234edc15f9675f8d98fcef20fb98e051cc9e
+Author: Zazou89 <155338110+Zazou89@users.noreply.github.com>
+Date:   Tue Apr 2 18:46:37 2024 +0200
+
+    Update BetterBags_WorldEvents.toc
+
