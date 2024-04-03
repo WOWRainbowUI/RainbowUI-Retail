@@ -49,6 +49,8 @@ function ArmorModule:CreateFrames()
   self.armorIcon = self.armorIcon or self.armorButton:CreateTexture(nil, 'OVERLAY')
   self.armorText = self.armorText or self.armorButton:CreateFontString(nil, 'OVERLAY')
   self.coordText = self.coordText or self.armorButton:CreateFontString(nil, 'OVERLAY')
+  self.armorText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
+  self.coordText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
 end
 
 function ArmorModule:RegisterFrameEvents()
