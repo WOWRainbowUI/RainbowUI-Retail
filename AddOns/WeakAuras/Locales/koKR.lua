@@ -792,9 +792,9 @@ L["Icon Function"] = "Icon Function"
 --[[Translation missing --]]
 L["Icon Function (fallback state)"] = "Icon Function (fallback state)"
 --[[Translation missing --]]
-L["Id"] = "Id"
---[[Translation missing --]]
 L["ID"] = "ID"
+--[[Translation missing --]]
+L["Id"] = "Id"
 L["If you require additional assistance, please open a ticket on GitHub or visit our Discord at https://discord.gg/weakauras!"] = "추가 지원이 필요한 경우, GitHub에서 티켓을 열거나 Discord( https://discord.gg/weakauras )를 방문해 주세요!"
 L["Ignis the Furnace Master"] = "용광로 군주 이그니스"
 L["Ignore Dead"] = "죽음 무시"
@@ -1654,7 +1654,8 @@ L["Top Right"] = "오른쪽 위"
 L["Top to Bottom"] = "위에서 아래로"
 L["Toravon the Ice Watcher"] = "얼음 감시자 토라본"
 L["Torghast"] = "토르가스트"
-L["Total"] = "전체"
+--[[Translation missing --]]
+L["Total"] = "Total"
 L["Total Duration"] = "총 지속시간"
 --[[Translation missing --]]
 L["Total Earned in this Season"] = "Total Earned in this Season"
@@ -1754,7 +1755,8 @@ L["Using WeakAuras.regions is deprecated. Use WeakAuras.GetRegion(id) instead."]
 L["Vaelastrasz the Corrupt"] = "타락한 밸라스트라즈"
 L["Valithria Dreamwalker"] = "발리스리아 드림워커"
 L["Val'kyr Twins"] = "발키르 쌍둥이"
-L["Value"] = "값"
+--[[Translation missing --]]
+L["Value"] = "Value"
 L["Vault of Archavon"] = "아카본 석실"
 L["Versatility (%)"] = "유연성 (%)"
 L["Versatility Rating"] = "유연성"
