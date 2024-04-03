@@ -16,8 +16,7 @@ local nonEquippableTypes = {
     ["INVTYPE_NON_EQUIP_IGNORE"] = true,
     ["INVTYPE_TRINKET"] = true,
     ["INVTYPE_FINGER"] = true,
-    ["INVTYPE_NECK"] = true,
-    ["INVTYPE_CLOAK"] = true
+    ["INVTYPE_NECK"] = true
 }
 
 -- Create a hidden tooltip for scanning

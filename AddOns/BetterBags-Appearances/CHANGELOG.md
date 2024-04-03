@@ -1,8 +1,6 @@
 # BetterBags - Appearances
 
-## [2.0.0](https://github.com/AlexHaible/BetterBags-Appearances/tree/2.0.0) (2024-03-31)
-[Full Changelog](https://github.com/AlexHaible/BetterBags-Appearances/compare/1.0.4...2.0.0) [Previous Releases](https://github.com/AlexHaible/BetterBags-Appearances/releases)
+## [2.0.1](https://github.com/AlexHaible/BetterBags-Appearances/tree/2.0.1) (2024-04-03)
+[Full Changelog](https://github.com/AlexHaible/BetterBags-Appearances/compare/2.0.0...2.0.1) [Previous Releases](https://github.com/AlexHaible/BetterBags-Appearances/releases)
 
-- Rewrite of addon  
-    Hopefully this simplifies a LOT.  
-    Should also work fine with 10.2.6's API changes now.  
+- Fix cloaks being ignored  
