@@ -29,6 +29,9 @@ function Appearances:OnInitialize()
     categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Learnable"), "ff00ff00"))
     categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00"))
     categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00"))
+    categories:WipeCategory(L:G("Mog - Learnable"))
+    categories:WipeCategory(L:G("Mog - Tradable"))
+    categories:WipeCategory(L:G("Mog - Sellable"))
 end
 
 -- Debug dump functions
@@ -69,75 +72,67 @@ function isEquipabble(itemInfo)
 end
 
 function canLearnAppearance(data)
-    local canCollect = false
     local itemLink = C_Container.GetContainerItemLink(data.bagid, data.slotid)
-    local _, _, transmogSource, _ = C_Transmog.CanTransmogItem(itemLink)
-    if not transmogSource then
-        return nil
-    end
+    local _, _, transmogSource = C_Transmog.CanTransmogItem(itemLink)
+    if not transmogSource then return nil end
+
     local itemAppearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLink)
-    if sourceID then
-        _, canCollect = C_TransmogCollection.PlayerCanCollectSource(sourceID)
-        local sources = C_TransmogCollection.GetAllAppearanceSources(itemAppearanceID)
-        for _, v in pairs(sources) do
-            local _,_,_,_,isCollected = C_TransmogCollection.GetAppearanceSourceInfo(v)
-            -- If any source is collected, we can't collect it.
-            if isCollected then
-                canCollect = false
-                break
-            end
+    if not sourceID then return nil end
+
+    local _, canCollect = C_TransmogCollection.PlayerCanCollectSource(sourceID)
+    if not canCollect then return false end
+
+    local sources = C_TransmogCollection.GetAllAppearanceSources(itemAppearanceID)
+    for _, sourceID in ipairs(sources) do
+        if select(5, C_TransmogCollection.GetAppearanceSourceInfo(sourceID)) then
+            return false
         end
-        return canCollect
     end
+
+    return true
 end
 
 function checkItemBindStatus(itemLink)
-    scanTooltip:ClearLines() -- Reset the tooltip
-    scanTooltip:SetHyperlink(itemLink) -- Set the item's hyperlink to fill the tooltip with item info
+    scanTooltip:ClearLines()
+    scanTooltip:SetHyperlink(itemLink)
 
-    for i = 2, scanTooltip:NumLines() do -- Start at 2 to skip the item name
-        local line = _G["BindCheckTooltipScannerTextLeft" .. i]:GetText()
-        if line then
-            if line:find(ITEM_BIND_ON_EQUIP) then
-                return "BoE"
-            elseif line:find(ITEM_ACCOUNTBOUND) or line:find(ITEM_BIND_TO_ACCOUNT) or line:find(ITEM_BIND_TO_BNETACCOUNT) or line:find(ITEM_BNETACCOUNTBOUND) then
-                return "BoA"
-            elseif line:find(ITEM_BIND_ON_PICKUP) then
-                return "BoP"
+    for i = 2, scanTooltip:NumLines() do
+        local lineText = _G["BindCheckTooltipScannerTextLeft" .. i]:GetText()
+        if lineText then
+            if lineText:find(ITEM_BIND_ON_EQUIP) then return "BoE"
+            elseif lineText:find(ITEM_BIND_ON_PICKUP) then return "BoP"
+            elseif lineText:find(ITEM_ACCOUNTBOUND) or lineText:find(ITEM_BIND_TO_ACCOUNT) or lineText:find(ITEM_BIND_TO_BNETACCOUNT) or lineText:find(ITEM_BNETACCOUNTBOUND) then return "BoA"
             end
         end
     end
-    return "None" -- No bind information found
+    return "None"
 end
 
 -- Register the category function
 categories:RegisterCategoryFunction("MogCategorization", function(data)
-    -- If we can't ever equip it, don't bother.
-    if not isEquipabble(data.itemInfo) then
-        return nil
-    end
-
-    -- If it's the Underlight Angler artifact, also don't bother.
-    if data.itemInfo.itemID == 133755 then
+    -- Exclude non-equipable and specific items like the Underlight Angler artifact
+    if not isEquipabble(data.itemInfo) or data.itemInfo.itemID == 133755 then
         return nil
     end
 
     local bindType = checkItemBindStatus(data.itemInfo.itemLink)
+    local canLearn = canLearnAppearance(data)
 
-    -- Current character can't learn the appearance for whatever reason
-    if not canLearnAppearance(data) then
-        if bindType == "BoE" or bindType == "BoA" then
-            -- If BoE or BoA, it should be categorized in "Mog - Tradable"
+    -- If the item cannot be learned
+    if not canLearn then
+        -- Handle BoA items separately, as they are bound but tradable across the account
+        if bindType == "BoA" then
+            return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
+        -- Check if the item is bound and not BoA, categorize as "Mog - Sellable"
+        elseif data.itemInfo.isBound or bindType == "BoP" then
+            return WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00")
+        elseif bindType == "BoE" then
+            -- If the item is BoE and not bound, it's tradable
             return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
         end
-
-        -- If BoP, it should be categorized in "Mog - Sell"
-        if bindType == "BoP" then
-            return WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00")
-        end
-    end
-
-    if canLearnAppearance(data) then
+    elseif canLearn then
+        -- If the item's appearance can be learned
         return WrapTextInColorCode(L:G("Mog - Learnable"), "ff00ff00")
     end
+    -- Default case if none of the conditions are met, might need explicit handling
 end)
