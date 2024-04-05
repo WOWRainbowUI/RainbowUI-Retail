@@ -1,5 +1,5 @@
 ## Interface: 20504
-## Version: 2.36
+## Version: 2.37
 ## Author: Taraezor
 ## IconTexture: Interface\Icons\Inv_10_dungeonjewelry_explorer_trinket_1compass_color1
 ## Title: X and Y
