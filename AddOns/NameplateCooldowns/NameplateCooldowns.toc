@@ -1,8 +1,8 @@
-## Interface: 100205
+## Interface: 100206
 ## Title: NameplateCooldowns
 ## Notes: Shows the cooldowns of enemy players above their nameplates
 ## SavedVariables: NameplateCooldownsAceDB
-## Version: 100205.7-release
+## Version: 100206.0-release
 ## X-Curse-Project-ID: 66866
 ## X-Wago-ID: 0mNwjlGo
 
