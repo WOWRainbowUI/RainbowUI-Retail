@@ -1,6 +1,9 @@
-== v2.36 - 18th March 2024
+== v2.37 - 4th April 2024
+* TOC Update for Classic to 1.15.2
+
+== v2.36 - 20th March 2024
 * XandYDB existence check - catches situations when the DB hasn't yet loaded
-* TOC Update to 10.2.6
+* TOC Update for Retail to 10.2.6
 
 == v2.35 - 13th March 2024
 * TOC Update for Classic to 1.15.1
