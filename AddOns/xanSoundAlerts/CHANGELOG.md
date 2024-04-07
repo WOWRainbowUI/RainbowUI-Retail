@@ -1,8 +1,7 @@
 # xanSoundAlerts
 
-## [v3.1](https://github.com/Xruptor/xanSoundAlerts/tree/v3.1) (2023-05-26)
-[Full Changelog](https://github.com/Xruptor/xanSoundAlerts/compare/v3.0...v3.1) [Previous Releases](https://github.com/Xruptor/xanSoundAlerts/releases)
+## [v3.3](https://github.com/Xruptor/xanSoundAlerts/tree/v3.3) (2024-04-06)
+[Full Changelog](https://github.com/Xruptor/xanSoundAlerts/compare/v3.2...v3.3) [Previous Releases](https://github.com/Xruptor/xanSoundAlerts/releases)
 
-- TOC Update & Small Fix  
-    * TOC Version Update  
-    * Fixed an error in regards to the settings panel.  
+- TOC Update and Cataclysm Classic support  
+    TOC Update and Cataclysm Classic support  

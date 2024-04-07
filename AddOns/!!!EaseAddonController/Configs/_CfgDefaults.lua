@@ -2584,7 +2584,6 @@ D["xanSoundAlerts"] = {
 	tags = { "COMBAT" },
 	title = "血量/法力過低音效",
 	desc = "血量或法力/能量太低時，會發出音效來提醒。``支援多種能量類型，可在設定選項中勾選。",
-	icon = "Interface\\Icons\\spell_brokenheart",
 	{
         text = "設定選項",
         callback = function(cfg, v, loading) SlashCmdList["XANSOUNDALERTS"]("") end,
