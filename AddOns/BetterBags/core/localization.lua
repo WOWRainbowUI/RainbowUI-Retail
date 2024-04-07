@@ -129,8 +129,8 @@ if GetLocale() == "zhTW" then
 	L.data["Delete Category"] = "刪除分類"
 	L.data["Are you sure you want to delete this category?"] = "是否確定要刪除此分類?"
 	L.data["Create Category"] = "建立分類"
-	L.data["Custom categories allow you to create your own categories for items. Type the name of the category you want to create in the box below and press enter to create an empty category."] = "自訂分類允許您為物品建立自己的分類。在下方的框中輸入要建立的分類名稱，然後按 Enter 鍵建立一個空的分類。"
-	L.data["Categories you create can be enabled and disabled just like the default categories in the configuration menu option for the bag (Backpack or Bank) on the left. Once you have created a category, you can configure it by selecting it on the menu on the left."] = "您所建立的分類像預設分類一樣可以啟用或停用。建立了分類之後，就可以從左側的選單來進行設定。"
+	L.data["Custom categories allow you to create your own categories for items. Type the name of the category you want to create in the box below and press enter to create an empty category."] = "自訂分類允許你為物品建立自己的分類。在下方的框中輸入要建立的分類名稱，然後按 Enter 鍵建立一個空的分類。"
+	L.data["Categories you create can be enabled and disabled just like the default categories in the configuration menu option for the bag (Backpack or Bank) on the left. Once you have created a category, you can configure it by selecting it on the menu on the left."] = "\n你所建立的分類像預設分類一樣可以啟用或停用。建立了分類之後，就可以從左側的選單來進行設定。"
 	L.data["New Category Name"] = "新分類名稱"
 	
 	-- config\help.lua
@@ -188,6 +188,7 @@ if GetLocale() == "zhTW" then
 	
 	-- config\itemlist.lua
 	L.data["Drag an item here from your inventory, bank, or another source to add it to this category."] = "將物品從背包、銀行或其他地方拖曳到這裡，便可加入此分類。"
+	L.data["Drag an item here to add it to this category."] = "將物品拖曳到這裡以加入此分類。"
 	L.data["Remove"] = "移除"
 	
 	-- core/constants.lua
