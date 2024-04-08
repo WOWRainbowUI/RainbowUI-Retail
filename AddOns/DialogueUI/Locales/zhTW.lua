@@ -124,11 +124,13 @@ L["Camera Movement Off"] = "關閉";
 L["Camera Movement Zoom In"] = "拉近";
 L["Camera Movement Horizontal"] = "水平";
 L["Maintain Camera Position"] = "保持鏡頭位置";
-L["Maintain Camera Position Desc"] = "NPC 互動結束後短暫保持鏡頭位置。 啟用此選項將減少因對話之間的延遲而導致的鏡頭突然移動。";
+L["Maintain Camera Position Desc"] = "NPC 互動結束後短暫保持鏡頭位置。 \n\n啟用此選項將減少因對話之間的延遲而導致的鏡頭突然移動。";
 L["Change FOV"] = "更改視角";
 L["Change FOV Desc"] = "縮小鏡頭的可見範圍，靠近並放大 NPC。";
 L["Disable Camera Movement Instance"] = "在副本中時停用";
 L["Disable Camera Movement Instance Desc"] = "在地城和團隊中不要移動鏡頭。";
+L["Maintain Offset While Mounted"] = "騎乘時保持位置";
+L["Maintain Offset While Mounted Desc"] = "騎乘坐騎時，嘗試保持角色在畫面上的位置。\n\n啟用此選項可能會對大型坐騎的水平偏移進行過度補償。";
 
 L["Input Device"] = "輸入裝置";
 L["Input Device Desc"] = "會影響快速鍵圖示和介面的版面配置。";
