@@ -329,7 +329,7 @@ local options = {
         },
         backpack = {
             name = "Backpack",
-            desc = "Enables / Disabled Backpack support",
+            desc = "Enables / Disables Backpack support",
             type = "toggle",
         },
     },
