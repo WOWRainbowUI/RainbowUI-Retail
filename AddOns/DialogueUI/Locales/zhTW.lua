@@ -83,7 +83,9 @@ L["Accessibility"] = SETTING_GROUP_ACCESSIBILITY or "協助工具";
 
 L["Option Enabled"] = VIDEO_OPTIONS_ENABLED or "啟用";
 L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "停用";
+L["Move Position"] = "移動";
 L["Reset Position"] = RESET_POSITION or "重置位置";
+L["Drag To Move"] = "左鍵拖曳移動視窗。";
 
 L["Quest"] = "任務";
 L["Gossip"] = "閒聊";
