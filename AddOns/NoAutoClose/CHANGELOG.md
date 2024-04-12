@@ -1,6 +1,6 @@
 # NoAutoClose
 
-## [v1.2.4](https://github.com/NumyAddon/NoAutoClose/tree/v1.2.4) (2024-04-02)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.2.3...v1.2.4) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.2.6](https://github.com/NumyAddon/NoAutoClose/tree/v1.2.6) (2024-04-11)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.2.5...v1.2.6) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- Fix an error that can happen when addons are loaded during combat  
+- fix an issue that happens when the map is maximized (fixes #8)  
