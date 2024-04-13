@@ -1,10 +1,10 @@
-lightweight tag 8d85fa2af063a4b8d3cd2062be82272c4d78b9c7 v1.10.25
-Author:	Antonio Lobato <aj.lobato@gmail.com>
-Date:	Tue Mar 19 15:44:35 2024 -0700
+lightweight tag 185b70522fc7a202db069b24173005b54ffa1958 v1.10.26
+Author:	GitHub <noreply@github.com>
+Date:	Fri Apr 12 13:20:34 2024 -0700
 
-commit 8d85fa2af063a4b8d3cd2062be82272c4d78b9c7
-Author: Antonio Lobato <aj.lobato@gmail.com>
-Date:   Tue Mar 19 15:44:35 2024 -0700
+commit 185b70522fc7a202db069b24173005b54ffa1958
+Author: Pegoth <blacksun@hotmail.hu>
+Date:   Fri Apr 12 22:20:34 2024 +0200
 
-    Fixed a bug with 10.2.6 startup
+    Fixed non-equipment items acting as equipment after 10.2.6 WoW patch. (#1008)
 
