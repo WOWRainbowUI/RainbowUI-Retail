@@ -3,14 +3,13 @@
 ## Title: BetterBags - BoE & BoA
 ## Notes: Adds BoE & BoA filters to BetterBags.
 ## Author: Avyiel
-## Version: v1.0.0
-## X-Date: 2024-02-19T19:52:28Z
+## Version: v1.0.1
+## X-Date: 2024-04-13T06:27:37Z
 ## IconTexture: Interface\Icons\inv_misc_bag_15
 
-## DefaultState: Enabled
 ## Dependencies: BetterBags
 
-## X-Date: 2024-02-19T19:52:28Z
+## X-Date: 2024-04-13T06:27:37Z
 ## X-Category: Bags & Inventory
 ## X-License: MIT
 
