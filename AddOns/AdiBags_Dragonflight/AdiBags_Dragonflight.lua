@@ -1,7 +1,7 @@
 --[[
 AdiBags - Dragonflight
 by Zottelchen
-version: 2.3.34
+version: 2.3.35
 Items from the Dragonflight expansion.
 ]]
 
@@ -4216,7 +4216,7 @@ end
 local setFilter = AdiBags:RegisterFilter("Dragonflight", 98, "ABEvent-1.0")
 setFilter.uiName = string.format("|cffa00000%s|r", L["Dragonflight"])
 setFilter.uiDesc = string.format(
-  "%s\n|cffffd800%s: 2.3.34|r",
+  "%s\n|cffffd800%s: 2.3.35|r",
   L["Items from the Dragonflight expansion."],
   L["Filter version"]
 )
