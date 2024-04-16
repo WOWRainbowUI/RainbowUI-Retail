@@ -1,0 +1,17 @@
+## Interface: 100205
+## Author: Sanex (Arathor EU)
+## Title: LOIHLoot
+## Version: 10.2.5
+## Notes: Syncs players' loot wishlists to raid leader(s) to help determine best loot method.
+## SavedVariables: LOIHLootDB
+## SavedVariablesPerCharacter: LOIHLootCharDB
+
+Localization-en.lua
+Localization-de.lua
+Localization-ko.lua
+Localization-ru.lua
+Localization-zh.lua
+
+LOIHLoot.lua
+LOIHLootFrame.xml
+LOIHLootFrame.lua
