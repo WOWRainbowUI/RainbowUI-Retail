@@ -375,23 +375,25 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 	if characterName then
 
 		local characterNameSuffix
-		if (not level) or (FriendGroups_SavedVars.hide_high_level and level == currentExpansionMaxLevel) then
+		if (not level) or (FriendGroups_SavedVars.hide_high_level and level == currentExpansionMaxLevel) or level == 0 then
 			characterNameSuffix = ""
 		else
 			characterNameSuffix= "L"..level.." "
 		end
 
 		if client == BNET_CLIENT_WOW then
-			if not canCoop and FriendGroups_SavedVars.gray_faction then
-				-- nameText = "|CFF949694"..nameText.." ".."["..characterName..characterNameSuffix.."}".."|r"
-				nameText = "|CFF949694"..characterNameSuffix..characterName.." - "..nameText.."|r"
-			elseif FriendGroups_SavedVars.colour_classes then
-				local nameColor = FriendGroups_GetClassColorCode(class)
-				-- nameText = nameText.." "..nameColor.."["..characterName..characterNameSuffix.."]"..FONT_COLOR_CODE_CLOSE
-				nameText = "|CFFFFF596"..characterNameSuffix.."|r"..nameColor..characterName..FONT_COLOR_CODE_CLOSE.." - "..nameText
-			else
-				-- nameText = nameText.." ".."["..characterName..characterNameSuffix.."]"..FONT_COLOR_CODE_CLOSE
-				nameText = "|CFFFFF596"..characterNameSuffix.."|r"..characterName.." - "..nameText..FONT_COLOR_CODE_CLOSE
+			if characterName ~= "" and level ~= 0 then
+				if not canCoop and FriendGroups_SavedVars.gray_faction then
+					-- nameText = "|CFF949694"..nameText.." ".."["..characterName..characterNameSuffix.."}".."|r"
+					nameText = "|CFF949694"..characterNameSuffix..characterName.." - "..nameText.."|r"
+				elseif FriendGroups_SavedVars.colour_classes then
+					local nameColor = FriendGroups_GetClassColorCode(class)
+					-- nameText = nameText.." "..nameColor.."["..characterName..characterNameSuffix.."]"..FONT_COLOR_CODE_CLOSE
+					nameText = "|CFFFFF596"..characterNameSuffix.."|r"..nameColor..characterName..FONT_COLOR_CODE_CLOSE.." - "..nameText
+				else
+					-- nameText = nameText.." ".."["..characterName..characterNameSuffix.."]"..FONT_COLOR_CODE_CLOSE
+					nameText = "|CFFFFF596"..characterNameSuffix.."|r"..characterName.." - "..nameText..FONT_COLOR_CODE_CLOSE
+				end
 			end
 		else
 			if ENABLE_COLORBLIND_MODE == "1" then
@@ -432,7 +434,7 @@ function FriendGroups_GetPlayerData(friendsListData, playerId, playerType)
 	return nil
 end
 
-function FriendGroups_ShowRichPresenceOnly(client, wowProjectID, faction, realmID)
+function FriendGroups_ShowRichPresenceOnly(client, wowProjectID, faction, realmID, areaName)
 	if (client ~= BNET_CLIENT_WOW) or (wowProjectID ~= WOW_PROJECT_ID) then
 		-- If they are not in wow or in a different version of wow, always show rich presence only
 		return true;
@@ -441,6 +443,12 @@ function FriendGroups_ShowRichPresenceOnly(client, wowProjectID, faction, realmI
 		return true;
 	else
 		-- Otherwise show more detailed info about them
+		
+		-- Plunderstorm
+		if (client == BNET_CLIENT_WOW) and (wowProjectID == WOW_PROJECT_ID) and not areaName then
+			return true;
+		end
+		
 		return false;
 	end;
 end
@@ -449,6 +457,7 @@ function FriendGroups_GetOnlineInfoText(client, isMobile, rafLinkType, locationT
 	if not locationText then
 		return UNKNOWN;
 	end
+	
 	if isMobile then
 		return LOCATION_MOBILE_APP;
 	end
@@ -987,6 +996,7 @@ function FriendGroups_FriendsListUpdateFriendButton(button, elementData)
 		FriendsFrame_SummonButton_Update(button.summonButton);
 	elseif button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
 		local accountInfo = C_BattleNet.GetFriendAccountInfo(id);
+		
 		if accountInfo then
 			nameText, nameColor, statusTexture = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo);
 
@@ -1001,16 +1011,16 @@ function FriendGroups_FriendsListUpdateFriendButton(button, elementData)
 			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag)
 
 			isFavoriteFriend = accountInfo.isFavorite;
-
+			
 			button.status:SetTexture(statusTexture);
-
+	
 			isCrossFactionInvite = accountInfo.gameAccountInfo.factionName ~= playerFactionGroup;
 			inviteFaction = accountInfo.gameAccountInfo.factionName;
 
 			if accountInfo.gameAccountInfo.isOnline then
 				button.background:SetColorTexture(FRIENDS_BNET_BACKGROUND_COLOR.r, FRIENDS_BNET_BACKGROUND_COLOR.g, FRIENDS_BNET_BACKGROUND_COLOR.b, FRIENDS_BNET_BACKGROUND_COLOR.a);
 
-				if FriendGroups_ShowRichPresenceOnly(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.wowProjectID, accountInfo.gameAccountInfo.factionName, accountInfo.gameAccountInfo.realmID) then
+				if FriendGroups_ShowRichPresenceOnly(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.wowProjectID, accountInfo.gameAccountInfo.factionName, accountInfo.gameAccountInfo.realmID, accountInfo.gameAccountInfo.areaName) then
 					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.richPresence);
 				else
 					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.areaName, accountInfo.gameAccountInfo.realmName);
