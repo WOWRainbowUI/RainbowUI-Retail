@@ -4,21 +4,21 @@
 
 	<!-- action button bindings -->
 	<!-- 1 -->
-	<!-- <Binding name="CLICK DominosActionButton1:HOTKEY" category="Dominos" header="DominosActionBar1" />
-	<Binding name="CLICK DominosActionButton2:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton3:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton4:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton5:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton6:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton7:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton8:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton9:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton10:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton11:HOTKEY" category="Dominos" />
-	<Binding name="CLICK DominosActionButton12:HOTKEY" category="Dominos" /> -->
+	<!-- <Binding name="CLICK DominosActionButton1:HOTKEY" category="達美樂" header="Dominos Action Bar 1" />
+	<Binding name="CLICK DominosActionButton2:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton3:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton4:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton5:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton6:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton7:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton8:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton9:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton10:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton11:HOTKEY" category="達美樂" />
+	<Binding name="CLICK DominosActionButton12:HOTKEY" category="達美樂" /> -->
 
 	<!-- 2 -->
-	<Binding name="CLICK DominosActionButton13:HOTKEY" category="達美樂" header="DominosActionBar2" />
+	<Binding name="CLICK DominosActionButton13:HOTKEY" category="達美樂" header="Dominos Action Bar 2" />
 	<Binding name="CLICK DominosActionButton14:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton15:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton16:HOTKEY" category="達美樂" />
@@ -32,7 +32,7 @@
 	<Binding name="CLICK DominosActionButton24:HOTKEY" category="達美樂" />
 
 	<!-- 3 -->
-	<!-- <Binding name="CLICK DominosActionButton25:HOTKEY" category="達美樂" header="DominosActionBar3" />
+	<!-- <Binding name="CLICK DominosActionButton25:HOTKEY" category="達美樂" header="Dominos Action Bar 3" />
 	<Binding name="CLICK DominosActionButton26:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton27:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton28:HOTKEY" category="達美樂" />
@@ -46,7 +46,7 @@
 	<Binding name="CLICK DominosActionButton36:HOTKEY" category="達美樂" /> -->
 
 	<!-- 4 -->
-	<!-- <Binding name="CLICK DominosActionButton37:HOTKEY" category="達美樂" header="DominosActionBar4" />
+	<!-- <Binding name="CLICK DominosActionButton37:HOTKEY" category="達美樂" header="Dominos Action Bar 4" />
 	<Binding name="CLICK DominosActionButton38:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton39:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton40:HOTKEY" category="達美樂" />
@@ -60,7 +60,7 @@
 	<Binding name="CLICK DominosActionButton48:HOTKEY" category="達美樂" /> -->
 
 	<!-- 5 -->
-	<!-- <Binding name="CLICK DominosActionButton49:HOTKEY" category="達美樂" header="DominosActionBar5" />
+	<!-- <Binding name="CLICK DominosActionButton49:HOTKEY" category="達美樂" header="Dominos Action Bar 5" />
 	<Binding name="CLICK DominosActionButton50:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton51:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton52:HOTKEY" category="達美樂" />
@@ -74,7 +74,7 @@
 	<Binding name="CLICK DominosActionButton60:HOTKEY" category="達美樂" /> -->
 
 	<!-- 6 -->
-	<!-- <Binding name="CLICK DominosActionButton61:HOTKEY" category="達美樂" header="DominosActionBar6" />
+	<!-- <Binding name="CLICK DominosActionButton61:HOTKEY" category="達美樂" header="Dominos Action Bar 6" />
 	<Binding name="CLICK DominosActionButton62:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton63:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton64:HOTKEY" category="達美樂" />
@@ -88,7 +88,7 @@
 	<Binding name="CLICK DominosActionButton72:HOTKEY" category="達美樂" /> -->
 
 	<!-- 7 -->
-	<Binding name="CLICK DominosActionButton73:HOTKEY" category="達美樂" header="DominosActionBar7" />
+	<Binding name="CLICK DominosActionButton73:HOTKEY" category="達美樂" header="Dominos Action Bar 7" />
 	<Binding name="CLICK DominosActionButton74:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton75:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton76:HOTKEY" category="達美樂" />
@@ -102,7 +102,7 @@
 	<Binding name="CLICK DominosActionButton84:HOTKEY" category="達美樂" />
 
 	<!-- 8 -->
-	<Binding name="CLICK DominosActionButton85:HOTKEY" category="達美樂" header="DominosActionBar8" />
+	<Binding name="CLICK DominosActionButton85:HOTKEY" category="達美樂" header="Dominos Action Bar 8" />
 	<Binding name="CLICK DominosActionButton86:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton87:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton88:HOTKEY" category="達美樂" />
@@ -116,7 +116,7 @@
 	<Binding name="CLICK DominosActionButton96:HOTKEY" category="達美樂" />
 
 	<!-- 9 -->
-	<Binding name="CLICK DominosActionButton97:HOTKEY" category="達美樂" header="DominosActionBar9" />
+	<Binding name="CLICK DominosActionButton97:HOTKEY" category="達美樂" header="Dominos Action Bar 9" />
 	<Binding name="CLICK DominosActionButton98:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton99:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton100:HOTKEY" category="達美樂" />
@@ -130,7 +130,7 @@
 	<Binding name="CLICK DominosActionButton108:HOTKEY" category="達美樂" />
 
 	<!-- 10 -->
-	<Binding name="CLICK DominosActionButton109:HOTKEY" category="達美樂" header="DominosActionBar10" />
+	<Binding name="CLICK DominosActionButton109:HOTKEY" category="達美樂" header="Dominos Action Bar 10" />
 	<Binding name="CLICK DominosActionButton110:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton111:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton112:HOTKEY" category="達美樂" />
@@ -144,7 +144,7 @@
 	<Binding name="CLICK DominosActionButton120:HOTKEY" category="達美樂" />
 
 	<!-- 11 -->
-	<Binding name="CLICK DominosActionButton121:HOTKEY" category="達美樂" header="DominosActionBar11" />
+	<Binding name="CLICK DominosActionButton121:HOTKEY" category="達美樂" header="Dominos Action Bar 11" />
 	<Binding name="CLICK DominosActionButton122:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton123:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton124:HOTKEY" category="達美樂" />
@@ -158,7 +158,7 @@
 	<Binding name="CLICK DominosActionButton132:HOTKEY" category="達美樂" />
 
 	<!-- 12 -->
-	<!-- <Binding name="CLICK DominosActionButton133:HOTKEY" category="達美樂" header="DominosActionBar12" />
+	<!-- <Binding name="CLICK DominosActionButton133:HOTKEY" category="達美樂" header="Dominos Action Bar 12" />
 	<Binding name="CLICK DominosActionButton134:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton135:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton136:HOTKEY" category="達美樂" />
@@ -172,7 +172,7 @@
 	<Binding name="CLICK DominosActionButton144:HOTKEY" category="達美樂" /> -->
 
 	<!-- 13 -->
-	<!-- <Binding name="CLICK DominosActionButton145:HOTKEY" category="達美樂" header="DominosActionBar13" />
+	<!-- <Binding name="CLICK DominosActionButton145:HOTKEY" category="達美樂" header="Dominos Action Bar 13" />
 	<Binding name="CLICK DominosActionButton146:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton147:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton148:HOTKEY" category="達美樂" />
@@ -186,7 +186,7 @@
 	<Binding name="CLICK DominosActionButton156:HOTKEY" category="達美樂" /> -->
 
 	<!-- 14 -->
-	<!-- <Binding name="CLICK DominosActionButton157:HOTKEY" category="達美樂" header="DominosActionBar14" />
+	<!-- <Binding name="CLICK DominosActionButton157:HOTKEY" category="達美樂" header="Dominos Action Bar 14" />
 	<Binding name="CLICK DominosActionButton158:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton159:HOTKEY" category="達美樂" />
 	<Binding name="CLICK DominosActionButton160:HOTKEY" category="達美樂" />
