@@ -25,6 +25,16 @@ local nonEquippableTypes = {
 local scanTooltip = CreateFrame("GameTooltip", "BindCheckTooltipScanner", nil, "GameTooltipTemplate")
 scanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
+local itemIdsToIgnore = {
+    49888, -- Shadow's Edge
+    71084, -- Branch of Nordrassil
+    71085, -- Runestaff of Nordrassil
+    77945, -- Fear
+    77946, -- Vengeance
+    77947, -- The Sleeper
+    77948, -- The Dreamer
+}
+
 -- Functions --
 -- On plugin load, wipe the categories we've added
 function Appearances:OnInitialize()
@@ -110,10 +120,17 @@ function checkItemBindStatus(itemLink)
     return "None"
 end
 
+function isItemIgnored(itemID)
+    for index, id in ipairs(itemIdsToIgnore) do
+        if itemID == id then return true end
+    end
+    return false
+end
+
 -- Register the category function
 categories:RegisterCategoryFunction("MogCategorization", function(data)
     -- Exclude non-equipable, legendaries, and artifacts
-    if not isEquipabble(data.itemInfo) or data.itemInfo.itemQuality == 6 or data.itemInfo.itemQuality == 5 then
+    if not isEquipabble(data.itemInfo) or data.itemInfo.itemQuality == 6 or data.itemInfo.itemQuality == 5 or isItemIgnored(data.itemInfo.itemID) then
         return nil
     end
 
