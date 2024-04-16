@@ -1,12 +1,12 @@
 ## Interface: 100206
 ## Title: AdiBags - Dragonflight
-## Version: 2.3.34
+## Version: 2.3.35
 ## Author: Zottelchen
 ## Notes: Items from the Dragonflight expansion.
 ## IconTexture: Interface\AddOns\AdiBags_Dragonflight\icon
 ## Dependencies: AdiBags
-## X-Date: 2024-03-23T23:03:50Z
-## X-Revision: 146
+## X-Date: 2024-03-25T15:43:32Z
+## X-Revision: 147
 ## X-Category: Bags & Inventory
 ## X-Curse-Project-ID: 662103
 ## X-WoWI-ID: 26470
