@@ -1,7 +1,20 @@
 ﻿------------------------------------------------------
+11.1.44 (2024-04-13)
+------------------------------------------------------
+* Fixed a Lua error that occured because of a missing line in the library loading code [GH-510].
+
+------------------------------------------------------
+11.1.43 (2024-04-13)
+------------------------------------------------------
+* Fixed an bug with LibDualSpec being loaded twice in WoW Remix: Mists of Pandaria.
+* Upgrade integrated libraries (LibDualSpec v1.22.3).
+* Updated TOC version for Classic Patch 1.15.2.
+* Updated TOC version for Wrath Classic Patch 3.4.3.
+
+------------------------------------------------------
 11.1.42 (2024-04-01)
 ------------------------------------------------------
-* Fixed wrong spell ID for Landslide (Evoker) so that it is shown as CC aura [Comment #7238].
+* Fixed wrong aura ID for Landslide (Evoker) so that it is shown as CC aura [Comment #7238].
 
 ------------------------------------------------------
 11.1.41 (2024-03-22)
