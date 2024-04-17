@@ -1,3 +1,3 @@
-# 11.1.42 (2024-04-01)
+# 11.1.44 (2024-04-13)
 
-* Fixed wrong spell ID for Landslide (Evoker) so that it is shown as CC aura [Comment #7238].
+* Fixed a Lua error that occured because of a missing line in the library loading code [GH-510].
