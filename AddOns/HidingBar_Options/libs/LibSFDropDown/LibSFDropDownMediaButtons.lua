@@ -1,5 +1,5 @@
 local lsfdd = LibStub("LibSFDropDown-1.5")
-local cur_ver, ver = lsfdd._mbv, 1
+local cur_ver, ver = lsfdd._mbv, 2
 if cur_ver and cur_ver >= ver then return end
 lsfdd._mbv = ver
 local menu1 = lsfdd:GetMenu(1)
@@ -152,13 +152,11 @@ end
 
 -- STATUSBAR
 do
-	local function getLangFontObject()
-		local lang = GetLocale()
-		if lang == "zhTW" or lang == "zhCN" then
-			return GameFontHighlightOutline
-		else
-			return Game10Font_o1
-		end
+	local lang, fontObject = GetLocale()
+	if lang == "zhTW" or lang == "zhCN" then
+		fontObject = GameFontHighlightOutline
+	else
+		fontObject = Game10Font_o1
 	end
 
 
@@ -168,7 +166,6 @@ do
 			tSizeX = 0,
 			tSizeY = 14,
 		}
-		local fontObject = getLangFontObject()
 		local statusbars = self.media:HashTable("statusbar")
 		for i, name in ipairs(self.media:List("statusbar")) do
 			info.list[#info.list + 1] = {
@@ -192,7 +189,7 @@ do
 			tSizeX = 0,
 			tSizeY = 14,
 		}
-		self:ddSetSelectedText(value, icon, iconInfo, true, getLangFontObject())
+		self:ddSetSelectedText(value, icon, iconInfo, true, fontObject)
 	end
 
 

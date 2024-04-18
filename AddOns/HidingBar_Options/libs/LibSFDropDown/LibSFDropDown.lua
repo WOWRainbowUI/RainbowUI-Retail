@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 3
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 4
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -222,7 +222,8 @@ end
 
 
 local function DropDownMenuListScrollFrame_OnVerticalScroll(self, offset)
-	self.scrollBar:SetScrollPercentage(offset / self:GetVerticalScrollRange(), ScrollBoxConstants.NoScrollInterpolation)
+	local scrollRange = self:GetVerticalScrollRange()
+	self.scrollBar:SetScrollPercentage(scrollRange > 0 and offset / scrollRange or 0, ScrollBoxConstants.NoScrollInterpolation)
 end
 
 
@@ -230,12 +231,12 @@ local function DropDownMenuListScrollFrame_OnScrollRangeChanged(self, xrange, yr
 	self:GetScript("OnVerticalScroll")(self, self:GetVerticalScroll())
 	local height = self:GetHeight()
 	self.scrollBar:SetVisibleExtentPercentage(height > 0 and height / (yrange + height) or 0)
-	self.scrollBar:SetPanExtentPercentage(yrange > 0 and Saturate(30 / yrange) or 0)
+	self.scrollBar:SetPanExtentPercentage(yrange > 0 and 30 / yrange or 0)
 end
 
 
 local function DropDownMenuListScrollFrame_OnMouseWheel(self, delta)
-	self.scrollBar:ScrollStepInDirection(-delta)
+	if self.scrollBar:IsShown() then self.scrollBar:ScrollStepInDirection(-delta) end
 end
 
 
@@ -1102,6 +1103,15 @@ if oldminor < 3 then
 		local f = dropDownSearchFrames[i]
 		f.view:SetElementInitializer("LibSFDropDownMenuButton", DropDownMenuSearchButtonInit)
 		f.addButton = DropDownMenuSearchMixin.addButton
+	end
+end
+
+if oldminor < 4 then
+	for i = 1, #v.dropDownMenusList do
+		local menu = v.dropDownMenusList[i]
+		menu.scrollFrame:SetScript("OnVerticalScroll", DropDownMenuListScrollFrame_OnVerticalScroll)
+		menu.scrollFrame:SetScript("OnScrollRangeChanged", DropDownMenuListScrollFrame_OnScrollRangeChanged)
+		menu.scrollFrame:SetScript("OnMouseWheel", DropDownMenuListScrollFrame_OnMouseWheel)
 	end
 end
 
