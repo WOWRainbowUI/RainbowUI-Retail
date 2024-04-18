@@ -1,8 +1,10 @@
 ## Interface: 100206
 ## Title: xanSoundAlerts
 ## Notes: Plays a sound when your health or mana is low.
+## Notes-zhCN: 当你的生命值和法力值较低时播放声音。
+## Notes-zhTW: 當你的生命值和法力值較低時播放聲音。
 ## Author: Xruptor
-## Version: 3.3
+## Version: 3.6
 ## IconTexture: 1769027
 ## X-Curse-Project-ID: 299032
 ## X-WoWI-ID: 24732
@@ -14,6 +16,8 @@ libs\LibStub\LibStub.lua
 libs\AceLocale-3.0\AceLocale-3.0.xml
 
 locale\enUS.lua
+locale\zhCN.lua
+locale\zhTW.lua
 
 xanSoundAlerts.lua
 config.lua
