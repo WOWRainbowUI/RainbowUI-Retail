@@ -1,4 +1,4 @@
-## Interface: 11501
+## Interface: 40400
 ## Title: RangeDisplay Options
 ## Author: mitch0
 ## Version: v6.0.5
@@ -8,12 +8,6 @@
 ## LoadOnDemand: 1
 ## X-License: Public Domain
 ## X-RelSite-WoWI: 7297
-
-## Title-zhTW: |cffFF2D2D[戰鬥]|r 顯示距離-設定選項
-## Notes-zhTW: RangeDisplay Options |n|n顯示距離的設定選項。|n|n|cffffd200使用方法: |r從Esc>選項>插件>距離，鎖定/解鎖框架位置和進行設定。
-## X-Category-zhTW: 戰鬥
-## IconTexture: Interface\Icons\ability_hunter_pathfinding
-## DefaultState: disabled
 
 #@no-lib-strip@
 libs\Ace3\AceGUI-3.0\AceGUI-3.0.xml
