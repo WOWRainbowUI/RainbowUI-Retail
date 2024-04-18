@@ -1,10 +1,10 @@
-lightweight tag 4e2e8e1b7e4fbd7c63e9ed5b906341cff30067eb v6.0.4
+lightweight tag bfc01e1170ae6507c10902be78f7b8571e93043c v6.0.5
 Author:	Péter Radics <mitchnull@gmail.com>
-Date:	Sat Feb 17 19:46:09 2024 +0100
+Date:	Thu Apr 18 06:17:10 2024 +0200
 
-commit 4e2e8e1b7e4fbd7c63e9ed5b906341cff30067eb
+commit bfc01e1170ae6507c10902be78f7b8571e93043c
 Author: Péter Radics <mitchnull@gmail.com>
-Date:   Sat Feb 17 19:46:09 2024 +0100
+Date:   Thu Apr 18 06:17:10 2024 +0200
 
     toc bump
 
