@@ -1,9 +1,9 @@
-## Interface: 100200
+## Interface: 100206
 ## Title: Exlist
 ## Notes: Shows various information about your characters
 ## Author: Exality
 ## SavedVariables: Exlist_DB, Exlist_Config
-## Version: 1.7.1
+## Version: 1.7.2
 ## X-Curse-Project-ID: 284907
 ## X-WoWI-ID: 24636
 ## X-Wago-ID: pkNMj6z9
