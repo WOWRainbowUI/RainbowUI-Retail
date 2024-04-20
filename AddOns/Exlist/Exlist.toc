@@ -1,0 +1,37 @@
+## Interface: 100200
+## Title: Exlist
+## Notes: Shows various information about your characters
+## Author: Exality
+## SavedVariables: Exlist_DB, Exlist_Config
+## Version: 1.7.1
+## X-Curse-Project-ID: 284907
+## X-WoWI-ID: 24636
+## X-Wago-ID: pkNMj6z9
+
+#Libs
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibQTip-1.0\LibQTip-1.0.lua
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfigRegistry-3.0\AceConfigRegistry-3.0.xml
+Libs\AceConfigDialog-3.0\AceConfigDialog-3.0.xml
+Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
+Libs\LibSharedMedia-3.0\lib.xml
+Libs\AceTimer-3.0\AceTimer-3.0.xml
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+Libs\LibDeflate\LibDeflate.lua
+Libs\AceComm-3.0\AceComm-3.0.xml
+Libs\LibSerialize\lib.xml
+
+Init.lua
+locales.xml
+
+Consts.lua
+Exlist.lua
+Util.lua
+Config.lua
+AccountSync\Config.lua
+AccountSync\Core.lua
+Modules\modules.xml
+Tooltips\Tooltips.xml
