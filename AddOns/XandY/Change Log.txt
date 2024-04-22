@@ -1,3 +1,6 @@
+== v2.38 - 20th April 2024
+* TOC Update to 10.2.7
+
 == v2.37 - 4th April 2024
 * TOC Update for Classic to 1.15.2
 
@@ -24,16 +27,16 @@
 * Fix for the new World Map style for Wrath
 
 == v2.30 - 18th September 2023
-* TOC version bump to 10.1.7
+* TOC version update to 10.1.7
 
 == v2.29 - 28th June 2023
-* TOC version bump to 10.1.5
+* TOC version update to 10.1.5
 
 == v2.27 - 24th April 2023
-* TOC version bump to 10.1.0
+* TOC version update to 10.1.0
 
 == v2.26 - 20th March 2023
-* TOC version bump to 10.0.7
+* TOC version update to 10.0.7
 
 == v2.23 - 26th October 2022
 * The changes from v2.22 are effectively live now I've updated the R version to 100000
@@ -123,7 +126,7 @@
 * This version also attempts to work with any WoW build, focusing on Legion and Vanilla for now
 
 == v1.08 - 3rd September 2017
-* TOC version bump for Patch 7.3 Shadows of Argus
+* TOC version update for Patch 7.3 Shadows of Argus
 
 == v1.07 - 21st May 2017
 * Retain any trailing zeroes for double or single digit decimal precision - less confusing and looks better
