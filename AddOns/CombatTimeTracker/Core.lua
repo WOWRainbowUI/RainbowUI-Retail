@@ -33,6 +33,7 @@ local defaults = {
         minimap = {
             hide = false,
         },
+        RaidKills = {},
         cttMenuOptions = {
             soundName = "",
             instanceType = 4,
@@ -69,6 +70,7 @@ local defaults = {
             xpacKey = 1,
             expansion = "Classic",
             resetCounterOnEndOfCombat = true,
+            selectedTab = "options"
         }
     }
 }
@@ -472,13 +474,6 @@ local backdropSettings = {
     tileSize = 16
 }
 
-local difficultyList = {
-    "LFR",
-    "Normal",
-    "Heroic",
-    "Mythic"
-}
-
 local NonHearthstones = {
     "Autographed Hearthstone Card",
     "Hearthstone Board"
@@ -594,6 +589,14 @@ function CTT:ADDON_LOADED()
 
     if longestSec == nil then
         longestSec = 0
+    end
+
+    if db.profile.RaidKills == nil then
+        db.profile.RaidKills = {}
+    end
+
+    if db.profile.cttMenuOptions.selectedTab ~= nil and db.profile.cttMenuOptions.selectedTab ~= "options" then
+        db.profile.cttMenuOptions.selectedTab = "options"
     end
 
     CTT_CheckForReload()
@@ -750,11 +753,17 @@ function CTT:Encounter_End(...)
     end
     --CTT:Print(L["Encounter Ended!"])
     local eventName, encounterID, encounterName, difficultyID, groupSize, success = ...
-    local diffIDKey = 0
+
+    local xpacValue = CTT_GetExpansionByEncounterId(encounterID)
+    local raidValue = CTT_GetRaidByZoneText()
+    local difficultyValue = CTT_GetDifficultyById(difficultyID)
+
     if success == 1 then
+        CTT_StoreBossKills(xpacValue, raidValue, encounterName, groupSize, difficultyValue, true)
         CTT_DisplayResultsBosses(encounterName, true)
     else
         CTT_DisplayResultsBosses(encounterName, false)
+        CTT_StoreBossKills(xpacValue, raidValue, encounterName, groupSize, difficultyValue, false)
     end
 end
 
@@ -926,6 +935,8 @@ function CTT:SlashCommands(input)
         --[==[@debug@
     elseif command == "debug" then
         CallSimulateBossKill()
+    elseif command == "resetbosskills" then
+        db.profile.RaidKills = nil
         --@end-debug@]==]
     end
 end
@@ -1015,14 +1026,16 @@ function CTT_InstanceTypeDisplay(key)
         end
     elseif key == 2 then
         -- handle raid stuff
-        for k, v in pairs(raidInstanceZones) do
-            if zone == v then
-                if not cttStopwatchGui:IsShown() then
-                    cttStopwatchGui:Show()
-                end
-                break
-            else
-                cttStopwatchGui:Hide()
+        for key, value in ipairs(raidInstanceZones) do
+            for k, v in ipairs(value) do
+                if zone == v then
+                    if not cttStopwatchGui:IsShown() then
+                        cttStopwatchGui:Show()
+                    end
+                    break
+                else
+                    cttStopwatchGui:Hide()
+                end 
             end
         end
     elseif key == 3 then
@@ -1040,14 +1053,16 @@ function CTT_InstanceTypeDisplay(key)
             end
         end
         -- handle raid stuff
-        for k, v in pairs(raidInstanceZones) do
-            if zone == v then
-                if not cttStopwatchGui:IsShown() then
-                    cttStopwatchGui:Show()
-                end
-                return
-            else
-                cttStopwatchGui:Hide()
+        for key, value in ipairs(raidInstanceZones) do
+            for k, v in ipairs(value) do
+                if zone == v then
+                    if not cttStopwatchGui:IsShown() then
+                        cttStopwatchGui:Show()
+                    end
+                    break
+                else
+                    cttStopwatchGui:Hide()
+                end 
             end
         end
     elseif key == 5 then
@@ -1120,6 +1135,66 @@ function CTT_DisplayResults(newRecord)
                 db.profile.cttMenuOptions.timeValues[2] ..
                 ":" .. db.profile.cttMenuOptions.timeValues[3] .. "." .. db.profile.cttMenuOptions.timeValues[5] .. ".")
         end
+    end
+end
+
+-- Get expansion by encounter identity
+function CTT_GetExpansionByEncounterId(encounterId)
+    for index, value in ipairs(raidEncounterIDs) do
+        for i, v in ipairs(value) do
+            for index2, value2 in ipairs(v) do
+                if value2 == encounterId then
+                    return xpacs[index]
+                end
+            end
+        end
+    end
+
+    return nil
+end
+
+-- Get raid instance
+function CTT_GetRaidByZoneText()
+    local zone = GetRealZoneText()
+    -- handle raid stuff
+    for key, value in ipairs(raidInstanceZones) do
+        for k, v in ipairs(value) do
+            if zone == v then
+                return v
+            end
+        end
+    end
+    return nil
+end
+
+-- Get Bossname
+function CTT_GetDifficultyById(id)
+    local name, groupType, isHeroic, isChallengeMode, displayHeroic, displayMythic, toggleDifficultyID, isLFR, minPlayers, maxPlayers = GetDifficultyInfo(id)
+    return name
+end
+
+-- Store boss kills after a kill
+function CTT_StoreBossKills(expansion, raidInstance, bossName, groupSize, difficulty, success)
+    if expansion == nil or raidInstance == nil or bossName == nil or groupSize == nil or difficulty == nil or success == nil then return end
+    local data = {
+        Expansion = expansion,
+        RaidInstance = raidInstance,
+        BossName = bossName,
+        KillTime = cttStopwatchGuiTimeText:GetText(),
+        Success = success,
+        Difficulty = difficulty,
+        GroupSize = groupSize,
+        LocalKillTime = date("%m/%d/%Y %I:%M%p")
+    }
+
+    local key = 0
+
+    if db.profile.RaidKills ~= nil then
+        key = table.getn(db.profile.RaidKills) + 1
+        db.profile.RaidKills[key] = data
+    else
+        db.profile.RaidKills = {}
+        db.profile.RaidKills[key] = data
     end
 end
 
@@ -1236,7 +1311,9 @@ function CTT_ToggleMenu()
         loadOptionsAfterCombat = true
         CTT:Print("Options menu cannot be loaded while in combat, try again after combat has ended!")
     else
-        CTT:CreateOptionsMenu()
+        if CTT.menu == nil then
+            CTT:CreateOptionsMenu()
+        end
         if CTT.menu:IsShown() then
             CTT.menu:Hide()
             CTT:Print(L["Options menu hidden, for other commands use /ctt help!"])
@@ -1494,17 +1571,41 @@ function CTT_AlertRaidDropDown(widget, event, key, checked)
     CTT.menu.tab:SelectTab("alerts")
 end
 
+function CTT_AlertRaidDropDownForRaidTab(widget, event, key, checked)
+    db.profile.cttMenuOptions.raidKey = key
+    db.profile.cttMenuOptions.raidDropdown = raidInstanceZones[db.profile.cttMenuOptions.xpacKey][key]
+    CTT.menu.tab:SelectTab("raids")
+end
+
 function CTT_ExpansionDropDown(widget, event, key, checked)
     db.profile.cttMenuOptions.xpacKey = key
     CTT.menu.tab:SelectTab("alerts")
 end
 
+function CTT_ExpansionDropDownForRaidTab(widget, event, key, checked)
+    db.profile.cttMenuOptions.xpacKey = key
+    CTT.menu.tab:SelectTab("raids")
+end
+
 function CTT_AlertBossDropDown(widget, event, key, checked)
-    CTT:Print(db.profile.cttMenuOptions.raidKey)
     db.profile.cttMenuOptions.bossDropdown = raidBosses[db.profile.cttMenuOptions.xpacKey][
     db.profile.cttMenuOptions.raidKey][key]
     db.profile.cttMenuOptions.bossDropDownkey = key
     CTT.menu.tab:SelectTab("alerts")
+end
+
+function CTT_AlertBossDropDownForRaidTab(widget, event, key, checked)
+    db.profile.cttMenuOptions.bossDropdown = raidBosses[db.profile.cttMenuOptions.xpacKey][
+    db.profile.cttMenuOptions.raidKey][key]
+    db.profile.cttMenuOptions.bossDropDownkey = key
+    CTT.menu.tab:SelectTab("raids")
+end
+
+function CTT_ClearAlertBossRaidTab()
+    if db.profile.RaidKills ~= nil then
+        db.profile.RaidKills = {}
+    end
+    CTT.menu.tab:SelectTab("raids")
 end
 
 function CTT_AlertAddButtonClicked(widget, event)
@@ -1535,6 +1636,11 @@ end
 function CTT_AlertDeleteButtonClicked(widget, event, key)
     table.remove(db.profile.cttMenuOptions.alerts, key)
     CTT.menu.tab:SelectTab("alerts")
+end
+
+function CTT_AlertDeleteButtonClickedForRaidTab(widget, event, key)
+    table.remove(db.profile.RaidKills, key)
+    CTT.menu.tab:SelectTab("raids")
 end
 
 function CTT_AlertsErrorPopup(errorCode)
@@ -1705,7 +1811,7 @@ local function OptionsMenu(container)
     textColorPicker:SetWidth(100)
     textColorPicker:ClearAllPoints()
     textColorPicker:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 0)
-    textColorPicker:SetCallback("OnValueConfirmed", CTT_ColorPickerConfirmed)
+    textColorPicker:SetCallback("OnValueChanged", CTT_ColorPickerConfirmed)
     container:AddChild(textColorPicker)
     container.textColorPicker = textColorPicker
 
@@ -1908,15 +2014,103 @@ end
 
 -- function that draws the raid tab
 local function Raids(container)
-    local Label = AceGUI:Create("Label")
-    Label:SetText("Feature Coming Soon!!")
-    Label:SetColor(255, 255, 0)
-    -- Label:SetFont("Fonts\\MORPHEUS_CYR.TTF", 12)
-    Label:SetWidth(112)
-    Label:ClearAllPoints()
-    Label:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
-    container:AddChild(Label)
-    container.Label = Label
+    --select xpac
+    local xpacDropdown = AceGUI:Create("Dropdown")
+    xpacDropdown:SetLabel("Expasion")
+    xpacDropdown:SetMultiselect(false)
+    xpacDropdown:SetList(xpacs)
+    xpacDropdown:SetText(xpacs[db.profile.cttMenuOptions.xpacKey])
+    xpacDropdown:SetValue(db.profile.cttMenuOptions.xpacKey)
+    xpacDropdown:SetWidth(125)
+    xpacDropdown:ClearAllPoints()
+    xpacDropdown:SetPoint("TOPLEFT", container.tab, "TOPLEFT", 6, 10)
+    xpacDropdown:SetCallback("OnValueChanged", CTT_ExpansionDropDownForRaidTab)
+    container:AddChild(xpacDropdown)
+    container.xpacDropdown = xpacDropdown
+
+    -- Select Raid
+    local raidDropdown = AceGUI:Create("Dropdown")
+    raidDropdown:SetLabel("Raid")
+    raidDropdown:SetMultiselect(false)
+    raidDropdown:SetList(raidInstanceZones[db.profile.cttMenuOptions.xpacKey])
+    raidDropdown:SetText(raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey])
+    raidDropdown:SetValue(db.profile.cttMenuOptions.raidKey)
+    raidDropdown:SetWidth(225)
+    raidDropdown:ClearAllPoints()
+    raidDropdown:SetPoint("LEFT", container.tab, "LEFT", 12, 10)
+    raidDropdown:SetCallback("OnValueChanged", CTT_AlertRaidDropDownForRaidTab)
+    container:AddChild(raidDropdown)
+    container.raidDropdown = raidDropdown
+
+    -- Select Boss
+    local bossDropdown = AceGUI:Create("Dropdown")
+    bossDropdown:SetLabel("Boss")
+    bossDropdown:SetMultiselect(false)
+    bossDropdown:SetList(raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey])
+    bossDropdown:SetText(raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][
+    db.profile.cttMenuOptions.bossDropDownkey])
+    bossDropdown:SetValue(db.profile.cttMenuOptions.bossDropDownkey)
+    bossDropdown:SetWidth(250)
+    bossDropdown:ClearAllPoints()
+    bossDropdown:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
+    bossDropdown:SetCallback("OnValueChanged", CTT_AlertBossDropDownForRaidTab)
+    container:AddChild(bossDropdown)
+    container.bossDropdown = bossDropdown
+
+    -- Add alert to list
+    local deleteKillsButton = AceGUI:Create("Button")
+    deleteKillsButton:SetText("Clear All")
+    deleteKillsButton:SetWidth(125)
+    deleteKillsButton:ClearAllPoints()
+    deleteKillsButton:SetPoint("LEFT", container.tab, "LEFT", 6, 10)
+    deleteKillsButton:SetCallback("OnClick", CTT_ClearAlertBossRaidTab)
+    container:AddChild(deleteKillsButton)
+    container.deleteKillsButton = deleteKillsButton
+
+    -- scroll frame for timers
+    scrollcontainer = AceGUI:Create("InlineGroup")
+    scrollcontainer:SetFullWidth(true)
+    scrollcontainer:SetFullHeight(true)
+    scrollcontainer:SetLayout("Fill")
+
+    container:AddChild(scrollcontainer)
+
+    scroll = AceGUI:Create("ScrollFrame")
+    scroll:SetLayout("Flow")
+    scroll:SetStatusTable(db.profile.RaidKills)
+    scrollcontainer:AddChild(scroll)
+
+    -- handle the scrollable alerts.
+    if db.profile.RaidKills ~= nil and table.getn(db.profile.RaidKills) > 0 then
+        for i, v in ipairs(db.profile.RaidKills) do
+            if (v.Expansion == xpacs[db.profile.cttMenuOptions.xpacKey]
+                and v.RaidInstance == raidInstanceZones[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey]
+                and v.BossName == raidBosses[db.profile.cttMenuOptions.xpacKey][db.profile.cttMenuOptions.raidKey][db.profile.cttMenuOptions.bossDropDownkey])
+                then
+                    local value = "value" .. i
+                    value = AceGUI:Create("Label")
+                    value:SetText(v.BossName .. " was killed on: " .. v.LocalKillTime ..", with a Kill Time of: " .. v.KillTime.. ", raid difficulty: " .. v.Difficulty .. ", with " .. v.GroupSize .. " players" .. ", and was killed successfully: " .. tostring(v.Success))
+                    value:SetColor(255, 255, 0)
+                    if (table.getn(db.profile.RaidKills) > 10) then
+                        value:SetWidth(600)
+                    else
+                        value:SetWidth(625)
+                    end
+                    value:ClearAllPoints()
+                    value:SetPoint("LEFT", nil, "LEFT", 6, 10)
+                    scroll:AddChild(value)
+        
+                    local deleteBtn = "btn" .. i
+                    deleteBtn = AceGUI:Create("Button")
+                    deleteBtn:SetText("X")
+                    deleteBtn:SetWidth(40)
+                    deleteBtn:ClearAllPoints()
+                    deleteBtn:SetPoint("LEFT", nil, "LEFT", 6, 10)
+                    deleteBtn:SetCallback("OnClick", function(widget) CTT_AlertDeleteButtonClickedForRaidTab(widget, event, i) end)
+                    scroll:AddChild(deleteBtn) 
+                end
+        end
+    end
 end
 
 -- function that draws the Alert Times tab
@@ -1986,15 +2180,15 @@ local function Alerts(container)
     container.addAlertButton = addAlertButton
 
     -- scroll frame for timers
-    scrollcontainer = AceGUI:Create("InlineGroup") -- "InlineGroup" is also good
+    scrollcontainer = AceGUI:Create("InlineGroup")
     scrollcontainer:SetFullWidth(true)
-    scrollcontainer:SetFullHeight(true)            -- probably?
-    scrollcontainer:SetLayout("Fill")              -- important!
+    scrollcontainer:SetFullHeight(true)
+    scrollcontainer:SetLayout("Fill")
 
     container:AddChild(scrollcontainer)
 
     scroll = AceGUI:Create("ScrollFrame")
-    scroll:SetLayout("Flow") -- probably?
+    scroll:SetLayout("Flow")
     scroll:SetStatusTable(db.profile.cttMenuOptions.alerts)
     scrollcontainer:AddChild(scroll)
 
@@ -2030,6 +2224,7 @@ end
 
 local function SelectGroup(container, event, group)
     container:ReleaseChildren()
+    db.profile.cttMenuOptions.selectedTab = group
     if group == "options" then
         OptionsMenu(container)
     elseif group == "dungeons" then
@@ -2072,6 +2267,8 @@ function CTT:CreateOptionsMenu()
     -- add to the frame container
     menu:AddChild(tab)
     menu.tab = tab
+
+    CTT.menu.tab:SelectTab(group)
 
     -- Add frame to the global variable table so that pressing escape key closes the menu frame
     _G["CombatTimeTrackerMenu"] = menu.frame

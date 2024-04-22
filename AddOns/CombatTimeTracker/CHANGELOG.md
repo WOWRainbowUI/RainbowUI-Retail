@@ -1,6 +1,7 @@
 # Combat Time Tracker
 
-## [v10.2.5.5](https://github.com/gkute/CombatTimeTracker/tree/v10.2.5.5) (2024-01-21)
-[Full Changelog](https://github.com/gkute/CombatTimeTracker/compare/v10.2.5.4...v10.2.5.5) [Previous Releases](https://github.com/gkute/CombatTimeTracker/releases)
+## [v10.2.5.7](https://github.com/gkute/CombatTimeTracker/tree/v10.2.5.7) (2024-04-20)
+[Full Changelog](https://github.com/gkute/CombatTimeTracker/compare/v10.2.5.6...v10.2.5.7) [Previous Releases](https://github.com/gkute/CombatTimeTracker/releases)
 
-- fix badge status  
+- clarify comment  
+- add new feature to store boss kills  
