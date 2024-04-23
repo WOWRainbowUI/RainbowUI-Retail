@@ -107,9 +107,10 @@ end
 local Masque, MasqueVersion = LibStub('Masque', true)
 
 if Masque then
-    -- masque not installed
+    local L = LibStub("AceLocale-3.0"):GetLocale(AddonName)
+	-- masque not installed
     function ButtonThemer:Register(button, groupName, ...)
-        local group = Masque:Group(AddonName, groupName)
+        local group = Masque:Group(L.AddonName, groupName)
 
         group:AddButton(button, ...)
 
@@ -119,7 +120,7 @@ if Masque then
     end
 
     function ButtonThemer:Unregister(button, groupName)
-        local group = Masque:Group(AddonName, groupName)
+        local group = Masque:Group(L.AddonName, groupName)
 
         group:RemoveButton(button)
 
