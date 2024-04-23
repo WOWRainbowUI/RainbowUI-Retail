@@ -921,6 +921,11 @@ do  -- Dispell Icon ------------------------------------------------------------
 		if (dir == 0.5 and alp > 0.7) or (dir == -0.5 and alp < 0.3) then
 			this.dir = dir * -1
 		end
+		if alp > 0.7 then  -- 自行修正
+			alp = 0.7
+		elseif alp < 0.3 then
+			alp = 0.3
+		end
 		this.alp = alp
 		this:SetAlpha(alp)  -- flash between 0.3 and 0.7 alpha
 	end
