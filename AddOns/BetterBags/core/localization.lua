@@ -243,6 +243,13 @@ if GetLocale() == "zhTW" then
 	L.data["Mog - Tradable"] = "外觀 (可交易)"
 	L.data["Mog - Sellable"] = "外觀 (可賣出)"
 	
+		--Old
+		L.data["Known - BoE"] = "裝備綁定 (已收集外觀) "
+		L.data["Known - BoP"] = "靈魂綁定 (已收集外觀) "
+		L.data["Unknown - "] = "外觀 (未收集) "
+		L.data["Unknown - Other Classes"] = "外觀 (未收集) "
+		L.data["Other Classes"] = "其他職業"
+	
 	-- BetterBags-Bound
 	L.data["BoA"] = "帳號綁定"
 	L.data["BoE"] = "裝備綁定"
