@@ -351,6 +351,8 @@ L["Bounty stacks after this pull"] = "此次拉怪也會引到"
 L["Bracken Warscourge"] = "Bracken Warscourge"
 --[[Translation missing --]]
 L["Brackenhide Shaper"] = "Brackenhide Shaper"
+--[[Translation missing --]]
+L["brackenhideCage"] = "Meat Storage"
 L["BrackenhideHollow"] = "蕨皮谷"
 --[[Translation missing --]]
 L["Brain of Yogg-Saron"] = "Brain of Yogg-Saron"
@@ -438,6 +440,8 @@ L["Chrono-Lord Epoch"] = "Chrono-Lord Epoch"
 L["Claw Fighter"] = "Claw Fighter"
 L["Click the fullscreen button for a maximized view of MDT."] = "點一下全螢幕按鈕來最大化 MDT 的畫面"
 L["Click to adjust color settings"] = "點一下調整顏色設定"
+--[[Translation missing --]]
+L["Click to assign player"] = ""
 L["Click to go to %s"] = "點一下前往 %s"
 L["Click to set dungeon level to 10"] = "點一下將地城層數設為 10"
 L["Click to switch to current week"] = "點一下切換到這週"
@@ -738,6 +742,8 @@ L["Dragonflayer Weaponsmith"] = "Dragonflayer Weaponsmith"
 L["Dragonflight Season 1"] = "巨龍崛起第1季"
 L["Dragonflight Season 2"] = "巨龍崛起第2季"
 L["Dragonflight Season 3"] = "巨龍崛起第3季"
+--[[Translation missing --]]
+L["Dragonflight Season 4"] = "Dragonflight Season 4"
 L["Dragonkin"] = "龍類"
 --[[Translation missing --]]
 L["Drakkari Bat"] = "Drakkari Bat"
@@ -1798,6 +1804,8 @@ L["Neltharion's Lair"] = "奈薩里奧巢穴"
 L["Neltharion's Lair Sublevel"] = "奈薩里奧巢穴"
 L["Neltharus"] = "奈薩魯斯堡"
 --[[Translation missing --]]
+L["neltharusChain"] = "Burning Chain"
+--[[Translation missing --]]
 L["Ner'zhul"] = "Ner'zhul"
 L["Netherspace"] = "虛空空間"
 L["New"] = "新增"
@@ -2206,6 +2214,8 @@ L["Rook Spiderling"] = "鸦堡小蜘蛛"
 L["Rook Spinner"] = "鸦堡织网蛛"
 L["Root"] = "定身"
 L["Rotation"] = "循環"
+--[[Translation missing --]]
+L["Rotbow Ranger"] = "Rotbow Ranger"
 --[[Translation missing --]]
 L["Rotbow Stalker"] = "Rotbow Stalker"
 --[[Translation missing --]]
