@@ -77,6 +77,7 @@ L["Sanctum of the Sages"] = "賢者聖所"
 L["Rustbolt"] = "鏽栓鎮"
 L["Oribos"] = "奧睿博司"
 L["Valdrakken"] = "沃卓肯"
+L["The Roasted Ram"] = "炙烤公羊旅店"
 
 -- Display
 L["DisplayOptions"] = "顯示"

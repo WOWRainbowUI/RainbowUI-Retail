@@ -7,7 +7,7 @@ local fonts = SM:List("font")
 local _
 
 Spy = LibStub("AceAddon-3.0"):NewAddon("Spy", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceTimer-3.0")
-Spy.Version = "3.10.8"
+Spy.Version = "3.10.9"
 Spy.DatabaseVersion = "1.1"
 Spy.Signature = "[Spy]"
 Spy.ButtonLimit = 15
@@ -172,6 +172,7 @@ Spy.options = {
 						["Rustbolt"] = L["Rustbolt"],
 						["Oribos"] = L["Oribos"],
 						["Valdrakken"] = L["Valdrakken"],
+						["The Roasted Ram"] = L["The Roasted Ram"],						
 					},
 				},
 				ShowOnDetection = {
@@ -1454,6 +1455,7 @@ local Default_Profile = {
 			["Rustbolt"] = false,
 			["Oribos"] = false,
 			["Valdrakken"] = false,
+			["The Roasted Ram"] = false,			
 		},
 	},
 }
