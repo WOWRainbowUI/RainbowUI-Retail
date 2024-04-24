@@ -1,4 +1,7 @@
 BaganatorBankViewMixin = {}
+
+local _, addonTable = ...
+
 function BaganatorBankViewMixin:OnLoad()
   ButtonFrameTemplate_HidePortrait(self)
   ButtonFrameTemplate_HideButtonBar(self)
@@ -81,7 +84,9 @@ function BaganatorBankViewMixin:OnLoad()
   end)
 
   Baganator.CallbackRegistry:RegisterCallback("CharacterSelect", function(_, character)
-    self:UpdateForCharacter(character, self.liveCharacter == character and self.liveBankActive)
+    if self:IsVisible() and character ~= self.lastCharacter then
+      self:UpdateForCharacter(character, self.liveCharacter == character and self.liveBankActive)
+    end
   end)
 
   Baganator.CallbackRegistry:RegisterCallback("SpecialBagToggled", function(_, character)
@@ -90,7 +95,7 @@ function BaganatorBankViewMixin:OnLoad()
     end
   end)
 
-  Baganator.CallbackRegistry:RegisterCallback("CharacterDeleted", function(_, character)
+  Syndicator.CallbackRegistry:RegisterCallback("CharacterDeleted", function(_, character)
     self.tabsSetup = false
     if self.lastCharacter == character then
       self:UpdateForCharacter(self.liveCharacter, true)
@@ -276,12 +281,12 @@ function BaganatorBankViewMixin:UpdateBagSlots()
   end
 
   -- Show cached bag slots when viewing cached bank bags for other characters
-  local containerInfo = SYNDICATOR_DATA.Characters[self.lastCharacter].containerInfo
+  local containerInfo = Syndicator.API.GetCharacter(self.lastCharacter).containerInfo
   if not self.isLive and containerInfo and containerInfo.bank then
     local show = Baganator.Config.Get(Baganator.Config.Options.BANK_ONLY_VIEW_SHOW_BAG_SLOTS)
     for index, bb in ipairs(self.cachedBankBagSlots) do
       local details = CopyTable(containerInfo.bank[index] or {})
-      details.itemCount = Baganator.Utilities.CountEmptySlots(SYNDICATOR_DATA.Characters[self.lastCharacter].bank[index + 1])
+      details.itemCount = Baganator.Utilities.CountEmptySlots(Syndicator.API.GetCharacter(self.lastCharacter).bank[index + 1])
       bb:SetItemDetails(details)
       if not details.iconTexture and not Baganator.Config.Get(Baganator.Config.Options.EMPTY_SLOT_BACKGROUND) then
         local _, texture = GetInventorySlotInfo("Bag1")
@@ -372,7 +377,7 @@ function BaganatorBankViewMixin:UpdateForCharacter(character, isLive, updatedBag
     layout:ShowCharacter(character, "bank", Syndicator.Constants.AllBankIndexes, self.CollapsingBankBags[index].indexesToUse, bankWidth)
   end
 
-  local characterData = SYNDICATOR_DATA.Characters[character]
+  local characterData = Syndicator.API.GetCharacter(character)
   if not characterData then
     self:SetTitle("")
   else
@@ -500,7 +505,7 @@ function BaganatorBankViewMixin:NotifyBagUpdate(updatedBags)
 end
 
 function BaganatorBankViewMixin:CombineStacks(callback)
-  Baganator.Sorting.CombineStacks(SYNDICATOR_DATA.Characters[self.liveCharacter].bank, Syndicator.Constants.AllBankIndexes, function(status)
+  Baganator.Sorting.CombineStacks(Syndicator.API.GetCharacter(self.liveCharacter).bank, Syndicator.Constants.AllBankIndexes, function(status)
     self.sortManager:Apply(status, function()
       self:CombineStacks(callback)
     end, function()
@@ -522,7 +527,7 @@ function BaganatorBankViewMixin:DoSort(isReverse)
 
   local function DoSortInternal()
     local status = Baganator.Sorting.ApplyOrdering(
-      SYNDICATOR_DATA.Characters[self.liveCharacter].bank,
+      Syndicator.API.GetCharacter(self.liveCharacter).bank,
       Syndicator.Constants.AllBankIndexes,
       indexesToUse,
       bagChecks,
@@ -544,10 +549,8 @@ function BaganatorBankViewMixin:CombineStacksAndSort(isReverse)
     sortMethod = Baganator.Config.Get(Baganator.Config.Options.SORT_METHOD)
   end
 
-  if sortMethod == "blizzard" then
-    Baganator.Sorting.BlizzardBankSort(isReverse)
-  elseif sortMethod == "sortbags" then
-    Baganator.Sorting.ExternalSortBagsBank(isReverse)
+  if addonTable.ExternalContainerSorts[sortMethod] then
+    addonTable.ExternalContainerSorts[sortMethod].callback(isReverse, Baganator.API.Constants.ContainerType.Bank)
   elseif sortMethod == "combine_stacks_only" then
     self:CombineStacks(function() end)
   else
@@ -564,7 +567,7 @@ function BaganatorBankViewMixin:RemoveSearchMatches(callback)
     tAppendAll(matches, layouts.live.SearchMonitor:GetMatches())
   end
 
-  local emptyBagSlots = Baganator.Transfers.GetEmptyBagsSlots(SYNDICATOR_DATA.Characters[self.liveCharacter].bags, Syndicator.Constants.AllBagIndexes)
+  local emptyBagSlots = Baganator.Transfers.GetEmptyBagsSlots(Syndicator.API.GetCharacter(self.liveCharacter).bags, Syndicator.Constants.AllBagIndexes)
 
   local status = Baganator.Transfers.FromBagsToBags(matches, Syndicator.Constants.AllBagIndexes, emptyBagSlots)
 

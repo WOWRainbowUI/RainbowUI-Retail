@@ -73,7 +73,8 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_ITEM_LEVEL, "item_level", functio
 end, textInit)
 
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOE, "boe", function(BindingText, details)
-  if IsEquipment(details.itemLink) and not details.isBound and (iconSettings.boe_on_common or details.quality > 1) then
+  local classID = select(6, GetItemInfoInstant(details.itemLink))
+  if (IsEquipment(details.itemLink) or classID == Enum.ItemClass.Container) and not details.isBound and (iconSettings.boe_on_common or details.quality > 1) then
       BindingText:SetText(BAGANATOR_L_BOE)
       if iconSettings.useQualityColors then
         local color = qualityColors[details.quality]
@@ -217,13 +218,40 @@ end)
 
 Baganator.Utilities.OnAddonLoaded("Pawn", function()
   Baganator.API.RegisterCornerWidget(BAGANATOR_L_PAWN, "pawn", function(Arrow, details)
-    return PawnShouldItemLinkHaveUpgradeArrowUnbudgeted(details.itemLink)
+    return HasItemLevel(details) and PawnShouldItemLinkHaveUpgradeArrowUnbudgeted(details.itemLink)
   end, function(itemButton)
     local Arrow = itemButton:CreateTexture(nil, "OVERLAY")
     Arrow:SetTexture("Interface\\AddOns\\Pawn\\Textures\\UpgradeArrow")
     Arrow:SetSize(13.5, 15)
     return Arrow
   end, {corner = "top_left", priority = 1})
+
+  -- Equip/unequip
+  Syndicator.CallbackRegistry:RegisterCallback("EquippedCacheUpdate", function()
+    if Baganator.API.IsCornerWidgetActive("pawn") then
+      Baganator.API.RequestItemButtonsRefresh()
+    end
+  end)
+  -- Spec change
+  hooksecurefunc("PawnInvalidateBestItems", function()
+    if Baganator.API.IsCornerWidgetActive("pawn") then
+      Baganator.API.RequestItemButtonsRefresh()
+    end
+  end)
+  -- Settings change
+  hooksecurefunc("PawnResetTooltips", function()
+    if Baganator.API.IsCornerWidgetActive("pawn") then
+      Baganator.API.RequestItemButtonsRefresh()
+    end
+  end)
+  -- Level up
+  local frame = CreateFrame("Frame")
+  frame:RegisterEvent("PLAYER_LEVEL_UP")
+  frame:SetScript("OnEvent", function()
+    if Baganator.API.IsCornerWidgetActive("pawn") then
+      Baganator.API.RequestItemButtonsRefresh()
+    end
+  end)
 end)
 
 Baganator.Utilities.OnAddonLoaded("CanIMogIt", function()
@@ -247,6 +275,15 @@ Baganator.Utilities.OnAddonLoaded("CanIMogIt", function()
     itemButton.CanIMogItOverlay.CIMIIconTexture:SetPoint("TOPRIGHT")
     return itemButton.CanIMogItOverlay
   end, {corner = "top_right", priority = 1})
+
+  local function Callback()
+    if Baganator.API.IsCornerWidgetActive("can_i_mog_it") then
+      Baganator.API.RequestItemButtonsRefresh()
+    end
+  end
+  CanIMogIt:RegisterMessage("OptionUpdate", function()
+    pcall(Callback)
+  end)
 end)
 
 Baganator.Utilities.OnAddonLoaded("BattlePetBreedID", function()
@@ -275,7 +312,7 @@ end)
 
 if Baganator.Constants.IsRetail then
   Baganator.API.RegisterCornerWidget(BAGANATOR_L_BATTLE_PET_LEVEL, "battle_pet_level", function(Level, details)
-    if not details.itemID == Syndicator.Constants.BattlePetCageID then
+    if details.itemID ~= Syndicator.Constants.BattlePetCageID then
       return false
     end
     if iconSettings.useQualityColors then
