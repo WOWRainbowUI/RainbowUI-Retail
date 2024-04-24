@@ -179,6 +179,7 @@ local defaults = {
 
             showHitIndicator = true,
             showSpecialbar = true,
+            specialbarFixPosition = true,
             showRestIcon = true,
             showStatusTexture = true,
             showAttackBackground = true,
