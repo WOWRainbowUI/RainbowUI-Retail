@@ -8,6 +8,15 @@ local UnitClass = UnitClass
 local GetActionInfo = GetActionInfo
 local GetMacroBody = GetMacroBody
 local trim = strtrim
+local GetItemInfoInstant = C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant
+local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
+local GetSpellInfo = C_Spell and C_Spell.GetSpellInfo and function (spell)
+	local tbl = C_Spell.GetSpellInfo(spell);
+	if not tbl then
+		return nil
+	end
+	return tbl.name, nil, tbl.iconID, tbl.castTime, tbl.minRange, tbl.maxRange, tbl.spellID, tbl.originalIconID
+end or GetSpellInfo
 
 local HelpTipBox_Anchor = Internal.HelpTipBox_Anchor;
 local HelpTipBox_SetText = Internal.HelpTipBox_SetText;
@@ -1335,8 +1344,7 @@ function BtWLoadoutsActionBarsMixin:Update()
 	
 	local showingNPE = BtWLoadoutsFrame:SetNPEShown(set == nil, L["Action Bars"], L["Create different action bar layouts, including stealth, form, and stance bars. You can ignore specific action buttons or entire bars."])
         
-	self:GetParent().ExportButton:SetEnabled(true)
-    self:GetParent().RefreshButton:SetEnabled(true)
+	self:GetParent().ExportButton:SetEnabled(true);
     self:GetParent().ActivateButton:SetEnabled(true);
     self:GetParent().DeleteButton:SetEnabled(true);
 
@@ -1362,7 +1370,9 @@ function BtWLoadoutsActionBarsMixin:Update()
             if icon ~= nil and icon ~= 134400 then
                 slots[slot].icon = icon
             end
-		end
+        end
+
+        self:GetParent().RefreshButton:SetEnabled(Internal.AreRestrictionsValidForPlayer(set.restrictions));
 
 		local helpTipBox = self:GetParent().HelpTipBox;
         if not BtWLoadoutsHelpTipFlags["ACTIONBAR_IGNORE"] then
