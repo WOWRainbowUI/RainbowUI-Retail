@@ -1,60 +1,42 @@
-# [5.12.6](https://github.com/WeakAuras/WeakAuras2/tree/5.12.6) (2024-04-02)
+# [5.12.8](https://github.com/WeakAuras/WeakAuras2/tree/5.12.8) (2024-04-09)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.12.5...5.12.6)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.12.7...5.12.8)
 
 ## Highlights
 
- - Added DBM_TimerUpdateIcon event listener
-- Faction Reputation trigger rework
-- More Cataclysm updates
+ - More Cataclysm updates
 - Bug fixes 
 
 ## Commits
 
-Artemis (1):
+InfusOnWoW (4):
 
-- Add DBM_TimerUpdateIcon event listener (#4916)
+- Adjust atlas_update.lua for Private type declaration changes
+- update-atlas-files.sh: Add +x mode back
+- Options Window: Shift Selection don't select hidden buttons
+- Conditions: Fix tick_placement property not being reversible
 
-Boneshock (2):
+Stanzilla (2):
 
-- Faction Reputation trigger rework (#4968)
-- Hide boolean types in text replacements tooltips
+- Refactor of ModelPaths update script (#4990)
+- Type and comment updates
 
-InfusOnWoW (5):
+dependabot[bot] (3):
 
-- Update Atlas File List from wago.tools
-- Fix lua error for OnHide Animations in certain cases
-- Cast Trigger: Fix Spell ID/names being invisible
-- No global names for WeakAurasDisplayButtons and WeakAurasImportButtons
-- Update Atlas File List from wago.tools
+- Bump tsickert/discord-webhook from 5.5.0 to 6.0.0
+- Bump cbrgm/mastodon-github-action from 2.0.5 to 2.0.6
+- Bump Stanzilla/cat from 2.0.1 to 2.0.2
 
-Leon Solis III (1):
+emptyrivers (3):
 
-- Add GitHub Actions workflows for Release Notifications (#4952)
+- improve AddMany data flow
+- fix some more type annotations
+- LuaLS but it actually works now (#4982)
 
-Stanzilla (4):
+mrbuds (4):
 
-- Fix typo in docs and add more globals
-- CI: Tweaks to release notifications
-- CI: Use my forked cat action
-- Workflow tweaks
-
-dependabot[bot] (1):
-
-- Bump tsickert/discord-webhook from 5.4.0 to 5.5.0
-
-emptyrivers (2):
-
-- add a label to bool property changes (#4969)
-- invite users to try Bisector when reporting issues
-
-mrbuds (7):
-
-- Revert "No global names for WeakAurasDisplayButtons and WeakAurasImportButtons" as it break login on Cataclysm, fixes #4976
-- add eclipseDirection to power trigger
-- Add Eclipse power type for Cataclysm
-- Classic: use model_fileId instead of model_path
-- Remove ResizeBounds workaround
-- Fix SpinBox offsets on Cataclysm
-- Fix profiling window on classic_era/wotlk/cata
+- Cataclysm: use EncounterJournal for encounter ids and zone ids
+- Add Sunken Temple encounterIds
+- Fix nil error in migration 73
+- add some types (#4995)
 
