@@ -511,7 +511,7 @@ function Core:MovePlayerPowerBar()
         adXOffset = 4
     end
 
-    if (frame) then
+    if (frame and db.player.specialbarFixPosition) then
         local point, relativeTo, relativePoint, xOffset, yOffset = frame:GetPoint()
 
         if point then

@@ -199,6 +199,10 @@ L["Player manabar text format"] = true
 L["Set the player manabar text format"] = true
 L["Show player specialbar"] = true
 L["Show or hide the player specialbar, like Paladin's holy power, Priest's orbs, Monk's harmony or Warlock's soul shards"] = true
+L["Allow Easy Frames to fix the position of the specialbar frame"] = true
+L["If the setting is enabled, Easy Frames will change the position of the specialbar and set it closer to the PlayerFrame. " ..
+    "Otherwise, the position can be changed by other addons and Easy Frames will not block its change.\n\n"..
+    "When you change this option you need to reload your UI. \n\nCommand /reload"] = true
 L["Show player resting icon"] = true
 L["Show or hide player resting icon when player is resting (e.g. in the tavern or in the capital)"] = true
 L["Show player status texture (inside the frame)"] = true

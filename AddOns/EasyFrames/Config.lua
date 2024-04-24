@@ -1309,9 +1309,22 @@ local playerOptions = {
                     arg = "player"
                 },
 
-                showRestIcon = {
+                specialbarFixPosition = {
                     type = "toggle",
                     order = 4,
+                    name = L["Allow Easy Frames to fix the position of the specialbar frame"],
+                    desc = L["If the setting is enabled, Easy Frames will change the position of the specialbar and set it closer to the PlayerFrame. " ..
+                        "Otherwise, the position can be changed by other addons and Easy Frames will not block its change.\n\n"..
+                        "When you change this option you need to reload your UI. \n\nCommand /reload"],
+                    set = function(info, value)
+                        setOpt(info, value)
+                    end,
+                    arg = "player"
+                },
+
+                showRestIcon = {
+                    type = "toggle",
+                    order = 5,
                     width = "double",
                     name = L["Show player resting icon"],
                     desc = L["Show or hide player resting icon when player is resting (e.g. in the tavern or in the capital)"],
@@ -1324,7 +1337,7 @@ local playerOptions = {
 
                 showStatusTexture = {
                     type = "toggle",
-                    order = 5,
+                    order = 6,
                     width = "double",
                     name = L["Show player status texture (inside the frame)"],
                     desc = L["Show or hide player status texture (blinking glow inside the frame when player is resting or in combat)"],
@@ -1337,7 +1350,7 @@ local playerOptions = {
 
                 showAttackBackground = {
                     type = "toggle",
-                    order = 6,
+                    order = 7,
                     width = "double",
                     name = L["Show player combat texture (outside the frame)"],
                     desc = L["Show or hide player red background texture (blinking red glow outside the frame in combat)"],
@@ -1350,7 +1363,7 @@ local playerOptions = {
 
                 attackBackgroundOpacity = {
                     type = "range",
-                    order = 7,
+                    order = 8,
                     name = L["Opacity"],
                     desc = L["Opacity of combat texture"],
                     min = 0.1,
@@ -1371,7 +1384,7 @@ local playerOptions = {
 
                 showGroupIndicator = {
                     type = "toggle",
-                    order = 8,
+                    order = 9,
                     width = "double",
                     name = L["Show player group number"],
                     desc = L["Show or hide player group number when player is in a raid group (over portrait)"],
@@ -1384,7 +1397,7 @@ local playerOptions = {
 
                 showRoleIcon = {
                     type = "toggle",
-                    order = 9,
+                    order = 10,
                     width = "double",
                     name = L["Show player role icon"],
                     desc = L["Show or hide player role icon when player is in a group"],
@@ -1397,7 +1410,7 @@ local playerOptions = {
 
                 showPVPIcon = {
                     type = "toggle",
-                    order = 10,
+                    order = 11,
                     width = "double",
                     name = L["Show player PVP icon"],
                     desc = L["Show or hide player PVP icon"],
