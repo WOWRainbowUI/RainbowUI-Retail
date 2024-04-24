@@ -12,13 +12,13 @@ CraftSim.SIMULATION_MODE.recipeData = nil
 ---@type CraftSim.SpecializationData?
 CraftSim.SIMULATION_MODE.specializationData = nil
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SIMULATION_MODE)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SIMULATION_MODE)
 
 function CraftSim.SIMULATION_MODE:ResetSpecData()
     CraftSim.SIMULATION_MODE.specializationData = CraftSim.SIMULATION_MODE.recipeData.specializationData:Copy()
 
     CraftSim.SIMULATION_MODE.FRAMES:InitSpecModBySpecData() -- revert
-    CraftSim.MAIN:TriggerModuleUpdate()
+    CraftSim.INIT:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:MaxSpecData()
@@ -33,7 +33,7 @@ function CraftSim.SIMULATION_MODE:MaxSpecData()
 
     CraftSim.SIMULATION_MODE.specializationData:UpdateProfessionStats()
     CraftSim.SIMULATION_MODE.FRAMES:InitSpecModBySpecData() -- update
-    CraftSim.MAIN:TriggerModuleUpdate()
+    CraftSim.INIT:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:OnSpecModified(userInput, nodeModFrame)
@@ -75,14 +75,14 @@ function CraftSim.SIMULATION_MODE:OnSpecModified(userInput, nodeModFrame)
 
     CraftSim.SIMULATION_MODE.specializationData:UpdateProfessionStats()
 
-    CraftSim.MAIN:TriggerModuleUpdate()
+    CraftSim.INIT:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:OnStatModifierChanged(userInput)
     if not userInput then
         return
     end
-    CraftSim.MAIN:TriggerModuleUpdate()
+    CraftSim.INIT:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:OnInputAllocationChanged(inputBox, userInput)
@@ -105,7 +105,7 @@ function CraftSim.SIMULATION_MODE:OnInputAllocationChanged(inputBox, userInput)
         inputBox:SetText(inputNumber)
     end
 
-    CraftSim.MAIN:TriggerModuleUpdate()
+    CraftSim.INIT:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:AllocateAllByQuality(qualityID)
@@ -127,7 +127,7 @@ function CraftSim.SIMULATION_MODE:AllocateAllByQuality(qualityID)
         end
     end
 
-    CraftSim.MAIN:TriggerModuleUpdate()
+    CraftSim.INIT:TriggerModuleUpdate()
 end
 
 function CraftSim.SIMULATION_MODE:UpdateProfessionStatModifiersByInputs()
@@ -234,7 +234,7 @@ function CraftSim.SIMULATION_MODE:UpdateSimulationMode()
 end
 
 function CraftSim.SIMULATION_MODE:UpdateRecipeDataBuffsBySimulatedBuffs()
-    local print = CraftSim.UTIL:SetDebugPrint("BUFFDATA")
+    local print = CraftSim.DEBUG:SetDebugPrint("BUFFDATA")
     local recipeData = CraftSim.SIMULATION_MODE.recipeData
 
     if not recipeData then return end
@@ -273,5 +273,5 @@ function CraftSim.SIMULATION_MODE:InitializeSimulationMode(recipeData)
     CraftSim.SIMULATION_MODE:UpdateSimulationMode()
 
     -- recalculate modules
-    CraftSim.MAIN:TriggerModuleUpdate()
+    CraftSim.INIT:TriggerModuleUpdate()
 end

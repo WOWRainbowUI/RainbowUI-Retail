@@ -2,13 +2,15 @@
 local CraftSim = select(2, ...)
 
 local GGUI = CraftSim.GGUI
+local GUTIL = CraftSim.GUTIL
 
 CraftSim.CUSTOMER_HISTORY.FRAMES = {}
 CraftSim.CUSTOMER_HISTORY.timeoutSeconds = 5
 
 CraftSim.CUSTOMER_HISTORY.frame = nil
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CUSTOMER_HISTORY)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CUSTOMER_HISTORY)
+local f = GUTIL:GetFormatter()
 
 ---@param LOCALIZATION_ID CraftSim.LOCALIZATION_IDS
 local function L(LOCALIZATION_ID)
@@ -29,10 +31,12 @@ function CraftSim.CUSTOMER_HISTORY.FRAMES:Init()
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        frameStrata = "DIALOG",
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesCustomerHistory"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesCustomerHistory"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = CraftSim.UTIL:NextFrameLevel()
     })
 
     local function createContent(frame)
@@ -410,7 +414,6 @@ function CraftSim.CUSTOMER_HISTORY.FRAMES:UpdateCustomerCraftHistory(craftHistor
             return craftA.timestamp > craftB.timestamp
         end)
 
-    local f = CraftSim.UTIL:GetFormatter()
     for _, craft in pairs(craftsSorted) do
         craftList:Add(function(row)
             local columns = row.columns
@@ -480,7 +483,6 @@ function CraftSim.CUSTOMER_HISTORY.FRAMES:UpdateCustomerChatHistory(customer, ch
         table.insert(chatMessages, chatMessage)
     end
 
-    local f = CraftSim.UTIL:GetFormatter()
     for _, chatMessage in pairs(chatMessages) do
         chatMessageList:Add(function(row)
             local columns = row.columns

@@ -1,11 +1,11 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
----@class CraftSim.ProfessionStats
+---@class CraftSim.ProfessionStats : CraftSim.CraftSimObject
 ---@overload fun(serialized: boolean?):CraftSim.ProfessionStats
-CraftSim.ProfessionStats = CraftSim.Object:extend()
+CraftSim.ProfessionStats = CraftSim.CraftSimObject:extend()
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.DATAEXPORT)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.DATAEXPORT)
 
 ---@param serialized boolean?
 function CraftSim.ProfessionStats:new(serialized)
@@ -174,7 +174,7 @@ function CraftSim.ProfessionStats:GetTooltipText(maxProfessionStats)
 	end
 
 	-- for specializationData help tooltip
-	local f = CraftSim.UTIL:GetFormatter()
+	local f = CraftSim.GUTIL:GetFormatter()
 	-- use the maxProfessionStats as reference to show the line at all
 	local text =
 		((maxProfessionStats.skill.value > 0 and (CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.STAT_SKILL) .. ": " .. r(self.skill.value) .. " / " .. f.grey(r(maxProfessionStats.skill.value)) .. "\n")) or "") ..

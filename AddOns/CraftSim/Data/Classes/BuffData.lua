@@ -3,15 +3,15 @@ local CraftSim = select(2, ...)
 
 local GUTIL = CraftSim.GUTIL
 
----@class CraftSim.BuffData
+---@class CraftSim.BuffData : CraftSim.CraftSimObject
 ---@overload fun(recipeData: CraftSim.RecipeData): CraftSim.BuffData
-CraftSim.BuffData = CraftSim.Object:extend()
+CraftSim.BuffData = CraftSim.CraftSimObject:extend()
 
 local L = CraftSim.UTIL:GetLocalizer()
 
 local debug = false
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.BUFFDATA)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.BUFFDATA)
 
 ---@param recipeData CraftSim.RecipeData
 function CraftSim.BuffData:new(recipeData)

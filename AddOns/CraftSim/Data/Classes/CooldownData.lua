@@ -3,11 +3,11 @@ local CraftSim = select(2, ...)
 
 local GUTIL = CraftSim.GUTIL
 
----@class CraftSim.CooldownData
+---@class CraftSim.CooldownData : CraftSim.CraftSimObject
 ---@overload fun(recipeID: RecipeID): CraftSim.CooldownData
-CraftSim.CooldownData = CraftSim.Object:extend()
+CraftSim.CooldownData = CraftSim.CraftSimObject:extend()
 
-local print = CraftSim.UTIL:SetDebugPrint("COOLDOWNS")
+local print = CraftSim.DEBUG:SetDebugPrint("COOLDOWNS")
 
 ---@param recipeID RecipeID
 function CraftSim.CooldownData:new(recipeID)
@@ -120,7 +120,8 @@ function CraftSim.CooldownData:GetCurrentCharges()
     if self.maxCharges > 0 then
         local currentTime = GetServerTime()
         local diffTotal = currentTime - self.startTime
-        return math.floor(diffTotal / self.cooldownPerCharge)
+        local currentCharges = math.floor(diffTotal / self.cooldownPerCharge)
+        return math.min(currentCharges, self.maxCharges)
     end
 
     if self.isDayCooldown or self.maxCharges == 0 then
@@ -131,7 +132,7 @@ end
 function CraftSim.CooldownData:GetAllChargesFullDateFormatted()
     local allchargesFullTime = self:GetAllChargesFullTimestamp()
 
-    local date = date("!*t", allchargesFullTime)
+    local date = date("*t", allchargesFullTime) -- with local time support = *t instead of !*T ?
 
     return string.format("%02d.%02d.%d %02d:%02d", date.day, date.month, date.year, date.hour, date.min),
         GetServerTime() <= allchargesFullTime
@@ -200,7 +201,9 @@ function CraftSim.CooldownData:DeserializeForCrafter(crafterUID, recipeID)
     local serializedCooldownData = CraftSimRecipeDataCache.cooldownCache[crafterUID][serializationID]
 
     if serializedCooldownData then
-        return CraftSim.CooldownData:Deserialize(serializedCooldownData)
+        local data = CraftSim.CooldownData:Deserialize(serializedCooldownData)
+        data.isCooldownRecipe = true
+        return data
     else
         return CraftSim.CooldownData(recipeID)
     end

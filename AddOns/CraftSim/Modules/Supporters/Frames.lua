@@ -1,11 +1,21 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
+local GUTIL = CraftSim.GUTIL
+
+local f = GUTIL:GetFormatter()
+
+---@class CraftSim.SUPPORTERS
+CraftSim.SUPPORTERS = CraftSim.SUPPORTERS
+
+---@class CraftSim.SUPPORTERS.FRAMES
 CraftSim.SUPPORTERS.FRAMES = {}
 
 function CraftSim.SUPPORTERS.FRAMES:Init()
     local sizeX = 600
     local sizeY = 500
+
+    local frameLevel = CraftSim.UTIL:NextFrameLevel()
 
     local frame = CraftSim.GGUI.Frame({
         parent = ProfessionsFrame,
@@ -18,14 +28,15 @@ function CraftSim.SUPPORTERS.FRAMES:Init()
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        frameStrata = "DIALOG",
-        frameTable = CraftSim.MAIN.FRAMES,
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = frameLevel
     })
 
     local function createContent(frame)
         frame:Hide()
-        local f = CraftSim.UTIL:GetFormatter()
         frame.content.description = CraftSim.GGUI.Text({
             parent = frame.content,
             anchorParent = frame.content,

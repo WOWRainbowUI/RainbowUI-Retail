@@ -1,9 +1,15 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
+---@class CraftSim.AVERAGEPROFIT
 CraftSim.AVERAGEPROFIT = {}
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.AVERAGE_PROFIT)
+---@type GGUI.Frame
+CraftSim.AVERAGEPROFIT.frame = nil
+---@type GGUI.Frame
+CraftSim.AVERAGEPROFIT.frameWO = nil
+
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.AVERAGE_PROFIT)
 
 local statIncreaseFactor = 5
 

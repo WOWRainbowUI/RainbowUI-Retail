@@ -4,7 +4,7 @@ local CraftSim = select(2, ...)
 CraftSim.CUSTOMER_SERVICE.FRAMES = {}
 CraftSim.CUSTOMER_SERVICE.timeoutSeconds = 5
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CUSTOMER_SERVICE)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CUSTOMER_SERVICE)
 
 function CraftSim.CUSTOMER_SERVICE.FRAMES:Init()
     local frame = CraftSim.GGUI.Frame({
@@ -17,10 +17,12 @@ function CraftSim.CUSTOMER_SERVICE.FRAMES:Init()
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        frameStrata = "DIALOG",
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesCustomerService"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesCustomerService"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = CraftSim.UTIL:NextFrameLevel()
     })
 
     local function createContent(frame)
@@ -152,7 +154,7 @@ function CraftSim.CUSTOMER_SERVICE.FRAMES:InitLivePreview()
         moveable = true,
         title = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CUSTOMER_SERVICE_LIVE_PREVIEW_TITLE),
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        frameTable = CraftSim.MAIN.FRAMES,
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
     })
 
@@ -419,7 +421,7 @@ function CraftSim.CUSTOMER_SERVICE.FRAMES:InitLivePreviewSession(payload)
     local recipes = payload.recipes
     local crafter = payload.crafter
     local professionName = payload.professionName
-    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
+    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
 
     previewFrame.professionID = payload.professionID
     previewFrame.crafter = crafter
@@ -470,7 +472,7 @@ function CraftSim.CUSTOMER_SERVICE.FRAMES:InitLivePreviewSession(payload)
 end
 
 function CraftSim.CUSTOMER_SERVICE.FRAMES:UpdateRecipe(payload)
-    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
+    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
     local resultData = payload.resultData
     local reagents = payload.reagents
     local optionalReagents = payload.optionalReagents

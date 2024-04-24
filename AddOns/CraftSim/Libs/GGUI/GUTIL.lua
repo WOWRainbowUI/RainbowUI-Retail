@@ -387,9 +387,9 @@ function GUTIL:FormatMoney(copperValue, useColor, percentRelativeTo)
   end
 
   if useColor then
-    return GUTIL:ColorizeText(minusText .. GetCoinTextureString(absValue, 10) .. percentageText, color)
+    return GUTIL:ColorizeText(minusText .. C_CurrencyInfo.GetCoinTextureString(absValue, 10) .. percentageText, color)
   else
-    return minusText .. GetCoinTextureString(absValue, 10) .. percentageText
+    return minusText .. C_CurrencyInfo.GetCoinTextureString(absValue, 10) .. percentageText
   end
 end
 
@@ -439,7 +439,7 @@ function GUTIL:EquipItemByLink(link)
 end
 
 function GUTIL:isItemSoulbound(itemID)
-  return select(14, GetItemInfo(itemID)) == 1
+  return select(14, C_Item.GetItemInfo(itemID)) == 1
 end
 
 --> GGUI or keep here?

@@ -1,13 +1,13 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SPECDATA)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SPECDATA)
 
 local GUTIL = CraftSim.GUTIL
 
----@class CraftSim.SpecializationData
+---@class CraftSim.SpecializationData : CraftSim.CraftSimObject
 ---@overload fun(recipeData:CraftSim.RecipeData):CraftSim.SpecializationData
-CraftSim.SpecializationData = CraftSim.Object:extend()
+CraftSim.SpecializationData = CraftSim.CraftSimObject:extend()
 
 ---@param recipeData CraftSim.RecipeData
 function CraftSim.SpecializationData:new(recipeData)

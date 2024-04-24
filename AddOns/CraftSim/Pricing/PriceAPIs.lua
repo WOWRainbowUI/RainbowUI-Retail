@@ -2,6 +2,11 @@
 local CraftSim = select(2, ...)
 local CraftSimAddonName = select(1, ...)
 
+local GUTIL = CraftSim.GUTIL
+
+local f = GUTIL:GetFormatter()
+
+---@class CraftSim.PRICE_API
 CraftSim.PRICE_API = {}
 CraftSim.PRICE_APIS = {}
 
@@ -15,13 +20,13 @@ CraftSimDebugData = CraftSimDebugData or {}
 CraftSim.PRICE_APIS.available = true
 
 local systemPrint = print
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.PRICE_APIS)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.PRICE_APIS)
 
 function CraftSim.PRICE_API:InitPriceSource()
     local loadedSources = CraftSim.PRICE_APIS:GetAvailablePriceSourceAddons()
 
     if #loadedSources == 0 then
-        CraftSim.UTIL:SystemPrint(CraftSim.GUTIL:ColorizeText("CraftSim:", CraftSim.GUTIL.COLORS.BRIGHT_BLUE) ..
+        systemPrint(CraftSim.GUTIL:ColorizeText("CraftSim:", CraftSim.GUTIL.COLORS.BRIGHT_BLUE) ..
             " " .. CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.POPUP_NO_PRICE_SOURCE_SYSTEM))
         CraftSim.PRICE_APIS.available = false
         if not CraftSimOptions.doNotRemindPriceSource then
@@ -140,7 +145,7 @@ function CraftSimTSM:GetMinBuyoutByItemID(itemID, isReagent)
     if itemID == nil then
         return
     end
-    local _, itemLink = GetItemInfo(itemID)
+    local _, itemLink = C_Item.GetItemInfo(itemID)
     local tsmItemString = ""
     if itemLink == nil then
         tsmItemString = "i:" .. itemID -- manually, if the link was not generated
@@ -186,7 +191,6 @@ function CraftSimTSM:GetItemSaleRate(itemLink)
     local tsmItemString = TSM_API.ToItemString(itemLink)
     local salerate, error = TSM_API.GetCustomPriceValue(key, tsmItemString)
     if error then
-        local f = CraftSim.UTIL:GetFormatter()
         print(f.r("CraftSimTSM:GetItemSaleRate Error: " .. tostring(error)), false, true)
         print("itemLink: " .. tostring(itemLink))
     end
@@ -249,7 +253,7 @@ end
 function CraftSimDEBUG_PRICE_API:GetMinBuyoutByItemID(itemID)
     local debugItem = CraftSimDebugData[itemID]
     if debugItem == nil then
-        local itemName = GetItemInfo(itemID)
+        local itemName = C_Item.GetItemInfo(itemID)
         if itemName == nil then
             print("itemData not loaded yet, add to debugData next time..")
             return 0
@@ -268,7 +272,7 @@ function CraftSimDEBUG_PRICE_API:GetMinBuyoutByItemLink(itemLink)
     --print("itemString: " .. itemString)
     local debugItem = CraftSimDebugData[itemString]
     if debugItem == nil then
-        local itemName = GetItemInfo(itemLink)
+        local itemName = C_Item.GetItemInfo(itemLink)
         if itemName == nil then
             print("itemData not loaded yet, add to debugData next time..")
             return 0

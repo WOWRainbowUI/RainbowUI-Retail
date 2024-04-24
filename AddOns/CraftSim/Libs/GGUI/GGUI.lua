@@ -1,7 +1,8 @@
----@class GGUI-2.0
-local GGUI = LibStub:NewLibrary("GGUI-2.0", 19)
+---@class GGUI-2.1
+local GGUI = LibStub:NewLibrary("GGUI-2.1", 27)
 if not GGUI then return end -- if version already exists
 
+---@type GGUI_GUTIL
 local GUTIL = GGUI_GUTIL
 
 --- CLASSICS insert
@@ -64,35 +65,69 @@ end
 GGUI.CONST = {}
 GGUI.CONST.EMPTY_TEXTURE = "Interface\\containerframe\\bagsitemslot2x"
 
+---@class GGUI.AnchorPoint
+---@field anchorParent Region?
+---@field anchorA FramePoint?
+---@field anchorB FramePoint?
+---@field offsetX number?
+---@field offsetY number?
+
+---@class GGUI.ConstructorOptions
+---@field debug? boolean
+
 -- GGUI UTILS
-function GGUI:MakeFrameCloseable(frame, onCloseCallback)
-    frame.closeButton = GGUI.Button({
-        parent = frame,
-        anchorParent = frame,
-        offsetX = -20,
-        offsetY = -10,
-        label = "X",
-        anchorA = "TOP",
-        anchorB = "TOPRIGHT",
-        sizeX = 25,
-        sizeY = 20,
-        clickCallback = function()
-            frame:Hide()
-            if onCloseCallback then
-                onCloseCallback(frame)
-            end
-        end
-    })
+function GGUI:DebugPrint(objectConstructorOptions, text)
+    if objectConstructorOptions.debug then
+        print(GUTIL:ColorizeText("GGUI Debug: ", GUTIL.COLORS.EPIC) .. tostring(text))
+    end
 end
 
+---@param errorMessage string
+function GGUI:ThrowError(message)
+    error(GUTIL:ColorizeText("GGUI Error: ", GUTIL.COLORS.RED) .. tostring(message))
+end
+
+--- Requires DevTool Addon
+function GGUI:DebugTable(objectConstructorOptions, t, label)
+    if objectConstructorOptions.debug and DevTool then
+        DevTool:AddData(t, "GGUI: " .. label)
+    end
+end
+
+---@generic T
+---@param frame T | GGUI.Frame
+---@param onCloseCallback? fun(frame : T)
+---@param closeButtonOptions? GGUI.ButtonConstructorOptions
+function GGUI:MakeFrameCloseable(frame, onCloseCallback, closeButtonOptions)
+    closeButtonOptions = closeButtonOptions or {}
+    closeButtonOptions.parent = closeButtonOptions.parent or frame
+    closeButtonOptions.anchorParent = closeButtonOptions.anchorParent or frame
+    closeButtonOptions.anchorA = closeButtonOptions.anchorA or "TOP"
+    closeButtonOptions.anchorB = closeButtonOptions.anchorB or "TOPRIGHT"
+    closeButtonOptions.sizeX = closeButtonOptions.sizeX or 25
+    closeButtonOptions.sizeY = closeButtonOptions.sizeY or 20
+    closeButtonOptions.offsetX = closeButtonOptions.offsetX or -20
+    closeButtonOptions.offsetY = closeButtonOptions.offsetY or -10
+    closeButtonOptions.anchorPoints = closeButtonOptions.anchorPoints
+    closeButtonOptions.label = closeButtonOptions.label or "X"
+    closeButtonOptions.clickCallback = function()
+        frame:Hide()
+        if onCloseCallback then
+            onCloseCallback(frame)
+        end
+    end
+    frame.closeButton = GGUI.Button(closeButtonOptions)
+end
+
+---@param gFrame GGUI.Frame
 function GGUI:MakeFrameMoveable(gFrame)
     gFrame.frame.hookFrame:SetMovable(true)
-    gFrame.frame:SetScript("OnMouseDown", function(self, button)
+    gFrame.frame:HookScript("OnMouseDown", function(self, button)
         local anchorParent = select(2, gFrame.frame.hookFrame:GetPoint())
         gFrame.preMoveAnchorParent = anchorParent
         gFrame.frame.hookFrame:StartMoving()
     end)
-    gFrame.frame:SetScript("OnMouseUp", function(self, button)
+    gFrame.frame:HookScript("OnMouseUp", function(self, button)
         gFrame.frame.hookFrame:StopMovingOrSizing()
         local x, y = gFrame.frame.hookFrame:GetCenter()
         local relativeX, relativeY = gFrame.preMoveAnchorParent:GetCenter()
@@ -163,6 +198,55 @@ function GGUI:SetSpellTooltip(frame, spellID, owner, anchor)
     end
 end
 
+function GGUI:SetTooltipsByTooltipOptions(frame, optionsOwner)
+    local function handleTooltipOnEnter()
+        if not optionsOwner.tooltipOptions then return end
+
+        ---@type GGUI.TooltipOptions
+        local tooltipOptions = optionsOwner.tooltipOptions
+
+        GameTooltip:SetOwner(tooltipOptions.owner or frame, tooltipOptions.anchor);
+
+        if tooltipOptions.spellID then
+            local _, currentSpellID = GameTooltip:GetSpell()
+
+            if currentSpellID ~= tooltipOptions.spellID then
+                -- to not set it again and hide the tooltip..
+                GameTooltip:SetSpellByID(tooltipOptions.spellID)
+            end
+        elseif tooltipOptions.itemID then
+            GameTooltip:SetItemByID(tooltipOptions.itemID)
+        elseif tooltipOptions.text then
+            GameTooltip:SetText(tooltipOptions.text, nil, nil, nil, nil,
+                tooltipOptions.textWrap)
+        elseif tooltipOptions.frame then
+            if tooltipOptions.frameUpdateCallback then
+                tooltipOptions.frameUpdateCallback(tooltipOptions.frame)
+            end
+            GameTooltip_InsertFrame(GameTooltip, tooltipOptions.frame)
+        end
+
+        if tooltipOptions.scale then
+            GameTooltip:SetScale(tooltipOptions.scale)
+        else
+            GameTooltip:SetScale(1)
+        end
+
+        GameTooltip:Show();
+    end
+    local function handleTooltipOnLeave()
+        if not optionsOwner.tooltipOptions then return end
+        GameTooltip:Hide();
+    end
+
+    frame:HookScript("OnEnter", function()
+        handleTooltipOnEnter()
+    end)
+    frame:HookScript("OnLeave", function()
+        handleTooltipOnLeave()
+    end)
+end
+
 function GGUI:EnableHyperLinksForFrameAndChilds(frame)
     if type(frame) == "table" and frame.SetHyperlinksEnabled and not frame.enabledLinks then -- prevent inf loop by references
         frame.enabledLinks = true
@@ -173,6 +257,42 @@ function GGUI:EnableHyperLinksForFrameAndChilds(frame)
             GGUI:EnableHyperLinksForFrameAndChilds(possibleFrame1)
             GGUI:EnableHyperLinksForFrameAndChilds(possibleFrame2)
         end
+    end
+end
+
+---@param region Region
+---@param anchorPoints GGUI.AnchorPoint[]
+function GGUI:SetPointsByAnchorPoints(region, anchorPoints)
+    region:ClearAllPoints()
+    for _, anchorPoint in ipairs(anchorPoints) do
+        GGUI:SetPointByAnchorPoint(region, anchorPoint)
+    end
+end
+
+---@param region Region
+---@param anchorPoint GGUI.AnchorPoint
+function GGUI:SetPointByAnchorPoint(region, anchorPoint)
+    region:SetPoint(anchorPoint.anchorA or "CENTER", anchorPoint.anchorParent,
+        anchorPoint.anchorB or "CENTER",
+        anchorPoint.offsetX or 0,
+        anchorPoint.offsetY or 0)
+end
+
+---@param backdropFrame BackdropTemplate
+---@param backdropOptions GGUI.BackdropOptions?
+function GGUI:SetBackdropByBackdropOptions(backdropFrame, backdropOptions)
+    if not backdropOptions then return end
+
+    if backdropOptions.backdropInfo then
+        backdropFrame:SetBackdrop(backdropOptions.backdropInfo)
+    end
+    if backdropOptions.backdropRGBA and #backdropOptions.backdropRGBA == 4 then
+        backdropFrame:SetBackdropColor(backdropOptions.backdropRGBA[1], backdropOptions.backdropRGBA[2],
+            backdropOptions.backdropRGBA[3], backdropOptions.backdropRGBA[4])
+    end
+    if backdropOptions.borderRGBA and #backdropOptions.borderRGBA == 4 then
+        backdropFrame:SetBackdropBorderColor(backdropOptions.borderRGBA[1], backdropOptions.borderRGBA[2],
+            backdropOptions.borderRGBA[3], backdropOptions.borderRGBA[4])
     end
 end
 
@@ -237,6 +357,12 @@ function GGUI.Widget:SetPoint(...)
     return self.frame:SetPoint(...)
 end
 
+--- super constructor needs to be called beforehand so that self.frame is existent
+---@param anchorPoints GGUI.AnchorPoint[]
+function GGUI.Widget:SetPointsByAnchorPoints(anchorPoints)
+    GGUI:SetPointsByAnchorPoints(self.frame, anchorPoints)
+end
+
 function GGUI.Widget:Raise()
     self.frame:Raise()
 end
@@ -264,25 +390,29 @@ end
 ---@field title? string
 ---@field activationCallback? function
 
----@class GGUI.FrameConstructorOptions
+---@class GGUI.FrameConstructorOptions : GGUI.ConstructorOptions
 ---@field globalName? string
 ---@field title? string
+---@field titleOptions? GGUI.TextConstructorOptions
 ---@field parent? Frame
----@field anchorParent? Region
----@field anchorA? FramePoint
----@field anchorB? FramePoint
----@field offsetX? number
----@field offsetY? number
+---@field anchorParent? Region DEPRICATED use anchorPoints
+---@field anchorA? FramePoint DEPRICATED use anchorPoints
+---@field anchorB? FramePoint DEPRICATED use anchorPoints
+---@field offsetX? number DEPRICATED use anchorPoints
+---@field offsetY? number DEPRICATED use anchorPoints
+---@field anchorPoints? GGUI.AnchorPoint[]
 ---@field sizeX? number
 ---@field sizeY? number
 ---@field scale? number
 ---@field frameID? string
 ---@field scrollableContent? boolean
 ---@field closeable? boolean
+---@field closeButtonOptions? GGUI.ButtonConstructorOptions
 ---@field collapseable? boolean
 ---@field collapsed? boolean
 ---@field moveable? boolean
----@field frameStrata? FrameStrata
+---@field frameStrata? FrameStrata if omitted will be same as parent
+---@field frameLevel? number if omitted will be 1 higher than parent
 ---@field onCloseCallback? function
 ---@field onCollapseCallback? function
 ---@field onCollapseOpenCallback? function
@@ -291,26 +421,14 @@ end
 ---@field frameTable? table The table where your addon stores its frames for later retrieval
 ---@field frameConfigTable? table The saved variable table where your addon stores any frame config like position
 ---@field closeOnClickOutside? boolean
+---@field tooltipOptions? GGUI.TooltipOptions
+---@field hide? boolean
+---@field raiseOnInteraction? boolean
 
 ---@class GGUI.BackdropOptions
----@field colorR? number
----@field colorG? number
----@field colorB? number
----@field colorA? number
----@field bgFile? string
----@field borderOptions? GGUI.BorderOptions
----@field tile? boolean
----@field tileSize? number
-
----@class GGUI.BorderOptions
----@field colorR? number
----@field colorG? number
----@field colorB? number
----@field colorA? number
----@field edgeSize? number
----@field edgeFile? string
----@field insets? backdropInsets
----@field edgeInsets? backdropInsets
+---@field backdropInfo? backdropInfo
+---@field backdropRGBA? table<number>
+---@field borderRGBA? table<number>
 
 ---@param frameTable table the table where your addon stores your frames
 ---@param frameID string The ID string you gave the frame
@@ -330,7 +448,6 @@ GGUI.Frame = GGUI.Widget:extend()
 function GGUI.Frame:new(options)
     options = options or {}
     -- handle defaults
-    options.title = options.title or ""
     options.anchorA = options.anchorA or "CENTER"
     options.anchorB = options.anchorB or "CENTER"
     options.offsetX = options.offsetX or 0
@@ -356,7 +473,7 @@ function GGUI.Frame:new(options)
     self.closeable = options.closeable or false
     self.collapseable = options.collapseable or false
     self.moveable = options.moveable or false
-    self.frameStrata = options.frameStrata or "HIGH"
+    self.frameStrata = options.frameStrata
     self.collapsed = false
     self.activeStatusID = options.initialStatusID
     ---@type GGUI.FrameStatus[]
@@ -366,16 +483,30 @@ function GGUI.Frame:new(options)
     self.closeOnClickOutside = options.closeOnClickOutside or false
     self.onCloseCallback = options.onCloseCallback
 
+    GGUI:DebugTable(options, options, "Frame Options")
+
     local hookFrame = CreateFrame("frame", nil, options.parent)
-    hookFrame:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    if not options.anchorPoints then
+        hookFrame:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    else
+        GGUI:SetPointsByAnchorPoints(hookFrame, options.anchorPoints)
+    end
     local frame = CreateFrame("frame", options.globalName, hookFrame, "BackdropTemplate")
     GGUI.Frame.super.new(self, frame)
     frame.hookFrame = hookFrame
     hookFrame:SetSize(options.sizeX, options.sizeY)
     frame:SetSize(options.sizeX, options.sizeY)
     frame:SetScale(options.scale)
-    frame:SetFrameStrata(options.frameStrata or "HIGH")
-    frame:SetFrameLevel(numFrames)
+    frame:SetFrameStrata(options.frameStrata or options.parent:GetFrameStrata())
+    frame:SetFrameLevel(options.frameLevel or (options.parent:GetFrameLevel() + 1))
+
+    if options.raiseOnInteraction then
+        frame:SetToplevel(true)
+    end
+
+    if options.hide then
+        frame:Hide()
+    end
 
     if self.closeOnClickOutside then
         -- Check for clicks outside the scaled frame
@@ -391,50 +522,59 @@ function GGUI.Frame:new(options)
         end)
     end
 
-    self.title = GGUI.Text({
-        parent = frame,
-        anchorParent = frame,
-        text = options.title,
-        offsetY = -15,
-        anchorA = "TOP",
-        anchorB = "TOP"
-    })
+    local titleOptions = options.titleOptions or {}
+
+    titleOptions.parent = titleOptions.parent or frame
+    titleOptions.anchorPoints = titleOptions.anchorPoints or {}
+    titleOptions.anchorPoints[1] = titleOptions.anchorPoints[1] or {}
+    titleOptions.anchorPoints[1].anchorParent = titleOptions.anchorPoints[1].anchorParent or frame
+    titleOptions.anchorPoints[1].anchorA = titleOptions.anchorPoints[1].anchorA or "TOP"
+    titleOptions.anchorPoints[1].anchorB = titleOptions.anchorPoints[1].anchorB or "TOP"
+    titleOptions.anchorPoints[1].offsetY = titleOptions.anchorPoints[1].offsetY or -15
+    titleOptions.text = options.title or titleOptions.text
+
+    self.title = GGUI.Text(titleOptions)
 
     frame:SetPoint("TOP", hookFrame, "TOP", 0, 0)
 
     if options.backdropOptions then
-        local backdropOptions = options.backdropOptions
-        backdropOptions.colorR = backdropOptions.colorR or 0
-        backdropOptions.colorG = backdropOptions.colorG or 0
-        backdropOptions.colorB = backdropOptions.colorB or 0
-        backdropOptions.colorA = backdropOptions.colorA or 1
-        backdropOptions.tile = backdropOptions.tile or false
-        backdropOptions.tileSize = backdropOptions.tileSize or 32
-        backdropOptions.borderOptions = backdropOptions.borderOptions or {}
-        local borderOptions = backdropOptions.borderOptions
-        borderOptions.colorR = borderOptions.colorR or 0
-        borderOptions.colorG = borderOptions.colorG or 0
-        borderOptions.colorB = borderOptions.colorB or 0
-        borderOptions.colorA = borderOptions.colorA or 1
-        borderOptions.edgeSize = borderOptions.edgeSize or 16
-        borderOptions.insets = borderOptions.insets or { left = 8, right = 6, top = 8, bottom = 8 }
-        frame:SetBackdropBorderColor(borderOptions.colorR, borderOptions.colorG, borderOptions.colorB,
-            borderOptions.colorA)
-        frame:SetBackdrop({
-            bgFile = backdropOptions.bgFile,
-            edgeFile = borderOptions.edgeFile,
-            edgeSize = borderOptions.edgeSize,
-            insets = borderOptions.insets,
-            edgeInsets = borderOptions.edgeInsets,
-            tile = backdropOptions.tile,
-            tileSize = backdropOptions.tileSize,
-        })
-        frame:SetBackdropColor(backdropOptions.colorR, backdropOptions.colorG, backdropOptions.colorB,
-            backdropOptions.colorA)
+        if options.backdropOptions.backdropInfo then
+            GGUI:DebugPrint(options, "Setting backdrop by backdropoptions")
+            GGUI:SetBackdropByBackdropOptions(frame, options.backdropOptions)
+        else
+            local backdropOptions = options.backdropOptions
+            backdropOptions.colorR = backdropOptions.colorR or 0
+            backdropOptions.colorG = backdropOptions.colorG or 0
+            backdropOptions.colorB = backdropOptions.colorB or 0
+            backdropOptions.colorA = backdropOptions.colorA or 1
+            backdropOptions.tile = backdropOptions.tile or false
+            backdropOptions.tileSize = backdropOptions.tileSize or 32
+            backdropOptions.borderOptions = backdropOptions.borderOptions or {}
+            local borderOptions = backdropOptions.borderOptions
+            borderOptions.colorR = borderOptions.colorR or 0
+            borderOptions.colorG = borderOptions.colorG or 0
+            borderOptions.colorB = borderOptions.colorB or 0
+            borderOptions.colorA = borderOptions.colorA or 1
+            borderOptions.edgeSize = borderOptions.edgeSize or 16
+            borderOptions.insets = borderOptions.insets or { left = 8, right = 6, top = 8, bottom = 8 }
+            frame:SetBackdropBorderColor(borderOptions.colorR, borderOptions.colorG, borderOptions.colorB,
+                borderOptions.colorA)
+            frame:SetBackdrop({
+                bgFile = backdropOptions.bgFile,
+                edgeFile = borderOptions.edgeFile,
+                edgeSize = borderOptions.edgeSize,
+                insets = borderOptions.insets,
+                edgeInsets = borderOptions.edgeInsets,
+                tile = backdropOptions.tile,
+                tileSize = backdropOptions.tileSize,
+            })
+            frame:SetBackdropColor(backdropOptions.colorR, backdropOptions.colorG, backdropOptions.colorB,
+                backdropOptions.colorA)
+        end
     end
 
     if self.closeable then
-        GGUI:MakeFrameCloseable(frame, options.onCloseCallback)
+        GGUI:MakeFrameCloseable(frame, options.onCloseCallback, options.closeButtonOptions)
     end
 
     if self.collapseable then
@@ -462,13 +602,43 @@ function GGUI.Frame:new(options)
 
         frame.content = scrollChild
     else
-        frame.content = CreateFrame("frame", nil, frame)
+        frame.content = CreateFrame("frame", nil, frame, "BackdropTemplate")
         frame.content:SetPoint("TOP", frame, "TOP")
         frame.content:SetSize(options.sizeX, options.sizeY)
+        frame.content:SetFrameStrata(frame:GetFrameStrata())
+        frame.content:SetFrameLevel(frame:GetFrameLevel() + 1)
     end
+
+    self.tooltipOptions = options.tooltipOptions
+    if self.tooltipOptions then
+        GGUI:SetTooltipsByTooltipOptions(frame.content, self)
+    end
+
     self.content = frame.content
     options.frameTable[self.frameID] = self
     return frame
+end
+
+function GGUI.Frame:Show()
+    self.frame:Show()
+    self.frame.hookFrame:Show()
+    self.content:Show()
+end
+
+function GGUI.Frame:Hide()
+    self.frame:Hide()
+    self.frame.hookFrame:Hide()
+    self.content:Hide()
+end
+
+function GGUI.Frame:Raise()
+    self.frame:Raise()
+    self.content:Raise()
+end
+
+function GGUI.Frame:Lower()
+    self.content:Lower()
+    self.frame:Lower()
 end
 
 function GGUI.Frame:SetSize(x, y)
@@ -572,7 +742,7 @@ function GGUI.Frame:SetStatusList(statusList)
     -- map statuslist to their ids
     table.foreach(statusList, function(_, status)
         if not status.statusID then
-            error("GGUI: FrameStatus without statusID")
+            GGUI:ThrowError("FrameStatus without statusID")
         end
         self.statusList[status.statusID] = status
     end)
@@ -644,7 +814,7 @@ end
 
 --- GGUI Icon
 
----@class GGUI.IconConstructorOptions
+---@class GGUI.IconConstructorOptions: GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field offsetX? number
 ---@field offsetY? number
@@ -772,7 +942,7 @@ end
 
 --- GGUI.QualityIcon
 
----@class GGUI.QualityIconConstructorOptions
+---@class GGUI.QualityIconConstructorOptions : GGUI.ConstructorOptions
 ---@field parent Frame
 ---@field sizeX? number
 ---@field sizeY? number
@@ -782,6 +952,7 @@ end
 ---@field offsetX? number
 ---@field offsetY? number
 ---@field initialQuality? number
+---@field tooltipOptions? GGUI.TooltipOptions
 
 ---@class GGUI.QualityIcon : GGUI.Widget
 ---@overload fun(options:GGUI.QualityIconConstructorOptions): GGUI.QualityIcon
@@ -804,6 +975,11 @@ function GGUI.QualityIcon:new(options)
     icon:SetTexture("Interface\\Professions\\ProfessionsQualityIcons")
     icon:SetAtlas("Professions-Icon-Quality-Tier" .. options.initialQuality)
     icon:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+
+    self.tooltipOptions = options.tooltipOptions
+    if self.tooltipOptions then
+        GGUI:SetTooltipsByTooltipOptions(icon, self)
+    end
 end
 
 ---@param qualityID number
@@ -824,7 +1000,7 @@ end
 
 --- GGUI.Dropdown
 
----@class GGUI.DropdownConstructorOptions
+---@class GGUI.DropdownConstructorOptions : GGUI.ConstructorOptions
 ---@field globalName? string
 ---@field parent? Frame
 ---@field anchorParent? Region
@@ -903,13 +1079,6 @@ function GGUI.Dropdown:SetData(options)
         local info = UIDropDownMenu_CreateInfo()
         if level == 1 then
             for _, data in pairs(options.data) do
-                -- print("GGUI dropdown: data")
-                -- print("isCategory: " .. tostring(data.isCategory))
-                -- print("label: " .. tostring(data.label))
-                -- print("value: " .. tostring(data.value))
-                -- print("isCategory: " .. tostring(data.isCategory))
-                -- print("tooltipItemLink: " .. tostring(data.tooltipItemLink))
-                -- print("tooltipConcatText: " .. tostring(data.tooltipConcatText))
                 info.text = data.label
                 info.arg1 = data.value
                 if not data.isCategory then
@@ -973,7 +1142,7 @@ end
 
 --- GGUI.CustomDropdown
 
----@class GGUI.CustomDropdownConstructorOptions
+---@class GGUI.CustomDropdownConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field anchorParent? Region
 ---@field anchorA? FramePoint
@@ -1004,6 +1173,7 @@ end
 ---@class GGUI.CustomDropdownData
 ---@field label string
 ---@field value any
+---@field tooltipOptions? GGUI.TooltipOptions
 ----@field isCategory? boolean
 
 ---@class GGUI.CustomDropdown : GGUI.Widget
@@ -1021,7 +1191,7 @@ function GGUI.CustomDropdown:new(options)
     options.arrowOptions                       = options.arrowOptions or {}
     options.labelOptions                       = options.labelOptions or {}
     options.initialData                        = options.initialData or {}
-    options.initialValue                       = options.initialValue or ""
+    options.initialValue                       = options.initialValue or nil
     options.initialLabel                       = options.initialLabel or ""
 
     self.selectedValue                         = nil
@@ -1061,8 +1231,13 @@ function GGUI.CustomDropdown:new(options)
         fontOptions = options.buttonOptions.fontOptions
     }
     self.button                                = GGUI.Button(defaultButtonOptions)
-    self.button.button:GetFontString():SetJustifyH("LEFT")
-    self.button.button:GetFontString():SetWidth(self.button.button:GetWidth() - 10)
+    local fontString                           = self.button.button:GetFontString()
+    fontString:SetJustifyH("LEFT")
+    fontString:ClearAllPoints()
+    fontString:ClearPointsOffset()
+    fontString:SetPoint("LEFT", self.button.button, "LEFT")
+    fontString:AdjustPointsOffset(10, 0) -- I dont know why but giving the offset above in SetPoint does not work
+
     GGUI.CustomDropdown.super.new(self, self.button)
 
     ---@class GGUI.CustomDropdown.ArrowTexture : GGUI.Texture
@@ -1112,6 +1287,8 @@ function GGUI.CustomDropdown:new(options)
         offsetY = options.labelOptions.offsetY,
         scale = options.labelOptions.scale,
         fixedWidth = options.labelOptions.fixedWidth,
+        fontOptions = options.labelOptions.fontOptions,
+        tooltipOptions = options.labelOptions.tooltipOptions,
     }
     self.label                = GGUI.Text(defaultLabelOptions)
 
@@ -1141,6 +1318,7 @@ function GGUI.CustomDropdown:new(options)
         sizeX = options.selectionFrameOptions.sizeX or self.button.button:GetWidth(),
         sizeY = options.selectionFrameOptions.sizeY or 100,
         title = options.selectionFrameOptions.title,
+        tooltipOptions = options.selectionFrameOptions.tooltipOptions
     }
 
     self.selectionFrame.frame:SetFrameStrata(options.selectionFrameOptions.frameStrata or "DIALOG")
@@ -1160,6 +1338,7 @@ function GGUI.CustomDropdown:new(options)
                 width = self.selectionFrame:GetWidth() - 10,
             }
         },
+        disableScrolling = true,
         rowConstructor =
             function(columns, row)
                 ---@class GGUI.CustomDropdown.SelectionRow : GGUI.FrameList.Row
@@ -1236,6 +1415,7 @@ end
 
 ---@param options GGUI.CustomDropdownSetDataOptions
 function GGUI.CustomDropdown:SetData(options)
+    self.selectionList:Remove()
     for _, customDropdownOption in ipairs(options.data) do
         self.selectionList:Add(
         ---@param row GGUI.CustomDropdown.SelectionRow
@@ -1246,6 +1426,14 @@ function GGUI.CustomDropdown:SetData(options)
                 labelColumn.text:SetText(customDropdownOption.label)
                 row.selectionValue = customDropdownOption.value
                 row.selectionLabel = customDropdownOption.label
+                local tooltipOptions = customDropdownOption.tooltipOptions
+                if tooltipOptions then
+                    tooltipOptions.owner = tooltipOptions.owner or row.frame
+                    tooltipOptions.anchor = tooltipOptions.anchor or "ANCHOR_CURSOR"
+                    row.tooltipOptions = tooltipOptions
+                else
+                    row.tooltipOptions = nil
+                end
             end)
     end
 
@@ -1264,19 +1452,22 @@ end
 
 --- GGUI.Text
 
----@class GGUI.TextConstructorOptions
+---@class GGUI.TextConstructorOptions : GGUI.ConstructorOptions
 ---@field text? string
+---@field anchorPoints? GGUI.AnchorPoint[]
 ---@field parent? Frame
----@field anchorParent? Region
----@field anchorA? FramePoint
----@field anchorB? FramePoint
----@field offsetX? number
----@field offsetY? number
+---@field anchorParent? Region -- DEPRICATED: Use anchorPoints
+---@field anchorA? FramePoint -- DEPRICATED: Use anchorPoints
+---@field anchorB? FramePoint -- DEPRICATED: Use anchorPoints
+---@field offsetX? number -- DEPRICATED: Use anchorPoints
+---@field offsetY? number -- DEPRICATED: Use anchorPoints
 ---@field font? string
 ---@field scale? number
 ---@field justifyOptions? GGUI.JustifyOptions
 ---@field fixedWidth? number
 ---@field fontOptions? GGUI.FontOptions
+---@field tooltipOptions? GGUI.TooltipOptions
+---@field hide? boolean
 
 ---@class GGUI.JustifyOptions
 ---@field type "H" | "V" | "HV"
@@ -1298,12 +1489,28 @@ function GGUI.Text:new(options)
     options.font = options.font or "GameFontHighlight"
     options.scale = options.scale or 1
 
+    GGUI:DebugPrint(options, "Debug Text " .. tostring(options.text))
+
     local text = options.parent:CreateFontString(nil, "OVERLAY", options.font)
     self.text = text
     GGUI.Text.super.new(self, text)
     text:SetText(options.text)
-    text:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    if options.anchorPoints then
+        for _, anchorPoint in ipairs(options.anchorPoints) do
+            GGUI:DebugPrint(options, "- Set Anchor OffsetY " .. tostring(anchorPoint.offsetY))
+            self.frame:SetPoint(anchorPoint.anchorA or "CENTER", anchorPoint.anchorParent,
+                anchorPoint.anchorB or "CENTER",
+                anchorPoint.offsetX or 0,
+                anchorPoint.offsetY or 0)
+        end
+    else
+        text:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    end
     text:SetScale(options.scale)
+
+    if options.hide then
+        self.text:Hide()
+    end
 
     if options.fontOptions then
         text:SetFont(options.fontOptions.fontFile or nil, options.fontOptions.height or 20,
@@ -1328,6 +1535,11 @@ function GGUI.Text:new(options)
             text:SetJustifyV(options.justifyOptions.alignV)
         end
     end
+
+    self.tooltipOptions = options.tooltipOptions
+    if self.tooltipOptions then
+        GGUI:SetTooltipsByTooltipOptions(self.frame, self)
+    end
 end
 
 function GGUI.Text:GetText()
@@ -1346,13 +1558,22 @@ function GGUI.Text:SetColor(color)
     end
 end
 
+---@param anchorPoints GGUI.AnchorPoint[]
+function GGUI.Text:SetAnchorPoints(anchorPoints)
+    self.frame:ClearAllPoints()
+    for _, anchorPoint in ipairs(anchorPoints) do
+        self.frame:SetPoint(anchorPoint.anchorA, anchorPoint.anchorParent, anchorPoint.anchorB, anchorPoint.offsetX or 0,
+            anchorPoint.offsetY or 0)
+    end
+end
+
 function GGUI.Text:EnableHyperLinksForFrameAndChilds()
     GGUI:EnableHyperLinksForFrameAndChilds(self.frame)
 end
 
 --- GGUI.ScrollingMessageFrame
 
----@class GGUI.ScrollingMessageFrameConstructorOptions
+---@class GGUI.ScrollingMessageFrameConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field anchorParent? Region
 ---@field anchorA? FramePoint
@@ -1441,14 +1662,16 @@ end
 ---@field enabled? boolean
 ---@field activationCallback? function
 
----@class GGUI.ButtonConstructorOptions
+---@class GGUI.ButtonConstructorOptions : GGUI.ConstructorOptions
 ---@field label? string
+---@field labelTextureOptions? GGUI.TextureConstructorOptions
 ---@field parent? Frame
----@field anchorParent? Region
----@field anchorA? FramePoint
----@field anchorB? FramePoint
----@field offsetX? number
----@field offsetY? number
+---@field anchorPoints? GGUI.AnchorPoint[]
+---@field anchorParent? Region -- DEPRICATED Use anchorPoints
+---@field anchorA? FramePoint -- DEPRICATED Use anchorPoints
+---@field anchorB? FramePoint -- DEPRICATED Use anchorPoints
+---@field offsetX? number -- DEPRICATED Use anchorPoints
+---@field offsetY? number -- DEPRICATED Use anchorPoints
 ---@field sizeX? number
 ---@field sizeY? number
 ---@field adjustWidth? boolean
@@ -1461,6 +1684,8 @@ end
 ---@field buttonTextureOptions? GGUI.ButtonTextureOptions
 ---@field fontOptions? GGUI.FontOptions
 ---@field cleanTemplate? boolean
+---@field hideBackground? boolean
+---@field tooltipOptions? GGUI.TooltipOptions
 
 ---@class GGUI.FontOptions
 ---@field fontFile? string
@@ -1507,7 +1732,7 @@ function GGUI.Button:new(options)
     self.cleanTemplate = options.cleanTemplate or false
 
     ---@type string?
-    local templates = "UIPanelButtonTemplate"
+    local templates = "UIPanelButtonTemplate" -- Note: this template is wierd with custom highlight textures..
 
     if self.cleanTemplate then
         templates = nil
@@ -1524,6 +1749,12 @@ function GGUI.Button:new(options)
     local button = CreateFrame("Button", nil, options.parent, templates)
     GGUI.Button.super.new(self, button)
     button:SetScale(options.scale)
+
+    if options.hideBackground then
+        button.Left:Hide();
+        button.Middle:Hide();
+        button.Right:Hide();
+    end
 
     if options.buttonTextureOptions then
         if options.buttonTextureOptions.isAtlas then
@@ -1549,6 +1780,7 @@ function GGUI.Button:new(options)
             button:ClearPushedTexture()
             button:ClearDisabledTexture()
             button:ClearHighlightTexture()
+
             if options.buttonTextureOptions.normal then
                 button:SetNormalTexture(options.buttonTextureOptions.normal)
             end
@@ -1581,13 +1813,26 @@ function GGUI.Button:new(options)
     end
 
     button:SetText(options.label)
+    local labelTextureOptions = options.labelTextureOptions
+    if labelTextureOptions then
+        labelTextureOptions.parent = labelTextureOptions.parent or options.parent
+        labelTextureOptions.anchorParent = labelTextureOptions.anchorParent or self.frame
+        labelTextureOptions.sizeX = labelTextureOptions.sizeX or options.sizeX * 0.7
+        labelTextureOptions.sizeY = labelTextureOptions.sizeY or options.sizeY * 0.7
+        self.labelTexture = GGUI.Texture(labelTextureOptions)
+    end
+
     if options.adjustWidth then
         button:SetSize(button:GetTextWidth() + options.sizeX, options.sizeY)
     else
         button:SetSize(options.sizeX, options.sizeY)
     end
 
-    button:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    if options.anchorPoints then
+        self:SetPointsByAnchorPoints(options.anchorPoints)
+    else
+        button:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    end
 
     -- to not overwrite click script if macro button
     if not self.macro then
@@ -1601,6 +1846,11 @@ function GGUI.Button:new(options)
     end
 
     self.button = button
+
+    self.tooltipOptions = options.tooltipOptions
+    if self.tooltipOptions then
+        GGUI:SetTooltipsByTooltipOptions(self.button, self)
+    end
 end
 
 function GGUI.Button:SetAttribute(name, value)
@@ -1610,8 +1860,7 @@ end
 --- Can be used to set the macro text of the button (only available if macro option was set)
 function GGUI.Button:SetMacroText(macroText)
     if not self.macro then
-        print("GGUI Error: Trying to set a macro text on a button without macro property set to true")
-        return
+        GGUI:ThrowError("Trying to set a macro text on a button without macro property set to true")
     end
     self.macroText = macroText
     self:SetAttribute("macrotext", self.macroText)
@@ -1641,7 +1890,7 @@ function GGUI.Button:SetStatusList(statusList)
     -- map statuslist to their ids
     table.foreach(statusList, function(_, status)
         if not status.statusID then
-            error("GGUI: ButtonStatus without statusID")
+            GGUI:ThrowError("ButtonStatus without statusID")
         end
         self.statusList[status.statusID] = status
     end)
@@ -1693,7 +1942,7 @@ end
 
 --- GGUI.Tab
 
----@class GGUI.TabConstructorOptions
+---@class GGUI.TabConstructorOptions : GGUI.ConstructorOptions
 ---@field buttonOptions? GGUI.ButtonConstructorOptions
 ---@field canBeEnabled? boolean
 ---@field sizeX? number
@@ -1704,6 +1953,7 @@ end
 ---@field anchorB? FramePoint
 ---@field parent? Frame
 ---@field anchorParent? Region
+---@field backdropOptions? GGUI.BackdropOptions
 
 ---@class GGUI.Tab : GGUI.Widget
 ---@overload fun(options:GGUI.TabConstructorOptions): GGUI.Tab
@@ -1722,9 +1972,11 @@ function GGUI.Tab:new(options)
     self.button = GGUI.Button(options.buttonOptions)
     self.canBeEnabled = options.canBeEnabled or false
 
-    self.content = CreateFrame("Frame", nil, options.parent)
+    self.content = CreateFrame("frame", nil, options.parent, "BackdropTemplate")
     self.content:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
     self.content:SetSize(options.sizeX, options.sizeY)
+
+    GGUI:SetBackdropByBackdropOptions(self.content, options.backdropOptions)
 end
 
 function GGUI.Tab:EnableHyperLinksForFrameAndChilds()
@@ -1772,8 +2024,9 @@ end
 ---@overload fun(options:GGUI.CheckboxConstructorOptions): GGUI.Checkbox
 GGUI.Checkbox = GGUI.Widget:extend()
 
----@class GGUI.CheckboxConstructorOptions
+---@class GGUI.CheckboxConstructorOptions : GGUI.ConstructorOptions
 ---@field label? string
+---@field labelOptions? GGUI.TextConstructorOptions
 ---@field tooltip? string
 ---@field initialValue? boolean
 ---@field clickCallback? fun(checkbox:GGUI.Checkbox, checked:boolean)
@@ -1804,7 +2057,26 @@ function GGUI.Checkbox:new(options)
     self.frame = self.frame
     checkBox:SetHitRectInsets(0, 0, 0, 0); -- see https://wowpedia.fandom.com/wiki/API_Frame_SetHitRectInsets
     checkBox:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
-    checkBox.Text:SetText(options.label)
+    if not options.labelOptions then
+        checkBox.Text:SetText(options.label)
+    else
+        ---@type GGUI.TextConstructorOptions
+        local labelOptions = {
+            text = options.labelOptions.text or options.label or "",
+            anchorParent = options.labelOptions.anchorParent or checkBox,
+            parent = options.labelOptions.parent or options.parent,
+            anchorA = options.labelOptions.anchorA or "LEFT",
+            anchorB = options.labelOptions.anchorB or "RIGHT",
+            offsetX = options.labelOptions.offsetX or 0,
+            offsetY = options.labelOptions.offsetY or 0,
+            justifyOptions = options.labelOptions.justifyOptions or { type = "H", align = "LEFT" },
+            font = options.labelOptions.font,
+            fixedWidth = options.labelOptions.fixedWidth,
+            fontOptions = options.labelOptions.fontOptions,
+            scale = options.labelOptions.scale or 1,
+        }
+        self.labelText = GGUI.Text(labelOptions)
+    end
     checkBox.tooltip = options.tooltip
     -- there already is an existing OnClick script that plays a sound, hook it
     checkBox:SetChecked(options.initialValue)
@@ -1825,12 +2097,16 @@ end
 
 ---@param label? string
 function GGUI.Checkbox:SetLabel(label)
-    self.frame.Text:SetText(label or "")
+    if not self.labelText then
+        self.frame.Text:SetText(label or "")
+    else
+        self.labelText:SetText(label or "")
+    end
 end
 
 --- GGUI.Slider
 
----@class GGUI.SliderConstructorOptions
+---@class GGUI.SliderConstructorOptions : GGUI.ConstructorOptions
 ---@field label? string
 ---@field parent? Frame
 ---@field anchorParent? Region
@@ -1844,8 +2120,8 @@ end
 ---@field minValue? number
 ---@field maxValue? number
 ---@field initialValue? number
----@field lowText? string
----@field highText? string
+---@field step? number
+---@field globalName? string
 ---@field onValueChangedCallback? function
 
 ---@class GGUI.Slider : GGUI.Widget
@@ -1865,30 +2141,35 @@ function GGUI.Slider:new(options)
     options.minValue = options.minValue or 0
     options.maxValue = options.maxValue or 1
     options.initialValue = options.initialValue or 0
-    options.lowText = options.lowText or ""
-    options.highText = options.highText or ""
+    options.globalName = options.globalName or ("GGUISlider" .. (tostring(GetTimePreciseSec() * 1000)))
+    self.onValueChangedCallback = options.onValueChangedCallback
 
-    local newSlider = CreateFrame("Slider", nil, options.parent, "OptionsSliderTemplate")
+    local newSlider = CreateFrame("Slider", options.globalName, options.parent, "MinimalSliderWithSteppersTemplate ")
     GGUI.Slider.super.new(self, newSlider)
     newSlider:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
     newSlider:SetSize(options.sizeX, options.sizeY)
-    newSlider:SetOrientation(options.orientation)
-    newSlider:SetMinMaxValues(options.minValue, options.maxValue)
-    newSlider:SetValue(options.initialValue)
-    _G[newSlider:GetName() .. 'Low']:SetText(options.lowText)   -- Sets the left-side slider text (default is "Low").
-    _G[newSlider:GetName() .. 'High']:SetText(options.highText) -- Sets the right-side slider text (default is "High").
-    _G[newSlider:GetName() .. 'Text']:SetText(options.label)    -- Sets the "title" text (top-centre of slider).
 
-    newSlider:SetScript("OnValueChanged",
+    newSlider:RegisterCallback("OnValueChanged",
         function(...)
             if self.onValueChangedCallback then
                 self.onValueChangedCallback(...)
             end
         end)
+
+    newSlider.LeftText:SetText(GUTIL:ColorizeText(options.label, GUTIL.COLORS.WHITE))
+    newSlider.LeftText:Show()
+
+    local formatters = {}
+    local right = newSlider.Label.Right
+    formatters[right] = CreateMinimalSliderFormatter(right,
+        function(value) return GUTIL:ColorizeText(value, GUTIL.COLORS.WHITE) end);
+
+    newSlider:Init(options.initialValue, options.minValue, options.maxValue,
+        options.step and ((options.maxValue / options.step) - 1) or (options.maxValue - 1), formatters)
 end
 
 --- GGUI.HelpIcon
----@class GGUI.HelpIconConstructorOptions
+---@class GGUI.HelpIconConstructorOptions : GGUI.ConstructorOptions
 ---@field text? string
 ---@field parent? Frame
 ---@field anchorParent? Region
@@ -1940,7 +2221,7 @@ end
 
 --- GGUI.ScrollFrame
 
----@class GGUI.ScrollFrameConstructorOptions
+---@class GGUI.ScrollFrameConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field offsetTOP? number
 ---@field offsetLEFT? number
@@ -1948,6 +2229,7 @@ end
 ---@field offsetBOTTOM? number
 ---@field showBorder? boolean
 ---@field hideScrollbar? boolean
+---@field disableScrolling? boolean
 
 ---@class GGUI.ScrollFrame : Object
 ---@overload fun(options:GGUI.ScrollFrameConstructorOptions): GGUI.ScrollFrame
@@ -2016,6 +2298,10 @@ function GGUI.ScrollFrame:new(options)
     scrollChild:SetWidth(scrollFrame:GetWidth())
     scrollChild:SetHeight(1)
 
+    if options.disableScrolling then
+        scrollFrame:EnableMouseWheel(false)
+    end
+
     self.scrollFrame = scrollFrame
     self.content = scrollChild
 end
@@ -2030,7 +2316,7 @@ end
 
 --- GGUI.TextInput
 
----@class GGUI.TextInputConstructorOptions
+---@class GGUI.TextInputConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field anchorParent? Region
 ---@field anchorA? FramePoint
@@ -2046,6 +2332,7 @@ end
 ---@field onEnterCallback? function Default: Clear Focus
 ---@field onEscapeCallback? function Default: Clear Focus
 ---@field onTabPressedCallback? fun(input: GGUI.TextInput)
+---@field tooltipOptions? GGUI.TooltipOptions
 
 ---@class GGUI.TextInput : GGUI.Widget
 ---@overload fun(options:GGUI.TextInputConstructorOptions): GGUI.TextInput
@@ -2074,14 +2361,14 @@ function GGUI.TextInput:new(options)
     textInput:SetAutoFocus(options.autoFocus) -- dont automatically focus
     textInput:SetFontObject(options.font)
     textInput:SetText(options.initialValue)
-    textInput:SetScript("OnEscapePressed", function()
-        if self.oneEnterCallback then
+    textInput:SetScript("OnEnterPressed", function()
+        if self.onEnterCallback then
             self.onEnterCallback(self)
         else
             textInput:ClearFocus()
         end
     end)
-    textInput:SetScript("OnEnterPressed", function()
+    textInput:SetScript("OnEscapePressed", function()
         if self.onEscapeCallback then
             self.onEscapeCallback(self)
         else
@@ -2100,6 +2387,11 @@ function GGUI.TextInput:new(options)
             self.onTabPressedCallback(self)
         end
     end)
+
+    self.tooltipOptions = options.tooltipOptions
+    if self.tooltipOptions then
+        GGUI:SetTooltipsByTooltipOptions(textInput, self)
+    end
 end
 
 function GGUI.TextInput:GetText()
@@ -2116,7 +2408,7 @@ end
 
 --- GGUI.CurrencyInput
 
----@class GGUI.CurrencyInputConstructorOptions
+---@class GGUI.CurrencyInputConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field anchorParent? Region
 ---@field anchorA? FramePoint
@@ -2132,6 +2424,7 @@ end
 ---@field borderAdjustWidth? number
 ---@field borderAdjustHeight? number
 ---@field borderWidth? number
+---@field tooltipOptions? GGUI.TooltipOptions
 
 ---@class GGUI.CurrencyInput : Object
 ---@overload fun(options:GGUI.CurrencyInputConstructorOptions): GGUI.CurrencyInput
@@ -2249,13 +2542,18 @@ function GGUI.CurrencyInput:new(options)
     if options.showFormatHelpIcon then
         self.helpIcon = GGUI.HelpIcon({
             parent = options.parent,
-            text = "Format: 100g10s1c",
+            text = "格式: 100g10s1c",
             textInput.frame,
             anchorParent = textInput.frame,
             anchorA = "LEFT",
             anchorB = "RIGHT",
             offsetX = 5,
         })
+    end
+
+    self.tooltipOptions = options.tooltipOptions
+    if self.tooltipOptions then
+        GGUI:SetTooltipsByTooltipOptions(self.textInput.frame, self)
     end
 end
 
@@ -2290,7 +2588,7 @@ end
 
 --- GGUI.NumericInput
 
----@class GGUI.NumericInputConstructorOptions
+---@class GGUI.NumericInputConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field anchorParent? Region
 ---@field anchorA? FramePoint
@@ -2308,12 +2606,15 @@ end
 ---@field onNumberValidCallback? fun(input:GGUI.NumericInput)
 ---@field onValidationChangedCallback? fun(valid:boolean)
 ---@field onTabPressedCallback? fun(input:GGUI.NumericInput)
+---@field onEnterPressedCallback? fun(input:GGUI.NumericInput, value)
 ---@field incrementOneButtons? boolean
 ---@field incrementFiveButtons? boolean
 ---@field buttonsScale? number
 ---@field borderAdjustWidth? number
 ---@field borderAdjustHeight? number
 ---@field borderWidth? number
+---@field tooltipOptions? GGUI.TooltipOptions
+---@field labelOptions? GGUI.TextConstructorOptions
 
 ---@class GGUI.NumericInput : Object
 ---@overload fun(options:GGUI.NumericInputConstructorOptions): GGUI.NumericInput
@@ -2341,6 +2642,7 @@ function GGUI.NumericInput:new(options)
     self.onNumberValidCallback = options.onNumberValidCallback
     self.onValidationChangedCallback = options.onValidationChangedCallback
     self.onTabPressedCallback = options.onTabPressedCallback
+    self.onEnterPressedCallback = options.onEnterPressedCallback
     self.allowDecimals = options.allowDecimals
     self.autoFocus = options.autoFocus
     self.minValue = options.minValue
@@ -2360,11 +2662,21 @@ function GGUI.NumericInput:new(options)
         sizeY = options.sizeY,
         initialValue = options.initialValue,
         autoFocus = options.autoFocus,
+        onEnterCallback = function(textInput)
+            -- always userinput
+            local input = textInput:GetText()
+            local valid = GUTIL:ValidateNumberString(input, self.minValue, self.maxValue, self.allowDecimals)
+            if self.onEnterPressedCallback and valid then
+                numericInput.currentValue = tonumber(input)
+                textInput:SetText(input)
+                self.onEnterPressedCallback(self, tonumber(input))
+            end
+        end,
         onTextChangedCallback = function(textInput, input, userInput)
             if userInput then
                 local valid = GUTIL:ValidateNumberString(input, self.minValue, self.maxValue, self.allowDecimals)
                 if valid then
-                    numericInput.currentValue = input
+                    numericInput.currentValue = tonumber(input)
                     textInput:SetText(input)
                     if numericInput.onNumberValidCallback then
                         numericInput.onNumberValidCallback(numericInput)
@@ -2473,10 +2785,42 @@ function GGUI.NumericInput:new(options)
 
     validationBorder:Hide()
     self.validationBorder = validationBorder
+
+    if options.labelOptions then
+        ---@type GGUI.TextConstructorOptions
+        local labelOptions = {
+            parent = options.labelOptions.parent or options.parent,
+            anchorParent = options.labelOptions.anchorParent or self.textInput.frame,
+            anchorA = options.labelOptions.anchorA or "RIGHT",
+            anchorB = options.labelOptions.anchorB or "LEFT",
+            fontOptions = options.labelOptions.fontOptions,
+            fixedWidth = options.labelOptions.fixedWidth,
+            justifyOptions = options.labelOptions.justifyOptions or { type = "H", align = "RIGHT" },
+            offsetX = options.labelOptions.offsetX or -8,
+            offsetY = options.labelOptions.offsetY,
+            scale = options.labelOptions.scale,
+            text = options.labelOptions.text or "",
+            tooltipOptions = options.labelOptions.tooltipOptions,
+        }
+        self.label = GGUI.Text(labelOptions)
+    end
+
+    if options.tooltipOptions then
+        self.tooltipOptions = options.tooltipOptions
+        GGUI:SetTooltipsByTooltipOptions(self.textInput.frame, self)
+    end
 end
 
 function GGUI.NumericInput:SetVisible(visible)
     self.textInput:SetVisible(visible)
+end
+
+function GGUI.NumericInput:Hide()
+    self.textInput:Hide()
+end
+
+function GGUI.NumericInput:Show()
+    self.textInput:Show()
 end
 
 --- GGUI.FrameList
@@ -2485,27 +2829,29 @@ end
 ---@overload fun(options:GGUI.FrameListConstructorOptions): GGUI.FrameList
 GGUI.FrameList = GGUI.Widget:extend()
 
----@class GGUI.FrameListConstructorOptions
----@field parent? Frame
+---@class GGUI.FrameListConstructorOptions : GGUI.ConstructorOptions
+---@field private parent? Frame
 ---@field rowHeight? number
 ---@field columnOptions GGUI.FrameList.ColumnOption[]
 ---@field rowConstructor fun(columns: Frame[], row: GGUI.FrameList.Row) used to construct the rows and fill the column frames with content, columns are forwarded as params (...)
 ---@field showBorder? boolean
----@field anchorParent? Frame
----@field anchorA? FramePoint
----@field anchorB? FramePoint
----@field offsetX? number
----@field offsetY? number
+---@field private anchorPoints? GGUI.AnchorPoint[]
+---@field private anchorParent? Frame -- DEPRICATED Use anchorPoints
+---@field private anchorA? FramePoint -- DEPRICATED Use anchorPoints
+---@field private anchorB? FramePoint -- DEPRICATED Use anchorPoints
+---@field private offsetX? number -- DEPRICATED Use anchorPoints
+---@field private offsetY? number -- DEPRICATED Use anchorPoints
 ---@field sizeX? number if omitted will adjust to row width
----@field sizeY? number will be ignored when autoAdjustHeight is set
----@field headerOffsetX? number
+---@field private sizeY? number will be ignored when autoAdjustHeight is set
+---@field private headerOffsetX? number
 ---@field scale? number
 ---@field rowScale? number
 ---@field selectionOptions? GGUI.FrameList.SelectionOptions
 ---@field rowBackdrops? GGUI.BackdropOptions[] rows will alternate backdroplist
 ---@field hideScrollbar? boolean
----@field autoAdjustHeight? boolean
----@field autoAdjustHeightCallback? fun(newHeight: number)
+---@field private autoAdjustHeight? boolean
+---@field private autoAdjustHeightCallback? fun(newHeight: number)
+---@field disableScrolling? boolean
 
 ---@class GGUI.FrameList.SelectionOptions
 ---@field noSelectionColor boolean?
@@ -2518,6 +2864,8 @@ GGUI.FrameList = GGUI.Widget:extend()
 ---@field label? string
 ---@field justifyOptions? GGUI.JustifyOptions
 ---@field backdropOptions? GGUI.BackdropOptions
+---@field tooltipOptions? GGUI.TooltipOptions
+---@field fontOptions? GGUI.FontOptions
 
 function GGUI.FrameList:new(options)
     self.isGGUI = true
@@ -2550,11 +2898,11 @@ function GGUI.FrameList:new(options)
     self.selectedRow = nil
 
     if not options.columnOptions or #options.columnOptions == 0 then
-        error("GGUI Error: FrameList needs a least one column! (columnOptions)")
+        GGUI:ThrowError("FrameList needs a least one column! (columnOptions)")
     end
 
     if not options.rowConstructor then
-        error("GGUI Error: FrameList needs a rowConstructor function!")
+        GGUI:ThrowError("FrameList needs a rowConstructor function!")
     end
 
     local firstColumnOffsetX = 0
@@ -2562,7 +2910,7 @@ function GGUI.FrameList:new(options)
 
     table.foreach(options.columnOptions, function(_, columnOption)
         if not columnOption.width then
-            error("GGUI Error: All columnOptions need a width property!")
+            GGUI:ThrowError("All Column Options need a width property!")
         end
         rowWidth = rowWidth + columnOption.width
     end)
@@ -2571,7 +2919,15 @@ function GGUI.FrameList:new(options)
     self.rowConstructor = options.rowConstructor
 
     local mainFrame = CreateFrame("Frame", nil, options.parent)
-    mainFrame:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    if options.anchorPoints then
+        for _, anchorPoint in ipairs(options.anchorPoints) do
+            mainFrame:SetPoint(anchorPoint.anchorA, anchorPoint.anchorParent, anchorPoint.anchorB,
+                anchorPoint.offsetX or 0,
+                anchorPoint.offsetY or 0)
+        end
+    else
+        mainFrame:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    end
     mainFrame:SetSize(options.sizeX or (rowWidth + 10), options.sizeY)
     mainFrame:SetScale(options.scale)
 
@@ -2583,7 +2939,8 @@ function GGUI.FrameList:new(options)
         offsetRIGHT = -5,
         offsetBOTTOM = 5,
         showBorder = options.showBorder,
-        hideScrollbar = options.hideScrollbar
+        hideScrollbar = options.hideScrollbar,
+        disableScrolling = options.disableScrolling,
     })
 
     ---@type GGUI.FrameList.Row
@@ -2600,12 +2957,21 @@ function GGUI.FrameList:new(options)
         local headerColumn = CreateFrame("Frame", nil, header)
         headerColumn:SetSize(columnOption.width, 25)
 
+        local columnTooltipOptions = columnOption.tooltipOptions
+
+        if columnTooltipOptions then
+            columnTooltipOptions.anchor = columnTooltipOptions.anchor or "ANCHOR_CURSOR"
+            columnTooltipOptions.owner = columnTooltipOptions.owner or headerColumn
+        end
+
         headerColumn.text = GGUI.Text({
             fixedWidth = columnOption.width,
             text = columnOption.label or "",
             parent = headerColumn,
             anchorParent = headerColumn,
             justifyOptions = columnOption.justifyOptions or { type = "H", align = "LEFT" },
+            fontOptions = columnOption.fontOptions,
+            tooltipOptions = columnTooltipOptions,
         })
 
         if index == 1 then
@@ -2618,6 +2984,15 @@ function GGUI.FrameList:new(options)
     end
 
     GGUI.FrameList.super.new(self, mainFrame)
+end
+
+---@param anchorPoints GGUI.AnchorPoint[]
+function GGUI.FrameList:SetAnchorPoints(anchorPoints)
+    self.frame:ClearAllPoints()
+    for _, anchorPoint in ipairs(anchorPoints) do
+        self.frame:SetPoint(anchorPoint.anchorA, anchorPoint.anchorParent, anchorPoint.anchorB, anchorPoint.offsetX or 0,
+            anchorPoint.offsetY or 0)
+    end
 end
 
 function GGUI.FrameList:SetSelectionEnabled(enabled)
@@ -2640,44 +3015,42 @@ GGUI.FrameList.Row = GGUI.Widget:extend()
 ---@param frameList GGUI.FrameList
 function GGUI.FrameList.Row:new(rowFrame, columns, rowConstructor, frameList)
     GGUI.FrameList.Row.super.new(self, rowFrame)
+    ---@type Frame
+    self.frame = self.frame
     self.columns = columns
     self.active = false
     self.frameList = frameList
-    ---@class GGUI.FrameList.Row.TooltipOptions?
+    ---@class GGUI.TooltipOptions?
     ---@field spellID number?
-    ---@field owner Frame
+    ---@field itemID number?
+    ---@field owner? Frame if omitted defaults to optionsOwner.frame
     ---@field anchor TooltipAnchor
     ---@field text string?
     ---@field textWrap? boolean
+    ---@field frame? Frame
+    ---@field scale? number
+    ---@field frameUpdateCallback? fun(tooltipFrame: Frame) if set will be called on the given tooltip frame right before the tooltip is updated. Can be used to update the frame e.g.
     self.tooltipOptions = nil
+
+    self.separatorLine = rowFrame:CreateLine()
+    self.separatorLineRGBA = { 1, 1, 1, 1 }
+    self.separatorLineThickness = 2
+    self.separatorLine:SetStartPoint("BOTTOMLEFT", rowFrame)
+    self.separatorLine:SetEndPoint("BOTTOMRIGHT", rowFrame)
+
+    self.separatorLine:Hide()
+
+    self.subFrameListEnabled = false
+    ---@type GGUI.FrameList?
+    self.subFrameList = nil
 
     ---@type function
     local onEnterSelectableRow = nil
     ---@type function
     local onLeaveSelectableRow = nil
 
-    local function handleTooltipOnEnter()
-        if not self.tooltipOptions then return end
+    GGUI:SetTooltipsByTooltipOptions(rowFrame, self)
 
-        if self.tooltipOptions.spellID then
-            local _, currentSpellID = GameTooltip:GetSpell()
-            GameTooltip:SetOwner(self.tooltipOptions.owner, self.tooltipOptions.anchor);
-
-            if currentSpellID ~= self.tooltipOptions.spellID then
-                -- to not set it again and hide the tooltip..
-                GameTooltip:SetSpellByID(self.tooltipOptions.spellID)
-            end
-        elseif self.tooltipOptions.text then
-            GameTooltip:SetOwner(self.tooltipOptions.owner, self.tooltipOptions.anchor);
-            GameTooltip:SetText(self.tooltipOptions.text, nil, nil, nil, nil, self.tooltipOptions.textWrap)
-        end
-
-        GameTooltip:Show();
-    end
-    local function handleTooltipOnLeave()
-        if not self.tooltipOptions then return end
-        GameTooltip:Hide();
-    end
     if frameList.selectionOptions then
         self.Select = function(_, userInput)
             if self ~= frameList.selectedRow or frameList.selectionOptions.noSelectionColor then
@@ -2687,7 +3060,11 @@ function GGUI.FrameList.Row:new(rowFrame, columns, rowConstructor, frameList)
                         frameList.selectionOptions.selectedRGBA[4])
                     if frameList.selectedRow then
                         -- revert color
-                        frameList.selectedRow.frame:SetBackdropColor(0, 0, 0, 0)
+                        if self.originalBackdropOptions then
+                            GGUI:SetBackdropByBackdropOptions(frameList.selectedRow.frame, self.originalBackdropOptions)
+                        else
+                            frameList.selectedRow.frame:SetBackdropColor(0, 0, 0, 0)
+                        end
                     end
                 end
                 frameList.selectedRow = self
@@ -2697,11 +3074,8 @@ function GGUI.FrameList.Row:new(rowFrame, columns, rowConstructor, frameList)
         end
         rowFrame:SetBackdrop({
             bgFile = "Interface\\Buttons\\WHITE8x8", -- You can use any texture here or a solid color
-            --edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", -- Optional: border texture
-            --edgeSize = 12, -- Optional: size of the border
-            --insets = { left = 3, right = 3, top = 3, bottom = 3 } -- Optional: spacing inside the border
         })
-        rowFrame:SetBackdropColor(0, 0, 0, 0) -- make colorless
+        rowFrame:SetBackdropColor(0, 0, 0, 0)        -- make colorless
 
         onEnterSelectableRow =
             function()
@@ -2714,31 +3088,52 @@ function GGUI.FrameList.Row:new(rowFrame, columns, rowConstructor, frameList)
         onLeaveSelectableRow =
             function()
                 if self ~= frameList.selectedRow or frameList.selectionOptions.noSelectionColor then
-                    rowFrame:SetBackdropColor(0, 0, 0, 0)
+                    if self.originalBackdropOptions then
+                        GGUI:SetBackdropByBackdropOptions(rowFrame, self.originalBackdropOptions)
+                    else
+                        rowFrame:SetBackdropColor(0, 0, 0, 0)
+                    end
                 end
             end
-        -- OnMouseDown handler - Mouse click
-        rowFrame:SetScript("OnMouseDown", function()
-            if frameList.selectionEnabled then
-                self:Select(true)
-            end
-        end)
     end
-    rowFrame:SetScript("OnEnter", function()
+    -- OnMouseDown handler - Mouse click
+    rowFrame:SetScript("OnMouseDown", function()
+        -- subFrameList toggle has authority over selection!
+        if self.subFrameListEnabled and self.subFrameList then
+            self:SetSubFrameListVisible(not self.subFrameListVisible)
+        elseif frameList.selectionEnabled and frameList.selectionOptions then
+            self:Select(true)
+        end
+    end)
+    rowFrame:HookScript("OnEnter", function()
         if not frameList.selectionEnabled then return end
-        handleTooltipOnEnter()
         if onEnterSelectableRow then
             onEnterSelectableRow()
         end
     end)
-    rowFrame:SetScript("OnLeave", function()
-        handleTooltipOnLeave()
+    rowFrame:HookScript("OnLeave", function()
         if onLeaveSelectableRow then
             onLeaveSelectableRow()
         end
     end)
     rowConstructor(self.columns, self)
     self:Hide()
+end
+
+---@param visible boolean
+---@param rgba number[]? default: white
+---@param thickness number? default: 2
+function GGUI.FrameList.Row:SetSeparatorLine(visible, rgba, thickness)
+    rgba = rgba or self.separatorLineRGBA
+    thickness = thickness or self.separatorLineThickness
+    self.separatorLine:SetColorTexture(rgba[1], rgba[2], rgba[3],
+        rgba[4])
+    self.separatorLine:SetThickness(thickness)
+    if visible then
+        self.separatorLine:Show()
+    else
+        self.separatorLine:Hide()
+    end
 end
 
 ---@return number? index nil if row is not active
@@ -2749,6 +3144,65 @@ function GGUI.FrameList.Row:GetActiveRowIndex()
         end
     end
     return nil
+end
+
+---@class GGUI.SubFrameListConstructorOptions : GGUI.FrameListConstructorOptions
+---@field offsetX? number frameListOffsetX
+---@field offsetY? number frameListOffsetY
+
+---@param subFrameListOptions? GGUI.SubFrameListConstructorOptions
+function GGUI.FrameList.Row:CreateSubFrameList(subFrameListOptions)
+    subFrameListOptions = subFrameListOptions or {}
+    -- set some defaults for anchoring, offsets and scale
+
+    --self.subFrameListVisible = true
+
+    GGUI:DebugPrint(subFrameListOptions, "Creating SubFrameList")
+
+    if subFrameListOptions.sizeY then
+        GGUI:ThrowError("Sub FrameList sizeY should not be set")
+    end
+    local hasLabels = table.foreach(subFrameListOptions.columnOptions, function(_, columnOption)
+        if columnOption.label then
+            return true
+        end
+    end)
+    GGUI:DebugPrint(subFrameListOptions, "noLabel: " .. tostring(headerOffsetY))
+    local headerOffsetY = -20
+    if not hasLabels then
+        headerOffsetY = 0
+    end
+    GGUI:DebugPrint(subFrameListOptions, "headerOffsetY: " .. tostring(headerOffsetY))
+    local frameListOffsetX = (subFrameListOptions.offsetX or 0) + 10
+    local frameListOffsetY = (subFrameListOptions.offsetY or 0) + -self.frameList.rowHeight + headerOffsetY
+    subFrameListOptions.parent = subFrameListOptions.parent or self.frame
+    subFrameListOptions.sizeY = 100
+    subFrameListOptions.anchorPoints = subFrameListOptions.anchorPoints or
+        { { anchorParent = self.frame, anchorA = "TOPLEFT", anchorB = "TOPLEFT", offsetX = frameListOffsetX, offsetY = frameListOffsetY } }
+    subFrameListOptions.autoAdjustHeight = true
+    subFrameListOptions.autoAdjustHeightCallback = function(newHeight)
+        if self.subFrameListVisible then
+            self.frame:SetSize(self.frame:GetWidth(), self.frameList.rowHeight + newHeight + math.abs(headerOffsetY))
+        end
+    end
+
+
+    self.subFrameList = GGUI.FrameList(subFrameListOptions)
+
+    self.subFrameList:Hide()
+end
+
+---@param visible boolean
+function GGUI.FrameList.Row:SetSubFrameListVisible(visible)
+    if visible then
+        self.subFrameListVisible = true
+        self.subFrameList:Show()
+        self.subFrameList:AdjustHeight() -- predefined adjust height callback should now resize the rowFrame accordingly
+    else
+        self.subFrameListVisible = false
+        self.frame:SetSize(self.frame:GetWidth(), self.frameList.rowHeight)
+        self.subFrameList:Hide()
+    end
 end
 
 ---@param index number
@@ -2815,7 +3269,7 @@ function GGUI.FrameList:CreateRow()
 end
 
 ---Add row data into the list
----@param fillFunc? fun(row: GGUI.FrameList.Row) function that receives a free row to add to the list
+---@param fillFunc? fun(row: GGUI.FrameList.Row, columns: Frame[]) function that receives a free row to add to the list
 function GGUI.FrameList:Add(fillFunc)
     -- get an inactive row from the list of rows, call fillFunc on it
     local freeRow = GUTIL:Find(self.rows, function(row) return not row.active end)
@@ -2825,20 +3279,20 @@ function GGUI.FrameList:Add(fillFunc)
         freeRow = self:CreateRow()
     end
     if fillFunc then
-        fillFunc(freeRow)
+        fillFunc(freeRow, freeRow.columns)
     end
     freeRow.active = true
 end
 
 ---@param updateFunc fun(row:GGUI.FrameList.Row)
----@param filterFunc fun(row:GGUI.FrameList.Row)
+---@param filterFunc? fun(row:GGUI.FrameList.Row)
 ---@param limit? number -- optional limit of max updates
 function GGUI.FrameList:UpdateRows(updateFunc, filterFunc, limit)
     local count = 0
     for _, row in pairs(self.rows) do
         if row.active then
             count = count + 1
-            if filterFunc(row) then
+            if not filterFunc or filterFunc(row) then
                 updateFunc(row)
             end
 
@@ -2914,33 +3368,41 @@ function GGUI.FrameList:UpdateDisplay(sortFunc)
         end
         if self.rowBackdrops and #self.rowBackdrops > 0 then
             local backdropOptions = self.rowBackdrops[#self.rowBackdrops - (index % #self.rowBackdrops)]
-            local borderOptions = backdropOptions.borderOptions or {}
-            row.frame:SetBackdrop({
-                bgFile = backdropOptions.bgFile,
-                edgeFile = borderOptions.edgeFile,
-                edgeSize = borderOptions.edgeSize,
-                insets = borderOptions.insets,
-                tile = backdropOptions.tile,
-                tileSize = backdropOptions.tileSize,
-            })
-            row.frame:SetBackdropColor(backdropOptions.colorR or 1, backdropOptions.colorG or 1,
-                backdropOptions.colorB or 1, backdropOptions.colorA or 1)
-            row.frame:SetBackdropBorderColor(borderOptions.colorR or 1, borderOptions.colorG or 1,
-                borderOptions.colorB or 1, borderOptions.colorA or 1)
+            -- local borderOptions = backdropOptions.borderOptions or {}
+            -- row.frame:SetBackdrop({
+            --     bgFile = backdropOptions.bgFile,
+            --     edgeFile = borderOptions.edgeFile,
+            --     edgeSize = borderOptions.edgeSize,
+            --     insets = borderOptions.insets,
+            --     tile = backdropOptions.tile,
+            --     tileSize = backdropOptions.tileSize,
+            -- })
+            -- row.frame:SetBackdropColor(backdropOptions.colorR or 1, backdropOptions.colorG or 1,
+            --     backdropOptions.colorB or 1, backdropOptions.colorA or 1)
+            -- row.frame:SetBackdropBorderColor(borderOptions.colorR or 1, borderOptions.colorG or 1,
+            --     borderOptions.colorB or 1, borderOptions.colorA or 1)
+
+            GGUI:SetBackdropByBackdropOptions(row.frame, backdropOptions)
+
+            row.originalBackdropOptions = backdropOptions
         end
         lastRow = row
     end
 
     if self.autoAdjustHeight then
-        -- adjust framelist height depending on activeRow Count and call callback if existing
-        local headerOffset = 10
-        local newHeight = (#self.activeRows * self.rowHeight) + headerOffset
+        self:AdjustHeight()
+    end
+end
 
-        self.frame:SetSize(self.frame:GetWidth(), newHeight)
+function GGUI.FrameList:AdjustHeight()
+    -- adjust framelist height depending on activeRow Count and call callback if existing
+    local headerOffset = 10
+    local newHeight = (#self.activeRows * self.rowHeight) + headerOffset
 
-        if self.autoAdjustHeightCallback then
-            self.autoAdjustHeightCallback(newHeight)
-        end
+    self.frame:SetSize(self.frame:GetWidth(), newHeight)
+
+    if self.autoAdjustHeightCallback then
+        self.autoAdjustHeightCallback(newHeight)
     end
 end
 
@@ -2949,6 +3411,7 @@ end
 ---@field text? string
 ---@field acceptButtonLabel? string
 ---@field declineButtonLabel? string
+---@field okButtonLabel? string
 ---@field onAccept? function
 ---@field onDecline? function
 ---@field sizeX? number
@@ -2959,17 +3422,19 @@ end
 ---@field offsetY? number
 ---@field anchorA? FramePoint
 ---@field anchorB? FramePoint
+---@field copyText? string
 
 local popupFrame = nil
 ---@param options GGUI.ShowPopupOptions
 function GGUI:ShowPopup(options)
     if not popupFrame then
-        error("GGUI Error: Popup Frame not initialized")
+        GGUI:ThrowError("Popup Frame not initialized")
     end
     options.title = options.title or nil
     options.text = options.text or ""
-    options.acceptButtonLabel = options.acceptButtonLabel or "Accept"
-    options.declineButtonLabel = options.declineButtonLabel or "Decline"
+    options.acceptButtonLabel = options.acceptButtonLabel or OKAY
+    options.declineButtonLabel = options.declineButtonLabel or CANCEL
+    options.okButtonLabel = options.okButtonLabel or "Ok"
     options.width = options.width or 300
     options.height = options.height or 300
     options.parent = options.parent or UIParent
@@ -2989,6 +3454,8 @@ function GGUI:ShowPopup(options)
     popupFrame.onDecline = options.onDecline
     popupFrame.content.declineButton.frame:SetText(options.declineButtonLabel)
     popupFrame.content.declineButton.frame:SetWidth(popupFrame.content.declineButton.frame:GetTextWidth() + 15)
+    popupFrame.content.okButton.frame:SetText(options.okButtonLabel)
+    popupFrame.content.okButton.frame:SetWidth(popupFrame.content.okButton.frame:GetTextWidth() + 15)
 
     if options.sizeX then
         popupFrame.frame:SetWidth(options.sizeX)
@@ -3000,11 +3467,30 @@ function GGUI:ShowPopup(options)
     popupFrame.frame:ClearAllPoints()
     popupFrame:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
 
+    if options.copyText then
+        popupFrame.content.copyInput:Show()
+        popupFrame.content.okButton:Show()
+        popupFrame.content.acceptButton:Hide()
+        popupFrame.content.declineButton:Hide()
+        popupFrame.content.copyInput:SetText(options.copyText)
+        local editBox = popupFrame.content.copyInput.frame --[[@as EditBox]]
+        editBox:HighlightText()
+    else
+        popupFrame.content.copyInput:Hide()
+        popupFrame.content.okButton:Hide()
+        popupFrame.content.acceptButton:Show()
+        popupFrame.content.declineButton:Show()
+        popupFrame.content.copyInput:SetText("")
+    end
+
     popupFrame:Show()
 end
 
 ---@class GGUI.InitPopupOptions
 ---@field backdropOptions GGUI.BackdropOptions
+---@field buttonTextureOptions? GGUI.ButtonTextureOptions
+---@field buttonFontOptions? GGUI.FontOptions
+---@field hideCloseButton? boolean
 ---@field title? string
 ---@field sizeX? number
 ---@field sizeY? number
@@ -3021,7 +3507,7 @@ function GGUI:InitializePopup(options)
         frameStrata = "DIALOG",
         frameID = options.frameID,
         title = options.title or "",
-        closeable = true,
+        closeable = not options.hideCloseButton,
     })
 
     popupFrame.content.text = GGUI.Text({
@@ -3035,7 +3521,9 @@ function GGUI:InitializePopup(options)
         anchorB = "BOTTOMLEFT",
         offsetX = 10,
         offsetY = 10,
-        label = "Accept",
+        label = OKAY,
+        buttonTextureOptions = options.buttonTextureOptions,
+        fontOptions = options.buttonFontOptions,
         clickCallback = function()
             if popupFrame.onAccept then
                 popupFrame.onAccept()
@@ -3043,6 +3531,21 @@ function GGUI:InitializePopup(options)
             popupFrame:Hide()
         end
     })
+    popupFrame.content.okButton = GGUI.Button({
+        parent = popupFrame.content,
+        anchorParent = popupFrame.frame,
+        anchorA = "BOTTOM",
+        anchorB = "BOTTOM",
+        offsetX = 10,
+        offsetY = 10,
+        label = OKAY,
+        buttonTextureOptions = options.buttonTextureOptions,
+        fontOptions = options.buttonFontOptions,
+        clickCallback = function()
+            popupFrame:Hide()
+        end
+    })
+    popupFrame.content.okButton:Hide()
     popupFrame.content.declineButton = GGUI.Button({
         parent = popupFrame.content,
         anchorParent = popupFrame.frame,
@@ -3050,7 +3553,9 @@ function GGUI:InitializePopup(options)
         anchorB = "BOTTOMRIGHT",
         offsetX = -10,
         offsetY = 10,
-        label = "Decline",
+        label = CANCEL,
+        fontOptions = options.buttonFontOptions,
+        buttonTextureOptions = options.buttonTextureOptions,
         clickCallback = function()
             if popupFrame.onDecline then
                 popupFrame.onDecline()
@@ -3058,6 +3563,15 @@ function GGUI:InitializePopup(options)
             popupFrame:Hide()
         end
     })
+
+    popupFrame.content.copyInput = GGUI.TextInput {
+        parent = popupFrame.content, anchorParent = popupFrame.content,
+        sizeX = 150, autoFocus = true,
+    }
+
+    local editBox = popupFrame.content.copyInput.frame --[[@as EditBox]]
+
+    popupFrame.content.copyInput:Hide()
 
     popupFrame:Hide()
 
@@ -3067,7 +3581,7 @@ end
 --- GGUI.ItemSelector
 ---@class GGUI.ItemSelector
 
----@class GGUI.ItemSelectorConstructorOptions
+---@class GGUI.ItemSelectorConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field anchorParent? Frame
 ---@field anchorA? FramePoint
@@ -3249,7 +3763,7 @@ end
 ---@field initialValue? boolean
 ---@field tooltip? string
 
----@class GGUI.CheckboxSelectorConstructorOptions
+---@class GGUI.CheckboxSelectorConstructorOptions : GGUI.ConstructorOptions
 ---@field buttonOptions? GGUI.ButtonConstructorOptions
 ---@field selectionFrameOptions? GGUI.FrameConstructorOptions
 ---@field initialItems? GGUI.CheckboxSelector.CheckboxItem[]
@@ -3378,229 +3892,49 @@ function GGUI.CheckboxSelector:SetItems(checkboxItems)
     end
 end
 
---- GGUI ClassIcon
+--- GGUI.ClassIcon
 
----@enum GGUI.Class
-GGUI.CONST.CLASSES = {
-    WARRIOR = "WARRIOR",
-    ARMS = "ARMS",
-    FURY = "FURY",
-    PROTECTION = "PROTECTION",
-
-    PALADIN = "PALADIN",
-    HOLY = "HOLY",
-    RETRIBUTION = "RETRIBUTION",
-    PROTECTION_PALADIN = "PROTECTION_PALADIN",
-
-    HUNTER = "HUNTER",
-    BEAST_MASTERY = "BEAST_MASTERY",
-    MARKSMANSHIP = "MARKSMANSHIP",
-    SURVIVAL = "SURVIVAL",
-
-    ROGUE = "ROGUE",
-    ASSASSINATION = "ASSASSINATION",
-    OUTLAW = "OUTLAW",
-    SUBTLETY = "SUBTLETY",
-
-    PRIEST = "PRIEST",
-    DISCIPLINE = "DISCIPLINE",
-    HOLY_PRIEST = "HOLY_PRIEST",
-    SHADOW = "SHADOW",
-
-    DEATHKNIGHT = "DEATHKNIGHT",
-    BLOOD = "BLOOD",
-    FROST = "FROST",
-    UNHOLY = "UNHOLY",
-
-    SHAMAN = "SHAMAN",
-    ELEMENTAL = "ELEMENTAL",
-    ENHANCEMENT = "ENHANCEMENT",
-    RESTORATION = "RESTORATION",
-
-    MAGE = "MAGE",
-    ARCANE = "ARCANE",
-    FIRE = "FIRE",
-    FROST_MAGE = "FROST_MAGE",
-
-    WARLOCK = "WARLOCK",
-    AFFLICTION = "AFFLICTION",
-    DEMONOLOGY = "DEMONOLOGY",
-    DESTRUCTION = "DESTRUCTION",
-
-    MONK = "MONK",
-    BREWMASTER = "BREWMASTER",
-    MISTWEAVER = "MISTWEAVER",
-    WINDWALKER = "WINDWALKER",
-
-    DRUID = "DRUID",
-    BALANCE = "BALANCE",
-    FERAL = "FERAL",
-    GUARDIAN = "GUARDIAN",
-    RESTORATION_DRUID = "RESTORATION_DRUID",
-
-    DEMONHUNTER = "DEMONHUNTER",
-    HAVOC = "HAVOC",
-    VENGEANCE = "VENGEANCE",
-
-    EVOKER = "EVOKER",
-    AUGMENTATION = "AUGMENTATION",
-    DEVASTATION = "DEVASTATION",
-    PRESERVATION = "PRESERVATION",
-}
----@type table<GGUI.Class, string>
+---@type table<ClassFile, string>
 GGUI.CONST.CLASS_ICONS = {
     WARRIOR = "Interface\\Icons\\ClassIcon_Warrior",
-    ARMS = "Interface\\Icons\\Ability_Warrior_SavageBlow",
-    FURY = "Interface\\Icons\\Ability_Warrior_InnerRage",
-    PROTECTION = "Interface\\Icons\\Ability_Warrior_DefensiveStance",
-
     PALADIN = "Interface\\Icons\\ClassIcon_Paladin",
-    HOLY = "Interface\\Icons\\Spell_Holy_HolyBolt",
-    RETRIBUTION = "Interface\\Icons\\Spell_Holy_AuraOfLight",
-    PROTECTION_PALADIN = "Interface\\Icons\\Ability_Paladin_ShieldoftheTemplar",
-
     HUNTER = "Interface\\Icons\\ClassIcon_Hunter",
-    BEAST_MASTERY = "Interface\\Icons\\ability_hunter_bestialdiscipline",
-    MARKSMANSHIP = "Interface\\Icons\\ability_marksmanship",
-    SURVIVAL = "Interface\\Icons\\ability_hunter_camouflage",
-
     ROGUE = "Interface\\Icons\\ClassIcon_Rogue",
-    ASSASSINATION = "Interface\\Icons\\Ability_Rogue_Eviscerate",
-    OUTLAW = "Interface\\Icons\\Ability_Rogue_Waylay",
-    SUBTLETY = "Interface\\Icons\\Ability_Stealth",
-
     PRIEST = "Interface\\Icons\\ClassIcon_Priest",
-    DISCIPLINE = "Interface\\Icons\\Spell_Holy_PowerWordShield",
-    HOLY_PRIEST = "Interface\\Icons\\Spell_Holy_GuardianSpirit",
-    SHADOW = "Interface\\Icons\\Spell_Shadow_ShadowWordPain",
-
     DEATHKNIGHT = "Interface\\Icons\\ClassIcon_DeathKnight",
-    BLOOD = "Interface\\Icons\\Spell_DeathKnight_BloodPresence",
-    FROST = "Interface\\Icons\\Spell_DeathKnight_FrostPresence",
-    UNHOLY = "Interface\\Icons\\Spell_DeathKnight_UnholyPresence",
-
     SHAMAN = "Interface\\Icons\\ClassIcon_Shaman",
-    ELEMENTAL = "Interface\\Icons\\Spell_Nature_Lightning",
-    ENHANCEMENT = "Interface\\Icons\\Spell_Shaman_ImprovedStormstrike",
-    RESTORATION = "Interface\\Icons\\Spell_Nature_MagicImmunity",
-
     MAGE = "Interface\\Icons\\ClassIcon_Mage",
-    ARCANE = "Interface\\Icons\\Spell_Holy_MagicalSentry",
-    FIRE = "Interface\\Icons\\Spell_Fire_FireBolt02",
-    FROST_MAGE = "Interface\\Icons\\Spell_Frost_FrostBolt02",
-
     WARLOCK = "Interface\\Icons\\ClassIcon_Warlock",
-    AFFLICTION = "Interface\\Icons\\Spell_Shadow_DeathCoil",
-    DEMONOLOGY = "Interface\\Icons\\Spell_Shadow_Metamorphosis",
-    DESTRUCTION = "Interface\\Icons\\Spell_Shadow_RainOfFire",
-
     MONK = "Interface\\Icons\\ClassIcon_Monk",
-    BREWMASTER = "Interface\\Icons\\Spell_Monk_Brewmaster_Spec",
-    MISTWEAVER = "Interface\\Icons\\Ability_Monk_SoothingMists",
-    WINDWALKER = "Interface\\Icons\\spell_monk_windwalker_spec",
-
     DRUID = "Interface\\Icons\\ClassIcon_Druid",
-    BALANCE = "Interface\\Icons\\Spell_Nature_Starfall",
-    FERAL = "Interface\\Icons\\Ability_Druid_CatForm",
-    GUARDIAN = "Interface\\Icons\\Ability_Racial_BearForm",
-    RESTORATION_DRUID = "Interface\\Icons\\Spell_Nature_HealingTouch",
-
     DEMONHUNTER = "Interface\\Icons\\ClassIcon_DemonHunter",
-    HAVOC = "Interface\\Icons\\Ability_DemonHunter_SpecDPS",
-    VENGEANCE = "Interface\\Icons\\Ability_DemonHunter_SpecTank",
-
     EVOKER = "Interface\\Icons\\classicon_evoker",
-    AUGMENTATION = "Interface\\Icons\\classicon_evoker_augmentation",
-    DEVASTATION = "Interface\\Icons\\classicon_evoker_devastation",
-    PRESERVATION = "Interface\\Icons\\classicon_evoker_preservation",
 }
 
-GGUI.CONST.CLASS_COLORS_RGBA = {
-    WARRIOR = { 0.7804, 0.6118, 0.4314, 1 },           -- #C79C6E
-    ARMS = { 0.7804, 0.6118, 0.4314, 1 },              -- Warrior
-    FURY = { 0.7804, 0.6118, 0.4314, 1 },              -- Warrior
-    PROTECTION = { 0.7804, 0.6118, 0.4314, 1 },        -- Warrior
-
-    PALADIN = { 0.9569, 0.549, 0.7294, 1 },            -- #F58CBA
-    HOLY = { 0.9569, 0.549, 0.7294, 1 },               -- Paladin
-    RETRIBUTION = { 0.9569, 0.549, 0.7294, 1 },        -- Paladin
-    PROTECTION_PALADIN = { 0.9569, 0.549, 0.7294, 1 }, -- Paladin
-
-    HUNTER = { 0.6706, 0.8353, 0.4509, 1 },            -- #ABD473
-    BEAST_MASTERY = { 0.6706, 0.8353, 0.4509, 1 },     -- Hunter
-    MARKSMANSHIP = { 0.6706, 0.8353, 0.4509, 1 },      -- Hunter
-    SURVIVAL = { 0.6706, 0.8353, 0.4509, 1 },          -- Hunter
-
-    ROGUE = { 1, 0.9608, 0.4118, 1 },                  -- #FFF569
-    ASSASSINATION = { 1, 0.9608, 0.4118, 1 },          -- Rogue
-    OUTLAW = { 1, 0.9608, 0.4118, 1 },                 -- Rogue
-    SUBTLETY = { 1, 0.9608, 0.4118, 1 },               -- Rogue
-
-    PRIEST = { 1, 1, 1, 1 },                           -- #FFFFFF
-    DISCIPLINE = { 1, 1, 1, 1 },                       -- Priest
-    HOLY_PRIEST = { 1, 1, 1, 1 },                      -- Priest
-    SHADOW = { 1, 1, 1, 1 },                           -- Priest
-
-    DEATHKNIGHT = { 0.7686, 0.1216, 0.2314, 1 },       -- #C41F3B
-    BLOOD = { 0.7686, 0.1216, 0.2314, 1 },             -- Death Knight
-    FROST = { 0.7686, 0.1216, 0.2314, 1 },             -- Death Knight
-    UNHOLY = { 0.7686, 0.1216, 0.2314, 1 },            -- Death Knight
-
-    SHAMAN = { 0, 0.4392, 0.8706, 1 },                 -- #0070DE
-    ELEMENTAL = { 0, 0.4392, 0.8706, 1 },              -- Shaman
-    ENHANCEMENT = { 0, 0.4392, 0.8706, 1 },            -- Shaman
-    RESTORATION = { 0, 0.4392, 0.8706, 1 },            -- Shaman
-
-    MAGE = { 0.4157, 0.8, 0.9412, 1 },                 -- #69CCF0
-    ARCANE = { 0.4157, 0.8, 0.9412, 1 },               -- Mage
-    FIRE = { 0.4157, 0.8, 0.9412, 1 },                 -- Mage
-    FROST_MAGE = { 0.4157, 0.8, 0.9412, 1 },           -- Mage
-
-    WARLOCK = { 0.5804, 0.5098, 0.7882, 1 },           -- #9482C9
-    AFFLICTION = { 0.5804, 0.5098, 0.7882, 1 },        -- Warlock
-    DEMONOLOGY = { 0.5804, 0.5098, 0.7882, 1 },        -- Warlock
-    DESTRUCTION = { 0.5804, 0.5098, 0.7882, 1 },       -- Warlock
-
-    MONK = { 0, 1, 0.5882, 1 },                        -- #00FF96
-    BREWMASTER = { 0, 1, 0.5882, 1 },                  -- Monk
-    MISTWEAVER = { 0, 1, 0.5882, 1 },                  -- Monk
-    WINDWALKER = { 0, 1, 0.5882, 1 },                  -- Monk
-
-    DRUID = { 1, 0.4902, 0.0392, 1 },                  -- #FF7D0A
-    BALANCE = { 1, 0.4902, 0.0392, 1 },                -- Druid
-    FERAL = { 1, 0.4902, 0.0392, 1 },                  -- Druid
-    GUARDIAN = { 1, 0.4902, 0.0392, 1 },               -- Druid
-    RESTORATION_DRUID = { 1, 0.4902, 0.0392, 1 },      -- Druid
-
-    DEMONHUNTER = { 0.6392, 0.2078, 0.9333, 1 },       -- #A330C9
-    HAVOC = { 0.6392, 0.2078, 0.9333, 1 },             -- Demon Hunter
-    VENGEANCE = { 0.6392, 0.2078, 0.9333, 1 },         -- Demon Hunter
-
-    EVOKER = { 0.2, 0.58, 0.5, 1 },                    -- #33937F
-    AUGMENTATION = { 0.6392, 0.2078, 0.9333, 1 },      -- Evoker
-    DEVASTATION = { 0.6392, 0.2078, 0.9333, 1 },       -- Evoker
-    PRESERVATION = { 0.6392, 0.2078, 0.9333, 1 },      -- Evoker
-}
-
----@class GGUI.ClassIconConstructorOptions
+---@class GGUI.ClassIconConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
----@field offsetX? number
----@field offsetY? number
----@field initialClass? GGUI.Class
+---@field anchorA? FramePoint DEPRICATED: use anchorPoints
+---@field anchorB? FramePoint DEPRICATED: use anchorPoints
+---@field anchorParent? Region DEPRICATED: use anchorPoints
+---@field offsetX? number DEPRICATED: use anchorPoints
+---@field offsetY? number DEPRICATED: use anchorPoints
+---@field anchorPoints? GGUI.AnchorPoint[]
+---@field initialClass? ClassFile
+---@field initialSpecID? number
 ---@field sizeX? number
 ---@field sizeY? number
----@field anchorA? FramePoint
----@field anchorB? FramePoint
----@field anchorParent? Region
 ---@field enableMouse? boolean
 ---@field showBorder? boolean
 ---@field borderSize? number
 ---@field clickCallback? fun(GGUI.ClassIcon)
 ---@field desaturate? boolean
+---@field showTooltip? boolean
 
 ---@class GGUI.ClassIcon : GGUI.Widget
 ---@overload fun(options:GGUI.ClassIconConstructorOptions): GGUI.ClassIcon
 GGUI.ClassIcon = GGUI.Widget:extend()
+
+---@param options  GGUI.ClassIconConstructorOptions
 function GGUI.ClassIcon:new(options)
     options = options or {}
     options.offsetX = options.offsetX or 0
@@ -3611,13 +3945,26 @@ function GGUI.ClassIcon:new(options)
     options.anchorB = options.anchorB or "CENTER"
     self.showBorder = options.showBorder or false
     self.desaturate = options.desaturate or false
+    self.showTooltip = options.showTooltip
 
     self.class = options.initialClass
+    self.specID = options.initialSpecID
 
+
+    if self.specID then
+        self.class = select(6, GetSpecializationInfoByID(self.specID))
+        GGUI:DebugPrint(options, "ClassIcon For Class: " .. tostring(self.class))
+    end
+    ---@type GGUI.TooltipOptions?
+    self.tooltipOptions = nil
 
     self.icon = CreateFrame("Button", nil, options.parent, "GameMenuButtonTemplate")
     GGUI.Icon.super.new(self, self.icon)
-    self.icon:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    if options.anchorPoints then
+        GGUI:SetPointsByAnchorPoints(self.icon, options.anchorPoints)
+    else
+        self.icon:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
+    end
     self.icon:SetSize(options.sizeX, options.sizeY)
 
     if options.showBorder then
@@ -3631,16 +3978,16 @@ function GGUI.ClassIcon:new(options)
         }
         self.borderFrame:SetFrameLevel(self.icon:GetFrameLevel() + 10)
         if self.class then
-            local initialColor = GGUI.CONST.CLASS_COLORS_RGBA[self.class]
+            local initialColor = C_ClassColor.GetClassColor(self.class)
             if initialColor then
-                self.borderFrame:SetBackdropBorderColor(initialColor[1], initialColor[2], initialColor[3],
-                    initialColor[4])
+                self.borderFrame:SetBackdropBorderColor(initialColor.r, initialColor.g, initialColor.b,
+                    initialColor.a)
             end
         end
     end
 
 
-    local texture = GGUI.CONST.CLASS_ICONS[options.initialClass]
+    local texture = GGUI.CONST.CLASS_ICONS[self.class]
     if texture then
         local buttonTexture = self.icon:CreateTexture(nil, "BACKGROUND")
         buttonTexture:SetAllPoints()
@@ -3661,6 +4008,41 @@ function GGUI.ClassIcon:new(options)
             end
         end)
     end
+
+    if options.showTooltip then
+        GGUI:SetTooltipsByTooltipOptions(self.icon, self)
+
+        local initialText = nil
+        if self.specID then
+            local specName = select(2, GetSpecializationInfoByID(self.specID))
+            initialText = C_ClassColor.GetClassColor(self.class):WrapTextInColorCode(specName ..
+                " " .. LOCALIZED_CLASS_NAMES_MALE
+                [self.class])
+        elseif self.class then
+            initialText = C_ClassColor.GetClassColor(self.class):WrapTextInColorCode(LOCALIZED_CLASS_NAMES_MALE
+                [self.class])
+        end
+
+        self.tooltipOptions = {
+            anchor = "ANCHOR_CURSOR",
+            owner = self.icon,
+            text = initialText,
+        }
+    end
+end
+
+function GGUI.ClassIcon:Show()
+    self.frame:Show()
+    if self.borderFrame then
+        self.borderFrame:Show()
+    end
+end
+
+function GGUI.ClassIcon:Hide()
+    self.frame:Hide()
+    if self.borderFrame then
+        self.borderFrame:Hide()
+    end
 end
 
 function GGUI.ClassIcon:Desaturate()
@@ -3668,28 +4050,63 @@ function GGUI.ClassIcon:Desaturate()
     self.desaturate = true
 end
 
+---@param saturation boolean
+function GGUI.ClassIcon:SetSaturation(saturation)
+    if saturation then
+        self:Saturate()
+    else
+        self:Desaturate()
+    end
+end
+
 function GGUI.ClassIcon:Saturate()
     self.frame:GetNormalTexture():SetVertexColor(1, 1, 1)
     self.desaturate = false
 end
 
----@param class GGUI.Class
-function GGUI.ClassIcon:SetClass(class)
-    local texture = GGUI.CONST.CLASS_ICONS[class]
-    self.class = class
+---@param classOrSpec ClassFile | number | nil
+function GGUI.ClassIcon:SetClass(classOrSpec)
+    if not classOrSpec then
+        self.class = nil
+        self.specID = nil
+        self.tooltipOptions.text = nil
+        self.icon:ClearNormalTexture()
+        if self.showBorder then
+            self.borderFrame:SetBackdropBorderColor(1, 1, 1, 0)
+        end
+        return
+    end
+    local texture
+    if type(classOrSpec) == 'string' then
+        texture = GGUI.CONST.CLASS_ICONS[classOrSpec]
+        self.class = classOrSpec
+        self.specID = nil
+        if self.showTooltip then
+            self.tooltipOptions.text = LOCALIZED_CLASS_NAMES_MALE[self.class]
+        end
+    else
+        local specInfo = { GetSpecializationInfoByID(classOrSpec) }
+        texture = specInfo[4]
+        self.class = specInfo[6]
+        self.specID = classOrSpec
+        if self.showTooltip then
+            self.tooltipOptions.text = C_ClassColor.GetClassColor(self.class):WrapTextInColorCode(specInfo[2] .. " " ..
+                LOCALIZED_CLASS_NAMES_MALE[self.class])
+        end
+    end
     if texture then
         self.icon:SetNormalTexture(texture)
     end
 
     if self.showBorder then
-        local color = GGUI.CONST.CLASS_COLORS_RGBA[self.class]
+        local color = C_ClassColor.GetClassColor(self.class)
         if color then
-            self.borderFrame:SetBackdropBorderColor(color[1], color[2], color[3], color[4])
+            self.borderFrame:SetBackdropBorderColor(color.r, color.g, color.b, color.a)
         end
     end
 end
 
----@class GGUI.SpellIconConstructorOptions
+---@class GGUI.SpellIconConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field offsetX? number
 ---@field offsetY? number
@@ -3807,7 +4224,7 @@ function GGUI.BlizzardTabSystem:new(tabList)
     end
 
     if GGUI_GUTIL:Count(tabList, function(tab) return tab.initialTab end) ~= 1 then
-        error("GGUI Error: BlizzardTabSystem needs exactly one tab with property initialTab = true")
+        GGUI:ThrowError("BlizzardTabSystem needs exactly one tab with property initialTab = true")
     end
 
     for _, tab in pairs(tabList) do
@@ -3839,8 +4256,9 @@ end
 ---@field parent? Frame
 ---@field anchorParent? Region
 ---@field label string
+---@field tooltipOptions? GGUI.TooltipOptions
 
----@class GGUI.BlizzardTabConstructorOptions
+---@class GGUI.BlizzardTabConstructorOptions : GGUI.ConstructorOptions
 ---@field buttonOptions GGUI.BlizzardTabButtonOptions
 ---@field sizeX? number
 ---@field sizeY? number
@@ -3852,6 +4270,7 @@ end
 ---@field anchorParent? Region
 ---@field initialTab? boolean
 ---@field top? boolean
+---@field backdropOptions? GGUI.BackdropOptions
 
 ---@class GGUI.BlizzardTab : GGUI.Widget
 ---@overload fun(options:GGUI.BlizzardTabConstructorOptions): GGUI.BlizzardTab
@@ -3882,9 +4301,38 @@ function GGUI.BlizzardTab:new(options)
 
     self.button:SetText(buttonOptions.label)
 
-    self.content = CreateFrame("Frame", nil, options.parent)
+    self.tooltipOptions = options.buttonOptions.tooltipOptions
+    if self.tooltipOptions then
+        GGUI:SetTooltipsByTooltipOptions(self.button, self)
+    end
+
+    self.content = CreateFrame("Frame", nil, options.parent, "BackdropTemplate")
     self.content:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
     self.content:SetSize(options.sizeX, options.sizeY)
+
+    if options.backdropOptions then
+        local borderOptions = options.backdropOptions.borderOptions or {}
+        self.content:SetBackdrop({
+            bgFile = options.backdropOptions.bgFile,
+            edgeFile = borderOptions.edgeFile,
+            edgeSize = borderOptions.edgeSize,
+            insets = borderOptions.insets,
+        })
+
+        self.content:SetBackdropColor(
+            options.backdropOptions.colorR or 1,
+            options.backdropOptions.colorG or 1,
+            options.backdropOptions.colorB or 1,
+            options.backdropOptions.colorA or 1
+        )
+
+        self.content:SetBackdropBorderColor(
+            borderOptions.colorR or 1,
+            borderOptions.colorG or 1,
+            borderOptions.colorB or 1,
+            borderOptions.colorA or 1
+        )
+    end
 end
 
 function GGUI.BlizzardTab:EnableHyperLinksForFrameAndChilds()
@@ -3893,7 +4341,7 @@ end
 
 --- GGUI Texture
 
----@class GGUI.TextureConstructorOptions
+---@class GGUI.TextureConstructorOptions : GGUI.ConstructorOptions
 ---@field parent? Frame
 ---@field offsetX? number
 ---@field offsetY? number
@@ -3904,7 +4352,7 @@ end
 ---@field anchorA? FramePoint
 ---@field anchorB? FramePoint
 ---@field anchorParent? Region
----@field tooltip? string
+---@field tooltipOptions? GGUI.TooltipOptions
 
 ---@class GGUI.Texture : GGUI.Widget
 ---@overload fun(options:GGUI.TextureConstructorOptions): GGUI.Texture
@@ -3930,15 +4378,11 @@ function GGUI.Texture:new(options)
         textureButton:SetNormalTexture(self.texture)
     end
 
-    if options.tooltip then
-        textureButton:SetScript("OnEnter", function()
-            GameTooltip:SetOwner(textureButton, "ANCHOR_CURSOR");
-            GameTooltip:SetText(options.tooltip)
-            GameTooltip:Show();
-        end)
-        textureButton:SetScript("OnLeave", function()
-            GameTooltip:Hide();
-        end)
+    if options.tooltipOptions then
+        self.tooltipOptions = options.tooltipOptions
+        if self.tooltipOptions then
+            GGUI:SetTooltipsByTooltipOptions(textureButton, self)
+        end
     else
         textureButton:EnableMouse(false)
     end
@@ -3962,4 +4406,213 @@ end
 
 function GGUI.Texture:SetAlpha(alpha)
     self.frame:SetAlpha(alpha)
+end
+
+---@class GGUI.TooltipOptionsFrame.LineOption
+---@field label string
+---@field disabledLabel? string what will the label look like if its disabled
+---@field isEnablerLine? boolean automatically sets the key of this option to 'enabled'
+---@field optionsKey? any default: <label> - What will be the key of this option in the optionsTable?
+
+--- GGUI.TooltipOptionsFrame
+---@class GGUI.TooltipOptionsFrameConstructorOptions : GGUI.ConstructorOptions
+---@field frameOptions? GGUI.FrameConstructorOptions
+---@field lines? GGUI.TooltipOptionsFrame.LineOption[]
+---@field optionsTable? table table to save enabled info
+
+---@class GGUI.TooltipOptionsFrame : GGUI.Frame
+---@overload fun(options:GGUI.TooltipOptionsFrameConstructorOptions): GGUI.TooltipOptionsFrame
+GGUI.TooltipOptionsFrame = GGUI.Frame:extend()
+
+---@param options GGUI.TooltipOptionsFrameConstructorOptions
+function GGUI.TooltipOptionsFrame:new(options)
+    ---@type GGUI.FrameConstructorOptions
+    local frameConstructorOptions = options.frameOptions or {}
+
+    -- default tooltip look
+    frameConstructorOptions.backdropOptions = frameConstructorOptions.backdropOptions or {
+        backdropInfo = {
+            bgFile = "Interface/Buttons/WHITE8x8",
+            edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+            edgeSize = 16,
+            insets = { left = 0, right = 0, top = 0, bottom = 0 },
+        },
+        backdropRGBA = {
+            0,
+            0,
+            0.3,
+            0.2,
+        },
+    }
+    GGUI.TooltipOptionsFrame.super.new(self, frameConstructorOptions)
+    options.optionsTable = options.optionsTable or {}
+    self.optionsTable = options.optionsTable
+
+    local frameListOffsetY = -30
+    local rowWidthInsetX = -10
+    ---@class GGUI.TooltipOptionsFrame.LineList : GGUI.FrameList
+    self.content.lineList = GGUI.FrameList {
+        columnOptions = {
+            {
+                -- checkboxes
+                width = (frameConstructorOptions.sizeX + rowWidthInsetX) or 100,
+            },
+        },
+        parent = self.content,
+        anchorPoints = {
+            {
+                anchorParent = self.content, anchorA = "TOPLEFT", anchorB = "TOPLEFT", offsetY = frameListOffsetY,
+            }
+        },
+        hideScrollbar = true,
+        rowConstructor = function(columns, row)
+            ---@class GGUI.TooltipOptionsFrame.LineList.Row : GGUI.FrameList.Row
+            row = row
+            ---@class GGUI.TooltipOptionsFrame.LineList.cbColumn : Frame
+            local cbColumn = columns[1]
+
+            cbColumn.cb = GGUI.Checkbox {
+                parent = cbColumn, anchorParent = cbColumn,
+                anchorA = "LEFT", anchorB = "LEFT", offsetX = 2,
+                labelOptions = {
+                    text = ""
+                },
+            }
+        end,
+        autoAdjustHeight = true,
+        autoAdjustHeightCallback = function(newHeight)
+            self:SetSize(self:GetWidth(), newHeight + -frameListOffsetY)
+        end
+    }
+
+    for _, lineOption in ipairs(options.lines) do
+        self.content.lineList:Add(function(row, columns)
+            ---@class GGUI.TooltipOptionsFrame.LineList.Row : GGUI.FrameList.Row
+            row = row
+            row.isEnablerLine = lineOption.isEnablerLine == true
+            ---@class GGUI.TooltipOptionsFrame.LineList.cbColumn : Frame
+            local cbColumn = columns[1]
+
+
+            function row:SetOptionLabelByEnabledStatus()
+                local tooltipEnabled = options.optionsTable.enabled == nil or options.optionsTable.enabled
+                if cbColumn.cb:GetChecked() and tooltipEnabled then
+                    cbColumn.cb.labelText:SetText(lineOption.label or "")
+                else
+                    cbColumn.cb.labelText:SetText(lineOption.disabledLabel or lineOption.label or "")
+                end
+            end
+
+            if lineOption.isEnablerLine then
+                cbColumn.cb:SetChecked(self.optionsTable.enabled)
+            else
+                cbColumn.cb:SetChecked(self.optionsTable[lineOption.optionsKey or lineOption.label])
+            end
+
+            row:SetOptionLabelByEnabledStatus()
+
+            cbColumn.cb.clickCallback = function(checkbox, checked)
+                if lineOption.isEnablerLine then
+                    self.optionsTable.enabled = checked
+                else
+                    self.optionsTable[lineOption.optionsKey or lineOption.label] = checked
+                end
+
+                self:FormatOptionsByEnabledStatus()
+            end
+
+            if lineOption.isEnablerLine then
+                self.optionsTable.enabled = self.optionsTable.enabled == true
+            else
+                self.optionsTable[lineOption.optionsKey or lineOption.label] = self.optionsTable
+                    [lineOption.optionsKey or lineOption.label] == true
+            end
+        end)
+    end
+
+    self.content.lineList:UpdateDisplay()
+
+    function self:FormatOptionsByEnabledStatus()
+        local activeRows = self.content.lineList.activeRows --[[ @as GGUI.TooltipOptionsFrame.LineList.Row[] ]]
+        for _, activeRow in ipairs(activeRows) do
+            activeRow:SetOptionLabelByEnabledStatus()
+        end
+    end
+end
+
+---@class GGUI.ToggleButtonConstructorOptions : GGUI.ButtonConstructorOptions
+---@field isOn? boolean
+---@field optionsTable? table
+---@field optionsKey? any
+---@field onToggleCallback? fun(button: GGUI.ToggleButton, newValue: boolean)
+---@field labelOn? string
+---@field labelOff? string
+
+---@class GGUI.ToggleButton : GGUI.Button
+---@overload fun(options:GGUI.ToggleButtonConstructorOptions): GGUI.ToggleButton
+GGUI.ToggleButton = GGUI.Button:extend()
+
+---@param options GGUI.ToggleButtonConstructorOptions
+function GGUI.ToggleButton:new(options)
+    -- lock states on click
+    self.isOn = options.isOn == nil -- default true
+
+    options.label = (self.isOn and options.labelOn) or options.labelOff or options.label
+
+    self.labelOn = options.labelOn
+    self.labelOff = options.labelOff
+    GGUI.ToggleButton.super.new(self, options)
+
+    self.optionsTable = options.optionsTable
+    self.optionsKey = options.optionsKey
+    self.onToggleCallback = options.onToggleCallback
+
+    if self.optionsTable then
+        if not self.optionsKey then
+            GGUI:ThrowError("ToggleButton Options Table given without key")
+        end
+
+        -- init
+        self.optionsTable[self.optionsKey] = self.isOn
+    end
+
+    self.frame:HookScript("OnClick", function()
+        GGUI:DebugPrint(options, "Clicked ToggleButton")
+
+        self:SetToggle(not self.isOn)
+    end)
+end
+
+---@param toggle boolean
+function GGUI.ToggleButton:SetToggle(toggle)
+    self.isOn = toggle
+
+    if self.isOn then
+        self.button:DesaturateHierarchy(0)
+
+        if self.labelTexture then
+            self.labelTexture:SetDesatured(false)
+        end
+
+        if self.button:GetFontString() then
+            self:SetText(self.labelOn)
+        end
+    else
+        self.button:DesaturateHierarchy(1)
+
+        if self.labelTexture then
+            self.labelTexture:SetDesatured(true)
+        end
+        if self.button:GetFontString() then
+            self:SetText(self.labelOff)
+        end
+    end
+
+    if self.optionsTable then
+        self.optionsTable[self.optionsKey] = self.isOn
+    end
+
+    if self.onToggleCallback then
+        self.onToggleCallback(self, self.isOn)
+    end
 end

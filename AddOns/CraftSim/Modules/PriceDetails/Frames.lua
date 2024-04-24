@@ -6,13 +6,15 @@ CraftSim.PRICE_DETAILS.FRAMES = {}
 CraftSim.PRICE_DETAILS.frame = nil
 CraftSim.PRICE_DETAILS.frameWO = nil
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.PRICE_DETAILS)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.PRICE_DETAILS)
 
 function CraftSim.PRICE_DETAILS.FRAMES:Init()
-    local sizeX = 390
+    local sizeX = 410
     local sizeY = 200
     local offsetX = -5
     local offsetY = 140
+
+    local frameLevel = CraftSim.UTIL:NextFrameLevel()
 
     CraftSim.PRICE_DETAILS.frame = CraftSim.GGUI.Frame({
         parent = ProfessionsFrame.CraftingPage.SchematicForm,
@@ -29,9 +31,12 @@ function CraftSim.PRICE_DETAILS.FRAMES:Init()
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesPriceDetails"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesPriceDetails"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = frameLevel
     })
 
     CraftSim.PRICE_DETAILS.frameWO = CraftSim.GGUI.Frame({
@@ -50,9 +55,12 @@ function CraftSim.PRICE_DETAILS.FRAMES:Init()
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesPriceDetails"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesPriceDetails"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = frameLevel
     })
 
     local function createContent(frame)
@@ -82,7 +90,7 @@ function CraftSim.PRICE_DETAILS.FRAMES:Init()
                 },
                 {
                     label = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.PRICE_DETAILS_PROFIT_ITEM),
-                    width = 110,
+                    width = 130,
                 }
             },
             rowConstructor = function(columns)
@@ -162,7 +170,7 @@ function CraftSim.PRICE_DETAILS.FRAMES:UpdateDisplay(recipeData, exportMode)
                     ((priceOverride and CraftSim.GUTIL:ColorizeText(" (OR)", CraftSim.GUTIL.COLORS.LEGENDARY)) or ""))
                 profitColumn.text:SetText(CraftSim.GUTIL:FormatMoney(profit, true))
 
-                local itemCount = GetItemCount(itemLink, true, false, true)
+                local itemCount = C_Item.GetItemCount(itemLink, true, false, true)
                 local ahCount = CraftSim.PRICEDATA:GetAuctionAmount(itemLink)
 
                 if ahCount then

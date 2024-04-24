@@ -13,10 +13,10 @@ CraftSim.COOLDOWNS.frame = nil
 local GUTIL = CraftSim.GUTIL
 local GGUI = CraftSim.GGUI
 local L = CraftSim.UTIL:GetLocalizer()
-local f = CraftSim.UTIL:GetFormatter()
+local f = GUTIL:GetFormatter()
 local LID = CraftSim.CONST.TEXT
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.COOLDOWNS)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.COOLDOWNS)
 
 function CraftSim.COOLDOWNS.FRAMES:Init()
     local sizeX = 670
@@ -40,9 +40,12 @@ function CraftSim.COOLDOWNS.FRAMES:Init()
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesCooldowns"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesCooldowns"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = CraftSim.UTIL:NextFrameLevel()
     })
 
     ---@class CraftSim.COOLDOWNS.FRAME.CONTENT : Frame
@@ -53,7 +56,7 @@ function CraftSim.COOLDOWNS.FRAMES:Init()
 
     content.cooldownList = GGUI.FrameList {
         parent = content, anchorParent = content, anchorA = "TOPLEFT", anchorB = "TOPLEFT", offsetY = -60, offsetX = 20,
-        showBorder = true, sizeY = 147, selectionOptions = { noSelectionColor = true, hoverRGBA = CraftSim.CONST.JUST_HOVER_FRAMELIST_HOVERRGBA },
+        showBorder = true, sizeY = 147, selectionOptions = { noSelectionColor = true, hoverRGBA = CraftSim.CONST.FRAME_LIST_SELECTION_COLORS.HOVER_LIGHT_WHITE },
         columnOptions = {
             {
                 label = L(LID.COOLDOWNS_CRAFTER_HEADER),
@@ -115,6 +118,7 @@ function CraftSim.COOLDOWNS.FRAMES:Init()
                 anchorA = "LEFT", anchorB = "RIGHT",
             }
             chargesColumn.SetCharges = function(self, current, max)
+                current = math.min(current, max)
                 if current == max and max > 0 then
                     chargesColumn.current:SetText(f.g(current))
                     chargesColumn.max:SetText(f.g(max))
@@ -235,10 +239,12 @@ function CraftSim.COOLDOWNS.FRAMES:UpdateList()
                         print("Updating Timers for " .. tostring(recipeInfo.name))
                         local cooldownData = self.cooldownData
                         chargesColumn:SetCharges(cooldownData:GetCurrentCharges(), cooldownData.maxCharges)
-                        nextColumn.text:SetText(f.bb(cooldownData:GetFormattedTimerNextCharge()))
                         local allFullTS, ready = cooldownData:GetAllChargesFullTimestamp()
+                        local cdReady = ready or cooldownData:GetCurrentCharges() >= cooldownData.maxCharges
+                        nextColumn.text:SetText(cdReady and f.grey("-") or
+                            f.bb(cooldownData:GetFormattedTimerNextCharge()))
                         row.allchargesFullTimestamp = allFullTS
-                        if ready then
+                        if cdReady then
                             allColumn.text:SetText(f.g("Ready"))
                         else
                             allColumn.text:SetText(f.g(cooldownData:GetAllChargesFullDateFormatted()))

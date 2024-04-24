@@ -1,9 +1,15 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
+---@class CraftSim.STATISTICS
 CraftSim.STATISTICS = {}
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.STATISTICS)
+---@type GGUI.Frame
+CraftSim.STATISTICS.frameNO_WO = nil
+---@type GGUI.Frame
+CraftSim.STATISTICS.frameWO = nil
+
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.STATISTICS)
 
 -- https://math.stackexchange.com/questions/888165/abramowitz-and-stegun-approximation-for-cumulative-normal-distribution
 function CraftSim.STATISTICS:CDF(q, mu, sd)
