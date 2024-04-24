@@ -11,6 +11,13 @@ local mark = {}
 local function icmp(a,b)
 	return strcmputf8i(a,b) < 0
 end
+local function isItemInteresting(tf, testIdx, bag, slot, iid)
+	if testIdx == 2 then
+		local r = tf(bag, slot)
+		return r and (r.hasLoot or r.isReadable)
+	end
+	return tf(iid)
+end
 
 do -- spellbook
 	local function procSpellBookEntry(add, at, knownFilter, sourceKnown, _ok, st, sid)
@@ -146,20 +153,20 @@ end
 AB:AugmentCategory(L"Items", function(_, add)
 	wipe(mark)
 	local ns, giid = C_Container.GetContainerNumSlots, C_Container.GetContainerItemID
-	for t=0,1 do
-		t = t == 0 and GetItemSpell or IsEquippableItem
+	for t=0,2 do
+		local tf = t == 0 and GetItemSpell or t == 1 and IsEquippableItem or C_Container.GetContainerItemInfo
 		for bag=0,4 do
 			for slot=1, ns(bag) do
 				local iid = giid(bag, slot)
-				if iid and not mark[iid] and t(iid) then
+				if iid and not mark[iid] and isItemInteresting(tf, t, bag, slot, iid) then
 					add("item", iid)
 					mark[iid] = 1
 				end
 			end
 		end
-		for slot=INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
+		for slot=INVSLOT_FIRST_EQUIPPED, t < 2 and INVSLOT_LAST_EQUIPPED or -10 do
 			local iid = GetInventoryItemID("player", slot)
-			if iid and not mark[iid] and t(iid) then
+			if iid and not mark[iid] and tf(iid) then
 				add("item", iid)
 				mark[iid] = 1
 			end

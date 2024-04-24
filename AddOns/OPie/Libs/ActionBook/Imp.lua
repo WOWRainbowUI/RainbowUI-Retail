@@ -1,4 +1,4 @@
-local MAJ, REV, COMPAT, _, T = 1, 6, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 7, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 
 local EV, AB, RW = T.Evie, T.ActionBook:compatible(2,34), T.ActionBook:compatible("Rewire", 1,27)
@@ -524,76 +524,6 @@ do -- AB imptext action type
 	AB:RegisterActionType("imptext", createImpMacro, describeImpMacro, 1)
 end
 do -- Editor UI
-	local multilineInput do
-		local function onNavigate(self, _x,y, _w,h)
-			local scroller, insT, insB = self.scroll, 2, 2
-			local occH, occP, y = scroller:GetHeight(), scroller:GetVerticalScroll(), -y
-			if occP > y-insT then
-				occP = y > insT and y-insT or 0 -- too far
-			elseif occP < y+h-occH+insB+insT then
-				occP = y+h-occH+insB+insT -- not far enough
-			else
-				return
-			end
-			local _, mx = scroller.ScrollBar:GetMinMaxValues()
-			occP = (mx-occP)^2 < 1 and mx or math.floor(occP)
-			scroller.ScrollBar:SetMinMaxValues(0, occP < mx and mx or occP)
-			scroller.ScrollBar:SetValue(occP)
-			scroller.ScrollBar:Hide() -- BUG[10.0.7]: Thumb sometimes waits until next frame to move
-			scroller.ScrollBar:Show()
-		end
-		local function onSFClick(self)
-			self.input:SetCursorPosition(#self.input:GetText())
-			self.input:SetFocus()
-		end
-		local function onSCSizeChange(self)
-			local sc, eb = self.scroll or self, self.input or self
-			local yr = eb:GetHeight()-sc:GetHeight() + (eb:GetText():sub(-1) == "\n" and 12+2/9 or 0)
-			yr = yr < 0 and 0 or math.floor(yr+0.5)
-			if sc._vrange ~= yr then
-				sc._vrange = yr
-				ScrollFrame_OnScrollRangeChanged(sc, 0, yr)
-				eb:GetTop() -- BUG[10.0.7]: Don't vanish now, editbox.
-			end
-		end
-		local function onSFSizeChange(self)
-			self.input:SetWidth(self:GetWidth())
-			onSCSizeChange(self)
-		end
-		function multilineInput(name, parent, width)
-			local scroller = CreateFrame("ScrollFrame", name .. "Scroll", parent, "UIPanelScrollFrameTemplate")
-			local input = CreateFrame("Editbox", name, scroller)
-			input:SetWidth(width)
-			input:SetMultiLine(true)
-			input:SetAutoFocus(false)
-			input:SetTextInsets(2,4,2,2)
-			input:SetFontObject(GameFontHighlight)
-			input:SetScript("OnCursorChanged", onNavigate)
-			input:SetScript("OnSizeChanged", onSCSizeChange)
-			scroller:SetScript("OnScrollRangeChanged", onSCSizeChange)
-			scroller:SetScript("OnSizeChanged", onSFSizeChange)
-			scroller:SetScript("OnMouseDown", onSFClick)
-			scroller:EnableMouse(1)
-			scroller:SetScrollChild(input)
-			input.scroll, scroller.input = scroller, input
-			return input, scroller
-		end
-	end
-	local function hasStickyFocus()
-		return true
-	end
-	local function GetHighlightText(editBox)
-		local text, curPos = editBox:GetText(), editBox:GetCursorPosition()
-		editBox:Insert("")
-		local text2, selStart = editBox:GetText(), editBox:GetCursorPosition()
-		local selEnd = selStart + #text - #text2
-		if text ~= text2 then
-			editBox:SetText(text)
-			editBox:SetCursorPosition(curPos)
-			editBox:HighlightText(selStart, selEnd)
-		end
-		return text:sub(selStart+1, selEnd), selStart
-	end
 	local function removeEditorLinks(text)
 		return (text:gsub("|c%x+|Hilt%d+:([%a:%d/]+)|h.-|h|r", "{{%1}}"))
 	end
@@ -614,23 +544,18 @@ do -- Editor UI
 		end
 	end
 
-	local bg = CreateFrame("Frame")
-	if XU then
-		XU:Create("Backdrop", bg, {edgeFile="Interface/Tooltips/UI-Tooltip-Border", bgFile="Interface/DialogFrame/UI-DialogBox-Background-Dark", tile=true, edgeSize=16, tileSize=16, insets={left=4,right=4,bottom=4,top=4}, bgColor=0xb2000000, edgeColor=0xb2b2b2})
-	end
-	bg:Hide()
-	local eb, scroll = multilineInput("ABE_MacroInput", bg, 100)
+	local eb = XU:Create("TextArea", "ABE_MacroInput")
+	eb:Hide()
+	eb:SetStyle("tooltip")
 	eb:SetScript("OnEscapePressed", eb.ClearFocus)
 	eb:SetScript("OnEditFocusLost", function(self)
 		setImpText(self, getImpText(self))
-		local p = bg:GetParent()
+		local p = self:GetParent()
 		if p and type(p.OnActionChanged) == "function" then
-			p:OnActionChanged(bg)
+			p:OnActionChanged(self)
 		end
 	end)
-	scroll:SetPoint("TOPLEFT", 5, -4)
-	scroll:SetPoint("BOTTOMRIGHT", -26, 4)
-	eb.HasStickyFocus = hasStickyFocus
+	eb:SetStickyFocus(true)
 	eb:SetHyperlinksEnabled(true)
 	eb:SetScript("OnHyperlinkClick", function(self, link, text, button)
 		local pos = string.find(self:GetText(), text, 1, 1)-1
@@ -644,30 +569,23 @@ do -- Editor UI
 		end
 		self:SetFocus()
 	end)
-	local function ReplaceSelection(editBox, newSelText)
-		editBox:Insert(newSelText)
-		local cur = editBox:GetCursorPosition()
-		editBox:HighlightText(cur-#newSelText, cur)
-	end
 	eb:SetScript("OnKeyDown", function(self, key)
 		if (key == "C" or key == "X") and (IsMacClient() and IsMetaKeyDown or IsControlKeyDown)() then
-			local stext = GetHighlightText(self)
+			local stext = self:GetHighlightText()
 			if stext:match("[^|]|H.+|h.*|h") then
-				ReplaceSelection(self, removeEditorLinks(stext))
-				if key == "C" then
-					self._rsText = stext
-				end
+				self:SetHighlightText(removeEditorLinks(stext), true)
+				self._rsText = key == "C" and stext or nil
 			end
 		end
 	end)
 	eb:SetScript("OnUpdate", function(self)
 		if self._rsText then
-			ReplaceSelection(self, self._rsText)
+			self:SetHighlightText(self._rsText, true)
 			self._rsText = nil
 		end
 	end)
-	eb:SetScript("OnTabPressed", function()
-		local p = bg:GetParent()
+	eb:SetScript("OnTabPressed", function(self)
+		local p = self:GetParent()
 		if p and type(p.OnTabPressed) then
 			p:OnTabPressed()
 		end
@@ -737,37 +655,36 @@ do -- Editor UI
 		kbf:Insert(prefix .. (atext or link:match("|h%[?(.-[^%]])%]?|h") or stripUIEscapes(link)))
 	end)
 
-	function bg:SetAction(owner, action)
-		local op = bg:GetParent()
+	function eb:SetAction(owner, action)
+		local op = eb:GetParent()
 		if op and op ~= owner and type(op.OnEditorRelease) == "function" then
-			securecall(op.OnEditorRelease, op, bg)
+			securecall(op.OnEditorRelease, op, self)
 		end
-		bg:SetParent(nil)
-		bg:ClearAllPoints()
-		bg:SetAllPoints(owner)
-		bg:SetParent(owner)
+		eb:SetParent(nil)
+		eb:ClearAllPoints()
+		eb:SetAllPoints(owner)
+		eb:SetParent(owner)
 		setImpText(eb, action[1] == "imptext" and action[2] or "")
 		eb:SetCursorPosition(0)
-		bg:Show()
+		eb:Show()
 	end
-	function bg:GetAction(into)
+	function eb:GetAction(into)
 		into[1], into[2] = "imptext", getImpText(eb)
 	end
-	function bg:Release(owner)
-		if bg:IsOwned(owner) then
-			bg:SetParent(nil)
-			bg:ClearAllPoints()
-			bg:Hide()
+	function eb:Release(owner)
+		if eb:IsOwned(owner) then
+			eb:SetParent(nil)
+			eb:ClearAllPoints()
+			eb:Hide()
 		end
 	end
-	function bg:IsOwned(owner)
-		return bg:GetParent() == owner
+	function eb:IsOwned(owner)
+		return eb:GetParent() == owner
 	end
-	function bg:GetTabFocusWidget(_which)
+	function eb:GetTabFocusWidget(_which)
 		return eb
 	end
-	bg.editBox, bg.scrollFrame = bg, eb
-	AB:RegisterEditorPanel("imptext", bg)
+	AB:RegisterEditorPanel("imptext", eb)
 end
 
 function IM:EncodeCommands(macrotext, skipCacheRefresh)

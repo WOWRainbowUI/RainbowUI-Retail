@@ -151,7 +151,7 @@ function subBindings:set(id, bind, bidx)
 	config.undo:saveActiveProfile()
 	local opt = self.options[id] .. (bidx == 2 and "2" or "")
 	PC:SetOption(opt, bind or nil, self.scope)
-	if not bind and PC:GetOption(opt, self.scope) ~= "" then
+	if bind == false and PC:GetOption(opt, self.scope) ~= "" then
 		PC:SetOption(opt, "", self.scope)
 	end
 end

@@ -549,22 +549,22 @@ ringDetail = CreateFrame("Frame", nil, ringContainer) do
 		f:SetScript("OnHide", moveExportButton)
 	end
 	
-	local exportBg, scroll = CreateFrame("Frame", nil, ringDetail)
-	XU:Create("Backdrop", exportBg, {edgeFile="Interface/Tooltips/UI-Tooltip-Border", bgFile="Interface/DialogFrame/UI-DialogBox-Background-Dark", tile=true, edgeSize=16, tileSize=16, insets={left=4,right=4,bottom=4,top=4}, bgColor=0xb2000000, edgeColor=0xb2b2b2})
-	exportBg:SetSize(265, 124) exportBg:Hide()
-	exportBg:SetPoint("TOPLEFT", ringDetail.shareLabel2, "BOTTOMLEFT", -2, -2)
-	ringDetail.exportFrame, ringDetail.exportInput, scroll = exportBg, config.ui.multilineInput("RKC_ExportInput", exportBg, 235)
-	scroll:SetPoint("TOPLEFT", 5, -4) scroll:SetPoint("BOTTOMRIGHT", -26, 4)
-	ringDetail.exportInput:SetFontObject(GameFontHighlightSmall)
-	ringDetail.exportInput:SetScript("OnEscapePressed", function() exportBg:Hide() ringDetail.export:Show() end)
-	ringDetail.exportInput:SetScript("OnChar", function(self) local text = self:GetText() if text ~= "" and text ~= self.text then self:SetText(self.text or "") self:SetCursorPosition(0) self:HighlightText() end end)
-	ringDetail.exportInput:SetScript("OnTextSet", function(self) self.text = self:GetText() end)
-	exportBg:SetScript("OnHide", function(self)
+	local textArea = XU:Create("TextArea", "RKC_ExportInput", ringDetail)
+	textArea:SetStyle("tooltip")
+	textArea:SetSize(265, 124)
+	textArea:Hide()
+	textArea:SetPoint("TOPLEFT", ringDetail.shareLabel2, "BOTTOMLEFT", -2, -2)
+	ringDetail.exportArea = textArea
+	textArea:SetFontObject(GameFontHighlightSmall)
+	textArea:SetScript("OnEscapePressed", function() textArea:Hide() ringDetail.export:Show() end)
+	textArea:SetScript("OnChar", function(self) local text = self:GetText() if text ~= "" and text ~= self.text then self:SetText(self.text or "") self:SetCursorPosition(0) self:HighlightText() end end)
+	textArea:SetScript("OnTextSet", function(self) self.text = self:GetText() end)
+	textArea:SetScript("OnHide", function(self)
 		self:Hide()
 		ringDetail.export:Show()
 		ringDetail.shareLabel2:SetText(L"Take a snapshot of this ring to share it with others.")
 	end)
-	exportBg:SetScript("OnShow", function()
+	textArea:SetScript("OnShow", function()
 		ringDetail.export:Hide()
 		ringDetail.shareLabel2:SetText((L"Import snapshots by clicking %s above."):format(NORMAL_FONT_COLOR_CODE .. L"New Ring..." .. "|r"))
 	end)
@@ -1735,7 +1735,7 @@ function api.saveRing(name, data)
 		end
 		RK:SetRing(name, data)
 	end
-	ringDetail.exportFrame:Hide()
+	ringDetail.exportArea:Hide()
 	ringDetail.binding:SetEnabled(not not PC:GetRingInfo(name))
 end
 function api.refreshDisplay()
@@ -1745,7 +1745,7 @@ function api.refreshDisplay()
 	if currentRing then
 		ringDetail.binding:SetBindingText(api.getRingBinding())
 		ringDetail.binding:SetEnabled(not not PC:GetRingInfo(currentRingName))
-		ringDetail.exportFrame:GetScript("OnHide")(ringDetail.exportFrame)
+		ringDetail.exportArea:GetScript("OnHide")(ringDetail.exportArea)
 		local caOptionNames = "|cffffffff" .. L"Quick action at ring center" .. "|r|cff909090 / |r|cffffffff" .. L"Quick action if mouse remains still" .. "|r"
 		local noCA = not PC:GetOption("CenterAction", currentRingName) and (L"You must enable the %s option for this ring in OPie options to use quick actions."):format(caOptionNames) or nil
 		ringDetail.opportunistCA.tooltipText = noCA
@@ -1757,9 +1757,9 @@ function api.refreshDisplay()
 	end
 end
 function api.exportRing(includeNestedRings)
-	local input = ringDetail.exportInput
+	local input = ringDetail.exportArea
 	ringDetail.export:Hide()
-	ringDetail.exportFrame:Show()
+	input:Show()
 	input:SetText(RK:GetRingSnapshot(currentRingName, includeNestedRings))
 	input:SetCursorPosition(0)
 	input:HighlightText()

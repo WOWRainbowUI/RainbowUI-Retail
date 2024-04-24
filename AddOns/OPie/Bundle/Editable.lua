@@ -258,7 +258,8 @@ R:AddDefaultRing("CommonHearth", {
 	{"toy", 206195, _u="pn"},
 	{"toy", 208704, _u="dd"},
 	{"toy", 209035, _u="df"},
-	name=L"Hearthstones", internal=true, _u="OPCHS", v=3
+	{"toy", 212337, _u="sh"},
+	name=L"Hearthstones", internal=true, _u="OPCHS", v=4
 })
 R:AddDefaultRing("SpecMenu", {
 	{"specset", 1, _u="1"},
@@ -269,6 +270,6 @@ R:AddDefaultRing("SpecMenu", {
 	{"toy", 110560, _u="g"},
 	{"toy", 140192, _u="d"},
 	{"ring", "CommonHearth", rotationMode="shuffle", _u="t"},
-	{"item", 141605, _u="w", show="[in:broken isles/bfa]"}, -- flight master's whistle
-	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=1
+	{"item", 141605, _u="w", show="[in:broken isles/argus/bfa]"}, -- flight master's whistle
+	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=2
 })
