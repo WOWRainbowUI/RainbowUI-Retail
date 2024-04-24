@@ -54,7 +54,7 @@ function I:GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["position"] = {"BOTTOMRIGHT", "TOPRIGHT", 0, -1},
             ["frameLevel"] = 5,
             ["size"] = {18, 4},
-            ["colors"] = {{0,1,0}, {1,1,0,0.5}, {1,0,0,3}},
+            ["colors"] = {{0,1,0}, {false,1,1,0,0.5}, {false,1,0,0,3}, {0.07,0.07,0.07,0.9}},
             ["orientation"] = "horizontal",
             ["font"] = {"Cell ".._G.DEFAULT, 11, "Outline", "CENTER", 0, 0, {1, 1, 1}},
             ["showStack"] = false,
@@ -86,6 +86,7 @@ function I:GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["frameLevel"] = 5,
             ["size"] = {13, 13},
             ["num"] = 3,
+            ["numPerLine"] = 3,
             ["orientation"] = "right-to-left",
             ["font"] = {
                 {"Cell ".._G.DEFAULT, 11, "Outline", "TOPRIGHT", 2, 1, {1, 1, 1}},
