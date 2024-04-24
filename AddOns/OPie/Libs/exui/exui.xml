@@ -4,5 +4,6 @@
 	<Script file="ScrollBar.lua" />
 	<Script file="ScrollableDropDownList.lua" />
 	<Script file="LineInput.lua" />
+	<Script file="TextArea.lua" />
 	<Script file="IconSelector.lua" />
 </Ui>

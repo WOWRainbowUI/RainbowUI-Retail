@@ -48,6 +48,7 @@ if MODERN_MOUNTS then -- mount: mount ID
 			local MOONKIN_FORM = GetSpellInfo(24858)
 			local bn = newWidgetName("AB:M!")
 			local b = CreateFrame("Button", bn, nil, "SecureActionButtonTemplate")
+			b:SetAttribute("pressAndHoldAction", 1)
 			b:SetAttribute("macrotext", "/cancelform [nocombat]")
 			b:SetScript("PreClick", function()
 				local sf = GetShapeshiftForm()
@@ -66,11 +67,10 @@ if MODERN_MOUNTS then -- mount: mount ID
 					C_MountJournal.SummonByID(btn)
 				end
 			end)
-			T.TenSABT(b)
 			clickPrefix = SLASH_CLICK1 .. " " .. bn .. " "
 		end
 		summonAction = function(mountID)
-			return "attribute", "type","macro", "macrotext",clickPrefix .. mountID
+			return "attribute", "type","macro", "macrotext",clickPrefix .. mountID .. " 1"
 		end
 	end
 
@@ -1088,7 +1088,8 @@ do -- disenchant: iid
 	local ICON_PREFIX = "|TInterface/Buttons/UI-GroupLoot-DE-Up:0:0|t "
 	local SLASH_SPELL_TARGET_ITEM1 = '/spelltargetitem' do
 		local wn = newWidgetName("AB:I!")
-		local w = T.TenSABT(CreateFrame("Button", wn, nil, "SecureActionButtonTemplate"))
+		local w = CreateFrame("Button", wn, nil, "SecureActionButtonTemplate")
+		w:SetAttribute("pressAndHoldAction", 1)
 		w:Hide()
 		SecureHandlerWrapScript(w, "OnClick", w, [[return nil, 'post']], [[self:SetAttribute("target-item", nil)]])
 		local er = {u="\\117", ["{"]="\\123", ["}"]="\\125"}
@@ -1101,7 +1102,7 @@ do -- disenchant: iid
 				self:SetAttribute("target-item", v)
 				return "%s"
 			end
-		]]):format(escape(SLASH_SPELL_TARGET_ITEM1), escape(SLASH_CLICK1 .. " " .. wn)))
+		]]):format(escape(SLASH_SPELL_TARGET_ITEM1), escape(SLASH_CLICK1 .. " " .. wn .. " 1")))
 		RW:RegisterCommand(SLASH_SPELL_TARGET_ITEM1, true, false, w)
 	end
 	local function disenchantTip(self, iid)

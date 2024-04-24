@@ -1,5 +1,4 @@
 <Ui>
-	<Script file="Ten.lua" />
 	<Script file="Kindred.lua" />
 	<Script file="ActionBook.lua" />
 	<Script file="Locale.lua" />

@@ -43,41 +43,6 @@ local KR, PC = T.ActionBook:compatible("Kindred",1,0), T.OPieCore
 
 do -- config.ui
 	config.ui = {}
-	do -- multilineInput
-		local function onNavigate(self, _x,y, _w,h)
-			local scroller, insT, insB = self.scroll, 2, 2
-			local occH, occP, y = scroller:GetHeight(), scroller:GetVerticalScroll(), -y
-			if occP > y-insT then
-				occP = y > insT and y-insT or 0 -- too far
-			elseif occP < y+h-occH+insB+insT then
-				occP = y+h-occH+insB+insT -- not far enough
-			else
-				return
-			end
-			local _, mx = scroller.ScrollBar:GetMinMaxValues()
-			occP = (mx-occP)^2 < 1 and mx or math.floor(occP)
-			scroller.ScrollBar:SetMinMaxValues(0, occP < mx and mx or occP)
-			scroller.ScrollBar:SetValue(occP)
-		end
-		local function onClick(self)
-			self.input:SetFocus()
-		end
-		function config.ui.multilineInput(name, parent, width)
-			local scroller = CreateFrame("ScrollFrame", name .. "Scroll", parent, "UIPanelScrollFrameTemplate")
-			local input = CreateFrame("Editbox", name, scroller)
-			input:SetWidth(width)
-			input:SetMultiLine(true)
-			input:SetAutoFocus(false)
-			input:SetTextInsets(2,4,2,2)
-			input:SetFontObject(GameFontHighlight)
-			input:SetScript("OnCursorChanged", onNavigate)
-			scroller:EnableMouse(1)
-			scroller:SetScript("OnMouseDown", onClick)
-			scroller:SetScrollChild(input)
-			input.scroll, scroller.input = scroller, input
-			return input, scroller
-		end
-	end
 	function config.ui.HideTooltip(self)
 		if GameTooltip:IsOwned(self) then
 			GameTooltip:Hide()
@@ -121,13 +86,13 @@ do -- config.bind
 		end)
 		extReminder:SetScript("OnLeave", config.ui.HideTooltip)
 		extReminder:SetScript("OnHide", extReminder:GetScript("OnLeave"))
-		local input, scroll = config.ui.multilineInput("OPC_AlternateBindInput", alternateFrame, 335)
-		alternateFrame.input, alternateFrame.scroll = input, scroll
-		scroll:SetPoint("TOPLEFT", 10, -28)
-		scroll:SetPoint("BOTTOMRIGHT", -33, 10)
-		input:SetMaxBytes(1023)
-		input:SetScript("OnEscapePressed", function() alternateFrame:Hide() end)
-		input:SetScript("OnChar", function(self, c)
+		local textarea = XU:Create("TextArea", "OPC_AlternateBindInput", alternateFrame)
+		textarea:SetPoint("TOPLEFT", 12, -28)
+		textarea:SetPoint("BOTTOMRIGHT", -10, 10)
+		alternateFrame.input = textarea
+		textarea:SetMaxBytes(1023)
+		textarea:SetScript("OnEscapePressed", function() alternateFrame:Hide() end)
+		textarea:SetScript("OnChar", function(self, c)
 			if c == "\n" then
 				local bind = strtrim((self:GetText():gsub("[\r\n]", "")))
 				if bind ~= "" then

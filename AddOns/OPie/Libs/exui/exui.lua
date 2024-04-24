@@ -14,20 +14,35 @@ function XU:RegisterFactory(otype, createfunc)
 	factory[otype] = createfunc
 end
 
-local getWidgetData, newWidgetData, setWidgetData do
+local ObjectData, getWidgetData, newWidgetData, setWidgetData = {} do
 	local S, skipProtoKeys = {}, {api=1, super=1, meta=1, init=1, ObjectType=1}
+	local altMethods = setmetatable({}, {__index=function(t, k)
+		t[k] = function(self, ...)
+			local s2 = getWidgetData(self, ObjectData).self2
+			return s2[k](s2, ...)
+		end
+		return t[k]
+	end})
 	function getWidgetData(self, dataType)
 		local r = S[dataType]
 		return r and r[self[0]]
 	end
-	function newWidgetData(self, dataType, proto)
+	function newWidgetData(self, dataType, proto, self2)
 		local d, pin = setWidgetData(self, dataType, {}), proto.init
 		if proto.super == nil then
-			local api = proto.api
-			proto.super = getmetatable(self).__index
+			local api, s2m = proto.api, self2 and proto.self2methods or nil
+			proto.super, proto.self2methods = getmetatable(self).__index, nil
 			for k,v in next, proto.super do
-				if api[k] == nil then
+				if api[k] == nil and (s2m and s2m[k]) == nil then
 					api[k] = v
+				end
+			end
+			if self2 then
+				proto.super2 = getmetatable(self2).__index
+				for k,v in next, proto.super2 do
+					if api[k] == nil and type(v) == "function" then
+						api[k] = altMethods[k]
+					end
 				end
 			end
 			proto.meta = {__index=api}
@@ -37,10 +52,10 @@ local getWidgetData, newWidgetData, setWidgetData do
 				d[k] = v
 			end
 		end
-		d.self, d.proto = self, proto
+		d.self, d.self2, d.proto = self, self2, proto
 		setmetatable(self, proto.meta)
 		for i=1, pin and #pin or 0 do
-			pin[i](self, proto)
+			pin[i](self, proto, self2)
 		end
 		return d
 	end
@@ -53,8 +68,8 @@ local getWidgetData, newWidgetData, setWidgetData do
 	end
 end
 local AddObjectMethods, CallObjectScript do
-	local Object, loScriptName, loObjectType, temp = {}, {}, {exuiobject="exUIObject"}, {}
-	local ObjectData, objectProto = {}, {}
+	local Object, objectProto, temp = {}, {}, {}
+	local loScriptName, loObjectType = {exuiobject="exUIObject"}, {}
 	local function NIL_HANDLER() end
 	local function findScriptName(d, q)
 		local p = d.proto
@@ -66,14 +81,15 @@ local AddObjectMethods, CallObjectScript do
 			return lq
 		end
 	end
-	local function initObject(self, proto)
+	local function initObject(self, proto, self2)
 		local d, op = {}, objectProto[proto]
 		for k, v in next, op do
 			if v == NIL_HANDLER then
 				d[k] = v
 			end
 		end
-		d.proto, op.super = op, op.super or proto.super
+		op.super, op.super2 = op.super or proto.super, op.super2 or proto.super2
+		d.proto, d.self, d.self2 = op, self, op.super2 and self2 or nil
 		setWidgetData(self, ObjectData, d)
 	end
 	function CallObjectScript(self, handlerName, ...)
@@ -82,6 +98,28 @@ local AddObjectMethods, CallObjectScript do
 		if dh and dh ~= NIL_HANDLER then
 			return securecall(dh, self, ...)
 		end
+	end
+	local wrapCallbackFor, unwrapCallback do
+		local orig = {}
+		function wrapCallbackFor(self, self2, callback)
+			local r = callback and function(cself, ...)
+				-- also accepts self because there is no HookScript unwrap
+				assert(cself == self2 or cself == self, 'Invalid object type')
+				return callback(self, ...)
+			end
+			orig[r or 0] = callback
+			return r
+		end
+		function unwrapCallback(c)
+			return orig[c] or c
+		end
+	end
+	local function IsAltScript(d, self, handlerName)
+		local s, s2, sc2 = d.proto.super, d.proto.super2, d.proto.scripts2
+		if s2 == nil or (sc2 and (sc2[handlerName] or sc2[loScriptName[handlerName:lower()]])) == nil and s.HasScript(self, handlerName) then
+			return false, s, self
+		end
+		return true, s2, d.self2
 	end
 
 	function Object:GetObjectType()
@@ -102,19 +140,21 @@ local AddObjectMethods, CallObjectScript do
 	end
 	function Object:SetScript(handlerName, callback)
 		local d = assert(getWidgetData(self, ObjectData), "Invalid object type")
-		assert(type(handlerName) == 'string', 'Syntax: Object:SetScript("handlerName", callback)')
+		assert(type(handlerName) == 'string' and (callback == nil or type(callback) == 'function'), 'Syntax: Object:SetScript("handlerName", callback)')
 		local hn = findScriptName(d, handlerName)
 		if not hn then
-			return d.proto.super.SetScript(self, handlerName, callback)
+			local alt, sp, se = IsAltScript(d, self, handlerName)
+			return sp.SetScript(se, handlerName, alt and wrapCallbackFor(self, se, callback) or callback)
 		end
 		d[hn] = callback == nil and NIL_HANDLER or callback
 	end
 	function Object:HookScript(handlerName, callback)
 		local d = assert(getWidgetData(self, ObjectData), "Invalid object type")
-		assert(type(handlerName) == 'string', 'Syntax: Object:HookScript("handlerName", callback)')
+		assert(type(handlerName) == 'string' and type(callback) == 'function', 'Syntax: Object:HookScript("handlerName", callback)')
 		local hn = findScriptName(d, handlerName)
 		if not hn then
-			return d.proto.super.HookScript(self, handlerName, callback)
+			local alt, sp, se = IsAltScript(d, self, handlerName)
+			return sp.HookScript(se, handlerName, alt and wrapCallbackFor(self, se, callback) or callback)
 		end
 		local oc = Object.GetScript(self, hn)
 		if oc then
@@ -122,14 +162,16 @@ local AddObjectMethods, CallObjectScript do
 			hooksecurefunc(temp, "f", callback)
 			callback, temp.f = temp.f
 		end
-		return Object.SetScript(self, hn, callback)
+		d[hn] = callback == nil and NIL_HANDLER or callback
 	end
 	function Object:GetScript(handlerName)
 		local d = assert(getWidgetData(self, ObjectData), "Invalid object type")
 		assert(type(handlerName) == 'string', 'Syntax: callback = Object:GetScript("handlerName")')
 		local hn = findScriptName(d, handlerName)
 		if not hn then
-			return d.proto.super.GetScript(self, handlerName)
+			local alt, sp, se = IsAltScript(d, self, handlerName)
+			local r = sp.GetScript(se, handlerName)
+			return alt and unwrapCallback(r) or r
 		end
 		local dh = d[hn]
 		return dh ~= NIL_HANDLER and dh or nil
@@ -137,7 +179,8 @@ local AddObjectMethods, CallObjectScript do
 	function Object:HasScript(handlerName)
 		local d = assert(getWidgetData(self, ObjectData), "Invalid object type")
 		assert(type(handlerName) == 'string', 'Syntax: hasScript = Object:HasScript("handlerName")')
-		return findScriptName(d, handlerName) and true or d.proto.super.HasScript(self, handlerName)
+		local s2 = d.proto.super2
+		return findScriptName(d, handlerName) and true or (s2 and s2.HasScript(d.self2, handlerName)) or d.proto.super.HasScript(self, handlerName)
 	end
 
 	local function buildCaselessMap(sourceArray, caseMap, sideMap, sideValue, errorText)
@@ -149,9 +192,9 @@ local AddObjectMethods, CallObjectScript do
 		end
 	end
 	function AddObjectMethods(isarr, proto)
-		local api, scripts, pin = proto.api, proto.scripts, proto.init or {}
-		local op, isa = {}, {exUIObject=true}
-		proto.init, proto.scripts = pin, nil
+		local api, scripts, psc2 = proto.api, proto.scripts, proto.self2scripts
+		local op, isa, pin, sc2 = {}, {exUIObject=true}, proto.init or {}, psc2 and {} or nil
+		proto.init, proto.scripts, proto.self2scripts = pin, nil
 		for k,v in next, Object do
 			if api[k] == nil then
 				api[k] = v
@@ -165,7 +208,8 @@ local AddObjectMethods, CallObjectScript do
 		end
 		buildCaselessMap(isarr, loObjectType, isa, true, 'divergent object type case')
 		buildCaselessMap(scripts, loScriptName, op, NIL_HANDLER, 'divergent script name case')
-		objectProto[proto], op.isa, op.ObjectType, op.scripts = op, isa, isarr[1], scripts
+		buildCaselessMap(psc2, loScriptName, sc2, 1, 'divergent script2 name case')
+		objectProto[proto], op.isa, op.ObjectType, op.scripts, op.scripts2 = op, isa, isarr[1], scripts, sc2
 		return proto
 	end
 end
