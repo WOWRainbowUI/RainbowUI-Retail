@@ -6,10 +6,10 @@ function Syndicator.SlashCmd.Initialize()
   SLASH_Syndicator2 = "/syn"
 end
 
-local INVALID_OPTION_VALUE = "Wrong config value type %s (required %s)"
+local INVALID_OPTION_VALUE = "錯誤的設定值類型 %s (需要 %s)"
 function Syndicator.SlashCmd.Config(optionName, value1, ...)
   if optionName == nil then
-    Syndicator.Utilities.Message("No config option name supplied")
+    Syndicator.Utilities.Message("沒有提供設定名稱")
     for _, name in pairs(Syndicator.Config.Options) do
       Syndicator.Utilities.Message(name .. ": " .. tostring(Syndicator.Config.Get(name)))
     end
@@ -18,12 +18,12 @@ function Syndicator.SlashCmd.Config(optionName, value1, ...)
 
   local currentValue = Syndicator.Config.Get(optionName)
   if currentValue == nil then
-    Syndicator.Utilities.Message("Unknown config: " .. optionName)
+    Syndicator.Utilities.Message("未知的設定: " .. optionName)
     return
   end
 
   if value1 == nil then
-    Syndicator.Utilities.Message("Config " .. optionName .. ": " .. tostring(currentValue))
+    Syndicator.Utilities.Message("設定 " .. optionName .. ": " .. tostring(currentValue))
     return
   end
 
@@ -42,55 +42,62 @@ function Syndicator.SlashCmd.Config(optionName, value1, ...)
   elseif type(currentValue) == "string" then
     Syndicator.Config.Set(optionName, strjoin(" ", value1, ...))
   else
-    Syndicator.Utilities.Message("Unable to edit option type " .. type(currentValue))
+    Syndicator.Utilities.Message("無法編輯選項類型 " .. type(currentValue))
     return
   end
-  Syndicator.Utilities.Message("Now set " .. optionName .. ": " .. tostring(Syndicator.Config.Get(optionName)))
+  Syndicator.Utilities.Message("現在設為 " .. optionName .. ": " .. tostring(Syndicator.Config.Get(optionName)))
 end
 
 function Syndicator.SlashCmd.Debug(...)
   Syndicator.Config.Set(Syndicator.Config.Options.DEBUG, not Syndicator.Config.Get(Syndicator.Config.Options.DEBUG))
   if Syndicator.Config.Get(Syndicator.Config.Options.DEBUG) then
-    Syndicator.Utilities.Message("Debug mode on")
+    Syndicator.Utilities.Message("開啟除錯模式")
   else
-    Syndicator.Utilities.Message("Debug mode off")
+    Syndicator.Utilities.Message("關閉除錯模式")
   end
 end
 
 function Syndicator.SlashCmd.RemoveCharacter(characterName)
-  local characterData = SYNDICATOR_DATA.Characters[characterName or ""]
-  if not characterData then
-    Syndicator.Utilities.Message("無法辨識的角色")
-    return
+  local success = pcall(Syndicator.API.DeleteCharacter, characterName)
+
+  if not success then
+    Syndicator.Utilities.Message("無法辨識或當前角色")
+  else
+    Syndicator.Utilities.Message("角色 '" .. characterName .. "' 已移除。")
   end
+end
 
-  Syndicator.Utilities.RemoveCharacter(characterName)
+function Syndicator.SlashCmd.RemoveGuild(...)
+  local guildName = strjoin(" ", ...)
+  local success = pcall(Syndicator.API.DeleteGuild, guildName)
 
-  Syndicator.Utilities.Message("角色 '" .. characterName .. "' 已移除。")
+  if not success then
+    Syndicator.Utilities.Message("無法辨識或當前公會")
+  else
+    Syndicator.Utilities.Message("公會 '" .. guildName .. "' 已移除。")
+  end
 end
 
 function Syndicator.SlashCmd.HideCharacter(characterName)
-  local characterData = SYNDICATOR_DATA.Characters[characterName or ""]
-  if not characterData then
+  local success = pcall(Syndicator.API.ToggleCharacterHidden, characterName)
+  if not success then
     Syndicator.Utilities.Message("無法辨識的角色")
-    return
+  else
+    local guildData = Syndicator.API.GetByCharacterFullName(characterName)
+    Syndicator.Utilities.Message("角色 '" .. characterName .. "' 已隱藏: " .. tostring(characterData.details.hidden))
   end
-
-  characterData.details.hidden = not characterData.details.hidden
-
-  Syndicator.Utilities.Message("角色 '" .. characterName .. "' 隱藏狀態: " .. (characterData.details.hidden and "是" or "否"))
 end
 
-function Syndicator.SlashCmd.HideGuild(guildName)
-  local guildData = SYNDICATOR_DATA.Guilds[guildName or ""]
-  if not guildData then
+function Syndicator.SlashCmd.HideGuild(...)
+  local guildName = strjoin(" ", ...)
+  local success = pcall(Syndicator.API.ToggleGuildHidden, guildName)
+
+  if not success then
     Syndicator.Utilities.Message("無法辨識的公會")
-    return
+  else
+    local guildData = Syndicator.API.GetByGuildFullName(guildName)
+    Syndicator.Utilities.Message("公會 '" .. guildName .. "' 已隱藏: " .. tostring(guildData.details.hidden))
   end
-
-  guildData.details.hidden = not guildData.details.hidden
-
-  Syndicator.Utilities.Message("角色 '" .. guildName .. "' 已隱藏: " .. tostring(guildData.details.hidden))
 end
 
 function Syndicator.SlashCmd.CustomiseUI()
@@ -103,7 +110,10 @@ local COMMANDS = {
   ["d"] = Syndicator.SlashCmd.Debug,
   ["debug"] = Syndicator.SlashCmd.Debug,
   ["remove"] = Syndicator.SlashCmd.RemoveCharacter,
+  ["removecharacter"] = Syndicator.SlashCmd.RemoveCharacter,
+  ["removeguild"] = Syndicator.SlashCmd.RemoveGuild,
   ["hide"] = Syndicator.SlashCmd.HideCharacter,
+  ["hidecharacter"] = Syndicator.SlashCmd.HideCharacter,
   ["hideguild"] = Syndicator.SlashCmd.HideGuild,
 }
 function Syndicator.SlashCmd.Handler(input)

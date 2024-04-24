@@ -9,6 +9,7 @@ local function InitGuild(key, guild, realms)
         guild = guild,
         faction = UnitFactionGroup("player"),
         hidden = false,
+        visited = false,
       },
     }
   end
@@ -163,6 +164,7 @@ function SyndicatorGuildCacheMixin:ExamineGeneralTabInfo()
   local data = SYNDICATOR_DATA.Guilds[self.currentGuild]
 
   data.money = GetGuildBankMoney()
+  data.details.visited = true
 
   local numTabs = GetNumGuildBankTabs()
 
@@ -227,10 +229,18 @@ function SyndicatorGuildCacheMixin:ExamineBankTab(tabIndex, callback)
   local oldSlots = tab.slots
 
   local function FireGuildChange()
+    local changed = false
+    for index, item in ipairs(tab.slots) do
+      local oldItem = oldSlots[index]
+      if not oldItem or item.itemID ~= oldItem.itemID or item.itemLink ~= oldItem.itemLink or item.itemCount ~= oldItem.itemCount then
+        changed = true
+        break
+      end
+    end
     if Syndicator.Config.Get(Syndicator.Config.Options.DEBUG_TIMERS) then
       print("guild tab " .. tabIndex .. " took", debugprofilestop() - start)
     end
-    callback(tabIndex, not tCompare(oldSlots, tab.slots, 15))
+    callback(tabIndex, changed)
   end
 
   tab.slots = {}

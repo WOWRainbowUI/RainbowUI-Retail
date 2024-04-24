@@ -56,6 +56,8 @@ function Syndicator.API.GetByCharacterFullName(characterFullName)
   return SYNDICATOR_DATA.Characters[characterFullName]
 end
 
+Syndicator.API.GetCharacter = Syndicator.API.GetByCharacterFullName
+
 function Syndicator.API.GetAllGuilds()
   return GetKeysArray(SYNDICATOR_DATA.Guilds)
 end
@@ -63,7 +65,7 @@ end
 -- guildFullName: string, e.g. "The Jokesters-NormalizedRealmName"
 function Syndicator.API.GetByGuildFullName(guildFullName)
   if SYNDICATOR_DATA.Guilds[guildFullName] then
-    return SYNDICATOR_DATA.Guilds[guildFullName]
+    return SYNDICATOR_DATA.Guilds[guildFullName], guildFullName
   end
 
   local guildName, realmName = strsplit("-", guildFullName)
@@ -75,4 +77,70 @@ function Syndicator.API.GetByGuildFullName(guildFullName)
       return data, guild
     end
   end
+end
+
+Syndicator.API.GetGuild = Syndicator.API.GetByGuildFullName
+
+function Syndicator.API.GetCurrentCharacter()
+  return Syndicator.BagCache.currentCharacter
+end
+
+function Syndicator.API.GetCurrentGuild()
+  return Syndicator.GuildCache.currentGuild
+end
+
+function Syndicator.API.DeleteCharacter(characterFullName)
+  assert(characterFullName ~= Syndicator.BagCache.currentCharacter, "Cannot delete live character")
+  local characterData = Syndicator.API.GetByCharacterFullName(characterFullName)
+
+  if not characterData then
+    error("Character does not exist")
+  end
+
+  SYNDICATOR_DATA.Characters[characterFullName] = nil
+
+  local realmSummary = SYNDICATOR_SUMMARIES.Characters.ByRealm[characterData.details.realmNormalized]
+  if realmSummary and realmSummary[characterData.details.character] then
+    realmSummary[characterData.details.character] = nil
+  end
+  Syndicator.CallbackRegistry:TriggerEvent("CharacterDeleted", characterFullName)
+end
+
+function Syndicator.API.DeleteGuild(guildFullName)
+  local guildData, guildFullName = Syndicator.API.GetByGuildFullName(guildFullName)
+  assert(guildFullName ~= Syndicator.GuildCache.currentGuild, "Cannot delete current guild")
+
+  if not guildData then
+    error("Guild does not exist")
+    return
+  end
+
+  SYNDICATOR_DATA.Guilds[guildFullName] = nil
+
+  local realmSummary = SYNDICATOR_SUMMARIES.Guilds.ByRealm[guildData.details.realms[1]]
+  if realmSummary and realmSummary[guildData.details.guild] then
+    realmSummary[guildData.details.guild] = nil
+  end
+  Syndicator.CallbackRegistry:TriggerEvent("GuildDeleted", guildFullName)
+end
+
+function Syndicator.API.ToggleCharacterHidden(characterFullName)
+  local characterData = Syndicator.API.GetByCharacterFullName(characterFullName)
+  assert(characterData, "Character does not exist")
+  characterData.details.hidden = not characterData.details.hidden
+end
+
+function Syndicator.API.ToggleGuildHidden(guildFullName)
+  local guildData, guildFullName = Syndicator.API.GetByGuildFullName(guildFullName)
+  assert(guildData, "Guild does not exist")
+  guildData.details.hidden = not guildData.details.hidden
+end
+
+-- Returns if the tracking data is ready for use
+function Syndicator.API.IsReady()
+  return Syndicator.Tracking.isReady
+end
+
+function Syndicator.API.IsBagEventPending()
+  return Syndicator.BagCache.isUpdatePending
 end
