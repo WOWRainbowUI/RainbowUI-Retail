@@ -199,6 +199,10 @@ L["Player manabar text format"] = "玩家能量條文字格式"
 L["Set the player manabar text format"] = "設定玩家能量條的文字格式。"
 L["Show player specialbar"] = "顯示職業特殊能量條"
 L["Show or hide the player specialbar, like Paladin's holy power, Priest's orbs, Monk's harmony or Warlock's soul shards"] = "顯示或隱藏玩家的職業特殊能量條，像是聖騎士的聖能、牧師的球、武僧的氣或術士的靈魂裂片。"
+L["Allow Easy Frames to fix the position of the specialbar frame"] = "修正職業特殊能量條的位置"
+L["If the setting is enabled, Easy Frames will change the position of the specialbar and set it closer to the PlayerFrame. " ..
+    "Otherwise, the position can be changed by other addons and Easy Frames will not block its change.\n\n"..
+    "When you change this option you need to reload your UI. \n\nCommand /reload"] = "啟用時，暴雪頭像 (美化調整) 將會更改職業特殊能量條的位置，將其設置得更靠近 玩家框架。否則，可以由其他插件更改位置，暴雪頭像 (美化調整) 不會阻止其更改。\n\n更改此選項時，需要重新載入介面。\n\n指令 /reload"
 L["Show player resting icon"] = "顯示玩家休息圖示"
 L["Show or hide player resting icon when player is resting (e.g. in the tavern or in the capital)"] = "顯示或隱藏玩家休息時的圖示 (例如在旅店或主城中時)。"
 L["Show player status texture (inside the frame)"] = "顯示玩家狀態材質 (框架內側)"
