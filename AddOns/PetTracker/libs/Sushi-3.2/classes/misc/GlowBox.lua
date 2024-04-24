@@ -1,5 +1,5 @@
 --[[
-Copyright 2008-2023 João Cardoso
+Copyright 2008-2024 João Cardoso
 Sushi is distributed under the terms of the GNU General Public License (or the Lesser GPL).
 This file is part of Sushi.
 
@@ -17,10 +17,16 @@ You should have received a copy of the GNU General Public License
 along with Sushi. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Box = LibStub('Sushi-3.2').Callable:NewSushi('Glowbox', 1, 'Frame', 'GlowBoxTemplate', true)
-if not Box then return end
+local Sushi = LibStub('Sushi-3.2')
+local Box = Sushi.Callable:NewSushi('Glowbox', 3, 'Frame', 'GlowBoxTemplate', true)
+if Box then Sushi.HelpTip = Box else return end
 
 local Sides = {'BOTTOM', 'LEFT', 'TOP', 'RIGHT'}
+local function GetOpposite(i)
+	local direction = ceil(i / 2) % 2 * 2 - 1
+	return Sides[i + direction * 2], direction
+end
+
 local function RotateTexture(texture, i)
 	texture:SetAllPoints()
 	SetClampedTextureRotation(texture, (i-1) * 90)
@@ -44,13 +50,13 @@ function Box:Construct()
 	end)
 
 	for i, side in ipairs(Sides) do
-		local direction = ceil(i / 2) % 2 * 2 - 1
+		local point, direction = GetOpposite(i)
 		local off = direction * 3
 		local y = (i + 1) % 2
 		local x = i % 2
 
 		local arrow = CreateFrame('Frame', '$parent' .. side, f, 'GlowBoxArrowTemplate')
-		arrow:SetPoint(Sides[i + direction * 2], f, side, x * off, y * off)
+		arrow:SetPoint(point, f, side, x * off, y * off)
 		arrow:SetSize(21 + 32 * x, 21 + 32 * y)
 		f[side] = arrow
 
@@ -64,11 +70,14 @@ function Box:Construct()
 	return f
 end
 
-function Box:New(parent, text, direction)
+function Box:New(parent, text, point, x,y)
+	local side = point or 'BOTTOM'
 	local f = self:Super(Box):New(parent)
-	f:SetDirection(direction or 'BOTTOM')
+	f:SetPoint(side, parent, GetOpposite(tIndexOf(Sides, side)), x or 0,y or 0)
 	f:SetFrameStrata('DIALOG')
+	f:SetDirection(side)
 	f:SetText(text)
+	f:Show()
 	return f
 end
 
