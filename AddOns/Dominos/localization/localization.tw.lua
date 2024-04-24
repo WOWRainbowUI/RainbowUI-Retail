@@ -79,3 +79,4 @@ L.WrongBuildWarning = "你正將 %s %s 版本用於 %s 伺服器，部分功能�
 
 -- 自行加入
 L.AddonName = "達美樂快捷列"
+L.EncounterBarDisplayName = "對戰條"
