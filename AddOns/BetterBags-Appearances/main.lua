@@ -19,6 +19,7 @@ local nonEquippableTypes = {
     ["INVTYPE_NECK"] = true,
     ["INVTYPE_BAG"] = true,
     ["INVTYPE_PROFESSION_TOOL"] = true,
+    ["INVTYPE_PROFESSION_GEAR"] = true,
 }
 
 -- Create a hidden tooltip for scanning
@@ -44,6 +45,22 @@ function Appearances:OnInitialize()
     categories:WipeCategory(L:G("Mog - Learnable"))
     categories:WipeCategory(L:G("Mog - Tradable"))
     categories:WipeCategory(L:G("Mog - Sellable"))
+
+    killOldCategories()
+end
+
+function killOldCategories()
+    categories:WipeCategory(L:G("Other Classes"))
+    categories:WipeCategory(L:G("Unknown - Other Classes"))
+    categories:WipeCategory(L:G("Known - BoE"))
+    categories:WipeCategory(L:G("Known - BoP"))
+    
+    -- Loop through all classes and wipe the categories
+    for i = 1, GetNumClasses() do
+        local className, _ = GetClassInfo(i)
+        categories:WipeCategory(L:G(className .. " Usable"))
+        categories:WipeCategory(L:G("Unknown - " .. className))
+    end
 end
 
 -- Debug dump functions
@@ -130,7 +147,7 @@ end
 -- Register the category function
 categories:RegisterCategoryFunction("MogCategorization", function(data)
     -- Exclude non-equipable, legendaries, and artifacts
-    if not isEquipabble(data.itemInfo) or data.itemInfo.itemQuality == 6 or data.itemInfo.itemQuality == 5 or isItemIgnored(data.itemInfo.itemID) then
+    if not isEquipabble(data.itemInfo) or data.itemInfo.itemQuality == 6 or data.itemInfo.itemQuality == 5 or isItemIgnored(data.itemInfo.itemID) or not C_Heirloom.IsItemHeirloom(data.itemInfo.itemID) then
         return nil
     end
 
