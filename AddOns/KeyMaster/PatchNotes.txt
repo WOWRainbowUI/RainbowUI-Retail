@@ -1,0 +1,117 @@
+Key Master AddOn for World of Warcraft
+(c) 2024 – Released under the GNU General Public License
+
+PATCH NOTES:
+--------------------------------------------------
+Key Master v1.0.2
+--------------------------------------------------
+Updates:
+- When you are a party member of the matchmaking group system: Looking for Raid (LFR),
+  Looking for Group (LFG), Battle Ground, Arena, or Follower dungeon, party member information
+  is no longer displayed in the party tab for that party. This does not apply to custom
+  (user created) groups or normal party members outside of your instance group.
+- Added notification when party information is not displayed.
+
+Fixes:
+- Fixed GitHub issue #30 - When joining an LFR, LFG, or follower dungeon you would see many
+  "You are not in a party" messages in chat.
+- Fixed rare case were party member data would vanish after briefly being displayed.
+
+Open Items:
+- Known: [ADDON_ACTION_BLOCKED] AddOn 'KeyMaster' tried to call a protected function 'KM_PlayerRow1:Show()'.
+- Reported: Dungeon portals buttons not casting the portal spell when the spell is available (known/off CD) and clicked.
+
+  If you experience any of these open item unicorns, please report them with as much detail as possible in the
+  Key Master Issues GitHub. https://github.com/Puresyn/KeyMaster/issues
+
+--------------------------------------------------
+Key Master v1.0.1
+--------------------------------------------------
+- Updated season 4 rating calculations.
+- Corrected 正體中文 (zhTW) localization typo.
+- Added localization for Deutsch (DE) - (Thanks Feedy88 and Rumorix!)
+
+--------------------------------------------------
+Key Master v1.0.0
+--------------------------------------------------
+- Fixed forward compatibility issue where party members with versions older than
+  v0.0.94 could cause errors in clients with newer versions. It will now ignore those
+  users until they update to 0.0.94b or higher.
+- Verified Dragonflight Season 4 compatibility
+- Several UI enhancements.
+- There are some changes to the rating system for Dragonflight Season 4. We have added
+  preliminary calculation changes that will account for some changes but not all. Due to the somewhat
+  complex and obscure nature of the rating system, there is a notice at the top of the
+  addon that will display until we are confident that all DF S4 rating calculations are correctly
+  displayed. Please visit our Discord https://discord.gg/bbMaUpfgn8 or GitHub 
+  https://github.com/Puresyn/KeyMaster to report or check the status on any new or ongoing corrections.
+- Adjusted party frame data columns to leave more room for player name and class information.
+- Fixed party frame map icon underline color.
+- Added localization for [Chinese (traditional)] 正體中文 (zhTW) - (Thanks BNS3388 / 三皈依!)
+
+--------------------------------------------------
+Key Master Beta release v0.0.97-beta
+--------------------------------------------------
+- Added weekly affix selection to the rating calculator.
+- Corrected an issue where party members using a different language client would
+  receive incorrect data from others.
+- Fixed incorrect highlights in party frame that could occur from localization
+- Standardized weekly affix data for consistency in data transport
+- Fixed missing dependency that caused a mini-map icon issue.
+- Modified party frame layout to be more consistent with the rest of the addon.
+- Added localization support for Português (ptBR) - (Thanks Cyph!)
+- Added localization support for Русский (ruRU) - (Thanks Hollicsh!)
+
+--------------------------------------------------
+Key Master Beta release v0.0.96-beta
+--------------------------------------------------
+- Fixed grammatical errors
+- Update interface version 100206 for 10.2.6
+- Set up a Discord server for Key Master https://discord.gg/bbMaUpfgn8
+
+--------------------------------------------------
+Key Master Beta release v0.0.95-beta
+--------------------------------------------------
+- Added decimal preferences to several locations: score calculator, tally data,
+  and personal gain row.
+- Reset score calculator when re-opening the player panel
+- Added QOL querying of keystone and overall rating information for party members without
+  Key Master installed from the commonly used Open Raid library (if they have another
+  addon with openRaid installed: i.e. Details, etc.). This is not always dependable or
+  guaranteed to be accurate, but it's the best alternative for non-addon party member 
+  information; at least, for the time being.
+- Replaced "Key Master Not Detected!" text with an icon on the party frame for
+  party members without Key Master installed.
+- Fixed Key Master icon showing up as a "?" in the in-game AddOn List. Now shows correct icon.
+- The Key Master window's position is now saved between logins/reloads.
+- Updated the Key Master main "Theme" color to Key Master Gold.
+- Added a minimap icon
+- Added minimap icon show/hide option to configuration screen.
+- Changed the season display in the main header to reflect the current expansion season
+  instead of the WoW lifetime season.
+- Added additional back-end functionality for upcoming language localization.
+- Cleaned up some cross-server compatibility concerns - Key Master "should" now work no differently
+  between same server and cross-server parties.
+
+--------------------------------------------------
+Key Master Beta release v0.0.94-beta
+--------------------------------------------------
+!! This patch IS NOT backwards compatible! !!
+- Fixed Spelling mistakes on information panel
+- Fixed key highlights when you have two of the same key at different levels
+- Fixed score gained when having two keys of the same dungeon and the lower is processed after the higher
+- Changed displayed data for players from base score to rating and added decimal point rounding to a single digit
+- Fixed dungeon rating calculations to be more accurate since they use rating vs score now
+- Added configuration screen which allows additional options
+- Updated the About screen to be more consistent with the rest of the addon
+- Added further localization
+
+--------------------------------------------------
+Key Master Beta release v0.0.93-beta
+--------------------------------------------------
+-Fixed a couple grammatical errors.
+
+--------------------------------------------------
+Key Master Beta release v0.0.92-beta
+--------------------------------------------------
+Initial public beta release.

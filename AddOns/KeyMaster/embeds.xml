@@ -1,0 +1,22 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	<Include file='Libs\External\UTF8\UTF8.xml'/>
+
+	<Script file='Libs\External\LibAceConfigHelper\LibAceConfigHelper.lua'/>
+	<Script file='Libs\External\LibActionButton-1.0\LibActionButton-1.0.lua'/>
+	<Script file='Libs\External\LibDataBroker-1.1\LibDataBroker-1.1.lua'/>
+	<Script file='Libs\External\LibSimpleSticky\LibSimpleSticky.lua'/>
+	<Script file='Libs\External\LibTranslit-1.0\LibTranslit-1.0.lua'/>
+	<Script file='Libs\External\LibAnim\LibAnim.lua'/>
+
+	<Include file='Core\Localization\Languages.xml'/>
+	
+	<Script file='Libs\Internal\KMFactory.lua'/>
+	<Include file='Assets\Load_Media.xml'/>
+	<Script file='Libs\Internal\Theme.lua'/>
+	<Script file='Libs\Internal\DungeonTools.lua'/>
+	<Script file='Libs\Internal\Misc.lua'/>
+	<Script file='Libs\Internal\EventHooks.lua'/>
+	<Script file='Libs\Internal\WeeklyRewards.lua'/>
+	<Script file='Libs\Internal\LibOpenRaidStub.lua'/>
+	
+</Ui>

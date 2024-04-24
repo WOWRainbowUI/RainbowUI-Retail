@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="顯示鑰石大師" description="Show or hide the keymaster main window." header="KEYMASTER" category="ADDONS">
+	KMWindowBindingToggle()
+  </Binding>
+</Bindings>
