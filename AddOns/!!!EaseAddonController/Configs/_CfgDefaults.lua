@@ -773,6 +773,21 @@ D["DFFriendlyNameplates"] = {
         callback = function(cfg, v, loading) SlashCmdList["CFRN"]("") end,
     },
 };
+D["DialogueUI"] = {
+	defaultEnable = 1,
+	tags = { "QUEST" },
+	title = "任務對話 (羊皮紙)",
+	desc = "與NPC對話、接受/交回任務時，將任務內容顯示在羊皮紙上，取代傳統的任務說明，讓你更能享受並融入任務內容的對話劇情。``對話時會隱藏遊戲介面，並將鏡頭拉近放大角色，有沉浸感。也可以設定為不要移動鏡頭。",
+	modifier = "彩虹ui",
+	{
+		type = "text",
+        text = "|cffFF2D2D有多種任務對話插件，選擇其中一種載入使用就好，不要同時載入。|r\n",
+	},
+	{
+        type = "text",
+		text = "設定選項: 和 NPC 對話時按下 F1。\n",
+    },
+};
 D["Dominos"] = {
 	defaultEnable = 0,
 	title = "達美樂快捷列",
@@ -1188,7 +1203,7 @@ D["IcyVeinsStatPriority"] = {
 	},
 };
 D["Immersion"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	title = "任務對話 (對話頭像)",
 	desc = "與NPC對話、接受/交回任務時，會使用遊戲內建 '說話的頭' 風格的對話方式，取代傳統的任務說明。``讓你更能享受並融入任務內容的對話劇情。``|cffFF2D2D任務對話 (FF XIV 風格)、任務對話 (說話的頭風格) 和任務對話 (電影風格) 選擇其中一種使用即可，請勿同時載入使用。|r`",
 	author = "MunkDev",
@@ -1272,6 +1287,24 @@ D["JsFilter"] = {
 	title = "預組語言過濾",
 	icon = "Interface\\Icons\\inv_10_jewelcrafting3_rainbowprism_color1",
 	desc = "在預組隊伍視窗上方新增過濾方式，可以篩選是否要看到簡體中文和英文的隊伍。``|cffFF2D2D特別注意：切換過濾方式後，需要按一下重新搜尋按鈕，隊伍列表才會更新。|r`",
+};
+D["KeyMaster"] = {
+    defaultEnable = 1,
+	tags = { "BOSSRAID" },
+	title = "M+ 鑰石大師",
+	desc = "顯示你和隊友的 M+ 詳細資訊，有非常清楚漂亮的介面。`",
+    {
+        text = "打開主視窗",
+        callback = function(cfg, v, loading) SlashCmdList["KeyMaster"]("") end,
+    },
+	{
+		type = "text",
+		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
+	},
+	{
+		type = "text",
+        text = "點小地圖按鈕的 '鑰石大師' 按鈕也可以打開主視窗。",
+    },
 };
 D["KeystoneLoot"] = {
     defaultEnable = 0,
@@ -1371,9 +1404,9 @@ D["LOIHLoot"] = {
 	},
 };
 D["ls_Glass"] = {
-    defaultEnable = 0,
+    defaultEnable = 1,
 	tags = { "SOCIAL" },
-	title = "(暫時停用) 聊天視窗美化",
+	title = "聊天視窗美化",
 	desc = "極簡風格的聊天視窗，會自動淡出聊天文字，讓你更能沉浸在遊戲中，並且提供更多的選項來自訂聊天視窗。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_evoker_powerswell",
