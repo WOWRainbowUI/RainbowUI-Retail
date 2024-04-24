@@ -12,6 +12,9 @@ local GetContainerItemLink = C_Container and C_Container.GetContainerItemLink or
 local GetContainerNumSlots = C_Container and C_Container.GetContainerNumSlots or GetContainerNumSlots
 local GetVoidItemHyperlinkString = GetVoidItemHyperlinkString
 local GetItemUniqueness = GetItemUniqueness
+local GetItemInfoInstant = C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant
+local GetItemGem = C_Item and C_Item.GetItemGem or GetItemGem
+local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
 
 local HelpTipBox_Anchor = Internal.HelpTipBox_Anchor;
 local HelpTipBox_SetText = Internal.HelpTipBox_SetText;
@@ -1234,6 +1237,8 @@ local function UpdateSetFilters(set)
     Internal.UpdateRestrictionFilters(set)
 
 	set.filters.character = set.character
+	local characterInfo = GetCharacterInfo(set.character);
+	set.filters.class = characterInfo and characterInfo.class;
 
     return set
 end
@@ -1989,7 +1994,7 @@ function BtWLoadoutsEquipmentMixin:Update()
 		self.Name:SetEnabled(set.managerID == nil or set.character == playerCharacter);
 
 		local model = self.Model;
-		if not characterInfo or character == playerCharacter then
+		if not characterInfo or character == playerCharacter or not model.SetCustomRace then
 			model:SetUnit("player");
 		else
 			model:SetCustomRace(characterInfo.race, characterInfo.sex);
