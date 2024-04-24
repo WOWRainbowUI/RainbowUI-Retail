@@ -90,18 +90,14 @@ L["KEYWORD_RELIC"] = "relic"
 L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
 L["KEYWORD_STACKS"] = "stacks"
 L["KEYWORD_STACKABLE"] = "stackable"
-
-L["SOUL"] = "Soul"
-L["HERBALISM"] = "Herbalism"
-L["ENCHANTING"] = "Enchanting"
-L["ENGINEERING"] = "Engineering"
-L["GEMS"] = "Gems"
-L["MINING"] = "Mining"
-L["LEATHERWORKING"] = "Leatherworking"
-L["INSCRIPTION"] = "Inscription"
-L["FISHING"] = "Fishing"
-L["COOKING"] = "Cooking"
-L["JEWELCRAFTING"] = "Jewelcrafting"
+L["KEYWORD_SOUL"] = "soul"
+L["KEYWORD_ENCHANTING"] = "enchanting"
+L["KEYWORD_ENGINEERING"] = "engineering"
+L["KEYWORD_MINING"] = "mining"
+L["KEYWORD_INSCRIPTION"] = "inscription"
+L["KEYWORD_FISHING"] = "fishing"
+L["KEYWORD_COOKING"] = "cooking"
+L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
 
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
@@ -123,20 +119,12 @@ L["BANK_LOWER"] = "banque"
 L["BANK_X"] = "Banque : %s"
 L["BANKS_X"] = "Banques : %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Impossible d’effectuer une recherche par lien d’objet"
-L["COOKING"] = "Cuisine"
-L["ENCHANTING"] = "Enchantement"
-L["ENGINEERING"] = "Ingénierie"
 L["EQUIPPED_LOWER"] = "équipé "
 L["EQUIPPED_X"] = "Equipé: %s "
-L["FISHING"] = "Pêche "
-L["GEMS"] = "Gemmes"
 L["GUILD_LOWER"] = "guilde"
 L["GUILD_X"] = "Guilde: %s"
 L["GUILDS_X"] = "Guildes: %s"
-L["HERBALISM"] = "Herboristerie "
-L["INSCRIPTION"] = "Calligraphie"
 L["INVENTORY"] = "Inventaire"
-L["JEWELCRAFTING"] = "Joaillerie"
 L["KEYWORD_ACCOUNT_BOUND"] = "lié au compte"
 L["KEYWORD_AXE"] = "hache"
 L["KEYWORD_AZERITE"] = "azérite"
@@ -149,18 +137,25 @@ L["KEYWORD_BOP"] = "lqr"
 L["KEYWORD_BOU"] = "lqu"
 L["KEYWORD_BRACERS"] = "Brassards"
 L["KEYWORD_CLOAK"] = "cape"
+L["KEYWORD_COOKING"] = "cuisine"
 L["KEYWORD_COSMETIC"] = "cosmétique"
 L["KEYWORD_DRINK"] = "boisson"
+L["KEYWORD_ENCHANTING"] = "enchantement"
+L["KEYWORD_ENGINEERING"] = "ingénierie"
 L["KEYWORD_ENGRAVABLE"] = "gravable"
 L["KEYWORD_ENGRAVED"] = "gravée"
 L["KEYWORD_EQUIPMENT"] = "équipement"
+L["KEYWORD_FISHING"] = "pêche "
 L["KEYWORD_FOOD"] = "nourriture"
 L["KEYWORD_GEAR"] = "Equipement "
 L["KEYWORD_GLOVES"] = "Mains"
 L["KEYWORD_HELM"] = "casque"
+L["KEYWORD_INSCRIPTION"] = "calligraphie"
+L["KEYWORD_JEWELCRAFTING"] = "joaillerie"
 L["KEYWORD_JUNK"] = "camelote"
 L["KEYWORD_MACE"] = "masse"
 L["KEYWORD_MANUSCRIPT"] = "manuscrit"
+L["KEYWORD_MINING"] = "minage"
 L["KEYWORD_OFF_HAND"] = "main gauche"
 L["KEYWORD_OPEN"] = "ouvrir"
 L["KEYWORD_PET"] = "mascotte"
@@ -170,6 +165,7 @@ L["KEYWORD_RELIC"] = "relique"
 L["KEYWORD_REPUTATION"] = "réputation"
 L["KEYWORD_SET"] = "Set"
 L["KEYWORD_SOCKET"] = "châsse"
+L["KEYWORD_SOUL"] = "âme"
 L["KEYWORD_SOULBOUND"] = "Lié"
 L["KEYWORD_STACKABLE"] = "empilable "
 L["KEYWORD_STACKS"] = "piles"
@@ -180,11 +176,9 @@ L["KEYWORD_TRADEABLE_LOOT"] = "Butin échangeable"
 L["KEYWORD_TRASH"] = "camelote"
 L["KEYWORD_UNCOLLECTED_PET"] = "Mascotte non collectée"
 L["KEYWORD_USE"] = "utiliser"
-L["LEATHERWORKING"] = "Travail du cuir"
 L["MAIL_LOWER"] = "courrier"
 L["MAIL_X"] = "Courrier : %s"
 L["MAILS_X"] = "Courriers : %s"
-L["MINING"] = "Minage"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Uniquement l'inventaire des serveurs connectés "
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Uniquement l'inventaire de faction "
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Maj pour afficher les infos dans les infobulles"
@@ -195,7 +189,6 @@ L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Affiche les objets équipés d
 L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Afficher les banques de guilde dans les infobulles"
 L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Afficher l’inventaire dans les infobulles"
 L["SORT_BY_CHARACTER_NAME"] = "Trier par nom de personnage"
-L["SOUL"] = "Âme"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Options des infobulles"
 L["TOTAL_X"] = "Total: %s"
@@ -206,184 +199,92 @@ L["X_CHARACTERS_SHOWN"] = "%s Personnages affichés"
 
 
 local L = Locales.deDE
---[[Translation missing --]]
-L["ALL_CHARACTERS_COLON"] = "All Characters:"
---[[Translation missing --]]
-L["AUCTIONS_LOWER"] = "auctions"
---[[Translation missing --]]
-L["AUCTIONS_X"] = "Auctions: %s"
---[[Translation missing --]]
-L["BAGS_LOWER"] = "bags"
---[[Translation missing --]]
-L["BAGS_X"] = "Bags: %s"
---[[Translation missing --]]
+L["ALL_CHARACTERS_COLON"] = "Alle Charaktere:"
+L["AUCTIONS_LOWER"] = "auktionen"
+L["AUCTIONS_X"] = "Auktionen: %s"
+L["BAGS_LOWER"] = "taschen"
+L["BAGS_X"] = "Taschen: %s"
 L["BANK_LOWER"] = "bank"
---[[Translation missing --]]
 L["BANK_X"] = "Bank: %s"
---[[Translation missing --]]
-L["BANKS_X"] = "Banks: %s"
---[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
---[[Translation missing --]]
-L["COOKING"] = "Cooking"
---[[Translation missing --]]
-L["ENCHANTING"] = "Enchanting"
---[[Translation missing --]]
-L["ENGINEERING"] = "Engineering"
---[[Translation missing --]]
-L["EQUIPPED_LOWER"] = "equipped"
---[[Translation missing --]]
-L["EQUIPPED_X"] = "Equipped: %s"
---[[Translation missing --]]
-L["FISHING"] = "Fishing"
---[[Translation missing --]]
-L["GEMS"] = "Gems"
---[[Translation missing --]]
-L["GUILD_LOWER"] = "guild"
---[[Translation missing --]]
-L["GUILD_X"] = "Guild: %s"
---[[Translation missing --]]
-L["GUILDS_X"] = "Guilds: %s"
---[[Translation missing --]]
-L["HERBALISM"] = "Herbalism"
---[[Translation missing --]]
-L["INSCRIPTION"] = "Inscription"
---[[Translation missing --]]
-L["INVENTORY"] = "Inventory"
---[[Translation missing --]]
-L["JEWELCRAFTING"] = "Jewelcrafting"
---[[Translation missing --]]
-L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
---[[Translation missing --]]
-L["KEYWORD_AXE"] = "axe"
---[[Translation missing --]]
-L["KEYWORD_AZERITE"] = "azerite"
---[[Translation missing --]]
-L["KEYWORD_BATTLE_PET"] = "battle pet"
---[[Translation missing --]]
-L["KEYWORD_BELT"] = "belt"
---[[Translation missing --]]
+L["BANKS_X"] = "Banken: %s"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Suche nach Artikel-Link nicht möglich"
+L["EQUIPPED_LOWER"] = "ausgerüstet"
+L["EQUIPPED_X"] = "Ausgerüstet: %s"
+L["GUILD_LOWER"] = "gilde"
+L["GUILD_X"] = "Gilde: %s"
+L["GUILDS_X"] = "Gilden: %s"
+L["INVENTORY"] = "Inventar"
+L["KEYWORD_ACCOUNT_BOUND"] = "accountgebunden"
+L["KEYWORD_AXE"] = "axt"
+L["KEYWORD_AZERITE"] = "azerit"
+L["KEYWORD_BATTLE_PET"] = "kampfhaustier"
+L["KEYWORD_BELT"] = "taille"
 L["KEYWORD_BOA"] = "boa"
---[[Translation missing --]]
 L["KEYWORD_BOE"] = "boe"
---[[Translation missing --]]
-L["KEYWORD_BOOTS"] = "boots"
---[[Translation missing --]]
+L["KEYWORD_BOOTS"] = "füße"
 L["KEYWORD_BOP"] = "bop"
---[[Translation missing --]]
 L["KEYWORD_BOU"] = "bou"
---[[Translation missing --]]
-L["KEYWORD_BRACERS"] = "bracers"
---[[Translation missing --]]
-L["KEYWORD_CLOAK"] = "cloak"
---[[Translation missing --]]
-L["KEYWORD_COSMETIC"] = "cosmetic"
---[[Translation missing --]]
-L["KEYWORD_DRINK"] = "drink"
---[[Translation missing --]]
-L["KEYWORD_ENGRAVABLE"] = "engravable"
---[[Translation missing --]]
-L["KEYWORD_ENGRAVED"] = "engraved"
---[[Translation missing --]]
-L["KEYWORD_EQUIPMENT"] = "equipment"
---[[Translation missing --]]
-L["KEYWORD_FOOD"] = "food"
---[[Translation missing --]]
-L["KEYWORD_GEAR"] = "gear"
---[[Translation missing --]]
-L["KEYWORD_GLOVES"] = "gloves"
---[[Translation missing --]]
+L["KEYWORD_BRACERS"] = "armschienen"
+L["KEYWORD_CLOAK"] = "umhang"
+L["KEYWORD_COOKING"] = "kochen"
+L["KEYWORD_COSMETIC"] = "kosmetisch"
+L["KEYWORD_DRINK"] = "trinken"
+L["KEYWORD_ENCHANTING"] = "verzaubern"
+L["KEYWORD_ENGINEERING"] = "ingenieurskunst"
+L["KEYWORD_ENGRAVABLE"] = "gravierbar"
+L["KEYWORD_ENGRAVED"] = "graviert"
+L["KEYWORD_EQUIPMENT"] = "ausrüstung"
+L["KEYWORD_FISHING"] = "angeln"
+L["KEYWORD_FOOD"] = "essen"
+L["KEYWORD_GEAR"] = "ausrüstung"
+L["KEYWORD_GLOVES"] = "handschuhe"
 L["KEYWORD_HELM"] = "helm"
---[[Translation missing --]]
-L["KEYWORD_JUNK"] = "junk"
---[[Translation missing --]]
-L["KEYWORD_MACE"] = "mace"
---[[Translation missing --]]
-L["KEYWORD_MANUSCRIPT"] = "manuscript"
---[[Translation missing --]]
-L["KEYWORD_OFF_HAND"] = "off-hand"
---[[Translation missing --]]
-L["KEYWORD_OPEN"] = "open"
---[[Translation missing --]]
-L["KEYWORD_PET"] = "pet"
---[[Translation missing --]]
-L["KEYWORD_POTION"] = "potion"
---[[Translation missing --]]
-L["KEYWORD_REAGENT"] = "reagent"
---[[Translation missing --]]
-L["KEYWORD_RELIC"] = "relic"
---[[Translation missing --]]
-L["KEYWORD_REPUTATION"] = "reputation"
---[[Translation missing --]]
+L["KEYWORD_INSCRIPTION"] = "inschrift"
+L["KEYWORD_JEWELCRAFTING"] = "juwelenschleifen"
+L["KEYWORD_JUNK"] = "schrott"
+L["KEYWORD_MACE"] = "streitkolben"
+L["KEYWORD_MANUSCRIPT"] = "manuskript"
+L["KEYWORD_MINING"] = "bergbau"
+L["KEYWORD_OFF_HAND"] = "nebenhand"
+L["KEYWORD_OPEN"] = "offen"
+L["KEYWORD_PET"] = "haustier"
+L["KEYWORD_POTION"] = "trank"
+L["KEYWORD_REAGENT"] = "reagenz"
+L["KEYWORD_RELIC"] = "relikt"
+L["KEYWORD_REPUTATION"] = "ruf"
 L["KEYWORD_SET"] = "set"
---[[Translation missing --]]
-L["KEYWORD_SOCKET"] = "socket"
---[[Translation missing --]]
-L["KEYWORD_SOULBOUND"] = "soulbound"
---[[Translation missing --]]
-L["KEYWORD_STACKABLE"] = "stackable"
---[[Translation missing --]]
-L["KEYWORD_STACKS"] = "stacks"
---[[Translation missing --]]
-L["KEYWORD_STAFF"] = "staff"
---[[Translation missing --]]
-L["KEYWORD_SWORD"] = "sword"
---[[Translation missing --]]
-L["KEYWORD_TRADABLE_LOOT"] = "tradable loot"
---[[Translation missing --]]
-L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
---[[Translation missing --]]
-L["KEYWORD_TRASH"] = "trash"
---[[Translation missing --]]
-L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
---[[Translation missing --]]
-L["KEYWORD_USE"] = "use"
---[[Translation missing --]]
-L["LEATHERWORKING"] = "Leatherworking"
---[[Translation missing --]]
-L["MAIL_LOWER"] = "mail"
---[[Translation missing --]]
-L["MAIL_X"] = "Mail: %s"
---[[Translation missing --]]
-L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
-L["MINING"] = "Mining"
---[[Translation missing --]]
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
---[[Translation missing --]]
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
---[[Translation missing --]]
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Press shift to display info in tooltips"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
---[[Translation missing --]]
-L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
---[[Translation missing --]]
-L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
---[[Translation missing --]]
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Show equipped items in inventory tooltips"
---[[Translation missing --]]
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory tooltips"
---[[Translation missing --]]
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
---[[Translation missing --]]
-L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
---[[Translation missing --]]
-L["SOUL"] = "Soul"
---[[Translation missing --]]
+L["KEYWORD_SOCKET"] = "sockel"
+L["KEYWORD_SOUL"] = "seele"
+L["KEYWORD_SOULBOUND"] = "seelengebunden"
+L["KEYWORD_STACKABLE"] = "stapelbar"
+L["KEYWORD_STACKS"] = "stapel"
+L["KEYWORD_STAFF"] = "stab"
+L["KEYWORD_SWORD"] = "schwert"
+L["KEYWORD_TRADABLE_LOOT"] = "handelbare beute"
+L["KEYWORD_TRADEABLE_LOOT"] = "handelbare beute"
+L["KEYWORD_TRASH"] = "müll"
+L["KEYWORD_UNCOLLECTED_PET"] = "nicht gesammeltes haustier"
+L["KEYWORD_USE"] = "benutzen"
+L["MAIL_LOWER"] = "post"
+L["MAIL_X"] = "Post: %s"
+L["MAILS_X"] = "Post: %s"
+L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Nur die gleichen verbundenen Realms für das Inventar verwenden"
+L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Nur Charaktere derselben Fraktion für das Inventar verwenden"
+L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Drücke die Umschalttaste, um Informationen in den Tooltips anzuzeigen"
+L["SEARCHED_EVERYWHERE_COLON"] = "Überall gesucht:"
+L["SHOW_CHARACTER_RACE_ICONS"] = "Rassensymbole der Charaktere anzeigen"
+L["SHOW_CURRENCY_TOOLTIPS"] = "Währung anderer Charaktere in Tooltips anzeigen"
+L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Ausgerüstete Gegenstände in Inventar-Tooltips anzeigen"
+L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Gildenbanken in Inventar-Tooltips anzeigen"
+L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Inventar in Gegenstand-Tooltips anzeigen"
+L["SORT_BY_CHARACTER_NAME"] = "Nach Charaktername sortieren"
 L["SYNDICATOR"] = "Syndicator"
---[[Translation missing --]]
-L["TOOLTIP_SETTINGS"] = "Tooltip Settings"
---[[Translation missing --]]
-L["TOTAL_X"] = "Total: %s"
---[[Translation missing --]]
+L["TOOLTIP_SETTINGS"] = "Tooltip-Einstellungen"
+L["TOTAL_X"] = "Insgesamt: %s"
 L["VERSION_COLON_X"] = "Version: %s"
---[[Translation missing --]]
-L["VOID_LOWER"] = "void"
---[[Translation missing --]]
-L["VOID_X"] = "Void: %s"
---[[Translation missing --]]
-L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
+L["VOID_LOWER"] = "ungültig"
+L["VOID_X"] = "Ungültig: %s"
+L["X_CHARACTERS_SHOWN"] = "%s Angezeigte Charaktere"
 
 
 local L = Locales.ruRU
@@ -406,19 +307,9 @@ L["BANKS_X"] = "Banks: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
-L["COOKING"] = "Cooking"
---[[Translation missing --]]
-L["ENCHANTING"] = "Enchanting"
---[[Translation missing --]]
-L["ENGINEERING"] = "Engineering"
---[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
---[[Translation missing --]]
-L["FISHING"] = "Fishing"
---[[Translation missing --]]
-L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
@@ -426,13 +317,7 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
-L["HERBALISM"] = "Herbalism"
---[[Translation missing --]]
-L["INSCRIPTION"] = "Inscription"
---[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
---[[Translation missing --]]
-L["JEWELCRAFTING"] = "Jewelcrafting"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
 --[[Translation missing --]]
@@ -458,15 +343,23 @@ L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
+L["KEYWORD_COOKING"] = "cooking"
+--[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
 L["KEYWORD_DRINK"] = "drink"
+--[[Translation missing --]]
+L["KEYWORD_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVED"] = "engraved"
 --[[Translation missing --]]
 L["KEYWORD_EQUIPMENT"] = "equipment"
+--[[Translation missing --]]
+L["KEYWORD_FISHING"] = "fishing"
 --[[Translation missing --]]
 L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
@@ -476,11 +369,17 @@ L["KEYWORD_GLOVES"] = "gloves"
 --[[Translation missing --]]
 L["KEYWORD_HELM"] = "helm"
 --[[Translation missing --]]
+L["KEYWORD_INSCRIPTION"] = "inscription"
+--[[Translation missing --]]
+L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_MINING"] = "mining"
 --[[Translation missing --]]
 L["KEYWORD_OFF_HAND"] = "off-hand"
 --[[Translation missing --]]
@@ -499,6 +398,8 @@ L["KEYWORD_REPUTATION"] = "reputation"
 L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
+--[[Translation missing --]]
+L["KEYWORD_SOUL"] = "soul"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
@@ -520,15 +421,11 @@ L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
-L["LEATHERWORKING"] = "Leatherworking"
---[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
-L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -549,8 +446,6 @@ L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory too
 L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
 --[[Translation missing --]]
 L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
---[[Translation missing --]]
-L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
@@ -587,19 +482,9 @@ L["BANKS_X"] = "Banks: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
-L["COOKING"] = "Cooking"
---[[Translation missing --]]
-L["ENCHANTING"] = "Enchanting"
---[[Translation missing --]]
-L["ENGINEERING"] = "Engineering"
---[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
---[[Translation missing --]]
-L["FISHING"] = "Fishing"
---[[Translation missing --]]
-L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
@@ -607,13 +492,7 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
-L["HERBALISM"] = "Herbalism"
---[[Translation missing --]]
-L["INSCRIPTION"] = "Inscription"
---[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
---[[Translation missing --]]
-L["JEWELCRAFTING"] = "Jewelcrafting"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
 --[[Translation missing --]]
@@ -639,15 +518,23 @@ L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
+L["KEYWORD_COOKING"] = "cooking"
+--[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
 L["KEYWORD_DRINK"] = "drink"
+--[[Translation missing --]]
+L["KEYWORD_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVED"] = "engraved"
 --[[Translation missing --]]
 L["KEYWORD_EQUIPMENT"] = "equipment"
+--[[Translation missing --]]
+L["KEYWORD_FISHING"] = "fishing"
 --[[Translation missing --]]
 L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
@@ -657,11 +544,17 @@ L["KEYWORD_GLOVES"] = "gloves"
 --[[Translation missing --]]
 L["KEYWORD_HELM"] = "helm"
 --[[Translation missing --]]
+L["KEYWORD_INSCRIPTION"] = "inscription"
+--[[Translation missing --]]
+L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_MINING"] = "mining"
 --[[Translation missing --]]
 L["KEYWORD_OFF_HAND"] = "off-hand"
 --[[Translation missing --]]
@@ -680,6 +573,8 @@ L["KEYWORD_REPUTATION"] = "reputation"
 L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
+--[[Translation missing --]]
+L["KEYWORD_SOUL"] = "soul"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
@@ -701,15 +596,11 @@ L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
-L["LEATHERWORKING"] = "Leatherworking"
---[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
-L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -730,8 +621,6 @@ L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory too
 L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
 --[[Translation missing --]]
 L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
---[[Translation missing --]]
-L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
@@ -768,19 +657,9 @@ L["BANKS_X"] = "Banks: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
-L["COOKING"] = "Cooking"
---[[Translation missing --]]
-L["ENCHANTING"] = "Enchanting"
---[[Translation missing --]]
-L["ENGINEERING"] = "Engineering"
---[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
---[[Translation missing --]]
-L["FISHING"] = "Fishing"
---[[Translation missing --]]
-L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
@@ -788,13 +667,7 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
-L["HERBALISM"] = "Herbalism"
---[[Translation missing --]]
-L["INSCRIPTION"] = "Inscription"
---[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
---[[Translation missing --]]
-L["JEWELCRAFTING"] = "Jewelcrafting"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
 --[[Translation missing --]]
@@ -820,15 +693,23 @@ L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
+L["KEYWORD_COOKING"] = "cooking"
+--[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
 L["KEYWORD_DRINK"] = "drink"
+--[[Translation missing --]]
+L["KEYWORD_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVED"] = "engraved"
 --[[Translation missing --]]
 L["KEYWORD_EQUIPMENT"] = "equipment"
+--[[Translation missing --]]
+L["KEYWORD_FISHING"] = "fishing"
 --[[Translation missing --]]
 L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
@@ -838,11 +719,17 @@ L["KEYWORD_GLOVES"] = "gloves"
 --[[Translation missing --]]
 L["KEYWORD_HELM"] = "helm"
 --[[Translation missing --]]
+L["KEYWORD_INSCRIPTION"] = "inscription"
+--[[Translation missing --]]
+L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_MINING"] = "mining"
 --[[Translation missing --]]
 L["KEYWORD_OFF_HAND"] = "off-hand"
 --[[Translation missing --]]
@@ -861,6 +748,8 @@ L["KEYWORD_REPUTATION"] = "reputation"
 L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
+--[[Translation missing --]]
+L["KEYWORD_SOUL"] = "soul"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
@@ -882,15 +771,11 @@ L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
-L["LEATHERWORKING"] = "Leatherworking"
---[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
-L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -911,8 +796,6 @@ L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory too
 L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
 --[[Translation missing --]]
 L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
---[[Translation missing --]]
-L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
@@ -939,20 +822,12 @@ L["BANK_LOWER"] = "銀行"
 L["BANK_X"] = "銀行：%s"
 L["BANKS_X"] = "銀行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "無法透過物品連結搜尋"
-L["COOKING"] = "烹飪"
-L["ENCHANTING"] = "附魔"
-L["ENGINEERING"] = "工程"
 L["EQUIPPED_LOWER"] = "裝備"
 L["EQUIPPED_X"] = "裝備：%s"
-L["FISHING"] = "釣魚"
-L["GEMS"] = "珠寶"
 L["GUILD_LOWER"] = "公會"
 L["GUILD_X"] = "公會：%s"
 L["GUILDS_X"] = "公會：%s"
-L["HERBALISM"] = "草藥"
-L["INSCRIPTION"] = "銘文"
 L["INVENTORY"] = "庫存"
-L["JEWELCRAFTING"] = "珠寶"
 L["KEYWORD_ACCOUNT_BOUND"] = "帳號綁定"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_AZERITE"] = "艾澤萊"
@@ -965,18 +840,25 @@ L["KEYWORD_BOP"] = "拾綁"
 L["KEYWORD_BOU"] = "用綁"
 L["KEYWORD_BRACERS"] = "手腕"
 L["KEYWORD_CLOAK"] = "披風"
+L["KEYWORD_COOKING"] = "烹飪"
 L["KEYWORD_COSMETIC"] = "外型"
 L["KEYWORD_DRINK"] = "飲料"
+L["KEYWORD_ENCHANTING"] = "附魔"
+L["KEYWORD_ENGINEERING"] = "工程"
 L["KEYWORD_ENGRAVABLE"] = "可銘刻"
 L["KEYWORD_ENGRAVED"] = "銘刻"
 L["KEYWORD_EQUIPMENT"] = "裝備"
+L["KEYWORD_FISHING"] = "釣魚"
 L["KEYWORD_FOOD"] = "食物"
 L["KEYWORD_GEAR"] = "裝備"
 L["KEYWORD_GLOVES"] = "手套"
 L["KEYWORD_HELM"] = "頭"
+L["KEYWORD_INSCRIPTION"] = "銘文"
+L["KEYWORD_JEWELCRAFTING"] = "珠寶"
 L["KEYWORD_JUNK"] = "垃圾"
 L["KEYWORD_MACE"] = "錘"
 L["KEYWORD_MANUSCRIPT"] = "手稿"
+L["KEYWORD_MINING"] = "採礦"
 L["KEYWORD_OFF_HAND"] = "副手"
 L["KEYWORD_OPEN"] = "開啟"
 L["KEYWORD_PET"] = "寵物"
@@ -986,6 +868,7 @@ L["KEYWORD_RELIC"] = "聖物"
 L["KEYWORD_REPUTATION"] = "聲望"
 L["KEYWORD_SET"] = "套裝"
 L["KEYWORD_SOCKET"] = "插槽"
+L["KEYWORD_SOUL"] = "靈魂"
 L["KEYWORD_SOULBOUND"] = "靈魂綁定"
 L["KEYWORD_STACKABLE"] = "可堆疊"
 L["KEYWORD_STACKS"] = "堆疊"
@@ -996,11 +879,9 @@ L["KEYWORD_TRADEABLE_LOOT"] = "可交易拾取"
 L["KEYWORD_TRASH"] = "垃圾"
 L["KEYWORD_UNCOLLECTED_PET"] = "未收藏寵物"
 L["KEYWORD_USE"] = "使用"
-L["LEATHERWORKING"] = "製皮"
 L["MAIL_LOWER"] = "郵件"
 L["MAIL_X"] = "信箱：%s"
 L["MAILS_X"] = "信箱：%s"
-L["MINING"] = "採礦"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "在庫存上只使用相同連結伺服器"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "在庫存上只使用相同陣營角色"
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "按下Shift在工具提示中顯示訊息"
@@ -1011,7 +892,6 @@ L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "在庫存提示中顯示裝備
 L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "在庫存提示中顯示公會銀行"
 L["SHOW_INVENTORY_IN_TOOLTIPS"] = "在物品提示中顯示庫存統計"
 L["SORT_BY_CHARACTER_NAME"] = "排序根據角色名字"
-L["SOUL"] = "靈魂"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "工具提示設定"
 L["TOTAL_X"] = "總計：%s"
@@ -1031,20 +911,12 @@ L["BANK_LOWER"] = "银行"
 L["BANK_X"] = "银行：%s"
 L["BANKS_X"] = "银行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "无法通过物品链接搜索"
-L["COOKING"] = "烹饪"
-L["ENCHANTING"] = "附魔"
-L["ENGINEERING"] = "工程"
 L["EQUIPPED_LOWER"] = "装备"
 L["EQUIPPED_X"] = "装备：%s"
-L["FISHING"] = "钓鱼"
-L["GEMS"] = "珠宝"
 L["GUILD_LOWER"] = "公会"
 L["GUILD_X"] = "公会：%s"
 L["GUILDS_X"] = "公会：%s"
-L["HERBALISM"] = "草药"
-L["INSCRIPTION"] = "铭文"
 L["INVENTORY"] = "库存"
-L["JEWELCRAFTING"] = "珠宝"
 L["KEYWORD_ACCOUNT_BOUND"] = "帐号绑定"
 L["KEYWORD_AXE"] = "斧"
 L["KEYWORD_AZERITE"] = "艾泽拉斯"
@@ -1057,18 +929,25 @@ L["KEYWORD_BOP"] = "拾绑"
 L["KEYWORD_BOU"] = "使用后绑定"
 L["KEYWORD_BRACERS"] = "腕部"
 L["KEYWORD_CLOAK"] = "背部"
+L["KEYWORD_COOKING"] = "烹饪"
 L["KEYWORD_COSMETIC"] = "外观"
 L["KEYWORD_DRINK"] = "饮水"
+L["KEYWORD_ENCHANTING"] = "附魔"
+L["KEYWORD_ENGINEERING"] = "工程"
 L["KEYWORD_ENGRAVABLE"] = "可铭刻"
 L["KEYWORD_ENGRAVED"] = "铭刻"
 L["KEYWORD_EQUIPMENT"] = "装备"
+L["KEYWORD_FISHING"] = "钓鱼"
 L["KEYWORD_FOOD"] = "食物"
 L["KEYWORD_GEAR"] = "装备"
 L["KEYWORD_GLOVES"] = "手部"
 L["KEYWORD_HELM"] = "头部"
+L["KEYWORD_INSCRIPTION"] = "铭文"
+L["KEYWORD_JEWELCRAFTING"] = "珠宝"
 L["KEYWORD_JUNK"] = "垃圾"
 L["KEYWORD_MACE"] = "锤"
 L["KEYWORD_MANUSCRIPT"] = "手稿"
+L["KEYWORD_MINING"] = "采矿"
 L["KEYWORD_OFF_HAND"] = "副手"
 L["KEYWORD_OPEN"] = "打开"
 L["KEYWORD_PET"] = "宠物"
@@ -1078,6 +957,7 @@ L["KEYWORD_RELIC"] = "圣物"
 L["KEYWORD_REPUTATION"] = "声望"
 L["KEYWORD_SET"] = "套装"
 L["KEYWORD_SOCKET"] = "插槽"
+L["KEYWORD_SOUL"] = "灵魂"
 L["KEYWORD_SOULBOUND"] = "灵魂绑定"
 L["KEYWORD_STACKABLE"] = "可堆叠"
 L["KEYWORD_STACKS"] = "堆叠"
@@ -1088,11 +968,9 @@ L["KEYWORD_TRADEABLE_LOOT"] = "可交易拾取（时限）"
 L["KEYWORD_TRASH"] = "垃圾"
 L["KEYWORD_UNCOLLECTED_PET"] = "未收藏宠物"
 L["KEYWORD_USE"] = "使用（use）"
-L["LEATHERWORKING"] = "制皮"
 L["MAIL_LOWER"] = "信箱"
 L["MAIL_X"] = "信箱：%s"
 L["MAILS_X"] = "信箱：%s"
-L["MINING"] = "采矿"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "仅显示互通服务器角色的库存"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "仅显示同阵营角色的库存"
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "按 SHIFT 键在鼠标提示中显示信息"
@@ -1103,7 +981,6 @@ L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "在（库存）鼠标提示中
 L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "在鼠标提示中显示公会银行库存"
 L["SHOW_INVENTORY_IN_TOOLTIPS"] = "在鼠标提示中显示物品统计"
 L["SORT_BY_CHARACTER_NAME"] = "角色按名称排序"
-L["SOUL"] = "魂"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "鼠标提示设置"
 L["TOTAL_X"] = "总计：%s"
@@ -1128,22 +1005,14 @@ L["BANK_X"] = "은행: %s"
 L["BANKS_X"] = "은행: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
-L["COOKING"] = "요리"
-L["ENCHANTING"] = "마법부여"
-L["ENGINEERING"] = "기계공학"
 --[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 L["EQUIPPED_X"] = "착용함: %s"
-L["FISHING"] = "낚시"
-L["GEMS"] = "보석"
 --[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 L["GUILD_X"] = "길드: %s"
 L["GUILDS_X"] = "길드: %s"
-L["HERBALISM"] = "약초채집"
-L["INSCRIPTION"] = "주문각인"
 L["INVENTORY"] = "가방"
-L["JEWELCRAFTING"] = "보석세공"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
 L["KEYWORD_AXE"] = "도끼"
@@ -1161,23 +1030,37 @@ L["KEYWORD_BOU"] = "bou"
 L["KEYWORD_BRACERS"] = "손목"
 L["KEYWORD_CLOAK"] = "망토"
 --[[Translation missing --]]
+L["KEYWORD_COOKING"] = "cooking"
+--[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 L["KEYWORD_DRINK"] = "음료"
+--[[Translation missing --]]
+L["KEYWORD_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVED"] = "engraved"
 L["KEYWORD_EQUIPMENT"] = "착용"
+--[[Translation missing --]]
+L["KEYWORD_FISHING"] = "fishing"
 L["KEYWORD_FOOD"] = "음식"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 L["KEYWORD_GLOVES"] = "장갑"
 L["KEYWORD_HELM"] = "투구"
 --[[Translation missing --]]
+L["KEYWORD_INSCRIPTION"] = "inscription"
+--[[Translation missing --]]
+L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 L["KEYWORD_MACE"] = "둔기"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_MINING"] = "mining"
 L["KEYWORD_OFF_HAND"] = "보조장비"
 --[[Translation missing --]]
 L["KEYWORD_OPEN"] = "open"
@@ -1189,6 +1072,8 @@ L["KEYWORD_RELIC"] = "relic"
 L["KEYWORD_REPUTATION"] = "평판"
 L["KEYWORD_SET"] = "세트"
 L["KEYWORD_SOCKET"] = "소켓"
+--[[Translation missing --]]
+L["KEYWORD_SOUL"] = "soul"
 L["KEYWORD_SOULBOUND"] = "영혼석"
 --[[Translation missing --]]
 L["KEYWORD_STACKABLE"] = "stackable"
@@ -1206,12 +1091,10 @@ L["KEYWORD_TRASH"] = "trash"
 L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
-L["LEATHERWORKING"] = "가죽세공"
 --[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 L["MAIL_X"] = "우편함: %s"
 L["MAILS_X"] = "우편함: %s"
-L["MINING"] = "채광"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "동일 서버의 소지품만 표시"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "동일 진영의 소지품만 표시"
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "툴팁 정보를 표시하려면 SHIFT 누르기"
@@ -1224,8 +1107,6 @@ L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Show equipped items in invento
 L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "길드 은행의 소지 갯수를 툴팁에 표시"
 L["SHOW_INVENTORY_IN_TOOLTIPS"] = "가방 아이템의 툴팁 표시"
 L["SORT_BY_CHARACTER_NAME"] = "캐릭터 이름으로 정렬"
---[[Translation missing --]]
-L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
@@ -1259,19 +1140,9 @@ L["BANKS_X"] = "Banks: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
-L["COOKING"] = "Cooking"
---[[Translation missing --]]
-L["ENCHANTING"] = "Enchanting"
---[[Translation missing --]]
-L["ENGINEERING"] = "Engineering"
---[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
---[[Translation missing --]]
-L["FISHING"] = "Fishing"
---[[Translation missing --]]
-L["GEMS"] = "Gems"
 --[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
@@ -1279,13 +1150,7 @@ L["GUILD_X"] = "Guild: %s"
 --[[Translation missing --]]
 L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
-L["HERBALISM"] = "Herbalism"
---[[Translation missing --]]
-L["INSCRIPTION"] = "Inscription"
---[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
---[[Translation missing --]]
-L["JEWELCRAFTING"] = "Jewelcrafting"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
 --[[Translation missing --]]
@@ -1311,15 +1176,23 @@ L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
+L["KEYWORD_COOKING"] = "cooking"
+--[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
 L["KEYWORD_DRINK"] = "drink"
+--[[Translation missing --]]
+L["KEYWORD_ENCHANTING"] = "enchanting"
+--[[Translation missing --]]
+L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVED"] = "engraved"
 --[[Translation missing --]]
 L["KEYWORD_EQUIPMENT"] = "equipment"
+--[[Translation missing --]]
+L["KEYWORD_FISHING"] = "fishing"
 --[[Translation missing --]]
 L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
@@ -1329,11 +1202,17 @@ L["KEYWORD_GLOVES"] = "gloves"
 --[[Translation missing --]]
 L["KEYWORD_HELM"] = "helm"
 --[[Translation missing --]]
+L["KEYWORD_INSCRIPTION"] = "inscription"
+--[[Translation missing --]]
+L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
+--[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
+--[[Translation missing --]]
+L["KEYWORD_MINING"] = "mining"
 --[[Translation missing --]]
 L["KEYWORD_OFF_HAND"] = "off-hand"
 --[[Translation missing --]]
@@ -1352,6 +1231,8 @@ L["KEYWORD_REPUTATION"] = "reputation"
 L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
+--[[Translation missing --]]
+L["KEYWORD_SOUL"] = "soul"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
@@ -1373,15 +1254,11 @@ L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
-L["LEATHERWORKING"] = "Leatherworking"
---[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
 L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
-L["MINING"] = "Mining"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
@@ -1402,8 +1279,6 @@ L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory too
 L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
 --[[Translation missing --]]
 L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
---[[Translation missing --]]
-L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]

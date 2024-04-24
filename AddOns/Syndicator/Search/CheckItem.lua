@@ -52,7 +52,7 @@ local function EngravedCheck(details)
 end
 
 local function BindOnEquipCheck(details)
-  return not details.isBound and Syndicator.Utilities.IsEquipment(details.itemLink) == true
+  return not details.isBound and (Syndicator.Utilities.IsEquipment(details.itemLink) or details.classID == Enum.ItemClass.Container)
 end
 
 local function EquipmentCheck(details)
@@ -110,7 +110,7 @@ local function RelicCheck(details)
 end
 
 local function StackableCheck(details)
-  details.isStackable = details.isStackable or select(15, GetItemInfo(details.itemLink))
+  details.isStackable = details.isStackable or C_Item.GetItemMaxStackSizeByID(details.itemID) > 1
   return details.isStackable
 end
 
@@ -517,22 +517,19 @@ if Syndicator.Constants.IsRetail then
 end
 
 local BAG_TYPES = {
-  [SYNDICATOR_L_SOUL] = 12,
-  [SYNDICATOR_L_HERBALISM] = 6,
-  [SYNDICATOR_L_ENCHANTING] = 7,
-  [SYNDICATOR_L_ENGINEERING] = 8,
-  [SYNDICATOR_L_GEMS] = 10,
-  [SYNDICATOR_L_MINING] = 11,
-  [SYNDICATOR_L_LEATHERWORKING] = 4,
-  [SYNDICATOR_L_INSCRIPTION] = 5,
-  [SYNDICATOR_L_FISHING] = 16,
-  [SYNDICATOR_L_COOKING] = 17,
-  [SYNDICATOR_L_JEWELCRAFTING] = 25,
+  [SYNDICATOR_L_KEYWORD_SOUL] = 12,
+  [SYNDICATOR_L_KEYWORD_ENCHANTING] = 7,
+  [SYNDICATOR_L_KEYWORD_ENGINEERING] = 8,
+  [SYNDICATOR_L_KEYWORD_MINING] = 11,
+  [SYNDICATOR_L_KEYWORD_INSCRIPTION] = 5,
+  [SYNDICATOR_L_KEYWORD_FISHING] = 16,
+  [SYNDICATOR_L_KEYWORD_COOKING] = 17,
+  [SYNDICATOR_L_KEYWORD_JEWELCRAFTING] = 25,
 }
 
 for keyword, bagBit in pairs(BAG_TYPES) do
   local bagFamily = bit.lshift(1, bagBit - 1)
-  AddKeyword(keyword:lower(), function(details)
+  AddKeyword(keyword, function(details)
     local itemFamily = GetItemFamily(details.itemID)
     if itemFamily == nil then
       return
