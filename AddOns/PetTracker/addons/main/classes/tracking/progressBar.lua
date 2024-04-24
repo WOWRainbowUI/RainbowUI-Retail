@@ -1,5 +1,5 @@
 --[[
-Copyright 2012-2023 João Cardoso
+Copyright 2012-2024 João Cardoso
 All Rights Reserved
 --]]
 
@@ -21,7 +21,6 @@ function Bar:New(...)
 
 		f.Bars[i] = bar
 	end
-
 	return f
 end
 
@@ -39,6 +38,6 @@ function Bar:SetProgress(progress)
 end
 
 function Bar:IsMaximized()
-	local max = self.Bars[Addon.MaxQuality]
-	return max:GetValue() == select(2, max:GetMinMaxValues())
+	local criteria = self.Bars[Addon.sets.targetQuality]
+	return criteria:GetValue() == select(2, criteria:GetMinMaxValues())
 end
