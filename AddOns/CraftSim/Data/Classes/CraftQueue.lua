@@ -3,29 +3,35 @@ local CraftSim = select(2, ...)
 
 local GUTIL = CraftSim.GUTIL
 
----@class CraftSim.CraftQueue
-CraftSim.CraftQueue = CraftSim.Object:extend()
+---@class CraftSim.CraftQueue : CraftSim.CraftSimObject
+CraftSim.CraftQueue = CraftSim.CraftSimObject:extend()
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CRAFTQ)
+local print = CraftSim.DEBUG:SetDebugPrint("CRAFTQ_CRAFTING")
 
 function CraftSim.CraftQueue:new()
     ---@type CraftSim.CraftQueueItem[]
     self.craftQueueItems = {}
 
-    self:RestoreFromCache()
+    --- quick key value map to O(1) find craft queue items based on RecipeCrafterUIDs
+    ---@type table<RecipeCraftQueueUID, CraftSim.CraftQueueItem>
+    self.recipeCrafterMap = {}
 end
 
----@param recipeData CraftSim.RecipeData
----@param amount number?
-function CraftSim.CraftQueue:AddRecipe(recipeData, amount)
-    amount = amount or 1
+---@param options CraftSim.CraftQueueItem.Options
+---@return CraftSim.CraftQueueItem
+function CraftSim.CraftQueue:AddRecipe(options)
+    options = options or {}
+    local recipeData = options.recipeData
+    local amount = options.amount or 1
+    local targetItemCountByQuality = options.targetItemCountByQuality
 
-    print("Adding recipe to queue with reagents: ")
-    print(recipeData.reagentData, true)
+    print("Adding Recipe to Queue: " .. recipeData.recipeName, true)
+
+    local recipeCrafterUID = recipeData:GetRecipeCraftQueueUID()
 
     -- make sure all required reagents are maxed out
     recipeData:SetNonQualityReagentsMax()
-    for _, reagent in pairs(recipeData.reagentData.requiredReagents) do
+    for _, reagent in ipairs(recipeData.reagentData.requiredReagents) do
         if reagent.hasQuality then
             if reagent:GetTotalQuantity() < reagent.requiredQuantity then
                 reagent:SetCheapestQualityMax()
@@ -36,12 +42,60 @@ function CraftSim.CraftQueue:AddRecipe(recipeData, amount)
     local craftQueueItem = self:FindRecipe(recipeData)
 
     if craftQueueItem then
-        -- only increase amount
-        craftQueueItem.amount = craftQueueItem.amount + amount
+        if craftQueueItem.targetMode and targetItemCountByQuality then
+            -- add target items to already existing target item array
+            craftQueueItem:AddTargetItemCount(targetItemCountByQuality)
+        elseif not craftQueueItem.targetMode and targetItemCountByQuality then
+            -- if recipe to queue is target mode and the already queued one is not, convert to target mode and replace amount by given
+            craftQueueItem.targetMode = true
+            craftQueueItem.targetItemCountByQuality = targetItemCountByQuality
+        elseif craftQueueItem.targetMode and not targetItemCountByQuality then
+            -- if recipe to queue is not target mode and the already queued on is, ignore? TODO: maybe some compromise or even make target mode and non target mode recipes coexisting?
+        else -- if none are target mode just add amount
+            -- only increase amount
+            craftQueueItem.amount = craftQueueItem.amount + amount
+        end
+
+        -- Check if I have parent recipes that the already queued recipe does not have and merge if yes
+        craftQueueItem.recipeData:AddParentRecipeInfosFrom(recipeData)
     else
+        craftQueueItem = CraftSim.CraftQueueItem({
+            recipeData = recipeData:Copy(),
+            amount = amount,
+            targetItemCountByQuality = targetItemCountByQuality
+        })
         -- create a new queue item
-        table.insert(self.craftQueueItems, CraftSim.CraftQueueItem(recipeData, amount))
+        table.insert(self.craftQueueItems, craftQueueItem)
+        self.recipeCrafterMap[recipeCrafterUID] = craftQueueItem
     end
+
+    if #recipeData.priceData.selfCraftedReagents > 0 then
+        -- for each reagent check if its self crafted
+        for _, reagent in ipairs(recipeData.reagentData.requiredReagents) do
+            for qualityID, reagentItem in ipairs(reagent.items) do
+                local itemID = reagentItem.item:GetItemID()
+                if recipeData:IsSelfCraftedReagent(itemID) and reagentItem.quantity > 0 then
+                    -- queue recipeData
+                    local subRecipe = recipeData.optimizedSubRecipes[itemID]
+                    if subRecipe then
+                        print("Found self crafted reagent: queue into cq: " .. subRecipe.recipeName)
+                        subRecipe:SetNonQualityReagentsMax()
+                        -- local currentItemCount = CraftSim.CACHE.ITEM_COUNT:Get(itemID, true, false, true,
+                        --     recipeData:GetCrafterUID())
+                        -- local restItemCount = math.max(0, reagentItem.quantity - currentItemCount)
+                        -- print("Restitemcount: " .. tostring(restItemCount))
+                        if reagentItem.quantity > 0 then
+                            self:AddRecipe({ recipeData = subRecipe, amount = 1, targetItemCountByQuality = { [qualityID] = reagentItem.quantity } })
+                        end
+                    end
+                end
+            end
+        end
+
+        -- TODO: optional reagents
+    end
+
+    return craftQueueItem
 end
 
 --- set, increase or decrease amount of a queued recipeData in the queue, does nothing if recipe could not be found
@@ -51,8 +105,8 @@ end
 ---@return number? newAmount amount after adjustment, nil if recipe could not be adjusted
 function CraftSim.CraftQueue:SetAmount(recipeData, amount, relative)
     relative = relative or false
-    local craftQueueItem, index = self:FindRecipe(recipeData)
-    if craftQueueItem and index then
+    local craftQueueItem = self:FindRecipe(recipeData)
+    if craftQueueItem then
         print("found craftQueueItem do decrement")
         if relative then
             craftQueueItem.amount = craftQueueItem.amount + amount
@@ -60,9 +114,9 @@ function CraftSim.CraftQueue:SetAmount(recipeData, amount, relative)
             craftQueueItem.amount = amount
         end
 
-        -- if amount is <= 0 then remove recipe from queue
-        if craftQueueItem.amount <= 0 then
-            self.craftQueueItems[index] = nil
+        -- if amount is <= 0 then remove recipe from queue (if not in targetmode)
+        if not craftQueueItem.targetMode and craftQueueItem.amount <= 0 then
+            self:Remove(craftQueueItem)
         end
 
         return craftQueueItem.amount
@@ -71,20 +125,76 @@ function CraftSim.CraftQueue:SetAmount(recipeData, amount, relative)
 end
 
 ---@param recipeData CraftSim.RecipeData
----@return CraftSim.CraftQueueItem | nil craftQueueItem, number? index
+---@return CraftSim.CraftQueueItem | nil craftQueueItem
 function CraftSim.CraftQueue:FindRecipe(recipeData)
-    local craftQueueItem, index = GUTIL:Find(self.craftQueueItems,
-        ---@param cqi CraftSim.CraftQueueItem
-        function(cqi)
-            local sameID = cqi.recipeData.recipeID == recipeData.recipeID
-            local sameCrafter = cqi.recipeData:GetCrafterUID() == recipeData:GetCrafterUID()
-            return sameID and sameCrafter
-        end)
-    return craftQueueItem, index
+    return self.recipeCrafterMap[recipeData:GetRecipeCraftQueueUID()]
+end
+
+---@param craftQueueItem CraftSim.CraftQueueItem
+function CraftSim.CraftQueue:Remove(craftQueueItem)
+    local _, index = GUTIL:Find(self.craftQueueItems, function(cqI)
+        return craftQueueItem == cqI
+    end)
+
+    -- Fix deleting multiple row 
+    if index  == nil then 
+        return
+    end
+
+    self.recipeCrafterMap[craftQueueItem.recipeData:GetRecipeCraftQueueUID()] = nil
+    tremove(self.craftQueueItems, index)
+
+    -- after removal check if cqi had any subrecipes that are now without parents, if yes remove them too (recursively)
+    -- ? Return a table with 3times the same subrecipe => try to deleting 3 times the same subrecipe 
+    -- But the index is nil in the second iteration because :Find return nil (already deleted) 
+    local subCraftQueueItems = GUTIL:Map(craftQueueItem.recipeData.priceData.selfCraftedReagents, function(itemID)
+        local subRecipeData = craftQueueItem.recipeData.optimizedSubRecipes[itemID]
+        if subRecipeData then
+            local subCQI = CraftSim.CRAFTQ.craftQueue:FindRecipe(subRecipeData)
+            -- only queue for removal if I am the only parent recipe in queue
+            if subCQI and subCQI:GetNumParentRecipesInQueue() == 0 then
+                return subCQI
+            end
+        end
+
+        return nil
+    end)
+
+    for _, subCqi in ipairs(subCraftQueueItems) do
+        self:Remove(subCqi)
+    end
+
+    -- if i was a subrecipe, check my parent recipes, and set the item I crafted there to not be crafted anymore by me (reoptimize needed?)
+    -- by removing the optimizedSubRecipe and selfCraftedReagents entry
+
+    for _, prI in ipairs(craftQueueItem.recipeData.parentRecipeInfo) do
+        local parentCQI = self:FindRecipeByParentRecipeInfo(prI)
+
+        if parentCQI then
+            -- remove all references to this subrecipe and update priceData and profit
+            for itemID, optimizedSubRecipe in pairs(parentCQI.recipeData.optimizedSubRecipes) do
+                if optimizedSubRecipe then
+                    if optimizedSubRecipe:GetRecipeCraftQueueUID() == craftQueueItem.recipeData:GetRecipeCraftQueueUID() then
+                        parentCQI.recipeData.optimizedSubRecipes[itemID] = nil
+                    end
+                end
+            end
+
+            parentCQI.recipeData.priceData:Update()
+            parentCQI.recipeData:GetAverageProfit()
+        end
+    end
+end
+
+---@param prI CraftSim.RecipeData.ParentRecipeInfo
+---@return CraftSim.CraftQueueItem | nil
+function CraftSim.CraftQueue:FindRecipeByParentRecipeInfo(prI)
+    return self.recipeCrafterMap[prI.crafterUID .. ":" .. prI.recipeID .. ":" .. prI.subRecipeDepth]
 end
 
 function CraftSim.CraftQueue:ClearAll()
-    self.craftQueueItems = {}
+    wipe(self.craftQueueItems)
+    wipe(self.recipeCrafterMap)
     self:CacheQueueItems()
 end
 
@@ -97,15 +207,15 @@ function CraftSim.CraftQueue:ClearAllForCharacter(crafterData)
 end
 
 function CraftSim.CraftQueue:CacheQueueItems()
-    CraftSim.UTIL:StartProfiling("CraftQueue Item Caching")
+    CraftSim.DEBUG:StartProfiling("CraftQueue Item Caching")
     CraftSimCraftQueueCache = GUTIL:Map(self.craftQueueItems, function(craftQueueItem)
         return craftQueueItem:Serialize()
     end)
-    CraftSim.UTIL:StopProfiling("CraftQueue Item Caching")
+    CraftSim.DEBUG:StopProfiling("CraftQueue Item Caching")
 end
 
 function CraftSim.CraftQueue:RestoreFromCache()
-    CraftSim.UTIL:StartProfiling("CraftQueue Item Restoration")
+    CraftSim.DEBUG:StartProfiling("CraftQueue Item Restoration")
     print("Restore CraftQ From Cache Start...")
     local function load()
         print("Loading Cached CraftQueue...")
@@ -113,14 +223,18 @@ function CraftSim.CraftQueue:RestoreFromCache()
             local craftQueueItem = CraftSim.CraftQueueItem:Deserialize(craftQueueItemSerialized)
             if craftQueueItem then
                 craftQueueItem:CalculateCanCraft()
+                self.recipeCrafterMap[craftQueueItem.recipeData:GetRecipeCraftQueueUID()] = craftQueueItem
                 return craftQueueItem
             end
             return nil
         end)
 
+        -- at last restore subrecipe target mode item counts (and recipes)
+        self:UpdateSubRecipesTargetItemCounts()
+
         print("CraftQueue Restore Finished")
 
-        CraftSim.UTIL:StopProfiling("CraftQueue Item Restoration")
+        CraftSim.DEBUG:StopProfiling("CraftQueue Item Restoration")
     end
 
     -- wait til necessary info is loaded, then put deserialized items into queue
@@ -146,4 +260,165 @@ function CraftSim.CraftQueue:RestoreFromCache()
                 end)
         end,
         load)
+end
+
+function CraftSim.CraftQueue:FilterSortByPriority()
+    -- first append all recipes of the current crafter character that do not have any subrecipes
+    local characterRecipesNoAltDependency, restRecipes = GUTIL:Split(self.craftQueueItems, function(cqi)
+        local noActiveSubRecipes = not cqi.hasActiveSubRecipes
+        local noSubRecipeFromAlts = not cqi.hasActiveSubRecipesFromAlts
+        local validSubRecipeStatus = noActiveSubRecipes or noSubRecipeFromAlts
+        return validSubRecipeStatus and cqi.isCrafter
+    end)
+    local sortedCharacterRecipes = GUTIL:Sort(characterRecipesNoAltDependency,
+        function(a, b)
+            if a:IsTargetCountSatisfied() and not b:IsTargetCountSatisfied() then
+                return false
+            elseif not a:IsTargetCountSatisfied() and b:IsTargetCountSatisfied() then
+                return true
+            end
+            if a.allowedToCraft and not b.allowedToCraft then
+                return true
+            elseif not a.allowedToCraft and b.allowedToCraft then
+                return false
+            end
+
+            if a.recipeData.subRecipeDepth > b.recipeData.subRecipeDepth then
+                return true
+            elseif a.recipeData.subRecipeDepth < b.recipeData.subRecipeDepth then
+                return false
+            end
+
+            if a.recipeData.averageProfitCached > b.recipeData.averageProfitCached then
+                return true
+            elseif a.recipeData.averageProfitCached < b.recipeData.averageProfitCached then
+                return false
+            end
+
+            return false
+        end)
+
+    -- then sort the rest items by subrecipedepth and character names / profit
+    local sortedRestRecipes = GUTIL:Sort(restRecipes, function(a, b)
+        if a:IsTargetCountSatisfied() and not b:IsTargetCountSatisfied() then
+            return false
+        elseif not a:IsTargetCountSatisfied() and b:IsTargetCountSatisfied() then
+            return true
+        end
+
+        if a.recipeData.subRecipeDepth > b.recipeData.subRecipeDepth then
+            return true
+        elseif a.recipeData.subRecipeDepth < b.recipeData.subRecipeDepth then
+            return false
+        end
+
+        local crafterA = a.recipeData:GetCrafterUID()
+        local crafterB = b.recipeData:GetCrafterUID()
+
+        if crafterA > crafterB then
+            return true
+        elseif crafterA < crafterB then
+            return false
+        end
+
+        if a.recipeData.averageProfitCached > b.recipeData.averageProfitCached then
+            return true
+        elseif a.recipeData.averageProfitCached < b.recipeData.averageProfitCached then
+            return false
+        end
+
+        return false
+    end)
+
+    wipe(self.craftQueueItems)
+    tAppendAll(self.craftQueueItems, sortedCharacterRecipes)
+    tAppendAll(self.craftQueueItems, sortedRestRecipes)
+end
+
+---Returns wether the recipe has any active subrecipes and if they are from alts (sub recipe is active if the item quantity > 0 and is crafted by another character)
+---@param recipeData CraftSim.RecipeData
+---@return boolean HasActiveSubRecipes
+---@return boolean HasActiveSubRecipesFromAlts
+function CraftSim.CraftQueue:RecipeHasActiveSubRecipesInQueue(recipeData)
+    local print = CraftSim.DEBUG:SetDebugPrint("SUB_RECIPE_DATA")
+    local activeSubRecipes = false
+    local crafterUID = CraftSim.UTIL:GetPlayerCrafterUID()
+
+    print("HasActiveSubRecipes? " .. recipeData:GetCrafterUID() .. "-" .. recipeData.recipeName)
+
+    local activeSubRecipesFromAlts = GUTIL:Some(recipeData.priceData.selfCraftedReagents, function(itemID)
+        -- need to find the corresponding recipeData in the craftQueue since the optimized one referenced in the recipeData itself is not necessarily the same (due to serialization and AddRecipe adding amount)
+        local optimizedSubRecipeData = recipeData.optimizedSubRecipes[itemID]
+        if not optimizedSubRecipeData then return false end
+        local craftQueueItem = self:FindRecipe(optimizedSubRecipeData)
+        if not craftQueueItem then return false end
+        local subRecipeData = craftQueueItem.recipeData
+        local debugItem = tostring(select(1, C_Item.GetItemInfo(itemID)) or itemID) ..
+            " q: " .. recipeData.reagentData:GetReagentQualityIDByItemID(itemID)
+        print("checking item: " .. debugItem)
+        local quantity = recipeData:GetReagentQuantityByItemID(itemID)
+        local hasQuantity = quantity > 0
+        if hasQuantity then
+            print("item quantity: " .. quantity)
+            activeSubRecipes = true -- if we find at least one active then we have subrecipes
+
+            local isAlt = subRecipeData:GetCrafterUID() ~= crafterUID
+            if isAlt then
+                print("- has alt dep sub recipes")
+                return true
+            end
+
+            -- else check if subRecipeData has ActiveSubRecipes not from the player
+            local _, subRecipeAltDependend = self:RecipeHasActiveSubRecipesInQueue(subRecipeData)
+
+            if subRecipeAltDependend then
+                print("- has sub rep with alt dep")
+                return true
+            end
+        end
+
+        print("- no quantity for item")
+
+        return false
+    end)
+
+    print("return " .. tostring(activeSubRecipes) .. ", " .. tostring(activeSubRecipesFromAlts))
+
+    return activeSubRecipes, activeSubRecipesFromAlts
+end
+
+---@param recipeData CraftSim.RecipeData
+function CraftSim.CraftQueue:OnRecipeCrafted(recipeData)
+    local craftQueueItem = self:FindRecipe(recipeData)
+
+    if not craftQueueItem then return end
+
+    if craftQueueItem.targetMode then
+        CraftSim.CRAFTQ.FRAMES:UpdateDisplay()
+    else
+        -- decrement by one and refresh list
+        local newAmount = CraftSim.CRAFTQ.craftQueue:SetAmount(recipeData, -1, true)
+        if newAmount and newAmount <= 0 and CraftSimOptions.craftQueueFlashTaskbarOnCraftFinished then
+            FlashClientIcon()
+        end
+    end
+    CraftSim.CRAFTQ.FRAMES:UpdateDisplay()
+end
+
+function CraftSim.CraftQueue:UpdateSubRecipesTargetItemCounts()
+    -- get max sub recipe depth in queue then step down to this -1
+    local maxDepth = GUTIL:Fold(self.craftQueueItems, 0, function(maxDepth, nextElement, key)
+        if nextElement.recipeData.subRecipeDepth > maxDepth then
+            return nextElement.recipeData.subRecipeDepth
+        else
+            return maxDepth
+        end
+    end)
+    for depth = 0, maxDepth - 1 do
+        for _, cqi in ipairs(self.craftQueueItems) do
+            if cqi.recipeData.subRecipeDepth == depth then
+                cqi:UpdateSubRecipesInQueue()
+            end
+        end
+    end
 end

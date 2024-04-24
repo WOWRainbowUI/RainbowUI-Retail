@@ -8,7 +8,7 @@ CraftSim.TOPGEAR = {}
 CraftSim.TOPGEAR.IsEquipping = false
 CraftSim.TOPGEAR.EMPTY_SLOT = "EMPTY_SLOT"
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.TOP_GEAR)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.TOP_GEAR)
 
 CraftSim.TOPGEAR.SIM_MODES = {
     PROFIT = CraftSim.CONST.TEXT.TOP_GEAR_SIM_MODES_PROFIT,
@@ -36,9 +36,9 @@ function CraftSim.TOPGEAR:EquipTopGear()
     local exportMode = CraftSim.UTIL:GetExportModeByVisibility()
     local topGearFrame = nil
     if exportMode == CraftSim.CONST.EXPORT_MODE.NON_WORK_ORDER then
-        topGearFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.TOP_GEAR)
+        topGearFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.TOP_GEAR)
     else
-        topGearFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.TOP_GEAR_WORK_ORDER)
+        topGearFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.TOP_GEAR_WORK_ORDER)
     end
     if topGearFrame.currentTopResult then
         topGearFrame.currentTopResult.professionGearSet:Equip()
@@ -183,20 +183,29 @@ function CraftSim.TOPGEAR:GetProfessionGearFromInventory(recipeData)
 
         for bag = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
             for slot = 1, C_Container.GetContainerNumSlots(bag) do
-                local itemLink = C_Container.GetContainerItemLink(bag, slot)
-                if itemLink ~= nil then
-                    local itemSubType = select(3, GetItemInfoInstant(itemLink))
-                    if itemSubType == currentProfession then
-                        local professionGear = CraftSim.ProfessionGear()
-                        professionGear:SetItem(itemLink)
-                        table.insert(inventoryGear, professionGear)
-
-                        if not GUTIL:Find(CraftSimRecipeDataCache.professionGearCache[crafterUID]
-                                [recipeData.professionData.professionInfo.profession]
-                                .availableProfessionGear, function(g) return g.itemLink == itemLink end) then
-                            table.insert(CraftSimRecipeDataCache.professionGearCache[crafterUID]
-                                [recipeData.professionData.professionInfo.profession]
-                                .availableProfessionGear, professionGear:Serialize())
+                local itemLoc = ItemLocation:CreateFromBagAndSlot(bag,slot)
+                if itemLoc:IsValid() then
+                    local isCached = C_Item.IsItemDataCached(itemLoc)
+                    if not isCached then
+                        C_Item.RequestLoadItemData(itemLoc)
+                    end
+                    
+                    local itemLink = C_Item.GetItemLink(ItemLocation:CreateFromBagAndSlot(bag,slot))
+                    if itemLink ~= nil then
+                        local itemSubType = select(3, C_Item.GetItemInfoInstant(itemLink))
+                        local itemEquipLoc = select(4, C_Item.GetItemInfoInstant(itemLink))
+                        if itemSubType == currentProfession and (itemEquipLoc == "INVTYPE_PROFESSION_TOOL" or itemEquipLoc == "INVTYPE_PROFESSION_GEAR") then
+                            local professionGear = CraftSim.ProfessionGear()
+                            professionGear:SetItem(itemLink)
+                            table.insert(inventoryGear, professionGear)
+                        
+                            if not GUTIL:Find(CraftSimRecipeDataCache.professionGearCache[crafterUID]
+                                    [recipeData.professionData.professionInfo.profession]
+                                    .availableProfessionGear, function(g) return g.itemLink == itemLink end) then
+                                table.insert(CraftSimRecipeDataCache.professionGearCache[crafterUID]
+                                    [recipeData.professionData.professionInfo.profession]
+                                    .availableProfessionGear, professionGear:Serialize())
+                            end
                         end
                     end
                 end

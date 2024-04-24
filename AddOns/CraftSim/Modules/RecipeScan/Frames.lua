@@ -4,6 +4,7 @@ local CraftSim = select(2, ...)
 local GGUI = CraftSim.GGUI
 local GUTIL = CraftSim.GUTIL
 local L = CraftSim.UTIL:GetLocalizer()
+local f = CraftSim.GUTIL:GetFormatter()
 
 ---@class CraftSim.RECIPE_SCAN
 CraftSim.RECIPE_SCAN = CraftSim.RECIPE_SCAN
@@ -11,25 +12,31 @@ CraftSim.RECIPE_SCAN = CraftSim.RECIPE_SCAN
 ---@class CraftSim.RECIPE_SCAN.FRAMES
 CraftSim.RECIPE_SCAN.FRAMES = {}
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN)
+
+--- TODO: Move to debug window as toggle
+local debugScannedRecipeIDs = false
 
 function CraftSim.RECIPE_SCAN.FRAMES:Init()
+    local frameLevel = CraftSim.UTIL:NextFrameLevel()
     ---@class CraftSim.RECIPE_SCAN.FRAME : GGUI.Frame
     CraftSim.RECIPE_SCAN.frame = GGUI.Frame({
         parent = ProfessionsFrame.CraftingPage.SchematicForm,
         anchorParent = ProfessionsFrame.CraftingPage.SchematicForm,
-        sizeX = 1020,
+        sizeX = 1050,
         sizeY = 400,
         frameID = CraftSim.CONST.FRAMES.RECIPE_SCAN,
         --title = L(CraftSim.CONST.TEXT.RECIPE_SCAN_TITLE),
         collapseable = true,
         closeable = true,
         moveable = true,
-        frameStrata = "DIALOG",
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesRecipeScan"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesRecipeScan"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = frameLevel
     })
 
     -- manually create title for offset
@@ -241,32 +248,26 @@ function CraftSim.RECIPE_SCAN.FRAMES:UpdateProfessionListDisplay()
             local playerCrafterProfessionUIDB = CraftSim.RECIPE_SCAN:GetCrafterProfessionUID(crafterUIDB, rowB
                 .profession)
 
-            -- always prefer the crafterUID of the player
-
-            if crafterUIDA == playerCrafterUID and crafterUIDB ~= playerCrafterUID then
+            -- current character and current profession always on top
+            if playerCrafterProfessionUIDA == playerCrafterProfessionUID and playerCrafterProfessionUIDB ~= playerCrafterProfessionUID then
                 return true
-            end
-
-            if crafterUIDA ~= playerCrafterUID and crafterUIDB == playerCrafterUID then
+            elseif playerCrafterProfessionUIDA ~= playerCrafterProfessionUID and playerCrafterProfessionUIDB == playerCrafterProfessionUID then
                 return false
             end
 
-            -- -- if both are the playerCrafterUID, prefer the playerCrafterProfessionUID
+            -- next prefer current character
+            if crafterUIDA == playerCrafterUID and crafterUIDB ~= playerCrafterUID then
+                return true
+            elseif crafterUIDA ~= playerCrafterUID and crafterUIDB == playerCrafterUID then
+                return false
+            end
 
-            -- if playerCrafterProfessionUIDA == playerCrafterProfessionUID and playerCrafterProfessionUIDB ~= playerCrafterProfessionUID then
-            --     return true
-            -- end
-
-            -- if playerCrafterProfessionUIDA ~= playerCrafterProfessionUID and playerCrafterProfessionUIDB == playerCrafterProfessionUID then
-            --     return false
-            -- end
-
-            -- -- if not the player prefer same crafterUID
-
-            -- if crafterUIDA == crafterUIDB then
-            --     return true
-            -- end
-
+            -- next sort by alphabet
+            if crafterUIDA > crafterUIDB then
+                return true
+            elseif crafterUIDA < crafterUIDB then
+                return false
+            end
 
             return false
         end)
@@ -349,7 +350,7 @@ function CraftSim.RECIPE_SCAN.FRAMES:CreateProfessionTabContent(row, content)
     local columnOptions = {
         {
             label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_RECIPE_HEADER),
-            width = 150,
+            width = 190,
         },
         {
             label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_LEARNED_HEADER),
@@ -390,6 +391,7 @@ function CraftSim.RECIPE_SCAN.FRAMES:CreateProfessionTabContent(row, content)
         anchorB = "BOTTOM",
         showBorder = true,
         sizeY = 280,
+        offsetX = 15,
         offsetY = -25,
         columnOptions = columnOptions,
         selectionOptions = {
@@ -561,7 +563,7 @@ function CraftSim.RECIPE_SCAN.FRAMES:AddProfessionTabRow(crafterUID, profession)
         local professionIconSize = 20
         local professionIcon = GUTIL:IconToText(CraftSim.CONST.PROFESSION_ICONS[row.profession], professionIconSize,
             professionIconSize)
-        ---@type GGUI.FrameList.Row.TooltipOptions
+        ---@type GGUI.TooltipOptions
         row.tooltipOptions = {
             text = crafterUID .. ": " .. L(CraftSim.CONST.PROFESSION_LOCALIZATION_IDS[profession]),
             anchor = "ANCHOR_TOP",
@@ -697,6 +699,15 @@ function CraftSim.RECIPE_SCAN.FRAMES:InitScanOptionsTab(scanOptionsTab)
         clickCallback = function(_, checked) CraftSimOptions.recipeScanUseInsight = checked end
     }
 
+    content.optimizeSubRecipes = GGUI.Checkbox {
+        parent = content, anchorParent = content.useInsightCB.frame, anchorA = "TOP", anchorB = "BOTTOM", offsetY = checkBoxSpacingY,
+        label = "Optimize Sub Recipes " .. f.bb("(experimental)"),
+        tooltip = "If enabled, " .. f.l("CraftSim") .. " also optimizes crafts of cached reagent recipes of scanned recipes and uses their\n" ..
+            f.bb("expected costs") .. " to calculate the crafting costs for the final product.\n\n" .. f.r("Warning: This might reduce scanning performance"),
+        initialValue = CraftSimOptions.recipeScanOptimizeSubRecipes,
+        clickCallback = function(_, checked) CraftSimOptions.recipeScanOptimizeSubRecipes = checked end
+    }
+
     content.expansionSelector = GGUI.CheckboxSelector {
         savedVariablesTable = CraftSimOptions.recipeScanFilteredExpansions,
         initialItems = GUTIL:Sort(GUTIL:Map(CraftSim.CONST.EXPANSION_IDS,
@@ -717,9 +728,9 @@ function CraftSim.RECIPE_SCAN.FRAMES:InitScanOptionsTab(scanOptionsTab)
 
         },
         buttonOptions = {
-            parent = content, anchorParent = content.useInsightCB.frame,
+            parent = content, anchorParent = content.optimizeSubRecipes.frame,
             anchorA = "TOPLEFT", anchorB = "BOTTOMLEFT", offsetY = checkBoxSpacingY,
-            label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_EXPANSION_FILTER_BUTTON), offsetX = 20,
+            label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_EXPANSION_FILTER_BUTTON), offsetX = 25,
             adjustWidth = true, sizeX = 20,
         },
     }
@@ -736,6 +747,9 @@ end
 ---@param recipeData CraftSim.RecipeData
 function CraftSim.RECIPE_SCAN.FRAMES:AddRecipe(row, recipeData)
     local resultList = row.content.resultList
+    if debugScannedRecipeIDs then
+        recipeData:DebugInspect("RecipeScan: " .. recipeData.recipeName)
+    end
     resultList:Add(
         function(row)
             local columns = row.columns
@@ -752,7 +766,17 @@ function CraftSim.RECIPE_SCAN.FRAMES:AddRecipe(row, recipeData)
 
             local recipeRarity = recipeData.resultData.expectedItem:GetItemQualityColor()
 
-            recipeColumn.text:SetText(recipeRarity.hex .. recipeData.recipeName .. "|r")
+            local cooldownInfoText = ""
+            local cooldownData = recipeData:GetCooldownDataForRecipeCrafter()
+            if cooldownData and cooldownData.isCooldownRecipe and not cooldownData.isDayCooldown then
+                local timeIcon = CreateAtlasMarkup(CraftSim.CONST.CRAFT_QUEUE_STATUS_TEXTURES.COOLDOWN.texture, 13, 13)
+                local currentCharges = cooldownData:GetCurrentCharges()
+                cooldownInfoText = " " .. timeIcon ..
+                    "(" .. currentCharges .. "/" .. cooldownData.maxCharges .. ")"
+            end
+
+
+            recipeColumn.text:SetText(recipeRarity.hex .. recipeData.recipeName .. "|r" .. cooldownInfoText)
 
             learnedColumn:SetLearned(recipeData.learned)
 
@@ -815,7 +839,7 @@ function CraftSim.RECIPE_SCAN.FRAMES:AddRecipe(row, recipeData)
             local totalCountAH = nil
             for _, resultItem in pairs(recipeData.resultData.itemsByQuality) do
                 -- links are already loaded here
-                totalCountInv = totalCountInv + GetItemCount(resultItem:GetItemLink(), true, false, true)
+                totalCountInv = totalCountInv + C_Item.GetItemCount(resultItem:GetItemLink(), true, false, true)
                 local countAH = CraftSim.PRICEDATA:GetAuctionAmount(resultItem:GetItemLink())
 
                 if countAH then

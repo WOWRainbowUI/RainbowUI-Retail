@@ -13,7 +13,7 @@ CraftSim.SIMULATION_MODE.FRAMES.WORKORDER = {}
 ---@class CraftSim.SIMULATION_MODE.FRAMES.NO_WORKORDER
 CraftSim.SIMULATION_MODE.FRAMES.NO_WORKORDER = {}
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SIMULATION_MODE)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SIMULATION_MODE)
 
 function CraftSim.SIMULATION_MODE.FRAMES:Init()
     local function createSimulationModeFrames(schematicForm, workOrder)
@@ -27,10 +27,10 @@ function CraftSim.SIMULATION_MODE.FRAMES:Init()
                 bestQBox:Click()
             end
             if CraftSim.SIMULATION_MODE.isActive then
-                CraftSim.SIMULATION_MODE:InitializeSimulationMode(CraftSim.MAIN.currentRecipeData)
+                CraftSim.SIMULATION_MODE:InitializeSimulationMode(CraftSim.INIT.currentRecipeData)
             end
 
-            CraftSim.MAIN:TriggerModuleUpdate()
+            CraftSim.INIT:TriggerModuleUpdate()
         end
         frames.toggleButton = CraftSim.FRAME:CreateCheckboxCustomCallback(
             " " .. CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.SIMULATION_MODE_LABEL),
@@ -93,17 +93,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:Init()
         ---@class CraftSim.SimulationMode.ReagentOverwriteFrame.Content
         reagentOverwriteFrame.content = reagentOverwriteFrame.content
 
-        reagentOverwriteFrame.content.qualityIcon1 = GGUI.QualityIcon({
-            parent = reagentOverwriteFrame.content,
-            anchorParent = reagentOverwriteFrame.content,
-            sizeX = 20,
-            sizeY = 20,
-            anchorA = "TOP",
-            anchorB = "TOP",
-            offsetX = baseX - 63,
-            offsetY = 15,
-            initialQuality = 1,
-        })
+
         reagentOverwriteFrame.content.quality1Button = GGUI.Button({
             parent = reagentOverwriteFrame.content,
             anchorParent = reagentOverwriteFrame.content,
@@ -116,18 +106,13 @@ function CraftSim.SIMULATION_MODE.FRAMES:Init()
             offsetY = 15,
             clickCallback = function()
                 CraftSim.SIMULATION_MODE:AllocateAllByQuality(1)
-            end
-        })
-        reagentOverwriteFrame.content.qualityIcon2 = GGUI.QualityIcon({
-            parent = reagentOverwriteFrame.content,
-            anchorParent = reagentOverwriteFrame.content,
-            sizeX = 20,
-            sizeY = 20,
-            anchorA = "TOP",
-            anchorB = "TOP",
-            offsetX = baseX + inputOffsetX - 63,
-            offsetY = 15,
-            initialQuality = 2,
+            end,
+            tooltipOptions = {
+                owner = reagentOverwriteFrame.content,
+                anchor = "ANCHOR_CURSOR",
+                textWrap = true,
+                text = "Max All Reagents of Quality " .. GUTIL:GetQualityIconString(1, 20, 20),
+            },
         })
         reagentOverwriteFrame.content.quality2Button = GGUI.Button({
             parent = reagentOverwriteFrame.content,
@@ -141,19 +126,15 @@ function CraftSim.SIMULATION_MODE.FRAMES:Init()
             offsetY = 15,
             clickCallback = function()
                 CraftSim.SIMULATION_MODE:AllocateAllByQuality(2)
-            end
+            end,
+            tooltipOptions = {
+                owner = reagentOverwriteFrame.content,
+                anchor = "ANCHOR_CURSOR",
+                textWrap = true,
+                text = "Max All Reagents of Quality " .. GUTIL:GetQualityIconString(2, 20, 20),
+            },
         })
-        reagentOverwriteFrame.content.qualityIcon3 = GGUI.QualityIcon({
-            parent = reagentOverwriteFrame.content,
-            anchorParent = reagentOverwriteFrame.content,
-            sizeX = 20,
-            sizeY = 20,
-            anchorA = "TOP",
-            anchorB = "TOP",
-            offsetX = baseX + inputOffsetX * 2 - 63,
-            offsetY = 15,
-            initialQuality = 3,
-        })
+
         reagentOverwriteFrame.content.quality3Button = GGUI.Button({
             parent = reagentOverwriteFrame.content,
             anchorParent = reagentOverwriteFrame.content,
@@ -166,7 +147,13 @@ function CraftSim.SIMULATION_MODE.FRAMES:Init()
             offsetY = 15,
             clickCallback = function()
                 CraftSim.SIMULATION_MODE:AllocateAllByQuality(3)
-            end
+            end,
+            tooltipOptions = {
+                owner = reagentOverwriteFrame.content,
+                anchor = "ANCHOR_CURSOR",
+                textWrap = true,
+                text = "Max All Reagents of Quality " .. GUTIL:GetQualityIconString(3, 20, 20),
+            },
         })
         reagentOverwriteFrame.content.clearAllocationsButton = GGUI.Button({
             parent = reagentOverwriteFrame.content,
@@ -224,7 +211,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:Init()
                     scale = 1.2,
                 },
                 onSelectCallback = function()
-                    CraftSim.MAIN:TriggerModuleUpdate()
+                    CraftSim.INIT:TriggerModuleUpdate()
                 end
             })
             return optionalReagentDropdown
@@ -264,7 +251,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:Init()
             collapseable = true,
             moveable = true,
             title = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.SIMULATION_MODE_TITLE),
-            frameTable = CraftSim.MAIN.FRAMES,
+            frameTable = CraftSim.INIT.FRAMES,
             frameConfigTable = CraftSimGGUIConfig,
         })
 
@@ -603,7 +590,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:InitSpecModifier()
         moveable = true,
         title = "CraftSim Knowledge Simulation",
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        frameTable = CraftSim.MAIN.FRAMES,
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
     })
     local frameWO = GGUI.Frame({
@@ -618,7 +605,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:InitSpecModifier()
         moveable = true,
         title = "CraftSim Knowledge Simulation",
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        frameTable = CraftSim.MAIN.FRAMES,
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
     })
 
@@ -1047,9 +1034,9 @@ function CraftSim.SIMULATION_MODE.FRAMES:GetSpecNodeModFramesByTabAndLayerAndLay
     local exportMode = CraftSim.UTIL:GetExportModeByVisibility()
     local specSimFrame = nil
     if exportMode == CraftSim.CONST.EXPORT_MODE.WORK_ORDER then
-        specSimFrame = GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM_WO)
+        specSimFrame = GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM_WO)
     else
-        specSimFrame = GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM)
+        specSimFrame = GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM)
     end
 
     local tab = specSimFrame.content.specializationTabs[tabIndex]
@@ -1271,7 +1258,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:UpdateCraftingDetailsPanel()
 end
 
 function CraftSim.SIMULATION_MODE.FRAMES:InitSpecModBySpecData()
-    local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SPECDATA)
+    local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SPECDATA)
     local specializationData = CraftSim.SIMULATION_MODE.specializationData
 
     if not specializationData then
@@ -1281,9 +1268,9 @@ function CraftSim.SIMULATION_MODE.FRAMES:InitSpecModBySpecData()
     local exportMode = CraftSim.UTIL:GetExportModeByVisibility()
     local specModFrame = nil
     if exportMode == CraftSim.CONST.EXPORT_MODE.WORK_ORDER then
-        specModFrame = GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM_WO)
+        specModFrame = GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM_WO)
     else
-        specModFrame = GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM)
+        specModFrame = GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM)
     end
     -- save copy of original in frame
     specModFrame.content.activeNodeModFrames = {}
@@ -1434,7 +1421,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:InitOptionalReagentItemSelectors(recipe
 end
 
 function CraftSim.SIMULATION_MODE.FRAMES:UpdateVisibility()
-    local recipeData = CraftSim.MAIN.currentRecipeData
+    local recipeData = CraftSim.INIT.currentRecipeData
     if not recipeData then
         return -- In what case is this nil?
     end
@@ -1451,7 +1438,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:UpdateVisibility()
     local bestQBox = nil
     if exportMode == CraftSim.CONST.EXPORT_MODE.WORK_ORDER then
         bestQBox = ProfessionsFrame.OrdersPage.OrderView.OrderDetails.SchematicForm.AllocateBestQualityCheckBox
-        specializationInfoFrame = GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.SPEC_INFO_WO)
+        specializationInfoFrame = GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.SPEC_INFO_WO)
         CraftSim.FRAME:ToggleFrame(ProfessionsFrame.OrdersPage.OrderView.OrderDetails.SchematicForm.Reagents,
             not CraftSim.SIMULATION_MODE.isActive and recipeData.hasReagents)
         CraftSim.FRAME:ToggleFrame(ProfessionsFrame.OrdersPage.OrderView.OrderDetails.SchematicForm.OptionalReagents,
@@ -1463,12 +1450,12 @@ function CraftSim.SIMULATION_MODE.FRAMES:UpdateVisibility()
             (recipeData.hasReagents or recipeData.isSalvageRecipe))
         CraftSim.FRAME:ToggleFrame(ProfessionsFrame.CraftingPage.SchematicForm.OptionalReagents,
             not CraftSim.SIMULATION_MODE.isActive and hasOptionalReagents)
-        specializationInfoFrame = GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.SPEC_INFO)
+        specializationInfoFrame = GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.SPEC_INFO)
     end
     specializationInfoFrame.content.knowledgePointSimulationButton:SetEnabled(CraftSim.SIMULATION_MODE.isActive)
     CraftSim.CRAFT_BUFFS.frame.content.simulateBuffSelector:SetEnabled(CraftSim.SIMULATION_MODE.isActive)
     if not CraftSim.SIMULATION_MODE.isActive then
-        GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM):Hide()
+        GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.SPEC_SIM):Hide()
     end
 
     ---@type CraftSim.SimulationMode.ReagentOverwriteFrame
@@ -1482,9 +1469,6 @@ function CraftSim.SIMULATION_MODE.FRAMES:UpdateVisibility()
     CraftSim.FRAME:ToggleFrame(reagentOverwriteFrame.content.quality1Button, hasQualityReagents)
     CraftSim.FRAME:ToggleFrame(reagentOverwriteFrame.content.quality2Button, hasQualityReagents)
     CraftSim.FRAME:ToggleFrame(reagentOverwriteFrame.content.quality3Button, hasQualityReagents)
-    CraftSim.FRAME:ToggleFrame(reagentOverwriteFrame.content.qualityIcon1, hasQualityReagents)
-    CraftSim.FRAME:ToggleFrame(reagentOverwriteFrame.content.qualityIcon2, hasQualityReagents)
-    CraftSim.FRAME:ToggleFrame(reagentOverwriteFrame.content.qualityIcon3, hasQualityReagents)
     CraftSim.FRAME:ToggleFrame(reagentOverwriteFrame.content.clearAllocationsButton, hasQualityReagents)
 
     reagentOverwriteFrame:SetVisible(CraftSim.SIMULATION_MODE.isActive)

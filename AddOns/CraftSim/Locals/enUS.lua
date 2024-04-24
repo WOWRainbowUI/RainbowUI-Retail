@@ -4,7 +4,8 @@ local CraftSim = select(2, ...)
 CraftSim.LOCAL_EN = {}
 
 function CraftSim.LOCAL_EN:GetData()
-    local f = CraftSim.UTIL:GetFormatter()
+    local f = CraftSim.GUTIL:GetFormatter()
+    local cm = function(i, s) return CraftSim.MEDIA:GetAsTextIcon(i, s) end
     return {
         -- REQUIRED:
         [CraftSim.CONST.TEXT.STAT_INSPIRATION] = "Inspiration",
@@ -123,7 +124,7 @@ function CraftSim.LOCAL_EN:GetData()
         -- Statistics
         [CraftSim.CONST.TEXT.STATISTICS_CDF_EXPLANATION] =
         "This is calculated by using the 'abramowitz and stegun' approximation (1985) of the CDF (Cumulative Distribution Function)\n\nYou will notice that its always around 50% for 1 craft.\nThis is because 0 is most of the time close to the average profit.\nAnd the chance of getting the mean of the CDF is always 50%.\n\nHowever, the rate of change can be very different between recipes.\nIf it is more likely to have a positive profit than a negative one, it will steadly increase.\nThis is of course also true for the other direction.",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION] =
+        [CraftSim.CONST.TEXT.EXPLANATIONS_PROFIT_CALCULATION_EXPLANATION] =
             f.r("Warning: ") .. " Math ahead!\n\n" ..
             "When you craft something you have different chances for different outcomes based on your crafting stats.\n" ..
             "And in statistics this is called a " .. f.l("Probability Distribution.\n") ..
@@ -154,7 +155,7 @@ function CraftSim.LOCAL_EN:GetData()
             f.bb("Expected Value") .. "\n" ..
             "Which is, as the name suggests, the value we can expect to get on average, or in our case, the " ..
             f.bb(" expected profit for a craft!\n") ..
-            "\n" .. f.cm(CraftSim.MEDIA.IMAGES.EXPECTED_VALUE) .. "\n\n" ..
+            "\n" .. cm(CraftSim.MEDIA.IMAGES.EXPECTED_VALUE) .. "\n\n" ..
             "This tells us that the expected value " ..
             f.l("E") ..
             " of a probability distribution " ..
@@ -169,14 +170,14 @@ function CraftSim.LOCAL_EN:GetData()
             f.bb("\nE(X) = -100*0.3 + 300*0.7  ") .. "which is " .. f.m((-100 * 0.3 + 300 * 0.7) * 10000) .. "\n" ..
             "You can view all cases for your current recipe in the " .. f.bb("Statistics") .. " window!"
         ,
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_HSV] =
+        [CraftSim.CONST.TEXT.EXPLANATIONS_HSV_EXPLANATION] =
             "The " ..
             f.l("Hidden Skill Value (HSV)") ..
             " is an additional random factor that occurs everytime you craft something. It is not mentioned anywhere in the game.\n" ..
             "However you can observe a visualization of the proc: When you craft something the " ..
             f.bb("Quality Meter") ..
             "\nfills up to a certain point. And this can 'shoot' quite a bit over your current shown skill.\n" ..
-            "\n" .. f.cm(CraftSim.MEDIA.IMAGES.HSV_EXAMPLE) .. "\n\n" ..
+            "\n" .. cm(CraftSim.MEDIA.IMAGES.HSV_EXAMPLE) .. "\n\n" ..
             "This extra skill is always between 0% and 5% of your " ..
             f.bb("Base Recipe Difficulty") ..
             ".\nMeaning if you have a recipe with 400 difficulty. You can get up to 20 Skill.\n" ..
@@ -276,18 +277,18 @@ function CraftSim.LOCAL_EN:GetData()
 
         -- Stats Weight Frame
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_TITLE] = "CraftSim Average Profit",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_EXPLANATION_TITLE] = "CraftSim Average Profit Explanation",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_TITLE] = "CraftSim Average Profit Explanation",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_SHOW_EXPLANATION_BUTTON] = "Show Explanation",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_HIDE_EXPLANATION_BUTTON] = "Hide Explanation",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_SHOW_STATISTICS_BUTTON] = "Show Statistics",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_HIDE_STATISTICS_BUTTON] = "Hide Statistics",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_CRAFT] = "Ø Profit / Craft: ",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_TAB] = "Basic Profit Calculation",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_HSV_TAB] = "HSV Consideration",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_BASIC_PROFIT_TAB] = "Basic Profit Calculation",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_HSV_TAB] = "HSV Consideration",
 
         -- Cost Details Frame
-        [CraftSim.CONST.TEXT.COST_DETAILS_TITLE] = "CraftSim Cost Details",
-        [CraftSim.CONST.TEXT.COST_DETAILS_EXPLANATION] =
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_TITLE] = "CraftSim Cost Optimization",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_EXPLANATION] =
             "Here you can see an overview of all possible prices of the used materials.\nThe " ..
             f.bb("'Used Source'") ..
             " column indicates which one of the prices is used.\n\n" ..
@@ -296,15 +297,15 @@ function CraftSim.LOCAL_EN:GetData()
             f.l("OR") ..
             " .. Price Override\n" ..
             f.bb("Any Name") ..
-            " .. Expected Costs from crafting it yourself" .. f.r(" (Work in Progress)\n\n") ..
+            " .. Expected Costs from crafting it yourself\n" ..
             f.l("OR") ..
             " will always be used if set. " .. f.bb("Crafting Costs") .. " will only be used if lower than " .. f.g("AH"),
-        [CraftSim.CONST.TEXT.COST_DETAILS_CRAFTING_COSTS] = "Crafting Costs: ",
-        [CraftSim.CONST.TEXT.COST_DETAILS_ITEM_HEADER] = "Item",
-        [CraftSim.CONST.TEXT.COST_DETAILS_AH_PRICE_HEADER] = "AH Price",
-        [CraftSim.CONST.TEXT.COST_DETAILS_OVERRIDE_HEADER] = "Override",
-        [CraftSim.CONST.TEXT.COST_DETAILS_CRAFTING_HEADER] = "Crafting",
-        [CraftSim.CONST.TEXT.COST_DETAILS_USED_SOURCE] = "Used Source",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_COSTS] = "Crafting Costs: ",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_ITEM_HEADER] = "Item",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_AH_PRICE_HEADER] = "AH Price",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_OVERRIDE_HEADER] = "Override",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_HEADER] = "Crafting",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_USED_SOURCE] = "Used Source",
 
         -- Statistics Frame
         [CraftSim.CONST.TEXT.STATISTICS_TITLE] = "CraftSim Statistics",
@@ -315,7 +316,9 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.STATISTICS_CRAFTS] = "Crafts: ",
         [CraftSim.CONST.TEXT.STATISTICS_QUALITY_HEADER] = "Quality",
         [CraftSim.CONST.TEXT.STATISTICS_CHANCE_HEADER] = "Chance",
+        [CraftSim.CONST.TEXT.STATISTICS_CHANCE_MIN_HEADER] = "Chance (Min)",
         [CraftSim.CONST.TEXT.STATISTICS_EXPECTED_CRAFTS_HEADER] = "Ø Expected Crafts",
+        [CraftSim.CONST.TEXT.STATISTICS_EXPECTED_CRAFTS_MIN_HEADER] = "Ø Expected Crafts (Min)",
         [CraftSim.CONST.TEXT.STATISTICS_INSPIRATION_HEADER] = "Inspiration",
         [CraftSim.CONST.TEXT.STATISTICS_MULTICRAFT_HEADER] = "Multicraft",
         [CraftSim.CONST.TEXT.STATISTICS_RESOURCEFULNESS_HEADER] = "Resourcefulness",
@@ -328,8 +331,10 @@ function CraftSim.LOCAL_EN:GetData()
             f.l("HSV Next") ..
             " .. HSV chance for next quality\n\n" ..
             f.l("HSV Skip") .. " .. HSV chance to skip a quality with inspiration",
-        [CraftSim.CONST.TEXT.STATISTICS_EXPECTED_COSTS_HEADER] = "Ø Expected Costs per Item",
+        [CraftSim.CONST.TEXT.STATISTICS_EXPECTED_COSTS_HEADER] = "Ø Expected Costs",
+        [CraftSim.CONST.TEXT.STATISTICS_EXPECTED_COSTS_MIN_HEADER] = "Ø Expected Costs (Min)",
         [CraftSim.CONST.TEXT.STATISTICS_EXPECTED_COSTS_WITH_RETURN_HEADER] = "With Ø Sell Return",
+        [CraftSim.CONST.TEXT.STATISTICS_EXPECTED_COSTS_MIN_WITH_RETURN_HEADER] = "With Ø Sell Return (Min)",
         [CraftSim.CONST.TEXT.STATISTICS_EXPLANATION_ICON] =
             "This table gives you the average (Ø) expected crafts and costs per quality.\n\n" ..
             f.g("Chance") ..
@@ -342,11 +347,7 @@ function CraftSim.LOCAL_EN:GetData()
             " tells you how often, on average, you have to craft this recipe to craft this quality\n\n" ..
             f.g("Expected Costs per Item") ..
             " tells you, on average, what the costs for 1 resulting item in this quality are (this can be below the crafting costs since it is per item and considers stats like " ..
-            f.bb("Multicraft") ..
-            "\n\n" ..
-            f.g("With Sell Return") ..
-            " subtracts the sell value (considering AH Cut) of the (average number) of crafted items of lower quality until the desired quality is crafted",
-
+            f.bb("Multicraft"),
 
         -- Customer Service Frame
         [CraftSim.CONST.TEXT.CUSTOMER_SERVICE_TITLE] = "CraftSim Customer Service",
@@ -557,9 +558,12 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_RESULTS_LABEL] = "Craft Results",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_RESULTS_TOOLTIP] =
         "Show a crafting log and statistics about your crafts!",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_DETAILS_LABEL] = "Cost Details",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_DETAILS_TOOLTIP] =
-        "Module that shows detailed information about crafting costs",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_OPTIMIZATION_LABEL] = "Cost Optimization",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_OPTIMIZATION_TOOLTIP] =
+        "Module that shows detailed information about and helps with optimizing crafting costs",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_STATISTICS_LABEL] = "Statistics",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_STATISTICS_TOOLTIP] =
+        "Module that shows detailed outcome statistics for the currently open recipe",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_RECIPE_SCAN_LABEL] = "Recipe Scan",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_RECIPE_SCAN_TOOLTIP] =
         "Module that scans your recipe list based on various options",
@@ -572,6 +576,9 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_BUFFS_LABEL] = "Craft Buffs",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_BUFFS_TOOLTIP] =
         "Module that shows you your active and missing Craft Buffs",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_EXPLANATIONS_LABEL] = "Explanations",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_EXPLANATIONS_TOOLTIP] =
+            "Module that shows you various explanations of how" .. f.l(" CraftSim") .. " calculates things",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_RESET_FRAMES] = "Reset Frame Positions",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_OPTIONS] = "Options",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_NEWS] = "News",
@@ -635,7 +642,7 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_WRONG_PROFESSION] = "Wrong Profession",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_ON_COOLDOWN] = "On Cooldown",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_WRONG_CRAFTER] = "Wrong Crafter",
-        [CraftSim.CONST.TEXT.CRAFT_QUEUE_RECIPE_STATUS_HEADER] = "Status",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_RECIPE_REQUIREMENTS_HEADER] = "Requirements",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_NEXT_BUTTON_LABEL] = "Craft Next",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_AVAILABLE_AMOUNT] = "Craftable",
         [CraftSim.CONST.TEXT.CRAFTQUEUE_AUCTIONATOR_SHOPPING_LIST_BUTTON_LABEL] = "Create Auctionator Shopping List",
@@ -685,6 +692,9 @@ greater or equal the configured sale rate threshold.
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_AUCTIONATOR_SHOPPING_LIST_PER_CHARACTER_CHECKBOX] = "Per Character",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_AUCTIONATOR_SHOPPING_LIST_PER_CHARACTER_CHECKBOX_TOOLTIP] = "Create an " ..
             f.bb("Auctionator Shopping List") .. " for each crafter character\ninstead of one shopping list for all",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_AUCTIONATOR_SHOPPING_LIST_TARGET_MODE_CHECKBOX] = "Target Mode Only",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_AUCTIONATOR_SHOPPING_LIST_TARGET_MODE_CHECKBOX_TOOLTIP] = "Create an " ..
+            f.bb("Auctionator Shopping List") .. " for target mode recipes only",
 
         -- craft buffs
 

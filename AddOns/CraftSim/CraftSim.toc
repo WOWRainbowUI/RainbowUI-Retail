@@ -4,21 +4,26 @@
 ## Title: CraftSim
 ## Notes: Calculates the average profit based on your profession stats and other tools for dragonflight gold making
 ## Author: genju
-## Version: 14.4.1
+## Version: 16.0.1
 ## X-Curse-Project-ID: 705015
 ## X-Wago-ID: 0mNwaPKo
 ## X-WoWI-ID: 26519
 ## AddonCompartmentFunc: CraftSim_OnAddonCompartmentClick
 ## IconTexture: Interface\Icons\inv_misc_coin_02
-## SavedVariables: CraftSimDebugData, CraftSimOptions, CraftSimGGUIConfig, CraftSimPriceOverridesV2, CraftSimLoadedProfessionRecipes, CraftSimCustomerHistoryV2, CraftSimCustomerHistory, CraftSimLibIconDB, CraftSimRecipeDataCache, CraftSimCraftQueueCache, CraftSimItemCountCache
+## SavedVariables: CraftSimDebugData, CraftSimOptions, CraftSimGGUIConfig, CraftSimPriceOverridesV2, CraftSimLoadedProfessionRecipes, CraftSimCustomerHistoryV2, CraftSimLibIconDB, CraftSimRecipeDataCache, CraftSimCraftQueueCache, CraftSimItemCountCache
 ## Dependencies: Blizzard_Professions
 ## OptionalDeps: Auctionator, TradeSkillMaster, RECrystallize, OribosExchange
 
 embeds.xml
 
-Libs/Libs.lua
+Init/GLibs.lua
 
 Util/Const.lua
+
+Modules/Debug/Debug.lua
+Modules/Debug/Frames.lua
+Modules/Debug/Test.lua
+
 Util/Util.lua
 
 Cache/Cache.lua
@@ -28,17 +33,19 @@ Cache/CraftQueue.lua
 
 Media/Media.lua
 
-Util/Debug.lua
 Util/Tooltip.lua
 Util/Frames.lua
 Util/Comm.lua
 Util/API.lua
 
-Main/CraftSim.lua
+Init/Init.lua
 
 Pricing/ProfitCalculation.lua
 Pricing/PriceAPIs.lua
 Pricing/PriceData.lua
+
+Modules/Explanations/Explanations.lua
+Modules/Explanations/Frames.lua
 
 Modules/CraftQueue/CraftQueue.lua
 Modules/CraftQueue/Frames.lua
@@ -53,8 +60,8 @@ Modules/CustomerHistory/CustomerHistory.lua
 Modules/CustomerHistory/Frames.lua
 Modules/CustomerHistory/DB.lua
 
-Modules/CraftStatistics/CraftStatistics.lua
-Modules/CraftStatistics/Frames.lua
+Modules/Statistics/Statistics.lua
+Modules/Statistics/Frames.lua
 
 Modules/CraftResults/CraftResults.lua
 Modules/CraftResults/Frames.lua
@@ -89,8 +96,8 @@ Modules/RecipeScan/Frames.lua
 Modules/PriceDetails/PriceDetails.lua
 Modules/PriceDetails/Frames.lua
 
-Modules/CostDetails/CostDetails.lua
-Modules/CostDetails/Frames.lua
+Modules/CostOptimization/CostOptimization.lua
+Modules/CostOptimization/Frames.lua
 
 Modules/Supporters/Supporters.lua
 Modules/Supporters/Frames.lua
@@ -126,6 +133,7 @@ Data/SpecNodeData/Leatherworking.lua
 Data/SpecNodeData/Tailoring.lua
 Data/SpecNodeData/Engineering.lua
 
+Data/Classes/CraftSimObject.lua
 Data/Classes/CooldownData.lua
 Data/Classes/ProfessionData.lua
 Data/Classes/RecipeData.lua

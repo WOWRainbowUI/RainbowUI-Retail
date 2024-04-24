@@ -4,7 +4,8 @@ local CraftSim = select(2, ...)
 CraftSim.LOCAL_IT = {}
 
 function CraftSim.LOCAL_IT:GetData()
-    local f = CraftSim.UTIL:GetFormatter()
+    local f = CraftSim.GUTIL:GetFormatter()
+    local cm = function(i, s) return CraftSim.MEDIA:GetAsTextIcon(i, s) end
     return {
         -- REQUIRED:
         [CraftSim.CONST.TEXT.STAT_INSPIRATION] = "Ispirazione",
@@ -96,7 +97,7 @@ function CraftSim.LOCAL_IT:GetData()
             "Comunque, the rate of change può essere molto diverso tra le ricette.\n" ..
             "Se è più probabile avere un profitto positivo rispetto a uno negativo, crescerà in maniera costante.\n" ..
             "Questo è ovviamente vero anche in direzione opposta.",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION] =
+        [CraftSim.CONST.TEXT.EXPLANATIONS_PROFIT_CALCULATION_EXPLANATION] =
             f.r("Attenzione: ") .. " Un po' di matematica!!\n\n" ..
             "Quando crei qualcosa ci sono diverse probabilità di avere risultati diversi in base alle tue statistiche di creazione.\n" ..
             "E in statistica questa viene chiamata " .. f.l("Distribuzione di Probabilità.\n") ..
@@ -135,7 +136,7 @@ function CraftSim.LOCAL_IT:GetData()
             f.bb("Valore Atteso") .. " che è\n" ..
             "come suggerisce il nome, il valore che ci possiamo aspettare di ottenere in media, o nel nostro caso, il " ..
             f.bb(" profitto atteso per una creazione!") .. "\n" ..
-            "\n" .. f.cm(CraftSim.MEDIA.IMAGES.EXPECTED_VALUE) .. "\n\n" ..
+            "\n" .. cm(CraftSim.MEDIA.IMAGES.EXPECTED_VALUE) .. "\n\n" ..
             "Questo ci dice che il valore atteso " ..
             f.l("E") ..
             " di una distribuzione di probabilità " ..
@@ -151,7 +152,7 @@ function CraftSim.LOCAL_IT:GetData()
             "Puoi vedere tutti questi casi per le tue ricette correnti nella finestra delle " ..
             f.bb("Statistiche") .. "!",
 
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_HSV] =
+        [CraftSim.CONST.TEXT.EXPLANATIONS_HSV_EXPLANATION] =
             "Il " ..
             f.l("Valore di competenza nascosto (HSV)") ..
             " è un fattore casuale aggiuntivo che si presenta ogni volta che crei qualcosa.\n" ..
@@ -159,7 +160,7 @@ function CraftSim.LOCAL_IT:GetData()
             "Possiamo notare l'attivazione di questo valore in questo modo: Quando crei qualcosa l'" ..
             f.bb("Indicatore della qualità") ..
             "si riempie fino a un certo punto.\nQuesto può andare leggermente oltre il valore di competenza mostrato.\n " ..
-            "\n" .. f.cm(CraftSim.MEDIA.IMAGES.HSV_EXAMPLE) .. "\n\n" ..
+            "\n" .. cm(CraftSim.MEDIA.IMAGES.HSV_EXAMPLE) .. "\n\n" ..
             "Questo valore di compentenza aggiuntivo è sempre tra lo 0% e il 5% della tua " ..
             f.bb("Difficoltà base della ricetta") ..
             ".\nQuesto significa che se una ricetta ha una difficoltà di 400 puoi ottenere fino a 20 punti competenza aggiuntivi.\n" ..
@@ -271,18 +272,18 @@ function CraftSim.LOCAL_IT:GetData()
 
         -- Stats Weight Frame
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_TITLE] = "Profitto Medio di CraftSim",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_EXPLANATION_TITLE] = "Spiegazioni del Profitto Medio di CraftSim",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_TITLE] = "Spiegazioni del Profitto Medio di CraftSim",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_SHOW_EXPLANATION_BUTTON] = "Mostra Spiegazioni",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_HIDE_EXPLANATION_BUTTON] = "Chiudi Spiegazioni",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_SHOW_STATISTICS_BUTTON] = "Mostra Statistiche",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_HIDE_STATISTICS_BUTTON] = "Chiudi Statistiche",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_CRAFT] = "Ø Profitto/Creazione: ",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_TAB] = "Basi del calcolo del Profitto",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_HSV_TAB] = "Considerazioni su HSV",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_BASIC_PROFIT_TAB] = "Basi del calcolo del Profitto",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_HSV_TAB] = "Considerazioni su HSV",
 
         -- Cost Details Frame
-        [CraftSim.CONST.TEXT.COST_DETAILS_TITLE] = "Dettaglio Costi di CraftSim",
-        [CraftSim.CONST.TEXT.COST_DETAILS_EXPLANATION] =
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_TITLE] = "Dettaglio Costi di CraftSim",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_EXPLANATION] =
             "In questa sezione puoi vedere una panoramica di tutti i possibili prezzi dei materiali utilizzati.\nLa colonna " ..
             f.bb("'Sorgente'") ..
             " indica quale dei prezzi è utilizzato.\n\n" ..
@@ -295,12 +296,12 @@ function CraftSim.LOCAL_IT:GetData()
             f.l("OR") ..
             " verrà sempre preferito se è stato impostato. " ..
             f.bb("Dati Salvati") .. " saranno utilizzati solo se inferiori a " .. f.g("AH"),
-        [CraftSim.CONST.TEXT.COST_DETAILS_CRAFTING_COSTS] = "Costi di creazione: ",
-        [CraftSim.CONST.TEXT.COST_DETAILS_ITEM_HEADER] = "Oggetto",
-        [CraftSim.CONST.TEXT.COST_DETAILS_AH_PRICE_HEADER] = "Prezzo AH",
-        [CraftSim.CONST.TEXT.COST_DETAILS_OVERRIDE_HEADER] = "Prezzo Personalizzato",
-        [CraftSim.CONST.TEXT.COST_DETAILS_CRAFTING_HEADER] = "Dati Salvati",
-        [CraftSim.CONST.TEXT.COST_DETAILS_USED_SOURCE] = "Sorgente",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_COSTS] = "Costi di creazione: ",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_ITEM_HEADER] = "Oggetto",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_AH_PRICE_HEADER] = "Prezzo AH",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_OVERRIDE_HEADER] = "Prezzo Personalizzato",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_HEADER] = "Dati Salvati",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_USED_SOURCE] = "Sorgente",
 
         -- Statistics Frame
         [CraftSim.CONST.TEXT.STATISTICS_TITLE] = "Statistiche di CraftSim",
@@ -735,8 +736,8 @@ function CraftSim.LOCAL_IT:GetData()
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_RESULTS_LABEL] = "Risultati Artigianato",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_RESULTS_TOOLTIP] =
         "Mostra rapporti e statistiche dei tuoi oggetti creati!",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_DETAILS_LABEL] = "Dettaglio Costi",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_DETAILS_TOOLTIP] =
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_OPTIMIZATION_LABEL] = "Dettaglio Costi",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_OPTIMIZATION_TOOLTIP] =
         "Modulo che mostra dettagliate informazioni sui costi di creazione",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_RECIPE_SCAN_LABEL] = "Scansione Ricette",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_RECIPE_SCAN_TOOLTIP] =

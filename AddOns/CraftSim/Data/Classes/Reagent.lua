@@ -1,9 +1,9 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.DATAEXPORT)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.DATAEXPORT)
 
----@class CraftSim.Reagent
-CraftSim.Reagent = CraftSim.Object:extend()
+---@class CraftSim.Reagent : CraftSim.CraftSimObject
+CraftSim.Reagent = CraftSim.CraftSimObject:extend()
 
 ---@param reagentSlotSchematic CraftingReagentSlotSchematic
 function CraftSim.Reagent:new(reagentSlotSchematic)
@@ -158,12 +158,15 @@ end
 function CraftSim.Reagent:HasQuantityXTimes(crafterUID)
     local currentMinTimes = math.huge
 
-    local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CRAFTQ)
+    local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CRAFTQ)
     --print("CraftSim.Reagent:HasQuantityXTimes", false, true)
     for q, reagentItem in pairs(self.items) do
         if reagentItem.quantity > 0 then
             --print("-" .. tostring(reagentItem.item:GetItemName()) .. "(" .. q .. ")")
-            local itemCount = CraftSim.CRAFTQ:GetItemCountFromCraftQueueCache(reagentItem.item:GetItemID(), true, false,
+            -- use original item if available
+            local itemID = (reagentItem.originalItem and reagentItem.originalItem:GetItemID()) or
+            reagentItem.item:GetItemID()
+            local itemCount = CraftSim.CRAFTQ:GetItemCountFromCraftQueueCache(itemID, true, false,
                 true,
                 crafterUID)
             --print("--player item count: " .. tostring(itemCount))

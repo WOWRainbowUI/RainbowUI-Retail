@@ -27,9 +27,9 @@ CraftSim.RECIPE_SCAN.SCAN_MODES_TRANSLATION_MAP = {
     OPTIMIZE = CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_OPTIMIZE,
 }
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN)
-local printF = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN_FILTER)
-local printS = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN_SCAN)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN)
+local printF = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN_FILTER)
+local printS = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.RECIPE_SCAN_SCAN)
 
 ---@param row CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
 function CraftSim.RECIPE_SCAN:ToggleScanButton(row, value)
@@ -243,7 +243,7 @@ end
 function CraftSim.RECIPE_SCAN:StartScan(row)
     wipe(row.currentResults)
     CraftSim.RECIPE_SCAN.isScanning = true
-
+    
     printS("Start Scan for: " .. tostring(row.crafterProfessionUID))
 
     local recipeInfos = CraftSim.RECIPE_SCAN:GetScanRecipeInfo(row)
@@ -256,7 +256,7 @@ function CraftSim.RECIPE_SCAN:StartScan(row)
             return
         end
 
-        CraftSim.UTIL:StartProfiling("Single Recipe Scan")
+        CraftSim.DEBUG:StartProfiling("Single Recipe Scan")
         local recipeInfo = recipeInfos[currentIndex]
         local crafterData = row.crafterData
         if not recipeInfo then
@@ -286,23 +286,34 @@ function CraftSim.RECIPE_SCAN:StartScan(row)
             return
         end
 
+        -- if optimizing subrecipes
+        if CraftSimOptions.recipeScanOptimizeSubRecipes then
+            printS("Optimizing SubRecipes..")
+            recipeData:SetSubRecipeCostsUsage(true)
+            recipeData:OptimizeSubRecipes({
+                optimizeGear = CraftSimOptions.recipeScanOptimizeProfessionTools,
+                optimizeReagents = true,
+            })
+            printS("optimizedRecipes: " .. tostring(GUTIL:Count(recipeData.optimizedSubRecipes)))
+        end
+
         --optimize top gear first cause optimized reagents might change depending on the gear
-        if CraftSimOptions.recipeScanOptimizeProfessionTools then
-            printS("Optimizing Gear...")
-            CraftSim.UTIL:StartProfiling("Optimize ALL: SCAN")
-            if CraftSimOptions.recipeScanScanMode == CraftSim.RECIPE_SCAN.SCAN_MODES.OPTIMIZE then
-                recipeData:OptimizeProfit()
-            else
+        if CraftSimOptions.recipeScanOptimizeProfessionTools or CraftSimOptions.recipeScanScanMode == CraftSim.RECIPE_SCAN.SCAN_MODES.OPTIMIZE then
+            printS("Optimizing...")
+            if CraftSimOptions.recipeScanScanMode ~= CraftSim.RECIPE_SCAN.SCAN_MODES.OPTIMIZE then
                 CraftSim.RECIPE_SCAN:SetReagentsByScanMode(recipeData)
-                recipeData:OptimizeGear(CraftSim.TOPGEAR:GetSimMode(CraftSim.TOPGEAR.SIM_MODES.PROFIT))
             end
-            CraftSim.UTIL:StopProfiling("Optimize ALL: SCAN")
+            -- Optimize gear and/or reagents
+            recipeData:OptimizeProfit({
+                optimizeGear = CraftSimOptions.recipeScanOptimizeProfessionTools,
+                optimizeReagents = CraftSimOptions.recipeScanScanMode == CraftSim.RECIPE_SCAN.SCAN_MODES.OPTIMIZE,
+            })
         else
             CraftSim.RECIPE_SCAN:SetReagentsByScanMode(recipeData)
         end
 
         local function continueScan()
-            CraftSim.UTIL:StopProfiling("Single Recipe Scan")
+            CraftSim.DEBUG:StopProfiling("Single Recipe Scan")
             CraftSim.RECIPE_SCAN.FRAMES:AddRecipe(row, recipeData)
 
             table.insert(row.currentResults, recipeData)

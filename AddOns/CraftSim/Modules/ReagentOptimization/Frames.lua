@@ -3,13 +3,15 @@ local CraftSim = select(2, ...)
 
 CraftSim.REAGENT_OPTIMIZATION.FRAMES = {}
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.REAGENT_OPTIMIZATION)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.REAGENT_OPTIMIZATION)
 
 function CraftSim.REAGENT_OPTIMIZATION.FRAMES:Init()
     local sizeX = 310
     local sizeY = 250
     local offsetX = -5
     local offsetY = -125
+
+    local frameLevel = CraftSim.UTIL:NextFrameLevel()
 
     local frameWO = CraftSim.GGUI.Frame({
         parent = ProfessionsFrame.OrdersPage.OrderView.OrderDetails,
@@ -27,9 +29,12 @@ function CraftSim.REAGENT_OPTIMIZATION.FRAMES:Init()
         offsetX = offsetX,
         offsetY = offsetY,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesMaterials"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesMaterials"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = frameLevel
     })
     local frameNO_WO = CraftSim.GGUI.Frame({
         parent = ProfessionsFrame.CraftingPage.SchematicForm,
@@ -46,9 +51,12 @@ function CraftSim.REAGENT_OPTIMIZATION.FRAMES:Init()
         offsetX = offsetX,
         offsetY = offsetY,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesMaterials"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesMaterials"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = frameLevel
     })
 
     local function createContent(frame)
@@ -185,9 +193,9 @@ end
 function CraftSim.REAGENT_OPTIMIZATION.FRAMES:UpdateReagentDisplay(recipeData, optimizationResult, exportMode)
     local materialFrame = nil
     if exportMode == CraftSim.CONST.EXPORT_MODE.WORK_ORDER then
-        materialFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.MATERIALS_WORK_ORDER)
+        materialFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.MATERIALS_WORK_ORDER)
     else
-        materialFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.MATERIALS)
+        materialFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.MATERIALS)
     end
 
     local isSameAllocation = false

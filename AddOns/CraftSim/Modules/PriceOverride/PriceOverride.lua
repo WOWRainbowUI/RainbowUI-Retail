@@ -19,7 +19,7 @@ CraftSimPriceOverridesV2 = CraftSimPriceOverridesV2 or {
 ---@field price number
 ---@field qualityID? number -- used for result item mappings in a recipe
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.PRICE_OVERRIDE)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.PRICE_OVERRIDE)
 
 function CraftSim.PRICE_OVERRIDE:ClearAll()
     CraftSimPriceOverridesV2.globalOverrides = {}
@@ -90,10 +90,10 @@ function CraftSim.PRICE_OVERRIDE:SaveOverrideData(recipeID, overrideDropdownData
     local exportMode = CraftSim.UTIL:GetExportModeByVisibility()
     local priceOverrideFrame = nil
     if exportMode == CraftSim.CONST.EXPORT_MODE.WORK_ORDER then
-        priceOverrideFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES
+        priceOverrideFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES
             .PRICE_OVERRIDE_WORK_ORDER)
     else
-        priceOverrideFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.PRICE_OVERRIDE)
+        priceOverrideFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.PRICE_OVERRIDE)
     end
 
     local price = priceOverrideFrame.content.overrideOptions.currencyInputGold.total or 0

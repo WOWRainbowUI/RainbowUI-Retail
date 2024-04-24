@@ -4,7 +4,8 @@ local CraftSim = select(2, ...)
 CraftSim.LOCAL_TW = {}
 
 function CraftSim.LOCAL_TW:GetData()
-    local f = CraftSim.UTIL:GetFormatter()
+    local f = CraftSim.GUTIL:GetFormatter()
+    local cm = function(i, s) return CraftSim.MEDIA:GetAsTextIcon(i, s) end
     return {
         -- REQUIRED:
         [CraftSim.CONST.TEXT.STAT_INSPIRATION] = "靈感",
@@ -89,7 +90,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.STATISTICS_CDF_EXPLANATION] =
         "這使用 abramowitz and stegun 近似值（1985）計算CDF（累積分布函數）\n\n你會注意到 1 件中它的比例總是大約 50%。\n這是因為 0 在大多數時間都接近平均利潤。\n而且 CDF 的均值總有 50% 的機率。\n\n然而，不同配方之間的變化率可能有很大的差異。\n如果有可能獲得正利潤而不是負利潤，它將會穩定增加。\n對於其他方向的變化當然也是一樣。",
 
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION] =
+        [CraftSim.CONST.TEXT.EXPLANATIONS_PROFIT_CALCULATION_EXPLANATION] =
             f.r("警告：") .. "前方高能數學！\n\n" ..
             "當你製作物品時，你有不同的機率可以使不同的結果基於你的製作數據。\n" ..
             "而在統計學，這被稱作 " .. f.l("機率分配。\n") ..
@@ -112,7 +113,7 @@ function CraftSim.LOCAL_TW:GetData()
             "在用這種方式計算每個可能性後，各別可能性確實會加起來到 1！\n" ..
             "這意味著我們現在可以用統計公式了。對我們來說最有趣的是 " .. f.bb("期望值") .. "\n" ..
             "正如其名，期望值是指我們平均可以獲得的價值，或者在我們的例子中，也就是 " .. f.bb("製作的期望利潤！\n") ..
-            "\n" .. f.cm(CraftSim.MEDIA.IMAGES.EXPECTED_VALUE) .. "\n\n" ..
+            "\n" .. cm(CraftSim.MEDIA.IMAGES.EXPECTED_VALUE) .. "\n\n" ..
             "這告訴我們機率分配 " .. f.l("X") .. " 的期望值 " .. f.l("E") .. " 是所有數值與其可能性的乘積的總和。\n" ..
             "所以如果我們有一個 " ..
             f.bb("情況 A 機率 30%") ..
@@ -121,10 +122,10 @@ function CraftSim.LOCAL_TW:GetData()
             f.bb("\nE(X) = -100*0.3 + 300*0.7 ") .. " 是 " .. f.m((-100 * 0.3 + 300 * 0.7) * 10000) .. "\n" ..
             "你可以在" .. f.bb("統計資料") .. "視窗中檢視當前配方的所有情況！"
         ,
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_HSV] =
+        [CraftSim.CONST.TEXT.EXPLANATIONS_HSV_EXPLANATION] =
             f.l("隱藏技能數值 (HSV)") .. " 是每次製作物品時產生的額外隨機因素。遊戲中未提及此項數值。\n" ..
             "不過，你可以觀察到觸發效果的視覺化呈現：製作物品時，" .. f.bb("品質計量器") .. "\n會填滿至某個程度。而且此值可能會遠遠超過你當前顯示的技能。\n" ..
-            " \n" .. f.cm(CraftSim.MEDIA.IMAGES.HSV_EXAMPLE) .. " \n\n" ..
+            " \n" .. cm(CraftSim.MEDIA.IMAGES.HSV_EXAMPLE) .. " \n\n" ..
             "此額外技能始終介於你的" .. f.bb("基本配方難度") .. "的 0% 到 5% 之間。\n如果你的配方難度為 400，代表你能獲得最高 20 點技能。\n" ..
             "而且測試表明，這種分佈是" .. f.bb("均勻分佈") .. "。也就是說，每個百分比數值都有相同的機率。\n" ..
             f.l("HSV") .. "在接近品質時可能嚴重影響利潤！在 CraftSim 中，它被視為額外觸發效果，例如" .. f.bb("靈感") .. "或" .. f.bb("複數製造。") ..
@@ -204,18 +205,18 @@ function CraftSim.LOCAL_TW:GetData()
 
         -- Stats Weight Frame
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_TITLE] = "CraftSim 平均利潤",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_EXPLANATION_TITLE] = "CraftSim 平均利潤說明",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_TITLE] = "CraftSim 平均利潤說明",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_SHOW_EXPLANATION_BUTTON] = "顯示說明",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_HIDE_EXPLANATION_BUTTON] = "隱藏說明",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_SHOW_STATISTICS_BUTTON] = "顯示統計資料",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_HIDE_STATISTICS_BUTTON] = "隱藏統計資料",
         [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_CRAFT] = "Φ 利潤 / 製造: ",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_TAB] = "基本利潤計算",
-        [CraftSim.CONST.TEXT.STAT_WEIGHTS_PROFIT_EXPLANATION_HSV_TAB] = "HSV 考慮因素",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_BASIC_PROFIT_TAB] = "基本利潤計算",
+        [CraftSim.CONST.TEXT.EXPLANATIONS_HSV_TAB] = "HSV 考慮因素",
 
         -- Cost Details Frame
-        [CraftSim.CONST.TEXT.COST_DETAILS_TITLE] = "CraftSim 成本明細",
-        [CraftSim.CONST.TEXT.COST_DETAILS_EXPLANATION] = "所有材料可能價格概述如下。\n" ..
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_TITLE] = "CraftSim 成本明細",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_EXPLANATION] = "所有材料可能價格概述如下。\n" ..
             f.bb("'使用來源'") ..
             " 欄位指示哪一個價格已被使用。\n\n" ..
             f.g("拍賣場") ..
@@ -224,12 +225,12 @@ function CraftSim.LOCAL_TW:GetData()
             " .. 重訂價格\n" ..
             f.bb("任何名稱") ..
             " .. 製作者的製作資料預估成本\n\n" .. f.l("或") .. " 已設定則會優先使用。 " .. f.bb("製造資料") .. " 僅在低於 " .. f.g("拍賣場") .. " 時才會使用。",
-        [CraftSim.CONST.TEXT.COST_DETAILS_CRAFTING_COSTS] = "製造成本: ",
-        [CraftSim.CONST.TEXT.COST_DETAILS_ITEM_HEADER] = "物品",
-        [CraftSim.CONST.TEXT.COST_DETAILS_AH_PRICE_HEADER] = "拍賣價格",
-        [CraftSim.CONST.TEXT.COST_DETAILS_OVERRIDE_HEADER] = "重訂價格",
-        [CraftSim.CONST.TEXT.COST_DETAILS_CRAFTING_HEADER] = "製造資料",
-        [CraftSim.CONST.TEXT.COST_DETAILS_USED_SOURCE] = "使用來源",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_COSTS] = "製造成本: ",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_ITEM_HEADER] = "物品",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_AH_PRICE_HEADER] = "拍賣價格",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_OVERRIDE_HEADER] = "重訂價格",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_HEADER] = "製造資料",
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_USED_SOURCE] = "使用來源",
 
         -- Statistics Frame
         [CraftSim.CONST.TEXT.STATISTICS_TITLE] = "CraftSim 統計資料",
@@ -438,8 +439,8 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_SPECIALIZATION_INFO_TOOLTIP] = "顯示你的專業專精會如何影響這個配方，可以模擬任何配置!",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_RESULTS_LABEL] = "製造結果",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CRAFT_RESULTS_TOOLTIP] = "顯示製造的日誌和統計資料!",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_DETAILS_LABEL] = "成本明細",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_DETAILS_TOOLTIP] = "顯示製造成本詳細資訊的模組",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_OPTIMIZATION_LABEL] = "成本明細",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_COST_OPTIMIZATION_TOOLTIP] = "顯示製造成本詳細資訊的模組",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_RECIPE_SCAN_LABEL] = "配方掃描",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_RECIPE_SCAN_TOOLTIP] = "依據多種不同的選項掃描你的配方列表",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CUSTOMER_SERVICE_LABEL] = "客戶服務",

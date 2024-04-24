@@ -8,7 +8,7 @@ local PREVIEW_RECIPE_LIST_RESPONSE_PREFIX = "CraftSimRes1"
 local PREVIEW_REQUEST_RECIPE_UPDATE = "CraftSimReq2"
 local PREVIEW_RECIPE_UPDATE_RESPONSE = "CraftSimRes2"
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CUSTOMER_SERVICE)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.CUSTOMER_SERVICE)
 
 local versionWarningShowed = false
 
@@ -30,7 +30,7 @@ function CraftSim.CUSTOMER_SERVICE:ClearPreviewIDs()
 end
 
 function CraftSim.CUSTOMER_SERVICE:GeneratePreviewInviteLink()
-    local recipeData = CraftSim.MAIN.currentRecipeData
+    local recipeData = CraftSim.INIT.currentRecipeData
     if not recipeData then
         return
     end
@@ -178,7 +178,7 @@ function CraftSim.CUSTOMER_SERVICE.OnRecipeListResponse(payload)
 end
 
 function CraftSim.CUSTOMER_SERVICE.SendRecipeUpdateRequest(recipeID, isInit)
-    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
+    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
 
     local optionalReagents = nil
     if not isInit then
@@ -260,7 +260,7 @@ function CraftSim.CUSTOMER_SERVICE.OnRecipeUpdateRequest(payload)
         recipeIcon = recipeData.recipeIcon,
         supportsQualities = recipeData.supportsQualities,
         upgradeChance = upgradeChance,
-        reagents = recipeData.reagentData:SerializeReagents(),
+        reagents = recipeData.reagentData:SerializeRequiredReagents(),
         optionalReagents = recipeData.reagentData:SerializeOptionalReagentSlots(),
         finishingReagents = recipeData.reagentData:SerializeFinishingReagentSlots(),
         resultData = recipeData.resultData:Serialize(),
@@ -315,17 +315,17 @@ function CraftSim.CUSTOMER_SERVICE:TransformLink(event, message, sender, ...)
 end
 
 function CraftSim.CUSTOMER_SERVICE:StartLivePreviewUpdating()
-    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
+    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
     previewFrame.content.StartUpdate()
 end
 
 function CraftSim.CUSTOMER_SERVICE:StopLivePreviewUpdating()
-    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.MAIN.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
+    local previewFrame = CraftSim.GGUI:GetFrame(CraftSim.INIT.FRAMES, CraftSim.CONST.FRAMES.LIVE_PREVIEW)
     previewFrame.content.StopUpdate()
 end
 
 function CraftSim.CUSTOMER_SERVICE:WhisperRecipeDetails(whisperTarget)
-    local recipeData = CraftSim.MAIN.currentRecipeData
+    local recipeData = CraftSim.INIT.currentRecipeData
 
     if not recipeData then
         return

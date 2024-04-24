@@ -10,7 +10,7 @@ CraftSim.CRAFT_BUFFS = CraftSim.CRAFT_BUFFS
 ---@class CraftSim.CRAFT_BUFFS.FRAMES
 CraftSim.CRAFT_BUFFS.FRAMES = {}
 
-local print = CraftSim.UTIL:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.BUFFDATA)
+local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.BUFFDATA)
 
 ---@type table<string, boolean>
 CraftSim.CRAFT_BUFFS.simulatedBuffs = {}
@@ -19,6 +19,8 @@ function CraftSim.CRAFT_BUFFS.FRAMES:Init()
     local sizeY = 200
     local offsetX = 0
     local offsetY = 0
+
+    local frameLevel = CraftSim.UTIL:NextFrameLevel()
 
     ---@class CraftSim.CRAFT_BUFFS.FRAME : GGUI.Frame
     CraftSim.CRAFT_BUFFS.frame = GGUI.Frame({
@@ -36,9 +38,12 @@ function CraftSim.CRAFT_BUFFS.FRAMES:Init()
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesCraftBuffs"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesCraftBuffs"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = frameLevel
     })
     ---@class CraftSim.CRAFT_BUFFS.FRAME: GGUI.Frame
     CraftSim.CRAFT_BUFFS.frameWO = GGUI.Frame({
@@ -57,9 +62,12 @@ function CraftSim.CRAFT_BUFFS.FRAMES:Init()
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.FRAME:HandleModuleClose("modulesCraftBuffs"),
-        frameTable = CraftSim.MAIN.FRAMES,
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesCraftBuffs"),
+        frameTable = CraftSim.INIT.FRAMES,
         frameConfigTable = CraftSimGGUIConfig,
+        frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+        raiseOnInteraction = true,
+        frameLevel = frameLevel
     })
 
     local function createContent(frame)
@@ -80,7 +88,7 @@ function CraftSim.CRAFT_BUFFS.FRAMES:Init()
             },
             savedVariablesTable = CraftSim.CRAFT_BUFFS.simulatedBuffs,
             onSelectCallback = function()
-                CraftSim.MAIN:TriggerModuleUpdate()
+                CraftSim.INIT:TriggerModuleUpdate()
             end
         }
 
@@ -88,7 +96,7 @@ function CraftSim.CRAFT_BUFFS.FRAMES:Init()
 
         frame.content.buffList = GGUI.FrameList {
             parent = frame.content, anchorParent = frame.content.simulateBuffSelector.button.frame, anchorA = "TOP", anchorB = "BOTTOM", sizeY = 127, offsetY = -5, showBorder = true,
-            offsetX = -10, selectionOptions = { noSelectionColor = true, hoverRGBA = CraftSim.CONST.JUST_HOVER_FRAMELIST_HOVERRGBA }, rowHeight = 20,
+            offsetX = -10, selectionOptions = { noSelectionColor = true, hoverRGBA = CraftSim.CONST.FRAME_LIST_SELECTION_COLORS.HOVER_LIGHT_WHITE }, rowHeight = 20,
             columnOptions = {
                 {
                     label = "", -- Buffstatus
