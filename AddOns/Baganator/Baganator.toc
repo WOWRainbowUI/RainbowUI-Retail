@@ -1,6 +1,6 @@
 ## Interface: 100206
 ## Title: Baganator
-## Version: 229
+## Version: 243
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -21,7 +21,6 @@ Sorting\ItemFields.lua
 Sorting\Order.lua
 Sorting\OrderBags.lua
 Sorting\CombineStacks.lua
-Sorting\Plugins.lua
 Sorting\ModeCheck.lua
 
 Transfers\Utilities.lua
@@ -71,5 +70,7 @@ API\Main.lua
 API\Junk.lua
 API\ItemButton.lua
 API\EquipmentSets.lua
+API\Sorting.lua
+API\GuildBankSorting.lua
 
 Compatibility\VanillaEngraving.lua

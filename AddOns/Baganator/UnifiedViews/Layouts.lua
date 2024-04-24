@@ -1,27 +1,39 @@
-local masqueGroup
-local function MasqueRegistration(button)
-  if not LibStub then
-    return
-  end
+local MasqueRegistration = function() end
 
-  if masqueGroup == nil then
-    -- Establish a reference to Masque.
-    local Masque, MSQ_Version = LibStub("Masque", true)
-    if Masque == nil then
+if LibStub then
+  -- Establish a reference to Masque.
+  local Masque, MSQ_Version = LibStub("Masque", true)
+  if Masque ~= nil then
+    -- Retrieve a reference to a new or existing group.
+    local masqueGroup = Masque:Group("Baganator", "Bag")
+
+    MasqueRegistration = function(button)
+      if button.masqueApplied then
+        masqueGroup:ReSkin(button)
+      else
+        button.masqueApplied = true
+        masqueGroup:AddButton(button, nil, "Item")
+      end
+    end
+  end
+end
+
+local function GetNameFromLink(itemLink)
+  return (string.match(itemLink, "h%[(.*)%]|h"):gsub(" ?|A.-|a", ""))
+end
+
+local function RegisterHighlightSimilarItems(self)
+  Baganator.CallbackRegistry:RegisterCallback("HighlightSimilarItems", function(_, itemLink)
+    if not Baganator.Config.Get(Baganator.Config.Options.ICON_FLASH_SIMILAR_ALT) or itemLink == "" then
       return
     end
-    -- Retrieve a reference to a new or existing group.
-    masqueGroup = Masque:Group("Baganator", "Bag")
-  end
-
-  if masqueGroup then
-    if button.masqueApplied then
-      masqueGroup:ReSkin(button)
-    else
-      button.masqueApplied = true
-      masqueGroup:AddButton(button, nil, "Item")
+    local itemName = GetNameFromLink(itemLink)
+    for _, button in ipairs(self.buttons) do
+      if button.BGR.itemLink and GetNameFromLink(button.BGR.itemLink) == itemName then
+        button:BGRStartFlashing()
+      end
     end
-  end
+  end, self)
 end
 
 local ReflowSettings = {
@@ -190,7 +202,7 @@ function BaganatorCachedBagLayoutMixin:ShowCharacter(character, section, indexes
 
   local start = debugprofilestop()
 
-  local characterData = SYNDICATOR_DATA.Characters[character]
+  local characterData = Syndicator.API.GetCharacter(character)
 
   if not characterData then
     return
@@ -268,16 +280,7 @@ function BaganatorCachedBagLayoutMixin:OnShow()
     end
   end, self)
 
-  Baganator.CallbackRegistry:RegisterCallback("HighlightSimilarItems", function(_, itemName)
-    if not Baganator.Config.Get(Baganator.Config.Options.ICON_FLASH_SIMILAR_ALT) or itemName == "" then
-      return
-    end
-    for _, button in ipairs(self.buttons) do
-      if button.BGR.itemName == itemName then
-        button:BGRStartFlashing()
-      end
-    end
-  end, self)
+  RegisterHighlightSimilarItems(self)
 
   Baganator.CallbackRegistry:RegisterCallback("HighlightIdenticalItems", function(_, itemLink)
     for _, button in ipairs(self.buttons) do
@@ -376,16 +379,7 @@ function BaganatorLiveBagLayoutMixin:OnShow()
     end
   end, self)
 
-  Baganator.CallbackRegistry:RegisterCallback("HighlightSimilarItems", function(_, itemName)
-    if not Baganator.Config.Get(Baganator.Config.Options.ICON_FLASH_SIMILAR_ALT) or itemName == "" then
-      return
-    end
-    for _, button in ipairs(self.buttons) do
-      if button.BGR.itemName == itemName then
-        button:BGRStartFlashing()
-      end
-    end
-  end, self)
+  RegisterHighlightSimilarItems(self)
 
   Baganator.CallbackRegistry:RegisterCallback("HighlightIdenticalItems", function(_, itemLink)
     for _, button in ipairs(self.buttons) do
@@ -501,7 +495,7 @@ function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, 
 
   local start = debugprofilestop()
 
-  local characterData = SYNDICATOR_DATA.Characters[character]
+  local characterData = Syndicator.API.GetCharacter(character)
 
   local iconSize = Baganator.Config.Get(Baganator.Config.Options.BAG_ICON_SIZE)
 
@@ -571,16 +565,7 @@ function BaganatorGeneralGuildLayoutMixin:ApplySearch(text)
 end
 
 function BaganatorGeneralGuildLayoutMixin:OnShow()
-  Baganator.CallbackRegistry:RegisterCallback("HighlightSimilarItems", function(_, itemName)
-    if not Baganator.Config.Get(Baganator.Config.Options.ICON_FLASH_SIMILAR_ALT) or itemName == "" then
-      return
-    end
-    for _, button in ipairs(self.buttons) do
-      if button.BGR.itemName == itemName then
-        button:BGRStartFlashing()
-      end
-    end
-  end, self)
+  RegisterHighlightSimilarItems(self)
 
   Baganator.CallbackRegistry:RegisterCallback("HighlightIdenticalItems", function(_, itemLink)
     for _, button in ipairs(self.buttons) do
@@ -625,7 +610,7 @@ end
 function BaganatorGeneralGuildLayoutMixin:ShowGuild(guild, tabIndex, rowWidth)
   local start = debugprofilestop()
 
-  local guildData = SYNDICATOR_DATA.Guilds[guild]
+  local guildData = Syndicator.API.GetGuild(guild)
 
   if #self.buttons ~= Syndicator.Constants.MaxGuildBankTabItemSlots then
     self.refreshContent = true

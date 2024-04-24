@@ -1,3 +1,5 @@
+local _, addonTable = ...
+
 local PopupMode = {
   Tab = "tab",
   Money = "money",
@@ -55,7 +57,7 @@ function BaganatorGuildViewMixin:OnLoad()
     end
   end)
 
-  Baganator.CallbackRegistry:RegisterCallback("GuildNameSet",  function(_, guild)
+  Syndicator.CallbackRegistry:RegisterCallback("GuildNameSet",  function(_, guild)
     if guild then
       self.lastGuild = guild
     end
@@ -82,11 +84,13 @@ function BaganatorGuildViewMixin:OnLoad()
       for _, layout in ipairs(self.Layouts) do
         layout:InformSettingChanged(settingName)
       end
-      if self:IsShown() then
+      if self:IsVisible() then
         self:UpdateForGuild(self.lastGuild, self.isLive)
       end
     elseif settingName == Baganator.Config.Options.SHOW_TRANSFER_BUTTON then
       self.TransferButton:SetShown(self.wouldShowTransferButton and Baganator.Config.Get(Baganator.Config.Options.SHOW_TRANSFER_BUTTON))
+    elseif settingName == Baganator.Config.Options.GUILD_BANK_SORT_METHOD then
+      self:UpdateForGuild(self.lastGuild, self.isLive)
     elseif settingName == Baganator.Config.Options.SHOW_BUTTONS_ON_ALT then
       self:UpdateAllButtons()
     end
@@ -132,7 +136,7 @@ function BaganatorGuildViewMixin:OnEvent(eventName, ...)
         hiddenFrame:Hide()
         GuildBankFrame:SetParent(hiddenFrame)
       end
-      self.lastGuild = Syndicator.GuildCache.currentGuild
+      self.lastGuild = Syndicator.API.GetCurrentGuild()
       self.isLive = true
       self:Show()
     end
@@ -208,7 +212,7 @@ function BaganatorGuildViewMixin:ApplySearch(text)
 
   -- Highlight tabs with items that match
 
-  local guildData = SYNDICATOR_DATA.Guilds[self.lastGuild]
+  local guildData = Syndicator.API.GetGuild(self.lastGuild)
 
   for index, tab in ipairs(guildData.bank) do
     if not self.otherTabsCache[self.lastGuild] then
@@ -358,12 +362,12 @@ function BaganatorGuildViewMixin:SetCurrentTab(index)
 
   if self.isLive then
     SetCurrentGuildBankTab(self.currentTab)
-    Syndicator.GuildCache:StartFullBankScan()
+    QueryGuildBankTab(self.currentTab)
     if GuildBankPopupFrame:IsShown() then
       self:OpenTabEditor()
     end
     if self.LogsFrame:IsShown() and self.LogsFrame.showing == PopupMode.Tab then
-      local tabInfo = SYNDICATOR_DATA.Guilds[guild].bank[index]
+      local tabInfo = Syndicator.API.GetGuild(self.lastGuild).bank[index]
       if not tabInfo then
         self.LogsFrame:Hide()
       else
@@ -371,7 +375,7 @@ function BaganatorGuildViewMixin:SetCurrentTab(index)
       end
     end
     if self.TabTextFrame:IsShown() then
-      local tabInfo = SYNDICATOR_DATA.Guilds[guild].bank[index]
+      local tabInfo = Syndicator.API.GetGuild(self.lastGuild).bank[index]
       if not tabInfo then
         self.TabTextFrame:Hide()
       else
@@ -394,7 +398,7 @@ function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
   self.GuildCached:SetShown(not self.isLive)
   self.GuildLive:SetShown(self.isLive)
 
-  local guildData = SYNDICATOR_DATA.Guilds[guild]
+  local guildData = Syndicator.API.GetGuild(guild)
   if not guildData then
     self:SetTitle("")
     return
@@ -437,7 +441,7 @@ function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
   self.SearchBox:ClearAllPoints()
   self.SearchBox:SetPoint("BOTTOMLEFT", active, "TOPLEFT", 5, 3)
   -- 300 is the default searchbox width
-  self.SearchBox:SetWidth(math.min(300, active:GetWidth() - 5))
+  self.SearchBox:SetWidth(active:GetWidth() - 5)
 
   if guildData.bank[1] then
     self.Tabs[1]:SetPoint("LEFT", active, "LEFT")
@@ -472,7 +476,22 @@ function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
       self.WithdrawButton:Enable()
     end
     self.Money:SetText(BAGANATOR_L_GUILD_MONEY_X_X:format(GetMoneyString(withdrawMoney, true), GetMoneyString(guildMoney, true)))
+    self.NoTabsText:SetPoint("TOP", self, "CENTER", 0, 15)
     detailsHeight = 30
+
+    self.SortButton:SetShown(canDeposit
+      and #guildData.bank > 0
+      -- Use 7*14 to cover that every item in a tab can be sorted
+      and (remainingWithdrawals == -1 or remainingWithdrawals > #guildData.bank * 7*14)
+      and addonTable.ExternalGuildBankSorts[Baganator.Config.Get(Baganator.Config.Options.GUILD_BANK_SORT_METHOD)]
+      and Baganator.Config.Get(Baganator.Config.Options.SHOW_SORT_BUTTON)
+    )
+
+    if self.SortButton:IsShown() then
+      self.TransferButton:SetPoint("RIGHT", self.SortButton, "LEFT")
+    else
+      self.TransferButton:SetPoint("RIGHT", self.CustomiseButton, "LEFT")
+    end
 
     self.wouldShowTransferButton = remainingWithdrawals == -1 or remainingWithdrawals > 0
     self.TransferButton:SetShown(self.wouldShowTransferButton and Baganator.Config.Get(Baganator.Config.Options.SHOW_TRANSFER_BUTTON))
@@ -480,15 +499,22 @@ function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
   else -- not live
     self.wouldShowTransferButton = false
     self.WithdrawalsInfo:SetText("")
-    self.Money:SetText(BAGANATOR_L_GUILD_MONEY_X:format(GetMoneyString(SYNDICATOR_DATA.Guilds[guild].money, true)))
+    self.Money:SetText(BAGANATOR_L_GUILD_MONEY_X:format(GetMoneyString(Syndicator.API.GetGuild(guild).money, true)))
+    self.NoTabsText:SetPoint("TOP", self, "CENTER", 0, 5)
     detailsHeight = 10
 
     self.TransferButton:Hide()
+    self.SortButton:Hide()
     self.LogsFrame:Hide()
   end
 
   active:ClearAllPoints()
   active:SetPoint("TOPLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset, -50)
+
+  self.SearchBox:SetShown(active:IsShown())
+  self.NotVisitedText:SetShown(not active:IsShown() and not guildData.details.visited)
+  self.NoTabsText:SetShown(not active:IsShown() and guildData.details.visited)
+  self.Money:SetShown(active:IsShown() or guildData.details.visited)
 
   self.WithdrawalsInfo:SetPoint("BOTTOMLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset, 30)
   self.Money:SetPoint("BOTTOMLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset, 10)
@@ -531,7 +557,7 @@ end
 function BaganatorGuildViewMixin:RemoveSearchMatches(callback)
   local matches = self.GuildLive.SearchMonitor:GetMatches()
 
-  local emptyBagSlots = Baganator.Transfers.GetEmptyBagsSlots(SYNDICATOR_DATA.Characters[Baganator.BagCache.currentCharacter].bags, Syndicator.Constants.AllBagIndexes)
+  local emptyBagSlots = Baganator.Transfers.GetEmptyBagsSlots(Syndicator.API.GetCharacter(Syndicator.API.GetCurrentCharacter()).bags, Syndicator.Constants.AllBagIndexes)
 
   local status, modes = Baganator.Transfers.FromGuildToBags(matches, Syndicator.Constants.AllBagIndexes, emptyBagSlots)
 
@@ -548,6 +574,11 @@ function BaganatorGuildViewMixin:Transfer(button)
   else
     self:RemoveSearchMatches(function() end)
   end
+end
+
+function BaganatorGuildViewMixin:CombineStacksAndSort()
+  local sortsDetails = addonTable.ExternalGuildBankSorts[Baganator.Config.Get(Baganator.Config.Options.GUILD_BANK_SORT_METHOD)]
+  sortsDetails.callback()
 end
 
 function BaganatorGuildViewMixin:ToggleTabText()
@@ -618,6 +649,7 @@ function BaganatorGuildLogsTemplateMixin:OnShow()
   Baganator.Utilities.ApplyVisuals(self)
   self:ClearAllPoints()
   self:SetPoint(unpack(Baganator.Config.Get(Baganator.Config.Options.GUILD_VIEW_DIALOG_POSITION)))
+  Baganator.Utilities.AutoSetGuildSortMethod()
 end
 
 function BaganatorGuildLogsTemplateMixin:OnDragStart()
@@ -638,8 +670,8 @@ function BaganatorGuildLogsTemplateMixin:ApplyTabTitle()
   if self.showing ~= PopupMode.Tab then return
   end
 
-  local tabInfo = SYNDICATOR_DATA.Guilds[Syndicator.GuildCache.currentGuild].bank[GetCurrentGuildBankTab()]
-  if tabIndex ~= nil then
+  local tabInfo = Syndicator.API.GetGuild(Syndicator.API.GetCurrentGuild()).bank[GetCurrentGuildBankTab()]
+  if tabInfo ~= nil then
     self:SetTitle(BAGANATOR_L_X_LOGS:format(tabInfo.name))
   else
     self:SetTitle("")
@@ -649,7 +681,7 @@ end
 function BaganatorGuildLogsTemplateMixin:ApplyTab()
   self.showing = PopupMode.Tab
 
-  if #SYNDICATOR_DATA.Guilds[Syndicator.GuildCache.currentGuild].bank == 0 then
+  if #Syndicator.API.GetGuild(Syndicator.API.GetCurrentGuild()).bank == 0 then
     self.TextContainer:SetText(BAGANATOR_L_GUILD_NO_TABS_PURCHASED)
     return
   end
@@ -759,7 +791,7 @@ end
 function BaganatorGuildTabTextTemplateMixin:ApplyTab()
   local currentTab = GetCurrentGuildBankTab()
 
-  if #SYNDICATOR_DATA.Guilds[Syndicator.GuildCache.currentGuild].bank == 0 then
+  if #Syndicator.API.GetGuild(Syndicator.API.GetCurrentGuild()).bank == 0 then
     self.TextContainer:SetText(BAGANATOR_L_GUILD_NO_TABS_PURCHASED)
     self.SaveButton:Hide()
     self.TextContainer:GetEditBox():SetEnabled(false)
@@ -773,7 +805,7 @@ function BaganatorGuildTabTextTemplateMixin:ApplyTab()
 end
 
 function BaganatorGuildTabTextTemplateMixin:ApplyTabTitle()
-  local tabInfo = SYNDICATOR_DATA.Guilds[Syndicator.GuildCache.currentGuild].bank[GetCurrentGuildBankTab()]
+  local tabInfo = Syndicator.API.GetGuild(Syndicator.API.GetCurrentGuild()).bank[GetCurrentGuildBankTab()]
   if tabInfo ~= nil then
     self:SetTitle(BAGANATOR_L_X_INFORMATION:format(tabInfo.name))
   else

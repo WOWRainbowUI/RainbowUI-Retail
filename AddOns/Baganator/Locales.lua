@@ -32,6 +32,9 @@ L["ALL_CHARACTERS"] = "All Characters"
 L["BAG_SLOTS"] = "Bag Slots"
 L["GUILD_BANK"] = "Guild Bank"
 L["BANK_DATA_MISSING_HINT"] = "Bank data missing. Visit a banker with %s to populate this view."
+L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
+L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
+
 
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
@@ -106,6 +109,7 @@ L["ADD_A_CORNER_ITEM"] = "Add a corner item"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be shown in each corner of the icon on an item's button and prioritise the most wanted information."
 
 L["SORT"] = "Sort"
+L["USING_X"] = "Using %s"
 L["SORTING"] = "Sorting"
 L["REVERSE_GROUPS_SORT_ORDER"] = "Reverse groups sort order"
 L["SORT_START_AT_BOTTOM"] = "Start the sorted items at the bottom of bag"
@@ -113,6 +117,7 @@ L["SORT_IGNORE_SLOTS_AT_END_NOT_START"] = "Ignore slots at the end, not start, f
 L["X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "%s regular bag slots to ignore when sorting (character specific)"
 L["X_BANK_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "%s regular bank slots to ignore when sorting (character specific)"
 L["AUTO_SORT_ON_OPENING_BAGS"] = "Automatically sort on opening bags"
+L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
 
 L["SEARCH_TRY_X"] = "Search, try %s"
 
@@ -176,10 +181,8 @@ L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 L["GUILD_NO_TABS_PURCHASED"] = "No guild bank tabs purchased"
 
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
-L["NO_RESULTS"] = "No Results"
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = "Search all inventories including those not of the current character and print the search results to your chat.\n\nThis is a work in progress with a full UI planned for the future. Suggestions on the layout are welcome."
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 L["THAT_ITEM_IS_EQUIPPED"] = "That item is equipped"
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auction house"
@@ -190,6 +193,18 @@ L["THAT_ITEM_IS_EQUIPPED"] = "That item is equipped"
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auction house"
 L["THAT_ITEM_IS_IN_A_MAILBOX"] = "That item is in a mailbox"
 L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "That item is in void storage"
+
+L["SOUL"] = "Soul"
+L["HERBALISM"] = "Herbalism"
+L["ENCHANTING"] = "Enchanting"
+L["ENGINEERING"] = "Engineering"
+L["GEMS"] = "Gems"
+L["MINING"] = "Mining"
+L["LEATHERWORKING"] = "Leatherworking"
+L["INSCRIPTION"] = "Inscription"
+L["FISHING"] = "Fishing"
+L["COOKING"] = "Cooking"
+L["JEWELCRAFTING"] = "Jewelcrafting"
 
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
@@ -219,12 +234,12 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Impossible d’ajouter d’autre
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifier cet onglet"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Impossible d’effectuer une recherche par lien d’objet"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
---[[Translation missing --]]
-L["CHARACTER_PANEL"] = "Character Panel"
+L["CHARACTER_PANEL"] = "Fiche de personnage"
 L["COMBINE_STACKS_ONLY"] = "Combiner uniquement les piles"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Voulez-vous transférer TOUS les objets dans vos sacs ?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Voulez-vous transférer TOUS les objets de la banque ?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Voulez-vous transférer TOUS les objets de la banque de guilde ?"
+L["COOKING"] = "Cuisine"
 L["CRAFTING_WINDOW"] = "Fenêtre d’artisanat"
 L["CUSTOMISE_BAGANATOR"] = "Personnaliser Baganator"
 L["CUSTOMISE_EMPTY_SLOTS"] = "Masquer l’arrière-plan des emplacements vides"
@@ -234,11 +249,18 @@ L["DEPOSIT_REAGENTS"] = "Dépôt des composants"
 L["ENABLE_BACKPACK_VIEW"] = "Utiliser Baganator pour les sacs (rech. requis)"
 L["ENABLE_BANK_VIEW"] = "Utiliser Baganator pour la banque (rech. requis)"
 L["ENABLE_GUILD_VIEW"] = "Activer pour banque de guilde (rech. requis)"
+L["ENCHANTING"] = "Enchantement"
+L["ENGINEERING"] = "Ingénierie"
 L["ENGRAVED_RUNE"] = "Rune gravée"
 L["EQUIPMENT_SET"] = "Set d'équipement "
 L["EXPANSION"] = "Extension "
+L["FISHING"] = "Pêche "
 L["FORGE_OF_BONDS"] = "Forge des liens"
+L["GEMS"] = "Gemmes"
 L["GUILD_BANK"] = "Banque de guilde"
+L["GUILD_BANK_DATA_MISSING_HINT"] = "La banque de guilde n'a pas encore été visitée"
+L["GUILD_BANK_NO_TABS"] = "Il n'y a pas d'onglet dans cette banque de guilde."
+L["GUILD_BANK_SORT_METHOD"] = "Méthode de tri de la banque de guilde"
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = [=[Voir les retraits et les dépôts d’argent pour la banque de guilde
 
 ]=]
@@ -248,6 +270,7 @@ L["GUILD_NO_TABS_PURCHASED"] = "Aucun onglet de banque de guilde acheté"
 L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "Afficher toutes les infos stockées de cet onglet"
 L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "Voir les retraits et dépôts d’objets pour cet onglet"
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Objets - Retrait : %s | Dépôt : %s"
+L["HERBALISM"] = "Herboristerie "
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Masquer le statut LqE sur les objets gris/blancs"
 L["HIDE_IN_TOOLTIPS"] = "Masquer dans les infobulles"
 L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Maintenez la touche Maj enfoncée pour afficher le total du compte>"
@@ -255,6 +278,7 @@ L["ICON_CORNER_PRIORITIES"] = "Priorités du coin des icônes"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choisissez les infos à afficher dans chaque coin de l’icône d'objet et classez par priorité."
 L["ICON_GREY_JUNK_ITEMS"] = "Marquez la camelote en grisant l’icône"
 L["ICONS"] = "Icônes"
+L["INSCRIPTION"] = "Calligraphie"
 L["ITEM_LEVEL"] = "Niveau de l’objet"
 L["ITEM_QUALITY"] = "Qualité de l’objet"
 L["ITEM_QUALITY_BASIC"] = "Qualité de l’objet (de base)"
@@ -263,13 +287,15 @@ L["ITEM_TYPE"] = "Type d’objet"
 L["ITEM_TYPE_BASIC"] = "Type d’objet (de base)"
 L["ITEM_TYPE_ENHANCED"] = "Type d’objet (amélioré)"
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flasher tous les mêmes objets avec [Alt]+Clic"
+L["JEWELCRAFTING"] = "Joaillerie"
 L["JUNK"] = "Camelote"
 L["JUNK_DETECTION"] = "Détection de camelote"
 L["KEYS"] = "Clés"
+L["LEATHERWORKING"] = "Travail du cuir"
 L["LOCK_INVENTORY_FRAMES"] = "Verrouiller les cadres d’affichage de l’inventaire"
 L["MAIL"] = "Courrier"
+L["MINING"] = "Minage"
 L["MONEY_LOGS"] = "Journaux des monnaies"
-L["NO_RESULTS"] = "Aucun résultat"
 L["NO_TRANSACTIONS_AVAILABLE"] = "Aucune transaction disponible"
 L["OPEN_OPTIONS"] = "Ouvrir les options"
 L["PAWN"] = "Pawn"
@@ -287,9 +313,8 @@ L["REVERSE_GROUPS_SORT_ORDER"] = "Inverser l’ordre de tri des groupes"
 L["SCRAP"] = "Scrap"
 L["SCRAPPING_MACHINE"] = "Machine à recycler"
 L["SEARCH_EVERYWHERE"] = "Recherche Globale"
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = "Recherchez dans tous les inventaires, y compris ceux qui ne sont pas du personnage actuel, et affichez les résultats de la recherche dans votre chat. Il s’agit d’un travail en cours avec une interface utilisateur complète prévue pour l’avenir. Les suggestions sur la mise en page sont les bienvenues."
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Affichera les résultats dans le chat."
 L["SEARCH_TRY_X"] = "Recherche, essayez %s"
-L["SEARCHED_EVERYWHERE_COLON"] = "Recherche Globale:"
 L["SELLJUNK"] = "SellJunk"
 L["SHOW_BOA_STATUS"] = "Afficher le statut LqA (lent)"
 L["SHOW_BOE_STATUS"] = "Afficher le statut LqE"
@@ -309,6 +334,7 @@ L["SORT_METHOD"] = "Méthode de tri"
 L["SORT_START_AT_BOTTOM"] = "Commencer le tri au fond du sac"
 L["SORTBAGS"] = "Tri des sacs"
 L["SORTING"] = "Tri"
+L["SOUL"] = "Âme"
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r est nécessaire pour utiliser Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Utilisez votre gestionnaire d’addons pour installer |cffd1b219Syndicator|r afin d’utiliser Baganator."
 L["TAB_INFO"] = "Onglet Infos"
@@ -335,6 +361,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Ajouter les objets recherchés à 
 L["TRANSFERS"] = "Transferts"
 L["UNLIMITED"] = "Illimité"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Couleur du texte comme la qualité de l’objet"
+L["USING_X"] = "Utilisant %s"
 L["VENDOR"] = "Vendeur"
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_STORAGE"] = "Banque du vide"
@@ -415,6 +442,8 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items f
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
 --[[Translation missing --]]
+L["COOKING"] = "Cooking"
+--[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
@@ -433,15 +462,29 @@ L["ENABLE_BANK_VIEW"] = "Use Baganator bank view (reload required)"
 --[[Translation missing --]]
 L["ENABLE_GUILD_VIEW"] = "Use Baganator guild bank view (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["ENGRAVED_RUNE"] = "Engraved Rune"
 --[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
 --[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
 L["FORGE_OF_BONDS"] = "Forge of Bonds"
 --[[Translation missing --]]
+L["GEMS"] = "Gems"
+--[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
+--[[Translation missing --]]
+L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
+--[[Translation missing --]]
+L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
+--[[Translation missing --]]
+L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
 --[[Translation missing --]]
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of money for the guild bank"
 --[[Translation missing --]]
@@ -457,6 +500,8 @@ L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of items for th
 --[[Translation missing --]]
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Items - Withdraw: %s | Deposit: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
@@ -470,6 +515,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
 L["ITEM_LEVEL"] = "Item Level"
 --[[Translation missing --]]
@@ -487,19 +534,23 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
 --[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
+--[[Translation missing --]]
 L["LOCK_INVENTORY_FRAMES"] = "Lock inventory view frames"
 --[[Translation missing --]]
 L["MAIL"] = "Mail"
 --[[Translation missing --]]
-L["MONEY_LOGS"] = "Money Logs"
+L["MINING"] = "Mining"
 --[[Translation missing --]]
-L["NO_RESULTS"] = "No Results"
+L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 --[[Translation missing --]]
@@ -535,13 +586,9 @@ L["SCRAPPING_MACHINE"] = "Scrapping Machine"
 --[[Translation missing --]]
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
 --[[Translation missing --]]
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = [=[Search all inventories including those not of the current character and print the search results to your chat.
-
-This is a work in progress with a full UI planned for the future. Suggestions on the layout are welcome.]=]
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
@@ -580,6 +627,8 @@ L["SORT_START_AT_BOTTOM"] = "Start the sorted items at the bottom of bag"
 L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
+--[[Translation missing --]]
+L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
@@ -636,6 +685,8 @@ L["TRANSFERS"] = "Transfers"
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
+--[[Translation missing --]]
+L["USING_X"] = "Using %s"
 --[[Translation missing --]]
 L["VENDOR"] = "Vendor"
 --[[Translation missing --]]
@@ -734,6 +785,8 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items f
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
 --[[Translation missing --]]
+L["COOKING"] = "Cooking"
+--[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
@@ -752,15 +805,29 @@ L["ENABLE_BANK_VIEW"] = "Use Baganator bank view (reload required)"
 --[[Translation missing --]]
 L["ENABLE_GUILD_VIEW"] = "Use Baganator guild bank view (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["ENGRAVED_RUNE"] = "Engraved Rune"
 --[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
 --[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
 L["FORGE_OF_BONDS"] = "Forge of Bonds"
 --[[Translation missing --]]
+L["GEMS"] = "Gems"
+--[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
+--[[Translation missing --]]
+L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
+--[[Translation missing --]]
+L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
+--[[Translation missing --]]
+L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
 --[[Translation missing --]]
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of money for the guild bank"
 --[[Translation missing --]]
@@ -776,6 +843,8 @@ L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of items for th
 --[[Translation missing --]]
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Items - Withdraw: %s | Deposit: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
@@ -789,6 +858,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
 L["ITEM_LEVEL"] = "Item Level"
 --[[Translation missing --]]
@@ -806,19 +877,23 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
 --[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
+--[[Translation missing --]]
 L["LOCK_INVENTORY_FRAMES"] = "Lock inventory view frames"
 --[[Translation missing --]]
 L["MAIL"] = "Mail"
 --[[Translation missing --]]
-L["MONEY_LOGS"] = "Money Logs"
+L["MINING"] = "Mining"
 --[[Translation missing --]]
-L["NO_RESULTS"] = "No Results"
+L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 --[[Translation missing --]]
@@ -854,13 +929,9 @@ L["SCRAPPING_MACHINE"] = "Scrapping Machine"
 --[[Translation missing --]]
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
 --[[Translation missing --]]
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = [=[Search all inventories including those not of the current character and print the search results to your chat.
-
-This is a work in progress with a full UI planned for the future. Suggestions on the layout are welcome.]=]
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
@@ -899,6 +970,8 @@ L["SORT_START_AT_BOTTOM"] = "Start the sorted items at the bottom of bag"
 L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
+--[[Translation missing --]]
+L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
@@ -955,6 +1028,8 @@ L["TRANSFERS"] = "Transfers"
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
+--[[Translation missing --]]
+L["USING_X"] = "Using %s"
 --[[Translation missing --]]
 L["VENDOR"] = "Vendor"
 --[[Translation missing --]]
@@ -1053,6 +1128,8 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items f
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
 --[[Translation missing --]]
+L["COOKING"] = "Cooking"
+--[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
@@ -1071,15 +1148,29 @@ L["ENABLE_BANK_VIEW"] = "Use Baganator bank view (reload required)"
 --[[Translation missing --]]
 L["ENABLE_GUILD_VIEW"] = "Use Baganator guild bank view (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["ENGRAVED_RUNE"] = "Engraved Rune"
 --[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
 --[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
 L["FORGE_OF_BONDS"] = "Forge of Bonds"
 --[[Translation missing --]]
+L["GEMS"] = "Gems"
+--[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
+--[[Translation missing --]]
+L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
+--[[Translation missing --]]
+L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
+--[[Translation missing --]]
+L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
 --[[Translation missing --]]
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of money for the guild bank"
 --[[Translation missing --]]
@@ -1095,6 +1186,8 @@ L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of items for th
 --[[Translation missing --]]
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Items - Withdraw: %s | Deposit: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
@@ -1108,6 +1201,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
 L["ITEM_LEVEL"] = "Item Level"
 --[[Translation missing --]]
@@ -1125,19 +1220,23 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
 --[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
+--[[Translation missing --]]
 L["LOCK_INVENTORY_FRAMES"] = "Lock inventory view frames"
 --[[Translation missing --]]
 L["MAIL"] = "Mail"
 --[[Translation missing --]]
-L["MONEY_LOGS"] = "Money Logs"
+L["MINING"] = "Mining"
 --[[Translation missing --]]
-L["NO_RESULTS"] = "No Results"
+L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 --[[Translation missing --]]
@@ -1173,13 +1272,9 @@ L["SCRAPPING_MACHINE"] = "Scrapping Machine"
 --[[Translation missing --]]
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
 --[[Translation missing --]]
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = [=[Search all inventories including those not of the current character and print the search results to your chat.
-
-This is a work in progress with a full UI planned for the future. Suggestions on the layout are welcome.]=]
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
@@ -1218,6 +1313,8 @@ L["SORT_START_AT_BOTTOM"] = "Start the sorted items at the bottom of bag"
 L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
+--[[Translation missing --]]
+L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
@@ -1274,6 +1371,8 @@ L["TRANSFERS"] = "Transfers"
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
+--[[Translation missing --]]
+L["USING_X"] = "Using %s"
 --[[Translation missing --]]
 L["VENDOR"] = "Vendor"
 --[[Translation missing --]]
@@ -1372,6 +1471,8 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items f
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
 --[[Translation missing --]]
+L["COOKING"] = "Cooking"
+--[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
@@ -1390,15 +1491,29 @@ L["ENABLE_BANK_VIEW"] = "Use Baganator bank view (reload required)"
 --[[Translation missing --]]
 L["ENABLE_GUILD_VIEW"] = "Use Baganator guild bank view (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["ENGRAVED_RUNE"] = "Engraved Rune"
 --[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
 --[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
 L["FORGE_OF_BONDS"] = "Forge of Bonds"
 --[[Translation missing --]]
+L["GEMS"] = "Gems"
+--[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
+--[[Translation missing --]]
+L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
+--[[Translation missing --]]
+L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
+--[[Translation missing --]]
+L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
 --[[Translation missing --]]
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of money for the guild bank"
 --[[Translation missing --]]
@@ -1414,6 +1529,8 @@ L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of items for th
 --[[Translation missing --]]
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Items - Withdraw: %s | Deposit: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
@@ -1427,6 +1544,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
 L["ITEM_LEVEL"] = "Item Level"
 --[[Translation missing --]]
@@ -1444,19 +1563,23 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
 --[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
+--[[Translation missing --]]
 L["LOCK_INVENTORY_FRAMES"] = "Lock inventory view frames"
 --[[Translation missing --]]
 L["MAIL"] = "Mail"
 --[[Translation missing --]]
-L["MONEY_LOGS"] = "Money Logs"
+L["MINING"] = "Mining"
 --[[Translation missing --]]
-L["NO_RESULTS"] = "No Results"
+L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 --[[Translation missing --]]
@@ -1492,13 +1615,9 @@ L["SCRAPPING_MACHINE"] = "Scrapping Machine"
 --[[Translation missing --]]
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
 --[[Translation missing --]]
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = [=[Search all inventories including those not of the current character and print the search results to your chat.
-
-This is a work in progress with a full UI planned for the future. Suggestions on the layout are welcome.]=]
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
@@ -1537,6 +1656,8 @@ L["SORT_START_AT_BOTTOM"] = "Start the sorted items at the bottom of bag"
 L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
+--[[Translation missing --]]
+L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
@@ -1593,6 +1714,8 @@ L["TRANSFERS"] = "Transfers"
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
+--[[Translation missing --]]
+L["USING_X"] = "Using %s"
 --[[Translation missing --]]
 L["VENDOR"] = "Vendor"
 --[[Translation missing --]]
@@ -1661,6 +1784,7 @@ L["COMBINE_STACKS_ONLY"] = "只合併整組"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "您想轉移背包中的全部物品嗎？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "您想轉移銀行中的全部物品嗎？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "你想從公會銀行轉移所有物品嗎？"
+L["COOKING"] = "烹飪"
 L["CRAFTING_WINDOW"] = "製作視窗"
 L["CUSTOMISE_BAGANATOR"] = "自定義Baganator"
 L["CUSTOMISE_EMPTY_SLOTS"] = "隱藏空格的背景"
@@ -1670,11 +1794,18 @@ L["DEPOSIT_REAGENTS"] = "存放材料"
 L["ENABLE_BACKPACK_VIEW"] = "使用Baganator背包視窗 (需要重載)"
 L["ENABLE_BANK_VIEW"] = "使用Baganator銀行視窗 (需要重載)"
 L["ENABLE_GUILD_VIEW"] = "使用Baganator公會銀行視窗 (需要重載)"
+L["ENCHANTING"] = "附魔"
+L["ENGINEERING"] = "工程"
 L["ENGRAVED_RUNE"] = "銘刻符文"
 L["EQUIPMENT_SET"] = "裝備套裝"
 L["EXPANSION"] = "資料片"
+L["FISHING"] = "釣魚"
 L["FORGE_OF_BONDS"] = "靈魂之絆熔爐"
+L["GEMS"] = "珠寶"
 L["GUILD_BANK"] = "公會銀行"
+L["GUILD_BANK_DATA_MISSING_HINT"] = "此公會銀行尚未造訪過。"
+L["GUILD_BANK_NO_TABS"] = "此公會銀行沒有標籤頁。"
+L["GUILD_BANK_SORT_METHOD"] = "公會銀行排序方法"
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "查閱公會銀行的存提款情況"
 L["GUILD_MONEY_X"] = "金幣 - 總計：%s"
 L["GUILD_MONEY_X_X"] = "金幣 - 提款：%s | 總計：%s"
@@ -1682,6 +1813,7 @@ L["GUILD_NO_TABS_PURCHASED"] = "沒有購買公會銀行標籤頁"
 L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "查看此標籤頁保存的任何訊息"
 L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "查看此標籤頁的物品提取與存入情況"
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "物品 - 提取：%s | 存入：%s"
+L["HERBALISM"] = "草藥"
 L["HIDE_BOE_STATUS_ON_COMMON"] = "在垃圾/普通品質物品上隱藏任何裝綁狀態"
 L["HIDE_IN_TOOLTIPS"] = "在工具提示中隱藏"
 L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<按住shift來顯示帳號總計>"
@@ -1689,6 +1821,7 @@ L["ICON_CORNER_PRIORITIES"] = "圖示角落優先級"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "選擇在物品按鈕圖示的每個角落都顯示哪些訊息，並優先考慮最需要的訊息。"
 L["ICON_GREY_JUNK_ITEMS"] = "透過使圖示變灰來標記垃圾物品"
 L["ICONS"] = "圖示"
+L["INSCRIPTION"] = "銘文"
 L["ITEM_LEVEL"] = "物品等級"
 L["ITEM_QUALITY"] = "物品品質"
 L["ITEM_QUALITY_BASIC"] = "物品品質 (基本)"
@@ -1697,13 +1830,15 @@ L["ITEM_TYPE"] = "物品類型"
 L["ITEM_TYPE_BASIC"] = "物品類型 (基本)"
 L["ITEM_TYPE_ENHANCED"] = "物品類型 (增強)"
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "[Alt]+點擊可高亮所有相同物品"
+L["JEWELCRAFTING"] = "珠寶"
 L["JUNK"] = "垃圾"
 L["JUNK_DETECTION"] = "垃圾偵測"
 L["KEYS"] = "鑰匙"
+L["LEATHERWORKING"] = "製皮"
 L["LOCK_INVENTORY_FRAMES"] = "鎖定庫存視窗框架"
 L["MAIL"] = "信箱"
+L["MINING"] = "採礦"
 L["MONEY_LOGS"] = "金幣紀錄"
-L["NO_RESULTS"] = "無結果"
 L["NO_TRANSACTIONS_AVAILABLE"] = "無可用交易"
 L["OPEN_OPTIONS"] = "開啟選項"
 L["PAWN"] = "Pawn"
@@ -1721,9 +1856,8 @@ L["REVERSE_GROUPS_SORT_ORDER"] = "反轉群組排列順序"
 L["SCRAP"] = "廢料"
 L["SCRAPPING_MACHINE"] = "破爛回收機"
 L["SEARCH_EVERYWHERE"] = "廣泛搜尋"
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = "搜尋所有庫存，包括非目前角色的庫存，並將搜尋結果發送到您的聊天中。這是一項正在進行的工作，並計劃在未來提供完整的 UI。歡迎就佈局提出建議。"
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "將把搜尋結果發送到您的聊天中。"
 L["SEARCH_TRY_X"] = "搜尋，嘗試 %s"
-L["SEARCHED_EVERYWHERE_COLON"] = "廣泛搜尋："
 L["SELLJUNK"] = "賣出垃圾"
 L["SHOW_BOA_STATUS"] = "顯示帳號綁定狀態 (慢)"
 L["SHOW_BOE_STATUS"] = "顯示裝備綁定狀態"
@@ -1743,6 +1877,7 @@ L["SORT_METHOD"] = "排序方式"
 L["SORT_START_AT_BOTTOM"] = "從背包底部開始排序物品"
 L["SORTBAGS"] = "排序背包"
 L["SORTING"] = "排序"
+L["SOUL"] = "靈魂"
 L["SYNDICATOR_ENABLE_MESSAGE"] = "使用Baganator時需要|cffd1b219Syndicator|r。"
 L["SYNDICATOR_INSTALL_MESSAGE"] = "使用您的插件網站/客戶端安裝 |cffd1b219Syndicator|r 以使用 Baganator。"
 L["TAB_INFO"] = "標籤頁訊息"
@@ -1769,6 +1904,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "將搜尋到的商品加入交易�
 L["TRANSFERS"] = "轉移"
 L["UNLIMITED"] = "無限制"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "圖示上文字根據物品品質著色"
+L["USING_X"] = "使用 %s"
 L["VENDOR"] = "商店"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_STORAGE"] = "虛空倉庫"
@@ -1814,12 +1950,12 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "无法添加更多物品到此�
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您无权编辑此选项"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "无法通过物品链接搜索"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "无法从公会银行提取更多物品"
---[[Translation missing --]]
-L["CHARACTER_PANEL"] = "Character Panel"
+L["CHARACTER_PANEL"] = "角色面板"
 L["COMBINE_STACKS_ONLY"] = "仅合并堆叠"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "你想转移背包内的所有物品？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "你想转移银行内的所有物品？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "您想从公会银行转移所有物品吗？"
+L["COOKING"] = "烹饪"
 L["CRAFTING_WINDOW"] = "专业窗口"
 L["CUSTOMISE_BAGANATOR"] = "自定义Baganator设置"
 L["CUSTOMISE_EMPTY_SLOTS"] = "隐藏空位的背景"
@@ -1829,11 +1965,18 @@ L["DEPOSIT_REAGENTS"] = "存放材料"
 L["ENABLE_BACKPACK_VIEW"] = "使用Baganator背包窗口（需/reload重载）"
 L["ENABLE_BANK_VIEW"] = "使用Baganator银行窗口（需/reload重载）"
 L["ENABLE_GUILD_VIEW"] = "使用Baganator公会银行窗口（需/reload重载）"
+L["ENCHANTING"] = "附魔"
+L["ENGINEERING"] = "工程"
 L["ENGRAVED_RUNE"] = "铭刻符文"
 L["EQUIPMENT_SET"] = "装备方案"
 L["EXPANSION"] = "展开"
+L["FISHING"] = "钓鱼"
 L["FORGE_OF_BONDS"] = "羁绊熔炉"
+L["GEMS"] = "珠宝"
 L["GUILD_BANK"] = "公会银行"
+L["GUILD_BANK_DATA_MISSING_HINT"] = "该公会银行尚未被访问过。"
+L["GUILD_BANK_NO_TABS"] = "该公会银行没有标签。"
+L["GUILD_BANK_SORT_METHOD"] = "公会银行排序方法"
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "查看公会银行的提款和存款情况"
 L["GUILD_MONEY_X"] = "金币 - 总计： %s"
 L["GUILD_MONEY_X_X"] = "金币 - 提款： %s | 总计： %s"
@@ -1841,6 +1984,7 @@ L["GUILD_NO_TABS_PURCHASED"] = "未购买公会银行标签"
 L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "查看保存的有关此选项的任何信息"
 L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "查看该选项的物品提取和存入情况"
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "物品 - 提取： %s | 存入： %s"
+L["HERBALISM"] = "草药"
 L["HIDE_BOE_STATUS_ON_COMMON"] = "隐藏垃圾/普通品质物品上的装绑状态"
 L["HIDE_IN_TOOLTIPS"] = "在鼠标提示中隐藏"
 L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<按住 shift 键显示账号总计>"
@@ -1848,6 +1992,7 @@ L["ICON_CORNER_PRIORITIES"] = "边角图标优先显示"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "选择在物品图标的角落位置显示哪些信息，并优先显示最需要的信息。"
 L["ICON_GREY_JUNK_ITEMS"] = "图标变灰来标记垃圾物品"
 L["ICONS"] = "图标"
+L["INSCRIPTION"] = "铭文"
 L["ITEM_LEVEL"] = "物品等级"
 L["ITEM_QUALITY"] = "物品品质"
 L["ITEM_QUALITY_BASIC"] = "物品品质（基础）"
@@ -1856,13 +2001,15 @@ L["ITEM_TYPE"] = "物品类型"
 L["ITEM_TYPE_BASIC"] = "物品类型（基础）"
 L["ITEM_TYPE_ENHANCED"] = "物品类型（增强）"
 L["ITEMS_FLASH_ON_ALT_CLICK"] = " [Alt]+ 点击时高亮所有相同物品"
+L["JEWELCRAFTING"] = "珠宝"
 L["JUNK"] = "垃圾"
 L["JUNK_DETECTION"] = "扫描垃圾"
 L["KEYS"] = "钥匙"
+L["LEATHERWORKING"] = "制皮"
 L["LOCK_INVENTORY_FRAMES"] = "锁定库存窗口"
 L["MAIL"] = "信箱"
+L["MINING"] = "采矿"
 L["MONEY_LOGS"] = "货币记录"
-L["NO_RESULTS"] = "无结果"
 L["NO_TRANSACTIONS_AVAILABLE"] = "无可用交易"
 L["OPEN_OPTIONS"] = "打开选项"
 L["PAWN"] = "Pawn"
@@ -1880,9 +2027,8 @@ L["REVERSE_GROUPS_SORT_ORDER"] = "反转分类的排序"
 L["SCRAP"] = "废料"
 L["SCRAPPING_MACHINE"] = "拆解机"
 L["SEARCH_EVERYWHERE"] = "扩大搜索"
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = "搜索所有库存，包括不属于当前角色的库存，并将搜索结果发送到聊天记录中。这是一项正在进行中的工作，计划在未来推出完整的用户界面。欢迎对布局提出建议。"
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "将搜索结果发送到聊天信息中。"
 L["SEARCH_TRY_X"] = "搜索，尝试 %s"
-L["SEARCHED_EVERYWHERE_COLON"] = "扩大搜索："
 L["SELLJUNK"] = "出售垃圾"
 L["SHOW_BOA_STATUS"] = "显示帐绑状态（慢）"
 L["SHOW_BOE_STATUS"] = "显示装绑状态"
@@ -1902,6 +2048,7 @@ L["SORT_METHOD"] = "排序方式"
 L["SORT_START_AT_BOTTOM"] = "将分类好的物品放在背包底部"
 L["SORTBAGS"] = "SortBags"
 L["SORTING"] = "排序"
+L["SOUL"] = "魂"
 L["SYNDICATOR_ENABLE_MESSAGE"] = "使用Baganator时需要|cffd1b219Syndicator|r "
 L["SYNDICATOR_INSTALL_MESSAGE"] = "使用您的插件网站/客户端安装|cffd1b219Syndicator|r以使用 Baganator。"
 L["TAB_INFO"] = "标签信息"
@@ -1928,6 +2075,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "将搜索到的物品添加到交�
 L["TRANSFERS"] = "转移"
 L["UNLIMITED"] = "无限"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "图标上的文字根据物品的品质着色"
+L["USING_X"] = "使用 %s"
 L["VENDOR"] = "商店"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_STORAGE"] = "虚空仓库"
@@ -1988,6 +2136,7 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
+L["COOKING"] = "요리"
 L["CRAFTING_WINDOW"] = "제작창"
 L["CUSTOMISE_BAGANATOR"] = "Baganator 설정"
 L["CUSTOMISE_EMPTY_SLOTS"] = "빈 공간의 배경 숨기기"
@@ -1999,11 +2148,21 @@ L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
 --[[Translation missing --]]
 L["ENABLE_BANK_VIEW"] = "Use Baganator bank view (reload required)"
 L["ENABLE_GUILD_VIEW"] = "길드 은행 보기 사용 (UI  재시작 필요)"
+L["ENCHANTING"] = "마법부여"
+L["ENGINEERING"] = "기계공학"
 L["ENGRAVED_RUNE"] = "Engraved Rune"
 L["EQUIPMENT_SET"] = "착용 세트"
 L["EXPANSION"] = "확장팩"
+L["FISHING"] = "낚시"
 L["FORGE_OF_BONDS"] = "결속의 제련소"
+L["GEMS"] = "보석"
 L["GUILD_BANK"] = "길드 은행"
+--[[Translation missing --]]
+L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
+--[[Translation missing --]]
+L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
+--[[Translation missing --]]
+L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
 --[[Translation missing --]]
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of money for the guild bank"
 --[[Translation missing --]]
@@ -2018,6 +2177,7 @@ L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "See any stored information about this tab"
 L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of items for this tab"
 --[[Translation missing --]]
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Items - Withdraw: %s | Deposit: %s"
+L["HERBALISM"] = "약초채집"
 L["HIDE_BOE_STATUS_ON_COMMON"] = "하급/일반 아이템의 착용 시 귀속 상태 숨김"
 L["HIDE_IN_TOOLTIPS"] = "툴팁 숨기기"
 L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "SHIFT 키를 누르면 계정의 총 소지금을 표시"
@@ -2025,6 +2185,7 @@ L["ICON_CORNER_PRIORITIES"] = "슬롯 모서리 우선순위"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "가방 슬롯의 모서리의 아이콘에  표시할 정보를 선택하고 가장 원하는 정보의 우선순위를 지정할 수 있습니다."
 L["ICON_GREY_JUNK_ITEMS"] = "불필요한 아이템을 회색 아이콘으로 표시"
 L["ICONS"] = "아이콘"
+L["INSCRIPTION"] = "주문각인"
 L["ITEM_LEVEL"] = "아이템 레벨"
 L["ITEM_QUALITY"] = "아이템 품질"
 --[[Translation missing --]]
@@ -2037,17 +2198,18 @@ L["ITEM_TYPE_BASIC"] = "Item Type (basic)"
 --[[Translation missing --]]
 L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "아이템을 Alt+클릭할 때, 동일한 아이템은 반짝거리게 표시"
+L["JEWELCRAFTING"] = "보석세공"
 --[[Translation missing --]]
 L["JUNK"] = "Junk"
 L["JUNK_DETECTION"] = "필요없는 아이템 감지"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
+L["LEATHERWORKING"] = "가죽세공"
 L["LOCK_INVENTORY_FRAMES"] = "가방 창 고정"
 L["MAIL"] = "우편함"
+L["MINING"] = "채광"
 --[[Translation missing --]]
 L["MONEY_LOGS"] = "Money Logs"
---[[Translation missing --]]
-L["NO_RESULTS"] = "No Results"
 --[[Translation missing --]]
 L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 --[[Translation missing --]]
@@ -2073,13 +2235,9 @@ L["SCRAPPING_MACHINE"] = "Scrapping Machine"
 --[[Translation missing --]]
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
 --[[Translation missing --]]
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = [=[Search all inventories including those not of the current character and print the search results to your chat.
-
-This is a work in progress with a full UI planned for the future. Suggestions on the layout are welcome.]=]
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 L["SHOW_BOA_STATUS"] = "계정귀속 아이템 상태 표시 (느림)"
@@ -2102,6 +2260,8 @@ L["SORT_START_AT_BOTTOM"] = "가방의 아래부터 아이템 정렬 시작"
 --[[Translation missing --]]
 L["SORTBAGS"] = "SortBags"
 L["SORTING"] = "정렬"
+--[[Translation missing --]]
+L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
@@ -2152,6 +2312,8 @@ L["TRANSFERS"] = "옮기기"
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "아이템 레벨 글자를 아이템 등급 색상으로 표시"
+--[[Translation missing --]]
+L["USING_X"] = "Using %s"
 L["VENDOR"] = "상인"
 --[[Translation missing --]]
 L["VERSION_COLON_X"] = "Version: %s"
@@ -2237,6 +2399,8 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items f
 --[[Translation missing --]]
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
 --[[Translation missing --]]
+L["COOKING"] = "Cooking"
+--[[Translation missing --]]
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
@@ -2255,15 +2419,29 @@ L["ENABLE_BANK_VIEW"] = "Use Baganator bank view (reload required)"
 --[[Translation missing --]]
 L["ENABLE_GUILD_VIEW"] = "Use Baganator guild bank view (reload required)"
 --[[Translation missing --]]
+L["ENCHANTING"] = "Enchanting"
+--[[Translation missing --]]
+L["ENGINEERING"] = "Engineering"
+--[[Translation missing --]]
 L["ENGRAVED_RUNE"] = "Engraved Rune"
 --[[Translation missing --]]
 L["EQUIPMENT_SET"] = "Equipment Set"
 --[[Translation missing --]]
 L["EXPANSION"] = "Expansion"
 --[[Translation missing --]]
+L["FISHING"] = "Fishing"
+--[[Translation missing --]]
 L["FORGE_OF_BONDS"] = "Forge of Bonds"
 --[[Translation missing --]]
+L["GEMS"] = "Gems"
+--[[Translation missing --]]
 L["GUILD_BANK"] = "Guild Bank"
+--[[Translation missing --]]
+L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
+--[[Translation missing --]]
+L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
+--[[Translation missing --]]
+L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
 --[[Translation missing --]]
 L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of money for the guild bank"
 --[[Translation missing --]]
@@ -2279,6 +2457,8 @@ L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of items for th
 --[[Translation missing --]]
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Items - Withdraw: %s | Deposit: %s"
 --[[Translation missing --]]
+L["HERBALISM"] = "Herbalism"
+--[[Translation missing --]]
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
 --[[Translation missing --]]
 L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
@@ -2292,6 +2472,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
 L["ITEM_LEVEL"] = "Item Level"
 --[[Translation missing --]]
@@ -2309,19 +2491,23 @@ L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
 --[[Translation missing --]]
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 --[[Translation missing --]]
+L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
 L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
 --[[Translation missing --]]
+L["LEATHERWORKING"] = "Leatherworking"
+--[[Translation missing --]]
 L["LOCK_INVENTORY_FRAMES"] = "Lock inventory view frames"
 --[[Translation missing --]]
 L["MAIL"] = "Mail"
 --[[Translation missing --]]
-L["MONEY_LOGS"] = "Money Logs"
+L["MINING"] = "Mining"
 --[[Translation missing --]]
-L["NO_RESULTS"] = "No Results"
+L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 --[[Translation missing --]]
@@ -2357,13 +2543,9 @@ L["SCRAPPING_MACHINE"] = "Scrapping Machine"
 --[[Translation missing --]]
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
 --[[Translation missing --]]
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_1"] = [=[Search all inventories including those not of the current character and print the search results to your chat.
-
-This is a work in progress with a full UI planned for the future. Suggestions on the layout are welcome.]=]
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
@@ -2402,6 +2584,8 @@ L["SORT_START_AT_BOTTOM"] = "Start the sorted items at the bottom of bag"
 L["SORTBAGS"] = "SortBags"
 --[[Translation missing --]]
 L["SORTING"] = "Sorting"
+--[[Translation missing --]]
+L["SOUL"] = "Soul"
 --[[Translation missing --]]
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
@@ -2458,6 +2642,8 @@ L["TRANSFERS"] = "Transfers"
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
+--[[Translation missing --]]
+L["USING_X"] = "Using %s"
 --[[Translation missing --]]
 L["VENDOR"] = "Vendor"
 --[[Translation missing --]]
