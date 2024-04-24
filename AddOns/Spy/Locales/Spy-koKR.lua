@@ -78,6 +78,7 @@ L["Sanctum of the Sages"] = "현자의 성소"
 L["Rustbolt"] = "녹슨나사"
 L["Oribos"] = "오리보스"
 L["Valdrakken"] = "발드라켄"
+L["The Roasted Ram"] = "양꼬치 주점"
 
 -- Display
 L["DisplayOptions"] = "디스플레이"

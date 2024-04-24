@@ -78,6 +78,7 @@ L["Sanctum of the Sages"] = "Das Sanktum der Weisen"
 L["Rustbolt"] = "Rostbolzen"
 L["Oribos"] = "Oribos"
 L["Valdrakken"] = "Valdrakken"
+L["The Roasted Ram"] = "Gerösteten Geißbock"
 
 -- Display
 L["DisplayOptions"] = "Anzeigen"
