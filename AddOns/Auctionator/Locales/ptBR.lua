@@ -426,7 +426,7 @@ L["RESTORE_ALL"] = "Restaurar Tudo"
 L["RESULTS_AVAILABLE_COLUMN"] = "Disponível"
 L["RESULTS_NAME_COLUMN"] = "Nome"
 L["RESULTS_PRICE_COLUMN"] = "Preço"
-L["RESULTS_STACK_PRICE_COLUMN"] = [=[Preço da pilha
+L["RESULTS_STACK_PRICE_COLUMN"] = [=[Preço por pilha
 ]=]
 L["RESULTS_STACK_SIZE_COLUMN"] = [=[Tamanho da pilha
 ]=]
@@ -743,11 +743,11 @@ L["UNDERCUT_YES"] = "Sim"
 L["UNHIDE"] = "Revelar"
 L["UNHIDE_ALL"] = "Revelar Todos"
 L["UNHIDE_ALL_HIDDEN_ITEMS"] = "Revelar todos os itens ocultos"
-L["UNIT_PRICE"] = "Preço por Unidade"
+L["UNIT_PRICE"] = "Preço por unidade"
 L["UNIT_PRICE_RANGE"] = "Preço unitário: %s - %s"
 L["UNKNOWN"] = "desconhecido"
 L["UNSELECT_ALL"] = "Desmarcar todos"
-L["UPPER_UNIT_PRICE"] = "Preço Unitário Mais Alto"
+L["UPPER_UNIT_PRICE"] = "Preço unitário mais alto"
 L["VENDOR"] = "Preço de venda"
 L["VERSION_HEADER"] = "Versão"
 L["VERSION_MESSAGE"] = "Versão %s"
