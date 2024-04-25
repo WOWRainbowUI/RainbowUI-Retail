@@ -147,8 +147,8 @@ local function OnEvent_AddonLoaded(self, event, name, ...)
     KeyMaster:LOAD_SAVED_GLOBAL_VARIABLES()
     
     -- Welcome message
-    local hexColor = CharacterInfo:GetMyClassColor("player")
-    KeyMaster:Print(KeyMasterLocals.WELCOMEMESSAGE, "|cff"..hexColor..UnitName("player").."|r"..KeyMasterLocals.EXCLIMATIONPOINT)
+    -- local hexColor = CharacterInfo:GetMyClassColor("player")
+    -- KeyMaster:Print(KeyMasterLocals.WELCOMEMESSAGE, "|cff"..hexColor..UnitName("player").."|r"..KeyMasterLocals.EXCLIMATIONPOINT)
     
     local hexColor = select(4, Theme:GetThemeColor("color_ERRORMSG"))
     if (KeyMaster_DB.addonConfig.showErrors == true) then
