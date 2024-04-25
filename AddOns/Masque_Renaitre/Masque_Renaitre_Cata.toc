@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 40400
 ## Title: Masque|c0000FF00:|r|cffa335ee Renaitre|r 
 ## Version: v7.0.3
 ## Notes: Renaitre's (US Thrall) button skins for Masque.

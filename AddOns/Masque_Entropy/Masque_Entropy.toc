@@ -2,7 +2,7 @@
 
 ## Author: StormFX
 ## Title: Masque: Entropy
-## Version: 10.2.5
+## Version: 10.2.6
 
 ## Dependencies: Masque
 ## IconTexture: Interface\AddOns\Masque_Entropy\Textures\Icon
@@ -26,7 +26,7 @@
 ## X-WoWI-ID: 8873
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-熵元素
-## Notes-zhTW: Masque - |cffff8000Entropy|r |cffffffffIII|r |n|n彩色金屬細框的按鈕外觀佈景主題。
+## Notes-zhTW: Masque: Entropy |n|n彩色金屬細框的按鈕外觀佈景主題。
 ## X-Category-zhTW: 介面
 ## DefaultState: disabled
 

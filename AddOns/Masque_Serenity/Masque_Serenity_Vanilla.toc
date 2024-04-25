@@ -1,8 +1,8 @@
-## Interface: 11500
+## Interface: 11502
 
 ## Author: StormFX
 ## Title: Masque: Serenity
-## Version: 10.2.5
+## Version: 10.2.6
 
 ## Dependencies: Masque
 ## IconTexture: Interface\AddOns\Masque_Serenity\Textures\Icon
@@ -26,7 +26,7 @@
 ## X-WoWI-ID: 8875
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-寧靜
-## Notes-zhTW: Masque - |cffff8000Serenity|r |n|n白色圓形外框和圓角方形的按鈕外觀佈景主題。
+## Notes-zhTW: Masque: Serenity |n|n白色圓形外框和圓角方形的按鈕外觀佈景主題。
 ## X-Category-zhTW: 介面
 ## DefaultState: disabled
 
