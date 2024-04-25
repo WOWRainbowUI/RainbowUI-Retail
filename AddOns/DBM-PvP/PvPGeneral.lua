@@ -13,7 +13,7 @@ local playerFaction = GetPlayerFactionGroup("player")
 local DBM5Protocol = "1" -- DBM protocol version
 local DBM5Prefix = UnitName("player") .. "-" .. GetRealmName() .. "\t" .. DBM5Protocol .. "\t" -- Name-Realm\tProtocol version\t
 
-mod:SetRevision("20240304142504")
+mod:SetRevision("20240405150659")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"ZONE_CHANGED_NEW_AREA",
@@ -259,6 +259,12 @@ do
 		-- 9 lines at most to avoid seemingly buggy 2 column mode
 		DBM.InfoFrame:Show(9, "function", function() return self:updateInfoFrame() end, false, false)
 		DBM.InfoFrame:SetColumns(1)
+	end
+
+	function healthTracker:ShowInfoFrame()
+		if not DBM.InfoFrame:IsShown() then
+			DBM.InfoFrame:Show(9, "function", function() return self:updateInfoFrame() end, false, false)
+		end
 	end
 
 	local trackers = {} ---@type HealthTracker[]

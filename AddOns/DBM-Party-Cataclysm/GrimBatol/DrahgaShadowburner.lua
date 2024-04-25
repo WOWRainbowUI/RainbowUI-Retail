@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,timewalker"
 
-mod:SetRevision("20220116042005")
+mod:SetRevision("20240412075414")
 mod:SetCreatureID(40319)
 mod:SetEncounterID(1048)
 
@@ -83,16 +83,16 @@ end
 
 function mod:UNIT_AURA_UNFILTERED(uId)
 	local isFixate = DBM:UnitDebuff(uId, flamingFixate)
-	local name = DBM:GetUnitFullName(uId)
+	local name = DBM:GetUnitFullName(uId) or "UNKNOWN"
 	if not isFixate and fixateWarned[name] then
 		fixateWarned[name] = nil
 	elseif isFixate and not fixateWarned[name] then
 		fixateWarned[name] = true
-		if uId == "player" then
+		if UnitIsUnit(uId, "player") then
 			specWarnFlamingFixate:Show()
 			specWarnFlamingFixate:Play("justrun")
 		else
-			warnFlamingFixate:Show(DBM:GetUnitFullName(uId))
+			warnFlamingFixate:Show(name)
 		end
 	end
 end

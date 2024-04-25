@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,mythic,challenge"
 
-mod:SetRevision("20221016002954")
+mod:SetRevision("20240412075414")
 mod:SetCreatureID(114262, 114264)--114264 midnight
 mod:SetEncounterID(1960)--Verify
 mod:SetUsedIcons(1)
@@ -14,7 +14,7 @@ mod:RegisterCombat("combat")
 
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 227363 227365 227339 227493 228852",
-	"VEHICLE_ANGLE_UPDATE",
+--	"VEHICLE_ANGLE_UPDATE",
 	"UNIT_SPELLCAST_SUCCEEDED boss1 boss2"
 )
 

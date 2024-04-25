@@ -6,7 +6,7 @@ local mod = DBM:NewMod("m" .. MAP_ASHENVALE, "DBM-PvP")
 
 local pvpMod = DBM:GetModByName("PvPGeneral")
 
-mod:SetRevision("20240227185019")
+mod:SetRevision("20240405150659")
 -- TODO: we could teach this thing to handle outdoor zones instead of only instances
 -- when implementing this make sure that the stop functions are called properly, i.e., that ZONE_CHANGED_NEW_AREA still fires when leaving
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
@@ -14,7 +14,8 @@ mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",
 	"ZONE_CHANGED_NEW_AREA",
 	"PLAYER_ENTERING_WORLD",
-	"UPDATE_UI_WIDGET"
+	"UPDATE_UI_WIDGET",
+	"UNIT_AURA player"
 )
 
 mod:AddBoolOption("HealthFrame", nil, nil, function() mod:healthFrameOptionChanged() end)
@@ -73,6 +74,22 @@ end
 function mod:healthFrameOptionChanged()
 	if self.eventRunning then
 		self:setupHealthTracking(not self.Options.HealthFrame, true)
+	end
+end
+
+function mod:UNIT_AURA(target)
+	if target ~= "player" then return end
+	local wasInDream = self.inEmeraldDream
+	self.inEmeraldDream = not not C_UnitAuras.GetPlayerAuraBySpellID(444759)
+	if self.inZone and self.eventRunning then
+		if self.tracker and self.Options.HealthFrame and not self.inEmeraldDream then
+			-- Only re-show it if we left the Emerald Dream to avoid re-showing it if it was hidden via the dropdown menu
+			if wasInDream then
+				self.tracker:ShowInfoFrame()
+			end
+		else
+			DBM.InfoFrame:Hide()
+		end
 	end
 end
 

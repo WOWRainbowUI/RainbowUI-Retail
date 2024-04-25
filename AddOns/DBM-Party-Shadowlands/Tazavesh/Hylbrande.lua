@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2448, "DBM-Party-Shadowlands", 9, 1194)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20230708234551")
+mod:SetRevision("20240412075414")
 mod:SetCreatureID(175663)
 mod:SetEncounterID(2426)
 mod:SetUsedIcons(1, 2)
@@ -134,7 +134,7 @@ end
 function mod:SPELL_AURA_APPLIED(args)
 	local spellId = args.spellId
 	if spellId == 358131 then
-		warnLightningNova:Show(args.destname)
+		warnLightningNova:Show(args.destName)
 	elseif spellId == 346427 then
 		warnTitanicInsight:Show(args.destName)
 		timerTitanicInsight:Start(args.destName)

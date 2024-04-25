@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1489, "DBM-Party-Legion", 4, 721)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240108061618")
+mod:SetRevision("20240412075414")
 mod:SetCreatureID(95676)
 mod:SetEncounterID(1809)
 mod:SetHotfixNoticeRev(20230306000000)
@@ -59,6 +59,7 @@ mod.vb.tempestCount = 0
 mod.vb.brandCount = 0
 
 --Should run at 10, 18, 26, and 34
+--[[
 local function tempestDelayed(self)
 	if self.vb.tempestCount == 0 then
 		DBM:AddMsg(L.tempestModeMessage:format(self.vb.temptestMode))
@@ -69,6 +70,7 @@ local function tempestDelayed(self)
 		return
 	end
 end
+--]]
 
 function mod:OnCombatStart(delay)
 	self.vb.temptestMode = 1

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2480, "DBM-Raids-Dragonflight", 3, 1200)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231123214402")
+mod:SetRevision("20240420010020")
 mod:SetCreatureID(184972)
 mod:SetEncounterID(2587)
 mod:SetUsedIcons(1, 2, 3, 4, 5)
@@ -169,7 +169,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 	elseif spellId == 396022 then
 		self.vb.spikesCount = self.vb.spikesCount + 1
 		specWarnMoltenSpikes:Show(self.vb.spikesCount)
-		specWarnMoltenSpikes:Play(self.vb.spikesCount)
+		specWarnMoltenSpikes:Play("Interface\\AddOns\\DBM-VP"..DBM.Options.ChosenVoicePack2.."\\count\\"..self.vb.spikesCount..".ogg")
 		if self.vb.spikesCount < 3 then
 			timerMoltenSpikesCD:Start(nil, self.vb.spikesCount+1)
 		end
