@@ -2,11 +2,11 @@ local L = LibStub("AceLocale-3.0"):NewLocale("OmniCD", "zhTW")
 
 L = L or {}
 L[ [=[%d: spellID.
-%d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = "%d: 法術 ID。%d-%d: 法術 ID-天賦 ID (選擇天賦後標記法術)。"
---[[Translation missing --]]
+%d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: spellID。
+%d-%d: spellID-talentID (選擇天賦後標記法術)。]=]
 L[ [=[%d: spellID.
-%d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: spellID.
-%d-%d: spellID-talentID (Mark spell if talent is selected).]=]
+%d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: spellID。
+%d-%d: spellID-talentID (選擇天賦後標記法術)。]=]
 L["[Show Numbers for Cooldowns] must be disabled in Blizzard's 'Options/Action Bars' menu."] = "必須停用遊戲內建的 [顯示冷卻時間]，在 Esc > 選項 > 快捷列，裡面。"
 L["[Show Numbers for Cooldowns] must be enabled in Blizzard's 'Options/Action Bars' menu when using Blizzard's cooldown numbers."] = "使用遊戲內建的冷卻時間數字時，必須在 'Esc>選項>快捷列'，啟用 [顯示冷卻時間]。"
 L["|cff9d9d9d * Scenarios and Outdoor Zones will use Arena settings."] = "|cff9d9d9d * 事件和戶外區域會使用競技場的設定。"
@@ -27,10 +27,9 @@ L["Add to Alerts"] = "加入通知"
 L["Addons with raid frame scaling will also cause the icons to scale."] = "具有縮放團隊框架功能的插件會導致圖示跟著縮放。"
 L[ [=[Adjust value until the truncate symbol [...] disappears.
 |cffff20200: Disable option]=] ] = "調整數值直到截斷符號 [...] 消失。|cffff20200: 停用選項"
---[[Translation missing --]]
 L[ [=[Adjust value until the truncate symbol [...] disappears.
-|cffff20200: Disable option]=] ] = [=[Adjust value until the truncate symbol [...] disappears.
-|cffff20200: Disable option]=]
+|cffff20200: Disable option]=] ] = [=[調整值直到截斷符號 […] 消失。
+|cffff20200: 停用選項]=]
 L["Alerts"] = "通知"
 L["All user set values will be lost. Do you want to proceed?"] = "所有由使用者所設定的值都會消失，是否確定要繼續?"
 L["Always attach to Blizzard frames. By default, bars attach to whichever frame is visible, and if both are visible UF addon take precedence over Blizzard"] = "總是附加到遊戲內建的隊伍框架。圖示列會附加到任何能看見的隊伍框架，如果同時也能看見插件的隊伍框架時，預設會附加到插件的框架而不會遊戲內建的。"
@@ -159,8 +158,7 @@ L["Font Outline"] = "文字外框"
 L["Font Shadow"] = "文字陰影"
 L["Fonts"] = "字體"
 L["For double/triple layout, it will limit the number of icons per line"] = "兩排/ 三排版面會限制每行能顯示的圖示數量"
---[[Translation missing --]]
-L["Force Disable"] = "Force Disable"
+L["Force Disable"] = "強制停用"
 L["Glow Icons"] = "圖示發光"
 L["Group member must have OmniCD to detect cooldown reduction by Glyphs."] = "隊友必須有 OmniCD 才能偵測到銘文減少的冷卻時間。"
 L["Group member must have OmniCD to detect cooldown reduction with a chance to proc and Soulbind Conduits."] = "隊友必須有 OmniCD 才能偵測到靈印和機率觸發的減少冷卻時間。"
@@ -249,10 +247,9 @@ L["Notify Updates"] = "有新版本時通知我"
 L["Offensive"] = "攻擊"
 L["Offset X"] = "水平位置"
 L["Offset Y"] = "垂直位置"
---[[Translation missing --]]
 L[ [=[Only for talent abilities.
-Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=] ] = [=[Only for talent abilities.
-Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=]
+Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=] ] = [=[只有專精能力。
+當你身處選定區域時，將不再監控此專精的當前能力。]=]
 L["Padding"] = "間距"
 L["Padding X"] = "水平間距"
 L["Padding Y"] = "垂直間距"

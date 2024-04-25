@@ -805,7 +805,7 @@ function CM:InspectUnit(guid)
 		return
 	end
 	info.spec = specID
-	if info.name == "" or info.name == "Unknown" then
+	if info.name == "" or info.name == UNKNOWN then
 		info.name = GetUnitName(inspectUnit, true)
 	end
 	if info.level == 200 then

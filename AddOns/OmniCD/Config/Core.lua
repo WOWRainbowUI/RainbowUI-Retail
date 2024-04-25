@@ -15,7 +15,7 @@ do
 	localization = localization:gsub("frFR", FRFR):gsub("koKR", KOKR)
 	localization = localization:gsub("ruRU", RURU):gsub("zhCN", ZHCN)
 	localization = localization:gsub("zhTW", ZHTW)
-
+	localization = localization:gsub("itIT", LFG_LIST_LANGUAGE_ITIT)
 
 	fieldText.localizations = localization
 
@@ -27,7 +27,7 @@ do
 		end
 	end
 	fieldText.supportedUis = table.concat(t, ", ")
-	fieldText.translations = format("%s (%s), %s (%s) %s (%s)", RURU, "Void_OW-\"The OG\"", ZHTW, "RainbowUI", DEDE, "drumz84")
+	fieldText.translations = format("%s (%s), %s (%s), %s (%s), %s (%s)", RURU, "Void_OW-\"The OG\"", ZHTW, "RainbowUI", DEDE, "drumz84", LFG_LIST_LANGUAGE_ITIT, "Grifo92")
 end
 
 local getFieldText = function(info)

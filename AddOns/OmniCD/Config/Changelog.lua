@@ -18,6 +18,11 @@ v3.4.3.2773
 
 ]=]
 else E.changelog = [=[
+v10.2.7.2787
+	bump toc
+	Season 4 PvP trinkets added
+	Season 4 tier set bonus added
+
 v10.2.6.2786
 	bump toc
 	10.2.6 Class Updates
