@@ -1,8 +1,7 @@
 # NameplateSCT
 
-## [1.33](https://github.com/Justw8/NameplateSCT/tree/1.33) (2023-12-28)
-[Full Changelog](https://github.com/Justw8/NameplateSCT/compare/1.32...1.33) [Previous Releases](https://github.com/Justw8/NameplateSCT/releases)
+## [1.34](https://github.com/Justw8/NameplateSCT/tree/1.34) (2024-04-24)
+[Full Changelog](https://github.com/Justw8/NameplateSCT/compare/1.33...1.34) [Previous Releases](https://github.com/Justw8/NameplateSCT/releases)
 
-- version 1.33  
-- Bump all tocs & version to 1.32  
-- Add more school coloring for multi-school damage (#27)  
+- Also up Wrath version  
+- Update toc and versions  
