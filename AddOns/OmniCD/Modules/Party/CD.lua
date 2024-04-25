@@ -3237,29 +3237,32 @@ registeredHostileEvents['SPELL_DAMAGE']['PALADIN'] = ReduceDivineShieldCD
 registeredHostileEvents['SPELL_ABSORBED']['PALADIN'] = ReduceDivineShieldCD
 
 
---[[
-registeredEvents['SPELL_HEAL'][25914] = function(info, srcGUID, _,_,_,_,_,_,_, criticalHeal)
+registeredEvents['SPELL_HEAL'][25914] = function(info, _,_,_,_,_,_,_,_, criticalHeal)
 	if not criticalHeal then return end
 	if info.talentData[405545] then
 		local icon = info.spellIcons[114165]
-		if icon and icon.active then
-			P:UpdateCooldown(icon, 1)
+		if icon then
+			if icon.active then
+				P:UpdateCooldown(icon, 1)
+			end
+			return
 		end
-
 		local icon = info.spellIcons[114158]
 		if icon and icon.active then
 			P:UpdateCooldown(icon, 2)
 		end
 	end
 end
-]]
 
 --[[
 registeredEvents['SPELL_DAMAGE'][25912] = function(info, _,_,_, critical)
 	if not critical then return end
 	local icon = info.spellIcons[114165]
-	if icon and icon.active then
-		P:UpdateCooldown(icon, 1)
+	if icon then
+		if icon.active then
+			P:UpdateCooldown(icon, 1)
+		end
+		return
 	end
 	local icon = info.spellIcons[114158]
 	if icon and icon.active then

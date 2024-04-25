@@ -2,7 +2,8 @@ local L = LibStub("AceLocale-3.0"):NewLocale("OmniCD", "zhTW")
 
 L = L or {}
 L[ [=[%d: spellID.
-%d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = "%d: spellID。%d-%d: spellID-talentID (選擇天賦後標記法術)。"
+%d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: spellID。
+%d-%d: spellID-talentID (選擇天賦後標記法術)。]=]
 L[ [=[%d: spellID.
 %d-%d: spellID-talentID (Mark spell if talent is selected).]=] ] = [=[%d: spellID。
 %d-%d: spellID-talentID (選擇天賦後標記法術)。]=]
