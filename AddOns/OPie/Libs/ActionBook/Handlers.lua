@@ -1172,6 +1172,7 @@ do -- uipanel: token
 		local pyName, attrCounter = newWidgetName("AB:PY!"), 500
 		local py = CreateFrame("Button", pyName, nil, "SecureActionButtonTemplate")
 		py:SetAttribute("type", "click")
+		py:SetAttribute("pressAndHoldAction", 1)
 		pyCLICK = CLICK .. pyName .. " "
 		function widgetClickCommand(k, w)
 			if w == nil then return "" end
@@ -1182,7 +1183,7 @@ do -- uipanel: token
 				py:SetAttribute("clickbutton-" .. k, w)
 				tn = pyName .. " " .. k
 			end
-			return CLICK .. tn .. "\n"
+			return CLICK .. tn .. " 1\n"
 		end
 		function widgetAttrCommand(w, ...)
 			local r = ""
@@ -1192,7 +1193,7 @@ do -- uipanel: token
 				py:SetAttribute("attribute-frame" .. bs, w)
 				py:SetAttribute("attribute-name" .. bs, k)
 				py:SetAttribute("attribute-value" .. bs, v)
-				r, attrCounter = r .. CLICK .. pyName .. " at" .. attrCounter .. "\n", attrCounter + 1
+				r, attrCounter = r .. CLICK .. pyName .. " at" .. attrCounter .. " 1\n", attrCounter + 1
 			end
 			return r
 		end
@@ -1231,7 +1232,7 @@ do -- uipanel: token
 		panels.macro.cw = closeButton(nil)
 		panels.csp.cw, panels.options.cw = closeButton(SettingsPanel)
 		panels.cgm.cw = closeButton(GameMenuFrame)
-		panels.options.postmt = pyCLICK .. "csp\n" .. pyCLICK .. "cgm"
+		panels.options.postmt = pyCLICK .. "csp 1\n" .. pyCLICK .. "cgm 1"
 		panels.macro.postmt = widgetClickCommand("cmf", panels.macro.cw)
 		if not MODERN then
 			panels.guild = {title=GUILD, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gw=GuildFrame, ow=FriendsFrameTab3, cw=FriendsFrameCloseButton, req=IsInGuild}
@@ -1280,8 +1281,9 @@ do -- uipanel: token
 		local clickEx = CLICK .. " " .. exName .. " "
 		local ex = CreateFrame("Button", exName, nil, "SecureActionButtonTemplate")
 		ex:SetAttribute("type", "macro")
-		cmdPrefix = clickEx .. "csf\n" .. clickEx
-		cmdDuckPrefix = cmdPrefix .. "csp\n" .. clickEx .. "cgm\n" .. clickEx
+		ex:SetAttribute("pressAndHoldAction", 1)
+		cmdPrefix = clickEx .. "csf 1\n" .. clickEx
+		cmdDuckPrefix = cmdPrefix .. "csp 1\n" .. clickEx .. "cgm 1\n" .. clickEx
 		local function prerun(k)
 			local i, r = panels[k], 0
 			local tw, gw, cw, ow, scs = i.tw, i.gw, i.cw, i.ow, i.skipCloseSound
@@ -1374,7 +1376,7 @@ do -- uipanel: token
 		local r = panelMap[tk]
 		local pi = r == nil and panels[tk]
 		if pi and pi[1] and (pi.req == nil or pi.req()) then
-			local mt = (pi.noduck and cmdPrefix or cmdDuckPrefix) .. tk
+			local mt = (pi.noduck and cmdPrefix or cmdDuckPrefix) .. tk .. " 1"
 			r = AB:CreateActionSlot(panelHint, tk, "attribute", "type","macro", "macrotext",mt)
 			panelMap[tk] = r
 		end
