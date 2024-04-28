@@ -219,6 +219,7 @@ if GetLocale() == "zhTW" then
 	L.data["Search Bags"] = "搜尋背包"
 	L.data["Right Click"] = "右鍵"
 	L.data["Sort Bags"] = "整理背包"
+	L.data["Refresh Bags"] = "重新整理背包"
 	L.data["Swap Between Bank/Reagent Bank"] = "切換銀行/材料銀行"
 	L.data["Drop %s here to create a new category for it."] = "將 %s 拖放到這裡來建立新分類。"
 	
