@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "DRList-1.0", 56 -- Don't forget to change this in DRList-1.0.lua aswell!
+local MAJOR, MINOR = "DRList-1.0", 60 -- Don't forget to change this in DRList-1.0.lua aswell!
 local Lib = LibStub(MAJOR)
 if Lib.spellListVersion and Lib.spellListVersion >= MINOR then
     return
@@ -34,9 +34,9 @@ if Lib.gameExpansion == "retail" then
         [5484]    = "disorient", -- Howl of Terror
         [261589]  = "disorient", -- Seduction (Grimoire of Sacrifice)
         [6358]    = "disorient", -- Seduction (Succubus)
-        [5246]    = "disorient", -- Intimidating Shout 1
-        [316593]  = "disorient", -- Intimidating Shout 2 (TODO: not sure which one is correct in 9.0.1)
-        [316595]  = "disorient", -- Intimidating Shout 3
+        [5246]    = "disorient", -- Intimidating Shout
+        [316593]  = "disorient", -- Intimidating Shout (Menace Main Target)
+        [316595]  = "disorient", -- Intimidating Shout (Menace Other Targets)
         [331866]  = "disorient", -- Agent of Chaos (Venthyr Covenant)
 
         -- *** Incapacitate Effects ***
@@ -588,12 +588,13 @@ elseif Lib.gameExpansion == "wotlk" then
         [55536] = "root", -- Frostweave Net (Item)
 
         -- *** Non-controlled Root Effects ***
-        [19185] = "random_root", -- Entrapment
         [47168] = "random_root", -- Improved Wing Clip
         [12494] = "random_root", -- Frostbite
         [55080] = "random_root", -- Shattered Barrier
         [58373] = "random_root", -- Glyph of Hamstring
         [23694] = "random_root", -- Improved Hamstring
+        [19185] = "random_root", -- Entrapment (Rank 1)
+        [64803] = "random_root", -- Entrapment (Rank 2)
 
         -- *** Disarm Weapon Effects ***
         [53359] = "disarm", -- Chimera Shot (Scorpid)
@@ -666,6 +667,194 @@ elseif Lib.gameExpansion == "wotlk" then
         [67799] = "mind_control",   -- Mind Amplification Dish (Item)
     }
 
+elseif Lib.gameExpansion == "cata" then
+
+    ------------------------------------------------
+    -- SpellID list for Cataclysm.
+    ------------------------------------------------
+    Lib.spellList = {
+        -- *** Incapacitate Effects ***
+        [49203] = "incapacitate", -- Hungering Cold
+        [2637]  = "incapacitate", -- Hibernate
+        [3355]  = "incapacitate", -- Freezing Trap Effect
+        [19386] = "incapacitate", -- Wyvern Sting
+        [118]   = "incapacitate", -- Polymorph
+        [28271] = "incapacitate", -- Polymorph: Turtle
+        [28272] = "incapacitate", -- Polymorph: Pig
+        [61025] = "incapacitate", -- Polymorph: Serpent
+        [61721] = "incapacitate", -- Polymorph: Rabbit
+        [61780] = "incapacitate", -- Polymorph: Turkey
+        [61305] = "incapacitate", -- Polymorph: Black Cat
+        [20066] = "incapacitate", -- Repentance
+        [1776]  = "incapacitate", -- Gouge
+        [6770]  = "incapacitate", -- Sap
+        [710]   = "incapacitate", -- Banish
+        [9484]  = "incapacitate", -- Shackle Undead
+        [51514] = "incapacitate", -- Hex
+        [13327] = "incapacitate", -- Reckless Charge (Item)
+        [4064]  = "incapacitate", -- Rough Copper Bomb (Item)
+        [4065]  = "incapacitate", -- Large Copper Bomb (Item)
+        [4066]  = "incapacitate", -- Small Bronze Bomb (Item)
+        [4067]  = "incapacitate", -- Big Bronze Bomb (Item)
+        [4068]  = "incapacitate", -- Iron Grenade (Item)
+        [12421] = "incapacitate", -- Mithril Frag Bomb (Item)
+        [4069]  = "incapacitate", -- Big Iron Bomb (Item)
+        [12562] = "incapacitate", -- The Big One (Item)
+        [12543] = "incapacitate", -- Hi-Explosive Bomb (Item)
+        [19769] = "incapacitate", -- Thorium Grenade (Item)
+        [19784] = "incapacitate", -- Dark Iron Bomb (Item)
+        [30216] = "incapacitate", -- Fel Iron Bomb (Item)
+        [30461] = "incapacitate", -- The Bigger One (Item)
+        [30217] = "incapacitate", -- Adamantite Grenade (Item)
+        [67769] = "incapacitate", -- Cobalt Frag Bomb (Item)
+        [67890] = "incapacitate", -- Cobalt Frag Bomb (Item, Frag Belt)
+        [54466] = "incapacitate", -- Saronite Grenade (Item)
+        [82691] = "incapacitate", -- Ring of Frost
+
+        -- *** Controlled Stun Effects ***
+        [47481] = "stun", -- Gnaw (Ghoul Pet)
+        [91797] = "stun", -- Monstrous Blow (Dark Transformation)
+        [5211]  = "stun", -- Bash
+        [22570] = "stun", -- Maim
+        [93986] = "stun", -- Aura of Foreboding (TODO: verify)
+        [24394] = "stun", -- Intimidation
+        [50519] = "stun", -- Sonic Blast
+        [50518] = "stun", -- Ravage
+        [44572] = "stun", -- Deep Freeze
+        [853]   = "stun", -- Hammer of Justice
+        [2812]  = "stun", -- Holy Wrath
+        [408]   = "stun", -- Kidney Shot
+        [58861] = "stun", -- Bash (Spirit Wolves)
+        [30283] = "stun", -- Shadowfury
+        [12809] = "stun", -- Concussion Blow
+        [60995] = "stun", -- Demon Charge
+        [30153] = "stun", -- Intercept (Felguard)
+        --[20253] = "stun", -- Intercept Stun
+        [46968] = "stun", -- Shockwave
+        [20549] = "stun", -- War Stomp (Racial)
+        [9005]  = "stun", -- Pounce
+        [1833]  = "stun", -- Cheap Shot
+        [85388] = "stun", -- Throwdown
+        [88625] = "stun", -- Holy Word: Chastise
+        [54785] = "stun", -- Demon Leap (Warlock)
+        [22703] = "stun", -- Inferno Effect
+        [56626] = "stun", -- Sting (Wasp)
+        [19577] = "stun", -- Intimidation
+        [93433] = "stun", -- Burrow Attack (Worm)
+        [89766] = "stun", -- Axe Toss (Felguard)
+        [7922]  = "stun", -- Charge Stun
+        [90337] = "stun", -- Bad Manner (Monkey)
+
+        -- *** Non-controlled Stun Effects ***
+        [28445] = "random_stun", -- Improved Concussive Shot
+        [12355] = "random_stun", -- Impact
+        [83046] = "random_stun", -- Improved Polymorph (Rank 1)
+        [83047] = "random_stun", -- Improved Polymorph (Rank 2)
+        [20170] = "random_stun", -- Seal of Justice Stun
+        [39796] = "random_stun", -- Stoneclaw Stun
+        [85387] = "random_stun", -- Aftermath
+        [12798] = "random_stun", -- Revenge Stun
+        [5530]  = "random_stun", -- Mace Stun Effect (Mace Specialization)
+        [15283] = "random_stun", -- Stunning Blow (Weapon Proc)
+        [56]    = "random_stun", -- Stun (Weapon Proc)
+        [34510] = "random_stun", -- Stormherald/Deep Thunder (Weapon Proc)
+
+        -- *** Fear Effects ***
+        [1513]  = "fear", -- Scare Beast
+        [10326] = "fear", -- Turn Evil
+        [8122]  = "fear", -- Psychic Scream
+        [2094]  = "fear", -- Blind
+        [5782]  = "fear", -- Fear
+        [6358]  = "fear", -- Seduction (Succubus)
+        [5484]  = "fear", -- Howl of Terror
+        [5246]  = "fear", -- Intimidating Shout
+        [20511] = "fear", -- Intimidating Shout (secondary targets)
+        [5134]  = "fear", -- Flash Bomb Fear (Item)
+
+        -- *** Controlled Root Effects ***
+        [96293] = "root", -- Chains of Ice (Chilblains Rank 1)
+        [96294] = "root", -- Chains of Ice (Chilblains Rank 2)
+        [339]   = "root", -- Entangling Roots
+        [19975] = "root", -- Nature's Grasp
+        [93987] = "root", -- Aura of Foreboding (TODO: verify)
+        [50245] = "root", -- Pin
+        [33395] = "root", -- Freeze (Water Elemental)
+        [122]   = "root", -- Frost Nova
+        [64695] = "root", -- Earthgrab
+        [63685] = "root", -- Freeze (Frost Shock)
+        [39965] = "root", -- Frost Grenade (Item)
+        [55536] = "root", -- Frostweave Net (Item)
+        [90327] = "root", -- Lock Jaw (Dog)
+        [83301] = "root", -- Improved Cone of Cold (Rank 1)
+        [83302] = "root", -- Improved Cone of Cold (Rank 2)
+        [54706] = "root", -- Venom Web Spray (Silithid)
+        [4167]  = "root", -- Web (Spider)
+
+        -- *** Non-controlled Root Effects ***
+        [47168] = "random_root", -- Improved Wing Clip
+        [12494] = "random_root", -- Frostbite
+        [44745] = "random_root", -- Shattered Barrier (Rank 1)
+        [55080] = "random_root", -- Shattered Barrier (2 seconds)
+        [54787] = "random_root", -- Shattered Barrier (Rank 2)
+        [83073] = "random_root", -- Shattered Barrier (4 seconds)
+        [58373] = "random_root", -- Glyph of Hamstring
+        [23694] = "random_root", -- Improved Hamstring
+        [19185] = "random_root", -- Entrapment (Rank 1)
+        [64803] = "random_root", -- Entrapment (Rank 2)
+        -- TODO: check Paralysis 87193
+
+        -- *** Disarm Weapon Effects ***
+        [50541] = "disarm", -- Clench
+        [64346] = "disarm", -- Fiery Payback
+        [64058] = "disarm", -- Psychic Horror Disarm Effect
+        [51722] = "disarm", -- Dismantle
+        [676]   = "disarm", -- Disarm
+        [91644] = "disarm", -- Snatch (Bird of Prey)
+
+        -- *** Silence Effects ***
+        [47476] = "silence", -- Strangulate
+        [34490] = "silence", -- Silencing Shot
+        [18469] = "silence", -- Silenced - Improved Counterspell (Rank 1)
+        [55021] = "silence", -- Silenced - Improved Counterspell (Rank 2)
+        [63529] = "silence", -- Silenced - Shield of the Templar
+        [15487] = "silence", -- Silence
+        [1330]  = "silence", -- Garrote - Silence
+        [18425] = "silence", -- Silenced - Improved Kick
+        [86759] = "silence", -- Silenced - Improved Kick (Rank 2)
+        [24259] = "silence", -- Spell Lock
+        [31117] = "silence", -- Silenced - Unstable Affliction (Rank 1)
+        [43523] = "silence", -- Silenced - Unstable Affliction (Rank 2)
+        [18498] = "silence", -- Silenced - Gag Order (Shield Slam)
+        [74347] = "silence", -- Silenced - Gag Order (Heroic Throw)
+        [50613] = "silence", -- Arcane Torrent (Racial, Runic Power)
+        [28730] = "silence", -- Arcane Torrent (Racial, Mana)
+        [25046] = "silence", -- Arcane Torrent (Racial, Energy)
+        [69179] = "silence", -- Arcane Torrent (Rage version)
+        [80483] = "silence", -- Arcane Torrent (Focus version)
+        [31935] = "silence", -- Avenger's Shield
+        [81261] = "silence", -- Solar Beam
+        [50479] = "silence", -- Nether Shock (Nether Ray)
+
+        -- *** Horror Effects ***
+        [64044] = "horror", -- Psychic Horror
+        [6789]  = "horror", -- Death Coil
+        [87099] = "horror", -- Sin and Punishment (Rank 1)
+        [87100] = "horror", -- Sin and Punishment (Rank 2)
+        [87204] = "horror", -- Sin and Punishment (TODO: check which ID is correct)
+
+        -- *** Mind Control Effects ***
+        [605]   = "mind_control", -- Mind Control
+        [13181] = "mind_control", -- Gnomish Mind Control Cap (Item)
+        [67799] = "mind_control", -- Mind Amplification Dish (Item)
+
+        -- *** Spells that DRs with itself only ***
+        [19503] = "scatter", -- Scatter Shot
+        [31661] = "scatter", -- Dragon's Breath
+        [33786] = "cyclone", -- Cyclone
+        [19306] = "counterattack", -- Counterattack
+        [76780] = "bind_elemental", -- Bind Elemental
+    }
+
 elseif Lib.gameExpansion == "classic" then
 
     ------------------------------------------------
@@ -707,6 +896,7 @@ elseif Lib.gameExpansion == "classic" then
         [9823]  = "stun", -- Pounce (Rank 2)
         [9827]  = "stun", -- Pounce (Rank 3)
         [24394] = "stun", -- Intimidation
+        [428739] = "stun", -- Deep Freeze (Season of Discovery)
         [853]   = "stun", -- Hammer of Justice (Rank 1)
         [5588]  = "stun", -- Hammer of Justice (Rank 2)
         [5589]  = "stun", -- Hammer of Justice (Rank 3)
@@ -808,6 +998,5 @@ elseif Lib.gameExpansion == "classic" then
         [10473]  = "frost_shock",  -- Frost Shock (Rank 4)
     }
 end
-
 -- Alias for DRData-1.0
 Lib.spells = Lib.spellList
