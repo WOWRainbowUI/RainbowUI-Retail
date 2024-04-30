@@ -1,3 +1,9 @@
+# v2.37.0
+
+- Added Seeds of Renewal questline
+- Added Gilneas Reclamation questline
+- Fixed some errors for The War Within
+
 # v2.36.0
 
 - Updated for 10.2.6
