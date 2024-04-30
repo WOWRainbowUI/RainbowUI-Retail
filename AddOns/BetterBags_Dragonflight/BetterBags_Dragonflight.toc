@@ -3,14 +3,14 @@
 ## Title: BetterBags - Dragonflight
 ## Notes: Filter for common Dragonflight items in BetterBags.
 ## Author: Avyiel
-## Version: v1.0.5
-## X-Date: 2024-04-13T06:41:56Z
+## Version: v1.0.6
+## X-Date: 2024-04-28T09:41:18Z
 ## IconTexture: Interface\Icons\inv_misc_bag_06
 
 ## DefaultState: Enabled
 ## Dependencies: BetterBags
 
-## X-Date: 2024-04-13T06:41:56Z
+## X-Date: 2024-04-28T09:41:18Z
 ## X-Category: Bags & Inventory
 ## X-License: MIT
 
