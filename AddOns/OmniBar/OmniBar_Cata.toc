@@ -1,4 +1,4 @@
-## Interface: 11502
+## Interface: 40400
 ## Title: OmniBar
 ## Notes: Tracks enemy cooldowns
 ## Version: v14.31
@@ -26,6 +26,6 @@ Libs\LibDeflate\LibDeflate.lua
 
 Locales\Locales.xml
 OmniBar.xml
-OmniBar_Vanilla.lua
+OmniBar_Cata.lua
 OmniBar.lua
 Options.lua
