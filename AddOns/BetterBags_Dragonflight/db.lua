@@ -975,7 +975,6 @@ addon.db = {
 		194786, -- Two of Fire
 		194794, -- Two of Frost
 	},
-
 	["Fortune Cards"] = {
 		199137, -- Fated Fortune Card
 		199156, -- Fated Fortune Card
@@ -1072,6 +1071,22 @@ addon.db = {
 		205962, -- Echoing Storm Flightstone
 		205970, -- Azure Flightstone
 		206037, -- Ruby Flightstone
+		-- 10.2.6
+		217242, -- Awakening Stone Wing
+		211951, -- Pouch of Whelpling's Awakened Crests
+		217420, -- Large Pouch of Whelpling's Awakened Crests
+		211952, -- Satchel of Drake's Awakened Crests
+		212384, -- Restless Satchel of Drake's Awakened Crests
+		212367, -- Clutch of Wyrm's Awakened Crests
+		211950, -- Lively Clutch of Wyrm's Awakened Crests
+		212383, -- Yawning Basket of Aspect's Awakened Crests
+		-- 11.0.0 ???
+		221375, -- Pack of Runed Harbinger Crests
+		221268, -- Pouch of Weathered Harbinger Crests
+		221373, -- Satchel of Carved Harbinger Crests
+		220773, -- Celebratory Pack of Runed Harbinger Crests
+		220776, -- Glorious Cluster of Gilded Harbinger Crests
+		220767, -- Triumphant Satchel of Carved Harbinger Crests
 	},
 	["|cff910951Fyrakk Assault|r"] = {
 		203430, -- Ward of Igira
