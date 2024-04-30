@@ -785,6 +785,15 @@ local function ChainItemPool_HideAndClearAnchors(framePool, frame)
     end
 end
 
+local GetNumAddOns = C_AddOns and C_AddOns.GetNumAddOns or GetNumAddOns;
+local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata;
+local IsAddOnLoadOnDemand = C_AddOns and C_AddOns.IsAddOnLoadOnDemand or IsAddOnLoadOnDemand;
+local GetAddOnEnableState = C_AddOns and function (character, addon)
+    return C_AddOns.GetAddOnEnableState(addon, character)
+end or GetAddOnEnableState;
+local LoadAddOn = C_AddOns and C_AddOns.LoadAddOn or LoadAddOn;
+local GetAddOnInfo = C_AddOns and C_AddOns.GetAddOnInfo or GetAddOnInfo;
+
 function BtWQuestsMixin:OnLoad()
     tinsert(UISpecialFrames, self:GetName());
 

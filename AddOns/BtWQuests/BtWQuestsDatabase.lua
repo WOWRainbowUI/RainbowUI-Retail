@@ -11,6 +11,9 @@ local gsub = string.gsub
 local gmatch = string.gmatch
 local concat = string.concat
 
+local LoadAddOn = C_AddOns and C_AddOns.LoadAddOn or LoadAddOn;
+local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded;
+
 local LE_EXPANSION_LEVEL_CURRENT = LE_EXPANSION_LEVEL_CURRENT or 0;
 
 --@REMOVE AFTER 9.0
@@ -2428,6 +2431,7 @@ function AchievementItemMixin:IsCompleted(database, item, character)
     end
 end
 
+local GetCoinTextureString = C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString or GetCoinTextureString;
 local MoneyItemMixin = CreateFromMixins(ItemMixin);
 function MoneyItemMixin:GetName(database, item, character)
     if item.name then
