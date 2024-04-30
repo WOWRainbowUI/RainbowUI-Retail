@@ -145,10 +145,17 @@ L["Font Size"] = FONT_SIZE or "文字大小";
 L["Reset To Default Position"] = HUD_EDIT_MODE_RESET_POSITION or "重置為預設位置";
 
 -- !! Do NOT translate the following entries
-L["currency-2706"] = "Whelpling";
-L["currency-2707"] = "Drake";
-L["currency-2708"] = "Wyrm";
-L["currency-2709"] = "Aspect";
+L["currency-2706"] = "幼龍";
+L["currency-2707"] = "飛龍";
+L["currency-2708"] = "巨龍";
+L["currency-2709"] = "守護巨龍";
+
+L["currency-2806"] = L["currency-2706"];
+L["currency-2807"] = L["currency-2707"];
+L["currency-2809"] = L["currency-2708"];
+L["currency-2812"] = L["currency-2709"];
+
+
 
 -- 自行加入
 L["Plumber"] = "夢境工具"
