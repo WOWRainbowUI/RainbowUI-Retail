@@ -13,7 +13,7 @@
 ## X-Category-zhTW: 介面
 ## IconTexture: Interface\Icons\achievement_guild_timeoff
 
-Libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua
+embeds.xml
 
 SpellData.lua
 ColorGradient.lua
