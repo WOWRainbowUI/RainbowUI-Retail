@@ -5,7 +5,7 @@
 ---------------------------------------------------------------------------------------------------
 local L = Addon.ThreatPlates.L
 
-Addon.DEBUG = Addon.ThreatPlates.Meta("version") == "11.1.44"
+Addon.DEBUG = Addon.ThreatPlates.Meta("version") == "11.2.0"
 
 local function toggleDPS()
 	if Addon.db.profile.optionRoleDetectionAutomatic then
@@ -121,11 +121,9 @@ local function ChatCommandDebug(cmd_list)
 		SearchDBForString(Addon.db.profile, "<Profile>", string.lower(cmd_list[2]))
 		SearchDBForString(Addon.db.global, "<Profile>", string.lower(cmd_list[2]))
 	elseif command == "unit" then
-		if UnitExists("target") then
-			Addon.Debug.PrintUnit("target")
-		else
-			Addon.Debug.PrintUnit("mouseover")
-		end
+		Addon.Debug.PrintUnit("target")
+	elseif command == "unit-mouseover" then
+		Addon.Debug.PrintUnit("mouseover")
 	elseif command == "cache" then
 		Addon.Debug.PrintCaches()
 	elseif command == "debug" then

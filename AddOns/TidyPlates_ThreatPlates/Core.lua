@@ -286,7 +286,8 @@ function Addon:CheckForFirstStartUp()
   if not Addon.db.char.welcome then
     Addon.db.char.welcome = true
 
-    if not Addon.IS_CLASSIC and not Addon.IS_TBC_CLASSIC and not Addon.IS_WRATH_CLASSIC then
+    -- GetNumSpecializations: Mists - Patch 5.0.4 (2012-08-28): Replaced GetNumTalentTabs.
+    if Addon.IS_MAINLINE then
       -- initialize roles for all available specs (level > 10) or set to default (dps/healing)
       for index=1, GetNumSpecializations() do
         local id, spec_name, description, icon, background, role = GetSpecializationInfo(index)
@@ -441,7 +442,7 @@ function Addon.MediaUpdate(addon_name, name, mediatype, key)
 end
 
 -----------------------------------------------------------------------------------
--- Functions for keybindings
+-- Functions for keybindings and addon compartment
 -----------------------------------------------------------------------------------
 
 function TidyPlatesThreat:ToggleNameplateModeFriendlyUnits()
@@ -449,9 +450,10 @@ function TidyPlatesThreat:ToggleNameplateModeFriendlyUnits()
 
   db.Visibility.FriendlyPlayer.UseHeadlineView = not db.Visibility.FriendlyPlayer.UseHeadlineView
   db.Visibility.FriendlyNPC.UseHeadlineView = not db.Visibility.FriendlyNPC.UseHeadlineView
-  db.Visibility.FriendlyTotem.UseHeadlineView = not db.Visibility.FriendlyTotem.UseHeadlineView
-  db.Visibility.FriendlyGuardian.UseHeadlineView = not db.Visibility.FriendlyGuardian.UseHeadlineView
+  -- db.Visibility.FriendlyMinion.UseHeadlineView = not db.Visibility.FriendlyTotem.UseHeadlineView
   db.Visibility.FriendlyPet.UseHeadlineView = not db.Visibility.FriendlyPet.UseHeadlineView
+  db.Visibility.FriendlyGuardian.UseHeadlineView = not db.Visibility.FriendlyGuardian.UseHeadlineView
+  db.Visibility.FriendlyTotem.UseHeadlineView = not db.Visibility.FriendlyTotem.UseHeadlineView
   db.Visibility.FriendlyMinus.UseHeadlineView = not db.Visibility.FriendlyMinus.UseHeadlineView
 
   Addon:ForceUpdate()
@@ -471,12 +473,18 @@ function TidyPlatesThreat:ToggleNameplateModeEnemyUnits()
 
   db.Visibility.EnemyPlayer.UseHeadlineView = not db.Visibility.EnemyPlayer.UseHeadlineView
   db.Visibility.EnemyNPC.UseHeadlineView = not db.Visibility.EnemyNPC.UseHeadlineView
-  db.Visibility.EnemyTotem.UseHeadlineView = not db.Visibility.EnemyTotem.UseHeadlineView
-  db.Visibility.EnemyGuardian.UseHeadlineView = not db.Visibility.EnemyGuardian.UseHeadlineView
+  -- db.Visibility.EnemyMinion.UseHeadlineView = not db.Visibility.EnemyPet.UseHeadlineView
   db.Visibility.EnemyPet.UseHeadlineView = not db.Visibility.EnemyPet.UseHeadlineView
+  db.Visibility.EnemyGuardian.UseHeadlineView = not db.Visibility.EnemyGuardian.UseHeadlineView
+  db.Visibility.EnemyTotem.UseHeadlineView = not db.Visibility.EnemyTotem.UseHeadlineView
   db.Visibility.EnemyMinus.UseHeadlineView = not db.Visibility.EnemyMinus.UseHeadlineView
 
   Addon:ForceUpdate()
+end
+
+function TidyPlatesThreat_OnAddonCompartmentClick(addonName, buttonName)
+  -- addonName: TidyPlates_ThreatPlates (name of directory)
+  Addon:OpenOptions()
 end
 
 -----------------------------------------------------------------------------------
@@ -487,7 +495,8 @@ end
 -- Also fires any other time the player sees a loading screen
 function TidyPlatesThreat:PLAYER_ENTERING_WORLD()
   local db = Addon.db.profile.questWidget
-  if not (Addon.IS_CLASSIC or Addon.IS_TBC_CLASSIC or Addon.IS_WRATH_CLASSIC) then
+  -- showQuestTrackingTooltips: not sure when introduced
+  if Addon.IS_MAINLINE then
     if db.ON or db.ShowInHeadlineView then
       CVars:Set("showQuestTrackingTooltips", 1)
     else
