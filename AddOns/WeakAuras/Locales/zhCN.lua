@@ -24,6 +24,8 @@ L["|cffeda55fLeft-Click|r to toggle showing the main window."] = "|cffeda55f左�
 L["|cffeda55fMiddle-Click|r to toggle the minimap icon on or off."] = "|cffeda55f中键|r显示/隐藏小地图图标。"
 L["|cffeda55fRight-Click|r to toggle performance profiling window."] = "|cffeda55f右键|r显示/隐藏性能分析窗口。"
 L["|cffeda55fShift-Click|r to pause addon execution."] = "|cffeda55fShift + 左键|r暂停插件执行。"
+--[[Translation missing --]]
+L["|cffff0000deprecated|r"] = "|cffff0000deprecated|r"
 L["|cFFFF0000Not|r Item Bonus Id Equipped"] = "|cFFFF0000非|r 已装备物品增益ID"
 L["|cFFFF0000Not|r Item Equipped"] = "|cFFFF0000未|r装备物品"
 L["|cFFFF0000Not|r Player Name/Realm"] = "|cFFFF0000非|r 玩家名字/服务器"
@@ -716,7 +718,13 @@ L["Install the addons BugSack and BugGrabber for detailed error logs."] = "安�
 L["Instance"] = "副本"
 L["Instance Difficulty"] = "副本难度"
 --[[Translation missing --]]
+L["Instance Filters"] = "Instance Filters"
+--[[Translation missing --]]
+L["Instance ID"] = "Instance ID"
+--[[Translation missing --]]
 L["Instance Id"] = "Instance Id"
+--[[Translation missing --]]
+L["Instance Name"] = "Instance Name"
 L["Instance Size Type"] = "副本大小类型"
 L["Instance Type"] = "副本类型"
 L["Instructor Razuvious"] = "教官拉苏维奥斯"
@@ -896,6 +904,8 @@ L["Name"] = "名称"
 L["Name Function"] = "名称函数"
 L["Name Function (fallback state)"] = "名称函数（后备状态）"
 L["Name of Caster's Target"] = "施法者目标的名称"
+--[[Translation missing --]]
+L["Name of the (sub-)zone currently shown above the minimap."] = "Name of the (sub-)zone currently shown above the minimap."
 L["Name(s)"] = "名称"
 L["Name/Realm of Caster's Target"] = "施法者目标的名称/服务器"
 L["Nameplate"] = "姓名板"
@@ -931,6 +941,8 @@ L["Note, that cross realm transmission is possible if you are on the same group"
 L["Note: Due to how complicated the swing timer behavior is and the lack of APIs from Blizzard, results are inaccurate in edge cases."] = "注意：由于近战攻击计时器的复杂性和暴雪提供的API的缺失，结果在边缘情况下不准确。"
 L["Note: 'Hide Alone' is not available in the new aura tracking system. A load option can be used instead."] = "注意：“不在队伍时隐藏”在新光环追踪系统中不可用，使用加载选项来达到相同效果。"
 L["Note: The available text replacements for multi triggers match the normal triggers now."] = "注意：现在普通触发器也可使用多目标触发器可用的文本替换。"
+--[[Translation missing --]]
+L["Note: This trigger internally stores the shape shift positon, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."] = "Note: This trigger internally stores the shape shift positon, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."
 L["Note: This trigger relies on the WoW API, which returns incorrect information in some cases."] = "注意：此触发器依赖于WoW API，它会在某些情况下返回错误的信息。"
 L["Note: This trigger type estimates the range to the hitbox of a unit. The actual range of friendly players is usually 3 yards more than the estimate. Range checking capabilities depend on your current class and known abilities as well as the type of unit being checked. Some of the ranges may also not work with certain NPCs.|n|n|cFFAAFFAAFriendly Units:|r %s|n|cFFFFAAAAHarmful Units:|r %s|n|cFFAAAAFFMiscellanous Units:|r %s"] = "注意：此类型的触发器只是在预估和单位之间的距离，实际和友方玩家的距离一般要比预估值多 3 码。距离预估的可用数值取决于你的职业、已学技能与目标单位类型，某些距离数值不适用于特定NPC。|n|n|cFFAAFFAA友方单位：|r %s|n|cFFFFAAAA敌方单位：|r %s|n|cFFAAAAFF非特定单位：|r %s"
 L["Noth the Plaguebringer"] = "瘟疫使者诺斯"
@@ -1040,6 +1052,8 @@ L["Overlay Cost of Casts"] = "覆盖层显示施法消耗"
 L["Overlay Latency"] = "延迟覆盖层"
 --[[Translation missing --]]
 L["Paragon Reward Pending"] = "Paragon Reward Pending"
+--[[Translation missing --]]
+L["Parent Frame"] = "Parent Frame"
 --[[Translation missing --]]
 L["Parent Zone"] = "Parent Zone"
 L["Parry"] = "招架"
@@ -1343,6 +1357,8 @@ L["String"] = "字符串"
 L["Subtract Cast"] = "减去施法时间"
 L["Subtract Channel"] = "减去引导时间"
 L["Subtract GCD"] = "减去 GCD"
+--[[Translation missing --]]
+L["Subzone Name"] = "Subzone Name"
 L["Success"] = "成功"
 L["Sulfuron Harbinger"] = "萨弗隆先驱者"
 L["Summon"] = "召唤"
@@ -1418,6 +1434,8 @@ L["This aura plays a sound via an action."] = "此光环通过动作播放声音
 L["This aura plays a Text To Speech via a condition."] = "This aura plays a Text To Speech via a condition."
 --[[Translation missing --]]
 L["This aura plays a Text To Speech via an action."] = "This aura plays a Text To Speech via an action."
+--[[Translation missing --]]
+L["This filter has been moved to the Location trigger. Change your aura to use the new Location trigger or join the WeakAuras Discord server for help."] = "This filter has been moved to the Location trigger. Change your aura to use the new Location trigger or join the WeakAuras Discord server for help."
 L["Thorim"] = "托里姆"
 L["Threat Percent"] = "仇恨百分比"
 L["Threat Situation"] = "仇恨状况"
@@ -1600,6 +1618,10 @@ L["Your scheduled automatic profile has been cancelled."] = "你计划的性能�
 L["Your threat as a percentage of the tank's current threat."] = "你的仇恨占当前坦克仇恨的百分比。"
 L["Your threat on the mob as a percentage of the amount required to pull aggro. Will pull aggro at 100."] = "你的仇恨占获得仇恨预期的百分比。达到100时会获得仇恨。"
 L["Your total threat on the mob."] = "你对怪物的总仇恨。"
+--[[Translation missing --]]
+L["Zone Group ID"] = "Zone Group ID"
+--[[Translation missing --]]
+L["Zone ID"] = "Zone ID"
 L["Zone Name"] = "区域名称"
 L["Zoom"] = "缩放"
 L["Zoom Animation"] = "缩放动画"

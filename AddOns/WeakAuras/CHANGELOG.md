@@ -1,42 +1,49 @@
-# [5.12.8](https://github.com/WeakAuras/WeakAuras2/tree/5.12.8) (2024-04-09)
+# [5.12.9](https://github.com/WeakAuras/WeakAuras2/tree/5.12.9) (2024-04-29)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.12.7...5.12.8)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.12.8...5.12.9)
 
 ## Highlights
 
- - More Cataclysm updates
-- Bug fixes 
+ - Added "Parent Frame" as option to "Glow Frame Type"
+- Cataclysm bug fixes 
 
 ## Commits
 
-InfusOnWoW (4):
+Boneshock (1):
 
-- Adjust atlas_update.lua for Private type declaration changes
-- update-atlas-files.sh: Add +x mode back
-- Options Window: Shift Selection don't select hidden buttons
-- Conditions: Fix tick_placement property not being reversible
+- add Location trigger (#4917)
 
-Stanzilla (2):
+InfusOnWoW (8):
 
-- Refactor of ModelPaths update script (#4990)
-- Type and comment updates
+- Update Atlas File List from wago.tools
+- Fix tracking specific charges being affeced by paused evoker spells
+- Weapon Enchant Trigger: Fix trigger stack check and missing condition
+- Add missing order increment
+- Fix AddFakeInformation for TSU auras to not overwrite progressType
+- Shape shift Trigger: Add note for incompatibility with SoD's Gladiator rune
+- Remove dead code
+- Update Atlas File List from wago.tools
 
-dependabot[bot] (3):
+Lynn (1):
 
-- Bump tsickert/discord-webhook from 5.5.0 to 6.0.0
-- Bump cbrgm/mastodon-github-action from 2.0.5 to 2.0.6
-- Bump Stanzilla/cat from 2.0.1 to 2.0.2
+- Added "Parent Frame" as option to "Glow Frame Type" (#5025)
 
-emptyrivers (3):
+Stanzilla (4):
 
-- improve AddMany data flow
-- fix some more type annotations
-- LuaLS but it actually works now (#4982)
+- Update WeakAurasModelPaths from wago.tools
+- Update WeakAurasModelPaths from wago.tools
+- Update WeakAurasModelPaths from wago.tools
+- Mark model paths script as executeable
 
-mrbuds (4):
+emptyrivers (1):
 
-- Cataclysm: use EncounterJournal for encounter ids and zone ids
-- Add Sunken Temple encounterIds
-- Fix nil error in migration 73
-- add some types (#4995)
+- only use whisper comms if target is on the actually same server (#5019)
+
+mrbuds (5):
+
+- Cataclysm: add class & spec load option
+- FontString:SetJustifyV error with "CENTER" on cataclysm beta
+- Types (#5013)
+- Cataclysm: remove "Resilience" from "Character Stats" trigger
+- Classic: fix talent not checked on changing talent group
 

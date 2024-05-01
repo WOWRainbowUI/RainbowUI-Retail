@@ -376,8 +376,8 @@ WeakAuras.normalWidth = 1.3
 WeakAuras.halfWidth = WeakAuras.normalWidth / 2
 WeakAuras.doubleWidth = WeakAuras.normalWidth * 2
 local versionStringFromToc = GetAddOnMetadata("WeakAuras", "Version")
-local versionString = "5.12.8"
-local buildTime = "20240410155357"
+local versionString = "5.12.9"
+local buildTime = "20240501005255"
 
 local flavorFromToc = GetAddOnMetadata("WeakAuras", "X-Flavor")
 local flavorFromTocToNumber = {
@@ -405,7 +405,7 @@ WeakAuras.buildType = "pr"
 --@end-experimental@]=====]
 
 --[==[@debug@
-if versionStringFromToc == "5.12.8" then
+if versionStringFromToc == "5.12.9" then
   versionStringFromToc = "Dev"
   buildTime = "Dev"
   WeakAuras.buildType = "dev"
@@ -417,44 +417,54 @@ WeakAuras.buildTime = buildTime
 WeakAuras.newFeatureString = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0|t"
 WeakAuras.BuildInfo = select(4, GetBuildInfo())
 
+---@return boolean result
 function WeakAuras.IsClassicEra()
   return flavor == 1
 end
 -- save compatibility with old auras
 WeakAuras.IsClassic = WeakAuras.IsClassicEra
 
+---@return boolean result
 function WeakAuras.IsWrathClassic()
   return flavor == 3
 end
 
+---@return boolean result
 function WeakAuras.IsCataClassic()
   return flavor == 4
 end
 
+---@return boolean result
 function WeakAuras.IsRetail()
   return flavor == 10
 end
 
+---@return boolean result
 function WeakAuras.IsClassicEraOrWrath()
   return WeakAuras.IsClassicEra() or WeakAuras.IsWrathClassic()
 end
 
+---@return boolean result
 function WeakAuras.IsWrathOrCataOrRetail()
   return WeakAuras.IsRetail() or WeakAuras.IsWrathClassic() or WeakAuras.IsCataClassic()
 end
 
+---@return boolean result
 function WeakAuras.IsWrathOrCata()
   return WeakAuras.IsWrathClassic() or WeakAuras.IsCataClassic()
 end
 
+---@return boolean result
 function WeakAuras.IsCataOrRetail()
   return WeakAuras.IsCataClassic() or WeakAuras.IsRetail()
 end
 
+---@return boolean result
 function WeakAuras.IsClassicEraOrWrathOrCata()
   return WeakAuras.IsClassicEra() or WeakAuras.IsWrathClassic() or WeakAuras.IsCataClassic()
 end
 
+---@param ... string
 WeakAuras.prettyPrint = function(...)
   print("|cff9900ffWeakAuras:|r ", ...)
 end

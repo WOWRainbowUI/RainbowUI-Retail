@@ -652,8 +652,6 @@ Can use \ to escape -.]=]
 	L["Frame Height"] = "Frame Height"
 	--[[Translation missing --]]
 	L["Frame Rate"] = "Frame Rate"
-	--[[Translation missing --]]
-	L["Frame Selector"] = "Frame Selector"
 	L["Frame Strata"] = "Camada do quadro"
 	--[[Translation missing --]]
 	L["Frame Width"] = "Frame Width"
@@ -974,8 +972,6 @@ Can use \ to escape -.]=]
 	L["Name Pattern Match"] = "Name Pattern Match"
 	L["Name(s)"] = "Nome(s)"
 	L["Name:"] = "Nome:"
-	--[[Translation missing --]]
-	L["Nameplate"] = "Nameplate"
 	--[[Translation missing --]]
 	L["Nameplates"] = "Nameplates"
 	L["Negator"] = "Negador"
@@ -1495,8 +1491,6 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["Unit %s is not a valid unit for RegisterUnitEvent"] = "Unit %s is not a valid unit for RegisterUnitEvent"
 	--[[Translation missing --]]
 	L["Unit Count"] = "Unit Count"
-	--[[Translation missing --]]
-	L["Unit Frame"] = "Unit Frame"
 	--[[Translation missing --]]
 	L["Unit Frames"] = "Unit Frames"
 	--[[Translation missing --]]

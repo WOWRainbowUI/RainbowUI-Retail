@@ -570,8 +570,6 @@ Can use \ to escape -.]=]
 	L["Frame Height"] = "Frame Height"
 	--[[Translation missing --]]
 	L["Frame Rate"] = "Frame Rate"
-	--[[Translation missing --]]
-	L["Frame Selector"] = "Frame Selector"
 	L["Frame Strata"] = "Strate du cadre"
 	--[[Translation missing --]]
 	L["Frame Width"] = "Frame Width"
@@ -827,8 +825,6 @@ Seule une unique valeur peut être choisie]=]
 	L["Name Pattern Match"] = "Correspondance de modèle de nom"
 	L["Name(s)"] = "Nom(s)"
 	L["Name:"] = "Nom:"
-	--[[Translation missing --]]
-	L["Nameplate"] = "Nameplate"
 	L["Nameplates"] = "Barres de vie"
 	L["Negator"] = "Pas"
 	L["New Aura"] = "Nouvelle aura"
@@ -1238,8 +1234,6 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["Unit %s is not a valid unit for RegisterUnitEvent"] = "Unit %s is not a valid unit for RegisterUnitEvent"
 	L["Unit Count"] = "Nombre d'unité"
-	--[[Translation missing --]]
-	L["Unit Frame"] = "Unit Frame"
 	L["Unit Frames"] = "Cadre d'unité"
 	--[[Translation missing --]]
 	L["Unknown property '%s' found in '%s'"] = "Unknown property '%s' found in '%s'"
