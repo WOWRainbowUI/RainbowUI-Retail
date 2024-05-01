@@ -1,4 +1,4 @@
----@diagnostic disable: duplicate-set-field,duplicate-doc-field
+---@diagnostic disable: duplicate-set-field,duplicate-doc-field,deprecated
 local addonName = ... ---@type string
 
 ---@class BetterBags: AceAddon
@@ -124,7 +124,21 @@ function addon:OnInitialize()
       addon:ToggleAllBags()
     end)
   end
+end
 
+
+---@param bagid number
+---@return Bag
+function addon:GetBagFromBagID(bagid)
+  if const.BACKPACK_BAGS[bagid] then
+    return addon.Bags.Backpack
+  elseif const.BANK_BAGS[bagid] then
+    return addon.Bags.Bank
+  elseif const.REAGENTBANK_BAGS[bagid] then
+    return addon.Bags.Bank
+  else
+    error("invalid bagid")
+  end
 end
 
 -- HideBlizzardBags will hide the default Blizzard bag frames.
@@ -166,8 +180,20 @@ function addon:UpdateButtonHighlight()
   end
 end
 
+local function applyCompat()
+  if not addon.isWrath then return end
+  if not C_Item.GetItemInfoInstant then
+    C_Item.GetItemInfoInstant = GetItemInfoInstant
+  end
+  if not C_Item.GetItemInfo then
+    C_Item.GetItemInfo = GetItemInfo
+  end
+end
+
 -- OnEnable is called when the addon is enabled.
 function addon:OnEnable()
+  -- Hackfix for WotLK
+  applyCompat()
   itemFrame:Enable()
   sectionFrame:Enable()
   masque:Enable()
@@ -198,13 +224,13 @@ function addon:OnEnable()
     addon.Bags.Backpack:Draw(args[1])
    end)
 
-  events:RegisterMessage('items/RefreshBank/Done', function(_, itemData)
+  events:RegisterMessage('items/RefreshBank/Done', function(_, args)
    debug:Log("init/OnInitialize/items", "Drawing bank")
-   if addon.Bags.Bank.currentView then
-    addon.Bags.Bank.currentView.fullRefresh = true
-   end
-   addon.Bags.Bank:Draw(itemData)
-
+     -- Show the bank frame if it's not already shown.
+    if not addon.Bags.Bank:IsShown() and addon.atBank then
+      addon.Bags.Bank:Show()
+    end
+   addon.Bags.Bank:Draw(args[1])
   end)
 
   events:RegisterEvent('PLAYER_REGEN_ENABLED', function()

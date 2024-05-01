@@ -72,6 +72,7 @@ if GetLocale() == "zhTW" then
 	L.data["Expansion"] = "資料片"
 	L.data["Trade Skill"] = "交易技能"
 	L.data["Gear Set"] = "裝備管理員套裝"
+	L.data["Equipment Location"] = "裝備部位"
 	L.data["Select which categories to show in this bag. If an option is checked, items that belong to the checked category will be put into a section for that category."] = "選擇要在背包中顯示的分類。勾選後，屬於該分類的物品將會放入該分類的區塊中。"
 	L.data["Recent Items"] = "新物品"
 	L.data["Type"] = "物品類型"
@@ -123,6 +124,8 @@ if GetLocale() == "zhTW" then
 	L.data["Show or hide the default Blizzard bag button."] = "顯示畫面右下角，遊戲內建的背包按鈕。"
 	L.data["New Item Duration"] = "新物品持續時間"
 	L.data["The time, in minutes, to consider an item a new item."] = "新的物品要保留多久時間後自動歸類，以分鐘為單位。"
+	L.data["Plugins"] = "外掛套件"
+	L.data["Plugin configuration options can be accessed on the left by expanding the 'Plugins' menu option."] = "將左側的 '外掛套件' 選單展開，可以看到外掛套件的設定選項。"
 	
 	-- config\customcat.lua 
 	L.data["Items"] = "物品"

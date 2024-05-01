@@ -70,6 +70,10 @@ function sectionProto:RemoveCell(id)
   self.content:RemoveCell(id)
 end
 
+function sectionProto:RekeyCell(oldID, newID)
+  self.content:RekeyCell(oldID, newID)
+end
+
 function sectionProto:GetMaxCellWidth()
   return self.content.maxCellWidth
 end
