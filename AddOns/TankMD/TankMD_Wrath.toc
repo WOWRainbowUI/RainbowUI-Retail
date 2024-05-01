@@ -2,19 +2,22 @@
 ## Title: TankMD
 ## Notes: One button to always misdirect to the tank. Also supports Tricks for rogues, Blistering Scales for evokers and Innervate for druids (targets healers).
 ## Author: Oppzippy
-## Version: v2.5.3
-## OptionalDeps: Ace3
+## Version: v3.0.0
+## OptionalDeps: Ace3, LibGroupInSpecT-1.1
+## SavedVariables: TankMDDB
 ## X-Curse-Project-ID: 258204
 ## X-WoWI-ID: 25625
 ## X-Wago-ID: xZKxpqKk
 
 LibsClassic.xml
+Locales\locales.xml
 
-TargetMatcher\TargetMatchers.xml
-Config.lua
+Util.lua
+TargetSelector.lua
+TargetSelectionFilter.lua
 MisdirectButton.lua
-Core.lua
+Options.lua
+ClassTargetSelectors.lua
 TankMD.lua
 
-Locales\locales.xml
 Bindings.lua

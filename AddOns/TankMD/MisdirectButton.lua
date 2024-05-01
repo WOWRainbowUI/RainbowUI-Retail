@@ -1,19 +1,18 @@
-local _, addon = ...
+---@class AddonNamespace
+local addon = select(2, ...)
 
-local MisdirectButtonPrototype = {}
-MisdirectButtonPrototype.__index = MisdirectButtonPrototype
+---@class MisdirectButton
+---@field index integer
+---@field targetSelector TargetSelector
+local MisdirectButton = {}
+local metatable = {
+	__index = MisdirectButton,
+}
 
--- @string buttonName Global button that is created
--- @number spell spell id
--- @number index Match index to target
--- @param targetMatcher TargetMatcher that will provide a table of units
-function addon:CreateMisdirectButton(buttonName, spell, index, targetMatcher)
-	local misdirectButton = {}
-	setmetatable(misdirectButton, MisdirectButtonPrototype)
-	misdirectButton.index = index
-	misdirectButton.targetMatcher = targetMatcher
-
-	local button = CreateFrame("Button", buttonName, UIParent, "SecureActionButtonTemplate")
+---@param name string
+---@param spell integer
+local function createButton(name, spell)
+	local button = CreateFrame("Button", name, UIParent, "SecureActionButtonTemplate")
 	button:Hide()
 	button:SetAttribute("type", "spell")
 	button:SetAttribute("spell", spell)
@@ -21,30 +20,57 @@ function addon:CreateMisdirectButton(buttonName, spell, index, targetMatcher)
 	button:SetAttribute("checkfocuscast", false)
 	button:SetAttribute("allowVehicleTarget", false)
 	button:RegisterForClicks("LeftButtonDown", "LeftButtonUp")
+	return button
+end
 
-	misdirectButton.button = button
+---@param spell integer Spell id
+---@param index integer Match index to target
+---@return table
+function addon:CreateMisdirectButton(spell, index)
+	local buttonName = string.format("TankMDButton%d", index)
+	local legacyButtonName = "MisdirectTankButton"
+	if index > 1 then
+		legacyButtonName = string.format("MisdirectTank%dButton", index)
+	end
+
+	---@class MisdirectButton
+	local misdirectButton = setmetatable({
+		index = index,
+		button = createButton(buttonName, spell),
+		legacyButton = createButton(legacyButtonName, spell),
+	}, metatable)
 
 	return misdirectButton
 end
 
-function MisdirectButtonPrototype:UpdateTarget()
-	local target = self:FindTarget()
+---@param target string|nil
+function MisdirectButton:SetTarget(target)
 	if target then
 		self:SetEnabled(true)
 		self.button:SetAttribute("unit", target)
+		self.legacyButton:SetAttribute("unit", target)
 	else
 		self:SetEnabled(false)
 	end
 end
 
-function MisdirectButtonPrototype:FindTarget()
-	return self.targetMatcher:FindTargets()[self.index]
+---@return string
+function MisdirectButton:GetTarget()
+	return self.button:GetAttribute("unit")
 end
 
-function MisdirectButtonPrototype:SetEnabled(enabled)
+---@private
+function MisdirectButton:SetEnabled(enabled)
 	if enabled then
 		self.button:SetAttribute("type", "spell")
+		self.legacyButton:SetAttribute("type", "spell")
 	else
 		self.button:SetAttribute("type", nil)
+		self.legacyButton:SetAttribute("type", nil)
 	end
+end
+
+---@return boolean
+function MisdirectButton:IsEnabled()
+	return self.button:GetAttribute("type") ~= nil
 end
