@@ -1,6 +1,6 @@
 # Syndicator
 
-## [23](https://github.com/Baganator/Syndicator/tree/23) (2024-04-09)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/22...23) 
+## [25](https://github.com/Baganator/Syndicator/tree/25) (2024-04-29)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/24...25) 
 
-- Retail: Fix /syns search for items with crafted quality showing weird results  
+- [Fixes #7] [Fixes #6] Opening guild when not in guild gives an error  
