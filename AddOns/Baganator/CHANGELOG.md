@@ -1,6 +1,8 @@
 # Baganator
 
-## [243](https://github.com/Baganator/Baganator/tree/243) (2024-04-03)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/242...243) 
+## [246](https://github.com/Baganator/Baganator/tree/246) (2024-04-29)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/245...246) 
 
-- [Fixes #74] Fix error when adding guild bank sorts button options  
+- Classic: Prevent guild bank UI displaying if the player isn't in a guild  
+    This doesn't apply to retail as Blizzard already prevents it from  
+    displaying  

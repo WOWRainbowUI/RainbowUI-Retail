@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 11502
 ## Title: Baganator
 ## Version: 246
 ## Author: plusmouse
