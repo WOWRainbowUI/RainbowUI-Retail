@@ -145,9 +145,12 @@ end
 
 local constants = {
   nameRealmFilterDesc = L[" Filter formats: 'Name', 'Name-Realm', '-Realm'. \n\nSupports multiple entries, separated by commas\nCan use \\ to escape -."],
+  instanceFilterDeprecated = L["This filter has been moved to the Location trigger. Change your aura to use the new Location trigger or join the WeakAuras Discord server for help."],
 }
 
 if WeakAuras.IsClassicEraOrWrathOrCata() then
+  ---@param unit UnitToken
+  ---@return string? role
   WeakAuras.UnitRaidRole = function(unit)
     local raidID = UnitInRaid(unit)
     if raidID then
@@ -156,10 +159,14 @@ if WeakAuras.IsClassicEraOrWrathOrCata() then
   end
 end
 
+---@param school integer
+---@return string school
 function WeakAuras.SpellSchool(school)
   return Private.combatlog_spell_school_types[school] or ""
 end
 
+---@param flag integer
+---@return integer index
 function WeakAuras.RaidFlagToIndex(flag)
   return Private.combatlog_raidFlags[flag] or 0
 end
@@ -197,7 +204,7 @@ local function get_zoneId_list()
                                          L["Parent Zone"], parentmap_name, currentmap_info.parentMapID)
   end
 
-  return ("%s|cffffd200%s|r\n%s: %d\n\n%s%s|cffffd200%s|r\n%s: %d\n\n%s"):format(
+  return ("%s|cffffd200%s|r\n%s: %d\n\n%s%s|cffffd200%s|r\n%s: i%d\n\n%s"):format(
     Private.get_zoneId_list(),
     L["Current Zone"],
     currentmap_name,
@@ -245,6 +252,19 @@ local hsvFrame = CreateFrame("ColorSelect")
 
 -- HSV transition, for a much prettier color transition in many cases
 -- see http://www.wowinterface.com/forums/showthread.php?t=48236
+---@param perc number
+---@param r1 number
+---@param g1 number
+---@param b1 number
+---@param a1 number
+---@param r2 number
+---@param g2 number
+---@param b2 number
+---@param a2 number
+---@return number r
+---@return number g
+---@return number b
+---@return number a
 function WeakAuras.GetHSVTransition(perc, r1, g1, b1, a1, r2, g2, b2, a2)
   --get hsv color for colorA
   hsvFrame:SetColorRGB(r1, g1, b1)
@@ -674,6 +694,9 @@ for classID = 1, 20 do -- GetNumClasses not supported by wow classic
 end
 
 if WeakAuras.IsClassicEraOrWrathOrCata() then
+  ---@param index integer
+  ---@param extraOption boolean?
+  ---@return boolean? hasTalent
   function WeakAuras.CheckTalentByIndex(index, extraOption)
     local tab = ceil(index / MAX_NUM_TALENTS)
     local num_talent = (index - 1) % MAX_NUM_TALENTS + 1
@@ -752,6 +775,11 @@ if WeakAuras.IsRetail() then
 
   talentCheckFrame:SetScript("OnEvent", Private.CheckTalentsForLoad)
 
+  ---@param talentId integer
+  ---@return string? spellName
+  ---@return number? icon
+  ---@return number? spellId
+  ---@return number? rank
   function WeakAuras.GetTalentById(talentId)
     if selectedTalentsById[talentId] then
       local spellName, _, icon = GetSpellInfo(selectedTalentsById[talentId].spellId)
@@ -759,11 +787,16 @@ if WeakAuras.IsRetail() then
     end
   end
 
+  ---@param talentId integer
+  ---@return boolean hasTalent
   function WeakAuras.CheckTalentId(talentId)
     return selectedTalentsById[talentId] and selectedTalentsById[talentId].rank > 0
   end
 end
 
+---@param index integer
+---@return boolean hasTalent
+---@return number? talentId
 function WeakAuras.CheckPvpTalentByIndex(index)
   local checkTalentSlotInfo = C_SpecializationInfo.GetPvpTalentSlotInfo(1)
   if checkTalentSlotInfo then
@@ -779,6 +812,9 @@ function WeakAuras.CheckPvpTalentByIndex(index)
   return false
 end
 
+---@param loadids string
+---@param currentId string
+---@return boolean result
 function WeakAuras.CheckNumericIds(loadids, currentId)
   if (not loadids or not currentId) then
     return false;
@@ -799,6 +835,9 @@ function WeakAuras.CheckNumericIds(loadids, currentId)
   return false;
 end
 
+---@param info any?
+---@param val any
+---@return boolean isNumeric
 function WeakAuras.ValidateNumeric(info, val)
   if val ~= nil and val ~= "" and (not tonumber(val) or tonumber(val) >= 2^31) then
     return false;
@@ -806,6 +845,9 @@ function WeakAuras.ValidateNumeric(info, val)
   return true
 end
 
+---@param info any?
+---@param val any
+---@return boolean isTime
 function WeakAuras.ValidateTime(info, val)
   if val ~= nil and val ~= "" then
     if not tonumber(val) then
@@ -820,6 +862,8 @@ function WeakAuras.ValidateTime(info, val)
   return true
 end
 
+---@param val number|string
+---@return number? result
 function WeakAuras.TimeToSeconds(val)
   if tonumber(val) then
     return tonumber(val)
@@ -898,6 +942,9 @@ function Private.ExecEnv.ParseStringCheck(input)
   return matcher
 end
 
+---@param info any?
+---@param val string
+---@return boolean result
 function WeakAuras.ValidateNumericOrPercent(info, val)
   if val ~= nil and val ~= "" then
     local percent = string.match(val, "(%d+)%%")
@@ -1000,6 +1047,8 @@ local function IsSpellKnownOrOverridesAndBaseIsKnown(spell, pet)
   end
 end
 
+---@param spell string|number
+---@return boolean result
 function WeakAuras.IsPlayerSpellOrOverridesAndBaseIsPlayerSpell(spell)
   if IsPlayerSpell(spell) then
     return true
@@ -1013,6 +1062,7 @@ function WeakAuras.IsPlayerSpellOrOverridesAndBaseIsPlayerSpell(spell)
   return false
 end
 
+---@private
 function WeakAuras.IsSpellKnownForLoad(spell, exact)
   local result = IsPlayerSpell(spell)
                  or IsSpellKnownOrOverridesAndBaseIsKnown(spell, false)
@@ -1030,6 +1080,9 @@ function WeakAuras.IsSpellKnownForLoad(spell, exact)
   end
 end
 
+---@param spell string|number
+---@param pet boolean?
+---@return boolean result
 function WeakAuras.IsSpellKnown(spell, pet)
   if (pet) then
     return IsSpellKnownOrOverridesAndBaseIsKnown(spell, true)
@@ -1037,6 +1090,8 @@ function WeakAuras.IsSpellKnown(spell, pet)
   return IsPlayerSpell(spell) or IsSpellKnownOrOverridesAndBaseIsKnown(spell, false)
 end
 
+---@param spell string|number
+---@return boolean result
 function WeakAuras.IsSpellKnownIncludingPet(spell)
   if (not tonumber(spell)) then
     spell = select(7, GetSpellInfo(spell));
@@ -1055,6 +1110,8 @@ function Private.ExecEnv.CompareSpellIds(a, b, exactCheck)
   end
 end
 
+---@param powerType integer
+---@return integer
 function WeakAuras.UnitPowerDisplayMod(powerType)
   if (powerType == 7) then
     return 10;
@@ -1062,6 +1119,8 @@ function WeakAuras.UnitPowerDisplayMod(powerType)
   return 1;
 end
 
+---@param powerType integer
+---@return boolean?
 function WeakAuras.UseUnitPowerThirdArg(powerType)
   if (powerType == 7) then
     return true;
@@ -1105,6 +1164,10 @@ do
 
 end
 
+---@param setID integer
+---@return integer? quantity
+---@return integer? maxQuantity
+---@return string? setName
 function WeakAuras.GetNumSetItemsEquipped(setID)
   if not setID or not type(setID) == "number" then return end
   local equipped = 0
@@ -1118,6 +1181,7 @@ function WeakAuras.GetNumSetItemsEquipped(setID)
   return equipped, 18, setName
 end
 
+---@return number result
 function WeakAuras.GetEffectiveAttackPower()
   local base, pos, neg = UnitAttackPower("player")
   return base + pos + neg
@@ -1311,9 +1375,9 @@ Private.load_prototype = {
       display = L["Class and Specialization"],
       type = "multiselect",
       values = "spec_types_all",
-      init = WeakAuras.IsRetail() and "arg" or nil,
-      enable = WeakAuras.IsRetail(),
-      hidden = not WeakAuras.IsRetail(),
+      init = WeakAuras.IsCataOrRetail() and "arg" or nil,
+      enable = WeakAuras.IsCataOrRetail(),
+      hidden = not WeakAuras.IsCataOrRetail(),
       events = {"PLAYER_TALENT_UPDATE"}
     },
     {
@@ -1348,8 +1412,7 @@ Private.load_prototype = {
           end
         end
       end or nil,
-      events = (WeakAuras.IsClassicEra() and {"CHARACTER_POINTS_CHANGED"})
-        or (WeakAuras.IsWrathOrCata() and {"CHARACTER_POINTS_CHANGED", "PLAYER_TALENT_UPDATE"})
+      events = (WeakAuras.IsClassicEraOrWrathOrCata() and {"CHARACTER_POINTS_CHANGED", "PLAYER_TALENT_UPDATE", "ACTIVE_TALENT_GROUP_CHANGED"})
         or (WeakAuras.IsRetail() and {"WA_TALENT_UPDATE"}),
       inverse = function(load)
         -- Check for multi select!
@@ -4920,6 +4983,12 @@ Private.event_prototypes = {
         showOnCheck = "startTime ~= nil";
       end
 
+      local trackSpecificCharge = trigger.use_trackcharge and trigger.trackcharge and trigger.trackcharge ~= ""
+      local track = trigger.track or "auto"
+      if track == "auto" and trackSpecificCharge then
+        track = "charges"
+      end
+
       if (type(spellName) == "string") then
         spellName = "[[" .. spellName .. "]]";
       end
@@ -4929,11 +4998,11 @@ Private.event_prototypes = {
         (trigger.use_showlossofcontrol and "true" or "false"),
         (trigger.use_ignoreSpellKnown and "true" or "false"),
         (trigger.use_followoverride and "true" or "false"),
-        (trigger.track or "auto"),
+        track,
         showOnCheck
       );
 
-      if (not trigger.use_trackcharge or not trigger.trackcharge or trigger.trackcharge == "") then
+      if (not trackSpecificCharge) then
         ret = ret .. [=[
           if paused then
             if not state.paused then
@@ -7084,6 +7153,15 @@ Private.event_prototypes = {
     statesParameter = "one",
     args = {
       {
+        name = "note",
+        type = "description",
+        display = "",
+        text = function()
+          return L["Note: This trigger internally stores the shape shift positon, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."]
+        end,
+        hidden = not (C_Seasons and C_Seasons.GetActiveSeason and C_Seasons.GetActiveSeason() == 2),
+      },
+      {
         name = "form",
         display = L["Form"],
         type = "multiselect",
@@ -7176,10 +7254,10 @@ Private.event_prototypes = {
 
       return ret:format(trigger.weapon or "main",
       trigger.use_enchant and trigger.enchant or "",
-      showOnActive and trigger.use_stack and tonumber(trigger.stack or 0) or "nil",
+      showOnActive and trigger.use_stacks and tonumber(trigger.stacks or 0) or "nil",
       showOnActive and trigger.use_remaining and tonumber(trigger.remaining or 0) or "nil",
       trigger.showOn or "showOnActive",
-      trigger.stack_operator or "<",
+      trigger.stacks_operator or "<",
       trigger.remaining_operator or "<")
     end,
     args = {
@@ -7203,6 +7281,7 @@ Private.event_prototypes = {
         name = "stacks",
         display = L["Stack Count"],
         type = "number",
+        conditionType = "number",
         test = "true",
         enable = function(trigger)
           return not WeakAuras.IsRetail() and (not trigger.showOn or trigger.showOn == "showOnActive")
@@ -9544,9 +9623,9 @@ Private.event_prototypes = {
         type = "number",
         init = "GetCombatRating(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN)",
         store = true,
-        enable = WeakAuras.IsWrathOrCata(),
+        enable = WeakAuras.IsWrathClassic(),
         conditionType = "number",
-        hidden = not WeakAuras.IsWrathOrCata(),
+        hidden = not WeakAuras.IsWrathClassic(),
         multiEntry = {
           operator = "and",
           limit = 2
@@ -9559,8 +9638,8 @@ Private.event_prototypes = {
         init = "GetCombatRatingBonus(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN)",
         store = true,
         conditionType = "number",
-        enable = WeakAuras.IsWrathOrCata(),
-        hidden = not WeakAuras.IsWrathOrCata(),
+        enable = WeakAuras.IsWrathClassic(),
+        hidden = not WeakAuras.IsWrathClassic(),
         multiEntry = {
           operator = "and",
           limit = 2
@@ -10051,7 +10130,6 @@ Private.event_prototypes = {
       if trigger.use_ingroup ~= nil then
         tinsert(events, "GROUP_ROSTER_UPDATE")
       end
-
       if trigger.use_instance_difficulty ~= nil
          or trigger.use_instance_type ~= nil
          or trigger.use_instance_size ~= nil
@@ -10075,9 +10153,9 @@ Private.event_prototypes = {
       end
 
       if trigger.use_instance_difficulty ~= nil
-         or trigger.use_instance_type ~= nil
-         or trigger.use_instance_size ~= nil
-         or trigger.use_pvpflagged ~= nil
+        or trigger.use_instance_type ~= nil
+        or trigger.use_instance_size ~= nil
+        or trigger.use_pvpflagged ~= nil
       then
         tinsert(events, "WA_DELAYED_PLAYER_ENTERING_WORLD")
       end
@@ -10170,7 +10248,8 @@ Private.event_prototypes = {
       },
       {
         name = "instance_size",
-        display = L["Instance Size Type"],
+        display = L["Instance Size Type"].." "..L["|cffff0000deprecated|r"],
+        desc = constants.instanceFilterDeprecated,
         type = "multiselect",
         values = "instance_types",
         sorted = true,
@@ -10178,7 +10257,8 @@ Private.event_prototypes = {
       },
       {
         name = "instance_difficulty",
-        display = L["Instance Difficulty"],
+        display = L["Instance Difficulty"].." "..L["|cffff0000deprecated|r"],
+        desc = constants.instanceFilterDeprecated,
         type = "multiselect",
         values = "difficulty_types",
         init = "WeakAuras.InstanceDifficulty()",
@@ -10187,7 +10267,8 @@ Private.event_prototypes = {
       },
       {
         name = "instance_type",
-        display = L["Instance Type"],
+        display = L["Instance Type"].." "..L["|cffff0000deprecated|r"],
+        desc = constants.instanceFilterDeprecated,
         type = "multiselect",
         values = "instance_difficulty_types",
         init = "WeakAuras.InstanceTypeRaw()",
@@ -10701,6 +10782,143 @@ Private.event_prototypes = {
       return currencyInfo and currencyInfo.name, currencyInfo and currencyInfo.iconFileID
     end,
     automaticrequired = true
+  },
+  ["Location"] = {
+    type = "unit",
+    events = {
+      ["events"] = {
+        "ZONE_CHANGED",
+        "ZONE_CHANGED_INDOORS",
+        "ZONE_CHANGED_NEW_AREA",
+        "PLAYER_DIFFICULTY_CHANGED",
+      }
+    },
+    internal_events = {"INSTANCE_LOCATION_CHECK"},
+    force_events = "INSTANCE_LOCATION_CHECK",
+    name = WeakAuras.newFeatureString..L["Location"],
+    init = function(trigger)
+      local ret = [=[
+        local uiMapId = C_Map.GetBestMapForUnit("player")
+        local zonegroupId = uiMapId and C_Map.GetMapGroupID(uiMapId)
+        local instanceName, _, _, _, _, _, _, instanceId = GetInstanceInfo()
+        local minimapZoneText = GetMinimapZoneText()
+        local zoneText = GetZoneText()
+      ]=]
+      return ret
+    end,
+    statesParameter = "one",
+    args = {
+      {
+        name = "zoneIds",
+        display = L["Player Location ID(s)"],
+        type = "string",
+        multiline = true,
+        desc = get_zoneId_list,
+        preamble = "local zoneChecker = Private.ExecEnv.ParseZoneCheck(%q)",
+        test = "zoneChecker:Check(uiMapId, zonegroupId, instanceId, minimapZoneText)",
+        conditionType = "string",
+        conditionPreamble = function(input)
+          return Private.ExecEnv.ParseZoneCheck(input)
+        end,
+        conditionTest = function(state, needle, op, preamble)
+          return preamble:Check(state.zoneId, state.zonegroupId, state.instanceId, state.subzone)
+        end,
+        operator_types = "none",
+      },
+      {
+        name = "zoneId",
+        display = L["Zone ID"],
+        init = "uiMapId",
+        store = true,
+        hidden = true,
+        test = "true",
+      },
+      {
+        name = "zonegroupId",
+        display = L["Zone Group ID"],
+        init = "zonegroupId",
+        store = true,
+        hidden = true,
+        test = "true",
+      },
+      {
+        name = "zone",
+        display = L["Zone Name"],
+        type = "string",
+        conditionType = "string",
+        store = true,
+        init = "zoneText",
+        multiEntry = {
+          operator = "or",
+        }
+      },
+      {
+        name = "subzone",
+        display = L["Subzone Name"],
+        desc = L["Name of the (sub-)zone currently shown above the minimap."],
+        type = "string",
+        conditionType = "string",
+        store = true,
+        init = "minimapZoneText",
+        multiEntry = {
+          operator = "or",
+        },
+      },
+      {
+        name = "instanceTitle",
+        display = L["Instance Filters"],
+        type = "description",
+      },
+      {
+        name = "instanceId",
+        display = L["Instance ID"],
+        init = "instanceId",
+        store = true,
+        hidden = true,
+        test = "true",
+      },
+      {
+        name = "instance",
+        display = L["Instance Name"],
+        test = "true",
+        hidden = "true",
+        store = true,
+      },
+      {
+        name = "instanceSize",
+        display = L["Instance Size Type"],
+        type = "multiselect",
+        values = "instance_types",
+        sorted = true,
+        init = "WeakAuras.InstanceType()",
+        conditionType = "select",
+        store = true,
+      },
+      {
+        name = "instanceDifficulty",
+        display = L["Instance Difficulty"],
+        type = "multiselect",
+        values = "difficulty_types",
+        init = "WeakAuras.InstanceDifficulty()",
+        conditionType = "select",
+        store = true,
+        enable = WeakAuras.IsRetail(),
+        hidden = not WeakAuras.IsRetail(),
+      },
+      {
+        name = "instanceType",
+        display = L["Instance Type"],
+        type = "multiselect",
+        values = "instance_difficulty_types",
+        init = "WeakAuras.InstanceTypeRaw()",
+        conditionType = "select",
+        store = true,
+        enable = WeakAuras.IsRetail(),
+        hidden = not WeakAuras.IsRetail(),
+      },
+    },
+    automaticrequired = true,
+    progressType = "none"
   },
 };
 

@@ -1,8 +1,13 @@
 ## Interface: 40400
 ## Title: WeakAuras Archive
 ## Author: The WeakAuras Team
-## Version: 5.12.8
+## Version: 5.12.9
 ## LoadOnDemand: 1
 ## SavedVariables: WeakAurasArchive
 ## Dependencies: WeakAuras
 ## AllowLoadGameType: cata
+
+## Title-zhTW: |cffFF9900[進階]|r WA技能提醒-資料記錄
+## Notes-zhTW: WeakAuras Archive |n|nWA技能提醒的資料記錄
+## X-Category-zhTW: 進階
+## DefaultState: disabled
