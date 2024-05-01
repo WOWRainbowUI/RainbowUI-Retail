@@ -182,7 +182,7 @@ function mod:OnInitialize(profile)
 				MinimapZoomOut = "never",
 				MiniMapWorldMapButton = "never",
 				SexyMapZoneTextButton = "hover",
-				TimeManagerClockButton = "never",
+				TimeManagerClockButton = "hover",
 				MiniMapMailFrame = "always",
 				--QueueStatusMinimapButton = "always",
 				MiniMapBattlefieldFrame = "always",
