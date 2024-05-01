@@ -1304,7 +1304,7 @@ ThreatPlates.DEFAULT_SETTINGS = {
       VerticalOffset = 12,
     },
     threatWidget = {
-      ON = false,
+      ON = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false),
       x = 0,
       y = 26,
       anchor = "CENTER",
@@ -1314,8 +1314,8 @@ ThreatPlates.DEFAULT_SETTINGS = {
         Type = "SCALED_PERCENTAGE",
         SecondPlayersName = true,
         ShowAlways = false,
-        ShowInGroups = false,
-        ShowWithPet = false,
+        ShowInGroups = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false),
+        ShowWithPet = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and true or false),
 		-- Layout
         Anchor = "LEFT",
         InsideAnchor = false,
@@ -1323,10 +1323,10 @@ ThreatPlates.DEFAULT_SETTINGS = {
         VerticalOffset = 0,
         Font = {
           Typeface = Addon.DEFAULT_FONT,
-          Size = 9,
+          Size = 14,
           Transparency = 1,
           --Color = RGB(255, 255, 255),
-          flags = "",
+          flags = "OUTLINE",
           Shadow = true,
           HorizontalAlignment = "RIGHT",
           VerticalAlignment = "MIDDLE",
