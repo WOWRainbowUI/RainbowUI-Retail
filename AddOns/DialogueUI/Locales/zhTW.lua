@@ -51,6 +51,8 @@ L["Click To Read"] = "點一下左鍵來閱讀";
 L["Item Level"] = STAT_AVERAGE_ITEM_LEVEL or "物品等級";
 L["Gossip Quest Option Prepend"] = "(任務)";   --Some gossip options start with blue (Quest), we prioritize them when sorting. See GOSSIP_QUEST_OPTION_PREPEND
 L["TTS Button Tooltip"] = "左鍵: 開始/停止唸出內容\n右鍵: 開啟/關閉自動播放";
+L["Item Is An Upgrade"] = "這件裝備對你有提升";
+L["Identical Stats"] = "這兩件裝備的屬性相同";   --Two items provide the same stats
 
 
 --String Format
