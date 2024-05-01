@@ -1,8 +1,17 @@
-## Interface: 20504
+## Interface: 40400
 ## Version: v10.2.7
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
+## Notes-deDE: Spice up your minimap with some sexy options.
+## Notes-ruRU: Придайте вашей миникарте потрясающий вид.
+## Notes-esES: Condimenta tu minimapa con unas cuantas opciones sexys.
+## Notes-esMX: Condimenta tu minimapa con unas cuantas opciones sexys.
+## Notes-frFR: Spice up your minimap with some sexy options.
+## Notes-itIT: Vivacizza la Minimappa con alcune opzioni sexy.
+## Notes-koKR: 미니맵에 다양한 기능을 부가합니다.
+## Notes-zhTW: 讓你有更香豔的一些性感小地圖設定。
 ## Notes-zhCN: 为你的小地图增趣添彩，并包含一些性感选项。
+## Notes-ptBR: Dê uma apimentada no seu minimapa com algumas opções sexy.
 ## Author: Funkydude
 ## X-Credits: Antiarc (Former Author)
 ## SavedVariables: SexyMap2DB
@@ -18,6 +27,7 @@
 ## Title-zhTW: |cff4DFF4D[地圖]|r 性感小地圖
 ## Notes-zhTW: SexyMap |n|n讓你的小地圖更具特色和樂趣，並增添一些性感的選項設定。|n|n|cffffd200使用方法：|r從Esc>選項>插件>小地圖，進行設定。
 ## X-Category-zhTW: 地圖
+## IconTexture: Interface\Icons\inv_misc_celestialmap
 
 embeds.xml
 
@@ -25,11 +35,11 @@ localization\enUS.lua
 localization\zhTW.lua
 localization\zhCN.lua
 
-SexyMap_TBC.lua
+SexyMap_Wrath.lua
 
 Shapes_Classic.lua
 
-Buttons_TBC.lua
+Buttons_Wrath.lua
 BorderPresets.lua
 Borders_Classic.lua
 Clock.lua
