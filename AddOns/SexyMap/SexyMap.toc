@@ -1,5 +1,5 @@
 ## Interface: 100206
-## Version: v10.2.6
+## Version: v10.2.7
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
