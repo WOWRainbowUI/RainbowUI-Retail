@@ -117,12 +117,12 @@ do
 		local sv = BugSackDB
 		sv.profileKeys = nil
 		sv.profiles = nil
-		if type(sv.mute) ~= "boolean" then sv.mute = true end
+		if type(sv.mute) ~= "boolean" then sv.mute = true end -- 更改預設值
 		if type(sv.auto) ~= "boolean" then sv.auto = false end
 		if type(sv.chatframe) ~= "boolean" then sv.chatframe = true end -- 更改預設值
 		if type(sv.soundMedia) ~= "string" then sv.soundMedia = "BugSack: Fatality" end
 		if type(sv.fontSize) ~= "string" then sv.fontSize = "GameFontHighlight" end
-		if type(sv.altwipe) ~= "boolean" then sv.altwipe = true end
+		if type(sv.altwipe) ~= "boolean" then sv.altwipe = true end -- 更改預設值
 		if type(sv.useMaster) ~= "boolean" then sv.useMaster = false end
 		addon.db = sv
 
