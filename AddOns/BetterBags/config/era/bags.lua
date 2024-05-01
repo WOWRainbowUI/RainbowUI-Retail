@@ -19,11 +19,11 @@ local bucket = addon:GetModule('Bucket')
 ---@class Categories: AceModule
 local categories = addon:GetModule('Categories')
 
----@class Events: AceModule
-local events = addon:GetModule('Events')
-
 ---@class Items: AceModule
 local items = addon:GetModule('Items')
+
+---@class Events: AceModule
+local events = addon:GetModule('Events')
 
 ---@class Config: AceModule
 local config = addon:GetModule('Config')
@@ -100,10 +100,7 @@ function config:GetBagOptions(kind)
             values = {
               ["RecentItems"] = L:G("Recent Items"),
               ["Type"] = L:G("Type"),
-              ["Subtype"] = L:G("Subtype"),
-              ["Expansion"] = L:G("Expansion"),
               ["TradeSkill"] = L:G("Trade Skill"),
-              ["GearSet"] = L:G("Gear Set"),
               ["EquipmentLocation"] = L:G("Equipment Location"),
             }
           },
@@ -177,7 +174,7 @@ function config:GetBagOptions(kind)
           mergeStacks = {
             type = "toggle",
             name = L:G("Merge Stacks"),
-            desc = L:G("Merge stacks of the same item into a single stack, i.e. 20x [Linen Cloth] + 20x [Linen Cloth] = 40x [Linen Cloth] in one stack."),
+            desc = L:G("Merge stacks of the same item into a single stack."),
             order = 1,
             get = function()
               return DB:GetStackingOptions(kind).mergeStacks

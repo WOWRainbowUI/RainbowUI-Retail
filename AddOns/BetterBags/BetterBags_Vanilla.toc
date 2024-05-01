@@ -3,9 +3,9 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.27
+## Version: v0.1.29
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-04-11T15:43:04Z
+## X-Date: 2024-05-01T05:48:12Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
@@ -25,8 +25,8 @@ libs\LibWindow-1.1\LibWindow-1.1.lua
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
 
-templates\classic\container.xml
-templates\classic\debug.xml
+templates\era\container.xml
+templates\era\debug.xml
 templates\debug.xml
 
 
@@ -42,13 +42,16 @@ debug\items.lua
 core\events.lua
 core\localization.lua
 core\constants.lua
-core\classic\constants.lua
+core\era\constants.lua
 core\database.lua
 core\hooks.lua
+core\async.lua
 
 data\equipmentsets.lua
 data\categories.lua
 data\items.lua
+data\loader.lua
+data\slots.lua
 
 util\color.lua
 util\resize.lua
@@ -59,19 +62,19 @@ frames\question.lua
 frames\search.lua
 frames\slider.lua
 frames\money.lua
-frames\classic\money.lua
-frames\classic\context.lua
+frames\era\money.lua
+frames\era\context.lua
 frames\column.lua
 frames\grid.lua
 frames\item.lua
-frames\classic\item.lua
+frames\era\item.lua
 frames\itemrow.lua
-frames\classic\itemrow.lua
+frames\era\itemrow.lua
 frames\section.lua
 frames\bagbutton.lua
-frames\classic\bagbutton.lua
+frames\era\bagbutton.lua
 frames\bagslots.lua
-frames\classic\bagslots.lua
+frames\era\bagslots.lua
 frames\currency.lua
 frames\debug.lua
 
@@ -82,12 +85,12 @@ views\listview.lua
 views\bagview.lua
 
 frames\bag.lua
-frames\classic\bag.lua
+frames\era\bag.lua
 
 config\config.lua
-config\classic\config.lua
+config\era\config.lua
 config\help.lua
-config\classic\bags.lua
+config\era\bags.lua
 config\itemlist.lua
 config\customcat.lua
 
@@ -96,4 +99,4 @@ integrations\pawn.lua
 integrations\masque.lua
 
 core\init.lua
-core\classic\init.lua
+core\era\init.lua

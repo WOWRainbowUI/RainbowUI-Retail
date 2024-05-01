@@ -26,13 +26,17 @@ local itemFrame = addon:GetModule('ItemFrame')
 local item = addon:GetModule('ItemRowFrame')
 
 ---@param data ItemData
-function item.itemRowProto:SetItem(data)
-  self.data = data
+---@param static? boolean
+function item.itemRowProto:SetItemFromData(data, static)
+  self.slotkey = data.slotkey
   self.button:SetSize(20, 20)
-  self.button:SetItem(data)
+  if static then
+    self.button:SetStaticItemFromData(data)
+  else
+    self.button:SetItemFromData(data)
+  end
   self.button.frame:SetParent(self.frame)
   self.button.frame:SetPoint("LEFT", self.frame, "LEFT", 4, 0)
-
   local bagid, slotid = data.bagid, data.slotid
   if slotid then
     self.rowButton:SetID(slotid)
@@ -66,7 +70,9 @@ function item.itemRowProto:SetItem(data)
     GameTooltip:Show()
   end)
 
-  events:SendMessage('item/UpdatedRow', self)
+  if self.slotkey ~= nil then
+    events:SendMessage('item/UpdatedRow', self)
+  end
   self.frame:Show()
   self.rowButton:Show()
 end
@@ -76,6 +82,14 @@ local buttonCount = 0
 ---@return ItemRow
 function item:_DoCreate()
   local i = setmetatable({}, { __index = item.itemRowProto })
+
+  -- Backwards compatibility for item data.
+  i.data = setmetatable({}, { __index = function(_, key)
+    local d = i.button:GetItemData()
+    if d == nil then return nil end
+    return i.button:GetItemData()[key]
+  end})
+
   -- Generate the item button name. This is needed because item
   -- button textures are named after the button itself.
   local name = format("BetterBagsRowItemButton%d", buttonCount)
