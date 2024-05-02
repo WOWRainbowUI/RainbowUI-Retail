@@ -167,7 +167,6 @@ local function AddLevelToButton(button, item)
     if not (db.itemlevel and item) then
         return button.simpleilvl and button.simpleilvl:Hide()
     end
-    PrepareItemButton(button)
     local itemLevel = item:GetCurrentItemLevel()
     local quality = item:GetItemQuality()
     local itemLink = item:GetItemLink()
@@ -273,6 +272,7 @@ local function UpdateButtonFromItem(button, item, variant, suppress)
         local link = item:GetItemLink()
         local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
         local minLevel = link and select(5, GetItemInfo(link or itemID))
+        PrepareItemButton(button)
         if not suppress.level then AddLevelToButton(button, item) end
         if not suppress.upgrade then AddUpgradeToButton(button, item, equipLoc, minLevel) end
         if not suppress.bound then AddBoundToButton(button, item) end
@@ -285,6 +285,7 @@ ns.UpdateButtonFromItem = UpdateButtonFromItem
 
 local continuableContainer
 local function AddAverageLevelToFontString(unit, fontstring)
+    if not fontstring then return end
     if not continuableContainer then
         continuableContainer = ContinuableContainer:Create()
     end
@@ -370,14 +371,16 @@ do
     local levelUpdater = CreateFrame("Frame")
     levelUpdater:SetScript("OnUpdate", function(self)
         if not self.avglevel then
-            if isClassic then
+            if _G.CharacterModelFrame then
                 self.avglevel = CharacterModelFrame:CreateFontString(nil, "OVERLAY")
                 self.avglevel:SetPoint("BOTTOMLEFT", 5, 35)
-            else
+            elseif _G.CharacterModelScene then
                 self.avglevel = CharacterModelScene:CreateFontString(nil, "OVERLAY")
                 self.avglevel:SetPoint("BOTTOM", 0, 20)
             end
-            self.avglevel:SetFontObject(NumberFontNormal) -- GameFontHighlightSmall isn't bad
+            if self.avglevel then
+                self.avglevel:SetFontObject(NumberFontNormal) -- GameFontHighlightSmall isn't bad
+            end
         end
         AddAverageLevelToFontString("player", self.avglevel)
         self:Hide()
@@ -520,7 +523,8 @@ local OnTooltipSetItem = function(self)
         self:AddLine(ITEM_LEVEL:format(item:GetCurrentItemLevel()))
     end)
 end
-if _G.TooltipDataProcessor then
+if _G.C_TooltipInfo then
+    -- Cata-classic has TooltipDataProcessor, but doesn't actually use the new tooltips
     TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, OnTooltipSetItem)
 else
     GameTooltip:HookScript("OnTooltipSetItem", OnTooltipSetItem)
@@ -636,10 +640,10 @@ end)
 ns:RegisterAddonHook("Baganator", function()
     local suppress = {}
     local function check_baginator_config(value)
-        return Baganator.Config.Get("icon_top_left_corner") == value or
-            Baganator.Config.Get("icon_top_right_corner") == value or
-            Baganator.Config.Get("icon_bottom_left_corner") == value or
-            Baganator.Config.Get("icon_bottom_right_corner") == value
+        return tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY), value) or
+            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY), value) or
+            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY), value) or
+            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY), value)
     end
     local function baganator_setitemdetails(button, details)
         CleanButton(button)
@@ -669,14 +673,11 @@ ns:RegisterAddonHook("Baganator", function()
     local function baganator_hookmain()
         if Baganator_BackpackViewFrame then
             hooksecurefunc(Baganator_BackpackViewFrame.BagLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.ReagentBankLive, "RebuildLayout", baganator_rebuildlayout)
             hooksecurefunc(Baganator_BackpackViewFrame.BagCached, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(Baganator_BackpackViewFrame.ReagentBankCached, "RebuildLayout", baganator_rebuildlayout)
         end
-        if Baganator_BankOnlyViewFrame then
-            hooksecurefunc(Baganator_BankOnlyViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+        if Baganator_BankViewFrame then
+            hooksecurefunc(Baganator_BankViewFrame.BankLive, "RebuildLayout", baganator_rebuildlayout)
+            hooksecurefunc(Baganator_BankViewFrame.BankCached, "RebuildLayout", baganator_rebuildlayout)
         end
     end
     -- Depending on whether we were loaded before or after Baganator, this might or might not have already been created...
