@@ -1,6 +1,16 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4850
+* Minor fixes
+
+v.4850-Cata
+* Cataclysm update
+* Raid cooldowns: added new spells
+* Marks Bar: added world marks
+* Note: added support for spec role
+* Inspect viewer: added specs
+
 v.4840
 * New module: Reminder
 * Minor fixes

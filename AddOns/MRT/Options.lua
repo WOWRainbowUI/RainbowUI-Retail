@@ -1214,7 +1214,7 @@ end
 OptionsFrame.Changelog = ELib:ScrollFrame(OptionsFrame):Size(680,180):Point("TOP",0,-335):OnShow(function(self)
 	local text = MRT.Options.Changelog or ""
 	text = text:gsub("(v%.%d+([^\n]*).-\n\n)",function(a,b)
-		if (b == "-Classic" and MRT.isClassic and not MRT.isBC) or (b == "-BC" and MRT.isBC and not MRT.isLK) or (b == "-LK" and MRT.isLK) or ((b ~= "-Classic" and b ~= "-BC" and b ~= "-LK") and not MRT.isClassic) then
+		if (b == "-Classic" and MRT.isClassic and not MRT.isBC) or (b == "-BC" and MRT.isBC and not MRT.isLK) or (b == "-LK" and MRT.isLK and not MRT.isCata) or (b == "-Cata" and MRT.isCata) or (b == "-LK" and MRT.isCata and tonumber(a:match("%d+") or "4841")<=4840) or ((b ~= "-Classic" and b ~= "-BC" and b ~= "-LK" and b ~= "-Cata") and not MRT.isClassic) then
 			return a
 		else
 			return ""

@@ -103,6 +103,21 @@ module.db.specInDBase = {
 	[1467] = 5,	[1468] = 6,	[1473] = 7,
 	[0] = 4,
 }
+if ExRT.isCata then
+	module.db.specInDBase = {
+		[746] = 5,	[815] = 6,	[845] = 7,	
+		[831] = 5,	[839] = 6,	[855] = 7,	
+		[811] = 5,	[807] = 6,	[809] = 7,	
+		[182] = 5,	[181] = 6,	[183] = 7,	
+		[760] = 5,	[813] = 6,	[795] = 7,	
+		[398] = 5,	[399] = 6,	[400] = 7,	
+		[261] = 5,	[263] = 6,	[262] = 7,	
+		[799] = 5,	[851] = 6,	[823] = 7,	
+		[871] = 5,	[867] = 6,	[865] = 7,	
+		[752] = 5,	[750] = 6,	[748] = 7,	
+		[0] = 4,
+	}
+end
 
 do
 	local specList = {
@@ -147,6 +162,41 @@ do
 		[1473] = "EVOKERDPS2",		--Augmentation
 		[0] = "NO",
 	}
+	if ExRT.isCata then
+		specList = {
+			[746] = "WARRIORDPS1",	--Arms
+			[815] = "WARRIORDPS2",	--Fury
+			[845] = "WARRIORTANK",	--Protection
+			[831] = "PALADINHEAL",	--Holy
+			[839] = "PALADINTANK",	--Protection
+			[855] = "PALADINDPS",	--Retribution
+			[811] = "HUNTERDPS1",	--Beast Mastery
+			[807] = "HUNTERDPS2",	--Marksmanship
+			[809] = "HUNTERDPS3",	--Survival
+			[182] = "ROGUEDPS1",	--Assassination
+			[181] = "ROGUEDPS2",	--Combat
+			[183] = "ROGUEDPS3",	--Subtlety
+			[760] = "PRIESTHEAL1",	--Discipline
+			[813] = "PRIESTHEAL2",	--Holy
+			[795] = "PRIESTDPS",	--Shadow
+			[398] = "DEATHKNIGHTTANK",	--Blood
+			[399] = "DEATHKNIGHTDPS1",	--Frost
+			[400] = "DEATHKNIGHTDPS2",	--Unholy
+			[261] = "SHAMANDPS1",	--Elemental
+			[263] = "SHAMANDPS2",	--Enhancement
+			[262] = "SHAMANHEAL",	--Restoration
+			[799] = "MAGEDPS1",	--Arcane
+			[851] = "MAGEDPS2",	--Fire
+			[823] = "MAGEDPS3",	--Frost
+			[871] = "WARLOCKDPS1",	--Affliction
+			[867] = "WARLOCKDPS2",	--Demonology
+			[865] = "WARLOCKDPS3",	--Destruction
+			[752] = "DRUIDDPS1",	--Balance
+			[750] = "DRUIDDPS2",	--Feral Combat
+			[748] = "DRUIDHEAL",	--Restoration
+			[0] = "NO",
+		}
+	end
 	module.db.specInLocalizate = setmetatable({},{__index = function (t,k)
 		if tonumber(k) then
 			return specList[k] 
@@ -186,7 +236,7 @@ do
 		end
 		e[spellID] = pos
 	end
-	if ExRT.isClassic then
+	if ExRT.isClassic and not ExRT.isCata then
 		function cdsNav_set(playerName,spellID,pos)
 			local e = cdsNavData[playerName]
 			if not e then
@@ -229,7 +279,7 @@ do
 	})
 	module.db.session_gGUIDs_DEBUG = sessionData
 
-	if ExRT.isClassic then
+	if ExRT.isClassic and not ExRT.isCata then
 		module.db.session_gGUIDs = setmetatable({}, {
 			__index = function (t,k) 
 				return sessionData[k] or nilData
@@ -1197,7 +1247,7 @@ do
 			end
 		end
 
-		if ExRT.isClassic then
+		if ExRT.isClassic and not ExRT.isCata then
 			local n = {}
 			for k in pairs(module.db.spell_isTalent) do
 				if type(k) == "number" then
@@ -3727,7 +3777,7 @@ local function UpdateRoster()
 
 						for l=4,8 do
 							if spellData[l] then
-								local h = ExRT.isClassic and _db.cdsNav[name][GetSpellInfo(spellData[l][1])] or _db.cdsNav[name][spellData[l][1]]
+								local h = (ExRT.isClassic and not ExRT.isCata) and _db.cdsNav[name][GetSpellInfo(spellData[l][1])] or _db.cdsNav[name][spellData[l][1]]
 								if h then
 									h.db = spellData
 									if lastUse ~= 0 and nowCd ~= 0 and h.lastUse == 0 and h.cd == 0 then
@@ -4605,7 +4655,7 @@ function module.main:UNIT_AURA(unitID)
 		end
 		if not FD_Found then
 			local line = _db.cdsNav[UnitName(unitID)][5384]
-			if ExRT.isClassic and not line then
+			if ExRT.isClassic and not ExRT.isCata and not line then
 				line = _db.cdsNav[UnitName(unitID)][GetSpellInfo(5384)]
 			end
 			if line then
@@ -5578,7 +5628,7 @@ do
 				for i=1,#db do 
 					full = full:gsub("%$%$%$1",db[i].."$$$1")
 				end
-				if ExRT.isClassic then
+				if ExRT.isClassic and not ExRT.isCata then
 					if db.classic then
 						full = full:gsub("%$%$%$2",db.classic.."$$$2")
 					end
@@ -5665,7 +5715,7 @@ do
 
 			if spellID == 5384 then
 				local line = _db.cdsNav[name][5384]
-				if ExRT.isClassic and not line then
+				if ExRT.isClassic and not ExRT.isCata and not line then
 					line = _db.cdsNav[name][GetSpellInfo(5384)]
 				end
 				if line then
@@ -8065,7 +8115,8 @@ function module.options:Load()
 			info.opacity = currColOpt.textureBorderColorA or module.db.colsDefaults.textureBorderColorA
 			info.hasOpacity = true
 			info.swatchFunc = function()
-				local newR, newG, newB, newA = ColorPickerFrame:GetColorRGB()
+				local newR, newG, newB = ColorPickerFrame:GetColorRGB()
+				local newA = ColorPickerFrame:GetColorAlpha()
 				currColOpt.textureBorderColorR = newR
 				currColOpt.textureBorderColorG = newG
 				currColOpt.textureBorderColorB = newB
@@ -8165,7 +8216,7 @@ function module.options:Load()
 			info.opacity = 1
 			info.hasOpacity = false
 			info.swatchFunc = function()
-				local newR, newG, newB, newA = ColorPickerFrame:GetColorRGB()
+				local newR, newG, newB = ColorPickerFrame:GetColorRGB()
 				currColOpt[self.inOptName.."R"] = newR
 				currColOpt[self.inOptName.."G"] = newG
 				currColOpt[self.inOptName.."B"] = newB
@@ -8174,7 +8225,7 @@ function module.options:Load()
 				self.color:SetColorTexture(newR,newG,newB,1)
 			end
 			info.cancelFunc = function()
-				local newR, newG, newB, newA = ColorPickerFrame:GetPreviousValues()
+				local newR, newG, newB = ColorPickerFrame:GetPreviousValues()
 				currColOpt[self.inOptName.."R"] = newR
 				currColOpt[self.inOptName.."G"] = newG
 				currColOpt[self.inOptName.."B"] = newB
@@ -8549,7 +8600,7 @@ function module.options:Load()
 
 	--> Method options
 
-	self.optColSet.superTabFrame.tab[6].scroll = ELib:ScrollFrame(self.optColSet.superTabFrame.tab[6]):Point("TOP"):Size(456,444):Height(535)
+	self.optColSet.superTabFrame.tab[6].scroll = ELib:ScrollFrame(self.optColSet.superTabFrame.tab[6]):Point("TOP"):Size(456,444):Height(535+25*2)
 	ELib:Border(self.optColSet.superTabFrame.tab[6].scroll,0)
 	self.optColSet.col6scroll = self.optColSet.superTabFrame.tab[6].scroll.C
 	self.optColSet.col6scroll:SetWidth(456 - 16)
@@ -14602,7 +14653,131 @@ module.db.AllSpells = {
 		isTalent=true,isCovenant=2},
 }
 
-if ExRT.isLK then
+if ExRT.isCata then
+	module.db.AllSpells = {
+		{29166,	"DRUID",	1,	{29166,	180,	10}},	--Озарение
+		{20484,	"DRUID",	1,	{20484,	600,	0}},	--BR
+		{6795,	"DRUID",	1,	{6795,	8,	0}},	--Taunt
+		{740,	"DRUID",	1,	{740,	480,	8}},	--Tranq
+		{5209,	"DRUID",	1,	{5209,	180,	6}},	--Challenging Roar
+		{33891,	"DRUID",	1,	{33891,	180,	25}},	--Tree of Life
+		{48505,	"DRUID",	1,	{48505,	90,	10}},	--Звездопад
+		{50334,	"DRUID",	1,	{50334,	180,	15}},	--Берсерк
+
+		{355,	"WARRIOR",	1,	{355,	8,	0}},	--Taunt
+		{12975,	"WARRIOR",	1,	{12975,	180,	20}},	--Last stand
+		{871,	"WARRIOR",	1,	{871,	300,	10}},	--SW
+		{1161,	"WARRIOR",	1,	{1161,	180,	6}},	--Challenging Shout
+		{12809,	"WARRIOR",	1,	{12809,	30,	5}},	--Concussion Blow
+		{676,	"WARRIOR",	1,	{676,	60,	10}},	--Disarm
+		{55694,	"WARRIOR",	1,	{55694,	180,	10}},	--Enraged Regeneration
+		{64382,	"WARRIOR",	1,	{64382,	300,	10}},	--Shattering Throw	
+
+		{11958,	"MAGE",		1,	{11958,	480,	0}},	--Cold Snap
+		{12472,	"MAGE",		1,	{12472,	180,	20}},	--IV
+		{45438,	"MAGE",		1,	{45438,	300,	10}},	--IB
+		{55342,	"MAGE",		1,	{55342,	180,	30}},	--Mirrors
+
+		{642,	"PALADIN",	1,	{642,	300,	8}},	--DS
+		{633,	"PALADIN",	1,	{633,	600,	0}},	--LoH
+		{86150,	"PALADIN",	1,	{86150,	300,	0}},	--
+		{31884,	"PALADIN",	1,	{31884,	180,	20}},	--AW
+		{1022,	"PALADIN",	1,	{1022,	300,	10}},	--BoP
+		{1044,	"PALADIN",	1,	{1044,	25,	6}},	--Freedom
+		{1038,	"PALADIN",	1,	{1038,	120,	10}},	--Salv
+		{6940,	"PALADIN",	1,	{6940,	120,	12}},	--Sac
+		{62124,	"PALADIN",	1,	{62124,	8,	0}},	--Taunt
+		{64205,	"PALADIN",	1,	{64205,	120,	10}},	--Divine Sacrifice
+		{31821,	"PALADIN",	1,	{31821,	120,	6}},	--Aura Mastery
+		{54428,	"PALADIN",	1,	{54428,	120,	9}},	--Divine Plea
+
+		{16190,	"SHAMAN",	1,	{16190,	180,	12}},	--MTT
+		{98008,	"SHAMAN",	1,	{98008,	180,	6}},	--SLT
+		{32182,	"SHAMAN",	1,	{32182,	300,	40},	specialCheck=function() if UnitFactionGroup('player')=="Alliance" then return true end end},	--BL [A]
+		{2825,	"SHAMAN",	1,	{2825,	300,	40},	specialCheck=function() if UnitFactionGroup('player')=="Horde" then return true end end},	--BL [H]
+		{20608,	"SHAMAN",	1,	{21169,	1800,	0}},	--Reincarnation
+		{2894, 	"SHAMAN",	1,	{2894,	600,	120}},	--FET
+		{2062, 	"SHAMAN",	1,	{2062, 	600,	120}},	--EET
+
+		{20707,	"WARLOCK",	1,	{20707,	900,	0}},	--Soulstone
+
+		{34477, "HUNTER",	1,	{34477,	30,	0}},	--MD
+		{19577, "HUNTER",	1,	{19577,	60,	3}},	--MD
+		{5384, 	"HUNTER",	1,	{5384,	30,	0}},	--Feign Death
+
+		{64843, "PRIEST",	1,	{64843,	480,	8}}, 	--Divine Hymn
+		{62618, "PRIEST",	1,	{62618,	180,	10}}, 	--Слово силы: Барьер
+		{724, 	"PRIEST",	1,	{724,	180,	0}}, 	--Lightwell
+		{6346, 	"PRIEST",	1,	{6346,	180,	0}}, 	--Fear Ward
+		{10060, "PRIEST",	1,	{10060,	120,	15}},	--Power Infusion
+		{64901, "PRIEST",	1,	{64901,	360,	0}}, 	--Hymn of Hope
+		{47788, "PRIEST",	1,	{47788,	180,	10}}, 	--Guardian Spirit
+		{33206, "PRIEST",	1,	{33206,	180,	8}}, 	--Pain Suppression
+
+		{5277, 	"ROGUE",	1,	{5277,	180,	15}},	--Evasion
+		{57934, "ROGUE",	1,	{57934,	30,	6}},	--Tricks of the Trade
+
+		{49576,	"DEATHKNIGHT",	1,	{49576,	35,	0}},	--Grip
+		{48707,	"DEATHKNIGHT",	1,	{48707,	45,	5}},	--AMS
+		{42650,	"DEATHKNIGHT",	1,	{42650,	600,	0}},	--Army
+		{61999,	"DEATHKNIGHT",	1,	{61999,	600,	0}},	--Res
+		{56222,	"DEATHKNIGHT",	1,	{56222,	8,	0}},	--Taunt
+		{51052,	"DEATHKNIGHT",	1,	{51052,	120,	10}},	--AMZ
+		{49028,	"DEATHKNIGHT",	1,	{49028,	90,	12}},	--DRW
+		{49016,	"DEATHKNIGHT",	1,	{49016,	180,	30}},	--Unholy Frenzy
+	}
+	module.db.spell_isTalent[GetSpellInfo(16190) or "spell:16190"] = true	module.db.spell_isTalent[16190] = true
+	module.db.spell_isTalent[GetSpellInfo(10060) or "spell:10060"] = true	module.db.spell_isTalent[10060] = true
+	module.db.spell_isTalent[GetSpellInfo(11958) or "spell:11958"] = true	module.db.spell_isTalent[11958] = true
+	module.db.spell_isTalent[GetSpellInfo(51052) or "spell:51052"] = true	module.db.spell_isTalent[51052] = true
+	module.db.spell_isTalent[GetSpellInfo(47788) or "spell:47788"] = true	module.db.spell_isTalent[47788] = true
+	module.db.spell_isTalent[GetSpellInfo(33206) or "spell:33206"] = true	module.db.spell_isTalent[33206] = true
+	module.db.spell_isTalent[GetSpellInfo(724) or "spell:724"] = true	module.db.spell_isTalent[724] = true
+	module.db.spell_isTalent[GetSpellInfo(64205) or "spell:64205"] = true	module.db.spell_isTalent[64205] = true
+	module.db.spell_isTalent[GetSpellInfo(49028) or "spell:49028"] = true	module.db.spell_isTalent[49028] = true
+	module.db.spell_isTalent[GetSpellInfo(49016) or "spell:49016"] = true	module.db.spell_isTalent[49016] = true
+	module.db.spell_isTalent[GetSpellInfo(31821) or "spell:31821"] = true	module.db.spell_isTalent[31821] = true
+	module.db.spell_isTalent[33891] = true
+	module.db.spell_isTalent[48505] = true
+	module.db.spell_isTalent[50334] = true
+
+	module.db.spell_resetOtherSpells[GetSpellInfo(11958) or "spell:11958"] = {GetSpellInfo(45438)}
+
+	module.db.spell_aura_list[GetSpellInfo(45438) or "spell:45438"] = GetSpellInfo(45438)
+	module.db.spell_aura_list[GetSpellInfo(47788) or "spell:47788"] = GetSpellInfo(47788)
+	module.db.spell_aura_list[GetSpellInfo(9863) or "spell:9863"] = GetSpellInfo(9863)
+
+	module.db.spell_afterCombatNotReset[GetSpellInfo(20608) or "spell:20608"] = true	module.db.spell_afterCombatNotReset[20608] = true
+
+	module.db.spell_cdByTalent_fix[31884] = {53375,{-20,-40,-60}}
+	module.db.spell_cdByTalent_fix[871] = {12312,{-30,-60}}
+	module.db.spell_cdByTalent_fix[10278] = {20174,{-60,-120}}
+	module.db.spell_cdByTalent_fix[10310] = {20234,{-120,-240}}
+	module.db.spell_cdByTalent_fix[11958] = {55091,{"*0.9","*0.8"}}
+	module.db.spell_cdByTalent_fix[33206] = {47507,{"*0.9","*0.8"}}
+	module.db.spell_cdByTalent_fix[10060] = {47507,{"*0.9","*0.8"}}
+	module.db.spell_cdByTalent_fix[20608] = {16209,{"*0.75","*0.5"}}
+	module.db.spell_cdByTalent_fix[9863] = {17123,{"*0.7","*0.4"}}
+	module.db.spell_cdByTalent_fix[42650] = {55620,{-60,-120}}
+	module.db.spell_cdByTalent_fix[49576] = {49588,{-5,-10}}
+
+	module.db.spell_cdByTalent_fix[740] = {92363,{-150,-300}}
+	module.db.spell_cdByTalent_fix[64843] = {87430,{-150,-300}}
+
+	module.db.spell_durationByTalent_fix[1044] = {20174,{2,4}}
+	module.db.spell_durationByTalent_fix[98008] = {16173,{"*1.2","*1.4"}}
+	module.db.spell_durationByTalent_fix[16190] = {16173,{"*1.2","*1.4"}}
+
+	module.db.spellIgnoreAfterFirstUse[9863] = 10
+	module.db.spellIgnoreAfterFirstUse[64843] = 10
+	module.db.spellIgnoreAfterFirstUse[64901] = 10
+	module.db.spellIgnoreAfterFirstUse[42650] = 10
+
+	module.db.spell_startCDbyAuraFade[GetSpellInfo(57934) or "spell:57934"] = 57934		module.db.spell_startCDbyAuraFade[57934] = 57934
+	module.db.spell_startCDbyAuraFade[GetSpellInfo(57934) or "spell:57934"] = GetSpellInfo(57934)		module.db.spell_startCDbyAuraFade[57934] = GetSpellInfo(57934)
+
+	module.db.spell_sharingCD[GetSpellInfo(31884) or "spell:31884"] = {[GetSpellInfo(642) or "spell:642"]=30}
+elseif ExRT.isLK then
 	module.db.AllSpells = {
 		{29166,	"DRUID",	1,	{29166,	180,	20}},	--Озарение
 		{20748,	"DRUID",	1,	{20748,	600,	0}},	--BR

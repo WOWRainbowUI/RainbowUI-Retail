@@ -1,9 +1,9 @@
-## Interface: 11501
+## Interface: 11502, 40400
 ## Title: Method Raid Tools
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 4840
+## Version: 4850
 core.lua
 Functions.lua
 embeds.xml

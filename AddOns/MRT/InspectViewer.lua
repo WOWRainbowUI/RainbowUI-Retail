@@ -523,7 +523,7 @@ function module.options:Load()
 
 	local GetSpecializationInfoByID = GetSpecializationInfoByID
 	if ExRT.isClassic then
-		GetSpecializationInfoByID = ExRT.Classic.GetSpecializationInfoByID
+		GetSpecializationInfoByID = GetSpecializationInfoForSpecID or ExRT.Classic.GetSpecializationInfoByID
 	end
 
 	local function reloadChks(self)
@@ -997,7 +997,7 @@ function module.options:Load()
 					if specIcon then
 						line.spec.texture:SetTexture(specIcon)
 						line.spec.id = spec
-					elseif ExRT.isClassic then
+					elseif ExRT.isClassic and not ExRT.isCata then
 						line.spec.texture:SetTexture("")
 						line.spec.id = nil
 					else
@@ -1627,7 +1627,7 @@ function module.options:Load()
 						if specIcon then
 							line.spec.texture:SetTexture(specIcon)
 							line.spec.id = spec
-						elseif ExRT.isClassic then
+						elseif ExRT.isClassic and not ExRT.isCata then
 							line.spec.texture:SetTexture("")
 							line.spec.id = nil
 						else

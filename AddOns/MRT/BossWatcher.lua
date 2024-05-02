@@ -5,7 +5,7 @@ local ceil = ceil
 local UnitCombatlogname = ExRT.F.UnitCombatlogname
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
-local UnitGetTotalAbsorbs = ExRT.isClassic and ExRT.NULLfunc or UnitGetTotalAbsorbs
+local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs or ExRT.NULLfunc
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local UnitGUID = UnitGUID
@@ -25,7 +25,7 @@ local bit_band = bit.band
 local tremove = tremove
 local strsplit = strsplit
 local type = type
-local UnitGroupRolesAssigned = ExRT.isClassic and ExRT.NULLfunc or UnitGroupRolesAssigned
+local UnitGroupRolesAssigned = UnitGroupRolesAssigned or ExRT.NULLfunc
 
 local VMRT = nil
 
@@ -2461,7 +2461,7 @@ CLEUParser = function(timestamp,event,hideCaster,sourceGUID,sourceName,sourceFla
 	-- SPELL_BUILDING_DAMAGE
 	-- SPELL_BUILDING_HEAL
 end
-if ExRT.isClassic then
+if ExRT.isClassic and not ExRT.isCata then
 	CLEUParser = function(timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,val1,val2,val3,val4,val5,val6,val7,val8,val9,val10,val11,val12,val13)
 		if event ~= "SWING_DAMAGE" and event ~= "SWING_MISSED" then
 			val1 = val2
@@ -2669,7 +2669,7 @@ function BWInterfaceFrameLoad()
 	-- Some upvaules
 	local ipairs,pairs,tonumber,tostring,format,date,min,sort,table = ipairs,pairs,tonumber,tostring,format,date,min,sort,table
 	local GetSpellInfo = GetSpellInfo
-	if ExRT.isClassic then
+	if ExRT.isClassic and not ExRT.isCata then
 		local _GetSpellInfo = GetSpellInfo
 		function GetSpellInfo(spellID)
 			if type(spellID) == 'string' then
@@ -4020,7 +4020,7 @@ function BWInterfaceFrameLoad()
 			if isSpell then
 				local spellID = key
 				local isPet = 1
-				if (not ExRT.isClassic) and spellID < -1 then
+				if (not ExRT.isClassic or ExRT.isCata) and spellID < -1 then
 					isPet = -1
 					spellID = -spellID
 				end
@@ -4422,7 +4422,7 @@ function BWInterfaceFrameLoad()
 			local isPetAbility = damageLine.info == "pet"
 			local spellID = damageLine.spell
 
-			local isDoT = (not ExRT.isClassic) and spellID < 0
+			local isDoT = (not ExRT.isClassic or ExRT.isCata) and spellID < 0
 			if isDoT then
 				spellID = -spellID
 			end
@@ -8795,7 +8795,7 @@ function BWInterfaceFrameLoad()
 			if isSpell then
 				local spellID = key
 				local isPet = 1
-				if (not ExRT.isClassic) and spellID < -1 then
+				if (not ExRT.isClassic or ExRT.isCata) and spellID < -1 then
 					isPet = -1
 					spellID = -spellID
 				end
@@ -9607,7 +9607,7 @@ function BWInterfaceFrameLoad()
 			local healLine = heal[i]
 			local isPetAbility = healLine.info == "pet"
 			local spellID = healLine.spell
-			local isHoT = (not ExRT.isClassic) and spellID < 0
+			local isHoT = (not ExRT.isClassic or ExRT.isCata) and spellID < 0
 			if isHoT then
 				spellID = -spellID
 			end
