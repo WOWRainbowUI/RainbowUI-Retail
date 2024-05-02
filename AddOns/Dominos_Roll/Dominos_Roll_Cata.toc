@@ -5,4 +5,9 @@
 ## Author: Tuller
 ## Dependencies: Dominos
 ## IconTexture: Interface/AddOns/Dominos/Dominos
+
+## Title-zhTW: |cff00CCFF[快捷列]|r 達美樂-骰子面板
+## Notes-zhTW:  Dominos Roll |n|n讓在隊伍中擲骰子和通知面板可以移動。
+## X-Category-zhTW: 介面
+
 rollBar.lua

@@ -9,6 +9,10 @@
 ## LoadOnDemand: 1
 ## IconTexture: Interface/AddOns/Dominos/Dominos
 
+## Title-zhTW: |cff00CCFF[快捷列]|r 達美樂-設定選項
+## Notes-zhTW: Dominos Config |n|n提供快捷列圖形介面的設定選項功能。|n|n|cffffd200使用方法: |r點小地圖按鈕進行設定。
+## X-Category-zhTW: 介面
+
 ## embeds.xml
 localization.xml
 main.lua
