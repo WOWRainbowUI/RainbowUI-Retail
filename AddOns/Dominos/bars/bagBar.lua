@@ -61,7 +61,7 @@ function BagBar:SetShowKeyRing(enable)
 end
 
 function BagBar:ShowKeyRing()
-    return self.sets.keyRing and not Addon:IsBuild('retail')
+    return self.sets.keyRing and not Addon:IsBuild('retail', 'cata')
 end
 
 -- Frame Overrides
@@ -146,7 +146,7 @@ function BagBar:OnCreateMenu(menu)
         end
     }
 
-    if not Addon:IsBuild('retail') then
+    if not Addon:IsBuild('retail', 'cata') then
         layoutPanel:NewCheckButton {
             name = L.BagBarShowKeyRing,
             get = function()
@@ -257,7 +257,7 @@ if Addon:IsBuild("retail") then
 
         BagButtons[#BagButtons + 1] = button
     end
-elseif Addon:IsBuild("wrath") then
+elseif Addon:IsBuild("cata", "wrath") then
     function BagBarModule:RegisterButton(name)
         local button = _G[name]
         if not button then
@@ -286,7 +286,7 @@ else
 end
 
 function BagBarModule:RegisterKeyRingButton()
-    if not KeyRingButton then
+    if Addon:IsBuild("cata") or not KeyRingButton then
         return
     end
 

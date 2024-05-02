@@ -1,4 +1,4 @@
-## Interface: 30403
+## Interface: 40400
 ## Title: Dominos Cast
 ## Title-zhCN: Dominos 施法条模块
 ## Notes: A movable casting bar, with timer
@@ -6,12 +6,6 @@
 ## Author: Tuller
 ## Dependencies: Dominos
 ## IconTexture: Interface/AddOns/Dominos/Dominos
-
-## Title-zhTW: |cff00CCFF[快捷列]|r 達美樂-施法條
-## Notes-zhTW: Dominos Cast |n|n讓施法條可以移動、顯示時間。
-## X-Category-zhTW: 介面
-## DefaultState: disabled
-
 localization.xml
 DominosTimerBarTemplate.xml
 castBar.lua

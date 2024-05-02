@@ -1,20 +1,14 @@
-## Interface: 30403
+## Interface: 40400
 ## Title: Dominos
 ## Notes: A main actionbar replacement
 ## Notes-zhCN: 一种动作条替换方案
 ## Author: Tuller
-## Version: 10.2.26
+## Version: 10.2.28
 ## SavedVariables: DominosDB
 ## OptionalDeps: Ace3, LibKeyBound-1.0, LibSharedMedia-3.0, Masque, FlyPaper, LibDualSpec-1.0
 ## IconTexture: Interface/AddOns/Dominos/Dominos
 ## AddonCompartmentFunc: Dominos_Launch
 # stuff required for the addon to work
-
-## Title-zhTW: |cff00CCFF[快捷列]|r 達美樂
-## Notes-zhTW: Dominos |n|n用來取代遊戲內建的主要快捷列，提供方便的快捷列配置、快速鍵設定，讓你可以自由安排快捷列的位置和大小，以及多種自訂功能。|n|n|cffffd200使用方法: |r點小地圖按鈕進行設定。
-## X-Category-zhTW: 介面
-## DefaultState: disabled
-
 embeds.xml
 localization.xml
 Dominos.lua
