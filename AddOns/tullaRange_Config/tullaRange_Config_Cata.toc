@@ -1,4 +1,4 @@
-## Interface: 11502
+## Interface: 40400
 ## Title: tullaRange Config
 ## Notes: GUI based configuration for tullaRange
 ## Author: Tuller
