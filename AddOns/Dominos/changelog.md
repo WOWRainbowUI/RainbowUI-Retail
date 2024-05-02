@@ -1,5 +1,13 @@
 # Dominos Changelog
 
+## 10.2.28
+
+* (Cata) Update Paladin aura paging options
+
+## 10.2.27
+
+* Add support for Cataclysm Classic
+
 ## 10.2.26
 
 * Fix issues causing action bars 11-14 to not be bindable in classic versions
