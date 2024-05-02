@@ -219,7 +219,7 @@ end
 
 function module:SetupWorldMap()
 	local button
-	if WorldMapFrame.AddOverlayFrame then
+	if WorldMapFrame.AddOverlayFrame and WorldMapFrame.NavBar then
 		-- This taints currently:
 		-- button = WorldMapFrame:AddOverlayFrame(nil, "Button", "RIGHT", WorldMapFrame.NavBar, "RIGHT", -4, 0)
 		-- so for now just do this:
@@ -231,7 +231,9 @@ function module:SetupWorldMap()
 	else
 		-- classic!
 		button = CreateFrame("Button", nil, WorldMapFrame)
-		button:SetPoint("TOPRIGHT", -45, -2)
+		button:SetFrameLevel(5)
+		button:SetPoint("RIGHT", WorldMapFrame.MaximizeMinimizeFrame, "LEFT", 4, 0)
+
 		hooksecurefunc(WorldMapFrame, "OnMapChanged", function()
 			button:Refresh()
 		end)
@@ -519,8 +521,9 @@ do
 				end
 			end
 		end
-		if not _G.TooltipDataProcessor then
+		if not _G.C_TooltipInfo then
 			-- if that exists it'll already have magically handled the gametooltip
+			-- Cata-classic has TooltipDataProcessor, but doesn't actually use the new tooltips
 			core:GetModule("Tooltip"):UpdateTooltip(mobid, true, true)
 		end
 		GameTooltip:AddLine("左鍵: 顯示地圖位置", 0, 1, 1)
