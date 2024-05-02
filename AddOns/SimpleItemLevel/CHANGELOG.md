@@ -1,8 +1,7 @@
 # Simple Item Level
 
-## [v33.4](https://github.com/kemayo/wow-simpleitemlevel/tree/v33.4) (2024-02-25)
-[Full Changelog](https://github.com/kemayo/wow-simpleitemlevel/compare/v33.3...v33.4) [Previous Releases](https://github.com/kemayo/wow-simpleitemlevel/releases)
+## [v34](https://github.com/kemayo/wow-simpleitemlevel/tree/v34) (2024-05-02)
+[Full Changelog](https://github.com/kemayo/wow-simpleitemlevel/compare/v33.5...v34) [Previous Releases](https://github.com/kemayo/wow-simpleitemlevel/releases)
 
-- Update for a change in Baganator  
-    Needs more investigation for item levels in reagent bags...  
-    Fixes #32  
+- TOC for Cataclysm  
+- Fix constant errors in cataclysm classic  
