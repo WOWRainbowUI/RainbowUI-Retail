@@ -29,14 +29,17 @@ local L = localization
 local GetClassInfo,GetSpecializationInfoByID,EJ_GetEncounterInfo,EJ_GetInstanceInfo = GetClassInfo,GetSpecializationInfoByID,EJ_GetEncounterInfo,EJ_GetInstanceInfo
 
 if ExRT.isClassic then
-	GetClassInfo = ExRT.Classic.GetClassInfo
-	GetSpecializationInfoByID = ExRT.Classic.GetSpecializationInfoByID
-	EJ_GetEncounterInfo = ExRT.NULLfunc
-	EJ_GetInstanceInfo = ExRT.NULLfunc
+	if not ExRT.isCata then
+		GetClassInfo = ExRT.Classic.GetClassInfo
+		EJ_GetEncounterInfo = ExRT.NULLfunc
+		EJ_GetInstanceInfo = ExRT.NULLfunc
+	end
+	GetSpecializationInfoByID = GetSpecializationInfoForSpecID or ExRT.Classic.GetSpecializationInfoByID
 
 	--Global rewrite
 	if not EXPANSION_NAME7 then EXPANSION_NAME7 = "BFA" end
 	if not EXPANSION_NAME8 then EXPANSION_NAME8 = "Shadowlands" end
+	if not EXPANSION_NAME9 then EXPANSION_NAME9 = "DF" end
 	if not TOOLTIP_AZERITE_UNLOCK_LEVELS then TOOLTIP_AZERITE_UNLOCK_LEVELS = "" end
 end
 

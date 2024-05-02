@@ -1,9 +1,9 @@
-## Interface: 11501
+## Interface: 11502, 40400
 ## Title: Method Raid Tools
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 4840
+## Version: 4850
 
 ## Title-zhTW: |cffFF7F00[團隊]|r MRT 團隊工具包
 ## Notes-zhTW: Method Raid Tools |n|n提供出團時會用到的許多方便功能。像是團隊分析觀察、準備確認、檢查食物精煉、上光柱標記助手、團隊技能CD監控、團隊輔助工具和一些首領的戰鬥模組...等。|n|n|cffffd200使用方法：|r點小地圖按鈕。

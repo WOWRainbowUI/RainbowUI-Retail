@@ -1459,7 +1459,7 @@ end
 function module:ExtraCheckParams(extraCheck,params)
 	extraCheck = module:FormatMsg(extraCheck,params)
 
-	if not extraCheck:find("[=~]") then
+	if not extraCheck:find("[=~<>]") then
 		return false, false
 	else
 		if GSUB_YesNoCondition(extraCheck,1) == "1" then
@@ -4299,7 +4299,8 @@ function module.options:Load()
 			info.opacity = a
 			info.hasOpacity = true
 			info.swatchFunc = function()
-				local newR, newG, newB, newA = ColorPickerFrame:GetColorRGB()
+				local newR, newG, newB = ColorPickerFrame:GetColorRGB()
+				local newA = ColorPickerFrame:GetColorAlpha()
 				module.options.setupFrame.data.glowColor = format("%02x%02x%02x%02x",newA*255,newR*255,newG*255,newB*255)
 	
 				module.options.setupFrame.glowColorEdit:SetText(module.options.setupFrame.data.glowColor)
@@ -9533,6 +9534,16 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 				end
 
 				if updateInfo and not updateInfo.isFullUpdate then
+					if updateInfo.removedAuraInstanceIDs then
+						for _, auraInstanceID in ipairs(updateInfo.removedAuraInstanceIDs) do
+							local aura = a[auraInstanceID]
+							if aura then
+								a[auraInstanceID] = nil
+								if aura.spellId then a.s[aura.spellId] = nil end
+								if aura.name then a.n[aura.name] = nil end
+							end
+						end
+					end
 					if updateInfo.addedAuras then
 						for _, aura in pairs(updateInfo.addedAuras) do
 							a[aura.auraInstanceID] = aura
@@ -9552,17 +9563,6 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 								else
 									newAura.rem_changed_dur = nil
 								end
-							end
-						end
-					end
-					
-					if updateInfo.removedAuraInstanceIDs then
-						for _, auraInstanceID in ipairs(updateInfo.removedAuraInstanceIDs) do
-							local aura = a[auraInstanceID]
-							if aura then
-								a[auraInstanceID] = nil
-								if aura.spellId then a.s[aura.spellId] = nil end
-								if aura.name then a.n[aura.name] = nil end
 							end
 						end
 					end

@@ -1,8 +1,8 @@
---	07.03.2024
+--	01.05.2024
 
 local GlobalAddonName, MRT = ...
 
-MRT.V = 4840
+MRT.V = 4850
 MRT.T = "R"
 
 MRT.Slash = {}			--> функции вызова из коммандной строки
@@ -54,6 +54,13 @@ elseif MRT.clientVersion < 50000 then
 	MRT.isLK = true
 	MRT.isCata = true
 	MRT.T = "Cataclysm"
+elseif MRT.clientVersion < 60000 then
+	MRT.isClassic = true
+	MRT.isBC = true
+	MRT.isLK = true
+	MRT.isCata = true
+	MRT.isMoP = true
+	MRT.T = "Pandaria"
 elseif MRT.clientVersion >= 100000 then
 	MRT.is10 = true
 end
@@ -839,6 +846,9 @@ local function send(self)
 		sendLimit[p] = (sendLimit[p] or SEND_LIMIT) + floor((t - (sendPrev[p] or 0))/1000)
 		if sendLimit[p] > SEND_LIMIT then
 			sendLimit[p] = SEND_LIMIT
+		elseif sendLimit[p] < -30 and sendPrev[p] and t < sendPrev[p] then
+			sendPrev[p] = t
+			sendLimit[p] = 0
 		end
 		if sendLimit[p] > 0 then
 			local cp = 1

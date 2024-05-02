@@ -12,7 +12,7 @@ lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
 local callbacks = lib.callbacks
 
 local GetPlayerInfoByGUID, UnitExists, IsAddOnLoaded, C_Timer, UnitIsUnit, SecureButton_GetUnit =
-  GetPlayerInfoByGUID, UnitExists, IsAddOnLoaded, C_Timer, UnitIsUnit, SecureButton_GetUnit
+  GetPlayerInfoByGUID, UnitExists, C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded, C_Timer, UnitIsUnit, SecureButton_GetUnit
 local tinsert, CopyTable, wipe = tinsert, CopyTable, wipe
 
 local maxDepth = 50

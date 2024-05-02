@@ -1936,11 +1936,97 @@ ExRT.GDB.ClassID = {
 	EVOKER=13,
 }
 
+if ExRT.isCata then
+	ExRT.GDB.ClassSpecializationList = {
+		WARRIOR = {746,815,845},	--Arms,Fury,Protection
+		PALADIN = {831,839,855},	--Holy,Protection,Retribution
+		HUNTER = {811,807,809},	--Beast Mastery,Marksmanship,Survival
+		ROGUE = {182,181,183},	--Assassination,Combat,Subtlety
+		PRIEST = {760,813,795},	--Discipline,Holy,Shadow
+		DEATHKNIGHT = {398,399,400},	--Blood,Frost,Unholy
+		SHAMAN = {261,263,262},	--Elemental,Enhancement,Restoration
+		MAGE = {799,851,823},	--Arcane,Fire,Frost
+		WARLOCK = {871,867,865},	--Affliction,Demonology,Destruction
+		DRUID = {752,750,748},	--Balance,Feral Combat,Restoration
+	}
+	 
+	ExRT.GDB.ClassSpecializationIcons = {
+		[181] = 132090,
+		[182] = 132292,
+		[183] = 132320,
+		[261] = 136048,
+		[262] = 136052,
+		[263] = 136051,
+		[398] = 135770,
+		[399] = 135773,
+		[400] = 135775,
+		[746] = 132355,
+		[748] = 136041,
+		[750] = 132276,
+		[752] = 136096,
+		[760] = 135940,
+		[795] = 136207,
+		[799] = 135932,
+		[807] = 236179,
+		[809] = 461113,
+		[811] = 461112,
+		[813] = 237542,
+		[815] = 132347,
+		[823] = 135846,
+		[831] = 135920,
+		[839] = 236264,
+		[845] = 132341,
+		[851] = 135810,
+		[855] = 135873,
+		[865] = 136186,
+		[867] = 136172,
+		[871] = 136145,
+	}
+	 
+	ExRT.GDB.ClassSpecializationRole = {
+		[181] = "MELEE",
+		[182] = "MELEE",
+		[183] = "MELEE",
+		[261] = "RANGE",
+		[262] = "HEAL",
+		[263] = "MELEE",
+		[398] = "TANK",
+		[399] = "MELEE",
+		[400] = "MELEE",
+		[746] = "MELEE",
+		[748] = "HEAL",
+		[750] = "MELEE",
+		[752] = "RANGE",
+		[760] = "HEAL",
+		[795] = "RANGE",
+		[799] = "RANGE",
+		[807] = "RANGE",
+		[809] = "RANGE",
+		[811] = "RANGE",
+		[813] = "HEAL",
+		[815] = "MELEE",
+		[823] = "RANGE",
+		[831] = "HEAL",
+		[839] = "TANK",
+		[845] = "TANK",
+		[851] = "RANGE",
+		[855] = "MELEE",
+		[865] = "RANGE",
+		[867] = "RANGE",
+		[871] = "RANGE",
+	}
+end
+
 
 if ExRT.isClassic then
 	--GetClassInfo
 	local classLocalizateEngine = {}
-	FillLocalizedClassList(classLocalizateEngine)
+	if LocalizedClassList then
+		local classList = LocalizedClassList()
+		MergeTable(classLocalizateEngine, classList)
+	elseif FillLocalizedClassList then
+		FillLocalizedClassList(classLocalizateEngine)
+	end
 
 	ExRT.Classic.GetClassInfo = function(id) 
 		return classLocalizateEngine[ ExRT.GDB.ClassList[id] ] or "unk" 

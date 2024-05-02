@@ -9,7 +9,38 @@ local GetTime, GetSpecializationInfo = GetTime, GetSpecializationInfo
 local string_gsub, strsplit, tonumber, format, string_match, floor, string_find, type, string_gmatch = string.gsub, strsplit, tonumber, format, string.match, floor, string.find, type, string.gmatch
 
 local GetSpecialization = GetSpecialization
-if MRT.isClassic then
+if MRT.isCata then
+	GetSpecialization = function()
+		local n,m = 1,1
+		for spec=1,3 do
+			local selectedNum = 0
+			for talPos=1,22 do
+				local name, iconTexture, tier, column, rank, maxRank, isExceptional, available = GetTalentInfo(spec, talPos)
+				if name and maxRank > 0 and rank > 0 then
+					selectedNum = selectedNum + 1
+				end
+			end
+			if selectedNum > m then
+				n = spec
+				m = selectedNum
+			end
+		end
+		return n
+	end
+	GetSpecializationInfo = function(specNum)
+		local specs = MRT.GDB.ClassSpecializationList[select(2,UnitClass'player')]
+		if not specs or not specs[specNum] then
+			return
+		end
+		local role = MRT.GDB.ClassSpecializationRole[ specs[specNum] ]
+		if role == "MELEE" or role == "RANGE" then
+			role = "DAMAGER"
+		elseif role == "HEAL" then
+			role = "HEALER"
+		end
+		return 0,0,0,0,role
+	end
+elseif MRT.isClassic then
 	GetSpecialization = MRT.NULLfunc
 end
 
@@ -1885,9 +1916,9 @@ function module.options:Load()
 
 	self.textHelp = ELib:Text(self.tab.tabs[3],
 		"|cffffff00||cffRRGGBB|r...|cffffff00||r|r - "..L.NoteHelp1..
-		(not MRT.isClassic and "|n|cffffff00{D}|r...|cffffff00{/D}|r - "..format(L.NoteHelp2,DAMAGER) or "")..
-		(not MRT.isClassic and "|n|cffffff00{H}|r...|cffffff00{/H}|r - "..format(L.NoteHelp2,HEALER) or "")..
-		(not MRT.isClassic and "|n|cffffff00{T}|r...|cffffff00{/T}|r - "..format(L.NoteHelp2,TANK) or "")..
+		((not MRT.isClassic or MRT.isCata) and "|n|cffffff00{D}|r...|cffffff00{/D}|r - "..format(L.NoteHelp2,DAMAGER) or "")..
+		((not MRT.isClassic or MRT.isCata) and "|n|cffffff00{H}|r...|cffffff00{/H}|r - "..format(L.NoteHelp2,HEALER) or "")..
+		((not MRT.isClassic or MRT.isCata) and "|n|cffffff00{T}|r...|cffffff00{/T}|r - "..format(L.NoteHelp2,TANK) or "")..
 		"|n|cffffff00{spell:|r|cff00ff0017|r|cffffff00}|r - "..L.NoteHelp3..
 		"|n|cffffff00{self}|r - "..L.NoteHelp4..
 		"|n|cffffff00{p:|r|cff00ff00JaneD|r|cffffff00,|r|cff00ff00JennyB-HowlingFjord|r|cffffff00}|r...|cffffff00{/p}|r - "..L.NoteHelp5..

@@ -304,8 +304,20 @@ if not ExRT.isClassic and UnitLevel'player' > 50 then
 	module.db.tableAP = {[6673]=true,}
 end
 
-
-if ExRT.isLK then
+if ExRT.isCata then
+	module.db.classicBuffs = {
+		{"druid","5% Stats",136078,{[79061]=true,[90363]=true,[79063]=true}},	--Gift of the Wild
+		{"int","Int",135932,{[79058]=true,[61316]=true,[54424]=true}},	--Arcane Intellect
+		{"spd","SPD",135932,{[79058]=true,[61316]=true,[52109]=true,[77747]=true,[53646]=true}},
+		{"str","Str+Agi",132333,{[57330]=true,[93435]=true,[8076]=true,[6673]=true}},	--Battle Shout
+		{"ap","AP",136110,{[53138]=true,[19506]=true,[79102]=true,[30808]=true}},	--Battle Shout
+		{"stamina","Stamina",135987,{[79105]=true,[90364]=true,[6307]=true,[469]=true}},	--Power Word: Fortitude
+		{"mp5","MP5",135908,{[79102]=true,[5677]=true,[54424]=true}},
+		{"crit","Crit",136112,{[24932]=true,[393387]=true,[51470]=true,[51701]=true,[90309]=true,[24604]=true}},
+		{"hastecast","Cast speed",136057,{[24907]=true,[49868]=true,[2895]=true}},
+		{"hasteatk","ATK speed",136114,{[53290]=true,[55610]=true,[8515]=true}},
+	}
+elseif ExRT.isLK then
 	module.db.classicBuffs = {
 		{"druid","Druid",136078,{[48470]=9,[26991]=8,[21850]=7,[21849]=6,[1126]=1,[5232]=2,[5234]=4,[6756]=3,[8907]=5,[9884]=6,[9885]=7,[26990]=8,[48469]=9,[69381]=9}},	--Gift of the Wild
 		{"int","Int",135932,{[43002]=7,[27126]=6,[10157]=5,[10156]=4,[1461]=3,[1460]=2,[1459]=1,[23028]=5,[27127]=6,[42995]=7,[61316]=3,[61024]=7}},	--Arcane Intellect
@@ -336,7 +348,9 @@ else
 		{"stamina","Stamina",135987,{[1243]=1,[21562]=5,[21564]=6,[1244]=2,[1245]=3,[2791]=4,[10937]=5,[10938]=6,}},	--Power Word: Fortitude
 	}
 end
-if ExRT.isLK then
+if ExRT.isCata then
+
+elseif ExRT.isLK then
 	module.db.classicBuffs[#module.db.classicBuffs+1] = {"bom","BoM",135908,{[19740]=1,[19834]=2,[19835]=3,[19836]=4,[19837]=5,[19838]=6,[25291]=7,[27140]=8,[48931]=9,[48932]=10,[25782]=6,[25916]=7,[27141]=8,[48933]=9,[48934]=10}}	--Blessing of Might
 	module.db.classicBuffs[#module.db.classicBuffs+1] = {"bow","BoW",135970,{[19742]=1,[19850]=2,[19852]=3,[19853]=4,[19854]=5,[25290]=6,[27142]=7,[48935]=8,[48936]=9,[25894]=5,[25918]=6,[27143]=7,[48937]=8,[48938]=9}}	--Blessing of Wisdom
 	module.db.classicBuffs[#module.db.classicBuffs+1] = {"bok","BoK",135993,{[20217]=1,[25898]=1,[69378]=1}}	--Blessing of Kings
@@ -1699,7 +1713,7 @@ if ExRT.isClassic then
 		RCW_iconsListHeaders[i] = nil
 		RCW_iconsListDebugIcons[i] = nil
 	end
-	if ExRT.isBC then
+	if ExRT.isBC and not ExRT.isCata then
 		RCW_liveToClassicDiff = RCW_liveToClassicDiff + 1
 		RCW_iconsList[#RCW_iconsList+1] = "scrolls"
 		RCW_iconsListHeaders[#RCW_iconsList] = "Scrolls"
@@ -1970,6 +1984,8 @@ local function CreateCol(line,key,i)
 	end
 end
 
+local RCW_CataFix = 55
+
 local RCW_iconsList_ORIGIN = #RCW_iconsList
 function module.frame:UpdateCols()
 	for i=RCW_iconsList_ORIGIN+1,#RCW_iconsList do
@@ -1993,7 +2009,7 @@ function module.frame:UpdateCols()
 	end
 	for i=1,40 do
 		local line = module.frame.lines[i]
-		line:SetSize(420+60+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff+colsAdd*30,14)
+		line:SetSize(420+60+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff+colsAdd*30+RCW_CataFix,14)
 
 		local prevPointer = line[ RCW_iconsList[RCW_iconsList_ORIGIN].."pointer" ]
 
@@ -2028,7 +2044,7 @@ function module.frame:Create()
 		else
 			line:SetPoint("TOPLEFT", module.frame.lines[i-1], "BOTTOMLEFT", 0, -0)
 		end
-		line:SetSize(420+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff,14)
+		line:SetSize(420+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff+RCW_CataFix,14)
 
 		line.name = ELib:Text(line,"raid"..i):Size(130,12):Point("LEFT",20,0):Font(ExRT.F.defFont,12):Color():Shadow()
 
@@ -2772,7 +2788,7 @@ function module.frame:UpdateData(onlyLine)
 						if flaskNum >= 3 then line.flask3.texture:SetTexture(RCW_iconsListDebugIcons[2]) line.flask3:Show() end
 						if flaskNum >= 4 then line.flask4.texture:SetTexture(RCW_iconsListDebugIcons[2]) line.flask4:Show() end
 
-						if ExRT.isBC then
+						if ExRT.isBC and line.scrolls then
 							local scrollNum = self.testData[line.pos].scrollNum or math.random(0,4)
 							self.testData[line.pos].scrollNum = scrollNum
 	
