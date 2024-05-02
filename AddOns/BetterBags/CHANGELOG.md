@@ -1,6 +1,6 @@
 # BetterBags
 
-## [v0.1.31](https://github.com/Cidan/BetterBags/tree/v0.1.31) (2024-05-02)
-[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.30...v0.1.31) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
+## [v0.1.32](https://github.com/Cidan/BetterBags/tree/v0.1.32) (2024-05-02)
+[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.31...v0.1.32) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
 
-- Fixed a bug where items with partial stacks that aren't merged would not split or update correctly.  
+- Fixed a bug where the keyring was being classified as a bag slot in classic.  
