@@ -85,6 +85,7 @@ L.INSTANCETIMER = "副本訊息"
 L.VAULTINFORMATION = "傳奇+ 寶庫進度"
 L.TIMELIMIT = "時間限制"
 L.SEASON = "賽季"
+L.COMBATMESSAGE = { errormsg = "Key Master無法在戰鬥中使用。", chatmsg = "介面將會在您離開戰鬥後開啟。"}
 
 L.COMMANDLINE = {} -- translate whatever in this section would be standard of an addon in the language. i.e. /km show, /km XXXX, or /XX XXXX It will work just fine.
 L.COMMANDLINE["/km"] = { name = "/km", text = "/km"}
@@ -119,6 +120,7 @@ L.PLAYERFRAME["New"] = { name = "新", text = "你完成此鑰石+1後的評分�
 L.PLAYERFRAME["RatingCalculator"] = { name = "評分計算", text = "計算潛在評分收益。"}
 L.PLAYERFRAME["EnterKeyLevel"] = { name = "輸入鑰石層數", text = "輸入一個鑰石層數來觀看"}
 L.PLAYERFRAME["YourBaseRating"] = { name = "基礎評分收益", text = "你的基礎評分收益預測。"}
+L.PLAYERFRAME["Characters"] = "角色"
 
 L.CHARACTERINFO = {}
 L.CHARACTERINFO["NoKeyFound"] = { name = "未找到鑰石", text = "未找到鑰石"}
@@ -138,6 +140,11 @@ L.CONFIGURATIONFRAME["DiagnosticSettings"] = { name = "診斷設定", text = "�
 L.CONFIGURATIONFRAME["DisplayErrorMessages"] = { name = "顯示錯誤", text = "顯示錯誤訊息。"}
 L.CONFIGURATIONFRAME["DisplayDebugMessages"] = { name = "顯示偵錯", text = "顯示偵錯訊息。"}
 L.CONFIGURATIONFRAME["DiagnosticsAdvanced"] = { name = "進階診斷", text="注意: 這些僅用於診斷目的。 如果啟用，他們可能會洗您的聊天視窗！"}
+L.CONFIGURATIONFRAME["CharacterSettings"] = { name="角色清單過濾", text = "分身角色清單過濾選項。" }
+L.CONFIGURATIONFRAME["FilterByServer"] = { name = "當前伺服器", text = "僅顯示當前伺服器。" }
+L.CONFIGURATIONFRAME["FilterByNoRating"] = { name = "無評分", text = "僅顯示有評分的角色。" }
+L.CONFIGURATIONFRAME["FilterByNoKey"] = { name = "無鑰石No Key", text = "僅顯示有鑰石的角色。" }
+L.CONFIGURATIONFRAME["Purge"] = { present = "清除", past = "已清除" }
 
 L.ABOUTFRAME = {}
 L.ABOUTFRAME["AboutGeneral"] = { name = "Key Master 資訊", text = "Key Master 資訊"}
@@ -145,6 +152,7 @@ L.ABOUTFRAME["AboutAuthors"] = { name = "作者", text = "作者"}
 L.ABOUTFRAME["AboutSpecialThanks"] = { name = "特別感謝", text = "特別感謝"}
 L.ABOUTFRAME["AboutContributors"] = { name = "貢獻者", text = "貢獻者"}
 L.ABOUTFRAME["Translators"] = { text = "翻譯者" }
+L.ABOUTFRAME["WhatsNew"] = { text = "顯示更新的訊息"}
 
 L.SYSTEMMESSAGE = {}
 L.SYSTEMMESSAGE["NOTICE"] = { text = "注意: 巨龍崛起第4賽季評分計算仍待驗證。"}
