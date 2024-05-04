@@ -1,4 +1,4 @@
-## Interface: 20504
+## Interface: 40400
 
 ## X-Curse-Project-ID: 7474
 ## X-WoWI-ID: 5342
@@ -18,11 +18,6 @@
 ## OptionalDeps: LibStub, CallbackHandler-1.0, ChatThrottleLib, LibSharedMedia-3.0, LibChatHandler-1.0, LibChatAnims
 ## X-Embeds: LibStub, CallbackHandler-1.0, ChatThrottleLib, LibSharedMedia-3.0, LibChatHandler-1.0, LibChatAnims
 ## SavedVariables: WIM3_Data, WIM3_Cache, WIM3_Filters, WIM3_History, WIM3_ChatFilters, WIM3_Alias
-
-## Title-zhTW: |cffFF9999[聊天]|r 魔獸世界即時通
-## Notes-zhTW: WIM |n|n密語會彈出小視窗，就像使用即時通訊軟體般的方便。|n|n|cffffd200使用方法: |r滑鼠左鍵點小地圖按鈕選擇密語對象，右鍵點小地圖按鈕開啟設定。
-## X-Category-zhTW: 社交
-## IconTexture: Interface\Icons\ui_chat
 
 Libs\Includes.xml
 Sources\Namespace.lua
