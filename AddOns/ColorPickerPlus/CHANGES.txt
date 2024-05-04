@@ -1,10 +1,16 @@
-tag 1a093554c2be25d0b819ec3449e67d5738c14c6d r61
+tag 73ad07eb1968aecd767154eaefbf007acf58bc3d r62
 Author:	Benjamin Staneck <staneck@gmail.com>
-Date:	Thu May 2 03:39:01 2024 +0200
+Date:	Thu May 2 13:31:32 2024 +0200
 
-commit 810cfb965d9196ac9194a5ed96b01d01e2fe0814
+commit 17a786a9df9f2b1568b862bce0af2528714851ea
+Author: Kyle Scheuing <kyle@kylescheuing.com>
+Date:   Wed May 1 22:35:12 2024 -0400
+
+    Fix alpha text on classic
+
+commit b74a33e4b2d290682446015b99329040c8714b8c
 Author: Benjamin Staneck <staneck@gmail.com>
-Date:   Thu May 2 03:38:43 2024 +0200
+Date:   Thu May 2 04:48:25 2024 +0200
 
-    Cata fixes
+    Cleanup
 
