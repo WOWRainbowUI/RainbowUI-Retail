@@ -105,6 +105,8 @@ if LOCALE == "enUS" then
 	L["GoldTime"] = "Gold Time: "
 	L["SilverTime"] = "Silver Time: "
 	--L["SetMapPin_TT"] = "Click to set Map Pin"
+	L["MuteVigorSound_Settings"] = "Mute Vigor Sound"
+	L["MuteVigorSound_SettingsTT"] = "Toggle the sound that plays when the dragonriding mount naturally gains a stack of vigor."
 
 return end
 
@@ -201,6 +203,9 @@ if LOCALE == "esES" or LOCALE == "esMX" then
 	L["BestCharacter"] = "Mejor Personaje: "
 	L["GoldTime"] = "Tiempo Oro: "
 	L["SilverTime"] = "Tiempo Plata: "
+	L["MuteVigorSound_Settings"] = "Silenciar sonido de Vigor"
+	L["MuteVigorSound_SettingsTT"] = "Alternar el sonido que se reproduce cuando la montura dragón naturalmente obtiene una acumulación de vigor."
+
 
 return end
 
@@ -297,6 +302,9 @@ if LOCALE == "deDE" then
 	L["BestCharacter"] = "Bester Charakter: "
 	L["GoldTime"] = "Goldzeit: "
 	L["SilverTime"] = "Silberzeit: "
+	L["MuteVigorSound_Settings"] = "Vigor-Ton stummschalten"
+	L["MuteVigorSound_SettingsTT"] = "Schaltet den Ton ein/aus, der abgespielt wird, wenn das Drachenreittier natürlich einen Stapel an Ausdauer erhält."
+
 
 return end
 
@@ -393,6 +401,9 @@ if LOCALE == "frFR" then
 	L["BestCharacter"] = "Meilleur personnage : "
 	L["GoldTime"] = "Temps Or : "
 	L["SilverTime"] = "Temps Argent : "
+	L["MuteVigorSound_Settings"] = "Muter le son de Vigueur"
+	L["MuteVigorSound_SettingsTT"] = "Activer/désactiver le son qui se joue lorsque la monture de dragon obtient naturellement une pile de vigueur."
+
 
 return end
 
@@ -489,6 +500,9 @@ if LOCALE == "itIT" then
 	L["BestCharacter"] = "Miglior personaggio: "
 	L["GoldTime"] = "Tempo Oro: "
 	L["SilverTime"] = "Tempo Argento: "
+	L["MuteVigorSound_Settings"] = "Silenzia suono Vigore"
+	L["MuteVigorSound_SettingsTT"] = "Attiva/disattiva il suono che si riproduce quando la montatura del drago guadagna naturalmente uno stack di vigore."
+
 
 return end
 
@@ -585,6 +599,9 @@ if LOCALE == "ptBR" then
 	L["BestCharacter"] = "Melhor Personagem: "
 	L["GoldTime"] = "Tempo Ouro: "
 	L["SilverTime"] = "Tempo Prata: "
+	L["MuteVigorSound_Settings"] = "Silenciar Som de Vigor"
+	L["MuteVigorSound_SettingsTT"] = "Alternar o som que é reproduzido quando a montaria de dragão naturalmente ganha uma pilha de vigor."
+
 
 -- Note that the EU Portuguese WoW client also
 -- uses the Brazilian Portuguese locale code.
@@ -683,6 +700,9 @@ if LOCALE == "ruRU" then
 	L["BestCharacter"] = "Лучший персонаж: "
 	L["GoldTime"] = "Золотое время: "
 	L["SilverTime"] = "Серебряное время: "
+	L["MuteVigorSound_Settings"] = "Выключить звук силы"
+	L["MuteVigorSound_SettingsTT"] = "Переключить звук, который проигрывается, когда ездовое средство на драконе естественным образом получает стопку силы."
+
 
 
 return end
@@ -780,6 +800,9 @@ if LOCALE == "koKR" then
 	L["BestCharacter"] = "최고 캐릭터: "
 	L["GoldTime"] = "금 시간: "
 	L["SilverTime"] = "은 시간: "
+	L["MuteVigorSound_Settings"] = "체력 사운드 음소거"
+	L["MuteVigorSound_SettingsTT"] = "드래곤 라이딩 마운트가 체력 스택을 자연적으로 얻을 때 재생되는 소리를 토글합니다."
+
 
 
 return end
@@ -879,6 +902,9 @@ if LOCALE == "zhCN" then
 	L["GoldTime"] = "金牌时间: "
 	L["SilverTime"] = "银牌时间: "
 	--non-official translations
+	L["MuteVigorSound_Settings"] = "静音活力音效"
+	L["MuteVigorSound_SettingsTT"] = "切换龙骑坐骑自然获得活力堆栈时播放的声音。"
+
 
 return end
 
@@ -975,5 +1001,8 @@ if LOCALE == "zhTW" then
 	L["BestCharacter"] = "最佳角色: "
 	L["GoldTime"] = "金牌時間: "
 	L["SilverTime"] = "銀牌時間: "
+	L["MuteVigorSound_Settings"] = "静音活力音效"
+	L["MuteVigorSound_SettingsTT"] = "切换龙骑坐骑自然获得活力堆栈时播放的声音。"
+
 
 return end

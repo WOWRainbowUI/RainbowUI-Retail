@@ -67,6 +67,7 @@ local defaultsTable = {
 	fadeVigor = true,
 	fadeSpeed = true,
 	lightningRush = true,
+	muteVigorSound = false,
 
 };
 
@@ -353,6 +354,7 @@ DR.charge:RegisterEvent("SPELL_UPDATE_COOLDOWN")
 
 function DR:chargeSetup(number)
 	if UIWidgetPowerBarContainerFrame then
+		DR.SetUpChargePos(number)
 		if UIWidgetPowerBarContainerFrame.widgetFrames[5140] then -- gold tex
 			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Empty.blp")
 			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Cover.blp")
@@ -365,6 +367,9 @@ function DR:chargeSetup(number)
 		elseif UIWidgetPowerBarContainerFrame.widgetFrames[5145] then -- dark tex
 			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Dark_Empty.blp")
 			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Dark_Cover.blp")
+		elseif C_UnitAuras.GetPlayerAuraBySpellID(418590) then -- default fallback, buff exists, not stormrider
+			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Empty.blp")
+			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Cover.blp")
 		else
 			DR.charge[number].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Empty.blp")
 			DR.charge[number].texCover:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Cover.blp")
@@ -373,17 +378,31 @@ function DR:chargeSetup(number)
 	end
 end
 
-for i = 1, 10 do
-	DR.charge[i] = CreateFrame("Frame")
-	DR.charge[i]:SetSize(25,25)
+function DR.SetUpChargePos(i)
 	DR.charge[1]:SetPoint("CENTER", UIWidgetPowerBarContainerFrame, -61,15)
 	if i ~= 1 then
-		DR.charge[i]:SetPoint("CENTER", DR.charge[i-1], 30.5, 0)
+		if C_UnitAuras.GetPlayerAuraBySpellID(417888) then
+			DR.charge[i]:SetPoint("CENTER", DR.charge[i-1], 30.5, 0)
+		else
+			DR.charge[i]:SetPoint("CENTER", DR.charge[i-1], 26.75, 0)
+		end
 		DR.charge[i]:SetParent(DR.charge[i-1])
 	end
 	if DR.charge[6] then
-		DR.charge[6]:SetPoint("CENTER", DR.charge[1], 0, -30)
+		if C_UnitAuras.GetPlayerAuraBySpellID(417888) then
+			DR.charge[6]:SetPoint("CENTER", DR.charge[1], 0, -30)
+		else
+			DR.charge[6]:SetPoint("CENTER", DR.charge[1], 0, -33)
+		end
 	end
+end
+
+for i = 1, 10 do
+	DR.charge[i] = CreateFrame("Frame")
+	DR.charge[i]:SetSize(25,25)
+
+	DR.SetUpChargePos(i)
+
 	DR.charge[i].texBase = DR.charge[i]:CreateTexture(nil, "OVERLAY", nil, 0)
 	DR.charge[i].texBase:SetAllPoints(DR.charge[i])
 	DR.charge[i].texBase:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Gold_Empty.blp")
@@ -418,9 +437,14 @@ function DR.toggleCharges(self, event, arg1)
 		end
 	end
 	if event == "SPELL_UPDATE_COOLDOWN" then
-		local start, duration, enabled, modRate = GetSpellCooldown(418592)
-		if ( start > 0 and duration > 0) then
-			local cdLeft = start + duration - GetTime()
+		local isEnabled, startTime, modRate, duration
+		if C_Spell.GetSpellCooldown then
+			isEnabled, startTime, modRate, duration = C_Spell.GetSpellCooldown(418592).isEnabled, C_Spell.GetSpellCooldown(418592).startTime, C_Spell.GetSpellCooldown(418592).modRate, C_Spell.GetSpellCooldown(418592).duration
+		else
+			isEnabled, startTime, modRate, duration = GetSpellCooldown(418592)
+		end
+		if ( startTime > 0 and duration > 0) then
+			local cdLeft = startTime + duration - GetTime()
 			for i = 1,10 do
 				DR.charge[i].texFill:SetTexture("Interface\\AddOns\\DragonRider\\Textures\\Points_Fill_CD.blp");
 			end
@@ -714,11 +738,16 @@ function DR.setPositions()
 		DR.statusbar:SetPoint("LEFT", ParentFrame, "RIGHT", DragonRider_DB.speedometerPosX, DragonRider_DB.speedometerPosY);
 	end
 
-	DR.charge[1]:SetPoint("TOPLEFT", ParentFrame, "TOPLEFT", 45,8)
+	if C_UnitAuras.GetPlayerAuraBySpellID(417888) then
+		DR.charge[1]:SetPoint("TOPLEFT", ParentFrame, "TOPLEFT", 45,8)
+	else
+		DR.charge[1]:SetPoint("TOPLEFT", ParentFrame, "TOPLEFT", 31,14)
+	end
 	DR.charge[1]:SetParent(ParentFrame)
 	DR.charge[1]:SetScale(1.5625)
+
 	for i = 1, 10 do
-		if C_UnitAuras.GetPlayerAuraBySpellID(417888) and DragonRider_DB.lightningRush == true then
+		if C_UnitAuras.GetPlayerAuraBySpellID(418590) and DragonRider_DB.lightningRush == true then
 			DR.charge[i]:Show();
 			DR:chargeSetup(i)
 		else
@@ -960,6 +989,14 @@ local goldTime
 local silverTime
 local currentRace
 
+function DR.MuteVigorSound()
+	if DragonRider_DB.muteVigorSound == true then
+		MuteSoundFile(1489541)
+	else
+		UnmuteSoundFile(1489541)
+	end
+end
+
 function DR:toggleEvent(event, arg1)
 
 	if event == "CURRENCY_DISPLAY_UPDATE" then
@@ -1063,6 +1100,10 @@ function DR:toggleEvent(event, arg1)
 			DragonRider_DB.raceData = {};
 			DragonRider_DB.raceData[charKey] = {};
 		end
+		if DragonRider_DB.muteVigorSound == nil then
+			DragonRider_DB.muteVigorSound = false
+		end
+		DR.MuteVigorSound()
 
 
 		---------------------------------------------------------------------------------------------------------------------------------
@@ -1075,6 +1116,7 @@ function DR:toggleEvent(event, arg1)
 			DR.vigorCounter()
 			DR.setPositions()
 			DR.DoWidgetThings()
+			DR.MuteVigorSound()
 		end
 
 		local category, layout = Settings.RegisterVerticalLayoutCategory("Dragon Rider")
@@ -1246,6 +1288,18 @@ function DR:toggleEvent(event, arg1)
 			setting:SetValue(DragonRider_DB[variable])
 		end
 
+		do
+			local variable = "muteVigorSound"
+			local name = L["MuteVigorSound_Settings"]
+			local tooltip = L["MuteVigorSound_SettingsTT"]
+			local defaultValue = false
+
+			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
+			Settings.CreateCheckBox(category, setting, tooltip)
+			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
+			setting:SetValue(DragonRider_DB[variable])
+		end
+
 
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(SPECIAL));
 
@@ -1371,6 +1425,7 @@ function DR:toggleEvent(event, arg1)
 				DragonRider_DB = CopyTable(defaultsTable);
 				DR.vigorCounter();
 				DR.setPositions();
+				DR.MuteVigorSound();
 			end,
 			timeout = 0,
 			whileDead = true,
