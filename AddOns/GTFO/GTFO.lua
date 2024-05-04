@@ -26,13 +26,13 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.7"; -- Version number (text format)
+	Version = "5.7.1"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 50700; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 50701; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 50700; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
-	CataclysmVersionNumber = 50700; -- Numeric version number for checking out-of-date clients (Wrath classic)
+	CataclysmVersionNumber = 50701; -- Numeric version number for checking out-of-date clients (Wrath classic)
 	DataLogging = nil; -- Indicate whether or not the addon needs to run the datalogging function (for hooking)
 	DataCode = "4"; -- Saved Variable versioning, change this value to force a reset to default
 	CanTank = nil; -- The active character is capable of tanking
@@ -1968,14 +1968,14 @@ function GTFO_CheckTankMode()
 				--GTFO_DebugPrint("Bear Form found - tank mode activated");
 				return true;
 			end
-		elseif ((not (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode)) and (GTFO.PlayerClass == "MONK" or GTFO.PlayerClass == "DEMONHUNTER" or GTFO.PlayerClass == "WARRIOR" or GTFO.PlayerClass == "DEATHKNIGHT" or GTFO.PlayerClass == "PALADIN")) then
+		elseif ((not (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode or GTFO.CataclysmMode)) and (GTFO.PlayerClass == "MONK" or GTFO.PlayerClass == "DEMONHUNTER" or GTFO.PlayerClass == "WARRIOR" or GTFO.PlayerClass == "DEATHKNIGHT" or GTFO.PlayerClass == "PALADIN")) then
 			-- Get the exact specialization role as defined by the class
 			local spec = GetSpecialization();
 			if (spec and GetSpecializationRole(spec) == "TANK") then
 				--GTFO_DebugPrint("Tank spec found - tank mode activated");
 				return true;
 			end
-		elseif ((GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode) and (GTFO.PlayerClass == "WARRIOR" or GTFO.PlayerClass == "PALADIN" or GTFO.PlayerClass == "DEATHKNIGHT")) then
+		elseif ((GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode or GTFO.CataclysmMode) and (GTFO.PlayerClass == "WARRIOR" or GTFO.PlayerClass == "PALADIN" or GTFO.PlayerClass == "DEATHKNIGHT")) then
 			GTFO.CanTank = true;
 		else
 			--GTFO_DebugPrint("Failed Tank Mode - This code shouldn't have ran");
@@ -1992,7 +1992,7 @@ function GTFO_CheckCasterMode()
 			return true;
 		end
 
-		if not (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode) then
+		if not (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode or GTFO.CataclysmMode) then
 			-- Get the exact specialization role as defined by the class
 			local spec = GetSpecialization();
 			if (spec) then
@@ -2029,7 +2029,7 @@ function GTFO_IsTank()
 	if (GTFO_CanTankCheck()) then
 		if (GTFO.PlayerClass == "PALADIN") then
 			-- Check for Righteous Fury (Classic)
-			if (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode) then
+			if (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode or GTFO.CataclysmMode) then
 				return GTFO_HasBuff("player", 25780);
 			end
 			
@@ -2042,7 +2042,7 @@ function GTFO_IsTank()
 			return GTFO_HasBuff("player", 5487);
 		elseif (GTFO.PlayerClass == "DEATHKNIGHT") then
 			-- Check for Frost Presence (Wrath Classic)
-			if (GTFO.WrathMode) then
+			if (GTFO.WrathMode or GTFO.CataclysmMode) then
 				return GTFO_HasBuff("player", 48263);
 			end
 			
@@ -2089,7 +2089,7 @@ function GTFO_RegisterTankEvents()
 end
 
 function GTFO_RegisterCasterEvents()
-	if not (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode) then
+	if not (GTFO.ClassicMode or GTFO.BurningCrusadeMode or GTFO.WrathMode or GTFO.CataclysmMode) then
 		GTFOFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 		GTFOFrame:RegisterEvent("PLAYER_TALENT_UPDATE");	
 	end

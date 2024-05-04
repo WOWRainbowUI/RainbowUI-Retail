@@ -2017,3 +2017,7 @@ Change Log:
 * Added Legion spells for The Broken Isles (world)
 * Added Battle for Azeroth spells (world)
 * Added BFA spells for Mechagon
+
+5.7.1
+* Fixed Cataclysm Classic support
+* Added Dragonflight spells (world)
