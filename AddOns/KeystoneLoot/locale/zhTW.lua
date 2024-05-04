@@ -15,7 +15,6 @@ Translate['%s (%s Season %d)'] = '%s（%s 第 %d 賽季）';
 Translate['Veteran'] = '老兵';
 Translate['Champion'] = '勇士';
 Translate['Hero'] = '英雄';
-Translate['Great Vault'] = RATED_PVP_WEEKLY_VAULT;
 Translate['Revival Catalyst'] = '重生育籃控制台';
 Translate['Correct loot specialization set?'] = '是否有正確設定戰利品拾取專精?';
 
