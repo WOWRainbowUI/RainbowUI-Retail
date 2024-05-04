@@ -64,6 +64,11 @@ local function ClearButton(view, item)
   local bagid, slotid = view:ParseSlotKey(item.slotkey)
   cell:SetFreeSlots(bagid, slotid, -1, "Recently Deleted")
   view:AddDeferredItem(item.slotkey)
+  local section = view:GetSlotSection(item.slotkey)
+  if section then
+    view:AddDirtySection(section.title:GetText())
+  end
+  view:AddDirtySection(item.itemInfo.category)
   addon:GetBagFromBagID(bagid).drawOnClose = true
 end
 
@@ -81,6 +86,7 @@ local function CreateButton(view, item)
   itemButton:SetItem(item.slotkey)
   local section = view:GetOrCreateSection(item.itemInfo.category)
   section:AddCell(itemButton:GetItemData().slotkey, itemButton)
+  view:AddDirtySection(item.itemInfo.category)
   view:SetSlotSection(itemButton:GetItemData().slotkey, section)
 end
 
@@ -90,6 +96,8 @@ local function UpdateButton(view, slotkey)
   view:RemoveDeferredItem(slotkey)
   local itemButton = view:GetOrCreateItemButton(slotkey)
   itemButton:SetItem(slotkey)
+  local data = itemButton:GetItemData()
+  view:AddDirtySection(data.itemInfo.category)
 end
 
 -- UpdateDeletedSlot updates the slot key of a deleted slot, while maintaining the
@@ -100,12 +108,19 @@ end
 local function UpdateDeletedSlot(view, oldSlotKey, newSlotKey)
   local oldSlotCell = view.itemsByBagAndSlot[oldSlotKey]
   local oldSlotSection = view:GetSlotSection(oldSlotKey)
+  if not oldSlotSection then
+    UpdateButton(view, newSlotKey)
+    return
+  end
   oldSlotSection:RekeyCell(oldSlotKey, newSlotKey)
   oldSlotCell:SetItem(newSlotKey)
   view.itemsByBagAndSlot[newSlotKey] = oldSlotCell
   view.itemsByBagAndSlot[oldSlotKey] = nil
   view:SetSlotSection(newSlotKey, oldSlotSection)
   view:RemoveSlotSection(oldSlotKey)
+  view:AddDirtySection(oldSlotCell:GetItemData().itemInfo.category)
+  local newData = items:GetItemDataFromSlotKey(newSlotKey)
+  view:AddDirtySection(newData.itemInfo.category)
 end
 
 
@@ -164,20 +179,30 @@ local function GridView(view, bag, slotInfo)
   end
 
   debug:StartProfile('Section Draw Stage')
-  for sectionName, section in pairs(view:GetAllSections()) do
-      -- Remove the section if it's empty, otherwise draw it.
-    if not slotInfo.deferDelete then
-      if section:GetCellCount() == 0 then
-        debug:Log("RemoveSection", "Removed because empty", sectionName)
-        view:RemoveSection(sectionName)
-        section:ReleaseAllCells()
-        section:Release()
-      else
-        debug:Log("KeepSection", "Section kept because not empty", sectionName)
-        section:SetMaxCellWidth(sizeInfo.itemsPerRow)
-        section:Draw(bag.kind, database:GetBagView(bag.kind), false)
+  if not slotInfo.deferDelete then
+    local dirtySections = view:GetDirtySections()
+    for sectionName in pairs(dirtySections) do
+      local section = view:GetSection(sectionName)
+      -- We need to check for the section here, as a section
+      -- may have been added to dirty items when it doesn't
+      -- exist yet. This happens when a new item's "new item"
+      -- status expires, it's category is no longer a new item
+      -- but the actual category hasn't been drawn yet.
+      if section ~= nil then
+        -- Remove the section if it's empty, otherwise draw it.
+        if section:GetCellCount() == 0 then
+          debug:Log("Section", "Removing section", sectionName)
+          view:RemoveSection(sectionName)
+          section:ReleaseAllCells()
+          section:Release()
+        else
+          debug:Log("Section", "Drawing section", sectionName)
+          section:SetMaxCellWidth(sizeInfo.itemsPerRow)
+          section:Draw(bag.kind, database:GetBagView(bag.kind), false)
+        end
       end
     end
+    view:ClearDirtySections()
   end
   debug:EndProfile('Section Draw Stage')
 
