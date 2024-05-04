@@ -105,6 +105,8 @@ if LOCALE == "enUS" then
 	L["GoldTime"] = "Gold Time: "
 	L["SilverTime"] = "Silver Time: "
 	--L["SetMapPin_TT"] = "Click to set Map Pin"
+	L["MuteVigorSound_Settings"] = "Mute Vigor Sound"
+	L["MuteVigorSound_SettingsTT"] = "Toggle the sound that plays when the dragonriding mount naturally gains a stack of vigor."
 
 return end
 
@@ -203,6 +205,8 @@ if LOCALE == "zhCN" then
 	L["GoldTime"] = "金牌时间: "
 	L["SilverTime"] = "银牌时间: "
 	--non-official translations
+	L["MuteVigorSound_Settings"] = "静音活力音效"
+	L["MuteVigorSound_SettingsTT"] = "切换龙骑坐骑自然获得活力堆栈时播放的声音。"
 
 return end
 
@@ -299,5 +303,7 @@ if LOCALE == "zhTW" then
 	L["BestCharacter"] = "最佳角色: "
 	L["GoldTime"] = "金牌時間: "
 	L["SilverTime"] = "銀牌時間: "
+	L["MuteVigorSound_Settings"] = "靜音活力音效"
+	L["MuteVigorSound_SettingsTT"] = "切換飛龍坐騎自然獲得活力格數時播放的音效。"
 
 return end
