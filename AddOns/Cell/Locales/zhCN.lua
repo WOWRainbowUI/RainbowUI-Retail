@@ -303,9 +303,10 @@ L["Group Columns"] = "队伍列数"
 L["Group Rows"] = "队伍行数"
 L["Group Spacing"] = "队伍间距"
 
-L["Sort By Role (Party Only)"] = "按职责排序（仅小队）"
-L["Hide Self (Party Only)"] = "隐藏自己（仅小队）"
+L["Combine Groups"] = "合并队伍"
+L["Sort By Role"] = "按职责排序"
 L["Hide Self"] = "隐藏自己"
+L["%s is required"] = "需要%s"
 
 L["Use Same Size As Main"] = "使用与主框体相同的尺寸"
 L["Use Same Arrangement As Main"] = "使用与主框体相同的排列"
@@ -408,6 +409,7 @@ L["Status Text"] = "状态文字"
 L["Health Text"] = "血量文字"
 L["Status Icon"] = "状态图标"
 L["Role Icon"] = "职责图标"
+L["Party Assignment Icon"] = "职位图标"
 L["Leader Icon"] = "队长图标"
 L["Ready Check Icon"] = "就位确认图标"
 L["Raid Icon (player)"] = "团队标记 (玩家)"
@@ -451,6 +453,7 @@ L["Bar"] = "进度条"
 L["Text"] = "文本"
 L["Icons"] = "图标组"
 L["Bars"] = "进度条组"
+L["Overlay"] = "叠加层"
 
 L["Enabled"] = "启用"
 L["Anchor Point"] = "锚点"
@@ -523,6 +526,7 @@ L["Cast By"] = "来源"
 L["Me"] = "我"
 L["Anyone"] = "任何人"
 L["Others"] = "其他人"
+L["smooth"] = "平滑"
 
 L["Click to preview"] = "点击预览"
 L["Debug Mode"] = "调试模式"
@@ -820,6 +824,17 @@ L["Click to view older changelogs"] = "点击查看远古更新记录"
 L["CHANGELOGS"] = [[
     <h1>更新后如果有各种问题，先排查代码片段。</h1>
     <p>（正式服）如果指示器不能正常刷新，尝试启用常规页面下的“总是更新增益/减益”选项。</p>
+    <br/>
+
+    <h1>r222-release (May 4, 2024, 00:40 GMT+8)</h1>
+    <p>+ 适配大灾变怀旧服。</p>
+    <p>+ 新增“合并队伍”功能（支持按职责排序），此选项位于布局页面内。</p>
+    <p>+ 新自定义指示器：叠加层（进度条）。</p>
+    <p>+ 为指示器的法术列表添加了“清除/导入/导出”的功能。</p>
+    <p>* 将特别关注框体的按钮上限提升至15个。</p>
+    <p>* 修复追随者地下城中AI队友的血条颜色。</p>
+    <p>* 修复“文本/矩形/进度条”类型自定义指示器的颜色选项。</p>
+    <p>* 更新繁中。</p>
     <br/>
 
     <h1>r221-release (Apr 6, 2024, 22:00 GMT+8)</h1>

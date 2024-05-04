@@ -37,6 +37,7 @@ local UnitHasVehicleUI = UnitHasVehicleUI
 -- local UnitUsingVehicle = UnitUsingVehicle
 local UnitIsCharmed = UnitIsCharmed
 local UnitIsPlayer = UnitIsPlayer
+local UnitInPartyIsAI = UnitInPartyIsAI
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitThreatSituation = UnitThreatSituation
 local GetThreatStatusColor = GetThreatStatusColor
@@ -86,9 +87,6 @@ local function UpdateIndicatorParentVisibility(b, indicatorName, enabled)
         b.indicators[indicatorName]:Hide()
     end
 end
-
-local indicatorsInitialized
-local previousLayout = {}
 
 local function ResetIndicators()
     wipe(enabledIndicators)
@@ -307,6 +305,10 @@ local function HandleIndicators(b)
         if t["glowOptions"] then
             indicator:UpdateGlowOptions(t["glowOptions"])
         end
+        -- update smooth
+        if type(t["smooth"]) == "boolean" then
+            indicator:EnableSmooth(t["smooth"])
+        end
 
         -- init
         -- update name visibility
@@ -338,6 +340,52 @@ local function HandleIndicators(b)
     b._indicatorReady = 1
 end
 
+-------------------------------------------------
+-- indicator update queue
+-------------------------------------------------
+local updater = CreateFrame("Frame")
+updater:Hide()
+local queue = {}
+
+updater:SetScript("OnUpdate", function()
+    local b = queue[1]
+    if b then
+        if not b._status then
+            -- print("processing", GetTime(), b:GetName())
+            b._status = "processing"
+            HandleIndicators(b)
+            UnitButton_UpdateAll(b)
+            b._status = "finished"
+        elseif b._status == "finished" then
+            CellLoadingBar.current = (CellLoadingBar.current or 0) + 1
+            CellLoadingBar:SetValue(CellLoadingBar.current)
+            tremove(queue, 1)
+            b._status = nil
+        end
+    else
+        CellLoadingBar:Hide()
+        CellLoadingBar.current = 0
+        updater:Hide()
+    end
+end)
+
+hooksecurefunc(updater, "Show", function()
+    CellLoadingBar.total = #queue
+    CellLoadingBar:SetMinMaxValues(0, CellLoadingBar.total)
+    CellLoadingBar:SetValue(CellLoadingBar.current or 0)
+    CellLoadingBar:Show()
+end)
+
+local function AddToQueue(b)
+    tinsert(queue, b)
+end
+
+-------------------------------------------------
+-- UpdateIndicators
+-------------------------------------------------
+local indicatorsInitialized
+local previousLayout = {}
+
 local function UpdateIndicators(layout, indicatorName, setting, value, value2)
     F:Debug("|cffff7777UpdateIndicators:|r ", layout, indicatorName, setting, value, value2)
     
@@ -366,21 +414,29 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             I:ResetCustomIndicatorTables()
             ResetIndicators()
             --! update shared buttons: npcs, spotlights
-            F:IterateSharedUnitButtons(HandleIndicators)
+            -- F:IterateSharedUnitButtons(HandleIndicators)
+            F:IterateSharedUnitButtons(AddToQueue)
+            updater:Show()
             return
         end
     end
+
     previousLayout[INDEX] = Cell.vars.currentLayout
 
     if not indicatorName then -- init
         ResetIndicators()
 
-        -- update indicators
-        F:IterateAllUnitButtons(HandleIndicators, indicatorsInitialized) -- -- NOTE: indicatorsInitialized = false, update ALL GROUP TYPE; indicatorsInitialized = true, just update CURRENT GROUP TYPE
+        if not indicatorsInitialized then
+            -- update indicators
+            F:IterateAllUnitButtons(HandleIndicators, indicatorsInitialized) -- -- NOTE: indicatorsInitialized = false, update ALL GROUP TYPE; indicatorsInitialized = true, just update CURRENT GROUP TYPE
+            -- update all when indicators update finished
+            F:IterateAllUnitButtons(UnitButton_UpdateAll, true)
+        else
+            F:IterateAllUnitButtons(AddToQueue, indicatorsInitialized)
+            updater:Show()
+        end
         indicatorsInitialized = true
 
-        -- update all when indicators update finished
-        F:IterateAllUnitButtons(UnitButton_UpdateAll, true)
     else
         -- changed in IndicatorsTab
         if setting == "enabled" then
@@ -679,6 +735,10 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 F:IterateAllUnitButtons(function(b)
                     b.indicators[indicatorName]:SetFadeOut(value2)
                     UnitButton_UpdateAuras(b)
+                end, true)
+            elseif value == "smooth" then
+                F:IterateAllUnitButtons(function(b)
+                    b.indicators[indicatorName]:EnableSmooth(value2)
                 end, true)
             elseif value == "showAllSpells" then
                 I:ShowAllTargetedSpells(value2)
@@ -1543,7 +1603,12 @@ local function ShouldShowPowerBar(b)
     elseif string.find(b.state.guid, "^Pet") then
         class = "PET"
     elseif string.find(b.state.guid, "^Creature") then
-        class = "NPC"
+        if UnitInPartyIsAI(b.state.unit) then
+            class = b.state.class
+            role = GetRole(b)
+        else
+            class = "NPC"
+        end
     elseif string.find(b.state.guid, "^Vehicle") then
         class = "VEHICLE"
     end
@@ -2116,7 +2181,7 @@ UnitButton_UpdateNameColor = function(self)
         return 
     end
     
-    if UnitIsPlayer(unit) then -- player
+    if UnitIsPlayer(unit) or UnitInPartyIsAI(unit) then -- player
         if not UnitIsConnected(unit) then
             nameText:SetColor(F:GetClassColor(self.state.class))
         elseif UnitIsCharmed(unit) then
@@ -2158,7 +2223,7 @@ UnitButton_UpdateHealthColor = function(self)
         lossA =  CellDB["appearance"]["lossAlpha"]
     end
 
-    if UnitIsPlayer(unit) then -- player
+    if UnitIsPlayer(unit) or UnitInPartyIsAI(unit) then -- player
         if not UnitIsConnected(unit) then
             barR, barG, barB = 0.4, 0.4, 0.4
             lossR, lossG, lossB = 0.4, 0.4, 0.4
@@ -3098,7 +3163,7 @@ function B:UpdatePixelPerfect(button, updateIndicators)
     button:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(CELL_BORDER_SIZE)})
     button:SetBackdropColor(0, 0, 0, CellDB["appearance"]["bgAlpha"])
     button:SetBackdropBorderColor(unpack(CELL_BORDER_COLOR))
-    P:Resize(button)
+    if not InCombatLockdown() then P:Resize(button) end
 
     P:Repoint(button.widget.healthBar)
     P:Repoint(button.widget.healthBarLoss)

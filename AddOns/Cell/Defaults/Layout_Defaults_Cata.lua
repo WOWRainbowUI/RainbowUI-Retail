@@ -35,6 +35,7 @@ Cell.defaults.indicatorIndices = {
 Cell.defaults.layout = {
     -- ["syncWith"] = "layoutName",
     ["main"] = {
+        ["combineGroups"] = false,
         ["sortByRole"] = false,
         ["roleOrder"] = {"TANK", "HEALER", "DAMAGER"},
         ["hideSelf"] = false,
@@ -45,8 +46,8 @@ Cell.defaults.layout = {
         ["anchor"] = "TOPLEFT",
         ["spacingX"] = 3,
         ["spacingY"] = 3,
-        ["columns"] = 8,
-        ["rows"] = 8,
+        ["maxColumns"] = 8,
+        ["unitsPerColumn"] = 5,
         ["groupSpacing"] = 0,
     },
     ["pet"] = {
@@ -434,4 +435,14 @@ Cell.defaults.layout = {
             ["orientation"] = "right-to-left",
         }, -- 26
     },
+}
+
+Cell.defaults.layoutAutoSwitch = {
+    ["party"] = "default",
+    ["raid_outdoor"] = "default",
+    ["raid10"] = "default",
+    ["raid25"] = "default",
+    ["arena"] = "default",
+    ["battleground15"] = "default",
+    ["battleground40"] = "default",
 }

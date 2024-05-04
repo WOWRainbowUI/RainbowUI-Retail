@@ -1,6 +1,7 @@
 local _, Cell = ...
 local L = Cell.L
 local F = Cell.funcs
+local I = Cell.iFuncs
 
 Cell.vars.playerFaction = UnitFactionGroup("player")
 
@@ -14,6 +15,7 @@ Cell.isVanilla = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 -- Cell.isBCC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_BURNING_CRUSADE
 -- Cell.isWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_WRATH_OF_THE_LICH_KING
 Cell.isWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+Cell.isCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 -------------------------------------------------
 -- class
@@ -78,26 +80,34 @@ function F:GetSortedClasses()
 end
 
 -------------------------------------------------
--- WotLK
+-- Classic
 -------------------------------------------------
-function F:GetActiveTalentInfo()
-    local which = GetActiveTalentGroup() == 1 and L["Primary Talents"] or L["Secondary Talents"]
-
-    local maxPoints = 0
-    local specName, specIcon, specFileName
-
-    for i = 1, GetNumTalentTabs() do
-        local name, texture, pointsSpent, fileName = GetTalentTabInfo(i)
-        if pointsSpent > maxPoints then
-            maxPoints = pointsSpent
-            specIcon = texture
-            specFileName = fileName
-        elseif pointsSpent == maxPoints then
-            specIcon = 132148
-        end
+if Cell.isCata then
+    function F:GetActiveTalentInfo()
+        local which = GetActiveTalentGroup() == 1 and L["Primary Talents"] or L["Secondary Talents"]
+        return which, Cell.vars.playerSpecIcon, Cell.vars.playerSpecName
     end
 
-    return which, specIcon, specFileName
+elseif Cell.isVanilla then
+    function F:GetActiveTalentInfo()
+        local which = GetActiveTalentGroup() == 1 and L["Primary Talents"] or L["Secondary Talents"]
+
+        local maxPoints = 0
+        local specName, specIcon, specFileName
+
+        for i = 1, GetNumTalentTabs() do
+            local name, texture, pointsSpent, fileName = GetTalentTabInfo(i)
+            if pointsSpent > maxPoints then
+                maxPoints = pointsSpent
+                specIcon = texture
+                specName = name
+            elseif pointsSpent == maxPoints then
+                specIcon = 132148
+            end
+        end
+
+        return which, specIcon, specName
+    end
 end
 
 -- local specRoles = {
@@ -766,6 +776,9 @@ end
 -------------------------------------------------
 -- unit buttons
 -------------------------------------------------
+local combinedHeader = "CellRaidFrameHeader0"
+local separatedHeaders = {"CellRaidFrameHeader1", "CellRaidFrameHeader2", "CellRaidFrameHeader3", "CellRaidFrameHeader4", "CellRaidFrameHeader5", "CellRaidFrameHeader6", "CellRaidFrameHeader7", "CellRaidFrameHeader8"}
+
 function F:IterateAllUnitButtons(func, updateCurrentGroupOnly, updateQuickAssist)
     -- solo
     if not updateCurrentGroupOnly or (updateCurrentGroupOnly and Cell.vars.groupType == "solo") then
@@ -785,9 +798,15 @@ function F:IterateAllUnitButtons(func, updateCurrentGroupOnly, updateQuickAssist
 
     -- raid
     if not updateCurrentGroupOnly or (updateCurrentGroupOnly and Cell.vars.groupType == "raid") then
-        for index, header in pairs(Cell.unitButtons.raid) do
-            if index ~= "units" then
-                for _, b in ipairs(header) do
+        if not updateCurrentGroupOnly or Cell.vars.currentLayoutTable.main.combineGroups then
+            for _, b in ipairs(Cell.unitButtons.raid[combinedHeader]) do
+                func(b)
+            end
+        end
+
+        if not updateCurrentGroupOnly or not Cell.vars.currentLayoutTable.main.combineGroups then
+            for _, header in ipairs(separatedHeaders) do
+                for _, b in ipairs(Cell.unitButtons.raid[header]) do
                     func(b)
                 end
             end
@@ -1883,7 +1902,7 @@ if Cell.isRetail then
         local debuffs = {}
         AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId)
             if spellIds[spellId] then
-                debuffs[spellId] = debuffType
+                debuffs[spellId] = I:CheckDebuffType(debuffType, spellId)
             end
         end)
         return debuffs
@@ -1893,7 +1912,7 @@ if Cell.isRetail then
         local debuffs = {}
         AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId)
             if types == "all" or types[debuffType] then
-                debuffs[spellId] = debuffType
+                debuffs[spellId] = I:CheckDebuffType(debuffType, spellId)
             end
         end)
         return debuffs
@@ -1908,7 +1927,7 @@ else
             end
 
             if spellIds[spellId] then
-                debuffs[spellId] = debuffType
+                debuffs[spellId] = I:CheckDebuffType(debuffType, spellId)
             end
         end
         return debuffs
@@ -1923,7 +1942,7 @@ else
             end
 
             if types == "all" or types[debuffType] then
-                debuffs[spellId] = debuffType
+                debuffs[spellId] = I:CheckDebuffType(s, spellId)
             end
         end
         return debuffs

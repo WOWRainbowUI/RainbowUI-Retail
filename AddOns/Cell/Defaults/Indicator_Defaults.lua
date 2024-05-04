@@ -35,7 +35,7 @@ function I:GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["position"] = {"TOPRIGHT", "TOPRIGHT", 0, 3},
             ["frameLevel"] = 5,
             ["font"] = {"Cell ".._G.DEFAULT, 12, "Outline"},
-            ["colors"] = {{0,1,0}, {1,1,0,0.5}, {1,0,0,3}},
+            ["colors"] = {{0,1,0}, {false,1,1,0,0.5}, {false,1,0,0,3}},
             ["auraType"] = auraType,
             ["auras"] = {},
             ["duration"] = {
@@ -70,7 +70,7 @@ function I:GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["position"] = {"TOPRIGHT", "TOPRIGHT", 0, 2},
             ["frameLevel"] = 5,
             ["size"] = {11, 4},
-            ["colors"] = {{0,1,0}, {1,1,0,0.5}, {1,0,0,3}},
+            ["colors"] = {{0,1,0}, {false,1,1,0,0.5}, {false,1,0,0,3}},
             ["font"] = {"Cell ".._G.DEFAULT, 11, "Outline", "CENTER", 0, 0, {1, 1, 1}},
             ["showStack"] = false,
             ["auraType"] = auraType,
@@ -134,6 +134,18 @@ function I:GetDefaultCustomIndicatorTable(name, indicatorName, type, auraType)
             ["auras"] = {},
             ["glowOptions"] = {"Pixel", {0.95,0.95,0.32,1}, 9, 0.25, 8, 2},
             ["fadeOut"] = true,
+        }
+    elseif type == "overlay" then
+        t = {
+            ["name"] = name,
+            ["indicatorName"] = indicatorName,
+            ["type"] = type,
+            ["enabled"] = true,
+            ["smooth"] = false,
+            ["colors"] = {{0,0.61,1,0.55}, {false,1,1,0,0.5,0.5}, {false,1,0,0,0.5,3}},
+            ["orientation"] = "horizontal",
+            ["auraType"] = auraType,
+            ["auras"] = {},
         }
     end
     

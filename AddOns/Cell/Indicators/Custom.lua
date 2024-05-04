@@ -65,6 +65,8 @@ function I:CreateIndicator(parent, indicatorTable, noTableUpdate)
         indicator = I:CreateAura_Texture(parent:GetName()..indicatorName, parent.widget.overlayFrame)
     elseif indicatorTable["type"] == "glow" then
         indicator = I:CreateAura_Glow(parent:GetName()..indicatorName, parent)
+    elseif indicatorTable["type"] == "overlay" then
+        indicator = I:CreateAura_Overlay(parent:GetName()..indicatorName, parent)
     end
     parent.indicators[indicatorName] = indicator
     
@@ -222,7 +224,7 @@ function I:UpdateCustomIndicators(unitButton, auraInfo, refreshing)
                 spell = spellId
             end
             
-            if indicatorTable["auras"][spell] or indicatorTable["auras"][0] or (indicatorTable["auras"][1] and duration ~= 0) then -- is in indicator spell list
+            if indicatorTable["auras"][spell] or (indicatorTable["auras"][0] and duration ~= 0) then -- is in indicator spell list
                 if auraType == "buff" then
                     -- check caster
                     if (indicatorTable["castBy"] == "me" and castByMe) or (indicatorTable["castBy"] == "others" and not castByMe) or (indicatorTable["castBy"] == "anyone") then
