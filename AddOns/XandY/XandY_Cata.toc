@@ -1,4 +1,4 @@
-## Interface: 30403
+## Interface: 40400
 ## Version: 2.39
 ## Author: Taraezor
 ## IconTexture: Interface\Icons\Inv_10_dungeonjewelry_explorer_trinket_1compass_color1

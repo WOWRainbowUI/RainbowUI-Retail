@@ -3,7 +3,7 @@
 
                                                X and Y
 
-                                       v2.38 - 20th April 2024
+                                        v2.39 - 1st May 2024
                                 Copyright (C) Taraezor / Chris Birch
                                          All Rights Reserved
 
@@ -298,28 +298,25 @@ local function OnUpdate()
 									..world.xCursor .."\124r:" ..ns.colour.malachite ..world.yCursor .."\124r"
 		end
 
-		if buildVersion >= 4 then
-			if buildVersion >= 10 then
-				world.currentTitle = WorldMapFrameTitleText:GetText()
+		if buildVersion < 5 then
+			XandYCoords:SetText( world.playerCursor )
+			world.offset = ( ( WorldMapFrame:GetHeight() / 2 ) - 16 ) * -1
+			if buildVersion < 3 then
+				XandYCoords:SetPoint( "CENTER", WorldMapFrame, "CENTER", 0, world.offset ) -- Used to be -216 offset always
 			else
-				world.currentTitle = WorldMapFrame.BorderFrame.TitleText:GetText()
+				XandYCoords:SetPoint( "CENTER", WorldMapFrame, "CENTER", -130, world.offset ) -- Used to be -216 offset always
 			end
+		elseif buildVersion >= 5 then
+			-- world.currentTitle = WorldMapFrame.BorderFrame.TitleText:GetText() -- Retail prior to 10.0.0
+			world.currentTitle = WorldMapFrameTitleText:GetText()
 			world.currentTitle = gsub( world.currentTitle, L[ "Player" ] .." @ " ..ns.colour.malachite .."%d*%.*%d*\124r:" 
 										..ns.colour.malachite .."%d*%.*%d*\124r", "" )
 			world.currentTitle = gsub( world.currentTitle, L[ "Cursor" ] .." @ " ..ns.colour.malachite .."%d*%.*%d*\124r:"
 										..ns.colour.malachite .."%d*%.*%d*\124r", "" )
 			world.currentTitle = strtrim( world.currentTitle )
 			world.currentTitle = world.currentTitle .."                " ..world.playerCursor
-			if buildVersion < 10 then
-				WorldMapFrame.BorderFrame.TitleText:SetText( world.currentTitle )
-			else
-				WorldMapFrameTitleText:SetText( world.currentTitle )
-			end
-			
-		else			
-			XandYCoords:SetText( world.playerCursor )
-			world.offset = ( ( WorldMapFrame:GetHeight() / 2 ) - 16 ) * -1				
-			XandYCoords:SetPoint( "CENTER", WorldMapFrame, "CENTER", 0, world.offset ) -- Used to be -216 always
+			-- WorldMapFrame.BorderFrame.TitleText:SetText( world.currentTitle ) -- Retail prior to 10.0.0
+			WorldMapFrameTitleText:SetText( world.currentTitle )			
 		end
 	end
 end
