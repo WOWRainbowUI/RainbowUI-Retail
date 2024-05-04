@@ -547,6 +547,17 @@ GTFO.SpellID["414235"] = {
   sound = 2;
 };
 
+GTFO.SpellID["419289"] = {
+  --desc = "Chaotic Breach";
+  sound = 1;
+  tankSound = 2;
+};
+
+GTFO.SpellID["423073"] = {
+  --desc = "Corrupting Felflame";
+  sound = 1;
+  ignoreApplication = true;
+};
 
 
 --- *******************
