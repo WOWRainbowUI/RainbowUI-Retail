@@ -1,5 +1,5 @@
 ## Interface: 100206
-## Version: 2.38
+## Version: 2.39
 ## Author: Taraezor
 ## IconTexture: Interface\Icons\Inv_10_dungeonjewelry_explorer_trinket_1compass_color1
 ## Title: X and Y
@@ -14,18 +14,18 @@
 ## Title-ruRU: X и Y
 ## Title-zhCN: X 和 Y
 ## Title-zhTW: X 和 Y
-## Notes: Adds |cFF0070DEMap X/Y Coordinates|r for the World Map and Minimap
-## Notes-deDE: |cFF0070DEKarte Koordinaten|r für die Weltkarte und Mini-Karte
-## Notes-esES: |cFF0070DEMapa Coordenadas|r para el Mapa del Mundo y Minimapa
-## Notes-esMX: |cFF0070DEMapa Coordenadas|r para el Mapa del Mundo y Minimapa
-## Notes-frFR: |cFF0070DECarte Coordonnées|r de la Carte du Monde et Mini Map
-## Notes-itIT: |cFF0070DECoordinate della mappa|r per la Mappa del Mondo e Mini Map
+## Notes: |cFFF4A460Adds |cFFD2691EMap Coordinates|cFFF4A460 for the World Map and Minimap
+## Notes-deDE: |cFFD2691EKarte Koordinaten|cFFF4A460 für die Weltkarte und Mini-Karte
+## Notes-esES: |cFFD2691EMapa Coordenadas|cFFF4A460 para el Mapa del Mundo y Minimapa
+## Notes-esMX: |cFFD2691EMapa Coordenadas|cFFF4A460 para el Mapa del Mundo y Minimapa
+## Notes-frFR: |cFFD2691ECarte Coordonnées|cFFF4A460 de la Carte du Monde et Mini Map
+## Notes-itIT: |cFFD2691ECoordinate della mappa|cFFF4A460 per la Mappa del Mondo e Mini Map
 ## Notes-koKR: 지도는 세계지도와 미니 맵에 대한 좌표
-## Notes-ptBR: |cFF0070DEMapa Coordenadas|r para o Mapa do Mundo e Mini Map
-## Notes-ptPT: |cFF0070DEMapa Coordenadas|r para o Mapa do Mundo e Mini Map
-## Notes-ruRU: |cFF0070DEКарта Координаты|r для Карты мира и Mini Map
-## Notes-zhCN: 世界地图和迷你地图的|cFF0070DE地图坐标|r
-## Notes-zhTW: 世界地圖和迷你地圖的|cFF0070DE地圖坐標|r
+## Notes-ptBR: |cFFD2691EMapa Coordenadas|cFFF4A460 para o Mapa do Mundo e Mini Map
+## Notes-ptPT: |cFFD2691EMapa Coordenadas|cFFF4A460 para o Mapa do Mundo e Mini Map
+## Notes-ruRU: |cFFD2691EКарта Координаты|cFFF4A460 для Карты мира и Mini Map
+## Notes-zhCN: |cFFF4A460世界地图和迷你地图的|cFFD2691E地图坐标
+## Notes-zhTW: |cFFF4A460世界地圖和迷你地圖的|cFFD2691E地圖坐標
 ## SavedVariables: XandYDB
 ## AddonCompartmentFunc: XandY_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: XandY_OnAddonCompartmentEnter
