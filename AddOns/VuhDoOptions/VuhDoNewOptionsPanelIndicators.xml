@@ -1,6 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-	<Script file="VuhDoNewOptionsGeneralIndicators.lua" />
+	<Script file="VuhDoNewOptionsPanelIndicators.lua" />
 
 
 	<Frame name="VuhDoMoreButtonsTexturePanel" virtual="true">
@@ -370,7 +370,7 @@
 		</Frames>
 	</Frame>
 
-	<Frame name="VuhDoNewOptionsGeneralIndicatorsTemplate" virtual="true">
+	<Frame name="VuhDoNewOptionsPanelIndicatorsTemplate" virtual="true">
 		<Frames>
 
 			<Frame name="$parentSlotsPanel" inherits="VuhDoPanelTemplate">

@@ -2,7 +2,7 @@
 
 ## Title: VuhDo ['vu:du:] - Options
 ## Author: Iza@Gilneas, humfras, Ivaria@Hyjal
-## Version: 3.163
+## Version: 3.165
 ## Notes: VuhDo Options
 ## IconTexture: Interface\AddOns\VuhDo\Images\TemporaryPortrait-Female-BloodElf-VuhDo
 
@@ -35,7 +35,6 @@ VuhDoNewOptionsGeneralScan.xml
 VuhDoNewOptionsGeneralThreat.xml
 VuhDoNewOptionsGeneralMisc.xml
 VuhDoNewOptionsGeneralCluster.xml
-VuhDoNewOptionsGeneralIndicators.xml
 VuhDoNewOptionsGeneralSpellTrace.xml
 VuhDoNewOptionsGeneral.xml
 VuhDoNewOptionsSpellMouse.xml
@@ -54,6 +53,7 @@ VuhDoNewOptionsPanelText.xml
 VuhDoNewOptionsPanelMisc.xml
 VuhDoNewOptionsPanelHotBars.xml
 VuhDoNewOptionsPanelHots.xml
+VuhDoNewOptionsPanelIndicators.xml
 VuhDoNewOptionsPanelPanel.xml
 VuhDoNewOptionsColorsClasses.xml
 VuhDoNewOptionsColorsHots.xml

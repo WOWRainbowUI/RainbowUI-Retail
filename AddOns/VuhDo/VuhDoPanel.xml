@@ -12,7 +12,7 @@
 	<Script file="VuhDoPanelRefresh.lua" />
 	<Script file="VuhDoPanelRedrawCustomDebuffs.lua" />
 	<Script file="VuhDoPanelRedrawHeaders.lua" />
-	<Script file="VuhDoPanelRedrawHots.lua" />
+	<Script file="VuhDoPanelRedrawHoTs.lua" />
 	<Script file="VuhDoPanelRedraw.lua" />
 	<Script file="VuhDoKeySetup.lua" />
 	<Script file="VuhDoActionEventHandler.lua" />

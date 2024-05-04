@@ -2,30 +2,6 @@ local _;
 local huge = math.huge;
 local format = format;
 
-local UnitBuff = UnitBuff or (C_UnitAuras and
-			(function(aUnit, anIndex, aFilter)
-				local tAuraData = C_UnitAuras.GetBuffDataByIndex(aUnit, anIndex, aFilter);
-
-				if not tAuraData then
-					return nil;
-				end
-
-				return AuraUtil.UnpackAuraData(tAuraData);
-			end)
-);
-
-local UnitDebuff = UnitDebuff or (C_UnitAuras and
-			(function(aUnit, anIndex, aFilter)
-				local tAuraData = C_UnitAuras.GetDebuffDataByIndex(aUnit, anIndex, aFilter);
-
-				if not tAuraData then
-					return nil;
-				end
-
-				return AuraUtil.UnpackAuraData(tAuraData);
-			end)
-);
-
 local sIsFade;
 local sIsFlashWhenLow;
 local sIsWarnColor;
@@ -72,13 +48,14 @@ local VUHDO_HOT_CFGS = { "HOT1", "HOT2", "HOT3", "HOT4", "HOT5", "HOT6", "HOT7",
 
 local floor = floor;
 local table = table;
-local UnitBuff = UnitBuff;
 local GetSpellCooldown = GetSpellCooldown;
 local GetTime = GetTime;
 local strfind = strfind;
 local pairs = pairs;
 local twipe = table.wipe;
 local tostring = tostring;
+local ForEachAura = AuraUtil.ForEachAura or VUHDO_forEachAura;
+local UnpackAuraData = AuraUtil.UnpackAuraData or VUHDO_unpackAuraData;
 
 local _G = _G;
 
@@ -585,42 +562,120 @@ local VUHDO_IGNORE_HOT_IDS = {
 
 --
 function VUHDO_hotBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB)
+
 	VUHDO_updateHotIcons(aUnit, "BOUQUET_" .. (aBouquetName or ""), aTimer, aCounter, anIcon, aDuration, 0, aColor, aBuffName, aClipL, aClipR, aClipT, aClipB);
+
 end
 
 
 
 --
-local tOtherHotCnt;
-local tIconFound;
-local tOtherIcon;
-local tBuffIcon;
-local tExpiry;
-local tRest;
-local tStacks;
-local tCaster;
+local tUnit;
 local tBuffName;
-local tStart, tEnabled;
-local tSmDuration;
-local tIsCastByPlayer;
+local tBuffIcon;
+local tStacks;
 local tDuration;
-local tSpellId, tDebuffOffset;
+local tExpiry;
+local tCaster;
+local tSpellId;
+local tIsCastByPlayer;
+local tStart;
+local tSmDuration;
+local tEnabled;
+local tRest;
+local tOtherIcon;
+local tOtherHotCnt;
 local tNow;
-local tFilter;
-local function VUHDO_updateHots(aUnit, anInfo)
-	if anInfo["isVehicle"] then
-		VUHDO_removeHots(aUnit);
-		aUnit = anInfo["petUnit"];
-		if not aUnit then return; end-- bei z.B. focus/target
+local function VUHDO_updateHotIconPredicate(anAuraData)
+
+	tBuffName, tBuffIcon, tStacks, _, tDuration, tExpiry, tCaster, _, _, tSpellId = UnpackAuraData(anAuraData);
+
+	if not tBuffIcon then
+		return;
 	end
 
-	if not VUHDO_MY_HOTS[aUnit] then VUHDO_MY_HOTS[aUnit] = { }; end
-	if not VUHDO_OTHER_HOTS[aUnit] then VUHDO_OTHER_HOTS[aUnit] = { }; end
-	if not VUHDO_MY_AND_OTHERS_HOTS[aUnit] then VUHDO_MY_AND_OTHERS_HOTS[aUnit] = { }; end
+	tIsCastByPlayer = tCaster == "player" or tCaster == VUHDO_PLAYER_RAID_ID;
 
-	for _, tHotInfo in pairs(VUHDO_MY_HOTS[aUnit]) do tHotInfo[1] = nil end -- Rest == nil => Icon löschen
-	for _, tHotInfo in pairs(VUHDO_OTHER_HOTS[aUnit]) do tHotInfo[1] = nil; end
-	for _, tHotInfo in pairs(VUHDO_MY_AND_OTHERS_HOTS[aUnit]) do tHotInfo[1] = nil; end
+	if sIsPlayerKnowsSwiftmend and tIsCastByPlayer and not sIsSwiftmend then
+		if VUHDO_SPELL_ID.REGROWTH == tBuffName or (VUHDO_SPELL_ID.WILD_GROWTH == tBuffName and 422382 ~= tSpellId) or
+			VUHDO_SPELL_ID.REJUVENATION == tBuffName or VUHDO_SPELL_ID.GERMINATION == tBuffName then
+				tStart, tSmDuration, tEnabled = GetSpellCooldown(VUHDO_SPELL_ID.SWIFTMEND);
+
+				if tEnabled ~= 0 and (tStart == nil or tSmDuration == nil or tStart <= 0 or tSmDuration <= 1.6) then
+					sIsSwiftmend = true;
+				end
+		end
+	end
+
+	if (tExpiry or 0) == 0 then
+		tExpiry = (tNow + 9999);
+	end
+
+	if not VUHDO_IGNORE_HOT_IDS[tSpellId] then
+		if VUHDO_ACTIVE_HOTS[tostring(tSpellId or -1)] or VUHDO_ACTIVE_HOTS[tBuffName] then
+			tRest = tExpiry - tNow;
+
+			if tRest > 0 then
+				if VUHDO_ACTIVE_HOTS[tostring(tSpellId or -1)] then
+					VUHDO_snapshotHot(tostring(tSpellId), tRest, tStacks, tBuffIcon, tIsCastByPlayer, tDuration, tUnit, tExpiry);
+				end
+
+				if VUHDO_ACTIVE_HOTS[tBuffName] then
+					VUHDO_snapshotHot(tBuffName, tRest, tStacks, tBuffIcon, tIsCastByPlayer, tDuration, tUnit, tExpiry);
+				end
+			end
+		end
+	end
+
+	if not tIsCastByPlayer and VUHDO_HEALING_HOTS[tBuffName] and
+		not VUHDO_ACTIVE_HOTS_OTHERS[tBuffName] and not VUHDO_ACTIVE_HOTS_OTHERS[tostring(tSpellId or -1)] then
+		tOtherIcon = tBuffIcon;
+		tOtherHotCnt = tOtherHotCnt + 1;
+
+		sOthersHotsInfo[tUnit][1] = tOtherIcon;
+		sOthersHotsInfo[tUnit][2] = tOtherHotCnt;
+	end
+
+end
+
+
+
+--
+function VUHDO_updateHots(aUnit, anInfo)
+
+	if anInfo["isVehicle"] then
+		VUHDO_removeHots(aUnit);
+
+		aUnit = anInfo["petUnit"];
+
+		if not aUnit then
+			return;
+		end -- bei z.B. focus/target
+	end
+
+	if not VUHDO_MY_HOTS[aUnit] then
+		VUHDO_MY_HOTS[aUnit] = { };
+	end
+
+	if not VUHDO_OTHER_HOTS[aUnit] then
+		VUHDO_OTHER_HOTS[aUnit] = { };
+	end
+
+	if not VUHDO_MY_AND_OTHERS_HOTS[aUnit] then
+		VUHDO_MY_AND_OTHERS_HOTS[aUnit] = { };
+	end
+
+	for _, tHotInfo in pairs(VUHDO_MY_HOTS[aUnit]) do
+		tHotInfo[1] = nil;
+	end -- Rest == nil => Icon löschen
+
+	for _, tHotInfo in pairs(VUHDO_OTHER_HOTS[aUnit]) do
+		tHotInfo[1] = nil;
+	end
+
+	for _, tHotInfo in pairs(VUHDO_MY_AND_OTHERS_HOTS[aUnit]) do
+		tHotInfo[1] = nil;
+	end
 
 	sIsSwiftmend = false;
 	tOtherIcon = nil;
@@ -633,161 +688,134 @@ local function VUHDO_updateHots(aUnit, anInfo)
 	end
 
 	if VUHDO_shouldScanUnit(aUnit) then
+		tUnit = aUnit;
 		tNow = GetTime();
-		tDebuffOffset = nil;
 
-		for tCnt = 1, huge do
-			if not tDebuffOffset then
-				tBuffName, tBuffIcon, tStacks, _, tDuration, tExpiry, tCaster, _, _, tSpellId = UnitBuff(aUnit, tCnt);
-
-				if not tBuffIcon then
-					tDebuffOffset = tCnt - 1;
-				end
-			end
-
-			if tDebuffOffset then -- Achtung kein elseif
-				tBuffName, tBuffIcon, tStacks, _, tDuration, tExpiry, tCaster, _, _, tSpellId = UnitDebuff(aUnit, tCnt - tDebuffOffset);
-
-				if not tBuffIcon then
-					break;
-				end
-			end
-			
-			tIsCastByPlayer = tCaster == "player" or tCaster == VUHDO_PLAYER_RAID_ID;
-
-			if sIsPlayerKnowsSwiftmend and tIsCastByPlayer and not sIsSwiftmend then
-				if VUHDO_SPELL_ID.REGROWTH == tBuffName or (VUHDO_SPELL_ID.WILD_GROWTH == tBuffName and 422382 ~= tSpellId) or 
-					VUHDO_SPELL_ID.REJUVENATION == tBuffName or VUHDO_SPELL_ID.GERMINATION == tBuffName then
-					tStart, tSmDuration, tEnabled = GetSpellCooldown(VUHDO_SPELL_ID.SWIFTMEND);
-
-					if tEnabled ~= 0 and (tStart == nil or tSmDuration == nil or tStart <= 0 or tSmDuration <= 1.6) then
-						sIsSwiftmend = true;
-					end
-				end
-			end
-
-			if (tExpiry or 0) == 0 then 
-				tExpiry = (tNow + 9999);
-			end
-
-			if not VUHDO_IGNORE_HOT_IDS[tSpellId] then 
-				if VUHDO_ACTIVE_HOTS[tostring(tSpellId or -1)] or VUHDO_ACTIVE_HOTS[tBuffName] then
-					tRest = tExpiry - tNow;
-
-					if tRest > 0 then
-						if VUHDO_ACTIVE_HOTS[tostring(tSpellId or -1)] then
-							VUHDO_snapshotHot(tostring(tSpellId), tRest, tStacks, tBuffIcon, tIsCastByPlayer, tDuration, aUnit, tExpiry);
-						end
-
-						if VUHDO_ACTIVE_HOTS[tBuffName] then
-							VUHDO_snapshotHot(tBuffName, tRest, tStacks, tBuffIcon, tIsCastByPlayer, tDuration, aUnit, tExpiry);
-						end
-					end
-				end
-			end
-
-			if not tIsCastByPlayer and VUHDO_HEALING_HOTS[tBuffName] and 
-				not VUHDO_ACTIVE_HOTS_OTHERS[tBuffName] and not VUHDO_ACTIVE_HOTS_OTHERS[tostring(tSpellId or -1)] then
-				tOtherIcon = tBuffIcon;
-				tOtherHotCnt = tOtherHotCnt + 1;
-				sOthersHotsInfo[aUnit][1] = tOtherIcon;
-				sOthersHotsInfo[aUnit][2] = tOtherHotCnt;
-			end
-		end
+		ForEachAura(aUnit, "HELPFUL", nil, VUHDO_updateHotIconPredicate, true);
+		ForEachAura(aUnit, "HARMFUL", nil, VUHDO_updateHotIconPredicate, true);
 
 		-- Other players' HoTs
-		if sIsOthersHots then VUHDO_updateHotIcons(aUnit, "OTHER", 999, tOtherHotCnt, tOtherIcon, nil, 0, nil, nil, nil, nil, nil, nil); end
+		if sIsOthersHots then
+			VUHDO_updateHotIcons(aUnit, "OTHER", 999, tOtherHotCnt, tOtherIcon, nil, 0, nil, nil, nil, nil, nil, nil);
+		end
+
 		-- Clusters
-		if sIsClusterIcons then VUHDO_updateAllClusterIcons(aUnit, anInfo); end
+		if sIsClusterIcons then
+			VUHDO_updateAllClusterIcons(aUnit, anInfo);
+		end
+
 		-- Swiftmend
-		if sIsPlayerKnowsSwiftmend then sSwiftmendUnits[aUnit] = sIsSwiftmend; end
+		if sIsPlayerKnowsSwiftmend then
+			sSwiftmendUnits[aUnit] = sIsSwiftmend;
+		end
 	end -- Should scan unit
 
 	-- Own
 	for tHotCmpName, tHotInfo in pairs(VUHDO_MY_HOTS[aUnit]) do
 		VUHDO_updateHotIcons(aUnit, tHotCmpName, tHotInfo[1], tHotInfo[2], tHotInfo[3], tHotInfo[4], 1, nil, nil, nil, nil, nil, nil);
-		if not tHotInfo[1] then twipe(tHotInfo); VUHDO_MY_HOTS[aUnit][tHotCmpName] = nil; end
+
+		if not tHotInfo[1] then
+			twipe(tHotInfo);
+			VUHDO_MY_HOTS[aUnit][tHotCmpName] = nil;
+		end
 	end
+
 	-- Others
 	for tHotCmpName, tHotInfo in pairs(VUHDO_OTHER_HOTS[aUnit]) do
 		VUHDO_updateHotIcons(aUnit, tHotCmpName, tHotInfo[1], tHotInfo[2], tHotInfo[3], tHotInfo[4], 2, nil, nil, nil, nil, nil, nil);
-		if not tHotInfo[1] then twipe(tHotInfo); VUHDO_OTHER_HOTS[aUnit][tHotCmpName] = nil; end
+
+		if not tHotInfo[1] then
+			twipe(tHotInfo);
+			VUHDO_OTHER_HOTS[aUnit][tHotCmpName] = nil;
+		end
 	end
+
 	-- Own+Others
 	for tHotCmpName, tHotInfo in pairs(VUHDO_MY_AND_OTHERS_HOTS[aUnit]) do
 		VUHDO_updateHotIcons(aUnit, tHotCmpName, tHotInfo[1], tHotInfo[2], tHotInfo[3], tHotInfo[4], 3, nil, nil, nil, nil, nil, nil);
-		if not tHotInfo[1] then twipe(tHotInfo); VUHDO_MY_AND_OTHERS_HOTS[aUnit][tHotCmpName] = nil; end
-	end
-end
 
+		if not tHotInfo[1] then
+			twipe(tHotInfo);
+			VUHDO_MY_AND_OTHERS_HOTS[aUnit][tHotCmpName] = nil;
+		end
+	end
+
+end
 
 
 --
 local tIcon;
+local tPanelNum;
 function VUHDO_swiftmendIndicatorBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB)
+
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
-		if anIsActive and aColor then
-			tIcon = VUHDO_getBarRoleIcon(tButton, 51);
+		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
 
-			if VUHDO_ATLAS_TEXTURES[anIcon] then
-				tIcon:SetAtlas(anIcon);
+		if VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["SWIFTMEND_INDICATOR"] == aBouquetName then
+			if anIsActive and aColor then
+				tIcon = VUHDO_getBarRoleIcon(tButton, 51);
+
+				if VUHDO_ATLAS_TEXTURES[anIcon] then
+					tIcon:SetAtlas(anIcon);
+				else
+					tIcon:SetTexture(anIcon);
+				end
+
+				tIcon:SetVertexColor(VUHDO_backColorWithFallback(aColor));
+
+				tIcon:SetTexCoord(aClipL or 0, aClipR or 1, aClipT or 0, aClipB or 1);
+
+				tIcon:Show();
+
+				if VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["SWIFTMEND_INDICATOR"]["isBarGlow"] then
+					VUHDO_LibCustomGlow.PixelGlow_Start(
+						tButton,
+						{
+							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["R"],
+							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["G"],
+							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["B"],
+							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["O"]
+						},
+						14,                             -- number of particles
+						0.3,                            -- frequency
+						8,                              -- length
+						2,                              -- thickness
+						0,                              -- x offset
+						0,                              -- y offset
+						false,                          -- border
+						VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY
+					);
+				end
+
+				if VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["SWIFTMEND_INDICATOR"]["isIconGlow"] then
+					VUHDO_LibCustomGlow.PixelGlow_Start(
+						tIcon,
+						{
+							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["R"],
+							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["G"],
+							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["B"],
+							VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["O"]
+						},
+						8,                                           -- number of particles
+						0.3,                                         -- frequency
+						6,                                           -- length
+						2,                                           -- thickness
+						0,                                           -- x offset
+						0,                                           -- y offset
+						false,                                       -- border
+						VUHDO_CUSTOM_GLOW_SWIFTMEND_ICON_KEY
+					);
+				end
 			else
-				tIcon:SetTexture(anIcon);
+				VUHDO_LibCustomGlow.PixelGlow_Stop(tButton, VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY);
+
+				tIcon = VUHDO_getBarRoleIcon(tButton, 51);
+				VUHDO_LibCustomGlow.PixelGlow_Stop(tIcon, VUHDO_CUSTOM_GLOW_SWIFTMEND_ICON_KEY);
+				tIcon:Hide();
 			end
-
-			tIcon:SetVertexColor(VUHDO_backColorWithFallback(aColor));
-
-			tIcon:SetTexCoord(aClipL or 0, aClipR or 1, aClipT or 0, aClipB or 1);
-
-			tIcon:Show();
-
-			if VUHDO_INDICATOR_CONFIG.CUSTOM.SWIFTMEND_INDICATOR.isBarGlow then
-				VUHDO_LibCustomGlow.PixelGlow_Start(
-					tButton, 
-					{ 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["R"],
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["G"],
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["B"],
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_BAR_GLOW"]["O"]
-					}, 
-					14,                             -- number of particles
-					0.3,                            -- frequency
-					8,                              -- length
-					2,                              -- thickness
-					0,                              -- x offset
-					0,                              -- y offset
-					false,                          -- border
-					VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY
-				);
-			end
-
-			if VUHDO_INDICATOR_CONFIG.CUSTOM.SWIFTMEND_INDICATOR.isIconGlow then
-				VUHDO_LibCustomGlow.PixelGlow_Start(
-					tIcon, 
-					{ 
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["R"],
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["G"],
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["B"],
-						VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]["O"]
-					}, 
-					8,                                           -- number of particles
-					0.3,                                         -- frequency
-					6,                                           -- length
-					2,                                           -- thickness
-					0,                                           -- x offset
-					0,                                           -- y offset
-					false,                                       -- border
-					VUHDO_CUSTOM_GLOW_SWIFTMEND_ICON_KEY
-				);
-			end
-		else
-			VUHDO_LibCustomGlow.PixelGlow_Stop(tButton, VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY);
-
-			tIcon = VUHDO_getBarRoleIcon(tButton, 51);
-			VUHDO_LibCustomGlow.PixelGlow_Stop(tIcon, VUHDO_CUSTOM_GLOW_SWIFTMEND_ICON_KEY);
-			tIcon:Hide();
 		end
 	end
+
 end
 
 

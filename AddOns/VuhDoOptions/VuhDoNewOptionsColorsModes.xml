@@ -331,7 +331,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_INDICATOR_CONFIG.CUSTOM.HEALTH_BAR.turnAxisOvershield");
+								VUHDO_lnfSetModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.turnAxisOvershield");
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -406,7 +406,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_INDICATOR_CONFIG.CUSTOM.HEALTH_BAR.turnAxisHealAbsorb");
+								VUHDO_lnfSetModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.turnAxisHealAbsorb");
 							</OnLoad>
 						</Scripts>
 					</CheckButton>

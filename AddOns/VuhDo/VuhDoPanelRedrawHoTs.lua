@@ -15,11 +15,12 @@ local sBarColors;
 local sStacksRadio;
 local sIcqqonRadio;
 local sIconRadio;
-local sHotBarConfig;
-local sOrientation;
+local sHotBarConfig = { };
+local sOrientation = { };
 
 --
 function VUHDO_panelRedrawHotsInitLocalOverrides()
+
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getBarIcon = _G["VUHDO_getBarIcon"];
 	VUHDO_getBarIconTimer = _G["VUHDO_getBarIconTimer"];
@@ -34,8 +35,12 @@ function VUHDO_panelRedrawHotsInitLocalOverrides()
 	sBarsPos = sHotConfig["BARS"]["radioValue"];
 	sStacksRadio = sHotConfig["stacksRadioValue"];
 	sIconRadio = sHotConfig["iconRadioValue"];
-	sHotBarConfig = VUHDO_INDICATOR_CONFIG["CUSTOM"]["HOT_BARS"];
-	sOrientation = VUHDO_getStatusbarOrientationString("HOT_BARS");
+
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		sHotBarConfig[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HOT_BARS"];
+		sOrientation[tPanelNum] = VUHDO_getStatusbarOrientationString("HOT_BARS", tPanelNum);
+	end
+
 end
 
 
@@ -69,7 +74,7 @@ function VUHDO_panelRedrwawHotsInitLocalVars(aPanelNum)
 		tHotIconSizeTotal = tHotIconSizeTotal + tHotIconSize;
 	end	
 
-	if sHotBarConfig["vertical"] then
+	if sHotBarConfig[aPanelNum]["vertical"] then
 		sHotBarWidth = sBarScaling["barWidth"] * sHotConfig["BARS"]["width"] * 0.01;
 		sHotBarHeight = VUHDO_getHealthBarHeight(aPanelNum);
 	else
@@ -92,7 +97,16 @@ end
 
 
 --
+local tPanelNum;
+local tOrientation;
+local tHotBarConfig;
 function VUHDO_initHotBars()
+
+	tPanelNum = VUHDO_BUTTON_CACHE[sButton];
+
+	tOrientation = sOrientation[tPanelNum];
+	tHotBarConfig = sHotBarConfig[tPanelNum];
+
 	local tHotBar;
 
 	for tCnt = 6, 8 do
@@ -106,13 +120,13 @@ function VUHDO_initHotBars()
 			tHotBar:SetHeight(sHotBarHeight);
 			tHotBar:SetValue(0);
 			tHotBar:SetVuhDoColor(sBarColors["HOT" .. tCnt]);
-			tHotBar:SetOrientation(sOrientation);
-			tHotBar:SetIsInverted(sHotBarConfig["invertGrowth"]);
+			tHotBar:SetOrientation(tOrientation);
+			tHotBar:SetIsInverted(tHotBarConfig["invertGrowth"]);
 			tHotBar:Show();
 		end
 	end
 
-	if sHotBarConfig["vertical"] then
+	if tHotBarConfig["vertical"] then
 		if sBarsPos == 1 then -- edges
 			VUHDO_getHealthBar(sButton, 9):SetPoint("LEFT", sHealthBarName, "LEFT", 0, 0);
 			VUHDO_getHealthBar(sButton, 10):SetPoint("CENTER", sHealthBarName, "CENTER",  0, 0);
