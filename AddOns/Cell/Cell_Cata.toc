@@ -1,8 +1,8 @@
-## Interface: 30403
+## Interface: 40400
 ## Title: Cell
-## Version: r221-release
+## Version: r222-release
 ## Author: enderneko
-## X-Flavor: Wrath
+## X-Flavor: Cata
 ## SavedVariables: CellDB
 ## SavedVariablesPerCharacter: CellCharacterDB
 
@@ -10,19 +10,23 @@
 ## X-Wago-ID: qv63LLKb
 ## X-WoWI-ID: 26244
 
+## Title-zhTW: |cffFF7F00[團隊]|r 框架 (Cell)
+## Notes-zhTW: Cell |n|n簡單好用的團隊框架，可自訂外觀，並且提供滑鼠點擊快速施法和其他功能。|n|n|cffffd200使用方法: |r點團隊框架左上方的小方塊，進行設定。
+## X-Category-zhTW: 團隊
+## DefaultState: disabled
+
 Locales\enUS.lua
 Locales\zhCN.lua
 Locales\zhTW.lua
-Locales\koKR.lua
 
 Libs\LoadLibs_Classic.xml
 
-Core_Wrath.lua
+Core_Cata.lua
 Utils.lua
 Revise.lua
 Comm\LoadComm.xml
 Widgets\LoadWidgets_Classic.xml
-Defaults\LoadDefaults_Wrath.xml
+Defaults\LoadDefaults_Cata.xml
 
 HideBlizzard.lua
 
@@ -40,10 +44,10 @@ RaidFrames\MainFrame.lua
 
 RaidDebuffs\ExpansionData\LoadExpansionData.xml
 Modules\LoadModules_Classic.xml
-Utilities\LoadUtilities_Wrath.xml
-RaidDebuffs\LoadRaidDebuffs_Wrath.xml
+Utilities\LoadUtilities_Cata.xml
+RaidDebuffs\LoadRaidDebuffs_Cata.xml
 
-RaidFrames\UnitButton_Wrath.lua
+RaidFrames\UnitButton_Cata.lua
 RaidFrames\UnitButton.xml
 RaidFrames\Groups\SoloFrame.lua
 RaidFrames\Groups\PartyFrame.lua

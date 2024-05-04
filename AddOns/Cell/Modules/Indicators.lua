@@ -754,6 +754,10 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 if t["shape"] then
                     indicator:SetShape(t["shape"])
                 end
+                -- update smooth
+                if type(t["smooth"]) == "boolean" then
+                    indicator:EnableSmooth(t["smooth"])
+                end
 
                 -- after init
                 if t["enabled"] then
@@ -926,6 +930,8 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             elseif value == "fadeOut" then
                 indicator:SetFadeOut(value2)
                 -- indicator:SetCooldown(GetTime(), 13)
+            elseif value == "smooth" then
+                indicator:EnableSmooth(value2)
             end
         elseif setting == "create" then
             indicator = I:CreateIndicator(previewButton, value, true)
@@ -1317,6 +1323,10 @@ local typeItems = {
         ["text"] = L["Glow"],
         ["value"] = "glow",
     },
+    {
+        ["text"] = L["Overlay"],
+        ["value"] = "overlay",
+    },
 }
 
 local auraTypeItems = {
@@ -1495,7 +1505,7 @@ if Cell.isRetail then
         ["healthThresholds"] = {"enabled", "thresholds", "thickness"},
         ["missingBuffs"] = {I:GetMissingBuffsString().."|cffb7b7b7"..(L["%s in Utilities must be enabled to make this indicator work."]:format(Cell:GetAccentColorString()..L["Buff Tracker"].."|r")), "enabled", "missingBuffsFilters", "size-square", "num:5", "orientation", "position", "frameLevel"},
     }
-elseif Cell.isWrath then
+elseif Cell.isCata then
     indicatorSettings = {
         ["nameText"] = {"enabled", "color-class", "textWidth", "checkbutton:showGroupNumber", "vehicleNamePosition", "namePosition", "frameLevel", "font-noOffset"},
         ["statusText"] = {"enabled", "checkbutton:showTimer", "checkbutton2:showBackground", "statusColors", "statusPosition", "frameLevel", "font-noOffset"},
@@ -1589,7 +1599,7 @@ local function ShowIndicatorSettings(id)
         elseif indicatorType == "text" then
             settingsTable = {"enabled", "auras", "duration", "checkbutton3:circledStackNums:"..L["Require font support"], "colors", "position", "frameLevel", "font-noOffset"}
         elseif indicatorType == "bar" then
-            settingsTable = {"enabled", "auras", "barColors", "checkbutton3:showStack", "barOrientation", "size-bar", "position", "frameLevel", "font"}
+            settingsTable = {"enabled", "auras", "colors", "checkbutton3:showStack", "barOrientation", "size-bar", "position", "frameLevel", "font"}
         elseif indicatorType == "rect" then
             settingsTable = {"enabled", "auras", "colors", "checkbutton3:showStack", "size", "position", "frameLevel", "font"}
         elseif indicatorType == "icons" then
@@ -1600,6 +1610,8 @@ local function ShowIndicatorSettings(id)
             settingsTable = {"enabled", "checkbutton3:fadeOut", "auras", "texture", "size", "position", "frameLevel"}
         elseif indicatorType == "glow" then
             settingsTable = {"enabled", "checkbutton3:fadeOut", "auras", "glowOptions", "frameLevel"}
+        elseif indicatorType == "overlay" then
+            settingsTable = {"enabled", "auras", "overlayColors", "checkbutton3:smooth", "barOrientation"}
         end
        
         if indicatorTable["auraType"] == "buff" then
@@ -1632,7 +1644,7 @@ local function ShowIndicatorSettings(id)
         
         --! convert currentSetting to ACTUAL TABLE INDEX
         if currentSetting == "color-alpha" or currentSetting == "color-class" then currentSetting = "color" end
-        if currentSetting == "barColors" then currentSetting = "colors" end
+        if currentSetting == "overlayColors" then currentSetting = "colors" end
         if currentSetting == "size-square" or currentSetting == "size-bar" or currentSetting == "size-normal-big" then currentSetting = "size" end
         if currentSetting == "namePosition" or currentSetting == "statusPosition" or currentSetting == "position-noHCenter" or currentSetting == "shieldBarPosition" then currentSetting = "position" end
         if currentSetting == "barOrientation" then currentSetting = "orientation" end
@@ -1649,6 +1661,9 @@ local function ShowIndicatorSettings(id)
                     listButtons[id]:SetTextColor(1, 1, 1, 1)
                 else
                     listButtons[id]:SetTextColor(0.466, 0.466, 0.466, 1)
+                end
+                if listButtons[id].typeIcon then
+                    listButtons[id].typeIcon:SetAlpha(value and 0.55 or 0.15)
                 end
             end)
 
@@ -1681,7 +1696,7 @@ local function ShowIndicatorSettings(id)
 
         -- auras
         elseif currentSetting == "auras" then
-            w:SetDBValue(L[F:UpperFirst(indicatorTable["auraType"]).." List"], indicatorTable["auras"], indicatorType == "icons" or indicatorType == "glow", indicatorType == "icons" or indicatorType == "glow")
+            w:SetDBValue(L[F:UpperFirst(indicatorTable["auraType"]).." List"], indicatorTable["auras"], indicatorType == "icons" or indicatorType == "glow", indicatorType == "icons")
             w:SetFunc(function(value)
                 -- NOTE: already changed in widget
                 Cell:Fire("UpdateIndicators", notifiedLayout, indicatorName, "auras", indicatorTable["auraType"], value)
@@ -1913,9 +1928,9 @@ LoadIndicatorList = function()
             b.typeIcon:SetTexture("Interface\\AddOns\\Cell\\Media\\Indicators\\indicator-"..t["type"])
             -- b.typeIcon:SetAlpha(0.5)
             if t["auraType"] == "buff" then
-                b.typeIcon:SetVertexColor(0.75, 1, 0.75, 0.5)
+                b.typeIcon:SetVertexColor(0.75, 1, 0.75)
             else -- debuff
-                b.typeIcon:SetVertexColor(1, 0.75, 0.75, 0.5)
+                b.typeIcon:SetVertexColor(1, 0.75, 0.75)
             end
 
             b:GetFontString():ClearAllPoints()
@@ -1930,6 +1945,9 @@ LoadIndicatorList = function()
             b:SetTextColor(1, 1, 1, 1)
         else
             b:SetTextColor(0.466, 0.466, 0.466, 1)
+        end
+        if b.typeIcon then
+            b.typeIcon:SetAlpha(t["enabled"] and 0.55 or 0.15)
         end
 
         b.ShowTooltip = function()

@@ -85,9 +85,6 @@ local function UpdateIndicatorParentVisibility(b, indicatorName, enabled)
     end
 end
 
-local indicatorsInitialized
-local previousLayout = {}
-
 local function ResetIndicators()
     wipe(enabledIndicators)
     wipe(indicatorNums)
@@ -312,6 +309,10 @@ local function HandleIndicators(b)
         if t["glowOptions"] then
             indicator:UpdateGlowOptions(t["glowOptions"])
         end
+        -- update smooth
+        if type(t["smooth"]) == "boolean" then
+            indicator:EnableSmooth(t["smooth"])
+        end
 
         -- init
         -- update name visibility
@@ -343,6 +344,52 @@ local function HandleIndicators(b)
     b._indicatorReady = 1
 end
 
+-------------------------------------------------
+-- indicator update queue
+-------------------------------------------------
+local updater = CreateFrame("Frame")
+updater:Hide()
+local queue = {}
+
+updater:SetScript("OnUpdate", function()
+    local b = queue[1]
+    if b then
+        if not b._status then
+            -- print("processing", GetTime(), b:GetName())
+            b._status = "processing"
+            HandleIndicators(b)
+            UnitButton_UpdateAll(b)
+            b._status = "finished"
+        elseif b._status == "finished" then
+            CellLoadingBar.current = (CellLoadingBar.current or 0) + 1
+            CellLoadingBar:SetValue(CellLoadingBar.current)
+            tremove(queue, 1)
+            b._status = nil
+        end
+    else
+        CellLoadingBar:Hide()
+        CellLoadingBar.current = 0
+        updater:Hide()
+    end
+end)
+
+hooksecurefunc(updater, "Show", function()
+    CellLoadingBar.total = #queue
+    CellLoadingBar:SetMinMaxValues(0, CellLoadingBar.total)
+    CellLoadingBar:SetValue(CellLoadingBar.current or 0)
+    CellLoadingBar:Show()
+end)
+
+local function AddToQueue(b)
+    tinsert(queue, b)
+end
+
+-------------------------------------------------
+-- UpdateIndicators
+-------------------------------------------------
+local indicatorsInitialized
+local previousLayout = {}
+
 local function UpdateIndicators(layout, indicatorName, setting, value, value2)
     F:Debug("|cffff7777UpdateIndicators:|r ", layout, indicatorName, setting, value, value2)
 
@@ -371,21 +418,29 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             I:ResetCustomIndicatorTables()
             ResetIndicators()
             --! update shared buttons: npcs, spotlights
-            F:IterateSharedUnitButtons(HandleIndicators)
+            -- F:IterateSharedUnitButtons(HandleIndicators)
+            F:IterateSharedUnitButtons(AddToQueue)
+            updater:Show()
             return
         end
     end
+    
     previousLayout[INDEX] = Cell.vars.currentLayout
 
     if not indicatorName then -- init
         ResetIndicators()
 
-        -- update indicators
-        F:IterateAllUnitButtons(HandleIndicators, indicatorsInitialized) -- -- NOTE: indicatorsInitialized = false, update ALL GROUP TYPE; indicatorsInitialized = true, just update CURRENT GROUP TYPE
+        if not indicatorsInitialized then
+            -- update indicators
+            F:IterateAllUnitButtons(HandleIndicators, indicatorsInitialized) -- -- NOTE: indicatorsInitialized = false, update ALL GROUP TYPE; indicatorsInitialized = true, just update CURRENT GROUP TYPE
+            -- update all when indicators update finished
+            F:IterateAllUnitButtons(UnitButton_UpdateAll, true)
+        else
+            F:IterateAllUnitButtons(AddToQueue, indicatorsInitialized)
+            updater:Show()
+        end
         indicatorsInitialized = true
-
-        -- update all when indicators update finished
-        F:IterateAllUnitButtons(UnitButton_UpdateAll, true)
+        
     else
         -- changed in IndicatorsTab
         if setting == "enabled" then
@@ -682,6 +737,10 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 F:IterateAllUnitButtons(function(b)
                     b.indicators[indicatorName]:SetFadeOut(value2)
                     UnitButton_UpdateAuras(b)
+                end, true)
+            elseif value == "smooth" then
+                F:IterateAllUnitButtons(function(b)
+                    b.indicators[indicatorName]:EnableSmooth(value2)
                 end, true)
             elseif value == "showAllSpells" then
                 I:ShowAllTargetedSpells(value2)

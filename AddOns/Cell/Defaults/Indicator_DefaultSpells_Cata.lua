@@ -50,13 +50,22 @@ local aoeHealings = {
     -- druid
     740, -- 宁静
 
+    -- palain
+    85222, -- 黎明圣光
+    82327, -- 圣光普照
+
     -- priest
     596, -- 治疗祷言
     64843, -- 神圣赞美诗
-    34866, -- 治疗之环
+    34861, -- 治疗之环
+    15237, -- 神圣新星
+    81751, -- 救赎
+    15290, -- 吸血鬼的拥抱
 
     -- shaman
     1064, -- 治疗链
+    73920, -- 治疗之雨
+    -- 52042, -- 治疗之泉图腾
 }
 
 do
@@ -101,14 +110,17 @@ local externals = { -- true: track by name, false: track by id
         [6940] = true, -- 牺牲祝福
         [64205] = true, -- 神圣牺牲
         [70940] = true, -- 神圣护卫者
-        [19752] = true, -- 神圣干涉
         [31821] = true, -- 光环掌握
-        [20236] = true, -- 强化圣疗术（天赋）
     },
 
     ["PRIEST"] = {
         [33206] = true, -- 痛苦压制
         [47788] = true, -- 守护之魂
+        [62618] = true, -- 真言术：障
+    },
+
+    ["SHAMAN"] = {
+        [98008] = true, -- 灵魂链接图腾
     },
 
     ["WARRIOR"] = {
@@ -163,6 +175,9 @@ local defensives = { -- true: track by name, false: track by id
         [48707] = true, -- 反魔法护罩
         [48792] = true, -- 冰封之韧
         [55233] = true, -- 吸血鬼之血
+        [49028] = true, -- 符文刃舞
+        [49039] = true, -- 巫妖之躯
+        [81162] = true, -- 大墓地的意志
     },
 
     ["DRUID"] = {
@@ -182,6 +197,7 @@ local defensives = { -- true: track by name, false: track by id
     ["PALADIN"] = {
         [498] = true, -- 圣佑术
         [642] = true, -- 圣盾术
+        [86150] = true, -- 远古列王守卫
     },
 
     ["PRIEST"] = {
@@ -264,27 +280,36 @@ local dispellable = {
     [8] = {["Curse"] = true},
         
     -- PALADIN --------------
-    [2] = {["Disease"] = true, ["Magic"] = true, ["Poison"] = true},
+    [2] = {["Disease"] = true, ["Magic"] = true, ["Poison"] = true, ["Bleed"] = true},
     
     -- PRIEST ---------------
-    -- NOTE: 全心全意天赋可以解自己的毒
+    -- TODO: 全心全意天赋可以解自己的毒
     [5] = {["Disease"] = true, ["Magic"] = true},
 
     -- SHAMAN ---------------
     [7] = {["Disease"] = true, ["Poison"] = true},
 }
 
+do
+    -- NOTE: 净化灵魂天赋可以解除诅咒
+    if UnitClassBase("player") == "SHAMAN" then
+        local eventFrame = CreateFrame("Frame")
+        eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
+        eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+        eventFrame:SetScript("OnEvent", function(self, event)
+            if event == "PLAYER_ENTERING_WORLD" then
+                eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+            end
+            dispellable[7]["Curse"] = IsSpellKnown(51886)
+        end)
+    end
+end
+
 function I:CanDispel(dispelType)
     if not dispelType then return end
     
     if dispellable[Cell.vars.playerClassID] then
-        if Cell.vars.playerClassID == 7 then -- 萨满
-            -- NOTE: 净化灵魂天赋可以解除诅咒
-            dispellable[Cell.vars.playerClassID]["Curse"] = IsSpellKnown(51886)
-        end
         return dispellable[Cell.vars.playerClassID][dispelType]
-    else
-        return
     end
 end
 
@@ -320,15 +345,15 @@ local spells =  {
     50464, -- 滋养
     -- paladin
     53563, -- 圣光道标
-    53601, -- 圣洁护盾
     -- priest
     139, -- 恢复
     41635, -- 愈合祷言
     17, -- 真言术：盾
-    28276, -- 光明之泉恢复
+    7001, -- 光明之泉恢复
     -- shaman
     974, -- 大地之盾
     61295, -- 激流
+    51945, -- 大地生命
 }
 
 function F:FirstRun()
@@ -422,21 +447,18 @@ end
 -------------------------------------------------
 -- missing buffs, for indicator settings only
 -------------------------------------------------
-local buffsOrder = {"PWF", "AB", "DS", "MotW", "BoK", "BoM", "BoW", "BoS", "BS", "CS", "SP"}
+local buffsOrder = {"PWF", "AB", "MotW", "BoK", "BoM", "BS", "CS", "SP"}
 local abbrToIndex = {}
 
 local missingBuffs = {
-    ["PWF"] = 1243,
+    ["PWF"] = 21562,
     ["AB"] = 1459,
-    ["DS"] = 14752,
     ["MotW"] = 1126,
     ["BoK"] = 20217,
     ["BoM"] = 19740,
-    ["BoW"] = 19742,
-    ["BoS"] = 20911,
     ["BS"] = 6673,
     ["CS"] = 469,
-    ["SP"] = 976,
+    ["SP"] = 27683,
 }
 
 do
@@ -472,11 +494,10 @@ end
 function I:GetMissingBuffsFilters()
     local indicies = {
         "PWF",
-        "DS",
         "SP",
         "AB",
         "MotW",
-        {"PALADIN", {"BoK", "BoM", "BoW", "BoS"}},
+        {"PALADIN", {"BoK", "BoM"}},
         {"WARRIOR", {"BS", "CS"}},
     }
 
