@@ -1,4 +1,3 @@
-# 11.2.2 (2024-05-01)
+# 11.2.4 (2024-05-04)
 
-* Adjusted default settings for soft target icon so that it is shown above the nameplate.
-* Fixed a bug where the vertical alignment for the cast target text was not migrated properly [Comment #7266].
+* Fixed an incompatibility with BigDebuffs where BigDebuffs' icons where not shown (because of a side-effect with other addons). You also need to update BigDebuffs for the bugfix to take effect. [Comment #7274].
