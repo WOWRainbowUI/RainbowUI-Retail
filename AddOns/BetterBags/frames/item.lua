@@ -322,6 +322,10 @@ end
 ---@param data ItemData
 function itemFrame.itemProto:SetItemFromData(data)
   assert(data, 'data must be provided')
+  local wasNew = false
+  if self.kind == nil then
+    wasNew = true
+  end
   self.slotkey = data.slotkey
   local tooltipOwner = GameTooltip:GetOwner()
   local bagid, slotid = data.bagid, data.slotid
@@ -380,6 +384,9 @@ function itemFrame.itemProto:SetItemFromData(data)
   if self.slotkey ~= nil then
     events:SendMessage('item/Updated', self)
   end
+  if wasNew then
+    events:SendMessage('item/NewButton', self)
+  end
   self.frame:Show()
   self.button:Show()
 end
@@ -405,6 +412,10 @@ end
 ---@param count number
 ---@param name string
 function itemFrame.itemProto:SetFreeSlots(bagid, slotid, count, name)
+  local wasNew = false
+  if self.kind == nil then
+    wasNew = true
+  end
   self.slotkey = items:GetSlotKeyFromBagAndSlot(bagid, slotid)
   if const.BANK_BAGS[bagid] or const.REAGENTBANK_BAGS[bagid] then
     self.kind = const.BAG_KIND.BANK
@@ -446,6 +457,9 @@ function itemFrame.itemProto:SetFreeSlots(bagid, slotid, count, name)
   self.button.ItemSlotBackground:Show()
   self.frame:SetAlpha(1)
   events:SendMessage('item/Updated', self)
+  if wasNew then
+    events:SendMessage('item/NewButton', self)
+  end
   self.frame:Show()
   self.button:Show()
 end
