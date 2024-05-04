@@ -68,7 +68,6 @@ local table = table;
 local strsub = strsub;
 local GetTime = GetTime;
 local GetSpellCooldown = GetSpellCooldown;
-local GetSpellBookItemName = GetSpellBookItemName;
 local GetSpellInfo = GetSpellInfo;
 local InCombatLockdown = InCombatLockdown;
 local GetWeaponEnchantInfo = GetWeaponEnchantInfo;
@@ -393,8 +392,8 @@ function VUHDO_initBuffsFromSpellBook()
 	for _, tCateg in pairs(VUHDO_getPlayerClassBuffs()) do
 		for _, tCategSpells in pairs(tCateg) do
 			tParentSpellName = tCategSpells[1];
-			_, tSpellId = GetSpellBookItemInfo(tParentSpellName);
-			if tSpellId then
+
+			if VUHDO_isSpellKnown(tParentSpellName) then
 				tChildSpellName, _, tIcon, _, _, _, tSpellId = GetSpellInfo(tParentSpellName);
 				VUHDO_BUFFS[tChildSpellName] = {
 					["icon"] = tIcon,

@@ -501,9 +501,9 @@ function VUHDO_refactorStatusbar(tBar)
 
 
 	tBar["SetVuhDoColor"] = function(self, aColor)
-		if aColor["R"] and aColor["G"] and aColor["B"] and aColor["O"] then
+		if aColor and aColor["R"] and aColor["G"] and aColor["B"] and aColor["O"] then
 			self["texture"]:SetVertexColor(aColor["R"], aColor["G"], aColor["B"], aColor["O"]);
-		elseif aColor["R"] and aColor["G"] and aColor["B"] then 
+		elseif aColor and aColor["R"] and aColor["G"] and aColor["B"] then
 			self["texture"]:SetVertexColor(aColor["R"], aColor["G"], aColor["B"]);
 		end
 	end

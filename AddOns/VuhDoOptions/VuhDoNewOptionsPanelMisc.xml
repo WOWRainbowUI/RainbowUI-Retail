@@ -850,7 +850,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_setComboModel(self, "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.OVERHEAL_TEXT.TEXT_PROVIDER.#PNUM#", VUHDO_TEXT_PROVIDER_COMBO_MODEL);
+								VUHDO_setComboModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.OVERHEAL_TEXT.TEXT_PROVIDER", VUHDO_TEXT_PROVIDER_COMBO_MODEL);
 								VUHDO_lnfSetTooltip(self, "Select a text provider for overheal text indicator");
 							</OnLoad>
 						</Scripts>

@@ -110,11 +110,14 @@ local VUHDO_ABSORB_DEBUFFS = {
 
 
 local sMissedEvents = {
+	["SPELL_ABSORBED"] = true
+--[[
 	["SWING_MISSED"] = true,
 	["RANGE_MISSED"] = true,
 	["SPELL_MISSED"] = true,
 	["SPELL_PERIODIC_MISSED"] = true,
 	["ENVIRONMENTAL_MISSED"] = true
+]];
 };
 
 
@@ -325,15 +328,30 @@ end
 
 
 --
-local tUnit;
+local tUnit, tInfo;
 local VUHDO_DEBUFF_SHIELDS = { };
 local tDelta, tShieldName;
-function VUHDO_parseCombatLogShieldAbsorb(aMessage, aSrcGuid, aDstGuid, aShieldName, anAmount, aSpellId, anAbsorbAmount)
-	tUnit = VUHDO_RAID_GUIDS[aDstGuid];
-	if not tUnit then return; end
+local tDoUpdate;
+function VUHDO_parseCombatLogShieldAbsorb(aMessage, aSrcGuid, aDstGuid, aShieldName, anAmount, aSpellId, anAbsorbAmount, anAbsorbSpellId)
 
+	tUnit = VUHDO_RAID_GUIDS[aDstGuid];
+
+	if not tUnit then
+		return;
+	end
+
+	-- only trigger a shield update on subevent SPELL_ABSORBED, no longer for *_MISSED events
+	-- event optionally includes the spell payload if trigger by SPELL_DAMAGE
+	-- this moves the absorb spell ID from the 16th arg (anAmount) to the 19th arg (anAbsorbSpellId)
 	if sMissedEvents[aMessage] then
-		VUHDO_updateShields(tUnit);
+		if type(anAmount) == "number" then
+			anAbsorbSpellId = anAmount;
+		end
+
+		if VUHDO_SHIELDS[anAbsorbSpellId] then
+			VUHDO_updateShield(tUnit, anAbsorbSpellId);
+		end
+
 		return;
 	end
 
@@ -342,6 +360,8 @@ function VUHDO_parseCombatLogShieldAbsorb(aMessage, aSrcGuid, aDstGuid, aShieldN
 	--[[if ("SPELL_AURA_APPLIED" == aMessage) then
 		VUHDO_xMsg(aShieldName, aSpellId);
 	end]]
+
+	tDoUpdate = true;
 
 	if VUHDO_SHIELDS[aSpellId] then
 
@@ -354,6 +374,8 @@ function VUHDO_parseCombatLogShieldAbsorb(aMessage, aSrcGuid, aDstGuid, aShieldN
 			or "SPELL_AURA_BROKEN" == aMessage
 			or "SPELL_AURA_BROKEN_SPELL" == aMessage then
 			VUHDO_removeShield(tUnit, aShieldName);
+		else
+			tDoUpdate = false;
 		end
 	elseif VUHDO_ABSORB_DEBUFFS[aSpellId] then
 
@@ -367,28 +389,48 @@ function VUHDO_parseCombatLogShieldAbsorb(aMessage, aSrcGuid, aDstGuid, aShieldN
 			or "SPELL_AURA_BROKEN_SPELL" == aMessage then
 			VUHDO_removeShield(tUnit, aShieldName);
 			VUHDO_DEBUFF_SHIELDS[tUnit] = nil;
+		else
+			tDoUpdate = false;
 		end
 	elseif ("SPELL_HEAL" == aMessage or "SPELL_PERIODIC_HEAL" == aMessage)
 		and VUHDO_DEBUFF_SHIELDS[tUnit]
 		and (tonumber(anAbsorbAmount) or 0) > 0 then
+
 		tShieldName = VUHDO_DEBUFF_SHIELDS[tUnit];
 		tDelta = VUHDO_getShieldLeftAmount(tUnit, tShieldName) - anAbsorbAmount;
 		VUHDO_updateShieldValue(tUnit, tShieldName, tDelta);
 	elseif "UNIT_DIED" == aMessage then
+
 		VUHDO_SHIELD_SIZE[tUnit] = nil;
 		VUHDO_SHIELD_LEFT[tUnit] = nil;
 		VUHDO_SHIELD_EXPIRY[tUnit] = nil;
 		VUHDO_DEBUFF_SHIELDS[tUnit] = nil;
 		VUHDO_SHIELD_LAST_SOURCE_GUID[tUnit] = nil;
-	elseif ((VUHDO_IMMEDIATE_HOTS[aShieldName] and VUHDO_ACTIVE_HOTS[aShieldName]) or (VUHDO_IMMEDIATE_HOTS[tostring(aSpellId)] and VUHDO_ACTIVE_HOTS[tostring(aSpellId)])) and 
-		("SPELL_AURA_APPLIED" == aMessage or "SPELL_AURA_REMOVED" == aMessage or 
-		 "SPELL_AURA_REFRESH" == aMessage or "SPELL_AURA_BROKEN" == aMessage or 
-		 "SPELL_AURA_BROKEN_SPELL" == aMessage) then
-		VUHDO_updateAllHoTs();
-		VUHDO_updateAllCyclicBouquets(true);
+	elseif ((VUHDO_IMMEDIATE_HOTS[aShieldName] and VUHDO_ACTIVE_HOTS[aShieldName]) or
+		(VUHDO_IMMEDIATE_HOTS[tostring(aSpellId)] and VUHDO_ACTIVE_HOTS[tostring(aSpellId)])) and
+		("SPELL_AURA_APPLIED" == aMessage or "SPELL_AURA_REMOVED" == aMessage or
+		"SPELL_AURA_REFRESH" == aMessage or "SPELL_AURA_BROKEN" == aMessage or
+		"SPELL_AURA_BROKEN_SPELL" == aMessage) then
+
+		tinfo = VUHDO_RAID[tUnit];
+
+		if tInfo then
+			VUHDO_updateHots(tUnit, tInfo);
+
+			-- FIXME: why all?
+			VUHDO_updateAllCyclicBouquets(true);
+		else
+			tDoUpdate = false;
+		end
+	else
+		tDoUpdate = false;
 	end
 
-	VUHDO_updateBouquetsForEvent(tUnit, 36); -- VUHDO_UPDATE_SHIELD
-	VUHDO_updateShieldBar(tUnit);
-	VUHDO_updateHealAbsorbBar(tUnit);
+	if tDoUpdate then
+		VUHDO_updateBouquetsForEvent(tUnit, 36); -- VUHDO_UPDATE_SHIELD
+
+		VUHDO_updateShieldBar(tUnit);
+		VUHDO_updateHealAbsorbBar(tUnit);
+	end
+
 end

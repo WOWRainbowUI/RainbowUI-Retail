@@ -14,28 +14,28 @@ local sAnchorPoints = { "Top", "TopLeft", "TopRight", "Bottom", "BottomLeft", "B
 local sIndicatorMetaModel = {
 	{ -- Outer Border
 		["name"] = VUHDO_I18N_OUTER_BORDER,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.BAR_BORDER",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.BAR_BORDER",
 		["icon"] = "Indicator_Outer",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BORDER_WIDTH,
 				["type"] = VUHDO_MIN_MAX_CONSTRAINTS,
 				["min"] = 1, ["max"] = 20, ["step"] = 1, ["unit"] = " Pt.",
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.BAR_BORDER.WIDTH",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.BAR_BORDER.WIDTH",
 				["tooltip"] = nil,
 			},
 			{
 				["name"] = "Texture",
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_BORDERS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.BAR_BORDER.FILE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.BAR_BORDER.FILE",
 				["tooltip"] = nil,
 			},
 			{
 				["name"] = "Adjust",
 				["type"] = VUHDO_MIN_MAX_CONSTRAINTS,
 				["min"] = -20, ["max"] = 0, ["step"] = 1, ["unit"] = "",
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.BAR_BORDER.ADJUST",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.BAR_BORDER.ADJUST",
 				["tooltip"] = nil,
 			},
 		},
@@ -43,21 +43,21 @@ local sIndicatorMetaModel = {
 
 	{ -- Inner Border
 		["name"] = VUHDO_I18N_INNER_BORDER,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.CLUSTER_BORDER",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.CLUSTER_BORDER",
 		["icon"] = "Indicator_Inner",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BORDER_WIDTH,
 				["type"] = VUHDO_MIN_MAX_CONSTRAINTS,
 				["min"] = 1, ["max"] = 20, ["step"] = 1, ["unit"] = " Pt.",
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.CLUSTER_BORDER.WIDTH",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.CLUSTER_BORDER.WIDTH",
 				["tooltip"] = nil,
 			},
 			{
 				["name"] = "Texture",
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_BORDERS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.CLUSTER_BORDER.FILE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.CLUSTER_BORDER.FILE",
 				["tooltip"] = nil,
 			},
 		},
@@ -65,46 +65,46 @@ local sIndicatorMetaModel = {
 
 	{ -- Swiftmend Indicator
 		["name"] = VUHDO_I18N_SWIFTMEND_INDICATOR,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.SWIFTMEND_INDICATOR",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.SWIFTMEND_INDICATOR",
 		["icon"] = "Indicator_Swiftmend",
 		["custom"] = {
 --[[			{
 				["name"] = VUHDO_I18N_ICON_GLOW_COLOR,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SWIFTMEND_INDICATOR.isIconGlow",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.isIconGlow",
 				["tooltip"] = VUHDO_I18N_TT.K576,
 			},]]
 			{
 				["name"] = VUHDO_I18N_BAR_GLOW_COLOR,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SWIFTMEND_INDICATOR.isBarGlow",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.isBarGlow",
 				["tooltip"] = VUHDO_I18N_TT.K577,
 			},
 			{
 				["name"] = VUHDO_I18N_ANCHOR,
 				["type"] = VUHDO_ANCHOR_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SWIFTMEND_INDICATOR.anchor",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.anchor",
 				["tooltip"] = nil,
 			},
 			{
 				["name"] = VUHDO_I18N_X,
 				["type"] = VUHDO_MIN_MAX_CONSTRAINTS,
 				["min"] = -100, ["max"] = 100, ["step"] = 0.5, ["unit"] = "%",
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SWIFTMEND_INDICATOR.xAdjust",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.xAdjust",
 				["tooltip"] = VUHDO_I18N_TT.K400,
 			},
 			{
 				["name"] = VUHDO_I18N_Y,
 				["type"] = VUHDO_MIN_MAX_CONSTRAINTS,
 				["min"] = -100, ["max"] = 100, ["step"] = 0.5, ["unit"] = "%",
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SWIFTMEND_INDICATOR.yAdjust",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.yAdjust",
 				["tooltip"] = VUHDO_I18N_TT.K401,
 			},
 			{
 				["name"] = VUHDO_I18N_SCALE,
 				["type"] = VUHDO_MIN_MAX_CONSTRAINTS,
 				["min"] = 0.5, ["max"] = 4, ["step"] = 0.05, ["unit"] = " x",
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SWIFTMEND_INDICATOR.SCALE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.SCALE",
 				["tooltip"] = nil,
 			},
 		},
@@ -112,14 +112,14 @@ local sIndicatorMetaModel = {
 
 	{ -- MouseoverHiglighter
 		["name"] = VUHDO_I18N_MOUSEOVER_HIGHLIGHTER,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.MOUSEOVER_HIGHLIGHT",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.MOUSEOVER_HIGHLIGHT",
 		["icon"] = "Indicator_BarHighlight",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BAR_TEXTURE,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_STATUS_BARS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.MOUSEOVER_HIGHLIGHT.TEXTURE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.MOUSEOVER_HIGHLIGHT.TEXTURE",
 				["tooltip"] = VUHDO_I18N_TT.K076,
 			},
 		},
@@ -127,14 +127,14 @@ local sIndicatorMetaModel = {
 
 	{ -- Aggro Line
 		["name"] = VUHDO_I18N_AGGRO_LINE,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.AGGRO_BAR",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.AGGRO_BAR",
 		["icon"] = "Indicator_Aggro",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BAR_TEXTURE,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_STATUS_BARS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.AGGRO_BAR.TEXTURE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.AGGRO_BAR.TEXTURE",
 				["tooltip"] = VUHDO_I18N_TT.K076,
 			},
 		},
@@ -142,53 +142,53 @@ local sIndicatorMetaModel = {
 
 	{ -- Threat Marks
 		["name"] = VUHDO_I18N_THREAT_MARKS,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.THREAT_MARK",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.THREAT_MARK",
 		["icon"] = "Indicator_AggroMark",
 		["custom"] = { },
 	},
 
 	{ -- Threat Bar
 		["name"] = VUHDO_I18N_THREAT_BAR,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.THREAT_BAR",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.THREAT_BAR",
 		["icon"] = "Indicator_ThreatBar",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BAR_HEIGHT,
 				["type"] = VUHDO_MIN_MAX_CONSTRAINTS,
 				["min"] = 1, ["max"] = 20, ["step"] = 1, ["unit"] = "",
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.THREAT_BAR.HEIGHT",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.THREAT_BAR.HEIGHT",
 				["tooltip"] = VUHDO_I18N_TT.K179,
 			},
 			{
 				["name"] = VUHDO_I18N_BAR_TEXTURE,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_STATUS_BARS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.THREAT_BAR.TEXTURE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.THREAT_BAR.TEXTURE",
 				["tooltip"] = VUHDO_I18N_TT.K076,
 			},
 			{
 				["name"] = VUHDO_I18N_INV_GROWTH,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.THREAT_BAR.invertGrowth",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.THREAT_BAR.invertGrowth",
 				["tooltip"] = VUHDO_I18N_TT.K307,
 			},
 			{
 				["name"] = VUHDO_I18N_TURN_AXIS,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.THREAT_BAR.turnAxis",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.THREAT_BAR.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
 			},
 			{
 				["name"] = "Text provider",
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
-				["model"] = "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.THREAT_BAR.TEXT_PROVIDER.##0",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.THREAT_BAR.TEXT_PROVIDER",
 				["tooltip"] = nil,
 			},
 			{
 				["name"] = VUHDO_I18N_BAR_TEXT,
 				["type"] = VUHDO_TEXT_OPTIONS_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.THREAT_BAR.TEXT",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.THREAT_BAR.TEXT",
 				["tooltip"] = nil,
 			},
 		},
@@ -197,39 +197,39 @@ local sIndicatorMetaModel = {
 
 	{ -- Mana Bar
 		["name"] = VUHDO_I18N_MANA_BAR,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.MANA_BAR",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.MANA_BAR",
 		["icon"] = "Indicator_ManaBar",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BAR_TEXTURE,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_STATUS_BARS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.MANA_BAR.TEXTURE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.MANA_BAR.TEXTURE",
 				["tooltip"] = VUHDO_I18N_TT.K076,
 			},
 			{
 				["name"] = VUHDO_I18N_INV_GROWTH,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.MANA_BAR.invertGrowth",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.MANA_BAR.invertGrowth",
 				["tooltip"] = VUHDO_I18N_TT.K307,
 			},
 			{
 				["name"] = VUHDO_I18N_TURN_AXIS,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.MANA_BAR.turnAxis",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.MANA_BAR.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
 			},
 			{
 				["name"] = "Text provider",
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
-				["model"] = "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.MANA_BAR.TEXT_PROVIDER.##0",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.MANA_BAR.TEXT_PROVIDER",
 				["tooltip"] = nil,
 			},
 			{
 				["name"] = VUHDO_I18N_BAR_TEXT,
 				["type"] = VUHDO_TEXT_OPTIONS_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.MANA_BAR.TEXT",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.MANA_BAR.TEXT",
 				["tooltip"] = nil,
 			},
 		},
@@ -237,14 +237,14 @@ local sIndicatorMetaModel = {
 
 	{ -- Background Bar
 		["name"] = VUHDO_I18N_BACKGROUND_BAR,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.BACKGROUND_BAR",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.BACKGROUND_BAR",
 		["icon"] = "Indicator_BackgroundBar",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BAR_TEXTURE,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_STATUS_BARS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.BACKGROUND_BAR.TEXTURE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.BACKGROUND_BAR.TEXTURE",
 				["tooltip"] = VUHDO_I18N_TT.K076,
 			},
 		},
@@ -252,25 +252,25 @@ local sIndicatorMetaModel = {
 
 	{ -- Health Bar
 		["name"] = VUHDO_I18N_HEALTH_BAR,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.HEALTH_BAR",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.HEALTH_BAR",
 		["icon"] = "Indicator_HealthBar",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_INV_GROWTH,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.HEALTH_BAR.invertGrowth",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.invertGrowth",
 				["tooltip"] = VUHDO_I18N_TT.K307,
 			},
 			{
 				["name"] = VUHDO_I18N_VERTICAL,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.HEALTH_BAR.vertical",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.vertical",
 				["tooltip"] = VUHDO_I18N_TT.K308,
 			},
 			{
 				["name"] = VUHDO_I18N_TURN_AXIS,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.HEALTH_BAR.turnAxis",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
 			},
 		},
@@ -278,45 +278,45 @@ local sIndicatorMetaModel = {
 
 	{ -- Side Bar left
 		["name"] = VUHDO_I18N_SIDE_BAR_LEFT,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.SIDE_LEFT",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.SIDE_LEFT",
 		["icon"] = "Indicator_LeftSide",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BAR_TEXTURE,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_STATUS_BARS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SIDE_LEFT.TEXTURE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_LEFT.TEXTURE",
 				["tooltip"] = VUHDO_I18N_TT.K076,
 			},
 			{
 				["name"] = VUHDO_I18N_INV_GROWTH,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SIDE_LEFT.invertGrowth",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_LEFT.invertGrowth",
 				["tooltip"] = VUHDO_I18N_TT.K307,
 			},
 			{
 				["name"] = VUHDO_I18N_VERTICAL,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SIDE_LEFT.vertical",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_LEFT.vertical",
 				["tooltip"] = VUHDO_I18N_TT.K308,
 			},
 			{
 				["name"] = VUHDO_I18N_TURN_AXIS,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SIDE_LEFT.turnAxis",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_LEFT.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
 			},
 			{
 				["name"] = "Text provider",
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
-				["model"] = "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.SIDE_LEFT.TEXT_PROVIDER.##0",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_LEFT.TEXT_PROVIDER",
 				["tooltip"] = nil,
 			},
 			{
 				["name"] = VUHDO_I18N_BAR_TEXT,
 				["type"] = VUHDO_TEXT_OPTIONS_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.SIDE_LEFT.TEXT",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_LEFT.TEXT",
 				["tooltip"] = nil,
 			},
 		},
@@ -324,45 +324,45 @@ local sIndicatorMetaModel = {
 
 	{ -- Side Bar Right
 		["name"] = VUHDO_I18N_SIDE_BAR_RIGHT,
-		["model"] = "VUHDO_INDICATOR_CONFIG.BOUQUETS.SIDE_RIGHT",
+		["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.BOUQUETS.SIDE_RIGHT",
 		["icon"] = "Indicator_RightSide",
 		["custom"] = {
 			{
 				["name"] = VUHDO_I18N_BAR_TEXTURE,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_STATUS_BARS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SIDE_RIGHT.TEXTURE",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_RIGHT.TEXTURE",
 				["tooltip"] = VUHDO_I18N_TT.K076,
 			},
 			{
 				["name"] = VUHDO_I18N_INV_GROWTH,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SIDE_RIGHT.invertGrowth",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_RIGHT.invertGrowth",
 				["tooltip"] = VUHDO_I18N_TT.K307,
 			},
 			{
 				["name"] = VUHDO_I18N_VERTICAL,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SIDE_RIGHT.vertical",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_RIGHT.vertical",
 				["tooltip"] = VUHDO_I18N_TT.K308,
 			},
 			{
 				["name"] = VUHDO_I18N_TURN_AXIS,
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.CUSTOM.SIDE_RIGHT.turnAxis",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_RIGHT.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
 			},
 			{
 				["name"] = "Text provider",
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
-				["model"] = "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.SIDE_RIGHT.TEXT_PROVIDER.##0",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_RIGHT.TEXT_PROVIDER",
 				["tooltip"] = nil,
 			},
 			{
 				["name"] = VUHDO_I18N_BAR_TEXT,
 				["type"] = VUHDO_TEXT_OPTIONS_CONSTRAINTS,
-				["model"] = "VUHDO_INDICATOR_CONFIG.TEXT_INDICATORS.SIDE_RIGHT.TEXT",
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_RIGHT.TEXT",
 				["tooltip"] = nil,
 			},
 		},
@@ -413,14 +413,18 @@ end
 --
 local tCombo;
 function VUHDO_generalIndicatorsEditButtonClicked(aButton)
+
 	tCombo = _G[aButton:GetParent():GetName() .. "SelectComboBox"];
 	VUHDO_BOUQUETS["SELECTED"] = VUHDO_lnfGetValueFromModel(tCombo);
 
-	VUHDO_MENU_RETURN_TARGET = VuhDoNewOptionsGeneralRadioPanelIndicatorsRadioButton;
-	VUHDO_MENU_RETURN_TARGET_MAIN = nil;
+	VUHDO_MENU_RETURN_TARGET = nil;
+	VUHDO_MENU_RETURN_TARGET_MAIN = VuhDoNewOptionsTabbedFrameTabsPanelPanelsRadioButton;
+
+	VUHDO_newOptionsTabbedClickedClicked(VuhDoNewOptionsTabbedFrameTabsPanelGeneralRadioButton);
+	VUHDO_lnfRadioButtonClicked(VuhDoNewOptionsTabbedFrameTabsPanelGeneralRadioButton);
 
 	VUHDO_lnfTabRadioButtonClicked(VuhDoNewOptionsGeneralRadioPanelBouquetRadioButton);
-	--VUHDO_lnfRadioButtonClicked(VuhDoNewOptionsGeneralRadioPanelBouquetRadioButton);
+
 end
 
 

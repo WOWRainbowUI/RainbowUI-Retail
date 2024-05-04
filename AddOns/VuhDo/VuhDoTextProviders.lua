@@ -229,14 +229,18 @@ end
 ---------------------------------------------------------------------------------
 
 function VUHDO_initTextProviderConfig()
-  -- Falls man mal was löscht oder umbenennt
-	for tIndicatorName, anIndicatorConfig in pairs(VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"]) do
-		for tIndex, tProviderName in pairs(anIndicatorConfig["TEXT_PROVIDER"]) do
+
+	-- Falls man mal was löscht oder umbenennt
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		for tIndicatorName, tIndicatorConfig in pairs(VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"]) do
+			local tProviderName = tIndicatorConfig["TEXT_PROVIDER"];
+
 			if not VUHDO_TEXT_PROVIDERS[tProviderName] then
-				anIndicatorConfig["TEXT_PROVIDER"][tIndex] = "";
+				tIndicatorConfig["TEXT_PROVIDER"] = "";
 			end
 		end
 	end
+
 end
 
 ------------------------------------------------------------------------------------
