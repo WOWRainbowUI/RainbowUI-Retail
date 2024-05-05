@@ -431,7 +431,7 @@ local function OnLoad(self, event, ...)
     LPaddon.customFilter = LP_DB.customFilter == nil and true or LP_DB.customFilter
     LPaddon.strangerGroupEnabled = LP_DB.strangerGroupEnabled == nil and true or LP_DB.strangerGroupEnabled
     if not LP_DB.customFilterWords or next(LP_DB.customFilterWords) == nil or not LP_DB.resetFilterWords or LP_DB.resetFilterWords < 1 then
-    LP_DB.customFilterWords = {["wow1"] = true, ["wow2"] = true, ["wow3"] = true, ["wow4"] = true, ["wow5"] = true, ["wow6"] = true, ["wow7"] = true, ["wow8"] = true, ["wow9"] = true, ["wow0"] = true,  ["wlk"] = true, ["咸鱼"] = true,}
+    LP_DB.customFilterWords = {["wow1"] = true, ["wow2"] = true, ["wow3"] = true, ["wow4"] = true, ["wow5"] = true, ["wow6"] = true, ["wow7"] = true, ["wow8"] = true, ["wow9"] = true, ["wow0"] = true,  ["wlk"] = true, ["咸鱼"] = true, ["8wow"] = true,}
 	LP_DB.resetFilterWords = 1
 end
     LPaddon.customFilterWords = LP_DB.customFilterWords    
