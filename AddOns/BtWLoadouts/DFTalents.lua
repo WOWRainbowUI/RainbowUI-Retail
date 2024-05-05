@@ -5,6 +5,13 @@
 local ADDON_NAME,Internal = ...
 local L = Internal.L
 
+local GetSpellCooldown = C_Spell and C_Spell.GetSpellCooldown and function (spellID)
+    local spellCooldownInfo = C_Spell.GetSpellCooldown(spellID);
+    if spellCooldownInfo then
+        return spellCooldownInfo.startTime, spellCooldownInfo.duration, spellCooldownInfo.isEnabled, spellCooldownInfo.modRate;
+    end
+end or GetSpellCooldown;
+
 BTWLOADOUTS_DF_TALENTS_ACTIVE = Internal.IsDragonflightPatch
 
 BTWLOADOUTS_SPEC_TREE = L["Spec Tree"] .. " > ";
@@ -13,7 +20,7 @@ BTWLOADOUTS_CLASS_TREE = " < " .. L["Class Tree"];
 --@NOTE Copying parts of the original talents code over. Dont want to use wrong mixin
 local BtWLoadoutsTalentsMixin = false
 
-Internal.OnEvent("LOADOUT_CHANGE_END", function ()
+Internal.OnEvent("LoadoutActivateEnd", function ()
     if C_Traits then
         local configID = C_ClassTalents.GetActiveConfigID();
         if configID then
@@ -113,6 +120,8 @@ local function RefreshSet(set)
         end
     end
     set.nodes = nodes;
+    
+	Internal.Call("DFTalentSetUpdated", set.setID);
 
     return UpdateSetFilters(set)
 end
@@ -123,13 +132,15 @@ local function AddSet()
     end
     local classID = select(3, UnitClass("player"))
     local specID, specName = GetSpecializationInfo(specIndex);
-    return Internal.AddSet("dftalents", RefreshSet({
+    local set = Internal.AddSet("dftalents", RefreshSet({
         classID = classID,
         specID = specID,
         name = format(L["New %s Set"], specName),
         useCount = 0,
         nodes = {},
     }))
+    Internal.Call("DFTalentSetCreated", set.setID);
+    return set
 end
 local function DeleteSet(id)
     Internal.DeleteSet(BtWLoadoutsSets.dftalents, id);
@@ -146,6 +157,8 @@ local function DeleteSet(id)
             end
         end
     end
+    
+	Internal.Call("DFTalentSetDeleted", id);
 
     local frame = BtWLoadoutsFrame.DFTalents;
     local set = frame.set;
@@ -621,6 +634,7 @@ function BtWLoadoutsDFTalentsMixin:OnLoad()
     self.Scroll:RegisterForDrag("LeftButton");
     self.RestrictionsDropDown:SetSupportedTypes("race")
     self.RestrictionsDropDown:SetScript("OnChange", function ()
+        Internal.Call("DFTalentSetUpdated", self.set.setID);
         self:Update()
     end)
 
@@ -679,6 +693,8 @@ function BtWLoadoutsDFTalentsMixin:OnShow()
                 set.treeID = result.ID;
 
                 set.nodes = temp[set.specID] or {};
+                
+	            Internal.Call("DFTalentSetUpdated", set.setID);
 
                 self:Update(true);
             end
@@ -704,6 +720,7 @@ function BtWLoadoutsDFTalentsMixin:UpdateSetName(value)
             return
         end
         self.set.name = value;
+        Internal.Call("DFTalentSetUpdated", self.set.setID);
         self:Update(false, true);
     end
 end
@@ -1358,6 +1375,7 @@ function BtWLoadoutsDFTalentsMixin:PurchaseRank(nodeID)
     if nodeInfo.maxRanks > nodeInfo.activeRank then
         self.set.nodes[nodeID] = (self.set.nodes[nodeID] or 0) + 1;
     end
+	Internal.Call("DFTalentSetUpdated", self.set.setID);
     -- self:MarkNodeDirty(nodeID);
     -- self:RefreshButtons()
     self:Update();
@@ -1372,6 +1390,7 @@ function BtWLoadoutsDFTalentsMixin:RefundRank(nodeID)
         if self.set.nodes[nodeID] <= 0 then
             self.set.nodes[nodeID] = nil;
         end
+        Internal.Call("DFTalentSetUpdated", self.set.setID);
         -- self:MarkNodeDirty(nodeID);
         self:Update();
     end
@@ -1394,6 +1413,7 @@ function BtWLoadoutsDFTalentsMixin:SetSelection(nodeID, entryID)
             end
         end
     end
+	Internal.Call("DFTalentSetUpdated", self.set.setID);
     -- self:MarkNodeDirty(nodeID);
     self:Update();
 end
@@ -1434,7 +1454,7 @@ local function GetSetsForCharacter(tbl, slug)
 	return tbl
 end
 -- Character deletion
-Internal.OnEvent("CHARACTER_DELETE", function (event, slug)
+Internal.OnEvent("CharacterDeleted", function (event, slug)
 	local sets = GetSetsForCharacter({}, slug)
 	for _,set in ipairs(sets) do
 		DeleteSet(set.setID)
