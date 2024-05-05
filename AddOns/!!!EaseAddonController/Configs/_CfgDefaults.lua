@@ -374,6 +374,10 @@ D["BigDebuffs"] = {
 			InterfaceOptionsFrame_OpenToCategory("PvP 控場圖示")
 		end,
     },
+	{
+		type = "text",
+		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
+	},
 };
 D["BlockMessageTeamGuard"] = {
     defaultEnable = 1,

@@ -1,1 +1,1 @@
-- Bug fix
+- Spell updates - Fix for Threat Plates
