@@ -9,8 +9,41 @@ local categories = BetterBags:GetModule('Categories')
 ---@class Localization: AceModule
 local L = BetterBags:GetModule('Localization')
 
+---@class AceDB: AceModule
+local AceDB = LibStub("AceDB-3.0")
+
 ---@class Appearances: AceModule
 local Appearances = BetterBags:NewModule('Appearances')
+
+---@class Config: AceModule
+local Config = BetterBags:GetModule('Config')
+
+---@class Events: AceModule
+local Events = BetterBags:GetModule('Events')
+
+local defaults = {
+    profile = {
+        enableSubdivide = false,
+    },
+}
+
+local db
+
+local configOptions = {
+    msg = {
+        type = "toggle",
+        name = L:G("Subdivide by category"),
+        desc = L:G("This will also split items into categories based on their type."),
+        get = function(info)
+            return Appearances.db.profile.enableSubdivide
+        end,
+        set = function(info, value)
+            Appearances.db.profile.enableSubdivide = value
+            clearExistingCategories()
+            Events:SendMessage('bags/FullRefreshAll')
+        end,
+    },
+}
 
 local nonEquippableTypes = {
     ["INVTYPE_NON_EQUIP_IGNORE"] = true,
@@ -39,6 +72,17 @@ local itemIdsToIgnore = {
 -- Functions --
 -- On plugin load, wipe the categories we've added
 function Appearances:OnInitialize()
+    self.db = AceDB:New("BetterBags_AppearancesDB", defaults)
+    self.db:SetProfile("global")
+    db = self.db.profile
+
+    self:addAppearancesConfig()
+    clearExistingCategories()
+    killOldCategories()
+end
+
+-- Kill the subcategories if they exist --
+function clearExistingCategories()
     categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Learnable"), "ff00ff00"))
     categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00"))
     categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00"))
@@ -46,7 +90,17 @@ function Appearances:OnInitialize()
     categories:WipeCategory(L:G("Mog - Tradable"))
     categories:WipeCategory(L:G("Mog - Sellable"))
 
-    killOldCategories()
+    for i = Enum.ItemWeaponSubclassMeta.MinValue, Enum.ItemWeaponSubclassMeta.MaxValue do
+        local name, _ = GetItemSubClassInfo(Enum.ItemClass.Weapon, i)
+        categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Tradable - ") .. name, "ff00ff00"))
+        categories:WipeCategory(L:G("Mog - Tradable - ") .. name)
+    end
+
+    for i = Enum.ItemArmorSubclassMeta.MinValue, Enum.ItemArmorSubclassMeta.MaxValue do
+        local name, _ = GetItemSubClassInfo(Enum.ItemClass.Armor, i)
+        categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Tradable - ") .. name, "ff00ff00"))
+        categories:WipeCategory(L:G("Mog - Tradable - ") .. name)
+    end
 end
 
 function killOldCategories()
@@ -58,8 +112,8 @@ function killOldCategories()
     -- Loop through all classes and wipe the categories
     for i = 1, GetNumClasses() do
         local className, _ = GetClassInfo(i)
-        categories:WipeCategory(L:G(className .. " Usable"))
-        categories:WipeCategory(L:G("Unknown - " .. className))
+        categories:WipeCategory(className .. L:G(" Usable"))
+        categories:WipeCategory(L:G("Unknown - ") .. className)
     end
 end
 
@@ -144,10 +198,27 @@ function isItemIgnored(itemID)
     return false
 end
 
+function Appearances:addAppearancesConfig()
+    if not Config or not configOptions then
+        print("Failed to load configurations for Appearances plugin.")
+        return
+    end
+
+    Config:AddPluginConfig(L:G("Appearances"), configOptions)
+end
+
+Events:RegisterEvent('TRANSMOG_COLLECTION_SOURCE_ADDED', function()
+    clearExistingCategories()
+end)
+
+Events:RegisterEvent('TRANSMOG_COLLECTION_SOURCE_REMOVED', function()
+    clearExistingCategories()
+end)
+
 -- Register the category function
 categories:RegisterCategoryFunction("MogCategorization", function(data)
     -- Exclude non-equipable, legendaries, and artifacts
-    if not isEquipabble(data.itemInfo) or data.itemInfo.itemQuality == 6 or data.itemInfo.itemQuality == 5 or isItemIgnored(data.itemInfo.itemID) or not C_Heirloom.IsItemHeirloom(data.itemInfo.itemID) then
+    if not isEquipabble(data.itemInfo) or data.itemInfo.itemQuality == 6 or data.itemInfo.itemQuality == 5 or isItemIgnored(data.itemInfo.itemID) or C_Heirloom.IsItemHeirloom(data.itemInfo.itemID) then
         return nil
     end
 
@@ -158,13 +229,21 @@ categories:RegisterCategoryFunction("MogCategorization", function(data)
     if not canLearn then
         -- Handle BoA items separately, as they are bound but tradable across the account
         if bindType == "BoA" then
-            return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
+            if db.enableSubdivide then
+                return WrapTextInColorCode(L:G("Mog - Tradable - ") .. data.itemInfo.itemSubType, "ff00ff00")
+            else
+                return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
+            end
         -- Check if the item is bound and not BoA, categorize as "Mog - Sellable"
         elseif data.itemInfo.isBound or bindType == "BoP" then
             return WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00")
         elseif bindType == "BoE" then
             -- If the item is BoE and not bound, it's tradable
-            return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
+            if db.enableSubdivide then
+                return WrapTextInColorCode(L:G("Mog - Tradable - ") .. data.itemInfo.itemSubType, "ff00ff00")
+            else
+                return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
+            end
         end
     elseif canLearn then
         -- If the item's appearance can be learned
