@@ -1,3 +1,3 @@
-# 11.2.4 (2024-05-04)
+# 11.2.6 (2024-05-04)
 
-* Fixed an incompatibility with BigDebuffs where BigDebuffs' icons where not shown (because of a side-effect with other addons). You also need to update BigDebuffs for the bugfix to take effect. [Comment #7274].
+* Fixed a bug that resulted in Blizzard nameplates and Threat Plates being shown at the same time and overlapping each other [GH-516].
