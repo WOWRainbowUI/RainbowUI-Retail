@@ -31,19 +31,14 @@ addon.db = {
 		204215, -- Dormant Primordial Fragment
 		204030, -- Wind Sculpted Stone
 		204020, -- Wild Spirit Stone
-		204028, -- Whimsical Mail Stone
 		204015, -- Swirling Mojo Stone
 		204000, -- Storm Infused Stone
 		204014, -- Sparkling Mana Stone
 		204007, -- Shining Obsidian Stone
-		204017, -- Serene Light Stone
-		204026, -- Serendipitous Gold Stone
 		204004, -- Searing Smokey Stone
 		204003, -- Raging Magma Stone
 		204029, -- Prophetic Twilight Stone
-		204008, -- Prodigious Sand Stone
 		204022, -- Pestilent Plague Stone
-		204024, -- Oozing Oil Stone
 		204025, -- Obscure Pastel Stone
 		204021, -- Necromantic Death Stone
 		204006, -- Indomitable Earth Stone
@@ -55,7 +50,6 @@ addon.db = {
 		204013, -- Exuding Steam Stone
 		204005, -- Entropic Fel Stone
 		204001, -- Echoing Thunder Stone
-		204016, -- Dreadful Shadow Stone
 		204027, -- Desirous Blood Stone
 		204010, -- Deluging Water Stone
 		204012, -- Cold Frost Stone
@@ -430,7 +424,6 @@ addon.db = {
 		196975, -- Cliffside Wylderdrake: Head Fin
 		196976, -- Cliffside Wylderdrake: Head Mane
 		196992, -- Cliffside Wylderdrake: Heavy Horns
-		196990, -- Cliffside Wylderdrake: Helm
 		196998, -- Cliffside Wylderdrake: Hook Horns
 		196985, -- Cliffside Wylderdrake: Horned Jaw
 		197005, -- Cliffside Wylderdrake: Horned Nose
@@ -489,7 +482,6 @@ addon.db = {
 		197131, -- Highland Drake: Hairy Cheek
 		197122, -- Highland Drake: Heavy Horns
 		197147, -- Highland Drake: Heavy Scales
-		197119, -- Highland Drake: Helm
 		197126, -- Highland Drake: Hooked Horns
 		197152, -- Highland Drake: Hooked Tail
 		197102, -- Highland Drake: Horned Chin
@@ -565,7 +557,6 @@ addon.db = {
 		197395, -- Renewed Proto-Drake: Harrier Pattern
 		197383, -- Renewed Proto-Drake: Heavy Horns
 		197397, -- Renewed Proto-Drake: Heavy Scales
-		197373, -- Renewed Proto-Drake: Helm
 		197354, -- Renewed Proto-Drake: Horned Back
 		197385, -- Renewed Proto-Drake: Horned Jaw
 		197379, -- Renewed Proto-Drake: Impaler Horns
@@ -630,7 +621,6 @@ addon.db = {
 		197608, -- Windborne Velocidrake: Gray Horns
 		197591, -- Windborne Velocidrake: Hairy Head
 		197617, -- Windborne Velocidrake: Heavy Scales
-		197600, -- Windborne Velocidrake: Helm
 		197619, -- Windborne Velocidrake: Hooked Snout
 		197596, -- Windborne Velocidrake: Horned Jaw
 		197589, -- Windborne Velocidrake: Large Head Fin
@@ -766,7 +756,6 @@ addon.db = {
 		207778, -- Grotto Netherwing Drake: Double Finned Tail
 		207774, -- Grotto Netherwing Drake: Finned Jaw
 		207764, -- Grotto Netherwing Drake: Head Spike
-		207770, -- Grotto Netherwing Drake: Helm
 		207772, -- Grotto Netherwing Drake: Long Horns
 		207769, -- Grotto Netherwing Drake: Outcast Pattern
 		207757, -- Grotto Netherwing Drake: Purple and Silver Armor
@@ -1080,13 +1069,25 @@ addon.db = {
 		212367, -- Clutch of Wyrm's Awakened Crests
 		211950, -- Lively Clutch of Wyrm's Awakened Crests
 		212383, -- Yawning Basket of Aspect's Awakened Crests
+		211522, -- Nascent Aspect's Awakened Crest
+		211523, -- Nascent Whelpling's Awakened Crest
+		211521, -- Nascent Wyrm's Awakened Crest
+		211519, -- Enchanted Aspect's Awakened Crest
+		211520, -- Enchanted Whelpling's Awakened Crest
+		211518, -- Enchanted Wyrm's Awakened Crest
 		-- 11.0.0 ???
-		221375, -- Pack of Runed Harbinger Crests
-		221268, -- Pouch of Weathered Harbinger Crests
-		221373, -- Satchel of Carved Harbinger Crests
-		220773, -- Celebratory Pack of Runed Harbinger Crests
-		220776, -- Glorious Cluster of Gilded Harbinger Crests
-		220767, -- Triumphant Satchel of Carved Harbinger Crests
+		-- 221375, -- Pack of Runed Harbinger Crests
+		-- 221268, -- Pouch of Weathered Harbinger Crests
+		-- 221373, -- Satchel of Carved Harbinger Crests
+		-- 220773, -- Celebratory Pack of Runed Harbinger Crests
+		-- 220776, -- Glorious Cluster of Gilded Harbinger Crests
+		-- 220767, -- Triumphant Satchel of Carved Harbinger Crests
+		-- 220789, -- Nascent Gilded Harbinger Crest
+		-- 220790, -- Nascent Runed Harbinger Crest
+		-- 220788, -- Nascent Weathered Harbinger Crest
+		-- 224073, -- Enchanted Gilded Harbinger Crest
+		-- 224072, -- Enchanted Runed Harbinger Crest
+		-- 224069, -- Enchanted Weathered Harbinger Crest
 	},
 	["|cff910951Fyrakk Assault|r"] = {
 		203430, -- Ward of Igira
