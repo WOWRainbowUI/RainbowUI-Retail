@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 11502
 
 ## Title: Lib: Ace3
 ## Notes: AddOn development framework
@@ -54,3 +54,5 @@ LibWindow-1.1\LibWindow-1.1.lua
 HereBeDragons\HereBeDragons-2.0.lua
 HereBeDragons\HereBeDragons-Pins-2.0.lua
 HereBeDragons\HereBeDragons-Migrate.lua
+
+LibClassicDurations\LibClassicDurations.xml
