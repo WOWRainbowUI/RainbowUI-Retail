@@ -3602,20 +3602,20 @@ DR.RaceData = {
 	 -- Scalawag Slither
 		[1] = {
 			["currencyID"] = 2720,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 78,
+			["goldTime"] = 73,
 			["questID"] = 78301,
 		},
 		[2] = {
 			["currencyID"] = 2738,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 71,
+			["goldTime"] = 68,
 			["questID"] = 78301,
 		},
 		[3] = {
 			["currencyID"] = 2756,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 73,
+			["goldTime"] = 70,
 			["questID"] = 78301,
 		},
 		[4] = {
@@ -3640,20 +3640,20 @@ DR.RaceData = {
 	 -- Daggercap Dart
 		[7] = {
 			["currencyID"] = 2721,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 82,
+			["goldTime"] = 77,
 			["questID"] = 78325,
 		},
 		[8] = {
 			["currencyID"] = 2739,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 79,
+			["goldTime"] = 76,
 			["questID"] = 78325,
 		},
 		[9] = {
 			["currencyID"] = 2757,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 79,
+			["goldTime"] = 76,
 			["questID"] = 78325,
 		},
 		[10] = {
@@ -3678,20 +3678,20 @@ DR.RaceData = {
 	 -- Blackriver Burble
 		[13] = {
 			["currencyID"] = 2722,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 80,
+			["goldTime"] = 75,
 			["questID"] = 78334,
 		},
 		[14] = {
 			["currencyID"] = 2740,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 70,
+			["goldTime"] = 67,
 			["questID"] = 78334,
 		},
 		[15] = {
 			["currencyID"] = 2758,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 74,
+			["goldTime"] = 71,
 			["questID"] = 78334,
 		},
 		[16] = {
@@ -3716,20 +3716,20 @@ DR.RaceData = {
 	 -- Zul'Drak Zephyr
 		[19] = {
 			["currencyID"] = 2723,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 70,
+			["goldTime"] = 65,
 			["questID"] = 78346,
 		},
 		[20] = {
 			["currencyID"] = 2741,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 65,
+			["goldTime"] = 62,
 			["questID"] = 78346,
 		},
 		[21] = {
 			["currencyID"] = 2759,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 70,
+			["goldTime"] = 67,
 			["questID"] = 78346,
 		},
 		[22] = {
@@ -3754,20 +3754,20 @@ DR.RaceData = {
 	 -- Makers' Marathon
 		[25] = {
 			["currencyID"] = 2724,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 105,
+			["goldTime"] = 100,
 			["questID"] = 78389,
 		},
 		[26] = {
 			["currencyID"] = 2742,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 96,
+			["goldTime"] = 93,
 			["questID"] = 78389,
 		},
 		[27] = {
 			["currencyID"] = 2760,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 101,
+			["goldTime"] = 98,
 			["questID"] = 78389,
 		},
 		[28] = {
@@ -3792,20 +3792,20 @@ DR.RaceData = {
 	 -- Crystalsong Crisis
 		[31] = {
 			["currencyID"] = 2725,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 102,
+			["goldTime"] = 97,
 			["questID"] = 78441,
 		},
 		[32] = {
 			["currencyID"] = 2743,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 97,
+			["goldTime"] = 94,
 			["questID"] = 78441,
 		},
 		[33] = {
 			["currencyID"] = 2761,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 99,
+			["goldTime"] = 96,
 			["questID"] = 78441,
 		},
 		[34] = {
@@ -3830,20 +3830,20 @@ DR.RaceData = {
 	 -- Dragonblight Dragon Flight
 		[37] = {
 			["currencyID"] = 2726,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 120,
+			["goldTime"] = 115,
 			["questID"] = 78454,
 		},
 		[38] = {
 			["currencyID"] = 2744,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 113,
+			["goldTime"] = 110,
 			["questID"] = 78454,
 		},
 		[39] = {
 			["currencyID"] = 2762,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 113,
+			["goldTime"] = 110,
 			["questID"] = 78454,
 		},
 		[40] = {
@@ -3868,20 +3868,20 @@ DR.RaceData = {
 	 -- Citadel Sortie
 		[43] = {
 			["currencyID"] = 2727,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 115,
+			["goldTime"] = 110,
 			["questID"] = 78499,
 		},
 		[44] = {
 			["currencyID"] = 2745,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 106,
+			["goldTime"] = 103,
 			["questID"] = 78499,
 		},
 		[45] = {
 			["currencyID"] = 2763,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 107,
+			["goldTime"] = 104,
 			["questID"] = 78499,
 		},
 		[46] = {
@@ -3906,20 +3906,20 @@ DR.RaceData = {
 	 -- Sholazar Spree
 		[49] = {
 			["currencyID"] = 2728,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 93,
+			["goldTime"] = 88,
 			["questID"] = 78558,
 		},
 		[50] = {
 			["currencyID"] = 2746,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 88,
+			["goldTime"] = 85,
 			["questID"] = 78558,
 		},
 		[51] = {
 			["currencyID"] = 2764,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 88,
+			["goldTime"] = 85,
 			["questID"] = 78558,
 		},
 		[52] = {
@@ -3944,20 +3944,20 @@ DR.RaceData = {
 	 -- Geothermal Jaunt
 		[55] = {
 			["currencyID"] = 2729,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 50,
+			["goldTime"] = 45,
 			["questID"] = 78608,
 		},
 		[56] = {
 			["currencyID"] = 2747,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 40,
+			["goldTime"] = 37,
 			["questID"] = 78608,
 		},
 		[57] = {
 			["currencyID"] = 2765,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 40,
+			["goldTime"] = 37,
 			["questID"] = 78608,
 		},
 		[58] = {
@@ -3982,20 +3982,20 @@ DR.RaceData = {
 	 -- Gundrak Fast Track
 		[61] = {
 			["currencyID"] = 2730,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 65,
+			["goldTime"] = 60,
 			["questID"] = 79268,
 		},
 		[62] = {
 			["currencyID"] = 2748,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 60,
+			["goldTime"] = 57,
 			["questID"] = 79268,
 		},
 		[63] = {
 			["currencyID"] = 2766,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 60,
+			["goldTime"] = 57,
 			["questID"] = 79268,
 		},
 		[64] = {
@@ -4020,20 +4020,20 @@ DR.RaceData = {
 	 -- Coldarra Climb
 		[67] = {
 			["currencyID"] = 2731,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 62,
+			["goldTime"] = 57,
 			["questID"] = 79272,
 		},
 		[68] = {
 			["currencyID"] = 2749,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 56,
+			["goldTime"] = 53,
 			["questID"] = 79272,
 		},
 		[69] = {
 			["currencyID"] = 2767,
-			["silverTime"] = nil,
-			["goldTime"] = nil,
+			["silverTime"] = 58,
+			["goldTime"] = 55,
 			["questID"] = 79272,
 		},
 		[70] = {

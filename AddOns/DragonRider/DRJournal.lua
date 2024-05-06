@@ -528,6 +528,12 @@ function DR.mainFrame.PopulationData(continent)
 		local medalSilver = "|A:challenges-medal-small-silver:15:15|a"
 		local medalGold = "|A:challenges-medal-small-gold:15:15|a"
 		local medalValue = ""
+		-- Purge old data in the SVs that is now established in DRRaceData.lua
+		--(look at silver time because not all EK/Kalimdor Cup times were recorded yet, they're still missing)
+		if DR.RaceData[continent][k]["silverTime"] ~= nil then
+			DragonRider_DB.raceDataCollector[v.currencyID] = nil
+		end
+
 		if placeValueX == 1 and placeValueY == 1 then
 			DR.mainFrame["Course"..continent.."_"..placeValueY] = content1:CreateFontString();
 			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continent], "TOPLEFT", 10, -15*placeValueY-20);
