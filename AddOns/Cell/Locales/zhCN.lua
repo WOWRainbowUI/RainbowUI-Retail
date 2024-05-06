@@ -551,7 +551,7 @@ L["showTooltip"] = "显示鼠标提示"
 L["This will make these icons not click-through-able"] = "将会使这些图标无法点击穿透"
 L["Tooltips need to be enabled in General tab"] = "需要先启用常规页面中的鼠标提示功能"
 L["Added |T%d:0|t|cFFFF3030%s(%d)|r into debuff blacklist."] = "已将 |T%d:0|t|cFFFF3030%s(%d)|r 添加至减益黑名单。"
-L["enableBlacklistShortcut"] = "黑名单：Alt+Ctrl+RightClick"
+L["enableBlacklistShortcut"] = "黑名单：Alt+Ctrl+右键"
 L["Only one threshold is displayed at a time"] = "同一时间只显示一个阈值"
 L["hideDamager"] = "隐藏伤害输出"
 L["hideInCombat"] = "战斗中隐藏"
@@ -824,6 +824,10 @@ L["Click to view older changelogs"] = "点击查看远古更新记录"
 L["CHANGELOGS"] = [[
     <h1>更新后如果有各种问题，先排查代码片段。</h1>
     <p>（正式服）如果指示器不能正常刷新，尝试启用常规页面下的“总是更新增益/减益”选项。</p>
+    <br/>
+
+    <h1>r223-release (May 6, 2024, 00:05 GMT+8)</h1>
+    <p>* 更新大灾变副本减益。</p>
     <br/>
 
     <h1>r222-release (May 4, 2024, 00:40 GMT+8)</h1>
