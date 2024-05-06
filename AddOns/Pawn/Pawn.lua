@@ -7,10 +7,10 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.0900
+PawnVersion = 2.0901
 
 -- Pawn requires this version of VgerCore:
-local PawnVgerCoreVersionRequired = 1.17
+local PawnVgerCoreVersionRequired = 1.18
 
 -- Floating point math
 local PawnEpsilon = 0.0000000001
@@ -3171,16 +3171,16 @@ function PawnCorrectScaleErrors(ScaleName)
 	ThisScale.Multistrike = nil
 
 	-- These were introduced in Classic versions.
-	if not (VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath) then
+	if not (VgerCore.IsClassic or VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm) then
 		ThisScale.SpellPenetration = nil
 	end
-	if not (VgerCore.IsBurningCrusade or VgerCore.IsWrath) then
+	if not (VgerCore.IsBurningCrusade or VgerCore.IsWrath or VgerCore.IsCataclysm) then
 		ThisScale.ExpertiseRating = nil
 		ThisScale.ResilienceRating = nil
 	end
 
 	-- Spell power appeared in Wrath but disappeared again later.
-	if not VgerCore.IsWrath or VgerCore.IsCataclysm then
+	if not (VgerCore.IsWrath or VgerCore.IsCataclysm) then
 		ThisScale.SpellPower = nil
 	end
 
@@ -3487,7 +3487,7 @@ function PawnIsItemAnUpgrade(Item, DoNotRescan)
 	local CompareUsingItemLevelOnly = (Item.Rarity == 6)
 	local InvType = Item.InvType
 	if not InvType or InvType == "" or InvType == "INVTYPE_BAG" or InvType == "INVTYPE_QUIVER" or InvType == "INVTYPE_TABARD" or InvType == "INVTYPE_BODY" or ((not VgerCore.RangedSlotExists) and (InvType == "INVTYPE_THROWN" or InvType == "INVTYPE_AMMO" or InvType == "INVTYPE_RELIC")) then return nil end
-	local SkipScoreBasedUpgrades = InvType == "INVTYPE_TRINKET"
+	local SkipScoreBasedUpgrades = InvType == "INVTYPE_TRINKET" or PawnGetSlotsForItemType(InvType) == nil
 	local UnenchantedItemLink, NeedsEnhancements = PawnUnenchantItemLink(Item.Link, true)
 	VgerCore.Assert(UnenchantedItemLink ~= nil, "PawnIsItemAnUpgrade failed to get an item link for item " .. tostring(Item.ID))
 
