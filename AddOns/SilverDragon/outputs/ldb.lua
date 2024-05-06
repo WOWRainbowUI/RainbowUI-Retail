@@ -127,8 +127,8 @@ function module:OnInitialize()
 					},
 					mounts = {
 						type = "toggle",
-						name = "顯示坐騎清單",
-						desc = "切換顯示或隱藏坐騎視窗上面的圖示",
+						name = "顯示於坐騎收藏",
+						desc = "切換顯示或隱藏坐騎收藏視窗中的圖示",
 						get = function() return self.db.profile.mounts end,
 						set = function(info, v)
 							self.db.profile.mounts = v

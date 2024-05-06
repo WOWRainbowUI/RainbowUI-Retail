@@ -32,6 +32,19 @@ if ns.CLASSIC then
 	ATLAS_CHECK, ATLAS_CROSS = "Tracker-Check", "Objective-Fail"
 end
 
+local function PlayerHasTransmogByItemInfo(itemLinkOrID)
+	-- Cata classic is specifically missing C_TransmogCollection.PlayerHasTransmogByItemInfo
+	if C_TransmogCollection.PlayerHasTransmogByItemInfo then
+		return C_TransmogCollection.PlayerHasTransmogByItemInfo(itemLinkOrID)
+	end
+	local itemID = GetItemInfoInstant(itemLinkOrID)
+	if itemID then
+		-- this is a bit worse, because of items with varying appearances based on the link-details
+		-- but because this path should only be hit in classic, we should be fine
+		return C_TransmogCollection.PlayerHasTransmog(itemID)
+	end
+end
+
 -- we need non-localized covenant names for atlases
 -- can't use the texturekit value from covenant data, since the atlas I want doesn't conform to it
 local covenants = {
@@ -100,7 +113,7 @@ local function HasAppearance(itemLinkOrID)
 		-- changes their settings.
 		return hasAppearanceCache[itemID]
 	end
-	if C_TransmogCollection.PlayerHasTransmogByItemInfo(itemLinkOrID) then
+	if PlayerHasTransmogByItemInfo(itemLinkOrID)then
 		-- short-circuit further checks because this specific item is known
 		hasAppearanceCache[itemID] = true
 		return true
@@ -726,12 +739,16 @@ do
 				if itemID then
 					self.itemID = itemID
 					SetItemButtonTexture(button, icon)
+				else
+					self.itemID = nil
+					SetItemButtonTexture(button, false)
 				end
 			end
 			function button:GetItemID()
 				return self.itemID
 			end
 			function button:GetItemLink()
+				if not self.itemID then return nil end
 				return select(2, GetItemInfo(self.itemID))
 			end
 		end
