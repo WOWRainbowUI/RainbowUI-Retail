@@ -107,7 +107,7 @@ end
 
 local spells = {
 	name = function(info)
-		return isSpellsSubcategory(info) and L["Spells"] or L["Raid CD"]
+		return isSpellsSubcategory(info) and L["Spells"] or "|cff20ff20" .. L["Raid CD"]
 	end,
 	order = 60,
 	type = "group",
@@ -117,7 +117,7 @@ local spells = {
 		desc = {
 			name = function(info)
 				return isSpellsSubcategory(info) and format("|TInterface\\FriendsFrame\\InformationIcon:14:14:0:0|t %s %s\n\n", L["Select the spells you want to track."], L["CTRL+click to edit spell."])
-				or format("|TInterface\\FriendsFrame\\InformationIcon:14:14:0:0|t %s", L["Select the spells you want to show on Raid Bar 1-8 instead of the default Unit Bar"])
+				or format("|TInterface\\FriendsFrame\\InformationIcon:14:14:0:0|t |cff20ff20%s", L["Select the spells you want to show on Raid Bar 1-8 instead of the default Unit Bar"])
 			end,
 			order = 0,
 			type = "description",
@@ -198,7 +198,7 @@ for i = 1, MAX_CLASSES do
 
 
 
-		local icon = E.isWOTLKC and class == "DEATHKNIGHT" and "Interface\\Icons\\spell_deathknight_classicon" or (E.TEXTURES.CLASS .. class)
+		local icon = (E.isWOTLKC or E.isCata) and class == "DEATHKNIGHT" and "Interface\\Icons\\spell_deathknight_classicon" or (E.TEXTURES.CLASS .. class)
 		local iconCoords = E.BORDERLESS_TCOORDS
 		spells.args[class] = {
 			icon = icon,

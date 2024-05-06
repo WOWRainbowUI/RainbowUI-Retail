@@ -566,13 +566,15 @@ E.spell_db = {
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=6940,["spec"]=true,["name"]="Blessing of Sacrifice",["charges"]=1,["duration"]=120,["icon"]=135966,["spellID"]=6940,["talent"]=199452, },
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=1022,["spec"]=true,["name"]="Blessing of Protection",["charges"]=1,["duration"]=300,["icon"]=135964,["spellID"]=1022, },
 		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=105809,["spec"]=true,["name"]="Holy Avenger",["duration"]=180,["icon"]=571555,["spellID"]=105809, },
-		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=152262,["spec"]=true,["name"]="Seraphim",["duration"]=45,["icon"]=1030103,["spellID"]=152262, },
+
 		{ ["class"]="PALADIN",["type"]="cc",["buff"]=10326,["spec"]=true,["name"]="Turn Evil",["duration"]=15,["icon"]=571559,["spellID"]=10326, },
 		{ ["class"]="PALADIN",["type"]="other",["buff"]=276111,["spec"]=true,["name"]="Divine Steed",["charges"]=1,["duration"]=45,["icon"]=1360759,["spellID"]=190784, },
 		{ ["class"]="PALADIN",["type"]="externalDefensive",["buff"]=204018,["spec"]=true,["name"]="Blessing of Spellwarding",["charges"]=1,["duration"]=300,["icon"]=135880,["spellID"]=204018, },
 
 
 		{ ["class"]="PALADIN",["type"]="other",["buff"]=414170,["spec"]=true,["name"]="Daybreak",["duration"]=60,["icon"]=237537,["spellID"]=414170, },
+		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=414273,["spec"]=true,["name"]="Hand of Divinity",["duration"]=90,["icon"]=135985,["spellID"]=414273, },
+		{ ["class"]="PALADIN",["type"]="offensive",["buff"]=198034,["spec"]=true,["name"]="Divine Hammer",["duration"]=20,["icon"]=626003,["spellID"]=198034, },
 	},
 	["SHAMAN"] = {
 		{ ["class"]="SHAMAN",["type"]="immunity",["buff"]=409293,["spec"]=true,["name"]="Burrow",["duration"]=120,["icon"]=5260435,["spellID"]=409293, },

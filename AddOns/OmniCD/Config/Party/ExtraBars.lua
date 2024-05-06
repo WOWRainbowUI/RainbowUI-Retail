@@ -239,8 +239,8 @@ local extraBarsInfo = {
 					disabled = function(info)
 						return not E.profile.Party[ info[2] ].extraBars[ info[4] ].enabled or info[4] == "raidBar0"
 					end,
-					name = L["Spell Types"],
-					desc = format("|cffff2020[%s]|r %s", L["Multiselect"], L["Select the spell types you want to display on this column."]),
+					name = format("%s (%s)", L["Spell Types"], L["Multiselect"]),
+					desc = L["Select the spell types you want to display on this column."],
 					order = 1,
 					type = "multiselect",
 					dialogControl = "Dropdown-OmniCD",
@@ -498,7 +498,7 @@ local extraBarsInfo = {
 				},
 				showInterruptedSpell = {
 					hidden = function(info)
-						return E.preCata or isRaidCDBar(info)
+						return E.preMoP or isRaidCDBar(info)
 					end,
 					disabled = isDisabledProgressBarOrNameBar,
 					name = L["Interrupted Spell Icon"],
@@ -510,7 +510,7 @@ local extraBarsInfo = {
 				},
 				showRaidTargetMark = {
 					hidden = function(info)
-						return E.preCata or isRaidCDBar(info)
+						return E.preMoP or isRaidCDBar(info)
 					end,
 					disabled = isDisabledProgressBarOrNameBar,
 					name = L["Interrupted Target Marker"] .. E.RAID_TARGET_MARKERS[1],

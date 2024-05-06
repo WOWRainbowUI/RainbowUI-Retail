@@ -76,7 +76,7 @@ function E:SetFontProperties(fontString, db)
 	fontString:SetShadowOffset(ofsX, -ofsX)
 	fontString:SetShadowColor(db.r, db.g, db.b, ofsX == 0 and 0 or 1)
 
-	flag = (self.isDF or self.isWOTLKC341 or self.isClassic1144) and flagFixForDF[flag] or flag
+	flag = (self.isDF or self.isCata or self.isWOTLKC341 or self.isClassic1144) and flagFixForDF[flag] or flag
 	fontString:SetFont(LSM:Fetch("font", db.font), db.size, flag)
 end
 

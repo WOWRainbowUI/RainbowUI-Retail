@@ -121,7 +121,7 @@ local ProfileSharing = {
 						["highlight"] = L["Highlighting"],
 						["priority"] = L["Priority"],
 						["spells"] = L["Spells"],
-						["extraBars"] = L["Extra Bars"],
+						["extraBars"] = L["Raid Bar"],
 						["raidCDS"] = L["Raid CD"],
 					},
 					sorting = { "all", "general", "position", "manualPos", "icons", "highlight", "priority", "spells", "extraBars", "raidCDS" },
