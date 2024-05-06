@@ -299,6 +299,9 @@ if GetLocale() == "zhTW" then
 	L.data["Noblegarden"] = "貴族花園"
 	L.data["Darkmoon Faire"] = "暗月馬戲團"
 	
+	-- BetterBags_GearFirst
+	L.data["Gear > Alphabetically"] = "裝備 > 名稱"
+	L.data["Hearthstone > Gear > Alphabetically"] = "爐石 > 裝備 > 名稱"
 	
 end
 
