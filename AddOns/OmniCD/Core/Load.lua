@@ -12,7 +12,7 @@ local function OmniCD_OnEvent(self, event, ...)
 	elseif event == 'PLAYER_LOGIN' then
 		self:OnEnable()
 		self:UnregisterEvent('PLAYER_LOGIN')
-		if self.preCata then
+		if self.preMoP then
 			self:SetScript("OnEvent", nil)
 		end
 	elseif event == 'PET_BATTLE_CLOSE' then
@@ -42,7 +42,7 @@ end
 
 E:RegisterEvent('ADDON_LOADED')
 E:RegisterEvent('PLAYER_LOGIN')
-if not E.preCata then
+if not E.preMoP then
 	E:RegisterEvent('PET_BATTLE_OPENING_START')
 end
 E:SetScript("OnEvent", OmniCD_OnEvent)

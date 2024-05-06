@@ -1,7 +1,7 @@
 local E = select(2, ...):unpack()
 local P = E.Party
 
-local MIN_RESET_DURATION = (E.isWOTLKC or E.TocVersion > 90100) and 120 or 180
+local MIN_RESET_DURATION = ((E.isWOTLKC or E.isCata) or E.TocVersion > 90100) and 120 or 180
 
 function P:ResetCooldown(icon)
 	local info = self.groupInfo[icon.guid]

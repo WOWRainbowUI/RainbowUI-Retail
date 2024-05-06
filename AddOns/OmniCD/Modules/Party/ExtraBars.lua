@@ -47,7 +47,7 @@ function P:CreateExtraBarFrames()
 		frame.anchor.text:SetText(name)
 		frame.anchor.text:SetTextColor(1, 0.824, 0)
 		frame.anchor.background:SetColorTexture(0, 0, 0, 1)
-		if E.isDF or E.isWOTLKC341 or E.isClassic1144 then
+		if E.isDF or E.isCata or E.isWOTLKC341 or E.isClassic1144 then
 			frame.anchor.background:SetGradient("HORIZONTAL", CreateColor(1, 1, 1, 1), CreateColor(1, 1, 1, .05))
 		else
 			frame.anchor.background:SetGradientAlpha("Horizontal", 1, 1, 1, 1, 1, 1, 1, .05)

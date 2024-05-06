@@ -1,6 +1,6 @@
 ## Interface: 100207
 ## Title: OmniCD
-## Version: 10.2.7.2787
+## Version: 10.2.7.2788
 ## Author: Treebonker
 ## Notes: Party cooldown tracker. /oc
 ## X-Credits:

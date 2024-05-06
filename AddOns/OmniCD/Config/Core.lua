@@ -36,7 +36,7 @@ local getFieldText = function(info)
 end
 
 local isFound
-local changelog = E.changelog:gsub("^[ \t\n]*", E.HEX_C[WOW_PROJECT_ID]):gsub("\n\nv([%d%.]+)", function(ver)
+local changelog = E.changelog:gsub("^[ \t\n]*", E.HEX_C[WOW_PROJECT_ID or 1]):gsub("\n\nv([%d%.]+)", function(ver)
 	if not isFound and ver ~= E.Version then
 		isFound = true
 		return "|cff808080\n\nv" .. ver
@@ -179,7 +179,7 @@ local function GetOptions()
 							type = "description",
 						},
 						notice1 = {
-							name = format("|cffff2020* %s", (E.isWOTLKC and L["Group member must have OmniCD to detect cooldown reduction by Glyphs."])
+							name = format("|cffff2020* %s", ((E.isWOTLKC or E.isCata) and L["Group member must have OmniCD to detect cooldown reduction by Glyphs."])
 								or (E.isSL and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc and Soulbind Conduits."])
 								or (E.isDF and L["Group member must have OmniCD to detect cooldown reduction with a chance to proc."])
 
@@ -372,7 +372,7 @@ function E:SetupOptions()
 	self.optionsFrames.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.DB)
 	self.optionsFrames.profiles.order = 1000
 
-	if not self.preCata then
+	if not self.preMoP then
 		local LDS = LibStub("LibDualSpec-1.0")
 		LDS:EnhanceDatabase(self.DB, "OmniCDDB")
 		LDS:EnhanceOptions(self.optionsFrames.profiles, self.DB)

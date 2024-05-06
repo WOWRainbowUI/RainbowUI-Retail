@@ -40,7 +40,7 @@ local PARTY_UNIT = {
 	"party1", "party2", "party3", "party4", "player"
 }
 
-local INSTANCETYPE_EVENTS = E.preCata and {
+local INSTANCETYPE_EVENTS = E.preMoP and {
 	arena = {
 
 		'UPDATE_UI_WIDGET',
@@ -70,7 +70,7 @@ local INSTANCETYPE_EVENTS = E.preCata and {
 
 	}
 }
-if E.isWOTLKC then
+if (E.isWOTLKC or E.isCata) then
 	INSTANCETYPE_EVENTS.raid = { 'ENCOUNTER_END' }
 end
 
@@ -231,7 +231,7 @@ local function UpdateRosterInfo(force)
 				P:UpdateUnitBar(guid, true)
 			elseif unitIdChanged and not isAdminObsForMDI then
 				frame:UnregisterAllEvents()
-				if not E.preCata and not isUser then
+				if not E.preMoP and not isUser then
 					frame:RegisterUnitEvent('PLAYER_SPECIALIZATION_CHANGED', unit)
 				end
 				if E.isBFA then
@@ -396,7 +396,7 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 	self.isUserHidden = not self.isInTestMode and not E.db.general.showPlayer
 
 	self.isUserDisabled = self.isUserHidden and (not E.db.general.showPlayerEx or not IsAnyExBarEnabled())
-	self.isPvP = E.preCata or self.isInPvPInstance or (instanceType == "none" and C_PvP.IsWarModeDesired())
+	self.isPvP = E.preMoP or self.isInPvPInstance or (instanceType == "none" and C_PvP.IsWarModeDesired())
 	self.effectivePixelMult = nil
 
 	CD:UpdateCombatLogVar()

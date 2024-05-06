@@ -1,6 +1,13 @@
 ------------------------------------------------------------------------------
 -- Dragonflight
 --
+v10.2.7.2788
+	Fixed 2pc tier set bonus for Holy Paladin.
+	Embeded AceComm w/ ChatThrottleLib.
+		> No longer syncs with earlier versions of this addon.
+
+	Updated for Cataclysm Classic
+
 v10.2.7.2787
 	bump toc
 	Season 4 PvP trinkets added
@@ -1012,6 +1019,11 @@ v2.6.01-bcc
 ------------------------------------------------------------------------------
 -- classic era
 --
+v1.15.2.2788
+	bump toc
+	Embeded AceComm w/ ChatThrottleLib.
+		> No longer syncs with earlier versions of this addon.
+
 v1.15.0.2775
 	Talent inspection will correctly work for group members without OmniCD
 
@@ -1062,3 +1074,9 @@ v2.6.35
 
 v2.6.30
 	Initial release for WoW: Classic Era.
+
+------------------------------------------------------------------------------
+-- Cataclysm
+--
+v4.4.0.2788
+	Cataclysm Classic release (4.4.0.54525)

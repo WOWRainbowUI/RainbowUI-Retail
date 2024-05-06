@@ -115,7 +115,7 @@ function TM:Test(key)
 		if not self.indicator then
 			self.indicator = CreateFrame("Frame", nil, UIParent, "OmniCDTemplate")
 			self.indicator.anchor.background:SetColorTexture(0, 0, 0, 1)
-			if E.isDF or E.isWOTLKC341 or E.isClassic1144 then
+			if E.isDF or E.isCata or E.isWOTLKC341 or E.isClassic1144 then
 				self.indicator.anchor.background:SetGradient("HORIZONTAL", CreateColor(1, 1, 1, 1), CreateColor(1, 1, 1, 0))
 			else
 				self.indicator.anchor.background:SetGradientAlpha("Horizontal", 1, 1, 1, 1, 1, 1, 1, 0)

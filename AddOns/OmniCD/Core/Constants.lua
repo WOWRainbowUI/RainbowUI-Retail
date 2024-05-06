@@ -84,13 +84,13 @@ E.L_HIGHLIGHTS = {
 	["other"] = L["Other"],
 }
 
-if E.preCata then
+if E.preMoP then
 	E.L_PRIORITY.essence = nil
 	E.L_PRIORITY.covenant = nil
 	E.L_HIGHLIGHTS.covenant = nil
 end
 
-E.TEXTURES = E.preCata and {
+E.TEXTURES = E.preMoP and {
 	["White8x8"] = "Interface\\BUTTONS\\White8x8",
 	["CLASS"] = "Interface\\Icons\\classicon_",
 	["PVPTRINKET"] = "Interface\\Icons\\inv_jewelry_trinketpvp_01",
@@ -127,6 +127,7 @@ E.HEX_C = {
 	[2]			= "|cff0291b0",
 	[5]			= "|cff7bbb4e",
 	[11]			= "|cff99cdff",
+	[14]			= "|cffA63416",
 
 	[321076]		= "|cff2aa2ff",
 	[321079]		= "|cffe40d0d",

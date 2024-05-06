@@ -1613,7 +1613,6 @@ E.sync_cooldowns = {
 	["ALL"] = {},
 }
 
-
 E.sync_periodic = {
 	[49576] = true,
 	[22842] = true,

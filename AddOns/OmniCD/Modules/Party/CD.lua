@@ -249,9 +249,9 @@ local function ProcessSpell(spellID, guid)
 					icon.buff = spellID
 				end
 
-				P:StartCooldown(icon, E.isWOTLKC and (spellID == 6552 and 10 or (spellID == 72 and 12)) or icon.duration)
+				P:StartCooldown(icon, (E.isWOTLKC or E.isCata) and (spellID == 6552 and 10 or (spellID == 72 and 12)) or icon.duration)
 
-				if E.preCata then
+				if E.preMoP then
 					info.active[linkedID].castedLink = mergedID or spellID
 				end
 			end
@@ -325,7 +325,7 @@ local function ProcessSpell(spellID, guid)
 					if not active or (active.startTime + active.duration - now < sharedCD) then
 						P:StartCooldown(sharedIcon, sharedCD)
 					end
-					if not E.preCata then
+					if not E.preMoP then
 						break
 					end
 				end
@@ -342,7 +342,7 @@ local function ProcessSpell(spellID, guid)
 		end
 	end
 
-	if E.preCata then return end
+	if E.preMoP then return end
 
 	local reducer = E.spellcast_cdr[spellID]
 	if reducer then
@@ -357,6 +357,7 @@ local function ProcessSpell(spellID, guid)
 		end
 	end
 
+	--[[
 	local spender = E.spellcast_cdr_powerspender[spellID]
 	if spender then
 		local isTrueBearing = info.auras.isTrueBearing
@@ -369,6 +370,7 @@ local function ProcessSpell(spellID, guid)
 			UpdateCdBySpender(info, guid, spender, isTrueBearing)
 		end
 	end
+	]]
 
 	if not E.isBFA then return end
 
@@ -386,6 +388,12 @@ local function ProcessSpell(spellID, guid)
 	end
 end
 
+local mt = {
+	__index = function(t, k)
+		t[k] = {}
+		return t[k]
+	end
+}
 
 --[[
 local _t = {}
@@ -417,12 +425,6 @@ local mt = {
 	end
 }
 ]]
-local mt = {
-	__index = function(t, k)
-		t[k] = {}
-		return t[k]
-	end
-}
 
 local registeredEvents = setmetatable({}, mt)
 local registeredHostileEvents = setmetatable({}, mt)
@@ -488,13 +490,15 @@ local function ForceUpdatePeriodicSync(id)
 end
 
 for id in pairs(E.sync_periodic) do
-	registeredEvents['SPELL_CAST_SUCCESS'][id] = function(_, srcGUID)
-		if srcGUID == userGUID then
+	if not E.spell_auraremoved_cdstart_preactive[id] then
+		registeredEvents['SPELL_CAST_SUCCESS'][id] = function(_, srcGUID)
+			if srcGUID == userGUID then
+				ForceUpdatePeriodicSync(id)
+			end
+		end
+		registeredUserEvents['SPELL_CAST_SUCCESS'][id] = function()
 			ForceUpdatePeriodicSync(id)
 		end
-	end
-	registeredUserEvents['SPELL_CAST_SUCCESS'][id] = function()
-		ForceUpdatePeriodicSync(id)
 	end
 end
 
@@ -567,6 +571,11 @@ local function StartCdOnAuraRemoved(info, srcGUID, spellID, destGUID)
 			P:StartCooldown(icon, icon.duration)
 		end
 	end
+	if E.sync_periodic[spellID] then
+		if srcGUID == userGUID then
+			ForceUpdatePeriodicSync(spellID)
+		end
+	end
 end
 
 for k, v in pairs(E.spell_auraremoved_cdstart_preactive) do
@@ -596,6 +605,7 @@ for id, iconID in pairs(E.spell_dispel_cdstart) do
 	end
 end
 
+--[[
 
 local function ReduceCdByDamage(info, srcGUID, spellID, destGUID, critical, _,_,_,_,_,_, timestamp)
 	info = info or groupInfo[srcGUID]
@@ -678,6 +688,7 @@ end
 for k in pairs(E.spell_interrupt_cdr) do
 	registeredEvents['SPELL_INTERRUPT'][k] = ReduceCdByInterrupt
 end
+]]
 
 
 
@@ -2763,8 +2774,8 @@ local blackoutReinforcedAbilities = {
 	152175,
 }
 
-for id in pairs(blackoutReinforcedAbilities) do
-	registeredEvents['SPELL_AURA_REMOVED'][424454] = function(info)
+registeredEvents['SPELL_AURA_REMOVED'][424454] = function(info)
+	for id in pairs(blackoutReinforcedAbilities) do
 		local icon = info.spellIcons[id]
 		if ( icon and icon.active ) then
 			P:UpdateCooldown(icon, P.isPvP and 1.5 or 3)
@@ -2877,7 +2888,7 @@ registeredEvents['SPELL_AURA_APPLIED'][183218] = function(info, srcGUID, spellID
 end
 
 
-local FORBEARANCE_DURATION = E.preCata and (E.isWOTLKC and 120 or 60) or 30
+local FORBEARANCE_DURATION = (E.isWOTLKC and 120) or (E.preMoP and 60) or 30
 
 local forbearanceIDs = E.isBCC and {
 	[1022] = 0,
@@ -2894,6 +2905,10 @@ local forbearanceIDs = E.isBCC and {
 	[498] = 120,
 	[642] = 120,
 	[31884] = 30,
+}) or (E.isCata and {
+	[1022] = 0,
+	[642] = 60,
+	[633] = 0,
 }) or {
 	[1022] = 0,
 	[204018] = 0,
@@ -3019,19 +3034,16 @@ local holyPowerSpenders = {
 	},
 	[85222] = {
 		234299, nil, 3.0, 853, { "DivinePurpose", -2.7, "ShiningRighteousness", -2.7 },
-		392928, nil, 3.0, 633, { "DivinePurpose", 0 },
 		414720, nil, 4.5, 633, { "DivinePurpose", 0, "ShiningRighteousness", 0 },
 	},
 	[216331] = {
 		--[[ TODO: rechck. Avenging Crusader doesn't reduce HoJ CD w/ Fist of Justice (still bugged in 10.2)
 		234299, nil, 3.0, 853, { "DivinePurpose", 0 },
 		]]
-		392928, nil, 3.0, 633, { "DivinePurpose", 0, },
 		414720, nil, 4.5, 633, { "DivinePurpose", 0, },
 	},
 	[415091] = {
 		234299, nil, 3.0, 853, { "DivinePurpose", -2.7 },
-		392928, nil, 3.0, 633, { "DivinePurpose", 0 },
 		414720, nil, 4.5, 633, { "DivinePurpose", 0 },
 	},
 }
@@ -3254,7 +3266,6 @@ registeredEvents['SPELL_HEAL'][25914] = function(info, _,_,_,_,_,_,_,_, critical
 	end
 end
 
---[[
 registeredEvents['SPELL_DAMAGE'][25912] = function(info, _,_,_, critical)
 	if not critical then return end
 	local icon = info.spellIcons[114165]
@@ -3269,7 +3280,6 @@ registeredEvents['SPELL_DAMAGE'][25912] = function(info, _,_,_, critical)
 		P:UpdateCooldown(icon, 2)
 	end
 end
-]]
 
 
 
@@ -5639,6 +5649,115 @@ registeredEvents['SPELL_AURA_APPLIED'][315573] = function(info)
 	info.glimpseOfClarity = true
 end
 
+
+
+
+
+if E.isCata then
+
+	registeredEvents['SPELL_DAMAGE'][78674] = function(info)
+		if info.talentData[62971] then
+			local icon = info.spellIcons[48505]
+			if icon and icon.active then
+				P:UpdateCooldown(icon, 5)
+			end
+		end
+	end
+
+
+	registeredEvents['SPELL_CAST_SUCCESS'][5185] = function(info)
+		if info.talentData[54825] then
+			local icon = info.spellIcons[17116]
+			if icon and icon.active then
+				P:UpdateCooldown(icon, 10)
+			end
+		end
+	end
+
+
+	registeredEvents['SPELL_CAST_SUCCESS'][2060] = function(info)
+		if info.talentData[92297] then
+			local icon = info.spellIcons[89485]
+			if icon and icon.active then
+				P:UpdateCooldown(icon, 5)
+			end
+		end
+	end
+	registeredEvents['SPELL_CAST_SUCCESS'][585] = function(info)
+		if info.talentData[92297] then
+			local icon = info.spellIcons[47540]
+			if icon and icon.active then
+				P:UpdateCooldown(icon, 0.5)
+			end
+		end
+	end
+
+
+	registeredEvents['SPELL_PERIODIC_DAMAGE'][15407] = function(info, _,_,_, critical)
+		if critical then
+			local rt = info.talentData[87099] and 5 or (info.talentData[87100] and 10)
+			if rt then
+				local icon = info.spellIcons[34433]
+				if icon and icon.active then
+					P:UpdateCooldown(icon, rt)
+				end
+			end
+		end
+	end
+
+
+	registeredEvents['SPELL_INTERRUPT'][1766] = function(info, _, spellID, _,_,_, extraSpellId, extraSpellName, _,_, destRaidFlags)
+		if info.talentData[56805] then
+			local icon = info.spellIcons[spellID]
+			if icon and icon.active then
+				P:UpdateCooldown(icon, 6)
+			end
+		end
+
+	end
+	local arenaUnits = { "arena1", "arena2", "arena3", "arena4", "arena5", "target" }
+	registeredEvents['SPELL_CAST_SUCCESS'][1766] = function(info, _, spellID, destGUID)
+		if info.talentData[56805] then
+			local icon = info.spellIcons[spellID]
+			if icon and icon.active then
+				for i = 1, #arenaUnits do
+					local unit = arenaUnits[i]
+					local guid = UnitGUID(unit)
+					if guid == destGUID then
+						local _,_,_,_,_,_, notInterruptable, channelID = UnitChannelInfo(unit)
+						if notInterruptable ~= false then
+							return
+						end
+						if channelID == 47758 then
+							P:UpdateCooldown(icon, 6)
+						end
+					end
+				end
+			end
+		end
+	end
+
+
+	registeredEvents['SPELL_CAST_SUCCESS'][403] = function(info)
+		local icon = info.spellIcons[16166]
+		if icon and icon.active then
+			local rt = info.talentData[86183] and 1 or (info.talentData[86184] and 2) or (info.talentData[86185] and 3)
+			if rt then
+				P:UpdateCooldown(icon, rt)
+			end
+		end
+	end
+	registeredEvents['SPELL_CAST_SUCCESS'][421] = function(info)
+		local icon = info.spellIcons[16166]
+		if icon and icon.active then
+			local rt = info.talentData[86183] and 1 or (info.talentData[86184] and 2) or (info.talentData[86185] and 3)
+			if rt then
+				P:UpdateCooldown(icon, rt)
+			end
+		end
+	end
+end
+
 setmetatable(registeredEvents, nil)
 setmetatable(registeredUserEvents, nil)
 setmetatable(registeredHostileEvents, nil)
@@ -5674,7 +5793,7 @@ function P:SetDisabledColorScheme(destInfo)
 end
 
 local function UpdateDeadStatus(destInfo)
-	if E.preCata and UnitHealth(destInfo.unit) > 1 then
+	if E.preMoP and UnitHealth(destInfo.unit) > 1 then
 		return
 	end
 	destInfo.isDead = true
@@ -5726,7 +5845,7 @@ if E.isClassic then
 			func(info, srcGUID, spellID, destGUID, critical, destFlags, amount, overkill, destName, resisted)
 		end
 	end
-elseif E.preCata then
+elseif E.preMoP then
 	function CD:COMBAT_LOG_EVENT_UNFILTERED()
 		local _, event, _, srcGUID, _, srcFlags, _, destGUID, destName, destFlags, _, spellID, _,_, amount, overkill, _, resisted, _,_, critical = CombatLogGetCurrentEventInfo()
 
@@ -5754,11 +5873,12 @@ elseif E.preCata then
 
 			local func = registeredEvents[event] and registeredEvents[event][spellID]
 			if func then
-				func(info, srcGUID, spellID, destGUID, critical, destFlags, amount, overkill, destName, resisted)
+				func(info, srcGUID, spellID, destGUID, critical, destFlags, amount, overkill, destName, resisted, destRaidFlags)
 			end
 		end
 	end
 else
+
 	function CD:COMBAT_LOG_EVENT_UNFILTERED()
 		local timestamp, event, _, srcGUID, _, srcFlags, _, destGUID, destName, destFlags, destRaidFlags, spellID, _,_, amount, overkill, _, resisted, _,_, critical = CombatLogGetCurrentEventInfo()
 
