@@ -181,18 +181,13 @@ function addon:UpdateButtonHighlight()
 end
 
 local function applyCompat()
-  if not addon.isWrath then return end
-  if not C_Item.GetItemInfoInstant then
-    C_Item.GetItemInfoInstant = GetItemInfoInstant
-  end
-  if not C_Item.GetItemInfo then
-    C_Item.GetItemInfo = GetItemInfo
-  end
+  if not addon.isCata then return end
+  -- No compats right now :) 
 end
 
 -- OnEnable is called when the addon is enabled.
 function addon:OnEnable()
-  -- Hackfix for WotLK
+  -- Hackfix for Cata
   applyCompat()
   itemFrame:Enable()
   sectionFrame:Enable()

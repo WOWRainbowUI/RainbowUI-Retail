@@ -68,7 +68,6 @@ function context:Hide()
   LibDD:HideDropDownMenu(1)
   events:SendMessage('context/hide')
 end
-
 --[[
 local function addDivider(menuList)
   table.insert(menuList, {
@@ -141,8 +140,8 @@ function context:CreateContextMenu(bag)
           if database:GetBagView(bag.kind) == const.BAG_VIEW.SECTION_ALL_BAGS then
             database:SetPreviousView(bag.kind, const.BAG_VIEW.ONE_BAG)
           else
-            database:SetBagView(bag.kind, const.BAG_VIEW.ONE_BAG)
             database:SetPreviousView(bag.kind, const.BAG_VIEW.ONE_BAG)
+            database:SetBagView(bag.kind, const.BAG_VIEW.ONE_BAG)
             events:SendMessage('bags/FullRefreshAll')
           end
         end
@@ -194,19 +193,6 @@ function context:CreateContextMenu(bag)
     }
   })
 
-  if bag.kind == const.BAG_KIND.BANK then
-    table.insert(menuList, {
-      text = L:G("Deposit All Reagents"),
-      notCheckable = true,
-      tooltipTitle = L:G("Deposit All Reagents"),
-      tooltipText = L:G("Click to deposit all reagents into your reagent bank."),
-      func = function()
-        PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE)
-        DepositReagentBank()
-      end
-    })
-  end
-
   -- Show bag slot toggle.
   table.insert(menuList, {
     text = L:G("Show Bags"),
@@ -214,10 +200,6 @@ function context:CreateContextMenu(bag)
     tooltipTitle = L:G("Show Bags"),
     tooltipText = L:G("Click to toggle the display of the bag slots."),
     func = function()
-      if InCombatLockdown() then
-        print(L:G("BetterBags")..": "..L:G("Cannot toggle bag slots in combat."))
-        return
-      end
       if bag.slots:IsShown() then
         bag.slots:Hide()
       else
@@ -240,29 +222,6 @@ function context:CreateContextMenu(bag)
         else
           bag.currencyFrame:Show()
         end
-      end
-    })
-  end
-
-  if bag.kind == const.BAG_KIND.BACKPACK then
-    -- Show the Blizzard bag button toggle.
-    table.insert(menuList, {
-      text = L:G("Show Bag Button"),
-      tooltipTitle = L:G("Show Bag Button"),
-      tooltipText = L:G("Click to toggle the display of the Blizzard bag button."),
-      checked = function()
-        local sneakyFrame = _G["BetterBagsSneakyFrame"] ---@type Frame
-        return BagsBar:GetParent() ~= sneakyFrame
-      end,
-      func = function()
-        local sneakyFrame = _G["BetterBagsSneakyFrame"] ---@type Frame
-        local isShown = BagsBar:GetParent() ~= sneakyFrame
-        if isShown then
-          BagsBar:SetParent(sneakyFrame)
-        else
-          BagsBar:SetParent(UIParent)
-        end
-        database:SetShowBagButton(not isShown)
       end
     })
   end
