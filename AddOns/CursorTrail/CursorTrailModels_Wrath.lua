@@ -36,10 +36,10 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 -- Model Constants:
 kBaseMult = 0.0001  -- A mulitplier applied to base values to reduce the # of decimal positions needed.
 kCategory = {
-    Glow    = "Glow - ",    -- Effects that do not have any motion trail.
-    Object  = "Object - ",  -- Effects that are shapes or images, and have no motion trail.
-    Spots   = "Spots - ",   -- Effects that have an intermittent motion trail.
-    Trail   = "Trail - ",   -- Effects that have a continuous motion trail.
+    Glow    = "發光 - ",    -- Effects that do not have any motion trail.
+    Object  = "圖形 - ",  -- Effects that are shapes or images, and have no motion trail.
+    Spots   = "間歇軌跡 - ",   -- Effects that have an intermittent motion trail.
+    Trail   = "連續軌跡 - ",   -- Effects that have a continuous motion trail.
 }
 kModelConstants = 
 {
@@ -62,49 +62,49 @@ kModelConstants =
     --~~~~~~~~~~~~~~~~~~~~~~~~
 
     [166538] = {  -- "spells/manafunnel_impact_chest.m2"
-        Name = kCategory.Glow .. "Burning Cloud, Blue",
+        Name = kCategory.Glow .. "藍色亮光",
         BaseScale = 0.05, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0,
         BaseStepX = 3420, BaseStepY = 3156,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166471] = {  -- "spells/lifetap_state_chest.m2"
-        Name = kCategory.Glow .. "Burning Cloud, Green",
+        Name = kCategory.Glow .. "綠色亮光",
         BaseScale = 0.05, BaseFacing = 0,
         BaseOfsX = 0.05, BaseOfsY = 0.015,
         BaseStepX = 3428, BaseStepY = 3146,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166923] = {  -- "spells/soulfunnel_impact_chest.m2"
-        Name = kCategory.Glow .. "Burning Cloud, Purple",
+        Name = kCategory.Glow .. "紫色亮光",
         BaseScale = 0.055, BaseFacing = 0,
         BaseOfsX = 0.06, BaseOfsY = 0.035,
         BaseStepX = 3430, BaseStepY = 3150,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166028] = {  -- "spells/enchantments/spellsurgeglow_high.m2"
-        Name = kCategory.Glow .. "Cloud, Blue",
+        Name = kCategory.Glow .. "藍色雲霧",
         BaseScale = 0.23, BaseFacing = 0,
         BaseOfsX = 0.145, BaseOfsY = 0.925,
         BaseStepX = 3460, BaseStepY = 3190,
         IsSkewed = true, HorizontalSlope = 0, 
     },
     [165728] = {  -- "spells/bloodlust_state_hand.m2"
-        Name = kCategory.Glow .. "Cloud, Flame",
+        Name = kCategory.Glow .. "火焰雲霧",
         BaseScale = 0.08, BaseFacing = 0,
         BaseOfsX = 0.15, BaseOfsY = 0.0,
         BaseStepX = 3440, BaseStepY = 3170,
         IsSkewed = true, HorizontalSlope = 0, 
     },
     [166255] = {  -- "spells/gouge_precast_state_hand.m2"
-        Name = kCategory.Glow .. "Cloud, Purple",
+        Name = kCategory.Glow .. "紫色雲霧",
         BaseScale = 0.11, BaseFacing = 0,
         BaseOfsX = 0.15, BaseOfsY = 0.0,
         BaseStepX = 3440, BaseStepY = 3150,
         IsSkewed = true, HorizontalSlope = 0, 
     },
     [166991] = {  -- "spells/summon_precast_hand.m2"
-        Name = kCategory.Glow .. "Cloud, Purple (Soft)",
+        Name = kCategory.Glow .. "紫色雲霧 (柔和)",
         BaseScale = 0.18, BaseFacing = 0,
         BaseOfsX = 0.175, BaseOfsY = 0.025,
         BaseStepX = 3438, BaseStepY = 3150,
@@ -140,7 +140,7 @@ kModelConstants =
 --~         SkewTopMult = 0.995, SkewBottomMult = 1.05,  -- Has different side skewing.
 --~     },
     [165751] = {  -- "spells/bonearmor_state_chest.m2"
-        Name = kCategory.Object .. "Ring of Bones",
+        Name = kCategory.Object .. "骸骨風暴",
         BaseScale = 0.05, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = -1.125,
         BaseStepX = 3350, BaseStepY = 3100,
@@ -152,49 +152,49 @@ kModelConstants =
     --~~~~~~~~~~~~~~~~~~~~~~~~
     
     [240855] = {  -- "spells/demolisher_missile.m2"
-        Name = kCategory.Spots .. "Fire",
+        Name = kCategory.Spots .. "火焰",
         BaseScale = 0.04, BaseFacing = 0,
         BaseOfsX = 0.85, BaseOfsY = -0.505,
         BaseStepX = 3434, BaseStepY = 3120,
         IsSkewed = true, HorizontalSlope = 6,
     },
     [166381] = {  -- "spells/ice_precast_low_hand.m2"
-        Name = kCategory.Spots .. "Frost",
+        Name = kCategory.Spots .. "冰霜",
         BaseScale = 0.12, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0,
         BaseStepX = 3430, BaseStepY = 3150,
         IsSkewed = true, HorizontalSlope = 0, 
     },
     [240902] = {  -- "spells/forsakencatapult_missile.m2"
-        Name = kCategory.Spots .. "Plague Cloud",
+        Name = kCategory.Spots .. "瘟疫雲",
         BaseScale = 0.06, BaseFacing = 0,
         BaseOfsX = -0.225, BaseOfsY = -0.25,
         BaseStepX = 3420, BaseStepY = 3130,
         IsSkewed = true, HorizontalSlope = -3, 
     },
     [347886] = {  -- "spells/goo_flow_statepurple.m2"
-        Name = kCategory.Spots .. "Puddle, Purple",
+        Name = kCategory.Spots .. "紫色漣漪",
         BaseScale = 0.003, BaseFacing = 0,
         BaseOfsX = -0.275, BaseOfsY = 1.85,
         BaseStepX = 3493, BaseStepY = 3243,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166339] = {  -- "spells/holy_precast_uber_hand.m2"
-        Name = kCategory.Spots .. "Pulsing, Holy",
+        Name = kCategory.Spots .. "聖光",
         BaseScale = 0.11, BaseFacing = 0,
         BaseOfsX = 0.065, BaseOfsY = -0.033,
         BaseStepX = 3430, BaseStepY = 3155,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [165956] = {  -- "spells/dispel_low_recursive.m2"
-        Name = kCategory.Spots .. "Sparkle, Yellow",
+        Name = kCategory.Spots .. "黃色閃光",
         BaseScale = 0.6, BaseFacing = 0,
         BaseOfsX = 0.03, BaseOfsY = -0.025,
         BaseStepX = 3430, BaseStepY = 3160,
         IsSkewed = true, HorizontalSlope = 0, 
     },
     [165943] = {  -- "spells/detectmagic_recursive.m2"
-        Name = kCategory.Spots .. "Sparkle, Blue",
+        Name = kCategory.Spots .. "藍色閃光",
         BaseScale = 0.65, BaseFacing = 0,
         BaseOfsX = 0.03, BaseOfsY = -0.025,
         BaseStepX = 3430, BaseStepY = 3160,
@@ -206,28 +206,28 @@ kModelConstants =
     --~~~~~~~~~~~~~~~~~~~~~~~~~
     
     [166498] = {  -- "spells/lightningboltivus_missile.m2"    ****** DEFAULT ******
-        Name = kCategory.Trail .. "Electric, Blue (Long)",
+        Name = kCategory.Trail .. "藍色閃電 (長)",
         BaseScale = 0.01, BaseFacing = 0,
         BaseOfsX = 0.0, BaseOfsY = -0.75,
         BaseStepX = 3422, BaseStepY = 3102,  -- To increase range, decrease #s.  To decrease range, increase #s.
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166492] = {  -- "spells/lightning_precast_low_hand.m2"
-        Name = kCategory.Trail .. "Electric, Blue",
+        Name = kCategory.Trail .. "藍色閃電",
         BaseScale = 0.1, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0,
         BaseStepX = 3430, BaseStepY = 3155,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166491] = {  -- "spells/lightning_fel_precast_low_hand.m2"
-        Name = kCategory.Trail .. "Electric, Green",
+        Name = kCategory.Trail .. "綠色閃電",
         BaseScale = 0.11, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0,
         BaseStepX = 3430, BaseStepY = 3155,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [167214] = {  -- "spells/wrath_precast_hand.m2"
-        Name = kCategory.Trail .. "Electric, Green Pulse",
+        Name = kCategory.Trail .. "綠色閃電脈衝",
         BaseScale = 0.08, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0,
         BaseStepX = 3430, BaseStepY = 3155,
@@ -242,63 +242,63 @@ kModelConstants =
 --~         SkewTopMult = 0.995, SkewBottomMult = 1.05,  -- Has different side skewing.
 --~     },
     [167229] = {  -- "spells/zig_missile.m2"
-        Name = kCategory.Trail .. "Ghost",
+        Name = kCategory.Trail .. "鬼魂",
         BaseScale = 0.02, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0,
         BaseStepX = 3430, BaseStepY = 3155,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [165648] = {  -- "spells/banish_chest.m2"
-        Name = kCategory.Trail .. "Pulsing, Green",
+        Name = kCategory.Trail .. "綠色脈動",
         BaseScale = 0.025, BaseFacing = 0,
         BaseOfsX = -0.03, BaseOfsY = 0.58,
         BaseStepX = 3450, BaseStepY = 3180,
         IsSkewed = true, HorizontalSlope = -3,
     },
     [165653] = {  -- "spells/banish_chest_yellow.m2"
-        Name = kCategory.Trail .. "Pulsing, Yellow",
+        Name = kCategory.Trail .. "黃色脈動",
         BaseScale = 0.02, BaseFacing = 0,
         BaseOfsX = -0.04, BaseOfsY = 0.58,
         BaseStepX = 3460, BaseStepY = 3210,
         IsSkewed = true, HorizontalSlope = -3,
     },
     [166926] = {  -- "spells/soulshatter_missile.m2"
-        Name = kCategory.Trail .. "Soul Skull",
+        Name = kCategory.Trail .. "靈魂骸骨",
         BaseScale = 0.14, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0,
         BaseStepX = 3430, BaseStepY = 3155,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166426] = {  -- "spells/intervenetrail.m2"
-        Name = kCategory.Trail .. "Sparkling, Blue",
+        Name = kCategory.Trail .. "藍色",
         BaseScale = 0.08, BaseFacing = 0,
         BaseOfsX = 0.1, BaseOfsY = 0.5,
         BaseStepX = 3460, BaseStepY = 3200,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166952] = {  -- "spells/sprint_impact_chest.m2"
-        Name = kCategory.Trail .. "Sparkling, Green",
+        Name = kCategory.Trail .. "綠色",
         BaseScale = 0.08, BaseFacing = 0,
         BaseOfsX = 0.05, BaseOfsY = -0.2,
         BaseStepX = 3440, BaseStepY = 3140,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [165784] = {  -- "spells/chargetrail.m2"
-        Name = kCategory.Trail .. "Sparkling, Red",
+        Name = kCategory.Trail .. "紅色",
         BaseScale = 0.05, BaseFacing = 0,
         BaseOfsX = 0.04, BaseOfsY = -0.18,
         BaseStepX = 3419, BaseStepY = 3140,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166731] = {  -- "spells/ribbontrail.m2"
-        Name = kCategory.Trail .. "Sparkling, White",
+        Name = kCategory.Trail .. "白色",
         BaseScale = 0.09, BaseFacing = 0,
         BaseOfsX = 0.05, BaseOfsY = -0.125,
         BaseStepX = 3420, BaseStepY = 3140,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166694] = {  -- "spells/rejuvenation_impact_base.m2"
-        Name = kCategory.Trail .. "Swirling, Nature",
+        Name = kCategory.Trail .. "自然療癒",
         BaseScale = 0.022, BaseFacing = 0,
         BaseOfsX = -0.4, BaseOfsY = 8.1,
         BaseStepX = 3570, BaseStepY = 3590,
@@ -306,7 +306,7 @@ kModelConstants =
         SkewTopMult = 0.995, SkewBottomMult = 1.05,  -- Has different side skewing.
     },
     [240896] = {  -- "spells/firebomb_missle.m2"
-        Name = kCategory.Trail .. "Swirling, Orange",
+        Name = kCategory.Trail .. "橘色球體",
         BaseScale = 0.011, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0.125,
         BaseStepX = 3430, BaseStepY = 3160,
