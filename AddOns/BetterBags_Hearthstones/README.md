@@ -4,7 +4,7 @@ Plugin module for the World of Warcraft AddOn [BetterBags](https://www.curseforg
 ## World of Warcraft Supported Versions
 
 - Classic Era. Includes Classic Era, hardcore, and seasons
-- Wrath Classic
+- Cataclysm Classic
 - Mainline or retail. Currently, that is Dragonflight
 
 ## Supported Items

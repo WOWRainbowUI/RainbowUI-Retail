@@ -9,7 +9,7 @@ assert(LibStub("AceAddon-3.0"):GetAddon("BetterBags"), "BetterBags_Hearthstones 
 local _, addon = ...
 
 -- need to check game version
-local isWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local isCata = WOW_PROJECT_ID == WOW_PROJECT_CATA_CLASSIC
 local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 
 local database = {}
@@ -37,8 +37,8 @@ database[22630] = true          -- Atiesh, Greatstaff of the Guardian (Warlock)
 database[22631] = true          -- Atiesh, Greatstaff of the Guardian (Priest)
 database[22632] = true          -- Atiesh, Greatstaff of the Guardian (Druid)
 
--- add TBC and Wrath items to Wrath and mainline
-if isWrath or isMainline then
+-- add TBC, Wrath and Cataclysm items to Cataclysm and mainline
+if isCata or isMainline then
     database[28585]     = true      -- Ruby Slippers
     database[29796]     = true      -- Socrethar's Teleportation Stone
     database[30542]     = true      -- Dimensional Ripper - Area 52
@@ -72,6 +72,20 @@ if isWrath or isMainline then
     database[51560]     = true      -- Runed Band of the Kirin Tor
     database[52251]     = true      -- Jaina's Locket
     database[54452]     = true      -- Ethereal Portal
+    database[58487]     = true      -- Potion of Deepholm
+    database[61379]     = true      -- Gidwin's Hearthstone
+    database[63206]     = true      -- Wrap of Unity: Stormwind
+    database[63207]     = true      -- Wrap of Unity: Orgrimmar
+    database[63352]     = true      -- Shroud of Cooperation: Stormwind
+    database[63353]     = true      -- Hellscream's Reach Tabard
+    database[63378]     = true      -- Shroud of Cooperation: Orgrimmar
+    database[63379]     = true      -- Baradin's Wardens Tabard
+    database[64457]     = true      -- The Last Relic of Argus
+    database[64488]     = true      -- The Innkeeper's Daughter
+    database[65274]     = true      -- Cloak of Coordination: Orgrimmar
+    database[65360]     = true      -- Cloak of Coordination: Stormwind
+    database[68808]     = true      -- Hero's Hearthstone
+    database[68809]     = true      -- Veteran's Hearthstone
     database[184871]    = true      -- Dark Portal (TBC)
     database[199335]    = true      -- Teleport Scroll: Menethil Harbor
     database[199336]    = true      -- Teleport Scroll: Stormwind Harbor
@@ -94,20 +108,6 @@ if isMainline then
     -- Wowhead lists it, yet it shares the same itemID (141605) as the regular Flightmaster Whistle
 
     -- mainline items
-    database[58487]     = true      -- Potion of Deepholm
-    database[61379]     = true      -- Gidwin's Hearthstone
-    database[63206]     = true      -- Wrap of Unity: Stormwind
-    database[63207]     = true      -- Wrap of Unity: Orgrimmar
-    database[63352]     = true      -- Shroud of Cooperation: Stormwind
-    database[63353]     = true      -- Shroud of Cooperation: Orgrimmar
-    database[63378]     = true      -- Hellscream's Reach Tabard
-    database[63379]     = true      -- Baradin's Wardens Tabard
-    database[64457]     = true      -- The Last Relic of Argus
-    database[64488]     = true      -- The Innkeeper's Daughter
-    database[65274]     = true      -- Cloak of Coordination: Orgrimmar
-    database[65360]     = true      -- Cloak of Coordination: Stormwind
-    database[68808]     = true      -- Hero's Hearthstone
-    database[68809]     = true      -- Veteran's Hearthstone
     database[87215]     = true      -- Wormhole Generator: Pandaria
     database[87548]     = true      -- Lorewalker's Lodestone
     database[92510]     = true      -- Vol'jin's Hearthstone
