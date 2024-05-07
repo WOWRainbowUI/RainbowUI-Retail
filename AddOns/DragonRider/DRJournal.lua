@@ -531,7 +531,11 @@ function DR.mainFrame.PopulationData(continent)
 		-- Purge old data in the SVs that is now established in DRRaceData.lua
 		--(look at silver time because not all EK/Kalimdor Cup times were recorded yet, they're still missing)
 		if DR.RaceData[continent][k]["silverTime"] ~= nil then
-			DragonRider_DB.raceDataCollector[v.currencyID] = nil
+			if DragonRider_DB.raceDataCollector then
+				if DragonRider_DB.raceDataCollector[v.currencyID] then
+					DragonRider_DB.raceDataCollector[v.currencyID] = nil
+				end
+			end
 		end
 
 		if placeValueX == 1 and placeValueY == 1 then
