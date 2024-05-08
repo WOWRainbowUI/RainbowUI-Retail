@@ -434,6 +434,16 @@ Globals.SlashCmdList[kAddonName] = function (params)
         CursorTrail_Hide()
         printMsg("鼠之軌跡"..": "..ORANGE.."關閉|r  (下次重新載入時會再次開啟，或是從選項視窗開啟。)")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+    --____________________________________________________
+    --               DEBUGGING COMMANDS
+    --____________________________________________________
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+    elseif (params == "memory") then  -- For debugging.
+        Globals.collectgarbage("collect")  -- Frees any "garbage memory" immediately.
+        ----printMsg(kAddonFolderName.." Memory:"..round(Globals.collectgarbage("count"),1).."k")
+        Globals.UpdateAddOnMemoryUsage(kAddonFolderName)
+        printMsg(kAddonFolderName.." Memory: "..round(Globals.GetAddOnMemoryUsage(kAddonFolderName),1).."k")
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 --~     elseif (params == "test") then
 --~         ----print("UIParent:GetEffectiveScale():", UIParent:GetEffectiveScale())
 --~         ----UIParent:SetScale(0.7)

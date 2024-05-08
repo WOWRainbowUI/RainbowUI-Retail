@@ -19,6 +19,7 @@ local C_Timer = _G.C_Timer
 local CreateFrame = _G.CreateFrame
 local CopyTable = _G.CopyTable
 local date = _G.date
+local debugstack = _G.debugstack
 local floor = _G.floor
 local GetBuildInfo = _G.GetBuildInfo
 local GetCurrentResolution = _G.GetCurrentResolution
@@ -455,7 +456,7 @@ function HandleToolSwitches(params)
     ----    print(kAddonName .. " processed number", paramAsNum, ".")
     elseif (params == "fonts") then
         private.Controls.DisplayAllFonts()
-    elseif (params == "bug") then  -- Cause a bug to test error handling.
+    elseif (params == "bug") then  -- Cause a bug to test error reporting.
         xpcall(bogus_function, geterrorhandler())
         ----xpcall(bogus_function, errHandler)
     else
