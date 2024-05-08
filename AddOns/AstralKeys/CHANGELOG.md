@@ -1,6 +1,6 @@
 # Astral Keys
 
-## [4.04](https://github.com/astralguild/AstralKeys/tree/4.04) (2024-05-02)
-[Full Changelog](https://github.com/astralguild/AstralKeys/compare/4.03...4.04) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
+## [4.05](https://github.com/astralguild/AstralKeys/tree/4.05) (2024-05-07)
+[Full Changelog](https://github.com/astralguild/AstralKeys/compare/4.04...4.05) [Previous Releases](https://github.com/astralguild/AstralKeys/releases)
 
-- Add new rotation entry  
+- Update AstralKeys.toc  
