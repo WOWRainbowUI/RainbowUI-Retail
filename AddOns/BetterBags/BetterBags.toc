@@ -1,11 +1,11 @@
-## Interface: 100206
+## Interface: 100207
 
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.42
+## Version: v0.1.43
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-05-06T15:30:04Z
+## X-Date: 2024-05-07T23:21:15Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
