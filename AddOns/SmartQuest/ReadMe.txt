@@ -196,3 +196,8 @@ Change Log:
 * Updated TOC for 10.2
 * Updated TOC for Classic 1.4
 * Updated TOC for Wrath 3.4.3
+
+1.26
+* Fixed issue with color picker not working
+* Updated TOC for 10.2.7
+* Updated TOC for Cataclysm 4.4.0

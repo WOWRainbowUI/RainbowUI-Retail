@@ -37,7 +37,7 @@ SmartQuest = {
 	--
 	-- **********************************************************************************************
 
-	Version = "1.25.4";
+	Version = "1.26";
 	ModCode = "KSQ";
 	DataCode = "1";
 	Quest = { };
@@ -1028,11 +1028,17 @@ function SmartQuest_OpenColorPicker(button)
 	if (not button) then
 	  button = self;
 	end
-	ColorPickerFrame.func = function() SmartQuest_Option_SetColor(button, ColorPickerFrame:GetColorRGB()) end;
-	ColorPickerFrame:SetColorRGB(button.r, button.g, button.b);
-	ColorPickerFrame.previousValues = {r = button.r, g = button.g, b = button.b, opacity = button.opacity};
-	ColorPickerFrame.cancelFunc = function() SmartQuest_Option_SetColor(button, ColorPickerFrame.previousValues.r, ColorPickerFrame.previousValues.g, ColorPickerFrame.previousValues.b) end;
-	ColorPickerFrame:Show();
+	
+	if (ColorPickerFrame) and (ColorPickerFrame.SetupColorPickerAndShow) then
+		button.swatchFunc = function()
+			local r, g, b = ColorPickerFrame:GetColorRGB();
+			SmartQuest_Option_SetColor(button, r, g, b);
+		end
+		ColorPickerFrame:SetupColorPickerAndShow(button);
+		return;
+	end
+	
+	OpenColorPicker(button);
 end
 
 function SmartQuest_Logic(bValue)
