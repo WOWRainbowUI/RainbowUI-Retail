@@ -1,15 +1,16 @@
-## Interface: 100206
+## Interface: 100207
 
 ## Title: BetterBags - BoE & BoA
 ## Notes: Adds BoE & BoA filters to BetterBags.
 ## Author: Avyiel
-## Version: v1.0.1
-## X-Date: 2024-04-13T06:27:37Z
+## Version: v1.1.0
+## X-Date: 2024-05-08T04:33:54Z
 ## IconTexture: Interface\Icons\inv_misc_bag_15
 
+## DefaultState: Enabled
 ## Dependencies: BetterBags
 
-## X-Date: 2024-04-13T06:27:37Z
+## X-Date: 2024-05-08T04:33:54Z
 ## X-Category: Bags & Inventory
 ## X-License: MIT
 
