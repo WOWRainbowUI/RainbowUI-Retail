@@ -1,9 +1,14 @@
 # Details! Damage Meter
 
-## [Details.20240505.12700.156](https://github.com/Tercioo/Details-Damage-Meter/tree/Details.20240505.12700.156) (2024-05-05)
-[Full Changelog](https://github.com/Tercioo/Details-Damage-Meter/compare/Details.20240503.12699.156...Details.20240505.12700.156) 
+## [Details.20240407.12708.156](https://github.com/Tercioo/Details-Damage-Meter/tree/Details.20240407.12708.156) (2024-05-07)
+[Full Changelog](https://github.com/Tercioo/Details-Damage-Meter/compare/Details.20240505.12700.156...Details.20240407.12708.156) 
 
-- Fixed an issue with CATA where hovering over the spec icon would result on an error.  
-- Merge pull request #719 from ljosberinn/add-umbreskul  
-    extend spellcache for Umbrelskul's Fractured Heart  
-- extend spellcache for Umbrelskul's Fractured Heart  
+- Fixes for 10.2.7  
+- Merge pull request #724 from Flamanis/JustifyV-fix  
+    Use middle on all justifyV  
+- Use middle on all justifyV  
+- Merge pull request #720 from Flamanis/search-delete  
+    Allow window delete to be used while searching  
+- Allow window delete to be used while searching  
+- Added Details\_Cata.toc  
+- Fixed height of Window Main section, where the Delete button was separated from the window selection dropdown.  
