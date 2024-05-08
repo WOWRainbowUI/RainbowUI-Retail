@@ -9,9 +9,9 @@ local internalVersion = 73
 local insert = table.insert
 
 -- WoW APIs
-local GetTalentInfo, IsAddOnLoaded, InCombatLockdown = GetTalentInfo, IsAddOnLoaded, InCombatLockdown
-local LoadAddOn, UnitName, GetRealmName, UnitRace, UnitFactionGroup, IsInRaid
-  = LoadAddOn, UnitName, GetRealmName, UnitRace, UnitFactionGroup, IsInRaid
+local GetTalentInfo, InCombatLockdown = GetTalentInfo, InCombatLockdown
+local UnitName, GetRealmName, UnitRace, UnitFactionGroup, IsInRaid
+  = UnitName, GetRealmName, UnitRace, UnitFactionGroup, IsInRaid
 local UnitClass, UnitExists, UnitGUID, UnitAffectingCombat, GetInstanceInfo, IsInInstance
   = UnitClass, UnitExists, UnitGUID, UnitAffectingCombat, GetInstanceInfo, IsInInstance
 local UnitIsUnit, GetRaidRosterInfo, GetSpecialization, UnitInVehicle, UnitHasVehicleUI, GetSpellInfo
@@ -129,7 +129,7 @@ do
 end
 
 function Private.LoadOptions(msg)
-  if not(IsAddOnLoaded("WeakAurasOptions")) then
+  if not(C_AddOns.IsAddOnLoaded("WeakAurasOptions")) then
     if not WeakAuras.IsLoginFinished() then
       prettyPrint(Private.LoginMessage())
       loginQueue[#loginQueue + 1] = WeakAuras.OpenOptions
@@ -140,7 +140,7 @@ function Private.LoadOptions(msg)
       Private.frames["Addon Initialization Handler"]:RegisterEvent("PLAYER_REGEN_ENABLED")
       return false;
     else
-      local loaded, reason = LoadAddOn("WeakAurasOptions");
+      local loaded, reason = C_AddOns.LoadAddOn("WeakAurasOptions");
       if not(loaded) then
         reason = string.lower("|cffff2020" .. _G["ADDON_" .. reason] .. "|r.")
         WeakAuras.prettyPrint(string.format(L["Options could not be loaded, the addon is %s"], reason));
@@ -453,7 +453,7 @@ end
 ---@param default table
 ---@param addDefaultsForNewAura function
 ---@param properties table
----@param supportsAdd boolean
+---@param supportsAdd? boolean
 function WeakAuras.RegisterSubRegionType(name, displayName, supportFunction, createFunction, modifyFunction, onAcquire, onRelease, default, addDefaultsForNewAura, properties, supportsAdd)
   if not(name) then
     error("Improper arguments to WeakAuras.RegisterSubRegionType - name is not defined", 2);
@@ -1179,8 +1179,8 @@ do -- Archive stuff
     if Archivist:IsInitialized() then
       return Archivist
     else
-      if not IsAddOnLoaded("WeakAurasArchive") then
-        local ok, reason = LoadAddOn("WeakAurasArchive")
+      if not C_AddOns.IsAddOnLoaded("WeakAurasArchive") then
+        local ok, reason = C_AddOns.LoadAddOn("WeakAurasArchive")
         if not ok then
           reason = string.lower("|cffff2020" .. _G["ADDON_" .. reason] .. "|r.")
           error(string.format(L["Could not load WeakAuras Archive, the addon is %s"], reason))
@@ -3732,7 +3732,8 @@ function Private.PerformActions(data, when, region)
 
   if (actions.stop_sound) then
     if (region.SoundStop) then
-      region:SoundStop();
+      local fadeoutTime = actions.do_sound_fade and actions.stop_sound_fade and actions.stop_sound_fade * 1000 or 0
+      region:SoundStop(fadeoutTime);
     end
   end
 
@@ -3927,7 +3928,7 @@ end
 -- The constants table has weak keys
 do
   local function CompareProgressValueTables(a, b)
-    -- For auto/manual progreess, only compare a[] with b[1]
+    -- For auto/manual progress, only compare a[] with b[1]
     if a[1] == -1 or a[1] == 0 then
       return a[1] == b[1]
     end
@@ -5303,6 +5304,7 @@ local function ensureMouseFrame()
   if (mouseFrame) then
     return;
   end
+  ---@class Frame
   mouseFrame = CreateFrame("Frame", "WeakAurasAttachToMouseFrame", UIParent);
   mouseFrame.attachedVisibleFrames = {};
   mouseFrame:SetWidth(1);
@@ -5442,6 +5444,11 @@ function Private.ensurePRDFrame()
   personalRessourceDisplayFrame = CreateFrame("Frame", "WeakAurasAttachToPRD", UIParent);
   personalRessourceDisplayFrame:Hide();
   personalRessourceDisplayFrame.attachedVisibleFrames = {};
+  -- force an early frame draw; otherwise this frame won't be drawn until the next frame,
+  -- and any attached auras won't have a valid rect
+  personalRessourceDisplayFrame:SetPoint("CENTER", UIParent, "CENTER");
+  personalRessourceDisplayFrame:SetSize(16, 16)
+  personalRessourceDisplayFrame:GetSize()
   Private.personalRessourceDisplayFrame = personalRessourceDisplayFrame;
 
   local moverFrame = CreateFrame("Frame", "WeakAurasPRDMoverFrame", personalRessourceDisplayFrame);
@@ -6003,7 +6010,7 @@ do
   end
 
   ---@param unit UnitToken
-  ---@return boolean result
+  ---@return boolean? result
   function WeakAuras.IsUntrackableSoftTarget(unit)
     if not Private.soft_target_cvars[unit] then return end
     -- technically this is incorrect if user doesn't have KBM and sets CVar to "2" (KBM only)

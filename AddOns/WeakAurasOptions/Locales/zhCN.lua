@@ -412,6 +412,10 @@ UNIT_POWER, UNIT_AURA PLAYER_TARGET_CHANGED]=]
 	L["Fade"] = "淡化"
 	L["Fade In"] = "淡入"
 	L["Fade Out"] = "淡出"
+	--[[Translation missing --]]
+	L["Fadeout Sound"] = "Fadeout Sound"
+	--[[Translation missing --]]
+	L["Fadeout Time (seconds)"] = "Fadeout Time (seconds)"
 	L["False"] = "假"
 	L["Fetch Affected/Unaffected Names and Units"] = "获取受影响/未受影响的单位名称与单位"
 	L["Fetch Raid Mark Information"] = "获取团队标记信息"
@@ -590,6 +594,8 @@ Can use \ to escape -.]=] ] = [=[过滤格式：'名称'，'名称-服务器'，
 	L["Left HUD position"] = "左侧 HUD 位置"
 	L["Length"] = "长度"
 	L["Length of |cFFFF0000%s|r"] = "长度|cFFFF0000%s|r"
+	--[[Translation missing --]]
+	L["LibSharedMedia"] = "LibSharedMedia"
 	L["Limit"] = "限制"
 	L["Line"] = "行"
 	L["Lines & Particles"] = "线条和粒子"
@@ -619,8 +625,6 @@ Can use \ to escape -.]=] ] = [=[过滤格式：'名称'，'名称-服务器'，
 	L["Media Type"] = "媒体类型"
 	L["Medium Icon"] = "中等图标"
 	L["Message"] = "信息"
-	L["Message Prefix"] = "信息前缀"
-	L["Message Suffix"] = "信息后缀"
 	L["Message Type"] = "信息类型"
 	L["Min"] = "最小"
 	--[[Translation missing --]]
@@ -885,6 +889,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = [=[事件发�
 	L["Stop Sound"] = "停止播放声音"
 	L["Sub Elements"] = "子元素"
 	L["Sub Option %i"] = "子选项 %i"
+	--[[Translation missing --]]
+	L["Subevent"] = "Subevent"
+	--[[Translation missing --]]
+	L["Subevent Suffix"] = "Subevent Suffix"
 	L["Supports multiple entries, separated by commas"] = "支持多个条目，由英文逗号分隔。"
 	L["Swipe Overlay Settings"] = "冷却刷覆盖层设置"
 	L["Templates could not be loaded, the addon is %s"] = "无法载入Templates：%s"
@@ -897,6 +905,8 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = [=[事件发�
 	L["Texture Info"] = "材质信息"
 	L["Texture Picker"] = "材质选择器"
 	L["Texture Rotation"] = "材质旋转"
+	--[[Translation missing --]]
+	L["Texture Selection Mode"] = "Texture Selection Mode"
 	L["Texture Settings"] = "材质设置"
 	L["Texture Wrap"] = "材质折叠"
 	L["Texture X Offset"] = "材质 X 轴偏移"
