@@ -1,3 +1,7 @@
+05/07/2024 version 5.1.5
+- Average Battle Pet Level in the collection summary now excludes pets that can't battle.
+- toc updated for 10.2.7 patch
+
 03/19/2024 version 5.1.4
 - Added option 'Even If Team Already Loaded' under Interact Options -> Always Interact to always interact with a target even if the team is already loaded
 - Dragging an item or spell off the toolbar (Revive Battle Pets, Battle Pet Bandagess, Safari Hat, etc.) will pick up the related item or spell onto the cursor

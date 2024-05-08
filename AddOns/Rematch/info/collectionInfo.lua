@@ -53,7 +53,7 @@ local speciesStats = rematch.odTable:Create(function(self)
         local petInfo = rematch.petInfo:Fetch(petID)
         local speciesID = petInfo.speciesID
         if not self[speciesID] then
-            self[speciesID] = {petInfo.petType,petInfo.sourceID,0,0,0,0,0,0,0,0}
+            self[speciesID] = {petInfo.petType,petInfo.sourceID,0,0,0,0,0,0,0,0,0}
         end
         if petInfo.isOwned then
             local info = self[speciesID]
@@ -63,6 +63,7 @@ local speciesStats = rematch.odTable:Create(function(self)
             if type(petInfo.rarity)=="number" and petInfo.rarity>0 then
                 info[6+petInfo.rarity] = info[5+petInfo.rarity]+1 -- rarity takes up 7th through 10th indexes
             end
+            info[11] = petInfo.canBattle and 1 or 0
         end
         -- unowned pets can be saved in a team, add those separately
         if petInfo.inTeams then
@@ -90,6 +91,10 @@ local collectionStats = rematch.odTable:Create(function(self)
     self.numPoor = 0
     self.averageLevel = 0
 
+    -- average level will exclude pets that can't battle
+    local battleNumCollectedTotal = 0
+    local battleTotalLevels = 0
+
     for _,info in pairs(stats) do
         self.numInJournal = self.numInJournal + 1
         if info[3]==0 then
@@ -105,13 +110,17 @@ local collectionStats = rematch.odTable:Create(function(self)
             self.numUncommon = self.numUncommon + info[9] -- total uncommon
             self.numTotalRare = self.numTotalRare + info[10] -- rare pets
             self.numUniqueRare = self.numUniqueRare + min(info[10],1) -- unique rare pets
+            if info[11]>0 then -- if pet can battle
+                battleNumCollectedTotal = battleNumCollectedTotal + info[3]
+                battleTotalLevels = battleTotalLevels + info[5]
+            end
         end
     end
 
-    if self.totalLevels > 0 and self.numCollectedTotal > 0 then
-        self.averageLevel = self.totalLevels/self.numCollectedTotal
+    if battleTotalLevels > 0 and battleNumCollectedTotal > 0 then
+        self.averageLevel = battleTotalLevels/battleNumCollectedTotal
     end
-    
+
 end)
 
 -- returns whether the given speciesID has a version at 25
