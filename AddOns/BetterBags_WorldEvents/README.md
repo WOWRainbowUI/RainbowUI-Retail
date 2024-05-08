@@ -2,6 +2,7 @@
 This addon must be used with [BetterBags](https://www.curseforge.com/wow/addons/better-bags). It creates categories for all World Events, including :
 
 - Noblegarden
+- Darkmoon Faire
 - ...More events will be added soon !
 
 # Display the World Events Section
