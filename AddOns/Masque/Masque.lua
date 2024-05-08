@@ -126,7 +126,7 @@ Core.WOW_VERSION = WOW_VERSION
 Core.WOW_RETAIL = WOW_RETAIL
 
 -- Add-On Info
-Core.Version = "10.2.6"
+Core.Version = "10.2.7"
 Core.Discord = "https://discord.gg/7MTWRgDzz8"
 
 Core.Authors = {
