@@ -1,18 +1,19 @@
-## Interface: 11404
-## X-Min-Interface: 100206
-## X-Min-Interface-Classic: 11404
+## Interface: 11502
+## X-Min-Interface: 100207
+## X-Min-Interface-Classic: 11502
 ## X-Min-Interface-BCC: 20504
 ## X-Min-Interface-Wrath: 30403
+## X-Min-Interface-Cata: 40403
 ## Title: SmartQuest
-## Version: 1.25.4
+## Version: 1.26
 ## Notes: Group Quest Tracking
 ## Author: Zensunim of Dragonblight
 ## DefaultState: Enabled
 ## SavedVariables: SmartQuestOptions
 ## Dependencies:
+SmartQuest.xml
 
 ## Title-zhTW: |cff00FFFF[任務]|r 智能任務通報
 ## Notes-zhTW: SmartQuest |n|n追蹤和通報隊伍成員的任務進度，會在聊天視窗顯示文字和播放音效。一起組隊解任務時粉方便! |n|n|cffffd200使用方法: |r從Esc>選項>插件>任務-通報，進行設定。
 ## X-Category-zhTW: 任務
-
-SmartQuest.xml
+## IconTexture: Interface\Icons\achievement_quests_completed_uldum
