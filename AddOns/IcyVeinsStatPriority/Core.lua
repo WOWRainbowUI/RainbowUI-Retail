@@ -17,7 +17,7 @@ CreateFont("IVSP_FONT_P")
 IVSP_FONT_P:SetShadowColor(0, 0, 0)
 IVSP_FONT_P:SetShadowOffset(1, -1)
 IVSP_FONT_P:SetJustifyH("CENTER")
-IVSP_FONT_P:SetJustifyV("LEFT")
+IVSP_FONT_P:SetJustifyV("MIDDLE") -- 暫時修正
 
 -----------------------------------------------
 -- widgets
