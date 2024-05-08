@@ -1,0 +1,13 @@
+## Interface: 100200
+## X-Min-Interface: 100200
+## X-Min-Interface-Classic: 11404
+## X-Min-Interface-BCC: 20504
+## X-Min-Interface-Wrath: 30403
+## Title: SmartQuest
+## Version: 1.25.4
+## Notes: Group Quest Tracking
+## Author: Zensunim of Dragonblight
+## DefaultState: Enabled
+## SavedVariables: SmartQuestOptions
+## Dependencies:
+SmartQuest.xml
