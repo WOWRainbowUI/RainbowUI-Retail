@@ -1,3 +1,7 @@
+# v2.38.0
+
+- Updated for 10.2.7
+
 # v2.37.0
 
 - Added Seeds of Renewal questline
