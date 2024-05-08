@@ -32,7 +32,6 @@ xui\tab_button.lua
 xui\filter_button.lua
 xui\dungeon_frame.lua
 xui\item_button.lua
-xui\filter_button.lua
 xui\loot_reminder_frame.lua
 xui\catalyst_frame.lua
 xui\dungeons_tab.lua
