@@ -1,15 +1,16 @@
-## Interface: 100206
+## Interface: 100207
 
 ## Title: BetterBags - Keystones
 ## Notes: Adds a Mythic+ Keystones filter to BetterBags.
 ## Author: Avyiel
-## Version: v1.0.2
-## X-Date: 2024-04-13T06:33:50Z
+## Version: v1.0.3
+## X-Date: 2024-05-08T04:35:50Z
 ## IconTexture: Interface\Icons\inv_relics_hourglass
 
+## DefaultState: Enabled
 ## Dependencies: BetterBags
 
-## X-Date: 2024-04-13T06:33:50Z
+## X-Date: 2024-05-08T04:35:50Z
 ## X-Category: Bags & Inventory
 ## X-License: MIT
 
