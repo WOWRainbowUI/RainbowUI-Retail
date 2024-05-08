@@ -622,7 +622,9 @@ end
 function GGUI.Frame:Show()
     self.frame:Show()
     self.frame.hookFrame:Show()
-    self.content:Show()
+    if not self.collapsed then
+        self.content:Show()
+    end
 end
 
 function GGUI.Frame:Hide()
@@ -1527,11 +1529,16 @@ function GGUI.Text:new(options)
 
     if options.justifyOptions then
         if options.justifyOptions.type == "V" and options.justifyOptions.align then
+            -- retroactive compatible fix for 10.2.7
+            options.justifyOptions.align = options.justifyOptions.align == "CENTER" and "MIDDLE" or
+                options.justifyOptions.align
             text:SetJustifyV(options.justifyOptions.align)
         elseif options.justifyOptions.type == "H" and options.justifyOptions.align then
             text:SetJustifyH(options.justifyOptions.align)
         elseif options.justifyOptions.type == "HV" and options.justifyOptions.alignH and options.justifyOptions.alignV then
             text:SetJustifyH(options.justifyOptions.alignH)
+            options.justifyOptions.alignV = options.justifyOptions.alignV == "CENTER" and "MIDDLE" or
+                options.justifyOptions.alignV
             text:SetJustifyV(options.justifyOptions.alignV)
         end
     end
@@ -3214,6 +3221,23 @@ function GGUI.FrameList:SelectRow(index)
 
     if row and row.active then
         row:Select()
+    end
+end
+
+---@param predicate fun(row: GGUI.FrameList.Row): boolean
+---@param defaultIndex number?
+---@return number? selectedIndex
+function GGUI.FrameList:SelectRowWhere(predicate, defaultIndex)
+    for rowIndex, activeRow in ipairs(self.activeRows) do
+        if predicate(activeRow) then
+            self:SelectRow(rowIndex)
+            return rowIndex
+        end
+    end
+
+    if defaultIndex then
+        self:SelectRow(defaultIndex)
+        return defaultIndex
     end
 end
 

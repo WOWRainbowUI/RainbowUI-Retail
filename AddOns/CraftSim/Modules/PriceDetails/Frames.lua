@@ -26,14 +26,14 @@ function CraftSim.PRICE_DETAILS.FRAMES:Init()
         sizeX = sizeX,
         sizeY = sizeY,
         frameID = CraftSim.CONST.FRAMES.PRICE_DETAILS,
-        title = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.PRICE_DETAILS_TITLE),
+        title = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.COST_OVERVIEW_TITLE),
         collapseable = true,
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesPriceDetails"),
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("MODULE_COST_OVERVIEW"),
         frameTable = CraftSim.INIT.FRAMES,
-        frameConfigTable = CraftSimGGUIConfig,
+        frameConfigTable = CraftSim.DB.OPTIONS:Get("GGUI_CONFIG"),
         frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
         raiseOnInteraction = true,
         frameLevel = frameLevel
@@ -49,15 +49,15 @@ function CraftSim.PRICE_DETAILS.FRAMES:Init()
         sizeX = sizeX,
         sizeY = sizeY,
         frameID = CraftSim.CONST.FRAMES.PRICE_DETAILS_WORK_ORDER,
-        title = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.PRICE_DETAILS_TITLE) ..
+        title = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.COST_OVERVIEW_TITLE) ..
             " " .. CraftSim.GUTIL:ColorizeText("WO", CraftSim.GUTIL.COLORS.GREY),
         collapseable = true,
         closeable = true,
         moveable = true,
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("modulesPriceDetails"),
+        onCloseCallback = CraftSim.CONTROL_PANEL:HandleModuleClose("MODULE_COST_OVERVIEW"),
         frameTable = CraftSim.INIT.FRAMES,
-        frameConfigTable = CraftSimGGUIConfig,
+        frameConfigTable = CraftSim.DB.OPTIONS:Get("GGUI_CONFIG"),
         frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
         raiseOnInteraction = true,
         frameLevel = frameLevel
@@ -162,7 +162,7 @@ function CraftSim.PRICE_DETAILS.FRAMES:UpdateDisplay(recipeData, exportMode)
 
                 local itemLink = resultItem:GetItemLink()
                 itemColumn.icon:SetItem(resultItem)
-                local priceOverride = CraftSim.PRICE_OVERRIDE:GetResultOverridePrice(recipeData.recipeID, qualityID)
+                local priceOverride = CraftSim.DB.PRICE_OVERRIDE:GetResultOverridePrice(recipeData.recipeID, qualityID)
                 local price = priceOverride or CraftSim.PRICEDATA:GetMinBuyoutByItemLink(itemLink)
                 local profit = (price * CraftSim.CONST.AUCTION_HOUSE_CUT) -
                     (priceData.craftingCosts / recipeData.baseItemAmount)
