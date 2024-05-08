@@ -989,7 +989,7 @@ local function ReduceSigilsCD(info, _,_,_,_,_,_,_,_,_,_, timestamp)
 			for castID in pairs(demonHunterSigils) do
 				local icon = info.spellIcons[castID]
 				if icon and icon.active then
-					P:UpdateCooldown(icon, 3)
+					P:UpdateCooldown(icon, 2)
 				end
 			end
 			info.auras.time_cycleofbinding = timestamp + 0.1

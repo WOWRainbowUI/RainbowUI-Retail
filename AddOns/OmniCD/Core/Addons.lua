@@ -72,7 +72,7 @@ local unitFrameData = {
 		[5] = 50,
 	},
 	{
-		[1] = "Cell",
+		[1] = "Cell-Party",
 		[2] = "CellPartyFrameMember",
 		[3] = "unit",
 		[4] = 1,
@@ -90,7 +90,7 @@ local unitFrameData = {
 		[2] = "CellSpotlightFrameUnitButton",
 		[3] = "unit",
 		[4] = 1,
-		[5] = 10,
+		[5] = 15,
 	},
 	{
 		[1] = "Cell-QuickCast",
