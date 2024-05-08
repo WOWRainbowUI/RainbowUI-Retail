@@ -1,0 +1,32 @@
+## Interface: 100207
+
+## Title: BetterBags - Better Sort
+## Author: Vollmer
+## Version: v1.0.4
+## X-Date: 2024-05-08T08:25:37Z
+## X-License: MIT
+## X-Curse-Project-ID: 1003934
+## X-WoWI-ID: 26720
+## X-Wago-ID: qGZRwqGd
+
+## Dependencies: BetterBags
+
+## Notes: Improves Alphabetical sorting by ignoring color codes. 
+## Notes-ruRU: 
+## Notes-deDE: 
+## Notes-koKR: 
+## Notes-esMX: 
+## Notes-esES: 
+## Notes-ptBR: 
+## Notes-zhCN: 
+## Notes-zhTW: 
+## Notes-itIT: 
+## Notes-frFR: 
+
+## Title-zhTW: |cffB973CC[背包]|r 掰特包-改善名稱排序
+## Notes-zhTW: BetterBags - Better Sort |n|n依據名稱排序時會忽略名稱文字的顏色碼，完全依據名稱來排序。
+## X-Category-zhTW: 物品
+## IconTexture: Interface\Icons\reliquarybag_icon
+## DefaultState: disabled
+
+main.lua
