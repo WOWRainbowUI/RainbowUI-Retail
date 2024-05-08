@@ -1,12 +1,15 @@
-## Interface: 11501
+## Interface: 40400
 ## Title: Details! Damage Meter
 ## Notes: Essential tool to impress that chick in your raid.
 ## Notes-ruRU: Незаменимый инструмент, чтобы произвести впечатление на цыпочку в вашем рейде.
-## SavedVariables: _detalhes_global, __details_backup
+## SavedVariables: _detalhes_global, __details_backup, __details_debug
 ## SavedVariablesPerCharacter: _detalhes_database
-## OptionalDeps: Ace3, LibSharedMedia-3.0, LibWindow-1.1, LibDBIcon-1.0, NickTag-1.0, LibDataBroker-1.1, LibItemUpgradeInfo-1.0, LibGroupInSpecT-1.1, LibGraph-2.0
+## OptionalDeps: Ace3, LibSharedMedia-3.0, LibWindow-1.1, LibDBIcon-1.0, NickTag-1.0, LibDataBroker-1.1, LibGraph-2.0
 ## Version: #Details.20240407.12708.156
 ## IconTexture: Interface\AddOns\Details\images\minimap
+
+## X-Curse-Project-ID: 61284
+## X-Wago-ID: 25NRDlK3
 
 #@no-lib-strip@
 Libs\libs.xml
@@ -34,6 +37,7 @@ API.lua
 textures.lua
 
 functions\ej_cache.lua
+functions\events.lua
 functions\private.lua
 functions\profiles.lua
 functions\hooks.lua
@@ -42,7 +46,6 @@ functions\coach.lua
 functions\skins.lua
 functions\boss.lua
 functions\spells.lua
-functions\events.lua
 functions\classes.lua
 functions\buff.lua
 functions\spellcache.lua
@@ -67,8 +70,10 @@ functions\plater.lua
 functions\deathmenu.lua
 functions\macros.lua
 functions\testbars.lua
+functions\editmode.lua
 functions\warcraftlogs.lua
 functions\textures.lua
+functions\journal.lua
 
 core\aura_scan.lua
 core\timemachine.lua
@@ -103,8 +108,8 @@ frames\window_custom.lua
 frames\window_welcome.lua
 frames\window_news.lua
 frames\window_wa.lua
-frames\window_spellcategory.lua
 frames\window_forge.lua
+frames\window_spellcategory.lua
 frames\window_switch.lua
 frames\window_scrolldamage.lua
 frames\window_dump.lua
@@ -120,6 +125,7 @@ frames\window_brokertexteditor.lua
 frames\window_bookmark.lua
 frames\window_classcolor.lua
 frames\window_statistics.lua
+frames\window_aura_tracker.lua
 
 classes\class_error.lua
 classes\class_spelltable.lua
@@ -157,7 +163,6 @@ core\meta.lua
 core\network.lua
 
 core\parser.lua
-#core\parser_timewalk.lua
 
 functions\spec_augmentation.lua
 functions\loaddata.lua

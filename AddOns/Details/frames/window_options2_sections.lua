@@ -3005,6 +3005,7 @@ do
             {type = "blank"},
 
             {--delete window
+                id = 'deleteWindow',
                 type = "select",
                 get = function() return 0 end,
                 values = function()
@@ -3017,8 +3018,8 @@ do
             {--delete window
                 type = "execute",
                 func = function(self)
-                    local profileDropdown = sectionFrame.widget_list_by_type.dropdown[3]
-                    local selectedWindow = profileDropdown:GetValue()
+                    local windowDropdown = self.MyObject.container:GetWidgetById('deleteWindow')
+                    local selectedWindow = windowDropdown and windowDropdown:GetValue()
 
                     if (selectedWindow) then
                         Details:DeleteInstance(selectedWindow)
@@ -3117,7 +3118,7 @@ do
         }
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
-        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+        DF:BuildMenu(sectionFrame, sectionOptions, startX, startY-20, heightSize+20, false, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
     end
 
     tinsert(Details.optionsSection, buildSection)
