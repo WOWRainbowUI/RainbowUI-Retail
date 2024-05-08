@@ -2,7 +2,7 @@
 ## Title: CursorTrail
 ## Notes: Adds a shape, shadow, and glowing trail effect to your mouse cursor.
 ## Author: UppyDan
-## Version: 4.4.0.1
+## Version: 4.4.0.2
 ## SavedVariables: CursorTrail_Config
 ## SavedVariablesPerCharacter: CursorTrail_PlayerConfig
 
@@ -10,6 +10,6 @@ Controls.lua
 CursorTrail.lua
 CursorTrailConfig.lua
 CursorTrailTools.lua
-CursorTrailModels_Wrath.lua
+CursorTrailModels_Cata.lua
 CursorTrailShapes.lua
 CursorTrailHelp.lua

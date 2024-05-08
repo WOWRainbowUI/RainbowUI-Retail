@@ -432,6 +432,16 @@ Globals.SlashCmdList[kAddonName] = function (params)
         CursorTrail_Hide()
         printMsg(kAddonName..": "..ORANGE.."OFF|r  (Automatically turns back on at next reload, or by opening the options window.)")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+    --____________________________________________________
+    --               DEBUGGING COMMANDS
+    --____________________________________________________
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+    elseif (params == "memory") then  -- For debugging.
+        Globals.collectgarbage("collect")  -- Frees any "garbage memory" immediately.
+        ----printMsg(kAddonFolderName.." Memory:"..round(Globals.collectgarbage("count"),1).."k")
+        Globals.UpdateAddOnMemoryUsage(kAddonFolderName)
+        printMsg(kAddonFolderName.." Memory: "..round(Globals.GetAddOnMemoryUsage(kAddonFolderName),1).."k")
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 --~     elseif (params == "test") then
 --~         ----print("UIParent:GetEffectiveScale():", UIParent:GetEffectiveScale())
 --~         ----UIParent:SetScale(0.7)
