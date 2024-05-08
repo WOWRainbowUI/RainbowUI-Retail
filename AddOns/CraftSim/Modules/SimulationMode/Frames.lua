@@ -252,7 +252,10 @@ function CraftSim.SIMULATION_MODE.FRAMES:Init()
             moveable = true,
             title = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.SIMULATION_MODE_TITLE),
             frameTable = CraftSim.INIT.FRAMES,
-            frameConfigTable = CraftSimGGUIConfig,
+            frameConfigTable = CraftSim.DB.OPTIONS:Get("GGUI_CONFIG"),
+            frameStrata = CraftSim.CONST.MODULES_FRAME_STRATA,
+            frameLevel = 50,
+            raiseOnInteraction = true,
         })
 
         simModeDetailsFrame:Hide()
@@ -591,7 +594,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:InitSpecModifier()
         title = "CraftSim Knowledge Simulation",
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
         frameTable = CraftSim.INIT.FRAMES,
-        frameConfigTable = CraftSimGGUIConfig,
+        frameConfigTable = CraftSim.DB.OPTIONS:Get("GGUI_CONFIG"),
     })
     local frameWO = GGUI.Frame({
         parent = ProfessionsFrame.OrdersPage.OrderView.OrderDetails.SchematicForm,
@@ -606,7 +609,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:InitSpecModifier()
         title = "CraftSim Knowledge Simulation",
         backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
         frameTable = CraftSim.INIT.FRAMES,
-        frameConfigTable = CraftSimGGUIConfig,
+        frameConfigTable = CraftSim.DB.OPTIONS:Get("GGUI_CONFIG"),
     })
 
     local function createContent(frame)
@@ -1185,7 +1188,7 @@ function CraftSim.SIMULATION_MODE.FRAMES:UpdateCraftingDetailsPanel()
         recipeData.supportsQualities and recipeData.hasQualityReagents)
     if recipeData.supportsQualities then
         local thresholds = CraftSim.AVERAGEPROFIT:GetQualityThresholds(recipeData.maxQuality,
-            professionStats.recipeDifficulty.value, CraftSimOptions.breakPointOffset)
+            professionStats.recipeDifficulty.value, CraftSim.DB.OPTIONS:Get("QUALITY_BREAKPOINT_OFFSET"))
         qualityFrame.currentQualityIcon:SetQuality(recipeData.resultData.expectedQuality)
         qualityFrame.currentQualityThreshold:SetText("> " .. (thresholds[recipeData.resultData.expectedQuality - 1] or 0))
 
