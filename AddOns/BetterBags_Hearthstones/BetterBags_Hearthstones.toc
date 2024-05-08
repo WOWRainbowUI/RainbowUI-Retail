@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: BetterBags - Hearthstones
 ## Notes: Adds various hearthing items to BetterBags virtual groups
 ## Notes-ruRU: L["Adds various hearthing items to BetterBags virtual groups"] = "Добавляет различные предметы для разогрева в виртуальные группы BetterBags."
@@ -23,9 +23,9 @@
 
 ## IconTexture: Interface\ICONS\Inv_misc_rune_01
 
-## Version: 1.09
+## Version: 1.10
 ## Author: Sygon of Lightbringer-US (Crimson Embers, Alliance)
-## X-Date: 2024-05-07T09:38:42Z
+## X-Date: 2024-05-08T04:46:58Z
 ## X-License: Copyright (c) 2024 Paul Vandersypen. All Rights Reserved
 ## X-Category: Bags & Inventory
 ## Dependencies: BetterBags
@@ -36,7 +36,7 @@
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-爐石
 ## Notes-zhTW: BetterBags - Hearthstones |n|n將所有爐石和傳送物品放在一個分類中。
 ## X-Category-zhTW: 物品
-## DefaultState: disabled
+## DefaultState: disable
 
 Database.lua
 Core.lua
