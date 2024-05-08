@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: SilverDragon
 ## Notes: Remember where rares were
 ## Title-zhTW: SilverDragon

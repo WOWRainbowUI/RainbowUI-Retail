@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: BetterBags - World Events
 ## Author: Zazou
 ## Version: 1.0.2

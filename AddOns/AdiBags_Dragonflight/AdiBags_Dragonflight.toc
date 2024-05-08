@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: AdiBags - Dragonflight
 ## Version: 2.3.35
 ## Author: Zottelchen

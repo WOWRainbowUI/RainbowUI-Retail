@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: PersoLootRoll
 ## Notes: A loot roll addon for personal loot.
 ## Notes-zhCN: 战利品的个人拾取分配插件。

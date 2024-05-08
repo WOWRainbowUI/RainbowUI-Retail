@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: Random Hearthstone
 ## Author: Jamien
 ## Version: 1.2.4

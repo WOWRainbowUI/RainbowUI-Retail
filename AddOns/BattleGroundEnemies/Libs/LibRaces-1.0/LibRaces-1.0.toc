@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Interface-Wrath: 30403
 ## Interface-Classic: 11500
 ## Title: Lib: LibRaces-1.0

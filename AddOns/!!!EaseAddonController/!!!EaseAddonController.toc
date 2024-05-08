@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: !!!Ease Addon Controller
 ## Title-zhCN: !!!网易有爱控制台单体版
 ## Version: 10.2.5

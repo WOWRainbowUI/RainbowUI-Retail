@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: AdiBags - Keystone
 ## Notes: Adds a Mythic+ Keystone filter to AdiBags.
 ## Title-zhTW: |cffB973CC[背包]|r Adi 背包分類-鑰石

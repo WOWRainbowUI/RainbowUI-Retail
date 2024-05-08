@@ -1,5 +1,5 @@
 ## Title: Def's Rare Safari
-## Interface: 100206
+## Interface: 100207
 ## Notes: /drs
 ## Title-zhTW: |cff4DFF4D[地圖]|r 戴夫的稀有狩獵旅
 ## Notes-zhTW: Def's Rare Safari |n|n偵測到稀有怪或寶箱時會顯示箭頭告訴你在哪個方向。|n|n|cffffd200使用方法: |r輸入 /drs 打開設定選項，選擇要在哪些地圖顯示箭頭。

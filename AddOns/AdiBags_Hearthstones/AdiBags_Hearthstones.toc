@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: AdiBags - Hearthstones
 ## Notes: Adds various hearthing items to AdiBags virtual groups
 ## Notes-ruRU: Добавляют разные возвращающие предметы в виртуальные группы аддона.

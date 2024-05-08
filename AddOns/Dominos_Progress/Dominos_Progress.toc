@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: Dominos Progress
 ## Title-zhCN: Dominos 进度条模块
 ## Notes: Progress bars of all sorts

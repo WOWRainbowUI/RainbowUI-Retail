@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: Simple Item Level
 ## Author: Kemayo
 ## Notes: Show item levels in useful places

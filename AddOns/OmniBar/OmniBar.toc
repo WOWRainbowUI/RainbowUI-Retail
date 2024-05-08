@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: OmniBar
 ## Notes: Tracks enemy cooldowns
 ## Version: v14.31

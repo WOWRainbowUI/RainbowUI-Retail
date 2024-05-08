@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Author: Sanex (Arathor EU)
 ## Title: LOIHLoot
 ## Version: 10.2.6

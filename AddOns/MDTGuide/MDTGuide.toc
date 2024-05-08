@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207
 ## Title: MDTGuide
 ## Notes: Guide mode for Mythic Dungeon Tools.
 ## Notes-deDE: Guide-Modus für Mythic Dungeon Tools.
