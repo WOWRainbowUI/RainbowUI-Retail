@@ -1,6 +1,14 @@
 ------------------------------------------------------------------------------
 -- Dragonflight
 --
+v10.2.7.2789
+	MAY 7, 2024 Hotfixes
+		Sigil of Silence cooldown increased to 90 seconds (was 60 seconds).
+		Cycle of Binding now reduces Sigil cooldowns by 2 seconds per trigger (was 3 seconds).
+		Disrupting Shout’s cooldown reduced to 75 seconds (was 90 seconds).
+	Time of Need (Evoker, Preservation) moved to External Defensives.
+	Added tank trinkets
+
 v10.2.7.2788
 	Fixed 2pc tier set bonus for Holy Paladin.
 	Embeded AceComm w/ ChatThrottleLib.

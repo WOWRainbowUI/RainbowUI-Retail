@@ -21,7 +21,7 @@ E.spell_db = {
 		{ ["class"]="WARRIOR",["type"]="offensive",["buff"]=167105,["spec"]=true,["name"]="Colossus Smash",["duration"]=45,["icon"]=464973,["spellID"]=167105,["talent"]=262161, },
 		{ ["class"]="WARRIOR",["type"]="defensive",["buff"]=12975,["spec"]=true,["name"]="Last Stand",["duration"]=180,["icon"]=135871,["spellID"]=12975, },
 		{ ["class"]="WARRIOR",["type"]="defensive",["buff"]=1160,["spec"]=true,["name"]="Demoralizing Shout",["duration"]=45,["icon"]=132366,["spellID"]=1160, },
-		{ ["class"]="WARRIOR",["type"]="interrupt",["buff"]=386071,["spec"]=true,["name"]="Disrupting Shout",["duration"]=90,["icon"]=132091,["spellID"]=386071, },
+		{ ["class"]="WARRIOR",["type"]="interrupt",["buff"]=386071,["spec"]=true,["name"]="Disrupting Shout",["duration"]=75,["icon"]=132091,["spellID"]=386071, },
 		{ ["class"]="WARRIOR",["type"]="other",["buff"]=1161,["spec"]=true,["name"]="Challenging Shout",["duration"]=120,["icon"]=132091,["spellID"]=1161,["talent"]=386071, },
 		{ ["class"]="WARRIOR",["type"]="defensive",["buff"]=871,["spec"]=true,["name"]="Shield Wall",["charges"]=1,["duration"]=210,["icon"]=132362,["spellID"]=871, },
 		{ ["class"]="WARRIOR",["type"]="cc",["buff"]=385952,["spec"]=true,["name"]="Shield Charge",["duration"]=45,["icon"]=4667427,["spellID"]=385952, },
@@ -130,7 +130,7 @@ E.spell_db = {
 		{ ["class"]="DEMONHUNTER",["type"]="offensive",["buff"]=390163,["spec"]={390163,321076},["name"]="Elysian Decree",["duration"]=60,["icon"]=3565443,["spellID"]=390163, },
 		{ ["class"]="DEMONHUNTER",["type"]="defensive",["buff"]=209258,["spec"]=true,["name"]="Last Resort",["duration"]=480,["icon"]=1348655,["spellID"]=209258, },
 		{ ["class"]="DEMONHUNTER",["type"]="offensive",["buff"]=207407,["spec"]=true,["name"]="Soul Carver",["duration"]=60,["icon"]=1309072,["spellID"]=207407, },
-		{ ["class"]="DEMONHUNTER",["type"]="disarm",["buff"]=202137,["spec"]=true,["name"]="Sigil of Silence",["duration"]=60,["icon"]=1418288,["spellID"]=202137, },
+		{ ["class"]="DEMONHUNTER",["type"]="disarm",["buff"]=202137,["spec"]=true,["name"]="Sigil of Silence",["duration"]=90,["icon"]=1418288,["spellID"]=202137, },
 		{ ["class"]="DEMONHUNTER",["type"]="offensive",["buff"]=212084,["spec"]=true,["name"]="Fel Devastation",["duration"]=40,["icon"]=1450143,["spellID"]=212084, },
 		{ ["class"]="DEMONHUNTER",["type"]="cc",["buff"]=179057,["spec"]=true,["name"]="Chaos Nova",["duration"]=45,["icon"]=135795,["spellID"]=179057, },
 		{ ["class"]="DEMONHUNTER",["type"]="raidDefensive",["buff"]=209426,["spec"]=true,["name"]="Darkness",["duration"]=300,["icon"]=1305154,["spellID"]=196718, },
@@ -316,7 +316,7 @@ E.spell_db = {
 		{ ["class"]="EVOKER",["type"]="defensive",["buff"]=370960,["spec"]=true,["name"]="Emerald Communion",["duration"]=180,["icon"]=4630447,["spellID"]=370960, },
 		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=359816,["spec"]=true,["name"]="Dream Flight",["duration"]=120,["icon"]=4622455,["spellID"]=359816, },
 		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=370537,["spec"]=true,["name"]="Stasis",["duration"]=90,["icon"]=4630476,["spellID"]=370537, },
-		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=368412,["spec"]=true,["name"]="Time of Need",["duration"]=60,["icon"]=4630462,["spellID"]=368412, },
+		{ ["class"]="EVOKER",["type"]="externalDefensive",["buff"]=368412,["spec"]=true,["name"]="Time of Need",["duration"]=60,["icon"]=4630462,["spellID"]=368412, },
 		{ ["class"]="EVOKER",["type"]="raidDefensive",["buff"]=363534,["spec"]=true,["name"]="Rewind",["charges"]=1,["duration"]=240,["icon"]=4622474,["spellID"]=363534, },
 		{ ["class"]="EVOKER",["type"]="externalDefensive",["buff"]=357170,["spec"]=true,["name"]="Time Dilation",["duration"]=60,["icon"]=4622478,["spellID"]=357170, },
 		{ ["class"]="EVOKER",["type"]="offensive",["buff"]=367226,["spec"]=true,["name"]="Spiritbloom",["duration"]=30,["icon"]=4622476,["spellID"]=367226, },
@@ -756,6 +756,10 @@ E.spell_db = {
 		]]
 		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Shadowflame Rage",["buff"]=425571,["duration"]=90,["icon"]=5415954,["spellID"]=422750,["item"]=207174, },
 		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Prophetic Stonescale",["buff"]=425571,["duration"]=480,["icon"]=1526618,["spellID"]=417050,["item"]=207528, },
+		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Granyth's Enduring Scale",["buff"]=434064,["duration"]=120,["icon"]=2032177,["spellID"]=434064,["item"]=212757, },
+		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Consume Pods",["buff"]=384636,["duration"]=30,["icon"]=4554354,["spellID"]=384636,["item"]=193634, },
+		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Writhing Ward",["buff"]=401238,["duration"]=60,["icon"]=4638535,["spellID"]=401238,["item"]=203714, },
+		{ ["class"]="TRINKET",["type"]="trinket",["name"]="Decoration of Flame",["buff"]=377449,["duration"]=120,["icon"]=1387353,["spellID"]=377449,["item"]=194299, },
 
 		{ ["class"]="TRINKET",["type"]="consumable",["name"]="Refreshing Healing Potion",["buff"]=370511,["duration"]=300,["icon"]=4497595,["spellID"]=370511,["item"]=nil, }, --["item"]=191378
 		{ ["class"]="TRINKET",["type"]="other",["buff"]=408234,["name"]="Activate Weyrnstone",["duration"]=120,["icon"]=5199618,["spellID"]=408234,["item"]=205146, },
