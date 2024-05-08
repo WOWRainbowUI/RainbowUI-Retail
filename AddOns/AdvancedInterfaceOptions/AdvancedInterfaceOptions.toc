@@ -4,11 +4,7 @@
 ## Version: 1.9.0
 ## IconTexture: 134521
 ## Notes: Restores access to removed interface options in Legion
-## Title-zhTW: |cffFF9900[進階]|r 介面選項
-## Notes-zhTW: Advanced Interface Options |n|n讓你可以使用一些被移除的遊戲選項，以及修改 CVars 參數值。|n|n|cffffd200使用方法: |r從Esc>選項>插件>進階介面選項，進行設定。
-## DefaultState: disabled
 ## X-Category: Interface Enhancements
-## X-Category-zhTW: 進階
 ## X-Website: https://www.curseforge.com/wow/addons/advancedinterfaceoptions
 ## X-Curse-Project-ID: 99982
 ## X-WoWI-ID: 25002
@@ -16,8 +12,14 @@
 ## LoadOnDemand: 0
 ## SavedVariables: AdvancedInterfaceOptionsSaved
 
+## Title-zhTW: |cffFF9900[進階]|r 介面選項
+## Notes-zhTW: Advanced Interface Options |n|n讓你可以使用一些被移除的遊戲選項，以及修改 CVars 參數值。|n|n|cffffd200使用方法: |r從Esc>選項>插件>進階介面選項，進行設定。
+## DefaultState: disabled
+## X-Category-zhTW: 進階
+
 semlib\semlib.xml
 utils.lua
 cvars.lua
 basicOptions.lua
 browser.lua
+
