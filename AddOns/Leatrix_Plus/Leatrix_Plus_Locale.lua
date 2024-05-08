@@ -2412,7 +2412,6 @@ L["Zul'Farrak"] = "祖爾法拉克"
 L["Zul'Gurub"] = "祖爾格拉布"
 L["Zygor addon not found."] = "你尚未安裝Zygor插件。"
 
-
 -- 自行加入
 L["Leatrix Plus"] = "功能百寶箱"
 L["If checked, party invitations from friends or guild members will be automatically accepted unless you are queued for a battleground."] = "勾選後，會自動接受來自好友或公會成員的組隊邀請，除非你正在排戰場。"
@@ -2421,5 +2420,10 @@ L["Drag to size"] = "拖曳調整大小"
 L["Right-click to close"] = "點右鍵關閉"
 L["Toggle panel"] = "顯示功能百寶箱"
 L["Train All"] = "全部訓練"
-L["Mount special"] = "坐騎特殊動作"
+L["Manage focus"] = "管理專注目標"
+L["Cannot be used with Glass"] = "此功能無法與 '聊天視窗美化' 插件一起使用"
+L["Cannot be used with Easy Frames"] = "此功能無法與 '暴雪頭像' 插件一起使用"
+L["Manage vehicle"] = "管理坐騎座位"
+L["Mute custom sounds"] = "自訂音效靜音"
+L["Keep audio synced"] = "使用系統音效裝置"
 end

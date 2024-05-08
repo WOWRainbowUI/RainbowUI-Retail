@@ -1,4 +1,9 @@
-﻿10.2.24 - 24th April 2024
+﻿10.2.26 - 8th May 2024
+- Updated for game patch 10.2.7.
+- For 'Mute mount sounds', added 'Soar' (Dracthyr).
+- Added ability to toggle the main panel by clicking the slash command logo in the interface options panel.
+
+10.2.24 - 24th April 2024
 - Added a new setting called 'Keep audio synced' ('System').  If checked, when you change the audio output device in your operating system, the game audio output device will change automatically.|n|nFor this to work, the game audio output device will be set to system default.
 
 10.2.23 - 10th April 2024
