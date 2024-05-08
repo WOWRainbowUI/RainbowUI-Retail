@@ -1829,13 +1829,13 @@ Private.loss_of_control_types = {
 
 ---@type table<number, string>
 Private.main_spell_schools = {
-  [1] = GetSchoolString(1),
-  [2] = GetSchoolString(2),
-  [4] = GetSchoolString(4),
-  [8] = GetSchoolString(8),
-  [16] = GetSchoolString(16),
-  [32] = GetSchoolString(32),
-  [64] = GetSchoolString(64),
+  [1] = C_Spell.GetSchoolString(1),
+  [2] = C_Spell.GetSchoolString(2),
+  [4] = C_Spell.GetSchoolString(4),
+  [8] = C_Spell.GetSchoolString(8),
+  [16] = C_Spell.GetSchoolString(16),
+  [32] = C_Spell.GetSchoolString(32),
+  [64] = C_Spell.GetSchoolString(64),
 }
 
 ---@type table<string, table<string, string>>
@@ -2451,6 +2451,9 @@ Private.weapon_types = {
   ["main"] = MAINHANDSLOT,
   ["off"] = SECONDARYHANDSLOT
 }
+if WeakAuras.IsCataClassic() then
+  Private.weapon_types.ranged = RANGEDSLOT
+end
 
 ---@type table<string, string>
 Private.swing_types = {
@@ -2708,7 +2711,7 @@ end
 ---@type table
 Private.instance_difficulty_types = {}
 
-if WeakAuras.IsRetail() then
+if not WeakAuras.IsClassicEra() then
   -- Fill out instance_difficulty_types automatically.
   -- Unfortunately the names BLizzard gives are not entirely unique,
   -- so try hard to disambiguate them via the type, and if nothing works by
@@ -3147,6 +3150,30 @@ LSM:Register("statusbar", "Stripes", [[Interface\AddOns\WeakAuras\Media\Textures
 LSM:Register("statusbar", "Thick Stripes", [[Interface\AddOns\WeakAuras\Media\Textures\Statusbar_Stripes_Thick]])
 LSM:Register("statusbar", "Thin Stripes", [[Interface\AddOns\WeakAuras\Media\Textures\Statusbar_Stripes_Thin]])
 LSM:Register("border", "Drop Shadow", [[Interface\AddOns\WeakAuras\Media\Textures\Border_DropShadow]])
+
+if PowerBarColor then
+  local function capitalizeFirstLetter(str)
+    -- Split the string into words separated by underscores
+    local words = {}
+    for word in string.gmatch(str, "[^_]+") do
+      table.insert(words, word)
+    end
+    -- Capitalize the first letter of each word
+    for i, word in ipairs(words) do
+      words[i] = word:sub(1, 1):upper() .. word:sub(2):lower()
+    end
+    return table.concat(words, " ")
+  end
+
+  for power, data in pairs(PowerBarColor) do
+    if type(power) == "string" and data.atlas then
+      local name = "Blizzard " .. capitalizeFirstLetter(power)
+      LSM:Register("statusbar_atlas", name, data.atlas)
+    elseif data.atlasElementName then
+      LSM:Register("statusbar_atlas", "Blizzard " .. data.atlasElementName, "UI-HUD-UnitFrame-Player-PortraitOff-Bar-" .. data.atlasElementName)
+    end
+  end
+end
 
 ---@type table<string, string>
 Private.duration_types = {
@@ -3990,12 +4017,12 @@ end
 
 for i = 0, 20 do
   if not skippedWeaponTypes[i] then
-    Private.item_weapon_types[2 * 256 + i] = GetItemSubClassInfo(2, i)
+    Private.item_weapon_types[2 * 256 + i] = C_Item.GetItemSubClassInfo(2, i)
   end
 end
 
 -- Shields
-Private.item_weapon_types[4 * 256 + 6] = GetItemSubClassInfo(4, 6)
+Private.item_weapon_types[4 * 256 + 6] = C_Item.GetItemSubClassInfo(4, 6)
 WeakAuras.item_weapon_types = Private.item_weapon_types
 
 WeakAuras.StopMotion = {}

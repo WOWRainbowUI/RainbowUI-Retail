@@ -102,6 +102,8 @@ L["AbbreviateLargeNumbers (Blizzard)"] = "AbbreviateLargeNumbers (Blizzard)"
 L["AbbreviateNumbers (Blizzard)"] = "AbbreviateNumbers (Blizzard)"
 L["Absorb"] = "Absorbieren"
 --[[Translation missing --]]
+L["Absorb and Healing"] = "Absorb and Healing"
+--[[Translation missing --]]
 L["Absorb Heal Overlay"] = "Absorb Heal Overlay"
 --[[Translation missing --]]
 L["Absorb Overlay"] = "Absorb Overlay"
@@ -569,6 +571,8 @@ L["Debug Logging enabled"] = "Debug Logging enabled"
 --[[Translation missing --]]
 L["Debug Logging enabled for '%s'"] = "Debug Logging enabled for '%s'"
 L["Defense"] = "Verteidigung"
+--[[Translation missing --]]
+L["Defensive Stats"] = "Defensive Stats"
 L["Deflect"] = "Umlenken"
 L["Desaturate"] = "Entsättigen"
 L["Desaturate Background"] = "Hintergrund entsättigen"
@@ -580,6 +584,8 @@ L["Dest Raid Mark"] = "Zielmarkierung"
 L["Destination Affiliation"] = "Destination Affiliation"
 --[[Translation missing --]]
 L["Destination GUID"] = "Destination GUID"
+--[[Translation missing --]]
+L["Destination Info"] = "Destination Info"
 L["Destination Name"] = "Zielname"
 --[[Translation missing --]]
 L["Destination NPC Id"] = "Destination NPC Id"
@@ -679,6 +685,8 @@ L["Empowered 3"] = "Empowered 3"
 L["Empowered 4"] = "Empowered 4"
 --[[Translation missing --]]
 L["Empowered 5"] = "Empowered 5"
+--[[Translation missing --]]
+L["Empowered Cast"] = "Empowered Cast"
 --[[Translation missing --]]
 L["Empowered Cast Fully Charged"] = "Empowered Cast Fully Charged"
 --[[Translation missing --]]
@@ -856,6 +864,8 @@ L["Friendship Max Rank"] = "Friendship Max Rank"
 --[[Translation missing --]]
 L["Friendship Rank"] = "Friendship Rank"
 --[[Translation missing --]]
+L["Friendship Reputation"] = "Friendship Reputation"
+--[[Translation missing --]]
 L["Frost"] = "Frost"
 L["Frost Resistance"] = "Frostwiderstand"
 --[[Translation missing --]]
@@ -989,9 +999,9 @@ L["Icon Function"] = "Icon Function"
 --[[Translation missing --]]
 L["Icon Function (fallback state)"] = "Icon Function (fallback state)"
 --[[Translation missing --]]
-L["Id"] = "Id"
---[[Translation missing --]]
 L["ID"] = "ID"
+--[[Translation missing --]]
+L["Id"] = "Id"
 --[[Translation missing --]]
 L["If you require additional assistance, please open a ticket on GitHub or visit our Discord at https://discord.gg/weakauras!"] = "If you require additional assistance, please open a ticket on GitHub or visit our Discord at https://discord.gg/weakauras!"
 --[[Translation missing --]]
@@ -1041,11 +1051,11 @@ L["Install the addons BugSack and BugGrabber for detailed error logs."] = "Insta
 L["Instance"] = "Instanz"
 L["Instance Difficulty"] = "Instanzschwierigkeit"
 --[[Translation missing --]]
-L["Instance Filters"] = "Instance Filters"
+L["Instance Id"] = "Instance Id"
 --[[Translation missing --]]
 L["Instance ID"] = "Instance ID"
 --[[Translation missing --]]
-L["Instance Id"] = "Instance Id"
+L["Instance Info"] = "Instance Info"
 --[[Translation missing --]]
 L["Instance Name"] = "Instance Name"
 --[[Translation missing --]]
@@ -1270,6 +1280,8 @@ L["Minimum Progress"] = "Minimum Progress"
 --[[Translation missing --]]
 L["Minus (Small Nameplate)"] = "Minus (Small Nameplate)"
 L["Mirror"] = "Spiegel"
+--[[Translation missing --]]
+L["Miscellaneous"] = "Miscellaneous"
 L["Miss"] = "Verfehlen"
 L["Miss Type"] = "Verfehlengrund"
 L["Missed"] = "Verfehlt (MISSED)"
@@ -1373,7 +1385,7 @@ L["Note: 'Hide Alone' is not available in the new aura tracking system. A load o
 --[[Translation missing --]]
 L["Note: The available text replacements for multi triggers match the normal triggers now."] = "Note: The available text replacements for multi triggers match the normal triggers now."
 --[[Translation missing --]]
-L["Note: This trigger internally stores the shape shift positon, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."] = "Note: This trigger internally stores the shape shift positon, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."
+L["Note: This trigger internally stores the shapeshift position, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."] = "Note: This trigger internally stores the shapeshift position, and thus is incompatible with learning stances on the fly, like e.g. the Gladiator Rune."
 --[[Translation missing --]]
 L["Note: This trigger relies on the WoW API, which returns incorrect information in some cases."] = "Note: This trigger relies on the WoW API, which returns incorrect information in some cases."
 --[[Translation missing --]]
@@ -1507,6 +1519,8 @@ L["Overlay Cost of Casts"] = "Overlay Cost of Casts"
 --[[Translation missing --]]
 L["Overlay Latency"] = "Overlay Latency"
 --[[Translation missing --]]
+L["Paragon Reputation"] = "Paragon Reputation"
+--[[Translation missing --]]
 L["Paragon Reward Pending"] = "Paragon Reward Pending"
 --[[Translation missing --]]
 L["Parent Frame"] = "Parent Frame"
@@ -1576,6 +1590,8 @@ L["Power Type"] = "Ressourcentyp"
 --[[Translation missing --]]
 L["Precision"] = "Precision"
 L["Preset"] = "Standard"
+--[[Translation missing --]]
+L["Primary Stats"] = "Primary Stats"
 --[[Translation missing --]]
 L["Princess Huhuran"] = "Princess Huhuran"
 --[[Translation missing --]]
@@ -1684,6 +1700,8 @@ L["Remove Obsolete Auras"] = "Remove Obsolete Auras"
 L["Renown Level"] = "Renown Level"
 --[[Translation missing --]]
 L["Renown Max Level"] = "Renown Max Level"
+--[[Translation missing --]]
+L["Renown Reputation"] = "Renown Reputation"
 L["Repair"] = "Reparieren"
 L["Repeat"] = "Wiederhole"
 --[[Translation missing --]]
@@ -1704,6 +1722,8 @@ L["Resilience Percent"] = "Resilience Percent"
 --[[Translation missing --]]
 L["Resilience Rating"] = "Resilience Rating"
 L["Resist"] = "Widerstehen"
+--[[Translation missing --]]
+L["Resistances"] = "Resistances"
 L["Resisted"] = "Widerstanden (RESISTED)"
 --[[Translation missing --]]
 L["Rested"] = "Rested"
@@ -1772,6 +1792,8 @@ L["Screen/Parent Group"] = "Bildschirm/Elterngruppe"
 L["Second"] = "Second"
 --[[Translation missing --]]
 L["Second Value of Tooltip Text"] = "Second Value of Tooltip Text"
+--[[Translation missing --]]
+L["Secondary Stats"] = "Secondary Stats"
 L["Seconds"] = "Sekunden"
 --[[Translation missing --]]
 L[ [=[Secure frame detected. Find more information:
@@ -1867,6 +1889,8 @@ L["Source"] = "Source"
 L["Source Affiliation"] = "Source Affiliation"
 --[[Translation missing --]]
 L["Source GUID"] = "Source GUID"
+--[[Translation missing --]]
+L["Source Info"] = "Source Info"
 L["Source Name"] = "Quellname"
 --[[Translation missing --]]
 L["Source NPC Id"] = "Source NPC Id"
@@ -1967,6 +1991,8 @@ L["Strength"] = "Stärke"
 --[[Translation missing --]]
 L["String"] = "String"
 --[[Translation missing --]]
+L["Subevent Info"] = "Subevent Info"
+--[[Translation missing --]]
 L["Subtract Cast"] = "Subtract Cast"
 --[[Translation missing --]]
 L["Subtract Channel"] = "Subtract Channel"
@@ -2018,8 +2044,8 @@ L["Talent |cFFFF0000Not|r Known"] = "Talent |cFFFF0000Not|r Known"
 L["Talent |cFFFF0000Not|r Selected"] = "Talent |cFFFF0000Not|r Selected"
 --[[Translation missing --]]
 L["Talent Known"] = "Talent Known"
-L["Talent Selected"] = "Talent gewählt"
 L["Talent selected"] = "Gewähltes Talent"
+L["Talent Selected"] = "Talent gewählt"
 L["Talent Specialization"] = "Talentspezialisierung"
 L["Tanking And Highest"] = "Höchster und Aggro"
 L["Tanking But Not Highest"] = "Aggro aber nicht höchste"
@@ -2027,6 +2053,8 @@ L["Target"] = "Ziel"
 L["Targeted"] = "Anvisiert"
 --[[Translation missing --]]
 L["Tenebron"] = "Tenebron"
+--[[Translation missing --]]
+L["Tertiary Stats"] = "Tertiary Stats"
 L["Text"] = "Text"
 --[[Translation missing --]]
 L["Text To Speech"] = "Text To Speech"

@@ -177,8 +177,8 @@ Enable this setting if you want this timer to be hidden, or when using a WeakAur
 	L["Anchor"] = "Ancrage"
 	L["Anchor Point"] = "Point d'ancrage"
 	L["Anchored To"] = "Ancré à"
-	L["And "] = "Et"
 	L["and"] = "et"
+	L["And "] = "Et"
 	--[[Translation missing --]]
 	L["and %s"] = "and %s"
 	L["and aligned left"] = "et aligné à gauche"
@@ -510,6 +510,10 @@ UNIT_POWER, UNIT_AURA PLAYER_TARGET_CHANGED
 	L["Fade"] = "Fondu"
 	L["Fade In"] = "Fondu entrant"
 	L["Fade Out"] = "Fondu sortant"
+	--[[Translation missing --]]
+	L["Fadeout Sound"] = "Fadeout Sound"
+	--[[Translation missing --]]
+	L["Fadeout Time (seconds)"] = "Fadeout Time (seconds)"
 	L["False"] = "Faux"
 	--[[Translation missing --]]
 	L["Fetch Affected/Unaffected Names and Units"] = "Fetch Affected/Unaffected Names and Units"
@@ -748,6 +752,8 @@ Si cette case est cochée, ce séparateur inclura du texte. Sinon, ce sera juste
 	L["Length"] = "Longueur"
 	--[[Translation missing --]]
 	L["Length of |cFFFF0000%s|r"] = "Length of |cFFFF0000%s|r"
+	--[[Translation missing --]]
+	L["LibSharedMedia"] = "LibSharedMedia"
 	L["Limit"] = "Limite"
 	--[[Translation missing --]]
 	L["Line"] = "Line"
@@ -783,8 +789,6 @@ Si cette case est cochée, ce séparateur inclura du texte. Sinon, ce sera juste
 	L["Media Type"] = "Media Type"
 	L["Medium Icon"] = "Icône moyenne"
 	L["Message"] = "Message"
-	L["Message Prefix"] = "Préfixe du message"
-	L["Message Suffix"] = "Suffixe du message"
 	L["Message Type"] = "Type de message"
 	L["Min"] = "Min (minutes?)"
 	--[[Translation missing --]]
@@ -1120,6 +1124,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=]
 	--[[Translation missing --]]
 	L["Sub Option %i"] = "Sub Option %i"
 	--[[Translation missing --]]
+	L["Subevent"] = "Subevent"
+	--[[Translation missing --]]
+	L["Subevent Suffix"] = "Subevent Suffix"
+	--[[Translation missing --]]
 	L["Supports multiple entries, separated by commas"] = "Supports multiple entries, separated by commas"
 	L["Swipe Overlay Settings"] = "Paramètres de la superposition des balayages"
 	--[[Translation missing --]]
@@ -1135,6 +1143,8 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=]
 	L["Texture Picker"] = "Texture Picker"
 	--[[Translation missing --]]
 	L["Texture Rotation"] = "Texture Rotation"
+	--[[Translation missing --]]
+	L["Texture Selection Mode"] = "Texture Selection Mode"
 	L["Texture Settings"] = "Paramètres de la texture"
 	L["Texture Wrap"] = "Enveloppe de texture"
 	--[[Translation missing --]]
@@ -1249,8 +1259,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["Use Display Info Id"] = "Utiliser les informations d'identifiant de l'affichage"
 	L["Use SetTransform"] = "Utiliser SetTransform"
 	L["Use Texture"] = "Utiliser une texture"
-	L["Used in Auras:"] = "Utilisé(e) dans les Auras:"
 	L["Used in auras:"] = "Utilisé dans les auras:"
+	L["Used in Auras:"] = "Utilisé(e) dans les Auras:"
 	--[[Translation missing --]]
 	L["Uses Texture Coordinates to rotate the texture."] = "Uses Texture Coordinates to rotate the texture."
 	--[[Translation missing --]]
@@ -1294,8 +1304,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["Y Rotation"] = "Rotation Y"
 	L["Y Scale"] = "Echelle Y"
 	L["Yellow Rune"] = "Rune jaune"
-	L["Y-Offset"] = "Décalage Y"
 	L["y-Offset"] = "y-Décalage"
+	L["Y-Offset"] = "Décalage Y"
 	--[[Translation missing --]]
 	L["You already have this group/aura. Importing will create a duplicate."] = "You already have this group/aura. Importing will create a duplicate."
 	L["You are about to delete %d aura(s). |cFFFF0000This cannot be undone!|r Would you like to continue?"] = "Vous êtes sur le point de supprimer %d aura(s). |cFFFF0000Cela ne peut pas être annulé !|r Voulez-vous continuer ?"

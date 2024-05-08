@@ -258,8 +258,8 @@ Off Screen]=] ] = [=[Индикация за
 	L["Collapse all non-loaded displays"] = "Свернуть все незагруженные индикации"
 	L["Collapse all pending Import"] = "Свернуть все индикации, ожидающие импорта"
 	L["Collapsible Group"] = "Свёртываемая группа"
-	L["Color"] = "Цвет"
 	L["color"] = "цвет"
+	L["Color"] = "Цвет"
 	L["Column Height"] = "Высота столбца"
 	L["Column Space"] = "Отступ между столбцами"
 	L["Columns"] = "Столбцы"
@@ -420,6 +420,10 @@ UNIT_POWER  UNIT_AURA, PLAYER_TARGET_CHANGED]=]
 	L["Fade"] = "Выцветание"
 	L["Fade In"] = "Появление"
 	L["Fade Out"] = "Исчезновение"
+	--[[Translation missing --]]
+	L["Fadeout Sound"] = "Fadeout Sound"
+	--[[Translation missing --]]
+	L["Fadeout Time (seconds)"] = "Fadeout Time (seconds)"
 	L["False"] = "Ложь"
 	L["Fetch Affected/Unaffected Names and Units"] = "Получить имена и единицы задействован. и незадействован. игроков"
 	L["Fetch Raid Mark Information"] = "Получить информацию о метке цели"
@@ -600,6 +604,8 @@ Can use \ to escape -.]=] ] = [=[Формат записи: Имя, Имя-Иг�
 	L["Left HUD position"] = "Позиция левого HUD"
 	L["Length"] = "Длина"
 	L["Length of |cFFFF0000%s|r"] = "Длина %s"
+	--[[Translation missing --]]
+	L["LibSharedMedia"] = "LibSharedMedia"
 	L["Limit"] = "Лимит"
 	L["Line"] = "Строка"
 	L["Lines & Particles"] = "Линии или частицы"
@@ -626,8 +632,6 @@ Can use \ to escape -.]=] ] = [=[Формат записи: Имя, Имя-Иг�
 	L["Media Type"] = "Тип медиа"
 	L["Medium Icon"] = "Средняя иконка"
 	L["Message"] = "Сообщение"
-	L["Message Prefix"] = "Префикс сообщения"
-	L["Message Suffix"] = "Суффикс сообщения"
 	L["Message Type"] = "Тип сообщения"
 	L["Min"] = "Мин. значение"
 	L["Minimum"] = "Минимум"
@@ -893,6 +897,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=]
 	L["Stop Sound"] = "Остановить вопроизведение звука"
 	L["Sub Elements"] = "Внутренние элементы"
 	L["Sub Option %i"] = "Внутренний параметр %i"
+	--[[Translation missing --]]
+	L["Subevent"] = "Subevent"
+	--[[Translation missing --]]
+	L["Subevent Suffix"] = "Subevent Suffix"
 	L["Supports multiple entries, separated by commas"] = "Можно указать несколько значений, разделенных запятыми."
 	L["Swipe Overlay Settings"] = "Настройки восстановления (наложение)"
 	L["Templates could not be loaded, the addon is %s"] = "Не удалось загрузить WeakAuras Templates. Причина - %s"
@@ -905,6 +913,8 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=]
 	L["Texture Info"] = "Информация о текстуре"
 	L["Texture Picker"] = "Средство выбора текстуры"
 	L["Texture Rotation"] = "Поворот текстуры"
+	--[[Translation missing --]]
+	L["Texture Selection Mode"] = "Texture Selection Mode"
 	L["Texture Settings"] = "Настройки текстуры"
 	L["Texture Wrap"] = "Обтекание текстурой"
 	L["Texture X Offset"] = "Смещение текстуры по X"
@@ -990,8 +1000,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["Use Display Info Id"] = "Использовать ID отображения существа"
 	L["Use SetTransform"] = "Использовать ф. SetTransform"
 	L["Use Texture"] = "Использовать текстуру"
-	L["Used in Auras:"] = "Использовано в индикациях:"
 	L["Used in auras:"] = "Использовано в индикациях:"
+	L["Used in Auras:"] = "Использовано в индикациях:"
 	L["Uses Texture Coordinates to rotate the texture."] = "Использует координаты текстуры для её вращения."
 	L["Uses UnitInRange() to check if in range. Matches default raid frames out of range behavior, which is between 25 to 40 yards depending on your class and spec."] = "Использует функцию UnitInRange для проверки, находится ли указанная единица рядом с игроком. В этом смысле соответствует поведению стандартных рамок рейда (raid frames). Расстояние составляет от 25 до 40 метров в зависимости от вашего класса и специализации."
 	L["Uses UnitIsVisible() to check if game client has loaded a object for this unit. This distance is around 100 yards. This is polled every second."] = "Использует функцию UnitIsVisible для проверки, может ли клиент игры видеть указанную единицу (загружен ли объект). Не определяет, находится ли единица в поле зрения. Расстояние составляет 100 метров. Опрос происходит каждую секунду."

@@ -668,7 +668,7 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
         return true
       end
 
-      args["condition" .. i .. "progressSoruceManualValue" .. j] = {
+      args["condition" .. i .. "progressSourceManualValue" .. j] = {
         type = "range",
         control = "WeakAurasSpinBox",
         width = WeakAuras.normalWidth,
@@ -686,7 +686,7 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
       }
       order = order + 1
 
-      args["condition" .. i .. "progressSoruceManualTotal" .. j] = {
+      args["condition" .. i .. "progressSourceManualTotal" .. j] = {
         type = "range",
         control = "WeakAurasSpinBox",
         width = WeakAuras.normalWidth,
@@ -834,6 +834,34 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
       end,
       set = wrapWithPlaySound(setValueComplex("sound_kit_id")),
       hidden = function() return not (anySoundValue(" KitID")  and (anySoundType("Loop") or anySoundType("Play"))) end
+    }
+    order = order + 1;
+
+    args["condition" .. i .. "value" .. j .. "sound_fade"] = {
+      type = "range",
+      control = "WeakAurasSpinBox",
+      width = WeakAuras.normalWidth,
+      min = 0,
+      softMax = 10,
+      bigStep = 1,
+      name = blueIfNoValue2(data, conditions[i].changes[j], "value", "sound_fade", L["Fadeout Time (seconds)"], L["Fadeout Time (seconds)"]),
+      desc = descIfNoValue2(data, conditions[i].changes[j], "value", "sound_fade", propertyType),
+      order = order,
+      get = function()
+        return type(conditions[i].changes[j].value) == "table" and conditions[i].changes[j].value.sound_fade;
+      end,
+      set = setValueComplex("sound_fade"),
+      disabled = function() return not anySoundType("Stop") end,
+      hidden = function() return not (anySoundType("Stop")) end
+    }
+    order = order + 1;
+
+    args["condition" .. i .. "value" .. j .. "sound_fade_space"] = {
+      type = "description",
+      width = WeakAuras.normalWidth,
+      name = "",
+      order = order,
+      hidden = function() return not (anySoundType("Stop")) end
     }
     order = order + 1;
 
@@ -2807,7 +2835,7 @@ end
 
 local function SubPropertiesForChange(change)
   if change.property == "sound" then
-    return { "sound", "sound_channel", "sound_path", "sound_kit_id", "sound_repeat", "sound_type"}
+    return { "sound", "sound_channel", "sound_path", "sound_kit_id", "sound_repeat", "sound_type", "sound_fade"}
   elseif change.property == "customcode" then
     return { "custom" }
   elseif change.property == "glowexternal" then

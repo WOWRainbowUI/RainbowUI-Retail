@@ -664,6 +664,24 @@ local function FindBestMatchDataForUnit(time, id, triggernum, triggerInfo, unit)
   return bestMatch, matchCount, stackCount, nextCheck
 end
 
+--- Deprecated in 10.1.5
+local GetTexCoordsForRole = function(role)
+  local textureHeight, textureWidth = 256, 256
+  local roleHeight, roleWidth = 67, 67
+
+  if ( role == "GUIDE" ) then
+    return GetTexCoordsByGrid(1, 1, textureWidth, textureHeight, roleWidth, roleHeight)
+  elseif ( role == "TANK" ) then
+    return GetTexCoordsByGrid(1, 2, textureWidth, textureHeight, roleWidth, roleHeight)
+  elseif ( role == "HEALER" ) then
+    return GetTexCoordsByGrid(2, 1, textureWidth, textureHeight, roleWidth, roleHeight)
+  elseif ( role == "DAMAGER" ) then
+    return GetTexCoordsByGrid(2, 2, textureWidth, textureHeight, roleWidth, roleHeight)
+  else
+    error("Unknown role: "..tostring(role))
+  end
+end
+
 local roleIcons = {
   DAMAGER = CreateTextureMarkup([=[Interface\LFGFrame\UI-LFG-ICON-ROLES]=], 256, 256, 0, 0, GetTexCoordsForRole("DAMAGER")),
   HEALER = CreateTextureMarkup([=[Interface\LFGFrame\UI-LFG-ICON-ROLES]=], 256, 256, 0, 0, GetTexCoordsForRole("HEALER")),
@@ -2284,7 +2302,7 @@ local function EventHandler(frame, event, arg1, arg2, ...)
       -- With newApi we have TOOLTIP_DATA_UPDATE to update the tooltips
       if not newAPI then
         C_Timer.After(3, function()
-          for unit, matchtDataPerUnit in pairs(matchData) do
+          for unit, matchDataPerUnit in pairs(matchData) do
             EventHandler(frame, "UNIT_AURA", unit)
           end
         end)
@@ -2380,7 +2398,7 @@ local PerUnitFrames = {
     -- We check whether we are already registered for the given pet mode,
     -- and unregister as needed by tracking the number of calls to Register with different
     -- petModes
-    -- All of the dancing is to not register for UNIT_IN_RANGE_UPDATE for pets unless explictly asked for
+    -- All of the dancing is to not register for UNIT_IN_RANGE_UPDATE for pets unless explicitly asked for
     local unitTypePetMode = GetOrCreateSubTable(self.unitTypePetMode, event, unitType)
     --- @type any
     local mode = false
