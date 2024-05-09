@@ -1,8 +1,8 @@
-## Interface: 20504
+## Interface: 40400
 ## IconTexture: Interface\AddOns\Immersion\Textures\Logo
 ## Title: Immersion
 ## Notes: Immersive replacement for quest & gossip
-## Version: 1.4.33
+## Version: 1.4.35
 
 ## Author: Sebastian Lindfors
 ## X-Website: https://github.com/seblindfors/Immersion
@@ -20,12 +20,6 @@
 
 # Locale
 Locale\Locale.xml
-
-# Libs
-Libs\LibStub\LibStub.lua
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-Libs\AceGUI-3.0\AceGUI-3.0.xml
-Libs\AceConfig-3.0\AceConfig-3.0.xml
 
 # Compatibility scripts
 Compat.lua
