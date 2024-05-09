@@ -1,4 +1,4 @@
-if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC or not C_Seasons or C_Seasons.GetActiveSeason() ~= 2 then
+if not C_Seasons or C_Seasons.GetActiveSeason() ~= 2 then
 	return
 end
 local MAP_STRANGLETHORN = 1434
@@ -7,7 +7,7 @@ local L = mod:GetLocalizedStrings()
 
 local pvpMod = DBM:GetModByName("PvPGeneral")
 
-mod:SetRevision("20240303113547")
+mod:SetRevision("20240505221847")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",

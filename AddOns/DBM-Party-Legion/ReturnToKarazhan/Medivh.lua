@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,mythic,challenge"
 
-mod:SetRevision("20240106080507")
+mod:SetRevision("20240426175442")
 mod:SetCreatureID(114350)
 mod:SetEncounterID(1965)
 mod:SetUsedIcons(1, 2)
@@ -39,7 +39,7 @@ mod:AddSetIconOption("SetIconOnWreath", 228261, true, 6, {1, 2})
 
 mod.vb.playersFrozen = 0
 mod.vb.imagesActive = false
-local frostBiteName, flameWreathName = DBM:GetSpellInfo(227592), DBM:GetSpellInfo(228261)
+local frostBiteName, flameWreathName = DBM:GetSpellName(227592), DBM:GetSpellName(228261)
 
 function mod:OnCombatStart(delay)
 	self.vb.playersFrozen = 0

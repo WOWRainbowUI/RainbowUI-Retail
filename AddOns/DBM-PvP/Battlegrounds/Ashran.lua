@@ -1,9 +1,7 @@
-if WOW_PROJECT_ID ~= (WOW_PROJECT_MAINLINE or 1) then -- Added in BfA
-	return
-end
-local mod	= DBM:NewMod("z1191", "DBM-PvP")
+local mod	= DBM:NewMod("z1191", "DBM-PvP") -- Added in WoD
 
-mod:SetRevision("20240302224145")
+
+mod:SetRevision("20240505221847")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
 mod:RegisterEvents(
 	"LOADING_SCREEN_DISABLED",

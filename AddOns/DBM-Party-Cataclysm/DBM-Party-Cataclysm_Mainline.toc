@@ -36,7 +36,7 @@
 ## X-DBM-Mod-MinExpansion: 3
 ## X-Curse-Project-ID: 314994
 ## X-WoWI-ID: 24904
-## Version: r124
+## Version: r127
 
 localization.en.lua
 localization.de.lua
@@ -63,6 +63,7 @@ GrimBatol\GeneralUmbriss.lua
 GrimBatol\ForgemasterThrongus.lua
 GrimBatol\DrahgaShadowburner.lua
 GrimBatol\Erudax.lua
+GrimBatol\GrimBatolTrash.lua
 HallsOfOrigination\TempleGuardianAnhuur.lua
 HallsOfOrigination\EarthragerPtah.lua
 HallsOfOrigination\Anraphet.lua

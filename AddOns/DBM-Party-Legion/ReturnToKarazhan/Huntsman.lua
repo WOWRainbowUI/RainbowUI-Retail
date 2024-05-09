@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,mythic,challenge"
 
-mod:SetRevision("20240412075414")
+mod:SetRevision("20240428124541")
 mod:SetCreatureID(114262, 114264)--114264 midnight
 mod:SetEncounterID(1960)--Verify
 mod:SetUsedIcons(1)
@@ -30,7 +30,7 @@ local yellSharedSuffering			= mod:NewYell(228852)
 local timerMortalStrikeCD			= mod:NewNextTimer(11, 227493, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerSharedSufferingCD		= mod:NewNextTimer(19, 228852, nil, nil, nil, 3, nil, nil, nil, 1, 4)
 
-mod:AddSetIconOption("SetIconOnSharedSuffering", 228852, true, false, {1})
+mod:AddSetIconOption("SetIconOnSharedSuffering", 228852, true, 0, {1})
 
 function mod:SPELL_CAST_START(args)
 	local spellId = args.spellId

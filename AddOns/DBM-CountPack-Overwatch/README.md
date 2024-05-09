@@ -1,3 +1,6 @@
+<p><img src="http://mysticalos.com/images/DBM/support_on_patreon.png" width="408" height="80" /></p>
+<p><a href="https://www.patreon.com/deadlybossmods">https://www.patreon.com/deadlybossmods</a></p>
+
 # History:
 
 Initially, the Overwatch countdown sounds were added to DBM-Core directly. These expanded the countdown sound options with several Characters that launched with base game. Since then, several more characters have been added to game such as Sombra, Anna, etc. I weighed for a while on whether I should keep adding new files to DBM core and continuing to inflate the media foot print, or split the package into a stand alone before adding additional media options.

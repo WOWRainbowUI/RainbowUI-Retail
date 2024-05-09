@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1486, "DBM-Party-Legion", 4, 721)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240412080733")
+mod:SetRevision("20240426175442")
 mod:SetCreatureID(95833)
 mod:SetEncounterID(1806)
 mod:SetHotfixNoticeRev(20230308000000)
@@ -44,7 +44,7 @@ local timerExpelLightCD				= mod:NewCDTimer(23, 192048, nil, nil, nil, 3)--May b
 
 mod:AddRangeFrameOption(8, 192048)
 
-local eyeShortName = DBM:GetSpellInfo(91320)--Inner Eye
+local eyeShortName = DBM:GetSpellName(91320)--Inner Eye
 
 local function updateAllTimers(self, ICD)
 	DBM:Debug("updateAllTimers running", 3)

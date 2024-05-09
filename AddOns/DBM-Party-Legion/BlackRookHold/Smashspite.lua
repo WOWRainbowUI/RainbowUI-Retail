@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1664, "DBM-Party-Legion", 1, 740)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240207092250")
+mod:SetRevision("20240428124541")
 mod:SetCreatureID(98949)
 mod:SetEncounterID(1834)
 mod:SetUsedIcons(1)
@@ -42,7 +42,7 @@ local timerStompCD					= mod:NewCDCountTimer(21.8, 198073, nil, nil, nil, 2)--Ne
 local timerHatefulGazeCD			= mod:NewCDCountTimer(25.4, 198079, nil, nil, nil, 3)--Next timers but delayed by other casts
 
 mod:AddInfoFrameOption(224188)
-mod:AddSetIconOption("SetIconOnHatefulGaze", 198079, true, false, {1})
+mod:AddSetIconOption("SetIconOnHatefulGaze", 198079, true, 0, {1})
 
 mod.vb.stompCount = 0
 mod.vb.gazeCount = 0
@@ -54,7 +54,7 @@ function mod:OnCombatStart(delay)
 	if not self:IsNormal() then
 		timerHatefulGazeCD:Start(5-delay, 1)
 		if self.Options.InfoFrame then
-			DBM.InfoFrame:SetHeader(DBM:GetSpellInfo(224188))
+			DBM.InfoFrame:SetHeader(DBM:GetSpellName(224188))
 			DBM.InfoFrame:Show(5, "reverseplayerbaddebuffbyspellid", 224188)--Must match spellID to filter other debuffs out
 		end
 	end

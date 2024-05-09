@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,timewalker"
 
-mod:SetRevision("20240410221057")
+mod:SetRevision("20240426175442")
 mod:SetCreatureID(54938)
 mod:SetEncounterID(1339)
 
@@ -37,7 +37,7 @@ local timerWaveVirtueCD			= mod:NewNextTimer(30, 103678, nil, nil, nil, 2)--Will
 local timerWaveTwilightCD		= mod:NewNextTimer(30, 103780, nil, nil, nil, 2)--^
 
 mod.vb.warnedP2 = false
-local waterShellName = DBM:GetSpellInfo(103744)
+local waterShellName = DBM:GetSpellName(103744)
 
 function mod:OnCombatStart(delay)
 	self.vb.warnedP2 = false

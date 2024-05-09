@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2388, "DBM-Party-Shadowlands", 8, 1189)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240106080507")
+mod:SetRevision("20240428124541")
 mod:SetCreatureID(162100)
 mod:SetEncounterID(2360)
 
@@ -39,7 +39,7 @@ local timerHungeringDrainCD			= mod:NewCDTimer(19.4, 319654, nil, nil, nil, 4, n
 local timerSeveringSmashCD			= mod:NewCDTimer(38.9, 319685, nil, nil, nil, 6)
 local timerJuggernautRushCD			= mod:NewCDTimer(18.2, 319713, nil, nil, nil, 3)
 
-mod:AddSetIconOption("SetIconOnJuggernaut", 319713, true, false, {1})
+mod:AddSetIconOption("SetIconOnJuggernaut", 319713, true, 0, {1})
 
 mod.vb.interruptCount = 0
 mod.vb.headbuttCount = 0

@@ -3,7 +3,7 @@ local mod	= DBM:NewMod("d640", "DBM-Challenges", 4, nil, function(t)
 end)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20220430210946")
+mod:SetRevision("20240414044754")
 mod.noStatistics = true
 
 --mod:RegisterCombat("scenario", 1148)
@@ -208,9 +208,9 @@ end
 
 do
 	local mode = {
-		[1] = CHALLENGE_MODE_MEDAL1,
-		[2] = CHALLENGE_MODE_MEDAL2,
-		[3] = CHALLENGE_MODE_MEDAL3,
+		[1] = L.Bronze,
+		[2] = L.Silver,
+		[3] = L.Gold,
 		[4] = L.Endless,
 	}
 	function mod:CHAT_MSG_WHISPER(msg, name, _, _, _, status)

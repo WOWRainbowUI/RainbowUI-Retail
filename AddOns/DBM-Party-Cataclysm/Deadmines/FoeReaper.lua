@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(91, "DBM-Party-Cataclysm", 2, 63)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240110075649")
+mod:SetRevision("20240428124541")
 mod:SetCreatureID(43778)
 mod:SetEncounterID(1063)
 mod:SetUsedIcons(8)
@@ -25,7 +25,7 @@ local specWarnHarvestNear	= mod:NewSpecialWarningClose(88495, nil, nil, nil, 1, 
 local timerHarvest			= mod:NewCastTimer(5, 88495, nil, nil, nil, 3)
 local timerOverdrive		= mod:NewBuffActiveTimer(10, 88481, nil, nil, nil, 2)
 
-mod:AddSetIconOption("HarvestIcon", 88495, true, false, {8})
+mod:AddSetIconOption("HarvestIcon", 88495, true, 0, {8})
 
 function mod:HarvestTarget()
 	local targetname = self:GetBossTarget(43778)

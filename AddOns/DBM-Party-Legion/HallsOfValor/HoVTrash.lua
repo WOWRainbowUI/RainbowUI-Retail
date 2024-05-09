@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("HoVTrash", "DBM-Party-Legion", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231026112110")
+mod:SetRevision("20240426175442")
 --mod:SetModelID(47785)
 mod:SetZone(1477)
 
@@ -53,7 +53,7 @@ mod:AddBoolOption("AGSkovaldTrash", true)
 mod:AddBoolOption("AGStartOdyn", true)
 --Antispam IDs for this mod: 1 run away, 2 dodge, 3 dispel, 4 incoming damage, 5 you/role, 6 generalized, 7 GTFO
 
-local eyeShortName = DBM:GetSpellInfo(91320)--Inner Eye
+local eyeShortName = DBM:GetSpellName(91320)--Inner Eye
 
 function mod:CrackleTarget(targetname, uId)
 	if not targetname then

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("d1993", "DBM-Challenges", 2)--1993 Stormwind 1995 Org
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20211208050610")
+mod:SetRevision("20240426185002")
 
 mod:RegisterCombat("scenario", 2213)--2212, 2213 (org, stormwind)
 
@@ -154,7 +154,7 @@ function mod:OnCombatStart(delay)
 		DBM:FireEvent("BossMod_EnableHostileNameplates")
 	end
 	if self.Options.InfoFrame then
-		DBM.InfoFrame:SetHeader(DBM:GetSpellInfo(307831))
+		DBM.InfoFrame:SetHeader(DBM:GetSpellName(307831))
 		DBM.InfoFrame:Show(5, "playerpower", 1, ALTERNATE_POWER_INDEX, nil, nil, 2)--Sorting lowest to highest
 	end
 end
@@ -287,11 +287,11 @@ function mod:SPELL_AURA_APPLIED(args)
 		specWarnWaveringWill:Play("stopattack")
 	elseif spellId == 308380 then
 		warnConvert:Show(args.destName)
-	elseif spellId == 308366 and self:CheckDispelFilter() then
+	elseif spellId == 308366 and self:CheckDispelFilter("curse") then
 		specWarnAgonizingTormentD:Show(args.destName)
 		specWarnAgonizingTormentD:Play("helpdispel")
 	elseif spellId == 308265 then
-		if self:CheckDispelFilter() then
+		if self:CheckDispelFilter("disease") then
 			specWarnCorruptedBlight:Show(args.destName)
 			specWarnCorruptedBlight:Play("helpdispel")
 		end

@@ -1,7 +1,7 @@
-local mod	= DBM:NewMod(2126, "DBM-Party-BfA", 10, 1001)
+local mod	= DBM:NewMod(2126, "DBM-Party-BfA", 10, 1021)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240106080507")
+mod:SetRevision("20240426175442")
 mod:SetCreatureID(260551)
 mod:SetEncounterID(2114)
 mod:SetHotfixNoticeRev(20231025000000)
@@ -43,7 +43,7 @@ mod:AddSetIconOption("SetIconOnThorns", 267907, true, 5, {8})
 mod.vb.crushCount = 0
 mod.vb.thornsCount = 0
 
-local wildfire = DBM:GetSpellInfo(260569)
+local wildfire = DBM:GetSpellName(260569)
 
 function mod:OnCombatStart(delay)
 	self.vb.crushCount = 0

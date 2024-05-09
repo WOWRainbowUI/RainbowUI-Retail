@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2488, "DBM-Party-Dragonflight", 7, 1202)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231029212301")
+mod:SetRevision("20240504141048")
 mod:SetCreatureID(188252)
 mod:SetEncounterID(2609)
 mod:SetHotfixNoticeRev(20221126000000)
@@ -54,7 +54,7 @@ function mod:OnCombatStart(delay)
 	timerHailbombsCD:Start(4.7-delay)
 	timerChillstormCD:Start(11.9-delay)
 	if self.Options.InfoFrame then
-		DBM.InfoFrame:SetHeader(DBM:GetSpellInfo(372682))
+		DBM.InfoFrame:SetHeader(DBM:GetSpellName(372682))
 		DBM.InfoFrame:Show(5, "table", chillStacks, 1)
 	end
 end
@@ -132,7 +132,7 @@ function mod:SPELL_AURA_REMOVED(args)
 		specWarnFrostOverload:Play("kickcast")
 	elseif spellId == 373680 then--Frost Overload
 		--True, at least in M+
-		timerHailbombsCD:Start(4.8)
+		timerHailbombsCD:Start(4.1)
 		timerChillstormCD:Start(13.3)
 	end
 end

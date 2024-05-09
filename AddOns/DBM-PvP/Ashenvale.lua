@@ -1,4 +1,4 @@
-if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC or not C_Seasons or C_Seasons.GetActiveSeason() ~= 2 then
+if not C_Seasons or C_Seasons.GetActiveSeason() ~= 2 then
 	return
 end
 local MAP_ASHENVALE = 1440
@@ -6,7 +6,7 @@ local mod = DBM:NewMod("m" .. MAP_ASHENVALE, "DBM-PvP")
 
 local pvpMod = DBM:GetModByName("PvPGeneral")
 
-mod:SetRevision("20240405150659")
+mod:SetRevision("20240505221847")
 -- TODO: we could teach this thing to handle outdoor zones instead of only instances
 -- when implementing this make sure that the stop functions are called properly, i.e., that ZONE_CHANGED_NEW_AREA still fires when leaving
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)

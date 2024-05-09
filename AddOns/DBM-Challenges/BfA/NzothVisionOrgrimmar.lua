@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("d1995", "DBM-Challenges", 2)--1993 Stormwind 1995 Org
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20230117064011")
+mod:SetRevision("20240426185002")
 
 mod:RegisterCombat("scenario", 2212)--2212, 2213 (org, stormwind)
 
@@ -178,7 +178,7 @@ function mod:OnCombatStart(delay)
 		DBM:FireEvent("BossMod_EnableHostileNameplates")
 	end
 	if self.Options.InfoFrame then
-		DBM.InfoFrame:SetHeader(DBM:GetSpellInfo(307831))
+		DBM.InfoFrame:SetHeader(DBM:GetSpellName(307831))
 		DBM.InfoFrame:Show(5, "playerpower", 1, ALTERNATE_POWER_INDEX, nil, nil, 2)--Sorting lowest to highest
 	end
 end
@@ -358,7 +358,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			if GetNumGroupMembers() > 1 then
 				yellDesperateRetching:Yell()
 			end
-		elseif self:CheckDispelFilter() then
+		elseif self:CheckDispelFilter("disease") then
 			specWarnDesperateRetchingD:Show(args.destName)
 			specWarnDesperateRetchingD:Play("helpdispel")
 		end

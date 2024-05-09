@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2082, "DBM-Party-BfA", 1, 968)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231224032758")
+mod:SetRevision("20240426175442")
 mod:SetCreatureID(122967)
 mod:SetEncounterID(2084)
 mod:SetUsedIcons(8)
@@ -41,7 +41,7 @@ local timerSpiritofGoldCD			= mod:NewCDCountTimer(34, 259205, nil, nil, nil, 1, 
 
 mod:AddSetIconOption("SetIconOnSpirit", 259205, true, 5, {8})
 
-local taintedBlood = DBM:GetSpellInfo(255558)
+local taintedBlood = DBM:GetSpellName(255558)
 
 mod.vb.transCount = 0
 mod.vb.clawsCount = 0

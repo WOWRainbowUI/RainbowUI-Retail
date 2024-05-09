@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,mythic,challenge"
 
-mod:SetRevision("20240412075414")
+mod:SetRevision("20240502130748")
 mod:SetCreatureID(114790)
 mod:SetEncounterID(2017)
 mod:SetUsedIcons(1, 2, 3)
@@ -48,7 +48,7 @@ local timerBombardmentCD			= mod:NewCDTimer(25, 229284, 229287, nil, nil, 3)
 
 --local berserkTimer					= mod:NewBerserkTimer(300)
 
-mod:AddSetIconOption("SetIconOnShadows", 229159, true, false, {1, 2, 3})
+mod:AddSetIconOption("SetIconOnShadows", 229159, true, 0, {1, 2, 3})
 mod:AddRangeFrameOption(6, 230066)
 --mod:AddInfoFrameOption(198108, false)
 
@@ -129,9 +129,8 @@ end
 function mod:SPELL_AURA_APPLIED(args)
 	local spellId = args.spellId
 	if spellId == 229159 then
-		local name = args.destName
-		if not tContains(chaoticShadowsTargets, name) then
-			chaoticShadowsTargets[#chaoticShadowsTargets+1] = name
+		if not tContains(chaoticShadowsTargets, args.destName) then
+			chaoticShadowsTargets[#chaoticShadowsTargets+1] = args.destName
 		end
 		local count = #chaoticShadowsTargets
 		self:Unschedule(breakShadows)
@@ -147,7 +146,7 @@ function mod:SPELL_AURA_APPLIED(args)
 			yellChaoticShadows:Yell(count, args.spellName, count)
 		end
 		if self.Options.SetIconOnShadows then
-			self:SetIcon(name, count)
+			self:SetIcon(args.destName, count)
 		end
 	elseif spellId == 229241 then
 		timerFelBeamCD:Start()
