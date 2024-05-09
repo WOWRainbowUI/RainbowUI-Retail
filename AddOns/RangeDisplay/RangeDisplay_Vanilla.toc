@@ -1,4 +1,4 @@
-## Interface: 11501
+## Interface: 11502
 ## Title: RangeDisplay
 ## Author: mitch0
 ## Version: v6.0.7
@@ -19,20 +19,7 @@
 ## Notes-zhTW: RangeDisplay |n|n顯示你和目標之間的距離，包括當前目標、寵物、滑鼠指向對象。還可以依據距離遠近來設定警告音效。|n|n|cffffd200使用方法: |r從Esc>選項>插件>距離，鎖定/解鎖框架位置和進行設定。
 ## X-Category-zhTW: 戰鬥
 ## IconTexture: Interface\Icons\ability_hunter_pathfinding
-## DefaultState: disabled
 
-#@no-lib-strip@
-libs\LibStub-1.0\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-libs\LibRangeCheck-3.0\LibRangeCheck-3.0.lua
-libs\Ace3\AceAddon-3.0\AceAddon-3.0.xml
-libs\Ace3\AceEvent-3.0\AceEvent-3.0.xml
-libs\Ace3\AceDB-3.0\AceDB-3.0.xml
-libs\Ace3\AceLocale-3.0\AceLocale-3.0.xml
-libs\LibSharedMedia-3.0\lib.xml
-libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
-libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
-#@end-no-lib-strip@
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 localizations.lua
