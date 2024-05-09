@@ -225,7 +225,6 @@ end
 function BaganatorBackpackViewMixin:OnHide()
   Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
   Syndicator.Search.ClearCache()
-  self.CharacterSelect:Hide()
   self:UnregisterEvent("MODIFIER_STATE_CHANGED")
 
   PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE);
@@ -402,10 +401,6 @@ end
 
 function BaganatorBackpackViewMixin:ToggleReagents()
   Baganator.Config.Set(Baganator.Config.Options.SHOW_REAGENTS, not Baganator.Config.Get(Baganator.Config.Options.SHOW_REAGENTS))
-end
-
-function BaganatorBackpackViewMixin:ToggleCharacterSidebar()
-  self.CharacterSelect:SetShown(not self.CharacterSelect:IsShown())
 end
 
 function BaganatorBackpackViewMixin:ToggleBagSlots()
@@ -824,7 +819,7 @@ function BaganatorBackpackViewMixin:DoSort(isReverse)
   end
   local bagChecks = Baganator.Sorting.GetBagUsageChecks(Syndicator.Constants.AllBagIndexes)
   local function DoSortInternal()
-    local status = Baganator.Sorting.ApplyOrdering(
+    local status = Baganator.Sorting.ApplyBagOrdering(
       Syndicator.API.GetCharacter(self.liveCharacter).bags,
       Syndicator.Constants.AllBagIndexes,
       bagsToSort,

@@ -52,6 +52,7 @@ Baganator.Config.Options = {
   ICON_FLASH_SIMILAR_ALT = "icon_flash_similar_alt",
 
   JUNK_PLUGIN = "junk_plugin",
+  JUNK_PLUGINS_IGNORED = "junk_plugin_ignored",
 
   MAIN_VIEW_POSITION = "main_view_position",
   MAIN_VIEW_SHOW_BAG_SLOTS = "main_view_show_bag_slots",
@@ -60,6 +61,7 @@ Baganator.Config.Options = {
   GUILD_VIEW_POSITION = "guild_view_position",
   GUILD_VIEW_DIALOG_POSITION = "guild_view_dialog_position",
   SHOW_BUTTONS_ON_ALT = "show_buttons_on_alt",
+  CHARACTER_SELECT_POSITION = "character_select_position",
 
   DEBUG = "debug",
   DEBUG_TIMERS = "debug_timers",
@@ -100,6 +102,7 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.BANK_ONLY_VIEW_POSITION] = {"LEFT", 20, 0},
   [Baganator.Config.Options.GUILD_VIEW_POSITION] = {"LEFT", 20, 0},
   [Baganator.Config.Options.GUILD_VIEW_DIALOG_POSITION] = {"BOTTOM", "Baganator_GuildViewFrame", "TOP", 0, 0},
+  [Baganator.Config.Options.CHARACTER_SELECT_POSITION] = {"RIGHT", "Baganator_BackpackViewFrame", "LEFT", 0, 0},
   [Baganator.Config.Options.SHOW_TOOLTIPS_ON_SHIFT] = false,
   [Baganator.Config.Options.TOOLTIPS_CONNECTED_REALMS_ONLY] = true,
   [Baganator.Config.Options.TOOLTIPS_SORT_BY_NAME] = false,
@@ -128,6 +131,7 @@ Baganator.Config.Defaults = {
   [Baganator.Config.Options.SORT_IGNORE_BANK_SLOTS_COUNT] = 0,
   [Baganator.Config.Options.AUTO_SORT_ON_OPEN] = false,
   [Baganator.Config.Options.JUNK_PLUGIN] = "poor_quality",
+  [Baganator.Config.Options.JUNK_PLUGINS_IGNORED] = {},
   [Baganator.Config.Options.SHOW_CHARACTER_RACE_ICONS] = true,
 
   [Baganator.Config.Options.DEBUG] = false,

@@ -35,7 +35,6 @@ L["BANK_DATA_MISSING_HINT"] = "Bank data missing. Visit a banker with %s to popu
 L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
 L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
 
-
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
 L["ENABLE_BANK_VIEW"] = "Use Baganator bank view (reload required)"
@@ -105,6 +104,7 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 L["JUNK"] = "Junk"
 L["ENGRAVED_RUNE"] = "Engraved Rune"
+L["KEYSTONE_LEVEL"] = "Keystone Level"
 L["ADD_A_CORNER_ITEM"] = "Add a corner item"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be shown in each corner of the icon on an item's button and prioritise the most wanted information."
 
@@ -291,6 +291,8 @@ L["JEWELCRAFTING"] = "Joaillerie"
 L["JUNK"] = "Camelote"
 L["JUNK_DETECTION"] = "Détection de camelote"
 L["KEYS"] = "Clés"
+--[[Translation missing --]]
+L["KEYSTONE_LEVEL"] = "Keystone Level"
 L["LEATHERWORKING"] = "Travail du cuir"
 L["LOCK_INVENTORY_FRAMES"] = "Verrouiller les cadres d’affichage de l’inventaire"
 L["MAIL"] = "Courrier"
@@ -541,6 +543,8 @@ L["JUNK"] = "Junk"
 L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
+--[[Translation missing --]]
+L["KEYSTONE_LEVEL"] = "Keystone Level"
 --[[Translation missing --]]
 L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
@@ -885,6 +889,8 @@ L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
 --[[Translation missing --]]
+L["KEYSTONE_LEVEL"] = "Keystone Level"
+--[[Translation missing --]]
 L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
 L["LOCK_INVENTORY_FRAMES"] = "Lock inventory view frames"
@@ -1227,6 +1233,8 @@ L["JUNK"] = "Junk"
 L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
+--[[Translation missing --]]
+L["KEYSTONE_LEVEL"] = "Keystone Level"
 --[[Translation missing --]]
 L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
@@ -1571,6 +1579,8 @@ L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
 --[[Translation missing --]]
+L["KEYSTONE_LEVEL"] = "Keystone Level"
+--[[Translation missing --]]
 L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]
 L["LOCK_INVENTORY_FRAMES"] = "Lock inventory view frames"
@@ -1834,6 +1844,7 @@ L["JEWELCRAFTING"] = "珠寶"
 L["JUNK"] = "垃圾"
 L["JUNK_DETECTION"] = "垃圾偵測"
 L["KEYS"] = "鑰匙"
+L["KEYSTONE_LEVEL"] = "鑰石層級"
 L["LEATHERWORKING"] = "製皮"
 L["LOCK_INVENTORY_FRAMES"] = "鎖定庫存視窗框架"
 L["MAIL"] = "信箱"
@@ -1935,7 +1946,7 @@ L["AUTO_SORT_ON_OPENING_BAGS"] = "当打开背包时自动排序"
 L["BAG_SLOTS"] = "背包栏位"
 L["BAGANATOR"] = "Baganator"
 L["BANK"] = "银行"
-L["BANK_DATA_MISSING_HINT"] = "缺少银行数据。请访问银行 %s 来填充此窗口。"
+L["BANK_DATA_MISSING_HINT"] = "缺少银行数据。请访问 %s 的银行来填充此窗口。"
 L["BATTLE_PET_BREEDID"] = "战斗宠物品质ID"
 L["BATTLE_PET_LEVEL"] = "战斗宠物等级"
 L["BINDING_TYPE"] = "绑定状态"
@@ -2005,6 +2016,7 @@ L["JEWELCRAFTING"] = "珠宝"
 L["JUNK"] = "垃圾"
 L["JUNK_DETECTION"] = "扫描垃圾"
 L["KEYS"] = "钥匙"
+L["KEYSTONE_LEVEL"] = "钥石等级"
 L["LEATHERWORKING"] = "制皮"
 L["LOCK_INVENTORY_FRAMES"] = "锁定库存窗口"
 L["MAIL"] = "信箱"
@@ -2204,6 +2216,8 @@ L["JUNK"] = "Junk"
 L["JUNK_DETECTION"] = "필요없는 아이템 감지"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
+--[[Translation missing --]]
+L["KEYSTONE_LEVEL"] = "Keystone Level"
 L["LEATHERWORKING"] = "가죽세공"
 L["LOCK_INVENTORY_FRAMES"] = "가방 창 고정"
 L["MAIL"] = "우편함"
@@ -2498,6 +2512,8 @@ L["JUNK"] = "Junk"
 L["JUNK_DETECTION"] = "Junk Detection"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
+--[[Translation missing --]]
+L["KEYSTONE_LEVEL"] = "Keystone Level"
 --[[Translation missing --]]
 L["LEATHERWORKING"] = "Leatherworking"
 --[[Translation missing --]]

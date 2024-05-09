@@ -306,7 +306,11 @@ function BaganatorBankViewMixin:OnShow()
 end
 
 function BaganatorBankViewMixin:OnHide(eventName)
-  CloseBankFrame()
+  if C_Bank then
+    C_Bank.CloseBankFrame()
+  else
+    CloseBankFrame()
+  end
 
   self:UnregisterEvent("MODIFIER_STATE_CHANGED")
   Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
@@ -335,7 +339,11 @@ function BaganatorBankViewMixin:UpdateForCharacter(character, isLive, updatedBag
   updatedBags = updatedBags or {bags = {}, bank = {}}
   Baganator.Utilities.ApplyVisuals(self)
 
+  local oldLast = self.lastCharacter
   self.lastCharacter = character
+  if oldLast ~= self.lastCharacter then
+    Baganator.CallbackRegistry:TriggerEvent("CharacterSelect", character)
+  end
   self.isLive = isLive
 
   self:AllocateBankBags(character)
@@ -525,7 +533,7 @@ function BaganatorBankViewMixin:DoSort(isReverse)
   local bagChecks = Baganator.Sorting.GetBagUsageChecks(Syndicator.Constants.AllBankIndexes)
 
   local function DoSortInternal()
-    local status = Baganator.Sorting.ApplyOrdering(
+    local status = Baganator.Sorting.ApplyBagOrdering(
       Syndicator.API.GetCharacter(self.liveCharacter).bank,
       Syndicator.Constants.AllBankIndexes,
       indexesToUse,
