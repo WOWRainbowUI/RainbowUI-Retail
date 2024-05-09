@@ -357,7 +357,7 @@ function FriendGroups_GetClassColorCode(class, returnTable)
 	end
 end
 
-function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag)
+function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID)
 	local nameText
 
 	-- set up player name and character name
@@ -373,7 +373,11 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 
 	-- append character name
 	if characterName then
-
+		
+		if timerunningSeasonID then
+			characterName = TimerunningUtil.AddSmallIcon(characterName)
+		end
+		
 		local characterNameSuffix
 		if (not level) or (FriendGroups_SavedVars.hide_high_level and level == currentExpansionMaxLevel) or level == 0 then
 			characterNameSuffix = ""
@@ -477,7 +481,7 @@ function FriendGroups_GetFriendInfoById(id)
 	local accountName, characterName, class, level, isFavoriteFriend, isOnline,
 		bnetAccountId, client, canCoop, wowProjectID, lastOnline,
 		isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, battleTag, factionName,
-		gameText, realmName
+		gameText, realmName, timerunningSeasonID
 
 	if C_BattleNet and C_BattleNet.GetFriendAccountInfo then
 		local accountInfo = C_BattleNet.GetFriendAccountInfo(id)
@@ -505,6 +509,7 @@ function FriendGroups_GetFriendInfoById(id)
 				zoneName = gameAccountInfo.areaName
 				realmName = gameAccountInfo.realmName
 				factionName = gameAccountInfo.factionName
+				timerunningSeasonID = gameAccountInfo.timerunningSeasonID
 			end
 
 			canCoop = CanCooperateWithGameAccount(accountInfo)
@@ -532,7 +537,7 @@ function FriendGroups_GetFriendInfoById(id)
 
 	return accountName, characterName, class, level, isFavoriteFriend, isOnline,
 		bnetAccountId, client, canCoop, wowProjectID, lastOnline,
-		isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName
+		isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName, timerunningSeasonID
 end
 
 function FriendGroups_GetFactionIcon(factionGroup)
@@ -998,13 +1003,13 @@ function FriendGroups_FriendsListUpdateFriendButton(button, elementData)
 
 			local accountName, characterName, class, level, _, _,
 			_, client, canCoop, _, _,
-			_, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName = FriendGroups_GetFriendInfoById(button.id)
+			_, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName, timerunningSeasonID = FriendGroups_GetFriendInfoById(button.id)
 
 			if FriendGroups_SavedVars.show_mobile_afk and client == 'BSAp' then
 				statusTexture = FRIENDS_TEXTURE_AFK
 			end
 
-			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag)
+			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID)
 
 			isFavoriteFriend = accountInfo.isFavorite;
 			
@@ -1288,9 +1293,9 @@ function FriendGroups_Search(playerId, playerButtonType)
 
 			local accountName, characterName, class, level, isFavoriteFriend, isOnline,
 			bnetAccountId, client, canCoop, wowProjectID, lastOnline,
-			isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName = FriendGroups_GetFriendInfoById(playerId)
+			isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName, timerunningSeasonID = FriendGroups_GetFriendInfoById(playerId)
 
-			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag)
+			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID)
 		end
 	end
 
