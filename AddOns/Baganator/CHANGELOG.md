@@ -1,8 +1,7 @@
 # Baganator
 
-## [246](https://github.com/Baganator/Baganator/tree/246) (2024-04-29)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/245...246) 
+## [253](https://github.com/Baganator/Baganator/tree/253) (2024-05-08)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/252...253) 
 
-- Classic: Prevent guild bank UI displaying if the player isn't in a guild  
-    This doesn't apply to retail as Blizzard already prevents it from  
-    displaying  
+- Update toc for 10.2.7  
+- Use Dejunk API event arguments instead of hack to avoid updating on bag refresh  

@@ -3,7 +3,7 @@ local iconSettings = {}
 local IsEquipment = Syndicator and Syndicator.Utilities.IsEquipment
 
 local function HasItemLevel(details)
-  local classID = select(6, GetItemInfoInstant(details.itemLink))
+  local classID = select(6, C_Item.GetItemInfoInstant(details.itemLink))
   return
     -- Regular equipment
     classID == Enum.ItemClass.Armor or classID == Enum.ItemClass.Weapon
@@ -59,7 +59,7 @@ end
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_ITEM_LEVEL, "item_level", function(ItemLevel, details)
   if HasItemLevel(details) and not (IsCosmeticItem and IsCosmeticItem(details.itemLink)) then
     if not details.itemLevel then
-      details.itemLevel = GetDetailedItemLevelInfo(details.itemLink)
+      details.itemLevel = C_Item.GetDetailedItemLevelInfo(details.itemLink)
     end
     ItemLevel:SetText(details.itemLevel)
     if iconSettings.useQualityColors then
@@ -73,7 +73,7 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_ITEM_LEVEL, "item_level", functio
 end, textInit)
 
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOE, "boe", function(BindingText, details)
-  local classID = select(6, GetItemInfoInstant(details.itemLink))
+  local classID = select(6, C_Item.GetItemInfoInstant(details.itemLink))
   if (IsEquipment(details.itemLink) or classID == Enum.ItemClass.Container) and not details.isBound and (iconSettings.boe_on_common or details.quality > 1) then
       BindingText:SetText(BAGANATOR_L_BOE)
       if iconSettings.useQualityColors then
@@ -341,4 +341,23 @@ if C_Engraving and C_Engraving.IsEngravingEnabled() then
     texture.padding = 0
     return texture
   end, {corner = "top_right", priority = 1})
+end
+
+if Baganator.Constants.IsRetail then
+  Baganator.API.RegisterCornerWidget(BAGANATOR_L_KEYSTONE_LEVEL, "keystone_level", function(KeystoneText, details)
+    local level = details.itemLink:match("keystone:[^:]*:[^:]*:(%d+)")
+    if not level then
+      return false
+    end
+    local color = C_ChallengeMode.GetKeystoneLevelRarityColor(tonumber(level))
+
+    KeystoneText:SetText(level)
+    if iconSettings.useQualityColors then
+      local color = qualityColors[details.quality]
+      KeystoneText:SetTextColor(color.r, color.g, color.b)
+    else
+      KeystoneText:SetTextColor(1,1,1)
+    end
+    return true
+  end, textInit, {corner = "top_left", priority = 3})
 end
