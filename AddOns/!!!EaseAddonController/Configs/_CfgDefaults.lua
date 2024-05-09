@@ -1896,10 +1896,10 @@ D["Postal"] = {
 	img = true,
 };
 D["PremadeGroupsFilter"] = {
-    defaultEnable = 0,
+    defaultEnable = 1,
 	tags = { "BOSSRAID" },
 	title = "預組隊伍過濾",
-	desc = "|cffFF2D2D請勿和 '預組隊伍增強' 插件同時載入。|r``顯示預組隊伍中的職業角色資訊，提供方便的過濾選項來篩選隊伍，還有進階的過濾方式。`",
+	desc = "顯示預組隊伍中的職業角色資訊，提供方便的過濾選項來篩選隊伍，還有進階的過濾方式。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_dualwieldspecialization",
 	{
@@ -1908,9 +1908,9 @@ D["PremadeGroupsFilter"] = {
 	},
 };
 D["PremakeGroupsHelper"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "BOSSRAID" },
-	title = "預組隊伍增強",
+	title = "(暫時停用) 預組隊伍增強",
 	desc = "顯示預組隊伍中的職業角色資訊，提供方便的過濾選項來篩選隊伍。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_dualwieldspecialization",
