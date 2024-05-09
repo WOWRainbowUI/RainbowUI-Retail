@@ -22,9 +22,9 @@ local function GetClassSubClass(details)
     details.classID = Enum.ItemClass.Battlepet
     details.subClassID = petType - 1
   else
-    local classID, subClassID = select(6, GetItemInfoInstant(details.itemLink))
+    local classID, subClassID = select(6, C_Item.GetItemInfoInstant(details.itemLink))
     if not classID then
-      classID, subClassID = GetItemInfoInstant(details.itemID)
+      classID, subClassID = C_Item.GetItemInfoInstant(details.itemID)
     end
     details.classID = classID
     details.subClassID = subClassID
@@ -36,7 +36,7 @@ local function PetCheck(details)
 end
 
 local function ReagentCheck(details)
-  return (select(17, GetItemInfo(details.itemID)))
+  return (select(17, C_Item.GetItemInfo(details.itemID)))
 end
 
 local function SetCheck(details)
@@ -119,7 +119,7 @@ local function GetTooltipInfoSpell(details)
     return
   end
 
-  local _, spellID = GetItemSpell(details.itemID)
+  local _, spellID = C_Item.GetItemSpell(details.itemID)
   if spellID and not C_Spell.IsSpellDataCached(spellID) then
     C_Spell.RequestLoadSpellData(spellID)
     return
@@ -239,6 +239,8 @@ end
     return false
   end
 end]]
+
+local GetItemStats = C_Item.GetItemStats or GetItemStats
 
 local function SaveBaseStats(details)
   if not Syndicator.Utilities.IsEquipment(details.itemLink) then
@@ -429,7 +431,7 @@ local function GetInvType(details)
   if details.invType then
     return
   end
-  details.invType = (select(4, GetItemInfoInstant(details.itemID))) or "NONE"
+  details.invType = (select(4, C_Item.GetItemInfoInstant(details.itemID))) or "NONE"
 end
 
 for _, slot in ipairs(inventorySlots) do
@@ -506,7 +508,7 @@ if Syndicator.Constants.IsRetail then
         return itemVersionDetails.major - 1
       end
     end
-    return (select(15, GetItemInfo(details.itemID)))
+    return (select(15, C_Item.GetItemInfo(details.itemID)))
   end
   for key, expansionID in pairs(TextToExpansion) do
     AddKeyword(key, function(details)
@@ -530,7 +532,7 @@ local BAG_TYPES = {
 for keyword, bagBit in pairs(BAG_TYPES) do
   local bagFamily = bit.lshift(1, bagBit - 1)
   AddKeyword(keyword, function(details)
-    local itemFamily = GetItemFamily(details.itemID)
+    local itemFamily = C_Item.GetItemFamily(details.itemID)
     if itemFamily == nil then
       return
     else
@@ -701,7 +703,7 @@ else
       return false
     end
 
-    details.itemLevel = details.itemLevel or GetDetailedItemLevelInfo(details.itemLink)
+    details.itemLevel = details.itemLevel or C_Item.GetDetailedItemLevelInfo(details.itemLink)
   end
 end
 
@@ -764,6 +766,8 @@ local NO_CACHING_KEYWORDS = {
   [SYNDICATOR_L_KEYWORD_UNCOLLECTED_PET] = true,
 }
 
+local UPGRADE_PATH_PATTERN = ITEM_UPGRADE_TOOLTIP_FORMAT_STRING and "^" .. ITEM_UPGRADE_TOOLTIP_FORMAT_STRING:gsub("%%s", ".*"):gsub("%%d", ".*")
+
 local function GetTooltipSpecialTerms(details)
   if details.searchKeywords then
     return
@@ -784,7 +788,7 @@ local function GetTooltipSpecialTerms(details)
     if term then
       table.insert(details.searchKeywords, term:lower())
     else
-      local match = line.leftText:match("^" .. USE_COLON) or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP)
+      local match = line.leftText:match("^" .. USE_COLON) or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP) or (UPGRADE_PATH_PATTERN and line.leftText:match(UPGRADE_PATH_PATTERN))
       if details.classID ~= Enum.ItemClass.Recipe and match then
         table.insert(details.searchKeywords, line.leftText:lower())
       end
@@ -955,7 +959,7 @@ local function ApplyCombinedTerms(fullSearchString)
       end
       return true
     end
-  elseif fullSearchString:match("^~") then
+  elseif fullSearchString:match("^[~!]") then
     local newSearchString = fullSearchString:sub(2, #fullSearchString)
     local nested = ApplyCombinedTerms(newSearchString)
     return function(details)
@@ -987,7 +991,7 @@ end
 
 function Syndicator.Search.InitializeSearchEngine()
   for i = 0, Enum.ItemClassMeta.NumValues-1 do
-    local name = GetItemClassInfo(i)
+    local name = C_Item.GetItemClassInfo(i)
     if name then
       local classID = i
       AddKeyword(name:lower(), function(details)
@@ -1005,7 +1009,7 @@ function Syndicator.Search.InitializeSearchEngine()
     10, -- elemental
   }
   for _, subClass in ipairs(tradeGoodsToCheck) do
-    local keyword = GetItemSubClassInfo(7, subClass)
+    local keyword = C_Item.GetItemSubClassInfo(7, subClass)
     if keyword ~= nil then
       AddKeyword(keyword:lower(), function(details)
         return details.classID == 7 and details.subClassID == subClass
@@ -1026,7 +1030,7 @@ function Syndicator.Search.InitializeSearchEngine()
     11,-- relic
   }
   for _, subClass in ipairs(armorTypesToCheck) do
-    local keyword = GetItemSubClassInfo(Enum.ItemClass.Armor, subClass)
+    local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Armor, subClass)
     if keyword ~= nil then
       AddKeyword(keyword:lower(), function(details)
         return details.classID == Enum.ItemClass.Armor and details.subClassID == subClass
@@ -1036,7 +1040,7 @@ function Syndicator.Search.InitializeSearchEngine()
 
   -- All weapons + fishingpole
   for subClass = 0, 20 do
-    local keyword = GetItemSubClassInfo(Enum.ItemClass.Weapon, subClass)
+    local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Weapon, subClass)
     if keyword ~= nil then
       AddKeyword(keyword:lower(), function(details)
         return details.classID == Enum.ItemClass.Weapon and details.subClassID == subClass
@@ -1046,7 +1050,7 @@ function Syndicator.Search.InitializeSearchEngine()
 
   if C_PetJournal then
     for subClass = 0, 9 do
-      local keyword = GetItemSubClassInfo(Enum.ItemClass.Battlepet, subClass)
+      local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Battlepet, subClass)
       if keyword ~= nil then
         AddKeyword(keyword:lower(), function(details)
           return details.classID == Enum.ItemClass.Battlepet and details.subClassID == subClass

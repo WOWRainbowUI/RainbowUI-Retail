@@ -1,6 +1,7 @@
 # Syndicator
 
-## [25](https://github.com/Baganator/Syndicator/tree/25) (2024-04-29)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/24...25) 
+## [29](https://github.com/Baganator/Syndicator/tree/29) (2024-05-08)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/28...29) 
 
-- [Fixes #7] [Fixes #6] Opening guild when not in guild gives an error  
+- Update toc for 10.2.7  
+- Track changed reagent bank contents when updated by crafting  
