@@ -19,6 +19,7 @@
 ## Title-zhTW: |cffFF7F00[副本]|r 預組隊伍過濾
 ## Notes-zhTW: Premade Groups Filter |n顯示預組隊伍中的職業角色資訊，提供方便的過濾選項來篩選隊伍，還有進階的過濾方式。
 ## X-Category-zhTW: 團隊
+## DefaultState: disabled
 
 Init.lua
 Localization\enUS.lua

@@ -1896,7 +1896,7 @@ D["Postal"] = {
 	img = true,
 };
 D["PremadeGroupsFilter"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "BOSSRAID" },
 	title = "預組隊伍過濾",
 	desc = "顯示預組隊伍中的職業角色資訊，提供方便的過濾選項來篩選隊伍，還有進階的過濾方式。`",
