@@ -40,6 +40,6 @@ Dialog\Dialog.xml
 
 Handlers\BaseHandler.lua
 Handlers\SortHandler.lua
-Handlers\FilterHandler.lua
+##Handlers\FilterHandler.lua
 ##Handlers\SpamHandler.lua
 Handlers\GroupInfoHandler.lua
