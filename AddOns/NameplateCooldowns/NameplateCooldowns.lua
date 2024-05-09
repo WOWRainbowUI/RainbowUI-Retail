@@ -12,7 +12,7 @@ local Trinkets = addonTable.Trinkets;
 local Reductions = addonTable.Reductions;
 
 --@non-debug@
-local buildTimestamp = "100206.3-release";
+local buildTimestamp = "100206.5-release";
 --@end-non-debug@
 
 -- Libraries
