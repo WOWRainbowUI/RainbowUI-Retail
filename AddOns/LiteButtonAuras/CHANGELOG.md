@@ -1,6 +1,6 @@
 # LiteButtonAuras
 
-## [10.2.7-1](https://github.com/xod-wow/LiteButtonAuras/tree/10.2.7-1) (2024-05-07)
-[Full Changelog](https://github.com/xod-wow/LiteButtonAuras/compare/10.2.6-3...10.2.7-1) [Previous Releases](https://github.com/xod-wow/LiteButtonAuras/releases)
+## [10.2.7-2](https://github.com/xod-wow/LiteButtonAuras/tree/10.2.7-2) (2024-05-08)
+[Full Changelog](https://github.com/xod-wow/LiteButtonAuras/compare/10.2.7-1...10.2.7-2) [Previous Releases](https://github.com/xod-wow/LiteButtonAuras/releases)
 
-- Update retail ToC to 10.2.7  
+- Fix SetJustifyH usage in 10.2.7 #30  
