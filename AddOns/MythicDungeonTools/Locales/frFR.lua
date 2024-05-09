@@ -334,7 +334,7 @@ L["Claw Fighter"] = "Combattant griffu"
 L["Click the fullscreen button for a maximized view of MDT."] = "Cliquez sur le bouton plein-écran pour un vue maximisée de MDT "
 L["Click to adjust color settings"] = "Cliquez pour ajuster les paramètres des couleurs "
 --[[Translation missing --]]
-L["Click to assign player"] = ""
+L["Click to assign player"] = "Click to assign player"
 L["Click to go to %s"] = "Cliquez pour aller à %s "
 L["Click to set dungeon level to 10"] = "Cliquez pour régler le niveau du donjon à 10 "
 L["Click to switch to current week"] = "Cliquez pour changer la semaine en cours "

@@ -354,7 +354,7 @@ L["Claw Fighter"] = "Combattente dell'Artiglio"
 L["Click the fullscreen button for a maximized view of MDT."] = "Clicca il pulsante della modalità schermo intero per visualizzare MDT a tutto schermo."
 L["Click to adjust color settings"] = "Clicca per cambiare le impostazioni del colore"
 --[[Translation missing --]]
-L["Click to assign player"] = ""
+L["Click to assign player"] = "Click to assign player"
 L["Click to go to %s"] = "Clicca per passare a %s"
 L["Click to set dungeon level to 10"] = "Clicca per impostare il livello della spedizione a 10"
 L["Click to switch to current week"] = "Clicca per passare alla settimana corrente"

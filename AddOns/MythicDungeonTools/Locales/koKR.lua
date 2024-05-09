@@ -362,7 +362,7 @@ L["Click the fullscreen button for a maximized view of MDT."] = "Click the fulls
 --[[Translation missing --]]
 L["Click to adjust color settings"] = "Click to adjust color settings"
 --[[Translation missing --]]
-L["Click to assign player"] = ""
+L["Click to assign player"] = "Click to assign player"
 --[[Translation missing --]]
 L["Click to go to %s"] = "Click to go to %s"
 --[[Translation missing --]]
