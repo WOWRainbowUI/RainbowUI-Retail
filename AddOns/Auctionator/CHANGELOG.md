@@ -1,6 +1,7 @@
 # Auctionator
 
-## [10.2.34](https://github.com/Auctionator/Auctionator/tree/10.2.34) (2024-04-03)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/10.2.33...10.2.34) 
+## [10.2.39](https://github.com/Auctionator/Auctionator/tree/10.2.39) (2024-05-08)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/10.2.38...10.2.39) 
 
-- Bump toc for 1.15.2 (SoD phase 3)  
+- Update toc for 10.2.7  
+- Remove wrath build from workflow  
