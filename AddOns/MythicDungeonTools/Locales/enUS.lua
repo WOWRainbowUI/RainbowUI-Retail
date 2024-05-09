@@ -2,6 +2,7 @@ local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
 
+L["Click to assign player"] = "Click to assign player"
 L["neltharusChain"] = "Burning Chain"
 L["brackenhideCage"]  = "Meat Storage"
 L["Dragonflight Season 4"] = "Dragonflight Season 4"
@@ -2760,8 +2761,7 @@ L["Chrono-Lord Epoch"] = "Chrono-Lord Epoch"
 L["Claw Fighter"] = "Claw Fighter"
 L["Click the fullscreen button for a maximized view of MDT."] = "Click the fullscreen button for a maximized view of MDT."
 L["Click to adjust color settings"] = "Click to adjust color settings"
---[[Translation missing --]]
-L["Click to assign player"] = ""
+L["Click to assign player"] = "Click to assign player"
 L["Click to go to %s"] = "Click to go to %s"
 L["Click to set dungeon level to 10"] = "Click to set dungeon level to 10"
 L["Click to switch to current week"] = "Click to switch to current week"
