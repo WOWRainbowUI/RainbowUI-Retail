@@ -4,42 +4,7 @@
 ## Title: Premake Groups Helper
 ## Notes: Customizable enhancements for LFG premake Groups tools.
 ## Notes-zhCN: 用于预创建队伍的自定义增强.
-## Title-zhTW: |cffFF7F00[副本]|r 預組隊伍增強
+## Title-zhTW: |cffFF7F00[副本]|r (暫時停用) 預組隊伍增強
 ## Notes-zhTW: Premake Groups Helper |n|n顯示預組隊伍中的職業角色資訊，提供方便的過濾選項來篩選隊伍。
-## X-Category-zhTW: 團隊
-## SavedVariablesPerCharacter: PremakeGroupsHelperConfig
-
-FixGetPlaystyleString.lua
-Init.lua
-
-Localization\enUS.lua
-Localization\zhCN.lua
-Localization\zhTW.lua
-
-Base\Const.lua
-Base\Utils.lua
-Base\Debug.lua
-Base\Schedule.lua
-Base\Event.lua
-Base\Config.lua
-
-Data\Category.lua
-Data\Difficulty.lua
-Data\RaidProcess.lua
-
-Dialog\Dialog.lua
-Dialog\IngoreList.lua
-Dialog\UIBase.lua
-Dialog\UIButton.lua
-Dialog\UIMoveableToggle.lua
-Dialog\UICheckBox.lua
-Dialog\UIDropDown.lua
-Dialog\UIEditBox.lua
-Dialog\UIText.lua
-Dialog\Dialog.xml
-
-Handlers\BaseHandler.lua
-Handlers\SortHandler.lua
-##Handlers\FilterHandler.lua
-##Handlers\SpamHandler.lua
-Handlers\GroupInfoHandler.lua
+## X-Category-zhTW: 團隊## DefaultState: disabled
+## SavedVariablesPerCharacter: PremakeGroupsHelperConfig
