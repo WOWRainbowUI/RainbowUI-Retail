@@ -1,10 +1,18 @@
-lightweight tag bfc01e1170ae6507c10902be78f7b8571e93043c v6.0.5
+lightweight tag 148adec1a0e06a11d941c88058f4c42c684ae323 v6.0.7
 Author:	Péter Radics <mitchnull@gmail.com>
-Date:	Thu Apr 18 06:17:10 2024 +0200
+Date:	Wed May 8 22:07:39 2024 +0200
 
-commit bfc01e1170ae6507c10902be78f7b8571e93043c
+commit 148adec1a0e06a11d941c88058f4c42c684ae323
 Author: Péter Radics <mitchnull@gmail.com>
-Date:   Thu Apr 18 06:17:10 2024 +0200
+Date:   Wed May 8 22:07:39 2024 +0200
 
-    toc bump
+    remove duplicate LibDataBroker entry
+
+commit f1e6b38684a9167ceb94f6c678f7abdf3006ccd6
+Author: Péter Radics <mitchnull@gmail.com>
+Date:   Wed May 8 22:06:59 2024 +0200
+
+    Revert "remove duplicate toc entry"
+    
+    This reverts commit e950d1004eb4ec45027af19d4b09e033f812a90a.
 
