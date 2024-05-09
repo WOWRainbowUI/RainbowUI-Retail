@@ -36,7 +36,7 @@
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-爐石
 ## Notes-zhTW: BetterBags - Hearthstones |n|n將所有爐石和傳送物品放在一個分類中。
 ## X-Category-zhTW: 物品
-## DefaultState: disable
+## DefaultState: disabled
 
 Database.lua
 Core.lua
