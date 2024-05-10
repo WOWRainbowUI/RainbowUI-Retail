@@ -91,16 +91,16 @@ local function setHideStanceBar(shouldHide)
 end
 
 local function showPlayerCastBarIcon(shouldShow)
-	if shouldShow then
-		local point, relativeTo, relativePoint = PlayerCastingBarFrame.Icon:GetPoint()
-		PlayerCastingBarFrame.Icon:SetSize(36, 36) -- 圖示大小
-		PlayerCastingBarFrame.Icon:SetPoint(point, relativeTo, relativePoint, -5, -6) -- 圖示位置
-		PlayerCastingBarFrame.Icon:Show()
-		BUIIDatabase["castbar_icon"] = true
-	else
-		PlayerCastingBarFrame.Icon:Hide()
-		BUIIDatabase["castbar_icon"] = false
-	end
+  if shouldShow then
+    local point, relativeTo, relativePoint = PlayerCastingBarFrame.Icon:GetPoint()
+    PlayerCastingBarFrame.Icon:SetSize(36, 36) -- 圖示大小
+    PlayerCastingBarFrame.Icon:SetPoint(point, relativeTo, relativePoint, -5, -6) -- 圖示位置
+    PlayerCastingBarFrame.Icon:Show()
+    BUIIDatabase["castbar_icon"] = true
+  else
+    PlayerCastingBarFrame.Icon:Hide()
+    BUIIDatabase["castbar_icon"] = false
+  end
 end
 
 local function editMode_OnExit()
@@ -109,19 +109,11 @@ local function editMode_OnExit()
     StanceBar:SetClampedToScreen(false)
     StanceBar:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0 - (StanceBar:GetWidth() + 100), 0)
   end
-end
-
-local function showPlayerCastBarIcon(shouldShow)
-  if shouldShow then
-    local point, relativeTo, relativePoint = PlayerCastingBarFrame.Icon:GetPoint()
-    PlayerCastingBarFrame.Icon:SetSize(36, 36) -- 法術圖示大小
-    PlayerCastingBarFrame.Icon:SetPoint(point, relativeTo, relativePoint, -5, -6) -- 圖示位置
-    PlayerCastingBarFrame.Icon:Show()
-    BUIIDatabase["castbar_icon"] = true
-  else
-    PlayerCastingBarFrame.Icon:Hide()
-    BUIIDatabase["castbar_icon"] = false
-  end
+  
+	-- 自行加入，修正編輯模式結束施法條圖示會消失
+	if BUIIDatabase["castbar_icon"] then
+		showPlayerCastBarIcon(true)										
+	end
 end
 
 local function handleUnitFramePortraitUpdate(self)
@@ -170,7 +162,7 @@ end
 function BUII_OnLoadHandler(self)
   self:RegisterEvent("ADDON_LOADED")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
-  self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED") -- -- 自行加入，修正施法條圖示
+  self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED") -- 自行加入，修正切換專精後施法條圖示會消失
   EventRegistry:RegisterCallback("EditMode.Exit", editMode_OnExit, "BUII_Improvements_OnExit")
   hooksecurefunc("UnitFramePortrait_Update", handleUnitFramePortraitUpdate)
 
@@ -257,11 +249,10 @@ function BUII_OnEventHandler(self, event, arg1, ...)
       BUII_TooltipImprovements_Enabled()
       _G["BUIIOptionsPanelTooltipExpansion"]:SetChecked(true)
     end
-  elseif event == "PLAYER_SPECIALIZATION_CHANGED" then --- 自行加入，修正施法條圖示
-		if BUIIDatabase["castbar_icon"] then
-			showPlayerCastBarIcon(true)
-			_G["BUIIOptionsPanelCastBarIcon"]:SetChecked(true)
-		end
+  elseif event == "PLAYER_SPECIALIZATION_CHANGED" then -- 自行加入，修正切換專精後施法條圖示會消失
+	if BUIIDatabase["castbar_icon"] then
+		showPlayerCastBarIcon(true)
+	end
   end
 end
 
