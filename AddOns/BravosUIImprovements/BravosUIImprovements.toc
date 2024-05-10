@@ -12,3 +12,4 @@
 BravosUIImprovements.xml
 ImprovedEditMode.xml
 ActionBarsImproved.lua
+TooltipImprovements.lua
