@@ -1,4 +1,4 @@
-## Interface: 100105
+## Interface: 100207
 ## Title: Bravo's UI Improvements
 ## Notes: Lightweight improvements to the default Blizzard UI
 ## SavedVariables: BUIIDatabase
@@ -8,3 +8,4 @@
 BravosUIImprovements.xml
 ImprovedEditMode.xml
 ActionBarsImproved.lua
+TooltipImprovements.lua
