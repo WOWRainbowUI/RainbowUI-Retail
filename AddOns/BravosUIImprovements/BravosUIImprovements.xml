@@ -1,0 +1,177 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+
+  <Script file="CastBarTimers.lua"/>
+  <Script file="QuickKeybindModeShortcut.lua"/>
+  <Script file="BravosUIImprovements.lua"/>
+
+  <Frame name="BUIIOptionsPanel" hidden="false">
+
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentDisplayHeader" text="Bravo's UI Improvements" inherits="GameFontNormalLarge">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset>
+                <AbsDimension x="16" y="-16"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+
+    <Frames>
+
+      <CheckButton name="$parentHealthClassColor" parentKey="HealthClassColor" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentDisplayHeader" relativePoint="BOTTOMLEFT" x="0" y="-25"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Health Class Color" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_HealthClassColorCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentCastBarTimers" parentKey="CastBarTimers" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.HealthClassColor" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Castbar Timers" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_CastBarTimersCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentCastBarIcon" parentKey="CastBarIcon" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.CastBarTimers" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Player Castbar Spell Icon" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_CastBarIconCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentCastBarOnTop" parentKey="CastBarOnTop" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.CastBarIcon" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Target and Focus castbar on top" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_CastBarOnTopCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentSaneCombinedBagSorting" parentKey="SaneCombinedBagSorting" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.CastBarOnTop" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Sane sorting for combined bags" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_SaneCombinedBagSortingCheckButton_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentHideStanceBar" parentKey="HideStanceBar" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.SaneCombinedBagSorting" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Hide Stance Bar (Character Spesific)" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_HideStanceBar_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentQuickKeybindShortcut" parentKey="QuickKeybindShortcut" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.HideStanceBar" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Add shortcut for Quick Keybind Mode to ESC menu" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_QuickKeybindShortcut_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+      <CheckButton name="$parentImprovedEditMode" parentKey="ImprovedEditMode" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeKey="$parent.QuickKeybindShortcut" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentLabel" text="Improved Edit Mode" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnClick function="BUII_ImprovedEditMode_OnClick"/>
+        </Scripts>
+      </CheckButton>
+
+    </Frames>
+
+    <Scripts>
+      <OnLoad function="BUII_OnLoadHandler"/>
+      <OnEvent function="BUII_OnEventHandler"/>
+    </Scripts>
+
+  </Frame>
+</Ui>

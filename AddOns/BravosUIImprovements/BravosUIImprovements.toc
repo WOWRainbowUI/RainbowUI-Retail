@@ -1,0 +1,10 @@
+## Interface: 100105
+## Title: Bravo's UI Improvements
+## Notes: Lightweight improvements to the default Blizzard UI
+## SavedVariables: BUIIDatabase
+## SavedVariablesPerCharacter: BUIICharacterDatabase
+## IconTexture: Interface\AddOns\BravosUIImprovements\Media\icon
+
+BravosUIImprovements.xml
+ImprovedEditMode.xml
+ActionBarsImproved.lua
