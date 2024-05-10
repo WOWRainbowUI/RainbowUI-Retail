@@ -1443,39 +1443,45 @@ DR.RaceData = {
 			["goldTime"] = 53,
 			["questID"] = 73033,
 		},
+		[30] = {
+			["currencyID"] = nil,
+			["silverTime"] = nil,
+			["goldTime"] = nil,
+			["questID"] = nil,
+		},
 		
 		 -- Forbidden Reach Rush
-		[30] = {
+		[31] = {
 			["currencyID"] = 2206,
 			["silverTime"] = 62,
 			["goldTime"] = 59,
 			["questID"] = 73061,
 		},
-		[31] = {
+		[32] = {
 			["currencyID"] = 2212,
 			["silverTime"] = 61,
 			["goldTime"] = 56,
 			["questID"] = 73061,
 		},
-		[32] = {
+		[33] = {
 			["currencyID"] = 2218,
 			["silverTime"] = 62,
 			["goldTime"] = 57,
 			["questID"] = 73061,
 		},
-		[33] = {
+		[34] = {
 			["currencyID"] = 2484,
 			["silverTime"] = 63,
 			["goldTime"] = 60,
 			["questID"] = 73061,
 		},
-		[34] = {
+		[35] = {
 			["currencyID"] = 2485,
 			["silverTime"] = 63,
 			["goldTime"] = 60,
 			["questID"] = 73061,
 		},
-		[35] = {
+		[36] = {
 			["currencyID"] = nil,
 			["silverTime"] = nil,
 			["goldTime"] = nil,
