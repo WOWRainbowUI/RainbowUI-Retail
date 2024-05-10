@@ -2258,7 +2258,7 @@ function TrackerFrame:ParentTo_BetterBags()
     RepositionUtil.parent = parent;
     self:ClearAllPoints();
     self.Border:ClearAllPoints();
-    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 4, 5);
+    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 0, -18); -- 貨幣追蹤，自行修改位置
     self.Border:SetPoint("LEFT", self, "LEFT", BORDER_SHRINK, 0);
 end
 
