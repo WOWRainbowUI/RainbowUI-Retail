@@ -1,3 +1,8 @@
+Version 1.28
+
+- Updated for patch 10.2.5
+- Removed MDT version check, in favor of MDT's build in mechanism
+
 Version 1.27
 
 - Updated for MDT 4.3.2.*

@@ -1,2 +1,1 @@
-- Updated for patch 10.2.5
-- Removed MDT version check, in favor of MDT's build in mechanism
+- Updated for patch 10.2.7
