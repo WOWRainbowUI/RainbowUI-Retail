@@ -1,8 +1,11 @@
 # Icy Veins Stat Priority
 
-[![curseforge](https://img.shields.io/badge/dynamic/json?color=f16436&label=CurseForge&query=%24.downloads.total&url=https%3A%2F%2Fapi.cfwidget.com%2F286395&style=flat)](https://www.curseforge.com/wow/addons/icy-veins-stat-priority)
+[![Curseforge](https://img.shields.io/curseforge/dt/286395?label=CurseForge&color=F16436)](https://www.curseforge.com/wow/addons/icy-veins-stat-priority)
 [![version](https://img.shields.io/github/v/release/enderneko/IcyVeinsStatPriority)](https://github.com/enderneko/IcyVeinsStatPriority/releases)
 [![last commit](https://img.shields.io/github/last-commit/enderneko/Cell)](https://github.com/enderneko/IcyVeinsStatPriority/commits/master)
+[![Discord](https://img.shields.io/discord/1122747237546610760?label=Discord&color=5865F2)](https://discord.gg/9PSe3fKQGJ)
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/enderneko)
 
 ![preview](https://raw.githubusercontent.com/enderneko/ImageUpload/master/202203142312494.png)
 
