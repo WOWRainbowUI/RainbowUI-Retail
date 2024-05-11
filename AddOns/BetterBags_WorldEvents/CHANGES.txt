@@ -1,10 +1,10 @@
-lightweight tag 5a04234edc15f9675f8d98fcef20fb98e051cc9e v1.0.2
+lightweight tag 2e42e6ebb0cfe50e988c5310e6c184881c166b39 v1.0.5
 Author:	GitHub <noreply@github.com>
-Date:	Tue Apr 2 18:46:37 2024 +0200
+Date:	Sat May 11 00:56:24 2024 +0200
 
-commit 5a04234edc15f9675f8d98fcef20fb98e051cc9e
+commit 2e42e6ebb0cfe50e988c5310e6c184881c166b39
 Author: Zazou89 <155338110+Zazou89@users.noreply.github.com>
-Date:   Tue Apr 2 18:46:37 2024 +0200
+Date:   Sat May 11 00:56:24 2024 +0200
 
-    Update BetterBags_WorldEvents.toc
+    Bump Toc
 
