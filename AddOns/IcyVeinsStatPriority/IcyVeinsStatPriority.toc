@@ -1,0 +1,14 @@
+## Interface: 100205
+## Title: |cff69CCF0Icy Veins|r Stat Priority
+## Version: 2024-01-29
+## Author: enderneko
+## SavedVariables: IVSP_Config, IVSP_Custom
+
+## X-Curse-Project-ID: 286395
+
+Locales\enUS.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+
+Data.lua
+Core.lua
