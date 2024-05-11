@@ -1,16 +1,10 @@
-lightweight tag 0016aabc4565bece4528c154c15d9fb68d1773b2 v1.0.3
+lightweight tag 2e42e6ebb0cfe50e988c5310e6c184881c166b39 v1.0.5
 Author:	GitHub <noreply@github.com>
-Date:	Wed May 8 09:16:19 2024 +0200
+Date:	Sat May 11 00:56:24 2024 +0200
 
-commit 0016aabc4565bece4528c154c15d9fb68d1773b2
+commit 2e42e6ebb0cfe50e988c5310e6c184881c166b39
 Author: Zazou89 <155338110+Zazou89@users.noreply.github.com>
-Date:   Wed May 8 09:16:19 2024 +0200
+Date:   Sat May 11 00:56:24 2024 +0200
 
-    Bump TOC to 10.2.7
-
-commit 0255536a9555a6a427c036212b15c197ceda0a97
-Author: Zazou89 <155338110+Zazou89@users.noreply.github.com>
-Date:   Tue Apr 2 18:48:36 2024 +0200
-
-    Update README.md
+    Bump Toc
 
