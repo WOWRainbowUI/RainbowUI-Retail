@@ -298,6 +298,7 @@ if GetLocale() == "zhTW" then
 	-- BetterBags_WorldEvents
 	L.data["Noblegarden"] = "貴族花園"
 	L.data["Darkmoon Faire"] = "暗月馬戲團"
+	L.data["Lunar Festival"] = "新年慶典"
 	
 	-- BetterBags_GearFirst
 	L.data["Gear > Alphabetically"] = "裝備 > 名稱"
