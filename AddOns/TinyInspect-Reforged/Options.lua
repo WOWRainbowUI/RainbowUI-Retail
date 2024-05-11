@@ -11,7 +11,7 @@ end})
 local DefaultDB = {
     version = actualVersion,
     ShowItemBorder = true,
-    EnableItemLevel  = true,
+    EnableItemLevel  = false, -- 更改預設值，避免和 SimpleItemLevel 衝突
       ShowColoredItemLevelString = true,
       ShowCorruptedMark = false,
       ShowItemSlotString = true,
