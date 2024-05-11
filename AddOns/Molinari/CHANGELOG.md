@@ -1,8 +1,7 @@
-### Changes in 100205.111-Release:
+### Changes in 100207.112-Release:
 
 - Changed: Update Interface versions
 - Changed: Update item databases
-- Changed: Updated deDE translations
-- Fixed: Incorrect skill check for disenchanting on classic era
-- Fixed: Anchoring on weird bag addon slots (e.g. BetterBags)
+- Changed: Removed deprecated wrapper from Dashi
+- Changed: Rename files to match generic game version codenames
 
