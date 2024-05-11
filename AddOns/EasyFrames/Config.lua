@@ -645,21 +645,6 @@ local playerOptions = {
             name = L["In player options you can set scale player frame, healthbar text format, etc"],
         },
 
-        --scaleFrame = {
-        --    type = "range",
-        --    order = 2,
-        --    name = L["Player frame scale"],
-        --    desc = L["Scale of player unit frame"],
-        --    min = 0.5,
-        --    max = 2,
-        --    set = function(info, value)
-        --        setOpt(info, value)
-        --        EasyFrames:GetModule("Player"):SetScale(value)
-        --    end,
-        --    disabled = true,
-        --    arg = "player"
-        --},
-
         portrait = {
             type = "select",
             order = 3,
@@ -693,7 +678,7 @@ local playerOptions = {
                     values = healthFormat,
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Player"):UpdateHealthBarTextString(PlayerFrame)
                     end,
                     arg = "player"
                 },
@@ -754,7 +739,7 @@ local playerOptions = {
                     values = manaFormat,
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues(PlayerFrame_GetManaBar())
+                        EasyFrames:GetModule("Player"):UpdateManaBarTextString(PlayerFrame)
                     end,
                     arg = "player"
                 },
@@ -847,7 +832,7 @@ local playerOptions = {
                         local key = info[#info]
                         EasyFrames.db.profile[ns][opt][key] = value
 
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Player"):UpdateHealthBarTextString(PlayerFrame)
                     end,
                     args = {
                         gt1T = {
@@ -927,7 +912,7 @@ local playerOptions = {
                     arg = "player",
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Player"):UpdateHealthBarTextString(PlayerFrame)
                     end,
                 },
 
@@ -944,7 +929,7 @@ local playerOptions = {
                             "All values are returned from formulas. For set abbreviation use formulas' fields"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Player"):UpdateHealthBarTextString(PlayerFrame)
                     end,
                     arg = "player"
                 },
@@ -966,7 +951,7 @@ local playerOptions = {
                         "More information about Chinese numerals format you can read on project site"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Player"):UpdateHealthBarTextString(PlayerFrame)
                     end,
                     arg = "player",
                 },
@@ -1011,7 +996,7 @@ local playerOptions = {
                         local key = info[#info]
                         EasyFrames.db.profile[ns][opt][key] = value
 
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues(PlayerFrame_GetManaBar())
+                        EasyFrames:GetModule("Player"):UpdateManaBarTextString(PlayerFrame)
                     end,
                     args = {
                         gt1T = {
@@ -1091,7 +1076,7 @@ local playerOptions = {
                     arg = "player",
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues(PlayerFrame_GetManaBar())
+                        EasyFrames:GetModule("Player"):UpdateManaBarTextString(PlayerFrame)
                     end,
                 },
 
@@ -1108,7 +1093,7 @@ local playerOptions = {
                             "All values are returned from formulas. For set abbreviation use formulas' fields"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues(PlayerFrame_GetManaBar())
+                        EasyFrames:GetModule("Player"):UpdateManaBarTextString(PlayerFrame)
                     end,
                     arg = "player"
                 },
@@ -1130,7 +1115,7 @@ local playerOptions = {
                         "More information about Chinese numerals format you can read on project site"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):UpdateTextStringWithValues(PlayerFrame_GetManaBar())
+                        EasyFrames:GetModule("Player"):UpdateManaBarTextString(PlayerFrame)
                     end,
                     arg = "player",
                 },
@@ -1485,7 +1470,7 @@ local targetOptions = {
                     values = healthFormat,
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Target"):UpdateHealthBarTextString(TargetFrame)
                     end,
                     arg = "target"
                 },
@@ -1546,7 +1531,7 @@ local targetOptions = {
                     values = manaFormat,
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues(TargetFrameManaBar)
+                        EasyFrames:GetModule("Target"):UpdateManaBarTextString(TargetFrame)
                     end,
                     arg = "target"
                 },
@@ -1652,7 +1637,7 @@ local targetOptions = {
                         local key = info[#info]
                         EasyFrames.db.profile[ns][opt][key] = value
 
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Target"):UpdateHealthBarTextString(TargetFrame)
                     end,
                     args = {
                         gt1T = {
@@ -1732,7 +1717,7 @@ local targetOptions = {
                     arg = "target",
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Target"):UpdateHealthBarTextString(TargetFrame)
                     end,
                 },
 
@@ -1749,7 +1734,7 @@ local targetOptions = {
                             "All values are returned from formulas. For set abbreviation use formulas' fields"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Target"):UpdateHealthBarTextString(TargetFrame)
                     end,
                     arg = "target"
                 },
@@ -1771,7 +1756,7 @@ local targetOptions = {
                         "More information about Chinese numerals format you can read on project site"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Target"):UpdateHealthBarTextString(TargetFrame)
                     end,
                     arg = "target",
                 },
@@ -1816,7 +1801,7 @@ local targetOptions = {
                         local key = info[#info]
                         EasyFrames.db.profile[ns][opt][key] = value
 
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues(TargetFrameManaBar)
+                        EasyFrames:GetModule("Target"):UpdateManaBarTextString(TargetFrame)
                     end,
                     args = {
                         gt1T = {
@@ -1896,7 +1881,7 @@ local targetOptions = {
                     arg = "target",
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues(TargetFrameManaBar)
+                        EasyFrames:GetModule("Target"):UpdateManaBarTextString(TargetFrame)
                     end,
                 },
 
@@ -1913,7 +1898,7 @@ local targetOptions = {
                             "All values are returned from formulas. For set abbreviation use formulas' fields"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues(TargetFrameManaBar)
+                        EasyFrames:GetModule("Target"):UpdateManaBarTextString(TargetFrame)
                     end,
                     arg = "target"
                 },
@@ -1935,7 +1920,7 @@ local targetOptions = {
                         "More information about Chinese numerals format you can read on project site"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Target"):UpdateTextStringWithValues(TargetFrameManaBar)
+                        EasyFrames:GetModule("Target"):UpdateManaBarTextString(TargetFrame)
                     end,
                     arg = "target",
                 },
@@ -2225,7 +2210,7 @@ local focusOptions = {
                     values = healthFormat,
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Focus"):UpdateHealthBarTextString(FocusFrame)
                     end,
                     arg = "focus"
                 },
@@ -2286,7 +2271,7 @@ local focusOptions = {
                     values = manaFormat,
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues(FocusFrameManaBar)
+                        EasyFrames:GetModule("Focus"):UpdateManaBarTextString(FocusFrame)
                     end,
                     arg = "focus"
                 },
@@ -2392,7 +2377,7 @@ local focusOptions = {
                         local key = info[#info]
                         EasyFrames.db.profile[ns][opt][key] = value
 
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Focus"):UpdateHealthBarTextString(FocusFrame)
                     end,
                     args = {
                         gt1T = {
@@ -2472,7 +2457,7 @@ local focusOptions = {
                     arg = "focus",
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Focus"):UpdateHealthBarTextString(FocusFrame)
                     end,
                 },
 
@@ -2489,7 +2474,7 @@ local focusOptions = {
                             "All values are returned from formulas. For set abbreviation use formulas' fields"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Focus"):UpdateHealthBarTextString(FocusFrame)
                     end,
                     arg = "focus"
                 },
@@ -2511,7 +2496,7 @@ local focusOptions = {
                         "More information about Chinese numerals format you can read on project site"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Focus"):UpdateHealthBarTextString(FocusFrame)
                     end,
                     arg = "focus",
                 },
@@ -2556,7 +2541,7 @@ local focusOptions = {
                         local key = info[#info]
                         EasyFrames.db.profile[ns][opt][key] = value
 
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues(FocusFrameManaBar)
+                        EasyFrames:GetModule("Focus"):UpdateManaBarTextString(FocusFrame)
                     end,
                     args = {
                         gt1T = {
@@ -2636,7 +2621,7 @@ local focusOptions = {
                     arg = "focus",
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues(FocusFrameManaBar)
+                        EasyFrames:GetModule("Focus"):UpdateManaBarTextString(FocusFrame)
                     end,
                 },
 
@@ -2653,7 +2638,7 @@ local focusOptions = {
                             "All values are returned from formulas. For set abbreviation use formulas' fields"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues(FocusFrameManaBar)
+                        EasyFrames:GetModule("Focus"):UpdateManaBarTextString(FocusFrame)
                     end,
                     arg = "focus"
                 },
@@ -2675,7 +2660,7 @@ local focusOptions = {
                         "More information about Chinese numerals format you can read on project site"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Focus"):UpdateTextStringWithValues(FocusFrameManaBar)
+                        EasyFrames:GetModule("Focus"):UpdateManaBarTextString(FocusFrame)
                     end,
                     arg = "focus",
                 },
@@ -2977,7 +2962,7 @@ local petOptions = {
                     values = healthFormat,
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Pet"):UpdateHealthBarTextString(PetFrame)
                     end,
                     arg = "pet"
                 },
@@ -3038,7 +3023,7 @@ local petOptions = {
                     values = manaFormat,
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues(PetFrameManaBar)
+                        EasyFrames:GetModule("Pet"):UpdateManaBarTextString(PetFrame)
                     end,
                     arg = "pet"
                 },
@@ -3131,7 +3116,7 @@ local petOptions = {
                         local key = info[#info]
                         EasyFrames.db.profile[ns][opt][key] = value
 
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Pet"):UpdateHealthBarTextString(PetFrame)
                     end,
                     args = {
                         gt1T = {
@@ -3211,7 +3196,7 @@ local petOptions = {
                     arg = "pet",
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Pet"):UpdateHealthBarTextString(PetFrame)
                     end,
                 },
 
@@ -3228,7 +3213,7 @@ local petOptions = {
                             "All values are returned from formulas. For set abbreviation use formulas' fields"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Pet"):UpdateHealthBarTextString(PetFrame)
                     end,
                     arg = "pet"
                 },
@@ -3250,7 +3235,7 @@ local petOptions = {
                         "More information about Chinese numerals format you can read on project site"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues()
+                        EasyFrames:GetModule("Pet"):UpdateHealthBarTextString(PetFrame)
                     end,
                     arg = "pet",
                 },
@@ -3295,7 +3280,7 @@ local petOptions = {
                         local key = info[#info]
                         EasyFrames.db.profile[ns][opt][key] = value
 
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues(PetFrameManaBar)
+                        EasyFrames:GetModule("Pet"):UpdateManaBarTextString(PetFrame)
                     end,
                     args = {
                         gt1T = {
@@ -3375,7 +3360,7 @@ local petOptions = {
                     arg = "pet",
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues(PetFrameManaBar)
+                        EasyFrames:GetModule("Pet"):UpdateManaBarTextString(PetFrame)
                     end,
                 },
 
@@ -3392,7 +3377,7 @@ local petOptions = {
                             "All values are returned from formulas. For set abbreviation use formulas' fields"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues(PetFrameManaBar)
+                        EasyFrames:GetModule("Pet"):UpdateManaBarTextString(PetFrame)
                     end,
                     arg = "pet"
                 },
@@ -3414,7 +3399,7 @@ local petOptions = {
                         "More information about Chinese numerals format you can read on project site"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Pet"):UpdateTextStringWithValues(PetFrameManaBar)
+                        EasyFrames:GetModule("Pet"):UpdateManaBarTextString(PetFrame)
                     end,
                     arg = "pet",
                 },
@@ -3675,6 +3660,7 @@ local partyOptions = {
                     values = healthFormat,
                     set = function(info, value)
                         setOpt(info, value)
+                        -- @TODO: change to UpdateHealthBarTextString.
                         EasyFrames:GetModule("Party"):UpdateTextStringWithValues()
                     end,
                     arg = "party"

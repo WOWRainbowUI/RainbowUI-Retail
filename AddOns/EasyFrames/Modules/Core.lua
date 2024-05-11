@@ -509,6 +509,8 @@ function Core:MovePlayerPowerBar()
         yGlobalOffset = 4
     elseif class == "MAGE" then
         adXOffset = 4
+    elseif class == "ROGUE" then
+        adXOffset = 5
     end
 
     if (frame and db.player.specialbarFixPosition) then

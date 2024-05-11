@@ -44,7 +44,6 @@ function Focus:OnInitialize()
 end
 
 function Focus:OnEnable()
-    --self:SetScale(db.focus.scaleFrame)
     self:ShowFocusFrameToT()
     self:ShowName(db.focus.showName)
     self:SetFrameNameFont()
@@ -58,7 +57,14 @@ function Focus:OnEnable()
     self:SetAttackBackgroundOpacity(db.focus.attackBackgroundOpacity)
     self:ShowPVPIcon(db.focus.showPVPIcon)
 
-    self:SecureHook("TextStatusBar_UpdateTextStringWithValues", "UpdateTextStringWithValues")
+    hooksecurefunc(focusFrameContentMain.HealthBar, "UpdateTextString", function()
+        self:UpdateHealthBarTextString(FocusFrame)
+    end)
+
+    hooksecurefunc(focusFrameContentMain.ManaBar, "UpdateTextString", function()
+        self:UpdateManaBarTextString(FocusFrame)
+    end)
+
     self:SecureHook("UnitFramePortrait_Update", "MakeClassPortraits")
 
     self:SecureHook("UnitFrameManaBar_UpdateType", "UnitFrameManaBarUpdate") -- @TODO check perfomance here
@@ -68,7 +74,6 @@ function Focus:OnProfileChanged(newDB)
     self.db = newDB
     db = self.db.profile
 
-    --self:SetScale(db.focus.scaleFrame)
     self:MakeClassPortraits(FocusFrame)
     self:ShowFocusFrameToT()
     self:ShowName(db.focus.showName)
@@ -83,13 +88,8 @@ function Focus:OnProfileChanged(newDB)
     self:SetAttackBackgroundOpacity(db.focus.attackBackgroundOpacity)
     self:ShowPVPIcon(db.focus.showPVPIcon)
 
-    self:UpdateTextStringWithValues()
-    self:UpdateTextStringWithValues(focusFrameContentMain.ManaBar)
-end
-
-
-function Focus:SetScale(value)
-    FocusFrame:SetScale(value)
+    self:UpdateHealthBarTextString(FocusFrame)
+    self:UpdateManaBarTextString(FocusFrame)
 end
 
 function Focus:UnitFrameManaBarUpdate(manaBar)
@@ -144,29 +144,29 @@ function Focus:MakeClassPortraits(frame)
     end
 end
 
-function Focus:UpdateTextStringWithValues(statusBar)
-    local frame = statusBar or focusFrameContentMain.HealthBar
-
+function Focus:UpdateHealthBarTextString(frame)
     if (frame.unit == "focus") then
-        if (frame == focusFrameContentMain.HealthBar) then
-            UpdateHealthValues(
-                frame,
-                db.focus.healthFormat,
-                db.focus.customHealthFormat,
-                db.focus.customHealthFormatFormulas,
-                db.focus.useHealthFormatFullValues,
-                db.focus.useChineseNumeralsHealthFormat
-            )
-        elseif (frame == focusFrameContentMain.ManaBar) then
-            UpdateManaValues(
-                frame,
-                db.focus.manaFormat,
-                db.focus.customManaFormat,
-                db.focus.customManaFormatFormulas,
-                db.focus.useManaFormatFullValues,
-                db.focus.useChineseNumeralsManaFormat
-            )
-        end
+        UpdateHealthValues(
+            focusFrameContentMain.HealthBar,
+            db.focus.healthFormat,
+            db.focus.customHealthFormat,
+            db.focus.customHealthFormatFormulas,
+            db.focus.useHealthFormatFullValues,
+            db.focus.useChineseNumeralsHealthFormat
+        )
+    end
+end
+
+function Focus:UpdateManaBarTextString(frame)
+    if (frame.unit == "focus") then
+        UpdateManaValues(
+            focusFrameContentMain.ManaBar,
+            db.focus.manaFormat,
+            db.focus.customManaFormat,
+            db.focus.customManaFormatFormulas,
+            db.focus.useManaFormatFullValues,
+            db.focus.useChineseNumeralsManaFormat
+        )
     end
 end
 

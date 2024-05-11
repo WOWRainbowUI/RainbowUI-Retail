@@ -44,7 +44,6 @@ function Pet:OnInitialize()
 end
 
 function Pet:OnEnable()
-    --self:SetScale(db.pet.scaleFrame)
     --self:PreSetMovable()
     --self:SetMovable(db.pet.lockedMovableFrame)
     if db.general.useEFTextures then
@@ -67,14 +66,19 @@ function Pet:OnEnable()
 
     --self:SecureHook("UnitFrame_Update", "PetFrameUpdate")
 
-    self:SecureHook("TextStatusBar_UpdateTextStringWithValues", "UpdateTextStringWithValues")
+    hooksecurefunc(PetFrameHealthBar, "UpdateTextString", function()
+        self:UpdateHealthBarTextString(PetFrame)
+    end)
+
+    hooksecurefunc(PetFrameManaBar, "UpdateTextString", function()
+        self:UpdateManaBarTextString(PetFrame)
+    end)
 end
 
 function Pet:OnProfileChanged(newDB)
     self.db = newDB
     db = self.db.profile
 
-    --self:SetScale(db.pet.scaleFrame)
     --self:PreSetMovable()
     --self:SetMovable(db.pet.lockedMovableFrame)
 
@@ -90,8 +94,8 @@ function Pet:OnProfileChanged(newDB)
     self:ShowAttackBackground(db.pet.showAttackBackground)
     self:SetAttackBackgroundOpacity(db.pet.attackBackgroundOpacity)
 
-    self:UpdateTextStringWithValues()
-    self:UpdateTextStringWithValues(PetFrameManaBar)
+    self:UpdateHealthBarTextString(PetFrame)
+    self:UpdateManaBarTextString(PetFrame)
 end
 
 
@@ -199,10 +203,6 @@ function Pet:PetFrameUpdateAnchoring()
     end
 end
 
-function Pet:SetScale(value)
-    PetFrame:SetScale(value)
-end
-
 function Pet:PreSetMovable()
     local frame = PetFrame
     local firstGetPoing, secondGetPoint, thirdGetPoint
@@ -269,29 +269,29 @@ function Pet:ResetFramePosition()
     db.pet.customOffset = false
 end
 
-function Pet:UpdateTextStringWithValues(statusBar)
-    local frame = statusBar or PetFrameHealthBar
-
+function Pet:UpdateHealthBarTextString(frame)
     if (frame.unit == "pet") then
-        if (frame == PetFrameHealthBar) then
-            UpdateHealthValues(
-                frame,
-                db.pet.healthFormat,
-                db.pet.customHealthFormat,
-                db.pet.customHealthFormatFormulas,
-                db.pet.useHealthFormatFullValues,
-                db.pet.useChineseNumeralsHealthFormat
-            )
-        elseif (frame == PetFrameManaBar) then
-            UpdateManaValues(
-                frame,
-                db.pet.manaFormat,
-                db.pet.customManaFormat,
-                db.pet.customManaFormatFormulas,
-                db.pet.useManaFormatFullValues,
-                db.pet.useChineseNumeralsManaFormat
-            )
-        end
+        UpdateHealthValues(
+            PetFrameHealthBar,
+            db.pet.healthFormat,
+            db.pet.customHealthFormat,
+            db.pet.customHealthFormatFormulas,
+            db.pet.useHealthFormatFullValues,
+            db.pet.useChineseNumeralsHealthFormat
+        )
+    end
+end
+
+function Pet:UpdateManaBarTextString(frame)
+    if (frame.unit == "pet") then
+        UpdateManaValues(
+            PetFrameManaBar,
+            db.pet.manaFormat,
+            db.pet.customManaFormat,
+            db.pet.customManaFormatFormulas,
+            db.pet.useManaFormatFullValues,
+            db.pet.useChineseNumeralsManaFormat
+        )
     end
 end
 

@@ -73,7 +73,14 @@ function Player:OnEnable()
         --self:SecureHook("UnitFrameManaBar_UpdateType", "UnitFrameManaBarUpdate") -- @TODO check perfomance here
     end
 
-    self:SecureHook("TextStatusBar_UpdateTextStringWithValues", "UpdateTextStringWithValues")
+    hooksecurefunc(PlayerFrame_GetHealthBar(), "UpdateTextString", function()
+        self:UpdateHealthBarTextString(PlayerFrame)
+    end)
+
+    hooksecurefunc(PlayerFrame_GetManaBar(), "UpdateTextString", function()
+        self:UpdateManaBarTextString(PlayerFrame)
+    end)
+
     self:SecureHook("UnitFramePortrait_Update", "MakeClassPortraits")
 end
 
@@ -97,8 +104,8 @@ function Player:OnProfileChanged(newDB)
     self:ShowRoleIcon(db.player.showRoleIcon)
     self:ShowPVPIcon(db.player.showPVPIcon)
 
-    self:UpdateTextStringWithValues()
-    self:UpdateTextStringWithValues(PlayerFrame_GetManaBar())
+    self:UpdateHealthBarTextString(PlayerFrame)
+    self:UpdateManaBarTextString(PlayerFrame)
 end
 
 
@@ -237,29 +244,29 @@ function Player:ShowSpecialbar(value)
     end
 end
 
-function Player:UpdateTextStringWithValues(statusBar)
-    local frame = statusBar or PlayerFrame_GetHealthBar()
-
+function Player:UpdateHealthBarTextString(frame)
     if (frame.unit == "player") then
-        if (frame == PlayerFrame_GetHealthBar()) then
-            UpdateHealthValues(
-                frame,
-                db.player.healthFormat,
-                db.player.customHealthFormat,
-                db.player.customHealthFormatFormulas,
-                db.player.useHealthFormatFullValues,
-                db.player.useChineseNumeralsHealthFormat
-            )
-        elseif (frame == PlayerFrame_GetManaBar()) then
-            UpdateManaValues(
-                frame,
-                db.player.manaFormat,
-                db.player.customManaFormat,
-                db.player.customManaFormatFormulas,
-                db.player.useManaFormatFullValues,
-                db.player.useChineseNumeralsManaFormat
-            )
-        end
+        UpdateHealthValues(
+            PlayerFrame_GetHealthBar(),
+            db.player.healthFormat,
+            db.player.customHealthFormat,
+            db.player.customHealthFormatFormulas,
+            db.player.useHealthFormatFullValues,
+            db.player.useChineseNumeralsHealthFormat
+        )
+    end
+end
+
+function Player:UpdateManaBarTextString(frame)
+    if (frame.unit == "player") then
+        UpdateManaValues(
+            PlayerFrame_GetManaBar(),
+            db.player.manaFormat,
+            db.player.customManaFormat,
+            db.player.customManaFormatFormulas,
+            db.player.useManaFormatFullValues,
+            db.player.useChineseNumeralsManaFormat
+        )
     end
 end
 

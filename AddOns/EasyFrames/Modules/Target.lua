@@ -44,7 +44,6 @@ function Target:OnInitialize()
 end
 
 function Target:OnEnable()
-    --self:SetScale(db.target.scaleFrame)
     self:ShowTargetFrameToT()
     self:ShowName(db.target.showName)
     self:SetFrameNameFont()
@@ -58,7 +57,14 @@ function Target:OnEnable()
     self:SetAttackBackgroundOpacity(db.target.attackBackgroundOpacity)
     self:ShowPVPIcon(db.target.showPVPIcon)
 
-    self:SecureHook("TextStatusBar_UpdateTextStringWithValues", "UpdateTextStringWithValues")
+    hooksecurefunc(targetFrameContentMain.HealthBar, "UpdateTextString", function()
+        self:UpdateHealthBarTextString(TargetFrame)
+    end)
+
+    hooksecurefunc(targetFrameContentMain.ManaBar, "UpdateTextString", function()
+        self:UpdateManaBarTextString(TargetFrame)
+    end)
+
     self:SecureHook("UnitFramePortrait_Update", "MakeClassPortraits")
 
     self:SecureHook("UnitFrameManaBar_UpdateType", "UnitFrameManaBarUpdate") -- @TODO check perfomance here
@@ -68,7 +74,6 @@ function Target:OnProfileChanged(newDB)
     self.db = newDB
     db = self.db.profile
 
-    --self:SetScale(db.target.scaleFrame)
     self:MakeClassPortraits(TargetFrame)
     self:ShowTargetFrameToT()
     self:ShowName(db.target.showName)
@@ -83,13 +88,8 @@ function Target:OnProfileChanged(newDB)
     self:SetAttackBackgroundOpacity(db.target.attackBackgroundOpacity)
     self:ShowPVPIcon(db.target.showPVPIcon)
 
-    self:UpdateTextStringWithValues()
-    self:UpdateTextStringWithValues(targetFrameContentMain.ManaBar)
-end
-
-
-function Target:SetScale(value)
-    TargetFrame:SetScale(value)
+    self:UpdateHealthBarTextString(TargetFrame)
+    self:UpdateManaBarTextString(TargetFrame)
 end
 
 function Target:UnitFrameManaBarUpdate(manaBar)
@@ -144,29 +144,29 @@ function Target:MakeClassPortraits(frame)
     end
 end
 
-function Target:UpdateTextStringWithValues(statusBar)
-    local frame = statusBar or targetFrameContentMain.HealthBar
-
+function Target:UpdateHealthBarTextString(frame)
     if (frame.unit == "target") then
-        if (frame == targetFrameContentMain.HealthBar) then
-            UpdateHealthValues(
-                frame,
-                db.target.healthFormat,
-                db.target.customHealthFormat,
-                db.target.customHealthFormatFormulas,
-                db.target.useHealthFormatFullValues,
-                db.target.useChineseNumeralsHealthFormat
-            )
-        elseif (frame == targetFrameContentMain.ManaBar) then
-            UpdateManaValues(
-                frame,
-                db.target.manaFormat,
-                db.target.customManaFormat,
-                db.target.customManaFormatFormulas,
-                db.target.useManaFormatFullValues,
-                db.target.useChineseNumeralsManaFormat
-            )
-        end
+        UpdateHealthValues(
+            targetFrameContentMain.HealthBar,
+            db.target.healthFormat,
+            db.target.customHealthFormat,
+            db.target.customHealthFormatFormulas,
+            db.target.useHealthFormatFullValues,
+            db.target.useChineseNumeralsHealthFormat
+        )
+    end
+end
+
+function Target:UpdateManaBarTextString(frame)
+    if (frame.unit == "target") then
+        UpdateManaValues(
+            targetFrameContentMain.ManaBar,
+            db.target.manaFormat,
+            db.target.customManaFormat,
+            db.target.customManaFormatFormulas,
+            db.target.useManaFormatFullValues,
+            db.target.useChineseNumeralsManaFormat
+        )
     end
 end
 
