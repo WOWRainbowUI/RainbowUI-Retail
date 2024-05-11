@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 4
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 5
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -447,6 +447,7 @@ end
 
 
 local function dropDownMenuButtonInit(btn)
+	btn:SetMotionScriptsWhileDisabled(true)
 	btn:SetHeight(DropDownMenuButtonHeight)
 	btn:SetNormalFontObject(GameFontHighlightSmallLeft)
 	btn:SetHighlightFontObject(GameFontHighlightSmallLeft)
@@ -998,7 +999,7 @@ function DropDownMenuSearchMixin:addButton(info)
 		local checked = btn.checked
 		if type(checked) == "function" then
 			checked = checked(btn, btn.arg1, btn.arg2)
-		elseif v.DROPDOWNBUTTON.ddAutoSetText and checked == nil and not btn.isNotRadio then
+		elseif v.DROPDOWNBUTTON.ddAutoSetText and checked == nil then
 			checked = btn.value == v.DROPDOWNBUTTON:ddGetSelectedValue()
 		end
 		if checked then self.index = #self.buttons end
@@ -1069,8 +1070,8 @@ local function CreateDropDownMenuSearch()
 
 	f.view = CreateScrollBoxListLinearView()
 	f.view:SetElementExtent(DropDownMenuButtonHeight)
-	f.view:SetElementInitializer("LibSFDropDownMenuButton", DropDownMenuSearchButtonInit)
-	f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired)
+	f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
+	f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
 
 	ScrollUtil.InitScrollBoxListWithScrollBar(f.scrollBox, f.scrollBar, f.view)
 
@@ -1098,20 +1099,26 @@ end
 ---------------------------------------------------
 -- UPDATE OLD VERSION
 ---------------------------------------------------
-if oldminor < 3 then
-	for i = 1, #dropDownSearchFrames do
-		local f = dropDownSearchFrames[i]
-		f.view:SetElementInitializer("LibSFDropDownMenuButton", DropDownMenuSearchButtonInit)
-		f.addButton = DropDownMenuSearchMixin.addButton
-	end
-end
-
 if oldminor < 4 then
 	for i = 1, #v.dropDownMenusList do
 		local menu = v.dropDownMenusList[i]
 		menu.scrollFrame:SetScript("OnVerticalScroll", DropDownMenuListScrollFrame_OnVerticalScroll)
 		menu.scrollFrame:SetScript("OnScrollRangeChanged", DropDownMenuListScrollFrame_OnScrollRangeChanged)
 		menu.scrollFrame:SetScript("OnMouseWheel", DropDownMenuListScrollFrame_OnMouseWheel)
+	end
+end
+
+if oldminor < 5 then
+	for i = 1, #dropDownSearchFrames do
+		local f = dropDownSearchFrames[i]
+		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
+		f.addButton = DropDownMenuSearchMixin.addButton
+
+		for callbackType, callbackTable in pairs(f.view:GetCallbackTables()) do
+			local callbacks = callbackTable[f.view.Event.OnAcquiredFrame]
+			if callbacks then wipe(callbacks) end
+		end
+		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
 	end
 end
 
@@ -1129,7 +1136,7 @@ local dropDownMenusList = setmetatable(v.dropDownMenusList, {
 		frame.searchFrames = {}
 		frame.buttonsList = setmetatable({}, {
 			__index = function(self, key)
-				local btn = CreateFrame("BUTTON", nil, frame.scrollChild, "LibSFDropDownMenuButton")
+				local btn = CreateFrame("BUTTON", nil, frame.scrollChild)
 				btn:SetPoint("RIGHT")
 				dropDownMenuButtonInit(btn)
 				self[key] = btn

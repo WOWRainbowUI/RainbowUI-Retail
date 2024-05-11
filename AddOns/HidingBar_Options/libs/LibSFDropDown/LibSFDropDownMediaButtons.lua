@@ -1,5 +1,5 @@
 local lsfdd = LibStub("LibSFDropDown-1.5")
-local cur_ver, ver = lsfdd._mbv, 2
+local cur_ver, ver = lsfdd._mbv, 3
 if cur_ver and cur_ver >= ver then return end
 lsfdd._mbv = ver
 local menu1 = lsfdd:GetMenu(1)
@@ -39,12 +39,12 @@ end
 
 local function media_setSelected(btn, ddBtn)
 	ddBtn:ddSetSelectedValue(btn.value)
-	if type(ddBtn.ddOnSelectedFunc) == "function" then ddBtn.ddOnSelectedFunc(btn.value) end
+	if ddBtn.ddOnSelectedFunc then ddBtn.ddOnSelectedFunc(btn.value) end
 end
 
 
 local function media_setOnSelectedFunc(self, func)
-	self.ddOnSelectedFunc = func
+	if type(func) == "function" then self.ddOnSelectedFunc = func end
 end
 
 
