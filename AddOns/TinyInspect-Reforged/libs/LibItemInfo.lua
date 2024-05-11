@@ -1,19 +1,24 @@
 
-local MAJOR, MINOR = "LibItemInfo.7000", 5
+---------------------------------
+-- 物品信息庫 Author: M
+---------------------------------
+
+local MAJOR, MINOR = "LibItemInfo.7000", 6
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then return end
 
 local locale = GetLocale()
 
-local C_Container = C_Container
-
+--物品等級匹配規則
 local ItemLevelPattern = gsub(ITEM_LEVEL, "%%d", "(%%d+)")
 local ItemLevelPlusPat = gsub(ITEM_LEVEL_PLUS, "%%d%+", "(%%d+%%+)")
 
+--Toolip
 local tooltip = CreateFrame("GameTooltip", "LibItemLevelTooltip1", UIParent, "GameTooltipTemplate")
 local unittip = CreateFrame("GameTooltip", "LibItemLevelTooltip2", UIParent, "GameTooltipTemplate")
 
+--物品是否已經本地化
 function lib:HasLocalCached(item)
     if (not item or item == "" or item == "0") then return true end
     if (tonumber(item)) then
@@ -24,6 +29,7 @@ function lib:HasLocalCached(item)
     end
 end
 
+--獲取TIP中的屬性信息 (zhTW|zhCN|enUS)
 function lib:GetStatsViaTooltip(tip, stats)
     if (type(stats) == "table") then
         local line, text, r, g, b, statValue, statName
@@ -55,6 +61,7 @@ function lib:GetStatsViaTooltip(tip, stats)
     return stats
 end
 
+-- koKR
 if (locale == "koKR") then
     function lib:GetStatsViaTooltip(tip, stats)
         if (type(stats) == "table") then
@@ -87,7 +94,14 @@ if (locale == "koKR") then
     end
 end
 
-function lib:GetItemInfo(link, stats)
+
+--獲取物品實際等級信息
+function lib:GetItemInfo(link, stats, withoutExtra)
+    return self:GetItemInfoViaTooltip(link, stats, withoutExtra)
+end
+
+--獲取物品實際等級信息通過Tooltip
+function lib:GetItemInfoViaTooltip(link, stats)
     if (not link or link == "") then
         return 0, 0
     end
@@ -110,16 +124,20 @@ function lib:GetItemInfo(link, stats)
         end
     end
     self:GetStatsViaTooltip(tooltip, stats)
-    if (level and string.find(level, "+")) then
-        return 0, level, GetItemInfo(link)
+    if (level and string.find(level, "+")) then else
+        level = tonumber(level) or 0
+    end
+    if (withoutExtra) then
+        return 0, level
     else
-        return 0, tonumber(level) or 0, GetItemInfo(link)
+        return 0, level, GetItemInfo(link)
     end
 end
 
+--獲取容器裏物品裝備等級
 function lib:GetContainerItemLevel(pid, id)
     if (pid < 0) then
-        local link = C_Container.GetContainerItemLink(pid, id)
+        local link = GetContainerItemLink(pid, id)
         return self:GetItemInfo(link)
     end
     local text, level
@@ -137,13 +155,13 @@ function lib:GetContainerItemLevel(pid, id)
     return 0, tonumber(level) or 0
 end
 
+--獲取UNIT物品實際等級信息
 function lib:GetUnitItemInfo(unit, index, stats)
-    if (not UnitExists(unit)) then return 1, -1 end
+    if (not UnitExists(unit)) then return 1, -1 end  --C_PaperDollInfo.GetInspectItemLevel
     unittip:SetOwner(UIParent, "ANCHOR_NONE")
     unittip:SetInventoryItem(unit, index)
     local link = GetInventoryItemLink(unit, index) or select(2, unittip:GetItem())
     if (not link or link == "") then
-        local link = GetInventoryItemLink(unit, index)
         return 0, 0
     end
     if (not self:HasLocalCached(link)) then
@@ -168,11 +186,13 @@ function lib:GetUnitItemInfo(unit, index, stats)
     end
 end
 
+--獲取UNIT的裝備等級
+--@return unknownCount, 平均装等, 装等总和, 最大武器等级, 是否神器, 最大装等
 function lib:GetUnitItemLevel(unit, stats)
     local total, counts, maxlevel = 0, 0, 0
     local _, count, level
     for i = 1, 15 do
-        if (i ~= 4) then    
+        if (i ~= 4) then
             count, level = self:GetUnitItemInfo(unit, i, stats)
             total = total + level
             counts = counts + count
@@ -194,6 +214,7 @@ function lib:GetUnitItemLevel(unit, stats)
     return counts, total/max(16-counts,1), total, max(mlevel,olevel), (mquality == 6 or oquality == 6), maxlevel
 end
 
+--獲取任务物品實際link
 function lib:GetQuestItemlink(questType, id)
     tooltip:SetOwner(UIParent, "ANCHOR_NONE")
     tooltip:SetQuestLogItem(questType, id)

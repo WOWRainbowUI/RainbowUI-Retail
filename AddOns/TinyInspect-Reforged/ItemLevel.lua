@@ -193,7 +193,7 @@ local function UpdateButtonFromItem(button, item)
 end
 
 --[[ All ]]
-hooksecurefunc("SetItemButtonQuality", function(self, quality, itemIDOrLink, suppressOverlays)
+hooksecurefunc("SetItemButtonQuality", function(self, quality, itemIDOrLink, suppressOverlays, isBound)
     if (self.ItemLevelCategory or self.isBag) then return end
     local frame = GetItemLevelFrame(self)
     if (TinyInspectReforgedDB and not TinyInspectReforgedDB.EnableItemLevelOther) then
@@ -224,9 +224,10 @@ hooksecurefunc("SetItemButtonQuality", function(self, quality, itemIDOrLink, sup
             link = select(2, self.Tooltip:GetItem())
             SetItemLevel(self, link)
         else
-            SetItemLevelString(frame.levelString, "")
-            if (not TinyInspectReforgedDB.PaperDollItemLevelOutsideString) then
-                SetItemSlotString(frame.slotString)
+        if (self:GetParent():GetName() == "PaperDollItemsFrame") then
+                SetItemLevel(self, GetInventoryItemLink("player", self:GetID()))
+            else
+                SetItemLevel(self,itemIDOrLink)
             end
         end
     else
@@ -260,9 +261,9 @@ else
     end
     hooksecurefunc(ContainerFrameCombinedBags, "UpdateItems", update)
     if UIParent.ContainerFrames then -- 暫時修正
-		for _, frame in ipairs(UIParent.ContainerFrames) do
-			hooksecurefunc(frame, "UpdateItems", update)
-		end
+    for _, frame in ipairs(ContainerFrameContainer.ContainerFrames) do
+        hooksecurefunc(frame, "UpdateItems", update)
+    end
 	end
 end
 
