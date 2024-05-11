@@ -1,6 +1,15 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4860
+* toc update
+* Raid cooldowns: added "Add spell" for class categories
+* Raid Groups: added role icons
+
+v.4860-Cata
+* fixes
+* Raid Groups: added role icons
+
 v.4850
 * Minor fixes
 
@@ -10,6 +19,10 @@ v.4850-Cata
 * Marks Bar: added world marks
 * Note: added support for spec role
 * Inspect viewer: added specs
+
+v.4850-Classic
+* Minor fixes
+* toc update
 
 v.4840
 * New module: Reminder

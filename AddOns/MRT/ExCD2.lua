@@ -6382,6 +6382,7 @@ function module.options:Load()
 			module.options.addModSpellFrame:Hide()
 		end
 		module.options.addModSpellFrame.data = nil
+		module.options.addModSpellFrame.new_class = self.new_class
 		module.options.addModSpellFrame:Show()
 	end
 
@@ -6727,6 +6728,9 @@ function module.options:Load()
 					tremove(newList,#newList)
 				end
 			end
+			if not self.search then
+				newList[#newList+1] = {isAddButton = true, class = class}
+			end
 			list = newList
 		elseif categoryNow and not module.options.CATEGORIES_VIS[categoryNow].ignoreSubcats then
 			local newList = {}
@@ -6880,6 +6884,11 @@ function module.options:Load()
 
 				line.data = nil
 
+				if data.class then
+					line.buttonAddBig.new_class = data.class
+				else
+					line.buttonAddBig.new_class = nil
+				end
 				line.buttonAddBig:Show()
 
 				isHideMost = true
@@ -7426,6 +7435,10 @@ function module.options:Load()
 		local data = self.data
 		if not data then
 			data = {0,"OTHER,USER",1,{0,0,0}}
+			if self.new_class then
+				data[2] = self.new_class..",USER"
+				self.new_class = nil
+			end
 			self.data = data
 		end
 		self:Update()
@@ -7689,6 +7702,9 @@ function module.options:Load()
 			module.options.optColTabs.selected = self.colID
 			module.options.optColTabs:UpdateTabs()
 			module.options.optColSet.superTabFrame:Hide()
+
+			module.options.optColSet.NavLineF.f = nil
+			module.options.optColSet.FindFrameBut:Hide()
 		end)
 		profilesBut:ClearAllPoints()
 		profilesBut:SetPoint("TOPRIGHT", -10, 24)
@@ -7699,6 +7715,9 @@ function module.options:Load()
 			module.options.optColTabs.selected = self.colID
 			module.options.optColTabs:UpdateTabs()
 			module.options.optColSet.superTabFrame:Hide()
+
+			module.options.optColSet.NavLineF.f = nil
+			module.options.optColSet.FindFrameBut:Hide()
 		end)
 		advColBut:ClearAllPoints()
 		advColBut:SetPoint("RIGHT", profilesBut, "LEFT", 0, 0)
@@ -11191,6 +11210,9 @@ module.db.AllSpells = {
 	{1161,	"WARRIOR,TAUNT",5,--Вызывающий крик
 		nil,nil,nil,{1161,120,0},
 		isTalent=true},
+	{386071,"WARRIOR,TAUNT",5,--Disrupting Shout
+		nil,nil,nil,{386071,75,0},
+		isTalent=true},
 	{100,	"WARRIOR",3,--Рывок
 		{100,20,0},nil,nil,nil,
 		hasCharges=103827,cdDiff={103827,-3}},
@@ -11582,10 +11604,10 @@ module.db.AllSpells = {
 	{114158,"PALADIN,HEAL",3,--Молот Света
 		nil,{114158,60,14},nil,nil,
 		isTalent=true},
-	{327193,"PALADIN,TANK",3,--Минута славы
+	{327193,"PALADIN,DEFTANK",3,--Минута славы
 		nil,nil,{327193,90,15},nil,
 		isTalent=true},
-	{387174,"PALADIN,TANK",3,--Око Тира
+	{387174,"PALADIN,DEFTANK",3,--Око Тира
 		nil,nil,{387174,60,9},nil,
 		isTalent=true},
 	{378974,"PALADIN",3,--Бастион Света
@@ -11824,6 +11846,10 @@ module.db.AllSpells = {
 	{375891,"HUNTER",3,--Шакрам смерти
 		{375891,45,0},
 		isTalent=true},
+	{264735,"HUNTER",3,--Survival of the Fittest
+		{264735,180,6},
+		isTalent=true,cdDiff={388039,-30,266921,{"*0.9","*0.8"}},durationDiff={388039,2}},
+
 
 
 	{13750,	"ROGUE,DPS",3,--Выброс адреналина
@@ -13180,9 +13206,6 @@ module.db.AllSpells = {
 		isTalent=true},
 	{212623,"WARLOCK,PVP",3,--Опаляющая магия
 		nil,nil,{212623,15,0},nil,
-		isTalent=true},
-	{212356,"WARLOCK,PVP",3,--???
-		nil,{212356,60,0},nil,nil,
 		isTalent=true},
 
 

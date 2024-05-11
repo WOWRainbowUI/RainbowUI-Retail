@@ -3,7 +3,7 @@
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 4850
+## Version: 4860
 ## AddonCompartmentFunc: MRT_MinimapClickFunction
 ## IconTexture: Interface\AddOns\MRT\media\MiniMap.tga
 
