@@ -201,6 +201,12 @@ L.NoText = NO
 
 
 local zoneEJids = {
+	S_ZoneT11_BH = 75,
+	S_ZoneT11_ToB = 72,
+	S_ZoneT11_TotFW = 74,
+	S_ZoneT11_BD = 73,
+	S_ZoneT12 = 78,
+	S_ZoneT13 = 187,
 	sooitemst15 = 362,
 	sooitemst16 = 369,
 	RaidLootT17Highmaul = 477,

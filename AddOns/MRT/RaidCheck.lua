@@ -36,6 +36,14 @@ module.db.tableFood = not ExRT.isClassic and {
 	[57325]=true,	[57358]=true,	[57325]=true,	[57365]=true,	[57329]=true,	[57332]=true,	[57329]=true,	[57334]=true,
 	[57371]=true,	[57360]=true,	[57079]=true,	[57097]=true,	[57334]=true,	[57139]=true,	[57286]=true,	[57100]=true,
 	[57102]=true,	[57288]=true,	[53284]=true,	[57111]=true,	[57286]=true,	[57107]=true,	[57288]=true,
+
+
+	--cata
+	[95879]=true,	[91338]=true,	[87635]=true,	[87552]=true,	[87549]=true,	[87556]=true,	[87564]=true,	[87554]=true,	[87562]=true,	
+	[87550]=true,	[87699]=true,	[87548]=true,	[87551]=true,	[87561]=true,	[87563]=true,	[87634]=true,	[87555]=true,	[87557]=true,	
+	[87558]=true,	[87559]=true,	[87697]=true,	[87560]=true,	[100368]=true,	[100373]=true,	[100375]=true,	[100377]=true,	[87565]=true,	
+	[87546]=true,	[87547]=true,	[87545]=true,
+
 }
 module.db.StaminaFood = {[201638]=true,[259457]=true,[288075]=true,[288074]=true,[297119]=true,[297040]=true,}
 
@@ -74,6 +82,13 @@ module.db.tableFlask =  not ExRT.isClassic and {
 	[28497]=true,	[33721]=true,	[60347]=true,	[53749]=true,	[60346]=true,	[53746]=true,	[60345]=true,	[53764]=true,
 	[53748]=true,	[60344]=true,	[60341]=true,	[53763]=true,	[53751]=true,	[60340]=true,	[53747]=true,	[60343]=true,
 	[63729]=true,	
+
+	--cata
+	[79631]=true,	[109933]=true,	[79477]=true,	[79635]=true,	[79480]=true,	[79468]=true,	[79481]=true,	[79632]=true,	
+	[79474]=true,	[91722]=true,	[80532]=true,
+	[79471]=true,	[79470]=true,	[79472]=true,	[92731]=true,	[79469]=true,	[92729]=true,	[94160]=true,	[92730]=true,	
+	[92725]=true,
+
 }
 module.db.tableFlask_headers = ExRT.isClassic and {0,1} or {0,25,38}
 module.db.tablePotion = {
@@ -370,7 +385,14 @@ module.db.tableClassicBuff = {}
 if ExRT.isClassic then
 	for i=1,#module.db.classicBuffs do
 		for k,v in pairs(module.db.classicBuffs[i][4]) do
-			module.db.tableClassicBuff[k] = module.db.classicBuffs[i]
+			if module.db.tableClassicBuff[k] then
+				if type(module.db.tableClassicBuff[k])~="table" or not module.db.tableClassicBuff[k].multi then
+					module.db.tableClassicBuff[k] = {module.db.tableClassicBuff[k],multi=true}
+				end
+				tinsert(module.db.tableClassicBuff[k],module.db.classicBuffs[i])
+			else
+				module.db.tableClassicBuff[k] = module.db.classicBuffs[i]
+			end
 		end
 	end
 end
@@ -2646,13 +2668,18 @@ function module.frame:UpdateData(onlyLine)
 					elseif ExRT.isClassic and module.db.tableClassicBuff[spellId] then
 						local data = module.db.tableClassicBuff[spellId]
 
-						local key = data[1]
-						line[key].texture:SetTexture(icon)
+						for l=1,(data.multi and #data or 1) do
+							local bdata = data.multi and data[l] or data
 
-						local val = data[4][spellId]
-						line[key].text:SetText(val or "")
-
-						line[key].tooltip = "spell:"..spellId
+							local key = bdata[1]
+							line[key].texture:SetTexture(icon)
+	
+							local val = bdata[4][spellId]
+							if type(val)=="boolean" then val = "" end
+							line[key].text:SetText(val or "")
+	
+							line[key].tooltip = "spell:"..spellId
+						end
 					elseif spellId == 20707 and line.ss then
 						line.ss.texture:SetTexture(136210)
 					end
