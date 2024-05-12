@@ -130,6 +130,10 @@ L["Stop Tracking Dreamseed Tooltip"] = "停止追蹤種子直到你用左鍵點�
 L["ModuleName BlizzFixWardrobeTrackingTip"] = "暴雪修正: 衣櫃說明";
 L["ModuleDescription BlizzFixWardrobeTrackingTip"] = "隱藏衣櫃的教學說明按鈕。";
 
+--TillersFarm
+L["ModuleName TillersFarm"] = "耕者農場"
+L["ModuleDescription TillersFarm"] = "當您選取野生花園的土壤時，顯示種子清單。";
+
 --Rare/Location Announcement
 L["Announce Location Tooltip"] = "在聊天頻道中分享這個位置。";
 L["Announce Forbidden Reason In Cooldown"] = "你不久前分享過位置。";
