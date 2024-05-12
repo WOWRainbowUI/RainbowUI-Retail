@@ -7,7 +7,7 @@ local fonts = SM:List("font")
 local _
 
 Spy = LibStub("AceAddon-3.0"):NewAddon("Spy", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceTimer-3.0")
-Spy.Version = "3.10.9"
+Spy.Version = "3.10.10"
 Spy.DatabaseVersion = "1.1"
 Spy.Signature = "[Spy]"
 Spy.ButtonLimit = 15
@@ -163,8 +163,8 @@ Spy.options = {
 						["Shattrath City"] = L["Shattrath City"],
 						["Area 52"] = L["Area 52"],
 						["Dalaran"] = L["Dalaran"],
-						["Dalaran (Northrend)"] = L["Dalaran (Northrend)"],
 						["Bogpaddle"] = L["Bogpaddle"],
+						["Dalaran (Northrend)"] = L["Dalaran (Northrend)"],						
 						["The Vindicaar"] = L["The Vindicaar"],
 						["Krasus' Landing"] = L["Krasus' Landing"],
 						["The Violet Gate"] = L["The Violet Gate"],
@@ -172,7 +172,7 @@ Spy.options = {
 						["Rustbolt"] = L["Rustbolt"],
 						["Oribos"] = L["Oribos"],
 						["Valdrakken"] = L["Valdrakken"],
-						["The Roasted Ram"] = L["The Roasted Ram"],						
+						["The Roasted Ram"] = L["The Roasted Ram"],
 					},
 				},
 				ShowOnDetection = {
@@ -1446,8 +1446,8 @@ local Default_Profile = {
 			["Shattrath City"] = false,
 			["Area 52"] = false,
 			["Dalaran"] = false,
-			["Dalaran (Northrend)"] = false,
 			["Bogpaddle"] = false,
+			["Dalaran (Northrend)"] = false,
 			["The Vindicaar"] = false,
 			["Krasus' Landing"] = false,
 			["The Violet Gate"] = false,
@@ -1455,7 +1455,7 @@ local Default_Profile = {
 			["Rustbolt"] = false,
 			["Oribos"] = false,
 			["Valdrakken"] = false,
-			["The Roasted Ram"] = false,			
+			["The Roasted Ram"] = false,
 		},
 	},
 }
