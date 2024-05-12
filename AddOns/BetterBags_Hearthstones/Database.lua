@@ -210,6 +210,7 @@ if isMainline then
     database[205458]    = true      -- Lost Dragonscale (2)
     database[211788]    = true      -- Tess's Peacebloom
     database[212337]    = true      -- Stone of the Hearth
+    database[223988]    = true      -- Dalaran Hearthstone (1 charge quest item)
 end
 
 -- return data to main file
