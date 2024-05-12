@@ -55,7 +55,7 @@ end
 
 local function callback()
 	createOptions() -- LoD
-	addon.CreateBlocklistOptions() -- LoD
+	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then addon.CreateBlocklistOptions() end -- LoD -- 經典版不載入
 end
 if addon:IsRetail() then
 	SettingsPanel:HookScript('OnShow', callback)
