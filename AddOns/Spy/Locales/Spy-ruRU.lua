@@ -303,7 +303,7 @@ L["HonorKills"] = "Почетные убийства"
 L["PvPDeaths"] = "Смерти в PvP"
 
 -- Output messages
-L["VersionCheck"] = "|cffc41e3aПредупреждение! Неправильная версия Spy установлена. Эта версия предназначена для Spy for Retail."
+L["VersionCheck"] = "|cffc41e3aПредупреждение! Неправильная версия Spy установлена. Эта версия предназначена для World of Warcraft - Retail."
 L["SpyEnabled"] = "|cff9933ffSpy аддон включен."
 L["SpyDisabled"] = "|cff9933ffSpy аддон отключен. Напишите |cffffffff/spy show|cff9933ff  для включения."
 L["UpgradeAvailable"] = "|cff9933ffA Новая версия Spy доступна для скачивания. Вы можете загрузить её тут:\n|cffffffffhttps://www.curseforge.com/wow/addons/spy"
