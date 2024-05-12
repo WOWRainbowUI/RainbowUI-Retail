@@ -37,7 +37,7 @@ LSM:Register(MediaType_BORDER, "fer13", [[Interface\AddOns\SharedMedia_BNS\Borde
 --   FONT
 -- -----
 LSM:Register(MediaType_FONT, " 昭源黑體123",					[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHK-M.ttf]], zhCN + zhTW + western)
-LSM:Register(MediaType_FONT, " 莞荽+霞鹜文楷",				[[Interface\Addons\SharedMedia_BNS\font\bLEI00D.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 芫茜雅楷",					[[Interface\Addons\SharedMedia_BNS\font\JyunsaiKaai-Bold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 更莎黑體等寬",				[[Interface\Addons\SharedMedia_BNS\font\SarasaMonoTC-Regular.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "Alata",							[[Interface\Addons\SharedMedia_BNS\font\Alata.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "MaJi Bold",						[[Interface\Addons\SharedMedia_BNS\font\MaJi-Bold.ttf]], zhCN + zhTW + western)
