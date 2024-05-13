@@ -34,10 +34,12 @@ local function CreatePreviewButton()
     previewButton:SetScript("OnUpdate", nil)
     previewButton:Show()
 
-    previewButton.widget.healthBar:SetMinMaxValues(0, 1)
-    previewButton.widget.healthBar:SetValue(1)
-    previewButton.widget.powerBar:SetMinMaxValues(0, 1)
-    previewButton.widget.powerBar:SetValue(1)
+    previewButton.states.class = Cell.vars.playerClass
+
+    previewButton.widgets.healthBar:SetMinMaxValues(0, 1)
+    previewButton.widgets.healthBar:SetValue(1)
+    previewButton.widgets.powerBar:SetMinMaxValues(0, 1)
+    previewButton.widgets.powerBar:SetValue(1)
 
     previewButtonBG = Cell:CreateFrame("CellIndicatorsPreviewButtonBG", indicatorsTab)
     -- previewButtonBG:SetPoint("TOPLEFT", indicatorsTab, "TOPRIGHT", 5, -1)
@@ -107,16 +109,16 @@ local function UpdatePreviewButton()
 
     previewButton:UpdatePoint()
     
-    previewButton.widget.healthBar:SetStatusBarTexture(Cell.vars.texture)
-    previewButton.widget.powerBar:SetStatusBarTexture(Cell.vars.texture)
+    previewButton.widgets.healthBar:SetStatusBarTexture(Cell.vars.texture)
+    previewButton.widgets.powerBar:SetStatusBarTexture(Cell.vars.texture)
 
     -- health color
-    local r, g, b = F:GetHealthColor(1, false, F:GetClassColor(Cell.vars.playerClass))
-    previewButton.widget.healthBar:SetStatusBarColor(r, g, b, CellDB["appearance"]["barAlpha"])
+    local r, g, b = F:GetHealthBarColor(1, false, F:GetClassColor(Cell.vars.playerClass))
+    previewButton.widgets.healthBar:SetStatusBarColor(r, g, b, CellDB["appearance"]["barAlpha"])
     
     -- power color
-    r, g, b = F:GetPowerColor("player", Cell.vars.playerClass)
-    previewButton.widget.powerBar:SetStatusBarColor(r, g, b)
+    r, g, b = F:GetPowerBarColor("player", Cell.vars.playerClass)
+    previewButton.widgets.powerBar:SetStatusBarColor(r, g, b)
 
     -- alpha
     previewButton:SetBackdropColor(0, 0, 0, CellDB["appearance"]["bgAlpha"])
@@ -146,8 +148,8 @@ local function InitIndicator(indicatorName)
     if indicator.init then return end
 
     if indicatorName == "nameText" then
-        previewButton.state.name = UnitName("player")
-        previewButton.state.isPlayer = true
+        previewButton.states.name = UnitName("player")
+        previewButton.states.isPlayer = true
         indicator.isPreview = true
         indicator:UpdateName()
         indicator:UpdateVehicleName()
@@ -400,20 +402,20 @@ local function InitIndicator(indicatorName)
                 indicator.highlight:Hide()
             elseif highlightType == "gradient" then
                 indicator.highlight:ClearAllPoints()
-                indicator.highlight:SetAllPoints(previewButton.widget.healthBar)
+                indicator.highlight:SetAllPoints(previewButton.widgets.healthBar)
                 indicator.highlight:SetTexture("Interface\\Buttons\\WHITE8x8")
             elseif highlightType == "gradient-half" then
                 indicator.highlight:ClearAllPoints()
-                indicator.highlight:SetPoint("BOTTOMLEFT", previewButton.widget.healthBar)
-                indicator.highlight:SetPoint("TOPRIGHT", previewButton.widget.healthBar, "RIGHT")
+                indicator.highlight:SetPoint("BOTTOMLEFT", previewButton.widgets.healthBar)
+                indicator.highlight:SetPoint("TOPRIGHT", previewButton.widgets.healthBar, "RIGHT")
                 indicator.highlight:SetTexture("Interface\\Buttons\\WHITE8x8")
             elseif highlightType == "entire" then
                 indicator.highlight:ClearAllPoints()
-                indicator.highlight:SetAllPoints(previewButton.widget.healthBar)
+                indicator.highlight:SetAllPoints(previewButton.widgets.healthBar)
                 indicator.highlight:SetTexture("Interface\\Buttons\\WHITE8x8")
             elseif highlightType == "current" then
                 indicator.highlight:ClearAllPoints()
-                indicator.highlight:SetAllPoints(previewButton.widget.healthBar:GetStatusBarTexture())
+                indicator.highlight:SetAllPoints(previewButton.widgets.healthBar:GetStatusBarTexture())
                 indicator.highlight:SetTexture(Cell.vars.texture)
             end
 
@@ -650,9 +652,13 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                     if indicator.UpdateSize then indicator:UpdateSize(t["num"]) end
                 end
                 -- update format
-                if t["format"] then -- healthText
+                if t["format"] then
                     indicator:SetFormat(t["format"])
-                    indicator:SetHealth(21377, 65535, 16384)
+                    if t["indicatorName"] == "healthText" then
+                        indicator:SetValue(21377, 65535, 16384)
+                    elseif t["indicatorName"] == "powerText" then
+                        indicator:SetValue(2048, 4096)
+                    end
                 end
                 -- update numPerLine
                 if t["numPerLine"] then
@@ -668,7 +674,7 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 end
                 -- update color
                 if t["color"] then
-                    if t["indicatorName"] == "nameText" then
+                    if t["indicatorName"] == "nameText" or t["indicatorName"] == "healthText" or t["indicatorName"] == "powerText" then
                         indicator:UpdatePreviewColor(t["color"])
                     else
                         indicator:SetColor(unpack(t["color"]))
@@ -839,7 +845,11 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             indicator:SetNumPerLine(value)
         elseif setting == "format" then
             indicator:SetFormat(value)
-            indicator:SetHealth(21377, 65535, 16384)
+            if indicatorName == "healthText" then
+                indicator:SetValue(21377, 65535, 16384)
+            elseif indicatorName == "powerText" then
+                indicator:SetValue(2048, 4096)
+            end
         elseif setting == "orientation" then
             indicator:SetOrientation(value)
         elseif setting == "font" then
@@ -849,7 +859,7 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 indicator:Show()
             end
         elseif setting == "color" then
-            if indicatorName == "nameText" then
+            if indicatorName == "nameText" or indicatorName == "healthText" or indicatorName == "powerText" then
                 indicator:UpdatePreviewColor(value)
             else
                 indicator:SetColor(unpack(value))
@@ -1292,12 +1302,12 @@ local listFrame, renameBtn, deleteBtn
 
 local typeItems = {
     {
-        ["text"] = L["Icon"],
-        ["value"] = "icon",
-    },
-    {
         ["text"] = L["Icons"],
         ["value"] = "icons",
+    },
+    {
+        ["text"] = L["Icon"],
+        ["value"] = "icon",
     },
     {
         ["text"] = L["Bar"],
@@ -1387,6 +1397,7 @@ local function CreateListPane()
         popup.dropdown2:SetItems(auraTypeItems)
         popup.dropdown2:SetSelectedItem(1)
     end)
+    Cell:RegisterForCloseDropdown(createBtn)
 
     renameBtn = Cell:CreateButton(listPane, nil, "blue-hover", {46, 20}, nil, nil, nil, nil, nil, L["Rename"])
     renameBtn:SetPoint("TOPLEFT", createBtn, "TOPRIGHT", P:Scale(-1), 0)
@@ -1401,6 +1412,7 @@ local function CreateListPane()
         end, nil, true, true)
         popup:SetPoint("TOPLEFT", 117, -187)
     end)
+    Cell:RegisterForCloseDropdown(renameBtn)
 
     deleteBtn = Cell:CreateButton(listPane, nil, "red-hover", {46, 20}, nil, nil, nil, nil, nil, L["Delete"])
     deleteBtn:SetPoint("TOPLEFT", renameBtn, "TOPRIGHT", P:Scale(-1), 0)
@@ -1419,6 +1431,7 @@ local function CreateListPane()
         end, nil, true)
         popup:SetPoint("TOPLEFT", 117, -187)
     end)
+    Cell:RegisterForCloseDropdown(deleteBtn)
 
     local importBtn = Cell:CreateButton(listPane, nil, "accent-hover", {46, 20}, nil, nil, nil, nil, nil, L["Import"], L["Custom indicators will not be overwritten, even with same name"])
     importBtn:SetPoint("TOPLEFT", createBtn, "BOTTOMLEFT", 0, P:Scale(1))
@@ -1426,6 +1439,7 @@ local function CreateListPane()
     importBtn:SetScript("OnClick", function()
         F:ShowIndicatorsImportFrame(currentLayout)
     end)
+    Cell:RegisterForCloseDropdown(importBtn)
 
     local exportBtn = Cell:CreateButton(listPane, nil, "accent-hover", {46, 20}, nil, nil, nil, nil, nil, L["Export"])
     exportBtn:SetPoint("TOPLEFT", importBtn, "TOPRIGHT", P:Scale(-1), 0)
@@ -1433,6 +1447,7 @@ local function CreateListPane()
     exportBtn:SetScript("OnClick", function()
         F:ShowIndicatorsExportFrame(currentLayout)
     end)
+    Cell:RegisterForCloseDropdown(exportBtn)
 
     local copyBtn = Cell:CreateButton(listPane, nil, "accent-hover", {46, 20}, nil, nil, nil, nil, nil, L["Copy"], L["Copy indicators from one layout to another"], L["Custom indicators will not be overwritten, even with same name"])
     copyBtn:SetPoint("TOPLEFT", exportBtn, "TOPRIGHT", P:Scale(-1), 0)
@@ -1440,6 +1455,7 @@ local function CreateListPane()
     copyBtn:SetScript("OnClick", function()
         F:ShowIndicatorsCopyFrame()
     end)
+    Cell:RegisterForCloseDropdown(copyBtn)
 end
 
 -------------------------------------------------
@@ -1468,7 +1484,8 @@ if Cell.isRetail then
     indicatorSettings = {
         ["nameText"] = {"enabled", "color-class", "textWidth", "checkbutton:showGroupNumber", "vehicleNamePosition", "namePosition", "frameLevel", "font-noOffset"},
         ["statusText"] = {"enabled", "checkbutton:showTimer", "checkbutton2:showBackground", "statusColors", "statusPosition", "frameLevel", "font-noOffset"},
-        ["healthText"] = {"enabled", "format", "checkbutton:hideIfEmptyOrFull", "color", "position", "frameLevel", "font-noOffset"},
+        ["healthText"] = {"enabled", "color-class", "healthFormat", "checkbutton:hideIfEmptyOrFull", "position", "frameLevel", "font-noOffset"},
+        ["powerText"] = {"enabled", "color-power", "powerFormat", "checkbutton:hideIfEmptyOrFull", "position", "frameLevel", "font-noOffset"},
         ["statusIcon"] = {
             -- "|A:dungeonskull:18:18|a "..
             "|TInterface\\LFGFrame\\LFG-Eye:18:18:0:0:512:256:72:120:72:120|t "..
@@ -1509,7 +1526,8 @@ elseif Cell.isCata then
     indicatorSettings = {
         ["nameText"] = {"enabled", "color-class", "textWidth", "checkbutton:showGroupNumber", "vehicleNamePosition", "namePosition", "frameLevel", "font-noOffset"},
         ["statusText"] = {"enabled", "checkbutton:showTimer", "checkbutton2:showBackground", "statusColors", "statusPosition", "frameLevel", "font-noOffset"},
-        ["healthText"] = {"enabled", "format", "checkbutton:hideIfEmptyOrFull", "color", "position", "frameLevel", "font-noOffset"},
+        ["healthText"] = {"enabled", "color-class", "healthFormat", "checkbutton:hideIfEmptyOrFull", "position", "frameLevel", "font-noOffset"},
+        ["powerText"] = {"enabled", "color-power", "powerFormat", "checkbutton:hideIfEmptyOrFull", "position", "frameLevel", "font-noOffset"},
         ["statusIcon"] = {
             -- "|A:dungeonskull:18:18|a "..
             "|TInterface\\LFGFrame\\LFG-Eye:18:18:0:0:512:256:72:120:72:120|t "..
@@ -1544,7 +1562,8 @@ elseif Cell.isVanilla then
     indicatorSettings = {
         ["nameText"] = {"enabled", "color-class", "textWidth", "checkbutton:showGroupNumber", "vehicleNamePosition", "namePosition", "frameLevel", "font-noOffset"},
         ["statusText"] = {"enabled", "checkbutton:showTimer", "checkbutton2:showBackground", "statusColors", "statusPosition", "frameLevel", "font-noOffset"},
-        ["healthText"] = {"enabled", "format", "checkbutton:hideIfEmptyOrFull", "color", "position", "frameLevel", "font-noOffset"},
+        ["healthText"] = {"enabled", "color-class", "healthFormat", "checkbutton:hideIfEmptyOrFull", "position", "frameLevel", "font-noOffset"},
+        ["powerText"] = {"enabled", "color-power", "powerFormat", "checkbutton:hideIfEmptyOrFull", "position", "frameLevel", "font-noOffset"},
         ["statusIcon"] = {
             -- "|A:dungeonskull:18:18|a "..
             "|TInterface\\LFGFrame\\LFG-Eye:18:18:0:0:512:256:72:120:72:120|t "..
@@ -1605,18 +1624,19 @@ local function ShowIndicatorSettings(id)
         elseif indicatorType == "icons" then
             settingsTable = {"enabled", "auras", "checkbutton3:showStack", "durationVisibility", "checkbutton4:showAnimation", CELL_RECTANGULAR_CUSTOM_INDICATOR_ICONS and "size" or "size-square", "num:10", "numPerLine:10", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"}
         elseif indicatorType == "color" then
-            settingsTable = {"enabled", "auras", "customColors", "anchor"}
+            settingsTable = {"enabled", "auras", "customColors", "anchor", "frameLevel"}
         elseif indicatorType == "texture" then
             settingsTable = {"enabled", "checkbutton3:fadeOut", "auras", "texture", "size", "position", "frameLevel"}
         elseif indicatorType == "glow" then
             settingsTable = {"enabled", "checkbutton3:fadeOut", "auras", "glowOptions", "frameLevel"}
         elseif indicatorType == "overlay" then
-            settingsTable = {"enabled", "auras", "overlayColors", "checkbutton3:smooth", "barOrientation"}
+            settingsTable = {"enabled", "auras", "overlayColors", "checkbutton3:smooth", "barOrientation", "frameLevel"}
         end
        
         if indicatorTable["auraType"] == "buff" then
             tinsert(settingsTable, 2, "castBy")
             tinsert(settingsTable, 3, "checkbutton2:trackByName")
+            -- tinsert(settingsTable, 4, "showOn")
         end
        
         -- tips
@@ -1642,12 +1662,13 @@ local function ShowIndicatorSettings(id)
         local currentSetting = settingsTable[i]
         
         --! convert currentSetting to ACTUAL TABLE INDEX
-        if currentSetting == "color-alpha" or currentSetting == "color-class" then currentSetting = "color" end
+        if currentSetting == "color-alpha" or currentSetting == "color-class" or currentSetting == "color-power" then currentSetting = "color" end
         if currentSetting == "overlayColors" then currentSetting = "colors" end
         if currentSetting == "size-square" or currentSetting == "size-bar" or currentSetting == "size-normal-big" then currentSetting = "size" end
         if currentSetting == "namePosition" or currentSetting == "statusPosition" or currentSetting == "position-noHCenter" or currentSetting == "shieldBarPosition" then currentSetting = "position" end
         if currentSetting == "barOrientation" then currentSetting = "orientation" end
         if currentSetting == "durationVisibility" then currentSetting = "showDuration" end
+        if currentSetting == "healthFormat" or currentSetting == "powerFormat" then currentSetting = "format" end
         
         -- enabled
         if currentSetting == "enabled" then
@@ -1695,7 +1716,7 @@ local function ShowIndicatorSettings(id)
 
         -- auras
         elseif currentSetting == "auras" then
-            w:SetDBValue(L[F:UpperFirst(indicatorTable["auraType"]).." List"], indicatorTable["auras"], indicatorType == "icons" or indicatorType == "glow", indicatorType == "icons")
+            w:SetDBValue(L[F:UpperFirst(indicatorTable["auraType"]).." List"], indicatorTable["auras"], indicatorType == "glow", indicatorType == "icons")
             w:SetFunc(function(value)
                 -- NOTE: already changed in widget
                 Cell:Fire("UpdateIndicators", notifiedLayout, indicatorName, "auras", indicatorTable["auraType"], value)
