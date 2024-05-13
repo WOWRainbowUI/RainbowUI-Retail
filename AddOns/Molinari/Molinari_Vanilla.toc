@@ -10,19 +10,16 @@
 ## X-WoWI-ID: 13188
 ## X-Wago-ID: WqKQQEKx
 
+## Title-zhTW: |cffFFFF99[專業]|r 一鍵分解物品
+## Notes-zhTW: Molinari |n|n提供快速拆裝分解、研磨草藥、勘探寶石和開鎖的功能!|n|n|cffffd200使用方法: |r只要按下 Ctrl+Alt 鍵再點一下物品，立馬分解!|n|n從Esc>選項>插件>專業-分解，將要避免不小心被處理掉的物品加入忽略清單。|n|n|cffFF2D2D特別注意: |r只能分解或處理背包和交易視窗內的物品，銀行中的不行。
+## X-Category-zhTW: 交易
+## DefaultState: disabled
+
 libs\Dashi\embed.xml
 
 utils.lua
 addon.lua
 
-locale\deDE.lua
-locale\esES.lua
-locale\esMX.lua
-locale\frFR.lua
-locale\itIT.lua
-locale\koKR.lua
-locale\ptBR.lua
-locale\ruRU.lua
 locale\zhCN.lua
 locale\zhTW.lua
 
