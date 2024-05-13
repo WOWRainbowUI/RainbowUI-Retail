@@ -586,7 +586,7 @@ end)
 -- Tab bar at the top, only show 5 and then start scrolling
 
 -- MenuBar 50px
--- Middle Frame CHARACTER_INFO_FRAME_SIZEpx
+-- CENTER Frame CHARACTER_INFO_FRAME_SIZEpx
 tabFrame = CreateFrame('FRAME', '$parentTabFrame', AstralKeyFrame)
 tabFrame.offSet = 0
 tabFrame:SetSize(460, 45)
@@ -763,7 +763,7 @@ local function RemoveList(frame)
 end
 tabPopup:AddButton(L['DELETE_LIST'], nil, nil, function () RemoveList(subTabPopup) end, true, subTabPopup)
 
--- Middle panel construction, Affixe info, character info, guild/version string
+-- CENTER panel construction, Affixe info, character info, guild/version string
 local characterFrame = CreateFrame('FRAME', '$parentCharacterFrame', AstralKeyFrame)
 characterFrame:SetSize(CHARACTER_INFO_FRAME_SIZE, 490)
 characterFrame:SetPoint('TOPLEFT', AstralKeyFrame, 'TOPLEFT', 51, 0)
