@@ -1,10 +1,0 @@
-## Interface: 100207## IconTexture: 982414
-## Author: 非酋克星-遗忘海岸
-## Version: 2.0.0b
-## Title: Premake Groups Helper
-## Notes: Customizable enhancements for LFG premake Groups tools.
-## Notes-zhCN: 用于预创建队伍的自定义增强.
-## Title-zhTW: |cffFF7F00[副本]|r (暫時停用) 預組隊伍增強
-## Notes-zhTW: Premake Groups Helper |n|n顯示預組隊伍中的職業角色資訊，提供方便的過濾選項來篩選隊伍。
-## X-Category-zhTW: 團隊## DefaultState: disabled
-## SavedVariablesPerCharacter: PremakeGroupsHelperConfig
