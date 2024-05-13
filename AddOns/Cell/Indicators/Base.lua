@@ -791,16 +791,75 @@ local function Color_SetCooldown(color, start, duration, debuffType)
                 end
             end)
         end
+    elseif color.type == "class-color" then
+        color.solidTex:SetVertexColor(F:GetClassColor(color.parent.states.class))
     elseif color.type == "debuff-type" and debuffType then
-        solidTex:SetVertexColor(CellDB["debuffTypeColor"][debuffType]["r"], CellDB["debuffTypeColor"][debuffType]["g"], CellDB["debuffTypeColor"][debuffType]["b"], 1)
+        color.solidTex:SetVertexColor(CellDB["debuffTypeColor"][debuffType]["r"], CellDB["debuffTypeColor"][debuffType]["g"], CellDB["debuffTypeColor"][debuffType]["b"], 1)
     end
     color:Show()
+end
+
+local function Color_SetFrameLevel(color, frameLevel)
+    color:_SetFrameLevel(frameLevel + 10)
+end
+
+local function Color_SetAnchor(color, anchorTo)
+    color:ClearAllPoints()
+    if anchorTo == "healthbar-current" then
+        -- current hp texture
+        color:SetAllPoints(color.parent.widgets.healthBar:GetStatusBarTexture())
+        -- color:SetFrameLevel(parent:GetFrameLevel()+5)
+    elseif anchorTo == "healthbar-entire" then
+        -- entire hp bar
+        color:SetAllPoints(color.parent.widgets.healthBar)
+        -- color:SetFrameLevel(parent:GetFrameLevel()+5)
+    else -- unitbutton
+        P:Point(color, "TOPLEFT", color.parent.widgets.overlayFrame, "TOPLEFT", 1, -1)
+        P:Point(color, "BOTTOMRIGHT", color.parent.widgets.overlayFrame, "BOTTOMRIGHT", -1, 1)
+        -- color:SetFrameLevel(parent:GetFrameLevel()+6)
+    end
+end
+
+local function Color_SetColors(self, colors)
+    self.type = colors[1]
+    self.colors = colors
+
+    if colors[1] == "solid" then
+        self:SetScript("OnUpdate", nil)
+        self.solidTex:SetVertexColor(colors[2][1], colors[2][2], colors[2][3], colors[2][4])
+        self.solidTex:Show()
+        self.gradientTex:Hide()
+    elseif colors[1] == "gradient-vertical" then
+        self:SetScript("OnUpdate", nil)
+        self.gradientTex:SetGradient("VERTICAL", CreateColor(colors[2][1], colors[2][2], colors[2][3], colors[2][4]), CreateColor(colors[3][1], colors[3][2], colors[3][3], colors[3][4]))
+        self.gradientTex:Show()
+        self.solidTex:Hide()
+    elseif colors[1] == "gradient-horizontal" then
+        self:SetScript("OnUpdate", nil)
+        self.gradientTex:SetGradient("HORIZONTAL", CreateColor(colors[2][1], colors[2][2], colors[2][3], colors[2][4]), CreateColor(colors[3][1], colors[3][2], colors[3][3], colors[3][4]))
+        self.gradientTex:Show()
+        self.solidTex:Hide()
+    elseif colors[1] == "debuff-type" then
+        self:SetScript("OnUpdate", nil)
+        self.solidTex:SetVertexColor(colors[2][1], colors[2][2], colors[2][3], colors[2][4])
+        self.solidTex:Show()
+        self.gradientTex:Hide()
+    elseif colors[1] == "change-over-time" then
+        self.solidTex:SetVertexColor(colors[4][1], colors[4][2], colors[4][3], colors[4][4])
+        self.solidTex:Show()
+        self.gradientTex:Hide()
+    elseif colors[1] == "class-color" then
+        self:SetScript("OnUpdate", nil)
+        self.solidTex:Show()
+        self.gradientTex:Hide()
+    end
 end
 
 function I:CreateAura_Color(name, parent)
     local color = CreateFrame("Frame", name, parent)
     color:Hide()
     color.indicatorType = "color"
+    color.parent = parent
 
     local solidTex = color:CreateTexture(nil, "OVERLAY", nil, -5)
     color.solidTex = solidTex
@@ -814,59 +873,16 @@ function I:CreateAura_Color(name, parent)
     end)
    
     local gradientTex = color:CreateTexture(nil, "OVERLAY", nil, -5)
+    color.gradientTex = gradientTex
     gradientTex:SetTexture("Interface\\Buttons\\WHITE8x8")
     gradientTex:SetAllPoints(color)
     gradientTex:Hide()
 
     color.SetCooldown = Color_SetCooldown
-
-    function color:SetAnchor(anchorTo)
-        color:ClearAllPoints()
-        if anchorTo == "healthbar-current" then
-            -- current hp texture
-            color:SetAllPoints(parent.widget.healthBar:GetStatusBarTexture())
-            color:SetFrameLevel(parent:GetFrameLevel()+5)
-        elseif anchorTo == "healthbar-entire" then
-            -- entire hp bar
-            color:SetAllPoints(parent.widget.healthBar)
-            color:SetFrameLevel(parent:GetFrameLevel()+5)
-        else -- unitbutton
-            P:Point(color, "TOPLEFT", parent.widget.overlayFrame, "TOPLEFT", 1, -1)
-            P:Point(color, "BOTTOMRIGHT", parent.widget.overlayFrame, "BOTTOMRIGHT", -1, 1)
-            color:SetFrameLevel(parent:GetFrameLevel()+6)
-        end
-    end
-
-    function color:SetColors(colors)
-        color.type = colors[1]
-        color.colors = colors
-
-        if colors[1] == "solid" then
-            color:SetScript("OnUpdate", nil)
-            solidTex:SetVertexColor(colors[2][1], colors[2][2], colors[2][3], colors[2][4])
-            solidTex:Show()
-            gradientTex:Hide()
-        elseif colors[1] == "gradient-vertical" then
-            color:SetScript("OnUpdate", nil)
-            gradientTex:SetGradient("VERTICAL", CreateColor(colors[2][1], colors[2][2], colors[2][3], colors[2][4]), CreateColor(colors[3][1], colors[3][2], colors[3][3], colors[3][4]))
-            gradientTex:Show()
-            solidTex:Hide()
-        elseif colors[1] == "gradient-horizontal" then
-            color:SetScript("OnUpdate", nil)
-            gradientTex:SetGradient("HORIZONTAL", CreateColor(colors[2][1], colors[2][2], colors[2][3], colors[2][4]), CreateColor(colors[3][1], colors[3][2], colors[3][3], colors[3][4]))
-            gradientTex:Show()
-            solidTex:Hide()
-        elseif colors[1] == "debuff-type" then
-            color:SetScript("OnUpdate", nil)
-            solidTex:SetVertexColor(colors[2][1], colors[2][2], colors[2][3], colors[2][4])
-            solidTex:Show()
-            gradientTex:Hide()
-        elseif colors[1] == "change-over-time" then
-            solidTex:SetVertexColor(colors[4][1], colors[4][2], colors[4][3], colors[4][4])
-            solidTex:Show()
-            gradientTex:Hide()
-        end
-    end
+    color._SetFrameLevel = color.SetFrameLevel
+    color.SetFrameLevel = Color_SetFrameLevel
+    color.SetAnchor = Color_SetAnchor
+    color.SetColors = Color_SetColors
         
     return color
 end
@@ -1362,8 +1378,26 @@ local function Overlay_SetCooldown(overlay, start, duration, debuffType, texture
     overlay:Show()
 end
 
+local function Overlay_EnableSmooth(overlay, smooth)
+    if smooth then
+        overlay._SetMinMaxValues = overlay.SetMinMaxSmoothedValue
+        overlay._SetValue = overlay.SetSmoothedValue
+    else
+        overlay._SetMinMaxValues = overlay.SetMinMaxValues
+        overlay._SetValue = overlay.SetValue
+    end
+end
+
+local function Overlay_SetColors(overlay, colors)
+    overlay.colors = colors
+end
+
+local function Overlay_SetFrameLevel(overlay, frameLevel)
+    overlay:_SetFrameLevel(frameLevel + 10)
+end
+
 function I:CreateAura_Overlay(name, parent)
-    local overlay = CreateFrame("StatusBar", name, parent.widget.healthBar)
+    local overlay = CreateFrame("StatusBar", name, parent.widgets.healthBar)
     overlay:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
     overlay:Hide()
     overlay.indicatorType = "overlay"
@@ -1375,20 +1409,10 @@ function I:CreateAura_Overlay(name, parent)
     overlay.SetCooldown = Overlay_SetCooldown
     overlay._SetMinMaxValues = overlay.SetMinMaxValues
     overlay._SetValue = overlay.SetValue
-
-    function overlay:EnableSmooth(smooth)
-        if smooth then
-            overlay._SetMinMaxValues = overlay.SetMinMaxSmoothedValue
-            overlay._SetValue = overlay.SetSmoothedValue
-        else
-            overlay._SetMinMaxValues = overlay.SetMinMaxValues
-            overlay._SetValue = overlay.SetValue
-        end
-    end
-
-    function overlay:SetColors(colors)
-        overlay.colors = colors
-    end
+    overlay._SetFrameLevel = overlay.SetFrameLevel
+    overlay.SetFrameLevel = Overlay_SetFrameLevel
+    overlay.EnableSmooth = Overlay_EnableSmooth
+    overlay.SetColors = Overlay_SetColors
 
     return overlay
 end

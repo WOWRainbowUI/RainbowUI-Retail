@@ -189,8 +189,8 @@ local function CreateAssignmentButton(index)
         if not f then return end -- cursor outside wow window
 
         local unitId
-        if f.state and f.state.displayedUnit then -- Cell
-            unitId = f.state.displayedUnit
+        if f.states and f.states.displayedUnit then -- Cell
+            unitId = f.states.displayedUnit
         elseif f.unit then
             unitId = f.unit
         end
@@ -402,7 +402,7 @@ unitname:SetAttribute("_onclick", [[
 ]])
 function unitname:SetUnit(index, target)
     local unitId = F:GetTargetUnitID(target)
-    if unitId and UnitIsPlayer(unitId) then
+    if unitId and (UnitIsPlayer(unitId) or UnitInPartyIsAI(unitId)) then
         local name = GetUnitName(unitId, true)
         Cell.unitButtons.spotlight[index]:SetAttribute("unit", unitId)
         assignmentButtons[index]:SetText(name)
@@ -870,7 +870,7 @@ local function UpdateLayout(layout, which)
         end
     end
     
-    if not which or strfind(which, "power$") or which == "barOrientation" then
+    if not which or strfind(which, "power$") or which == "barOrientation" or which == "powerFilter" then
         for _, b in pairs(Cell.unitButtons.spotlight) do
             if layout["spotlight"]["sameSizeAsMain"] then
                 B:SetPowerSize(b, layout["main"]["powerSize"])

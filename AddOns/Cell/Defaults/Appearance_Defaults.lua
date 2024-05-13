@@ -30,10 +30,10 @@ Cell.defaults.appearance = {
     ["highlightSize"] = 1,
     ["outOfRangeAlpha"] = 0.45,
     ["healPrediction"] = {true, false, {1, 1, 1, 0.4}},
-    ["useLibHealComm"] = false,
     ["healAbsorb"] = {Cell.isRetail, {1, 0.1, 0.1, 1}},
+    ["healAbsorbInvertColor"] = false,
     ["shield"] = {not Cell.isVanilla, {1, 1, 1, 0.4}},
-    ["overshield"] = not Cell.isVanilla,
+    ["overshield"] = {not Cell.isVanilla, {1, 1, 1, 1}},
 }
 
 local buttonStyleIndices = {

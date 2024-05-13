@@ -17,11 +17,11 @@ local P = Cell.pixelPerfectFuncs
 local L = Cell.L
 
 -- sharing version check
-Cell.MIN_VERSION = 189
-Cell.MIN_CLICKCASTINGS_VERSION = 189
+Cell.MIN_VERSION = 200
+Cell.MIN_CLICKCASTINGS_VERSION = 200
 Cell.MIN_LAYOUTS_VERSION = 222
 Cell.MIN_INDICATORS_VERSION = 222
-Cell.MIN_DEBUFFS_VERSION = 189
+Cell.MIN_DEBUFFS_VERSION = 200
 
 --[==[@debug@
 local debugMode = true
@@ -655,9 +655,11 @@ local function CheckDivineAegis()
     end
 end
 
-local function UpdateSpecVars()
-    Cell.vars.activeTalentGroup = GetActiveTalentGroup()
-    Cell.vars.playerSpecID = Cell.vars.activeTalentGroup
+local function UpdateSpecVars(exceptActiveTalentGroup)
+    if not exceptActiveTalentGroup then
+        Cell.vars.activeTalentGroup = GetActiveTalentGroup()
+        Cell.vars.playerSpecID = Cell.vars.activeTalentGroup
+    end
     Cell.vars.primaryTalentTree = GetPrimaryTalentTree()
     if Cell.vars.primaryTalentTree then
         _, Cell.vars.playerSpecName, _, Cell.vars.playerSpecIcon = GetTalentTabInfo(Cell.vars.primaryTalentTree)
@@ -724,7 +726,7 @@ function eventFrame:PLAYER_LOGIN()
     -- overrideLGF
     F:OverrideLGF(CellDB["general"]["overrideLGF"])
     -- LibHealComm
-    F:EnableLibHealComm(CellDB["appearance"]["useLibHealComm"])
+    -- F:EnableLibHealComm(CellDB["appearance"]["useLibHealComm"])
 end
 
 function eventFrame:UI_SCALE_CHANGED()
@@ -751,7 +753,7 @@ end
 -- check Divine Aegis
 function eventFrame:PLAYER_TALENT_UPDATE()
     CheckDivineAegis()
-    UpdateSpecVars()
+    UpdateSpecVars(true)
     F:UpdateClickCastingProfileLabel()
 end
 

@@ -17,11 +17,11 @@ local P = Cell.pixelPerfectFuncs
 local L = Cell.L
 
 -- sharing version check
-Cell.MIN_VERSION = 189
-Cell.MIN_CLICKCASTINGS_VERSION = 189
+Cell.MIN_VERSION = 200
+Cell.MIN_CLICKCASTINGS_VERSION = 200
 Cell.MIN_LAYOUTS_VERSION = 222
 Cell.MIN_INDICATORS_VERSION = 222
-Cell.MIN_DEBUFFS_VERSION = 189
+Cell.MIN_DEBUFFS_VERSION = 200
 
 --[==[@debug@
 local debugMode = true
@@ -653,7 +653,7 @@ function eventFrame:PLAYER_LOGIN()
     -- overrideLGF
     F:OverrideLGF(CellDB["general"]["overrideLGF"])
     -- LibHealComm
-    F:EnableLibHealComm(CellDB["appearance"]["useLibHealComm"])
+    -- F:EnableLibHealComm(CellDB["appearance"]["useLibHealComm"])
 end
 
 function eventFrame:UI_SCALE_CHANGED()

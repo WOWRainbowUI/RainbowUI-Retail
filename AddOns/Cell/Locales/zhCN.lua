@@ -183,6 +183,7 @@ L["Color Duration Text"] = "对持续时间文本着色"
 L["Heal Prediction"] = "治疗预估"
 L["LibHealComm needs to be installed"] = "需要自行安装 LibHealComm"
 L["Heal Absorb"] = "治疗吸收"
+L["Invert Color"] = "使用反色"
 L["Shield Texture"] = "护盾材质"
 L["Overshield Texture"] = "超过血量上限的护盾材质"
 L["[Ctrl+Left-Click] to reset these settings"] = "[Ctrl+左键] 点击此按钮来重置这些设置"
@@ -277,6 +278,7 @@ L["Friendly NPC Frame"] = "友方 NPC 框体"
 L["Layout Auto Switch"] = "布局自动切换"
 L["Role"] = "职责"
 L["Spec"] = "专精"
+L["No Spec"] = "无专精"
 L["use separate profile for current spec"] = "为当前专精使用独立配置"
 L["Solo/Party"] = "单人/小队"
 L["Outdoor"] = "野外"
@@ -407,6 +409,7 @@ L["Indicator Settings"] = "指示器设置"
 L["Name Text"] = "名字"
 L["Status Text"] = "状态文字"
 L["Health Text"] = "血量文字"
+L["Power Text"] = "能量文字"
 L["Status Icon"] = "状态图标"
 L["Role Icon"] = "职责图标"
 L["Party Assignment Icon"] = "职位图标"
@@ -500,7 +503,7 @@ L["Max Icons"] = "最大显示数量"
 L["Icons Per Line"] = "每行/列图标数"
 L["Format"] = "格式"
 L["shields"] = "护盾"
-L["hideIfEmptyOrFull"] = "当死亡或血量满时隐藏"
+L["hideIfEmptyOrFull"] = "当值为满或空时隐藏"
 L["Color"] = "颜色"
 L["Background Color"] = "背景色"
 L["Remaining Time <"] = "剩余时间 <"
@@ -806,6 +809,7 @@ L["Code Snippets"] = "代码片段"
 L["SNIPPETS_TIPS"] = "[双击]改名，[Shift+左键]删除。所有已勾选的代码片段将会在 Cell 初始化阶段的最后自动执行（即 ADDON_LOADED 事件中）。"
 L["Run"] = "执行"
 L["unnamed"] = "未命名"
+L["All snippets have been disabled, due to the version update"] = "由于版本更新，所有的代码片段已被禁用"
 
 -------------------------------------------------
 -- CHANGELOGS
@@ -824,6 +828,24 @@ L["Click to view older changelogs"] = "点击查看远古更新记录"
 L["CHANGELOGS"] = [[
     <h1>更新后如果有各种问题，先排查代码片段。</h1>
     <p>（正式服）如果指示器不能正常刷新，尝试启用常规页面下的“总是更新增益/减益”选项。</p>
+    <br/>
+
+    <h1>r225-release (May 13, 2024, 03:50 GMT+8)</h1>
+    <p>* 修复异常。</p>
+    <br/>
+
+    <h1>r224-release (May 13, 2024, 01:00 GMT+8)</h1>
+    <p>+ 新指示器：能量文字。</p>
+    <p>* 图标组指示器的法术列表现在是有序的了。</p>
+    <p>+ 为自定义“颜色”指示器和血量文字指示器添加了“职业颜色”的选项。</p>
+    <p>+ 为自定义“颜色/叠加层”指示器添加了“层级”的选项。</p>
+    <p>+ 为治疗吸收材质添加了“使用反色”的选项。</p>
+    <p>+ 为一部分持续时间相关的设置添加了“30%”的选项。</p>
+    <p>* 修复合并队伍时NPC框体的锚点。</p>
+    <p>* 修复单人时的能量条过滤。</p>
+    <p>* 修复大灾变的布局自动切换功能。</p>
+    <p>* 修复追随者地下城中AI队友相关问题。</p>
+    <p>* 将“使用 LibHealComm”选项移至代码片段内。</p>
     <br/>
 
     <h1>r223-release (May 6, 2024, 00:05 GMT+8)</h1>
