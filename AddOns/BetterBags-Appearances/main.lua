@@ -236,7 +236,7 @@ categories:RegisterCategoryFunction("MogCategorization", function(data)
             end
         -- Check if the item is bound and not BoA, categorize as "Mog - Sellable"
         elseif data.itemInfo.isBound or bindType == "BoP" then
-            return WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00")
+            -- return WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00")
         elseif bindType == "BoE" then
             -- If the item is BoE and not bound, it's tradable
             if db.enableSubdivide then
