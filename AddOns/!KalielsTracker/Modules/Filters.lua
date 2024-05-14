@@ -738,6 +738,15 @@ function DropDown_Initialize(self, level)
 				PetTracker.Tracker:ToggleCaptured()
 			end
 			MSA_DropDownMenu_AddButton(info)
+
+			info.notCheckable = true
+
+			info.text = KT.AddonPetTracker.Texts.DisplayCondition
+			info.keepShownOnClick = true
+			info.hasArrow = true
+			info.value = 3
+			info.func = nil
+			MSA_DropDownMenu_AddButton(info)
 		end
 	elseif level == 2 then
 		info.notCheckable = true
@@ -802,6 +811,30 @@ function DropDown_Initialize(self, level)
 					MSA_DropDownMenu_AddButton(info, level)
 				end
 			end
+		elseif MSA_DROPDOWNMENU_MENU_VALUE == 3 then
+			-- Addon - PetTracker
+			info.notCheckable = false
+			info.isNotRadio = false
+			info.func = function(self, arg)
+				self.quality = arg
+				PetTracker.Tracker.SetGoal(self)
+				DropDown_Toggle()
+			end
+
+			info.text = KT.AddonPetTracker.Texts.DisplayAlways
+			info.arg1 = PetTracker.MaxQuality
+			info.checked = (PetTracker.sets.targetQuality == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.text = KT.AddonPetTracker.Texts.DisplayMissingRares
+			info.arg1 = PetTracker.MaxPlayerQuality
+			info.checked = (PetTracker.sets.targetQuality == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
+
+			info.text = KT.AddonPetTracker.Texts.DisplayMissingPets
+			info.arg1 = 1
+			info.checked = (PetTracker.sets.targetQuality == info.arg1)
+			MSA_DropDownMenu_AddButton(info, level)
 		end
 	end
 end

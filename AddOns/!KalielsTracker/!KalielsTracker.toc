@@ -1,13 +1,13 @@
-## Interface: 100205
+## Interface: 100207
 ## Title: Kaliel's Tracker
 ## Notes: Improved Blizzard Objective Tracker
-## Version: 6.5.1
+## Version: 6.6.0
 ## Author: Kaliel (Marouan Sabbagh)
 ## IconTexture: Interface\Addons\!KalielsTracker\Media\KT_logo
 
 ## SavedVariables: KalielsTrackerDB
-## Dependencies: Blizzard_UIWidgets, Blizzard_MawBuffs
-## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0, MSA-DropDownMenu-1.0, Masque, PetTracker, TomTom
+## Dependencies: Blizzard_MawBuffs
+## OptionalDeps: Blizzard_UIWidgets, Blizzard_UIWidgets_WoWLabs, Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0, MSA-DropDownMenu-1.0, Masque, PetTracker, TomTom
 
 Core.xml
 

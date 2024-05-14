@@ -34,9 +34,13 @@ Frame Arguments
  width .......... Width relative to frame (replace General value).
 Note: All other arguments can be used as a general!
  image .......... [optional] Image path (tga or blp).
- imageHeight .... Default is 128. Default image size is 256x128.
- imageX ......... Default is 0 (center). Left/Right position relative to center.
- imageY ......... Default is 20 (top margin).
+ imageWidth ..... Default is 256.
+ imageHeight .... Default is 128.
+ imagePoint ..... Default is "TOP".
+ imageX ......... Default is 0.
+ imageY ......... Default is 20.
+ imageAbsolute .. Default is false. The image is not part of the content flow and no place is created for it.
+ imageTexCoords . [optional] Sets the coordinates for cropping or transforming the texture.
  text ........... Text string.
  textHeight ..... Default is 0 (auto height).
  textX .......... Default is 25. Left and Right margin.
@@ -67,7 +71,7 @@ local format = string.format
 local strfind = string.find
 local round = function(n) return floor(n + 0.5) end
 
-local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 13)
+local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 14)
 if Lib then
 	Lib.NewFrame, Lib.NewButton, Lib.UpdateFrame = nil
 	Lib.numFrames = Lib.numFrames or 1
@@ -84,9 +88,12 @@ local default = {
 	title = "Tutorial",
 	width = 350,
 	font = "",
+	imageWidth = 256,
 	imageHeight = 128,
+	imagePoint = "TOP",
 	imageX = 0,
 	imageY = 20,
+	imageFloat = false,
 	textHeight = 0,
 	textX = 25,
 	textY = 20,
@@ -135,7 +142,7 @@ local function UpdateFrame(frame, i)
 		return
 	end
 
-	if not data.image and not data.textY then
+	if (not data.image or data.imageAbsolute) and not data.textY then
 		data.textY = 0
 	end
 	for k, v in pairs(default) do
@@ -186,15 +193,25 @@ local function UpdateFrame(frame, i)
 		image:Hide()
 	end
 	if data.image then
-		local img = frame.images[i] or frame:CreateTexture()
-		img:SetPoint('TOP', frame, data.imageX - 1, -(26 + data.imageY))
-		img:SetTexture(data.image)
+		local img = frame.images[i]
+		if not img then
+			img = CreateFrame("Frame", nil, frame)
+			img:SetFrameLevel(1)
+			img.texture = img:CreateTexture()
+			img.texture:SetAllPoints()
+		end
+		img.texture:SetTexture(data.image)
+		if data.imageTexCoords then
+			img.texture:SetTexCoord(unpack(data.imageTexCoords))
+		end
+		img:SetSize(data.imageWidth, data.imageHeight)
+		img:SetPoint(data.imagePoint, frame, data.imageX - 1, -(25 + data.imageY))
 		img:Show()
 		frame.images[i] = img
 	end
 	
 	-- Text
-	frame.text:SetPoint('TOP', frame, 0, -((data.image and 26 + data.imageY + data.imageHeight or 60) + data.textY))
+	frame.text:SetPoint('TOP', frame, 0, -(((data.image and not data.imageAbsolute) and 26 + data.imageY + data.imageHeight or 60) + data.textY))
 	frame.text:SetWidth(data.width - (2 * data.textX))
 	frame.text:SetText(data.text)
 	
@@ -203,7 +220,7 @@ local function UpdateFrame(frame, i)
 		textHeight = data.textHeight
 	end 
 	textHeight = textHeight - fmod(textHeight, 2)
-	frame:SetHeight((data.image and 56 + data.imageY + data.imageHeight or 90) + (data.text and data.textY + textHeight or 0) + 18)
+	frame:SetHeight(((data.image and not data.imageAbsolute) and 56 + data.imageY + data.imageHeight or 90) + (data.text and data.textY + textHeight or 0) + 18)
 	frame.i = i
 	frame:Show()
 

@@ -38,6 +38,7 @@ local realmZones = { ["EU"] = "Europe", ["NA"] = "North America" }
 local cTitle = " "..NORMAL_FONT_COLOR_CODE
 local cBold = "|cff00ffe3"
 local cWarning = "|cffff7f00"
+local cWarning2 = "|cffff4200"
 local beta = "|cffff7fff[Beta]|r"
 local warning = cWarning.."Warning:|r UI will be re-loaded!"
 
@@ -121,6 +122,7 @@ local defaults = {
 		addonTomTom = false,
 
 		hackLFG = true,
+		hackWorldMap = true,
 	},
 	char = {
 		collapsed = false,
@@ -165,7 +167,8 @@ local options = {
 							order = 0.12,
 						},
 						slashCmd = {
-							name = cBold.." /kt|r  |cff808080..............|r  Toggle (expand/collapse) the tracker\n"..
+							name = cBold.." /kt|r  |cff808080..............|r  Toggle expand/collapse the tracker\n"..
+									cBold.." /kt hide|r  |cff808080......|r  Toggle show/hide the tracker\n"..
 									cBold.." /kt config|r  |cff808080...|r  Show this config window\n",
 							type = "description",
 							width = "double",
@@ -1379,18 +1382,6 @@ local options = {
 							disabled = true,
 							order = 2.3,
 						},
-						syncui = {
-							name = "SyncUI",
-							type = "toggle",
-							disabled = true,
-							order = 2.4,
-						},
-						spartanui = {
-							name = "SpartanUI",
-							type = "toggle",
-							disabled = true,
-							order = 2.5,
-						},
 					},
 				},
 			},
@@ -1400,7 +1391,7 @@ local options = {
 			type = "group",
 			args = {
 				desc = {
-					name = cWarning.."Warning:|r Hacks may affect other addons!",
+					name = cWarning.."Warning:|r Hacks may affect other addons!\n\nPlease report any negative impacts that are not described.",
 					type = "description",
 					order = 0,
 				},
@@ -1414,7 +1405,7 @@ local options = {
 							name = "LFG Hack",
 							desc = cBold.."Affects the small Eye buttons|r for finding groups inside the tracker. When the hack is active, "..
 									"the buttons work without errors. When hack is inactive, the buttons are not available.\n\n"..
-									"Negative impacts:|r\n"..
+									cWarning2.."Negative impacts:|r\n"..
 									"- Inside the dialog for create Premade Group is hidden item \"Goal\".\n"..
 									"- Tooltips of items in the list of Premade Groups have a hidden 2nd (green) row with \"Goal\".\n"..
 									"- Inside the dialog for create Premade Group, no automatically set the \"Title\",\n"..
@@ -1429,6 +1420,32 @@ local options = {
 								ReloadUI()
 							end,
 							order = 1.1,
+						},
+					},
+				},
+				sec2 = {
+					name = WORLDMAP_BUTTON,
+					type = "group",
+					inline = true,
+					order = 2,
+					args = {
+						hackWorldMap = {
+							name = "World Map Hack "..beta,
+							desc = cBold.."Affects World Map|r and removes taint errors. The hack removes call of restricted "..
+									"function SetPassThroughButtons. When the hack is inactive World Map display causes errors. "..
+									"It is not possible to get rid of these errors, since the tracker has a lot of interaction "..
+									"with the game frames.\n\n"..
+									cWarning2.."Negative impacts:|r unknown in WoW 10.2.7\n",
+							descStyle = "inline",
+							type = "toggle",
+							width = "full",
+							confirm = true,
+							confirmText = warning,
+							set = function()
+								db.hackWorldMap = not db.hackWorldMap
+								ReloadUI()
+							end,
+							order = 2.1,
 						},
 					},
 				},
@@ -1731,17 +1748,13 @@ OTF:HookScript("OnEvent", function(self, event)
 	end
 end)
 
-local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript("OnEvent", function(self, event, ...)
-	if event == "PLAYER_ENTERING_WORLD" then
+KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
+	UpdateOptions()
+	KT:RegEvent("UI_SCALE_CHANGED", function()
 		UpdateOptions()
-		self:RegisterEvent("UI_SCALE_CHANGED")
-		self:UnregisterEvent(event)
-	elseif event == "UI_SCALE_CHANGED" then
-		UpdateOptions()
-	end
+	end)
+	KT:UnregEvent(eventID)
 end)
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 hooksecurefunc(UIParent, "SetScale", function(self)
 	UpdateOptions()

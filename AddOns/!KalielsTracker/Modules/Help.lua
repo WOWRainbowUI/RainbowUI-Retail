@@ -80,6 +80,7 @@ local function SetupTutorials()
 		icon = helpPath.."KT_logo",
 		font = "Fonts\\FRIZQT__.TTF",
 		width = 552,
+		imageWidth = 512,
 		imageHeight = 256,
 		{	-- 1
 			image = helpPath.."help_kaliels-tracker",
@@ -235,41 +236,61 @@ local function SetupTutorials()
 		},
 		{	-- 11
 			text = cTitle.."         Hacks|r\n\n"..
+					"All hacks are enabled by default, you can disable them in "..KT.title.." Options (section \"Hacks\").\n\n"..
 					cWarning.."Warning:|r Hacks may affect other addons!\n\n"..
 					cTitle.."LFG Hack|r\n\n"..
 					cBold.."Affects the small Eye buttons|r for finding groups inside the tracker. When the hack is active, "..
 					"the buttons work without errors. When hack is inactive, the buttons are not available.\n\n"..
-					cWarning2.."Negative|r impacts:\n"..
+					cWarning2.."Negative impacts:|r\n"..
 					"- Inside the dialog for create Premade Group is hidden item \"Goal\".\n"..
 					"- Tooltips of items in the list of Premade Groups have a hidden 2nd (green) row"..
 					offs.."with \"Goal\".\n"..
 					"- Inside the dialog for create Premade Group, no automatically set the \"Title\","..
 					offs.."e.g. keystone level for Mythic+.\n\n"..
-					"LFG Hack is enabled by default, you can disable it in "..KT.title.." Options (section \"Hacks\").",
+					cTitle.."World Map Hack|r "..beta.."\n\n"..
+					cBold.."Affects World Map|r and removes taint errors. The hack removes call of restricted function "..
+					"SetPassThroughButtons. When the hack is inactive World Map display causes errors. It is not possible "..
+					"to get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
+					cWarning2.."Negative impacts:|r unknown in WoW 10.2.7",
 			textY = -20,
 		},
 		{	-- 12
-			text = cTitle.."         What's New|r\n\n"..
-					cTitle.."Version 6.5.1|r\n"..
-					"- FIXED - TomTom - Unknown error with WQ ('Display' a nil value)\n"..
-					"- UPDATED - Help - Active Patrons\n"..
-					"- UPDATED - Libs\n\n"..
-
-					cTitle.."Version 6.5.0|r\n"..
-					"- ADDED - Support for WoW 10.2.5\n"..
-					"- ADDED - Support for WoW 10.2.0\n"..
-					"- UPDATED - Deprecated functions in WoW 10.2.0\n"..
-					"- UPDATED - Deprecated functions in WoW 10.1.0\n"..
-					"- UPDATED - Options - Position / Size for resolution greater than 1920x1200\n"..
-					"- UPDATED - Addon support - Masque 10.2.5\n"..
-					"- UPDATED - Addon support - PetTracker 10.2.4\n"..
-					"- UPDATED - Addon support - TomTom 3.5.5-release\n"..
-					"- UPDATED - Addon support - ElvUI 13.58, Tukui 20.41\n"..
-					"- UPDATED - Libs\n\n"..
-
-					cTitle.."WoW 10.2.5 - Known issues w/o solution|r\n"..
-					"- Clicking on tracked quests or achievements has no response during combat.\n"..
-					"- Header buttons Q and A don't work during combat.\n\n"..
+			image = helpPath.."help_whats-new_logo",
+			imageWidth = 182,
+			imageHeight = 40,
+			imageTexCoords = { 0, 0.75, 0, 0.65625 },
+			imagePoint = "TOPRIGHT",
+			imageX = -20,
+			imageY = 7,
+			imageAbsolute = true,
+			text = "            |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."Version 6.6.0|r\n"..
+					"- ADDED - AddonCompartmentFrame support (button in the upper right corner"..
+					offs.."below the calendar button) - toggle show/hide the tracker\n"..
+					"- ADDED - command '/kt hide' for toggle show/hide the tracker\n"..
+					"- ADDED - blocking the opening of Collections frame (Appearances, Pet Journal)"..
+					offs.."during combat\n"..
+					"- ADDED - Tainted frames Hack - open/close tainted frames during combat (Quest"..
+					offs.."Log, Achievements etc.)\n"..
+					"- ADDED - World Map Hack [Beta] - errors are gone, the hack removes call of"..
+					offs.."restricted function SetPassThroughButtons, see Help page 11\n"..
+					"- ADDED - support for WoW 10.2.7\n"..
+					"- ADDED - support for WoW 10.2.6\n"..
+					"- CHANGED - Wowhead popup\n"..
+					"- CHANGED - addon support - RealUI 2.3.14\n"..
+					"- CHANGED - addon support - ElvUI 13.64\n"..
+					"- CHANGED - addon support - TomTom 3.6.2-release\n"..
+					"- CHANGED - addon support - Masque 10.2.7\n"..
+					"- CHANGED - addon support - PetTracker 10.2.7\n"..
+					"- CHANGED (help) - page What's New\n"..
+					"- CHANGED - Libs\n"..
+					"- FIXED - Edit Mode sometimes stays open\n"..
+					"- FIXED (quests) - error after collapsing a section, when there are Popup quests"..
+					offs.."(2+)\n"..
+					"- PERFORMANCE (quests) - skin Popup quests\n"..
+					"- REMOVED - addon support - SyncUI\n"..
+					"- REMOVED - addon support - SpartanUI\n"..
+					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
 					"For reporting please use "..cBold.."Tickets|r instead of Comments on CurseForge.\n\n\n\n"..

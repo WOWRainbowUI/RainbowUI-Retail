@@ -194,6 +194,74 @@ function KT_QuestObjectiveSetupBlockButton_FindGroup(block, questID)
 	return block.hasGroupFinderButton;
 end
 
+local g_scenarioFindGroupButtonPool = CreateFramePool("BUTTON", nil, "KT_ScenarioObjectiveFindGroupButtonTemplate", OnRelease);
+function KT_ScenarioObjectiveFindGroup_ReleaseButton(self)
+	self.scenarioID = nil;
+	g_scenarioFindGroupButtonPool:Release(self);
+end
+
+function KT_ScenarioObjectiveFindGroup_OnMouseDown(self)
+	if self:IsEnabled() then
+		self.Icon:SetPoint("CENTER", self, "CENTER", -2, -1);
+		self.Highlight:SetPoint("CENTER", self, "CENTER", -2, -1);
+	end
+end
+
+function KT_ScenarioObjectiveFindGroup_OnMouseUp(self)
+	if self:IsEnabled() then
+		self.Icon:SetPoint("CENTER", self, "CENTER", -1, 0);
+		self.Highlight:SetPoint("CENTER", self, "CENTER", -1, 0);
+	end
+end
+
+function KT_ScenarioObjectiveFindGroup_OnEnter(self)
+	GameTooltip:SetOwner(self);
+	GameTooltip:AddLine(TOOLTIP_TRACKER_FIND_GROUP_BUTTON, HIGHLIGHT_FONT_COLOR:GetRGB());
+
+	GameTooltip:Show();
+end
+
+function KT_ScenarioObjectiveFindGroup_OnLeave(self)
+	GameTooltip:Hide();
+end
+
+function KT_ScenarioObjectiveFindGroup_OnClick(self)
+	local shouldShowCreateGroupButton = true;
+	LFGListUtil_FindScenarioGroup(self.scenarioID, shouldShowCreateGroupButton);
+end
+
+function KT_ScenarioObjectiveReleaseBlockButton_FindGroup(block)
+	block.hasGroupFinderButton = nil;
+
+	if block.groupFinderButton then
+		KT_ScenarioObjectiveFindGroup_ReleaseButton(block.groupFinderButton);
+		block.groupFinderButton = nil;
+	end
+end
+
+function KT_ScenarioObjectiveSetupBlockButton_FindGroup(block, scenarioID)
+	if block.hasGroupFinderButton == nil then
+		block.hasGroupFinderButton = C_LFGList.CanCreateScenarioGroup(scenarioID);
+	end
+
+	if block.hasGroupFinderButton then
+		local groupFinderButton = block.groupFinderButton;
+		if not groupFinderButton then
+			groupFinderButton = g_scenarioFindGroupButtonPool:Acquire();
+			groupFinderButton:SetParent(block);
+			groupFinderButton.scenarioID = scenarioID;
+			block.groupFinderButton = groupFinderButton;
+		end
+
+		groupFinderButton:SetPoint("TOPRIGHT", block, 30, 5);
+		groupFinderButton:Show();
+	else
+		KT_ScenarioObjectiveReleaseBlockButton_FindGroup(block);
+	end
+
+	return block.hasGroupFinderButton;
+end
+
 function KT_QuestObjectiveReleaseBlockButton_FindGroup(block)
 	block.hasGroupFinderButton = nil;
 

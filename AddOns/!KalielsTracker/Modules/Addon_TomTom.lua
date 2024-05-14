@@ -16,8 +16,6 @@ local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
 local questWaypoints = {}
 local superTrackedQuestID = 0
 
-local eventFrame
-
 --------------
 -- Internal --
 --------------
@@ -274,27 +272,19 @@ local function SetHooks()
 	end)
 end
 
-local function SetFrames()
-	-- Event frame
-	if not eventFrame then
-		eventFrame = CreateFrame("Frame")
-		eventFrame:SetScript("OnEvent", function(self, event, ...)
-			_DBG("Event - "..event, true)
-			if event == "QUEST_LOG_UPDATE" then
-				SetSuperTrackedQuestWaypoint(C_SuperTrack.GetSuperTrackedQuestID())
-				self:UnregisterEvent(event)
-			elseif event == "QUEST_WATCH_UPDATE" then
-				local questID = ...
-				if questID == C_SuperTrack.GetSuperTrackedQuestID() then
-					C_Timer.After(0, function()
-						SetSuperTrackedQuestWaypoint(questID, true)
-					end)
-				end
-			end
-		end)
-	end
-	eventFrame:RegisterEvent("QUEST_LOG_UPDATE")
-	eventFrame:RegisterEvent("QUEST_WATCH_UPDATE")
+local function SetEvents()
+	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
+		SetSuperTrackedQuestWaypoint(C_SuperTrack.GetSuperTrackedQuestID())
+		KT:UnregEvent(eventID)
+	end)
+
+	KT:RegEvent("QUEST_WATCH_UPDATE", function(_, questID)
+		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
+			C_Timer.After(0, function()
+				SetSuperTrackedQuestWaypoint(questID, true)
+			end)
+		end
+	end)
 end
 
 --------------
@@ -304,10 +294,10 @@ end
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
-	self.isLoaded = (KT:CheckAddOn("TomTom", "v3.5.5-release") and db.addonTomTom)
+	self.isLoaded = (KT:CheckAddOn("TomTom", "v3.6.2-release") and db.addonTomTom)
 
 	if self.isLoaded then
-		KT:Alert_IncompatibleAddon("TomTom", "v3.5.1-release")
+		KT:Alert_IncompatibleAddon("TomTom", "v3.6.0-release")
 	end
 
 	local defaults = KT:MergeTables({
@@ -322,6 +312,6 @@ end
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
 	SetupOptions()
-	SetFrames()
+	SetEvents()
 	SetHooks()
 end
