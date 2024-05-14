@@ -773,6 +773,8 @@ addon.db = {
 		210537, -- Renewed Proto-Drake: Embodiment of Shadowflame
 		210536, -- Renewed Proto-Drake: Embodiment of the Blazing
 		210064, -- Winding Slitherdrake: Embodiment of the Verdant Gladiator
+		-- 10.2.7
+		213561, -- Winding Slitherdrake: Void Scales
 	},
 	["|cffa335eeLizi's Reins|r"] = {
 		192615, -- Fluorescent Fluid
@@ -1102,15 +1104,28 @@ addon.db = {
 		207002, -- Encapsulated Destiny
 		207027, -- Greater Encapsulated Destiny
 		207030, -- Dilated Time Capsule
+		209856, -- Dilated Time Pod
+		224298, -- Dilated Eon Canister
 	},
 	["|cff67CF9EDreamsurge|r"] = {
 		209419, -- Charred Elemental Remains
 		207026, -- Dreamsurge Coalescence
 		208153, -- Dreamsurge Chrysalis
+		210254, -- Dreamsurge Cocoon
+		224297, -- Dreamsurge Cradle
 	},
 	["|cff67CF9ESuperbloom|r"] = {
 		208066, -- Small Dreamseed
 		208067, -- Plump Dreamseed
 		208047, -- Gigantic Dreamseed
+	},
+	["|cffa335eeAwakened|r"] = {
+		213089, -- Antique Bronze Bullion
+	},
+	["|cfff49813Bronze|r"] = {
+		223908, -- Minor Bronze Cache
+		223909, -- Lesser Bronze Cache
+		223910, -- Bronze Cache
+		223911, -- Greater Bronze Cache
 	}
 }
