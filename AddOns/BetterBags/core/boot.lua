@@ -9,3 +9,4 @@ local addon = LibStub("AceAddon-3.0"):NewAddon(root, addonName, 'AceHook-3.0')
 addon:SetDefaultModuleState(false)
 
 BINDING_NAME_BETTERBAGS_TOGGLESEARCH = "搜尋背包"
+BINDING_NAME_BETTERBAGS_TOGGLEBAGS = "打開背包"

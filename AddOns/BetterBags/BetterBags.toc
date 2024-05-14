@@ -3,13 +3,13 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.43
+## Version: v0.1.44
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-05-07T23:21:15Z
+## X-Date: 2024-05-12T23:05:32Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
-## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort, Pawn
+## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort, Pawn, WagoAnalytics
 
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包
 ## Notes-zhTW: BetterBags |n|nAdi 背包的進化版，效能好、bug 少、東西不亂跑，分類清楚好好找。|n|n|cffffd200使用方法: |r點背包視窗左上角的背包圖示顯示設定選單，或是從Esc>選項>插件>背包，進行設定。
@@ -18,6 +18,7 @@
 ## DefaultState: disabled
 
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+libs/WagoAnalytics/Shim.lua
 
 templates\container.xml
 templates\debug.xml
@@ -30,6 +31,7 @@ debug\debug.lua
 debug\frames.lua
 debug\profile.lua
 debug\items.lua
+debug\analytics.lua
 
 core\events.lua
 core\localization.lua

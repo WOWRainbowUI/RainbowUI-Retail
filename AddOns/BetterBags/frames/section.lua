@@ -212,6 +212,7 @@ end
 ---@param f Section
 function sectionFrame:_DoReset(f)
   f:EnableHeader()
+  f:GetContent():SortHorizontal()
   f:Wipe()
 end
 
