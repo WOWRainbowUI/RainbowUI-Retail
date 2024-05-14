@@ -1,12 +1,7 @@
 ## Interface: 100206
-## Interface-Retail: 100206
-## Interface-Classic: 11502
-## Interface-BCC: 20504
-## Interface-Wrath: 30403
-## Interface-Cata: 40400
 ## IconTexture: Interface\Icons\Spell_nature_heavypolymorph1
 ## Title: Lib: DRList-1.0
-## Version: v1.4.4
+## Version: v1.5.0
 ## X-Category: Library
 ## X-License: MIT
 ## X-Curse-Project-ID: 315757
