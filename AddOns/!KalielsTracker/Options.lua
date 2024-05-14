@@ -38,6 +38,7 @@ local realmZones = { ["EU"] = "歐洲", ["NA"] = "北美" }
 local cTitle = " "..NORMAL_FONT_COLOR_CODE
 local cBold = "|cff00ffe3"
 local cWarning = "|cffff7f00"
+local cWarning2 = "|cffff4200"
 local beta = "|cffff7fff[Beta]|r"
 local warning = cWarning.."注意:|r 將會重新載入介面!"
 
@@ -121,6 +122,7 @@ local defaults = {
 		addonTomTom = false,
 
 		hackLFG = true,
+		hackWorldMap = true,
 	},
 	char = {
 		collapsed = false,
@@ -166,6 +168,7 @@ local options = {
 						},
 						slashCmd = {
 							name = cBold.." /kt|r  |cff808080..............|r  切換 (展開/收起) 任務追蹤清單\n"..
+									cBold.." /kt hide|r  |cff808080......|r  切換 (顯示/隱藏) 任務追蹤清單\n"..
 									cBold.." /kt config|r  |cff808080...|r  顯示設定選項視窗\n",
 							type = "description",
 							width = "double",
@@ -1379,28 +1382,16 @@ local options = {
 							disabled = true,
 							order = 2.3,
 						},
-						syncui = {
-							name = "SyncUI",
-							type = "toggle",
-							disabled = true,
-							order = 2.4,
-						},
-						spartanui = {
-							name = "SpartanUI",
-							type = "toggle",
-							disabled = true,
-							order = 2.5,
-						},
 					},
 				},
 			},
 		},
 		hacks = {
-			name = "駭入",
+			name = "駭客工具",
 			type = "group",
 			args = {
 				desc = {
-					name = cWarning.."警告:|r 駭入功能可能會影響其他插件!",
+					name = cWarning.."警告:|r 駭客工具可能會影響其他插件\n\n請回報任何未提及的負面影響。",
 					type = "description",
 					order = 0,
 				},
@@ -1411,10 +1402,10 @@ local options = {
 					order = 1,
 					args = {
 						hackLFG = {
-							name = "駭入尋求組隊",
+							name = "尋求組隊駭客工具",
 							desc = cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
-									"啟用駭入功能時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
-									"負面影響:|r\n"..
+									"啟用駭客工具時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
+									cWarning2.."負面影響:|r\n"..
 									"- 建立預組隊伍的對話框中會隱藏 \"目標\" 項目。\n"..
 									"- 預組隊伍列表中項目的滑鼠提示會隱藏第二行 (綠色) 的 \"目標\"。\n"..
 									"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，\n"..
@@ -1429,6 +1420,32 @@ local options = {
 								ReloadUI()
 							end,
 							order = 1.1,
+						},
+					},
+				},
+				sec2 = {
+					name = WORLDMAP_BUTTON,
+					type = "group",
+					inline = true,
+					order = 2,
+					args = {
+						hackWorldMap = {
+							name = "世界地圖駭客工具 "..beta,
+							desc = cBold.."影響世界地圖|r並且移除汙染錯誤。"..
+									"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
+									"停用駭客工具時，世界地圖顯示會導致錯誤。"..
+									"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
+									cWarning2.."負面影響:|r 在魔獸世界 10.2.7 尚未可知。\n",
+							descStyle = "inline",
+							type = "toggle",
+							width = "full",
+							confirm = true,
+							confirmText = warning,
+							set = function()
+								db.hackWorldMap = not db.hackWorldMap
+								ReloadUI()
+							end,
+							order = 2.1,
 						},
 					},
 				},
@@ -1731,17 +1748,13 @@ OTF:HookScript("OnEvent", function(self, event)
 	end
 end)
 
-local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript("OnEvent", function(self, event, ...)
-	if event == "PLAYER_ENTERING_WORLD" then
+KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
+	UpdateOptions()
+	KT:RegEvent("UI_SCALE_CHANGED", function()
 		UpdateOptions()
-		self:RegisterEvent("UI_SCALE_CHANGED")
-		self:UnregisterEvent(event)
-	elseif event == "UI_SCALE_CHANGED" then
-		UpdateOptions()
-	end
+	end)
+	KT:UnregEvent(eventID)
 end)
-eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 hooksecurefunc(UIParent, "SetScale", function(self)
 	UpdateOptions()

@@ -48,7 +48,7 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "13.58", true) then
+    if KT:CheckAddOn("ElvUI", "v13.64", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
         B.SetObjectiveFrameHeight = function() end    -- preventive
@@ -84,56 +84,12 @@ end
 
 -- RealUI
 local function RealUI_SetSupport()
-    if KT:CheckAddOn("nibRealUI", "2.3.1", true) then
+    if KT:CheckAddOn("nibRealUI", "2.3.14", true) then
         local R = _G.RealUI
         local module = "Objectives Adv."
         if R:GetModuleEnabled(module) then
             R:SetModuleEnabled(module, false)
             StaticPopup_Show(addonName.."_ReloadUI", nil, "套用變更必須|cff00ffe3重新載入介面|r。")
-        end
-        if not C_AddOns.IsAddOnLoaded("Aurora_Extension") then
-            StaticPopup_Show(addonName.."_Info", nil, "請安裝/啟用插件 |cff00ffe3Aurora - Extension|r\n並且停用任務追蹤清單外觀。")
-        end
-    end
-end
-
--- SyncUI
-local function SyncUI_SetSupport()
-    if KT:CheckAddOn("SyncUI", "8.3.0.3", true) then
-        SyncUI_ObjTracker.Show = function() end
-        SyncUI_ObjTracker:Hide()
-        SyncUI_ObjTracker:SetScript("OnLoad", nil)
-        SyncUI_ObjTracker:SetScript("OnEvent", nil)
-        SyncUI_UnregisterDragFrame(_G["SyncUI_ObjTracker"])
-    end
-end
-
--- SpartanUI
-local function SpartanUI_SetSupport()
-    if KT:CheckAddOn("SpartanUI", "6.2.21", true) then
-        local module = SUI:GetModule("Module_Objectives", true)
-        if module then
-            SUI.DB.DisabledModules.Objectives = true
-            local bck_module_OnEnable = module.OnEnable
-            function module:OnEnable()
-                if SUI.DB.DisabledModules.Objectives then
-                    local options = SUI.opt.args.Modules.args
-                    options.Objectives = {
-                        type = "group",
-                        name = SUI.L.Objectives,
-                        disabled = true,
-                        args = {},
-                    }
-                    options.ModuleListing.args.Objectives.disabled = true
-                    options.ModuleListing.args[addonName.."Warning"] = {
-                        name = "\n"..KTwarning,
-                        type = "description",
-                        order = 1000,
-                    }
-                    return
-                end
-                bck_module_OnEnable(self)
-            end
         end
     end
 end
@@ -145,7 +101,7 @@ end
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
-    self.isLoadedMasque = (KT:CheckAddOn("Masque", "10.2.5") and db.addonMasque)
+    self.isLoadedMasque = (KT:CheckAddOn("Masque", "10.2.7") and db.addonMasque)
 
     if self.isLoadedMasque then
         KT:Alert_IncompatibleAddon("Masque", "10.0.1")
@@ -158,8 +114,6 @@ function M:OnEnable()
     ElvUI_SetSupport()
     Tukui_SetSupport()
     RealUI_SetSupport()
-    SyncUI_SetSupport()
-    SpartanUI_SetSupport()
 end
 
 -- Masque

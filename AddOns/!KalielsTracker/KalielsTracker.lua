@@ -5,7 +5,7 @@
 --- This file is part of addon Kaliel's Tracker.
 
 local addonName, addon = ...
-local KT = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-ProtRouter-1.0")
+local KT = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-Event-1.0", "MSA-ProtRouter-1.0")
 KT:SetDefaultModuleState(false)
 KT.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
 KT.version = C_AddOns.GetAddOnMetadata(addonName, "Version")
@@ -230,10 +230,22 @@ local function SetMsgPatterns()
 	end
 end
 
-local function SlashHandler(msg, editbox)
-	local cmd, value = msg:match("^(%S*)%s*(.-)$")
+local function ToggleHiddenTracker()
+	KT.hidden = not KT.hidden
+	KT.locked = KT.hidden
+	if not KT.hidden and not KT.collapsedByUser then
+		KT_ObjectiveTracker_Expand()
+	end
+	KT:ToggleEmptyTracker()
+	KT_ObjectiveTracker_Update()
+end
+
+local function SlashHandler(msg)
+	local cmd = msg:match("^(%S*)%s*(.-)$")
 	if cmd == "config" then
 		KT:OpenOptions()
+	elseif cmd == "hide" then
+		ToggleHiddenTracker()
 	else
 		KT:MinimizeButton_OnClick()
 	end
@@ -1665,9 +1677,14 @@ local function SetHooks()
 				local questTitle = C_QuestLog.GetTitleForQuestID(questID)
 				if questTitle and questTitle ~= "" then
 					local block = owningModule.usedBlocks["KT_AutoQuestPopUpBlockTemplate"][questID..popUpType]
-					local blockContents = block.ScrollChild
-					blockContents.QuestName:SetFont(KT.font, 14, "")
-					blockContents.BottomText:SetPoint("BOTTOM", 0, 7)
+					if block then
+						if not block.KTskinned or KT.forcedUpdate then
+							local blockContents = block.ScrollChild
+							blockContents.QuestName:SetFont(KT.font, 14, "")
+							blockContents.BottomText:SetPoint("BOTTOM", 0, 7)
+							block.KTskinned = true
+						end
+					end
 				end
 			end
 		end
@@ -1714,6 +1731,13 @@ local function SetHooks()
 			end
 		end
 	end)
+
+	local bck_KT_AdventureObjectiveTracker_OpenToAppearance = KT_AdventureObjectiveTracker_OpenToAppearance
+	KT_AdventureObjectiveTracker_OpenToAppearance = function(unused_dropDownButton, appearanceID)
+		if not KT.InCombatBlocked() then
+			bck_KT_AdventureObjectiveTracker_OpenToAppearance(unused_dropDownButton, appearanceID)
+		end
+	end
 
 	local bck_KT_ObjectiveTracker_ReorderModules = KT_ObjectiveTracker_ReorderModules
 	KT_ObjectiveTracker_ReorderModules = function()
@@ -2881,12 +2905,12 @@ end
 
 function KT:ToggleEmptyTracker(added)
 	local alpha, mouse = 1, true
-	if self:IsTrackerEmpty() then
+	if self:IsTrackerEmpty() or self.hidden then
 		if not dbChar.collapsed then
 			ObjectiveTracker_Toggle()
 		end
 		KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0.5, 0.75)
-		if db.hideEmptyTracker then
+		if db.hideEmptyTracker or self.hidden then
 			alpha = 0
 			mouse = false
 		end
@@ -2969,6 +2993,13 @@ function KT:OnInitialize()
 	local _, class = UnitClass("player")
 	self.classColor = RAID_CLASS_COLORS[class]
 
+	-- Setup Options
+	self:SetupOptions()
+	db = self.db.profile
+	dbChar = self.db.char
+	KT:Alert_ResetIncompatibleProfiles("6.3.0")
+
+	-- Tracker data
 	self.headers = {}
 	self.borderColor = {}
 	self.hdrBtnColor = {}
@@ -2980,16 +3011,11 @@ function KT:OnInitialize()
 	self.hiddenQuestPopUps = false
 	self.stopUpdate = true
 	self.questStateStopUpdate = false
-	self.collapsedByUser = false
+	self.collapsedByUser = dbChar.collapsed
+	self.hidden = false
 	self.locked = false
 	self.wqInitialized = false
 	self.initialized = false
-
-	-- Setup Options
-	self:SetupOptions()
-	db = self.db.profile
-	dbChar = self.db.char
-	KT:Alert_ResetIncompatibleProfiles("6.3.0")
 
 	-- Blizzard frame resets
 	ObjectiveTrackerFrame:Hide()
@@ -3041,4 +3067,11 @@ function KT:OnEnable()
 	if isChange then
 		self.db:RegisterDefaults(self.db.defaults)
 	end
+
+	AddonCompartmentFrame:RegisterAddon({
+		text = self.title,
+		icon = "Interface\\Addons\\"..addonName.."\\Media\\KT_logo",
+		notCheckable = true,
+		func = ToggleHiddenTracker,
+	})
 end

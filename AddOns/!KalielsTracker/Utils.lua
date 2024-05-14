@@ -411,6 +411,15 @@ function KT.SecondsToTime(seconds, noSeconds, maxCount, roundUp)
     return time;
 end
 
+-- Combat test
+function KT.InCombatBlocked()
+    local blocked = InCombatLockdown()
+    if blocked then
+        UIErrorsFrame:AddExternalErrorMessage("This operation cannot be completed during combat.")
+    end
+    return blocked
+end
+
 -- =====================================================================================================================
 
 local function StatiPopup_OnShow(self)
@@ -480,7 +489,8 @@ StaticPopupDialogs[addonName.."_WowheadURL"] = {
     end,
     OnShow = function(self)
         local name = "..."
-        local urlText = self.text.text_arg1.."="..self.text.text_arg2
+        local url = "https://www.wowhead.com/"
+        local param = self.text.text_arg1.."="..self.text.text_arg2
         if self.text.text_arg1 == "quest" then
             name = QuestUtils_GetQuestName(self.text.text_arg2)
         elseif self.text.text_arg1 == "achievement" then
@@ -492,12 +502,15 @@ StaticPopupDialogs[addonName.."_WowheadURL"] = {
             if activityInfo then
                 name = activityInfo.activityName
             end
-            urlText = "trading-post-activity/"..self.text.text_arg2
+            param = "trading-post-activity/"..self.text.text_arg2
         end
         local lang = KT.locale:sub(1, 2)
-        if lang == "zh" then lang = "cn" end
+        if lang ~= "en" then
+            if lang == "zh" then lang = "cn" end
+            url = url..lang.."/"
+        end
         self.text:SetText(self.text:GetText().."\n|cffff7f00"..name.."|r")
-        self.editBox.text = "https://"..lang..".wowhead.com/"..urlText
+        self.editBox.text = url..param
         self.editBox:SetText(self.editBox.text)
         self.editBox:SetFocus()
     end,

@@ -15,7 +15,6 @@ local db, dbChar
 local OTF = KT_ObjectiveTrackerFrame
 local PetTracker = PetTracker
 
-local eventFrame
 local header, content
 local filterButton
 
@@ -26,6 +25,10 @@ PETTRACKER_TRACKER_MODULE = KT_ObjectiveTracker_GetModuleInfoTable("PETTRACKER_T
 M.Texts = {
 	TrackPets = GetSpellInfo(122026),
 	CapturedPets = "顯示已有的",
+	DisplayCondition = "顯示條件",
+	DisplayAlways = "總是",
+	DisplayMissingRares = "缺少的稀有",
+	DisplayMissingPets = "缺少的寵物"
 }
 
 --------------
@@ -56,8 +59,15 @@ local function SetHooks()
 		if PetTracker.sets.zoneTracker then
 			self:GetClass().Update(self)
 		end
-		self:SetShown(PetTracker.sets.zoneTracker and self.Bar:IsShown())
+		self:SetShown(PetTracker.sets.zoneTracker and not self.Bar:IsMaximized())
 		KT_ObjectiveTracker_Update(OBJECTIVE_TRACKER_UPDATE_PETTRACKER)
+	end
+
+	local bck_PetTracker_Pet_Display = PetTracker.Pet.Display
+	function PetTracker.Pet:Display()
+		if not KT.InCombatBlocked() then
+			bck_PetTracker_Pet_Display(self)
+		end
 	end
 
 	function PetTracker.Tracker:Update()  -- R
@@ -126,25 +136,21 @@ local function SetHooks_PetTracker_Journal()
 	end
 end
 
-local function SetFrames_Init()
-	-- Event frame
-	if not eventFrame then
-		eventFrame = CreateFrame("Frame")
-		eventFrame:SetScript("OnEvent", function(self, event, arg1)
-			_DBG("Event - "..event.." - "..tostring(arg1), true)
-			if event == "ADDON_LOADED" and arg1 == "PetTracker_Journal" then
+local function Event_PLAYER_ENTERING_WORLD(eventID)
+	KT:RegEvent("PET_JOURNAL_LIST_UPDATE", function()
+		M:SetPetsHeaderText()
+	end)
+	KT:UnregEvent(eventID)
+end
+
+local function SetEvents_Init()
+	if not C_AddOns.IsAddOnLoaded("PetTracker_Journal") then
+		KT:RegEvent("ADDON_LOADED", function(eventID, addon)
+			if addon == "PetTracker_Journal" then
 				SetHooks_PetTracker_Journal()
-				self:UnregisterEvent(event)
-			elseif event == "PLAYER_ENTERING_WORLD" then
-				self:RegisterEvent("PET_JOURNAL_LIST_UPDATE")
-				self:UnregisterEvent(event)
-			elseif event == "PET_JOURNAL_LIST_UPDATE" then
-				M:SetPetsHeaderText()
+				KT:UnregEvent(eventID)
 			end
 		end)
-	end
-	if not C_AddOns.IsAddOnLoaded("PetTracker_Journal") then
-		eventFrame:RegisterEvent("ADDON_LOADED")
 	else
 		SetHooks_PetTracker_Journal()
 	end
@@ -242,16 +248,16 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-	self.isLoaded = (KT:CheckAddOn("PetTracker", "10.2.4") and db.addonPetTracker)
+	self.isLoaded = (KT:CheckAddOn("PetTracker", "10.2.7") and db.addonPetTracker)
 
 	if self.isLoaded then
-		KT:Alert_IncompatibleAddon("PetTracker", "10.2.4")
+		KT:Alert_IncompatibleAddon("PetTracker", "10.2.6")
 
 		tinsert(KT.db.defaults.profile.modulesOrder, "PETTRACKER_TRACKER_MODULE")
 		KT.db:RegisterDefaults(KT.db.defaults)
 	end
 
-	SetFrames_Init()
+	SetEvents_Init()
 	SetHooks_Init()
 end
 
@@ -264,7 +270,7 @@ function M:OnEnable()
 	PETTRACKER_TRACKER_MODULE.updateReasonEvents = OBJECTIVE_TRACKER_UPDATE_PETTRACKER
 	PETTRACKER_TRACKER_MODULE:SetHeader(header, PETS)
 
-	eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	KT:RegEvent("PLAYER_ENTERING_WORLD", Event_PLAYER_ENTERING_WORLD)
 end
 
 function M:IsShown()

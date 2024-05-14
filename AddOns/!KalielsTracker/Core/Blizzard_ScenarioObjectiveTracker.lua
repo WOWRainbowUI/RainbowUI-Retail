@@ -1077,6 +1077,7 @@ function KT_SCENARIO_CONTENT_TRACKER_MODULE:Update()
 		BlocksFrame:SetHeight(BlocksFrame.contentsHeight + 1);
 		KT_ObjectiveTracker_AddBlock(BlocksFrame);
 		BlocksFrame:Show();
+		KT_ScenarioObjectiveSetupBlockButton_FindGroup(stageBlock, select(13, C_Scenario.GetInfo()));
 		if ( KT_OBJECTIVE_TRACKER_UPDATE_REASON == KT_OBJECTIVE_TRACKER_UPDATE_SCENARIO_NEW_STAGE and not inChallengeMode ) then
 			if ( KT_ObjectiveTrackerFrame:IsShown() ) then
 				if ( currentStage == 1 ) then
