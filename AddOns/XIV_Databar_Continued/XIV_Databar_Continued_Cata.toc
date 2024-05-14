@@ -1,8 +1,8 @@
-## Interface: 30403
+## Interface: 40400
 ## X-Interface: 30403
 ## Title: XIV_Databar Continued
 ## Author: ZelionGG
-## Version: 2.7.3
+## Version: 2.7.3 Fix3
 
 ## Notes: Adds a databar. Previously maintained by |cff00FF99Saxitoxin|r, |cffbbbbbbMille|r|cff990000XIV|r, |c03dbfcbbVicious|r, |cffbab86cKozoaku|r, and now |cffFF0000ZelionGG|r.
 ## SavedVariables: TEST_CONFIG, XIVBarDB
@@ -17,7 +17,7 @@
 ## Notes-zhTW: XIV_Databar Continued |n|n在畫面最下方顯示一排遊戲功能小圖示，取代原本的微型選單和背包按鈕。還會顯示時間、耐久度、天賦、專業、兌換通貨、金錢、傳送和系統資訊等等。可以自行選擇要顯示哪些資訊、調整位置和顏色。|n|n|cffffd200使用方法: |r從Esc>選項>插件>資訊列，進行設定。
 ## X-Category-zhTW: 介面
 
-embeds.xml
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 Classic\embeds.xml
 
 locales\locales.xml

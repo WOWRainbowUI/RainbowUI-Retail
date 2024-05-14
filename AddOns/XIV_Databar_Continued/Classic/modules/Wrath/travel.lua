@@ -314,7 +314,7 @@ function TravelModule:CreatePortPopup()
 
                 buttonText:SetFont(xb:GetFont(db.text.fontSize))
                 buttonText:SetTextColor(xb:GetColor('normal'))
-                buttonText:SetText(v.text)
+                -- buttonText:SetText(v.text) -- 暫時修正
                 buttonText:SetPoint('LEFT')
                 local textWidth = buttonText:GetStringWidth()
 
