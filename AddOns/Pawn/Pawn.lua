@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.0902
+PawnVersion = 2.0903
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.18
@@ -518,7 +518,7 @@ function PawnInitialize()
 	end
 
 	-- Warn them if Pawn might be broken due to changing the thousands or decimal separator.
-	if GetLocale() ~= "frFR" or not VgerCore.IsClassic then
+	if not (GetLocale() == "frFR" and not VgerCore.IsMainline) then
 		-- The separator strings are completely wrong on French WoW Classic.  :(
 		if (LARGE_NUMBER_SEPERATOR and PawnLocal.ThousandsSeparator ~= LARGE_NUMBER_SEPERATOR) or
 		(DECIMAL_SEPERATOR and PawnLocal.DecimalSeparator ~= DECIMAL_SEPERATOR) then
@@ -3931,8 +3931,13 @@ function PawnFindBestItems(ScaleName, InventoryOnly)
 				if Location and Location > 1 then
 					-- Getting the item link for an equipment set item is a pain in the ass...
 					local ItemLink
-					-- PROBLEM: *** EquipmentManager_UnpackLocation in Cataclysm Classic removes IsInVoidStorage from the return values, shifting everything over.
-					local IsOnPlayer, IsInBank, IsInBags, IsInVoidStorage, Slot, Bag, Tab, VoidSlot = EquipmentManager_UnpackLocation(Location)
+					local IsOnPlayer, IsInBank, IsInBags, IsInVoidStorage, Slot, Bag, Tab, VoidSlot
+					if VgerCore.IsCataclysm then
+						-- EquipmentManager_UnpackLocation in Cataclysm Classic removes IsInVoidStorage from the return values, shifting everything over.
+						IsOnPlayer, IsInBank, IsInBags, Slot, Bag, Tab, VoidSlot = EquipmentManager_UnpackLocation(Location)
+					else
+						IsOnPlayer, IsInBank, IsInBags, IsInVoidStorage, Slot, Bag, Tab, VoidSlot = EquipmentManager_UnpackLocation(Location)
+					end
 					if IsInVoidStorage then
 						-- The item link for this item should be GetVoidItemHyperlinkString(VoidSlot), but we'll never get here; location will
 						-- be -1 (item unavailable) for items in void storage.
