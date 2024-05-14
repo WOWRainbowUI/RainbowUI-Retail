@@ -9,13 +9,8 @@
 ## SavedVariablesPerCharacter: BetterBags_iLvlDB
 ## X-Curse-Project-ID: 1014142
 
-## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-低等級
-## Notes-zhTW: BetterBags - iLvl |n|n將低等級物品放在一個分類中。
-## X-Category-zhTW: 物品
-## DefaultState: disabled
-
 # Locales
 i18n\enUS.lua
-i18n\zhTW.lua
+i18n\frFR.lua
 
 BetterBags_iLvl.lua
