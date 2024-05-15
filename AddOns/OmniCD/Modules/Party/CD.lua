@@ -125,6 +125,7 @@ local function UpdateCdByReducer(info, t, isHolyPriest)
 	end
 end
 
+--[[
 local function UpdateCdBySpender(info, guid, t, isTrueBearing)
 	local talent, duration, target, base, aura, noaura = t[1], t[2], t[3], t[4], t[5], t[6]
 	if (aura and not info.auras[aura]) or (noaura and info.auras[noaura]) then
@@ -148,6 +149,7 @@ local function UpdateCdBySpender(info, guid, t, isTrueBearing)
 		end
 	end
 end
+]]
 
 local wotlkcReadinessExcluded = {
 	[23989] = true,

@@ -175,45 +175,16 @@ E.OmniCDAnchor_OnMouseUp = function(self, button)
 end
 
 
-do
-	local Timers = CreateFrame("Frame")
-	local unusedTimers = {}
-
-	local Timer_OnFinished = function(self)
-		self.func(unpack(self.args))
-		tinsert(unusedTimers, self)
-	end
-
-	local TimerCancelled = function(self)
-		if self.TimerAnim:IsPlaying() then
-			self.TimerAnim:Stop()
-			tinsert(unusedTimers, self)
+E.TimerAfter = function(delay, func, ...)
+	local args = ...;
+	if ( args ) then
+		args = {...}
+		local callback = function()
+			func(unpack(args));
 		end
+		return C_Timer.NewTimer(delay, callback);
 	end
-
-	local function CreateTimer()
-		local TimerAnim = Timers:CreateAnimationGroup()
-		local Timer = TimerAnim:CreateAnimation("Alpha")
-		Timer:SetScript("OnFinished", Timer_OnFinished)
-		Timer.TimerAnim = TimerAnim
-		Timer.Cancel = TimerCancelled
-		return Timer
-	end
-
-	E.TimerAfter = function(delay, func, ...)
-		if delay <= 0 then
-			error("Timer requires a non-negative duration")
-		end
-		local Timer = tremove(unusedTimers)
-		if not Timer then
-			Timer = CreateTimer()
-		end
-		Timer.args = {...}
-		Timer.func = func
-		Timer:SetDuration(delay)
-		Timer.TimerAnim:Play()
-		return Timer
-	end
+	return C_Timer.NewTimer(delay, func);
 end
 
 E.BackdropTemplate = E.Libs.OmniCDC.SetBackdrop

@@ -116,7 +116,7 @@ local spells = {
 	args = {
 		desc = {
 			name = function(info)
-				return isSpellsSubcategory(info) and format("|TInterface\\FriendsFrame\\InformationIcon:14:14:0:0|t %s %s\n\n", L["Select the spells you want to track."], L["CTRL+click to edit spell."])
+				return isSpellsSubcategory(info) and format("|TInterface\\FriendsFrame\\InformationIcon:14:14:0:0|t %s %s", L["Select the spells you want to track."], L["CTRL+click to edit spell."])
 				or format("|TInterface\\FriendsFrame\\InformationIcon:14:14:0:0|t |cff20ff20%s", L["Select the spells you want to show on Raid Bar 1-8 instead of the default Unit Bar"])
 			end,
 			order = 0,
@@ -145,6 +145,7 @@ local spells = {
 			get = function(info) return E[ info[1] ].db.icons.showForbearanceCounter end,
 			set = function(info, state) E[ info[1] ].db.icons.showForbearanceCounter = state end,
 		},
+		--[[
 		quickSelect = {
 			hidden = isSpellsSubcategory,
 			name = L["Quick Select"],
@@ -155,6 +156,7 @@ local spells = {
 			get = E.Noop,
 			set = function(info, state) E[ info[1] ].setQuickSelect(info, state) end,
 		},
+		]]
 		hideDisabledSpells = {
 			hidden = isSpellsSubcategory,
 			name = L["Hide Disabled Spells"],

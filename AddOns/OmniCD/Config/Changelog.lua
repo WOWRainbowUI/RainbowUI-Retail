@@ -1,6 +1,9 @@
 local E, L, C = select(2, ...):unpack()
 
 if E.isClassic then E.changelog = [=[
+v1.15.2.2790
+	critical bug fix
+
 v1.15.2.2788
 	bump toc
 	Embeded AceComm w/ ChatThrottleLib.
@@ -11,6 +14,9 @@ v1.15.0.2775
 
 ]=]
 elseif E.isCata then E.changelog = [=[
+v4.4.0.2790
+	critical bug fix
+
 v4.4.0.2788
 	Cataclysm Classic beta (4.4.0.54525)
 
@@ -23,6 +29,9 @@ v2.5.4.2722
 
 ]=]
 elseif E.isWOTLKC then E.changelog = [=[
+v3.4.3.2790
+	critical bug fix
+
 v3.4.3.2773
 	Added season 8 Wrathful Gladiator's set bonuses
 	Fixed incorrect sorting when a unit dies or resurrects on ver.2772
@@ -30,6 +39,9 @@ v3.4.3.2773
 
 ]=]
 else E.changelog = [=[
+v10.2.7.2790
+	critical bug fix
+
 v10.2.7.2789
 	MAY 7, 2024 Hotfixes
 		Sigil of Silence cooldown increased to 90 seconds (was 60 seconds).
