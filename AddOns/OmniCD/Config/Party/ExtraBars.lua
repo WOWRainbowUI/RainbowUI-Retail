@@ -159,7 +159,7 @@ local extraBarsInfo = {
 	end,
 	name = function(info)
 		local bar = info[4]
-		return E.profile.Party[ info[2] ].extraBars[bar].name or bar == "raidBar0" and L["Interrupt Bar"] or P.extraBars[bar].index
+		return E.profile.Party[ info[2] ].extraBars[bar].name or bar == "raidBar0" and L["Interrupts"] or P.extraBars[bar].index
 	end,
 	order = function(info)
 		return P.extraBars[ info[4] ].index
@@ -605,6 +605,7 @@ local extraBarsInfo = {
 						if P:IsCurrentZone(key) then
 							local frame = P.extraBars[bar]
 							local db = frame.db
+							P:UpdateExBarPositionValues()
 							P:SetExAnchor(frame, db)
 						end
 					end,
@@ -659,6 +660,7 @@ local extraBars = {
 			local frame = P.extraBars[bar]
 			local db = frame.db
 			if option == "locked" then
+				P:UpdateExBarPositionValues()
 				P:SetExAnchor(frame, db)
 			elseif option == "scale" then
 				P:ConfigExSize(bar, true)

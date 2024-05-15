@@ -1329,11 +1329,6 @@ E.item_set_bonus = {
 	[207183] = class_set_bonus.WARRIOR,
 	[207181] = class_set_bonus.WARRIOR,
 
-	[217223] = class_set_bonus.DEATHKNIGHT101,
-	[217225] = class_set_bonus.DEATHKNIGHT101,
-	[217221] = class_set_bonus.DEATHKNIGHT101,
-	[217222] = class_set_bonus.DEATHKNIGHT101,
-	[217224] = class_set_bonus.DEATHKNIGHT101,
 	[217228] = class_set_bonus.DEMONHUNTER,
 	[217230] = class_set_bonus.DEMONHUNTER,
 	[217226] = class_set_bonus.DEMONHUNTER,

@@ -881,7 +881,7 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 
 						info.spellIcons[spellID] = icon
 
-						if i == 2 and spellID ~= 312916 and spellID ~= 368970 and spellID ~= 357214 then
+						if i == 2 and spellID ~= 312924 and spellID ~= 312916 and spellID ~= 368970 and spellID ~= 357214 then
 							break
 						end
 					end

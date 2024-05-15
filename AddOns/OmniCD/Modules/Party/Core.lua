@@ -356,7 +356,7 @@ function P:IsSpecOrTalentForPvpStatus(talentID, info, isLearnedLevel, talentDisa
 	if type(talentID) == "table" then
 		for _, id in ipairs(talentID) do
 			local talent = P:IsSpecOrTalentForPvpStatus(id, info, isLearnedLevel, talentDisabledSpec)
-			if talent then return true end
+			if talent then return talent end
 		end
 	else
 		if specIDs[talentID] then
