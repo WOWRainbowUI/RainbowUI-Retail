@@ -280,7 +280,7 @@ end
 local function PlayerTargetChanged(target_unitid)
   local widget_frame = TargetHighlightFrames[target_unitid]
   
-  -- ! Don't overwrite the target with a style if it's becoming a soft target as well
+  -- ! Don't overwrite the target with a style if it's becoming a action target as well
   local tp_frame = Widget:GetThreatPlateForUnit(target_unitid)
   if tp_frame and (not UnitIsUnit("target", tp_frame.unit.unitid) or target_unitid == "target") then
     local unit = tp_frame.unit
@@ -485,8 +485,8 @@ function Widget:UpdateSettings()
   -- Update the widget if it was already created (not true for immediately after Reload UI or if it was never enabled
   -- in this since last Reload UI)
   for target_unitid, widget_frame in pairs(TargetHighlightFrames) do
-    if widget_frame and widget_frame:GetParent() then
-      UpdateTargetHighlightFrame(widget_frame)
+    UpdateTargetHighlightFrame(widget_frame)
+    if widget_frame:GetParent() then
       PlayerTargetChanged(target_unitid)
     end
   end

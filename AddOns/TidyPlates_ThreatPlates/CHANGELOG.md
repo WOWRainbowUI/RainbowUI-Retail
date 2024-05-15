@@ -1,6 +1,6 @@
-# 11.2.8 (2024-05-10)
+# 11.2.9 (2024-05-14)
 
-* Fixed a bug with Boss Mods widget that occurred because a deprecated value for vertical alignment of text was used [Comment #7295].
-* Fixed a bug with off-tank detection in Cata Classic that occurred because the wrong API for raid roles was used. 
-* Updated TOC version for Patch 10.2.7 for WoW Mainline.
-* Upgrade integrated libraries (Ace3 Release-r1341).
+* Fixed a bug with the calculation of the clickable area of Threat Plates. Now, the clickable area of Threat Plates and Blizzard nameplates is the same if their healthbar size is the same. This also ensures that the stacking and overlapping behavior is the same for Threat Plates and Blizzard nameplates [GH-465, GH-495].
+* Fixed a bug with target highlight that occurred when the highlight style was changed with no active target, resulting in the highlight texture not being updated [GH-515].
+* Fixed a Lua error that occurred when switching active specialization on a Deathknight [GH-518]. 
+* Updated localizations.
