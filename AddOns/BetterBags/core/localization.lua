@@ -307,6 +307,9 @@ if GetLocale() == "zhTW" then
 	L.data["Gear > Alphabetically"] = "裝備 > 名稱"
 	L.data["Hearthstone > Gear > Alphabetically"] = "爐石 > 裝備 > 名稱"
 	
+	-- Betterbags-openable
+	L.data["Openable"] = "可打開"
+	
 end
 
 -- G returns the localized string for the given key.

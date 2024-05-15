@@ -1,0 +1,22 @@
+## Interface: 100207
+
+## Title: BetterBags - Openable
+## Notes: Adds a group for openable items in BetterBags
+## Author: Valorad
+## Version: v1.0
+## X-Date: @project-date-iso@
+## X-License: MIT
+## X-Category: Bags & Inventory
+## Dependencies: BetterBags
+## X-Curse-Project-ID: 1018978
+## X-WoWI-ID: YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+## Y-Wago-ID: ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+
+## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-可打開
+## Notes-zhTW: BetterBags - Openable |n|n將可打開的物品放在一個分類中。
+## X-Category-zhTW: 物品
+## IconTexture: Interface\Icons\inv_cloth_kaelthas_c_01_buckle
+## DefaultState: disabled
+
+items.lua
+plugin.lua
