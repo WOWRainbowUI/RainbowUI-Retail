@@ -1,3 +1,7 @@
+== v2.40 - 15th May 2024
+* Added a suggestion to try the other option if in retail
+	(Between chat and the special Minimap AddOn Compartment drop down menu)
+	
 == v2.39 - 1st May 2024
 * Support for Classic Cataclysm 4.4.0
 * Better colours for the AddOn Title in the AddOn menu

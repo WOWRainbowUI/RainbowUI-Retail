@@ -3,7 +3,7 @@
 
                                                X and Y
 
-                                        v2.39 - 1st May 2024
+                                        v2.40 - 15th May 2024
                                 Copyright (C) Taraezor / Chris Birch
                                          All Rights Reserved
 
@@ -353,6 +353,10 @@ function XandY_OnAddonCompartmentEnter( ... )
 	GameTooltip:AddLine( ns.colour.highlight .." " )
 	GameTooltip:AddLine( ns.colour.highlight .."Mouse Left/Right: " ..ns.colour.plaintext .."Toggle precision" )
 	GameTooltip:AddLine( ns.colour.highlight .."Mouse Middle: " ..ns.colour.plaintext .."Toggle Zone Text" )
+	GameTooltip:AddLine( ns.colour.highlight .." " )
+	GameTooltip:AddLine( ns.colour.plaintext .."Tip: Try " ..ns.colour.highlight .."/xy"
+		..ns.colour.plaintext .." in chat" )
+	GameTooltip:AddLine( ns.colour.highlight .." " )
 
 	if ( mini.xPlayer > 0 ) and ( mini.yPlayer > 0 ) then
 		mini.degrees = round( ( ( GetPlayerFacing() or -1 ) * 180 / pi ), 0 )	
