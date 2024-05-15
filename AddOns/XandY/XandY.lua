@@ -3,7 +3,7 @@
 
                                                X and Y
 
-                                        v2.39 - 1st May 2024
+                                        v2.40 - 15th May 2024
                                 Copyright (C) Taraezor / Chris Birch
                                          All Rights Reserved
 
@@ -353,6 +353,10 @@ function XandY_OnAddonCompartmentEnter( ... )
 	GameTooltip:AddLine( ns.colour.highlight .." " )
 	GameTooltip:AddLine( ns.colour.highlight .."左鍵/右鍵: " ..ns.colour.plaintext .."切換精確度" )
 	GameTooltip:AddLine( ns.colour.highlight .."中鍵: " ..ns.colour.plaintext .."切換區域文字" )
+	GameTooltip:AddLine( ns.colour.highlight .." " )
+	GameTooltip:AddLine( ns.colour.plaintext .."提示: 試試在聊天視窗輸入 " ..ns.colour.highlight .."/xy"
+		..ns.colour.plaintext .." " )
+	GameTooltip:AddLine( ns.colour.highlight .." " )
 
 	if ( mini.xPlayer > 0 ) and ( mini.yPlayer > 0 ) then
 		mini.degrees = round( ( ( GetPlayerFacing() or -1 ) * 180 / pi ), 0 )	
