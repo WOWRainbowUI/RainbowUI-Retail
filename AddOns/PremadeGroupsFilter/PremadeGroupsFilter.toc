@@ -1,6 +1,6 @@
 ## Interface: 100207
 ## Title: Premade Groups Filter
-## Version: 5.5.1
+## Version: 5.6.0
 ## IconTexture: 397907
 ## X-Flavor: Retail
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
@@ -33,6 +33,7 @@ UI\StaticPopup.lua
 Modules\Util.lua
 Modules\Activity.lua
 Modules\ActivityKeywords.lua
+Modules\AdvancedFilter.lua
 Modules\Specializations.lua
 Modules\MemberInfo.lua
 Modules\RemainingSlots.lua
