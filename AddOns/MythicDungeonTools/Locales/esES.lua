@@ -721,7 +721,7 @@ L["Error Message:"] = "Error Message:"
 --[[Translation missing --]]
 L["errorLabel1"] = "MDT has encountered errors."
 --[[Translation missing --]]
-L["errorLabel2"] = "Please visit either GitHub or Discord and report the error message below."
+L["errorLabel2"] = "Please update MDT to the latest version and visit either GitHub or Discord and report the error message below."
 --[[Translation missing --]]
 L["errorLabel3"] = "Press CTRL + C to copy!"
 L["Erudite Slayer"] = "Asesina erudita"

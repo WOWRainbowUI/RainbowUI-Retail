@@ -712,7 +712,7 @@ L["Error Message:"] = "Error Message:"
 --[[Translation missing --]]
 L["errorLabel1"] = "MDT has encountered errors."
 --[[Translation missing --]]
-L["errorLabel2"] = "Please visit either GitHub or Discord and report the error message below."
+L["errorLabel2"] = "Please update MDT to the latest version and visit either GitHub or Discord and report the error message below."
 --[[Translation missing --]]
 L["errorLabel3"] = "Press CTRL + C to copy!"
 L["Erudite Slayer"] = "Tueuse érudite"
@@ -987,9 +987,7 @@ L["Hardened Steel Skycaller"] = "Mande-ciel en acier durci"
 --[[Translation missing --]]
 L["hardResetButton"] = "Reset MDT"
 --[[Translation missing --]]
-L["hardResetPrompt"] = [=[Do you really want to reset all settings to default?
-|cFFFF0000Only do this if MDT is not loading at all and is in a broken state.|r
-This will reload the UI!]=]
+L["hardResetPrompt"] = "Do you really want to reset all settings to default?\\n|cFFFF0000Try updating the AddOn to the latest version first!\\nOnly do this if MDT is not loading at all and is in a broken state.\\nThis will delete ALL YOUR ROUTES!|r\\nThis will reload the UI!"
 --[[Translation missing --]]
 L["hardResetPromptTitle"] = "Delete ALL settings"
 L["Harlan Sweete"] = "Harlan Sweete"
