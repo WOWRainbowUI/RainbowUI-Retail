@@ -1,3 +1,4 @@
+---@format disable
 local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
@@ -138,7 +139,7 @@ L["Dantalionax"] = "Dantalionax"
 L["Cannot import while in combat"] = "Cannot import while in combat"
 L["Cannot export while in combat"] = "Cannot export while in combat"
 L["hardResetButton"] = "Reset MDT"
-L["hardResetPrompt"] = "Do you really want to reset all settings to default?\n|cFFFF0000Only do this if MDT is not loading at all and is in a broken state.|r\nThis will reload the UI!"
+L["hardResetPrompt"] = "Do you really want to reset all settings to default?\n|cFFFF0000Try updating the AddOn to the latest version first!\nOnly do this if MDT is not loading at all and is in a broken state.\nThis will delete ALL YOUR ROUTES!|r\nThis will reload the UI!"
 L["You can choose from different color palettes in the automatic pull coloring settings menu."] = "You can choose from different color palettes in the settings menu."
 L["You can cycle through different floors by holding CTRL and using the mousewheel."] = "You can cycle through different floors by using SHIFT+CTRL+Mousewheel."
 L["altKeyGroupsTip"] = "Hold ALT to show enemy group numbers on all enemies"
@@ -163,7 +164,7 @@ L["iccFloor8"] = "Frostmourne"
 L["copiedToClipboard"] = "copied!"
 L["Select all"] = "Select all"
 L["errorLabel1"] = "MDT has encountered errors."
-L["errorLabel2"] = "Please visit either GitHub or Discord and report the error message below."
+L["errorLabel2"] = "Please update MDT to the latest version and visit either GitHub or Discord and report the error message below."
 L["errorLabel3"] = "Press CTRL + C to copy!"
 L["Copy error"] = "Copy error"
 L["Error Message:"] = "Error Message:"
@@ -3103,7 +3104,7 @@ L["Eric \"The Swift\""] = "Eric \"The Swift\""
 L["Erkhart Stormvein"] = "Erkhart Stormvein"
 L["Error Message:"] = "Error Message:"
 L["errorLabel1"] = "MDT has encountered errors."
-L["errorLabel2"] = "Please visit either GitHub or Discord and report the error message below."
+L["errorLabel2"] = "Please update MDT to the latest version and visit either GitHub or Discord and report the error message below."
 L["errorLabel3"] = "Press CTRL + C to copy!"
 L["Erudite Slayer"] = "Erudite Slayer"
 L["Erunak Stonespeaker"] = "Erunak Stonespeaker"
@@ -3359,9 +3360,7 @@ L["Hardened Steel Berserker"] = "Hardened Steel Berserker"
 L["Hardened Steel Reaver"] = "Hardened Steel Reaver"
 L["Hardened Steel Skycaller"] = "Hardened Steel Skycaller"
 L["hardResetButton"] = "Reset MDT"
-L["hardResetPrompt"] = [=[Do you really want to reset all settings to default?
-|cFFFF0000Only do this if MDT is not loading at all and is in a broken state.|r
-This will reload the UI!]=]
+L["hardResetPrompt"] = "Do you really want to reset all settings to default?\n|cFFFF0000Try updating the AddOn to the latest version first!\nOnly do this if MDT is not loading at all and is in a broken state.\nThis will delete ALL YOUR ROUTES!|r\nThis will reload the UI!"
 L["hardResetPromptTitle"] = "Delete ALL settings"
 L["Harlan Sweete"] = "Harlan Sweete"
 L["Harugia the Bloodthirsty"] = "Harugia the Bloodthirsty"
