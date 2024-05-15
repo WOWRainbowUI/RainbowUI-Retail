@@ -1,7 +1,7 @@
 -- This will get a handle to the BetterBags addon.
 ---@class BetterBags: AceAddon
 local addon = LibStub('AceAddon-3.0'):GetAddon("BetterBags")
-assert(BetterBags, "BetterBags_Openable requires BetterBags")
+assert(addon, "BetterBags_Openable requires BetterBags")
 
 -- This will get a handle to the Categories module, which exposes
 -- the API for creating categories.
