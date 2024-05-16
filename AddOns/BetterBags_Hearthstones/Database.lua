@@ -9,7 +9,7 @@ assert(LibStub("AceAddon-3.0"):GetAddon("BetterBags"), "BetterBags_Hearthstones 
 local _, addon = ...
 
 -- need to check game version
-local isCata = WOW_PROJECT_ID == WOW_PROJECT_CATA_CLASSIC
+local isCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 
 local database = {}
