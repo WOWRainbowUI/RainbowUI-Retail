@@ -1,6 +1,6 @@
 ## Interface: 40400
 ## Title: Premade Groups Filter
-## Version: 5.6.0
+## Version: 5.6.1
 ## IconTexture: 397907
 ## X-Flavor: Cata
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
