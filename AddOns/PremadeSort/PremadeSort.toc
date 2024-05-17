@@ -1,0 +1,14 @@
+## Interface: 100207
+## Title: |cffEEE4AEPremade Sort|r
+## Author: Yuyuli
+## Version: 1.2.21
+## Notes: |cff58C6FASort LFG list by creation time.|r
+## IconTexture: 255344
+## SavedVariables: PremadeSortDB
+## OptionalDeps: ElvUI
+
+## Title-zhTW: |cffFF7F00[副本]|r 預組隊伍排序
+## Notes-zhTW: |cffEEE4AEPremade Sort|r |n|n讓預組隊伍列表依據隊伍建立的時間排序。
+## X-Category-zhTW: 團隊
+
+PremadeSort.lua

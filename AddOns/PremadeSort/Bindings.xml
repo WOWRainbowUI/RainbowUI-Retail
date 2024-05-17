@@ -1,0 +1,7 @@
+<Bindings>
+    <Binding name="重新整理預組隊伍列表" header="預組隊伍排序" category="ADDONS">
+        if ( LFGListFrame.SearchPanel.RefreshButton:IsVisible() and not LFGListApplicationDialog:IsVisible() ) then
+            LFGListSearchPanel_DoSearch(LFGListFrame.SearchPanel);
+        end
+    </Binding>
+</Bindings>
