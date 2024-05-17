@@ -1,7 +1,8 @@
 # Baganator
 
-## [253](https://github.com/Baganator/Baganator/tree/253) (2024-05-08)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/252...253) 
+## [261](https://github.com/Baganator/Baganator/tree/261) (2024-05-16)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/260...261) 
 
-- Update toc for 10.2.7  
-- Use Dejunk API event arguments instead of hack to avoid updating on bag refresh  
+- Resolve issue of searches not clearing properly on backpack view  
+- Update CIMI plugin for toy/mount/pet support  
+- Fix junk icon changing after widgets refresh on item with no value  

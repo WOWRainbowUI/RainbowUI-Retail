@@ -287,11 +287,17 @@ function Baganator.UnifiedViews.Initialize()
     if Baganator.Config.Get(Baganator.Config.Options.ENABLE_BACKPACK_VIEW) then
       SetupBackpackView()
       HideDefaultBackpack()
-      Baganator.InitializeOpenClose()
     end
   end, CallErrorHandler)
 
   xpcall(function()
+    -- So that the character select sets its position correctly if the bag view
+    -- is disabled
+    if Baganator_BackpackViewFrame == nil then
+      local frame = CreateFrame("Frame", "Baganator_BackpackViewFrame", UIParent)
+      frame:SetPoint("TOPLEFT", UIParent, "TOPRIGHT")
+      frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT")
+    end
     SetupCharacterSelect()
   end, CallErrorHandler)
 
@@ -315,6 +321,4 @@ function Baganator.UnifiedViews.Initialize()
       SetupGuildView()
     end
   end, CallErrorHandler)
-
-  Baganator.ItemButtonUtil.UpdateSettings()
 end

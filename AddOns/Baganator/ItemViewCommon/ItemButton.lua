@@ -89,17 +89,7 @@ local function GetInfo(self, cacheData, earlyCallback, finalCallback)
 
   earlyCallback()
 
-  for plugin, widget in pairs(self.cornerPlugins) do
-    widget:Hide()
-  end
-
-  if not iconSettings.usingJunkPlugin and self.JunkIcon then
-    self.BGR.isJunk = not self.BGR.hasNoValue and self.BGR.quality == Enum.ItemQuality.Poor
-    if iconSettings.markJunk and self.BGR.isJunk then
-      self.BGR.persistIconGrey = true
-      self.icon:SetDesaturated(true)
-    end
-  end
+  Baganator.ItemButtonUtil.WidgetsOnly(self)
 
   if self.BaganatorBagHighlight then
     self.BaganatorBagHighlight:Hide()
@@ -113,16 +103,47 @@ local function GetInfo(self, cacheData, earlyCallback, finalCallback)
     if self.BGR ~= info then -- Check that the item button hasn't been refreshed
       return
     end
-    if IsCosmeticItem and IsCosmeticItem(self.BGR.itemLink) then
+    if C_Item.IsCosmeticItem and C_Item.IsCosmeticItem(self.BGR.itemLink) then
       self.IconOverlay:SetAtlas("CosmeticIconFrame")
       self.IconOverlay:Show();
-    end
-    for _, callback in ipairs(itemCallbacks) do
-      callback(self)
     end
     finalCallback()
   end
 
+  if C_Item.IsItemDataCachedByID(self.BGR.itemID) then
+    OnCached()
+  else
+    local item = Item:CreateFromItemID(self.BGR.itemID)
+    item:ContinueOnItemLoad(function()
+      OnCached()
+    end)
+  end
+end
+
+function Baganator.ItemButtonUtil.WidgetsOnly(self)
+  for plugin, widget in pairs(self.cornerPlugins) do
+    widget:Hide()
+  end
+
+  if self.BGR.itemID == nil then
+    return
+  end
+
+  if not iconSettings.usingJunkPlugin and self.JunkIcon then
+    self.BGR.isJunk = not self.BGR.hasNoValue and self.BGR.quality == Enum.ItemQuality.Poor
+    if iconSettings.markJunk and self.BGR.isJunk then
+      self.BGR.persistIconGrey = true
+      self.icon:SetDesaturated(true)
+    end
+  end
+
+  self.BGR.setInfo = Baganator.UnifiedViews.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()), self.BGR.itemLink)
+
+  local function OnCached()
+    for _, callback in ipairs(itemCallbacks) do
+      callback(self)
+    end
+  end
   if C_Item.IsItemDataCachedByID(self.BGR.itemID) then
     OnCached()
   else
@@ -405,7 +426,7 @@ function BaganatorRetailLiveContainerItemButtonMixin:MyOnLoad()
       if self.ItemContextOverlay:IsShown() then
         SetWidgetsAlpha(self, false)
       else
-        SetWidgetsAlpha(self, not self.BGR or self.BGR.matchesSearch)
+        SetWidgetsAlpha(self, self.BGR == nil or self.BGR.matchesSearch ~= false)
       end
     end
   end)
@@ -469,7 +490,6 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   GetInfo(self, cacheData, function()
     self.BGR.tooltipGetter = function() return C_TooltipInfo.GetBagItem(self:GetBagID(), self:GetID()) end
     self.BGR.hasNoValue = noValue
-    self.BGR.setInfo = Baganator.UnifiedViews.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetBagID(), self:GetID()), self.BGR.itemLink)
     self:BGRUpdateQuests()
   end, function()
     self:BGRUpdateQuests()

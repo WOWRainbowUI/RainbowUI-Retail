@@ -513,6 +513,7 @@ function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, 
     FlowButtonsRows(self, rowWidth)
   end
 
+  local refreshContent = self.refreshContent
   if self.refreshContent then
     self.refreshContent = false
     for _, bagID in ipairs(indexes) do
@@ -529,7 +530,11 @@ function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, 
       if #bag == #sectionData[bagIndex] then
         for index, cacheData in ipairs(sectionData[bagIndex]) do
           local button = bag[index]
-          button:SetItemDetails(cacheData)
+          if button.BGR == nil or button.BGR.itemLink ~= cacheData.itemLink or not button.BGR.isBound ~= not cacheData.isBound or button.BGR.itemCount ~= (cacheData.itemCount or 1) or button.BGR.quality ~= cacheData.quality then
+            button:SetItemDetails(cacheData)
+          elseif refreshContent then
+            Baganator.ItemButtonUtil.WidgetsOnly(button)
+          end
         end
       end
     end
@@ -584,7 +589,8 @@ end
 function BaganatorGeneralGuildLayoutMixin:InformSettingChanged(setting)
   if tIndexOf(ReflowSettings, setting) ~= nil then
     self.reflow = true
-  elseif tIndexOf(RefreshContentSettings, setting) ~= nil then
+  end
+  if tIndexOf(RefreshContentSettings, setting) ~= nil then
     self.refreshContent = true
   end
 end

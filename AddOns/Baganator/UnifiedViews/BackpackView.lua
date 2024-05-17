@@ -23,7 +23,6 @@ function BaganatorBackpackViewMixin:OnLoad()
   self:SetMovable(true)
 
   self.liveItemButtonPool = Baganator.UnifiedViews.GetLiveItemButtonPool(self)
-  self.unallocatedItemButtonPool = Baganator.UnifiedViews.GetLiveItemButtonPool(self)
   self.BagLive:SetPool(self.liveItemButtonPool)
   self.CollapsingBagSectionsPool = Baganator.UnifiedViews.GetCollapsingBagSectionsPool(self)
   self.CollapsingBags = {}
@@ -60,6 +59,10 @@ function BaganatorBackpackViewMixin:OnLoad()
 
   Syndicator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
     self:SetLiveCharacter(character)
+    if updatedBags.containerBags == nil or updatedBags.containerBags.bags then
+      self.updateBagSlotsNeeded = true
+    end
+    self.searchToApply = self.searchToApply or self.SearchBox:GetText() ~= ""
     if self:IsVisible() then
       self:UpdateForCharacter(character, true, updatedBags)
     else
@@ -68,9 +71,7 @@ function BaganatorBackpackViewMixin:OnLoad()
   end)
 
   Syndicator.CallbackRegistry:RegisterCallback("CurrencyCacheUpdate",  function(_, character)
-    if self:IsVisible() and self.isLive then
-      self:UpdateForCharacter(self.lastCharacter, self.isLive)
-    end
+    self:UpdateCurrencies(self.lastCharacter)
   end)
 
   Baganator.CallbackRegistry:RegisterCallback("ContentRefreshRequired",  function()
@@ -113,8 +114,11 @@ function BaganatorBackpackViewMixin:OnLoad()
   end)
 
   Baganator.CallbackRegistry:RegisterCallback("SearchTextChanged",  function(_, text)
+    self.searchToApply = true
     self:ApplySearch(text)
   end)
+
+  self.GlobalSearchButton:Disable()
 
   Baganator.CallbackRegistry:RegisterCallback("CharacterSelect", function(_, character)
     if character ~= self.lastCharacter then
@@ -161,23 +165,17 @@ function BaganatorBackpackViewMixin:OnLoad()
 
   -- Update currencies when they are watched/unwatched in Blizz UI
   EventRegistry:RegisterCallback("TokenFrame.OnTokenWatchChanged", function()
-    if self:IsVisible() then
-      self:UpdateCurrencies(self.lastCharacter)
-    end
+    self:UpdateCurrencies(self.lastCharacter)
   end)
 
   -- Needed to get currencies to load correctly on classic versions of WoW
   Baganator.Utilities.OnAddonLoaded("Blizzard_TokenUI", function()
-    if self:IsVisible() then
-      self:UpdateCurrencies(self.lastCharacter)
-    end
+    self:UpdateCurrencies(self.lastCharacter)
 
     -- Wrath Classic
     if ManageBackpackTokenFrame then
       hooksecurefunc("ManageBackpackTokenFrame", function()
-        if self:IsVisible() then
-          self:UpdateCurrencies(self.lastCharacter)
-        end
+        self:UpdateCurrencies(self.lastCharacter)
       end)
     end
   end)
@@ -223,7 +221,9 @@ function BaganatorBackpackViewMixin:OnShow()
 end
 
 function BaganatorBackpackViewMixin:OnHide()
-  Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
+  if self.SearchBox:GetText() ~= "" then
+    Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
+  end
   Syndicator.Search.ClearCache()
   self:UnregisterEvent("MODIFIER_STATE_CHANGED")
 
@@ -249,6 +249,7 @@ function BaganatorBackpackViewMixin:ApplySearch(text)
   if not self:IsVisible() then
     return
   end
+  self.searchToApply = false
 
   if self.isLive then
     self.BagLive:ApplySearch(text)
@@ -346,10 +347,16 @@ function BaganatorBackpackViewMixin:CreateBagSlots()
 end
 
 function BaganatorBackpackViewMixin:UpdateBagSlots()
-  -- Show live back slots if viewing live bags
+  if self.updateBagSlotsNeeded then
+    self.updateBagSlotsNeeded = false
+    for _, bb in ipairs(self.liveBagSlots) do
+      bb:Init()
+    end
+  end
+
   local show = self.isLive and Baganator.Config.Get(Baganator.Config.Options.MAIN_VIEW_SHOW_BAG_SLOTS)
   for _, bb in ipairs(self.liveBagSlots) do
-    bb:Init()
+    -- Show live back slots if viewing live bags
     bb:SetShown(show)
   end
 
@@ -536,6 +543,7 @@ function BaganatorBackpackViewMixin:NotifyBagUpdate(updatedBags)
 end
 
 function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, updatedBags)
+  local start = debugprofilestop()
   updatedBags = updatedBags or {bags = {}, bank = {}}
   Baganator.Utilities.ApplyVisuals(self)
   self:SetupTabs()
@@ -563,15 +571,8 @@ function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, update
   self.SortButton:SetShown(Baganator.Utilities.ShouldShowSortButton() and isLive)
   self:UpdateTransferButton()
 
-  local showReagents = Baganator.Config.Get(Baganator.Config.Options.SHOW_REAGENTS)
-
   self.BagLive:SetShown(isLive)
   self.BagCached:SetShown(not isLive)
-
-  for _, layouts in ipairs(self.CollapsingBags) do
-    layouts.live:SetShown(isLive)
-    layouts.cached:SetShown(not isLive)
-  end
 
   self:NotifyBagUpdate(updatedBags)
 
@@ -599,7 +600,9 @@ function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, update
     layout:ShowCharacter(character, "bags", Syndicator.Constants.AllBagIndexes, self.CollapsingBags[index].indexesToUse, bagWidth)
   end
 
-  self:ApplySearch(searchText)
+  if self.searchToApply then
+    self:ApplySearch(searchText)
+  end
 
   local sideSpacing, topSpacing = 13, 14
   if Baganator.Config.Get(Baganator.Config.Options.REDUCE_SPACING) then
@@ -611,6 +614,11 @@ function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, update
 
   bagHeight = bagHeight + Baganator.UnifiedViews.ArrangeCollapsibles(activeBagCollapsibles, activeBag, self.CollapsingBags)
   local height = bagHeight
+
+  for _, layouts in ipairs(self.CollapsingBags) do
+    layouts.live:SetShown(isLive and layouts.live:IsShown())
+    layouts.cached:SetShown(not isLive and layouts.cached:IsShown())
+  end
 
   self.Tabs[1]:SetPoint("LEFT", activeBag, "LEFT")
 
@@ -659,71 +667,24 @@ function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, update
 
   self:UpdateAllButtons()
 
-  self:UpdateCurrencies(character)
+  if self.currencyUpdateNeeded then
+    self:UpdateCurrencies(character)
+  end
+  if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
+    print("-- updateforcharacter backpack", debugprofilestop() - start)
+  end
 end
 
 function BaganatorBackpackViewMixin:UpdateCurrencies(character)
-  self.Money:SetText(Baganator.Utilities.GetMoneyString(Syndicator.API.GetCharacter(character).money, true))
-
-  local characterCurrencies = Syndicator.API.GetCharacter(character).currencies
-
-  if not C_CurrencyInfo then
-    return
+  local start = debugprofilestop()
+  if self:IsVisible() then
+    self.currencyUpdateNeeded = false
+    Baganator.Utilities.ShowCurrencies(self, character)
+  else
+    self.currencyUpdateNeeded = true
   end
-
-  if not characterCurrencies then
-    for _, c in ipairs(self.Currencies) do
-      c:SetText("")
-    end
-    return
-  end
-
-  for i = 1, Baganator.Constants.MaxPinnedCurrencies do
-    local currencyID, icon
-    if C_CurrencyInfo and C_CurrencyInfo.GetBackpackCurrencyInfo then
-      local currencyInfo = C_CurrencyInfo.GetBackpackCurrencyInfo(i)
-      if currencyInfo then
-        currencyID = currencyInfo.currencyTypesID
-        icon = currencyInfo.iconFileID
-      end
-    elseif GetBackpackCurrencyInfo then
-      icon, currencyID = select(3, GetBackpackCurrencyInfo(i))
-    end
-
-    local currencyText = ""
-
-    if currencyID ~= nil then
-      local count = 0
-      if characterCurrencies[currencyID] ~= nil then
-        count = characterCurrencies[currencyID]
-      end
-
-      currencyText = BreakUpLargeNumbers(count)
-      if strlenutf8(currencyText) > 5 then
-        currencyText = AbbreviateNumbers(count)
-      end
-      currencyText = currencyText .. " " .. CreateSimpleTextureMarkup(icon, 12, 12)
-      if GameTooltip.SetCurrencyByID then
-        -- Show retail currency tooltip
-        self.Currencies[i]:SetScript("OnEnter", function(self)
-          GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-          GameTooltip:SetCurrencyByID(currencyID)
-        end)
-      else
-        -- SetCurrencyByID doesn't exist on classic, but we want to show the
-        -- other characters info via the tooltip anyway
-        self.Currencies[i]:SetScript("OnEnter", function(self)
-          GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-          Syndicator.Tooltips.AddCurrencyLines(GameTooltip, currencyID)
-        end)
-      end
-      self.Currencies[i]:SetScript("OnLeave", function(self)
-        GameTooltip:Hide()
-      end)
-    else
-      self.Currencies[i]:SetScript("OnEnter", nil)
-    end
-    self.Currencies[i]:SetText(currencyText)
+  if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
+    print("currency update", debugprofilestop() - start)
   end
 end
 
