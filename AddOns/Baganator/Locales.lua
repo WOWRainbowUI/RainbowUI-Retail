@@ -60,15 +60,11 @@ L["X_BANK_COLUMNS"] = "%s Bank Columns"
 L["X_GUILD_COLUMNS"] = "%s Guild Bank Columns"
 L["X_ICON_SIZE"] = "%spx Icon Size"
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
-L["SHOW_ITEM_LEVEL"] = "Show equipment item levels"
-L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
-L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
 L["CUSTOMISE_SHOW_TABS"] = "Show tabs of recent characters"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
 L["X_ICON_TEXT_FONT_SIZE"] = "%spt Icon Font Size"
 L["ITEM_LEVEL"] = "Item Level"
-L["BINDING_TYPE"] = "Binding Type"
 L["QUANTITY"] = "Quantity"
 L["EXPANSION"] = "Expansion"
 L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
@@ -83,7 +79,6 @@ L["PLACE_BAG_ROW_WITH_MISSING_SLOTS_AT_THE_TOP"] = "Place bag row with missing s
 L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
 L["REDUCE_SPACING_BETWEEN_UI_COMPONENTS"] = "Reduce spacing between UI components"
 L["SHOW_TRANSFER_BUTTON"] = "Show Transfer button"
-L["TRANSFERS"] = "Transfers"
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload required)"
@@ -124,8 +119,6 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 L["WINDOWS"] = "Windows"
 L["ICONS"] = "Icons"
 L["TOOLTIPS"] = "Tooltips"
-L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
-L["SHOW_PAWN_UPGRADE_ARROW"] = "Show Pawn upgrade arrow when addon enabled"
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 L["JUNK_DETECTION"] = "Junk Detection"
 
@@ -183,7 +176,6 @@ L["GUILD_NO_TABS_PURCHASED"] = "No guild bank tabs purchased"
 
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 L["THAT_ITEM_IS_EQUIPPED"] = "That item is equipped"
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auction house"
 L["THAT_ITEM_IS_IN_A_MAILBOX"] = "That item is in a mailbox"
@@ -291,8 +283,7 @@ L["JEWELCRAFTING"] = "Joaillerie"
 L["JUNK"] = "Camelote"
 L["JUNK_DETECTION"] = "Détection de camelote"
 L["KEYS"] = "Clés"
---[[Translation missing --]]
-L["KEYSTONE_LEVEL"] = "Keystone Level"
+L["KEYSTONE_LEVEL"] = "Niveau de clé"
 L["LEATHERWORKING"] = "Travail du cuir"
 L["LOCK_INVENTORY_FRAMES"] = "Verrouiller les cadres d’affichage de l’inventaire"
 L["MAIL"] = "Courrier"
@@ -410,7 +401,7 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 --[[Translation missing --]]
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 --[[Translation missing --]]
-L["BINDING_TYPE"] = "Binding Type"
+L["BINDING_TYPE"] = ""
 --[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
@@ -430,7 +421,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to thi
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 --[[Translation missing --]]
@@ -596,13 +587,13 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
+L["SHOW_BOA_STATUS"] = ""
 --[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
+L["SHOW_BOE_STATUS"] = ""
 --[[Translation missing --]]
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
 --[[Translation missing --]]
-L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
+L["SHOW_CAN_I_MOG_IT_ICON"] = ""
 --[[Translation missing --]]
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 --[[Translation missing --]]
@@ -610,9 +601,9 @@ L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload re
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
-L["SHOW_ITEM_LEVEL"] = "Show equipment item levels"
+L["SHOW_ITEM_LEVEL"] = ""
 --[[Translation missing --]]
-L["SHOW_PAWN_UPGRADE_ARROW"] = "Show Pawn upgrade arrow when addon enabled"
+L["SHOW_PAWN_UPGRADE_ARROW"] = ""
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
 --[[Translation missing --]]
@@ -684,7 +675,7 @@ L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
-L["TRANSFERS"] = "Transfers"
+L["TRANSFERS"] = ""
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
@@ -730,348 +721,179 @@ L["XS_GUILD_BANK"] = "%s's Guild Bank"
 
 
 local L = Locales.ruRU
---[[Translation missing --]]
-L["ACCOUNT_GOLD_X"] = "Account gold: %s"
---[[Translation missing --]]
-L["ADD_A_CORNER_ITEM"] = "Add a corner item"
---[[Translation missing --]]
-L["ALL_CHARACTERS"] = "All Characters"
---[[Translation missing --]]
-L["AUCTION_HOUSE"] = "Auction House"
---[[Translation missing --]]
-L["AUTO_OPEN_CLOSE"] = "Auto Open/Close"
---[[Translation missing --]]
-L["AUTO_SORT_ON_OPENING_BAGS"] = "Automatically sort on opening bags"
---[[Translation missing --]]
-L["BAG_SLOTS"] = "Bag Slots"
---[[Translation missing --]]
+L["ACCOUNT_GOLD_X"] = "Всего на аккаунте: %s"
+L["ADD_A_CORNER_ITEM"] = "Добавить в угол"
+L["ALL_CHARACTERS"] = "Все персонажи"
+L["AUCTION_HOUSE"] = "Аукцион"
+L["AUTO_OPEN_CLOSE"] = "Авто откр./закр."
+L["AUTO_SORT_ON_OPENING_BAGS"] = "Автоматическая сортировка при открытии сумок"
+L["BAG_SLOTS"] = "Ячейки сумок"
 L["BAGANATOR"] = "Baganator"
---[[Translation missing --]]
-L["BANK"] = "Bank"
---[[Translation missing --]]
-L["BANK_DATA_MISSING_HINT"] = "Bank data missing. Visit a banker with %s to populate this view."
---[[Translation missing --]]
-L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
---[[Translation missing --]]
-L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
---[[Translation missing --]]
+L["BANK"] = "Банк"
+L["BANK_DATA_MISSING_HINT"] = "Нет данных о банке. %s должен посетить банк для отображения содержимого этого окна."
+L["BATTLE_PET_BREEDID"] = "Аддон Battle Pet BreedID"
+L["BATTLE_PET_LEVEL"] = "Уровень боевого питомца"
 L["BINDING_TYPE"] = "Binding Type"
---[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
---[[Translation missing --]]
-L["BOA"] = "BoA"
---[[Translation missing --]]
-L["BOE"] = "BoE"
---[[Translation missing --]]
-L["BOU"] = "BoU"
---[[Translation missing --]]
-L["BUTTONS"] = "Buttons"
---[[Translation missing --]]
-L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
---[[Translation missing --]]
+L["BOA"] = "BoA (ПкУЗ)"
+L["BOE"] = "BoE (ПпН)"
+L["BOU"] = "BoU (ПпИ)"
+L["BUTTONS"] = "Кнопки"
+L["BUY_REAGENT_BANK"] = "Купить банк материалов"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
---[[Translation missing --]]
-L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
---[[Translation missing --]]
-L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
---[[Translation missing --]]
+L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Превышен лимит на добавление предметов для обмена"
+L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "У вас нет разрешения на редактирование этой ячейки"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
---[[Translation missing --]]
-L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
---[[Translation missing --]]
-L["CHARACTER_PANEL"] = "Character Panel"
---[[Translation missing --]]
-L["COMBINE_STACKS_ONLY"] = "Combine Stacks Only"
---[[Translation missing --]]
-L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Do you want to transfer ALL items in your bags?"
---[[Translation missing --]]
-L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Do you want to transfer ALL items from the bank?"
---[[Translation missing --]]
-L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Do you want to transfer ALL items from the guild bank?"
---[[Translation missing --]]
-L["COOKING"] = "Cooking"
---[[Translation missing --]]
-L["CRAFTING_WINDOW"] = "Crafting Window"
---[[Translation missing --]]
-L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
---[[Translation missing --]]
-L["CUSTOMISE_EMPTY_SLOTS"] = "Hide empty slots background"
---[[Translation missing --]]
-L["CUSTOMISE_SHOW_TABS"] = "Show tabs of recent characters"
---[[Translation missing --]]
-L["DELETE_CHARACTER"] = "Delete Character"
---[[Translation missing --]]
-L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
---[[Translation missing --]]
-L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
---[[Translation missing --]]
-L["ENABLE_BANK_VIEW"] = "Use Baganator bank view (reload required)"
---[[Translation missing --]]
-L["ENABLE_GUILD_VIEW"] = "Use Baganator guild bank view (reload required)"
---[[Translation missing --]]
-L["ENCHANTING"] = "Enchanting"
---[[Translation missing --]]
-L["ENGINEERING"] = "Engineering"
---[[Translation missing --]]
-L["ENGRAVED_RUNE"] = "Engraved Rune"
---[[Translation missing --]]
-L["EQUIPMENT_SET"] = "Equipment Set"
---[[Translation missing --]]
-L["EXPANSION"] = "Expansion"
---[[Translation missing --]]
-L["FISHING"] = "Fishing"
---[[Translation missing --]]
-L["FORGE_OF_BONDS"] = "Forge of Bonds"
---[[Translation missing --]]
-L["GEMS"] = "Gems"
---[[Translation missing --]]
-L["GUILD_BANK"] = "Guild Bank"
---[[Translation missing --]]
-L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
---[[Translation missing --]]
-L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
---[[Translation missing --]]
-L["GUILD_BANK_SORT_METHOD"] = "Guild Bank Sort Method"
---[[Translation missing --]]
-L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of money for the guild bank"
---[[Translation missing --]]
-L["GUILD_MONEY_X"] = "Gold - Total: %s"
---[[Translation missing --]]
-L["GUILD_MONEY_X_X"] = "Gold - Withdraw: %s | Total: %s"
---[[Translation missing --]]
-L["GUILD_NO_TABS_PURCHASED"] = "No guild bank tabs purchased"
---[[Translation missing --]]
-L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "See any stored information about this tab"
---[[Translation missing --]]
-L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "See withdrawals and deposits of items for this tab"
---[[Translation missing --]]
-L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Items - Withdraw: %s | Deposit: %s"
---[[Translation missing --]]
-L["HERBALISM"] = "Herbalism"
---[[Translation missing --]]
-L["HIDE_BOE_STATUS_ON_COMMON"] = "Hide any BoE status on junk/common items"
---[[Translation missing --]]
-L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
---[[Translation missing --]]
-L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Hold shift to show account total>"
---[[Translation missing --]]
-L["ICON_CORNER_PRIORITIES"] = "Icon Corner Priorities"
---[[Translation missing --]]
-L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be shown in each corner of the icon on an item's button and prioritise the most wanted information."
---[[Translation missing --]]
-L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
---[[Translation missing --]]
-L["ICONS"] = "Icons"
---[[Translation missing --]]
-L["INSCRIPTION"] = "Inscription"
---[[Translation missing --]]
-L["ITEM_LEVEL"] = "Item Level"
---[[Translation missing --]]
-L["ITEM_QUALITY"] = "Item Quality"
---[[Translation missing --]]
-L["ITEM_QUALITY_BASIC"] = "Item Quality (basic)"
---[[Translation missing --]]
-L["ITEM_QUALITY_ENHANCED"] = "Item Quality (enhanced)"
---[[Translation missing --]]
-L["ITEM_TYPE"] = "Item Type"
---[[Translation missing --]]
-L["ITEM_TYPE_BASIC"] = "Item Type (basic)"
---[[Translation missing --]]
-L["ITEM_TYPE_ENHANCED"] = "Item Type (enhanced)"
---[[Translation missing --]]
-L["ITEMS_FLASH_ON_ALT_CLICK"] = "Flash all the same items on [Alt]+Click"
---[[Translation missing --]]
-L["JEWELCRAFTING"] = "Jewelcrafting"
---[[Translation missing --]]
-L["JUNK"] = "Junk"
---[[Translation missing --]]
-L["JUNK_DETECTION"] = "Junk Detection"
---[[Translation missing --]]
-L["KEYS"] = "Keys"
---[[Translation missing --]]
-L["KEYSTONE_LEVEL"] = "Keystone Level"
---[[Translation missing --]]
-L["LEATHERWORKING"] = "Leatherworking"
---[[Translation missing --]]
-L["LOCK_INVENTORY_FRAMES"] = "Lock inventory view frames"
---[[Translation missing --]]
-L["MAIL"] = "Mail"
---[[Translation missing --]]
-L["MINING"] = "Mining"
---[[Translation missing --]]
-L["MONEY_LOGS"] = "Money Logs"
---[[Translation missing --]]
-L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
---[[Translation missing --]]
-L["OPEN_OPTIONS"] = "Open Options"
---[[Translation missing --]]
-L["PAWN"] = "Pawn"
---[[Translation missing --]]
-L["PEDDLER"] = "Peddler"
---[[Translation missing --]]
-L["PLACE_BAG_ROW_WITH_MISSING_SLOTS_AT_THE_TOP"] = "Place bag row with missing slots at the top"
---[[Translation missing --]]
-L["POOR_QUALITY"] = "Poor quality"
---[[Translation missing --]]
-L["QUANTITY"] = "Quantity"
---[[Translation missing --]]
-L["REAGENTS"] = "Reagents"
---[[Translation missing --]]
-L["REALM_WIDE_GOLD_X"] = "Realm-wide gold: %s"
---[[Translation missing --]]
+L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Превышен лимит на съем предметов из банка гильдии"
+L["CHARACTER_PANEL"] = "Окно персонажа"
+L["COMBINE_STACKS_ONLY"] = "Только комбинировать стопки"
+L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Вы хотите перенести ВСЕ предметы из сумок?"
+L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Вы хотите перенести ВСЕ предметы из банка?"
+L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Вы хотите перенести ВСЕ предметы из банка гильдии?"
+L["COOKING"] = "Кулинария"
+L["CRAFTING_WINDOW"] = "Окно создания предметов"
+L["CUSTOMISE_BAGANATOR"] = "Настройка Baganator"
+L["CUSTOMISE_EMPTY_SLOTS"] = "Скрыть фон пустых слотов"
+L["CUSTOMISE_SHOW_TABS"] = "Отображать вкладки недавних персонажей"
+L["DELETE_CHARACTER"] = "Удалить персонажа"
+L["DEPOSIT_REAGENTS"] = "Перенести материалы из сумок"
+L["ENABLE_BACKPACK_VIEW"] = "Использовать для сумок (нужен /reload)"
+L["ENABLE_BANK_VIEW"] = "Использовать для банка (нужен /reload)"
+L["ENABLE_GUILD_VIEW"] = "Использовать для банка гильдии (нужен /reload)"
+L["ENCHANTING"] = "Наложение чар"
+L["ENGINEERING"] = "Инженерное дело"
+L["ENGRAVED_RUNE"] = "Руна для гравировки"
+L["EQUIPMENT_SET"] = "Комплект экипировки"
+L["EXPANSION"] = "Дополнение"
+L["FISHING"] = "Рыбная ловля"
+L["FORGE_OF_BONDS"] = "Горнило Уз"
+L["GEMS"] = "Самоцветы"
+L["GUILD_BANK"] = "Банк гильдии"
+L["GUILD_BANK_DATA_MISSING_HINT"] = "Банк гильдии еще не был посещен."
+L["GUILD_BANK_NO_TABS"] = "В банке гильдии отсутствуют ячейки."
+L["GUILD_BANK_SORT_METHOD"] = "Метод сортировки в банке гильдии"
+L["GUILD_MONEY_LOGS_TOOLTIP_TEXT"] = "Отобразить журнал финансов"
+L["GUILD_MONEY_X"] = "Золото - Всего: %s"
+L["GUILD_MONEY_X_X"] = "Золото - Съем: %s | Всего: %s"
+L["GUILD_NO_TABS_PURCHASED"] = "Ни одной ячейки в банке гильдии не куплено"
+L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "Отобразить информацию об этой ячейке"
+L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "Отобразить журнал"
+L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Предметы - Съем: %s | Вклад: %s"
+L["HERBALISM"] = "Травничество"
+L["HIDE_BOE_STATUS_ON_COMMON"] = "Скрыть BoE-статус (ПпН) на предметах низк. качества"
+L["HIDE_IN_TOOLTIPS"] = "Скрыть в подсказках"
+L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Зажмите Shift для просмотра золота на аккаунте>"
+L["ICON_CORNER_PRIORITIES"] = "Приоритеты углов иконки"
+L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Выберите, какая информация должна быть в каждом углу и расставьте приоритеты"
+L["ICON_GREY_JUNK_ITEMS"] = "Отмечать хлам обесцвечиванием иконки"
+L["ICONS"] = "Иконки"
+L["INSCRIPTION"] = "Начертание"
+L["ITEM_LEVEL"] = "Уровень предмета"
+L["ITEM_QUALITY"] = "Качество"
+L["ITEM_QUALITY_BASIC"] = "Качество (базовый)"
+L["ITEM_QUALITY_ENHANCED"] = "Качество (улучшенный)"
+L["ITEM_TYPE"] = "Тип"
+L["ITEM_TYPE_BASIC"] = "Тип (базовый)"
+L["ITEM_TYPE_ENHANCED"] = "Тип (улучшенный)"
+L["ITEMS_FLASH_ON_ALT_CLICK"] = "Подсвечивать одинаковые предметы по Alt+ЛКМ"
+L["JEWELCRAFTING"] = "Ювелирное дело"
+L["JUNK"] = "Хлам"
+L["JUNK_DETECTION"] = "Определение хлама"
+L["KEYS"] = "Ключи"
+L["KEYSTONE_LEVEL"] = "Уровень ключа"
+L["LEATHERWORKING"] = "Кожевничество"
+L["LOCK_INVENTORY_FRAMES"] = "Заблокировать окна инвентаря"
+L["MAIL"] = "Почта"
+L["MINING"] = "Горное дело"
+L["MONEY_LOGS"] = "Журнал финансов"
+L["NO_TRANSACTIONS_AVAILABLE"] = "Нет доступных транзакций"
+L["OPEN_OPTIONS"] = "Открыть настройки"
+L["PAWN"] = "Аддон Pawn"
+L["PEDDLER"] = "Аддон Peddler"
+L["PLACE_BAG_ROW_WITH_MISSING_SLOTS_AT_THE_TOP"] = "Переместить пустое пространство снизу наверх"
+L["POOR_QUALITY"] = "Низкое качество"
+L["QUANTITY"] = "Количество"
+L["REAGENTS"] = "Материалы"
+L["REALM_WIDE_GOLD_X"] = "Всего на сервере: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
---[[Translation missing --]]
-L["REDUCE_SPACING_BETWEEN_UI_COMPONENTS"] = "Reduce spacing between UI components"
---[[Translation missing --]]
-L["REMOVE_INVENTORY_BORDERS"] = "Remove borders from inventory view frames"
---[[Translation missing --]]
-L["RESET_POSITIONS"] = "Reset Positions"
---[[Translation missing --]]
-L["REVERSE_GROUPS_SORT_ORDER"] = "Reverse groups sort order"
---[[Translation missing --]]
-L["SCRAP"] = "Scrap"
---[[Translation missing --]]
-L["SCRAPPING_MACHINE"] = "Scrapping Machine"
---[[Translation missing --]]
-L["SEARCH_EVERYWHERE"] = "Search Everywhere"
---[[Translation missing --]]
-L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
---[[Translation missing --]]
-L["SEARCH_TRY_X"] = "Search, try %s"
---[[Translation missing --]]
-L["SELLJUNK"] = "SellJunk"
---[[Translation missing --]]
+L["REDUCE_SPACING_BETWEEN_UI_COMPONENTS"] = "Уменьшить расстояние между элементами"
+L["REMOVE_INVENTORY_BORDERS"] = "Убрать границы окон инвентаря"
+L["RESET_POSITIONS"] = "Сброс позиции"
+L["REVERSE_GROUPS_SORT_ORDER"] = "Измененный порядок сортировки"
+L["SCRAP"] = "Аддон Scrap"
+L["SCRAPPING_MACHINE"] = "Окно утилизации"
+L["SEARCH_EVERYWHERE"] = "Глобальный поиск"
+L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Результаты будут выведены в чат"
+L["SEARCH_TRY_X"] = "Попробуйте ввести для поиска: %s"
+L["SELLJUNK"] = "Аддон SellJunk"
 L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
---[[Translation missing --]]
 L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
---[[Translation missing --]]
-L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
---[[Translation missing --]]
+L["SHOW_BUTTONS_ON_ALT"] = "Отображать доп. кнопки только при зажатии Alt"
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
---[[Translation missing --]]
-L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
---[[Translation missing --]]
-L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload required)"
---[[Translation missing --]]
+L["SHOW_CHARACTER_RACE_ICONS"] = "Отображать иконку расы персонажа"
+L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Отображать кнопку банка гильдии (нужен /reload)"
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
---[[Translation missing --]]
 L["SHOW_ITEM_LEVEL"] = "Show equipment item levels"
---[[Translation missing --]]
 L["SHOW_PAWN_UPGRADE_ARROW"] = "Show Pawn upgrade arrow when addon enabled"
---[[Translation missing --]]
-L["SHOW_SORT_BUTTON"] = "Show Sort Button"
---[[Translation missing --]]
-L["SHOW_TRANSFER_BUTTON"] = "Show Transfer button"
---[[Translation missing --]]
-L["SOCKET_INTERFACE"] = "Socket Interface"
---[[Translation missing --]]
-L["SORT"] = "Sort"
---[[Translation missing --]]
-L["SORT_IGNORE_SLOTS_AT_END_NOT_START"] = "Ignore slots at the end, not start, for sorting"
---[[Translation missing --]]
-L["SORT_METHOD"] = "Sort Method"
---[[Translation missing --]]
-L["SORT_START_AT_BOTTOM"] = "Start the sorted items at the bottom of bag"
---[[Translation missing --]]
-L["SORTBAGS"] = "SortBags"
---[[Translation missing --]]
-L["SORTING"] = "Sorting"
---[[Translation missing --]]
-L["SOUL"] = "Soul"
---[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
---[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
---[[Translation missing --]]
-L["TAB_INFO"] = "Tab Information"
---[[Translation missing --]]
-L["TAB_LOGS"] = "Tab Logs"
---[[Translation missing --]]
-L["THAT_ITEM_IS_EQUIPPED"] = "That item is equipped"
---[[Translation missing --]]
-L["THAT_ITEM_IS_IN_A_MAILBOX"] = "That item is in a mailbox"
---[[Translation missing --]]
-L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "That item is in void storage"
---[[Translation missing --]]
-L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auction house"
---[[Translation missing --]]
-L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
---[[Translation missing --]]
-L["TL"] = "TL"
---[[Translation missing --]]
-L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
---[[Translation missing --]]
-L["TOOLTIPS"] = "Tooltips"
---[[Translation missing --]]
-L["TRADE"] = "Trade"
---[[Translation missing --]]
-L["TRADEABLE_LOOT"] = "Tradeable Loot"
---[[Translation missing --]]
-L["TRANSFER"] = "Transfer"
---[[Translation missing --]]
-L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the bank into the bags."
---[[Translation missing --]]
-L["TRANSFER_GUILD_VIEW_TOOLTIP_TEXT"] = [=[Move searched for items out from the guild bank into the bags.
+L["SHOW_SORT_BUTTON"] = "Отображать кнопку сортировки"
+L["SHOW_TRANSFER_BUTTON"] = "Отображать кнопку переноса"
+L["SOCKET_INTERFACE"] = "Окно инкрустации"
+L["SORT"] = "Сортировка"
+L["SORT_IGNORE_SLOTS_AT_END_NOT_START"] = "Игнорировать слоты в конце при автосортировке"
+L["SORT_METHOD"] = "Метод сортировки"
+L["SORT_START_AT_BOTTOM"] = "Сортировать предметы внизу сумок"
+L["SORTBAGS"] = "Аддон SortBags"
+L["SORTING"] = "Сортировка"
+L["SOUL"] = "Души"
+L["SYNDICATOR_ENABLE_MESSAGE"] = "Для использования Baganator требуется аддон |cffd1b219Syndicator|r"
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Установите |cffd1b219Syndicator|r для использования Baganator"
+L["TAB_INFO"] = "Информация о ячейке"
+L["TAB_LOGS"] = "Журнал"
+L["THAT_ITEM_IS_EQUIPPED"] = "Этот предмет экипирован"
+L["THAT_ITEM_IS_IN_A_MAILBOX"] = "Этот предмет находится в почте"
+L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "Этот предмет находится в Хранилище Бездны"
+L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "Этот предмет выставлен на аукционе"
+L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "Торговцу не нужны эти предметы"
+L["TL"] = "Можно передать"
+L["TO_OPEN_OPTIONS_X"] = "Команда чата для открытия настроек - /bgr"
+L["TOOLTIPS"] = "Подсказки"
+L["TRADE"] = "Обмен"
+L["TRADEABLE_LOOT"] = "Можно передать"
+L["TRANSFER"] = "Перенос"
+L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Перенести предметы, найденные через строку поиска, из банка в сумки"
+L["TRANSFER_GUILD_VIEW_TOOLTIP_TEXT"] = [=[Перенести предметы, найденные через строку поиска, из банка гильдии в сумки.
 
-Transfers are slow due to the underlying guild bank being slow.]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = [=[Move searched for items out from the bags into the guild bank.
+Перенос происходит медленно из-за специфики работы банка гильдии]=]
+L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Перенести предметы, найденные через строку поиска, из сумок в банк"
+L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = [=[Перенести предметы, найденные через строку поиска, из сумок в банк гильдии.
 
-Transfers are slow due to the underlying guild bank being slow.]=]
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
---[[Translation missing --]]
-L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
---[[Translation missing --]]
+Перенос происходит медленно из-за специфики работы банка гильдии]=]
+L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Перенести предметы, найденные через строку поиска, в почту для отправки"
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Продать торговцу предметы, найденные через строку поиска (максимум 12)"
+L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Поместить предметы, найденные через строку поиска, в утилизатор"
+L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Добавить предметы, найденные через строку поиска, в окно обмена (до 6 штук)"
 L["TRANSFERS"] = "Transfers"
---[[Translation missing --]]
-L["UNLIMITED"] = "Unlimited"
---[[Translation missing --]]
-L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
---[[Translation missing --]]
-L["USING_X"] = "Using %s"
---[[Translation missing --]]
-L["VENDOR"] = "Vendor"
---[[Translation missing --]]
-L["VERSION_COLON_X"] = "Version: %s"
---[[Translation missing --]]
-L["VOID_STORAGE"] = "Void Storage"
---[[Translation missing --]]
-L["WINDOWS"] = "Windows"
---[[Translation missing --]]
-L["X_BAG_COLUMNS"] = "%s Bag Columns"
---[[Translation missing --]]
-L["X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "%s regular bag slots to ignore when sorting (character specific)"
---[[Translation missing --]]
-L["X_BANK_COLUMNS"] = "%s Bank Columns"
---[[Translation missing --]]
-L["X_BANK_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "%s regular bank slots to ignore when sorting (character specific)"
---[[Translation missing --]]
-L["X_GUILD_COLUMNS"] = "%s Guild Bank Columns"
---[[Translation missing --]]
-L["X_ICON_SIZE"] = "%spx Icon Size"
---[[Translation missing --]]
-L["X_ICON_TEXT_FONT_SIZE"] = "%spt Icon Font Size"
---[[Translation missing --]]
-L["X_INFORMATION"] = "%s Information"
---[[Translation missing --]]
-L["X_LOGS"] = "%s Logs"
---[[Translation missing --]]
-L["X_TRANSPARENCY"] = "%s%% Transparency"
---[[Translation missing --]]
-L["XS_BAGS"] = "%s's Bags"
---[[Translation missing --]]
-L["XS_BANK"] = "%s's Bank"
---[[Translation missing --]]
-L["XS_BANK_AND_BAGS"] = "%s's Bank and Bags"
---[[Translation missing --]]
-L["XS_GUILD_BANK"] = "%s's Guild Bank"
+L["UNLIMITED"] = "Без лимита"
+L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Окрашивать текст на иконках в цвет качества"
+L["USING_X"] = "Используется %s"
+L["VENDOR"] = "Торговец"
+L["VERSION_COLON_X"] = "Версия: %s"
+L["VOID_STORAGE"] = "Хранилище Бездны"
+L["WINDOWS"] = "Окна"
+L["X_BAG_COLUMNS"] = "Столбцов сумок - %s"
+L["X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "Кол-во игнорируемых слотов в сумках - %s"
+L["X_BANK_COLUMNS"] = "Столбцов банка - %s"
+L["X_BANK_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "Кол-во игнорируемых слотов в банке - %s"
+L["X_GUILD_COLUMNS"] = "Столбцов банка гильдии - %s"
+L["X_ICON_SIZE"] = "Размер иконки - %s"
+L["X_ICON_TEXT_FONT_SIZE"] = "Размер текста - %s"
+L["X_INFORMATION"] = "Информация о ячейке %s"
+L["X_LOGS"] = "Журнал ячейки %s"
+L["X_TRANSPARENCY"] = "Прозрачность - %s%%"
+L["XS_BAGS"] = "%s - сумки"
+L["XS_BANK"] = "%s - банк"
+L["XS_BANK_AND_BAGS"] = "%s - банк и сумки"
+L["XS_GUILD_BANK"] = "%s - банк гильдии"
 
 
 local L = Locales.esES
@@ -1100,7 +922,7 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 --[[Translation missing --]]
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 --[[Translation missing --]]
-L["BINDING_TYPE"] = "Binding Type"
+L["BINDING_TYPE"] = ""
 --[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
@@ -1120,7 +942,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to thi
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 --[[Translation missing --]]
@@ -1286,13 +1108,13 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
+L["SHOW_BOA_STATUS"] = ""
 --[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
+L["SHOW_BOE_STATUS"] = ""
 --[[Translation missing --]]
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
 --[[Translation missing --]]
-L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
+L["SHOW_CAN_I_MOG_IT_ICON"] = ""
 --[[Translation missing --]]
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 --[[Translation missing --]]
@@ -1300,9 +1122,9 @@ L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload re
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
-L["SHOW_ITEM_LEVEL"] = "Show equipment item levels"
+L["SHOW_ITEM_LEVEL"] = ""
 --[[Translation missing --]]
-L["SHOW_PAWN_UPGRADE_ARROW"] = "Show Pawn upgrade arrow when addon enabled"
+L["SHOW_PAWN_UPGRADE_ARROW"] = ""
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
 --[[Translation missing --]]
@@ -1374,7 +1196,7 @@ L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
-L["TRANSFERS"] = "Transfers"
+L["TRANSFERS"] = ""
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
@@ -1445,7 +1267,7 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 --[[Translation missing --]]
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 --[[Translation missing --]]
-L["BINDING_TYPE"] = "Binding Type"
+L["BINDING_TYPE"] = ""
 --[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
@@ -1465,7 +1287,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to thi
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 --[[Translation missing --]]
@@ -1631,13 +1453,13 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
+L["SHOW_BOA_STATUS"] = ""
 --[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
+L["SHOW_BOE_STATUS"] = ""
 --[[Translation missing --]]
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
 --[[Translation missing --]]
-L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
+L["SHOW_CAN_I_MOG_IT_ICON"] = ""
 --[[Translation missing --]]
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 --[[Translation missing --]]
@@ -1645,9 +1467,9 @@ L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload re
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
-L["SHOW_ITEM_LEVEL"] = "Show equipment item levels"
+L["SHOW_ITEM_LEVEL"] = ""
 --[[Translation missing --]]
-L["SHOW_PAWN_UPGRADE_ARROW"] = "Show Pawn upgrade arrow when addon enabled"
+L["SHOW_PAWN_UPGRADE_ARROW"] = ""
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
 --[[Translation missing --]]
@@ -1719,7 +1541,7 @@ L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
-L["TRANSFERS"] = "Transfers"
+L["TRANSFERS"] = ""
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
@@ -1846,7 +1668,7 @@ L["JUNK_DETECTION"] = "垃圾偵測"
 L["KEYS"] = "鑰匙"
 L["KEYSTONE_LEVEL"] = "鑰石層級"
 L["LEATHERWORKING"] = "製皮"
-L["LOCK_INVENTORY_FRAMES"] = "鎖定庫存視窗框架"
+L["LOCK_INVENTORY_FRAMES"] = "鎖定背包視窗框架"
 L["MAIL"] = "信箱"
 L["MINING"] = "採礦"
 L["MONEY_LOGS"] = "金幣紀錄"
@@ -1861,7 +1683,7 @@ L["REAGENTS"] = "材料"
 L["REALM_WIDE_GOLD_X"] = "金幣總計：%s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["REDUCE_SPACING_BETWEEN_UI_COMPONENTS"] = "減少介面元件之間的間距"
-L["REMOVE_INVENTORY_BORDERS"] = "移除庫存視窗的邊框"
+L["REMOVE_INVENTORY_BORDERS"] = "移除背包視窗的邊框"
 L["RESET_POSITIONS"] = "重設位置"
 L["REVERSE_GROUPS_SORT_ORDER"] = "反轉群組排列順序"
 L["SCRAP"] = "廢料"
@@ -2018,7 +1840,7 @@ L["JUNK_DETECTION"] = "扫描垃圾"
 L["KEYS"] = "钥匙"
 L["KEYSTONE_LEVEL"] = "钥石等级"
 L["LEATHERWORKING"] = "制皮"
-L["LOCK_INVENTORY_FRAMES"] = "锁定库存窗口"
+L["LOCK_INVENTORY_FRAMES"] = "锁定背包窗口边框"
 L["MAIL"] = "信箱"
 L["MINING"] = "采矿"
 L["MONEY_LOGS"] = "货币记录"
@@ -2033,7 +1855,7 @@ L["REAGENTS"] = "材料"
 L["REALM_WIDE_GOLD_X"] = "金币总计：%s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["REDUCE_SPACING_BETWEEN_UI_COMPONENTS"] = "减少界面之间的间距"
-L["REMOVE_INVENTORY_BORDERS"] = "移除清单窗口的边框"
+L["REMOVE_INVENTORY_BORDERS"] = "关闭背包窗口边框"
 L["RESET_POSITIONS"] = "重置位置"
 L["REVERSE_GROUPS_SORT_ORDER"] = "反转分类的排序"
 L["SCRAP"] = "废料"
@@ -2135,7 +1957,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "거래에 아이템을 더이상
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 --[[Translation missing --]]
@@ -2216,7 +2038,6 @@ L["JUNK"] = "Junk"
 L["JUNK_DETECTION"] = "필요없는 아이템 감지"
 --[[Translation missing --]]
 L["KEYS"] = "Keys"
---[[Translation missing --]]
 L["KEYSTONE_LEVEL"] = "Keystone Level"
 L["LEATHERWORKING"] = "가죽세공"
 L["LOCK_INVENTORY_FRAMES"] = "가방 창 고정"
@@ -2256,7 +2077,7 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 L["SELLJUNK"] = "SellJunk"
 L["SHOW_BOA_STATUS"] = "계정귀속 아이템 상태 표시 (느림)"
 --[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
+L["SHOW_BOE_STATUS"] = ""
 L["SHOW_BUTTONS_ON_ALT"] = "가방에서 ALT키를 누른 상태에서면 버튼 표시(재료 가방)"
 L["SHOW_CAN_I_MOG_IT_ICON"] = "Can I Mog It 애드온의 아이콘 표시"
 L["SHOW_CHARACTER_RACE_ICONS"] = "캐릭터의 종족 아이콘 표시"
@@ -2379,7 +2200,7 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 --[[Translation missing --]]
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 --[[Translation missing --]]
-L["BINDING_TYPE"] = "Binding Type"
+L["BINDING_TYPE"] = ""
 --[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
@@ -2399,7 +2220,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to thi
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
 --[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 --[[Translation missing --]]
@@ -2565,13 +2386,13 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
+L["SHOW_BOA_STATUS"] = ""
 --[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
+L["SHOW_BOE_STATUS"] = ""
 --[[Translation missing --]]
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
 --[[Translation missing --]]
-L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
+L["SHOW_CAN_I_MOG_IT_ICON"] = ""
 --[[Translation missing --]]
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 --[[Translation missing --]]
@@ -2579,9 +2400,9 @@ L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload re
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
-L["SHOW_ITEM_LEVEL"] = "Show equipment item levels"
+L["SHOW_ITEM_LEVEL"] = ""
 --[[Translation missing --]]
-L["SHOW_PAWN_UPGRADE_ARROW"] = "Show Pawn upgrade arrow when addon enabled"
+L["SHOW_PAWN_UPGRADE_ARROW"] = ""
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
 --[[Translation missing --]]
@@ -2653,7 +2474,7 @@ L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
-L["TRANSFERS"] = "Transfers"
+L["TRANSFERS"] = ""
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
