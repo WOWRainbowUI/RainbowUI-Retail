@@ -1,10 +1,10 @@
-lightweight tag 2e42e6ebb0cfe50e988c5310e6c184881c166b39 v1.0.5
+lightweight tag 8a9950424a65f42df07590dc7f7d3dfb65798bde v1.0.8
 Author:	GitHub <noreply@github.com>
-Date:	Sat May 11 00:56:24 2024 +0200
+Date:	Thu May 16 21:39:04 2024 +0200
 
-commit 2e42e6ebb0cfe50e988c5310e6c184881c166b39
+commit 8a9950424a65f42df07590dc7f7d3dfb65798bde
 Author: Zazou89 <155338110+Zazou89@users.noreply.github.com>
-Date:   Sat May 11 00:56:24 2024 +0200
+Date:   Thu May 16 21:39:04 2024 +0200
 
-    Bump Toc
+    Add missing items, remove cloak threads
 

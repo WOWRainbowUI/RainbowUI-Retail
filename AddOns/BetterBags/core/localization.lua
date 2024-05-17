@@ -302,6 +302,15 @@ if GetLocale() == "zhTW" then
 	L.data["Noblegarden"] = "貴族花園"
 	L.data["Darkmoon Faire"] = "暗月馬戲團"
 	L.data["Lunar Festival"] = "新年慶典"
+	L.data["Remix"] = "混搭再造"
+	L.data["Meta Gems"] = "變換寶石"
+	L.data["Cogwheel Gems"] = "榫輪寶石"
+	L.data["Tinker Gems"] = "技工寶石"
+	L.data["Prismatic Gems"] = "稜彩寶石"
+	L.data["Enhancements"] = "強化"
+	L.data["Utilities"] = "工具"
+	L.data["Consumables"] = "消耗品"
+	
 	
 	-- BetterBags_GearFirst
 	L.data["Gear > Alphabetically"] = "裝備 > 名稱"
