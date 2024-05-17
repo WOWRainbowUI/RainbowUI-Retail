@@ -1896,16 +1896,12 @@ D["Postal"] = {
 	img = true,
 };
 D["PremadeGroupsFilter"] = {
-    defaultEnable = 0,
+    defaultEnable = 1,
 	tags = { "BOSSRAID" },
 	title = "預組隊伍過濾",
 	desc = "提供進階的過濾方式來篩選隊伍。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_dualwieldspecialization",
-	{
-		type = "text",
-        text = "依時間排序：\n將預組視窗上方的 '過濾選項' 打勾，然後在右邊最下面的欄位中輸入 age>0 再按下 '搜尋'。",       
-	},
 };
 D["PremakeGroupsHelper"] = {
     defaultEnable = 0,
@@ -1915,6 +1911,21 @@ D["PremakeGroupsHelper"] = {
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_dualwieldspecialization",
 	img = true,
+};
+D["PremadeSort"] = {
+    defaultEnable = 1,
+	tags = { "BOSSRAID" },
+	title = "預組隊伍排序",
+	desc = "讓預組隊伍列表依據隊伍建立的時間排序。``報名按鈕旁打勾時，點兩下隊伍名稱可以直接報名隊伍，並且跳過選擇角色職責。",
+	modifier = "彩虹ui",
+	{
+        text = "顯示/隱藏時間標記",
+        callback = function(cfg, v, loading) SlashCmdList["PREMADESORT"]("timestamp") end,
+    },
+	{
+		type = "text",
+        text = "按下顯示/隱藏時間標記後需要重新整理預組隊伍列表才會有效果。\n",       
+	},
 };
 D["PrettyReps"] = {
     defaultEnable = 0,
