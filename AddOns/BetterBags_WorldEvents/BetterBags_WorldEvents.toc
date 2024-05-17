@@ -7,7 +7,7 @@
 ## X-Curse-Project-ID: 996347
 ## IconTexture: Interface\Icons\temp
 
-## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-節慶
+## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-節慶/混搭
 ## Notes-zhTW: BetterBags - World Events |n|n節慶活動物品的分類。
 ## X-Category-zhTW: 物品
 ## DefaultState: disabled
