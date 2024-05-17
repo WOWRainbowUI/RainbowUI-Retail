@@ -2,18 +2,28 @@ SyndicatorBagCacheMixin = {}
 
 local bankBags = {}
 local bagBags = {}
+local warbandBags = {}
 for index, key in ipairs(Syndicator.Constants.AllBagIndexes) do
   bagBags[key] = index
 end
 for index, key in ipairs(Syndicator.Constants.AllBankIndexes) do
   bankBags[key] = index
 end
+for index, key in ipairs(Syndicator.Constants.AllWarbandIndexes) do
+  warbandBags[key] = index
+end
 
 local function GetEmptyPending()
   return {
     bags = {},
     bank = {},
+    warband = {},
     reagentBankSlots = {},
+    containerBags = {
+      bags = false,
+      bank = false,
+      warband = false
+    }
   }
 end
 
@@ -64,6 +74,8 @@ function SyndicatorBagCacheMixin:OnEvent(eventName, ...)
       self.pending.bags[bagID] = true
     elseif bankBags[bagID] and self.bankOpen then
       self.pending.bank[bagID] = true
+    elseif warbandBags[bagID] and self.bankOpen then
+      self.pending.warband[bagID] = true
     end
     self:QueueCaching()
 
@@ -89,25 +101,34 @@ function SyndicatorBagCacheMixin:OnEvent(eventName, ...)
   elseif eventName == "BAG_CONTAINER_UPDATE" then
     self:UpdateContainerSlots()
 
+  elseif eventName == "BANK_TAB_SETTINGS_UPDATED" then
+    self:ScanWarbandSlots()
+
   elseif eventName == "BANKFRAME_OPENED" then
     self.bankOpen = true
     for bagID in pairs(bankBags) do
       self.pending.bank[bagID] = true
     end
+    for bagID in pairs(warbandBags) do
+      self.pending.warband[bagID] = true
+    end
     self:ScanContainerBagSlots()
+    self:ScanWarbandSlots()
     self:QueueCaching()
 
   elseif eventName == "BANKFRAME_CLOSED" then
     self.bankOpen = false
 
   elseif eventName == "ITEM_CHANGED" or eventName == "CHALLENGE_MODE_START" or eventName == "CHALLENGE_MODE_COMPLETED" then
-    for bagID in pairs(bagBags) do
-      self.pending.bags[bagID] = true
-    end
-    for bagID in pairs(bankBags) do
-      self.pending.bank[bagID] = true
-    end
-    self:QueueCaching()
+    C_Timer.After(0, function()
+      for bagID in pairs(bagBags) do
+        self.pending.bags[bagID] = true
+      end
+      for bagID in pairs(bankBags) do
+        self.pending.bank[bagID] = true
+      end
+      self:QueueCaching()
+    end)
   end
 end
 
@@ -143,9 +164,29 @@ function SyndicatorBagCacheMixin:UpdateContainerSlots()
   self:QueueCaching()
 end
 
+function SyndicatorBagCacheMixin:ScanWarbandSlots()
+  if C_Bank == nil or C_Bank.FetchPurchasedBankTabData == nil then
+    return
+  end
+
+  local allTabs = C_Bank.FetchPurchasedBankTabData(Enum.BankType.Account)
+
+  local warband = SYNDICATOR_DATA.Warband[1]
+
+  for index, tabDetails in ipairs(allTabs) do
+    if not warband.bank[index] then
+      warband.bank[index] = { slots = {}, icon = QUESTION_MARK_ICON, name = "", depositFlags = 0 }
+    end
+    warband.bank[index].iconTexture = tabDetails.icon
+    warband.bank[index].name = tabDetails.name
+    warband.bank[index].depositFlags = tabDetails.depositFlags
+  end
+  self.pending.containerBags.warband = true
+end
+
 function SyndicatorBagCacheMixin:ScanContainerBagSlots()
   local function DoBagSlot(inventorySlot)
-    local location = ItemLocation:CreateFromEquipmentSlot(inventorySlot)
+    local location = {equipmentSlotIndex = inventorySlot}
     local itemID = GetInventoryItemID("player", inventorySlot)
     if not itemID then
       return {}
@@ -179,6 +220,7 @@ function SyndicatorBagCacheMixin:ScanContainerBagSlots()
         containerInfo.bags[index] = {}
       end
     end
+    self.pending.containerBags.bags = true
   end
 
   if self.bankOpen then
@@ -199,6 +241,7 @@ function SyndicatorBagCacheMixin:ScanContainerBagSlots()
         containerInfo.bank[index] = {}
       end
     end
+    self.pending.containerBags.bank = true
   end
 end
 
@@ -218,7 +261,12 @@ function SyndicatorBagCacheMixin:OnUpdate()
       print("caching took", debugprofilestop() - start)
     end
     self.isUpdatePending = false
-    Syndicator.CallbackRegistry:TriggerEvent("BagCacheUpdate", self.currentCharacter, pendingCopy)
+    if next(pendingCopy.bank) or next(pendingCopy.bags) then
+      Syndicator.CallbackRegistry:TriggerEvent("BagCacheUpdate", self.currentCharacter, pendingCopy)
+    end
+    if next(pendingCopy.warband) then
+      Syndicator.CallbackRegistry:TriggerEvent("WarbandCacheUpdate", pendingCopy)
+    end
   end
 
   local waiting = 0
@@ -237,7 +285,9 @@ function SyndicatorBagCacheMixin:OnUpdate()
 
 
   local function DoSlot(bagID, slotID, bag)
-    local location = ItemLocation:CreateFromBagAndSlot(bagID, slotID)
+    -- Create raw location as optimisation (~20% time saving)
+    -- Equivalent to ItemLocation:CreateFromBagAndSlot(bagID, slotID)
+    local location = {bagID = bagID, slotIndex = slotID}
     local itemID = C_Item.DoesItemExist(location) and C_Item.GetItemID(location)
     bag[slotID] = {}
     if itemID then
@@ -292,6 +342,19 @@ function SyndicatorBagCacheMixin:OnUpdate()
     for slotID in pairs(self.pending.reagentBankSlots) do
       if #reagentBankData >= slotID then
         DoSlot(Enum.BagIndex.Reagentbank, slotID, reagentBankData)
+      end
+    end
+  end
+
+  local warband = SYNDICATOR_DATA.Warband[1]
+
+  for bagID in pairs(self.pending.warband) do
+    local bagIndex = warbandBags[bagID]
+    if warband.bank[bagIndex] then
+      warband.bank[bagIndex].slots = {}
+      local bagData = warband.bank[bagIndex].slots
+      for slotID = 1, C_Container.GetContainerNumSlots(bagID) do
+        DoSlot(bagID, slotID, bagData)
       end
     end
   end

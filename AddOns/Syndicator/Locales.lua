@@ -37,15 +37,13 @@ L["ALL_CHARACTERS_COLON"] = "All Characters:"
 L["INVENTORY"] = "Inventory"
 L["TOTAL_X"] = "Total: %s"
 L["BAGS_X"] = "Bags: %s"
-L["BANKS_X"] = "Banks: %s"
-L["MAILS_X"] = "Mails: %s"
-L["GUILDS_X"] = "Guilds: %s"
 L["BANK_X"] = "Bank: %s"
 L["MAIL_X"] = "Mail: %s"
 L["EQUIPPED_X"] = "Equipped: %s"
 L["VOID_X"] = "Void: %s"
 L["AUCTIONS_X"] = "Auctions: %s"
 L["GUILD_X"] = "Guild: %s"
+L["WARBAND"] = "Warband"
 
 L["KEYWORD_REAGENT"] = "reagent"
 L["KEYWORD_PET"] = "pet"
@@ -117,13 +115,11 @@ L["BAGS_LOWER"] = "sacs"
 L["BAGS_X"] = "Sacs: %s"
 L["BANK_LOWER"] = "banque"
 L["BANK_X"] = "Banque : %s"
-L["BANKS_X"] = "Banques : %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Impossible d’effectuer une recherche par lien d’objet"
 L["EQUIPPED_LOWER"] = "équipé "
 L["EQUIPPED_X"] = "Equipé: %s "
 L["GUILD_LOWER"] = "guilde"
 L["GUILD_X"] = "Guilde: %s"
-L["GUILDS_X"] = "Guildes: %s"
 L["INVENTORY"] = "Inventaire"
 L["KEYWORD_ACCOUNT_BOUND"] = "lié au compte"
 L["KEYWORD_AXE"] = "hache"
@@ -178,7 +174,6 @@ L["KEYWORD_UNCOLLECTED_PET"] = "Mascotte non collectée"
 L["KEYWORD_USE"] = "utiliser"
 L["MAIL_LOWER"] = "courrier"
 L["MAIL_X"] = "Courrier : %s"
-L["MAILS_X"] = "Courriers : %s"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Uniquement l'inventaire des serveurs connectés "
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Uniquement l'inventaire de faction "
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Maj pour afficher les infos dans les infobulles"
@@ -195,6 +190,8 @@ L["TOTAL_X"] = "Total: %s"
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_LOWER"] = "vide"
 L["VOID_X"] = "Vide: %s"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
 L["X_CHARACTERS_SHOWN"] = "%s Personnages affichés"
 
 
@@ -206,13 +203,11 @@ L["BAGS_LOWER"] = "taschen"
 L["BAGS_X"] = "Taschen: %s"
 L["BANK_LOWER"] = "bank"
 L["BANK_X"] = "Bank: %s"
-L["BANKS_X"] = "Banken: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Suche nach Artikel-Link nicht möglich"
 L["EQUIPPED_LOWER"] = "ausgerüstet"
 L["EQUIPPED_X"] = "Ausgerüstet: %s"
 L["GUILD_LOWER"] = "gilde"
 L["GUILD_X"] = "Gilde: %s"
-L["GUILDS_X"] = "Gilden: %s"
 L["INVENTORY"] = "Inventar"
 L["KEYWORD_ACCOUNT_BOUND"] = "accountgebunden"
 L["KEYWORD_AXE"] = "axt"
@@ -267,7 +262,6 @@ L["KEYWORD_UNCOLLECTED_PET"] = "nicht gesammeltes haustier"
 L["KEYWORD_USE"] = "benutzen"
 L["MAIL_LOWER"] = "post"
 L["MAIL_X"] = "Post: %s"
-L["MAILS_X"] = "Post: %s"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Nur die gleichen verbundenen Realms für das Inventar verwenden"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Nur Charaktere derselben Fraktion für das Inventar verwenden"
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Drücke die Umschalttaste, um Informationen in den Tooltips anzuzeigen"
@@ -284,40 +278,24 @@ L["TOTAL_X"] = "Insgesamt: %s"
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_LOWER"] = "ungültig"
 L["VOID_X"] = "Ungültig: %s"
+L["WARBAND"] = "Kriegsbande"
 L["X_CHARACTERS_SHOWN"] = "%s Angezeigte Charaktere"
 
 
 local L = Locales.ruRU
---[[Translation missing --]]
-L["ALL_CHARACTERS_COLON"] = "All Characters:"
---[[Translation missing --]]
-L["AUCTIONS_LOWER"] = "auctions"
---[[Translation missing --]]
-L["AUCTIONS_X"] = "Auctions: %s"
---[[Translation missing --]]
-L["BAGS_LOWER"] = "bags"
---[[Translation missing --]]
-L["BAGS_X"] = "Bags: %s"
---[[Translation missing --]]
-L["BANK_LOWER"] = "bank"
---[[Translation missing --]]
-L["BANK_X"] = "Bank: %s"
---[[Translation missing --]]
-L["BANKS_X"] = "Banks: %s"
---[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
---[[Translation missing --]]
-L["EQUIPPED_LOWER"] = "equipped"
---[[Translation missing --]]
-L["EQUIPPED_X"] = "Equipped: %s"
---[[Translation missing --]]
-L["GUILD_LOWER"] = "guild"
---[[Translation missing --]]
-L["GUILD_X"] = "Guild: %s"
---[[Translation missing --]]
-L["GUILDS_X"] = "Guilds: %s"
---[[Translation missing --]]
-L["INVENTORY"] = "Inventory"
+L["ALL_CHARACTERS_COLON"] = "На всех персонажах:"
+L["AUCTIONS_LOWER"] = "Аукционы -"
+L["AUCTIONS_X"] = "Аукционы: %s"
+L["BAGS_LOWER"] = "Сумки -"
+L["BAGS_X"] = "Сумки: %s"
+L["BANK_LOWER"] = "Банк -"
+L["BANK_X"] = "Банк: %s"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Невозможно выполнить поиск по ссылке на предмет"
+L["EQUIPPED_LOWER"] = "Экипировано -"
+L["EQUIPPED_X"] = "Экипировано: %s"
+L["GUILD_LOWER"] = "Банк гильдии -"
+L["GUILD_X"] = "Банк гильдии: %s"
+L["INVENTORY"] = "Инвентарь"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
 --[[Translation missing --]]
@@ -418,48 +396,27 @@ L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
 L["KEYWORD_TRASH"] = "trash"
 --[[Translation missing --]]
 L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
---[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
---[[Translation missing --]]
-L["MAIL_LOWER"] = "mail"
---[[Translation missing --]]
-L["MAIL_X"] = "Mail: %s"
---[[Translation missing --]]
-L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
---[[Translation missing --]]
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
---[[Translation missing --]]
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Press shift to display info in tooltips"
---[[Translation missing --]]
-L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
---[[Translation missing --]]
-L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
---[[Translation missing --]]
-L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
---[[Translation missing --]]
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Show equipped items in inventory tooltips"
---[[Translation missing --]]
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory tooltips"
---[[Translation missing --]]
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
---[[Translation missing --]]
-L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
---[[Translation missing --]]
+L["MAIL_LOWER"] = "Почта -"
+L["MAIL_X"] = "Почта: %s"
+L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Учитывать только игровой мир текущего персонажа"
+L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Учитывать только фракцию текущего персонажа"
+L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Отображать информацию в подсказках только при зажатом Shift"
+L["SEARCHED_EVERYWHERE_COLON"] = "Результаты глобального поиска:"
+L["SHOW_CHARACTER_RACE_ICONS"] = "Отображать иконку расы персонажа"
+L["SHOW_CURRENCY_TOOLTIPS"] = "Отображать валюту у других персонажей"
+L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Отображать экипированные предметы"
+L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Отображать банк гильдии"
+L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Отображать инвентарь"
+L["SORT_BY_CHARACTER_NAME"] = "Сортировка по имени персонажа"
 L["SYNDICATOR"] = "Syndicator"
---[[Translation missing --]]
-L["TOOLTIP_SETTINGS"] = "Tooltip Settings"
---[[Translation missing --]]
-L["TOTAL_X"] = "Total: %s"
---[[Translation missing --]]
-L["VERSION_COLON_X"] = "Version: %s"
---[[Translation missing --]]
-L["VOID_LOWER"] = "void"
---[[Translation missing --]]
-L["VOID_X"] = "Void: %s"
---[[Translation missing --]]
-L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
+L["TOOLTIP_SETTINGS"] = "Настройка отображения во всплывающих подсказках"
+L["TOTAL_X"] = "Всего: %s"
+L["VERSION_COLON_X"] = "Версия: %s"
+L["VOID_LOWER"] = "Хранилище Бездны -"
+L["VOID_X"] = "Хранилище Бездны: %s"
+L["WARBAND"] = "Отряд"
+L["X_CHARACTERS_SHOWN"] = "Отображать персонажей - %s"
 
 
 local L = Locales.esES
@@ -478,8 +435,6 @@ L["BANK_LOWER"] = "bank"
 --[[Translation missing --]]
 L["BANK_X"] = "Bank: %s"
 --[[Translation missing --]]
-L["BANKS_X"] = "Banks: %s"
---[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
@@ -489,8 +444,6 @@ L["EQUIPPED_X"] = "Equipped: %s"
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
 L["GUILD_X"] = "Guild: %s"
---[[Translation missing --]]
-L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
@@ -600,8 +553,6 @@ L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
-L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
@@ -633,6 +584,8 @@ L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_LOWER"] = "void"
 --[[Translation missing --]]
 L["VOID_X"] = "Void: %s"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
 --[[Translation missing --]]
 L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
 
@@ -653,8 +606,6 @@ L["BANK_LOWER"] = "bank"
 --[[Translation missing --]]
 L["BANK_X"] = "Bank: %s"
 --[[Translation missing --]]
-L["BANKS_X"] = "Banks: %s"
---[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
@@ -664,8 +615,6 @@ L["EQUIPPED_X"] = "Equipped: %s"
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
 L["GUILD_X"] = "Guild: %s"
---[[Translation missing --]]
-L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
@@ -775,8 +724,6 @@ L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
-L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
@@ -809,6 +756,8 @@ L["VOID_LOWER"] = "void"
 --[[Translation missing --]]
 L["VOID_X"] = "Void: %s"
 --[[Translation missing --]]
+L["WARBAND"] = "Warband"
+--[[Translation missing --]]
 L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
 
 
@@ -820,13 +769,11 @@ L["BAGS_LOWER"] = "背包"
 L["BAGS_X"] = "背包：%s"
 L["BANK_LOWER"] = "銀行"
 L["BANK_X"] = "銀行：%s"
-L["BANKS_X"] = "銀行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "無法透過物品連結搜尋"
 L["EQUIPPED_LOWER"] = "裝備"
 L["EQUIPPED_X"] = "裝備：%s"
 L["GUILD_LOWER"] = "公會"
 L["GUILD_X"] = "公會：%s"
-L["GUILDS_X"] = "公會：%s"
 L["INVENTORY"] = "庫存"
 L["KEYWORD_ACCOUNT_BOUND"] = "帳號綁定"
 L["KEYWORD_AXE"] = "斧"
@@ -881,7 +828,6 @@ L["KEYWORD_UNCOLLECTED_PET"] = "未收藏寵物"
 L["KEYWORD_USE"] = "使用"
 L["MAIL_LOWER"] = "郵件"
 L["MAIL_X"] = "信箱：%s"
-L["MAILS_X"] = "信箱：%s"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "在庫存上只使用相同連結伺服器"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "在庫存上只使用相同陣營角色"
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "按下Shift在工具提示中顯示訊息"
@@ -898,6 +844,8 @@ L["TOTAL_X"] = "總計：%s"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_LOWER"] = "虛空倉庫"
 L["VOID_X"] = "虛空倉庫: %s"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
 L["X_CHARACTERS_SHOWN"] = "%s 角色顯示"
 
 
@@ -909,13 +857,11 @@ L["BAGS_LOWER"] = "背包"
 L["BAGS_X"] = "背包： %s"
 L["BANK_LOWER"] = "银行"
 L["BANK_X"] = "银行：%s"
-L["BANKS_X"] = "银行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "无法通过物品链接搜索"
 L["EQUIPPED_LOWER"] = "装备"
 L["EQUIPPED_X"] = "装备：%s"
 L["GUILD_LOWER"] = "公会"
 L["GUILD_X"] = "公会：%s"
-L["GUILDS_X"] = "公会：%s"
 L["INVENTORY"] = "库存"
 L["KEYWORD_ACCOUNT_BOUND"] = "帐号绑定"
 L["KEYWORD_AXE"] = "斧"
@@ -970,7 +916,6 @@ L["KEYWORD_UNCOLLECTED_PET"] = "未收藏宠物"
 L["KEYWORD_USE"] = "使用（use）"
 L["MAIL_LOWER"] = "信箱"
 L["MAIL_X"] = "信箱：%s"
-L["MAILS_X"] = "信箱：%s"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "仅显示互通服务器角色的库存"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "仅显示同阵营角色的库存"
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "按 SHIFT 键在鼠标提示中显示信息"
@@ -987,6 +932,7 @@ L["TOTAL_X"] = "总计：%s"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_LOWER"] = "虚空仓库"
 L["VOID_X"] = "虚空仓库：%s"
+L["WARBAND"] = "战团"
 L["X_CHARACTERS_SHOWN"] = "显示角色 ：%s （注：仅限鼠标提示显示）"
 
 
@@ -1002,7 +948,6 @@ L["BAGS_X"] = " 가방: %s"
 --[[Translation missing --]]
 L["BANK_LOWER"] = "bank"
 L["BANK_X"] = "은행: %s"
-L["BANKS_X"] = "은행: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
@@ -1011,7 +956,6 @@ L["EQUIPPED_X"] = "착용함: %s"
 --[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 L["GUILD_X"] = "길드: %s"
-L["GUILDS_X"] = "길드: %s"
 L["INVENTORY"] = "가방"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
@@ -1094,7 +1038,6 @@ L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 L["MAIL_X"] = "우편함: %s"
-L["MAILS_X"] = "우편함: %s"
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "동일 서버의 소지품만 표시"
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "동일 진영의 소지품만 표시"
 L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "툴팁 정보를 표시하려면 SHIFT 누르기"
@@ -1117,6 +1060,8 @@ L["VERSION_COLON_X"] = "Version: %s"
 --[[Translation missing --]]
 L["VOID_LOWER"] = "void"
 L["VOID_X"] = "공허 보관소: %s"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
 L["X_CHARACTERS_SHOWN"] = "%s 의 캐릭터 표시"
 
 
@@ -1136,8 +1081,6 @@ L["BANK_LOWER"] = "bank"
 --[[Translation missing --]]
 L["BANK_X"] = "Bank: %s"
 --[[Translation missing --]]
-L["BANKS_X"] = "Banks: %s"
---[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
@@ -1147,8 +1090,6 @@ L["EQUIPPED_X"] = "Equipped: %s"
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
 L["GUILD_X"] = "Guild: %s"
---[[Translation missing --]]
-L["GUILDS_X"] = "Guilds: %s"
 --[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
@@ -1258,8 +1199,6 @@ L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
-L["MAILS_X"] = "Mails: %s"
---[[Translation missing --]]
 L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
 --[[Translation missing --]]
 L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
@@ -1291,6 +1230,8 @@ L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_LOWER"] = "void"
 --[[Translation missing --]]
 L["VOID_X"] = "Void: %s"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
 --[[Translation missing --]]
 L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
 

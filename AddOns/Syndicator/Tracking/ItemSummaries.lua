@@ -4,9 +4,16 @@ function SyndicatorItemSummariesMixin:OnLoad()
   if BAGANATOR_SUMMARIES ~= nil and SYNDICATOR_SUMMARIES == nil then
     SYNDICATOR_SUMMARIES = BAGANATOR_SUMMARIES
   end
-  if SYNDICATOR_SUMMARIES == nil or SYNDICATOR_SUMMARIES.Version < 3 then
+  if SYNDICATOR_SUMMARIES ~= nil and SYNDICATOR_SUMMARIES.Version == 4 then
+    SYNDICATOR_SUMMARIES.Version = 5
+    SYNDICATOR_SUMMARIES.Warband = {
+      Summary = {},
+      Pending = { true },
+    }
+  end
+  if SYNDICATOR_SUMMARIES == nil or SYNDICATOR_SUMMARIES.Version < 5 then
     SYNDICATOR_SUMMARIES = {
-      Version = 3,
+      Version = 5,
       Characters = {
         ByRealm = {},
         Pending = {},
@@ -14,6 +21,10 @@ function SyndicatorItemSummariesMixin:OnLoad()
       Guilds = {
         ByRealm = {},
         Pending = {},
+      },
+      Warband = {
+        Summary = {},
+        Pending = { true },
       },
     }
     for character, data in pairs(SYNDICATOR_DATA.Characters) do
@@ -25,6 +36,7 @@ function SyndicatorItemSummariesMixin:OnLoad()
   end
   self.SV = SYNDICATOR_SUMMARIES
   Syndicator.CallbackRegistry:RegisterCallback("BagCacheUpdate", self.CharacterCacheUpdate, self)
+  Syndicator.CallbackRegistry:RegisterCallback("WarbandCacheUpdate", self.WarbandCacheUpdate, self)
   Syndicator.CallbackRegistry:RegisterCallback("MailCacheUpdate", self.CharacterCacheUpdate, self)
   Syndicator.CallbackRegistry:RegisterCallback("GuildCacheUpdate", self.GuildCacheUpdate, self)
   Syndicator.CallbackRegistry:RegisterCallback("EquippedCacheUpdate", self.CharacterCacheUpdate, self)
@@ -34,6 +46,10 @@ end
 
 function SyndicatorItemSummariesMixin:CharacterCacheUpdate(characterName)
   self.SV.Characters.Pending[characterName] = true
+end
+
+function SyndicatorItemSummariesMixin:WarbandCacheUpdate()
+  self.SV.Warband.Pending[1] = true
 end
 
 function SyndicatorItemSummariesMixin:GuildCacheUpdate(guildName)
@@ -181,6 +197,26 @@ function SyndicatorItemSummariesMixin:GenerateGuildSummary(guildName)
   self.SV.Guilds.ByRealm[details.details.realms[1]][details.details.guild] = summary
 end
 
+function SyndicatorItemSummariesMixin:GenerateWarbandSummary()
+  local summary = {}
+  local details = SYNDICATOR_DATA.Warband[1].bank
+
+  for _, tab in ipairs(details) do
+    for _, item in ipairs(tab.slots) do
+      if item.itemLink then
+        local key = Syndicator.Utilities.GetItemKey(item.itemLink)
+        if not summary[key] then
+          summary[key] = 0
+        end
+        summary[key] = summary[key] + item.itemCount
+      end
+    end
+  end
+
+  self.SV.Warband.Summary[1] = summary
+  self.SV.Warband.Pending[1] = false
+end
+
 function SyndicatorItemSummariesMixin:GetTooltipInfo(key, sameConnectedRealm, sameFaction)
   if next(self.SV.Characters.Pending) then
     local start = debugprofilestop()
@@ -202,6 +238,13 @@ function SyndicatorItemSummariesMixin:GetTooltipInfo(key, sameConnectedRealm, sa
       print("summaries guild", debugprofilestop() - start)
     end
   end
+  if self.SV.Warband.Pending[1] then
+    local start = debugprofilestop()
+    self:GenerateWarbandSummary()
+    if Syndicator.Config.Get(Syndicator.Config.Options.DEBUG_TIMERS) then
+      print("summaries warband", debugprofilestop() - start)
+    end
+  end
 
   local realms = {}
   if sameConnectedRealm then
@@ -220,6 +263,7 @@ function SyndicatorItemSummariesMixin:GetTooltipInfo(key, sameConnectedRealm, sa
   local result = {
     characters = {},
     guilds = {},
+    warband = { 0 },
   }
 
   local currentFaction = UnitFactionGroup("player")
@@ -261,6 +305,10 @@ function SyndicatorItemSummariesMixin:GetTooltipInfo(key, sameConnectedRealm, sa
         end
       end
     end
+  end
+
+  if self.SV.Warband.Summary[1][key] then
+    result.warband[1] = self.SV.Warband.Summary[1][key]
   end
 
   return result
