@@ -9,7 +9,7 @@ local function BUII_AddColoredExpLine(name, tooltip)
 		tooltip:AddLine(name, 0, 0.8, 1)
 	elseif name == "浩劫與重生" then
 		tooltip:AddLine(name, 0.8, 0.2, 0)
-	elseif name == "潘達利亞之迷" then
+	elseif name == "潘達利亞之謎" then
 		tooltip:AddLine(name, 0, 1, 0.6)
 	elseif name == "德拉諾之霸" then
 		tooltip:AddLine(name, 0.78, 0.61, 0.43)
