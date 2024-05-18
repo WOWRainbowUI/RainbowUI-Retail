@@ -2121,7 +2121,7 @@ function PawnUI_OnSocketUpdate()
 	end
 	local Item = PawnGetItemData(ItemLink)
 	if not Item or not Item.Values then
-		VgerCore.Fail("Failed to update the socketing UI because we didn't know what item was in it.")
+		-- VgerCore.Fail("Failed to update the socketing UI because we didn't know what item was in it.")
 		return
 	end
 	if not Item.UnenchantedStats then return end -- Can't do anything interesting if we couldn't get unenchanted item data
