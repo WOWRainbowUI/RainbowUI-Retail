@@ -12,7 +12,7 @@
 ## X-WoWI-ID: YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
 ## Y-Wago-ID: ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
 
-## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-可打開
+## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-打開
 ## Notes-zhTW: BetterBags - Openable |n|n將可打開的物品放在一個分類中。
 ## X-Category-zhTW: 物品
 ## IconTexture: Interface\Icons\inv_cloth_kaelthas_c_01_buckle

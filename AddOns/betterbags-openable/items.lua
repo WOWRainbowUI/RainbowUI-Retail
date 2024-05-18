@@ -345,5 +345,11 @@ items[224034]	= true	-- Bottomless Bag of Khaz Algar Inscription Goods
 items[224100]	= true	-- Bottomless Bag of Khaz Algar General Goods
 items[224156]	= true	-- Bottomless Bag of Khaz Algar General Goods
 items[225739]	= true	-- Algari Distinguishment
+-- Cache (Remix)
+items[223908]	= true	--Minor Bronze Cache
+items[223909]	= true	--Lesser Bronze Cache
+items[223910]	= true	--Bronze Cache
+items[223911]	= true	--Greater Bronze Cache
+items[211279]	= true	--Cache of Infinite Treasure
 
 addon.items = items

@@ -211,11 +211,11 @@ local WoWRemixMoP = {
     219218, --Timerunner's Starter Kit
     219219, --Timerunner's Starter Kit
     -- Cache
-    223908, --Minor Bronze Cache
-    223909, --Lesser Bronze Cache
-    223910, --Bronze Cache
-    223911, --Greater Bronze Cache
-    211279, --Cache of Infinite Treasure
+    -- 223908, --Minor Bronze Cache
+    -- 223909, --Lesser Bronze Cache
+    -- 223910, --Bronze Cache
+    -- 223911, --Greater Bronze Cache
+    -- 211279, --Cache of Infinite Treasure
     --Gear
     208555, --Timerunner's Idol
     208554, --Timerunner's Beacon

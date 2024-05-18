@@ -317,7 +317,7 @@ if GetLocale() == "zhTW" then
 	L.data["Hearthstone > Gear > Alphabetically"] = "爐石 > 裝備 > 名稱"
 	
 	-- Betterbags-openable
-	L.data["Openable"] = "可打開"
+	L.data["Openable"] = "打開"
 	
 end
 
