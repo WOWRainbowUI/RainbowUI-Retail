@@ -2115,7 +2115,7 @@ function PawnUI_OnSocketUpdate()
 
 	-- Find out what item it is.
 	local _, ItemLink = ItemSocketingDescription:GetItem()
-	if strfind(ItemLink, "item:167555") then
+	if ItemLink and strfind(ItemLink, "item:167555") then -- 暫時修正
 		-- Don't show an error message on Pocket-Sized Computation Device, which has three punch card sockets and no stats.
 		return
 	end
