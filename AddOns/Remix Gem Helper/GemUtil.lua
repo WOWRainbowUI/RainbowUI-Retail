@@ -82,7 +82,8 @@ end
 ---@param locType "BAG_GEM"|"BAG_SOCKET"|"EQUIP_SOCKET"|"UNCOLLECTED"
 ---@param locIndex integer|?
 ---@param locSlot integer|?
-function gemUtil:AddGemData(dataTable, itemInfo, locType, locIndex, locSlot)
+---@param gemSlot integer|?
+function gemUtil:AddGemData(dataTable, itemInfo, locType, locIndex, locSlot, gemSlot)
     if type(itemInfo) ~= "table" then return end
     local itemType = select(6, C_Item.GetItemInfoInstant(itemInfo.hyperlink))
     if itemType == 3 and self:GetGemSocketType(itemInfo.itemID) then
@@ -93,22 +94,23 @@ function gemUtil:AddGemData(dataTable, itemInfo, locType, locIndex, locSlot)
                 locIndex = locIndex,
                 locSlot = locSlot,
                 gemType = self:GetSocketTypeName(self:GetGemSocketType(itemInfo.itemID)),
+                gemSlot = gemSlot
             })
             Private.Cache:CacheItemInfo(itemInfo.itemID)
         end
     else
         local gems = self:GetItemGems(itemInfo.hyperlink)
         if #gems < 1 then return end
-        for _, gemID in ipairs(gems) do
+        for gemSlot, gemID in ipairs(gems) do
             if type(gemID) == "number" then
                 local cacheInfo = Private.Cache:GetItemInfo(gemID)
-                local hyperlink = cacheInfo.link
-                if hyperlink then
+                if cacheInfo and cacheInfo.link then
+                    local hyperlink = cacheInfo.link
                     self:AddGemData(dataTable, {
                         itemID = gemID,
                         stackCount = 1,
                         hyperlink = hyperlink,
-                    }, "BAG_SOCKET", locIndex, locSlot)
+                    }, "BAG_SOCKET", locIndex, locSlot, gemSlot)
                 end
             end
         end

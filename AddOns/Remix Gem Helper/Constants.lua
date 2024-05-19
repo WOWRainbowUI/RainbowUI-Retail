@@ -216,7 +216,7 @@ constants.COLORS = {
 }
 constants.MEDIA = {
     FONTS = {
-        DEFAULT = [[Interface\Addons\]] .. constants.ADDON_NAME .. [[\Media\Fonts\Expressway.TTF]]
+        DEFAULT = [[\NotoSans-Bold.ttf]],
     },
     TEXTURES = {
         LOGO = [[Interface\Addons\]] .. constants.ADDON_NAME .. [[\Media\Textures\logo.tga]]
@@ -229,14 +229,22 @@ constants.FONT_OBJECTS = {
 }
 
 constants.LANG_TO_FONT = {
-    ["koKR"] = "Fonts\\2002.TTF",
-    ["zhCN"] = "Fonts\\blei00d.TTF",
-    ["zhTW"] = "Fonts\\ARKai_T.ttf",
-    ["ruRU"] = "Fonts\\FRIZQT___CYR.TTF",
+    ["enUS"] = "Default",
+    ["frFR"] = "Default",
+    ["deDE"] = "Default",
+    ["esES"] = "Default",
+    ["esMX"] = "Default",
+    ["ruRU"] = "Default",
+    ["ptBR"] = "Default",
+    ["itIT"] = "Default",
+    ["koKR"] = "koKR",
+    ["zhCN"] = "zhCN",
+    ["zhTW"] = "zhTW",
 }
 
-if constants.LANG_TO_FONT[constants.LOCALE] then
-    constants.MEDIA.FONTS.DEFAULT = "Fonts\\FRIZQT__.TTF"
+for fontName, fontPath in pairs(constants.MEDIA.FONTS) do
+    local langPath = constants.LANG_TO_FONT[constants.LOCALE]
+    constants.MEDIA.FONTS[fontName] = [[Interface\Addons\]] .. constants.ADDON_NAME .. [[\Media\Fonts\]] .. langPath .. fontPath
 end
 
 do
