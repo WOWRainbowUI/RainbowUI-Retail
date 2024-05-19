@@ -13,7 +13,7 @@ do  --Print something on the screen (Gamepad Button Down)
 
             FontString = f:CreateFontString(nil, "OVERLAY", "DUIFont_Quest_Title_18");
             FontString:SetJustifyH("CENTER");
-            FontString:SetJustifyH("BOTTOM");
+            FontString:SetJustifyV("BOTTOM"); -- 暫時修正
             FontString:SetPoint("BOTTOM", nil, "BOTTOM", 0, 32);
             FontString:SetTextColor(0.9, 0.9, 0.9);
             FontString:SetShadowOffset(2, -2);
