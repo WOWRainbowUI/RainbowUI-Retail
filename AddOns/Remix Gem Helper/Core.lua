@@ -137,8 +137,6 @@ local function createFrame()
     gems:SetTitle(const.ADDON_NAME)
     gems:RegisterEvent("BAG_UPDATE_DELAYED")
     gems:SetWidth(300)
-    gems:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT")
-    gems:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT")
 
     local frameToggle = CreateFrame("Frame", nil, CharacterFrame)
     frameToggle:SetFrameStrata("HIGH")
@@ -332,11 +330,23 @@ local function createFrame()
     end)
     gems:SetScript("OnShow", function(self)
         selectionTreeUpdate()
-        if _G["CCSf"] then -- Chonky Character Sheets Frame
+         -- Chonky Character Sheets Frame
+        if _G["CCSf"] then
             self:ClearAllPoints()
             self:SetPoint("BOTTOMLEFT", CharacterFrameBg, "BOTTOMRIGHT")
             self:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT")
-            self:SetWidth(1000)
+            self.defaultPosition = false
+        -- TinyInspect
+        elseif C_AddOns.IsAddOnLoaded("TinyInspect") and PaperDollFrame.inspectFrame and PaperDollFrame.inspectFrame:IsVisible() then
+            self:ClearAllPoints()
+            self:SetPoint("BOTTOMLEFT", PaperDollFrame.inspectFrame, "BOTTOMRIGHT")
+            self:SetPoint("TOPLEFT", PaperDollFrame.inspectFrame, "TOPRIGHT")
+            self.defaultPosition = false
+        elseif not self.defaultPosition then
+            self:ClearAllPoints()
+            self:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT")
+            self:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT")
+            self.defaultPosition = true
         end
     end)
 end

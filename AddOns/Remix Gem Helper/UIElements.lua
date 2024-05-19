@@ -82,6 +82,8 @@ function uiElements:CreateCheckButton(parent, data)
     local checkButton = CreateFrame("CheckButton", nil, parent, "ChatConfigCheckButtonTemplate")
 ---@diagnostic disable-next-line: deprecated
     checkButton:SetPoint(unpack(data.point))
+    checkButton.Text:SetFontObject(const.FONT_OBJECTS.NORMAL)
+    checkButton.Text:SetPoint("LEFT", checkButton, "RIGHT")
     checkButton.Text:SetText(data.text)
     checkButton.tooltip = data.tooltip
     checkButton:HookScript("OnClick", data.onClick)
