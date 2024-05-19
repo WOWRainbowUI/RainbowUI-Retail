@@ -1,10 +1,8 @@
 # Remix Gem Helper
 
-## [1.3.1](https://github.com/Larsj02/Remix-Gem-Helper/tree/1.3.1) (2024-05-19)
-[Full Changelog](https://github.com/Larsj02/Remix-Gem-Helper/compare/1.3.0...1.3.1) [Previous Releases](https://github.com/Larsj02/Remix-Gem-Helper/releases)
+## [1.3.2](https://github.com/Larsj02/Remix-Gem-Helper/tree/1.3.2) (2024-05-19)
+[Full Changelog](https://github.com/Larsj02/Remix-Gem-Helper/compare/1.3.1...1.3.2) [Previous Releases](https://github.com/Larsj02/Remix-Gem-Helper/releases)
 
-- Version Increased to 1.3.1  
-- Fix for https://github.com/Larsj02/Remix-Gem-Helper/issues/10 (Login error)  
-- Fix for https://github.com/Larsj02/Remix-Gem-Helper/issues/7 (Fonts)  
-- Create README.md  
-- Fixed unsocketing for Bag Items  
+- Version Increased to 1.3.2  
+- Now compatible with TinyInspect  
+- Renamed Fonts to work as intended  
