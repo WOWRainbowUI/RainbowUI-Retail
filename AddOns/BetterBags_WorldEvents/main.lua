@@ -4,8 +4,43 @@ local addon = LibStub("AceAddon-3.0"):GetAddon("BetterBags")
 ---@class Categories: AceModule
 local categories = addon:GetModule("Categories")
 
----@class Localization: AceModule
-local L = addon:GetModule("Localization")
+-- Localization table
+local locales = {
+    ["enUS"] = {
+        ["Noblegarden"] = "Noblegarden",
+        ["Darkmoon Faire"] = "Darkmoon Faire",
+        ["Lunar Festival"] = "Lunar Festival",
+        ["Remix"] = "Remix",
+        ["Meta Gems"] = "Meta Gems",
+        ["Cogwheel Gems"] = "Cogwheel Gems",
+        ["Tinker Gems"] = "Tinker Gems",
+        ["Prismatic Gems"] = "Prismatic Gems",
+        ["Enhancements"] = "Enhancements",
+        ["Utilities"] = "Utilities",
+        ["Consumables"] = "Potions & Bandages",
+    },
+    ["zhTW"] = {
+        ["Noblegarden"] = "貴族花園",
+        ["Darkmoon Faire"] = "暗月馬戲團",
+        ["Lunar Festival"] = "新年慶典",
+        ["Remix"] = "混搭",
+        ["Meta Gems"] = "變換寶石",
+        ["Cogwheel Gems"] = "榫輪寶石",
+        ["Tinker Gems"] = "技工寶石",
+        ["Prismatic Gems"] = "稜彩寶石",
+        ["Enhancements"] = "強化",
+        ["Utilities"] = "工具",
+        ["Consumables"] = "消耗品",
+    },
+}
+
+-- Detects current language
+local currentLocale = GetLocale()
+
+-- Function to get the translation
+local function L(key)
+    return locales[currentLocale] and locales[currentLocale][key] or locales["enUS"][key]
+end
 
 --Noblegarden
 local Noblegarden = {
@@ -291,53 +326,258 @@ local WoWRemixMoP = {
     213597, --Reins of the Forest Windsteed Reins of the Forest Windsteed
     213596, --Reins of the Daystorm Windsteed Reins of the Daystorm Windsteed
     --Cosmetics
-    221816, --Halfhill Farmer's Backpack
-    210334, --Chen Stormstout's Keg
-    218247, --Chen Stormstout's Bamboo Hat
-    218248, --Chen Stormstout's Bamboo Hat
-    217836, --Ensemble: Sin'dorei Magister's Regalia
-    217837, --Ensemble: Webbed Soulforged Exoskeleton
-    217843, --Ensemble: Ela'lothen's Vestment of Rebirth
-    217846, --Ensemble: Plate of the Holy Avenger
-    217841, --Ensemble: Shado-Pan Watcher Guise
-    215219, --Ensemble: Guise of the Shado-Pan
-    215287, --Ensemble: Sun Pearl Clothing
-    217845, --Ensemble: Silks of the Abyssal Cult
-    217842, --Ensemble: Aldrachi Blasphemer's Flames
-    217835, --Ensemble: Scales of the Gold Hoarder
-    217838, --Ensemble: Fanatical Champion's Trophies
-    217832, --Arsenal: Armaments of the Holy Avenger
-    217834, --Ensemble: Dreadsquall Hunter's Camouflage
-    217833, --Ensemble: Imminence of Krag'wa's Disciple
-    217844, --Ensemble: Igneous Onyx Uniform
-    215220, --Ensemble: Guise of the Shado-Pan
-    217825, --Arsenal: Fanatical Champion's Aggression
-    217839, --Ensemble: Jewels of Temptation's Call
-    217827, --Arsenal: Shado-Pan Watcher Arsenal
-    217824, --Arsenal: Webbed Soulforged Weaponry
-    217828, --Arsenal: Aldrachi Blasphemer's Glaives
-    217829, --Arsenal: Ela'lothen's Blessings of Rebirth
-    217823, --Arsenal: Sin'dorei Magister's Enchantment
-    215275, --Ensemble: Kor'kron Shaman Vestments
-    217820, --Arsenal: Dreadsquall Hunter's Preference
-    217830, --Arsenal: Igneous Onyx Blades
-    217819, --Arsenal: Tools of Krag'wa's Disciple
-    217821, --Arsenal: Treasure of the Gold Hoarder
-    215276, --Ensemble: Kor'kron Shaman Vestments
-    215238, --Ensemble: Tian Monastery Clothing
-    217831, --Arsenal: Secrets of the Abyssal Cult
-    217826, --Arsenal: Instruments of Temptation's Call
-    215277, --Ensemble: Kor'kron Shaman Vestments
-    215353, --Ensemble: Robes of Quiet Reflection
-    215352, --Ensemble: Robes of Quiet Reflection
-    215356, --Ensemble: Vestments of Serenity
-    215355, --Ensemble: Robes of Quiet Reflection
-    215358, --Ensemble: Vestments of Serenity
-    215357, --Ensemble: Vestments of Serenity
-    215341, --Ensemble: Battleplate of Resounding Rings
-    215354, --Ensemble: Robes of Quiet Reflection
-    215315 --Ensemble: Spiritguard's Warplate
-    --Missing a lot Ensembles
+    215320, --Ensemble:
+    215219, --Ensemble:
+    217836, --Ensemble:
+    215189, --Ensemble:
+    217837, --Ensemble:
+    215327, --Ensemble:
+    215324, --Ensemble:
+    215267, --Ensemble:
+    217846, --Ensemble:
+    215330, --Ensemble:
+    217841, --Ensemble:
+    217843, --Ensemble:
+    215241, --Ensemble:
+    215289, --Ensemble:
+    215275, --Ensemble:
+    215252, --Ensemble:
+    215261, --Ensemble:
+    215335, --Ensemble:
+    215334, --Ensemble:
+    215245, --Ensemble:
+    215220, --Ensemble:
+    215196, --Ensemble:
+    215247, --Ensemble:
+    217842, --Ensemble:
+    215193, --Ensemble:
+    215199, --Ensemble:
+    215255, --Ensemble:
+    215295, --Ensemble:
+    217834, --Ensemble:
+    215293, --Ensemble:
+    215201, --Ensemble:
+    217838, --Ensemble:
+    215264, --Ensemble:
+    215208, --Ensemble:
+    215339, --Ensemble:
+    215256, --Ensemble:
+    217845, --Ensemble:
+    217839, --Ensemble:
+    217835, --Ensemble:
+    215298, --Ensemble:
+    217833, --Ensemble:
+    217844, --Ensemble:
+    215204, --Ensemble:
+    215302, --Ensemble:
+    215343, --Ensemble:
+    215346, --Ensemble:
+    215210, --Ensemble:
+    215214, --Ensemble:
+    215304, --Ensemble:
+    215277, --Ensemble:
+    215276, --Ensemble:
+    223485, --Ensemble:
+    215176, --Ensemble:
+    215285, --Ensemble:
+    215352, --Ensemble:
+    215310, --Ensemble:
+    215190, --Ensemble:
+    215329, --Ensemble:
+    215321, --Ensemble:
+    215209, --Ensemble:
+    215286, --Ensemble:
+    215274, --Ensemble:
+    215221, --Ensemble:
+    215238, --Ensemble:
+    215216, --Ensemble:
+    215195, --Ensemble:
+    223486, --Ensemble:
+    215358, --Ensemble:
+    215336, --Ensemble:
+    215183, --Ensemble:
+    215191, --Ensemble:
+    215251, --Ensemble:
+    215345, --Ensemble:
+    215186, --Ensemble:
+    215356, --Ensemble:
+    215225, --Ensemble:
+    215248, --Ensemble:
+    215287, --Ensemble:
+    215242, --Ensemble:
+    215181, --Ensemble:
+    215217, --Ensemble:
+    215322, --Ensemble:
+    215250, --Ensemble:
+    215272, --Ensemble:
+    215207, --Ensemble:
+    215222, --Ensemble:
+    215355, --Ensemble:
+    215192, --Ensemble:
+    215244, --Ensemble:
+    215271, --Ensemble:
+    215253, --Ensemble:
+    215268, --Ensemble:
+    215254, --Ensemble:
+    222961, --Ensemble:
+    215348, --Ensemble:
+    215198, --Ensemble:
+    215328, --Ensemble:
+    215351, --Ensemble:
+    215265, --Ensemble:
+    215288, --Ensemble:
+    215305, --Ensemble:
+    215331, --Ensemble:
+    215297, --Ensemble:
+    215200, --Ensemble:
+    215203, --Ensemble:
+    215308, --Ensemble:
+    215312, --Ensemble:
+    215273, --Ensemble:
+    215282, --Ensemble:
+    215301, --Ensemble:
+    223244, --Ensemble:
+    215182, --Ensemble:
+    215213, --Ensemble:
+    215224, --Ensemble:
+    215260, --Ensemble:
+    215243, --Ensemble:
+    215296, --Ensemble:
+    215290, --Ensemble:
+    215266, --Ensemble:
+    215354, --Ensemble:
+    215323, --Ensemble:
+    215353, --Ensemble:
+    215194, --Ensemble:
+    215342, --Ensemble:
+    215211, --Ensemble:
+    215249, --Ensemble:
+    215340, --Ensemble:
+    221542, --Ensemble:
+    215188, --Ensemble:
+    215309, --Ensemble:
+    215232, --Ensemble:
+    215306, --Ensemble:
+    215357, --Ensemble:
+    215344, --Ensemble:
+    215262, --Ensemble:
+    215319, --Ensemble:
+    215326, --Ensemble:
+    215227, --Ensemble:
+    215259, --Ensemble:
+    215299, --Ensemble:
+    215187, --Ensemble:
+    215197, --Ensemble:
+    215263, --Ensemble:
+    215337, --Ensemble:
+    215311, --Ensemble:
+    215332, --Ensemble:
+    215269, --Ensemble:
+    215294, --Ensemble:
+    215333, --Ensemble:
+    215212, --Ensemble:
+    215239, --Ensemble:
+    215279, --Ensemble:
+    215246, --Ensemble:
+    215258, --Ensemble:
+    215300, --Ensemble:
+    215303, --Ensemble:
+    215315, --Ensemble:
+    215223, --Ensemble:
+    215341, --Ensemble:
+    215202, --Ensemble:
+    215313, --Ensemble:
+    215215, --Ensemble:
+    215291, --Ensemble:
+    215347, --Ensemble:
+    215283, --Ensemble:
+    215284, --Ensemble:
+    215316, --Ensemble:
+    222960, --Ensemble:
+    215228, --Ensemble:
+    215205, --Ensemble:
+    215229, --Ensemble:
+    215307, --Ensemble:
+    215218, --Ensemble:
+    215240, --Ensemble:
+    215278, --Ensemble:
+    215314, --Ensemble:
+    215325, --Ensemble:
+    215317, --Ensemble:
+    215338, --Ensemble:
+    215349, --Ensemble:
+    215350, --Ensemble:
+    223246, --Ensemble:
+    215318, --Ensemble:
+    215270, --Ensemble:
+    215226, --Ensemble:
+    215292, --Ensemble:
+    211446, --Ensemble:
+    215184, --Ensemble:
+    215185, --Ensemble:
+    215206, --Ensemble:
+    221847, --Ensemble:
+    215231, --Ensemble:
+    215230, --Ensemble:
+    215280, --Ensemble:
+    211313, --Ensemble:
+    215281, --Ensemble:
+    221540, --Ensemble:
+    222959, --Ensemble:
+    221541, --Ensemble:
+    224717, --Ensemble:
+    219065, --Ensemble:
+    223245, --Ensemble:
+    223243, --Ensemble:
+    219086, --Ensemble:
+    221543, --Ensemble:
+    219075, --Ensemble:
+    219076, --Ensemble:
+    219080, --Ensemble:
+    219077, --Ensemble:
+    219081, --Ensemble:
+    219084, --Ensemble:
+    219085, --Ensemble:
+    219091, --Ensemble:
+    219066, --Ensemble:
+    219068, --Ensemble:
+    219070, --Ensemble:
+    219078, --Ensemble:
+    219079, --Ensemble:
+    219087, --Ensemble:
+    219090, --Ensemble:
+    219095, --Ensemble:
+    219067, --Ensemble:
+    219069, --Ensemble:
+    219071, --Ensemble:
+    219072, --Ensemble:
+    219073, --Ensemble:
+    219074, --Ensemble:
+    219082, --Ensemble:
+    219083, --Ensemble:
+    219088, --Ensemble:
+    219089, --Ensemble:
+    219092, --Ensemble:
+    219093, --Ensemble:
+    219094, --Ensemble:
+    219096, --Ensemble:
+    219097, --Ensemble:
+    219098, --Ensemble:
+    219099, --Ensemble:
+    217824, --Arsenal:
+    217832, --Arsenal:
+    217823, --Arsenal:
+    217825, --Arsenal:
+    217828, --Arsenal:
+    217827, --Arsenal:
+    217829, --Arsenal:
+    217819, --Arsenal:
+    217820, --Arsenal:
+    217826, --Arsenal:
+    217830, --Arsenal:
+    217831, --Arsenal:
+    217821, --Arsenal:
+    
 }
 local WoWRemixMoP_metagems = {
     -- Meta Gems
@@ -473,45 +713,53 @@ local WoWRemixMoP_Consumable = {
 
 --Loop
 for _, ItemID in pairs(Noblegarden) do
-    categories:AddItemToCategory(ItemID, L:G("Noblegarden"))
+    categories:AddItemToCategory(ItemID, L("Noblegarden"))
 end
 
 for _, ItemID in pairs(Darkmoonfaire) do
-    categories:AddItemToCategory(ItemID, L:G("Darkmoon Faire"))
+    categories:AddItemToCategory(ItemID, L("Darkmoon Faire"))
 end
 
 for _, ItemID in pairs(LunarFestival) do
-    categories:AddItemToCategory(ItemID, L:G("Lunar Festival"))
+    categories:AddItemToCategory(ItemID, L("Lunar Festival"))
 end
 
+--[=[
+    MoP Remix
+    Color Categories
+--]=]
+
+local colorPrefix = "|cff1DDB7F"
+local resetColor = "|r"
+
 for _, ItemID in pairs(WoWRemixMoP) do
-    categories:AddItemToCategory(ItemID, L:G("Remix"))
+    categories:AddItemToCategory(ItemID, colorPrefix .. L("Remix") .. resetColor)
 end
 
 for _, ItemID in pairs(WoWRemixMoP_metagems) do
-    categories:AddItemToCategory(ItemID, L:G("Meta Gems"))
+    categories:AddItemToCategory(ItemID, colorPrefix .. L("Meta Gems") .. resetColor)
 end
 
 for _, ItemID in pairs(WoWRemixMoP_cogwheelgems) do
-    categories:AddItemToCategory(ItemID, L:G("Cogwheel Gems"))
+    categories:AddItemToCategory(ItemID, colorPrefix .. L("Cogwheel Gems") .. resetColor)
 end
 
 for _, ItemID in pairs(WoWRemixMoP_tinkergems) do
-    categories:AddItemToCategory(ItemID, L:G("Tinker Gems"))
+    categories:AddItemToCategory(ItemID, colorPrefix .. L("Tinker Gems") .. resetColor)
 end
 
 for _, ItemID in pairs(WoWRemixMoP_prismaticgems) do
-    categories:AddItemToCategory(ItemID, L:G("Prismatic Gems"))
+    categories:AddItemToCategory(ItemID, colorPrefix .. L("Prismatic Gems") .. resetColor)
 end
 
 for _, ItemID in pairs(WoWRemixMoP_Buff) do
-    categories:AddItemToCategory(ItemID, L:G("Enhancements"))
+    categories:AddItemToCategory(ItemID, colorPrefix .. L("Enhancements") .. resetColor)
 end
 
 for _, ItemID in pairs(WoWRemixMoP_Utility) do
-    categories:AddItemToCategory(ItemID, L:G("Utilities"))
+    categories:AddItemToCategory(ItemID, colorPrefix .. L("Utilities") .. resetColor)
 end
 
 for _, ItemID in pairs(WoWRemixMoP_Consumable) do
-    categories:AddItemToCategory(ItemID, L:G("Consumables"))
+    categories:AddItemToCategory(ItemID, colorPrefix .. L("Consumables") .. resetColor)
 end

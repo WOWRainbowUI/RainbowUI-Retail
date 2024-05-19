@@ -1,10 +1,10 @@
-lightweight tag 8a9950424a65f42df07590dc7f7d3dfb65798bde v1.0.8
+lightweight tag 6eb6a216d5d90a38b769002c4a38768ee7c29d6c v1.1.0
 Author:	GitHub <noreply@github.com>
-Date:	Thu May 16 21:39:04 2024 +0200
+Date:	Sat May 18 19:14:38 2024 +0200
 
-commit 8a9950424a65f42df07590dc7f7d3dfb65798bde
+commit 6eb6a216d5d90a38b769002c4a38768ee7c29d6c
 Author: Zazou89 <155338110+Zazou89@users.noreply.github.com>
-Date:   Thu May 16 21:39:04 2024 +0200
+Date:   Sat May 18 19:14:38 2024 +0200
 
-    Add missing items, remove cloak threads
+    Add missing transmogs, add FR & DE Localization
 
