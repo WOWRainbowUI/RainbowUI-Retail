@@ -345,7 +345,7 @@ local function createFrame()
             self:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT")
             self.defaultPosition = false
         -- TinyInspect
-        elseif C_AddOns.IsAddOnLoaded("TinyInspect") and PaperDollFrame.inspectFrame and PaperDollFrame.inspectFrame:IsVisible() then
+        elseif (C_AddOns.IsAddOnLoaded("TinyInspect") or C_AddOns.IsAddOnLoaded("TinyInspect-Reforged")) and PaperDollFrame.inspectFrame and PaperDollFrame.inspectFrame:IsVisible() then -- 自行修改相容 TinyInspect-Reforged
             self:ClearAllPoints()
             self:SetPoint("BOTTOMLEFT", PaperDollFrame.inspectFrame, "BOTTOMRIGHT")
             self:SetPoint("TOPLEFT", PaperDollFrame.inspectFrame, "TOPRIGHT")
