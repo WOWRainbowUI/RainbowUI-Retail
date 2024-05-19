@@ -216,7 +216,7 @@ constants.COLORS = {
 }
 constants.MEDIA = {
     FONTS = {
-        DEFAULT = [[Interface\Addons\]] .. constants.ADDON_NAME .. [[\Media\Fonts\Expressway.TTF]]
+        DEFAULT = STANDARD_TEXT_FONT,
     },
     TEXTURES = {
         LOGO = [[Interface\Addons\]] .. constants.ADDON_NAME .. [[\Media\Textures\logo.tga]]
@@ -227,28 +227,36 @@ constants.FONT_OBJECTS = {
   NORMAL = constants.ADDON_NAME .. 'Normal',
   HEADING = constants.ADDON_NAME .. 'Heading'
 }
-
+--[[
 constants.LANG_TO_FONT = {
-    ["koKR"] = "Fonts\\2002.TTF",
-    ["zhCN"] = "Fonts\\blei00d.TTF",
-    ["zhTW"] = "Fonts\\ARKai_T.ttf",
-    ["ruRU"] = "Fonts\\FRIZQT___CYR.TTF",
+    ["enUS"] = "Default",
+    ["frFR"] = "Default",
+    ["deDE"] = "Default",
+    ["esES"] = "Default",
+    ["esMX"] = "Default",
+    ["ruRU"] = "Default",
+    ["ptBR"] = "Default",
+    ["itIT"] = "Default",
+    ["koKR"] = "koKR",
+    ["zhCN"] = "zhCN",
+    ["zhTW"] = "zhTW",
 }
-
-if constants.LANG_TO_FONT[constants.LOCALE] then
-    constants.MEDIA.FONTS.DEFAULT = STANDARD_TEXT_FONT
-end
+--]]
+-- for fontName, fontPath in pairs(constants.MEDIA.FONTS) do
+--     local langPath = constants.LANG_TO_FONT[constants.LOCALE]
+--     constants.MEDIA.FONTS[fontName] = [[Interface\Addons\]] .. constants.ADDON_NAME .. [[\Media\Fonts\]] .. langPath .. fontPath
+-- end
 
 do
   local font = CreateFont(constants.FONT_OBJECTS.NORMAL)
-  font:SetFont(constants.MEDIA.FONTS.DEFAULT, 12, "OUTLINE")
+  font:SetFont(STANDARD_TEXT_FONT, 14, "OUTLINE")
   font:SetJustifyH("LEFT")
   font:SetJustifyV("MIDDLE")
   font:SetTextColor(constants.COLORS.WHITE:GetRGBA())
 end
 do
   local font = CreateFont(constants.FONT_OBJECTS.HEADING)
-  font:SetFont(constants.MEDIA.FONTS.DEFAULT, 16, "OUTLINE")
+  font:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
   font:SetJustifyH("LEFT")
   font:SetJustifyV("MIDDLE")
   font:SetTextColor(constants.COLORS.WHITE:GetRGBA())

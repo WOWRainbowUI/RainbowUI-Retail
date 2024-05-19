@@ -41,7 +41,7 @@ local function extractPostClick(self)
 end
 function uiElements:CreateExtractButton(parent)
     ---@class ExtractButton : Button
-    ---@field UpdateInfo fun(self:ExtractButton, infoType:"BAG_GEM"|"BAG_SOCKET"|"EQUIP_SOCKET"|table, infoIndex:number|?, infoSlot:number|?, infoGemType:"Meta"|"Cogwheel"|"Tinker"|"Prismatic"|"Primordial"|?)
+    ---@field UpdateInfo fun(self:ExtractButton, infoType:"BAG_GEM"|"BAG_SOCKET"|"EQUIP_SOCKET"|table, infoIndex:number|?, infoSlot:number|?, infoGemType:"Meta"|"Cogwheel"|"Tinker"|"Prismatic"|"Primordial"|?, newGemSlot:number|?)
     local extractButton = CreateFrame("Button", nil, parent, "InsecureActionButtonTemplate")
     extractButton:SetAllPoints()
     extractButton:SetScript("PreClick", extractPreClick)
@@ -50,7 +50,7 @@ function uiElements:CreateExtractButton(parent)
     extractButton:SetAttribute("pressAndHoldAction", 1)
     extractButton:SetAttribute("type", "macro")
 
-    function extractButton:UpdateInfo(newType, newIndex, newSlot, newGemType)
+    function extractButton:UpdateInfo(newType, newIndex, newSlot, newGemType, newGemSlot)
         if type(newType) == "table" then
             self.info = newType
         else
@@ -59,11 +59,11 @@ function uiElements:CreateExtractButton(parent)
                 locIndex = newIndex,
                 locSlot = newSlot,
                 gemType = newGemType,
-                gemSlot = 0,
+                gemSlot = newGemSlot,
             }
         end
         local locType = self.info.locType
-        local locSlot = self.info.locSlot
+        local locSlot = locType == "BAG_SOCKET" and self.info.gemSlot or self.info.locSlot
         local txt = ""
         if locType == "EQUIP_SOCKET" or locType == "BAG_SOCKET" then
             txt = "/cast " .. const.EXTRACT_GEM_SPELL
