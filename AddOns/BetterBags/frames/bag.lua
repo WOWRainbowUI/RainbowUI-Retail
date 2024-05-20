@@ -168,6 +168,11 @@ function bagFrame.bagProto:Wipe()
   end
 end
 
+---@return string
+function bagFrame.bagProto:GetName()
+  return self.frame:GetName()
+end
+
 -- Refresh will refresh this bag's item database, and then redraw the bag.
 -- This is what would be considered a "full refresh".
 function bagFrame.bagProto:Refresh()
@@ -308,6 +313,8 @@ function bagFrame.bagProto:CreateCategoryForItemInCursor()
   ---@cast itemID number
   question:AskForInput("Create Category", format(L:G("What would you like to name the new category for %s?"), itemLink),
   function(input)
+    if input == nil then return end
+    if input == "" then return end
     categories:AddItemToPersistentCategory(itemID, input)
     events:SendMessage('bags/FullRefreshAll')
   end)
