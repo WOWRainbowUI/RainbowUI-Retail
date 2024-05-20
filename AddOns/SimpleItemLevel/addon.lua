@@ -519,8 +519,9 @@ local OnTooltipSetItem = function(self)
     if not itemLink then return end
     local item = Item:CreateFromItemLink(itemLink)
     if item:IsItemEmpty() then return end
+	if not item:GetCurrentItemLevel() then return end -- 暫時修正與 AtlasLootClassic 的相容性
     item:ContinueOnItemLoad(function()
-        self:AddLine(ITEM_LEVEL:format(item:GetCurrentItemLevel()))
+		self:AddLine(ITEM_LEVEL:format(item:GetCurrentItemLevel()))
     end)
 end
 if _G.C_TooltipInfo then
