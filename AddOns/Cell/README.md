@@ -19,7 +19,7 @@ Hope you enjoy.
 
 ## Features
 
-- __Layouts:__ auto switch for party, raid, battleground and roles.
+- __Layouts:__ auto switch layout by spec/role, supports party, raid, arena, and battleground.
 - __Customizable Appearance:__ textures, colors and alphas.
 - __Built-in Click-Castings:__ supports keyboard and multi-button mouse.
 - __Indicators:__ dozens of built-in indicators and unlimited custom indicators (icon, bar, rect, text, icons).
@@ -65,9 +65,15 @@ Use __/cell__ for more information.
 
 &nbsp;
 
-## Want to help improve Raid Debuffs
+## Want to help improve Raid Debuffs?
 
 Use [Instance Spell Collector](https://legacy.curseforge.com/wow/addons/instance-spell-collector) to collect debuffs. Then create a PR or submit a ticket on GitHub.
+
+&nbsp;
+
+## Localization
+
+If you want to help with the localization, please visit <https://legacy.curseforge.com/wow/addons/cell/localization>, instead of creating a PR.
 
 &nbsp;
 
@@ -75,4 +81,6 @@ Use [Instance Spell Collector](https://legacy.curseforge.com/wow/addons/instance
 
 Discord: <https://discord.gg/9PSe3fKQGJ>
 
-[简体中文介绍在这里](https://bbs.nga.cn/read.php?tid=23488341)
+简体中文介绍在这里: <https://github.com/enderneko/Cell/blob/master/README_zhCN.md>
+
+NGA上的发布贴: <https://bbs.nga.cn/read.php?tid=23488341>

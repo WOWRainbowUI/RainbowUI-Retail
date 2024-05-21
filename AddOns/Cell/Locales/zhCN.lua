@@ -3,7 +3,7 @@ if not LOCALE_zhCN then return end
 local L = select( 2, ...).L
 
 L["New version found (%s). Please visit %s to get the latest version."] = "发现新版本 (%s)。 请访问 %s 下载最新版本。"
-L["ABOUT"] = "Cell 团队框架的灵感来主要来自 CompactRaid 与 Grid2，同时也稍微参考了 Aptechka 和 VuhDo。\nCell 不轻量，也并非全能，其目标是提供良好的用户体验。\n希望你能喜欢。"
+L["ABOUT"] = "Cell 团队框架的灵感来主要来自 CompactRaid 与 Grid2，同时也稍微参考了 Aptechka 和 VuhDo。\nCell 不轻量，也并非全能，其目标是提供相比以往更好的用户体验。\n希望你能喜欢。"
 L["RESET"] = "从过旧的版本更新，需要重置Cell"
 L["RESET_CHARACTER"] = "从过旧的版本更新，需要重置Cell的角色配置"
 L["RESET_INCLUDES"] = "这仅包括点击施法与布局自动切换"
@@ -185,6 +185,7 @@ L["LibHealComm needs to be installed"] = "需要自行安装 LibHealComm"
 L["Heal Absorb"] = "治疗吸收"
 L["Invert Color"] = "使用反色"
 L["Shield Texture"] = "护盾材质"
+L["Reverse Filling"] = "反向填充"
 L["Overshield Texture"] = "超过血量上限的护盾材质"
 L["[Ctrl+Left-Click] to reset these settings"] = "[Ctrl+左键] 点击此按钮来重置这些设置"
 L["Debuff Type Color"] = "减益类型颜色"
@@ -477,7 +478,7 @@ L["Font Outline"] = "字体轮廓"
 L["Font Size"] = "字体尺寸"
 L["Shadow"] = "阴影"
 L["Outline"] = "轮廓"
-L["Monochrome Outline"] = "单色轮廓"
+L["Monochrome"] = "单色"
 L["stackFont"] = "层数字体"
 L["durationFont"] = "持续时间字体"
 L["This setting will be ignored, if the %1$s option in %2$s tab is enabled"] = "如果启用了%2$s页面下的%1$s选项，此设置将被忽略"
@@ -505,7 +506,8 @@ L["Format"] = "格式"
 L["shields"] = "护盾"
 L["hideIfEmptyOrFull"] = "当值为满或空时隐藏"
 L["Color"] = "颜色"
-L["Background Color"] = "背景色"
+L["Border Color"] = "边框颜色"
+L["Background Color"] = "背景颜色"
 L["Remaining Time <"] = "剩余时间 <"
 L["sec"] = "秒"
 L["Always"] = "总是"
@@ -828,6 +830,21 @@ L["Click to view older changelogs"] = "点击查看远古更新记录"
 L["CHANGELOGS"] = [[
     <h1>更新后如果有各种问题，先排查代码片段。</h1>
     <p>（正式服）如果指示器不能正常刷新，尝试启用常规页面下的“总是更新增益/减益”选项。</p>
+    <br/>
+
+    <h1>r227-release (May 21, 2024, 01:08 GMT+8)</h1>
+    <p>* 修复快速协助。</p>
+    <p>+ 修复了一个布局切换时可能出现的异常。</p>
+    <p>* 更新繁中。</p>
+    <br/>
+
+    <h1>r226-release (May 20, 2024, 02:33 GMT+8)</h1>
+    <p>* 为字体添加了单独的“阴影”选项（#110）。</p>
+    <p>* 修复护盾条指示器在预览中的透明度（#111）。</p>
+    <p>+ 为超出血量上限的护盾添加了“反向填充”的选项。</p>
+    <p>+ 为职责指示器添加了“层级”的选项。</p>
+    <p>+ 为副本减益指示器添加了“显示持续时间文本”的选项。</p>
+    <p>* 更新自定义“文本/矩形/进度条/颜色/叠加层”指示器的颜色选项（增加了透明度）。</p>
     <br/>
 
     <h1>r225-release (May 13, 2024, 03:50 GMT+8)</h1>

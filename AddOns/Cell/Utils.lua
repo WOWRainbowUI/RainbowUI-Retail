@@ -363,8 +363,8 @@ if Cell.isAsian then
             return string.format("%.3f"..symbol_1B, n/100000000)
         elseif abs(n) >= 10000 then
             return string.format("%.2f"..symbol_10K, n/10000)
-        elseif abs(n) >= 1000 then
-            return string.format("%.1f"..symbol_1K, n/1000)
+        -- elseif abs(n) >= 1000 then
+        --     return string.format("%.1f"..symbol_1K, n/1000)
         else
             return n
         end
@@ -543,8 +543,10 @@ end
 
 function F:RemoveElementsExceptKeys(tbl, ...)
     local keys = {}
-    for _, v in ipairs({...}) do
-        keys[v] = true
+
+    for i = 1, select("#", ...) do
+        local k = select(i, ...)
+        keys[k] = true
     end
 
     for k in pairs(tbl) do
@@ -555,15 +557,9 @@ function F:RemoveElementsExceptKeys(tbl, ...)
 end
 
 function F:RemoveElementsByKeys(tbl, ...)
-    local keys = {}
-    for _, v in ipairs({...}) do
-        keys[v] = true
-    end
-
-    for k in pairs(tbl) do
-        if keys[k] then
-            tbl[k] = nil
-        end
+    for i = 1, select("#", ...) do
+        local k = select(i, ...)
+        tbl[k] = nil
     end
 end
 
@@ -1060,9 +1056,9 @@ function F:GetPowerColor(unit)
 
     local info = PowerBarColor[powerToken]
     if powerType == 0 then -- MANA
-        info = {r=0, g=.5, b=1} -- default mana color is too dark!
+        info = {r=0, g=0.5, b=1} -- default mana color is too dark!
     elseif powerType == 13 then -- INSANITY
-        info = {r=.6, g=.2, b=1}
+        info = {r=0.6, g=0.2, b=1}
     end
 
     if info then
@@ -1951,7 +1947,7 @@ if Cell.isRetail then
         local debuffs = {}
         AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId)
             if spellIds[spellId] then
-                debuffs[spellId] = I:CheckDebuffType(debuffType, spellId)
+                debuffs[spellId] = I.CheckDebuffType(debuffType, spellId)
             end
         end)
         return debuffs
@@ -1961,7 +1957,7 @@ if Cell.isRetail then
         local debuffs = {}
         AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(name, icon, count, debuffType, duration, expirationTime, source, isStealable, nameplateShowPersonal, spellId)
             if types == "all" or types[debuffType] then
-                debuffs[spellId] = I:CheckDebuffType(debuffType, spellId)
+                debuffs[spellId] = I.CheckDebuffType(debuffType, spellId)
             end
         end)
         return debuffs
@@ -1976,7 +1972,7 @@ else
             end
 
             if spellIds[spellId] then
-                debuffs[spellId] = I:CheckDebuffType(debuffType, spellId)
+                debuffs[spellId] = I.CheckDebuffType(debuffType, spellId)
             end
         end
         return debuffs
@@ -1991,7 +1987,7 @@ else
             end
 
             if types == "all" or types[debuffType] then
-                debuffs[spellId] = I:CheckDebuffType(s, spellId)
+                debuffs[spellId] = I.CheckDebuffType(s, spellId)
             end
         end
         return debuffs
