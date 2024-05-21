@@ -243,22 +243,21 @@ end]]
 
 local GetItemStats = C_Item.GetItemStats or GetItemStats
 
-local function SaveBaseStats(details)
+local function SaveGearStats(details)
   if not Syndicator.Utilities.IsEquipment(details.itemLink) then
-    details.baseItemStats = {}
+    details.itemStats = {}
     return
   end
 
-  local cleanedLink = details.itemLink:gsub("item:(%d+):(%d*):(%d*):(%d*):(%d*):", "item:%1:::::")
-  details.baseItemStats = GetItemStats(cleanedLink)
+  details.itemStats = GetItemStats(details.itemLink)
 end
 
 local function SocketCheck(details)
-  SaveBaseStats(details)
-  if not details.baseItemStats then
+  SaveGearStats(details)
+  if not details.itemStats then
     return nil
   end
-  for key in pairs(details.baseItemStats) do
+  for key in pairs(details.itemStats) do
     if key:find("EMPTY_SOCKET", nil, true) then
       return true
     end
@@ -361,10 +360,6 @@ local function PetCollectedCheck(details)
   end
 end
 
-if Syndicator.Constants.IsRetail then
-  AddKeyword(SYNDICATOR_L_KEYWORD_UNCOLLECTED_PET, PetCollectedCheck)
-end
-
 local sockets = {
   "EMPTY_SOCKET_BLUE",
   "EMPTY_SOCKET_COGWHEEL",
@@ -387,9 +382,9 @@ for _, key in ipairs(sockets) do
   local global = _G[key]
   if global then
     AddKeyword(global:lower(), function(details)
-      SaveBaseStats(details)
-      if details.baseItemStats then
-        return details.baseItemStats[key] ~= nil
+      SaveGearStats(details)
+      if details.itemStats then
+        return details.itemStats[key] ~= nil
       end
       return nil
     end)
@@ -542,18 +537,9 @@ for keyword, bagBit in pairs(BAG_TYPES) do
   end)
 end
 
-local function SaveStats(details)
-  if not Syndicator.Utilities.IsEquipment(details.itemLink) then
-    details.itemStats = {}
-    return
-  end
-
-  details.itemStats = GetItemStats(details.itemLink)
-end
-
-local function GetStatCheck(statKey)
+local function GetGearStatCheck(statKey)
   return function(details)
-    SaveStats(details)
+    SaveGearStats(details)
     if not details.itemStats then
       return
     end
@@ -564,6 +550,29 @@ local function GetStatCheck(statKey)
       end
     end
     return false
+  end
+end
+
+local function GetGemStatCheck(statKey)
+  local PATTERN1 = "%+" .. statKey -- Retail remix gems
+  local PATTERN2 = "%+%d+ " .. statKey -- Normal gems
+  return function(details)
+    GetClassSubClass(details)
+
+    if not details.classID == Enum.ItemClass.Gem then
+      return false
+    end
+
+    GetTooltipInfoSpell(details)
+
+    if details.tooltipInfoSpell then
+      for _, line in ipairs(details.tooltipInfoSpell.lines) do
+        if line.leftText:match(PATTERN1) or line.leftText:match(PATTERN2) then
+          return true
+        end
+      end
+      return false
+    end
   end
 end
 
@@ -621,9 +630,11 @@ local stats = {
 for _, s in ipairs(stats) do
   local keyword = _G["ITEM_MOD_" .. s .. "_SHORT"] or _G["ITEM_MOD_" .. s]
   if keyword ~= nil then
-    AddKeyword(keyword:lower(), GetStatCheck(s))
+    AddKeyword(keyword:lower(), GetGearStatCheck(s))
+    AddKeyword(keyword:lower(), GetGemStatCheck(keyword))
   end
 end
+AddKeyword(STAT_ARMOR:lower(), GetGemStatCheck(STAT_ARMOR))
 
 -- Sorted in initialize function later
 local sortedKeywords = {}
@@ -763,10 +774,6 @@ local EXCLUSIVE_KEYWORDS_NO_TOOLTIP_TEXT = {
   [SYNDICATOR_L_KEYWORD_EQUIPMENT] = true,
 }
 
-local NO_CACHING_KEYWORDS = {
-  [SYNDICATOR_L_KEYWORD_UNCOLLECTED_PET] = true,
-}
-
 local UPGRADE_PATH_PATTERN = ITEM_UPGRADE_TOOLTIP_FORMAT_STRING and "^" .. ITEM_UPGRADE_TOOLTIP_FORMAT_STRING:gsub("%%s", ".*"):gsub("%%d", ".*")
 
 local function GetTooltipSpecialTerms(details)
@@ -882,7 +889,7 @@ local function ApplyKeyword(searchString)
         end
         local miss = false
         for _, k in ipairs(keywords) do
-          if details.matchInfo[k] == nil or NO_CACHING_KEYWORDS[k] then
+          if details.matchInfo[k] == nil then
             -- Keyword results not cached yet
             local result = KEYWORDS_TO_CHECK[k](details, searchString)
             if result then
@@ -976,13 +983,21 @@ local function ApplyCombinedTerms(fullSearchString)
 end
 
 function Syndicator.Search.CheckItem(details, searchString)
+  details.matchInfo = details.matchInfo or {}
+  local result = details.matchInfo[searchString]
+  if result ~= nil then
+    return details.matchInfo[searchString]
+  end
+
   local check = matches[searchString]
   if not check then
     check = ApplyCombinedTerms(searchString)
     matches[searchString] = check
   end
 
-  return check(details, searchString)
+  result = check(details, searchString)
+  details.matchInfo[searchString] = result
+  return result
 end
 
 function Syndicator.Search.ClearCache()

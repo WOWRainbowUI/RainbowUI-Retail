@@ -844,8 +844,7 @@ L["TOTAL_X"] = "總計：%s"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_LOWER"] = "虛空倉庫"
 L["VOID_X"] = "虛空倉庫: %s"
---[[Translation missing --]]
-L["WARBAND"] = "Warband"
+L["WARBAND"] = "戰隊"
 L["X_CHARACTERS_SHOWN"] = "%s 角色顯示"
 
 
