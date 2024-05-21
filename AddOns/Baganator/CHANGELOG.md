@@ -1,8 +1,6 @@
 # Baganator
 
-## [261](https://github.com/Baganator/Baganator/tree/261) (2024-05-16)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/260...261) 
+## [265](https://github.com/Baganator/Baganator/tree/265) (2024-05-20)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/264...265) 
 
-- Resolve issue of searches not clearing properly on backpack view  
-- Update CIMI plugin for toy/mount/pet support  
-- Fix junk icon changing after widgets refresh on item with no value  
+- Fix bank/backpack erroring if closed and a character is deleted from Syndicator  
