@@ -62,7 +62,7 @@ function BaganatorBackpackViewMixin:OnLoad()
     if updatedBags.containerBags == nil or updatedBags.containerBags.bags then
       self.updateBagSlotsNeeded = true
     end
-    self.searchToApply = self.searchToApply or self.SearchBox:GetText() ~= ""
+    self.searchToApply = true
     if self:IsVisible() then
       self:UpdateForCharacter(character, true, updatedBags)
     else
@@ -133,15 +133,6 @@ function BaganatorBackpackViewMixin:OnLoad()
     end
   end)
 
-  Syndicator.CallbackRegistry:RegisterCallback("CharacterDeleted", function(_, character)
-    self.tabsSetup = false
-    if self.lastCharacter == character then
-      self:UpdateForCharacter(self.liveCharacter, true)
-    else
-      self:UpdateForCharacter(self.lastCharacter, self.isLive)
-    end
-  end)
-
   local frame = CreateFrame("Frame")
   local function UpdateMoneyDisplay()
     if IsShiftKeyDown() then
@@ -165,17 +156,23 @@ function BaganatorBackpackViewMixin:OnLoad()
 
   -- Update currencies when they are watched/unwatched in Blizz UI
   EventRegistry:RegisterCallback("TokenFrame.OnTokenWatchChanged", function()
-    self:UpdateCurrencies(self.lastCharacter)
+    if self.lastCharacter then
+      self:UpdateCurrencies(self.lastCharacter)
+    end
   end)
 
   -- Needed to get currencies to load correctly on classic versions of WoW
   Baganator.Utilities.OnAddonLoaded("Blizzard_TokenUI", function()
-    self:UpdateCurrencies(self.lastCharacter)
+    if self.lastCharacter then
+      self:UpdateCurrencies(self.lastCharacter)
+    end
 
     -- Wrath Classic
     if ManageBackpackTokenFrame then
       hooksecurefunc("ManageBackpackTokenFrame", function()
-        self:UpdateCurrencies(self.lastCharacter)
+        if self.lastCharacter then
+          self:UpdateCurrencies(self.lastCharacter)
+        end
       end)
     end
   end)
@@ -546,6 +543,16 @@ function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, update
   local start = debugprofilestop()
   updatedBags = updatedBags or {bags = {}, bank = {}}
   Baganator.Utilities.ApplyVisuals(self)
+
+  local characterData = Syndicator.API.GetCharacter(character)
+
+  if not characterData then
+    self:SetTitle("")
+    return
+  else
+    self:SetTitle(BAGANATOR_L_XS_BAGS:format(characterData.details.character))
+  end
+
   self:SetupTabs()
   self:SelectTab(character)
   self:AllocateBags(character)
@@ -558,14 +565,6 @@ function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, update
 
   if oldLast ~= character then
     Baganator.CallbackRegistry:TriggerEvent("CharacterSelect", character)
-  end
-
-  local characterData = Syndicator.API.GetCharacter(character)
-
-  if not characterData then
-    self:SetTitle("")
-  else
-    self:SetTitle(BAGANATOR_L_XS_BAGS:format(characterData.details.character))
   end
 
   self.SortButton:SetShown(Baganator.Utilities.ShouldShowSortButton() and isLive)
@@ -620,7 +619,9 @@ function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, update
     layouts.cached:SetShown(not isLive and layouts.cached:IsShown())
   end
 
-  self.Tabs[1]:SetPoint("LEFT", activeBag, "LEFT")
+  if self.tabsSetup then -- Not ready immediately on PLAYER_ENTERING_WORLD
+    self.Tabs[1]:SetPoint("LEFT", activeBag, "LEFT")
+  end
 
   activeBag:SetPoint("TOPRIGHT", -sideSpacing, - (height - bagHeight)/2 - 50)
 
@@ -667,7 +668,7 @@ function BaganatorBackpackViewMixin:UpdateForCharacter(character, isLive, update
 
   self:UpdateAllButtons()
 
-  if self.currencyUpdateNeeded then
+  if self.currencyUpdateNeeded or oldLast ~= character then
     self:UpdateCurrencies(character)
   end
   if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
