@@ -304,6 +304,10 @@ if GetLocale() == "zhTW" then
 	-- Betterbags-openable
 	L.data["Openable"] = "打開"
 	
+	-- BetterBags_BetterSort
+	L.data["Sort by Item Level"] = "依物品等級排序"
+	L.data["Sort Items by Item Level."] = "依照物品等級來排列物品。"
+	
 end
 
 -- G returns the localized string for the given key.
