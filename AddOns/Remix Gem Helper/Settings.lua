@@ -8,6 +8,7 @@ local settings = {
         show_unowned = false,
         show_primordial = false,
         show_frame = true,
+        show_helpframe = true
     },
     callbacks = {}
 }
@@ -42,9 +43,14 @@ eventFrame:SetScript("OnEvent", function (self, event, addon)
         self:SetScript("OnEvent", nil)
 
         RemixGemHelperDB = RemixGemHelperDB or settings.db
+        local defaults = settings.db
         settings.db = RemixGemHelperDB
 
-        for settingName, state in pairs(settings.db) do
+        for settingName, defaultState in pairs(defaults) do
+            if settings.db[settingName] == nil then
+                settings.db[settingName] = defaultState
+            end
+            local state = settings.db[settingName]
             if settings.callbacks[settingName] then
                 for _, callback in ipairs(self.callbacks[settingName]) do
                     callback(settingName, state)

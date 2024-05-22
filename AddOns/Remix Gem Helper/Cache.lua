@@ -10,8 +10,16 @@ local Private = select(2, ...)
 ---@field subType number
 ---@field description string
 
+
+---@class CacheSpellInfo
+---@field name string
+---@field link string
+---@field icon number
+---@field description string
+
 local cache = {
-    itemInfo = {}
+    itemInfo = {},
+    spellInfo = {}
 }
 Private.Cache = cache
 
@@ -29,7 +37,7 @@ local function itemLinkToDescription(itemLink)
 end
 
 ---@param itemID number
----@param loadedCallback fun(itemID:integer)|?
+---@param loadedCallback fun(itemInfo:CacheItemInfo)|?
 function cache:CacheItemInfo(itemID, loadedCallback)
     local item = Item:CreateFromItemID(itemID)
     item:ContinueOnItemLoad(function()
@@ -50,12 +58,42 @@ function cache:CacheItemInfo(itemID, loadedCallback)
 end
 
 ---@param itemID number
----@param loadedCallback fun(itemID:integer)|?
----@return CacheItemInfo
+---@param loadedCallback fun(itemInfo:CacheItemInfo)|?
+---@return CacheItemInfo|?
 function cache:GetItemInfo(itemID, loadedCallback)
-    local itemInfo = self.itemInfo[itemID]
-    if not itemInfo then
+    if not self.itemInfo[itemID] then
         self:CacheItemInfo(itemID, loadedCallback)
+    elseif loadedCallback and type(loadedCallback) == "function" then
+        loadedCallback(self.itemInfo[itemID])
     end
-    return itemInfo
+    return self.itemInfo[itemID]
+end
+
+---@param spellID number
+---@param loadedCallback fun(spellInfo:CacheSpellInfo)|?
+---@return CacheItemInfo|?
+function cache:GetSpellInfo(spellID, loadedCallback)
+    if not self.spellInfo[spellID] then
+        self:CacheSpellInfo(spellID, loadedCallback)
+    elseif loadedCallback and type(loadedCallback) == "function" then
+        loadedCallback(self.spellInfo[spellID])
+    end
+    return self.spellInfo[spellID]
+end
+
+---@param spellID number
+---@param loadedCallback fun(spellInfo:CacheSpellInfo)|?
+function cache:CacheSpellInfo(spellID, loadedCallback)
+    local spell = Spell:CreateFromSpellID(spellID)
+    spell:ContinueOnSpellLoad(function()
+        self.spellInfo[spellID] = {
+            name = spell:GetSpellName(),
+            link = GetSpellLink(spellID),
+            icon = GetSpellTexture(spellID),
+            description = spell:GetSpellDescription(),
+        }
+        if loadedCallback and type(loadedCallback) == "function" then
+            loadedCallback(self.spellInfo[spellID])
+        end
+    end)
 end

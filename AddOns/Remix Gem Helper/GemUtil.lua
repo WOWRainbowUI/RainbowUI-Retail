@@ -1,7 +1,6 @@
 ---@class RemixGemHelperPrivate
 local Private = select(2, ...)
 local const = Private.constants
-local misc = Private.Misc
 
 ---@class SocketTypeInfo
 ---@field name string
@@ -38,7 +37,7 @@ end
 ---@return integer|? freeSocketSlot
 function gemUtil:GetSocketsInfo(socketTypeName)
     local usedSlots, maxSlots = 0, 0
-    local freeEquipmentSlot, freeSocketSlot
+    local freeEquipmentSlot, freeSocketSlot, freeIlvl
     for _, equipmentSlot in ipairs(const.SOCKET_EQUIPMENT_SLOTS) do
         local itemLoc = ItemLocation:CreateFromEquipmentSlot(equipmentSlot)
         if itemLoc:IsValid() then
@@ -54,12 +53,16 @@ function gemUtil:GetSocketsInfo(socketTypeName)
                             usedSlots = usedSlots + itemUsedSlots
 
                             if itemUsedSlots < itemMaxSlots then
-                                freeEquipmentSlot = equipmentSlot
-                                for slotIndex = 1, 3 do
-                                    local fss = itemGems.freeSpots[slotIndex]
-                                    if fss then
-                                        freeSocketSlot = slotIndex
-                                        break
+                                local itemLevel = C_Item.GetCurrentItemLevel(itemLoc)
+                                if not freeEquipmentSlot or freeIlvl < itemLevel then
+                                    freeEquipmentSlot = equipmentSlot
+                                    freeIlvl = itemLevel
+                                    for slotIndex = 1, 3 do
+                                        local fss = itemGems.freeSpots[slotIndex]
+                                        if fss then
+                                            freeSocketSlot = slotIndex
+                                            break
+                                        end
                                     end
                                 end
                             end
@@ -219,8 +222,8 @@ function gemUtil:GetFilteredGems(socketTypeFilter, nameFilter)
                     end
                     if (not dupeID) and (gemType ~= "PRIMORDIAL" or Private.Settings:GetSetting("show_primordial")) then
                         local cacheInfo = Private.Cache:GetItemInfo(gemItemID)
-                        local hyperlink = cacheInfo.link
-                        if hyperlink then
+                        if cacheInfo and cacheInfo.link then
+                            local hyperlink = cacheInfo.link
                             self:AddGemData(validGems[gemType],
                                 {
                                     itemID = gemItemID,
