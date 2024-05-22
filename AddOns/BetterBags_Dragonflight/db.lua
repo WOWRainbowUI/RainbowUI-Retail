@@ -1122,10 +1122,12 @@ addon.db = {
 	["|cffa335eeAwakened|r"] = {
 		213089, -- Antique Bronze Bullion
 	},
+	--[[
 	["|cfff49813Bronze|r"] = {
 		223908, -- Minor Bronze Cache
 		223909, -- Lesser Bronze Cache
 		223910, -- Bronze Cache
 		223911, -- Greater Bronze Cache
 	}
+	--]]
 }
