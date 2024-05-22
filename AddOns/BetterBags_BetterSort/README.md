@@ -1,7 +1,12 @@
 # BetterBags - BetterSort
 
-Plugin for the AddOn [BetterBags](https://www.curseforge.com/wow/addons/better-bags) that improves the Alphabetical sorting.
+Plugin for the AddOn [BetterBags](https://www.curseforge.com/wow/addons/better-bags) that adds improvements and additions to the default sorting methods.
 
+Currently implemented features:
+- Option to sort by item level.
+- Improvement to Alphabetical sorting by ignoring color codes.
+
+### Alphabetical Sorting
 Currently the default Alphabetical sorting doesn't remove the color prefix from titles when sorting. So eg. `|cffff8000Armor - Leather` would come after `|cffa335eeArmor - Mail` due to `a` coming before `f` in the comparison. This is not intuitive behavior for an Alphabetical sorting.
 
 Since `|` is a special character, the problem actually extends as far as to make the color coded titles always show up at the bottom of the bags with the default sorting method.
