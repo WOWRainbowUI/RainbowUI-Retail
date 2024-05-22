@@ -7,6 +7,11 @@ local cache = Private.Cache
 local settings = Private.Settings
 local uiElements = Private.UIElements
 local misc = Private.Misc
+local timeFormatter = CreateFromMixins(SecondsFormatterMixin);
+timeFormatter:Init(1, 3, true, true);
+
+Private.TimeFormatter = timeFormatter
+Private.Frames = {}
 
 local function itemListInitializer(frame, data)
     ---@class GemListEntry : Frame
@@ -128,15 +133,61 @@ local function itemListInitializer(frame, data)
 end
 
 local function createFrame()
-    ---@class GemsFrame : Frame
-    ---@field CloseButton Button
-    ---@field SetTitle fun(self:GemsFrame, title:string)
-    ---@field Inset Frame
-    ---@field TopTileStreaks Frame
-    local gems = CreateFrame("Frame", nil, CharacterFrame, "ButtonFrameTemplate")
-    gems:SetTitle(const.ADDON_NAME)
+    local gems = uiElements:CreateBaseFrame(CharacterFrame, {
+        title = const.ADDON_NAME,
+        width = 300
+    })
     gems:RegisterEvent("BAG_UPDATE_DELAYED")
-    gems:SetWidth(300)
+
+    ---@class ResocketPopup:BaseFrame
+    local resocketPopup = uiElements:CreateBaseFrame(UIParent, {
+        title = "Resocket Gems",
+        height = 150,
+        width = 300,
+        points = { { "CENTER" } },
+        frameStrata = "DIALOG",
+        frameStyle = "Flat",
+    })
+    Private.Frames.ResocketPopup = resocketPopup
+    local closePopup = uiElements:CreateButton(resocketPopup, {
+        text = DONE,
+        width = resocketPopup:GetWidth() / 1.25,
+        height = 25,
+        points = {
+            { "BOTTOM", 0, 15 },
+        }
+    })
+    closePopup:SetScript("OnClick", function(self)
+        self:GetParent():Hide()
+    end)
+    local resocketButtons = {}
+    for i = 1, 3 do
+        local castButton = uiElements:CreateIcon(resocketPopup, {
+            height = 45,
+            width = 45,
+        })
+        castButton:Hide()
+        tinsert(resocketButtons, castButton)
+    end
+
+    function resocketPopup:FillPopup(gemInfos)
+        for _, btn in ipairs(resocketButtons) do
+            btn:Hide()
+            btn:UpdateClickable()
+            btn:ClearAllPoints()
+        end
+        local gemsStart = (#gemInfos * 50) / 2 * -1
+        for gemIndex, gemID in ipairs(gemInfos) do
+            local castButton = resocketButtons[gemIndex]
+            if castButton then
+                castButton:UpdateClickable(true, "ITEM", gemID)
+                castButton:SetPoint("LEFT", self, "CENTER", gemsStart + (gemIndex - 1 ) * 50, 5)
+                castButton:Show()
+            end
+        end
+        self:Show()
+    end
+    resocketPopup:Hide()
 
     local frameToggle = CreateFrame("Frame", nil, CharacterFrame)
     frameToggle:SetFrameStrata("HIGH")
@@ -163,14 +214,6 @@ local function createFrame()
     frameToggle:SetScript("OnMouseDown", function()
         settings:UpdateSetting("show_frame", not settings:GetSetting("show_frame"))
     end)
-
-    ButtonFrameTemplate_HidePortrait(gems)
-    gems.CloseButton:Hide()
-    gems.Inset:ClearAllPoints()
-    gems.Inset:SetPoint("TOP", 0, -65)
-    gems.Inset:SetPoint("BOTTOM", 0, 35)
-    gems.Inset:SetPoint("LEFT", 20, 0)
-    gems.Inset:SetPoint("RIGHT", -20, 0)
 
     ---@class SearchFrame : EditBox
     ---@field Instructions FontString
@@ -226,42 +269,105 @@ local function createFrame()
         end
     })
 
-    ---@class ScrollBox : Frame
-    ---@field GetScrollPercentage fun(self:ScrollBox)
-    ---@field SetScrollPercentage fun(self:ScrollBox, percentage:number)
-    local scrollBox = CreateFrame("Frame", nil, gems, "WowScrollBoxList")
-    scrollBox:SetAllPoints(gems.Inset)
+    local openLootbox = uiElements:CreateIcon(gems, {
+        points = {
+            { "TOPLEFT", gems, "BOTTOMLEFT", 5, -5 }
+        },
+        isClickable = true,
+        actionType = "ITEM",
+        actionID = 211279
+    })
 
-    ---@class MinimalScrollBar : EventFrame
-    ---@field SetHideIfUnscrollable fun(self:MinimalScrollBar, state:boolean)
-    local scrollBar = CreateFrame("EventFrame", nil, gems, "MinimalScrollBar")
-    scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 5, 0)
-    scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT")
-    scrollBar:SetHideIfUnscrollable(true)
+    local openRandomGemP = uiElements:CreateIcon(gems, {
+        points = {
+            { "LEFT", openLootbox, "RIGHT", 5, 0 }
+        },
+        isClickable = true,
+        actionType = "ITEM",
+        actionID = 223907
+    })
 
+    local openRandomGemT = uiElements:CreateIcon(gems, {
+        points = {
+            { "LEFT", openRandomGemP, "RIGHT", 5, 0 }
+        },
+        isClickable = true,
+        actionType = "ITEM",
+        actionID = 223906
+    })
 
-    local scrollView = CreateScrollBoxListLinearView()
-    scrollView:SetElementInitializer("BackDropTemplate", itemListInitializer)
-    ScrollUtil.InitScrollBoxListWithScrollBar(scrollBox, scrollBar, scrollView)
-    scrollView:SetElementExtent(25)
+    local openRandomGemC = uiElements:CreateIcon(gems, {
+        points = {
+            { "LEFT", openRandomGemT, "RIGHT", 5, 0 }
+        },
+        isClickable = true,
+        actionType = "ITEM",
+        actionID = 223904
+    })
 
-    function scrollView:UpdateTree(data)
+    local openRandomGemM = uiElements:CreateIcon(gems, {
+        points = {
+            { "LEFT", openRandomGemC, "RIGHT", 5, 0 }
+        },
+        isClickable = true,
+        actionType = "ITEM",
+        actionID = 223905
+    })
+
+    local helpText =
+        "|A:newplayertutorial-icon-mouse-leftbutton:16:16|a Click a Gem in this list to Socket or Unsocket.\n" ..
+        "'In Bag Item' or 'Socketed' indicates that you unsocket it.\n" ..
+        "'In Bag' indicates that the Gem is in your bag and ready to be socketed.\n\n" ..
+        "When hovering over a Gem that is 'Socketed' you will see the item highlighted in your character panel.\n" ..
+        "You can use the dropdown or the search bar at the top to filter your list.\n" ..
+        "This Addon also adds the current Rank and stats of your cloak inside the cloak tooltip.\n" ..
+        "You should see an icon in the top right of your character frame which can be used to hide or show this frame.\n" ..
+        "Below the Gem list you should have some clickable buttons to quickly open Chests or combine Gems\n\n" ..
+        "And to get rid of this frame simply shift click it.\nHave fun!"
+
+    local helpButton = CreateFrame("Button", nil, gems, "MainHelpPlateButton")
+    helpButton:SetScript("OnEnter", function(self)
+        HelpTip:Show(self, { text = helpText })
+    end)
+    helpButton:SetScript("OnLeave", function(self)
+        HelpTip:Hide(self)
+    end)
+    helpButton:SetScript("OnClick", function(self)
+        if IsLeftShiftKeyDown() then
+            settings:UpdateSetting("show_helpframe", false)
+        end
+    end)
+    helpButton:SetPoint("TOPRIGHT", 25, 25)
+
+    local insetAnchorPoints = {
+        CreateAnchor("TOPLEFT", gems.Inset, "TOPLEFT"),
+        CreateAnchor("BOTTOMRIGHT", gems.Inset, "BOTTOMRIGHT")
+    }
+    local scrollBox, scrollView = uiElements:CreateScrollable(gems, {
+        anchors = {
+            with_scroll_bar = insetAnchorPoints,
+            without_scroll_bar = insetAnchorPoints,
+        },
+        initializer = itemListInitializer,
+        element_height = 25,
+        template = "BackDropTemplate",
+        type = "LIST",
+    })
+
+    local function updateTree(data)
         if not scrollBox:IsVisible() then return end
         if not data then return end
-        local scrollPercent = scrollBox:GetScrollPercentage()
-        self:Flush()
-        local dataProvider = CreateDataProvider()
-        self:SetDataProvider(dataProvider)
+        scrollView:UpdateContentData({})
         for socketType, socketTypeData in pairs(data) do
             if #socketTypeData > 0 then
                 local typeInfo = gemUtil:GetSocketTypeInfo(socketType)
                 if typeInfo then
-                    dataProvider:Insert({
+                    scrollView:UpdateContentData({ {
                         text = typeInfo.name,
                         isHeader = true,
                         icon = typeInfo.icon,
                         index = 0
-                    })
+                    } }, true)
                     sort(socketTypeData, misc.ItemSorting)
                     for itemIndex, itemInfo in ipairs(socketTypeData) do
                         local cachedInfo = cache:GetItemInfo(itemInfo.itemID)
@@ -270,23 +376,22 @@ local function createFrame()
                         if itemInfo.gemType == "Prismatic" then
                             txt = gemUtil:GetGemStats(cachedInfo.description)
                         end
-                        dataProvider:Insert({
+                        scrollView:UpdateContentData({ {
                             id = itemInfo.itemID,
                             icon = cachedInfo.icon,
                             text = txt or "",
                             index = itemIndex,
                             info = itemInfo,
                             cachedInfo = cachedInfo,
-                        })
+                        } }, true)
                     end
                 end
             end
         end
-        scrollBox:SetScrollPercentage(scrollPercent or 1)
     end
 
     local function selectionTreeUpdate()
-        scrollView:UpdateTree(gemUtil:GetFilteredGems(dropDown.selection, search:GetText() or ""))
+        updateTree(gemUtil:GetFilteredGems(dropDown.selection, search:GetText() or ""))
     end
 
     dropDown:SetCallback("selectionCallback", selectionTreeUpdate)
@@ -301,11 +406,7 @@ local function createFrame()
 
     selectionTreeUpdate()
     settings:CreateSettingCallback("show_frame", function(_, newState)
-        if newState then
-            gems:Show()
-        else
-            gems:Hide()
-        end
+        gems:SetShown(newState)
     end)
     settings:CreateSettingCallback("show_unowned", function(_, newState)
         selectionTreeUpdate()
@@ -315,6 +416,10 @@ local function createFrame()
         selectionTreeUpdate()
         showPrimordial:SetChecked(newState)
     end)
+    settings:CreateSettingCallback("show_helpframe", function(_, newState)
+        helpButton:SetShown(newState)
+    end)
+
 
     hooksecurefunc("CharacterFrameTab_OnClick", function()
         if CharacterFrame.selectedTab ~= 1 then
@@ -326,17 +431,17 @@ local function createFrame()
         end
     end)
     gems:SetScript("OnHide", function()
-        scrollView:UpdateTree({})
+        updateTree({})
     end)
     gems:SetScript("OnShow", function(self)
         selectionTreeUpdate()
-         -- Chonky Character Sheets Frame
+        -- Chonky Character Sheets Frame
         if _G["CCSf"] then
             self:ClearAllPoints()
             self:SetPoint("BOTTOMLEFT", CharacterFrameBg, "BOTTOMRIGHT")
             self:SetPoint("TOPLEFT", CharacterFrameBg, "TOPRIGHT")
             self.defaultPosition = false
-        -- TinyInspect
+            -- TinyInspect
         elseif C_AddOns.IsAddOnLoaded("TinyInspect") and PaperDollFrame.inspectFrame and PaperDollFrame.inspectFrame:IsVisible() then
             self:ClearAllPoints()
             self:SetPoint("BOTTOMLEFT", PaperDollFrame.inspectFrame, "BOTTOMRIGHT")
@@ -353,21 +458,20 @@ end
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
----@diagnostic disable-next-line: param-type-mismatch
 eventFrame:RegisterEvent("SCRAPPING_MACHINE_ITEM_ADDED")
 eventFrame:SetScript("OnEvent", function(_, event)
     if event == "SCRAPPING_MACHINE_ITEM_ADDED" then
-        RunNextFrame(function()
-            local mun = ScrappingMachineFrame
-            for f in pairs(mun.ItemSlots.scrapButtons.activeObjects) do
-                if f.itemLink then
-                    local gemsList = gemUtil:GetItemGems(f.itemLink)
-                    if #gemsList > 0 then
-                        misc:PrintError("YOU ARE ABOUT TO DESTROY A SOCKETED ITEM!")
-                    end
+    RunNextFrame(function()
+        local mun = ScrappingMachineFrame
+        for f in pairs(mun.ItemSlots.scrapButtons.activeObjects) do
+            if f.itemLink then
+                local gemsList = gemUtil:GetItemGems(f.itemLink)
+                if #gemsList > 0 then
+                    Private.Frames.ResocketPopup:FillPopup(gemsList)
                 end
             end
-        end)
+        end
+    end)
     end
     if event ~= "PLAYER_ENTERING_WORLD" then return end
 
