@@ -4,11 +4,12 @@ local Private = select(2, ...)
 local const = Private.constants
 local gemUtil = Private.GemUtil
 local cache = Private.Cache
-local settings = Private.Settings
 local uiElements = Private.UIElements
 local misc = Private.Misc
-local timeFormatter = CreateFromMixins(SecondsFormatterMixin);
-timeFormatter:Init(1, 3, true, true);
+local scrapUtil = Private.ScrapUtil
+local addon = Private.Addon
+local timeFormatter = CreateFromMixins(SecondsFormatterMixin)
+timeFormatter:Init(1, 3, true, true)
 
 Private.TimeFormatter = timeFormatter
 Private.Frames = {}
@@ -123,13 +124,13 @@ local function itemListInitializer(frame, data)
 
         local state, color
         if exInf.locType == "EQUIP_SOCKET" then
-            state, color = "已鑲嵌", const.COLORS.POSITIVE
+            state, color = addon.Loc["Socketed"], const.COLORS.POSITIVE
         elseif exInf.locType == "BAG_GEM" then
-            state, color = "背包", const.COLORS.NEUTRAL
+            state, color = addon.Loc["In Bag"], const.COLORS.NEUTRAL
         elseif exInf.locType == "BAG_SOCKET" then
-            state, color = "背包物品", const.COLORS.NEGATIVE
+            state, color = addon.Loc["In Bag Item!"], const.COLORS.NEGATIVE
         else
-            state, color = "未收集", const.COLORS.GREY
+            state, color = addon.Loc["Uncollected"], const.COLORS.GREY
             name = color:WrapTextInColorCode(name)
         end
         frame.Name:SetText(string.format("%s (%s)", name, color:WrapTextInColorCode(state)))
@@ -140,16 +141,76 @@ local function itemListInitializer(frame, data)
     frame.Stripe:SetShown(data.index % 2 == 1)
 end
 
+local function bagItemInitiliazer(frame, data)
+    if not frame.initialized then
+        local clickable = uiElements:CreateIcon(frame, {
+            points = {
+                { "TOPLEFT" },
+                { "BOTTOMRIGHT" }
+            },
+        })
+        frame.clickable = clickable
+        frame.initialized = true
+    end
+    frame.clickable:UpdateClickable(true, "ITEM", data.itemID, true, data.itemLink)
+end
+
+local function createScrapFrame()
+    local scrapBagItems = uiElements:CreateBaseFrame(ScrappingMachineFrame, {
+        frameStyle = "Flat",
+        height = 250,
+        title = addon.Loc["Scrappable Items"],
+        points = {
+            { "TOPLEFT",  ScrappingMachineFrame, "BOTTOMLEFT",  0, -2 },
+            { "TOPRIGHT", ScrappingMachineFrame, "BOTTOMRIGHT", 0, -2 },
+        }
+    })
+    local scrapItemsText = scrapBagItems:CreateFontString()
+    scrapItemsText:SetFontObject(const.FONT_OBJECTS.HEADING)
+    scrapItemsText:SetText(addon.Loc["NOTHING TO SCRAP"])
+    scrapItemsText:SetPoint("CENTER", 0, -10)
+    scrapItemsText:Hide()
+    local allPointsScrap = {
+        CreateAnchor("TOPLEFT", scrapBagItems, "TOPLEFT", 25, -35),
+        CreateAnchor("BOTTOMRIGHT", scrapBagItems, "BOTTOMRIGHT", -25, 15)
+    }
+    local scrapItemScrollBox, scrapItemScrollView = uiElements:CreateScrollable(scrapBagItems, {
+        element_height = 45,
+        type = "GRID",
+        initializer = bagItemInitiliazer,
+        element_padding = 5,
+        elements_per_row = math.floor((ScrappingMachineFrame:GetWidth() - 50) / 50),
+        anchors = {
+            with_scroll_bar = allPointsScrap,
+            without_scroll_bar = allPointsScrap,
+        }
+    })
+    local function updateScrapItems()
+        if not scrapItemScrollBox:IsVisible() then return end
+        scrapItemScrollView:UpdateContentData({})
+        local scrappableItems = scrapUtil:GetScrappableItems()
+        for _, itemInfo in ipairs(scrappableItems) do
+            scrapItemScrollView:UpdateContentData(
+                { { itemID = itemInfo.itemID, hideCount = true, itemLink = itemInfo.itemLink } }, true)
+        end
+        scrapBagItems:SetHeight(#scrappableItems > 0 and 250 or 75)
+        scrapItemsText:SetShown(#scrappableItems < 1)
+    end
+    scrapItemScrollBox:RegisterEvent("BAG_UPDATE_DELAYED")
+    scrapItemScrollBox:SetScript("OnEvent", updateScrapItems)
+    scrapItemScrollBox:SetScript("OnShow", updateScrapItems)
+end
+
 local function createFrame()
     local gems = uiElements:CreateBaseFrame(CharacterFrame, {
-        title = "混搭寶石助手",
-        width = 300
+        title = addon.Loc[const.ADDON_NAME],
+        width = 375
     })
     gems:RegisterEvent("BAG_UPDATE_DELAYED")
 
     ---@class ResocketPopup:BaseFrame
     local resocketPopup = uiElements:CreateBaseFrame(UIParent, {
-        title = "Resocket Gems",
+        title = addon.Loc["Resocket Gems"],
         height = 150,
         width = 300,
         points = { { "CENTER" } },
@@ -189,12 +250,13 @@ local function createFrame()
             local castButton = resocketButtons[gemIndex]
             if castButton then
                 castButton:UpdateClickable(true, "ITEM", gemID)
-                castButton:SetPoint("LEFT", self, "CENTER", gemsStart + (gemIndex - 1 ) * 50, 5)
+                castButton:SetPoint("LEFT", self, "CENTER", gemsStart + (gemIndex - 1) * 50, 5)
                 castButton:Show()
             end
         end
         self:Show()
     end
+
     resocketPopup:Hide()
 
     local frameToggle = CreateFrame("Frame", nil, CharacterFrame)
@@ -213,20 +275,20 @@ local function createFrame()
     frameToggle:SetScript("OnEnter", function(self)
         GameTooltip:ClearLines()
         GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-        GameTooltip:AddLine(string.format("顯示混搭寶石助手", const.ADDON_NAME), 1, 1, 1)
+        GameTooltip:AddLine(string.format(addon.Loc["Toggle the %s UI"], const.ADDON_NAME), 1, 1, 1)
         GameTooltip:Show()
     end)
     frameToggle:SetScript("OnLeave", function()
         GameTooltip:Hide()
     end)
     frameToggle:SetScript("OnMouseDown", function()
-        settings:UpdateSetting("show_frame", not settings:GetSetting("show_frame"))
+        addon:ToggleDatabaseValue("show_frame")
     end)
 
     ---@class SearchFrame : EditBox
     ---@field Instructions FontString
     local search = CreateFrame("EditBox", nil, gems, "InputBoxInstructionsTemplate")
-    search.Instructions:SetText("搜尋寶石")
+    search.Instructions:SetText(addon.Loc["Search Gems"])
     search:ClearFocus()
     search:SetAutoFocus(false)
     search:SetPoint("TOPRIGHT", gems.TopTileStreaks, -5, -15)
@@ -240,7 +302,7 @@ local function createFrame()
         initializer = function(self, info)
             for i = 0, #const.SOCKET_TYPES_INDEX do
                 local socketType = gemUtil:GetSocketTypeName(i)
-                if socketType ~= "Primordial" or settings:GetSetting("show_primordial") then
+                if socketType ~= "Primordial" or addon:GetDatabaseValue("show_primordial") then
                     info.func = self.SetValue
                     info.arg1 = i
                     info.checked = self.selection == i
@@ -261,88 +323,81 @@ local function createFrame()
 
     local showUnowned = uiElements:CreateCheckButton(gems, {
         point = { "BOTTOMRIGHT", -75, 7.5 },
-        text = "未擁有",
-        tooltip = "在列表中顯示未擁有的寶石。",
+        text = addon.Loc["Unowned"],
+        tooltip = addon.Loc["Show Unowned Gems in the List."],
         onClick = function(self)
-            settings:UpdateSetting("show_unowned", self:GetChecked())
+            addon:SetDatabaseValue("show_unowned", self:GetChecked())
         end
     })
 
     local showPrimordial = uiElements:CreateCheckButton(gems, {
         point = { "BOTTOMRIGHT", -175, 7.5 },
-        text = "原始的",
-        tooltip = "在列表中顯示原始的寶石。",
+        text = addon.Loc["Primordial"],
+        tooltip = addon.Loc["Show Primordial Gems in the List."],
         onClick = function(self)
-            settings:UpdateSetting("show_primordial", self:GetChecked())
+            addon:SetDatabaseValue("show_primordial", self:GetChecked())
         end
     })
 
-    local openLootbox = uiElements:CreateIcon(gems, {
+    local openBagItems = uiElements:CreateBaseFrame(gems, {
+        frameStyle = "Flat",
+        height = 150,
+        title = addon.Loc["Open, Use and Combine"],
         points = {
-            { "TOPLEFT", gems, "BOTTOMLEFT", 5, -5 }
-        },
-        isClickable = true,
-        actionType = "ITEM",
-        actionID = 211279
+            { "TOPLEFT",  gems, "BOTTOMLEFT",  0, -2 },
+            { "TOPRIGHT", gems, "BOTTOMRIGHT", 0, -2 },
+        }
     })
-
-    local openRandomGemP = uiElements:CreateIcon(gems, {
-        points = {
-            { "LEFT", openLootbox, "RIGHT", 5, 0 }
-        },
-        isClickable = true,
-        actionType = "ITEM",
-        actionID = 223907
+    local openBagText = openBagItems:CreateFontString()
+    openBagText:SetFontObject(const.FONT_OBJECTS.HEADING)
+    openBagText:SetText(addon.Loc["NOTHING TO USE"])
+    openBagText:SetPoint("CENTER", 0, -10)
+    openBagText:Hide()
+    local allPointsAnchorPoints = {
+        CreateAnchor("TOPLEFT", openBagItems, "TOPLEFT", 25, -35),
+        CreateAnchor("BOTTOMRIGHT", openBagItems, "BOTTOMRIGHT", -25, 15)
+    }
+    local openBagRowCount = math.floor((gems:GetWidth() - 50) / 50)
+    local bagItemScrollBox, bagItemScrollView = uiElements:CreateScrollable(openBagItems, {
+        element_height = 45,
+        type = "GRID",
+        initializer = bagItemInitiliazer,
+        element_padding = 5,
+        elements_per_row = openBagRowCount,
+        anchors = {
+            with_scroll_bar = allPointsAnchorPoints,
+            without_scroll_bar = allPointsAnchorPoints,
+        }
     })
-
-    local openRandomGemT = uiElements:CreateIcon(gems, {
-        points = {
-            { "LEFT", openRandomGemP, "RIGHT", 5, 0 }
-        },
-        isClickable = true,
-        actionType = "ITEM",
-        actionID = 223906
-    })
-
-    local openRandomGemC = uiElements:CreateIcon(gems, {
-        points = {
-            { "LEFT", openRandomGemT, "RIGHT", 5, 0 }
-        },
-        isClickable = true,
-        actionType = "ITEM",
-        actionID = 223904
-    })
-
-    local openRandomGemM = uiElements:CreateIcon(gems, {
-        points = {
-            { "LEFT", openRandomGemC, "RIGHT", 5, 0 }
-        },
-        isClickable = true,
-        actionType = "ITEM",
-        actionID = 223905
-    })
-
-    local helpText =
-        "|A:newplayertutorial-icon-mouse-leftbutton:16:16|a 點擊列表中的寶石來鑲嵌或拆卸。\n" ..
-        "'背包物品' 或 '已鑲嵌' 表示你要拆卸它。\n" ..
-        "'背包' 表示寶石在你的背包中，可以鑲嵌。\n\n" ..
-        "當你將滑鼠懸停在 '已鑲嵌' 的寶石上時，你將在角色面板中看到該物品被顯示標示。\n" ..
-        "你可以使用頂部的下拉選單或搜尋欄來過濾列表。\n" ..
-        "此插件還添加了你的披風的當前等級和屬性到披風的浮動提示資訊中。\n" ..
-        "你應該在角色視窗的右上角看到一個圖標，可以用來隱藏或顯示此框架。\n" ..
-        "在寶石列表下方，你應該有一些可點擊的按鈕，可以快速打開寶箱或組合寶石。\n\n" ..
-        "要消除這個框架，只需按住 Shift 鍵並點擊它。\n祝你玩得開心！"
+    local function updateBagItems()
+        if not bagItemScrollBox:IsVisible() then return end
+        bagItemScrollView:UpdateContentData({})
+        local added = 0
+        for itemID, itemType in pairs(const.USABLE_BAG_ITEMS) do
+            local count = C_Item.GetItemCount(itemID)
+            local threshold = itemType == "GEM" and 3 or 1
+            if count >= threshold then
+                bagItemScrollView:UpdateContentData({ { itemID = itemID } }, true)
+                added = added + 1
+            end
+        end
+        openBagItems:SetHeight(added > openBagRowCount and 150 or added > 0 and 100 or 75)
+        openBagText:SetShown(added < 1)
+    end
+    bagItemScrollBox:RegisterEvent("BAG_UPDATE_DELAYED")
+    bagItemScrollBox:SetScript("OnEvent", updateBagItems)
+    bagItemScrollBox:SetScript("OnShow", updateBagItems)
 
     local helpButton = CreateFrame("Button", nil, gems, "MainHelpPlateButton")
     helpButton:SetScript("OnEnter", function(self)
-        HelpTip:Show(self, { text = helpText })
+        HelpTip:Show(self, { text = addon.Loc["HelpText"] })
     end)
     helpButton:SetScript("OnLeave", function(self)
         HelpTip:Hide(self)
     end)
-    helpButton:SetScript("OnClick", function(self)
+    helpButton:SetScript("OnClick", function()
         if IsLeftShiftKeyDown() then
-            settings:UpdateSetting("show_helpframe", false)
+            addon:SetDatabaseValue("show_helpframe", false)
         end
     end)
     helpButton:SetPoint("TOPRIGHT", 25, 25)
@@ -413,19 +468,19 @@ local function createFrame()
     end)
 
     selectionTreeUpdate()
-    settings:CreateSettingCallback("show_frame", function(_, newState)
-        gems:SetShown(newState)
+    addon:CreateDatabaseCallback("show_frame", function (_, value)
+        gems:SetShown(value)
     end)
-    settings:CreateSettingCallback("show_unowned", function(_, newState)
+    addon:CreateDatabaseCallback("show_unowned", function (_, value)
         selectionTreeUpdate()
-        showUnowned:SetChecked(newState)
+        showUnowned:SetChecked(value)
     end)
-    settings:CreateSettingCallback("show_primordial", function(_, newState)
+    addon:CreateDatabaseCallback("show_primordial", function (_, value)
         selectionTreeUpdate()
-        showPrimordial:SetChecked(newState)
+        showPrimordial:SetChecked(value)
     end)
-    settings:CreateSettingCallback("show_helpframe", function(_, newState)
-        helpButton:SetShown(newState)
+    addon:CreateDatabaseCallback("show_helpframe", function (_, value)
+        helpButton:SetShown(value)
     end)
 
 
@@ -467,21 +522,28 @@ end
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("SCRAPPING_MACHINE_ITEM_ADDED")
-eventFrame:SetScript("OnEvent", function(_, event)
+eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:SetScript("OnEvent", function(_, event, ...)
     if event == "SCRAPPING_MACHINE_ITEM_ADDED" then
-    RunNextFrame(function()
-        local mun = ScrappingMachineFrame
-        for f in pairs(mun.ItemSlots.scrapButtons.activeObjects) do
-            if f.itemLink then
-                local gemsList = gemUtil:GetItemGems(f.itemLink)
-                if #gemsList > 0 then
-                    Private.Frames.ResocketPopup:FillPopup(gemsList)
+        RunNextFrame(function()
+            local mun = ScrappingMachineFrame
+            for f in pairs(mun.ItemSlots.scrapButtons.activeObjects) do
+                if f.itemLink then
+                    local gemsList = gemUtil:GetItemGems(f.itemLink)
+                    if #gemsList > 0 then
+                        Private.Frames.ResocketPopup:FillPopup(gemsList)
+                    end
                 end
             end
+        end)
+    elseif event == "ADDON_LOADED" then
+        local addonName = ...
+        if addonName == "Blizzard_ScrappingMachineUI" then
+            createScrapFrame()
         end
-    end)
     end
     if event ~= "PLAYER_ENTERING_WORLD" then return end
+    if 1 ~= PlayerGetTimerunningSeasonID() then return end
 
     for itemID in pairs(const.GEM_SOCKET_TYPE) do
         cache:CacheItemInfo(itemID)

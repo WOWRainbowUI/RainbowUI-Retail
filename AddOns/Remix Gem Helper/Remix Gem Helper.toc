@@ -1,5 +1,5 @@
 ## Interface: 100207
-## Version: 1.3.5
+## Version: 1.4.1
 ## Title: Remix Gem Helper
 ## Author: Rasu | Larsj_02
 ## DefaultState: enabled
@@ -10,13 +10,18 @@
 
 ## Title-zhTW: |cffB973CC[物品]|r 混搭寶石助手
 ## Notes-zhTW: Remix Gem Helper |n潘達利亞混搭專用插件。在角色視窗旁顯示的寶石列表，讓你可以快速瀏覽和更換寶石，不用到每個裝備上打開插槽介面。|n|n|cffffd200使用方法: 點兩下列表中的寶石，便可以插入、取出。
-## DefaultState: disabled
+
+libs.xml
+
+Locales\embed.xml
+Constants.lua
+
+Init.lua
 
 Cache.lua
-Constants.lua
-Settings.lua
 Misc.lua
 GemUtil.lua
 UIElements.lua
+ScrapUtil.lua
 Core.lua
 CloakTooltip.lua

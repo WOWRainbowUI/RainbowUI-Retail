@@ -1,6 +1,7 @@
 ---@class RemixGemHelperPrivate
 local Private = select(2, ...)
 local const = Private.constants
+local addon = Private.Addon
 
 ---@class SocketTypeInfo
 ---@field name string
@@ -201,7 +202,7 @@ function gemUtil:GetFilteredGems(socketTypeFilter, nameFilter)
     for _, gemInfo in pairs(self.owned_gems) do
         local gemType = self:GetGemSocketType(gemInfo.itemID)
         if socketTypeFilter == "ALL" or gemType == socketTypeFilter then
-            if gemType ~= "PRIMORDIAL" or Private.Settings:GetSetting("show_primordial") then
+            if gemType ~= "PRIMORDIAL" or addon:GetDatabaseValue("show_primordial") then
                 if isMatchingFilter(gemInfo.itemID, nameFilter) then
                     tinsert(validGems[gemType], gemInfo)
                 end
@@ -209,7 +210,7 @@ function gemUtil:GetFilteredGems(socketTypeFilter, nameFilter)
         end
     end
 
-    if Private.Settings:GetSetting("show_unowned") then
+    if addon:GetDatabaseValue("show_unowned") then
         for gemItemID, gemType in pairs(const.GEM_SOCKET_TYPE) do
             if socketTypeFilter == "ALL" or gemType == socketTypeFilter then
                 if isMatchingFilter(gemItemID, nameFilter) then
@@ -220,7 +221,7 @@ function gemUtil:GetFilteredGems(socketTypeFilter, nameFilter)
                             break
                         end
                     end
-                    if (not dupeID) and (gemType ~= "PRIMORDIAL" or Private.Settings:GetSetting("show_primordial")) then
+                    if (not dupeID) and (gemType ~= "PRIMORDIAL" or addon:GetDatabaseValue("show_primordial")) then
                         local cacheInfo = Private.Cache:GetItemInfo(gemItemID)
                         if cacheInfo and cacheInfo.link then
                             local hyperlink = cacheInfo.link

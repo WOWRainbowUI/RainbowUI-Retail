@@ -1,12 +1,10 @@
 # Remix Gem Helper
 
-## [1.3.5](https://github.com/Larsj02/Remix-Gem-Helper/tree/1.3.5) (2024-05-21)
-[Full Changelog](https://github.com/Larsj02/Remix-Gem-Helper/compare/1.3.4...1.3.5) [Previous Releases](https://github.com/Larsj02/Remix-Gem-Helper/releases)
+## [1.4.1](https://github.com/Larsj02/Remix-Gem-Helper/tree/1.4.1) (2024-05-22)
+[Full Changelog](https://github.com/Larsj02/Remix-Gem-Helper/compare/1.4.0...1.4.1) [Previous Releases](https://github.com/Larsj02/Remix-Gem-Helper/releases)
 
-- Added a Frame to make Resocketing after Scrapping easier  
-- Moved Scrollable and Base Frame Creation to UIElements.lua  
-- Function to easier Create Scrollables  
-- Now always adding d at the end of versions to indicate developement versions which are not fully ready for release  
-- Fixed Cloak Tooltip Error  
-    Added Help Button for new Users  
-- Removed Sustaining Emerald for now as they seem to not exist  
+- Changed Version to 1.4.1  
+- Re-Added the Cache to open bags  
+    Fixed Language being automatically set to german  
+    Fixed Open Frame Resizing  
+- Fixed the Clickable bag item resizing  

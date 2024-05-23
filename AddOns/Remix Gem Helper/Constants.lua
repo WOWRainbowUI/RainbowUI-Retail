@@ -212,6 +212,80 @@ constants.CLOAK_BUFF = {
     ACHIEVEMENT_ID_START = 20527,
     ACHIEVEMENT_ID_END = 20538,
 }
+constants.USABLE_BAG_ITEMS = {
+    -- Prismatic Gems for Combining
+    [210715] = "GEM",  -- Chipped Masterful Amethyst
+    [216640] = "GEM",  -- Flawed Masterful Amethyst
+    [211106] = "GEM",  -- Masterful Amethyst
+    [211108] = "GEM",  -- Perfect Masterful Amethyst
+    [210714] = "GEM",  -- Chipped Deadly Sapphire
+    [216644] = "GEM",  -- Flawed Deadly Sapphire
+    [211123] = "GEM",  -- Deadly Sapphire
+    [211102] = "GEM",  -- Perfect Deadly Sapphire
+    [210681] = "GEM",  -- Chipped Quick Topaz
+    [216643] = "GEM",  -- Flawed Quick Topaz
+    [211107] = "GEM",  -- Quick Topaz
+    [211110] = "GEM",  -- Perfect Quick Topaz
+    [220371] = "GEM",  -- Chipped Versatile Diamond
+    [220372] = "GEM",  -- Flawed Versatile Diamond
+    [220374] = "GEM",  -- Versatile Diamond
+    [220373] = "GEM",  -- Perfect Versatile Diamond
+    [220367] = "GEM",  -- Chipped Stalwart Pearl
+    [220368] = "GEM",  -- Flawed Stalwart Pearl
+    [220370] = "GEM",  -- Stalwart Pearl
+    [220369] = "GEM",  -- Perfect Stalwart Pearl
+    [210717] = "GEM",  -- Chipped Hungering Ruby
+    [216641] = "GEM",  -- Flawed Hungering Ruby
+    [210718] = "GEM",  -- Hungering Ruby
+    [211103] = "GEM",  -- Perfect Hungering Ruby
+    [210716] = "GEM",  -- Chipped Swift Opal
+    [216639] = "GEM",  -- Flawed Swift Opal
+    [211124] = "GEM",  -- Swift Opal
+    [211101] = "GEM",  -- Perfect Swift Opal
+
+    -- Random Gem Items
+    [223907] = "RANDOM_GEM", -- Asynchronized Prismatic Gem
+    [223906] = "RANDOM_GEM", -- Asynchronized Tinker Gem
+    [223904] = "RANDOM_GEM", -- Asynchronized Cogwheel Gem
+    [223905] = "RANDOM_GEM", -- Asynchronized Meta Gem
+
+    -- Threads
+    [226144] = "THREAD", -- Lesser Spool of Eternal Thread
+    [226145] = "THREAD", -- Minor Spool of Eternal Thread
+    [226143] = "THREAD", -- Spool of Eternal Thread
+    [226142] = "THREAD", -- Greater Spool of Eternal Thread
+    [217722] = "THREAD", -- Thread of Experience
+    [219262] = "THREAD", -- Temporal Thread of Mastery
+    [219258] = "THREAD", -- Temporal Thread of Critical Strike
+    [219261] = "THREAD", -- Temporal Thread of Leech
+    [219260] = "THREAD", -- Temporal Thread of Speed
+    [219263] = "THREAD", -- Temporal Thread of Versatility
+    [219259] = "THREAD", -- Temporal Thread of Haste
+    [219256] = "THREAD", -- Temporal Thread of Power
+    [219257] = "THREAD", -- Temporal Thread of Stamina
+    [219264] = "THREAD", -- Temporal Thread of Experience
+    [219270] = "THREAD", -- Perpetual Thread of Leech
+    [219272] = "THREAD", -- Perpetual Thread of Versatility
+    [219267] = "THREAD", -- Perpetual Thread of Critical Strike
+    [219268] = "THREAD", -- Perpetual Thread of Haste
+    [219269] = "THREAD", -- Perpetual Thread of Speed
+    [219265] = "THREAD", -- Perpetual Thread of Power
+    [219271] = "THREAD", -- Perpetual Thread of Mastery
+    [219266] = "THREAD", -- Perpetual Thread of Stamina
+    [219273] = "THREAD", -- Perpetual Thread of Experience
+    [219279] = "THREAD", -- Infinite Thread of Leech
+    [219278] = "THREAD", -- Infinite Thread of Speed
+    [219276] = "THREAD", -- Infinite Thread of Critical Strike
+    [219277] = "THREAD", -- Infinite Thread of Haste
+    [219281] = "THREAD", -- Infinite Thread of Versatility
+    [219282] = "THREAD", -- Infinite Thread of Experience
+    [219280] = "THREAD", -- Infinite Thread of Mastery
+    [219274] = "THREAD", -- Infinite Thread of Power
+    [219275] = "THREAD", -- Infinite Thread of Stamina
+
+    -- Chest
+    [211279] = "CHEST", -- Cache of Infinite Treasure
+}
 
 constants.COLORS = {
     POSITIVE = CreateColorFromHexString("FF2ecc71"),
