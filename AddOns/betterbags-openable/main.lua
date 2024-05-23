@@ -17,6 +17,7 @@ local profile = {
 	FilterToys = true,
 	FilterAppearance = true,
 	FilterMounts = true,
+	FilterRepGain = true,
 	CreatableItem = true
 }
 
@@ -25,6 +26,7 @@ local DataBase = LibStub('AceDB-3.0'):New('BetterBagsOpenableDB', {profile = pro
 local DB = DataBase.profile ---@type Profile
 
 --Get Locale
+local REP_USE_TEXT = QUEST_REPUTATION_REWARD_TOOLTIP:match('%%d%s*(.-)%s*%%s')
 local Localized = {
 	zhTW = {
 		['Use: Teaches you how to summon this mount'] = '教你學會如何召喚這個坐騎。',
@@ -92,6 +94,19 @@ local options = {
 		end,
 		set = function(_, value)
 			DB.FilterAppearance = value
+		end
+	},
+	FilterRepGain = {
+		type = 'toggle',
+		width = 'full',
+		order = 2,
+		name = 'Reputaion Gain Items',
+		desc = 'Filter all items with `' .. ITEM_SPELL_TRIGGER_ONUSE .. '` and `' .. REP_USE_TEXT .. '` in the tooltip',
+		get = function()
+			return DB.FilterRepGain
+		end,
+		set = function(_, value)
+			DB.FilterRepGain = value
 		end
 	},
 	CreatableItem = {
@@ -163,6 +178,10 @@ local function filter(data)
 
 		if DB.FilterToys and string.find(LineText, ITEM_TOY_ONUSE) then
 			return PREFIX .. '玩具'
+		end
+
+		if DB.FilterRepGain and string.find(LineText, REP_USE_TEXT) and string.find(LineText, ITEM_SPELL_TRIGGER_ONUSE) then
+			return PREFIX .. 'Reputation'
 		end
 
 		if DB.FilterMounts and string.find(LineText, GetLocaleString('Use: Teaches you how to summon this mount')) then
