@@ -232,6 +232,27 @@ DR.WidgetFrameIDs = {
 	5145, -- dark gryphon
 };
 
+--Blizzard has removed the ability to check for "Riding Abroad" in 11.0 while also not adding new API to compensate.
+DR.DragonRidingZoneIDs = {
+	2444, -- Dragon Isles
+	2454, -- Zaralek Cavern
+	2548, -- Emerald Dream
+	2549, -- Amirdrassil Raid
+};
+
+function DR.DragonRidingZoneCheck()
+	for k, v in pairs(DR.DragonRidingZoneIDs) do
+		if GetInstanceInfo() then
+			local _, _, _, _, _, _, _, instanceID, _, _ = GetInstanceInfo()
+			if instanceID == v then
+				return true;
+			else
+				return false;
+			end
+		end
+	end
+end
+
 DR.statusbar = CreateFrame("StatusBar", nil, UIParent)
 DR.statusbar:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 DR.statusbar:SetWidth(305/1.25)
@@ -499,15 +520,15 @@ function DR.updateSpeed()
 	local base = isGliding and forwardSpeed or GetUnitSpeed("player")
 	local movespeed = Round(base / BASE_MOVEMENT_SPEED * 100)
 	local roundedSpeed = Round(forwardSpeed, 3)
-	local NotDragonIsles = C_UnitAuras.GetPlayerAuraBySpellID(432503)
-
-	if NotDragonIsles then
-		DR.statusbar:SetMinMaxValues(0, 85)
-		if forwardSpeed > 85*.65 then
+	local racing = C_UnitAuras.GetPlayerAuraBySpellID(369968)
+	
+	if DR.DragonRidingZoneCheck() == true or racing then
+		DR.statusbar:SetMinMaxValues(0, 100)
+		if forwardSpeed > 65 then
 			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.over)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice purple?) -
 			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.over))
-		elseif forwardSpeed >= 85*.60 and forwardSpeed <= 85*.65 then
+		elseif forwardSpeed >= 60 and forwardSpeed <= 65 then
 			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.vigor)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice blue?) - 
 			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.vigor))
@@ -517,12 +538,12 @@ function DR.updateSpeed()
 			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.slow))
 		end
 	else
-		DR.statusbar:SetMinMaxValues(0, 100)
-		if forwardSpeed > 65 then
+		DR.statusbar:SetMinMaxValues(0, 85)
+		if forwardSpeed > 85*.65 then
 			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.over)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice purple?) -
 			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.over))
-		elseif forwardSpeed >= 60 and forwardSpeed <= 65 then
+		elseif forwardSpeed >= 85*.60 and forwardSpeed <= 85*.65 then
 			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.vigor)):GenerateHexColor()
 			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice blue?) - 
 			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.vigor))
