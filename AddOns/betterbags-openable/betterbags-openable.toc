@@ -11,7 +11,7 @@
 ## SavedVariables: BetterBagsOpenableDB
 ## Dependencies: BetterBags
 
-## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-可打開
+## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-打開
 ## Notes-zhTW: BetterBags - Openable |n|n將可以打開或可以使用的物品放在各自的分類中，可選擇是否要分類玩具、坐騎、造型物品...等。
 ## X-Category-zhTW: 物品
 ## DefaultState: disabled

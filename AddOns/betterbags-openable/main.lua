@@ -48,7 +48,7 @@ local options = {
 		type = 'toggle',
 		width = 'full',
 		order = 0,
-		name = '分類一般能「使用：」的物品',
+		name = '一般能「使用：」的物品分類',
 		desc = '過濾所有有 "使用" 效果的物品。',
 		get = function()
 			return DB.FilterGenericUse
@@ -61,7 +61,7 @@ local options = {
 		type = 'toggle',
 		width = 'full',
 		order = 1,
-		name = '分類玩具',
+		name = '玩具分類',
 		desc = '過濾所有在浮動提示資訊中有寫「' .. ITEM_TOY_ONUSE .. '」的物品',
 		get = function()
 			return DB.FilterToys
@@ -74,7 +74,7 @@ local options = {
 		type = 'toggle',
 		width = 'full',
 		order = 1,
-		name = '分類坐騎',
+		name = '坐騎分類',
 		desc = '過濾所有在浮動提示資訊中有寫「' .. GetLocaleString('Use: Teaches you how to summon this mount') .. '」的物品',
 		get = function()
 			return DB.FilterMounts
@@ -87,7 +87,7 @@ local options = {
 		type = 'toggle',
 		width = 'full',
 		order = 2,
-		name = '分類造型物品',
+		name = '造型物品分類',
 		desc = '過濾所有在浮動提示資訊中有寫「' .. ITEM_COSMETIC_LEARN .. '」的物品',
 		get = function()
 			return DB.FilterAppearance
@@ -100,8 +100,8 @@ local options = {
 		type = 'toggle',
 		width = 'full',
 		order = 2,
-		name = 'Reputaion Gain Items',
-		desc = 'Filter all items with `' .. ITEM_SPELL_TRIGGER_ONUSE .. '` and `' .. REP_USE_TEXT .. '` in the tooltip',
+		name = '聲望物品分類',
+		desc = '過濾所有在浮動提示資訊中有寫「' .. ITEM_SPELL_TRIGGER_ONUSE .. '」和「' .. REP_USE_TEXT .. '」的物品',
 		get = function()
 			return DB.FilterRepGain
 		end,
@@ -113,7 +113,7 @@ local options = {
 		type = 'toggle',
 		width = 'full',
 		order = 3,
-		name = '分類可製造的物品',
+		name = '可製造的物品分類',
 		desc = '過濾所有在浮動提示資訊中有寫「' .. ITEM_CREATE_LOOT_SPEC_ITEM .. '」的物品',
 		get = function()
 			return DB.CreatableItem
@@ -124,7 +124,7 @@ local options = {
 	}
 }
 
-config:AddPluginConfig('可打開', options)
+config:AddPluginConfig('打開', options)
 
 local function Log(msg)
 	debug:Log('Openable', msg)
@@ -181,7 +181,7 @@ local function filter(data)
 		end
 
 		if DB.FilterRepGain and string.find(LineText, REP_USE_TEXT) and string.find(LineText, ITEM_SPELL_TRIGGER_ONUSE) then
-			return PREFIX .. 'Reputation'
+			return PREFIX .. '聲望'
 		end
 
 		if DB.FilterMounts and string.find(LineText, GetLocaleString('Use: Teaches you how to summon this mount')) then
