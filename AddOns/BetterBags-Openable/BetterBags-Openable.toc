@@ -1,0 +1,13 @@
+## Interface: 100207
+## Title: BetterBags - Openable Items
+## Notes: Filters all items that have a <Right Click to Open> or Use option
+## IconTexture: Interface/Addons/BetterBags-Openable/Icon
+## Version: 1.1.2
+## Author: wutname1
+## X-Category: Bags & Inventory
+## X-Curse-Project-ID: 1021681
+## X-Github: https://github.com/Wutname1/BetterBags-Openable
+## SavedVariables: BetterBagsOpenableDB
+## Dependencies: BetterBags
+
+main.lua
