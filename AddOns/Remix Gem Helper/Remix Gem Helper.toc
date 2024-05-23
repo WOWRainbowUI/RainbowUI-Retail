@@ -1,5 +1,5 @@
 ## Interface: 100207
-## Version: 1.3.5
+## Version: 1.4.1
 ## Title: Remix Gem Helper
 ## Author: Rasu | Larsj_02
 ## DefaultState: enabled
@@ -8,11 +8,17 @@
 ## X-Curse-Project-ID: 1017030
 ## X-Wago-ID: mKOvJW6x
 
-Cache.lua
+libs.xml
+
+Locales\embed.xml
 Constants.lua
-Settings.lua
+
+Init.lua
+
+Cache.lua
 Misc.lua
 GemUtil.lua
 UIElements.lua
+ScrapUtil.lua
 Core.lua
 CloakTooltip.lua

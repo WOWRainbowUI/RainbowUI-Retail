@@ -1,5 +1,6 @@
 ---@class RemixGemHelperPrivate
 local Private = select(2, ...)
+local addon = Private.Addon
 local const = Private.constants
 local function getCloakLevel()
     local level = 0
@@ -9,7 +10,7 @@ local function getCloakLevel()
             level = level + 1
         end
     end
-    return string.format(" [Rank %d/12]", level)
+    return string.format(" [%s %d/12]", addon.Loc["Rank"], level)
 end
 
 local function getCloakStats()
