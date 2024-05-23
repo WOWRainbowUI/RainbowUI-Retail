@@ -2,7 +2,7 @@
 ## Title: Enhanced Bloodlust
 ## Notes: Add a music in Bloodlust or Heroism!
 ## Author: Vilkku, 彩虹ui
-## Version: 10.1.5
+## Version: 10.2.7
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 嗜血音樂
 ## Notes-zhTW: Enhanced Bloodlust |n|n為嗜血與英勇效果添加超棒的音樂。|n|n|cffffd200使用方法: |r調整音量: 調整 "主音量" 的音量。|n|n測試音樂: 輸入 /測試音樂 |n|n自訂音樂：將長度為40秒的 MP3 或 OGG 音樂檔案放到 AddOns > EnhBloodlust 資料夾內。然後用記事本或 Notepad++ 開啟 hawayconfig.lua，依照裡面的說明來修改。|n|n更詳細的說明請看|nhttp://wp.me/p7DTni-Fp
 ## X-Category-zhTW: 戰鬥
