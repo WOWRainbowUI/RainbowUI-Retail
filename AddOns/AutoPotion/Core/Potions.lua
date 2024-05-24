@@ -7,6 +7,7 @@ local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
 ham.healthstone = ham.Item.new(5512, "Healthstone")
+ham.timerunner = ham.Item.new(217905, "時光奔走者的生命藥劑") -- 自行加入
 ham.thirdWind = ham.Item.new(138486, "\"Third Wind\" Potion")
 ham.witheringDreamsR3 = ham.Item.new(207041, "Potion of Withering Dreams")
 ham.witheringDreamsR2 = ham.Item.new(207040, "Potion of Withering Dreams")
@@ -91,7 +92,8 @@ end
 function ham.getPots()
   if isRetail then
     local pots = {
-      ham.thirdWind,
+      ham.timerunner,
+	  ham.thirdWind,
       ham.dreamR3,
       ham.dreamsR2,
       ham.dreamR1,
