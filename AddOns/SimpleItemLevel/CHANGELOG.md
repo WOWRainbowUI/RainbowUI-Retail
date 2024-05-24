@@ -1,7 +1,8 @@
 # Simple Item Level
 
-## [v34](https://github.com/kemayo/wow-simpleitemlevel/tree/v34) (2024-05-02)
-[Full Changelog](https://github.com/kemayo/wow-simpleitemlevel/compare/v33.5...v34) [Previous Releases](https://github.com/kemayo/wow-simpleitemlevel/releases)
+## [v35](https://github.com/kemayo/wow-simpleitemlevel/tree/v35) (2024-05-22)
+[Full Changelog](https://github.com/kemayo/wow-simpleitemlevel/compare/v34...v35) [Previous Releases](https://github.com/kemayo/wow-simpleitemlevel/releases)
 
-- TOC for Cataclysm  
-- Fix constant errors in cataclysm classic  
+- Fix Baganator support for its post v266 refactor  
+- TOC for 10.2.7  
+- Bump the classic era toc as well  
