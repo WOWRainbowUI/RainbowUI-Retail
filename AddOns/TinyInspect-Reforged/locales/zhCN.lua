@@ -37,6 +37,10 @@ ns.L = {
     PaperDoll                   = "人物面板",
     Chat                        = "聊天",
     Loot                        = "拾取",
+	Other						= "任务/冒险指南",
+	Title						= "装备观察",
+	OptionName					= "装备-观察",
+	NA							= "未知",
 }
 
 BINDING_NAME_InspectRaidFrame = "显示团队观察面板"

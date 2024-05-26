@@ -43,7 +43,7 @@ GameTooltip:HookScript("OnTooltipSetItem", function(self)
         if (itemLevel and itemLevel>1) then
             local left = _G[GameTooltip:GetName() .. 'TextLeft' .. 2]
             local leftText = left:GetText()
-            left:SetText("|cffffd100Item Level " .. itemLevel .. "|r")
+            left:SetText("|cffffd100".. STAT_AVERAGE_ITEM_LEVEL .." ".. itemLevel .. "|r")
             GameTooltip:Show()
         end
     end

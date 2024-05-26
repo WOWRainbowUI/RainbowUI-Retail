@@ -136,7 +136,7 @@ local ItemLevelPattern = gsub(ITEM_LEVEL, "%%d", "%%d")
 local function showUnitItemLevel(ilevel)
 
     if (TIFInspectText) then
-        TIFInspectText:SetText("|cffffd100物品等級: " .. ilevel .. "|r")
+        TIFInspectText:SetText("|cffffd100".. STAT_AVERAGE_ITEM_LEVEL .. " " .. ilevel .. "|r")
     else
         local inspectTextFrame = CreateFrame("Frame", "TIFInspectFrame", InspectModelFrame)
         inspectTextFrame:SetWidth(70)
@@ -148,14 +148,14 @@ local function showUnitItemLevel(ilevel)
         inspectTextFrame.texture = inspectTextFrameTexture
         local inspectText = inspectTextFrame:CreateFontString("TIFInspectText", "OVERLAY", "GameFontNormal")
         inspectText:SetPoint("CENTER", inspectTextFrame)
-        inspectText:SetText("|cffffd100物品等級: " .. ilevel .. "|r")
+        inspectText:SetText("|cffffd100".. STAT_AVERAGE_ITEM_LEVEL .. " " .. ilevel .. "|r")
     end
 end
 
 local function showPlayerItemLevel(ilevel)
 
     if (TIFPlayerText) then
-        TIFPlayerText:SetText("|cffffd100物品等級: " .. ilevel .. "|r")
+        TIFPlayerText:SetText("|cffffd100".. STAT_AVERAGE_ITEM_LEVEL .. " " .. ilevel .. "|r")
     else
         local playerTextFrame = CreateFrame("Frame", "TIFPlayerFrame", CharacterModelFrame)
         playerTextFrame:SetWidth(70)
@@ -167,7 +167,7 @@ local function showPlayerItemLevel(ilevel)
         playerTextFrame.texture = playerTextFrameTexture
         local playerText = playerTextFrame:CreateFontString("TIFPlayerText", "OVERLAY", "GameFontNormal")
         playerText:SetPoint("CENTER", playerTextFrame)
-        playerText:SetText("|cffffd100物品等級: " .. ilevel .. "|r")
+        playerText:SetText("|cffffd100".. STAT_AVERAGE_ITEM_LEVEL .. " " .. ilevel .. "|r")
     end
 end
 
