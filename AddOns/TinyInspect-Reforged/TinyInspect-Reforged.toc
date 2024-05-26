@@ -1,0 +1,24 @@
+## Interface: 100200
+## Title:  TinyInspect-Reforged |cFF69CCF0by Beezer|r
+## Version: 9.2
+## Notes: Show ItemLevel For Inspect & Party & Raid & Mouse & Bag & Bank ...
+## Author: Beezer
+## SavedVariables: TinyInspectReforgedDB
+## IconTexture: Interface\AddOns\TinyInspect-Reforged\images\Icon.tga
+
+libs\lib.xml
+locales\locales.xml
+
+Options.lua
+ItemBorder.lua
+ItemLevel.lua
+InspectCore.lua
+InspectUnit.lua
+InspectUnitStats.lua
+InspectUnitGemAndEnchant.lua
+InspectUnitSpecialization.lua
+InspectMouse.lua
+##InspectGroupMember.lua
+InspectParty.lua
+InspectRaid.lua
+PluginGreenState.lua
