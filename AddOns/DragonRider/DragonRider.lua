@@ -619,7 +619,10 @@ function DR.vigorCounter()
 	local frameLevelThing = UIWidgetPowerBarContainerFrame:GetFrameLevel()+15
 	for i = 1,6 do
 		if vigorCurrent >= i then
-			DR.modelScene[i]:Show()
+			local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
+			if canGlide == true then
+				DR.modelScene[i]:Show()
+			end
 		else
 			DR.modelScene[i]:Hide()
 		end
