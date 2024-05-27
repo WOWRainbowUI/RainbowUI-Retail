@@ -5,7 +5,7 @@ local LibItemInfo = LibStub:GetLibrary("LibItemInfo.7000")
 
 local guids, inspecting = {}, false
 
-local actualVersion = GetAddOnMetadata("TinyInspect-Reforged", "Version") or "unknown"
+-- local actualVersion = GetAddOnMetadata("TinyInspect-Reforged", "Version") or "unknown"
 -- print("|cff00d200TinyInspect Reforged v",actualVersion," loaded.|r")
 
 function GetInspectInfo(unit, timelimit, checkhp)
