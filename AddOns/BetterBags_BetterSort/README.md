@@ -5,6 +5,7 @@ Plugin for the AddOn [BetterBags](https://www.curseforge.com/wow/addons/better-b
 Currently implemented features:
 - Option to sort by item level.
 - Improvement to Alphabetical sorting by ignoring color codes.
+- Option to ignore Blizzards New Item Tags. Making the "New Item Duration" setting fully in charge.
 
 ### Alphabetical Sorting
 Currently the default Alphabetical sorting doesn't remove the color prefix from titles when sorting. So eg. `|cffff8000Armor - Leather` would come after `|cffa335eeArmor - Mail` due to `a` coming before `f` in the comparison. This is not intuitive behavior for an Alphabetical sorting.
