@@ -307,6 +307,9 @@ if GetLocale() == "zhTW" then
 	-- BetterBags_BetterSort
 	L.data["Sort by Item Level"] = "依物品等級排序"
 	L.data["Sort Items by Item Level."] = "依照物品等級來排列物品。"
+	L.data["Ignore New Item Tag"] = "忽略新物品標籤"
+	L.data["If enbaled, Blizzard \"New Item Tag\" will be ignored. This makes new items strictly rely on \"New Item Duration\" setting."] = "啟用時，會忽略遊戲內建的 \"新物品標籤\"，這會讓新物品完全遵照 \"新物品持續時間\" 的設定。"
+	
 	
 end
 
