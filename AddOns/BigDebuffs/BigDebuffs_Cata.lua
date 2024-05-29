@@ -122,7 +122,6 @@ addon.Spells = {
     [1766] = { type = INTERRUPT, duration = 5 }, -- Kick (Rogue)
     [26679] = { type = INTERRUPT, duration = 3 }, -- Deadly Throw
     [6552] = { type = INTERRUPT, duration = 4 }, -- Pummel
-    [22570] = { type = INTERRUPT, duration = 3 }, -- Maim
     [29443] = { type = INTERRUPT, duration = 10 }, -- Clutch of Foresight
 
     -- Death Knight
@@ -223,8 +222,8 @@ addon.Spells = {
     [64205] = { type = BUFF_DEFENSIVE, }, -- Divine Sacrifice
 
     [1022] = { type = IMMUNITY },-- Blessing of Protection
+    [498] = { type = BUFF_DEFENSIVE }, -- Divine Protection
     [642] = { type = IMMUNITY }, -- Divine Shield
-        [498] = { parent = 642 },
     [853] = { type = CROWD_CONTROL }, -- Hammer of Justice
     [1044] = { type = BUFF_DEFENSIVE }, -- Blessing of Freedom
     [20066] = { type = CROWD_CONTROL }, -- Repentance
@@ -270,6 +269,7 @@ addon.Spells = {
     -- WoTLK
     [768] = { type = BUFF_OTHER, }, -- Cat Form
     [783] = { type = BUFF_OTHER, }, -- Travel Form
+    [22570] = { type = CROWD_CONTROL, duration = 3 }, -- Maim
     [22842] = { type = BUFF_DEFENSIVE, },  -- Frenzied Regeneration
     [24858] = { type = BUFF_OTHER, }, -- Moonkin Form
     [33891] = { type = BUFF_OTHER, }, -- Tree of Life
@@ -302,6 +302,14 @@ addon.Spells = {
     [44572] = { type = CROWD_CONTROL, }, -- Deep Freeze
     [55021] = { type = CROWD_CONTROL, }, -- Improved Counterspell
     [64346] = { type = CROWD_CONTROL, }, -- Fiery Payback (Fire Mage Disarm)
+    [82691] = { type = CROWD_CONTROL, }, -- Ring of Frost
+    [83302] = { type = ROOT, }, -- Improved Cone of Cold
+    [116] = { type = ROOT }, -- Frostbolt
+    [44614] = { type = ROOT }, -- Frostfire Bolt
+    [7321] = { type = ROOT }, -- Chilled
+    [120] = { type = ROOT }, -- Cone of Cold
+    [12486] = { type = ROOT }, -- Chilled
+    [12487] = { type = ROOT }, -- Ice Shards
 
     [18469] = { type = CROWD_CONTROL }, -- Improved Counterspell
     [118] = { type = CROWD_CONTROL }, -- Polymorph
@@ -363,6 +371,7 @@ addon.Spells = {
     [55694] = { type = BUFF_DEFENSIVE },  -- Enraged Regeneration
     [60503] = { type = BUFF_OFFENSIVE, }, -- Taste for Blood
     [65925] = { type = BUFF_OFFENSIVE, }, -- Unrelenting Assault (2/2)
+    [85388] = { type = CROWD_CONTROL }, -- Throwdown
 
     [18498] = { type = CROWD_CONTROL }, -- Improved Shield Bash
     [20230] = { type = IMMUNITY }, -- Retaliation
