@@ -211,7 +211,7 @@ kModelConstants =
 
 --~     [530075] = {  -- "infinite_timebomb_reticule.m2"
 --~         Name = kCategory.Spots .. "Circle",
---~         BaseScale = 0.004, BaseFacing = TODO,
+--~         BaseScale = 0.004, BaseFacing = 0,
 --~         BaseOfsX = 0, BaseOfsY = 1.75,
 --~         BaseStepX = 3350, BaseStepY = 3100,
 --~         IsSkewed = true, HorizontalSlope = 0, 

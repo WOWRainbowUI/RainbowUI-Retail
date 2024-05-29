@@ -21,14 +21,18 @@ local Globals = _G
 local _  -- Prevent tainting global _ .
 local abs = _G.math.abs
 local assert = _G.assert
+local ColorPickerFrame = _G.ColorPickerFrame
 local CopyTable = _G.CopyTable
 local CreateFrame = _G.CreateFrame
+local CreateVector3D = _G.CreateVector3D
 local DEFAULT_CHAT_FRAME = _G.DEFAULT_CHAT_FRAME
+local DoesAncestryInclude = _G.DoesAncestryInclude
 local floor = _G.floor
 local GetAddOnMetadata = _G.GetAddOnMetadata
 local GetBuildInfo = _G.GetBuildInfo
 local GetCursorPosition = _G.GetCursorPosition
 local GetCVar = _G.GetCVar
+local GetMouseFocus = _G.GetMouseFocus
 local GetTime = _G.GetTime
 local geterrorhandler = _G.geterrorhandler
 local ipairs = _G.ipairs
@@ -50,6 +54,24 @@ local UnitAffectingCombat = _G.UnitAffectingCombat
 local xpcall = _G.xpcall
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+--[[                Aliases to things in other files.                        ]]
+--:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+------ - - - - - - - - - - - - - - - - - --
+----local util = private.util
+------ - - - - - - - - - - - - - - - - - --
+----local sFind = util.sFind
+----local staticClearTable = util.staticClearTable
+----local staticCopyTable = util.staticCopyTable
+----local strEndsWith = util.strEndsWith
+----local strMatchNoCase = util.strMatchNoCase
+----local tCount = util.tCount
+----local tEmpty = util.tEmpty
+----local tGet = util.tGet
+----local tSet = util.tSet
+----local vdt_dump = util.vdt_dump
+
+--:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 --[[                       Declare Namespace                                 ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -66,8 +88,8 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --[[                       Constants                                         ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-kAddonName = kAddonFolderName  -- (i.e.  "CursorTrail")
-kAddonVersion = (GetAddOnMetadata(kAddonName, "Version") or "0.0.0.0"):match("^([%d.]+)")
+kAddonTitle = GetAddOnMetadata(kAddonFolderName, "Title")
+kAddonVersion = (GetAddOnMetadata(kAddonFolderName, "Version") or "0.0.0.0"):match("^([%d.]+)")
 kGameTocVersion = select(4, GetBuildInfo())
 ----print("CursorTrail kGameTocVersion:", kGameTocVersion)
 
@@ -87,10 +109,11 @@ YELLOW      = "|cffFDDA0D"
 kShow = 1
 kHide = -1
 
-kMediaPath = "Interface\\Addons\\" .. kAddonName .. "\\Media\\"
+kMediaPath = "Interface\\Addons\\" .. kAddonFolderName .. "\\Media\\"
 kStr_None = "< None >"
-kAddonErrorHeading = RED2.."[ERROR] "..kTextColorDefault.."["..kAddonName.."] "..WHITE
-kAddonAlertHeading = ORANGE.."<"..YELLOW..kAddonName..ORANGE.."> "..kTextColorDefault
+kAddonHeading = kTextColorDefault.."["..kAddonFolderName.."] "..WHITE
+kAddonErrorHeading = RED2.."[ERROR] "..kAddonHeading
+kAddonAlertHeading = ORANGE.."<"..YELLOW..kAddonFolderName..ORANGE.."> "..kTextColorDefault
 
 kFrameLevel = 32
 kDefaultShadowSize = 72
@@ -102,9 +125,13 @@ kScreenBottomFourthMult = 1.077
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 kNewFeatures =  -- For flagging new features in the UI.
 {
-    -- Added in version 10.1.7.2 ...
-    {anchor="BOTTOMLEFT", relativeTo="SparkleCheckbox", relativeAnchor="TOPRIGHT", x=-13, y=-5.3},
-    {anchor="LEFT", relativeTo="DefaultsBtn11", relativeAnchor="RIGHT", x=0, y=0.7},
+    -- Added in version 10.2.7.2 ...
+    {anchor="BOTTOM", relativeTo="ProfilesUI.mainFrame.title", relativeAnchor="TOP", x=0, y=0}, --(Profiles GroupBox)
+    {anchor="BOTTOM", relativeTo="DefaultsBtn", relativeAnchor="TOP", x=0, y=0},  --(Defaults Button)
+
+--~ Disabled this notification in 10.2.7.1 ...
+--~     -- Added in version 10.1.7.2 ...
+--~     {anchor="BOTTOMLEFT", relativeTo="SparkleCheckbox", relativeAnchor="TOPRIGHT", x=-13, y=-5.3},
 
 --~ Disabled this notification in 10.1.5.2 ...
 --~     -- Added in version 10.1.0.1 ...
@@ -119,125 +146,6 @@ kNewFeatures =  -- For flagging new features in the UI.
 --~     {anchor="BOTTOM", relativeTo="HelpBtn", relativeAnchor="TOP", x=0, y=-1},
 }
 
--- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
--- Default (Preset) Constants:
-kDefaultModelID = 166498  -- "Electric, Blue & Long"
-kDefaultConfig =
-{
-    ShapeFileName = nil,
-    ModelID = kDefaultModelID,
-    ShapeColorR = 1.0, ShapeColorG = 1.0, ShapeColorB = 1.0,
-    ShapeSparkle = false,
-    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-    UserShadowAlpha = 0.0,  -- (Solid = 1.0.  Transparent = 0.0)
-    UserScale = 1.0,  -- (User model scale.  It is 1/100th the value shown in the UI.)
-    UserAlpha = 1.00,  -- (Solid = 1.0.  Transparent = 0.0)
-    Strata = "HIGH",
-    UserOfsX = 0, UserOfsY = 0,  -- (User model offsets.  They are 1/10th the values shown in the UI.)
-    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-    FadeOut = false,
-    UserShowOnlyInCombat = false,
-    UserShowMouseLook = false,
-    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~     -- Preserve window location.
---~     OptionsSetPoint1 = nil,
---~     OptionsSetPoint2 = nil,
---~     OptionsSetPoint3 = nil,
---~     OptionsSetPoint4 = nil,
---~     OptionsSetPoint5 = nil,
-}
-
-kDefaultConfig2 = CopyTable(kDefaultConfig)
-kDefaultConfig2.UserScale = 1.35
-kDefaultConfig2.UserOfsX = 2.0
-kDefaultConfig2.UserOfsY = -1.6
-kDefaultConfig2.UserAlpha = 0.50
-
-kDefaultConfig3 = CopyTable(kDefaultConfig)
-kDefaultConfig3.UserScale = 0.50
-kDefaultConfig3.UserOfsX = 2.0
-kDefaultConfig3.UserOfsY = -2.1
-kDefaultConfig3.UserAlpha = 1.0
---~ kDefaultConfig3.UserOfsX = 0.2
---~ kDefaultConfig3.UserOfsY = -0.1
---~ kDefaultConfig3.ModelID = 166492  -- "Electric, Blue"
---~ kDefaultConfig3.FadeOut = true
-
-kDefaultConfig4 = CopyTable(kDefaultConfig)
-kDefaultConfig4.ShapeFileName = kMediaPath.."Ring Soft 2.tga"
-kDefaultConfig4.ModelID = 166926  -- "Soul Skull"
-kDefaultConfig4.ShapeColorR = 0.984
-kDefaultConfig4.ShapeColorG = 0.714
-kDefaultConfig4.ShapeColorB = 0.82
-kDefaultConfig4.UserScale = 0.7
-kDefaultConfig4.UserAlpha = 1.0
-kDefaultConfig4.UserShadowAlpha = 0.3
-kDefaultConfig4.Strata = "FULLSCREEN"
-
---~ kDefaultConfig4 = CopyTable(kDefaultConfig)
---~ kDefaultConfig4.UserScale = 0.10
---~ kDefaultConfig4.UserAlpha = 1.0
-
-kDefaultConfig5 = CopyTable(kDefaultConfig)
-kDefaultConfig5.UserScale = 1.8
-kDefaultConfig5.UserAlpha = 0.65
-kDefaultConfig5.UserShadowAlpha = 0.30
-
-kDefaultConfig6 = CopyTable(kDefaultConfig)
-kDefaultConfig6.ModelID = 166923  -- "Burning Cloud, Purple"
-kDefaultConfig6.UserScale = 2.0
-
-kDefaultConfig7 = CopyTable(kDefaultConfig)
-kDefaultConfig7.ModelID = 166923  -- "Burning Cloud, Purple"
-kDefaultConfig7.UserScale = 2.5
-kDefaultConfig7.FadeOut = true
-kDefaultConfig7.Strata = "FULLSCREEN"
-
-kDefaultConfig8 = CopyTable(kDefaultConfig)
-kDefaultConfig8.ModelID = 166926  -- "Soul Skull"
-kDefaultConfig8.UserScale = 1.5
-kDefaultConfig8.Strata = "FULLSCREEN"
-
-kDefaultConfig9 = CopyTable(kDefaultConfig)
-kDefaultConfig9.ModelID = 166991  -- "Cloud, Dark Blue",
-kDefaultConfig9.UserScale = 2.4
-kDefaultConfig9.FadeOut = true
-kDefaultConfig9.Strata = "FULLSCREEN"
-
-kDefaultConfig10 = CopyTable(kDefaultConfig)
-kDefaultConfig10.ModelID = 166923  -- "Burning Cloud, Purple"
-kDefaultConfig10.UserScale = 1.5
-kDefaultConfig10.UserOfsY = 0.1
-kDefaultConfig10.UserAlpha = 0.80
-kDefaultConfig10.UserShadowAlpha = 0.50
-kDefaultConfig10.FadeOut = true
-
-kDefaultConfig11 = CopyTable(kDefaultConfig)
-kDefaultConfig11.ShapeFileName = kMediaPath.."Ring 3.tga"
-kDefaultConfig11.ModelID = 0
-kDefaultConfig11.ShapeColorR = 1.0
-kDefaultConfig11.ShapeColorG = 1.0
-kDefaultConfig11.ShapeColorB = 1.0
-kDefaultConfig11.ShapeSparkle = true
-kDefaultConfig11.UserScale = 0.65
-kDefaultConfig11.UserAlpha = 1.0
-kDefaultConfig11.UserShadowAlpha = 0.65
-kDefaultConfig11.Strata = "FULLSCREEN"
-kDefaultConfig11.FadeOut = false
-
---~ -- NOTE: The next config only works for Retail WoW.
---~ kDefaultConfig12 = CopyTable(kDefaultConfig)
---~ kDefaultConfig12.ShapeFileName = kMediaPath.."Ring 3.tga"
---~ kDefaultConfig12.ModelID = 1417024  -- "Sparkling, Rainbow"
---~ kDefaultConfig12.ShapeColorR = 1.0
---~ kDefaultConfig12.ShapeColorG = 0.882
---~ kDefaultConfig12.ShapeColorB = 0.882
---~ kDefaultConfig12.UserScale = 0.6
---~ kDefaultConfig12.UserAlpha = 1.0
---~ kDefaultConfig12.UserShadowAlpha = 0.99
---~ kDefaultConfig12.Strata = "HIGH"
---~ kDefaultConfig12.FadeOut = false
-
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 --[[                       Switches                                          ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -248,7 +156,6 @@ kEditBaseValues = false -- Set to true so arrow keys change base offsets and ste
                         -- Shift decrease the amount of change each arrow key press.
                         -- Ctrl increase the amount of change each arrow key press.
                         -- When done, type "/ct model" to dump all values (BEFORE CLOSING THE UI).
-kAlwaysUseDefaults = false  -- Set to true to prevent using saved settings.
 kShadowStrataMatchesMain = false  -- Set to true if you want shadow at same level as the trail effect.
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -297,9 +204,14 @@ end
 
 -------------------------------------------------------------------------------
 function updateScaleVars()
+    local oldW, oldH, oldScale = ScreenW, ScreenH, ScreenScale
     ScreenW, ScreenH, ScreenMidX, ScreenMidY, ScreenScale, ScreenHypotenuse = getScreenScaledSize()
     ScreenFourthH = ScreenH * 0.25  -- 1/4th screen height.
     ----print("ScreenScale:", round(ScreenScale,4), " GetCVar(uiScale):", GetCVar("uiScale"), " ScreenW:", round(ScreenW,1), " ScreenH:", round(ScreenH,1))
+    if ScreenW == oldW and ScreenH == oldH and ScreenScale == oldScale then
+        return false  -- Variables did not change.
+    end
+    return true  -- Screen size and/or scale changed.
 end
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -308,8 +220,8 @@ end
 
 -------------------------------------------------------------------------------
 function printUsageMsg()
-    printMsg(kAddonName.." "..kAddonVersion.." Slash Commands:")
-    printMsg("(Note: Either "..BLUE.."/ct|r".." or "..BLUE.."/"..kAddonName.."|r can be typed for these commands.)")
+    printMsg(kAddonFolderName.." "..kAddonVersion.." Slash Commands:")
+    printMsg("(Note: Either "..BLUE.."/ct|r".." or "..BLUE.."/"..kAddonFolderName.."|r can be typed for these commands.)")
     printMsg(BLUE.."  /ct"..GREEN2.." - Show/Hide the options window.")
     printMsg(BLUE.."  /ct combat"..GREEN2.." - Toggles the 'Show only in combat' setting.")
     printMsg(BLUE.."  /ct fade"..GREEN2.." - Toggles the 'Fade out when idle' setting.")
@@ -320,6 +232,11 @@ function printUsageMsg()
     printMsg(BLUE.."  /ct reload"..GREEN2.." - Reloads the current cursor settings.")
     printMsg(BLUE.."  /ct reset"..GREEN2.." - Resets cursor to original settings.")
     printMsg(BLUE..'  /ct sparkle'..GREEN2..' - Toggles shape color between normal and "sparkle".')
+    printMsg(GREEN2.."BACKUP COMMANDS:")
+    printMsg(BLUE.."    /ct backup <backup name>")
+    printMsg(BLUE.."    /ct deletebackup <backup name>")
+    printMsg(BLUE.."    /ct listbackups")
+    printMsg(BLUE.."    /ct restore <backup name>")
     printMsg(GREEN2.."PROFILE COMMANDS:")
     printMsg(BLUE.."    /ct delete <profile name>")
     printMsg(BLUE.."    /ct list")
@@ -334,10 +251,11 @@ function printUsageMsg()
     ----printMsg(" \n")
 end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-Globals["SLASH_"..kAddonName.."1"] = "/"..kAddonName
-Globals["SLASH_"..kAddonName.."2"] = "/ct"
-Globals.SlashCmdList[kAddonName] = function (params)
+Globals["SLASH_"..kAddonFolderName.."1"] = "/"..kAddonFolderName
+Globals["SLASH_"..kAddonFolderName.."2"] = "/ct"
+Globals.SlashCmdList[kAddonFolderName] = function (params)
     if (params == nil or params == "") then
+        -- Toggle options window.
         if OptionsFrame:IsShown() then
             OptionsFrame:Hide()
         else
@@ -348,111 +266,249 @@ Globals.SlashCmdList[kAddonName] = function (params)
         return
     end
 
-    params = string.lower(params)
+    local cmd = string.split(" ", params)
+    cmd = cmd:lower()
+    local cmdParam = params:sub( cmd:len()+2 ):trim(' "')  -- Use this var for "names" that contain spaces.
     ----local paramAsNum = tonumber(params)
 
+    local indents = "    "
+    local bOptionsModified = false
+
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    if (params == "help" or params == "?") then
+    if cmd == "help" or cmd == "?" then
         printUsageMsg()
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "reset") then
+    elseif cmd == "reset" then
         ----if Calibrating then Calibrating_DoNextStep("abort") end
-        if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
+        if OptionsFrame:IsShown() then OptionsFrame:Hide() end
         PlayerConfig_SetDefaults()
         CursorTrail_Load()
         CursorTrail_ON()
-        printMsg(kAddonName.." reset to original settings.")
+        OptionsFrame.ProfilesUI.clearProfileName()  -- Avoids overwriting current profile name with default values.
+        printMsg(kAddonFolderName.." reset to original settings.")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "reload") then
-        if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
+    elseif cmd == "reload" then
+        if OptionsFrame:IsShown() then OptionsFrame:Hide() end
         updateScaleVars()
         CursorTrail_Load()
         CursorTrail_ON()
-        ----if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame_UpdateUI(PlayerConfig) end
-        printMsg(kAddonName.." settings reloaded.")
+        ----if OptionsFrame:IsShown() then OptionsFrame_UpdateUI(PlayerConfig) end
+        printMsg(kAddonFolderName.." settings reloaded.")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "resetnewfeatures") then  -- For development use.
-        if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
+    elseif cmd == "resetnewfeatures" then  -- For development use.
+        if OptionsFrame:IsShown() then OptionsFrame:Hide() end
         Globals.CursorTrail_Config.NewFeaturesSeen = {}
-        printMsg(kAddonName.." reset new feature notifications.")
+        printMsg(kAddonFolderName.." reset new feature notifications.")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "combat") then
+    elseif cmd == "combat" then
         PlayerConfig.UserShowOnlyInCombat = not PlayerConfig.UserShowOnlyInCombat
-        PlayerConfig_Save()
-        CursorTrail_Load(PlayerConfig)
-        if OptionsFrame:IsShown() then OptionsFrame_Value("combat", PlayerConfig.UserShowOnlyInCombat) end
-        printMsg(kAddonName..GREEN2.." 'Show only in combat' |r= "
+        bOptionsModified = true
+        printMsg(kAddonFolderName..GREEN2.." 'Show only in combat' |r= "
             ..ORANGE..(PlayerConfig.UserShowOnlyInCombat==true and "ON" or "OFF"))
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "mouselook") then
+    elseif cmd == "mouselook" then
         PlayerConfig.UserShowMouseLook = not PlayerConfig.UserShowMouseLook
-        PlayerConfig_Save()
-        CursorTrail_Load(PlayerConfig)
-        if OptionsFrame:IsShown() then OptionsFrame_Value("mouselook", PlayerConfig.UserShowMouseLook) end
-        printMsg(kAddonName..GREEN2.." 'Show during Mouse Look' |r= "
+        bOptionsModified = true
+        printMsg(kAddonFolderName..GREEN2.." 'Show during Mouse Look' |r= "
             ..ORANGE..(PlayerConfig.UserShowMouseLook==true and "ON" or "OFF"))
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "fade") then
+    elseif cmd == "fade" then
         PlayerConfig.FadeOut = not PlayerConfig.FadeOut
-        PlayerConfig_Save()
-        CursorTrail_Load(PlayerConfig)
-        if OptionsFrame:IsShown() then OptionsFrame_Value("fade", PlayerConfig.FadeOut) end
+        bOptionsModified = true
         if (PlayerConfig.FadeOut == true) then gMotionIntensity = 0.5 end
-        printMsg(kAddonName..GREEN2.." 'Fade out when idle' |r= "
+        printMsg(kAddonFolderName..GREEN2.." 'Fade out when idle' |r= "
             ..ORANGE..(PlayerConfig.FadeOut==true and "ON" or "OFF"))
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "sparkle") then
-        if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
-        CursorTrail_SetShapeSparkle( not PlayerConfig.ShapeSparkle )
-        PlayerConfig_Save()
-        printMsg(kAddonName..GREEN2.." 'Shape Sparkle' |r= "
+    elseif cmd == "sparkle" then
+        PlayerConfig.ShapeSparkle = not PlayerConfig.ShapeSparkle
+        bOptionsModified = true
+        printMsg(kAddonFolderName..GREEN2.." 'Shape Sparkle' |r= "
             ..ORANGE..(PlayerConfig.ShapeSparkle==true and "ON" or "OFF"))
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params:sub(1,4) == "list") then
-        Profiles_List()
+    elseif cmd == "list" and cmdParam == "" then
+        print(kAddonTitle.." Profiles:")
+        local numProfiles = OptionsFrame.ProfilesUI:printProfileNames( ORANGE..indents )
+        if numProfiles == 0 then print(indents.."(None.)")
+        else print(indents.."|cff707070("..numProfiles.." profiles)") end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params:sub(1,4) == "load") then
-        Profiles_Load( params:sub(6) )
+    elseif cmd == "load" or cmd == "save" or cmd == "delete" then
+        local profileName = cmdParam
+        if profileName == nil or profileName == "" then
+            print(kAddonHeading.."ERROR - No profile name specified.")
+            return  -- FAIL
+        end
+        ----OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+        local profilesUI = OptionsFrame.ProfilesUI
+        --:::::::::::::::::::::::::::::::::::::::::::::
+        if cmd == "load" then
+            local bResult, nameLoaded = profilesUI:loadProfile(profileName, "s")
+            if bResult then
+                print(kAddonHeading..'Loaded "'..ORANGE..nameLoaded..'|r".')
+            else
+                print(kAddonHeading..'ERROR - Profile "'..ORANGE..profileName..'|r" does not exist.')
+            end
+        --:::::::::::::::::::::::::::::::::::::::::::::
+        elseif cmd == "save" then
+            -- Save profile name, and then load that profile (in case its different than the currently loaded profile).
+            local bResult, errMsg = profilesUI:saveProfile(profileName, "s", profileName)
+            if bResult then
+                print(kAddonHeading..'Saved "'..ORANGE..profileName..'|r".')
+            else
+                print(kAddonHeading..'ERROR - Failed to save profile "'..ORANGE..profileName..'|r".')
+                if errMsg then print("    ("..errMsg..")") end
+            end
+        --:::::::::::::::::::::::::::::::::::::::::::::
+        elseif cmd == "delete" then
+            local bResult, nameDeleted = profilesUI:deleteProfile(profileName, "s")
+            if bResult then
+                print(kAddonHeading..'Deleted "'..ORANGE..nameDeleted..'|r".')
+            else
+                print(kAddonHeading..'ERROR - Profile "'..ORANGE..profileName..'|r" does not exist.')
+            end
+        end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params:sub(1,4) == "save") then
-        Profiles_Save( params:sub(6) )
+    elseif cmd == "listbackups" or cmd == "lb" then
+        print(kAddonTitle.." Backups:")
+        local numBackups = OptionsFrame.ProfilesUI:printBackupNames(ORANGE..indents)
+        if numBackups == 0 then print(indents.."(None.)") end
+   -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+    elseif cmd == "backup" or cmd == "bu" then
+        local profilesUI = OptionsFrame.ProfilesUI
+        local backupName = cmdParam
+        if backupName == "" then
+            profilesUI:backupProfiles()  -- Displays the "restore backups" window.
+        else
+            local bResult, backupNameUsed, errMsg = profilesUI:backupProfiles(backupName, "s")
+
+            if bResult then
+                assert(backupNameUsed ~= nil and backupNameUsed ~= "")
+                backupNameUsed = '"'..ORANGE..backupNameUsed..'|r"'
+                print(kAddonHeading.."Backed up all profiles to "..backupNameUsed..".")
+            else
+                print(kAddonHeading.."ERROR - Failed to backup profiles.")
+                if errMsg then print("    ("..errMsg..")") end
+            end
+        end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params:sub(1,6) == "delete") then
-        Profiles_Delete( params:sub(8) )
+    elseif cmd == "restore" or cmd == "re" then
+        OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+        local profilesUI = OptionsFrame.ProfilesUI
+        local backupName = cmdParam
+        if backupName == "" then
+            profilesUI:restoreProfiles()  -- Displays the "restore backups" window.
+        else
+            local bResult, backupNameUsed, numProfiles = profilesUI:restoreProfiles(backupName, "s")
+
+            if bResult then
+                assert(backupNameUsed ~= nil and backupNameUsed ~= "")
+                backupNameUsed = '"'..ORANGE..backupNameUsed..'|r"'
+                print(kAddonHeading.."Restored backup "..backupNameUsed.." ("..numProfiles.." profiles).")
+            else
+                cmdParam = '"'..ORANGE..cmdParam..'|r"'
+                print(kAddonHeading.."ERROR - Failed to restore "..cmdParam..".")
+            end
+        end
+     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+    elseif cmd == "deletebackup" or cmd == "db" then
+        OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+        local backupName = cmdParam
+        if backupName == nil or backupName == "" then
+            print(kAddonHeading.."ERROR - No backup name specified.")
+        elseif OptionsFrame.ProfilesUI:deleteBackup(backupName, "s") then
+            backupName = '"'..ORANGE..backupName..'|r"'
+            print(kAddonHeading.."Deleted backup "..backupName..".")
+        else
+            print(kAddonHeading..'ERROR - Backup "'..ORANGE..backupName..'|r" does not exist.')
+            ----    .. "\nMake sure you typed the exact upper/lower case letters in the name.")
+        end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "on") then
+    elseif cmd == "on" then
         -- Show model if in combat or ShowOnlyInCombat is false.
         if (PlayerConfig.UserShowOnlyInCombat ~= true or UnitAffectingCombat("player") == true) then
             CursorTrail_Show()
         end
         CursorTrail_ON(true)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "off") then
+    elseif cmd == "off" then
         CursorTrail_OFF()
         CursorTrail_Hide()
-        printMsg(kAddonName..": "..ORANGE.."OFF|r  (Automatically turns back on at next reload, or by opening the options window.)")
+        printMsg(kAddonFolderName..": "..ORANGE.."OFF|r  (Automatically turns back on at next reload, or by opening the options window.)")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     --____________________________________________________
     --               DEBUGGING COMMANDS
     --____________________________________________________
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
-    elseif (params == "memory") then  -- For debugging.
+    elseif cmd == "memory" then  -- For debugging.
         Globals.collectgarbage("collect")  -- Frees any "garbage memory" immediately.
         ----printMsg(kAddonFolderName.." Memory:"..round(Globals.collectgarbage("count"),1).."k")
         Globals.UpdateAddOnMemoryUsage(kAddonFolderName)
         printMsg(kAddonFolderName.." Memory: "..round(Globals.GetAddOnMemoryUsage(kAddonFolderName),1).."k")
-    -- - - - - - - - - - - - - - - - - - - - - - - - - - -
---~     elseif (params == "test") then
---~         ----print("UIParent:GetEffectiveScale():", UIParent:GetEffectiveScale())
---~         ----UIParent:SetScale(0.7)
---~         ----updateScaleVars()
---~         msgBox("CursorTrail message box test message.")
+--~     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+--~     elseif cmd == "deleteallprofiles!" then
+--~         OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+--~         print(kAddonHeading.."Deleting profiles ...")
+--~         ----Globals.CursorTrail_Config.Profiles = {}
+--~         local DB = OptionsFrame.ProfilesUI.DB
+--~         local profiles = DB:getProfiles()
+--~         for k, v in pairs(profiles) do profiles[k]=nil end
+--~         PlayerConfig_SetDefaults()
+--~         OptionsFrame.ProfilesUI:refreshUI()
+--~         DB:clearCache(true) -- Wipe cached profiles and backups so they aren't restored in PLAYER_LOGOUT.
+--~         print(kAddonHeading.."All profiles deleted!")
+--~     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+--~     elseif cmd == "deleteallbackups!" then
+--~         OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+--~         print(kAddonHeading.."Deleting backups ...")
+--~         local DB = OptionsFrame.ProfilesUI.DB
+--~         local backups = DB:getBackups()
+--~         for k, v in pairs(backups) do backups[k]=nil end
+--~         DB:clearCache(true) -- Wipe cached profiles and backups so they aren't restored in PLAYER_LOGOUT.
+--~         print(kAddonHeading.."All backups deleted!")
+--~     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+--~     elseif cmd == "deletealldata!" then
+--~         OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+--~         Globals.CursorTrail_Config = nil
+--~         Globals.CursorTrail_PlayerConfig = nil
+--~         Globals.C_UI.Reload()
+--~     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+--~     elseif cmd == "test" then
+--~         print(kAddonHeading.."Test...")
+--~
+--~ local currentFrame = GetMouseFocus()
+--~ while currentFrame do
+--~     vdt_dump(currentFrame, "ancestory test")
+--~     if currentFrame == OptionsFrame then
+--~         print("Test DONE (found it).")
+--~         return true
+--~     end
+--~     currentFrame = currentFrame:GetParent()
+--~ end
+--~
+--~         ----local data = OptionsFrame.ProfilesUI.DB:get("Test")
+--~ --TODO: Add Credits to TOC files for AceSerializer if you end up using it.
+--~         local data = OptionsFrame.ProfilesUI.DB:getProfiles()
+--~         local exportStr = private.AceSerializer:Serialize(data)
+--~         print(exportStr)
+--~         local bResult, importedData = private.AceSerializer:Deserialize(exportStr)
+--~         ----Globals.DevTools_Dump(importedData)
+--~         ----Globals.ViragDevTool_AddData(importedData, "importedData")
+--~         vdt_dump(importedData, "importedData")
+
+        print(kAddonHeading.."Test DONE.")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif not HandleToolSwitches(params) then
-        printMsg(kAddonName..": Invalid slash command ("..params..").")
-        ----DebugText(kAddonName..": Invalid slash command ("..params..").")
+        printMsg(kAddonErrorHeading..": Invalid slash command ("..params..").")
+        ----DebugText(kAddonFolderName..": Invalid slash command ("..params..").")
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if bOptionsModified then
+        PlayerConfig_Save()
+        CursorTrail_Load(PlayerConfig)  -- Update displayed cursor FX.
+        UI_SetValues(PlayerConfig)  -- Update UI.
+        OptionsFrame.ProfilesUI:OnValueChanged()
+        OptionsFrame.ProfilesUI:OnOkay()  -- Saves current profile if "save on okay" option is set.
+    end
 end
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -472,10 +528,10 @@ end)
 -------------------------------------------------------------------------------
 EventFrame:RegisterEvent("ADDON_LOADED")
 function       EventFrame:ADDON_LOADED(addonName)
-    if (addonName == kAddonName) then
+    if (addonName == kAddonFolderName) then
         ----dbg("ADDON_LOADED")
-        ----print("|c7f7f7fff".. kAddonName .." "..kAddonVersion.." loaded.  For options, type \n"..
-        ----    Globals["SLASH_"..kAddonName.."2"] .." or ".. Globals["SLASH_"..kAddonName.."1"] ..".|r") -- Color format = xRGB.
+        ----print("|c7f7f7fff".. kAddonFolderName .." "..kAddonVersion.." loaded.  For options, type \n"..
+        ----    Globals["SLASH_"..kAddonFolderName.."2"] .." or ".. Globals["SLASH_"..kAddonFolderName.."1"] ..".|r") -- Color format = xRGB.
         self:UnregisterEvent("ADDON_LOADED")
     end
 end
@@ -496,7 +552,7 @@ function       EventFrame:PLAYER_ENTERING_WORLD()
     ----dbg("PLAYER_ENTERING_WORLD")
     ----dbg("CursorModel: "..(CursorModel and "EXISTS" or "NIL"))
     Addon_Initialize()
-    if not StandardPanel then StandardPanel_Create("/"..kAddonName) end
+    if not StandardPanel then StandardPanel_Create("/"..kAddonFolderName) end
     if not OptionsFrame then OptionsFrame_Create() end
 end
 
@@ -506,10 +562,27 @@ function       EventFrame:UI_SCALE_CHANGED()
     ----dbg("UI_SCALE_CHANGED")
     updateScaleVars()
     if CursorModel then
-        -- Reload the cursor model to apply the new UI scale.
-        CursorTrail_Load()
+        CursorTrail_Load()  -- Reload the cursor model to apply the new UI scale.
     end
 end
+
+--~ -------------------------------------------------------------------------------
+--~ function reportError20240522()  -- TODO:Remove in next release.
+--~     if CursorTrail_Error20240522 then return end  -- Prevent spamming this error.
+--~     CursorTrail_Error20240522 = true
+--~     print(kAddonErrorHeading, "Unexpected call to DISPLAY_SIZE_CHANGED.  Please report this on"
+--~         .. "|cff44BBFF www.curseforge.com/wow/addons/cursortrail|r and mention your game's display resolution.")
+--~ end
+--~ -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+--~ EventFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
+--~ function       EventFrame:DISPLAY_SIZE_CHANGED()
+--~     ----dbg("DISPLAY_SIZE_CHANGED")
+--~     if updateScaleVars() and CursorModel then
+--~         reportError20240522() -- TODO:Remove. (Added to see if users see it. If so, it means DISPLAY_SIZE_CHANGED can fire without UI_SCALE_CHANGED firing first.  Uncomment next lines if it does.)
+--~ ---->>> TODO: Uncomment?  Potential fix for ultrawide monitors.
+--~ ----        CursorTrail_Load()  -- Reload the cursor model to apply the new display size.
+--~     end
+--~ end
 
 -------------------------------------------------------------------------------
 EventFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
@@ -561,7 +634,7 @@ end
 ----EventFrame:RegisterEvent("GLOBAL_MOUSE_DOWN")  <-- Registered in OptionsFrame_OnShow().
 function EventFrame:GLOBAL_MOUSE_DOWN(button)
     ----dbg("GLOBAL_MOUSE_DOWN")
-    private.Controls.handleGlobalMouseClick(button)
+    private.UDControls.handleGlobalMouseClick(button)
 end
 
 --~ -------------------------------------------------------------------------------
@@ -585,9 +658,11 @@ end
 -------------------------------------------------------------------------------
 function CursorTrail_OnUpdate(self, elapsedSeconds)
     ----DebugText("CPU: "..round(elapsedSeconds,3), 76)
+    ----DebugText("Shadow% "..round(Globals.CursorTrail_PlayerConfig.UserShadowAlpha,2), 100)
+    ----DebugText("Fade: "..(Globals.CursorTrail_Config.Profiles.Test.FadeOut and "true" or "false"), 80)
     ----local t0 = GetTime()
+    local bOptionsShown = (OptionsFrame and OptionsFrame:IsShown())
     local bIsMouseLooking = IsMouselooking()
-
     if (PlayerConfig.UserShowMouseLook == true) then
         gTimer1 = 0  -- Prevents hiding during "mouse look".
         if (bIsMouseLooking == true and PlayerConfig.FadeOut == true) then
@@ -600,14 +675,15 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
         gTimer1 = gTimer1 + elapsedSeconds
         if (gTimer1 >= kTimer1Interval) then
             gTimer1 = 0
-            if (OptionsFrame and OptionsFrame:IsShown() ~= true) then
-                if (bIsMouseLooking == true) then
+            ----if (OptionsFrame and OptionsFrame:IsShown() ~= true) then
+            if not bOptionsShown then
+                if bIsMouseLooking then
                     gLButtonDownCount = 1
                     if ( CursorModel.IsHidden ~= true
                         or (ShadowTexture and ShadowTexture:GetAlpha() > 0)
                         or (ShapeTexture and ShapeTexture:GetAlpha() > 0) )
                       then
-                        gShowOrHide = kHide;
+                        gShowOrHide = kHide
                     end
                 elseif IsMouseButtonDown("LeftButton") then
                     gLButtonDownCount = gLButtonDownCount + 1
@@ -623,8 +699,8 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                     gLButtonDownCount = 0
                     gShowOrHide = kShow
                     if (PlayerConfig.UserShowOnlyInCombat == true
-                        and UnitAffectingCombat("player") ~= true
-                        ) then
+                        and not UnitAffectingCombat("player"))
+                      then
                         -- Player not in combat, so don't show the cursor.
                         gShowOrHide = kHide
                     end
@@ -663,9 +739,24 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
     ----DebugText("x: "..cursorX..",  y: "..cursorY)
     if (cursorX ~= gPreviousX or cursorY ~= gPreviousY) then
         -- Cursor position changed.  Keep model position in sync with it.
+        local bPreview = (gPreviousX == nil)
 
         ----local dx, dy = cursorX-(gPreviousX or 0), cursorY-(gPreviousY or 0)
         gPreviousX, gPreviousY = cursorX, cursorY
+
+        -- Keep FX along top side of options window while mouse is over it (so user can see changes better).
+        if bOptionsShown then
+            -- Mouse over options window?
+            bPreview = bPreview or DoesAncestryInclude(OptionsFrame, GetMouseFocus())
+            -- Mouse over color picker?
+            bPreview = bPreview or (ColorPickerFrame:IsShown() and DoesAncestryInclude(ColorPickerFrame, GetMouseFocus()))
+            if bPreview then
+                local ofs = ShapeTexture:GetWidth() * 0.5
+                cursorY = (OptionsFrame.HeaderTexture:GetTop() + ofs - 2) * ScreenScale
+                --------ofs = ofs - (math.sin(cursorY*0.04) - 1) * 50  -- Wobble left/right as mouse moves up/down.
+                ----cursorX = (OptionsFrame:GetLeft() - ofs - 8) * ScreenScale
+            end
+        end
 
         local tX, tY   -- (x, y) position of texture objects.
         if (ShadowTexture or ShapeTexture) then
@@ -678,6 +769,15 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
             ShadowTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX+3, tY-2)
             ----ShadowTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX+(3*PlayerConfig.UserScale), tY-(2*PlayerConfig.UserScale))
         end
+
+--~         if TestCursorModel then
+--~             local modelX = cursorX / ScreenHypotenuse
+--~             local modelY = cursorY / ScreenHypotenuse
+--~             ----TestCursorModel:SetPosition(0, modelX, modelY)  --<<< NOT WORKING.
+--~             TestCursorModel:SetTransform( CreateVector3D(modelX, modelY, 0),  -- (Position x,y,z)
+--~                                           CreateVector3D(0,0,0), ----rad(0), rad(0), rad(0)),  -- (Rotation x,y,z)
+--~                                           TestCursorModel.baseScale )  ----TestCursorModel:GetWorldScale() )
+--~         end
 
         -- Update position of model.
         if CursorModel then
@@ -812,9 +912,7 @@ function Addon_Initialize()
     -------------------
     -- Player Settings
     -------------------
-    if (kAlwaysUseDefaults == true) then
-        PlayerConfig_SetDefaults()
-    elseif (not PlayerConfig) then
+    if (not PlayerConfig) then
         PlayerConfig_Load()
     end
 
@@ -832,10 +930,10 @@ end
 -------------------------------------------------------------------------------
 function CursorTrail_ON(bPrintMsg)
     if isCursorTrailOff() then  -- Prevents chaining multiple calls to our handler.
-        ----print(kAddonName..": Setting EventFrame's OnUpdate script.")
+        ----print(kAddonFolderName..": Setting EventFrame's OnUpdate script.")
         EventFrame:SetScript("OnUpdate", CursorTrail_OnUpdate)
     end
-    if bPrintMsg then printMsg(kAddonName..": "..ORANGE.."ON") end
+    if bPrintMsg then printMsg(kAddonFolderName..": "..ORANGE.."ON") end
 end
 
 -------------------------------------------------------------------------------
@@ -848,22 +946,24 @@ end
 function printNewFeaturesMsg(bIncludeInstructions)
     local msg = kAddonAlertHeading..GREEN.."NEW FEATURES available!"..kTextColorDefault
     if bIncludeInstructions then
-        msg = msg.."  (Type either "..WHITE.."/ct|r or "..WHITE.."/"..kAddonName.."|r to see them.)"
+        msg = msg.."  (Type either "..WHITE.."/ct|r or "..WHITE.."/"..kAddonFolderName.."|r to see them.)"
     end
     printMsg(msg)
 end
 
 -------------------------------------------------------------------------------
 function PlayerConfig_SetDefaults()
-    PlayerConfig = {}  -- Must clear all existing fields first!
-    PlayerConfig = CopyTable(kDefaultConfig)
-    PlayerConfig_Save()
+    local defaultData = kDefaultConfig[kDefaultConfigKey]
+    ----staticClearTable( Globals.CursorTrail_PlayerConfig )  -- Clear existing fields first.
+    staticCopyTable( defaultData, Globals.CursorTrail_PlayerConfig ) -- Updates CursorTrail_PlayerConfig.
+    PlayerConfig = Globals.CursorTrail_PlayerConfig
 end
 
 -------------------------------------------------------------------------------
-function PlayerConfig_Save()
-    assert(PlayerConfig)
-    Globals.CursorTrail_PlayerConfig = PlayerConfig
+function PlayerConfig_Save() --TODO:Remove?
+    assert(PlayerConfig == Globals.CursorTrail_PlayerConfig) -- Verify addresses didn't change from using CopyTable() instead of staticCopyTable().
+    ----assert(PlayerConfig)
+    ----Globals.CursorTrail_PlayerConfig = PlayerConfig
 end
 
 -------------------------------------------------------------------------------
@@ -874,41 +974,59 @@ function PlayerConfig_Load()
 end
 
 -------------------------------------------------------------------------------
-function PlayerConfig_Validate()
-    -- Update stored model path (string) to a numeric ID.
-    if ( not PlayerConfig.ModelID or not tonumber(PlayerConfig.ModelID) ) then
-        PlayerConfig.ModelID = kDefaultModelID
-    end
-
-    -- Clear obsolete fields.
-    if (PlayerConfig.BaseScale ~= nil) then
-        PlayerConfig.BaseScale = nil
-        PlayerConfig.BaseOfsX = nil
-        PlayerConfig.BaseOfsY = nil
-        PlayerConfig.BaseStepX = nil
-        PlayerConfig.BaseStepY = nil
-    end
-    PlayerConfig.Version = nil
-
+function validateSettings(config)
+    ---------------------
     -- Validate fields.
-    PlayerConfig.UserScale = PlayerConfig.UserScale or 1.0
-    PlayerConfig.UserAlpha = PlayerConfig.UserAlpha or 1.0
-    PlayerConfig.UserShadowAlpha = PlayerConfig.UserShadowAlpha or 0.0
-    PlayerConfig.Strata = PlayerConfig.Strata or "HIGH"
-    ----PlayerConfig.FadeOut = PlayerConfig.FadeOut or false
-    PlayerConfig.ShapeColorR = PlayerConfig.ShapeColorR or 1.0
-    PlayerConfig.ShapeColorG = PlayerConfig.ShapeColorG or 1.0
-    PlayerConfig.ShapeColorB = PlayerConfig.ShapeColorB or 1.0
+    ---------------------
+    ----config.ShapeFileName  <-- This can be nil.  Nothing do to.
+    if not config.ModelID  -- Doesn't exist?
+      or not tonumber(config.ModelID) -- Obsolete model path (string value)?
+      then
+        config.ModelID = kDefaultModelID
+    end
+    config.ShapeColorR = config.ShapeColorR or 1.0
+    config.ShapeColorG = config.ShapeColorG or 1.0
+    config.ShapeColorB = config.ShapeColorB or 1.0
+    ----config.ShapeSparkle = config.ShapeSparkle or false
+
+    config.UserShadowAlpha = config.UserShadowAlpha or 0.0
+    config.UserScale = config.UserScale or 1.0
+    config.UserAlpha = config.UserAlpha or 1.0
+    config.Strata = config.Strata or kDefaultStrata
+    config.UserOfsX = config.UserOfsX or 0.0
+    config.UserOfsY = config.UserOfsY or 0.0
+
+    ----config.FadeOut = config.FadeOut or false
+    ----config.UserShowOnlyInCombat = config.UserShowOnlyInCombat or false
+    ----config.UserShowMouseLook = config.UserShowMouseLook or false
+
+    ---------------------------
+    -- Clear obsolete fields.
+    ---------------------------
+    -- (Removed some time before version 10.)
+    if (config.BaseScale ~= nil) then
+        config.BaseScale = nil
+        config.BaseOfsX = nil
+        config.BaseOfsY = nil
+        config.BaseStepX = nil
+        config.BaseStepY = nil
+    end
+    config.Version = nil
 end
+
+-------------------------------------------------------------------------------
+function PlayerConfig_Validate() validateSettings(PlayerConfig) end
 
 -------------------------------------------------------------------------------
 function CursorTrail_Load(config)
     -- Handle nil parameter.
+    ----vdt_dump(config, "config (1) in CursorTrail_Load()")
     if (not config) then
         if (not PlayerConfig) then PlayerConfig_Load() end
         config = PlayerConfig
     end
     config.UserScale = config.UserScale or 1
+    ----vdt_dump(config, "config (2) in CursorTrail_Load()")
 
     -----------------
     -- LOAD SHADOW --
@@ -973,9 +1091,9 @@ function CursorTrail_Load(config)
     -- FINISH --
     ------------
     gShowOrHide = kShow
-    if (PlayerConfig.UserShowOnlyInCombat == true
-        and UnitAffectingCombat("player") ~= true
-        ) then
+    if config.FadeOut then gMotionIntensity = 1.0 end  -- So user can briefly see the cursor if fade is on.
+    if OptionsFrame and OptionsFrame:IsShown() then return end  -- (Never hide effects while UI is open.)
+    if config.UserShowOnlyInCombat and not UnitAffectingCombat("player") then
         -- Player not in combat, so don't show the cursor.
         gShowOrHide = kHide
     end
@@ -1014,7 +1132,7 @@ function CursorTrail_ApplyModelSettings(userScale, userOfsX, userOfsY, userAlpha
     CursorModel:SetScale(finalScale)
     CursorModel:SetAlpha(userAlpha)
     ----print("CursorModel:GetEffectiveScale():", CursorModel:GetEffectiveScale()) -- i.e. finalScale * kGameFrame:GetEffectiveScale()
-    ----if (CursorModel:GetEffectiveScale() < 0.0113) then printMsg(kAddonName.." WARNING - Model scaled too small.  ") end
+    ----if (CursorModel:GetEffectiveScale() < 0.0113) then printMsg(kAddonFolderName.." WARNING - Model scaled too small.  ") end
 
     -- Compute model step size and offset.
     CursorModel.StepX = CursorModel.Constants.BaseStepX * mult * finalScale
@@ -1090,13 +1208,18 @@ function CursorTrail_SetFadeOut(bFadeOut)
             ShapeTexture:SetAlpha(PlayerConfig.UserAlpha)
         end
     end
+    ----gPreviousX = nil  -- Forces cursor FX to refresh during the next OnUpdate().
 end
 
 -------------------------------------------------------------------------------
 function CursorTrail_SetShapeSparkle(bSparkle)
     PlayerConfig.ShapeSparkle = bSparkle or false
     if not PlayerConfig.ShapeSparkle then
-        Shape_SetColor(PlayerConfig.ShapeColorR, PlayerConfig.ShapeColorG, PlayerConfig.ShapeColorB)
+        local r, g, b = OptionsFrame.ShapeColor:GetColor()
+        if not r or not g or not b then
+            r, g, b = PlayerConfig.ShapeColorR, PlayerConfig.ShapeColorG, PlayerConfig.ShapeColorB
+        end
+        Shape_SetColor(r, g, b)
     end
 end
 
@@ -1246,65 +1369,6 @@ function unskew(inX, inY, inHorizontalSlope, topMult, bottomMult) -- Compensates
     ----x = x - (inVerticalSlope * dy / ScreenMidY)
 
     return x, y
-end
-
--------------------------------------------------------------------------------
-function Profiles_List(profileName)
-    local names = {}
-    local index
-    for profileName, _ in pairs(Globals.CursorTrail_Config.Profiles) do
-        local index = #names + 1
-        names[index] = profileName
-    end
-    table.sort(names)
-
-    printMsg(kAddonName.." Profiles:")
-    if (#names == 0) then
-        printMsg("    (None.)")
-    else
-        for _, profileName in pairs(names) do
-            printMsg(ORANGE.."    "..profileName)
-        end
-    end
-end
-
--------------------------------------------------------------------------------
-function Profiles_Load(profileName)
-    if (profileName == nil or profileName == "") then
-        printMsg(kAddonName..": ERROR - No profile name specified.")
-    elseif isEmpty(Globals.CursorTrail_Config.Profiles[profileName]) then
-        printMsg(kAddonName..": ERROR - '"..ORANGE..profileName.."|r' does not exist.")
-    else
-        if (OptionsFrame and OptionsFrame:IsShown()) then OptionsFrame:Hide() end
-        PlayerConfig = CopyTable( Globals.CursorTrail_Config.Profiles[profileName] )
-        PlayerConfig_Validate()
-        CursorTrail_Load()
-        CursorTrail_ON()
-        printMsg(kAddonName..": Loaded '"..ORANGE..profileName.."|r'.")
-    end
-end
-
--------------------------------------------------------------------------------
-function Profiles_Save(profileName)
-    if (profileName == nil or profileName == "") then
-        printMsg(kAddonName..": ERROR - No profile name specified.")
-    else
-        PlayerConfig_Validate()
-        Globals.CursorTrail_Config.Profiles[profileName] = CopyTable(PlayerConfig)
-        printMsg(kAddonName..": Saved '"..ORANGE..profileName.."|r'.")
-    end
-end
-
--------------------------------------------------------------------------------
-function Profiles_Delete(profileName)
-    if (profileName == nil or profileName == "") then
-        printMsg(kAddonName..": ERROR - No profile name specified.")
-    elseif isEmpty(Globals.CursorTrail_Config.Profiles[profileName]) then
-        printMsg(kAddonName..": ERROR - '"..ORANGE..profileName.."|r' does not exist.")
-    else
-        Globals.CursorTrail_Config.Profiles[profileName] = nil
-        printMsg(kAddonName..": Deleted '"..ORANGE..profileName.."|r'.")
-    end
 end
 
 --- End of File ---

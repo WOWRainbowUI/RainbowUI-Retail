@@ -6,10 +6,12 @@
 ## SavedVariables: CursorTrail_Config
 ## SavedVariablesPerCharacter: CursorTrail_PlayerConfig
 
-Controls.lua
+Libs\UDProfiles_Includes.xml
+Libs\UDControls.lua
 CursorTrail.lua
 CursorTrailConfig.lua
 CursorTrailTools.lua
 CursorTrailModels_Vanilla.lua
 CursorTrailShapes.lua
+CursorTrailDefaults.lua
 CursorTrailHelp.lua
