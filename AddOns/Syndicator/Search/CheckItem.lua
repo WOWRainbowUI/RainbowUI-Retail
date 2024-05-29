@@ -9,6 +9,10 @@ local function GetItemName(details)
   elseif C_Item.IsItemDataCachedByID(details.itemID) then
     details.itemName = C_Item.GetItemNameByID(details.itemLink) or C_Item.GetItemNameByID(details.itemID)
   end
+
+  if not details.itemName then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+  end
 end
 
 local function GetClassSubClass(details)
@@ -68,12 +72,9 @@ local function PotionCheck(details)
   return details.classID == Enum.ItemClass.Consumable and (details.subClassID == 1 or details.subClassID == 2)
 end
 
-local function JunkCheck(details)
-  return details.isJunk == true
-end
-
 local function CosmeticCheck(details)
   if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
     return nil
   end
   details.isCosmetic = IsCosmeticItem(details.itemLink)
@@ -120,28 +121,41 @@ local function GetTooltipInfoSpell(details)
     return
   end
 
+  if not C_Item.IsItemDataCachedByID(details.itemID) then
+    C_Item.RequestLoadItemDataByID(details.itemID)
+    return
+  end
+
   local _, spellID = C_Item.GetItemSpell(details.itemID)
   if spellID and not C_Spell.IsSpellDataCached(spellID) then
     C_Spell.RequestLoadSpellData(spellID)
     return
   end
+
   details.tooltipInfoSpell = details.tooltipGetter() or {lines={}}
 end
 
---[[local function ReputationCheck(details)
+local JUNK_PATTERN = "^" .. SELL_PRICE
+local function JunkCheck(details)
+  if details.isJunk ~= nil then
+    return details.isJunk
+  end
+
+  if details.quality ~= Enum.ItemQuality.Poor then
+    return false
+  end
+
   GetTooltipInfoSpell(details)
 
   if details.tooltipInfoSpell then
-    for _, lineData in ipairs(details.tooltipInfoSpell.lines) do
-      if lineData.leftText:match(SYNDICATOR_L_KEYWORD_REPUTATION) then
-        return true
+    for _, row in ipairs(details.tooltipInfoSpell.lines) do
+      if row.leftText:match(JUNK_PATTERN) then
+        return false
       end
     end
-    return false
-  else
-    return nil
+    return true
   end
-end]]
+end
 
 local function BindOnAccountCheck(details)
   if not details.isBound then

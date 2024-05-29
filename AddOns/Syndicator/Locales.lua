@@ -106,6 +106,7 @@ L["EQUIPPED_LOWER"] = "equipped"
 L["VOID_LOWER"] = "void"
 L["AUCTIONS_LOWER"] = "auctions"
 L["GUILD_LOWER"] = "guild"
+L["WARBAND_LOWER"] = "warband"
 
 local L = Locales.frFR
 L["ALL_CHARACTERS_COLON"] = "Tous les personnages :"
