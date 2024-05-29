@@ -81,13 +81,13 @@ function Baganator.ItemButtonUtil.UpdateSettings()
 end
 
 local function GetInfo(self, cacheData, earlyCallback, finalCallback)
-  earlyCallback = earlyCallback or function() end
-  finalCallback = finalCallback or function() end
-
   local info = Syndicator.Search.GetBaseInfo(cacheData)
   self.BGR = info
 
-  earlyCallback()
+  self.BGR.earlyCallback = earlyCallback or function() end
+  self.BGR.finalCallback = finalCallback or function() end
+
+  self.BGR.earlyCallback()
 
   Baganator.ItemButtonUtil.WidgetsOnly(self)
 
@@ -107,7 +107,7 @@ local function GetInfo(self, cacheData, earlyCallback, finalCallback)
       self.IconOverlay:SetAtlas("CosmeticIconFrame")
       self.IconOverlay:Show();
     end
-    finalCallback()
+    self.BGR.finalCallback()
   end
 
   if C_Item.IsItemDataCachedByID(self.BGR.itemID) then
@@ -137,7 +137,7 @@ function Baganator.ItemButtonUtil.WidgetsOnly(self)
     end
   end
 
-  self.BGR.setInfo = Baganator.UnifiedViews.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()), self.BGR.itemLink)
+  self.BGR.setInfo = Baganator.ItemViewCommon.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()), self.BGR.itemLink)
 
   local function OnCached()
     for _, callback in ipairs(itemCallbacks) do
@@ -152,6 +152,11 @@ function Baganator.ItemButtonUtil.WidgetsOnly(self)
       OnCached()
     end)
   end
+end
+
+-- Called to reset searched state, widgets, and tooltip data cache
+function Baganator.ItemButtonUtil.ResetCache(self, cacheData)
+  GetInfo(self, cacheData, self.BGR.earlyCallback, self.BGR.finalCallback)
 end
 
 local function SetStaticInfo(self)
@@ -394,6 +399,10 @@ end
 
 BaganatorRetailLiveContainerItemButtonMixin = {}
 
+local function IsReagentBankActive()
+  return IsReagentBankUnlocked() and C_Container.GetContainerNumFreeSlots(Enum.BagIndex.Reagentbank) > 0 and (not BankFrame.GetActiveBankType or BankFrame:GetActiveBankType() ~= Enum.BankType.Account)
+end
+
 function BaganatorRetailLiveContainerItemButtonMixin:MyOnLoad()
   self:HookScript("OnClick", function()
     if not self.BGR or not self.BGR.itemID then
@@ -408,7 +417,7 @@ function BaganatorRetailLiveContainerItemButtonMixin:MyOnLoad()
   -- reagents
   self:HookScript("OnEnter", function()
     if BankFrame:IsShown() then
-      if self.BGR and self.BGR.itemLink and (select(17, C_Item.GetItemInfo(self.BGR.itemLink))) and IsReagentBankUnlocked() and C_Container.GetContainerNumFreeSlots(Enum.BagIndex.Reagentbank) > 0 then
+      if self.BGR and self.BGR.itemLink and (select(17, C_Item.GetItemInfo(self.BGR.itemLink))) and IsReagentBankActive() then
         BankFrame.selectedTab = 2
       else
         BankFrame.selectedTab = 1
@@ -446,7 +455,7 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   end
 
   local texture = cacheData.iconTexture or (info and info.iconFileID);
-  local itemCount = info and info.stackCount;
+  local itemCount = cacheData.itemCount;
   local locked = info and info.isLocked;
   local quality = cacheData.quality or (info and info.quality);
   local readable = info and info.IsReadable;
@@ -495,6 +504,10 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
     self:UpdateItemContextMatching();
     self:SetItemButtonQuality(quality, itemLink, doNotSuppressOverlays, isBound);
   end)
+
+  if not self.BGR.itemID then
+    self:UpdateItemContextMatching();
+  end
 end
 
 function BaganatorRetailLiveContainerItemButtonMixin:BGRStartFlashing()
@@ -506,7 +519,7 @@ function BaganatorRetailLiveContainerItemButtonMixin:BGRSetHighlight(isHighlight
 end
 
 function BaganatorRetailLiveContainerItemButtonMixin:BGRUpdateCooldown()
-  self:UpdateCooldown(self.BGR.itemLink);
+  self:UpdateCooldown(self.BGR.itemLink ~= nil);
 end
 
 function BaganatorRetailLiveContainerItemButtonMixin:BGRUpdateQuests()
@@ -630,7 +643,7 @@ function BaganatorRetailLiveGuildItemButtonMixin:SetItemDetails(cacheData, tabIn
     texture, itemCount, locked, isFiltered, quality = nil, nil, nil, nil, nil
   end
   texture = cacheData.iconTexture or texture
-  itemCount = itemCount == 0 and cacheData.itemCount or itemCount
+  itemCount = cacheData.itemCount
   quality = cacheData.quality or quality
 
   self.BGR.tooltipGetter = function() return C_TooltipInfo.GetGuildBankItem(tabIndex, self:GetID()) end
@@ -672,6 +685,131 @@ function BaganatorRetailLiveGuildItemButtonMixin:SetItemFiltered(text)
   end
   self:SetMatchesSearch(result);
   SetWidgetsAlpha(self, result)
+end
+
+BaganatorRetailLiveWarbandItemButtonMixin = {}
+
+function BaganatorRetailLiveWarbandItemButtonMixin:MyOnLoad()
+  self:HookScript("OnClick", function()
+    if not self.BGR or not self.BGR.itemID then
+      return
+    end
+
+    if IsAltKeyDown() then
+      Baganator.CallbackRegistry:TriggerEvent("HighlightSimilarItems", self.BGR.itemLink)
+    end
+  end)
+
+  hooksecurefunc(self, "UpdateItemContextMatching", function()
+    if self.widgetContainer then
+      if self.ItemContextOverlay:IsShown() then
+        SetWidgetsAlpha(self, false)
+      else
+        SetWidgetsAlpha(self, self.BGR == nil or self.BGR.matchesSearch ~= false)
+      end
+    end
+  end)
+end
+
+function BaganatorRetailLiveWarbandItemButtonMixin:UpdateTextures()
+  AdjustRetailButton(self)
+end
+
+function BaganatorRetailLiveWarbandItemButtonMixin:SetItemDetails(cacheData)
+  -- Mirror format used by container item buttons for compatiblity between
+  -- Baganator and Blizzard functions
+  self:SetBankTabID(self:GetParent():GetID())
+  self:SetContainerSlotID(self:GetID())
+
+  local info = C_Container.GetContainerItemInfo(self:GetBankTabID(), self:GetContainerSlotID())
+
+  -- Keep cache and display in sync
+  if info and not cacheData.itemLink then
+    info = nil
+  end
+
+  local texture = cacheData.iconTexture or (info and info.iconFileID);
+  local itemCount = cacheData.itemCount;
+  local locked = info and info.isLocked;
+  local quality = cacheData.quality or (info and info.quality);
+  local readable = info and info.IsReadable;
+  local itemLink = info and info.hyperlink;
+  local noValue = info and info.hasNoValue;
+  local itemID = info and info.itemID;
+  local isBound = info and info.isBound;
+
+
+  ClearItemButtonOverlay(self);
+
+  self.icon:SetShown(texture ~= 0);
+  self:SetItemButtonTexture(texture);
+
+  local doNotSuppressOverlays = false;
+  self:SetItemButtonQuality(quality, itemLink, doNotSuppressOverlays, isBound);
+
+  SetItemButtonCount(self, itemCount);
+  SetItemButtonDesaturated(self, locked);
+
+  --self:UpdateNewItem(quality);
+  --self:UpdateJunkItem(quality, noValue);
+  --self:SetReadable(readable);
+  self:SetMatchesSearch(true)
+
+  if GameTooltip:IsOwned(self) then
+    GameTooltip:Hide()
+    BattlePetTooltip:Hide()
+  end
+
+  if self:IsMouseOver() then
+    self:OnEnter()
+  end
+
+  SetWidgetsAlpha(self, true)
+  ReparentOverlays(self)
+
+  GetInfo(self, cacheData, function()
+    self.BGR.tooltipGetter = function() return C_TooltipInfo.GetBagItem(self:GetBankTabID(), self:GetContainerSlotID()) end
+    self.BGR.hasNoValue = noValue
+    self:BGRUpdateQuests()
+  end, function()
+    self:BGRUpdateQuests()
+    self:UpdateItemContextMatching();
+    self:SetItemButtonQuality(quality, itemLink, doNotSuppressOverlays, isBound);
+  end)
+end
+
+function BaganatorRetailLiveWarbandItemButtonMixin:BGRStartFlashing()
+  FlashItemButton(self)
+end
+
+function BaganatorRetailLiveWarbandItemButtonMixin:BGRSetHighlight(isHighlighted)
+  SetHighlightItemButton(self, isHighlighted)
+end
+
+function BaganatorRetailLiveWarbandItemButtonMixin:BGRUpdateQuests()
+  local questInfo = C_Container.GetContainerItemQuestInfo(self:GetBankTabID(), self:GetContainerSlotID());
+  local isQuestItem = questInfo.isQuestItem;
+  self.BGR.isQuestItem = questInfo.isQuestItem or questInfo.questID
+  local questID = questInfo.questID;
+
+  if questID and not isActive then
+    self.IconQuestTexture:SetTexture(TEXTURE_ITEM_QUEST_BANG);
+  elseif questID or isQuestItem then
+    self.IconQuestTexture:SetTexture(TEXTURE_ITEM_QUEST_BORDER);
+  end
+  self.IconQuestTexture:SetShown(questID or isQuestItem);
+end
+
+function BaganatorRetailLiveWarbandItemButtonMixin:SetItemFiltered(text)
+  local result = SearchCheck(self, text)
+  if result == nil then
+    return true
+  end
+  if self.BGR ~= nil then
+    self.BGR.matchesSearch = result
+  end
+  self:SetMatchesSearch(result)
+  SetWidgetsAlpha(self, result and not self.ItemContextOverlay:IsShown())
 end
 
 local function ApplyQualityBorderClassic(self, quality)
@@ -893,7 +1031,7 @@ function BaganatorClassicLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   end
 
   local texture = cacheData.iconTexture or (info and info.iconFileID);
-  local itemCount = info and info.stackCount;
+  local itemCount = cacheData.itemCount
   local locked = info and info.isLocked;
   local quality = cacheData.quality or (info and info.quality);
   local readable = info and info.isReadable;
@@ -941,7 +1079,7 @@ function BaganatorClassicLiveContainerItemButtonMixin:SetItemDetails(cacheData)
         end
       end)
     end
-    self.BGR.setInfo = Baganator.UnifiedViews.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()), self.BGR.itemLink)
+    self.BGR.setInfo = Baganator.ItemViewCommon.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()), self.BGR.itemLink)
 
     if C_Engraving and C_Engraving.IsEngravingEnabled() then
       self.BGR.isEngravable = false
@@ -1070,7 +1208,7 @@ function BaganatorClassicLiveGuildItemButtonMixin:SetItemDetails(cacheData, tabI
     texture, itemCount, locked, isFiltered, quality = nil, nil, nil, nil, nil
   end
   texture = cacheData.iconTexture or texture
-  itemCount = itemCount == 0 and cacheData.itemCount or itemCount
+  itemCount = cacheData.itemCount
   quality = cacheData.quality or quality
 
   SetItemButtonTexture(self, texture or self.emptySlotFilepath);

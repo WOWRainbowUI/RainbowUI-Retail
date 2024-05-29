@@ -1,6 +1,6 @@
 # Baganator
 
-## [265](https://github.com/Baganator/Baganator/tree/265) (2024-05-20)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/264...265) 
+## [276](https://github.com/Baganator/Baganator/tree/276) (2024-05-28)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/275...276) 
 
-- Fix bank/backpack erroring if closed and a character is deleted from Syndicator  
+- [Fixes #93] Bank bag slot button not working  

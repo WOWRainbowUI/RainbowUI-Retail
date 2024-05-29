@@ -1,5 +1,5 @@
 local function SetupBackpackView()
-  local backpackView = CreateFrame("Frame", "Baganator_BackpackViewFrame", UIParent, "BaganatorBackpackViewTemplate")
+  local backpackView = CreateFrame("Frame", "Baganator_SingleViewBackpackViewFrame", UIParent, "BaganatorSingleViewBackpackViewTemplate")
   backpackView:SetClampedToScreen(true)
   backpackView:SetUserPlaced(false)
 
@@ -112,7 +112,7 @@ local function SetupBackpackView()
 end
 
 local function SetupBankView()
-  local bankView = CreateFrame("Frame", "Baganator_BankViewFrame", UIParent, "BaganatorBankViewTemplate")
+  local bankView = CreateFrame("Frame", "Baganator_SingleViewBankViewFrame", UIParent, "BaganatorSingleViewBankViewTemplate")
   bankView:SetClampedToScreen(true)
   bankView:SetUserPlaced(false)
 
@@ -139,14 +139,20 @@ local function SetupBankView()
 
   Baganator.CallbackRegistry:RegisterCallback("BankToggle", function(_, characterName)
     characterName = characterName or Syndicator.API.GetCurrentCharacter()
-    bankView:SetShown(characterName ~= bankView.lastCharacter or not bankView:IsShown())
-    bankView:UpdateForCharacter(characterName, bankView.liveCharacter == characterName and bankView.liveBankActive)
+    bankView:SetShown(characterName ~= bankView.Character.lastCharacter or not bankView:IsShown())
+    bankView:UpdateViewToCharacter(characterName)
   end)
 
-  Baganator.CallbackRegistry:RegisterCallback("BankShow", function(_, characterName)
-    characterName = characterName or Syndicator.API.GetCurrentCharacter()
-    bankView:Show()
-    bankView:UpdateForCharacter(characterName, bankView.liveCharacter == characterName and bankView.liveBankActive)
+  Baganator.CallbackRegistry:RegisterCallback("BankShow", function(_, entity, subView)
+    if type(entity) == "string" or entity == nil then -- Character bank
+      local characterName = entity or Syndicator.API.GetCurrentCharacter()
+      bankView:Show()
+      bankView:UpdateViewToCharacter(characterName)
+    elseif type(entity) == "number" then -- Warband bank
+      subView = subView or 1
+      bankView:Show()
+      bankView:UpdateViewToWarband(entity, subView)
+    end
   end)
 
   Baganator.CallbackRegistry:RegisterCallback("BankHide", function(_, characterName)
@@ -155,7 +161,7 @@ local function SetupBankView()
 end
 
 local function SetupGuildView()
-  local guildView = CreateFrame("Frame", "Baganator_GuildViewFrame", UIParent, "BaganatorGuildViewTemplate")
+  local guildView = CreateFrame("Frame", "Baganator_SingleViewGuildViewFrame", UIParent, "BaganatorSingleViewGuildViewTemplate")
   guildView:SetClampedToScreen(true)
   guildView:SetUserPlaced(false)
 
@@ -188,9 +194,12 @@ local function SetupGuildView()
     guildView:UpdateForGuild(guildName, Syndicator.API.GetCurrentGuild() == guildName and C_PlayerInteractionManager.IsInteractingWithNpcOfType(Enum.PlayerInteractionType.GuildBanker))
   end)
 
-  Baganator.CallbackRegistry:RegisterCallback("GuildShow",  function(_, guildName)
+  Baganator.CallbackRegistry:RegisterCallback("GuildShow",  function(_, guildName, tabIndex)
     guildName = guildName or Syndicator.API.GetCurrentGuild()
     guildView:Show()
+    if tabIndex ~= nil then
+      guildView:SetCurrentTab(tabIndex)
+    end
     guildView:UpdateForGuild(
       guildName,
       guildName == Syndicator.API.GetCurrentGuild() and C_PlayerInteractionManager.IsInteractingWithNpcOfType(Enum.PlayerInteractionType.GuildBanker)
@@ -199,14 +208,6 @@ local function SetupGuildView()
 
   Baganator.CallbackRegistry:RegisterCallback("GuildHide",  function(_, ...)
     guildView:Hide()
-  end)
-
-  Baganator.CallbackRegistry:RegisterCallback("GuildSetTab", function(_, tabIndex)
-    guildView:SetCurrentTab(tabIndex)
-    guildView:UpdateForGuild(
-      guildView.lastGuild,
-      guildView.isLive
-    )
   end)
 end
 
@@ -250,36 +251,7 @@ local function HideDefaultBank()
   BankFrame:SetScript("OnEvent", nil)
 end
 
-local function SetupCharacterSelect()
-  local characterSelect = CreateFrame("Frame", "Baganator_CharacterSelectFrame", UIParent, "BaganatorCharacterSelectTemplate")
-
-  table.insert(UISpecialFrames, characterSelect:GetName())
-
-  local function SetPositions()
-    characterSelect:ClearAllPoints()
-    characterSelect:SetPoint(unpack(Baganator.Config.Get(Baganator.Config.Options.CHARACTER_SELECT_POSITION)))
-  end
-
-  local function ResetPositions()
-    Baganator.Config.ResetOne(Baganator.Config.Options.CHARACTER_SELECT_POSITION)
-    SetPositions()
-  end
-
-  local success = pcall(SetPositions) -- work around broken values
-  if not success then
-    ResetPositions()
-  end
-
-  Baganator.CallbackRegistry:RegisterCallback("ResetFramePositions", function()
-    ResetPositions()
-  end)
-
-  Baganator.CallbackRegistry:RegisterCallback("CharacterSelectToggle", function(_, guildName)
-    characterSelect:SetShown(not characterSelect:IsShown())
-  end)
-end
-
-function Baganator.UnifiedViews.Initialize()
+function Baganator.SingleViews.Initialize()
   -- Use xpcall to so that if Blizzard reworks a component the rest of the
   -- other component initialisations won't fail
 
@@ -288,17 +260,6 @@ function Baganator.UnifiedViews.Initialize()
       SetupBackpackView()
       HideDefaultBackpack()
     end
-  end, CallErrorHandler)
-
-  xpcall(function()
-    -- So that the character select sets its position correctly if the bag view
-    -- is disabled
-    if Baganator_BackpackViewFrame == nil then
-      local frame = CreateFrame("Frame", "Baganator_BackpackViewFrame", UIParent)
-      frame:SetPoint("TOPLEFT", UIParent, "TOPRIGHT")
-      frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT")
-    end
-    SetupCharacterSelect()
   end, CallErrorHandler)
 
   xpcall(function()
