@@ -11,10 +11,12 @@
 ## X-Category-zhTW: 介面
 ## DefaultState: disabled
 
-Controls.lua
+Libs\UDProfiles_Includes.xml
+Libs\UDControls.lua
 CursorTrail.lua
 CursorTrailConfig.lua
 CursorTrailTools.lua
 CursorTrailModels_Vanilla.lua
 CursorTrailShapes.lua
+CursorTrailDefaults.lua
 CursorTrailHelp.lua

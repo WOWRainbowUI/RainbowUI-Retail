@@ -9,6 +9,7 @@
 local kAddonFolderName, private = ...
 
 --[[                       Saved (Persistent) Variables                      ]]
+CursorTrail_Config = CursorTrail_Config or {}
 CursorTrail_PlayerConfig = CursorTrail_PlayerConfig or {}
 
 --[[                       Aliases to Globals                                ]]
@@ -19,7 +20,6 @@ local C_Timer = _G.C_Timer
 local CreateFrame = _G.CreateFrame
 local CopyTable = _G.CopyTable
 local date = _G.date
-local debugstack = _G.debugstack
 local floor = _G.floor
 local GetBuildInfo = _G.GetBuildInfo
 local GetCurrentResolution = _G.GetCurrentResolution
@@ -29,6 +29,7 @@ local GetScreenHeight = _G.GetScreenHeight
 local GetScreenWidth = _G.GetScreenWidth
 local GetTime = _G.GetTime
 local geterrorhandler = _G.geterrorhandler
+local InCombatLockdown = _G.InCombatLockdown
 local max =_G.math.max
 local min =_G.math.min
 local next = _G.next
@@ -55,7 +56,7 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --[[                       Helper Functions                                  ]]
 
 -------------------------------------------------------------------------------
-msgBox = private.Controls.MsgBox
+msgBox = private.UDControls.MsgBox
 
 -------------------------------------------------------------------------------
 function printMsg(msg)
@@ -73,13 +74,13 @@ end
 -------------------------------------------------------------------------------
 function dumpObject(obj, heading, indents)
     local dataType
- 
+
     indents = indents or ""
     heading = heading or "Object Dump"
     if (heading ~= nil and heading ~= "") then print(indents .. heading .. " ...") end
     if (obj == nil) then print(indents .. "Object is NIL."); return end
     indents = indents .. "    "
- 
+
     local count = 0
     local varName, value
     for varName, value in pairs(obj) do
@@ -104,13 +105,13 @@ end
 --~ -------------------------------------------------------------------------------
 --~ function dumpObjectSorted(obj, heading, indents)
 --~     local dataType
---~  
+--~
 --~     indents = indents or ""
 --~     heading = heading or "Object Dump"
 --~     if (heading ~= nil and heading ~= "") then print(indents .. heading .. " ...") end
 --~     if (obj == nil) then print(indents .. "Object is NIL."); return end
 --~     indents = indents .. "    "
---~  
+--~
 --~     local count = 0
 --~     local varName, value
 --~     local lines = {}
@@ -131,8 +132,8 @@ end
 --~             if (dataType=="table") then dumpObject(value, varName, indents) end
 --~         end
 --~     end
---~     if (count == 0) then 
---~         print(indents .. "Object is empty.") 
+--~     if (count == 0) then
+--~         print(indents .. "Object is empty.")
 --~     else
 --~         table.sort(lines)
 --~         for i = 1, #lines do print(lines[i]) end
@@ -182,6 +183,42 @@ function str_split(str, delimiter)
     end
     ----for i = 1, #parts do print("Part#"..i.." = ".. parts[i]) end  -- Dump results.
     return parts
+end
+
+-------------------------------------------------------------------------------
+function staticClearTable(tbl)
+  -- Removes all non-table keys from the table without changing the memory location
+  -- of the table or any of its sub-tables.  (Sub-tables will remain, but will be empty.)
+    assert(type(tbl) == "table")
+    for k, v in pairs(tbl) do
+        if type(v) == "table" then
+            staticClearTable(v)
+        else
+            tbl[k] = nil
+        end
+    end
+end
+
+-------------------------------------------------------------------------------
+function staticCopyTable(src, dest, debugPath)
+  -- Copies values of keys from src table to dest table without changing
+  -- the memory address of the dest table or any of its sub-tables.
+  -- The dest table keys are cleared first using staticClearTable().
+  -- Note: src and dest must have same sub-table structure!  Else table addresses would differ.
+  --       For tables that don't have the same sub-table structure, use CopyTable().
+    debugPath = debugPath or "dest"
+    assert(type(src) == "table")
+    assert(type(dest) == "table", "Destination missing sub-table '"..debugPath.."'.")
+    if src == dest then return end  -- Avoid copying a table to itself.  (Not sure what would happen.)
+
+    staticClearTable(dest)
+    for k, v in pairs(src) do
+        if type(v) == "table" then
+            staticCopyTable( v, dest[k], debugPath.."."..k )
+        else
+            dest[k] = v
+        end
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -260,13 +297,23 @@ function dbg(msg)
     ----local timestamp = GetTime()
     ----local timestamp = date("%Y-%m-%d %H:%M:%S")
     local timestamp = date("%I:%M:%S")
-    print("|c00ff3030["..timestamp.."] "..(kAddonName or "")..": "..(msg or "nil").."|r")  -- Color format = xRGB.
+    print("|c00ff3030["..timestamp.."] "..(kAddonFolderName or "")..": "..(msg or "nil").."|r")  -- Color format = xRGB.
 end
 
 -------------------------------------------------------------------------------
 function errHandler(msg)  -- Used by xpcall().  See also the Blizzard function, geterrorhandler().
     dbg(msg)
     print("Call Stack ...\n" .. debugstack(2, 3, 2))
+end
+
+-------------------------------------------------------------------------------
+function propagateKeyboardInput(frame, bPropagate)  -- Safely propagates keyboard input.
+-- NOTE: Since patch 10.1.5 (2023-07-11), SetPropagateKeyboardInput() is restricted and
+--       may no longer be called by insecure code while in combat.
+    if not InCombatLockdown() then
+        return frame:SetPropagateKeyboardInput(bPropagate)
+    end
+    ----print(kAddonAlertHeading.."WARNING - Unable to propagate keyboard input during combat!")
 end
 
 --[[                       Text Frame Functions                              ]]
@@ -306,14 +353,14 @@ end
 --~     TextFrameText = TextFrame:CreateFontString(nil,"OVERLAY", "GameFontNormal")
 --~     TextFrameText:SetPoint("CENTER", TextFrame, "CENTER", 0, 0)
 --~     TextFrameText:SetJustifyH("CENTER")
---~     TextFrameText:SetJustifyV("CENTER")
+--~     TextFrameText:SetJustifyV("MIDDLE")
 --~ end
 
 -------------------------------------------------------------------------------
 function DebugText(txt, width, height)
     if not DbgFrame then
         -- Create the frame.
-        DbgFrame = CreateFrame("frame", kAddonName.."DebugFrame", nil, "BackdropTemplate")
+        DbgFrame = CreateFrame("frame", kAddonFolderName.."DebugFrame", nil, "BackdropTemplate")
         DbgFrame:Hide()
         DbgFrame:SetPoint("CENTER", UIParent, "CENTER")
         DbgFrame:SetFrameStrata("TOOLTIP")
@@ -357,10 +404,10 @@ end
 
 -------------------------------------------------------------------------------
 function showErrMsg(msg)
--- REQUIRES:    'kAddonName' to have been set to the addon's name.  i.e. First line
---              of your lua file should look like this -->  local kAddonName = ...
+-- REQUIRES:    'kAddonFolderName' to have been set to the addon's name.  i.e. First line
+--              of your lua file should look like this -->  local kAddonFolderName = ...
     local bar = ":::::::::::::"
-    msgBox( bar.." [ "..kAddonName.." ] "..bar.."\n\n"..msg,
+    msgBox( bar.." [ "..kAddonFolderName.." ] "..bar.."\n\n"..msg,
             nil, nil,
             nil, nil,
             nil, nil, true, SOUNDKIT.ALARM_CLOCK_WARNING_3 )
@@ -369,7 +416,7 @@ end
 --[[                          Tool Functions                                 ]]
 
 -------------------------------------------------------------------------------
-function HandleToolSwitches(params)
+function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
     local paramAsNum = tonumber(params)
 
     if (params == "screen") then
@@ -418,13 +465,13 @@ function HandleToolSwitches(params)
     -----------------------------------------------------
     elseif (params:sub(1,3) == "mdl") then
         local modelID = tonumber(params:sub(4))
-        local msg = kAddonName
+        local msg = kAddonFolderName
         if (modelID == nil) then
             modelID = CursorModel:GetModelFileID()
             msg = msg .. " model ID is " .. (modelID or "NIL") .. "."
         else
             local origBaseScale = CursorModel.Constants.BaseScale
-            local tmpConfig = CopyTable(kDefaultConfig)
+            local tmpConfig = CopyTable( kDefaultConfig[kDefaultConfigKey] )
             tmpConfig.ModelID = modelID
             CursorTrail_Load(tmpConfig)
             CursorTrail_Show()
@@ -438,24 +485,44 @@ function HandleToolSwitches(params)
     elseif (params:sub(1,3) == "pos") then  -- Set position (0,0), (1,1), (2,2), etc.
         local delta = tonumber(params:sub(4))
         CursorModel:SetPosition(0, delta, delta)
-    elseif (params:sub(1,9) == "testmodel") then
-        local modelID = tonumber(params:sub(10))
+    elseif (params:sub(1,9) == "testmodel") then  -- /ct testmodel <modelID> <scale>
+        ----local modelID = tonumber(params:sub(10))
+        local modelID, scale = string.split(" ", params:sub(11))
+        if modelID then modelID = tonumber(modelID) end
+        if scale then scale = tonumber(scale) else scale=1 end
+--~         modelID=166492; scale=0.032  -- Electric, Blue
+--~         modelID=667272; scale=0.01
         if not TestCursorModel then
             TestCursorModel = CreateFrame("PlayerModel", nil, kGameFrame)
         end
         TestCursorModel:SetAllPoints()
         TestCursorModel:SetFrameStrata("TOOLTIP")
         TestCursorModel:ClearModel()
-        TestCursorModel:SetScale(1)  -- Very important!
-        TestCursorModel:SetPosition(0, 0, 0)  -- Very Important!
+        ----TestCursorModel:SetScale(1)  -- Very important?
+        ----TestCursorModel:SetPosition(0, 0, 0)  -- Very important?
         TestCursorModel:SetAlpha(1)
         TestCursorModel:SetFacing(0)
         if modelID then TestCursorModel:SetModel(modelID) end
         TestCursorModel:SetCustomCamera(1) -- Very important! (Note: CursorModel:SetCamera(1) doesn't work here.)
+        ---TestCursorModel:SetScale(scale)  --<<< NO EFFECT.
+        ----TestCursorModel:SetModelScale(scale)  --<<< NO EFFECT.
+        ----TestCursorModel:SetPosition(0, ScreenMidX/ScreenHypotenuse, ScreenMidY/ScreenHypoten  --<<< NOT WORKING.
+        TestCursorModel:UseModelCenterToTransform(true)
+        local rad, CreateVector3D = Globals.rad, Globals.CreateVector3D
+        ----if isRetailWoW() then
+            TestCursorModel:SetTransform( CreateVector3D(ScreenMidX/ScreenHypotenuse, ScreenMidY/ScreenHypotenuse, 0),  -- (Position x,y,z)
+                                          CreateVector3D(rad(0), rad(0), rad(0)),  -- (Rotation x,y,z)
+                                          scale )
+        ----else -- Use old API.
+        ----    TestCursorModel:SetTransform(0.25,0.25,0,  rad(0),rad(0),rad(0),  scale)  -- (Position x,y,z) | (Rotation x,y,z) | Scale
+        ----end
+        TestCursorModel.baseScale = scale  -- Avoids having to call TestCursorModel:GetWorldScale() later on.
+        ----vdt_dump(TestCursorModel, "TestCursorModel")
+        ----Camera_Dump("TEST MODEL CAMERA INFO", TestCursorModel)
     ----elseif (paramAsNum ~= nil) then
-    ----    print(kAddonName .. " processed number", paramAsNum, ".")
+    ----    print(kAddonFolderName .. " processed number", paramAsNum, ".")
     elseif (params == "fonts") then
-        private.Controls.DisplayAllFonts()
+        private.UDControls.DisplayAllFonts()
     elseif (params == "bug") then  -- Cause a bug to test error reporting.
         xpcall(bogus_function, geterrorhandler())
         ----xpcall(bogus_function, errHandler)
@@ -470,7 +537,7 @@ end
 function CmdLineValue(name, val, plusOrMinus)
     val = tonumber(val)
     if (val == nil) then
-        print(kAddonName .. " "..name.." is", CursorModel.Constants[name], ".")
+        print(kAddonFolderName .. " "..name.." is", CursorModel.Constants[name], ".")
     else
         if (plusOrMinus == "+") then
             val = CursorModel.Constants[name] + val
@@ -491,7 +558,7 @@ function CmdLineValue(name, val, plusOrMinus)
 
         CursorModel.Constants[name] = val  -- Change the specified value.
         CursorTrail_ApplyModelSettings()   -- Apply the change.
-        print(kAddonName .. " changed "..name.." to", val, ".")
+        print(kAddonFolderName .. " changed "..name.." to", val, ".")
         ----if (name == "BaseScale") then CursorModel_Dump() end
     end
 end
@@ -502,9 +569,9 @@ function Screen_Dump(heading)
     local origGameFrame = kGameFrame
     local width, height
     local indents = "    "
-    
+
     print((heading or "SCREEN INFO") .. " ...")
-    
+
     if GetCurrentResolution then  -- Use old API?
         ----NOT WORKING CORRECTLY ANYMORE ...
         ----local currentResolutionIndex = GetCurrentResolution()
@@ -520,10 +587,10 @@ function Screen_Dump(heading)
 
     for i = 1, 2 do
         if (i == 1) then
-            print(indents.."-----[ WORLD FRAME ]-----")
+            print(indents.."-----[ WorldFrame ]-----")
             kGameFrame = WorldFrame
         else
-            print(indents.."-----[ UI PARENT FRAME ]-----")
+            print(indents.."-----[ UIParent ]-----")
             kGameFrame = UIParent
         end
 
@@ -545,23 +612,20 @@ function Screen_Dump(heading)
 end
 
 -------------------------------------------------------------------------------
-function Camera_Dump(heading)
-    assert(CursorModel)
-    local z, x, y = CursorModel:GetCameraPosition()
-    local tz, tx, ty = CursorModel:GetCameraTarget()
-
-    heading = heading or "CAMERA INFO (Distance/Yaw/Pitch)"
-    print( heading.." ..."
-            .."\n  Camera Position = "
-                ..round(z,3) -- Camera's distance from the view port?
-                .."  /  "..round(x,3)   -- Rotation around the z-axis.
-                .."  /  "..round(y,3)   -- Rotation around the y-axis.
-            .."\n  Camera Target    = "
-                ..round(tz,3)  -- Camera target's distance from the view port?
-                .."  /  "..round(tx,3)    -- Rotation around the z-axis.
-                .."  /  "..round(ty,3)    -- Rotation around the y-axis.
-            .."\n  Model Yaw (Left/Right) =", round(CursorModel:GetFacing(),3)
-            .."\n  Model Pitch (Up/Down) =", round(CursorModel:GetPitch(),3) )
+function Camera_Dump(heading, model)
+    model = model or CursorModel
+    heading = heading or "CAMERA INFO"
+    local x, y, z
+    print(heading.." ...")
+    print("  HasCustomCamera =", model:HasCustomCamera())
+    z, x, y = model:GetCameraPosition()
+    print("  GetCameraPosition =", round(z,3)..",  "..round(x,3)..",  "..round(y,3))
+    z, x, y = model:GetPosition()
+    print("  GetCameraTarget =", round(z,3)..",  "..round(x,3)..",  "..round(y,3))
+    print("  GetCameraDistance =", round(model:GetCameraDistance(),3))
+    print("  GetCameraRoll =", round(model:GetCameraRoll(),3))
+    print("  GetCameraFacing (Yaw Left/Right) =", round(model:GetCameraFacing(),3))
+    ----print("  GetCameraPitch (Up/Down) = n/a")
 end
 
 -------------------------------------------------------------------------------
@@ -590,7 +654,7 @@ end
 --~             CursorModel:SetScale( Calibrating.OriginalModelScale )
 --~             Calibrating = nil
 --~             TextFrame_SetText()
---~             print(kAddonName.." calibration aborted.")
+--~             print(kAddonFolderName.." calibration aborted.")
 --~         end
 --~         return
 --~     end

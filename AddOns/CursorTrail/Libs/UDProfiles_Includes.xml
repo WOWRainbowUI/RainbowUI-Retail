@@ -1,0 +1,19 @@
+<Ui>
+
+<!-- Include required controls. -->
+<Script file="UDControls.lua" />
+
+<!-- Include English (US) localization file first. -->
+<Script file="UDProfiles-enUS.lua" />
+
+<!-- Include other localization files. -->
+<Script file="UDProfiles-zhCN.lua" />
+<Script file="UDProfiles-zhTW.lua" />
+
+<!-- For testing, include this test file.
+<Script file="UDProfiles-zzzzTEST.lua" /> -->
+
+<!-- Include UDProfiles implementation. -->
+<Script file="UDProfiles.lua" />
+
+</Ui>
