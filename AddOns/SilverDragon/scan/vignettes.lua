@@ -24,6 +24,7 @@ function module:OnInitialize()
 			enabled = true,
 			pointsofinterest = true,
 			visibleOnly = false,
+			zoneInfinite = true,
 			ignore = {
 				-- [id] = "name",
 			},
@@ -54,6 +55,7 @@ function module:OnInitialize()
 				args = {
 					enabled = config.toggle("啟用", "掃描小地圖星號", 10),
 					pointsofinterest = config.toggle("野外探索點", "探索點出現在地圖中時顯示通知", 20),
+					zoneInfinite = config.toggle("無限距離星號", "顯示整個區域內顯示的地圖星號 (注意: 在某些區域可能會非常多)", 25),
 					visibleOnly = config.toggle("能看見再通知", "等待小地圖星號真正出現在小地圖上面才通知，不要提前通知。", 30),
 					ignore = {
 						type="group",
@@ -155,7 +157,7 @@ local function shouldShowNotVisible(vignetteInfo, zone)
 		-- it results in bursts of alerts when zoning into the Shadowlands area with the daily chests
 		return not module.db.profile.visibleOnly
 	end
-	if vignetteInfo.zoneInfiniteAOI then
+	if vignetteInfo.zoneInfiniteAOI and not module.db.profile.zoneInfinite then
 		-- It can be semi-seen from the entire zone, and so we should wait until it's actually-visible
 		return false
 	end
