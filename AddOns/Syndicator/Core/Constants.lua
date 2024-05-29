@@ -28,6 +28,8 @@ Syndicator.Constants = {
   MaxGuildBankTabItemSlots = 98,
 
   EquippedInventorySlotOffset = 1,
+
+  WarbandBankActive = false,
 }
 
 if Syndicator.Constants.IsRetail then
@@ -42,10 +44,13 @@ if Syndicator.Constants.IsRetail then
     Enum.BagIndex.AccountBankTab_4,
     Enum.BagIndex.AccountBankTab_5,
   }
+  Syndicator.Constants.WarbandBankActive = C_Bank ~= nil and C_Bank.UpdateBankTabSettings ~= nil
 end
 
-if Syndicator.Constants.IsClassic then
+if Syndicator.Constants.IsEra or KeyRingButtonIDToInvSlotID then
   table.insert(Syndicator.Constants.AllBagIndexes, Enum.BagIndex.Keyring)
+end
+if Syndicator.Constants.IsClassic then
   -- Workaround for the enum containing the wrong values for the bank bag slots
   for i = 1, Syndicator.Constants.BankBagSlotsCount do
     Syndicator.Constants.AllBankIndexes[i + 1] = NUM_BAG_SLOTS + i
@@ -59,9 +64,10 @@ Syndicator.Constants.Events = {
   "GuildDeleted",
 
   "BagCacheUpdate",
-  "WarbandCacheUpdate",
+  "WarbandBankCacheUpdate",
   "MailCacheUpdate",
   "CurrencyCacheUpdate",
+  "WarbandCurrencyCacheUpdate",
   "GuildCacheUpdate",
   "GuildNameSet",
   "EquippedCacheUpdate",

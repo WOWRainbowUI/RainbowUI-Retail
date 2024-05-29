@@ -39,6 +39,7 @@ function SyndicatorBagCacheMixin:OnLoad()
     "BANKFRAME_OPENED",
     "BANKFRAME_CLOSED",
     "PLAYERBANKSLOTS_CHANGED",
+    "PLAYERBANKBAGSLOTS_CHANGED",
   })
   if Syndicator.Constants.IsRetail then
     -- Bank items reagent bank updating
@@ -48,9 +49,18 @@ function SyndicatorBagCacheMixin:OnLoad()
     self:RegisterEvent("ITEM_CHANGED")
     self:RegisterEvent("CHALLENGE_MODE_START")
     self:RegisterEvent("CHALLENGE_MODE_COMPLETED")
+
+    if Syndicator.Constants.WarbandBankActive then
+      self:RegisterEvent("BANK_TABS_CHANGED")
+      self:RegisterEvent("BANK_TAB_SETTINGS_UPDATED")
+    end
   end
 
   self.currentCharacter = Syndicator.Utilities.GetCharacterFullName()
+
+  while #SYNDICATOR_DATA.Characters[self.currentCharacter].bags > #Syndicator.Constants.AllBagIndexes do
+    table.remove(SYNDICATOR_DATA.Characters[self.currentCharacter].bags)
+  end
 
   self:SetupPending()
 
@@ -101,8 +111,24 @@ function SyndicatorBagCacheMixin:OnEvent(eventName, ...)
   elseif eventName == "BAG_CONTAINER_UPDATE" then
     self:UpdateContainerSlots()
 
+  elseif eventName == "PLAYERBANKBAGSLOTS_CHANGED" then
+    self:UpdateContainerSlots()
+
   elseif eventName == "BANK_TAB_SETTINGS_UPDATED" then
-    self:ScanWarbandSlots()
+    if self.bankOpen then
+      self:ScanWarbandSlots()
+      self:QueueCaching()
+    end
+
+  -- Guessing that this is fired when a new warband tab is purchased
+  elseif eventName == "BANK_TABS_CHANGED" then
+    if self.bankOpen then
+      self:ScanWarbandSlots()
+      for bagID in pairs(warbandBags) do
+        self.pending.warband[bagID] = true
+      end
+      self:QueueCaching()
+    end
 
   elseif eventName == "BANKFRAME_OPENED" then
     self.bankOpen = true
@@ -175,7 +201,7 @@ function SyndicatorBagCacheMixin:ScanWarbandSlots()
 
   for index, tabDetails in ipairs(allTabs) do
     if not warband.bank[index] then
-      warband.bank[index] = { slots = {}, icon = QUESTION_MARK_ICON, name = "", depositFlags = 0 }
+      warband.bank[index] = { slots = {}, iconTexture = QUESTION_MARK_ICON, name = "", depositFlags = 0 }
     end
     warband.bank[index].iconTexture = tabDetails.icon
     warband.bank[index].name = tabDetails.name
@@ -261,11 +287,18 @@ function SyndicatorBagCacheMixin:OnUpdate()
       print("caching took", debugprofilestop() - start)
     end
     self.isUpdatePending = false
-    if next(pendingCopy.bank) or next(pendingCopy.bags) then
-      Syndicator.CallbackRegistry:TriggerEvent("BagCacheUpdate", self.currentCharacter, pendingCopy)
+    if next(pendingCopy.bank) or next(pendingCopy.bags) or pendingCopy.containerBags.bags or pendingCopy.containerBags.bank then
+      Syndicator.CallbackRegistry:TriggerEvent("BagCacheUpdate", self.currentCharacter, {
+        bags = pendingCopy.bags,
+        bank = pendingCopy.bank,
+        containerBags = {
+          bags = pendingCopy.containerBags.bags,
+          bank = pendingCopy.containerBags.bank,
+        }
+      })
     end
-    if next(pendingCopy.warband) then
-      Syndicator.CallbackRegistry:TriggerEvent("WarbandCacheUpdate", pendingCopy)
+    if next(pendingCopy.warband) or pendingCopy.containerBags.warband then
+      Syndicator.CallbackRegistry:TriggerEvent("WarbandBankCacheUpdate", 1, {bags = pendingCopy.warband, tabInfo = pendingCopy.containerBags.warband})
     end
   end
 

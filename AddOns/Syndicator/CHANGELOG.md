@@ -1,7 +1,7 @@
 # Syndicator
 
-## [38](https://github.com/Baganator/Syndicator/tree/38) (2024-05-19)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/37...38) 
+## [44](https://github.com/Baganator/Syndicator/tree/44) (2024-05-29)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/43...44) 
 
-- Remove unused variable  
-- Remove uncached search terms to speed up searches (removes "uncollected")  
+- Ensure item data is cached before scanning tooltip  
+    Fixes meta/cogwheel/tinker gem searches on offline inventories  
