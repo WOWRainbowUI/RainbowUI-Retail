@@ -24,7 +24,7 @@ if (not _G.CursorTrail) then _G.CursorTrail = CursorTrail end
 --[[                       Remap Global Environment                          ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local isRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 
 setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather than _G.
 
@@ -32,10 +32,10 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --[[                       Constants                                         ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-kDefaultModelID = (isClassic and 166498 or 1417024)  -- "Electric, Blue & Long"
+kDefaultModelID = (isRetail and 1417024 or 166498 )  -- "Electric, Blue & Long"
 kDefaultStrata = "HIGH"
 
-kDefaultConfigKey = (isClassic and "閃電" or "我愛彩虹")   -- Max name length is kProfileNameMaxLetters!
+kDefaultConfigKey = (isRetail and "我愛彩虹" or "閃電")   -- Max name length is kProfileNameMaxLetters!
 kDefaultConfig =
 {
     -- NOTES:
