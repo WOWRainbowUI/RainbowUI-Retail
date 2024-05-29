@@ -4,16 +4,16 @@ local PopupMode = {
   Tab = "tab",
   Money = "money",
 }
-BaganatorGuildViewMixin = {}
+BaganatorSingleViewGuildViewMixin = {}
 
-function BaganatorGuildViewMixin:OnLoad()
+function BaganatorSingleViewGuildViewMixin:OnLoad()
   ButtonFrameTemplate_HidePortrait(self)
   ButtonFrameTemplate_HideButtonBar(self)
   self.Inset:Hide()
   self:RegisterForDrag("LeftButton")
   self:SetMovable(true)
 
-  self.tabsPool = Baganator.UnifiedViews.GetSideTabButtonPool(self)
+  self.tabsPool = Baganator.ItemViewCommon.GetSideTabButtonPool(self)
   self.currentTab = 1
   self.otherTabsCache = {}
   self.searchMonitors = {}
@@ -21,20 +21,6 @@ function BaganatorGuildViewMixin:OnLoad()
   for i = 1, MAX_GUILDBANK_TABS do
     table.insert(self.searchMonitors, CreateFrame("Frame", nil, self, "SyndicatorOfflineListSearchTemplate"))
   end
-
-  self.SearchBox:HookScript("OnTextChanged", function(_, isUserInput)
-    if isUserInput and not self.SearchBox:IsInIMECompositionMode() then
-      local text = self.SearchBox:GetText()
-      Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", text:lower())
-    end
-    if self.SearchBox:GetText() == "" then
-      self.SearchBox.Instructions:SetText(Baganator.Utilities.GetRandomSearchesText())
-    end
-  end)
-
-  self.SearchBox.clearButton:SetScript("OnClick", function()
-    Baganator.CallbackRegistry:TriggerEvent("SearchTextChanged", "")
-  end)
 
   Syndicator.CallbackRegistry:RegisterCallback("GuildCacheUpdate",  function(_, guild, changes)
     if changes then
@@ -91,8 +77,6 @@ function BaganatorGuildViewMixin:OnLoad()
       self.TransferButton:SetShown(self.wouldShowTransferButton and Baganator.Config.Get(Baganator.Config.Options.SHOW_TRANSFER_BUTTON))
     elseif settingName == Baganator.Config.Options.GUILD_BANK_SORT_METHOD then
       self:UpdateForGuild(self.lastGuild, self.isLive)
-    elseif settingName == Baganator.Config.Options.SHOW_BUTTONS_ON_ALT then
-      self:UpdateAllButtons()
     end
   end)
 
@@ -138,7 +122,7 @@ function BaganatorGuildViewMixin:OnLoad()
   tAppendAll(self.AllButtons, self.LiveButtons)
 end
 
-function BaganatorGuildViewMixin:OnEvent(eventName, ...)
+function BaganatorSingleViewGuildViewMixin:OnEvent(eventName, ...)
   if eventName == "PLAYER_INTERACTION_MANAGER_FRAME_SHOW" then
     local interactType = ...
     if interactType == Enum.PlayerInteractionType.GuildBanker then
@@ -165,8 +149,6 @@ function BaganatorGuildViewMixin:OnEvent(eventName, ...)
       self.isLive = false
       self:Hide()
     end
-  elseif eventName == "MODIFIER_STATE_CHANGED" then
-    self:UpdateAllButtons()
   elseif eventName == "GUILDBANKLOG_UPDATE" and self.LogsFrame:IsVisible() then
     if self.LogsFrame.showing == PopupMode.Tab then
       self.LogsFrame:ApplyTab()
@@ -188,26 +170,21 @@ function BaganatorGuildViewMixin:OnEvent(eventName, ...)
   end
 end
 
-function BaganatorGuildViewMixin:OnShow()
-  self.SearchBox.Instructions:SetText(Baganator.Utilities.GetRandomSearchesText())
+function BaganatorSingleViewGuildViewMixin:OnShow()
   self:UpdateForGuild(self.lastGuild, self.isLive)
-  self:RegisterEvent("MODIFIER_STATE_CHANGED")
 end
 
-function BaganatorGuildViewMixin:OnHide()
+function BaganatorSingleViewGuildViewMixin:OnHide()
   self:HideInfoDialogs()
-  self:UnregisterEvent("MODIFIER_STATE_CHANGED")
   CloseGuildBankFrame()
 end
 
-function BaganatorGuildViewMixin:HideInfoDialogs()
+function BaganatorSingleViewGuildViewMixin:HideInfoDialogs()
   self.LogsFrame:Hide()
   self.TabTextFrame:Hide()
 end
 
-function BaganatorGuildViewMixin:ApplySearch(text)
-  self.SearchBox:SetText(text)
-
+function BaganatorSingleViewGuildViewMixin:ApplySearch(text)
   if not self:IsShown() then
     return
   end
@@ -252,21 +229,21 @@ function BaganatorGuildViewMixin:ApplySearch(text)
   end
 end
 
-function BaganatorGuildViewMixin:OnDragStart()
+function BaganatorSingleViewGuildViewMixin:OnDragStart()
   if not Baganator.Config.Get(Baganator.Config.Options.LOCK_FRAMES) then
     self:StartMoving()
     self:SetUserPlaced(false)
   end
 end
 
-function BaganatorGuildViewMixin:OnDragStop()
+function BaganatorSingleViewGuildViewMixin:OnDragStop()
   self:StopMovingOrSizing()
   self:SetUserPlaced(false)
   local point, _, relativePoint, x, y = self:GetPoint(1)
   Baganator.Config.Set(Baganator.Config.Options.GUILD_VIEW_POSITION, {point, UIParent:GetName(), x, y})
 end
 
-function BaganatorGuildViewMixin:OpenTabEditor()
+function BaganatorSingleViewGuildViewMixin:OpenTabEditor()
   GuildBankPopupFrame:Hide()
   if not CanEditGuildBankTabInfo(GetCurrentGuildBankTab()) then
     UIErrorsFrame:AddMessage(BAGANATOR_L_CANNOT_EDIT_GUILD_BANK_TAB_ERROR, 1.0, 0.1, 0.1, 1.0)
@@ -286,7 +263,7 @@ function BaganatorGuildViewMixin:OpenTabEditor()
   GuildBankPopupFrame:SetPoint("LEFT", self, "RIGHT", self.Tabs[1]:GetWidth(), 0)
 end
 
-function BaganatorGuildViewMixin:UpdateTabs(guildData)
+function BaganatorSingleViewGuildViewMixin:UpdateTabs(guildData)
   local tabScaleFactor = 37
   if Baganator.Config.Get(Baganator.Config.Options.REDUCE_SPACING) then
     tabScaleFactor = 40
@@ -327,7 +304,6 @@ function BaganatorGuildViewMixin:UpdateTabs(guildData)
       tabButton:SetPoint("TOPLEFT", lastTab, "BOTTOMLEFT", 0, -12)
     end
     tabButton.SelectedTexture:Hide()
-    tabButton:SetID(index)
     tabButton:SetScale(tabScale)
     tabButton:Show()
     tabButton.tabName = tabInfo.name
@@ -365,7 +341,7 @@ function BaganatorGuildViewMixin:UpdateTabs(guildData)
   self.Tabs = tabs
 end
 
-function BaganatorGuildViewMixin:HighlightCurrentTab()
+function BaganatorSingleViewGuildViewMixin:HighlightCurrentTab()
   if not self.Tabs then
     return
   end
@@ -374,7 +350,7 @@ function BaganatorGuildViewMixin:HighlightCurrentTab()
   end
 end
 
-function BaganatorGuildViewMixin:SetCurrentTab(index)
+function BaganatorSingleViewGuildViewMixin:SetCurrentTab(index)
   Baganator.CallbackRegistry:TriggerEvent("TransferCancel")
   self.currentTab = index
   self:HighlightCurrentTab()
@@ -406,7 +382,7 @@ function BaganatorGuildViewMixin:SetCurrentTab(index)
   end
 end
 
-function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
+function BaganatorSingleViewGuildViewMixin:UpdateForGuild(guild, isLive)
   guild = guild or ""
   Baganator.Utilities.ApplyVisuals(self)
 
@@ -453,14 +429,9 @@ function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
     active = self.GuildLive
   end
 
-  local searchText = self.SearchBox:GetText()
+  local searchText = self.SearchWidget.SearchBox:GetText()
 
   self:ApplySearch(searchText)
-
-  self.SearchBox:ClearAllPoints()
-  self.SearchBox:SetPoint("BOTTOMLEFT", active, "TOPLEFT", 5, 3)
-  -- 300 is the default searchbox width
-  self.SearchBox:SetWidth(active:GetWidth() - 5)
 
   if guildData.bank[1] then
     self.Tabs[1]:SetPoint("LEFT", active, "LEFT")
@@ -470,6 +441,8 @@ function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
   if Baganator.Config.Get(Baganator.Config.Options.REDUCE_SPACING) then
     sideSpacing = 8
   end
+
+  self.SearchWidget:SetSpacing(sideSpacing)
 
   local detailsHeight = 0
   if self.isLive then
@@ -530,7 +503,7 @@ function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
   active:ClearAllPoints()
   active:SetPoint("TOPLEFT", sideSpacing + Baganator.Constants.ButtonFrameOffset, -50)
 
-  self.SearchBox:SetShown(active:IsShown())
+  self.SearchWidget:SetShown(active:IsShown())
   self.NotVisitedText:SetShown(not active:IsShown() and not guildData.details.visited)
   self.NoTabsText:SetShown(not active:IsShown() and guildData.details.visited)
   self.Money:SetShown(active:IsShown() or guildData.details.visited)
@@ -549,24 +522,12 @@ function BaganatorGuildViewMixin:UpdateForGuild(guild, isLive)
     height + 60 + detailsHeight
   )
 
-  self:UpdateAllButtons()
+  self.ButtonVisibility:Update()
+
+  Baganator.CallbackRegistry:TriggerEvent("ViewComplete")
 end
 
-local hiddenParent = CreateFrame("Frame")
-hiddenParent:Hide()
-
-function BaganatorGuildViewMixin:UpdateAllButtons()
-  local parent = self
-  if Baganator.Config.Get(Baganator.Config.Options.SHOW_BUTTONS_ON_ALT) and not IsAltKeyDown() then
-    parent = hiddenParent
-  end
-  for _, button in ipairs(self.AllButtons) do
-    button:SetParent(parent)
-    button:SetFrameLevel(700)
-  end
-end
-
-function BaganatorGuildViewMixin:RemoveSearchMatches(callback)
+function BaganatorSingleViewGuildViewMixin:RemoveSearchMatches(callback)
   local matches = self.GuildLive.SearchMonitor:GetMatches()
 
   local emptyBagSlots = Baganator.Transfers.GetEmptyBagsSlots(Syndicator.API.GetCharacter(Syndicator.API.GetCurrentCharacter()).bags, Syndicator.Constants.AllBagIndexes)
@@ -580,20 +541,20 @@ function BaganatorGuildViewMixin:RemoveSearchMatches(callback)
   end)
 end
 
-function BaganatorGuildViewMixin:Transfer(button)
-  if self.SearchBox:GetText() == "" then
+function BaganatorSingleViewGuildViewMixin:Transfer(button)
+  if self.SearchWidget.SearchBox:GetText() == "" then
     StaticPopup_Show(self.confirmTransferAllDialogName)
   else
     self:RemoveSearchMatches(function() end)
   end
 end
 
-function BaganatorGuildViewMixin:CombineStacksAndSort()
+function BaganatorSingleViewGuildViewMixin:CombineStacksAndSort()
   local sortsDetails = addonTable.ExternalGuildBankSorts[Baganator.Config.Get(Baganator.Config.Options.GUILD_BANK_SORT_METHOD)]
   sortsDetails.callback()
 end
 
-function BaganatorGuildViewMixin:ToggleTabText()
+function BaganatorSingleViewGuildViewMixin:ToggleTabText()
   if self.TabTextFrame:IsShown() then
     self.TabTextFrame:Hide()
     return
@@ -603,14 +564,14 @@ function BaganatorGuildViewMixin:ToggleTabText()
   self:ShowTabText()
 end
 
-function BaganatorGuildViewMixin:ShowTabText()
+function BaganatorSingleViewGuildViewMixin:ShowTabText()
   self.TabTextFrame:Show()
   self.TabTextFrame:ApplyTab()
   self.TabTextFrame:ApplyTabTitle()
   QueryGuildBankText(GetCurrentGuildBankTab());
 end
 
-function BaganatorGuildViewMixin:ToggleTabLogs()
+function BaganatorSingleViewGuildViewMixin:ToggleTabLogs()
   if self.LogsFrame.showing == PopupMode.Tab and self.LogsFrame:IsShown() then
     self.LogsFrame:Hide()
     return
@@ -618,7 +579,7 @@ function BaganatorGuildViewMixin:ToggleTabLogs()
   self:ShowTabLogs()
 end
 
-function BaganatorGuildViewMixin:ShowTabLogs()
+function BaganatorSingleViewGuildViewMixin:ShowTabLogs()
   self:HideInfoDialogs()
   self.LogsFrame:Show()
   self.LogsFrame:ApplyTab()
@@ -626,7 +587,7 @@ function BaganatorGuildViewMixin:ShowTabLogs()
   QueryGuildBankLog(GetCurrentGuildBankTab());
 end
 
-function BaganatorGuildViewMixin:ToggleMoneyLogs()
+function BaganatorSingleViewGuildViewMixin:ToggleMoneyLogs()
   if self.LogsFrame.showing == PopupMode.Money and self.LogsFrame:IsShown() then
     self.LogsFrame:Hide()
     return

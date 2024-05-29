@@ -79,8 +79,19 @@ local WINDOW_OPTIONS = {
     max = 42,
     lowText = "1",
     highText = "42",
+    valuePattern = BAGANATOR_L_X_WARBAND_BANK_COLUMNS,
+    option = "warband_bank_view_width",
+    check = function() return Syndicator.Constants.WarbandBankActive end,
+  },
+  {
+    type = "slider",
+    min = 1,
+    max = 42,
+    lowText = "1",
+    highText = "42",
     valuePattern = BAGANATOR_L_X_GUILD_COLUMNS,
     option = "guild_view_width",
+    check = NotIsEraCheck,
   },
   {
     type = "checkbox",
@@ -669,4 +680,8 @@ end
 function BaganatorCustomiseDialogMixin:OnShow()
   self:SetIndex(self.lastIndex or 1)
   self:RefreshOptions()
+
+  local tabsWidth = self.Tabs[#self.Tabs]:GetRight() - self.Tabs[1]:GetLeft()
+
+  self:SetWidth(math.max(self:GetWidth(), tabsWidth + 20))
 end

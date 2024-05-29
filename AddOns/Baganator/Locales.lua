@@ -32,8 +32,12 @@ L["ALL_CHARACTERS"] = "All Characters"
 L["BAG_SLOTS"] = "Bag Slots"
 L["GUILD_BANK"] = "Guild Bank"
 L["BANK_DATA_MISSING_HINT"] = "Bank data missing. Visit a banker with %s to populate this view."
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
 L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
 L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
+L["CHARACTER"] = "Character"
+L["WARBAND"] = "Warband"
 
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
@@ -57,6 +61,7 @@ L["CUSTOMISE_EMPTY_SLOTS"] = "Hide empty slots background"
 L["X_TRANSPARENCY"] = "%s%% Transparency"
 L["X_BAG_COLUMNS"] = "%s Bag Columns"
 L["X_BANK_COLUMNS"] = "%s Bank Columns"
+L["X_WARBAND_BANK_COLUMNS"] = "%s Warband Bank Columns"
 L["X_GUILD_COLUMNS"] = "%s Guild Bank Columns"
 L["X_ICON_SIZE"] = "%spx Icon Size"
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
@@ -174,6 +179,10 @@ L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 L["GUILD_NO_TABS_PURCHASED"] = "No guild bank tabs purchased"
 
+L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
+L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
+L["INCLUDE_REAGENTS"] = "Include Reagents"
+
 L["SEARCH_EVERYWHERE"] = "Search Everywhere"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your chat."
 L["THAT_ITEM_IS_EQUIPPED"] = "That item is equipped"
@@ -214,18 +223,20 @@ L["BANK"] = "Banque"
 L["BANK_DATA_MISSING_HINT"] = "Données de la banque manquantes. Rendez-vous auprès d’un banquier avec %s pour remplir cette vue."
 L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 L["BATTLE_PET_LEVEL"] = "Niveau de mascotte"
-L["BINDING_TYPE"] = "Type de lien"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "LqA"
 L["BOE"] = "LqE"
 L["BOU"] = "LqU"
 L["BUTTONS"] = "Boutons"
 L["BUY_REAGENT_BANK"] = "Acheter emplacement de banque de composants"
+--[[Translation missing --]]
+L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Impossible d’ajouter d’autres objets à cet échange"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifier cet onglet"
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Impossible d’effectuer une recherche par lien d’objet"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
+--[[Translation missing --]]
+L["CHARACTER"] = "Character"
 L["CHARACTER_PANEL"] = "Fiche de personnage"
 L["COMBINE_STACKS_ONLY"] = "Combiner uniquement les piles"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Voulez-vous transférer TOUS les objets dans vos sacs ?"
@@ -238,6 +249,8 @@ L["CUSTOMISE_EMPTY_SLOTS"] = "Masquer l’arrière-plan des emplacements vides"
 L["CUSTOMISE_SHOW_TABS"] = "Afficher les onglets des personnages récents "
 L["DELETE_CHARACTER"] = "Supprimer personnage "
 L["DEPOSIT_REAGENTS"] = "Dépôt des composants"
+--[[Translation missing --]]
+L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 L["ENABLE_BACKPACK_VIEW"] = "Utiliser Baganator pour les sacs (rech. requis)"
 L["ENABLE_BANK_VIEW"] = "Utiliser Baganator pour la banque (rech. requis)"
 L["ENABLE_GUILD_VIEW"] = "Activer pour banque de guilde (rech. requis)"
@@ -270,6 +283,8 @@ L["ICON_CORNER_PRIORITIES"] = "Priorités du coin des icônes"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choisissez les infos à afficher dans chaque coin de l’icône d'objet et classez par priorité."
 L["ICON_GREY_JUNK_ITEMS"] = "Marquez la camelote en grisant l’icône"
 L["ICONS"] = "Icônes"
+--[[Translation missing --]]
+L["INCLUDE_REAGENTS"] = "Include Reagents"
 L["INSCRIPTION"] = "Calligraphie"
 L["ITEM_LEVEL"] = "Niveau de l’objet"
 L["ITEM_QUALITY"] = "Qualité de l’objet"
@@ -309,15 +324,10 @@ L["SEARCH_EVERYWHERE"] = "Recherche Globale"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Affichera les résultats dans le chat."
 L["SEARCH_TRY_X"] = "Recherche, essayez %s"
 L["SELLJUNK"] = "SellJunk"
-L["SHOW_BOA_STATUS"] = "Afficher le statut LqA (lent)"
-L["SHOW_BOE_STATUS"] = "Afficher le statut LqE"
 L["SHOW_BUTTONS_ON_ALT"] = "Afficher les boutons du sac avec la touche Alt"
-L["SHOW_CAN_I_MOG_IT_ICON"] = "Afficher l'icone Can I Mog It quand l'addon est actif."
 L["SHOW_CHARACTER_RACE_ICONS"] = "Afficher les icônes de races"
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Bouton Afficher la banque de guilde (rech. requis)"
 L["SHOW_IN_TOOLTIPS"] = "Afficher dans les infobulles"
-L["SHOW_ITEM_LEVEL"] = "Afficher les niveaux d’équipement"
-L["SHOW_PAWN_UPGRADE_ARROW"] = "Afficher la flèche de Pawn lorsque l’addon est activé"
 L["SHOW_SORT_BUTTON"] = "Afficher le bouton de tri"
 L["SHOW_TRANSFER_BUTTON"] = "Afficher le bouton de transfert"
 L["SOCKET_INTERFACE"] = "Interface des châsses "
@@ -351,13 +361,18 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Joignez les objets recherchés à u
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Vendre les objets recherchés au marchand (max 12)."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Placez les objets recyclables dans la machine."
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Ajouter les objets recherchés à la fenêtre d’échange (max 6)."
-L["TRANSFERS"] = "Transferts"
 L["UNLIMITED"] = "Illimité"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Couleur du texte comme la qualité de l’objet"
 L["USING_X"] = "Utilisant %s"
 L["VENDOR"] = "Vendeur"
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_STORAGE"] = "Banque du vide"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
+--[[Translation missing --]]
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
 L["WINDOWS"] = "Fenêtres "
 L["X_BAG_COLUMNS"] = "%s Colonnes de sac"
 L["X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "%s emplacements de sac à ignorer lors du tri (spécifique aux persos)"
@@ -369,6 +384,8 @@ L["X_ICON_TEXT_FONT_SIZE"] = "%spt Taille de la police de l’icône"
 L["X_INFORMATION"] = "%s Infos"
 L["X_LOGS"] = "%s Journaux"
 L["X_TRANSPARENCY"] = "%s%% Transparence"
+--[[Translation missing --]]
+L["X_WARBAND_BANK_COLUMNS"] = "%s Warband Bank Columns"
 L["XS_BAGS"] = "Sacs de %s"
 L["XS_BANK"] = "Banque de %s"
 L["XS_BANK_AND_BAGS"] = "Banque et sacs de %s"
@@ -401,8 +418,6 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 --[[Translation missing --]]
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 --[[Translation missing --]]
-L["BINDING_TYPE"] = ""
---[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
 L["BOA"] = "BoA"
@@ -415,15 +430,17 @@ L["BUTTONS"] = "Buttons"
 --[[Translation missing --]]
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
+L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
+--[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
---[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER"] = "Character"
 --[[Translation missing --]]
 L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
@@ -448,6 +465,8 @@ L["CUSTOMISE_SHOW_TABS"] = "Show tabs of recent characters"
 L["DELETE_CHARACTER"] = "Delete Character"
 --[[Translation missing --]]
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
+--[[Translation missing --]]
+L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 --[[Translation missing --]]
 L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
 --[[Translation missing --]]
@@ -508,6 +527,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INCLUDE_REAGENTS"] = "Include Reagents"
 --[[Translation missing --]]
 L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
@@ -587,23 +608,13 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BOA_STATUS"] = ""
---[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = ""
---[[Translation missing --]]
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
---[[Translation missing --]]
-L["SHOW_CAN_I_MOG_IT_ICON"] = ""
 --[[Translation missing --]]
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 --[[Translation missing --]]
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload required)"
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
---[[Translation missing --]]
-L["SHOW_ITEM_LEVEL"] = ""
---[[Translation missing --]]
-L["SHOW_PAWN_UPGRADE_ARROW"] = ""
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
 --[[Translation missing --]]
@@ -675,8 +686,6 @@ L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
-L["TRANSFERS"] = ""
---[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
@@ -688,6 +697,12 @@ L["VENDOR"] = "Vendor"
 L["VERSION_COLON_X"] = "Version: %s"
 --[[Translation missing --]]
 L["VOID_STORAGE"] = "Void Storage"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
+--[[Translation missing --]]
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
 --[[Translation missing --]]
 L["WINDOWS"] = "Windows"
 --[[Translation missing --]]
@@ -711,6 +726,8 @@ L["X_LOGS"] = "%s Logs"
 --[[Translation missing --]]
 L["X_TRANSPARENCY"] = "%s%% Transparency"
 --[[Translation missing --]]
+L["X_WARBAND_BANK_COLUMNS"] = "%s Warband Bank Columns"
+--[[Translation missing --]]
 L["XS_BAGS"] = "%s's Bags"
 --[[Translation missing --]]
 L["XS_BANK"] = "%s's Bank"
@@ -733,18 +750,18 @@ L["BANK"] = "Банк"
 L["BANK_DATA_MISSING_HINT"] = "Нет данных о банке. %s должен посетить банк для отображения содержимого этого окна."
 L["BATTLE_PET_BREEDID"] = "Аддон Battle Pet BreedID"
 L["BATTLE_PET_LEVEL"] = "Уровень боевого питомца"
-L["BINDING_TYPE"] = "Binding Type"
 L["BLIZZARD"] = "Blizzard"
-L["BOA"] = "BoA (ПкУЗ)"
-L["BOE"] = "BoE (ПпН)"
-L["BOU"] = "BoU (ПпИ)"
+L["BOA"] = "BoA"
+L["BOE"] = "BoE"
+L["BOU"] = "BoU"
 L["BUTTONS"] = "Кнопки"
 L["BUY_REAGENT_BANK"] = "Купить банк материалов"
+L["BUY_WARBAND_BANK_TAB"] = "Приобрести ячейку банка отряда?"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Превышен лимит на добавление предметов для обмена"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "У вас нет разрешения на редактирование этой ячейки"
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Превышен лимит на съем предметов из банка гильдии"
+L["CHARACTER"] = "Персонаж"
 L["CHARACTER_PANEL"] = "Окно персонажа"
 L["COMBINE_STACKS_ONLY"] = "Только комбинировать стопки"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Вы хотите перенести ВСЕ предметы из сумок?"
@@ -757,6 +774,7 @@ L["CUSTOMISE_EMPTY_SLOTS"] = "Скрыть фон пустых слотов"
 L["CUSTOMISE_SHOW_TABS"] = "Отображать вкладки недавних персонажей"
 L["DELETE_CHARACTER"] = "Удалить персонажа"
 L["DEPOSIT_REAGENTS"] = "Перенести материалы из сумок"
+L["DEPOSIT_WARBOUND"] = "Перенести предметы отряда"
 L["ENABLE_BACKPACK_VIEW"] = "Использовать для сумок (нужен /reload)"
 L["ENABLE_BANK_VIEW"] = "Использовать для банка (нужен /reload)"
 L["ENABLE_GUILD_VIEW"] = "Использовать для банка гильдии (нужен /reload)"
@@ -780,13 +798,14 @@ L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "Отобразить информацию о
 L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "Отобразить журнал"
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Предметы - Съем: %s | Вклад: %s"
 L["HERBALISM"] = "Травничество"
-L["HIDE_BOE_STATUS_ON_COMMON"] = "Скрыть BoE-статус (ПпН) на предметах низк. качества"
+L["HIDE_BOE_STATUS_ON_COMMON"] = "Скрыть BoE-статус на предметах низкого качества"
 L["HIDE_IN_TOOLTIPS"] = "Скрыть в подсказках"
 L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Зажмите Shift для просмотра золота на аккаунте>"
 L["ICON_CORNER_PRIORITIES"] = "Приоритеты углов иконки"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Выберите, какая информация должна быть в каждом углу и расставьте приоритеты"
 L["ICON_GREY_JUNK_ITEMS"] = "Отмечать хлам обесцвечиванием иконки"
 L["ICONS"] = "Иконки"
+L["INCLUDE_REAGENTS"] = "Включать материалы"
 L["INSCRIPTION"] = "Начертание"
 L["ITEM_LEVEL"] = "Уровень предмета"
 L["ITEM_QUALITY"] = "Качество"
@@ -826,15 +845,10 @@ L["SEARCH_EVERYWHERE"] = "Глобальный поиск"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Результаты будут выведены в чат"
 L["SEARCH_TRY_X"] = "Попробуйте ввести для поиска: %s"
 L["SELLJUNK"] = "Аддон SellJunk"
-L["SHOW_BOA_STATUS"] = "Show equipment BoA status (slow)"
-L["SHOW_BOE_STATUS"] = "Show equipment BoE status"
 L["SHOW_BUTTONS_ON_ALT"] = "Отображать доп. кнопки только при зажатии Alt"
-L["SHOW_CAN_I_MOG_IT_ICON"] = "Show Can I Mog It icon when addon enabled"
 L["SHOW_CHARACTER_RACE_ICONS"] = "Отображать иконку расы персонажа"
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Отображать кнопку банка гильдии (нужен /reload)"
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
-L["SHOW_ITEM_LEVEL"] = "Show equipment item levels"
-L["SHOW_PAWN_UPGRADE_ARROW"] = "Show Pawn upgrade arrow when addon enabled"
 L["SHOW_SORT_BUTTON"] = "Отображать кнопку сортировки"
 L["SHOW_TRANSFER_BUTTON"] = "Отображать кнопку переноса"
 L["SOCKET_INTERFACE"] = "Окно инкрустации"
@@ -872,13 +886,15 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Перенести предметы
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Продать торговцу предметы, найденные через строку поиска (максимум 12)"
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Поместить предметы, найденные через строку поиска, в утилизатор"
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Добавить предметы, найденные через строку поиска, в окно обмена (до 6 штук)"
-L["TRANSFERS"] = "Transfers"
 L["UNLIMITED"] = "Без лимита"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Окрашивать текст на иконках в цвет качества"
 L["USING_X"] = "Используется %s"
 L["VENDOR"] = "Торговец"
 L["VERSION_COLON_X"] = "Версия: %s"
 L["VOID_STORAGE"] = "Хранилище Бездны"
+L["WARBAND"] = "Отряд"
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Нет данных о банке отряда. Посетите банкира любым персонажем для отображения содержимого этого окна."
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Банк отряда не приобретен. Используйте кнопку справа для покупки."
 L["WINDOWS"] = "Окна"
 L["X_BAG_COLUMNS"] = "Столбцов сумок - %s"
 L["X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "Кол-во игнорируемых слотов в сумках - %s"
@@ -890,6 +906,7 @@ L["X_ICON_TEXT_FONT_SIZE"] = "Размер текста - %s"
 L["X_INFORMATION"] = "Информация о ячейке %s"
 L["X_LOGS"] = "Журнал ячейки %s"
 L["X_TRANSPARENCY"] = "Прозрачность - %s%%"
+L["X_WARBAND_BANK_COLUMNS"] = "Столбцов банка отряда - %s"
 L["XS_BAGS"] = "%s - сумки"
 L["XS_BANK"] = "%s - банк"
 L["XS_BANK_AND_BAGS"] = "%s - банк и сумки"
@@ -922,8 +939,6 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 --[[Translation missing --]]
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 --[[Translation missing --]]
-L["BINDING_TYPE"] = ""
---[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
 L["BOA"] = "BoA"
@@ -936,15 +951,17 @@ L["BUTTONS"] = "Buttons"
 --[[Translation missing --]]
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
+L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
+--[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
---[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER"] = "Character"
 --[[Translation missing --]]
 L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
@@ -969,6 +986,8 @@ L["CUSTOMISE_SHOW_TABS"] = "Show tabs of recent characters"
 L["DELETE_CHARACTER"] = "Delete Character"
 --[[Translation missing --]]
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
+--[[Translation missing --]]
+L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 --[[Translation missing --]]
 L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
 --[[Translation missing --]]
@@ -1029,6 +1048,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INCLUDE_REAGENTS"] = "Include Reagents"
 --[[Translation missing --]]
 L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
@@ -1108,23 +1129,13 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BOA_STATUS"] = ""
---[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = ""
---[[Translation missing --]]
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
---[[Translation missing --]]
-L["SHOW_CAN_I_MOG_IT_ICON"] = ""
 --[[Translation missing --]]
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 --[[Translation missing --]]
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload required)"
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
---[[Translation missing --]]
-L["SHOW_ITEM_LEVEL"] = ""
---[[Translation missing --]]
-L["SHOW_PAWN_UPGRADE_ARROW"] = ""
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
 --[[Translation missing --]]
@@ -1196,8 +1207,6 @@ L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
-L["TRANSFERS"] = ""
---[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
@@ -1209,6 +1218,12 @@ L["VENDOR"] = "Vendor"
 L["VERSION_COLON_X"] = "Version: %s"
 --[[Translation missing --]]
 L["VOID_STORAGE"] = "Void Storage"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
+--[[Translation missing --]]
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
 --[[Translation missing --]]
 L["WINDOWS"] = "Windows"
 --[[Translation missing --]]
@@ -1231,6 +1246,8 @@ L["X_INFORMATION"] = "%s Information"
 L["X_LOGS"] = "%s Logs"
 --[[Translation missing --]]
 L["X_TRANSPARENCY"] = "%s%% Transparency"
+--[[Translation missing --]]
+L["X_WARBAND_BANK_COLUMNS"] = "%s Warband Bank Columns"
 --[[Translation missing --]]
 L["XS_BAGS"] = "%s's Bags"
 --[[Translation missing --]]
@@ -1267,8 +1284,6 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 --[[Translation missing --]]
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 --[[Translation missing --]]
-L["BINDING_TYPE"] = ""
---[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
 L["BOA"] = "BoA"
@@ -1281,15 +1296,17 @@ L["BUTTONS"] = "Buttons"
 --[[Translation missing --]]
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
+L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
+--[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
---[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER"] = "Character"
 --[[Translation missing --]]
 L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
@@ -1314,6 +1331,8 @@ L["CUSTOMISE_SHOW_TABS"] = "Show tabs of recent characters"
 L["DELETE_CHARACTER"] = "Delete Character"
 --[[Translation missing --]]
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
+--[[Translation missing --]]
+L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 --[[Translation missing --]]
 L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
 --[[Translation missing --]]
@@ -1374,6 +1393,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INCLUDE_REAGENTS"] = "Include Reagents"
 --[[Translation missing --]]
 L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
@@ -1453,23 +1474,13 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BOA_STATUS"] = ""
---[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = ""
---[[Translation missing --]]
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
---[[Translation missing --]]
-L["SHOW_CAN_I_MOG_IT_ICON"] = ""
 --[[Translation missing --]]
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 --[[Translation missing --]]
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload required)"
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
---[[Translation missing --]]
-L["SHOW_ITEM_LEVEL"] = ""
---[[Translation missing --]]
-L["SHOW_PAWN_UPGRADE_ARROW"] = ""
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
 --[[Translation missing --]]
@@ -1541,8 +1552,6 @@ L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
-L["TRANSFERS"] = ""
---[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
@@ -1554,6 +1563,12 @@ L["VENDOR"] = "Vendor"
 L["VERSION_COLON_X"] = "Version: %s"
 --[[Translation missing --]]
 L["VOID_STORAGE"] = "Void Storage"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
+--[[Translation missing --]]
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
 --[[Translation missing --]]
 L["WINDOWS"] = "Windows"
 --[[Translation missing --]]
@@ -1577,6 +1592,8 @@ L["X_LOGS"] = "%s Logs"
 --[[Translation missing --]]
 L["X_TRANSPARENCY"] = "%s%% Transparency"
 --[[Translation missing --]]
+L["X_WARBAND_BANK_COLUMNS"] = "%s Warband Bank Columns"
+--[[Translation missing --]]
 L["XS_BAGS"] = "%s's Bags"
 --[[Translation missing --]]
 L["XS_BANK"] = "%s's Bank"
@@ -1599,18 +1616,18 @@ L["BANK"] = "銀行"
 L["BANK_DATA_MISSING_HINT"] = "缺少銀行數據。拜訪 %s 的銀行行員來填入此視窗。"
 L["BATTLE_PET_BREEDID"] = "戰寵品種ID"
 L["BATTLE_PET_LEVEL"] = "戰寵等級"
-L["BINDING_TYPE"] = "綁定類型"
 L["BLIZZARD"] = "暴雪"
 L["BOA"] = "帳綁"
 L["BOE"] = "裝綁"
 L["BOU"] = "用綁"
 L["BUTTONS"] = "按鍵"
 L["BUY_REAGENT_BANK"] = "購買材料銀行"
+L["BUY_WARBAND_BANK_TAB"] = "購買戰隊銀行標籤嗎？"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "無法在此交易加入更多物品"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您沒有權限編輯此標籤頁"
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "無法透過物品連結搜尋"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "無法從公會銀行提取更多物品"
+L["CHARACTER"] = "角色"
 L["CHARACTER_PANEL"] = "角色面板"
 L["COMBINE_STACKS_ONLY"] = "只合併整組"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "您想轉移背包中的全部物品嗎？"
@@ -1623,6 +1640,7 @@ L["CUSTOMISE_EMPTY_SLOTS"] = "隱藏空格的背景"
 L["CUSTOMISE_SHOW_TABS"] = "顯示最近角色的標籤"
 L["DELETE_CHARACTER"] = "刪除角色"
 L["DEPOSIT_REAGENTS"] = "存放材料"
+L["DEPOSIT_WARBOUND"] = "存放戰隊物品"
 L["ENABLE_BACKPACK_VIEW"] = "使用Baganator背包視窗 (需要重載)"
 L["ENABLE_BANK_VIEW"] = "使用Baganator銀行視窗 (需要重載)"
 L["ENABLE_GUILD_VIEW"] = "使用Baganator公會銀行視窗 (需要重載)"
@@ -1653,6 +1671,7 @@ L["ICON_CORNER_PRIORITIES"] = "圖示角落優先級"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "選擇在物品按鈕圖示的每個角落都顯示哪些訊息，並優先考慮最需要的訊息。"
 L["ICON_GREY_JUNK_ITEMS"] = "透過使圖示變灰來標記垃圾物品"
 L["ICONS"] = "圖示"
+L["INCLUDE_REAGENTS"] = "包含材料"
 L["INSCRIPTION"] = "銘文"
 L["ITEM_LEVEL"] = "物品等級"
 L["ITEM_QUALITY"] = "物品品質"
@@ -1692,15 +1711,10 @@ L["SEARCH_EVERYWHERE"] = "廣泛搜尋"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "將把搜尋結果發送到您的聊天中。"
 L["SEARCH_TRY_X"] = "搜尋，嘗試 %s"
 L["SELLJUNK"] = "賣出垃圾"
-L["SHOW_BOA_STATUS"] = "顯示帳號綁定狀態 (慢)"
-L["SHOW_BOE_STATUS"] = "顯示裝備綁定狀態"
 L["SHOW_BUTTONS_ON_ALT"] = "只在按住 Alt 時顯示切換按鈕"
-L["SHOW_CAN_I_MOG_IT_ICON"] = "顯示 Can I Mog It 圖示如插件已啟用"
 L["SHOW_CHARACTER_RACE_ICONS"] = "顯示角色種族圖示"
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "顯示公會銀行按鍵 (需要重載)"
 L["SHOW_IN_TOOLTIPS"] = "在工具提示中顯示"
-L["SHOW_ITEM_LEVEL"] = "顯示裝備物品等級"
-L["SHOW_PAWN_UPGRADE_ARROW"] = "顯示 Pawn 升級箭頭如插件已啟用"
 L["SHOW_SORT_BUTTON"] = "顯示整理按鈕"
 L["SHOW_TRANSFER_BUTTON"] = "顯示轉移按鈕"
 L["SOCKET_INTERFACE"] = "插槽介面"
@@ -1734,13 +1748,15 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "將搜尋到的物品附加到郵�
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "將搜尋到的商品出售給商店（最多 12 件）。"
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "將可報廢的物品放入破爛回收機。"
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "將搜尋到的商品加入交易視窗（最多 6 個商品）。"
-L["TRANSFERS"] = "轉移"
 L["UNLIMITED"] = "無限制"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "圖示上文字根據物品品質著色"
 L["USING_X"] = "使用 %s"
 L["VENDOR"] = "商店"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_STORAGE"] = "虛空倉庫"
+L["WARBAND"] = "戰隊"
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "戰隊銀行數據缺失。訪問任何角色的銀行NPC都可填充此庫。"
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "未購買戰隊背包欄。使用右側的新標簽按鈕購買"
 L["WINDOWS"] = "視窗"
 L["X_BAG_COLUMNS"] = "背包 %s列"
 L["X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "排序時要忽略的 %s 常規背包格位（角色特定）"
@@ -1752,6 +1768,7 @@ L["X_ICON_TEXT_FONT_SIZE"] = "圖示文字大小 %spt"
 L["X_INFORMATION"] = "%s 訊息"
 L["X_LOGS"] = "%s 紀錄"
 L["X_TRANSPARENCY"] = "透明度 %s%%"
+L["X_WARBAND_BANK_COLUMNS"] = "%s 戰隊銀行欄"
 L["XS_BAGS"] = "%s 的背包"
 L["XS_BANK"] = "%s 的銀行"
 L["XS_BANK_AND_BAGS"] = "%s 的銀行和背包"
@@ -1771,19 +1788,19 @@ L["BANK"] = "银行"
 L["BANK_DATA_MISSING_HINT"] = "缺少银行数据。请访问 %s 的银行来填充此窗口。"
 L["BATTLE_PET_BREEDID"] = "战斗宠物品质ID"
 L["BATTLE_PET_LEVEL"] = "战斗宠物等级"
-L["BINDING_TYPE"] = "绑定状态"
 L["BLIZZARD"] = "暴雪"
 L["BOA"] = "帐绑"
 L["BOE"] = "装绑"
 L["BOU"] = "用绑"
 L["BUTTONS"] = "按键"
 L["BUY_REAGENT_BANK"] = "购买材料银行"
+L["BUY_WARBAND_BANK_TAB"] = "购买战团银行标签？"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "无法添加更多物品到此交易"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您无权编辑此选项"
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "无法通过物品链接搜索"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "无法从公会银行提取更多物品"
-L["CHARACTER_PANEL"] = "角色面板"
+L["CHARACTER"] = "角色"
+L["CHARACTER_PANEL"] = "角色界面"
 L["COMBINE_STACKS_ONLY"] = "仅合并堆叠"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "你想转移背包内的所有物品？"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "你想转移银行内的所有物品？"
@@ -1795,6 +1812,7 @@ L["CUSTOMISE_EMPTY_SLOTS"] = "隐藏空位的背景"
 L["CUSTOMISE_SHOW_TABS"] = "显示最近角色使用的记录"
 L["DELETE_CHARACTER"] = "删除角色"
 L["DEPOSIT_REAGENTS"] = "存放材料"
+L["DEPOSIT_WARBOUND"] = "存放战团物品"
 L["ENABLE_BACKPACK_VIEW"] = "使用Baganator背包窗口（需/reload重载）"
 L["ENABLE_BANK_VIEW"] = "使用Baganator银行窗口（需/reload重载）"
 L["ENABLE_GUILD_VIEW"] = "使用Baganator公会银行窗口（需/reload重载）"
@@ -1825,6 +1843,7 @@ L["ICON_CORNER_PRIORITIES"] = "边角图标优先显示"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "选择在物品图标的角落位置显示哪些信息，并优先显示最需要的信息。"
 L["ICON_GREY_JUNK_ITEMS"] = "图标变灰来标记垃圾物品"
 L["ICONS"] = "图标"
+L["INCLUDE_REAGENTS"] = "包含材料"
 L["INSCRIPTION"] = "铭文"
 L["ITEM_LEVEL"] = "物品等级"
 L["ITEM_QUALITY"] = "物品品质"
@@ -1864,15 +1883,10 @@ L["SEARCH_EVERYWHERE"] = "扩大搜索"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "将搜索结果发送到聊天信息中。"
 L["SEARCH_TRY_X"] = "搜索，尝试 %s"
 L["SELLJUNK"] = "出售垃圾"
-L["SHOW_BOA_STATUS"] = "显示帐绑状态（慢）"
-L["SHOW_BOE_STATUS"] = "显示装绑状态"
 L["SHOW_BUTTONS_ON_ALT"] = "仅在按住 Alt 时显示切换"
-L["SHOW_CAN_I_MOG_IT_ICON"] = "显示 Can I Mog It 提示图标需启用插件"
 L["SHOW_CHARACTER_RACE_ICONS"] = "显示角色种族图标"
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "显示公会银行按钮（需要/reload重新加载）"
 L["SHOW_IN_TOOLTIPS"] = "在鼠标提示中显示"
-L["SHOW_ITEM_LEVEL"] = "显示物品等级"
-L["SHOW_PAWN_UPGRADE_ARROW"] = "显示 Pawn 升级图标需启用插件"
 L["SHOW_SORT_BUTTON"] = "显示整理按键"
 L["SHOW_TRANSFER_BUTTON"] = "显示转移按键"
 L["SOCKET_INTERFACE"] = "插槽界面"
@@ -1906,13 +1920,15 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "将搜索到的物品添加到邮�
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "将搜索到的物品出售给商人（最多 12 件）。"
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "将可拆解物品放入拆解机内。"
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "将搜索到的物品添加到交易窗口（最多 6 个物品）。"
-L["TRANSFERS"] = "转移"
 L["UNLIMITED"] = "无限"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "图标上的文字根据物品的品质着色"
 L["USING_X"] = "使用 %s"
 L["VENDOR"] = "商店"
 L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_STORAGE"] = "虚空仓库"
+L["WARBAND"] = "战团"
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "战团银行数据丢失。访问任何角色的银行NPC都可填充此库。"
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "未购买战团背包栏。使用右侧的新标签按钮购买"
 L["WINDOWS"] = "窗口"
 L["X_BAG_COLUMNS"] = "背包列数：%s "
 L["X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC"] = "整理时忽略的 %s 背包位（特定角色）"
@@ -1924,6 +1940,7 @@ L["X_ICON_TEXT_FONT_SIZE"] = "字体大小：%s"
 L["X_INFORMATION"] = "%s 信息"
 L["X_LOGS"] = "%s 记录"
 L["X_TRANSPARENCY"] = "透明度：%s%% "
+L["X_WARBAND_BANK_COLUMNS"] = "%s 战团银行栏"
 L["XS_BAGS"] = "%s 的背包"
 L["XS_BANK"] = "%s 的银行"
 L["XS_BANK_AND_BAGS"] = "%s 的银行和背包"
@@ -1944,7 +1961,6 @@ L["BANK_DATA_MISSING_HINT"] = "은행 정보가 누락되었습니다. %s의 은
 --[[Translation missing --]]
 L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 L["BATTLE_PET_LEVEL"] = "전투 애완 동물 레벨"
-L["BINDING_TYPE"] = "귀속 유형"
 L["BLIZZARD"] = "기본"
 L["BOA"] = "BoA"
 L["BOE"] = "BoE"
@@ -1952,14 +1968,16 @@ L["BOE"] = "BoE"
 L["BOU"] = "BoU"
 L["BUTTONS"] = "버튼"
 L["BUY_REAGENT_BANK"] = "재료 은행 구매"
+--[[Translation missing --]]
+L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "거래에 아이템을 더이상 추가할 수 없습니다."
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
---[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER"] = "Character"
 --[[Translation missing --]]
 L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
@@ -1977,6 +1995,8 @@ L["CUSTOMISE_EMPTY_SLOTS"] = "빈 공간의 배경 숨기기"
 L["CUSTOMISE_SHOW_TABS"] = "최근 접속한 캐릭터의 탭 표시"
 L["DELETE_CHARACTER"] = "캐릭터 삭제"
 L["DEPOSIT_REAGENTS"] = "재료 은행에 보관"
+--[[Translation missing --]]
+L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 --[[Translation missing --]]
 L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
 --[[Translation missing --]]
@@ -2019,6 +2039,8 @@ L["ICON_CORNER_PRIORITIES"] = "슬롯 모서리 우선순위"
 L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "가방 슬롯의 모서리의 아이콘에  표시할 정보를 선택하고 가장 원하는 정보의 우선순위를 지정할 수 있습니다."
 L["ICON_GREY_JUNK_ITEMS"] = "불필요한 아이템을 회색 아이콘으로 표시"
 L["ICONS"] = "아이콘"
+--[[Translation missing --]]
+L["INCLUDE_REAGENTS"] = "Include Reagents"
 L["INSCRIPTION"] = "주문각인"
 L["ITEM_LEVEL"] = "아이템 레벨"
 L["ITEM_QUALITY"] = "아이템 품질"
@@ -2075,16 +2097,10 @@ L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your c
 L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
-L["SHOW_BOA_STATUS"] = "계정귀속 아이템 상태 표시 (느림)"
---[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = ""
 L["SHOW_BUTTONS_ON_ALT"] = "가방에서 ALT키를 누른 상태에서면 버튼 표시(재료 가방)"
-L["SHOW_CAN_I_MOG_IT_ICON"] = "Can I Mog It 애드온의 아이콘 표시"
 L["SHOW_CHARACTER_RACE_ICONS"] = "캐릭터의 종족 아이콘 표시"
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "길드 은행 버튼 표시 (UI 재시작 필요)"
 L["SHOW_IN_TOOLTIPS"] = "툴팁 표시"
-L["SHOW_ITEM_LEVEL"] = "장비 아이템 레벨 표시"
-L["SHOW_PAWN_UPGRADE_ARROW"] = "Pawn의 업그레이드 화살표 표시 (애드온 설치시)"
 L["SHOW_SORT_BUTTON"] = "정렬 버튼 표시"
 L["SHOW_TRANSFER_BUTTON"] = "옮기기 버튼 표시"
 L["SOCKET_INTERFACE"] = "보석 장착"
@@ -2143,7 +2159,6 @@ L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the 
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
-L["TRANSFERS"] = "옮기기"
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "아이템 레벨 글자를 아이템 등급 색상으로 표시"
@@ -2153,6 +2168,12 @@ L["VENDOR"] = "상인"
 --[[Translation missing --]]
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_STORAGE"] = "공허보관소"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
+--[[Translation missing --]]
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
 L["WINDOWS"] = "창"
 L["X_BAG_COLUMNS"] = "%s 가방 칸 수"
 --[[Translation missing --]]
@@ -2168,6 +2189,8 @@ L["X_INFORMATION"] = "%s Information"
 --[[Translation missing --]]
 L["X_LOGS"] = "%s Logs"
 L["X_TRANSPARENCY"] = "%s%% 투명도"
+--[[Translation missing --]]
+L["X_WARBAND_BANK_COLUMNS"] = "%s Warband Bank Columns"
 L["XS_BAGS"] = "%s의 가방"
 L["XS_BANK"] = "%s의 은행"
 L["XS_BANK_AND_BAGS"] = "%s의 은행과 가방"
@@ -2200,8 +2223,6 @@ L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 --[[Translation missing --]]
 L["BATTLE_PET_LEVEL"] = "Battle Pet Level"
 --[[Translation missing --]]
-L["BINDING_TYPE"] = ""
---[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
 L["BOA"] = "BoA"
@@ -2214,15 +2235,17 @@ L["BUTTONS"] = "Buttons"
 --[[Translation missing --]]
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
+L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
+--[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
 --[[Translation missing --]]
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 --[[Translation missing --]]
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = ""
---[[Translation missing --]]
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
+--[[Translation missing --]]
+L["CHARACTER"] = "Character"
 --[[Translation missing --]]
 L["CHARACTER_PANEL"] = "Character Panel"
 --[[Translation missing --]]
@@ -2247,6 +2270,8 @@ L["CUSTOMISE_SHOW_TABS"] = "Show tabs of recent characters"
 L["DELETE_CHARACTER"] = "Delete Character"
 --[[Translation missing --]]
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
+--[[Translation missing --]]
+L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 --[[Translation missing --]]
 L["ENABLE_BACKPACK_VIEW"] = "Use Baganator backpack view (reload required)"
 --[[Translation missing --]]
@@ -2307,6 +2332,8 @@ L["ICON_CORNER_PRIORITIES_EXPLANATION"] = "Choose what information should be sho
 L["ICON_GREY_JUNK_ITEMS"] = "Mark junk items by greying out the icon"
 --[[Translation missing --]]
 L["ICONS"] = "Icons"
+--[[Translation missing --]]
+L["INCLUDE_REAGENTS"] = "Include Reagents"
 --[[Translation missing --]]
 L["INSCRIPTION"] = "Inscription"
 --[[Translation missing --]]
@@ -2386,23 +2413,13 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BOA_STATUS"] = ""
---[[Translation missing --]]
-L["SHOW_BOE_STATUS"] = ""
---[[Translation missing --]]
 L["SHOW_BUTTONS_ON_ALT"] = "Only show toggle buttons when Alt is held down"
---[[Translation missing --]]
-L["SHOW_CAN_I_MOG_IT_ICON"] = ""
 --[[Translation missing --]]
 L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
 --[[Translation missing --]]
 L["SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED"] = "Show Guild Bank button (reload required)"
 --[[Translation missing --]]
 L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
---[[Translation missing --]]
-L["SHOW_ITEM_LEVEL"] = ""
---[[Translation missing --]]
-L["SHOW_PAWN_UPGRADE_ARROW"] = ""
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show Sort Button"
 --[[Translation missing --]]
@@ -2474,8 +2491,6 @@ L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 --[[Translation missing --]]
-L["TRANSFERS"] = ""
---[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
 L["USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT"] = "Color text on icons in item quality colors"
@@ -2487,6 +2502,12 @@ L["VENDOR"] = "Vendor"
 L["VERSION_COLON_X"] = "Version: %s"
 --[[Translation missing --]]
 L["VOID_STORAGE"] = "Void Storage"
+--[[Translation missing --]]
+L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
+--[[Translation missing --]]
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
 --[[Translation missing --]]
 L["WINDOWS"] = "Windows"
 --[[Translation missing --]]
@@ -2509,6 +2530,8 @@ L["X_INFORMATION"] = "%s Information"
 L["X_LOGS"] = "%s Logs"
 --[[Translation missing --]]
 L["X_TRANSPARENCY"] = "%s%% Transparency"
+--[[Translation missing --]]
+L["X_WARBAND_BANK_COLUMNS"] = "%s Warband Bank Columns"
 --[[Translation missing --]]
 L["XS_BAGS"] = "%s's Bags"
 --[[Translation missing --]]
