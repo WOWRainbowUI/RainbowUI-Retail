@@ -39,6 +39,7 @@ end
 GameTooltip:HookScript("OnTooltipSetItem", function(self)
     if (TinyInspectReforgedDB and TinyInspectReforgedDB.EnableItemLevel) then
         local _, link = self:GetItem()
+		if not link then return end -- 暫時修正，副本戰利品查詢的專業製作物品會是 nil
         local _, _, _, itemLevel,_,_,_,_,_,_,_, classID,_ = GetItemInfo(link)
         if (itemLevel and itemLevel>1) then
             local left = _G[GameTooltip:GetName() .. 'TextLeft' .. 2]

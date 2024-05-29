@@ -1,6 +1,6 @@
 ## Interface: 100207
 ## Title:  TinyInspect-Reforged |cFF69CCF0by Beezer|r
-## Version: 9.4.2
+## Version: 9.4.2 Fix
 ## Notes: Show ItemLevel For Inspect & Party & Raid & Mouse & Bag & Bank ...
 ## Author: Beezer
 ## SavedVariables: TinyInspectReforgedDB
