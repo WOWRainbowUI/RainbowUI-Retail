@@ -290,6 +290,31 @@ const.TRADESKILL_MAP = {
 	[19] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 19), -- "Finishing Reagents"
 }
 
+---@class EquipmentSlotsMap
+---@type number[]
+const.EQUIPMENT_SLOTS = {
+  INVSLOT_AMMO,
+  INVSLOT_BACK,
+  INVSLOT_BODY,
+  INVSLOT_CHEST,
+  INVSLOT_FEET,
+  INVSLOT_FINGER1,
+  INVSLOT_FINGER2,
+  INVSLOT_HAND,
+  INVSLOT_HEAD,
+  INVSLOT_LEGS,
+  INVSLOT_MAINHAND,
+  INVSLOT_NECK,
+  INVSLOT_OFFHAND,
+  INVSLOT_RANGED,
+  INVSLOT_SHOULDER,
+  INVSLOT_TABARD,
+  INVSLOT_TRINKET1,
+  INVSLOT_TRINKET2,
+  INVSLOT_WAIST,
+  INVSLOT_WRIST,
+}
+
 ---@class CustomCategoryFilter
 ---@field name string
 ---@field enabled table<BagKind, boolean>
@@ -305,18 +330,30 @@ const.DATABASE_DEFAULTS = {
     debug = false,
     inBagSearch = false,
     showKeybindWarning = true,
+    newItems = {
+      [const.BAG_KIND.BACKPACK] = {
+        markRecentItems = false,
+        showNewItemFlash = false,
+      },
+      [const.BAG_KIND.BANK] = {
+        markRecentItems = false,
+        showNewItemFlash = false,
+      },
+    },
     stacking = {
       [const.BAG_KIND.BACKPACK]  = {
         mergeStacks = true,
         mergeUnstackable = true,
         unmergeAtShop = true,
         dontMergePartial = false,
+        dontMergeTransmog = false,
       },
       [const.BAG_KIND.BANK]  = {
         mergeStacks = true,
         mergeUnstackable = true,
         unmergeAtShop = true,
         dontMergePartial = false,
+        dontMergeTransmog = false,
       }
     },
     itemLevel = {
