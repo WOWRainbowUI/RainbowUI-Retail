@@ -13,6 +13,7 @@
 ## Title-zhTW: |cffFF7F00[團隊]|r 框架 (Cell)
 ## Notes-zhTW: Cell |n|n簡單好用的團隊框架，可自訂外觀，並且提供滑鼠點擊快速施法和其他功能。|n|n|cffffd200使用方法: |r點團隊框架左上方的小方塊，進行設定。
 ## X-Category-zhTW: 團隊
+## IconTexture: Interface\AddOns\Cell\Media\icon.tga
 ## DefaultState: disabled
 
 Locales\enUS.lua
