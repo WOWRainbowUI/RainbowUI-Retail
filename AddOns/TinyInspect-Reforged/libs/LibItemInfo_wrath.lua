@@ -220,6 +220,7 @@ function lib:GetUnitItemLevel(unit, stats)
 end
 
 function lib:GetQuestItemlink(questType, id)
+	if not questType or not id then return end -- 暫時修正
     tooltip:SetOwner(UIParent, "ANCHOR_NONE")
     tooltip:SetQuestLogItem(questType, id)
     return select(2, tooltip:GetItem()) or GetQuestLogItemLink(questType, id)
