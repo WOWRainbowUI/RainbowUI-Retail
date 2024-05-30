@@ -35,7 +35,7 @@ local function AppendToGameTooltip(guid, ilevel, spec, weaponLevel, isArtifact)
     end
     GameTooltip:Show()
 end
-
+--[[
 GameTooltip:HookScript("OnTooltipSetItem", function(self)
     if (TinyInspectReforgedDB and TinyInspectReforgedDB.EnableItemLevel) then
         local _, link = self:GetItem()
@@ -49,7 +49,7 @@ GameTooltip:HookScript("OnTooltipSetItem", function(self)
         end
     end
 end)
-
+--]]
 GameTooltip:HookScript("OnTooltipSetUnit", function(self)
     if (TinyInspectReforgedDB and (TinyInspectReforgedDB.EnableMouseItemLevel or TinyInspectReforgedDB.EnableMouseSpecialization)) then
         local _, unit = self:GetUnit()
