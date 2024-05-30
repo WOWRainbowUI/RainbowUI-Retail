@@ -336,6 +336,8 @@ PawnMetaGemQualityLevels =
 	{ 0, PawnMetaGemData70Rare },
 }
 
+PawnCogwheelQualityLevels = nil
+
 PawnMinimumItemLevelToConsiderGems = 100
 
 end -- if VgerCore.IsBurningCrusade

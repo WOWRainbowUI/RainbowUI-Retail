@@ -1344,6 +1344,7 @@ function PawnUI_CompareItems(IsAutomatedRefresh)
 	AddSockets("YellowSocket", YELLOW_GEM)
 	AddSockets("BlueSocket", BLUE_GEM)
 	AddSockets("MetaSocket", META_GEM)
+	AddSockets("CogwheelSocket", EMPTY_SOCKET_COGWHEEL)
 
 	local _, TotalSocketValue1, SocketBonusValue1 = PawnGetItemValue(ItemStats1, Item1.Level, ItemSocketBonusStats1, PawnUICurrentScale, false, true)
 	local _, TotalSocketValue2, SocketBonusValue2 = PawnGetItemValue(ItemStats2, Item2.Level, ItemSocketBonusStats2, PawnUICurrentScale, false, true)
@@ -1753,38 +1754,41 @@ function PawnUI_ShowBestGems()
 	local _
 
 	local GemQualityLevel = PawnGetGemQualityForItem(PawnGemQualityLevels, PawnUIGemQualityLevel)
+	if GemQualityLevel then
 
-	if not VgerCore.IsClassic and not VgerCore.IsMainline then
-		-- Burning Crusade Classic and Wrath Classic: Divide by color
-		if #(PawnScaleBestGems[PawnUICurrentScale].RedSocket[GemQualityLevel]) > 0 then
-			PawnUI_AddGemHeaderLine(format(PawnLocal.UI.GemsColorHeader, RED_GEM))
-			for _, GemData in pairs(PawnScaleBestGems[PawnUICurrentScale].RedSocket[GemQualityLevel]) do
-				PawnUI_AddGemLine(GemData.Name, GemData.Texture, GemData.ID)
+		if not VgerCore.IsClassic and not VgerCore.IsMainline then
+			-- Classic starting in Burning Crusade: Divide by color
+			if #(PawnScaleBestGems[PawnUICurrentScale].RedSocket[GemQualityLevel]) > 0 then
+				PawnUI_AddGemHeaderLine(format(PawnLocal.UI.GemsColorHeader, RED_GEM))
+				for _, GemData in pairs(PawnScaleBestGems[PawnUICurrentScale].RedSocket[GemQualityLevel]) do
+					PawnUI_AddGemLine(GemData.Name, GemData.Texture, GemData.ID)
+				end
+				ShownGems = true
 			end
-			ShownGems = true
-		end
-		if #(PawnScaleBestGems[PawnUICurrentScale].YellowSocket[GemQualityLevel]) > 0 then
-			PawnUI_AddGemHeaderLine(format(PawnLocal.UI.GemsColorHeader, YELLOW_GEM))
-			for _, GemData in pairs(PawnScaleBestGems[PawnUICurrentScale].YellowSocket[GemQualityLevel]) do
-				PawnUI_AddGemLine(GemData.Name, GemData.Texture, GemData.ID)
+			if #(PawnScaleBestGems[PawnUICurrentScale].YellowSocket[GemQualityLevel]) > 0 then
+				PawnUI_AddGemHeaderLine(format(PawnLocal.UI.GemsColorHeader, YELLOW_GEM))
+				for _, GemData in pairs(PawnScaleBestGems[PawnUICurrentScale].YellowSocket[GemQualityLevel]) do
+					PawnUI_AddGemLine(GemData.Name, GemData.Texture, GemData.ID)
+				end
+				ShownGems = true
 			end
-			ShownGems = true
-		end
-		if #(PawnScaleBestGems[PawnUICurrentScale].BlueSocket[GemQualityLevel]) > 0 then
-			PawnUI_AddGemHeaderLine(format(PawnLocal.UI.GemsColorHeader, BLUE_GEM))
-			for _, GemData in pairs(PawnScaleBestGems[PawnUICurrentScale].BlueSocket[GemQualityLevel]) do
-				PawnUI_AddGemLine(GemData.Name, GemData.Texture, GemData.ID)
+			if #(PawnScaleBestGems[PawnUICurrentScale].BlueSocket[GemQualityLevel]) > 0 then
+				PawnUI_AddGemHeaderLine(format(PawnLocal.UI.GemsColorHeader, BLUE_GEM))
+				for _, GemData in pairs(PawnScaleBestGems[PawnUICurrentScale].BlueSocket[GemQualityLevel]) do
+					PawnUI_AddGemLine(GemData.Name, GemData.Texture, GemData.ID)
+				end
+				ShownGems = true
 			end
-			ShownGems = true
-		end
-	else
-		-- Non-Classic WoW: All sockets are prismatic
-		if #(PawnScaleBestGems[PawnUICurrentScale].PrismaticSocket[GemQualityLevel]) > 0 then
-			for _, GemData in pairs(PawnScaleBestGems[PawnUICurrentScale].PrismaticSocket[GemQualityLevel]) do
-				PawnUI_AddGemLine(GemData.Name, GemData.Texture, GemData.ID)
+		else
+			-- Non-Classic WoW: All sockets are prismatic
+			if #(PawnScaleBestGems[PawnUICurrentScale].PrismaticSocket[GemQualityLevel]) > 0 then
+				for _, GemData in pairs(PawnScaleBestGems[PawnUICurrentScale].PrismaticSocket[GemQualityLevel]) do
+					PawnUI_AddGemLine(GemData.Name, GemData.Texture, GemData.ID)
+				end
+				ShownGems = true
 			end
-			ShownGems = true
 		end
+
 	end
 
 	if not ShownGems then
@@ -2132,6 +2136,7 @@ function PawnUI_OnSocketUpdate()
 		+ (ItemStats.RedSocket or 0)
 		+ (ItemStats.YellowSocket or 0)
 		+ (ItemStats.BlueSocket or 0)
+		+ (ItemStats.CogwheelSocket or 0)
 	-- We intentionally ignore meta sockets, because meta gems should be selected for their non-stat effects.
 	-- If there are no supported gems in the item, don't add our advisor tooltip to the window.
 	if SocketCount == 0 then return end
