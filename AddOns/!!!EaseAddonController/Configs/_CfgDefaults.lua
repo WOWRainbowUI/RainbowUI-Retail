@@ -52,6 +52,7 @@ D["!BugGrabber"] = {
 	title = "錯誤收集器",
 	desc = "收集錯誤訊息，防止遊戲中斷，訊息會顯示在錯誤訊息袋中。`",
 	modifier = "Rabbit, Whyv, zhTW",
+	icon = "Interface\\AddOns\\BugSack\\Media\\icon",
 	img = true,
 };
 D["!KalielsTracker"] = {
@@ -97,7 +98,7 @@ D["ActionCamPlus"] = {
 	title = "動感鏡頭 Plus",
 	desc = "啟用遊戲內建的動作鏡頭功能，有多種不同的鏡頭效果可供調整。``像是會記憶騎乘坐騎的鏡頭距離，下坐騎後便會自動恢復。或是記憶戰鬥中的鏡頭距離，戰鬥結束後便會自動恢復。``如果想要更像家機般的遊玩感受，請在設定選項中啟用 '動感鏡頭' 和 '上下調整鏡頭'`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\ability_racial_soar",
+	icon = "Interface\\Icons\\ability_eyeoftheowl",
     {
         text = "開/關動感鏡頭",
         callback = function(cfg, v, loading) SlashCmdList["ACTIONCAMPLUS"]("") end,
@@ -247,7 +248,7 @@ D["AutoPotion"] = {
 	title = "一鍵吃糖/喝紅水",
 	desc = "只要按一個按鈕或快速鍵，便能使用治療石、治療藥水或自己的補血技能。``會自動選用背包中的物品，有糖先吃糖，有水喝水，節省快捷列格子又方便!`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_alchemy_80_potion01red",
+	icon = "Interface\\Icons\\inv_potion_54",
 	img = true,
 	{
 		type = "text",
@@ -317,7 +318,6 @@ D["BattleGroundEnemies"] = {
 	title = "(暫時停用) 戰場目標框架",
 	desc = "戰場專用的友方和敵方單位框架，可以監控敵人的血量、減益效果、控場遞減...等等多種狀態。`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\achievement_pvp_h_08",
 	img = true,
     {
         text = "設定選項",
@@ -866,7 +866,7 @@ D["EasyFrames"] = {
 	title = "暴雪頭像 (美化調整)",
 	desc = "喜愛遊戲內建的頭像推薦使用這個插件，讓內建頭像變得更漂亮，還額外提供了許多自訂化的選項。``|cffFF2D2D請勿和 'Stuf 頭像' 同時載入使用。|r`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_gnollkid_tan",
+	icon = "Interface\\Icons\\inv_pet_babyblizzardbear",
 	img = true,
     {
         text = "設定選項",
@@ -1541,7 +1541,7 @@ D["MeepMerp"] = {
 	title = "超出法術範圍音效",
 	desc = "距離過遠、超出法術可以施放的範圍時會發出「咕嚕嚕嚕～」的音效來提醒。`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\highmaulraid_range_far",
+	icon = "Interface\\Icons\\spell_holy_blessingofstrength",
 	img = true,
 	{
 		type = "text",
@@ -1696,7 +1696,7 @@ D["NameplateSCT"] = {
 	title = "血條浮動戰鬥文字",
 	desc = "『我輸出超高的！』``喜歡高爽度的爆擊數字，想要看清楚每一發打出的傷害有多少嗎?`` 讓打怪的傷害數字在血條周圍跳動，完全可以自訂字體、大小、顏色和動畫效果。也可以在傷害數字旁顯示法術圖示、依據傷害類型顯示文字顏色，更容易分辨是哪個技能打出的傷害。``不擋畫面，清楚就是爽！``|cffFF2D2D只會套用到打怪的傷害數字，不會影響其它浮動戰鬥文字。|r`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\boss_odunrunes_yellow",
+	icon = "Interface\\Icons\\achievement_guild_level10",
 	img = true,
     {
         text = "設定選項",
@@ -1734,7 +1734,6 @@ D["OmniBar"] = {
 	title = "敵方技能監控 (條列)",
 	desc = "監控敵人的技能冷卻時間，可以建立多組技能圖示列，擺在畫面上的任何位置。`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\achievement_pvp_a_11",
 	img = true,
     {
         text = "設定選項",
@@ -1892,7 +1891,6 @@ D["Postal"] = {
 	title = "超強信箱",
 	desc = "強化信箱功能。``收件人可以快速地選擇分身，避免寄錯；一次收取所有信件，還有更多功能。`",
 	modifier = "a9012456, Adavak, andy52005, BNS, NightOw1, smartdavislin, titanium0107, whocare, Whyv",
-	icon = "Interface\\Icons\\inv_letter_03",
 	img = true,
 };
 D["PremadeGroupsFilter"] = {
@@ -2071,7 +2069,7 @@ D["SexyMap"] = {
     defaultEnable = 0,
 	title = "性感小地圖",
 	desc = "讓你的小地圖更具特色和樂趣，並增添一些性感的選項設定。`",
-	icon = "Interface\\Icons\\inv_misc_celestialmap",
+	icon = "Interface\\Icons\\spell_arcane_blast",
 	img = true,
     {
         text = "設定選項",
@@ -2092,6 +2090,7 @@ D["SharedMedia_Rainbow"] = {
 	tags = { "MISC" },
 	title = "彩虹字體材質包",
 	desc = "讓不同的插件能夠共享材質、背景、邊框、字體和音效，也提供了多種中英文字體和材質可供設定插件時使用。``|cffFF2D2D特別注意：在插件的設定中選擇字體時，英文字體只能顯示英文、無法顯示中文 (遇到中文字會變成問號)。如有需要顯示中文，請選擇中文字體。|r`",
+	icon = "Interface\\Icons\\achievement_doublerainbow",
 };
 D["SharedMedia_BNS"] = {
     defaultEnable = 1,
@@ -2143,7 +2142,7 @@ D["SilverPlateTweaks"] = {
 	tags = { "ENHANCEMENT" },
 	title = "血條距離微調",
 	desc = "自動調整血條的視野距離 (可以看見距離多遠範圍內的血條) 和堆疊時的間距。``|cffFF2D2D若要手動調整血條距離時 (從 Esc > 介面 > 插件 > 進階)，請關閉這個插件。|r`",
-	icon = "Interface\\Icons\\artifactability_feraldruid_openwounds",
+	icon = "Interface\\Icons\\spell_misc_hellifrepvpcombatmorale",
 	img = true,
 };
 D["SimpleAddonManager"] = {
@@ -2167,7 +2166,7 @@ D["SimpleItemLevel"] = {
 	tags = { "ITEM" },
 	title = "顯示物品等級",
 	desc = "在角色視窗的裝備欄位、背包和浮動提示資訊中顯示物品等級數字，大小、位置都可以調整。``|cffFF2D2D特別注意: '裝備觀察' 插件也有顯示物品等級的功能，如果發現兩個重疊的物品等級數字，建議在 '裝備觀察' 插件的設定中關閉相關選項 (例如角色視窗、背包...)。`",
-	icon = "Interface\\Icons\\achievement_garrisonfollower_itemlevel650",
+	icon = "Interface\\Icons\\achievement_garrisonfollower_itemlevel600",
 	{
         text = "設定選項",
         callback = function(cfg, v, loading) SlashCmdList["SIMPLEITEMLEVEL"]("") end,
@@ -2283,7 +2282,7 @@ D["Stuf"] = {
 	title = "Stuf 頭像",
 	desc = "玩家、目標、小隊和首領頭像血條框架，簡單好用自訂性高!``也有傳統頭像樣式和其他外觀樣式可供選擇，詳細用法說明請看：`http://wp.me/p7DTni-142`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_pet_riverotter_red",
+	icon = "Interface\\Icons\\inv_misc_petmoonkinta",
 	img = true,
     {
         text = "設定選項",
@@ -2384,7 +2383,7 @@ D["TinyChat"] = {
 	title = "聊天按鈕和功能增強",
 	desc = "一個超輕量級的聊天功能增強插件。``提供快速切換頻道按鈕、表情圖案、開怪倒數、擲骰子、顯示物品圖示...還有更多功能。`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\spell_holy_divineprovidence",
+	icon = "Interface\\Icons\\inv_misc_food_28",
     img = true,
 	{
         text = "重置聊天按鈕位置",
@@ -2410,7 +2409,7 @@ D["TinyInspect-Reforged"] = {
 	tags = { "ITEM" },
 	title = "裝備觀察",
 	desc = "觀察其他玩家和自己時會在角色資訊視窗右方列出已裝備的物品清單，方便查看裝備和物品等級。``還包含裝備欄物品等級、背包中物品等級，和滑鼠提示中顯示玩家專精和裝等的功能。`",
-	icon = "Interface\\Icons\\inv_helmet_leather_raiddruid_q_01",
+	icon = "Interface\\Icons\\achievement_garrisonfollower_itemlevel650",
 	img = true,
 	{
         text = "設定選項",
@@ -2581,7 +2580,6 @@ D["WorldMapTrackingEnhanced"] = {
 	tags = { "MAP" },
 	title = "世界地圖追蹤增強",
 	desc = "加強世界地圖右上角放大鏡的追蹤功能，提供更多的項目，隨時選擇地圖上要顯示、不顯示哪些圖示。``支援地圖標記相關模組、採集助手、戰寵助手和世界任務追蹤插件，讓你可以快速開關地圖上的圖示，不需要分別停用每個插件。`",
-	icon = "Interface\\Icons\\inv_misc_spyglass_03",
 	img = true,
 	{
         text = "設定選項",
