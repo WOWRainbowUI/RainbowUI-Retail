@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.0903
+PawnVersion = 2.0905
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.18
@@ -1106,10 +1106,13 @@ function PawnClearCacheValuesOnly()
 	end
 	-- Then, the gem caches.  For each gem meta-table, look at the gem table (which is in
 	-- column 3) and then clear out that table's item data cache.
-	local GemQualityData, GemData
-	for _, GemQualityData in pairs(PawnGemQualityLevels) do
-		for _, GemData in pairs(GemQualityData[2]) do
-			GemData.Item = nil
+	local GemCaches = { PawnGemQualityLevels, PawnMetaGemQualityLevels, PawnCogwheelQualityLevels }
+	local GemCache, GemQualityData, GemData
+	for _, GemCache in pairs(GemCaches) do
+		for _, GemQualityData in pairs(GemCache) do
+			for _, GemData in pairs(GemQualityData[2]) do
+				GemData.Item = nil
+			end
 		end
 	end
 	-- Then, the Compare tab's cache.
@@ -1190,7 +1193,10 @@ function PawnRecalculateScaleTotal(ScaleName)
 			["BlueSocket"] = { },
 			["BlueSocketValue"] = { },
 			["MetaSocket"] = { },
-			["MetaSocketValue"] = { },		}
+			["MetaSocketValue"] = { },
+			["CogwheelSocket"] = { },
+			["CogwheelSocketValue"] = { },
+		}
 	end
 	local ThisScaleBestGems = PawnScaleBestGems[ScaleName]
 
@@ -1240,6 +1246,24 @@ function PawnRecalculateScaleTotal(ScaleName)
 			local BestMeta
 			BestMeta, ThisScaleBestGems.MetaSocket[ItemLevel] = PawnFindBestGems(ScaleName, GemData)
 			ThisScaleBestGems.MetaSocketValue[ItemLevel] = BestMeta
+		end
+	end
+
+	-- Now cogwheels.
+	if VgerCore.IsCataclysm then -- or Pandaria
+		for _, QualityLevelData in pairs(PawnCogwheelQualityLevels) do
+			local ItemLevel = QualityLevelData[1]
+			local GemData = QualityLevelData[2]
+
+			if PawnCommon.Debug then
+				VgerCore.Message("")
+				VgerCore.Message("COGWHEELS FOR ITEM LEVEL " .. tostring(ItemLevel))
+				VgerCore.Message("")
+			end
+
+			local BestCogwheel
+			BestCogwheel, ThisScaleBestGems.CogwheelSocket[ItemLevel] = PawnFindBestGems(ScaleName, GemData)
+			ThisScaleBestGems.CogwheelSocketValue[ItemLevel] = BestCogwheel
 		end
 	end
 
@@ -1447,6 +1471,7 @@ function PawnGetItemData(ItemLink)
 				Item.Stats.MetaSocket = nil
 				Item.Stats.MetaSocketEffect = nil
 			end
+			Item.Stats.CogwheelSocket = nil
 		end
 
 		-- If the item doesn't have any stats, don't cache it.  This is done to work around a problem a few people were seeing where
@@ -1646,8 +1671,8 @@ function PawnGetSingleValueFromItem(Item, ScaleName)
 
 	-- If this scale isn't enabled, just calculate it as a one-off.
 	local Value, UnenchantedValue
-	Value = PawnGetItemValue(Item.Stats, Item.Level, Item.SocketBonusStats, ScaleName, false, false)
-	UnenchantedValue = PawnGetItemValue(Item.UnenchantedStats, Item.Level, Item.UnenchantedSocketBonusStats, ScaleName, false, false)
+	Value = PawnGetItemValue(Item.Stats, Item.Level, Item.SocketBonusStats, ScaleName, false, false, true)
+	UnenchantedValue = PawnGetItemValue(Item.UnenchantedStats, Item.Level, Item.UnenchantedSocketBonusStats, ScaleName, false, false, false)
 	return Value, UnenchantedValue
 end
 
@@ -1814,7 +1839,7 @@ end
 -- 	UnenchantedItem: A table of unenchanted item values in the format returned by GetStatsFromTooltip.
 -- 	UnenchantedItemSocketBonus: A table of unenchanted item socket bonuses in the format returned by GetStatsFromTooltip.
 --	DebugMessages: If true, debug messages will be printed.
---	NoNormalization: If true, the user's normalization factor will be ignored.
+--	NoNormalization: If true, the user's normalization factor and reforging will be ignored.
 -- Return value: ItemValues
 -- 	ItemValues: A sorted table of scale values in the following format: { {"Scale 1", 100, 90, ...}, {"\"Provider\":Scale2", 200, 175, ...} }.
 --	Values for scales that are not currently enabled are not included.
@@ -1830,14 +1855,14 @@ function PawnGetAllItemValues(Item, ItemLevel, SocketBonus, UnenchantedItem, Une
 			local Value
 			local UnenchantedValue
 			if UnenchantedItem then
-				UnenchantedValue = PawnGetItemValue(UnenchantedItem, ItemLevel, UnenchantedItemSocketBonus, ScaleName, ShowScale and DebugMessages, NoNormalization)
+				UnenchantedValue = PawnGetItemValue(UnenchantedItem, ItemLevel, UnenchantedItemSocketBonus, ScaleName, ShowScale and DebugMessages, NoNormalization, NoNormalization)
 			end
 			if Item then
 				if ShowScale and DebugMessages and PawnCommon.ShowEnchanted then
 					PawnDebugMessage(" ")
 					PawnDebugMessage(PawnLocal.EnchantedStatsHeader)
 				end
-				Value = PawnGetItemValue(Item, ItemLevel, SocketBonus, ScaleName, ShowScale and DebugMessages and PawnCommon.ShowEnchanted, NoNormalization)
+				Value = PawnGetItemValue(Item, ItemLevel, SocketBonus, ScaleName, ShowScale and DebugMessages and PawnCommon.ShowEnchanted, NoNormalization, true)
 			end
 
 			-- Add these values to the table.
@@ -2469,7 +2494,7 @@ function PawnGetStatsFromTooltip(TooltipName, DebugMessages)
 			SocketBonusStats = {}
 		else
 			-- If the socket bonus is not valid, then we need to check for sockets.
-			if Stats["PrismaticSocket"] or Stats["RedSocket"] or Stats["YellowSocket"] or Stats["BlueSocket"] or Stats["MetaSocket"] then
+			if Stats["PrismaticSocket"] or Stats["RedSocket"] or Stats["YellowSocket"] or Stats["BlueSocket"] or Stats["MetaSocket"] or Stats["CogwheelSocket"] then
 				-- There are sockets left, so the player could still meet the requirements.
 				PawnDebugMessage("   (Socket bonus requirements could potentially be met)")
 			else
@@ -2739,7 +2764,8 @@ function PawnGetItemValue(Item, ItemLevel, SocketBonus, ScaleName, DebugMessages
 			Stat ~= "YellowSocket" and
 			Stat ~= "BlueSocket" and
 			Stat ~= "MetaSocket" and
-			Stat ~= "MetaSocketEffect"
+			Stat ~= "MetaSocketEffect" and
+			Stat ~= "CogwheelSocket"
 		then
 			if ThisValue then
 				-- This stat has a value; add it to the running total.
@@ -2774,13 +2800,16 @@ function PawnGetItemValue(Item, ItemLevel, SocketBonus, ScaleName, DebugMessages
 				Item.YellowSocket or
 				Item.BlueSocket or
 				Item.MetaSocket or
-				Item.MetaSocketEffect
+				Item.MetaSocketEffect or
+				Item.CogwheelSocket
 			) then
 
 				local GemQualityLevel = PawnGetGemQualityForItem(PawnGemQualityLevels, ItemLevel)
 				local MetaGemQualityLevel = PawnGetGemQualityForItem(PawnMetaGemQualityLevels, ItemLevel)
+				local CogwheelQualityLevel = PawnGetGemQualityForItem(PawnCogwheelQualityLevels, ItemLevel)
 
 				local SocketValue = function(Stat, QualityLevel)
+					if QualityLevel == nil then return 0 end
 					local Quantity = Item[Stat]
 					if Quantity then
 						local ThisValue = ThisScaleBestGems[Stat .. "Value"][QualityLevel]
@@ -2839,6 +2868,9 @@ function PawnGetItemValue(Item, ItemLevel, SocketBonus, ScaleName, DebugMessages
 					end
 				end
 
+				-- In Cataclysm there are also cogwheels for engineering goggles. Sigh.
+				TotalSocketValue = TotalSocketValue + SocketValue("CogwheelSocket", CogwheelQualityLevel)
+
 				Total = Total + TotalSocketValue
 			end -- if ShouldIncludeSockets
 
@@ -2877,7 +2909,7 @@ end
 --		GemListString: A string description of the best gems to use.
 --		IsVague: true if the returned string is not particularly specific.
 function PawnGetGemListString(ScaleName, ListAll, ItemLevel, Color)
-	Socket = Socket or "Prismatic"
+	Color = Color or "Prismatic"
 	local Gems = PawnScaleBestGems[ScaleName]
 	if Gems and Gems[Color .. "Socket"] then
 		local GemQuality = PawnGetGemQualityForItem(PawnGemQualityLevels, ItemLevel)
@@ -3386,7 +3418,9 @@ end
 
 -- Given a particular item level and a list of gem tables, return the appropriate gem quality level for an item of the given level.
 -- If ItemLevel is nil, then the highest gem quality is assumed.
+-- Will return nil when there are no known gems of that type at all.
 function PawnGetGemQualityForItem(GemQualityLevels, ItemLevel)
+	if not GemQualityLevels or #GemQualityLevels == 0 then return nil end
 	if not ItemLevel then return GemQualityLevels[1][1] end
 
 	local _, GemQualityData, GemLevel
@@ -3394,7 +3428,7 @@ function PawnGetGemQualityForItem(GemQualityLevels, ItemLevel)
 		GemLevel = GemQualityData[1]
 		if ItemLevel >= GemLevel then return GemLevel end
 	end
-	VgerCore.Fail("Couldn't find an appropriate gem quality level for an item of level " .. tostring(ItemLevel) .. " in the specified item table.")
+	VgerCore.Fail("Pawn couldn't find the right gems to use for an item of level " .. tostring(ItemLevel) .. " (WoW " .. GetBuildInfo() .. ").")
 	return GemLevel
 end
 
@@ -3435,7 +3469,7 @@ function PawnFindBestGems(ScaleName, GemTable, RedOnly, YellowOnly, BlueOnly)
 		ThisGem = PawnGetGemData(GemData)
 		if ThisGem then
 			if ((not RedOnly) or GemData.R) and ((not YellowOnly) or GemData.Y) and ((not BlueOnly) or GemData.B) then
-				local ThisValue = PawnGetItemValue(ThisGem.UnenchantedStats, ThisGem.Level, nil, ScaleName, false, true)
+				local ThisValue = PawnGetItemValue(ThisGem.UnenchantedStats, ThisGem.Level, nil, ScaleName, false, true, true)
 				if ThisValue and ThisValue > BestScore then
 					-- This gem is better than any we've found so far.
 					BestScore = ThisValue
