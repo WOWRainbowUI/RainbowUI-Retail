@@ -176,10 +176,12 @@ hooksecurefunc("SetItemButtonQuality", function(self, quality, itemIDOrLink, sup
             else
                 link = GetQuestItemLink(self.type, self:GetID())
             end
-            if (not link) then
-                link = select(2, GetItemInfo(itemIDOrLink))
-            end
-            SetItemLevel(self, link)
+            -- if (not link) then
+            --    link = select(2, GetItemInfo(itemIDOrLink))
+            -- end
+            if link then -- 暫時修正
+				SetItemLevel(self, link)
+			end
         --EncounterJournal
         elseif (self.encounterID and self.link) then
             local itemInfo = GetLootInfoByIndex(self.index)
