@@ -4,18 +4,18 @@
     for Classic/TBC/WOTLK
 
     Requires: LibStub, CallbackHandler-1.0, LibDetours-1.0
-    Version: 14 (2023-02-26)
+    Version: 17 (2023-07-24)
 
 --]]
 
-local LCI_VERSION = 14
+local LCI_VERSION = 17
 
 local clientVersionString = GetBuildInfo()
 local clientBuildMajor = string.byte(clientVersionString, 1)
 -- load only on classic/tbc/wotlk
-if (clientBuildMajor < 49 or clientBuildMajor > 51 or string.byte(clientVersionString, 2) ~= 46) then
-    return
-end
+-- if (clientBuildMajor < 49 or clientBuildMajor > 51 or string.byte(clientVersionString, 2) ~= 46) then
+--     return
+-- end
 
 assert(LibStub, "LibClassicInspector requires LibStub")
 assert(LibStub:GetLibrary("CallbackHandler-1.0", true), "LibClassicInspector requires CallbackHandler-1.0")
@@ -56,8 +56,9 @@ local C_PREFIX = "LCIV1"
 local GUIDIsPlayer = C_PlayerInfo.GUIDIsPlayer
 local SendAddonMessage = C_ChatInfo.SendAddonMessage
 local NewTicker = C_Timer.NewTicker
+local GetNamePlates = C_NamePlate.GetNamePlates
 
-local isWotlk = clientBuildMajor == 51
+local isWotlk = clientBuildMajor == 51 or clientBuildMajor == 52
 local isTBC = clientBuildMajor == 50
 local isClassic = clientBuildMajor == 49
 
@@ -220,7 +221,7 @@ end
 -- TODO: talent IDs
 -- TODO: localization
 if (isWotlk) then
-if (oldminor < 13) then
+if (oldminor < 16) then
   lib.glyphs_table = nil
   lib.glyph_r_tbl = nil
 end
@@ -263,7 +264,8 @@ lib.glyphs_table = lib.glyphs_table or {
       [4] = 58098,  -- Glyph of Thunder Clap
       [5] = 58099,  -- Glyph of Mocking Blow
       [6] = 58104,  -- Glyph of Enduring Victory
-      [7] = 68164   -- Glyph of Command
+      [7] = 68164,  -- Glyph of Command
+      [8] = 414812  -- Glyph of Shattering Throw
     },
   },
   ["PALADIN"] = {
@@ -621,7 +623,8 @@ lib.glyphs_table = lib.glyphs_table or {
       [28] = 63057, -- Glyph of Barkskin
       [29] = 65243, -- Glyph of Survival Instincts
       [30] = 67598, -- Glyph of Claw
-      [31] = 71013  -- Glyph of Rapid Rejuvenation
+      [31] = 71013, -- Glyph of Rapid Rejuvenation
+      [32] = 413895 -- Glyph of Omen of Clarity
     },
     [2] = {
       [1] = 57855,  -- Glyph of the Wild
@@ -2837,7 +2840,12 @@ local function cacheUserInventory(unit)
     local inventory = {["time"] = time(), ["inspect"] = true}
     for i=1,19 do
         inventory[i] = GetInventoryItemID(unit, i)
-        --C_Item.RequestLoadItemDataByID(itemID)
+        local itemLink = GetInventoryItemLink(unit, i)
+        if itemLink ~= nil then
+            local _, _, _, _, Id, _, _, _, _, _, _, _, _, _ = string.find(itemLink,
+            "|?c?f?f?(%x*)|?H?([^:]*):?(%d+):?(%d*):?(%d*):?(%d*):?(%d*):?(%d*):?(%-?%d*):?(%-?%d*):?(%d*):?(%d*):?(%-?%d*)|?h?%[?([^%[%]]*)%]?|?h?|?r?")
+            inventory[i] = tonumber(Id)
+        end
     end
     local user = getCacheUser(guid)
     if(user) then
@@ -3086,39 +3094,39 @@ end
 C_ChatInfo.RegisterAddonMessagePrefix(C_PREFIX)
 
 local function sendInfo()
-    if (IsInGroup() or IsInGuild()) then
-        local s = "02-"
-        s = s .. (isWotlk and GetActiveTalentGroup(false, false) or 1)
-        for x = 1, (isWotlk and 2 or 1) do
-            for i = 1, 3 do  -- GetNumTalentTabs
-                for j = 1, GetNumTalents(i, false, false) do
-                    s = s .. select(5, GetTalentInfo(i, j, false, false, x))
-                end
-            end
-        end
-        if (isWotlk) then
-            for x = 1, 2 do
-                for i = 1, 6 do
-                    local z = select(3, GetGlyphSocketInfo(i, x))
-                    if (z) then
-                        if (z == 55115) then z = 54929 end
-                        s = s..string.char(glyph_r_tbl[z]+48)
-                    else
-                        s = s.."0"
-                    end
-                end
-            end
-        end
-        if (IsInGroup(LE_PARTY_CATEGORY_HOME)) then
-            SendAddonMessage(C_PREFIX, s, "RAID")
-        end
-        if (IsInGroup(LE_PARTY_CATEGORY_INSTANCE)) then
-            SendAddonMessage(C_PREFIX, s, "INSTANCE_CHAT")
-        end
-        if (IsInGuild()) then
-            SendAddonMessage(C_PREFIX, s, "GUILD")
-        end
-    end
+    -- if (IsInGroup() or IsInGuild()) then
+    --     local s = "02-"
+    --     s = s .. (isWotlk and GetActiveTalentGroup(false, false) or 1)
+    --     for x = 1, (isWotlk and 2 or 1) do
+    --         for i = 1, 3 do  -- GetNumTalentTabs
+    --             for j = 1, GetNumTalents(i, false, false) do
+    --                 s = s .. select(5, GetTalentInfo(i, j, false, false, x))
+    --             end
+    --         end
+    --     end
+    --     -- if (isWotlk) then
+    --     --     for x = 1, 2 do
+    --     --         for i = 1, 6 do
+    --     --             local z = select(3, GetGlyphSocketInfo(i, x))
+    --     --             if (z) then
+    --     --                 if (z == 55115) then z = 54929 end
+    --     --                 s = s..string.char(glyph_r_tbl[z]+48)
+    --     --             else
+    --     --                 s = s.."0"
+    --     --             end
+    --     --         end
+    --     --     end
+    --     -- end
+    --     if (IsInGroup(LE_PARTY_CATEGORY_HOME)) then
+    --         SendAddonMessage(C_PREFIX, s, "RAID")
+    --     end
+    --     if (IsInGroup(LE_PARTY_CATEGORY_INSTANCE)) then
+    --         SendAddonMessage(C_PREFIX, s, "INSTANCE_CHAT")
+    --     end
+    --     if (IsInGuild()) then
+    --         SendAddonMessage(C_PREFIX, s, "GUILD")
+    --     end
+    -- end
 end
 
 local function inspectQueueTick()
@@ -3743,8 +3751,8 @@ function lib:GetTalentRanksTable(unitorguid)
         local talents = {[1] = {[1] = {}, [2] = {}, [3] = {}}, [2] = {[1] = {}, [2] = {}, [3] = {}}}
         for x = 1, (isWotlk and 2 or 1) do
             for i = 1, 3 do  -- GetNumTalentTabs
-                for j = 1, GetNumTalents(i, true, false) do
-                    talents[x][i][j] = select(5, GetTalentInfo(i, j, true, false, x))
+                for j = 1, GetNumTalents(i, false, false) do
+                    talents[x][i][j] = select(5, GetTalentInfo(i, j, false, false, x))
                 end
             end
         end
@@ -3809,7 +3817,7 @@ function lib:PlayerGUIDToUnitToken(guid)
         return "mouseover"
     end
     if (GetCVar("nameplateShowFriends") == "1" or GetCVar("nameplateShowEnemies") == "1") then
-        local nameplatesArray = C_NamePlate.GetNamePlates()
+        local nameplatesArray = GetNamePlates()
         for i, nameplate in ipairs(nameplatesArray) do
             if (UnitGUID(nameplate.namePlateUnitToken) == guid) then
                 return nameplate.namePlateUnitToken
