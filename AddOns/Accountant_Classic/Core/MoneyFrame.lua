@@ -9,7 +9,7 @@ local unpack = _G.unpack
 local GetBuildInfo = _G.GetBuildInfo
 
 -- Determine WoW TOC Version
-local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWRetail
+local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWCATAC, WoWRetail
 local wowversion  = select(4, GetBuildInfo())
 if wowversion < 20000 then
 	WoWClassicEra = true
@@ -17,6 +17,8 @@ elseif wowversion < 30000 then
 	WoWClassicTBC = true
 elseif wowversion < 40000 then 
 	WoWWOTLKC = true
+elseif wowversion < 50000 then
+	WoWCATAC = true
 elseif wowversion > 90000 then
 	WoWRetail = true
 else
@@ -73,7 +75,7 @@ local function frame_OnEnter(self)
 	end
 
 	local tooltip
-	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC) then
+	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
 		tooltip = GameTooltip
 	else -- Retail
 		tooltip = GetAppropriateTooltip()

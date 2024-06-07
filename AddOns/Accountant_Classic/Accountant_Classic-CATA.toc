@@ -1,4 +1,4 @@
-## Interface: 11500
+## Interface: 40400
 #@non-debug@
 ## Title: Accountant Classic
 ## Title-deDE: Accountant Classic
@@ -46,12 +46,13 @@
 ## X-License: GPLv2
 ## X-Category: Information
 ## X-Localizations: enUS, frFR, deDE, zhCN, zhTW, koKR, esES, ptBR, ruRU
+## IconTexture: Interface\AddOns\Accountant_Classic\Images\AccountantClassicButton-Up
 
 ## Title-zhTW: |cffFFFF99[交易]|r 個人會計
 ## Notes-zhTW: Accountant Classic |n|n追蹤每個角色的所有收入與支出狀況，並可顯示當日小計、當週小計、以及自有記錄起的總計。並可顯示所有角色的總金額。|n|n|cffffd200使用方法: |r點小地圖按鈕。
 ## X-Category-zhTW: 交易
 
-Libs\Libs.xml
+LibDataBroker-1.1.lua
 Locale\Locales.xml
 Core\Constants.lua
 

@@ -42,7 +42,7 @@ local GetBackpackCurrencyInfo = GetBackpackCurrencyInfo or nil
 local GetCurrencyInfo = GetCurrencyInfo or nil
 
 -- Determine WoW TOC Version
-local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWRetail
+local WoWClassicEra, WoWClassicTBC, WoWWOTLKC, WoWCATAC, WoWRetail
 local wowversion  = select(4, GetBuildInfo())
 if wowversion < 20000 then
 	WoWClassicEra = true
@@ -50,6 +50,9 @@ elseif wowversion < 30000 then
 	WoWClassicTBC = true
 elseif wowversion < 40000 then 
 	WoWWOTLKC = true
+elseif wowversion < 50000 then
+	WoWCATAC = true
+	GetCurrencyInfo = C_CurrencyInfo.GetCurrencyInfo
 elseif wowversion > 90000 then
 	WoWRetail = true
 
@@ -92,7 +95,7 @@ end
 local AccountantClassic_Version = GetAddOnMetadata(private.addon_name, "Version");
 --AccountantClassic_Disabled = false;
 -- NewDB
-local AC_NewDB = fales
+local AC_NewDB = false
 local AC_LOGTYPE = ""
 local AC_CURRMONEY = 0
 local AC_LASTSESSMONEY = 0
@@ -412,7 +415,7 @@ local function setLabels()
 end
 
 local function settleTabText()
-	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC) then
+	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
 		local TabText = private.constants.tabText
 		for i = 1, AC_TABS do
 			local tab = _G["AccountantClassicFrameTab"..i]
@@ -944,6 +947,7 @@ local function updateLog()
 				end
 				-- ZoneDB
 				if (profile.trackzone == true) then
+					Accountant_ClassicZoneDB[AC_SERVER][AC_PLAYER]["data"][logmode][logtype] = Accountant_ClassicZoneDB[AC_SERVER][AC_PLAYER]["data"][logmode][logtype] or {}
 					if (Accountant_ClassicZoneDB[AC_SERVER][AC_PLAYER]["data"][logmode][logtype][zoneText] == nil) then
 						Accountant_ClassicZoneDB[AC_SERVER][AC_PLAYER]["data"][logmode][logtype][zoneText] = { In = 0, Out = 0 };
 					end
@@ -1101,7 +1105,7 @@ end
 
 local function AccountantClassic_GetFormattedCurrency(currencyID)
 	local name, amount, icon
-	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC) then
+	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
 		name, amount, icon = GetCurrencyInfo(currencyID)
 	else
 		local info = GetCurrencyInfo(currencyID)
@@ -1689,7 +1693,7 @@ function addon:CursorHasItem()
 end
 
 function addon:BackpackTokenFrame_Update()
-	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC) then
+	if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
 		-- do nothing
 	else
 		local name, count, icon, currencyID
