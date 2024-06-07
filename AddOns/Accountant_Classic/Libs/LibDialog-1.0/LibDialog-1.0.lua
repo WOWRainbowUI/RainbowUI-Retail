@@ -24,14 +24,14 @@ local MAJOR = "LibDialog-1.0"
 
 _G.assert(LibStub, MAJOR .. " requires LibStub")
 
-local MINOR = 9 -- Should be manually increased
+local MINOR = 10 -- Should be manually increased
 local lib, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then
     return
 end -- No upgrade needed
 
-local dialog_prototype = _G.CreateFrame("Frame", nil, _G.UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
+local dialog_prototype = _G.CreateFrame("Frame", nil, _G.UIParent, _G.BackdropTemplateMixin and "BackdropTemplate" or nil)
 local dialog_meta = {
     __index = dialog_prototype
 }
@@ -124,6 +124,27 @@ local editbox_heap = lib.editbox_heap
 -----------------------------------------------------------------------
 -- Helper functions.
 -----------------------------------------------------------------------
+local function _SetupAnchor(dialog)
+    local default_dialog
+    if _G.StaticPopup_DisplayedFrames then
+        default_dialog = _G.StaticPopup_DisplayedFrames[#_G.StaticPopup_DisplayedFrames]
+    elseif (_G.StaticPopup_HasDisplayedFrames and _G.StaticPopup_IsLastDisplayedFrame) then
+        if StaticPopup_HasDisplayedFrames() then
+            for idx = STATICPOPUP_NUMDIALOGS,1,-1 do
+                local test_dialog = _G["StaticPopup"..idx]
+                if StaticPopup_IsLastDisplayedFrame(test_dialog) then
+                    default_dialog = test_dialog
+                end
+            end
+        end
+    end
+    if default_dialog then
+        dialog:SetPoint("TOP", default_dialog, "BOTTOM", 0, 0)
+    else
+        dialog:SetPoint("TOP", _G.UIParent, "TOP", 0, -135)
+    end
+end
+
 local function _ProcessQueue()
     if #active_dialogs == MAX_DIALOGS then
         return
@@ -148,13 +169,7 @@ local function _RefreshDialogAnchors()
         current_dialog:ClearAllPoints()
 
         if index == 1 then
-            local default_dialog = _G.StaticPopup_DisplayedFrames[#_G.StaticPopup_DisplayedFrames]
-
-            if default_dialog then
-                current_dialog:SetPoint("TOP", default_dialog, "BOTTOM", 0, 0)
-            else
-                current_dialog:SetPoint("TOP", _G.UIParent, "TOP", 0, -135)
-            end
+            _SetupAnchor(current_dialog)
         else
             current_dialog:SetPoint("TOP", active_dialogs[index - 1], "BOTTOM", 0, 0)
         end
@@ -378,7 +393,11 @@ local function _AcquireCheckBox(parent, index)
     active_checkboxes[#active_checkboxes + 1] = checkbox
 
     checkbox:SetPoint("LEFT", 0, 0)
-    checkbox.text:SetText(parent.delegate.checkboxes[index].label or "")
+    if checkbox.Text then
+        checkbox.Text:SetText(parent.delegate.checkboxes[index].label or "")
+    elseif checkbox.text then
+        checkbox.text:SetText(parent.delegate.checkboxes[index].label or "")
+    end
     checkbox.container:SetParent(parent)
     checkbox:SetID(index)
     checkbox:SetChecked(CheckBox_GetValue(checkbox))
@@ -675,7 +694,12 @@ local function _BuildDialog(delegate, data)
         local max_string_width = 0
 
         for index = 1, #dialog.checkboxes do
-            local string_width = dialog.checkboxes[index].text:GetStringWidth()
+            local string_width = 0
+            if dialog.checkboxes[index].Text then
+                dialog.checkboxes[index].Text:GetStringWidth()
+            elseif dialog.checkboxes[index].text then
+                dialog.checkboxes[index].text:GetStringWidth()
+            end
 
             if string_width > max_string_width then
                 max_string_width = string_width
@@ -830,13 +854,7 @@ function lib:Spawn(reference, data)
     if #active_dialogs > 0 then
         dialog:SetPoint("TOP", active_dialogs[#active_dialogs], "BOTTOM", 0, 0)
     else
-        local default_dialog = _G.StaticPopup_DisplayedFrames[#_G.StaticPopup_DisplayedFrames]
-
-        if default_dialog then
-            dialog:SetPoint("TOP", default_dialog, "BOTTOM", 0, 0)
-        else
-            dialog:SetPoint("TOP", _G.UIParent, "TOP", 0, -135)
-        end
+        _SetupAnchor(dialog)
     end
     active_dialogs[#active_dialogs + 1] = dialog
     dialog:Show()
