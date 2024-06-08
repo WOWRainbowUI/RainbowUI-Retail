@@ -39,7 +39,7 @@ local function Wipe(view)
     section:Release()
   end
   for _, item in pairs(view.itemsByBagAndSlot) do
-    item:Release()
+    --item:Release()
   end
   wipe(view.sections)
   wipe(view.itemsByBagAndSlot)
@@ -52,7 +52,7 @@ local function GetBagName(bagid)
   if isBackpack then
     local bagname = bagid == Enum.BagIndex.Keyring and L:G('Keyring') or C_Container.GetBagName(bagid)
     local displayid = bagid == Enum.BagIndex.Keyring and 6 or bagid+1
-    return format("#%d: %s", displayid, bagname)
+    return format("#%d: %s", displayid, bagname or "Unknown")
   end
 
     local id = bagid
@@ -202,7 +202,9 @@ local function BagView(view, ctx, bag, slotInfo)
   end
   view.content.maxCellWidth = sizeInfo.columnCount
   -- Sort the sections.
-  view.content:Sort(sort.SortSectionsAlphabetically)
+  view.content:Sort(function(a, b)
+    return sort.SortSectionsAlphabetically(view.kind, a, b)
+  end)
   debug:StartProfile('Content Draw Stage')
   local w, h = view.content:Draw()
   debug:EndProfile('Content Draw Stage')

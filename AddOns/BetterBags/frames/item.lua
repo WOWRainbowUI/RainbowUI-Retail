@@ -551,7 +551,9 @@ end
 
 function itemFrame:OnInitialize()
   self._pool = CreateObjectPool(self._DoCreate, self._DoReset)
-  self._pool:SetResetDisallowedIfNew()
+  if self._pool.SetResetDisallowedIfNew then
+    self._pool:SetResetDisallowedIfNew()
+  end
 end
 
 function itemFrame:OnEnable()
@@ -560,7 +562,7 @@ function itemFrame:OnEnable()
   -- the bag frame.
   ---@type Item[]
   local frames = {}
-  for i = 1, 600 do
+  for i = 1, 700 do
     frames[i] = self:Create()
   end
   for _, frame in pairs(frames) do

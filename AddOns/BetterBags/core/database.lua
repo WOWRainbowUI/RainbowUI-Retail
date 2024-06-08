@@ -310,6 +310,24 @@ function DB:CreateEpemeralCategory(category)
   }
 end
 
+---@param kind BagKind
+function DB:ClearCustomSectionSort(kind)
+  DB.data.profile.customSectionSort[kind] = {}
+end
+
+---@param kind BagKind
+---@param category string
+---@param sort number
+function DB:SetCustomSectionSort(kind, category, sort)
+  DB.data.profile.customSectionSort[kind][category] = sort
+end
+
+---@param kind BagKind
+---@return table<string, number>
+function DB:GetCustomSectionSort(kind)
+  return DB.data.profile.customSectionSort[kind]
+end
+
 ---@param guid string
 ---@param locked boolean
 function DB:SetItemLock(guid, locked)
@@ -382,6 +400,18 @@ end
 
 function DB:SetShowKeybindWarning(value)
   DB.data.profile.showKeybindWarning = value
+end
+
+---@param kind BagKind
+---@return boolean
+function DB:GetShowFullSectionNames(kind)
+  return DB.data.profile.showFullSectionNames[kind]
+end
+
+---@param kind BagKind
+---@param value boolean
+function DB:SetShowFullSectionNames(kind, value)
+  DB.data.profile.showFullSectionNames[kind] = value
 end
 
 function DB:Migrate()

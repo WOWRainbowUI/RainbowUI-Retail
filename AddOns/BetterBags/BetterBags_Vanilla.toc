@@ -3,9 +3,9 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.50
+## Version: v0.1.61
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-05-30T21:22:16Z
+## X-Date: 2024-06-06T15:24:43Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
@@ -21,7 +21,7 @@ libs/WagoAnalytics/Shim.lua
 templates\era\container.xml
 templates\era\debug.xml
 templates\debug.xml
-
+templates\sectionconfig.xml
 
 core\boot.lua
 
@@ -47,6 +47,7 @@ data\categories.lua
 data\items.lua
 data\loader.lua
 data\slots.lua
+data\refresh.lua
 
 util\color.lua
 util\resize.lua
@@ -71,6 +72,9 @@ frames\era\bagbutton.lua
 frames\bagslots.lua
 frames\era\bagslots.lua
 frames\currency.lua
+frames\list.lua
+frames\sectionitemlist.lua
+frames\sectionconfig.lua
 frames\debug.lua
 
 views\views.lua

@@ -25,6 +25,7 @@ local interactionEvents = {
   [Enum.PlayerInteractionType.GuildBanker] = true,
   [Enum.PlayerInteractionType.VoidStorageBanker] = true,
   [Enum.PlayerInteractionType.ScrappingMachine] = true,
+  [Enum.PlayerInteractionType.ItemUpgrade] = true,
 }
 
 function addon.ForceHideBlizzardBags()
@@ -97,7 +98,11 @@ function addon:CloseSpecialWindows(interactingFrame)
   addon.Bags.Bank:Hide()
   addon.Bags.Bank:SwitchToBank()
   events:SendMessage('addon/CloseSpecialWindows')
-  CloseBankFrame()
+  if C_Bank then
+    C_Bank.CloseBankFrame()
+  else
+    CloseBankFrame()
+  end
   events:SendMessageLater('bags/OpenClose')
 end
 
