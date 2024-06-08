@@ -208,6 +208,10 @@ if isMainline then
     database[205255]    = true      -- Niffen Diggin' Mitts
     database[205456]    = true      -- Lost Dragonscale (1)
     database[205458]    = true      -- Lost Dragonscale (2)
+    database[206195]    = true      -- Path of the Naaru
+    database[208704]    = true      -- Deeepdweller's Earthen Hearthstone
+    database[209035]    = true      -- Hearthstone of the Flame
+    database[210455]    = true      -- Draenic Hologem
     database[211788]    = true      -- Tess's Peacebloom
     database[212337]    = true      -- Stone of the Hearth
     database[223988]    = true      -- Dalaran Hearthstone (1 charge quest item)

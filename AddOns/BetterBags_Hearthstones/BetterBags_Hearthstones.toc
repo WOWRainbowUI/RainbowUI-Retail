@@ -1,4 +1,4 @@
-## Interface: 100207
+## Interface: 11502, 40400, 100207
 ## Title: BetterBags - Hearthstones
 ## Notes: Adds various hearthing items to BetterBags virtual groups
 ## Notes-ruRU: L["Adds various hearthing items to BetterBags virtual groups"] = "Добавляет различные предметы для разогрева в виртуальные группы BetterBags."
@@ -23,9 +23,9 @@
 
 ## IconTexture: Interface\ICONS\Inv_misc_rune_01
 
-## Version: 1.12
+## Version: 1.13
 ## Author: Sygon of Lightbringer-US (Crimson Embers, Alliance)
-## X-Date: 2024-05-16T01:51:57Z
+## X-Date: 2024-05-31T01:39:00Z
 ## X-License: Copyright (c) 2024 Paul Vandersypen. All Rights Reserved
 ## X-Category: Bags & Inventory
 ## Dependencies: BetterBags
