@@ -1121,13 +1121,19 @@ addon.db = {
 	},
 	["|cffa335eeAwakened|r"] = {
 		213089, -- Antique Bronze Bullion
-	},
-	--[[
+	}
+--[[
 	["|cfff49813Bronze|r"] = {
 		223908, -- Minor Bronze Cache
 		223909, -- Lesser Bronze Cache
 		223910, -- Bronze Cache
 		223911, -- Greater Bronze Cache
+	},
+	["|cfff49813Eternal Threads|r"] = {
+		226142, --Greater Spool of Eternal Thread
+		226143, --Spool of Eternal Thread
+		226144, --Lesser Spool of Eternal Thread
+		226145, --Minor Spool of Eternal Thread
 	}
-	--]]
+--]]
 }
