@@ -132,7 +132,7 @@ function sectionConfigFrame:initSectionItem(button, elementData)
   if not elementData.header then
     button.Expand:SetScript("OnEnter", function()
       GameTooltip:SetOwner(button, "ANCHOR_LEFT")
-      GameTooltip:AddLine("Open the sidebar for configuring items in this category.", 1, .81960791349411, 0, true)
+      GameTooltip:AddLine(L:G("Open the sidebar for configuring items in this category."), 1, .81960791349411, 0, true)
       GameTooltip:Show()
     end)
 
@@ -144,20 +144,20 @@ function sectionConfigFrame:initSectionItem(button, elementData)
       GameTooltip:SetOwner(button, "ANCHOR_LEFT")
       GameTooltip:AddLine(elementData.title, 1, .81960791349411, 0, true)
       if categories:DoesCategoryExist(elementData.title) then
-        GameTooltip:AddLine([[
+        GameTooltip:AddLine(L:G([[
         Left click to enable or disable items from being added to this category.
-        Drag this category to Pinned to keep it at the top of your bags, or to Automatically Sorted to have it sorted with the rest of your items.]], 1, 1, 1, true)
+        Drag this category to Pinned to keep it at the top of your bags, or to Automatically Sorted to have it sorted with the rest of your items.]]), 1, 1, 1, true)
         GameTooltip:AddLine("\n", 1, 1, 1, true)
-        GameTooltip:AddDoubleLine("Left Click", "Enable or Disable Category")
-        GameTooltip:AddDoubleLine("Shift Left Click", format("Move %s to the top of your bags", elementData.title))
-        GameTooltip:AddDoubleLine("Right Click", "Open Menu")
+        GameTooltip:AddDoubleLine(L:G("Left Click"), L:G("Enable or Disable Category"))
+        GameTooltip:AddDoubleLine(L:G("Shift Left Click"), format(L:G("Move %s to the top of your bags"), elementData.title))
+        GameTooltip:AddDoubleLine(L:G("Right Click"), L:G("Open Menu"))
         --GameTooltip:AddDoubleLine("Right Click", "Hide or Show Category")
       else
-        GameTooltip:AddLine([[
+        GameTooltip:AddLine(L:G([[
           Dynamic categories can't be enabled or disabled (yet).
-          Drag this category to Pinned to keep it at the top of your bags, or to Automatically Sorted to have it sorted with the rest of your items.]], 1, 1, 1, true)
+          Drag this category to Pinned to keep it at the top of your bags, or to Automatically Sorted to have it sorted with the rest of your items.]]), 1, 1, 1, true)
           GameTooltip:AddLine("\n", 1, 1, 1, true)
-          GameTooltip:AddDoubleLine("Shift Left Click", format("Move %s to the top of your bags", elementData.title))
+          GameTooltip:AddDoubleLine(L:G("Shift Left Click"), format(L:G("Move %s to the top of your bags"), elementData.title))
           --GameTooltip:AddDoubleLine("Right Click", "Hide or Show Category")
       end
       GameTooltip:Show()
@@ -185,7 +185,7 @@ function sectionConfigFrame:initSectionItem(button, elementData)
         notCheckable = true,
         hasArrow = false,
         func = function()
-          question:YesNo("Delete Category", format("Are you sure you want to delete the category %s?", elementData.title), function()
+          question:YesNo(L:G("Delete Category"), format(L:G("Are you sure you want to delete the category %s?"), elementData.title), function()
             self.content.provider:Remove(elementData)
             self:UpdatePinnedItems()
             if self.itemList:IsShown() and self.itemList:IsCategory(elementData.title) then
@@ -295,11 +295,11 @@ function sectionConfigFrame:UpdatePinnedItems()
   database:ClearCustomSectionSort(self.kind)
   local index, elementData = next(itemList)
   repeat
-    if elementData.title ~= "Pinned" and not elementData.header then
+    if elementData.title ~= L:G("Pinned") and not elementData.header then
       database:SetCustomSectionSort(self.kind, elementData.title, index - 1)
     end
     index, elementData = next(itemList, index)
-  until elementData.title == "Automatically Sorted" and elementData.header
+  until elementData.title == L:G("Automatically Sorted") and elementData.header
 end
 
 function sectionConfigFrame:LoadPinnedItems()
@@ -326,7 +326,7 @@ function sectionConfig:Create(kind, parent)
   sc.frame:SetPoint('BOTTOMRIGHT', parent, 'BOTTOMLEFT', -10, 0)
   sc.frame:SetPoint('TOPRIGHT', parent, 'TOPLEFT', -10, 0)
   sc.frame:SetWidth(300)
-  sc.frame:SetTitle("Configure Categories")
+  sc.frame:SetTitle(L:G("Configure Categories"))
   sc.frame:SetIgnoreParentScale(true)
   sc.frame:SetScale(UIParent:GetScale())
   sc.frame:Hide()
@@ -365,9 +365,9 @@ function sectionConfig:Create(kind, parent)
     events:SendMessage('bags/FullRefreshAll')
   end)
 
-  sc.content:AddToStart({ title = "Pinned", header = true })
+  sc.content:AddToStart({ title = L:G("Pinned"), header = true })
   sc:LoadPinnedItems()
-  sc.content:AddToStart({ title = "Automatically Sorted", header = true })
+  sc.content:AddToStart({ title = L:G("Automatically Sorted"), header = true })
 
   -- Create the pop out item list.
   sc.itemList = sectionItemList:Create(sc.frame)

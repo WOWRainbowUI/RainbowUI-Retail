@@ -34,6 +34,8 @@ if GetLocale() == "zhTW" then
 	L.data["Cannot toggle bag slots in combat."] = "戰鬥中無法顯示裝備背包的欄位。"
 	L.data["Show Currencies"] = "顯示兌換通貨"
 	L.data["Click to toggle the display of the currencies side panel."] = "點一下切換顯示兌換通貨的面板。"
+	L.data["Configure Categories"] = "設定分類"
+	L.data["Click to toggle the display of the category configuration side panel."] = "點一下切換顯示分類的設定面板。"
 	L.data["Show Bag Button"] = "顯示背包按鈕"
 	L.data["Click to toggle the display of the Blizzard bag button."] = "點一下切換顯示遊戲內建的背包按鈕。"
 	L.data["Open Options Screen"] = "打開選項"
@@ -113,6 +115,8 @@ if GetLocale() == "zhTW" then
 	L.data["Color the item level text based on the item's quality."] = "依據物品品質來顯示物品等級文字的顏色。"
 	L.data["Select which view to use for this bag."] = "選擇檢視背包的方式。"
 	L.data["Display"] = "顯示"
+	L.data["Show Full Section Names"] = "顯示完整的分類名稱"
+	L.data["Show the full section in the bag window without truncating it with '...'"] = "在背包視窗中顯示完整的分類名稱，不要截斷加上 '...'。"
 	L.data["Items Per Row"] = "每列物品數"
 	L.data["Set the number of items per row in this bag."] = "設定每個橫列要顯示幾件物品。"
 	L.data["Columns"] = "欄數"
@@ -241,6 +245,30 @@ if GetLocale() == "zhTW" then
 	-- frames\search.lua
 	L.data["Start typing to search your bags..."] = "輸入文字來搜尋背包中的物品..."
 	L.data["Search Backpack"] = "搜尋背包"
+	
+	-- frames\sectionconfig.lua
+	L.data["Pinned"] = "置頂"
+	L.data["Automatically Sorted"] = "自動排序"
+	L.data["Open the sidebar for configuring items in this category."] = "打開面板以便設定此分類中的物品。"
+	L.data[ [[
+        Left click to enable or disable items from being added to this category.
+        Drag this category to Pinned to keep it at the top of your bags, or to Automatically Sorted to have it sorted with the rest of your items.]] ] = [[
+        左鍵點擊啟用或停用將物品加入此分類。
+        將分類拖曳到置頂，保持在背包的最前面，
+        或拖曳到自動排序與其他分類一起排序。]]
+	L.data["Left Click"] = "左鍵"
+	L.data["Enable or Disable Category"] = "啟用或停用分類"
+	L.data["Shift Left Click"] = "Shift+左鍵"
+	L.data["Move %s to the top of your bags"] = "將 %s 移動到背包的最前面"
+	L.data["Right Click"] = "右鍵"
+	L.data["Open Menu"] = "打開選單"
+	L.data[ [[
+          Dynamic categories can't be enabled or disabled (yet).
+          Drag this category to Pinned to keep it at the top of your bags, or to Automatically Sorted to have it sorted with the rest of your items.]] ] = [[
+          (還不能) 啟用或停用動態分類。
+        將分類拖曳到置頂，保持在背包的最前面，
+        或拖曳到自動排序與其他分類一起排序。]]
+	L.data["Are you sure you want to delete the category %s?"] = "是否確定要刪除分類 %s?"
 	
 	-- util\sort.lua
 	L.data["Free Space"] = "空格"
