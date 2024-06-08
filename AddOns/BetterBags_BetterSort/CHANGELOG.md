@@ -1,7 +1,6 @@
 # BetterBags - Better Sort
 
-## [v1.1.1](https://github.com/Krealle/BetterBags_BetterSort/tree/v1.1.1) (2024-05-25)
-[Full Changelog](https://github.com/Krealle/BetterBags_BetterSort/compare/v1.1...v1.1.1) [Previous Releases](https://github.com/Krealle/BetterBags_BetterSort/releases)
+## [v1.1.2](https://github.com/Krealle/BetterBags_BetterSort/tree/v1.1.2) (2024-06-05)
+[Full Changelog](https://github.com/Krealle/BetterBags_BetterSort/compare/v1.1.1...v1.1.2) [Previous Releases](https://github.com/Krealle/BetterBags_BetterSort/releases)
 
-- Update README.md  
-- Impl option to improve handling of new items  
+- Update AlphabeticalSort to support new function signature  

@@ -9,7 +9,10 @@ local sort = BetterBags:GetModule('Sort')
 ---@param a Section
 ---@param b Section
 ---@return boolean
-function sort.SortSectionsAlphabetically(a, b)
+function sort.SortSectionsAlphabetically(kind, a, b)
+    local shouldSort, sortResult = sort.SortSectionsByPriority(kind, a, b)
+    if shouldSort then return sortResult end
+
     local titleA = a.title:GetText()
     local titleB = b.title:GetText()
 

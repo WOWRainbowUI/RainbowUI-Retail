@@ -2,8 +2,8 @@
 
 ## Title: BetterBags - Better Sort
 ## Author: Vollmer
-## Version: v1.1.1
-## X-Date: 2024-05-25T16:53:54Z
+## Version: v1.1.2
+## X-Date: 2024-06-05T07:21:58Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 1003934
 ## X-WoWI-ID: 26720
