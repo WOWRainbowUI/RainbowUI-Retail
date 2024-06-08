@@ -28,6 +28,7 @@ const.GEAR_SECTION_ORDER = {
     "Two-Hand",
     "One-Hand",
     "Off Hand",
+    "Held In Off-hand",
     "Ranged",
     "Low iLvl"
 }
@@ -53,25 +54,38 @@ end
 function sort:GetSectionSortFunction(kind, view)
     local sortType = database:GetSectionSortType(kind, view)
     if sortType == const.SECTION_SORT_TYPE.ALPHABETICALLY then
-        return self.SortSectionsAlphabetically
+        return function(a, b)
+            return self.SortSectionsAlphabetically(kind, a, b)
+        end
     elseif sortType == const.SECTION_SORT_TYPE.SIZE_ASCENDING then
-        return self.SortSectionsBySizeAscending
+        return function(a, b)
+            return self.SortSectionsBySizeAscending(kind, a, b)
+        end
     elseif sortType == const.SECTION_SORT_TYPE.SIZE_DESCENDING then
-        return self.SortSectionsBySizeDescending
+        return function(a, b)
+            return self.SortSectionsBySizeDescending(kind, a, b)
+        end
     elseif sortType == const.SECTION_SORT_TYPE.GEAR_ALPHABETICALLY then
-        return self.SortSectionsGearAlphabetically
+        return function(a, b)
+            return self.SortSectionsGearAlphabetically(kind, a, b)
+        end
     elseif sortType == const.SECTION_SORT_TYPE.HEARTHSTONE_GEAR_ALPHABETICALLY then
-        return self.SortSectionsHearthstoneGearAlphabetically
+        return function(a, b)
+            return self.SortSectionsHearthstoneGearAlphabetically(kind, a, b)
+        end
     end
     assert(false, "Unknown sort type: " .. sortType)
     return function() end
 end
 
--- Add sort function
+-- Add gear sort function
 ---@param a Section
 ---@param b Section
 ---@return boolean
-function sort.SortSectionsGearAlphabetically(a, b)
+function sort.SortSectionsGearAlphabetically(kind, a, b)
+    local shouldSort, sortResult = sort.SortSectionsByPriority(kind, a, b)
+    if shouldSort then return sortResult end
+    
     if a.title:GetText() == L:G("Recent Items") then return true end
     if b.title:GetText() == L:G("Recent Items") then return false end
     
@@ -89,11 +103,14 @@ function sort.SortSectionsGearAlphabetically(a, b)
     return stripColorCode(a.title:GetText()) < stripColorCode(b.title:GetText())
 end
 
--- Add sort function
+-- Add hearthstone + gear sort function
 ---@param a Section
 ---@param b Section
 ---@return boolean
-function sort.SortSectionsHearthstoneGearAlphabetically(a, b)
+function sort.SortSectionsHearthstoneGearAlphabetically(kind, a, b)
+    local shouldSort, sortResult = sort.SortSectionsByPriority(kind, a, b)
+    if shouldSort then return sortResult end
+    
     if a.title:GetText() == L:G("Recent Items") then return true end
     if b.title:GetText() == L:G("Recent Items") then return false end
 
