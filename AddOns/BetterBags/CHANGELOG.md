@@ -1,7 +1,6 @@
 # BetterBags
 
-## [v0.1.50](https://github.com/Cidan/BetterBags/tree/v0.1.50) (2024-05-30)
-[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.49...v0.1.50) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
+## [v0.1.61](https://github.com/Cidan/BetterBags/tree/v0.1.61) (2024-06-06)
+[Full Changelog](https://github.com/Cidan/BetterBags/compare/v0.1.60...v0.1.61) [Previous Releases](https://github.com/Cidan/BetterBags/releases)
 
-- Pawn no longer updates while in combat. (#389)  
-    * Fixed an issue where pawn updating would cause the bags to break until /reload  
+- Adjusted the inset for item frames slightly.  

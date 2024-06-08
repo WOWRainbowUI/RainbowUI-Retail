@@ -67,6 +67,9 @@ local context = addon:GetModule('Context')
 ---@class Search: AceModule
 local search = addon:GetModule('Search')
 
+---@class SectionConfig: AceModule
+local sectionConfig = addon:GetModule('SectionConfig')
+
 -------
 --- Bag Prototype
 -------
@@ -81,6 +84,7 @@ local search = addon:GetModule('Search')
 ---@field bottomBar Frame The bottom bar of the bag.
 ---@field recentItems Section The recent items section.
 ---@field currencyFrame CurrencyFrame The currency frame.
+---@field sectionConfigFrame SectionConfigFrame The section config frame.
 ---@field currentItemCount number
 ---@field private sections table<string, Section>
 ---@field slots bagSlots
@@ -289,14 +293,20 @@ function bagFrame.bagProto:OnLock(bagid, slotid)
   if not self.currentView then return end
   if slotid == nil then return end
   local slotkey = items:GetSlotKeyFromBagAndSlot(bagid, slotid)
-  self.currentView:GetOrCreateItemButton(slotkey):Lock()
+  local button = self.currentView.itemsByBagAndSlot[slotkey]
+  if button then
+    button:Lock()
+  end
 end
 
 function bagFrame.bagProto:OnUnlock(bagid, slotid)
   if not self.currentView then return end
   if slotid == nil then return end
   local slotkey = items:GetSlotKeyFromBagAndSlot(bagid, slotid)
-  self.currentView:GetOrCreateItemButton(slotkey):Unlock()
+  local button = self.currentView.itemsByBagAndSlot[slotkey]
+  if button then
+    button:Unlock()
+  end
 end
 
 function bagFrame.bagProto:UpdateContextMenu()
@@ -498,6 +508,9 @@ function bagFrame:Create(kind)
     currencyFrame:Hide()
     b.currencyFrame = currencyFrame
   end
+
+  b.sectionConfigFrame = sectionConfig:Create(kind, b.frame)
+
   -- Enable dragging of the bag frame.
   b.frame:SetMovable(true)
   b.frame:EnableMouse(true)

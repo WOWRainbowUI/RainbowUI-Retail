@@ -268,26 +268,26 @@ const.BRIEF_EXPANSION_MAP = {
 ---@class TradeSkillMap
 ---@type table<number, string>
 const.TRADESKILL_MAP = {
-	[ 0] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 0),   -- "Trade Goods (OBSOLETE)"
-	[ 1] = L:G("Engineering"),                                  -- "Parts"
-	[ 2] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 2),   -- "Explosives (OBSOLETE)"
-	[ 3] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 3),   -- "Devices (OBSOLETE)"
-	[ 4] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 4),   -- "Jewelcrafting"
-	[ 5] = L:G("Tailoring"),                                    -- "Cloth"
-	[ 6] = L:G("Leatherworking"),                               -- "Leather"
-	[ 7] = L:G("Mining"),                                       -- "Metal & Stone"
-	[ 8] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 8),   -- "Cooking"
-	[ 9] = L:G("Herbalism"),                                    -- "Herb"
-	[10] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 10), -- "Elemental"
-	[11] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 11), -- "Other"
-	[12] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 12), -- "Enchanting"
-	[13] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 13), -- "Materials (OBSOLETE)"
-	[14] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 14), -- "Item Enchantment (OBSOLETE)"
-	[15] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 15), -- "Weapon Enchantment - Obsolete"
-	[16] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 16), -- "Inscription"
-	[17] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 17), -- "Explosives and Devices (OBSOLETE)"
-	[18] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 18), -- "Optional Reagents"
-	[19] = GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 19), -- "Finishing Reagents"
+	[ 0] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 0),   -- "Trade Goods (OBSOLETE)"
+	[ 1] = L:G("Engineering"),                                         -- "Parts"
+	[ 2] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 2),   -- "Explosives (OBSOLETE)"
+	[ 3] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 3),   -- "Devices (OBSOLETE)"
+	[ 4] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 4),   -- "Jewelcrafting"
+	[ 5] = L:G("Tailoring"),                                           -- "Cloth"
+	[ 6] = L:G("Leatherworking"),                                      -- "Leather"
+	[ 7] = L:G("Mining"),                                              -- "Metal & Stone"
+	[ 8] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 8),   -- "Cooking"
+	[ 9] = L:G("Herbalism"),                                           -- "Herb"
+	[10] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 10),  -- "Elemental"
+	[11] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 11),  -- "Other"
+	[12] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 12),  -- "Enchanting"
+	[13] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 13),  -- "Materials (OBSOLETE)"
+	[14] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 14),  -- "Item Enchantment (OBSOLETE)"
+	[15] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 15),  -- "Weapon Enchantment - Obsolete"
+	[16] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 16),  -- "Inscription"
+	[17] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 17),  -- "Explosives and Devices (OBSOLETE)"
+	[18] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 18),  -- "Optional Reagents"
+	[19] = C_Item.GetItemSubClassInfo(Enum.ItemClass.Tradegoods, 19),  -- "Finishing Reagents"
 }
 
 ---@class EquipmentSlotsMap
@@ -330,6 +330,10 @@ const.DATABASE_DEFAULTS = {
     debug = false,
     inBagSearch = false,
     showKeybindWarning = true,
+    showFullSectionNames = {
+      [const.BAG_KIND.BACKPACK] = false,
+      [const.BAG_KIND.BANK] = false,
+    },
     newItems = {
       [const.BAG_KIND.BACKPACK] = {
         markRecentItems = false,
@@ -401,6 +405,12 @@ const.DATABASE_DEFAULTS = {
         [const.BAG_VIEW.LIST] = const.ITEM_SORT_TYPE.QUALITY_THEN_ALPHABETICALLY,
         [const.BAG_VIEW.SECTION_ALL_BAGS] = const.ITEM_SORT_TYPE.QUALITY_THEN_ALPHABETICALLY,
       },
+    },
+    customSectionSort = {
+      ---@type table<string, number>
+      [const.BAG_KIND.BACKPACK] = {},
+      ---@type table<string, number>
+      [const.BAG_KIND.BANK] = {},
     },
     size = {
       [const.BAG_VIEW.ONE_BAG] = {
