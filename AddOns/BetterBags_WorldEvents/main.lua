@@ -10,6 +10,7 @@ local locales = {
         ["Noblegarden"] = "Noblegarden",
         ["Darkmoon Faire"] = "Darkmoon Faire",
         ["Lunar Festival"] = "Lunar Festival",
+        ["Midsummer Fire Festival"] = "Midsummer Fire Festival",
         ["Remix"] = "Remix",
         ["Meta Gems"] = "Meta Gems",
         ["Cogwheel Gems"] = "Cogwheel Gems",
@@ -24,6 +25,7 @@ local locales = {
         ["Noblegarden"] = "Le Jardin des nobles",
         ["Darkmoon Faire"] = "Foire de Sombrelune",
         ["Lunar Festival"] = "Fête lunaire",
+        ["Midsummer Fire Festival"] = "Fête du Feu du solstice d'été",
         ["Remix"] = "Remix",
         ["Meta Gems"] = "Meta-gemmes",
         ["Cogwheel Gems"] = "Roues dentées précieuses",
@@ -38,6 +40,7 @@ local locales = {
         ["Noblegarden"] = "Nobelgartenfest",
         ["Darkmoon Faire"] = "Dunkelmond-Jahrmarkt",
         ["Lunar Festival"] = "Mondfest",
+        ["Midsummer Fire Festival"] = "Sonnenwendfest",
         ["Remix"] = "Remix",
         ["Meta Gems"] = "Metaedelstein",
         ["Cogwheel Gems"] = "Zahnradedelstein",
@@ -52,6 +55,7 @@ local locales = {
         ["Noblegarden"] = "Jardinova",
         ["Darkmoon Faire"] = "Feira de Negraluna",
         ["Lunar Festival"] = "Festival da Lua",
+        ["Midsummer Fire Festival"] = "Festival do Fogo do Solstício",
         ["Remix"] = "Remix",
         ["Meta Gems"] = "Meta Gemas",
         ["Cogwheel Gems"] = "Gema de Engrenagem",
@@ -686,7 +690,6 @@ local WoWRemixMoP_prismaticgems = {
     211124, --Swift Opal
     220374, --Versatile Diamond
 }
-
 local WoWRemixMoP_Buff = {
     217731, --Timeless Scroll of Mystic Power
     217605, --Timeless Scroll of Intellect
@@ -752,7 +755,42 @@ local WoWRemixMoP_Threads = {
     226143, --Spool of Eternal Thread
     226142 --Greater Spool of Eternal Thread
 }
-
+local MidsummerFireFestival = {
+    188701, -- Fire Festival Batons
+    23326, -- Midsummer Sausage
+    23327, -- Fire-Toasted Bun
+    166746, -- Fire Eater's Hearthstone
+    34684, -- Handful of Summer Petals
+    34686, -- Brazier of Dancing Flames
+    167731, -- Battle-Hardened Heirloom Armor Casing
+    74278, -- Helm of the Fire Festival
+    23083, -- Captured Flame
+    23211, -- Toasted Smorc
+    188695, -- Summer Cranial Skillet
+    23215, -- Bag of Smorc Ingredients
+    35279, -- Tabard of Summer Skies
+    122340, -- Timeworn Heirloom Armor Casing
+    204336, -- Awakened Heirloom Armor Casing
+    206038, -- Flamin' Ring of Flashiness
+    151614, -- Weathered Heirloom Armor Casing
+    187997, -- Eternal Heirloom Armor Casing
+    34685, -- Vestment of Summer
+    116435, -- Cozy Bonfire
+    116439, -- Blazing Cindercrawler
+    188699, -- Insulated Dancing Insoles
+    23246, -- Fiery Festival Brew
+    23247, -- Burning Blossom
+    35280, -- Tabard of Summer Flames
+    122338, -- Ancient Heirloom Armor Casing
+    34683, -- Sandals of Summer
+    141649, -- Set of Matches
+    141714, -- Igneous Flameling
+    34599, -- Juggling Torch
+    23324, -- Mantle of the Fire Festival
+    116440, -- Burning Defender's Medallion
+    23323, -- Crown of the Fire Festival
+    23435, -- Elderberry Pie
+}
 --We make sure that category names and content are always up to date.
 local CategoriesToUpdate = {
     "Remix",
@@ -778,6 +816,7 @@ local CategoriesToUpdate = {
     L("Utilities"),
     L("Consumables"),
     L("Threads"),
+    L("Midsummer Fire Festival"),
 }
 
 for _, category in ipairs(CategoriesToUpdate) do
@@ -795,6 +834,10 @@ end
 
 for _, ItemID in pairs(LunarFestival) do
     categories:AddItemToCategory(ItemID, L("Lunar Festival"))
+end
+
+for _, ItemID in pairs(MidsummerFireFestival) do
+    categories:AddItemToCategory(ItemID, L("Midsummer Fire Festival"))
 end
 
 --[=[

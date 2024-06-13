@@ -5,6 +5,7 @@ This addon must be used with [BetterBags](https://www.curseforge.com/wow/addons/
 - Noblegarden
 - Darkmoon Faire
 - Lunar Festival
+- Midsummer Fire Festival
 - ...More events will be added soon !
 
 # Preview
