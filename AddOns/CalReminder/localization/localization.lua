@@ -15,4 +15,7 @@ L["CALREMINDER_ACHIV_REMINDER"] = "Invite pendind"
 L["CALREMINDER_OPTIONS_NPC"] = "%s NPC"
 L["CALREMINDER_OPTIONS_NPC_DESC"] = "Choose the %s NPC who will remind you impending events."
 
+--自行加入
+L["CALREMINDER"] = "CalReminder"
+L["CalReminder"] = "CalReminder"
 end

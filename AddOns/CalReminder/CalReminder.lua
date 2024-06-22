@@ -109,12 +109,18 @@ function CalReminder:ReloadData()
 		end
 		local frame = nil
 		if firstEventIsToday then
+			if not CalReminderOptionsData["SoundsDisabled"] then
+				EZBlizzUiPop_PlaySound(12867)
+			end
 			frame = EZBlizzUiPop_npcDialog(chief, string.format(L["CALREMINDER_DDAY_REMINDER"], UnitName("player"), L["SPACE_BEFORE_DOT"], firstEvent.title), "CalReminderFrameTemplate")
 		elseif firstEventIsTomorrow then
+			if not CalReminderOptionsData["SoundsDisabled"] then
+				EZBlizzUiPop_PlaySound(12867)
+			end
 			frame = EZBlizzUiPop_npcDialog(chief, string.format(L["CALREMINDER_LDAY_REMINDER"], UnitName("player"), L["SPACE_BEFORE_DOT"], firstEvent.title), "CalReminderFrameTemplate")
 		end
 		if not frame then
-			EZBlizzUiPop_ToastFakeAchievementNew(CalReminder, firstEvent.title, 9680, true, 10, L["CALREMINDER_ACHIV_REMINDER"], function()  CalReminderShowCalendar(firstEventMonthOffset, firstEventDay, firstEventId)  end)
+			EZBlizzUiPop_ToastFakeAchievementNew(CalReminder, firstEvent.title, 9680, not CalReminderOptionsData["SoundsDisabled"], 10, L["CALREMINDER_ACHIV_REMINDER"], function()  CalReminderShowCalendar(firstEventMonthOffset, firstEventDay, firstEventId)  end)
 		end
 	end
 end
