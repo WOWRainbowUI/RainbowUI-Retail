@@ -62,8 +62,23 @@ function loadCalReminderOptions()
 				name = GENERAL,
 				inline = true,
 				args = {
+					enableSound = {
+						type = "toggle", order = 1,
+						name = ENABLE_SOUND,
+						desc = ENABLE_SOUND,
+						set = function(info, val) 
+							CalReminderOptionsData["SoundsDisabled"] = not val
+						end,
+						get = function(info)
+							local enabled = true
+							if CalReminderOptionsData["SoundsDisabled"] ~= nil then
+								enabled = not CalReminderOptionsData["SoundsDisabled"]
+							end
+							return enabled
+						end
+					},
 					alliance = {
-						type = "select", order = 1,
+						type = "select", order = 2,
 						width = "double",
 						name = string.format(L["CALREMINDER_OPTIONS_NPC"], FACTION_ALLIANCE),
 						desc = string.format(L["CALREMINDER_OPTIONS_NPC_DESC"], FACTION_ALLIANCE),
@@ -76,7 +91,7 @@ function loadCalReminderOptions()
 						end
 					},
 					horde = {
-						type = "select", order = 2,
+						type = "select", order = 3,
 						width = "double",
 						name = string.format(L["CALREMINDER_OPTIONS_NPC"], FACTION_HORDE),
 						desc = string.format(L["CALREMINDER_OPTIONS_NPC_DESC"], FACTION_HORDE),
@@ -95,5 +110,5 @@ function loadCalReminderOptions()
 
 	ACR:RegisterOptionsTable("CalReminder", CalReminderOptions)
 	ACD:AddToBlizOptions("CalReminder", "CalReminder")
-	ACD:SetDefaultSize("CalReminder", 400, 200)
+	ACD:SetDefaultSize("CalReminder", 400, 222)
 end
