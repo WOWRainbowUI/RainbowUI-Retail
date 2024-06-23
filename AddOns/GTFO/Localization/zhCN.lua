@@ -10,6 +10,9 @@ if (GetLocale() == "zhCN") then
 
 GTFOLocal = 
 {
+	Addon_Name = "GTFO 警报",
+	Option_Name = "GTFO 警报",
+	Master_Volume = "主音量",
 	Active_Off = "插件暂停",
 	Active_On = "插件恢复",
 	AlertType_Fail = "犯错",
