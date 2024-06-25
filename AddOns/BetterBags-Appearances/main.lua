@@ -314,7 +314,7 @@ categories:RegisterCategoryFunction("MogCategorization", function(data)
             return BuildCategory(L:G("Mog - Tradable"), data.itemInfo.itemSubType, data.itemInfo.itemEquipLoc)
         -- Check if the item is bound and not BoA, categorize as "Mog - Sellable"
         elseif data.itemInfo.isBound or bindType == "BoP" then
-            return WrapCategoryText(L:G("Mog - Sellable"))
+            -- return WrapCategoryText(L:G("Mog - Sellable"))
         elseif bindType == "BoE" then
             -- If the item is BoE and not bound, it's tradable
             return BuildCategory(L:G("Mog - Tradable"), data.itemInfo.itemSubType, data.itemInfo.itemEquipLoc)
