@@ -289,8 +289,11 @@ if GetLocale() == "zhTW" then
 	
 	-- BetterBags-Appearances
 	L.data["Appearances"] = "外觀"
-	L.data["Subdivide by category"] = "依物品類型再分類"
-	L.data["This will also split items into categories based on their type."] = "依據物品類型，分別放置到不同的子分類中。"
+	L.data["Item Splitting Options"] = "物品子分類選項"
+	L.data["Split by Item Type"] = "依物品類型拆開"
+	L.data["This will split tradable items into categories based on their type."] = "依據物品類型，將可交易的物品分別放置到不同的子分類中。"
+	L.data["Split by Item Location"] = "依物品部位拆開"
+	L.data["This will split tradable items into categories based on their equip slot."] = "依據物品裝備的部位，將可交易的物品分別放置到不同的子分類中。"
 	L.data["Mog - Learnable"] = "外觀 (可學習)"
 	L.data["Mog - Tradable"] = "外觀 (可交易)"
 	L.data["Mog - Tradable - "] = "外觀 (可交易): "

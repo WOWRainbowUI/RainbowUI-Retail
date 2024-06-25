@@ -1,14 +1,15 @@
-## Interface: 100207
+## Interface: 100207, 110000
 
 ## Title: BetterBags - Appearances
 ## Author: Sauravisus
 ## Notes: Categories to help transmog farming.
-## Version: 2.1.2
-## X-Date: 2024-05-09T00:53:29Z
+## Version: 2.2.0
+## X-Date: 2024-06-09T04:24:35Z
 ## X-Category: Bags & Inventory
 ## X-Curse-Project-ID: 956133
 ## Dependencies: BetterBags
 ## SavedVariables: BetterBags_AppearancesDB
+## IconTexture: Interface\Icons\inv_misc_bag_24_netherweave_imbued
 
 ## Title-zhTW: |cffB973CC[背包]|r 掰特包分類-塑形外觀
 ## Notes-zhTW: BetterBags - Appearances |n|n幫助收集裝備外觀的分類。
