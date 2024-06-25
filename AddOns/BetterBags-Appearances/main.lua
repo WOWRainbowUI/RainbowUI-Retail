@@ -24,24 +24,46 @@ local Events = BetterBags:GetModule('Events')
 local defaults = {
     profile = {
         enableSubdivide = false,
+        enableItemLocSplit = false,
     },
 }
 
 local db
 
 local configOptions = {
-    msg = {
-        type = "toggle",
-        name = "Subdivide by category",
-        desc = "This will also split items into categories based on their type.",
-        get = function(info)
-            return Appearances.db.profile.enableSubdivide
-        end,
-        set = function(info, value)
-            Appearances.db.profile.enableSubdivide = value
-            clearExistingCategories()
-            Events:SendMessage('bags/FullRefreshAll')
-        end,
+    splitGroup = {
+        name = L:G("Item Splitting Options"),
+        type = "group",
+        order = 1,
+        inline = true,
+        args = {
+            splitByType = {
+                type = "toggle",
+                name = "Split by Item Type",
+                desc = "This will split tradable items into categories based on their type.",
+                get = function(info)
+                    return Appearances.db.profile.enableSubdivide
+                end,
+                set = function(info, value)
+                    Appearances.db.profile.enableSubdivide = value
+                    clearExistingCategories()
+                    Events:SendMessage('bags/FullRefreshAll')
+                end,
+            },
+            splitByLoc = {
+                type = "toggle",
+                name = "Split by Item Location",
+                desc = "This will split tradable items into categories based on their equip slot.",
+                get = function(info)
+                    return Appearances.db.profile.enableItemLocSplit
+                end,
+                set = function(info, value)
+                    Appearances.db.profile.enableItemLocSplit = value
+                    clearExistingCategories()
+                    Events:SendMessage('bags/FullRefreshAll')
+                end,
+            }
+        },
     },
 }
 
@@ -60,6 +82,7 @@ local scanTooltip = CreateFrame("GameTooltip", "BindCheckTooltipScanner", nil, "
 scanTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
 local itemIdsToIgnore = {
+    13289, -- Egan's Blaster
     49888, -- Shadow's Edge
     71084, -- Branch of Nordrassil
     71085, -- Runestaff of Nordrassil
@@ -83,24 +106,65 @@ end
 
 -- Kill the subcategories if they exist --
 function clearExistingCategories()
-    categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Learnable"), "ff00ff00"))
-    categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00"))
-    categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00"))
-    categories:WipeCategory(L:G("Mog - Learnable"))
-    categories:WipeCategory(L:G("Mog - Tradable"))
-    categories:WipeCategory(L:G("Mog - Sellable"))
+    local baseCategories = {
+        "Mog - Learnable",
+        "Mog - Tradable",
+        "Mog - Sellable"
+    }
 
-    for i = Enum.ItemWeaponSubclassMeta.MinValue, Enum.ItemWeaponSubclassMeta.MaxValue do
-        local name, _ = GetItemSubClassInfo(Enum.ItemClass.Weapon, i)
-        categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Tradable - " .. name), "ff00ff00"))
-        categories:WipeCategory(L:G("Mog - Tradable - " .. name))
+    local equipLocs = {
+        "INVTYPE_HEAD", "INVTYPE_NECK", "INVTYPE_SHOULDER", "INVTYPE_BODY", "INVTYPE_CHEST", "INVTYPE_WAIST", "INVTYPE_LEGS", "INVTYPE_FEET",
+        "INVTYPE_WRIST", "INVTYPE_HAND", "INVTYPE_FINGER", "INVTYPE_TRINKET", "INVTYPE_CLOAK", "INVTYPE_WEAPON", "INVTYPE_SHIELD", "INVTYPE_RANGED",
+        "INVTYPE_2HWEAPON", "INVTYPE_TABARD", "INVTYPE_ROBE", "INVTYPE_WEAPONMAINHAND", "INVTYPE_WEAPONOFFHAND", "INVTYPE_HOLDABLE", "INVTYPE_AMMO",
+        "INVTYPE_THROWN", "INVTYPE_RANGEDRIGHT", "INVTYPE_RELIC"
+    }
+
+    -- Function to wipe categories
+    local function wipeCategories(categoryList)
+        for _, category in ipairs(categoryList) do
+            categories:WipeCategory(WrapCategoryText(category))
+            categories:WipeCategory(L:G(category))
+        end
     end
 
-    for i = Enum.ItemArmorSubclassMeta.MinValue, Enum.ItemArmorSubclassMeta.MaxValue do
-        local name, _ = GetItemSubClassInfo(Enum.ItemClass.Armor, i)
-        categories:WipeCategory(WrapTextInColorCode(L:G("Mog - Tradable - " .. name), "ff00ff00"))
-        categories:WipeCategory(L:G("Mog - Tradable - " .. name))
+    -- Base categories
+    wipeCategories(baseCategories)
+
+    -- Subcategories by weapon and armor
+    local function wipeSubCategories(itemClass, minValue, maxValue, prefix)
+        for i = minValue, maxValue do
+            local name, _ = GetItemSubClassInfo(itemClass, i)
+            if name then
+                wipeCategories({prefix .. " - " .. name})
+            end
+        end
     end
+
+    wipeSubCategories(Enum.ItemClass.Weapon, Enum.ItemWeaponSubclassMeta.MinValue, Enum.ItemWeaponSubclassMeta.MaxValue, "Mog - Tradable")
+    wipeSubCategories(Enum.ItemClass.Armor, Enum.ItemArmorSubclassMeta.MinValue, Enum.ItemArmorSubclassMeta.MaxValue, "Mog - Tradable")
+
+    -- Categories by equip location
+    local equipLocCategories = {}
+    for _, equipLoc in ipairs(equipLocs) do
+        table.insert(equipLocCategories, "Mog - Tradable - " .. _G[equipLoc])
+    end
+    wipeCategories(equipLocCategories)
+
+    -- Categories by weapon and armor subtypes and equip locations
+    local function wipeCombinedSubCategories(itemClass, minValue, maxValue)
+        for i = minValue, maxValue do
+            local subType, _ = GetItemSubClassInfo(itemClass, i)
+            if subType then
+                for _, equipLoc in ipairs(equipLocs) do
+                    local combinedCategory = "Mog - Tradable - " .. subType .. " - " .. _G[equipLoc]
+                    wipeCategories({combinedCategory})
+                end
+            end
+        end
+    end
+
+    wipeCombinedSubCategories(Enum.ItemClass.Weapon, Enum.ItemWeaponSubclassMeta.MinValue, Enum.ItemWeaponSubclassMeta.MaxValue)
+    wipeCombinedSubCategories(Enum.ItemClass.Armor, Enum.ItemArmorSubclassMeta.MinValue, Enum.ItemArmorSubclassMeta.MaxValue)
 end
 
 function killOldCategories()
@@ -114,6 +178,24 @@ function killOldCategories()
         local className, _ = GetClassInfo(i)
         categories:WipeCategory(L:G(className .. " Usable"))
         categories:WipeCategory(L:G("Unknown - " .. className))
+    end
+end
+
+-- Function to wrap text in color code
+function WrapCategoryText(category)
+    return WrapTextInColorCode(L:G(category), "ff00ff00")
+end
+
+-- Function to build category string
+function BuildCategory(base, subType, equipLoc)
+    if db.enableSubdivide and db.enableItemLocSplit then
+        return WrapCategoryText(base .. " - " .. subType .. " - " .. _G[equipLoc])
+    elseif db.enableSubdivide then
+        return WrapCategoryText(base .. " - " .. subType)
+    elseif db.enableItemLocSplit then
+        return WrapCategoryText(base .. " - " .. _G[equipLoc])
+    else
+        return WrapCategoryText(base)
     end
 end
 
@@ -229,25 +311,17 @@ categories:RegisterCategoryFunction("MogCategorization", function(data)
     if not canLearn then
         -- Handle BoA items separately, as they are bound but tradable across the account
         if bindType == "BoA" then
-            if db.enableSubdivide then
-                return WrapTextInColorCode(L:G("Mog - Tradable - " .. data.itemInfo.itemSubType), "ff00ff00")
-            else
-                return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
-            end
+            return BuildCategory("Mog - Tradable", data.itemInfo.itemSubType, data.itemInfo.itemEquipLoc)
         -- Check if the item is bound and not BoA, categorize as "Mog - Sellable"
         elseif data.itemInfo.isBound or bindType == "BoP" then
-            return WrapTextInColorCode(L:G("Mog - Sellable"), "ff00ff00")
+            return WrapCategoryText("Mog - Sellable")
         elseif bindType == "BoE" then
             -- If the item is BoE and not bound, it's tradable
-            if db.enableSubdivide then
-                return WrapTextInColorCode(L:G("Mog - Tradable - " .. data.itemInfo.itemSubType), "ff00ff00")
-            else
-                return WrapTextInColorCode(L:G("Mog - Tradable"), "ff00ff00")
-            end
+            return BuildCategory("Mog - Tradable", data.itemInfo.itemSubType, data.itemInfo.itemEquipLoc)
         end
     elseif canLearn then
         -- If the item's appearance can be learned
-        return WrapTextInColorCode(L:G("Mog - Learnable"), "ff00ff00")
+        return WrapCategoryText("Mog - Learnable")
     end
     -- Default case if none of the conditions are met, might need explicit handling
 end)

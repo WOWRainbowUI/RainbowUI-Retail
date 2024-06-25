@@ -1,6 +1,7 @@
 # BetterBags - Appearances
 
-## [2.1.2](https://github.com/AlexHaible/BetterBags-Appearances/tree/2.1.2) (2024-05-09)
-[Full Changelog](https://github.com/AlexHaible/BetterBags-Appearances/compare/2.1.1...2.1.2) [Previous Releases](https://github.com/AlexHaible/BetterBags-Appearances/releases)
+## [2.2.0](https://github.com/AlexHaible/BetterBags-Appearances/tree/2.2.0) (2024-06-09)
+[Full Changelog](https://github.com/AlexHaible/BetterBags-Appearances/compare/2.1.5...2.2.0) [Previous Releases](https://github.com/AlexHaible/BetterBags-Appearances/releases)
 
-- .toc bump for 10.2.7  
+- Add additional sorting option  
+    Closes #6  
