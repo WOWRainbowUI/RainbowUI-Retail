@@ -94,6 +94,9 @@ function sort.SortSectionsGearAlphabetically(kind, a, b)
         if b.title:GetText() == L:G(gearType) then return false end
     end
 
+    if string.find(a.title:GetText(), L:G("Gear") .. ":") then return true end
+    if string.find(b.title:GetText(), L:G("Gear") .. ":") then return false end
+
     if a:GetFillWidth() then return false end
     if b:GetFillWidth() then return true end
 
@@ -121,6 +124,9 @@ function sort.SortSectionsHearthstoneGearAlphabetically(kind, a, b)
         if a.title:GetText() == L:G(gearType) then return true end
         if b.title:GetText() == L:G(gearType) then return false end
     end
+
+    if string.find(a.title:GetText(), L:G("Gear") .. ":") then return true end
+    if string.find(b.title:GetText(), L:G("Gear") .. ":") then return false end
 
     if a:GetFillWidth() then return false end
     if b:GetFillWidth() then return true end
