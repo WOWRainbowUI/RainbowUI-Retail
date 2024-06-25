@@ -22,6 +22,8 @@ Just like [AdiBags_Hearthstones](https://www.curseforge.com/wow/addons/adibags-h
 
 Use either the Teleports module or the Hearthstones module, not both. The Hearthstones module supports more items and is compatible with all WoW versions. The Hearthstones module will wipe and remove any items added to the Teleports module but does not disable the Teleports module. You must delete your choice of module from the `\World of Warcraft\_game_version_\Interface\AddOns\` folder, keeping the module you want. You can use an AddOn manager app to delete the unwanted module.
 
+**IMPORTANT** If you have *both* BetterBags - Teleports and BetterBags - Hearthstones, THEY WILL WIPE EACH OTHER'S DATABASE!!! Again, pick one addon or the other; DO NOT USE BOTH!
+
 Neither module should trigger errors nor warnings if you use both; however, your virtual bags will look messy, if not a little silly, with both modules installed.
 
 ## Bugs, Issues, and Improvements

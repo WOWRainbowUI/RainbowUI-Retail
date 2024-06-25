@@ -23,9 +23,9 @@
 
 ## IconTexture: Interface\ICONS\Inv_misc_rune_01
 
-## Version: 1.14
+## Version: 1.16
 ## Author: Sygon of Lightbringer-US (Crimson Embers, Alliance)
-## X-Date: 2024-06-09T07:21:10Z
+## X-Date: 2024-06-25T07:29:48Z
 ## X-License: Copyright (c) 2024 Paul Vandersypen. All Rights Reserved
 ## X-Category: Bags & Inventory
 ## Dependencies: BetterBags

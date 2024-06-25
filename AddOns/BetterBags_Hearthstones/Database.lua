@@ -116,7 +116,7 @@ if isMainline then
     database[95051]     = true      -- The Brassiest Knuckle (Bizmo's Brawlpub)
     database[95567]     = true      -- Kirin Tor Beacon
     database[95568]     = true      -- Sunreaver Beacon
-    database[103678]    = true      -- Time-Lost Artifact
+    database[103678]    = true      -- Time-Lost Artifact (trinket)
     database[110560]    = true      -- Garrison Hearthstone
     database[112059]    = true      -- Wormhole Centrifuge
     database[117389]    = true      -- Draenor Archaeologist's Lodestone
@@ -179,8 +179,8 @@ if isMainline then
     database[172924]    = true      -- Wormhole Generator: Shadowlands
     database[173373]    = true      -- Faol's Hearthstone
     database[173430]    = true      -- Nexus Teleport Scroll
-    database[173532]    = true      -- Tirisfal Camp Scroll
     database[173528]    = true      -- Gilded Hearthstone
+    database[173532]    = true      -- Tirisfal Camp Scroll
     database[173537]    = true      -- Glowing Hearthstone
     database[173716]    = true      -- Mossy Hearthstone
     database[180290]    = true      -- Night Fae Hearthstone
@@ -205,6 +205,7 @@ if isMainline then
     database[201957]    = true      -- Thrall's Hearthstone
     database[202046]    = true      -- Lucky Tortollan Charm
     database[204481]    = true      -- Morqut Hearth Totem
+    database[204802]    = true      -- Scroll of Teleport: Zskera Vaults
     database[205255]    = true      -- Niffen Diggin' Mitts
     database[205456]    = true      -- Lost Dragonscale (1)
     database[205458]    = true      -- Lost Dragonscale (2)
@@ -214,6 +215,7 @@ if isMainline then
     database[210455]    = true      -- Draenic Hologem
     database[211788]    = true      -- Tess's Peacebloom
     database[212337]    = true      -- Stone of the Hearth
+    database[219222]    = true      -- Time-Lost Artifact
     database[223988]    = true      -- Dalaran Hearthstone (1 charge quest item)
 end
 
