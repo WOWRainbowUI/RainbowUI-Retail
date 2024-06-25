@@ -137,18 +137,6 @@ function DB:SetBagViewFrameSize(kind, view, width, height)
   DB.data.profile.size[view][kind].height = height
 end
 
----@param kind BagKind
----@return GridCompactStyle
-function DB:GetBagCompaction(kind)
-  return DB.data.profile.compaction[kind]
-end
-
----@param kind BagKind
----@param style GridCompactStyle
-function DB:SetBagCompaction(kind, style)
-  DB.data.profile.compaction[kind] = style
-end
-
 function DB:GetItemLevelOptions(kind)
   return DB.data.profile.itemLevel[kind]
 end
@@ -412,6 +400,16 @@ end
 ---@param value boolean
 function DB:SetShowFullSectionNames(kind, value)
   DB.data.profile.showFullSectionNames[kind] = value
+end
+
+---@param key string
+function DB:SetTheme(key)
+  DB.data.profile.theme = key
+end
+
+---@return string
+function DB:GetTheme()
+  return DB.data.profile.theme
 end
 
 function DB:Migrate()

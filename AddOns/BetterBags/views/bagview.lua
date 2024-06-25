@@ -38,9 +38,6 @@ local function Wipe(view)
     section:ReleaseAllCells()
     section:Release()
   end
-  for _, item in pairs(view.itemsByBagAndSlot) do
-    --item:Release()
-  end
   wipe(view.sections)
   wipe(view.itemsByBagAndSlot)
 end
@@ -135,8 +132,7 @@ end
 ---@param bag Bag
 ---@param slotInfo SlotInfo
 local function BagView(view, ctx, bag, slotInfo)
-  _ = ctx
-  if view.fullRefresh then
+  if view.fullRefresh or ctx:GetBool('wipe') then
     view:Wipe()
     view.fullRefresh = false
   end
@@ -196,7 +192,7 @@ local function BagView(view, ctx, bag, slotInfo)
       section:Release()
     else
       debug:Log("KeepSection", "Section kept because not empty", sectionName)
-      section:SetMaxCellWidth(sizeInfo.itemsPerRow)
+      section:SetMaxCellWidth(12)
       section:Draw(bag.kind, database:GetBagView(bag.kind), true)
     end
   end
@@ -206,7 +202,10 @@ local function BagView(view, ctx, bag, slotInfo)
     return sort.SortSectionsAlphabetically(view.kind, a, b)
   end)
   debug:StartProfile('Content Draw Stage')
-  local w, h = view.content:Draw()
+  local w, h = view.content:Draw({
+    cells = view.content.cells,
+    maxWidthPerRow = ((37 + 4) * 1) + 16,
+  })
   debug:EndProfile('Content Draw Stage')
   -- Reposition the content frame if the recent items section is empty.
   if w < 160 then

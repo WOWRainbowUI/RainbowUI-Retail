@@ -25,6 +25,9 @@ local events = addon:GetModule('Events')
 ---@class Items: AceModule
 local items = addon:GetModule('Items')
 
+---@class Themes: AceModule
+local themes = addon:GetModule('Themes')
+
 ---@class Config: AceModule
 local config = addon:GetModule('Config')
 
@@ -108,25 +111,6 @@ function config:GetBagOptions(kind)
             }
           },
           customCategories = config:GetCustomCategoryOptions(kind),
-        }
-      },
-
-      itemCompaction = {
-        type = "select",
-        name = L:G("Item Compaction"),
-        desc = L:G("If Simple is selected, item sections will be sorted from left to right, however if a section can fit in the same row as the section above it, the section will move up."),
-        order = 3,
-        style = "radio",
-        get = function()
-          return DB:GetBagCompaction(kind)
-        end,
-        set = function(_, value)
-          DB:SetBagCompaction(kind, value)
-          events:SendMessage('bags/FullRefreshAll')
-        end,
-        values =  {
-          [const.GRID_COMPACT_STYLE.NONE] = L:G("None"),
-          [const.GRID_COMPACT_STYLE.SIMPLE] = L:G("Simple"),
         }
       },
 
@@ -365,7 +349,7 @@ function config:GetBagOptions(kind)
             max = 20,
             step = 1,
             get = function()
-              return DB:GetBagSizeInfo(kind, DB:GetBagView(kind)).itemsPerRow
+              return DB:GetBagSizeInfo(kind, DB:GetBagView(kind)).itemsPerRow > 20 and 20 or DB:GetBagSizeInfo(kind, DB:GetBagView(kind)).itemsPerRow
             end,
             set = function(_, value)
               DB:SetBagViewSizeItems(kind, DB:GetBagView(kind), value)
@@ -386,8 +370,8 @@ function config:GetBagOptions(kind)
               return DB:GetBagSizeInfo(kind, DB:GetBagView(kind)).opacity
             end,
             set = function(_, value)
-              config:GetBag(kind).frame.Bg:SetAlpha(value / 100)
               DB:SetBagViewSizeOpacity(kind, DB:GetBagView(kind), value)
+              themes:UpdateOpacity()
             end,
           },
           sectionsPerRow = {
@@ -399,7 +383,7 @@ function config:GetBagOptions(kind)
             max = 20,
             step = 1,
             get = function()
-              return DB:GetBagSizeInfo(kind, DB:GetBagView(kind)).columnCount
+              return DB:GetBagSizeInfo(kind, DB:GetBagView(kind)).columnCount > 20 and 20 or DB:GetBagSizeInfo(kind, DB:GetBagView(kind)).columnCount
             end,
             set = function(_, value)
               DB:SetBagViewSizeColumn(kind, DB:GetBagView(kind), value)

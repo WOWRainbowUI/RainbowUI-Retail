@@ -18,8 +18,7 @@ if GetLocale() == "zhTW" then
 	-- bagslots.lua
 	L.data["Equipped Bags"] = "已裝備的背包"
 	
-	-- context.lua
-	L.data["BetterBags Menu"] = "BetterBags"
+	-- frames\contextmenu.lua
 	L.data["View"] = "檢視"
 	L.data["One Bag"] = "合併背包"
 	L.data["This view will display all items in a single bag, regardless of category."] = "將所有物品放在單一背包中，不分類。"
@@ -34,6 +33,8 @@ if GetLocale() == "zhTW" then
 	L.data["Cannot toggle bag slots in combat."] = "戰鬥中無法顯示裝備背包的欄位。"
 	L.data["Show Currencies"] = "顯示兌換通貨"
 	L.data["Click to toggle the display of the currencies side panel."] = "點一下切換顯示兌換通貨的面板。"
+	L.data["Themes"] = "背包外觀主題"
+	L.data["Click to toggle the display of the theme configuration side panel."] = "點一下切換顯示背包外觀主題的設定面板。"
 	L.data["Configure Categories"] = "設定分類"
 	L.data["Click to toggle the display of the category configuration side panel."] = "點一下切換顯示分類的設定面板。"
 	L.data["Show Bag Button"] = "顯示背包按鈕"
@@ -241,6 +242,7 @@ if GetLocale() == "zhTW" then
 	
 	-- frames\currency.lua
 	L.data["Click to add or remove this currency to and from your backpack."] = "點一下將此貨幣加入背包或從背包中移除。"
+	L.data["Currencies"] = "兌換通貨"
 	
 	-- frames\search.lua
 	L.data["Start typing to search your bags..."] = "輸入文字來搜尋背包中的物品..."
@@ -269,6 +271,15 @@ if GetLocale() == "zhTW" then
         將分類拖曳到置頂，保持在背包的最前面，
         或拖曳到自動排序與其他分類一起排序。]]
 	L.data["Are you sure you want to delete the category %s?"] = "是否確定要刪除分類 %s?"
+	
+	-- frames\themeconfig.lua
+	L.data["Theme Configuration"] = "選擇背包外觀主題"
+	
+	-- themes\default.lua
+	L.data["Default"] = "預設"
+
+	-- themes\simpledark.lua
+	L.data["Simple Dark"] = "就是黑"
 	
 	-- util\sort.lua
 	L.data["Free Space"] = "空格"
@@ -342,8 +353,7 @@ if GetLocale() == "zhTW" then
 	L.data["Sort by Item Level"] = "依物品等級排序"
 	L.data["Sort Items by Item Level."] = "依照物品等級來排列物品。"
 	L.data["Ignore New Item Tag"] = "忽略新物品標籤"
-	L.data["If enbaled, Blizzard \"New Item Tag\" will be ignored. This makes new items strictly rely on \"New Item Duration\" setting."] = "啟用時，會忽略遊戲內建的 \"新物品標籤\"，這會讓新物品完全遵照 \"新物品持續時間\" 的設定。"
-	
+	L.data["If enbaled, Blizzard \"New Item Tag\" will be ignored. This makes new items strictly rely on \"New Item Duration\" setting."] = "啟用時，會忽略遊戲內建的 \"新物品標籤\"，這會讓新物品完全遵照 \"新物品持續時間\" 的設定。"	
 	
 end
 
