@@ -5,7 +5,7 @@ Copyright © 2024 Paul Vandersypen, All Rights Reserved
 
 assert(LibStub("AceAddon-3.0"):GetAddon("BetterBags"), "BetterBags_Hearthstones requires BetterBags")
 
----@type string, AddonNS
+---@type string, table
 local _, addon = ...
 
 -- need to check game version
