@@ -3,13 +3,13 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.61
+## Version: v0.1.66
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-06-06T15:24:43Z
+## X-Date: 2024-06-23T15:35:10Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
-## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort, Pawn, WagoAnalytics
+## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort, Pawn, WagoAnalytics, GW2_UI, ElvUI
 
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
@@ -47,6 +47,10 @@ core\constants.lua
 core\database.lua
 core\hooks.lua
 core\async.lua
+core\fonts.lua
+
+# The Theme API loads earlier than actual themes.
+themes\themes.lua
 
 data\equipmentsets.lua
 data\categories.lua
@@ -59,13 +63,13 @@ util\color.lua
 util\resize.lua
 util\sort.lua
 util\bucket.lua
+util\windowgroup.lua
 
 frames\question.lua
 frames\search.lua
 frames\slider.lua
 frames\money.lua
 frames\contextmenu.lua
-frames\column.lua
 frames\grid.lua
 frames\item.lua
 frames\itemrow.lua
@@ -76,6 +80,7 @@ frames\currency.lua
 frames\list.lua
 frames\sectionitemlist.lua
 frames\sectionconfig.lua
+frames\themeconfig.lua
 frames\debug.lua
 
 views\views.lua
@@ -85,6 +90,11 @@ views\listview.lua
 views\bagview.lua
 
 frames\bag.lua
+
+themes\default.lua
+themes\simpledark.lua
+themes\gw2.lua
+themes\elvui.lua
 
 config\config.lua
 config\help.lua

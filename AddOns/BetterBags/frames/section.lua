@@ -25,6 +25,9 @@ local debug = addon:GetModule('Debug')
 ---@class Database: AceModule
 local database = addon:GetModule('Database')
 
+---@class Themes: AceModule
+local themes = addon:GetModule('Themes')
+
 ---@class GridFrame: AceModule
 local grid = addon:GetModule('Grid')
 
@@ -44,6 +47,7 @@ local grid = addon:GetModule('Grid')
 ---@field private content Grid The main content frame of the section.
 ---@field private fillWidth boolean
 ---@field private headerDisabled boolean
+---@field private maxItemsPerRow number
 local sectionProto = {}
 
 ---@param kind BagKind
@@ -60,6 +64,7 @@ end
 ---@param text string The text to set the title to.
 function sectionProto:SetTitle(text)
   self.title:SetText(text)
+  themes:UpdateSectionFont(self.title:GetFontString())
 end
 
 function sectionProto:AddCell(id, cell)
@@ -76,11 +81,11 @@ function sectionProto:RekeyCell(oldID, newID)
 end
 
 function sectionProto:GetMaxCellWidth()
-  return self.content.maxCellWidth
+  return self.maxItemsPerRow
 end
 
 function sectionProto:SetMaxCellWidth(width)
-  self.content.maxCellWidth = width
+  self.maxItemsPerRow = width
 end
 
 function sectionProto:GetCellCount()
@@ -181,7 +186,10 @@ function sectionProto:Grid(kind, view, freeSpaceShown, nosort)
       self.content:Sort(sort:GetItemSortFunction(kind, view))
     end
   end
-  local w, h = self.content:Draw()
+  local w, h = self.content:Draw({
+    cells = self.content.cells,
+    maxWidthPerRow = ((37 + 4) * self.maxItemsPerRow) + 16,
+  })
   self.content:GetContainer():SetPoint("TOPLEFT", self.title, "BOTTOMLEFT", 0, 0)
   self.content:GetContainer():SetPoint("BOTTOMRIGHT", self.frame, "BOTTOMRIGHT", -6, 0)
   self.content:Show()
@@ -262,10 +270,10 @@ function sectionFrame:_DoCreate()
   local f = CreateFrame("Frame", nil, nil, "BackdropTemplate")
   s.frame = f
 
+  s.maxItemsPerRow = 5
   -- Create the section title.
   local title = CreateFrame("Button", nil, f)
   title:SetText("Not set")
-  title:SetNormalFontObject("GameFontNormal")
   title:SetHeight(18)
   title:GetFontString():SetAllPoints()
   title:GetFontString():SetJustifyH("LEFT")
@@ -294,6 +302,8 @@ function sectionFrame:_DoCreate()
   end)
 
   s.title = title
+
+  themes:RegisterSectionFont(title:GetFontString())
 
   local content = grid:Create(s.frame)
   content:Show()

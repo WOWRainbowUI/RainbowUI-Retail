@@ -51,6 +51,9 @@ local stackProto = {}
 ---@field WipeHandler fun(view: View)
 views.viewProto = {}
 
+function views:OnEnable()
+end
+
 ---@param ctx Context
 ---@param bag Bag
 ---@param slotInfo SlotInfo
@@ -115,16 +118,19 @@ end
 -- GetOrCreateSection will get an existing section by category,
 -- creating it if it doesn't exist.
 ---@param category string
+---@param onlyCreate? boolean If true, only create the section, but don't add it to the view.
 ---@return Section
-function views.viewProto:GetOrCreateSection(category)
+function views.viewProto:GetOrCreateSection(category, onlyCreate)
   local section = self.sections[category]
   if section == nil then
     section = sectionFrame:Create()
     section.frame:SetParent(self.content:GetScrollView())
     section:SetTitle(category)
-    self.content:AddCell(category, section)
+    if not onlyCreate then 
+      self.content:AddCell(category, section)
+    end
     self.sections[category] = section
-  elseif self.content:GetCell(category) == nil then
+  elseif self.content:GetCell(category) == nil and not onlyCreate then
     self.content:AddCell(category, section)
   end
   return section
@@ -138,6 +144,17 @@ end
 function views.viewProto:RemoveSection(category)
   self.content:RemoveCell(category)
   self.sections[category] = nil
+end
+
+---@param section string
+---@return Cell?
+function views.viewProto:RemoveSectionFromGrid(section)
+  local cell = self.content:RemoveCell(section)
+  if cell then
+    return cell
+  end
+  cell = self.sections[section] --[[@as Cell?]]
+  return cell
 end
 
 ---@return table<string, Section>
