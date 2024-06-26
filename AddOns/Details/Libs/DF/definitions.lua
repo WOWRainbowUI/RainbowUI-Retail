@@ -5,6 +5,7 @@
 ---@field reverse fun(tbl:table) : table reverse the order of an array
 ---@field append fun(tbl1:table, tbl2:table) : table append the array of table2 to table1
 ---@field duplicate fun(tblReceiving:table, tblGiving:table) : table copy the values from table2 to table1 overwriting existing values, ignores __index and __newindex, keys pointing to a UIObject are preserved
+---@field countkeys fun(tbl:table) : number count the keys of a table
 ---@field copy fun(tblReceiving:table, tblGiving:table) : table copy the values from table2 to table1 overwriting existing values, ignores __index and __newindex, threat UIObjects as regular tables
 ---@field deploy fun(tblReceiving:table, tblGiving:table) : table copy keys/values that does exist on tblGiving but not in tblReceiving
 ---@field copytocompress fun(tblReceiving:table, tblGiving:table) : table copy the values from table2 to table1 overwriting existing values, ignores __index, functions and tables with a 'GetObjectType' key
@@ -13,6 +14,7 @@
 ---@field setfrompath fun(tbl:table, path:string, value:any) : boolean set the value of a table using a path, e.g. setfrompath(tbl, "a.b.c", 10) is the same as tbl.a.b.c = 10
 ---@field dump fun(tbl:table, resultString:string, deep:number) : string dump a table to a string
 ---@field findsubtable fun(tbl:table, index:number, value:any) : integer|nil find the value passed inside a sub table, return the index of the main table where the sub table with the value found is located
+---@field remove fun(tbl:table, value:any) : boolean, number remove all values found inside the array, return true if any value was removed and the amount of values removed
 
 ---@class df_language : table
 ---@field Register fun(addonId:any, languageId:string, gameLanguageOnly:boolean?) : table
