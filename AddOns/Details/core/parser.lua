@@ -1,6 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local Details = _G.Details
+    local addonName, Details222 = ...
 	local Loc = LibStub("AceLocale-3.0"):GetLocale("Details")
 	local detailsFramework = DetailsFramework
 
@@ -26,11 +27,11 @@
 
 	local _UnitGroupRolesAssigned = detailsFramework.UnitGroupRolesAssigned
 	local _GetSpellInfo = Details.getspellinfo
+    local GetSpellInfo = Details222.GetSpellInfo
 	local isWOTLK = detailsFramework.IsWotLKWow()
 	local isERA = detailsFramework.IsClassicWow()
 	local isCATA = detailsFramework.IsCataWow()
 	local _tempo = time()
-	local _, Details222 = ...
 	_ = nil
 
 	local shield_cache = Details.ShieldCache --details local
@@ -73,6 +74,10 @@
 	local _current_energy_container = _current_combat [3]
 	local _current_misc_container = _current_combat [4]
 
+	--pet container cache
+	---@type petcontainer
+	local petContainer = Details222.PetContainer
+
 	local names_cache = {}
 	--damage
 		local damage_cache = setmetatable({}, Details.weaktable)
@@ -108,7 +113,8 @@
 	--shield spellid cache
 		local shield_spellid_cache = {}
 	--pets
-		local container_pets = {} --just initialize table (placeholder)
+		local petCache = petContainer.Pets
+
 	--ignore deaths
 		local ignore_death_cache = {}
 	--cache
@@ -919,7 +925,10 @@
 
 					Details.WhoAggroTimer = C_Timer.NewTimer(0.1, whoAggro)
 					Details.WhoAggroTimer.HitBy = "|cFFFFFF00First Hit|r: " .. (link or "") .. " from " .. (sourceName or "Unknown")
-					Details:Msg("(debug):", Details.WhoAggroTimer.HitBy)
+
+					if (Details.announce_firsthit.enabled) then
+						Details:Msg("", Details.WhoAggroTimer.HitBy)
+					end
 				end
 
 				Details:EntrarEmCombate(sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
@@ -2237,15 +2246,15 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--SUMMON 	serach key: ~summon										|
 -----------------------------------------------------------------------------------------------------------------------------------------
-	function parser:summon(token, time, sourceSerial, sourceName, sourceFlags, petSerial, petName, petFlags, petRaidFlags, spellId, spellName)
+	function parser:summon(token, time, sourceSerial, sourceName, sourceFlags, petGuid, petName, petFlags, petRaidFlags, summonSpellId, summonSpellName)
 		if (not sourceName) then
-			sourceName = "[*] " .. spellName
+			sourceName = "[*] " .. summonSpellName
 		end
-		local npcId = tonumber(select(6, strsplit("-", petSerial)) or 0)
+		local npcId = tonumber(select(6, strsplit("-", petGuid)) or 0)
 
 		--differenciate army and apoc pets for DK
-		if (spellId == 42651) then --army of the dead
-			dk_pets_cache.army[petSerial] = sourceName
+		if (summonSpellId == 42651) then --army of the dead
+			dk_pets_cache.army[petGuid] = sourceName
 		end
 
 		--If fire elemental totem on Wrath, then ignore the summon of the fire elemental totem itself and instead create the Greater Fire Elemental early.
@@ -2260,25 +2269,32 @@
 
 		if (isWOTLK or isCATA) then
 			if (npcId == 15439) then
-				Details.tabela_pets:AddPet(petSerial:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags)
-
+				petContainer.AddPet(petGuid:gsub("%-15439%-", "%-15438%-"), "Greater Fire Elemental", petFlags, sourceSerial, sourceName, sourceFlags, summonSpellId)
 			elseif (npcId == 15438) then
 				return
 			end
 		end
 
-		--pet summon another pet
-		local petTable = container_pets[sourceSerial]
+		--send the summonSpellId to spellcache in order to identify if the pet is from an item, for instance: a trinket
+		local newPetName = Details222.Pets.GetPetNameFromCustomSpells(petName, summonSpellId, npcId)
+		if (newPetName ~= petName) then
+			--print("Details! debug trinket summon| player:", sourceName, "| old pet name:", petName, "| new pet name:", newPetName, "| spellId:", summonSpellId)
+			petName = newPetName
+		end
+
+		--if the caster is inside the petCache, it means this is a pet summoning another pet
+		---@type petdata
+		local petTable = petCache[sourceSerial]
+		if (petTable) then
+			sourceName, sourceSerial, sourceFlags = petTable.ownerName, petTable.ownerGuid, petTable.ownerFlags
+		end
+
+		petTable = petCache[petGuid]
 		if (petTable) then
 			sourceName, sourceSerial, sourceFlags = petTable[1], petTable[2], petTable[3]
 		end
 
-		petTable = container_pets[petSerial]
-		if (petTable) then
-			sourceName, sourceSerial, sourceFlags = petTable[1], petTable[2], petTable[3]
-		end
-
-		Details.tabela_pets:AddPet(petSerial, petName, petFlags, sourceSerial, sourceName, sourceFlags)
+		petContainer.AddPet(petGuid, petName, petFlags, sourceSerial, sourceName, sourceFlags, summonSpellId)
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -2948,7 +2964,7 @@
 				--player itself
 				parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, "BUFF_UPTIME_IN")
 
-			elseif (container_pets[sourceSerial] and container_pets[sourceSerial][2] == targetSerial) then
+			elseif (petCache[sourceSerial] and petCache[sourceSerial][2] == targetSerial) then
 				--pet putting an aura on its owner
 				parser:add_buff_uptime(token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, "BUFF_UPTIME_IN")
 
@@ -3054,7 +3070,7 @@
 				--call record buffs uptime
 				parser:add_buff_uptime (token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, "BUFF_UPTIME_REFRESH")
 
-			elseif (container_pets [sourceSerial] and container_pets [sourceSerial][2] == targetSerial) then
+			elseif (petCache [sourceSerial] and petCache [sourceSerial][2] == targetSerial) then
 				--um pet colocando uma aura do dono
 				parser:add_buff_uptime (token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, "BUFF_UPTIME_REFRESH")
 
@@ -3132,7 +3148,7 @@
 			elseif (sourceName == targetName and raid_members_cache[sourceSerial] and _in_combat) then
 				--call record buffs uptime
 				parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, "BUFF_UPTIME_OUT")
-			elseif (container_pets[sourceSerial] and container_pets[sourceSerial][2] == targetSerial) then
+			elseif (petCache[sourceSerial] and petCache[sourceSerial][2] == targetSerial) then
 				--um pet colocando uma aura do dono
 				parser:add_buff_uptime(token, time, targetSerial, targetName, targetFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, "BUFF_UPTIME_OUT")
 
@@ -3981,13 +3997,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		end
 
 		if (not ownerActor) then
-			petName, ownerName, ownerGUID, ownerFlags = Details.tabela_pets:GetPetOwner(sourceSerial, sourceName, sourceFlags)
+			petName, ownerName, ownerGUID, ownerFlags = petContainer.GetOwner(sourceSerial, targetName)
 			if (petName) then
 				ownerActor = _current_misc_container:GetOrCreateActor(ownerGUID, ownerName, ownerFlags, true)
 			end
 		end
-
-		--local sourceActor, ownerActor, sourceName = _current_misc_container:GetOrCreateActor(sourceSerial, sourceName, sourceFlags, true)
 
 	------------------------------------------------------------------------------------------------
 	--build containers on the fly
@@ -4476,6 +4490,11 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	---@param targetName string
 	---@param targetFlags number
 	function parser:dead(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags)
+		---@cast Details222 details222
+		if (petContainer.Pets[targetSerial]) then
+			petContainer.RemovePet(targetSerial)
+		end
+
 		--early checks and fixes
 		if (not targetName) then
 			return
@@ -5500,6 +5519,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 
+		petContainer.Reset()
+		C_Timer.After(1, function() petContainer.PetScan("ENCOUNTER_END") end)
+
 		--tag item level of all players
 		local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 		local allPlayersGear = openRaidLib and openRaidLib.GetAllUnitsGear()
@@ -5529,8 +5551,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		return true
 	end
 
-	function Details.parser_functions:UNIT_PET(...)
-		Details.container_pets:Unpet(...)
+	function Details.parser_functions:UNIT_PET(unitId)
+		petContainer.UNIT_PET(unitId)
 		Details:SchedulePetUpdate(1)
 	end
 
@@ -6088,7 +6110,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (Details.in_group) then
 				--player entered in a group, cleanup and set the new enviromnent
 				Details222.GarbageCollector.RestartInternalGarbageCollector(true)
-				Details:WipePets()
+				petContainer.Reset()
 				Details:SchedulePetUpdate(1)
 				Details:InstanceCall(Details.AdjustAlphaByContext)
 
@@ -6108,7 +6130,7 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			if (not Details.in_group) then
 				--player left the group, run routines to cleanup the environment
 				Details222.GarbageCollector.RestartInternalGarbageCollector(true)
-				Details:WipePets()
+				petContainer.Reset()
 				Details:SchedulePetUpdate(1)
 				Details:Destroy(Details.details_users)
 				Details:InstanceCall(Details.AdjustAlphaByContext)
@@ -6677,10 +6699,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 
 	function Details:UpdateParser()
 		_tempo = Details._tempo
-	end
-
-	function Details:UpdatePetsOnParser()
-		container_pets = Details.tabela_pets.pets
 	end
 
 	function Details:GetActorFromCache(value)

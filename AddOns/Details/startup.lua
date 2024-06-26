@@ -489,7 +489,7 @@ function Details:StartMeUp()
 				---@type trinketdata
 				local thisTrinketData = {
 					itemName = C_Item.GetItemNameByID(trinketTable.itemId),
-					spellName = GetSpellInfo(spellId) or "spell not found",
+					spellName = Details222.GetSpellInfo(spellId) or "spell not found",
 					lastActivation = 0,
 					lastPlayerName = "",
 					totalCooldownTime = 0,
@@ -647,9 +647,31 @@ function Details:StartMeUp()
 		DetailsFramework.table.copy(Details.class_coords, Details.default_profile.class_coords)
 	end
 
-	--shutdown the old OnDeathMenu
-	--cleanup: this line can be removed after the first month of dragonflight
-	Details.on_death_menu = false
+--[=
+	--remove on v11 launch
+	if (DetailsFramework.IsWarWow()) then
+	C_Timer.After(1, function() if (SplashFrame) then SplashFrame:Hide() end end)
+	function HelpTip:SetHelpTipsEnabled(flag, enabled)
+		HelpTip.supressHelpTips[flag] = false
+	end
+	hooksecurefunc(HelpTipTemplateMixin, "OnShow", function(self)
+		self:Hide()
+	end)
+	hooksecurefunc(HelpTipTemplateMixin, "OnUpdate", function(self)
+		self:Hide()
+	end)
+
+	C_Timer.After(5, function()
+	if (TutorialPointerFrame_1) then
+		TutorialPointerFrame_1:Hide()
+		hooksecurefunc(TutorialPointerFrame_1, "Show", function(self)
+			self:Hide()
+		end)
+	end
+end)
+end
+--]=]
+
 end
 
 Details.AddOnLoadFilesTime = _G.GetTime()

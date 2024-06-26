@@ -35,8 +35,9 @@
 	local GameTooltip = GameTooltip --api local
 	local IsInRaid = IsInRaid --api local
 	local IsInGroup = IsInGroup --api local
+    local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
 
-	local GetSpellInfo = GetSpellInfo --api local
+	local GetSpellInfo = Details222.GetSpellInfo --api local
 	local _GetSpellInfo = Details.getspellinfo --details api
 	local stringReplace = Details.string.replace --details api
 
