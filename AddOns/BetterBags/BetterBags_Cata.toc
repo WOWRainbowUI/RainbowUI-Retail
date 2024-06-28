@@ -3,13 +3,13 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.66
+## Version: v0.1.67
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-06-23T15:35:10Z
+## X-Date: 2024-06-27T00:35:31Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
-## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort, Pawn, SortBags, WagoAnalytics
+## OptionalDeps: LibStub, Masque, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, _DebugLog, ConsolePort, Pawn, SortBags, WagoAnalytics, ElvUI
 
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
