@@ -54,6 +54,7 @@ if GetLocale() == "zhTW" then
 	L.data["Gear: "] = "裝備: "
 	L.data["Everything"] = "全部"
 	L.data["Junk"] = "垃圾"
+	L.data["Free Slots"] = "空格"
 
 	-- section.lua
 	L.data["Item Count: "] = "物品數: " 
