@@ -113,6 +113,7 @@ local windowGroup = addon:GetModule('WindowGroup')
 ---@field windowGrouping WindowGrouping
 ---@field sideAnchor Frame
 ---@field previousSize number
+---@field searchFrame SearchFrame
 bagFrame.bagProto = {}
 
 function bagFrame.bagProto:Show()
@@ -131,6 +132,11 @@ function bagFrame.bagProto:Hide()
   addon.ForceHideBlizzardBags()
   PlaySound(self.kind == const.BAG_KIND.BANK and SOUNDKIT.IG_MAINMENU_CLOSE or SOUNDKIT.IG_BACKPACK_CLOSE)
   self.frame:Hide()
+  if self.kind == const.BAG_KIND.BANK then
+    CloseBankFrame()
+  elseif self.kind == const.BAG_KIND.BACKPACK then
+    self.searchFrame:Hide()
+  end
   if self.drawOnClose and self.kind == const.BAG_KIND.BACKPACK then
     debug:Log("draw", "Drawing bag on close")
     self.drawOnClose = false
@@ -423,7 +429,8 @@ function bagFrame:Create(kind)
   b.slots = slots
 
   if kind == const.BAG_KIND.BACKPACK then
-    search:Create(b.frame)
+    print("search frame made")
+    b.searchFrame = search:Create(b.frame)
   end
 
   if kind == const.BAG_KIND.BACKPACK then
@@ -452,6 +459,7 @@ function bagFrame:Create(kind)
     drag:StopMovingOrSizing()
     Window.SavePosition(b.frame)
     b.previousSize = b.frame:GetBottom()
+    b:OnResize()
   end)
 
   -- Load the bag position from settings.

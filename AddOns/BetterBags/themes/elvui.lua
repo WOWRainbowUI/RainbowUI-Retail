@@ -26,6 +26,7 @@ local search = addon:GetModule('Search')
 ---@class ElvUIDecoration: Frame
 ---@field title FontString
 ---@field search SearchFrame
+---@field backdrop Frame
 
 ---@type table<string, ElvUIDecoration>
 local decoratorFrames = {}
@@ -156,6 +157,7 @@ local theme = {
     local buttonName = item.button:GetName()
     local button = itemButtons[buttonName]
     if button then
+      button.backdrop:SetFrameLevel(0)
       button:Show()
       return button
     end
@@ -163,13 +165,25 @@ local theme = {
     S:HandleItemButton(button, true)
     S:HandleIconBorder(button.IconBorder)
     button:Show()
+    if not addon.isRetail then
+      button.searchOverlay = button:CreateTexture(nil, "ARTWORK")
+      button.searchOverlay:SetColorTexture(0, 0, 0, 0.8)
+      button.searchOverlay:SetAllPoints()
+    end
 
     button:GetNormalTexture():SetAlpha(0)
     button:SetHighlightTexture(E.Media.Textures.White8x8)
     button:GetHighlightTexture():SetVertexColor(1, 1, 1, 0.3)
     button:SetPushedTexture(E.Media.Textures.White8x8)
     button:GetPushedTexture():SetVertexColor(1, 1, 1, 0.3)
-
+    if button.SetItemButtonQuality then
+      hooksecurefunc(button, 'SetItemButtonQuality', function(_, quality)
+        -- ElvUI Icon Borders are super edgy.
+        if quality == Enum.ItemQuality.Common then
+          button.IconBorder:SetVertexColor(0, 0, 0, 1)
+        end
+      end)
+    end
     local quest_overlay = button:CreateTexture(nil, "OVERLAY")
     quest_overlay:SetTexture(E.Media.Textures.BagQuestIcon)
     quest_overlay:SetTexCoord(0, 1, 0, 1)
@@ -183,12 +197,12 @@ local theme = {
       end
       button.IconQuestTexture.Hide = function()
         quest_overlay:Hide()
-        --button.IconBorder:SetVertexColor(1, 1, 1, 1)
       end
     end
     if button.Cooldown then
       E:RegisterCooldown(button.Cooldown, 'bags')
     end
+    button.backdrop:SetFrameLevel(0)
     itemButtons[buttonName] = button --[[@as ItemButton]]
     return button --[[@as ItemButton]]
   end,
