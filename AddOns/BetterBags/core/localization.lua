@@ -264,7 +264,10 @@ if GetLocale() == "zhTW" then
 	L.data["Shift Left Click"] = "Shift+左鍵"
 	L.data["Move %s to the top of your bags"] = "將 %s 移動到背包的最前面"
 	L.data["Right Click"] = "右鍵"
-	L.data["Open Menu"] = "打開選單"
+	L.data["Shift Right Click"] = "Shift+右鍵"
+	L.data["Hide or Show Category"] = "隱藏或顯示分類"
+	L.data["Show or hide this category in the bags."] = "在背包中顯示或隱藏此分類"
+	-- L.data["Open Menu"] = "打開選單" -- 前面已有
 	L.data[ [[
           Dynamic categories can't be enabled or disabled (yet).
           Drag this category to Pinned to keep it at the top of your bags, or to Automatically Sorted to have it sorted with the rest of your items.]] ] = [[

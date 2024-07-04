@@ -71,6 +71,16 @@ function themes:OnEnable()
   end
 end
 
+-- GetCurrentTheme returns the current active theme, or the default theme if the current theme is not available.
+---@return Theme
+function themes:GetCurrentTheme()
+  local theme = db:GetTheme()
+  if self.themes[theme] and self.themes[theme].Available then
+    return self.themes[theme]
+  end
+  return self.themes['Default']
+end
+
 ---@param key string
 ---@param themeTemplate Theme
 function themes:RegisterTheme(key, themeTemplate)
@@ -235,7 +245,7 @@ end
 ---@param item Item
 ---@return ItemButton
 function themes:GetItemButton(item)
-  local theme = self.themes[db:GetTheme()]
+  local theme = self:GetCurrentTheme()
   if theme.ItemButton then
     return theme.ItemButton(item)
   end
@@ -259,12 +269,10 @@ end
 function themes.CreateBlankItemButtonDecoration(parent, theme, buttonName)
   ---@type ItemButton
   local button
-  if not addon.isClassic then
+  if addon.isRetail then
     button = CreateFrame("ItemButton", buttonName.."Decoration"..theme, parent, "ContainerFrameItemButtonTemplate") --[[@as ItemButton]]
-    button:SetAllPoints()
   else
     button = CreateFrame("Button", buttonName.."Decoration"..theme, parent, "ContainerFrameItemButtonTemplate") --[[@as ItemButton]]
-    button:SetAllPoints()
     ---@diagnostic disable-next-line: duplicate-set-field
     button.SetMatchesSearch = function(me, match)
       if match then
@@ -274,6 +282,7 @@ function themes.CreateBlankItemButtonDecoration(parent, theme, buttonName)
       end
     end
   end
+  button:SetAllPoints()
 
   if addon.isRetail then
     button.ItemSlotBackground = button:CreateTexture(nil, "BACKGROUND", "ItemSlotBackgroundCombinedBagsTemplate", -6)

@@ -328,6 +328,7 @@ function itemFrame.itemProto:SetItemFromData(data)
   decoration.ItemSlotBackground:Hide()
   ClearItemButtonOverlay(decoration)
   decoration:SetHasItem(data.itemInfo.itemIcon)
+  self.button:SetHasItem(data.itemInfo.itemIcon)
   decoration:SetItemButtonTexture(data.itemInfo.itemIcon)
   SetItemButtonQuality(decoration, data.itemInfo.itemQuality, data.itemInfo.itemLink, false, bound)
   self:UpdateCount()
@@ -352,6 +353,7 @@ function itemFrame.itemProto:SetItemFromData(data)
   if self.slotkey ~= nil then
     events:SendMessage('item/Updated', self)
   end
+  decoration:SetFrameLevel(self.button:GetFrameLevel() - 1)
   self.frame:Show()
   self.button:Show()
 end
@@ -456,6 +458,7 @@ function itemFrame.itemProto:SetFreeSlots(bagid, slotid, count, name)
 
   ClearItemButtonOverlay(decoration)
   decoration:SetHasItem(false)
+  self.button:SetHasItem(false)
   SetItemButtonCount(decoration, count)
   decoration:SetItemButtonTexture(0)
   decoration:UpdateQuestItem(false, nil, nil)
@@ -524,6 +527,7 @@ function itemFrame.itemProto:ClearItem()
   self.frame:SetAlpha(1)
   self.frame:Hide()
   decoration:SetHasItem(false)
+  self.button:SetHasItem(false)
   decoration:SetItemButtonTexture(0)
   decoration:UpdateQuestItem(false, nil, nil)
   decoration:UpdateNewItem(false)
@@ -562,6 +566,9 @@ function itemFrame:OnInitialize()
 end
 
 function itemFrame:OnEnable()
+  self.emptyItemTooltip = CreateFrame("GameTooltip", "BetterBagsEmptySlotTooltip", UIParent, "GameTooltipTemplate") --[[@as GameTooltip]]
+  self.emptyItemTooltip:SetScale(GameTooltip:GetScale())
+
   -- Pre-populate the pool with 600 items. This is done
   -- so that items acquired during combat do not taint
   -- the bag frame.
@@ -574,9 +581,6 @@ function itemFrame:OnEnable()
     frame:Release()
   end
 
-  self.emptyItemTooltip = CreateFrame("GameTooltip", "BetterBagsEmptySlotTooltip", UIParent, "GameTooltipTemplate") --[[@as GameTooltip]]
-  --self.emptyItemTooltip:CopyTooltip()
-  self.emptyItemTooltip:SetScale(GameTooltip:GetScale())
 end
 
 ---@param i Item
@@ -639,7 +643,6 @@ function itemFrame:_DoCreate()
   button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
   i.button = button
   button:SetAllPoints(p)
-  button:SetPassThroughButtons("MiddleButton")
 
   button:HookScript("OnEnter", function()
     i:OnEnter()
