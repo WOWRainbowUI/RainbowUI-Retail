@@ -932,27 +932,14 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print(Loc["STRING_DETAILS1"] .. "net diagnostic mode has been turned on.")
 		end
 
-	elseif (command == "debug") then
-		if (Details.debug) then
-			Details.debug = false
-			print(Loc ["STRING_DETAILS1"] .. Loc["diagnostic mode has been turned off."])
-			return
-		else
-			Details.debug = true
-			print(Loc ["STRING_DETAILS1"] .. Loc["diagnostic mode has been turned on."])
+	elseif (command == "m+debug") then
+		Details222.Debug.SetMythicPlusDebugState() --passing nothing will toggle the debug state
 
-			if (rest and rest ~= "") then
-				if (rest == "-clear") then
-					_detalhes_global.debug_chr_log = ""
-					print(Loc ["STRING_DETAILS1"] .. Loc["log for characters has been wiped."])
-					return
-				end
-				Details.debug_chr = rest
-				_detalhes_global.debug_chr_log = _detalhes_global.debug_chr_log or ""
-				print(Loc ["STRING_DETAILS1"] .. Loc["diagnostic for character "] .. rest .. Loc[" turned on."])
-				return
-			end
-		end
+	elseif (command == "m+debugloot") then
+		Details222.Debug.SetMythicPlusLootDebugState() --passing nothing will toggle the debug state
+
+	elseif (command == "debug") then
+		Details.ShowDebugOptionsPanel()
 
 	--debug combat log
 	elseif (msg == "combatlog") then
@@ -1296,7 +1283,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 
 		--create a new combat to be the overall for the mythic run
-		Details:EntrarEmCombate()
+		Details222.StartCombat()
 
 		--get the current combat just created and the table with all past segments
 		local newCombat = Details:GetCurrentCombat()
@@ -1449,7 +1436,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local tokenId = line:match("%s%s(.*)"):match("^(.-),")
 
 			if (tokenId == "ENCOUNTER_START") then
-				Details:StartCombat()
+				Details222.StartCombat()
 			end
 
 			if (tokenId == "ENCOUNTER_END") then

@@ -4978,7 +4978,7 @@ do
                     end)
                     
                     DF:ApplyStandardBackdrop(f)
-                    DF:CreateTitleBar(f, "Load Your Image") --localize-me
+                    DF:CreateTitleBar(f, Loc["Load Your Image"]) --localize-me
                     
                     tinsert(_G.UISpecialFrames, "DetailsLoadWallpaperImage")
                     

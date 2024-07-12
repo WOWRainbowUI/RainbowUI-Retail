@@ -401,16 +401,16 @@ detailsFramework.LayoutFrame = {
 			if (textType) then
 				textType = string.lower(textType)
 				if (textType == "short") then
-					text = "close window"
+					text = "關閉視窗"
 
 				elseif (textType == "medium") then
-					text = "close window"
+					text = "關閉視窗"
 
 				elseif (textType == "large") then
-					text = "close window"
+					text = "關閉視窗"
 				end
 			else
-				text = "close window"
+				text = "關閉視窗"
 			end
 		end
 

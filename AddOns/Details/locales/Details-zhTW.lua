@@ -193,7 +193,6 @@ L["STRING_ENVIRONMENTAL_FATIGUE"] = "環境 (疲勞)"
 L["STRING_ENVIRONMENTAL_FIRE"] = "環境 (著火)"
 L["STRING_ENVIRONMENTAL_LAVA"] = "環境 (岩漿)"
 L["STRING_ENVIRONMENTAL_SLIME"] = "環境 (黏液)"
-L["STRING_EQUILIZING"] = "分享首領戰資料"
 L["STRING_ERASE"] = "刪除"
 L["STRING_ERASE_DATA"] = "重置所有資料"
 L["STRING_ERASE_DATA_OVERALL"] = "重置整場資料"
@@ -2319,6 +2318,7 @@ L["Always Use Real Time in Arenas"] = "競技場永遠使用即時 DPS"
 L["If Enabled, real time DPS is always used in arenas, even if the option above is disabled."] = "啟用時，就算停用上方的選項，競技場也會永遠使用即時 DPS。"
 L["Enable"] = "啟用"
 L["Disable"] = "停用"
+L["Load Your Image"] = "載入你的圖片"
 
 -- frames\window_plater.lua 更改字體大小
 -- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
