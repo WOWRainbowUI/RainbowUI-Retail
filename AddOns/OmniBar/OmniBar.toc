@@ -1,7 +1,7 @@
 ## Interface: 100207, 110000
 ## Title: OmniBar
 ## Notes: Tracks enemy cooldowns
-## Version: v17
+## Version: v18
 ## Author: Jordon
 ## SavedVariables: OmniBarDB
 ## IconTexture: Interface\AddOns\OmniBar\Media\Textures\icon.blp
