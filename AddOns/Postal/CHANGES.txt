@@ -1,8 +1,45 @@
 ------------------------------------------------------------------------
-r619 | Zimzarina | 2024-05-07 15:17:42 +0000 (Tue, 07 May 2024) | 1 line
+r626 | Zimzarina | 2024-06-21 03:56:05 +0000 (Fri, 21 Jun 2024) | 1 line
 Changed paths:
+   M /trunk/Modules/OpenAll.lua
+   M /trunk/Modules/Select.lua
+
+Changed GetItemCount() to C_Item.GetItemCount().
+------------------------------------------------------------------------
+r625 | Zimzarina | 2024-06-19 16:49:25 +0000 (Wed, 19 Jun 2024) | 1 line
+Changed paths:
+   M /trunk/Modules/Express.lua
+   M /trunk/Modules/Forward.lua
+   M /trunk/Modules/OpenAll.lua
+   M /trunk/Modules/QuickAttach.lua
+   M /trunk/Modules/Select.lua
+
+Changed GetItemInfo() to C_Item.GetItemInfo().
+------------------------------------------------------------------------
+r624 | Zimzarina | 2024-06-18 17:26:56 +0000 (Tue, 18 Jun 2024) | 1 line
+Changed paths:
+   M /trunk/Modules/QuickAttach.lua
+
+Removed GetSpellTexture() usage in QuickAttach.lua module for retail. Needed for TWW compatibility.
+------------------------------------------------------------------------
+r623 | Zimzarina | 2024-06-17 17:42:17 +0000 (Mon, 17 Jun 2024) | 1 line
+Changed paths:
+   M /trunk/Postal.lua
+
+Changed GetAddOnMetadata to C_AddOns.GetAddOnMetadata
+------------------------------------------------------------------------
+r622 | Zimzarina | 2024-06-15 15:34:45 +0000 (Sat, 15 Jun 2024) | 1 line
+Changed paths:
+   M /trunk/Modules/CarbonCopy.lua
+
+TWW compatibility update for CarbonCopy module.
+------------------------------------------------------------------------
+r621 | Zimzarina | 2024-06-14 18:03:08 +0000 (Fri, 14 Jun 2024) | 1 line
+Changed paths:
+   M /trunk/Modules/TradeBlock.lua
+   M /trunk/Postal.lua
    M /trunk/Postal.toc
 
-TOC Update Retail.
+Updates to make Postal compatible with TWW.
 ------------------------------------------------------------------------
 
