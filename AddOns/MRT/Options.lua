@@ -816,6 +816,77 @@ function OptionsFrame:AddDeathStar(maxDeathStars,deathStarType)
 	sf.snowlast = maxDeathStars
 end
 
+function OptionsFrame:AddChest(chestType)
+	local sf = OptionsFrame.ChestFrame or CreateFrame("ScrollFrame", nil, Options)
+	OptionsFrame.ChestFrame = sf
+	sf:SetPoint("TOPLEFT")
+	sf:SetPoint("BOTTOMRIGHT")
+
+	sf.C = sf.C or CreateFrame("Frame", nil, sf) 
+	sf:SetScrollChild(sf.C)
+	sf.C:SetSize(Options:GetWidth(),Options:GetHeight())
+
+	local SCALE = 0.4
+
+	local captured
+	local function AddCaptured()
+		if captured then
+			return captured
+		end
+		local animated = CreateFrame("Button",nil,UIParent)
+		captured = animated
+		animated.texture = animated:CreateTexture()
+		animated.texture:SetAllPoints()
+		animated.texture:SetTexture([[Interface\AddOns\MRT\media\frieren.jpg]])
+		animated:SetFrameStrata("DIALOG")
+		
+		animated:SetPoint("CENTER")
+		animated:SetSize(256*1.5,256*1.5)
+		animated.texture:SetTexCoord(0,0.25,0,0.25)
+		
+		animated.frame = 0
+		animated.frame_max = 14
+		animated.tmr = 0
+		animated:SetScript("OnUpdate",function(self,elapsed)
+			self.tmr = self.tmr + elapsed
+			if self.tmr > 0.15 then
+				self.tmr = 0
+				self.frame = self.frame + 1
+		
+				if self.frame > self.frame_max then
+					self.frame = 1
+				end
+		
+				local w = self.frame % 4
+				local h = floor(self.frame / 4)
+				
+				self.texture:SetTexCoord(w * 0.25,(w + 1) * 0.25,h * 0.25,(h + 1) * 0.25)
+			end
+		end)
+		animated:SetScript("OnClick",function(self)
+			self:Hide()
+		end)
+	end
+
+	local chest = CreateFrame("Button",nil,sf.C)  
+	OptionsFrame.chestBut = chest
+	chest:SetSize(175*SCALE,130*SCALE) 
+	local x,y = math.random(130,Options:GetWidth()-175*SCALE),math.random(0,Options:GetHeight()-130*SCALE)
+	chest:SetPoint("TOPLEFT",x,-y)
+	chest:RegisterForClicks("LeftButtonDown","RightButtonDown")
+	chest:SetScript("OnClick",function(self,button) 
+		AddCaptured()
+		captured:Show()
+		self:Hide()
+	end)
+	chest.t = chest:CreateTexture()
+	chest.t:SetAllPoints()
+	chest.t:SetAtlas("ChallengeMode-Chest")
+
+	chest:RotateTextures(math.pi*2/360*(math.random(0,360)))
+end
+
+
 
 OptionsFrame_image = OptionsFrame:CreateTexture(nil,"ARTWORK")
 
@@ -886,6 +957,7 @@ OptionsFrame.dateChecks:SetScript("OnShow",function(self)
 	self:SetScript("OnShow",nil)
 	local today = date("*t",time())
 	local isChristmas, isSnowDay
+	local isFrierenFriday
 	if MRT.locale == "ruRU" then
 		if (today.month == 12 and today.day >= 23) or (today.month == 1 and today.day <= 4) then
 			isChristmas = true
@@ -910,6 +982,13 @@ OptionsFrame.dateChecks:SetScript("OnShow",function(self)
 		if (today.month == 12 and today.day >= 31) or (today.month == 1 and today.day <= 1) then
 			isSnowDay = true
 		end
+	end
+	if (today.wday == 6 and today.day % 2 == 0) then
+		isFrierenFriday = true
+	end	
+	
+	if isFrierenFriday then
+		OptionsFrame:AddChest()
 	end
 
 	if isChristmas then

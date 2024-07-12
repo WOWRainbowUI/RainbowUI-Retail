@@ -15,4 +15,12 @@
 	<Binding name="CLICK EXRTWM8:LeftButton" category="MRT" />
 	<Binding name="CLICK EXRTCWM:LeftButton" category="MRT" />
 	<Binding name="CLICK EXRTTOGGLENOTE:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM1CURSOR:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM2CURSOR:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM3CURSOR:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM4CURSOR:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM5CURSOR:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM6CURSOR:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM7CURSOR:LeftButton" category="MRT" />
+	<Binding name="CLICK EXRTWM8CURSOR:LeftButton" category="MRT" />
 </Bindings>

@@ -125,6 +125,7 @@ L.NoteTimersOnlyMy = "Hide lines with timers but without my name"
 L.NotePersonalWindow = "Personal note in separate window"
 L.NoteShowInNewWindow = "Show in new window"
 L.NoteShowInNewWindowTooltip = "Shift+Right click on window to hide it\nCtrl+Click on this button to reset window position (if showed)"
+L.NoteProfilesKeepText = "Do not change main note text after profile swap"
 
 L.setminimap1 = "Hide minimap icon"
 L.setauthor = "Author"
@@ -225,7 +226,7 @@ L.TimerSpecTimerHeader = "Spec timers (preparation time, in seconds, needed per 
 PH.TimerUseDptInstead = "Use dynamic pool timer instead default (by \"/rt pull\" or on Marks bar)"
 L.TimerDisableRWmessage = "Disable countdown in chat"
 PH.TimerTimeToKillTime = "Time for analyze, seconds"
-L.TimerEnableBlizz = "Enable timer from default interface (will be shown for all playe)"
+L.TimerEnableBlizz = "Enable timer from default interface (will be shown for all players)"
 L.TimerEnableBlizzTooltip = "This timer will be shown for all players in party/raid, even without addon. But it can be inaccurate."
 
 L.raidchecknofood = "No food"
@@ -1112,7 +1113,7 @@ L.RaidGroupsExport = "Export current groups"
 L.RaidGroupsKeepPosInGroup = "Keep positions in groups"
 
 L.panelmarksclear = "Clear"
-L.panelmarkstooltip = "Use macro /rt mark 1, /rt mark 2, /rt mark 3, /rt mark 4 for placing marks and /rt mark 5 for clearing all marks"
+L.panelmarkstooltip = "Use macro /rt mark 1, /rt mark 2, /rt mark 3, /rt mark 4 for placing group of marks and /rt mark 5 for clearing all marks"
 L.panelmarksSpellCastSuccess = "Spell cast success"
 L.panelmarksSpellCastStart = "Spell cast start"
 L.panelmarksSpellAuraRemoved = "Aura removed"
@@ -1602,6 +1603,7 @@ L.ReminderTTSVoice = "TTS Voice"
 L.ReminderTTSVoiceDefTip = "Use option from default user tts interface"
 L.ReminderTTSSpeechRate = "TTS Speech Rate"
 L.ReminderTTSVolume = "TTS Volume"
+L.ReminderZone = "Zone"
 
 L.OtherCovHelper = "Help me with choice"
 

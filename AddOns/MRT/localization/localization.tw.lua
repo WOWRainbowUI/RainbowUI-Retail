@@ -127,6 +127,7 @@ L.NoteTimersOnlyMy = "隱藏沒有我名字的計時器行列"
 L.NotePersonalWindow = "個人註記在分別的視窗"
 L.NoteShowInNewWindow = "顯示在新視窗"
 L.NoteShowInNewWindowTooltip = "Shift+右鍵點擊視窗來隱藏它\nCtrl+點擊在此按鈕以重設視窗位置(如果顯示)"
+L.NoteProfilesKeepText = "在設定檔切換後請勿更改主要註記文字"
 
 L.setminimap1 = "隱藏小地圖圖示"
 L.setauthor = "作者"

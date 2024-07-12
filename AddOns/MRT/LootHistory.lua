@@ -4,6 +4,8 @@ if ExRT.isClassic then
 	return
 end
 
+local GetItemInfo, GetItemInfoInstant  = C_Item and C_Item.GetItemInfo or GetItemInfo,  C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant
+
 local module = ExRT:New("LootHistory",ExRT.L.LootHistory)
 local ELib,L = ExRT.lib,ExRT.L
 

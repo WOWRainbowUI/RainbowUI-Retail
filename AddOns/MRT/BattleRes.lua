@@ -6,7 +6,7 @@ end
 
 local VMRT = nil
 
-local GetSpellCharges, GetTime, floor = GetSpellCharges, GetTime, floor
+local GetSpellCharges, GetTime, floor, GetSpellTexture = ExRT.F.GetSpellCharges or GetSpellCharges, GetTime, floor, C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 
 local module = ExRT:New("BattleRes",ExRT.L.BattleRes)
 local ELib,L = ExRT.lib,ExRT.L

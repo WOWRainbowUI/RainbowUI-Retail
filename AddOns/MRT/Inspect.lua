@@ -5,10 +5,12 @@ local pairs, type, tonumber, abs = pairs, type, tonumber, abs
 local UnitCombatlogname, RaidInCombat, ScheduleTimer, DelUnitNameServer = ExRT.F.UnitCombatlogname, ExRT.F.RaidInCombat, ExRT.F.ScheduleTimer, ExRT.F.delUnitNameServer
 local CheckInteractDistance, CanInspect, TooltipUtil, C_TooltipInfo = CheckInteractDistance, CanInspect, TooltipUtil, C_TooltipInfo
 
+local GetSpellInfo = ExRT.F.GetSpellInfo or GetSpellInfo
 local GetInspectSpecialization, GetNumSpecializationsForClassID, GetTalentInfo = GetInspectSpecialization, GetNumSpecializationsForClassID, GetTalentInfo
 local GetInventoryItemQuality, GetInventoryItemID = GetInventoryItemQuality, GetInventoryItemID
 local GetTalentInfoClassic = GetTalentInfo
 local C_SpecializationInfo_GetInspectSelectedPvpTalent
+local GetItemInfo, GetItemInfoInstant  = C_Item and C_Item.GetItemInfo or GetItemInfo,  C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant
 if ExRT.isClassic then
 	GetInspectSpecialization = function () return 0 end
 	if not ExRT.isCata then
@@ -652,12 +654,12 @@ end
 
 function module:Enable()
 	module:RegisterTimer()
-	module:RegisterEvents('PLAYER_SPECIALIZATION_CHANGED','INSPECT_READY','UNIT_INVENTORY_CHANGED','PLAYER_EQUIPMENT_CHANGED','GROUP_ROSTER_UPDATE','ZONE_CHANGED_NEW_AREA','INSPECT_ACHIEVEMENT_READY','CHALLENGE_MODE_START','ENCOUNTER_START')
+	module:RegisterEvents('PLAYER_SPECIALIZATION_CHANGED','INSPECT_READY','UNIT_INVENTORY_CHANGED','PLAYER_EQUIPMENT_CHANGED','GROUP_ROSTER_UPDATE','ZONE_CHANGED_NEW_AREA','INSPECT_ACHIEVEMENT_READY','CHALLENGE_MODE_START','ENCOUNTER_START','ENCOUNTER_END')
 	module:RegisterAddonMessage()
 end
 function module:Disable()
 	module:UnregisterTimer()
-	module:UnregisterEvents('PLAYER_SPECIALIZATION_CHANGED','INSPECT_READY','UNIT_INVENTORY_CHANGED','PLAYER_EQUIPMENT_CHANGED','GROUP_ROSTER_UPDATE','ZONE_CHANGED_NEW_AREA','INSPECT_ACHIEVEMENT_READY','CHALLENGE_MODE_START','ENCOUNTER_START')
+	module:UnregisterEvents('PLAYER_SPECIALIZATION_CHANGED','INSPECT_READY','UNIT_INVENTORY_CHANGED','PLAYER_EQUIPMENT_CHANGED','GROUP_ROSTER_UPDATE','ZONE_CHANGED_NEW_AREA','INSPECT_ACHIEVEMENT_READY','CHALLENGE_MODE_START','ENCOUNTER_START','ENCOUNTER_END')
 	module:UnregisterAddonMessage()
 end
 
@@ -798,7 +800,6 @@ do
 		lastInspectTime[arg] = currTime
 		local _,_,_,race,_,name,realm = GetPlayerInfoByGUID(arg)
 		if name then
-			--if ExRT.is10 then for i=#name,1,-1 do if name:sub(i,i) ~= string.char(0) then name = name:sub(1,i) break end end end	--TEMP fix
 			if realm and realm ~= "" then name = name.."-"..realm end
 			local inspectedName = name
 			if UnitName("target") == DelUnitNameServer(name) then 
@@ -880,7 +881,7 @@ do
 				local config = C_Traits.GetConfigInfo(activeConfig)
 				if config and config.treeIDs then
 					local treeID = config.treeIDs[1]
-					local treeInfo = C_Traits.GetTreeInfo(activeConfig,treeID)
+					--local treeInfo = C_Traits.GetTreeInfo(activeConfig,treeID)	--not used
 					local nodes = C_Traits.GetTreeNodes(treeID)
 	
 					if not module.db.inspectTrees[data.spec] then
@@ -902,37 +903,41 @@ do
 									local entryID = node.entryIDs[j]
 									local entry = C_Traits.GetEntryInfo(activeConfig,entryID)
 									if entry then
-										local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
-										if definitionInfo and definitionInfo.spellID then
-											local spellID = definitionInfo.spellID
-											if j==1 then
-												tree[#tree+1] = {
-													spellID = spellID,
-													x = node.posX,
-													y = node.posY,
-													max = node.maxRanks and node.maxRanks > 1 and node.maxRanks or nil,
-												}
-												if tree.minX > node.posX then tree.minX = node.posX end
-												if tree.maxX < node.posX then tree.maxX = node.posX end
-												if tree.minY > node.posY then tree.minY = node.posY end
-												if tree.maxY < node.posY then tree.maxY = node.posY end
-												if node.visibleEdges then
-													for k=1,#node.visibleEdges do
-														local edge = node.visibleEdges[k]
-														local targetNode = edge.targetNode
-	
-														tree[#tree].edges = tree[#tree].edges or {}
-														tinsert(tree[#tree].edges,targetNode)
+										if Enum.TraitNodeType and Enum.TraitNodeType.SubTreeSelection and node.type == Enum.TraitNodeType.SubTreeSelection then 
+											
+										else
+											local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
+											if definitionInfo and definitionInfo.spellID then
+												local spellID = definitionInfo.spellID
+												if j==1 then
+													tree[#tree+1] = {
+														spellID = spellID,
+														x = node.posX,
+														y = node.posY,
+														max = node.maxRanks and node.maxRanks > 1 and node.maxRanks or nil,
+													}
+													if tree.minX > node.posX then tree.minX = node.posX end
+													if tree.maxX < node.posX then tree.maxX = node.posX end
+													if tree.minY > node.posY then tree.minY = node.posY end
+													if tree.maxY < node.posY then tree.maxY = node.posY end
+													if node.visibleEdges then
+														for k=1,#node.visibleEdges do
+															local edge = node.visibleEdges[k]
+															local targetNode = edge.targetNode
+		
+															tree[#tree].edges = tree[#tree].edges or {}
+															tinsert(tree[#tree].edges,targetNode)
+														end
 													end
+												else
+													if not tree[#tree].spellIDs then
+														tree[#tree].spellIDs = {tree[#tree].spellID}
+													end
+													tinsert(tree[#tree].spellIDs,spellID)
 												end
-											else
-												if not tree[#tree].spellIDs then
-													tree[#tree].spellIDs = {tree[#tree].spellID}
-												end
-												tinsert(tree[#tree].spellIDs,spellID)
+												tree.spellIDtoNode[spellID] = #tree
+												tree.nodeIDToNum[nodeID] = #tree
 											end
-											tree.spellIDtoNode[spellID] = #tree
-											tree.nodeIDToNum[nodeID] = #tree
 										end
 									end
 								end
@@ -950,46 +955,50 @@ do
 							local entryID = node.activeEntry.entryID
 							local entry = C_Traits.GetEntryInfo(activeConfig,entryID)
 							if entry then
-								local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
-								if definitionInfo then
-									local spellID = definitionInfo.spellID
-									--------> ExCD2
-									if spellID then
-										local list = cooldownsModule.db.spell_talentsList[class]
-										if not list then
-											list = {}
-											cooldownsModule.db.spell_talentsList[class] = list
-										end
-					
-										list[specIndex] = list[specIndex] or {}
-					
-										if not ExRT.F.table_find(list[specIndex],spellID) then
-											list[specIndex][ #list[specIndex]+1 ] = spellID
-										end
-										if node.currentRank and node.currentRank > 0 then
-											c = c + 1
-											data[c] = spellID
-											if node.maxRanks and node.maxRanks > 1 then
-												data[-c] = node.activeRank
-	
-												cooldownsModule:SetTalentClassicRank(name,spellID,node.activeRank)
-											else
-												data[-c] = nil
+								if Enum.TraitNodeType and Enum.TraitNodeType.SubTreeSelection and node.type == Enum.TraitNodeType.SubTreeSelection then 
+																			
+								else
+									local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
+									if definitionInfo then
+										local spellID = definitionInfo.spellID
+										--------> ExCD2
+										if spellID then
+											local list = cooldownsModule.db.spell_talentsList[class]
+											if not list then
+												list = {}
+												cooldownsModule.db.spell_talentsList[class] = list
 											end
-											entries[entryID] = true
-	
-											cooldownsModule.db.session_gGUIDs[name] = {spellID,"talent"}
-					
-											if cooldownsModule.db.spell_talentProvideAnotherTalents[spellID] then
-												for k,v in pairs(cooldownsModule.db.spell_talentProvideAnotherTalents[spellID]) do
-													cooldownsModule.db.session_gGUIDs[name] = {v,"talent"}
+						
+											list[specIndex] = list[specIndex] or {}
+						
+											if not ExRT.F.table_find(list[specIndex],spellID) then
+												list[specIndex][ #list[specIndex]+1 ] = spellID
+											end
+											if node.currentRank and node.currentRank > 0 then
+												c = c + 1
+												data[c] = spellID
+												if node.maxRanks and node.maxRanks > 1 then
+													data[-c] = node.activeRank
+		
+													cooldownsModule:SetTalentClassicRank(name,spellID,node.activeRank)
+												else
+													data[-c] = nil
+												end
+												entries[entryID] = true
+		
+												cooldownsModule.db.session_gGUIDs[name] = {spellID,"talent"}
+						
+												if cooldownsModule.db.spell_talentProvideAnotherTalents[spellID] then
+													for k,v in pairs(cooldownsModule.db.spell_talentProvideAnotherTalents[spellID]) do
+														cooldownsModule.db.session_gGUIDs[name] = {v,"talent"}
+													end
 												end
 											end
+						
+											cooldownsModule.db.spell_isTalent[spellID] = true
 										end
-					
-										cooldownsModule.db.spell_isTalent[spellID] = true
+										--------> /ExCD2
 									end
-									--------> /ExCD2
 								end
 							end
 						end
@@ -1550,6 +1559,19 @@ end
 local EQUIPPED_FIRST = 1
 local EQUIPPED_LAST = 19
 
+function module.main:ENCOUNTER_END()
+	if C_ChallengeMode and not C_ChallengeMode.IsChallengeModeActive() then
+		return
+	end
+	local _, zoneType, difficulty, _, maxPlayers, _, _, mapID = GetInstanceInfo()
+	if difficulty == 7 or difficulty == 17 then
+		return
+	end
+	for _, name in ExRT.F.IterateRoster do
+		module:AddToQueue(name)
+	end
+end
+
 function module.main:ENCOUNTER_START()
 	if ExRT.isClassic then
 		return
@@ -1629,13 +1651,17 @@ function module.main:ENCOUNTER_START()
 						local entryID = node.activeEntry.entryID
 						local entry = C_Traits.GetEntryInfo(activeConfig,entryID)
 						if entry then
-							local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
-							if definitionInfo then
-								local spellID = definitionInfo.spellID
-								if spellID then
-									tal = tal .. ":" .. (spellID or 0)
-									if node.maxRanks and node.maxRanks > 1 then
-										tal = tal .. "-" .. (node.activeRank)
+							if Enum.TraitNodeType and Enum.TraitNodeType.SubTreeSelection and node.type == Enum.TraitNodeType.SubTreeSelection then 
+								
+							else
+								local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
+								if definitionInfo then
+									local spellID = definitionInfo.spellID
+									if spellID then
+										tal = tal .. ":" .. (spellID or 0)
+										if node.maxRanks and node.maxRanks > 1 then
+											tal = tal .. "-" .. (node.activeRank)
+										end
 									end
 								end
 							end
