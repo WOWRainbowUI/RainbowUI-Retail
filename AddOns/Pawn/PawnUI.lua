@@ -35,6 +35,9 @@ local PawnUITotalGemLines = 0
 -- Index n is the quest advisor overlay image for the reward with index n
 local PawnQuestAdvisorOverlays = {}
 
+-- PlayerGetTimerunningSeasonID() returns nil when first executing this on a full load (not a /reload), so it gets set in PawnUI_EnsureLoaded instead.
+local StandardGemsUnavailable = nil
+
 -- Don't taint the global variable "_".
 local _
 
@@ -147,7 +150,7 @@ function PawnUI_SocketingPawnButton_OnClick(this)
 	-- Set the suggested gem quality level to the level of the current item so relevant gems will be displayed.
 	local ItemLevel
 	local _, ItemLink = ItemSocketingDescription:GetItem()
-	_, _, _, ItemLevel = GetItemInfo(ItemLink)
+	_, _, _, ItemLevel = C_Item.GetItemInfo(ItemLink)
 	PawnUI_SetGemQualityLevel(ItemLevel)
 	-- Show the Gems tab.
 	PawnUIShowTab(PawnUIGemsTabPage, true)
@@ -182,6 +185,9 @@ function PawnUI_InspectPawnButton_Attach()
 end
 
 function PawnUI_SocketingPawnButton_Attach()
+	PawnUI_EnsureLoaded()
+	if StandardGemsUnavailable then return end
+
 	-- Attach the socketing button.
 	VgerCore.Assert(ItemSocketingFrame ~= nil, "ItemSocketingFrame should be loaded by now!")
 	CreateFrame("Button", "PawnUI_SocketingPawnButton", ItemSocketingFrame, "PawnUI_SocketingPawnButtonTemplate")
@@ -1016,7 +1022,7 @@ function PawnUI_CompareTab_Refresh()
 	-- Then, update the best in slot shortcuts.
 	local Item = PawnUIComparisonItems[2]
 	local ItemEquipLoc, _
-	if Item then _, _, _, _, _, _, _, _, ItemEquipLoc = GetItemInfo(Item.Link) end
+	if Item then _, _, _, _, _, _, _, _, ItemEquipLoc = C_Item.GetItemInfo(Item.Link) end
 	PawnUI_SetShortcutBestItem(3, ItemEquipLoc)
 	PawnUI_SetShortcutBestItem(4, ItemEquipLoc)
 end
@@ -1066,7 +1072,7 @@ function PawnUI_SetCompareItem(Index, ItemLink)
 	local ItemName, ItemRarity, ItemEquipLoc, ItemTexture, _
 	local SlotID1, SlotID2
 	if ItemLink then
-		ItemName, _, ItemRarity, _, _, _, _, _, ItemEquipLoc, ItemTexture = GetItemInfo(ItemLink)
+		ItemName, _, ItemRarity, _, _, _, _, _, ItemEquipLoc, ItemTexture = C_Item.GetItemInfo(ItemLink)
 		SlotID1, SlotID2 = PawnGetSlotsForItemType(ItemEquipLoc)
 	else
 		ItemName = PawnUIFrame_VersusHeader_NoItem
@@ -1092,7 +1098,7 @@ function PawnUI_SetCompareItem(Index, ItemLink)
 		local OtherIndex
 		if Index == 1 then OtherIndex = 2 else OtherIndex = 1 end
 		if PawnUIComparisonItems[OtherIndex] then
-			_, _, _, _, _, _, _, _, OtherItemEquipLoc = GetItemInfo(PawnUIComparisonItems[OtherIndex].Link)
+			_, _, _, _, _, _, _, _, OtherItemEquipLoc = C_Item.GetItemInfo(PawnUIComparisonItems[OtherIndex].Link)
 			local OtherSlotID1, OtherSlotID2 = PawnGetSlotsForItemType(OtherItemEquipLoc)
 			if not (
 				(SlotID1 == nil and SlotID2 == nil and OtherSlotID1 == nil and OtherSlotID2 == nil) or
@@ -1214,7 +1220,7 @@ function PawnUI_SetShortcutButtonItem(ShortcutIndex)
 	local Item = PawnUIShortcutItems[ShortcutIndex]
 	if Item then
 		local Texture = getglobal(ButtonName .. "NormalTexture")
-		local _, _, _, _, _, _, _, _, _, ItemTexture = GetItemInfo(Item.Link)
+		local _, _, _, _, _, _, _, _, _, ItemTexture = C_Item.GetItemInfo(Item.Link)
 		Texture:SetTexture(ItemTexture)
 		ShortcutButton:Show()
 	else
@@ -1616,7 +1622,8 @@ function PawnUIGetAllTextForItem(Item)
 			end
 		end
 	end
-	AllText = AllText .. "\n" .. GetLocale() .. "\n/pawn compare " .. PawnGetItemIDsForDisplay(ItemLink, false)
+
+	AllText = AllText .. "\n" .. GetBuildInfo() .. " " .. GetLocale() .. "\n/pawn compare " .. PawnGetItemIDsForDisplay(ItemLink, false)
 
 	local ItemName
 	if Item then
@@ -2097,7 +2104,7 @@ end
 ------------------------------------------------------------
 
 function PawnUIAboutTabPage_OnShow()
-	local Version = (C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata)("Pawn", "Version")
+	local Version = C_AddOns.GetAddOnMetadata("Pawn", "Version")
 	if Version then
 		PawnUIFrame_AboutVersionLabel:SetText(format(PawnUIFrame_AboutVersionLabel_Text, Version))
 	end
@@ -2105,7 +2112,11 @@ function PawnUIAboutTabPage_OnShow()
 		-- WoW Classic doesn't use the Mr. Robot scales, so hide that logo and information.
 		PawnUIFrame_MrRobotLogo:Hide()
 		PawnUIFrame_MrRobotLabel:SetPoint("TOPLEFT", 25, -210)
-		PawnUIFrame_MrRobotLabel:SetText("Special thanks to HawsJon for collecting the stat weights used in the starter scales.")
+		if VgerCore.IsCataclysm then
+			PawnUIFrame_MrRobotLabel:SetText("Default stat weights are based on the work of the WoWSims team. You can get more accurate, customized stat weights for your character by using the simulator at wowsims.github.io.")
+		else
+			PawnUIFrame_MrRobotLabel:SetText("Special thanks to HawsJon for collecting the stat weights used in the starter scales.")
+		end
 	end
 end
 
@@ -2115,7 +2126,8 @@ end
 
 function PawnUI_OnSocketUpdate()
 	if PawnSocketingTooltip then PawnSocketingTooltip:Hide() end
-	if not PawnCommon.ShowSocketingAdvisor then return end
+	PawnUI_EnsureLoaded()
+	if StandardGemsUnavailable then return end
 
 	-- Find out what item it is.
 	local _, ItemLink = ItemSocketingDescription:GetItem()
@@ -2352,10 +2364,10 @@ function PawnUI_GroupLootFrame_OnShow(self)
 								ThisText = format(PawnLocal.TooltipUpgradeAnnotation, format("|n%s%s:", PawnGetScaleColor(ScaleName), ThisUpgradeData.LocalizedScaleName), ThisUpgradeData.PercentUpgrade * 100, SetAnnotation)
 							end
 							if ShowOldItems and ThisUpgradeData.ExistingItemLink then
-								local ExistingItemName, _, Quality = GetItemInfo(ThisUpgradeData.ExistingItemLink)
+								local ExistingItemName, _, Quality = C_Item.GetItemInfo(ThisUpgradeData.ExistingItemLink)
 								if ExistingItemName then
 									-- It's possible (though rare) that the existing item isn't in the user's cache, so we can't get its quality color.  In that case, don't display it in the tooltip.
-									local _, _, _, QualityColor =  GetItemQualityColor(Quality)
+									local _, _, _, QualityColor =  C_Item.GetItemQualityColor(Quality)
 									ThisText = format(PawnLocal.TooltipVersusLine, ThisText, QualityColor, ExistingItemName)
 								end
 							end
@@ -2581,9 +2593,11 @@ end
 ------------------------------------------------------------
 
 function PawnInterfaceOptionsFrame_OnLoad()
-	-- Register the Interface Options page.
-	PawnInterfaceOptionsFrame.name = "Pawn"
-	InterfaceOptions_AddCategory(PawnInterfaceOptionsFrame)
+	if InterfaceOptions_AddCategory then
+		-- Register the Interface Options page. This no longer exists in The War Within / 11.0.
+		PawnInterfaceOptionsFrame.name = "Pawn"
+		InterfaceOptions_AddCategory(PawnInterfaceOptionsFrame)
+	end
 end
 
 ------------------------------------------------------------
@@ -2636,6 +2650,7 @@ function PawnUISwitchToTab(Tab)
 		VgerCore.Fail("You must specify a valid Pawn tab.")
 		return
 	end
+	PawnUI_EnsureLoaded()
 
 	-- Loop through all tab frames, showing all but the current one.
 	local TabNumber
@@ -2716,10 +2731,12 @@ end
 function PawnUI_EnsureLoaded()
 	if not PawnUIOpenedYet then
 		PawnUIOpenedYet = true
+		StandardGemsUnavailable = not not (VgerCore.IsClassic or (PlayerGetTimerunningSeasonID and PlayerGetTimerunningSeasonID()))
 		PawnUIFrame_ScaleSelector_Refresh()
 		PawnUIFrame_ShowScaleCheck_Label:SetText(format(PawnUIFrame_ShowScaleCheck_Label_Text, UnitName("player")))
-		if VgerCore.IsClassic then
+		if StandardGemsUnavailable then
 			-- WoW Classic Era doesn't have gems.
+			-- Timerunning season 1 (Mists of Pandaria Remix) didn't use standard gems, though future seasons may.
 			PawnUIFrameTab4:Hide()
 			PawnUIFrame_IgnoreGemsWhileLevelingCheck:Hide()
 			PawnUIFrame_ShowSocketingAdvisorCheck:Hide()
