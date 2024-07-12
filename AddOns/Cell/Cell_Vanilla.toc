@@ -1,6 +1,6 @@
-## Interface: 11502
+## Interface: 11503
 ## Title: Cell
-## Version: r227-beta
+## Version: r233-beta
 ## Author: enderneko
 ## X-Flavor: Vanilla
 ## SavedVariables: CellDB
@@ -15,9 +15,7 @@
 ## X-Category-zhTW: 團隊
 ## DefaultState: disabled
 
-Locales\enUS.lua
-Locales\zhCN.lua
-Locales\zhTW.lua
+Locales\LoadLocales.xml
 
 Libs\LoadLibs_Classic.xml
 
@@ -36,9 +34,9 @@ Indicators\StatusIcon.lua
 Indicators\AoEHealing.lua
 Indicators\TargetCounter.lua
 Indicators\TargetedSpells.lua
-Indicators\Consumables.lua
+Indicators\Actions.lua
 Indicators\Custom_Classic.lua
-Indicators\Patron.lua
+Indicators\Supporter.lua
 
 RaidFrames\MainFrame.lua
 
@@ -56,4 +54,4 @@ RaidFrames\Groups\RaidPetFrame.lua
 RaidFrames\Groups\NPCFrame.lua
 RaidFrames\Groups\SpotlightFrame.lua
 
-Patrons.lua
+Supporters.lua

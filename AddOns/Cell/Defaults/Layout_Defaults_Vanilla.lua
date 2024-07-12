@@ -27,7 +27,7 @@ Cell.defaults.indicatorIndices = {
     ["raidDebuffs"] = 21,
     ["targetedSpells"] = 22,
     ["targetCounter"] = 23,
-    ["consumables"] = 24,
+    ["actions"] = 24,
     ["missingBuffs"] = 25,
 }
 
@@ -252,7 +252,7 @@ Cell.defaults.layout = {
             ["indicatorName"] = "aggroBorder",
             ["type"] = "built-in",
             ["enabled"] = true,
-            ["frameLevel"] = 7,
+            ["frameLevel"] = 3,
             ["thickness"] = 2,
         }, -- 14
         {
@@ -322,7 +322,14 @@ Cell.defaults.layout = {
             ["position"] = {"BOTTOMRIGHT", "BOTTOMRIGHT", 0, 4},
             ["frameLevel"] = 15,
             ["size"] = {12, 12},
-            ["dispellableByMe"] = true,
+            ["filters"] = {
+                ["dispellableByMe"] = true,
+                ["Curse"] = true,
+                ["Disease"] = true,
+                ["Magic"] = true,
+                ["Poison"] = true,
+                ["Bleed"] = true,
+            },
             ["highlightType"] = "gradient-half",
             ["showDispelTypeIcons"] = true,
             ["orientation"] = "right-to-left",
@@ -372,11 +379,13 @@ Cell.defaults.layout = {
             ["type"] = "built-in",
             ["enabled"] = true,
             ["showAllSpells"] = false,
-            ["position"] = {"CENTER", "TOPLEFT", 7, -7},
+            ["position"] = {"TOPLEFT", "TOPLEFT", -4, 4},
             ["frameLevel"] = 50,
             ["size"] = {20, 20},
             ["border"] = 2,
+            ["num"] = 1,
             ["font"] = {"Cell ".._G.DEFAULT, 12, "Outline", false, "TOPRIGHT", 2, 1, {1, 1, 1}},
+            ["orientation"] = "left-to-right",
         }, -- 22
         {
             ["name"] = "Target Counter",
@@ -394,8 +403,8 @@ Cell.defaults.layout = {
             },
         }, -- 23
         {
-            ["name"] = "Consumables",
-            ["indicatorName"] = "consumables",
+            ["name"] = "Actions",
+            ["indicatorName"] = "actions",
             ["type"] = "built-in",
             ["enabled"] = true,
             ["speed"] = 1,
@@ -425,6 +434,7 @@ Cell.defaults.layout = {
 }
 
 Cell.defaults.layoutAutoSwitch = {
+    ["solo"] = "default",
     ["party"] = "default",
     ["raid_outdoor"] = "default",
     ["raid_instance"] = "default",
