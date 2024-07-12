@@ -1,7 +1,7 @@
 local COMPAT, _, T = select(4,GetBuildInfo()), ...
 local L, R = T.L, OPie.CustomRings
 if not (R and R.AddDefaultRing) then return end
-local MODERN, CF_WRATH = COMPAT >= 10e4 or nil, COMPAT < 10e4 and COMPAT >= 3e4 or nil
+local MODERN, CF_WRATH, CF_CATA = COMPAT > 10e4 or nil, COMPAT < 10e4 and COMPAT > 3e4 or nil, COMPAT < 10e4 and COMPAT > 4e4 or nil
 
 R:AddDefaultRing("RaidSymbols", {
 	{"raidmark", 1, _u="y"}, -- yellow star
@@ -17,6 +17,7 @@ R:AddDefaultRing("RaidSymbols", {
 })
 do
 	local digOverload = MODERN and "/cast [in:df,nomod,near:%1$s-overload][in:df,mod,nonear:%1$s-overload] {{spell:%d}}; {{spell:%d}}"
+	local firstAid = {id="/cast {{spell:3273}}", _u="f"}
 	R:AddDefaultRing("CommonTrades", {
 		{id="/cast {{spell:3908/51309}}", _u="t"}, -- tailoring
 		{id="/cast {{spell:2108/51302}}", _u="l"}, -- leatherworking
@@ -27,15 +28,16 @@ do
 		{id="/cast {{spell:4036/51306}}", _u="g"}, -- engineering
 		{id=MODERN and digOverload:format("mine", 388213, 2656) or 2656, _u="m"}, -- smelting/mining journal
 		(MODERN or CF_WRATH) and {id="/cast [mod] {{spell:31252}}; {{spell:25229/51311}}", _u="j"} -- jewelcrafting/prospecting
-		        or {id="/cast {{spell:3273}}", _u="f"}, -- first aid
+		        or firstAid,
 		(MODERN or CF_WRATH) and {id="/cast [mod] {{spell:51005}}; {{spell:45357/45363}}", _u="i"}, -- inscription/milling
 		(MODERN or CF_WRATH) and {id=53428, _u="u"}, -- runeforging
-		MODERN and {id="/cast [mod] {{spell:80451}}; {{spell:78670/89722}}", _u="r"} -- archaeology
-		        or CF_WRATH and {id="/cast {{spell:3273}}", _u="f"}, -- first aid
-		MODERN and {id="/cast [mod] {{spell:131474}}; {{spell:271990}}; {{spell:131474}}", _u="fj"}, -- fish journal
+		(MODERN or CF_CATA) and {id="/cast [mod] {{spell:80451}}; {{spell:78670/89722}}", _u="r"} -- archaeology
+		        or CF_WRATH and firstAid,
+		MODERN and {id="/cast [mod] {{spell:131474}}; {{spell:271990}}; {{spell:131474}}", _u="fj"} -- fish journal
+		        or CF_CATA and firstAid,
 		MODERN and {id=194174, _u ="sj"}, -- skinning journal
 		MODERN and {id=digOverload:format("herb", 390392, 193290), _u="hj"}, -- herbalism journal
-		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=1
+		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=2
 	})
 end
 R:AddDefaultRing("TrinketSlots", {
@@ -49,6 +51,21 @@ R:AddDefaultRing("OPieAutoQuest", {
 	{"opie.autoquest", 1, _u="AC"},
 	name=L"Quest Items", hotkey="ALT-Q", _u="OPbQI", v=1
 })
+if MODERN or CF_CATA then
+	local clearMark = {"worldmark", 0, c="ccd8e5", _u="c"}
+	R:AddDefaultRing("WorldMarkers", {
+		{"worldmark", 1, _u="b"},
+		{"worldmark", 2, _u="g"},
+		{"worldmark", 3, _u="p"},
+		{"worldmark", 4, _u="r"},
+		{"worldmark", 5, _u="y"},
+		MODERN and {"worldmark", 6, _u="o"} or clearMark,
+		MODERN and {"worldmark", 7, _u="s"},
+		MODERN and {"worldmark", 8, _u="w"},
+		MODERN and clearMark,
+		name=L"World Markers", hotkey="[group] ALT-Y", _u="OPCWM", v=1
+	})
+end
 
 if not MODERN then return end
 
@@ -87,12 +104,12 @@ R:AddDefaultRing("DruidFeral", {
 do -- Hunter Pets
 	local m = "#showtooltip [@pet,exists,nodead,nopet:%d] {{spell:%d}}\n/cast [@pet,exists,nopet:%1$d,nodead] {{spell:2641}}\n/cast [@pet,noexists,nomod] {{spell:%2$d}}; [@pet,dead][@pet,noexists] {{spell:982}}; [@pet,help,nomod] {{spell:136}}; [@pet] {{spell:2641}}"
 	R:AddDefaultRing("HunterPets", {
-		{id=m:format(1,883), show="[known:883,havepet:1]", _u="1"},
-		{id=m:format(2,83242), show="[known:83242,havepet:2]", _u="2"},
-		{id=m:format(3,83243), show="[known:83243,havepet:3]", _u="3"},
-		{id=m:format(4,83244), show="[known:83244,havepet:4]", _u="4"},
-		{id=m:format(5,83245), show="[known:83245,havepet:5]", _u="5"},
-		name=L"Pets", limit="HUNTER", _u="OPCHP", internal=true, v=1
+		{id=m:format(1,883), show="[havepet:1,known:883]", _u="1"},
+		{id=m:format(2,83242), show="[havepet:2,known:83242]", _u="2"},
+		{id=m:format(3,83243), show="[havepet:3,known:83243]", _u="3"},
+		{id=m:format(4,83244), show="[havepet:4,known:83244]", _u="4"},
+		{id=m:format(5,83245), show="[havepet:5,known:83245]", _u="5"},
+		name=L"Pets", limit="HUNTER", _u="OPCHP", internal=true, v=3
 	})
 end
 R:AddDefaultRing("HunterAspects", {
@@ -218,19 +235,6 @@ R:AddDefaultRing("DKCombat", {
 	name=L"Combat", hotkey="BUTTON5", limit="DEATHKNIGHT", _u="OPCDC", v=1
 })
 
-R:AddDefaultRing("WorldMarkers", {
-	{"worldmark", 1, _u="b"},
-	{"worldmark", 2, _u="g"},
-	{"worldmark", 3, _u="p"},
-	{"worldmark", 4, _u="r"},
-	{"worldmark", 5, _u="y"},
-	{"worldmark", 6, _u="o"},
-	{"worldmark", 7, _u="s"},
-	{"worldmark", 8, _u="w"},
-	{"worldmark", 0, c="ccd8e5", _u="c"}, -- clear
-	name=L"World Markers", hotkey="[group] ALT-Y", _u="OPCWM", v=1
-})
-
 R:AddDefaultRing("CommonHearth", {
 	{"item", 6948, _u="h"},
 	{"toy", 64488, _u="i"},
@@ -259,7 +263,8 @@ R:AddDefaultRing("CommonHearth", {
 	{"toy", 208704, _u="dd"},
 	{"toy", 209035, _u="df"},
 	{"toy", 212337, _u="sh"},
-	name=L"Hearthstones", internal=true, _u="OPCHS", v=4
+	{"toy", 210455, _u="dh"},
+	name=L"Hearthstones", internal=true, _u="OPCHS", v=5
 })
 R:AddDefaultRing("SpecMenu", {
 	{"specset", 1, _u="1"},
@@ -269,7 +274,8 @@ R:AddDefaultRing("SpecMenu", {
 	{id="/cast {{spell:50977}}; {{spell:193753}}; {{spell:126892}}; {{spell:193759}}; {{spell:556}}", _u="c"},
 	{"toy", 110560, _u="g"},
 	{"toy", 140192, _u="d"},
+	{"item", 217930, _u="x"},
 	{"ring", "CommonHearth", rotationMode="shuffle", _u="t"},
 	{"item", 141605, _u="w", show="[in:broken isles/argus/bfa]"}, -- flight master's whistle
-	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=2
+	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=3
 })

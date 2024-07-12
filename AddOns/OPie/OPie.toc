@@ -1,6 +1,6 @@
-## Interface: 100206
+## Interface: 11502, 40400, 100207
 ## Title: OPie
-## Version: Zeta 5a
+## Version: Zeta 7b
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
@@ -22,12 +22,13 @@
 ## X-M6-AB: OPie.ActionBook
 Libs\Evie.lua
 Libs\Niji.lua
-Libs\Mirage.lua
 Libs\TaintLess.xml
 Libs\exui\exui.xml
 Libs\ActionBook\ActionBook.xml
+Libs\Mirage.lua
 Libs\TenSettings.lua
 Libs\NotGameTooltip.lua
+Meta\Widgets.lua
 Locale.lua
 OPieCore.lua
 OPieUI.lua
