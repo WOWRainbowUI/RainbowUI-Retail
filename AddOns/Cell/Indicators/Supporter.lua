@@ -66,7 +66,7 @@ local function creationFunc()
     in_a:SetFromAlpha(0)
     in_a:SetToAlpha(1)
     in_a:SetDuration(0.3)
-    
+
     local in_spinning = ag:CreateAnimation("Rotation")
     in_spinning:SetOrder(1)
     in_spinning:SetDegrees(-360)
@@ -84,7 +84,7 @@ local function creationFunc()
     main_t1:SetDuration(0.1)
     main_t1:SetOrder(2)
     main_t1:SetSmoothing("OUT")
-    
+
     local main_t2 = ag:CreateAnimation("Translation")
     main_t2:SetOffset(0, -5)
     main_t2:SetDuration(0.1)
@@ -92,7 +92,7 @@ local function creationFunc()
     main_t2:SetSmoothing("IN")
     main_t2:SetStartDelay(0.1)
     main_t2:SetEndDelay(0.25)
-    
+
     local main_s2 = ag:CreateAnimation("Scale")
     main_s2:SetOrder(3)
     main_s2:SetScaleTo(1.25, 1.25)
@@ -103,7 +103,7 @@ local function creationFunc()
     main_t3:SetDuration(0.1)
     main_t3:SetOrder(3)
     main_t3:SetSmoothing("OUT")
-    
+
     local main_t4 = ag:CreateAnimation("Translation")
     main_t4:SetOffset(0, -5)
     main_t4:SetDuration(0.1)
@@ -118,7 +118,7 @@ local function creationFunc()
     out_s:SetScaleTo(0, 0)
     out_s:SetDuration(0.5)
     out_s:SetSmoothing("IN")
-    
+
     local out_spinning = ag:CreateAnimation("Rotation")
     out_spinning:SetOrder(4)
     out_spinning:SetDegrees(-360)
@@ -158,18 +158,18 @@ pool = CreateObjectPool(creationFunc, resetterFunc)
 -------------------------------------------------
 local function Display(b)
     local f = pool:Acquire()
-    f:SetParent(b.widgets.overlayFrame)
+    f:SetParent(b.widgets.highLevelFrame)
     -- f:SetFrameLevel(b:GetFrameLevel()+200)
     f:SetPoint("CENTER", b, "BOTTOMLEFT")
 
     local size = max(min(b:GetHeight(), b:GetWidth()), 64)
     f:SetSize(size, size)
-    
+
     f:Display(ceil(b:GetWidth()/2), ceil(b:GetHeight()/2))
     -- f:FadeIn()
     -- C_Timer.After(3, f.FadeOut)
 end
--- CellPatronDisplay = Display
+-- CellSupporterDisplay = Display
 
 -- local function StopRainbow(unit)
 --     local b = F:GetUnitButtonByUnit(unit)
@@ -212,18 +212,18 @@ eventFrame:RegisterEvent("FIRST_FRAME_RENDERED")
 
 local function Check()
     pool:ReleaseAll()
-    
-    -- Cell.wowPatrons[Cell.vars.playerNameFull] = true
+
+    -- Cell.wowSupporters[Cell.vars.playerNameFull] = true
 
     if IsInGroup() then
         for unit in F:IterateGroupMembers() do
             local fullName = F:UnitFullName(unit)
-            if Cell.wowPatrons[fullName] then
+            if Cell.wowSupporters[fullName] then
                 F:HandleUnitButton("unit", unit, Display)
             end
         end
     else
-        if Cell.wowPatrons[Cell.vars.playerNameFull] then
+        if Cell.wowSupporters[Cell.vars.playerNameFull] then
             F:HandleUnitButton("unit", "player", Display)
         end
     end

@@ -110,24 +110,24 @@ local function CreateSetting_Position(parent, relativeToText)
         widget.relativeToText = widget:CreateFontString(nil, "OVERLAY", font_name)
         widget.relativeToText:SetText(L["To UnitButton's"])
         widget.relativeToText:SetPoint("BOTTOMLEFT", widget.relativeTo, "TOPLEFT", 0, 1)
-        
+
         widget.x = addon:CreateSlider(L["X Offset"], widget, -150, 150, 110, 1)
         widget.x:SetPoint("TOPLEFT", widget.anchor, "BOTTOMLEFT", 0, -25)
         widget.x.afterValueChangedFn = function(value)
             widget.func({widget.anchor:GetSelected(), widget.relativeTo:GetSelected(), value, widget.y:GetValue()})
         end
-        
+
         widget.y = addon:CreateSlider(L["Y Offset"], widget, -150, 150, 110, 1)
         widget.y:SetPoint("TOPLEFT", widget.relativeTo, "BOTTOMLEFT", 0, -25)
         widget.y.afterValueChangedFn = function(value)
             widget.func({widget.anchor:GetSelected(), widget.relativeTo:GetSelected(), widget.x:GetValue(), value})
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(positionTable)
             widget.anchor:SetSelected(L[positionTable[1]])
@@ -138,7 +138,7 @@ local function CreateSetting_Position(parent, relativeToText)
     else
         widget = settingWidgets["position"]
     end
-    
+
     widget.relativeToText:SetText(relativeToText)
     widget:Show()
     return widget
@@ -187,24 +187,24 @@ local function CreateSetting_PositionNoHCenter(parent, relativeToText)
         widget.relativeToText = widget:CreateFontString(nil, "OVERLAY", font_name)
         widget.relativeToText:SetText(L["To UnitButton's"])
         widget.relativeToText:SetPoint("BOTTOMLEFT", widget.relativeTo, "TOPLEFT", 0, 1)
-        
+
         widget.x = addon:CreateSlider(L["X Offset"], widget, -150, 150, 110, 1)
         widget.x:SetPoint("TOPLEFT", widget.anchor, "BOTTOMLEFT", 0, -25)
         widget.x.afterValueChangedFn = function(value)
             widget.func({widget.anchor:GetSelected(), widget.relativeTo:GetSelected(), value, widget.y:GetValue()})
         end
-        
+
         widget.y = addon:CreateSlider(L["Y Offset"], widget, -150, 150, 110, 1)
         widget.y:SetPoint("TOPLEFT", widget.relativeTo, "BOTTOMLEFT", 0, -25)
         widget.y.afterValueChangedFn = function(value)
             widget.func({widget.anchor:GetSelected(), widget.relativeTo:GetSelected(), widget.x:GetValue(), value})
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(positionTable)
             widget.anchor:SetSelected(L[positionTable[1]])
@@ -215,7 +215,7 @@ local function CreateSetting_PositionNoHCenter(parent, relativeToText)
     else
         widget = settingWidgets["position_noHCenter"]
     end
-    
+
     widget.relativeToText:SetText(relativeToText)
     widget:Show()
     return widget
@@ -272,24 +272,24 @@ local function CreateSetting_ShieldBarPosition(parent)
         widget.relativeToText = widget:CreateFontString(nil, "OVERLAY", font_name)
         widget.relativeToText:SetText(L["To UnitButton's"])
         widget.relativeToText:SetPoint("BOTTOMLEFT", widget.relativeTo, "TOPLEFT", 0, 1)
-        
+
         widget.x = addon:CreateSlider(L["X Offset"], widget, -150, 150, 110, 1)
         widget.x:SetPoint("TOPLEFT", widget.anchor, "BOTTOMLEFT", 0, -25)
         widget.x.afterValueChangedFn = function(value)
             widget.func({widget.anchor:GetSelected(), widget.relativeTo:GetSelected(), value, widget.y:GetValue()})
         end
-        
+
         widget.y = addon:CreateSlider(L["Y Offset"], widget, -150, 150, 110, 1)
         widget.y:SetPoint("TOPLEFT", widget.relativeTo, "BOTTOMLEFT", 0, -25)
         widget.y.afterValueChangedFn = function(value)
             widget.func({widget.anchor:GetSelected(), widget.relativeTo:GetSelected(), widget.x:GetValue(), value})
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(positionTable)
             widget.anchor:SetSelectedValue(positionTable[1])
@@ -302,7 +302,7 @@ local function CreateSetting_ShieldBarPosition(parent)
     else
         widget = settingWidgets["shieldBarPosition"]
     end
-    
+
     widget:Show()
     return widget
 end
@@ -316,7 +316,7 @@ local function CreateSetting_Anchor(parent)
 
         widget.anchor = addon:CreateDropdown(widget, 170)
         widget.anchor:SetPoint("TOPLEFT", 5, -20)
-        
+
         widget.anchor:SetItems({
             {
                 ["text"] = L["Health Bar"].." ("..L["Current"]..")",
@@ -349,7 +349,7 @@ local function CreateSetting_Anchor(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(anchor)
             widget.anchor:SetSelectedValue(anchor)
@@ -357,7 +357,7 @@ local function CreateSetting_Anchor(parent)
     else
         widget = settingWidgets["anchor"]
     end
-    
+
     widget:Show()
     return widget
 end
@@ -374,14 +374,15 @@ local function CreateSetting_FrameLevel(parent)
         widget.frameLevel.afterValueChangedFn = function(value)
             widget.func(value)
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
-        function widget:SetDBValue(frameLevel)
+        function widget:SetDBValue(frameLevel, maxFrameLevel)
+            widget.frameLevel:UpdateMinMaxValues(1, maxFrameLevel)
             widget.frameLevel:SetValue(frameLevel)
         end
     else
@@ -404,7 +405,7 @@ local function CreateSetting_Size(parent)
         widget.width.afterValueChangedFn = function(value)
             widget.func({value, widget.height:GetValue()})
         end
-        
+
         widget.height = addon:CreateSlider(L["Height"], widget, 1, 200, 110, 1)
         widget.height:SetPoint("LEFT", widget.width, "RIGHT", 25, 0)
         widget.height.afterValueChangedFn = function(value)
@@ -415,7 +416,7 @@ local function CreateSetting_Size(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(sizeTable)
             widget.width:SetValue(sizeTable[1])
@@ -441,7 +442,7 @@ local function CreateSetting_SizeBar(parent)
         widget.width.afterValueChangedFn = function(value)
             widget.func({value, widget.height:GetValue()})
         end
-        
+
         widget.height = addon:CreateSlider(L["Height"], widget, 3, 500, 110, 1)
         widget.height:SetPoint("LEFT", widget.width, "RIGHT", 25, 0)
         widget.height.afterValueChangedFn = function(value)
@@ -452,7 +453,7 @@ local function CreateSetting_SizeBar(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(sizeTable)
             widget.width:SetValue(sizeTable[1])
@@ -478,18 +479,58 @@ local function CreateSetting_SizeSquare(parent)
         widget.size.afterValueChangedFn = function(value)
             widget.func({value, value})
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(sizeTable)
             widget.size:SetValue(sizeTable[1])
         end
     else
         widget = settingWidgets["size-square"]
+    end
+
+    widget:Show()
+    return widget
+end
+
+local function CreateSetting_Spacing(parent)
+    local widget
+
+    if not settingWidgets["spacing"] then
+        widget = addon:CreateFrame("CellIndicatorSettings_Spacing", parent, 240, 50)
+        settingWidgets["spacing"] = widget
+
+        widget.x = addon:CreateSlider(L["Spacing"].." X", widget, 0, 50, 110, 1)
+        widget.x:SetPoint("TOPLEFT", widget, 5, -20)
+        widget.x.afterValueChangedFn = function(value)
+            widget.spacing[1] = value
+            widget.func(widget.spacing)
+        end
+
+        widget.y = addon:CreateSlider(L["Spacing"].." Y", widget, 0, 50, 110, 1)
+        widget.y:SetPoint("LEFT", widget.x, "RIGHT", 25, 0)
+        widget.y.afterValueChangedFn = function(value)
+            widget.spacing[2] = value
+            widget.func(widget.spacing)
+        end
+
+        -- callback
+        function widget:SetFunc(func)
+            widget.func = func
+        end
+
+        -- show db value
+        function widget:SetDBValue(spacing)
+            widget.spacing = spacing
+            widget.x:SetValue(spacing[1])
+            widget.y:SetValue(spacing[2])
+        end
+    else
+        widget = settingWidgets["spacing"]
     end
 
     widget:Show()
@@ -508,12 +549,12 @@ local function CreateSetting_Thickness(parent)
         widget.size.afterValueChangedFn = function(value)
             widget.func(value)
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(n)
             widget.size:SetValue(n)
@@ -544,12 +585,12 @@ local function CreateSetting_SizeNormalBig(parent)
         widget.sizeBig.afterValueChangedFn = function(value)
             widget.func({{widget.sizeNormal:GetValue(), widget.sizeNormal:GetValue()}, {value, value}})
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(sizeTable)
             widget.sizeNormal:SetValue(sizeTable[1][1])
@@ -581,12 +622,12 @@ local function CreateSetting_SizeAndBorder(parent)
         widget.border.afterValueChangedFn = function(value)
             widget.func({widget.size:GetValue(), widget.size:GetValue(), value})
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(sizeTable, border)
             widget.size:SetValue(sizeTable[1])
@@ -612,12 +653,12 @@ local function CreateSetting_Height(parent)
         widget.height.afterValueChangedFn = function(value)
             widget.func(value)
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(height)
             widget.height:SetValue(height)
@@ -731,7 +772,7 @@ local function CreateSetting_TextWidth(parent)
             widget.length:ClearFocus()
             widget.length.confirmBtn:Hide()
             widget.lengthValue = length
-            
+
             widget.func({"length", length, tonumber(widget.length2:GetText()) or widget.lengthValue2})
         end)
 
@@ -745,10 +786,10 @@ local function CreateSetting_TextWidth(parent)
                 end
             end
         end)
-        
+
         widget.length2 = addon:CreateEditBox(widget, 33, 20, false, false, true)
         widget.length2:SetPoint("TOPLEFT", widget.length, "TOPRIGHT", 25, 0)
-        
+
         widget.nonEnText = widget.length2:CreateFontString(nil, "OVERLAY", font_name)
         widget.nonEnText:SetText(L["Non-En"])
         widget.nonEnText:SetPoint("BOTTOMLEFT", widget.length2, "TOPLEFT", 0, 1)
@@ -765,7 +806,7 @@ local function CreateSetting_TextWidth(parent)
             widget.length2:ClearFocus()
             widget.length2.confirmBtn:Hide()
             widget.lengthValue2 = length
-            
+
             widget.func({"length", tonumber(widget.length:GetText()) or widget.lengthValue, length})
         end)
 
@@ -788,7 +829,7 @@ local function CreateSetting_TextWidth(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(width)
             if width == "unlimited" then
@@ -835,12 +876,12 @@ local function CreateSetting_Alpha(parent)
         widget.alpha.afterValueChangedFn = function(value)
             widget.func(value)
         end
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(alpha)
             widget.alpha:SetValue(alpha)
@@ -870,7 +911,7 @@ local function CreateSetting_Num(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(num, maxN)
             widget.num:UpdateMinMaxValues(1, maxN)
@@ -901,7 +942,7 @@ local function CreateSetting_NumPerLine(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(num, maxN)
             widget.num:UpdateMinMaxValues(2, maxN)
@@ -1033,7 +1074,7 @@ local function CreateSetting_HealthFormat(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(format)
             widget.format:SetSelectedValue(format)
@@ -1064,14 +1105,14 @@ local function CreateSetting_PowerFormat(parent)
                 end,
             },
             {
-                ["text"] = "2048",
+                ["text"] = "25000",
                 ["value"] = "number",
                 ["onClick"] = function()
                     widget.func("number")
                 end,
             },
             {
-                ["text"] = F:FormatNumber(2048),
+                ["text"] = F:FormatNumber(25000),
                 ["value"] = "number-short",
                 ["onClick"] = function()
                     widget.func("number-short")
@@ -1087,7 +1128,7 @@ local function CreateSetting_PowerFormat(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(format)
             widget.format:SetSelectedValue(format)
@@ -1183,7 +1224,7 @@ local function CreateSetting_DurationVisibility(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(durationVisibility)
             widget.durationVisibility:SetSelectedValue(durationVisibility)
@@ -1240,7 +1281,7 @@ local function CreateSetting_Orientation(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(orientation)
             widget.orientation:SetSelected(L[orientation])
@@ -1287,7 +1328,7 @@ local function CreateSetting_BarOrientation(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(orientation)
             widget.orientation:SetSelectedValue(orientation)
@@ -1347,7 +1388,7 @@ local function CreateSetting_VehicleNamePosition(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(pTable)
             widget.position:SetSelected(L[pTable[1]])
@@ -1401,7 +1442,7 @@ local function CreateSetting_StatusPosition(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(pTable)
             widget.position:SetSelected(L[pTable[1]])
@@ -1477,7 +1518,7 @@ local function CreateSetting_FontNoOffset(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(fontTable)
             widget.fontTable = fontTable
@@ -1593,7 +1634,7 @@ local function CreateSetting_Font(parent, index)
         -- color
         widget.color = addon:CreateColorPicker(widget, L["Color"], false, function(r, g, b)
             widget.fontTable[8][1] = r
-            widget.fontTable[8][2] = g 
+            widget.fontTable[8][2] = g
             widget.fontTable[8][3] = b
             widget.func()
         end)
@@ -1603,7 +1644,7 @@ local function CreateSetting_Font(parent, index)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(fontTable, title)
             widget.fontTable = fontTable
@@ -1614,7 +1655,7 @@ local function CreateSetting_Font(parent, index)
             widget.anchor:SetSelectedValue(fontTable[5])
             widget.xOffset:SetValue(fontTable[6])
             widget.yOffset:SetValue(fontTable[7])
-            
+
             local height = 200
 
             -- title
@@ -1659,7 +1700,7 @@ local function CreateSetting_Color(parent)
 
         local colorPicker = addon:CreateColorPicker(widget, L["Color"], false, function(r, g, b, a)
             widget.colorTable[1] = r
-            widget.colorTable[2] = g 
+            widget.colorTable[2] = g
             widget.colorTable[3] = b
             widget.func(widget.colorTable)
         end)
@@ -1692,7 +1733,7 @@ local function CreateSetting_ColorAlpha(parent)
 
         local colorPicker = addon:CreateColorPicker(widget, L["Color"], true, function(r, g, b, a)
             widget.colorTable[1] = r
-            widget.colorTable[2] = g 
+            widget.colorTable[2] = g
             widget.colorTable[3] = b
             widget.colorTable[4] = a
             widget.func(widget.colorTable)
@@ -1703,7 +1744,7 @@ local function CreateSetting_ColorAlpha(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(colorTable)
             widget.colorTable = colorTable
@@ -1726,13 +1767,13 @@ local function CreateSetting_Colors(parent)
 
         local normalColor = addon:CreateColorPicker(widget, L["Normal"], true, function(r, g, b, a)
             widget.colorsTable[1][1] = r
-            widget.colorsTable[1][2] = g 
+            widget.colorsTable[1][2] = g
             widget.colorsTable[1][3] = b
             widget.colorsTable[1][4] = a
             widget.func(widget.colorsTable)
         end)
         normalColor:SetPoint("TOPLEFT", 5, -8)
-        
+
         local percentColor, percentDropdown
 
         local percentCB = addon:CreateCheckButton(widget, "", function(checked)
@@ -1740,16 +1781,16 @@ local function CreateSetting_Colors(parent)
             addon:SetEnabled(checked, percentColor, percentDropdown)
         end)
         percentCB:SetPoint("TOPLEFT", normalColor, "BOTTOMLEFT", 0, -8)
-        
-        percentColor = addon:CreateColorPicker(widget, L["Remaining Time <"], true, function(r, g, b, a)
+
+        percentColor = addon:CreateColorPicker(widget, L["Remaining Time"].." <", true, function(r, g, b, a)
             widget.colorsTable[2][3][1] = r
-            widget.colorsTable[2][3][2] = g 
+            widget.colorsTable[2][3][2] = g
             widget.colorsTable[2][3][3] = b
             widget.colorsTable[2][3][4] = a
             widget.func(widget.colorsTable)
         end)
         percentColor:SetPoint("TOPLEFT", percentCB, "TOPRIGHT", 2, 0)
-        
+
         local secColor, secEditBox, secText
 
         local secCB = addon:CreateCheckButton(widget, "", function(checked)
@@ -1758,9 +1799,9 @@ local function CreateSetting_Colors(parent)
         end)
         secCB:SetPoint("TOPLEFT", percentCB, "BOTTOMLEFT", 0, -8)
 
-        secColor = addon:CreateColorPicker(widget, L["Remaining Time <"], true, function(r, g, b, a)
+        secColor = addon:CreateColorPicker(widget, L["Remaining Time"].." <", true, function(r, g, b, a)
             widget.colorsTable[3][3][1] = r
-            widget.colorsTable[3][3][2] = g 
+            widget.colorsTable[3][3][2] = g
             widget.colorsTable[3][3][3] = b
             widget.colorsTable[3][3][4] = a
             widget.func(widget.colorsTable)
@@ -1769,22 +1810,22 @@ local function CreateSetting_Colors(parent)
 
         local borderColor = addon:CreateColorPicker(widget, L["Border Color"], true, function(r, g, b, a)
             widget.colorsTable[4][1] = r
-            widget.colorsTable[4][2] = g 
+            widget.colorsTable[4][2] = g
             widget.colorsTable[4][3] = b
             widget.colorsTable[4][4] = a
             widget.func(widget.colorsTable)
         end)
         borderColor:SetPoint("TOPLEFT", secCB, "BOTTOMLEFT", 0, -8)
-        
+
         local bgColor = addon:CreateColorPicker(widget, L["Background Color"], true, function(r, g, b, a)
             widget.colorsTable[5][1] = r
-            widget.colorsTable[5][2] = g 
+            widget.colorsTable[5][2] = g
             widget.colorsTable[5][3] = b
             widget.colorsTable[5][4] = a
             widget.func(widget.colorsTable)
         end)
         bgColor:SetPoint("TOPLEFT", borderColor, "BOTTOMLEFT", 0, -8)
-        
+
 
         percentDropdown = addon:CreateDropdown(widget, 60)
         percentDropdown:SetPoint("LEFT", percentColor.label, "RIGHT", 5, 0)
@@ -1822,11 +1863,11 @@ local function CreateSetting_Colors(parent)
                 end,
             },
         })
-        
+
         secEditBox = addon:CreateEditBox(widget, 43, 20, false, false, true)
         secEditBox:SetPoint("LEFT", secColor.label, "RIGHT", 5, 0)
         secEditBox:SetMaxLetters(4)
- 
+
         secEditBox.confirmBtn = addon:CreateButton(widget, "OK", "accent", {27, 20})
         secEditBox.confirmBtn:SetPoint("LEFT", secEditBox, "RIGHT", -1, 0)
         secEditBox.confirmBtn:Hide()
@@ -1861,7 +1902,7 @@ local function CreateSetting_Colors(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(colorsTable)
             widget.colorsTable = colorsTable
@@ -1903,6 +1944,334 @@ local function CreateSetting_Colors(parent)
     return widget
 end
 
+local function CreateSetting_BlockColors(parent)
+    local widget
+
+    if not settingWidgets["blockColors"] then
+        widget = addon:CreateFrame("CellIndicatorSettings_BlockColors", parent, 240, 136)
+        settingWidgets["blockColors"] = widget
+
+        -- colorBy
+        local colorBy = addon:CreateDropdown(widget, 260)
+        colorBy:SetPoint("TOPLEFT", 5, -20)
+
+        colorByText = widget:CreateFontString(nil, "OVERLAY", font_name)
+        colorByText:SetText(L["Color By"])
+        colorByText:SetPoint("BOTTOMLEFT", colorBy, "TOPLEFT", 0, 1)
+
+        local normalColor = addon:CreateColorPicker(widget, L["Normal"], true, function(r, g, b, a)
+            widget.colorsTable[2][1] = r
+            widget.colorsTable[2][2] = g
+            widget.colorsTable[2][3] = b
+            widget.colorsTable[2][4] = a
+            widget.func(widget.colorsTable)
+        end)
+        normalColor:SetPoint("TOPLEFT", colorBy, "BOTTOMLEFT", 0, -8)
+
+        -- duration pane --------------------------------------------------------------------------
+        local durationPane = CreateFrame("Frame", nil, widget)
+        P:Size(durationPane, 260, 36)
+        durationPane:SetPoint("TOPLEFT", normalColor, "BOTTOMLEFT", 0, -8)
+
+        local percentColor, percentDropdown
+
+        local percentCB = addon:CreateCheckButton(durationPane, "", function(checked)
+            widget.colorsTable[3][1] = checked
+            addon:SetEnabled(checked, percentColor, percentDropdown)
+        end)
+        percentCB:SetPoint("TOPLEFT")
+
+        percentColor = addon:CreateColorPicker(durationPane, L["Remaining Time"].." <", true, function(r, g, b, a)
+            widget.colorsTable[3][3][1] = r
+            widget.colorsTable[3][3][2] = g
+            widget.colorsTable[3][3][3] = b
+            widget.colorsTable[3][3][4] = a
+            widget.func(widget.colorsTable)
+        end)
+        percentColor:SetPoint("TOPLEFT", percentCB, "TOPRIGHT", 2, 0)
+
+        local secColor, secEditBox, secText
+
+        local secCB = addon:CreateCheckButton(durationPane, "", function(checked)
+            widget.colorsTable[4][1] = checked
+            addon:SetEnabled(checked, secColor, secEditBox, secText)
+        end)
+        secCB:SetPoint("TOPLEFT", percentCB, "BOTTOMLEFT", 0, -8)
+
+        secColor = addon:CreateColorPicker(durationPane, L["Remaining Time"].." <", true, function(r, g, b, a)
+            widget.colorsTable[4][3][1] = r
+            widget.colorsTable[4][3][2] = g
+            widget.colorsTable[4][3][3] = b
+            widget.colorsTable[4][3][4] = a
+            widget.func(widget.colorsTable)
+        end)
+        secColor:SetPoint("TOPLEFT", secCB, "TOPRIGHT", 2, 0)
+
+        percentDropdown = addon:CreateDropdown(durationPane, 60)
+        percentDropdown:SetPoint("LEFT", percentColor.label, "RIGHT", 5, 0)
+        percentDropdown:SetItems({
+            {
+                ["text"] = "75%",
+                ["value"] = 0.75,
+                ["onClick"] = function()
+                    widget.colorsTable[3][2] = 0.75
+                    widget.func(widget.colorsTable)
+                end,
+            },
+            {
+                ["text"] = "50%",
+                ["value"] = 0.5,
+                ["onClick"] = function()
+                    widget.colorsTable[3][2] = 0.5
+                    widget.func(widget.colorsTable)
+                end,
+            },
+            {
+                ["text"] = "30%",
+                ["value"] = 0.3,
+                ["onClick"] = function()
+                    widget.colorsTable[3][2] = 0.3
+                    widget.func(widget.colorsTable)
+                end,
+            },
+            {
+                ["text"] = "25%",
+                ["value"] = 0.25,
+                ["onClick"] = function()
+                    widget.colorsTable[3][2] = 0.25
+                    widget.func(widget.colorsTable)
+                end,
+            },
+        })
+
+        secEditBox = addon:CreateEditBox(durationPane, 43, 20, false, false, true)
+        secEditBox:SetPoint("LEFT", secColor.label, "RIGHT", 5, 0)
+        secEditBox:SetMaxLetters(4)
+
+        secEditBox.confirmBtn = addon:CreateButton(durationPane, "OK", "accent", {27, 20})
+        secEditBox.confirmBtn:SetPoint("LEFT", secEditBox, "RIGHT", -1, 0)
+        secEditBox.confirmBtn:Hide()
+        secEditBox.confirmBtn:SetScript("OnHide", function()
+            secEditBox.confirmBtn:Hide()
+        end)
+        secEditBox.confirmBtn:SetScript("OnClick", function()
+            local newSec = tonumber(secEditBox:GetText())
+            widget.colorsTable[4][2] = newSec
+            secEditBox:SetText(newSec)
+            secEditBox:ClearFocus()
+            secEditBox.confirmBtn:Hide()
+            widget.func(widget.colorsTable)
+        end)
+
+        secEditBox:SetScript("OnTextChanged", function(self, userChanged)
+            if userChanged then
+                local newSec = tonumber(self:GetText())
+                if newSec and newSec ~= widget.colorsTable[3][2] then
+                    secEditBox.confirmBtn:Show()
+                else
+                    secEditBox.confirmBtn:Hide()
+                end
+            end
+        end)
+
+        secText = durationPane:CreateFontString(nil, "OVERLAY", font_name)
+        secText:SetPoint("LEFT", secEditBox, "RIGHT", 5, 0)
+        secText:SetText(L["sec"])
+
+        -- stack pane -----------------------------------------------------------------------------
+        local stackPane = CreateFrame("Frame", nil, widget)
+        P:Size(stackPane, 260, 36)
+        stackPane:SetPoint("TOPLEFT", normalColor, "BOTTOMLEFT", 0, -8)
+
+        local stackColor1, stackEB1
+
+        local stackCB1 = addon:CreateCheckButton(stackPane, "", function(checked)
+            widget.colorsTable[3][1] = checked
+            addon:SetEnabled(checked, stackColor1, stackEB1)
+            widget.func(widget.colorsTable)
+        end)
+        stackCB1:SetPoint("TOPLEFT")
+
+        stackColor1 = addon:CreateColorPicker(stackPane, L["Stack"].." >=", true, function(r, g, b, a)
+            widget.colorsTable[3][3][1] = r
+            widget.colorsTable[3][3][2] = g
+            widget.colorsTable[3][3][3] = b
+            widget.colorsTable[3][3][4] = a
+            widget.func(widget.colorsTable)
+        end)
+        stackColor1:SetPoint("TOPLEFT", stackCB1, "TOPRIGHT", 2, 0)
+
+        local stackColor2, stackEB2
+
+        local stackCB2 = addon:CreateCheckButton(stackPane, "", function(checked)
+            widget.colorsTable[4][1] = checked
+            addon:SetEnabled(checked, stackColor2, stackEB2)
+            widget.func(widget.colorsTable)
+        end)
+        stackCB2:SetPoint("TOPLEFT", stackCB1, "BOTTOMLEFT", 0, -8)
+
+        stackColor2 = addon:CreateColorPicker(stackPane, L["Stack"].." >=", true, function(r, g, b, a)
+            widget.colorsTable[4][3][1] = r
+            widget.colorsTable[4][3][2] = g
+            widget.colorsTable[4][3][3] = b
+            widget.colorsTable[4][3][4] = a
+            widget.func(widget.colorsTable)
+        end)
+        stackColor2:SetPoint("TOPLEFT", stackCB2, "TOPRIGHT", 2, 0)
+
+        -- eb
+        stackEB1 = addon:CreateEditBox(stackPane, 43, 20, false, false, true)
+        stackEB1:SetPoint("LEFT", stackColor1.label, "RIGHT", 5, 0)
+        stackEB1:SetMaxLetters(3)
+
+        stackEB1.confirmBtn = addon:CreateButton(stackPane, "OK", "accent", {27, 20})
+        stackEB1.confirmBtn:SetPoint("LEFT", stackEB1, "RIGHT", -1, 0)
+        stackEB1.confirmBtn:Hide()
+        stackEB1.confirmBtn:SetScript("OnHide", function()
+            stackEB1.confirmBtn:Hide()
+        end)
+        stackEB1.confirmBtn:SetScript("OnClick", function()
+            local newStack = tonumber(stackEB1:GetText())
+            widget.colorsTable[3][2] = newStack
+            stackEB1:SetText(newStack)
+            stackEB1:ClearFocus()
+            stackEB1.confirmBtn:Hide()
+            widget.func(widget.colorsTable)
+        end)
+
+        stackEB1:SetScript("OnTextChanged", function(self, userChanged)
+            if userChanged then
+                local newStack = tonumber(self:GetText())
+                if newStack and newStack ~= widget.colorsTable[3][2] then
+                    stackEB1.confirmBtn:Show()
+                else
+                    stackEB1.confirmBtn:Hide()
+                end
+            end
+        end)
+
+        stackEB2 = addon:CreateEditBox(stackPane, 43, 20, false, false, true)
+        stackEB2:SetPoint("LEFT", stackColor2.label, "RIGHT", 5, 0)
+        stackEB2:SetMaxLetters(3)
+
+        stackEB2.confirmBtn = addon:CreateButton(stackPane, "OK", "accent", {27, 20})
+        stackEB2.confirmBtn:SetPoint("LEFT", stackEB2, "RIGHT", -1, 0)
+        stackEB2.confirmBtn:Hide()
+        stackEB2.confirmBtn:SetScript("OnHide", function()
+            stackEB2.confirmBtn:Hide()
+        end)
+        stackEB2.confirmBtn:SetScript("OnClick", function()
+            local newStack = tonumber(stackEB2:GetText())
+            widget.colorsTable[4][2] = newStack
+            stackEB2:SetText(newStack)
+            stackEB2:ClearFocus()
+            stackEB2.confirmBtn:Hide()
+            widget.func(widget.colorsTable)
+        end)
+
+        stackEB2:SetScript("OnTextChanged", function(self, userChanged)
+            if userChanged then
+                local newStack = tonumber(self:GetText())
+                if newStack and newStack ~= widget.colorsTable[4][2] then
+                    stackEB2.confirmBtn:Show()
+                else
+                    stackEB2.confirmBtn:Hide()
+                end
+            end
+        end)
+
+        -- control
+        colorBy:SetItems({
+            {
+                ["text"] = L["Duration"],
+                ["value"] = "duration",
+                ["onClick"] = function()
+                    if widget.colorsTable[1] == "duration" then return end
+                    durationPane:Show()
+                    stackPane:Hide()
+                    widget.colorsTable[1] = "duration"
+                    widget.colorsTable[3][1] = false
+                    widget.colorsTable[4][1] = false
+                    widget.colorsTable[3][2] = 0.5
+                    widget.colorsTable[4][2] = 3
+                    widget.func(widget.colorsTable)
+                    widget:SetDBValue(widget.colorsTable)
+                end,
+            },
+            {
+                ["text"] = L["Stack"],
+                ["value"] = "stack",
+                ["onClick"] = function()
+                    if widget.colorsTable[1] == "stack" then return end
+                    durationPane:Hide()
+                    stackPane:Show()
+                    widget.colorsTable[1] = "stack"
+                    widget.colorsTable[3][1] = false
+                    widget.colorsTable[4][1] = false
+                    widget.colorsTable[3][2] = 2
+                    widget.colorsTable[4][2] = 3
+                    widget.func(widget.colorsTable)
+                    widget:SetDBValue(widget.colorsTable)
+                end,
+            },
+        })
+
+        -- border color
+        local borderColor = addon:CreateColorPicker(widget, L["Border Color"], true, function(r, g, b, a)
+            widget.colorsTable[5][1] = r
+            widget.colorsTable[5][2] = g
+            widget.colorsTable[5][3] = b
+            widget.colorsTable[5][4] = a
+            widget.func(widget.colorsTable)
+        end)
+        borderColor:SetPoint("TOPLEFT", stackPane, "BOTTOMLEFT", 0, -8)
+
+        -- callback
+        function widget:SetFunc(func)
+            widget.func = func
+        end
+
+        -- show db value
+        function widget:SetDBValue(colorsTable)
+            widget.colorsTable = colorsTable
+
+            colorBy:SetSelectedValue(colorsTable[1])
+            if colorsTable[1] == "duration" then
+                durationPane:Show()
+                stackPane:Hide()
+            else
+                durationPane:Hide()
+                stackPane:Show()
+            end
+
+            normalColor:SetColor(colorsTable[2])
+            borderColor:SetColor(colorsTable[5])
+
+            addon:SetEnabled(colorsTable[3][1], percentColor, percentDropdown, stackColor1, stackEB1)
+            addon:SetEnabled(colorsTable[4][1], secColor, secEditBox, secText, stackColor2, stackEB2)
+
+            percentCB:SetChecked(colorsTable[3][1])
+            percentColor:SetColor(colorsTable[3][3])
+            percentDropdown:SetSelectedValue(colorsTable[3][2])
+            secCB:SetChecked(colorsTable[4][1])
+            secColor:SetColor(colorsTable[4][3])
+            secEditBox:SetText(colorsTable[4][2])
+
+            stackCB1:SetChecked(colorsTable[3][1])
+            stackColor1:SetColor(colorsTable[3][3])
+            stackEB1:SetText(colorsTable[3][2])
+            stackCB2:SetChecked(colorsTable[4][1])
+            stackColor2:SetColor(colorsTable[4][3])
+            stackEB2:SetText(colorsTable[4][2])
+        end
+    else
+        widget = settingWidgets["blockColors"]
+    end
+
+    widget:Show()
+    return widget
+end
+
 local function CreateSetting_OverlayColors(parent)
     local widget
 
@@ -1912,13 +2281,13 @@ local function CreateSetting_OverlayColors(parent)
 
         local normalColor = addon:CreateColorPicker(widget, L["Normal"], true, function(r, g, b, a)
             widget.colorsTable[1][1] = r
-            widget.colorsTable[1][2] = g 
+            widget.colorsTable[1][2] = g
             widget.colorsTable[1][3] = b
             widget.colorsTable[1][4] = a
             widget.func(widget.colorsTable)
         end)
         normalColor:SetPoint("TOPLEFT", 5, -8)
-        
+
         local percentColor, percentDropdown
 
         local percentCB = addon:CreateCheckButton(widget, "", function(checked)
@@ -1927,8 +2296,8 @@ local function CreateSetting_OverlayColors(parent)
             widget.func(widget.colorsTable)
         end)
         percentCB:SetPoint("TOPLEFT", normalColor, "BOTTOMLEFT", 0, -8)
-        
-        percentColor = addon:CreateColorPicker(widget, L["Remaining Time <"], true, function(r, g, b, a)
+
+        percentColor = addon:CreateColorPicker(widget, L["Remaining Time"].." <", true, function(r, g, b, a)
             widget.colorsTable[2][3][1] = r
             widget.colorsTable[2][3][2] = g
             widget.colorsTable[2][3][3] = b
@@ -1936,7 +2305,7 @@ local function CreateSetting_OverlayColors(parent)
             widget.func(widget.colorsTable)
         end)
         percentColor:SetPoint("TOPLEFT", percentCB, "TOPRIGHT", 2, 0)
-        
+
         local secColor, secEditBox, secText
 
         local secCB = addon:CreateCheckButton(widget, "", function(checked)
@@ -1946,7 +2315,7 @@ local function CreateSetting_OverlayColors(parent)
         end)
         secCB:SetPoint("TOPLEFT", percentCB, "BOTTOMLEFT", 0, -8)
 
-        secColor = addon:CreateColorPicker(widget, L["Remaining Time <"], true, function(r, g, b, a)
+        secColor = addon:CreateColorPicker(widget, L["Remaining Time"].." <", true, function(r, g, b, a)
             widget.colorsTable[3][3][1] = r
             widget.colorsTable[3][3][2] = g
             widget.colorsTable[3][3][3] = b
@@ -1991,11 +2360,11 @@ local function CreateSetting_OverlayColors(parent)
                 end,
             },
         })
-        
+
         secEditBox = addon:CreateEditBox(widget, 43, 20, false, false, true)
         secEditBox:SetPoint("LEFT", secColor.label, "RIGHT", 5, 0)
         secEditBox:SetMaxLetters(4)
- 
+
         secEditBox.confirmBtn = addon:CreateButton(widget, "OK", "accent", {27, 20})
         secEditBox.confirmBtn:SetPoint("LEFT", secEditBox, "RIGHT", -1, 0)
         secEditBox.confirmBtn:Hide()
@@ -2030,7 +2399,7 @@ local function CreateSetting_OverlayColors(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(colorsTable)
             widget.colorsTable = colorsTable
@@ -2065,7 +2434,7 @@ local function CreateSetting_CustomColors(parent)
         -- dropdown
         widget.color = addon:CreateDropdown(widget, 170)
         widget.color:SetPoint("TOPLEFT", 5, -20)
-        
+
         widget.buffItems = {
             {
                 ["text"] = L["Solid"],
@@ -2128,7 +2497,7 @@ local function CreateSetting_CustomColors(parent)
                 end
             },
         }
-        
+
         widget.debuffItems = {
             {
                 ["text"] = L["Solid"],
@@ -2210,7 +2579,7 @@ local function CreateSetting_CustomColors(parent)
 
         widget.colorPicker1 = addon:CreateColorPicker(widget, "", true, function(r, g, b, a)
             widget.colorsTable[2][1] = r
-            widget.colorsTable[2][2] = g 
+            widget.colorsTable[2][2] = g
             widget.colorsTable[2][3] = b
             widget.colorsTable[2][4] = a
             widget.func(widget.colorsTable)
@@ -2219,7 +2588,7 @@ local function CreateSetting_CustomColors(parent)
 
         widget.colorPicker2 = addon:CreateColorPicker(widget, "", true, function(r, g, b, a)
             widget.colorsTable[3][1] = r
-            widget.colorsTable[3][2] = g 
+            widget.colorsTable[3][2] = g
             widget.colorsTable[3][3] = b
             widget.colorsTable[3][4] = a
             widget.func(widget.colorsTable)
@@ -2232,25 +2601,25 @@ local function CreateSetting_CustomColors(parent)
 
         local normalColor = addon:CreateColorPicker(widget.cotFrame, L["Normal"], true, function(r, g, b, a)
             widget.colorsTable[4][1] = r
-            widget.colorsTable[4][2] = g 
+            widget.colorsTable[4][2] = g
             widget.colorsTable[4][3] = b
             widget.colorsTable[4][4] = a
             widget.func(widget.colorsTable)
         end)
         normalColor:SetPoint("TOPLEFT")
-        
-        local percentColor = addon:CreateColorPicker(widget.cotFrame, L["Remaining Time <"], true, function(r, g, b, a)
+
+        local percentColor = addon:CreateColorPicker(widget.cotFrame, L["Remaining Time"].." <", true, function(r, g, b, a)
             widget.colorsTable[5][2][1] = r
-            widget.colorsTable[5][2][2] = g 
+            widget.colorsTable[5][2][2] = g
             widget.colorsTable[5][2][3] = b
             widget.colorsTable[5][2][4] = a
             widget.func(widget.colorsTable)
         end)
         percentColor:SetPoint("TOPLEFT", normalColor, "BOTTOMLEFT", 0, -8)
-        
-        local secColor = addon:CreateColorPicker(widget.cotFrame, L["Remaining Time <"], true, function(r, g, b, a)
+
+        local secColor = addon:CreateColorPicker(widget.cotFrame, L["Remaining Time"].." <", true, function(r, g, b, a)
             widget.colorsTable[6][2][1] = r
-            widget.colorsTable[6][2][2] = g 
+            widget.colorsTable[6][2][2] = g
             widget.colorsTable[6][2][3] = b
             widget.colorsTable[6][2][4] = a
             widget.func(widget.colorsTable)
@@ -2301,11 +2670,11 @@ local function CreateSetting_CustomColors(parent)
                 end,
             },
         })
-        
+
         local secEditBox = addon:CreateEditBox(widget.cotFrame, 43, 20, false, false, true)
         secEditBox:SetPoint("LEFT", secColor.label, "RIGHT", 5, 0)
         secEditBox:SetMaxLetters(4)
- 
+
         secEditBox.confirmBtn = addon:CreateButton(widget.cotFrame, "OK", "accent", {27, 20})
         secEditBox.confirmBtn:SetPoint("LEFT", secEditBox, "RIGHT", -1, 0)
         secEditBox.confirmBtn:Hide()
@@ -2340,7 +2709,7 @@ local function CreateSetting_CustomColors(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(colorsTable, auraType)
             widget.colorsTable = colorsTable
@@ -2351,7 +2720,7 @@ local function CreateSetting_CustomColors(parent)
                 widget.color:SetItems(widget.debuffItems)
             end
             widget.color:SetSelectedValue(colorsTable[1])
-            
+
             if colorsTable[1] == "solid" then
                 P:Height(widget, 50)
                 widget.colorPicker1:Show()
@@ -2378,7 +2747,7 @@ local function CreateSetting_CustomColors(parent)
                 widget.colorPicker2:Show()
                 widget.cotFrame:Hide()
             end
-            
+
             widget.colorPicker1:SetColor(colorsTable[2])
             widget.colorPicker2:SetColor(colorsTable[3])
 
@@ -2438,7 +2807,7 @@ local function CreateSetting_ClassColor(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(cTable)
             widget.colorDropdown:SetSelectedValue(cTable[1])
@@ -2506,7 +2875,7 @@ local function CreateSetting_PowerColor(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(cTable)
             widget.colorDropdown:SetSelectedValue(cTable[1])
@@ -2534,25 +2903,25 @@ local function CreateSetting_StatusColors(parent)
 
         local afkColor = addon:CreateColorPicker(widget, L["AFK"], true, function(r, g, b, a)
             widget.colorsTable["AFK"][1] = r
-            widget.colorsTable["AFK"][2] = g 
+            widget.colorsTable["AFK"][2] = g
             widget.colorsTable["AFK"][3] = b
             widget.colorsTable["AFK"][4] = a
             widget.func()
         end)
         afkColor:SetPoint("TOPLEFT", 5, -7)
-        
+
         local offlineColor = addon:CreateColorPicker(widget, L["OFFLINE"], true, function(r, g, b, a)
             widget.colorsTable["OFFLINE"][1] = r
-            widget.colorsTable["OFFLINE"][2] = g 
+            widget.colorsTable["OFFLINE"][2] = g
             widget.colorsTable["OFFLINE"][3] = b
             widget.colorsTable["OFFLINE"][4] = a
             widget.func()
         end)
         offlineColor:SetPoint("TOPLEFT", afkColor, "TOPRIGHT", 70, 0)
-        
+
         local deadColor = addon:CreateColorPicker(widget, L["DEAD"], true, function(r, g, b, a)
             widget.colorsTable["DEAD"][1] = r
-            widget.colorsTable["DEAD"][2] = g 
+            widget.colorsTable["DEAD"][2] = g
             widget.colorsTable["DEAD"][3] = b
             widget.colorsTable["DEAD"][4] = a
             widget.func()
@@ -2561,7 +2930,7 @@ local function CreateSetting_StatusColors(parent)
 
         local ghostColor = addon:CreateColorPicker(widget, L["GHOST"], true, function(r, g, b, a)
             widget.colorsTable["GHOST"][1] = r
-            widget.colorsTable["GHOST"][2] = g 
+            widget.colorsTable["GHOST"][2] = g
             widget.colorsTable["GHOST"][3] = b
             widget.colorsTable["GHOST"][4] = a
             widget.func()
@@ -2570,7 +2939,7 @@ local function CreateSetting_StatusColors(parent)
 
         local feignColor = addon:CreateColorPicker(widget, L["FEIGN"], true, function(r, g, b, a)
             widget.colorsTable["FEIGN"][1] = r
-            widget.colorsTable["FEIGN"][2] = g 
+            widget.colorsTable["FEIGN"][2] = g
             widget.colorsTable["FEIGN"][3] = b
             widget.colorsTable["FEIGN"][4] = a
             widget.func()
@@ -2579,7 +2948,7 @@ local function CreateSetting_StatusColors(parent)
 
         local drinkingColor = addon:CreateColorPicker(widget, L["DRINKING"], true, function(r, g, b, a)
             widget.colorsTable["DRINKING"][1] = r
-            widget.colorsTable["DRINKING"][2] = g 
+            widget.colorsTable["DRINKING"][2] = g
             widget.colorsTable["DRINKING"][3] = b
             widget.colorsTable["DRINKING"][4] = a
             widget.func()
@@ -2588,7 +2957,7 @@ local function CreateSetting_StatusColors(parent)
 
         local pendingColor = addon:CreateColorPicker(widget, L["PENDING"], true, function(r, g, b, a)
             widget.colorsTable["PENDING"][1] = r
-            widget.colorsTable["PENDING"][2] = g 
+            widget.colorsTable["PENDING"][2] = g
             widget.colorsTable["PENDING"][3] = b
             widget.colorsTable["PENDING"][4] = a
             widget.func()
@@ -2598,7 +2967,7 @@ local function CreateSetting_StatusColors(parent)
 
         local acceptedColor = addon:CreateColorPicker(widget, L["ACCEPTED"], true, function(r, g, b, a)
             widget.colorsTable["ACCEPTED"][1] = r
-            widget.colorsTable["ACCEPTED"][2] = g 
+            widget.colorsTable["ACCEPTED"][2] = g
             widget.colorsTable["ACCEPTED"][3] = b
             widget.colorsTable["ACCEPTED"][4] = a
             widget.func()
@@ -2608,7 +2977,7 @@ local function CreateSetting_StatusColors(parent)
 
         local declinedColor = addon:CreateColorPicker(widget, L["DECLINED"], true, function(r, g, b, a)
             widget.colorsTable["DECLINED"][1] = r
-            widget.colorsTable["DECLINED"][2] = g 
+            widget.colorsTable["DECLINED"][2] = g
             widget.colorsTable["DECLINED"][3] = b
             widget.colorsTable["DECLINED"][4] = a
             widget.func()
@@ -2641,12 +3010,12 @@ local function CreateSetting_StatusColors(parent)
 
             widget.func()
         end)
-        
+
         -- callback
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(colorsTable)
             widget.colorsTable = colorsTable
@@ -2839,7 +3208,7 @@ local function CreateSetting_Duration(parent)
 
         widget.durationDecimalText2 = widget:CreateFontString(nil, "OVERLAY", "CELL_FONT_WIDGET")
         widget.durationDecimalText2:SetPoint("TOPLEFT", widget.durationDecimalText1, "BOTTOMLEFT", 0, -5)
-        widget.durationDecimalText2:SetText(L["Remaining Time <"])
+        widget.durationDecimalText2:SetText(L["Remaining Time"].." <")
 
         widget.durationDecimalDropdown = addon:CreateDropdown(widget, 60)
         widget.durationDecimalDropdown:SetPoint("LEFT", widget.durationDecimalText2, "RIGHT", 5, 0)
@@ -2862,7 +3231,7 @@ local function CreateSetting_Duration(parent)
             -- NOTE: to notify indicator update
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(durationTbl)
             widget.durationTbl = durationTbl
@@ -2890,15 +3259,18 @@ local function CreateSetting_RoleTexture(parent)
         widget.texture:SetPoint("TOPLEFT", 5, -20)
 
         local blizzard = F:UpperFirst(SLASH_TEXTTOSPEECH_BLIZZARD)
-        local indices = {"default", "default2", "blizzard", "blizzard2", "ffxiv", "miirgui", "mattui", "custom"}
+        local indices = {"default", "default2", "blizzard", "blizzard2", "blizzard3", "blizzard4", "ffxiv", "miirgui", "mattui", "custom"}
+        local ICON_PATH = " |TInterface\\AddOns\\Cell\\Media\\Roles\\Preview_%s:0:4|t"
         local options = {
-            ["default"] = _G.DEFAULT,
-            ["default2"] = _G.DEFAULT.." 2",
-            ["blizzard"] = blizzard,
-            ["blizzard2"] = blizzard.." 2",
-            ["ffxiv"] = "FFXIV",
-            ["miirgui"] = "MiirGui",
-            ["mattui"] = "MattUI",
+            ["default"] = _G.DEFAULT..format(ICON_PATH, "Default"),
+            ["default2"] = _G.DEFAULT.." 2"..format(ICON_PATH, "Default2"),
+            ["blizzard"] = blizzard..format(ICON_PATH, "Blizzard"),
+            ["blizzard2"] = blizzard.." 2"..format(ICON_PATH, "Blizzard2"),
+            ["blizzard3"] = blizzard.." 3"..format(ICON_PATH, "Blizzard3"),
+            ["blizzard4"] = blizzard.." 4"..format(ICON_PATH, "Blizzard4"),
+            ["ffxiv"] = "FFXIV"..format(ICON_PATH, "FFXIV"),
+            ["miirgui"] = "MiirGui"..format(ICON_PATH, "MiirGui"),
+            ["mattui"] = "MattUI"..format(ICON_PATH, "MattUI"),
             ["custom"] = _G.CUSTOM,
         }
 
@@ -2909,7 +3281,7 @@ local function CreateSetting_RoleTexture(parent)
                 ["value"] = v,
                 ["onClick"] = function()
                     widget.func({v, widget.eb1:GetText(), widget.eb2:GetText(), widget.eb3:GetText()})
-                    addon:SetEnabled(v == "custom", 
+                    addon:SetEnabled(v == "custom",
                         widget.text1, widget.text2, widget.text3,
                         widget.texture1, widget.texture2, widget.texture3,
                         widget.eb1, widget.eb2, widget.eb3
@@ -2938,7 +3310,7 @@ local function CreateSetting_RoleTexture(parent)
         widget.texture1 = widget:CreateTexture(nil, "ARTWORK")
         widget.texture1:SetPoint("BOTTOMLEFT", widget.text1, "BOTTOMRIGHT", 3, 0)
         widget.texture1:SetSize(16, 16)
-        
+
         widget.eb2 = addon:CreateEditBox(widget, 260, 20)
         widget.eb2:SetPoint("TOPLEFT", widget.eb1, "BOTTOMLEFT", 0, -25)
         widget.eb2:SetScript("OnEnterPressed", function(self)
@@ -2946,7 +3318,7 @@ local function CreateSetting_RoleTexture(parent)
             widget.func({widget.texture:GetSelected(), widget.eb1:GetText(), self:GetText(), widget.eb3:GetText()})
             widget.texture2:SetTexture(self:GetText())
         end)
-        
+
         widget.text2 = widget:CreateFontString(nil, "OVERLAY", font_name)
         widget.text2:SetPoint("BOTTOMLEFT", widget.eb2, "TOPLEFT", 0, 1)
         widget.text2:SetText(_G["HEALER"])
@@ -2979,7 +3351,7 @@ local function CreateSetting_RoleTexture(parent)
         -- show db value
         function widget:SetDBValue(t)
             widget.texture:SetSelectedValue(t[1])
-            addon:SetEnabled(t[1] == "custom", 
+            addon:SetEnabled(t[1] == "custom",
                 widget.text1, widget.text2, widget.text3,
                 widget.texture1, widget.texture2, widget.texture3,
                 widget.eb1, widget.eb2, widget.eb3
@@ -3160,7 +3532,7 @@ local function CreateSetting_Glow(parent)
             widget.func(widget.glow)
         end)
         widget.glowParticles:SetPoint("TOPLEFT", widget.glowType, "BOTTOMLEFT", 0, -25)
-        
+
         -- glowDuration
         widget.glowDuration = addon:CreateSlider(L["Duration"], widget, 0.1, 3, 110, 0.1, function(value)
             widget.glow[3] = value
@@ -3249,7 +3621,7 @@ local function CreateSetting_Glow(parent)
                     widget.glowLength:Hide()
                     widget.glowThickness:Hide()
                     widget:SetHeight(145)
-               
+
                 elseif t[1] == "Proc" then
                     widget.glowDuration:Show()
                     widget.glowDuration:SetValue(t[3])
@@ -3335,8 +3707,7 @@ local function CreateSetting_Texture(parent)
     return widget
 end
 
-local GetSpellInfo = GetSpellInfo
-local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, updateHeightFunc)
+local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, colorPickerType, updateHeightFunc)
     local n = #auraTable
 
     -- tooltip
@@ -3351,18 +3722,18 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
                 return
             end
 
-            local name, _, tex = GetSpellInfo(spellId)
+            local name, tex = F:GetSpellInfo(spellId)
             if not name then
                 CellSpellTooltip:Hide()
                 return
             end
-            
+
             CellSpellTooltip:SetOwner(popup, "ANCHOR_NONE")
             CellSpellTooltip:SetPoint("TOPLEFT", popup, "BOTTOMLEFT", 0, -1)
             CellSpellTooltip:SetSpellByID(spellId, tex)
             CellSpellTooltip:Show()
         end)
-        
+
         popup:HookScript("OnHide", function()
             CellSpellTooltip:Hide()
         end)
@@ -3375,16 +3746,20 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
         auraButtons[0]:SetPoint("BOTTOMLEFT")
         auraButtons[0]:SetPoint("RIGHT")
     end
-    
+
     auraButtons[0]:SetScript("OnClick", function(self)
         local popup = addon:CreatePopupEditBox(parent, function(text)
             local spellId = tonumber(text)
-            local spellName = GetSpellInfo(spellId)
+            local spellName = F:GetSpellInfo(spellId)
             if (spellId and spellName) or (spellId == 0 and isZeroValid) then
                 -- update db
-                tinsert(auraTable, spellId)
+                if colorPickerType == "single" then
+                    tinsert(auraTable, {spellId, {1, 0.26667, 0.4, 1}})
+                else
+                    tinsert(auraTable, spellId)
+                end
                 parent.func(auraTable)
-                CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, updateHeightFunc)
+                CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, colorPickerType, updateHeightFunc)
                 updateHeightFunc(19)
             else
                 F:Print(L["Invalid spell id."])
@@ -3425,7 +3800,7 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
             auraButtons[i].spellIdText:SetPoint("RIGHT", auraButtons[i], "LEFT", 80, 0)
             auraButtons[i].spellIdText:SetWordWrap(false)
             auraButtons[i].spellIdText:SetJustifyH("LEFT")
-            
+
             -- spellName text
             auraButtons[i].spellNameText = auraButtons[i]:CreateFontString(nil, "OVERLAY", font_name)
             auraButtons[i].spellNameText:SetPoint("LEFT", auraButtons[i].spellIdText, "RIGHT", 5, 0)
@@ -3446,7 +3821,7 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
                 auraButtons[i]:GetScript("OnLeave")(auraButtons[i])
                 auraButtons[i].del.tex:SetVertexColor(0.6, 0.6, 0.6, 1)
             end)
-            
+
             -- edit
             -- auraButtons[i].edit = addon:CreateButton(auraButtons[i], "", "none", {18, 20}, true, true)
             -- auraButtons[i].edit:SetPoint("RIGHT", auraButtons[i].del, "LEFT", 1, 0)
@@ -3474,7 +3849,7 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
                 auraButtons[i]:GetScript("OnLeave")(auraButtons[i])
                 auraButtons[i].down.tex:SetVertexColor(0.6, 0.6, 0.6, 1)
             end)
-            
+
             -- up
             auraButtons[i].up = addon:CreateButton(auraButtons[i], "", "none", {18, 20}, true, true)
             auraButtons[i].up:SetPoint("RIGHT", auraButtons[i].down, "LEFT", 1, 0)
@@ -3488,8 +3863,25 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
                 auraButtons[i]:GetScript("OnLeave")(auraButtons[i])
                 auraButtons[i].up.tex:SetVertexColor(0.6, 0.6, 0.6, 1)
             end)
+
+            -- color
+            auraButtons[i].colorPicker = addon:CreateColorPicker(auraButtons[i], "", true)
+            auraButtons[i].colorPicker:SetPoint("RIGHT", auraButtons[i].up, "LEFT", -1, 0)
+            auraButtons[i].colorPicker:SetPoint("TOP", 0, -3)
+            auraButtons[i].colorPicker:HookScript("OnEnter", function()
+                auraButtons[i]:GetScript("OnEnter")(auraButtons[i])
+            end)
+            auraButtons[i].colorPicker:HookScript("OnLeave", function()
+                auraButtons[i]:GetScript("OnLeave")(auraButtons[i])
+            end)
         end
-        
+
+        local color
+        if colorPickerType then
+            color = spell[2]
+            spell = spell[1]
+        end
+
         if spell == 0 then
             auraButtons[i].spellIdText:SetText(spell)
             auraButtons[i].spellId = nil
@@ -3497,7 +3889,7 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
             auraButtons[i].spellIconBg:Hide()
             auraButtons[i].spellIcon:Hide()
         else
-            local name, _, icon = GetSpellInfo(spell)
+            local name, icon = F:GetSpellInfo(spell)
             auraButtons[i].spellIdText:SetText(spell)
             auraButtons[i].spellId = spell
             auraButtons[i].spellTex = icon
@@ -3513,12 +3905,12 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
             -- spell tooltip
             auraButtons[i]:HookScript("OnEnter", function(self)
                 if not parent.popupEditBox:IsShown() then
-                    local name = GetSpellInfo(self.spellId)
+                    local name = F:GetSpellInfo(self.spellId)
                     if not name then
                         CellSpellTooltip:Hide()
                         return
                     end
-                    
+
                     CellSpellTooltip:SetOwner(auraButtons[i], "ANCHOR_NONE")
                     CellSpellTooltip:SetPoint("TOPRIGHT", auraButtons[i], "TOPLEFT", -1, 0)
                     CellSpellTooltip:SetSpellByID(self.spellId, self.spellTex)
@@ -3531,7 +3923,7 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
                 end
             end)
         end
-        
+
         -- points
         auraButtons[i]:ClearAllPoints()
         if i == 1 then -- first
@@ -3569,10 +3961,12 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
         -- update spellNameText width
         if noUpDownButtons then
             auraButtons[i].spellNameText:SetPoint("RIGHT", auraButtons[i].del, "LEFT", -5, 0)
+        elseif colorPickerType then
+            auraButtons[i].spellNameText:SetPoint("RIGHT", auraButtons[i].colorPicker, "LEFT", -5, 0)
         else
             auraButtons[i].spellNameText:SetPoint("RIGHT", auraButtons[i].up, "LEFT", -5, 0)
         end
-        
+
         auraButtons[i]:SetPoint("RIGHT")
         auraButtons[i]:Show()
 
@@ -3591,7 +3985,7 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
                         F:Print(L["Invalid spell id."])
                     end
                 else
-                    local spellName, _, spellIcon = GetSpellInfo(spellId)
+                    local spellName, spellIcon = F:GetSpellInfo(spellId)
                     if spellId and spellName then
                         -- update text
                         auraButtons[i].spellIdText:SetText(spellId)
@@ -3599,7 +3993,11 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
                         auraButtons[i].spellTex = spellIcon
                         auraButtons[i].spellNameText:SetText(spellName)
                         -- update db
-                        auraTable[i] = spellId
+                        if colorPickerType then
+                            auraTable[i][1] = spellId
+                        else
+                            auraTable[i] = spellId
+                        end
                         parent.func(auraTable)
                         if spellIcon then
                             auraButtons[i].spellIcon:SetTexture(spellIcon)
@@ -3624,7 +4022,7 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
         auraButtons[i].del:SetScript("OnClick", function()
             tremove(auraTable, i)
             parent.func(auraTable)
-            CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, updateHeightFunc)
+            CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, colorPickerType, updateHeightFunc)
             updateHeightFunc(-19)
         end)
 
@@ -3633,7 +4031,7 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
             auraTable[i-1] = auraTable[i]
             auraTable[i] = temp
             parent.func(auraTable)
-            CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, updateHeightFunc)
+            CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, colorPickerType, updateHeightFunc)
         end)
 
         auraButtons[i].down:SetScript("OnClick", function()
@@ -3641,8 +4039,22 @@ local function CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons
             auraTable[i+1] = auraTable[i]
             auraTable[i] = temp
             parent.func(auraTable)
-            CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, updateHeightFunc)
+            CreateAuraButtons(parent, auraButtons, auraTable, noUpDownButtons, isZeroValid, colorPickerType, updateHeightFunc)
         end)
+
+        if colorPickerType == "single" then
+            auraButtons[i].colorPicker:Show()
+            auraButtons[i].colorPicker:SetColor(color)
+            auraButtons[i].colorPicker.onConfirm = function(r, g, b, a)
+                auraTable[i][2][1] = r
+                auraTable[i][2][2] = g
+                auraTable[i][2][3] = b
+                auraTable[i][2][4] = a
+                parent.func(auraTable)
+            end
+        else
+            auraButtons[i].colorPicker:Hide()
+        end
     end
 
     -- check up down
@@ -3661,7 +4073,8 @@ local function GetExportString(t)
     local s = ""
     local n = 0
     for i, id in ipairs(t) do
-        local name = GetSpellInfo(id)
+        if type(id) == "table" then id = id[1] end
+        local name = F:GetSpellInfo(id)
         if name then
             s = s .. (i == 1 and "" or "\n") .. id .. ", -- " .. name
             n = n + 1
@@ -3681,12 +4094,12 @@ local function CreateSetting_Auras(parent, index)
         auraImportExportFrame:SetBackdropBorderColor(addon:GetAccentColorRGB())
         auraImportExportFrame:EnableMouse(true)
         auraImportExportFrame:Hide()
-        
+
         function auraImportExportFrame:ShowUp()
             auraImportExportFrame:SetParent(auraImportExportFrame.parent)
             auraImportExportFrame:SetPoint("TOPLEFT")
             auraImportExportFrame:SetPoint("TOPRIGHT")
-            auraImportExportFrame:SetFrameLevel(auraImportExportFrame.parent:GetFrameLevel()+10)
+            auraImportExportFrame:SetToplevel(true)
             auraImportExportFrame:Show()
         end
 
@@ -3775,8 +4188,12 @@ local function CreateSetting_Auras(parent, index)
             auraImportExportFrame.textArea:SetText(auraImportExportFrame.exported)
             auraImportExportFrame.importBtn:Hide()
             auraImportExportFrame:ShowUp()
+            -- hide editbox
+            if widget.frame.popupEditBox then
+                widget.frame.popupEditBox:Hide()
+            end
         end)
-        
+
         widget.import = addon:CreateButton(widget, nil, "accent-hover", {21, 17}, nil, nil, nil, nil, nil, L["Import"])
         widget.import:SetPoint("BOTTOMRIGHT", widget.export, "BOTTOMLEFT", -1, 0)
         widget.import:SetTexture("Interface\\AddOns\\Cell\\Media\\Icons\\import", {15, 15}, {"CENTER", 0, 0})
@@ -3788,6 +4205,10 @@ local function CreateSetting_Auras(parent, index)
             auraImportExportFrame.importBtn:Show()
             auraImportExportFrame.importBtn:SetEnabled(false)
             auraImportExportFrame:ShowUp()
+            -- hide editbox
+            if widget.frame.popupEditBox then
+                widget.frame.popupEditBox:Hide()
+            end
         end)
 
         widget.clear = addon:CreateButton(widget, nil, "accent-hover", {21, 17}, nil, nil, nil, nil, nil, L["Clear"], "|cffffb5c5Ctrl+"..L["Left-Click"])
@@ -3797,12 +4218,16 @@ local function CreateSetting_Auras(parent, index)
             if button == "LeftButton" and IsControlKeyDown() then
                 wipe(widget.t)
                 -- update list
-                widget:SetDBValue(widget.title, widget.t, widget.noUpDownButtons, widget.isZeroValid)
+                widget:SetDBValue(widget.title, widget.t, widget.noUpDownButtons, widget.isZeroValid, widget.colorPickerType)
                 -- update height
                 addon:UpdateIndicatorSettingsHeight()
                 -- event
                 widget.frame.func(widget.t)
-            end 
+                -- hide editbox
+                if widget.frame.popupEditBox then
+                    widget.frame.popupEditBox:Hide()
+                end
+            end
         end)
 
         -- callback
@@ -3811,22 +4236,23 @@ local function CreateSetting_Auras(parent, index)
         end
 
         -- show db value
-        function widget:SetDBValue(title, t, noUpDownButtons, isZeroValid)
+        function widget:SetDBValue(title, t, noUpDownButtons, isZeroValid, colorPickerType)
             widget.title = title
             widget.t = t
             widget.noUpDownButtons = noUpDownButtons
             widget.isZeroValid = isZeroValid
+            widget.colorPickerType = colorPickerType
 
             widget.text:SetText(title)
 
             if not auraButtons[index] then auraButtons[index] = {} end
 
-            CreateAuraButtons(widget.frame, auraButtons[index], t, noUpDownButtons, isZeroValid, function(diff)
+            CreateAuraButtons(widget.frame, auraButtons[index], t, noUpDownButtons, isZeroValid, colorPickerType, function(diff)
                 widget.frame:SetHeight((#t+1)*19+1)
                 widget:SetHeight((#t+1)*19+1 + 22 + 7)
                 if diff then parent:SetHeight(parent:GetHeight()+diff) end
             end)
-            
+
             widget.frame:SetHeight((#t+1)*19+1)
             widget:SetHeight((#t+1)*19+1 + 22 + 7)
         end
@@ -3878,13 +4304,13 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
                 return
             end
 
-            local name = GetSpellInfo(spellId)
+            local name = F:GetSpellInfo(spellId)
             if not name then
                 CellSpellTooltip:Hide()
                 Validate()
                 return
             end
-            
+
             CellSpellTooltip:SetOwner(spellEB, "ANCHOR_NONE")
             CellSpellTooltip:SetPoint("TOPLEFT", spellEB, "BOTTOMLEFT", 0, -1)
             CellSpellTooltip:SetSpellByID(spellId)
@@ -3898,7 +4324,7 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
         spellEB:SetScript("OnEscapePressed", function()
             inputs:Hide()
         end)
-        
+
         local durationEB = addon:CreateEditBox(inputs, 20, 20, false, false, true)
         durationEB:SetAutoFocus(true)
         durationEB:SetMaxLetters(2)
@@ -3950,7 +4376,7 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
         cleuAuraButtons[0]:SetPoint("BOTTOMLEFT")
         cleuAuraButtons[0]:SetPoint("RIGHT")
     end
-    
+
     cleuAuraButtons[0]:SetScript("OnClick", function(self)
         parent.inputs:SetPoint("TOPLEFT", self)
         parent.inputs:SetPoint("BOTTOMRIGHT", self)
@@ -3994,7 +4420,7 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
             cleuAuraButtons[i].spellIdText:SetPoint("RIGHT", cleuAuraButtons[i], "LEFT", 80, 0)
             cleuAuraButtons[i].spellIdText:SetWordWrap(false)
             cleuAuraButtons[i].spellIdText:SetJustifyH("LEFT")
-            
+
             -- spellName text
             cleuAuraButtons[i].spellNameText = cleuAuraButtons[i]:CreateFontString(nil, "OVERLAY", font_name)
             cleuAuraButtons[i].spellNameText:SetPoint("LEFT", cleuAuraButtons[i].spellIdText, "RIGHT", 5, 0)
@@ -4022,7 +4448,7 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
                 cleuAuraButtons[i]:GetScript("OnLeave")(cleuAuraButtons[i])
                 cleuAuraButtons[i].del.tex:SetVertexColor(0.6, 0.6, 0.6, 1)
             end)
-            
+
             -- edit
             cleuAuraButtons[i].edit = addon:CreateButton(cleuAuraButtons[i], "", "none", {18, 20}, true, true)
             cleuAuraButtons[i].edit:SetPoint("RIGHT", cleuAuraButtons[i].del, "LEFT", 1, 0)
@@ -4037,8 +4463,8 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
                 cleuAuraButtons[i].edit.tex:SetVertexColor(0.6, 0.6, 0.6, 1)
             end)
         end
-        
-        local name, _, icon = GetSpellInfo(t[1])
+
+        local name, icon = F:GetSpellInfo(t[1])
         cleuAuraButtons[i].spellIdText:SetText(t[1])
         cleuAuraButtons[i].spellNameText:SetText(name or L["Invalid"])
         cleuAuraButtons[i].durationText:SetText(t[2])
@@ -4057,12 +4483,12 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
         cleuAuraButtons[i]:HookScript("OnEnter", function(self)
             if parent.inputs:IsShown() then return end
 
-            local name = GetSpellInfo(self.spellId)
+            local name = F:GetSpellInfo(self.spellId)
             if not name then
                 CellSpellTooltip:Hide()
                 return
             end
-            
+
             CellSpellTooltip:SetOwner(cleuAuraButtons[i], "ANCHOR_NONE")
             CellSpellTooltip:SetPoint("TOPRIGHT", cleuAuraButtons[i], "TOPLEFT", -1, 0)
             CellSpellTooltip:SetSpellByID(self.spellId)
@@ -4072,7 +4498,7 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
             if parent.inputs:IsShown() then return end
             CellSpellTooltip:Hide()
         end)
-        
+
         -- points
         cleuAuraButtons[i]:ClearAllPoints()
         if i == 1 then -- first
@@ -4094,7 +4520,7 @@ local function CreateCleuAuraButtons(parent, auraTable, updateHeightFunc)
             parent.inputs.okBtn:SetScript("OnClick", function()
                 local spellId = tonumber(parent.inputs.spellEB:GetText())
                 local duration = tonumber(parent.inputs.durationEB:GetText())
-                local spellName, _, spellIcon = GetSpellInfo(spellId)
+                local spellName, spellIcon = F:GetSpellInfo(spellId)
                 -- update text
                 cleuAuraButtons[i].spellIdText:SetText(spellId)
                 cleuAuraButtons[i].spellNameText:SetText(spellName)
@@ -4184,6 +4610,7 @@ local function UpdateSpellButton(btn, class, isDisabled)
     if isDisabled then
         btn:SetBackdropColor(0.6, 0.6, 0.6, 0.85)
         btn.icon:SetDesaturated(true)
+        btn:SetAlpha(0.5)
     else
         if class == "UNCATEGORIZED" then
             btn:SetBackdropColor(0.75, 0.75, 0.75, 0.85)
@@ -4192,6 +4619,7 @@ local function UpdateSpellButton(btn, class, isDisabled)
             btn:SetBackdropColor(r, g, b, 0.85)
         end
         btn.icon:SetDesaturated(false)
+        btn:SetAlpha(1)
     end
 end
 
@@ -4202,16 +4630,16 @@ local function CreateSpellButtons(parent, class, spells, disableds)
             spellButtons[buttonIndex] = CreateFrame("Button", "CellIndicatorSettings_BuiltIns_SpellButton"..buttonIndex, parent:GetParent(), "BackdropTemplate")
             spellButtons[buttonIndex]:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
             P:Size(spellButtons[buttonIndex], 20, 20)
-            
+
             spellButtons[buttonIndex].icon = spellButtons[buttonIndex]:CreateTexture(nil, "ARTWORK")
             spellButtons[buttonIndex].icon:SetTexCoord(0.12, 0.88, 0.12, 0.88)
             P:Point(spellButtons[buttonIndex].icon, "TOPLEFT", 2, -2)
             P:Point(spellButtons[buttonIndex].icon, "BOTTOMRIGHT", -2, 2)
         end
-        
+
         spellButtons[buttonIndex]:SetParent(parent)
         spellButtons[buttonIndex]:Show()
-        
+
         -- tooltips
         spellButtons[buttonIndex]:SetScript("OnEnter", function(self)
             CellSpellTooltip:SetOwner(self, "ANCHOR_NONE")
@@ -4238,12 +4666,12 @@ local function CreateSpellButtons(parent, class, spells, disableds)
             -- 深寒凝冰 覆盖了 寒冰屏障
             spellButtons[buttonIndex].icon:SetTexture(135841)
         else
-            local icon = select(3, GetSpellInfo(spellId))
+            local icon = select(2, F:GetSpellInfo(spellId))
             spellButtons[buttonIndex].icon:SetTexture(icon)
         end
-        
+
         UpdateSpellButton(spellButtons[buttonIndex], class, disableds[spellId])
-        
+
         spellButtons[buttonIndex]:ClearAllPoints()
         if n == 1 then
             spellButtons[buttonIndex]:SetPoint("TOPLEFT", 5, -20)
@@ -4252,7 +4680,7 @@ local function CreateSpellButtons(parent, class, spells, disableds)
         else
             spellButtons[buttonIndex]:SetPoint("TOPLEFT", spellButtons[buttonIndex-1], "TOPRIGHT", 5, 0)
         end
-        
+
         n = n + 1
         buttonIndex = buttonIndex + 1
     end
@@ -4264,7 +4692,7 @@ end
 local function CreateClassFrames(parent, builtIns, disableds)
     local height = 0
     local last
-    
+
     for _, class in pairs(classOrder) do
         if not classFrames[class] then
             classFrames[class] = addon:CreateFrame("CellIndicatorSettings_BuiltIns_"..class, parent, nil, nil, true)
@@ -4273,7 +4701,7 @@ local function CreateClassFrames(parent, builtIns, disableds)
         end
 
         local f = classFrames[class]
-        
+
         if builtIns[class] then
             -- set position
             f:Show()
@@ -4292,7 +4720,7 @@ local function CreateClassFrames(parent, builtIns, disableds)
             else
                 f.text:SetText(F:GetClassColorStr(class)..F:GetLocalizedClassName(class))
             end
-            
+
             -- create buttons
             local buttonHeight = CreateSpellButtons(f, class, builtIns[class], disableds)
 
@@ -4351,7 +4779,7 @@ local function CreateSetting_BuiltIns(parent)
 end
 
 local function CreateConsumablePreview(parent, style)
-    local f = CreateFrame("Frame", "CellIndicatorSettings_ConsumablesPreview_Type"..style, parent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "CellIndicatorSettings_ActionsPreview_Type"..style, parent, "BackdropTemplate")
     f:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
     f:SetBackdropColor(0.2, 0.2, 0.2, 1)
     f:SetBackdropBorderColor(0, 0, 0, 1)
@@ -4359,17 +4787,17 @@ local function CreateConsumablePreview(parent, style)
     local text = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_WIDGET")
     text:SetPoint("CENTER")
     text:SetText("Type "..style)
-    
-    I.CreateConsumables(f, true)
+
+    I.CreateActions(f, true)
 
     function f:UpdateTicker(speed)
         f:SetScript("OnShow", function()
-            f.consumables:Display(style, {1, 1, 1})
+            f.actions:Display(style, {1, 1, 1})
             f.ticker = C_Timer.NewTicker(2/speed, function()
-                f.consumables:Display(style, {1, 1, 1})
+                f.actions:Display(style, {1, 1, 1})
             end)
         end)
-    
+
         f:SetScript("OnHide", function()
             if f.ticker then
                 f.ticker:Cancel()
@@ -4381,17 +4809,17 @@ local function CreateConsumablePreview(parent, style)
     return f
 end
 
-local function CreateSetting_ConsumablesPreview(parent)
+local function CreateSetting_ActionsPreview(parent)
     local widget
 
-    if not settingWidgets["consumablesPreview"] then
-        widget = addon:CreateFrame("CellIndicatorSettings_ConsumablesPreview", parent, 240, 220)
-        settingWidgets["consumablesPreview"] = widget
+    if not settingWidgets["actionsPreview"] then
+        widget = addon:CreateFrame("CellIndicatorSettings_ActionsPreview", parent, 240, 220)
+        settingWidgets["actionsPreview"] = widget
 
         local typeA = CreateConsumablePreview(widget, "A")
         typeA:SetSize(70, 50)
         typeA:SetPoint("TOPLEFT", 5, -5)
-        
+
         local typeB = CreateConsumablePreview(widget, "B")
         typeB:SetSize(70, 50)
         typeB:SetPoint("TOPLEFT", typeA, "TOPRIGHT", 5, 0)
@@ -4399,19 +4827,19 @@ local function CreateSetting_ConsumablesPreview(parent)
         local typeD = CreateConsumablePreview(widget, "D")
         typeD:SetSize(70, 50)
         typeD:SetPoint("TOPLEFT", typeB, "TOPRIGHT", 5, 0)
-        
+
         local typeC1 = CreateConsumablePreview(widget, "C1")
         typeC1:SetSize(70, 50)
         typeC1:SetPoint("TOPLEFT", typeA, "BOTTOMLEFT", 0, -5)
-        
+
         local typeC2 = CreateConsumablePreview(widget, "C2")
         typeC2:SetSize(70, 50)
         typeC2:SetPoint("TOPLEFT", typeC1, "TOPRIGHT", 5, 0)
-        
+
         local typeC3 = CreateConsumablePreview(widget, "C3")
         typeC3:SetSize(70, 50)
         typeC3:SetPoint("TOPLEFT", typeC2, "TOPRIGHT", 5, 0)
-        
+
         local typeE = CreateConsumablePreview(widget, "E")
         typeE:SetSize(70, 50)
         typeE:SetPoint("TOPLEFT", typeC1, "BOTTOMLEFT", 0, -5)
@@ -4425,7 +4853,7 @@ local function CreateSetting_ConsumablesPreview(parent)
             D = typeD,
             E = typeE,
         }
-       
+
         local speedSlider = addon:CreateSlider(_G.SPEED, widget, 0.5, 1.5, 145, 0.01)
         speedSlider:SetPoint("TOPLEFT", typeE, "BOTTOMLEFT", 0, -25)
         speedSlider.afterValueChangedFn = function(value)
@@ -4433,7 +4861,7 @@ local function CreateSetting_ConsumablesPreview(parent)
 
             for _, f in pairs(previews) do
                 f:UpdateTicker(value)
-                f.consumables:SetSpeed(value)
+                f.actions:SetSpeed(value)
                 f:Hide()
                 f:Show()
             end
@@ -4444,7 +4872,7 @@ local function CreateSetting_ConsumablesPreview(parent)
 
             for _, f in pairs(previews) do
                 f:UpdateTicker(speed)
-                f.consumables:SetSpeed(speed)
+                f.actions:SetSpeed(speed)
                 f:Hide()
                 f:Show()
             end
@@ -4454,7 +4882,7 @@ local function CreateSetting_ConsumablesPreview(parent)
             widget.func = func
         end
     else
-        widget = settingWidgets["consumablesPreview"]
+        widget = settingWidgets["actionsPreview"]
     end
 
     widget:Show()
@@ -4477,18 +4905,18 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
                 return
             end
 
-            local name = GetSpellInfo(spellId)
+            local name = F:GetSpellInfo(spellId)
             if not name then
                 CellSpellTooltip:Hide()
                 return
             end
-            
+
             CellSpellTooltip:SetOwner(popup, "ANCHOR_NONE")
             CellSpellTooltip:SetPoint("TOPLEFT", popup, "BOTTOMLEFT", 0, -1)
             CellSpellTooltip:SetSpellByID(spellId)
             CellSpellTooltip:Show()
         end)
-        
+
         popup:HookScript("OnHide", function()
             CellSpellTooltip:Hide()
         end)
@@ -4501,11 +4929,11 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
         consumableButtons[0]:SetPoint("BOTTOMLEFT")
         consumableButtons[0]:SetPoint("RIGHT")
     end
-    
+
     consumableButtons[0]:SetScript("OnClick", function(self)
         local popup = addon:CreatePopupEditBox(parent, function(text)
             local spellId = tonumber(text)
-            local spellName = GetSpellInfo(spellId)
+            local spellName = F:GetSpellInfo(spellId)
             if spellId and spellName then
                 -- update db
                 tinsert(spellTable, {
@@ -4550,7 +4978,7 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
             consumableButtons[i].spellIdText:SetPoint("RIGHT", consumableButtons[i], "LEFT", 80, 0)
             consumableButtons[i].spellIdText:SetWordWrap(false)
             consumableButtons[i].spellIdText:SetJustifyH("LEFT")
-            
+
             -- spellName text
             consumableButtons[i].spellNameText = consumableButtons[i]:CreateFontString(nil, "OVERLAY", font_name)
             consumableButtons[i].spellNameText:SetPoint("LEFT", consumableButtons[i].spellIdText, "RIGHT", 5, 0)
@@ -4574,7 +5002,7 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
                 tinsert(items, {
                     ["text"] = style,
                     ["onClick"] = function()
-                        CellIndicatorsPreviewButton.indicators.consumables:Display(style, consumableButtons[i].animationColor)
+                        CellIndicatorsPreviewButton.indicators.actions:Display(style, consumableButtons[i].animationColor)
                         consumableButtons[i].animationType = style
                         -- update db
                         spellTable[i][2][1] = style
@@ -4591,7 +5019,7 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
                 spellTable[i][2][2][3] = b
                 parent.func(spellTable)
                 consumableButtons[i].animationColor = {r, g, b}
-                CellIndicatorsPreviewButton.indicators.consumables:Display(consumableButtons[i].animationType, consumableButtons[i].animationColor)
+                CellIndicatorsPreviewButton.indicators.actions:Display(consumableButtons[i].animationType, consumableButtons[i].animationColor)
             end)
             consumableButtons[i].colorPicker:SetPoint("TOPLEFT", consumableButtons[i].styleDropdown, "TOPRIGHT", 2, -1)
             consumableButtons[i].colorPicker:HookScript("OnEnter", function()
@@ -4614,7 +5042,7 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
                 consumableButtons[i]:GetScript("OnLeave")(consumableButtons[i])
                 consumableButtons[i].del.tex:SetVertexColor(0.6, 0.6, 0.6, 1)
             end)
-            
+
             -- edit
             consumableButtons[i].edit = addon:CreateButton(consumableButtons[i], "", "none", {18, 20}, true, true)
             consumableButtons[i].edit:SetPoint("RIGHT", consumableButtons[i].del, "LEFT", 1, 0)
@@ -4631,12 +5059,12 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
 
             -- preview
             consumableButtons[i]:SetScript("OnClick", function(self, button)
-                CellIndicatorsPreviewButton.indicators.consumables:Display(consumableButtons[i].animationType, consumableButtons[i].animationColor)
+                CellIndicatorsPreviewButton.indicators.actions:Display(consumableButtons[i].animationType, consumableButtons[i].animationColor)
             end)
         end
-        
+
         -- fill data
-        local name, _, icon = GetSpellInfo(spell[1])
+        local name, icon = F:GetSpellInfo(spell[1])
         consumableButtons[i].spellIdText:SetText(spell[1])
         consumableButtons[i].spellId = spell[1]
         consumableButtons[i].spellNameText:SetText(name or L["Invalid"])
@@ -4657,12 +5085,12 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
         -- spell tooltip
         consumableButtons[i]:HookScript("OnEnter", function(self)
             if not parent.popupEditBox:IsShown() then
-                local name = GetSpellInfo(self.spellId)
+                local name = F:GetSpellInfo(self.spellId)
                 if not name then
                     CellSpellTooltip:Hide()
                     return
                 end
-                
+
                 CellSpellTooltip:SetOwner(consumableButtons[i], "ANCHOR_NONE")
                 CellSpellTooltip:SetPoint("TOPRIGHT", consumableButtons[i], "TOPLEFT", -1, 0)
                 CellSpellTooltip:SetSpellByID(self.spellId)
@@ -4674,7 +5102,7 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
                 CellSpellTooltip:Hide()
             end
         end)
-        
+
         -- points
         consumableButtons[i]:ClearAllPoints()
         if i == 1 then -- first
@@ -4689,7 +5117,7 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
         consumableButtons[i].edit:SetScript("OnClick", function()
             local popup = addon:CreatePopupEditBox(parent, function(text)
                 local spellId = tonumber(text)
-                local spellName, _, spellIcon = GetSpellInfo(spellId)
+                local spellName, spellIcon = F:GetSpellInfo(spellId)
                 if spellId and spellName then
                     -- update text
                     consumableButtons[i].spellIdText:SetText(spellId)
@@ -4730,12 +5158,12 @@ local function CreateConsumableButtons(parent, spellTable, updateHeightFunc)
     end
 end
 
-local function CreateSetting_ConsumablesList(parent)
+local function CreateSetting_ActionsList(parent)
     local widget
 
-    if not settingWidgets["consumablesList"] then
-        widget = addon:CreateFrame("CellIndicatorSettings_ConsumablesList", parent, 240, 128)
-        settingWidgets["consumablesList"] = widget
+    if not settingWidgets["actionsList"] then
+        widget = addon:CreateFrame("CellIndicatorSettings_ActionsList", parent, 240, 128)
+        settingWidgets["actionsList"] = widget
 
         widget.text = widget:CreateFontString(nil, "OVERLAY", font_name)
         widget.text:SetPoint("TOPLEFT", 7, -7)
@@ -4752,7 +5180,7 @@ local function CreateSetting_ConsumablesList(parent)
                 self.enabled = true
                 LCG.PixelGlow_Start(widget.debug, {0,1,0,1}, 9, 0.25, 8, 1)
             end
-            Cell.vars.consumablesDebugModeEnabled = self.enabled
+            Cell.vars.actionsDebugModeEnabled = self.enabled
         end)
 
         widget.frame = addon:CreateFrame(nil, widget, 20, 20)
@@ -4777,7 +5205,7 @@ local function CreateSetting_ConsumablesList(parent)
             widget:SetHeight((#t+1)*19+1 + 27 + 5)
         end
     else
-        widget = settingWidgets["consumablesList"]
+        widget = settingWidgets["actionsList"]
     end
 
     widget:Show()
@@ -4795,7 +5223,7 @@ local function CreateThresholdButtons(parent, thresholdTable, updateHeightFunc)
         thresholdButtons[0]:SetPoint("BOTTOMLEFT")
         thresholdButtons[0]:SetPoint("RIGHT")
     end
-    
+
     thresholdButtons[0]:SetScript("OnClick", function(self)
         tinsert(thresholdTable, {0.99, {1, 0, 0, 1}})
         parent.func(thresholdTable)
@@ -4819,7 +5247,7 @@ local function CreateThresholdButtons(parent, thresholdTable, updateHeightFunc)
             thresholdButtons[i].eb:HookScript("OnLeave", function()
                 thresholdButtons[i]:GetScript("OnLeave")(thresholdButtons[i])
             end)
-            
+
             thresholdButtons[i].confirmBtn = addon:CreateButton(thresholdButtons[i], "OK", "accent", {27, 16})
             thresholdButtons[i].confirmBtn:SetPoint("TOPLEFT", thresholdButtons[i].eb, "TOPRIGHT", P:Scale(-1), 0)
             thresholdButtons[i].confirmBtn:Hide()
@@ -4887,7 +5315,7 @@ local function CreateThresholdButtons(parent, thresholdTable, updateHeightFunc)
                 thresholdButtons[i].del.tex:SetVertexColor(0.6, 0.6, 0.6, 1)
             end)
         end
-        
+
         -- fill data
         thresholdButtons[i].eb:SetText(t[1]*100)
         thresholdButtons[i].colorPicker:SetColor(t[2])
@@ -5003,6 +5431,13 @@ local function CreateSetting_HighlightType(parent)
                     widget.func("current")
                 end,
             },
+            {
+                ["text"] = L["Solid"].." - "..L["Health Bar"].." ("..L["Current"].."+)",
+                ["value"] = "current+",
+                ["onClick"] = function()
+                    widget.func("current+")
+                end,
+            },
         })
 
         widget.highlightTypeText = widget:CreateFontString(nil, "OVERLAY", font_name)
@@ -5055,7 +5490,7 @@ local function CreateSetting_HighlightType(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(highlightType)
             widget.highlightType:SetSelectedValue(highlightType)
@@ -5221,7 +5656,7 @@ local function CreateSetting_Shape(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(shape)
             -- widget.shape:SetSelectedValue(shape)
@@ -5267,7 +5702,7 @@ local function CreateSetting_MissingBuffsFilters(parent)
                 widget.filters.buffByMe = checked
                 func()
             end
-            
+
             for k, cb in pairs(indexToCB) do
                 cb.onClick = function(checked)
                     widget.filters[k] = checked
@@ -5339,6 +5774,77 @@ local function CreateSetting_TargetCounterFilters(parent)
     return widget
 end
 
+local function CreateSetting_DispelFilters(parent)
+    local widget
+
+    if not settingWidgets["dispelFilters"] then
+        widget = addon:CreateFrame("CellIndicatorSettings_DispelFilters", parent, 240, 96)
+        settingWidgets["dispelFilters"] = widget
+
+        widget.dispellableByMe = addon:CreateCheckButton(widget, L["dispellableByMe"])
+        widget.dispellableByMe:SetPoint("TOPLEFT", 5, -8)
+
+        widget.curse = addon:CreateCheckButton(widget, "|TInterface\\AddOns\\Cell\\Media\\Debuffs\\Curse:0|t"..L["Curse"])
+        widget.curse:SetPoint("TOPLEFT", widget.dispellableByMe, "BOTTOMLEFT", 0, -8)
+
+        widget.disease = addon:CreateCheckButton(widget, "|TInterface\\AddOns\\Cell\\Media\\Debuffs\\Disease:0|t"..L["Disease"])
+        widget.disease:SetPoint("TOPLEFT", widget.curse, 135, 0)
+
+        widget.magic = addon:CreateCheckButton(widget, "|TInterface\\AddOns\\Cell\\Media\\Debuffs\\Magic:0|t"..L["Magic"])
+        widget.magic:SetPoint("TOPLEFT", widget.curse, "BOTTOMLEFT", 0, -8)
+
+        widget.poison = addon:CreateCheckButton(widget, "|TInterface\\AddOns\\Cell\\Media\\Debuffs\\Poison:0|t"..L["Poison"])
+        widget.poison:SetPoint("TOPLEFT", widget.magic, 135, 0)
+
+        widget.bleed = addon:CreateCheckButton(widget, "|TInterface\\AddOns\\Cell\\Media\\Debuffs\\Bleed:0|t"..L["Bleed"])
+        widget.bleed:SetPoint("TOPLEFT", widget.magic, "BOTTOMLEFT", 0, -8)
+
+        -- callback
+        function widget:SetFunc(func)
+            widget.dispellableByMe.onClick = function(checked)
+                widget.filters.dispellableByMe = checked
+                func()
+            end
+            widget.curse.onClick = function(checked)
+                widget.filters.Curse = checked
+                func()
+            end
+            widget.disease.onClick = function(checked)
+                widget.filters.Disease = checked
+                func()
+            end
+            widget.magic.onClick = function(checked)
+                widget.filters.Magic = checked
+                func()
+            end
+            widget.poison.onClick = function(checked)
+                widget.filters.Poison = checked
+                func()
+            end
+            widget.bleed.onClick = function(checked)
+                widget.filters.Bleed = checked
+                func()
+            end
+        end
+
+        -- show db value
+        function widget:SetDBValue(filters)
+            widget.filters = filters
+            widget.dispellableByMe:SetChecked(filters.dispellableByMe)
+            widget.curse:SetChecked(filters.Curse)
+            widget.disease:SetChecked(filters.Disease)
+            widget.magic:SetChecked(filters.Magic)
+            widget.poison:SetChecked(filters.Poison)
+            widget.bleed:SetChecked(filters.Bleed)
+        end
+    else
+        widget = settingWidgets["dispelFilters"]
+    end
+
+    widget:Show()
+    return widget
+end
+
 local function CreateSetting_CastBy(parent)
     local widget
 
@@ -5380,7 +5886,7 @@ local function CreateSetting_CastBy(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(castBy)
             widget.castBy:SetSelectedValue(castBy)
@@ -5448,7 +5954,7 @@ local function CreateSetting_ShowOn(parent)
         function widget:SetFunc(func)
             widget.func = func
         end
-        
+
         -- show db value
         function widget:SetDBValue(showOn)
             widget.showOn:SetSelectedValue(showOn)
@@ -5479,6 +5985,59 @@ end
 -----------------------------------------
 -- create
 -----------------------------------------
+local builders = {
+    ["enabled"] = CreateSetting_Enabled,
+    ["vehicleNamePosition"] = CreateSetting_VehicleNamePosition,
+    ["statusPosition"] = CreateSetting_StatusPosition,
+    ["shieldBarPosition"] = CreateSetting_ShieldBarPosition,
+    ["anchor"] = CreateSetting_Anchor,
+    ["size"] = CreateSetting_Size,
+    ["size-normal-big"] = CreateSetting_SizeNormalBig,
+    ["size-square"] = CreateSetting_SizeSquare,
+    ["size-bar"] = CreateSetting_SizeBar,
+    ["size-border"] = CreateSetting_SizeAndBorder,
+    ["spacing"] = CreateSetting_Spacing,
+    ["thickness"] = CreateSetting_Thickness,
+    ["height"] = CreateSetting_Height,
+    ["textWidth"] = CreateSetting_TextWidth,
+    ["alpha"] = CreateSetting_Alpha,
+    ["healthFormat"] = CreateSetting_HealthFormat,
+    ["powerFormat"] = CreateSetting_PowerFormat,
+    ["durationVisibility"] = CreateSetting_DurationVisibility,
+    ["orientation"] = CreateSetting_Orientation,
+    ["barOrientation"] = CreateSetting_BarOrientation,
+    ["font-noOffset"] = CreateSetting_FontNoOffset,
+    ["color"] = CreateSetting_Color,
+    ["color-alpha"] = CreateSetting_ColorAlpha,
+    ["colors"] = CreateSetting_Colors,
+    ["blockColors"] = CreateSetting_BlockColors,
+    ["overlayColors"] = CreateSetting_OverlayColors,
+    ["customColors"] = CreateSetting_CustomColors,
+    ["color-class"] = CreateSetting_ClassColor,
+    ["color-power"] = CreateSetting_PowerColor,
+    ["statusColors"] = CreateSetting_StatusColors,
+    ["duration"] = CreateSetting_Duration,
+    ["roleTexture"] = CreateSetting_RoleTexture,
+    ["glow"] = CreateSetting_Glow,
+    ["glowOptions"] = CreateSetting_Glow,
+    ["targetedSpellsGlow"] = CreateSetting_Glow,
+    ["texture"] = CreateSetting_Texture,
+    ["builtInDefensives"] = CreateSetting_BuiltIns,
+    ["builtInExternals"] = CreateSetting_BuiltIns,
+    ["builtInCrowdControls"] = CreateSetting_BuiltIns,
+    ["actionsPreview"] = CreateSetting_ActionsPreview,
+    ["actionsList"] = CreateSetting_ActionsList,
+    ["highlightType"] = CreateSetting_HighlightType,
+    ["thresholds"] = CreateSetting_Thresholds,
+    ["privateAuraOptions"] = CreateSetting_PrivateAuraOptions,
+    ["shape"] = CreateSetting_Shape,
+    ["missingBuffsFilters"] = CreateSetting_MissingBuffsFilters,
+    ["targetCounterFilters"] = CreateSetting_TargetCounterFilters,
+    ["dispelFilters"] = CreateSetting_DispelFilters,
+    ["castBy"] = CreateSetting_CastBy,
+    ["showOn"] = CreateSetting_ShowOn,
+}
+
 function addon:CreateIndicatorSettings(parent, settingsTable)
     settingsParent = parent
 
@@ -5492,124 +6051,40 @@ function addon:CreateIndicatorSettings(parent, settingsTable)
 
     -- return and show
     for _, setting in pairs(settingsTable) do
-        if setting == "enabled" then
-            tinsert(widgetsTable, CreateSetting_Enabled(parent))
+        if builders[setting] then
+            tinsert(widgetsTable, builders[setting](parent))
         elseif setting == "position" then
             tinsert(widgetsTable, CreateSetting_Position(parent, L["To UnitButton's"]))
         elseif setting == "position-noHCenter" then
             tinsert(widgetsTable, CreateSetting_PositionNoHCenter(parent, L["To UnitButton's"]))
         elseif setting == "namePosition" then
             tinsert(widgetsTable, CreateSetting_Position(parent, L["To HealthBar's"]))
-        elseif setting == "vehicleNamePosition" then
-            tinsert(widgetsTable, CreateSetting_VehicleNamePosition(parent))
-        elseif setting == "statusPosition" then
-            tinsert(widgetsTable, CreateSetting_StatusPosition(parent))
-        elseif setting == "shieldBarPosition" then
-            tinsert(widgetsTable, CreateSetting_ShieldBarPosition(parent))
-        elseif setting == "anchor" then
-            tinsert(widgetsTable, CreateSetting_Anchor(parent))
-        elseif setting == "frameLevel" then
+        elseif strfind(setting, "^frameLevel") then
             tinsert(widgetsTable, CreateSetting_FrameLevel(parent))
-        elseif setting == "size" then
-            tinsert(widgetsTable, CreateSetting_Size(parent))
-        elseif setting == "size-normal-big" then
-            tinsert(widgetsTable, CreateSetting_SizeNormalBig(parent))
-        elseif setting == "size-square" then
-            tinsert(widgetsTable, CreateSetting_SizeSquare(parent))
-        elseif setting == "size-bar" then
-            tinsert(widgetsTable, CreateSetting_SizeBar(parent))
-        elseif setting == "size-border" then
-            tinsert(widgetsTable, CreateSetting_SizeAndBorder(parent))
-        elseif setting == "thickness" then
-            tinsert(widgetsTable, CreateSetting_Thickness(parent))
-        elseif setting == "height" then
-            tinsert(widgetsTable, CreateSetting_Height(parent))
-        elseif setting == "textWidth" then
-            tinsert(widgetsTable, CreateSetting_TextWidth(parent))
-        elseif setting == "alpha" then
-            tinsert(widgetsTable, CreateSetting_Alpha(parent))
         elseif string.find(setting, "^num:") then
             tinsert(widgetsTable, CreateSetting_Num(parent))
         elseif string.find(setting, "^numPerLine:") then
             tinsert(widgetsTable, CreateSetting_NumPerLine(parent))
-        elseif setting == "healthFormat" then
-            tinsert(widgetsTable, CreateSetting_HealthFormat(parent))
-        elseif setting == "powerFormat" then
-            tinsert(widgetsTable, CreateSetting_PowerFormat(parent))
-        elseif setting == "durationVisibility" then
-            tinsert(widgetsTable, CreateSetting_DurationVisibility(parent))
-        elseif setting == "orientation" then
-            tinsert(widgetsTable, CreateSetting_Orientation(parent))
-        elseif setting == "barOrientation" then
-            tinsert(widgetsTable, CreateSetting_BarOrientation(parent))
-        elseif setting == "font-noOffset" then
-            tinsert(widgetsTable, CreateSetting_FontNoOffset(parent))
         elseif string.find(setting, "^font") then
             tinsert(widgetsTable, CreateSetting_Font(parent, string.match(setting, "^(font%d?):?.*$")))
-        elseif setting == "color" then
-            tinsert(widgetsTable, CreateSetting_Color(parent))
-        elseif setting == "color-alpha" then
-            tinsert(widgetsTable, CreateSetting_ColorAlpha(parent))
-        elseif setting == "colors" then
-            tinsert(widgetsTable, CreateSetting_Colors(parent))
-        elseif setting == "overlayColors" then
-            tinsert(widgetsTable, CreateSetting_OverlayColors(parent))
-        elseif setting == "customColors" then
-            tinsert(widgetsTable, CreateSetting_CustomColors(parent))
-        elseif setting == "color-class" then
-            tinsert(widgetsTable, CreateSetting_ClassColor(parent))
-        elseif setting == "color-power" then
-            tinsert(widgetsTable, CreateSetting_PowerColor(parent))
-        elseif setting == "statusColors" then
-            tinsert(widgetsTable, CreateSetting_StatusColors(parent))
-        elseif string.find(setting, "checkbutton4") then
+        elseif string.find(setting, "^checkbutton4") then
             tinsert(widgetsTable, CreateSetting_CheckButton4(parent))
-        elseif string.find(setting, "checkbutton3") then
+        elseif string.find(setting, "^checkbutton3") then
             tinsert(widgetsTable, CreateSetting_CheckButton3(parent))
-        elseif string.find(setting, "checkbutton2") then
+        elseif string.find(setting, "^checkbutton2") then
             tinsert(widgetsTable, CreateSetting_CheckButton2(parent))
-        elseif string.find(setting, "checkbutton") then
+        elseif string.find(setting, "^checkbutton") then
             tinsert(widgetsTable, CreateSetting_CheckButton(parent))
-        elseif setting == "duration" then
-            tinsert(widgetsTable, CreateSetting_Duration(parent))
-        elseif setting == "roleTexture" then
-            tinsert(widgetsTable, CreateSetting_RoleTexture(parent))
-        elseif setting == "glow" or setting == "glowOptions" or setting == "targetedSpellsGlow" then
-            tinsert(widgetsTable, CreateSetting_Glow(parent))
-        elseif setting == "texture" then
-            tinsert(widgetsTable, CreateSetting_Texture(parent))
         elseif setting == "auras" or setting == "debuffBlacklist" or setting == "dispelBlacklist" or setting == "targetedSpellsList" or setting == "customDefensives" or setting == "customExternals" or setting == "customCrowdControls" then
             tinsert(widgetsTable, CreateSetting_Auras(parent, 1))
         elseif setting == "auras2" or setting == "bigDebuffs" then
             tinsert(widgetsTable, CreateSetting_Auras(parent, 2))
         -- elseif setting == "cleuAuras" then
         --     tinsert(widgetsTable, CreateSetting_CleuAuras(parent))
-        elseif setting == "builtInDefensives" or setting == "builtInExternals" or setting == "builtInCrowdControls" then
-            tinsert(widgetsTable, CreateSetting_BuiltIns(parent))
-        elseif setting == "consumablesPreview" then
-            tinsert(widgetsTable, CreateSetting_ConsumablesPreview(parent))
-        elseif setting == "consumablesList" then
-            tinsert(widgetsTable, CreateSetting_ConsumablesList(parent))
-        elseif setting == "highlightType" then
-            tinsert(widgetsTable, CreateSetting_HighlightType(parent))
-        elseif setting == "thresholds" then
-            tinsert(widgetsTable, CreateSetting_Thresholds(parent))
-        elseif setting == "privateAuraOptions" then
-            tinsert(widgetsTable, CreateSetting_PrivateAuraOptions(parent))
-        elseif setting == "shape" then
-            tinsert(widgetsTable, CreateSetting_Shape(parent))
-        elseif setting == "missingBuffsFilters" then
-            tinsert(widgetsTable, CreateSetting_MissingBuffsFilters(parent))
-        elseif setting == "targetCounterFilters" then
-            tinsert(widgetsTable, CreateSetting_TargetCounterFilters(parent))
-        elseif setting == "castBy" then
-            tinsert(widgetsTable, CreateSetting_CastBy(parent))
-        elseif setting == "showOn" then
-            tinsert(widgetsTable, CreateSetting_ShowOn(parent))
         else -- tips
             tinsert(widgetsTable, CreateSetting_Tips(parent, setting))
         end
     end
-    
+
     return widgetsTable
 end

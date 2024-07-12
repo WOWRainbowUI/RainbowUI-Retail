@@ -1,9 +1,9 @@
 local addonName, ns = ...
 
 -------------------------------------------------
--- patrons (order by date)
+-- supporters (order by date)
 -------------------------------------------------
-local patrons1 = { -- wowIDs
+local supporters1 = { -- wowIDs
     -- {"wowID1", "wowID2"...}
     {"小兔姬-影之哀伤 (CN)", "渺渺-影之哀伤 (CN)"}, -- 呆小七 (爱发电)
     {"夏木沐-伊森利恩 (CN)"}, -- 夏木沐 (爱发电)
@@ -15,7 +15,7 @@ local patrons1 = { -- wowIDs
     {"Sjerry-死亡之翼 (CN)"}, -- 爱发电用户_7957f
     {"貼饼子-匕首岭 (CN)"},
     {"心耀-冰风岗 (CN)"}, -- warbaby (爱不易)
-    {"秋末旷夜-凤凰之神 (CN)"}, -- 
+    {"秋末旷夜-凤凰之神 (CN)"}, --
     {"曾經活過-憤怒使者 (TW)"}, -- ZzZ (爱发电)
     {"音速豆奶-白银之手 (CN)"}, -- 爱发电用户_83f12
     {"Hardpp-Illidan (US)", "六月的奶德-艾露恩 (CN)"}, -- 爱发电用户_15402
@@ -33,13 +33,25 @@ local patrons1 = { -- wowIDs
     {"Synthatt-Illidan (US)"}, -- Synthatt (Ko-fi)
     {"Holystora-Antonidas (EU)"}, -- devo (Ko-fi)
     {"Tithaya-Kel'Thuzad (US)"}, -- tithaya (Ko-fi)
-    {"Everessian-Ravencrest (EU)"}, -- Martin van Vuuren (Ko-fi)
+    {
+        "Everessian-Ravencrest (EU)",
+        "Thornar-Ravencrest (EU)",
+        "Shylanelle-Ravencrest (EU)",
+        "Alenlin-Ravencrest (EU)",
+        "Kulresh-Ravencrest (EU)",
+        "Kyrkhoc-TarrenMill (EU)",
+    }, -- Martin van Vuuren (Ko-fi)
     {"Shendreakah-Zul'jin (US)"}, -- Shendreakah - Zul-jin (Ko-fi)
     {"Palymoo-Twistingnether (EU)"}, -- Palymoo-Twistingnether (EU) (Ko-fi)
-    {"Skywarden-Terokkar (EU)"}, -- Serghei Iakovlev (Ko-fi)
+    {"Skywarden-Sylvanas (EU)"}, -- Serghei Iakovlev (Ko-fi)
+    {"Fourdigitiq-Blackrock (EU)"}, -- Rou (Ko-fi)
+    {"Leako-Draenor (EU)"}, -- Leako (Ko-fi)
+    {"Asuranpala-Draenor (EU)"}, -- AsuranDex (Ko-fi)
+    {"Poolparty-Khaz'goroth (US)"}, -- Poolparty (Ko-fi)
+    {"Tenspiritak-Drakthul (EU)"}, -- Tenspiritak (Ko-fi)
 }
 
-local patrons2 = { -- 有些早期的发电记录已经丢失了……
+local supporters2 = { -- 有些早期的发电记录已经丢失了……
     {"钛锬", "NGA"}, -- 2021-11-15
     {"呆小七", "爱发电"}, -- 2021-11-15
     {"黑色之城", "NGA"}, -- 2022-03-16
@@ -101,28 +113,34 @@ local patrons2 = { -- 有些早期的发电记录已经丢失了……
     {"Palymoo", "Ko-fi"}, -- 2024-05-12
     {"Winkupo", "Ko-fi"}, -- 2024-05-14
     {"Serghei Iakovlev", "Ko-fi"}, -- 2024-05-15
+    {"Rou", "Ko-fi"}, -- 2024-05-23
+    {"Leako", "Ko-fi"}, -- 2024-05-30
+    {"lfence", "Ko-fi"}, -- 2024-06-03
+    {"AsuranDex", "Ko-fi"}, -- 2024-06-24
+    {"Likle", "Ko-fi"}, -- 2024-07-03
+    {"Poolparty", "Ko-fi"}, -- 2024-07-07
+    {"Tenspiritak", "Ko-fi"}, -- 2024-07-07
 }
 
 -------------------------------------------------
--- patrons (wow IDs)
+-- supporters (wow IDs)
 -------------------------------------------------
 local tests = {
     ["Komugi-Fyrakk"] = true,
-    ["Celldev-Lycanthoth"] = true,
+    ["Rutha-Lycanthoth"] = true,
     ["Programming-BurningLegion"] = true,
-    ["Programming-Lycanthoth"] = true,
     ["Programming-影之哀伤"] = true,
     ["篠崎-影之哀伤"] = true,
     ["蜜柑-影之哀伤"] = true,
 }
 
-local wowPatrons = {}
+local wowSupporters = {}
 
 do
-    for _, t in pairs(patrons1) do
+    for _, t in pairs(supporters1) do
         for i, name in pairs(t) do
             local fullName = strmatch(t[i], "^(.+%-.+) %(%u%u%)$")
-            wowPatrons[fullName] = true
+            wowSupporters[fullName] = true
         end
     end
 end
@@ -131,9 +149,9 @@ end
 -- make them accessible
 -------------------------------------------------
 if addonName == "Cell" then -- Cell
-    ns.patrons1 = patrons1
-    ns.patrons2 = patrons2
-    ns.wowPatrons = Cell.funcs:TMergeOverwrite(wowPatrons, tests)
+    ns.supporters1 = supporters1
+    ns.supporters2 = supporters2
+    ns.wowSupporters = Cell.funcs:TMergeOverwrite(wowSupporters, tests)
 else -- other addons
-    ns.cellPatrons = wowPatrons
+    ns.cellSupporters = wowSupporters
 end
