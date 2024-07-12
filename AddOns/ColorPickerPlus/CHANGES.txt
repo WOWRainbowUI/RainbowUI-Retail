@@ -1,16 +1,10 @@
-tag 73ad07eb1968aecd767154eaefbf007acf58bc3d r62
+tag faffeeeacf9d6fd67c6cac975b92147f6d6d8c39 r63
 Author:	Benjamin Staneck <staneck@gmail.com>
-Date:	Thu May 2 13:31:32 2024 +0200
+Date:	Fri Jun 7 15:06:04 2024 +0200
 
-commit 17a786a9df9f2b1568b862bce0af2528714851ea
-Author: Kyle Scheuing <kyle@kylescheuing.com>
-Date:   Wed May 1 22:35:12 2024 -0400
-
-    Fix alpha text on classic
-
-commit b74a33e4b2d290682446015b99329040c8714b8c
+commit 1e2a8c0986a852ed462fc558a0b6069daa4abf9f
 Author: Benjamin Staneck <staneck@gmail.com>
-Date:   Thu May 2 04:48:25 2024 +0200
+Date:   Fri Jun 7 15:05:53 2024 +0200
 
-    Cleanup
+    Add Wago ID to TOC
 
