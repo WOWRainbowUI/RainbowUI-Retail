@@ -1,4 +1,4 @@
-## Interface: 110000, 100207, 40400
+## Interface: 110000, 100207, 40400, 11503
 ## Title: Dominos
 ## Notes: A main actionbar replacement
 ## Notes-zhCN: 一种动作条替换方案
@@ -13,7 +13,6 @@
 ## Title-zhTW: |cff00CCFF[快捷列]|r 達美樂
 ## Notes-zhTW: Dominos |n|n用來取代遊戲內建的主要快捷列，提供方便的快捷列配置、快速鍵設定，讓你可以自由安排快捷列的位置和大小，以及多種自訂功能。|n|n|cffffd200使用方法: |r點小地圖按鈕進行設定。
 ## X-Category-zhTW: 介面
-## DefaultState: disabled
 
 embeds.xml
 localization.xml
