@@ -2,6 +2,30 @@ local AddonName, Data = ...
 
 Data.changelog = {
 	{
+		Version = "10.2.7.3",
+		General = "Minor update",
+		Sections = {
+			{
+				Header = "New Feature:",
+				Entries = {
+					"Added an option the trigger keybinds on key down instead of key release as requested by mowanza from curseforge."
+				}
+			}
+		}
+	},
+	{
+		Version = "10.2.7.2",
+		General = "Change regarding res time in Rated Battlegrounds in Cataclysm Classic.",
+		Sections = {
+			{
+				Header = "Classic",
+				Entries = {
+					"Changed the res timer to be 45 seconds in rated battlegrounds in Cataclysm Classic. Thanks to verstapen from Curseforge for the hint."
+				}
+			}
+		}
+	},
+	{
 		Version = "10.2.7.1",
 		General = "Bugfix and new cooldown settings",
 		Sections = {

@@ -73,7 +73,7 @@
 --     Returns an array with the set of unit ids for the current group.
 --]]
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", 94
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", 95
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
@@ -89,7 +89,7 @@ local INSPECT_READY_EVENT = "GroupInSpecT_InspectReady"
 local QUEUE_EVENT = "GroupInSpecT_QueueChanged"
 
 local COMMS_PREFIX = "LGIST11"
-local COMMS_FMT = "2"
+local COMMS_FMT = "3"
 local COMMS_DELIM = "\a"
 
 local INSPECT_DELAY = 1.5
@@ -187,6 +187,7 @@ local UnitIsConnected                 = _G.UnitIsConnected
 local UnitIsPlayer                    = _G.UnitIsPlayer
 local UnitIsUnit                      = _G.UnitIsUnit
 local UnitName                        = _G.UnitName
+local UnitTokenFromGUID               = _G.UnitTokenFromGUID
 local SendAddonMessage                = _G.C_ChatInfo.SendAddonMessage
 local RegisterAddonMessagePrefix      = _G.C_ChatInfo.RegisterAddonMessagePrefix
 local C_ClassTalents                  = _G.C_ClassTalents
@@ -328,24 +329,8 @@ lib.static_cache.talents = {}                -- [talent_id]      -> { .spell_id,
 lib.static_cache.pvp_talents = {}            -- [talent_id]      -> { .spell_id, .talent_id, .name_localized, .icon }
 
 function lib:GetCachedTalentInfo (class_id, tier, col, group, is_inspect, unit)
-  -- local talent_id, name, icon, sel, _, spell_id = GetTalentInfo (tier, col, group, is_inspect, unit)
-  -- if not talent_id then
-  --   --[==[@debug@
-  --   debug ("GetCachedTalentInfo("..tostring(class_id)..","..tier..","..col..","..group..","..tostring(is_inspect)..","..tostring(unit)..") returned nil") --@end-debug@]==]
-  --   return {}
-  -- end
-  -- local class_talents = self.static_cache.talents
-  -- if not class_talents[talent_id] then
-  --   class_talents[talent_id] = {
-  --     spell_id = spell_id,
-  --     talent_id = talent_id,
-  --     name_localized = name,
-  --     icon = icon,
-  --     tier = tier,
-  --     column = col,
-  --   }
-  -- end
-  -- return class_talents[talent_id], sel
+  --[==[@debug@
+  debug("GetCachedTalentInfo is deprecated, use GetCachedTalentInfoByID instead.") --@end-debug@]==]
   return nil
 end
 
@@ -423,14 +408,15 @@ end
 
 function lib:GuidToUnit (guid)
   local info = self.cache[guid]
-  if info and info.lku and UnitGUID (info.lku) == guid then return info.lku end
-
-  for i,unit in ipairs (self:GroupUnits ()) do
-    if UnitExists (unit) and UnitGUID (unit) == guid then
-      if info then info.lku = unit end
-      return unit
-    end
+  if info and info.lku and UnitGUID(info.lku) == guid then
+    return info.lku
   end
+
+  local unit = UnitTokenFromGUID(guid)
+  if info then
+    info.lku = unit
+  end
+  return unit
 end
 
 
@@ -602,7 +588,6 @@ function lib:BuildInfo (unit)
     wipe (info.talents)
     local config_id = is_inspect and -1 or C_ClassTalents.GetActiveConfigID()
     if not config_id and gspec_id then
-      -- default ui does this, but i've never seen active be nil
       local config_list = C_ClassTalents.GetConfigIDsBySpecID(gspec_id)
       config_id = config_list[1]
     end
@@ -680,6 +665,7 @@ end
 
 
 function lib:PLAYER_ENTERING_WORLD ()
+  self.state.debounce_send_update = 2.5 -- delay comm update after loading
   if self.commScope == "INSTANCE_CHAT" then
     -- Handle moving directly from one LFG to another
     self.commScope = nil
@@ -734,7 +720,7 @@ function lib:SendLatestSpecData ()
   if not info then return end
 
   -- fmt, guid, global_spec_id, talents, pvptalent1 -> NUM_PVP_TALENT_SLOTS
-  local datastr = COMMS_FMT .. COMMS_DELIM .. guid .. COMMS_DELIM .. (info.global_spec_id or 0)
+  local datastr = strjoin(COMMS_DELIM, COMMS_FMT, guid, info.global_spec_id or 0)
 
   local talents = ""
   local config_id = C_ClassTalents.GetActiveConfigID()
@@ -742,46 +728,8 @@ function lib:SendLatestSpecData ()
     local config_list = C_ClassTalents.GetConfigIDsBySpecID(info.global_spec_id)
     config_id = config_list[1]
   end
-  local config = config_id and C_Traits.GetConfigInfo(config_id)
-  local tree_id = config and config.treeIDs[1]
-  if tree_id then
-    local export_stream = ExportUtil.MakeExportDataStream()
-    export_stream:AddValue(16, tree_id)
-    -- basically ClassTalentImportExportMixin:WriteLoadoutContent
-    for _, node_id in ipairs(C_Traits.GetTreeNodes(tree_id)) do
-      local node = C_Traits.GetNodeInfo(config_id, node_id)
-      if not node then
-        --[==[@debug@
-        print(_G.ERROR_COLOR:WrapTextInColorCode(("Error encoding talents (%s, %s, %s)"):format(tostringall(config_id, tree_id, node_id)))) --@end-debug@]==]
-        export_stream:Init()
-        break
-      end
-      local is_node_selected = node.ranksPurchased > 0
-      export_stream:AddValue(1, is_node_selected and 1 or 0)
-      if is_node_selected then
-        local is_partially_ranked = node.ranksPurchased ~= node.maxRanks
-        export_stream:AddValue(1, is_partially_ranked and 1 or 0)
-        if is_partially_ranked then
-          export_stream:AddValue(2, node.ranksPurchased - 1)
-        end
-        local is_choice_node = node.type == 2
-        export_stream:AddValue(1, is_choice_node and 1 or 0)
-        if is_choice_node then
-          local choice_node_index = 1
-          for i, entry_id in ipairs(node.entryIDs) do
-            if entry_id == node.activeEntry.entryID then
-              choice_node_index = i
-              break
-            end
-          end
-          if choice_node_index > 4 then
-            choice_node_index = 1
-          end
-          export_stream:AddValue(2, choice_node_index - 1)
-        end
-      end
-    end
-    talents = export_stream:GetExportString()
+  if config_id then
+    talents = C_Traits.GenerateImportString(config_id) or ""
   end
   datastr = datastr..COMMS_DELIM..talents
 
@@ -818,22 +766,80 @@ msg_idx.talents         = msg_idx.global_spec_id + 1
 msg_idx.pvp_talents     = msg_idx.talents + 1
 msg_idx.end_pvp_talents = msg_idx.pvp_talents + NUM_PVP_TALENT_SLOTS - 1
 
+
+local function decode_talent_string(import_string, talents_table)
+  if not import_string or import_string == "" then
+    return false
+  end
+
+  -- Serialization Version 1
+  local import_stream = ExportUtil.MakeImportDataStream(import_string)
+
+  local header_bit_width = 8 + 16 + 128 -- version + spec_id + tree_hash
+  if import_stream:GetNumberOfBits() < header_bit_width then
+    return false
+  end
+
+  local serialization_version = import_stream:ExtractValue(8)
+  if serialization_version ~= C_Traits.GetLoadoutSerializationVersion() then
+    return false
+  end
+
+  local spec_id = import_stream:ExtractValue(16)
+  import_stream:ExtractValue(128) -- tree_hash (16 * 8)
+
+  local config_id = -3 -- VIEW_TRAIT_CONFIG_ID
+  local tree_id = C_ClassTalents.GetTraitTreeForSpec(spec_id)
+  for _, node_id in ipairs(C_Traits.GetTreeNodes(tree_id)) do
+    if import_stream:ExtractValue(1) == 1 then -- isNodeSelected
+      local node = C_Traits.GetNodeInfo(config_id, node_id)
+      if not node then
+        --[==[@debug@
+        debug(_G.ERROR_COLOR:WrapTextInColorCode(("Error decoding talents (config:%s, tree:%s, node:%s)"):format(tostringall(config_id, tree_id, node_id)))) --@end-debug@]==]
+        wipe(talents_table)
+        return false
+      end
+      local entry_id = node.activeEntry and node.activeEntry.entryID
+      local rank = node.maxRanks
+      if import_stream:ExtractValue(1) == 1 then -- isPartiallyRankedValue
+        rank = import_stream:ExtractValue(6) -- bitWidthRanksPurchased
+      end
+      if import_stream:ExtractValue(1) == 1 then -- isChoiceNode
+        local choice_node_index = import_stream:ExtractValue(2) + 1
+        entry_id = node.entryIDs[choice_node_index]
+      end
+      if not entry_id then
+        entry_id = node.entryIDs[1]
+      end
+      local talent = lib:GetCachedTalentInfoByID(entry_id)
+      if talent then
+        talent.rank = rank
+        talents_table[entry_id] = talent
+      end
+    end
+  end
+
+  return true
+end
+
+
 function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   if prefix ~= COMMS_PREFIX or scope ~= self.commScope then return end
-  --[==[@debug@
-  debug ("Incoming LGIST update from "..(scope or "nil").."/"..(sender or "nil")..": "..(datastr:gsub(COMMS_DELIM,";") or "nil")) --@end-debug@]==]
+  sender = Ambiguate(sender, "none")
 
-  local data = { strsplit (COMMS_DELIM,datastr) }
-  local fmt = data[msg_idx.fmt]
+  --[==[@debug@
+  debug(("Incoming LGIST update from %s/%s: %s"):format(tostringall(scope, sender, datastr:gsub(COMMS_DELIM, "#")))) --@end-debug@]==]
+
+  local fmt = strsplit(COMMS_DELIM, datastr, 1)
   if fmt ~= COMMS_FMT then return end -- Unknown format, ignore
 
+  local data = { strsplit(COMMS_DELIM, datastr) }
+
   local guid = data[msg_idx.guid]
+  if UnitGUID(sender) ~= guid then return end
 
-  local senderguid = UnitGUID(sender)
-  if senderguid and senderguid ~= guid then return end
-
-  local info = guid and self.cache[guid]
-  if not info then return end -- Never allow random message to create new group member entries!
+  local info = self.cache[guid]
+  if not info then return end
 
   local unit = self:GuidToUnit (guid)
   if not unit then return end
@@ -848,9 +854,8 @@ function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   info.class_id = self.static_cache.class_to_class_id[info.class]
 
   local gspecs = self.static_cache.global_specs
-
-  local gspec_id = data[msg_idx.global_spec_id] and tonumber (data[msg_idx.global_spec_id])
-  if not gspec_id or not gspecs[gspec_id] then return end -- Malformed message, avoid throwing errors by using this nil
+  local gspec_id = tonumber(data[msg_idx.global_spec_id])
+  if not gspecs[gspec_id] then return end -- Malformed message, avoid throwing errors by using this nil
 
   info.global_spec_id      = gspec_id
   info.spec_index          = gspecs[gspec_id].idx
@@ -864,45 +869,7 @@ function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   local need_inspect = nil -- shouldn't be needed, but just in case
 
   info.talents = wipe(info.talents or {})
-  local talents = data[msg_idx.talents] or ""
-  if talents ~= "" then
-    local config_id = -3 -- VIEW_TRAIT_CONFIG_ID
-    local import_stream = ExportUtil.MakeImportDataStream(talents)
-    local tree_id = import_stream:ExtractValue(16)
-    -- basically ClassTalentImportExportMixin :ReadLoadoutContent + :ConvertToImportLoadoutEntryInfo
-    for _, node_id in ipairs(C_Traits.GetTreeNodes(tree_id)) do
-      if import_stream:ExtractValue(1) == 1 then -- isNodeSelected
-        local node = C_Traits.GetNodeInfo(config_id, node_id)
-        if not node then
-          --[==[@debug@
-          print(_G.ERROR_COLOR:WrapTextInColorCode(("Error decoding talents (%s, %s, %s)"):format(tostringall(config_id, tree_id, node_id)))) --@end-debug@]==]
-          wipe(info.talents)
-          need_inspect = 1
-          break
-        end
-        local entry_id = node.activeEntry and node.activeEntry.entryID
-        local rank = node.maxRanks
-        if import_stream:ExtractValue(1) == 1 then -- isPartiallyRankedValue
-          rank = import_stream:ExtractValue(2) + 1
-        end
-        if import_stream:ExtractValue(1) == 1 then -- isChoiceNode
-          local choice_node_index = import_stream:ExtractValue(2) + 1
-          entry_id = node.entryIDs[choice_node_index]
-        end
-        if not entry_id then
-          entry_id = node.entryIDs[1]
-        end
-        -- There's something wrong with this loadout string if we still don't have an entry ID.
-        local talent = self:GetCachedTalentInfoByID(entry_id)
-        if talent then
-          talent.rank = rank
-          info.talents[entry_id] = talent
-        else
-          need_inspect = 1
-        end
-      end
-    end
-  else
+  if not decode_talent_string(data[msg_idx.talents], info.talents) then
     need_inspect = 1
   end
 
@@ -918,8 +885,6 @@ function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
       end
     end
   end
-
-  info.glyphs = info.glyphs or {} -- kept for addons that still refer to this
 
   local mainq, staleq = self.state.mainq, self.state.staleq
   local want_inspect = not need_inspect and self.inspect_ready_used and (mainq[guid] or staleq[guid]) and 1 or nil
