@@ -1,11 +1,5 @@
 ------------------------------------------------------------------------
-r301 | funkehdude | 2024-01-16 18:20:42 +0000 (Tue, 16 Jan 2024) | 1 line
-Changed paths:
-   M /trunk/BugGrabber.lua
-
-Compat code for C_AddOns API
-------------------------------------------------------------------------
-r300 | funkehdude | 2024-01-16 18:11:18 +0000 (Tue, 16 Jan 2024) | 1 line
+r310 | funkehdude | 2024-07-09 19:25:09 +0000 (Tue, 09 Jul 2024) | 1 line
 Changed paths:
    M /trunk/!BugGrabber.toc
 
