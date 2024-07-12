@@ -2,6 +2,7 @@ local GlobalAddonName, ExRT = ...
 
 local UnitName, UnitGUID, GetRaidTargetIndex, SetRaidTarget, math_frexp, tonumber, IsEncounterInProgress = UnitName, UnitGUID, GetRaidTargetIndex, SetRaidTarget, math.frexp, tonumber, IsEncounterInProgress
 local wipe, sort = wipe, sort
+local GetSpellInfo = ExRT.F.GetSpellInfo or GetSpellInfo
 
 local VMRT = nil
 

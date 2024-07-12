@@ -8,6 +8,9 @@ local module = ExRT:New("Interrupts",L.Interrupts)
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LCG = LibStub("LibCustomGlow-1.0",true)
 
+local UnitGUID, GetRaidTargetIndex, strsplit, select = UnitGUID, GetRaidTargetIndex, strsplit, select
+local GetSpellInfo = ExRT.F.GetSpellInfo or GetSpellInfo
+
 local VERSION = 7
 local SENDER_VERSION = 1
 

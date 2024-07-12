@@ -1,6 +1,25 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4880
+* Fixes for 11.0 beta
+* Added Italian translation (by Grifo92)
+* Reminder: added load condition: always
+* Minor fixes
+
+v.4870
+* Note: added profiles
+* Reminder: all bosses are grouped in instance folders
+* Minor fixes
+
+v.4870-Cata
+* Note: added profiles
+* Minor fixes
+
+v.4870-Classic
+* Note: added profiles
+* Minor fixes
+
 v.4860
 * toc update
 * Raid cooldowns: added "Add spell" for class categories

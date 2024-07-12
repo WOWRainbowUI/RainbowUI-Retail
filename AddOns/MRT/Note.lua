@@ -7,6 +7,8 @@ local ELib,L = MRT.lib,MRT.L
 
 local GetTime, GetSpecializationInfo = GetTime, GetSpecializationInfo
 local string_gsub, strsplit, tonumber, format, string_match, floor, string_find, type, string_gmatch = string.gsub, strsplit, tonumber, format, string.match, floor, string.find, type, string.gmatch
+local GetSpellInfo = MRT.F.GetSpellInfo or GetSpellInfo
+local NewVMRTTableData
 
 local GetSpecialization = GetSpecialization
 if MRT.isCata then
@@ -38,7 +40,8 @@ if MRT.isCata then
 		elseif role == "HEAL" then
 			role = "HEALER"
 		end
-		return 0,0,0,0,role
+		local _,name = GetSpecializationInfoForSpecID( specs[specNum] )
+		return 0,name,0,0,role
 	end
 elseif MRT.isClassic then
 	GetSpecialization = MRT.NULLfunc
@@ -588,7 +591,27 @@ function module.options:Load()
 		376266,375871,390573,376073,388644,375485,375842,396265,388918,388716,375879,390561,375630,375653,375829,378782,375457,378787,390710,375575,375809,376257,392193,375870,375475,375716,396649,0,
 		388635,388643,377322,386410,377662,395929,381615,381251,382530,392086,394583,377594,377658,391281,385182,388631,385574,387261,390763,394584,391989,388431,389214,385068,385541,394582,385560,391285,388115,376126,377467,377612,0,
 	}
-	if MRT.isBC then
+	if MRT.isCata then
+		module.db.otherIconsAdditionalList = {
+			"136224","135821","135808","135981","136209","135807","135813","463567","237588","237395","135822",0,
+			"237582","133598","135790","236216","252172","524793","510756","132847",0,
+			"514340","237555","135767","134157","136186","135818","132847","236297","132839","236305","236216","135811","237588","135788","135823","135827","512617","459026","135808","132929","237553","459027","237582","451169","132360","135867","237554",0,
+			"135834","132103","132090","136022","132152","132155","132324","135813","135830","136224",0,
+			"132847","135279","425958","236220","136106","136136","132839","136160","237570","133265","236216",0,
+			"451164","236225","236310","459027","132847","458737","237588","135811",0,
+			"525023","132221","525024","525025","525026","451164","135818","135822","135826","236301","135807","135859","236228","135265","135827","512617","132315","136100","464484","236216","515200","132847","451169","135821","135805","135788",0,
+			0,
+			"332402","132108","425956","132363","451165","425957",0,
+			"136201","132303","136224","237298","136158","236280","463569","252178",0,
+			"237561","132303","237569","135809","136016","134820","136171","236271",0,
+			"429385","136014","237236","136048","135840","236209","132852","136049","254883","135851","294033",0,
+			"425950","134154","132146","134430","135994","132291","136223","134155","134157","134156","425953","425957","134153","237566",0,
+			"132337","425954","135752","425955","236299","236312","136129","525023","460700","132352","425960","135291","425953","135826","237530","132367",0,
+			"132847","538040","538041","133035","236372","525023","236290","135805","459026","132842","538042","538043","463567",0,
+			"135821","237536","135860","237513","575541","236316","135818","135822","134156","236305","236216","132312","236154","136106","134157","135734","134155","237556","575534","538040","575535","134158","575536","524795","237514",0,
+
+		}
+	elseif MRT.isBC then
 		module.db.otherIconsAdditionalList = {
 			26983,2825,32182,16190,0,0,
 			38219,38215,36459,38246,37478,37138,37675,37640,37641,38441,38445,37764,38316,38310,38509,38280,0,
@@ -596,8 +619,9 @@ function module.options:Load()
 		}
 	end
 
-	function self:DebugGetIcons(bossCount,notUseJJBox)
+	function self:DebugGetIcons(notUseJJBox,onlyTextures)
 		local L,U,F,C,P
+		local RES = nil
 		function F(eID)
 			local f=select(4,EJ_GetEncounterInfoByIndex(eID))
 			repeat 
@@ -614,14 +638,21 @@ function module.options:Load()
 			if I.firstChildSectionID then 
 				C(I.firstChildSectionID)
 			end 
-			if I.spellID and I.spellID~=0 and P(I.spellID) then 
-				L[I.spellID]=true 
-			end 
+			if onlyTextures then
+				if I.abilityIcon and I.abilityIcon~=0 then 
+					L[I.abilityIcon]=true 
+				end 
+			else
+				if I.spellID and I.spellID~=0 and P(I.spellID) then 
+					L[I.spellID]=true 
+				end 
+			end
 			if I.siblingSectionID then 
 				C(I.siblingSectionID) 
 			end 
 		end
 		function P(s)
+			local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 			local i=GetSpellTexture(s)
 			if not U[i] then 
 				U[i]=1 
@@ -629,13 +660,13 @@ function module.options:Load()
 			end 
 		end 
 		local i = 1
-		while i <= bossCount do
+		while EJ_GetEncounterInfoByIndex(i) do
 			L,U={},{} 
 			local f=F(i) 
 			C(f)
 			local s="" 
 			for q,w in pairs(L)do 
-				s=s..q.."," 
+				s=s..(onlyTextures and '"' or "")..q..(onlyTextures and '"' or "").."," 
 			end 
 			print(s..'0,')
 			if not notUseJJBox then
@@ -649,7 +680,7 @@ function module.options:Load()
 			GMRT.F:Export2(RES)
 		end
 	end
-	--/run GMRT.A.Note.options:DebugGetIcons(8,true)
+	--/run GMRT.A.Note.options:DebugGetIcons(true)
 
 	if not MRT.isClassic then
 		module.db.encountersList = MRT.F.GetEncountersList(true,false,true)
@@ -762,7 +793,7 @@ function module.options:Load()
 
 	self.decorationLine = ELib:DecorationLine(self,true,"BACKGROUND",-5):Point("TOPLEFT",self,0,-16):Point("BOTTOMRIGHT",self,"TOPRIGHT",0,-36)
 
-	self.tab = ELib:Tabs(self,0,L.message,L.minimapmenuset,HELP_LABEL):Point(0,-36):Size(850,598):SetTo(1)
+	self.tab = ELib:Tabs(self,0,L.message,L.minimapmenuset,L.Profiles,HELP_LABEL):Point(0,-36):Size(850,598):SetTo(1)
 	self.tab:SetBackdropBorderColor(0,0,0,0)
 	self.tab:SetBackdropColor(0,0,0,0)
 
@@ -1503,7 +1534,7 @@ function module.options:Load()
 				line = line + 1
 				inLine = 0
 			elseif type(spellID) == 'string' then
-				CreateOtherIcon(5+inLine*20,-2-(line-1)*20,spellID,"||T"..spellID..":0||t")
+				CreateOtherIcon(5+inLine*20,-2-(line-1)*20,spellID,"{icon:"..spellID.."}")
 				inLine = inLine + 1
 				if inLine > 12 and (not module.db.otherIconsAdditionalList[i+1] or module.db.otherIconsAdditionalList[i+1]~=0) then
 					line = line + 1
@@ -1914,7 +1945,426 @@ function module.options:Load()
 		self.NoteEditBox.EditBox:SetText(VMRT.Note.Text1) 
 	end
 
-	self.textHelp = ELib:Text(self.tab.tabs[3],
+
+
+	--> Profiles
+
+	local profilesTab = self.tab.tabs[3]
+
+	local function GetCurrentProfileName()
+		return VMRT.Note.Profiles.Now=="default" and L.ProfilesDefault or VMRT.Note.Profiles.Now
+	end
+
+	profilesTab.currentText = ELib:Text(profilesTab,L.ProfilesCurrent,11):Size(650,200):Point(15,-15):Top():Color()
+	profilesTab.currentName = ELib:Text(profilesTab,"",14):Size(650,200):Point(210,-15):Top():Color(1,1,0)
+
+	profilesTab.currentName.UpdateText = function(self)
+		self:SetText(GetCurrentProfileName())
+	end
+	profilesTab.currentName:UpdateText()
+
+	profilesTab.choseText = ELib:Text(profilesTab,L.ProfilesChooseDesc,11):Size(650,200):Point(15,-40):Top():Color()
+
+	profilesTab.choseNewText = ELib:Text(profilesTab,L.ProfilesNew,11):Size(650,200):Point(15,-75+12):Top()
+	profilesTab.choseNew = ELib:Edit(profilesTab):Size(170,20):Point(10,-75)
+
+	profilesTab.choseNewButton = ELib:Button(profilesTab,L.ProfilesAdd):Size(70,20):Point("LEFT",profilesTab.choseNew,"RIGHT",0,0):OnClick(function (self)
+		local text = profilesTab.choseNew:GetText()
+		profilesTab.choseNew:SetText("")
+		if text == "" or text == "default" or VMRT.Note.Profiles.List[text] or text == VMRT.Note.Profiles.Now then
+			return
+		end
+		VMRT.Note.Profiles.List[text] = MRT.F.table_copy2(NewVMRTTableData)
+
+		StaticPopupDialogs["EXRT_NOTE_ACTIVATENEW"] = {
+			text = L.ProfilesActivateAlert,
+			button1 = L.YesText,
+			button2 = L.NoText,
+			OnAccept = function()
+				module:SelectProfile(text)
+			end,
+			timeout = 0,
+			whileDead = true,
+			hideOnEscape = true,
+			preferredIndex = 3,
+		}
+		StaticPopup_Show("EXRT_NOTE_ACTIVATENEW")
+	end)
+
+	profilesTab.choseSelectText = ELib:Text(profilesTab,L.ProfilesSelect,11):Size(605,200):Point(335,-75+12):Top()
+	profilesTab.choseSelectDropDown = ELib:DropDown(profilesTab,220,10):Point(330,-75):Size(235):SetText(LFG_LIST_SELECT)
+
+	local function GetCurrentProfilesList(func)
+		local list = {
+			{ text = GetCurrentProfileName(), func = func, arg1 = VMRT.Note.Profiles.Now, _sort = "0" },
+		}
+		for name,_ in pairs(VMRT.Note.Profiles.List) do
+			if name ~= VMRT.Note.Profiles.Now then
+				list[#list + 1] = { text = name == "default" and L.ProfilesDefault or name, func = func, arg1 = name, _sort = "1"..name }
+			end
+		end
+		sort(list,function(a,b) return a._sort < b._sort end)
+		return list
+	end
+
+	function profilesTab.choseSelectDropDown:ToggleUpadte()
+		self.List = GetCurrentProfilesList(function(_,arg1)
+			ELib:DropDownClose()
+			module:SelectProfile(arg1)
+		end)
+	end
+
+	local function CopyProfile(name)
+		local newdb = VMRT.Note.Profiles.List[name]
+		local currname = VMRT.Note.Profiles.Now
+		if module:SelectProfile(name) then
+			VMRT.Note.Profiles.List[name] = newdb
+			VMRT.Note.Profiles.Now = currname
+
+			profilesTab.currentName:UpdateText()
+
+			print(L.cd2ProfileCopySuccess:format(name))
+		end
+	end
+	profilesTab.copyText = ELib:Text(profilesTab,L.ProfilesCopy,11):Size(605,200):Point(15,-120+12):Top()
+	profilesTab.copyDropDown = ELib:DropDown(profilesTab,220,10):Point(10,-120):Size(235)
+	function profilesTab.copyDropDown:ToggleUpadte()
+		self.List = GetCurrentProfilesList(function(_,arg1)
+			ELib:DropDownClose()
+			CopyProfile(arg1)
+		end)
+		for i=1,#self.List do
+			if self.List[i].arg1 == VMRT.Note.Profiles.Now then
+				tremove(self.List, i)
+				break
+			end
+		end
+	end
+
+	local function DeleteProfile(name)
+		StaticPopupDialogs["EXRT_NOTE_PROFILES_REMOVE"] = {
+			text = L.ProfilesDeleteAlert,
+			button1 = L.YesText,
+			button2 = L.NoText,
+			OnAccept = function()
+				VMRT.Note.Profiles.List[name] = nil
+				profilesTab:UpdateAutoTexts()
+			end,
+			timeout = 0,
+			whileDead = true,
+			hideOnEscape = true,
+			preferredIndex = 3,
+		}
+		StaticPopup_Show("EXRT_NOTE_PROFILES_REMOVE")
+	end
+	profilesTab.deleteText = ELib:Text(profilesTab,L.ProfilesDelete,11):Size(605,200):Point(15,-160+12):Top()
+	profilesTab.deleteDropDown = ELib:DropDown(profilesTab,220,10):Point(10,-160):Size(235)
+	function profilesTab.deleteDropDown:ToggleUpadte()
+		self.List = GetCurrentProfilesList(function(_,arg1)
+			ELib:DropDownClose()
+			DeleteProfile(arg1)
+		end)
+		for i=#self.List,1,-1 do
+			if self.List[i].arg1 == VMRT.Note.Profiles.Now then
+				tremove(self.List, i)
+			elseif self.List[i].arg1 == "default" then
+				tremove(self.List, i)
+			end
+		end
+	end
+
+
+	profilesTab.importWindow, profilesTab.exportWindow = MRT.F.CreateImportExportWindows()
+
+	function profilesTab.importWindow:ImportFunc(str)
+		local headerLen = str:sub(1,4) == "EXRT" and 8 or 7
+
+		local header = str:sub(1,headerLen)
+		if (header:sub(1,headerLen-1) ~= "EXRTCDP" and header:sub(1,headerLen-1) ~= "MRTCDP") or (header:sub(headerLen,headerLen) ~= "0" and header:sub(headerLen,headerLen) ~= "1") then
+			StaticPopupDialogs["EXRT_EXCD_IMPORT"] = {
+				text = "|cffff0000"..ERROR_CAPS.."|r "..L.ProfilesFail3,
+				button1 = OKAY,
+				timeout = 0,
+				whileDead = true,
+				hideOnEscape = true,
+				preferredIndex = 3,
+			}
+			StaticPopup_Show("EXRT_EXCD_IMPORT")
+			return
+		end
+
+		profilesTab:TextToProfile(str:sub(headerLen+1),header:sub(headerLen,headerLen)=="0")
+	end
+
+	profilesTab.exportButton = ELib:Button(profilesTab,L.ProfilesExport):Size(235,25):Point(10,-200):OnClick(function (self)
+		profilesTab.exportWindow:NewPoint("CENTER",UIParent,0,0)
+		profilesTab:ProfileToText()
+	end)
+
+	profilesTab.importButton = ELib:Button(profilesTab,L.ProfilesImport):Size(235,25):Point("LEFT",profilesTab.exportButton,"RIGHT",85,0):OnClick(function (self)
+		profilesTab.importWindow:NewPoint("CENTER",UIParent,0,0)
+		profilesTab.importWindow:Show()
+	end)
+
+	local IGNORE_PROFILE_KEYS = {
+		["Profiles"] = true,
+		["Black"] = true,
+		["BlackNames"] = true,
+		["BlackLastUpdateName"] = true,
+		["BlackLastUpdateTime"] = true,
+		["AutoLoad"] = true,
+
+		["SelfText"] = true,
+		["Text1"] = true,
+	}
+	function profilesTab:ProfileToText()
+		local new = {}
+		for key,val in pairs(VMRT.Note) do
+			if not IGNORE_PROFILE_KEYS[key] then
+				new[key] = val
+			end
+		end
+		local strlist = MRT.F.TableToText(new)
+		strlist[1] = "0,"..strlist[1]
+		local str = table.concat(strlist)
+
+		local compressed
+		if #str < 1000000 then
+			compressed = LibDeflate:CompressDeflate(str,{level = 5})
+		end
+		local encoded = "MRTCDP"..(compressed and "1" or "0")..LibDeflate:EncodeForPrint(compressed or str)
+
+		MRT.F.dprint("Str len:",#str,"Encoded len:",#encoded)
+
+		if MRT.isDev then
+			module.db.exportTable = new
+		end
+		profilesTab.exportWindow.Edit:SetText(encoded)
+		profilesTab.exportWindow:Show()
+	end
+
+	function profilesTab:SaveDataFilter(res)
+		local KeysToSave = {
+			["Profiles"] = true,
+		}
+		local R = {
+			data = {},
+			Restore = function(self,t) 
+				for k,v in pairs(self.data) do
+					t[k] = v
+				end
+			end
+		}
+		for k,v in pairs(KeysToSave) do
+			R.data[k] = res[k]
+		end
+		return R
+	end
+	function profilesTab:LockedFilter(res)
+		local KeysToErase = {
+			["Profiles"] = true,
+
+			["Black"] = true,
+			["BlackNames"] = true,
+			["BlackLastUpdateName"] = true,
+			["BlackLastUpdateTime"] = true,
+			["AutoLoad"] = true,
+	
+			["SelfText"] = true,
+			["Text1"] = true,
+		}
+		for k,v in pairs(KeysToErase) do
+			res[k] = nil
+		end
+	end
+
+	function profilesTab:TextToProfile(str,uncompressed)
+		local decoded = LibDeflate:DecodeForPrint(str)
+		local decompressed
+		if uncompressed then
+			decompressed = decoded
+		else
+			decompressed = LibDeflate:DecompressDeflate(decoded)
+		end
+		decoded = nil
+
+		local _,tableData = strsplit(",",decompressed,2)
+		decompressed = nil
+
+		local successful, res = pcall(MRT.F.TextToTable,tableData)
+		if MRT.isDev then
+			module.db.lastImportDB = res
+			if module.db.exportTable and type(res)=="table" then
+				module.db.diffTable = {}
+				print("Compare table",MRT.F.table_compare(res,module.db.exportTable,module.db.diffTable))
+			end
+		end
+		if successful and res then
+			profilesTab:LockedFilter(res)
+			StaticPopupDialogs["EXRT_NOTE_IMPORT"] = {
+				text = L.cd2ProfileRewriteAlert,
+				button1 = APPLY,
+				button2 = L.ProfilesSaveAsNew,
+				button2 = CANCEL,
+				selectCallbackByIndex = true,
+				OnButton1 = function()
+					local saved = profilesTab:SaveDataFilter(VMRT.Note)
+					MRT.F.table_rewrite(VMRT.Note,res)
+					saved:Restore(VMRT.Note)
+					module:ReloadProfile()
+					res = nil
+				end,
+				OnButton2 = function()
+					MRT.F.ShowInput(L.ProfilesNewProfile,function(_,name)
+						if name == "" or VMRT.Note.Profiles.List[name] or name == "default" or name == VMRT.Note.Profiles.Now then
+							res = nil
+							return
+						end
+						VMRT.Note.Profiles.List[name] = res
+						module:SelectProfile(name)
+						res = nil
+					end,nil,nil,nil,function(self)
+						local name = self:GetText()
+						if name == "" or VMRT.Note.Profiles.List[name] or name == "default" or name == VMRT.Note.Profiles.Now then
+							self:GetParent().OK:Disable()
+						else
+							self:GetParent().OK:Enable()
+						end
+					end)
+				end,
+				OnButton3 = function()
+					res = nil
+				end,
+				timeout = 0,
+				whileDead = true,
+				hideOnEscape = true,
+				preferredIndex = 3,
+			}
+		else
+			StaticPopupDialogs["EXRT_NOTE_IMPORT"] = {
+				text = L.ProfilesFail1..(res and "\nError code: "..res or ""),
+				button1 = OKAY,
+				timeout = 0,
+				whileDead = true,
+				hideOnEscape = true,
+				preferredIndex = 3,
+			}
+		end
+
+		StaticPopup_Show("EXRT_NOTE_IMPORT")
+	end
+
+
+	profilesTab.autoText = ELib:Text(profilesTab,L.cd2AutoChangeTooltip,12):Size(605,200):Point(10,-240):Top():Color()
+
+	local function GetTextProfileName(profileName)
+		if not profileName then
+			return
+		end
+		local prefix
+		if profileName == VMRT.Note.Profiles.Now then
+			prefix = "|cff00ff00"
+		elseif not VMRT.Note.Profiles.List[profileName] then
+			prefix = "|cffff0000"
+		end
+		if profileName == "default" then
+			profileName = L.ProfilesDefault
+		end
+		return (prefix or "")..profileName
+	end
+	function profilesTab:UpdateAutoTexts()
+		self.autoRaidDown:SetText(GetTextProfileName(VMRT.Note.Profiles.Raid) or "|cff999999"..L.cd2DontChange)
+		self.autoDungDown:SetText(GetTextProfileName(VMRT.Note.Profiles.Dung) or "|cff999999"..L.cd2DontChange)
+		self.autoArenaDown:SetText(GetTextProfileName(VMRT.Note.Profiles.Arena) or "|cff999999"..L.cd2DontChange)
+		self.autoBGDown:SetText(GetTextProfileName(VMRT.Note.Profiles.BG) or "|cff999999"..L.cd2DontChange)
+		self.autoOtherDown:SetText(GetTextProfileName(VMRT.Note.Profiles.Other) or "|cff999999"..L.cd2DontChange)
+
+		for _,dd in pairs({self.autoSpec1Down,self.autoSpec2Down,self.autoSpec3Down,self.autoSpec4Down}) do
+			dd:SetText(GetTextProfileName(VMRT.Note.Profiles[dd.OptKey]) or "|cff999999"..L.cd2DontChange)
+		end
+	end
+
+	local function AutoDropDown_ToggleUpadte(self)
+		local func = function(_,arg1)
+			ELib:DropDownClose()
+			VMRT.Note.Profiles[self.OptKey] = arg1
+			profilesTab:UpdateAutoTexts()
+			C_Timer.After(2,module.CheckZoneProfiles)
+		end
+		self.List = GetCurrentProfilesList(func)
+		tinsert(self.List,1,{text = L.cd2DontChange, func = func})
+	end
+
+	profilesTab.autoRaidDown = ELib:DropDown(profilesTab,220,10):Point(10,-270):Size(235):AddText(RAID,11,function(self)self:NewPoint("TOPLEFT",'x',5,12):Color(1,.82,0,1) end)
+	profilesTab.autoRaidDown.OptKey = "Raid"
+	profilesTab.autoRaidDown.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	profilesTab.autoDungDown = ELib:DropDown(profilesTab,220,10):Point("TOPLEFT",profilesTab.autoRaidDown,0,-40):Size(235):AddText(CALENDAR_TYPE_DUNGEON,11,function(self)self:NewPoint("TOPLEFT",'x',5,12):Color(1,.82,0,1) end)
+	profilesTab.autoDungDown.OptKey = "Dung"
+	profilesTab.autoDungDown.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	profilesTab.autoArenaDown = ELib:DropDown(profilesTab,220,10):Point("TOPLEFT",profilesTab.autoRaidDown,320,0):Size(235):AddText(ARENA,11,function(self)self:NewPoint("TOPLEFT",'x',5,12):Color(1,.82,0,1) end)
+	profilesTab.autoArenaDown.OptKey = "Arena"
+	profilesTab.autoArenaDown.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	profilesTab.autoBGDown = ELib:DropDown(profilesTab,220,10):Point("TOPLEFT",profilesTab.autoArenaDown,0,-40):Size(235):AddText(BATTLEGROUND,11,function(self)self:NewPoint("TOPLEFT",'x',5,12):Color(1,.82,0,1) end)
+	profilesTab.autoBGDown.OptKey = "BG"
+	profilesTab.autoBGDown.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	profilesTab.autoOtherDown = ELib:DropDown(profilesTab,220,10):Point("TOPLEFT",profilesTab.autoDungDown,0,-40):Size(235):AddText(OTHER,11,function(self)self:NewPoint("TOPLEFT",'x',5,12):Color(1,.82,0,1) end)
+	profilesTab.autoOtherDown.OptKey = "Other"
+	profilesTab.autoOtherDown.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	local class = (select(2,UnitClass'player')) or ""
+
+	profilesTab.autoTextSpec = ELib:Text(profilesTab,L.cd2AutoChangeSpecTooltip,12):Size(605,200):Point(10,-380):Top():Color()
+
+	profilesTab.autoSpec1Down = ELib:DropDown(profilesTab,220,10):Point(10,-410):Size(235)
+	profilesTab.autoSpec1Down.OptKey = "Spec1" .. class
+	profilesTab.autoSpec1Down.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	profilesTab.autoSpec2Down = ELib:DropDown(profilesTab,220,10):Point("TOPLEFT",profilesTab.autoSpec1Down,0,-40):Size(235)
+	profilesTab.autoSpec2Down.OptKey = "Spec2" .. class
+	profilesTab.autoSpec2Down.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	profilesTab.autoSpec3Down = ELib:DropDown(profilesTab,220,10):Point("TOPLEFT",profilesTab.autoSpec1Down,320,0):Size(235)
+	profilesTab.autoSpec3Down.OptKey = "Spec3" .. class
+	profilesTab.autoSpec3Down.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	profilesTab.autoSpec4Down = ELib:DropDown(profilesTab,220,10):Point("TOPLEFT",profilesTab.autoSpec2Down,320,0):Size(235)
+	profilesTab.autoSpec4Down.OptKey = "Spec4" .. class
+	profilesTab.autoSpec4Down.ToggleUpadte = AutoDropDown_ToggleUpadte
+
+	if not GetSpecializationInfo then
+		profilesTab.autoTextSpec:Hide()
+		profilesTab.autoSpec1Down:Hide()
+		profilesTab.autoSpec2Down:Hide()
+		profilesTab.autoSpec3Down:Hide()
+		profilesTab.autoSpec4Down:Hide()
+	else
+		for i=1,4 do
+			local _, name = GetSpecializationInfo(i)
+			if name then
+				profilesTab["autoSpec"..i.."Down"]:AddText(name,11,function(self)self:NewPoint("TOPLEFT",'x',5,12):Color(1,.82,0,1) end)
+			else
+				profilesTab["autoSpec"..i.."Down"]:Hide()
+			end
+		end
+	end
+
+	profilesTab:UpdateAutoTexts()
+
+	profilesTab.chkKeepText = ELib:Check(profilesTab,L.NoteProfilesKeepText,VMRT.Note.Profiles.KeepText):Point("TOPLEFT",profilesTab.autoSpec2Down,"BOTTOMLEFT",0,-25):OnClick(function(self) 
+		if self:GetChecked() then
+			VMRT.Note.Profiles.KeepText = true
+		else
+			VMRT.Note.Profiles.KeepText = nil
+		end
+	end)
+
+
+
+	self.textHelp = ELib:Text(self.tab.tabs[4],
 		"|cffffff00||cffRRGGBB|r...|cffffff00||r|r - "..L.NoteHelp1..
 		((not MRT.isClassic or MRT.isCata) and "|n|cffffff00{D}|r...|cffffff00{/D}|r - "..format(L.NoteHelp2,DAMAGER) or "")..
 		((not MRT.isClassic or MRT.isCata) and "|n|cffffff00{H}|r...|cffffff00{/H}|r - "..format(L.NoteHelp2,HEALER) or "")..
@@ -1934,12 +2384,12 @@ function module.options:Load()
 		(not MRT.isClassic and "|n|cffffff00{p|r|cff00ff002|r|cffffff00}|r...|cffffff00{/p}|r - "..L.NoteHelp9 or "")
 	):Point("TOPLEFT",10,-20):Point("TOPRIGHT",-10,-20):Color()
 
-	self.advancedHelp = ELib:Button(self.tab.tabs[3],L.NoteHelpAdvanced):Size(400,20):Point("TOP",self.textHelp,"BOTTOM",0,-20):OnClick(function() 
+	self.advancedHelp = ELib:Button(self.tab.tabs[4],L.NoteHelpAdvanced):Size(400,20):Point("TOP",self.textHelp,"BOTTOM",0,-20):OnClick(function() 
 		--module.options.textHelpAdv:SetShown(not module.options.textHelpAdv:IsShown())
 		module.options.advancedScroll:SetShown(not module.options.advancedScroll:IsShown())
 	end)
 
-	self.advancedScroll = ELib:ScrollFrame(self.tab.tabs[3]):Size(850,100):Point("TOP",self.advancedHelp,"BOTTOM",0,-20):Point("BOTTOM",self.tab.tabs[3],"BOTTOM",0,0):Height(400):Shown(false)
+	self.advancedScroll = ELib:ScrollFrame(self.tab.tabs[4]):Size(850,100):Point("TOP",self.advancedHelp,"BOTTOM",0,-20):Point("BOTTOM",self.tab.tabs[4],"BOTTOM",0,0):Height(400):Shown(false)
 	self.advancedScroll.C:SetWidth(850 - 16)
 	ELib:Border(self.advancedScroll,0)
 	ELib:DecorationLine(self.advancedScroll):Point("TOPLEFT",0,1):Point("BOTTOMRIGHT",'x',"TOPRIGHT",0,0)
@@ -1966,6 +2416,49 @@ function module.options:Load()
 
 	function self:OnShow()
 		module.main:GROUP_ROSTER_UPDATE()
+	end
+
+	function self:UpdateOptions()
+		self.chkEnable:SetChecked(VMRT.Note.enabled)
+		self.chkEnable:ColorState()
+		self.chkFix:SetChecked(VMRT.Note.Fix)
+		self.chkOnlyPromoted:SetChecked(VMRT.Note.OnlyPromoted)
+		self.chkOnlyInRaid:SetChecked(VMRT.Note.HideOutsideRaid)
+		self.chkOnlyInRaidKInstance:SetChecked(VMRT.Note.ShowOnlyInRaid)
+		self.chkOnlySelf:SetChecked(VMRT.Note.ShowOnlyPersonal)
+		self.chkSelfWindow:SetChecked(VMRT.Note.PersonalWindow)
+		self.chkHideInCombat:SetChecked(VMRT.Note.HideInCombat)
+		self.chkSaveAllNew:SetChecked(VMRT.Note.SaveAllNew)
+		self.chkEnableWhenReceive:SetChecked(VMRT.Note.EnableWhenReceive)
+		self.sliderFontSize:SetTo(VMRT.Note.FontSize or 12)
+		do
+			local arg = VMRT.Note.FontName or MRT.F.defFont
+			local FontNameForDropDown = arg:match("\\([^\\]*)$")
+			self.dropDownFont:SetText(FontNameForDropDown or arg)
+		end
+		self.chkOutline:SetChecked(VMRT.Note.Outline)
+		self.slideralpha:SetTo(VMRT.Note.Alpha or 100)
+		self.sliderscale:SetTo(VMRT.Note.Scale or 100)
+		self.slideralphaback:SetTo(VMRT.Note.ScaleBack or 100)
+		self.chkTimersHidePassed:SetChecked(VMRT.Note.TimerPassedHide)
+		self.chkTimersGlow:SetChecked(VMRT.Note.TimerGlow)
+		self.chkTimersOnlyMy:SetChecked(VMRT.Note.TimerOnlyMy)
+
+		self.frameTypeGlow1:SetChecked(false)
+		self.frameTypeGlow1:SetChecked(false)
+		self.frameTypeGlow1:SetChecked(false)
+		if VMRT.Note.TimerGlowType == 2 then
+			self.frameTypeGlow2:SetChecked(true)
+		elseif VMRT.Note.TimerGlowType == 3 then
+			self.frameTypeGlow3:SetChecked(true)
+		else
+			self.frameTypeGlow1:SetChecked(true)
+		end
+
+		UpdatePageAfterGettingNote()
+
+		self.tab.tabs[3].currentName:UpdateText()
+		self.tab.tabs[3]:UpdateAutoTexts()
 	end
 
 	self.isWide = true
@@ -2126,32 +2619,38 @@ local function NoteWindow_SetShadowComment(self,val)
 end
 
 local function NoteWindow_UpdateVisual(self)
+	self:ClearAllPoints()
 	if VMRT.Note[self.Name.."Left"] and VMRT.Note[self.Name.."Top"] then 
-		self:ClearAllPoints()
 		self:SetPoint("TOPLEFT",UIParent,"BOTTOMLEFT",VMRT.Note[self.Name.."Left"],VMRT.Note[self.Name.."Top"])
+	else
+		self:SetPoint("TOPLEFT",UIParent,"CENTER",-150,250)
 	end
 
-	if VMRT.Note[self.Name.."Width"] then 
-		self:SetWidth(VMRT.Note[self.Name.."Width"]) 
-	end
-	if VMRT.Note[self.Name.."Height"] then 
-		self:SetHeight(VMRT.Note[self.Name.."Height"]) 
-	end
+	self:SetSize(VMRT.Note[self.Name.."Width"] or 300,VMRT.Note[self.Name.."Height"] or 200) 
 
 	if VMRT.Note.Alpha then 
 		self:SetAlpha(VMRT.Note.Alpha/100) 
+	else
+		self:SetAlpha(1) 
 	end
 	if VMRT.Note.Scale then 
 		self:SetScale(VMRT.Note.Scale/100) 
+	else
+		self:SetScale(1) 
 	end
 	if VMRT.Note.ScaleBack then
 		self.background:SetColorTexture(0, 0, 0, VMRT.Note.ScaleBack/100)
+	else
+		self.background:SetColorTexture(0, 0, 0, 1)
 	end
 	if VMRT.Note.Fix then
 		self:SetMovable(false)
 		self:EnableMouse(false)
 		self.buttonResize:Hide()
 	else
+		self:SetMovable(true)
+		self:EnableMouse(true)
+		self.buttonResize:Show()
 		self:SetShadowComment(true)
 	end
 
@@ -2612,12 +3111,22 @@ end
 
 local gruevent = {}
 
+NewVMRTTableData = {
+	OnlyPromoted = true,
+	OptionsFormatting = true,
+	Strata = "HIGH",
+}
+
+local isFirstLoad
+
 function module.main:ADDON_LOADED()
 	VMRT = _G.VMRT
-	VMRT.Note = VMRT.Note or {
-		OnlyPromoted = true,
-		OptionsFormatting = true,
-	}
+	VMRT.Note = VMRT.Note or MRT.F.table_copy2(NewVMRTTableData)
+
+	VMRT.Note.Profiles = VMRT.Note.Profiles or {}
+	VMRT.Note.Profiles.List = VMRT.Note.Profiles.List or {}
+	VMRT.Note.Profiles.Now = VMRT.Note.Profiles.Now or "default"
+
 	VMRT.Note.Black = VMRT.Note.Black or {}
 	VMRT.Note.AutoLoad = VMRT.Note.AutoLoad or {}
 
@@ -2636,6 +3145,8 @@ function module.main:ADDON_LOADED()
 
 	if VMRT.Note.enabled then 
 		module:Enable()
+	else
+		module:Disable()
 	end
 	C_Timer.After(5,function()
 		module.allframes:UpdateFont()
@@ -2649,6 +3160,16 @@ function module.main:ADDON_LOADED()
 	module:RegisterSlash()
 
 	module.allframes:UpdateVisual()
+
+	module:RegisterEvents('ZONE_CHANGED_NEW_AREA','PLAYER_SPECIALIZATION_CHANGED')
+	if MRT.isCata then
+		module:RegisterEvents('PLAYER_TALENT_UPDATE')
+	end
+	if not isFirstLoad then
+		isFirstLoad = true
+		C_Timer.After(2,module.CheckZoneProfiles)
+		C_Timer.After(2,function() module.main:PLAYER_TALENT_UPDATE() end)
+	end
 end
 
 function module.main:PLAYER_LOGIN()
@@ -2657,20 +3178,18 @@ function module.main:PLAYER_LOGIN()
 	end
 end
 
+
 function module:Enable()
 	VMRT.Note.enabled = true
 	if module.options.chkEnable then
 		module.options.chkEnable:SetChecked(true)
 	end
-	module:RegisterEvents("PLAYER_SPECIALIZATION_CHANGED","PLAYER_LOGIN","ENCOUNTER_END","ENCOUNTER_START")
+	module:RegisterEvents("PLAYER_LOGIN","ENCOUNTER_END","ENCOUNTER_START")
 	if VMRT.Note.HideOutsideRaid then
 		module:RegisterEvents("GROUP_ROSTER_UPDATE")
 	end
 	if VMRT.Note.HideInCombat then
 		module:RegisterEvents('PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED')
-	end
-	if VMRT.Note.ShowOnlyInRaid then
-		module:RegisterEvents('ZONE_CHANGED_NEW_AREA')
 	end
 	if VMRT.Note.PersonalWindow then
 		module.frame_personal:Enable()
@@ -2686,7 +3205,7 @@ function module:Disable()
 	if module.options.chkEnable then
 		module.options.chkEnable:SetChecked(false)
 	end
-	module:UnregisterEvents('PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED','ZONE_CHANGED_NEW_AREA',"PLAYER_SPECIALIZATION_CHANGED","PLAYER_LOGIN","ENCOUNTER_END","ENCOUNTER_START")
+	module:UnregisterEvents('PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED',"PLAYER_LOGIN","ENCOUNTER_END","ENCOUNTER_START")
 	module:Visibility()
 end
 
@@ -2770,13 +3289,37 @@ function module.main:PLAYER_REGEN_ENABLED()
 end
 
 function module.main:ZONE_CHANGED_NEW_AREA()
-	C_Timer.After(5, module.Visibility)
+	C_Timer.After(1,module.CheckZoneProfiles)
+
+	if VMRT.Note.enabled and VMRT.Note.ShowOnlyInRaid then
+		C_Timer.After(5, module.Visibility)
+	end
 end
 
 function module.main:PLAYER_SPECIALIZATION_CHANGED(unit)
-	if unit == "player" then
+	if VMRT.Note.enabled and unit == "player" then
 		module.allframes:UpdateText()
 	end
+
+	if unit ~= "player" or not GetSpecialization then
+		return
+	end
+
+	local spec = GetSpecialization()
+	if not spec then
+		return
+	end
+
+	local class = (select(2,UnitClass'player')) or ""
+
+	local key = "Spec" .. spec .. class
+	if VMRT.Note.Profiles[key] then
+		module:SelectProfile(VMRT.Note.Profiles[key])
+	end
+end
+
+function module.main:PLAYER_TALENT_UPDATE(unit)
+	module.main:PLAYER_SPECIALIZATION_CHANGED("player")
 end
 
 
@@ -3016,6 +3559,108 @@ do
 	end
 end
 
+do
+	local IGNORE_PROFILE_KEYS = {
+		["Profiles"] = true,
+		["Black"] = true,
+		["BlackNames"] = true,
+		["BlackLastUpdateName"] = true,
+		["BlackLastUpdateTime"] = true,
+		["AutoLoad"] = true,
+	}
+	function module:SaveCurrentProfiletoDB()
+		local profileName = VMRT.Note.Profiles.Now
+
+		local saveDB = {}
+		VMRT.Note.Profiles.List[ profileName ] = saveDB
+
+		for key,val in pairs(VMRT.Note) do
+			if not IGNORE_PROFILE_KEYS[key] then
+				if type(val) == "table" then
+					saveDB[key] = MRT.F.table_copy2(val)
+				else
+					saveDB[key] = val
+				end
+			end
+		end
+	end
+	function module:SelectProfile(name)
+		if name == VMRT.Note.Profiles.Now or not name then
+			return
+		end
+		if not VMRT.Note.Profiles.List[name] then
+			return
+		end
+		module:SaveCurrentProfiletoDB()
+
+		local savedText
+		if VMRT.Note.Profiles.KeepText then
+			savedText = {
+				Text1 = VMRT.Note.Text1,
+				SelfText = VMRT.Note.SelfText,
+			}
+		end
+
+		local savedKeys = {}
+		for key in pairs(IGNORE_PROFILE_KEYS) do
+			if VMRT.Note[key] then
+				savedKeys[key] = VMRT.Note[key]
+			end
+		end
+		MRT.F.table_rewrite(VMRT.Note,VMRT.Note.Profiles.List[name])
+		for key,val in pairs(savedKeys) do
+			VMRT.Note[key] = val
+		end
+
+		VMRT.Note.Profiles.Now = name
+
+		if savedText then
+			for k,v in pairs(savedText) do
+				VMRT.Note[k] = v
+			end
+		end
+
+		module:ReloadProfile()
+
+		VMRT.Note.Profiles.List[name] = nil	--remove data only if reload is successful
+
+		return true
+	end
+	function module:ReloadProfile()
+		module.main:ADDON_LOADED()
+		if module.options.UpdateOptions then
+			module.options:UpdateOptions()
+		end
+	end
+
+	function module:CheckZoneProfiles()
+		local _, zoneType = GetInstanceInfo()
+
+		if zoneType == "arena" then
+			if VMRT.Note.Profiles.Arena then
+				module:SelectProfile(VMRT.Note.Profiles.Arena)
+			end
+		elseif zoneType == "party" then
+			if VMRT.Note.Profiles.Dung then
+				module:SelectProfile(VMRT.Note.Profiles.Dung)
+			end
+		elseif zoneType == "raid" then
+			if VMRT.Note.Profiles.Raid then
+				module:SelectProfile(VMRT.Note.Profiles.Raid)
+			end
+		elseif zoneType == "pvp" then
+			if VMRT.Note.Profiles.BG then
+				module:SelectProfile(VMRT.Note.Profiles.BG)
+			end
+		else
+			if VMRT.Note.Profiles.Other then
+				module:SelectProfile(VMRT.Note.Profiles.Other)
+			end
+		end
+	end
+end
+
+
 function module:slash(arg)
 	if arg == "note" or arg == "n" then
 		if VMRT.Note.enabled then 
@@ -3060,6 +3705,17 @@ function module:slash(arg)
 		if phase then
 			module.main:SetPhase(phase)
 			print("Set phase",phase)
+		end
+	elseif arg and arg:find("^note show ") then
+		local name = arg:match("^note show (.-)$")
+		if name then
+			local nameNumber = tonumber(name)
+			for i=1,#VMRT.Note.Black do
+				local blackName = VMRT.Note.BlackNames[i]
+				if (blackName and blackName:lower() == name) or (nameNumber == i) then
+					module:AddWindow(i)
+				end
+			end
 		end
 	elseif arg == "help" then
 		print("|cff00ff00/rt note|r - hide/show note")

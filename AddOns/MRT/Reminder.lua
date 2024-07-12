@@ -15,11 +15,11 @@ local VMRT = nil
 
 local UnitPowerMax, tonumber, tostring, UnitGUID, PlaySoundFile, RAID_CLASS_COLORS, floor, ceil = UnitPowerMax, tonumber, tostring, UnitGUID, PlaySoundFile, RAID_CLASS_COLORS, floor, ceil
 local UnitHealthMax, UnitHealth, ScheduleTimer, UnitName, GetRaidTargetIndex, UnitCastingInfo, UnitChannelInfo, UnitIsUnit, UnitIsDead = UnitHealthMax, UnitHealth, ExRT.F.ScheduleTimer, UnitName, GetRaidTargetIndex, UnitCastingInfo, UnitChannelInfo, UnitIsUnit, UnitIsDead
-local GetSpellInfo, strsplit, GetTime, UnitPower, UnitGetTotalAbsorbs, UnitAura, UnitClass, GetSpellCooldown, UnitGroupRolesAssigned = GetSpellInfo, strsplit, GetTime, UnitPower, UnitGetTotalAbsorbs, UnitAura, UnitClass, GetSpellCooldown, UnitGroupRolesAssigned
+local GetSpellInfo, strsplit, GetTime, UnitPower, UnitGetTotalAbsorbs, UnitClass, GetSpellCooldown, UnitGroupRolesAssigned = ExRT.F.GetSpellInfo or GetSpellInfo, strsplit, GetTime, UnitPower, UnitGetTotalAbsorbs, UnitClass, ExRT.F.GetSpellCooldown or GetSpellCooldown, UnitGroupRolesAssigned
 local pairs, ipairs, bit, string_gmatch, tremove, pcall, format, wipe, type, select, loadstring, next, max, bit_band, unpack = pairs, ipairs, bit, string.gmatch, tremove, pcall, format, wipe, type, select, loadstring, next, math.max, bit.band, unpack
 
 local senderVersion = 4
-local addonVersion = 38
+local addonVersion = 39
 
 
 module.db.timers = {}
@@ -2608,7 +2608,11 @@ function module.options:Load()
 			return
 		end
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(self["tooltip"..(self.status or 1)])
+		local tip = self["tooltip"..(self.status or 1)]
+		if type(tip) == "function" then
+			tip = tip(self)
+		end
+		GameTooltip:AddLine(tip)
 		GameTooltip:Show()
 	end
 
@@ -2726,6 +2730,7 @@ function module.options:Load()
 						) and
 						(
 						 (self.bossID and data.bossID == self.bossID) or 
+						 (type(self.bossID)=="table" and self.bossID[data.bossID]) or 
 						 (self.zoneID and module:FindNumberInString(self.zoneID,data.zoneID))
 						)
 					then
@@ -2795,6 +2800,11 @@ function module.options:Load()
 			button.bossImg = button:CreateTexture(nil, "ARTWORK")
 			button.bossImg:SetSize(22,22)
 			button.bossImg:SetPoint("LEFT",5,0)
+
+			button.dungImg = button:CreateTexture(nil, "ARTWORK")
+			button.dungImg:SetPoint("TOPLEFT",20,0)
+			button.dungImg:SetPoint("BOTTOMRIGHT",button,"BOTTOM",20,0)
+			button.dungImg:SetAlpha(.7)
 
 			button.remove = Button_Create(button):Point("RIGHT",button,"RIGHT",-30,0)
 			button.remove:SetScript("OnClick",Button_Lvl1_Remove)
@@ -2873,31 +2883,49 @@ function module.options:Load()
 	function self.scrollList:ModButtonUpdate(button,level)
 		if level == 1 then
 			local data = button.data
+			local resetBossImg,resetDungImg = true,true
 			if data.bossID then
-				if ExRT.GDB.encounterIDtoEJ[data.bossID] then
+				if ExRT.GDB.encounterIDtoEJ[data.bossID] and EJ_GetCreatureInfo then
 					local displayInfo = select(4, EJ_GetCreatureInfo(1, ExRT.GDB.encounterIDtoEJ[data.bossID]))
 					if displayInfo then
+						button.bossImg:SetTexCoord(0,1,0,1)
 						SetPortraitTextureFromCreatureDisplayID(button.bossImg, displayInfo)
-					else
-						button.bossImg:SetTexture("")
+						resetBossImg = false
 					end
-				else
-					button.bossImg:SetTexture("")
 				end
-			else
+			elseif data.zoneID then
+				local journalInstance = ExRT.GDB.MapIDToJournalInstance[tonumber(data.zoneID)]
+				if journalInstance and EJ_GetInstanceInfo then
+					local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstance)
+					if buttonImage1 then
+						button.bossImg:SetTexCoord(0.2,0.8,0,0.6)
+						button.bossImg:SetTexture(buttonImage1)
+						resetBossImg = false
+					end
+					if bgImage then
+						button.dungImg:SetTexture(bgImage)
+						button.dungImg:SetTexCoord(0,1,.4,.6)
+						resetDungImg = false
+					end
+				end
+			end
+			if resetBossImg then
 				button.bossImg:SetTexture("")
+			end
+			if resetDungImg then
+				button.dungImg:SetTexture("")
 			end
 
 			if data.bossID or data.zoneID then
-				button.export.bossID = data.bossID
+				button.export.bossID = data.bossID or data.zone_bossID
 				button.export.zoneID = data.zoneID
 				button.export:Show()
 
-				button.send.bossID = data.bossID
+				button.send.bossID = data.bossID or data.zone_bossID
 				button.send.zoneID = data.zoneID
 				button.send:Show()
 
-				button.remove.bossID = data.bossID
+				button.remove.bossID = data.bossID or data.zone_bossID
 				button.remove.zoneID = data.zoneID
 				button.remove:Show()
 			else
@@ -3002,6 +3030,7 @@ function module.options:Load()
 		local currZoneID = select(8,GetInstanceInfo())
 
 		local Mdata = {}
+		local zoneHeaders = {}
 		for uid,data in pairs(CURRENT_DATA) do
 			local tableToAdd
 
@@ -3009,6 +3038,32 @@ function module.options:Load()
 			local zoneID = data.zoneID
 			if zoneID then
 				zoneID = tonumber(tostring(zoneID):match("^[^, ]+") or "",10)
+			end
+
+			local function AddZone(zoneID)
+				local zoneData = ExRT.F.table_find3(Mdata,zoneID,"zoneID")
+				if not zoneData then
+					local journalInstance = ExRT.GDB.MapIDToJournalInstance[tonumber(zoneID)]
+					local fieldName = L.ReminderZone..(VMRT.Reminder2.zoneNames[zoneID] and ": "..VMRT.Reminder2.zoneNames[zoneID].." |cffcccccc("..zoneID..")|r" or " "..zoneID)..(currZoneID == zoneID and " |cff00ff00("..L.ReminderNow..")|r" or "")
+					if journalInstance and EJ_GetInstanceInfo then
+						local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstance)
+						if name then
+							fieldName = name..(currZoneID == zoneID and " |cff00ff00("..L.ReminderNow..")|r" or "")
+						end
+					elseif tonumber(zoneID) == -1 then
+						fieldName = ALWAYS
+					end
+					zoneData = {
+						zoneID = zoneID,
+						name = fieldName,
+						data = {},
+						uid = "zone"..zoneID,
+					}
+					Mdata[#Mdata+1] = zoneData
+			
+					zoneHeaders[zoneID] = zoneData
+				end
+				return zoneData
 			end
 
 			local options = VMRT.Reminder2.options[uid] or 0
@@ -3044,20 +3099,26 @@ function module.options:Load()
 							uid = "boss"..bossID,
 						}
 						Mdata[#Mdata+1] = bossData
+
+						local ej_bossID = ExRT.GDB.encounterIDtoEJ[bossID]
+						if ej_bossID and EJ_GetEncounterInfo then
+							local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfo(ej_bossID)
+							if journalInstanceID then
+								local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstanceID)
+								if mapID then
+									local zoneData = AddZone(mapID)
+									if not zoneData.zone_bossID then
+										zoneData.zone_bossID = {}
+									end
+									zoneData.zone_bossID[bossID] = true
+								end
+									
+							end
+						end
 					end
 					tableToAdd = bossData.data
 				elseif zoneID then
-					local zoneData = ExRT.F.table_find3(Mdata,zoneID,"zoneID")
-					if not zoneData then
-						zoneData = {
-							zoneID = zoneID,
-							name = L.ReminderZoneID.." "..zoneID..(VMRT.Reminder2.zoneNames[zoneID] and ": "..VMRT.Reminder2.zoneNames[zoneID] or "")..(currZoneID == zoneID and " |cff00ff00("..L.ReminderNow..")|r" or ""),
-							data = {},
-							uid = "zone"..zoneID,
-						}
-						Mdata[#Mdata+1] = zoneData
-					end
-					tableToAdd = zoneData.data
+					tableToAdd = AddZone(zoneID).data
 				else
 					local otherData = ExRT.F.table_find3(Mdata,0,"otherID")
 					if not otherData then
@@ -3081,6 +3142,7 @@ function module.options:Load()
 				}
 			end
 		end
+
 		sort(Mdata,function(a,b)
 			if a.bossID and b.bossID then 
 				return GetEncounterSortIndex(a.bossID,10000+a.bossID) < GetEncounterSortIndex(b.bossID,10000+b.bossID)
@@ -3096,6 +3158,7 @@ function module.options:Load()
 				return false
 			end
 		end)
+
 		for i=1,#Mdata do
 			local t = Mdata[i].data
 			sort(t,function(a,b)
@@ -3117,6 +3180,26 @@ function module.options:Load()
 				bossIDnew = Mdata[i].bossID,
 				zoneIDnew = Mdata[i].zoneID,
 			}
+		end
+
+		--re add boss to dungeons
+		for i=#Mdata,1,-1 do
+			local bossID = Mdata[i].bossID
+			if bossID then
+				local ej_bossID = ExRT.GDB.encounterIDtoEJ[bossID]
+				if ej_bossID and EJ_GetEncounterInfo then
+					local name, description, journalEncounterID, rootSectionID, link, journalInstanceID, dungeonEncounterID, instanceID = EJ_GetEncounterInfo(ej_bossID)
+					if journalInstanceID then
+						local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(journalInstanceID)
+						if mapID and zoneHeaders[mapID] then
+							Mdata[i].isSubData = true
+							tinsert(zoneHeaders[mapID].data,1,Mdata[i])
+							tremove(Mdata,i)
+						end
+							
+					end
+				end
+			end
 		end
 
 		self.scrollList.data = Mdata
@@ -4485,9 +4568,27 @@ function module.options:Load()
 	end
 
 	self.setupFrame.zoneID = ELib:Edit(self.setupFrame.tab.tabs[3]):Size(270,20):Point("TOPLEFT",self.setupFrame.bossDiff,"BOTTOMLEFT",0,-5):LeftText(L.ReminderZoneID..":"):OnChange(function(self,isUser)
-		if not isUser then return end
 		local zoneID = self:GetText():trim()
 		if zoneID == "" then zoneID = nil end
+		local extraFilled
+		if zoneID then
+			local instanceID = ExRT.GDB.MapIDToJournalInstance[tonumber(zoneID) or tonumber(strsplit(",",zoneID),10) or ""]
+			if instanceID and EJ_GetInstanceInfo then
+				local name = EJ_GetInstanceInfo(instanceID)
+				if name then
+					self:ExtraText(name)
+					extraFilled = true
+				end
+			end
+			if zoneID == "-1" then
+				self:ExtraText(ALWAYS)
+				extraFilled = true
+			end
+		end
+		if not extraFilled then
+			self:ExtraText("")
+		end
+		if not isUser then return end
 		module.options.setupFrame.data.zoneID = zoneID
 		module.options.setupFrame.tab.tabs[3].button.alert:Update()
 	end):Tooltip(function()
@@ -4495,12 +4596,63 @@ function module.options:Load()
 		return L.ReminderZoneIDTip1..(name or "")..L.ReminderZoneIDTip2..(instanceID or 0)
 	end)
 
-	self.setupFrame.zoneID.auto = ELib:Button(self.setupFrame.tab.tabs[3],L.ReminderAuto):Tooltip(L.ReminderZoneIDAutoTip):Point("LEFT",self.setupFrame.zoneID,"RIGHT",5,0):Size(40,20):OnClick(function()
+	self.setupFrame.zoneID.dd = ELib:DropDownButton(self,"",250,#ExRT.GDB.JournalInstance+3)
+	self.setupFrame.zoneID.dd.isModern = true
+	do
+		local function SetZone(_,arg)
+			module.options.setupFrame.data.zoneID = tostring(arg)
+			ELib:DropDownClose()
+			module.options.setupFrame.tab.tabs[3].button.alert:Update()
+			self.setupFrame:Update(self.setupFrame.data)
+		end
+		self.setupFrame.zoneID.dd.List = {
+			{text = L.ReminderZoneIDAutoTip,func = function()
+				local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
+				SetZone(nil,instanceID)
+			end},
+			{text = ALWAYS,func = function()
+				SetZone(nil,-1)
+			end},
+			{text = L.minimapmenuclose,func = ELib.ScrollDropDown.Close},
+		}
+		if EJ_GetInstanceInfo then
+			for i=1,#ExRT.GDB.JournalInstance do
+				local line = ExRT.GDB.JournalInstance[i]
+				local subMenu = {}
+				for j=2,#line do 
+					if line[j] == 0 then
+						subMenu[#subMenu+1] = {
+							text = " ",
+							isTitle = true,
+						}
+					else
+						local name, description, bgImage, buttonImage1, loreImage, buttonImage2, dungeonAreaMapID, link, shouldDisplayDifficulty, mapID = EJ_GetInstanceInfo(line[j])
+						if mapID then
+							subMenu[#subMenu+1] = {
+								text = name,
+								arg1 = mapID,
+								func = SetZone,
+							}
+						end
+					end
+				end
+				tinsert(self.setupFrame.zoneID.dd.List, 2, {text = (line[1] == -1 and (EXPANSION_SEASON_NAME or "%s Season %d"):format(EXPANSION_NAME9,999):gsub("999",""):gsub("%-й *","") or line[1] == -2 and "New" or _G["EXPANSION_NAME"..line[1]] or "Expansion "..line[1]),subMenu = subMenu})
+			end
+		end
+	end
+	self.setupFrame.zoneID.dd:Hide()
+
+	self.setupFrame.zoneID.auto = ELib:Button(self.setupFrame.tab.tabs[3],LFG_LIST_SELECT or "Select"):Tooltip(L.ReminderZoneIDAutoTip):Point("LEFT",self.setupFrame.zoneID,"RIGHT",5,0):Size(40,20):OnClick(function()
+		--[[
 		local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
 		module.options.setupFrame.data.zoneID = tostring(instanceID)
 		module.options.setupFrame.tab.tabs[3].button.alert:Update()
 		self.setupFrame:Update(self.setupFrame.data)
+		]]
+		self.setupFrame.zoneID.dd:Click()
 	end)
+
+	self.setupFrame.zoneID.dd:SetAllPoints(self.setupFrame.zoneID.auto)
 
 	ELib:DecorationLine(self.setupFrame.tab.tabs[3]):Point("TOP",self.setupFrame.zoneID,"BOTTOM",0,-5):Point("LEFT",self.setupFrame,0,0):Point("RIGHT",self.setupFrame,0,0):Size(0,1)
 
@@ -11841,7 +11993,7 @@ function module:LoadReminders(encounterID,encounterDiff,zoneID,zoneName)
 			#data.triggers > 0 and
 			(
 			 (encounterID and data.bossID == encounterID and (not data.diffID or data.diffID == encounterDiff)) or
-			 (zoneID and module:FindNumberInString(zoneID,data.zoneID))
+			 (zoneID and (module:FindNumberInString(zoneID,data.zoneID) or data.zoneID=="-1"))
 			) and
 			module:CheckPlayerCondition(data,myName,myClass,myRole) and
 			bit.band(VMRT.Reminder2.options[data.uid or 0] or 0,bit.lshift(1,0)) == 0

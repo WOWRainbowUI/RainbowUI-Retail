@@ -1,9 +1,9 @@
-## Interface: 100207
+## Interface: 100207, 110000
 ## Title: Method Raid Tools
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 4860
+## Version: 4880
 ## AddonCompartmentFunc: MRT_MinimapClickFunction
 ## IconTexture: Interface\AddOns\MRT\media\MiniMap.tga
 core.lua
@@ -16,6 +16,7 @@ localization\localization.de.lua
 localization\localization.cn.lua
 localization\localization.tw.lua
 localization\localization.kr.lua
+localization\localization.it.lua
 localization\localization.lua
 BlizzFix.lua
 Options.lua

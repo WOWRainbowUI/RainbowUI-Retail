@@ -10,7 +10,7 @@ local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local UnitGUID = UnitGUID
 local UnitName = UnitName
-local UnitAura = UnitAura
+local C_UnitAuras = C_UnitAuras
 local AntiSpam = ExRT.F.AntiSpam
 local GetUnitInfoByUnitFlag = ExRT.F.GetUnitInfoByUnitFlag
 local UnitInRaid = UnitInRaid
@@ -26,6 +26,7 @@ local tremove = tremove
 local strsplit = strsplit
 local type = type
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned or ExRT.NULLfunc
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 
 local VMRT = nil
 
@@ -476,12 +477,12 @@ local SLTReductionSourceGUID = nil
 local SLTReductionFrame = CreateFrame("Frame")
 SLTReductionFrame:SetScript("OnEvent",function(_,_,unit)
 	local findEm = nil
-	for i=1,40 do
-		local name,icon,count,dispelType,duration,expires,caster,isStealable,_,spellId = UnitAura(unit, i, "HELPFUL")
-		if spellId == SLTReductionAuraSpellID then 
-			findEm = true
+	for i=1,60 do
+		local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
+		if not auraData then
 			break
-		elseif not name then
+		elseif auraData.spellId == SLTReductionAuraSpellID then 
+			findEm = true
 			break
 		end
 	end    
@@ -610,19 +611,19 @@ local function addReductionOnPull(unit,destGUID)
 
 
 	--------------> Add active reductions from current auras
-	for i=1,40 do
-		local _,_,stacksCount,_,_,_,casterUnit,_,_,spellID,_,_,_,_,_,val1,val2,val3,val4,val5 = UnitAura(unit,i)
+	for i=1,60 do
+		local auraData = C_UnitAuras.GetAuraDataByIndex(unit,i)
 
-		if not spellID then
+		if not auraData then
 			return
 		end
 
 		--------------> Add reduction
-		local reduction = var_reductionAuras[spellID]
+		local reduction = var_reductionAuras[auraData.spellId]
 		if reduction then
 			local sourceGUID = nil
-			if casterUnit then
-				sourceGUID = UnitGUID(casterUnit)
+			if auraData.sourceUnit then
+				sourceGUID = UnitGUID(auraData.sourceUnit)
 			end
 			sourceGUID = sourceGUID or ""
 
@@ -642,8 +643,8 @@ local function addReductionOnPull(unit,destGUID)
 			end
 
 			if funcAura then
-				if val1 then
-					reduction, func = funcAura(val1 or 0,val2 or 0,val3 or 0,val4 or 0,val5 or 0)
+				if auraData.points then
+					reduction, func = funcAura(auraData.points[1] or 0,auraData.points[2] or 0,auraData.points[3] or 0,auraData.points[4] or 0,auraData.points[5] or 0)
 					if not reduction then
 						reduction = reductionTable[1]
 						func = reductionTable[2]
@@ -677,15 +678,15 @@ local function addReductionOnPull(unit,destGUID)
 
 				local currReduction = 1 / (1 - (from - from * reduction))
 				destData[destCount + 1] = {
-					s = spellID,
+					s = auraData.spellId,
 					r = reduction,
 					c = (currReduction - 1),
 					g = sourceGUID,
 					f = func,
 				}
 
-				if not spellsSchool[spellID] then
-					spellsSchool[spellID] = 0x1
+				if not spellsSchool[auraData.spellId] then
+					spellsSchool[auraData.spellId] = 0x1
 				end
 			end
 		end
@@ -1897,11 +1898,13 @@ function module.main.SPELL_AURA_APPLIED(timestamp,event,hideCaster,sourceGUID,so
 		end
 
 		if funcAura then
-			for i=1,40 do
-				local auraName,_,count,_,_,_,_,_,_,_,_,_,_,_,_,val1,val2,val3,val4,val5 = UnitAura(destName or "?",i)
-				if auraName == spellName then
-					if val1 then
-						reduction, func = funcAura(val1 or 0,val2 or 0,val3 or 0,val4 or 0,val5 or 0)
+			for i=1,60 do
+				local auraData = C_UnitAuras.GetAuraDataByIndex(destName or "?",i)
+				if not auraData then
+					break
+				elseif auraData.spellId == spellID then
+					if auraData.points then
+						reduction, func = funcAura(auraData.points[1] or 0,auraData.points[2] or 0,auraData.points[3] or 0,auraData.points[4] or 0,auraData.points[5] or 0)
 						if not reduction then
 							reduction = reductionTable[1]
 							func = reductionTable[2]
@@ -1911,8 +1914,6 @@ function module.main.SPELL_AURA_APPLIED(timestamp,event,hideCaster,sourceGUID,so
 					else
 						funcAura = nil
 					end
-					break
-				elseif not auraName then
 					break
 				end
 			end
@@ -2668,7 +2669,7 @@ function BWInterfaceFrameLoad()
 
 	-- Some upvaules
 	local ipairs,pairs,tonumber,tostring,format,date,min,sort,table = ipairs,pairs,tonumber,tostring,format,date,min,sort,table
-	local GetSpellInfo = GetSpellInfo
+	local GetSpellInfo = ExRT.F.GetSpellInfo or GetSpellInfo
 	if ExRT.isClassic and not ExRT.isCata then
 		local _GetSpellInfo = GetSpellInfo
 		function GetSpellInfo(spellID)
@@ -2925,7 +2926,7 @@ function BWInterfaceFrameLoad()
 
 
 	---- Bugfix functions
-	local _GetSpellLink = GetSpellLink
+	local _GetSpellLink = C_Spell and C_Spell.GetSpellLink or GetSpellLink
 	local function GetSpellLink(spellID)
 		local link = _GetSpellLink(spellID)
 		if link then

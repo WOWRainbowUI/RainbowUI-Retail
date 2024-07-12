@@ -1,14 +1,20 @@
 local GlobalAddonName, ExRT = ...
 
-local GetTime, IsEncounterInProgress, RAID_CLASS_COLORS, GetInstanceInfo, GetSpellCharges, SecondsToTime, IsInJailersTower = GetTime, IsEncounterInProgress, RAID_CLASS_COLORS, GetInstanceInfo, GetSpellCharges, SecondsToTime, IsInJailersTower
+local GetTime, IsEncounterInProgress, RAID_CLASS_COLORS, GetInstanceInfo, GetSpellCharges, SecondsToTime, IsInJailersTower = GetTime, IsEncounterInProgress, RAID_CLASS_COLORS, GetInstanceInfo, ExRT.F.GetSpellCharges or GetSpellCharges, SecondsToTime, IsInJailersTower
 local string_gsub, wipe, tonumber, pairs, ipairs, string_trim, format, floor, ceil, abs, type, sort, select, Enum = string.gsub, table.wipe, tonumber, pairs, ipairs, string.trim, format, floor, ceil, abs, type, sort, select, Enum
-local UnitIsDeadOrGhost, UnitIsConnected, UnitName, UnitCreatureFamily, UnitIsDead, UnitIsGhost, UnitGUID, UnitInRange, UnitPhaseReason, UnitAura = UnitIsDeadOrGhost, UnitIsConnected, UnitName, UnitCreatureFamily, UnitIsDead, UnitIsGhost, UnitGUID, UnitInRange, UnitPhaseReason, UnitAura
+local UnitIsDeadOrGhost, UnitIsConnected, UnitName, UnitCreatureFamily, UnitIsDead, UnitIsGhost, UnitGUID, UnitInRange, UnitPhaseReason = UnitIsDeadOrGhost, UnitIsConnected, UnitName, UnitCreatureFamily, UnitIsDead, UnitIsGhost, UnitGUID, UnitInRange, UnitPhaseReason
 
 local RaidInCombat, ClassColorNum, GetDifficultyForCooldownReset, DelUnitNameServer, NumberInRange, FireCallback = ExRT.F.RaidInCombat, ExRT.F.classColorNum, ExRT.F.GetDifficultyForCooldownReset, ExRT.F.delUnitNameServer, ExRT.F.NumberInRange, ExRT.F.FireCallback
 local GetEncounterTime, UnitCombatlogname, GetUnitInfoByUnitFlag, ScheduleTimer, CancelTimer, GetRaidDiffMaxGroup, table_wipe2, dtime, utf8sub = ExRT.F.GetEncounterTime, ExRT.F.UnitCombatlogname, ExRT.F.GetUnitInfoByUnitFlag, ExRT.F.ScheduleTimer, ExRT.F.CancelTimer, ExRT.F.GetRaidDiffMaxGroup, ExRT.F.table_wipe, ExRT.F.dtime, ExRT.F.utf8sub
 local C_PvP_IsWarModeDesired = C_PvP.IsWarModeDesired
+local C_UnitAuras_GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex
+local GetSpellCooldown = ExRT.F.GetSpellCooldown or GetSpellCooldown
+local GetSpellInfo = ExRT.F.GetSpellInfo or GetSpellInfo
+local GetSpellLink = C_Spell and C_Spell.GetSpellLink or GetSpellLink
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+local GetItemInfo, GetItemInfoInstant, GetItemSpell = C_Item and C_Item.GetItemInfo or GetItemInfo, C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant, C_Item and C_Item.GetItemSpell or GetItemSpell
 
-local GetSpellLevelLearned = GetSpellLevelLearned
+local GetSpellLevelLearned = C_Spell and C_Spell.GetSpellLevelLearned or GetSpellLevelLearned
 if ExRT.isClassic then
 	GetSpellLevelLearned = function () return 1 end
 	IsInJailersTower = function() end
@@ -3987,11 +3993,11 @@ do
 	end
 	local function IsAuraActive(unit,spellID)
 		for i=1,60 do
-			local name,_,_,_,_,_,_,_,_,auraSpellID = UnitAura(unit,i)
-			if spellID == auraSpellID then
-				return true
-			elseif not name then
+			local auraData = C_UnitAuras_GetAuraDataByIndex(unit,i)
+			if not auraData then
 				return
+			elseif spellID == auraData.spellId then
+				return true
 			end
 		end
 	end
@@ -4631,14 +4637,15 @@ function module.main:UNIT_AURA(unitID)
 		end
 		--cooldownsModule:ClearSessionDataReason(name,"torghast")
 		for i=1,60 do
-			local _, _, count, _, _, _, _, _, _, spellId = UnitAura(unitID, i, "MAW")
-			if not spellId then
+			local auraData = C_UnitAuras_GetAuraDataByIndex(unitID, i, "MAW")
+			if not auraData then
 				break
 			else
+				local count = auraData.applications
 				if count and count < 2 then
 					count = nil
 				end
-				_db.session_gGUIDs[name] = {spellId,"torghast",count}
+				_db.session_gGUIDs[name] = {auraData.spellId,"torghast",count}
 			end
 		end
 	end
@@ -4646,10 +4653,10 @@ function module.main:UNIT_AURA(unitID)
 	if guid and FD_GUIDs[guid] then
 		local FD_Found
 		for i=1,60 do
-			local _, _, _, _, _, _, _, _, _, spellId = UnitAura(unitID, i)
-			if not spellId then
+			local auraData = C_UnitAuras_GetAuraDataByIndex(unitID, i)
+			if not auraData then
 				break
-			elseif spellId == 5384 then
+			elseif auraData.spellId == 5384 then
 				FD_Found = true
 			end
 		end
@@ -4897,11 +4904,11 @@ do
 
 	local function IsAuraActive(unit,spellID)
 		for i=1,60 do
-			local name,_,_,_,_,_,_,_,_,auraSpellID = UnitAura(unit,i)
-			if spellID == auraSpellID then
-				return true
-			elseif not name then
+			local auraData = C_UnitAuras_GetAuraDataByIndex(unit,i)
+			if not auraData then
 				return
+			elseif spellID == auraData.spellId then
+				return true
 			end
 		end
 	end
@@ -4956,7 +4963,8 @@ do
 		print = print,
 		abs = abs,
 		C_Timer = C_Timer,
-		UnitAura = UnitAura,
+		C_UnitAuras = C_UnitAuras,
+		GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex,
 		UnitSpellHaste = UnitSpellHaste,
 		UnitHealthMax = UnitHealthMax,
 		UnitHealth = UnitHealth,
@@ -5214,11 +5222,11 @@ do
 					end
 					local power
 					for i=1,60 do
-						local _,_,_,_,_,_,_,_,_,auraSpellID,_,_,_,_,_,val = UnitAura(destName,i)
-						if not auraSpellID then
+						local auraData = C_UnitAuras.GetAuraDataByIndex(destName,i)
+						if not auraData then
 							break
-						elseif auraSpellID == 328622 or auraSpellID == 388010 then
-							power = (val or 30)/100
+						elseif auraData.spellId == 328622 or auraData.spellId == 388010 then
+							power = (auraData.points and auraData.points[1] or 30)/100
 							break
 						end
 					end
@@ -5276,11 +5284,11 @@ do
 					end
 					local power
 					for i=1,60 do
-						local _,_,_,_,_,_,_,_,_,auraSpellID,_,_,_,_,_,val = UnitAura(destName,i)
-						if not auraSpellID then
+						local auraData = C_UnitAuras.GetAuraDataByIndex(destName,i)
+						if not auraData then
 							break
-						elseif auraSpellID == 204366 then
-							power = (val or 30)/100
+						elseif auraData.spellId == 204366 then
+							power = (auraData.points and auraData.points[1] or 30)/100
 							break
 						end
 					end
@@ -12070,7 +12078,25 @@ module.db.AllSpells = {
 		cdDiff={329588,-10},hideWithTalent=213602},
 	{47788,	"PRIEST,DEFTAR",2,--Оберегающий дух
 		nil,nil,{47788,180,10},nil,
-		isTalent=true,durationDiff={337811,2,329693,"*1.80"},stopDurWithAuraFade=47788,changeCdAfterAuraFullDur={{47788,200209},-110}},
+		isTalent=true,durationDiff={337811,2,329693,"*1.80"},stopDurWithAuraFade=47788,--changeCdAfterAuraFullDur={{47788,200209},-110},
+		CLEU_PREP = [[
+			spell47788_var = {}
+		]],CLEU_SPELL_CAST_SUCCESS=[[
+			if spellID == 47788 then
+				spell47788_var[sourceGUID.."-"..(destGUID or "")] = nil
+			end
+		]],CLEU_SPELL_AURA_REMOVED=[[
+			if spellID == 47788 and session_gGUIDs[sourceName][200209] and not spell47788_var[sourceGUID.."-"..(destGUID or "")] then
+				local line = CDList[sourceName][47788]
+				if line then
+					line:ModCD(-110)
+				end
+			end
+		]],CLEU_SPELL_HEAL=[[
+			if spellID == 48153 then
+				spell47788_var[sourceGUID.."-"..(destGUID or "")] = true
+			end
+		]]},
 	{88625,	"PRIEST",3,--Слово Света: Наказание
 		nil,nil,{88625,60,0},nil,
 		isTalent=true,resetBy=200183,reduceCdAfterCast={{14914,336314},-4,{14914,390994},{-2,-4},585,-4,{585,196985},{-0.4,-0.8},{585,200183,nil,200183},-12,{585,338345},{-0.24,-0.352,-0.384,-0.416,-0.448,-0.48,-0.512,-0.544,-0.576,-0.608,-0.64,-0.672,-0.704,-0.736,-0.768},{585,338345,nil,200183},{-0.72,-1.056,-1.152,-1.248,-1.344,-1.44,-1.536,-1.632,-1.728,-1.824,-1.92,-2.016,-2.112,-2.208,-2.304}}},
@@ -12118,7 +12144,7 @@ module.db.AllSpells = {
 		nil,nil,{33076,12,0},nil,
 		isTalent=true,changeCdWithHaste=true},
 	{8122,	"PRIEST,AOECC",3,--Ментальный крик
-		{8122,60,8},nil,nil,nil,
+		{8122,45,8},nil,nil,nil,
 		cdDiff={196704,-15},hideWithTalent=205369},
 	{527,	"PRIEST,DISPEL",5,--Очищение
 		nil,{527,8,0},{527,8,0},nil,
@@ -12146,7 +12172,7 @@ module.db.AllSpells = {
 		isTalent=true,changeDurWithHaste=true,stopDurWithAuraFade=64901},
 	{15286,	"PRIEST,RAID",1,--Объятия вампира
 		{15286,120,15},nil,nil,nil,
-		isTalent=true,durationDiff={329693,"*1.80"},cdDiff={199855,-45}},
+		isTalent=true,durationDiff={329693,"*1.80"},cdDiff={199855,-30}},
 	{228260,"PRIEST,DPS",3,--Извержение Бездны
 		nil,nil,nil,{228260,90,0}},
 	{200183,"PRIEST,HEAL",3,--Прославление
@@ -13756,7 +13782,7 @@ module.db.AllSpells = {
 		durationDiff={235893,-15},cdDiff={320421,{-30,-60},235893,-60,296320,"*0.80"},sameSpell={200166,191427}},
 	{204596,"DEMONHUNTER",3,--Печать огня
 		{204596,30,2},
-		isTalent=true,durationDiff={209281,-1},cdDiff={211489,"*0.75"},
+		isTalent=true,durationDiff={209281,-1},cdDiff={211489,"*0.75"},hasCharges=428557,
 		CLEU_PREP = [[
 			spell389718_var204596 = {}
 		]],CLEU_SPELL_AURA_APPLIED=[[
@@ -13766,7 +13792,7 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][204596]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
@@ -13777,14 +13803,14 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][204596]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
 		]]},
 	{207684,"DEMONHUNTER,AOECC",1,--Печать страдания
 		{207684,120,2},
-		isTalent=true,durationDiff={209281,-1},cdDiff={320418,-30,211489,"*0.75"},
+		isTalent=true,durationDiff={209281,-1},cdDiff={320418,-30,211489,"*0.75"},hasCharges=428557,
 		CLEU_PREP = [[
 			spell389718_var207684 = {}
 		]],CLEU_SPELL_AURA_APPLIED=[[
@@ -13794,7 +13820,7 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][207684]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
@@ -13805,13 +13831,13 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][207684]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
 		]]},
 	{202137,"DEMONHUNTER,UTIL",1,--Печать немоты
-		nil,nil,{202137,60,2},
+		nil,nil,{202137,90,2},
 		isTalent=true,durationDiff={209281,-1},cdDiff={211489,"*0.75"},hasCharges=428557,
 		CLEU_PREP = [[
 			spell389718_var202137 = {}
@@ -13822,7 +13848,7 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][202137]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
@@ -13833,7 +13859,7 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][202137]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
@@ -13874,7 +13900,7 @@ module.db.AllSpells = {
 		isTalent=true},
 	{202138,"DEMONHUNTER,UTIL",3,--Печать цепей
 		nil,nil,{202138,60,2},
-		isTalent=true,cdDiff={211489,"*0.75"},
+		isTalent=true,cdDiff={211489,"*0.75"},hasCharges=428557,
 		CLEU_PREP = [[
 			spell389718_var202138 = {}
 		]],CLEU_SPELL_AURA_APPLIED=[[
@@ -13884,7 +13910,7 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][202138]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
@@ -13895,7 +13921,7 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][202138]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
@@ -13915,7 +13941,7 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][390163]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
@@ -13926,7 +13952,7 @@ module.db.AllSpells = {
 					
 					local line = CDList[sourceName][390163]
 					if line then
-						line:ReduceCD(3)
+						line:ReduceCD(2)
 					end
 				end
 			end
@@ -14695,6 +14721,7 @@ if ExRT.isCata then
 		{676,	"WARRIOR",	1,	{676,	60,	10}},	--Disarm
 		{55694,	"WARRIOR",	1,	{55694,	180,	10}},	--Enraged Regeneration
 		{64382,	"WARRIOR",	1,	{64382,	300,	10}},	--Shattering Throw	
+		{97462,	"WARRIOR",	1,	{97462,	180,	10}},	--Rallying Cry	
 
 		{11958,	"MAGE",		1,	{11958,	480,	0}},	--Cold Snap
 		{12472,	"MAGE",		1,	{12472,	180,	20}},	--IV
@@ -14713,6 +14740,7 @@ if ExRT.isCata then
 		{64205,	"PALADIN",	1,	{64205,	120,	10}},	--Divine Sacrifice
 		{31821,	"PALADIN",	1,	{31821,	120,	6}},	--Aura Mastery
 		{54428,	"PALADIN",	1,	{54428,	120,	9}},	--Divine Plea
+		{70940, "PALADIN", 	1, 	{70940, 180, 	6}}, 	--Divine Guardian
 
 		{16190,	"SHAMAN",	1,	{16190,	180,	12}},	--MTT
 		{98008,	"SHAMAN",	1,	{98008,	180,	6}},	--SLT
@@ -14763,6 +14791,8 @@ if ExRT.isCata then
 	module.db.spell_isTalent[33891] = true
 	module.db.spell_isTalent[48505] = true
 	module.db.spell_isTalent[50334] = true
+	module.db.spell_isTalent[98008] = true
+	module.db.spell_isTalent[97462] = true
 
 	module.db.spell_resetOtherSpells[GetSpellInfo(11958) or "spell:11958"] = {GetSpellInfo(45438)}
 

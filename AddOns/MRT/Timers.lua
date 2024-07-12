@@ -74,9 +74,7 @@ local function ToRaid(msg)
 	end
 end
 
-local dbmPrefix = (ExRT.isClassic and ExRT.isLK) and "D5WC" or
-	ExRT.isClassic and "D5C" or
-	"D5"
+local dbmPrefix = "D5"
 
 local function CreateTimers(ctime,cname)
 	local chat_type,playerName = ExRT.F.chatType()
@@ -91,6 +89,8 @@ local function CreateTimers(ctime,cname)
 	if cname == L.timerattack then
 		if SlashCmdList.BIGWIGSPULL then
 			SlashCmdList.BIGWIGSPULL(ctime)
+		elseif SlashCmdList.DEADLYBOSSMODSPULL then
+			SlashCmdList.DEADLYBOSSMODSPULL(ctime)
 		end
 		SendAddonMessage("BigWigs", "P^Pull^"..ctime, chat_type,playerName)
 		local _,_,_,_,_,_,_,mapID = GetInstanceInfo()
@@ -101,12 +101,17 @@ local function CreateTimers(ctime,cname)
 	elseif cname == L.timerafk then
 		if SlashCmdList.BIGWIGSBREAK then
 			SlashCmdList.BIGWIGSBREAK(tostring(tonumber(ctime)/60))
+		elseif SlashCmdList.DEADLYBOSSMODSBREAK then
+			SlashCmdList.DEADLYBOSSMODSBREAK(tostring(tonumber(ctime)/60))
 		end
+
 		SendAddonMessage("BigWigs", "P^Break^"..ctime, chat_type,playerName)
 		SendAddonMessage(dbmPrefix, ("%s1\tBT\t%d"):format(dbmPlayerPrefix, ctime), chat_type,playerName)
 	else
 		if SlashCmdList.BIGWIGSLOCALBAR then
 			SlashCmdList.BIGWIGSLOCALBAR(ctime.." "..cname)
+		elseif SlashCmdList.DEADLYBOSSMODS then
+			SlashCmdList.DEADLYBOSSMODS("timer "..ctime.." "..cname)
 		end
 		SendAddonMessage("BigWigs", "P^CBar^"..ctime.." "..cname, chat_type,playerName)
 		SendAddonMessage(dbmPrefix, ("%s1\tU\t%d\t%s"):format(dbmPlayerPrefix, ctime, cname), chat_type,playerName)

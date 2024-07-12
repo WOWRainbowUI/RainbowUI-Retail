@@ -367,12 +367,19 @@ do
 		
 		if i < MAX_WM_BUTTONS then
 			frame:RegisterForClicks("AnyDown", "AnyUp")
-			frame:SetAttribute("type", "macro")
-			frame:SetAttribute("macrotext1", format("/wm %d", i))
-			frame:SetAttribute("macrotext2", format("/cwm %d", i))
-			if ExRT.locale == "ptBR" or ExRT.locale == "esES" or ExRT.locale == "esMX" or ExRT.locale == "ptPT" then
-				frame:SetAttribute("macrotext1", format(SLASH_WORLD_MARKER1.." %d", i))
-				frame:SetAttribute("macrotext2", format(SLASH_CLEAR_WORLD_MARKER1.." %d", i))
+			if ExRT.is11 then
+				frame:SetAttribute("type", "worldmarker")
+				frame:SetAttribute("marker", tostring(i))
+				frame:SetAttribute("action1", "set")
+				frame:SetAttribute("action2", "clear")
+			else
+				frame:SetAttribute("type", "macro")
+				frame:SetAttribute("macrotext1", format("/wm %d", i))
+				frame:SetAttribute("macrotext2", format("/cwm %d", i))
+				if ExRT.locale == "ptBR" or ExRT.locale == "esES" or ExRT.locale == "esMX" or ExRT.locale == "ptPT" then
+					frame:SetAttribute("macrotext1", format(SLASH_WORLD_MARKER1.." %d", i))
+					frame:SetAttribute("macrotext2", format(SLASH_CLEAR_WORLD_MARKER1.." %d", i))
+				end
 			end
 			frame:SetScript('OnEvent', MainFrameWMOnEvent)
 		else
@@ -436,12 +443,19 @@ for i=1,MAX_WM_BUTTONS do
 
 	if i < MAX_WM_BUTTONS then
 		frame:RegisterForClicks("AnyDown", "AnyUp")
-		frame:SetAttribute("type", "macro")
-		frame:SetAttribute("macrotext1", format("/wm %d", i))
-		frame:SetAttribute("macrotext2", format("/cwm %d", i))
-		if ExRT.locale == "ptBR" or ExRT.locale == "esES" or ExRT.locale == "esMX" or ExRT.locale == "ptPT" then
-			frame:SetAttribute("macrotext1", format(SLASH_WORLD_MARKER1.." %d", i))
-			frame:SetAttribute("macrotext2", format(SLASH_CLEAR_WORLD_MARKER1.." %d", i))
+		if ExRT.is11 then
+			frame:SetAttribute("type", "worldmarker")
+			frame:SetAttribute("marker", tostring(i))
+			frame:SetAttribute("action1", "set")
+			frame:SetAttribute("action2", "clear")
+		else
+			frame:SetAttribute("type", "macro")
+			frame:SetAttribute("macrotext1", format("/wm %d", i))
+			frame:SetAttribute("macrotext2", format("/cwm %d", i))
+			if ExRT.locale == "ptBR" or ExRT.locale == "esES" or ExRT.locale == "esMX" or ExRT.locale == "ptPT" then
+				frame:SetAttribute("macrotext1", format(SLASH_WORLD_MARKER1.." %d", i))
+				frame:SetAttribute("macrotext2", format(SLASH_CLEAR_WORLD_MARKER1.." %d", i))
+			end
 		end
 		frame:SetScript('OnEvent', MainFrameWMOnEvent)
 	else

@@ -50,6 +50,7 @@ All functions:
 	:TopText(text)		-> Add text at top
 	:BackgroundText(text)	-> Add text inside edit while not in focus
 	:ColorBorder(bool) or :ColorBorder(cR,cG,cB,cA) -> Set colors for border; [true: red; false: default]
+	:ExtraText(text)	-> Add text backgroung after main text
 -> ELib:Frame(parent,template)
 	:Texture(texture,layer)	-> create and/or set texture
 	:Texture(cR,cG,cB,cA,layer) -> create and/or set texture
@@ -312,7 +313,7 @@ do
 		if not x then
 			x,y = GetCursorPos(frame)
 		end
-		local obj = GetMouseFocus()
+		local obj = GetMouseFoci and GetMouseFoci()[1] or GetMouseFocus()
 		if x > 0 and y > 0 and x < frame:GetWidth() and y < frame:GetHeight() and (obj == frame or (childs and FindAllParents(frame,obj))) then
 			return true
 		end
@@ -2694,6 +2695,9 @@ do
 	end
 	local function Widget_OnChange(self,func)
 		self:SetScript("OnTextChanged",func)
+		if self.extraTextFunc then
+			self:extraTextFunc()
+		end
 		return self
 	end
 	local function Widget_OnFocus(self,gained,lost)
@@ -2765,6 +2769,30 @@ do
 		return self
 	end
 
+	local function ModExtraText_Func(self)
+		local script = self:GetScript("OnTextChanged")
+		self:SetScript("OnTextChanged",function(...)
+			for i=1,self:GetNumRegions() do
+				local region = select(i,self:GetRegions())
+				if region:GetObjectType() == "FontString" then
+					self.extraText:Point("LEFT",2+region:GetStringWidth()+5,0)
+					break
+				end
+			end
+			return script(...)
+		end)
+	end
+	local function Widget_AddExtraText(self,text)
+		if not self.extraText then
+			self.extraText = ELib:Text(self,"",10,"ChatFontNormal"):Point("RIGHT",-2,0):Color(.5,.5,.5)
+			self.extraTextFunc = ModExtraText_Func
+			self:extraTextFunc()
+		end
+
+		self.extraText:SetText(text)
+		return self
+	end
+
 	local function Widget_ColorBorder(self,cR,cG,cB,cA)
 		if type(cR)=="number" then
 			ELib:Templates_Border(self,cR,cG,cB,cA,1)
@@ -2825,7 +2853,8 @@ do
 			'TopText',Widget_AddLeftTop,
 			'BackgroundText',Widget_AddBackgroundText,
 			'ColorBorder',Widget_ColorBorder,
-			'GetTextHighlight',Widget_GetTextHighlight
+			'GetTextHighlight',Widget_GetTextHighlight,
+			'ExtraText',Widget_AddExtraText
 		)
 
 		return self
@@ -6260,13 +6289,13 @@ do
 	end
 
 	local function ButtonLevel1Click(self)
-		local parent = self:GetParent():GetParent()
+		local parent = self.parent
 		local uid = self.uid
 		parent.stateExpand[uid] = not parent.stateExpand[uid]
 		parent:Update()
 	end
 	local function ButtonLevel2Click(self,...)
-		local parent = self:GetParent():GetParent():GetParent():GetParent()
+		local parent = self.parent
 		parent.ButtonClick(self,...)
 	end
 	local function ButtonLevel2OnDragStart(self)
@@ -6324,6 +6353,8 @@ do
 		end
 		local button = ELib:Button(self.C," "):OnClick(level == 1 and ButtonLevel1Click or ButtonLevel2Click)
 		self["button"..level][button] = true
+
+		button.parent = self
 
 		local textObj = button:GetTextObj()
 		textObj:ClearAllPoints()
@@ -6423,6 +6454,189 @@ do
 		return line
 	end
 
+	local function CheckStateExpandChanged(self,uid,sub)
+		return (self.stateExpand[uid] and not sub:IsShown()) or (not self.stateExpand[uid] and sub:IsShown())
+	end
+
+	local function CheckStateExpandChangedChilds(self,uid,subData)
+		if self.stateExpand[uid] and subData then
+			for j=1,#subData do
+				local subNow = subData[j]
+				if type(subNow) == "table" and subNow.isSubData then
+					local sub_uid = subNow.uid or subNow.name
+
+					local list = self["button"..1]
+					local btn
+					for v in pairs(list) do
+						if v.uid == sub_uid and v:IsShown() then
+							btn = v
+							break
+						end
+					end
+					if btn and CheckStateExpandChanged(self,sub_uid,btn.sub) then
+						return true
+					end
+				end
+			end
+		end
+	end
+
+	local function UpdateT1Button(self,now,isUpdateReq,topStart,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth,parent)
+		local uid = now.uid or now.name
+
+		local button = GetButton(self,1,uid or tostring(now))
+		if parent then
+			button:SetParent(parent)
+			button.sub.back:SetColorTexture(.3,.3,.3,.9)
+		else
+			button:SetParent(self.C)
+			button.sub.back:SetColorTexture(.2,.2,.2,.9)
+		end
+		button:Point("TOP",0,-topStart):Size(self.Width - 10 * (parent and 2 or 1),30)
+
+		local isUpdateReqPre = isUpdateReq
+		
+		isUpdateReq = isUpdateReq or (button.uid ~= button.prevUid) or CheckStateExpandChanged(self,uid,button.sub) or CheckStateExpandChangedChilds(self,uid,now.data)
+		if isUpdateReq then
+			button:SetText(now.name or "")
+			button.data = now
+			if self.ModButtonUpdate then
+				self:ModButtonUpdate(button,1)
+			end
+		end
+		button:Show()
+	
+		local subTop = 0
+		if self.stateExpand[uid] then
+			subTop = 5
+	
+			local subData = now.data
+			local widthNow = 0
+			if subData then
+				for j=1,#subData do
+					local subNow = subData[j]
+					if subNow == 0 then
+						widthNow = 0
+						subTop = subTop + BUTTON_HEIGHT + 5
+					elseif subNow == 1 then
+						widthNow = 0
+						subTop = subTop + BUTTON_HEIGHT + 5
+	
+						local line = GetLine(self,subNow..tostring(subData))
+						if isUpdateReq then
+							line:SetParent(button.sub)
+							line:NewPoint("TOPLEFT",0,-subTop+BUTTON_HEIGHT/2+4):Point("RIGHT",0,0)
+						end
+						line:Show()
+					elseif type(subNow) == "table" and subNow.isSubData then
+						widthNow = 0
+	
+						local expandHeight = UpdateT1Button(self,subNow,isUpdateReqPre,subTop,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth-5,button.sub)
+
+						subTop = subTop + 30 + expandHeight + 5
+					elseif type(subNow) == "string" then
+						if widthNow > 0 then
+							widthNow = 0
+							subTop = subTop + BUTTON_HEIGHT + 5
+						end
+	
+						local groupText = GetGroupText(self,subNow..tostring(subData))
+						if isUpdateReq then
+							groupText:SetParent(button.sub)
+							groupText:Point("TOPLEFT",15,-subTop):Size(buttonWidth,GROUP_HEIGHT)
+							groupText:SetText(subNow)
+						end
+						groupText:Show()
+	
+						subTop = subTop + GROUP_HEIGHT + 5
+					else
+						local subUid = subNow.uid or subNow.name
+						local subButton = GetButton(self,2,subUid or tostring(subNow))
+						if isUpdateReq then
+							subButton:SetParent(button.sub)
+							subButton:ClearAllPoints()
+							subButton:Point("TOPLEFT",5+widthNow,-subTop):Size(buttonWidth,BUTTON_HEIGHT)
+							subButton:SetText(subNow.name or "")
+							subButton.data = subNow
+	
+							if subNow.drag then
+								subButton:SetMovable(true)
+								subButton:RegisterForDrag("LeftButton")
+							else
+								subButton:SetMovable(false)
+							end
+	
+							if self.ModButtonUpdate then
+								self:ModButtonUpdate(subButton,2)
+							end
+						end
+						subButton:Show()
+	
+						widthNow = widthNow + buttonWidth + 10
+						if widthNow >= (self.Width - 20) then
+							widthNow = 0
+							subTop = subTop + BUTTON_HEIGHT + 5
+						end
+					end
+				end
+			end
+	
+			if isUpdateReq then
+				button.expandIcon.texture:SetTexCoord(0.25,0.3125,0.5,0.625)
+				button.sub:Show()
+				button.sub:SetHeight(5 + subTop + (widthNow > 0 and BUTTON_HEIGHT or 0))
+			end
+			subTop = subTop + 5 + (widthNow > 0 and BUTTON_HEIGHT or 0)
+		else
+			if isUpdateReq then
+				button.expandIcon.texture:SetTexCoord(0.375,0.4375,0.5,0.625)
+				button.sub:Hide()
+			end
+		end
+
+		return subTop
+	end
+	
+	local function CalculateHeight(self,subData,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth)
+		local subTop = 5
+		local widthNow = 0
+		for j=1,#subData do
+			local subNow = subData[j]
+			if subNow == 0 then
+				widthNow = 0
+				subTop = subTop + BUTTON_HEIGHT + 5
+			elseif subNow == 1 then
+				widthNow = 0
+				subTop = subTop + BUTTON_HEIGHT + 5
+			elseif type(subNow) == "table" and subNow.isSubData then
+				widthNow = 0
+				--subTop = subTop + BUTTON_HEIGHT + 5
+				local sub_uid = subNow.uid or subNow.name
+				local expandHeight, expandWidth = 0
+				if self.stateExpand[sub_uid] then
+					expandHeight, expandWidth = CalculateHeight(self,subNow.data,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth)
+
+					expandHeight = expandHeight + 5 + 5 + (expandWidth > 0 and BUTTON_HEIGHT or 0)
+				end
+				subTop = subTop + 30 + expandHeight + 5
+			elseif type(subNow) == "string" then
+				if widthNow > 0 then
+					widthNow = 0
+					subTop = subTop + BUTTON_HEIGHT + 5
+				end
+	
+				subTop = subTop + GROUP_HEIGHT + 5
+			else
+				widthNow = widthNow + buttonWidth + 5
+				if widthNow >= (self.Width - 20) then
+					widthNow = 0
+					subTop = subTop + BUTTON_HEIGHT + 5
+				end
+			end
+		end
+		return subTop, widthNow
+	end
+
 	local function Widget_Update(self,forceUpdate)
 		if not self.Width or not self.Height then
 			return
@@ -6470,129 +6684,14 @@ do
 				local subData = now.data
 				local widthNow = 0
 				if subData then
-					for j=1,#subData do
-						local subNow = subData[j]
-						if subNow == 0 then
-							widthNow = 0
-							subTop = subTop + BUTTON_HEIGHT + 5
-						elseif subNow == 1 then
-							widthNow = 0
-							subTop = subTop + BUTTON_HEIGHT + 5
-						elseif type(subNow) == "string" then
-							if widthNow > 0 then
-								widthNow = 0
-								subTop = subTop + BUTTON_HEIGHT + 5
-							end
-
-							subTop = subTop + GROUP_HEIGHT + 5
-						else
-							widthNow = widthNow + buttonWidth + 5
-							if widthNow >= (self.Width - 20) then
-								widthNow = 0
-								subTop = subTop + BUTTON_HEIGHT + 5
-							end
-						end
-					end
+					subTop, widthNow = CalculateHeight(self,subData,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth)
 				end
 
 				fromTop = fromTop + 5 + subTop + (widthNow > 0 and BUTTON_HEIGHT or 0)
 			end
 
 			if (topStart <= scroll + self.Height) and (fromTop >= scroll) then
-				local isUpdateReq = forceUpdate
-
-				local button = GetButton(self,1,uid or tostring(now))
-				button:Point("TOP",0,-topStart):Size(self.Width - 10,30)
-				
-				isUpdateReq = isUpdateReq or (button.uid ~= button.prevUid) or ((self.stateExpand[uid] and not button.sub:IsShown()) or (not self.stateExpand[uid] and button.sub:IsShown()))
-				if isUpdateReq then
-					button:SetText(now.name or "")
-					button.data = now
-					if self.ModButtonUpdate then
-						self:ModButtonUpdate(button,1)
-					end
-				end
-				button:Show()
-
-				if self.stateExpand[uid] then
-					local subTop = 5
-	
-					local subData = now.data
-					local widthNow = 0
-					if subData then
-						for j=1,#subData do
-							local subNow = subData[j]
-							if subNow == 0 then
-								widthNow = 0
-								subTop = subTop + BUTTON_HEIGHT + 5
-							elseif subNow == 1 then
-								widthNow = 0
-								subTop = subTop + BUTTON_HEIGHT + 5
-
-								local line = GetLine(self,subNow..tostring(subData))
-								if isUpdateReq then
-									line:SetParent(button.sub)
-									line:NewPoint("TOPLEFT",0,-subTop+BUTTON_HEIGHT/2+4):Point("RIGHT",0,0)
-								end
-								line:Show()
-							elseif type(subNow) == "string" then
-								if widthNow > 0 then
-									widthNow = 0
-									subTop = subTop + BUTTON_HEIGHT + 5
-								end
-	
-								local groupText = GetGroupText(self,subNow..tostring(subData))
-								if isUpdateReq then
-									groupText:SetParent(button.sub)
-									groupText:Point("TOPLEFT",15,-subTop):Size(buttonWidth,GROUP_HEIGHT)
-									groupText:SetText(subNow)
-								end
-								groupText:Show()
-	
-								subTop = subTop + GROUP_HEIGHT + 5
-							else
-								local subUid = subNow.uid or subNow.name
-								local subButton = GetButton(self,2,subUid or tostring(subNow))
-								if isUpdateReq then
-									subButton:SetParent(button.sub)
-									subButton:ClearAllPoints()
-									subButton:Point("TOPLEFT",5+widthNow,-subTop):Size(buttonWidth,BUTTON_HEIGHT)
-									subButton:SetText(subNow.name or "")
-									subButton.data = subNow
-
-									if subNow.drag then
-										subButton:SetMovable(true)
-										subButton:RegisterForDrag("LeftButton")
-									else
-										subButton:SetMovable(false)
-									end
-
-									if self.ModButtonUpdate then
-										self:ModButtonUpdate(subButton,2)
-									end
-								end
-								subButton:Show()
-
-								widthNow = widthNow + buttonWidth + 5
-								if widthNow >= (self.Width - 20) then
-									widthNow = 0
-									subTop = subTop + BUTTON_HEIGHT + 5
-								end
-							end
-						end
-					end
-	
-					if isUpdateReq then
-						button.expandIcon.texture:SetTexCoord(0.25,0.3125,0.5,0.625)
-						button.sub:Show()
-						button.sub:SetHeight(5 + subTop + (widthNow > 0 and BUTTON_HEIGHT or 0))
-					end
-				else
-					if isUpdateReq then
-						button.expandIcon.texture:SetTexCoord(0.375,0.4375,0.5,0.625)
-						button.sub:Hide()
-					end
-				end
+				UpdateT1Button(self,now,forceUpdate,topStart,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth)
 			end
 		end
 		for level=1,2 do

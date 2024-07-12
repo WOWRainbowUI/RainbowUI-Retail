@@ -1,8 +1,8 @@
---	09.05.2024
+--	20.06.2024
 
 local GlobalAddonName, MRT = ...
 
-MRT.V = 4860
+MRT.V = 4880
 MRT.T = "R"
 
 MRT.Slash = {}			--> функции вызова из коммандной строки
@@ -61,8 +61,8 @@ elseif MRT.clientVersion < 60000 then
 	MRT.isCata = true
 	MRT.isMoP = true
 	MRT.T = "Pandaria"
-elseif MRT.clientVersion >= 100000 then
-	MRT.is10 = true
+elseif MRT.clientVersion >= 110000 then
+	MRT.is11 = true
 end
 -------------> smart DB <-------------
 MRT.SDB = {}
@@ -757,6 +757,16 @@ MRT.frame:SetScript("OnEvent",function (self, event, ...)
 		self:UnregisterEvent("ADDON_LOADED")
 
 		MRT.AddonLoaded = true
+
+		if not MRT.isClassic then
+			if not VMRT.Addon.EJ_CHECK_VER or VMRT.Addon.EJ_CHECK_VER ~= MRT.clientUIinterface then
+				C_Timer.After(10,function()
+					MRT.F.EJ_AutoScan()
+				end)
+			else
+				MRT.F.EJ_LoadData()
+			end
+		end
 
 		return true	
 	end
