@@ -33,7 +33,7 @@ local CreateFrame, UIParent = CreateFrame, UIParent
 -- s b <spell list>
 local DEFAULT_ICON_SIZE = 21
 local USE_ICON_BACKDROP = nil --WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC -- really need to reduce frame counts
-local TITLE_WIDTH = 200 -- Aceconfig width_multiplier = 170
+local TITLE_WIDTH = 170 -- Aceconfig width_multiplier = 170
 --[[-----------------------------------------------------------------------------
 Support functions
 -------------------------------------------------------------------------------]]
@@ -143,16 +143,9 @@ local methods = {
 		end
 	end,
 
-
-	["LayoutFinished"] = function(self, width, height)
+	["LayoutFinished"] = function(self, width, height) -- from Flow-Nopadding-OmniCD
 		if self.noAutoHeight then return end
-		if not height or height < 20 then
-			self.frame:Hide()
-			self:SetHeight(0)
-		else
-			self:SetHeight(height)
-			self.frame:Show()
-		end
+		self:SetHeight(height or 0)
 	end,
 
 	["OnWidthSet"] = function(self, width)
@@ -234,7 +227,7 @@ local function Constructor()
 
 	--Container Support
 	local content = CreateFrame("Frame", nil, frame)
-	content:SetPoint("TOPLEFT", title, "TOPRIGHT")
+	content:SetPoint("TOPLEFT", title, "TOPRIGHT", 2, 0) -- 5 align with header (InlineGroupList2 content)
 	content:SetPoint("BOTTOMRIGHT")
 
 	local widget = {

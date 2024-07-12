@@ -31,7 +31,7 @@ function P:Enable()
 
 	self:SetHooks()
 	self:CreateExtraBarFrames()
-	self:Refresh(true)
+	self:Refresh()
 end
 
 function P:Disable()
@@ -68,6 +68,7 @@ function P:ResetModule(isModuleDisabled)
 	CD:Disable()
 
 	wipe(self.groupInfo)
+	wipe(self.userInfo.sessionItemData)
 
 	self.disabled = true
 	self:HideAllBars()
@@ -84,22 +85,13 @@ function P:Refresh(full)
 	zone = zone == "none" and E.profile.Party.noneZoneSetting or (zone == "scenario" and E.profile.Party.scenarioZoneSetting) or zone
 	E.db = E.profile.Party[zone]
 	self.db = E.db
-
 	for key, frame in pairs(self.extraBars) do
 		frame.db = E.db.extraBars[key]
 	end
 
-	if full then
-		self:UpdateTextures()
-		self:UpateTimerFormat()
-		self:PLAYER_ENTERING_WORLD(nil, nil, true)
-	else
-		E:SetActiveUnitFrameData()
-		self:UpdatePositionValues()
-		self:UpdateExBarPositionValues()
-		self:UpdateAllBars()
-		self:UpdatePosition()
-	end
+	self:UpdateTextures()
+	self:UpateTimerFormat()
+	self:PLAYER_ENTERING_WORLD(nil, nil, true)
 end
 
 function P:UpdateTextures()
@@ -122,32 +114,23 @@ function P:UpateTimerFormat()
 	self.ssColor = db.ssColor
 end
 
-function P:IsEnabledSpell(id, spellType, key)
-	local db = key and E.profile.Party[key] or E.db
-	if not db.spells[id] then
-		return nil
-	end
-	if db.raidCDS[id] or spellType == "interrupt" then
-		for _, frame in pairs(self.extraBars) do
-			local framedb = frame.db
-			if framedb.spellType[spellType] then
-				return frame.index
-			end
-		end
-	end
-	return true
-end
-
 function P:UpdateEnabledSpells()
 	wipe(self.spell_enabled)
 
-	for _, v in pairs(E.spell_db) do
-		local n = #v
-		for i = 1, n do
-			local t = v[i]
-			local id = t.spellID
-			local spellType = t.type
-			self.spell_enabled[id] = self:IsEnabledSpell(tostring(id), spellType)
+	for id, v in pairs(E.hash_spelldb) do
+		local sId = tostring(id)
+		if self.db.spells[sId] then
+			local index = self.db.spellFrame[id] or self.db.frame[v.type]
+			if index and index > 0 then
+				local db = E.db.extraBars["raidBar" .. index]
+				if db.enabled then
+					self.spell_enabled[id] = index
+				elseif db.redirect then
+					self.spell_enabled[id] = 0
+				end
+			else
+				self.spell_enabled[id] = 0
+			end
 		end
 	end
 end
@@ -172,8 +155,9 @@ function P:UpdatePositionValues()
 	self.columns = db.columns
 	self.multiline = db.layout ~= "vertical" and db.layout ~= "horizontal"
 	self.tripleline = db.layout == "tripleRow" or db.layout == "tripleColumn"
-	self.breakPoint = E.db.priority[db.breakPoint]
-	self.breakPoint2 = E.db.priority[db.breakPoint2]
+	self.sortBy = db.sortBy
+	self.breakPoint = self.sortBy == 2 and E.db.priority[db.breakPoint] or db.breakPoint3
+	self.breakPoint2 = self.sortBy == 2 and E.db.priority[db.breakPoint2] or db.breakPoint4
 	self.displayInactive = db.displayInactive
 	self.maxNumIcons = db.maxNumIcons == 0 and 100 or db.maxNumIcons
 
@@ -211,15 +195,17 @@ end
 
 if AuraUtil and AuraUtil.ForEachAura then
 	P.GetBuffDuration = function(_, unit, spellID)
-		local remainingTime, sourceUnit
-		AuraUtil.ForEachAura(unit, "HELPFUL", nil, function(_,_,_,_, duration, expTime, source, _,_, id)
+		local remainingTime
+		AuraUtil.ForEachAura(unit, "HELPFUL", nil, function(_,_,_,_, duration, expTime, _,_,_, id)
 			if id == spellID then
-				remainingTime = duration > 0 and expTime - GetTime()
-				sourceUnit = source
+				if duration > 0 then
+					remainingTime = expTime - GetTime()
+					remainingTime = remainingTime > 0 and remainingTime
+				end
 				return true
 			end
 		end)
-		return remainingTime, sourceUnit
+		return remainingTime
 	end
 
 	P.IsDebuffActive = function(_, unit, spellID)
@@ -237,7 +223,10 @@ if AuraUtil and AuraUtil.ForEachAura then
 		local remainingTime
 		AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(_,_,_,_, duration, expTime, _,_,_, id)
 			if id == spellID then
-				remainingTime = duration > 0 and expTime - GetTime()
+				if duration > 0 then
+					remainingTime = expTime - GetTime()
+					remainingTime = remainingTime > 0 and remainingTime
+				end
 				return true
 			end
 		end)
@@ -249,19 +238,27 @@ else
 
 	P.GetBuffDuration = E.isClassic and function(_, unit, spellID)
 		for i = 1, 50 do
-			local _,_,_,_,_,_,_,_,_, id = UnitBuff(unit, i)
+			local _,_,_,_, duration, expTime, _,_,_, id = UnitBuff(unit, i)
 			if not id then return end
 			id = E.spell_merged[id] or id
 			if id == spellID then
-				return true
+				if duration > 0 then
+					local remainingTime = expTime - GetTime()
+					return remainingTime > 0 and remainingTime
+				end
+				return
 			end
 		end
 	end or function(_, unit, spellID)
 		for i = 1, 50 do
-			local _,_,_,_, duration, expTime, source, _,_, id = UnitBuff(unit, i)
+			local _,_,_,_, duration, expTime, _,_,_, id = UnitBuff(unit, i)
 			if not id then return end
 			if id == spellID then
-				return duration > 0 and expTime - GetTime(), source
+				if duration > 0 then
+					local remainingTime = expTime - GetTime()
+					return remainingTime > 0 and remainingTime
+				end
+				return
 			end
 		end
 	end
@@ -281,7 +278,11 @@ else
 			local _,_,_,_, duration, expTime,_,_,_, id = UnitDebuff(unit, i)
 			if not id then return end
 			if id == spellID then
-				return duration > 0 and expTime - GetTime()
+				if duration > 0 then
+					local remainingTime = expTime - GetTime()
+					return remainingTime > 0 and remainingTime
+				end
+				return
 			end
 		end
 	end
@@ -385,8 +386,8 @@ end
 
 function P:UI_SCALE_CHANGED()
 	E:SetPixelMult()
-	self:ConfigSize(nil, true)
+	self:ConfigSize()
 	for key in pairs(self.extraBars) do
-		self:ConfigExSize(key, true)
+		self:ConfigExSize(key)
 	end
 end
