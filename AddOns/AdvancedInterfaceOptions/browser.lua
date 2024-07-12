@@ -69,8 +69,8 @@ local function TraceCVar(cvar, value, ...)
 			lineNum = "(unhandled exception)"
 		end
 	end
-	-- Ignore C_CVar.SetCVar hook if it originated from CvarUtil.lua
-	if source and not source:lower():find("[\\/]sharedxml[\\/]cvarutil%.lua") then
+	-- Ignore C_CVar.SetCVar hook if it originated from CvarUtil.lua or ClassicCvarUtil.lua
+	if source and not (source:lower():find("[_\\/]sharedxml[\\/]cvarutil%.lua") or source:lower():find("[_\\/]sharedxml[\\/]classiccvarutil%.lua")) then
 		local realValue = GetCVar(cvar) -- the client does some conversions to the original value
 		if SVLoaded then
 			AdvancedInterfaceOptionsSaved.ModifiedCVars[ cvar:lower() ] = source .. ':' .. lineNum
@@ -112,6 +112,7 @@ OptionsPanel:Hide()
 OptionsPanel:SetAllPoints()
 OptionsPanel.name = "CVar 遊戲參數"
 OptionsPanel.parent = "進階介面選項"
+addon.OptionsPanel = OptionsPanel
 
 local Title = OptionsPanel:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
 Title:SetJustifyV('TOP')
@@ -127,8 +128,6 @@ SubText:SetJustifyH('LEFT')
 SubText:SetPoint('TOPLEFT', Title, 'BOTTOMLEFT', 0, -8)
 SubText:SetPoint('RIGHT', -32, 0)
 SubText:SetText('這些選項可以調整遊戲中的各種 CVars 參數。')
-
-InterfaceOptions_AddCategory(OptionsPanel, addonName)
 
 -- FilterBox should adjust the contents of the list frame based on the input text
 -- todo: Display grey "Search" text in the box if it's empty
@@ -375,11 +374,3 @@ hooksecurefunc('SetCVar', FilteredRefresh)
 
 -- should we even bother checking what the console command did?
 hooksecurefunc('ConsoleExec', FilteredRefresh)
-
-SlashCmdList.CVAR = function()
-	if not InCombatLockdown() then
-		InterfaceOptionsFrame_OpenToCategory(OptionsPanel)
-		InterfaceOptionsFrame_OpenToCategory(OptionsPanel)
-	end
-end
-SLASH_CVAR1 = "/cvar"
