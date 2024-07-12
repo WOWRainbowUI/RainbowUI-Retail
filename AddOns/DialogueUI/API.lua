@@ -7,6 +7,12 @@ local sqrt = math.sqrt;
 local tostring = tostring;
 local find = string.find;
 
+local IS_TWW = addon.IsToCVersionEqualOrNewerThan(110000);
+
+
+local function AlwaysNil(arg)
+end
+
 local function AlwaysFalse(arg)
     --used to replace non-existent API in Classic
     return false
@@ -17,7 +23,7 @@ local function AlwaysZero(arg)
     return 0
 end
 
-do  --Math
+do  -- Math
     local function GetPointsDistance2D(x1, y1, x2, y2)
         return sqrt( (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))
     end
@@ -93,7 +99,7 @@ do  -- Table
     API.CreateFromMixins = CreateFromMixins;
 end
 
-do  --Pixel
+do  -- Pixel
     local GetPhysicalScreenSize = GetPhysicalScreenSize;
     local SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();
 
@@ -181,7 +187,7 @@ do  --Pixel
     end);
 end
 
-do  --Object Pool
+do  -- Object Pool
     local ObjectPoolMixin = {};
     local ipairs = ipairs;
     local tinsert = table.insert;
@@ -277,7 +283,7 @@ do  --Object Pool
     API.CreateObjectPool = CreateObjectPool;
 end
 
-do  --String
+do  -- String
     local match = string.match;
     local gmatch = string.gmatch;
     local gsub = string.gsub;
@@ -286,8 +292,10 @@ do  --String
     local function SplitParagraph(text)
         local tbl = {};
 
-        for v in gmatch(text, "[%C]+") do
-            tinsert(tbl, v)
+        if text then
+            for v in gmatch(text, "[%C]+") do
+                tinsert(tbl, v)
+            end
         end
 
         return tbl
@@ -334,7 +342,7 @@ do  --String
     API.GetItemIDFromHyperlink = GetItemIDFromHyperlink;
 end
 
-do  --NPC Interaction
+do  -- NPC Interaction
     local SetUnitCursorTexture = SetUnitCursorTexture;
     local UnitExists = UnitExists;
 
@@ -355,15 +363,17 @@ do  --NPC Interaction
 
     local function GetInteractType(unit)
         if UnitExists(unit) then
+            --Returns cursor texture (RepairNPC, Transmog, Taxi...)
+            --Quest NPC (with question mark) returns nil (there is no type icon on the nameplate)
             SetUnitCursorTexture(f.texture, unit);
             local file = f.texture:GetTexture();
-            return file and CursorTextureTypes[file]
+            return file, file and CursorTextureTypes[file]
         end
     end
     API.GetInteractType = GetInteractType;
 
     local function GetInteractTexture(unit)
-        local type = GetInteractType(unit);
+        local _, type = GetInteractType(unit);
         if type and CustomTypeTexture[type] then
             return TexturePrefix..CustomTypeTexture[type]
         end
@@ -623,7 +633,7 @@ do  --NPC Interaction
     API.IsTargetAdventureMap = IsTargetAdventureMap;
 end
 
-do  --Easing
+do  -- Easing
     local EasingFunctions = {};
     addon.EasingFunctions = EasingFunctions;
 
@@ -666,12 +676,14 @@ do  --Easing
     end
 end
 
-do  --Quest
-    local FREQUENCY_DAILY = 1;  --Enum.QuestFrequency.Daily;
-    local FREQUENCY_WEELY = 2;  --Enum.QuestFrequency.Weekly;
+do  -- Quest
+    local FREQUENCY_DAILY = 1;      --Enum.QuestFrequency.Daily
+    local FREQUENCY_WEELY = 2;      --Enum.QuestFrequency.Weekly
+    local FREQUENCY_SCHEDULER = 3;  --Enum.ResetByScheduler --Includes Meta Quest: Time-gated quests that give good rewards (TWW)
     local ICON_PATH = "Interface/AddOns/DialogueUI/Art/Icons/";
 
     local QuestGetAutoAccept = QuestGetAutoAccept or AlwaysFalse;
+    local C_QuestLog = C_QuestLog;
     local IsOnQuest = C_QuestLog.IsOnQuest;
     local ReadyForTurnIn = C_QuestLog.ReadyForTurnIn or IsQuestComplete or AlwaysFalse;
     local QuestIsFromAreaTrigger = QuestIsFromAreaTrigger or AlwaysFalse;
@@ -682,6 +694,7 @@ do  --Quest
     local IsCampaignQuest = (C_CampaignInfo and C_CampaignInfo.IsCampaignQuest) or AlwaysFalse;
     local IsQuestTask = C_QuestLog.IsQuestTask or AlwaysFalse;
     local IsWorldQuest = C_QuestLog.IsWorldQuest or AlwaysFalse;
+    local IsMetaQuest = C_QuestLog.IsMetaQuest or AlwaysFalse;
     local GetRewardSkillPoints = GetRewardSkillPoints or AlwaysFalse;
     local GetRewardArtifactXP = GetRewardArtifactXP or AlwaysZero;
     local QuestCanHaveWarModeBonus = C_QuestLog.QuestCanHaveWarModeBonus or AlwaysFalse;
@@ -689,6 +702,45 @@ do  --Quest
     local GetQuestItemInfoLootType = GetQuestItemInfoLootType or AlwaysZero;
     local GetTitleForQuestID = C_QuestLog.GetTitleForQuestID or C_QuestLog.GetQuestInfo or AlwaysFalse;
     local GetQuestObjectives = C_QuestLog.GetQuestObjectives;
+    local GetQuestTimeLeftSeconds = C_TaskQuest and C_TaskQuest.GetQuestTimeLeftSeconds or AlwaysNil;
+
+    --TWW
+    local GetQuestCurrency;
+
+    if C_QuestOffer and C_QuestOffer.GetQuestRewardCurrencyInfo then
+        local GetQuestRequiredCurrencyInfo = C_QuestOffer.GetQuestRequiredCurrencyInfo;
+        local GetQuestRewardCurrencyInfo = C_QuestOffer.GetQuestRewardCurrencyInfo;
+
+        function GetQuestCurrency(questInfoType, index)
+            if questInfoType == "reward" or questInfoType == "choice" then
+                return GetQuestRewardCurrencyInfo(questInfoType, index)
+            elseif questInfoType == "required" then
+                return GetQuestRequiredCurrencyInfo(index)
+            end
+        end
+    else
+        local GetQuestCurrencyInfo = GetQuestCurrencyInfo;
+        local GetQuestCurrencyID = GetQuestCurrencyID;
+
+        function GetQuestCurrency(questInfoType, index)
+            local name, texture, amount, quality = GetQuestCurrencyInfo(questInfoType, index)
+            local currencyID = GetQuestCurrencyID(questInfoType, index);
+
+            local tbl = {
+                texture = texture,
+                name = name,
+                currencyID = currencyID,
+                quality = quality or 0,
+                baseRewardAmount = amount,
+                bonusRewardAmount = 0,
+                totalRewardAmount = amount,
+                questRewardContextFlags = nil,
+            };
+
+            return tbl
+        end
+    end
+    API.GetQuestCurrency = GetQuestCurrency;
 
 
     --Classic
@@ -745,7 +797,12 @@ do  --Quest
         end
 
         if questInfo.frequency == nil then
+            --frequency may be inaccurate?
             questInfo.frequency = 0;
+        end
+
+        if questInfo.isMeta == nil then
+            questInfo.isMeta = IsMetaQuest(questInfo.questID);
         end
 
         return questInfo
@@ -777,6 +834,8 @@ do  --Quest
                     file = "IncompleteCampaignQuest.png";
                 elseif questInfo.isLegendary then
                     file = "IncompleteLegendaryQuest.png";
+                elseif questInfo.isMeta then
+                    file = "IncompleteMetaQuest.png";
                 else
                     file = "IncompleteQuest.png";
                 end
@@ -794,6 +853,10 @@ do  --Quest
                     file = "AvailableCampaignQuest.png";
                 elseif questInfo.isLegendary then
                     file = "AvailableLegendaryQuest.png";
+                elseif questInfo.isMeta then
+                    file = "AvailableMetaQuest.png";
+                elseif questInfo.frequency == FREQUENCY_SCHEDULER then
+                    file = "RepeatableScheduler.png";    --TWW
                 else
                     file = "AvailableQuest.png";
                 end
@@ -827,6 +890,8 @@ do  --Quest
         Greeting = GetGreetingText,
     };
 
+    API.GetGossipText = GetGossipText;
+
     local function GetQuestText(method)
         local text = QuestTextMethod[method]();
         if text and text ~= "" then
@@ -835,7 +900,18 @@ do  --Quest
     end
     API.GetQuestText = GetQuestText;
 
-    API.GetGossipText = GetGossipText;
+    if C_QuestInfoSystem.GetQuestRewardCurrencies then
+        local GetQuestRewardCurrencies = C_QuestInfoSystem.GetQuestRewardCurrencies;
+
+        function GetNumRewardCurrencies_TWW(questID)
+            local currencyRewards = GetQuestRewardCurrencies(questID) or {};
+            return #currencyRewards
+        end
+        API.GetNumRewardCurrencies = GetNumRewardCurrencies_TWW;
+    else
+        local GetNumRewardCurrencies_Deprecated = GetNumRewardCurrencies;
+        API.GetNumRewardCurrencies = GetNumRewardCurrencies_Deprecated;
+    end
 
 
     --QuestTheme
@@ -853,10 +929,17 @@ do  --Quest
 
         ["QuestBG-Alliance"] = "Alliance.png",
         ["QuestBG-Horde"] = "Horde.png",
+
+        ["QuestBG-Flame"] = "TWW-Flame.png",
+        ["QuestBG-Candle"] = "TWW-Candle.png",
+        ["QuestBG-Storm"] = "TWW-Storm.png",
+        ["QuestBG-Web"] = "TWW-Web.png",
+        ["QuestBG-1027"] = "TWW-Azeroth.png",
     };
 
     local function GetQuestBackgroundDecor(questID)
         local theme = GetQuestDetailsTheme(questID);
+        --theme = {background = "QuestBG-Web"};    --debug
         if theme and theme.background and BackgroundDecors[theme.background] then
             return DECOR_PATH..BackgroundDecors[theme.background]
         end
@@ -910,7 +993,7 @@ do  --Quest
         if not item then return end;
         local classID, subclassID = select(6, GetItemInfoInstant(item));
         --print(item, classID, subclassID)
-        return (classID == 12) or (classID == 0 and subclassID == 8)        --Pandaria Quest Item
+        return (classID == 12) or (classID == 0 and subclassID == 8) or (classID == 15 and subclassID == 4)
     end
     API.IsQuestItem = IsQuestItem;
 
@@ -1020,6 +1103,17 @@ do  --Quest
     end
     API.GetHonorIcon = GetHonorIcon;
 
+    local function GetQuestTimeLeft(questID, formatedToText)
+        local seconds = GetQuestTimeLeftSeconds(questID);
+        if seconds then
+            if formatedToText then
+                return API.SecondsToTime(seconds, true, true)
+            else
+                return seconds
+            end
+        end
+    end
+    API.GetQuestTimeLeft = GetQuestTimeLeft;
 
     do
         --Replace player name with RP name:
@@ -1049,7 +1143,7 @@ do  --Quest
     end
 end
 
-do  --Color
+do  -- Color
     -- Make Rare and Epic brighter (use the color in Narcissus)
     local CreateColor = CreateColor;
     local ITEM_QUALITY_COLORS = ITEM_QUALITY_COLORS;
@@ -1087,7 +1181,7 @@ do  --Color
     API.GetTextColorByIndex = GetTextColorByIndex;
 end
 
-do  --Currency
+do  -- Currency
     local GetCurrencyContainerInfoDefault = C_CurrencyInfo.GetCurrencyContainerInfo;
     local GetCurrencyInfo = C_CurrencyInfo.GetCurrencyInfo;
     local format = string.format;
@@ -1232,7 +1326,7 @@ do  --Currency
     API.IsPlayerAtMaxLevel = IsPlayerAtMaxLevel;
 end
 
-do  --Grid Layout
+do  -- Grid Layout
     local ipairs = ipairs;
     local tinsert = table.insert;
 
@@ -1357,7 +1451,7 @@ do  --Grid Layout
     API.CreateGridLayout = CreateGridLayout;
 end
 
-do  --Fade Frame
+do  -- Fade Frame
     local abs = math.abs;
     local tinsert = table.insert;
     local wipe = wipe;
@@ -1504,7 +1598,7 @@ do  --Fade Frame
     API.UIFrameFadeIn = UIFrameFadeIn;   --from 0 to 1
 end
 
-do  --Model
+do  -- Model
     local UnitRace = UnitRace;
     local WantsAlteredForm = C_UnitAuras and C_UnitAuras.WantsAlteredForm or AlwaysFalse;
 
@@ -1536,12 +1630,12 @@ do  --Model
     API.SetModelLight = SetModelLight;
 end
 
-do  --Faction --Reputation
-    local GetFactionInfoByID = GetFactionInfoByID;
-    local GetFactionGrantedByCurrency = C_CurrencyInfo.GetFactionGrantedByCurrency or AlwaysFalse;
+do  -- Faction -- Reputation
     local C_GossipInfo = C_GossipInfo;
     local C_MajorFactions = C_MajorFactions;
     local C_Reputation = C_Reputation;
+    local GetFactionInfoByID = GetFactionInfoByID or C_Reputation.GetFactionDataByID;   --TWW
+    local GetFactionGrantedByCurrency = C_CurrencyInfo.GetFactionGrantedByCurrency or AlwaysFalse;
 
     local function GetFactionStatusText(factionID)
         --Derived from Blizzard ReputationFrame_InitReputationRow in ReputationFrame.lua
@@ -1572,22 +1666,23 @@ do  --Faction --Reputation
 
         elseif isMajorFaction then
             local majorFactionData = C_MajorFactions.GetMajorFactionData(factionID);
+            if majorFactionData then
+                barMin, barMax = 0, majorFactionData.renownLevelThreshold;
+                isCapped = C_MajorFactions.HasMaximumRenown(factionID);
+                barValue = isCapped and majorFactionData.renownLevelThreshold or majorFactionData.renownReputationEarned or 0;
+                factionStandingtext = L["Renown Level Label"] .. majorFactionData.renownLevel;
 
-            barMin, barMax = 0, majorFactionData.renownLevelThreshold;
-            isCapped = C_MajorFactions.HasMaximumRenown(factionID);
-            barValue = isCapped and majorFactionData.renownLevelThreshold or majorFactionData.renownReputationEarned or 0;
-            factionStandingtext = L["Renown Level Label"] .. majorFactionData.renownLevel;
-
-            if isParagon then
-                local totalEarned, threshold = C_Reputation.GetFactionParagonInfo(factionID);
-                if totalEarned and threshold and threshold ~= 0 then
-                    local paragonLevel = floor(totalEarned / threshold);
-                    local currentValue = totalEarned - paragonLevel * threshold;
-                    factionStandingtext = ("|cff00ccff"..L["Paragon Reputation"].."|r %d/%d"):format(currentValue, threshold);
-                end
-            else
-                if isCapped then
-                    factionStandingtext = factionStandingtext.." "..L["Level Maxed"];
+                if isParagon then
+                    local totalEarned, threshold = C_Reputation.GetFactionParagonInfo(factionID);
+                    if totalEarned and threshold and threshold ~= 0 then
+                        local paragonLevel = floor(totalEarned / threshold);
+                        local currentValue = totalEarned - paragonLevel * threshold;
+                        factionStandingtext = ("|cff00ccff"..L["Paragon Reputation"].."|r %d/%d"):format(currentValue, threshold);
+                    end
+                else
+                    if isCapped then
+                        factionStandingtext = factionStandingtext.." "..L["Level Maxed"];
+                    end
                 end
             end
         else
@@ -1597,7 +1692,7 @@ do  --Faction --Reputation
         end
 
         local rolloverText; --(0/24000)
-        if not isCapped then
+        if barValue and barMax and (not isCapped) then
             rolloverText = string.format("(%s/%s)", barValue, barMax);
         end
 
@@ -1632,7 +1727,7 @@ do  --Faction --Reputation
     API.GetFactionStatusTextByCurrencyID = GetFactionStatusTextByCurrencyID;
 end
 
-do  --Chat Message
+do  -- Chat Message
     local ADDON_ICON = "|TInterface\\AddOns\\DialogueUI\\Art\\Icons\\Logo:0:0|t";
     local function PrintMessage(header, msg)
         if StripHyperlinks then
@@ -1643,7 +1738,7 @@ do  --Chat Message
     API.PrintMessage = PrintMessage;
 end
 
-do  --Tooltip
+do  -- Tooltip
     local GetInventoryItemLink = GetInventoryItemLink;
     local GetItemInfoInstant = C_Item.GetItemInfoInstant or GetItemInfoInstant;
 
@@ -1864,17 +1959,25 @@ do  --Tooltip
 
         local tinsert = table.insert;
         local match = string.match;
+        local gsub = string.gsub;
 
         local function RemoveBrackets(text)
-            return string.gsub(text, "[()（）]", "")
+            return gsub(text, "[()（）]", "")
         end
 
         local function Pattern_RemoveControl(text)
-            return string.gsub(text, "%%c", "");
+            return gsub(text, "%%c", "");
         end
 
         local function Pattern_WrapSpace(text)
-            return string.gsub(Pattern_RemoveControl(text), "%%s", "%(%.%+%)");
+            return gsub(Pattern_RemoveControl(text), "%%s", "%(%.%+%)");
+        end
+
+        local function RemoveThousandSeparator(numberText)
+            if numberText then
+                numberText = gsub(numberText, "[,%.%-]", "");   --Include %- as a temp fix for French locale bug
+                return numberText
+            end
         end
 
         local STATS_PATTERN;
@@ -1893,13 +1996,13 @@ do  --Tooltip
         };
 
         local function BuildStatsPattern()
-            local PATTERN_DPS = Pattern_WrapSpace(RemoveBrackets(DPS_TEMPLATE or "(%s damage per second)"));
-            local PATTERN_ARMOR = Pattern_WrapSpace(ARMOR_TEMPLATE or "%s Armor");
-            local PATTERN_STAMINA = Pattern_WrapSpace(ITEM_MOD_STAMINA or "%c%s Stamina");
-            local PATTERN_STRENGTH = Pattern_WrapSpace(ITEM_MOD_STRENGTH or "%c%s Strength");
-            local PATTERN_AGILITY = Pattern_WrapSpace(ITEM_MOD_AGILITY or "%c%s Agility");
-            local PATTERN_INTELLECT = Pattern_WrapSpace(ITEM_MOD_INTELLECT or "%c%s Intellect");
-            local PATTERN_SPIRIT = Pattern_WrapSpace(ITEM_MOD_SPIRIT or "%c%s Spirit");
+            local PATTERN_DPS = L["Match Stat DPS"]             --Pattern_WrapSpace(RemoveBrackets(DPS_TEMPLATE or "(%s damage per second)"));
+            local PATTERN_ARMOR = L["Match Stat Armor"]         --Pattern_WrapSpace(ARMOR_TEMPLATE or "%s Armor");
+            local PATTERN_STAMINA = L["Match Stat Stamina"]     --Pattern_WrapSpace(ITEM_MOD_STAMINA or "%c%s Stamina");
+            local PATTERN_STRENGTH = L["Match Stat Strength"]   --Pattern_WrapSpace(ITEM_MOD_STRENGTH or "%c%s Strength");
+            local PATTERN_AGILITY = L["Match Stat Agility"]     --Pattern_WrapSpace(ITEM_MOD_AGILITY or "%c%s Agility");
+            local PATTERN_INTELLECT = L["Match Stat Intellect"] --Pattern_WrapSpace(ITEM_MOD_INTELLECT or "%c%s Intellect");
+            local PATTERN_SPIRIT = L["Match Stat Spirit"]       --Pattern_WrapSpace(ITEM_MOD_SPIRIT or "%c%s Spirit");
 
             STATS_PATTERN = {
                 dps = PATTERN_DPS,
@@ -1932,12 +2035,13 @@ do  --Tooltip
                     if text and text ~= " " then
                         for key, pattern in pairs(STATS_PATTERN) do
                             if not stats[key] then
-                                if key == "dps" then
-                                    text = RemoveBrackets(text);
-                                end
                                 value = match(text, pattern);
                                 if value then
-                                    value = tonumber(value);
+                                    value = RemoveThousandSeparator(value);
+                                    value = tonumber(value) or 0;
+                                    if key == "dps" then
+                                        value = value * 0.1;
+                                    end
                                     stats[key] = value;
                                 end
                             end
@@ -2092,8 +2196,7 @@ do  --Tooltip
     API.GetItemEffect = GetItemEffect;
 end
 
-
-do  --Items
+do  -- Items
     local IsEquippableItem = C_Item.IsEquippableItem or IsEquippableItem or AlwaysFalse;
     local IsCosmeticItem = C_Item.IsCosmeticItem or IsCosmeticItem or AlwaysFalse;
     local GetTransmogItemInfo = (C_TransmogCollection and C_TransmogCollection.GetItemInfo) or AlwaysFalse;
@@ -2133,7 +2236,7 @@ do  --Items
     API.GetQuestChoiceSellPrice = GetQuestChoiceSellPrice;
 end
 
-do  --Keybindings
+do  -- Keybindings
     local GetBindingKey = GetBindingKey;
 
     local function GetBestInteractKey()
@@ -2168,14 +2271,14 @@ do  --Keybindings
     API.GetBestInteractKey = GetBestInteractKey;
 end
 
-do  --TextureUtil
+do  -- TextureUtil
     local function RemoveIconBorder(texture)
         texture:SetTexCoord(0.0625, 0.9375, 0.0625, 0.9375);
     end
     API.RemoveIconBorder = RemoveIconBorder;
 end
 
-do  --Inventory Bags Container
+do  -- Inventory Bags Container
     local NUM_BAG_SLOTS = 4;
     local GetItemCount = C_Item.GetItemCount or GetItemCount;
     local GetContainerNumSlots = C_Container.GetContainerNumSlots;
@@ -2219,7 +2322,155 @@ do  --Inventory Bags Container
     API.GetBagQuestItemInfo = GetBagQuestItemInfo;
 end
 
-do  --Dev Tool
+do  -- Spell
+    local DoesSpellExist = C_Spell.DoesSpellExist;
+
+    if IS_TWW then
+        local GetSpellInfo_Table = C_Spell.GetSpellInfo;    --{"name", "rank", "iconID", "castTime", "minRange", "maxRange", "spellID", "originalIconID"}
+
+        local function GetSpellName(spellID)
+            local info = spellID and DoesSpellExist(spellID) and GetSpellInfo_Table(spellID);
+            if info then
+                return info.name
+            end
+
+            if spellID then
+                return "Unknown Spell: "..spellID
+            else
+                return "Unknown Spell"
+            end
+        end
+        API.GetSpellName = GetSpellName;
+    else
+        local GetSpellInfo = GetSpellInfo;
+
+        local function GetSpellName(spellID)
+            if spellID and DoesSpellExist(spellID) then
+                local name = GetSpellInfo(spellID);
+                return name
+            else
+                if spellID then
+                    return "Unknown Spell: "..spellID
+                else
+                    return "Unknown Spell"
+                end
+            end
+        end
+        API.GetSpellName = GetSpellName;
+    end
+end
+
+do  -- Time -- Date
+    local D_DAYS = D_DAYS or "%d |4Day:Days;";
+    local D_HOURS = D_HOURS or "%d |4Hour:Hours;";
+    local D_MINUTES = D_MINUTES or "%d |4Minute:Minutes;";
+    local D_SECONDS = D_SECONDS or "%d |4Second:Seconds;";
+
+    local DAYS_ABBR = DAYS_ABBR or "%d |4Day:Days;"
+    local HOURS_ABBR = HOURS_ABBR or "%d |4Hr:Hr;";
+    local MINUTES_ABBR = MINUTES_ABBR or "%d |4Min:Min;";
+    local SECONDS_ABBR = SECONDS_ABBR or "%d |4Sec:Sec;";
+
+    local format = string.format;
+
+    local function FormatTime(t, pattern)
+        return format(pattern, t)
+    end
+
+    local function SecondsToTime(seconds, abbreviated, oneUnit)
+        local intialSeconds = seconds;
+        local timeString = "";
+        local isComplete = false;
+        local days = 0;
+        local hours = 0;
+        local minutes = 0;
+
+        if seconds >= 86400 then
+            days = floor(seconds / 86400);
+            seconds = seconds - days * 86400;
+
+            local dayText = FormatTime(days, (abbreviated and DAYS_ABBR) or D_DAYS);
+            timeString = dayText;
+
+            if oneUnit then
+                isComplete = true;
+            end
+        end
+
+        if not isComplete then
+            hours = floor(seconds / 3600);
+            seconds = seconds - hours * 3600;
+
+            if hours > 0 then
+                local hourText = FormatTime(hours, (abbreviated and HOURS_ABBR) or D_HOURS);
+                if timeString == "" then
+                    timeString = hourText;
+                else
+                    timeString = timeString.." "..hourText;
+                end
+
+                if oneUnit then
+                    isComplete = true;
+                end
+            else
+                if timeString ~= "" and oneUnit then
+                    isComplete = true;
+                end
+            end
+        end
+
+        if oneUnit and days > 0 then
+            isComplete = true;
+        end
+
+        if not isComplete then
+            minutes = floor(seconds / 60);
+            seconds = seconds - minutes * 60;
+
+            if minutes > 0 then
+                local minuteText = FormatTime(minutes, (abbreviated and MINUTES_ABBR) or D_MINUTES);
+                if timeString == "" then
+                    timeString = minuteText;
+                else
+                    timeString = timeString.." "..minuteText;
+                end
+                if oneUnit then
+                    isComplete = true;
+                end
+            else
+                if timeString ~= "" and oneUnit then
+                    isComplete = true;
+                end
+            end
+        end
+
+        if (not isComplete) and seconds > 0 then
+            seconds = floor(seconds);
+            local secondText = FormatTime(seconds, (abbreviated and SECONDS_ABBR) or D_SECONDS);
+            if timeString == "" then
+                timeString = secondText;
+            else
+                timeString = timeString.." "..secondText;
+            end
+        end
+
+        if intialSeconds < 0 then
+            --WARNING_FONT_COLOR
+            timeString = "|cffff4800"..timeString.."|r";
+        end
+
+        return timeString
+    end
+    API.SecondsToTime = SecondsToTime;
+
+    local function SecondsToClock(seconds)
+        --Clock: 00:00
+        return format("%s:%02d", floor(seconds / 60), floor(seconds % 60))
+    end
+    API.SecondsToClock = SecondsToClock;
+end
+
+do  -- Dev Tool
     local DEV_MODE = false;
 
     if not DEV_MODE then return end;
@@ -2264,7 +2515,6 @@ do  --Dev Tool
     };
 
     local function QuestMapLogTitleButton_OnEnter_Callback(_, button, questID)
-        print(questID);
         local tooltip = GameTooltip;
         if not tooltip:IsShown() then return end;
 

@@ -140,6 +140,8 @@ L["Input Device Xbox"] = "Xbox";
 L["Input Device Xbox Tooltip"] = "Confirm Button: [KEY:XBOX:PAD1]\nCancel Button: [KEY:XBOX:PAD2]";
 L["Input Device PlayStation"] = "PlayStation";
 L["Input Device PlayStation Tooltip"] = "Confirm Button: [KEY:PS:PAD1]\nCancel Button: [KEY:PS:PAD2]";
+L["Input Device Switch"] = "Switch";
+L["Input Device Switch Tooltip"] = "Confirm Button: [KEY:SWITCH:PAD1]\nCancel Button: [KEY:SWITCH:PAD2]";
 L["Primary Control Key"] = "Confirm Button";
 L["Primary Control Key Desc"] = "Press this key to select the first available option like Accept Quest."
 L["Press Button To Scroll Down"] = "Press Button To Scroll Down";
@@ -173,6 +175,7 @@ L["TTS Use Hotkey Desc"] = "Start or stop reading by pressing:";
 L["TTS Use Hotkey Tooltip PC"] = "[KEY:PC:R]";
 L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
 L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
+L["TTS Use Hotkey Tooltip Switch"] = "[KEY:SWITCH:LT]";
 L["TTS Auto Play"] = "Auto Play";
 L["TTS Auto Play Desc"] = "Auto play dialogue texts.";
 L["TTS Auto Stop"] = "Stop When Leaving";
@@ -181,3 +184,13 @@ L["TTS Auto Stop Desc"] = "Stop reading when you leave the NPC.";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";
 L["Tutorial Settings Hotkey Console"] = "Press [KEY:PC:F1] or [KEY:CONSOLE:MENU] to toggle Settings";   --Use this if gamepad enabled
+
+
+--DO NOT TRANSLATE
+L["Match Stat Armor"] = "([,%d%.]+) Armor";
+L["Match Stat Stamina"] = "([,%d%.]+) Stamina";
+L["Match Stat Strengh"] = "([,%d%.]+) Strengh";
+L["Match Stat Agility"] = "([,%d%.]+) Agility";
+L["Match Stat Intellect"] = "([,%d%.]+) Intellect";
+L["Match Stat Spirit"] = "([,%d%.]+) Spirit";
+L["Match Stat DPS"] = "([,%d%.]+) damage per second";

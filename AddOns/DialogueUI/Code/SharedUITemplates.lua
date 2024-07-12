@@ -42,18 +42,17 @@ local GetQuestIcon = API.GetQuestIcon;
 local IsQuestItem = API.IsQuestItem;
 local IsCosmeticItem = API.IsCosmeticItem;
 local IsEquippableItem = API.IsEquippableItem;
+local GetSpellName = API.GetSpellName;      --TWW
+local GetItemCount = C_Item.GetItemCount;
 local strlen = string.len;
-local GetItemCount = C_Item.GetItemCount or GetItemCount;
 local C_GossipInfo = C_GossipInfo;
 local CompleteQuest = CompleteQuest;
 local CloseQuest = CloseQuest;
 local DeclineQuest = DeclineQuest;
 local GetQuestItemInfo = GetQuestItemInfo;
-local GetQuestCurrencyInfo = GetQuestCurrencyInfo;
-local GetQuestCurrencyID = GetQuestCurrencyID;
+local GetQuestCurrency = API.GetQuestCurrency;
 local GetNumQuestChoices = GetNumQuestChoices;
 local GetQuestReward = GetQuestReward;
-local GetSpellInfo = GetSpellInfo;
 local SelectActiveQuest = SelectActiveQuest;        --QUEST_GREETING
 local SelectAvailableQuest = SelectAvailableQuest;  --QUEST_GREETING
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
@@ -427,7 +426,7 @@ function DUIDialogOptionButtonMixin:RemoveQuestTypeText()
     end
 end
 
-function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
+function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo, requery)
     local typeText;
 
     if questInfo.isTrivial then
@@ -440,6 +439,15 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
                 typeText = L["Quest Frequency Daily"];
             elseif questInfo.frequency == 2 then
                 typeText = L["Quest Frequency Weekly"];
+            elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
+                typeText = API.GetQuestTimeLeft(questInfo.questID, true);
+                if (not requery) and (not typeText) then
+                    C_Timer.After(0.5, function()
+                        if self:IsVisible() and self.questID and self.questID == questInfo.questID then
+                            self:SetQuestTypeText(questInfo, true)
+                        end
+                    end);
+                end
             end
         end
     end
@@ -452,10 +460,9 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
         local frameWidth = questTypeFrame:GetContentWidth();
         self.hasQuestType = true;
         self.rightFrameWidth = Round(frameWidth);
-        return
+    else
+        self:RemoveQuestTypeText();
     end
-
-    self:RemoveQuestTypeText();
 end
 
 function DUIDialogOptionButtonMixin:SetQuestVisual(questInfo)
@@ -906,14 +913,25 @@ local HotkeyIcons = {
     PS_PAD1 = {file = "PS-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD2 = {file = "PS-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD4 = {file = "PS-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+
+    SWITCH_PADLSHOULDER = {file = "HotkeyBackground-LB.png", themed = true, text = "L", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "R", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PAD1 = {file = "SWITCH-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PAD2 = {file = "SWITCH-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PAD4 = {file = "SWITCH-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
 };
 
 HotkeyIcons.PADLSHOULDER = HotkeyIcons.XBOX_PADLSHOULDER;
 HotkeyIcons.PADRSHOULDER = HotkeyIcons.XBOX_PADRSHOULDER;
+
 HotkeyIcons.XBOX_Esc = HotkeyIcons.XBOX_PAD2;
-HotkeyIcons.PS_Esc = HotkeyIcons.PS_PAD2;
 HotkeyIcons.XBOX_Shift = HotkeyIcons.XBOX_PAD4;
+
+HotkeyIcons.PS_Esc = HotkeyIcons.PS_PAD2;
 HotkeyIcons.PS_Shift = HotkeyIcons.PS_PAD4;
+
+HotkeyIcons.SWITCH_Esc = HotkeyIcons.SWITCH_PAD2;
+HotkeyIcons.SWITCH_Shift = HotkeyIcons.SWITCH_PAD4;
 
 
 DUIDialogHotkeyFrameMixin = {};
@@ -1461,13 +1479,13 @@ function DUIDialogItemButtonMixin:SetItemOverlay(id)
     end
 end
 
-function DUIDialogItemButtonMixin:SetItem(sourceType, index)
+function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
     self.objectType = "item";
-    self.type = sourceType;
+    self.type = questInfoType;
     self.index = index;
     self.currencyID = nil;
 
-    local name, texture, count, quality, isUsable, itemID = GetQuestItemInfo(sourceType, index);    --no itemID in Classic
+    local name, texture, count, quality, isUsable, itemID, questRewardContextFlags = GetQuestItemInfo(questInfoType, index);    --no itemID in Classic; questRewardContextFlags TWW
 
     self.itemID = itemID;
     self.Icon:SetTexture(texture);
@@ -1509,14 +1527,16 @@ function DUIDialogItemButtonMixin:SetRequiredItem(index)
     self:SetItem("required", index);
 end
 
-function DUIDialogItemButtonMixin:SetCurrency(sourceType, index)
+function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
     self.objectType = "currency";
-    self.type = sourceType;
+    self.type = questInfoType;
     self.index = index;
 
-    local name, texture, amount, quality = GetQuestCurrencyInfo(sourceType, index);
-    local currencyID = GetQuestCurrencyID(sourceType, index);
+    local info = GetQuestCurrency(questInfoType, index);
+    local name, texture, amount, quality = info.name, info.texture, info.totalRewardAmount, info.quality;
+    local currencyID = info.currencyID;
     self.currencyID = currencyID;
+    IFF = info
 
     --For Reputation, it's the faction's name, but the game prefer to find a GetCurrencyContainerInfo (CurrencyContainer.lua)
 
@@ -1539,7 +1559,7 @@ function DUIDialogItemButtonMixin:SetCurrency(sourceType, index)
     self.Icon:SetTexture(texture);
     self.Count:SetText(AbbreviateNumbers(amount));
 
-    if (sourceType ~= "required") and API.WillCurrencyRewardOverflow(currencyID, amount) then
+    if (questInfoType ~= "required") and API.WillCurrencyRewardOverflow(currencyID, amount) then
         self.Count:SetTextColor(1.000, 0.125, 0.125);   --RED_FONT_COLOR
         self:ShowOverflowIcon();
     else
@@ -1603,11 +1623,7 @@ function DUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self.Icon:SetTexture(icon);
 
     if not name then
-        if C_Spell.DoesSpellExist(spellID) then
-            name = GetSpellInfo(spellID);
-        else
-            name = "Unknown Spell";
-        end
+        name = GetSpellName(spellID);
     end
 
     self:SetItemName(name);
@@ -1736,13 +1752,14 @@ function DUIDialogSmallItemButtonMixin:SetItemName(name)
     self:FitToName();
 end
 
-function DUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
+function DUIDialogSmallItemButtonMixin:SetCurrency(questInfoType, index)
     self.objectType = "currency";
-    self.type = sourceType;
+    self.type = questInfoType;
     self.index = index;
 
-    local name, texture, amount, quality = GetQuestCurrencyInfo(sourceType, index);
-    local currencyID = GetQuestCurrencyID(sourceType, index);
+    local info = GetQuestCurrency(questInfoType, index);
+    local texture, amount = info.texture, info.totalRewardAmount;
+    local currencyID = info.currencyID;
     self.currencyID = currencyID;
 
     if not amount then
@@ -1756,6 +1773,8 @@ function DUIDialogSmallItemButtonMixin:SetCurrency(sourceType, index)
     if overflow then
         self:ShowOverflowIcon();
     end
+
+    --TODO: questRewardContextFlags (See QuestInfoRewardItemMixin:GetBestQuestRewardContextDescription)
 end
 
 function DUIDialogSmallItemButtonMixin:SetRewardCurrency(index)
@@ -2180,11 +2199,15 @@ do
 
         if INPUT_DEVICE_GAME_PAD then
             ANIM_OFFSET_H_BUTTON_HOVER = 8;
-            local prefix = "XBOX_";
+            local prefix;
             if dbValue == 2 then
-
+                prefix = "XBOX_";
             elseif dbValue == 3 then
                 prefix = "PS_";
+            elseif dbValue == 4 then
+                prefix = "SWITCH_";
+            else
+                prefix = "XBOX_";
             end
 
             local buttons = {
