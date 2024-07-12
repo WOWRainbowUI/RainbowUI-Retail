@@ -13,9 +13,11 @@ local ChatFrame = addon.ChatFrame;
 local FriendshipBar = addon.FriendshipBar;
 local PlaySound = addon.PlaySound;
 local IsAutoSelectOption = addon.IsAutoSelectOption;
+local IS_MODERN_WOW = not addon.IS_CLASSIC;
 
 local FadeFrame = API.UIFrameFade;
 local CloseGossipInteraction = API.CloseGossipInteraction;
+local IsPlayingCutscene = API.IsPlayingCutscene;
 
 -- User Settings
 local ALWAYS_GOSSIP = false;
@@ -73,6 +75,7 @@ local SetPortraitTexture = SetPortraitTexture;
 local AcceptQuest = AcceptQuest;
 local GetQuestPortraitGiver = GetQuestPortraitGiver;
 local GetNumQuestChoices = GetNumQuestChoices;
+local AcknowledgeAutoAcceptQuest = AcknowledgeAutoAcceptQuest;
 
 
 local After = C_Timer.After;
@@ -490,6 +493,9 @@ function DUIDialogBaseMixin:OnLoad()
 
     self.OnLoad = nil;
     self:SetScript("OnLoad", nil);
+
+    self.isGameLoading = true;
+    self:RegisterEvent("LOADING_SCREEN_DISABLED");
 end
 
 function DUIDialogBaseMixin:LoadTheme()
@@ -1009,6 +1015,13 @@ local function ConcatenateNPCName(text)
     return text
 end
 
+function DUIDialogBaseMixin:HandleInitialLoadingComplete()
+    if self.deferredEvent then
+        self:ShowUI(self.deferredEvent);
+        self.deferredEvent = nil;
+    end
+end
+
 function DUIDialogBaseMixin:HandleGossip()
     local availableQuests = GetAvailableQuests();
     local activeQuests = GetActiveQuests();
@@ -1307,6 +1320,7 @@ function DUIDialogBaseMixin:HandleQuestDetail()
     if API.IsQuestAutoAccepted() then
         AcceptButton:SetButtonAlreadyOnQuest();
         ExitButton:SetButtonCloseAutoAcceptQuest();
+        self.acknowledgeAutoAcceptQuest = true;
     else
         AcceptButton:SetButtonAcceptQuest();
         ExitButton:SetButtonDeclineQuest(self.questIsFromGossip);
@@ -1894,6 +1908,17 @@ local Handler = {
 };
 
 function DUIDialogBaseMixin:ShowUI(event)
+    if self.isGameLoading then
+        self.deferredEvent = event;
+        return
+    end
+
+    if IsPlayingCutscene() then
+        --For case: triggering cutscene when accepting quest and the quest is immediately flagged as complete
+        self:CloseDialogInteraction();
+        return
+    end
+
     local shouldShowUI;
 
     if Handler[event] then
@@ -1940,6 +1965,10 @@ function DUIDialogBaseMixin:OnShow()
     self:RegisterEvent("LOADING_SCREEN_ENABLED");
     self:RegisterEvent("ADVENTURE_MAP_OPEN");
 
+    if IS_MODERN_WOW then
+        self:RegisterEvent("PLAYER_CHOICE_UPDATE");   --Watch TRAIT_SYSTEM_INTERACTION_STARTED
+    end
+
     FadeFrame(self.Vignette, 0.75, 1);
 
     CallbackRegistry:Trigger("DialogueUI.Show");
@@ -1983,6 +2012,10 @@ function DUIDialogBaseMixin:OnHide()
     self:UnregisterEvent("LOADING_SCREEN_ENABLED");
     self:UnregisterEvent("ADVENTURE_MAP_OPEN");
 
+    if IS_MODERN_WOW then
+        self:UnregisterEvent("PLAYER_CHOICE_UPDATE");
+    end
+
     self:ReleaseAllObjects();
     self:HideInputBox();
 
@@ -1990,6 +2023,12 @@ function DUIDialogBaseMixin:OnHide()
     TooltipFrame:Hide();
 
     CallbackRegistry:Trigger("DialogueUI.Hide");
+
+    if self.acknowledgeAutoAcceptQuest then
+        self.acknowledgeAutoAcceptQuest = nil;
+        AcknowledgeAutoAcceptQuest();
+        print("AcknowledgeAutoAcceptQuest")
+    end
 end
 
 function DUIDialogBaseMixin:OnMouseUp(button)
@@ -2009,7 +2048,7 @@ function DUIDialogBaseMixin:HighlightButton(optionButton)
 
     self.ButtonHighlight:ClearAllPoints();
 
-    if optionButton then
+    if optionButton and optionButton:IsEnabled() and (optionButton.artID ~= 3) then -- artID = 3 (Hollow, auto accepted quest)
         optionButton:SetParentHighlightTexture(self.ButtonHighlight);
     else
         self.ButtonHighlight:Hide();
@@ -2059,7 +2098,6 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
         local gossipID, text, cost = ...
         self:RegisterEvent("GOSSIP_CONFIRM_CANCEL");
         self:HandleGossipConfirm(gossipID, text, cost);
-        TT = text
     elseif event == "GOSSIP_CONFIRM_CANCEL" then
         self:UnregisterEvent(event);
         self:HideGossipConfirm();
@@ -2070,6 +2108,17 @@ function DUIDialogBaseMixin:OnEvent(event, ...)
         self:HideUI();
     elseif event == "ADVENTURE_MAP_OPEN" then
         CallbackRegistry:Trigger("PlayerInteraction.ShowUI", true);
+    elseif event == "LOADING_SCREEN_DISABLED" then  --not reliable on the intial login
+        self:UnregisterEvent(event);
+        C_Timer.After(4, function()
+            self.isGameLoading = nil;
+            self:HandleInitialLoadingComplete();
+        end);
+    elseif event == "PLAYER_CHOICE_UPDATE" then
+        --TWW: Show Weekly Quest Selection
+        self:UnregisterEvent(event);
+        self:CloseDialogInteraction();
+        self:HideUI();
     end
 end
 
@@ -2114,7 +2163,13 @@ function DUIDialogBaseMixin:ScrollDownOrAcceptQuest(fromMouseClick)
     end
 
     self:SetAcceptCurrentQuest();    --For showing "Quest Accepted" banner
-    AcceptQuest();
+
+    if self.acknowledgeAutoAcceptQuest then
+        self.acknowledgeAutoAcceptQuest = nil;
+        AcknowledgeAutoAcceptQuest();
+    else
+        AcceptQuest();
+    end
 end
 
 
