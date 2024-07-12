@@ -1,5 +1,8 @@
 GladiusEx.Data = {}
 
+GladiusEx.IS_WOTLKC = false
+GladiusEx.IS_CATAC = true
+
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 
 local SPECIALIZATION_ICONS = {
@@ -45,7 +48,7 @@ local classIDToSpecID = {
     [7] = {[1] = 262, [2] = 263, [3] = 264}, -- Shaman
     [8] = {[1] = 62, [2] = 63, [3] = 64}, -- Mage
     [9] = {[1] = 265, [2] = 266, [3] = 267}, -- Warlock
-    [11] = {[1] = 102, [2] = 103, [3] = 105} -- Druid
+    [10] = {[1] = 102, [2] = 103, [3] = 105} -- Druid
 }
 
 local specData = {
@@ -139,7 +142,7 @@ function GladiusEx.Data.DefaultClassicon()
 		[GladiusEx:SafeGetSpellName(5246)]  	= 9,	-- Intimidating Shout 
 		[GladiusEx:SafeGetSpellName(22570)]  	= 9,	-- Maim
 		[GladiusEx:SafeGetSpellName(19386)]   = 9,  -- Wyvern Sting
-
+		[GladiusEx:SafeGetSpellName(90337)]   = 9,  -- Bad Manner
 
 		-- Stuns (8)
 
@@ -153,8 +156,7 @@ function GladiusEx.Data.DefaultClassicon()
 		[GladiusEx:SafeGetSpellName(835)]   = 8,     -- Tidal Charm
 		[GladiusEx:SafeGetSpellName(12809)] = 8,   -- Concussion Blow
 		[GladiusEx:SafeGetSpellName(100)]   = 8,   -- Charge
-		[GladiusEx:SafeGetSpellName(25275)] = 8,   -- Intercept
-		[GladiusEx:SafeGetSpellName(28445)] = 8,  -- Concussive Shot
+		[GladiusEx:SafeGetSpellName(85388)]   = 8,   -- Throwdown
 
 		-- Immunes II (7)
 
@@ -178,12 +180,15 @@ function GladiusEx.Data.DefaultClassicon()
 		[GladiusEx:SafeGetSpellName(15487)]  	= 5,	-- Silence
 		[GladiusEx:SafeGetSpellName(27559)]  	= 3,	-- Silencing shot (3 second silence)
 		[GladiusEx:SafeGetSpellName(1330)]  	= 5,	-- Garrote
-		[GladiusEx:SafeGetSpellName(339)]  	  = 5,	-- Entangling Roots
+		[GladiusEx:SafeGetSpellName(339)]		= 5,	-- Entangling Roots
 		[GladiusEx:SafeGetSpellName(122)]   	= 5,	-- Frost Nova
 		[GladiusEx:SafeGetSpellName(33395)]  	= 5,	-- Freeze (Water Elemental)
 		[GladiusEx:SafeGetSpellName(676)]   	= 5,	-- Disarm 
 		[GladiusEx:SafeGetSpellName(16979)]  	= 5,	-- Feral Charge
-
+		[GladiusEx:SafeGetSpellName(83301)]  	= 5,	-- Improved Cone of Cold R1
+		[GladiusEx:SafeGetSpellName(83302)]  	= 5,	-- Improved Cone of Cold R2
+		[GladiusEx:SafeGetSpellName(90327)]		= 5,	-- Lock Jaw
+		
 		-- Defensives II (4.5)
 
 		[GladiusEx:SafeGetSpellName(6940)] 	= 4.5,	-- Blessing of Sacrifice
@@ -231,7 +236,7 @@ function GladiusEx.Data.DefaultClassicon()
 		[GladiusEx:SafeGetSpellName(8145)]    = 2.5,   -- Tremor Totem Passive
 		[GladiusEx:SafeGetSpellName(6346)]    = 2.5,   -- Fear Ward
 		[GladiusEx:SafeGetSpellName(30823)]   = 2.5,   -- Shamanistic Rage
-		[GladiusEx:SafeGetSpellName(27273)]   = 2.5,     -- Sacrifice
+		[GladiusEx:SafeGetSpellName(7812)]   = 2.5,     -- Sacrifice
 
 		-- Offensives II (2)
 
@@ -253,10 +258,6 @@ function GladiusEx.Data.DefaultClassicon()
 		[GladiusEx:SafeGetSpellName(36554)]  	= 1,	-- Shadowstep
 		[GladiusEx:SafeGetSpellName(41425)]  	= 1,	-- Hypothermia
 		[GladiusEx:SafeGetSpellName(25771)]  	= 1,	-- Forbearance
-		[GladiusEx:SafeGetSpellName(3034)]  	= 1,	-- Viper Sting
-		[GladiusEx:SafeGetSpellName(3043)]  	= 1,	-- Scorpid Sting
-		[GladiusEx:SafeGetSpellName(25467)]  	= 1,	-- Devouring Plague
-		[GladiusEx:SafeGetSpellName(2687)]  	= 1,	-- Bloodrage
 		[GladiusEx:SafeGetSpellName(11426)]   = 1,  -- Ice Barrier
 		[GladiusEx:SafeGetSpellName(1543)]    = 1,  -- Flare
   }
@@ -372,159 +373,150 @@ end
 
 function GladiusEx.Data.Interrupts()
     return {
-        [19675] = {duration = 4}, -- Feral Charge Effect (Druid)
-        [2139] = {duration = 8}, -- Counterspell (Mage)
-        [1766] = {duration = 5}, -- Kick (Rogue)
-        [6552] = {duration = 4}, -- Pummel (Warrior)
-        [72] = {duration = 6}, -- Shield Bash (Warrior)
-        [57994] = {duration = 2}, -- Wind Shear (Shaman)
-        [19244] = {duration = 5}, -- Spell Lock (Warlock
-        [47528] = {duration = 5} -- Mind Freeze (Deathknight)
+        [19675] = { duration = 4 }, -- Feral Charge Effect (Druid)
+        [2139]  = { duration = 7 }, -- Counterspell (Mage)
+        [1766]  = { duration = 5 }, -- Kick (Rogue)
+        [6552]  = { duration = 4 }, -- Pummel (Warrior)
+        [72]    = { duration = 6 }, -- Shield Bash (Warrior)
+        [57994] = { duration = 2 }, -- Wind Shear (Shaman)
+        [19647] = { duration = 5 }, -- Spell Lock (Warlock)
+        [47528] = { duration = 5 }, -- Mind Freeze (Death Knight)
+        [93985] = { duration = 4 }, -- Skull Bash (Druid)
+        [96231] = { duration = 4 }, -- Rebuke (Druid)
+        [50318] = { duration = 4 }, -- Serenity Dust (Moth - Hunter Pet)
+        [50479] = { duration = 2 }, -- Nether Shock (Nether Ray - Hunter Pet)
     }
 end
 
 GladiusEx.Data.SpecBuffs = {
     -- WARRIOR
+    [46924] = 71, -- Bladestorm
     [56638] = 71, -- Taste for Blood
-    [64976] = 71, -- Juggernaut
-    [57522] = 71, -- Enrage
-    [52437] = 71, -- Sudden Death
-    [46857] = 71, -- Trauma
-    [56112] = 72, -- Furious Attacks
+    [65156] = 71, -- Juggernaut
     [29801] = 72, -- Rampage
-    [46916] = 72, -- Slam!
+    [46913] = 72, -- Bloodsurge R1
+    [46914] = 72, -- Bloodsurge R2
+    [46915] = 72, -- Bloodsurge R3
     [50227] = 73, -- Sword and Board
-    [50720] = 73, -- Vigilance
-    [74347] = 73, -- Silenced - Gag Order
     -- PALADIN
-    [20375] = 70, -- Seal of Command
-    [59578] = 70, -- The Art of War
-    [31836] = 65, -- Light's Grace
-    [53563] = 65, -- Beacon of Light
     [54149] = 65, -- Infusion of Light
-    [63529] = 66, -- Silenced - Shield of the Templar
+    
     -- ROGUE
-    [36554] = 261, -- Shadowstep
-    [44373] = 261, -- Shadowstep Speed
-    [36563] = 261, -- Shadowstep DMG
-    [51713] = 261, -- Shadow Dance
-    [31665] = 261, -- Master of Subtlety
-    [14278] = 261, -- Ghostly Strike
     [51690] = 260, -- Killing Spree
     [13877] = 260, -- Blade Flurry
     [13750] = 260, -- Adrenaline Rush
-    [14177] = 259, -- Cold Blood
+    [36554] = 261, -- Shadowstep
+    [31223] = 261, -- Master of Subtlety
+    [51713] = 261, -- Shadow Dance
+    [51698] = 261, -- Honor Among Thieves R1 -- people play with varous
+    [51700] = 261, -- Honor Among Thieves R2 -- number of points in this
+    [51701] = 261, -- Honor Among Thieves R3 -- talent
     -- PRIEST
+    [10060] = 256, -- Power Infusion
+    [33206] = 256, -- Pain Suppression
+    [52795] = 256, -- Borrowed Time
+    [57472] = 256, -- Renewed Hope
+    [47517] = 256, -- Grace
+    [14751] = 257, -- Chakra
     [47788] = 257, -- Guardian Spirit
-    [52800] = 256, -- Borrowed Time
-    [63944] = 256, -- Renewed Hope
     [15473] = 258, -- Shadowform
     [15286] = 258, -- Vampiric Embrace
     -- DEATHKNIGHT
-    [49222] = 252, -- Bone Shield
-    [49016] = 250, -- Hysteria
+    [49222] = 250, -- Bone Shield
     [53138] = 250, -- Abomination's Might
     [55610] = 251, -- Imp. Icy Talons
-    -- MAGE
-    [43039] = 64, -- Ice Barrier
-    [74396] = 64, -- Fingers of Frost
-    [57761] = 64, -- Fireball!
-    [11129] = 63, -- Combustion
-    [64346] = 63, -- Fiery Payback
-    [48108] = 63, -- Hot Streak
-    [54741] = 63, -- Firestarter
-    [55360] = 63, -- Living Bomb
-    [31583] = 62, -- Arcane Empowerment
-    [44413] = 62, -- Incanter's Absorption
-    -- WARLOCK
-    [30302] = 267, -- Nether Protection
-    [63244] = 267, -- Pyroclasm
-    [54277] = 267, -- Backdraft
-    [47283] = 267, -- Empowered Imp
-    [34936] = 267, -- Backlash
-    [47193] = 266, -- Demonic Empowerment
-    [64371] = 265, -- Eradication
+    [51052] = 252, -- Anti-Magic Zone
+    [49016] = 252, -- Unholy Frenzy
+    -- MAGE      
+    [11426] = 64, -- Ice Barrier
+    -- WARLOCK   
+    [59672] = 266, -- Metamorphosis
+    [30299] = 267, -- Nether Protection
     -- SHAMAN
-    [57663] = 262, -- Totem of Wrath
-    [65264] = 262, -- Lava Flows
+    [16166] = 262, -- Elemental Mastery
     [51470] = 262, -- Elemental Oath
-    [52179] = 262, -- Astral Shift
-    [49284] = 264, -- Earth Shield
-    [53390] = 264, -- Tidal Waves
-    [30809] = 263, -- Unleashed Rage
-    [53817] = 263, -- Maelstrom Weapon
-    [63685] = 263, -- Freeze (Frozen Power)
+    [30802] = 263, -- Unleashed Rage
+    [30823] = 263, -- Shamanistic Rage
+    [61295] = 264, -- Riptide
+    [974]   = 264, -- Earth Shield
     -- HUNTER
     [20895] = 253, -- Spirit Bond
-    [34471] = 253, -- The Beast Within
     [75447] = 253, -- Ferocious Inspiration
     [19506] = 254, -- Trueshot Aura
-    [64420] = 255, -- Sniper Training
     -- DRUID
+    [48505] = 102, -- Starfall
+    [50516] = 102, -- Typhoon
+    [24907] = 102, -- Moonkin Form
     [24932] = 103, -- Leader of the Pack
-    [16975] = 103, -- Predatory Strikes
-    [50334] = 103, -- Berserk
-    [24907] = 102, -- Moonkin Aura
-    [24858] = 102, -- Moonkin Form
-    [48504] = 105, -- Living Seed
-    [45283] = 105, -- Natural Perfection
-    [53251] = 105, -- Wild Growth
-    [16188] = 105, -- Nature's Swiftness
-    [33891] = 105 -- Tree of Life
+    [18562] = 105, -- Swiftmend
+    [48438] = 105, -- Wild Growth
+    [33891] = 105, -- Tree of Life
 }
 
 GladiusEx.Data.SpecSpells = {
     -- WARRIOR
-    [47486] = 71, -- Mortal Strike
+    [12294] = 71, -- Mortal Strike
     [46924] = 71, -- Bladestorm
     [23881] = 72, -- Bloodthirst
     [12809] = 73, -- Concussion Blow
-    [47498] = 73, -- Devastate
     [46968] = 73, -- Shockwave
+	[23922] = 66, -- Shield Slam
     [50720] = 73, -- Vigilance
     -- PALADIN
-    [48827] = 66, -- Avenger's Shield
-    [48825] = 65, -- Holy Shock
+    [31935] = 66, -- Avenger's Shield
+    [20473] = 65, -- Holy Shock
     [53563] = 65, -- Beacon of Light
+	[68020] = 70, -- Seal of Command
     [35395] = 70, -- Crusader Strike
-    [66006] = 70, -- Divine Storm
+    [53385] = 70, -- Divine Storm
     [20066] = 70, -- Repentance
     -- ROGUE
-    [48666] = 259, -- Mutilate
+    [1329] = 259, -- Mutilate
     [14177] = 259, -- Cold Blood
     [51690] = 260, -- Killing Spree
     [13877] = 260, -- Blade Flurry
     [13750] = 260, -- Adrenaline Rush
     [36554] = 261, -- Shadowstep
-    [48660] = 261, -- Hemorrhage
-    [51713] = 261, -- Shadow Dance
+    [16511] = 261, -- Hemorrhage
     -- PRIEST
-    [53007] = 256, -- Penance
+    [47540] = 256, -- Penance
     [10060] = 256, -- Power Infusion
     [33206] = 256, -- Pain Suppression
     [34861] = 257, -- Circle of Healing
     [15487] = 258, -- Silence
-    [48160] = 258, -- Vampiric Touch
+    [34914] = 258, -- Vampiric Touch
     -- DEATHKNIGHT
-    [55262] = 250, -- Heart Strike
+    [55050] = 250, -- Heart Strike
+    [49222] = 250, -- Bone Shield
+    [53138] = 250, -- Abomination's Might
     [49203] = 251, -- Hungering Cold
-    [55268] = 251, -- Frost Strike
-    [51411] = 251, -- Howling Blast
-    [55271] = 252, -- Scourge Strike
+    [49143] = 251, -- Frost Strike
+    [49184] = 251, -- Howling Blast
+    [55610] = 251, -- Imp. Icy Talons
+    [55090] = 252, -- Scourge Strike
+    [49206] = 252, -- Summon Gargoyle
+    [51052] = 252, -- Anti-Magic Zone
+    [49194] = 252, -- Unholy Blight
+    [49016] = 252, -- Unholy Frenzy
     -- MAGE
-    [44781] = 62, -- Arcane Barrage
-    [55360] = 63, -- Living Bomb
-    [42950] = 63, -- Dragon's Breath
-    [42945] = 63, -- Blast Wave
+    [44425] = 62, -- Arcane Barrage
+    [31589] = 62, -- Slow
+    [44457] = 63, -- Living Bomb
+    [31661] = 63, -- Dragon's Breath
+    [11366] = 63, -- Pyroblast
+    [11129] = 63, -- Combustion
     [44572] = 64, -- Deep Freeze
+    [31687] = 64, -- Summon Water Elemental
+    [11426] = 64, -- Ice Barrier
     -- WARLOCK
-    [59164] = 265, -- Haunt
-    [47843] = 265, -- Unstable Affliction
+    [48181] = 265, -- Haunt
+    [30108] = 265, -- Unstable Affliction
     [59672] = 266, -- Metamorphosis
     [47193] = 266, -- Demonic Empowerment
     [47996] = 266, -- Intercept Felguard
-    [59172] = 267, -- Chaos Bolt
-    [47847] = 267, -- Shadowfury
+    [17962] = 267, -- Conflagrate
+    [30283] = 267, -- Shadowfury
+    [50769] = 267, -- Chaos Bolt
     -- SHAMAN
     [59159] = 262, -- Thunderstorm
     [16166] = 262, -- Elemental Mastery
@@ -537,22 +529,114 @@ GladiusEx.Data.SpecSpells = {
     [19577] = 253, -- Intimidation
     [34490] = 254, -- Silencing Shot
     [53209] = 254, -- Chimera Shot
-    [60053] = 255, -- Explosive Shot
-    [49012] = 255, -- Wyvern Sting
+    [19434] = 254, -- Aimed Shot
+    [53301] = 255, -- Explosive Shot
+    [19386] = 255, -- Wyvern Sting
     -- DRUID
-    [53201] = 102, -- Starfall
-    [61384] = 102, -- Typhoon
+    [48505] = 102, -- Starfall
+    [50516] = 102, -- Typhoon
     [24858] = 102, -- Moonkin Form
-    [48566] = 103, -- Mangle (Cat)
-    [48564] = 103, -- Mangle (Bear)
+    [33876] = 103, -- Mangle (Cat)
+    [33878] = 103, -- Mangle (Bear)
     [50334] = 103, -- Berserk
     [18562] = 105, -- Swiftmend
     [17116] = 105, -- Nature's Swiftness
     [33891] = 105, -- Tree of Life
-    [53251] = 105, -- Wild Growth
+    [48438] = 105, -- Wild Growth
+}
+-- K: This is used to assess whether a DR has (dynamically) reset early
+GladiusEx.Data.AuraDurations = {
+    [64058] = 10,  -- Psychic Horror Disarm Effect
+    [51722] = 10,  -- Dismantle
+    [676]   = 10,  -- Disarm
+    [1513]  = 8,   -- Scare Beast
+    [10326] = 8,   -- Turn Evil
+    [8122]  = 8,   -- Psychic Scream
+    [2094]  = 8,   -- Blind
+    [5782]  = 8,   -- Fear
+    [6358]  = 8,   -- Seduction (Succubus)
+    [5484]  = 8,   -- Howl of Terror
+    [5246]  = 8,   -- Intimidating Shout
+    [20511] = 8,   -- Intimidating Shout (secondary targets)
+    [339]   = 8,   -- Entangling Roots
+    [19975] = 8,   -- Nature's Grasp
+    [33395] = 8,   -- Freeze (Water Elemental)
+    [122]   = 8,   -- Frost Nova
+    [605]   = 8,   -- Mind Control
+    [49203] = 8,   -- Hungering Cold
+    [2637]  = 8,   -- Hibernate
+    [3355]  = 8,   -- Freezing Trap Effect
+    [9484]  = 8,   -- Shackle Undead
+    [118]   = 8,   -- Polymorph
+    [28271] = 8,   -- Polymorph: Turtle
+    [28272] = 8,   -- Polymorph: Pig
+    [61721] = 8,   -- Polymorph: Rabbit
+    [61305] = 8,   -- Polymorph: Black Cat
+    [51514] = 8,   -- Hex
+    [6770]  = 8,   -- Sap
+    [19386] = 6,   -- Wyvern Sting
+    [33786] = 6,   -- Cyclone
+    [20066] = 6,   -- Repentance
+    [710]   = 6,   -- Banish
+    [853]   = 6,   -- Hammer of Justice
+    [64695] = 5,   -- Earthgrab
+    [63685] = 5,   -- Freeze (Frost Shock)
+    [54706] = 5,   -- Venom Web Spray (Silithid)
+    [4167]  = 5,   -- Web (Spider)
+    [19306] = 5,   -- Counterattack
+    [31661] = 5,   -- Dragon's Breath
+    [31117] = 5,   -- Silenced - Unstable Affliction (Rank 1)
+    [47476] = 5,   -- Strangulate
+    [23694] = 5,   -- Improved Hamstring
+    [15487] = 5,   -- Silence
+    [44572] = 5,   -- Deep Freeze
+    [12809] = 5,   -- Concussion Blow
+    [85388] = 5,   -- Throwdown
+    [20170] = 5,   -- Seal of Justice Stun
+    [1776]  = 4,   -- Gouge
+    [5211]  = 4,   -- Bash
+    [46968] = 4,   -- Shockwave
+    [1833]  = 4,   -- Cheap Shot
+    [83073] = 4,   -- Shattered Barrier (4 seconds)
+    [55021] = 4,   -- Silenced - Improved Counterspell (Rank 2)
+    [89766] = 4,   -- Axe Toss (Felguard)
+    [19503] = 4,   -- Scatter Shot
+    [67890] = 3,   -- Cobalt Frag Bomb (Item, Frag Belt)
+    [24394] = 3,   -- Intimidation
+    [2812]  = 3,   -- Holy Wrath
+    [30283] = 3,   -- Shadowfury
+    [20253] = 3,   -- Intercept Stun
+    [9005]  = 3,   -- Pounce
+    [19577] = 3,   -- Intimidation
+    [39796] = 3,   -- Stoneclaw Stun
+    [34490] = 3,   -- Silencing Shot
+    [1330]  = 3,   -- Garrote - Silence
+    [86759] = 3,   -- Silenced - Improved Kick (Rank 2)
+    [24259] = 3,   -- Spell Lock
+    [18498] = 3,   -- Silenced - Gag Order (Shield Slam)
+    [74347] = 3,   -- Silenced - Gag Order (Heroic Throw)
+    [31935] = 3,   -- Avenger's Shield
+    [64044] = 3,   -- Psychic Horror
+    [6789]  = 3,   -- Death Coil
+    [50613] = 2,   -- Arcane Torrent (Racial, Runic Power)
+    [18469] = 2,   -- Silenced - Improved Counterspell (Rank 1)
+    [55080] = 2,   -- Shattered Barrier (2 seconds)
+    [12355] = 2,   -- Impact
+    [20549] = 2,   -- War Stomp (Racial)
+    [47481] = 2,   -- Gnaw (Ghoul Pet)
+    [50519] = 2,   -- Sonic Blast
+    [12421] = 2,   -- Mithril Frag Bomb (Item)
+    [28730] = 2,   -- Arcane Torrent (Racial, Mana)
+    [25046] = 2,   -- Arcane Torrent (Racial, Energy)
+    [58861] = 2,   -- Bash (Spirit Wolves)
+    [18425] = 1.5, -- Silenced - Improved Kick
+    [7922]  = 1.5, -- Charge Stun
+    --[81261] = 0, -- Solar Beam (static, unusable)
+    [408]   = 6, -- Kidney Shot (varies)
+    [22570] = 5, -- Maim (varies)
 }
 
-GladiusEx.Data.SpecManaLimit = 11000
+GladiusEx.Data.SpecManaLimit = 50000
 
 function GladiusEx.Data.GetSpecializationInfoByID(id)
     if specData[id] == nil then
@@ -562,12 +646,16 @@ function GladiusEx.Data.GetSpecializationInfoByID(id)
 end
 
 function GladiusEx.Data.GetNumSpecializationsForClassID(classID)
-    return 3
+    if not classID or not classIDToSpecID[classID] then return nil end
+    return #classIDToSpecID[classID]
 end
 
 function GladiusEx.Data.GetSpecializationInfoForClassID(classID, specIndex)
+    if not classID or not specIndex or not classIDToSpecID[classID] or not classIDToSpecID[classID][specIndex] then return end
+    
     local specID = classIDToSpecID[classID][specIndex]
     local _, name, desc, icon, role, _, _ = GladiusEx.Data.GetSpecializationInfoByID(specID)
+    
     return specID, name, desc, icon, role, true, true -- isRecommended, isAllowed
 end
 

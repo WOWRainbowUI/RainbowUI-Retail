@@ -1,9 +1,12 @@
 GladiusEx = LibStub("AceAddon-3.0"):NewAddon("GladiusEx", "AceEvent-3.0")
 
+
+
 GladiusEx.IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 GladiusEx.IS_TBCC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 GladiusEx.IS_WOTLKC = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
-GladiusEx.IS_CLASSIC = GladiusEx.IS_TBCC or GladiusEx.IS_WOTLKC
+GladiusEx.IS_CATAC = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+GladiusEx.IS_CLASSIC = GladiusEx.IS_TBCC or GladiusEx.IS_WOTLKC or GladiusEx.IS_CATAC
 
 local LGIST = GladiusEx.IS_RETAIL and LibStub:GetLibrary("LibGroupInSpecT-1.1")
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
@@ -736,18 +739,47 @@ function GladiusEx:CheckOpponentSpecialization(unit)
     if id then
         local specID = GladiusEx.Data.GetArenaOpponentSpec(tonumber(id))
 
-        if GladiusEx.IS_CLASSIC and not specID then
-            specID = self:FindSpecByAuras(unit)
+        if not specID and GladiusEx.IS_CLASSIC then
+			
+			-- K: TBC healer / hybrid mana pools are too similar to use this method
+			if not GladiusEx.IS_TBCC then
+				specID = self:FindSpecByPower(unit)
+			end
+			
+			if not specID then
+				specID = self:FindSpecByAuras(unit)
+			end
         end
 
         self:UpdateUnitSpecialization(unit, specID)
     end
 end
 
+function GladiusEx:FindSpecByPower(unit)
+	local _, class = UnitClass(unit)
+	local specID
+	if class then
+		local p = UnitPowerMax(unit, 0)
+		local limit = GladiusEx.Data.SpecManaLimit
+		if p then
+			if class == "PALADIN" and p > limit then
+				specID = 65 -- Holy
+			elseif class == "DRUID" and p < limit then
+				specID = 103 -- Feral
+			elseif class == "SHAMAN" and p < limit then
+				specID = 263 -- Enhancement
+			end
+		end
+	end
+	
+	return specID
+end
+
 function GladiusEx:FindSpecByAuras(unit)
-    for i = 1, 40 do
+    local i = 1
+    while true do
         local n, _, _, _, _, _, unitCaster, _, _, spellID = UnitAura(unit, i, "HELPFUL")
-        if n == nil then
+        if not n then
             break
         end
         if unitCaster ~= nil then
@@ -760,6 +792,7 @@ function GladiusEx:FindSpecByAuras(unit)
                 end
             end
         end
+        i = i + 1
     end
 end
 
