@@ -31,7 +31,7 @@ else
 	defaultFonts.anchor = {"PT Sans Narrow", 12, "NONE", 0, 0, 0, 1, -1}
 end
 
-C["General"] = {
+C.General = {
 	fonts = {},
 	textures = {
 		statusBar = {
@@ -80,6 +80,21 @@ function E:SetFontProperties(fontString, db)
 	fontString:SetFont(LSM:Fetch("font", db.font), db.size, flag)
 end
 
+function E.Party:ConfigTextures()
+	local texture = E.Libs.LSM:Fetch("statusbar", E.profile.General.textures.statusBar.bar)
+	for _, frame in pairs(self.extraBars) do
+		for i = 1, frame.numIcons do
+			local icon = frame.icons[i]
+			local statusBar = icon.statusBar
+			if statusBar then
+				statusBar.BG:SetTexture(texture)
+				statusBar.CastingBar:SetStatusBarTexture(texture)
+				statusBar.CastingBar.BG:SetTexture(E.Libs.LSM:Fetch("statusbar", E.profile.General.textures.statusBar.BG))
+			end
+		end
+	end
+end
+
 function E:ConfigTextures()
 	for moduleName in pairs(self.moduleOptions) do
 		local module = self[moduleName]
@@ -97,10 +112,12 @@ end
 
 local setTextColor = function(info, r, g, b)
 	local db = E.profile.General.cooldownText[ info[3] ][ info[#info] ]
-	db.r = r
-	db.g = g
-	db.b = b
+	db.r, db.g, db.b = r, g, b
 	E:Refresh()
+end
+
+local isHomespun = function(info)
+	return E.profile.General.fonts[ info[3] ].font == "Homespun"
 end
 
 local fontInfo = {
@@ -119,7 +136,7 @@ local fontInfo = {
 		min = 8, max = 32, step = 1,
 	},
 	flag = {
-		disabled = function(info) return E.profile.General.fonts[ info[3] ].font == "Homespun" end,
+		disabled = isHomespun,
 		name = L["Font Outline"],
 		order = 3,
 		type = "select",
@@ -131,7 +148,7 @@ local fontInfo = {
 		},
 	},
 	ofsX = {
-		disabled = function(info) return E.profile.General.fonts[ info[3] ].font == "Homespun" end,
+		disabled = isHomespun,
 		name = L["Font Shadow"],
 		order = 4,
 		type = "select",

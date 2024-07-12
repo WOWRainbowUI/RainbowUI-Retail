@@ -1,6 +1,8 @@
 local E, L = select(2, ...):unpack()
 local P = E.Party
 
+local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+
 local TM = CreateFrame("Frame")
 
 local addOnTestMode = {}
@@ -135,7 +137,7 @@ function TM:Test(key)
 
 		self:RegisterEvent('PLAYER_LEAVING_WORLD')
 
-		P:Refresh(true)
+		P:Refresh()
 
 		local frame = P.groupInfo[E.userGUID].bar
 		self.indicator.anchor:ClearAllPoints()
@@ -178,7 +180,7 @@ function TM:Test(key)
 		self.indicator:Hide()
 		self:UnregisterEvent('PLAYER_LEAVING_WORLD')
 
-		P:Refresh(true)
+		P:Refresh()
 	end
 end
 

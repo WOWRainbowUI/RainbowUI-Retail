@@ -3,6 +3,8 @@ local P = E.Party
 
 local _G = _G
 local GetNumGroupMembers, IsInRaid, UnitGUID = GetNumGroupMembers, IsInRaid, UnitGUID
+local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+
 local isColdStartDC = true
 
 local COMPACT_RAID = {

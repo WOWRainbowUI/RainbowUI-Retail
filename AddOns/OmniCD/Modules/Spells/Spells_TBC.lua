@@ -405,7 +405,10 @@ E.spellDefaults = {
 	23920,
 }
 
-E.raidDefaults = {
+E.interruptDefaults = {
 	16979, 2139, 1766, 8042, 19244, 6552, 72,
+}
+
+E.raidDefaults = {
 	740,
 }

@@ -352,6 +352,7 @@ local function GetOptions()
 		E:AddSpellEditor()
 		E:AddProfileSharing()
 	end
+	E:AddSpellPickers()
 	return E.options
 end
 

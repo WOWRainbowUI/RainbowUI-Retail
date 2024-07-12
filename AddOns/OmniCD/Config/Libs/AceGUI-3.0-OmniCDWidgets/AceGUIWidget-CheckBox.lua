@@ -15,7 +15,7 @@ Checkbox Widget
 --[[ s r
 local Type, Version = "CheckBox", 26
 ]]
-local Type, Version = "CheckBox-OmniCD", 31 --26 by OA, 28 backdrop 29 text right align -- v30: temp
+local Type, Version = "CheckBox-OmniCD", 33 --26 by OA, 28 backdrop 29 text right align -- v30: temp
 -- e
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
@@ -133,8 +133,8 @@ local function delButton_OnLeave(self)
 	if AceConfigDialog then
 		AceConfigDialog.tooltip:Hide()
 	end
-	-- do nothing if it's entering parent frame -- is there an api for this?
-	if GetMouseFocus() ~= self:GetParent() then
+	-- do nothing if it's entering parent frame
+	if not self:GetParent():IsMouseMotionFocus() then
 		self.fadeOut:Play()
 	end
 end
@@ -217,17 +217,12 @@ local function Control_OnLeave(frame)
 	local arg = frame.obj.arg
 	if arg and arg < 0 and delButton then
 		-- do nothing if it's entering delButton
-		if GetMouseFocus() ~= delButton then
+		if not delButton:IsMouseMotionFocus() then
 			--delButton:Hide()
 			delButton.fadeOut:Play()
 		end
 	end
 end
-
-local mouseOverFrame -- (mu) prevent mouseup registering outside of frame region
---[[ not using yet
-local cursorArg -- (dnd) drag'n drop
-]]
 
 local function CheckBox_OnMouseDown(frame)
 	local self = frame.obj
@@ -237,8 +232,6 @@ local function CheckBox_OnMouseDown(frame)
 		else
 			self.text:SetPoint("LEFT", self.checkbg, "RIGHT", 6, -1)
 		end
-
-		mouseOverFrame = GetMouseFocus();
 		---[[
 		local arg = self.arg
 		if arg and arg > 0 then
@@ -259,36 +252,20 @@ local function CheckBox_OnMouseDown(frame)
 	AceGUI:ClearFocus()
 end
 
-local function CheckBox_OnMouseUp(frame, button)
+local function CheckBox_OnMouseUp(frame)
 	local self = frame.obj
-	if mouseOverFrame == GetMouseFocus() then
-		--[[ not using yet - make it work while disabled
-		local controlKey = IsControlKeyDown()
-		if controlKey then
-			if type(cursorArg) == "function" then
-				cursorArg()
-			end
-		]]
-		if not self.disabled then
-			self:ToggleChecked()
+	if not self.disabled and frame:IsMouseMotionFocus() then
+		self:ToggleChecked()
 
-			if self.checked then
-				PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
-			else -- for both nil and false (tristate)
-				PlaySound(857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
-			end
+		if self.checked then
+			PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+		else -- for both nil and false (tristate)
+			PlaySound(857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
+		end
 
-			self:Fire("OnValueChanged", self.checked)
-			AlignImage(self)
-		end
-	else -- v2.6.30 fix text alignment not reverting back to resting state
-		if not self.disabled then
-			AlignImage(self)
-		end
+		self:Fire("OnValueChanged", self.checked)
+		AlignImage(self)
 	end
-
-	mouseOverFrame = nil
-	--cursorArg = nil
 end
 --e
 
@@ -299,7 +276,7 @@ local methods = {
 	["OnAcquire"] = function(self)
 		self:SetType()
 		self:SetValue(false)
-		self:SetTriState(nil)
+		--self:SetTriState(nil) -- s -r
 		-- height is calculated from the width and required space for the description
 		self:SetWidth(200)
 		self:SetImage()
@@ -325,7 +302,8 @@ local methods = {
 		if disabled then
 			self.frame:Disable()
 			self.text:SetTextColor(0.5, 0.5, 0.5)
-			SetDesaturation(self.check, true)
+			--SetDesaturation(self.check, true)
+			self.check:SetAtlas("checkmark-minimal-disabled", true)
 			if self.desc then
 				self.desc:SetTextColor(0.5, 0.5, 0.5)
 			end
@@ -336,9 +314,11 @@ local methods = {
 			self.frame:Enable()
 			self.text:SetTextColor(1, 1, 1)
 			if self.tristate and self.checked == nil then
-				SetDesaturation(self.check, true)
+				--SetDesaturation(self.check, true)
+				self.check:SetAtlas("checkmark-minimal-disabled", true)
 			else
-				SetDesaturation(self.check, false)
+				--SetDesaturation(self.check, false)
+				self.check:SetAtlas("checkmark-minimal", true)
 			end
 			if self.desc then
 				self.desc:SetTextColor(1, 1, 1)
@@ -353,15 +333,17 @@ local methods = {
 		local check = self.check
 		self.checked = value
 		if value then
-			SetDesaturation(check, false)
+			--SetDesaturation(check, false)
+			check:SetAtlas("checkmark-minimal", true)
 			check:Show()
 		else
 			--Nil is the unknown tristate value
 			if self.tristate and value == nil then
-				SetDesaturation(check, true)
+				--SetDesaturation(check, true)
+				check:SetAtlas("checkmark-minimal-disabled", true)
 				check:Show()
 			else
-				SetDesaturation(check, false)
+				--SetDesaturation(check, false)
 				check:Hide()
 			end
 		end
@@ -373,10 +355,12 @@ local methods = {
 		return self.checked
 	end,
 
+	--[[ s -r
 	["SetTriState"] = function(self, enabled)
 		self.tristate = enabled
 		self:SetValue(self:GetValue())
 	end,
+	]]
 
 	["SetType"] = function(self, type)
 		local checkbg = self.checkbg

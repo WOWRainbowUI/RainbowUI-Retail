@@ -1,6 +1,6 @@
 local E, L = select(2, ...):unpack()
 
-local DB_VERSION = 3
+local DB_VERSION = 4
 
 local function OmniCD_OnEvent(self, event, ...)
 	if event == 'ADDON_LOADED' then
@@ -75,6 +75,26 @@ function E:OnInitialize()
 	if not OmniCDDB or not OmniCDDB.version or  OmniCDDB.version < 2.51 then
 		OmniCDDB = { version = DB_VERSION }
 	elseif OmniCDDB.version < DB_VERSION then
+		if OmniCDDB.cooldowns then
+			for k, v in pairs(OmniCDDB.cooldowns) do
+				if not v.custom then
+					OmniCDDB.cooldowns[k] = nil
+				end
+			end
+			OmniCDDB.cooldowns[6262] = nil
+		end
+		if OmniCDDB.profiles then
+			for _, profile in pairs(OmniCDDB.profiles) do
+				if profile.Party then
+					profile.Party.customPriority = nil
+					for _, zone in pairs(profile.Party) do
+						if type(zone) == "table" then
+							zone.extraBars = nil
+						end
+					end
+				end
+			end
+		end
 		OmniCDDB.version = DB_VERSION
 	end
 	OmniCDDB.cooldowns = OmniCDDB.cooldowns or {}
@@ -122,7 +142,7 @@ function E:Refresh(arg)
 		local enabled = self:GetModuleEnabled(moduleName)
 		if enabled then
 			if module.enabled then
-				module:Refresh(true)
+				module:Refresh()
 			else
 				module:Enable()
 			end

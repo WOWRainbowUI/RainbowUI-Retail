@@ -1,499 +1,502 @@
 local E = select(2, ...):unpack()
 
+local GetSpellInfo = C_Spell and C_Spell.GetSpellName or GetSpellInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+
 E.spell_cdmod_talents = {
-	-- Death Knight
-	[48982] = { -- Rune Tap
-		48985, 10, -- Improved Rune Tap (Rank 1)
-		49488, 20, -- Improved Rune Tap (Rank 2)
-		49489, 30, -- Improved Rune Tap (Rank 3)
+
+	[48982] = {
+		48985, 10,
+		49488, 20,
+		49489, 30,
 	},
-	[49576] = { -- Death Grip
-		49588, 5, -- Unholy Command (Rank 1) --> peridoic sync reset effect
-		49589, 10, -- Unholy Command (Rank 2)
+	[49576] = {
+		49588, 5,
+		49589, 10,
 	},
-	[46584] = { -- Raise Dead
-		52143, 60, -- Master of Ghouls
+	[46584] = {
+		52143, 60,
 	},
 	[47476] = {
-		85793, 30, -- Hand of Doom (Rank 1)
-		85794, 60, -- Hand of Doom (Rank 2)
+		85793, 30,
+		85794, 60,
 	},
 	[45529] = {
-		94553, 15, -- Improved Blood Tap (Rank 1)
-		94555, 30, -- Improved Blood Tap (Rank 2)
+		94553, 15,
+		94555, 30,
 	},
-	-- Druid
-	[5211] = { -- Bash
-		16940, 5, -- Brutal Impact (Rank 1)
-		16941, 10, -- Brutal Impact (Rank 2)
+
+	[5211] = {
+		16940, 5,
+		16941, 10,
 	},
-	[80964] = { -- Skull Bash
-		16940, 25, -- Brutal Impact (Rank 1)
-		16941, 50, -- Brutal Impact (Rank 2)
+	[80964] = {
+		16940, 25,
+		16941, 50,
 	},
 	[50516] = {
-		63056, 3, -- Glyph of Monsoon
+		63056, 3,
 	},
 	[5209] = {
-		57858, 30, -- Glyph of Challenging Roar
+		57858, 30,
 	},
 	[48505] = {
-		54828, 30, -- Glyph of Starfall
+		54828, 30,
 	},
 	[740] = {
-		92363, 150, -- Malfurion's Gift ( Rank 1)
-		92364, 300, -- Malfurion's Gift ( Rank 2)
+		92363, 150,
+		92364, 300,
 	},
 	[5217] = {
-		94390, 3, -- Glyph of Tiger's Fury
+		94390, 3,
 	},
-	[16979] = { -- Feral Charge (Bear)
-		94388, 1, -- Glyph of Feral Charge
+	[16979] = {
+		94388, 1,
 	},
-	[49376] = { -- Feral Charge (Cat)
-		94388, 2, -- Glyph of Feral Charge
+	[49376] = {
+		94388, 2,
 	},
 	[467] = {
-		57862, 20, -- Glyph of Thorns
+		57862, 20,
 	},
 	[48438] = {
-		62970, -2, -- Glyph of Wild Growth
+		62970, -2,
 	},
-	-- Hunter
-	[1499] = { -- Freezing Trap
-		34491, 2, -- Resourcefulness (Rank 1)
-		34492, 4, -- Resourcefulness (Rank 2)
-		34493, 6, -- Resourcefulness (Rank 3)
+
+	[1499] = {
+		34491, 2,
+		34492, 4,
+		34493, 6,
 	},
-	[13795] = { -- Immolation Trap
-		34491, 2, -- Resourcefulness (Rank 1)
-		34492, 4, -- Resourcefulness (Rank 2)
-		34493, 6, -- Resourcefulness (Rank 3)
+	[13795] = {
+		34491, 2,
+		34492, 4,
+		34493, 6,
 	},
-	[13809] = { -- Ice Trap
-		34491, 2, -- Resourcefulness (Rank 1)
-		34492, 4, -- Resourcefulness (Rank 2)
-		34493, 6, -- Resourcefulness (Rank 3)
+	[13809] = {
+		34491, 2,
+		34492, 4,
+		34493, 6,
 	},
-	[13813] = { -- Explosive Trap
-		34491, 2, -- Resourcefulness (Rank 1)
-		34492, 4, -- Resourcefulness (Rank 2)
-		34493, 6, -- Resourcefulness (Rank 3)
+	[13813] = {
+		34491, 2,
+		34492, 4,
+		34493, 6,
 	},
-	[34600] = { -- Snake Trap
-		34491, 2, -- Resourcefulness (Rank 1)
-		34492, 4, -- Resourcefulness (Rank 2)
-		34493, 6, -- Resourcefulness (Rank 3)
+	[34600] = {
+		34491, 2,
+		34492, 4,
+		34493, 6,
 	},
-	[3674] = { -- Black Arrow
-		34491, 2, -- Resourcefulness (Rank 1)
-		34492, 4, -- Resourcefulness (Rank 2)
-		34493, 6, -- Resourcefulness (Rank 3)
+	[3674] = {
+		34491, 2,
+		34492, 4,
+		34493, 6,
 	},
-	[3045] = { -- Rapid Fire
-		83558, 60, -- Posthaste (Rank 1)
-		83560, 120, -- Posthaste (Rank 2)
+	[3045] = {
+		83558, 60,
+		83560, 120,
 	},
 	[19574] = {
-		56830, 20, -- Glyph of Bestial Wrath
+		56830, 20,
 	},
 	[53209] = {
-		63065, 1, -- Glyph of Chimera Shot
+		63065, 1,
 	},
 	[5384] = {
-		57903, 5, -- Glyph of Feign Death
+		57903, 5,
 	},
-	[781] = { -- Disengage
-		19286, 2, -- Survival Tactics (Rank 1)
-		19287, 4, -- Survival Tactics (Rank 2)
-		56844, 5, -- Glyph of Disengage
+	[781] = {
+		19286, 2,
+		19287, 4,
+		56844, 5,
 	},
 	[19263] = {
-		56850, 10, -- Glyph of Deterrence
+		56850, 10,
 	},
 	[19386] = {
-		56848, 6, -- Glyph of Wyvern Sting
+		56848, 6,
 	},
-	-- Mage
-	[12051] = { -- Evocation
-		44378, 60, -- Arcane Flows (Rank 1)
-		44379, 120, -- Arcane Flows (Rank 2)
+
+	[12051] = {
+		44378, 60,
+		44379, 120,
 	},
 	[31661] = {
-		56373, 3, -- Glyph of Dragon's Breath
+		56373, 3,
 	},
-	-- Paladin
-	[1022] = { -- Hand of Protection
-		20174, 60, -- Guardian's Favor (Rank 1)
-		20175, 120, -- Guardian's Favor (Rank 2)
+
+	[1022] = {
+		20174, 60,
+		20175, 120,
 	},
-	[31884] = { -- Avenging Wrath
-		93418, 30, -- Paragon of Virtue (Rank 1)
-		93417, 60, -- Paragon of Virtue (Rank 2)
-		53375, 20, -- Sanctified Wrath (Rank 1)
-		90286, 40, -- Sanctified Wrath (Rank 2)
-		53376, 60, -- Sanctified Wrath (Rank 3)
-		31848, 20, -- Shield of the Templar (Rank 1)
-		31849, 40, -- Shield of the Templar (Rank 2)
-		84854, 60, -- Shield of the Templar (Rank 3)
+	[31884] = {
+		93418, 30,
+		93417, 60,
+		53375, 20,
+		90286, 40,
+		53376, 60,
+		31848, 20,
+		31849, 40,
+		84854, 60,
 	},
-	[86150] = { -- Guardian of Ancient Kings
-		31848, 40, -- Shield of the Templar (Rank 1)
-		31849, 80, -- Shield of the Templar (Rank 2)
-		84854, 120, -- Shield of the Templar (Rank 3)
+	[86150] = {
+		31848, 40,
+		31849, 80,
+		84854, 120,
 	},
-	[853] = { -- Hammer of Justice
-		20487, 10, -- Improved Hammer of Justice (Rank 1)
-		20488, 20, -- Improved Hammer of Justice (Rank 2)
+	[853] = {
+		20487, 10,
+		20488, 20,
 	},
-	[633] = { -- Lay on Hands
-		57955, 180, -- Glyph of Lay on Hands
+	[633] = {
+		57955, 180,
 	},
-	[6940] = { -- Hand of Sacrifice
-		93418, 15, -- Paragon of Virtue (Rank 1)
-		93417, 30, -- Paragon of Virtue (Rank 2)
+	[6940] = {
+		93418, 15,
+		93417, 30,
 	},
-	[498] = { -- Divine Protection
-		93418, 15, -- Paragon of Virtue (Rank 1)
-		93417, 30, -- Paragon of Virtue (Rank 2)
+	[498] = {
+		93418, 15,
+		93417, 30,
 	},
-	[85673] = { -- Word of Glory
-		85803, 5, -- Selfless Healer (Rank 1)
-		85804, 10, -- Selfless Healer (Rank 2)
+	[85673] = {
+		85803, 5,
+		85804, 10,
 	},
-	-- Priest
-	[586] = { -- Fade
-		15274, 3, -- Veiled Shadows (Rank 1)
-		15311, 6, -- Veiled Shadows (Rank 2)
-		55684, 9, -- Glyph of Fade
+
+	[586] = {
+		15274, 3,
+		15311, 6,
+		55684, 9,
 	},
-	[34433] = { -- Shadowfiend
-		15274, 30, -- Veiled Shadows (Rank 1)
-		15311, 60, -- Veiled Shadows (Rank 2)
+	[34433] = {
+		15274, 30,
+		15311, 60,
 	},
-	[8092] = { -- Mind Blast
-		15273, 0.5, -- Improved Mind Blast (Rank 1)
-		15312, 1.0, -- Improved Mind Blast (Rank 2)
-		15313, 1.5, -- Improved Mind Blast (Rank 3)
+	[8092] = {
+		15273, 0.5,
+		15312, 1.0,
+		15313, 1.5,
 	},
-	[8122] = { -- Psychic Scream
-		15392, 2, -- Improved Psychic Scream (Rank 1)
-		15448, 4, -- Improved Psychic Scream (Rank 2)
-		55676, -3, -- Glyph of Psychic Scream
+	[8122] = {
+		15392, 2,
+		15448, 4,
+		55676, -3,
 	},
-	[17] = { -- Power Word: Shield (Rank 1)
-		63574, 1, -- Soul Warding (Rank 1)
-		78500, 2, -- Soul Warding (Rank 2)
+	[17] = {
+		63574, 1,
+		78500, 2,
 	},
 	[47585] = {
-		63229, 45, -- Glyph of Dispersion
+		63229, 45,
 	},
 	[47540] = {
-		63235, 2, -- Glyph of Penance
+		63235, 2,
 	},
 	[6346] = {
-		55678, 60, -- Glyph of Fear Ward
+		55678, 60,
 	},
 	[47788] = {
-		63231, 30, -- Glyph of Guardian Spirit
+		63231, 30,
 	},
 	[64044] = {
-		55688, 30, -- Glyph of Psychic Horror
+		55688, 30,
 	},
-	[64843] = { -- Divine Hymn
-		87430, 150, -- Heavenly Voice (Rank 1)
-		87431, 300, -- Heavenly Voice (Rank 2)
+	[64843] = {
+		87430, 150,
+		87431, 300,
 	},
-	-- Rogue
-	[2094] = { -- Blind
-		13981, 30, -- Elusiveness (Rank 1)
-		14066, 60, -- Elusiveness (Rank 2)
+
+	[2094] = {
+		13981, 30,
+		14066, 60,
 	},
-	[1856] = { -- Vanish
-		13981, 30, -- Elusiveness (Rank 1)
-		14066, 60, -- Elusiveness (Rank 2)
+	[1856] = {
+		13981, 30,
+		14066, 60,
 	},
-	[31224] = { -- Cloak of Shadows
-		13981, 15, -- Elusiveness (Rank 1)
-		14066, 30, -- Elusiveness (Rank 2)
+	[31224] = {
+		13981, 15,
+		14066, 30,
 	},
-	[74001] = { -- Combat Readiness
-		13981, 15, -- Elusiveness (Rank 1)
-		14066, 30, -- Elusiveness (Rank 2)
+	[74001] = {
+		13981, 15,
+		14066, 30,
 	},
-	[1784] = { -- Stealth
-		13975, 2, -- Nightstalker (Rank 1)
-		14062, 4, -- Nightstalker (Rank 2)
+	[1784] = {
+		13975, 2,
+		14062, 4,
 	},
-	[57934] = { -- Tricks of the Trade
-		58414, 5, -- Filthy Tricks (Rank 1)
-		58415, 10, -- Filthy Tricks (Rank 2)
+	[57934] = {
+		58414, 5,
+		58415, 10,
 	},
-	[1725] = { -- Distract
-		58414, 5, -- Filthy Tricks (Rank 1)
-		58415, 10, -- Filthy Tricks (Rank 2)
+	[1725] = {
+		58414, 5,
+		58415, 10,
 	},
-	[36554] = { -- Shadowstep
-		58414, 5, -- Filthy Tricks (Rank 1)
-		58415, 10, -- Filthy Tricks (Rank 2)
+	[36554] = {
+		58414, 5,
+		58415, 10,
 	},
-	[14185] = { -- Preparation
-		58414, 90, -- Filthy Tricks (Rank 1)
-		58415, 180, -- Filthy Tricks (Rank 2)
+	[14185] = {
+		58414, 90,
+		58415, 180,
 	},
 	[1766] = {
-		56805, -4, -- Glyph of Kick --> cleu [cooldown is reduced by 6 sec when your Kick successfully interrupts a spell]
+		56805, -4,
 	},
-	-- Shaman
-	[8042] = { -- Earth Shock
-		16040, 0.5, -- Reverberation (Rank 1)
-		16113, 1.0, -- Reverberation (Rank 2)
+
+	[8042] = {
+		16040, 0.5,
+		16113, 1.0,
 	},
-	[8050] = { -- Flame Shock
-		16040, 0.5, -- Reverberation (Rank 1)
-		16113, 1.0, -- Reverberation (Rank 2)
-		63370, 1.0, -- Booming Echoes (Rank 1)
-		63372, 2.0, -- Booming Echoes (Rank 2)
+	[8050] = {
+		16040, 0.5,
+		16113, 1.0,
+		63370, 1.0,
+		63372, 2.0,
 	},
-	[8056] = { -- Frost Shock
-		16040, 0.5, -- Reverberation (Rank 1)
-		16113, 1.0, -- Reverberation (Rank 2)
-		63370, 1.0, -- Booming Echoes (Rank 1)
-		63372, 2.0, -- Booming Echoes (Rank 2)
+	[8056] = {
+		16040, 0.5,
+		16113, 1.0,
+		63370, 1.0,
+		63372, 2.0,
 	},
-	[57994] = { -- Wind Shear
-		16040, 5, -- Reverberation (Rank 1)
-		16113, 10, -- Reverberation (Rank 2)
+	[57994] = {
+		16040, 5,
+		16113, 10,
 	},
-	[8177] = { -- Grounding Totem
-		55441, -35, -- Glyph of Grounding Totem
+	[8177] = {
+		55441, -35,
 	},
 	[2894] = {
-		55455, 300, -- Glyph of Fire Elemental Totem
+		55455, 300,
 	},
-	[51490] = { -- Thunderstorm
-		63270, 10, -- Glyph of Thunder
+	[51490] = {
+		63270, 10,
 	},
 	[51514] = {
-		63291, 10, -- Glyph of Hex
+		63291, 10,
 	},
-	-- Warlock
-	[7814] = { -- Lash of Pain
-		18126, 3, -- Demonic Power (Rank 1)
-		18127, 6, -- Demonic Power (Rank 2)
+
+	[7814] = {
+		18126, 3,
+		18127, 6,
 	},
 	[50796] = {
-		63304, 2, -- Glyph of Chaos Bolt
+		63304, 2,
 	},
 	[5484] = {
-		56217, 8, -- Glyph of Howl of Terror
+		56217, 8,
 	},
 	[48020] = {
-		63309, 4, -- Glyph of Demonic Circle
+		63309, 4,
 	},
-	-- Warrior
-	[871] = { -- Shield Wall
-		29598, 60, -- Shield Mastery (Rank 1)
-		84607, 120, -- Shield Mastery (Rank 2)
-		84608, 180, -- Shield Mastery (Rank 3)
-		63329, -120, -- Glyph of Shield Wall
+
+	[871] = {
+		29598, 60,
+		84607, 120,
+		84608, 180,
+		63329, -120,
 	},
-	[100] = { -- Charge
-		64976, 2, -- Juggernaut -- TODO: makes Intercept share a cooldown with Charge
-		58355, 1, -- Glyph of Rapid Charge
+	[100] = {
+		64976, 2,
+		58355, 1,
 	},
-	[2565] = { -- Shield Block
-		29598, 10, -- Shield Mastery (Rank 1)
-		84607, 20, -- Shield Mastery (Rank 2)
-		84608, 30, -- Shield Mastery (Rank 3)
+	[2565] = {
+		29598, 10,
+		84607, 20,
+		84608, 30,
 	},
 	[46968] = {
-		63325, 3, -- Glyph of Shockwave
+		63325, 3,
 	},
 	[46924] = {
-		63324, 15, -- Glyph of Bladestorm
+		63324, 15,
 	},
 	[23920] = {
-		63328, 5, -- Glyph of Spell Reflection
+		63328, 5,
 	},
-	-- cata
-	[20252] = { -- Intercept
-		29888, 5, -- Skirmisher (Rank 1)
-		29889, 10, -- Skirmisher (Rank 2)
+
+	[20252] = {
+		29888, 5,
+		29889, 10,
 	},
-	[6544] = { -- Heroic Leap
-		29888, 10, -- Skirmisher (Rank 1)
-		29889, 20, -- Skirmisher (Rank 2)
+	[6544] = {
+		29888, 10,
+		29889, 20,
 	},
 	[469] = {
-		12321, 15, -- Booming Voice (Rank 1)
-		12835, 30, -- Booming Voice (Rank 2)
+		12321, 15,
+		12835, 30,
 	},
-	[57755] = { -- Heroic Throw
-		12311, 15, -- Gag Order (Rank 1)
-		12958, 30, -- Gag Order (Rank 2)
+	[57755] = {
+		12311, 15,
+		12958, 30,
 	},
 }
 
 E.spell_cdmod_talents_mult = {
-	-- Druid
+
 	[1850] = {
-		59219, .80, -- Glyph of Dash
+		59219, .80,
 	},
-	-- Hunter
-	[19574] = { -- Bestial Wrath
-		53262, .90, -- Longevity (Rank 1)
-		53263, .80, -- Longevity (Rank 1)
-		53264, .70, -- Longevity (Rank 1)
+
+	[19574] = {
+		53262, .90,
+		53263, .80,
+		53264, .70,
 	},
-	[19577] = { -- Intimidation
-		53262, .90, -- Longevity (Rank 1)
-		53263, .80, -- Longevity (Rank 1)
-		53264, .70, -- Longevity (Rank 1)
+	[19577] = {
+		53262, .90,
+		53263, .80,
+		53264, .70,
 	},
---	[53271] = { -- Master's Call	-- no longer pet ability in Cata
---		53262, .90, -- Longevity (Rank 1)
---		53263, .80, -- Longevity (Rank 1)
---		53264, .70, -- Longevity (Rank 1)
---	},
-	[26090] = { -- Pummel
-		53262, .90, -- Longevity (Rank 1)
-		53263, .80, -- Longevity (Rank 1)
-		53264, .70, -- Longevity (Rank 1)
+
+
+
+
+
+	[26090] = {
+		53262, .90,
+		53263, .80,
+		53264, .70,
 	},
-	-- Mage
-	[120] = { -- Cone of Cold
-		31670, .93, -- Ice Floes (Rank 1)
-		31672, .86, -- Ice Floes (Rank 2)
-		55094, .80, -- Ice Floes (Rank 3)
+
+	[120] = {
+		31670, .93,
+		31672, .86,
+		55094, .80,
 	},
-	[45438] = { -- Ice Block
-		31670, .93, -- Ice Floes (Rank 1)
-		31672, .86, -- Ice Floes (Rank 2)
-		55094, .80, -- Ice Floes (Rank 3)
+	[45438] = {
+		31670, .93,
+		31672, .86,
+		55094, .80,
 	},
-	[122] = { -- Frost Nova
-		31670, .93, -- Ice Floes (Rank 1)
-		31672, .86, -- Ice Floes (Rank 2)
-		55094, .80, -- Ice Floes (Rank 3)
+	[122] = {
+		31670, .93,
+		31672, .86,
+		55094, .80,
 	},
-	[12472] = { -- Icy Veins
-		31670, .93, -- Ice Floes (Rank 1)
-		31672, .86, -- Ice Floes (Rank 2)
-		55094, .80, -- Ice Floes (Rank 3)
+	[12472] = {
+		31670, .93,
+		31672, .86,
+		55094, .80,
 	},
-	[11958] = { -- Cold Snap
-		31670, .93, -- Ice Floes (Rank 1)
-		31672, .86, -- Ice Floes (Rank 2)
-		55094, .80, -- Ice Floes (Rank 3)
-		55091, .90, -- Cold as Ice (Rank 1)
-		55092, .80, -- Cold as Ice (Rank 2)
+	[11958] = {
+		31670, .93,
+		31672, .86,
+		55094, .80,
+		55091, .90,
+		55092, .80,
 	},
-	[11426] = { -- Ice Barrier
-		31670, .93, -- Ice Floes (Rank 1)
-		31672, .86, -- Ice Floes (Rank 2)
-		55094, .80, -- Ice Floes (Rank 3)
-		55091, .90, -- Cold as Ice (Rank 1)
-		55092, .80, -- Cold as Ice (Rank 2)
+	[11426] = {
+		31670, .93,
+		31672, .86,
+		55094, .80,
+		55091, .90,
+		55092, .80,
 	},
-	[31687] = { -- Summon Water Elemental
-		55091, .90, -- Cold as Ice (Rank 1)
-		55092, .80, -- Cold as Ice (Rank 2)
+	[31687] = {
+		55091, .90,
+		55092, .80,
 	},
-	[12043] = { -- Presence of Mind
-		44378, .88, -- Arcane Flows (Rank 1)
-		44379, .75, -- Arcane Flows (Rank 2)
+	[12043] = {
+		44378, .88,
+		44379, .75,
 	},
-	[12042] = { -- Arcane Power
-		44378, .88, -- Arcane Flows (Rank 1)
-		44379, .75, -- Arcane Flows (Rank 2)
+	[12042] = {
+		44378, .88,
+		44379, .75,
 	},
-	[66] = { -- Invisibility
-		44378, .88, -- Arcane Flows (Rank 1)
-		44379, .75, -- Arcane Flows (Rank 2)
+	[66] = {
+		44378, .88,
+		44379, .75,
 	},
-	-- Paladin
-	[1044] = { -- Hand of Freedom
-		85446, .9, -- Acts of Sacrifice (Rank 1)
-		85795, .8, -- Acts of Sacrifice (Rank 2)
+
+	[1044] = {
+		85446, .9,
+		85795, .8,
 	},
-	[1038] = { -- Hand of Salvation
-		85446, .9, -- Acts of Sacrifice (Rank 1)
-		85795, .8, -- Acts of Sacrifice (Rank 2)
+	[1038] = {
+		85446, .9,
+		85795, .8,
 	},
-	[6940] = { -- Hand of Sacrifice
-		85446, .9, -- Acts of Sacrifice (Rank 1)
-		85795, .8, -- Acts of Sacrifice (Rank 2)
+	[6940] = {
+		85446, .9,
+		85795, .8,
 	},
 	[26573] = {
-		54928, 1.2, -- Glyph of Consecration
+		54928, 1.2,
 	},
-	-- Priest
-	[33076] = { -- Prayer of Mending (Rank 1)
-		47562, .94, -- Divine Providence (Rank 1)
-		47564, .88, -- Divine Providence (Rank 2)
-		47565, .82, -- Divine Providence (Rank 3)
-		47566, .76, -- Divine Providence (Rank 4)
-		47567, .70, -- Divine Providence (Rank 5)
+
+	[33076] = {
+		47562, .94,
+		47564, .88,
+		47565, .82,
+		47566, .76,
+		47567, .70,
 	},
-	[88625] = { -- Holy Word: Chastise
-		14898, .85, -- Tome of Light (Rank 1)
-		81625, .70, -- Tome of Light (Rank 2)
-	},
-	[88684] = { -- Holy Word: Serenity
+	[88625] = {
 		14898, .85,
 		81625, .70,
 	},
-	[88685] = { -- Holy Word: Sanctuary
+	[88684] = {
 		14898, .85,
 		81625, .70,
 	},
-	-- Shaman
-	-- Warlock
-	[47193] = { -- Demonic Empowerment
-		63117, .85, -- Nemesis (Rank 1)
-		63121, .70, -- Nemesis (Rank 2)
+	[88685] = {
+		14898, .85,
+		81625, .70,
 	},
-	[47241] = { -- Metamorphosis
-		63117, .85, -- Nemesis (Rank 1)
-		63121, .70, -- Nemesis (Rank 2)
+
+
+	[47193] = {
+		63117, .85,
+		63121, .70,
 	},
-	[74434] = { -- Soulburn
-		63117, .85, -- Nemesis (Rank 1)
-		63121, .70, -- Nemesis (Rank 2)
+	[47241] = {
+		63117, .85,
+		63121, .70,
 	},
-	-- Warrior
-	[18499] = { -- Berserker Rage
-		46908, .90, -- Intensify Rage (Rank 1)
-		46909, .80, -- Intensify Rage (Rank 2)
+	[74434] = {
+		63117, .85,
+		63121, .70,
 	},
-	[1719] = { -- Recklessness
-		46908, .90, -- Intensify Rage (Rank 1)
-		46909, .80, -- Intensify Rage (Rank 2)
+
+	[18499] = {
+		46908, .90,
+		46909, .80,
 	},
-	[12292] = { -- Death Wish
-		46908, .90, -- Intensify Rage (Rank 1)
-		46909, .80, -- Intensify Rage (Rank 2)
+	[1719] = {
+		46908, .90,
+		46909, .80,
+	},
+	[12292] = {
+		46908, .90,
+		46909, .80,
 	},
 }
 
 E.spell_chmod_talents = E.BLANK
-E.spell_cdmod_by_haste = E.BLANK -- Aimed Shot CD no longer affected by ranged weapon speed
+E.spell_cdmod_by_haste = E.BLANK
 
---
--- P\CD
---
+
+
+
 
 E.spell_cdmod_by_aura_mult = E.BLANK
 
-E.spell_noreset_onencounterend = { -- they added raid CD resets on ENCOUNTER_END to WOTLKC
-	[20608] = true, -- Reincarnation
-	[18540] = true, -- Ritual of Doom -- NYI
-	[556] = true, -- Astral Recall -- not in db
-	[633] = true, -- Lay on Hands
+E.spell_noreset_onencounterend = {
+	[20608] = true,
+	[18540] = true,
+	[556] = true,
+	[633] = true,
 }
 
--- Classic
+
 E.talentNameToRankIDs = {}
 
 local temp = {}
@@ -503,161 +506,161 @@ for _, v in E.pairs(E.spell_cdmod_talents, E.spell_cdmod_talents_mult) do
 		local name = GetSpellInfo(id)
 		if name and not temp[id] then
 			E.talentNameToRankIDs[name] = E.talentNameToRankIDs[name] or {}
-			tinsert(E.talentNameToRankIDs[name], id) -- index=rank to talentID
+			tinsert(E.talentNameToRankIDs[name], id)
 			temp[id] = true
 		end
 	end
 end
 
 local itemBonus = {
-	-- Druid
+
 	[29166] = {
-		37297, 48, -- Improved Innervate
+		37297, 48,
 	},
 	[17116] = {
-		37292, 24, -- Improved Nature's Swiftness
+		37292, 24,
 	},
 	[20484] = {
-		26106, 600, -- Genesis Rebirth Bonus
+		26106, 600,
 	},
 	[18562] = {
-		38417, 2, -- Reduced Swiftmend Cooldown
+		38417, 2,
 	},
-	-- Hunter
-	[5116] = { -- Concussive Shot
-		23158, 1, -- Concussive Shot Cooldown Reduction
-		24465, 1, -- Improved Concussive Shot
+
+	[5116] = {
+		23158, 1,
+		24465, 1,
 	},
-	[1499] = { -- Freezing Trap
-		37481, 4, -- Trap Cooldown
-		61256, 2, -- Trap Cooldown Reduction
-		61255, 2, -- Trap Shot Cooldown Reduction -- cata version (set bonus moved to hand equip bonus)
-	},
-	[13795] = { -- Immolation Trap
+	[1499] = {
 		37481, 4,
 		61256, 2,
 		61255, 2,
 	},
-	[13809] = { -- Ice Trap
+	[13795] = {
 		37481, 4,
 		61256, 2,
 		61255, 2,
 	},
-	[13813] = { -- Explosive Trap
+	[13809] = {
 		37481, 4,
 		61256, 2,
 		61255, 2,
 	},
-	[34600] = { -- Snake Trap
+	[13813] = {
 		37481, 4,
 		61256, 2,
 		61255, 2,
 	},
-	[3674] = { -- Black Arrow (considered as fire trap spell)
+	[34600] = {
+		37481, 4,
+		61256, 2,
+		61255, 2,
+	},
+	[3674] = {
 		37481, 4,
 		61256, 2,
 		61255, 2,
 	},
 	[5384] = {
-		24432, 2, -- Improved Feign Death (Item equip bonus)
+		24432, 2,
 	},
 	[2643] = {
-		44292, 1, -- Improved Multi-Shot
+		44292, 1,
 	},
---	[3045] = {
---		26174, 120, -- Striker's Rapid Fire Bonus (20% proc chance)
---	},
-	-- Mage
+
+
+
+
 	[1953] = {
-		23025, 2, -- Blink Cooldown Reduction
+		23025, 2,
 	},
 	[11113] = {
-		37439, 4, -- Cooldown Reduction - Blast Wave
+		37439, 4,
 	},
 	[45438] = {
-		37439, 40, -- Cooldown Reduction - Ice Block
+		37439, 40,
 	},
 	[12043] = {
-		37439, 24, -- Cooldown Reduction - Presence of Mind
+		37439, 24,
 	},
 	[12051] = {
-		28763, 60, -- Evocation
+		28763, 60,
 	},
-	-- Paladin
+
 	[20216] = {
-		37183, 15, -- Divine Favor Cooldown
+		37183, 15,
 	},
 	[853] = {
-		23302, 10, -- Hammer of Justice Cooldown Reduction
+		23302, 10,
 	},
 	[633] = {
-		28774, 720, -- Lay Hands
+		28774, 720,
 	},
 	[31789] = {
-		37181, 2, -- Reduced Righteous Defense Cooldown
+		37181, 2,
 	},
 	[20271] = {
-		61776, 1, -- Judgement Cooldown Reduction - Judgement of Light
+		61776, 1,
 	},
-	-- Priest
+
 	[586] = {
-		18388, 2, -- Quick Fade (Item equip bonus)
+		18388, 2,
 	},
 	[8122] = {
-		44297, 3, -- Improved Psychic Scream (Item equip bonus)
+		44297, 3,
 	},
-	-- Rogue
+
 	[2094] = {
-		24469, 5, -- Improved Blind
+		24469, 5,
 	},
 	[5277] = {
-		26112, 60, -- Deathdealer Evasion Bonus
+		26112, 60,
 	},
 	[1776] = {
-		23048, 1, -- Gouge Cooldown Reduction
+		23048, 1,
 	},
 	[1766] = {
-		24434, 0.5, -- Improved Kick (Item equip bonus)
+		24434, 0.5,
 	},
-	[1856] = { -- Vanish
-		21874, 30, -- Improved Vanish
-		14064, 60, -- Vanish Cooldown Reduction	-- TODO: Where is this from ???
+	[1856] = {
+		21874, 30,
+		14064, 60,
 	},
-	-- Shaman
+
 	[8177] = {
-		44299, 3, -- Improved Grounding Totem -- cata 1.5>3s
+		44299, 3,
 	},
-	[16188] = { -- Nature's Swiftness
-		37211, 24, -- Improved Nature's Swiftness
-		38466, 24, -- Nature's Swiftness Cooldown Reduction
-		38499, 24, -- Nature's Swiftness Cooldown Reduction
+	[16188] = {
+		37211, 24,
+		38466, 24,
+		38499, 24,
 	},
 	[20608] = {
-		27797, 600, -- Reduced Reincarnation Cooldown (Item equip bonus) -- TODO: relic slot
+		27797, 600,
 	},
 	[17364] = {
-		33018, 2, -- Shaman Stormstrike Cooldown Reduction (Rank 1)
+		33018, 2,
 	},
-	-- Warrior
+
 	[20252] = {
-		22738, 5, -- Intercept Cooldown Reduction
+		22738, 5,
 	},
 	[5246] = {
-		24456, 15, -- improved Intimidating Shout
+		24456, 15,
 	},
-	-- Cata
+
 	[48020] = {
-		33063, 5, -- Demonic Circle Cooldown Reduction
+		33063, 5,
 	},
 	[6789] = {
-		23047, 30, -- Death Coil Cooldown Reduction
+		23047, 30,
 	},
 }
 local itemBonusMult = {
-	-- Druid
-	[740] = { 23556, .85 }, -- Tranquility		Decreased Tranquility and Hurricane Effect -- JANUARY 31, 2023 Hotfixed 50>15%
-	-- Warlock
-	[6789] = { 24487, .85 }, -- Death Coil		Improved Death Coil
+
+	[740] = { 23556, .85 },
+
+	[6789] = { 24487, .85 },
 }
 local function MergeTable(src, dest)
 	for id, t in pairs(src) do
@@ -673,219 +676,221 @@ MergeTable(itemBonusMult, E.spell_cdmod_talents_mult)
 itemBonus = nil
 itemBonusMult = nil
 
---
--- CD\CD
---
 
-E.spell_linked = { -- Abilities that shared the full cd duration
-	[1499] = { 1499, 13809 }, -- Freezing Trap	-- WOTLKC fire/frost traps are now separate
-	[13809] = { 1499, 13809 }, -- Ice Trap
-	[13813] = { 13813, 13795, 3674 }, -- Explosive Trap
-	[13795] = { 13813, 13795, 3674 }, -- Immolation Trap
-	[3674] = { 13813, 13795, 3674 }, -- Black Arrow
-	-- WOTLKC Snake Trap isn't linked
-	[8042] = { 8042, 8050, 8056 }, -- Earth Shock (Rank 1)	-- diff spell-types
-	[8050] = { 8042, 8050, 8056 }, -- Flame Shock (Rank 1)
-	[8056] = { 8042, 8050, 8056 }, -- Frost Shock (Rank 1)
-	[6552] = { 6552, 72 }, -- Shield Bash 12s cd (shared cd is also 12s)
-	[72] = { 6552, 72 }, -- Pummel 10s cd (shared cd is also 10s)
-	[1122] = { 1122, 18540 }, -- Summon Infernal
-	[18540] = { 1122, 18540 }, -- Summon Doomguard
+
+
+
+E.spell_linked = {
+	[1499] = { 1499, 13809 },
+	[13809] = { 1499, 13809 },
+	[13813] = { 13813, 13795, 3674 },
+	[13795] = { 13813, 13795, 3674 },
+	[3674] = { 13813, 13795, 3674 },
+
+	[8042] = { 8042, 8050, 8056 },
+	[8050] = { 8042, 8050, 8056 },
+	[8056] = { 8042, 8050, 8056 },
+	[6552] = { 6552, 72 },
+	[72] = { 6552, 72 },
+	[1122] = { 1122, 18540 },
+	[18540] = { 1122, 18540 },
+	[74001] = { 74001, 31224 },
+	[31224] = { 74001, 31224 },
 }
 
 E.spell_merged = {
-	-- Druid
-	[80965] = 80964, -- Skull Bash (Cat Form)
-	[77764] = 77761, -- Stampeding Roar (Cat Form)
-	-- Hunter
-	[60192] = 1499, -- Freezing Trap (Trap Launcher)
-	[82941] = 13809, -- Ice Trap (Trap Launcher)
-	[82945] = 13795, -- Immolation Trap (Trap Launcher)
-	[82939] = 13813, -- Explosive Trap (Trap Launcher)
-	[82948] = 34600, -- Snake Trap (Trap Launcher)
-	-- Shaman
-	[32182] = 2825, -- Heroism
-	-- Racial
-	[33697] = 20572, -- Blood Fury (Shaman)
-	[33702] = 20572, -- Blood Fury (Warlock)
-	[25046] = 28730, -- Arcane Torrent (Rogue)
-	[50613] = 28730, -- Arcane Torrent (DK)
-	[59547] = 28880, -- Gift of the Naaru (Shaman)
-	[59545] = 28880, -- Gift of the Naaru (DK)
-	[59548] = 28880, -- Gift of the Naaru (Mage)
-	[59544] = 28880, -- Gift of the Naaru (Priest)
-	[59543] = 28880, -- Gift of the Naaru (Hunter)
-	[59542] = 28880, -- Gift of the Naaru (Paladin)
-	-- Trinket
-	[55915] = 44055, -- Tremendous Fortitude (phase 1, ilvl 213)
-	[67596] = 44055, -- Tremendous Fortitude (phase 3, ilvl 245)
-	-- spell_merged_updateoncast
-	[57386] = 26090, -- Stampede (Rank 1)
-	[50433] = 26090, -- Bad Attitude (Rank 1)
-	[50245] = 26090, -- Pin (Rank 1)
-	[50285] = 26090, -- Dust Cloud
-	[50479] = 26090, -- Nether Shock (Rank 1)
-	[50519] = 26090, -- Sonic Blast (Rank 1)
-	[50541] = 26090, -- Snatch (Rank 1)
-	[4167] = 26090, -- Web (Rank 1 - no other rank info)
-	[50518] = 26090, -- Ravage (Rank 1)
-	[4511] = 19647, -- Felhunter: Phase Shift
-	[7814] = 19647, -- Succubus: Lash of Pain (Rank 1)
-	[7812] = 19647, -- Voidwalker: Sacrifice (Rank 1)
-	[30151] = 19647, -- Felguard: Intercept
+
+	[80965] = 80964,
+	[77764] = 77761,
+
+	[60192] = 1499,
+	[82941] = 13809,
+	[82945] = 13795,
+	[82939] = 13813,
+	[82948] = 34600,
+
+	[32182] = 2825,
+
+	[33697] = 20572,
+	[33702] = 20572,
+	[25046] = 28730,
+	[50613] = 28730,
+	[59547] = 28880,
+	[59545] = 28880,
+	[59548] = 28880,
+	[59544] = 28880,
+	[59543] = 28880,
+	[59542] = 28880,
+
+	[55915] = 44055,
+	[67596] = 44055,
+
+	[57386] = 26090,
+	[50433] = 26090,
+	[50245] = 26090,
+	[50285] = 26090,
+	[50479] = 26090,
+	[50519] = 26090,
+	[50541] = 26090,
+	[4167] = 26090,
+	[50518] = 26090,
+	[4511] = 19647,
+	[7814] = 19647,
+	[7812] = 19647,
+	[30151] = 19647,
 }
 
--- Classic
-local talentRanks = { -- talent spells (not modifiers)
-	-- Death Knight
-	{ 49203 }, -- Hungering Cold
-	{ 49222 }, -- Bone Shield
-	{ 48982 }, -- Rune Tap
-	{ 51271 }, -- Pillar of Frost
-	{ 55233 }, -- Vampiric Blood
-	{ 51052 }, -- Anti-Magic Zone
-	{ 49028 }, -- Dancing Rune Weapon
-	{ 63560 }, -- Dark Transformation
-	{ 49184 }, -- Howling Blast
-	{ 49016 }, -- Unholy Frenzy
-	{ 49206 }, -- Summon Gargoyle
-	{ 49039 }, -- Lichborne
-	{ 49588, 49589 }, -- Unholy Command
-	{ 52284, 81163, 81164 }, -- Will of the Necropolis
-	-- Druid
-	{ 33831 }, -- Force of Nature
-	{ 17116 }, -- Nature's Swiftness*
-	{ 18562 }, -- Swiftmend
-	{ 16689 }, -- Nature's Grasp
-	{ 50334 }, -- Berserk
-	{ 16940, 16941 }, -- Brutal Impact
-	{ 49377 }, -- Feral Charge (talent id for inspect)
-	{ 33878 }, -- Mangle (Bear)
-	{ 48505 }, -- Starfall
-	{ 61336 }, -- Survival Instincts
-	{ 50516 }, -- Typhoon
-	{ 48438 }, -- Wild Growth
-	{ 33891 }, -- Tree of Life
-	{ 78674 }, -- Starsurge
-	{ 78675 }, -- Solar Beam
-	-- Hunter
-	{ 19574 }, -- Bestial Wrath
-	{ 19577 }, -- Intimidation
-	{ 23989 }, -- Readiness
-	{ 19503 }, -- Scatter Shot
-	{ 34490 }, -- Silencing Shot
-	{ 19434 }, -- Aimed Shot
-	{ 19306 }, -- Counterattack
-	{ 19386 }, -- Wyvern Sting
-	{ 3674 }, -- Black Arrow
-	{ 53301 }, -- Explosive Shot
-	{ 53209 }, -- Chimera Shot
-	{ 82726 }, -- Fervor
-	{ 82692 }, -- Focus Fire
-	{ 82898, 82899 }, -- Crouching Tiger, Hidden Chimera
-	{ 56829 }, -- Glyph of Misdirection
-	-- Mage
-	{ 12042 }, -- Arcane Power
-	{ 11958 }, -- Cold Snap
-	{ 11129 }, -- Combustion
-	{ 12472 }, -- Icy Veins
-	{ 12043 }, -- Presence of Mind
-	{ 31687 }, -- Summon Water Elemental
-	{ 11113 }, -- Blast Wave
-	{ 31661 }, -- Dragon's Breath
-	{ 11426 }, -- Ice Barrier
-	{ 44425 }, -- Arcane Barrage
-	{ 44572 }, -- Deep Freeze
-	{ 86948, 86949 }, -- Cauterize
-	-- Paladin
-	{ 35395 }, -- Crusader Strike
-	{ 31842 }, -- Divine Favor
-	{ 31842 }, -- Divine Illumination
-	{ 20066 }, -- Repentance
-	{ 31935 }, -- Avenger's Shield
-	{ 20925 }, -- Holy Shield
-	{ 20473 }, -- Holy Shock
-	{ 31821 }, -- Aura Mastery
-	{ 31850 }, -- Ardent Defender
-	{ 64205 }, -- Divine Sacrifice
-	{ 53385 }, -- Divine Storm
-	{ 93418, 93417 }, -- Paragon of Virtue
-	{ 70940 }, -- Divine Guardian
-	{ 85696 }, -- Zealotry
-	{ 75806, 85043 }, -- Grand Crusader
-	-- Priest
-	{ 89485 }, -- Inner Focus
-	{ 33206 }, -- Pain Suppression
-	{ 10060 }, -- Power Infusion
-	{ 15487 }, -- Silence
-	{ 724 }, -- Lightwell
-	{ 47540 }, -- Penance
-	{ 19236 }, -- Desperate Prayer
-	{ 34861 }, -- Circle of Healing
-	{ 47788 }, -- Guardian Spirit
-	{ 64044 }, -- Psychic Horror
-	{ 47585 }, -- Dispersion
-	{ 62618 }, -- Power Word: Barrier
-	{ 14898, 81625 }, -- Tome of Light
-	{ 14751 }, -- Chakra
-	{ 92295, 92297 }, -- Train of Thought
-	{ 88625 }, -- Holy Word: Chastise
-	-- Rogue
-	{ 13750 }, -- Adrenaline Rush
-	{ 13877 }, -- Blade Flurry
-	{ 14177 }, -- Cold Blood
-	{ 14183 }, -- Premeditation
-	{ 14185 }, -- Preparation
-	{ 14251 }, -- Riposte
-	{ 36554 }, -- Shadowstep
-	{ 51690 }, -- Killing Spree
-	{ 31228, 31229, 31230 }, -- Cheat Death
-	{ 51713 }, -- Shadow Dance
-	{ 79140 }, -- Vendetta
-	-- Shaman
-	{ 16166 }, -- Elemental Mastery
-	{ 16190 }, -- Mana Tide Totem
-	{ 16188 }, -- Nature's Swiftness*
-	{ 30823 }, -- Shamanistic Rage
-	{ 17364 }, -- Stormstrike
-	{ 51490 }, -- Thunderstorm
-	{ 60103 }, -- Lava Lash
-	{ 51533 }, -- Feral Spirit
-	{ 30881, 30883, 30884 }, -- Nature's Guardian
-	{ 61295 }, -- Riptide
-	{ 55198 }, -- Tidal Force
-	{ 86183, 86184, 86185 }, -- Feedback
-	{ 98008 }, -- Spirit Link Totem
-	{ 16190 }, -- Mana Tide Totem
-	-- Warlock
-	{ 18708 }, -- Fel Domination
-	{ 17877 }, -- Shadowburn
-	{ 30283 }, -- Shadowfury
-	{ 48181 }, -- Haunt
-	{ 47193 }, -- Demonic Empowerment
-	{ 59672 }, -- Metamorphosis
-	{ 50796 }, -- Chaos Bolt
-	{ 30146 }, -- Summon Felguard
-	{ 17962 }, -- Conflagrate
-	{ 91713 }, -- Nether Ward
-	{ 85106, 85107, 85108 }, -- Impending Doom
-	{ 86121 }, -- Soul Swap
-	-- Warrior
-	{ 12809 }, -- Concussion Blow
-	{ 12292 }, -- Death Wish
-	{ 12975 }, -- Last Stand
-	{ 12328 }, -- Sweeping Strikes
-	{ 12294 }, -- Mortal Strike
-	{ 23922 }, -- Shield Slam
-	{ 46924 }, -- Bladestorm
-	{ 60970 }, -- Heroic Fury
-	{ 23881 }, -- Bloodthirst
-	{ 46968 }, -- Shockwave
-	{ 12311, 12958 }, -- Gag Order (talent id for inspect)
-	{ 85730 }, -- Deadly Calm
-	{ 85388 }, -- Throwdown
+
+local talentRanks = {
+
+	{ 49203 },
+	{ 49222 },
+	{ 48982 },
+	{ 51271 },
+	{ 55233 },
+	{ 51052 },
+	{ 49028 },
+	{ 63560 },
+	{ 49184 },
+	{ 49016 },
+	{ 49206 },
+	{ 49039 },
+	{ 49588, 49589 },
+	{ 52284, 81163, 81164 },
+
+	{ 33831 },
+	{ 17116 },
+	{ 18562 },
+	{ 16689 },
+	{ 50334 },
+	{ 16940, 16941 },
+	{ 49377 },
+	{ 33878 },
+	{ 48505 },
+	{ 61336 },
+	{ 50516 },
+	{ 48438 },
+	{ 33891 },
+	{ 78674 },
+	{ 78675 },
+
+	{ 19574 },
+	{ 19577 },
+	{ 23989 },
+	{ 19503 },
+	{ 34490 },
+	{ 19434 },
+	{ 19306 },
+	{ 19386 },
+	{ 3674 },
+	{ 53301 },
+	{ 53209 },
+	{ 82726 },
+	{ 82692 },
+	{ 82898, 82899 },
+	{ 56829 },
+
+	{ 12042 },
+	{ 11958 },
+	{ 11129 },
+	{ 12472 },
+	{ 12043 },
+	{ 31687 },
+	{ 11113 },
+	{ 31661 },
+	{ 11426 },
+	{ 44425 },
+	{ 44572 },
+	{ 86948, 86949 },
+
+	{ 35395 },
+	{ 31842 },
+	{ 31842 },
+	{ 20066 },
+	{ 31935 },
+	{ 20925 },
+	{ 20473 },
+	{ 31821 },
+	{ 31850 },
+	{ 64205 },
+	{ 53385 },
+	{ 93418, 93417 },
+	{ 70940 },
+	{ 85696 },
+	{ 75806, 85043 },
+
+	{ 89485 },
+	{ 33206 },
+	{ 10060 },
+	{ 15487 },
+	{ 724 },
+	{ 47540 },
+	{ 19236 },
+	{ 34861 },
+	{ 47788 },
+	{ 64044 },
+	{ 47585 },
+	{ 62618 },
+	{ 14898, 81625 },
+	{ 14751 },
+	{ 92295, 92297 },
+	{ 88625 },
+
+	{ 13750 },
+	{ 13877 },
+	{ 14177 },
+	{ 14183 },
+	{ 14185 },
+	{ 14251 },
+	{ 36554 },
+	{ 51690 },
+	{ 31228, 31229, 31230 },
+	{ 51713 },
+	{ 79140 },
+
+	{ 16166 },
+	{ 16190 },
+	{ 16188 },
+	{ 30823 },
+	{ 17364 },
+	{ 51490 },
+	{ 60103 },
+	{ 51533 },
+	{ 30881, 30883, 30884 },
+	{ 61295 },
+	{ 55198 },
+	{ 86183, 86184, 86185 },
+	{ 98008 },
+	{ 16190 },
+
+	{ 18708 },
+	{ 17877 },
+	{ 30283 },
+	{ 48181 },
+	{ 47193 },
+	{ 59672 },
+	{ 50796 },
+	{ 30146 },
+	{ 17962 },
+	{ 91713 },
+	{ 85106, 85107, 85108 },
+	{ 86121 },
+
+	{ 12809 },
+	{ 12292 },
+	{ 12975 },
+	{ 12328 },
+	{ 12294 },
+	{ 23922 },
+	{ 46924 },
+	{ 60970 },
+	{ 23881 },
+	{ 46968 },
+	{ 12311, 12958 },
+	{ 85730 },
+	{ 85388 },
 }
--- Merge talent ranks
+
 for i = 1, #talentRanks do
 	local t = talentRanks[i]
 	local rank1 = t[1]
@@ -895,12 +900,12 @@ for i = 1, #talentRanks do
 		for j = 2, #t do
 			local rankN = t[j]
 			E.spell_merged[rankN] = rank1
---			if not C_Spell.DoesSpellExist(rankN) then
---				print("Invalid rank" .. j .. "talent ID:", rankN)
---			end
+
+
+
 		end
 
-		-- Need to add all duplicate named talents as nested tables for inspect; index is rank
+
 		local dupe = E.talentNameToRankIDs[name]
 		if dupe then
 			if type(dupe[1]) == "table" then
@@ -911,26 +916,26 @@ for i = 1, #talentRanks do
 		else
 			E.talentNameToRankIDs[name] = t
 		end
---	else
---		print("Invalid rank1 talent ID:", rank1)
+
+
 	end
 end
 
 E.spell_merged_updateoncast = {
-	[26090]={30}, -- Pummel
-	[57386]={60}, [57389]={60}, [57390]={60}, [57391]={60}, [57392]={60}, [57393]={60}, -- Stampede
-	[50245]={40}, [53544]={40}, [53545]={40}, [53546]={40}, [53547]={40}, [53548]={40}, -- Pin
-	[50285]={40}, -- Dust Cloud
-	[50479]={40}, [53584]={40}, [53586]={40}, [53587]={40}, [53588]={40}, [53589]={40}, -- Nether Shock
-	[50519]={60}, [53564]={60}, [53565]={60}, [53566]={60}, [53567]={60}, [53568]={60}, -- Sonic Blast
-	[50541]={60}, [53537]={60}, [53538]={60}, [53540]={60}, [53542]={60}, [53543]={60}, -- Snatch
-	[4167]={40}, -- Web (Rank 1 - no other rank info)
-	[50518]={40}, [53558]={40}, [53559]={40}, [53560]={40}, [53561]={40}, [53562]={40}, -- Ravage
-	[50433]={120}, [52395]={120}, [52396]={120}, [52397]={120}, [52398]={120}, [52399]={120}, -- Bad Attitude
-	[19647]={24}, -- Spell Lock
-	[7812]={60}, [19438]={60}, [19440]={60}, [19441]={60}, [19442]={60}, [19443]={60}, [27273]={60}, [47985]={60}, [47986]={60}, -- Sacrifice
-	[30151]={30}, [30194]={30}, [30198]={30}, [47996]={30}, -- Intercept
-	[7814]={12}, [7815]={12}, [7816]={12}, [11778]={12}, [11779]={12}, [11780]={12}, [27274]={12}, -- Lash of Pain
+	[26090]={30},
+	[57386]={60}, [57389]={60}, [57390]={60}, [57391]={60}, [57392]={60}, [57393]={60},
+	[50245]={40}, [53544]={40}, [53545]={40}, [53546]={40}, [53547]={40}, [53548]={40},
+	[50285]={40},
+	[50479]={40}, [53584]={40}, [53586]={40}, [53587]={40}, [53588]={40}, [53589]={40},
+	[50519]={60}, [53564]={60}, [53565]={60}, [53566]={60}, [53567]={60}, [53568]={60},
+	[50541]={60}, [53537]={60}, [53538]={60}, [53540]={60}, [53542]={60}, [53543]={60},
+	[4167]={40},
+	[50518]={40}, [53558]={40}, [53559]={40}, [53560]={40}, [53561]={40}, [53562]={40},
+	[50433]={120}, [52395]={120}, [52396]={120}, [52397]={120}, [52398]={120}, [52399]={120},
+	[19647]={24},
+	[7812]={60}, [19438]={60}, [19440]={60}, [19441]={60}, [19442]={60}, [19443]={60}, [27273]={60}, [47985]={60}, [47986]={60},
+	[30151]={30}, [30194]={30}, [30198]={30}, [47996]={30},
+	[7814]={12}, [7815]={12}, [7816]={12}, [11778]={12}, [11779]={12}, [11780]={12}, [27274]={12},
 }
 for k, v in pairs(E.spell_merged_updateoncast) do
 	if not v[2] then
@@ -940,54 +945,54 @@ for k, v in pairs(E.spell_merged_updateoncast) do
 end
 
 E.spellcast_shared_cdstart = {
-	[42292] = { 59752, 120, 7744, 30 }, -- PvP Trinket -- Cata 45>30s with Will
-	[59752] = { 42292, 120 }, -- Will to Survive
-	[7744] = { 42292, 30 }, -- Will of the Forsaken
-	[2894] = { 2062, 120 }, -- Fire Elemetal Totem (lasts 2 min = shared CD)
-	[2062] = { 2894, 120 }, -- Earth Elemental Totem
-	[16979] = { 49376, 15 }, -- Feral Charge-Bear (force 15s shared, Cat cd is 30 but shared cd is 15 only)
-	[49376] = { 16979, 15 }, -- Feral Charge-Cat (force 15s shared, Cat cd is 30 but shared cd is 15 only)
-	[871] = { 1719, 12, 20230, 12 }, -- Shield Wall	-- NOTE: no longer linked in WOTLKC
-	[1719] = { 871, 12, 20230, 12 }, -- Recklessness
-	[20230] = { 1719, 12, 871, 12 }, -- Retaliation
+	[42292] = { 59752, 120, 7744, 30 },
+	[59752] = { 42292, 120 },
+	[7744] = { 42292, 30 },
+	[2894] = { 2062, 120 },
+	[2062] = { 2894, 120 },
+	[16979] = { 49376, 15 },
+	[49376] = { 16979, 15 },
+	[871] = { 1719, 12, 20230, 12 },
+	[1719] = { 871, 12, 20230, 12 },
+	[20230] = { 1719, 12, 871, 12 },
 }
 
 E.spellcast_cdreset = {
-	[23989] = { -- Readiness
-		nil, -- first key value = required talent check in cooldowns\cooldowns
+	[23989] = {
+		nil,
 		"*",
 	},
-	[11958] = { -- Cold Snap
+	[11958] = {
 		nil,
-		45438, -- Ice Block
-		11426, -- Ice Barrier
-		120, -- Cone of Cold
-		122, -- Frost Nova
-		12472, -- Icy Veins
-		6143, -- Frost Ward
-		44572, -- Deep Freeze
-		31687, -- Summon Water Elemental
-		82676, -- Ring of Frost
+		45438,
+		11426,
+		120,
+		122,
+		12472,
+		6143,
+		44572,
+		31687,
+		82676,
 	},
-	[45438] = { -- Ice Block
-		56372, -- Glyph of Ice Block
-		122, -- Frost Nova
+	[45438] = {
+		56372,
+		122,
 	},
-	[14185] = { -- Preparation
+	[14185] = {
 		nil,
-		2983, -- Sprint
-		1856, -- Vanish
-		36554, -- Shadowstep
-		{ -- additional resets w/ talent
-			56819, -- Glyph of Preparation	-- talent check
-			76577, -- Smoke Bomb
-			51722, -- Dismantle
-			1766, -- Kick
+		2983,
+		1856,
+		36554,
+		{
+			56819,
+			76577,
+			51722,
+			1766,
 		},
 	},
-	[60970] = { -- Heroic Fury
+	[60970] = {
 		nil,
-		20252, -- Intercept
+		20252,
 	}
 }
 
@@ -995,31 +1000,31 @@ E.spellcast_cdr = E.BLANK
 E.spellcast_cdr_powerspender = E.BLANK
 E.sync_cdr_by_powerconsumed = E.BLANK
 
---
--- CD\CLEU (NOTE: incl all ranks)
---
+
+
+
 
 E.spell_aura_freespender = E.BLANK
 
 E.spell_auraremoved_cdstart_preactive = {
-	[17116] = 17116, -- Nature's Swiftness
-	[5215] = 5215, -- Prowl
-	[34477] = 34477, -- Misdirection
-	[12043] = 12043, -- POM
-	[14177] = 14177, -- Cold Blood
-	[1784] = 1784, -- Stealth
-	[16188] = 16188, -- Nature's Swiftness (Shaman)
-	[28682] = 11129, -- Combustion - castID = spellID
-	[89485] = 89485, -- Inner Focus
-	[16166] = 16166, -- Elemental Mastery
-	[5384] = 0, -- Feign Death -> own UNIT_AURA
+	[17116] = 17116,
+	[5215] = 5215,
+	[34477] = 34477,
+	[12043] = 12043,
+	[14177] = 14177,
+	[1784] = 1784,
+	[16188] = 16188,
+	[28682] = 11129,
+	[89485] = 89485,
+	[16166] = 16166,
+	[5384] = 0,
 }
 
 E.spell_auraapplied_processspell = {
-	[87023] = 86948, -- Cauterized
-	[66233] = 31850, -- Ardent Defender
-	[45182] = 31228, -- Cheating Death
-	[31616] = 30881, -- Nature's Guardian
+	[87023] = 86948,
+	[66233] = 31850,
+	[45182] = 31228,
+	[31616] = 30881,
 }
 
 E.spell_dispel_cdstart = E.BLANK
@@ -1048,980 +1053,980 @@ E.spell_cdmod_conduits_mult = E.BLANK
 E.spell_symbol_of_hope_majorcd = E.BLANK
 E.spell_major_cd = E.BLANK
 
---
--- CM\INS
---
+
+
+
 
 E.item_merged = {
-	-- PvP Trinket: item - Medallion of the Alliance (phase 1, 128, TBC)
-	[33046] = 37864, -- Insignia of PvP Pwn
-	[28235] = 37864, -- Medallion of the Alliance (Druid)
-	[30348] = 37864, -- Medallion of the Alliance (Warlock)
-	[28238] = 37864, -- Medallion of the Alliance (Mage)
-	[30351] = 37864, -- Medallion of the Alliance (Shaman)
-	[28236] = 37864, -- Medallion of the Alliance (Paladin)
-	[30349] = 37864, -- Medallion of the Alliance (Priest)
-	[28234] = 37864, -- Medallion of the Alliance (Rogue)
-	[28237] = 37864, -- Medallion of the Alliance (Hunter)
-	[30350] = 37864, -- Medallion of the Alliance (Warrior)
-	[37865] = 37864, -- Medallion of the Horde
-	[28240] = 37864, -- Medallion of the Horde (Rogue)
-	[28243] = 37864, -- Medallion of the Horde (Hunter)
-	[30345] = 37864, -- Medallion of the Horde (Shaman)
-	[28241] = 37864, -- Medallion of the Horde (Druid)
-	[30343] = 37864, -- Medallion of the Horde (Warlock)
-	[28239] = 37864, -- Medallion of the Horde (Mage)
-	[30346] = 37864, -- Medallion of the Horde (Priest)
-	[28242] = 37864, -- Medallion of the Horde (Paladin)
-	[30344] = 37864, -- Medallion of the Horde (Warrior)
-	[42123] = 37864, -- Medallion of the Alliance (phase 1, 200, WOTLKC)
-	[42124] = 37864, -- Medallion of the Alliance (phase 2, 226)
-	[51377] = 37864, -- Medallion of the Alliance (phase 4, 264)
-	[42122] = 37864, -- Medallion of the Horde (phase 1, 200)
-	[42126] = 37864, -- Medallion of the Horde (phase 2, 226)
-	[51378] = 37864, -- Medallion of the Horde (phase 4, 264)
-	[46081] = 37864, -- Titan-Forged Rune of Audacity -- WOTLKC req# (src: Wintergrasp)
-	[46082] = 37864, -- Titan-Forged Rune of Determination -- WOTLKC req#
-	[46083] = 37864, -- Titan-Forged Rune of Accuracy -- WOTLKC req#
-	[46084] = 37864, -- Titan-Forged Rune of Cruelty -- WOTLKC req#
-	[46085] = 37864, -- Titan-Forged Rune of Alacrity -- WOTLKC req#
-	-- PvP Trinket: item2 - Insignia of the Alliance (Mage)
-	[44098] = 18859, -- Inherited Insignia of the Alliance (heirloom) -- WOTLKC
-	[40476] = 18859, -- Insignia of the Alliance -- WOTLKC
-	[29593] = 18859, -- Insignia of the Alliance (Shaman)
-	[18857] = 18859, -- Insignia of the Alliance (Rogue)
-	[18864] = 18859, -- Insignia of the Alliance (Paladin)
-	[18854] = 18859, -- Insignia of the Alliance (Warrior)
-	[18862] = 18859, -- Insignia of the Alliance (Priest)
-	[18858] = 18859, -- Insignia of the Alliance (Warlock)
-	[18856] = 18859, -- Insignia of the Alliance (Hunter)
-	[18863] = 18859, -- Insignia of the Alliance (Druid)
-	[44097] = 18859, -- Inherited Insignia of the Horde (heirloom) -- WOTLKC
-	[40477] = 18859, -- Insignia of the Horde -- WOTLKC
-	[18850] = 18859, -- Insignia of the Horde (Mage)
-	[18845] = 18859, -- Insignia of the Horde (Shaman)
-	[18849] = 18859, -- Insignia of the Horde (Rogue)
-	[29592] = 18859, -- Insignia of the Horde (Paladin)
-	[18834] = 18859, -- Insignia of the Horde (Warrior)
-	[18851] = 18859, -- Insignia of the Horde (Priest)
-	[18852] = 18859, -- Insignia of the Horde (Warlock)
-	[18846] = 18859, -- Insignia of the Horde (Hunter)
-	[18853] = 18859, -- Insignia of the Horde (Druid)
-	-- Trinket: item - Battlemaster's Perseverance - Tremendous Fortitude 44055
-	[34049] = 34050, -- Battlemaster's Determination
-	[34578] = 34050, -- Battlemaster's Determination
-	[34163] = 34050, -- Battlemaster's Cruelty
-	[34579] = 34050, -- Battlemaster's Audacity
-	[33832] = 34050, -- Battlemaster's Determination
-	[34576] = 34050, -- Battlemaster's Cruelty
-	[35326] = 34050, -- Battlemaster's Alacrity
-	[34580] = 34050, -- Battlemaster's Perseverance
-	[35327] = 34050, -- Battlemaster's Alacrity
-	[34162] = 34050, -- Battlemaster's Depravity
-	[34577] = 34050, -- Battlemaster's Depravity
-	-- ilvl 156
-	[41588] = 34050, -- Battlemaster's Aggression
-	[41587] = 34050, -- Battlemaster's Celerity
-	[41590] = 34050, -- Battlemaster's Courage
-	[41589] = 34050, -- Battlemaster's Resolve
-	-- phase 1, ilvl 213 - Tremendous Fortitude 55915
-	[42129] = 34050, -- Battlemaster's Accuracy
-	[42130] = 34050, -- Battlemaster's Avidity
-	[42132] = 34050, -- Battlemaster's Bravery
-	[42131] = 34050, -- Battlemaster's Conviction
-	[42128] = 34050, -- Battlemaster's Hostility
-	-- phase 3, ilvl 245 - Tremendous Fortitude 67596
-	[42133] = 34050, -- Battlemaster's Fury
-	[42134] = 34050, -- Battlemaster's Precision
-	[42136] = 34050, -- Battlemaster's Rage
-	[42137] = 34050, -- Battlemaster's Ruination
-	[42135] = 34050, -- Battlemaster's Vivacity
 
-	-- Cata
-	[64789] = 37864, -- Bloodthirsty Gladiator's Medallion of Cruelty
-	[64792] = 37864, -- Bloodthirsty Gladiator's Medallion of Meditation
-	[64794] = 37864, -- Bloodthirsty Gladiator's Medallion of Tenacity
-	[64790] = 37864, -- Bloodthirsty Gladiator's Medallion of Cruelty (A)
-	[64791] = 37864, -- Bloodthirsty Gladiator's Medallion of Meditation (A)
-	[64793] = 37864, -- Bloodthirsty Gladiator's Medallion of Tenacity (A)
-	[60795] = 37864, -- Vicious Gladiator's Medallion of Accuracy
-	[60802] = 37864, --
-	[60796] = 37864, -- Vicious Gladiator's Medallion of Alacrity
-	[60803] = 37864, --
-	[60798] = 37864, -- Vicious Gladiator's Medallion of Command
-	[60805] = 37864, --
-	[60794] = 37864, -- Vicious Gladiator's Medallion of Cruelty
-	[60801] = 37864, --
-	[70602] = 37864, --
-	[70603] = 37864, --
-	[60799] = 37864, -- Vicious Gladiator's Medallion of Meditation
-	[60806] = 37864, --
-	[70604] = 37864, --
-	[70605] = 37864, --
-	[60797] = 37864, -- Vicious Gladiator's Medallion of Prowess
-	[60804] = 37864, --
-	[60800] = 37864, -- Vicious Gladiator's Medallion of Tenacity
-	[60807] = 37864, --
-	[70606] = 37864, --
-	[70607] = 37864, --
-	-- Tremendous Fortitude 92223
-	[64741] = 64740, -- Bloodthirsty Gladiator's Emblem of Meditation
-	[64742] = 64740, -- Bloodthirsty Gladiator's Emblem of Tenacity
-	[70565] = 64740, -- Vicious Gladiator's Emblem of Tenacity
-	[61032] = 64740, -- Vicious Gladiator's Emblem of Tenacity
-	[61029] = 64740, -- Vicious Gladiator's Emblem of Prowess
-	[61030] = 64740, -- Vicious Gladiator's Emblem of Proficiency
-	[70564] = 64740, -- Vicious Gladiator's Emblem of Meditation
-	[61031] = 64740, -- Vicious Gladiator's Emblem of Meditation
-	[70563] = 64740, -- Vicious Gladiator's Emblem of Cruelty
-	[61026] = 64740, -- Vicious Gladiator's Emblem of Cruelty
-	[61028] = 64740, -- Vicious Gladiator's Emblem of Alacrity
-	[61027] = 64740, -- Vicious Gladiator's Emblem of Accuracy
-	-- Badge
-	[64688] = 64687, -- Bloodthirsty Gladiator's Badge of Dominance
-	[64689] = 64687, -- Bloodthirsty Gladiator's Badge of Victory
-	[70519] = 64687, -- Vicious Gladiator's Badge of Victory
-	[61034] = 64687, -- Vicious Gladiator's Badge of Victory
-	[70518] = 64687, -- Vicious Gladiator's Badge of Dominance
-	[61035] = 64687, -- Vicious Gladiator's Badge of Dominance
-	[70517] = 64687, -- Vicious Gladiator's Badge of Conquest
-	[61033] = 64687, -- Vicious Gladiator's Badge of Conquest
+	[33046] = 37864,
+	[28235] = 37864,
+	[30348] = 37864,
+	[28238] = 37864,
+	[30351] = 37864,
+	[28236] = 37864,
+	[30349] = 37864,
+	[28234] = 37864,
+	[28237] = 37864,
+	[30350] = 37864,
+	[37865] = 37864,
+	[28240] = 37864,
+	[28243] = 37864,
+	[30345] = 37864,
+	[28241] = 37864,
+	[30343] = 37864,
+	[28239] = 37864,
+	[30346] = 37864,
+	[28242] = 37864,
+	[30344] = 37864,
+	[42123] = 37864,
+	[42124] = 37864,
+	[51377] = 37864,
+	[42122] = 37864,
+	[42126] = 37864,
+	[51378] = 37864,
+	[46081] = 37864,
+	[46082] = 37864,
+	[46083] = 37864,
+	[46084] = 37864,
+	[46085] = 37864,
+
+	[44098] = 18859,
+	[40476] = 18859,
+	[29593] = 18859,
+	[18857] = 18859,
+	[18864] = 18859,
+	[18854] = 18859,
+	[18862] = 18859,
+	[18858] = 18859,
+	[18856] = 18859,
+	[18863] = 18859,
+	[44097] = 18859,
+	[40477] = 18859,
+	[18850] = 18859,
+	[18845] = 18859,
+	[18849] = 18859,
+	[29592] = 18859,
+	[18834] = 18859,
+	[18851] = 18859,
+	[18852] = 18859,
+	[18846] = 18859,
+	[18853] = 18859,
+
+	[34049] = 34050,
+	[34578] = 34050,
+	[34163] = 34050,
+	[34579] = 34050,
+	[33832] = 34050,
+	[34576] = 34050,
+	[35326] = 34050,
+	[34580] = 34050,
+	[35327] = 34050,
+	[34162] = 34050,
+	[34577] = 34050,
+
+	[41588] = 34050,
+	[41587] = 34050,
+	[41590] = 34050,
+	[41589] = 34050,
+
+	[42129] = 34050,
+	[42130] = 34050,
+	[42132] = 34050,
+	[42131] = 34050,
+	[42128] = 34050,
+
+	[42133] = 34050,
+	[42134] = 34050,
+	[42136] = 34050,
+	[42137] = 34050,
+	[42135] = 34050,
+
+
+	[64789] = 37864,
+	[64792] = 37864,
+	[64794] = 37864,
+	[64790] = 37864,
+	[64791] = 37864,
+	[64793] = 37864,
+	[60795] = 37864,
+	[60802] = 37864,
+	[60796] = 37864,
+	[60803] = 37864,
+	[60798] = 37864,
+	[60805] = 37864,
+	[60794] = 37864,
+	[60801] = 37864,
+	[70602] = 37864,
+	[70603] = 37864,
+	[60799] = 37864,
+	[60806] = 37864,
+	[70604] = 37864,
+	[70605] = 37864,
+	[60797] = 37864,
+	[60804] = 37864,
+	[60800] = 37864,
+	[60807] = 37864,
+	[70606] = 37864,
+	[70607] = 37864,
+
+	[64741] = 64740,
+	[64742] = 64740,
+	[70565] = 64740,
+	[61032] = 64740,
+	[61029] = 64740,
+	[61030] = 64740,
+	[70564] = 64740,
+	[61031] = 64740,
+	[70563] = 64740,
+	[61026] = 64740,
+	[61028] = 64740,
+	[61027] = 64740,
+
+	[64688] = 64687,
+	[64689] = 64687,
+	[70519] = 64687,
+	[61034] = 64687,
+	[70518] = 64687,
+	[61035] = 64687,
+	[70517] = 64687,
+	[61033] = 64687,
 }
 
 E.item_equip_bonus = {
-	[19617] = 24434, -- Zandalarian Shadow Mastery Talisman
-	[14154] = 18388, -- Truefaith Vestments
-	[33717] = 44297, -- Vengeful Gladiator's Mooncloth Gloves (season 3)
-	[33744] = 44297, -- Vengeful Gladiator's Satin Gloves
-	[35053] = 44297, -- Brutal Gladiator's Mooncloth Gloves (season 4)
-	[35083] = 44297, -- Brutal Gladiator's Satin Gloves
-	[41847] = 44297, -- Savage Gladiator's Mooncloth Gloves (season 5 - WOTLKC)
-	[41937] = 44297, -- Savage Gladiator's Satin Gloves
-	[41872] = 44297, -- Hateful Gladiator's Mooncloth Gloves
-	[41938] = 44297, -- Hateful Gladiator's Satin Gloves
-	[41873] = 44297, -- Deadly Gladiator's Mooncloth Gloves
-	[41939] = 44297, -- Deadly Gladiator's Satin Gloves
-	[41874] = 44297, -- Furious Gladiator's Mooncloth Gloves
-	[41940] = 44297, -- Furious Gladiator's Satin Gloves
-	[41875] = 44297, -- Relentless Gladiator's Mooncloth Gloves
-	[41941] = 44297, -- Relentless Gladiator's Satin Gloves
-	[51483] = 44297, -- Wrathful Gladiator's Mooncloth Gloves
-	[51488] = 44297, -- Wrathful Gladiator's Satin Gloves
-	[22345] = 20608, -- Totem of Rebirth
-	[19621] = 24432, -- Maelstrom's Wrath
+	[19617] = 24434,
+	[14154] = 18388,
+	[33717] = 44297,
+	[33744] = 44297,
+	[35053] = 44297,
+	[35083] = 44297,
+	[41847] = 44297,
+	[41937] = 44297,
+	[41872] = 44297,
+	[41938] = 44297,
+	[41873] = 44297,
+	[41939] = 44297,
+	[41874] = 44297,
+	[41940] = 44297,
+	[41875] = 44297,
+	[41941] = 44297,
+	[51483] = 44297,
+	[51488] = 44297,
+	[22345] = 20608,
+	[19621] = 24432,
 
-	-- Cata
-	[64709] = 61255, -- Bloodthirsty Gladiator's Chain Gauntlets,	Trap Shot Cooldown Reduction
-	[60424] = 61255, -- Vicious Gladiator's Chain Gauntlets 365
-	[65544] = 61255, -- Vicious Gladiator's Chain Gauntlets 365
-	[70534] = 61255, -- Vicious Gladiator's Chain Gauntlets 371
-	[64795] = 44297, -- Bloodthirsty Gladiator's Mooncloth Gloves,	Improved Psychic Scream
-	[60468] = 44297, -- Vicious Gladiator's Mooncloth Gloves 365
-	[65556] = 44297, -- Vicious Gladiator's Mooncloth Gloves 365
-	[70608] = 44297, -- Vicious Gladiator's Mooncloth Gloves 371
-	[64838] = 44297, -- Bloodthirsty Gladiator's Satin Gloves
-	[60473] = 44297, -- Vicious Gladiator's Satin Gloves 365
-	[65577] = 44297, -- Vicious Gladiator's Satin Gloves 365
-	[70643] = 44297, -- Vicious Gladiator's Satin Gloves 371
-	[64747] = 33063, -- Bloodthirsty Gladiator's Felweave Handguards,	Demonic Circle Cooldown Reduction
-	[60478] = 33063, -- Vicious Gladiator's Felweave Handguards 365,
-	[65572] = 33063, -- Vicious Gladiator's Felweave Handguards 365,
-	[70568] = 33063, -- Vicious Gladiator's Felweave Handguards 371
+
+	[64709] = 61255,
+	[60424] = 61255,
+	[65544] = 61255,
+	[70534] = 61255,
+	[64795] = 44297,
+	[60468] = 44297,
+	[65556] = 44297,
+	[70608] = 44297,
+	[64838] = 44297,
+	[60473] = 44297,
+	[65577] = 44297,
+	[70643] = 44297,
+	[64747] = 33063,
+	[60478] = 33063,
+	[65572] = 33063,
+	[70568] = 33063,
 }
 
 local class_set_bonus = {
-	druid	= { 38417, 4 }, -- Reduced Swiftmend Cooldown
-	hunter	= { 61256, 4 }, -- Trap Cooldown Reduction -- cata moved to hand equipped bonus
-	paladin	= { 61776, 4 }, -- Judgement Cooldown Reduction
-	shaman	= { 44299, 4 }, -- Improved Grounding Totem (resto, ele)
-	enhance	= { 33018, 4 }, -- Shaman Stormstrike Cooldown Reduction -- cata removed
-	warrior	= { 22738, 4 }, -- Intercept Cooldown Reduction -- cata removed
-	warlock = { 23047, 4 }, -- Death Coil Cooldown Reduction -- cata added
+	druid	= { 38417, 4 },
+	hunter	= { 61256, 4 },
+	paladin	= { 61776, 4 },
+	shaman	= { 44299, 4 },
+	enhance	= { 33018, 4 },
+	warrior	= { 22738, 4 },
+	warlock = { 23047, 4 },
 }
 
-E.item_set_bonus = { -- [item] = {bonusID, required num of set items}
-	-- Druid
-	[16828] = { 23556, 8 }, -- Cenarion Belt
-	[16829] = { 23556, 8 }, -- Cenarion Boots
-	[16830] = { 23556, 8 }, -- Cenarion Bracers
-	[16833] = { 23556, 8 }, -- Cenarion Vestments
-	[16831] = { 23556, 8 }, -- Cenarion Gloves
-	[16834] = { 23556, 8 }, -- Cenarion Helm
-	[16835] = { 23556, 8 }, -- Cenarion Leggings
-	[16836] = { 23556, 8 }, -- Cenarion Spaulders
-	[29087] = { 37292, 4 }, -- Chestguard of Malorne
-	[29086] = { 37292, 4 }, -- Crown of Malorne
-	[29090] = { 37292, 4 }, -- Handguards of Malorne
-	[29088] = { 37292, 4 }, -- Legguards of Malorne
-	[29089] = { 37292, 4 }, -- Shoulderguards of Malorne
-	[31041] = { 38417, 2 }, -- Thunderheart Tunic
-	[31032] = { 38417, 2 }, -- Thunderheart Gloves
-	[31037] = { 38417, 2 }, -- Thunderheart Helmet
-	[31045] = { 38417, 2 }, -- Thunderheart Legguards
-	[31047] = { 38417, 2 }, -- Thunderheart Spaulders
-	[34571] = { 38417, 2 }, -- Thunderheart Boots
-	[34445] = { 38417, 2 }, -- Thunderheart Bracers
-	[34554] = { 38417, 2 }, -- Thunderheart Belt
-	[21355] = { 26106, 5 }, -- Genesis Boots
-	[21353] = { 26106, 5 }, -- Genesis Helm
-	[21354] = { 26106, 5 }, -- Genesis Shoulderpads
-	[21356] = { 26106, 5 }, -- Genesis Trousers
-	[21357] = { 26106, 5 }, -- Genesis Vest
-	[29093] = { 37297, 4 }, -- Antlers of Malorne
-	[29094] = { 37297, 4 }, -- Britches of Malorne
-	[29091] = { 37297, 4 }, -- Chestpiece of Malorne
-	[29092] = { 37297, 4 }, -- Gloves of Malorne
-	[29095] = { 37297, 4 }, -- Pauldrons of Malorne
-	-- arena season 5 (WOTLKC)
-	[41268] = class_set_bonus.druid, -- Savage Gladiator's Kodohide Gloves
-	[41269] = class_set_bonus.druid, -- Savage Gladiator's Kodohide Helm
-	[41270] = class_set_bonus.druid, -- Savage Gladiator's Kodohide Legguards
-	[41271] = class_set_bonus.druid, -- Savage Gladiator's Kodohide Spaulders
-	[41272] = class_set_bonus.druid, -- Savage Gladiator's Kodohide Robes
-	[41284] = class_set_bonus.druid, -- Hateful Gladiator's Kodohide Gloves
-	[41319] = class_set_bonus.druid, -- Hateful Gladiator's Kodohide Helm
-	[41296] = class_set_bonus.druid, -- Hateful Gladiator's Kodohide Legguards
-	[41273] = class_set_bonus.druid, -- Hateful Gladiator's Kodohide Spaulders
-	[41308] = class_set_bonus.druid, -- Hateful Gladiator's Kodohide Robes
-	[41286] = class_set_bonus.druid, -- Deadly Gladiator's Kodohide Gloves
-	[41320] = class_set_bonus.druid, -- Deadly Gladiator's Kodohide Helm
-	[41297] = class_set_bonus.druid, -- Deadly Gladiator's Kodohide Legguards
-	[41274] = class_set_bonus.druid, -- Deadly Gladiator's Kodohide Spaulders
-	[41309] = class_set_bonus.druid, -- Deadly Gladiator's Kodohide Robes
-	-- arena season 6 (WOTLKC)
-	[41287] = class_set_bonus.druid, -- Furious Gladiator's Kodohide Gloves
-	[41321] = class_set_bonus.druid, -- Furious Gladiator's Kodohide Helm
-	[41298] = class_set_bonus.druid, -- Furious Gladiator's Kodohide Legguards
-	[41275] = class_set_bonus.druid, -- Furious Gladiator's Kodohide Spaulders
-	[41310] = class_set_bonus.druid, -- Furious Gladiator's Kodohide Robes
-	-- arena season 7 (WOTLKC)
-	[41288] = class_set_bonus.druid, -- Relentless Gladiator's Kodohide Gloves
-	[41322] = class_set_bonus.druid, -- Relentless Gladiator's Kodohide Helm
-	[41299] = class_set_bonus.druid, -- Relentless Gladiator's Kodohide Legguards
-	[41276] = class_set_bonus.druid, -- Relentless Gladiator's Kodohide Spaulders
-	[41311] = class_set_bonus.druid, -- Relentless Gladiator's Kodohide Robes
-	-- arena season 8 (WOTLKC)
-	[51420] = class_set_bonus.druid, -- Wrathful Gladiator's Kodohide Gloves
-	[51421] = class_set_bonus.druid, -- Wrathful Gladiator's Kodohide Helm
-	[51422] = class_set_bonus.druid, -- Wrathful Gladiator's Kodohide Legguards
-	[51424] = class_set_bonus.druid, -- Wrathful Gladiator's Kodohide Spaulders
-	[51419] = class_set_bonus.druid, -- Wrathful Gladiator's Kodohide Robes
+E.item_set_bonus = {
 
-	-- Hunter
-	[28228] = { 37481, 2 }, -- Beast Lord Cuirass
-	[27474] = { 37481, 2 }, -- Beast Lord Handguards
-	[28275] = { 37481, 2 }, -- Beast Lord Helm
-	[27874] = { 37481, 2 }, -- Beast Lord Leggings
-	[27801] = { 37481, 2 }, -- Beast Lord Mantle
-	[28334] = { 44292, 4 }, -- Gladiator's Chain Armor
-	[28335] = { 44292, 4 }, -- Gladiator's Chain Gauntlets
-	[28331] = { 44292, 4 }, -- Gladiator's Chain Helm
-	[28332] = { 44292, 4 }, -- Gladiator's Chain Leggings
-	[28333] = { 44292, 4 }, -- Gladiator's Chain Spaulders
-	[31960] = { 44292, 4 }, -- Merciless Gladiator's Chain Armor
-	[31961] = { 44292, 4 }, -- Merciless Gladiator's Chain Gauntlets
-	[31962] = { 44292, 4 }, -- Merciless Gladiator's Chain Helm
-	[31963] = { 44292, 4 }, -- Merciless Gladiator's Chain Leggings
-	[31964] = { 44292, 4 }, -- Merciless Gladiator's Chain Spaulders
-	[33664] = { 44292, 4 }, -- Vengeful Gladiator's Chain Armor
-	[33665] = { 44292, 4 }, -- Vengeful Gladiator's Chain Gauntlets
-	[33666] = { 44292, 4 }, -- Vengeful Gladiator's Chain Helm
-	[33667] = { 44292, 4 }, -- Vengeful Gladiator's Chain Leggings
-	[33668] = { 44292, 4 }, -- Vengeful Gladiator's Chain Spaulders
-	[34990] = { 44292, 4 }, -- Brutal Gladiator's Chain Armor
-	[34991] = { 44292, 4 }, -- Brutal Gladiator's Chain Gauntlets
-	[34992] = { 44292, 4 }, -- Brutal Gladiator's Chain Helm
-	[34993] = { 44292, 4 }, -- Brutal Gladiator's Chain Leggings
-	[34994] = { 44292, 4 }, -- Brutal Gladiator's Chain Spaulders
-	[41084] = class_set_bonus.hunter, -- Savage Gladiator's Chain Armor
-	[41140] = class_set_bonus.hunter, -- Savage Gladiator's Chain Gauntlets
-	[41154] = class_set_bonus.hunter, -- Savage Gladiator's Chain Helm
-	[41202] = class_set_bonus.hunter, -- Savage Gladiator's Chain Leggings
-	[41214] = class_set_bonus.hunter, -- Savage Gladiator's Chain Spaulders
-	[41085] = class_set_bonus.hunter, -- Hateful Gladiator's Chain Armor
-	[41141] = class_set_bonus.hunter, -- Hateful Gladiator's Chain Gauntlets
-	[41155] = class_set_bonus.hunter, -- Hateful Gladiator's Chain Helm
-	[41203] = class_set_bonus.hunter, -- Hateful Gladiator's Chain Leggings
-	[41215] = class_set_bonus.hunter, -- Hateful Gladiator's Chain Spaulders
-	[41086] = class_set_bonus.hunter, -- Deadly Gladiator's Chain Armor
-	[41142] = class_set_bonus.hunter, -- Deadly Gladiator's Chain Gauntlets
-	[41156] = class_set_bonus.hunter, -- Deadly Gladiator's Chain Helm
-	[41204] = class_set_bonus.hunter, -- Deadly Gladiator's Chain Leggings
-	[41216] = class_set_bonus.hunter, -- Deadly Gladiator's Chain Spaulders
-	[41087] = class_set_bonus.hunter, -- Furious Gladiator's Chain Armor
-	[41143] = class_set_bonus.hunter, -- Furious Gladiator's Chain Gauntlets
-	[41157] = class_set_bonus.hunter, -- Furious Gladiator's Chain Helm
-	[41205] = class_set_bonus.hunter, -- Furious Gladiator's Chain Leggings
-	[41217] = class_set_bonus.hunter, -- Furious Gladiator's Chain Spaulders
-	[41088] = class_set_bonus.hunter, -- Relentless Gladiator's Chain Armor
-	[41144] = class_set_bonus.hunter, -- Relentless Gladiator's Chain Gauntlets
-	[41158] = class_set_bonus.hunter, -- Relentless Gladiator's Chain Helm
-	[41206] = class_set_bonus.hunter, -- Relentless Gladiator's Chain Leggings
-	[41218] = class_set_bonus.hunter, -- Relentless Gladiator's Chain Spaulders
-	[51458] = class_set_bonus.hunter, -- Wrathful Gladiator's Chain Armor
-	[51459] = class_set_bonus.hunter, -- Wrathful Gladiator's Chain Gauntlets
-	[51460] = class_set_bonus.hunter, -- Wrathful Gladiator's Chain Helm
-	[51461] = class_set_bonus.hunter, -- Wrathful Gladiator's Chain Leggings
-	[51462] = class_set_bonus.hunter, -- Wrathful Gladiator's Chain Spaulders
+	[16828] = { 23556, 8 },
+	[16829] = { 23556, 8 },
+	[16830] = { 23556, 8 },
+	[16833] = { 23556, 8 },
+	[16831] = { 23556, 8 },
+	[16834] = { 23556, 8 },
+	[16835] = { 23556, 8 },
+	[16836] = { 23556, 8 },
+	[29087] = { 37292, 4 },
+	[29086] = { 37292, 4 },
+	[29090] = { 37292, 4 },
+	[29088] = { 37292, 4 },
+	[29089] = { 37292, 4 },
+	[31041] = { 38417, 2 },
+	[31032] = { 38417, 2 },
+	[31037] = { 38417, 2 },
+	[31045] = { 38417, 2 },
+	[31047] = { 38417, 2 },
+	[34571] = { 38417, 2 },
+	[34445] = { 38417, 2 },
+	[34554] = { 38417, 2 },
+	[21355] = { 26106, 5 },
+	[21353] = { 26106, 5 },
+	[21354] = { 26106, 5 },
+	[21356] = { 26106, 5 },
+	[21357] = { 26106, 5 },
+	[29093] = { 37297, 4 },
+	[29094] = { 37297, 4 },
+	[29091] = { 37297, 4 },
+	[29092] = { 37297, 4 },
+	[29095] = { 37297, 4 },
 
---	[21366] = { 26174, 5 }, -- Striker's Diadem
---	[21365] = { 26174, 5 }, -- Striker's Footguards
---	[21370] = { 26174, 5 }, -- Striker's Hauberk
---	[21368] = { 26174, 5 }, -- Striker's Leggings
---	[21367] = { 26174, 5 }, -- Striker's Pauldrons
-	[19621] = { 24465, 3 }, -- Maelstrom's Wrath
-	[19953] = { 24465, 3 }, -- Renataki's Charm of Beasts
-	[19833] = { 24465, 3 }, -- Zandalar Predator's Bracers
-	[19832] = { 24465, 3 }, -- Zandalar Predator's Belt
-	[19831] = { 24465, 3 }, -- Zandalar Predator's Mantle
-	[28613] = { 23158, 4 }, -- Grand Marshal's Chain Armor
-	[28614] = { 23158, 4 }, -- Grand Marshal's Chain Gauntlets
-	[28615] = { 23158, 4 }, -- Grand Marshal's Chain Helm
-	[28616] = { 23158, 4 }, -- Grand Marshal's Chain Leggings
-	[28617] = { 23158, 4 }, -- Grand Marshal's Chain Spaulders
-	[28805] = { 23158, 4 }, -- High Warlord's Chain Armor
-	[28806] = { 23158, 4 }, -- High Warlord's Chain Gauntlets
-	[28807] = { 23158, 4 }, -- High Warlord's Chain Helm
-	[28808] = { 23158, 4 }, -- High Warlord's Chain Leggings
-	[28809] = { 23158, 4 }, -- High Warlord's Chain Spaulders
-	[35376] = { 23158, 4 }, -- Stalker's Chain Armor
-	[35377] = { 23158, 4 }, -- Stalker's Chain Gauntlets
-	[35378] = { 23158, 4 }, -- Stalker's Chain Helm
-	[35379] = { 23158, 4 }, -- Stalker's Chain Leggings
-	[35380] = { 23158, 4 }, -- Stalker's Chain Spaulders
-	[16466] = { 23158, 3 }, -- Field Marshal's Chain Breastplate
-	[16465] = { 23158, 3 }, -- Field Marshal's Chain Helm
-	[16468] = { 23158, 3 }, -- Field Marshal's Chain Spaulders
-	[16462] = { 23158, 3 }, -- Marshal's Chain Boots
-	[16463] = { 23158, 3 }, -- Marshal's Chain Grips
-	[16467] = { 23158, 3 }, -- Marshal's Chain Legguards
-	[16569] = { 23158, 3 }, -- General's Chain Boots
-	[16571] = { 23158, 3 }, -- General's Chain Gloves
-	[16567] = { 23158, 3 }, -- General's Chain Legguards
-	[16565] = { 23158, 3 }, -- Warlord's Chain Chestpiece
-	[16566] = { 23158, 3 }, -- Warlord's Chain Helmet
-	[16568] = { 23158, 3 }, -- Warlord's Chain Shoulders
-	[22843] = { 23158, 4 }, -- Blood Guard's Chain Greaves
-	[22862] = { 23158, 4 }, -- Blood Guard's Chain Vices
-	[23251] = { 23158, 4 }, -- Champion's Chain Helm
-	[23252] = { 23158, 4 }, -- Champion's Chain Shoulders
-	[22874] = { 23158, 4 }, -- Legionnaire's Chain Hauberk
-	[22875] = { 23158, 4 }, -- Legionnaire's Chain Legguards
-	[23292] = { 23158, 4 }, -- Knight-Captain's Chain Hauberk
-	[23293] = { 23158, 4 }, -- Knight-Captain's Chain Legguards
-	[23278] = { 23158, 4 }, -- Knight-Lieutenant's Chain Greaves
-	[23279] = { 23158, 4 }, -- Knight-Lieutenant's Chain Vices
-	[23306] = { 23158, 4 }, -- Lieutenant Commander's Chain Helm
-	[23307] = { 23158, 4 }, -- Lieutenant Commander's Chain Shoulders
-	[16531] = { 23158, 4 }, -- Blood Guard's Chain Boots
-	[16530] = { 23158, 4 }, -- Blood Guard's Chain Gauntlets
-	[16525] = { 23158, 4 }, -- Blood Guard's Chain Breastplate
-	[16527] = { 23158, 4 }, -- Legionnaire's Chain Leggings
-	[16526] = { 23158, 4 }, -- Champion's Chain Headguard
-	[16528] = { 23158, 4 }, -- Champion's Chain Pauldrons
-	[16425] = { 23158, 4 }, -- Knight-Captain's Chain Hauberk
-	[16426] = { 23158, 4 }, -- Knight-Captain's Chain Leggings
-	[16401] = { 23158, 4 }, -- Knight-Lieutenant's Chain Boots
-	[16403] = { 23158, 4 }, -- Knight-Lieutenant's Chain Gauntlets
-	[16428] = { 23158, 4 }, -- Lieutenant Commander's Chain Helmet
-	[16427] = { 23158, 4 }, -- Lieutenant Commander's Chain Pauldrons
-	-- Mage
-	[35343] = { 23025, 4 }, -- Evoker's Silk Amice
-	[35344] = { 23025, 4 }, -- Evoker's Silk Cowl
-	[35345] = { 23025, 4 }, -- Evoker's Silk Handguards
-	[35346] = { 23025, 4 }, -- Evoker's Silk Raiment
-	[35347] = { 23025, 4 }, -- Evoker's Silk Trousers
-	[28714] = { 23025, 4 }, -- Grand Marshal's Silk Amice
-	[28715] = { 23025, 4 }, -- Grand Marshal's Silk Cowl
-	[28716] = { 23025, 4 }, -- Grand Marshal's Silk Handguards
-	[28717] = { 23025, 4 }, -- Grand Marshal's Silk Raiment
-	[28718] = { 23025, 4 }, -- Grand Marshal's Silk Trousers
-	[28866] = { 23025, 4 }, -- High Warlord's Silk Amice
-	[28867] = { 23025, 4 }, -- High Warlord's Silk Cowl
-	[28868] = { 23025, 4 }, -- High Warlord's Silk Handguards
-	[28869] = { 23025, 4 }, -- High Warlord's Silk Raiment
-	[28870] = { 23025, 4 }, -- High Warlord's Silk Trousers
-	[16441] = { 23025, 3 }, -- Field Marshal's Coronet
-	[16444] = { 23025, 3 }, -- Field Marshal's Silk Spaulders
-	[16443] = { 23025, 3 }, -- Field Marshal's Silk Vestments
-	[16437] = { 23025, 3 }, -- Marshal's Silk Footwraps
-	[16440] = { 23025, 3 }, -- Marshal's Silk Gloves
-	[16442] = { 23025, 3 }, -- Marshal's Silk Leggings
-	[16536] = { 23025, 3 }, -- Warlord's Silk Amice
-	[16533] = { 23025, 3 }, -- Warlord's Silk Cowl
-	[16535] = { 23025, 3 }, -- Warlord's Silk Raiment
-	[16539] = { 23025, 3 }, -- General's Silk Boots
-	[16540] = { 23025, 3 }, -- General's Silk Handguards
-	[16534] = { 23025, 3 }, -- General's Silk Trousers
-	[22870] = { 23025, 4 }, -- Blood Guard's Silk Handwraps
-	[22860] = { 23025, 4 }, -- Blood Guard's Silk Walkers
-	[23263] = { 23025, 4 }, -- Champion's Silk Cowl
-	[23264] = { 23025, 4 }, -- Champion's Silk Mantle
-	[22883] = { 23025, 4 }, -- Legionnaire's Silk Legguards
-	[22886] = { 23025, 4 }, -- Legionnaire's Silk Tunic
-	[23304] = { 23025, 4 }, -- Knight-Captain's Silk Legguards
-	[23305] = { 23025, 4 }, -- Knight-Captain's Silk Tunic
-	[23290] = { 23025, 4 }, -- Knight-Lieutenant's Silk Handwraps
-	[23291] = { 23025, 4 }, -- Knight-Lieutenant's Silk Walkers
-	[23318] = { 23025, 4 }, -- Lieutenant Commander's Silk Cowl
-	[23319] = { 23025, 4 }, -- Lieutenant Commander's Silk Mantle
-	[16485] = { 23025, 4 }, -- Blood Guard's Silk Footwraps
-	[16487] = { 23025, 4 }, -- Blood Guard's Silk Gloves
-	[16491] = { 23025, 4 }, -- Legionnaire's Silk Robes
-	[16490] = { 23025, 4 }, -- Legionnaire's Silk Pants
-	[16489] = { 23025, 4 }, -- Champion's Silk Hood
-	[16492] = { 23025, 4 }, -- Champion's Silk Shoulderpads
-	[16369] = { 23025, 4 }, -- Knight-Lieutenant's Silk Boots
-	[16391] = { 23025, 4 }, -- Knight-Lieutenant's Silk Gloves
-	[16413] = { 23025, 4 }, -- Knight-Captain's Silk Raiment
-	[16414] = { 23025, 4 }, -- Knight-Captain's Silk Leggings
-	[16416] = { 23025, 4 }, -- Lieutenant Commander's Crown
-	[16415] = { 23025, 4 }, -- Lieutenant Commander's Silk Spaulders
-	[29076] = { 37439, 4 }, -- Collar of the Aldor
-	[29080] = { 37439, 4 }, -- Gloves of the Aldor
-	[29078] = { 37439, 4 }, -- Legwraps of the Aldor
-	[29079] = { 37439, 4 }, -- Pauldrons of the Aldor
-	[29077] = { 37439, 4 }, -- Vestments of the Aldor
-	[22502] = { 28763, 2 }, -- Frostfire Belt
-	[22503] = { 28763, 2 }, -- Frostfire Bindings
-	[22498] = { 28763, 2 }, -- Frostfire Circlet
-	[22501] = { 28763, 2 }, -- Frostfire Gloves
-	[22497] = { 28763, 2 }, -- Frostfire Leggings
-	[22496] = { 28763, 2 }, -- Frostfire Robe
-	[22500] = { 28763, 2 }, -- Frostfire Sandals
-	[22499] = { 28763, 2 }, -- Frostfire Shoulderpads
-	[23062] = { 28763, 2 }, -- Frostfire Ring
-	-- Paladin
-	[22430] = { 28774, 4 }, -- Redemption Boots
-	[22431] = { 28774, 4 }, -- Redemption Girdle
-	[22426] = { 28774, 4 }, -- Redemption Handguards
-	[22428] = { 28774, 4 }, -- Redemption Headpiece
-	[22427] = { 28774, 4 }, -- Redemption Legguards
-	[22429] = { 28774, 4 }, -- Redemption Spaulders
-	[22425] = { 28774, 4 }, -- Redemption Tunic
-	[22424] = { 28774, 4 }, -- Redemption Wristguards
-	[23066] = { 28774, 4 }, -- Ring of Redemption
-	[27702] = { 23302, 4 }, -- Gladiator's Lamellar Chestpiece
-	[27703] = { 23302, 4 }, -- Gladiator's Lamellar Gauntlets
-	[27704] = { 23302, 4 }, -- Gladiator's Lamellar Helm
-	[27705] = { 23302, 4 }, -- Gladiator's Lamellar Legguards
-	[27706] = { 23302, 4 }, -- Gladiator's Lamellar Shoulders
-	[27879] = { 23302, 4 }, -- Gladiator's Scaled Chestpiece
-	[27880] = { 23302, 4 }, -- Gladiator's Scaled Gauntlets
-	[27881] = { 23302, 4 }, -- Gladiator's Scaled Helm
-	[27882] = { 23302, 4 }, -- Gladiator's Scaled Legguards
-	[27883] = { 23302, 4 }, -- Gladiator's Scaled Shoulders
-	[32039] = { 23302, 4 }, -- Merciless Gladiator's Scaled Chestpiece
-	[32040] = { 23302, 4 }, -- Merciless Gladiator's Scaled Gauntlets
-	[32041] = { 23302, 4 }, -- Merciless Gladiator's Scaled Helm
-	[32042] = { 23302, 4 }, -- Merciless Gladiator's Scaled Legguards
-	[32043] = { 23302, 4 }, -- Merciless Gladiator's Scaled Shoulders
-	[31992] = { 23302, 4 }, -- Merciless Gladiator's Lamellar Chestpiece
-	[31993] = { 23302, 4 }, -- Merciless Gladiator's Lamellar Gauntlets
-	[31997] = { 23302, 4 }, -- Merciless Gladiator's Lamellar Helm
-	[31995] = { 23302, 4 }, -- Merciless Gladiator's Lamellar Legguards
-	[31996] = { 23302, 4 }, -- Merciless Gladiator's Lamellar Shoulders
-	[33749] = { 23302, 4 }, -- Vengeful Gladiator's Scaled Chestpiece
-	[33750] = { 23302, 4 }, -- Vengeful Gladiator's Scaled Gauntlets
-	[33751] = { 23302, 4 }, -- Vengeful Gladiator's Scaled Helm
-	[33752] = { 23302, 4 }, -- Vengeful Gladiator's Scaled Legguards
-	[33753] = { 23302, 4 }, -- Vengeful Gladiator's Scaled Shoulders
-	[33695] = { 23302, 4 }, -- Vengeful Gladiator's Lamellar Chestpiece
-	[33696] = { 23302, 4 }, -- Vengeful Gladiator's Lamellar Gauntlets
-	[33697] = { 23302, 4 }, -- Vengeful Gladiator's Lamellar Helm
-	[33698] = { 23302, 4 }, -- Vengeful Gladiator's Lamellar Legguards
-	[33699] = { 23302, 4 }, -- Vengeful Gladiator's Lamellar Shoulders
-	[35088] = { 23302, 4 }, -- Brutal Gladiator's Scaled Chestpiece
-	[35089] = { 23302, 4 }, -- Brutal Gladiator's Scaled Gauntlets
-	[35090] = { 23302, 4 }, -- Brutal Gladiator's Scaled Helm
-	[35091] = { 23302, 4 }, -- Brutal Gladiator's Scaled Legguards
-	[35092] = { 23302, 4 }, -- Brutal Gladiator's Scaled Shoulders
-	[35027] = { 23302, 4 }, -- Brutal Gladiator's Lamellar Chestpiece
-	[35028] = { 23302, 4 }, -- Brutal Gladiator's Lamellar Gauntlets
-	[35029] = { 23302, 4 }, -- Brutal Gladiator's Lamellar Helm
-	[35030] = { 23302, 4 }, -- Brutal Gladiator's Lamellar Legguards
-	[35031] = { 23302, 4 }, -- Brutal Gladiator's Lamellar Shoulders
-	[40780] = class_set_bonus.paladin, -- Savage Gladiator's Scaled Chestpiece
-	[40798] = class_set_bonus.paladin, -- Savage Gladiator's Scaled Gauntlets
-	[40818] = class_set_bonus.paladin, -- Savage Gladiator's Scaled Helm
-	[40838] = class_set_bonus.paladin, -- Savage Gladiator's Scaled Legguards
-	[40858] = class_set_bonus.paladin, -- Savage Gladiator's Scaled Shoulders
-	[40782] = class_set_bonus.paladin, -- Hateful Gladiator's Scaled Chestpiece
-	[40802] = class_set_bonus.paladin, -- Hateful Gladiator's Scaled Gauntlets
-	[40821] = class_set_bonus.paladin, -- Hateful Gladiator's Scaled Helm
-	[40842] = class_set_bonus.paladin, -- Hateful Gladiator's Scaled Legguards
-	[40861] = class_set_bonus.paladin, -- Hateful Gladiator's Scaled Shoulders
-	[40785] = class_set_bonus.paladin, -- Deadly Gladiator's Scaled Chestpiece
-	[40805] = class_set_bonus.paladin, -- Deadly Gladiator's Scaled Gauntlets
-	[40825] = class_set_bonus.paladin, -- Deadly Gladiator's Scaled Helm
-	[40846] = class_set_bonus.paladin, -- Deadly Gladiator's Scaled Legguards
-	[40864] = class_set_bonus.paladin, -- Deadly Gladiator's Scaled Shoulders
-	[40788] = class_set_bonus.paladin, -- Furious Gladiator's Scaled Chestpiece
-	[40808] = class_set_bonus.paladin, -- Furious Gladiator's Scaled Gauntlets
-	[40828] = class_set_bonus.paladin, -- Furious Gladiator's Scaled Helm
-	[40849] = class_set_bonus.paladin, -- Furious Gladiator's Scaled Legguards
-	[40869] = class_set_bonus.paladin, -- Furious Gladiator's Scaled Shoulders
-	[40792] = class_set_bonus.paladin, -- Relentless Gladiator's Scaled Chestpiece
-	[40812] = class_set_bonus.paladin, -- Relentless Gladiator's Scaled Gauntlets
-	[40831] = class_set_bonus.paladin, -- Relentless Gladiator's Scaled Helm
-	[40852] = class_set_bonus.paladin, -- Relentless Gladiator's Scaled Legguards
-	[40872] = class_set_bonus.paladin, -- Relentless Gladiator's Scaled Shoulders
-	[51474] = class_set_bonus.paladin, -- Wrathful Gladiator's Scaled Chestpiece
-	[51475] = class_set_bonus.paladin, -- Wrathful Gladiator's Scaled Gauntlets
-	[51476] = class_set_bonus.paladin, -- Wrathful Gladiator's Scaled Helm
-	[51477] = class_set_bonus.paladin, -- Wrathful Gladiator's Scaled Legguards
-	[51479] = class_set_bonus.paladin, -- Wrathful Gladiator's Scaled Shoulders
+	[41268] = class_set_bonus.druid,
+	[41269] = class_set_bonus.druid,
+	[41270] = class_set_bonus.druid,
+	[41271] = class_set_bonus.druid,
+	[41272] = class_set_bonus.druid,
+	[41284] = class_set_bonus.druid,
+	[41319] = class_set_bonus.druid,
+	[41296] = class_set_bonus.druid,
+	[41273] = class_set_bonus.druid,
+	[41308] = class_set_bonus.druid,
+	[41286] = class_set_bonus.druid,
+	[41320] = class_set_bonus.druid,
+	[41297] = class_set_bonus.druid,
+	[41274] = class_set_bonus.druid,
+	[41309] = class_set_bonus.druid,
 
-	[35402] = { 23302, 4 }, -- Crusader's Ornamented Chestplate
-	[35403] = { 23302, 4 }, -- Crusader's Ornamented Gloves
-	[35404] = { 23302, 4 }, -- Crusader's Ornamented Headguard
-	[35405] = { 23302, 4 }, -- Crusader's Ornamented Leggings
-	[35406] = { 23302, 4 }, -- Crusader's Ornamented Spaulders
-	[35476] = { 23302, 4 }, -- Crusader's Ornamented Spaulders (H)
-	[35412] = { 23302, 4 }, -- Crusader's Scaled Chestpiece
-	[35413] = { 23302, 4 }, -- Crusader's Scaled Gauntlets
-	[35477] = { 23302, 4 }, -- Crusader's Scaled Gauntlets (H)
-	[35414] = { 23302, 4 }, -- Crusader's Scaled Helm
-	[35415] = { 23302, 4 }, -- Crusader's Scaled Legguards
-	[35416] = { 23302, 4 }, -- Crusader's Scaled Shoulders
-	[28679] = { 23302, 4 }, -- Grand Marshal's Lamellar Chestpiece
-	[28680] = { 23302, 4 }, -- Grand Marshal's Lamellar Gauntlets
-	[28681] = { 23302, 4 }, -- Grand Marshal's Lamellar Helm
-	[28724] = { 23302, 4 }, -- Grand Marshal's Lamellar Legguards
-	[28683] = { 23302, 4 }, -- Grand Marshal's Lamellar Shoulders
-	[28709] = { 23302, 4 }, -- Grand Marshal's Scaled Chestpiece
-	[28710] = { 23302, 4 }, -- Grand Marshal's Scaled Gauntlets
-	[28711] = { 23302, 4 }, -- Grand Marshal's Scaled Helm
-	[28712] = { 23302, 4 }, -- Grand Marshal's Scaled Legguards
-	[28713] = { 23302, 4 }, -- Grand Marshal's Scaled Shoulders
-	[28831] = { 23302, 4 }, -- High Warlord's Lamellar Chestpiece
-	[28832] = { 23302, 4 }, -- High Warlord's Lamellar Gauntlets
-	[28833] = { 23302, 4 }, -- High Warlord's Lamellar Helm
-	[28834] = { 23302, 4 }, -- High Warlord's Lamellar Legguards
-	[28835] = { 23302, 4 }, -- High Warlord's Lamellar Shoulders
-	[28861] = { 23302, 4 }, -- High Warlord's Scaled Chestpiece
-	[28862] = { 23302, 4 }, -- High Warlord's Scaled Gauntlets
-	[28863] = { 23302, 4 }, -- High Warlord's Scaled Helm
-	[28864] = { 23302, 4 }, -- High Warlord's Scaled Legguards
-	[28865] = { 23302, 4 }, -- High Warlord's Scaled Shoulders
-	[16473] = { 23302, 3 }, -- Field Marshal's Lamellar Chestplate
-	[16474] = { 23302, 3 }, -- Field Marshal's Lamellar Faceguard
-	[16476] = { 23302, 3 }, -- Field Marshal's Lamellar Pauldrons
-	[16472] = { 23302, 3 }, -- Marshal's Lamellar Boots
-	[16471] = { 23302, 3 }, -- Marshal's Lamellar Gloves
-	[16475] = { 23302, 3 }, -- Marshal's Lamellar Legplates
-	[29612] = { 23302, 3 }, -- General's Lamellar Boots
-	[29613] = { 23302, 3 }, -- General's Lamellar Gloves
-	[29614] = { 23302, 3 }, -- General's Lamellar Legplates
-	[29615] = { 23302, 3 }, -- Warlord's Lamellar Chestplate
-	[29616] = { 23302, 3 }, -- Warlord's Lamellar Faceguard
-	[29617] = { 23302, 3 }, -- Warlord's Lamellar Pauldrons
-	[29600] = { 23302, 3 }, -- Blood Guard's Lamellar Gauntlets
-	[29601] = { 23302, 3 }, -- Blood Guard's Lamellar Sabatons
-	[29602] = { 23302, 3 }, -- Legionnaire's Lamellar Breastplate
-	[29603] = { 23302, 3 }, -- Legionnaire's Lamellar Leggings
-	[29604] = { 23302, 3 }, -- Champion's Lamellar Headguard
-	[29605] = { 23302, 3 }, -- Champion's Lamellar Shoulders
-	[23272] = { 23302, 4 }, -- Knight-Captain's Lamellar Breastplate
-	[23273] = { 23302, 4 }, -- Knight-Captain's Lamellar Leggings
-	[23274] = { 23302, 4 }, -- Knight-Lieutenant's Lamellar Gauntlets
-	[23275] = { 23302, 4 }, -- Knight-Lieutenant's Lamellar Sabatons
-	[23276] = { 23302, 4 }, -- Lieutenant Commander's Lamellar Headguard
-	[23277] = { 23302, 4 }, -- Lieutenant Commander's Lamellar Shoulders
-	[16410] = { 23302, 4 }, -- Knight-Lieutenant's Lamellar Gauntlets
-	[16409] = { 23302, 4 }, -- Knight-Lieutenant's Lamellar Sabatons
-	[16433] = { 23302, 4 }, -- Knight-Captain's Lamellar Breastplate
-	[16435] = { 23302, 4 }, -- Knight-Captain's Lamellar Leggings
-	[16434] = { 23302, 4 }, -- Lieutenant Commander's Lamellar Headguard
-	[16436] = { 23302, 4 }, -- Lieutenant Commander's Lamellar Shoulders
-	[29062] = { 37183, 4 }, -- Justicar Chestpiece
-	[29061] = { 37183, 4 }, -- Justicar Diadem
-	[29065] = { 37183, 4 }, -- Justicar Gloves
-	[29063] = { 37183, 4 }, -- Justicar Leggings
-	[29064] = { 37183, 4 }, -- Justicar Pauldrons
-	[28203] = { 37181, 4 }, -- Breastplate of the Righteous
-	[27535] = { 37181, 4 }, -- Gauntlets of the Righteous
-	[28285] = { 37181, 4 }, -- Helm of the Righteous
-	[27839] = { 37181, 4 }, -- Legplates of the Righteous
-	[27739] = { 37181, 4 }, -- Spaulders of the Righteous
-	-- Rogue
-	[28684] = { 23048, 4 }, -- Grand Marshal's Leather Gloves
-	[28685] = { 23048, 4 }, -- Grand Marshal's Leather Helm
-	[28686] = { 23048, 4 }, -- Grand Marshal's Leather Legguards
-	[28687] = { 23048, 4 }, -- Grand Marshal's Leather Spaulders
-	[28688] = { 23048, 4 }, -- Grand Marshal's Leather Tunic
-	[28836] = { 23048, 4 }, -- High Warlord's Leather Gloves
-	[28837] = { 23048, 4 }, -- High Warlord's Leather Helm
-	[28838] = { 23048, 4 }, -- High Warlord's Leather Legguards
-	[28839] = { 23048, 4 }, -- High Warlord's Leather Spaulders
-	[28840] = { 23048, 4 }, -- High Warlord's Leather Tunic
-	[35366] = { 23048, 4 }, -- Opportunist's Leather Gloves
-	[35367] = { 23048, 4 }, -- Opportunist's Leather Helm
-	[35368] = { 23048, 4 }, -- Opportunist's Leather Legguards
-	[35369] = { 23048, 4 }, -- Opportunist's Leather Spaulders
-	[35370] = { 23048, 4 }, -- Opportunist's Leather Tunic
-	[16453] = { 23048, 3 }, -- Field Marshal's Leather Chestpiece
-	[16457] = { 23048, 3 }, -- Field Marshal's Leather Epaulets
-	[16455] = { 23048, 3 }, -- Field Marshal's Leather Mask
-	[16446] = { 23048, 3 }, -- Marshal's Leather Footguards
-	[16454] = { 23048, 3 }, -- Marshal's Leather Handgrips
-	[16456] = { 23048, 3 }, -- Marshal's Leather Leggings
-	[16563] = { 23048, 3 }, -- Warlord's Leather Breastplate
-	[16561] = { 23048, 3 }, -- Warlord's Leather Helm
-	[16562] = { 23048, 3 }, -- Warlord's Leather Spaulders
-	[16564] = { 23048, 3 }, -- General's Leather Legguards
-	[16560] = { 23048, 3 }, -- General's Leather Mitts
-	[16558] = { 23048, 3 }, -- General's Leather Treads
-	[22864] = { 23048, 4 }, -- Blood Guard's Leather Grips
-	[22856] = { 23048, 4 }, -- Blood Guard's Leather Walkers
-	[22879] = { 23048, 4 }, -- Legionnaire's Leather Chestpiece
-	[22880] = { 23048, 4 }, -- Legionnaire's Leather Legguards
-	[23257] = { 23048, 4 }, -- Champion's Leather Helm
-	[23258] = { 23048, 4 }, -- Champion's Leather Shoulders
-	[23298] = { 23048, 4 }, -- Knight-Captain's Leather Chestpiece
-	[23299] = { 23048, 4 }, -- Knight-Captain's Leather Legguards
-	[23284] = { 23048, 4 }, -- Knight-Lieutenant's Leather Grips
-	[23285] = { 23048, 4 }, -- Knight-Lieutenant's Leather Walkers
-	[23312] = { 23048, 4 }, -- Lieutenant Commander's Leather Helm
-	[23313] = { 23048, 4 }, -- Lieutenant Commander's Leather Shoulders
-	[16498] = { 23048, 4 }, -- Blood Guard's Leather Treads
-	[16499] = { 23048, 4 }, -- Blood Guard's Leather Vices
-	[16505] = { 23048, 4 }, -- Legionnaire's Leather Hauberk
-	[16508] = { 23048, 4 }, -- Legionnaire's Leather Leggings
-	[16506] = { 23048, 4 }, -- Champion's Leather Headguard
-	[16507] = { 23048, 4 }, -- Champion's Leather Mantle
-	[16392] = { 23048, 4 }, -- Knight-Lieutenant's Leather Boots
-	[16396] = { 23048, 4 }, -- Knight-Lieutenant's Leather Gauntlets
-	[16417] = { 23048, 4 }, -- Knight-Captain's Leather Armor
-	[16419] = { 23048, 4 }, -- Knight-Captain's Leather Legguards
-	[16420] = { 23048, 4 }, -- Lieutenant Commander's Leather Spaulders
-	[16418] = { 23048, 4 }, -- Lieutenant Commander's Leather Veil
-	[16827] = { 21874, 2 }, -- Nightslayer Belt
-	[16824] = { 21874, 2 }, -- Nightslayer Boots
-	[16825] = { 21874, 2 }, -- Nightslayer Bracelets
-	[16820] = { 21874, 2 }, -- Nightslayer Chestpiece
-	[16821] = { 21874, 2 }, -- Nightslayer Cover
-	[16826] = { 21874, 2 }, -- Nightslayer Gloves
-	[16822] = { 21874, 2 }, -- Nightslayer Pants
-	[16823] = { 21874, 2 }, -- Nightslayer Shoulder Pads
-	[19617] = { 24469, 3 }, -- Zandalarian Shadow Mastery Talisman
-	[19954] = { 24469, 3 }, -- Renataki's Charm of Trickery
-	[19836] = { 24469, 3 }, -- Zandalar Madcap's Bracers
-	[19835] = { 24469, 3 }, -- Zandalar Madcap's Mantle
-	[19834] = { 24469, 3 }, -- Zandalar Madcap's Tunic
-	[21359] = { 26112, 3 }, -- Deathdealer's Boots
-	[21360] = { 26112, 3 }, -- Deathdealer's Helm
-	[21361] = { 26112, 3 }, -- Deathdealer's Spaulders
-	[21362] = { 26112, 3 }, -- Deathdealer's Leggings
-	[21364] = { 26112, 3 }, -- Deathdealer's Vest
-	-- Shaman
-	[31396] = class_set_bonus.shaman, -- Gladiator's Ringmail Armor
-	[31397] = class_set_bonus.shaman, -- Gladiator's Ringmail Gauntlets
-	[31400] = class_set_bonus.shaman, -- Gladiator's Ringmail Helm
-	[31406] = class_set_bonus.shaman, -- Gladiator's Ringmail Leggings
-	[31407] = class_set_bonus.shaman, -- Gladiator's Ringmail Spaulders
-	[32029] = class_set_bonus.shaman, -- Merciless Gladiator's Ringmail Armor
-	[32030] = class_set_bonus.shaman, -- Merciless Gladiator's Ringmail Gauntlets
-	[32031] = class_set_bonus.shaman, -- Merciless Gladiator's Ringmail Helm
-	[32032] = class_set_bonus.shaman, -- Merciless Gladiator's Ringmail Leggings
-	[32033] = class_set_bonus.shaman, -- Merciless Gladiator's Ringmail Spaulders
-	[33738] = class_set_bonus.shaman, -- Vengeful Gladiator's Ringmail Armor
-	[33739] = class_set_bonus.shaman, -- Vengeful Gladiator's Ringmail Gauntlets
-	[33740] = class_set_bonus.shaman, -- Vengeful Gladiator's Ringmail Helm
-	[33741] = class_set_bonus.shaman, -- Vengeful Gladiator's Ringmail Leggings
-	[33742] = class_set_bonus.shaman, -- Vengeful Gladiator's Ringmail Spaulders
-	[35077] = class_set_bonus.shaman, -- Brutal Gladiator's Ringmail Armor
-	[35078] = class_set_bonus.shaman, -- Brutal Gladiator's Ringmail Gauntlets
-	[35079] = class_set_bonus.shaman, -- Brutal Gladiator's Ringmail Helm
-	[35080] = class_set_bonus.shaman, -- Brutal Gladiator's Ringmail Leggings
-	[35081] = class_set_bonus.shaman, -- Brutal Gladiator's Ringmail Spaulders
-	[40987] = class_set_bonus.shaman, -- Savage Gladiator's Mail Armor
-	[41004] = class_set_bonus.shaman, -- Savage Gladiator's Mail Gauntlets
-	[41016] = class_set_bonus.shaman, -- Savage Gladiator's Mail Helm
-	[41030] = class_set_bonus.shaman, -- Savage Gladiator's Mail Leggings
-	[41041] = class_set_bonus.shaman, -- Savage Gladiator's Mail Spaulders
-	[40986] = class_set_bonus.shaman, -- Savage Gladiator's Ringmail Armor
-	[40998] = class_set_bonus.shaman, -- Savage Gladiator's Ringmail Gauntlets
-	[41010] = class_set_bonus.shaman, -- Savage Gladiator's Ringmail Helm
-	[41023] = class_set_bonus.shaman, -- Savage Gladiator's Ringmail Leggings
-	[41024] = class_set_bonus.shaman, -- Savage Gladiator's Ringmail Spaulders
-	[40989] = class_set_bonus.shaman, -- Hateful Gladiator's Mail Armor
-	[41005] = class_set_bonus.shaman, -- Hateful Gladiator's Mail Gauntlets
-	[41017] = class_set_bonus.shaman, -- Hateful Gladiator's Mail Helm
-	[41031] = class_set_bonus.shaman, -- Hateful Gladiator's Mail Leggings
-	[41042] = class_set_bonus.shaman, -- Hateful Gladiator's Mail Spaulders
-	[40988] = class_set_bonus.shaman, -- Hateful Gladiator's Ringmail Armor
-	[40999] = class_set_bonus.shaman, -- Hateful Gladiator's Ringmail Gauntlets
-	[41011] = class_set_bonus.shaman, -- Hateful Gladiator's Ringmail Helm
-	[41025] = class_set_bonus.shaman, -- Hateful Gladiator's Ringmail Leggings
-	[41036] = class_set_bonus.shaman, -- Hateful Gladiator's Ringmail Spaulders
-	[40991] = class_set_bonus.shaman, -- Deadly Gladiator's Mail Armor
-	[41006] = class_set_bonus.shaman, -- Deadly Gladiator's Mail Gauntlets
-	[41018] = class_set_bonus.shaman, -- Deadly Gladiator's Mail Helm
-	[41032] = class_set_bonus.shaman, -- Deadly Gladiator's Mail Leggings
-	[41043] = class_set_bonus.shaman, -- Deadly Gladiator's Mail Spaulders
-	[40990] = class_set_bonus.shaman, -- Deadly Gladiator's Ringmail Armor
-	[41000] = class_set_bonus.shaman, -- Deadly Gladiator's Ringmail Gauntlets
-	[41012] = class_set_bonus.shaman, -- Deadly Gladiator's Ringmail Helm
-	[41026] = class_set_bonus.shaman, -- Deadly Gladiator's Ringmail Leggings
-	[41037] = class_set_bonus.shaman, -- Deadly Gladiator's Ringmail Spaulders
-	[40993] = class_set_bonus.shaman, -- Furious Gladiator's Mail Armor
-	[41007] = class_set_bonus.shaman, -- Furious Gladiator's Mail Gauntlets
-	[41019] = class_set_bonus.shaman, -- Furious Gladiator's Mail Helm
-	[41033] = class_set_bonus.shaman, -- Furious Gladiator's Mail Leggings
-	[41044] = class_set_bonus.shaman, -- Furious Gladiator's Mail Spaulders
-	[40992] = class_set_bonus.shaman, -- Furious Gladiator's Ringmail Armor
-	[41001] = class_set_bonus.shaman, -- Furious Gladiator's Ringmail Gauntlets
-	[41013] = class_set_bonus.shaman, -- Furious Gladiator's Ringmail Helm
-	[41027] = class_set_bonus.shaman, -- Furious Gladiator's Ringmail Leggings
-	[41038] = class_set_bonus.shaman, -- Furious Gladiator's Ringmail Spaulders
-	[40995] = class_set_bonus.shaman, -- Relentless Gladiator's Mail Armor
-	[41008] = class_set_bonus.shaman, -- Relentless Gladiator's Mail Gauntlets
-	[41020] = class_set_bonus.shaman, -- Relentless Gladiator's Mail Helm
-	[41034] = class_set_bonus.shaman, -- Relentless Gladiator's Mail Leggings
-	[41045] = class_set_bonus.shaman, -- Relentless Gladiator's Mail Spaulders
-	[40994] = class_set_bonus.shaman, -- Relentless Gladiator's Ringmail Armor
-	[41002] = class_set_bonus.shaman, -- Relentless Gladiator's Ringmail Gauntlets
-	[41014] = class_set_bonus.shaman, -- Relentless Gladiator's Ringmail Helm
-	[41028] = class_set_bonus.shaman, -- Relentless Gladiator's Ringmail Leggings
-	[41039] = class_set_bonus.shaman, -- Relentless Gladiator's Ringmail Spaulders
-	[51509] = class_set_bonus.shaman, -- Wrathful Gladiator's Mail Armor
-	[51510] = class_set_bonus.shaman, -- Wrathful Gladiator's Mail Gauntlets
-	[51511] = class_set_bonus.shaman, -- Wrathful Gladiator's Mail Helm
-	[51512] = class_set_bonus.shaman, -- Wrathful Gladiator's Mail Leggings
-	[51514] = class_set_bonus.shaman, -- Wrathful Gladiator's Mail Spaulders
-	[51497] = class_set_bonus.shaman, -- Wrathful Gladiator's Ringmail Armor
-	[51498] = class_set_bonus.shaman, -- Wrathful Gladiator's Ringmail Gauntlets
-	[51499] = class_set_bonus.shaman, -- Wrathful Gladiator's Ringmail Helm
-	[51500] = class_set_bonus.shaman, -- Wrathful Gladiator's Ringmail Leggings
-	[51502] = class_set_bonus.shaman, -- Wrathful Gladiator's Ringmail Spaulders
+	[41287] = class_set_bonus.druid,
+	[41321] = class_set_bonus.druid,
+	[41298] = class_set_bonus.druid,
+	[41275] = class_set_bonus.druid,
+	[41310] = class_set_bonus.druid,
 
-	[29032] = { 37211, 4 }, -- Cyclone Gloves
-	[29029] = { 37211, 4 }, -- Cyclone Hauberk
-	[29028] = { 37211, 4 }, -- Cyclone Headdress
-	[29030] = { 37211, 4 }, -- Cyclone Kilt
-	[29031] = { 37211, 4 }, -- Cyclone Shoulderpads
-	[35391] = { 38466, 4 }, -- Seer's Ringmail Chestguard
-	[35392] = { 38466, 4 }, -- Seer's Ringmail Gloves
-	[35393] = { 38466, 4 }, -- Seer's Ringmail Headpiece
-	[35394] = { 38466, 4 }, -- Seer's Ringmail Legguards
-	[35395] = { 38466, 4 }, -- Seer's Ringmail Shoulderpads
-	[31640] = { 38499, 4 }, -- Grand Marshal's Ringmail Chestguard
-	[31641] = { 38499, 4 }, -- Grand Marshal's Ringmail Gloves
-	[31642] = { 38499, 4 }, -- Grand Marshal's Ringmail Headpiece
-	[31643] = { 38499, 4 }, -- Grand Marshal's Ringmail Legguards
-	[31644] = { 38499, 4 }, -- Grand Marshal's Ringmail Shoulders
-	[31646] = { 38499, 4 }, -- High Warlord's Ringmail Chestguard
-	[31647] = { 38499, 4 }, -- High Warlord's Ringmail Gloves
-	[31648] = { 38499, 4 }, -- High Warlord's Ringmail Headpiece
-	[31649] = { 38499, 4 }, -- High Warlord's Ringmail Legguards
-	[31650] = { 38499, 4 }, -- High Warlord's Ringmail Shoulderpads
-	[25997] = class_set_bonus.enhance, -- Gladiator's Linked Armor
-	[26000] = class_set_bonus.enhance, -- Gladiator's Linked Gauntlets
-	[25998] = class_set_bonus.enhance, -- Gladiator's Linked Helm
-	[26001] = class_set_bonus.enhance, -- Gladiator's Linked Leggings
-	[25999] = class_set_bonus.enhance, -- Gladiator's Linked Spaulders
-	[32004] = class_set_bonus.enhance, -- Merciless Gladiator's Linked Armor
-	[32005] = class_set_bonus.enhance, -- Merciless Gladiator's Linked Gauntlets
-	[32006] = class_set_bonus.enhance, -- Merciless Gladiator's Linked Helm
-	[32007] = class_set_bonus.enhance, -- Merciless Gladiator's Linked Leggings
-	[32008] = class_set_bonus.enhance, -- Merciless Gladiator's Linked Spaulders
-	[33706] = class_set_bonus.enhance, -- Vengeful Gladiator's Linked Armor
-	[33707] = class_set_bonus.enhance, -- Vengeful Gladiator's Linked Gauntlets
-	[33708] = class_set_bonus.enhance, -- Vengeful Gladiator's Linked Helm
-	[33709] = class_set_bonus.enhance, -- Vengeful Gladiator's Linked Leggings
-	[33710] = class_set_bonus.enhance, -- Vengeful Gladiator's Linked Spaulders
-	[35042] = class_set_bonus.enhance, -- Brutal Gladiator's Linked Armor
-	[35043] = class_set_bonus.enhance, -- Brutal Gladiator's Linked Gauntlets
-	[35044] = class_set_bonus.enhance, -- Brutal Gladiator's Linked Helm
-	[35045] = class_set_bonus.enhance, -- Brutal Gladiator's Linked Leggings
-	[35046] = class_set_bonus.enhance, -- Brutal Gladiator's Linked Spaulders
-	[41078] = class_set_bonus.enhance, -- Savage Gladiator's Linked Armor
-	[41134] = class_set_bonus.enhance, -- Savage Gladiator's Linked Gauntlets
-	[41148] = class_set_bonus.enhance, -- Savage Gladiator's Linked Helm
-	[41160] = class_set_bonus.enhance, -- Savage Gladiator's Linked Leggings
-	[41208] = class_set_bonus.enhance, -- Savage Gladiator's Linked Spaulders
-	[41079] = class_set_bonus.enhance, -- Hateful Gladiator's Linked Armor
-	[41135] = class_set_bonus.enhance, -- Hateful Gladiator's Linked Gauntlets
-	[41149] = class_set_bonus.enhance, -- Hateful Gladiator's Linked Helm
-	[41162] = class_set_bonus.enhance, -- Hateful Gladiator's Linked Leggings
-	[41209] = class_set_bonus.enhance, -- Hateful Gladiator's Linked Spaulders
-	[41080] = class_set_bonus.enhance, -- Deadly Gladiator's Linked Armor
-	[41136] = class_set_bonus.enhance, -- Deadly Gladiator's Linked Gauntlets
-	[41150] = class_set_bonus.enhance, -- Deadly Gladiator's Linked Helm
-	[41198] = class_set_bonus.enhance, -- Deadly Gladiator's Linked Leggings
-	[41210] = class_set_bonus.enhance, -- Deadly Gladiator's Linked Spaulders
-	[41081] = class_set_bonus.enhance, -- Furious Gladiator's Linked Armor
-	[41137] = class_set_bonus.enhance, -- Furious Gladiator's Linked Gauntlets
-	[41151] = class_set_bonus.enhance, -- Furious Gladiator's Linked Helm
-	[41199] = class_set_bonus.enhance, -- Furious Gladiator's Linked Leggings
-	[41211] = class_set_bonus.enhance, -- Furious Gladiator's Linked Spaulders
-	[41082] = class_set_bonus.enhance, -- Relentless Gladiator's Linked Armor
-	[41138] = class_set_bonus.enhance, -- Relentless Gladiator's Linked Gauntlets
-	[41152] = class_set_bonus.enhance, -- Relentless Gladiator's Linked Helm
-	[41200] = class_set_bonus.enhance, -- Relentless Gladiator's Linked Leggings
-	[41212] = class_set_bonus.enhance, -- Relentless Gladiator's Linked Spaulders
-	[51503] = class_set_bonus.enhance, -- Wrathful Gladiator's Linked Armor
-	[51504] = class_set_bonus.enhance, -- Wrathful Gladiator's Linked Gauntlets
-	[51505] = class_set_bonus.enhance, -- Wrathful Gladiator's Linked Helm
-	[51506] = class_set_bonus.enhance, -- Wrathful Gladiator's Linked Leggings
-	[51508] = class_set_bonus.enhance, -- Wrathful Gladiator's Linked Spaulders
+	[41288] = class_set_bonus.druid,
+	[41322] = class_set_bonus.druid,
+	[41299] = class_set_bonus.druid,
+	[41276] = class_set_bonus.druid,
+	[41311] = class_set_bonus.druid,
 
-	[28689] = class_set_bonus.enhance, -- Grand Marshal's Linked Armor
-	[28690] = class_set_bonus.enhance, -- Grand Marshal's Linked Gauntlets
-	[28691] = class_set_bonus.enhance, -- Grand Marshal's Linked Helm
-	[28692] = class_set_bonus.enhance, -- Grand Marshal's Linked Leggings
-	[28693] = class_set_bonus.enhance, -- Grand Marshal's Linked Spaulders
-	[28841] = class_set_bonus.enhance, -- High Warlord's Linked Armor
-	[28842] = class_set_bonus.enhance, -- High Warlord's Linked Gauntlets
-	[28843] = class_set_bonus.enhance, -- High Warlord's Linked Helm
-	[28844] = class_set_bonus.enhance, -- High Warlord's Linked Leggings
-	[28845] = class_set_bonus.enhance, -- High Warlord's Linked Spaulders
-	[35381] = class_set_bonus.enhance, -- Seer's Linked Armor
-	[35382] = class_set_bonus.enhance, -- Seer's Linked Gauntlets
-	[35383] = class_set_bonus.enhance, -- Seer's Linked Helm
-	[35384] = class_set_bonus.enhance, -- Seer's Linked Leggings
-	[35385] = class_set_bonus.enhance, -- Seer's Linked Spaulders
-	-- Warlock
-	[19605] = { 24487, 5 }, -- ezan's Unstoppable Taint
-	[19957] = { 24487, 5 }, -- Hazza'rah's Charm of Destruction
-	[19848] = { 24487, 5 }, -- Zandalar Demoniac's Wraps
-	[19849] = { 24487, 5 }, -- Zandalar Demoniac's Mantle
-	[20033] = { 24487, 5 }, -- Zandalar Demoniac's Robe
-	-- Warrior
-	[19951] = { 24456, 3 }, -- Gri'lek's Charm of Might
-	[19577] = { 24456, 3 }, -- Rage of Mugamba
-	[19824] = { 24456, 3 }, -- Zandalar Vindicator's Armguards
-	[19823] = { 24456, 3 }, -- Zandalar Vindicator's Belt
-	[19822] = { 24456, 3 }, -- Zandalar Vindicator's Breastplate
-	[24544] = class_set_bonus.warrior, -- Gladiator's Plate Chestpiece
-	[24549] = class_set_bonus.warrior, -- Gladiator's Plate Gauntlets
-	[24545] = class_set_bonus.warrior, -- Gladiator's Plate Helm
-	[24547] = class_set_bonus.warrior, -- Gladiator's Plate Legguards
-	[24546] = class_set_bonus.warrior, -- Gladiator's Plate Shoulders
-	[30486] = class_set_bonus.warrior, -- Merciless Gladiator's Plate Chestpiece
-	[30487] = class_set_bonus.warrior, -- Merciless Gladiator's Plate Gauntlets
-	[30488] = class_set_bonus.warrior, -- Merciless Gladiator's Plate Helm
-	[30489] = class_set_bonus.warrior, -- Merciless Gladiator's Plate Legguards
-	[30490] = class_set_bonus.warrior, -- Merciless Gladiator's Plate Shoulders
-	[33728] = class_set_bonus.warrior, -- Vengeful Gladiator's Plate Chestpiece
-	[33729] = class_set_bonus.warrior, -- Vengeful Gladiator's Plate Gauntlets
-	[33730] = class_set_bonus.warrior, -- Vengeful Gladiator's Plate Helm
-	[33731] = class_set_bonus.warrior, -- Vengeful Gladiator's Plate Legguards
-	[33732] = class_set_bonus.warrior, -- Vengeful Gladiator's Plate Shoulders
-	[35066] = class_set_bonus.warrior, -- Brutal Gladiator's Plate Chestpiece
-	[35067] = class_set_bonus.warrior, -- Brutal Gladiator's Plate Gauntlets
-	[35068] = class_set_bonus.warrior, -- Brutal Gladiator's Plate Helm
-	[35069] = class_set_bonus.warrior, -- Brutal Gladiator's Plate Legguards
-	[35070] = class_set_bonus.warrior, -- Brutal Gladiator's Plate Shoulders
-	[40778] = class_set_bonus.warrior, -- Savage Gladiator's Plate Chestpiece
-	[40797] = class_set_bonus.warrior, -- Savage Gladiator's Plate Gauntlets
-	[40816] = class_set_bonus.warrior, -- Savage Gladiator's Plate Helm
-	[40836] = class_set_bonus.warrior, -- Savage Gladiator's Plate Legguards
-	[40856] = class_set_bonus.warrior, -- Savage Gladiator's Plate Shoulders
-	[40783] = class_set_bonus.warrior, -- Hateful Gladiator's Plate Chestpiece
-	[40801] = class_set_bonus.warrior, -- Hateful Gladiator's Plate Gauntlets
-	[40819] = class_set_bonus.warrior, -- Hateful Gladiator's Plate Helm
-	[40840] = class_set_bonus.warrior, -- Hateful Gladiator's Plate Legguards
-	[40859] = class_set_bonus.warrior, -- Hateful Gladiator's Plate Shoulders
-	[40786] = class_set_bonus.warrior, -- Deadly Gladiator's Plate Chestpiece
-	[40804] = class_set_bonus.warrior, -- Deadly Gladiator's Plate Gauntlets
-	[40823] = class_set_bonus.warrior, -- Deadly Gladiator's Plate Helm
-	[40844] = class_set_bonus.warrior, -- Deadly Gladiator's Plate Legguards
-	[40862] = class_set_bonus.warrior, -- Deadly Gladiator's Plate Shoulders
-	[40789] = class_set_bonus.warrior, -- Furious Gladiator's Plate Chestpiece
-	[40807] = class_set_bonus.warrior, -- Furious Gladiator's Plate Gauntlets
-	[40826] = class_set_bonus.warrior, -- Furious Gladiator's Plate Helm
-	[40847] = class_set_bonus.warrior, -- Furious Gladiator's Plate Legguards
-	[40866] = class_set_bonus.warrior, -- Furious Gladiator's Plate Shoulders
-	[40790] = class_set_bonus.warrior, -- Relentless Gladiator's Plate Chestpiece
-	[40810] = class_set_bonus.warrior, -- Relentless Gladiator's Plate Gauntlets
-	[40829] = class_set_bonus.warrior, -- Relentless Gladiator's Plate Helm
-	[40850] = class_set_bonus.warrior, -- Relentless Gladiator's Plate Legguards
-	[40870] = class_set_bonus.warrior, -- Relentless Gladiator's Plate Shoulders
-	[51541] = class_set_bonus.warrior, -- Wrathful Gladiator's Plate Chestpiece
-	[51542] = class_set_bonus.warrior, -- Wrathful Gladiator's Plate Gauntlets
-	[51543] = class_set_bonus.warrior, -- Wrathful Gladiator's Plate Helm
-	[51544] = class_set_bonus.warrior, -- Wrathful Gladiator's Plate Legguards
-	[51545] = class_set_bonus.warrior, -- Wrathful Gladiator's Plate Shoulders
+	[51420] = class_set_bonus.druid,
+	[51421] = class_set_bonus.druid,
+	[51422] = class_set_bonus.druid,
+	[51424] = class_set_bonus.druid,
+	[51419] = class_set_bonus.druid,
 
-	[28699] = class_set_bonus.warrior, -- Grand Marshal's Plate Chestpiece
-	[28700] = class_set_bonus.warrior, -- Grand Marshal's Plate Gauntlets
-	[28701] = class_set_bonus.warrior, -- Grand Marshal's Plate Helm
-	[28702] = class_set_bonus.warrior, -- Grand Marshal's Plate Legguards
-	[28703] = class_set_bonus.warrior, -- Grand Marshal's Plate Shoulders
-	[28851] = class_set_bonus.warrior, -- High Warlord's Plate Chestpiece
-	[28852] = class_set_bonus.warrior, -- High Warlord's Plate Gauntlets
-	[28853] = class_set_bonus.warrior, -- High Warlord's Plate Helm
-	[28854] = class_set_bonus.warrior, -- High Warlord's Plate Legguards
-	[28855] = class_set_bonus.warrior, -- High Warlord's Plate Shoulders
-	[35407] = class_set_bonus.warrior, -- Savage Plate Chestpiece
-	[35408] = class_set_bonus.warrior, -- Savage Plate Gauntlets
-	[35409] = class_set_bonus.warrior, -- Savage Plate Helm
-	[35410] = class_set_bonus.warrior, -- Savage Plate Legguards
-	[35411] = class_set_bonus.warrior, -- Savage Plate Shoulders
-	[16477] = { 22738, 3 }, -- Field Marshal's Plate Armor
-	[16478] = { 22738, 3 }, -- Field Marshal's Plate Helm
-	[16480] = { 22738, 3 }, -- Field Marshal's Plate Shoulderguards
-	[16483] = { 22738, 3 }, -- Marshal's Plate Boots
-	[16484] = { 22738, 3 }, -- Marshal's Plate Gauntlets
-	[16479] = { 22738, 3 }, -- Marshal's Plate Legguards
-	[16541] = { 22738, 3 }, -- Warlord's Plate Armor
-	[16542] = { 22738, 3 }, -- Warlord's Plate Headpiece
-	[16544] = { 22738, 3 }, -- Warlord's Plate Shoulders
-	[16545] = { 22738, 3 }, -- General's Plate Boots
-	[16548] = { 22738, 3 }, -- General's Plate Gauntlets
-	[16543] = { 22738, 3 }, -- General's Plate Leggings
-	[22868] = class_set_bonus.warrior, -- Blood Guard's Plate Gauntlets
-	[22858] = class_set_bonus.warrior, -- Blood Guard's Plate Greaves
-	[22872] = class_set_bonus.warrior, -- Legionnaire's Plate Hauberk
-	[22873] = class_set_bonus.warrior, -- Legionnaire's Plate Leggings
-	[23244] = class_set_bonus.warrior, -- Champion's Plate Helm
-	[23243] = class_set_bonus.warrior, -- Champion's Plate Shoulders
-	[23300] = class_set_bonus.warrior, -- Knight-Captain's Plate Hauberk
-	[23301] = class_set_bonus.warrior, -- Knight-Captain's Plate Leggings
-	[23286] = class_set_bonus.warrior, -- Knight-Lieutenant's Plate Gauntlets
-	[23287] = class_set_bonus.warrior, -- Knight-Lieutenant's Plate Greaves
-	[23314] = class_set_bonus.warrior, -- Lieutenant Commander's Plate Helmet
-	[23315] = class_set_bonus.warrior, -- Lieutenant Commander's Plate Shoulders
-	[16509] = class_set_bonus.warrior, -- Blood Guard's Plate Boots
-	[16510] = class_set_bonus.warrior, -- Blood Guard's Plate Gloves
-	[16513] = class_set_bonus.warrior, -- Legionnaire's Plate Armor
-	[16515] = class_set_bonus.warrior, -- Legionnaire's Plate Legguards
-	[16514] = class_set_bonus.warrior, -- Champion's Plate Headguard
-	[16516] = class_set_bonus.warrior, -- Champion's Plate Pauldrons
-	[16405] = class_set_bonus.warrior, -- Knight-Lieutenant's Plate Boots
-	[16406] = class_set_bonus.warrior, -- Knight-Lieutenant's Plate Gauntlets
-	[16430] = class_set_bonus.warrior, -- Knight-Captain's Plate Chestguard
-	[16431] = class_set_bonus.warrior, -- Knight-Captain's Plate Leggings
-	[16429] = class_set_bonus.warrior, -- Lieutenant Commander's Plate Helm
-	[16432] = class_set_bonus.warrior, -- Lieutenant Commander's Plate Pauldrons
+
+	[28228] = { 37481, 2 },
+	[27474] = { 37481, 2 },
+	[28275] = { 37481, 2 },
+	[27874] = { 37481, 2 },
+	[27801] = { 37481, 2 },
+	[28334] = { 44292, 4 },
+	[28335] = { 44292, 4 },
+	[28331] = { 44292, 4 },
+	[28332] = { 44292, 4 },
+	[28333] = { 44292, 4 },
+	[31960] = { 44292, 4 },
+	[31961] = { 44292, 4 },
+	[31962] = { 44292, 4 },
+	[31963] = { 44292, 4 },
+	[31964] = { 44292, 4 },
+	[33664] = { 44292, 4 },
+	[33665] = { 44292, 4 },
+	[33666] = { 44292, 4 },
+	[33667] = { 44292, 4 },
+	[33668] = { 44292, 4 },
+	[34990] = { 44292, 4 },
+	[34991] = { 44292, 4 },
+	[34992] = { 44292, 4 },
+	[34993] = { 44292, 4 },
+	[34994] = { 44292, 4 },
+	[41084] = class_set_bonus.hunter,
+	[41140] = class_set_bonus.hunter,
+	[41154] = class_set_bonus.hunter,
+	[41202] = class_set_bonus.hunter,
+	[41214] = class_set_bonus.hunter,
+	[41085] = class_set_bonus.hunter,
+	[41141] = class_set_bonus.hunter,
+	[41155] = class_set_bonus.hunter,
+	[41203] = class_set_bonus.hunter,
+	[41215] = class_set_bonus.hunter,
+	[41086] = class_set_bonus.hunter,
+	[41142] = class_set_bonus.hunter,
+	[41156] = class_set_bonus.hunter,
+	[41204] = class_set_bonus.hunter,
+	[41216] = class_set_bonus.hunter,
+	[41087] = class_set_bonus.hunter,
+	[41143] = class_set_bonus.hunter,
+	[41157] = class_set_bonus.hunter,
+	[41205] = class_set_bonus.hunter,
+	[41217] = class_set_bonus.hunter,
+	[41088] = class_set_bonus.hunter,
+	[41144] = class_set_bonus.hunter,
+	[41158] = class_set_bonus.hunter,
+	[41206] = class_set_bonus.hunter,
+	[41218] = class_set_bonus.hunter,
+	[51458] = class_set_bonus.hunter,
+	[51459] = class_set_bonus.hunter,
+	[51460] = class_set_bonus.hunter,
+	[51461] = class_set_bonus.hunter,
+	[51462] = class_set_bonus.hunter,
+
+
+
+
+
+
+	[19621] = { 24465, 3 },
+	[19953] = { 24465, 3 },
+	[19833] = { 24465, 3 },
+	[19832] = { 24465, 3 },
+	[19831] = { 24465, 3 },
+	[28613] = { 23158, 4 },
+	[28614] = { 23158, 4 },
+	[28615] = { 23158, 4 },
+	[28616] = { 23158, 4 },
+	[28617] = { 23158, 4 },
+	[28805] = { 23158, 4 },
+	[28806] = { 23158, 4 },
+	[28807] = { 23158, 4 },
+	[28808] = { 23158, 4 },
+	[28809] = { 23158, 4 },
+	[35376] = { 23158, 4 },
+	[35377] = { 23158, 4 },
+	[35378] = { 23158, 4 },
+	[35379] = { 23158, 4 },
+	[35380] = { 23158, 4 },
+	[16466] = { 23158, 3 },
+	[16465] = { 23158, 3 },
+	[16468] = { 23158, 3 },
+	[16462] = { 23158, 3 },
+	[16463] = { 23158, 3 },
+	[16467] = { 23158, 3 },
+	[16569] = { 23158, 3 },
+	[16571] = { 23158, 3 },
+	[16567] = { 23158, 3 },
+	[16565] = { 23158, 3 },
+	[16566] = { 23158, 3 },
+	[16568] = { 23158, 3 },
+	[22843] = { 23158, 4 },
+	[22862] = { 23158, 4 },
+	[23251] = { 23158, 4 },
+	[23252] = { 23158, 4 },
+	[22874] = { 23158, 4 },
+	[22875] = { 23158, 4 },
+	[23292] = { 23158, 4 },
+	[23293] = { 23158, 4 },
+	[23278] = { 23158, 4 },
+	[23279] = { 23158, 4 },
+	[23306] = { 23158, 4 },
+	[23307] = { 23158, 4 },
+	[16531] = { 23158, 4 },
+	[16530] = { 23158, 4 },
+	[16525] = { 23158, 4 },
+	[16527] = { 23158, 4 },
+	[16526] = { 23158, 4 },
+	[16528] = { 23158, 4 },
+	[16425] = { 23158, 4 },
+	[16426] = { 23158, 4 },
+	[16401] = { 23158, 4 },
+	[16403] = { 23158, 4 },
+	[16428] = { 23158, 4 },
+	[16427] = { 23158, 4 },
+
+	[35343] = { 23025, 4 },
+	[35344] = { 23025, 4 },
+	[35345] = { 23025, 4 },
+	[35346] = { 23025, 4 },
+	[35347] = { 23025, 4 },
+	[28714] = { 23025, 4 },
+	[28715] = { 23025, 4 },
+	[28716] = { 23025, 4 },
+	[28717] = { 23025, 4 },
+	[28718] = { 23025, 4 },
+	[28866] = { 23025, 4 },
+	[28867] = { 23025, 4 },
+	[28868] = { 23025, 4 },
+	[28869] = { 23025, 4 },
+	[28870] = { 23025, 4 },
+	[16441] = { 23025, 3 },
+	[16444] = { 23025, 3 },
+	[16443] = { 23025, 3 },
+	[16437] = { 23025, 3 },
+	[16440] = { 23025, 3 },
+	[16442] = { 23025, 3 },
+	[16536] = { 23025, 3 },
+	[16533] = { 23025, 3 },
+	[16535] = { 23025, 3 },
+	[16539] = { 23025, 3 },
+	[16540] = { 23025, 3 },
+	[16534] = { 23025, 3 },
+	[22870] = { 23025, 4 },
+	[22860] = { 23025, 4 },
+	[23263] = { 23025, 4 },
+	[23264] = { 23025, 4 },
+	[22883] = { 23025, 4 },
+	[22886] = { 23025, 4 },
+	[23304] = { 23025, 4 },
+	[23305] = { 23025, 4 },
+	[23290] = { 23025, 4 },
+	[23291] = { 23025, 4 },
+	[23318] = { 23025, 4 },
+	[23319] = { 23025, 4 },
+	[16485] = { 23025, 4 },
+	[16487] = { 23025, 4 },
+	[16491] = { 23025, 4 },
+	[16490] = { 23025, 4 },
+	[16489] = { 23025, 4 },
+	[16492] = { 23025, 4 },
+	[16369] = { 23025, 4 },
+	[16391] = { 23025, 4 },
+	[16413] = { 23025, 4 },
+	[16414] = { 23025, 4 },
+	[16416] = { 23025, 4 },
+	[16415] = { 23025, 4 },
+	[29076] = { 37439, 4 },
+	[29080] = { 37439, 4 },
+	[29078] = { 37439, 4 },
+	[29079] = { 37439, 4 },
+	[29077] = { 37439, 4 },
+	[22502] = { 28763, 2 },
+	[22503] = { 28763, 2 },
+	[22498] = { 28763, 2 },
+	[22501] = { 28763, 2 },
+	[22497] = { 28763, 2 },
+	[22496] = { 28763, 2 },
+	[22500] = { 28763, 2 },
+	[22499] = { 28763, 2 },
+	[23062] = { 28763, 2 },
+
+	[22430] = { 28774, 4 },
+	[22431] = { 28774, 4 },
+	[22426] = { 28774, 4 },
+	[22428] = { 28774, 4 },
+	[22427] = { 28774, 4 },
+	[22429] = { 28774, 4 },
+	[22425] = { 28774, 4 },
+	[22424] = { 28774, 4 },
+	[23066] = { 28774, 4 },
+	[27702] = { 23302, 4 },
+	[27703] = { 23302, 4 },
+	[27704] = { 23302, 4 },
+	[27705] = { 23302, 4 },
+	[27706] = { 23302, 4 },
+	[27879] = { 23302, 4 },
+	[27880] = { 23302, 4 },
+	[27881] = { 23302, 4 },
+	[27882] = { 23302, 4 },
+	[27883] = { 23302, 4 },
+	[32039] = { 23302, 4 },
+	[32040] = { 23302, 4 },
+	[32041] = { 23302, 4 },
+	[32042] = { 23302, 4 },
+	[32043] = { 23302, 4 },
+	[31992] = { 23302, 4 },
+	[31993] = { 23302, 4 },
+	[31997] = { 23302, 4 },
+	[31995] = { 23302, 4 },
+	[31996] = { 23302, 4 },
+	[33749] = { 23302, 4 },
+	[33750] = { 23302, 4 },
+	[33751] = { 23302, 4 },
+	[33752] = { 23302, 4 },
+	[33753] = { 23302, 4 },
+	[33695] = { 23302, 4 },
+	[33696] = { 23302, 4 },
+	[33697] = { 23302, 4 },
+	[33698] = { 23302, 4 },
+	[33699] = { 23302, 4 },
+	[35088] = { 23302, 4 },
+	[35089] = { 23302, 4 },
+	[35090] = { 23302, 4 },
+	[35091] = { 23302, 4 },
+	[35092] = { 23302, 4 },
+	[35027] = { 23302, 4 },
+	[35028] = { 23302, 4 },
+	[35029] = { 23302, 4 },
+	[35030] = { 23302, 4 },
+	[35031] = { 23302, 4 },
+	[40780] = class_set_bonus.paladin,
+	[40798] = class_set_bonus.paladin,
+	[40818] = class_set_bonus.paladin,
+	[40838] = class_set_bonus.paladin,
+	[40858] = class_set_bonus.paladin,
+	[40782] = class_set_bonus.paladin,
+	[40802] = class_set_bonus.paladin,
+	[40821] = class_set_bonus.paladin,
+	[40842] = class_set_bonus.paladin,
+	[40861] = class_set_bonus.paladin,
+	[40785] = class_set_bonus.paladin,
+	[40805] = class_set_bonus.paladin,
+	[40825] = class_set_bonus.paladin,
+	[40846] = class_set_bonus.paladin,
+	[40864] = class_set_bonus.paladin,
+	[40788] = class_set_bonus.paladin,
+	[40808] = class_set_bonus.paladin,
+	[40828] = class_set_bonus.paladin,
+	[40849] = class_set_bonus.paladin,
+	[40869] = class_set_bonus.paladin,
+	[40792] = class_set_bonus.paladin,
+	[40812] = class_set_bonus.paladin,
+	[40831] = class_set_bonus.paladin,
+	[40852] = class_set_bonus.paladin,
+	[40872] = class_set_bonus.paladin,
+	[51474] = class_set_bonus.paladin,
+	[51475] = class_set_bonus.paladin,
+	[51476] = class_set_bonus.paladin,
+	[51477] = class_set_bonus.paladin,
+	[51479] = class_set_bonus.paladin,
+
+	[35402] = { 23302, 4 },
+	[35403] = { 23302, 4 },
+	[35404] = { 23302, 4 },
+	[35405] = { 23302, 4 },
+	[35406] = { 23302, 4 },
+	[35476] = { 23302, 4 },
+	[35412] = { 23302, 4 },
+	[35413] = { 23302, 4 },
+	[35477] = { 23302, 4 },
+	[35414] = { 23302, 4 },
+	[35415] = { 23302, 4 },
+	[35416] = { 23302, 4 },
+	[28679] = { 23302, 4 },
+	[28680] = { 23302, 4 },
+	[28681] = { 23302, 4 },
+	[28724] = { 23302, 4 },
+	[28683] = { 23302, 4 },
+	[28709] = { 23302, 4 },
+	[28710] = { 23302, 4 },
+	[28711] = { 23302, 4 },
+	[28712] = { 23302, 4 },
+	[28713] = { 23302, 4 },
+	[28831] = { 23302, 4 },
+	[28832] = { 23302, 4 },
+	[28833] = { 23302, 4 },
+	[28834] = { 23302, 4 },
+	[28835] = { 23302, 4 },
+	[28861] = { 23302, 4 },
+	[28862] = { 23302, 4 },
+	[28863] = { 23302, 4 },
+	[28864] = { 23302, 4 },
+	[28865] = { 23302, 4 },
+	[16473] = { 23302, 3 },
+	[16474] = { 23302, 3 },
+	[16476] = { 23302, 3 },
+	[16472] = { 23302, 3 },
+	[16471] = { 23302, 3 },
+	[16475] = { 23302, 3 },
+	[29612] = { 23302, 3 },
+	[29613] = { 23302, 3 },
+	[29614] = { 23302, 3 },
+	[29615] = { 23302, 3 },
+	[29616] = { 23302, 3 },
+	[29617] = { 23302, 3 },
+	[29600] = { 23302, 3 },
+	[29601] = { 23302, 3 },
+	[29602] = { 23302, 3 },
+	[29603] = { 23302, 3 },
+	[29604] = { 23302, 3 },
+	[29605] = { 23302, 3 },
+	[23272] = { 23302, 4 },
+	[23273] = { 23302, 4 },
+	[23274] = { 23302, 4 },
+	[23275] = { 23302, 4 },
+	[23276] = { 23302, 4 },
+	[23277] = { 23302, 4 },
+	[16410] = { 23302, 4 },
+	[16409] = { 23302, 4 },
+	[16433] = { 23302, 4 },
+	[16435] = { 23302, 4 },
+	[16434] = { 23302, 4 },
+	[16436] = { 23302, 4 },
+	[29062] = { 37183, 4 },
+	[29061] = { 37183, 4 },
+	[29065] = { 37183, 4 },
+	[29063] = { 37183, 4 },
+	[29064] = { 37183, 4 },
+	[28203] = { 37181, 4 },
+	[27535] = { 37181, 4 },
+	[28285] = { 37181, 4 },
+	[27839] = { 37181, 4 },
+	[27739] = { 37181, 4 },
+
+	[28684] = { 23048, 4 },
+	[28685] = { 23048, 4 },
+	[28686] = { 23048, 4 },
+	[28687] = { 23048, 4 },
+	[28688] = { 23048, 4 },
+	[28836] = { 23048, 4 },
+	[28837] = { 23048, 4 },
+	[28838] = { 23048, 4 },
+	[28839] = { 23048, 4 },
+	[28840] = { 23048, 4 },
+	[35366] = { 23048, 4 },
+	[35367] = { 23048, 4 },
+	[35368] = { 23048, 4 },
+	[35369] = { 23048, 4 },
+	[35370] = { 23048, 4 },
+	[16453] = { 23048, 3 },
+	[16457] = { 23048, 3 },
+	[16455] = { 23048, 3 },
+	[16446] = { 23048, 3 },
+	[16454] = { 23048, 3 },
+	[16456] = { 23048, 3 },
+	[16563] = { 23048, 3 },
+	[16561] = { 23048, 3 },
+	[16562] = { 23048, 3 },
+	[16564] = { 23048, 3 },
+	[16560] = { 23048, 3 },
+	[16558] = { 23048, 3 },
+	[22864] = { 23048, 4 },
+	[22856] = { 23048, 4 },
+	[22879] = { 23048, 4 },
+	[22880] = { 23048, 4 },
+	[23257] = { 23048, 4 },
+	[23258] = { 23048, 4 },
+	[23298] = { 23048, 4 },
+	[23299] = { 23048, 4 },
+	[23284] = { 23048, 4 },
+	[23285] = { 23048, 4 },
+	[23312] = { 23048, 4 },
+	[23313] = { 23048, 4 },
+	[16498] = { 23048, 4 },
+	[16499] = { 23048, 4 },
+	[16505] = { 23048, 4 },
+	[16508] = { 23048, 4 },
+	[16506] = { 23048, 4 },
+	[16507] = { 23048, 4 },
+	[16392] = { 23048, 4 },
+	[16396] = { 23048, 4 },
+	[16417] = { 23048, 4 },
+	[16419] = { 23048, 4 },
+	[16420] = { 23048, 4 },
+	[16418] = { 23048, 4 },
+	[16827] = { 21874, 2 },
+	[16824] = { 21874, 2 },
+	[16825] = { 21874, 2 },
+	[16820] = { 21874, 2 },
+	[16821] = { 21874, 2 },
+	[16826] = { 21874, 2 },
+	[16822] = { 21874, 2 },
+	[16823] = { 21874, 2 },
+	[19617] = { 24469, 3 },
+	[19954] = { 24469, 3 },
+	[19836] = { 24469, 3 },
+	[19835] = { 24469, 3 },
+	[19834] = { 24469, 3 },
+	[21359] = { 26112, 3 },
+	[21360] = { 26112, 3 },
+	[21361] = { 26112, 3 },
+	[21362] = { 26112, 3 },
+	[21364] = { 26112, 3 },
+
+	[31396] = class_set_bonus.shaman,
+	[31397] = class_set_bonus.shaman,
+	[31400] = class_set_bonus.shaman,
+	[31406] = class_set_bonus.shaman,
+	[31407] = class_set_bonus.shaman,
+	[32029] = class_set_bonus.shaman,
+	[32030] = class_set_bonus.shaman,
+	[32031] = class_set_bonus.shaman,
+	[32032] = class_set_bonus.shaman,
+	[32033] = class_set_bonus.shaman,
+	[33738] = class_set_bonus.shaman,
+	[33739] = class_set_bonus.shaman,
+	[33740] = class_set_bonus.shaman,
+	[33741] = class_set_bonus.shaman,
+	[33742] = class_set_bonus.shaman,
+	[35077] = class_set_bonus.shaman,
+	[35078] = class_set_bonus.shaman,
+	[35079] = class_set_bonus.shaman,
+	[35080] = class_set_bonus.shaman,
+	[35081] = class_set_bonus.shaman,
+	[40987] = class_set_bonus.shaman,
+	[41004] = class_set_bonus.shaman,
+	[41016] = class_set_bonus.shaman,
+	[41030] = class_set_bonus.shaman,
+	[41041] = class_set_bonus.shaman,
+	[40986] = class_set_bonus.shaman,
+	[40998] = class_set_bonus.shaman,
+	[41010] = class_set_bonus.shaman,
+	[41023] = class_set_bonus.shaman,
+	[41024] = class_set_bonus.shaman,
+	[40989] = class_set_bonus.shaman,
+	[41005] = class_set_bonus.shaman,
+	[41017] = class_set_bonus.shaman,
+	[41031] = class_set_bonus.shaman,
+	[41042] = class_set_bonus.shaman,
+	[40988] = class_set_bonus.shaman,
+	[40999] = class_set_bonus.shaman,
+	[41011] = class_set_bonus.shaman,
+	[41025] = class_set_bonus.shaman,
+	[41036] = class_set_bonus.shaman,
+	[40991] = class_set_bonus.shaman,
+	[41006] = class_set_bonus.shaman,
+	[41018] = class_set_bonus.shaman,
+	[41032] = class_set_bonus.shaman,
+	[41043] = class_set_bonus.shaman,
+	[40990] = class_set_bonus.shaman,
+	[41000] = class_set_bonus.shaman,
+	[41012] = class_set_bonus.shaman,
+	[41026] = class_set_bonus.shaman,
+	[41037] = class_set_bonus.shaman,
+	[40993] = class_set_bonus.shaman,
+	[41007] = class_set_bonus.shaman,
+	[41019] = class_set_bonus.shaman,
+	[41033] = class_set_bonus.shaman,
+	[41044] = class_set_bonus.shaman,
+	[40992] = class_set_bonus.shaman,
+	[41001] = class_set_bonus.shaman,
+	[41013] = class_set_bonus.shaman,
+	[41027] = class_set_bonus.shaman,
+	[41038] = class_set_bonus.shaman,
+	[40995] = class_set_bonus.shaman,
+	[41008] = class_set_bonus.shaman,
+	[41020] = class_set_bonus.shaman,
+	[41034] = class_set_bonus.shaman,
+	[41045] = class_set_bonus.shaman,
+	[40994] = class_set_bonus.shaman,
+	[41002] = class_set_bonus.shaman,
+	[41014] = class_set_bonus.shaman,
+	[41028] = class_set_bonus.shaman,
+	[41039] = class_set_bonus.shaman,
+	[51509] = class_set_bonus.shaman,
+	[51510] = class_set_bonus.shaman,
+	[51511] = class_set_bonus.shaman,
+	[51512] = class_set_bonus.shaman,
+	[51514] = class_set_bonus.shaman,
+	[51497] = class_set_bonus.shaman,
+	[51498] = class_set_bonus.shaman,
+	[51499] = class_set_bonus.shaman,
+	[51500] = class_set_bonus.shaman,
+	[51502] = class_set_bonus.shaman,
+
+	[29032] = { 37211, 4 },
+	[29029] = { 37211, 4 },
+	[29028] = { 37211, 4 },
+	[29030] = { 37211, 4 },
+	[29031] = { 37211, 4 },
+	[35391] = { 38466, 4 },
+	[35392] = { 38466, 4 },
+	[35393] = { 38466, 4 },
+	[35394] = { 38466, 4 },
+	[35395] = { 38466, 4 },
+	[31640] = { 38499, 4 },
+	[31641] = { 38499, 4 },
+	[31642] = { 38499, 4 },
+	[31643] = { 38499, 4 },
+	[31644] = { 38499, 4 },
+	[31646] = { 38499, 4 },
+	[31647] = { 38499, 4 },
+	[31648] = { 38499, 4 },
+	[31649] = { 38499, 4 },
+	[31650] = { 38499, 4 },
+	[25997] = class_set_bonus.enhance,
+	[26000] = class_set_bonus.enhance,
+	[25998] = class_set_bonus.enhance,
+	[26001] = class_set_bonus.enhance,
+	[25999] = class_set_bonus.enhance,
+	[32004] = class_set_bonus.enhance,
+	[32005] = class_set_bonus.enhance,
+	[32006] = class_set_bonus.enhance,
+	[32007] = class_set_bonus.enhance,
+	[32008] = class_set_bonus.enhance,
+	[33706] = class_set_bonus.enhance,
+	[33707] = class_set_bonus.enhance,
+	[33708] = class_set_bonus.enhance,
+	[33709] = class_set_bonus.enhance,
+	[33710] = class_set_bonus.enhance,
+	[35042] = class_set_bonus.enhance,
+	[35043] = class_set_bonus.enhance,
+	[35044] = class_set_bonus.enhance,
+	[35045] = class_set_bonus.enhance,
+	[35046] = class_set_bonus.enhance,
+	[41078] = class_set_bonus.enhance,
+	[41134] = class_set_bonus.enhance,
+	[41148] = class_set_bonus.enhance,
+	[41160] = class_set_bonus.enhance,
+	[41208] = class_set_bonus.enhance,
+	[41079] = class_set_bonus.enhance,
+	[41135] = class_set_bonus.enhance,
+	[41149] = class_set_bonus.enhance,
+	[41162] = class_set_bonus.enhance,
+	[41209] = class_set_bonus.enhance,
+	[41080] = class_set_bonus.enhance,
+	[41136] = class_set_bonus.enhance,
+	[41150] = class_set_bonus.enhance,
+	[41198] = class_set_bonus.enhance,
+	[41210] = class_set_bonus.enhance,
+	[41081] = class_set_bonus.enhance,
+	[41137] = class_set_bonus.enhance,
+	[41151] = class_set_bonus.enhance,
+	[41199] = class_set_bonus.enhance,
+	[41211] = class_set_bonus.enhance,
+	[41082] = class_set_bonus.enhance,
+	[41138] = class_set_bonus.enhance,
+	[41152] = class_set_bonus.enhance,
+	[41200] = class_set_bonus.enhance,
+	[41212] = class_set_bonus.enhance,
+	[51503] = class_set_bonus.enhance,
+	[51504] = class_set_bonus.enhance,
+	[51505] = class_set_bonus.enhance,
+	[51506] = class_set_bonus.enhance,
+	[51508] = class_set_bonus.enhance,
+
+	[28689] = class_set_bonus.enhance,
+	[28690] = class_set_bonus.enhance,
+	[28691] = class_set_bonus.enhance,
+	[28692] = class_set_bonus.enhance,
+	[28693] = class_set_bonus.enhance,
+	[28841] = class_set_bonus.enhance,
+	[28842] = class_set_bonus.enhance,
+	[28843] = class_set_bonus.enhance,
+	[28844] = class_set_bonus.enhance,
+	[28845] = class_set_bonus.enhance,
+	[35381] = class_set_bonus.enhance,
+	[35382] = class_set_bonus.enhance,
+	[35383] = class_set_bonus.enhance,
+	[35384] = class_set_bonus.enhance,
+	[35385] = class_set_bonus.enhance,
+
+	[19605] = { 24487, 5 },
+	[19957] = { 24487, 5 },
+	[19848] = { 24487, 5 },
+	[19849] = { 24487, 5 },
+	[20033] = { 24487, 5 },
+
+	[19951] = { 24456, 3 },
+	[19577] = { 24456, 3 },
+	[19824] = { 24456, 3 },
+	[19823] = { 24456, 3 },
+	[19822] = { 24456, 3 },
+	[24544] = class_set_bonus.warrior,
+	[24549] = class_set_bonus.warrior,
+	[24545] = class_set_bonus.warrior,
+	[24547] = class_set_bonus.warrior,
+	[24546] = class_set_bonus.warrior,
+	[30486] = class_set_bonus.warrior,
+	[30487] = class_set_bonus.warrior,
+	[30488] = class_set_bonus.warrior,
+	[30489] = class_set_bonus.warrior,
+	[30490] = class_set_bonus.warrior,
+	[33728] = class_set_bonus.warrior,
+	[33729] = class_set_bonus.warrior,
+	[33730] = class_set_bonus.warrior,
+	[33731] = class_set_bonus.warrior,
+	[33732] = class_set_bonus.warrior,
+	[35066] = class_set_bonus.warrior,
+	[35067] = class_set_bonus.warrior,
+	[35068] = class_set_bonus.warrior,
+	[35069] = class_set_bonus.warrior,
+	[35070] = class_set_bonus.warrior,
+	[40778] = class_set_bonus.warrior,
+	[40797] = class_set_bonus.warrior,
+	[40816] = class_set_bonus.warrior,
+	[40836] = class_set_bonus.warrior,
+	[40856] = class_set_bonus.warrior,
+	[40783] = class_set_bonus.warrior,
+	[40801] = class_set_bonus.warrior,
+	[40819] = class_set_bonus.warrior,
+	[40840] = class_set_bonus.warrior,
+	[40859] = class_set_bonus.warrior,
+	[40786] = class_set_bonus.warrior,
+	[40804] = class_set_bonus.warrior,
+	[40823] = class_set_bonus.warrior,
+	[40844] = class_set_bonus.warrior,
+	[40862] = class_set_bonus.warrior,
+	[40789] = class_set_bonus.warrior,
+	[40807] = class_set_bonus.warrior,
+	[40826] = class_set_bonus.warrior,
+	[40847] = class_set_bonus.warrior,
+	[40866] = class_set_bonus.warrior,
+	[40790] = class_set_bonus.warrior,
+	[40810] = class_set_bonus.warrior,
+	[40829] = class_set_bonus.warrior,
+	[40850] = class_set_bonus.warrior,
+	[40870] = class_set_bonus.warrior,
+	[51541] = class_set_bonus.warrior,
+	[51542] = class_set_bonus.warrior,
+	[51543] = class_set_bonus.warrior,
+	[51544] = class_set_bonus.warrior,
+	[51545] = class_set_bonus.warrior,
+
+	[28699] = class_set_bonus.warrior,
+	[28700] = class_set_bonus.warrior,
+	[28701] = class_set_bonus.warrior,
+	[28702] = class_set_bonus.warrior,
+	[28703] = class_set_bonus.warrior,
+	[28851] = class_set_bonus.warrior,
+	[28852] = class_set_bonus.warrior,
+	[28853] = class_set_bonus.warrior,
+	[28854] = class_set_bonus.warrior,
+	[28855] = class_set_bonus.warrior,
+	[35407] = class_set_bonus.warrior,
+	[35408] = class_set_bonus.warrior,
+	[35409] = class_set_bonus.warrior,
+	[35410] = class_set_bonus.warrior,
+	[35411] = class_set_bonus.warrior,
+	[16477] = { 22738, 3 },
+	[16478] = { 22738, 3 },
+	[16480] = { 22738, 3 },
+	[16483] = { 22738, 3 },
+	[16484] = { 22738, 3 },
+	[16479] = { 22738, 3 },
+	[16541] = { 22738, 3 },
+	[16542] = { 22738, 3 },
+	[16544] = { 22738, 3 },
+	[16545] = { 22738, 3 },
+	[16548] = { 22738, 3 },
+	[16543] = { 22738, 3 },
+	[22868] = class_set_bonus.warrior,
+	[22858] = class_set_bonus.warrior,
+	[22872] = class_set_bonus.warrior,
+	[22873] = class_set_bonus.warrior,
+	[23244] = class_set_bonus.warrior,
+	[23243] = class_set_bonus.warrior,
+	[23300] = class_set_bonus.warrior,
+	[23301] = class_set_bonus.warrior,
+	[23286] = class_set_bonus.warrior,
+	[23287] = class_set_bonus.warrior,
+	[23314] = class_set_bonus.warrior,
+	[23315] = class_set_bonus.warrior,
+	[16509] = class_set_bonus.warrior,
+	[16510] = class_set_bonus.warrior,
+	[16513] = class_set_bonus.warrior,
+	[16515] = class_set_bonus.warrior,
+	[16514] = class_set_bonus.warrior,
+	[16516] = class_set_bonus.warrior,
+	[16405] = class_set_bonus.warrior,
+	[16406] = class_set_bonus.warrior,
+	[16430] = class_set_bonus.warrior,
+	[16431] = class_set_bonus.warrior,
+	[16429] = class_set_bonus.warrior,
+	[16432] = class_set_bonus.warrior,
 }
--- Cata
+
 local cataClassSets = {
 	druid = {
-		64764, 64765, 64766, 64767, 64768, -- Bloodthirsty Gladiator's Refuge
-		60448, 60449, 60450, 60451, 60452, -- Vicious Gladiator's Refuge 365
-		65533, 65534, 65535, 65539, 65540, -- Ruthless Gladiator's Refuge 365
-		70580, 70581, 70582, 70583, 70584, -- Vicious Gladiator's Refuge 371
+		64764, 64765, 64766, 64767, 64768,
+		60448, 60449, 60450, 60451, 60452,
+		65533, 65534, 65535, 65539, 65540,
+		70580, 70581, 70582, 70583, 70584,
 	},
 	paladin = {
-		64843, 64844, 64845, 64846, 64847, -- Bloodthirsty Gladiator's Vindication
-		60413, 60414, 60415, 60416, 60417, -- Vicious Gladiator's Vindication 365
-		65585, 65586, 65590, 65591, 65592, -- Ruthless Gladiator's Vindication 365
-		70648, 70648, 70648, 70648, 70648, -- Vicious Gladiator's Vindication 371
+		64843, 64844, 64845, 64846, 64847,
+		60413, 60414, 60415, 60416, 60417,
+		65585, 65586, 65590, 65591, 65592,
+		70648, 70648, 70648, 70648, 70648,
 	},
 	shaman = {
-		64827, 64828, 64829, 64830, 64831, -- Bloodthirsty Gladiator's Wartide
-		60428, 60429, 60430, 60431, 60432, -- Vicious Gladiator's Wartide 365
-		65536, 65567, 65568, 65569, 65570, -- Ruthless Gladiator's Wartide 365
-		70632, 70633, 70634, 70635, 70636, -- Vicious Gladiator's Wartide 371
+		64827, 64828, 64829, 64830, 64831,
+		60428, 60429, 60430, 60431, 60432,
+		65536, 65567, 65568, 65569, 65570,
+		70632, 70633, 70634, 70635, 70636,
 	},
 	warlock = {
-		64745, 64746, 64747, 64748, 64749, -- Bloodthirsty Gladiator's FelShroud
-		60478, 60479, 60480, 60481, 60482, -- Vicious Gladiator's FelShroud 365
-		65528, 65529, 65530, 65571, 65572, -- Ruthless Gladiator's FelShroud 365
-		70566, 70567, 70568, 70569, 70570, -- Vicious Gladiator's FelShroud 371
+		64745, 64746, 64747, 64748, 64749,
+		60478, 60479, 60480, 60481, 60482,
+		65528, 65529, 65530, 65571, 65572,
+		70566, 70567, 70568, 70569, 70570,
 	},
 }
 for class, t in pairs(cataClassSets) do
@@ -2032,37 +2037,37 @@ end
 
 E.item_unity = E.BLANK
 
---
--- CM\SYNC
---
+
+
+
 
 E.sync_cooldowns = {
 	["ALL"] = {},
 	["DEATHKNIGHT"] = {
-		[48982] = { 48982, {52284, 81163, 81164} }, -- Rune Tap, Will of the Necropolis (Rank 1/2/3)
-		-- [When a damaging attack brings you below 30% of your maximum health,
-		-- the cooldown on your Rune Tap ability is refreshed and your next Rune Tap has no cost]
-		[49576] = { {59309, 49588, 49589} }, -- Death Grip, Glyph of Resilient Grip, Unholy Command (Rank 1/2)
-		-- [When your Death Grip ability fails because its target is immune, its cooldown is reset.]
-		-- [50/100% chance to refresh its cooldown when dealing a killing blow to a target that grants experience or honor.]
+		[48982] = { 48982, {52284, 81163, 81164} },
+
+
+		[49576] = { {59309, 49588, 49589} },
+
+
 	},
 	["HUNTER"] = {
-		[781] = { {82898, 82899} }, -- Disengage, "Crouching Tiger, Hidden Chimera" (Rank 1/2)
-		[34477] = { 56829 }, -- Misdirection, Glyph of Misdirection [Misdirection on pet incurs no cd]
+		[781] = { {82898, 82899} },
+		[34477] = { 56829 },
 	},
 	["PALADIN"] = {
-		[31935] = { 63646, {75806, 85043} }, -- Avenger's Shield, Grand Crusader (Rank 1/2)
-		-- [10%/20% chance of refreshing the cooldown on your next Avenger's Shield]
+		[31935] = { 63646, {75806, 85043} },
+
 	},
 	["WARLOCK"] = {
-		[47241] = { 59672, {85106, 85107, 85108} } -- Metamorphosis (talentId), Impending Doom (Rank 1/2/3)
-		-- [Shadow Bolt, Hand of Gul'dan, Soul Fire, and Incinerate spells a 5/10/15% chance to reduce the
-		-- cooldown of your Demon Form by 15 sec.]
+		[47241] = { 59672, {85106, 85107, 85108} }
+
+
 	},
 }
 
 E.sync_periodic = {
-	[34477] = true, -- XXX preactive periodic added to P\CD
+	[34477] = true,
 }
 
 E.sync_in_raid = E.BLANK

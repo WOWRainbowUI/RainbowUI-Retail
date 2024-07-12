@@ -1,5 +1,7 @@
 local E, L = select(2, ...):unpack()
 
+local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+
 local unitFrameData = {
 	--[[
 		[1] = AddOn name

@@ -21,6 +21,8 @@ L["|cffff2020Important!|r Covenant and Soulbind Conduit data can only be acquire
 L["> 1 minute"] = "> 1 minuto"
 L["0: Disable option"] = "0: Deshabilita esta opción"
 --[[Translation missing --]]
+L["0: Raid Frame, 1: Interrupt Bar, 2-8: Extra Bar"] = "0: Raid Frame, 1: Interrupt Bar, 2-8: Extra Bar"
+--[[Translation missing --]]
 L["2nd Row Icons (Double Row Layout)"] = "2nd Row Icons (Double Row Layout)"
 --[[Translation missing --]]
 L["2px Border"] = "2px Border"
@@ -51,6 +53,8 @@ L["Always attach to Blizzard frames. By default, bars attach to whichever frame 
 --[[Translation missing --]]
 L["Always Bottom"] = "Always Bottom"
 --[[Translation missing --]]
+L["Always Show"] = "Always Show"
+--[[Translation missing --]]
 L["Always Show Cooldown Numbers"] = "Always Show Cooldown Numbers"
 --[[Translation missing --]]
 L["Always Top"] = "Always Top"
@@ -60,6 +64,8 @@ L["Anchor Point"] = "Punto de anclaje"
 L["Anchor Position"] = "Anchor Position"
 --[[Translation missing --]]
 L["Animate"] = "Animate"
+--[[Translation missing --]]
+L["AOE CC"] = "AOE CC"
 --[[Translation missing --]]
 L["Apply 'Icons' alpha settings to the status bar"] = "Apply 'Icons' alpha settings to the status bar"
 L["Ascending"] = "Ascendente"
@@ -84,6 +90,8 @@ L["Border Color"] = "Color del borde"
 L["Border Thickness"] = "Grosor del borde"
 L["Borders retain 1px width regardless of the UI scale"] = "Los bordes conservan el ancho de 1 px independientemente de la escala de interfaz"
 L["Borders retain 1px width regardless of the UI scale. Need to reload the UI when the UI or icon scale changes"] = "Los bordes conservan el ancho de 1 px independientemente de la escala de interfaz. Es necesario recargar la interfaz cuando cambia la escala de interfaz o del icono"
+--[[Translation missing --]]
+L["Both"] = "Both"
 L["BOTTOM"] = "INFERIOR"
 L["BOTTOMLEFT"] = "INFERIOR IZQUIERDA"
 L["BOTTOMRIGHT"] = "INFERIOR DERECHA"
@@ -117,6 +125,8 @@ L["Column"] = "Columna"
 --[[Translation missing --]]
 L["Column Padding"] = "Column Padding"
 L["Commands:"] = "Comandos:"
+--[[Translation missing --]]
+L["Condition"] = "Condition"
 L["Convert the status bar timer to a simple name display by disabling all timer functions. The 'Name' color scheme will be retained."] = "Convierte el temporizador en barra en un nombre simple deshabilitando todas las funciones de temporizador. Se conservará el esquema de color en el 'nombre'."
 --[[Translation missing --]]
 L["Convert to additional CD bars that attach to each unit's raid frame."] = "Convert to additional CD bars that attach to each unit's raid frame."
@@ -231,6 +241,16 @@ L["For double/triple layout, it will limit the number of icons per line"] = [=[P
 ]=]
 --[[Translation missing --]]
 L["Force Disable"] = "Force Disable"
+--[[Translation missing --]]
+L["Frame"] = "Frame"
+--[[Translation missing --]]
+L["Freedom"] = "Freedom"
+--[[Translation missing --]]
+L["Glow"] = "Glow"
+--[[Translation missing --]]
+L["Glow Border"] = "Glow Border"
+--[[Translation missing --]]
+L["Glow condition can be changed from the Highlighting tab."] = "Glow condition can be changed from the Highlighting tab."
 L["Glow Icons"] = "Resplandor de iconos"
 --[[Translation missing --]]
 L["Group member must have OmniCD to detect cooldown reduction by Glyphs."] = "Group member must have OmniCD to detect cooldown reduction by Glyphs."
@@ -246,8 +266,14 @@ L["Group Size"] = "Tamaño del grupo"
 L["Group Type"] = "Tipo de grupo"
 L["Grow Columns Left"] = "Crecer columnas hacia la izquierda"
 L["Grow Rows Upward"] = "Crecer filas hacia arriba"
+--[[Translation missing --]]
+L["Hard CC"] = "Hard CC"
 L["Having \"BOTTOM\" in the anchor point, icons grow upward, otherwise downward"] = "Teniendo \"INFERIOR\" en el punto de anclaje, los iconos crecerán hacia arriba, de lo contrario hacia abajo"
 L["Having \"RIGHT\" in the anchor point, icons grow left, otherwise right"] = "Teniendo \"DERECHA\" en el punto de anclaje, los iconos crecerán hacia la izquierda, de lo contrario hacia la derecha"
+--[[Translation missing --]]
+L["Heal"] = "Heal"
+--[[Translation missing --]]
+L["Healthstone and Demonic Gateway are added on cast"] = "Healthstone and Demonic Gateway are added on cast"
 L["Help Translate"] = "Ayuda a traducir"
 L["Hide Border"] = "Ocultar borde"
 L["Hide Disabled Spells"] = "Ocultar hechizos deshabilitados"
@@ -323,6 +349,8 @@ L["MM:SS Threshold"] = "Umbral MM:SS"
 L["Mouseovering the icon will show the interrupted spell information regardless of 'Show Tooltip' option."] = "Al pasar el mouse sobre el icono se mostrará la información del hechizo interrumpido independientemente de la opción 'mostrar descripciones emergentes'."
 L["Move your group's Interrupt spells to the Interrupt Bar."] = "Mueve los hechizos de interrupción de tu grupo a la barra de interrupción."
 L["Move your group's Raid Cooldowns to the Raid Bar."] = "Mueve los tiempos de reutilización de banda de tu grupo a la barra de banda."
+--[[Translation missing --]]
+L["Movement"] = "Movement"
 L["Multiselect"] = "Selección múltiple"
 L["Name Bar"] = "Barra de nombre"
 L["Name Offset X"] = "Posición X del nombre"
@@ -342,9 +370,15 @@ L["Offensive"] = "Ofensivos"
 L["Offset X"] = "Posición X"
 L["Offset Y"] = "Posición Y"
 --[[Translation missing --]]
+L["Only applies to spells that have Glow enabled in the Spells tab"] = "Only applies to spells that have Glow enabled in the Spells tab"
+--[[Translation missing --]]
 L[ [=[Only for talent abilities.
 Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=] ] = [=[Only for talent abilities.
 Current ability for this specialization will no longer be tracked while you are in the selected zone(s)]=]
+--[[Translation missing --]]
+L["Override spell-type frame."] = "Override spell-type frame."
+--[[Translation missing --]]
+L["Override spell-type priority."] = "Override spell-type priority."
 --[[Translation missing --]]
 L["Padding"] = "Padding"
 L["Padding X"] = "Espaciado X"
@@ -389,6 +423,10 @@ L["Raid Defensive"] = "Defensivos de banda"
 L["Raid Frames for testing doesn't exist for %s. If it fails to load, configure OmniCD while in a group or temporarily set it to 'Manual Mode'."] = "Raid Frames for testing doesn't exist for %s. If it fails to load, configure OmniCD while in a group or temporarily set it to 'Manual Mode'."
 L["Raid Movement"] = "Movimientos de banda"
 L["Recharge"] = "Recarga"
+--[[Translation missing --]]
+L["Redirect Spells"] = "Redirect Spells"
+--[[Translation missing --]]
+L["Redirect spells to the raid frame instead of removing them when this bar is disabled."] = "Redirect spells to the raid frame instead of removing them when this bar is disabled."
 L["Reload addon."] = "Recarga este accesorio."
 --[[Translation missing --]]
 L["Reload UI?"] = "Reload UI?"
@@ -411,6 +449,8 @@ L["Row Breakpoint"] = "Row Breakpoint"
 L["Same category units are sorted alphabetically in ascending order"] = "Same category units are sorted alphabetically in ascending order"
 --[[Translation missing --]]
 L["Select a spell type to enable all spells in that category for all classes"] = "Select a spell type to enable all spells in that category for all classes"
+--[[Translation missing --]]
+L["Select a value lower than Breakpoint1"] = "Select a value lower than Breakpoint1"
 L["Select addon to override auto anchoring"] = "Seleccione el accesorio a anular su anclaje automático"
 --[[Translation missing --]]
 L["Select how the player frame is displayed inside the party frame"] = "Select how the player frame is displayed inside the party frame"
@@ -419,9 +459,15 @@ L["Select the column(s) that you want the rows to grow upwards."] = "Select the 
 --[[Translation missing --]]
 L["Select the column(s) that you want to detach and position manually."] = "Select the column(s) that you want to detach and position manually."
 --[[Translation missing --]]
+L["Select the frame to use as default for each spell type."] = "Select the frame to use as default for each spell type."
+--[[Translation missing --]]
 L["Select the group size for which you want to set the spell bar position"] = "Select the group size for which you want to set the spell bar position"
 L["Select the highest priority spell type to use as the start of the 2nd row"] = "Seleccione el tipo de hechizo de mayor prioridad para usar como inicio de la segunda fila"
 L["Select the highest priority spell type to use as the start of the 3rd row"] = "Seleccione el tipo de hechizo de mayor prioridad para usar como inicio de la tercera fila"
+--[[Translation missing --]]
+L["Select the highest spell priority to use as the start of the 2nd row"] = "Select the highest spell priority to use as the start of the 2nd row"
+--[[Translation missing --]]
+L["Select the highest spell priority to use as the start of the 3rd row"] = "Select the highest spell priority to use as the start of the 3rd row"
 L["Select the icon layout"] = "Seleccione la distribución de los iconos"
 --[[Translation missing --]]
 L["Select the spell types you want to display on this column."] = "Select the spell types you want to display on this column."
@@ -493,6 +539,8 @@ L["Show Trinket Only"] = "Show Trinket Only"
 --[[Translation missing --]]
 L["Size"] = "Size"
 L["Slash Commands"] = "Comandos"
+--[[Translation missing --]]
+L["Soft CC"] = "Soft CC"
 L["Sort Direction"] = "Orden de dirección"
 L["Sort Order"] = "Orden de clasificación"
 L["Source Profile"] = "Perfil de origen"
@@ -500,8 +548,12 @@ L["Source Profile"] = "Perfil de origen"
 L["Spacing"] = "Spacing"
 L["Spell Editor"] = "Editor de hechizos"
 L["Spell ID"] = "ID de hechizo"
+--[[Translation missing --]]
+L["Spell Priority"] = "Spell Priority"
 L["Spell Types"] = "Tipos de hechizo"
 L["Spells"] = "Hechizos"
+--[[Translation missing --]]
+L["Spell-Type Priority"] = "Spell-Type Priority"
 L["Status Bar"] = "Barra de estado"
 L["Status Bar Timer"] = "Temporizador de la barra de estado"
 L["Strong Yellow Glow"] = "Resplandor amarillo fuerte"
@@ -512,6 +564,10 @@ L["Synchronize"] = "Synchronize"
 --[[Translation missing --]]
 L["Talent Ability"] = "Talent Ability"
 L["Talent ID"] = "ID de talento"
+--[[Translation missing --]]
+L["Tank Defensive"] = "Tank Defensive"
+--[[Translation missing --]]
+L["Taunt"] = "Taunt"
 L["Test"] = "Prueba"
 --[[Translation missing --]]
 L["Test frames will be hidden once player is out of combat"] = "Test frames will be hidden once player is out of combat"
@@ -547,6 +603,10 @@ L["Truncate Name"] = "Truncar nombre"
 L["UI Scale Changed."] = "UI Scale Changed."
 --[[Translation missing --]]
 L["Unit CD bars are limited to 5 man groups unless Blizzard Raid Frames are used."] = "Unit CD bars are limited to 5 man groups unless Blizzard Raid Frames are used."
+--[[Translation missing --]]
+L["Unusable"] = "Unusable"
+--[[Translation missing --]]
+L["Usable"] = "Usable"
 L["Usage:"] = "Uso:"
 L["Use a semi-colon(;) to seperate multiple IDs."] = "Usar un punto y coma (;) para separar múltiples ID."
 --[[Translation missing --]]
@@ -564,6 +624,8 @@ L["Use this setting for all group sizes"] = "Use this setting for all group size
 L["Use Triple Column"] = "Usar triple columna"
 L["Use Triple Row"] = "Usar triple fila"
 L["Use Zone Settings From:"] = "Usar configuración de zona de:"
+--[[Translation missing --]]
+L["Utility"] = "Utility"
 L["Utils"] = "Utilidades"
 L["Value 'Manual Position' includes Interrupt and Raid Bar's saved positions."] = "La opción 'posición manual' incluye las posiciones guardadas de las barras de interrupciones y de banda."
 L["Version"] = "Versión"
@@ -574,5 +636,9 @@ L["Vertical + CD Groups"] = "Vertical + CD Groups"
 L["Vertical Groups"] = "Vertical Groups"
 L["Visibility"] = "Visibilidad"
 L["Weak Purple Glow"] = "Resplandor púrpura débil"
+--[[Translation missing --]]
+L["You can mangage spell types for all bars from the Frame option"] = "You can mangage spell types for all bars from the Frame option"
+--[[Translation missing --]]
+L["You can override this setting on individual spells from the Spells tab."] = "You can override this setting on individual spells from the Spells tab."
 --[[Translation missing --]]
 L["You must manually enable either the 'Party Frames' or 'Raid Frames' in Blizzard's 'HUD Edit Mode'."] = "You must manually enable either the 'Party Frames' or 'Raid Frames' in Blizzard's 'HUD Edit Mode'."

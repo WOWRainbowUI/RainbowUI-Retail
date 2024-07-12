@@ -7,6 +7,8 @@ local LibDeflate = LibStub("LibDeflate")
 local ACD_Tooltip = E.Libs.ACD.tooltip
 local Dialog
 
+local PS_VERSION = "OmniCD2"
+
 local function Move_OnMouseDown(self, button)
 	if button == "LeftButton" and not self.isMoving then
 		self:StartMoving()
@@ -261,12 +263,12 @@ function PS:Decode(encodedData)
 		return "^^"
 	end)
 
-	if not appendage or not strfind(appendage, E.AddOn) then
+	if not appendage or not strfind(appendage, PS_VERSION) then
 		ErrorMessage(L["Not an OmniCD profile!"])
 		return
 	end
 
-	appendage = gsub(appendage, "^OmniCD", "")
+	appendage = gsub(appendage, "^" .. PS_VERSION, "")
 	local profileType, profileKey = strsplit(",", appendage, 2)
 
 	local success, profileData = self:Deserialize(serializedData)
@@ -360,7 +362,7 @@ function PS:ExportProfile(profileType)
 		ErrorMessage(L["Serialize failed!"])
 	end
 
-	serializedData = format("%sOmniCD%s,%s", serializedData, profileType, profileKey)
+	serializedData = format("%s%s%s,%s", serializedData, PS_VERSION, profileType, profileKey)
 
 	local compressedData = LibDeflate:CompressDeflate(serializedData)
 	local encodedData = LibDeflate:EncodeForPrint(compressedData)

@@ -28,6 +28,7 @@ P.userInfo.talentData = {}
 P.userInfo.shadowlandsData = {}
 P.userInfo.callbackTimers = {}
 P.userInfo.spellModRates = {}
+P.userInfo.sessionItemData = {}
 
 local RAID_UNIT = {
 	"raid1", "raid2", "raid3", "raid4", "raid5", "raid6", "raid7", "raid8", "raid9", "raid10",
@@ -124,7 +125,7 @@ local function SendRequestSync()
 	end
 end
 
-local function UpdateRosterInfo(force)
+local function UpdateRosterInfo(force, clearSession)
 	if not force then
 		P.callbackTimers.rosterDelay = nil
 	end
@@ -160,14 +161,13 @@ local function UpdateRosterInfo(force)
 	for guid, info in pairs(P.groupInfo) do
 		if not UnitExists(info.name) or (guid == E.userGUID and P.isUserDisabled) then
 			for _, timer in pairs(info.callbackTimers) do
-				if type(timer) == "table" then
+				if type(timer) == "userdata" then
 					timer:Cancel()
 				end
 			end
 
 			P.groupInfo[guid] = nil
-			info.bar:Hide()
-
+			P:HideBar(info.bar)
 
 			local capGUID = info.auras.capTotemGUID
 			if capGUID then
@@ -180,6 +180,8 @@ local function UpdateRosterInfo(force)
 
 			CM.syncedGroupMembers[guid] = nil
 			CM:DequeueInspect(guid)
+		elseif clearSession then
+			wipe(info.sessionItemData)
 		end
 	end
 
@@ -191,6 +193,7 @@ local function UpdateRosterInfo(force)
 		local info = P.groupInfo[guid]
 		local _, class = UnitClass(unit)
 		local isDead = UnitIsDeadOrGhost(unit)
+
 		local isOffline = not UnitIsConnected(unit)
 		local isDeadOrOffline = isDead or isOffline
 		local isUser = guid == E.userGUID
@@ -223,7 +226,7 @@ local function UpdateRosterInfo(force)
 
 
 
-			if force or (not info.isDead and info.isDeadOrOffline and not isDeadOrOffline) or (info.isAdminObsForMDI ~= isAdminObsForMDI) then
+			if force or not info.spec or (info.isAdminObsForMDI ~= isAdminObsForMDI) then
 				info.isAdminObsForMDI = isAdminObsForMDI
 				if not isUser then
 					P.pendingQueue[#P.pendingQueue + 1] = guid
@@ -283,13 +286,14 @@ local function UpdateRosterInfo(force)
 				shadowlandsData = {},
 				callbackTimers = {},
 				spellModRates = {},
+				sessionItemData = {},
 			}
 			P.groupInfo[guid] = info
 
 			P.pendingQueue[#P.pendingQueue + 1] = guid
 			P:UpdateUnitBar(guid, true)
 		elseif not isOffline then
-			E.TimerAfter(UPDATE_ROSTER_DELAY, UpdateRosterInfo, true)
+			C_Timer.After(UPDATE_ROSTER_DELAY, function() UpdateRosterInfo(true) end)
 		end
 
 		if info then
@@ -322,17 +326,16 @@ local function UpdateRosterInfo(force)
 end
 
 
-
 function P:GROUP_ROSTER_UPDATE(isPEW, isRefresh)
+	if self.callbackTimers.rosterDelay then
+		self.callbackTimers.rosterDelay:Cancel()
+	end
 	if isRefresh or GetNumGroupMembers() == 0 then
 		UpdateRosterInfo(true)
 	elseif isPEW then
-		E.TimerAfter(E.customUF.delay or 0.5, UpdateRosterInfo, true)
+		C_Timer.After(E.customUF.delay or 0.5, function() UpdateRosterInfo(true, true) end)
 	else
-		if self.callbackTimers.rosterDelay then
-			self.callbackTimers.rosterDelay:Cancel()
-		end
-		self.callbackTimers.rosterDelay = E.TimerAfter(E.customUF.delay or 0.5, UpdateRosterInfo)
+		self.callbackTimers.rosterDelay = C_Timer.NewTimer(E.customUF.delay or 0.5, function() UpdateRosterInfo() end)
 	end
 end
 
@@ -350,7 +353,7 @@ function P:GROUP_JOINED()
 	self.joinedNewGroup = true
 
 	if self.isInArena and C_PvP_IsRatedSoloShuffle() then
-		self:ResetAllIcons("joinedPvP")
+		self:ResetAllIcons("joinedPvP", true)
 		if not self.callbackTimers.arenaTicker then
 
 			self.callbackTimers.arenaTicker = C_Timer.NewTicker(6, inspectAllGroupMembers, 5)
@@ -388,13 +391,11 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 	zone = zone == "none" and E.profile.Party.noneZoneSetting or (zone == "scenario" and E.profile.Party.scenarioZoneSetting) or zone
 	E.db = E.profile.Party[zone]
 	self.db = E.db
-
 	for key, frame in pairs(self.extraBars) do
 		frame.db = E.db.extraBars[key]
 	end
 
 	self.isUserHidden = not self.isInTestMode and not E.db.general.showPlayer
-
 	self.isUserDisabled = self.isUserHidden and (not E.db.general.showPlayerEx or not IsAnyExBarEnabled())
 	self.isPvP = E.preMoP or self.isInPvPInstance or (instanceType == "none" and C_PvP.IsWarModeDesired())
 	self.effectivePixelMult = nil

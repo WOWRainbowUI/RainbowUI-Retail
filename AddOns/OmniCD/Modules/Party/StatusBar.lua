@@ -387,8 +387,7 @@ local function CastingBarFrame_GetEffectiveStartColor(self, isChannel, notInterr
 	end
 
 	local icon = self.statusBar.icon
-	local charges = icon.maxcharges and tonumber(icon.count:GetText())
-	if charges and charges > 0 then
+	if icon.active > 0 then
 		return self.startRechargeColor, self.startRechargeBGColor, self.startRechargeTextColor
 	elseif isChannel then
 		return self.startChannelColor, self.startChannelBGColor, self.startChannelTextColor

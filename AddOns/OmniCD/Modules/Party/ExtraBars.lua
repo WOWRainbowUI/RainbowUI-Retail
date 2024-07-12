@@ -31,7 +31,7 @@ end
 
 function P:CreateExtraBarFrames()
 	if next(self.extraBars) then return end
-	for i = 0, 8 do
+	for i = 1, 8 do
 		local key = "raidBar" .. i
 		local frame = CreateFrame("Frame", E.AddOn .. key, UIParent, "OmniCDTemplate")
 		frame.index = i
@@ -41,9 +41,8 @@ function P:CreateExtraBarFrames()
 		frame.db = E.db.extraBars[key]
 		frame:SetScript("OnShow", nil)
 
-
 		frame.anchor.text:SetFontObject(E.AnchorFont)
-		local name = key == "raidBar0" and L["Interrupts"] or i
+		local name = i == 1 and L["Interrupts"] or i
 		frame.anchor.text:SetText(name)
 		frame.anchor.text:SetTextColor(1, 0.824, 0)
 		frame.anchor.background:SetColorTexture(0, 0, 0, 1)
@@ -115,191 +114,249 @@ end
 
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local roleValues = { MAINTANK = 1, MAINASSIST = 2, TANK = 3, HEALER = 4, DAMAGER = 5, NONE = 6 }
-local sorters = {
+local sorters
+sorters = {
 
 	function(a, b)
-		local cd1, cd2 = a.duration, b.duration
-		if cd1 == cd2 then
-			local class1, class2 = a.class, b.class
-			if class1 == class2 then
-				return P.groupInfo[a.guid].name < P.groupInfo[b.guid].name
-			end
-			return class1 < class2
+		if a.duration == b.duration then
+			return a.unitName < b.unitName
 		end
-		return cd1 < cd2
+		return a.duration < b.duration
 	end,
 
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
-		local dead1, dead2 = info1.isDeadOrOffline, info2.isDeadOrOffline
-		if dead1 == dead2 then
-			local id1, id2 = a.spellID, b.spellID
-			local active1, active2 = info1.active[id1], info2.active[id2]
-			local cd1, cd2 = a.duration, b.duration
+		if info1.isDeadOrOffline == info2.isDeadOrOffline then
+			local active1, active2 = a.active == 0 and info1.active[a.spellID], b.active == 0 and info2.active[b.spellID]
 			if active1 and active2 then
-				return cd1 + active1.startTime < cd2 + active2.startTime
+				return a.duration + active1.startTime < b.duration + active2.startTime
 			elseif not active1 and not active2 then
-				if cd1 == cd2 then
-					local class1, class2 = a.class, b.class
-					if class1 == class2 then
+				return sorters[1](a, b)
+			end
+			return active2
+		end
+		return info2.isDeadOrOffline
+	end,
+
+	function(a, b)
+		if a.priority == b.priority then
+			if a.class == b.class then
+				if a.spellID == b.spellID then
+					return a.unitName < b.unitName
+				end
+				return a.spellID < b.spellID
+			end
+			return a.class < b.class
+		end
+		return a.priority > b.priority
+	end,
+
+	function(a, b)
+		if a.class == b.class then
+			if a.priority == b.priority then
+				if a.spellID == b.spellID then
+					return a.unitName < b.unitName
+				end
+				return a.spellID < b.spellID
+			end
+			return a.priority > b.priority
+		end
+		return a.class < b.class
+	end,
+
+	function(a, b)
+		local token1, token2 = a.unit, b.unit;
+		if ( token1 == token2 ) then
+			if ( a.priority == b.priority ) then
+				return a.spellID < b.spellID;
+			end
+			return a.priority > b.priority;
+		end
+
+		local id1, id2 = UnitInRaid(token1), UnitInRaid(token2);
+		local role1, role2;
+		if ( id1 ) then
+			role1 = select(10, GetRaidRosterInfo(id1));
+		end
+		if ( id2 ) then
+			role2 = select(10, GetRaidRosterInfo(id2));
+		end
+
+		role1 = role1 or UnitGroupRolesAssigned(token1);
+		role2 = role2 or UnitGroupRolesAssigned(token2);
+
+		local value1, value2 = roleValues[role1], roleValues[role2];
+		if ( value1 ~= value2 ) then
+			return value1 < value2;
+		end
+
+
+		return a.unitName < b.unitName;
+	end,
+
+	function(a, b)
+		if ( a.unit == b.unit ) then
+			if ( a.priority == b.priority ) then
+				return a.spellID < b.spellID;
+			end
+			return a.priority > b.priority;
+		end
+
+		if a.class == b.class then
+			return a.unitName < b.unitName
+		end
+		return a.class < b.class
+	end,
+
+	function(a, b)
+		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
+		if info1.isDeadOrOffline == info2.isDeadOrOffline then
+			local active1, active2 = a.active == 0 and info1.active[a.spellID], b.active == 0 and info2.active[b.spellID]
+			if active1 and active2 then
+				return a.duration + active1.startTime < b.duration + active2.startTime
+			elseif not active1 and not active2 then
+				return sorters[5](a, b)
+			end
+			return active2
+		end
+		return info2.isDeadOrOffline
+	end,
+
+	function(a, b)
+		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
+		if info1.isDeadOrOffline == info2.isDeadOrOffline then
+			local active1, active2 = a.active == 0 and info1.active[a.spellID], b.active == 0 and info2.active[b.spellID]
+			if active1 and active2 then
+				return a.duration + active1.startTime < b.duration + active2.startTime
+			elseif not active1 and not active2 then
+				return sorters[6](a, b)
+			end
+			return active2
+		end
+		return info2.isDeadOrOffline
+	end,
+
+	function(a, b)
+		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
+		if info1.isDeadOrOffline == info2.isDeadOrOffline then
+			local id1, id2 = a.spellID, b.spellID
+			local active1, active2 = a.active == 0 and info1.active[id1], b.active == 0 and info2.active[id2]
+			if active1 and active2 then
+				return a.duration + active1.startTime < b.duration + active2.startTime
+			elseif not active1 and not active2 then
+				if a.priority == b.priority then
+					if a.class == b.class then
 						if id1 == id2 then
-							return info1.name < info2.name
+							return a.unitName < b.unitName
 						end
 						return id1 < id2
 					end
-					return class1 < class2
+					return a.class < b.class
 				end
-				return cd1 < cd2
+				return a.priority > b.priority
 			end
 			return active2
 		end
-		return dead2
-	end,
-
-	function(a, b)
-		local prio1, prio2 = E.db.priority[a.type], E.db.priority[b.type]
-		if prio1 == prio2 then
-			local class1, class2 = a.class, b.class
-			if class1 == class2 then
-				local id1, id2 = a.spellID, b.spellID
-				if id1 == id2 then
-					return P.groupInfo[a.guid].name < P.groupInfo[b.guid].name
-				end
-				return id1 < id2
-			end
-			return class1 < class2
-		end
-		return prio1 > prio2
-	end,
-
-	function(a, b)
-		local class1, class2 = a.class, b.class
-		if class1 == class2 then
-			local prio1, prio2 = E.db.priority[a.type], E.db.priority[b.type]
-			if prio1 == prio2 then
-				local id1, id2 = a.spellID, b.spellID
-				if id1 == id2 then
-					return P.groupInfo[a.guid].name < P.groupInfo[b.guid].name
-				end
-				return id1 < id2
-			end
-			return prio1 > prio2
-		end
-		return class1 < class2
-	end,
-
-	function(a, b)
-		local role1 = UnitGroupRolesAssigned(token1)
-		local role2 = UnitGroupRolesAssigned(token2)
-
-		local value1, value2 = roleValues[role1], roleValues[role2]
-		if value1 ~= value2 then
-			return value1 < value2
-		end
-		return P.groupInfo[a.guid].name < P.groupInfo[b.guid].name
-	end,
-
-	function(a, b)
-		local class1, class2 = a.class, b.class
-		if class1 == class2 then
-			return P.groupInfo[a.guid].name < P.groupInfo[b.guid].name
-		end
-		return class1 < class2
+		return info2.isDeadOrOffline
 	end,
 
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
-		local dead1, dead2 = info1.isDeadOrOffline, info2.isDeadOrOffline
-		if dead1 == dead2 then
-			local active1, active2 = info1.active[a.spellID], info2.active[b.spellID]
-			if active1 and active2 then
-				return a.duration + active1.startTime < b.duration + active2.startTime
-			elseif not active1 and not active2 then
-				local role1 = UnitGroupRolesAssigned(token1)
-				local role2 = UnitGroupRolesAssigned(token2)
-
-				local value1, value2 = roleValues[role1], roleValues[role2]
-				if value1 == value2 then
-					return info1.name < info2.name
-				end
-				return value1 < value2
-			end
-			return active2
-		end
-		return dead2
-	end,
-
-	function(a, b)
-		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
-		local dead1, dead2 = info1.isDeadOrOffline, info2.isDeadOrOffline
-		if dead1 == dead2 then
-			local active1, active2 = info1.active[a.spellID], info2.active[b.spellID]
-			if active1 and active2 then
-				return a.duration + active1.startTime < b.duration + active2.startTime
-			elseif not active1 and not active2 then
-				local class1, class2 = a.class, b.class
-				if class1 == class2 then
-					return info1.name < info2.name
-				end
-				return class1 < class2
-			end
-			return active2
-		end
-		return dead2
-	end,
-
-	function(a, b)
-		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
-		local dead1, dead2 = info1.isDeadOrOffline, info2.isDeadOrOffline
-		if dead1 == dead2 then
+		if info1.isDeadOrOffline == info2.isDeadOrOffline then
 			local id1, id2 = a.spellID, b.spellID
-			local active1, active2 = info1.active[id1], info2.active[id2]
+			local active1, active2 = a.active == 0 and info1.active[id1], b.active == 0 and info2.active[id2]
 			if active1 and active2 then
 				return a.duration + active1.startTime < b.duration + active2.startTime
 			elseif not active1 and not active2 then
-				local prio1, prio2 = E.db.priority[a.type], E.db.priority[b.type]
-				if prio1 == prio2 then
-					local class1, class2 = a.class, b.class
-					if class1 == class2 then
+				if a.class == b.class then
+					if a.priority == b.priority then
 						if id1 == id2 then
-							return info1.name < info2.name
+							return a.unitName < b.unitName
 						end
 						return id1 < id2
 					end
-					return class1 < class2
+					return a.priority > b.priority
 				end
-				return prio1 > prio2
+				return a.class < b.class
 			end
 			return active2
 		end
-		return dead2
+		return info2.isDeadOrOffline
+	end,
+
+	function(a, b)
+		local token1, token2 = a.unit, b.unit
+		if ( token1 == token2 ) then
+			if ( a.priority == b.priority ) then
+				return a.spellID < b.spellID
+			end
+			return a.priority > b.priority
+		end
+
+		if ( IsInRaid() ) then
+			local id1 = tonumber(string.sub(token1, 5));
+			local id2 = tonumber(string.sub(token2, 5));
+
+			if ( not id1 or not id2 ) then
+				return id1;
+			end
+
+			local _, _, subgroup1 = GetRaidRosterInfo(id1);
+			local _, _, subgroup2 = GetRaidRosterInfo(id2);
+
+			if ( subgroup1 and subgroup2 and subgroup1 ~= subgroup2 ) then
+				return subgroup1 < subgroup2;
+			end
+
+
+			return id1 < id2;
+		else
+			if ( token1 == "player" ) then
+				return true;
+			elseif ( token2 == "player" ) then
+				return false;
+			else
+				return token1 < token2;
+			end
+		end
+	end,
+
+	function(a, b)
+		if ( a.unit == b.unit ) then
+			if ( a.priority == b.priority ) then
+				return a.spellID < b.spellID
+			end
+			return a.priority > b.priority
+		end
+		return a.unitName < b.unitName
 	end,
 
 	function(a, b)
 		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
-		local dead1, dead2 = info1.isDeadOrOffline, info2.isDeadOrOffline
-		if dead1 == dead2 then
-			local id1, id2 = a.spellID, b.spellID
-			local active1, active2 = info1.active[id1], info2.active[id2]
+		if info1.isDeadOrOffline == info2.isDeadOrOffline then
+			local active1, active2 = a.active == 0 and info1.active[a.spellID], b.active == 0 and info2.active[b.spellID]
 			if active1 and active2 then
 				return a.duration + active1.startTime < b.duration + active2.startTime
 			elseif not active1 and not active2 then
-				local class1, class2 = a.class, b.class
-				if class1 == class2 then
-					local prio1, prio2 = E.db.priority[a.type], E.db.priority[b.type]
-					if prio1 == prio2 then
-						if id1 == id2 then
-							return info1.name < info2.name
-						end
-						return id1 < id2
-					end
-					return prio1 > prio2
-				end
-				return class1 < class2
+				return sorters[11](a, b)
 			end
 			return active2
 		end
-		return dead2
+		return info2.isDeadOrOffline
+	end,
+
+	function(a, b)
+		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
+		if info1.isDeadOrOffline == info2.isDeadOrOffline then
+			local active1, active2 = a.active == 0 and info1.active[a.spellID], b.active == 0 and info2.active[b.spellID]
+			if active1 and active2 then
+				return a.duration + active1.startTime < b.duration + active2.startTime
+			elseif not active1 and not active2 then
+				return sorters[12](a, b)
+			end
+			return active2
+		end
+		return info2.isDeadOrOffline
 	end,
 }
 
@@ -337,16 +394,16 @@ function P:SetExIconLayout(key, sortOrder, updateSettings, updateIcons)
 
 	if ( db.unitBar ) then
 		for _, info in pairs(self.groupInfo) do
-			local f = info.bar
-			for raidBarIndex, container in pairs(f.exContainers) do
-				local frame = self.extraBars["raidBar" .. raidBarIndex]
+			local bar = info.bar
+			for raidBarIndex, container in pairs(bar.exContainers) do
+				local f = self.extraBars["raidBar" .. raidBarIndex]
 				local icons = container.icons
 				if ( sortOrder ) then
-					sort(icons, self.sortPriority)
+					sort(icons, self.sorters[self.sortBy])
 				end
 
 				local count, rows = 0, 1
-				local columns = frame.db.columns
+				local columns = f.db.columns
 				for i = 1, #icons do
 					local icon = icons[i]
 					icon:Hide()
@@ -354,14 +411,14 @@ function P:SetExIconLayout(key, sortOrder, updateSettings, updateIcons)
 					if ( i > 1 ) then
 						count = count + 1
 						if ( count == columns ) then
-							icon:SetPoint(frame.point, container, frame.ofsX * rows, frame.ofsY * rows)
+							icon:SetPoint(f.point, container, f.ofsX * rows, f.ofsY * rows)
 							rows = rows + 1
 							count = 0
 						else
-							icon:SetPoint(frame.point2, icons[i-1], frame.relativePoint2, frame.ofsX2, frame.ofsY2)
+							icon:SetPoint(f.point2, icons[i-1], f.relativePoint2, f.ofsX2, f.ofsY2)
 						end
 					else
-						icon:SetPoint(frame.point, container)
+						icon:SetPoint(f.point, container)
 					end
 					icon:Show()
 				end
@@ -415,7 +472,7 @@ function P:SetExAnchor(frame, db)
 			local width = math.max(anchor.text:GetWidth() + 20, E.baseIconHeight * db.scale)
 			anchor:SetWidth(width)
 		end
-		anchor.text:SetText(db.name or (frame.index == 0 and L["Interrupts"] or frame.index))
+		anchor.text:SetText(db.name or (frame.index == 1 and L["Interrupts"] or frame.index))
 		anchor:Show()
 	end
 end
