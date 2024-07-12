@@ -1402,12 +1402,13 @@ function BigDebuffs:IsDispellable(unit, dispelType)
         if type(self.dispelTypes[dispelType]) == "function" then return self.dispelTypes[dispelType]() end
 
         -- dwarves can use Stoneform to remove diseases and poisons
-        if (not self.dispelTypes[dispelType]) and
-            unit == "player" and
-            (dispelType == "Poison" or dispelType == "Disease")
-        then
-            return IsUsableSpell("Stoneform")
-        end
+        -- todo: make this optional
+        -- if (not self.dispelTypes[dispelType]) and
+        --     unit == "player" and
+        --     (dispelType == "Poison" or dispelType == "Disease")
+        -- then
+        --     return IsUsableSpell("Stoneform")
+        -- end
 
         return self.dispelTypes[dispelType]
     else
@@ -2011,7 +2012,7 @@ else
                         break
                     end
                 end
-                tinsert(debuffs, { warning, size, 0, 0, true })
+                tinsert(debuffs, { warning, size, 0, 0, warningId })
             else
                 warning = nil
             end
