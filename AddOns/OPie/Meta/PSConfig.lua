@@ -3,7 +3,7 @@ local PC = T.OPieCore
 
 local S = {
 	{"set-gamepad-mode", "PadSupportMode", {"camstick", "movestick", "cursor", "none"}, {camstick="freelook", movestick="freelook1", cursor="cursor", none="none"}},
-	{"set-gamepad-switch", "PSSwitchOnOpen", {"on", "off"}, {on=true, off=false}},
+	{"set-gamepad-switch", "PSOpenSwitchMode", {"always", "padinput", "off"}, {always=2, padinput=1, off=0}},
 	{"set-gamepad-restore", "PSRestoreOnClose", {"on", "off"}, {on=true, off=false}},
 	{"set-gamepad-thaw", "PSThawDuration", min=0, max=math.huge},
 	{"set-gamepad-thaw-hold", "PSThawHold", min=0, max=1},

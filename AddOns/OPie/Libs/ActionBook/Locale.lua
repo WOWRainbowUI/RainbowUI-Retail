@@ -16,17 +16,17 @@ V =
       z, "Mostrar sólo al equipar", z, "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Mostrar esta rodaja siempre", "Hechizo", "Juegete",
       z, z, z, z,
     }
-    or C == "esMX" and { -- 25/34 (73%)
-      "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", z, "Macro personalizado", z, "Conjunto de equipamientos", "Conjuntos de equipamientos", "Botón de acción extra",
+    or C == "esMX" and { -- 30/34 (88%)
+      "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", "Calendario", "Macro personalizado", z, "Conjunto de equipamientos", "Conjuntos de equipamientos", "Botón de acción extra",
       "Montura voladora", "Monutra de tierra", z, "Artículo", "Artículos", "Macro", "Macros", "Misceláneo", "Montura", "Monturas",
-      z, "Mostrar sólo al equipar", z, "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Mostrar esta rodaja siempre", "Hechizo", "Juegete",
-      z, z, z, z,
+      "Nueva Macro", "Mostrar sólo al equipar", "Hablidad de mascota", "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Mostrar esta rodaja siempre", "Hechizo", "Juegete",
+      "Juguetes", z, z, "Habilidades de area",
     }
-    or C == "frFR" and { -- 31/34 (91%)
+    or C == "frFR" and { -- 33/34 (97%)
       "Compétences", "Également utiliser l'élément avec le même nom", "Mascotte de combat", "Mascottes de combat", "Calendrier", "Macro personnalisée", "Monture draconique", "Set d'équipement", "Équipement de sets", "Bouton d'action supplémentaire",
-      "Montures volantes", "Monture terrestre", z, "Objet", "Objets", "Macro", "Macros", "Divers", "Monture", "Montures",
+      "Montures volantes", "Monture terrestre", "Fenêtre", "Objet", "Objets", "Macro", "Macros", "Divers", "Monture", "Montures",
       "Nouvelle Macro", "Afficher seulement quand équipé", "Compétence du Familier", "Compétences du familier", "Marqueur de Raid", "Marqueur de Terrain", "Marqueurs de Raid", "Afficher un remplacement quand indisponible", "Sort", "Jouet",
-      "Jouets", z, "Utiliser le rang le plus élevé connu", z,
+      "Jouets", "Fenêtres", "Utiliser le rang le plus élevé connu", z,
     }
     or C == "koKR" and { -- 29/34 (85%)
       "능력", "같은 이름의 아이템 사용", "애완동물 대전", "전투 애완동물", z, "사용자 정의 매크로", z, "장비 구성", "장비 구성", "추가 행동 버튼",

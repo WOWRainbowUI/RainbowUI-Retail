@@ -1,10 +1,12 @@
 local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
-local MODERN = COMPAT >= 8e4
-local CF_WRATH, CI_ERA = not MODERN and COMPAT >= 3e4, COMPAT <= 2e4
+if T.TenEnv then T.TenEnv() end
+
+local MODERN, CF_WRATH, CF_CATA, CI_ERA = COMPAT > 10e4, COMPAT < 10e4 and COMPAT >= 3e4, COMPAT < 10e4 and COMPAT >= 4e4, COMPAT < 2e4
 local AB = T.ActionBook:compatible(2,21)
 local RW = T.ActionBook:compatible("Rewire", 1,27)
-assert(AB and RW and 1, "Incompatible library bundle")
+local IM = T.ActionBook:compatible("Imp", 1,8)
+assert(AB and RW and IM and 1, "Incompatible library bundle")
 local L = T.ActionBook.L
 local mark = {}
 
@@ -68,29 +70,10 @@ do -- spellbook
 	end
 	local function addModernTalents(add, knownFilter)
 		knownFilter = not not knownFilter
-		local cid = C_ClassTalents.GetActiveConfigID()
-		if not cid then
-			local spec = GetSpecializationInfo(GetSpecialization())
-			local cc = C_ClassTalents.GetConfigIDsBySpecID(spec)
-			cid = cc and cc[1]
-		end
-		local conf = cid and C_Traits.GetConfigInfo(cid)
-		local tree = conf and conf.treeIDs and conf.treeIDs[1]
-		local nodes = tree and C_Traits.GetTreeNodes(tree)
-		for i=1,nodes and #nodes or 0 do
-			local node = C_Traits.GetNodeInfo(cid, nodes[i])
-			local activeEID = node.activeEntry and node.activeEntry.entryID
-			for i=1, #node.entryIDs do
-				local eid = node.entryIDs[i]
-				if knownFilter == (eid == activeEID) then
-					local entry = C_Traits.GetEntryInfo(cid, eid)
-					local def = entry and C_Traits.GetDefinitionInfo(entry.definitionID)
-					local sid = def and def.spellID and not IsPassiveSpell(def.spellID) and def.spellID
-					if sid and not mark[sid] then
-						mark[sid] = 1
-						add("spell", sid)
-					end
-				end
+		for sid, active in IM:GetModernTalentSpells() do
+			if active == knownFilter and not IsPassiveSpell(sid) and not mark[sid] then
+				mark[sid] = 1
+				add("spell", sid)
 			end
 		end
 	end
@@ -133,7 +116,11 @@ do -- spellbook
 		wipe(mark)
 		for i=1,HasPetSpells() or 0 do
 			if MODERN then
-				procSpellBookEntry(add, "petspell", true, true, pcall(GetSpellBookItemInfo, i, "pet"))
+				local ok, st, aid = pcall(GetSpellBookItemInfo, i, "pet")
+				local sid = ok and st == "PETACTION" and aid and C_PetInfo.GetSpellForPetAction(aid)
+				if sid and sid > 10 then -- BUG[10.x] shared control commands return bogus low "spell IDs"
+					procSpellBookEntry(add, "petspell", true, true, ok, "SPELL", sid)
+				end
 			else
 				local sid = select(7, GetSpellInfo(i, "pet"))
 				if sid and not IsPassiveSpell(sid) then
@@ -154,7 +141,7 @@ AB:AugmentCategory(L"Items", function(_, add)
 	wipe(mark)
 	local ns, giid = C_Container.GetContainerNumSlots, C_Container.GetContainerItemID
 	for t=0,2 do
-		local tf = t == 0 and GetItemSpell or t == 1 and IsEquippableItem or C_Container.GetContainerItemInfo
+		local tf = t == 0 and C_Item.GetItemSpell or t == 1 and C_Item.IsEquippableItem or C_Container.GetContainerItemInfo
 		for bag=0,4 do
 			for slot=1, ns(bag) do
 				local iid = giid(bag, slot)
@@ -173,7 +160,7 @@ AB:AugmentCategory(L"Items", function(_, add)
 		end
 	end
 end)
-if MODERN then -- Battle pets
+if MODERN or CF_WRATH then -- Battle pets/Companions
 	local running, sourceFilters, typeFilters, flagFilters, search = false, {}, {}, {[LE_PET_JOURNAL_FILTER_COLLECTED]=1, [LE_PET_JOURNAL_FILTER_NOT_COLLECTED]=1}, ""
 	hooksecurefunc(C_PetJournal, "SetSearchFilter", function(filter) search = filter end)
 	hooksecurefunc(C_PetJournal, "ClearSearchFilter", function() if not running then search = "" end end)
@@ -184,7 +171,7 @@ if MODERN then -- Battle pets
 		end
 		return petID
 	end
-	AB:AugmentCategory(L"Battle pets", function(_, add)
+	AB:AugmentCategory(not MODERN and COMPANIONS or L"Battle pets", function(_, add)
 		assert(not running, "Battle pets enumerator is not reentrant")
 		running = true
 		for i=1, C_PetJournal.GetNumPetSources() do
@@ -208,7 +195,9 @@ if MODERN then -- Battle pets
 		local sortParameter = C_PetJournal.GetPetSortParameter()
 		C_PetJournal.SetPetSortParameter(LE_SORT_BY_LEVEL)
 		
-		add("battlepet", "fave")
+		if MODERN then
+			add("battlepet", "fave")
+		end
 		for i=1,C_PetJournal.GetNumPets() do
 			add("battlepet", FilterPetInfo(C_PetJournal.GetPetInfoByIndex(i)))
 		end
@@ -227,15 +216,8 @@ if MODERN then -- Battle pets
 		
 		running = false
 	end)
-elseif CF_WRATH then
-	AB:AugmentCategory(COMPANIONS, function(_, add)
-		for i=1, GetNumCompanions("CRITTER") do
-			local _, _, sid = GetCompanionInfo("CRITTER", i)
-			add("spell", sid)
-		end
-	end)
 end
-if COMPAT >= 3e4 then -- Mounts
+if MODERN or CF_WRATH then -- Mounts
 	AB:AugmentCategory(L"Mounts", function(_, add)
 		if GetSpellInfo(150544) then add("spell", 150544) end
 		local myFactionId = UnitFactionGroup("player") == "Horde" and 0 or 1
@@ -272,9 +254,9 @@ if COMPAT >= 3e4 then -- equipmentset
 	end)
 end
 AB:AugmentCategory(L"Raid markers", function(_, add)
-	for k=0, MODERN and 1 or 0 do
+	for k=0, (MODERN or CF_CATA) and 1 or 0 do
 		k = k == 0 and "raidmark" or "worldmark"
-		for i=0,8 do
+		for i=0, k == "worldmark" and CF_CATA and 5 or 8 do
 			add(k, i)
 		end
 	end

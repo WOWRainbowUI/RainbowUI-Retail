@@ -49,15 +49,23 @@ local CreateQuadTexture do
 end
 
 local gfxBase = ([[Interface\AddOns\%s\gfx\]]):format((...))
-local anchorFrame = CreateFrame("Frame")
-	anchorFrame:SetSize(1,1)
-	anchorFrame:SetPoint("CENTER")
-	anchorFrame:Hide()
+local mainAnchor, proxyAnchor = CreateFrame("Frame"), CreateFrame("Frame")
+	for i=1,2 do
+		i = i == 1 and mainAnchor or proxyAnchor
+		i:SetSize(1,1)
+		i:SetPoint("CENTER")
+		i:Hide()
+	end
+local proxyFrame = CreateFrame("Frame", "OPieVisualElementsProxy", UIParent)
 local mainFrame = CreateFrame("Frame", nil, UIParent)
-	mainFrame:Hide()
-	mainFrame:SetSize(128,128)
-	mainFrame:SetPoint("CENTER", anchorFrame)
-	mainFrame:SetFrameStrata("FULLSCREEN")
+	for i=1,2 do
+		local f = i == 1 and proxyFrame or mainFrame
+		f:Hide()
+		f:SetSize(150, 150)
+		f:SetFrameStrata("FULLSCREEN")
+		f:SetFrameLevel(50*i)
+		f:SetPoint("CENTER", i == 1 and proxyAnchor or mainAnchor)
+	end
 local centerPointer = mainFrame:CreateTexture(nil, "ARTWORK")
 	centerPointer:SetSize(192,192)
 	centerPointer:SetPoint("CENTER")
@@ -86,6 +94,23 @@ local ringQuad, setRingRotationPeriod, centerCircle, centerGlow = {} do
 		local p = max(0.1, p)
 		for i=1,4 do animations[i]:SetDuration(p) end
 	end
+end
+local function setIndicationPosition(rel, ox, oy)
+	mainAnchor:SetPoint("CENTER", nil, rel, ox, oy)
+	proxyAnchor:ClearAllPoints()
+	proxyAnchor:SetPoint("CENTER", nil, rel, ox, oy)
+end
+local function setIndicationScale(sc)
+	mainFrame:SetScale(sc)
+	proxyFrame:SetScale(sc)
+end
+local function setIndicationAlpha(alpha)
+	mainFrame:SetAlpha(alpha)
+	proxyFrame:SetAlpha(alpha)
+end
+local function setIndicationShown(shown)
+	mainFrame:SetShown(shown)
+	proxyFrame:SetShown(shown)
 end
 
 local function SetAngle(self, angle, radius)
@@ -264,7 +289,7 @@ local SwitchIndicatorFactory, ValidateIndicator do
 				oldPool[v], Slices[k] = true, nil
 				v:SetShown(false)
 			end
-			mainFrame:Hide()
+			setIndicationShown(false)
 			CreateIndicator, ActiveIndicatorFactory = finfo.CreateIndicator, finfo
 			GhostIndication:SwitchSparePool(finfo.ghostPool)
 		end
@@ -389,12 +414,12 @@ local function updateCentralElements(self, si, _, tok, usable, state, icon, capt
 			tipFunc, tipArg = text and GameTooltip.AddLine, text
 		end
 		if tipFunc then
-			if not checkTipThrottle(mainFrame, tipFunc, tipArg, time) then
-				SetDefaultAnchor(GameTooltip, mainFrame)
+			if not checkTipThrottle(proxyFrame, tipFunc, tipArg, time) then
+				SetDefaultAnchor(GameTooltip, proxyFrame)
 				tipFunc(GameTooltip, tipArg)
 				GameTooltip:Show()
 			end
-		elseif GameTooltip:IsOwned(mainFrame) then
+		elseif GameTooltip:IsOwned(proxyFrame) then
 			GameTooltip:Hide()
 		end
 	end
@@ -595,16 +620,16 @@ local function OnUpdate_ZoomIn(self, elapsed)
 	if r == 0 then self:SetScript("OnUpdate", OnUpdate_Main) end
 	sm = 1 + configCache.MIZoomInScale*0.375*r/(1.375-r)
 	a = r > 0.4 and 1-(r-0.4)/0.6 or 1
-	self:SetScale(configCache.RingScale*sm)
-	self:SetAlpha(a < 0 and 0 or a)
+	setIndicationScale(configCache.RingScale*sm)
+	setIndicationAlpha(a < 0 and 0 or a)
 	return OnUpdate_Main(self, elapsed)
 end
 local function OnUpdate_ZoomOut(self, elapsed)
 	local r = self.eleft - elapsed
 	self.eleft, r = r, r > 0 and r/configCache.XTZoomTime or 0
 	if r <= 0 then
-		self:Hide()
 		self:SetScript("OnUpdate", nil)
+		setIndicationShown(false)
 		return
 	elseif configCache.MISpinOnHide then
 		local count = self.count
@@ -615,18 +640,18 @@ local function OnUpdate_ZoomOut(self, elapsed)
 				sliceAngle = sliceAngle - angleStep
 			end
 		end
-		self:SetScale(configCache.RingScale*(1+configCache.MIZoomOutScale*(1-r)))
+		setIndicationScale(configCache.RingScale*(1+configCache.MIZoomOutScale*(1-r)))
 	else
-		self:SetScale(configCache.RingScale*r)
+		setIndicationScale(configCache.RingScale*r)
 	end
-	self:SetAlpha(r < 1 and r or 1)
+	setIndicationAlpha(r < 1 and r or 1)
 	OnUpdate_CheckAlpha(self, self.count)
 	GhostIndication:OnUpdate(elapsed)
 end
 mainFrame:SetScript("OnHide", function(self)
 	if self:IsShown() and self:GetScript("OnUpdate") == OnUpdate_ZoomOut then
 		self:SetScript("OnUpdate", nil)
-		self:Hide()
+		setIndicationShown(false)
 	end
 end)
 
@@ -638,6 +663,7 @@ function iapi:Show(_, _, fastOpen)
 	mainFrame.oldSlice, mainFrame.angle, mainFrame.omState, mainFrame.oldIsGlowing, mainFrame.rotPeriod, lastConAngle, mainFrame.oldEA = -1
 	GhostIndication:Reset()
 	SwitchIndicatorFactory(configCache.IndicatorFactory)
+	centerPointer:SetShown(configCache.InteractionMode ~= 3)
 
 	local astep = count == 0 and 0 or -360/count
 	for i=1, count do
@@ -656,21 +682,22 @@ function iapi:Show(_, _, fastOpen)
 	updateSliceBindings(nil)
 
 	configCache.RingScale = max(0.1, configCache.RingScale)
-	mainFrame:SetScale(configCache.RingScale)
-	if fastOpen == "inplace-switch" then
-	elseif configCache.RingAtMouse then
-		local cx, cy = GetCursorPosition()
-		anchorFrame:SetPoint("CENTER", nil, "BOTTOMLEFT", cx + configCache.IndicationOffsetX, cy - configCache.IndicationOffsetY)
-	else
-		anchorFrame:SetPoint("CENTER", nil, "CENTER", configCache.IndicationOffsetX, -configCache.IndicationOffsetY)
+	setIndicationScale(configCache.RingScale)
+	if fastOpen ~= "inplace-switch" then
+		local atMouse, ox, oy = configCache.RingAtMouse, configCache.IndicationOffsetX, -configCache.IndicationOffsetY
+		if atMouse then
+			local cx, cy = GetCursorPosition()
+			ox, oy = cx + ox, cy + oy
+		end
+		setIndicationPosition(atMouse and "BOTTOMLEFT" or "CENTER", ox, oy)
 	end
 	SetupTransitionAnimation(fastOpen and "fast-in" or "in", OnUpdate_ZoomIn)
-	mainFrame:Show()
+	setIndicationShown(true)
 end
 function iapi:Hide()
 	SetupTransitionAnimation("out", OnUpdate_ZoomOut)
 	GhostIndication:Deactivate()
-	if GameTooltip:IsOwned(mainFrame) then
+	if GameTooltip:IsOwned(proxyFrame) then
 		GameTooltip:Hide()
 	end
 	wipeTokenCache()
