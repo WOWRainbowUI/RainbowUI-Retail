@@ -1,8 +1,10 @@
 local myname, ns = ...
-local myfullname = GetAddOnMetadata(myname, "Title")
+local myfullname = C_AddOns.GetAddOnMetadata(myname, "Title")
 local db
 local isClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
-ns.DEBUG = GetAddOnMetadata(myname, "Version") == "@".."project-version@"
+ns.DEBUG = C_AddOns.GetAddOnMetadata(myname, "Version") == "@".."project-version@"
+
+_G.SimpleItemLevel = {}
 
 local SLOT_MAINHAND = GetInventorySlotInfo("MainHandSlot")
 local SLOT_OFFHAND = GetInventorySlotInfo("SecondaryHandSlot")
@@ -16,7 +18,7 @@ f:SetScript("OnEvent", function(self, event, ...) if ns[event] then return ns[ev
 function ns:RegisterEvent(...) for i=1,select("#", ...) do f:RegisterEvent((select(i, ...))) end end
 function ns:UnregisterEvent(...) for i=1,select("#", ...) do f:UnregisterEvent((select(i, ...))) end end
 function ns:RegisterAddonHook(addon, callback)
-    if IsAddOnLoaded(addon) then
+    if C_AddOns.IsAddOnLoaded(addon) then
         callback()
     else
         hooks[addon] = callback
@@ -26,7 +28,8 @@ end
 local LAI = LibStub("LibAppropriateItems-1.0")
 
 ns.soulboundAtlas = isClassic and "AzeriteReady" or "Soulbind-32x32" -- UF-SoulShard-Icon-2x
-ns.upgradeString = CreateAtlasMarkup("poi-door-arrow-up")
+ns.upgradeAtlas = "poi-door-arrow-up"
+ns.upgradeString = CreateAtlasMarkup(ns.upgradeAtlas)
 ns.gemString = CreateAtlasMarkup(isClassic and "worldquest-icon-jewelcrafting" or "jailerstower-score-gem-tooltipicon") -- Professions-ChatIcon-Quality-Tier5-Cap
 ns.enchantString = RED_FONT_COLOR:WrapTextInColorCode("E")
 ns.Fonts = {
@@ -56,6 +59,7 @@ ns.defaults = {
     inspect = true,
     bags = true,
     loot = true,
+    flyout = true,
     tooltip = isClassic,
     characteravg = isClassic,
     inspectavg = true,
@@ -96,9 +100,95 @@ function ns:ADDON_LOADED(event, addon)
         })
         db = _G[myname.."DB"]
         ns.db = db
+
+        -- So our upgrade arrows can work reliably when opening inventories
+        ns.CacheEquippedItems()
     end
 end
 ns:RegisterEvent("ADDON_LOADED")
+
+
+local function ItemIsUpgrade(item)
+    if not (item and LAI:IsAppropriate(item:GetItemID())) then
+        return
+    end
+    -- Upgrade?
+    if item:GetItemLocation() and item:GetItemLocation():IsEquipmentSlot() then
+        -- This is meant to catch the character frame, to avoid rings/trinkets
+        -- you've already got equipped showing as an upgrade since they're
+        -- higher ilevel than your other ring/trinket
+        return
+    end
+    local isUpgrade
+    local itemLevel = item:GetCurrentItemLevel() or 0
+    local _, _, _, equipLoc, _, itemClass, itemSubClass = C_Item.GetItemInfoInstant(item:GetItemID())
+    ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
+        -- This *isn't* async, for flow reasons, so if the equipped items
+        -- aren't yet cached the item might get incorrectly flagged as an
+        -- upgrade.
+        if equippedItem:IsItemEmpty() and slot == SLOT_OFFHAND then
+            local mainhand = GetInventoryItemID("player", SLOT_MAINHAND)
+            if mainhand then
+                local invtype = select(4, C_Item.GetItemInfoInstant(mainhand))
+                if invtype == "INVTYPE_2HWEAPON" then
+                    return
+                end
+            end
+        end
+        if not equippedItem:IsItemDataCached() then
+            -- don't claim an upgrade if we don't know
+            return
+        end
+        -- fallbacks for the item levels; saw complaints of this erroring during initial login for people using Bagnon and AdiBags
+        local equippedItemLevel = equippedItem:GetCurrentItemLevel() or 0
+        if equippedItem:IsItemEmpty() or equippedItemLevel < itemLevel then
+            isUpgrade = true
+            local minLevel = select(5, C_Item.GetItemInfo(item:GetItemLink() or item:GetItemID()))
+            if minLevel and minLevel > UnitLevel("player") then
+                -- not equipable yet
+            end
+        end
+    end)
+    return isUpgrade
+end
+ns.ItemIsUpgrade = ItemIsUpgrade
+
+-- TODO: this is a good candidate for caching results...
+local function DetailsFromItemInstant(item)
+    if not item or item:IsItemEmpty() then return {} end
+    -- print("DetailsFromItem", item:GetItemLink())
+    local itemLevel = item:GetCurrentItemLevel()
+    local quality = item:GetItemQuality()
+    local itemLink = item:GetItemLink()
+    if itemLink and itemLink:match("battlepet:") then
+        -- special case for caged battle pets
+        local _, speciesID, level, breedQuality = strsplit(":", itemLink)
+        if speciesID and level and breedQuality then
+            itemLevel = tonumber(level)
+            quality = tonumber(breedQuality)
+        end
+    end
+    return {
+        level = itemLevel,
+        quality = quality,
+        link = itemLink,
+    }
+end
+ns.DetailsFromItemInstant = DetailsFromItemInstant
+
+local function DetailsFromItem(item)
+    if not item or item:IsItemEmpty() then return {} end
+    local details = DetailsFromItemInstant(item)
+    details.missingGems = ns.ItemHasEmptySlots(details.link)
+    details.missingEnchants = ns.ItemIsMissingEnchants(details.link)
+    details.upgrade = ItemIsUpgrade(item)
+
+    local itemLocation = item:GetItemLocation()
+    details.bound = itemLocation and item:IsItemInPlayersControl() and C_Item.IsBound(itemLocation)
+
+    return details
+end
+ns.DetailsFromItem = DetailsFromItem
 
 ns.frames = {} -- TODO: should I make this a FramePool now?
 local function PrepareItemButton(button)
@@ -149,11 +239,13 @@ local function PrepareItemButton(button)
 end
 ns.PrepareItemButton = PrepareItemButton
 
-local function CleanButton(button)
-    if button.simpleilvl then button.simpleilvl:Hide() end
-    if button.simpleilvlup then button.simpleilvlup:Hide() end
-    if button.simpleilvlmissing then button.simpleilvlmissing:Hide() end
-    if button.simpleilvlbound then button.simpleilvlbound:Hide() end
+local blank = {}
+local function CleanButton(button, suppress)
+    suppress = suppress or blank
+    if button.simpleilvl and not suppress.level then button.simpleilvl:Hide() end
+    if button.simpleilvlup and not suppress.upgrade then button.simpleilvlup:Hide() end
+    if button.simpleilvlmissing and not suppress.missing then button.simpleilvlmissing:Hide() end
+    if button.simpleilvlbound and not suppress.bound then button.simpleilvlbound:Hide() end
 end
 ns.CleanButton = CleanButton
 
@@ -163,79 +255,39 @@ function ns.RefreshOverlayFrames()
     end
 end
 
-local function AddLevelToButton(button, item)
-    if not (db.itemlevel and item) then
-        return button.simpleilvl and button.simpleilvl:Hide()
+local function AddLevelToButton(button, details)
+    if not (db.itemlevel and details.level) then
+        return button.simpleilvl:Hide()
     end
-    local itemLevel = item:GetCurrentItemLevel()
-    local quality = item:GetItemQuality()
-    local itemLink = item:GetItemLink()
-    if itemLink and itemLink:match("battlepet:") then
-        -- special case for caged battle pets
-        local _, speciesID, level, breedQuality = strsplit(":", itemLink)
-        if speciesID and level and breedQuality then
-            itemLevel = tonumber(level)
-            quality = tonumber(breedQuality)
-        end
-    end
-    local _, _, _, hex = GetItemQualityColor(db.color and quality or 1)
-    button.simpleilvl:SetFormattedText('|c%s%s|r', hex, itemLevel or '?')
+    local r, g, b = C_Item.GetItemQualityColor(db.color and details.quality or 1)
+    button.simpleilvl:SetText(details.level or '?')
+    button.simpleilvl:SetTextColor(r, g, b)
     button.simpleilvl:Show()
 end
-local function AddUpgradeToButton(button, item, equipLoc, minLevel)
-    if not (db.upgrades and LAI:IsAppropriate(item:GetItemID())) then
-        return button.simpleilvlup and button.simpleilvlup:Hide()
+local function AddUpgradeToButton(button, details)
+    if not (db.upgrades and details.upgrade) then
+        return button.simpleilvlup:Hide()
     end
-    if item:GetItemLocation() and item:GetItemLocation():IsEquipmentSlot() then
-        -- This is meant to catch the character frame, to avoid rings/trinkets
-        -- you've already got equipped showing as an upgrade since they're
-        -- higher ilevel than your other ring/trinket
-        return
+    local minLevel = select(5, C_Item.GetItemInfo(details.link))
+    if minLevel and minLevel > UnitLevel("player") then
+        button.simpleilvlup:SetVertexColor(1, 0, 0)
+    else
+        button.simpleilvlup:SetVertexColor(1, 1, 1)
     end
-    ns.ForEquippedItems(equipLoc, function(equippedItem, slot)
-        if equippedItem:IsItemEmpty() and slot == SLOT_OFFHAND then
-            local mainhand = GetInventoryItemID("player", SLOT_MAINHAND)
-            if mainhand then
-                local invtype = select(4, GetItemInfoInstant(mainhand))
-                if invtype == "INVTYPE_2HWEAPON" then
-                    return
-                end
-            end
-        end
-        -- fallbacks for the item levels; saw complaints of this erroring during initial login for people using Bagnon and AdiBags
-        local equippedItemLevel = equippedItem:GetCurrentItemLevel() or 0
-        local itemLevel = item:GetCurrentItemLevel() or 0
-        if equippedItem:IsItemEmpty() or equippedItemLevel < itemLevel then
-            PrepareItemButton(button)
-            button.simpleilvlup:Show()
-            if minLevel and minLevel > UnitLevel("player") then
-                button.simpleilvlup:SetVertexColor(1, 0, 0)
-            else
-                button.simpleilvlup:SetVertexColor(1, 1, 1)
-            end
-        end
-    end)
+    button.simpleilvlup:Show()
 end
-local function AddMissingToButton(button, itemLink)
-    if not itemLink then
-        return button.simpleilvlmissing and button.simpleilvlmissing:Hide()
-    end
-    PrepareItemButton(button)
-    local missingGems = db.missinggems and ns.ItemHasEmptySlots(itemLink)
-    local missingEnchants =  db.missingenchants and ns.ItemIsMissingEnchants(itemLink)
-    -- print(itemLink, missingEnchants, missingGems)
+local function AddMissingToButton(button, details)
+    local missingGems = db.missinggems and details.missingGems
+    local missingEnchants =  db.missingenchants and details.missingEnchants
     button.simpleilvlmissing:SetFormattedText("%s%s", missingGems and ns.gemString or "", missingEnchants and ns.enchantString or "")
     button.simpleilvlmissing:Show()
 end
-local function AddBoundToButton(button, item)
+local function AddBoundToButton(button, details)
     if not db.bound then
         return button.simpleilvlbound and button.simpleilvlbound:Hide()
     end
-    if item and item:IsItemInPlayersControl() then
-        local itemLocation = item:GetItemLocation()
-        if itemLocation and C_Item.IsBound(itemLocation) and button.simpleilvlbound then -- 暫時修正
-            button.simpleilvlbound:Show()
-        end
+    if details.bound then
+        button.simpleilvlbound:Show()
     end
 end
 local function ShouldShowOnItem(item)
@@ -243,7 +295,7 @@ local function ShouldShowOnItem(item)
     if quality < db.quality then
         return false
     end
-    local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(item:GetItemID())
+    local _, _, _, equipLoc, _, itemClass, itemSubClass = C_Item.GetItemInfoInstant(item:GetItemID())
     if (
         itemClass == Enum.ItemClass.Weapon or
         itemClass == Enum.ItemClass.Armor or
@@ -255,12 +307,11 @@ local function ShouldShowOnItem(item)
         -- Pet Cage
         return db.battlepets
     end
-    if select(17, GetItemInfo(item:GetItemID())) then
+    if select(17, C_Item.GetItemInfo(item:GetItemID())) then
         return db.reagents
     end
     return db.misc
 end
-local blank = {}
 local function UpdateButtonFromItem(button, item, variant, suppress)
     if not item or item:IsItemEmpty() then
         return
@@ -268,18 +319,16 @@ local function UpdateButtonFromItem(button, item, variant, suppress)
     suppress = suppress or blank
     item:ContinueOnItemLoad(function()
         if not ShouldShowOnItem(item) then return end
-        local itemID = item:GetItemID()
-        local link = item:GetItemLink()
-        local _, _, _, equipLoc, _, itemClass, itemSubClass = GetItemInfoInstant(itemID)
-        local minLevel = link and select(5, GetItemInfo(link or itemID))
         PrepareItemButton(button)
-        if not suppress.level then AddLevelToButton(button, item) end
-        if not suppress.upgrade then AddUpgradeToButton(button, item, equipLoc, minLevel) end
-        if not suppress.bound then AddBoundToButton(button, item) end
+        local details = DetailsFromItem(item)
+        if not suppress.level then AddLevelToButton(button, details) end
+        if not suppress.upgrade then AddUpgradeToButton(button, details) end
+        if not suppress.bound then AddBoundToButton(button, details) end
         if (variant == "character" or variant == "inspect" or not db.missingcharacter) then
-            if not suppress.missing then AddMissingToButton(button, link) end
+            if not suppress.missing then AddMissingToButton(button, details) end
         end
     end)
+    return true
 end
 ns.UpdateButtonFromItem = UpdateButtonFromItem
 
@@ -306,7 +355,7 @@ local function AddAverageLevelToFontString(unit, fontstring)
                 continuableContainer:AddContinuable(item)
                 table.insert(items, item)
                 -- slot bookkeeping
-                local equipLoc = select(4, GetItemInfoInstant(itemLink or itemID))
+                local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink or itemID))
                 if slot == INVSLOT_MAINHAND then mainhandEquipLoc = equipLoc end
                 if slot == INVSLOT_OFFHAND then offhandEquipLoc = equipLoc end
             end
@@ -412,27 +461,45 @@ end)
 -- Equipment flyout in character frame
 
 if _G.EquipmentFlyout_DisplayButton then
-    hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
-        -- print("EquipmentFlyout_DisplayButton", button, paperDollItemSlot)
-        CleanButton(button)
-        if not db.character then return end
-        local location = button.location
-        if not location then return end
-        if location >= EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION then return end
-        local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
-        local item
-        if bags then
-            item = Item:CreateFromBagAndSlot(bag, slot)
-        elseif not voidStorage then -- player or bank
-            item = Item:CreateFromEquipmentSlot(slot)
+    local function ItemFromEquipmentFlyoutDisplayButton(button)
+        local flyoutSettings = EquipmentFlyoutFrame.button:GetParent().flyoutSettings
+        if flyoutSettings.useItemLocation then
+            local itemLocation = button:GetItemLocation()
+            if itemLocation then
+                return Item:CreateFromItemLocation(itemLocation)
+            end
         else
-            local itemID = EquipmentManager_GetItemInfoByLocation(location)
-            if itemID then
-                item = Item:CreateFromItemID(itemID)
+            local location = button.location
+            if not location then return end
+            if location >= EQUIPMENTFLYOUT_FIRST_SPECIAL_LOCATION then return end
+            local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
+            if type(voidStorage) ~= "boolean" then
+                -- classic compatibility: no voidStorage returns, so shuffle everything down by one
+                -- returns either `player, bank, bags (true), slot, bag` or `player, bank, bags (false), location`
+                slot, bag = voidStorage, slot
+            end
+            if bags then
+                return Item:CreateFromBagAndSlot(bag, slot)
+            elseif not voidStorage then -- player or bank
+                return Item:CreateFromEquipmentSlot(slot)
+            else
+                local itemID = EquipmentManager_GetItemInfoByLocation(location)
+                if itemID then
+                    return Item:CreateFromItemID(itemID)
+                end
             end
         end
-        if item then
-            UpdateButtonFromItem(button, item, "character")
+    end
+    hooksecurefunc("EquipmentFlyout_UpdateItems", function()
+        local flyoutSettings = EquipmentFlyoutFrame.button:GetParent().flyoutSettings
+        for i, button in ipairs(EquipmentFlyoutFrame.buttons) do
+            CleanButton(button)
+            if db.flyout and button:IsShown() then
+                local item = ItemFromEquipmentFlyoutDisplayButton(button)
+                if item then
+                    UpdateButtonFromItem(button, item, "character")
+                end
+            end
         end
     end)
 end
@@ -639,56 +706,87 @@ end)
 -- Baganator
 --[[
 ns:RegisterAddonHook("Baganator", function()
-    local suppress = {}
-    local function check_baginator_config(value)
-        return tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY), value) or
-            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY), value) or
-            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY), value) or
-            tContains(Baganator.Config.Get(Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY), value)
+    local function textInit(itemButton)
+        local text = itemButton:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+        text.sizeFont = true
+        return text
     end
-    local function baganator_setitemdetails(button, details)
-        CleanButton(button)
-        if not db.bags then return end
-        local item
-        -- If we have a container-item, we should use that because it's needed for soulbound detection
-        local bag = button.GetBagID and button:GetBagID() or button:GetParent():GetID()
-        local slot = button:GetID()
-        -- print("SetItemDetails", details.itemLink, bag, slot)
-        if bag and slot and slot ~= 0 then
-            item = Item:CreateFromBagAndSlot(bag, slot)
-        elseif details.itemLink then
-            item = Item:CreateFromItemLink(details.itemLink)
-        end
-        if not item then return end
-        suppress.level = check_baginator_config("item_level")
-        UpdateButtonFromItem(button, item, "bags", suppress)
-    end
-    local function baganator_rebuildlayout(frame)
-        for _, button in ipairs(frame.buttons) do
-            if not button.____SimpleItemLevelHooked then
-                button.____SimpleItemLevelHooked = true
-                hooksecurefunc(button, "SetItemDetails", baganator_setitemdetails)
+    local function onUpdate(callback)
+        return function(cornerFrame, details)
+            if not details.itemLink then return end
+            local button = cornerFrame:GetParent():GetParent()
+            local item
+            -- If we have a container-item, we should use that because it's needed for soulbound detection
+            local bag, slot = button:GetParent():GetID(), button:GetID()
+            -- print("SetItemDetails", details.itemLink, bag, slot)
+            if bag and slot and slot ~= 0 then
+                item = Item:CreateFromBagAndSlot(bag, slot)
+            elseif details.itemLink then
+                item = Item:CreateFromItemLink(details.itemLink)
             end
+            if not item then return end
+            local data = DetailsFromItem(item)
+            return callback(cornerFrame, item, data, details)
         end
     end
-    local function baganator_hookmain()
-        local backpack = Baganator_SingleViewBackpackViewFrame or Baganator_BackpackViewFrame
-        local bank = Baganator_SingleViewBankViewFrame or Baganator_BankViewFrame
-        if backpack then
-            hooksecurefunc(backpack.BagLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(backpack.BagCached, "RebuildLayout", baganator_rebuildlayout)
-        end
-        if bank then
-            hooksecurefunc(bank.Character.BankLive, "RebuildLayout", baganator_rebuildlayout)
-            hooksecurefunc(bank.Character.BankCached, "RebuildLayout", baganator_rebuildlayout)
-        end
-    end
-    -- Depending on whether we were loaded before or after Baganator, this might or might not have already been created...
-    if Baganator_SingleViewBackpackViewFrame or Baganator_BackpackViewFrame then
-        baganator_hookmain()
-    elseif Baganator and (Baganator.SingleViews and Baganator.SingleViews.Initialize) or (Baganator.UnifiedViews and Baganator.UnifiedViews.Initialize) then
-        hooksecurefunc(Baganator.SingleViews or Baganator.UnifiedViews, "Initialize", baganator_hookmain)
-    end
+    Baganator.API.RegisterCornerWidget("sIlvl: Item Level", "simpleitemlevel-ilvl",
+        onUpdate(function(cornerFrame, item, data, details)
+            cornerFrame:SetText(data.level)
+            if db.color then
+                local r, g, b = C_Item.GetItemQualityColor(data.quality)
+                cornerFrame:SetTextColor(r, g, b)
+            else
+                cornerFrame:SetTextColor(1, 1, 1)
+            end
+            return true
+        end),
+        textInit, {default_position = "top_right", priority = 1}
+    )
+    Baganator.API.RegisterCornerWidget("sIlvl: Upgrade", "simpleitemlevel-upgrade",
+        onUpdate(function(cornerFrame, item, data, details)
+            if data.upgrade then
+                local minLevel = select(5, C_Item.GetItemInfo(item:GetItemLink() or item:GetItemID()))
+                if minLevel and minLevel > UnitLevel("player") then
+                    cornerFrame:SetVertexColor(1, 0, 0)
+                else
+                    cornerFrame:SetVertexColor(1, 1, 1)
+                end
+                return true
+            end
+        end),
+        function (itemButton)
+            local texture = itemButton:CreateTexture(nil, "ARTWORK")
+            texture:SetAtlas(ns.upgradeAtlas)
+            texture:SetSize(11, 11)
+            return texture
+        end,
+        {default_position = "top_left", priority = 1}
+    )
+    Baganator.API.RegisterCornerWidget("sIlvl: Soulbound", "simpleitemlevel-bound",
+        function(cornerFrame, details)
+            if details.isBound then
+                return true
+            end
+        end,
+        function (itemButton)
+            local texture = itemButton:CreateTexture(nil, "ARTWORK")
+            texture:SetAtlas(ns.soulboundAtlas)
+            texture:SetSize(12, 12)
+            return texture
+        end, {default_position = "bottom_left", priority = 1}
+    )
+    Baganator.API.RegisterCornerWidget("sIlvl: Missing", "simpleitemlevel-missing",
+        onUpdate(function(cornerFrame, item, data, details)
+            if db.missingcharacter then return false end
+            local missingGems = db.missinggems and data.missingGems
+            local missingEnchants =  db.missingenchants and data.missingEnchants
+            if missingGems or missingEnchants then
+                cornerFrame:SetFormattedText("%s%s", missingGems and ns.gemString or "", missingEnchants and ns.enchantString or "")
+                return true
+            end
+        end),
+        textInit, {default_position = "bottom_right", priority = 2}
+    )
 end)
 --]]
 -- helper
@@ -729,10 +827,7 @@ do
             return
         end
         local item = Item:CreateFromEquipmentSlot(slot)
-        if item:IsItemEmpty() then
-            return callback(item, slot)
-        end
-        item:ContinueOnItemLoad(function() callback(item, slot) end)
+        return callback(item, slot)
     end
     ns.ForEquippedItems = function(equipLoc, callback)
         ForEquippedItem(EquipLocToSlot1[equipLoc], callback)
@@ -740,12 +835,21 @@ do
     end
 end
 
+ns.CacheEquippedItems = function()
+    for slotID = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
+        local itemID = GetInventoryItemID("player", slotID)
+        if itemID then
+            C_Item.RequestLoadItemDataByID(itemID)
+        end
+    end
+end
+
 do
     -- could arguably also do TooltipDataProcessor.AddLinePostCall(Enum.TooltipDataLineType.GemSocket, ...)
-    local t = {}
+    local GetItemStats = C_Item and C_Item.GetItemStats or _G.GetItemStats
     function ns.ItemHasEmptySlots(itemLink)
-        wipe(t)
-        local stats = GetItemStats(itemLink, t)
+        if not itemLink then return end
+        local stats = GetItemStats(itemLink)
         if not stats then return false end -- caged battle pets, mostly
         local slots = 0
         for label, stat in pairs(stats) do
@@ -795,7 +899,7 @@ do
     }
     function ns.ItemIsMissingEnchants(itemLink)
         if not itemLink then return false end
-        local equipLoc = select(4, GetItemInfoInstant(itemLink))
+        local equipLoc = select(4, C_Item.GetItemInfoInstant(itemLink))
         if not enchantable[equipLoc] then return false end
         local enchantID = select(3, strsplit(":", itemLink))
         if enchantID == "" then return true end
