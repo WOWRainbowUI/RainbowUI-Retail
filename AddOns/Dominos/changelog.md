@@ -1,5 +1,32 @@
 # Dominos Changelog
 
+## 10.2.36
+
+* Fix flyout errors with War Within
+
+## 10.2.35
+
+* Fix a typo
+
+## 10.2.34
+
+* (Cata) Improve encounter bar positioning (thanks [Road Block](https://github.com/Road-block))
+
+## 10.2.33
+
+* Row offset min and max values now include spacing
+* Row offset min and max values are now soft limits
+* Updated TOC to generate a separate file for Vanilla, and not all of Classic
+
+## 10.2.32
+
+* Keyboard nudge increments are now in terms of your screen's resolution
+* Fixed issues with using keyboard positioning on scaled frames
+
+## 10.2.31
+
+* (Cata) Fix encounter bar positioning
+
 ## 10.2.30
 
 * Add preliminary support for War Within
