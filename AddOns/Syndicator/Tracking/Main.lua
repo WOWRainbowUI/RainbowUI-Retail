@@ -10,8 +10,8 @@ local function AddCurrencyCheck()
   return Syndicator.Config.Get(Syndicator.Config.Options.SHOW_CURRENCY_TOOLTIPS) and (not Syndicator.Config.Get(Syndicator.Config.Options.SHOW_TOOLTIPS_ON_SHIFT) or IsShiftKeyDown())
 end
 
-local function AddToCurrencyTooltip(tooltip, summaries, itemLink)
-  Syndicator.Tooltips.AddCurrencyLines(tooltip, summaries, itemLink)
+local function AddToCurrencyTooltip(tooltip, currencyID)
+  Syndicator.Tooltips.AddCurrencyLines(tooltip, currencyID)
 end
 
 local function InitializeSavedVariables()
@@ -116,6 +116,13 @@ local function SetupTooltips()
           if newItemLink ~= nil then
             itemLink = newItemLink
           end
+        -- Auction house
+        elseif info and info.getterName == "GetItemKey" then
+          local itemID = info.getterArgs[1]
+          local _, newItemLink = C_Item.GetItemInfo(itemID)
+          if newItemLink ~= nil and itemID ~= C_Item.GetItemInfoInstant(itemLink) then
+            itemLink = newItemLink
+          end
         elseif info and info.getterName == "GetGuildBankItem" then
           local newItemLink = GetGuildBankItemLink(info.getterArgs[1], info.getterArgs[2])
           if newItemLink ~= nil then
@@ -166,6 +173,20 @@ local function SetupTooltips()
     end
     hooksecurefunc(GameTooltip, "SetCurrencyToken", CurrencyTooltipHandler)
     hooksecurefunc(ItemRefTooltip, "SetCurrencyToken", CurrencyTooltipHandler)
+    if GameTooltip.SetCurrencyByID then
+      hooksecurefunc(GameTooltip, "SetCurrencyByID", AddToCurrencyTooltip)
+    end
+    if ItemRefTooltip.SetCurrencyByID then -- Doesn't currently exist on classic
+      hooksecurefunc(ItemRefTooltip, "SetCurrencyByID", AddToCurrencyTooltip)
+    end
+    -- Fix enchant crafting reagent tooltips on Era/SoD
+    if GameTooltip.SetCraftItem then
+      hooksecurefunc(GameTooltip, "SetCraftItem", function(_, recipeIndex, reagentIndex)
+        if AddItemCheck() then
+          AddToItemTooltip(GameTooltip, Syndicator.ItemSummaries, GetCraftReagentItemLink(recipeIndex, reagentIndex))
+        end
+      end)
+    end
   end
 
   if BattlePetToolTip_Show then

@@ -146,12 +146,14 @@ function SyndicatorBagCacheMixin:OnEvent(eventName, ...)
     self.bankOpen = false
 
   elseif eventName == "ITEM_CHANGED" or eventName == "CHALLENGE_MODE_START" or eventName == "CHALLENGE_MODE_COMPLETED" then
-    C_Timer.After(0, function()
+    C_Timer.After(1, function()
       for bagID in pairs(bagBags) do
         self.pending.bags[bagID] = true
       end
-      for bagID in pairs(bankBags) do
-        self.pending.bank[bagID] = true
+      if self.bankOpen then
+        for bagID in pairs(bankBags) do
+          self.pending.bank[bagID] = true
+        end
       end
       self:QueueCaching()
     end)
