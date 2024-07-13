@@ -3045,6 +3045,21 @@ function F:Revise()
         end
     end
 
+    -- r234-release
+    if CellDB["revise"] and dbRevision < 234 then
+        CellDB["general"]["overrideLGF"] = true
+
+        for _, layout in pairs(CellDB["layouts"]) do
+            for _, i in pairs(layout["indicators"]) do
+                if i.indicatorName == "readyCheckIcon" then
+                    if not i.position then
+                        i.position = {"CENTER", "CENTER", 0, 0}
+                    end
+                end
+            end
+        end
+    end
+
     -- ----------------------------------------------------------------------- --
     --            update from old versions, validate all indicators            --
     -- ----------------------------------------------------------------------- --
