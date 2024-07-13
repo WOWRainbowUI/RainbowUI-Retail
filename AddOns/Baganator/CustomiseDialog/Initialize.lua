@@ -54,7 +54,7 @@ function Baganator.CustomiseDialog.Initialize()
     optionsFrame.OnDefault = function() end
     optionsFrame.OnRefresh = function() end
 
-    local category = Settings.RegisterCanvasLayoutCategory(optionsFrame, BAGANATOR_L_BAGANATOR)
+    local category = Settings.RegisterCanvasLayoutCategory(optionsFrame, BAGANATOR_L_CATEGORY_BAG) -- 修改設定選項的選單名稱
     category.ID = BAGANATOR_L_BAGANATOR
     Settings.RegisterAddOnCategory(category)
   end
