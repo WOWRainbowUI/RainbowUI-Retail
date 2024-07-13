@@ -1,18 +1,13 @@
 # XIV_Databar Continued
 
-## [2.8](https://github.com/ZelionGG/XIV_Databar-Continued/tree/v2.8) (2024-05-16)
+## [3.0](https://github.com/ZelionGG/XIV_Databar-Continued/tree/v3.0) (2024-07-06)
 
-[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/v2.7.3...v2.8) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
+[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/v2.9...v3.0) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
 
-### _Retail :_
+### _The War Within Beta :_
 
-- TOC update for Retail 10.2.7.
+- Initial 11.0 compatibility.
 
-### _Classic (SOD) :_
+### _Global :_
 
-- TOC update for Classic SOD 1.15.2.
-
-### _Cata Classic :_
-
-- Initial support for Cata Classic 4.4.0.
-- Known bug : The talent switcher is actually bugged, a fix is planned ASAP.
+- Removed a useless var in TOC files.

@@ -2,6 +2,9 @@ local AddOnName, XIVBar = ...;
 local _G = _G;
 local pairs, unpack, select = pairs, unpack, select
 local AceAddon, AceAddonMinor = _G.LibStub('AceAddon-3.0')
+local AceConfig = LibStub("AceConfig-3.0")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+
 AceAddon:NewAddon(XIVBar, AddOnName, "AceConsole-3.0", "AceEvent-3.0");
 local L = LibStub("AceLocale-3.0"):GetLocale(AddOnName, true);
 local ldb = LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject(AddOnName, {
@@ -255,22 +258,13 @@ function XIVBar:OnInitialize()
 
     self.db:RegisterDefaults(self.defaults)
 
-    LibStub("AceConfig-3.0"):RegisterOptionsTable(AddOnName, options)
-    self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(
-                            AddOnName, L["XIV Bar Continued"], nil, "general")
-
-    -- options.args.modules = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-    self.modulesOptionFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(
-                                  AddOnName, L['Modules'], L["XIV Bar Continued"],
-                                  "modules")
-    self.changelogOptionFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(
-                                    AddOnName, L['Changelog'],
-                                    L["XIV Bar Continued"], "changelog")
+    AceConfig:RegisterOptionsTable(AddOnName, options)
+    AceConfigDialog:AddToBlizOptions(AddOnName, L["XIV Bar Continued"], nil, "general")
+    AceConfigDialog:AddToBlizOptions(AddOnName, L['Modules'], L["XIV Bar Continued"], "modules")
+    AceConfigDialog:AddToBlizOptions(AddOnName, L['Changelog'], L["XIV Bar Continued"], "changelog")
 
     options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-    self.profilesOptionFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(
-                                   AddOnName, L['Profiles'], L["XIV Bar Continued"],
-                                   "profiles")
+    AceConfigDialog:AddToBlizOptions(AddOnName, L['Profiles'], L["XIV Bar Continued"], "profiles")
 
     self.timerRefresh = false
 
@@ -296,9 +290,7 @@ function XIVBar:OnEnable()
 end
 
 function XIVBar:ToggleConfig()
-    InterfaceOptionsFrame_OpenToCategory(L["XIV Bar Continued"])
-	InterfaceOptionsFrame_OpenToCategory(L['Modules'])
-    InterfaceOptionsFrame_OpenToCategory(L["XIV Bar Continued"])
+    Settings.OpenToCategory(L["XIV Bar Continued"])
 end
 
 function XIVBar:SetColor(name, r, g, b, a)
