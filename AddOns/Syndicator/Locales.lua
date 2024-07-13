@@ -20,17 +20,20 @@ L["SYNDICATOR"] = "Syndicator"
 
 L["VERSION_COLON_X"] = "Version: %s"
 
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
+L["SHOW_INVENTORY"] = "Show inventory"
 L["TOOLTIP_SETTINGS"] = "Tooltip Settings"
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Press shift to display info in tooltips"
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
+L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
+L["SAME_CONNECTED_REALMS"] = "Same connected realms"
+L["SAME_FACTION"] = "Same faction"
 L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
-L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory tooltips"
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Show equipped items in inventory tooltips"
-L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
-L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
+L["SORT_BY_NAME"] = "Sort by name"
+L["SHOW_GUILD_BANKS"] = "Show guild banks"
+L["SHOW_EQUIPPED"] = "Show equipped"
+L["SHOW_CURRENCY"] = "Show currency"
+L["SHOW_RACE_ICONS"] = "Show race icons"
+L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+L["DELETE_CHARACTER"] = "Delete Character"
+L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 
 L["ALL_CHARACTERS_COLON"] = "All Characters:"
 
@@ -61,6 +64,7 @@ L["KEYWORD_EQUIPMENT"] = "equipment"
 L["KEYWORD_GEAR"] = "gear"
 L["KEYWORD_REPUTATION"] = "reputation"
 L["KEYWORD_SET"] = "set"
+L["KEYWORD_EQUIPMENT_SET"] = "equipment set"
 L["KEYWORD_SOCKET"] = "socket"
 L["KEYWORD_JUNK"] = "junk"
 L["KEYWORD_TRASH"] = "trash"
@@ -69,6 +73,7 @@ L["KEYWORD_AXE"] = "axe"
 L["KEYWORD_MACE"] = "mace"
 L["KEYWORD_SWORD"] = "sword"
 L["KEYWORD_USE"] = "use"
+L["KEYWORD_USABLE"] = "usable"
 L["KEYWORD_OPEN"] = "open"
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
 L["KEYWORD_STAFF"] = "staff"
@@ -85,17 +90,29 @@ L["KEYWORD_TRADABLE_LOOT"] = "tradable loot"
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 L["KEYWORD_ENGRAVED"] = "engraved"
 L["KEYWORD_RELIC"] = "relic"
-L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
 L["KEYWORD_STACKS"] = "stacks"
 L["KEYWORD_STACKABLE"] = "stackable"
-L["KEYWORD_SOUL"] = "soul"
-L["KEYWORD_ENCHANTING"] = "enchanting"
-L["KEYWORD_ENGINEERING"] = "engineering"
-L["KEYWORD_MINING"] = "mining"
-L["KEYWORD_INSCRIPTION"] = "inscription"
-L["KEYWORD_FISHING"] = "fishing"
-L["KEYWORD_COOKING"] = "cooking"
-L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
+L["KEYWORD_KEY"] = "key"
+L["KEYWORD_FISH"] = "fish"
+L["KEYWORD_SOCKETED"] = "socketed"
+L["KEYWORD_CURRENCY"] = "currency"
+L["KEYWORD_OBJECTIVE"] = "objective"
+L["KEYWORD_COLLECTED"] = "collected"
+L["KEYWORD_UNCOLLECTED"] = "uncollected"
+
+L["GROUP_ARMOR_TYPE"] = "Armor Type"
+L["GROUP_BATTLE_PET"] = "Battle Pet Type"
+L["GROUP_EXPANSION"] = "Expansion"
+L["GROUP_ITEM_DETAIL"] = "Item Detail"
+L["GROUP_ITEM_TYPE"] = "Item Type"
+L["GROUP_GLYPH"] = "Glyph"
+L["GROUP_QUALITY"] = "Quality"
+L["GROUP_SLOT"] = "Equipment Slot"
+L["GROUP_SOCKET"] = "Socket"
+L["GROUP_STAT"] = "Stat"
+L["GROUP_TRADE_GOODS"] = "Trade Goods"
+L["GROUP_WEAPON_TYPE"] = "Weapon Type"
+L["GROUP_RECIPE"] = "Recipe"
 
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
@@ -117,10 +134,42 @@ L["BAGS_X"] = "Sacs: %s"
 L["BANK_LOWER"] = "banque"
 L["BANK_X"] = "Banque : %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Impossible d’effectuer une recherche par lien d’objet"
+--[[Translation missing --]]
+L["DELETE_CHARACTER"] = "Delete Character"
 L["EQUIPPED_LOWER"] = "équipé "
 L["EQUIPPED_X"] = "Equipé: %s "
+--[[Translation missing --]]
+L["GROUP_ARMOR_TYPE"] = "Armor Type"
+--[[Translation missing --]]
+L["GROUP_BATTLE_PET"] = "Battle Pet Type"
+--[[Translation missing --]]
+L["GROUP_EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["GROUP_GLYPH"] = "Glyph"
+--[[Translation missing --]]
+L["GROUP_ITEM_DETAIL"] = "Item Detail"
+--[[Translation missing --]]
+L["GROUP_ITEM_TYPE"] = "Item Type"
+--[[Translation missing --]]
+L["GROUP_QUALITY"] = "Quality"
+--[[Translation missing --]]
+L["GROUP_RECIPE"] = "Recipe"
+--[[Translation missing --]]
+L["GROUP_SLOT"] = "Equipment Slot"
+--[[Translation missing --]]
+L["GROUP_SOCKET"] = "Socket"
+--[[Translation missing --]]
+L["GROUP_STAT"] = "Stat"
+--[[Translation missing --]]
+L["GROUP_TRADE_GOODS"] = "Trade Goods"
+--[[Translation missing --]]
+L["GROUP_WEAPON_TYPE"] = "Weapon Type"
 L["GUILD_LOWER"] = "guilde"
 L["GUILD_X"] = "Guilde: %s"
+--[[Translation missing --]]
+L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
 L["INVENTORY"] = "Inventaire"
 L["KEYWORD_ACCOUNT_BOUND"] = "lié au compte"
 L["KEYWORD_AXE"] = "hache"
@@ -134,25 +183,30 @@ L["KEYWORD_BOP"] = "lqr"
 L["KEYWORD_BOU"] = "lqu"
 L["KEYWORD_BRACERS"] = "Brassards"
 L["KEYWORD_CLOAK"] = "cape"
-L["KEYWORD_COOKING"] = "cuisine"
+--[[Translation missing --]]
+L["KEYWORD_COLLECTED"] = "collected"
 L["KEYWORD_COSMETIC"] = "cosmétique"
+--[[Translation missing --]]
+L["KEYWORD_CURRENCY"] = "currency"
 L["KEYWORD_DRINK"] = "boisson"
-L["KEYWORD_ENCHANTING"] = "enchantement"
-L["KEYWORD_ENGINEERING"] = "ingénierie"
 L["KEYWORD_ENGRAVABLE"] = "gravable"
 L["KEYWORD_ENGRAVED"] = "gravée"
 L["KEYWORD_EQUIPMENT"] = "équipement"
-L["KEYWORD_FISHING"] = "pêche "
+--[[Translation missing --]]
+L["KEYWORD_EQUIPMENT_SET"] = "equipment set"
+--[[Translation missing --]]
+L["KEYWORD_FISH"] = "fish"
 L["KEYWORD_FOOD"] = "nourriture"
 L["KEYWORD_GEAR"] = "Equipement "
 L["KEYWORD_GLOVES"] = "Mains"
 L["KEYWORD_HELM"] = "casque"
-L["KEYWORD_INSCRIPTION"] = "calligraphie"
-L["KEYWORD_JEWELCRAFTING"] = "joaillerie"
 L["KEYWORD_JUNK"] = "camelote"
+--[[Translation missing --]]
+L["KEYWORD_KEY"] = "key"
 L["KEYWORD_MACE"] = "masse"
 L["KEYWORD_MANUSCRIPT"] = "manuscrit"
-L["KEYWORD_MINING"] = "minage"
+--[[Translation missing --]]
+L["KEYWORD_OBJECTIVE"] = "objective"
 L["KEYWORD_OFF_HAND"] = "main gauche"
 L["KEYWORD_OPEN"] = "ouvrir"
 L["KEYWORD_PET"] = "mascotte"
@@ -162,7 +216,8 @@ L["KEYWORD_RELIC"] = "relique"
 L["KEYWORD_REPUTATION"] = "réputation"
 L["KEYWORD_SET"] = "Set"
 L["KEYWORD_SOCKET"] = "châsse"
-L["KEYWORD_SOUL"] = "âme"
+--[[Translation missing --]]
+L["KEYWORD_SOCKETED"] = "socketed"
 L["KEYWORD_SOULBOUND"] = "Lié"
 L["KEYWORD_STACKABLE"] = "empilable "
 L["KEYWORD_STACKS"] = "piles"
@@ -171,20 +226,32 @@ L["KEYWORD_SWORD"] = "épée"
 L["KEYWORD_TRADABLE_LOOT"] = "butin échangeable"
 L["KEYWORD_TRADEABLE_LOOT"] = "Butin échangeable"
 L["KEYWORD_TRASH"] = "camelote"
-L["KEYWORD_UNCOLLECTED_PET"] = "Mascotte non collectée"
+--[[Translation missing --]]
+L["KEYWORD_UNCOLLECTED"] = "uncollected"
+--[[Translation missing --]]
+L["KEYWORD_USABLE"] = "usable"
 L["KEYWORD_USE"] = "utiliser"
 L["MAIL_LOWER"] = "courrier"
 L["MAIL_X"] = "Courrier : %s"
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Uniquement l'inventaire des serveurs connectés "
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Uniquement l'inventaire de faction "
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Maj pour afficher les infos dans les infobulles"
+--[[Translation missing --]]
+L["SAME_CONNECTED_REALMS"] = "Same connected realms"
+--[[Translation missing --]]
+L["SAME_FACTION"] = "Same faction"
 L["SEARCHED_EVERYWHERE_COLON"] = "Recherche Globale:"
-L["SHOW_CHARACTER_RACE_ICONS"] = "Afficher les icônes de races"
-L["SHOW_CURRENCY_TOOLTIPS"] = "Monnaies des autres persos dans les infobulles"
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Affiche les objets équipés dans les infobulles d'inventaire."
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Afficher les banques de guilde dans les infobulles"
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Afficher l’inventaire dans les infobulles"
-L["SORT_BY_CHARACTER_NAME"] = "Trier par nom de personnage"
+--[[Translation missing --]]
+L["SHOW_CURRENCY"] = "Show currency"
+--[[Translation missing --]]
+L["SHOW_EQUIPPED"] = "Show equipped"
+--[[Translation missing --]]
+L["SHOW_GUILD_BANKS"] = "Show guild banks"
+--[[Translation missing --]]
+L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
+--[[Translation missing --]]
+L["SHOW_INVENTORY"] = "Show inventory"
+--[[Translation missing --]]
+L["SHOW_RACE_ICONS"] = "Show race icons"
+--[[Translation missing --]]
+L["SORT_BY_NAME"] = "Sort by name"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Options des infobulles"
 L["TOTAL_X"] = "Total: %s"
@@ -193,6 +260,8 @@ L["VOID_LOWER"] = "vide"
 L["VOID_X"] = "Vide: %s"
 --[[Translation missing --]]
 L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_LOWER"] = "warband"
 L["X_CHARACTERS_SHOWN"] = "%s Personnages affichés"
 
 
@@ -204,11 +273,27 @@ L["BAGS_LOWER"] = "taschen"
 L["BAGS_X"] = "Taschen: %s"
 L["BANK_LOWER"] = "bank"
 L["BANK_X"] = "Bank: %s"
-L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Suche nach Artikel-Link nicht möglich"
+L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Suche nach Gegenstands-Link nicht möglich"
+L["DELETE_CHARACTER"] = "Charakter löschen"
 L["EQUIPPED_LOWER"] = "ausgerüstet"
 L["EQUIPPED_X"] = "Ausgerüstet: %s"
+L["GROUP_ARMOR_TYPE"] = "Rüstungsart"
+L["GROUP_BATTLE_PET"] = "Kampf-Haustier Typ"
+L["GROUP_EXPANSION"] = "Erweiterung"
+L["GROUP_GLYPH"] = "Glyphe"
+L["GROUP_ITEM_DETAIL"] = "Gegenstands-Detail"
+L["GROUP_ITEM_TYPE"] = "Gegenstands-Typ"
+L["GROUP_QUALITY"] = "Qualität"
+L["GROUP_RECIPE"] = "Rezept"
+L["GROUP_SLOT"] = "Ausrüstungs-Slot"
+L["GROUP_SOCKET"] = "Sockel"
+L["GROUP_STAT"] = "Stat"
+L["GROUP_TRADE_GOODS"] = "Handelswaren"
+L["GROUP_WEAPON_TYPE"] = "Waffenart"
 L["GUILD_LOWER"] = "gilde"
 L["GUILD_X"] = "Gilde: %s"
+L["HIDE_IN_TOOLTIPS"] = "In Tooltips ausblenden"
+L["HOLD_SHIFT_TO_DISPLAY"] = "Gedrückte Umschalttaste = zeigt Tooltip"
 L["INVENTORY"] = "Inventar"
 L["KEYWORD_ACCOUNT_BOUND"] = "accountgebunden"
 L["KEYWORD_AXE"] = "axt"
@@ -220,27 +305,26 @@ L["KEYWORD_BOE"] = "boe"
 L["KEYWORD_BOOTS"] = "füße"
 L["KEYWORD_BOP"] = "bop"
 L["KEYWORD_BOU"] = "bou"
-L["KEYWORD_BRACERS"] = "armschienen"
+L["KEYWORD_BRACERS"] = "amschienen"
 L["KEYWORD_CLOAK"] = "umhang"
-L["KEYWORD_COOKING"] = "kochen"
+L["KEYWORD_COLLECTED"] = "gesammelt"
 L["KEYWORD_COSMETIC"] = "kosmetisch"
+L["KEYWORD_CURRENCY"] = "währung"
 L["KEYWORD_DRINK"] = "trinken"
-L["KEYWORD_ENCHANTING"] = "verzaubern"
-L["KEYWORD_ENGINEERING"] = "ingenieurskunst"
 L["KEYWORD_ENGRAVABLE"] = "gravierbar"
 L["KEYWORD_ENGRAVED"] = "graviert"
 L["KEYWORD_EQUIPMENT"] = "ausrüstung"
-L["KEYWORD_FISHING"] = "angeln"
-L["KEYWORD_FOOD"] = "essen"
+L["KEYWORD_EQUIPMENT_SET"] = "ausrüstungs-set"
+L["KEYWORD_FISH"] = "Fisch"
+L["KEYWORD_FOOD"] = "essen & trinken"
 L["KEYWORD_GEAR"] = "ausrüstung"
 L["KEYWORD_GLOVES"] = "handschuhe"
 L["KEYWORD_HELM"] = "helm"
-L["KEYWORD_INSCRIPTION"] = "inschrift"
-L["KEYWORD_JEWELCRAFTING"] = "juwelenschleifen"
-L["KEYWORD_JUNK"] = "schrott"
+L["KEYWORD_JUNK"] = "plunder"
+L["KEYWORD_KEY"] = "Schlüssel"
 L["KEYWORD_MACE"] = "streitkolben"
 L["KEYWORD_MANUSCRIPT"] = "manuskript"
-L["KEYWORD_MINING"] = "bergbau"
+L["KEYWORD_OBJECTIVE"] = "zweck"
 L["KEYWORD_OFF_HAND"] = "nebenhand"
 L["KEYWORD_OPEN"] = "offen"
 L["KEYWORD_PET"] = "haustier"
@@ -250,7 +334,7 @@ L["KEYWORD_RELIC"] = "relikt"
 L["KEYWORD_REPUTATION"] = "ruf"
 L["KEYWORD_SET"] = "set"
 L["KEYWORD_SOCKET"] = "sockel"
-L["KEYWORD_SOUL"] = "seele"
+L["KEYWORD_SOCKETED"] = "gesockelt"
 L["KEYWORD_SOULBOUND"] = "seelengebunden"
 L["KEYWORD_STACKABLE"] = "stapelbar"
 L["KEYWORD_STACKS"] = "stapel"
@@ -259,27 +343,29 @@ L["KEYWORD_SWORD"] = "schwert"
 L["KEYWORD_TRADABLE_LOOT"] = "handelbare beute"
 L["KEYWORD_TRADEABLE_LOOT"] = "handelbare beute"
 L["KEYWORD_TRASH"] = "müll"
-L["KEYWORD_UNCOLLECTED_PET"] = "nicht gesammeltes haustier"
+L["KEYWORD_UNCOLLECTED"] = "nicht gesammelt"
+L["KEYWORD_USABLE"] = "benutzbar"
 L["KEYWORD_USE"] = "benutzen"
 L["MAIL_LOWER"] = "post"
 L["MAIL_X"] = "Post: %s"
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Nur die gleichen verbundenen Realms für das Inventar verwenden"
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Nur Charaktere derselben Fraktion für das Inventar verwenden"
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Drücke die Umschalttaste, um Informationen in den Tooltips anzuzeigen"
+L["SAME_CONNECTED_REALMS"] = "Gleiche verbundene Server"
+L["SAME_FACTION"] = "Gleiche Fraktion"
 L["SEARCHED_EVERYWHERE_COLON"] = "Überall gesucht:"
-L["SHOW_CHARACTER_RACE_ICONS"] = "Rassensymbole der Charaktere anzeigen"
-L["SHOW_CURRENCY_TOOLTIPS"] = "Währung anderer Charaktere in Tooltips anzeigen"
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Ausgerüstete Gegenstände in Inventar-Tooltips anzeigen"
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Gildenbanken in Inventar-Tooltips anzeigen"
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Inventar in Gegenstand-Tooltips anzeigen"
-L["SORT_BY_CHARACTER_NAME"] = "Nach Charaktername sortieren"
+L["SHOW_CURRENCY"] = "Währung anzeigen"
+L["SHOW_EQUIPPED"] = "Ausgerüstet anzeigen"
+L["SHOW_GUILD_BANKS"] = "Gilden-Bank anzeigen"
+L["SHOW_IN_TOOLTIPS"] = "In Tooltips anzeigen"
+L["SHOW_INVENTORY"] = "Inventar anzeigen"
+L["SHOW_RACE_ICONS"] = "Rassensymbole anzeigen"
+L["SORT_BY_NAME"] = "Nach Namen sortieren"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Tooltip-Einstellungen"
 L["TOTAL_X"] = "Insgesamt: %s"
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_LOWER"] = "ungültig"
 L["VOID_X"] = "Ungültig: %s"
-L["WARBAND"] = "Kriegsbande"
+L["WARBAND"] = "Kriegsmeute"
+L["WARBAND_LOWER"] = "kriegsmeute"
 L["X_CHARACTERS_SHOWN"] = "%s Angezeigte Charaktere"
 
 
@@ -292,131 +378,98 @@ L["BAGS_X"] = "Сумки: %s"
 L["BANK_LOWER"] = "Банк -"
 L["BANK_X"] = "Банк: %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Невозможно выполнить поиск по ссылке на предмет"
+L["DELETE_CHARACTER"] = "Удалить персонажа"
 L["EQUIPPED_LOWER"] = "Экипировано -"
 L["EQUIPPED_X"] = "Экипировано: %s"
+L["GROUP_ARMOR_TYPE"] = "Тип брони"
+L["GROUP_BATTLE_PET"] = "Тип боевого питомца"
+L["GROUP_EXPANSION"] = "Дополнение"
+L["GROUP_GLYPH"] = "Символ"
+L["GROUP_ITEM_DETAIL"] = "Особенности предмета"
+L["GROUP_ITEM_TYPE"] = "Тип предмета"
+L["GROUP_QUALITY"] = "Качество"
+L["GROUP_RECIPE"] = "Рецепт"
+L["GROUP_SLOT"] = "Ячейка снаряжения"
+L["GROUP_SOCKET"] = "Гнездо"
+L["GROUP_STAT"] = "Характеристики"
+L["GROUP_TRADE_GOODS"] = "Хозяйственные товары"
+L["GROUP_WEAPON_TYPE"] = "Тип оружия"
 L["GUILD_LOWER"] = "Банк гильдии -"
 L["GUILD_X"] = "Банк гильдии: %s"
+L["HIDE_IN_TOOLTIPS"] = "Скрыть в подсказках"
+L["HOLD_SHIFT_TO_DISPLAY"] = "Только при зажатом Shift"
 L["INVENTORY"] = "Инвентарь"
---[[Translation missing --]]
-L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
---[[Translation missing --]]
-L["KEYWORD_AXE"] = "axe"
---[[Translation missing --]]
-L["KEYWORD_AZERITE"] = "azerite"
---[[Translation missing --]]
-L["KEYWORD_BATTLE_PET"] = "battle pet"
---[[Translation missing --]]
-L["KEYWORD_BELT"] = "belt"
---[[Translation missing --]]
-L["KEYWORD_BOA"] = "boa"
---[[Translation missing --]]
-L["KEYWORD_BOE"] = "boe"
---[[Translation missing --]]
-L["KEYWORD_BOOTS"] = "boots"
---[[Translation missing --]]
-L["KEYWORD_BOP"] = "bop"
---[[Translation missing --]]
-L["KEYWORD_BOU"] = "bou"
---[[Translation missing --]]
-L["KEYWORD_BRACERS"] = "bracers"
---[[Translation missing --]]
-L["KEYWORD_CLOAK"] = "cloak"
---[[Translation missing --]]
-L["KEYWORD_COOKING"] = "cooking"
---[[Translation missing --]]
-L["KEYWORD_COSMETIC"] = "cosmetic"
---[[Translation missing --]]
-L["KEYWORD_DRINK"] = "drink"
---[[Translation missing --]]
-L["KEYWORD_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_ENGINEERING"] = "engineering"
---[[Translation missing --]]
-L["KEYWORD_ENGRAVABLE"] = "engravable"
---[[Translation missing --]]
-L["KEYWORD_ENGRAVED"] = "engraved"
---[[Translation missing --]]
-L["KEYWORD_EQUIPMENT"] = "equipment"
---[[Translation missing --]]
-L["KEYWORD_FISHING"] = "fishing"
---[[Translation missing --]]
-L["KEYWORD_FOOD"] = "food"
---[[Translation missing --]]
-L["KEYWORD_GEAR"] = "gear"
---[[Translation missing --]]
-L["KEYWORD_GLOVES"] = "gloves"
---[[Translation missing --]]
-L["KEYWORD_HELM"] = "helm"
---[[Translation missing --]]
-L["KEYWORD_INSCRIPTION"] = "inscription"
---[[Translation missing --]]
-L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
---[[Translation missing --]]
-L["KEYWORD_JUNK"] = "junk"
---[[Translation missing --]]
-L["KEYWORD_MACE"] = "mace"
---[[Translation missing --]]
-L["KEYWORD_MANUSCRIPT"] = "manuscript"
---[[Translation missing --]]
-L["KEYWORD_MINING"] = "mining"
---[[Translation missing --]]
-L["KEYWORD_OFF_HAND"] = "off-hand"
---[[Translation missing --]]
-L["KEYWORD_OPEN"] = "open"
---[[Translation missing --]]
-L["KEYWORD_PET"] = "pet"
---[[Translation missing --]]
-L["KEYWORD_POTION"] = "potion"
---[[Translation missing --]]
-L["KEYWORD_REAGENT"] = "reagent"
---[[Translation missing --]]
-L["KEYWORD_RELIC"] = "relic"
---[[Translation missing --]]
-L["KEYWORD_REPUTATION"] = "reputation"
---[[Translation missing --]]
-L["KEYWORD_SET"] = "set"
---[[Translation missing --]]
-L["KEYWORD_SOCKET"] = "socket"
---[[Translation missing --]]
-L["KEYWORD_SOUL"] = "soul"
---[[Translation missing --]]
-L["KEYWORD_SOULBOUND"] = "soulbound"
---[[Translation missing --]]
-L["KEYWORD_STACKABLE"] = "stackable"
---[[Translation missing --]]
-L["KEYWORD_STACKS"] = "stacks"
---[[Translation missing --]]
-L["KEYWORD_STAFF"] = "staff"
---[[Translation missing --]]
-L["KEYWORD_SWORD"] = "sword"
---[[Translation missing --]]
-L["KEYWORD_TRADABLE_LOOT"] = "tradable loot"
---[[Translation missing --]]
-L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
---[[Translation missing --]]
-L["KEYWORD_TRASH"] = "trash"
---[[Translation missing --]]
-L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
-L["KEYWORD_USE"] = "use"
+L["KEYWORD_ACCOUNT_BOUND"] = "привязано"
+L["KEYWORD_AXE"] = "топор"
+L["KEYWORD_AZERITE"] = "азерит"
+L["KEYWORD_BATTLE_PET"] = "боевой питомец"
+L["KEYWORD_BELT"] = "пояс"
+L["KEYWORD_BOA"] = "привязано"
+L["KEYWORD_BOE"] = "персональным"
+L["KEYWORD_BOOTS"] = "ступни"
+L["KEYWORD_BOP"] = "персональный"
+L["KEYWORD_BOU"] = "персональным"
+L["KEYWORD_BRACERS"] = "запястья"
+L["KEYWORD_CLOAK"] = "плащ"
+L["KEYWORD_COLLECTED"] = "полученный"
+L["KEYWORD_COSMETIC"] = "декоративный"
+L["KEYWORD_CURRENCY"] = "валюта"
+L["KEYWORD_DRINK"] = "питье"
+L["KEYWORD_ENGRAVABLE"] = "гравировка"
+L["KEYWORD_ENGRAVED"] = "гравировка"
+L["KEYWORD_EQUIPMENT"] = "экипировка"
+L["KEYWORD_EQUIPMENT_SET"] = "комплект"
+L["KEYWORD_FISH"] = "рыба"
+L["KEYWORD_FOOD"] = "еда"
+L["KEYWORD_GEAR"] = "снаряжение"
+L["KEYWORD_GLOVES"] = "кисти"
+L["KEYWORD_HELM"] = "голова"
+L["KEYWORD_JUNK"] = "хлам"
+L["KEYWORD_KEY"] = "ключ"
+L["KEYWORD_MACE"] = "дробящее"
+L["KEYWORD_MANUSCRIPT"] = "манускрипт"
+L["KEYWORD_OBJECTIVE"] = "задание"
+L["KEYWORD_OFF_HAND"] = "левая рука"
+L["KEYWORD_OPEN"] = "использование"
+L["KEYWORD_PET"] = "питомец"
+L["KEYWORD_POTION"] = "зелье"
+L["KEYWORD_REAGENT"] = "материалы"
+L["KEYWORD_RELIC"] = "реликвия"
+L["KEYWORD_REPUTATION"] = "репутация"
+L["KEYWORD_SET"] = "комплект"
+L["KEYWORD_SOCKET"] = "гнездо"
+L["KEYWORD_SOCKETED"] = "инкрустировать"
+L["KEYWORD_SOULBOUND"] = "персональный"
+L["KEYWORD_STACKABLE"] = "складываемое"
+L["KEYWORD_STACKS"] = "стаки"
+L["KEYWORD_STAFF"] = "посох"
+L["KEYWORD_SWORD"] = "меч"
+L["KEYWORD_TRADABLE_LOOT"] = "персональный"
+L["KEYWORD_TRADEABLE_LOOT"] = "персональный"
+L["KEYWORD_TRASH"] = "хлам"
+L["KEYWORD_UNCOLLECTED"] = "неполученный"
+L["KEYWORD_USABLE"] = "пригодное"
+L["KEYWORD_USE"] = "использование"
 L["MAIL_LOWER"] = "Почта -"
 L["MAIL_X"] = "Почта: %s"
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Учитывать только игровой мир текущего персонажа"
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Учитывать только фракцию текущего персонажа"
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Отображать информацию в подсказках только при зажатом Shift"
+L["SAME_CONNECTED_REALMS"] = "Только тот же игровой мир"
+L["SAME_FACTION"] = "Только та же фракция"
 L["SEARCHED_EVERYWHERE_COLON"] = "Результаты глобального поиска:"
-L["SHOW_CHARACTER_RACE_ICONS"] = "Отображать иконку расы персонажа"
-L["SHOW_CURRENCY_TOOLTIPS"] = "Отображать валюту у других персонажей"
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Отображать экипированные предметы"
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Отображать банк гильдии"
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Отображать инвентарь"
-L["SORT_BY_CHARACTER_NAME"] = "Сортировка по имени персонажа"
+L["SHOW_CURRENCY"] = "Отображать валюту"
+L["SHOW_EQUIPPED"] = "Отображать экипированное"
+L["SHOW_GUILD_BANKS"] = "Отображать банк гильдии"
+L["SHOW_IN_TOOLTIPS"] = "Отображать в подсказках"
+L["SHOW_INVENTORY"] = "Отображать инвентарь"
+L["SHOW_RACE_ICONS"] = "Отображать иконку расы персонажа"
+L["SORT_BY_NAME"] = "Сортировать персонажей по имени"
 L["SYNDICATOR"] = "Syndicator"
-L["TOOLTIP_SETTINGS"] = "Настройка отображения во всплывающих подсказках"
+L["TOOLTIP_SETTINGS"] = "Настройка отображения в подсказках"
 L["TOTAL_X"] = "Всего: %s"
 L["VERSION_COLON_X"] = "Версия: %s"
 L["VOID_LOWER"] = "Хранилище Бездны -"
 L["VOID_X"] = "Хранилище Бездны: %s"
 L["WARBAND"] = "Отряд"
+L["WARBAND_LOWER"] = "Отряд -"
 L["X_CHARACTERS_SHOWN"] = "Отображать персонажей - %s"
 
 
@@ -438,13 +491,45 @@ L["BANK_X"] = "Bank: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
+L["DELETE_CHARACTER"] = "Delete Character"
+--[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
+L["GROUP_ARMOR_TYPE"] = "Armor Type"
+--[[Translation missing --]]
+L["GROUP_BATTLE_PET"] = "Battle Pet Type"
+--[[Translation missing --]]
+L["GROUP_EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["GROUP_GLYPH"] = "Glyph"
+--[[Translation missing --]]
+L["GROUP_ITEM_DETAIL"] = "Item Detail"
+--[[Translation missing --]]
+L["GROUP_ITEM_TYPE"] = "Item Type"
+--[[Translation missing --]]
+L["GROUP_QUALITY"] = "Quality"
+--[[Translation missing --]]
+L["GROUP_RECIPE"] = "Recipe"
+--[[Translation missing --]]
+L["GROUP_SLOT"] = "Equipment Slot"
+--[[Translation missing --]]
+L["GROUP_SOCKET"] = "Socket"
+--[[Translation missing --]]
+L["GROUP_STAT"] = "Stat"
+--[[Translation missing --]]
+L["GROUP_TRADE_GOODS"] = "Trade Goods"
+--[[Translation missing --]]
+L["GROUP_WEAPON_TYPE"] = "Weapon Type"
+--[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
 L["GUILD_X"] = "Guild: %s"
+--[[Translation missing --]]
+L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
 --[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
@@ -472,15 +557,13 @@ L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
-L["KEYWORD_COOKING"] = "cooking"
+L["KEYWORD_COLLECTED"] = "collected"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
+L["KEYWORD_CURRENCY"] = "currency"
+--[[Translation missing --]]
 L["KEYWORD_DRINK"] = "drink"
---[[Translation missing --]]
-L["KEYWORD_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
@@ -488,7 +571,9 @@ L["KEYWORD_ENGRAVED"] = "engraved"
 --[[Translation missing --]]
 L["KEYWORD_EQUIPMENT"] = "equipment"
 --[[Translation missing --]]
-L["KEYWORD_FISHING"] = "fishing"
+L["KEYWORD_EQUIPMENT_SET"] = "equipment set"
+--[[Translation missing --]]
+L["KEYWORD_FISH"] = "fish"
 --[[Translation missing --]]
 L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
@@ -498,17 +583,15 @@ L["KEYWORD_GLOVES"] = "gloves"
 --[[Translation missing --]]
 L["KEYWORD_HELM"] = "helm"
 --[[Translation missing --]]
-L["KEYWORD_INSCRIPTION"] = "inscription"
---[[Translation missing --]]
-L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
---[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
+--[[Translation missing --]]
+L["KEYWORD_KEY"] = "key"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
 --[[Translation missing --]]
-L["KEYWORD_MINING"] = "mining"
+L["KEYWORD_OBJECTIVE"] = "objective"
 --[[Translation missing --]]
 L["KEYWORD_OFF_HAND"] = "off-hand"
 --[[Translation missing --]]
@@ -528,7 +611,7 @@ L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
-L["KEYWORD_SOUL"] = "soul"
+L["KEYWORD_SOCKETED"] = "socketed"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
@@ -546,7 +629,9 @@ L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
 --[[Translation missing --]]
-L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
+L["KEYWORD_UNCOLLECTED"] = "uncollected"
+--[[Translation missing --]]
+L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
@@ -554,25 +639,25 @@ L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
+L["SAME_CONNECTED_REALMS"] = "Same connected realms"
 --[[Translation missing --]]
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
---[[Translation missing --]]
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Press shift to display info in tooltips"
+L["SAME_FACTION"] = "Same faction"
 --[[Translation missing --]]
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
-L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
+L["SHOW_CURRENCY"] = "Show currency"
 --[[Translation missing --]]
-L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
+L["SHOW_EQUIPPED"] = "Show equipped"
 --[[Translation missing --]]
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Show equipped items in inventory tooltips"
+L["SHOW_GUILD_BANKS"] = "Show guild banks"
 --[[Translation missing --]]
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory tooltips"
+L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
+L["SHOW_INVENTORY"] = "Show inventory"
 --[[Translation missing --]]
-L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
+L["SHOW_RACE_ICONS"] = "Show race icons"
+--[[Translation missing --]]
+L["SORT_BY_NAME"] = "Sort by name"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
@@ -587,6 +672,8 @@ L["VOID_LOWER"] = "void"
 L["VOID_X"] = "Void: %s"
 --[[Translation missing --]]
 L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_LOWER"] = "warband"
 --[[Translation missing --]]
 L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
 
@@ -609,13 +696,45 @@ L["BANK_X"] = "Bank: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
+L["DELETE_CHARACTER"] = "Delete Character"
+--[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
+L["GROUP_ARMOR_TYPE"] = "Armor Type"
+--[[Translation missing --]]
+L["GROUP_BATTLE_PET"] = "Battle Pet Type"
+--[[Translation missing --]]
+L["GROUP_EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["GROUP_GLYPH"] = "Glyph"
+--[[Translation missing --]]
+L["GROUP_ITEM_DETAIL"] = "Item Detail"
+--[[Translation missing --]]
+L["GROUP_ITEM_TYPE"] = "Item Type"
+--[[Translation missing --]]
+L["GROUP_QUALITY"] = "Quality"
+--[[Translation missing --]]
+L["GROUP_RECIPE"] = "Recipe"
+--[[Translation missing --]]
+L["GROUP_SLOT"] = "Equipment Slot"
+--[[Translation missing --]]
+L["GROUP_SOCKET"] = "Socket"
+--[[Translation missing --]]
+L["GROUP_STAT"] = "Stat"
+--[[Translation missing --]]
+L["GROUP_TRADE_GOODS"] = "Trade Goods"
+--[[Translation missing --]]
+L["GROUP_WEAPON_TYPE"] = "Weapon Type"
+--[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
 L["GUILD_X"] = "Guild: %s"
+--[[Translation missing --]]
+L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
 --[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
@@ -643,15 +762,13 @@ L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
-L["KEYWORD_COOKING"] = "cooking"
+L["KEYWORD_COLLECTED"] = "collected"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
+L["KEYWORD_CURRENCY"] = "currency"
+--[[Translation missing --]]
 L["KEYWORD_DRINK"] = "drink"
---[[Translation missing --]]
-L["KEYWORD_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
@@ -659,7 +776,9 @@ L["KEYWORD_ENGRAVED"] = "engraved"
 --[[Translation missing --]]
 L["KEYWORD_EQUIPMENT"] = "equipment"
 --[[Translation missing --]]
-L["KEYWORD_FISHING"] = "fishing"
+L["KEYWORD_EQUIPMENT_SET"] = "equipment set"
+--[[Translation missing --]]
+L["KEYWORD_FISH"] = "fish"
 --[[Translation missing --]]
 L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
@@ -669,17 +788,15 @@ L["KEYWORD_GLOVES"] = "gloves"
 --[[Translation missing --]]
 L["KEYWORD_HELM"] = "helm"
 --[[Translation missing --]]
-L["KEYWORD_INSCRIPTION"] = "inscription"
---[[Translation missing --]]
-L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
---[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
+--[[Translation missing --]]
+L["KEYWORD_KEY"] = "key"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
 --[[Translation missing --]]
-L["KEYWORD_MINING"] = "mining"
+L["KEYWORD_OBJECTIVE"] = "objective"
 --[[Translation missing --]]
 L["KEYWORD_OFF_HAND"] = "off-hand"
 --[[Translation missing --]]
@@ -699,7 +816,7 @@ L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
-L["KEYWORD_SOUL"] = "soul"
+L["KEYWORD_SOCKETED"] = "socketed"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
@@ -717,7 +834,9 @@ L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
 --[[Translation missing --]]
-L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
+L["KEYWORD_UNCOLLECTED"] = "uncollected"
+--[[Translation missing --]]
+L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
@@ -725,25 +844,25 @@ L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
+L["SAME_CONNECTED_REALMS"] = "Same connected realms"
 --[[Translation missing --]]
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
---[[Translation missing --]]
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Press shift to display info in tooltips"
+L["SAME_FACTION"] = "Same faction"
 --[[Translation missing --]]
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
-L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
+L["SHOW_CURRENCY"] = "Show currency"
 --[[Translation missing --]]
-L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
+L["SHOW_EQUIPPED"] = "Show equipped"
 --[[Translation missing --]]
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Show equipped items in inventory tooltips"
+L["SHOW_GUILD_BANKS"] = "Show guild banks"
 --[[Translation missing --]]
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory tooltips"
+L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
+L["SHOW_INVENTORY"] = "Show inventory"
 --[[Translation missing --]]
-L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
+L["SHOW_RACE_ICONS"] = "Show race icons"
+--[[Translation missing --]]
+L["SORT_BY_NAME"] = "Sort by name"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
@@ -759,6 +878,8 @@ L["VOID_X"] = "Void: %s"
 --[[Translation missing --]]
 L["WARBAND"] = "Warband"
 --[[Translation missing --]]
+L["WARBAND_LOWER"] = "warband"
+--[[Translation missing --]]
 L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
 
 
@@ -771,10 +892,26 @@ L["BAGS_X"] = "背包：%s"
 L["BANK_LOWER"] = "銀行"
 L["BANK_X"] = "銀行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "無法透過物品連結搜尋"
+L["DELETE_CHARACTER"] = "刪除角色"
 L["EQUIPPED_LOWER"] = "裝備"
 L["EQUIPPED_X"] = "裝備：%s"
+L["GROUP_ARMOR_TYPE"] = "護甲類型"
+L["GROUP_BATTLE_PET"] = "戰寵類型"
+L["GROUP_EXPANSION"] = "資料片"
+L["GROUP_GLYPH"] = "銘文"
+L["GROUP_ITEM_DETAIL"] = "物品細節"
+L["GROUP_ITEM_TYPE"] = "物品類型"
+L["GROUP_QUALITY"] = "品質"
+L["GROUP_RECIPE"] = "配方"
+L["GROUP_SLOT"] = "裝備部位"
+L["GROUP_SOCKET"] = "插槽"
+L["GROUP_STAT"] = "屬性"
+L["GROUP_TRADE_GOODS"] = "交易商品"
+L["GROUP_WEAPON_TYPE"] = "武器類型"
 L["GUILD_LOWER"] = "公會"
 L["GUILD_X"] = "公會：%s"
+L["HIDE_IN_TOOLTIPS"] = "提示中隱藏"
+L["HOLD_SHIFT_TO_DISPLAY"] = "按下Shift來顯示"
 L["INVENTORY"] = "庫存"
 L["KEYWORD_ACCOUNT_BOUND"] = "帳號綁定"
 L["KEYWORD_AXE"] = "斧"
@@ -788,25 +925,24 @@ L["KEYWORD_BOP"] = "拾綁"
 L["KEYWORD_BOU"] = "用綁"
 L["KEYWORD_BRACERS"] = "手腕"
 L["KEYWORD_CLOAK"] = "披風"
-L["KEYWORD_COOKING"] = "烹飪"
+L["KEYWORD_COLLECTED"] = "已收藏"
 L["KEYWORD_COSMETIC"] = "外型"
+L["KEYWORD_CURRENCY"] = "通貨"
 L["KEYWORD_DRINK"] = "飲料"
-L["KEYWORD_ENCHANTING"] = "附魔"
-L["KEYWORD_ENGINEERING"] = "工程"
 L["KEYWORD_ENGRAVABLE"] = "可銘刻"
 L["KEYWORD_ENGRAVED"] = "銘刻"
 L["KEYWORD_EQUIPMENT"] = "裝備"
-L["KEYWORD_FISHING"] = "釣魚"
+L["KEYWORD_EQUIPMENT_SET"] = "裝備設定"
+L["KEYWORD_FISH"] = "魚"
 L["KEYWORD_FOOD"] = "食物"
 L["KEYWORD_GEAR"] = "裝備"
 L["KEYWORD_GLOVES"] = "手套"
 L["KEYWORD_HELM"] = "頭"
-L["KEYWORD_INSCRIPTION"] = "銘文"
-L["KEYWORD_JEWELCRAFTING"] = "珠寶"
 L["KEYWORD_JUNK"] = "垃圾"
+L["KEYWORD_KEY"] = "鑰匙"
 L["KEYWORD_MACE"] = "錘"
 L["KEYWORD_MANUSCRIPT"] = "手稿"
-L["KEYWORD_MINING"] = "採礦"
+L["KEYWORD_OBJECTIVE"] = "目標"
 L["KEYWORD_OFF_HAND"] = "副手"
 L["KEYWORD_OPEN"] = "開啟"
 L["KEYWORD_PET"] = "寵物"
@@ -816,7 +952,7 @@ L["KEYWORD_RELIC"] = "聖物"
 L["KEYWORD_REPUTATION"] = "聲望"
 L["KEYWORD_SET"] = "套裝"
 L["KEYWORD_SOCKET"] = "插槽"
-L["KEYWORD_SOUL"] = "靈魂"
+L["KEYWORD_SOCKETED"] = "插槽"
 L["KEYWORD_SOULBOUND"] = "靈魂綁定"
 L["KEYWORD_STACKABLE"] = "可堆疊"
 L["KEYWORD_STACKS"] = "堆疊"
@@ -825,20 +961,21 @@ L["KEYWORD_SWORD"] = "劍"
 L["KEYWORD_TRADABLE_LOOT"] = "可交易拾取"
 L["KEYWORD_TRADEABLE_LOOT"] = "可交易拾取"
 L["KEYWORD_TRASH"] = "垃圾"
-L["KEYWORD_UNCOLLECTED_PET"] = "未收藏寵物"
+L["KEYWORD_UNCOLLECTED"] = "未收藏"
+L["KEYWORD_USABLE"] = "可使用"
 L["KEYWORD_USE"] = "使用"
 L["MAIL_LOWER"] = "郵件"
 L["MAIL_X"] = "信箱：%s"
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "在庫存上只使用相同連結伺服器"
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "在庫存上只使用相同陣營角色"
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "按下Shift在工具提示中顯示訊息"
+L["SAME_CONNECTED_REALMS"] = "相同連結伺服器"
+L["SAME_FACTION"] = "相同陣營"
 L["SEARCHED_EVERYWHERE_COLON"] = "廣泛搜尋："
-L["SHOW_CHARACTER_RACE_ICONS"] = "顯示角色種族圖示"
-L["SHOW_CURRENCY_TOOLTIPS"] = "在提示中顯示其他角色的兌換通貨"
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "在庫存提示中顯示裝備的物品"
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "在庫存提示中顯示公會銀行"
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "在物品提示中顯示庫存統計"
-L["SORT_BY_CHARACTER_NAME"] = "排序根據角色名字"
+L["SHOW_CURRENCY"] = "顯示兌換通貨"
+L["SHOW_EQUIPPED"] = "顯示裝備"
+L["SHOW_GUILD_BANKS"] = "顯示公會銀行"
+L["SHOW_IN_TOOLTIPS"] = "提示中顯示"
+L["SHOW_INVENTORY"] = "顯示庫存"
+L["SHOW_RACE_ICONS"] = "顯示種族圖示"
+L["SORT_BY_NAME"] = "根據名字排序"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "工具提示設定"
 L["TOTAL_X"] = "總計：%s"
@@ -846,6 +983,7 @@ L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_LOWER"] = "虛空倉庫"
 L["VOID_X"] = "虛空倉庫: %s"
 L["WARBAND"] = "戰隊"
+L["WARBAND_LOWER"] = "戰隊"
 L["X_CHARACTERS_SHOWN"] = "%s 角色顯示"
 
 
@@ -858,10 +996,26 @@ L["BAGS_X"] = "背包： %s"
 L["BANK_LOWER"] = "银行"
 L["BANK_X"] = "银行：%s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "无法通过物品链接搜索"
+L["DELETE_CHARACTER"] = "删除角色"
 L["EQUIPPED_LOWER"] = "装备"
 L["EQUIPPED_X"] = "装备：%s"
+L["GROUP_ARMOR_TYPE"] = "护甲类型"
+L["GROUP_BATTLE_PET"] = "宠物类型"
+L["GROUP_EXPANSION"] = "游戏版本"
+L["GROUP_GLYPH"] = "铭文"
+L["GROUP_ITEM_DETAIL"] = "物品详细信息"
+L["GROUP_ITEM_TYPE"] = "物品类型"
+L["GROUP_QUALITY"] = "品质"
+L["GROUP_RECIPE"] = "配方"
+L["GROUP_SLOT"] = "装备部位"
+L["GROUP_SOCKET"] = "插槽"
+L["GROUP_STAT"] = "属性"
+L["GROUP_TRADE_GOODS"] = "交易商品"
+L["GROUP_WEAPON_TYPE"] = "武器类型"
 L["GUILD_LOWER"] = "公会"
 L["GUILD_X"] = "公会：%s"
+L["HIDE_IN_TOOLTIPS"] = "在鼠标提示中隐藏"
+L["HOLD_SHIFT_TO_DISPLAY"] = "按住Shift键显示"
 L["INVENTORY"] = "库存"
 L["KEYWORD_ACCOUNT_BOUND"] = "帐号绑定"
 L["KEYWORD_AXE"] = "斧"
@@ -875,25 +1029,24 @@ L["KEYWORD_BOP"] = "拾绑"
 L["KEYWORD_BOU"] = "使用后绑定"
 L["KEYWORD_BRACERS"] = "腕部"
 L["KEYWORD_CLOAK"] = "背部"
-L["KEYWORD_COOKING"] = "烹饪"
+L["KEYWORD_COLLECTED"] = "已收藏"
 L["KEYWORD_COSMETIC"] = "外观"
+L["KEYWORD_CURRENCY"] = "货币"
 L["KEYWORD_DRINK"] = "饮水"
-L["KEYWORD_ENCHANTING"] = "附魔"
-L["KEYWORD_ENGINEERING"] = "工程"
 L["KEYWORD_ENGRAVABLE"] = "可铭刻"
 L["KEYWORD_ENGRAVED"] = "铭刻"
 L["KEYWORD_EQUIPMENT"] = "装备"
-L["KEYWORD_FISHING"] = "钓鱼"
+L["KEYWORD_EQUIPMENT_SET"] = "装备方案"
+L["KEYWORD_FISH"] = "鱼"
 L["KEYWORD_FOOD"] = "食物"
 L["KEYWORD_GEAR"] = "装备"
 L["KEYWORD_GLOVES"] = "手部"
 L["KEYWORD_HELM"] = "头部"
-L["KEYWORD_INSCRIPTION"] = "铭文"
-L["KEYWORD_JEWELCRAFTING"] = "珠宝"
 L["KEYWORD_JUNK"] = "垃圾"
+L["KEYWORD_KEY"] = "钥匙"
 L["KEYWORD_MACE"] = "锤"
 L["KEYWORD_MANUSCRIPT"] = "手稿"
-L["KEYWORD_MINING"] = "采矿"
+L["KEYWORD_OBJECTIVE"] = "目标"
 L["KEYWORD_OFF_HAND"] = "副手"
 L["KEYWORD_OPEN"] = "打开"
 L["KEYWORD_PET"] = "宠物"
@@ -903,7 +1056,7 @@ L["KEYWORD_RELIC"] = "圣物"
 L["KEYWORD_REPUTATION"] = "声望"
 L["KEYWORD_SET"] = "套装"
 L["KEYWORD_SOCKET"] = "插槽"
-L["KEYWORD_SOUL"] = "灵魂"
+L["KEYWORD_SOCKETED"] = "插槽"
 L["KEYWORD_SOULBOUND"] = "灵魂绑定"
 L["KEYWORD_STACKABLE"] = "可堆叠"
 L["KEYWORD_STACKS"] = "堆叠"
@@ -912,20 +1065,21 @@ L["KEYWORD_SWORD"] = "剑"
 L["KEYWORD_TRADABLE_LOOT"] = "可交易拾取（时限）"
 L["KEYWORD_TRADEABLE_LOOT"] = "可交易拾取（时限）"
 L["KEYWORD_TRASH"] = "垃圾"
-L["KEYWORD_UNCOLLECTED_PET"] = "未收藏宠物"
+L["KEYWORD_UNCOLLECTED"] = "未收藏"
+L["KEYWORD_USABLE"] = "可使用"
 L["KEYWORD_USE"] = "使用（use）"
 L["MAIL_LOWER"] = "信箱"
 L["MAIL_X"] = "信箱：%s"
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "仅显示互通服务器角色的库存"
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "仅显示同阵营角色的库存"
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "按 SHIFT 键在鼠标提示中显示信息"
+L["SAME_CONNECTED_REALMS"] = "互通的其他服务器"
+L["SAME_FACTION"] = "同阵营"
 L["SEARCHED_EVERYWHERE_COLON"] = "扩大搜索："
-L["SHOW_CHARACTER_RACE_ICONS"] = "显示角色种族图标"
-L["SHOW_CURRENCY_TOOLTIPS"] = "在鼠标提示中显示其他角色的货币"
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "在（库存）鼠标提示中显示已装备物品"
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "在鼠标提示中显示公会银行库存"
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "在鼠标提示中显示物品统计"
-L["SORT_BY_CHARACTER_NAME"] = "角色按名称排序"
+L["SHOW_CURRENCY"] = "显示货币"
+L["SHOW_EQUIPPED"] = "显示物品"
+L["SHOW_GUILD_BANKS"] = "显示公会银行"
+L["SHOW_IN_TOOLTIPS"] = "显示在鼠标提示中"
+L["SHOW_INVENTORY"] = "显示物品栏"
+L["SHOW_RACE_ICONS"] = "显示种族图标"
+L["SORT_BY_NAME"] = "按名称排序"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "鼠标提示设置"
 L["TOTAL_X"] = "总计：%s"
@@ -933,6 +1087,7 @@ L["VERSION_COLON_X"] = "版本：%s"
 L["VOID_LOWER"] = "虚空仓库"
 L["VOID_X"] = "虚空仓库：%s"
 L["WARBAND"] = "战团"
+L["WARBAND_LOWER"] = "战团"
 L["X_CHARACTERS_SHOWN"] = "显示角色 ：%s （注：仅限鼠标提示显示）"
 
 
@@ -951,11 +1106,43 @@ L["BANK_X"] = "은행: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
+L["DELETE_CHARACTER"] = "Delete Character"
+--[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 L["EQUIPPED_X"] = "착용함: %s"
 --[[Translation missing --]]
+L["GROUP_ARMOR_TYPE"] = "Armor Type"
+--[[Translation missing --]]
+L["GROUP_BATTLE_PET"] = "Battle Pet Type"
+--[[Translation missing --]]
+L["GROUP_EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["GROUP_GLYPH"] = "Glyph"
+--[[Translation missing --]]
+L["GROUP_ITEM_DETAIL"] = "Item Detail"
+--[[Translation missing --]]
+L["GROUP_ITEM_TYPE"] = "Item Type"
+--[[Translation missing --]]
+L["GROUP_QUALITY"] = "Quality"
+--[[Translation missing --]]
+L["GROUP_RECIPE"] = "Recipe"
+--[[Translation missing --]]
+L["GROUP_SLOT"] = "Equipment Slot"
+--[[Translation missing --]]
+L["GROUP_SOCKET"] = "Socket"
+--[[Translation missing --]]
+L["GROUP_STAT"] = "Stat"
+--[[Translation missing --]]
+L["GROUP_TRADE_GOODS"] = "Trade Goods"
+--[[Translation missing --]]
+L["GROUP_WEAPON_TYPE"] = "Weapon Type"
+--[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 L["GUILD_X"] = "길드: %s"
+--[[Translation missing --]]
+L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
 L["INVENTORY"] = "가방"
 --[[Translation missing --]]
 L["KEYWORD_ACCOUNT_BOUND"] = "account bound"
@@ -974,37 +1161,35 @@ L["KEYWORD_BOU"] = "bou"
 L["KEYWORD_BRACERS"] = "손목"
 L["KEYWORD_CLOAK"] = "망토"
 --[[Translation missing --]]
-L["KEYWORD_COOKING"] = "cooking"
+L["KEYWORD_COLLECTED"] = "collected"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
+--[[Translation missing --]]
+L["KEYWORD_CURRENCY"] = "currency"
 L["KEYWORD_DRINK"] = "음료"
---[[Translation missing --]]
-L["KEYWORD_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVED"] = "engraved"
 L["KEYWORD_EQUIPMENT"] = "착용"
 --[[Translation missing --]]
-L["KEYWORD_FISHING"] = "fishing"
+L["KEYWORD_EQUIPMENT_SET"] = "equipment set"
+--[[Translation missing --]]
+L["KEYWORD_FISH"] = "fish"
 L["KEYWORD_FOOD"] = "음식"
 --[[Translation missing --]]
 L["KEYWORD_GEAR"] = "gear"
 L["KEYWORD_GLOVES"] = "장갑"
 L["KEYWORD_HELM"] = "투구"
 --[[Translation missing --]]
-L["KEYWORD_INSCRIPTION"] = "inscription"
---[[Translation missing --]]
-L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
---[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
+--[[Translation missing --]]
+L["KEYWORD_KEY"] = "key"
 L["KEYWORD_MACE"] = "둔기"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
 --[[Translation missing --]]
-L["KEYWORD_MINING"] = "mining"
+L["KEYWORD_OBJECTIVE"] = "objective"
 L["KEYWORD_OFF_HAND"] = "보조장비"
 --[[Translation missing --]]
 L["KEYWORD_OPEN"] = "open"
@@ -1017,7 +1202,7 @@ L["KEYWORD_REPUTATION"] = "평판"
 L["KEYWORD_SET"] = "세트"
 L["KEYWORD_SOCKET"] = "소켓"
 --[[Translation missing --]]
-L["KEYWORD_SOUL"] = "soul"
+L["KEYWORD_SOCKETED"] = "socketed"
 L["KEYWORD_SOULBOUND"] = "영혼석"
 --[[Translation missing --]]
 L["KEYWORD_STACKABLE"] = "stackable"
@@ -1032,24 +1217,34 @@ L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
 --[[Translation missing --]]
-L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
+L["KEYWORD_UNCOLLECTED"] = "uncollected"
+--[[Translation missing --]]
+L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 L["MAIL_X"] = "우편함: %s"
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "동일 서버의 소지품만 표시"
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "동일 진영의 소지품만 표시"
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "툴팁 정보를 표시하려면 SHIFT 누르기"
+--[[Translation missing --]]
+L["SAME_CONNECTED_REALMS"] = "Same connected realms"
+--[[Translation missing --]]
+L["SAME_FACTION"] = "Same faction"
 --[[Translation missing --]]
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
-L["SHOW_CHARACTER_RACE_ICONS"] = "캐릭터의 종족 아이콘 표시"
-L["SHOW_CURRENCY_TOOLTIPS"] = "다른 캐릭터의 소지 갯수를 툴팁에 표시"
 --[[Translation missing --]]
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Show equipped items in inventory tooltips"
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "길드 은행의 소지 갯수를 툴팁에 표시"
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "가방 아이템의 툴팁 표시"
-L["SORT_BY_CHARACTER_NAME"] = "캐릭터 이름으로 정렬"
+L["SHOW_CURRENCY"] = "Show currency"
+--[[Translation missing --]]
+L["SHOW_EQUIPPED"] = "Show equipped"
+--[[Translation missing --]]
+L["SHOW_GUILD_BANKS"] = "Show guild banks"
+--[[Translation missing --]]
+L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
+--[[Translation missing --]]
+L["SHOW_INVENTORY"] = "Show inventory"
+--[[Translation missing --]]
+L["SHOW_RACE_ICONS"] = "Show race icons"
+--[[Translation missing --]]
+L["SORT_BY_NAME"] = "Sort by name"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
@@ -1062,6 +1257,8 @@ L["VOID_LOWER"] = "void"
 L["VOID_X"] = "공허 보관소: %s"
 --[[Translation missing --]]
 L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_LOWER"] = "warband"
 L["X_CHARACTERS_SHOWN"] = "%s 의 캐릭터 표시"
 
 
@@ -1083,13 +1280,45 @@ L["BANK_X"] = "Bank: %s"
 --[[Translation missing --]]
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Cannot search by item link"
 --[[Translation missing --]]
+L["DELETE_CHARACTER"] = "Delete Character"
+--[[Translation missing --]]
 L["EQUIPPED_LOWER"] = "equipped"
 --[[Translation missing --]]
 L["EQUIPPED_X"] = "Equipped: %s"
 --[[Translation missing --]]
+L["GROUP_ARMOR_TYPE"] = "Armor Type"
+--[[Translation missing --]]
+L["GROUP_BATTLE_PET"] = "Battle Pet Type"
+--[[Translation missing --]]
+L["GROUP_EXPANSION"] = "Expansion"
+--[[Translation missing --]]
+L["GROUP_GLYPH"] = "Glyph"
+--[[Translation missing --]]
+L["GROUP_ITEM_DETAIL"] = "Item Detail"
+--[[Translation missing --]]
+L["GROUP_ITEM_TYPE"] = "Item Type"
+--[[Translation missing --]]
+L["GROUP_QUALITY"] = "Quality"
+--[[Translation missing --]]
+L["GROUP_RECIPE"] = "Recipe"
+--[[Translation missing --]]
+L["GROUP_SLOT"] = "Equipment Slot"
+--[[Translation missing --]]
+L["GROUP_SOCKET"] = "Socket"
+--[[Translation missing --]]
+L["GROUP_STAT"] = "Stat"
+--[[Translation missing --]]
+L["GROUP_TRADE_GOODS"] = "Trade Goods"
+--[[Translation missing --]]
+L["GROUP_WEAPON_TYPE"] = "Weapon Type"
+--[[Translation missing --]]
 L["GUILD_LOWER"] = "guild"
 --[[Translation missing --]]
 L["GUILD_X"] = "Guild: %s"
+--[[Translation missing --]]
+L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
+--[[Translation missing --]]
+L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
 --[[Translation missing --]]
 L["INVENTORY"] = "Inventory"
 --[[Translation missing --]]
@@ -1117,15 +1346,13 @@ L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
-L["KEYWORD_COOKING"] = "cooking"
+L["KEYWORD_COLLECTED"] = "collected"
 --[[Translation missing --]]
 L["KEYWORD_COSMETIC"] = "cosmetic"
 --[[Translation missing --]]
+L["KEYWORD_CURRENCY"] = "currency"
+--[[Translation missing --]]
 L["KEYWORD_DRINK"] = "drink"
---[[Translation missing --]]
-L["KEYWORD_ENCHANTING"] = "enchanting"
---[[Translation missing --]]
-L["KEYWORD_ENGINEERING"] = "engineering"
 --[[Translation missing --]]
 L["KEYWORD_ENGRAVABLE"] = "engravable"
 --[[Translation missing --]]
@@ -1133,7 +1360,9 @@ L["KEYWORD_ENGRAVED"] = "engraved"
 --[[Translation missing --]]
 L["KEYWORD_EQUIPMENT"] = "equipment"
 --[[Translation missing --]]
-L["KEYWORD_FISHING"] = "fishing"
+L["KEYWORD_EQUIPMENT_SET"] = "equipment set"
+--[[Translation missing --]]
+L["KEYWORD_FISH"] = "fish"
 --[[Translation missing --]]
 L["KEYWORD_FOOD"] = "food"
 --[[Translation missing --]]
@@ -1143,17 +1372,15 @@ L["KEYWORD_GLOVES"] = "gloves"
 --[[Translation missing --]]
 L["KEYWORD_HELM"] = "helm"
 --[[Translation missing --]]
-L["KEYWORD_INSCRIPTION"] = "inscription"
---[[Translation missing --]]
-L["KEYWORD_JEWELCRAFTING"] = "jewelcrafting"
---[[Translation missing --]]
 L["KEYWORD_JUNK"] = "junk"
+--[[Translation missing --]]
+L["KEYWORD_KEY"] = "key"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
 L["KEYWORD_MANUSCRIPT"] = "manuscript"
 --[[Translation missing --]]
-L["KEYWORD_MINING"] = "mining"
+L["KEYWORD_OBJECTIVE"] = "objective"
 --[[Translation missing --]]
 L["KEYWORD_OFF_HAND"] = "off-hand"
 --[[Translation missing --]]
@@ -1173,7 +1400,7 @@ L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
 --[[Translation missing --]]
-L["KEYWORD_SOUL"] = "soul"
+L["KEYWORD_SOCKETED"] = "socketed"
 --[[Translation missing --]]
 L["KEYWORD_SOULBOUND"] = "soulbound"
 --[[Translation missing --]]
@@ -1191,7 +1418,9 @@ L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
 --[[Translation missing --]]
 L["KEYWORD_TRASH"] = "trash"
 --[[Translation missing --]]
-L["KEYWORD_UNCOLLECTED_PET"] = "uncollected pet"
+L["KEYWORD_UNCOLLECTED"] = "uncollected"
+--[[Translation missing --]]
+L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
@@ -1199,25 +1428,25 @@ L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
 --[[Translation missing --]]
-L["ONLY_USE_SAME_CONNECTED_REALMS"] = "Only use same connected realms for inventory"
+L["SAME_CONNECTED_REALMS"] = "Same connected realms"
 --[[Translation missing --]]
-L["ONLY_USE_SAME_FACTION_CHARACTERS"] = "Only use same faction characters for inventory"
---[[Translation missing --]]
-L["PRESS_SHIFT_TO_SHOW_TOOLTIPS"] = "Press shift to display info in tooltips"
+L["SAME_FACTION"] = "Same faction"
 --[[Translation missing --]]
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
-L["SHOW_CHARACTER_RACE_ICONS"] = "Show character race icons"
+L["SHOW_CURRENCY"] = "Show currency"
 --[[Translation missing --]]
-L["SHOW_CURRENCY_TOOLTIPS"] = "Show other characters currency in tooltips"
+L["SHOW_EQUIPPED"] = "Show equipped"
 --[[Translation missing --]]
-L["SHOW_EQUIPPED_ITEMS_IN_INVENTORY_TOOLTIPS"] = "Show equipped items in inventory tooltips"
+L["SHOW_GUILD_BANKS"] = "Show guild banks"
 --[[Translation missing --]]
-L["SHOW_GUILD_BANKS_IN_INVENTORY_TOOLTIPS"] = "Show guild banks in inventory tooltips"
+L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
 --[[Translation missing --]]
-L["SHOW_INVENTORY_IN_TOOLTIPS"] = "Show inventory in item tooltips"
+L["SHOW_INVENTORY"] = "Show inventory"
 --[[Translation missing --]]
-L["SORT_BY_CHARACTER_NAME"] = "Sort by character name"
+L["SHOW_RACE_ICONS"] = "Show race icons"
+--[[Translation missing --]]
+L["SORT_BY_NAME"] = "Sort by name"
 --[[Translation missing --]]
 L["SYNDICATOR"] = "Syndicator"
 --[[Translation missing --]]
@@ -1232,6 +1461,8 @@ L["VOID_LOWER"] = "void"
 L["VOID_X"] = "Void: %s"
 --[[Translation missing --]]
 L["WARBAND"] = "Warband"
+--[[Translation missing --]]
+L["WARBAND_LOWER"] = "warband"
 --[[Translation missing --]]
 L["X_CHARACTERS_SHOWN"] = "%s Characters Shown"
 

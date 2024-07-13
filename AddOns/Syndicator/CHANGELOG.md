@@ -1,7 +1,8 @@
 # Syndicator
 
-## [44](https://github.com/Baganator/Syndicator/tree/44) (2024-05-29)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/43...44) 
+## [72](https://github.com/Baganator/Syndicator/tree/72) (2024-07-12)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/71...72) 
 
-- Ensure item data is cached before scanning tooltip  
-    Fixes meta/cogwheel/tinker gem searches on offline inventories  
+- Search: Add The War Within expansion to keywords  
+- Reduce frequency of GuildNameSet callbacks  
+- Include "Warbound until equipped" in BoA searches  

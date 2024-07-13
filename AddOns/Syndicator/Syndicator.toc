@@ -1,10 +1,9 @@
 ## Interface: 100207, 110000
 ## Title: Syndicator
-## Version: 44
+## Version: 72
 ## Author: plusmouse
 ## SavedVariables: SYNDICATOR_CONFIG, SYNDICATOR_DATA, SYNDICATOR_SUMMARIES
 ## IconTexture: Interface\AddOns\Syndicator\Assets\logo.tga
-
 
 Locales.lua
 
