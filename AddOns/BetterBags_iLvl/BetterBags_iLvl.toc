@@ -1,11 +1,11 @@
-## Interface: 11502, 40400, 100207
+## Interface: 11503, 40400, 100207
 ## Title: BetterBags - iLvl
 ## Notes: Adds an iLvl filter to BetterBags.
 ## Author: OrenYoh
-## Version: 1.0.2
+## Version: 1.1.1
 ## IconTexture: Interface\AddOns\BetterBags_iLvl\images\ilvl
 ## Dependencies: BetterBags
-## OptionalDeps: BetterBags_Tabards, BetterBags_Legendary
+## OptionalDeps: BetterBags_Priority, BetterBags_Tabards, BetterBags_Legendary
 ## SavedVariablesPerCharacter: BetterBags_iLvlDB
 ## X-Curse-Project-ID: 1014142
 
@@ -18,4 +18,9 @@
 i18n\enUS.lua
 i18n\zhTW.lua
 
+# Main
 BetterBags_iLvl.lua
+
+# Modules
+modules/filter.lua
+modules/options.lua
