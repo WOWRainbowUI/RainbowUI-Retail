@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 100207
+## Interface: 11503, 30403, 40400, 100207, 110000
 ## Title: Baganator
 ## Version: 345
 ## Author: plusmouse
