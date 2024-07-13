@@ -39,14 +39,15 @@ function BaganatorRetailBagSlotButtonMixin:Init()
   local itemID = GetInventoryItemID("player", inventorySlot)
   if itemID ~= nil then
     if C_Item.IsItemDataCachedByID(itemID) then
-      self:SetItemButtonQuality(GetInventoryItemQuality("player", inventorySlot))
+      -- Passs in itemID so that any skins hooking SetItemButtonQuality can use
+      -- it - as a bonus if Blizzard adds any widgets to bags this will add them
+      self:SetItemButtonQuality(GetInventoryItemQuality("player", inventorySlot), itemID)
     else
       Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
-        self:SetItemButtonQuality(GetInventoryItemQuality("player", inventorySlot))
+        self:SetItemButtonQuality(GetInventoryItemQuality("player", inventorySlot), itemID)
       end)
     end
   end
-  self:SetItemButtonQuality(GetInventoryItemQuality("player", inventorySlot))
   self:SetItemButtonCount(C_Container.GetContainerNumFreeSlots(self:GetID()))
 end
 
@@ -214,9 +215,9 @@ function BaganatorRetailBankButtonMixin:Init()
     return
   end
   self:SetItemButtonTexture(texture)
-  self:SetItemButtonQuality(quality)
+  self:SetItemButtonQuality(quality, itemID)
   Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
-    self:SetItemButtonQuality(C_Item.GetItemQualityByID(itemID))
+    self:SetItemButtonQuality(C_Item.GetItemQualityByID(itemID), itemID)
   end)
 end
 
@@ -309,8 +310,11 @@ BaganatorBagSlotsContainerMixin = {}
 
 function BaganatorBagSlotsContainerMixin:OnLoad()
   Syndicator.CallbackRegistry:RegisterCallback("BagCacheUpdate",  function(_, character, updatedBags)
-    if updatedBags.containerBags == nil or updatedBags.containerBags[self.mode] then
+    if updatedBags.containerBags == nil or updatedBags.containerBags[self.mode] or next(updatedBags[self.mode]) then
       self.updateBagSlotsNeeded = true
+      if self:IsVisible() then
+        self:Update(character, self.isLive)
+      end
     end
   end)
   self.updateBagSlotsNeeded = true
@@ -354,6 +358,7 @@ function BaganatorBagSlotsContainerMixin:OnLoad()
     else
       bb:SetPoint("TOPLEFT", self.liveBagSlots[#self.liveBagSlots - 1], "TOPRIGHT")
     end
+    Baganator.Skins.AddFrame("ItemButton", bb)
   end
 
   local cachedBagSlotCounter = 0
@@ -370,6 +375,7 @@ function BaganatorBagSlotsContainerMixin:OnLoad()
   self.cachedBagSlots = {}
   for index = 1, bagSlotsCount do
     local bb = GetCachedBagSlotButton()
+    Baganator.Skins.AddFrame("ItemButton", bb)
     bb:UpdateTextures()
     bb.isBag = true
     table.insert(self.cachedBagSlots, bb)
@@ -385,11 +391,14 @@ function BaganatorBagSlotsContainerMixin:OnLoad()
     else
       bb:SetPoint("TOPLEFT", self.cachedBagSlots[#self.cachedBagSlots - 1], "TOPRIGHT")
     end
+    Baganator.Skins.AddFrame("ItemButton", bb)
   end
 end
 
 function BaganatorBagSlotsContainerMixin:Update(character, isLive)
+  self.isLive = isLive
   if self.updateBagSlotsNeeded then
+    self.updateBagSlotsNeeded = false
     for _, bb in ipairs(self.liveBagSlots) do
       bb:Init()
     end

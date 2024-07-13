@@ -22,7 +22,7 @@ local allSortKeys = {
     "sortedClassID",
     "sortedInvSlotID",
     "sortedSubClassID",
-    "itemLevel",
+    "itemLevelRaw",
     "invertedExpansion", -- table.remove removes this on classic
     "itemName",
     "craftingQuality",
@@ -30,7 +30,7 @@ local allSortKeys = {
     "invertedItemCount",
     "itemLink",
   },
-  ["quality-legacy"] = {
+  ["quality-legacy"] = { -- no longer used
     "priority",
     "quality",
     "classID",
@@ -44,7 +44,7 @@ local allSortKeys = {
     "sortedClassID",
     "sortedInvSlotID",
     "sortedSubClassID",
-    "invertedItemLevel",
+    "invertedItemLevelRaw",
     "invertedExpansion", -- table.remove removes this on classic
     "invertedQuality",
     "itemName",
@@ -53,7 +53,7 @@ local allSortKeys = {
     "invertedItemCount",
     "itemLink",
   },
-  ["type-legacy"] = {
+  ["type-legacy"] = { -- no longer used
     "priority",
     "classID",
     "subClassID",
@@ -67,7 +67,7 @@ local allSortKeys = {
     "sortedClassID",
     "sortedInvSlotID",
     "sortedSubClassID",
-    "invertedItemLevel",
+    "invertedItemLevelRaw",
     "invertedQuality",
     "itemName",
     "invertedCraftingQuality",
@@ -118,12 +118,6 @@ function Baganator.Sorting.AddSortKeys(list)
 end
 
 function Baganator.Sorting.OrderOneListOffline(list, sortMethod)
-  local start = debugprofilestop()
-
-  if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
-    print("sort convert", debugprofilestop() - start)
-  end
-
   local reverse = Baganator.Config.Get(Baganator.Config.Options.REVERSE_GROUPS_SORT_ORDER)
 
   list = tFilter(list, function(a) return a.itemLink ~= nil end, true)

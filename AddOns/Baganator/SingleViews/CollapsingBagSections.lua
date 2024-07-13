@@ -1,26 +1,3 @@
-local ContainerTypeToIcon = {
-  [0] = nil, -- regular bag
-  [1] = {type = "file", value="interface\\addons\\baganator\\assets\\bag_soul_shard", tooltipHeader=BAGANATOR_L_SOUL}, -- soulbag
-  [2] = {type = "atlas", value="worldquest-icon-herbalism", tooltipHeader=BAGANATOR_L_HERBALISM, size=50}, --herb
-  [3] = {type = "atlas", value="worldquest-icon-enchanting", tooltipHeader=BAGANATOR_L_ENCHANTING, size=50}, --enchant
-  [4] = {type = "atlas", value="worldquest-icon-engineering", tooltipHeader=BAGANATOR_L_ENGINEERING, size=50}, --engineering
-  [5] = {type = "atlas", value="worldquest-icon-jewelcrafting", tooltipHeader=BAGANATOR_L_GEMS, size=50}, -- gem
-  [6] = {type = "atlas", value="worldquest-icon-mining", tooltipHeader=BAGANATOR_L_MINING, size=50}, -- mining
-  [7] = {type = "atlas", value="worldquest-icon-leatherworking", tooltipHeader=BAGANATOR_L_LEATHERWORKING, size=50}, -- leatherworking
-  [8] = {type = "atlas", value="worldquest-icon-inscription", tooltipHeader=BAGANATOR_L_INSCRIPTION, size=50}, -- inscription
-  [9] = {type = "atlas", value="worldquest-icon-fishing", tooltipHeader=BAGANATOR_L_FISHING, size=50}, -- fishing
-  [10] = {type = "atlas", value="worldquest-icon-cooking", tooltipHeader=BAGANATOR_L_COOKING, size=60}, -- cooking
-}
-
-local keyedTextures = {
-  quiver = {type = "atlas", value="Ammunition", tooltipHeader=AMMOSLOT},
-  reagentBag = {type = "atlas", value="Professions_Tracking_Herb", tooltipHeader = BAGANATOR_L_REAGENTS},
-  keyring = {type = "file", value="interface\\addons\\baganator\\assets\\bag_keys", tooltipHeader = BAGANATOR_L_KEYS},
-}
-for subClassType, textureDetails in pairs(ContainerTypeToIcon) do
-  keyedTextures[subClassType] = textureDetails
-end
-
 function Baganator.SingleViews.GetCollapsingBagDetails(character, section, indexes, slotsCount)
   local characterInfo = Syndicator.API.GetCharacter(character)
   if characterInfo.containerInfo == nil or characterInfo.containerInfo[section] == nil then
@@ -39,15 +16,10 @@ function Baganator.SingleViews.GetCollapsingBagDetails(character, section, index
 
   for index = 1, slotsCount do
     if containerInfo[index] and containerInfo[index].itemID ~= nil then
-      local classID, subClassID = select(6, C_Item.GetItemInfoInstant(containerInfo[index].itemID))
-      local icon = ContainerTypeToIcon[subClassID]
+      local key = Baganator.Utilities.GetBagType(nil, containerInfo[index].itemID)
       local bagIndex = index + 1
-      if classID == Enum.ItemClass.Quiver then
+      if key ~= 0 then
         seenIndexes[bagIndex] = true
-        inSlots["quiver"] = {bagIndex}
-      elseif icon then
-        seenIndexes[bagIndex] = true
-        local key = subClassID
         inSlots[key] = inSlots[key] or {}
         table.insert(inSlots[key], bagIndex)
       end
@@ -56,17 +28,12 @@ function Baganator.SingleViews.GetCollapsingBagDetails(character, section, index
 
   for bagIndex, bagID in ipairs(indexes) do
     if not seenIndexes[bagIndex] then
+      local bagType = Baganator.Utilities.GetBagType(bagID, nil)
       seenIndexes[bagIndex] = true
-      if Baganator.Constants.IsRetail and bagID == Enum.BagIndex.ReagentBag then
-        if #characterInfo.bags[bagIndex] > 0 then
-          inSlots["reagentBag"] = {bagIndex}
+      if bagType and bagType ~= 0 then
+        if #characterInfo[section][bagIndex] > 0 then
+          inSlots[bagType] = {bagIndex}
         end
-      elseif Baganator.Constants.IsRetail and bagID == Enum.BagIndex.Reagentbank then
-        if #characterInfo.bank[bagIndex] > 0 then
-          inSlots["reagentBag"] = {bagIndex}
-        end
-      elseif bagID == Enum.BagIndex.Keyring then
-        inSlots["keyring"] = {bagIndex}
       else
         table.insert(mainBags, bagIndex)
       end
@@ -77,7 +44,7 @@ function Baganator.SingleViews.GetCollapsingBagDetails(character, section, index
   for key, bags in pairs(inSlots) do
     table.insert(special, {
       indexesUsed = bags,
-      visual = keyedTextures[key],
+      visual = Baganator.Constants.ContainerKeyToInfo[key],
       key = key,
     })
   end
@@ -106,6 +73,7 @@ function Baganator.SingleViews.AllocateCollapsingSections(character, section, ba
     Baganator.SingleViews.SetupCollapsingBagSection(layouts, info, bagIDs)
     layouts.live:SetPool(itemButtonPool)
     layouts.button:Hide()
+    Baganator.Skins.AddFrame("IconButton", layouts.button, {"collapsingBagSection"})
 
     layouts.button:SetScript("OnClick", function()
       local state = Baganator.Config.Get(Baganator.Config.Options.HIDE_SPECIAL_CONTAINER)
@@ -120,12 +88,12 @@ end
 
 function Baganator.SingleViews.SetupCollapsingBagSection(layouts, info, bagIDs)
   if info.visual.type == "file" then
-    layouts.button.icon:SetSize(17, 17)
-    layouts.button.icon:SetTexture(info.visual.value)
+    layouts.button.Icon:SetSize(17, 17)
+    layouts.button.Icon:SetTexture(info.visual.value)
   else
     local size = info.visual.size or 64
-    layouts.button.icon:SetSize(size/64 * 17, size/64 * 17)
-    layouts.button.icon:SetAtlas(info.visual.value)
+    layouts.button.Icon:SetSize(size/64 * 17, size/64 * 17)
+    layouts.button.Icon:SetAtlas(info.visual.value)
   end
   layouts.key = info.key
   layouts.button.tooltipHeader = info.visual.tooltipHeader or ""
@@ -136,21 +104,7 @@ function Baganator.SingleViews.SetupCollapsingBagSection(layouts, info, bagIDs)
     layouts.indexesToUse[index] = true
     layouts.bagIDsToUse[bagIDs[index]] = true
   end
-  layouts.button:SetScript("OnEnter", function(self)
-    Baganator.CallbackRegistry:TriggerEvent("HighlightBagItems", layouts.bagIDsToUse)
-
-    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText(self.tooltipHeader)
-    if self.tooltipText then
-      GameTooltip:AddLine(self.tooltipText, 1, 1, 1, true)
-    end
-    GameTooltip:Show()
-  end)
-  layouts.button:SetScript("OnLeave", function(self)
-    Baganator.CallbackRegistry:TriggerEvent("ClearHighlightBag")
-
-    GameTooltip:Hide()
-  end)
+  layouts.button.bagIDsToUse = layouts.bagIDsToUse
 end
 
 function Baganator.SingleViews.ArrangeCollapsibles(activeCollapsibles, originBag, originCollapsibles)

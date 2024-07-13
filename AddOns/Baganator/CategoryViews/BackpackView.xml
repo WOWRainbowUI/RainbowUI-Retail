@@ -1,0 +1,15 @@
+<Ui>
+  <Frame name="BaganatorCategoryViewBackpackViewTemplate" virtual="true" inherits="BaganatorItemViewCommonBackpackViewTemplate" mixin="BaganatorCategoryViewBackpackViewMixin">
+    <Scripts>
+      <OnEvent method="OnEvent"/>
+      <OnHide method="OnHide"/>
+    </Scripts>
+    <Frames>
+      <Frame parentKey="MultiSearch" mixin="BaganatorCategoryViewsCategorySearchMixin">
+        <Scripts>
+          <OnLoad method="OnLoad"/>
+        </Scripts>
+      </Frame>
+    </Frames>
+  </Frame>
+</Ui>

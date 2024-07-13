@@ -9,9 +9,12 @@ do
       "PLAYER_LOGIN",
     })
     self.equipmentSetInfo = {}
+    self.equipmentSetNames = {}
 
     Baganator.API.RegisterItemSetSource(BAGANATOR_L_BLIZZARD, "blizzard", function(itemLocation, guid)
       return self.equipmentSetInfo[guid]
+    end, function()
+      return self.equipmentSetNames
     end)
   end
   BlizzardSetTracker:OnLoad()
@@ -36,9 +39,11 @@ do
     local oldSetInfo = CopyTable(self.equipmentSetInfo)
 
     local cache = {}
+    self.equipmentSetNames = {}
     for _, setID in ipairs(C_EquipmentSet.GetEquipmentSetIDs()) do
       local name, iconTexture = C_EquipmentSet.GetEquipmentSetInfo(setID)
-      local info = {name = name, iconTexture = iconTexture, setID = setID}
+      table.insert(self.equipmentSetNames, name)
+      local info = {name = name, iconTexture = iconTexture}
       -- Uses or {} because a set might exist without any associated item
       -- locations
       for _, location in pairs(C_EquipmentSet.GetItemLocations(setID) or {}) do
@@ -85,11 +90,14 @@ end
 if not Baganator.Constants.IsRetail then
   Baganator.Utilities.OnAddonLoaded("ItemRack", function()
     local equipmentSetInfo = {}
+    local equipmentSetNames = {}
     local function ItemRackUpdated()
       equipmentSetInfo = {}
+      equipmentSetNames = {}
       for name, details in pairs(ItemRackUser.Sets) do
         if name:sub(1, 1) ~= "~" then
-          local setInfo = {name = name, icon = details.icon}
+          table.insert(equipmentSetNames, name)
+          local setInfo = {name = name, iconTexture = details.icon}
           for _, itemRef in pairs(details.equip) do
             if not equipmentSetInfo[itemRef] then
               equipmentSetInfo[itemRef] = {}
@@ -119,7 +127,7 @@ if not Baganator.Constants.IsRetail then
       -- Workaround for ItemRack classic not getting the run id correctly for
       -- bag items
       if ItemRack.AppendRuneID then
-        local bagID, slotID = itemLocation:GetBagAndSlot()
+        local bagID, slotID = itemLocation.bagID, itemLocation.slotIndex
         local isEngravable = false
         local runeInfo = nil
         if bagID == Enum.BagIndex.Bank then
@@ -142,6 +150,8 @@ if not Baganator.Constants.IsRetail then
         end
       end
       return equipmentSetInfo[id]
+    end, function()
+      return equipmentSetNames
     end)
   end)
 end
