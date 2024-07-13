@@ -1,4 +1,3 @@
-# 11.2.11 (2024-05-17)
+# 11.2.13 (2024-06-29)
 
-* Fixed a Lua error with Auras widget the occurred when a Priest uses Mindcontrol on another player [GH-520].
-* Improved visual representation of interact icon for target units.
+* Added a delay when updating several CVars for soft targeting as they no longer can be changed in combat [Comment #7346].
