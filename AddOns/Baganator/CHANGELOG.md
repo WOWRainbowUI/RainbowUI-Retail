@@ -1,11 +1,9 @@
 # Baganator
 
-## [345](https://github.com/Baganator/Baganator/tree/345) (2024-07-12)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/344...345) 
+## [346](https://github.com/Baganator/Baganator/tree/346) (2024-07-13)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/345...346) 
 
-- Customise: Use search icon help button instead of text button on search tips  
-- Customise: Add usage tips to General tab  
-- Remove options to disable bag/bank/guild bank views  
-- Categories: Fix item icons being leftover when swapping to a bank with no data  
-- Customise: Move some options from General/Layout into Layout/Sorting  
-- Add welcome screen to choose between single bag and category groups modes  
+- Fix category groups for slots on French locale  
+    Holdable caused far more to be included in the created category than  
+    should have been  
+- Customise: Update General to include credit and discord link  

@@ -1,6 +1,6 @@
 ## Interface: 40400
 ## Title: Baganator
-## Version: 345
+## Version: 346
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA

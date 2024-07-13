@@ -92,14 +92,16 @@ L["THEME"] = "Theme"
 L["CATEGORIES"] = "Categories"
 L["FROM_THE_TOP"] = "From the top"
 L["FROM_THE_BOTTOM"] = "From the bottom"
-L["TIPS"] = "Tips"
 L["PLUGINS"] = "Plugins"
 L["SKINS"] = "Skins"
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
+L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
 L["SEARCH_HELP"] = "Search Help"
+L["JOIN_THE_DISCORD"] = "Join the Discord"
+L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
+L["BY_PLUSMOUSE"] = "by plusmouse"
 
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
@@ -341,6 +343,8 @@ L["BRACKETS_RELOAD_REQUIRED"] = "(reload required)"
 L["BUY_REAGENT_BANK"] = "Acheter emplacement de banque de composants"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
+--[[Translation missing --]]
+L["BY_PLUSMOUSE"] = "by plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Impossible d’ajouter d’autres objets à cet échange"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifier cet onglet"
@@ -390,6 +394,8 @@ L["CUSTOMISE_BAGANATOR"] = "Personnaliser Baganator"
 L["DEPOSIT_REAGENTS"] = "Dépôt des composants"
 --[[Translation missing --]]
 L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
+--[[Translation missing --]]
+L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 --[[Translation missing --]]
 L["EDIT"] = "Edit"
 L["EMPTY"] = "Vide"
@@ -493,6 +499,8 @@ L["ITEM_QUALITY"] = "Qualité de l’objet"
 L["ITEM_QUALITY_TEXT_COLORS"] = "Item quality text colors"
 L["ITEM_TYPE"] = "Type d’objet"
 L["JEWELCRAFTING"] = "Joaillerie"
+--[[Translation missing --]]
+L["JOIN_THE_DISCORD"] = "Join the Discord"
 L["JUNK"] = "Camelote"
 --[[Translation missing --]]
 L["JUNK_DETECTION_2"] = "Junk detection"
@@ -592,13 +600,11 @@ L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "Le vendeur n'est pas intére
 --[[Translation missing --]]
 L["THEME"] = "Theme"
 --[[Translation missing --]]
-L["TIPS"] = "Tips"
---[[Translation missing --]]
 L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 --[[Translation missing --]]
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 --[[Translation missing --]]
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
+L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
 --[[Translation missing --]]
 L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
 L["TL"] = "OE"
@@ -621,13 +627,7 @@ L["TRANSPARENCY"] = "Transparency"
 --[[Translation missing --]]
 L["TYPE"] = "Type"
 L["UNLIMITED"] = "Illimité"
---[[Translation missing --]]
-L["USE_BACKPACK_VIEW"] = "Use backpack view"
---[[Translation missing --]]
-L["USE_BANK_VIEW"] = "Use bank view"
 L["USE_DEFAULT"] = "Par défaut"
---[[Translation missing --]]
-L["USE_GUILD_VIEW"] = "Use guild bank view"
 L["USING_X"] = "Utilisant %s"
 L["VENDOR"] = "Vendeur"
 L["VERSION_COLON_X"] = "Version: %s"
@@ -688,6 +688,8 @@ L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(nur Kategorie-Ansicht)"
 L["BRACKETS_RELOAD_REQUIRED"] = "(Neuladen erforderlich)"
 L["BUY_REAGENT_BANK"] = "Reagenzien-Bank kaufen"
 L["BUY_WARBAND_BANK_TAB"] = "Kriegsmeuten Bank-Tab kaufen?"
+--[[Translation missing --]]
+L["BY_PLUSMOUSE"] = "by plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Es können keine weiteren Gegenstände zu diesem Handel hinzugefügt werden"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Du hast keine Berechtigung diesen Tab zu bearbeiten"
@@ -725,6 +727,8 @@ L["CTRL_C_TO_COPY"] = "Strg+C zum Kopieren"
 L["CUSTOMISE_BAGANATOR"] = "Baganator anpassen"
 L["DEPOSIT_REAGENTS"] = "Reagenzien einlagern"
 L["DEPOSIT_WARBOUND"] = "Kriegsgebundene Gegenstände einlagern"
+--[[Translation missing --]]
+L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 L["EDIT"] = "Bearbeiten"
 L["EMPTY"] = "Leer"
 L["ENCHANTING"] = "Verzauberkunst"
@@ -793,6 +797,8 @@ L["ITEM_QUALITY"] = "Gegenstandsqualität"
 L["ITEM_QUALITY_TEXT_COLORS"] = "Gegenstandsqualität Textfarben"
 L["ITEM_TYPE"] = "Gegenstandstyp"
 L["JEWELCRAFTING"] = "Juwelierskunst"
+--[[Translation missing --]]
+L["JOIN_THE_DISCORD"] = "Join the Discord"
 L["JUNK"] = "Schrott"
 L["JUNK_DETECTION_2"] = "Schrott-Erkennung"
 L["KEYS"] = "Schlüssel"
@@ -864,10 +870,10 @@ L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "Dieser Gegenstand ist im Leerenlager"
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "Dieser Gegenstand ist im Auktionshaus gelistet"
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "Der Händler will keinen dieser Gegenstände"
 L["THEME"] = "Template"
-L["TIPS"] = "Tipps"
 L["TIPS_PLUGINS"] = "Erweitere Baganator mit zusätzlichen Funktionen, basierend auf Integrationen von beliebten Addons wie AllTheThings, CanIMogIt, Pawn, Dejunk, und anderen..."
 L["TIPS_SEARCH"] = "Leistungsstark, flexibel und schnell. Verwende die flexiblen Abfrageoperatoren & (und), | (oder) und ! (nicht), um genau das zu finden, was du brauchst."
-L["TIPS_SKINS"] = "Passe Baganator mit Themen für ElvUI, GW2 oder einer einfachen dunklen Option an deine Benutzeroberfläche an."
+--[[Translation missing --]]
+L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
 L["TIPS_TRANSFER"] = "Suche nach Gegenständen und verwende dann die Transfer-Schaltfläche, um sie ganz einfach zu deiner Bank, einer Mail, dem Handelsfenster oder einem Verkäufer zu übertragen."
 L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Optionen anzeigen mit /bgr"
@@ -886,10 +892,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Füge gesuchte Gegenstände in das
 L["TRANSPARENCY"] = "Transparenz"
 L["TYPE"] = "Typ"
 L["UNLIMITED"] = "Unbegrenzt"
-L["USE_BACKPACK_VIEW"] = "Rucksack-Ansicht verwenden"
-L["USE_BANK_VIEW"] = "Bank-Ansicht verwenden"
 L["USE_DEFAULT"] = "Voreinstellung"
-L["USE_GUILD_VIEW"] = "Gildenbank-Ansicht verwenden"
 L["USING_X"] = "Benutze %s"
 L["VENDOR"] = "Händler"
 L["VERSION_COLON_X"] = "Version: %s"
@@ -942,6 +945,8 @@ L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(только при категориях)"
 L["BRACKETS_RELOAD_REQUIRED"] = "(требуется /reload)"
 L["BUY_REAGENT_BANK"] = "Купить банк материалов"
 L["BUY_WARBAND_BANK_TAB"] = "Приобрести ячейку банка отряда?"
+--[[Translation missing --]]
+L["BY_PLUSMOUSE"] = "by plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Превышен лимит на добавление предметов для обмена"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "У вас нет разрешения на редактирование этой ячейки"
@@ -981,6 +986,8 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C для копирования"
 L["CUSTOMISE_BAGANATOR"] = "Настройка Baganator"
 L["DEPOSIT_REAGENTS"] = "Перенести материалы из сумок"
 L["DEPOSIT_WARBOUND"] = "Перенести предметы отряда"
+--[[Translation missing --]]
+L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 L["EDIT"] = "Редактирование"
 L["EMPTY"] = "Пусто"
 L["ENCHANTING"] = "Наложение чар"
@@ -1048,6 +1055,8 @@ L["ITEM_QUALITY"] = "Качество"
 L["ITEM_QUALITY_TEXT_COLORS"] = "Цвет текста как качество"
 L["ITEM_TYPE"] = "Тип"
 L["JEWELCRAFTING"] = "Ювелирное дело"
+--[[Translation missing --]]
+L["JOIN_THE_DISCORD"] = "Join the Discord"
 L["JUNK"] = "Хлам"
 L["JUNK_DETECTION_2"] = "Определение хлама"
 L["KEYS"] = "Ключи"
@@ -1124,13 +1133,11 @@ L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "Этот предмет выс�
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "Торговцу не нужны эти предметы"
 L["THEME"] = "Тема"
 --[[Translation missing --]]
-L["TIPS"] = "Tips"
---[[Translation missing --]]
 L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 --[[Translation missing --]]
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 --[[Translation missing --]]
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
+L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
 --[[Translation missing --]]
 L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
 L["TL"] = "Можно передать"
@@ -1154,10 +1161,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Добавить предметы,
 L["TRANSPARENCY"] = "Непрозрачность"
 L["TYPE"] = "Тип"
 L["UNLIMITED"] = "Без лимита"
-L["USE_BACKPACK_VIEW"] = "Использовать в сумках"
-L["USE_BANK_VIEW"] = "Использовать в банке"
 L["USE_DEFAULT"] = "По умолчанию"
-L["USE_GUILD_VIEW"] = "Использовать в банке гильдии"
 L["USING_X"] = "Используется %s"
 L["VENDOR"] = "Торговец"
 L["VERSION_COLON_X"] = "Версия: %s"
@@ -1229,6 +1233,8 @@ L["BRACKETS_RELOAD_REQUIRED"] = "(reload required)"
 L["BUY_REAGENT_BANK"] = "Comprar Banco de Componentes"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
+--[[Translation missing --]]
+L["BY_PLUSMOUSE"] = "by plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "No se pueden añadir más artículos a este intercambio"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pestaña"
@@ -1285,6 +1291,8 @@ L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
+--[[Translation missing --]]
+L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 --[[Translation missing --]]
 L["EDIT"] = "Edit"
 --[[Translation missing --]]
@@ -1419,6 +1427,8 @@ L["ITEM_QUALITY_TEXT_COLORS"] = "Item quality text colors"
 L["ITEM_TYPE"] = "Item Type"
 --[[Translation missing --]]
 L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
+L["JOIN_THE_DISCORD"] = "Join the Discord"
 --[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
@@ -1562,13 +1572,11 @@ L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want an
 --[[Translation missing --]]
 L["THEME"] = "Theme"
 --[[Translation missing --]]
-L["TIPS"] = "Tips"
---[[Translation missing --]]
 L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 --[[Translation missing --]]
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 --[[Translation missing --]]
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
+L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
 --[[Translation missing --]]
 L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
 --[[Translation missing --]]
@@ -1610,13 +1618,7 @@ L["TYPE"] = "Type"
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
-L["USE_BACKPACK_VIEW"] = "Use backpack view"
---[[Translation missing --]]
-L["USE_BANK_VIEW"] = "Use bank view"
---[[Translation missing --]]
 L["USE_DEFAULT"] = "Use Default"
---[[Translation missing --]]
-L["USE_GUILD_VIEW"] = "Use guild bank view"
 --[[Translation missing --]]
 L["USING_X"] = "Using %s"
 --[[Translation missing --]]
@@ -1704,6 +1706,8 @@ L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
 --[[Translation missing --]]
+L["BY_PLUSMOUSE"] = "by plusmouse"
+--[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
@@ -1776,6 +1780,8 @@ L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
+--[[Translation missing --]]
+L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 L["EDIT"] = "Editar"
 L["EMPTY"] = "Vacío"
 --[[Translation missing --]]
@@ -1890,6 +1896,8 @@ L["ITEM_QUALITY_TEXT_COLORS"] = "Item quality text colors"
 L["ITEM_TYPE"] = "Item Type"
 --[[Translation missing --]]
 L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
+L["JOIN_THE_DISCORD"] = "Join the Discord"
 L["JUNK"] = "Basura"
 --[[Translation missing --]]
 L["JUNK_DETECTION_2"] = "Junk detection"
@@ -2016,13 +2024,11 @@ L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auct
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
 L["THEME"] = "Tema"
 --[[Translation missing --]]
-L["TIPS"] = "Tips"
---[[Translation missing --]]
 L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 --[[Translation missing --]]
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 --[[Translation missing --]]
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
+L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
 --[[Translation missing --]]
 L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
 --[[Translation missing --]]
@@ -2062,13 +2068,7 @@ L["TYPE"] = "Type"
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
-L["USE_BACKPACK_VIEW"] = "Use backpack view"
---[[Translation missing --]]
-L["USE_BANK_VIEW"] = "Use bank view"
---[[Translation missing --]]
 L["USE_DEFAULT"] = "Use Default"
---[[Translation missing --]]
-L["USE_GUILD_VIEW"] = "Use guild bank view"
 --[[Translation missing --]]
 L["USING_X"] = "Using %s"
 L["VENDOR"] = "Vendedor"
@@ -2131,6 +2131,7 @@ L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(僅分類檢視)"
 L["BRACKETS_RELOAD_REQUIRED"] = "(需要重載)"
 L["BUY_REAGENT_BANK"] = "購買材料銀行"
 L["BUY_WARBAND_BANK_TAB"] = "購買戰隊銀行標籤嗎？"
+L["BY_PLUSMOUSE"] = "作者：plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "無法在此交易加入更多物品"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您沒有權限編輯此標籤頁"
@@ -2168,6 +2169,7 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C來複製"
 L["CUSTOMISE_BAGANATOR"] = "自定義Baganator"
 L["DEPOSIT_REAGENTS"] = "存放材料"
 L["DEPOSIT_WARBOUND"] = "存放戰隊物品"
+L["DISCORD_DESCRIPTION"] = "更新、功能建議以及支援"
 L["EDIT"] = "編輯"
 L["EMPTY"] = "空"
 L["ENCHANTING"] = "附魔"
@@ -2235,6 +2237,7 @@ L["ITEM_QUALITY"] = "物品品質"
 L["ITEM_QUALITY_TEXT_COLORS"] = "物品品質文字顏色"
 L["ITEM_TYPE"] = "物品類型"
 L["JEWELCRAFTING"] = "珠寶"
+L["JOIN_THE_DISCORD"] = "加入 Discord "
 L["JUNK"] = "垃圾"
 L["JUNK_DETECTION_2"] = "垃圾偵測"
 L["KEYS"] = "鑰匙"
@@ -2260,8 +2263,7 @@ L["PAWN"] = "Pawn"
 L["PEDDLER"] = "商販"
 L["PERCENTAGE_PATTERN"] = "%s%%"
 L["PIXEL_PATTERN"] = "%s像素"
---[[Translation missing --]]
-L["PLUGINS"] = "Plugins"
+L["PLUGINS"] = "掛件"
 L["POOR_QUALITY"] = "粗糙品質"
 L["PRIORITY"] = "優先級"
 L["QUALITY"] = "品質"
@@ -2280,16 +2282,14 @@ L["SCRAP"] = "廢料"
 L["SCRAPPING_MACHINE"] = "破爛回收機"
 L["SEARCH_EVERYWHERE"] = "廣泛搜尋"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "將把搜尋結果發送到您的聊天中。"
---[[Translation missing --]]
-L["SEARCH_HELP"] = "Search Help"
+L["SEARCH_HELP"] = "搜尋幫助"
 L["SEARCH_TRY_X"] = "搜尋，嘗試 %s"
 L["SELLJUNK"] = "賣出垃圾"
 L["SHOW_BUTTONS"] = "顯示按鈕"
 L["SHOW_SORT_BUTTON"] = "顯示整理按鈕"
 L["SINGLE_BAG"] = "單一大背包"
 L["SINGLE_BAG_DESCRIPTION"] = "最常見的選項，將物品放在一個單一大背包中。"
---[[Translation missing --]]
-L["SKINS"] = "Skins"
+L["SKINS"] = "外觀美化"
 L["SLOT"] = "部位"
 L["SOCKET_INTERFACE"] = "插槽介面"
 L["SORT"] = "整理"
@@ -2309,16 +2309,10 @@ L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "該物品在虛空倉庫中"
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "該物品已在拍賣場列出"
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "商店不想要任何這些物品"
 L["THEME"] = "主題"
---[[Translation missing --]]
-L["TIPS"] = "Tips"
---[[Translation missing --]]
-L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
---[[Translation missing --]]
-L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
---[[Translation missing --]]
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
---[[Translation missing --]]
-L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
+L["TIPS_PLUGINS"] = "通過與 AllTheThings，CanIMogIt，Pawn，Dejunk 等流行插件的整合，增強 Baganator 的附加功能..."
+L["TIPS_SEARCH"] = "強大、靈活、快速。使用靈活的搜尋運算符號 &（和）、|（或）和 ！(非) 來精確查找您所需要的內容。"
+L["TIPS_SKINS_2"] = "使用 ElvUI、GW2 或簡單的暗色選項主題，讓 Baganator 配合您的界面美化。單獨安裝。"
+L["TIPS_TRANSFER"] = "搜尋物品，然後使用轉移按鈕輕鬆將其轉移到銀行、郵件訊息、交易視窗或商店處。"
 L["TL"] = "交"
 L["TO_OPEN_OPTIONS_X"] = "輸入 /bgr 開啟選項"
 L["TOOLTIP_SETTINGS"] = "工具提示設定"
@@ -2336,10 +2330,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "將搜尋到的商品加入交易�
 L["TRANSPARENCY"] = "透明度"
 L["TYPE"] = "類型"
 L["UNLIMITED"] = "無限制"
-L["USE_BACKPACK_VIEW"] = "使用背包檢視"
-L["USE_BANK_VIEW"] = "使用銀行檢視"
 L["USE_DEFAULT"] = "使用系統預設值"
-L["USE_GUILD_VIEW"] = "使用公會銀行檢視"
 L["USING_X"] = "使用 %s"
 L["VENDOR"] = "商店"
 L["VERSION_COLON_X"] = "版本：%s"
@@ -2392,6 +2383,7 @@ L["BRACKETS_CATEGORY_VIEW_ONLY"] = "（仅分类浏览）"
 L["BRACKETS_RELOAD_REQUIRED"] = "（需/reload重载界面）"
 L["BUY_REAGENT_BANK"] = "购买材料银行"
 L["BUY_WARBAND_BANK_TAB"] = "购买战团银行标签？"
+L["BY_PLUSMOUSE"] = "作者：plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "无法添加更多物品到此交易"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您无权编辑此选项"
@@ -2429,6 +2421,7 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C 复制"
 L["CUSTOMISE_BAGANATOR"] = "自定义Baganator设置"
 L["DEPOSIT_REAGENTS"] = "存放材料"
 L["DEPOSIT_WARBOUND"] = "存放战团物品"
+L["DISCORD_DESCRIPTION"] = "更新、功能建议和支持"
 L["EDIT"] = "编辑"
 L["EMPTY"] = "空"
 L["ENCHANTING"] = "附魔"
@@ -2496,6 +2489,7 @@ L["ITEM_QUALITY"] = "物品品质"
 L["ITEM_QUALITY_TEXT_COLORS"] = "物品品质文本颜色"
 L["ITEM_TYPE"] = "物品类型"
 L["JEWELCRAFTING"] = "珠宝"
+L["JOIN_THE_DISCORD"] = "加入 Discord "
 L["JUNK"] = "垃圾"
 L["JUNK_DETECTION_2"] = "垃圾检测"
 L["KEYS"] = "钥匙"
@@ -2521,8 +2515,7 @@ L["PAWN"] = "Pawn"
 L["PEDDLER"] = "商人"
 L["PERCENTAGE_PATTERN"] = "%s%%"
 L["PIXEL_PATTERN"] = "%s 像素"
---[[Translation missing --]]
-L["PLUGINS"] = "Plugins"
+L["PLUGINS"] = "程序"
 L["POOR_QUALITY"] = "粗糙品质"
 L["PRIORITY"] = "优先级"
 L["QUALITY"] = "品质"
@@ -2541,16 +2534,14 @@ L["SCRAP"] = "废料"
 L["SCRAPPING_MACHINE"] = "拆解机"
 L["SEARCH_EVERYWHERE"] = "扩大搜索"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "将搜索结果发送到聊天信息中。"
---[[Translation missing --]]
-L["SEARCH_HELP"] = "Search Help"
+L["SEARCH_HELP"] = "搜索帮助"
 L["SEARCH_TRY_X"] = "搜索，尝试： %s"
 L["SELLJUNK"] = "出售垃圾"
 L["SHOW_BUTTONS"] = "显示按钮"
 L["SHOW_SORT_BUTTON"] = "显示整理按键"
 L["SINGLE_BAG"] = "大背包"
 L["SINGLE_BAG_DESCRIPTION"] = "最常见的选择。可将物品放在一个大背包中。"
---[[Translation missing --]]
-L["SKINS"] = "Skins"
+L["SKINS"] = "美化"
 L["SLOT"] = "栏"
 L["SOCKET_INTERFACE"] = "插槽界面"
 L["SORT"] = "整理"
@@ -2570,16 +2561,10 @@ L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "该物品在虚空仓库"
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "该物品已在拍卖行上架"
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "商人不想要这些物品"
 L["THEME"] = "主题"
---[[Translation missing --]]
-L["TIPS"] = "Tips"
---[[Translation missing --]]
-L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
---[[Translation missing --]]
-L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
---[[Translation missing --]]
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
---[[Translation missing --]]
-L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
+L["TIPS_PLUGINS"] = "通过与 AllTheThings，CanIMogIt，Pawn，Dejunk 等流行插件的集成，增强 Baganator 的附加功能..."
+L["TIPS_SEARCH"] = "强大、灵活、快速。使用灵活的查询操作符号 &（和）、|（或）和 ！(非) 来精确查找您所需要的内容。"
+L["TIPS_SKINS_2"] = "使用 ElvUI、GW2 或简单的暗色选项主题美化，让 Baganator 与您的用户界面相匹配。单独安装。"
+L["TIPS_TRANSFER"] = "搜索物品，然后使用转移按钮轻松将其转移到银行、邮件信息、交易窗口或供应商处。"
 L["TL"] = "交"
 L["TO_OPEN_OPTIONS_X"] = "输入/bgr 打开选项"
 L["TOOLTIP_SETTINGS"] = "鼠标提示设置"
@@ -2597,10 +2582,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "将搜索到的物品添加到交�
 L["TRANSPARENCY"] = "透明度"
 L["TYPE"] = "类型"
 L["UNLIMITED"] = "无限"
-L["USE_BACKPACK_VIEW"] = "使用背包查看"
-L["USE_BANK_VIEW"] = "使用银行查看"
 L["USE_DEFAULT"] = "使用默认"
-L["USE_GUILD_VIEW"] = "使用公会银行查看"
 L["USING_X"] = "使用 %s"
 L["VENDOR"] = "商店"
 L["VERSION_COLON_X"] = "版本：%s"
@@ -2672,6 +2654,8 @@ L["BRACKETS_RELOAD_REQUIRED"] = "(reload required)"
 L["BUY_REAGENT_BANK"] = "재료 은행 구매"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
+--[[Translation missing --]]
+L["BY_PLUSMOUSE"] = "by plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "거래에 아이템을 더이상 추가할 수 없습니다."
 --[[Translation missing --]]
@@ -2740,6 +2724,8 @@ L["CUSTOMISE_BAGANATOR"] = "Baganator 설정"
 L["DEPOSIT_REAGENTS"] = "재료 은행에 보관"
 --[[Translation missing --]]
 L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
+--[[Translation missing --]]
+L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 --[[Translation missing --]]
 L["EDIT"] = "Edit"
 --[[Translation missing --]]
@@ -2857,6 +2843,8 @@ L["ITEM_QUALITY"] = "아이템 품질"
 L["ITEM_QUALITY_TEXT_COLORS"] = "Item quality text colors"
 L["ITEM_TYPE"] = "아이템 유형"
 L["JEWELCRAFTING"] = "보석세공"
+--[[Translation missing --]]
+L["JOIN_THE_DISCORD"] = "Join the Discord"
 --[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
@@ -2985,13 +2973,11 @@ L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want an
 --[[Translation missing --]]
 L["THEME"] = "Theme"
 --[[Translation missing --]]
-L["TIPS"] = "Tips"
---[[Translation missing --]]
 L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 --[[Translation missing --]]
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 --[[Translation missing --]]
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
+L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
 --[[Translation missing --]]
 L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
 L["TL"] = "TL"
@@ -3030,13 +3016,7 @@ L["TYPE"] = "Type"
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
-L["USE_BACKPACK_VIEW"] = "Use backpack view"
---[[Translation missing --]]
-L["USE_BANK_VIEW"] = "Use bank view"
---[[Translation missing --]]
 L["USE_DEFAULT"] = "Use Default"
---[[Translation missing --]]
-L["USE_GUILD_VIEW"] = "Use guild bank view"
 --[[Translation missing --]]
 L["USING_X"] = "Using %s"
 L["VENDOR"] = "상인"
@@ -3133,6 +3113,8 @@ L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
 --[[Translation missing --]]
+L["BY_PLUSMOUSE"] = "by plusmouse"
+--[[Translation missing --]]
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 --[[Translation missing --]]
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Cannot add any more items to this trade"
@@ -3206,6 +3188,8 @@ L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
+--[[Translation missing --]]
+L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 --[[Translation missing --]]
 L["EDIT"] = "Edit"
 --[[Translation missing --]]
@@ -3340,6 +3324,8 @@ L["ITEM_QUALITY_TEXT_COLORS"] = "Item quality text colors"
 L["ITEM_TYPE"] = "Item Type"
 --[[Translation missing --]]
 L["JEWELCRAFTING"] = "Jewelcrafting"
+--[[Translation missing --]]
+L["JOIN_THE_DISCORD"] = "Join the Discord"
 --[[Translation missing --]]
 L["JUNK"] = "Junk"
 --[[Translation missing --]]
@@ -3483,13 +3469,11 @@ L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want an
 --[[Translation missing --]]
 L["THEME"] = "Theme"
 --[[Translation missing --]]
-L["TIPS"] = "Tips"
---[[Translation missing --]]
 L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 --[[Translation missing --]]
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 --[[Translation missing --]]
-L["TIPS_SKINS"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option."
+L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
 --[[Translation missing --]]
 L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
 --[[Translation missing --]]
@@ -3531,13 +3515,7 @@ L["TYPE"] = "Type"
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
-L["USE_BACKPACK_VIEW"] = "Use backpack view"
---[[Translation missing --]]
-L["USE_BANK_VIEW"] = "Use bank view"
---[[Translation missing --]]
 L["USE_DEFAULT"] = "Use Default"
---[[Translation missing --]]
-L["USE_GUILD_VIEW"] = "Use guild bank view"
 --[[Translation missing --]]
 L["USING_X"] = "Using %s"
 --[[Translation missing --]]
