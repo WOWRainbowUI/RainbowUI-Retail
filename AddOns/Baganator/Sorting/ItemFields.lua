@@ -74,18 +74,18 @@ local sorted = {
     17, -- 2h weapon
     13, -- weapon
     21, -- weapon main
+    14, -- shield
+    23, -- holdable
     26, -- ranged right
     22, -- weapon off
     15, -- ranged
     25, -- thrown
     24, -- ammo
-    14, -- shield
     27, -- quiver
     28, -- relic
-    23, -- holdable
     1, -- head
     3, -- shoulder
-    4, -- body/shirt
+    16, -- cloak
     5, -- chest
     20, -- robe
     9, -- wrist
@@ -94,12 +94,12 @@ local sorted = {
     7, -- legs
     8, -- feet
     2, -- neck
-    16, -- cloak
     11, -- finger
     12, -- trinket
+    4, -- body/shirt
+    19, -- tabard
     29, -- prof tool
     30, -- prof gear
-    19, -- tabard
     18, -- bag
     31, -- spell offensive
     32, -- spell utility
@@ -164,7 +164,7 @@ keysMapping["invertedExpansion"] = function(self)
   return self.expansion and -self.expansion
 end
 
-keysMapping["itemLevel"] = function(self)
+keysMapping["itemLevelRaw"] = function(self)
   if C_Item.IsItemDataCachedByID(self.itemID) then
     local itemLevel = C_Item.GetDetailedItemLevelInfo(self.itemLink)
     return itemLevel or -1
@@ -173,8 +173,8 @@ keysMapping["itemLevel"] = function(self)
   end
 end
 
-keysMapping["invertedItemLevel"] = function(self)
-  return self.itemLevel and -self.itemLevel
+keysMapping["invertedItemLevelRaw"] = function(self)
+  return self.itemLevelRaw and -self.itemLevelRaw
 end
 
 -- Dragonflight crafting reagent quality

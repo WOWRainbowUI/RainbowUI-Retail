@@ -2,53 +2,16 @@ BaganatorCharacterSelectMixin = {}
 
 local arrowLeft = CreateTextureMarkup("Interface\\AddOns\\Baganator\\Assets\\arrow", 22, 22, 18, 18, 0, 1, 0, 1)
 
-local hiddenColor = CreateColor(1, 0, 0)
-local shownColor = CreateColor(0, 1, 0)
-
-local function SetHideButton(frame)
-  frame.HideButton = CreateFrame("Button", nil, frame)
-  frame.HideButton:SetNormalAtlas("socialqueuing-icon-eye")
-  frame.HideButton:SetPoint("TOPLEFT", 28, -2.5)
-  frame.HideButton:SetSize(15, 15)
-  frame.HideButton:SetScript("OnClick", function()
-    Syndicator.API.ToggleCharacterHidden(frame.fullName)
-    GameTooltip:Hide()
-    frame:UpdateHideVisual()
-  end)
-  frame.HideButton:SetScript("OnEnter", function()
-    GameTooltip:SetOwner(frame.HideButton, "ANCHOR_RIGHT")
-    if Syndicator.API.GetCharacter(frame.fullName).details.hidden then
-      GameTooltip:SetText(BAGANATOR_L_SHOW_IN_TOOLTIPS)
-    else
-      GameTooltip:SetText(BAGANATOR_L_HIDE_IN_TOOLTIPS)
-    end
-    GameTooltip:Show()
-    frame.HideButton:SetAlpha(0.5)
-  end)
-  frame.HideButton:SetScript("OnLeave", function()
-    GameTooltip:Hide()
-    frame.HideButton:SetAlpha(1)
-  end)
+local function SetRaceIcon(frame)
+  frame.RaceIcon = frame:CreateFontString(nil, "BACKGROUND", "GameFontHighlight")
+  frame.RaceIcon:SetSize(15, 15)
+  frame.RaceIcon:SetPoint("TOPLEFT", 32, -2.5)
 end
 
-local function SetDeleteButton(frame)
-  frame.DeleteButton = CreateFrame("Button", nil, frame)
-  frame.DeleteButton:SetNormalAtlas("transmog-icon-remove")
-  frame.DeleteButton:SetPoint("TOPLEFT", 8, -2.5)
-  frame.DeleteButton:SetSize(15, 15)
-  frame.DeleteButton:SetScript("OnClick", function()
-    Syndicator.API.DeleteCharacter(frame.fullName)
-  end)
-  frame.DeleteButton:SetScript("OnEnter", function()
-    GameTooltip:SetOwner(frame.DeleteButton, "ANCHOR_RIGHT")
-    GameTooltip:SetText(BAGANATOR_L_DELETE_CHARACTER)
-    GameTooltip:Show()
-    frame.DeleteButton:SetAlpha(0.5)
-  end)
-  frame.DeleteButton:SetScript("OnLeave", function()
-    GameTooltip:Hide()
-    frame.DeleteButton:SetAlpha(1)
-  end)
+local function SetArrowIcon(frame)
+  frame.ArrowIcon = frame:CreateFontString(nil, "BACKGROUND", "GameFontHighlight")
+  frame.ArrowIcon:SetSize(20, 15)
+  frame.ArrowIcon:SetPoint("TOPLEFT", 8, -2.5)
 end
 
 function BaganatorCharacterSelectMixin:OnLoad()
@@ -60,6 +23,9 @@ function BaganatorCharacterSelectMixin:OnLoad()
   self:RegisterForDrag("LeftButton")
   self:SetMovable(true)
   self:SetUserPlaced(false)
+
+  Baganator.Skins.AddFrame("ButtonFrame", self)
+  Baganator.Skins.AddFrame("Button", self.ManageCharactersButton)
 
   Baganator.CallbackRegistry:RegisterCallback("SettingChanged",  function(_, settingName)
     if tIndexOf(Baganator.Config.VisualsFrameOnlySettings, settingName) ~= nil then
@@ -74,10 +40,10 @@ function BaganatorCharacterSelectMixin:OnLoad()
   local function UpdateForSelection(frame)
     if frame.fullName ~= self.selectedCharacter then
       frame:Enable()
-      frame:SetText(frame.iconPrefix .. frame.fullName)
+      frame.ArrowIcon:SetText("")
     else
       frame:Disable()
-      frame:SetText(arrowLeft .. " " .. frame.iconPrefix .. frame.fullName)
+      frame.ArrowIcon:SetText(arrowLeft)
     end
   end
 
@@ -86,12 +52,28 @@ function BaganatorCharacterSelectMixin:OnLoad()
   view:SetElementInitializer("Button", function(frame, elementData)
     frame:SetHighlightAtlas("search-highlight")
     frame:SetNormalFontObject(GameFontHighlight)
-    frame.fullName = elementData.fullName
-    frame.iconPrefix = ""
-    if Baganator.Config.Get(Baganator.Config.Options.SHOW_CHARACTER_RACE_ICONS) and elementData.race then
-      frame.iconPrefix = Syndicator.Utilities.GetCharacterIcon(elementData.race, elementData.sex) .. " "
+    if not frame.RealmName then
+      frame.RealmName = frame:CreateFontString(nil, "BACKGROUND", "GameFontHighlightSmall")
+      frame.RealmName:SetTextColor(0.75, 0.75, 0.75)
+      frame.RealmName:SetPoint("RIGHT", -15, 0)
+      frame.RealmName:SetJustifyH("RIGHT")
+      frame.RealmName:SetJustifyV("MIDDLE")
     end
-    frame:SetText(frame.iconPrefix .. frame.fullName)
+    frame.fullName = elementData.fullName
+    if not frame.RaceIcon then
+      SetRaceIcon(frame)
+    end
+    if not frame.ArrowIcon then
+      SetArrowIcon(frame)
+    end
+    if elementData.race then
+      frame.RaceIcon:SetText(Syndicator.Utilities.GetCharacterIcon(elementData.race, elementData.sex))
+    end
+    frame:SetText(elementData.name)
+    frame.RealmName:SetText(elementData.realm)
+    frame:GetFontString():SetPoint("LEFT", 48, 0)
+    frame:GetFontString():SetPoint("RIGHT", -15, 0)
+    frame:GetFontString():SetJustifyH("LEFT")
     if elementData.className then
       local classColor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[elementData.className]
       frame:GetFontString():SetTextColor(classColor.r, classColor.g, classColor.b)
@@ -101,19 +83,6 @@ function BaganatorCharacterSelectMixin:OnLoad()
     frame:SetScript("OnClick", function()
       Baganator.CallbackRegistry:TriggerEvent("CharacterSelect", elementData.fullName)
     end)
-    frame.UpdateHideVisual = function()
-      if Syndicator.API.GetCharacter(frame.fullName).details.hidden then
-        frame.HideButton:GetNormalTexture():SetVertexColor(hiddenColor.r, hiddenColor.g, hiddenColor.b)
-      else
-        frame.HideButton:GetNormalTexture():SetVertexColor(shownColor.r, shownColor.g, shownColor.b)
-      end
-    end
-    if not frame.HideButton then
-      SetHideButton(frame)
-      SetDeleteButton(frame)
-    end
-    frame.DeleteButton:SetShown(frame.fullName ~= Syndicator.API.GetCurrentCharacter())
-    frame:UpdateHideVisual()
     UpdateForSelection(frame)
   end)
   ScrollUtil.InitScrollBoxListWithScrollBar(self.ScrollBox, self.ScrollBar, view)
@@ -134,11 +103,28 @@ function BaganatorCharacterSelectMixin:OnLoad()
   self.SearchBox:HookScript("OnTextChanged", function()
     self:UpdateList()
   end)
+  Baganator.Skins.AddFrame("SearchBox", self.SearchBox)
 end
 
 function BaganatorCharacterSelectMixin:UpdateList()
   local characters = Baganator.Utilities.GetAllCharacters(self.SearchBox:GetText())
-  self.ScrollBox:SetDataProvider(CreateDataProvider(characters), true)
+  local currentCharacter = Syndicator.API.GetCurrentCharacter()
+  local connectedRealms = Syndicator.Utilities.GetConnectedRealms()
+  local currentCharacterData
+  local currentRealms = {}
+  local everythingElse = {}
+  for _, data in ipairs(characters) do
+    if data.fullName == currentCharacter then
+      table.insert(currentRealms, 1, data)
+    elseif tIndexOf(connectedRealms, data.realmNormalized) ~= nil then
+      table.insert(currentRealms, data)
+    else
+      table.insert(everythingElse, data)
+    end
+  end
+  tAppendAll(currentRealms, everythingElse)
+
+  self.ScrollBox:SetDataProvider(CreateDataProvider(currentRealms), true)
 end
 
 function BaganatorCharacterSelectMixin:OnShow()

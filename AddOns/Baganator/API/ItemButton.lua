@@ -72,9 +72,10 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_ITEM_LEVEL, "item_level", functio
     end
     return true
   end
+  return false
 end, textInit)
 
-Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOE, "boe", function(BindingText, details)
+Baganator.API.RegisterCornerWidget(BAGANATOR_L_BIND_ON_EQUIP, "boe", function(BindingText, details)
   local classID = select(6, C_Item.GetItemInfoInstant(details.itemLink))
   if (IsEquipment(details.itemLink) or classID == Enum.ItemClass.Container) and not details.isBound and (iconSettings.boe_on_common or details.quality > 1) then
     BindingText:SetText(BAGANATOR_L_BOE)
@@ -86,6 +87,7 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOE, "boe", function(BindingText,
     end
     return true
   end
+  return false
 end, textInit)
 
 local function IsBindOnAccount(details)
@@ -105,7 +107,7 @@ local function IsBindOnAccount(details)
   return false
 end
 
-Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOA, "boa", function(BindingText, details)
+Baganator.API.RegisterCornerWidget(BAGANATOR_L_BIND_ON_ACCOUNT, "boa", function(BindingText, details)
   if IsBindOnAccount(details) then
     BindingText:SetText(BAGANATOR_L_BOA)
     if iconSettings.useQualityColors then
@@ -116,6 +118,7 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOA, "boa", function(BindingText,
     end
     return true
   end
+  return false
 end, textInit)
 
 local function IsBindOnUse(details)
@@ -138,7 +141,7 @@ local function IsBindOnUse(details)
   return false
 end
 
-Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOU, "bou", function(BindingText, details)
+Baganator.API.RegisterCornerWidget(BAGANATOR_L_BIND_ON_USE, "bou", function(BindingText, details)
   if IsBindOnUse(details) then
     BindingText:SetText(BAGANATOR_L_BOU)
     if iconSettings.useQualityColors then
@@ -149,6 +152,7 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_BOU, "bou", function(BindingText,
     end
     return true
   end
+  return false
 end, textInit)
 
 local TRADEABLE_LOOT_PATTERN = BIND_TRADE_TIME_REMAINING:gsub("([^%w])", "%%%1"):gsub("%%%%s", ".*")
@@ -181,6 +185,7 @@ Baganator.API.RegisterCornerWidget(BAGANATOR_L_TRADEABLE_LOOT, "tl", function(Bi
     end
     return true
   end
+  return false
 end, textInit)
 
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_QUANTITY, "quantity", function(_, details)
@@ -191,7 +196,7 @@ end, function(itemButton)
 end)
 
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_JUNK, "junk", function(JunkIcon, details)
-  return details.isJunk
+  return details.isJunk == true
 end,
 function(itemButton)
   if itemButton.JunkIcon then
@@ -200,13 +205,18 @@ function(itemButton)
   end
 end)
 
-if Baganator.Constants.IsRetail then
+local function RegisterExpansionWidget()
   Baganator.API.RegisterCornerWidget(BAGANATOR_L_EXPANSION, "expansion", function(Expansion, details)
     details.expacID = details.expacID or Syndicator.Search.GetExpansion(details)
     local xpacText = expansionIDToText[details.expacID]
     Expansion:SetText(xpacText or "")
     return xpacText ~= nil
   end, textInit)
+end
+if Baganator.Constants.IsRetail then
+  RegisterExpansionWidget()
+elseif Syndicator.Search.GetExpansion then
+  Baganator.Utilities.OnAddonLoaded("ItemVersion", RegisterExpansionWidget)
 end
 
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_EQUIPMENT_SET, "equipment_set", function(EquipmentSet, details)
@@ -220,7 +230,7 @@ end)
 
 Baganator.Utilities.OnAddonLoaded("Pawn", function()
   Baganator.API.RegisterCornerWidget(BAGANATOR_L_PAWN, "pawn", function(Arrow, details)
-    return HasItemLevel(details) and PawnShouldItemLinkHaveUpgradeArrowUnbudgeted(details.itemLink)
+    return HasItemLevel(details) and PawnShouldItemLinkHaveUpgradeArrow(details.itemLink)
   end, function(itemButton)
     local Arrow = itemButton:CreateTexture(nil, "OVERLAY")
     Arrow:SetTexture("Interface\\AddOns\\Pawn\\Textures\\UpgradeArrow")
@@ -273,7 +283,7 @@ Baganator.Utilities.OnAddonLoaded("CanIMogIt", function()
       CIMI_SetIcon(self, CIMI_Update, CanIMogIt:GetTooltipText(details.itemLink))
     end
     CIMI_SetIcon(CIMIOverlay, CIMI_Update, CanIMogIt:GetTooltipText(details.itemLink))
-    return (C_Transmog and C_Transmog.CanTransmogItem(details.itemLink)) or (C_ToyBox and C_ToyBox.GetToyInfo(details.itemID)) or IsPet(details.itemID) or (C_MountJournal and C_MountJournal.GetMountFromItem(details.itemID))
+    return (IsEquipment(details.itemLink) or (C_ToyBox ~= nil and C_ToyBox.GetToyInfo(details.itemID) ~= nil) or IsPet(details.itemID) or (C_MountJournal ~= nil and C_MountJournal.GetMountFromItem(details.itemID) ~= nil))
   end,
   function(itemButton)
     CIMI_AddToFrame(itemButton, function() end)
@@ -289,6 +299,18 @@ Baganator.Utilities.OnAddonLoaded("CanIMogIt", function()
   end
   CanIMogIt:RegisterMessage("OptionUpdate", function()
     pcall(Callback)
+  end)
+
+  local RefreshFrame = CreateFrame("Frame", nil)
+  RefreshFrame:RegisterEvent("TRANSMOG_COLLECTION_SOURCE_ADDED")
+  RefreshFrame:RegisterEvent("NEW_PET_ADDED")
+  RefreshFrame:RegisterEvent("NEW_TOY_ADDED")
+  RefreshFrame:RegisterEvent("NEW_MOUNT_ADDED")
+  if C_EventUtils.IsEventValid("PET_JOURNAL_PET_DELETED") then
+    RefreshFrame:RegisterEvent("PET_JOURNAL_PET_DELETED")
+  end
+  RefreshFrame:SetScript("OnEvent", function()
+    Callback()
   end)
 end)
 

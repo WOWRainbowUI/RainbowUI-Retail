@@ -8,52 +8,36 @@ local NotIsEraCheck = function()
   return not Baganator.Constants.IsEra
 end
 
-local WINDOW_OPTIONS = {
+local GENERAL_OPTIONS = {
+}
+
+local LAYOUT_OPTIONS = {
   {
-    type = "checkbox",
-    text = BAGANATOR_L_LOCK_INVENTORY_FRAMES,
-    option = "lock_frames",
+    type = "dropdown",
+    text = BAGANATOR_L_VIEW_TYPE,
+    option = "view_type",
+    entries = {
+      BAGANATOR_L_SINGLE_BAG,
+      BAGANATOR_L_CATEGORY_GROUPS,
+    },
+    values = {
+      "single",
+      "category",
+    }
   },
+  { type = "spacing" },
   {
-    type = "checkbox",
-    text = BAGANATOR_L_ENABLE_BACKPACK_VIEW,
-    option = "enable_backpack_view",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_ENABLE_BANK_VIEW,
-    option = "enable_bank_view",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_ENABLE_GUILD_VIEW,
-    option = "enable_guild_view",
-    check = NotIsEraCheck,
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_REMOVE_INVENTORY_BORDERS,
-    option = "no_frame_borders",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_PLACE_BAG_ROW_WITH_MISSING_SLOTS_AT_THE_TOP,
-    option = "bag_empty_space_at_top",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SHOW_CHARACTER_RACE_ICONS,
-    option = "show_character_race_icons",
-  },
-  {
-    type = "slider",
-    min = 1,
-    max = 100,
-    lowText = "0%",
-    highText = "100%",
-    scale = 100,
-    valuePattern = BAGANATOR_L_X_TRANSPARENCY,
-    option = "view_alpha",
+    type = "dropdown",
+    text = BAGANATOR_L_SHOW_BUTTONS,
+    option = "show_buttons_on_alt",
+    entries = {
+      BAGANATOR_L_ALWAYS,
+      BAGANATOR_L_WHEN_HOLDING_ALT,
+    },
+    values = {
+      false,
+      true,
+    }
   },
   {
     type = "slider",
@@ -61,7 +45,7 @@ local WINDOW_OPTIONS = {
     max = 24,
     lowText = "1",
     highText = "24",
-    valuePattern = BAGANATOR_L_X_BAG_COLUMNS,
+    text = BAGANATOR_L_BAG_COLUMNS,
     option = "bag_view_width",
   },
   {
@@ -70,7 +54,7 @@ local WINDOW_OPTIONS = {
     max = 42,
     lowText = "1",
     highText = "42",
-    valuePattern = BAGANATOR_L_X_BANK_COLUMNS,
+    text = BAGANATOR_L_BANK_COLUMNS,
     option = "bank_view_width",
   },
   {
@@ -79,7 +63,7 @@ local WINDOW_OPTIONS = {
     max = 42,
     lowText = "1",
     highText = "42",
-    valuePattern = BAGANATOR_L_X_WARBAND_BANK_COLUMNS,
+    text = BAGANATOR_L_WARBAND_BANK_COLUMNS,
     option = "warband_bank_view_width",
     check = function() return Syndicator.Constants.WarbandBankActive end,
   },
@@ -89,55 +73,115 @@ local WINDOW_OPTIONS = {
     max = 42,
     lowText = "1",
     highText = "42",
-    valuePattern = BAGANATOR_L_X_GUILD_COLUMNS,
+    text = BAGANATOR_L_GUILD_BANK_COLUMNS,
     option = "guild_view_width",
     check = NotIsEraCheck,
   },
+  { type = "spacing" },
   {
-    type = "checkbox",
-    text = BAGANATOR_L_REDUCE_SPACING_BETWEEN_UI_COMPONENTS,
-    option = "reduce_spacing",
+    type = "dropdown",
+    text = BAGANATOR_L_BLANK_SPACE,
+    option = "bag_empty_space_at_top",
+    entries = {
+      BAGANATOR_L_AT_THE_BOTTOM,
+      BAGANATOR_L_AT_THE_TOP,
+    },
+    values = {
+      false,
+      true,
+    }
   },
   {
-    type = "header",
-    text = BAGANATOR_L_JUNK_DETECTION,
-    level = 2,
+    type = "checkbox",
+    text = BAGANATOR_L_RECENT_CHARACTER_TABS,
+    option = "show_recents_tabs_main_view",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_REDUCE_UI_SPACING,
+    option = "reduce_spacing",
+  },
+  { type = "spacing" },
+  {
+    type = "slider",
+    min = 0,
+    max = 200,
+    scale = 100,
+    lowText = "0%",
+    highText = "200%",
+    text = BAGANATOR_L_CATEGORY_SPACING,
+    option = "category_horizontal_spacing",
+    valuePattern = BAGANATOR_L_PERCENTAGE_PATTERN,
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_GROUP_IDENTICAL_ITEMS,
+    rightText = BAGANATOR_L_BRACKETS_CATEGORY_VIEW_ONLY,
+    option = "category_item_grouping",
+  },
+  { type = "spacing" },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_LOCK_WINDOWS,
+    option = "lock_frames",
+  },
+}
+
+local THEME_OPTIONS = {
+  {
+    type = "slider",
+    min = 1,
+    max = 100,
+    lowText = "0%",
+    highText = "100%",
+    scale = 100,
+    text = BAGANATOR_L_TRANSPARENCY,
+    valuePattern = BAGANATOR_L_PERCENTAGE_PATTERN,
+    option = "view_alpha",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_REMOVE_BORDERS,
+    option = "no_frame_borders",
+  },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_HIDE_ICON_BACKGROUNDS,
+    option = "empty_slot_background",
   },
 }
 
 local ICON_OPTIONS = {
   {
     type = "checkbox",
-    text = BAGANATOR_L_CUSTOMISE_EMPTY_SLOTS,
-    option = "empty_slot_background",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_HIDE_BOE_STATUS_ON_COMMON,
-    option = "hide_boe_on_common",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_USE_ITEM_QUALITY_COLORS_FOR_ICON_TEXT,
+    text = BAGANATOR_L_ITEM_QUALITY_TEXT_COLORS,
     option = "icon_text_quality_colors",
   },
   {
     type = "checkbox",
-    text = BAGANATOR_L_ICON_GREY_JUNK_ITEMS,
+    text = BAGANATOR_L_GREY_JUNK_ITEMS,
     option = "icon_grey_junk",
   },
   {
     type = "checkbox",
-    text = BAGANATOR_L_ITEMS_FLASH_ON_ALT_CLICK,
+    text = BAGANATOR_L_FLASH_DUPLICATE_ITEMS,
+    rightText = BAGANATOR_L_ALT_CLICK,
     option = "icon_flash_similar_alt",
   },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_HIDE_BOE_STATUS_ON_COMMON_2,
+    option = "hide_boe_on_common",
+  },
+  { type = "spacing" },
   {
     type = "slider",
     min = 10,
     max = 70,
     lowText = "10",
     highText = "70",
-    valuePattern = BAGANATOR_L_X_ICON_SIZE,
+    text = BAGANATOR_L_ICON_SIZE,
+    valuePattern = BAGANATOR_L_PIXEL_PATTERN,
     option = "bag_icon_size",
   },
   {
@@ -146,12 +190,14 @@ local ICON_OPTIONS = {
     max = 40,
     lowText = "5",
     highText = "40",
-    valuePattern = BAGANATOR_L_X_ICON_TEXT_FONT_SIZE,
+    text = BAGANATOR_L_ICON_TEXT_FONT_SIZE,
+    valuePattern = BAGANATOR_L_PIXEL_PATTERN,
     option = "icon_text_font_size",
   },
+  { type = "spacing" },
   {
     type = "header",
-    text = BAGANATOR_L_ICON_CORNER_PRIORITIES,
+    text = BAGANATOR_L_ICON_CORNERS,
     level = 2,
   },
 }
@@ -237,18 +283,48 @@ local OPEN_CLOSE_OPTIONS = {
 local SORTING_OPTIONS = {
   {
     type = "checkbox",
-    text = BAGANATOR_L_AUTO_SORT_ON_OPENING_BAGS,
+    text = BAGANATOR_L_SHOW_SORT_BUTTON,
+    option = "show_sort_button_2",
+  },
+  { type = "spacing" },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_SORT_ON_OPEN,
     option = "auto_sort_on_open",
   },
+  { type = "spacing" },
   {
     type = "checkbox",
-    text = BAGANATOR_L_SORT_START_AT_BOTTOM,
-    option = "sort_start_at_bottom",
+    text = BAGANATOR_L_REVERSE_GROUPS_SORT_ORDER,
+    option = "reverse_groups_sort_order",
   },
+  { type = "spacing" },
   {
-    type = "checkbox",
-    text = BAGANATOR_L_SORT_IGNORE_SLOTS_AT_END_NOT_START,
+    type = "dropdown",
+    text = BAGANATOR_L_ARRANGE_ITEMS,
+    option = "sort_start_at_bottom",
+    entries = {
+      BAGANATOR_L_FROM_THE_TOP,
+      BAGANATOR_L_FROM_THE_BOTTOM,
+    },
+    values = {
+      false,
+      true,
+    }
+  },
+  { type = "spacing" },
+  {
+    type = "dropdown",
+    text = BAGANATOR_L_IGNORED_SLOTS,
     option = "sort_ignore_slots_at_end",
+    entries = {
+      BAGANATOR_L_FROM_THE_TOP,
+      BAGANATOR_L_FROM_THE_BOTTOM,
+    },
+    values = {
+      false,
+      true,
+    }
   },
   {
     type = "slider",
@@ -256,7 +332,7 @@ local SORTING_OPTIONS = {
     max = 128,
     lowText = "0",
     highText = "128",
-    valuePattern = BAGANATOR_L_X_BAG_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC,
+    text = BAGANATOR_L_IGNORED_BAG_SLOTS,
     option = "sort_ignore_slots_count_2",
   },
   {
@@ -265,46 +341,12 @@ local SORTING_OPTIONS = {
     max = 500,
     lowText = "0",
     highText = "500",
-    valuePattern = BAGANATOR_L_X_BANK_SLOTS_TO_IGNORE_WHEN_SORTING_CHARACTER_SPECIFIC,
+    text = BAGANATOR_L_IGNORED_BANK_SLOTS,
     option = "sort_ignore_bank_slots_count",
   },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_REVERSE_GROUPS_SORT_ORDER,
-    option = "reverse_groups_sort_order",
-  },
-  { type = "header",
-    text = BAGANATOR_L_SORT_METHOD,
-    level = 2,
-  },
 }
-local BUTTONS_OPTIONS = {
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_CUSTOMISE_SHOW_TABS,
-    option = "show_recents_tabs_main_view",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SHOW_BUTTONS_ON_ALT,
-    option = "show_buttons_on_alt",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SHOW_SORT_BUTTON,
-    option = "show_sort_button_2",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SHOW_TRANSFER_BUTTON,
-    option = "show_transfer_button",
-  },
-  {
-    type = "checkbox",
-    text = BAGANATOR_L_SHOW_GUILD_BANK_BUTTON_RELOAD_REQUIRED,
-    option = "show_guild_bank_button",
-    check = NotIsEraCheck,
-  },
+
+local CATEGORIES_OPTIONS = {
 }
 
 table.sort(OPEN_CLOSE_OPTIONS, function(a, b)
@@ -314,27 +356,33 @@ end)
 local function GenerateFrames(options, parent)
   local lastFrame = nil
   local allFrames = {}
+  local offsetY = 0
   for _, option in ipairs(options) do
     if not option.check or option.check() then
       local frame
       if option.type == "checkbox" then
         frame = CreateFrame("Frame", nil, parent, "BaganatorCheckBoxTemplate")
-        frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, 0)
+        frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, offsetY)
         frame:SetPoint("LEFT", parent, 40, 0)
         frame:SetPoint("RIGHT", parent, -40, 0)
       elseif option.type == "slider" then
         frame = CreateFrame("Frame", nil, parent, "BaganatorSliderTemplate")
-        frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, 0)
+        frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, offsetY)
       elseif option.type == "dropdown" then
-        frame = CreateFrame("Frame", nil, parent, "BaganatorDropDownTemplate")
-        frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, 0)
+        frame = Baganator.CustomiseDialog.GetBasicDropdown(parent)
+        frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, offsetY)
       elseif option.type == "header" then
         frame = CreateFrame("Frame", nil, parent, "BaganatorHeaderTemplate")
-        frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, 0)
+        frame:SetPoint("TOP", lastFrame, "BOTTOM", 0, offsetY)
+      elseif option.type == "spacing" then
+        offsetY = -30
       end
-      frame:Init(option)
-      table.insert(allFrames, frame)
-      lastFrame = frame
+      if frame then
+        offsetY = 0
+        frame:Init(option)
+        table.insert(allFrames, frame)
+        lastFrame = frame
+      end
     end
   end
 
@@ -369,6 +417,8 @@ local function GetTab(parent)
     parent:SetIndex(tabIndex)
   end)
 
+  Baganator.Skins.AddFrame("TopTabButton", tab)
+
   return tab
 end
 
@@ -391,6 +441,8 @@ function BaganatorCustomiseDialogMixin:OnLoad()
   ButtonFrameTemplate_HidePortrait(self)
   ButtonFrameTemplate_HideButtonBar(self)
   self.Inset:Hide()
+  Baganator.Skins.AddFrame("ButtonFrame", self)
+  self:SetScript("OnMouseWheel", function() end)
 
   self:SetTitle(BAGANATOR_L_CUSTOMISE_BAGANATOR)
 
@@ -399,12 +451,13 @@ function BaganatorCustomiseDialogMixin:OnLoad()
   self.lowestFrames = {}
   self.optionFrames = {}
 
-  self:SetupWindow()
+  self:SetupGeneral()
+  self:SetupLayout()
+  self:SetupTheme()
   self:SetupIcon()
   self:SetupOpenClose()
   self:SetupSorting()
-  self:SetupButtonsOptions()
-  self:SetupTooltipsLink()
+  self:SetupCategoriesOptions()
 
   PanelTemplates_SetNumTabs(self, #self.Tabs)
 
@@ -437,19 +490,11 @@ function BaganatorCustomiseDialogMixin:SetIndex(index)
   self.lastIndex = index
 end
 
-function BaganatorCustomiseDialogMixin:SetupWindow()
+function BaganatorCustomiseDialogMixin:SetupGeneral()
   local tab = GetTab(self)
-  tab:SetText(BAGANATOR_L_WINDOWS)
+  tab:SetText(BAGANATOR_L_GENERAL)
 
   local frame = GetWrapperFrame(self)
-
-  frame.ResetFramePositions = CreateFrame("Button", nil, frame, "UIPanelDynamicResizeButtonTemplate")
-  frame.ResetFramePositions:SetPoint("TOPRIGHT", frame, -20, -8)
-  frame.ResetFramePositions:SetText(BAGANATOR_L_RESET_POSITIONS)
-  DynamicResizeButton_Resize(frame.ResetFramePositions)
-  frame.ResetFramePositions:SetScript("OnClick", function()
-    Baganator.CallbackRegistry:TriggerEvent("ResetFramePositions")
-  end)
 
   do
     local junkPlugins = {
@@ -466,6 +511,7 @@ function BaganatorCustomiseDialogMixin:SetupWindow()
     end)
     local dropdown = {
       type = "dropdown",
+      text = BAGANATOR_L_JUNK_DETECTION_2,
       option = "junk_plugin",
       entries = {},
       values = {},
@@ -478,16 +524,98 @@ function BaganatorCustomiseDialogMixin:SetupWindow()
       Baganator.Config.ResetOne("junk_plugin")
     end
 
-    table.insert(WINDOW_OPTIONS, dropdown)
+    table.insert(GENERAL_OPTIONS, dropdown)
   end
 
-  local allFrames = GenerateFrames(WINDOW_OPTIONS, frame)
+  local allFrames = GenerateFrames(GENERAL_OPTIONS, frame)
 
-  allFrames[2].CheckBox.HoverBackground:SetPoint("RIGHT", frame.ResetFramePositions, "LEFT")
+  local tooltipButtonFrame = CreateFrame("Frame", nil, frame)
+  do
+    tooltipButtonFrame:SetPoint("LEFT")
+    tooltipButtonFrame:SetPoint("RIGHT")
+    tooltipButtonFrame:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+    tooltipButtonFrame:SetHeight(40)
+    local text = tooltipButtonFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    text:SetPoint("RIGHT", tooltipButtonFrame, "CENTER", -50, 0)
+    text:SetText(BAGANATOR_L_TOOLTIP_SETTINGS)
+    text:SetJustifyH("RIGHT")
+    local button = CreateFrame("Button", nil, tooltipButtonFrame, "UIPanelDynamicResizeButtonTemplate")
+    button:SetText(BAGANATOR_L_OPEN_SYNDICATOR)
+    DynamicResizeButton_Resize(button)
+    button:SetPoint("LEFT", tooltipButtonFrame, "CENTER", -35, 0)
+    button:SetScript("OnClick", function()
+      Settings.OpenToCategory(SYNDICATOR_L_SYNDICATOR)
+    end)
+    Baganator.Skins.AddFrame("Button", button)
+    table.insert(allFrames, tooltipButtonFrame)
+  end
+
+  local tipsHeader = GenerateFrames({{type = "header", text = BAGANATOR_L_TIPS, level = 2}}, frame)[1]
+  tipsHeader:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+  table.insert(allFrames, tipsHeader)
+
+  local function GetTipsSection(rowContainer, details)
+    local header = rowContainer:CreateFontString(nil, "ARTWORK", "GameFontHighlightMedium")
+    header:SetJustifyH("LEFT")
+    header:SetPoint("TOP")
+    header:SetText(details.header)
+    header:SetHeight(30)
+    local text = rowContainer:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    text:SetJustifyH("LEFT")
+    text:SetPoint("TOP", header, "BOTTOM")
+    text:SetText(details.text)
+    text:SetSpacing(3)
+
+    return {header, text}
+  end
+
+  local function MakeTipsRow(details1, details2)
+    local rowContainer = CreateFrame("Frame", nil, frame)
+    rowContainer:SetPoint("LEFT", 35 + Baganator.Constants.ButtonFrameOffset, 0)
+    rowContainer:SetPoint("RIGHT", -35, 0)
+    rowContainer:SetHeight(110)
+    for _, row in ipairs(GetTipsSection(rowContainer, details1)) do
+      row:SetPoint("LEFT")
+      row:SetPoint("RIGHT", rowContainer, "CENTER", -15, 0)
+    end
+    for _, row in ipairs(GetTipsSection(rowContainer, details2)) do
+      row:SetPoint("RIGHT")
+      row:SetPoint("LEFT", rowContainer, "CENTER", 15, 0)
+    end
+    return rowContainer
+  end
+
+  local tipsRows = {
+    MakeTipsRow({
+      header = CreateAtlasMarkup("common-search-magnifyingglass", 13, 13) .. "  " .. SEARCH,
+      text = BAGANATOR_L_TIPS_SEARCH
+    }, {
+      header = BAGANATOR_L_PLUGINS,
+      text = BAGANATOR_L_TIPS_PLUGINS
+    }),
+    MakeTipsRow({
+      header = CreateAtlasMarkup("orderhalltalents-choice-arrow-large", 17, 13) .. " " .. BAGANATOR_L_TRANSFER,
+      text = BAGANATOR_L_TIPS_TRANSFER
+    }, {
+      header = BAGANATOR_L_SKINS,
+      text = BAGANATOR_L_TIPS_SKINS
+    }),
+  }
+  for _, row in ipairs(tipsRows) do
+    row:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
+    table.insert(allFrames, row)
+  end
+
+  local button = CreateFrame("Button", nil, tipsRows[1], "BaganatorHelpButtonTemplate")
+  button:SetPoint("TOP", 0, -2)
+  button:SetPoint("RIGHT", tipsRows[1], "CENTER", -15, 0)
+  button:SetScript("OnClick", function() Baganator.Help.ShowSearchDialog() end)
 
   frame:SetScript("OnShow", function()
     for index, frame in ipairs(allFrames) do
-      frame:SetValue(Baganator.Config.Get(frame.option))
+      if frame.SetValue then
+        frame:SetValue(Baganator.Config.Get(frame.option))
+      end
     end
   end)
 
@@ -502,14 +630,8 @@ function BaganatorCustomiseDialogMixin:SetupIcon()
 
   local allFrames = GenerateFrames(ICON_OPTIONS, frame)
 
-  frame:SetScript("OnShow", function()
-    for index, frame in ipairs(allFrames) do
-      frame:SetValue(Baganator.Config.Get(frame.option))
-    end
-  end)
-
   local cornersEditor = Baganator.CustomiseDialog.GetCornersEditor(frame)
-  cornersEditor:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
+  cornersEditor:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -3)
   table.insert(allFrames, cornersEditor)
 
   local itemButton
@@ -518,7 +640,8 @@ function BaganatorCustomiseDialogMixin:SetupIcon()
   else
     itemButton = CreateFrame("Button", nil, frame, "ItemButtonTemplate")
   end
-  itemButton:SetPoint("CENTER", cornersEditor, 0, -15)
+  itemButton:SetPoint("CENTER", cornersEditor, 0, 0)
+  Baganator.Skins.AddFrame("ItemButton", itemButton)
 
   frame:SetScript("OnShow", function()
     for index, frame in ipairs(allFrames) do
@@ -533,7 +656,7 @@ end
 
 function BaganatorCustomiseDialogMixin:SetupOpenClose()
   local tab = GetTab(self)
-  tab:SetText(BAGANATOR_L_AUTO_OPEN_CLOSE)
+  tab:SetText(BAGANATOR_L_AUTO_OPEN)
 
   local frame = GetWrapperFrame(self)
 
@@ -556,10 +679,8 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
 
   do
     local allModes = {
-      {"type", BAGANATOR_L_ITEM_TYPE_ENHANCED},
-      {"quality", BAGANATOR_L_ITEM_QUALITY_ENHANCED},
-      {"type-legacy", BAGANATOR_L_ITEM_TYPE_BASIC},
-      {"quality-legacy", BAGANATOR_L_ITEM_QUALITY_BASIC},
+      {"type", BAGANATOR_L_ITEM_TYPE},
+      {"quality", BAGANATOR_L_ITEM_QUALITY},
       {"combine_stacks_only", BAGANATOR_L_COMBINE_STACKS_ONLY},
       {"expansion", BAGANATOR_L_EXPANSION},
     }
@@ -572,6 +693,7 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
 
     local typeDropDown = {
       type = "dropdown",
+      text = BAGANATOR_L_SORT_METHOD_2,
       option = "sort_method",
       entries = {},
       values = {},
@@ -588,7 +710,7 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
       Baganator.Config.ResetOne("sort_method")
     end
 
-    table.insert(SORTING_OPTIONS, typeDropDown)
+    table.insert(SORTING_OPTIONS, 5, typeDropDown)
   end
   if next(addonTable.ExternalGuildBankSorts) ~= nil then
     local allModes = {}
@@ -633,13 +755,26 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
   table.insert(self.lowestFrames, allFrames[#allFrames])
 end
 
-function BaganatorCustomiseDialogMixin:SetupButtonsOptions()
+function BaganatorCustomiseDialogMixin:SetupLayout()
   local tab = GetTab(self)
-  tab:SetText(BAGANATOR_L_BUTTONS)
+  tab:SetText(BAGANATOR_L_LAYOUT)
 
   local frame = GetWrapperFrame(self)
 
-  local allFrames = GenerateFrames(BUTTONS_OPTIONS, frame)
+  local allFrames = GenerateFrames(LAYOUT_OPTIONS, frame)
+
+  local _, resetAnchor = FindInTableIf(allFrames, function(f) return f.text == BAGANATOR_L_LOCK_WINDOWS end)
+  frame.ResetFramePositions = CreateFrame("Button", nil, frame, "UIPanelDynamicResizeButtonTemplate")
+  frame.ResetFramePositions:SetPoint("LEFT", resetAnchor, "CENTER", 55, 0)
+  frame.ResetFramePositions:SetText(BAGANATOR_L_RESET_POSITIONS)
+  DynamicResizeButton_Resize(frame.ResetFramePositions)
+  frame.ResetFramePositions:SetScript("OnClick", function()
+    Baganator.CallbackRegistry:TriggerEvent("ResetFramePositions")
+  end)
+  frame.ResetFramePositions:SetFrameLevel(10000)
+  Baganator.Skins.AddFrame("Button", frame.ResetFramePositions)
+
+  resetAnchor.CheckBox.HoverBackground:SetPoint("RIGHT", frame.ResetFramePositions, "LEFT")
 
   frame:SetScript("OnShow", function()
     for index, frame in ipairs(allFrames) do
@@ -650,22 +785,82 @@ function BaganatorCustomiseDialogMixin:SetupButtonsOptions()
   table.insert(self.lowestFrames, allFrames[#allFrames])
 end
 
-function BaganatorCustomiseDialogMixin:SetupTooltipsLink()
+function BaganatorCustomiseDialogMixin:SetupTheme()
   local tab = GetTab(self)
-  tab:SetText(BAGANATOR_L_TOOLTIPS)
+  tab:SetText(BAGANATOR_L_THEME)
 
   local frame = GetWrapperFrame(self)
 
+  local allFrames = GenerateFrames(THEME_OPTIONS, frame)
+
   frame:SetScript("OnShow", function()
-    local lastIndex = self.lastIndex
-    C_Timer.After(0, function()
-      self:SetIndex(lastIndex)
-    end)
-    Settings.OpenToCategory(SYNDICATOR_L_SYNDICATOR)
-    C_Timer.After(0, function()
-      Settings.OpenToCategory(SYNDICATOR_L_SYNDICATOR)
-    end)
+    for index, frame in ipairs(allFrames) do
+      frame:SetValue(Baganator.Config.Get(frame.option))
+    end
   end)
+
+  table.insert(self.lowestFrames, allFrames[#allFrames])
+end
+
+function BaganatorCustomiseDialogMixin:SetupCategoriesOptions()
+  local tab = GetTab(self)
+  tab:SetText(BAGANATOR_L_CATEGORIES)
+
+  local frame = GetWrapperFrame(self)
+
+  local allFrames = {}
+
+  local editorHeader = unpack(GenerateFrames({{
+    type = "header",
+    text = BAGANATOR_L_EDIT,
+    level = 2,
+  }}, frame))
+  editorHeader:SetPoint("TOP")
+  editorHeader:SetPoint("LEFT", frame, "CENTER", Baganator.Constants.ButtonFrameOffset, 0)
+  editorHeader:SetPoint("RIGHT", frame, -28, 0)
+  table.insert(allFrames, editorHeader)
+
+  local categoriesEditor = CreateFrame("Frame", nil, frame, "BaganatorCustomiseDialogCategoriesEditorTemplate")
+  categoriesEditor:SetPoint("TOP", editorHeader, "BOTTOM")
+  categoriesEditor:SetPoint("RIGHT", frame, -28, 0)
+  categoriesEditor:SetPoint("LEFT", frame, "CENTER", Baganator.Constants.ButtonFrameOffset - 10, 0)
+  categoriesEditor:SetHeight(270)
+  table.insert(allFrames, categoriesEditor)
+
+  local categoriesSectionEditor = CreateFrame("Frame", nil, frame, "BaganatorCustomiseDialogCategoriesSectionEditorTemplate")
+  categoriesSectionEditor:SetPoint("TOP", editorHeader, "BOTTOM")
+  categoriesSectionEditor:SetPoint("RIGHT", frame, -28, 0)
+  categoriesSectionEditor:SetPoint("LEFT", frame, "CENTER", Baganator.Constants.ButtonFrameOffset - 10, 0)
+  categoriesSectionEditor:SetHeight(210)
+  table.insert(allFrames, categoriesSectionEditor)
+  categoriesSectionEditor:Hide()
+
+  categoriesEditor:HookScript("OnShow", function()
+    categoriesSectionEditor:Hide()
+  end)
+  categoriesSectionEditor:HookScript("OnShow", function()
+    categoriesEditor:Hide()
+  end)
+  categoriesSectionEditor:HookScript("OnHide", function()
+    categoriesEditor:Show()
+  end)
+
+  local categoriesOrder = Baganator.CustomiseDialog.GetCategoriesOrganiser(frame)
+  categoriesOrder:SetPoint("TOP")
+  table.insert(allFrames, categoriesOrder)
+  categoriesOrder:SetPoint("LEFT", frame, Baganator.Constants.ButtonFrameOffset + 20, 0)
+  categoriesOrder:SetPoint("RIGHT", frame, "CENTER")
+
+  frame:SetScript("OnShow", function()
+    for index, frame in ipairs(allFrames) do
+      if frame.SetValue then
+        frame:SetValue(Baganator.Config.Get(frame.option))
+      end
+    end
+    categoriesSectionEditor:Hide()
+  end)
+
+  table.insert(self.lowestFrames, allFrames[#allFrames])
 end
 
 function BaganatorCustomiseDialogMixin:RefreshOptions()

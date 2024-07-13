@@ -53,9 +53,16 @@ Baganator.Utilities.OnAddonLoaded("Baganator", function()
   Baganator.Config.InitializeData()
   Baganator.SlashCmd.Initialize()
 
-  Baganator.SingleViews.Initialize()
-
   Baganator.ItemViewCommon.Initialize()
 
+  Baganator.CategoryViews.Initialize()
+
+  Baganator.ViewManagement.Initialize()
+
   Baganator.CustomiseDialog.Initialize()
+
+  if Baganator.Config.Get(Baganator.Config.Options.SEEN_WELCOME) < 1 then
+    Baganator.Config.Set(Baganator.Config.Options.SEEN_WELCOME, 1)
+    Baganator.ShowWelcome()
+  end
 end)

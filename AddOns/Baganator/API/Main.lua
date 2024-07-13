@@ -171,12 +171,13 @@ end
 
 addonTable.ItemSetSources = {}
 
-function Baganator.API.RegisterItemSetSource(label, id, getter)
-  assert(type(label) == "string" and type(id) == "string" and type(getter) == "function")
+function Baganator.API.RegisterItemSetSource(label, id, getItemSetInfo, getAllSetNames)
+  assert(type(label) == "string" and type(id) == "string" and type(getItemSetInfo) == "function" and (getAllSetNames == nil or type(getAllSetNames) == "function"))
   table.insert(addonTable.ItemSetSources, {
     label = label,
     id = id,
-    getter = getter,
+    getItemSetInfo = getItemSetInfo,
+    getAllSetNames = getAllSetNames,
   })
 end
 
@@ -216,4 +217,17 @@ function Baganator.API.RegisterGuildBankSort(label, id, callback)
     callback = callback,
     priority = guildSortPriority,
   }
+end
+
+Baganator.API.Skins = {}
+
+function Baganator.API.Skins.GetAllFrames()
+  return addonTable.allFrames
+end
+
+function Baganator.API.Skins.RegisterListener(callback)
+  if not addonTable.skinListeners then
+    addonTable.skinListeners = {}
+  end
+  table.insert(addonTable.skinListeners, callback)
 end

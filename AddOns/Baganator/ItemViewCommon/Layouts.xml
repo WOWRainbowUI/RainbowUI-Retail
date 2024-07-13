@@ -36,6 +36,23 @@
     </Scripts>
   </Frame>
 
+  <Frame name="BaganatorLiveCategoryLayoutTemplate" virtual="true" mixin="BaganatorLiveCategoryLayoutMixin" parentArray="Layouts">
+    <Scripts>
+      <OnLoad method="OnLoad"/>
+      <OnShow method="OnShow"/>
+      <OnHide method="OnHide"/>
+      <OnEvent method="OnEvent"/>
+    </Scripts>
+  </Frame>
+
+  <Frame name="BaganatorCachedCategoryLayoutTemplate" virtual="true" mixin="BaganatorCachedCategoryLayoutMixin" parentArray="Layouts">
+    <Scripts>
+      <OnLoad method="OnLoad"/>
+      <OnShow method="OnShow"/>
+      <OnHide method="OnHide"/>
+    </Scripts>
+  </Frame>
+
   <Frame name="BaganatorLiveGuildLayoutTemplate" virtual="true" mixin="BaganatorLiveGuildLayoutMixin" parentArray="Layouts">
     <Scripts>
       <OnLoad method="OnLoad"/>
@@ -78,6 +95,7 @@
           self.Divider:SetPoint("TOPLEFT", 0, 6)
           self.Divider:SetPoint("TOPRIGHT", 0, 6)
         end
+        Baganator.Skins.AddFrame("Divider", self.Divider)
       </OnLoad>
     </Scripts>
     <Layers>

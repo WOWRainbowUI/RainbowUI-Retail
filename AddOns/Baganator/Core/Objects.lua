@@ -5,11 +5,14 @@ Baganator = {
   ItemViewCommon = {
     Utilities = {}
   },
+  ViewManagement = {},
   SingleViews = {},
+  CategoryViews = {},
   CustomiseDialog = {},
   API = {
     Constants = {},
   },
   Sorting = {},
   Transfers = {},
+  Help = {},
 }

@@ -44,15 +44,18 @@ local function RegisterHighlightSimilarItems(self)
   end, self)
 end
 
-local ReflowSettings = {
-  Baganator.Config.Options.BAG_ICON_SIZE,
+local UpdateTextureSettings = {
   Baganator.Config.Options.EMPTY_SLOT_BACKGROUND,
-  Baganator.Config.Options.BAG_EMPTY_SPACE_AT_TOP,
   Baganator.Config.Options.ICON_TEXT_FONT_SIZE,
   Baganator.Config.Options.ICON_TOP_LEFT_CORNER_ARRAY,
   Baganator.Config.Options.ICON_TOP_RIGHT_CORNER_ARRAY,
   Baganator.Config.Options.ICON_BOTTOM_LEFT_CORNER_ARRAY,
   Baganator.Config.Options.ICON_BOTTOM_RIGHT_CORNER_ARRAY,
+}
+
+local ReflowSettings = {
+  Baganator.Config.Options.BAG_ICON_SIZE,
+  Baganator.Config.Options.BAG_EMPTY_SPACE_AT_TOP,
   Baganator.Config.Options.REDUCE_SPACING,
 }
 
@@ -97,7 +100,6 @@ local function FlowButtonsRows(self, rowWidth)
   for _, button in ipairs(self.buttons) do
     button:SetPoint("TOPLEFT", self, cols * (37 + iconPaddingScaled), - rows * (37 + iconPaddingScaled))
     button:SetScale(iconSize / 37)
-    button:UpdateTextures()
     MasqueRegistration(button)
     cols = cols + 1
     if cols >= rowWidth then
@@ -121,7 +123,6 @@ local function FlowButtonsColumns(self, rowWidth)
   for _, button in ipairs(self.buttons) do
     button:SetPoint("TOPLEFT", self, cols * (37 + iconPaddingScaled), - rows * (37 + iconPaddingScaled))
     button:SetScale(iconSize / 37)
-    button:UpdateTextures()
     MasqueRegistration(button)
     rows = rows + 1
     if rows >= columnHeight then
@@ -134,8 +135,23 @@ local function FlowButtonsColumns(self, rowWidth)
   self.oldRowWidth = rowWidth
 end
 
+local function UpdateTextures(self)
+  for _, button in ipairs(self.buttons) do
+    button.texturesSetup = true
+    button:UpdateTextures()
+  end
+end
+
 local function IsDifferentCachedData(data1, data2)
   return data1 == nil or data1.itemLink ~= data2.itemLink or not data1.isBound ~= not data2.isBound or (data1.itemCount or 1) ~= (data2.itemCount or 1) or data1.quality ~= data2.quality
+end
+
+function Baganator.ItemViewCommon.Utilities.GetCategoryDataKey(data)
+  return data ~= nil and (tostring(data.keyLink) .. tostring(data.isBound) .. tostring(data.itemCount or 1) .. "_" .. tostring(data.quality)) or ""
+end
+
+function Baganator.ItemViewCommon.Utilities.GetCategoryDataKeyNoCount(data)
+  return data ~= nil and (tostring(data.keyLink) .. tostring(data.isBound) .. tostring(data.quality)) or ""
 end
 
 local function UpdateQuests(self)
@@ -180,6 +196,9 @@ function BaganatorCachedBagLayoutMixin:InformSettingChanged(setting)
   if tIndexOf(ReflowSettings, setting) ~= nil then
     self.reflow = true
   end
+  if tIndexOf(UpdateTextureSettings, setting) ~= nil then
+    self.updateTextures = true
+  end
   if tIndexOf(RefreshContentSettings, setting) ~= nil then
     self.refreshContent = true
   end
@@ -220,6 +239,11 @@ function BaganatorCachedBagLayoutMixin:RebuildLayout(newBags, indexes, indexesTo
       self.buttonsByBag[indexes[bagIndex]] = bagButtons
       for slotIndex = 1, #newBags[bagIndex] do
         local button = self.buttonPool:Acquire()
+        Baganator.Skins.AddFrame("ItemButton", button)
+        if not button.texturesSetup then
+          button.texturesSetup = true
+          button:UpdateTextures()
+        end
         button:Show()
 
         table.insert(self.buttons, button)
@@ -261,6 +285,11 @@ function BaganatorCachedBagLayoutMixin:ShowCharacter(character, section, indexes
   elseif self.reflow or rowWidth ~= self.oldRowWidth then
     self.reflow = false
     FlowButtonsRows(self, rowWidth)
+  end
+
+  if self.updateTextures then
+    UpdateTextures(self)
+    self.updateTextures = false
   end
 
   if self.refreshContent then
@@ -390,23 +419,23 @@ end
 
 function BaganatorLiveBagLayoutMixin:OnHide()
   FrameUtil.UnregisterFrameForEvents(self, LIVE_LAYOUT_EVENTS)
-  local start = debugprofilestop()
-  for _, button in ipairs(self.buttons) do
-    button:ClearNewItem()
-  end
-  if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
-    print("remove new item", debugprofilestop() - start)
-  end
 
   Baganator.CallbackRegistry:UnregisterCallback("HighlightSimilarItems", self)
   Baganator.CallbackRegistry:UnregisterCallback("HighlightIdenticalItems", self)
   Baganator.CallbackRegistry:UnregisterCallback("HighlightBagItems", self)
   Baganator.CallbackRegistry:UnregisterCallback("ClearHighlightBag", self)
+
+  for _, button in ipairs(self.buttons) do
+    button:ClearNewItem()
+  end
 end
 
 function BaganatorLiveBagLayoutMixin:InformSettingChanged(setting)
   if tIndexOf(ReflowSettings, setting) ~= nil then
     self.reflow = true
+  end
+  if tIndexOf(UpdateTextureSettings, setting) ~= nil then
+    self.updateTextures = true
   end
   if tIndexOf(RefreshContentSettings, setting) ~= nil then
     self.refreshContent = true
@@ -453,6 +482,11 @@ function BaganatorLiveBagLayoutMixin:RebuildLayout(indexes, indexesToUse, rowWid
       local size = C_Container.GetContainerNumSlots(bagID)
       for slotIndex = 1, size do
         local b = self.buttonPool:Acquire()
+        Baganator.Skins.AddFrame("ItemButton", b)
+        if not b.texturesSetup then
+          b.texturesSetup = true
+          b:UpdateTextures()
+        end
         b:SetID(slotIndex)
         b:SetParent(indexFrame)
         b:Show()
@@ -511,6 +545,11 @@ function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, 
     FlowButtonsRows(self, rowWidth)
   end
 
+  if self.updateTextures then
+    UpdateTextures(self)
+    self.updateTextures = false
+  end
+
   local refreshContent = self.refreshContent
   if self.refreshContent then
     self.refreshContent = false
@@ -553,6 +592,362 @@ function BaganatorLiveBagLayoutMixin:ApplySearch(text)
   self.SearchMonitor:StartSearch(text)
 end
 
+BaganatorLiveCategoryLayoutMixin = {}
+
+function BaganatorLiveCategoryLayoutMixin:OnLoad()
+  self.buttonPool = Baganator.ItemViewCommon.GetLiveItemButtonPool(self)
+  self.dummyButtonPool = Baganator.ItemViewCommon.GetCachedItemButtonPool(self)
+  self.indexFramesPool = CreateFramePool("Frame", self)
+  self.buttons = {}
+  self.buttonsByKey = {}
+  self.indexFrames = {}
+  self.prevState = {}
+  self.SearchMonitor = CreateFrame("Frame", nil, self, "BaganatorBagSearchLayoutMonitorTemplate")
+
+  self:RegisterEvent("ITEM_LOCK_CHANGED")
+end
+
+function BaganatorLiveCategoryLayoutMixin:SetPool(buttonPool)
+  self.buttonPool = buttonPool
+end
+
+function BaganatorLiveCategoryLayoutMixin:ApplySearch(text)
+  self.SearchMonitor:StartSearch(text)
+end
+
+function BaganatorLiveCategoryLayoutMixin:UpdateCooldowns()
+  for _, button in ipairs(self.buttons) do
+    if button.BGR ~= nil and button.BGRUpdateCooldown then
+      button:BGRUpdateCooldown()
+    end
+  end
+end
+
+BaganatorLiveCategoryLayoutMixin.UpdateQuests = UpdateQuests
+
+BaganatorLiveCategoryLayoutMixin.OnEvent = LiveBagOnEvent
+
+function BaganatorLiveCategoryLayoutMixin:UpdateLockForItem(bagID, slotID)
+  if not self.buttons then
+    return
+  end
+
+  for _, itemButton in ipairs(self.buttons) do
+    if itemButton:GetParent():GetID() == bagID and itemButton:GetID() == slotID then
+      local info = C_Container.GetContainerItemInfo(bagID, slotID);
+      local locked = info and info.isLocked;
+      SetItemButtonDesaturated(itemButton, locked or itemButton.BGR.persistIconGrey)
+    end
+  end
+end
+
+function BaganatorLiveCategoryLayoutMixin:OnShow()
+  FrameUtil.RegisterFrameForEvents(self, LIVE_LAYOUT_EVENTS)
+  self:UpdateCooldowns()
+  self:UpdateQuests()
+
+  RegisterHighlightSimilarItems(self)
+end
+
+function BaganatorLiveCategoryLayoutMixin:OnHide()
+  FrameUtil.UnregisterFrameForEvents(self, LIVE_LAYOUT_EVENTS)
+  Baganator.CallbackRegistry:UnregisterCallback("HighlightSimilarItems", self)
+  Baganator.CallbackRegistry:UnregisterCallback("HighlightIdenticalItems", self)
+
+  for _, button in ipairs(self.buttons) do
+    if not button.isDummy then
+      button:ClearNewItem()
+    end
+  end
+end
+
+function BaganatorLiveCategoryLayoutMixin:InformSettingChanged(setting)
+  if tIndexOf(ReflowSettings, setting) ~= nil or setting == Baganator.Config.Options.SORT_METHOD then
+    self.reflow = true
+  end
+  if tIndexOf(UpdateTextureSettings, setting) ~= nil then
+    self.updateTextures = true
+  end
+  if tIndexOf(RefreshContentSettings, setting) ~= nil then
+    self.refreshContent = true
+  end
+end
+
+function BaganatorLiveCategoryLayoutMixin:RequestContentRefresh()
+  self.refreshContent = true
+end
+
+local function AddKeywords(self)
+  if not Baganator.Config.Get(Baganator.Config.Options.DEBUG_KEYWORDS) then
+    return
+  end
+
+  if self.BGR == nil or self.BGR.itemLink == nil then
+    return
+  end
+
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(BAGANATOR_L_HELP_SEARCH_KEYWORDS)
+
+  local groups = Baganator.Help.GetKeywordGroups()
+
+  for _, key in ipairs(Baganator.Constants.KeywordGroupOrder) do
+    table.sort(groups[key])
+    local matching = {}
+    for _, keyword in ipairs(groups[key]) do
+      if Syndicator.Search.CheckItem(self.BGR, "#" .. keyword) then
+        table.insert(matching, keyword)
+      end
+    end
+    if #matching > 0 then
+      GameTooltip:AddDoubleLine(key, table.concat(matching, ", "), BLUE_FONT_COLOR.r, BLUE_FONT_COLOR.g, BLUE_FONT_COLOR.b, 1, 1, 1)
+    end
+  end
+  GameTooltip:Show()
+end
+
+function BaganatorLiveCategoryLayoutMixin:SetupButton(button)
+  if button.hooked then
+    return
+  end
+
+  button.hooked = true
+  button:HookScript("OnClick", function(_, mouseButton)
+    if not button.BGR.itemLink then
+      return
+    end
+
+    if mouseButton == "LeftButton" and C_Cursor.GetCursorItem() ~= nil then
+      Baganator.CallbackRegistry:TriggerEvent("CategoryAddItemStart", button.BGR.category, button.BGR.itemID, button.BGR.itemLink, button.addedDirectly)
+    end
+  end)
+  hooksecurefunc(button, "UpdateTooltip", AddKeywords)
+  button:HookScript("OnDragStart", function(_)
+    if C_Cursor.GetCursorItem() ~= nil then
+      Baganator.CallbackRegistry:TriggerEvent("CategoryAddItemStart", button.BGR.category, button.BGR.itemID, button.BGR.itemLink, button.addedDirectly)
+    end
+  end)
+end
+
+function BaganatorLiveCategoryLayoutMixin:SetupDummyButton(button)
+  if button.setup then
+    return
+  end
+  button.setup = true
+  button.isDummy = true
+
+  local function ProcessCursor()
+    if C_Cursor.GetCursorItem() ~= nil then
+      Baganator.CallbackRegistry:TriggerEvent("CategoryAddItemEnd", button.dummyType == "add" and button.BGR.category or nil)
+      ClearCursor()
+    end
+  end
+  button:SetScript("OnClick", ProcessCursor)
+
+  button:SetScript("OnReceiveDrag", ProcessCursor)
+
+  button:SetScript("OnEnter", function()
+    GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+    GameTooltip:SetText(button.label)
+  end)
+
+  button:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+  end)
+
+  button.ModifiedIcon = button:CreateTexture(nil, "OVERLAY")
+  button.ModifiedIcon:SetPoint("CENTER")
+end
+
+function BaganatorLiveCategoryLayoutMixin:ApplyDummyButtonSettings(button, cacheData)
+  if button.dummyType == cacheData.dummyType then
+    return
+  end
+
+  button.dummyType = cacheData.dummyType
+  if cacheData.dummyType == "remove" then
+    button.ModifiedIcon:SetAtlas("transmog-icon-remove")
+    button.ModifiedIcon:SetSize(25, 25)
+  elseif cacheData.dummyType == "add" then
+    button.ModifiedIcon:SetAtlas("Garr_Building-AddFollowerPlus")
+    button.ModifiedIcon:SetSize(37, 37)
+  end
+end
+
+function BaganatorLiveCategoryLayoutMixin:DeallocateUnusedButtons(cacheList)
+  local used = {}
+  for _, cacheData in ipairs(cacheList) do
+    local key = Baganator.ItemViewCommon.Utilities.GetCategoryDataKey(cacheData)
+    used[key] = (used[key] or 0) + 1
+  end
+  for key, list in pairs(self.buttonsByKey) do
+    if not used[key] or used[key] < #list then
+      local max = used[key] and used[key] + 1 or 1
+      for index = #list, max, -1 do
+        local button = list[index]
+        if not button.isDummy then
+          self.buttonPool:Release(button)
+        else
+          self.dummyButtonPool:Release(button)
+        end
+        table.remove(list)
+      end
+      if #list == 0 then
+        self.buttonsByKey[key] = nil
+      end
+      self.anyRemoved = true
+    end
+  end
+  self.buttons = {}
+end
+
+function BaganatorLiveCategoryLayoutMixin:ShowGroup(cacheList, rowWidth, category)
+  local toSet = {}
+  local toResetCache = {}
+  self.buttons = {}
+  for _, cacheData in ipairs(cacheList) do
+    local key = Baganator.ItemViewCommon.Utilities.GetCategoryDataKey(cacheData)
+    local newButton
+    if self.buttonsByKey[key] then
+      newButton = self.buttonsByKey[key][1]
+      table.remove(self.buttonsByKey[key], 1)
+      if #self.buttonsByKey[key] == 0 then
+        self.buttonsByKey[key] = nil
+      end
+      if self.refreshContent then
+        table.insert(toResetCache, {newButton, cacheData})
+      end
+    else
+      if cacheData.isDummy then
+        newButton = self.dummyButtonPool:Acquire()
+        Baganator.Skins.AddFrame("ItemButton", newButton)
+        if not newButton.texturesSetup then
+          newButton.texturesSetup = true
+          newButton:UpdateTextures()
+        end
+        newButton.label = cacheData.label
+        self:SetupDummyButton(newButton)
+      else
+        newButton = self.buttonPool:Acquire()
+        Baganator.Skins.AddFrame("ItemButton", newButton)
+        if not newButton.texturesSetup then
+          newButton.texturesSetup = true
+          newButton:UpdateTextures()
+        end
+        self:SetupButton(newButton)
+      end
+      newButton:Show()
+      table.insert(toSet, {newButton, cacheData})
+    end
+    if cacheData.isDummy  then
+      self:ApplyDummyButtonSettings(newButton, cacheData)
+    elseif not self.indexFrames[cacheData.bagID] then
+      local indexFrame = self.indexFramesPool:Acquire()
+      indexFrame:Show()
+      indexFrame:SetID(cacheData.bagID)
+      self.indexFrames[cacheData.bagID] = indexFrame
+    end
+    newButton:SetParent(self.indexFrames[cacheData.bagID] or self)
+    newButton:SetID(cacheData.slotID or 0)
+    if not cacheData.isDummy then
+      local itemLocation = {bagID = cacheData.bagID, slotIndex = cacheData.slotID}
+      SetItemButtonDesaturated(newButton, (C_Item.DoesItemExist(itemLocation) and C_Item.IsLocked(itemLocation)) or (newButton.BGR and newButton.BGR.persistIconGrey))
+    end
+    table.insert(self.buttons, newButton)
+  end
+
+  if #toSet > 0 or self.anyRemoved or self.reflow or rowWidth ~= self.prevRowWidth then
+    self.reflow = false
+    self.anyRemoved = false
+    FlowButtonsRows(self, rowWidth)
+    for _, details in ipairs(toSet) do
+      details[1]:SetItemDetails(details[2])
+      details[1].addedDirectly = details[2].addedDirectly
+    end
+  end
+
+  if self.updateTextures then
+    UpdateTextures(self)
+    self.updateTextures = false
+  end
+
+  for _, details in ipairs(toResetCache) do
+    Baganator.ItemButtonUtil.ResetCache(details[1], details[2])
+  end
+
+  self.refreshContent = false
+
+  self.buttonsByKey = {}
+  for index, button in ipairs(self.buttons) do
+    button.BGR.category = category
+    local key = Baganator.ItemViewCommon.Utilities.GetCategoryDataKey(cacheList[index])
+    self.buttonsByKey[key] = self.buttonsByKey[key] or {}
+    table.insert(self.buttonsByKey[key], button)
+  end
+end
+
+BaganatorCachedCategoryLayoutMixin = {}
+
+function BaganatorCachedCategoryLayoutMixin:OnLoad()
+  self.buttonPool = Baganator.ItemViewCommon.GetCachedItemButtonPool(self)
+  self.indexFramesPool = CreateFramePool("Frame", self)
+  self.buttons = {}
+  self.buttonsByKey = {}
+  self.indexFrames = {}
+  self.prevState = {}
+  self.SearchMonitor = CreateFrame("Frame", nil, self, "BaganatorBagSearchLayoutMonitorTemplate")
+end
+
+function BaganatorCachedCategoryLayoutMixin:ApplySearch(text)
+  self.SearchMonitor:StartSearch(text)
+end
+
+function BaganatorCachedCategoryLayoutMixin:OnShow()
+  RegisterHighlightSimilarItems(self)
+end
+
+function BaganatorCachedCategoryLayoutMixin:OnHide()
+  Baganator.CallbackRegistry:UnregisterCallback("HighlightSimilarItems", self)
+  Baganator.CallbackRegistry:UnregisterCallback("HighlightIdenticalItems", self)
+end
+
+function BaganatorCachedCategoryLayoutMixin:InformSettingChanged(setting)
+  if tIndexOf(ReflowSettings, setting) ~= nil or setting == Baganator.Config.Options.SORT_METHOD then
+    self.reflow = true
+  end
+  if tIndexOf(UpdateTextureSettings, setting) ~= nil then
+    self.updateTextures = true
+  end
+  if tIndexOf(RefreshContentSettings, setting) ~= nil then
+    self.refreshContent = true
+  end
+end
+
+function BaganatorCachedCategoryLayoutMixin:RequestContentRefresh()
+  self.refreshContent = true
+end
+
+function BaganatorCachedCategoryLayoutMixin:ShowGroup(cacheList, rowWidth)
+  self.buttonPool:ReleaseAll()
+  self.buttons = {}
+  for _, cacheData in ipairs(cacheList) do
+    local button = self.buttonPool:Acquire()
+    Baganator.Skins.AddFrame("ItemButton", button)
+    if not button.texturesSetup then
+      button.texturesSetup = true
+      button:UpdateTextures()
+    end
+    table.insert(self.buttons, button)
+  end
+
+  FlowButtonsRows(self, rowWidth)
+
+  for index, button in ipairs(self.buttons) do
+    button:Show()
+    button:SetItemDetails(cacheList[index])
+  end
+end
+
 BaganatorGeneralGuildLayoutMixin = {}
 
 function BaganatorGeneralGuildLayoutMixin:OnLoad()
@@ -580,6 +975,9 @@ function BaganatorGeneralGuildLayoutMixin:InformSettingChanged(setting)
   if tIndexOf(ReflowSettings, setting) ~= nil then
     self.reflow = true
   end
+  if tIndexOf(UpdateTextureSettings, setting) ~= nil then
+    self.updateTextures = true
+  end
   if tIndexOf(RefreshContentSettings, setting) ~= nil then
     self.refreshContent = true
   end
@@ -595,6 +993,11 @@ function BaganatorGeneralGuildLayoutMixin:RebuildLayout(rowWidth)
 
   for index = 1, Syndicator.Constants.MaxGuildBankTabItemSlots do
     local button = self.buttonPool:Acquire()
+    Baganator.Skins.AddFrame("ItemButton", button)
+    if not button.texturesSetup then
+      button.texturesSetup = true
+      button:UpdateTextures()
+    end
     button:Show()
     button:SetID(index)
     table.insert(self.buttons, button)
@@ -614,6 +1017,11 @@ function BaganatorGeneralGuildLayoutMixin:ShowGuild(guild, tabIndex, rowWidth)
   elseif self.reflow or rowWidth ~= self.oldRowWidth then
     self.reflow = false
     FlowButtonsColumns(self, rowWidth)
+  end
+
+  if self.updateTextures then
+    UpdateTextures(self)
+    self.updateTextures = false
   end
 
   if not guildData then
@@ -697,6 +1105,9 @@ function BaganatorLiveWarbandLayoutMixin:InformSettingChanged(setting)
   if tIndexOf(ReflowSettings, setting) ~= nil then
     self.reflow = true
   end
+  if tIndexOf(UpdateTextureSettings, setting) ~= nil then
+    self.updateTextures = true
+  end
   if tIndexOf(RefreshContentSettings, setting) ~= nil then
     self.refreshContent = true
   end
@@ -724,6 +1135,11 @@ function BaganatorLiveWarbandLayoutMixin:RebuildLayout(tabSize, rowWidth)
 
   for slotIndex = 1, tabSize do
     local b = self.buttonPool:Acquire()
+    Baganator.Skins.AddFrame("ItemButton", b)
+    if not b.texturesSetup then
+      b.texturesSetup = true
+      b:UpdateTextures()
+    end
     b:SetID(slotIndex)
     b:SetParent(self.indexFrame)
     b:Show()
@@ -759,6 +1175,11 @@ function BaganatorLiveWarbandLayoutMixin:ShowTab(tabIndex, indexes, rowWidth)
   elseif self.reflow or rowWidth ~= self.oldRowWidth then
     self.reflow = false
     FlowButtonsRows(self, rowWidth)
+  end
+
+  if self.updateTextures then
+    UpdateTextures(self)
+    self.updateTextures = false
   end
 
   local refreshContent = self.refreshContent
@@ -817,6 +1238,9 @@ function BaganatorCachedWarbandLayoutMixin:InformSettingChanged(setting)
   if tIndexOf(ReflowSettings, setting) ~= nil then
     self.reflow = true
   end
+  if tIndexOf(UpdateTextureSettings, setting) ~= nil then
+    self.updateTextures = true
+  end
 end
 
 function BaganatorCachedWarbandLayoutMixin:RequestContentRefresh()
@@ -830,6 +1254,11 @@ function BaganatorCachedWarbandLayoutMixin:RebuildLayout(tabSize, rowWidth)
 
   for slotIndex = 1, tabSize do
     local b = self.buttonPool:Acquire()
+    Baganator.Skins.AddFrame("ItemButton", button)
+    if not b.texturesSetup then
+      b.texturesSetup = true
+      b:UpdateTextures()
+    end
     b:Show()
     table.insert(self.buttons, b)
   end
@@ -859,6 +1288,11 @@ function BaganatorCachedWarbandLayoutMixin:ShowTab(tabIndex, indexes, rowWidth)
   elseif self.reflow or rowWidth ~= self.oldRowWidth then
     self.reflow = false
     FlowButtonsRows(self, rowWidth)
+  end
+
+  if self.updateTextures then
+    UpdateTextures(self)
+    self.updateTextures = false
   end
 
   local refreshContent = self.refreshContent
@@ -900,7 +1334,6 @@ function BaganatorSearchLayoutMonitorMixin:OnUpdate()
 end
 
 function BaganatorSearchLayoutMonitorMixin:StartSearch(text)
-  local start = debugprofilestop()
   self.text = text
   self.pendingItems = {}
   for _, itemButton in ipairs(self:GetParent().buttons) do
@@ -910,9 +1343,6 @@ function BaganatorSearchLayoutMonitorMixin:StartSearch(text)
   end
   if next(self.pendingItems) then
     self:SetScript("OnUpdate", self.OnUpdate)
-  end
-  if Baganator.Config.Get(Baganator.Config.Options.DEBUG_TIMERS) then
-    print("search monitor start", debugprofilestop() - start)
   end
 end
 

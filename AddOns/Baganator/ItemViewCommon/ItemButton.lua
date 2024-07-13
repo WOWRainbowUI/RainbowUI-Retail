@@ -9,6 +9,27 @@ local equipmentSetBorder = CreateColor(198/255, 166/255, 0/255)
 local itemCallbacks = {}
 local iconSettings = {}
 
+local QueueWidget
+do
+  local widgetsQueued = {}
+  local RetryWidgets = CreateFrame("Frame")
+  QueueWidget = function(callback)
+    table.insert(widgetsQueued, callback)
+    if RetryWidgets:GetScript("OnUpdate") == nil then
+      RetryWidgets:SetScript("OnUpdate", function()
+        local queue = widgetsQueued
+        widgetsQueued = {}
+        for _, callback in ipairs(queue) do
+          callback()
+        end
+        if #widgetsQueued == 0 then
+          RetryWidgets:SetScript("OnUpdate", nil)
+        end
+      end)
+    end
+  end
+end
+
 local registered = false
 function Baganator.ItemButtonUtil.UpdateSettings()
   if not registered  then
@@ -60,23 +81,76 @@ function Baganator.ItemButtonUtil.UpdateSettings()
       end
     end
     if #callbacks > 0 then
-      table.insert(itemCallbacks, function(itemButton)
-        local index = 1
+      local function Callback(itemButton)
         local toShow = nil
-        while index <= #callbacks do
+        local queued = false
+        for index = 1, #callbacks do
           local cb = callbacks[index]
           local widget = itemButton.cornerPlugins[plugins[index]]
           if widget then
             local show = cb(widget, itemButton.BGR)
-            if show then
+            if show == nil then
+              local BGR = itemButton.BGR
+              if not queued then
+                QueueWidget(function()
+                  if itemButton.BGR == BGR then
+                    -- Hide any widgets shown immediately because the widget
+                    -- wasn't available
+                    for i = 1, #callbacks do
+                      local widget = itemButton.cornerPlugins[plugins[i]]
+                      if widget then
+                        widget:Hide()
+                      end
+                    end
+                    Callback(itemButton)
+                  end
+                end)
+                queued = true
+              end
+            elseif show then
               widget:Show()
               break
             end
           end
-          index = index + 1
         end
-      end)
+      end
+      table.insert(itemCallbacks, Callback)
     end
+  end
+end
+
+local function WidgetsOnly(self)
+  for plugin, widget in pairs(self.cornerPlugins) do
+    widget:Hide()
+  end
+
+  if self.BGR.itemID == nil then
+    return
+  end
+
+  if not iconSettings.usingJunkPlugin and self.JunkIcon then
+    self.BGR.isJunk = not self.BGR.hasNoValue and self.BGR.quality == Enum.ItemQuality.Poor
+    self.BGR.persistIconGrey = iconSettings.markJunk and self.BGR.isJunk
+    self.icon:SetDesaturated(self.BGR.persistIconGrey)
+  end
+
+  local info = self.BGR
+
+  local function OnCached()
+    if self.BGR ~= info then -- Check that the item button hasn't been refreshed
+      return
+    end
+    for _, callback in ipairs(itemCallbacks) do
+      callback(self)
+    end
+  end
+  if C_Item.IsItemDataCachedByID(self.BGR.itemID) then
+    OnCached()
+  else
+    local item = Item:CreateFromItemID(self.BGR.itemID)
+    item:ContinueOnItemLoad(function()
+      OnCached()
+    end)
   end
 end
 
@@ -89,7 +163,7 @@ local function GetInfo(self, cacheData, earlyCallback, finalCallback)
 
   self.BGR.earlyCallback()
 
-  Baganator.ItemButtonUtil.WidgetsOnly(self)
+  WidgetsOnly(self)
 
   if self.BaganatorBagHighlight then
     self.BaganatorBagHighlight:Hide()
@@ -110,40 +184,6 @@ local function GetInfo(self, cacheData, earlyCallback, finalCallback)
     self.BGR.finalCallback()
   end
 
-  if C_Item.IsItemDataCachedByID(self.BGR.itemID) then
-    OnCached()
-  else
-    local item = Item:CreateFromItemID(self.BGR.itemID)
-    item:ContinueOnItemLoad(function()
-      OnCached()
-    end)
-  end
-end
-
-function Baganator.ItemButtonUtil.WidgetsOnly(self)
-  for plugin, widget in pairs(self.cornerPlugins) do
-    widget:Hide()
-  end
-
-  if self.BGR.itemID == nil then
-    return
-  end
-
-  if not iconSettings.usingJunkPlugin and self.JunkIcon then
-    self.BGR.isJunk = not self.BGR.hasNoValue and self.BGR.quality == Enum.ItemQuality.Poor
-    if iconSettings.markJunk and self.BGR.isJunk then
-      self.BGR.persistIconGrey = true
-      self.icon:SetDesaturated(true)
-    end
-  end
-
-  self.BGR.setInfo = Baganator.ItemViewCommon.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()), self.BGR.itemLink)
-
-  local function OnCached()
-    for _, callback in ipairs(itemCallbacks) do
-      callback(self)
-    end
-  end
   if C_Item.IsItemDataCachedByID(self.BGR.itemID) then
     OnCached()
   else
@@ -209,6 +249,7 @@ local function ApplyItemDetailSettings(button)
       if setup and not button.cornerPlugins[plugin] then
         button.cornerPlugins[plugin] = setup.onInit(button)
         if button.cornerPlugins[plugin] then
+          Baganator.Skins.AddFrame("CornerWidget", button.cornerPlugins[plugin], {plugin})
           button.cornerPlugins[plugin]:Hide()
         end
       end
@@ -315,6 +356,43 @@ local function ReparentOverlays(self)
   end
 end
 
+local function ApplyNewItemAnimation(self, quality)
+  -- Modified code from Blizzard for classic
+  local isNewItem = Baganator.NewItems:IsNewItem(self:GetParent():GetID(), self:GetID());
+
+  local newItemTexture = self.NewItemTexture;
+  local battlepayItemTexture = self.BattlepayItemTexture;
+  local flash = self.flashAnim;
+  local newItemAnim = self.newitemglowAnim;
+
+  if ( isNewItem ) then
+    if C_Container.IsBattlePayItem and C_Container.IsBattlePayItem(self:GetBagID(), self:GetID()) then
+      self.NewItemTexture:Hide();
+      self.BattlepayItemTexture:Show();
+    else
+      if (quality and NEW_ITEM_ATLAS_BY_QUALITY[quality]) then
+        newItemTexture:SetAtlas(NEW_ITEM_ATLAS_BY_QUALITY[quality]);
+      else
+        newItemTexture:SetAtlas("bags-glow-white");
+      end
+      battlepayItemTexture:Hide();
+      newItemTexture:Show();
+      if (not flash:IsPlaying() and not newItemAnim:IsPlaying()) then
+        flash:Play();
+        newItemAnim:Play();
+      end
+    end
+  else
+    newItemTexture:Hide();
+    if (flash:IsPlaying() or newItemAnim:IsPlaying()) then
+      flash:Stop();
+      newItemAnim:Stop();
+    end
+    battlepayItemTexture:Hide();
+    newItemTexture:Hide();
+  end
+end
+
 BaganatorRetailCachedItemButtonMixin = {}
 
 function BaganatorRetailCachedItemButtonMixin:UpdateTextures()
@@ -416,6 +494,7 @@ function BaganatorRetailLiveContainerItemButtonMixin:MyOnLoad()
   -- Automatically use the reagent bank when at the bank transferring crafting
   -- reagents
   self:HookScript("OnEnter", function()
+    self:ClearNewItem()
     if BankFrame:IsShown() then
       if self.BGR and self.BGR.itemLink and (select(17, C_Item.GetItemInfo(self.BGR.itemLink))) and IsReagentBankActive() then
         BankFrame.selectedTab = 2
@@ -458,7 +537,7 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   local itemCount = cacheData.itemCount;
   local locked = info and info.isLocked;
   local quality = cacheData.quality or (info and info.quality);
-  local readable = info and info.IsReadable;
+  local readable = info and info.isReadable;
   local itemLink = info and info.hyperlink;
   local noValue = info and info.hasNoValue;
   local itemID = info and info.itemID;
@@ -477,7 +556,6 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   SetItemButtonDesaturated(self, locked);
 
   self:UpdateExtended();
-  self:UpdateNewItem(quality);
   self:UpdateJunkItem(quality, noValue);
   self:UpdateCooldown(texture);
   self:SetReadable(readable);
@@ -497,8 +575,11 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemDetails(cacheData)
 
   GetInfo(self, cacheData, function()
     self.BGR.tooltipGetter = function() return C_TooltipInfo.GetBagItem(self:GetBagID(), self:GetID()) end
+    self.BGR.setInfo = Baganator.ItemViewCommon.GetEquipmentSetInfo(ItemLocation:CreateFromBagAndSlot(self:GetParent():GetID(), self:GetID()), self.BGR.itemLink)
+
     self.BGR.hasNoValue = noValue
     self:BGRUpdateQuests()
+    ApplyNewItemAnimation(self, quality);
   end, function()
     self:BGRUpdateQuests()
     self:UpdateItemContextMatching();
@@ -544,7 +625,8 @@ function BaganatorRetailLiveContainerItemButtonMixin:SetItemFiltered(text)
 end
 
 function BaganatorRetailLiveContainerItemButtonMixin:ClearNewItem()
-  C_NewItems.RemoveNewItem(self:GetParent():GetID(), self:GetID())
+  local bagID, slotID = self:GetParent():GetID(), self:GetID()
+  Baganator.NewItems:ClearNewItem(bagID, slotID)
   -- Copied code from Blizzard Container Frame
   self.BattlepayItemTexture:Hide();
   self.NewItemTexture:Hide();
@@ -732,7 +814,7 @@ function BaganatorRetailLiveWarbandItemButtonMixin:SetItemDetails(cacheData)
   local itemCount = cacheData.itemCount;
   local locked = info and info.isLocked;
   local quality = cacheData.quality or (info and info.quality);
-  local readable = info and info.IsReadable;
+  local readable = info and info.isReadable;
   local itemLink = info and info.hyperlink;
   local noValue = info and info.hasNoValue;
   local itemID = info and info.itemID;
@@ -824,38 +906,6 @@ local function ApplyQualityBorderClassic(self, quality)
     self.IconBorder:SetVertexColor(color.r, color.g, color.b)
   else
     self.IconBorder:Hide()
-  end
-end
-
-local function ApplyNewItemAnimation(self, quality)
-  -- Modified code from Blizzard for classic
-  local isNewItem = C_NewItems.IsNewItem(self:GetParent():GetID(), self:GetID());
-
-  local newItemTexture = self.NewItemTexture;
-  local battlepayItemTexture = self.BattlepayItemTexture;
-  local flash = self.flashAnim;
-  local newItemAnim = self.newitemglowAnim;
-
-  if ( isNewItem ) then
-    if (quality and NEW_ITEM_ATLAS_BY_QUALITY[quality]) then
-      newItemTexture:SetAtlas(NEW_ITEM_ATLAS_BY_QUALITY[quality]);
-    else
-      newItemTexture:SetAtlas("bags-glow-white");
-    end
-    battlepayItemTexture:Hide();
-    newItemTexture:Show();
-    if (not flash:IsPlaying() and not newItemAnim:IsPlaying()) then
-      flash:Play();
-      newItemAnim:Play();
-    end
-  else
-    newItemTexture:Hide();
-    if (flash:IsPlaying() or newItemAnim:IsPlaying()) then
-      flash:Stop();
-      newItemAnim:Stop();
-    end
-    battlepayItemTexture:Hide();
-    newItemTexture:Hide();
   end
 end
 
@@ -984,10 +1034,7 @@ function BaganatorClassicLiveContainerItemButtonMixin:GetInventorySlot()
 end
 
 function BaganatorClassicLiveContainerItemButtonMixin:OnEnter()
-  if (self.flashAnim:IsPlaying() or self.newitemglowAnim:IsPlaying()) then
-    self.flashAnim:Stop();
-    self.newitemglowAnim:Stop();
-  end
+  self:ClearNewItem()
 
   if self:GetParent():GetID() == -1 then
     BankFrameItemButton_OnEnter(self)
@@ -1042,7 +1089,6 @@ function BaganatorClassicLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   SetItemButtonTexture(self, texture or self.emptySlotFilepath);
   SetItemButtonQuality(self, quality, itemID);
   ApplyQualityBorderClassic(self, quality)
-  ApplyNewItemAnimation(self, quality)
   SetItemButtonCount(self, itemCount);
   SetItemButtonDesaturated(self, locked);
 
@@ -1069,6 +1115,7 @@ function BaganatorClassicLiveContainerItemButtonMixin:SetItemDetails(cacheData)
   SetWidgetsAlpha(self, true)
 
   GetInfo(self, cacheData, function()
+    ApplyNewItemAnimation(self, quality)
     self:BGRUpdateQuests()
     self.BGR.tooltipGetter = function()
       return Syndicator.Search.DumpClassicTooltip(function(tooltip)
@@ -1111,7 +1158,8 @@ function BaganatorClassicLiveContainerItemButtonMixin:BGRSetHighlight(isHighligh
 end
 
 function BaganatorClassicLiveContainerItemButtonMixin:ClearNewItem()
-  C_NewItems.RemoveNewItem(self:GetParent():GetID(), self:GetID())
+  local bagID, slotID = self:GetParent():GetID(), self:GetID()
+  Baganator.NewItems:ClearNewItem(bagID, slotID)
   self.NewItemTexture:Hide();
   if (self.flashAnim:IsPlaying() or self.newitemglowAnim:IsPlaying()) then
     self.flashAnim:Stop();
