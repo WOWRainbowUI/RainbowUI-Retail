@@ -126,7 +126,7 @@ Core.WOW_VERSION = WOW_VERSION
 Core.WOW_RETAIL = WOW_RETAIL
 
 -- Add-On Info
-Core.Version = "10.2.8"
+Core.Version = "10.2.9"
 Core.Discord = "https://discord.gg/7MTWRgDzz8"
 
 Core.Authors = {
@@ -218,6 +218,9 @@ function Masque:OnInitialize()
 				Interrupt = true,
 				Reticle = true,
 				SpellAlert = 1,
+			},
+			SpellAlert = {
+				Style = "Masque Thin",
 			},
 		},
 	}
