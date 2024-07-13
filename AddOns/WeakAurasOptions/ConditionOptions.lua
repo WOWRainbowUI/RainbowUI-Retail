@@ -54,6 +54,8 @@ local OptionsPrivate = select(2, ...)
 local WeakAuras = WeakAuras;
 local L = WeakAuras.L;
 
+local SharedMedia = LibStub("LibSharedMedia-3.0");
+
 local function addSpace(args, order)
   args["space" .. order] = {
     type = "description",
@@ -242,6 +244,8 @@ local function wrapWithPlaySound(func, kit)
     end
   end
 end
+
+local dynamicTextInputs = {}
 
 local function addControlsForChange(args, order, data, conditionVariable, totalAuraCount, conditions, i, j, allProperties, usedProperties)
   local thenText = (j == 1) and L["Then "] or L["And "];
@@ -618,12 +622,23 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
       set = setValueColor
     }
     order = order + 1;
-  elseif (propertyType == "list" or property == "progressSource") then
+  elseif (propertyType == "list" or propertyType == "progressSource" or propertyType == "textureLSM") then
     local values = property and allProperties.propertyMap[property] and allProperties.propertyMap[property].values;
+    local dialogControl
+
+    if propertyType == "textureLSM" then
+      dialogControl = "WA_LSM30_StatusbarAtlas"
+      local statusbarList = {}
+      Mixin(statusbarList, SharedMedia:HashTable("statusbar"))
+      Mixin(statusbarList, SharedMedia:HashTable("statusbar_atlas"))
+      values = statusbarList
+    end
+
     args["condition" .. i .. "value" .. j] = {
       type = "select",
       width = WeakAuras.normalWidth,
       values = values,
+      dialogControl = dialogControl,
       name =  blueIfNoValue(data, conditions[i].changes[j], "value", L["Differences"], ""),
       desc =  descIfNoValue(data, conditions[i].changes[j], "value", propertyType, values),
       order = order,
@@ -941,16 +956,10 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
     }
     order = order + 1;
 
-    local descMessage = descIfNoValue2(data, conditions[i].changes[j], "value", "message", propertyType);
-    if (not descMessage and data ~= OptionsPrivate.tempGroup) then
-      descMessage = L["Dynamic text tooltip"] .. OptionsPrivate.Private.GetAdditionalProperties(data)
-    end
-
     args["condition" .. i .. "value" .. j .. "message dest"] = {
       type = "input",
-      width = WeakAuras.normalWidth,
+      width = WeakAuras.normalWidth - 0.15,
       name = blueIfNoValue2(data, conditions[i].changes[j], "value", "message_dest", L["Send To"], L["Send To"]),
-      desc = descMessage,
       order = order,
       get = function()
         return type(conditions[i].changes[j].value) == "table" and conditions[i].changes[j].value.message_dest;
@@ -958,7 +967,37 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
       set = setValueComplex("message_dest"),
       hidden = function()
         return not anyMessageType("WHISPER");
-      end
+      end,
+      control = "WeakAurasInput",
+      callbacks = {
+        OnEditFocusGained = function(self)
+          local widget = dynamicTextInputs["condition" .. i .. "value" .. j .. "message dest"]
+          OptionsPrivate.ToggleTextReplacements(data, true, widget)
+        end,
+        OnShow = function(self)
+          dynamicTextInputs["condition" .. i .. "value" .. j .. "message dest"] = self
+        end,
+      }
+    }
+    order = order + 1;
+
+    args["condition" .. i .. "value" .. j .. "message dest_text_replacements_button"] = {
+      type = "execute",
+      width = 0.15,
+      name = L["Dynamic Text Replacements"],
+      desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
+      order = order,
+      hidden = function()
+        return not anyMessageType("WHISPER");
+      end,
+      func = function()
+        local widget = dynamicTextInputs["condition" .. i .. "value" .. j .. "message dest"]
+        OptionsPrivate.ToggleTextReplacements(data, nil, widget)
+      end,
+      imageWidth = 24,
+      imageHeight = 24,
+      control = "WeakAurasIcon",
+      image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\sidebar",
     }
     order = order + 1;
 
@@ -1001,12 +1040,38 @@ local function addControlsForChange(args, order, data, conditionVariable, totalA
 
     args["condition" .. i .. "value" .. j .. "message"] = {
       type = "input",
-      width = WeakAuras.doubleWidth,
+      width = WeakAuras.doubleWidth - 0.15,
       name = blueIfNoValue2(data, conditions[i].changes[j], "value", "message", L["Message"], L["Message"]),
-      desc = descMessage,
       order = order,
       get = message_getter,
-      set = setValueComplex("message")
+      set = setValueComplex("message"),
+      control = "WeakAurasInput",
+      callbacks = {
+        OnEditFocusGained = function(self)
+          local widget = dynamicTextInputs["condition" .. i .. "value" .. j .. "message"]
+          OptionsPrivate.ToggleTextReplacements(data, true, widget)
+        end,
+        OnShow = function(self)
+          dynamicTextInputs["condition" .. i .. "value" .. j .. "message"] = self
+        end,
+      }
+    }
+    order = order + 1;
+
+    args["condition" .. i .. "value" .. j .. "message_text_replacements_button"] = {
+      type = "execute",
+      width = 0.15,
+      name = L["Dynamic Text Replacements"],
+      desc = L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."],
+      order = order,
+      func = function()
+        local widget = dynamicTextInputs["condition" .. i .. "value" .. j .. "message"]
+        OptionsPrivate.ToggleTextReplacements(data, nil, widget)
+      end,
+      imageWidth = 24,
+      imageHeight = 24,
+      control = "WeakAurasIcon",
+      image = "Interface\\AddOns\\WeakAuras\\Media\\Textures\\sidebar",
     }
     order = order + 1;
 

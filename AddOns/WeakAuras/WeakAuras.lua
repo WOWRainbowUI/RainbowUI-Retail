@@ -3,7 +3,7 @@ local AddonName = ...
 ---@class Private
 local Private = select(2, ...)
 
-local internalVersion = 73
+local internalVersion = 75
 
 -- Lua APIs
 local insert = table.insert
@@ -14,8 +14,8 @@ local UnitName, GetRealmName, UnitRace, UnitFactionGroup, IsInRaid
   = UnitName, GetRealmName, UnitRace, UnitFactionGroup, IsInRaid
 local UnitClass, UnitExists, UnitGUID, UnitAffectingCombat, GetInstanceInfo, IsInInstance
   = UnitClass, UnitExists, UnitGUID, UnitAffectingCombat, GetInstanceInfo, IsInInstance
-local UnitIsUnit, GetRaidRosterInfo, GetSpecialization, UnitInVehicle, UnitHasVehicleUI, GetSpellInfo
-  = UnitIsUnit, GetRaidRosterInfo, GetSpecialization, UnitInVehicle, UnitHasVehicleUI, GetSpellInfo
+local UnitIsUnit, GetRaidRosterInfo, GetSpecialization, UnitInVehicle, UnitHasVehicleUI
+  = UnitIsUnit, GetRaidRosterInfo, GetSpecialization, UnitInVehicle, UnitHasVehicleUI
 local SendChatMessage, UnitInBattleground, UnitInRaid, UnitInParty, GetTime
   = SendChatMessage, UnitInBattleground, UnitInRaid, UnitInParty, GetTime
 local CreateFrame, IsShiftKeyDown, GetScreenWidth, GetScreenHeight, GetCursorPosition, UpdateAddOnCPUUsage, GetFrameCPUUsage, debugprofilestop
@@ -75,6 +75,19 @@ local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
 local LCG = LibStub("LibCustomGlow-1.0")
 local LGF = LibStub("LibGetFrame-1.0")
+
+local CustomNames = C_AddOns.IsAddOnLoaded("CustomNames") and LibStub("CustomNames") -- optional addon
+if CustomNames then
+  WeakAuras.GetName = CustomNames.Get
+  WeakAuras.UnitName = CustomNames.UnitName
+  WeakAuras.GetUnitName = CustomNames.GetUnitName
+  WeakAuras.UnitFullName = CustomNames.UnitFullName
+else
+  WeakAuras.GetName = function(name) return name end
+  WeakAuras.UnitName = UnitName
+  WeakAuras.GetUnitName = GetUnitName
+  WeakAuras.UnitFullName = UnitFullName
+end
 
 local timer = WeakAurasTimers
 WeakAuras.timer = timer
@@ -888,24 +901,19 @@ local function ConstructFunction(prototype, trigger, skipOptional)
   for _, orConjunctionGroup  in pairs(orConjunctionGroups) do
     tinsert(tests, "("..table.concat(orConjunctionGroup , " or ")..")")
   end
-  local ret = preambles .. "return function("..table.concat(input, ", ")..")\n";
-  ret = ret..(init or "");
-  -- Enable to debug load function inputs
-  --ret = ret .. "print('INPUTS')"
-  --for _, i in ipairs(input) do
-  --  ret = ret .. "print('" .. i .. "'," .. i .. ")"
-  --end
-  ret = ret..(#debug > 0 and table.concat(debug, "\n") or "");
-  ret = ret.."if(";
-  ret = ret..((#required > 0) and table.concat(required, " and ").." and " or "");
-  ret = ret..(#tests > 0 and table.concat(tests, " and ") or "true");
-  ret = ret..") then\n";
+  local ret = {preambles .. "return function("..table.concat(input, ", ")..")\n"};
+  table.insert(ret, (init or ""));
+  table.insert(ret, (#debug > 0 and table.concat(debug, "\n") or ""));
+  table.insert(ret, "if(");
+  table.insert(ret, ((#required > 0) and table.concat(required, " and ").." and " or ""));
+  table.insert(ret, (#tests > 0 and table.concat(tests, " and ") or "true"));
+  table.insert(ret, ") then\n");
   if(#debug > 0) then
-    ret = ret.."print('ret: true');\n";
+    table.insert(ret, "print('ret: true');\n");
   end
-  ret = ret.."return true else return false end end";
+  table.insert(ret, "return true else return false end end");
 
-  return ret, events;
+  return table.concat(ret), events;
 end
 
 function WeakAuras.GetActiveConditions(id, cloneId)
@@ -956,7 +964,7 @@ local function CreateTalentCache()
 
   Private.talent_types_specific[player_class] = Private.talent_types_specific[player_class] or {};
 
-  if WeakAuras.IsClassicEraOrWrathOrCata() then
+  if WeakAuras.IsClassicOrCata() then
     for tab = 1, GetNumTalentTabs() do
       for num_talent = 1, GetNumTalents(tab) do
         local talentName, talentIcon = GetTalentInfo(tab, num_talent);
@@ -1668,8 +1676,8 @@ local function scanForLoadsImpl(toCheck, event, arg1, ...)
   local encounter_id = WeakAuras.CurrentEncounter and WeakAuras.CurrentEncounter.id or 0
 
   if (event == "ENCOUNTER_START") then
-    encounter_id = tonumber (arg1)
-    CreateEncounterTable (encounter_id)
+    encounter_id = tonumber(arg1)
+    CreateEncounterTable(encounter_id)
   elseif (event == "ENCOUNTER_END") then
     encounter_id = 0
     DestroyEncounterTable()
@@ -1706,34 +1714,27 @@ local function scanForLoadsImpl(toCheck, event, arg1, ...)
     raidMemberType = raidMemberType + 2
   end
 
-  if WeakAuras.IsClassicEraOrWrathOrCata() then
+  if WeakAuras.IsClassicOrCata() then
     local raidID = UnitInRaid("player")
     if raidID then
       raidRole = select(10, GetRaidRosterInfo(raidID))
     end
     role = "none"
-    if WeakAuras.IsWrathOrCata() then
-      role = UnitGroupRolesAssigned("player")
-      if role == "NONE" then
-        role = GetTalentGroupRole(GetActiveTalentGroup()) or "NONE"
-      end
+    if WeakAuras.IsCataClassic() then
       vehicle = UnitInVehicle('player') or UnitOnTaxi('player') or false
       vehicleUi = UnitHasVehicleUI('player') or HasOverrideActionBar() or HasVehicleActionBar() or false
     else
       vehicle = UnitOnTaxi('player')
     end
-    if WeakAuras.IsCataClassic() then
-      local specIndex = GetPrimaryTalentTree()
-      if specIndex then
-        specId = GetTalentTabInfo(specIndex)
-      end
-    end
   else
     dragonriding = Private.IsDragonriding()
-    specId, role, position = Private.LibSpecWrapper.SpecRolePositionForUnit("player")
     inPetBattle = C_PetBattles.IsInBattle()
     vehicle = UnitInVehicle('player') or UnitOnTaxi('player') or false
     vehicleUi = UnitHasVehicleUI('player') or HasOverrideActionBar() or HasVehicleActionBar() or false
+  end
+
+  if WeakAuras.IsCataOrRetail() then
+    specId, role, position = Private.LibSpecWrapper.SpecRolePositionForUnit("player")
   end
 
   local size, difficulty, instanceType, instanceId, difficultyIndex= GetInstanceTypeAndSize()
@@ -1774,12 +1775,9 @@ local function scanForLoadsImpl(toCheck, event, arg1, ...)
       if WeakAuras.IsClassicEra() then
         shouldBeLoaded = loadFunc and loadFunc("ScanForLoads_Auras", inCombat, alive, inEncounter, vehicle, class, player, realm, race, faction, playerLevel, raidRole, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size)
         couldBeLoaded =  loadOpt and loadOpt("ScanForLoads_Auras",   inCombat, alive, inEncounter, vehicle, class, player, realm, race, faction, playerLevel, raidRole, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size)
-      elseif WeakAuras.IsWrathClassic() then
-        shouldBeLoaded = loadFunc and loadFunc("ScanForLoads_Auras", inCombat, alive, inEncounter, vehicle, vehicleUi, class, player, realm, race, faction, playerLevel, role, raidRole, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size, difficulty, difficultyIndex)
-        couldBeLoaded =  loadOpt and loadOpt("ScanForLoads_Auras",   inCombat, alive, inEncounter, vehicle, vehicleUi, class, player, realm, race, faction, playerLevel, role, raidRole, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size, difficulty, difficultyIndex)
       elseif WeakAuras.IsCataClassic() then
-        shouldBeLoaded = loadFunc and loadFunc("ScanForLoads_Auras", inCombat, alive, inEncounter, vehicle, vehicleUi, class, specId, player, realm, race, faction, playerLevel, role, raidRole, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size, difficulty, difficultyIndex)
-        couldBeLoaded =  loadOpt and loadOpt("ScanForLoads_Auras",   inCombat, alive, inEncounter, vehicle, vehicleUi, class, specId, player, realm, race, faction, playerLevel, role, raidRole, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size, difficulty, difficultyIndex)
+        shouldBeLoaded = loadFunc and loadFunc("ScanForLoads_Auras", inCombat, alive, inEncounter, vehicle, vehicleUi, class, specId, player, realm, race, faction, playerLevel, role, position, raidRole, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size, difficulty, difficultyIndex)
+        couldBeLoaded =  loadOpt and loadOpt("ScanForLoads_Auras",   inCombat, alive, inEncounter, vehicle, vehicleUi, class, specId, player, realm, race, faction, playerLevel, role, position, raidRole, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size, difficulty, difficultyIndex)
       elseif WeakAuras.IsRetail() then
         shouldBeLoaded = loadFunc and loadFunc("ScanForLoads_Auras", inCombat, alive, inEncounter, warmodeActive, inPetBattle, vehicle, vehicleUi, dragonriding, specId, player, realm, race, faction, playerLevel, effectiveLevel, role, position, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size, difficulty, difficultyIndex, affixes)
         couldBeLoaded =  loadOpt and loadOpt("ScanForLoads_Auras",   inCombat, alive, inEncounter, warmodeActive, inPetBattle, vehicle, vehicleUi, dragonriding, specId, player, realm, race, faction, playerLevel, effectiveLevel, role, position, group, groupSize, raidMemberType, zone, zoneId, zonegroupId, instanceId, minimapText, encounter_id, size, difficulty, difficultyIndex, affixes)
@@ -1883,7 +1881,7 @@ else
   loadFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 end
 
-if WeakAuras.IsWrathOrCata() then
+if WeakAuras.IsCataClassic() then
   loadFrame:RegisterEvent("VEHICLE_UPDATE");
   loadFrame:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
   loadFrame:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR");
@@ -1897,7 +1895,7 @@ loadFrame:RegisterEvent("PLAYER_REGEN_DISABLED");
 loadFrame:RegisterEvent("PLAYER_REGEN_ENABLED");
 loadFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED");
 loadFrame:RegisterEvent("SPELLS_CHANGED");
-loadFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
+loadFrame:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player")
 loadFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 loadFrame:RegisterEvent("PLAYER_DEAD")
 loadFrame:RegisterEvent("PLAYER_ALIVE")
@@ -1916,7 +1914,7 @@ local unitLoadFrame = CreateFrame("Frame");
 Private.frames["Display Load Handling 2"] = unitLoadFrame;
 
 unitLoadFrame:RegisterUnitEvent("UNIT_FLAGS", "player");
-if WeakAuras.IsWrathOrCataOrRetail() then
+if WeakAuras.IsCataOrRetail() then
   unitLoadFrame:RegisterUnitEvent("UNIT_ENTERED_VEHICLE", "player");
   unitLoadFrame:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player");
   unitLoadFrame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", "player");
@@ -2623,8 +2621,12 @@ function Private.AddMany(tbl, takeSnapshots)
   local order = loadOrder(tbl, idtable)
   coroutine.yield()
 
+  local oldSnapshots = {}
   if takeSnapshots then
     for _, data in ipairs(order) do
+      if Private.ModernizeNeedsOldSnapshot(data) then
+        oldSnapshots[data.uid] = Private.GetMigrationSnapshot(data.uid)
+      end
       Private.SetMigrationSnapshot(data.uid, data)
       coroutine.yield()
     end
@@ -2636,7 +2638,8 @@ function Private.AddMany(tbl, takeSnapshots)
     if data.parent and bads[data.parent] then
       bads[data.id] = true
     else
-      local ok = xpcall(WeakAuras.PreAdd, Private.GetErrorHandlerUid(data.uid, "PreAdd"), data)
+      local oldSnapshot = oldSnapshots[data.uid] or nil
+      local ok = xpcall(WeakAuras.PreAdd, Private.GetErrorHandlerUid(data.uid, "PreAdd"), data, oldSnapshot)
       if not ok then
         prettyPrint(L["Unable to modernize aura '%s'. This is probably due to corrupt data or a bad migration, please report this to the WeakAuras team."]:format(data.id))
         if data.regionType == "dynamicgroup" or data.regionType == "group" then
@@ -2988,7 +2991,7 @@ function Private.UpdateSoundIcon(data)
   end
 end
 
-function WeakAuras.PreAdd(data)
+function WeakAuras.PreAdd(data, snapshot)
   if not data then return end
   -- Readd what Compress removed before version 8
   if (not data.internalVersion or data.internalVersion < 7) then
@@ -2997,7 +3000,7 @@ function WeakAuras.PreAdd(data)
     Private.validate(data, oldDataStub2)
   end
 
-  xpcall(Private.Modernize, Private.GetErrorHandlerId(data.id, L["Modernize"]), data)
+  xpcall(Private.Modernize, Private.GetErrorHandlerId(data.id, L["Modernize"]), data, snapshot)
 
   local default = data.regionType and Private.regionTypes[data.regionType] and Private.regionTypes[data.regionType].default
   if default then
@@ -3194,10 +3197,14 @@ end
 
 ---@private
 function WeakAuras.Add(data, simpleChange)
+  local oldSnapshot
+  if Private.ModernizeNeedsOldSnapshot(data) then
+    oldSnapshot = Private.GetMigrationSnapshot(data.uid)
+  end
   if (data.internalVersion or 0) < internalVersion then
     Private.SetMigrationSnapshot(data.uid, data)
   end
-  local ok = xpcall(WeakAuras.PreAdd, Private.GetErrorHandlerUid(data.uid, "PreAdd"), data)
+  local ok = xpcall(WeakAuras.PreAdd, Private.GetErrorHandlerUid(data.uid, "PreAdd"), data, oldSnapshot)
   if ok then
     pAdd(data, simpleChange)
   end
@@ -3560,7 +3567,7 @@ do
 
     if type(glow_frame_monitor) == "table" then
       for region, data in pairs(glow_frame_monitor) do
-        if region.state and region.state.unit == unit
+        if region.state and type(region.state.unit) == "string" and UnitIsUnit(region.state.unit, unit)
         and ((data.frame ~= frame) and (FRAME_UNIT_ADDED or FRAME_UNIT_UPDATE))
         or ((data.frame == frame) and FRAME_UNIT_REMOVED)
         then
@@ -3591,7 +3598,7 @@ do
     end
     if type(anchor_unitframe_monitor) == "table" then
       for region, data in pairs(anchor_unitframe_monitor) do
-        if region.state and region.state.unit == unit
+        if region.state and type(region.state.unit) == "string" and UnitIsUnit(region.state.unit, unit)
         and ((data.frame ~= frame) and (FRAME_UNIT_ADDED or FRAME_UNIT_UPDATE))
         or ((data.frame == frame) and FRAME_UNIT_REMOVED)
         then
@@ -3605,7 +3612,7 @@ do
       end
     end
     for regionData, data_frame in pairs(Private.dyngroup_unitframe_monitor) do
-      if regionData.region.state and regionData.region.state.unit == unit
+      if regionData.region.state and type(regionData.region.state.unit) == "string" and UnitIsUnit(regionData.region.state.unit, unit)
       and ((data_frame ~= frame) and (FRAME_UNIT_ADDED or FRAME_UNIT_UPDATE))
       or ((data_frame == frame) and FRAME_UNIT_REMOVED)
       then
@@ -3848,27 +3855,17 @@ Private.GetTriggerDescription = wrapTriggerSystemFunction("GetTriggerDescription
 local wrappedGetOverlayInfo = wrapTriggerSystemFunction("GetOverlayInfo", "table");
 
 Private.GetAdditionalProperties = function(data)
-  local additionalProperties = ""
+  local props = {}
   for i = 1, #data.triggers do
     local triggerSystem = GetTriggerSystem(data, i);
     if (triggerSystem) then
-      local add = triggerSystem.GetAdditionalProperties(data, i)
-      if (add and add ~= "") then
-        if additionalProperties ~= "" then
-          additionalProperties = additionalProperties .. "\n"
-        end
-        additionalProperties = additionalProperties .. add;
+      local triggerProps = triggerSystem.GetAdditionalProperties(data, i)
+      if triggerProps then
+        props[i] = triggerProps
       end
     end
   end
-
-  if additionalProperties ~= "" then
-    additionalProperties = "\n\n"
-                  .. L["Additional Trigger Replacements"] .. "\n"
-                  .. additionalProperties .. "\n\n"
-                  .. L["The trigger number is optional, and uses the trigger providing dynamic information if not specified."]
-  end
-  return additionalProperties
+  return props
 end
 
 Private.GetProgressSources = function(data)
@@ -4380,6 +4377,15 @@ do
       end
     end
   end);
+  dynFrame.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+  dynFrame.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+  dynFrame.frame:SetScript("OnEvent", function(self, event)
+    if event == "PLAYER_REGEN_ENABLED" and self:IsShown() then
+      self:Hide()
+    elseif event == "PLAYER_REGEN_DISABLED" and not self:IsShown() and dynFrame.size > 0 then
+      self:Show()
+    end
+  end)
 end
 
 Private.dynFrame = dynFrame;
@@ -6038,6 +6044,12 @@ do
     local name, realm = UnitFullName(unit)
     return name or "", realm or ownRealm or ""
   end
+
+  function WeakAuras.UnitNameWithRealmCustomName(unit)
+    ownRealm = ownRealm or select(2, UnitFullName("player"))
+    local name, realm =  WeakAuras.UnitFullName(unit)
+    return name or "", realm or ownRealm or ""
+  end
 end
 
 function Private.ExecEnv.ParseNameCheck(name)
@@ -6186,7 +6198,7 @@ function Private.ExecEnv.CreateSpellChecker()
     AddName = function(self, name)
       local spellId = tonumber(name)
       if spellId then
-        name = GetSpellInfo(spellId)
+        name = Private.ExecEnv.GetSpellName(spellId)
         if name then
           self.names[name] = true
         end
@@ -6199,7 +6211,9 @@ function Private.ExecEnv.CreateSpellChecker()
       self.spellIds[spellId] = true
     end,
     Check = function(self, spellId)
-      return self.spellIds[spellId] or self.names[GetSpellInfo(spellId)]
+      if spellId then
+        return self.spellIds[spellId] or self.names[Private.ExecEnv.GetSpellName(spellId)]
+      end
     end,
     CheckName = function(self, name)
       return self.names[name]
@@ -6235,12 +6249,6 @@ end
 function WeakAuras.GetTriggerCategoryFor(triggerType)
   local prototype = Private.event_prototypes[triggerType]
   return prototype and prototype.type
-end
-
----@param unit UnitToken
----@return number stagger
-function WeakAuras.UnitStagger(unit)
-  return UnitStagger(unit) or 0
 end
 
 function Private.SortOrderForValues(values)

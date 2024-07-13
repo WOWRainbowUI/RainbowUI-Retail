@@ -1,7 +1,7 @@
 ## Interface: 40400
 ## Title: WeakAuras
 ## Author: The WeakAuras Team
-## Version: 5.13.1
+## Version: 5.15.0
 ## X-Flavor: Cata
 ## Notes: A powerful, comprehensive utility for displaying graphics and information based on buffs, debuffs, and other triggers.
 ## Notes-esES: Potente y completa aplicación que te permitirá mostrar por pantalla múltiples diseños, basados en beneficios, perjuicios y otros activadores.
@@ -17,7 +17,7 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## SavedVariables: WeakAurasSaved
-## OptionalDeps: Ace3, LibCompress, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, Masque, GTFO, LibButtonGlow-1.0, LibSpellRange-1.0, LibRangeCheck-3.0, LibDBIcon-1.0, LibGetFrame-1.0, !LibUIDropDownMenu, !!AddonLocale, BigWigs, DBM-Core
+## OptionalDeps: Ace3, LibCompress, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, Masque, GTFO, LibButtonGlow-1.0, LibSpellRange-1.0, LibRangeCheck-3.0, LibDBIcon-1.0, LibGetFrame-1.0, !LibUIDropDownMenu, !!AddonLocale, CustomNames, BigWigs, DBM-Core
 ## AllowLoadGameType: cata
 
 ## Title-zhTW: |cffFF9900[進階]|r WA技能提醒
@@ -28,7 +28,12 @@
 # External code + initialization
 embeds.xml
 
+
+# Client flavor specific libs
+Libs\LibSpecialization\LibSpecialization.lua
+
 Init.lua
+Compatibility.lua
 locales.xml
 ArchiveTypes\Repository.lua
 DefaultOptions.lua
@@ -51,6 +56,7 @@ Conditions.lua
 AnchorToWeakAuras.lua
 
 # Trigger systems
+LibSpecializationWrapper.lua
 BuffTrigger2.lua
 GenericTrigger.lua
 BossMods.lua
