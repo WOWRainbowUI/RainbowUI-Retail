@@ -2310,7 +2310,7 @@ D["Syndicator"] = {
     {
         text = "設定選項",
         callback = function(cfg, v, loading)
-			Settings.OpenToCategory("物品統計")
+			Settings.OpenToCategory("Syndicator")
 		end,
     },
 	{
