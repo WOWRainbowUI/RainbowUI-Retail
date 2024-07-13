@@ -192,17 +192,13 @@ local function GridView(view, ctx, bag, slotInfo)
     view:ClearDeferredItems()
   end
 
+  ---@type Cell[]
+  local hiddenCells = {}
   debug:StartProfile('Section Draw Stage')
   if not slotInfo.deferDelete then
     local dirtySections = view:GetDirtySections()
     for sectionName in pairs(dirtySections) do
       local section = view:GetSection(sectionName)
-      if categories:IsCategoryShown(sectionName) == false then
-        view:RemoveSection(sectionName)
-        section.frame:Hide()
-      else
-        section.frame:Show()
-      end
       -- We need to check for the section here, as a section
       -- may have been added to dirty items when it doesn't
       -- exist yet. This happens when a new item's "new item"
@@ -223,6 +219,11 @@ local function GridView(view, ctx, bag, slotInfo)
       end
     end
     view:ClearDirtySections()
+  end
+  for sectionName, section in pairs(view:GetAllSections()) do
+    if categories:IsCategoryShown(sectionName) == false then
+      table.insert(hiddenCells, section)
+    end
   end
   debug:EndProfile('Section Draw Stage')
 
@@ -253,6 +254,7 @@ local function GridView(view, ctx, bag, slotInfo)
       maxWidthPerRow = ((37 + 4) * sizeInfo.itemsPerRow) + 16,
       columns = sizeInfo.columnCount,
       header = view:RemoveSectionFromGrid(L:G("Recent Items")),
+      mask = hiddenCells,
     })
     for _, section in pairs(view.sections) do
       debug:WalkAndFixAnchorGraph(section.frame)

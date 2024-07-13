@@ -267,6 +267,8 @@ if GetLocale() == "zhTW" then
 	L.data["Shift Right Click"] = "Shift+右鍵"
 	L.data["Hide or Show Category"] = "隱藏或顯示分類"
 	L.data["Show or hide this category in the bags."] = "在背包中顯示或隱藏此分類"
+	L.data["Hide Category"] = "隱藏分類"
+	L.data["(hidden)"] = "(已隱藏)"
 	-- L.data["Open Menu"] = "打開選單" -- 前面已有
 	L.data[ [[
           Dynamic categories can't be enabled or disabled (yet).

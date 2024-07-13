@@ -43,5 +43,5 @@ end
 function simpleItemLevel:OnEnable()
   if not SimpleItemLevel then return end
   events:RegisterMessage('bag/Rendered', onBagRendered)
-  print("BetterBags: SimpleItemLevel integration enabled.")
+  -- print("BetterBags: SimpleItemLevel integration enabled.")
 end
