@@ -68,7 +68,7 @@ end
 -- Wrapping a unit's name in its class colour is very common in custom Auras
 local WA_ClassColorName = function(unit)
   if unit and UnitExists(unit) then
-    local name = UnitName(unit)
+    local name = WeakAuras.UnitName(unit)
     local _, class = UnitClass(unit)
     if not class then
       return name
@@ -524,7 +524,8 @@ local overridden = {
 }
 
 local env_getglobal_custom
-local exec_env_custom = setmetatable({},
+-- WORKAROUND ColorMixin not being found in our environemnt #5071
+local exec_env_custom = setmetatable({ColorMixin = ColorMixin},
 {
   __index = function(t, k)
     if k == "_G" then
