@@ -1,8 +1,6 @@
 # Syndicator
 
-## [72](https://github.com/Baganator/Syndicator/tree/72) (2024-07-12)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/71...72) 
+## [73](https://github.com/Baganator/Syndicator/tree/73) (2024-07-13)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/72...73) 
 
-- Search: Add The War Within expansion to keywords  
-- Reduce frequency of GuildNameSet callbacks  
-- Include "Warbound until equipped" in BoA searches  
+- Share substitution function for keywords so Baganator can use it  
