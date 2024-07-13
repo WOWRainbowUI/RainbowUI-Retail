@@ -1,4 +1,4 @@
-## Interface: 11502, 40400, 100207
+## Interface: 11503, 40400, 100207
 ## Title: BetterBags - Hearthstones
 ## Notes: Adds various hearthing items to BetterBags virtual groups
 ## Notes-ruRU: L["Adds various hearthing items to BetterBags virtual groups"] = "Добавляет различные предметы для разогрева в виртуальные группы BetterBags."
