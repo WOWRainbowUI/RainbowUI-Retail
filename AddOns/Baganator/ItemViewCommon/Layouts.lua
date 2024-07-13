@@ -5,7 +5,7 @@ if LibStub then
   local Masque, MSQ_Version = LibStub("Masque", true)
   if Masque ~= nil then
     -- Retrieve a reference to a new or existing group.
-    local masqueGroup = Masque:Group("Baganator", "Bag")
+    local masqueGroup = Masque:Group(BAGANATOR_L_BAGANATOR_NAME, BAGANATOR_L_CATEGORY_BAG)
 
     MasqueRegistration = function(button)
       if button.masqueApplied then

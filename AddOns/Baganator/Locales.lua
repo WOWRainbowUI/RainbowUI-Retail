@@ -288,6 +288,9 @@ L["CATEGORY_GROUPS_DESCRIPTION"] = "Group items by type, with features to add ne
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 
+-- 自行加入
+L["BAGANATOR_NAME"] = "Baganator"
+
 local L = Locales.zhTW
 L["ACCOUNT_GOLD_X"] = "帳號金幣：%s"
 L["ADD_ITEM"] = "新增物品"
@@ -538,6 +541,9 @@ L["XS_BAGS"] = "%s 的背包"
 L["XS_BANK"] = "%s 的銀行"
 L["XS_BANK_AND_BAGS"] = "%s 的銀行和背包"
 L["XS_GUILD_BANK"] = "%s 的公會銀行"
+
+-- 自行加入
+L["BAGANATOR_NAME"] = "多角色背包"
 
 local L = Locales.zhCN
 L["ACCOUNT_GOLD_X"] = "帐号金币：%s"
