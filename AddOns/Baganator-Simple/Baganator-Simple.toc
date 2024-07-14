@@ -5,7 +5,7 @@
 ## RequiredDeps: Baganator
 
 ## Title-zhTW: |cffB973CC[背包]|r 多角色背包外觀-簡單黑
-## Notes-zhTW: Baganator |n|n簡單的黑色半透明外觀。|n|n載入即會改變外觀，若要改回來請取消載入這個插件。
+## Notes-zhTW: Baganator (Simple Skin) |n|n簡單的黑色半透明外觀。|n|n載入即會改變外觀，若要改回來請取消載入這個插件。
 ## X-Category-zhTW: 物品
 ## DefaultState: disabled
 
