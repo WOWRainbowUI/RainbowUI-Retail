@@ -1,7 +1,7 @@
 -- BigDebuffs by Jordon
 
 local addonName, addon = ...
-local L = LibStub("AceLocale-3.0"):GetLocale("BigDebuffs")
+
 BigDebuffs = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceEvent-3.0", "AceHook-3.0")
 local LibSharedMedia = LibStub("LibSharedMedia-3.0")
 local LibClassicDurations = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and LibStub("LibClassicDurations")
@@ -10,7 +10,8 @@ if LibClassicDurations then LibClassicDurations:Register(addonName) end
 -- Adding in Masque support, preparing groups if it is available
 local Masque = LibStub("Masque", true)
 if Masque ~= nil then
-    BigDebuffs.MasqueGroup = {}
+    local L = LibStub("AceLocale-3.0"):GetLocale("BigDebuffs")
+	BigDebuffs.MasqueGroup = {}
     BigDebuffs.MasqueGroup.UnitFrame = Masque:Group(L["BigDebuffs "], L["Unit Frames"])
     BigDebuffs.MasqueGroup.NamePlate = Masque:Group(L["BigDebuffs "], L["Nameplates"])
 end
