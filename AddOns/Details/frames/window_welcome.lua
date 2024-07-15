@@ -14,7 +14,7 @@ function _detalhes:OpenWelcomeWindow()
 	if (not window) then
 
 		--on first run, sincronize with guild
-		_detalhes.storage:DBGuildSync()
+		if _detalhes.storage then _detalhes.storage:DBGuildSync() end -- 暫時修正
 
 		local index = 1
 		local pages = {}
