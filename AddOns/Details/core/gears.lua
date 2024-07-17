@@ -2,6 +2,8 @@
 local Details = 		_G.Details
 local addonName, Details222 = ...
 local Loc = LibStub("AceLocale-3.0"):GetLocale( "Details" )
+---@framework
+local detailsFramework = DetailsFramework
 local _
 
 local UnitGUID = UnitGUID
@@ -766,6 +768,7 @@ local checkForGroupCombat_Ticker = function()
 	end
 end
 
+--~parser
 local bConsiderGroupMembers = false
 Details222.Parser.Handler = {}
 Details222.Parser.EventFrame = CreateFrame("frame")
@@ -791,13 +794,13 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 					Details222.Parser.EventFrame.ticker = C_Timer.NewTicker(1, checkForGroupCombat_Ticker)
 				end
 			else
-				Details222.parser_frame:SetScript("OnEvent", nil)
+				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 			end
 		else
 			if (UnitAffectingCombat("player")) then
 				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEvent)
 			else
-				Details222.parser_frame:SetScript("OnEvent", nil)
+				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 			end
 		end
 
@@ -814,10 +817,10 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 					Details222.Parser.EventFrame.ticker = C_Timer.NewTicker(1, checkForGroupCombat_Ticker)
 				end
 			else
-				Details222.parser_frame:SetScript("OnEvent", nil)
+				Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 			end
 		else
-			Details222.parser_frame:SetScript("OnEvent", nil)
+			Details222.parser_frame:SetScript("OnEvent", Details222.Parser.OnParserEventOutOfCombat)
 		end
 	end
 end)
@@ -1811,8 +1814,13 @@ end
 
 ---@param combat combat
 function Details.Database.StoreEncounter(combat)
+	--stop execution if the expansion isn't retail
+	if (not detailsFramework:IsDragonflightAndBeyond()) then
+		return
+	end
+
 	combat = combat or Details:GetCurrentCombat()
-print(1)
+
 	if (not combat) then
 		if (Details.debug) then
 			print("|cFFFFFF00Details! Storage|r: combat not found.")
@@ -1830,7 +1838,7 @@ print(1)
 		end
 		return
 	end
-	print(2)
+
 	local encounterInfo = combat:GetBossInfo()
 	local encounterId = encounterInfo and encounterInfo.id
 
@@ -1842,15 +1850,21 @@ print(1)
 	end
 
 	--get the difficulty
-	local diffId, diff = combat:GetDifficulty()
+	local diffId, diffName = combat:GetDifficulty()
+	if (Details.debug) then
+		print("|cFFFFFF00Details! Storage|r: difficulty identified:", diffId, diffName)
+	end
 
 	--database
 	---@type details_storage?
 	local savedData = Details.Database.LoadDB()
 	if (not savedData) then
+		if (Details.debug) then
+			print("|cFFFFFF00Details! Storage|r: Details.Database.LoadDB() FAILED!")
+		end
 		return
 	end
-	print(3)
+
 	--[=[
 		savedData[mythic] = {
 			[encounterId] = { --indexed table
@@ -1875,10 +1889,11 @@ print(1)
 	local elapsedCombatTime = combat:GetCombatTime()
 
 	---@type table<encounterid, details_encounterkillinfo[]>
-	local encountersTable = savedData[diff]
+	local encountersTable = savedData[diffName]
 	if (not encountersTable) then
-		savedData[diff] = {}
-		encountersTable = savedData[diff]
+		Details:Msg("encountersTable not found, diffName:", diffName)
+		savedData[diffName] = {}
+		encountersTable = savedData[diffName]
 	end
 
 	---@type details_encounterkillinfo[]
@@ -1895,7 +1910,7 @@ print(1)
 	--if the player is facing a raid boss
 	if (IsInRaid()) then
 		totalkillsTable[encounterId] = totalkillsTable[encounterId] or {}
-		totalkillsTable[encounterId][diff] = totalkillsTable[encounterId][diff] or {
+		totalkillsTable[encounterId][diffName] = totalkillsTable[encounterId][diffName] or {
 			kills = 0,
 			wipes = 0,
 			time_fasterkill = 1000000,
@@ -1908,7 +1923,7 @@ print(1)
 		}
 		print(4)
 		---@type details_bosskillinfo
-		local bossData = totalkillsTable[encounterId][diff]
+		local bossData = totalkillsTable[encounterId][diffName]
 		---@type combattime
 		local encounterElapsedTime = elapsedCombatTime
 
@@ -1943,20 +1958,20 @@ print(1)
 			bossData.dps_best_raid_when = time()
 		end
 	end
-	print(5, diff)
+	print(5, diffName)
 	--check for heroic and mythic
-	if (Details222.storage.IsDebug or Details222.storage.DiffNamesHash[diff]) then
+	if (Details222.storage.IsDebug or Details222.storage.DiffNamesHash[diffName]) then
 		--check the guild name
 		local match = 0
 		local guildName = GetGuildInfo("player")
 		local raidSize = GetNumGroupMembers() or 0
 
-		local cachedUnitIds = Details222.UnitIdCache.Raid
+		local cachedRaidUnitIds = Details222.UnitIdCache.Raid
 
 		if (not Details222.storage.IsDebug) then
 			if (guildName) then
 				for i = 1, raidSize do
-					local gName = GetGuildInfo(cachedUnitIds[i]) or ""
+					local gName = GetGuildInfo(cachedRaidUnitIds[i]) or ""
 					if (gName == guildName) then
 						match = match + 1
 					end
@@ -1992,19 +2007,19 @@ print(1)
 		local damageContainer = combat:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
 		local healingContainer = combat:GetContainer(DETAILS_ATTRIBUTE_HEAL)
 
-		print(6, diff)
+		print(6, diffName)
 
 		for i = 1, GetNumGroupMembers() do
-			local role = UnitGroupRolesAssigned(cachedUnitIds[i])
+			local role = UnitGroupRolesAssigned(cachedRaidUnitIds[i])
 
-			if (UnitIsInMyGuild(cachedUnitIds[i])) then
+			if (UnitIsInMyGuild(cachedRaidUnitIds[i])) then
 				if (role == "DAMAGER" or role == "TANK") then
-					local playerName = Details:GetFullName(cachedUnitIds[i])
+					local playerName = Details:GetFullName(cachedRaidUnitIds[i])
 					local _, _, class = Details:GetUnitClassFull(playerName)
 
 					local damagerActor = damageContainer:GetActor(playerName)
 					if (damagerActor) then
-						local guid = UnitGUID(cachedUnitIds[i])
+						local guid = UnitGUID(cachedRaidUnitIds[i])
 
 						---@type details_storage_unitresult
 						local unitResultInfo = {
@@ -2016,12 +2031,12 @@ print(1)
 					end
 
 				elseif (role == "HEALER") then
-					local playerName = Details:GetFullName(cachedUnitIds[i])
+					local playerName = Details:GetFullName(cachedRaidUnitIds[i])
 					local _, _, class = Details:GetUnitClassFull(playerName)
 
 					local healingActor = healingContainer:GetActor(playerName)
 					if (healingActor) then
-						local guid = UnitGUID(cachedUnitIds[i])
+						local guid = UnitGUID(cachedRaidUnitIds[i])
 
 						---@type details_storage_unitresult
 						local unitResultInfo = {
@@ -2035,7 +2050,7 @@ print(1)
 			end
 		end
 
-		print(7, diff)
+		print(7, diffName)
 
 		--add the encounter data
 		tinsert(allEncountersStored, combatResultData)
@@ -2045,7 +2060,7 @@ print(1)
 
 		local playerRole = UnitGroupRolesAssigned("player")
 		---@type details_storage_unitresult, details_encounterkillinfo
-		local bestRank, encounterKillInfo = Details222.storage.GetBestFromPlayer(diff, encounterId, playerRole, Details.playername, true) --get dps or hps
+		local bestRank, encounterKillInfo = Details222.storage.GetBestFromPlayer(diffName, encounterId, playerRole, Details.playername, true) --get dps or hps
 
 		if (bestRank and encounterKillInfo) then
 			local registeredBestTotal = bestRank and bestRank.total or 0
@@ -2086,7 +2101,7 @@ print(1)
 				end
 
 				local raidName = GetInstanceInfo()
-				local func = {Details.OpenRaidHistoryWindow, Details, raidName, encounterId, diff, playerRole, guildName}
+				local func = {Details.OpenRaidHistoryWindow, Details, raidName, encounterId, diffName, playerRole, guildName}
 				local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
 				if (not Details.deny_score_messages) then
 					instanceObject:InstanceAlert(Loc ["STRING_GUILDDAMAGERANK_WINDOWALERT"], icon, Details.update_warning_timeout, func, true)
