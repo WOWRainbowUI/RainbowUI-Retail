@@ -249,7 +249,9 @@ local options = CreateFrame("Frame", ADDON.."Options", InterfaceOptionsFramePane
 UIParent:UnregisterEvent("GLOBAL_MOUSE_DOWN")
 
 options.name = "字體" -- GetAddOnMetadata(ADDON, "Title") or ADDON
-InterfaceOptions_AddCategory(options)
+-- InterfaceOptions_AddCategory(options)
+local category = Settings.RegisterCanvasLayoutCategory(options, options.name)
+Settings.RegisterAddOnCategory(category)
 
 local title = options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormalLarge")
 title:SetPoint("TOPLEFT", 16, -16)
