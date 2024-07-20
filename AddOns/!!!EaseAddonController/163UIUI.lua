@@ -57,7 +57,7 @@ function UUI.TransCfgToDropDown(path, info)
     local pos = path:find("/");
     assert(pos, "parameter #1 should be addon/path!")
     local addon, path = path:sub(1, pos - 1), path:sub(pos + 1)
-    if select(5, GetAddOnInfo(addon)) == "MISSING" and not flagAlways then return end
+    if select(5, C_AddOns.GetAddOnInfo(addon)) == "MISSING" and not flagAlways then return end
     if path == "" then
         info = info or UIDropDownMenu_CreateInfo()
         table.wipe(info);
@@ -73,7 +73,7 @@ function UUI.TransCfgToDropDown(path, info)
         info.tooltipText = nil;
     else
         if (not U1IsAddonInstalled(addon) and not flagAlways) or (not UI163_USER_MODE and not U1IsAddonRegistered(addon)) then return end
-        if not IsAddOnLoaded(addon) and not flagAlways then return end
+        if not C_AddOns.IsAddOnLoaded(addon) and not flagAlways then return end
         if addon == U1Name:lower() and (path == "sortmem" or path == "english") and not UUI():IsVisible() then return end
 
         info = info or UIDropDownMenu_CreateInfo()
@@ -193,7 +193,7 @@ end
 function UUI.ClickAddonCheckBox(self, name, enable, subgroup)
     if(not subgroup and U1GetSelectedAddon()~=name) then U1SelectAddon(name, true) end
     local deepToggleChildren = IsControlKeyDown()
-    if enable and not IsAddOnLoaded(name) then
+    if enable and not C_AddOns.IsAddOnLoaded(name) then
         -- when an addon is loaded manually, load all children unless pressing CTRL+ALT
         deepToggleChildren = not (IsControlKeyDown() and IsAltKeyDown())
     end
@@ -203,7 +203,7 @@ function UUI.ClickAddonCheckBox(self, name, enable, subgroup)
     if info then
         local other_loaded = false
         for _, other in ipairs(info.conflicts or _empty_table) do
-            if IsAddOnLoaded(other) then
+            if C_AddOns.IsAddOnLoaded(other) then
                 EacDisableAddOn(other)
                 other_loaded = true
             end
@@ -264,10 +264,10 @@ function UUI.getAddonStatus(parent, loaded, enabled, reason, lod, protected)
 end
 function UUI.SetAddonTooltipChild(addonName, tip)
     local info = U1GetAddonInfo(addonName);
-    if IsAddOnLoaded(addonName) then
+    if C_AddOns.IsAddOnLoaded(addonName) then
         for subName, subInfo in U1IterateAllAddons() do
             if subInfo.parent == addonName then
-                if (IsAddOnLoaded(subName))then
+                if (C_AddOns.IsAddOnLoaded(subName))then
                     local mem = GetAddOnMemoryUsage(subName);
                     mem = mem > 1000 and format("%.2f MB", mem/1000) or format("%.0f KB", mem)
                     tip:AddDoubleLine(UUI.formatTip(L["Module"],U1GetAddonTitle(subName)), mem, 1,1,1)
@@ -281,10 +281,10 @@ function UUI.SetAddonTooltip(addonName, tip)
     tip = tip or GameTooltip;
     local info = U1GetAddonInfo(addonName);
     
-    local name, title, notes, _, reason = GetAddOnInfo(addonName);
+    local name, title, notes, _, reason = C_AddOns.GetAddOnInfo(addonName);
 	local title = U1GetAddonTitle(addonName, false);
     local enabled = C_AddOns.GetAddOnEnableState(addonName, U1PlayerName)>=2;
-    local loaded = IsAddOnLoaded(name);
+    local loaded = C_AddOns.IsAddOnLoaded(name);
 	local intro;
 
     if(InCombatLockdown()) then
@@ -349,13 +349,13 @@ function UUI.SetAddonTooltip(addonName, tip)
     UUI.SetAddonTooltipChild(addonName, tip)
     if(reasonInfo) then
         tip:AddLine(UUI.formatTip(L["Reason"], reasonInfo), 1, .5, .5)
-        local depNum = select("#", GetAddOnDependencies(name));
+        local depNum = select("#", C_AddOns.GetAddOnDependencies(name));
         if(depNum > 0) then
             for i=1, depNum do
-                local depName = select(i, GetAddOnDependencies(name));
-                local _, _, _, _, depReason = GetAddOnInfo(depName)
+                local depName = select(i, C_AddOns.GetAddOnDependencies(name));
+                local _, _, _, _, depReason = C_AddOns.GetAddOnInfo(depName)
                 local depEnabled = C_AddOns.GetAddOnEnableState(name, U1PlayerName)>=2
-                local status, reasonInfo = UUI.getAddonStatus(nil, IsAddOnLoaded(depName), depEnabled, depReason, IsAddOnLoadOnDemand(depName));
+                local status, reasonInfo = UUI.getAddonStatus(nil, C_AddOns.IsAddOnLoaded(depName), depEnabled, depReason, C_AddOns.IsAddOnLoadOnDemand(depName));
                 tip:AddLine(UUI.formatTip(L["Depends"], depName.." "..(reasonInfo or status)), 1, 1, 1)
             end
         end
@@ -397,7 +397,7 @@ do
 
             -- addon list of current tag
             for addon, info in U1IterateAllAddons() do
-                if(IsAddOnLoaded(addon) and U1AddonHasTag(addon, tag)) then
+                if(C_AddOns.IsAddOnLoaded(addon) and U1AddonHasTag(addon, tag)) then
                     tinsert(order, addon)
                 end
             end
@@ -920,7 +920,7 @@ function UUI.Center.ScrollUpdateOneButton(b, idx)
     if(not info.icon) then
         if(not info.noAddonLoaderLDBIcon) then
             info.noAddonLoaderLDBIcon = true
-            local meta = GetAddOnMetadata(addonName, 'X-LoadOn-LDB-Launcher')
+            local meta = C_AddOns.GetAddOnMetadata(addonName, 'X-LoadOn-LDB-Launcher')
             if(meta) then
                 local texture, brokername = string.split(' ', meta)
                 if(texture) then
@@ -961,7 +961,7 @@ function UUI.Center.ScrollUpdateOneButton(b, idx)
 
         -- distinguish form Disabled and Loaded
         local enabled = U1IsAddonEnabled(addonName)
-        local loaded = IsAddOnLoaded(addonName)
+        local loaded = C_AddOns.IsAddOnLoaded(addonName)
         if loaded or (false and info.lod and enabled) then
             b.text1:SetShadowOffset(2,-2)
             b:GetNormalTexture():SetVertexColor(1,1,1)
@@ -1100,7 +1100,7 @@ function UUI.LoadAddons(deepToggleChildren)
             UUI.Right.ADDON_SELECTED();
             return
         end
-        if(not IsAddOnLoaded(name)) then
+        if(not C_AddOns.IsAddOnLoaded(name)) then
             U1ToggleAddon(name, true, nil, deepToggleChildren)
             used = used + 0.1;
         end
@@ -1117,7 +1117,7 @@ function UUI.Center.BtnLoadAllOnClick(self)
         local info = U1GetAddonInfo(name);
         if (not U1IsAddonEnabled(name) and (info.installed or info.dummy)) then
             if not info.ignoreLoadAll then
-                if not IsAddOnLoaded(name) then
+                if not C_AddOns.IsAddOnLoaded(name) then
                     table.insert(UUI.addonToLoad, name)
                 else
                     U1ToggleAddon(name, true, nil, deepToggleChildren)
@@ -1260,8 +1260,8 @@ function UUI.Right.SetHTML(right, name)
     else
         local info = U1GetAddonInfo(name);
         local title = U1GetAddonTitle(name, false)
-        local name, _, notes, _, reason = GetAddOnInfo(name)
-        local loaded = IsAddOnLoaded(name);
+        local name, _, notes, _, reason = C_AddOns.GetAddOnInfo(name)
+        local loaded = C_AddOns.IsAddOnLoaded(name);
 		local originName, intro, notice, usage, trim;
 
         local desc = info.desc or ""
@@ -1688,8 +1688,10 @@ function UUI.CreateUI()
         CoreScheduleTimer(false, 0.1, self.PLAYER_REGEN_ENABLED, self)
     end
 
-    -- Buttons on GameMenuFrame
-    CoreHookScript(GameMenuFrame, "OnShow", function()
+    -- 遊戲選單的彩虹ui按鈕，待修正
+	-- Buttons on GameMenuFrame
+    --[[
+	CoreHookScript(GameMenuFrame, "OnShow", function()
         GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
         if GameMenuFrame.btn163 then return end
 
@@ -1708,6 +1710,7 @@ function UUI.CreateUI()
         GameMenuButtonAddons:SetPoint("TOP", GameMenuFrame.btn163, "BOTTOM", 0, -1)
         CoreUIEnableTooltip(GameMenuFrame.btn163, L["Ease Addon Controller"], L["Open Ease Addon Controller's main panel"])
     end, true)
+	--]]
 end
 
 --- Create minimap buttons, must be called after DB_LOADED

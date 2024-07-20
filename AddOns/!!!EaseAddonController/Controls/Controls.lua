@@ -170,7 +170,7 @@ local function deepShow(addon, cfg, parent, disabled)
     end
     -- 获取其他插件的保存值, 当在其他插件的界面中修改后能够反应到这里
     -- 支持没有var的配置提供getvalue, 但此时default无意义
-    if(cfg.getvalue and IsAddOnLoaded(addon)) then
+    if(cfg.getvalue and C_AddOns.IsAddOnLoaded(addon)) then
         local success, value = pcall(cfg.getvalue);
         if success then
             if cfg.var then
@@ -203,9 +203,9 @@ end
 
 function CtlShowPage(addon, parent, anchor)
     --[[如果连续两次显示会出bug,只能出此下策，现在用Bucket了
-    if addon == parent._lastPage and GetTime() - (parent._lastTime or 0) < 0.1 and IsAddOnLoaded(addon) == parent._lastStat then return end
+    if addon == parent._lastPage and GetTime() - (parent._lastTime or 0) < 0.1 and C_AddOns.IsAddOnLoaded(addon) == parent._lastStat then return end
     parent._lastPage = addon;
-    parent._lastStat = IsAddOnLoaded(addon);
+    parent._lastStat = C_AddOns.IsAddOnLoaded(addon);
     parent._lastTime = GetTime();
     --]]
 
@@ -217,8 +217,8 @@ function CtlShowPage(addon, parent, anchor)
     --如果有配置页面则生成配置项
     if page then
         for _, cfg in ipairs(page) do
-            --不能用IsAddOnLoaded，因为没load也可以设置选项
-            local disabled = not U1IsAddonEnabled(addon) or (IsAddOnLoaded(addon) and cfg.disableOnLoad) or (not IsAddOnLoaded(addon) and not cfg.enableOnNotLoad) or (p and not U1IsAddonEnabled(p)) or (anchor and not anchor:GetChecked())
+            --不能用C_AddOns.IsAddOnLoaded，因为没load也可以设置选项
+            local disabled = not U1IsAddonEnabled(addon) or (C_AddOns.IsAddOnLoaded(addon) and cfg.disableOnLoad) or (not C_AddOns.IsAddOnLoaded(addon) and not cfg.enableOnNotLoad) or (p and not U1IsAddonEnabled(p)) or (anchor and not anchor:GetChecked())
             if cfg.alwaysEnable then disabled = false end
 			if (cfg.visible == nil or cfg.visible) then
 				deepShow(addon, cfg, parent, disabled); --如果子插件都不能点了(父插件关闭), 自然不显示

@@ -324,7 +324,7 @@ end
 function CoreDependCall(addon, func, ...)
     local func = type(func) == "function" and func or _G[func];
     local func = type(func) == "function" and func or _G[func];
-    if(IsAddOnLoaded(addon) and type(func)=="function") then
+    if(C_AddOns.IsAddOnLoaded(addon) and type(func)=="function") then
         func(...)
     else
         local params = {...}
@@ -445,7 +445,7 @@ end
 
 --- call blizzard /dump
 function dump(...)
-    if not IsAddOnLoaded("Blizzard_DebugTools") then LoadAddOn("Blizzard_DebugTools") end
+    if not C_AddOns.IsAddOnLoaded("Blizzard_DebugTools") then LoadAddOn("Blizzard_DebugTools") end
     DevTools_Dump(...);
 end
 
@@ -480,6 +480,6 @@ function CoreEncodeHTML(s, keepColor)
 end
 
 hooksecurefunc("AddonTooltip_Update", function(owner)
-	local name, title, notes, _, _, security = GetAddOnInfo(owner:GetID());
+	local name, title, notes, _, _, security = C_AddOns.GetAddOnInfo(owner:GetID());
 	if title then AddonTooltip:AddLine(L["Folder"].. ": " .. name) end
 end)

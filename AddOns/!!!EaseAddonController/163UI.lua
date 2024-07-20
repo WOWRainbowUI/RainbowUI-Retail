@@ -49,13 +49,13 @@ local functions
 --- multiple dependencies, remove known AddonPacks
 local knownAddonPacks = { "elvui", "duowan", "bigfoot", "mogu", "ace2", "ace3", "fish!!!" }
 local function getInitialAddonInfo()
-    local x = strchar(33) x={x,x,x,163,"ui",x,x,x} x=table.concat(x); GetNumAddons = strlower(_)==x  --插件名称保护
-    for i = 1, GetNumAddOns() do
-        local name, title, notes, _, reason = GetAddOnInfo(i)
+    local x = strchar(33) x={x,x,x,163,"ui",x,x,x} x=table.concat(x); GetNumAddOns = strlower(_)==x  --插件名称保护
+    for i = 1, C_AddOns.GetNumAddOns() do
+        local name, title, notes, _, reason = C_AddOns.GetAddOnInfo(i)
         title = title:gsub("%|cff880303%[网易有爱%]%|r ", "")
 
-        local realDeps = { GetAddOnDependencies(i) }
-        local realOptDeps = { GetAddOnOptionalDependencies(i) }
+        local realDeps = { C_AddOns.GetAddOnDependencies(i) }
+        local realOptDeps = { C_AddOns.GetAddOnOptionalDependencies(i) }
         for k = 1, #realDeps do realDeps[k] = realDeps[k]:lower() end
         for k = 1, #realOptDeps do realOptDeps[k] = realOptDeps[k]:lower() end
 
@@ -67,7 +67,7 @@ local function getInitialAddonInfo()
         end
         -- GarrisonMissionManager depends on Blizzard, will got an uninstalled parent
         for j=#deps, 1, -1 do
-            if (deps[j]:find("^blizzard_") and select(6, GetAddOnInfo(deps[j]))=="SECURE") then
+            if (deps[j]:find("^blizzard_") and select(6, C_AddOns.GetAddOnInfo(deps[j]))=="SECURE") then
                 tremove(deps, j);
             end
         end
@@ -75,20 +75,20 @@ local function getInitialAddonInfo()
         addonInfo[name:lower()] = {
             name = name,
             title = title or name,
-            author = GetAddOnMetadata(i, "Author"),
-            modifier = GetAddOnMetadata(i, "X-Modifier"),
+            author = C_AddOns.GetAddOnMetadata(i, "Author"),
+            modifier = C_AddOns.GetAddOnMetadata(i, "X-Modifier"),
             parent = deps[1] and deps[1]:lower(),
             realDeps = realDeps,
             realOptDeps = realOptDeps,
             desc = notes,
-			icon = GetAddOnMetadata(i, "IconTexture"),
+			icon = C_AddOns.GetAddOnMetadata(i, "IconTexture"),
 
             installed = i,
-            realLOD = IsAddOnLoadOnDemand(i),
-            lod = IsAddOnLoadOnDemand(i), --- may be override
-            vendor = GetAddOnMetadata(i, "X-Vendor") == "NetEase",
-            version = GetAddOnMetadata(i, "Version"),
-            xcategories = UI163_USE_X_CATEGORIES and GetAddOnMetadata(i, "X-Category"),
+            realLOD = C_AddOns.IsAddOnLoadOnDemand(i),
+            lod = C_AddOns.IsAddOnLoadOnDemand(i), --- may be override
+            vendor = C_AddOns.GetAddOnMetadata(i, "X-Vendor") == "NetEase",
+            version = C_AddOns.GetAddOnMetadata(i, "Version"),
+            xcategories = UI163_USE_X_CATEGORIES and C_AddOns.GetAddOnMetadata(i, "X-Category"),
             originEnabled = C_AddOns.GetAddOnEnableState(i, U1PlayerName)>=2,
         }
 
@@ -516,12 +516,12 @@ end
 function U1GetAddonModsAndMemory(addonName)
     local subNum, subLoaded, mem, subMem = 0, 0, 0, 0
     local info = U1GetAddonInfo(addonName);
-    if IsAddOnLoaded(addonName) then
+    if C_AddOns.IsAddOnLoaded(addonName) then
         mem = GetAddOnMemoryUsage(addonName);
         for subName, subInfo in U1IterateAllAddons() do
             if subInfo.parent == addonName then --and not subInfo.hide then
                 subNum = subNum + 1;
-                --这里可以用IsAddOnLoaded或者U1IsAddonEnabled，还能分别用不同的条件
+                --这里可以用C_AddOns.IsAddOnLoaded或者U1IsAddonEnabled，还能分别用不同的条件
                 if (U1IsAddonEnabled(subName))then
                     subLoaded = subLoaded + 1;
                     subMem = subMem + GetAddOnMemoryUsage(subName);
@@ -990,13 +990,13 @@ function U1LoadAddOn(name, bundleSim)
 end
 
 function U1LoadAddOnBackend(name)
-    if IsAddOnLoaded(name) then return 1 end
+    if C_AddOns.IsAddOnLoaded(name) then return 1 end
     local ii = U1GetAddonInfo(name);
     if not ii then return false, "MISSING" end
 
     if ii.conflicts then
         for _, other in ipairs(ii.conflicts) do
-            if IsAddOnLoaded(other) then
+            if C_AddOns.IsAddOnLoaded(other) then
                 EacDisableAddOn(name)
                 return false, "Cannot be loaded together with -"..U1GetAddonTitle(other)
             end
@@ -1004,7 +1004,7 @@ function U1LoadAddOnBackend(name)
     end
 
     local iip = ii.parent and U1GetAddonInfo(ii.parent);
-    if (ii.parent and not IsAddOnLoaded(ii.parent) and not loadPath[ii.parent]) then
+    if (ii.parent and not C_AddOns.IsAddOnLoaded(ii.parent) and not loadPath[ii.parent]) then
         local loaded = U1LoadAddOnBackend(ii.parent);
         if (not loaded) then
             U1OutputAddonState(format(L["%%s load failed, error loading dependency [%s]"], ii.parent), name, true);
@@ -1015,7 +1015,7 @@ function U1LoadAddOnBackend(name)
         local deps = ii.deps;
         if type(deps) == "string" then deps = { deps }; end
         for _, dep in ipairs(deps) do
-            if not IsAddOnLoaded(dep) and not loadPath[dep] then
+            if not C_AddOns.IsAddOnLoaded(dep) and not loadPath[dep] then
                 if C_AddOns.GetAddOnEnableState(dep, U1PlayerName) < 2 then EacEnableAddOn(dep) end
                 local loaded = U1LoadAddOnBackend(dep);
                 if (not loaded) then
@@ -1029,7 +1029,7 @@ function U1LoadAddOnBackend(name)
     loadPath[name] = 1
     if(ii.optdeps) then
         for _, dep in ipairs(ii.optdeps) do
-            if not loadPath[dep] and not IsAddOnLoaded(dep) and U1IsAddonEnabled(dep) then
+            if not loadPath[dep] and not C_AddOns.IsAddOnLoaded(dep) and U1IsAddonEnabled(dep) then
                 local loaded, reason = U1LoadAddOnBackend(dep);
                 U1OutputAddonLoaded(dep, loaded, reason);
             end
@@ -1061,7 +1061,7 @@ function U1ToggleChildren(name, enabled, noset, deepToggleChildren, bundleSim)
                 if (enabled) then
                     local r2 = U1ToggleAddon(subName, enabled, nil, true, bundleSim);
                     reloadChildren =  reloadChildren or r2;
-                elseif (not enabled and IsAddOnLoaded(subName) and U1IsAddonEnabled(subName)) then
+                elseif (not enabled and C_AddOns.IsAddOnLoaded(subName) and U1IsAddonEnabled(subName)) then
                     local r2 = U1ToggleAddon(subName, enabled, nil, true, bundleSim);
                     reloadChildren =  reloadChildren or r2;
                 end
@@ -1069,7 +1069,7 @@ function U1ToggleChildren(name, enabled, noset, deepToggleChildren, bundleSim)
                 if enabled and U1IsAddonEnabled(subName) then
                     local r2 = U1ToggleAddon(subName, true, "noset", true, bundleSim);
                     reloadChildren =  reloadChildren or r2;
-                elseif not enabled and IsAddOnLoaded(subName) and U1IsAddonEnabled(subName) then
+                elseif not enabled and C_AddOns.IsAddOnLoaded(subName) and U1IsAddonEnabled(subName) then
                     local r2 = U1ToggleAddon(subName, false, "noset", true, bundleSim);
                     reloadChildren =  reloadChildren or r2;
                 end
@@ -1093,7 +1093,7 @@ function U1ToggleAddon(name, enabled, noset, deepToggleChildren, bundleSim)
         if(enabled)then EacEnableAddOn(name); else EacDisableAddOn(name) end
     end
 
-    if(IsAddOnLoaded(name)) then
+    if(C_AddOns.IsAddOnLoaded(name)) then
         if(not enabled)then
             if(info.toggle) then
                 status, reload = pcall(info.toggle, name, info, false);
@@ -1116,7 +1116,7 @@ function U1ToggleAddon(name, enabled, noset, deepToggleChildren, bundleSim)
 
     else
         if(enabled)then
-            if(not info.lod or info.loadWith and IsAddOnLoaded(info.loadWith))then
+            if(not info.lod or info.loadWith and C_AddOns.IsAddOnLoaded(info.loadWith))then
                 local loaded, reason = U1LoadAddOn(name, true);
                 if not noset then U1OutputAddonLoaded(name, loaded, reason); end
             else
@@ -1182,7 +1182,7 @@ local function loadNormalCfgs(asap, afterVar, afterLogin)
     end
 end
 
---- add "Options" button if addon called InterfaceOptions_AddCategory
+--- add "Options" button if addon called Settings.RegisterAddOnCategory
 do
     local gotOptionCategory = {}
     local funcOpenCategory = function(cfg, v, loading)
@@ -1193,7 +1193,7 @@ do
         end
     end
     local exclude = { ["!!!163ui!!!"] = 1, ["ace-3.0"] = 1 }
-    hooksecurefunc("InterfaceOptions_AddCategory", function(frm)
+    hooksecurefunc(Settings, "RegisterAddOnCategory", function(frm)
         if frm.name and frm.parent==nil then
             local stack = debugstack()
             stack = stack:lower()
@@ -1336,7 +1336,7 @@ function U1:ADDON_LOADED(event, name)
         db.enteredWorld = nil;
 
         local saveState = function(name, value)
-            name = GetAddOnInfo(name);
+            name = C_AddOns.GetAddOnInfo(name);
             if not name then return end
             name = name:lower();
             if (db.addons[name]) then
@@ -1387,7 +1387,7 @@ local function EnableOrLoad(name, info, realDeps, realOpts, loaded)
     --print("EnableOrLoad", name)
     if not name or not info then return end
     name = name:lower()
-    if IsAddOnLoaded(name) or loaded[name] then return end
+    if C_AddOns.IsAddOnLoaded(name) or loaded[name] then return end
     if loaded[name] then return end
 
     --- EnableAddOn in ADDON_LOADED, will be load by Blizzard, with dependencies honored
@@ -1456,7 +1456,7 @@ function U1:PLAYER_LOGOUT(event)
     if(not self.PROFILE_CHANGED) then
         for addon, info in U1IterateAllAddons() do
             local page = U1GetPage(addon)
-            if(page and IsAddOnLoaded(addon)) then
+            if(page and C_AddOns.IsAddOnLoaded(addon)) then
                 for _, cfg in ipairs(page) do
                     pcall(deepSave, cfg)
                 end

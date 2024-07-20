@@ -352,7 +352,7 @@ CoreDependCall("Blizzard_BindingUI", function()
 end)
 
 function CoreUIShowKeyBindingFrame(scrollTo)
-    if not IsAddOnLoaded("Blizzard_BindingUI") then KeyBindingFrame_LoadUI(); end
+    if not C_AddOns.IsAddOnLoaded("Blizzard_BindingUI") then KeyBindingFrame_LoadUI(); end
 
     if ( scrollTo == nil ) then
         ShowUIPanel(KeyBindingFrame);
