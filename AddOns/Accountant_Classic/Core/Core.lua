@@ -73,7 +73,7 @@ addon.constants = private.constants
 addon.constants.addon_name = private.addon_name
 addon.Name = FOLDER_NAME
 -- addon.LocName = select(2, GetAddOnInfo(addon.Name))
-addon.Notes = select(3, GetAddOnInfo(addon.Name))
+addon.Notes = select(3, C_AddOns.GetAddOnInfo(addon.Name))
 _G.Accountant_Classic = addon
 
 -- UIDropDownMenu
@@ -92,7 +92,7 @@ if ( TitanPanelButton_UpdateButton ) then
 	TitanPanelButton_UpdateButton(private.addon_name);
 end
 
-local AccountantClassic_Version = GetAddOnMetadata(private.addon_name, "Version");
+local AccountantClassic_Version = C_AddOns.GetAddOnMetadata(private.addon_name, "Version");
 --AccountantClassic_Disabled = false;
 -- NewDB
 local AC_NewDB = false

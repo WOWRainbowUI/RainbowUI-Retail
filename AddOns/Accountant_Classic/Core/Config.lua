@@ -377,12 +377,13 @@ end
 
 function addon:OpenOptions() 
 	-- open the profiles tab before, so the menu expands
-	InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
-	InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
-	InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.General)
-	if InterfaceOptionsFrame then
-		InterfaceOptionsFrame:Raise()
-	end
+	-- InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
+	-- InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
+	-- InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.General)
+	-- if InterfaceOptionsFrame then
+	--	InterfaceOptionsFrame:Raise()
+	-- end
+	Settings.OpenToCategory(L["Accountant Classic"])
 end
 
 local function giveProfiles()
