@@ -251,6 +251,7 @@ UIParent:UnregisterEvent("GLOBAL_MOUSE_DOWN")
 options.name = "字體" -- GetAddOnMetadata(ADDON, "Title") or ADDON
 -- InterfaceOptions_AddCategory(options)
 local category = Settings.RegisterCanvasLayoutCategory(options, options.name)
+category.ID = options.name
 Settings.RegisterAddOnCategory(category)
 
 local title = options:CreateFontString("$parentTitle", "ARTWORK", "GameFontNormalLarge")
