@@ -256,15 +256,14 @@ do
 	setjournal:SetPoint("TOPLEFT", encounterjournal, "BOTTOMLEFT", 0, -4)
 
     -- InterfaceOptions_AddCategory(panel)
-	local category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
-	category.ID = panel.name
-	Settings.RegisterAddOnCategory(category)
+	category = Settings.GetCategory(panel.parent)
+	local subcategory = Settings.RegisterCanvasLayoutSubcategory(category, panel, panel.name)
 end
 
 -- Slash handler
 SlashCmdList.APPEARANCETOOLTIP = function(msg)
     -- InterfaceOptionsFrame_OpenToCategory("塑形預覽")
-    Settings.OpenToCategory(myname)("塑形預覽")
+    Settings.OpenToCategory("塑形預覽")
 end
 SLASH_APPEARANCETOOLTIP1 = "/appearancetooltip"
 SLASH_APPEARANCETOOLTIP2 = "/aptip"
