@@ -1,13 +1,0 @@
-## Interface: 100207## IconTexture: 982414
-
-## Title: AdiBags - Filter for low level items
-## Notes: Adds low level filters to AdiBags.
-## Title-zhTW: |cffB973CC[背包]|r Adi 背包分類-低等級
-## Notes-zhTW: AdiBags - Filter for low level items |n|n新增 "低等級" 分類，把低等級的物品收納在一起。
-## X-Category-zhTW: 物品
-## Author: seirl
-## Version: 0.5
-
-## Dependencies: AdiBags
-
-AdiBags_Lowlevel.lua
