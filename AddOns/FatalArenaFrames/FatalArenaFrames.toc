@@ -1,4 +1,4 @@
-## Interface: 100207
+## Interface: 110000
 ## Title: FatalArenaFrames
 ## Notes: Hides enemy frames in arena
 ## Author: Fatal
