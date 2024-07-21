@@ -161,6 +161,12 @@ local frames = {
 	["ClassTalentFrame"] = {
 		DriftDisabledBy = "windowsDisabled",
 	},
+	["PlayerSpellsFrame"] = {
+		DriftDisabledBy = "windowsDisabled",
+	},
+	["ProfessionsBookFrame"] = {
+		DriftDisabledBy = "windowsDisabled",
+	},
 	["AchievementFrame"] = {
 		DriftDisabledBy = "windowsDisabled",
 	},

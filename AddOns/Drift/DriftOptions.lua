@@ -92,7 +92,10 @@ function DriftHelpers:SetupConfig()
 	driftOptionsTitle:SetFontObject("GameFontNormalLarge")
 	driftOptionsTitle:SetText("移動和縮放視窗")
 	driftOptionsTitle:SetPoint("TOPLEFT", DriftOptionsPanel.optionspanel, "TOPLEFT", 15, -15)
-	InterfaceOptions_AddCategory(DriftOptionsPanel.optionspanel)
+	-- InterfaceOptions_AddCategory(DriftOptionsPanel.optionspanel)
+	local category = Settings.RegisterCanvasLayoutCategory(DriftOptionsPanel.optionspanel, DriftOptionsPanel.optionspanel.name)
+	category.ID = DriftOptionsPanel.optionspanel.name
+	Settings.RegisterAddOnCategory(category)
 
 	-- Frame Dragging
 	local lockMoveTitle = DriftOptionsPanel.optionspanel:CreateFontString(nil, "BACKGROUND")
@@ -341,7 +344,7 @@ function DriftHelpers:SetupConfig()
 
 	local driftOptionsVersionContent = DriftOptionsPanel.optionspanel:CreateFontString(nil, "BACKGROUND")
 	driftOptionsVersionContent:SetFontObject("GameFontHighlight")
-	driftOptionsVersionContent:SetText(GetAddOnMetadata("Drift", "Version"))
+	driftOptionsVersionContent:SetText(C_AddOns.GetAddOnMetadata("Drift", "Version"))
 	driftOptionsVersionContent:SetJustifyH("LEFT")
 	driftOptionsVersionContent:SetPoint("BOTTOMLEFT", DriftOptionsPanel.optionspanel, "BOTTOMLEFT", 70, 30)
 

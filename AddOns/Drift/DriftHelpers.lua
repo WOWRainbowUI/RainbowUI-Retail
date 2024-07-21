@@ -722,7 +722,7 @@ function DriftHelpers:FixFramesForElvUIRetail()
 		return
 	end
 
-	if not IsAddOnLoaded("ElvUI") then
+	if not C_AddOns.IsAddOnLoaded("ElvUI") then
 		return
 	end
 
@@ -851,7 +851,7 @@ function DriftHelpers:FixTradeSkillMaster()
 		return
 	end
 
-	if not IsAddOnLoaded("TradeSkillMaster") then
+	if not C_AddOns.IsAddOnLoaded("TradeSkillMaster") then
 		return
 	end
 
