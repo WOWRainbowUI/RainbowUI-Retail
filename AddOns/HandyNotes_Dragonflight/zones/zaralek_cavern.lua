@@ -16,6 +16,7 @@ local AncientStone = ns.node.AncientStone
 local Dragonglyph = ns.node.Dragonglyph
 local PT = ns.node.ProfessionTreasures
 local ElusiveCreature = ns.node.ElusiveCreature
+local WarSupply = ns.node.WarSupply
 
 local Achievement = ns.reward.Achievement
 local Currency = ns.reward.Currency
@@ -747,6 +748,18 @@ map.nodes[62906990] = SmellyTreasureChest()
 map.nodes[65205530] = SmellyTreasureChest()
 
 -------------------------------------------------------------------------------
+------------------------------ WAR SUPPLY CHESTS ------------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[41903760] = WarSupply({fgroup = 'supply_zaralek_cavern'})
+map.nodes[44502840] = WarSupply({fgroup = 'supply_zaralek_cavern'})
+map.nodes[46205880] = WarSupply({fgroup = 'supply_zaralek_cavern'})
+map.nodes[47104430] = WarSupply({fgroup = 'supply_zaralek_cavern'})
+map.nodes[48501800] = WarSupply({fgroup = 'supply_zaralek_cavern'})
+map.nodes[53904130] = WarSupply({fgroup = 'supply_zaralek_cavern'})
+map.nodes[57906610] = WarSupply({fgroup = 'supply_zaralek_cavern'})
+
+-------------------------------------------------------------------------------
 --------------------------------- BATTLE PETS ---------------------------------
 -------------------------------------------------------------------------------
 
@@ -1122,6 +1135,34 @@ map.nodes[44458040] = Collectible({
 }) -- Grogul <Race Coordinator>
 
 -------------------------------------------------------------------------------
+---------------------------------- CLUED IN -----------------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[40995057] = ns.node.CluedIn({
+    label = L['djaradin_scroll'], -- Djaradin Scroll
+    quest = 76734 -- Research: Djaradin of Zaralek Cavern
+})
+
+map.nodes[40894160] = ns.node.CluedIn({
+    label = L['forgotten_incense'], -- Forgotten Incense
+    quest = 76734,
+    location = L['forgotten_incense_note']
+})
+
+map.nodes[41844525] = ns.node.CluedIn({
+    label = L['historied_heirloom'], -- Historied Heirloom
+    quest = 76734
+})
+
+-------------------------------------------------------------------------------
+-------------------------------- GOGGLE WOBBLE --------------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[38134985] = ns.node.GoggleWobble({
+    rewards = {Achievement({id = 19791, criteria = 65404})}
+})
+
+-------------------------------------------------------------------------------
 -------------------------------- MISCELLANEOUS --------------------------------
 -------------------------------------------------------------------------------
 
@@ -1342,3 +1383,63 @@ map.nodes[58085381] = Vendor({
         Mount({item = 205209, id = 1736, count = 170}) -- Boulder Hauler
     }
 }) -- Ponzo <Barterer Extraordinaire>
+
+-------------------------------------------------------------------------------
+-------------------- TO ALL THE SQUIRRELS BURROWED BENEATH --------------------
+-------------------------------------------------------------------------------
+
+local Squirrel = Class('Squirrel', Collectible, {
+    group = ns.groups.ZARALEK_SQUIRRELS,
+    icon = 237182,
+    note = L['squirrels_note']
+})
+
+map.nodes[58457422] = Squirrel({
+    id = 201124,
+    rewards = {Achievement({id = 18361, criteria = 1})}
+}) -- Hissing Dustmoth
+
+map.nodes[58247305] = Squirrel({
+    id = 201120,
+    rewards = {Achievement({id = 18361, criteria = 2})}
+}) -- Pygmy Dawdler
+
+map.nodes[37967107] = Squirrel({
+    id = 200997,
+    rewards = {Achievement({id = 18361, criteria = 3})}
+}) -- Rock Martin
+
+map.nodes[50167670] = Squirrel({
+    id = 204780,
+    rewards = {Achievement({id = 18361, criteria = 4})}
+}) -- Skittering Pincher
+
+map.nodes[52047521] = Squirrel({
+    id = 204785,
+    rewards = {Achievement({id = 18361, criteria = 5})}
+}) -- Hatchling Dawdler
+
+map.nodes[44917771] = Squirrel({
+    id = 201875,
+    rewards = {Achievement({id = 18361, criteria = 6})}
+}) -- Aimless Snail
+
+map.nodes[36405417] = Squirrel({
+    id = 204801,
+    rewards = {Achievement({id = 18361, criteria = 7})}
+}) -- Incense Cinder
+
+map.nodes[36515305] = Squirrel({
+    id = 204802,
+    rewards = {Achievement({id = 18361, criteria = 8})}
+}) -- Magma Bubble
+
+map.nodes[32155111] = Squirrel({
+    id = 202720,
+    rewards = {Achievement({id = 18361, criteria = 9})}
+}) -- Phoenix Hatchling
+
+map.nodes[50036469] = Squirrel({
+    id = 205213,
+    rewards = {Achievement({id = 18361, criteria = 10})}
+}) -- Scuttering Beetle
