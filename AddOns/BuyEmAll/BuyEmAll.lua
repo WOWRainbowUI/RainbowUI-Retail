@@ -109,8 +109,8 @@ end
 
 function BuyEmAll:GetFreeBagSpace(itemID)
     local canFit = 0;
-    local itemType = GetItemFamily(itemID);
-    local stackSize = select(8, GetItemInfo(itemID));
+    local itemType = C_Item.GetItemFamily(itemID);
+    local stackSize = select(8, C_Item.GetItemInfo(itemID));
 
     for currentBag = 0, 4 do
         local freeSpace, bagType = C_Container.GetContainerNumFreeSlots(currentBag);

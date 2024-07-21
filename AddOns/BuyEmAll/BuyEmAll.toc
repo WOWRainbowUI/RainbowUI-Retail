@@ -1,11 +1,11 @@
-## Interface: 100207
+## Interface: 100207, 110000
 ## Author: Jordy141
 ## Notes: Enhances shift-click interface at vendors, making it easier to buy large amounts of items at once.
 ## Title: BuyEmAll
 ## Title-zhTW: |cffFFFF99[商人]|r 大量購買
 ## Notes-zhTW: BuyEmAll |n|n在商人視窗按 Shift+左鍵 點擊物品可一次購買多個數量。
 ## X-Category-zhTW: 交易
-## Version: 3.5.17
+## Version: 3.5.17 Fix
 ## SavedVariablesPerCharacter: BEAConfirmToggle
 ## LoadManagers: AddonLoader
 ## IconTexture: 132763
