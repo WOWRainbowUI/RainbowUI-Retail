@@ -20,5 +20,7 @@ for _, events in ipairs(ActionBarAnimationEvents) do
 end
 
 hooksecurefunc("CooldownFrame_Set", function(self)
-	self:SetEdgeTexture("Interface\\Cooldown\\edge")
+	if not self:IsForbidden() then
+		self:SetEdgeTexture("Interface\\Cooldown\\edge")
+	end
 end)
