@@ -1,6 +1,5 @@
 local GatherMate = LibStub("AceAddon-3.0"):GetAddon("GatherMate2")
 local Config = GatherMate:NewModule("Config","AceEvent-3.0")
-local Display = GatherMate:GetModule("Display")
 local L = LibStub("AceLocale-3.0"):GetLocale("GatherMate2", false)
 
 -- Databroker support
@@ -1016,8 +1015,8 @@ importOptions.args.GatherMateData = {
 	name = "GatherMate2Data", -- addon name to import from, don't localize
 	handler = ImportHelper,
 	disabled = function()
-		local name, title, notes, loadable, reason, security, newVersion = GetAddOnInfo("GatherMate2_Data")
-		local enabled = GetAddOnEnableState(UnitName("player"), "GatherMate2_Data") > 0
+		local name, title, notes, loadable, reason, security, newVersion = C_AddOns.GetAddOnInfo("GatherMate2_Data")
+		local enabled = C_AddOns.GetAddOnEnableState(UnitName("player"), "GatherMate2_Data") > 0
 		-- disable if the addon is not enabled, or
 		-- disable if there is a reason why it can't be loaded ("MISSING" or "DISABLED")
 		return not enabled or (reason ~= nil and reason ~= "" and reason ~= "DEMAND_LOADED")
@@ -1185,9 +1184,7 @@ function Config:OnInitialize()
 	acd:AddToBlizOptions("GM2/FAQ", "FAQ", L["GatherMate 2"])
 
 	local function openOptions()
-		InterfaceOptionsFrame_OpenToCategory(L["GatherMate 2"])
-		InterfaceOptionsFrame_OpenToCategory(L["Import"])
-		InterfaceOptionsFrame_OpenToCategory(L["GatherMate 2"])
+		Settings.OpenToCategory(L["GatherMate 2"])
 	end
 
 	SLASH_GatherMate21 = "/gathermate"
@@ -1237,7 +1234,7 @@ end
 
 function Config:CheckAutoImport()
 	for k,v in pairs(db.importers) do
-		local verline = GetAddOnMetadata(k, "X-Generated-Version")
+		local verline = C_AddOns.GetAddOnMetadata(k, "X-Generated-Version")
 		if verline and v["autoImport"] then
 			local dataVersion = tonumber(verline:match("%d+"))
 			if dataVersion and dataVersion > v["lastImport"] then
