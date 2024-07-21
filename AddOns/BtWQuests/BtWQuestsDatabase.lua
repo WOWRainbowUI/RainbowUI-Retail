@@ -1381,8 +1381,10 @@ function ExpansionMixin:SetAutoLoad(value)
 end
 function ExpansionMixin:Load()
     wipe(self.database.questCache);
-    for addon in pairs(self.addons) do
-        LoadAddOn(addon)
+    if self.addons then
+        for addon in pairs(self.addons) do
+            LoadAddOn(addon)
+        end
     end
 end
 
@@ -2188,7 +2190,7 @@ function ExperienceItemMixin:GetName(database, item, character)
     return format(GAIN_EXPERIENCE, math.floor(amount * modifier + .5))
 end
 function ExperienceItemMixin:Visible(database, item, character)
-    return character:GetLevel() < MAX_PLAYER_LEVEL
+    return character:GetLevel() < GetMaxLevelForPlayerExpansion()
 end
 function ExperienceItemMixin:IsActive(database, item, character)
     return true

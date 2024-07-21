@@ -5,6 +5,7 @@ if GetLocale() ~= "zhCN" then
 end
 
 local L = BtWQuests.L
+L["ACCOUNT_BOUND_SETTINGS"] = "账号共用设置"
 L["ALLIANCE_ZONES"] = "联盟区域"
 L["BTWQUESTS_ACTIVE"] = "可接"
 L["BTWQUESTS_ALLIED_RACE"] = "同盟种族"

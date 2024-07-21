@@ -29,7 +29,8 @@ end
 
 -- [[ Chain ]]
 function BtWQuestsChainItemPool_HideAndClearAnchors(framePool, frame)
-    FramePool_HideAndClearAnchors(framePool, frame)
+	frame:Hide();
+	frame:ClearAllPoints();
 
     frame.linePool:ReleaseAll()
 
