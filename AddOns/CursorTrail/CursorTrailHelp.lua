@@ -1,5 +1,4 @@
 --[[---------------------------------------------------------------------------
-    Addon:  CursorTrail
     File:   CursorTrailHelp.lua
     Desc:   Functions and variables for showing this addon's help text.
 -----------------------------------------------------------------------------]]
@@ -12,7 +11,7 @@ local kAddonFolderName, private = ...
 
 local Globals = _G
 local _  -- Prevent tainting global _ .
-local GetAddOnMetadata = _G.GetAddOnMetadata
+local GetAddOnMetadata = C_AddOns.GetAddOnMetadata
 local print = _G.print
 local UNKNOWN = _G.UNKNOWN  -- Translated word for "Unknown".
 
@@ -57,6 +56,16 @@ kHelpText_Options = [[
 * 用滑鼠控制視角時要顯示: 啟用時，游標效果在使用滑鼠環顧四周時仍會保持可見。
 
 * 預設值：每個預設值都有不同的預設選項。可以將它們作為自己效果的起點。要儲存一個預設值，請從設定檔選單中選擇 "另存新檔"。
+]]
+
+kHelpText_Tips = [[
+- 滑鼠滾輪可以用來更改滑鼠指向的選項。
+
+- 上/下箭頭鍵可以用來更改焦點所在的選項。
+
+- 右鍵點擊設定檔名稱是一種快速保存的方法。
+
+- 右鍵點擊大多數選項會設為預設值。
 ]]
 
 kHelpText_SlashCommands = [[
@@ -119,6 +128,7 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
 
     if not HelpFrame then
         HelpFrame = private.UDControls.CreateTextScrollFrame(parent, "*** "..kAddonFolderName.." Help ***", 750)
+        HelpFrame:Hide()
         HelpFrame.topicOffsets = {}
         scrollDelaySecs = 0.1  -- Required so this newly created window has its scrollbar update correctly.
 
@@ -153,6 +163,12 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         HelpFrame:AddText(ORANGE.."選項", 0, topMargin, bigFont)
         HelpFrame:AddText(kHelpText_Options, 0, lineSpacing, smallFont)
         ----HelpFrame:AddText(BLUE.."\nTIP:|r You can use the mouse wheel or Up/Down keys to change values.", 0, lineSpacing, smallFont)
+        HelpFrame:AddText(" ", 0, lineSpacing, smallFont)
+
+        -- TIPS:
+        HelpFrame.topicOffsets["TIPS"] = HelpFrame:GetNextVerticalPosition() -12
+        HelpFrame:AddText(ORANGE.."小提示", 0, 0, bigFont)
+        HelpFrame:AddText(kHelpText_Tips, 0, lineSpacing, smallFont)
         HelpFrame:AddText(" ", 0, lineSpacing, smallFont)
 
         -- SLASH COMMANDS:
@@ -206,6 +222,14 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         HelpFrame:RegisterForDrag("LeftButton")
         HelpFrame:SetScript("OnDragStart", function() HelpFrame:StartMoving() end)
         HelpFrame:SetScript("OnDragStop", function() HelpFrame:StopMovingOrSizing() end)
+
+        -- EVENTS --
+        HelpFrame:SetScript("OnShow", function(self)
+                Globals.PlaySound(829)  -- IG_SPELLBOOK_OPEN
+            end)
+        HelpFrame:SetScript("OnHide", function(self) 
+                Globals.PlaySound(830)  -- IG_SPELLBOOK_CLOSE
+            end) 
     end
 
     -- Scroll to top, or to specified topic.
@@ -225,7 +249,11 @@ end
 
 -------------------------------------------------------------------------------
 function CursorTrail_HideHelp()
-    if HelpFrame then HelpFrame:Hide() end
+    if HelpFrame and HelpFrame:IsShown() then
+        HelpFrame:Hide()
+        return true
+    end
+    return false
 end
 
 --- End of File ---

@@ -1,5 +1,4 @@
 --[[---------------------------------------------------------------------------
-    Addon:  CursorTrail
     File:   CursorTrail.lua
     Desc:   This file contains the core implementation for this addon.
 -----------------------------------------------------------------------------]]
@@ -21,6 +20,7 @@ local Globals = _G
 local _  -- Prevent tainting global _ .
 local abs = _G.math.abs
 local assert = _G.assert
+local C_Timer = _G.C_Timer
 local ColorPickerFrame = _G.ColorPickerFrame
 local CopyTable = _G.CopyTable
 local CreateFrame = _G.CreateFrame
@@ -28,11 +28,11 @@ local CreateVector3D = _G.CreateVector3D
 local DEFAULT_CHAT_FRAME = _G.DEFAULT_CHAT_FRAME
 local DoesAncestryInclude = _G.DoesAncestryInclude
 local floor = _G.floor
-local GetAddOnMetadata = _G.GetAddOnMetadata
+local GetAddOnMetadata = C_AddOns.GetAddOnMetadata
 local GetBuildInfo = _G.GetBuildInfo
 local GetCursorPosition = _G.GetCursorPosition
 local GetCVar = _G.GetCVar
-local GetMouseFocus = _G.GetMouseFocus
+-- local GetMouseFocus = _G.GetMouseFocus
 local GetTime = _G.GetTime
 local geterrorhandler = _G.geterrorhandler
 local ipairs = _G.ipairs
@@ -44,6 +44,7 @@ local min =_G.math.min
 local next = _G.next
 local pairs = _G.pairs
 local print = _G.print
+local rad = _G.rad
 local random = _G.math.random
 local select = _G.select
 local string = _G.string
@@ -116,8 +117,8 @@ kAddonErrorHeading = RED2.."[ERROR] "..kAddonHeading
 kAddonAlertHeading = ORANGE.."<"..YELLOW..kAddonFolderName..ORANGE.."> "..kTextColorDefault
 
 kFrameLevel = 32
-kDefaultShadowSize = 72
-kDefaultShapeSize = kDefaultShadowSize - 18
+kDefaultShadowSize = 51
+kDefaultShapeSize = math.floor( (kDefaultShadowSize*0.74) + 0.5 )
 
 kScreenTopFourthMult = 1.015
 kScreenBottomFourthMult = 1.077
@@ -125,9 +126,13 @@ kScreenBottomFourthMult = 1.077
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 kNewFeatures =  -- For flagging new features in the UI.
 {
-    -- Added in version 10.2.7.2 ...
-    {anchor="BOTTOM", relativeTo="ProfilesUI.mainFrame.title", relativeAnchor="TOP", x=0, y=0}, --(Profiles GroupBox)
-    {anchor="BOTTOM", relativeTo="DefaultsBtn", relativeAnchor="TOP", x=0, y=0},  --(Defaults Button)
+    -- Added in version 10.1.7.4 ...
+    {anchor="TOP", relativeTo="ChangelogBtn", relativeAnchor="BOTTOM", x=0, y=3},
+
+--~ Disabled this notification in 10.2.7.4 ...
+--~     -- Added in version 10.2.7.2 ...
+--~     {anchor="BOTTOM", relativeTo="ProfilesUI.mainFrame.title", relativeAnchor="TOP", x=0, y=0}, --(Profiles GroupBox)
+--~     {anchor="BOTTOM", relativeTo="DefaultsBtn", relativeAnchor="TOP", x=0, y=0},  --(Defaults Button)
 
 --~ Disabled this notification in 10.2.7.1 ...
 --~     -- Added in version 10.1.7.2 ...
@@ -145,18 +150,29 @@ kNewFeatures =  -- For flagging new features in the UI.
 --~     {anchor="RIGHT", relativeTo="MouseLookCheckbox", relativeAnchor="LEFT", x=-2, y=2},
 --~     {anchor="BOTTOM", relativeTo="HelpBtn", relativeAnchor="TOP", x=0, y=-1},
 }
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+kNewModels =  -- For flagging new models in the dropdown list.
+{
+--~ Disabled this notification in 10.2.7.4 ...
+--~     -- Added in version 10.2.7.3 ...
+--~     [667272]=1, [1414694]=1, [963808]=1, [667272]=1, [519019]=1, [1029302]=1,
+--~     [1366901]=1, [4497548]=1, [1513210]=1, [1513212]=1, [5149867]=1, [4507709]=1,
+--~     [165595]=1, [166029]=1, [1121854]=1, [166159]=1, [166294]=1, [166640]=1,
+--~     [166054]=1, [166594]=1, [166453]=1, [166316]=1, [166334]=1, [166338]=1,
+--~     [166543]=1, [166566]=1,
+}
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 --[[                       Switches                                          ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-kEditBaseValues = false -- Set to true so arrow keys change base offsets and step size while UI is up.  (Developers only!)
+----kEditBaseValues = true  -- Set to true so arrow keys change base offsets and step size while UI is up.  (Developers only!)
                         -- Arrow keys (no modifier key) change BaseOfsX and BaseOfsY.
                         -- Alt causes arrow keys to change BaseStepX and BaseStepY.
                         -- Shift decrease the amount of change each arrow key press.
                         -- Ctrl increase the amount of change each arrow key press.
                         -- When done, type "/ct model" to dump all values (BEFORE CLOSING THE UI).
-kShadowStrataMatchesMain = false  -- Set to true if you want shadow at same level as the trail effect.
+----kShadowStrataMatchesMain = true  -- Set to true if you want shadow at same level as the trail effect.
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 --[[                       Variables                                         ]]
@@ -203,7 +219,7 @@ function getScreenScaledSize()
 end
 
 -------------------------------------------------------------------------------
-function updateScaleVars()
+function updateScreenVars()
     local oldW, oldH, oldScale = ScreenW, ScreenH, ScreenScale
     ScreenW, ScreenH, ScreenMidX, ScreenMidY, ScreenScale, ScreenHypotenuse = getScreenScaledSize()
     ScreenFourthH = ScreenH * 0.25  -- 1/4th screen height.
@@ -280,23 +296,25 @@ Globals.SlashCmdList[kAddonFolderName] = function (params)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "reset" then
         ----if Calibrating then Calibrating_DoNextStep("abort") end
-        if OptionsFrame:IsShown() then OptionsFrame:Hide() end
+        if OptionsFrame and OptionsFrame:IsShown() then OptionsFrame:Hide() end
         PlayerConfig_SetDefaults()
         CursorTrail_Load()
         CursorTrail_ON()
-        OptionsFrame.ProfilesUI.clearProfileName()  -- Avoids overwriting current profile name with default values.
+        if OptionsFrame and OptionsFrame.ProfilesUI then
+            OptionsFrame.ProfilesUI.clearProfileName()  -- Avoids overwriting current profile name with default values.
+        end
         printMsg("鼠之軌跡: 重置為原本的設定。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "reload" then
-        if OptionsFrame:IsShown() then OptionsFrame:Hide() end
-        updateScaleVars()
+        if OptionsFrame and OptionsFrame:IsShown() then OptionsFrame:Hide() end
+        updateScreenVars()
         CursorTrail_Load()
         CursorTrail_ON()
         ----if OptionsFrame:IsShown() then OptionsFrame_UpdateUI(PlayerConfig) end
         printMsg("鼠之軌跡: 已重新載入設定。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "resetnewfeatures" then  -- For development use.
-        if OptionsFrame:IsShown() then OptionsFrame:Hide() end
+        if OptionsFrame and OptionsFrame:IsShown() then OptionsFrame:Hide() end
         Globals.CursorTrail_Config.NewFeaturesSeen = {}
         printMsg("鼠之軌跡: 重置新功能通知。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -493,8 +511,7 @@ Globals.SlashCmdList[kAddonFolderName] = function (params)
 --~         ----Globals.DevTools_Dump(importedData)
 --~         ----Globals.ViragDevTool_AddData(importedData, "importedData")
 --~         vdt_dump(importedData, "importedData")
-
-        print(kAddonHeading.."Test DONE.")
+--~         print(kAddonHeading.."Test DONE.")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif not HandleToolSwitches(params) then
         printMsg("鼠之軌跡"..": 無效的指令 ("..params..").")
@@ -541,8 +558,8 @@ end
 --~ function       EventFrame:CVAR_UPDATE(varName, varValue)
 --~     ----dbg("CVAR_UPDATE("..(varName or "nil")..", "..(varValue or "nil")..")")
 --~     if (varName and varName == "uiScale") then
---~         ----dbg("*** Calling updateScaleVars() ***")
---~         updateScaleVars()
+--~         ----dbg("*** Calling updateScreenVars() ***")
+--~         updateScreenVars()
 --~     end
 --~ end
 
@@ -560,34 +577,28 @@ end
 EventFrame:RegisterEvent("UI_SCALE_CHANGED")
 function       EventFrame:UI_SCALE_CHANGED()
     ----dbg("UI_SCALE_CHANGED")
-    updateScaleVars()
+    updateScreenVars()
     if CursorModel then
         CursorTrail_Load()  -- Reload the cursor model to apply the new UI scale.
     end
+    if centerFrame then  -- This is a development tool for sizing shapes and models.
+        centerFrame:updateSize()
+    end
 end
 
---~ -------------------------------------------------------------------------------
---~ function reportError20240522()  -- TODO:Remove in next release.
---~     if CursorTrail_Error20240522 then return end  -- Prevent spamming this error.
---~     CursorTrail_Error20240522 = true
---~     print(kAddonErrorHeading, "Unexpected call to DISPLAY_SIZE_CHANGED.  Please report this on"
---~         .. "|cff44BBFF www.curseforge.com/wow/addons/cursortrail|r and mention your game's display resolution.")
---~ end
---~ -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~ EventFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
---~ function       EventFrame:DISPLAY_SIZE_CHANGED()
---~     ----dbg("DISPLAY_SIZE_CHANGED")
---~     if updateScaleVars() and CursorModel then
---~         reportError20240522() -- TODO:Remove. (Added to see if users see it. If so, it means DISPLAY_SIZE_CHANGED can fire without UI_SCALE_CHANGED firing first.  Uncomment next lines if it does.)
---~ ---->>> TODO: Uncomment?  Potential fix for ultrawide monitors.
---~ ----        CursorTrail_Load()  -- Reload the cursor model to apply the new display size.
---~     end
---~ end
+-------------------------------------------------------------------------------
+EventFrame:RegisterEvent("DISPLAY_SIZE_CHANGED")
+function       EventFrame:DISPLAY_SIZE_CHANGED()
+    ----dbg("DISPLAY_SIZE_CHANGED")
+    if updateScreenVars() and CursorModel then
+        CursorTrail_Load()  -- Reload the cursor model to apply the new display size.
+    end
+end
 
 -------------------------------------------------------------------------------
 EventFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 function       EventFrame:LOADING_SCREEN_DISABLED()
-    updateScaleVars()
+    updateScreenVars()
 end
 
 -------------------------------------------------------------------------------
@@ -644,6 +655,7 @@ end
 --~     -- Eat this event so it doesn't mysteriously cause an
 --~     -- "addon tried to call protected function" error
 --~     -- in Blizzard's CompactuUnitFrame.lua file.
+--~     -- (Taint seems to be caused by using the standard UIDropDownMenu control.)
 --~ end
 
 --~ -------------------------------------------------------------------------------
@@ -652,7 +664,8 @@ end
 --~     ----dbg("GROUP_ROSTER_UPDATE")
 --~     -- Eat this event so it doesn't mysteriously cause an
 --~     -- "addon tried to call protected function" error
---~     -- in Blizzard's CompactRaidFrameContainer.lua file.
+--~     -- in Blizzard's CompactRaidFrameContainer.lua file.  (Taint)
+--~     -- (Taint seems to be caused by using the standard UIDropDownMenu control.)
 --~ end
 
 -------------------------------------------------------------------------------
@@ -739,18 +752,16 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
     ----DebugText("x: "..cursorX..",  y: "..cursorY)
     if (cursorX ~= gPreviousX or cursorY ~= gPreviousY) then
         -- Cursor position changed.  Keep model position in sync with it.
-        local bPreview = (gPreviousX == nil)
 
         ----local dx, dy = cursorX-(gPreviousX or 0), cursorY-(gPreviousY or 0)
         gPreviousX, gPreviousY = cursorX, cursorY
 
-        -- Keep FX along top side of options window while mouse is over it (so user can see changes better).
+        -- Is mouse over options window or color picker?
         if bOptionsShown then
-            -- Mouse over options window?
-            bPreview = bPreview or DoesAncestryInclude(OptionsFrame, GetMouseFocus())
-            -- Mouse over color picker?
-            bPreview = bPreview or (ColorPickerFrame:IsShown() and DoesAncestryInclude(ColorPickerFrame, GetMouseFocus()))
-            if bPreview then
+            if OptionsFrame:IsMouseMotionFocus()
+               or (ColorPickerFrame:IsShown() and ColorPickerFrame:IsMouseMotionFocus())
+              then
+                -- Keep FX along top side of options window while mouse is over it (so user can see changes better).
                 local ofs = ShapeTexture:GetWidth() * 0.5
                 cursorY = (OptionsFrame.HeaderTexture:GetTop() + ofs - 2) * ScreenScale
                 --------ofs = ofs - (math.sin(cursorY*0.04) - 1) * 50  -- Wobble left/right as mouse moves up/down.
@@ -766,36 +777,48 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
 
         -- Update position of shadow.
         if ShadowTexture then
-            ShadowTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX+3, tY-2)
-            ----ShadowTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX+(3*PlayerConfig.UserScale), tY-(2*PlayerConfig.UserScale))
+            ShadowTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX, tY)
         end
 
---~         if TestCursorModel then
---~             local modelX = cursorX / ScreenHypotenuse
---~             local modelY = cursorY / ScreenHypotenuse
---~             ----TestCursorModel:SetPosition(0, modelX, modelY)  --<<< NOT WORKING.
---~             TestCursorModel:SetTransform( CreateVector3D(modelX, modelY, 0),  -- (Position x,y,z)
---~                                           CreateVector3D(0,0,0), ----rad(0), rad(0), rad(0)),  -- (Rotation x,y,z)
---~                                           TestCursorModel.baseScale )  ----TestCursorModel:GetWorldScale() )
---~         end
-
-        -- Update position of model.
-        if CursorModel then
-            if (CursorModel.Constants.IsSkewed == true) then
-                cursorX, cursorY = unskew(cursorX, cursorY,
-                                        CursorModel.Constants.HorizontalSlope,
-                                        CursorModel.Constants.SkewTopMult,
-                                        CursorModel.Constants.SkewBottomMult)
+        -- Update test model position (if it exists).
+        if TestModel and TestModel:GetModelFileID() then
+            if TestModel.UseSetTransform then
+                local modelX = (cursorX + TestModel.OfsX) / ScreenHypotenuse
+                local modelY = (cursorY + TestModel.OfsY) / ScreenHypotenuse
+                local modelZ = TestModel.OfsZ
+                ----TestModel:SetPosition(modelZ, modelX, modelY)  --<<< NO EFFECT.
+                ----TestModel:SetViewTranslation(cursorX-ScreenMidX, cursorY-ScreenMidY)
+                TestModel:SetTransform( CreateVector3D(modelX, modelY, modelZ),  -- (Position x,y,z)
+                                CreateVector3D(TestModel.RotX, TestModel.RotY, TestModel.RotZ),  -- (Rotation x,y,z)
+                                TestModel.Scale )  ----TestModel:GetWorldScale() )
+            else
+                local modelX = (cursorX + TestModel.OfsX) / (ScreenHypotenuse * TestModel.Scale)
+                local modelY = (cursorY + TestModel.OfsY) / (ScreenHypotenuse * TestModel.Scale)
+                TestModel:SetPosition(TestModel.OfsZ, modelX, modelY) -- Probably won't follow mouse without custom step sizes.
             end
+        end
 
-            local modelX = ((cursorX - ScreenMidX) / CursorModel.StepX) + CursorModel.OfsX
-            local modelY = ((cursorY - ScreenMidY) / CursorModel.StepY) + CursorModel.OfsY
-            CursorModel:SetPosition(0, modelX, modelY)
+        -- Update position of cursor model.
+        if CursorModel then
+            if CursorModel.Constants.UseSetTransform then
+                CursorModel_SetTransform(cursorX, cursorY)
+            else -- Use SetScale(), SetPosition(), SetFacing(), SetPitch(), SetRoll().
+                if (CursorModel.Constants.IsSkewed == true) then
+                    cursorX, cursorY = unskew(cursorX, cursorY,
+                                            CursorModel.Constants.HorizontalSlope,
+                                            CursorModel.Constants.SkewTopMult,
+                                            CursorModel.Constants.SkewBottomMult)
+                end
+
+                local modelX = ((cursorX - ScreenMidX) / CursorModel.StepX) + CursorModel.OfsX
+                local modelY = ((cursorY - ScreenMidY) / CursorModel.StepY) + CursorModel.OfsY
+                CursorModel:SetPosition(0, modelX, modelY)
+            end
         end
 
         -- Update position of shape.
         if ShapeTexture then
-            ShapeTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX+0.5, tY-0.5)
+            ShapeTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX, tY)
         end
 
         -- - - - - - - - - - - - - - - - - - - - - - - - --
@@ -984,17 +1007,21 @@ function validateSettings(config)
       then
         config.ModelID = kDefaultModelID
     end
-    config.ShapeColorR = config.ShapeColorR or 1.0
-    config.ShapeColorG = config.ShapeColorG or 1.0
-    config.ShapeColorB = config.ShapeColorB or 1.0
+    config.ShapeColorR = config.ShapeColorR or 1
+    config.ShapeColorG = config.ShapeColorG or 1
+    config.ShapeColorB = config.ShapeColorB or 1
     ----config.ShapeSparkle = config.ShapeSparkle or false
 
-    config.UserShadowAlpha = config.UserShadowAlpha or 0.0
-    config.UserScale = config.UserScale or 1.0
-    config.UserAlpha = config.UserAlpha or 1.0
+    config.UserShadowAlpha = config.UserShadowAlpha or 0
+    config.UserScale = config.UserScale or 1
+    config.UserAlpha = config.UserAlpha or 1
     config.Strata = config.Strata or kDefaultStrata
-    config.UserOfsX = config.UserOfsX or 0.0
-    config.UserOfsY = config.UserOfsY or 0.0
+    config.UserOfsX = config.UserOfsX or 0
+    config.UserOfsY = config.UserOfsY or 0
+    config.UserOfsZ = config.UserOfsZ or 0
+    config.UserRotX = config.UserRotX or 0
+    config.UserRotY = config.UserRotY or 0
+    config.UserRotZ = config.UserRotZ or 0
 
     ----config.FadeOut = config.FadeOut or false
     ----config.UserShowOnlyInCombat = config.UserShowOnlyInCombat or false
@@ -1025,7 +1052,7 @@ function CursorTrail_Load(config)
         if (not PlayerConfig) then PlayerConfig_Load() end
         config = PlayerConfig
     end
-    config.UserScale = config.UserScale or 1
+    validateSettings(config)
     ----vdt_dump(config, "config (2) in CursorTrail_Load()")
 
     -----------------
@@ -1053,39 +1080,50 @@ function CursorTrail_Load(config)
     ----------------
     -- LOAD MODEL --
     ----------------
-    if not CursorModel then
-        ----assert(UnitAffectingCombat("player") ~= true)
-        CursorModel = CreateFrame("PlayerModel", nil, kGameFrame)
-        CursorModel:SetAllPoints()
+    ----if CursorModel then print("[CT] old,new: ", CursorModel:GetModelFileID(), config.ModelID) end  -- (For debugging.)
 
-        -- After the parent frame (UIParent) is unhidden, we must reload the cursor model to see it again.
-        CursorModel:SetScript("OnHide", function(self)
-                if (kGameFrame:IsShown() ~= true)  then
-                    CursorModel.bReloadOnShow = true
-                end
-            end)
-        CursorModel:SetScript("OnShow", function(self)
-                if (CursorModel.bReloadOnShow == true) then
-                    CursorTrail_Load()
-                    CursorModel.bReloadOnShow = nil
-                end
-            end)
+    -- Fix BUG_20240603.1 by using a different model variable when using SetTransform.
+    if not CursorModel_FPR then  -- Model to use with SetFacing/SetPitch/SetRoll.
+        CursorModel_FPR = CreateFrame("PlayerModel", nil, kGameFrame)
+        CursorModel_FPR:SetAllPoints()
+        CursorModel_FPR:SetScript("OnShow", CursorModel_OnShow)
+        CursorModel_FPR:SetScript("OnHide", CursorModel_OnHide)
+    end
+    if not CursorModel_ST then  -- Model to use with SetTransform.
+        CursorModel_ST = CreateFrame("PlayerModel", nil, kGameFrame)
+        CursorModel_ST:SetAllPoints()
+        CursorModel_ST:SetScript("OnShow", CursorModel_OnShow)
+        CursorModel_ST:SetScript("OnHide", CursorModel_OnHide)
     end
 
-    CursorModel_Init()
+    CursorModel_Init() -- Clear old model.
+    if kModelConstants[config.ModelID].UseSetTransform then  -- Fix for BUG_20240603.1.
+        ----print("[CT] Using CursorModel_ST", config.ModelID)
+        CursorModel = CursorModel_ST
+    else
+        ----print("[CT] Using CursorModel_FPR", config.ModelID)
+        CursorModel = CursorModel_FPR
+    end
+    CursorModel_Init() -- Init new model.
+
+    if   config.ModelID == 166694  -- "Trail - Swirling, Nature"
+      or config.ModelID == 167229  -- "Trail - Ghost"
+      or config.ModelID == 165693  -- "Trail - Freedom"
+      then
+        CursorModel_MoveOffScreen()  -- Prevents the brief screen flash when this model is selected.
+    end
+
     CursorModel_SetModel(config.ModelID)
     CursorModel:SetCustomCamera(1) -- Very important! (Note: CursorModel:SetCamera(1) doesn't work here.)
-    CursorTrail_ApplyModelSettings(config.UserScale,
-                                   config.UserOfsX,
-                                   config.UserOfsY,
-                                   config.UserAlpha)
+    CursorTrail_ApplyModelSettings(config)
     CursorTrail_SetFadeOut(config.FadeOut)
     CursorModel:SetFrameStrata(config.Strata)
     CursorModel:SetFrameLevel(kFrameLevel+1)  -- +1 so model is drawn in front of the shadow texture.
 
-    if (CursorModel.Constants.BaseFacing ~= nil) then
-        CursorModel:SetFacing(CursorModel.Constants.BaseFacing)
-    end
+    ---->>> Replaced BaseFacing with BaseRotX in 10.2.7.3.
+    ----if (CursorModel.Constants.BaseFacing ~= nil) then
+    ----    CursorModel:SetFacing(CursorModel.Constants.BaseFacing)
+    ----end
 
     ------------
     -- FINISH --
@@ -1100,50 +1138,76 @@ function CursorTrail_Load(config)
 end
 
 -------------------------------------------------------------------------------
-function CursorTrail_ApplyModelSettings(userScale, userOfsX, userOfsY, userAlpha)
+function CursorTrail_ApplyModelSettings(config)
 -- This function is for changing values that do not require recreating the model object.
 -- It also forces the displayed model to refresh immediately.
 -- It does not update PlayerConfig.
 -- (Note: This single function was written instead of multiple separate functions for fastest performance.)
-
-    ----print("userScale="..(userScale or "NIL")..", userOfs=("..(userOfsX or "NIL")..", "..(userOfsY or "NIL")..")")
+    ----vdt_dump(config, "config in ApplyModelSettings()")
     assert(CursorModel.Constants)
 
     -- Validate parameters.
-    if (userScale == nil or userScale <= 0) then
-        userScale = PlayerConfig.UserScale
-    end
-    userOfsX = userOfsX or PlayerConfig.UserOfsX
-    userOfsY = userOfsY or PlayerConfig.UserOfsY
-    if (userAlpha == nil or userAlpha <= 0) then
-        userAlpha = PlayerConfig.UserAlpha or 1.0
-    end
+    config = config or PlayerConfig
+    local userScale = config.UserScale or PlayerConfig.UserScale or 1
+    if userScale <= 0 then userScale = 1 end
+
+    local userAlpha = config.userAlpha or PlayerConfig.UserAlpha or 1
+    if userAlpha <= 0 then userAlpha = 1 end
+
+    local userOfsX = config.UserOfsX or PlayerConfig.UserOfsX
+    local userOfsY = config.UserOfsY or PlayerConfig.UserOfsY
+    local userOfsZ = config.UserOfsZ or PlayerConfig.UserOfsZ
+    local userRotX = config.UserRotX or PlayerConfig.UserRotX
+    local userRotY = config.UserRotY or PlayerConfig.UserRotY
+    local userRotZ = config.UserRotZ or PlayerConfig.UserRotZ
 
     -- Compute scale factor.
-    local mult = kBaseMult * ScreenHypotenuse
     local baseScale = CursorModel.Constants.BaseScale
     local finalScale = userScale * baseScale
+
     ---->>> DIDN'T HELP.  CHANGING UI SCALE ALSO CHANGES THE ScaleMin VALUE.  WAS UNABLE TO DETERMINE CORRECT VALUE.
     ----if (CursorModel.Constants.ScaleMin and finalScale < CursorModel.Constants.ScaleMin) then
     ----    finalScale = CursorModel.Constants.ScaleMin
     ----end
 
     -- UPDATE MODEL --
-    CursorModel:SetScale(finalScale)
-    CursorModel:SetAlpha(userAlpha)
-    ----print("CursorModel:GetEffectiveScale():", CursorModel:GetEffectiveScale()) -- i.e. finalScale * kGameFrame:GetEffectiveScale()
-    ----if (CursorModel:GetEffectiveScale() < 0.0113) then printMsg("鼠之軌跡: 警告 - 模組縮放過小。 ") end
+    CursorModel.Scale = finalScale  -- Store this for use by SetTransform().
+    CursorModel.RotX = rad( (CursorModel.Constants.BaseRotX or 0) + userRotX )
+    CursorModel.RotY = rad( (CursorModel.Constants.BaseRotY or 0) + userRotY )
+    CursorModel.RotZ = rad( (CursorModel.Constants.BaseRotZ or 0) + userRotZ )
+    CursorModel.OfsZ = (CursorModel.Constants.BaseOfsZ or 0) + userOfsZ
 
-    -- Compute model step size and offset.
-    CursorModel.StepX = CursorModel.Constants.BaseStepX * mult * finalScale
-    CursorModel.StepY = CursorModel.Constants.BaseStepY * mult * finalScale
-    CursorModel.OfsX = ((CursorModel.Constants.BaseOfsX * mult / baseScale) + userOfsX) / userScale
-    CursorModel.OfsY = ((CursorModel.Constants.BaseOfsY * mult / baseScale) + userOfsY) / userScale
+    CursorModel:SetAlpha(userAlpha)
+    if CursorModel.Constants.UseSetTransform then
+        local mult = 20
+        CursorModel.OfsX = (CursorModel.Constants.BaseOfsX + (userOfsX * mult)) * userScale
+        CursorModel.OfsY = (CursorModel.Constants.BaseOfsY + (userOfsY * mult)) * userScale
+        ----if gPreviousX == nil then
+        ----    gPreviousX, gPreviousY = GetCursorPosition()
+        ----end
+        CursorModel:UseModelCenterToTransform(true)
+        ----CursorModel_SetTransform(gPreviousX, gPreviousY)
+    else -- Not using SetTransform().
+        CursorModel:SetScale(finalScale)
+        ----print("CursorModel:GetEffectiveScale():", CursorModel:GetEffectiveScale()) -- i.e. finalScale * kGameFrame:GetEffectiveScale()
+        ----if (CursorModel:GetEffectiveScale() < 0.0113) then printMsg(kAddonFolderName.." WARNING - Model scaled too small.  ") end
+
+        -- Compute model step size and offset.
+        local mult = kBaseMult * ScreenHypotenuse
+        CursorModel.OfsX = (CursorModel.Constants.BaseOfsX * mult / baseScale / userScale) + userOfsX
+        CursorModel.OfsY = (CursorModel.Constants.BaseOfsY * mult / baseScale / userScale) + userOfsY
+        CursorModel.StepX = CursorModel.Constants.BaseStepX * mult * finalScale
+        CursorModel.StepY = CursorModel.Constants.BaseStepY * mult * finalScale
+
+        CursorModel:SetFacing( CursorModel.RotX )
+        CursorModel:SetPitch( CursorModel.RotY )
+        CursorModel:SetRoll( CursorModel.RotZ )
+    end
 
     -- UPDATE SHADOW --
     if ShadowTexture then
         -- Update shadow size based on current user scale.
-        local shadowSize = kDefaultShadowSize * userScale
+        local shadowSize = (kDefaultShadowSize * userScale) / ScreenScale
         ShadowTexture:SetSize(shadowSize, shadowSize)
 
         ----ShadowTexture.OfsX = (CursorModel.StepX * userOfsX)
@@ -1155,11 +1219,15 @@ function CursorTrail_ApplyModelSettings(userScale, userOfsX, userOfsY, userAlpha
         ShapeTexture:SetAlpha(userAlpha)
 
         -- Update shape size based on current user scale.
-        local shapeSize = kDefaultShapeSize * userScale
+        local shapeSize = (kDefaultShapeSize * userScale) / ScreenScale
         ShapeTexture:SetSize(shapeSize, shapeSize)
     end
 
-    gPreviousX = nil  -- Forces cursor FX to refresh during the next OnUpdate().
+    -- Force cursor FX to refresh during the next OnUpdate().
+    C_Timer.After(0.1, function()  -- Timer required to give any UI dropdowns time to close
+                                   -- so OnUpdate() can accurately rely on DoesAncestryInclude().
+        gPreviousX = nil  -- Forces next OnUpdate() to refresh cursor FX.
+    end)
 end
 
 -------------------------------------------------------------------------------
@@ -1226,16 +1294,29 @@ end
 -------------------------------------------------------------------------------
 function CursorModel_Init()
     if CursorModel then
+        ----CursorModel_ClearTransform()
         CursorModel:ClearModel()
         CursorModel:SetScale(1)  -- Very important!
         CursorModel:SetModelScale(1)
         CursorModel:SetPosition(0, 0, 0)  -- Very Important!
-        CursorModel:SetAlpha(1.0)
         CursorModel:SetFacing(0)
+        CursorModel:SetPitch(0)
+        CursorModel:SetRoll(0)
+        CursorModel:SetAlpha(1)
+        ----CursorModel:SetKeepModelOnHide(true)  -- TODO: See if this eliminates the need to recreate CursorModel in OnShow().
+        if CursorModel == CursorModel_ST then  -- Using the "SetTransform" model?
+            -- NOTE: Don't do this for CursorModel_FPR.  Model "Trail - Electric, Blue (Long)" won't show up if you do!
+            CursorModel_MoveOffScreen()  -- Prevents the brief screen flash when a very large model is selected.
+        end
 
         CursorModel.Constants = nil
         CursorModel.OfsX = nil
         CursorModel.OfsY = nil
+        CursorModel.OfsZ = nil
+        CursorModel.RotX = nil
+        CursorModel.RotY = nil
+        CursorModel.RotZ = nil
+        CursorModel.Scale = nil
         CursorModel.StepX = nil
         CursorModel.StepY = nil
         CursorModel.IsHidden = nil
@@ -1245,12 +1326,50 @@ end
 -------------------------------------------------------------------------------
 function CursorModel_SetModel(modelID)
     modelID = modelID or kDefaultModelID
+    CursorModel.Constants = nil  -- Must wipe previous keys!
     CursorModel.Constants = CopyTable( kModelConstants[modelID] or kModelConstants[kDefaultModelID] )
     CursorModel.Constants.sortedID = modelID
+
+    -- Validate model constants.
+    assert(CursorModel.Constants.BaseScale)  -- Must be specified for each model in CursorTrailModels.lua.
+    CursorModel.Constants.BaseOfsX = CursorModel.Constants.BaseOfsX or 0
+    CursorModel.Constants.BaseOfsY = CursorModel.Constants.BaseOfsY or 0
+    CursorModel.Constants.BaseOfsZ = CursorModel.Constants.BaseOfsZ or 0
+    CursorModel.Constants.BaseRotX = CursorModel.Constants.BaseRotX or 0
+    CursorModel.Constants.BaseRotY = CursorModel.Constants.BaseRotY or 0
+    CursorModel.Constants.BaseRotZ = CursorModel.Constants.BaseRotZ or 0
+
+    CursorModel_ClearTransform()
     if (modelID > 0) then
         CursorModel:SetModel(modelID)
     end
     ----dbg("CursorModel:GetModelFileID() --> "..(CursorModel:GetModelFileID() or "nil"))
+end
+
+-------------------------------------------------------------------------------
+function CursorModel_SetTransform(cursorX, cursorY)
+    local modelX = (cursorX + CursorModel.OfsX) / ScreenHypotenuse
+    local modelY = (cursorY + CursorModel.OfsY) / ScreenHypotenuse
+    local modelZ = CursorModel.OfsZ
+    ----CursorModel:SetPosition(modelZ, modelX, modelY)  --<<< NO EFFECT.
+    ----CursorModel:SetViewTranslation(cursorX-ScreenMidX, cursorY-ScreenMidY)
+    CursorModel:SetTransform( CreateVector3D(modelX, modelY, modelZ),  -- (Position x,y,z)
+                    CreateVector3D(CursorModel.RotX, CursorModel.RotY, CursorModel.RotZ),  -- (Rotation x,y,z)
+                    CursorModel.Scale )
+end
+
+-------------------------------------------------------------------------------
+function CursorModel_ClearTransform()  -- Undoes changes made by SetTransform().
+    ----CursorModel:SetTransform( CreateVector3D(0,0,0), CreateVector3D(0,0,0), 1 )
+    CursorModel:ClearTransform()
+    ----CursorModel.OfsX = 0; CursorModel.OfsY = 0; CursorModel.OfsZ = 0
+    ----CursorModel.RotX = 0; CursorModel.RotY = 0; CursorModel.RotZ = 0
+    ----CursorModel.Scale = 1
+end
+
+-------------------------------------------------------------------------------
+function CursorModel_MoveOffScreen()
+    CursorModel:SetPosition(0, 111, 111)  -- Prevents the brief screen flash when a very large model is selected.
 end
 
 -------------------------------------------------------------------------------
@@ -1280,6 +1399,22 @@ function CursorModel_Hide()
 end
 
 -------------------------------------------------------------------------------
+function CursorModel_OnShow(self)
+    if (CursorModel.bReloadOnShow == true) then
+        CursorTrail_Load()
+        CursorModel.bReloadOnShow = nil
+    end
+end
+
+-------------------------------------------------------------------------------
+function CursorModel_OnHide(self)
+    if (kGameFrame:IsShown() ~= true)  then
+        -- After the parent frame (UIParent) is unhidden, we must reload the cursor model to see it again.
+        CursorModel.bReloadOnShow = true
+    end
+end
+
+-------------------------------------------------------------------------------
 function Shadow_Create()
     if not ShadowFrame then
         ShadowFrame = CreateFrame("Frame", nil, kGameFrame)
@@ -1287,7 +1422,9 @@ function Shadow_Create()
         ShadowFrame:SetFrameLevel(kFrameLevel)
         ShadowTexture = ShadowFrame:CreateTexture()
         ShadowTexture:SetBlendMode("ALPHAKEY")
-        ShadowTexture:SetTexture([[Interface\GLUES\Models\UI_Alliance\gradient5Circle]])
+        ShadowTexture:SetTexture([[Interface\GLUES\Models\UI_Alliance\gradient5Circle]])  -- Note: gradient5Circle is not centered.
+        ShadowTexture:SetTexCoord(0, 0.918, 0, 0.935)  -- (minX, maxX, minY, maxY)  Centers gradient5Circle.
+
         ----ShadowTexture:SetTexture([[Interface\GLUES\Models\UI_Draenei\GenericGlow64]])
         ----ShadowTexture:SetColorTexture(1,1,1,1)  DIDN'T WORK!
         ----ShadowTexture:SetVertexColor(1,1,1,1)  DIDN'T WORK!  (Only works for non-black textures.)

@@ -1,5 +1,4 @@
 --[[---------------------------------------------------------------------------
-    Addon:  CursorTrail
     File:   CursorTrailTools.lua
     Desc:   This contains non-essential functions that were useful during
             the development of this addon, and may be useful in the future
@@ -175,7 +174,22 @@ function isInteger(val)  -- 'val' can be a number or string containing a number.
 end
 
 -------------------------------------------------------------------------------
-function str_split(str, delimiter)
+local function str_split_lines(str)  -- Splits string into lines. (Returns empty lines too.)
+    local lines = {}
+    ----for line in string.gmatch(str, "(.-)\n") do
+    for line in string.gmatch(str, "([^\n]*)\n?") do
+        table.insert(lines, line)
+    end
+
+    -- The loop above creates one extra line we don't want.  Remove it.
+    if #lines > 0 then
+        table.remove(lines, #lines)
+    end
+    return lines
+end
+
+-------------------------------------------------------------------------------
+function str_split(str, delimiter)  -- Note: Does not return empty lines.
     assert(delimiter)
     local parts = {}
     for part in string.gmatch(str, "([^"..delimiter.."]+)") do
@@ -184,6 +198,46 @@ function str_split(str, delimiter)
     ----for i = 1, #parts do print("Part#"..i.." = ".. parts[i]) end  -- Dump results.
     return parts
 end
+
+-------------------------------------------------------------------------------
+function strContains(str, sub)  -- Based on kgriffs/string_util.lua on GitHub.
+    return str:find(sub, 1, true) ~= nil
+end
+
+-------------------------------------------------------------------------------
+function strStartsWith(str, start)  -- Based on kgriffs/string_util.lua on GitHub.
+    return str:sub(1, #start) == start
+end
+
+--~ -------------------------------------------------------------------------------
+--~ function strEndsWith(str, ending)  -- Based on kgriffs/string_util.lua on GitHub.
+--~     return ending == "" or str:sub(-#ending) == ending
+--~ end
+
+--~ -------------------------------------------------------------------------------
+--~ function strInsert(str, pos, text)  -- Based on kgriffs/string_util.lua on GitHub.
+--~     return str:sub(1, pos - 1) .. text .. str:sub(pos)
+--~ end
+
+--~ -------------------------------------------------------------------------------
+--~ function strReplace(str, old, new)  -- Based on kgriffs/string_util.lua on GitHub.
+--~     local s = str
+--~     local search_start_idx = 1
+
+--~     while true do
+--~         local start_idx, end_idx = s:find(old, search_start_idx, true)
+--~         if (not start_idx) then
+--~             break
+--~         end
+
+--~         local postfix = s:sub(end_idx + 1)
+--~         s = s:sub(1, (start_idx - 1)) .. new .. postfix
+
+--~         search_start_idx = -1 * postfix:len()
+--~     end
+
+--~     return s
+--~ end
 
 -------------------------------------------------------------------------------
 function staticClearTable(tbl)
@@ -419,19 +473,24 @@ end
 function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
     local paramAsNum = tonumber(params)
 
+    -------------------------------------------------------------------------------
     if (params == "screen") then
         Screen_Dump()
+    -------------------------------------------------------------------------------
     elseif (params == "camera") then
         Camera_Dump()
+    -------------------------------------------------------------------------------
     elseif (params == "config") then
         dumpObject(PlayerConfig, "CONFIG INFO")
+    -------------------------------------------------------------------------------
     elseif (params == "model") then
         CursorModel_Dump()
+    -------------------------------------------------------------------------------
     ----elseif (params == "cal") then
     ----    Calibrating_DoNextStep()
     ----elseif (params == "track") then
     ----    TrackPosition()
-    -----------------------------------------------------
+    -------------------------------------------------------------------------------
     -- NOTE: You can also enable the switch "kEditBaseValues" in the main file and then use
     --       the arrow keys to alter the values below (while the UI is displayed).
     --       Arrow keys (no modifier key) change BaseOfsX and BaseOfsY.
@@ -439,26 +498,30 @@ function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
     --       Shift decrease the amount of change each arrow key press.
     --       Ctrl increase the amount of change each arrow key press.
     --       When done, type "/ct model" to dump all values (BEFORE CLOSING THE UI).
-    elseif (params:sub(1,5) == "box++") then CmdLineValue("BaseOfsX",  params:sub(6), "+")
-    elseif (params:sub(1,5) == "boy++") then CmdLineValue("BaseOfsY",  params:sub(6), "+")
-    elseif (params:sub(1,5) == "bsx++") then CmdLineValue("BaseStepX", params:sub(6), "+")
-    elseif (params:sub(1,5) == "bsy++") then CmdLineValue("BaseStepY", params:sub(6), "+")
-    elseif (params:sub(1,5) == "box--") then CmdLineValue("BaseOfsX",  params:sub(6), "-")
-    elseif (params:sub(1,5) == "boy--") then CmdLineValue("BaseOfsY",  params:sub(6), "-")
-    elseif (params:sub(1,5) == "bsx--") then CmdLineValue("BaseStepX", params:sub(6), "-")
-    elseif (params:sub(1,5) == "bsy--") then CmdLineValue("BaseStepY", params:sub(6), "-")
+    ----elseif (params:sub(1,5) == "box++") then CmdLineValue("BaseOfsX",  params:sub(6), "+")
+    ----elseif (params:sub(1,5) == "boy++") then CmdLineValue("BaseOfsY",  params:sub(6), "+")
+    ----elseif (params:sub(1,5) == "bsx++") then CmdLineValue("BaseStepX", params:sub(6), "+")
+    ----elseif (params:sub(1,5) == "bsy++") then CmdLineValue("BaseStepY", params:sub(6), "+")
+    ----elseif (params:sub(1,5) == "box--") then CmdLineValue("BaseOfsX",  params:sub(6), "-")
+    ----elseif (params:sub(1,5) == "boy--") then CmdLineValue("BaseOfsY",  params:sub(6), "-")
+    ----elseif (params:sub(1,5) == "bsx--") then CmdLineValue("BaseStepX", params:sub(6), "-")
+    ----elseif (params:sub(1,5) == "bsy--") then CmdLineValue("BaseStepY", params:sub(6), "-")
     elseif (params:sub(1,3) == "box")   then CmdLineValue("BaseOfsX",  params:sub(4))
     elseif (params:sub(1,3) == "boy")   then CmdLineValue("BaseOfsY",  params:sub(4))
+    elseif (params:sub(1,3) == "boz")   then CmdLineValue("BaseOfsZ",  params:sub(4))
+    elseif (params:sub(1,3) == "brx")   then CmdLineValue("BaseRotX",  params:sub(4))
+    elseif (params:sub(1,3) == "bry")   then CmdLineValue("BaseRotY",  params:sub(4))
+    elseif (params:sub(1,3) == "brz")   then CmdLineValue("BaseRotZ",  params:sub(4))
     elseif (params:sub(1,3) == "bsx")   then CmdLineValue("BaseStepX", params:sub(4))
     elseif (params:sub(1,3) == "bsy")   then CmdLineValue("BaseStepY", params:sub(4))
-    elseif (params:sub(1,4) == "bs++")  then CmdLineValue("BaseScale", params:sub(5), "+")
-    elseif (params:sub(1,4) == "bs--")  then CmdLineValue("BaseScale", params:sub(5), "-")
+    ----elseif (params:sub(1,4) == "bs++")  then CmdLineValue("BaseScale", params:sub(5), "+")
+    ----elseif (params:sub(1,4) == "bs--")  then CmdLineValue("BaseScale", params:sub(5), "-")
     elseif (params:sub(1,2) == "bs")    then CmdLineValue("BaseScale", params:sub(3))
-    elseif (params:sub(1,4) == "bf++")  then CmdLineValue("BaseFacing",params:sub(5), "+")
-    elseif (params:sub(1,4) == "bf--")  then CmdLineValue("BaseFacing",params:sub(5), "-")
+    ----elseif (params:sub(1,4) == "bf++")  then CmdLineValue("BaseFacing",params:sub(5), "+")
+    ----elseif (params:sub(1,4) == "bf--")  then CmdLineValue("BaseFacing",params:sub(5), "-")
     elseif (params:sub(1,2) == "bf")    then CmdLineValue("BaseFacing",params:sub(3))
-    elseif (params:sub(1,4) == "hs++")  then CmdLineValue("HorizontalSlope", params:sub(5), "+")
-    elseif (params:sub(1,4) == "hs--")  then CmdLineValue("HorizontalSlope", params:sub(5), "-")
+    ----elseif (params:sub(1,4) == "hs++")  then CmdLineValue("HorizontalSlope", params:sub(5), "+")
+    ----elseif (params:sub(1,4) == "hs--")  then CmdLineValue("HorizontalSlope", params:sub(5), "-")
     elseif (params:sub(1,2) == "hs")    then CmdLineValue("HorizontalSlope", params:sub(3))
     ----elseif (params == "mdl++")          then OptionsFrame_IncrDecrModel(1)
     ----elseif (params == "mdl--")          then OptionsFrame_IncrDecrModel(-1)
@@ -482,50 +545,153 @@ function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
             msg = msg .. " changed model ID to " .. (modelID or "NIL") .. "."
         end
         print(msg)
+    -------------------------------------------------------------------------------
     elseif (params:sub(1,3) == "pos") then  -- Set position (0,0), (1,1), (2,2), etc.
         local delta = tonumber(params:sub(4))
         CursorModel:SetPosition(0, delta, delta)
-    elseif (params:sub(1,9) == "testmodel") then  -- /ct testmodel <modelID> <scale>
-        ----local modelID = tonumber(params:sub(10))
-        local modelID, scale = string.split(" ", params:sub(11))
+    -------------------------------------------------------------------------------
+    elseif (params:sub(1,9) == "testmodel" or params:sub(1,2) == "tm") then  -- /ct testmodel <modelID> <scale> <rotationX>
+        local rad, CreateVector3D = Globals.rad, Globals.CreateVector3D
+        local cmd, modelID, scale, rotX, rotY, rotZ, ofsX, ofsY, ofsZ = string.split(" ", params)
         if modelID then modelID = tonumber(modelID) end
         if scale then scale = tonumber(scale) else scale=1 end
---~         modelID=166492; scale=0.032  -- Electric, Blue
---~         modelID=667272; scale=0.01
-        if not TestCursorModel then
-            TestCursorModel = CreateFrame("PlayerModel", nil, kGameFrame)
+        if rotX then rotX = tonumber(rotX) else rotX=0 end
+        if rotY then rotY = tonumber(rotY) else rotY=0 end
+        if rotZ then rotZ = tonumber(rotZ) else rotZ=0 end
+        if ofsX then ofsX = tonumber(ofsX) else ofsX=0 end
+        if ofsY then ofsY = tonumber(ofsY) else ofsY=0 end
+        if ofsZ then ofsZ = tonumber(ofsZ) else ofsZ=0 end
+
+        local useSetTransform = true
+        if cmd == "tmn" then useSetTransform = false end -- Specify command "tmn" instead of "tm" to not use SetTransform.
+
+        -- Some preset test models.
+        if modelID == -1 then
+            modelID=166498; scale=0.004  -- (Electric, Blue (Long))
+        elseif modelID == -2 then
+            modelID=166492; scale=0.032  -- (Electric, Blue)
+        elseif modelID == -3 then
+            modelID=166538; scale=0.0162  -- (Burning Cloud, Blue)
+        elseif modelID == -4 then
+            modelID=975870; scale=0.011; rotX=180; rotY=100; rotZ=270  -- (Swirling, Purple & Orange)  /ct tm 975870 0.011 180 100 270
+        elseif modelID == -5 then
+            modelID=667272; scale=0.005  -- (<New> Green Ring)
+        elseif modelID == -6 then
+            if useSetTransform then
+                modelID=343980; scale=0.022; rotX=270  -- (Cat Mark, Green)  /ct tm 343980 0.022 270
+            else
+                modelID=343980; scale=0.06; ofsY=21  -- (Cat Mark, Green)  /ct tmn 343980 0.06 0 0 0 0 21
+            end
+        elseif modelID == -7 then
+            modelID=1029302; scale=0.004  -- (Beam Target)
+        else
+            assert(modelID == nil or modelID >= 0)
         end
-        TestCursorModel:SetAllPoints()
-        TestCursorModel:SetFrameStrata("TOOLTIP")
-        TestCursorModel:ClearModel()
-        ----TestCursorModel:SetScale(1)  -- Very important?
-        ----TestCursorModel:SetPosition(0, 0, 0)  -- Very important?
-        TestCursorModel:SetAlpha(1)
-        TestCursorModel:SetFacing(0)
-        if modelID then TestCursorModel:SetModel(modelID) end
-        TestCursorModel:SetCustomCamera(1) -- Very important! (Note: CursorModel:SetCamera(1) doesn't work here.)
-        ---TestCursorModel:SetScale(scale)  --<<< NO EFFECT.
-        ----TestCursorModel:SetModelScale(scale)  --<<< NO EFFECT.
-        ----TestCursorModel:SetPosition(0, ScreenMidX/ScreenHypotenuse, ScreenMidY/ScreenHypoten  --<<< NOT WORKING.
-        TestCursorModel:UseModelCenterToTransform(true)
-        local rad, CreateVector3D = Globals.rad, Globals.CreateVector3D
-        ----if isRetailWoW() then
-            TestCursorModel:SetTransform( CreateVector3D(ScreenMidX/ScreenHypotenuse, ScreenMidY/ScreenHypotenuse, 0),  -- (Position x,y,z)
-                                          CreateVector3D(rad(0), rad(0), rad(0)),  -- (Rotation x,y,z)
-                                          scale )
-        ----else -- Use old API.
-        ----    TestCursorModel:SetTransform(0.25,0.25,0,  rad(0),rad(0),rad(0),  scale)  -- (Position x,y,z) | (Rotation x,y,z) | Scale
-        ----end
-        TestCursorModel.baseScale = scale  -- Avoids having to call TestCursorModel:GetWorldScale() later on.
-        ----vdt_dump(TestCursorModel, "TestCursorModel")
-        ----Camera_Dump("TEST MODEL CAMERA INFO", TestCursorModel)
-    ----elseif (paramAsNum ~= nil) then
-    ----    print(kAddonFolderName .. " processed number", paramAsNum, ".")
+
+        local debugHeader = "|cff00FFFFTestModel|r|cffFFFF00>|r  "
+        print(debugHeader..(modelID or "nil").."  scale:", scale, "  rot:", rotX, rotY, rotZ, "  ofs:", ofsX, ofsY, ofsZ)
+        rotX = rad(rotX); rotY = rad(rotY); rotZ = rad(rotZ)  -- Convert degrees to radians.
+
+        ----if TestModel then TestModel:ClearModel() end
+        if not TestModel then
+            TestModel = CreateFrame("PlayerModel", nil, kGameFrame)
+            TestModel:SetAllPoints()
+        end
+
+        local cameraID = 1 -- (0 is non movable.  1 can be rotated. Used by dressing room, character view, etc.  Other #s can be freely moved.)
+        TestModel:ClearModel()
+        TestModel:SetScale(1)
+        if not modelID then return true end  -- Done.
+
+        local modelX = (ScreenMidX + ofsX) / ScreenHypotenuse
+        local modelY = (ScreenMidY + ofsY) / ScreenHypotenuse
+        local modelZ = ofsZ
+
+        TestModel:SetAlpha(1)
+        TestModel:SetFrameStrata( CursorModel:GetFrameStrata() )
+        TestModel:UseModelCenterToTransform(true)
+        TestModel:SetKeepModelOnHide(true)
+        TestModel:Hide()  -- Prevents flickering when model is set.
+
+        TestModel.UseSetTransform = useSetTransform
+        TestModel.Scale = scale
+        TestModel.RotX = rotX; TestModel.RotY = rotY; TestModel.RotZ = rotZ
+        TestModel.OfsX = ofsX; TestModel.OfsY = ofsY; TestModel.OfsZ = ofsZ;
+
+----local posX, posY, posZ, yaw, pitch, roll, animId, animVariation, animFrame, centerModel = GetUICameraInfo(cameraID);
+----Globals.Model_ApplyUICamera(TestModel, cameraID)
+----vdt_dump({Globals.GetUICameraInfo(cameraID)}, "ck1")
+------TestModel:RefreshCamera()  <<< Clobbers your custom camera?
+----TestModel:SetCameraTarget(0,0,0);
+
+    local numTimes = (useSetTransform and 1) or 2  -- For some reason, have to do this part twice when using SetFacing/SetPitch/SetRoll.
+    for i = 1, numTimes do
+        TestModel:SetScale(1)  -- Very important!
+        TestModel:SetModel(modelID)
+        TestModel:SetCustomCamera(cameraID) -- Very important! (Note: SetCamera() doesn't work here.)
+
+        --'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        ----local delay = 0.04  -- Need a 0.04 sec delay between SetModel() and SetTransform() calls.
+        if TestModel.UseSetTransform then
+            print(debugHeader.."Using SetTransform.")
+            --_________________________________________________________________
+            -- SetTransform()
+            --  PROS: Tracking mouse position is trivial.  (Might solve ultrawide monitor problems.)
+            --  CONS: Can't scale models as small as using SetScale(), and using
+            --        the Z offset to "scale" the model is complicated, requiring
+            --        varying changes to Y offset as well.
+            -- Note: SetTransform() requires a custom camera!  Use MakeCurrentCameraCustom() or SetCustomCamera().
+            --_________________________________________________________________
+            ----TestModel:SetCustomCamera(cameraID) -- Works, but HasCustomCamera() still returns false.  WTF?
+            ----TestModel:SetCamera(cameraID)
+            ----TestModel:MakeCurrentCameraCustom() -- Must use a custom camera when using SetTransform().
+            ----C_Timer.After(delay, function()  -- Required delay?
+                TestModel:SetTransform( CreateVector3D(modelX, modelY, modelZ),  -- (Position x,y,z)
+                                        CreateVector3D(rotX, rotY, rotZ),  scale)  -- (Rotation x,y,z) | Scale
+                TestModel:Show()
+            ----end) -- C_Timer
+            ----TestModel:SetCameraDistance(TestModel:GetCameraDistance()*3) -- Note: Requires a custom camera. --<<< NO EFFECT.
+        --'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        else -- Use SetFacing/SetPitch/SetRoll.  (Note: Require a non-custom camera.)
+            print(debugHeader.."Using SetFacing/SetPitch/SetRoll.")
+            --_________________________________________________________________
+            -- SetScale(), SetFacing(), SetPitch(), SetRoll()
+            --  PROS: Original implemention.  Can scale models smaller than SetTransform() can.
+            --  CONS: Difficult to keep model in sync with mouse position.
+            --        Complicated to add new models.
+            --_________________________________________________________________
+            TestModel:ClearTransform()
+            TestModel:SetScale(scale)
+            ----TestModel:SetModelScale(scale)
+            ----C_Timer.After(delay, function()  -- Required delay?
+                ----ofsX, ofsY, ofsZ = TestModel:TransformCameraSpaceToModelSpace(CreateVector3D(ofsX, ofsY, ofsZ)):GetXYZ()
+                TestModel:SetPosition(ofsZ, ofsX, ofsY)
+                TestModel:SetFacing(rotX)
+                TestModel:SetPitch(rotY)
+                TestModel:SetRoll(rotZ)
+
+                --TODO: Retest this ...
+                ----local lightValues = { omnidirectional = false, point = CreateVector3D(0, 0, 0), ambientIntensity = .7, ambientColor = CreateColor(1, 1, 1), diffuseIntensity = 0, diffuseColor = CreateColor(1, 1, 1) };
+                ----local enabled = true;
+                ----TestModel:SetLight(enabled, lightValues);
+                TestModel:Show()
+            ----end) -- C_Timer
+        end
+    end -- FOR
+        --'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        ----vdt_dump(TestModel, "TestModel")
+        ----CursorModel_Dump("TEST MODEL INFO", TestModel)
+        ----C_Timer.After(0.5, function() CursorModel_Dump("TEST MODEL INFO (DELAYED)", TestModel) end)
+        ----Camera_Dump("TEST MODEL CAMERA INFO", TestModel)
+        ----C_Timer.After(0.5, function() Camera_Dump("TEST MODEL CAMERA INFO (DELAYED)", TestModel) end)
+    -------------------------------------------------------------------------------
     elseif (params == "fonts") then
         private.UDControls.DisplayAllFonts()
+    -------------------------------------------------------------------------------
     elseif (params == "bug") then  -- Cause a bug to test error reporting.
         xpcall(bogus_function, geterrorhandler())
         ----xpcall(bogus_function, errHandler)
+    -------------------------------------------------------------------------------
     else
         return false  -- 'params' was NOT handled by this function.
     end
@@ -620,7 +786,7 @@ function Camera_Dump(heading, model)
     print("  HasCustomCamera =", model:HasCustomCamera())
     z, x, y = model:GetCameraPosition()
     print("  GetCameraPosition =", round(z,3)..",  "..round(x,3)..",  "..round(y,3))
-    z, x, y = model:GetPosition()
+    z, x, y = model:GetCameraTarget()
     print("  GetCameraTarget =", round(z,3)..",  "..round(x,3)..",  "..round(y,3))
     print("  GetCameraDistance =", round(model:GetCameraDistance(),3))
     print("  GetCameraRoll =", round(model:GetCameraRoll(),3))
@@ -629,12 +795,15 @@ function Camera_Dump(heading, model)
 end
 
 -------------------------------------------------------------------------------
-function CursorModel_Dump(heading)
-    assert(CursorModel)
-    dumpObject(CursorModel, heading or "MODEL INFO")
-    local w, h = CursorModel:GetSize()
-    print("|cff9999ff    Width =|r", round(w))
-    print("|cff9999ff    Height =|r", round(h))
+function CursorModel_Dump(heading, model)
+    model = model or CursorModel
+    dumpObject(model, heading or "MODEL INFO")
+    local color = "|cff9999ff"
+    local w, h = model:GetSize()
+    print(color.."    GetWidth, GetHeight =|r", round(w), ",", round(h))
+    print(color.."    GetScale, GetModelScale =|r", round(model:GetScale(),3), ",", round(model:GetModelScale(),3))
+    local z, x, y = model:GetPosition()
+    print(color.."    GetPosition (Z,x,y) =|r", round(z,3), ",", round(x,3), ",", round(y,3))
 end
 
 --~ -------------------------------------------------------------------------------

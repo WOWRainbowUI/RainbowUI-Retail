@@ -1,5 +1,4 @@
 --[[---------------------------------------------------------------------------
-    Addon:  CursorTrail
     File:   CursorTrailDefaults.lua
     Desc:   This file contains default settings for this addon.
 -----------------------------------------------------------------------------]]
@@ -79,7 +78,7 @@ kDefaultConfig["閃電-大"] = {
     UserScale = 1.35,
     UserAlpha = 0.50,
     Strata = kDefaultStrata,
-    UserOfsX = 2.0, UserOfsY = -1.6,
+    UserOfsX = 1.0, UserOfsY = -0.9,
     -- - - - - - - - - - - - - - --
     FadeOut = false,
     --UserShowOnlyInCombat = false,
@@ -96,7 +95,7 @@ kDefaultConfig["閃電-小"] = {
     UserScale = 0.50,
     UserAlpha = 1,
     Strata = kDefaultStrata,
-    UserOfsX = 2.0, UserOfsY = -2.1,
+    UserOfsX = 3.4, UserOfsY = -2.8,
     -- - - - - - - - - - - - - - --
     FadeOut = false,
     --UserShowOnlyInCombat = false,
@@ -164,7 +163,7 @@ kDefaultConfig["紫光-淡出2"] = {
     UserScale = 1.5,
     UserAlpha = 0.80,
     Strata = kDefaultStrata,
-    UserOfsX = 0, UserOfsY = 0.1,
+    UserOfsX = 0, UserOfsY = 0.025,
     -- - - - - - - - - - - - - - --
     FadeOut = true,
     --UserShowOnlyInCombat = false,
@@ -184,6 +183,23 @@ kDefaultConfig["光暈-淡出"] = {
     UserOfsX = 0, UserOfsY = 0,
     -- - - - - - - - - - - - - - --
     FadeOut = true,
+    --UserShowOnlyInCombat = false,
+    --UserShowMouseLook = false,
+}
+----------------________________________-----------------------------------
+kDefaultConfig["紅色發光星星"] = {
+    ShapeFileName = kMediaPath.."Star 1.tga",
+    ModelID = 166294,  -- "Burning Cloud, Red"
+    ShapeColorR = 1, ShapeColorG = 0.502, ShapeColorB = 0,
+    ShapeSparkle = false,
+    -- - - - - - - - - - - - - - --
+    UserShadowAlpha = 0.35,
+    UserScale = 1.05,
+    UserAlpha = 1,
+    Strata = kDefaultStrata,
+    UserOfsX = 0, UserOfsY = 0,
+    -- - - - - - - - - - - - - - --
+    FadeOut = false,
     --UserShowOnlyInCombat = false,
     --UserShowMouseLook = false,
 }
@@ -340,7 +356,7 @@ if isRetailWoW() or isWrathWoW() then
         UserScale = 0.42,
         UserAlpha = 0.88,
         Strata = kDefaultStrata,
-        UserOfsX = 0, UserOfsY = 0.025,
+        UserOfsX = 0, UserOfsY = 0.05,
         -- - - - - - - - - - - - - - --
         FadeOut = false,
         --UserShowOnlyInCombat = false,
@@ -415,7 +431,7 @@ if isRetailWoW() then
         UserScale = 0.8,
         UserAlpha = 1,
         Strata = kDefaultStrata,
-        UserOfsX = 0.15, UserOfsY = 0.1,
+        UserOfsX = 0.15, UserOfsY = -0.15,
         -- - - - - - - - - - - - - - --
         FadeOut = false,
         --UserShowOnlyInCombat = false,

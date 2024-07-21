@@ -1,5 +1,4 @@
 --[[---------------------------------------------------------------------------
-    Addon:  CursorTrail
     File:   CursorTrailConfig.lua
     Desc:   Functions and variables for showing this addon's configuration options.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,7 +27,7 @@ local CopyTable = _G.CopyTable
 local CreateFrame = _G.CreateFrame
 local DEFAULT_CHAT_FRAME = _G.DEFAULT_CHAT_FRAME
 local error = _G.error
-local GetAddOnMetadata = _G.GetAddOnMetadata
+local GetAddOnMetadata = C_AddOns.GetAddOnMetadata
 local IsAltKeyDown = _G.IsAltKeyDown
 local IsControlKeyDown = _G.IsControlKeyDown
 local IsShiftKeyDown = _G.IsShiftKeyDown
@@ -47,11 +46,11 @@ local UnitAffectingCombat = _G.UnitAffectingCombat
 
 --~ local GameMenuFrame = _G.GameMenuFrame
 --~ local HideUIPanel = _G.HideUIPanel
-local InterfaceOptions_AddCategory = _G.InterfaceOptions_AddCategory
+--~ local InterfaceOptions_AddCategory = _G.InterfaceOptions_AddCategory
 --~ local InterfaceOptionsFrame_OpenToCategory = _G.InterfaceOptionsFrame_OpenToCategory
 --~ local InterfaceOptionsFrameCancel_OnClick = _G.InterfaceOptionsFrameCancel_OnClick
 --~ local InterfaceOptionsFrame = _G.InterfaceOptionsFrame
---~ local Settings = _G.Settings
+local Settings = _G.Settings
 
 --~ local CloseDropDownMenus = _G.CloseDropDownMenus
 --~ local UIDropDownMenu_CreateInfo = _G.UIDropDownMenu_CreateInfo
@@ -172,7 +171,7 @@ function UI_SetValues(config)  -- Copies config data into UI widgets.  If 'confi
     if config.UserShowOnlyInCombat == true or config.UserShowOnlyInCombat == false then  -- If nil, leave as-is.
         OptionsFrame_Value("combat", config.UserShowOnlyInCombat)
     end
-    if config.UserShowMouseLook == true or config.UserShowOnlyInCombat == false then  -- If nil, leave as-is.
+    if config.UserShowMouseLook == true or config.UserShowMouseLook == false then  -- If nil, leave as-is.
         OptionsFrame_Value("MouseLook", config.UserShowMouseLook)
     end
 
@@ -292,9 +291,12 @@ function StandardPanel_Create(buttonText, buttonW, buttonH)
     ----    category.ID = StandardPanel.name
     ----    Settings.RegisterAddOnCategory(category)
     ----else
-        InterfaceOptions_AddCategory(StandardPanel)
+        -- InterfaceOptions_AddCategory(StandardPanel)
     ----end
     --|traceCfg("OUT StandardPanel_Create().")
+	local category = Settings.RegisterCanvasLayoutCategory(StandardPanel, StandardPanel.name)
+	category.ID = StandardPanel.name
+	Settings.RegisterAddOnCategory(category)
 end
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -478,15 +480,50 @@ function OptionsFrame_Create()
     OptionsFrame.OkayBtn:SetScript("OnClick", OptionsFrame_OnOkay)
 
     -- HELP BUTTON --
-    OptionsFrame.HelpBtn = CreateFrame("Button", nil, OptionsFrame, kButtonTemplate)
-    OptionsFrame.HelpBtn:SetText("說明")
-    OptionsFrame.HelpBtn:SetPoint("BOTTOMLEFT", OptionsFrame, "BOTTOMLEFT", kFrameMargin+4, kFrameMargin)
-    OptionsFrame.HelpBtn:SetSize(kBtnWidth-24, kBtnHeight)
-    OptionsFrame.HelpBtn:SetScript("OnClick", function()
-            PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
-            ----PlaySound(SOUNDKIT.TELL_MESSAGE)
-            ----printUsageMsg()
+    local function createHelpTexture(parent, alpha)
+        local tex = parent:CreateTexture(nil, "ARTWORK")
+        ----tex:SetTexture("Interface\\HELPFRAME\\HelpIcon-KnowledgeBase")
+        ----tex:SetTexCoord(0.20, 0.8, 0.2, 0.8)
+        ----tex:SetSize(20, 20)
+        tex:SetTexture("Interface\\MINIMAP\\TRACKING\\Profession")
+        tex:SetSize(32, 32)
+        if alpha then tex:SetAlpha(alpha) end
+        return tex
+    end
+
+    local normalTex, highlightTex, pushedTex
+    normalTex    = createHelpTexture(OptionsFrame, 0.7)
+    highlightTex = createHelpTexture(OptionsFrame, 0.4)
+    pushedTex    = createHelpTexture(OptionsFrame, 0.4)
+    OptionsFrame.HelpBtn = private.UDControls.CreateTextureButton(OptionsFrame, normalTex, highlightTex, pushedTex)
+
+    OptionsFrame.HelpBtn:SetPoint("BOTTOMLEFT", OptionsFrame, "BOTTOMLEFT", kFrameMargin-2, kFrameMargin-3)
+    OptionsFrame.HelpBtn:SetTooltip("說明", "ANCHOR_TOP")
+    OptionsFrame.HelpBtn:SetScript("OnClick", function(self)
+            PlaySound(private.kSound.ActionQuiet)
             CursorTrail_ShowHelp(OptionsFrame)
+        end)
+
+    -- CHANGELOG BUTTON (ICON) --
+    local function createChangelogTexture(parent, alpha)
+        local tex = parent:CreateTexture(nil, "ARTWORK")
+        tex:SetTexture("Interface\\COMMON\\help-i")
+        tex:SetTexCoord(0.25, 0.75, 0.25, 0.75)
+        tex:SetSize(20, 20)
+        if alpha then tex:SetAlpha(alpha) end
+        return tex
+    end
+
+    normalTex    = createChangelogTexture(OptionsFrame, 0.7)
+    highlightTex = createChangelogTexture(OptionsFrame, 0.4)
+    pushedTex    = createChangelogTexture(OptionsFrame, 0.4)
+    OptionsFrame.ChangelogBtn = private.UDControls.CreateTextureButton(OptionsFrame, normalTex, highlightTex, pushedTex)
+
+    OptionsFrame.ChangelogBtn:SetPoint("LEFT", OptionsFrame.HelpBtn, "RIGHT", 7, -0.5)
+    OptionsFrame.ChangelogBtn:SetTooltip("更新資訊", "ANCHOR_TOP")
+    OptionsFrame.ChangelogBtn:SetScript("OnClick", function(self)
+            PlaySound(private.kSound.ActionQuiet)
+            CursorTrail_ShowChangelog(OptionsFrame)
         end)
 
     -- SHAPE --
@@ -513,12 +550,30 @@ function OptionsFrame_Create()
                 ----OptionsFrame:UpdatePreview()
             end)
 
+    OptionsFrame.ShapeColor:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    OptionsFrame.ShapeColor:SetScript("OnMouseUp", function(self, mouseButton)
+                PlaySound(private.kSound.ActionQuiet)
+
+                if mouseButton == "RightButton" then
+                    -- Right-clicks set the control's default value.
+                    if ColorPickerFrame:IsShown() then
+                        ColorPickerFrame:Hide()
+                    end
+                    self:SetColor(1,1,1)
+                    self:colorChangedHandler()
+                end
+            end)
+
     -- SHAPE SPARKLE --
     OptionsFrame.SparkleCheckbox = OptionsFrame_CreateCheckBox("閃耀", xPos, yPos)
     OptionsFrame.SparkleCheckbox:ClearAllPoints()
     OptionsFrame.SparkleCheckbox:SetPoint("LEFT", OptionsFrame.ShapeColor, "RIGHT", 4, 0)
     OptionsFrame.SparkleCheckbox:SetScript('PostClick', function(self, button)
-        CursorTrail_SetShapeSparkle( self:GetChecked() )
+        local isChecked = self:GetChecked()
+        if isChecked and ColorPickerFrame:IsShown() then
+            ColorPickerFrame:Hide()
+        end
+        CursorTrail_SetShapeSparkle(isChecked)
         OptionsFrame_UpdateButtonStates()
     end)
 
@@ -544,7 +599,7 @@ function OptionsFrame_Create()
     -- SHADOW (%) --
     OptionsFrame.ShadowLabel = OptionsFrame_CreateLabel("陰影 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
-    OptionsFrame.ShadowEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true)
+    OptionsFrame.ShadowEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 0)
     OptionsFrame.ShadowEditBox:SetScript("OnTextChanged", OptionsFrame_OnShadowChanged)
 
     -- Next row.
@@ -558,7 +613,7 @@ function OptionsFrame_Create()
     -- SCALE (%) --
     OptionsFrame.ScaleLabel = OptionsFrame_CreateLabel("縮放大小 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
-    OptionsFrame.ScaleEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true)
+    OptionsFrame.ScaleEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 100)
     OptionsFrame.ScaleEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
 
     -- Next row.
@@ -568,7 +623,7 @@ function OptionsFrame_Create()
     -- OPACITY --
     OptionsFrame.AlphaLabel = OptionsFrame_CreateLabel("不透明度 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
-    OptionsFrame.AlphaEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true)
+    OptionsFrame.AlphaEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 100)
     OptionsFrame.AlphaEditBox:SetScript("OnTextChanged", OptionsFrame_OnAlphaChanged)
 
     -- Next row.
@@ -589,12 +644,12 @@ function OptionsFrame_Create()
     OptionsFrame.OffsetLabel = OptionsFrame_CreateLabel("調整位置:", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     -- X
-    OptionsFrame.OfsXEditBox = OptionsFrame_CreateEditBox(xPos, yPos, 42)
+    OptionsFrame.OfsXEditBox = OptionsFrame_CreateEditBox(xPos, yPos, 42, nil, nil, 0)
     OptionsFrame.OfsXEditBox.scrollDelta = 0.25
     OptionsFrame.OfsXEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
     xPos = xPos + OptionsFrame.OfsXEditBox:GetWidth() + 12  -- Next column.
     -- Y
-    OptionsFrame.OfsYEditBox = OptionsFrame_CreateEditBox(xPos, yPos, 42)
+    OptionsFrame.OfsYEditBox = OptionsFrame_CreateEditBox(xPos, yPos, 42, nil, nil, 0)
     OptionsFrame.OfsYEditBox.scrollDelta = OptionsFrame.OfsXEditBox.scrollDelta
     OptionsFrame.OfsYEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
 
@@ -650,6 +705,7 @@ function OptionsFrame_Create()
     OptionsFrame.TipText:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", xPos-2, yPos)
     OptionsFrame.TipText:SetPoint("RIGHT", -kFrameMargin, 0)
     OptionsFrame.TipText:SetText("* 提示: 可以使用滑鼠滾輪或方向鍵上/下來更改數值。")
+    OptionsFrame.TipText:SetJustifyH("LEFT")
 
     --------------------------------
     -- Set size of options window.
@@ -664,11 +720,15 @@ function OptionsFrame_Create()
         OptionsFrame:SetPoint("CENTER", UIParent, "CENTER", kFrameWidth/2+100, 0)  -- Move it right.
         local develWarning = OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         develWarning:SetPoint("BOTTOMLEFT", OptionsFrame, "TOPLEFT", 9, 10)
-        develWarning:SetText("***** WARNING - BASE VALUE EDITING KEYS ARE ENABLED! *****")
+        develWarning:SetText("|cff00FFFF***** WARNING - BASE VALUE EDITING KEYS ARE ENABLED! *****")
 
         centerFrame = CreateFrame("Frame", nil, OptionsFrame)
         centerFrame:SetPoint("CENTER", UIParent, "CENTER")
-        centerFrame:SetSize(32, 32)
+        centerFrame.updateSize = function(self)  -- [ Keywords: centerFrame:updateSize() ]
+                    local boxSize = 22 / ScreenScale
+                    centerFrame:SetSize(boxSize, boxSize)
+                end
+        centerFrame:updateSize()
         centerFrame:SetAlpha(0.5)
         local lineW = 2
         local topLine = centerFrame:CreateTexture(nil, "BACKGROUND")
@@ -694,7 +754,7 @@ function OptionsFrame_Create()
         local centerPoint = centerFrame:CreateTexture(nil, "BACKGROUND")
         centerPoint:SetColorTexture(0, 0, 0, 1) -- Black
         centerPoint:SetPoint("CENTER", centerFrame, "CENTER")
-        centerPoint:SetSize(4, 4)
+        centerPoint:SetSize(3, 3)
 
         local function onKeyDown_ChangeBaseVals(self, key)
             --|traceCfg("IN onKeyDown_ChangeBaseVals("..(self:GetName() or "nil")..", "..(key or "nil")..")")
@@ -767,7 +827,7 @@ end
 
 -------------------------------------------------------------------------------
 function OptionsFrame_HandleNewFeatures()
-    local newFeatureIndicator = GREEN.."::::[新的]::::|r"
+    local newFeatureIndicator = GREEN.."::::(新功能)::::|r"
     local bNewFeaturesShown = false
 
     -- Loop through all new features and for each one the user has not yet seen, change
@@ -820,7 +880,7 @@ function OptionsFrame_HandleNewFeatures()
 
     if (bNewFeaturesShown == true) then
         print(kAddonAlertHeading.."新功能的名稱旁會顯示 "..newFeatureIndicator.."。 (下次重新載入後便不再顯示)")
-        PlaySound(1440, "MASTER") -- 1440=LevelUp, 171006=ReputationLevelUp
+        PlaySound(1440) -- 1440=LevelUp, 171006=ReputationLevelUp
     end
 end
 
@@ -857,6 +917,7 @@ function OptionsFrame_OnHide()
         CursorTrail_Hide()  -- Not in combat so hide the cursor effects.
     end
     CursorTrail_HideHelp()
+    CursorTrail_HideChangelog()
     OptionsFrame.OriginalConfig = nil  -- Free memory.
     EventFrame:UnregisterEvent("GLOBAL_MOUSE_DOWN")
     --|traceCfg("OUT OptionsFrame_OnHide().")
@@ -948,8 +1009,15 @@ function OptionsFrame_OnKeyDown(self, key)
     --|if not OptionsFrame:IsShown() then traceCfg("OUT OptionsFrame_OnKeyDown(), early 1."); return; end
     local bPassKeyToParent = false
 
-    if key == "TAB" then OptionsFrame_FocusNext()
-    elseif key == "ESCAPE" then OptionsFrame_OnCancel()
+    if key == "TAB" then
+        OptionsFrame_FocusNext()
+    elseif key == "ESCAPE" then
+        if not OptionsFrame.ProfilesUI:hideOptions()
+          and not CursorTrail_HideChangelog()
+          and not CursorTrail_HideHelp()
+          then
+            OptionsFrame_OnCancel()
+        end
     else bPassKeyToParent = true
     end
 
@@ -973,6 +1041,26 @@ function OptionsFrame_EditBox_OnKeyDown(self, key)
         end
     end
     --|traceCfg("OUT OptionsFrame_EditBox_OnKeyDown("..(self:GetName() or "nil")..", "..(key or "nil")..").")
+end
+
+-------------------------------------------------------------------------------
+function OptionsFrame_DropDown_OnButtonUp(self, mouseButton)
+    PlaySound(private.kSound.ActionQuiet)
+
+    if mouseButton == "RightButton" then
+        -- Right-clicks toggle between default value and previous selection.
+        local dropdown = self:GetParent()
+        dropdown:HideSelections()
+        local current = dropdown:GetSelectedText()
+        if current == kStr_None then
+            if dropdown.previousSelection then
+                dropdown:SelectText(dropdown.previousSelection, true)
+            end
+        else
+            dropdown:SelectText(kStr_None, true)
+        end
+        dropdown.previousSelection = current
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -1037,11 +1125,13 @@ function OptionsFrame_OnValueChanged(self, isUserInput)
     --|traceCfg("IN OptionsFrame_OnValueChanged().")
     ----print("OptionsFrame_OnValueChanged:  self:GetText() =", self:GetText())
     if (isUserInput == true) then
-        CursorTrail_ApplyModelSettings(
-                    OptionsFrame_Value("scale"),
-                    OptionsFrame_Value("OfsX"),
-                    OptionsFrame_Value("OfsY"),
-                    OptionsFrame_Value("alpha") )
+        local config = {}
+        config.UserScale = OptionsFrame_Value("scale")
+        config.UserAlpha = OptionsFrame_Value("alpha")
+        config.UserOfsX = OptionsFrame_Value("OfsX")
+        config.UserOfsY = OptionsFrame_Value("OfsY")
+
+        CursorTrail_ApplyModelSettings(config)
         OptionsFrame.ProfilesUI:OnValueChanged()
         OptionsFrame_SetModified(true)
         ----OptionsFrame:UpdatePreview()
@@ -1262,7 +1352,7 @@ function OptionsFrame_CreateLabel(labelText, x, y, fontName)
 end
 
 -------------------------------------------------------------------------------
-function OptionsFrame_CreateEditBox(x, y, width, maxChars, bNumeric)
+function OptionsFrame_CreateEditBox(x, y, width, maxChars, bNumeric, defaultVal)
     --|traceCfg("IN OptionsFrame_CreateEditBox().")
     local editboxFrame = CreateFrame("EditBox", nil, OptionsFrame, "InputBoxTemplate")
     editboxFrame:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x+9, y+10)
@@ -1284,6 +1374,18 @@ function OptionsFrame_CreateEditBox(x, y, width, maxChars, bNumeric)
     editboxFrame:SetScript("OnEditFocusGained", function(self) self:HighlightText(); self:SetCursorPosition(99) end)
     editboxFrame:SetScript("OnMouseWheel", OptionsFrame_IncrDecrValue)
 
+    -- Make right-clicks set the control's default value (or revert to previous selection).
+    if defaultVal then
+        editboxFrame:HookScript("OnMouseUp", function(self, mouseButton)
+                    if mouseButton == "RightButton" then
+                        editboxFrame:SetText(defaultVal)
+                        editboxFrame:HighlightText()
+                        editboxFrame:GetScript("OnTextChanged")(editboxFrame, true)
+                        PlaySound(private.kSound.ActionQuiet)
+                    end
+                end)
+    end
+
     --|traceCfg("OUT OptionsFrame_CreateEditBox().")
     return editboxFrame
 end
@@ -1295,6 +1397,8 @@ function OptionsFrame_CreateCheckBox(labelText, x, y)
     checkbox:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x+kFrameMargin+kColumnWidth1-17, y+7)
 	checkbox:SetScript('OnClick', function(self)
                     --|traceCfg("IN checkbox:OnClick("..(self:GetName() or "nil")..").")
+                    if self:GetChecked() then PlaySound(856) else PlaySound(857) end -- IG_MAINMENU_OPTION_CHECKBOX_ON/OFF.
+
                     OptionsFrame.ProfilesUI:OnValueChanged()
                     OptionsFrame_SetModified(true)
                     OptionsFrame_ClearFocus()
@@ -1332,6 +1436,7 @@ function OptionsFrame_CreateModelDropDown(x, y, width)
     local dropdown = private.UDControls.CreateDropDown(OptionsFrame)
     dropdown:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y+7)
     dropdown:Configure(width / kDropdownListboxScale)
+    dropdown:SetDynamicWheelSpeed(true)
     dropdown:SetListBoxHeight(ScreenH / kDropdownListboxScale)
     dropdown:GetListBoxFrame():SetScale( kDropdownListboxScale )
     ----dropdown.tooltip = "Testing  1  2  3"  -- For testing.
@@ -1342,7 +1447,7 @@ function OptionsFrame_CreateModelDropDown(x, y, width)
             OptionsFrame_Value("model", selectedID)
             OptionsFrame.ProfilesUI:OnValueChanged()
 
-            -- Display the new model immediately.
+            -- Display the new model immediately.  (Use current UI values for all settings.)
             local tmpConfig = CopyTable(PlayerConfig)
             tmpConfig.UserShowOnlyInCombat = false -- Always show while Options Window is open.
             tmpConfig.ModelID   = selectedID
@@ -1361,13 +1466,30 @@ function OptionsFrame_CreateModelDropDown(x, y, width)
             OptionsFrame_UpdateButtonStates()
             ----OptionsFrame_RaiseEffectsStrata()
             ----OptionsFrame:UpdatePreview()
+
+            if kNewModels[selectedID] then
+                Globals.CursorTrail_Config.NewFeaturesSeen[selectedID] = true  -- Only mark new models until they are selected once.
+            end
             --|traceCfg("OUT dropdown:changeHandler("..(selectedID or "nil")..").")
         end
     )
 
     -- Add the items.
+    local newFeaturesSeen = Globals.CursorTrail_Config.NewFeaturesSeen
+    local newModelIndicator = GREEN.."("..NEW..")|r "
     for _, modelData in pairs(kSortedModelChoices) do
-        dropdown:AddItem(modelData.Name, modelData.sortedID)
+        local name = modelData.Name
+        local ID = modelData.sortedID
+        if kNewModels[ID] and not newFeaturesSeen[ID] then
+            ----name = newModelIndicator .. name  -- Mark new models.
+            for key, cat in pairs(kCategory) do
+                local catLen = #cat
+                if cat == name:sub(1,catLen) then
+                    name = cat .. newModelIndicator .. name:sub(catLen+1)
+                end
+            end
+        end
+        dropdown:AddItem(name, ID)
     end
 
     -- Set dropdown's text to the selected model name.
@@ -1376,9 +1498,14 @@ function OptionsFrame_CreateModelDropDown(x, y, width)
     -- Make mouse wheel over the collapsed dropdown change its selection.
     dropdown:SetScript("OnMouseWheel", function(self, delta)
                 --|traceCfg("IN ModelDropDown:OnMouseWheel().")
+                self:HideSelections()  -- i.e. CloseDropDownMenus()
                 OptionsFrame_IncrDecrModel(delta)
                 --|traceCfg("OUT ModelDropDown:OnMouseWheel().")
             end)
+
+    -- Make right-clicks set the control's default value (or revert to previous selection).
+    dropdown.buttonFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    dropdown.buttonFrame:SetScript("OnMouseUp", OptionsFrame_DropDown_OnButtonUp)
 
     ----vdt_dump(dropdown, "dropdown in CreateModelDropDown")
     --|traceCfg("OUT OptionsFrame_CreateModelDropDown().")
@@ -1391,6 +1518,7 @@ function OptionsFrame_CreateShapeDropDown(x, y, width)
     local dropdown = private.UDControls.CreateDropDown(OptionsFrame)
     dropdown:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y+7)
     dropdown:Configure(width / kDropdownListboxScale)
+    ----dropdown:SetDynamicWheelSpeed(true)
     dropdown:SetListBoxHeight(ScreenH / kDropdownListboxScale)
     dropdown:GetListBoxFrame():SetScale( kDropdownListboxScale )
 
@@ -1400,7 +1528,7 @@ function OptionsFrame_CreateShapeDropDown(x, y, width)
             OptionsFrame_Value("shape", selectedID)
             OptionsFrame.ProfilesUI:OnValueChanged()
 
-            -- Display the new shape immediately.
+            -- Display the new shape immediately.  (Use current UI values for all settings.)
             local tmpConfig = CopyTable(PlayerConfig)
             tmpConfig.UserShowOnlyInCombat = false -- Always show while Options Window is open.
             tmpConfig.ModelID   = OptionsFrame_Value("model")
@@ -1441,9 +1569,14 @@ function OptionsFrame_CreateShapeDropDown(x, y, width)
     -- Make mouse wheel over the collapsed dropdown change its selection.
     dropdown:SetScript("OnMouseWheel", function(self, delta)
                 --|traceCfg("IN ShapeDropDown:OnMouseWheel().")
+                self:HideSelections()  -- i.e. CloseDropDownMenus()
                 OptionsFrame_IncrDecrShape(delta)
                 --|traceCfg("OUT ShapeDropDown:OnMouseWheel().")
             end)
+
+    -- Make right-clicks set the control's default value (or revert to previous selection).
+    dropdown.buttonFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    dropdown.buttonFrame:SetScript("OnMouseUp", OptionsFrame_DropDown_OnButtonUp)
 
     --|traceCfg("OUT OptionsFrame_CreateShapeDropDown().")
     return dropdown
@@ -1455,6 +1588,7 @@ function OptionsFrame_CreateStrataDropDown(x, y, width)
     local dropdown = private.UDControls.CreateDropDown(OptionsFrame)
     dropdown:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y+7)
     dropdown:Configure(width / kDropdownListboxScale)
+    ----dropdown:SetDynamicWheelSpeed(true)
     dropdown:SetListBoxHeight(ScreenH / kDropdownListboxScale)
     dropdown:GetListBoxFrame():SetScale( kDropdownListboxScale )
     dropdown:SetChangeHandler(
@@ -1486,8 +1620,16 @@ function OptionsFrame_CreateStrataDropDown(x, y, width)
     -- Make mouse wheel over the collapsed dropdown change its selection.
     dropdown:SetScript("OnMouseWheel", function(self, delta)
                 --|traceCfg("IN StrataDropDown:OnMouseWheel().")
+                self:HideSelections()  -- i.e. CloseDropDownMenus()
                 OptionsFrame_IncrDecrStrata(delta)
                 --|traceCfg("OUT StrataDropDown:OnMouseWheel().")
+            end)
+
+    ------ Make right-clicks set the control's default value (or revert to previous selection).
+    ----dropdown.buttonFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    ----dropdown.buttonFrame:SetScript("OnMouseUp", OptionsFrame_DropDown_OnButtonUp)
+    dropdown.buttonFrame:SetScript("OnMouseUp", function(self, mouseButton)
+                PlaySound(private.kSound.ActionQuiet)
             end)
 
     --|traceCfg("OUT OptionsFrame_CreateStrataDropDown().")
