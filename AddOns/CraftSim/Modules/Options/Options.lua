@@ -275,7 +275,9 @@ function CraftSim.OPTIONS:Init()
         end
     }
 
-    InterfaceOptions_AddCategory(self.optionsPanel)
+    local category = Settings.RegisterCanvasLayoutCategory(self.optionsPanel, self.optionsPanel.name)
+	category.ID = self.optionsPanel.name
+    Settings.RegisterAddOnCategory(category)
 end
 
 function CraftSim.OPTIONS:InitTSMTab(TSMTab)

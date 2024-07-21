@@ -424,7 +424,12 @@ function GUTIL:StripColor(text)
     return text
 end
 
+---@param value number
+---@param hundredPercentValue number
 function GUTIL:GetPercentRelativeTo(value, hundredPercentValue)
+    if hundredPercentValue == 0 then
+        return 100
+    end
     local oneP = hundredPercentValue / 100
     local percent = GUTIL:Round(value / oneP, 0)
 
@@ -631,7 +636,7 @@ function GUTIL:EquipItemByLink(link)
 end
 
 function GUTIL:isItemSoulbound(itemID)
-    return select(14, GetItemInfo(itemID)) == 1
+    return select(14, C_Item.GetItemInfo(itemID)) == 1
 end
 
 --> GGUI or keep here?

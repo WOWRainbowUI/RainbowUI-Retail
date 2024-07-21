@@ -151,7 +151,7 @@ function CraftSim.CONTROL_PANEL.FRAMES:Init()
         sizeY = 25,
         adjustWidth = true,
         clickCallback = function()
-            InterfaceOptionsFrame_OpenToCategory(CraftSim.OPTIONS.optionsPanel)
+            Settings.OpenToCategory(CraftSim.OPTIONS.optionsPanel.name)
         end,
         label = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CONTROL_PANEL_OPTIONS)
     })
@@ -242,15 +242,11 @@ function CraftSim.CONTROL_PANEL.FRAMES:Init()
         CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_RECIPE_SCAN_TOOLTIP),
         "LEFT", frame.content.MODULE_SPEC_INFO.frame, "RIGHT", 125, 0, "MODULE_RECIPE_SCAN")
 
-    frame.content.MODULE_CUSTOMER_SERVICE = createModuleCheckbox(
-        CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CUSTOMER_SERVICE_LABEL),
-        CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CUSTOMER_SERVICE_TOOLTIP),
-        "TOP", frame.content.MODULE_RECIPE_SCAN.frame, "TOP", 0, cbSpacingY, "MODULE_CUSTOMER_SERVICE")
 
     frame.content.MODULE_CUSTOMER_HISTORY = createModuleCheckbox(
         CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CUSTOMER_HISTORY_LABEL),
         CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CONTROL_PANEL_MODULES_CUSTOMER_HISTORY_TOOLTIP),
-        "TOP", frame.content.MODULE_CUSTOMER_SERVICE.frame, "TOP", 0, cbSpacingY, "MODULE_CUSTOMER_HISTORY",
+        "TOP", frame.content.MODULE_RECIPE_SCAN.frame, "TOP", 0, cbSpacingY, "MODULE_CUSTOMER_HISTORY",
         CraftSim.CONST.FRAMES.CUSTOMER_HISTORY)
 
     frame.content.MODULE_EXPLANATIONS = createModuleCheckbox(
