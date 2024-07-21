@@ -16,10 +16,6 @@ D["!!!gmFonts"] = {
     },
 	{
 		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
-	{
-		type = "text",
 		text = "|cffFF2D2D特別注意：請不要選擇英文字體，會無法顯示中文字。|r",
 	},
 };
@@ -57,10 +53,6 @@ D["!KalielsTracker"] = {
         text = "設定選項",
         callback = function(cfg, v, loading) SlashCmdList["KALIELSTRACKER"]("config") end,
     },
-	{
-		type = "text",
-		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
-	},
 };
 D["Accountant_Classic"] = {
 	defaultEnable = 1,
@@ -307,7 +299,7 @@ D["BagSync"] = {
 D["BattleGroundEnemies"] = {
 	defaultEnable = 0,
 	tags = { "PVP" },
-	title = "(暫時停用) 戰場目標框架",
+	title = "戰場目標框架",
 	desc = "戰場專用的友方和敵方單位框架，可以監控敵人的血量、減益效果、控場遞減...等等多種狀態。`",
 	modifier = "彩虹ui",
 	img = true,
@@ -472,13 +464,17 @@ D["ButtonForge"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) 
-			Settings.OpenToCategory("快捷列-更多")
+        callback = function(cfg, v, loading)
+			if (BFConfigureLayer:IsShown()) then
+				BFConfigureLayer:Hide();
+			else
+				BFConfigureLayer:Show();
+			end
 		end,
     },
 	{
 		type = "text",
-        text = "建立快捷列：在設定選項中開啟更多快捷列工具來建立。\n\n也可以在 Esc > 選項 > 按鍵綁定 > 插件 > 更多快捷列，綁定一個快速鍵來切換顯示更多快捷列工具。\n",
+        text = "也可以在 Esc > 選項 > 按鍵綁定 > 插件 > 更多快捷列，綁定一個快速鍵來切換顯示更多快捷列工具。\n",
 	},
 	{
         text = "按鈕間距",
@@ -568,20 +564,6 @@ D["CombatTimeTracker"] = {
 	{
         type = "text",
 		text = "移動位置：在設定選項中解鎖位置後，便可拖曳移動。",
-    },
-};
-D["Conceal"] = {
-	defaultEnable = 0,
-	tags = { "ENHANCEMENT" },
-	title = "隱藏介面",
-	desc = "可以將頭像、背包、快捷列...等隱藏或設為半透明，滑鼠指向或戰鬥中才顯示出來。`",
-	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\ability_mage_invisibility",
-	{
-        text = "設定選項",
-        callback = function(cfg, v, loading) 
-			Settings.OpenToCategory("隱藏")
-		end,
     },
 };
 D["Combuctor"] = {
@@ -824,9 +806,17 @@ D["DragonRider"] = {
 	desc = "顯示飛龍騎術的飛行速度，方便達成快意翱翔的效果，並且提供一些自訂選項。`",
 	modifier = "彩虹ui",
 	{
-		type = "text",
-		text = "設定選項: 按 Esc > 選項 > 插件 > 飛龍速度條。\n",
-	},
+        text = "設定選項",
+		callback = function(cfg, v, loading)
+			Settings.OpenToCategory("DragonRider")
+		end,
+    },
+	{
+        text = "分龍騎術競賽成績",
+		callback = function(cfg, v, loading)
+			SlashCmdList["DRAGONRIDER"]("")
+		end,
+    },
 };
 D["Drift"] = {
 	defaultEnable = 1,

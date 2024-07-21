@@ -688,7 +688,8 @@ function U1OutputAddonLoaded(name, loaded, reason)
     if(loaded)then
         U1OutputAddonState(L["%s loaded"], name);
     else
-        U1OutputAddonState(L["%s load failed, reason: "]..(reason and _G["U1REASON_"..reason] or reason or L["unknown"]), name);
+        U1OutputAddonState(L["%s load failed, reason: "]..(reason and _G["U1REASON_"..reason] or reason or L["need to reload ui"]), name);
+		U1ChangeReloadList(name, nil, 1)
     end
 end
 
