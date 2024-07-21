@@ -6,11 +6,17 @@ local _lastParent;
 
 local OverviewFrame = KeystoneLoot:GetOverview();
 
-local TooltipFrame = CreateFrame('Frame', nil, OverviewFrame, 'TooltipBackdropTemplate');
+local TooltipFrame = CreateFrame('Frame', nil, OverviewFrame);
 OverviewFrame.TooltipFrame = TooltipFrame;
 TooltipFrame:Hide();
 TooltipFrame:SetToplevel(true);
 TooltipFrame:SetFrameStrata('FULLSCREEN_DIALOG');
+
+local Background = TooltipFrame:CreateTexture(nil, 'BACKGROUND');
+Background:SetAtlas('common-dropdown-bg');
+Background:SetPoint('TOPLEFT', -1, 1);
+Background:SetPoint('BOTTOMRIGHT', 1, -7);
+Background:SetAlpha(0.925);
 
 
 local function ListButton_OnEnter(self)
@@ -63,12 +69,17 @@ local function CreateListButton(i)
 	Background:SetBlendMode('ADD');
 	Background:SetVertexColor(0.8, 0.6, 0, 1);
 
-	local Check = Button:CreateTexture(nil, 'ARTWORK');
-	Button.Check = Check;
-	Check:SetSize(16, 16);
-	Check:SetPoint('LEFT');
-	Check:SetTexture('Interface\\Common\\UI-DropDownRadioChecks');
-	Check:SetTexCoord(0.5, 1, 0, 0.5);
+	local Ticksquare = Button:CreateTexture(nil, 'ARTWORK', nil, 0);
+	Button.Ticksquare = Ticksquare;
+	Ticksquare:SetSize(13, 13);
+	Ticksquare:SetPoint('LEFT');
+	Ticksquare:SetAtlas('common-dropdown-ticksquare');
+
+	local Checkmark = Button:CreateTexture(nil, 'ARTWORK', nil, 1);
+	Button.Checkmark = Checkmark;
+	Checkmark:SetSize(13, 13);
+	Checkmark:SetPoint('CENTER', Ticksquare, 2, 1);
+	Checkmark:SetAtlas('common-dropdown-icon-checkmark-yellow');
 
 	local Divider = Button:CreateTexture(nil, 'BACKGROUND');
 	Button.Divider = Divider;
@@ -78,7 +89,7 @@ local function CreateListButton(i)
 	local Text = Button:CreateFontString('ARTWORK', nil, 'GameFontHighlightSmallLeft');
 	Button.Text = Text;
 	Text:SetWordWrap(false);
-	Text:SetPoint('LEFT', Check, 'RIGHT', 4, -1);
+	Text:SetPoint('LEFT', Ticksquare, 'RIGHT', 4, -1);
 
 	table.insert(_buttons, Button);
 
@@ -126,7 +137,8 @@ function KeystoneLoot:ToggleDropDown(parent)
 			local Button = _buttons[i] or CreateListButton(i);
 			Button:Show();
 
-			local Check = Button.Check;
+			local Ticksquare = Button.Ticksquare;
+			local Checkmark = Button.Checkmark;
 			local Divider = Button.Divider;
 			local Text = Button.Text;
 
@@ -135,14 +147,15 @@ function KeystoneLoot:ToggleDropDown(parent)
 			if (info.divider) then
 				Button:Disable();
 				Button:SetHeight(8);
-				Check:Hide();
+				Ticksquare:Hide();
+				Checkmark:Hide();
 				Divider:Show();
 				Text:SetText('');
 
 				dropdownHeight = dropdownHeight + 8;
 			else
 				Button:SetHeight(18);
-				Check:Show();
+				Ticksquare:Show();
 				Divider:Hide();
 				Text:SetText(info.text);
 
@@ -155,23 +168,24 @@ function KeystoneLoot:ToggleDropDown(parent)
 				end
 
 				if (info.checked) then
-					Check:SetTexCoord(0, 0.5, 0, 0.5);
+					Checkmark:Show();
 				else
-					Check:SetTexCoord(0.5, 1, 0, 0.5);
+					Checkmark:Hide();
 				end
 
 				if (info.notCheckable) then
-					Check:SetAlpha(0);
-					leftPadding = leftPadding - 20;
+					Ticksquare:SetAlpha(0);
+					leftPadding = leftPadding - 17;
+					Checkmark:Hide();
 				else
-					Check:SetAlpha(1);
+					Ticksquare:SetAlpha(1);
 				end
 
 				if (info.leftPadding) then
 					leftPadding = leftPadding + info.leftPadding;
 				end
 
-				Check:SetPoint('LEFT', leftPadding, 1);
+				Ticksquare:SetPoint('LEFT', leftPadding, 0);
 
 				dropdownHeight = dropdownHeight + 18;
 			end
@@ -188,7 +202,7 @@ function KeystoneLoot:ToggleDropDown(parent)
 		end
 
 		TooltipFrame:SetSize(dropdownWidth + 50, dropdownHeight + 20);
-		TooltipFrame:SetPoint('TOPLEFT', parent, 'BOTTOMLEFT', 5, 0);
+		TooltipFrame:SetPoint('TOPLEFT', parent, 'BOTTOMLEFT', -10, 2);
 		TooltipFrame:Show();
 	end
 end
