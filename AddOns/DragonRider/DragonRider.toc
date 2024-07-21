@@ -1,4 +1,4 @@
-## Interface: 100207
+## Interface: 100207, 110000
 ## Author: Keyboardturner
 ## Version: 0.3.6
 ## Title: Dragon Rider

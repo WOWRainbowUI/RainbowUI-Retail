@@ -1472,7 +1472,7 @@ function DR:toggleEvent(event, arg1)
 			local initializer = CreateSettingsButtonInitializer(L["ResetAllSettings"], RESET, OnButtonClick, L["ResetAllSettingsTT"], true);
 			layout:AddInitializer(initializer);
 		end
-
+		category.ID = "DragonRider" -- 自行加入
 		Settings.RegisterAddOnCategory(category)
 
 
