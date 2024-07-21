@@ -238,16 +238,15 @@ DR.DragonRidingZoneIDs = {
 	2454, -- Zaralek Cavern
 	2548, -- Emerald Dream
 	2549, -- Amirdrassil Raid
+	2516, -- The Nokhud Offensive
 };
 
 function DR.DragonRidingZoneCheck()
 	for k, v in pairs(DR.DragonRidingZoneIDs) do
 		if GetInstanceInfo() then
-			local _, _, _, _, _, _, _, instanceID, _, _ = GetInstanceInfo()
+			local instanceID = select(8, GetInstanceInfo())
 			if instanceID == v then
 				return true;
-			else
-				return false;
 			end
 		end
 	end
@@ -619,10 +618,7 @@ function DR.vigorCounter()
 	local frameLevelThing = UIWidgetPowerBarContainerFrame:GetFrameLevel()+15
 	for i = 1,6 do
 		if vigorCurrent >= i then
-			local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
-			if canGlide == true then
-				DR.modelScene[i]:Show()
-			end
+			DR.modelScene[i]:Show()
 		else
 			DR.modelScene[i]:Hide()
 		end
@@ -686,34 +682,43 @@ function DR.GetVigorValueExact()
 end
 
 function DR.FixBlizzFrames()
-	for k, v in pairs(DR.WidgetFrameIDs) do
-
-		if UIWidgetPowerBarContainerFrame.widgetFrames[v] ~= nil then
-			DR.EventsList:SetScript("OnUpdate", function()
-				if UIWidgetPowerBarContainerFrame.numWidgetsShowing > 1 then
-						if UIWidgetPowerBarContainerFrame.widgetFrames[v] then
+	DR.EventsList:SetScript("OnUpdate", function()
+		for k, v in pairs(DR.WidgetFrameIDs) do
+			if UIWidgetPowerBarContainerFrame.widgetFrames[v] ~= nil then
+				local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
+				if canGlide == false then
+					if UIWidgetPowerBarContainerFrame.widgetFrames[v] then
+						if UIWidgetPowerBarContainerFrame.widgetFrames[v]:IsShown() then
 							UIWidgetPowerBarContainerFrame.widgetFrames[v]:Hide();
-							UIWidgetPowerBarContainerFrame.widgetFrames[v] = nil;
 							UIWidgetPowerBarContainerFrame:UpdateWidgetLayout();
 							if DragonRider_DB.debug == true then
-								print("bingus")
+								print("Fixing a Blizzard bug where widgets persisted.")
 							end
 						end
-					if DragonRider_DB.debug == true then
-						print("Fixing a Blizzard bug. You would have otherwise seen 2 or more vigor bars.")
 					end
-					return
+					if DragonRider_DB.sideArt == true then
+						local PowerBarChildren = {UIWidgetPowerBarContainerFrame:GetChildren()}
+						if PowerBarChildren[3] ~= nil and PowerBarChildren[3]:IsShown() then
+							for _, child in ipairs({PowerBarChildren[3]:GetRegions()}) do
+								child:SetAlpha(0)
+							end
+							if DragonRider_DB.debug == true then
+								print("Hiding wings asset.")
+							end
+						end
+					end
 				end
-			end)
+				return
+			end
 		end
-	end
+	end)
 end
+DR.FixBlizzFrames()
 
 
 function DR.DoWidgetThings()
 	local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
 	local fillCurrent, fillMax = DR.GetVigorValueExact()
-	DR.FixBlizzFrames()
 	for k, v in pairs(DR.WidgetFrameIDs) do
 		if UIWidgetPowerBarContainerFrame.widgetFrames[v] ~= nil then
 			
@@ -1149,6 +1154,9 @@ function DR:toggleEvent(event, arg1)
 
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["ProgressBar"]));
 
+		local CreateDropdown = Settings.CreateDropdown or Settings.CreateDropDown
+		local CreateCheckbox = Settings.CreateCheckbox or Settings.CreateCheckBox
+
 		do
 			local variable = "speedometerPosPoint"
 			local defaultValue = 1  -- Corresponds to "Option 1" below.
@@ -1165,7 +1173,7 @@ function DR:toggleEvent(event, arg1)
 			end
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateDropDown(category, setting, GetOptions, tooltip)
+			CreateDropdown(category, setting, GetOptions, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
@@ -1239,7 +1247,7 @@ function DR:toggleEvent(event, arg1)
 			end
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateDropDown(category, setting, GetOptions, tooltip)
+			CreateDropdown(category, setting, GetOptions, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
@@ -1268,7 +1276,7 @@ function DR:toggleEvent(event, arg1)
 			local defaultValue = true
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
+			CreateCheckbox(category, setting, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
@@ -1283,7 +1291,7 @@ function DR:toggleEvent(event, arg1)
 			local defaultValue = true
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
+			CreateCheckbox(category, setting, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
@@ -1295,7 +1303,7 @@ function DR:toggleEvent(event, arg1)
 			local defaultValue = true
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
+			CreateCheckbox(category, setting, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
@@ -1307,7 +1315,7 @@ function DR:toggleEvent(event, arg1)
 			local defaultValue = true
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
+			CreateCheckbox(category, setting, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
@@ -1319,7 +1327,7 @@ function DR:toggleEvent(event, arg1)
 			local defaultValue = false
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
+			CreateCheckbox(category, setting, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
@@ -1334,7 +1342,7 @@ function DR:toggleEvent(event, arg1)
 			local defaultValue = true
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
+			CreateCheckbox(category, setting, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
@@ -1347,7 +1355,7 @@ function DR:toggleEvent(event, arg1)
 			
 
 			local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			Settings.CreateCheckBox(category, setting, tooltip)
+			CreateCheckbox(category, setting, tooltip)
 			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
 			setting:SetValue(DragonRider_DB[variable])
 		end
