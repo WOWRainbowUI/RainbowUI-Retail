@@ -5,6 +5,7 @@ if GetLocale() ~= "deDE" then
 end
 
 local L = BtWQuests.L
+L["ACCOUNT_BOUND_SETTINGS"] = "Kontogebundene Einstellungen"
 L["ALLIANCE_ZONES"] = "Allianz Zonen"
 L["BTWQUESTS_ACTIVE"] = "Aktiv"
 L["BTWQUESTS_ALLIED_RACE"] = "Verbündete Völker"
@@ -21,6 +22,8 @@ L["BTWQUESTS_EPILOGUE"] = "Epilog"
 L["BTWQUESTS_EQUIP"] = "Rüste %s aus"
 L["BTWQUESTS_EXTRA_WORLD_QUESTS"] = "Zusätzliche Weltquests"
 L["BTWQUESTS_FACTION"] = "Fraktion"
+L["BTWQUESTS_GO_TO"] = "Gehe zu %s"
+L["BTWQUESTS_HEART_OF_AZEROTH_LEVEL"] = "Herz von Azeroth Stufe %s"
 L["BTWQUESTS_IGNORED"] = "Ignoriert"
 L["BTWQUESTS_INTRODUCTION"] = "Einführung"
 L["BTWQUESTS_LEVEL"] = "Stufe %d"

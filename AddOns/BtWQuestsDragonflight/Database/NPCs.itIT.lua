@@ -366,6 +366,12 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [208151] = {
         name = "Maiev Cantombroso",
     },
+    [208494] = {
+        name = "Gran Ingegnera Ataanya",
+    },
+    [208496] = {
+        name = "Apprendista Beruun",
+    },
     [208503] = {
         name = "Alexstrasza la Protettrice della Vita",
     },
@@ -383,6 +389,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [208572] = {
         name = "Alexstrasza la Protettrice della Vita",
+    },
+    [208614] = {
+        name = "Roska Mordipietre",
     },
     [208669] = {
         name = "Dama Baccaluna",
@@ -405,14 +414,50 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [210022] = {
         name = "Custode Adranas",
     },
+    [210086] = {
+        name = "Taumaturga Tzadah",
+    },
+    [210092] = {
+        name = "Maestro Gadrin",
+    },
     [210196] = {
         name = "Solarys Brezzaspina",
+    },
+    [210340] = {
+        name = "Gran Ingegnere Romuul",
+    },
+    [210390] = {
+        name = "Profeta Velen",
+    },
+    [210391] = {
+        name = "Capoclan Hatuun",
+    },
+    [210563] = {
+        name = "Capoclan Hatuun",
+    },
+    [210569] = {
+        name = "Gran Ingegnera Ataanya",
+    },
+    [210578] = {
+        name = "Esarca Maladaar",
+    },
+    [210581] = {
+        name = "Esarca Maladaar",
+    },
+    [210605] = {
+        name = "Profeta Velen",
     },
     [210646] = {
         name = "Gufonirico",
     },
     [210813] = {
         name = "Driade Zelante",
+    },
+    [210904] = {
+        name = "Genn Mantogrigio",
+    },
+    [210905] = {
+        name = "Principessa Tess Mantogrigio",
     },
     [211193] = {
         name = "Tyrande Soffiabrezza",
@@ -423,8 +468,35 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [211634] = {
         name = "Tyrande Soffiabrezza",
     },
+    [212187] = {
+        name = "Genn Mantogrigio",
+    },
+    [212387] = {
+        name = "Gran Anacoreta Almonen",
+    },
     [212797] = {
         name = "Talisa Fiorlieve",
+    },
+    [212899] = {
+        name = "Guardiagrigia d'Élite",
+    },
+    [212916] = {
+        name = "Guardiamorte d'Élite",
+    },
+    [213995] = {
+        name = "Alchimista Gilneana",
+    },
+    [214021] = {
+        name = "Profeta Velen",
+    },
+    [214538] = {
+        name = "Genn Mantogrigio",
+    },
+    [216067] = {
+        name = "Shandris Piumaluna",
+    },
+    [221491] = {
+        name = "Evocazioni di Khadgar",
     },
 })
 ]])()

@@ -778,7 +778,8 @@ function BtWQuestsMixin:UpdateCurrentChain()
 end
 
 local function ChainItemPool_HideAndClearAnchors(framePool, frame)
-    FramePool_HideAndClearAnchors(framePool, frame)
+	frame:Hide();
+	frame:ClearAllPoints();
 
     if frame.backgroundLinePool then
         frame.backgroundLinePool:ReleaseAll();

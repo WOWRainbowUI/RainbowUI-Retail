@@ -5,6 +5,7 @@ if GetLocale() ~= "zhTW" then
 end
 
 local L = BtWQuests.L
+L["ACCOUNT_BOUND_SETTINGS"] = "帳號共用設定"
 L["ALLIANCE_ZONES"] = "聯盟領地"
 L["BTWQUESTS_ACTIVE"] = "啟動"
 L["BTWQUESTS_ALLIED_RACE"] = "同盟種族"
@@ -85,6 +86,7 @@ L["MINIMAP_TOOLTIP_MESSAGE"] = "左鍵: 打開任務指南\
 L["OTHER"] = "其他"
 L["RANK"] = "%s 等級 %d"
 L["REPUTATION_WITH"] = "%d %s 聲望"
+L["RESEARCH"] = "研究 %s"
 L["RESEARCH_RANK"] = "研究 %s (等級 %d)"
 L["SHOW_CATEGORY_AS_GRID"] = "顯示格狀類別"
 L["SHOW_CATEGORY_HEADERS"] = "顯示類別標題"

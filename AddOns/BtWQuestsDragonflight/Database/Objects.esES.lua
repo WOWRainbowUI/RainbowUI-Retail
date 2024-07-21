@@ -15,11 +15,17 @@ BtWQuestsDatabase:UpdateObjectsTable({
     [387520] = {
         name = "CUPÓN: juegos de Destellorogg",
     },
+    [405593] = {
+        name = "¡Archivo de Azeroth!",
+    },
     [405958] = {
         name = "Pergamino kaldorei sellado",
     },
     [409077] = {
         name = "Folíolo chamuscado",
+    },
+    [415303] = {
+        name = "Paquete sellado con magia",
     },
 })
 ]])()

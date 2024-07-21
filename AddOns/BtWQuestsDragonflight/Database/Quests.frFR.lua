@@ -1932,6 +1932,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [70171] = {
         name = "Petits accidents heureux",
     },
+    [70172] = {
+        name = "Mystères des montagnes",
+    },
     [70174] = {
         name = "Les Shikaars",
     },
@@ -3147,11 +3150,23 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [75462] = {
         name = "Sauvetage de souris",
     },
+    [75493] = {
+        name = "Examiner le lit de la rivière",
+    },
     [75506] = {
         name = "Les écus d’ombreflamme",
     },
     [75507] = {
         name = "Retrouvailles entre amis",
+    },
+    [75518] = {
+        name = "Un corps sur la rive",
+    },
+    [75603] = {
+        name = "Le respect des anciens",
+    },
+    [75604] = {
+        name = "Âneries ancestrales",
     },
     [75632] = {
         name = "Un disque disloqué",
@@ -3182,6 +3197,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [75694] = {
         name = "Aberrus, le creuset de l’Ombre : Sarkareth",
+    },
+    [75729] = {
+        name = "Harmonisation avec l’Observateur",
+    },
+    [75867] = {
+        name = "Un lien avec le passé",
+    },
+    [75868] = {
+        name = "Une fenêtre sur l’avenir",
     },
     [75885] = {
         name = "Faire fortune rapidement",
@@ -3224,6 +3248,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [75985] = {
         name = "Repose en paix, guerrier",
+    },
+    [76026] = {
+        name = "Examiner la tour",
+    },
+    [76032] = {
+        name = "Bécher dans les déchets",
     },
     [76101] = {
         name = "Coriace en profondeur",
@@ -3281,6 +3311,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [76213] = {
         name = "Honneur de la déesse",
+    },
+    [76217] = {
+        name = "Vivre l’histoire",
+    },
+    [76241] = {
+        name = "Un écureuil partenaire de recherches",
+    },
+    [76242] = {
+        name = "Une thèse de recherche digne d’être publiée",
     },
     [76276] = {
         name = "Une terre nouvelle",
@@ -3447,6 +3486,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [76443] = {
         name = "La menace des cendres",
     },
+    [76448] = {
+        name = "Le destin du squammandant Abereth",
+    },
     [76460] = {
         name = "Un bon Dragon vaut mieux que deux tu l’auras",
     },
@@ -3471,6 +3513,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [76532] = {
         name = "L’attaque contre l’Afflux",
     },
+    [76557] = {
+        name = "Sans honneur",
+    },
+    [76564] = {
+        name = "Les outils des tueurs de Dragons",
+    },
     [76566] = {
         name = "Le jardin des Dryades",
     },
@@ -3492,6 +3540,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [76572] = {
         name = "Une promotion toxique",
     },
+    [76576] = {
+        name = "Une offre improbable",
+    },
     [76592] = {
         name = "Une seule aile",
     },
@@ -3510,8 +3561,23 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [77098] = {
         name = "Recherche d’une cachette",
     },
+    [77100] = {
+        name = "Fouiller la falaise",
+    },
+    [77151] = {
+        name = "La cache dans les cailloux",
+    },
+    [77154] = {
+        name = "Un aperçu du passé",
+    },
     [77163] = {
         name = "Retour à la raison",
+    },
+    [77166] = {
+        name = "Test pratique",
+    },
+    [77176] = {
+        name = "Je vois à travers le temps !",
     },
     [77178] = {
         name = "Un repli tactique",
@@ -3533,6 +3599,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [77209] = {
         name = "Héritage de semences",
+    },
+    [77231] = {
+        name = "La bidulodivination pour les nuls",
+    },
+    [77267] = {
+        name = "Les bases des fouilles",
+    },
+    [77268] = {
+        name = "Expérience sur le terrain",
     },
     [77283] = {
         name = "Une bataille sur plusieurs fronts",
@@ -3564,14 +3639,50 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [77318] = {
         name = "Mérithra a dit",
     },
+    [77325] = {
+        name = "Direction les archives !",
+    },
+    [77327] = {
+        name = "Nirobin et le bureau",
+    },
+    [77328] = {
+        name = "Retour au quartier général !",
+    },
     [77329] = {
         name = "Un rassemblement de bon augure",
+    },
+    [77331] = {
+        name = "Journée de remise des diplômes",
+    },
+    [77415] = {
+        name = "La main cachée",
     },
     [77417] = {
         name = "L’essence d’un Infini",
     },
+    [77425] = {
+        name = "L’ampleur du problème",
+    },
+    [77433] = {
+        name = "Fouilles : lit de la rivière",
+    },
+    [77434] = {
+        name = "Bidulodivination : observatoire",
+    },
     [77436] = {
         name = "Incendie au refuge",
+    },
+    [77483] = {
+        name = "Bidulodivination : île du Crâne-de-Dragon",
+    },
+    [77484] = {
+        name = "Bidulodivination : guet d’Igira",
+    },
+    [77486] = {
+        name = "Fouilles : Œil de Neltharion",
+    },
+    [77487] = {
+        name = "Fouilles : perchoir de l’Altesse-ailée",
     },
     [77662] = {
         name = "Appel à l’aide",
@@ -3609,8 +3720,59 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [77818] = {
         name = "La Cruelle",
     },
+    [77869] = {
+        name = "Retour aux îles de l’Écho",
+    },
+    [77871] = {
+        name = "Les anciens Loas",
+    },
+    [77874] = {
+        name = "Les Loas du passé",
+    },
+    [77877] = {
+        name = "Communion avec les Loas",
+    },
+    [77879] = {
+        name = "Traquer le traqueur",
+    },
+    [77880] = {
+        name = "À la recherche de Lukou",
+    },
+    [77881] = {
+        name = "Tierce partie",
+    },
+    [77882] = {
+        name = "Volés mais pas oubliés",
+    },
+    [77894] = {
+        name = "Le cœur de Lukou",
+    },
     [77896] = {
         name = "Une recherche assoupie",
+    },
+    [77898] = {
+        name = "Honneur et hommage",
+    },
+    [77899] = {
+        name = "Le rush’kah",
+    },
+    [77900] = {
+        name = "Les épreuves des Loas",
+    },
+    [77901] = {
+        name = "Les recrues sont cuites",
+    },
+    [77902] = {
+        name = "Récupération rituelle",
+    },
+    [77903] = {
+        name = "Le pouvoir de la mort",
+    },
+    [77905] = {
+        name = "Avatar de Mueh’zala",
+    },
+    [77906] = {
+        name = "Les Loas des Sombrelances",
     },
     [77911] = {
         name = "Une couverture toute douce",
@@ -3657,6 +3819,51 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [78066] = {
         name = "Des réponses bien méritées",
     },
+    [78068] = {
+        name = "L’appel de l’artificier",
+    },
+    [78069] = {
+        name = "Renouveau des traditions",
+    },
+    [78070] = {
+        name = "Échéances à court terme",
+    },
+    [78071] = {
+        name = "Commande urgente",
+    },
+    [78072] = {
+        name = "Une vieille blessure",
+    },
+    [78073] = {
+        name = "Profondes cicatrices",
+    },
+    [78074] = {
+        name = "Clarification",
+    },
+    [78075] = {
+        name = "Faire son deuil",
+    },
+    [78076] = {
+        name = "Intervention d’urgence",
+    },
+    [78077] = {
+        name = "Sous la peau",
+    },
+    [78078] = {
+        name = "Connais ton ennemi",
+    },
+    [78080] = {
+        name = "À la source",
+    },
+    [78081] = {
+        name = "La douleur s’estompe",
+    },
+    [78082] = {
+        name = "Un fardeau partagé",
+    },
+    [78083] = {
+        name = "Le chemin de l’avenir",
+    },
     [78162] = {
         name = "L’esprit ailleurs de Q’onzu",
     },
@@ -3671,6 +3878,42 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [78172] = {
         name = "Graines mystérieuses",
+    },
+    [78177] = {
+        name = "Pour Gilnéas",
+    },
+    [78178] = {
+        name = "Pour Gilnéas",
+    },
+    [78180] = {
+        name = "Croisade en rouge",
+    },
+    [78181] = {
+        name = "La réponse d’Aderic",
+    },
+    [78182] = {
+        name = "Jusqu’aux genoux",
+    },
+    [78183] = {
+        name = "Bain de sang écarlate",
+    },
+    [78184] = {
+        name = "Miroirs et poudre à canon",
+    },
+    [78185] = {
+        name = "Chiens de guerre",
+    },
+    [78186] = {
+        name = "Briser la croisade",
+    },
+    [78187] = {
+        name = "Pyromane pétaradant",
+    },
+    [78188] = {
+        name = "Feu de justice, fureur de justice",
+    },
+    [78189] = {
+        name = "Le début d’une aube nouvelle",
     },
     [78206] = {
         name = "Manne d’émeraude",
@@ -3708,11 +3951,80 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [78596] = {
         name = "L’appel du seigneur Grisetête",
     },
+    [78597] = {
+        name = "Déplacements clandestins",
+    },
+    [78643] = {
+        name = "Ciel clair et vent fort",
+    },
     [78646] = {
         name = "Guet des flammes",
     },
+    [78762] = {
+        name = "Votre première découverte",
+    },
     [78821] = {
         name = "Graines oniriques florissantes",
+    },
+    [78863] = {
+        name = "Une place sous les frondaisons",
+    },
+    [78864] = {
+        name = "Le retour",
+    },
+    [78865] = {
+        name = "Une famille jusqu’au bout",
+    },
+    [78875] = {
+        name = "L’Intuable",
+    },
+    [79009] = {
+        name = "La messagère",
+    },
+    [79010] = {
+        name = "La porte des Ren’dorei",
+    },
+    [79011] = {
+        name = "Les rapports des marche-faille",
+    },
+    [79012] = {
+        name = "Des fissures dans le Vide",
+    },
+    [79013] = {
+        name = "Agitation au Repos de Galakrond",
+    },
+    [79014] = {
+        name = "Une bonne balade dans ses ombres",
+    },
+    [79015] = {
+        name = "Sombre descente",
+    },
+    [79016] = {
+        name = "L’héritage du Vide",
+    },
+    [79017] = {
+        name = "La voie empruntée",
+    },
+    [79018] = {
+        name = "Voyage solitaire",
+    },
+    [79019] = {
+        name = "Défendre la faille de Telogrus",
+    },
+    [79020] = {
+        name = "Vide de sens",
+    },
+    [79021] = {
+        name = "Une mise en garde radieuse",
+    },
+    [79137] = {
+        name = "Le mur qui nous sépare",
+    },
+    [79223] = {
+        name = "Enfin archiviste !",
+    },
+    [79231] = {
+        name = "Retour au quartier général ! Encore !",
     },
 })
 ]])()

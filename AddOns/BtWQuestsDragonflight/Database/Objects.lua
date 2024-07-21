@@ -221,6 +221,17 @@ BtWQuestsDatabase:AddObjectsTable({
             },
         },
     },
+    [405593] = {
+        name = "Azerothian Archives!",
+        locations = {
+            [2112] = {
+                {
+                    x = 0.769173,
+                    y = 0.503558,
+                },
+            },
+        },
+    },
     [405958] = {
         name = "Sealed Kaldorei Scroll",
         locations = {
@@ -239,6 +250,17 @@ BtWQuestsDatabase:AddObjectsTable({
                 {
                     x = 0.37998,
                     y = 0.472086,
+                },
+            },
+        },
+    },
+    [415303] = {
+        name = "Magically-Sealed Parcel",
+        locations = {
+            [84] = {
+                {
+                    x = 0.530129,
+                    y = 0.154721,
                 },
             },
         },

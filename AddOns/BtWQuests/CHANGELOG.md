@@ -1,3 +1,34 @@
+# v2.42.1
+
+- Updated to use multiple interface numbers
+- Updated some faction and quest handling for The War Within api changes
+- Fixed an error loading expansion extensions
+- Fixed errors with frame pools in The War Within
+- Fixed quest markers not showing on the world map in The War Within
+
+# v2.42.0
+
+- Updated waypoints to auto remove when going within 10 yards
+- Updated hanlding reputations for The War Within
+- Updated handling professions for Cataclysm Classic
+- Fixed an error for map waypoints without names
+- Fixed an error for new characters on first login
+
+# v2.41.0
+
+- Added Hunt of the Harbinger questline
+
+# v2.40.0
+
+- Added the Draenei heritage armor questline
+- Added the Troll heritage armor questline
+- Removed obsolete Flightstones questline
+- Fixed names of Embers of Neltharion major questlines
+
+# v2.39.0
+
+- Added Azerothian Archives questline
+
 # v2.38.0
 
 - Updated for 10.2.7

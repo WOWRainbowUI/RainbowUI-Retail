@@ -5,6 +5,7 @@ if GetLocale() ~= "esES" then
 end
 
 local L = BtWQuests.L
+L["ACCOUNT_BOUND_SETTINGS"] = "Configuración ligada a la cuenta"
 L["ALLIANCE_ZONES"] = "Zonas de la Alianza"
 L["BTWQUESTS_ACTIVE"] = "Activo"
 L["BTWQUESTS_ALLIED_RACE"] = "Raza aliada"

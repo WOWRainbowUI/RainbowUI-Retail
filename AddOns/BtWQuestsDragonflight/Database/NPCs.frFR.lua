@@ -405,6 +405,12 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [208151] = {
         name = "Maiev Chantelombre",
     },
+    [208494] = {
+        name = "Grande artificière Ataanya",
+    },
+    [208496] = {
+        name = "Apprenti Beruun",
+    },
     [208503] = {
         name = "Alexstrasza la Lieuse-de-Vie",
     },
@@ -428,6 +434,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [208572] = {
         name = "Alexstrasza la Lieuse-de-Vie",
+    },
+    [208614] = {
+        name = "Roska Pierredent",
     },
     [208669] = {
         name = "Dame Baie-de-Lune",
@@ -453,14 +462,50 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [210022] = {
         name = "Gardien Adranas",
     },
+    [210086] = {
+        name = "Féticheuse Tzadah",
+    },
+    [210092] = {
+        name = "Maître Gadrin",
+    },
     [210196] = {
         name = "Solarys Trombépine",
+    },
+    [210340] = {
+        name = "Grand artificier Romuul",
+    },
+    [210390] = {
+        name = "Prophète Velen",
+    },
+    [210391] = {
+        name = "Chef Hatuun",
+    },
+    [210563] = {
+        name = "Chef Hatuun",
+    },
+    [210569] = {
+        name = "Grande artificière Ataanya",
+    },
+    [210578] = {
+        name = "Exarque Maladaar",
+    },
+    [210581] = {
+        name = "Exarque Maladaar",
+    },
+    [210605] = {
+        name = "Prophète Velen",
     },
     [210646] = {
         name = "Oniride",
     },
     [210813] = {
         name = "Dryade zélée",
+    },
+    [210904] = {
+        name = "Genn Grisetête",
+    },
+    [210905] = {
+        name = "Princesse Tess Grisetête",
     },
     [211193] = {
         name = "Tyrande Murmevent",
@@ -471,8 +516,35 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [211634] = {
         name = "Tyrande Murmevent",
     },
+    [212187] = {
+        name = "Genn Grisetête",
+    },
+    [212387] = {
+        name = "Grand anachorète Almonen",
+    },
     [212797] = {
         name = "Talisa Murmurante",
+    },
+    [212899] = {
+        name = "Elite de la Grisegarde",
+    },
+    [212916] = {
+        name = "Nécrogarde d'élite",
+    },
+    [213995] = {
+        name = "Alchimiste gilnéenne",
+    },
+    [214021] = {
+        name = "Prophète Velen",
+    },
+    [214538] = {
+        name = "Genn Grisetête",
+    },
+    [216067] = {
+        name = "Shandris Pennelune",
+    },
+    [221491] = {
+        name = "Invocations de Khadgar",
     },
 })
 ]])()

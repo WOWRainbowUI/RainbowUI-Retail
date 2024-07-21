@@ -16,6 +16,77 @@ end
 local GetLogIndexForQuestID = C_QuestLog and C_QuestLog.GetLogIndexForQuestID or GetQuestLogIndexByID
 local IsQuestFlaggedCompleted = C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted or IsQuestFlaggedCompleted
 
+local GetQuestsActive
+if select(4, GetBuildInfo()) < 90000 then
+    function GetQuestsActive(tbl)
+        local tbl = tbl or {};
+    
+        local numEntries = GetNumQuestLogEntries()
+        for i=1,numEntries do
+            local questID = select(8, GetQuestLogTitle(i));
+            if questID ~= nil and questID ~= 0 then
+                tbl[questID] = {};
+    
+                for objective=1,GetNumQuestLeaderBoards(i) do
+                    tbl[questID][objective] = {GetQuestLogLeaderBoard(objective, i)};
+                end
+            end
+        end
+        
+        return tbl;
+    end
+else
+    function GetQuestsActive(tbl)
+        local tbl = tbl or {};
+    
+        local numEntries = C_QuestLog.GetNumQuestLogEntries()
+        for i=1,numEntries do
+            local info = C_QuestLog.GetInfo(i);
+            if info.questID ~= nil and info.questID ~= 0 then
+                tbl[info.questID] = {};
+    
+                for objective=1,GetNumQuestLeaderBoards(i) do
+                    tbl[info.questID][objective] = {GetQuestLogLeaderBoard(objective, i)};
+                end
+            end
+        end
+        
+        return tbl;
+    end
+end
+local GetQuestsCompleted = GetQuestsCompleted or function (tbl)
+    local tbl = tbl or {};
+
+    for _,questID in ipairs(C_QuestLog.GetAllCompletedQuestIDs()) do
+        tbl[questID] = true
+    end
+    
+    return tbl;
+end
+local GetNumFactions = C_Reputation and C_Reputation.GetNumFactions or GetNumFactions;
+local GetFactionDataByID = C_Reputation and C_Reputation.GetFactionDataByID or function (id)
+    local name, _, standing, barMin, barMax, barValue, _, _, _, _, _, _, _, factionID = GetFactionInfoByID(id);
+    return {
+        name = name,
+        factionID = factionID,
+        reaction = standing,
+        currentReactionThreshold = barMin,
+        currentStanding = barValue,
+        nextReactionThreshold = barMax
+    };
+end;
+local GetFactionDataByIndex = C_Reputation and C_Reputation.GetFactionDataByIndex or function (i)
+    local name, _, standing, barMin, barMax, barValue, _, _, _, _, _, _, _, factionID = GetFactionInfo(i);
+    return {
+        name = name,
+        factionID = factionID,
+        reaction = standing,
+        currentReactionThreshold = barMin,
+        currentStanding = barValue,
+        nextReactionThreshold = barMax
+    };
+end;
+
 local BtWQuestsCharactersMap = {} -- Map from name-realm to Character Mixin
 
 local ClassMap = {}
@@ -95,7 +166,8 @@ end
 -- @TODO Should probably just get character related info
 function BtWQuestsCharactersCharacterMixin:GetFactionInfoByID(factionID)
     local name
-    local factionName, _, standing, barMin, barMax, value = GetFactionInfoByID(factionID)
+    local tbl = GetFactionDataByID(factionID)
+    local factionName, standing, barMin, barMax, value = tbl.name, tbl.reaction, tbl.currentReactionThreshold, tbl.nextReactionThreshold, tbl.currentStanding
 
     if self.t.reputations then
         local data = self.t.reputations[factionID];
@@ -514,8 +586,9 @@ if C_TradeSkillUI then
         end
     end
 end
-function BtWQuestsCharactersPlayerMixin:GetFactionInfoByID(faction)
-    local factionName, _, standing, barMin, barMax, value = GetFactionInfoByID(faction)
+function BtWQuestsCharactersPlayerMixin:GetFactionInfoByID(factionID)
+    local tbl = GetFactionDataByID(factionID)
+    local factionName, standing, barMin, barMax, value = tbl.name, tbl.reaction, tbl.currentReactionThreshold, tbl.nextReactionThreshold, tbl.currentStanding
 
     return factionName, standing, barMin, barMax, value
 end
@@ -749,6 +822,12 @@ function BtWQuestsCharacters:GetCharacter(name, realm)
         if key == "-partysync" then
             BtWQuestsCharactersMap[key] = BtWQuests_CreatePartySync(BtWQuests_CharactersMap[playerKey])
         elseif playerKey == key then
+            -- Insert player in to data if they are missing. This generally happens before OnEvent is called which will fill any missing details
+            if not BtWQuests_CharactersMap[key] then
+                BtWQuests_CharactersMap[key] = {}
+                table.insert(BtWQuests_Characters, BtWQuests_CharactersMap[key])
+            end
+
             BtWQuestsCharactersMap[key] = BtWQuests_CreatePlayer(BtWQuests_CharactersMap[key])
         elseif BtWQuests_CharactersMap[key] ~= nil then
             BtWQuestsCharactersMap[key] = BtWQuests_CreateCharacter(BtWQuests_CharactersMap[key])
@@ -781,56 +860,6 @@ function BtWQuestsCharacters:GetPlayer()
     end
 end
 
-local GetQuestsActive
-if select(4, GetBuildInfo()) < 90000 then
-    function GetQuestsActive(tbl)
-        local tbl = tbl or {};
-    
-        local numEntries = GetNumQuestLogEntries()
-        for i=1,numEntries do
-            local questID = select(8, GetQuestLogTitle(i));
-            if questID ~= nil and questID ~= 0 then
-                tbl[questID] = {};
-    
-                for objective=1,GetNumQuestLeaderBoards(i) do
-                    tbl[questID][objective] = {GetQuestLogLeaderBoard(objective, i)};
-                end
-            end
-        end
-        
-        return tbl;
-    end
-else
-    function GetQuestsActive(tbl)
-        local tbl = tbl or {};
-    
-        local numEntries = C_QuestLog.GetNumQuestLogEntries()
-        for i=1,numEntries do
-            local info = C_QuestLog.GetInfo(i);
-            if info.questID ~= nil and info.questID ~= 0 then
-                tbl[info.questID] = {};
-    
-                for objective=1,GetNumQuestLeaderBoards(i) do
-                    tbl[info.questID][objective] = {GetQuestLogLeaderBoard(objective, i)};
-                end
-            end
-        end
-        
-        return tbl;
-    end
-end
-local GetQuestsCompleted = GetQuestsCompleted
-if not GetQuestsCompleted then
-    function GetQuestsCompleted(tbl)
-        local tbl = tbl or {};
-
-        for _,questID in ipairs(C_QuestLog.GetAllCompletedQuestIDs()) do
-            tbl[questID] = true
-        end
-        
-        return tbl;
-    end
-end
 local temp = {};
 local function GetFactions(tbl)
     local tbl = tbl or {};
@@ -842,22 +871,23 @@ local function GetFactions(tbl)
     wipe(tbl);
     local numEntries = GetNumFactions();
     for i=1,numEntries do
-        local name, _, standing, barMin, barMax, barValue, _, _, _, _, _, _, _, factionID = GetFactionInfo(i);
-        if factionID ~= nil then
-            local data = temp[factionID] or {};
+        -- local name, _, standing, barMin, barMax, barValue, _, _, _, _, _, _, _, factionID = GetFactionInfo(i);
+        local factionData = GetFactionDataByIndex(i);
+        if factionData.factionID ~= nil then
+            local data = temp[factionData.factionID] or {};
             if data[1] ~= nil then
                 wipe(data);
             end
 
             data.name = name;
 
-            data.standing = standing;
+            data.standing = factionData.reaction;
 
-            data.barMin = barMin;
-            data.barMax = barMax;
-            data.barValue = barValue;
+            data.barMin = factionData.currentReactionThreshold;
+            data.barMax = factionData.nextReactionThreshold;
+            data.barValue = factionData.currentStanding;
             
-            tbl[factionID] = data;
+            tbl[factionData.factionID] = data;
         end
     end
 
@@ -1008,7 +1038,7 @@ function BtWQuestsCharacters:OnEvent(event, ...)
         character.achievements = GetAchievements(character.achievements, self.achievements or {});
     end
     if event == "TRADE_SKILL_LIST_UPDATE" or event == "PLAYER_ENTERING_WORLD" then
-        if C_TradeSkillUI then
+        if C_TradeSkillUI and C_TradeSkillUI.GetAllProfessionTradeSkillLines then
             character.skills = GetSkills(character.skills);
         end
         if GetProfessions then

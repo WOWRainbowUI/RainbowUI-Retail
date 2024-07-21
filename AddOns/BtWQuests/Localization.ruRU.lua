@@ -5,6 +5,7 @@ if GetLocale() ~= "ruRU" then
 end
 
 local L = BtWQuests.L
+L["ACCOUNT_BOUND_SETTINGS"] = "Настройки, привязанные к учетной записи"
 L["ALLIANCE_ZONES"] = "Локации Альянса"
 L["BTWQUESTS_ACTIVE"] = "Активный"
 L["BTWQUESTS_ALLIED_RACE"] = "Союзные Расы"
@@ -79,6 +80,7 @@ L["MINIMAP_TOOLTIP_MESSAGE"] = "Нажмите, чтобы открыть BtWQue
 L["OTHER"] = "Другое"
 L["RANK"] = "%s ранг %d"
 L["REPUTATION_WITH"] = "%d репутация с %s"
+L["RESEARCH"] = "Исследование %s."
 L["RESEARCH_RANK"] = "Исследование %s (Ранг %d)"
 L["SHOW_CATEGORY_AS_GRID"] = "Показать категорию в виде сетки"
 L["SHOW_CATEGORY_HEADERS"] = "Показать заголовки категории"

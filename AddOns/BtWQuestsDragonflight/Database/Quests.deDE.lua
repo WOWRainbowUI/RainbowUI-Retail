@@ -1920,6 +1920,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [70171] = {
         name = "Glückliche kleine Zufälle",
     },
+    [70172] = {
+        name = "Berggeheimnisse",
+    },
     [70174] = {
         name = "Die Shikaar",
     },
@@ -3132,11 +3135,23 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [75462] = {
         name = "Mäuserettung",
     },
+    [75493] = {
+        name = "Untersuchung des Flussbetts",
+    },
     [75506] = {
         name = "Schattenflammenwappen",
     },
     [75507] = {
         name = "Auf dem neuesten Stand",
+    },
+    [75518] = {
+        name = "Die Leiche an den Ufern",
+    },
+    [75603] = {
+        name = "Angemessene Riten",
+    },
+    [75604] = {
+        name = "Antiquierte Eskapaden",
     },
     [75632] = {
         name = "Eine verlorene Scheibe",
@@ -3167,6 +3182,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [75694] = {
         name = "Aberrus, Schmelztiegel der Schatten: Sarkareth",
+    },
+    [75729] = {
+        name = "Abstimmung auf den Beobachter",
+    },
+    [75867] = {
+        name = "Eine Verbindung in die Vergangenheit",
+    },
+    [75868] = {
+        name = "Ein Fenster in die Zukunft",
     },
     [75885] = {
         name = "Im Handumdrehen reich",
@@ -3209,6 +3233,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [75985] = {
         name = "Ruht sanft, Krieger",
+    },
+    [76026] = {
+        name = "Untersuchung des Turms",
+    },
+    [76032] = {
+        name = "Im Müll verborgen",
     },
     [76101] = {
         name = "Tiefer, schneller, weiter",
@@ -3266,6 +3296,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [76213] = {
         name = "Ehre der Göttin",
+    },
+    [76217] = {
+        name = "Lebende Geschichte",
+    },
+    [76241] = {
+        name = "Laborpartner eines Eichhörnchens",
+    },
+    [76242] = {
+        name = "Eine Forschungsarbeit für die Ewigkeit",
     },
     [76276] = {
         name = "Ein verwandeltes Land",
@@ -3432,6 +3471,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [76443] = {
         name = "Die drohende Glut",
     },
+    [76448] = {
+        name = "Das Schicksal von Schuppenkommandant Abereth",
+    },
     [76460] = {
         name = "Lieber einen Drachen in der Hand als zwei im Horst",
     },
@@ -3456,6 +3498,12 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [76532] = {
         name = "Angriff auf den Urquell",
     },
+    [76557] = {
+        name = "Ohne Ehre",
+    },
+    [76564] = {
+        name = "Die Werkzeuge der Drachentöter",
+    },
     [76566] = {
         name = "Der Dryadengarten",
     },
@@ -3477,6 +3525,9 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [76572] = {
         name = "Eine giftige Beförderung",
     },
+    [76576] = {
+        name = "Ein unerwarteter Vorschlag",
+    },
     [76592] = {
         name = "Ein einzelner Flügel",
     },
@@ -3495,8 +3546,23 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [77098] = {
         name = "Boden gewinnen",
     },
+    [77100] = {
+        name = "Untersuchung des Abhangs",
+    },
+    [77151] = {
+        name = "Das Fass an der Klippe",
+    },
+    [77154] = {
+        name = "Ein Vorgeschmack der Vergangenheit",
+    },
     [77163] = {
         name = "Späte Einsicht",
+    },
+    [77166] = {
+        name = "Praxistest",
+    },
+    [77176] = {
+        name = "Ich kann durch die Zeit sehen!",
     },
     [77178] = {
         name = "Taktischer Rückzug",
@@ -3518,6 +3584,15 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [77209] = {
         name = "Saatvermächtnis",
+    },
+    [77231] = {
+        name = "Technosehen für Anfänger",
+    },
+    [77267] = {
+        name = "Ausgrabungen für Anfänger",
+    },
+    [77268] = {
+        name = "Praxiserfahrung",
     },
     [77283] = {
         name = "Eine Schlacht an mehreren Fronten",
@@ -3549,14 +3624,50 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [77318] = {
         name = "Merithra sagt...",
     },
+    [77325] = {
+        name = "In die Archive!",
+    },
+    [77327] = {
+        name = "Nirobin und das Büro",
+    },
+    [77328] = {
+        name = "Zurück ins Hauptquartier!",
+    },
     [77329] = {
         name = "Verheißungsvolle Versammlung",
+    },
+    [77331] = {
+        name = "Abschlusstag",
+    },
+    [77415] = {
+        name = "Die versteckte Hand",
     },
     [77417] = {
         name = "Was eine Ewige ausmacht",
     },
+    [77425] = {
+        name = "Schuppen voller Harpunen",
+    },
+    [77433] = {
+        name = "Ausgrabung: Flussbett",
+    },
+    [77434] = {
+        name = "Technosehen: Observatorium",
+    },
     [77436] = {
         name = "Der brennende Grabhügel",
+    },
+    [77483] = {
+        name = "Technosehen: Drachenschädelinsel",
+    },
+    [77484] = {
+        name = "Technosehen: Igiras Wacht",
+    },
+    [77486] = {
+        name = "Ausgrabung: Blick von Neltharion",
+    },
+    [77487] = {
+        name = "Ausgrabung: Sitz des Schwingenfürsten",
     },
     [77662] = {
         name = "Ein Hilferuf",
@@ -3594,8 +3705,59 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [77818] = {
         name = "Die Grausame",
     },
+    [77869] = {
+        name = "Rückkehr zu den Echoinseln",
+    },
+    [77871] = {
+        name = "Die alt'n Loa",
+    },
+    [77874] = {
+        name = "Der Loa der Vergangenheit",
+    },
+    [77877] = {
+        name = "Eins mit dem Loa",
+    },
+    [77879] = {
+        name = "Die Pirsch auf den Pirscher",
+    },
+    [77880] = {
+        name = "Nach Lukou schauen",
+    },
+    [77881] = {
+        name = "Es gibt noch jemanden",
+    },
+    [77882] = {
+        name = "Gestohlen, aber nicht vergessen",
+    },
+    [77894] = {
+        name = "Das Herz von Lukou",
+    },
     [77896] = {
         name = "Eine schläfrige Suche",
+    },
+    [77898] = {
+        name = "Ehre und Tribut",
+    },
+    [77899] = {
+        name = "Der Rush'kah",
+    },
+    [77900] = {
+        name = "Die Loaprüfungen",
+    },
+    [77901] = {
+        name = "Zurück in die Schule",
+    },
+    [77902] = {
+        name = "Rituelle Rückgewinnung",
+    },
+    [77903] = {
+        name = "Die Macht des Todes",
+    },
+    [77905] = {
+        name = "Avatar von Mueh'zala",
+    },
+    [77906] = {
+        name = "Die Loa der Dunkelspeere",
     },
     [77911] = {
         name = "Ins gemachte Bett",
@@ -3642,6 +3804,54 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [78066] = {
         name = "Die Antworten, die Ihr verdient habt",
     },
+    [78068] = {
+        name = "Die Bitte eines Konstrukteurs",
+    },
+    [78069] = {
+        name = "Tradition wiederaufleben lassen",
+    },
+    [78070] = {
+        name = "Dringende Termine",
+    },
+    [78071] = {
+        name = "Eilauftrag",
+    },
+    [78072] = {
+        name = "Eine alte Wunde",
+    },
+    [78073] = {
+        name = "Bleibende Narben",
+    },
+    [78074] = {
+        name = "Durchblick",
+    },
+    [78075] = {
+        name = "Bewegende Vergangenheit",
+    },
+    [78076] = {
+        name = "Notmaßnahmen",
+    },
+    [78077] = {
+        name = "Unter die Haut",
+    },
+    [78078] = {
+        name = "Feindeinschätzung",
+    },
+    [78079] = {
+        name = "Ausmerzung",
+    },
+    [78080] = {
+        name = "An der Quelle",
+    },
+    [78081] = {
+        name = "Schmerz lässt nach",
+    },
+    [78082] = {
+        name = "Eine geteilte Last",
+    },
+    [78083] = {
+        name = "Unser Pfad voraus",
+    },
     [78162] = {
         name = "Q'onzus Ablenkung",
     },
@@ -3656,6 +3866,42 @@ BtWQuestsDatabase:UpdateQuestsTable({
     },
     [78172] = {
         name = "Geheimnisvolle Samen",
+    },
+    [78177] = {
+        name = "Nach Gilneas",
+    },
+    [78178] = {
+        name = "Nach Gilneas",
+    },
+    [78180] = {
+        name = "Ein Kreuzzug aus Rot",
+    },
+    [78181] = {
+        name = "Aderics Retoure",
+    },
+    [78182] = {
+        name = "Kniehoch",
+    },
+    [78183] = {
+        name = "Scharlachrotes Blut",
+    },
+    [78184] = {
+        name = "Knall und Rauch",
+    },
+    [78185] = {
+        name = "Hunde des Krieges",
+    },
+    [78186] = {
+        name = "Den Kreuzzug zerschmettern",
+    },
+    [78187] = {
+        name = "Artillerieanzünder",
+    },
+    [78188] = {
+        name = "Gerechtes Feuer, gerechte Wut",
+    },
+    [78189] = {
+        name = "Ein neuer Morgen bricht an",
     },
     [78206] = {
         name = "Smaragdfülle",
@@ -3693,11 +3939,80 @@ BtWQuestsDatabase:UpdateQuestsTable({
     [78596] = {
         name = "Einbestellung zu Lord Graumähne",
     },
+    [78597] = {
+        name = "Geheime Bewegungen",
+    },
+    [78643] = {
+        name = "Klare Himmel und starke Winde",
+    },
     [78646] = {
         name = "Feuerwacht",
     },
+    [78762] = {
+        name = "Euer erster Fund",
+    },
     [78821] = {
         name = "Erblühende Traumsaat",
+    },
+    [78863] = {
+        name = "Ein Platz unter den Ästen",
+    },
+    [78864] = {
+        name = "Die Rückkehr",
+    },
+    [78865] = {
+        name = "Geschwister bis zum Ende",
+    },
+    [78875] = {
+        name = "Der Untötbare",
+    },
+    [79009] = {
+        name = "Die Vorbotin",
+    },
+    [79010] = {
+        name = "Tor zu den Ren'dorei",
+    },
+    [79011] = {
+        name = "Risswandererberichte",
+    },
+    [79012] = {
+        name = "Risse in der Leere",
+    },
+    [79013] = {
+        name = "Galakronds Unruhestätte",
+    },
+    [79014] = {
+        name = "In ihren Schatten",
+    },
+    [79015] = {
+        name = "Dunkler Abstieg",
+    },
+    [79016] = {
+        name = "Vermächtnis der Leere",
+    },
+    [79017] = {
+        name = "Der gewählte Pfad",
+    },
+    [79018] = {
+        name = "Und als Reisende stand ich lang",
+    },
+    [79019] = {
+        name = "Verteidigung des Telogrusrisses",
+    },
+    [79020] = {
+        name = "Leer und nichtig",
+    },
+    [79021] = {
+        name = "Strahlende Warnungen",
+    },
+    [79137] = {
+        name = "Die Mauer zwischen uns",
+    },
+    [79223] = {
+        name = "Endlich $gArchivar:Archivarin;!",
+    },
+    [79231] = {
+        name = "Zurück ins Hauptquartier! Erneut!",
     },
 })
 ]])()

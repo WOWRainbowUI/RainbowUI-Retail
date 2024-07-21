@@ -312,6 +312,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [205892] = {
         name = "Batedora Kaldorei",
     },
+    [206107] = {
+        name = "Austregésilo Caniça",
+    },
     [206149] = {
         name = "Crona",
     },
@@ -363,6 +366,12 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [208474] = {
         name = "Clarella",
     },
+    [208494] = {
+        name = "Alta Artífice Ataanya",
+    },
+    [208496] = {
+        name = "Beruun Aprendiz",
+    },
     [208503] = {
         name = "Alexstrasza, a Mãe da Vida",
     },
@@ -380,6 +389,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [208572] = {
         name = "Alexstrasza, a Mãe da Vida",
+    },
+    [208614] = {
+        name = "Ruska Rochodonte",
     },
     [208669] = {
         name = "Lady Lunamora",
@@ -402,17 +414,50 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [210022] = {
         name = "Guardião Adranas",
     },
+    [210086] = {
+        name = "Mandingueira Tzadah",
+    },
+    [210092] = {
+        name = "Mestre Gadrin",
+    },
     [210133] = {
         name = "Ícaris",
     },
     [210196] = {
         name = "Solarys Puavento",
     },
+    [210340] = {
+        name = "Grande Artífice Romuul",
+    },
+    [210390] = {
+        name = "Profeta Velen",
+    },
+    [210391] = {
+        name = "Chefe Hatuun",
+    },
+    [210563] = {
+        name = "Chefe Hatuun",
+    },
+    [210569] = {
+        name = "Alta Artífice Ataanya",
+    },
+    [210578] = {
+        name = "Exarca Maladaar",
+    },
+    [210581] = {
+        name = "Exarca Maladaar",
+    },
+    [210605] = {
+        name = "Profeta Velen",
+    },
     [210646] = {
         name = "Oniroide",
     },
     [210813] = {
         name = "Dríade Zelosa",
+    },
+    [210905] = {
+        name = "Princesa Tess Greymane",
     },
     [211193] = {
         name = "Tyrande Murmuréolo",
@@ -426,8 +471,29 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [211962] = {
         name = "Melsyra",
     },
+    [212387] = {
+        name = "Grande Anacoreta Almonen",
+    },
     [212797] = {
         name = "Talisa Cantaflora",
+    },
+    [212899] = {
+        name = "Elite da Guarda Greymane",
+    },
+    [212916] = {
+        name = "Necroguarda de Elite",
+    },
+    [213995] = {
+        name = "Alquimista Guilneana",
+    },
+    [214021] = {
+        name = "Profeta Velen",
+    },
+    [216067] = {
+        name = "Shandris Plumaluna",
+    },
+    [221491] = {
+        name = "Evocações de Hadggar",
     },
 })
 ]])()

@@ -363,6 +363,12 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [208151] = {
         name = "Maiev Cantosombrío",
     },
+    [208494] = {
+        name = "Artificiera Superior Ataanya",
+    },
+    [208496] = {
+        name = "Aprendiz Beruun",
+    },
     [208503] = {
         name = "Alexstrasza, la Protectora",
     },
@@ -380,6 +386,9 @@ BtWQuestsDatabase:UpdateNPCsTable({
     },
     [208572] = {
         name = "Alexstrasza, la Protectora",
+    },
+    [208614] = {
+        name = "Roska Dentarroca",
     },
     [208669] = {
         name = "Lady Baya Lunar",
@@ -402,14 +411,50 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [210022] = {
         name = "Guardián Adranas",
     },
+    [210086] = {
+        name = "Médica bruja Tzadah",
+    },
+    [210092] = {
+        name = "Maestro Gadrin",
+    },
     [210196] = {
         name = "Solarys Vendaval de Espinas",
+    },
+    [210340] = {
+        name = "Gran artificiero Romuul",
+    },
+    [210390] = {
+        name = "Profeta Velen",
+    },
+    [210391] = {
+        name = "Jefe Hatuun",
+    },
+    [210563] = {
+        name = "Jefe Hatuun",
+    },
+    [210569] = {
+        name = "Artificiera Superior Ataanya",
+    },
+    [210578] = {
+        name = "Exarca Maladaar",
+    },
+    [210581] = {
+        name = "Exarca Maladaar",
+    },
+    [210605] = {
+        name = "Profeta Velen",
     },
     [210646] = {
         name = "Lechúcico onírico",
     },
     [210813] = {
         name = "Dríade ferviente",
+    },
+    [210904] = {
+        name = "Genn Cringris",
+    },
+    [210905] = {
+        name = "Princesa Tess Cringris",
     },
     [211193] = {
         name = "Tyrande Susurravientos",
@@ -420,8 +465,35 @@ BtWQuestsDatabase:UpdateNPCsTable({
     [211634] = {
         name = "Tyrande Susurravientos",
     },
+    [212187] = {
+        name = "Genn Cringris",
+    },
+    [212387] = {
+        name = "Gran anacoreta Almonen",
+    },
     [212797] = {
         name = "Talisa Florsusurrante",
+    },
+    [212899] = {
+        name = "Guardiagrís de élite",
+    },
+    [212916] = {
+        name = "Élite Guardia de la Muerte",
+    },
+    [213995] = {
+        name = "Alquimista gilneana",
+    },
+    [214021] = {
+        name = "Profeta Velen",
+    },
+    [214538] = {
+        name = "Genn Cringris",
+    },
+    [216067] = {
+        name = "Shandris Plumaluna",
+    },
+    [221491] = {
+        name = "Invocaciones de Khadgar",
     },
 })
 ]])()
