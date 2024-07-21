@@ -19,12 +19,14 @@ local function BUII_AddColoredExpLine(name, tooltip)
 		tooltip:AddLine(name, 0.20, 0.39, 0.67)
 	elseif name == "暗影之境" then
 		tooltip:AddLine(name, 0.6, 0.8, 1)
-	elseif name == "巨龍群島" then
+	elseif name == "巨龍崛起" then
 		tooltip:AddLine(name, 0, 1, 0.6)
+	elseif name == "地心之戰" then
+		tooltip:AddLine(name, 0.8, 0.2, 0)
 	elseif name == "當前賽季" then
     -- Blizz seems to have added a Current Season tag in 10.2.7
     -- to have the same behaviour as before the patch make it Dragonflight
-		tooltip:AddLine("巨龍群島", 0, 1, 0.6)
+		tooltip:AddLine("地心之戰", 0.8, 0.2, 0)
 	else
 		print("缺少資料片: " .. name)
 	end
@@ -35,7 +37,7 @@ local function BUII_TooltipImprovements_OnTooltipSetItem(tooltip, data)
 		if tooltip == GameTooltip or tooltip == ItemRefTooltip then
 			local item = select(3, tooltip:GetItem())
 			if item then
-				local expansionID = select(15, GetItemInfo(item))
+				local expansionID = select(15, C_Item.GetItemInfo(item))
 				if expansionID then
 					-- EJ_GetTierInfo needs expansionID + 1 to get the correct expansion
 					local expansionName = EJ_GetTierInfo(expansionID + 1)

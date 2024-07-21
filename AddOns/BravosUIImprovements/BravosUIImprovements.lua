@@ -125,7 +125,7 @@ local function handleUnitFramePortraitUpdate(self)
     if UnitInVehicle(self.unit) then
       healthBar = PetFrameHealthBar
     else
-      healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
+      healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar
     end
   elseif self.unit == "pet" then
     healthBar = PetFrameHealthBar
@@ -134,7 +134,7 @@ local function handleUnitFramePortraitUpdate(self)
   elseif self.unit == "focus" then
     healthBar = FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar
   elseif self.unit == "vehicle" then
-    healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
+    healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar
   end
 
   -- If we've reached this point and healthBar isn't valid bail out
@@ -167,7 +167,10 @@ function BUII_OnLoadHandler(self)
   hooksecurefunc("UnitFramePortrait_Update", handleUnitFramePortraitUpdate)
 
   self.name = "介面增強"
-  InterfaceOptions_AddCategory(self)
+  -- InterfaceOptions_AddCategory(self)
+  local category = Settings.RegisterCanvasLayoutCategory(self, self.name)
+  category.ID = self.name
+  Settings.RegisterAddOnCategory(category)
 end
 
 function BUII_OnEventHandler(self, event, arg1, ...)
@@ -261,12 +264,12 @@ function BUII_HealthClassColorCheckButton_OnClick(self)
   local r, g, b = GetClassColor(const_class)
 
   if self:GetChecked() then
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar:SetStatusBarDesaturated(true)
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar:SetStatusBarColor(r, g, b)
+    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar:SetStatusBarDesaturated(true)
+    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar:SetStatusBarColor(r, g, b)
     BUIIDatabase["class_color"] = true
   else
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar:SetStatusBarDesaturated(false)
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar:SetStatusBarColor(1, 1, 1)
+    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar:SetStatusBarDesaturated(false)
+    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar:SetStatusBarColor(1, 1, 1)
     BUIIDatabase["class_color"] = false
   end
 end

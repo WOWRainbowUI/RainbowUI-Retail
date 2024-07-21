@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
 
   <Script file="CastBarTimers.lua"/>
-  <Script file="QuickKeybindModeShortcut.lua"/>
+  <!--<Script file="QuickKeybindModeShortcut.lua"/>-->
   <Script file="BravosUIImprovements.lua"/>
 
   <Frame name="BUIIOptionsPanel" hidden="false">
@@ -129,7 +129,7 @@
           <OnClick function="BUII_HideStanceBar_OnClick"/>
         </Scripts>
       </CheckButton>
-
+<!--
       <CheckButton name="$parentQuickKeybindShortcut" parentKey="QuickKeybindShortcut" inherits="InterfaceOptionsCheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeKey="$parent.HideStanceBar" relativePoint="BOTTOMLEFT" x="0" y="0"/>
@@ -147,10 +147,10 @@
           <OnClick function="BUII_QuickKeybindShortcut_OnClick"/>
         </Scripts>
       </CheckButton>
-
+//-->
       <CheckButton name="$parentImprovedEditMode" parentKey="ImprovedEditMode" inherits="InterfaceOptionsCheckButtonTemplate">
         <Anchors>
-          <Anchor point="TOPLEFT" relativeKey="$parent.QuickKeybindShortcut" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+          <Anchor point="TOPLEFT" relativeKey="$parent.HideStanceBar" relativePoint="BOTTOMLEFT" x="0" y="0"/>
         </Anchors>
         <Layers>
           <Layer level="ARTWORK">
