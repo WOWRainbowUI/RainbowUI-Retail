@@ -175,6 +175,8 @@ L['options_restore_hidden_nodes_desc'] = '使用右击菜单恢复全部隐藏�
 
 L['options_rewards_settings'] = '奖励'
 L['options_reward_types'] = '显示奖励类型'
+L['options_manuscript_rewards'] = '显示观龙者手稿奖励'
+L['options_manuscript_rewards_desc'] = '在提示中显示龙观察者手稿奖励并跟踪其收集状态。'
 L['options_mount_rewards'] = '显示坐骑奖励'
 L['options_mount_rewards_desc'] = '在提示中显示坐骑奖励并跟踪其收集状态。'
 L['options_pet_rewards'] = '显示宠物奖励'
@@ -194,10 +196,10 @@ L['options_icons_pet_battles_desc'] = '显示宠物训练师和 NPC 的位置。
 L['options_icons_pet_battles'] = '战斗宠物'
 L['options_icons_rares_desc'] = '显示稀有 NPC 的位置。'
 L['options_icons_rares'] = '稀有'
-L['options_icons_treasures_desc'] = '显示隐藏宝藏位置。'
+L['options_icons_treasures_desc'] = '显示隐藏宝藏的位置。'
 L['options_icons_treasures'] = '宝藏'
-L['options_icons_vendors_desc'] = nil
-L['options_icons_vendors'] = nil
+L['options_icons_vendors_desc'] = '显示供应商位置。'
+L['options_icons_vendors'] = '供应商'
 
 ------------------------------------ FOCUS ------------------------------------
 

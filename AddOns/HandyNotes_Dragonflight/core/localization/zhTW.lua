@@ -175,6 +175,8 @@ L['options_restore_hidden_nodes_desc'] = '恢復所有使用右鍵選單隱藏�
 
 L['options_rewards_settings'] = '獎勵'
 L['options_reward_types'] = '顯示獎勵類型'
+L['options_manuscript_rewards'] = nil
+L['options_manuscript_rewards_desc'] = nil
 L['options_mount_rewards'] = '顯示坐騎獎勵'
 L['options_mount_rewards_desc'] = '在提示顯示坐騎獎勵並追蹤收集狀態'
 L['options_pet_rewards'] = '顯示戰寵獎勵'
@@ -196,8 +198,8 @@ L['options_icons_rares_desc'] = '顯示稀有NPC的位置。'
 L['options_icons_rares'] = '稀有'
 L['options_icons_treasures_desc'] = '顯示隱藏寶藏的位置。'
 L['options_icons_treasures'] = '寶藏'
-L['options_icons_vendors_desc'] = nil
-L['options_icons_vendors'] = nil
+L['options_icons_vendors_desc'] = '顯示軍需官的位置.'
+L['options_icons_vendors'] = '軍需官'
 
 ------------------------------------ FOCUS ------------------------------------
 

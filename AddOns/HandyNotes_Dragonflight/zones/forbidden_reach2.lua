@@ -17,6 +17,7 @@ local Dragonglyph = ns.node.Dragonglyph
 local ElusiveCreature = ns.node.ElusiveCreature
 local Flag = ns.node.Flag
 local SignalTransmitter = ns.node.SignalTransmitter
+local WarSupply = ns.node.WarSupply
 
 local Achievement = ns.reward.Achievement
 local Currency = ns.reward.Currency
@@ -203,6 +204,7 @@ map.nodes[61723400] = Rare({
     note = L['wymslayer_angvardi_note'],
     rewards = {
         Achievement({id = 17525, criteria = 58469}), -- Champion of the Forbidden Reach
+        DC.WindborneVelocidrake.WhiteHorns, --
         Item({item = 202196}), -- Zskera Vault Key
         Currency({id = 2118}) -- Elemental Overflow
     }
@@ -624,6 +626,18 @@ map.nodes[48947352] = ns.node.ElementalChest({
         Item({item = 204577}) -- Condensed Nature Magic
     }
 }) -- Storm-Bound Chest
+
+-------------------------------------------------------------------------------
+------------------------------ WAR SUPPLY CHESTS ------------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[15001480] = WarSupply({fgroup = 'supply_forbidden_reach'})
+map.nodes[31405380] = WarSupply({fgroup = 'supply_forbidden_reach'})
+map.nodes[40801240] = WarSupply({fgroup = 'supply_forbidden_reach'})
+map.nodes[41203670] = WarSupply({fgroup = 'supply_forbidden_reach'})
+map.nodes[50104390] = WarSupply({fgroup = 'supply_forbidden_reach'})
+map.nodes[59003900] = WarSupply({fgroup = 'supply_forbidden_reach'})
+map.nodes[70707710] = WarSupply({fgroup = 'supply_forbidden_reach'})
 
 -------------------------------------------------------------------------------
 --------------------------------- BATTLE PETS ---------------------------------
@@ -1337,6 +1351,36 @@ map.nodes[55393586] = ScalecommanderItem({
     pois = {POI({55103837})}, -- Entrance
     item = {204252, 202326}
 }) -- Sending Stone: Initial Report
+
+-------------------------------------------------------------------------------
+---------------------------------- CLUED IN -----------------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[55424648] = ns.node.CluedIn({
+    label = L['sun_bleached_vase'], -- Sun-Bleached Vase
+    quest = 77424
+})
+
+map.nodes[54933669] = ns.node.CluedIn({
+    label = L['untranslated_tome'], -- Untranslated Tome
+    quest = 77424,
+    location = L['untranslated_tome_note'],
+    pois = {POI({55103878})} -- Entrance
+})
+
+map.nodes[56383872] = ns.node.CluedIn({
+    label = L['mysterious_boot'], -- Mysterious Boot
+    quest = 77424,
+    location = L['mysterious_boot_note']
+})
+
+-------------------------------------------------------------------------------
+-------------------------------- GOGGLE WOBBLE --------------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[77143837] = ns.node.GoggleWobble({
+    rewards = {Achievement({id = 19791, criteria = 65405})}
+})
 
 -------------------------------------------------------------------------------
 ----------------------------------- VENDORS -----------------------------------
