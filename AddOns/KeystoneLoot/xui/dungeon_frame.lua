@@ -107,7 +107,7 @@ function KeystoneLoot:CreateDungeonFrame(parent)
 		local teleportSpellId = self.teleportSpellId;
 
 		if (not self.initTeleport) then
-			local _, _, icon = GetSpellInfo(teleportSpellId);
+			local _, _, icon = C_Spell.GetSpellInfo(teleportSpellId);
 			TeleportButton.Icon:SetTexture(icon);
 
 			TeleportButton:SetAttribute('type', 'spell');

@@ -3,14 +3,6 @@ local AddonName, KeystoneLoot = ...;
 local Translate = KeystoneLoot.Translate;
 
 
-local function OnEnter(self)
-	self:SetAlpha(1);
-end
-
-local function OnLeave(self)
-	self:SetAlpha(0.7);
-end
-
 local function OnClick(self)
 	KeystoneLoot:ToggleDropDown(self);
 
@@ -22,10 +14,12 @@ end
 
 local function OnMouseDown(self)
 	self.GearTexture:SetPoint('CENTER', 1, -1);
+	self.HighlightTexture:SetPoint('CENTER', 1, -1);
 end
 
 local function OnMouseUp(self)
 	self.GearTexture:SetPoint('CENTER');
+	self.HighlightTexture:SetPoint('CENTER');
 end
 
 local function OnShow(self)
@@ -36,23 +30,42 @@ local OverviewFrame = KeystoneLoot:GetOverview();
 
 local Button = CreateFrame('Button', nil, OverviewFrame);
 OverviewFrame.OptionsButton = Button;
-Button:SetAlpha(0.7);
 Button:SetSize(18, 18);
 Button:SetFrameLevel(510);
 Button:RegisterForClicks('LeftButtonUp', 'RightButtonUp');
 Button:SetPoint('TOPRIGHT', -28, -3);
 Button:SetScript('OnShow', OnShow);
-Button:SetScript('OnEnter', OnEnter);
-Button:SetScript('OnLeave', OnLeave);
 Button:SetScript('OnClick', OnClick);
 Button:SetScript('OnMouseDown', OnMouseDown);
 Button:SetScript('OnMouseUp', OnMouseUp);
 
 local GearTexture = Button:CreateTexture(nil, 'ARTWORK');
 Button.GearTexture = GearTexture;
-GearTexture:SetSize(18, 18);
+GearTexture:SetSize(15, 16);
 GearTexture:SetPoint('CENTER');
-GearTexture:SetTexture('Interface\\WorldMap\\GEAR_64GREY');
+GearTexture:SetTexture('Interface\\AddOns\\'..AddonName..'\\assets\\QuestlogFrame2x');
+GearTexture:SetTexCoord(0.932617, 0.961914, 0.0322266, 0.0634766);
+
+local HighlightTexture = Button:CreateTexture(nil, 'HIGHLIGHT');
+Button.HighlightTexture = HighlightTexture;
+HighlightTexture:SetSize(15, 16);
+HighlightTexture:SetPoint('CENTER');
+HighlightTexture:SetTexture('Interface\\AddOns\\'..AddonName..'\\assets\\QuestlogFrame2x');
+HighlightTexture:SetTexCoord(0.932617, 0.961914, 0.0322266, 0.0634766);
+HighlightTexture:SetBlendMode('ADD');
+HighlightTexture:SetAlpha(0.4);
+
+-- local GearTexture = Button:CreateTexture(nil, 'ARTWORK');
+-- Button.GearTexture = GearTexture;
+-- GearTexture:SetPoint('CENTER');
+-- GearTexture:SetAtlas('questlog-icon-setting', true);
+
+-- local HighlightTexture = Button:CreateTexture(nil, 'HIGHLIGHT');
+-- Button.HighlightTexture = HighlightTexture;
+-- HighlightTexture:SetPoint('CENTER');
+-- HighlightTexture:SetAtlas('questlog-icon-setting', true);
+-- HighlightTexture:SetBlendMode('ADD');
+-- HighlightTexture:SetAlpha(0.4);
 
 local GlowArrow = CreateFrame('Frame', 'KeystoneLootGlowArrow', OverviewFrame, 'GlowBoxArrowTemplate');
 Button.GlowArrow = GlowArrow;
@@ -103,6 +116,16 @@ function Button:GetList()
 	table.insert(_list, info);
 
 	local info = {};
+	info.text = YELLOW_FONT_COLOR:WrapTextInColorCode(NEW:upper())..' '..Translate['Show Item Level In Keystone Tooltip']; -- TODO: -NEU- Später wieder entfernen.
+	info.checked = KeystoneLootDB.keystoneItemLevelEnabled;
+	info.keepShownOnClick = true;
+	info.args = not KeystoneLootDB.keystoneItemLevelEnabled;
+	info.func = function (enable)
+		KeystoneLootDB.keystoneItemLevelEnabled = enable;
+	end;
+	table.insert(_list, info);
+
+	local info = {};
 	info.text = NORMAL_FONT_COLOR:WrapTextInColorCode(DUNGEONS);
 	info.checked = false;
 	info.notCheckable = true;
@@ -127,7 +150,7 @@ function Button:GetList()
 	table.insert(_list, info);
 
 	local info = {};
-	info.text = YELLOW_FONT_COLOR:WrapTextInColorCode(NEW:upper())..' '..Translate['Enable Loot Reminder']; -- TODO: -NEU- Später wieder entfernen.
+	info.text = Translate['Enable Loot Reminder'];
 	info.checked = KeystoneLootDB.raidLootReminderEnabled;
 	info.keepShownOnClick = true;
 	info.args = not KeystoneLootDB.raidLootReminderEnabled;

@@ -12,11 +12,13 @@ Translate['Enable Minimap Button'] = '啟用小地圖按鈕';
 Translate['Enable Loot Reminder'] = '啟用戰利品提醒';
 Translate['Favorites Show All Specializations'] = '最愛顯示所有專精';
 Translate['%s (%s Season %d)'] = '%s（%s 第 %d 賽季）';
-Translate['Veteran'] = '老兵';
+Translate['Veteran'] = '探險者';
 Translate['Champion'] = '勇士';
 Translate['Hero'] = '英雄';
+Translate['Myth'] = '史詩';
 Translate['Revival Catalyst'] = '重生育籃控制台';
 Translate['Correct loot specialization set?'] = '是否有正確設定戰利品拾取專精?';
+Translate['Show Item Level In Keystone Tooltip'] = '在鑰石的浮動提示中顯示物品等級';
 
 -- 自行加入
 Translate['KeystoneLoot'] = "M+ 裝備查詢"
