@@ -857,15 +857,15 @@ if LOCALE == "zhCN" then
 	L["ColorPickerLowTextTT"] = "为速度值的低速度值选择自定义颜色。 当玩家没有获得任何精力时就会发生这种情况。"
 	L["ColorPickerMidTextTT"] = "为速度值的精力速度值选择自定义颜色。 当玩家在标准速度范围内获得精力时，就会发生这种情况。"
 	L["ColorPickerHighTextTT"] = "为速度值的高速值选择自定义颜色。 当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。"
-	L["DragonridingTalents"] = "驭龙术天赋"
-	L["OpenDragonridingTalents"] = "打开驭龙术天赋"
-	L["OpenDragonridingTalentsTT"] = "打开驭龙术天赋窗口。"
+	L["DragonridingTalents"] = "驭空术天赋" -- translated 11.0
+	L["OpenDragonridingTalents"] = "打开驭空术天赋" -- translated 11.0
+	L["OpenDragonridingTalentsTT"] = "打开驭空术天赋窗口。" -- translated 11.0
 	L["SideArtName"] = "侧面美化"
 	L["SideArtTT"] = "切换主精力条两侧的美化。"
 	L["BugfixesName"] = "Bug修复"
 	L["BugfixesTT"] = "当默认暴雪框架未按预期工作时尝试进行实验性错误修复。"
 	L["BugfixHideVigor"] = "强制隐藏精力条"
-	L["BugfixHideVigorTT"] = "下坐骑时强制隐藏精力条，骑上驭龙术飞行坐骑时重新显示。"
+	L["BugfixHideVigorTT"] = "下坐骑时强制隐藏精力条，骑上驭空术飞行坐骑时重新显示。" -- translated 11.0
 	L["FadeSpeedometer"] = "淡出车速表"
 	L["FadeSpeedometerTT"] = "在不滑行时切换速度计的淡出。"
 	L["ShowVigorTooltip"] = "显示精力条上鼠标提示"
@@ -902,7 +902,7 @@ if LOCALE == "zhCN" then
 	L["GoldTime"] = "金牌时间: "
 	L["SilverTime"] = "银牌时间: "
 	L["MuteVigorSound_Settings"] = "静音精力音效" -- translated
-	L["MuteVigorSound_SettingsTT"] = "切换驭龙术坐骑获得精力时播放的声音。" -- translated
+	L["MuteVigorSound_SettingsTT"] = "切换驭空术坐骑获得精力时播放的声音。"  -- translated 11.0
 	--non-official translations
 
 
