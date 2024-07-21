@@ -1126,7 +1126,7 @@ D["HandyMinimapArrow"] = {
     {
         text = "設定選項",
         callback = function(cfg, v, loading) 
-			Settings.OpenToCategory("小地圖-游標")
+			Settings.OpenToCategory("HandyMinimapArrow")
 		end,
     },
 };

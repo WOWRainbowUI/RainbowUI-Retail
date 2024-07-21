@@ -1,14 +1,11 @@
-## Interface: 100207## IconTexture: 982414
+## Interface: 110000
 ## Title: Handy Minimap Arrow
 ## Author: Kemayo
 ## Notes: Put an arrow higher up on the minimap, so other addons won't overlap it
-## Title-zhTW: |cff4DFF4D[地圖]|r 小地圖游標增強
-## Notes-zhTW: Handy Minimap Arrow |n|n可以調整小地圖中玩家游標的大小和圖案，並且會顯示在其他插件 (地圖標記、稀有怪) 的圖示上面，避免被遮住，更容易看清楚方向。|n|n|cffffd200使用方法: |r從Esc>選項>插件>小地圖-游標，進行設定。
-## X-Category-zhTW: 地圖## DefaultState: disabled
 ## SavedVariables: HandyMinimapArrowDB
 ## Version: v3
 
-## X-Curse-Project-ID: 513744
+## X-Curse-Project-ID: 513744## Title-zhTW: |cff4DFF4D[地圖]|r 小地圖游標增強## Notes-zhTW: Handy Minimap Arrow |n|n可以調整小地圖中玩家游標的大小和圖案，並且會顯示在其他插件 (地圖標記、稀有怪) 的圖示上面，避免被遮住，更容易看清楚方向。|n|n|cffffd200使用方法: |r從Esc>選項>插件>小地圖-游標，進行設定。## IconTexture: Interface\Minimap\MinimapArrow## X-Category-zhTW: 地圖## DefaultState: disabled
 
 addon.lua
 config.lua
