@@ -1,5 +1,4 @@
 --[[---------------------------------------------------------------------------
-    Addon:  CursorTrail
     File:   CursorTrailHelp.lua
     Desc:   Functions and variables for showing this addon's help text.
 -----------------------------------------------------------------------------]]
@@ -61,6 +60,16 @@ When "Sparkle" is turn on, the chosen shape color is ignored and the shape "spar
 * Defaults:  Each default has different preset options.  You can use them as a starting point for your own effects.  To save a default, select "Save as" from the profiles menu.
 ]]
 
+kHelpText_Tips = [[
+- The mouse wheel can be used to change the option under the mouse.
+
+- The Up/Down arrow keys can be used to change the option that has focus.
+
+- Right-clicking the profile name is a quick way to save it.
+
+- Right-clicking most options sets them to their default value.
+]]
+
 kHelpText_SlashCommands = [[
 Type "/ct help" to see a list of all slash commands.
 ]]
@@ -120,6 +129,7 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
 
     if not HelpFrame then
         HelpFrame = private.UDControls.CreateTextScrollFrame(parent, "*** "..kAddonFolderName.." Help ***", 750)
+        HelpFrame:Hide()
         HelpFrame.topicOffsets = {}
         scrollDelaySecs = 0.1  -- Required so this newly created window has its scrollbar update correctly.
 
@@ -154,6 +164,12 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         HelpFrame:AddText(ORANGE.."Options", 0, topMargin, bigFont)
         HelpFrame:AddText(kHelpText_Options, 0, lineSpacing, smallFont)
         ----HelpFrame:AddText(BLUE.."\nTIP:|r You can use the mouse wheel or Up/Down keys to change values.", 0, lineSpacing, smallFont)
+        HelpFrame:AddText(" ", 0, lineSpacing, smallFont)
+
+        -- TIPS:
+        HelpFrame.topicOffsets["TIPS"] = HelpFrame:GetNextVerticalPosition() -12
+        HelpFrame:AddText(ORANGE.."Tips", 0, 0, bigFont)
+        HelpFrame:AddText(kHelpText_Tips, 0, lineSpacing, smallFont)
         HelpFrame:AddText(" ", 0, lineSpacing, smallFont)
 
         -- SLASH COMMANDS:
@@ -207,6 +223,14 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         HelpFrame:RegisterForDrag("LeftButton")
         HelpFrame:SetScript("OnDragStart", function() HelpFrame:StartMoving() end)
         HelpFrame:SetScript("OnDragStop", function() HelpFrame:StopMovingOrSizing() end)
+
+        -- EVENTS --
+        HelpFrame:SetScript("OnShow", function(self)
+                Globals.PlaySound(829)  -- IG_SPELLBOOK_OPEN
+            end)
+        HelpFrame:SetScript("OnHide", function(self) 
+                Globals.PlaySound(830)  -- IG_SPELLBOOK_CLOSE
+            end) 
     end
 
     -- Scroll to top, or to specified topic.
@@ -226,7 +250,11 @@ end
 
 -------------------------------------------------------------------------------
 function CursorTrail_HideHelp()
-    if HelpFrame then HelpFrame:Hide() end
+    if HelpFrame and HelpFrame:IsShown() then
+        HelpFrame:Hide()
+        return true
+    end
+    return false
 end
 
 --- End of File ---
