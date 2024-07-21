@@ -748,7 +748,7 @@ function frame:ADDON_LOADED(arg1)
         borderColorPicker:SetBackdropColor(unpack(IVSP_Config["borderColor"]))
         fontColorPicker:SetBackdropColor(unpack(IVSP_Config["fontColor"]))
 
-        versionText:SetText("Version: " .. GetAddOnMetadata(addonName, "version"))
+        versionText:SetText("Version: " .. C_AddOns.GetAddOnMetadata(addonName, "version"))
     end
 end
 
