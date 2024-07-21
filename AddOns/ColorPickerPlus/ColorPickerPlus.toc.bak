@@ -1,0 +1,15 @@
+## Interface: 11503, 40400, 100207
+## Title: ColorPickerPlus
+## Notes: Hooks into the standard Color Picker to provide text entry for colors (RGB and hex values), starting color and chosen color swatches
+## Author: jaslm
+## IconTexture: 134563
+## DefaultState: Enabled
+## SavedVariables: ColorPickerPlusDB
+## X-Wago-ID: aNDmE46o
+
+## Title-zhTW: |cff0099FF[介面]|r 顏色選擇器 Plus
+## Notes-zhTW: ColorPickerPlus |n|n提供更方便的方式來選擇顏色，可以輸入顏色數值、直接選擇職業顏色，或是將自訂顏色儲存成色票供日後使用。|n|n|cffffd200使用方法: |r選擇顏色時會自動出現。
+## X-Category-zhTW: 介面
+## Version: r63
+
+ColorPickerPlus.lua
