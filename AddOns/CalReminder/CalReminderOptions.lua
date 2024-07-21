@@ -55,7 +55,7 @@ function loadCalReminderOptions()
 
 	local CalReminderOptions = {
 		type = "group",
-		name = format("%s |cffADFF2Fv%s|r", L["CALREMINDER"], GetAddOnMetadata("CalReminder", "Version")),
+		name = format("%s |cffADFF2Fv%s|r", L["CALREMINDER"], C_AddOns.GetAddOnMetadata("CalReminder", "Version")),
 		args = {
 			general = {
 				type = "group", order = 1,
