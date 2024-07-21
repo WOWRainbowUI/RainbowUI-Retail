@@ -161,7 +161,7 @@ function PlayerFrameMapping:RefreshData(fetchNew)
     -- character data
     local playerData = CharacterData:GetCharacterDataByGUID(selectedCharacterGUID) or KeyMaster.UnitData:GetUnitDataByUnitId("player")
     --KeyMaster:TPrint(playerData)
-
+	if not playerData then return end -- 暫時修正
     -- Player Dungeon Rating
     playerFrame.playerRating:SetText(playerData.mythicPlusRating or defaultString)
 
