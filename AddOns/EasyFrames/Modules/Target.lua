@@ -57,7 +57,7 @@ function Target:OnEnable()
     self:SetAttackBackgroundOpacity(db.target.attackBackgroundOpacity)
     self:ShowPVPIcon(db.target.showPVPIcon)
 
-    hooksecurefunc(targetFrameContentMain.HealthBar, "UpdateTextString", function()
+    hooksecurefunc(targetFrameContentMain.HealthBarsContainer.HealthBar, "UpdateTextString", function()
         self:UpdateHealthBarTextString(TargetFrame)
     end)
 
@@ -147,7 +147,7 @@ end
 function Target:UpdateHealthBarTextString(frame)
     if (frame.unit == "target") then
         UpdateHealthValues(
-            targetFrameContentMain.HealthBar,
+            targetFrameContentMain.HealthBarsContainer.HealthBar,
             db.target.healthFormat,
             db.target.customHealthFormat,
             db.target.customHealthFormatFormulas,
@@ -192,7 +192,7 @@ function Target:ShowNameInsideFrame(value)
     if db.general.useEFTextures then
         local Core = EasyFrames:GetModule("Core")
 
-        local healthBar = targetFrameContentMain.HealthBar
+        local healthBar = targetFrameContentMain.HealthBarsContainer.HealthBar
 
         local HealthBarTexts = {
             healthBar.RightText,
@@ -226,7 +226,7 @@ function Target:SetHealthBarsFont()
     local fontFamily = Media:Fetch("font", db.target.healthBarFontFamily)
     local fontStyle = db.target.healthBarFontStyle
 
-    local healthBar = targetFrameContentMain.HealthBar
+    local healthBar = targetFrameContentMain.HealthBarsContainer.HealthBar
 
     healthBar.TextString:SetFont(fontFamily, fontSize, fontStyle)
     healthBar.RightText:SetFont(fontFamily, fontSize, fontStyle)

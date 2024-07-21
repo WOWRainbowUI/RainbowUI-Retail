@@ -624,11 +624,11 @@ function EasyFrames.Utils.GetFramesHealthBar()
         --PartyMemberFrame3HealthBar,
         --PartyMemberFrame4HealthBar,
 
-        Boss1TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar,
-        Boss2TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar,
-        Boss3TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar,
-        Boss4TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar,
-        Boss5TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar,
+        Boss1TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        Boss2TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        Boss3TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        Boss4TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        Boss5TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
     }
 end
 
@@ -646,7 +646,7 @@ function EasyFrames.Utils.GetHealthBarFor(frame)
     if (db.general.useEFTextures) then
         healthBar = frame.EasyFrames.healthbar
     else
-        healthBar = frame.TargetFrameContent.TargetFrameContentMain.HealthBar
+        healthBar = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar
     end
 
     return healthBar

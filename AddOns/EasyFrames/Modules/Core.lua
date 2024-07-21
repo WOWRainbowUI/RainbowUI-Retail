@@ -438,7 +438,7 @@ function Core:CheckClassification(frame, forceNormalTexture)
 end
 
 function Core:CheckClassificationForNonEFMode(frame)
-    local healthBar = frame.TargetFrameContent.TargetFrameContentMain.HealthBar;
+    local healthBar = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar;
 
     healthBar:SetStatusBarTexture(Media:Fetch("statusbar", db.general.barTexture))
     healthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
@@ -607,7 +607,7 @@ function Core:MovePlayerFrameBars(isVehicle)
         healthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
 
         -- Line order is important
-        playerFrameContentMain.HealthBarArea.PlayerFrameHealthBarAnimatedLoss:SetParent(PlayerFrame) -- fix for blinking red texture
+        playerFrameContentMain.HealthBarsContainer.PlayerFrameHealthBarAnimatedLoss:SetParent(PlayerFrame) -- fix for blinking red texture
         healthBar:SetParent(PlayerFrame)
         healthBar.TotalAbsorbBar:SetParent(PlayerFrame)
         healthBar.MyHealPredictionBar:SetParent(PlayerFrame)
@@ -647,10 +647,10 @@ function Core:MovePlayerFrameBars(isVehicle)
         self:MoveRegion(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PrestigePortrait, "CENTER", PlayerFrame, "CENTER", -97, 7)
         self:MoveRegion(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PrestigeBadge, "CENTER", PlayerFrame, "CENTER", -97, 7)
     else
-        healthBar:SetParent(playerFrameContentMain.HealthBarArea)
+        healthBar:SetParent(playerFrameContentMain.HealthBarsContainer)
         healthBar.HealthBarMask:Show()
 
-        self:MoveRegion(healthBar, "TOPLEFT", playerFrameContentMain.HealthBarArea, "TOPLEFT", 91, -40)
+        self:MoveRegion(healthBar, "TOPLEFT", playerFrameContentMain.HealthBarsContainer, "TOPLEFT", 91, -40)
 
         manaBar:SetParent(playerFrameContentMain)
         manaBar.ManaBarMask:Show()
@@ -675,7 +675,7 @@ function Core:MovePlayerFrameAlternateManaBar()
 end
 
 function Core:MoveTargetFrameBars()
-    local originHealthBar = targetFrameContentMain.HealthBar;
+    local originHealthBar = targetFrameContentMain.HealthBarsContainer.HealthBar;
     local localHealthBar = GetTargetHealthBar();
     local manaBar = targetFrameContentMain.ManaBar;
     local numericalThreat = TargetFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
@@ -724,7 +724,7 @@ function Core:MoveTargetFrameBars()
 end
 
 function Core:MoveFocusFrameBars()
-    local originHealthBar = focusFrameContentMain.HealthBar;
+    local originHealthBar = focusFrameContentMain.HealthBarsContainer.HealthBar;
     local localHealthBar = GetFocusHealthBar();
     local manaBar = focusFrameContentMain.ManaBar;
     local numericalThreat = FocusFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
@@ -805,7 +805,7 @@ function Core:MovePlayerFramesBarsTextString()
 end
 
 function Core:MoveTargetFramesBarsTextString()
-    local healthBar = targetFrameContentMain.HealthBar;
+    local healthBar = targetFrameContentMain.HealthBarsContainer.HealthBar;
     local manaBar = targetFrameContentMain.ManaBar;
 
     self:MoveRegion(healthBar.TextString, "CENTER", GetTargetHealthBar(), "CENTER", 0, 0)
@@ -818,7 +818,7 @@ function Core:MoveTargetFramesBarsTextString()
 end
 
 function Core:MoveFocusFramesBarsTextString()
-    local healthBar = focusFrameContentMain.HealthBar;
+    local healthBar = focusFrameContentMain.HealthBarsContainer.HealthBar;
     local manaBar = focusFrameContentMain.ManaBar;
 
     self:MoveRegion(healthBar.TextString, "CENTER", GetFocusHealthBar(), "CENTER", 0, 0)
@@ -854,7 +854,7 @@ end
 function Core:MoveBossFrameBars()
     BossIterator(function(frame)
         local frameContentMain = _G[frame:GetName()].TargetFrameContent.TargetFrameContentMain;
-        local healthBar = frameContentMain.HealthBar;
+        local healthBar = frameContentMain.HealthBarsContainer.HealthBar;
 
         healthBar:SetHeight(27)
 
