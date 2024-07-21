@@ -1,0 +1,71 @@
+v2.1.1-------------------------------------------------------------------
+- Updated - [release.yml]
+v2.1.0-------------------------------------------------------------------
+- Removed - Login spam - [core.lua]
+- Changed - Sounds folder to lowercase - [/sounds]
+- Changed - SoundFile name to be human readable - [final_fantasy_med.ogg]
+- Removed - Merge PSA - [README.md]
+v2.0.5-------------------------------------------------------------------
+- Trying to fix github workflows
+v2.0.4-------------------------------------------------------------------
+- Trying to fix github workflows
+v2.0.3-------------------------------------------------------------------
+- Removed - Notation - [core.lua]
+- Updated - github/workflow - [release.yml]
+- Removed - Version # - [.pkgmeta]
+- Removed - Version # - [README.md]
+- Removed - Version # - [CHANGES.md]
+v2.0.2-------------------------------------------------------------------
+- Trying to fix github workflows
+v2.0.1-------------------------------------------------------------------
+- Updated - ToC for _retail_ - Dark Heart (10.2.7.54604) [ToC.100207]
+- Added   - Email - [FFLU.toc, FFLU_Vaniilla.toc, FFLU_Cata.toc]
+- Added   - [changelog.txt]
+- Added   - [.gitignore]
+- Added   - [.github/workflows/release.yml]
+- Added   - Folder [/data]
+- Moved   - [core.lua] - [/data]
+- Changed - Rename - [Core.lua] - [core.lua]
+- Changed - Path/to/data - [FFLU.toc, FFLU_Vaniilla.toc, FFLU_Cata.toc]
+- Changed - [CHANGELOG.md] - [CHANGES.md]
+- Added   - [CHANGES.md] - [.pkgmeta]
+v2.0.0-------------------------------------------------------------------
+- Added   - ToC for _classic_ - Cataclysm Classic (4.4.0.54501) [ToC.40400]
+- Updated - ToC for _classic_era_ - Season of Discovery (1.15.2.54332) [ToC.11502]
+- Updated - ToC for _retail_ - Dragonflight Season 4 (10.2.6.54499) [ToC.100206]
+- Added   - New FFLU Theme Color - [ffe568]
+- Updated - Version Number - [.pkgmeta]
+- Updated - Version Number - [CHANGELOG.md]
+- Updated - Version Number - [README.md]
+- Updated - Version Number - [Core.lua]
+- Removed - The Burning Crusade ToC - [BLU_TBC.toc]
+- Removed - Wrath of The Lich King ToC - [BLU_Wrath.toc]
+- Updated - #Title and #Notes - [FFLU_Vanilla.toc]
+- Updated - #Title and #Notes - [FFLU.toc]
+- Changed - Text Color - [FFLU_Vanilla.toc]
+- Changed - Text Color - [FFLU.toc]
+- Changed - Theme color - Welcome Message - [Core.lua]
+- Removed - 'Will no longer be receiving updates' - Welcome Message - [Core.lua]
+- Removed - 'Will no longer be receiving updates' - [README.md]
+- Changed - 'WotLK' to 'CATA' - [README.md]
+- Added   - ## IconTexture // Icon - [FFLU.toc]
+- Added   - ## IconTexture // Icon - [FFLU_Vanilla.toc]
+- Created - Folder - [FFLU/Images/]
+- Created - Folder - [FFLU/Sounds/]
+- Added   - [icon.tga] - [/FFLU/Images/]
+- Moved   - [FFLU.ogg] - [/FFLU/Sounds/]
+- Added   - Code for new Sound Location - [Core.lua]
+v1.0.9-------------------------------------------------------------------
+- Updated - ToC for _classic_era_ - Season of Discovery (1.15.0.52610) [ToC.11500]
+- Updated - ToC for _retail_ - Seeds of Renewal (10.2.5.53162) [ToC.100205]
+- Added - Auther Name to Notes
+v1.0.6-------------------------------------------------------------------
+- Added   - Chat Message (Merge Alert)
+v1.0.5-------------------------------------------------------------------
+- Updated - Interface Versions (DragonFlight/WotLK)
+v1.0.4-------------------------------------------------------------------
+- Updated - Interface Versions
+v1.0.3-------------------------------------------------------------------
+- Added - CHANGELOG.md
+v1.0.2d------------------------------------------------------------------
+- Added - CHANGELOG.txt
