@@ -201,3 +201,6 @@ Change Log:
 * Fixed issue with color picker not working
 * Updated TOC for 10.2.7
 * Updated TOC for Cataclysm 4.4.0
+
+1.27
+* Added support for new WoW 11.0 menu system

@@ -37,7 +37,7 @@ SmartQuest = {
 	--
 	-- **********************************************************************************************
 
-	Version = "1.26";
+	Version = "1.27";
 	ModCode = "KSQ";
 	DataCode = "1";
 	Quest = { };
@@ -70,7 +70,7 @@ SmartQuest = {
 
 SmartQuestOptions = { };
 
-if (select(4, GetBuildInfo()) > 100200) then
+if (select(4, GetBuildInfo()) > 101000) then
 	SmartQuest.BetaMode = true;
 end
 if (select(4, GetBuildInfo()) >= 100000) then
@@ -702,8 +702,12 @@ function SmartQuest_Command(arg1)
 end
 
 function SmartQuest_Command_Options()
-	InterfaceOptionsFrame_OpenToCategory("任務-通報");
-	InterfaceOptionsFrame_OpenToCategory("任務-通報"); -- Do it twice because first time you load up, it doesn't work
+	if (SmartQuest.BetaMode) then
+		Settings.OpenToCategory("SmartQuest");
+	else
+		InterfaceOptionsFrame_OpenToCategory("SmartQuest");
+		InterfaceOptionsFrame_OpenToCategory("SmartQuest"); -- Do it twice because first time you load up, it doesn't work
+	end
 	SmartQuest_Option_SetChatFrameIdText(SmartQuest.Setting.ChatFrameId); -- Refresh title in case it changed or first logging in
 end
 
@@ -751,11 +755,18 @@ end
 
 function SmartQuest_RenderOptions()
 	SmartQuest.UIRendered = true;
+	local category, layout;
 	
 	local ConfigurationPanel = CreateFrame("FRAME","SmartQuest_MainFrame");
 	ConfigurationPanel.name = "任務-通報";
-	InterfaceOptions_AddCategory(ConfigurationPanel);
-
+	if (SmartQuest.BetaMode) then
+		category, layout = Settings.RegisterCanvasLayoutCategory(ConfigurationPanel, ConfigurationPanel.name);
+		category.ID = "SmartQuest"
+		Settings.RegisterAddOnCategory(category);
+	else
+		InterfaceOptions_AddCategory(ConfigurationPanel);	
+	end
+	
 	local IntroMessageHeader = ConfigurationPanel:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
 	IntroMessageHeader:SetPoint("TOPLEFT", 10, -10);
 	IntroMessageHeader:SetText("智能任務通報 "..SmartQuest.Version);
