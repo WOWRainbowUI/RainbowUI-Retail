@@ -171,7 +171,7 @@ function module:RegisterConfig()
                         min = 0, max = 1, step = 0.01,
                         order = 30,
                     },
-                    routes = config.toggle("Routes", "顯示某些稀有怪的行走路徑", 40),
+                    routes = config.toggle("路徑", "顯示某些稀有怪的行走路徑", 40),
                     tooltip_completion = config.toggle("完成", "在滑鼠提示中顯示成就/掉落物品的完成狀態", 40),
                     tooltip_regularloot = config.toggle("一般拾取", "在滑鼠提示中顯示無法追蹤的拾取", 41),
                     tooltip_lootwindow = config.toggle("彈出拾取視窗", "彈出拾取物品的視窗方便查看詳細內容", 42),
