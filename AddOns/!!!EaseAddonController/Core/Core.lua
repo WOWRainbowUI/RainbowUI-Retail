@@ -445,7 +445,7 @@ end
 
 --- call blizzard /dump
 function dump(...)
-    if not C_AddOns.IsAddOnLoaded("Blizzard_DebugTools") then LoadAddOn("Blizzard_DebugTools") end
+    if not C_AddOns.IsAddOnLoaded("Blizzard_DebugTools") then C_AddOns.LoadAddOn("Blizzard_DebugTools") end
     DevTools_Dump(...);
 end
 

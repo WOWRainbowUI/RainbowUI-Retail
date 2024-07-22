@@ -51,7 +51,7 @@ function U1ConfigsLoaded()
         if v.lod and not v.parent and not v.nolodbutton then
             tinsert(v, 1, {text=L["Load Now"], enableOnNotLoad=1, disableOnLoad=1, tip=L["hint.Load Now"], callback=function()
                 if not C_AddOns.IsAddOnLoaded(k) then
-                    local loaded, reason = LoadAddOn(k)
+                    local loaded, reason = C_AddOns.LoadAddOn(k)
                     U1OutputAddonLoaded(k, loaded, reason);
                     if loaded then UUI.Right.ADDON_SELECTED() UUI.Center.Refresh() end
                 end

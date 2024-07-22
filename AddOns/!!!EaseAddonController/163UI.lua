@@ -1042,7 +1042,7 @@ function U1LoadAddOnBackend(name)
 
     -- print("before", name, GetTime())
     capturing = name
-    local status, loaded, reason = safecall(LoadAddOn, name);
+    local status, loaded, reason = safecall(C_AddOns.LoadAddOn, name);
     capturing = nil
     -- print("after", name, GetTime(),loaded, reason)
     if loaded then

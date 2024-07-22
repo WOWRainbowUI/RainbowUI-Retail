@@ -1687,8 +1687,11 @@ function UUI.CreateUI()
         -- InCombatLockdown() return false when event fired, so delay 0.1 second
         CoreScheduleTimer(false, 0.1, self.PLAYER_REGEN_ENABLED, self)
     end
+	
+	-- 遊戲選單的彩虹ui按鈕
+	GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
+	GameMenuFrame.Header:SetScript("OnMouseDown", function() UUI.ToggleUI() end)
 
-    -- 遊戲選單的彩虹ui按鈕，待修正
 	-- Buttons on GameMenuFrame
     --[[
 	CoreHookScript(GameMenuFrame, "OnShow", function()
