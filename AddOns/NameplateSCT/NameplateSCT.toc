@@ -1,5 +1,5 @@
-## Interface: 100207
-## Version: 1.34
+## Interface: 11503, 30403, 40400, 100207, 110000
+## Version: 1.34-1
 ## Title: NameplateSCT
 ## Author: mpstark, Justwait
 ## SavedVariables: NameplateSCTDB
@@ -10,7 +10,7 @@
 
 ## Title-zhTW: |cffFF2D2D[戰鬥]|r 血條浮動戰鬥文字
 ## Notes-zhTW: Nameplate Scrolling Combat Text |n|n讓打怪的傷害數字在血條周圍跳動，可以自訂字體、大小、顏色和動畫效果。|n|n|cffffd200使用方法: |r從Esc>選項>插件>戰鬥-浮動文字，進行設定。|n|n|cffFF2D2D特別注意: |r需要先顯示出怪的血條（按 V 或 Shitf+V）浮動戰鬥文字才會出現。
-## IconTexture: Interface\\Icons\\boss_odunrunes_yellow
+## IconTexture: Interface\Icons\boss_odunrunes_yellow
 ## X-Category-zhTW: 戰鬥
 
 Libs\LibEasing\LibEasing.lua

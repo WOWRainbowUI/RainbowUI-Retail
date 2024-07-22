@@ -1,7 +1,6 @@
 # NameplateSCT
 
-## [1.34](https://github.com/Justw8/NameplateSCT/tree/1.34) (2024-04-24)
-[Full Changelog](https://github.com/Justw8/NameplateSCT/compare/1.33...1.34) [Previous Releases](https://github.com/Justw8/NameplateSCT/releases)
+## [1.34-1-g4b7f41c](https://github.com/Justw8/NameplateSCT/tree/4b7f41cb4f9d48b47c3dd790c3639b75cfc19424) (2024-06-12)
+[Full Changelog](https://github.com/Justw8/NameplateSCT/compare/1.34...4b7f41cb4f9d48b47c3dd790c3639b75cfc19424) [Previous Releases](https://github.com/Justw8/NameplateSCT/releases)
 
-- Also up Wrath version  
-- Update toc and versions  
+- War Within Compat Fixes (#37)  
