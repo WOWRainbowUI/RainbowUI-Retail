@@ -1,13 +1,0 @@
-## Interface: 100207## IconTexture: 982414
-
-## Title: SimpleVignette
-## Notes: Visual and audible warnings for rare spawns, items and chests.
-## Title-zhTW: |cff4DFF4D[地圖]|r 稀有怪和寶箱通知
-## Notes-zhTW: SimpleVignette |n|n小地圖上出現稀有怪星號和寶箱圖示時，會在畫面中間顯示文字並播放音效通知你。|n|n|cffffd200使用方法: 從Esc>選項>插件>稀有怪-通知，進行設定。
-## X-Category-zhTW: 地圖## DefaultState: disabled
-## Author: Kaemin
-## Version: v8.2
-## SavedVariables: svchests, svoutput, svparty, svsound, svsoundfile, svsoundnum, svsoundname
-
-SimpleVignette.lua
-SimpleVignette.xml
