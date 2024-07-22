@@ -1,4 +1,4 @@
-local MAJ, REV, COMPAT, _, T = 1, 8, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 9, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
@@ -505,6 +505,25 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 end
 local encodeMacro, decodeMacro do
 	local skipCacheRefresh
+	local phash_ChatTypeInfoList, importLooseSlashCommands = setmetatable({}, {__index=hash_ChatTypeInfoList}) do
+		local imported = {}
+		-- Bootleg ChatFrame_ImportListToHash(SlashCmdList, hash_SlashCmdList); calling the FrameXML version directly
+		-- would defeat its iterator isolation, and SlashCmdList has late-added secure entries which would notice.
+		function importLooseSlashCommands()
+			for k in pairs(SlashCmdList) do
+				if not imported[k] then
+					local p, i, cmd = "SLASH_" .. k, 1
+					repeat
+						cmd, i = _G[p .. i], i + 1
+						if type(cmd) == "string" then
+							phash_ChatTypeInfoList[cmd:upper()] = k
+						end
+					until not cmd
+					imported[k] = true
+				end
+			end
+		end
+	end
 	local function encodeSlash(nl, command, lead)
 		if nl ~= "\n" and nl ~= "" then
 			return
@@ -514,10 +533,11 @@ local encodeMacro, decodeMacro do
 		local cu = command:upper()
 		if not (skipCacheRefresh or next(SlashCmdList) == nil) then
 			skipCacheRefresh = true
-			ChatFrame_ImportListToHash(SlashCmdList, hash_SlashCmdList)
+			importLooseSlashCommands()
 		end
-		if type(hash_ChatTypeInfoList[cu]) == "string" and not hash_ChatTypeInfoList[cu]:match("!") then
-			return nl .. "!" .. hash_ChatTypeInfoList[cu] .. "!" .. command
+		local ctk = phash_ChatTypeInfoList[cu]
+		if type(ctk) == "string" and not ctk:match("!") then
+			return nl .. "!" .. ctk .. "!" .. command
 		elseif type(hash_EmoteTokenList[cu]) == "string" and not hash_EmoteTokenList[cu]:match("!") then
 			return nl .. "!" .. hash_EmoteTokenList[cu] .. "!" .. command
 		end
@@ -531,9 +551,9 @@ local encodeMacro, decodeMacro do
 		local cu = command:upper()
 		if not (skipCacheRefresh or next(SlashCmdList) == nil) then
 			skipCacheRefresh = true
-			ChatFrame_ImportListToHash(SlashCmdList, hash_SlashCmdList)
+			importLooseSlashCommands()
 		end
-		if hash_ChatTypeInfoList[cu] == key or hash_EmoteTokenList[cu] == key then
+		if phash_ChatTypeInfoList[cu] == key or hash_EmoteTokenList[cu] == key then
 		elseif _G["SLASH_" .. key .. 1] then
 			return nl .. _G["SLASH_" .. key .. 1]
 		else

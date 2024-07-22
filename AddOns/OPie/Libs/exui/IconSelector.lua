@@ -244,7 +244,7 @@ function internal.SyncHintText(d)
 	if d.manualInput:HasFocus() then
 		d.manualInputHint:Hide()
 		d.manualInputFS:Show()
-	elseif d.hoverIcon and d.hoverIcon == GetMouseFocus() then
+	elseif d.hoverIcon and d.hoverIcon:IsMouseMotionFocus() then
 		d.manualInputHint:Show()
 		local idx = d.hoverIcon:GetID() + d.viewIndexOffset
 		local asset = idx == 0 and d.firstAsset or d.iconList[idx]

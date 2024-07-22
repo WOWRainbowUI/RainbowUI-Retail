@@ -6,7 +6,7 @@ local MODERN, CF_CLASSIC, CI_ERA = COMPAT >= 10e4 or nil, COMPAT < 10e4 or nil, 
 local CF_WRATH, CF_CATA = COMPAT < 10e4 and COMPAT > 3e4 or nil, COMPAT < 10e4 and COMPAT > 4e4 or nil
 local MODERN_MOUNTS = MODERN or CF_WRATH
 local EV = T.Evie
-local AB = T.ActionBook:compatible(2,21)
+local AB = T.ActionBook:compatible(2,43)
 local RW = T.ActionBook:compatible("Rewire", 1,27)
 local KR = T.ActionBook:compatible("Kindred", 1,14)
 assert(EV and AB and RW and KR and 1, "Incompatible library bundle")
@@ -429,7 +429,7 @@ do -- macrotext
 	local function createMacrotext(macrotext)
 		if type(macrotext) ~= "string" then return end
 		if not map[macrotext] then
-			map[macrotext] = AB:CreateActionSlot(macroHint, macrotext, "recall", RW:seclib(), "RunMacro", macrotext, false, true)
+			map[macrotext] = AB:CreateActionSlot(macroHint, macrotext, "retext", macrotext, false, true)
 		end
 		return map[macrotext]
 	end
@@ -584,7 +584,7 @@ do -- macro: name
 		local forceShow = flags == 1
 		if type(name) == "string" and (forceShow or RW:IsNamedMacroKnown(name)) then
 			if not map[name] then
-				map[name] = AB:CreateActionSlot(namedMacroHint, name, "recall", RW:seclib(), "RunSlashCmd", "/runmacro", name)
+				map[name] = AB:CreateActionSlot(namedMacroHint, name, "reslash", "/runmacro", name)
 			end
 			return map[name]
 		end
@@ -638,7 +638,7 @@ if MODERN or CF_WRATH then -- battlepet: pet ID, species ID
 		local function randFaveHint()
 			return HasFullControl(), C_PetJournal.GetSummonedPetGUID() and 1 or 0, ricon, rname, 0, 0, 0, callMethod.SetSpellByID, 243819
 		end
-		petAction.fave = AB:CreateActionSlot(randFaveHint, nil, "attribute", "type","macro", "macrotext",SLASH_RANDOMFAVORITEPET1)
+		petAction.fave = AB:CreateActionSlot(randFaveHint, nil, "macrotext", SLASH_RANDOMFAVORITEPET1)
 		RW:ImportSlashCmd("RANDOMFAVORITEPET", true, false, 20, function(_, _, clause, _target)
 			if clause then
 				return true, randFaveHint()
@@ -673,7 +673,7 @@ if MODERN or CF_WRATH then -- battlepet: pet ID, species ID
 		local pk = rpid:upper()
 		if not petAction[pk] then
 			if MODERN then
-				petAction[pk] = AB:CreateActionSlot(battlepetHint, rpid, "attribute", "type","macro", "macrotext",EMOTE143_CMD1 .. "\n" .. SLASH_SUMMON_BATTLE_PET1 .. " " .. rpid)
+				petAction[pk] = AB:CreateActionSlot(battlepetHint, rpid, "macrotext", EMOTE143_CMD1 .. "\n" .. SLASH_SUMMON_BATTLE_PET1 .. " " .. rpid)
 			else -- no /summonbattlepet implementation as of 4.4.0
 				petAction[pk] = AB:CreateActionSlot(battlepetHint, rpid, "func", SummonCompanion, rpid)
 			end
@@ -717,7 +717,7 @@ if MODERN or CF_WRATH then -- equipmentset: equipment sets by name
 	end
 	local function equipSetActionSpec_SLASH(name)
 		-- [3.4.2] /equipset exists but SABT action type does not
-		return "attribute", "type","macro", "macrotext",SLASH_EQUIP_SET1 .. " " .. name
+		return "macrotext", SLASH_EQUIP_SET1 .. " " .. name
 	end
 	equipSetActionSpec, equipSetActionSpec_SLASH = MODERN and equipSetActionSpec or equipSetActionSpec_SLASH, nil
 	local function createEquipSet(name)
@@ -816,7 +816,7 @@ if MODERN or CF_CATA then -- worldmarker
 	for i=1, NUM_WORLD_MARKERS do
 		map[i] = AB:CreateActionSlot(worldmarkHint, i, "attribute", "type","worldmarker", "action","toggle", "marker",i)
 	end
-	map[0] = AB:CreateActionSlot(worldmarkHint, 0, "attribute", "type","macro", "macrotext",SLASH_CLEAR_WORLD_MARKER1 .. " " .. ALL)
+	map[0] = AB:CreateActionSlot(worldmarkHint, 0, "macrotext", SLASH_CLEAR_WORLD_MARKER1 .. " " .. ALL)
 	local function createWorldmark(id)
 		return map[id]
 	end
@@ -1008,7 +1008,7 @@ do -- petspell: spell ID
 			end
 		end
 		local function addPetCommand(cmd, key)
-			actionID[key] = AB:CreateActionSlot(petHint, key, "conditional", cnd, "attribute", "type","macro", "macrotext",cmd)
+			actionID[key] = AB:CreateActionSlot(petHint, key, "conditional", cnd, "macrotext", cmd)
 			RW:SetCommandHint(cmd, 75, petmacroHint)
 			macroMap[cmd:lower()] = key
 		end
@@ -1017,7 +1017,7 @@ do -- petspell: spell ID
 		addPetCommand(SLASH_PET_ATTACK1, "attack")
 		addPetCommand(SLASH_PET_DEFENSIVE1, "defend")
 		addPetCommand(SLASH_PET_PASSIVE1, "passive")
-		actionID.dismiss = AB:CreateActionSlot(petHint, "dismiss", "conditional", cnd, "attribute", "type","macro", "macrotext",SLASH_PET_DISMISS1)
+		actionID.dismiss = AB:CreateActionSlot(petHint, "dismiss", "conditional", cnd, "macrotext", SLASH_PET_DISMISS1)
 		if MODERN then
 			addPetCommand(SLASH_PET_MOVE_TO1, "move")
 			addPetCommand(SLASH_PET_ASSIST1, "assist")
@@ -1170,7 +1170,7 @@ do -- disenchant: iid
 		local mid = map[iid]
 		if not mid then
 			local macrotext = ("%s\n%s [@none] spell:%d\n%s item:%d\n%1$s"):format(SLASH_STOPSPELLTARGET1, SLASH_CAST1, DISENCHANT_SID, SLASH_SPELL_TARGET_ITEM1, iid)
-			mid = AB:CreateActionSlot(disenchantHint, iid, "recall", RW:seclib(), "RunMacro", macrotext)
+			mid = AB:CreateActionSlot(disenchantHint, iid, "retext", macrotext)
 			map[iid] = mid
 		end
 		return mid
@@ -1417,7 +1417,7 @@ do -- uipanel: token
 		local pi = r == nil and panels[tk]
 		if pi and pi[1] and (pi.req == nil or pi.req()) then
 			local mt = (pi.noduck and cmdPrefix or cmdDuckPrefix) .. tk .. " 1"
-			r = AB:CreateActionSlot(panelHint, tk, "attribute", "type","macro", "macrotext",mt)
+			r = AB:CreateActionSlot(panelHint, tk, "macrotext", mt)
 			panelMap[tk] = r
 		end
 		return r
