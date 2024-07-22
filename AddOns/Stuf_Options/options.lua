@@ -2105,7 +2105,7 @@ options={
 					func=function() StufDB={ temp = db, } end,
 					hidden=function() return StufDB ~= "perchar" end,
 				},
-				version={ name="v"..(GetAddOnMetadata("Stuf", "Version") or "?.?.???"), type="description", width="full", order=40, },
+				version={ name="v"..(C_AddOns.GetAddOnMetadata("Stuf", "Version") or "?.?.???"), type="description", width="full", order=40, },
 			},
 		},
 		player={
@@ -2476,8 +2476,8 @@ do  -- setup options for grouped colors
 		}
 	end
 	-- 將職業名稱改為中文
-	local classNameList = {}
-	FillLocalizedClassList(classNameList)
+	local classNameList = LOCALIZED_CLASS_NAMES_MALE
+	-- FillLocalizedClassList(classNameList)
 	for class, color in pairs(RAID_CLASS_COLORS) do
 		cargs[class]={ name=classNameList[class], type="color", set=set, get=getcolororblank, hidden=classcolorshide, }
 	end
