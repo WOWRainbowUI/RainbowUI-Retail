@@ -228,11 +228,16 @@ end
 
 function MMPE:GetProgressInfo()
     if self:IsMythicPlus() then
-        local numSteps = select(3, C_Scenario.GetStepInfo())
+        local numSteps = self:GetSteps()
         if numSteps and numSteps > 0 then
-            local info = {C_Scenario.GetCriteriaInfo(numSteps)}
-            if info[13] == true then -- if isWeightedProgress
-                return info
+            if C_Scenario and C_Scenario.GetCriteriaInfo then
+                local info = {C_Scenario.GetCriteriaInfo(numSteps)}
+                if info[13] == true then -- if isWeightedProgress
+                    return info
+                end
+            elseif C_ScenarioInfo and C_ScenarioInfo.GetCriteriaInfo then
+                local info = C_ScenarioInfo.GetCriteriaInfo(numSteps)
+                return info.isWeightedProgress and info or nil
             end
         end
     end
@@ -242,7 +247,7 @@ function MMPE:GetMaxQuantity()
     if self.simulationActive then return self.simulationMax end
     local info = self:GetProgressInfo()
     if info then
-        return info[5]
+        return info[5] or info.totalQuantity
     end
 
     return 0
@@ -252,7 +257,9 @@ function MMPE:GetCurrentQuantity()
     if self.simulationActive then return self.simulationCurrent end
     local info = self:GetProgressInfo()
     if info then
-        return strtrim(info[8], "%")
+        -- there's a bug/feature in TWW, that C_ScenarioInfo.GetCriteriaInfo.quantity reports the % instead of raw quantity count :/
+        -- this math does mean we lose quite a lot of precision
+        return info[8] and strtrim(info[8], "%") or (info.totalQuantity * (info.quantity/100))
     end
 
     return 0
@@ -626,9 +633,9 @@ function MMPE:GetPulledProgress(pulledUnits)
     return estimatedProgress
 end
 
-function MMPE:ShouldShowCurrentPullEstimate()
+function MMPE:ShouldShowCurrentPullEstimate(hasCount)
     if self:GetSetting("enabled") and self:GetSetting("enablePullEstimate") and self:IsMythicPlus() and not self:IsDungeonFinished() then
-        if self:GetSetting("pullEstimateCombatOnly") and not UnitAffectingCombat("player") then
+        if self:GetSetting("pullEstimateCombatOnly") and not hasCount then
             return false
         end
         return true
@@ -643,15 +650,15 @@ function MMPE:SetCurrentPullEstimateLabel(s)
 end
 
 function MMPE:UpdateCurrentPullEstimate()
-    if not self:ShouldShowCurrentPullEstimate() then
+    local pulledUnits = self:GetPulledUnits()
+    local estimatedCount = self:GetPulledProgress(pulledUnits)
+    if not self:ShouldShowCurrentPullEstimate(estimatedCount > 0) then
         self.currentPullFrame:Hide()
         return
     else
         self.currentPullFrame:Show()
     end
     local message
-    local pulledUnits = self:GetPulledUnits()
-    local estimatedCount = self:GetPulledProgress(pulledUnits)
     local maxCount = self:GetMaxQuantity()
     local currentCount = self:GetCurrentQuantity()
     local totalCount = (estimatedCount + currentCount)

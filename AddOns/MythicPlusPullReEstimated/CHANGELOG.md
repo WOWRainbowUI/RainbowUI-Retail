@@ -1,6 +1,8 @@
 # Mythic Plus Pull ReEstimated
 
-## [v1.9.8](https://github.com/NumyAddon/MythicPlusPullReEstimated/tree/v1.9.8) (2024-05-08)
-[Full Changelog](https://github.com/NumyAddon/MythicPlusPullReEstimated/compare/v1.9.7...v1.9.8) [Previous Releases](https://github.com/NumyAddon/MythicPlusPullReEstimated/releases)
+## [v1.9.10](https://github.com/NumyAddon/MythicPlusPullReEstimated/tree/v1.9.10) (2024-07-07)
+[Full Changelog](https://github.com/NumyAddon/MythicPlusPullReEstimated/compare/v1.9.9...v1.9.10) [Previous Releases](https://github.com/NumyAddon/MythicPlusPullReEstimated/releases)
 
-- TOC Bump  
+- TWW: Data update and fix mayor bugs  
+- Adjust localization script  
+- Add prettier notifications to Discord on updates  
