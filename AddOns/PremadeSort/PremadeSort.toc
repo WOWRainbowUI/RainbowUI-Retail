@@ -1,4 +1,4 @@
-## Interface: 100207
+## Interface: 110000
 ## Title: |cffEEE4AEPremade Sort|r
 ## Author: Yuyuli
 ## Version: 1.2.21
