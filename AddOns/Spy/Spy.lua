@@ -1681,8 +1681,9 @@ end
 
 function Spy:ShowConfig()
 	-- Opens the profile tab first so the menu expands
-	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Profiles)
-	InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Spy)
+	-- InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Profiles)
+	-- InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.Spy)
+	Settings.OpenToCategory(L["Spy Option"])
 end
 
 function Spy:OnEnable(first)
@@ -1909,7 +1910,7 @@ end
 
 function Spy:ZoneChanged()
 	Spy.InInstance = false
-	local pvpType = GetZonePVPInfo()
+	local pvpType = C_PvP.GetZonePVPInfo()
  	local zone = GetZoneText()
 	local subZone = GetSubZoneText()
 	local InFilteredZone = Spy:InFilteredZone(subZone)
