@@ -25,11 +25,11 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 100105
+local API_VERSION = 100209
 
 -- Skin Info
 local Authors = {"StormFX", "|cff999999Sairen|r"}
-local Version = "10.2.7"
+local Version = "10.2.10"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Serenity",
 	"https://www.curseforge.com/wow/addons/masque-serenity",
@@ -481,6 +481,52 @@ MSQ:AddSkin("Serenity", {
 		-- UseColor = nil,
 		-- SetAllPoints = nil,
 	},
+	-- [ AutoCastOverlay (Retail) ]
+	-- AutoCast_Frame = Default.AutoCast_Frame,
+	AutoCast_Shine = {
+		Atlas = "UI-HUD-ActionBar-PetAutoCast-Ants",
+		UseAtlasSize = false,
+		-- Color = {1, 1, 1, 1},
+		BlendMode = "BLEND",
+		DrawLayer = "OVERLAY",
+		DrawLevel = 0,
+		Width = 36, -- 41
+		Height = 36, -- 41
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = nil,
+	},
+	AutoCast_Mask = {
+		-- Atlas = "UI-HUD-ActionBar-PetAutoCast-Mask",
+		-- UseAtlasSize = false,
+		Texture = [[Interface\AddOns\Masque\Textures\Circle\AutoCast-Mask]],
+		-- TexCoords = {0, 1, 0, 1},
+		Width = 24,
+		Height = 24,
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = nil,
+	},
+	AutoCast_Corners = {
+		Atlas = "UI-HUD-ActionBar-PetAutoCast-Corners",
+		UseAtlasSize = false,
+		-- Color = {1, 1, 1, 1},
+		BlendMode = "BLEND",
+		DrawLayer = "OVERLAY",
+		DrawLevel = 1,
+		Width = 26,
+		Height = 26,
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = true,
+	},
+	-- [ AutoCastShine (Classic) ]
 	AutoCastShine = {
 		Width = 28,
 		Height = 28,
@@ -490,13 +536,14 @@ MSQ:AddSkin("Serenity", {
 		OffsetY = -1,
 		-- SetAllPoints = nil,
 	},
+	-- [ Cooldowns ]
 	Cooldown = {
 		Texture = [[Interface\AddOns\Masque_Serenity\Textures\Round\Mask]],
-		-- EdgeTexture = [[Interface\AddOns\Masque\Textures\Cooldown\Edge]],
-		-- PulseTexture = [[Interface\Cooldown\star4]],
+		EdgeTexture = [[Interface\AddOns\Masque\Textures\Square\Edge]],
+		PulseTexture = [[Interface\Cooldown\star4]],
 		Color = {0, 0, 0, 0.7},
-		Width = 32,
-		Height = 32,
+		Width = 30,
+		Height = 30,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
@@ -504,19 +551,28 @@ MSQ:AddSkin("Serenity", {
 		-- SetAllPoints = nil,
 	},
 	ChargeCooldown = {
-		-- EdgeTexture = [[Interface\AddOns\Masque\Textures\Cooldown\Edge]],
-		-- PulseTexture = [[Interface\Cooldown\star4]],
-		Width = 27,
-		Height = 27,
+		EdgeTexture = [[Interface\AddOns\Masque\Textures\Square\Edge]],
+		PulseTexture = [[Interface\Cooldown\star4]],
+		Width = 26,
+		Height = 26,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
 		OffsetY = 0,
-		-- SetAllPoints = true,
+		-- SetAllPoints = nil,
 	},
+	-- [ SpellAlert ]
 	SpellAlert = {
-		Width = 30,
-		Height = 30,
+		Width = 32,
+		Height = 32,
+		Classic = {
+			Height = 30,
+			Width = 30,
+		},
+		Thin = {
+			Height = 30,
+			Width = 30,
+		},
 	},
 })
 
@@ -615,6 +671,10 @@ MSQ:AddSkin("Serenity - Redux", {
 	-- ContextOverlay = Template.ContextOverlay,
 	-- JunkIcon = Template.JunkIcon,
 	-- Highlight = Template.Highlight,
+	-- AutoCast_Frame = Template.AutoCast_Frame,
+	-- AutoCast_Shine = Template.AutoCast_Shine,
+	-- AutoCast_Mask = Template.AutoCast_Mask,
+	-- AutoCast_Corners = Template.AutoCast_Corners,
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
@@ -626,7 +686,7 @@ MSQ:AddSkin("Serenity - Redux", {
 
 MSQ:AddSkin("Serenity - Square", {
 	API_VERSION = API_VERSION,
-	Shape = "Square",
+	Shape = "Modern",
 
 	-- Info
 	Authors = Authors,
@@ -1065,6 +1125,52 @@ MSQ:AddSkin("Serenity - Square", {
 		-- SetAllPoints = nil,
 		-- UseColor = nil,
 	},
+	-- [ AutoCastOverlay (Retail) ]
+	-- AutoCast_Frame = Default.AutoCast_Frame,
+	AutoCast_Shine = {
+		Atlas = "UI-HUD-ActionBar-PetAutoCast-Ants",
+		UseAtlasSize = false,
+		-- Color = {1, 1, 1, 1},
+		BlendMode = "BLEND",
+		DrawLayer = "OVERLAY",
+		DrawLevel = 0,
+		Width = 40, -- 41
+		Height = 40, -- 41
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = nil,
+	},
+	AutoCast_Mask = {
+		-- Atlas = "UI-HUD-ActionBar-PetAutoCast-Mask",
+		-- UseAtlasSize = false,
+		Texture = [[Interface\AddOns\Masque\Textures\Square\AutoCast-Mask]],
+		-- TexCoords = {0, 1, 0, 1},
+		Width = 26,
+		Height = 26,
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = nil,
+	},
+	AutoCast_Corners = {
+		Atlas = "UI-HUD-ActionBar-PetAutoCast-Corners",
+		UseAtlasSize = false,
+		-- Color = {1, 1, 1, 1},
+		BlendMode = "BLEND",
+		DrawLayer = "OVERLAY",
+		DrawLevel = 1,
+		Width = 31,
+		Height = 31,
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = true,
+	},
+	-- [ AutoCastShine (Classic) ]
 	AutoCastShine = {
 		Width = 32,
 		Height = 32,
@@ -1074,13 +1180,14 @@ MSQ:AddSkin("Serenity - Square", {
 		OffsetY = -1,
 		-- SetAllPoints = nil,
 	},
+	-- [ Cooldowns ]
 	Cooldown = {
 		Texture = [[Interface\AddOns\Masque_Serenity\Textures\Square\Mask]],
-		-- EdgeTexture = [[Interface\AddOns\Masque\Textures\Cooldown\Edge]],
-		-- PulseTexture = [[Interface\Cooldown\star4]],
+		EdgeTexture = [[Interface\AddOns\Masque\Textures\Modern\Edge]],
+		PulseTexture = [[Interface\Cooldown\star4]],
 		Color = {0, 0, 0, 0.7},
-		Width = 34,
-		Height = 34,
+		Width = 31,
+		Height = 31,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
@@ -1088,19 +1195,28 @@ MSQ:AddSkin("Serenity - Square", {
 		-- SetAllPoints = nil,
 	},
 	ChargeCooldown = {
-		-- EdgeTexture = [[Interface\AddOns\Masque\Textures\Cooldown\Edge]],
-		-- PulseTexture = [[Interface\Cooldown\star4]],
-		Width = 29,
-		Height = 29,
+		EdgeTexture = [[Interface\AddOns\Masque\Textures\Modern\Edge]],
+		PulseTexture = [[Interface\Cooldown\star4]],
+		Width = 26,
+		Height = 26,
 		Point = "CENTER",
 		RelPoint = "CENTER",
 		OffsetX = 0,
 		OffsetY = 0,
 		-- SetAllPoints = true,
 	},
+	-- [ SpellAlert ]
 	SpellAlert = {
-		Width = 30,
-		Height = 30,
+		Width = 32,
+		Height = 32,
+		Classic = {
+			Height = 28,
+			Width = 28,
+		},
+		Thin = {
+			Height = 28,
+			Width = 28,
+		},
 	},
 })
 
@@ -1199,6 +1315,10 @@ MSQ:AddSkin("Serenity - Square Redux", {
 	-- ContextOverlay = Template.ContextOverlay,
 	-- JunkIcon = Template.JunkIcon,
 	-- Highlight = Template.Highlight,
+	-- AutoCast_Frame = Template.AutoCast_Frame,
+	-- AutoCast_Shine = Template.AutoCast_Shine,
+	-- AutoCast_Mask = Template.AutoCast_Mask,
+	-- AutoCast_Corners = Template.AutoCast_Corners,
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
