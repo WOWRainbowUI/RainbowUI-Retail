@@ -285,6 +285,13 @@ if MODERN then -- /equipset {not a set name} errors
 	RW:RegisterCommand(SLASH_EQUIP_SET1, true, false, f)
 end
 
+if MODERN then -- ClassTalentHelper commands are in SlashCmdList instead of SecureCmdList
+	RW:ImportSlashCmd("TALENT_LOADOUT_BY_NAME", true, false)
+	RW:ImportSlashCmd("TALENT_LOADOUT_BY_INDEX", true, false)
+	RW:ImportSlashCmd("TALENT_SPEC_BY_NAME", true, false)
+	RW:ImportSlashCmd("TALENT_SPEC_BY_INDEX", true, false)
+end
+
 if CI_ERA then -- 1.15.1 SoD rune abilities
 	local function checkRuneSpell(sid)
 		local n1, n2, sid2, _ = IsPlayerSpell(sid) and GetSpellInfo(sid)

@@ -386,7 +386,7 @@ local OPC_Options = {
 		{"radio", "InteractionMode", {L"Quick", L"Relaxed", L"Mouse-less"}},
 		{"twof", tag="OnPrimaryPress", caption=L"On ring binding press:", menuOption="RingAtMouse"},
 		{"twof", tag="OnPrimaryRelease", caption=L"On ring binding release:", menuOption="QuickActionOnRelease", depOn="InteractionMode", depValue=2},
-		{"twof", tag="OnLeft", caption=L"On left click:", depOn="InteractionMode", depValue=2, otherwise=DISABLED_TEXT},
+		{"twof", tag="OnLeft", caption=L"On left click:", menuOption="NoClose", depOn="InteractionMode", depValue=2, otherwise=DISABLED_TEXT},
 		{"twof", tag="OnRight", caption=L"On right click:"},
 		{"twof", "QuickAction", caption=L"Quick action repeat:", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT},
 		{"twof", "PadSupportMode", caption=L"Controller directional input:", reqFeature="GamePad", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT, menu={"freelook", "freelook1", "cursor", "none", freelook=L"Camera analog stick", freelook1=L"Movement analog stick", cursor=L"Virtual mouse cursor", none=L"None"}},
@@ -686,22 +686,38 @@ do -- customized widgets
 		widget:SetValue(newval)
 		local doNothingText = "|cffa0a0a0" .. L"Do nothing"
 		optionControl.OnRight.widget:Disable()
-		optionControl.OnRight.text:SetText(newval ~= 3 and "Close ring" or doNothingText)
+		optionControl.OnRight.text:SetText(newval ~= 3 and L"Close ring" or doNothingText)
 		optionControl.OnPrimaryRelease.otherwise = newval == 1 and L"Use slice and close ring" or doNothingText
 		optionControl.ClickPriority.widget:SetShown(newval ~= 3)
 		optionControl.SliceBinding.forced = newval == 3
 		OPC_IsViewDirty = true
 	end
+	local function onPrimaryPressReopenClick(_, pref, owner)
+		pref = pref == "Refresh" and 0 or pref == "Rehome" and 1 or pref == "Close" and 2 or nil
+		if pref then
+			OPC_AlterOption(widgetControl[owner], "ReOpenAction", pref)
+		end
+	end
 	function optionControl.OnPrimaryPress.menuInitializer()
 		local c = optionControl.OnPrimaryPress
 		local info = {func=onMenuOptionSetClick, arg2=c.widget, minWidth=240}
 		local atMouse = PC:GetOption("RingAtMouse", OR_CurrentOptionsDomain)
+		local reOpen = PC:GetOption("ReOpenAction", OR_CurrentOptionsDomain)
 		info.text, info.arg1, info.checked = L"Open ring at screen center", false, not atMouse
 		UIDropDownMenu_AddButton(info)
 		info.text, info.arg1, info.checked = L"Open ring at mouse", true, atMouse
 		UIDropDownMenu_AddButton(info)
+
 		UIDropDownMenu_AddSeparator()
-		info.customFrame, info.func = offsetPanel
+		info.text, info.isTitle, info.func, info.checked = L"If the ring is already open:", true, onPrimaryPressReopenClick
+		UIDropDownMenu_AddButton(info)
+		info.text, info.arg1, info.checked, info.isTitle, info.disabled = L"Reopen ring", "Refresh", reOpen == 0, nil
+		UIDropDownMenu_AddButton(info)
+		info.text, info.arg1, info.checked = L"Close ring", "Close", reOpen == 2
+		UIDropDownMenu_AddButton(info)
+
+		UIDropDownMenu_AddSeparator()
+		info.customFrame, info.func, info.text, info.arg1 = offsetPanel
 		UIDropDownMenu_AddButton(info)
 		offsetControl:refresh()
 	end
@@ -744,8 +760,11 @@ do -- customized widgets
 	end
 	function optionControl.OnLeft.menuInitializer()
 		local c = optionControl.OnLeft
-		local info = {func=onMenuOptionToggle, arg2=c.widget, minWidth=240, isNotRadio=true}
-		info.text, info.arg1, info.checked = L"Leave open after use", "NoClose", PC:GetOption("NoClose", OR_CurrentOptionsDomain)
+		local info = {func=onMenuOptionSetClick, arg2=c.widget, minWidth=240}
+		local doClose = not PC:GetOption("NoClose", OR_CurrentOptionsDomain)
+		info.text, info.arg1, info.checked = L"Use slice and close ring", false, doClose
+		UIDropDownMenu_AddButton(info)
+		info.text, info.arg1, info.checked = L"Use slice", true, not doClose
 		UIDropDownMenu_AddButton(info)
 	end
 	function optionControl.OnLeft:refresh()

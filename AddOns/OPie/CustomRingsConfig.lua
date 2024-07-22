@@ -900,6 +900,14 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
 		selectCategory(self:GetID())
 	end
+	local function onCatEnter(self)
+		if self:GetFontString():IsTruncated() then
+			GameTooltip:SetOwner(self, "ANCHOR_NONE")
+			GameTooltip:SetPoint("LEFT", self, "RIGHT")
+			GameTooltip:SetText(self:GetText())
+			GameTooltip:Show()
+		end
+	end
 	local catContainer = CreateFrame("Frame", nil, newSlice)
 	catContainer:SetClipsChildren(true)
 	catContainer:SetSize(159, NUM_VISIBLE_CATS*20)
@@ -910,7 +918,7 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 	catOrigin:SetSize(159, 1)
 	catOrigin:SetPoint("TOPLEFT")
 	for i=1, NUM_VISIBLE_CATS+1 do
-		local b = CreateFrame("Button", nil, catContainer)
+		local b, fs = CreateFrame("Button", nil, catContainer)
 		b:SetSize(159, 20)
 		b:SetNormalTexture("Interface/AchievementFrame/UI-Achievement-Category-Background")
 		b:SetHighlightTexture("Interface/AchievementFrame/UI-Achievement-Category-Highlight")
@@ -920,8 +928,15 @@ newSlice = CreateFrame("Frame", nil, ringContainer) do
 		b:SetNormalFontObject(GameFontHighlight)
 		b:SetHighlightFontObject(GameFontHighlight)
 		b:SetPushedTextOffset(0,0)
-		b:SetText(" ") b:GetFontString():SetPoint("CENTER", 0, 1)
+		b:SetText(" ")
+		fs = b:GetFontString()
+		fs:SetPoint("LEFT", 6, 0)
+		fs:SetPoint("RIGHT", -6, 0)
+		fs:SetJustifyH("CENTER")
+		fs:SetMaxLines(1)
 		b:SetScript("OnClick", onCatClick)
+		b:SetScript("OnEnter", onCatEnter)
+		b:SetScript("OnLeave", config.ui.HideTooltip)
 		cats[i] = b
 		b:SetPoint("TOPLEFT", catOrigin, 0, 20-20*i)
 	end
@@ -1491,20 +1506,25 @@ function api.setSliceProperty(prop, ...)
 	end
 	api.updateRingLine()
 end
+function api.noQuickActionHint(ringName)
+	local noQuickAction = not (PC:GetOption("CenterAction", ringName) or PC:GetOption("MotionAction", ringName))
+	local opt = noQuickAction and ("|cffffffff" .. (L"Quick action repeat:"):gsub("%s*:%s*$", "") .. "|r")
+	return noQuickAction and (L"You must enable a %s interaction for this ring in OPie options to use quick actions."):format(opt)
+end
 function api.updateSliceOptions(slice)
 	local extraY, isCollection = 0, securecall(isCollectionSlice, slice)
 	local fc, cd = sliceDetail.fastClick, sliceDetail.collectionDrop
 	fc:SetChecked(not not slice.fastClick)
-	if PC:GetOption("CenterAction", currentRingName) or PC:GetOption("MotionAction", currentRingName) then
-		fc:SetEnabled(true)
-		fc.tooltipText = nil
-		fc.Text:SetVertexColor(1, 1, 1)
-	else
-		fc.tooltipText = (L"You must enable the %s option for this ring in OPie options to use quick actions."):format(
-			"|cffffffff" .. L"Quick action at ring center" .. "|r|cff909090 / |r|cffffffff" .. L"Quick action if mouse remains still" .. "|r")
+	local noQA = api.noQuickActionHint(currentRingName)
+	if noQA then
+		fc.tooltipText = noQA
 		fc:SetChecked(false)
 		fc:SetEnabled(false)
 		fc.Text:SetVertexColor(0.6, 0.6, 0.6)
+	else
+		fc:SetEnabled(true)
+		fc.tooltipText = nil
+		fc.Text:SetVertexColor(1, 1, 1)
 	end
 	cd:SetShown(isCollection)
 	if isCollection then
@@ -1531,9 +1551,9 @@ function api.selectSlice(offset, select)
 	newSlice:Hide()
 	api.hideSliceDetail()
 	ringContainer.newSlice:SetChecked(nil)
-	local old, id = ringContainer.slices[(currentSliceIndex or 0) + 1 - sliceBaseIndex], sliceBaseIndex + offset
-	local desc = currentRing[id]
-	if old then old:SetChecked(nil) end
+	local oid, id = (currentSliceIndex or 0) + 1 - sliceBaseIndex, sliceBaseIndex + offset
+	local old, desc = ringContainer.slices[oid], currentRing[id]
+	if old and oid ~= id then old:SetChecked(nil) end
 	currentSliceIndex = nil
 	if not desc then
 		return ringDetail:Show()
@@ -1709,13 +1729,13 @@ end
 function api.refreshDisplay()
 	if currentRing and currentRing[currentSliceIndex] then
 		api.updateSliceOptions(currentRing[currentSliceIndex])
+		api.updateRingLine()
 	end
 	if currentRing then
 		ringDetail.binding:SetBindingText(api.getRingBinding())
 		ringDetail.binding:SetEnabled(not not PC:GetRingInfo(currentRingName))
 		ringDetail.exportArea:GetScript("OnHide")(ringDetail.exportArea)
-		local caOptionNames = "|cffffffff" .. L"Quick action at ring center" .. "|r|cff909090 / |r|cffffffff" .. L"Quick action if mouse remains still" .. "|r"
-		local noCA = not PC:GetOption("CenterAction", currentRingName) and (L"You must enable the %s option for this ring in OPie options to use quick actions."):format(caOptionNames) or nil
+		local noCA = api.noQuickActionHint(currentRingName)
 		ringDetail.opportunistCA.tooltipText = noCA
 		ringDetail.opportunistCA:SetEnabled(not noCA)
 		ringDetail.opportunistCA:SetChecked(not noCA and not currentRing.noOpportunisticCA)
