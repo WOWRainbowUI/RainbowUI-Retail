@@ -384,7 +384,7 @@ TNI.ACC_HandleCommand = ACC.HandleCommand
 local slash = slashes[1]
 function TNI:HandleChatCommand(input)
 	if input:trim() == "" then
-		InterfaceOptionsFrame_OpenToCategory(frameref)
+		Settings.OpenToCategory(frameref.name)
 	else
 		self:ACC_HandleCommand(slash, addon, input)
 	end

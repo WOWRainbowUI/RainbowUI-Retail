@@ -119,7 +119,7 @@ local pairs                 = _G.pairs;
 local select                = _G.select;
 local setmetatable          = _G.setmetatable;
 local twipe                 = _G.table.wipe;
-local GetMouseFocus         = _G.GetMouseFocus;
+-- local GetMouseFocus         = _G.GetMouseFocus;
 local UnitExists            = _G.UnitExists;
 local UnitGUID              = _G.UnitGUID;
 local UnitName              = _G.UnitName;
@@ -617,7 +617,7 @@ function LNR_Private:UPDATE_MOUSEOVER_UNIT()
 
     local unitName = "";
     local mouseoverNameplate, data;
-    if GetMouseFocus() == WorldFrame then -- the cursor is either on a name plate or on a 3d model (ie: not on a unit-frame)
+    if WorldFrame:IsMouseMotionFocus() then -- the cursor is either on a name plate or on a 3d model (ie: not on a unit-frame)
 
         if UnitExists("mouseover") then
             mouseoverNameplate = GetNamePlateForUnit("mouseover");
