@@ -1,10 +1,10 @@
-## Interface: 40400, 100207
+## Interface: 11503, 30403, 40400, 100207, 110000
 ## Title: Simple Item Level
 ## Author: Kemayo
 ## Notes: Show item levels in useful places
 ## OptionalDeps: LibAppropriateItems-1.0
 ## SavedVariables: SimpleItemLevelDB
-## Version: v36
+## Version: v37
 
 ## X-Website: https://www.wowace.com/projects/simple-item-level
 ## X-License: BSD
@@ -15,7 +15,6 @@
 ## Notes-zhTW: Simple Item Level |n|n在角色視窗的裝備欄位、背包和浮動提示資訊中顯示物品等級數字。|n|n|cffffd200使用方法: |r從Esc>選項>插件>物品等級，進行設定。
 ## X-Category-zhTW: 物品
 ## IconTexture: Interface\Icons\achievement_garrisonfollower_itemlevel600
-## DefaultState: disabled
 
 lib\LibAppropriateItems-1.0\lib.xml
 
