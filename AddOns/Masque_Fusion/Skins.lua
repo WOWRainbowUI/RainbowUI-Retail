@@ -25,10 +25,10 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 100105
+local API_VERSION = 100209
 
 -- Skin Info
-local Version = "10.2.7"
+local Version = "10.2.10"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Fusion",
 	"https://www.curseforge.com/wow/addons/masque-fusion",
@@ -255,7 +255,7 @@ MSQ:AddSkin("Fusion", {
 	},
 	Name = {
 		JustifyH = "CENTER",
-		JustifyV = "MIDDLE",
+		JustifyV = "BOTTOM",
 		DrawLayer = "OVERLAY",
 		Width = 36,
 		Height = 0,
@@ -392,7 +392,7 @@ MSQ:AddSkin("Fusion", {
 	},
 	NewItem = {
 		-- Atlas = "bags-glow-white",
-		-- UseAtlasSize = true,
+		-- UseAtlasSize = false,
 		Texture = [[Interface\AddOns\Masque_Fusion\Textures\Base\Glow]],
 		-- TexCoords = {0, 1, 0, 1},
 		-- Color = {1, 1, 1, 1},
@@ -455,6 +455,38 @@ MSQ:AddSkin("Fusion", {
 		-- SetAllPoints = nil,
 		-- UseColor = nil,
 	},
+	-- [ AutoCastOverlay (Retail) ]
+	-- AutoCast_Frame = Default.AutoCast_Frame,
+	-- AutoCast_Shine = Default.AutoCast_Shine,
+	AutoCast_Mask = {
+		-- Atlas = "UI-HUD-ActionBar-PetAutoCast-Mask",
+		-- UseAtlasSize = false,
+		Texture = [[Interface\AddOns\Masque\Textures\Square\AutoCast-Mask]],
+		-- TexCoords = {0, 1, 0, 1},
+		Width = 30,
+		Height = 30,
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = nil,
+	},
+	AutoCast_Corners = {
+		Atlas = "UI-HUD-ActionBar-PetAutoCast-Corners",
+		UseAtlasSize = false,
+		-- Color = {1, 1, 1, 1},
+		BlendMode = "BLEND",
+		DrawLayer = "OVERLAY",
+		DrawLevel = 1,
+		Width = 38,
+		Height = 38,
+		Point = "CENTER",
+		RelPoint = "CENTER",
+		OffsetX = 0,
+		OffsetY = 0,
+		-- SetAllPoints = true,
+	},
+	-- [ AutoCastShine (Classic) ]
 	AutoCastShine = {
 		Width = 35,
 		Height = 35,
@@ -464,10 +496,11 @@ MSQ:AddSkin("Fusion", {
 		OffsetY = -1,
 		-- SetAllPoints = nil,
 	},
+	-- [ Cooldowns ]
 	Cooldown = {
-		-- Texture = nil,
-		-- EdgeTexture = [[Interface\AddOns\Masque\Textures\Cooldown\Edge]],
-		-- PulseTexture = [[Interface\Cooldown\star4]],
+		Texture = [[Interface\AddOns\Masque\Textures\Square\Mask]],
+		EdgeTexture = [[Interface\AddOns\Masque\Textures\Square\Edge]],
+		PulseTexture = [[Interface\Cooldown\star4]],
 		Color = {0, 0, 0, 0.7},
 		Width = 32,
 		Height = 32,
@@ -477,16 +510,19 @@ MSQ:AddSkin("Fusion", {
 		OffsetY = 0,
 		-- SetAllPoints = nil,
 	},
-	ChargeCooldown = {
-		-- EdgeTexture = [[Interface\AddOns\Masque\Textures\Cooldown\Edge]],
-		-- PulseTexture = [[Interface\Cooldown\star4]],
-		Width = 32,
-		Height = 32,
-		-- Point = "CENTER",
-		-- RelPoint = "CENTER",
-		-- OffsetX = 0,
-		-- OffsetY = 0,
-		SetAllPoints = true,
+	ChargeCooldown = "Cooldown",
+	-- [ SpellAlert ]
+	SpellAlert = {
+		Height = 40,
+		Width = 40,
+		Classic = {
+			Height = 32,
+			Width = 32,
+		},
+		Thin = {
+			Height = 30,
+			Width = 30,
+		},
 	},
 })
 
@@ -561,6 +597,10 @@ MSQ:AddSkin("Fusion - Inversion", {
 	-- ContextOverlay = Template.ContextOverlay,
 	-- JunkIcon = Template.JunkIcon,
 	-- Highlight = Template.Highlight,
+	-- AutoCast_Frame = Template.AutoCast_Frame,
+	-- AutoCast_Shine = Template.AutoCast_Shine,
+	-- AutoCast_Mask = Template.AutoCast_Mask,
+	-- AutoCast_Corners = Template.AutoCast_Corners,
 	-- AutoCastShine = Template.AutoCastShine,
 	-- Cooldown = Template.Cooldown,
 	-- ChargeCooldown = Template.ChargeCooldown,
