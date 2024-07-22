@@ -1,9 +1,10 @@
-## Interface: 100207
+## Interface: 100207, 110000
 ## Title: Random Hearthstone
 ## Author: Jamien
-## Version: 1.2.4
+## Version: 1.2.5
 ## Notes: Uses a random hearthstone toy
 ## SavedVariables: rhOptions, rhOverrideChk
+## IconTexture: Interface\Icons\Inv_misc_rune_01
 
 ## X-Localizations: enUS, enGB
 ## X-CompatibleLocales: enUS, enGB

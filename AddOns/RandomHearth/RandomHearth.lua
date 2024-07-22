@@ -37,6 +37,7 @@ local rhToys = {
 	{208704, "深淵居者的大地爐石"},
 	{206195, "那魯之道"},
 	{212337, "爐石之石"},
+	{210455, "德萊尼全像寶石"},
 	}
 
 --------------------------------------------------------------------
@@ -47,7 +48,10 @@ local rhOptionsPanel = CreateFrame("Frame")
 rhOptionsPanel.name = "爐石"
 rhOptionsPanel.okay = function() optionsOkay(); end
 rhOptionsPanel.cancel = function() optionsCancel(); end
-InterfaceOptions_AddCategory(rhOptionsPanel)
+-- InterfaceOptions_AddCategory(rhOptionsPanel)
+local category = Settings.RegisterCanvasLayoutCategory(rhOptionsPanel, rhOptionsPanel.name)
+category.ID = "RandomHearth"
+Settings.RegisterAddOnCategory(category)
 
 -- Title
 local rhTitle = CreateFrame("Frame",nil, rhOptionsPanel)
@@ -273,18 +277,25 @@ function listGenerate()
 	for i=1, #rhOptions do
 		if rhOptions[i][2] == true then
 			if PlayerHasToy(rhOptions[i][1]) then
-				local isCov = false
-				local addToy = false
+				local addToy = true
+				-- Check for Covenant
 				for _,v in pairs(covenantHearths) do
 					if rhOptions[i][1] == v[2] then
-						isCov = true
-						if allCovenant == true or C_Covenants.GetActiveCovenantID() == v[1] then
-							addToy = true
+						if allCovenant == false and C_Covenants.GetActiveCovenantID() ~= v[1] then
+							addToy = false
 							break
 						end
 					end
 				end
-				if isCov == false or addToy == true then
+				-- Check Draenai
+				if rhOptions[i][1] == 210455 then
+					local _,_,raceID = UnitRace("player")
+					if raceID ~= 11 or raceID ~= 30 then
+						addToy = false
+					end
+				end
+				-- Create the list
+				if addToy == true then
 					count = count + 1
 					table.insert(rhList,rhOptions[i][1])
 				end
@@ -337,6 +348,5 @@ end
 --------------------------------------------------------------------
 SLASH_RandomHearthstone1 = "/rh"
 function SlashCmdList.RandomHearthstone(msg, editbox)
-InterfaceOptionsFrame_OpenToCategory(rhOptionsPanel)
-InterfaceOptionsFrame_OpenToCategory(rhOptionsPanel)
+Settings.OpenToCategory("RandomHearth")
 end
