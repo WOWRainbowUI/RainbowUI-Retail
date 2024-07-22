@@ -65,8 +65,7 @@ if LDB and LDBIcon then
 					end
 				end
 			elseif button == "RightButton" then
-				InterfaceOptionsFrame_OpenToCategory(L["MailLogger"])
-				InterfaceOptionsFrame_OpenToCategory(L["MailLogger"])
+				Settings.OpenToCategory("MailLogger")
 			end
 		end
 	end
@@ -208,8 +207,7 @@ function MinimapIcon:Initialize()
 					end
 				end
 			elseif button == "RightButton" then
-				InterfaceOptionsFrame_OpenToCategory(L["MailLogger"])
-				InterfaceOptionsFrame_OpenToCategory(L["MailLogger"])
+				Settings.OpenToCategory("MailLogger")
 			end
 		end
 	end)

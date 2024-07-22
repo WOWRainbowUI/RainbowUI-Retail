@@ -15,7 +15,10 @@ ScrollFrame.ScrollBar:SetPoint("TOPLEFT", ScrollFrame, "TOPRIGHT", -20, -20)
 ScrollFrame.ScrollBar:SetPoint("BOTTOMLEFT", ScrollFrame, "BOTTOMRIGHT", -20, 20)
 ScrollFrame:SetScrollChild(Panel)
 ScrollFrame.name = L[AddonName]
-InterfaceOptions_AddCategory(ScrollFrame)
+-- InterfaceOptions_AddCategory(ScrollFrame)
+local category = Settings.RegisterCanvasLayoutCategory(ScrollFrame, ScrollFrame.name)
+category.ID = "MailLogger"
+Settings.RegisterAddOnCategory(category)
 --标题
 local PanelTitle = Panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLargeLeft")
 PanelTitle:SetPoint("TOPLEFT", 16, -16)
