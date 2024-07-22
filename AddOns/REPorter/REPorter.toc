@@ -1,16 +1,17 @@
-## Interface: 100207
+## Interface: 100207, 110000
 ## Title: |cFF74D06CRE|rPorter
 ## Notes: Provide battleground map.
-## Title-zhTW: |cffFF0000[PvP]|r 戰場地圖
-## Notes-zhTW: |cFF74D06CRE|rPorter |n|n加強型的戰場地圖。|n|n|cffffd200使用方法: |r進入戰場時會自動出現。從Esc>選項>插件>PvP戰場地圖，進行設定。|n按住 Shift+Alt 或 Shift+Ctrl 切換地圖內容顯示，點地圖上的點發送通報。
-## X-Category-zhTW: PvP
-## DefaultState: disabled
-## Version: 2.9.8
+## Version: 2.10.3
 ## Author: AcidWeb
 ## SavedVariables: REPorterSettings
 ## IconTexture: Interface\AddOns\REPorter\RELogo
 ## X-WoWI-ID: 21089
 ## X-Wago-ID: Xb6X0o6p
+
+## Title-zhTW: |cffFF0000[PvP]|r 戰場地圖
+## Notes-zhTW: |cFF74D06CRE|rPorter |n|n加強型的戰場地圖。|n|n|cffffd200使用方法: |r進入戰場時會自動出現。從Esc>選項>插件>PvP戰場地圖，進行設定。|n按住 Shift+Alt 或 Shift+Ctrl 切換地圖內容顯示，點地圖上的點發送通報。
+## X-Category-zhTW: PvP
+## DefaultState: disabled
 
 Libs\LibBabble-SubZone-3.0\lib.xml
 Locale\Locale.xml
