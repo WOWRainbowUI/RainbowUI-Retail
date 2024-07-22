@@ -1,4 +1,4 @@
-## Interface: 100207## IconTexture: 982414
+## Interface: 110000## IconTexture: 982414
 ## Title: SilverPlateTweaks
 ## Author: Lad-Lightbringer | SilverrWolf
 ## Title-zhTW: |cffFF6060[戰鬥]|r 血條距離微調
