@@ -1,6 +1,13 @@
 local E, L, C = select(2, ...):unpack()
 
 if E.isClassic then E.changelog = [=[
+v1.15.3.2802
+	bump toc
+	Interrupt Bar can now be sorted by spell priority.
+	NameBar nil err fix.
+	Fixed multicharged spell opacity when it still has a charge left.
+	zhTW localization update.
+
 v1.15.2.2800
 	RaidCD/Spell option revamped.
 	Queued inspections while in combat will be processed upon leaving combat. (doesn't affect synced units)
@@ -19,6 +26,12 @@ v3.4.3.2773
 
 ]=]
 elseif E.isCata then E.changelog = [=[
+v4.4.0.2802
+	Interrupt Bar can now be sorted by spell priority.
+	NameBar nil err fix.
+	Fixed multicharged spell opacity when it still has a charge left.
+	zhTW localization update.
+
 v4.4.0.2800
 	RaidCD/Spell option revamped.
 	Fixed Scatter Shot (Hunter) as a base ability.
@@ -30,6 +43,12 @@ v4.4.0.2800
 
 ]=]
 else E.changelog = [=[
+v10.2.7.2802
+	Interrupt Bar can now be sorted by spell priority.
+	NameBar nil err fix.
+	Fixed multicharged spell opacity when it still has a charge left.
+	zhTW localization update.
+
 v10.2.7.2801
 	Raidframe icons can be sorted primarily by spelltype or spell priority.
 	Breath of Eons will correctly replace Deep Breath.

@@ -1,9 +1,16 @@
 ------------------------------------------------------------------------------
 -- Dragonflight
 --
+v10.2.7.2802
+	Interrupt Bar can now be sorted by spell priority.
+	NameBar nil err fix.
+	Fixed multicharged spell opacity when it still has a charge left.
+	zhTW localization update.
+
 v10.2.7.2801
 	Raidframe icons can be sorted primarily by spelltype or spell priority.
 	Breath of Eons will correctly replace Deep Breath.
+	Frame option fixed and spelltype selector added back in ExtraBars. Use whichever is more convenient for you.
 
 v10.2.7.2800
 	- Updates
@@ -933,6 +940,12 @@ v2.5.0
 ------------------------------------------------------------------------------
 -- Cataclysm
 --
+v4.4.0.2802
+	Interrupt Bar can now be sorted by spell priority.
+	NameBar nil err fix.
+	Fixed multicharged spell opacity when it still has a charge left.
+	zhTW localization update.
+
 v4.4.0.2800
 	RaidCD/Spell option revamped.
 	Fixed Scatter Shot (Hunter) as a base ability.
@@ -1087,6 +1100,13 @@ v2.6.01-bcc
 ------------------------------------------------------------------------------
 -- classic era
 --
+v1.15.3.2802
+	bump toc
+	Interrupt Bar can now be sorted by spell priority.
+	NameBar nil err fix.
+	Fixed multicharged spell opacity when it still has a charge left.
+	zhTW localization update.
+
 v1.15.2.2800
 	RaidCD/Spell option revamped.
 	Queued inspections while in combat will be processed upon leaving combat. (doesn't affect synced units)

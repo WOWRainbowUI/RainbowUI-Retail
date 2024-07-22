@@ -358,6 +358,28 @@ sorters = {
 		end
 		return info2.isDeadOrOffline
 	end,
+
+	function(a, b)
+		if a.priority == b.priority then
+			return a.unitName < b.unitName
+		end
+		return a.priority > b.priority
+	end,
+
+	function(a, b)
+		local info1, info2 = P.groupInfo[a.guid], P.groupInfo[b.guid]
+		if info1.isDeadOrOffline == info2.isDeadOrOffline then
+			local id1, id2 = a.spellID, b.spellID
+			local active1, active2 = a.active == 0 and info1.active[id1], b.active == 0 and info2.active[id2]
+			if active1 and active2 then
+				return a.duration + active1.startTime < b.duration + active2.startTime
+			elseif not active1 and not active2 then
+				return sorters[15](a, b)
+			end
+			return active2
+		end
+		return info2.isDeadOrOffline
+	end,
 }
 
 local _sorter
