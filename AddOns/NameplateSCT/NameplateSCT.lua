@@ -968,7 +968,12 @@ function NameplateSCT:DisplayText(guid, text, size, animation, spellId, pow, spe
 	fontString.unit = unit;
 	fontString.guid = guid;
 
-	local texture = GetSpellTexture(spellId or spellName);
+	local texture
+	if GetSpellTexture then
+		texture = GetSpellTexture(spellId or spellName)
+	else
+		texture = C_Spell.GetSpellTexture(spellId or spellName);
+	end
 	if NameplateSCT.db.global.showIcon and texture then
 	icon = fontString.icon;
 	icon:Show();
@@ -1030,7 +1035,13 @@ function NameplateSCT:DisplayTextOverkill(guid, text, size, animation, spellId, 
 
 	fontString.unit = "player";
 	fontString.guid = guid;
-	local texture = GetSpellTexture(spellId or spellName);
+	
+	local texture
+	if GetSpellTexture then
+		texture = GetSpellTexture(spellId or spellName)
+	else
+		texture = C_Spell.GetSpellTexture(spellId or spellName);
+	end
 	if NameplateSCT.db.global.showIcon and texture then
 	icon = fontString.icon;
 	icon:Show();
@@ -1753,8 +1764,7 @@ local filters = {
 
 function NameplateSCT:OpenMenu()
 	-- just open to the frame, double call because blizz bug
-	InterfaceOptionsFrame_OpenToCategory(self.menu);
-	InterfaceOptionsFrame_OpenToCategory(self.menu);
+	Settings.OpenToCategory(self.menu);
 end
 
 function NameplateSCT:RegisterMenu()
