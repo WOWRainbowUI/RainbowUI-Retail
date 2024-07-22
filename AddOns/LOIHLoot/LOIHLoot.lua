@@ -811,7 +811,7 @@ local function HookEJUpdate(self, ...) -- Hook EJ Update for wishlist-buttons
 			local _, difficultyID = _CheckLink(button.link) -- Update is spammy as hell when Loot-tab is open, but hopefully the itemLinks-table helps
 			difficultyID = difficultyID or 0
 
-			local _, _, _, _, _, _, _, _, itemEquipLoc, _, _, itemClassID, itemSubClassID = GetItemInfo(button.itemID)
+			local _, _, _, _, _, _, _, _, itemEquipLoc, _, _, itemClassID, itemSubClassID = C_Item.GetItemInfo(button.itemID)
 
 			if _CheckVanityItems(itemClassID, itemSubClassID) then -- Vanity
 				button.LOIHLoot.main:Hide()
@@ -1636,7 +1636,10 @@ do
 	local Options = CreateFrame("Frame", "privateOptions", InterfaceOptionsFramePanelContainer)
 	Options.name = L["LOIHLoot"]
 	private.OptionsPanel = Options
-	InterfaceOptions_AddCategory(Options)
+	-- InterfaceOptions_AddCategory(Options)
+	local category = Settings.RegisterCanvasLayoutCategory(Options, Options.name)
+	category.ID = Options.name
+	Settings.RegisterAddOnCategory(category)
 
 	Options:Hide()
 	Options:SetScript("OnShow", function(self)
