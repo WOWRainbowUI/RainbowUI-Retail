@@ -3,9 +3,9 @@
 ## X-Min-Interface-Classic: 11502
 ## X-Min-Interface-BCC: 20504
 ## X-Min-Interface-Wrath: 30403
-## X-Min-Interface-Cata: 40403
+## X-Min-Interface-Cata: 40400
 ## Title: SmartQuest
-## Version: 1.26
+## Version: 1.27
 ## Notes: Group Quest Tracking
 ## Author: Zensunim of Dragonblight
 ## DefaultState: Enabled
