@@ -1,14 +1,13 @@
-## Interface: 100100
+## Interface: 100207
 ## Title: |cFF74D06CRE|rPorter
 ## Notes: Provide battleground map.
-## Version: 2.9.8
+## Version: 2.10.3
 ## Author: AcidWeb
 ## SavedVariables: REPorterSettings
 ## IconTexture: Interface\AddOns\REPorter\RELogo
 ## X-WoWI-ID: 21089
 ## X-Wago-ID: Xb6X0o6p
 
-TaintLess.xml
 Embeds.xml
 Locale\Locale.xml
 REPorter.xml
