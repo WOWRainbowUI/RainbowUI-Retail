@@ -8,7 +8,7 @@ License: Public Domain
 
 local AppName, RangeDisplay = ...
 local OptionsAppName = AppName .. "_Options"
-local VERSION = AppName .. "-v6.1.0"
+local VERSION = AppName .. "-v6.1.2"
 
 local rc = LibStub("LibRangeCheck-3.0")
 local LSM = LibStub:GetLibrary("LibSharedMedia-3.0", true)
@@ -895,7 +895,7 @@ end
 -- BEGIN LoD Options muckery
 
 function RangeDisplay:loadOptions()
-  self.optionsLoaded, self.optionsLoadError = LoadAddOn(OptionsAppName)
+  self.optionsLoaded, self.optionsLoadError = C_AddOns.LoadAddOn(OptionsAppName)
 end
 
 function RangeDisplay:openConfigDialog()
