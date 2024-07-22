@@ -1,4 +1,4 @@
-## Interface: 100207## IconTexture: 982414
+## Interface: 11503, 30403, 40400, 110000## IconTexture: 982414
 ## Title: MeepMerp
 ## Version: v8.2.5
 ## Author: Pretzellent @ Remulos (Classic)
