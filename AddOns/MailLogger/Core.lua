@@ -2,7 +2,7 @@
 local AddonName, Addon = ...
 local L = Addon.L
 
-Addon.Version = GetAddOnMetadata(AddonName, "Version")
+Addon.Version = C_AddOns.GetAddOnMetadata(AddonName, "Version")
 Addon.VerNum = 0
 
 Addon.TradeLog = {} -- 交易记录

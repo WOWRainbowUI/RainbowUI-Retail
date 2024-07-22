@@ -208,8 +208,7 @@ function MinimapIcon:Initialize()
 					end
 				end
 			elseif button == "RightButton" then
-				InterfaceOptionsFrame_OpenToCategory("MailLogger")
-				InterfaceOptionsFrame_OpenToCategory("MailLogger")
+				Settings.OpenToCategory("MailLogger")
 			end
 		end
 	end)
