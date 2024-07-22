@@ -89,11 +89,13 @@ end
 local sortByValues = {
 	raidBar1 = {
 		[1] = L["Cooldown"],
-		[2] = format("%s>%s", L["Cooldown Remaining"], L["Cooldown"]),
 		[5] = ROLE,
 		[6] = CLASS,
+		[15] = L["Priority"],
+		[2] = format("%s>%s", L["Cooldown Remaining"], L["Cooldown"]),
 		[7] = format("%s>%s", L["Cooldown Remaining"], ROLE),
 		[8] = format("%s>%s", L["Cooldown Remaining"], CLASS),
+		[16] = format("%s>%s", L["Cooldown Remaining"], L["Priority"]),
 
 
 
@@ -307,6 +309,9 @@ local extraBarsInfo = {
 					type = "select",
 					values = function(info)
 						return sortByValues[ info[4] ] or sortByValues.raidBar2
+					end,
+					sorting = function(info)
+						return info[4] == "raidBar1" and {1,5,6,15,2,7,8,16} or nil
 					end,
 				},
 				sortDirection = {

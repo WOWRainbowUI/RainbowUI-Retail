@@ -204,7 +204,7 @@ function P:StartCooldown(icon, cd, isRecharge, noGlow)
 	local frame = icon:GetParent():GetParent()
 	local key = frame.key
 	if type(key) == "number" then
-		icon:SetAlpha(E.db.icons.activeAlpha)
+		icon:SetAlpha(icon.active == 0 and E.db.icons.activeAlpha or E.db.icons.inactiveAlpha)
 		if not self.displayInactive then
 			self:SetIconLayout(frame)
 		end
@@ -214,10 +214,10 @@ function P:StartCooldown(icon, cd, isRecharge, noGlow)
 			self:SetExStatusBarColor(icon, statusBar.key)
 			self.OmniCDCastingBarFrame_OnEvent(statusBar.CastingBar, E.db.extraBars[key].reverseFill and 'UNIT_SPELLCAST_CHANNEL_START' or 'UNIT_SPELLCAST_START')
 			if E.db.extraBars[key].useIconAlpha then
-				icon:SetAlpha(E.db.icons.activeAlpha)
+				icon:SetAlpha(icon.active == 0 and E.db.icons.activeAlpha or E.db.icons.inactiveAlpha)
 			end
 		else
-			icon:SetAlpha(E.db.icons.activeAlpha)
+			icon:SetAlpha(icon.active == 0 and E.db.icons.activeAlpha or E.db.icons.inactiveAlpha)
 		end
 		if frame.shouldRearrangeInterrupts then
 			self:SetExIconLayout(key, true)

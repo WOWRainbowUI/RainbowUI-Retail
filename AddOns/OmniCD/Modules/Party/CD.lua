@@ -441,8 +441,6 @@ local function RemoveHighlightByCLEU(info, srcGUID, spellID, destGUID)
 		end
 	end
 end
-E.RemoveHighlightByCLEU = RemoveHighlightByCLEU
-E.registeredEvents = registeredEvents
 
 for k in pairs(E.spell_highlighted) do
 	registeredEvents['SPELL_AURA_REMOVED'][k] = RemoveHighlightByCLEU
