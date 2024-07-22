@@ -5,7 +5,7 @@ if (not MSQ) then
 	return 
 end
 
-local VERSION = GetAddOnMetadata(ADDON, "Version")
+local VERSION = C_AddOns.GetAddOnMetadata(ADDON, "Version")
 local MASQUE_VERSION = 90002
 
 local path = [[Interface\AddOns\]] .. ADDON .. [[\media\]]
