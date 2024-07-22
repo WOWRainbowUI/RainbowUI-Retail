@@ -6,12 +6,13 @@ local DEFAULT_DURATION = 30
 local function getRandomIcon()
     local icons = {}
 
-    for i = 1, GetNumSpellTabs() do
-        local offset, numSpells = select(3, GetSpellTabInfo(i))
+    for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
+        local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
+		local offset, numSpells = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
         local tabEnd = offset + numSpells
 
         for j = offset, tabEnd - 1 do
-            local texture = GetSpellBookItemTexture(j, "player")
+            local texture = C_SpellBook.GetSpellBookItemTexture(j, Enum.SpellBookSpellBank.Player)
             if texture then
                 tinsert(icons, texture)
             end
