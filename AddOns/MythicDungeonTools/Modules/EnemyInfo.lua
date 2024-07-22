@@ -84,8 +84,9 @@ end)
 
 local currentTab = "tab1"
 local function MakeEnemeyInfoFrame()
-  --frame
   local f = AceGUI:Create("Frame")
+  f.frame:SetParent(MDT.main_frame)
+  f.frame:SetFrameStrata("DIALOG")
   MDT.enemyInfoFrame = f
   f:SetTitle(L["Enemy Info"])
   f:EnableResize(false)
@@ -105,7 +106,6 @@ local function MakeEnemeyInfoFrame()
     return originalHide(self, ...);
   end
 
-  --tabGroup
   f.tabGroup = AceGUI:Create("TabGroup")
   local tabGroup = f.tabGroup
   tabGroup:SetTabs(
@@ -491,6 +491,11 @@ local spellBlacklist = {
   [228318] = true, -- enrage
   [374557] = true, -- brittle
   [387096] = true, -- pyrogenics
+  [454782] = true, -- Radiant Focus
+  [462597] = true, -- [DNT] In RP Combat
+  [434481] = true, -- Bombardments
+  [257069] = true, -- Watertight Shell
+  [324859] = true, -- Bramblethorn Entanglement
   --[X]  = true,
 }
 local lastEnemyIdx
@@ -511,9 +516,7 @@ function MDT:UpdateEnemyInfoFrame(enemyIdx)
   local f = MDT.EnemyInfoFrame
   f:SetTitle(L[data.name])
   f.model:SetDisplayInfo(data.displayId or 39490)
-  if MDT:IsDragonflight() then
-    f.model:ResetModel()
-  end
+  f.model:ResetModel()
   if data.modelPosition then
     f.model:SetPosition(unpack(data.modelPosition))
   else
@@ -569,12 +572,6 @@ function MDT:UpdateEnemyInfoFrame(enemyIdx)
         GameTooltip:Hide()
       end)
       f.characteristicsContainer:AddChild(icon)
-      if IsAddOnLoaded("AddOnSkins") then
-        if AddOnSkins then
-          local AS = unpack(AddOnSkins)
-          AS:SkinTexture(icon.image)
-        end
-      end
     end
   end
 
