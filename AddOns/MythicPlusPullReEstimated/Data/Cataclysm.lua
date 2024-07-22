@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1705432281,
-        version = '10.2.5',
-        build = 52902,
+        timestamp = 1720351840,
+        version = '11.0.2',
+        build = 55399,
     }
 end
 
@@ -18,8 +18,11 @@ end
 function data:GetNPCData()
     -- data is sorted with natural sorting by NPC ID
     return {
+        [39392] = { ["name"] = "Faceless Corruptor", ["count"] = 10 },
         [39616] = { ["name"] = "Naz'jar Invader", ["count"] = 4 },
         [39960] = { ["name"] = "Deep Murloc Drudge", ["count"] = 1 },
+        [40166] = { ["name"] = "Molten Giant", ["count"] = 10 },
+        [40167] = { ["name"] = "Twilight Beguiler", ["count"] = 5 },
         [40577] = { ["name"] = "Naz'jar Sentinel", ["count"] = 10 },
         [40634] = { ["name"] = "Naz'jar Tempest Witch", ["count"] = 5 },
         [40925] = { ["name"] = "Tainted Sentry", ["count"] = 7 },
@@ -44,5 +47,14 @@ function data:GetNPCData()
         [212681] = { ["name"] = "Vicious Snap Dragon", ["count"] = 4 },
         [212775] = { ["name"] = "Faceless Seer", ["count"] = 5 },
         [212778] = { ["name"] = "Minion of Ghur'sha", ["count"] = 3 },
+        [224152] = { ["name"] = "Twilight Brute", ["count"] = 3 },
+        [224219] = { ["name"] = "Twilight Earthcaller", ["count"] = 7 },
+        [224221] = { ["name"] = "Twilight Overseer", ["count"] = 10 },
+        [224240] = { ["name"] = "Twilight Decapitator", ["count"] = 5 },
+        [224249] = { ["name"] = "Twilight Lavabender", ["count"] = 15 },
+        [224271] = { ["name"] = "Twilight Warlock", ["count"] = 5 },
+        [224276] = { ["name"] = "Twilight Enforcer", ["count"] = 5 },
+        [224609] = { ["name"] = "Twilight Destroyer", ["count"] = 22 },
+        [224853] = { ["name"] = "Mutated Hatchling", ["count"] = 1 },
     }
 end
