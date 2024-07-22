@@ -41,7 +41,7 @@ local L = Core.Locale
 local Masque = LibStub("AceAddon-3.0"):NewAddon(MASQUE)
 
 -- API Version
-local API_VERSION = 100208
+local API_VERSION = 100209
 
 -- Client Version
 local WOW_VERSION = select(4, GetBuildInfo()) or 0
@@ -126,7 +126,7 @@ Core.WOW_VERSION = WOW_VERSION
 Core.WOW_RETAIL = WOW_RETAIL
 
 -- Add-On Info
-Core.Version = "10.2.10"
+Core.Version = "10.2.11"
 Core.Discord = "https://discord.gg/7MTWRgDzz8"
 
 Core.Authors = {
@@ -217,10 +217,10 @@ function Masque:OnInitialize()
 				-- Cooldown = true, -- Disabled by Blizzard
 				Interrupt = true,
 				Reticle = true,
-				SpellAlert = 1,
 			},
 			SpellAlert = {
-				Style = "Masque Thin",
+				State = 1,
+				Style = false,
 			},
 		},
 	}
