@@ -112,10 +112,11 @@ function addon:EnableAddon()
 
 	SLASH_XANSOUNDALERTS1 = "/xsa";
 	SlashCmdList["XANSOUNDALERTS"] = function()
-		if not IsRetail and InterfaceOptionsFrame then
-			InterfaceOptionsFrame:Show() --has to be here to load the about frame onLoad
-		end
-		InterfaceOptionsFrame_OpenToCategory(addon.aboutPanel) --force the panel to show
+		-- if not IsRetail and InterfaceOptionsFrame then
+		--	InterfaceOptionsFrame:Show() --has to be here to load the about frame onLoad
+		-- end
+		-- InterfaceOptionsFrame_OpenToCategory(addon.aboutPanel) --force the panel to show
+		Settings.OpenToCategory("xanSoundAlerts")
 	end
 
 	if addon.configFrame then addon.configFrame:EnableConfig() end
