@@ -1690,7 +1690,7 @@ function UUI.CreateUI()
 	
 	-- 遊戲選單的彩虹ui按鈕
 	-- GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
-	-- GameMenuFrame.Header:SetScript("OnMouseDown", function() UUI.ToggleUI() end)
+	GameMenuFrame.Header:SetScript("OnMouseDown", function() UUI.ToggleUI() end)
 
 	-- Buttons on GameMenuFrame
 
