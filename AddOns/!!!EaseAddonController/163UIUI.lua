@@ -1689,18 +1689,18 @@ function UUI.CreateUI()
     end
 	
 	-- 遊戲選單的彩虹ui按鈕
-	GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
-	GameMenuFrame.Header:SetScript("OnMouseDown", function() UUI.ToggleUI() end)
+	-- GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
+	-- GameMenuFrame.Header:SetScript("OnMouseDown", function() UUI.ToggleUI() end)
 
 	-- Buttons on GameMenuFrame
-    --[[
+
 	CoreHookScript(GameMenuFrame, "OnShow", function()
-        GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
+        -- GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
         if GameMenuFrame.btn163 then return end
 
         WW:Button(nil, GameMenuFrame, "GameMenuButtonTemplate"):Key("btn163")
-        :SetText(L["Ease AddOn"])
-        :TOP(select(2, GameMenuButtonAddons:GetPoint()), "BOTTOM", 0, -1)
+        :SetText(L["Ease AddOn"]):SetWidth(118)
+        :TOP(select(2, GameMenuFrame.Header:GetPoint()), "TOP", 0, -27)
         :SetScript("OnClick", UUI.ToggleUI)
         :SetScript("OnEnter", function(self) UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
         :SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
@@ -1710,10 +1710,10 @@ function UUI.CreateUI()
         :CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
         :SetBlendMode("ADD"):SetDrawLayer("OVERLAY"):Hide():up()
         :un()
-        GameMenuButtonAddons:SetPoint("TOP", GameMenuFrame.btn163, "BOTTOM", 0, -1)
+        -- GameMenuFrame.Header:SetPoint("TOP", GameMenuFrame.btn163, "BOTTOM", 0, -1)
         CoreUIEnableTooltip(GameMenuFrame.btn163, L["Ease Addon Controller"], L["Open Ease Addon Controller's main panel"])
     end, true)
-	--]]
+
 end
 
 --- Create minimap buttons, must be called after DB_LOADED

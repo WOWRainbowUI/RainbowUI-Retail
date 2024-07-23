@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 110000
+## Interface: 110000
 ## Title: !!!Ease Addon Controller
 ## Title-zhCN: !!!网易有爱控制台单体版
 ## Version: 11.0
