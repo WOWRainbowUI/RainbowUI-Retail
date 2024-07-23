@@ -1689,18 +1689,27 @@ function UUI.CreateUI()
     end
 	
 	-- 遊戲選單的彩虹ui按鈕
-	-- GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
+	WW:Button(nil, GameMenuFrame.Header):Key("logo"):CENTER(GameMenuFrame.Header, "LEFT", 0, 0):Size(40):EnableMouse(false)
+	:CreateTexture():SetTexture(UUI.Tex"UI2-logo"):ALL():up()
+	:CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
+	:SetBlendMode("ADD"):SetDrawLayer("OVERLAY"):Hide():up()
+	:un()
+	
+	GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
 	GameMenuFrame.Header:SetScript("OnMouseDown", function() UUI.ToggleUI() end)
+	GameMenuFrame.Header:SetScript("OnEnter", function(self) UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
+	GameMenuFrame.Header:SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
+	CoreUIEnableTooltip(GameMenuFrame.Header, L["Open Ease Addon Controller's main panel"])
 
 	-- Buttons on GameMenuFrame
-
-	CoreHookScript(GameMenuFrame, "OnShow", function()
-        -- GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
+	--[[
+    CoreHookScript(GameMenuFrame, "OnShow", function()
+        GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
         if GameMenuFrame.btn163 then return end
 
         WW:Button(nil, GameMenuFrame, "GameMenuButtonTemplate"):Key("btn163")
-        :SetText(L["Ease AddOn"]):SetWidth(118)
-        :TOP(select(2, GameMenuFrame.Header:GetPoint()), "TOP", 0, -27)
+        :SetText(L["Ease AddOn"])
+        :TOP(select(2, GameMenuButtonAddons:GetPoint()), "BOTTOM", 0, -1)
         :SetScript("OnClick", UUI.ToggleUI)
         :SetScript("OnEnter", function(self) UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
         :SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
@@ -1710,9 +1719,10 @@ function UUI.CreateUI()
         :CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
         :SetBlendMode("ADD"):SetDrawLayer("OVERLAY"):Hide():up()
         :un()
-        -- GameMenuFrame.Header:SetPoint("TOP", GameMenuFrame.btn163, "BOTTOM", 0, -1)
+        GameMenuButtonAddons:SetPoint("TOP", GameMenuFrame.btn163, "BOTTOM", 0, -1)
         CoreUIEnableTooltip(GameMenuFrame.btn163, L["Ease Addon Controller"], L["Open Ease Addon Controller's main panel"])
     end, true)
+	--]]
 
 end
 
