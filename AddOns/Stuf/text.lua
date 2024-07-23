@@ -14,7 +14,7 @@ local UnitIsTapDenied = UnitIsTapDenied
 local UnitIsDeadOrGhost, UnitIsDead, UnitIsGhost, UnitIsConnected = UnitIsDeadOrGhost, UnitIsDead, UnitIsGhost, UnitIsConnected
 local UnitIsAFK, UnitIsDND = UnitIsAFK, UnitIsDND
 local UnitSex = UnitSex
-local UnitIsVisible, GetSpellTexture, IsSpellInRange, UnitInRange = UnitIsVisible, C_Spell.GetSpellTexture, IsSpellInRange, UnitInRange
+local UnitIsVisible, GetSpellTexture, IsSpellInRange, UnitInRange = UnitIsVisible, C_Spell.GetSpellTexture, C_Spell.IsSpellInRange, UnitInRange
 local UnitAffectingCombat, InCombatLockdown = UnitAffectingCombat, InCombatLockdown
 
 local format, strmatch, gsub = format, strmatch, gsub
