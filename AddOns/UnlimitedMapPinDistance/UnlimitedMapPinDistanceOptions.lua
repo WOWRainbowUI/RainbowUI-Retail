@@ -90,10 +90,24 @@ function UMPD_Init()
     end
 
     -- Frame
-    UMPDO = CreateFrame("Frame", nil, UIParent)
+    UMPDO = CreateFrame("Frame", nil, nil, UMPD.name)
     UMPDO.name = _UMPD.name
-    InterfaceOptions_AddCategory(UMPDO, _UMPD.addonName);
 
+    function UMPDO.OnCommit() end
+    function UMPDO.OnDefault() end
+    function UMPDO.OnRefresh() end
+
+    -- Temp TWW Workaround
+    if InterfaceOptions_AddCategory == nil then
+        local category, layout = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.addonName);
+        layout:AddAnchorPoint("TOPLEFT", 0, 0);
+        layout:AddAnchorPoint("BOTTOMRIGHT", 0, 0);
+        category.ID = UMPDO.name
+        Settings.RegisterAddOnCategory(category)
+    else
+        InterfaceOptions_AddCategory(UMPDO, _UMPD.addonName)
+    end
+    
     -- Title
     local title = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
@@ -185,8 +199,7 @@ end
 SlashCmdList.UMPDO = function(msg)
 	msg = msg:lower()
 	if not InCombatLockdown() then
-		InterfaceOptionsFrame_OpenToCategory(UMPDO)
-        InterfaceOptionsFrame_OpenToCategory(UMPDO)
+        Settings.OpenToCategory(UMPDO.name)
 	else
 		DEFAULT_CHAT_FRAME:AddMessage(format("%s | Can't modify interface options in combat", _UMPD.name))
 	end
