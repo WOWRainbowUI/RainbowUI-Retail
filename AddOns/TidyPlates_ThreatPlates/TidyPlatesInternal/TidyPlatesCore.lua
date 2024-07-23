@@ -28,6 +28,7 @@ local UnitPlayerControlled = UnitPlayerControlled
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local GetPlayerInfoByGUID = GetPlayerInfoByGUID
 local UnitNameplateShowsWidgetsOnly = UnitNameplateShowsWidgetsOnly
+local GetSpellInfo = Addon.GetSpellInfo
 
 -- ThreatPlates APIs
 local Widgets = Addon.Widgets
@@ -111,6 +112,28 @@ Addon.PlatesByGUID = PlatesByGUID
 Addon.Theme = {}
 
 local activetheme = Addon.Theme
+
+-- Fix from Plater: hopefully just a temp workaround until plateFrame.UnitFrame is no longer combat protected 
+-- by inheriting from downstream HealthBarContainer...
+local function HideBlizzardNameplateFixForTWW(UnitFrame)
+  if UnitFrame:IsProtected() then
+    UnitFrame:ClearAllPoints()
+    UnitFrame:SetParent(nil)
+
+    if UnitFrame.HealthBarsContainer then
+      -- UnitFrame.HealthBarsContainerOrigParent = UnitFrame.HealthBarsContainer:GetParent() or UnitFrame.HealthBarsContainerOrigParent
+      UnitFrame.HealthBarsContainer:ClearAllPoints()
+      UnitFrame.HealthBarsContainer:SetParent(nil)
+    end
+
+    if not UnitFrame:IsProtected() then
+      UnitFrame:Hide()
+    end
+  else
+    UnitFrame:Hide()
+  end
+end
+
 
 ---------------------------------------------------------------------------------------------------
 -- Wrapper functions for WoW Classic
@@ -198,7 +221,7 @@ if Addon.IS_CLASSIC then
   -- Convert key ID to name to avoid handling all different spell ranks (which have the same name, but different IDs)
   local CHANNELED_SPELL_INFO_BY_NAME = {}
   for spell_id, channel_cast_time in pairs(CHANNELED_SPELL_INFO_BY_ID) do
-    CHANNELED_SPELL_INFO_BY_NAME[GetSpellInfo(spell_id)] = channel_cast_time
+    CHANNELED_SPELL_INFO_BY_NAME[_G.GetSpellInfo(spell_id)] = channel_cast_time
   end
 
   -- Classic Era: name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID
@@ -213,7 +236,7 @@ if Addon.IS_CLASSIC then
     end
 
     if not name and event_spellid then 
-      name, _, texture = GetSpellInfo(event_spellid)
+      name, _, texture = _G.GetSpellInfo(event_spellid)
 
       local channel_cast_time = name and CHANNELED_SPELL_INFO_BY_NAME[name]
       if channel_cast_time then
@@ -352,7 +375,8 @@ local function ShowBlizzardNameplate(plate, show_blizzard_plate)
     plate.TPFrame:Hide()
     plate.TPFrame.Active = false
   else
-    plate.UnitFrame:Hide()
+    --plate.UnitFrame:Hide()
+    HideBlizzardNameplateFixForTWW(plate.UnitFrame)
     plate.TPFrame:Show()
     plate.TPFrame.Active = true
   end
@@ -1185,7 +1209,8 @@ do
   end
 end -- End Indicator section
 
---------------------------------------------------------------------------------------------------------------
+--
+------------------------------------------------------------------------------------------------------------
 -- WoW Event Handlers: sends event-driven changes to the appropriate gather/update handler.
 --------------------------------------------------------------------------------------------------------------
 
@@ -1221,7 +1246,8 @@ local function FrameOnShow(UnitFrame)
   -- Hide nameplates that have not yet an unit added
   if not unitid then 
     -- ? Not sure if Hide() is really needed here or if even TPFrame should also be hidden here ...
-    UnitFrame:Hide()
+    -- UnitFrame:Hide()
+    HideBlizzardNameplateFixForTWW(plate.UnitFrame)
     return
   end
 
@@ -1249,11 +1275,18 @@ local function FrameOnShow(UnitFrame)
 
   -- Hide ThreatPlates nameplates if Blizzard nameplates should be shown for friendly units
   local unit_reaction = UnitReaction("player", unitid) or 0
-  if unit_reaction > 4 then
-    UnitFrame:SetShown(SettingsShowFriendlyBlizzardNameplates)
+  local show_blizzard_nameplate = (unit_reaction > 4 and SettingsShowFriendlyBlizzardNameplates) or SettingsShowEnemyBlizzardNameplates
+  if show_blizzard_nameplate then
+    UnitFrame:Show()
   else
-    UnitFrame:SetShown(SettingsShowEnemyBlizzardNameplates)
+    HideBlizzardNameplateFixForTWW(UnitFrame)
   end
+
+  -- if unit_reaction > 4 then
+  --   UnitFrame:SetShown(SettingsShowFriendlyBlizzardNameplates)
+  -- else
+  --   UnitFrame:SetShown(SettingsShowEnemyBlizzardNameplates)
+  -- end
 end
 
 -- Frame: self = plate
@@ -1317,6 +1350,9 @@ local function ARENA_OPPONENT_UPDATE(event, unitid, update_reason)
       --Addon:ForceUpdateOnNameplate(plate)
     end
   end
+
+  -- Not sure if needed after the addition for enemy/friendly health bar sizes
+  -- Addon:SetBaseNamePlateSize()
 end
 
 function CoreEvents:PLAYER_LOGIN()
@@ -2056,9 +2092,11 @@ do
 	function UpdateStyle()
 		local index
 
+    local healthbar_style = (extended.unit.reaction == "FRIENDLY" and style.healthbarFriendly) or style.healthbar
+
     -- Frame
     SetObjectAnchor(extended, style.frame.anchor or "CENTER", nameplate, style.frame.x or 0, style.frame.y or 0)
-    extended:SetSize(style.healthbar.width, style.healthbar.height)
+    extended:SetSize(healthbar_style.width, healthbar_style.height)
 
     -- Anchorgroup
 		for index = 1, #anchorgroup do
@@ -2084,7 +2122,7 @@ do
     local db = Addon.db.profile.settings
 
     -- Healthbar
-		SetAnchorGroupObject(visual.healthbar, style.healthbar, extended)
+    SetAnchorGroupObject(visual.healthbar, healthbar_style, extended)
     visual.healthbar:UpdateLayout(db, style)
 
     -- Castbar
@@ -2231,7 +2269,7 @@ function Addon:ConfigClickableArea(toggle_show)
   elseif ConfigModePlate then
     local background = ConfigModePlate.TPFrame.Background
     background:SetPoint("CENTER", ConfigModePlate.UnitFrame, "CENTER")
-    background:SetSize(Addon.db.profile.settings.frame.width, Addon.db.profile.settings.frame.height)
+    background:SetSize(ConfigModePlate.TPFrame:GetWidth(), ConfigModePlate.TPFrame:GetHeight())
   end
 end
 
