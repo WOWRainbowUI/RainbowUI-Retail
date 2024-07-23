@@ -1,6 +1,6 @@
 
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
-local actualVersion = GetAddOnMetadata("TinyInspect-Reforged", "Version") or UNKNOWN
+local actualVersion = C_AddOns.GetAddOnMetadata("TinyInspect-Reforged", "Version") or UNKNOWN
 
 local addon, ns = ...
 local L = ns.L or {}
@@ -53,7 +53,7 @@ local options = {
     { key = "EnableItemLevel",
       child = {
         { key = "ShowColoredItemLevelString" },
-        { key = "ShowCorruptedMark" },
+        -- { key = "ShowCorruptedMark" },
         { key = "ShowItemSlotString" },
 	{ key = "PaperDollItemLevelOutsideString" },
       },
@@ -283,7 +283,10 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
     InitCheckbox(frame)
 end)
 
-InterfaceOptions_AddCategory(frame)
+-- InterfaceOptions_AddCategory(frame)
+local category = Settings.RegisterCanvasLayoutCategory(frame, frame.name)
+category.ID = "TinyInspect-Reforged"
+Settings.RegisterAddOnCategory(category)
 SLASH_TinyInspect1 = "/tinyinspectr"
 SLASH_TinyInspect2 = "/tir"
 
@@ -291,6 +294,5 @@ function SlashCmdList.TinyInspect(msg, editbox)
     if (msg == "raid") then
         return ToggleFrame(TinyInspectRaidFrame)
     end
-    InterfaceOptionsFrame_OpenToCategory(frame)
-    InterfaceOptionsFrame_OpenToCategory(frame)
+    Settings.OpenToCategory("TinyInspect-Reforged")
 end

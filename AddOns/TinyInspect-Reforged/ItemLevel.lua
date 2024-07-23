@@ -3,6 +3,7 @@ local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 local LibItemGem = LibStub:GetLibrary("LibItemGem.7000")
 local LibSchedule = LibStub:GetLibrary("LibSchedule.7000")
 local LibItemInfo = LibStub:GetLibrary("LibItemInfo.7000")
+local GetItemInfo = C_Item.GetItemInfo
 
 local Addon, Private =  ...
 
@@ -27,7 +28,7 @@ f:SetScript("OnEvent", function(self, event, ...) if ns[event] then return ns[ev
 function ns:RegisterEvent(...) for i=1,select("#", ...) do f:RegisterEvent((select(i, ...))) end end
 function ns:UnregisterEvent(...) for i=1,select("#", ...) do f:UnregisterEvent((select(i, ...))) end end
 function ns:RegisterAddonHook(addon, callback)
-    if IsAddOnLoaded(addon) then
+    if C_AddOns.IsAddOnLoaded(addon) then
         callback()
     else
         hooks[addon] = callback
@@ -89,7 +90,7 @@ end
 
 local function SetItemLevelString(self, text, quality, link)
     if (quality and TinyInspectReforgedDB and TinyInspectReforgedDB.ShowColoredItemLevelString) then
-        local r, g, b, hex = GetItemQualityColor(quality)
+        local r, g, b, hex = C_Item.GetItemQualityColor(quality)
         text = format("|c%s%s|r", hex, text)
     end
     if (TinyInspectReforgedDB and TinyInspectReforgedDB.ShowCorruptedMark and link and IsCorruptedItem(link)) then
@@ -105,10 +106,10 @@ local function SetItemSlotString(self, class, equipSlot, link)
             slotText = _G[equipSlot] or ""
         elseif (class == ARMOR) then
             slotText = class
-        elseif (link and IsArtifactPowerItem(link)) then
-            slotText = ARTIFACT_POWER
-        elseif (link and IsArtifactRelicItem(link)) then
-            slotText = RELICSLOT
+        -- elseif (link and IsArtifactPowerItem(link)) then
+        --   slotText = ARTIFACT_POWER
+        -- elseif (link and IsArtifactRelicItem(link)) then
+        --    slotText = RELICSLOT
         end
     end
     self:SetText(slotText)
@@ -202,10 +203,10 @@ hooksecurefunc("SetItemButtonQuality", function(self, quality, itemIDOrLink, sup
     if (itemIDOrLink) then
         local link
         --Artifact
-        if (IsArtifactRelicItem(itemIDOrLink) or IsArtifactPowerItem(itemIDOrLink)) then
-            SetItemLevel(self)
+        -- if (C_ArtifactUI.IsArtifactRelicItem(itemIDOrLink) or C_ArtifactUI.IsArtifactPowerItem(itemIDOrLink)) then
+        --    SetItemLevel(self)
         --QuestInfo
-        elseif (self.type and self.objectType == "item") then
+        if (self.type and self.objectType == "item") then
             if (QuestInfoFrame and QuestInfoFrame.questLog) then
                 link = LibItemInfo:GetQuestItemlink(self.type, self:GetID())
             else
@@ -432,10 +433,10 @@ LibEvent:attachEvent("PLAYER_LOGIN", function()
             		slotText = _G[equipSlot] or ""
         	    elseif (class == ARMOR) then
             		slotText = class
-        	    elseif (link and IsArtifactPowerItem(link)) then
-            		slotText = ARTIFACT_POWER
-        	    elseif (link and IsArtifactRelicItem(link)) then
-            		slotText = RELICSLOT
+        	    -- elseif (link and IsArtifactPowerItem(link)) then
+            	--	slotText = ARTIFACT_POWER
+        	    -- elseif (link and IsArtifactRelicItem(link)) then
+            	--	slotText = RELICSLOT
         	    end
 	            self.ItemLevelFrame.levelString:SetText(level)
 	            self.ItemLevelFrame.slotString:SetText(slotText)
@@ -555,9 +556,9 @@ local function SetPaperDollItemLevel(self, unit)
     if (unit and GetInventoryItemTexture(unit, id)) then
         local count, level, _, link, quality, _, _, class, _, _, equipSlot = LibItemInfo:GetUnitItemInfo(unit, id)
         SetItemLevelString(frame.levelString, level > 0 and level or "", quality, link)
-        if (not TinyInspectReforgedDB.PaperDollItemLevelOutsideString) then
+        -- if (not TinyInspectReforgedDB.PaperDollItemLevelOutsideString) then
             SetItemSlotString(frame.slotString, class, equipSlot)
-        end
+        -- end
         if (id == 16 or id == 17) then
             local _, mlevel, _, _, mquality = LibItemInfo:GetUnitItemInfo(unit, 16)
             local _, olevel, _, _, oquality = LibItemInfo:GetUnitItemInfo(unit, 17)
@@ -567,13 +568,16 @@ local function SetPaperDollItemLevel(self, unit)
         end
     else
         SetItemLevelString(frame.levelString, "")
-        if (not TinyInspectReforgedDB.PaperDollItemLevelOutsideString) then
+        -- if (not TinyInspectReforgedDB.PaperDollItemLevelOutsideString) then
             SetItemSlotString(frame.slotString)
-        end
+        -- end
+    end
+	if (unit == "player") then
+        SetItemSlotString(frame.slotString)
     end
 end
 
-hooksecurefunc("PaperDollItemSlotButton_OnShow", function(self, isBag)
+hooksecurefunc("PaperDollItemSlotButton_Update", function(self)
     SetPaperDollItemLevel(self, "player")
 end)
 
@@ -636,7 +640,7 @@ local function ChatItemLevel(Hyperlink)
             level = nil
         end
         if (level) then
-            local n, stats = 0, GetItemStats(link)
+            local n, stats = 0, C_Item.GetItemStats(link)
             for key, num in pairs(stats) do
                 if (string.find(key, "EMPTY_SOCKET_")) then
                     n = n + num
