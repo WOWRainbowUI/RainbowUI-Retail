@@ -1,3 +1,5 @@
+local GetAddOnMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+
 _UMPD               = {}
 _UMPD.name          = "導航"
 _UMPD.addonName     = "無限距離導航"
@@ -114,11 +116,11 @@ end
 -- Slash
 SLASH_UMPD1 = "/uway"
 
-if not IsAddOnLoaded("SlashPin") then
+if not C_AddOns.IsAddOnLoaded("SlashPin") then
     SLASH_UMPD2 = "/pin"
 end
 
-if not IsAddOnLoaded("TomTom") then
+if not C_AddOns.IsAddOnLoaded("TomTom") then
     SLASH_UMPD3 = "/way"
 end
 
