@@ -248,7 +248,7 @@ D["AutoPotion"] = {
 	},
 };
 D["Baganator"] = {
-	defaultEnable = 0,
+	defaultEnable = 1,
 	tags = { "ITEM" },
 	title = "多角色背包",
 	desc = "可以選擇要使用不分類合併背包，也可以是分類背包。隨時隨地都能查看銀行，還可以查看分身的背包/銀行。``|cffFF2D2D需要打開過一次銀行才能離線查看銀行，其他角色需要登入過一次並且打開過背包和銀行，才能隨時查看。|r`",
@@ -354,8 +354,7 @@ D["BigDebuffs"] = {
     {
         text = "設定選項",
         callback = function(cfg, v, loading) 
-			InterfaceOptionsFrame_OpenToCategory("PvP 控場圖示")
-			InterfaceOptionsFrame_OpenToCategory("PvP 控場圖示")
+			Settings.OpenToCategory("PvP 控場圖示")
 		end,
     },
 	{
