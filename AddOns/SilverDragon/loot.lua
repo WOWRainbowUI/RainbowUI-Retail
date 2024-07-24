@@ -991,6 +991,7 @@ do
 
 	ns.Loot.Window.Release = function(window)
 		-- this will hide / clearallpoints / clearloot the window
+		if not window then return end -- 暫時修正
 		windowPool:Release(window)
 
 		core.events:Fire("LootWindowReleased", window)
