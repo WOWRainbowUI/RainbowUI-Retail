@@ -110,6 +110,12 @@ L["X Offset Personal SCT"] = "個人浮動戰鬥文字水平位置"
 L["Y Offset"] = "垂直位置"
 L["Y Offset Personal SCT"] = "個人浮動戰鬥文字垂直位置"
 L["YOUR ENEMY NAMEPLATES ARE DISABLED, NAMEPLATESCT WILL NOT WORK!!"] = "敵方血條已被停用，因此無法顯示血條浮動戰鬥文字!!"
+L["Use Crit Color"] = "使用致命一擊顏色"
+L["Crit Color"] = "致命一擊顏色"
+L["X Variance"] = "水平變化"
+L["Randomly varies the starting horizontal position of each damage number."] = "隨機改變每個傷害數字出現的水平位置。"
+L["Y Variance"] = "垂直變化"
+L["Randomly varies the starting vertical position of each damage number."] = "隨機改變每個傷害數字出現的垂直位置。"
 
 -- 自行加入
 L["NameplateSCT"] = "戰鬥-浮動文字"
