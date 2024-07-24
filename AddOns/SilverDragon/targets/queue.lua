@@ -25,7 +25,7 @@ function module:Acquire(look)
 end
 
 function module:Release(popup)
-	self:GetPopupLookPool(popup.look):Release(popup)
+	if popup then self:GetPopupLookPool(popup.look):Release(popup) end -- 暫時修正
 end
 
 do
