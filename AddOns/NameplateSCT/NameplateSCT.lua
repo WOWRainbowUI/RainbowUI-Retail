@@ -972,11 +972,11 @@ function NameplateSCT:DisplayText(guid, text, size, animation, spellId, pow, spe
 	fontString.guid = guid;
 
 	local texture
-	if GetSpellTexture then
-		texture = GetSpellTexture(spellId or spellName)
-	else
+	-- if GetSpellTexture then
+	--	texture = GetSpellTexture(spellId or spellName)
+	--else
 		texture = C_Spell.GetSpellTexture(spellId or spellName);
-	end
+	-- end
 	if NameplateSCT.db.global.showIcon and texture then
 	icon = fontString.icon;
 	icon:Show();
@@ -1040,11 +1040,11 @@ function NameplateSCT:DisplayTextOverkill(guid, text, size, animation, spellId, 
 	fontString.guid = guid;
 	
 	local texture
-	if GetSpellTexture then
-		texture = GetSpellTexture(spellId or spellName)
-	else
+	-- if GetSpellTexture then
+	--	texture = GetSpellTexture(spellId or spellName)
+	-- else
 		texture = C_Spell.GetSpellTexture(spellId or spellName);
-	end
+	-- end
 	if NameplateSCT.db.global.showIcon and texture then
 	icon = fontString.icon;
 	icon:Show();
