@@ -1,11 +1,9 @@
-## Interface: 100207
+## Interface: 110000, 110002
 ## Author: lightspark
-## Version: 100206.02
-
+## Version: 110000.01
 ## Title: LS: |cffe0bc5bGlass|r
 ## Notes: Smooth as glass.
 ## IconTexture: Interface\AddOns\ls_Glass\assets\logo-64
-
 ## SavedVariables: LS_GLASS_GLOBAL_CONFIG
 
 ## Title-zhTW: |cffFF9999[聊天]|r 視窗美化
@@ -13,7 +11,6 @@
 ## X-Category-zhTW: 社交
 
 embeds\LibEasing\LibEasing.lua
-
 locales\_locales.xml
 
 core\_core.xml
