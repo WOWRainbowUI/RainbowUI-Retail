@@ -1,10 +1,9 @@
-## Interface: 100207
+## Interface: 110000, 110002
 ## Author: p3lim
-## Version: 100207.114-Release
+## Version: 110000.115-Release
 ## Title: Molinari
 ## Notes: One-click Milling, Prospecting, Disenchanting, Lockpicking, and more!
 ## IconTexture: Interface\Icons\ability_miling
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3
 ## SavedVariables: MolinariBlacklistDB, MolinariDB, MolinariDB2
 
 ## X-Curse-Project-ID: 20338
@@ -18,12 +17,13 @@
 
 libs\Dashi\embed.xml
 
+locale\zhCN.lua
+locale\zhTW.lua
+
 utils.lua
 addon.lua
 hack.lua
-
-locale\zhCN.lua
-locale\zhTW.lua
+settings.lua
 
 data\openable.lua
 data\keys.lua
@@ -37,9 +37,3 @@ data\crushable.lua
 api\items.lua
 api\skill.lua
 api\colors.lua
-
-config\ButtonPoolMixin.lua
-config\SavedVariables.lua
-config\Options.lua
-config\OptionsBlocklist.lua
-config\OptionsPopups.lua

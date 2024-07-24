@@ -1,10 +1,9 @@
 ## Interface: 40400
 ## Author: p3lim
-## Version: 100207.114-Release
+## Version: 110000.115-Release
 ## Title: Molinari
 ## Notes: One-click Milling, Prospecting, Disenchanting, Lockpicking, and more!
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3
-## SavedVariables: MolinariBlacklistDB, MolinariDB, MolinariDB2
+## SavedVariables: MolinariBlacklistDB, MolinariDB, MolinariDB2, MolinariDB3
 
 ## X-Curse-Project-ID: 20338
 ## X-WoWI-ID: 13188
@@ -19,6 +18,7 @@ libs\Dashi\embed.xml
 
 utils.lua
 addon.lua
+settings.lua
 
 locale\zhCN.lua
 locale\zhTW.lua
@@ -32,9 +32,3 @@ data\millable_classic.lua
 api\items.lua
 api\skill.lua
 api\colors.lua
-
-config\ButtonPoolMixin.lua
-config\SavedVariables.lua
-config\Options.lua
-config\OptionsBlocklist.lua
-config\OptionsPopups.lua

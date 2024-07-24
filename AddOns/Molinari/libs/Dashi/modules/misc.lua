@@ -1,5 +1,13 @@
 local _, addon = ...
 
+--[[ namespace:header
+In each example `namespace` refers to the 2nd value of the addon vararg, e.g:
+
+```lua
+local _, namespace = ...
+```
+--]]
+
 -- game version API
 local _, _, _, interfaceVersion = GetBuildInfo()
 --[[ namespace:IsRetail()
@@ -21,6 +29,23 @@ Checks if the current client is running the "classic" version.
 --]]
 function addon:IsClassic()
 	return not addon:IsRetail() and not addon:IsClassicEra()
+end
+
+--[[ namespace:ArgCheck(arg, argIndex, type[, type...])
+Checks if the argument `arg` at position `argIndex` is of type(s).
+--]]
+function addon:ArgCheck(arg, argIndex, ...)
+	assert(type(argIndex) == 'number', 'Bad argument #2 to \'ArgCheck\' (number expected, got ' .. type(argIndex) .. ')')
+
+	for index = 1, select('#', ...) do
+		if type(arg) == select(index, ...) then
+			return
+		end
+	end
+
+	local types = string.join(', ', ...)
+	local name = debugstack(2, 2, 0):match(': in function [`<](.-)[\'>]')
+	error(string.format('Bad argument #%d to \'%s\' (%s expected, got %s)', argIndex, name, types, type(arg)), 3)
 end
 
 -- easy frame "removal"
@@ -60,7 +85,7 @@ do
 	Returns the integer `id` from the given [`guid`](https://warcraft.wiki.gg/wiki/GUID).
 	--]]
 	function addon:ExtractIDFromGUID(guid)
-		return tonumber(guid:match(GUID_PATTERN))
+		return guid and tonumber(guid:match(GUID_PATTERN))
 	end
 end
 
@@ -68,7 +93,7 @@ end
 Returns the integer `id` of the given [`unit`](https://warcraft.wiki.gg/wiki/UnitId).
 --]]
 function addon:GetNPCID(unit)
-	if unit then
+	if unit and UnitExists(unit) then
 		local npcGUID = UnitGUID(unit)
 		return npcGUID and addon:ExtractIDFromGUID(npcGUID), npcGUID
 	end
@@ -122,7 +147,7 @@ do
 		for index = 1, select('#', ...) do
 			slot = select(index, ...)
 			data = C_UnitAuras.GetAuraDataBySlot(unit, slot)
-			if spellID == data.spellId and data.sourceUnit and (UnitIsUnit('player', data.sourceUnit) or UnitIsOwnerOrControllerOfUnit('player', data.sourceUnit)) then
+			if spellID == data.spellId and data.sourceUnit then
 				return nil, data
 			end
 		end
@@ -135,14 +160,45 @@ do
 
 	* [`unitID`](https://warcraft.wiki.gg/wiki/UnitId)
 	* `spellID` - spell ID to check for
-	* `filter` - aura filter, see [UnitAura](https://warcraft.wiki.gg/wiki/API_UnitAura#Filters)
+	* `filter` - aura filter, see [UnitAura](https://warcraft.wiki.gg/wiki/API_C_UnitAuras.GetAuraDataByIndex#Filters)
 	--]]
 	function addon:GetUnitAura(unit, spellID, filter)
 		local token, data
 		repeat
-			token, data = auraSlotsWrapper(unit, spellID, UnitAuraSlots(unit, filter, nil, token))
+			token, data = auraSlotsWrapper(unit, spellID, C_UnitAuras.GetAuraSlots(unit, filter, nil, token))
 		until token == nil
 
 		return data
 	end
+end
+
+--[[ namespace:CreateColor(r, g, b[, a])
+Wrapper for CreateColor that can handle >1-255 range as well.  
+Alpha (`a`) will always be in the 0-1 range.
+--]]
+--[[ namespace:CreateColor(hex)
+Wrapper for CreateColor that can handle hex colors (both `RRGGBB` and `AARRGGBB`).
+--]]
+function addon:CreateColor(r, g, b, a)
+	if type(r) == 'string' then
+		-- load from hex
+		local hex = r:gsub('#', '')
+		if #hex == 8 then
+			-- prefixed with alpha
+			a = tonumber(hex:sub(1, 2), 16) / 255
+			r = tonumber(hex:sub(3, 4), 16) / 255
+			g = tonumber(hex:sub(5, 6), 16) / 255
+			b = tonumber(hex:sub(7, 8), 16) / 255
+		elseif #hex == 6 then
+			r = tonumber(hex:sub(1, 2), 16) / 255
+			g = tonumber(hex:sub(3, 4), 16) / 255
+			b = tonumber(hex:sub(5, 6), 16) / 255
+		end
+	elseif r > 1 or g > 1 or b > 1 then
+		r = r / 255
+		g = g / 255
+		b = b / 255
+	end
+
+	return CreateColor(r, g, b, a)
 end
