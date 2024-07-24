@@ -1,6 +1,6 @@
-## Interface: 100207
+## Interface: 100207, 110000
 ## Title: Auctionator
-## Version: 10.2.40
+## Version: 10.2.55
 ## Author: Borjamacare, plusmouse
 ## X-Website: https://www.curseforge.com/wow/addons/auctionator
 ## X-Category: Auction/Economy
@@ -17,6 +17,7 @@
 ## Notes-zhTW: Auctionator |n|n一個輕量級的插件，增強拍賣場的功能，方便快速的購買、銷售和管理拍賣。|n|n|cffffd200使用方法: |r開啟拍賣場時會自動顯示，從Esc>選項>插件>拍賣，進行設定。
 ## X-Category-zhTW: 交易
 
+Libs\Manifest.xml
 Libs_Mainline\Manifest.xml
 
 Locales\Manifest.xml
