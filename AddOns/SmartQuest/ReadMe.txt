@@ -204,3 +204,6 @@ Change Log:
 
 1.27
 * Added support for new WoW 11.0 menu system
+
+1.28
+* Updated TOC for 11.0
