@@ -937,6 +937,7 @@ function NameplateSCT:MissEvent(guid, spellName, missType, spellId)
 end
 
 function NameplateSCT:DisplayText(guid, text, size, animation, spellId, pow, spellName)
+	if not spellId then return end -- 暫時修正
 	local fontString;
 	local icon;
 	local unit = guidToUnit[guid];
