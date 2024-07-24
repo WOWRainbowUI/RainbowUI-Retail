@@ -1,13 +1,12 @@
-## Interface: 110000
+## Interface: 110002, 110000
 ## Title: HidingBar
 ## Author: sfmict
-## Version: v11.0.0-alpha1
+## Version: v11.0.0
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: Convenient hiding panel
 ## SavedVariables: HidingBarDB
 ## SavedVariablesPerCharacter: HidingBarDBChar
 ## OptionalDeps: Masque
-## OnlyBetaAndPTR: 1
 embeds.xml
 locales.xml
 templates.xml

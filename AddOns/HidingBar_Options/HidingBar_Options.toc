@@ -1,12 +1,11 @@
-## Interface: 110000
+## Interface: 110002, 110000
 ## Title: HidingBar Options
 ## Author: sfmict
-## Version: v11.0.0-alpha1
+## Version: v11.0.0
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: HidingBar Options
 ## LoadOnDemand: 1
 ## Dependencies: HidingBar
-## OnlyBetaAndPTR: 1
 embeds.xml
 templates.xml
 Main.lua
