@@ -1068,7 +1068,7 @@ function MenuModule:CreateClickFunctions()
             return;
         end
         if button == "LeftButton" then
-            ToggleFrame(SpellBookFrame)
+            ToggleFrame(PlayerSpellsFrame)
         end
     end; -- spell
 
@@ -1077,7 +1077,8 @@ function MenuModule:CreateClickFunctions()
             return;
         end
         if button == "LeftButton" then
-            ToggleTalentFrame()
+            ShowUIPanel(PlayerTalentFrame)
+			-- ToggleFrame(PlayerSpellsFrame)
         end
     end; -- talent
 
@@ -1162,24 +1163,24 @@ function MenuModule:GetDefaultOptions()
         mainMenuSpacing = 2,
         iconSpacing = 2,
         modifierTooltip = 1,
-        showGMOTD = false,
+        showGMOTD = true,
         hideSocialText = false,
         osSocialText = 12,
-        menu = false,
-        chat = false,
+        menu = true,
+        chat = true,
         guild = true,
         social = true,
-        char = false,
-        spell = false,
-        talent = false,
-        ach = false,
-        quest = false,
-        lfg = false,
-        journal = false,
-        pvp = false,
-        pet = false,
-        shop = false,
-        help = false,
+        char = true,
+        spell = true,
+        talent = true,
+        ach = true,
+        quest = true,
+        lfg = true,
+        journal = true,
+        pvp = true,
+        pet = true,
+        shop = true,
+        help = true,
         hideAppContact = true,
 		hideOtherGameContact = false -- 自行加入：隱藏其他遊戲好友
     }
