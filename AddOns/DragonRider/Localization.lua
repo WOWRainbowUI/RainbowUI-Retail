@@ -321,7 +321,7 @@ if LOCALE == "zhTW" then
 	L["MuteVigorSound_SettingsTT"] = "切換飛龍坐騎自然獲得活力格數時播放的音效。"
 	L["SpeedometerTheme"] = "速度條主題"
 	L["SpeedometerThemeTT"] = "自訂速度條主題。"
-	L["Algari"] = "阿爾加里"
+	L["Algari"] = "阿爾加"
 	L["Default"] = DEFAULT
 	L["Minimalist"] = "極簡主義"
 	L["Alliance"] = "聯盟"
