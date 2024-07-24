@@ -10,7 +10,7 @@
 ## Notes-zhTW: LS: |cffe0bc5bGlass|r |n|n沉浸式極簡風格的聊天視窗，提供更多自訂選項。|n|n|cffffd200使用方法: |rEsc>選項>插件>聊天視窗>開啟設定。
 ## X-Category-zhTW: 社交
 
-embeds\LibEasing\LibEasing.lua
+## embeds\_embeds.xml
 locales\_locales.xml
 
 core\_core.xml
