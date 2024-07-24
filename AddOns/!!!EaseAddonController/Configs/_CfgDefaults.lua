@@ -767,7 +767,7 @@ D["DialogueUI"] = {
     },
 };
 D["Dominos"] = {
-	defaultEnable = 0,
+	defaultEnable = 1,
 	title = "達美樂快捷列",
 	desc = "用來取代遊戲內建的主要快捷列，提供方便的快捷列配置、快速鍵設定，讓你可以自由安排快捷列的位置和大小，以及多種自訂功能。`",
 	modifier = "彩虹ui",
