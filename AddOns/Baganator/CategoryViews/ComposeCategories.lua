@@ -1,3 +1,4 @@
+local _, addonTable = ...
 local inventorySlots = {
   "INVTYPE_2HWEAPON",
   "INVTYPE_WEAPON",
@@ -34,6 +35,7 @@ local inventorySlots = {
 local groupings = {}
 do
   groupings["expansion"] = {
+    {label = "The War Within", search = "#war within"},
     {label = "Dragonflight", search = "#df"},
     {label = "Shadowlands", search = "#shadowlands"},
     {label = "Battle for Azeroth", search = "#bfa"},
@@ -173,7 +175,7 @@ end
 local function GetAuto(category, everything)
   local searches, searchLabels, attachedItems = {}, {}, {}
   if category.auto == "equipment_sets" then
-    local names = Baganator.ItemViewCommon.GetEquipmentSetNames()
+    local names = addonTable.ItemViewCommon.GetEquipmentSetNames()
     if #names == 0 then
       table.insert(searchLabels, BAGANATOR_L_CATEGORY_EQUIPMENT_SET)
       table.insert(searches, SYNDICATOR_L_KEYWORD_EQUIPMENT_SET)
@@ -196,8 +198,8 @@ local function GetAuto(category, everything)
     table.insert(searchLabels, BAGANATOR_L_CATEGORY_RECENT)
     local newItems = {}
     for _, item in ipairs(everything) do
-      if Baganator.NewItems:IsNewItemTimeout(item.bagID, item.slotID) then
-        newItems[item.key] = true
+      if newItems[item.key] ~= false then
+        newItems[item.key] = addonTable.NewItems:IsNewItemTimeout(item.bagID, item.slotID)
       end
     end
     attachedItems[1] = newItems
@@ -209,24 +211,24 @@ end
 
 -- Organise category data ready for display, including removing duplicate
 -- searches with priority determining which gets kept.
-function Baganator.CategoryViews.ComposeCategories(everything)
+function addonTable.CategoryViews.ComposeCategories(everything)
   local allDetails = {}
 
-  local customCategories = Baganator.Config.Get(Baganator.Config.Options.CUSTOM_CATEGORIES)
-  local sectionToggled = Baganator.Config.Get(Baganator.Config.Options.CATEGORY_SECTION_TOGGLED)
-  local categoryMods = Baganator.Config.Get(Baganator.Config.Options.CATEGORY_MODIFICATIONS)
+  local customCategories = addonTable.Config.Get(addonTable.Config.Options.CUSTOM_CATEGORIES)
+  local sectionToggled = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_SECTION_TOGGLED)
+  local categoryMods = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_MODIFICATIONS)
   local categoryKeys = {}
   local emptySlots = {index = -1, section = ""}
   local currentSection = ""
   local prevSection = ""
-  for _, source in ipairs(Baganator.Config.Get(Baganator.Config.Options.CATEGORY_DISPLAY_ORDER)) do
+  for _, source in ipairs(addonTable.Config.Get(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER)) do
     local section = source:match("^_(.*)")
-    if source == Baganator.CategoryViews.Constants.DividerName and not sectionToggled[currentSection] then
+    if source == addonTable.CategoryViews.Constants.DividerName and not sectionToggled[currentSection] then
       table.insert(allDetails, {
         type = "divider",
       })
     end
-    if source == Baganator.CategoryViews.Constants.SectionEnd then
+    if source == addonTable.CategoryViews.Constants.SectionEnd then
       table.insert(allDetails, {
         type = "divider",
       })
@@ -243,7 +245,7 @@ function Baganator.CategoryViews.ComposeCategories(everything)
       currentSection = section
     end
 
-    local category = Baganator.CategoryViews.Constants.SourceToCategory[source]
+    local category = addonTable.CategoryViews.Constants.SourceToCategory[source]
     if category then
       if category.auto then
         local autoDetails = GetAuto(category, everything)
