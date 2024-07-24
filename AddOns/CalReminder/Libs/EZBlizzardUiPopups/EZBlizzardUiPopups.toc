@@ -1,5 +1,5 @@
-## Interface: 100000
+## Interface: 110000
 ## Title: EZBlizzardUiPopups
-## Version: 1.0.4
+## Version: 1.0.5
 ## Notes: Library
 ## Author: Xam-insight

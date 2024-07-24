@@ -64,6 +64,7 @@ function loadCalReminderOptions()
 				args = {
 					enableSound = {
 						type = "toggle", order = 1,
+						width = "full",
 						name = ENABLE_SOUND,
 						desc = ENABLE_SOUND,
 						set = function(info, val) 
