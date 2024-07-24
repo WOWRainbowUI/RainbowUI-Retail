@@ -217,12 +217,35 @@
             <Frame parentKey="LockOverlay" setAllPoints="true">
 				<Layers>
 					<Layer level="ARTWORK">
-						<Texture>
+						<Texture setAllPoints="true">
 							<Color r="0" g="0" b="0" a="0.5"/>
 						</Texture>
+                        <!-- the text like "Visit a Battle Pet Trainer to learn..." for new pet battlers with locked slots -->
+                        <FontString parentKey="RequirementsText" inherits="GameFontHighlight" justifyH="LEFT">
+                            <Size x="180" y="0"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="75" y="-21"/>
+                                <Anchor point="TOPRIGHT" x="-25" y="-21"/>
+                            </Anchors>
+                        </FontString>
+                        <!-- the link for the requirement, one of [Battle Pet Training], [Newbie] or [Just a Pup] -->
+                        <FontString parentKey="RequirementsLink" inherits="GameFontNormalLarge">
+                            <Size x="198" y="20"/>
+                            <Anchors>
+                                <Anchor point="BOTTOM" x="0" y="32"/>
+                            </Anchors>
+                            <Scripts>
+                                <OnEnter>
+                                    self:GetParent():GetParent():GetParent().RequirementsOnEnter(self)
+                                </OnEnter>
+                                <OnLeave>
+                                    self:GetParent():GetParent():GetParent().RequirementsOnLeave(self)
+                                </OnLeave>
+                            </Scripts>
+                        </FontString>
 					</Layer>
 					<Layer level="OVERLAY">
-						<Texture file="Interface\PetBattles\PetBattle-LockIcon">
+						<Texture parentKey="Icon" file="Interface\PetBattles\PetBattle-LockIcon">
 							<Size x="32" y="32"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" x="4" y="-4"/>

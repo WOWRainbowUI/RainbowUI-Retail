@@ -279,14 +279,14 @@ function RematchDialogColorPickerMixin:OnLoad()
     end
     for i=1,#colors do
         self.Swatches[i+1] = CreateFrame("Button",nil,self,"RematchDialogColorPickerSwatchTemplate")
-        if (i)%8==0 then
-            self.Swatches[i+1]:SetPoint("TOPLEFT",self.Swatches[i-7],"BOTTOMLEFT",0,-4)
+        if (i)%9==0 then
+            self.Swatches[i+1]:SetPoint("TOPLEFT",self.Swatches[i-8],"BOTTOMLEFT",0,-4)
         else
             self.Swatches[i+1]:SetPoint("TOPLEFT",self.Swatches[i],"TOPRIGHT",4,0)
         end
         self.Swatches[i+1]:SetColor(colors[i])
     end
-    self:SetHeight(ceil((#colors+1)/8)*24-4+8)
+    self:SetHeight(ceil((#colors+1)/9)*24-4+8)
 end
 
 function RematchDialogColorPickerMixin:Update()
@@ -617,7 +617,7 @@ function RematchDialogExpectedDDMixin:OnMouseDown()
 end
 
 function RematchDialogExpectedDDMixin:OnMouseUp()
-    if GetMouseFocus()==self and not self:GetParent():GetParent().isDisabled then
+    if self:IsMouseMotionFocus() and not self:GetParent():GetParent().isDisabled then
         rematch.textureHighlight:Show(self)
         local preferences = self:GetParent():GetParent() -- texture -> ExpectedDamage -> Preferences
         if preferences.expectedDD==self.key then
@@ -769,7 +769,7 @@ function RematchDialogIconPickerIconMixin:OnMouseDown()
 end
 
 function RematchDialogIconPickerIconMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self)
         self:GetParent():GetParent():GetParent():GetParent():GetParent():SetIcon(self.fileID)
     end
@@ -1105,7 +1105,7 @@ function RematchDialogGroupPickerListButtonMixin:OnMouseDown()
 end
 
 function RematchDialogGroupPickerListButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Back)
     end
 end
@@ -1185,7 +1185,7 @@ function RematchDialogPetButtonMixin:OnMouseDown()
 end
 
 function RematchDialogPetButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Icon)
     end
 end
@@ -1255,7 +1255,7 @@ function RematchDialogGroupSelectMixin:OnLoad()
     end)
     self.Button:SetScript("OnMouseDown",self.Button:GetScript("OnLeave"))
     self.Button:SetScript("OnMouseUp",function(self)
-        if GetMouseFocus()==self then
+        if self:IsMouseMotionFocus() then
             self:GetScript("OnEnter")(self)
         end
     end)
@@ -1636,7 +1636,7 @@ function RematchDialogTopTeamsMixin:Fill(teams)
         for j=1,3 do
             local petInfo = rematch.petInfo:Fetch(team.pets[j])
             self.Buttons[i].Pets[j].petID = team.pets[j]
-            self.Buttons[i].Pets[j]:SetTexture(petInfo.icon)            
+            self.Buttons[i].Pets[j]:SetTexture(petInfo.icon)
         end
         height=height+26
         self.Buttons[i]:Show()
@@ -1651,7 +1651,7 @@ function RematchDialogTopTeamsListButtonMixin:OnEnter()
     rematch.textureHighlight:Show(self.Back)
     if not settings.HideTruncatedTooltips and self.Name:IsTruncated() then
         rematch.tooltip:ShowSimpleTooltip(self,nil,self.Name:GetText() or "","BOTTOM",self.Name,"TOP",0,5,true)
-    end    
+    end
 end
 
 function RematchDialogTopTeamsListButtonMixin:OnLeave()
@@ -1664,7 +1664,7 @@ function RematchDialogTopTeamsListButtonMixin:OnMouseDown()
 end
 
 function RematchDialogTopTeamsListButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Back)
     end
 end
@@ -1695,7 +1695,7 @@ function RematchDialogTopTeamsListPetButtonMixin:OnMouseDown()
 end
 
 function RematchDialogTopTeamsListPetButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self,self:GetParent().Back)
         rematch.cardManager:OnClick(rematch.petCard,self:GetParent(),self.petID)
     end
@@ -1759,5 +1759,5 @@ end
 function PetHerderPickerMixin:CURSOR_CHANGED()
     if rematch.dialog:GetOpenDialog()=="PetHerder" and GetCursorInfo() then
         rematch.dialog:Hide()
-    end    
+    end
 end

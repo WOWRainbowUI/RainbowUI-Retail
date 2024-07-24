@@ -25,16 +25,16 @@ local breedNames = {nil,nil,"B/B","P/P","S/S","H/H","H/P","P/S","H/S","P/B","S/B
 -- addons are used in this priority: BattlePetBreedID, PetTracker_Breeds then LibPetBreedInfo-1.0
 function rematch.breedInfo:GetBreedSource()
     if breedSource==nil then -- can be false if a prior search for a source didn't find any
-        if settings.BreedSource=="BattlePetBreedID" and IsAddOnLoaded("BattlePetBreedID") then
+        if settings.BreedSource=="BattlePetBreedID" and C_AddOns.IsAddOnLoaded("BattlePetBreedID") then
             breedSource = "BattlePetBreedID"
-        elseif settings.BreedSource=="PetTracker" and IsAddOnLoaded("PetTracker") then
+        elseif settings.BreedSource=="PetTracker" and C_AddOns.IsAddOnLoaded("PetTracker") then
             breedSource = "PetTracker"
         elseif settings.BreedSource=="None" then
             breedSource = false
-        elseif IsAddOnLoaded("BattlePetBreedID") then
+        elseif C_AddOns.IsAddOnLoaded("BattlePetBreedID") then
             breedSource = "BattlePetBreedID"
             settings.BreedSource = breedSource
-        elseif IsAddOnLoaded("PetTracker") and PetTracker and PetTracker.Pet and PetTracker.Pet.GetBreed then
+        elseif C_AddOns.IsAddOnLoaded("PetTracker") and PetTracker and PetTracker.Pet and PetTracker.Pet.GetBreed then
             breedSource = "PetTracker"
             settings.BreedSource = breedSource
         end
@@ -52,7 +52,7 @@ end
 
 -- returns true if any breed addon is loaded
 function rematch.breedInfo:IsAnyBreedAddOnLoaded(addon)
-    return IsAddOnLoaded("BattlePetBreedID") or IsAddOnLoaded("PetTracker")
+    return C_AddOns.IsAddOnLoaded("BattlePetBreedID") or C_AddOns.IsAddOnLoaded("PetTracker")
 end
 
 function rematch.breedInfo:ResetBreedSource()

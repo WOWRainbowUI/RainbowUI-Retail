@@ -115,7 +115,7 @@ end
 -- the drag. To work around this, when a team/group is picked up via dragging, GLOBAL_MOUSE_UP is registered, and
 -- then a OnReceiveDrag is simulated based on what's beneath the mouse when the mouse button is released
 function rematch.dragFrame:GLOBAL_MOUSE_UP()
-    local focus = GetMouseFocus()
+    local focus = GetMouseFoci()[1]
     if focus then
         -- if mouse is over teamsPanel(GlowFrame) then any team/group combination safe to handle
         if MouseIsOver(self.GlowFrame) and rematch.teamsPanel:IsVisible() and (focus.groupID or focus.teamID or focus==rematch.teamsPanel.List.CaptureButton) then
@@ -236,7 +236,7 @@ end
 
 function rematch.dragFrame.GlowFrame:OnUpdate(elapsed)
     local cursorType,cursorID = rematch.dragFrame:GetCursorInfo()
-    local focus = GetMouseFocus()
+    local focus = GetMouseFoci()[1]
 
     if not focus then
         return -- while scrolling, focus becomes nil at times

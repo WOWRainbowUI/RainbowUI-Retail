@@ -162,7 +162,7 @@ function RematchDropDownMixin:OnMouseDown()
 end
 
 function RematchDropDownMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.DropDownButton,self.Left,self.Right,self.Middle)
     end
 end

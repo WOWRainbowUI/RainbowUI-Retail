@@ -10,7 +10,7 @@ local enteringCombat = false
 -- frame OnHide if attached to journal, then unparent it and show PetJournal
 
 rematch.events:Register(rematch.journal,"PLAYER_LOGIN",function(self)
-    if not IsAddOnLoaded("Blizzard_Collections") then -- if journal isn't already loaded, wait for it to load
+    if not C_AddOns.IsAddOnLoaded("Blizzard_Collections") then -- if journal isn't already loaded, wait for it to load
         rematch.events:Register(rematch.journal,"ADDON_LOADED",rematch.journal.ADDON_LOADED)
     else -- if for some crazy reason journal is already loaded by another addon, go through the motions of it just being loaded
         rematch.journal:ADDON_LOADED("Blizzard_Collections")

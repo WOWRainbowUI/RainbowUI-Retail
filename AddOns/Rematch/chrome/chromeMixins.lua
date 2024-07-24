@@ -33,7 +33,7 @@ function RematchPanelTabMixin:OnMouseDown()
 end
 
 function RematchPanelTabMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         self.Highlight:Show()
     end
     self.isDown = false
@@ -66,7 +66,7 @@ function RematchPanelTabMixin:Update()
         self.Back:SetPoint(anchor)
         self.Highlight:SetPoint(anchor)
     end
-    if self.isSelected or self.isDown or GetMouseFocus()==self then
+    if self.isSelected or self.isDown or self:IsMouseMotionFocus() then
         self.Text:SetTextColor(1,1,1)
     else
         self.Text:SetTextColor(1,0.82,0)
@@ -104,7 +104,7 @@ function RematchTeamTabMixin:OnMouseDown()
 end
 
 function RematchTeamTabMixin:OnMouseUp(button)
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Icon,self.Background)
     end
 end

@@ -41,10 +41,20 @@ function rematch.miniLoadoutPanel:Update()
             self.Loadouts[i].Animation:Stop()
         end
         self.Loadouts[i].Glow:SetShown(showGlow)
-        self.Loadouts[i].LockOverlay:SetShown(rematch.utils:IsJournalLocked())
+        self.Loadouts[i].LockOverlay:SetShown(rematch.utils:IsJournalLocked() or rematch.loadouts:IsSlotLocked(i))
+
+        -- when slotting a pet, the loadouts are updated; if the mouse is over a loadout when that happens and the pet card
+        -- is unlocked and visible, then we need to change pets the card is showing (using the OnEnter to let focus handle it)
+        if MouseIsOver(self.Loadouts[i]) and rematch.petCard.petID~=petID and not rematch.cardManager:IsCardLocked(rematch.petCard) then
+            local focus = GetMouseFoci()[1]
+            if focus.petID then
+                focus:GetScript("OnEnter")(focus)
+            end
+        end
     end
     self.AbilityFlyout:Hide()
     self:UpdateGlow()
+
 end
 
 function rematch.miniLoadoutPanel:UpdateGlow()
@@ -155,7 +165,7 @@ function rematch.miniLoadoutPanel:LoadoutOnMouseDown()
 end
 
 function rematch.miniLoadoutPanel:LoadoutOnMouseUp()
-    if GetMouseFocus()==self and rematch.utils:IsJournalUnlocked() then
+    if self:IsMouseMotionFocus() and rematch.utils:IsJournalUnlocked() then
         rematch.textureHighlight:Show(self.Back,self.Icon)
     end
 end

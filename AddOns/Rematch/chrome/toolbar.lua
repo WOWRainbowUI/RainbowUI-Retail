@@ -84,7 +84,7 @@ function rematch.toolbar:Update(fromEvent)
         if button and button.Update then
             button:Update(fromEvent)
         end
-        if GetMouseFocus()==button then
+        if button:IsMouseMotionFocus() then
             button:GetScript("OnEnter")(button)
         end
     end
@@ -149,7 +149,7 @@ end
 
 -- safari hat is a toy and needs to be applied by name; forcing a cache on login to get the name
 function rematch.toolbar:CacheSafariHat()
-    if not GetItemInfo(C.SAFARI_HAT_ITEM_ID) then
+    if not C_Item.GetItemInfo(C.SAFARI_HAT_ITEM_ID) then
         rematch.timer:Start(0.1,rematch.toolbar.CacheSafariHat)
     end
 end
@@ -157,17 +157,13 @@ end
 --[[ events ]]
 
 function rematch.toolbar:SPELL_UPDATE_COOLDOWN()
-    self.HealButton.Cooldown:SetCooldown(GetSpellCooldown(C.REVIVE_SPELL_ID))
-    CooldownFrame_Set(self.SafariHatButton.Cooldown,GetItemCooldown(C.SAFARI_HAT_ITEM_ID))
-    CooldownFrame_Set(self.BandageButton.Cooldown,GetItemCooldown(C.BANDAGE_ITEM_ID))
-    --self.SafariHatButton.Cooldown:SetCooldown(GetItemCooldown(C.SAFARI_HAT_ITEM_ID))
-    --self.BandageButton.Cooldown:SetCooldown(GetItemCooldown(C.BANDAGE_ITEM_ID))
-    self.SummonPetButton.Cooldown:SetCooldown(GetSpellCooldown(C.GCD_SPELL_ID))
+    self:SetCooldown(self.HealButton.Cooldown,"spell",C.REVIVE_SPELL_ID)
+    self:SetCooldown(self.SummonPetButton.Cooldown,"spell",C.GCD_SPELL_ID)
+    self:SetCooldown(self.SafariHatButton.Cooldown,"item",C.SAFARI_HAT_ITEM_ID)
+    self:SetCooldown(self.BandageButton.Cooldown,C.BANDAGE_ITEM_ID)
     if self.LevelingStoneButton:IsVisible() then
-        CooldownFrame_Set(self.LevelingStoneButton.Cooldown,GetItemCooldown(self.LevelingStoneButton:GetAttribute("item")))
-        CooldownFrame_Set(self.RarityStoneButton.Cooldown,GetItemCooldown(self.RarityStoneButton:GetAttribute("item")))
-        --self.LevelingStoneButton.Cooldown:SetCooldown(GetItemCooldown(self.LevelingStoneButton:GetAttribute("item")))
-        --self.RarityStoneButton.Cooldown:SetCooldown(GetItemCooldown(self.RarityStoneButton:GetAttribute("item")))
+        self:SetCooldown(self.LevelingStoneButton.Cooldown,"item",self.LevelingStoneButton:GetAttribute("item"))
+        self:SetCooldown(self.RarityStoneButton.Cooldown,"item",self.RarityStoneButton:GetAttribute("item"))
     end
 end
 
@@ -227,7 +223,7 @@ function rematch.toolbar:PickBestStone(stoneList,defaultStone)
     local numTypes = C_PetJournal.GetNumPetTypes() -- going to be 10 until they add a pet type
     if petInfo.isValid then -- this pet is summoned, look for a battle-training stone for the summoned type
         local itemID = stoneList[petInfo.petType]
-        if itemID and GetItemCount(itemID)>0 then
+        if itemID and C_Item.GetItemCount(itemID)>0 then
             return itemID
         end
     end
@@ -235,12 +231,25 @@ function rematch.toolbar:PickBestStone(stoneList,defaultStone)
     -- look for one of the generic ones
     for i=numTypes+1,#stoneList do
         local itemID = stoneList[i]
-        if GetItemCount(itemID)>0 then
+        if C_Item.GetItemCount(itemID)>0 then
             return itemID
         end
     end
     -- none of the generic stones are in inventory either, return the "none found" default stone itemID given as an argument
     return defaultStone
+end
+
+-- wrapper for ever-changing cooldown methods (id is spellID for "spell", itemID for "item")
+function rematch.toolbar:SetCooldown(cooldown,cooldownType,id)
+    if cooldownType=="spell" then
+        local info = C_Spell.GetSpellCooldown(id)
+        if info then
+            cooldown:SetCooldown(info.startTime,info.duration,info.modRate)
+        end
+    elseif cooldownType=="item" then
+        local startTime,duration = C_Item.GetItemCooldown(id)
+        cooldown:SetCooldown(startTime,duration)
+    end
 end
 
 --[[ achievment total ]]
@@ -261,7 +270,7 @@ function rematch.toolbar.AchievementTotal:OnClick()
         end
         -- go to that category if it exists
         if categoryIndex then
-            local elementData = AchievementFrameCategories.ScrollBox:ScrollToElementDataIndex(categoryIndex, ScrollBoxConstants.AlignCenter, ScrollBoxConstants.NoScrollInterpolation);
+            local elementData = AchievementFrameCategories.ScrollBox:ScrollToElementDataIndex(categoryIndex, ScrollBoxConstants.AlignCenter);
             if elementData then
                 AchievementFrameCategories_SelectElementData(elementData)
             end
@@ -289,7 +298,7 @@ function rematch.toolbar.TotalsButton:OnMouseDown()
 end
 
 function rematch.toolbar.TotalsButton:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         self.Highlight:Show()
     end
     self.Back:SetTexCoord(0,0.421875,0,0.109375)

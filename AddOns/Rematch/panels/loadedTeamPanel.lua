@@ -110,7 +110,7 @@ function rematch.loadedTeamPanel.TeamButton:OnMouseDown()
 end
 
 function rematch.loadedTeamPanel.TeamButton:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Back)
     end
 end

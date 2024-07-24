@@ -63,33 +63,23 @@ rematch.constants = {
     FANFARE_ICON = "Interface\\Icons\\Item_Shop_GiftBox01",
     UNNOTABLE_ICON = "Interface\\AddOns\\Rematch\\Textures\\unnotable",
     NEW_TAB_ICON = "Interface\\GuildBankFrame\\UI-GuildBankFrame-NewTab",
+    SUMMON_RANDOM_ICON = 652131,
     -- colors
     HP_BAR_COLOR = {r=0.1, g=0.9, b=0.1},
     XP_BAR_COLOR = {r=0.18, g=0.54, b=0.9},
     -- texCoords into Interface\GLUES\AccountUpgrade\AccountUpgradeBanners for each expansionID
     EXPANSION_BG_TEXCOORDS = {
-        [0] = {0,0.1953125,0.5546875,0.9453125}, -- classic
-        [1] = {0.1953125,0.390625,0.5546875,0.9453125}, -- burning crusade
-        [2] = {0.1982421875,0.3935546875,0,0.390625}, -- wrath of the lich king
-        [3] = {0,0.1953125,0,0.390625}, -- cataclysm
-        [4] = {0.59375,0.7890625,0.53125,0.921875}, -- mists of pandaria
-        [5] = {0.791015625,0.986328125,0.53125,0.921875}, -- warlords of draenor
-        [6] = {0.3955078125,0.5908203125,0.53125,0.921875}, -- legion
-        [7] = {0.3955078125,0.5908203125,0,0.390625}, -- battle for azeroth
-        [8] = {0.5927734375,0.7880859375,0,0.390625}, -- shadowlands
-        [9] = {0.791015625,0.986328125,0,0.390625}, -- dragonflight
-    },
-    EXPANSION_HEADER_TEXCOORDS = {
-        [0] = {0,0.1953125,0.62109375,0.82421875}, -- classic
-        [1] = {0.197265625,0.392578125,0.5859375,0.7890625}, -- burning crusade
-        [2] = {0.1982421875,0.3935546875,0.03515625,0.23828125}, -- wrath of the lich king
-        [3] = {0.0009765625,0.1962890625,0.0625,0.265625}, -- cataclysm
-        [4] = {0.5927734375,0.7880859375,0.5859375,0.7890625}, -- mists of pandaria
-        [5] = {0.7900390625,0.9853515625,0.59765625,0.80078125}, -- warlords of draenor
-        [6] = {0.3955078125,0.5908203125,0.5546875,0.7578125}, -- legion
-        [7] = {0.3955078125,0.5908203125,0.05078125,0.25390625}, -- battle for azeroth
-        [8] = {0.5927734375,0.7880859375,0.015625,0.21875}, -- shadowlands
-        [9] = {0.7900390625,0.9853515625,0.0078125,0.2109375}, -- dragonflight
+        [0]={0.198242, 0.393555, 0.798828, 0.994141}, -- classic
+        [1]={0.395508, 0.588867, 0.234375, 0.427734}, -- burning crusade
+        [2]={0.000976562, 0.196289, 0.279297, 0.552734}, -- wrath of the lich king
+        [3]={0.000976562, 0.196289, 0.00195312, 0.275391}, -- catclysm
+        [4]={0.592773, 0.788086, 0.00195312, 0.230469}, -- mists of pandaria
+        [5]={0.790039, 0.985352, 0.00195312, 0.230469}, -- warlords of draenor
+        [6]={0.395508, 0.59082, 0.00195312, 0.230469}, -- legion
+        [7]={0.000976562, 0.196289, 0.556641, 0.818359}, -- battle for azeroth
+        [8]={0.198242, 0.393555, 0.267578, 0.529297}, -- shadowlands
+        [9]={0.198242, 0.393555, 0.00195312, 0.263672}, -- dragonflight
+        [10]={0.198242, 0.393555, 0.533203, 0.794922}, -- the war within
     },
     EXPANSION_COLORS = {
         [0] = "D6AB7D", -- classic
@@ -102,6 +92,7 @@ rematch.constants = {
         [7] = "FFF468", -- battle for azeroth
         [8] = "9798FE", -- shadowlands
         [9] = "53B39F", -- dragonflight
+        [10] = "309BD6", -- the war within
     },
     -- color picker adds these to EXPANSION_COLORS to build color swatches
     COLOR_PICKER_COLORS = {
@@ -172,7 +163,8 @@ rematch.constants = {
     COORDS_4X4 = {
     	{0,0.25,0,0.25},{0.25,0.5,0,0.25},{0.5,0.75,0,0.25},{0.75,1.0,0,0.25},
     	{0,0.25,0.25,0.5},{0.25,0.5,0.25,0.5},{0.5,0.75,0.25,0.5},{0.75,1.0,0.25,0.5},
-    	{0,0.25,0.5,0.75},{0.25,0.5,0.5,0.75},{0.5,0.75,0.5,0.75},
+    	{0,0.25,0.5,0.75},{0.25,0.5,0.5,0.75},{0.5,0.75,0.5,0.75},{0.75,1.0,0.5,0.75},
+        {0,0.25,0.75,1.0},{0.25,0.5,0.75,1.0},{0.5,0.75,0.75,1.0},{0.75,1.0,0.75,1.0}
     },
     -- texcoords into greybuttons for various sized buttons
     GREY_BUTTON_COORDS = {
@@ -206,7 +198,7 @@ rematch.constants = {
     SUMMON_SHORT_ERRORS = {
         [Enum.PetJournalError.JournalIsLocked] = L["Journal Is Locked"],
         [Enum.PetJournalError.InvalidFaction] = L["Wrong Faction"],
-        [Enum.PetJournalError.InvalidCovenant] = L["Wrong Covenant"]
+        [Enum.PetJournalError.PetIsDead] = L["Pet Is Dead"]
     },
     -- enum for colors to tints for rematch.utils:TintTexture()
     TINT_NONE = 1,
@@ -405,7 +397,7 @@ rematch.constants = {
     BACKUP_INTERVAL = 50, -- number of teams before asking if user wants to backup their teams
     -- sounds
     SOUND_DRAG_START = 688,
-    SOUND_DRAG_STOP = 689, 
+    SOUND_DRAG_STOP = 689,
     SOUND_REMATCH_OPEN = SOUNDKIT.IG_CHARACTER_INFO_OPEN,
     SOUND_REMATCH_CLOSE = SOUNDKIT.IG_CHARACTER_INFO_CLOSE,
     SOUND_PET_CARD = SOUNDKIT.IG_QUEST_LIST_SELECT,

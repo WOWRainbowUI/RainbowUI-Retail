@@ -367,7 +367,7 @@ function RematchSmallGreyButtonMixin:OnMouseUp()
         self.Icon:SetPoint("CENTER")
         self.Back:SetTexCoord(0.375,0.46875,0.25,0.34375)
         self.Icon:SetVertexColor(1,1,1)
-        if GetMouseFocus()==self then
+        if self:IsMouseMotionFocus() then
             -- delay because if click is changing the icon we want highlight to change too
             rematch.timer:Start(0,delayedSmallGreyButtonHighlight,self)
         end
@@ -460,7 +460,7 @@ function RematchTextureMouseMixin:OnMouseDown()
 end
 
 function RematchTextureMouseMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self)
         if self.OnClick then
             self.OnClick(self,GetMouseButtonClicked())
@@ -489,7 +489,7 @@ function RematchColorSwatchMixin:OnMouseDown()
 end
 
 function RematchColorSwatchMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Border)
     end
 end
@@ -547,7 +547,7 @@ function RematchNotesButtonMixin:OnMouseDown()
 end
 
 function RematchNotesButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         local parent = self:GetParent()
         rematch.textureHighlight:Show(self,parent.Back)
         rematch.cardManager:OnClick(rematch.notes,self,parent.petID or parent.teamID)
@@ -667,7 +667,7 @@ function RematchPetTextureMixin:OnMouseDown()
 end
 
 function RematchPetTextureMixin:OnMouseUp(button)
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self)
         if button~="RightButton" then -- textures don't have an OnClick
             local petInfo = rematch.petInfo:Fetch(self.petID)

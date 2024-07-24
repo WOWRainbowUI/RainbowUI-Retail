@@ -570,7 +570,7 @@ function rematch.petCard.Content.Front.Stats:UpdateModel()
             local actor = self.PetModel:GetActorByTag("unwrapped")
             if actor then
                 actor:SetModelByCreatureDisplayID(petInfo.displayID)
-                actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_NONE)
+                --actor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_NONE)
                 actor:SetAnimation(0,-1)
             end
             self.AltModel:Hide()

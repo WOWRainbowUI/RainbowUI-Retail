@@ -56,10 +56,11 @@ local expansionRanges = {
     [5] = {1384,1693}, -- Warlords of Draenor
     [6] = {1699,2163}, -- Legion
     [7] = {2165,2872}, -- Battle for Azeroth
-    [8] = {2878,3255}, -- Shadowlands 
-    [9] = {3256,9999} -- Dragonflight (next expansion, get max speciesID for Dragonflight and change 9999 to that)
+    [8] = {2878,3255}, -- Shadowlands
+    [9] = {3256,4421}, -- Dragonflight
+    [10] = {4422,9999}, -- The War Within (next expansion, get max speciesID for TWW and change 9999 to that)
 }
- 
+
  -- the majority of pets fall into a range for each expansion above, except for some outliers. these are the
  -- species ID and the expansionID they belong to
  local expansionOutliers = {
@@ -85,6 +86,14 @@ local expansionRanges = {
     [2143] = 7, -- Tottle
     [2157] = 7, -- Dart
     [2798] = 8, -- Plagueborn Slime
+    [4436] = 9, -- Pokee
+    [4437] = 9, -- Fathom
+    [4548] = 9, -- Marrlok
+    [4579] = 9, -- Muskpaw Calf
+    [4580] = 9, -- Astral Emperor's Serpentling
+    [3525] = 10, -- Abyssal Lurker
+    [3547] = 10, -- Mikah
+    [3550] = 10, -- Undermoth
 }
 
 -- small recursive function to get an expansion index without doing a linear check of all ranges; initial call

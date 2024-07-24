@@ -24,7 +24,7 @@ end
 
 function RematchCommonPetListButtonMixin:OnLeave()
     rematch.textureHighlight:Hide()
-    if GetMouseFocus()~=self.Icon then -- don't dismiss card if moving onto pet button
+    if GetMouseFoci()[1]~=self.Icon then -- don't dismiss card if moving onto pet button
         rematch.cardManager:OnLeave(rematch.petCard,self,self.petID)
     end
     SetCursor(nil)
@@ -37,7 +37,7 @@ function RematchCommonPetListButtonMixin:OnMouseDown()
 end
 
 function RematchCommonPetListButtonMixin:OnMouseUp(button)
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Back)
     end
 end
@@ -243,7 +243,7 @@ end
 
 function RematchPetPickupIconMixin:OnLeave()
     rematch.textureHighlight:Hide()
-    if GetMouseFocus()~=self:GetParent() then -- don't dismiss card if moving onto pet button
+    if GetMouseFoci()[1]~=self:GetParent() then -- don't dismiss card if moving onto pet button
         rematch.cardManager:OnLeave(rematch.petCard,self:GetParent(),self.petID)
     end
     -- if mouse went down while in this texture and never went up before it left, pet is being dragged
@@ -257,7 +257,7 @@ function RematchPetPickupIconMixin:OnMouseDown(button)
 end
 
 function RematchPetPickupIconMixin:OnMouseUp(button)
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self,self:GetParent().Back)
         local parent = self:GetParent()
         local petID = parent.petID

@@ -161,12 +161,17 @@ function RematchFillAbilityFlyoutMixin:FillAbilityFlyout(petSlot,abilitySlot)
         self.Border:SetTexCoord(0.25,0.44921875,0.28125,0.3828125)
     end
     local petInfo = rematch.petInfo:Fetch(petID)
-    local flyoutAbility1 = petInfo.abilityList[abilitySlot]
-    local flyoutAbility2 = petInfo.abilityList[abilitySlot+3]
-    fillAbilitySlot(self.Abilities[1],petID,flyoutAbility1,nil,showNumbers)
-    fillAbilitySlot(self.Abilities[2],petID,flyoutAbility2,nil,showNumbers)
-    local abilityMatch = abilitySlot==1 and ability1 or abilitySlot==2 and ability2 or ability3
-    self.AbilitySelecteds[1]:SetShown(flyoutAbility1==abilityMatch)
-    self.AbilitySelecteds[2]:SetShown(flyoutAbility2==abilityMatch)
+    if petInfo.isValid then
+        local flyoutAbility1 = petInfo.abilityList[abilitySlot]
+        local flyoutAbility2 = petInfo.abilityList[abilitySlot+3]
+        fillAbilitySlot(self.Abilities[1],petID,flyoutAbility1,nil,showNumbers)
+        fillAbilitySlot(self.Abilities[2],petID,flyoutAbility2,nil,showNumbers)
+        local abilityMatch = abilitySlot==1 and ability1 or abilitySlot==2 and ability2 or ability3
+        self.AbilitySelecteds[1]:SetShown(flyoutAbility1==abilityMatch)
+        self.AbilitySelecteds[2]:SetShown(flyoutAbility2==abilityMatch)
+    else
+        fillAbilitySlot(self.Abilities[1])
+        fillAbilitySlot(self.Abilities[2])
+    end
 end
 

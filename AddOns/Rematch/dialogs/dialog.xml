@@ -113,7 +113,7 @@
             <OnMouseDown method="OnMouseDown"/>
             <OnMouseUp method="OnMouseUp"/>
             <OnClick method="OnClick"/>
-        </Scripts>        
+        </Scripts>
     </Button>
 
     <Frame name="RematchDialogBarChartBarTemplate" virtual="true">
@@ -190,7 +190,7 @@
                     <Anchors>
                         <Anchor point="CENTER" relativeKey="$parent.LevelBubble" x="0" y="-0.5"/>
                     </Anchors>
-                </FontString>                
+                </FontString>
             </Layer>
         </Layers>
         <Scripts>
@@ -798,7 +798,7 @@
 
                     <!-- ColorPicker presents a set of 7 colors to choose from -->
                     <Frame parentKey="ColorPicker" mixin="RematchDialogColorPickerMixin">
-                        <Size x="19/" y="32"/>
+                        <Size x="190" y="32"/>
                         <KeyValues>
                             <KeyValue key="color" value="E6E6E6"/>
                         </KeyValues>

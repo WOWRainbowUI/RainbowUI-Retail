@@ -30,7 +30,8 @@ local chartData = {
         { maxValue=100, value=0, total=0, r=0.48046875, g=0.66015625, b=0.67578125, icon="Interface\\Icons\\INV_Pet_BabyMurlocs_Blue" },
         { maxValue=100, value=0, total=0, r=0.56640625, g=0.05859375, b=0.171875, icon="Interface\\Icons\\ACHIEVEMENT_GUILDPERK_LADYLUCK" },
         { maxValue=100, value=0, total=0, r=0.19140625, g=0.65625, b=0.66796875, icon="Interface\\Icons\\WoW_Token01" },
-        { maxValue=100, value=0, total=0, r=0.9375, g=0.828125, b=0.4375, icon="Interface\\Icons\\INV_Misc_Spyglass_03" }
+        { maxValue=100, value=0, total=0, r=0.9375, g=0.828125, b=0.4375, icon="Interface\\Icons\\INV_Misc_Spyglass_03" },
+        { maxValue=100, value=0, total=0, r=0.9375, g=0.828125, b=0.4375, icon="Interface\\ICONS\\TradingPostCurrency" }
     }
 }
 
@@ -58,7 +59,7 @@ rematch.events:Register(rematch.summaryDialog,"PLAYER_LOGIN",function(self)
             Default={"LayoutTabs","PetSummary"},
             Types={"LayoutTabs","BarChartDropDown","Spacer","BarChart"},
             Sources={"LayoutTabs","BarChartDropDown","Spacer","BarChart"},
-            Battles={"LayoutTabs","BattleSummary","TopTeams","CheckButton"}            
+            Battles={"LayoutTabs","BattleSummary","TopTeams","CheckButton"}
         },
         refreshFunc = function(self,info,subject,firstRun)
             if firstRun then
@@ -85,7 +86,7 @@ rematch.events:Register(rematch.summaryDialog,"PLAYER_LOGIN",function(self)
         changeFunc = function(self,info,subject)
             settings.RankWinsByPercent = self.CheckButton:GetChecked()
             rematch.dialog:Refresh()
-        end        
+        end
     })
 
     rematch.dialog:Register("PetSummary",{
@@ -161,7 +162,7 @@ function rematch.summaryDialog:FirstUseSetup()
 
         rematch.dialog.Canvas.BattleSummary.WinLabel:SetText(L["Won"])
         rematch.dialog.Canvas.BattleSummary.LossLabel:SetText(L["Lost"])
-        rematch.dialog.Canvas.BattleSummary.DrawLabel:SetText(L["Draw"])        
+        rematch.dialog.Canvas.BattleSummary.DrawLabel:SetText(L["Draw"])
     end
 end
 
