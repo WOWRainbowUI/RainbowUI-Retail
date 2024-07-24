@@ -1016,7 +1016,7 @@ importOptions.args.GatherMateData = {
 	handler = ImportHelper,
 	disabled = function()
 		local name, title, notes, loadable, reason, security, newVersion = C_AddOns.GetAddOnInfo("GatherMate2_Data")
-		local enabled = C_AddOns.GetAddOnEnableState(UnitName("player"), "GatherMate2_Data") > 0
+		local enabled = C_AddOns.GetAddOnEnableState("GatherMate2_Data", UnitName("player")) > 0
 		-- disable if the addon is not enabled, or
 		-- disable if there is a reason why it can't be loaded ("MISSING" or "DISABLED")
 		return not enabled or (reason ~= nil and reason ~= "" and reason ~= "DEMAND_LOADED")
@@ -1088,7 +1088,7 @@ importOptions.args.GatherMateData = {
 			desc = L["Load GatherMate2Data and import the data to your database."],
 			type = "execute",
 			func = function()
-				local loaded, reason = LoadAddOn("GatherMate2_Data")
+				local loaded, reason = C_AddOns.LoadAddOn("GatherMate2_Data")
 				local GatherMateData = LibStub("AceAddon-3.0"):GetAddon("GatherMate2_Data")
 				if loaded and GatherMateData.generatedVersion then
 					local dataVersion = tonumber(GatherMateData.generatedVersion:match("%d+"))
@@ -1184,7 +1184,11 @@ function Config:OnInitialize()
 	acd:AddToBlizOptions("GM2/FAQ", "FAQ", L["GatherMate 2"])
 
 	local function openOptions()
-		Settings.OpenToCategory(L["GatherMate 2"])
+		if Settings and Settings.OpenToCategory then
+			Settings.OpenToCategory(L["GatherMate 2"])
+		else
+			InterfaceOptionsFrame_OpenToCategory(L["GatherMate 2"])
+		end
 	end
 
 	SLASH_GatherMate21 = "/gathermate"
