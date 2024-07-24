@@ -1,3 +1,5 @@
+local GetSpellName = C_Spell.GetSpellName;
+
 --
 function VUHDO_makeFullColor(...)
 	return {
@@ -25,25 +27,25 @@ VUHDO_DEFAULT_BOUQUETS = {
 	["STORED"] = {
 		[VUHDO_I18N_DEF_BOUQUET_TANK_COOLDOWNS] = {
 			{
-				["name"] = GetSpellInfo(12975), -- "Last Stand",
+				["name"] = GetSpellName(12975), -- "Last Stand",
 				["mine"] = true, ["others"] = true,	["icon"] = 1,
 				["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
 				["custom"] = { [1] = 1, ["radio"] = 1,	["bright"] = 1.0 },
 			},
 			{
-				["name"] = GetSpellInfo(871), -- "Shield Wall",
+				["name"] = GetSpellName(871), -- "Shield Wall",
 				["mine"] = true, ["others"] = true,	["icon"] = 1,
 				["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
 				["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 1.0	},
 			},
 			{
-				["name"] = GetSpellInfo(61336), -- "Survival Instincts",
+				["name"] = GetSpellName(61336), -- "Survival Instincts",
 				["mine"] = true, ["others"] = true, ["icon"] = 1,
 				["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
 				["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 1.0	},
 			},
 			{
-				["name"] = GetSpellInfo(22842), -- "Frenzied Regeneration",
+				["name"] = GetSpellName(22842), -- "Frenzied Regeneration",
 				["mine"] = true, ["others"] = true, ["icon"] = 1,
 				["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
 				["custom"] = { [1] = 1, ["radio"] = 1,	["bright"] = 1.0 },
@@ -53,13 +55,13 @@ VUHDO_DEFAULT_BOUQUETS = {
 
 		[VUHDO_I18N_DEF_BOUQUET_PW_S_WEAKENED_SOUL] = {
 			{
-				["name"] = GetSpellInfo(17), -- "Powerword: Shield",
+				["name"] = GetSpellName(17), -- "Powerword: Shield",
 				["mine"] = true, ["icon"] = 8,
 				["color"] = VUHDO_makeFullColorForBouquet(0.074, 0.749, 1, 1,   1, 1, 1, 1),
 				["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 1.0 },
 			},
 			{
-				["name"] = GetSpellInfo(6788), -- "Weakened Soul",
+				["name"] = GetSpellName(6788), -- "Weakened Soul",
 				["mine"] = true, ["others"] = true,	["icon"] = 9,
 				["color"] = VUHDO_makeFullColorForBouquet(1, 0.623, 0.305, 1,   1, 1, 1, 1),
 				["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 1.0	},
@@ -882,19 +884,19 @@ VUHDO_DEFAULT_BAR_MANA_TANK_ONLY = {
 VUHDO_DEFAULT_MONK_STAGGER_BOUQUET = {
 	[VUHDO_I18N_DEF_BOUQUET_MONK_STAGGER] = {
 		{
-			["name"] = GetSpellInfo(124273), -- "Heavy Stagger",
+			["name"] = GetSpellName(124273), -- "Heavy Stagger",
 			["mine"] = true, ["others"] = true, ["icon"] = 1,
 			["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
 			["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 1.0 },
 		},
 		{
-			["name"] = GetSpellInfo(124274), -- "Moderate Stagger",
+			["name"] = GetSpellName(124274), -- "Moderate Stagger",
 			["mine"] = true, ["others"] = true,	["icon"] = 1,
 			["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
 			["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 1.0	},
 		},
 		{
-			["name"] = GetSpellInfo(124275), -- "Light Stagger",
+			["name"] = GetSpellName(124275), -- "Light Stagger",
 			["mine"] = true, ["others"] = true,	["icon"] = 1,
 			["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
 			["custom"] = { [1] = 1, ["radio"] = 1, ["bright"] = 1.0	},
@@ -1344,7 +1346,7 @@ local function VUHDO_AddSpellBouquetItem(aBouquetName, ...)
 	for tCnt = 1, select("#", ...) do
 		tId = select(tCnt, ...);
 		tNewItem = VUHDO_deepCopyTable(VUHDO_SANE_BOUQUET_ITEM);
-		tName = GetSpellInfo(tId);
+		tName = GetSpellName(tId);
 		tNewItem["name"] = tName;
 		tNewItem["icon"] = 1;
 		tNewItem["color"]["isManuallySet"] = true;

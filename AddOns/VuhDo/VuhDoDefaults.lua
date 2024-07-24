@@ -1,3 +1,4 @@
+local GetSpellName = C_Spell.GetSpellName;
 local pairs = pairs;
 local _;
 
@@ -941,7 +942,7 @@ function VUHDO_loadDefaultConfig()
 			if VUHDO_strempty(VUHDO_CONFIG["RANGE_SPELL"][tUnitReaction]) then
 				for _, tRangeSpell in pairs(tRangeSpells) do
 					if type(tRangeSpell) == "number" then
-						tRangeSpell = IsPlayerSpell(tRangeSpell) and GetSpellInfo(tRangeSpell) or "!";
+						tRangeSpell = IsPlayerSpell(tRangeSpell) and GetSpellName(tRangeSpell) or "!";
 					end
 
 					if tRangeSpell ~= "!" then

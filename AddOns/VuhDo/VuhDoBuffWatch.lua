@@ -67,12 +67,12 @@ local GetTotemInfo = GetTotemInfo;
 local table = table;
 local strsub = strsub;
 local GetTime = GetTime;
-local GetSpellCooldown = GetSpellCooldown;
-local GetSpellInfo = GetSpellInfo;
+local GetSpellCooldown = GetSpellCooldown or VUHDO_getSpellCooldown;
+local GetSpellInfo = GetSpellInfo or VUHDO_getSpellInfo;
 local InCombatLockdown = InCombatLockdown;
 local GetWeaponEnchantInfo = GetWeaponEnchantInfo;
 local UnitOnTaxi = UnitOnTaxi;
-local IsSpellInRange = IsSpellInRange;
+local IsSpellInRange = IsSpellInRange or VUHDO_isSpellInRange;
 local GetShapeshiftFormInfo = GetShapeshiftFormInfo;
 
 local tonumber = tonumber;
@@ -395,19 +395,22 @@ function VUHDO_initBuffsFromSpellBook()
 
 			if VUHDO_isSpellKnown(tParentSpellName) then
 				tChildSpellName, _, tIcon, _, _, _, tSpellId = GetSpellInfo(tParentSpellName);
-				VUHDO_BUFFS[tChildSpellName] = {
-					["icon"] = tIcon,
-					["id"] = tSpellId
-				};
 
-				if tChildSpellName ~= tParentSpellName then
-					VUHDO_BUFFS[tParentSpellName] = {
+				if tChildSpellName then
+					VUHDO_BUFFS[tChildSpellName] = {
 						["icon"] = tIcon,
 						["id"] = tSpellId
 					};
-				end
 
-				VUHDO_CLASS_BUFFS_BY_TARGET_TYPE[tCategSpells[2]][tParentSpellName] = true;
+					if tChildSpellName ~= tParentSpellName then
+						VUHDO_BUFFS[tParentSpellName] = {
+							["icon"] = tIcon,
+							["id"] = tSpellId
+						};
+					end
+
+					VUHDO_CLASS_BUFFS_BY_TARGET_TYPE[tCategSpells[2]][tParentSpellName] = true;
+				end
 			end
 		end
 	end
@@ -903,7 +906,8 @@ function VUHDO_updateBuffPanel()
 
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
 		if tOldMissBuffs[tUnit] ~= tInfo["missbuff"] then
-			tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineDebuff(tUnit);
+			tInfo["debuff"], tInfo["debuffName"] = VUHDO_getDeterminedDebuffInfo(tUnit, true);
+
 			VUHDO_updateHealthBarsFor(tUnit, VUHDO_UPDATE_DEBUFF);
 		end
 	end

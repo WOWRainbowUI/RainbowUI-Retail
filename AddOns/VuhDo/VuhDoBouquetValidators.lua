@@ -14,6 +14,7 @@ VUHDO_FORCE_RESET = false;
 local floor = floor;
 local select = select;
 local twipe = table.wipe;
+local GetTexCoordsForRole = GetTexCoordsForRole or VUHDO_getTexCoordsForRole;
 local _;
 
 local VUHDO_RAID = { };
@@ -291,7 +292,7 @@ local tDebuffInfo;
 local function VUHDO_debuffMagicValidator(anInfo, _)
 	tDebuffInfo = VUHDO_getUnitDebuffSchoolInfos(anInfo["unit"], VUHDO_DEBUFF_TYPE_MAGIC);
 	if tDebuffInfo[2] then
-		return true, tDebuffInfo[1], tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[4];
+		return true, tDebuffInfo[1], floor(tDebuffInfo[2] - GetTime()), tDebuffInfo[3], tDebuffInfo[4];
 	else
 		return false, nil, -1, -1, -1;
 	end
@@ -304,7 +305,7 @@ local tDebuffInfo;
 local function VUHDO_debuffDiseaseValidator(anInfo, _)
 	tDebuffInfo = VUHDO_getUnitDebuffSchoolInfos(anInfo["unit"], VUHDO_DEBUFF_TYPE_DISEASE);
 	if tDebuffInfo[2] then
-		return true, tDebuffInfo[1], tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[4];
+		return true, tDebuffInfo[1], floor(tDebuffInfo[2] - GetTime()), tDebuffInfo[3], tDebuffInfo[4];
 	else
 		return false, nil, -1, -1, -1;
 	end
@@ -317,7 +318,7 @@ local tDebuffInfo;
 local function VUHDO_debuffPoisonValidator(anInfo, _)
 	tDebuffInfo = VUHDO_getUnitDebuffSchoolInfos(anInfo["unit"], VUHDO_DEBUFF_TYPE_POISON);
 	if tDebuffInfo[2] then
-		return true, tDebuffInfo[1], tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[4];
+		return true, tDebuffInfo[1], floor(tDebuffInfo[2] - GetTime()), tDebuffInfo[3], tDebuffInfo[4];
 	else
 		return false, nil, -1, -1, -1;
 	end
@@ -330,7 +331,7 @@ local tDebuffInfo;
 local function VUHDO_debuffCurseValidator(anInfo, _)
 	tDebuffInfo = VUHDO_getUnitDebuffSchoolInfos(anInfo["unit"], VUHDO_DEBUFF_TYPE_CURSE);
 	if tDebuffInfo[2] then
-		return true, tDebuffInfo[1], tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[4];
+		return true, tDebuffInfo[1], floor(tDebuffInfo[2] - GetTime()), tDebuffInfo[3], tDebuffInfo[4];
 	else
 		return false, nil, -1, -1, -1;
 	end
@@ -344,7 +345,7 @@ local function VUHDO_debuffBarColorValidator(anInfo, _)
 		return true, nil, -1, -1, -1, VUHDO_getDebuffColor(anInfo);
 	elseif anInfo["debuff"] and anInfo["debuff"] > 0 then -- VUHDO_DEBUFF_TYPE_NONE
 		tDebuffInfo = VUHDO_getChosenDebuffInfo(anInfo["unit"]);
-		return true, tDebuffInfo[1], -1, tDebuffInfo[2], -1, VUHDO_getDebuffColor(anInfo);
+		return true, tDebuffInfo[1], -1, tDebuffInfo[3], -1, VUHDO_getDebuffColor(anInfo);
 	else
 		return false, nil, -1, -1, -1;
 	end
@@ -1404,6 +1405,17 @@ end
 
 
 --
+local tActiveAuras;
+local function VUHDO_activeAurasCountValidator(anInfo, _)
+
+	tActiveAuras = VUHDO_getCurrentBouquetActiveAuras(anInfo["unit"]) or 0;
+	return tActiveAuras > 0, nil, -1, tActiveAuras, -1;
+
+end
+
+
+
+--
 local tShieldLeft, tHealthMax;
 local function VUHDO_statusShieldFromHealthValidator(anInfo, _)
 	tHealthMax = anInfo["healthmax"];
@@ -2081,6 +2093,13 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["displayName"] = VUHDO_I18N_DEF_COUNTER_SHIELD_ABSORB,
 		["validator"] = VUHDO_shieldCountValidator,
 		["interests"] = { VUHDO_UPDATE_SHIELD },
+	},
+
+	["ACTIVE_AURAS_COUNTER"] = {
+		["displayName"] = VUHDO_I18N_DEF_COUNTER_ACTIVE_AURAS,
+		["validator"] = VUHDO_activeAurasCountValidator,
+		["updateCyclic"] = true,
+		["interests"] = { },
 	},
 
 	["SHIELD_STATUS"] = {

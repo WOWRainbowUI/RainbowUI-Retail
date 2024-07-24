@@ -48,7 +48,8 @@ local VUHDO_HOT_CFGS = { "HOT1", "HOT2", "HOT3", "HOT4", "HOT5", "HOT6", "HOT7",
 
 local floor = floor;
 local table = table;
-local GetSpellCooldown = GetSpellCooldown;
+local GetSpellCooldown = GetSpellCooldown or VUHDO_getSpellCooldown;
+local GetSpellName = C_Spell.GetSpellName;
 local GetTime = GetTime;
 local strfind = strfind;
 local pairs = pairs;
@@ -447,7 +448,7 @@ local function VUHDO_updateHotIcons(aUnit, aHotName, aRest, aTimes, anIcon, aDur
 	tShieldName = aHotSpellName or aHotName;
 
 	if type(tonumber(tShieldName)) == "number" then
-		tShieldName = GetSpellInfo(tonumber(tShieldName));
+		tShieldName = GetSpellName(tonumber(tShieldName));
 	end
 
 	tShieldCharges = VUHDO_getShieldLeftCount(aUnit, tShieldName, aMode) or 0; -- if not our shield don't show remaining absorption
@@ -641,17 +642,7 @@ end
 
 
 --
-function VUHDO_updateHots(aUnit, anInfo)
-
-	if anInfo["isVehicle"] then
-		VUHDO_removeHots(aUnit);
-
-		aUnit = anInfo["petUnit"];
-
-		if not aUnit then
-			return;
-		end -- bei z.B. focus/target
-	end
+function VUHDO_initHotInfos(aUnit)
 
 	if not VUHDO_MY_HOTS[aUnit] then
 		VUHDO_MY_HOTS[aUnit] = { };
@@ -686,6 +677,25 @@ function VUHDO_updateHots(aUnit, anInfo)
 	else
 		sOthersHotsInfo[aUnit][1], sOthersHotsInfo[aUnit][2] = nil, 0;
 	end
+
+end
+
+
+
+--
+function VUHDO_updateHots(aUnit, anInfo)
+
+	if anInfo["isVehicle"] then
+		VUHDO_removeHots(aUnit);
+
+		aUnit = anInfo["petUnit"];
+
+		if not aUnit then
+			return;
+		end -- bei z.B. focus/target
+	end
+
+	VUHDO_initHotInfos(aUnit);
 
 	if VUHDO_shouldScanUnit(aUnit) then
 		tUnit = aUnit;

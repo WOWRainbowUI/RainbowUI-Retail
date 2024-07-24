@@ -61,14 +61,15 @@ local VUHDO_UIFrameFlash_OnUpdate = function() end;
 
 local GetTime = GetTime;
 local UnitInRange = UnitInRange;
-local IsSpellInRange = IsSpellInRange;
+local IsSpellInRange = IsSpellInRange or VUHDO_isSpellInRange;
 local UnitDetailedThreatSituation = UnitDetailedThreatSituation;
 local UnitIsCharmed = UnitIsCharmed;
 local UnitCanAttack = UnitCanAttack;
 local UnitName = UnitName;
 local UnitIsEnemy = UnitIsEnemy;
 local UnitIsTrivial = UnitIsTrivial;
-local GetSpellCooldown = GetSpellCooldown;
+local GetSpellCooldown = GetSpellCooldown or VUHDO_getSpellCooldown;
+local GetSpellName = C_Spell.GetSpellName;
 local HasFullControl = HasFullControl;
 local pairs = pairs;
 local UnitThreatSituation = UnitThreatSituation;
@@ -126,8 +127,8 @@ local function VUHDO_eventHandlerInitLocalOverrides()
 	-- FIXME: why can't model sanity be run prior to burst cache initialization?
 	if type(VUHDO_CONFIG["RANGE_SPELL"]) == "table" and type(VUHDO_CONFIG["RANGE_PESSIMISTIC"]) == "table" then
 		sRangeSpell = VUHDO_CONFIG["RANGE_SPELL"];
-		sIsHelpfulRangeKnown = not VUHDO_CONFIG["RANGE_PESSIMISTIC"]["HELPFUL"] and GetSpellInfo(sRangeSpell["HELPFUL"]) ~= nil;
-		sIsHarmfulRangeKnown = not VUHDO_CONFIG["RANGE_PESSIMISTIC"]["HARMFUL"] and GetSpellInfo(sRangeSpell["HARMFUL"]) ~= nil;
+		sIsHelpfulRangeKnown = not VUHDO_CONFIG["RANGE_PESSIMISTIC"]["HELPFUL"] and GetSpellName(sRangeSpell["HELPFUL"]) ~= nil;
+		sIsHarmfulRangeKnown = not VUHDO_CONFIG["RANGE_PESSIMISTIC"]["HARMFUL"] and GetSpellName(sRangeSpell["HARMFUL"]) ~= nil;
 	end
 
 	sIsHealerMode = not VUHDO_CONFIG["THREAT"]["IS_TANK_MODE"];
@@ -482,7 +483,7 @@ function VUHDO_OnEvent(_, anEvent, anArg1, anArg2, anArg3, anArg4, anArg5, anArg
 	elseif "UNIT_AURA" == anEvent then
 		tInfo = (VUHDO_RAID or tEmptyRaid)[anArg1];
 		if tInfo then
-			tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineDebuff(anArg1);
+			tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineDebuff(anArg1, anArg2);
 			VUHDO_updateBouquetsForEvent(anArg1, 4); -- VUHDO_UPDATE_DEBUFF
 		end
 
@@ -636,8 +637,8 @@ function VUHDO_OnEvent(_, anEvent, anArg1, anArg2, anArg3, anArg4, anArg5, anArg
 					VUHDO_setHealth("focus", 1); -- VUHDO_UPDATE_ALL
 				else
 					VUHDO_removeHots("focus");
-					VUHDO_resetDebuffsFor("focus");
 					VUHDO_removeAllDebuffIcons("focus");
+					VUHDO_resetDebuffsFor("focus");
 
 					if VUHDO_RAID["focus"] then
 						table.wipe(VUHDO_RAID["focus"]);
@@ -676,7 +677,7 @@ function VUHDO_OnEvent(_, anEvent, anArg1, anArg2, anArg3, anArg4, anArg5, anArg
 			VUHDO_updateBouquetsForEvent(anArg1, 30); -- VUHDO_UPDATE_ALT_POWER
 		end
 
-	elseif "LEARNED_SPELL_IN_TAB" == anEvent or "TRAIT_CONFIG_UPDATED" == anEvent then
+	elseif "LEARNED_SPELL_IN_TAB" == anEvent or "TRAIT_CONFIG_UPDATED" == anEvent or "SPELLS_CHANGED" == anEvent then
 		if VUHDO_VARIABLES_LOADED then
 			VUHDO_initFromSpellbook();
 			VUHDO_registerAllBouquets(false);
@@ -686,6 +687,11 @@ function VUHDO_OnEvent(_, anEvent, anArg1, anArg2, anArg3, anArg4, anArg5, anArg
 			if not InCombatLockdown() then
 				VUHDO_initKeyboardMacros();
 				VUHDO_timeReloadUI(1);
+			end
+
+			if "SPELLS_CHANGED" == anEvent then
+				-- workaround slow clients where partial spellbook is available on SPELLS_CHANGED
+				C_Timer.After(3, VUHDO_initBuffs);
 			end
 		end
 
@@ -1614,7 +1620,7 @@ end
 
 
 local VUHDO_ALL_EVENTS = {
-	"VARIABLES_LOADED", "PLAYER_ENTERING_WORLD",
+	"VARIABLES_LOADED", "PLAYER_ENTERING_WORLD", "SPELLS_CHANGED",
 	"UNIT_MAXHEALTH", "UNIT_HEALTH",  
 	"UNIT_AURA",
 	"UNIT_TARGET",

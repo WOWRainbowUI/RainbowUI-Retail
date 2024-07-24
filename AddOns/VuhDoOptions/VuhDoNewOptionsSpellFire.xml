@@ -1,6 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<Frame name="VuhDoNewOptionsSpellFireTemplate" virtual="true">
 		<Frames>
+
 			<Frame name="$parentTriggerWhatPanel" inherits="VuhDoPanelTemplate">
 				<Size>
 					<AbsDimension x="365" y="202" />

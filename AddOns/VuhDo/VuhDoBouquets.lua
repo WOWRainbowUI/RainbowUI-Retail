@@ -196,6 +196,16 @@ end
 
 
 --
+local txActiveAuras;
+function VUHDO_getCurrentBouquetActiveAuras()
+
+	return txActiveAuras;
+
+end
+
+
+
+--
 local tBouquet;
 local tInfos;
 local tName;
@@ -236,6 +246,7 @@ local function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 	txActive = false;
 	txIcon, tIsTxColorInit, txName = nil, false, nil;
 	txCounter, txTimer, txDuration, txTimer2, txLevel = 0, 0, 0, 0, 0;
+	txActiveAuras = 0;
 
 	tBouquet = VUHDO_BOUQUETS["STORED"][aBouquetName];
 	tAnzInfos = #tBouquet;
@@ -276,6 +287,8 @@ local function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 
 			tIsActive = tBuffInfo ~= nil;
 			if tIsActive then
+				txActiveAuras = txActiveAuras + 1;
+
 				tIcon, tTimer, tCounter, tDuration = tBuffInfo[3], tBuffInfo[tInfos["alive"] and 5 or 1], tBuffInfo[2], tBuffInfo[4];
 
 				if tTimer then

@@ -3,6 +3,7 @@ local _;
 local smatch = string.match;
 
 local InCombatLockdown = InCombatLockdown;
+local GetSpellName = C_Spell.GetSpellName;
 
 local VUHDO_initGcd;
 local VUHDO_strempty;
@@ -73,7 +74,7 @@ function VUHDO_spellcastSent(aUnit, aTargetName, aSpellId)
 	end
 
 	if aSpellId then
-		tSpellName = GetSpellInfo(aSpellId);
+		tSpellName = GetSpellName(aSpellId);
 	end
 
 	if not tSpellName then

@@ -1,4 +1,6 @@
 local _;
+local LoadAddOn = C_AddOns.LoadAddOn or LoadAddOn;
+local IsAddOnLoaded = C_AddOns.IsAddOnLoaded or IsAddOnLoaded;
 
 -- For initializing the minimap
 VUHDO_MM_SETTINGS = VUHDO_MM_SETTINGS or { };

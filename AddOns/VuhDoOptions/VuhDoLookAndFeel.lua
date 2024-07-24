@@ -8,6 +8,8 @@ local type = type;
 local tonumber = tonumber;
 local pairs = pairs;
 local ipairs = ipairs;
+local GetSpellName = C_Spell.GetSpellName;
+local GetMouseFocus = GetMouseFocus or VUHDO_getMouseFocus;
 
 
 
@@ -1221,7 +1223,7 @@ function VUHDO_lnfEditboxReceivedDrag(anEditBox)
 		tName = GetSpellBookItemName(tId, tId2);
 
 		if not tName then
-			tName = GetSpellInfo(tId3);
+			tName = GetSpellName(tId3);
 		end
 	elseif "macro" == tType then
 		tName = GetMacroInfo(tId);

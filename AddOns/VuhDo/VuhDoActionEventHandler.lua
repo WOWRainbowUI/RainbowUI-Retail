@@ -3,6 +3,7 @@ local _;
 local VUHDO_IS_SMART_CAST = false;
 
 local SecureButton_GetButtonSuffix = SecureButton_GetButtonSuffix;
+local GetTexCoordsForRole = GetTexCoordsForRole or VUHDO_getTexCoordsForRole;
 local InCombatLockdown = InCombatLockdown;
 local strlower = strlower;
 local strfind = strfind;
@@ -415,12 +416,12 @@ function VUHDO_showDebuffTooltip(aDebuffIcon)
 		GameTooltip:SetOwner(aDebuffIcon, "ANCHOR_RIGHT", 0, 0);
 	end
 
-	if aDebuffIcon["debuffCnt"] then
+	if aDebuffIcon["debuffInstanceId"] then
 		if not GameTooltip:IsForbidden() then
 			if aDebuffIcon["isBuff"] then 
-				GameTooltip:SetUnitBuff(tButton["raidid"], aDebuffIcon["debuffCnt"]);
+				GameTooltip:SetUnitBuffByAuraInstanceID(tButton["raidid"], aDebuffIcon["debuffInstanceId"]);
 			else 
-				GameTooltip:SetUnitDebuff(tButton["raidid"], aDebuffIcon["debuffCnt"]); 
+				GameTooltip:SetUnitDebuffByAuraInstanceID(tButton["raidid"], aDebuffIcon["debuffInstanceId"]); 
 			end
 		end
 	end
