@@ -26,9 +26,9 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.9.2"; -- Version number (text format)
+	Version = "5.10"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 50901; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 51000; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 50900; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -95,7 +95,7 @@ GTFOData = {};
 
 local buildNumber = select(4, GetBuildInfo());
 
-if (buildNumber >= 101000) then
+if (buildNumber >= 110100) then
 	GTFO.BetaMode = true;
 end
 if (buildNumber >= 100000) then
@@ -1160,18 +1160,19 @@ end
 
 -- Create Addon Menu options and interface
 function GTFO_RenderOptions()
-	if (GTFO.BetaMode) then
+	if (GTFO.RetailMode) then
 		-- TODO: Rebuild configuration menus in new TWW format
 		-- TWW version (TWW)
 		local ConfigurationPanel = CreateFrame("FRAME","GTFO_MainFrame");
-		ConfigurationPanel.name = "GTFO";
+		ConfigurationPanel.name = GTFOLocal.Option_Name;
 		local category, layout = Settings.RegisterCanvasLayoutCategory(ConfigurationPanel, ConfigurationPanel.name);
-		Settings.RegisterCategory(category);
-		GTFO.SettingsCategoryId = category:GetID();
+		category.ID = "GTFO";
+		Settings.RegisterAddOnCategory(category);
+		-- GTFO.SettingsCategoryId = "GTFO";
 
 		local IntroMessageHeader = ConfigurationPanel:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
 		IntroMessageHeader:SetPoint("TOPLEFT", 10, -10);
-		IntroMessageHeader:SetText("GTFO "..GTFO.Version);
+		IntroMessageHeader:SetText(GTFOLocal.Addon_Name.." GTFO "..GTFO.Version);
 
 		local EnabledButton = CreateFrame("CheckButton", "GTFO_EnabledButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 		EnabledButton:SetPoint("TOPLEFT", 10, -35)
@@ -1341,7 +1342,7 @@ function GTFO_RenderOptions()
 
 		local IntroMessageHeader2 = IgnoreOptionsPanel:CreateFontString(nil, "ARTWORK","GameFontNormalLarge");
 		IntroMessageHeader2:SetPoint("TOPLEFT", 10, -10);
-		IntroMessageHeader2:SetText("GTFO "..GTFO.Version.." - "..GTFOLocal.UI_SpecialAlertsHeader);
+		IntroMessageHeader2:SetText(GTFOLocal.Addon_Name.." GTFO "..GTFO.Version.." - "..GTFOLocal.UI_SpecialAlertsHeader);
 
 		local yCount = -20;
 		for key, option in pairs(GTFO.IgnoreSpellCategory) do
@@ -2087,10 +2088,8 @@ function GTFO_SendUpdateRequest()
 end
 
 function GTFO_Command_Options()
-	if (GTFO.BetaMode) then
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
+	if (GTFO.RetailMode) then
+		Settings.OpenToCategory("GTFO");
 	else
 		InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
 		InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
@@ -2863,7 +2862,7 @@ function GTFO_GetCurrentSoundChannelId(sSoundChannel)
 end
 
 function GTFO_GetSpellName(spellId)
-	if (GTFO.BetaMode) then
+	if (GTFO.RetailMode) then
 		local spell = C_Spell.GetSpellInfo(spellId);
 		if (spell) then
 			return spell.name;
@@ -2874,7 +2873,7 @@ function GTFO_GetSpellName(spellId)
 end
 
 function GTFO_GetSpellLink(spellId)
-	if (GTFO.BetaMode) then
+	if (GTFO.RetailMode) then
 		return C_Spell.GetSpellLink(spellId);
 	else
 		return GetSpellLink(spellId);
@@ -2882,7 +2881,7 @@ function GTFO_GetSpellLink(spellId)
 end
 
 function GTFO_GetSpellDescription(spellId)
-	if (GTFO.BetaMode) then
+	if (GTFO.RetailMode) then
 		return C_Spell.GetSpellDescription(spellId);
 	else
 		return GetSpellDescription(spellId);
