@@ -1,8 +1,7 @@
 # LiteButtonAuras
 
-## [11.0.0-1](https://github.com/xod-wow/LiteButtonAuras/tree/11.0.0-1) (2024-07-11)
-[Full Changelog](https://github.com/xod-wow/LiteButtonAuras/compare/10.2.7-6...11.0.0-1) [Previous Releases](https://github.com/xod-wow/LiteButtonAuras/releases)
+## [11.0.0-2](https://github.com/xod-wow/LiteButtonAuras/tree/11.0.0-2) (2024-07-23)
+[Full Changelog](https://github.com/xod-wow/LiteButtonAuras/compare/11.0.0-1...11.0.0-2) [Previous Releases](https://github.com/xod-wow/LiteButtonAuras/releases)
 
-- Add beta to TOC  
-- Fix interrupt for TWW  
-- Consolidate to 1 .toc with new ##interface: x, y, z  
+- Fix error when adding bad aura from commandline  
+- Add TWW pre-patch to toc  
