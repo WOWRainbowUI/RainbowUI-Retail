@@ -197,6 +197,8 @@ L["CONFIG_SELLING_ICON_SIZE_TOOLTIP_HEADER"] = "아이콘 크기"
 L["CONFIG_SELLING_ICON_SIZE_TOOLTIP_TEXT"] = "판매 탭의 아이콘 크기를 조절합니다. (기본 42)"
 --[[Translation missing --]]
 L["CONFIG_SELLING_IGNORE_ITEM_LEVEL"] = "Ignore item level when searching for matching auctions"
+--[[Translation missing --]]
+L["CONFIG_SELLING_IGNORE_ITEM_SUFFIX"] = "Ignore item suffix/title when searching for matching auctions"
 L["CONFIG_SELLING_LIFO_HEADER"] = "판매: 일반"
 L["CONFIG_SELLING_LIFO_TEXT"] = "일반 품목을 최저가를 %로 계산할 지 골드로 계산할지 설정합니다. 최저가가 아닐 경우, 현재 경매장의 최저가로 계산됩니다."
 L["CONFIG_SELLING_MISSING_FAVOURITES"] = "항상 즐겨찾기 아이템믈 표시합니다(가방에 없는 경우도 포함)"

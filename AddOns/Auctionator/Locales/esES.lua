@@ -152,6 +152,7 @@ L["CONFIG_SELLING_ICON_SIZE"] = "Tamaño de los iconos de las bolsas (se requier
 L["CONFIG_SELLING_ICON_SIZE_TOOLTIP_HEADER"] = "Tamaño de iconos"
 L["CONFIG_SELLING_ICON_SIZE_TOOLTIP_TEXT"] = "Esto le permite hacer que los iconos de los objetos de las bolsas en la pestaña de venta sean más grandes (hasta 50) o más pequeños (hasta 10). El tamaño predeterminado es 42."
 L["CONFIG_SELLING_IGNORE_ITEM_LEVEL"] = "Ignorar el nivel del objeto al buscar subastas coincidentes"
+L["CONFIG_SELLING_IGNORE_ITEM_SUFFIX"] = "Ignorar el sufijo/título del objeto al buscar subastas coincidentes."
 L["CONFIG_SELLING_LIFO_HEADER"] = "Venta: Objetos"
 L["CONFIG_SELLING_LIFO_TEXT"] = [=[Opciones para establecer porcentajes de descuento o valores y duración de la mayoría de los objetos. Sin un descuento, estas categorías de objetos se agrupan y el último objeto añadido es el primero en venderse. Puede que no sea necesario descontar.
 
