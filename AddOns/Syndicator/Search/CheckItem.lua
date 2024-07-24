@@ -82,7 +82,7 @@ local function PotionCheck(details)
 end
 
 local function CosmeticCheck(details)
-  if details.itemID == Syndicator.Constants.BattlePetCageID then
+  if not details.itemLink:match("item:") then
     return false
   end
   if not C_Item.IsItemDataCachedByID(details.itemID) then
@@ -509,7 +509,7 @@ local KEYWORDS_TO_CHECK = {}
 local KEYWORD_AND_CATEGORY = {}
 
 function Syndicator.Search.CleanKeyword(keyword)
-  return keyword:gsub("[()&|~!]", " "):gsub("%s+", " ")
+  return keyword:gsub("[()&|~!]", " "):gsub("%s+", " "):gsub(" $", "")
 end
 local function AddKeyword(keyword, check, group)
   keyword = Syndicator.Search.CleanKeyword(keyword)
@@ -520,6 +520,7 @@ local function AddKeyword(keyword, check, group)
     KEYWORDS_TO_CHECK[keyword] = check
   end
   KEYWORDS_TO_CHECK["_" .. keyword .. "_"] = KEYWORDS_TO_CHECK[keyword]
+  KEYWORDS_TO_CHECK[keyword:gsub(" ", "-")] = KEYWORDS_TO_CHECK[keyword]
 
   table.insert(KEYWORD_AND_CATEGORY, {keyword = keyword, group = group or ""})
 end
@@ -1343,6 +1344,7 @@ local function ApplyTokens(tokens, startIndex)
 end
 
 local function ProcessTerms(text)
+  text = text:gsub("^%s*(.-)%s*$", "%1") -- remove surrounding whitespace
   local index = text:find("[~&|()!]")
   if index == nil then
     return ApplyKeyword(text)
@@ -1352,15 +1354,15 @@ local function ProcessTerms(text)
     local index = 1
     text = text:gsub("||", "|")
     while index < #text do
-      local opIndex = text:find("[~&|()!]", index)
-      if opIndex then
-        local lead = text:sub(index, opIndex - 1)
-        local op = text:sub(opIndex, opIndex)
+      -- Find operators and any surrounding whitespace
+      local opIndexStart, opIndexEnd, op = text:find("%s*([%~%&%|%(%)%!])%s*", index)
+      if op then
+        local lead = text:sub(index, opIndexStart - 1)
         if lead ~= "" then
           table.insert(tokens, lead)
         end
         table.insert(tokens, op)
-        index = opIndex + 1
+        index = opIndexEnd + 1
       else
         break
       end
@@ -1411,6 +1413,7 @@ function Syndicator.Search.InitializeSearchEngine()
     if name then
       local classID = i
       AddKeyword(name:lower(), function(details)
+        GetClassSubClass(details)
         return details.classID == classID
       end, SYNDICATOR_L_GROUP_ITEM_TYPE)
     end
@@ -1429,10 +1432,17 @@ function Syndicator.Search.InitializeSearchEngine()
     16, -- inscription
     18, -- optional reagents
   }
+  if Syndicator.Constants.IsClassic then
+    tAppendAll(tradeGoodsToCheck, {
+      2, -- explosive
+      3, -- device
+    })
+  end
   for _, subClass in ipairs(tradeGoodsToCheck) do
     local keyword = C_Item.GetItemSubClassInfo(7, subClass)
     if keyword ~= nil then
       AddKeyword(keyword:lower(), function(details)
+        GetClassSubClass(details)
         return details.classID == 7 and details.subClassID == subClass
       end, SYNDICATOR_L_GROUP_TRADE_GOODS)
     end
@@ -1454,6 +1464,7 @@ function Syndicator.Search.InitializeSearchEngine()
     local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Armor, subClass)
     if keyword ~= nil then
       AddKeyword(keyword:lower(), function(details)
+        GetClassSubClass(details)
         return details.classID == Enum.ItemClass.Armor and details.subClassID == subClass
       end, SYNDICATOR_L_GROUP_ARMOR_TYPE)
     end
@@ -1464,6 +1475,7 @@ function Syndicator.Search.InitializeSearchEngine()
     local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Weapon, subClass)
     if keyword ~= nil then
       AddKeyword(keyword:lower(), function(details)
+        GetClassSubClass(details)
         return details.classID == Enum.ItemClass.Weapon and details.subClassID == subClass
       end, SYNDICATOR_L_GROUP_WEAPON_TYPE)
     end
@@ -1474,6 +1486,7 @@ function Syndicator.Search.InitializeSearchEngine()
     local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Recipe, subClass)
     if keyword ~= nil then
       AddKeyword(keyword:lower(), function(details)
+        GetClassSubClass(details)
         return details.classID == Enum.ItemClass.Recipe and details.subClassID == subClass
       end, SYNDICATOR_L_GROUP_RECIPE)
     end
@@ -1484,6 +1497,7 @@ function Syndicator.Search.InitializeSearchEngine()
       local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Battlepet, subClass)
       if keyword ~= nil then
         AddKeyword(keyword:lower(), function(details)
+        GetClassSubClass(details)
           return details.classID == Enum.ItemClass.Battlepet and details.subClassID == subClass
         end, SYNDICATOR_L_GROUP_BATTLE_PET)
       end
@@ -1494,8 +1508,19 @@ function Syndicator.Search.InitializeSearchEngine()
     local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Glyph, subClass)
     if keyword ~= nil then
       AddKeyword(keyword:lower(), function(details)
+        GetClassSubClass(details)
         return details.classID == Enum.ItemClass.Glyph and details.subClassID == subClass
       end, SYNDICATOR_L_GROUP_GLYPH)
+    end
+  end
+
+  for subClass = 0, 9 do
+    local keyword = C_Item.GetItemSubClassInfo(Enum.ItemClass.Consumable, subClass)
+    if keyword ~= nil then
+      AddKeyword(keyword:lower(), function(details)
+        GetClassSubClass(details)
+        return details.classID == Enum.ItemClass.Consumable and details.subClassID == subClass
+      end, SYNDICATOR_L_GROUP_CONSUMABLE)
     end
   end
 
