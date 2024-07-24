@@ -19,8 +19,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
 
-		Details.build_counter = 12813
-		Details.alpha_build_counter = 12813 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12814
+		Details.alpha_build_counter = 12814 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -132,6 +132,7 @@
 		Details222.Debug = {
 			DebugPets = false,
 			DebugPlayerPets = false,
+			DebugBuff = false,
 		}
 
 		Details222.Tvs = tvs
@@ -196,6 +197,9 @@
 		Details222.SpecHelpers = {
 			[1473] = {},
 		}
+
+		Details222.IgnoredWorldAuras = {}
+		Details222.OneHourAuras = {}
 
 		Details222.Parser = {}
 
@@ -1570,9 +1574,11 @@ end
 
 Details222.UnitIdCache.Raid = {}
 Details222.UnitIdCache.RaidPet = {}
+Details222.UnitIdCache.RaidTargets = {}
 for i = 1, 40 do
 	Details222.UnitIdCache.Raid[i] = "raid" .. i
 	Details222.UnitIdCache.RaidPet[i] = "raidpet" .. i
+	Details222.UnitIdCache.RaidTargets[i] = "raidtarget" .. i
 end
 
 Details222.UnitIdCache.Boss = {}

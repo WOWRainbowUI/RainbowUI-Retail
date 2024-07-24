@@ -215,6 +215,9 @@
 			[378134] = true, --rallied to victory
 		}
 
+		---@type table<spellid, boolean>
+		local ignoredWorldAuras = Details222.IgnoredWorldAuras
+
 		Details.CreditBuffToTarget = buffs_on_target
 
 		--store all information about augmentation evokers ~roskash
@@ -2849,6 +2852,10 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 	function parser:buff(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, auraType, amount, arg1, arg2, arg3)
+		if (ignoredWorldAuras[spellId]) then
+			return
+		end
+
 		--not yet well know about unnamed buff casters
 		if (not targetName) then
 			targetName = Loc["[*] Unknown shield target"]
@@ -3058,6 +3065,10 @@
 
 	--~refresh
 	function parser:buff_refresh(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellschool, tipo, amount)
+		if (ignoredWorldAuras[spellId]) then
+			return
+		end
+
 		if (not sourceName) then
 			sourceName = names_cache[spellName]
 			if (not sourceName) then
@@ -3147,6 +3158,10 @@
 
 	-- ~unbuff
 	function parser:unbuff(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, spellSchool, tipo, amount)
+		if (ignoredWorldAuras[spellId]) then
+			return
+		end
+
 		if (not sourceName) then
 			sourceName = names_cache[spellName]
 			if (not sourceName) then
@@ -3355,7 +3370,9 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 	function parser:add_bad_debuff_uptime(token, time, sourceGuid, sourceName, sourceFlags, targetGuid, targetName, targetFlags, targetsFlags2, spellId, spellName, spellSchool, sInOrOut, stackSize)
-		if (not targetName) then
+		if (ignoredWorldAuras[spellId]) then
+			return
+		elseif (not targetName) then
 			--no target name, just quit
 			return
 		elseif (not sourceName) then
@@ -3534,6 +3551,10 @@
 	---@param sAuraInOrOut string
 	---@param bAddToTarget boolean|nil not in use on debuffs at the moment
 	function parser:add_debuff_uptime(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, sAuraInOrOut, bAddToTarget)
+		if (ignoredWorldAuras[spellId]) then
+			return
+		end
+
 		_current_misc_container.need_refresh = true
 
 		local sourceActor = misc_cache[sourceName]
@@ -3576,6 +3597,10 @@
 	---@param bAddToTarget boolean? --special auras which has to be added to the caster and target
 	---@param bOverrideTime boolean?
 	function parser:add_buff_uptime(token, time, sourceSerial, sourceName, sourceFlags, targetSerial, targetName, targetFlags, targetFlags2, spellId, spellName, sAuraInOrOut, bAddToTarget, bOverrideTime)
+		if (ignoredWorldAuras[spellId]) then
+			return
+		end
+
 		_current_misc_container.need_refresh = true
 
 		local sourceActor = misc_cache[sourceName]
@@ -5980,6 +6005,19 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function Details.parser_functions:PLAYER_REGEN_ENABLED(...)
+
+		--check if the player is a rogue and has the aura Vanish
+		if (not IsInGroup() and not IsInRaid()) then
+			if (Details.playerclass == "ROGUE") then
+				--if the player has vanish aura, skip this check
+				---@type aurainfo
+				local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(11327)
+				if (auraInfo) then
+					return true
+				end
+			end
+		end
+
 		if (Details.auto_swap_to_dynamic_overall) then
 			Details:InstanceCall(autoSwapDynamicOverallData, false)
 		end
@@ -6001,28 +6039,30 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			--is in a raid or party group
 			C_Timer.After(1, function()
 				if (IsInRaid()) then
-					local inCombat = false
+					local raidUnitIdCache = Details222.UnitIdCache.Raid
+					local bInCombat = false
 					for i = 1, GetNumGroupMembers() do
-						if (UnitAffectingCombat("raid" .. i)) then
-							inCombat = true
+						if (UnitAffectingCombat(raidUnitIdCache[i])) then
+							bInCombat = true
 							break
 						end
 					end
 
-					if (not inCombat) then
+					if (not bInCombat) then
 						Details:RunScheduledEventsAfterCombat(true)
 					end
 
 				elseif (IsInGroup()) then
-					local inCombat = false
-					for i = 1, GetNumGroupMembers() -1 do
-						if (UnitAffectingCombat("party" .. i)) then
-							inCombat = true
+					local bInCombat = false
+					local partyUnitIds = Details222.UnitIdCache.Party
+					for i = 1, #partyUnitIds do
+						if (UnitExists(partyUnitIds[i]) and UnitAffectingCombat(partyUnitIds[i])) then
+							bInCombat = true
 							break
 						end
 					end
 
-					if (not inCombat) then
+					if (not bInCombat) then
 						Details:RunScheduledEventsAfterCombat(true)
 					end
 				end
@@ -6274,6 +6314,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		else
 			Details.playername = UnitName("player")
 		end
+
+		Details.playerclass = select(2, UnitClass("player"))
 
 		Details.playername = Details:Ambiguate(Details.playername)
 
