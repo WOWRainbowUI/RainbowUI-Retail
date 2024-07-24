@@ -34,7 +34,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -45,7 +45,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -56,7 +56,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -67,7 +67,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -78,7 +78,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -89,7 +89,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -100,7 +100,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -111,7 +111,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -122,7 +122,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -133,7 +133,7 @@ D.profile = {
 			x_padding = 8,
 			y_padding = 0,
 			font = {
-				size = 12,
+				size = 16,
 				shadow = true,
 				outline = false,
 			},
@@ -142,7 +142,7 @@ D.profile = {
 	dock = {
 		alpha = 0.8,
 		-- font = {
-		-- 	size = 12,
+		-- 	size = 16,
 		-- 	shadow = true,
 		-- 	outline = false,
 		-- },
