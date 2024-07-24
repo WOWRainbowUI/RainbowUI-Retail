@@ -457,7 +457,7 @@ end
 
 -- returns the name and spellID if safari hat, pet treat, etc item's buff is active
 function rematch.utils:GetItemBuff(itemID)
-    local buffName, spellID = GetItemSpell(itemID)
+    local buffName, spellID = C_Item.GetItemSpell(itemID)
     if buffName and C_UnitAuras.GetPlayerAuraBySpellID(spellID) then
         return buffName, spellID
     end

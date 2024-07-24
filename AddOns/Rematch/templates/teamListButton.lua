@@ -41,7 +41,7 @@ end
 
 function RematchHeaderTeamListButtonMixin:OnMouseUp()
     local list = self:GetParent():GetParent():GetParent()
-    if GetMouseFocus()==self and not list:IsHeadersLocked() then
+    if self:IsMouseMotionFocus() and not list:IsHeadersLocked() then
         rematch.textureHighlight:Show(self.Back,self.ExpandIcon)
     end
     if list.HeaderOnMouseUp then
@@ -160,7 +160,7 @@ end
 
 function RematchCommonTeamListButtonMixin:OnMouseUp()
     local list = self:GetParent():GetParent():GetParent()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Back)
     end
     if list.TeamOnMouseUp then
@@ -526,7 +526,7 @@ function RematchTeamListPetButtonMixin:OnMouseDown()
 end
 
 function RematchTeamListPetButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self,self:GetParent().Back)
         rematch.cardManager:OnClick(rematch.petCard,self:GetParent(),self.petID)
     end

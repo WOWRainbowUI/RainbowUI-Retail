@@ -74,7 +74,7 @@ end
 -- started from above SlotPet, waits until GCD is over and either restores the previously summoned pet or dismisses if none out
 function rematch.loadouts:RestoreKeptCompanion()
     -- if still in GCD from the swap (or happened to go into combat during the swap) wait a little longer
-    if GetSpellCooldown(C.GCD_SPELL_ID)~=0 or InCombatLockdown() then
+    if C_Spell.GetSpellCooldown(C.GCD_SPELL_ID)~=0 or InCombatLockdown() then
         rematch.timer:Start(0.5,rematch.loadouts.RestoreKeptCompanion)
     else -- done swapping
         local petID = C_PetJournal.GetSummonedPetGUID()
@@ -140,6 +140,29 @@ function rematch.loadouts:GetOtherPetIDs(slot)
         return other1,other2
     end
 end
+
+-- returns true if the slot is locked (for new players who've not yet fully unlocked pet battles)
+function rematch.loadouts:IsSlotLocked(slot)
+    if type(slot)=="number" and slot>0 and slot<4 then
+        local _,_,_,_,locked = C_PetJournal.GetPetLoadOutInfo(slot)
+        return locked
+    end
+end
+
+-- returns the localized text and spell/achievement link for the slot being unlearned/locked for new pet battlers
+-- slot 1 is a spell (), slots 2 and 3 are achievements ()
+function rematch.loadouts:GetSlotLockedDetails(slot)
+    local text = slot and _G["BATTLE_PET_UNLOCK_HELP_"..slot]
+    local link, spellID, achievementID
+    if text then
+        text = text:gsub("\n"," ")
+        spellID = slot==1 and 119467
+        achievementID = (slot==2 and 7433) or (slot==3 and 6566)
+        link = (spellID and C_Spell.GetSpellLink(spellID)) or (achievementID and GetAchievementLink(achievementID))
+    end
+    return text, link, spellID, achievementID
+end
+
 
 -- returns true if in a state where we can't swap pets (if journal locked or in pvp queue or in a battle or in combat or player not in world)
 function rematch.loadouts:CantSwapPets()

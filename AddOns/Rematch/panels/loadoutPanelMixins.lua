@@ -37,7 +37,7 @@ function RematchAbilityBarButtonMixin:OnMouseDown()
 end
 
 function RematchAbilityBarButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self and rematch.utils:IsJournalUnlocked() then
+    if self:IsMouseMotionFocus() and rematch.utils:IsJournalUnlocked() then
         rematch.textureHighlight:Show(self.Icon)
     end
 end

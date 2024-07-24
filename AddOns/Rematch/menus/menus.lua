@@ -438,7 +438,7 @@ function RematchMenuFrameMixin:OnHide()
 end
 
 function RematchMenuFrameMixin:OnUpdate(elapsed)
-    local focus = GetMouseFocus()
+    local focus = GetMouseFoci()[1]
     -- testing if over a menu by getting the menuName beneath the mouse and confirming it's a registered menu
     local menuName = focus and (focus.menuName or (focus and focus:GetParent() and focus:GetParent().menuName))
     if menuName and allMenus[menuName] or ((menuFrames[1] and menuFrames[1].relativeTo and MouseIsOver(menuFrames[1].relativeTo)) or MouseIsOver(rematch.menus.sideButtons)) then

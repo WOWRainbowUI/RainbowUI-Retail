@@ -224,7 +224,7 @@ function rematch.queuePanel.List.GlowFrame:OnHide()
 end
 
 function rematch.queuePanel.List.GlowFrame:OnUpdate(elapsed)
-    local focus = GetMouseFocus()
+    local focus = GetMouseFoci()[1]
     if not focus then
         return -- while scrolling, focus becomes nil at times
     end
@@ -278,7 +278,7 @@ function RematchQueueListButtonMixin:OnClick(button)
             rematch.dialog:Hide()
         else
             rematch.petHerder:HerdPetID(self.petID)
-        end        
+        end
     elseif button=="RightButton" then
         rematch.menus:Show("QueueListMenu",self,self.petID,"cursor")
     elseif petID and canLevel then

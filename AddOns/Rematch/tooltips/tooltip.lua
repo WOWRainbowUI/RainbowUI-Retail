@@ -138,6 +138,12 @@ function rematch.tooltip:SetToyByItemID(itemID)
     rematch.tooltip:CloneGameTooltip()
 end
 
+function rematch.tooltip:SetAchievementByID(achievementID)
+    local source = rematch.tooltip:GetSourceTooltip()
+    source:SetAchievementByID(achievementID)
+    rematch.tooltip:CloneGameTooltip()
+end
+
 function rematch.tooltip:CloneGameTooltip()
     local source = RematchGameTooltip
     if source:NumLines()>0 then

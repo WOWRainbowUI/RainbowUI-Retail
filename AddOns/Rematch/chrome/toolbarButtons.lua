@@ -21,7 +21,7 @@ end
 -- generic function for Bandage, LesserPetTreat, PetTreat (and at end of LevelingStone/RarityStone) buttons
 -- to update the item count and dim when it's at 0
 local function itemUpdate(self)
-    local count = GetItemCount(self:GetAttribute("item"))
+    local count = C_Item.GetItemCount(self:GetAttribute("item"))
     self.Count:SetText(count)
     if count==0 then
         self.Icon:SetVertexColor(0.5,0.5,0.5)
@@ -72,8 +72,9 @@ function updates:SafariHatButton()
     local buffName = rematch.utils:GetItemBuff(C.SAFARI_HAT_ITEM_ID)
     if buffName then
         self.Cancel:Show()
-        self:SetAttribute("type","macro")
-        self:SetAttribute("macrotext",format("/cancelaura %s",buffName or L["Safari Hat"]))
+        self:SetAttribute("type","cancelaura")
+        self:SetAttribute("unit","player")
+        self:SetAttribute("spell",buffName)
     else -- safari hat is not active, set attributes to use it
         self.Cancel:Hide()
         self:SetAttribute("type","item")
@@ -107,7 +108,7 @@ function updates:SummonPetButton()
             self.Icon:SetTexture(petInfo.icon)
             self.Cancel:Show()
         else
-            self.Icon:SetTexture((select(3,GetSpellInfo(C.SUMMON_RANDOM_SPELL_ID)))) -- 243819 is summon random icon
+            self.Icon:SetTexture(C.SUMMON_RANDOM_ICON)
             self.Cancel:Hide()
         end
     end
@@ -124,14 +125,14 @@ end
 
 function updates:LevelingStoneButton()
     local itemID = rematch.toolbar:PickBestStone(C.LEVELING_STONES,C.DEFAULT_LEVELING_STONE_ITEM_ID)
-    self.Icon:SetTexture((select(5,GetItemInfoInstant(itemID))))
+    self.Icon:SetTexture((select(5,C_Item.GetItemInfoInstant(itemID))))
     self:SetAttribute("item","item:"..itemID)
     itemUpdate(self)
 end
 
 function updates:RarityStoneButton()
     local itemID = rematch.toolbar:PickBestStone(C.RARITY_STONES,C.DEFAULT_RARITY_STONE_ITEM_ID)
-    self.Icon:SetTexture((select(5,GetItemInfoInstant(itemID))))
+    self.Icon:SetTexture((select(5,C_Item.GetItemInfoInstant(itemID))))
     self:SetAttribute("item","item:"..itemID)
     itemUpdate(self)
 end
@@ -253,7 +254,8 @@ function tooltips:HealButton()
         if self.tooltipNotice then
             rematch.tooltip:AddLine(format(L["%s%s"],C.HEX_BLUE,self.tooltipNotice))
         end
-        local repeatDelay = GetSpellCooldown(C.REVIVE_SPELL_ID)>0 and 1 or nil
+        local cooldown = C_Spell.GetSpellCooldown(C.REVIVE_SPELL_ID)
+        local repeatDelay = (cooldown and cooldown.startTime and cooldown.startTime>0) and 1 or nil
         postTooltip(self,repeatDelay) -- repeat tooltip every second if it's on cooldown
     end
 end
@@ -326,7 +328,7 @@ function RematchToolbarButtonMixin:OnMouseDown()
 end
 
 function RematchToolbarButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Icon)
     end
 end

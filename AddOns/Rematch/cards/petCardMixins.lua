@@ -26,7 +26,7 @@ function RematchPetCardTopButtonMixin:OnMouseDown()
 end
 
 function RematchPetCardTopButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         self.Highlight:Show()
     end
 end

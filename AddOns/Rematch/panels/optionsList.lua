@@ -186,13 +186,13 @@ rematch.optionsList = {
 	{type="header", group=18, text=L["Breed Options"]},
 	{type="dropdown", group=18, text=L["Breed Source"], var="BreedSource", func="BreedSource", tooltip=L["Which enabled addon you want to use to supply breed data."],
 		menu = {{text=L["None"], value="None", tooltipTitle=L["None"], tooltipBody=L["No breed information will be shown if this is selected. Rematch does not maintain its own breed data."]},
-				{text=L["Battle Pet Breed ID"], value="BattlePetBreedID", hidden=function() return not IsAddOnLoaded("BattlePetBreedID") end},
-				{text=L["PetTracker"], value="PetTracker", hidden=function() return not IsAddOnLoaded("PetTracker") end}}
+				{text=L["Battle Pet Breed ID"], value="BattlePetBreedID", hidden=function() return not C_AddOns.IsAddOnLoaded("BattlePetBreedID") end},
+				{text=L["PetTracker"], value="PetTracker", hidden=function() return not C_AddOns.IsAddOnLoaded("PetTracker") end}}
 	},
 	{type="dropdown", group=18, text=L["Breed Format"], var="BreedFormat", func="BreedFormat", tooltip=L["How breeds should display."],
 		menu = {{text=L["Letters"], value=C.BREED_FORMAT_LETTERS},
 				{text=L["Numbers"], value=C.BREED_FORMAT_NUMBERS},
-				{text=L["Icons"], value=C.BREED_FORMAT_ICONS, hidden=function() return not IsAddOnLoaded("PetTracker") end}}
+				{text=L["Icons"], value=C.BREED_FORMAT_ICONS, hidden=function() return not C_AddOns.IsAddOnLoaded("PetTracker") end}}
 	},
 	{type="check", group=18, text=L["Hide Breed In Lists"], var="HideBreedsLists", update=true, tooltip=L["Hide the breeds displayed in lists. Breeds will still be visible in pet cards."]},
 	{type="check", group=18, text=L["Hide Breed In Pet Slots"], var="HideBreedsLoadouts", update=true, tooltip=L["Hide the breeds displayed on pet slots. Breeds will still be visible in pet cards."]},

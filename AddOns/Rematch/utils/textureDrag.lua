@@ -34,7 +34,7 @@ end
 -- when mouse goes down when there's nothing on the cursor, see if focus is a texture with a .draggable flag
 function rematch.textureDrag:GLOBAL_MOUSE_DOWN(button)
     if button=="LeftButton" and not GetCursorInfo() then
-        local focus = GetMouseFocus()
+        local focus = GetMouseFoci()[1]
         if focus and not focus:IsForbidden() and focus:GetObjectType()=="Texture" and focus.draggable then
             isDragging = true
             dragSource = focus
@@ -45,7 +45,7 @@ end
 -- when mouse goes up, see if focus has a .dragReceive value and call its OnReceiveDrag (or its parent's if it doesn't have one)
 function rematch.textureDrag:GLOBAL_MOUSE_UP()
     if self:IsDragging() and GetCursorInfo() then -- if there's a pet on the mouse
-        local focus = GetMouseFocus()
+        local focus = GetMouseFoci()[1]
         if focus then
             if focus:GetObjectType()=="Texture" then
                 focus = focus:GetParent() -- if dropping onto a texture, then shift to parent frame
@@ -63,5 +63,5 @@ end
 
 -- only dragging if the mouse has left the source where the texture was picked up
 function rematch.textureDrag:IsDragging()
-    return isDragging and dragSource~=GetMouseFocus()
+    return isDragging and dragSource~=GetMouseFoci()[1]
 end

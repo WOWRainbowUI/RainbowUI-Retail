@@ -8,7 +8,7 @@ rematch.battle = {}
 rematch.battle.NotesButton = CreateFrame("Button","RematchNotesMicroButton")
 
 rematch.events:Register(rematch.battle,"PLAYER_LOGIN",function(self)
-    if IsAddOnLoaded("Blizzard_PetBattleUI") then -- if already loaded on login, run setup right away
+    if C_AddOns.IsAddOnLoaded("Blizzard_PetBattleUI") then -- if already loaded on login, run setup right away
         self:Setup()
     else -- otherwise register for battle ui to load before doing setup
         rematch.events:Register(self,"ADDON_LOADED",self.ADDON_LOADED)

@@ -267,8 +267,9 @@ function rematch.preferences:TogglePause()
     end
     rematch.queue:Process()
     -- if mouse is over a preferences button when it was clicked, then update its tooltip
-    if GetMouseFocus().isPreferencesButton then
-        GetMouseFocus():OnEnter()
+    local focus = GetMouseFoci()[1]
+    if focus.isPreferencesButton then
+        focus:OnEnter()
     end
 end
 

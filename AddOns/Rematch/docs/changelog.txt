@@ -1,5 +1,14 @@
+07/23/2024 version 5.2.0
+- Many internal changes to support The War Within clients
+- Added The War Within expansion to pet filters and pet card artwork
+- For new pet battlers with locked battle pet slots, the loadout slots now explain why they're locked and how to unlock them
+- Added new Trading Post source to the Sources filter and Pet Collection dialog
+- Slotting a pet will switch the pet card to the incoming pet when the mouse is over its loadout slot
+
+Note: This version will not work on Dragonflight clients. (TWW pre-patch is minimum requirement.)
+
 05/07/2024 version 5.1.5
-- Average Battle Pet Level in the collection summary now excludes pets that can't battle.
+- Average Battle Pet Level in the collection summary now excludes pets that can't battle
 - toc updated for 10.2.7 patch
 
 03/19/2024 version 5.1.4

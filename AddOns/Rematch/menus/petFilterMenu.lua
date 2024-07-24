@@ -52,8 +52,8 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 
 	-- Sources
 	local sourcesMenu = { {title=SOURCES} }
-	for i=1,11 do
-		tinsert(sourcesMenu,{text=_G["BATTLE_PET_SOURCE_"..i], check=true, group="Sources", key=i, icon=pfm.GetIcon, iconCoords=pfm.GetIconCoords, isChecked=pfm.GetChecked, func=pfm.ToggleChecked, multiCheck=11})
+	for i=1,12 do
+		tinsert(sourcesMenu,{text=_G["BATTLE_PET_SOURCE_"..i], check=true, group="Sources", key=i, icon=pfm.GetIcon, iconCoords=pfm.GetIconCoords, isChecked=pfm.GetChecked, func=pfm.ToggleChecked, multiCheck=12})
 	end
 	tinsert(sourcesMenu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=format(C.HELP_TEXT_MULTI_CHECK,C.HEX_WHITE,C.HEX_WHITE)})
 	tinsert(sourcesMenu,{text=RESET, group="Sources", stay=true, func=pfm.ResetGroup})
@@ -61,7 +61,7 @@ rematch.events:Register(rematch.petFilterMenu,"PLAYER_LOGIN",function(self)
 
 	-- Expansion
 	local expansionMenu = { {title=EXPANSION_FILTER_TEXT} }
-	for i=9,0,-1 do
+	for i=10,0,-1 do
 		tinsert(expansionMenu,{text=rematch.utils:GetFormattedExpansionName(i), check=true, group="Expansion", key=i, icon=pfm.GetIcon, isChecked=pfm.GetChecked, func=pfm.ToggleChecked, multiCheck=10, multiCheckStart=0})
 	end
 	tinsert(expansionMenu,{text=L["Help"], stay=true, isHelp=true, hidden=pfm.HideMenuHelp, icon="Interface\\Common\\help-i", iconCoords={0.15,0.85,0.15,0.85}, tooltipTitle=L["Checkbox Groups"], tooltipBody=format(C.HELP_TEXT_MULTI_CHECK,C.HEX_WHITE,C.HEX_WHITE)})

@@ -356,7 +356,7 @@ function RematchOptionsListButtonMixin:OnMouseDown()
 end
 
 function RematchOptionsListButtonMixin:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         self:OnEnter()
     end
 end
@@ -436,7 +436,7 @@ end
 function rematch.optionsPanel.funcs:PanelTabAnchor(anchor)
     if rematch.frame:IsVisible() and not rematch.journal:IsActive() then
         rematch.frame:Configure(C.CURRENT)
-    end    
+    end
 end
 
 -- when checking UseDefaultJournal while in the journal, turn off the journal (like bottombar's rematch checkbutton)
@@ -613,7 +613,7 @@ function rematch.optionsPanel.UseCustomScaleWidget:OnMouseDown()
 end
 
 function rematch.optionsPanel.UseCustomScaleWidget:OnMouseUp()
-    if GetMouseFocus()==self then
+    if self:IsMouseMotionFocus() then
         rematch.textureHighlight:Show(self.Check)
     end
 end

@@ -21,7 +21,23 @@ function rematch.loadoutPanel:Update()
         self:FillStatusBars(self.Loadouts[i],petID) -- fills status bars
         self:FillModelScene(self.Loadouts[i],petID) -- fills pet model
 
-        self.Loadouts[i].LockOverlay:SetShown(rematch.utils:IsJournalLocked())
+        -- hiding ability bar and showing requirements if slot is locked
+        self.Loadouts[i].AbilityBar:SetShown(not locked)
+        self.Loadouts[i].LockOverlay.RequirementsText:SetShown(locked)
+        self.Loadouts[i].LockOverlay.RequirementsLink:SetShown(locked)
+
+        -- showing overlay if either journal or just this slot is locked
+        local isJournalLocked = rematch.utils:IsJournalLocked()
+        self.Loadouts[i].LockOverlay:SetShown(isJournalLocked or locked)
+
+        -- when slotting a pet, the loadouts are updated; if the mouse is over a loadout when that happens and the pet card
+        -- is unlocked and visible, then we need to change pets the card is showing (using the OnEnter to let focus handle it)
+        if MouseIsOver(self.Loadouts[i]) and rematch.petCard.petID~=petID and not rematch.cardManager:IsCardLocked(rematch.petCard) then
+            local focus = GetMouseFoci()[1]
+            if focus.petID then
+                focus:GetScript("OnEnter")(focus)
+            end
+        end
     end
     self.AbilityFlyout:Hide()
     self:UpdateGlow()
@@ -67,6 +83,10 @@ function rematch.loadoutPanel:FillSpecial(loadout,slot)
         loadout.Back:SetDesaturated(true)
         loadout.Back:SetVertexColor(color[1],color[2],color[3])
         loadout.SpecialButton:Show()
+    elseif rematch.loadouts:IsSlotLocked(slot) then
+        loadout.Back:SetDesaturated(true)
+        loadout.Back:SetVertexColor(1,1,1)
+        loadout.SpecialButton:Hide()
     else
         loadout.Back:SetDesaturated(false)
         loadout.Back:SetVertexColor(1,1,1)
@@ -108,32 +128,42 @@ function rematch.loadoutPanel:FillLoadout(loadout,petID)
     local right = showNotes and -34 or -12
     local badgesWidth = rematch.badges:AddBadges(loadout.Badges,"pets",petID,"TOPRIGHT",loadout,"TOPRIGHT",right,-24,-1)
 
-    -- names between pet button and notes/badges/breed
-    local nameXoff = min(right,breedXoff)
-    local nameYoff = -21
-    loadout.PetName:SetPoint("TOPLEFT",70,nameYoff)
-    loadout.PetName:SetPoint("TOPRIGHT",nameXoff,nameYoff)
-    loadout.PetName:SetText(petInfo.name)
-    local nameHeight = loadout.PetName:GetStringHeight()
-    if petInfo.customName then
-        loadout.SpeciesName:SetText(petInfo.speciesName)
-        loadout.SpeciesName:Show()
-        nameHeight = nameHeight + loadout.SpeciesName:GetStringHeight() + 2
-    else
-        loadout.SpeciesName:Hide()
-    end
-    -- if name+species name takes up less space than icon height, nudge it down
-    if nameHeight < 46 then
-        nameYoff = -21-floor((46-nameHeight)/2+0.5)+1
+    if not rematch.loadouts:IsSlotLocked(slot) then
+        -- names between pet button and notes/badges/breed
+        local nameXoff = min(right,breedXoff)
+        local nameYoff = -21
         loadout.PetName:SetPoint("TOPLEFT",70,nameYoff)
         loadout.PetName:SetPoint("TOPRIGHT",nameXoff,nameYoff)
-    end
-    -- color the name
-    if settings.ColorPetNames and petInfo.color then
-        loadout.PetName:SetTextColor(petInfo.color.r,petInfo.color.g,petInfo.color.b)
+        loadout.PetName:SetText(petInfo.name)
+        loadout.PetName:Show()
+        local nameHeight = loadout.PetName:GetStringHeight()
+        if petInfo.customName then
+            loadout.SpeciesName:SetText(petInfo.speciesName)
+            loadout.SpeciesName:Show()
+            nameHeight = nameHeight + loadout.SpeciesName:GetStringHeight() + 2
+        else
+            loadout.SpeciesName:Hide()
+        end
+        -- if name+species name takes up less space than icon height, nudge it down
+        if nameHeight < 46 then
+            nameYoff = -21-floor((46-nameHeight)/2+0.5)+1
+            loadout.PetName:SetPoint("TOPLEFT",70,nameYoff)
+            loadout.PetName:SetPoint("TOPRIGHT",nameXoff,nameYoff)
+        end
+        -- color the name
+        if settings.ColorPetNames and petInfo.color then
+            loadout.PetName:SetTextColor(petInfo.color.r,petInfo.color.g,petInfo.color.b)
+        else
+            loadout.PetName:SetTextColor(1,0.82,0)
+        end
     else
-        loadout.PetName:SetTextColor(1,0.82,0)
+        loadout.PetName:Hide()
+        loadout.SpeciesName:Hide()
+        local text,link = rematch.loadouts:GetSlotLockedDetails(slot)
+        loadout.LockOverlay.RequirementsText:SetText(text)
+        loadout.LockOverlay.RequirementsLink:SetText(link)
     end
+
 end
 
 -- unlike mini loadout, the regular loadout bars never move position; though the xp bar is still only visible for pets under 25
@@ -173,7 +203,7 @@ function rematch.loadoutPanel:FillModelScene(loadout,petID)
             local battlePetActor = loadout.ModelScene:GetActorByTag("pet")
             if battlePetActor then
                 battlePetActor:SetModelByCreatureDisplayID(displayID)
-                battlePetActor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_NONE)
+                --battlePetActor:SetAnimationBlendOperation(LE_MODEL_BLEND_OPERATION_NONE)
             end
         end
     end
@@ -220,7 +250,7 @@ end
 
 function rematch.loadoutPanel:LoadoutOnLeave()
     self.Highlight:Hide()
-    if GetMouseFocus()~=self.Pet then -- don't dismiss card if moving onto pet button
+    if GetMouseFoci()[1]~=self.Pet then -- don't dismiss card if moving onto pet button
         rematch.cardManager:OnLeave(rematch.petCard,self,self.petID)
     end
 end
@@ -232,7 +262,7 @@ function rematch.loadoutPanel:LoadoutOnMouseDown()
 end
 
 function rematch.loadoutPanel:LoadoutOnMouseUp()
-    if GetMouseFocus()==self and rematch.utils:IsJournalUnlocked() then
+    if self:IsMouseMotionFocus() and rematch.utils:IsJournalUnlocked() then
         self.Highlight:Show()
     end
 end
@@ -293,7 +323,7 @@ end
 function rematch.loadoutPanel:PetOnLeave()
     self:GetParent().Highlight:Hide()
     rematch.textureHighlight:Hide()
-    if GetMouseFocus()~=self:GetParent() then
+    if GetMouseFoci()[1]~=self:GetParent() then
         rematch.cardManager:OnLeave(rematch.petCard,self:GetParent(),self.petID)
     end
 end
@@ -306,7 +336,7 @@ function rematch.loadoutPanel:PetOnMouseDown()
 end
 
 function rematch.loadoutPanel:PetOnMouseUp()
-    if GetMouseFocus()==self and rematch.utils:IsJournalUnlocked() then
+    if self:IsMouseMotionFocus() and rematch.utils:IsJournalUnlocked() then
         self:GetParent().Highlight:Show()
         rematch.textureHighlight:Show(self.Icon)
     end
@@ -384,7 +414,7 @@ function rematch.loadoutPanel:SpecialOnMouseDown()
 end
 
 function rematch.loadoutPanel:SpecialOnMouseUp()
-    if GetMouseFocus()==self and rematch.utils:IsJournalUnlocked() then
+    if self:IsMouseMotionFocus() and rematch.utils:IsJournalUnlocked() then
         rematch.textureHighlight:Show(self.Icon)
     end
 end
@@ -403,10 +433,37 @@ function rematch.loadoutPanel:LockOnEnter()
         rematch.tooltip:ShowSimpleTooltip(self,LOCKED,PET_JOURNAL_READONLY_TEXT)
     elseif C_PetBattles.GetPVPMatchmakingInfo() then
         rematch.tooltip:ShowSimpleTooltip(self,LOCKED,ERR_PETBATTLE_QUEUE_QUEUED)
+    else
+        local slot = self:GetParent():GetParent():GetID()
+        if rematch.loadouts:IsSlotLocked(slot) then
+            local text,link,spellID,achievementID = rematch.loadouts:GetSlotLockedDetails(slot)
+            rematch.tooltip:ShowSimpleTooltip(self,text.." "..link)
+        end
     end
 end
 
 function rematch.loadoutPanel:LockOnLeave()
     rematch.textureHighlight:Hide()
+    rematch.tooltip:Hide()
+end
+
+-- entering the requirements link ([Battle Pet Training], [Newbie] or [Just a Pup]) for locked slots
+function rematch.loadoutPanel:RequirementsOnEnter()
+    local slot = self:GetParent():GetParent():GetID()
+    local _,_,spellID,achievementID = rematch.loadouts:GetSlotLockedDetails(slot)
+    rematch.tooltip:SetOwner(self)
+    if spellID then
+        rematch.tooltip:SetSpellByID(spellID)
+    elseif achievementID then
+        rematch.tooltip:SetAchievementByID(achievementID)
+    else
+        return
+    end
+    local corner,opposite = rematch.utils:GetCorner(rematch.frame,UIParent)
+    rematch.tooltip:SetPoint(corner,self,opposite)
+    rematch.tooltip:Show()
+end
+
+function rematch.loadoutPanel:RequirementsOnLeave()
     rematch.tooltip:Hide()
 end
