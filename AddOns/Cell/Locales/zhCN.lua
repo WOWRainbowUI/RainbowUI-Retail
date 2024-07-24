@@ -108,11 +108,8 @@ L["Show while not in a group"] = "当不在队伍时显示"
 L["To open options frame, use /cell options"] = "用 /cell options 来打开选项窗口"
 L["Show Party"] = "小队时显示"
 L["Show while in a party"] = "当在小队时显示"
--- 不要本地化此文本，因为这些选项即将被移除
---[[Translation missing --]]
---[[ L["Show Raid"] = "" ]]
---[[Translation missing --]]
---[[ L["Show while in a raid"] = "" ]]
+L["Show Raid"] = "团队时显示"
+L["Show while in a raid"] = "当在团队时显示"
 L["Position"] = "位置"
 L["Lock Cell Frames"] = "把它给我锁死"
 L["Fade Out Menu"] = "淡出菜单"
@@ -122,10 +119,11 @@ L["Always Update Buffs"] = "总是更新增益"
 L["Always Update Debuffs"] = "总是更新减益"
 L["Ignore UNIT_AURA payloads"] = "无视 UNIT_AURA 事件的负载"
 L["This may help solve issues of indicators not updating correctly"] = "可能有助于解决指示器不能正确更新的问题"
-L["Override"] = "重写"
-L["Ensure that other addons get the right unit button"] = "确保其他插件获取到正确的单位按钮"
-L["This may cause unknown issues"] = "可能导致未知问题"
-L["For addons/WAs not dependent on LibGetFrame, use %s"] = "对于不依赖 LibGetFrame 的插件或WA，使用 %s"
+-- L["Override"] = "重写"
+-- L["Ensure that other addons get the right unit button"] = "确保其他插件获取到正确的单位按钮"
+-- L["This may cause unknown issues"] = "可能导致未知问题"
+-- L["For addons/WAs not dependent on LibGetFrame, use %s"] = "对于不依赖 LibGetFrame 的插件或WA，使用 %s"
+L["Frame priorities for LibGetFrame"] = "指定 LibGetFrame 获取单位按钮的的优先级"
 L["Increase Health Update Rate"] = "增加血条刷新速率"
 L["Use CLEU events to increase health update rate"] = "使用战斗记录事件来增加血条刷新速率"
 L["Translit Cyrillic to Latin"] = "将俄文转写为英文"
@@ -349,6 +347,12 @@ L["set unit's name"] = "设置为目标单位的名字"
 L["set unit's pet"] = "设置为目标单位的宠物"
 L["not in combat"] = "非战斗中"
 
+L["Invalid layout name."] = "无效布局名称。"
+L["Layout imported: %s."] = "已导入布局：%s。"
+L["Layout added: %s."] = "已创建布局：%s。"
+L["Layout deleted: %s."] = "已删除布局：%s。"
+L["Layout renamed: %s to %s."] = "重命名布局 %s 为 %s。"
+
 -- L["Group Arrangement"] = "队伍排列"
 -- L["Button Size"] = "按钮尺寸"
 -- L["Pet Button"] = "宠物按钮"
@@ -391,7 +395,6 @@ L["|cff1Aff1AYes|r - Overwrite"] = "|cff1Aff1A是|r - 覆盖"
 L["|cffff1A1ANo|r - Create New"] = "|cffff1A1A否|r - 新建"
 L["Error"] = "错误"
 L["Incompatible Version"] = "版本不兼容"
-L["Layout imported: %s."] = "已导入布局：%s。"
 
 -------------------------------------------------
 -- indicators
@@ -849,8 +852,14 @@ L["CHANGELOGS"] = [[
     <p>（正式服）如果指示器不能正常刷新，尝试启用常规页面下的“总是更新增益/减益”选项。</p>
     <br/>
 
+    <h1>r236-release (Jul 24, 2024, 16:10 GMT+8)</h1>
+    <p>* 修复“外观”与“布局”页面的一些小问题。</p>
+    <p>* 更新本地化。</p>
+    <p>* 更新大灾变的世界标记功能。</p>
+    <br/>
+
     <h1>r235-release (Jul 23, 2024, 20:00 GMT+8)</h1>
-    <p>+ 添加“Show Raid”选项（PR #176）。嗯，你问我为什么没本地化？这是好心人帮加的功能，但这一票“XX时显示”的选项在未来的版本中会被移除，因此不想本地化了。</p>
+    <p>+ 添加“团队时显示”选项（PR #176）。</p>
     <p>* 修复满血颜色（PR #175）。</p>
     <p>* （地心之战）修复战复计时、快速协助、法术/驱散请求。</p>
     <p>* 修复指示器图标宽高比。</p>
