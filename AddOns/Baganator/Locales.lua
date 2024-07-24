@@ -1,3 +1,4 @@
+local _, addonTable = ...
 local Locales = {
   enUS = {},
   frFR = {},
@@ -272,6 +273,8 @@ L["TYPE"] = "Type"
 L["QUALITY"] = "Quality"
 L["NONE"] = "None"
 L["GROUP_BY"] = "Group by"
+L["SHOW_ADD_BUTTONS"] = "Show add buttons"
+L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
 
 L["HELP_COLON_SEARCH"] = "Help: Search"
 L["HELP"] = "Help"
@@ -292,59 +295,44 @@ L["CHOOSE"] = "Choose"
 L["SINGLE_BAG_DESCRIPTION"] = "The most common option. Keeps your items in one large container."
 L["CATEGORY_GROUPS_DESCRIPTION"] = "Group items by type, with features to add new custom categories."
 
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
 
 local L = Locales.frFR
 L["ACCOUNT_GOLD_X"] = "Or du compte : %s"
---[[Translation missing --]]
-L["ADD_ITEM"] = "Add item"
+L["ADD_ITEM"] = "Ajouter un objet"
 L["ADD_TO_CATEGORY"] = "Ajouter à la catégorie"
 L["ALL_CHARACTERS"] = "Tous les personnages"
---[[Translation missing --]]
 L["ALT_CLICK"] = "Alt+Click"
---[[Translation missing --]]
-L["ALWAYS"] = "Always"
---[[Translation missing --]]
-L["ARRANGE_ITEMS"] = "Arrange items"
---[[Translation missing --]]
-L["AT_THE_BOTTOM"] = "At the bottom"
---[[Translation missing --]]
-L["AT_THE_TOP"] = "At the top"
+L["ALWAYS"] = "Toujours"
+L["ARRANGE_ITEMS"] = "Organiser les objets"
+L["AT_THE_BOTTOM"] = "En bas"
+L["AT_THE_TOP"] = "En haut"
 L["AUCTION_HOUSE"] = "Hôtel des ventes"
---[[Translation missing --]]
-L["AUTO_OPEN"] = "Auto Open"
---[[Translation missing --]]
-L["BAG_COLUMNS"] = "Bag columns"
+L["AUTO_OPEN"] = "Ouverture automatique"
+L["BAG_COLUMNS"] = "Colonnes des sacs"
 L["BAG_SLOTS"] = "Emplacements de sacs"
 L["BAGANATOR"] = "Baganator"
 L["BANK"] = "Banque"
---[[Translation missing --]]
-L["BANK_COLUMNS"] = "Bank columns"
+L["BANK_COLUMNS"] = "Colonnes de la banque"
 L["BANK_DATA_MISSING_HINT"] = "Données de la banque manquantes. Rendez-vous auprès d’un banquier avec %s pour remplir cette vue."
 L["BATTLE_PET_BREEDID"] = "Battle Pet BreedID"
 L["BATTLE_PET_LEVEL"] = "Niveau de mascotte"
---[[Translation missing --]]
-L["BIND_ON_ACCOUNT"] = "Bind on Account"
---[[Translation missing --]]
-L["BIND_ON_EQUIP"] = "Bind on Equip"
---[[Translation missing --]]
-L["BIND_ON_USE"] = "Bind on Use"
---[[Translation missing --]]
-L["BLANK_SPACE"] = "Blank space"
+L["BIND_ON_ACCOUNT"] = "Liés au compte"
+L["BIND_ON_EQUIP"] = "Lié quand équipé"
+L["BIND_ON_USE"] = "Lié lors de l'utilisation"
+L["BLANK_SPACE"] = "Espace vide"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "LqA"
 L["BOE"] = "LqE"
 L["BOU"] = "LqU"
+L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(vue de la catégorie uniquement)"
+L["BRACKETS_RELOAD_REQUIRED"] = "(rechargement requis)"
 --[[Translation missing --]]
-L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(category view only)"
---[[Translation missing --]]
-L["BRACKETS_RELOAD_REQUIRED"] = "(reload required)"
+L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
 L["BUY_REAGENT_BANK"] = "Acheter emplacement de banque de composants"
---[[Translation missing --]]
-L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
---[[Translation missing --]]
-L["BY_PLUSMOUSE"] = "by plusmouse"
+L["BUY_WARBAND_BANK_TAB"] = "Acheter un onglet de la banque de bataillon"
+L["BY_PLUSMOUSE"] = "par plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Impossible d’ajouter d’autres objets à cet échange"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifier cet onglet"
@@ -354,77 +342,55 @@ L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Ensemble d'équipement"
 L["CATEGORY_BAG"] = "Sac"
 L["CATEGORY_DIVIDER"] = "———Séparateur———"
 L["CATEGORY_EQUIPMENT_SET"] = "Ensemble d'équipement"
---[[Translation missing --]]
-L["CATEGORY_EQUIPMENT_SETS_AUTO"] = "Equipment Sets (Auto)"
+L["CATEGORY_EQUIPMENT_SETS_AUTO"] = "Ensembles d’équipement (Auto)"
 L["CATEGORY_FOOD"] = "Nourriture"
---[[Translation missing --]]
-L["CATEGORY_GROUPS"] = "Category groups"
---[[Translation missing --]]
-L["CATEGORY_GROUPS_DESCRIPTION"] = "Group items by type, with features to add new custom categories."
+L["CATEGORY_GROUPS"] = "Groupes des catégories"
+L["CATEGORY_GROUPS_DESCRIPTION"] = "Regroupez les éléments par type, avec des fonctionnalités permettant d’ajouter de nouvelles catégories personnalisées."
 L["CATEGORY_HEARTHSTONE"] = "Pierre de foyer"
---[[Translation missing --]]
-L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventory Slots (Auto)"
+L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Emplacements d’inventaire (Auto)"
 L["CATEGORY_JUNK"] = "Camelote"
 L["CATEGORY_OTHER"] = "Autres"
 L["CATEGORY_POTION"] = "Potion"
---[[Translation missing --]]
-L["CATEGORY_RECENT"] = "Recent"
---[[Translation missing --]]
-L["CATEGORY_RECENT_AUTO"] = "Recent (Auto)"
---[[Translation missing --]]
-L["CATEGORY_SPACING"] = "Category spacing"
+L["CATEGORY_RECENT"] = "Récent"
+L["CATEGORY_RECENT_AUTO"] = "Récent (Auto)"
+L["CATEGORY_SPACING"] = "Espacement des catégories"
 L["CATEGORY_TOY"] = "Jouet"
 L["CHARACTER"] = "Personnage"
 L["CHARACTER_PANEL"] = "Fiche de personnage"
---[[Translation missing --]]
-L["CHOOSE"] = "Choose"
+L["CHOOSE"] = "Choix"
 L["COMBINE_STACKS_ONLY"] = "Combiner uniquement les piles"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Voulez-vous transférer TOUS les objets dans vos sacs ?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Voulez-vous transférer TOUS les objets de la banque ?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Voulez-vous transférer TOUS les objets de la banque de guilde ?"
 L["COOKING"] = "Cuisine"
 L["CRAFTING_WINDOW"] = "Fenêtre d’artisanat"
---[[Translation missing --]]
-L["CREATE_NEW_CATEGORY"] = "Create new category..."
---[[Translation missing --]]
-L["CREATE_NEW_SECTION"] = "Create new section..."
---[[Translation missing --]]
-L["CTRL_C_TO_COPY"] = "Ctrl+C to copy"
+L["CREATE_NEW_CATEGORY"] = "Créer une nouvelle catégorie..."
+L["CREATE_NEW_SECTION"] = "Créer une nouvelle section..."
+L["CTRL_C_TO_COPY"] = "Ctrl+C pour copier"
 L["CUSTOMISE_BAGANATOR"] = "Personnaliser Baganator"
 L["DEPOSIT_REAGENTS"] = "Dépôt des composants"
---[[Translation missing --]]
-L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
---[[Translation missing --]]
-L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
---[[Translation missing --]]
-L["EDIT"] = "Edit"
+L["DEPOSIT_WARBOUND"] = "Déposer des objets liés par la guerre"
+L["DISCORD_DESCRIPTION"] = "Mises à jour, suggestions de fonctionnalités et assistance"
+L["EDIT"] = "Modifier"
 L["EMPTY"] = "Vide"
 L["ENCHANTING"] = "Enchantement"
 L["ENGINEERING"] = "Ingénierie"
 L["ENGRAVED_RUNE"] = "Rune gravée"
 L["EQUIPMENT_SET"] = "Set d'équipement "
 L["EXPANSION"] = "Extension "
---[[Translation missing --]]
-L["EXPORT"] = "Export"
+L["EXPORT"] = "Exporter"
 L["FISHING"] = "Pêche "
---[[Translation missing --]]
-L["FLASH_DUPLICATE_ITEMS"] = "Flash duplicate items"
+L["FLASH_DUPLICATE_ITEMS"] = "Faire clignoter les objets en double"
 L["FORGE_OF_BONDS"] = "Forge des liens"
---[[Translation missing --]]
-L["FROM_THE_BOTTOM"] = "From the bottom"
---[[Translation missing --]]
-L["FROM_THE_TOP"] = "From the top"
+L["FROM_THE_BOTTOM"] = "Depuis le bas"
+L["FROM_THE_TOP"] = "Depuis le haut"
 L["GEMS"] = "Gemmes"
---[[Translation missing --]]
-L["GENERAL"] = "General"
---[[Translation missing --]]
-L["GREY_JUNK_ITEMS"] = "Grey out junk items"
---[[Translation missing --]]
-L["GROUP_BY"] = "Group by"
+L["GENERAL"] = "Général"
+L["GREY_JUNK_ITEMS"] = "Griser les objets indésirables"
+L["GROUP_BY"] = "Grouper par"
 L["GROUP_IDENTICAL_ITEMS"] = "Grouper les objets identiques"
 L["GUILD_BANK"] = "Banque de guilde"
---[[Translation missing --]]
-L["GUILD_BANK_COLUMNS"] = "Guild bank columns"
+L["GUILD_BANK_COLUMNS"] = "Colonnes de la banque de Guilde"
 L["GUILD_BANK_DATA_MISSING_HINT"] = "La banque de guilde n'a pas encore été visitée"
 L["GUILD_BANK_NO_TABS"] = "Il n'y a pas d'onglet dans cette banque de guilde."
 L["GUILD_BANK_SORT_METHOD"] = "Méthode de tri de la banque de guilde"
@@ -437,123 +403,80 @@ L["GUILD_NO_TABS_PURCHASED"] = "Aucun onglet de banque de guilde acheté"
 L["GUILD_TAB_INFO_TOOLTIP_TEXT"] = "Afficher toutes les infos stockées de cet onglet"
 L["GUILD_TAB_LOGS_TOOLTIP_TEXT"] = "Voir les retraits et dépôts d’objets pour cet onglet"
 L["GUILD_WITHDRAW_DEPOSIT_X_X"] = "Objets - Retrait : %s | Dépôt : %s"
---[[Translation missing --]]
-L["HELP"] = "Help"
---[[Translation missing --]]
-L["HELP_COLON_SEARCH"] = "Help: Search"
---[[Translation missing --]]
-L["HELP_SEARCH_ITEM_LEVEL"] = "Item Level"
---[[Translation missing --]]
-L["HELP_SEARCH_ITEM_LEVEL_LINE_1"] = "123 (exact level), <123 (levels lower), >123 (levels higher), 123-234 (levels between)"
---[[Translation missing --]]
-L["HELP_SEARCH_ITEM_LEVEL_LINE_2"] = "Example: #gear&>242"
---[[Translation missing --]]
-L["HELP_SEARCH_KEYWORDS"] = "Keywords"
---[[Translation missing --]]
-L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Your search will look for matches in two places: within a set of specified keywords and within the item name and tooltip descriptions. To search for an exact keyword only, use a hashtag (#) before the keyword."
---[[Translation missing --]]
-L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Example: #gear&explorer"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS"] = "Operators"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (and), | (or), ! (not), # (exact keyword)"
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_2"] = "The operators are evaluated in the following order of precedence: ! (not), & (and), and | (or)."
---[[Translation missing --]]
-L["HELP_SEARCH_OPERATORS_LINE_3"] = "Example: !A & B | C is evaluated as ((!A) & B) | C."
+L["HELP"] = "Aide"
+L["HELP_COLON_SEARCH"] = "Aide : Recherche"
+L["HELP_SEARCH_ITEM_LEVEL"] = "Niveau d'objet"
+L["HELP_SEARCH_ITEM_LEVEL_LINE_1"] = "123 (niveau exact), <123 (niveaux inférieurs), >123 (niveaux supérieurs), 123-234 (niveaux intermédiaires)"
+L["HELP_SEARCH_ITEM_LEVEL_LINE_2"] = "Exemple : #équipement&>242"
+L["HELP_SEARCH_KEYWORDS"] = "Mots-clés"
+L["HELP_SEARCH_KEYWORDS_LINE_1"] = "Votre recherche recherchera des correspondances à deux endroits : dans un ensemble de mots-clés spécifiés et dans le nom de l’élément et les descriptions des infobulles. Pour rechercher un mot-clé exact uniquement, utilisez un hashtag (#) avant le mot-clé."
+L["HELP_SEARCH_KEYWORDS_LINE_2"] = "Exemple : #équipement&explorer"
+L["HELP_SEARCH_OPERATORS"] = "Opérateurs"
+L["HELP_SEARCH_OPERATORS_LINE_1"] = "& (et), | (ou), ! (not), # (mot-clé exact)"
+L["HELP_SEARCH_OPERATORS_LINE_2"] = "Les opérateurs sont évalués dans l’ordre de priorité suivant : ! (not), & (et), et | (ou)."
+L["HELP_SEARCH_OPERATORS_LINE_3"] = "Exemple:! A & B | C est évalué comme (( ! A) et B) | C."
 L["HERBALISM"] = "Herboristerie "
---[[Translation missing --]]
-L["HIDDEN"] = "Hidden"
---[[Translation missing --]]
-L["HIDE_BOE_STATUS_ON_COMMON_2"] = "Hide BoE status on junk/common"
---[[Translation missing --]]
-L["HIDE_ICON_BACKGROUNDS"] = "Hide icon backgrounds"
+L["HIDDEN"] = "Caché"
+L["HIDE_BOE_STATUS_ON_COMMON_2"] = "Masquer l’état BoE sur les objets indésirables/courants"
+L["HIDE_ICON_BACKGROUNDS"] = "Masquer les arrière-plans des icônes"
 L["HIGH"] = "haute"
 L["HIGHER"] = "très haute"
 L["HIGHEST"] = "la plus haute"
 L["HOLD_SHIFT_TO_SHOW_ACCOUNT_TOTAL"] = "<Maintenez la touche Maj enfoncée pour afficher le total du compte>"
---[[Translation missing --]]
-L["ICON_CORNERS"] = "Icon Corners"
---[[Translation missing --]]
-L["ICON_SIZE"] = "Icon size"
---[[Translation missing --]]
-L["ICON_TEXT_FONT_SIZE"] = "Icon font size"
+L["ICON_CORNERS"] = "Angles des icônes"
+L["ICON_SIZE"] = "Taille de l’icône"
+L["ICON_TEXT_FONT_SIZE"] = "Taille de la police de l’icône"
 L["ICONS"] = "Icônes"
---[[Translation missing --]]
-L["IGNORED_BAG_SLOTS"] = "Ignored bag slots (character specific)"
---[[Translation missing --]]
-L["IGNORED_BANK_SLOTS"] = "Ignored bank slots (character specific)"
---[[Translation missing --]]
-L["IGNORED_SLOTS"] = "Ignored slots"
---[[Translation missing --]]
-L["IMPORT"] = "Import"
+L["IGNORED_BAG_SLOTS"] = "Emplacements de sac ignorés (spécifiques au personnage)"
+L["IGNORED_BANK_SLOTS"] = "Emplacements de banque ignorés (spécifiques au personnage)"
+L["IGNORED_SLOTS"] = "Emplacements ignorés"
+L["IMPORT"] = "Importer"
 L["INCLUDE_REAGENTS"] = "Inclure les composants"
 L["INSCRIPTION"] = "Calligraphie"
---[[Translation missing --]]
-L["INSERT_OR_CREATE"] = "Insert or create"
---[[Translation missing --]]
-L["INVALID_CATEGORY_IMPORT_FORMAT"] = "Invalid category import format"
+L["INSERT_OR_CREATE"] = "Insérer ou créer"
+L["INVALID_CATEGORY_IMPORT_FORMAT"] = "Format d’importation de catégorie non valide"
 L["ITEM_LEVEL"] = "Niveau de l’objet"
 L["ITEM_QUALITY"] = "Qualité de l’objet"
---[[Translation missing --]]
 L["ITEM_QUALITY_TEXT_COLORS"] = "Item quality text colors"
 L["ITEM_TYPE"] = "Type d’objet"
 L["JEWELCRAFTING"] = "Joaillerie"
---[[Translation missing --]]
-L["JOIN_THE_DISCORD"] = "Join the Discord"
+L["JOIN_THE_DISCORD"] = "Rejoignez le Discord"
 L["JUNK"] = "Camelote"
---[[Translation missing --]]
-L["JUNK_DETECTION_2"] = "Junk detection"
+L["JUNK_DETECTION_2"] = "Détection d'objets indésirables"
 L["KEYS"] = "Clés"
 L["KEYSTONE_LEVEL"] = "Niveau de clé"
---[[Translation missing --]]
-L["LAYOUT"] = "Layout"
+L["LAYOUT"] = "Disposition"
 L["LEATHERWORKING"] = "Travail du cuir"
---[[Translation missing --]]
-L["LOCK_WINDOWS"] = "Lock windows"
+L["LOCK_WINDOWS"] = "Verrouillage les fenêtres"
 L["LOW"] = "Basse"
 L["MAIL"] = "Courrier"
---[[Translation missing --]]
-L["MANAGE_CHARACTERS"] = "Manage Characters"
+L["MANAGE_CHARACTERS"] = "Gérer les personnages"
 L["MINING"] = "Minage"
 L["MONEY_LOGS"] = "Journaux des monnaies"
---[[Translation missing --]]
-L["MOVE"] = "Move"
+L["MOVE"] = "Déplacer"
 L["NEW_CATEGORY"] = "Nouvelle catégorie"
---[[Translation missing --]]
-L["NEW_SECTION"] = "New Section"
+L["NEW_SECTION"] = "Nouvelle section"
 L["NO_TRANSACTIONS_AVAILABLE"] = "Aucune transaction disponible"
---[[Translation missing --]]
-L["NONE"] = "None"
+L["NONE"] = "Aucun"
 L["NORMAL"] = "normale"
 L["OPEN_OPTIONS"] = "Ouvrir les options"
---[[Translation missing --]]
-L["OPEN_SYNDICATOR"] = "Open Syndicator"
---[[Translation missing --]]
-L["PASTE_YOUR_IMPORT_STRING_HERE"] = "Paste your import string here"
+L["OPEN_SYNDICATOR"] = "Ouvrir Syndicator"
+L["PASTE_YOUR_IMPORT_STRING_HERE"] = "Collez votre chaîne d’importation ici"
 L["PAWN"] = "Pawn"
 L["PEDDLER"] = "Peddler"
---[[Translation missing --]]
 L["PERCENTAGE_PATTERN"] = "%s%%"
---[[Translation missing --]]
 L["PIXEL_PATTERN"] = "%spx"
---[[Translation missing --]]
 L["PLUGINS"] = "Plugins"
 L["POOR_QUALITY"] = "Mauvaise qualité"
---[[Translation missing --]]
-L["PRIORITY"] = "Priority"
---[[Translation missing --]]
-L["QUALITY"] = "Quality"
+L["PRIORITY"] = "Priorité"
+L["QUALITY"] = "Qualité"
 L["QUANTITY"] = "Quantité"
 L["REAGENTS"] = "Composants"
 L["REALM_WIDE_GOLD_X"] = "Or sur le serveur: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
---[[Translation missing --]]
-L["RECENT_CHARACTER_TABS"] = "Recent character tabs"
---[[Translation missing --]]
-L["REDUCE_UI_SPACING"] = "Reduce UI spacing"
---[[Translation missing --]]
-L["REMOVE_BORDERS"] = "Remove borders"
+L["RECENT_CHARACTER_TABS"] = "Onglets de personnages récents"
+L["REDUCE_UI_SPACING"] = "Réduire l’espacement de l’interface utilisateur"
+L["REMOVE_BORDERS"] = "Supprimer les bordures"
 L["REMOVE_FROM_CATEGORY"] = "Retirer de la catégorie"
 L["RESET_POSITIONS"] = "Position par défaut"
 L["REVERSE_GROUPS_SORT_ORDER"] = "Inverser l’ordre de tri des groupes"
@@ -562,29 +485,22 @@ L["SCRAP"] = "Scrap"
 L["SCRAPPING_MACHINE"] = "Machine à recycler"
 L["SEARCH_EVERYWHERE"] = "Recherche Globale"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Affichera les résultats dans le chat."
---[[Translation missing --]]
-L["SEARCH_HELP"] = "Search Help"
+L["SEARCH_HELP"] = "Aide à la recherche"
 L["SEARCH_TRY_X"] = "Recherche, essayez %s"
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
-L["SHOW_BUTTONS"] = "Show buttons"
+L["SHOW_ADD_BUTTONS"] = "Show add buttons"
+L["SHOW_BUTTONS"] = "Afficher les boutons"
 L["SHOW_SORT_BUTTON"] = "Afficher le bouton de tri"
---[[Translation missing --]]
-L["SINGLE_BAG"] = "Single bag"
---[[Translation missing --]]
-L["SINGLE_BAG_DESCRIPTION"] = "The most common option. Keeps your items in one large container."
---[[Translation missing --]]
+L["SINGLE_BAG"] = "Un seul sac"
+L["SINGLE_BAG_DESCRIPTION"] = "L’option la plus courante. Conserve vos objets dans un grand conteneur."
 L["SKINS"] = "Skins"
---[[Translation missing --]]
-L["SLOT"] = "Slot"
+L["SLOT"] = "Emplacements"
 L["SOCKET_INTERFACE"] = "Interface des châsses "
 L["SORT"] = "Tri"
---[[Translation missing --]]
-L["SORT_METHOD_2"] = "Sort method"
---[[Translation missing --]]
-L["SORT_METHOD_RESET_FOR_CATEGORIES"] = "Sort method reset to be used with categories"
---[[Translation missing --]]
-L["SORT_ON_OPEN"] = "Sort on open"
+L["SORT_METHOD_2"] = "Méthode de tri"
+L["SORT_METHOD_RESET_FOR_CATEGORIES"] = "Réinitialisation de la méthode de tri à utiliser avec les catégories"
+L["SORT_ON_OPEN"] = "Trier à l'ouverture"
 L["SORTBAGS"] = "Tri des sacs"
 L["SORTING"] = "Tri"
 L["SOUL"] = "Âme"
@@ -597,20 +513,14 @@ L["THAT_ITEM_IS_IN_A_MAILBOX"] = "Cet objet est dans la boîte aux lettres"
 L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "Cet objet est stocké dans la chambre du vide"
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "Cet objet est mis en vente à l’hôtel des ventes"
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "Le vendeur n'est pas intéressé par ces objets"
---[[Translation missing --]]
-L["THEME"] = "Theme"
---[[Translation missing --]]
-L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
---[[Translation missing --]]
-L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
---[[Translation missing --]]
-L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
---[[Translation missing --]]
-L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
+L["THEME"] = "Thème"
+L["TIPS_PLUGINS"] = "Améliorez Baganator avec des fonctionnalités supplémentaires alimentées par des intégrations avec des addons populaires comme AllTheThings, CanIMogIt, Pawn, Dejunk, etc."
+L["TIPS_SEARCH"] = "Puissant, flexible et rapide. Utiliser des opérateurs de requête flexibles & (et), | (ou), et ! (pas) pour trouver exactement ce dont vous avez besoin."
+L["TIPS_SKINS_2"] = "Faites en sorte que Baganator fasse correspondre votre interface utilisateur avec des thèmes pour ElvUI, GW2 ou une simple option sombre. Installé séparément."
+L["TIPS_TRANSFER"] = "Recherchez des articles, puis utilisez le bouton de transfert pour les transférer facilement à votre banque, à un message postal, à la fenêtre d’échange ou à un fournisseur."
 L["TL"] = "OE"
 L["TO_OPEN_OPTIONS_X"] = "Accédez aux options avec /bgr"
---[[Translation missing --]]
-L["TOOLTIP_SETTINGS"] = "Tooltip settings"
+L["TOOLTIP_SETTINGS"] = "Paramètres de l’infobulle"
 L["TRADE"] = "Echange"
 L["TRADEABLE_LOOT"] = "Butin échangeable"
 L["TRANSFER"] = "Transfert"
@@ -622,32 +532,22 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Joignez les objets recherchés à u
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Vendre les objets recherchés au marchand (max 12)."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Placez les objets recyclables dans la machine."
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Ajouter les objets recherchés à la fenêtre d’échange (max 6)."
---[[Translation missing --]]
-L["TRANSPARENCY"] = "Transparency"
---[[Translation missing --]]
+L["TRANSPARENCY"] = "Transparence"
 L["TYPE"] = "Type"
 L["UNLIMITED"] = "Illimité"
 L["USE_DEFAULT"] = "Par défaut"
 L["USING_X"] = "Utilisant %s"
 L["VENDOR"] = "Vendeur"
 L["VERSION_COLON_X"] = "Version: %s"
---[[Translation missing --]]
-L["VIEW_TYPE"] = "View type"
+L["VIEW_TYPE"] = "Type de vue"
 L["VOID_STORAGE"] = "Banque du vide"
---[[Translation missing --]]
-L["WARBAND"] = "Warband"
---[[Translation missing --]]
-L["WARBAND_BANK_COLUMNS"] = "Warband bank columns"
---[[Translation missing --]]
-L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
---[[Translation missing --]]
-L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
---[[Translation missing --]]
-L["WELCOME_DESCRIPTION"] = "Decide which kind of bags you want. This can be changed later."
---[[Translation missing --]]
-L["WELCOME_TO_BAGANATOR"] = "Welcome to Baganator"
---[[Translation missing --]]
-L["WHEN_HOLDING_ALT"] = "When holding Alt"
+L["WARBAND"] = "Bataillon"
+L["WARBAND_BANK_COLUMNS"] = "Colonnes de banque du bataillon"
+L["WARBAND_BANK_DATA_MISSING_HINT"] = "Données du bataillon manquantes. Rendez visite à un banquier avec n’importe quel personnage pour peupler cette vue."
+L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "L’espace de la banque du bataillon n’a pas été acheté. Utilisez le bouton nouvel onglet à droite pour acheter"
+L["WELCOME_DESCRIPTION"] = "Décidez du type de sacs que vous voulez. Cela peut être modifié ultérieurement."
+L["WELCOME_TO_BAGANATOR"] = "Bienvenue sur Baganator"
+L["WHEN_HOLDING_ALT"] = "Lorsque vous maintenez Alt enfoncé"
 L["X_INFORMATION"] = "%s Infos"
 L["X_LOGS"] = "%s Journaux"
 L["XS_BAGS"] = "Sacs de %s"
@@ -686,10 +586,10 @@ L["BOE"] = "BoE"
 L["BOU"] = "BoU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(nur Kategorie-Ansicht)"
 L["BRACKETS_RELOAD_REQUIRED"] = "(Neuladen erforderlich)"
+L["BRACKETS_WHILE_DRAGGING"] = "(während des ziehens)"
 L["BUY_REAGENT_BANK"] = "Reagenzien-Bank kaufen"
 L["BUY_WARBAND_BANK_TAB"] = "Kriegsmeuten Bank-Tab kaufen?"
---[[Translation missing --]]
-L["BY_PLUSMOUSE"] = "by plusmouse"
+L["BY_PLUSMOUSE"] = "von plusmouse"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Es können keine weiteren Gegenstände zu diesem Handel hinzugefügt werden"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Du hast keine Berechtigung diesen Tab zu bearbeiten"
@@ -727,8 +627,7 @@ L["CTRL_C_TO_COPY"] = "Strg+C zum Kopieren"
 L["CUSTOMISE_BAGANATOR"] = "Baganator anpassen"
 L["DEPOSIT_REAGENTS"] = "Reagenzien einlagern"
 L["DEPOSIT_WARBOUND"] = "Kriegsgebundene Gegenstände einlagern"
---[[Translation missing --]]
-L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
+L["DISCORD_DESCRIPTION"] = "Updates, Verbesserungsvorschläge und Support"
 L["EDIT"] = "Bearbeiten"
 L["EMPTY"] = "Leer"
 L["ENCHANTING"] = "Verzauberkunst"
@@ -797,8 +696,7 @@ L["ITEM_QUALITY"] = "Gegenstandsqualität"
 L["ITEM_QUALITY_TEXT_COLORS"] = "Gegenstandsqualität Textfarben"
 L["ITEM_TYPE"] = "Gegenstandstyp"
 L["JEWELCRAFTING"] = "Juwelierskunst"
---[[Translation missing --]]
-L["JOIN_THE_DISCORD"] = "Join the Discord"
+L["JOIN_THE_DISCORD"] = "Tritt dem Discord bei"
 L["JUNK"] = "Schrott"
 L["JUNK_DETECTION_2"] = "Schrott-Erkennung"
 L["KEYS"] = "Schlüssel"
@@ -846,6 +744,7 @@ L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Gibt das Suchergebnis im Chat aus."
 L["SEARCH_HELP"] = "Hilfe zur Suche"
 L["SEARCH_TRY_X"] = "Suche, versuche: %s"
 L["SELLJUNK"] = "Schrott verkaufen"
+L["SHOW_ADD_BUTTONS"] = "Hinzufügen Buttons anzeigen"
 L["SHOW_BUTTONS"] = "Zeige Buttons"
 L["SHOW_SORT_BUTTON"] = "Sortieren Button anzeigen"
 L["SINGLE_BAG"] = "Einzelne Tasche"
@@ -872,8 +771,7 @@ L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "Der Händler will keinen die
 L["THEME"] = "Template"
 L["TIPS_PLUGINS"] = "Erweitere Baganator mit zusätzlichen Funktionen, basierend auf Integrationen von beliebten Addons wie AllTheThings, CanIMogIt, Pawn, Dejunk, und anderen..."
 L["TIPS_SEARCH"] = "Leistungsstark, flexibel und schnell. Verwende die flexiblen Abfrageoperatoren & (und), | (oder) und ! (nicht), um genau das zu finden, was du brauchst."
---[[Translation missing --]]
-L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
+L["TIPS_SKINS_2"] = "Passe Baganator mit Themen für ElvUI, GW2 oder einer einfachen dunklen Option an deine Benutzeroberfläche an. Muss separat als Plugin installiert werden."
 L["TIPS_TRANSFER"] = "Suche nach Gegenständen und verwende dann die Transfer-Schaltfläche, um sie ganz einfach zu deiner Bank, einer Mail, dem Handelsfenster oder einem Verkäufer zu übertragen."
 L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Optionen anzeigen mit /bgr"
@@ -943,10 +841,11 @@ L["BOE"] = "BoE"
 L["BOU"] = "BoU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(только при категориях)"
 L["BRACKETS_RELOAD_REQUIRED"] = "(требуется /reload)"
+--[[Translation missing --]]
+L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
 L["BUY_REAGENT_BANK"] = "Купить банк материалов"
 L["BUY_WARBAND_BANK_TAB"] = "Приобрести ячейку банка отряда?"
---[[Translation missing --]]
-L["BY_PLUSMOUSE"] = "by plusmouse"
+L["BY_PLUSMOUSE"] = "(автор - plusmouse)"
 L["CAN_I_MOG_IT"] = "Can I Mog It"
 L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Превышен лимит на добавление предметов для обмена"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "У вас нет разрешения на редактирование этой ячейки"
@@ -959,8 +858,7 @@ L["CATEGORY_EQUIPMENT_SET"] = "Комплект экипировки"
 L["CATEGORY_EQUIPMENT_SETS_AUTO"] = "Комплекты экип. (авто)"
 L["CATEGORY_FOOD"] = "Еда"
 L["CATEGORY_GROUPS"] = "По категориям"
---[[Translation missing --]]
-L["CATEGORY_GROUPS_DESCRIPTION"] = "Group items by type, with features to add new custom categories."
+L["CATEGORY_GROUPS_DESCRIPTION"] = "Группировка предметов по типу с возможностью добавления новых пользовательских категорий."
 L["CATEGORY_HEARTHSTONE"] = "Камень возвращения"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Слоты инвентаря (авто)"
 L["CATEGORY_JUNK"] = "Хлам"
@@ -972,8 +870,7 @@ L["CATEGORY_SPACING"] = "Расстояние между категориями"
 L["CATEGORY_TOY"] = "Игрушка"
 L["CHARACTER"] = "Персонаж"
 L["CHARACTER_PANEL"] = "Окно персонажа"
---[[Translation missing --]]
-L["CHOOSE"] = "Choose"
+L["CHOOSE"] = "Выберите"
 L["COMBINE_STACKS_ONLY"] = "Только комбинировать стаки"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BAG"] = "Вы хотите перенести ВСЕ предметы из сумок?"
 L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_BANK"] = "Вы хотите перенести ВСЕ предметы из банка?"
@@ -986,8 +883,7 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C для копирования"
 L["CUSTOMISE_BAGANATOR"] = "Настройка Baganator"
 L["DEPOSIT_REAGENTS"] = "Перенести материалы из сумок"
 L["DEPOSIT_WARBOUND"] = "Перенести предметы отряда"
---[[Translation missing --]]
-L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
+L["DISCORD_DESCRIPTION"] = "Обновления, запрос новых функций и поддержка"
 L["EDIT"] = "Редактирование"
 L["EMPTY"] = "Пусто"
 L["ENCHANTING"] = "Наложение чар"
@@ -1055,8 +951,7 @@ L["ITEM_QUALITY"] = "Качество"
 L["ITEM_QUALITY_TEXT_COLORS"] = "Цвет текста как качество"
 L["ITEM_TYPE"] = "Тип"
 L["JEWELCRAFTING"] = "Ювелирное дело"
---[[Translation missing --]]
-L["JOIN_THE_DISCORD"] = "Join the Discord"
+L["JOIN_THE_DISCORD"] = "Наш Discord"
 L["JUNK"] = "Хлам"
 L["JUNK_DETECTION_2"] = "Определение хлама"
 L["KEYS"] = "Ключи"
@@ -1082,8 +977,7 @@ L["PAWN"] = "Аддон Pawn"
 L["PEDDLER"] = "Аддон Peddler"
 L["PERCENTAGE_PATTERN"] = "%s%%"
 L["PIXEL_PATTERN"] = "%s пикс."
---[[Translation missing --]]
-L["PLUGINS"] = "Plugins"
+L["PLUGINS"] = "Плагины"
 L["POOR_QUALITY"] = "Низкое качество"
 L["PRIORITY"] = "Приоритет"
 L["QUALITY"] = "Качество"
@@ -1102,17 +996,16 @@ L["SCRAP"] = "Аддон Scrap"
 L["SCRAPPING_MACHINE"] = "Окно утилизации"
 L["SEARCH_EVERYWHERE"] = "Глобальный поиск"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Результаты будут выведены в чат"
---[[Translation missing --]]
-L["SEARCH_HELP"] = "Search Help"
+L["SEARCH_HELP"] = "Помощь по поиску"
 L["SEARCH_TRY_X"] = "Попробуйте ввести для поиска: %s"
 L["SELLJUNK"] = "Аддон SellJunk"
+--[[Translation missing --]]
+L["SHOW_ADD_BUTTONS"] = "Show add buttons"
 L["SHOW_BUTTONS"] = "Отображать кнопки"
 L["SHOW_SORT_BUTTON"] = "Отображать кнопку сортировки"
 L["SINGLE_BAG"] = "Единая сумка"
---[[Translation missing --]]
-L["SINGLE_BAG_DESCRIPTION"] = "The most common option. Keeps your items in one large container."
---[[Translation missing --]]
-L["SKINS"] = "Skins"
+L["SINGLE_BAG_DESCRIPTION"] = "Самый распространенный вариант. Ваши предметы находятся в большой единой сумке."
+L["SKINS"] = "Скины"
 L["SLOT"] = "Ячейка"
 L["SOCKET_INTERFACE"] = "Окно инкрустации"
 L["SORT"] = "Сортировка"
@@ -1132,14 +1025,10 @@ L["THAT_ITEM_IS_IN_VOID_STORAGE"] = "Этот предмет находится 
 L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "Этот предмет выставлен на аукционе"
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "Торговцу не нужны эти предметы"
 L["THEME"] = "Тема"
---[[Translation missing --]]
-L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
---[[Translation missing --]]
-L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
---[[Translation missing --]]
-L["TIPS_SKINS_2"] = "Make Baganator match your UI with themes for ElvUI, GW2, or a simple dark option. Installed separately."
---[[Translation missing --]]
-L["TIPS_TRANSFER"] = "Search for items, then use the transfer button to easily move them to your bank, a mail message, the trade window, or a vendor."
+L["TIPS_PLUGINS"] = "Улучшите Baganator дополнительными функциями благодаря интеграции с такими популярными аддонами, как AllTheThings, CanIMogIt, Pawn, Dejunk и другими..."
+L["TIPS_SEARCH"] = "Мощный, гибкий и быстрый. Используйте гибкие операторы запросов & (И), | (ИЛИ) и ! (НЕ), чтобы найти именно то, что вам нужно."
+L["TIPS_SKINS_2"] = "Сделайте Baganator соответствующим вашему пользовательскому интерфейсу с помощью тем (ElvUI, GW2 или просто темный вариант). Устанавливается отдельно."
+L["TIPS_TRANSFER"] = "Ищите предметы, а затем используйте кнопку переноса, чтобы легко переместить найденные предметы в банк, почтовое сообщение, окно торговли или продажи."
 L["TL"] = "Можно передать"
 L["TO_OPEN_OPTIONS_X"] = "Команда чата для открытия настроек - /bgr"
 L["TOOLTIP_SETTINGS"] = "Настройка подсказок"
@@ -1171,10 +1060,8 @@ L["WARBAND"] = "Отряд"
 L["WARBAND_BANK_COLUMNS"] = "Столбцов в отряде"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "Нет данных о банке отряда. Посетите банкира любым персонажем для отображения содержимого этого окна."
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Банк отряда не приобретен. Используйте кнопку справа для покупки."
---[[Translation missing --]]
-L["WELCOME_DESCRIPTION"] = "Decide which kind of bags you want. This can be changed later."
---[[Translation missing --]]
-L["WELCOME_TO_BAGANATOR"] = "Welcome to Baganator"
+L["WELCOME_DESCRIPTION"] = "Выберите, какой вид сумок использовать. Вы сможете изменить это позже."
+L["WELCOME_TO_BAGANATOR"] = "Добро пожаловать в Baganator"
 L["WHEN_HOLDING_ALT"] = "При зажатом Alt"
 L["X_INFORMATION"] = "Информация о ячейке %s"
 L["X_LOGS"] = "Журнал ячейки %s"
@@ -1230,6 +1117,8 @@ L["BOU"] = "BoU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(category view only)"
 --[[Translation missing --]]
 L["BRACKETS_RELOAD_REQUIRED"] = "(reload required)"
+--[[Translation missing --]]
+L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
 L["BUY_REAGENT_BANK"] = "Comprar Banco de Componentes"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
@@ -1524,6 +1413,8 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
+L["SHOW_ADD_BUTTONS"] = "Show add buttons"
+--[[Translation missing --]]
 L["SHOW_BUTTONS"] = "Show buttons"
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show sort button"
@@ -1552,9 +1443,9 @@ L["SORTING"] = "Sorting"
 --[[Translation missing --]]
 L["SOUL"] = "Soul"
 --[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
 --[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
 --[[Translation missing --]]
 L["TAB_INFO"] = "Tab Information"
 --[[Translation missing --]]
@@ -1701,6 +1592,8 @@ L["BOU"] = "BoU"
 --[[Translation missing --]]
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(category view only)"
 L["BRACKETS_RELOAD_REQUIRED"] = "(Requiere volver a iniciar sesion)"
+--[[Translation missing --]]
+L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
 --[[Translation missing --]]
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
@@ -1979,6 +1872,8 @@ L["SEARCH_HELP"] = "Search Help"
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
 L["SELLJUNK"] = "Vender Basura"
+--[[Translation missing --]]
+L["SHOW_ADD_BUTTONS"] = "Show add buttons"
 L["SHOW_BUTTONS"] = "Mostrar botones"
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show sort button"
@@ -2005,9 +1900,9 @@ L["SORTBAGS"] = "SortBags"
 L["SORTING"] = "Sorting"
 L["SOUL"] = "Alma"
 --[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
 --[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
 --[[Translation missing --]]
 L["TAB_INFO"] = "Tab Information"
 --[[Translation missing --]]
@@ -2129,6 +2024,7 @@ L["BOE"] = "裝綁"
 L["BOU"] = "用綁"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(僅分類檢視)"
 L["BRACKETS_RELOAD_REQUIRED"] = "(需要重載)"
+L["BRACKETS_WHILE_DRAGGING"] = "(當拖動時)"
 L["BUY_REAGENT_BANK"] = "購買材料銀行"
 L["BUY_WARBAND_BANK_TAB"] = "購買戰隊銀行標籤嗎？"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
@@ -2285,6 +2181,7 @@ L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "將把搜尋結果發送到您的聊天
 L["SEARCH_HELP"] = "搜尋幫助"
 L["SEARCH_TRY_X"] = "搜尋，嘗試 %s"
 L["SELLJUNK"] = "賣出垃圾"
+L["SHOW_ADD_BUTTONS"] = "顯示新增按鈕"
 L["SHOW_BUTTONS"] = "顯示按鈕"
 L["SHOW_SORT_BUTTON"] = "顯示整理按鈕"
 L["SINGLE_BAG"] = "單一大背包"
@@ -2381,6 +2278,7 @@ L["BOE"] = "装绑"
 L["BOU"] = "用绑"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "（仅分类浏览）"
 L["BRACKETS_RELOAD_REQUIRED"] = "（需/reload重载界面）"
+L["BRACKETS_WHILE_DRAGGING"] = "（拖动时）"
 L["BUY_REAGENT_BANK"] = "购买材料银行"
 L["BUY_WARBAND_BANK_TAB"] = "购买战团银行标签？"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
@@ -2537,6 +2435,7 @@ L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "将搜索结果发送到聊天信息中
 L["SEARCH_HELP"] = "搜索帮助"
 L["SEARCH_TRY_X"] = "搜索，尝试： %s"
 L["SELLJUNK"] = "出售垃圾"
+L["SHOW_ADD_BUTTONS"] = "显示新增按钮"
 L["SHOW_BUTTONS"] = "显示按钮"
 L["SHOW_SORT_BUTTON"] = "显示整理按键"
 L["SINGLE_BAG"] = "大背包"
@@ -2651,6 +2550,8 @@ L["BOU"] = "BoU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(category view only)"
 --[[Translation missing --]]
 L["BRACKETS_RELOAD_REQUIRED"] = "(reload required)"
+--[[Translation missing --]]
+L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
 L["BUY_REAGENT_BANK"] = "재료 은행 구매"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
@@ -2929,6 +2830,8 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
+L["SHOW_ADD_BUTTONS"] = "Show add buttons"
+--[[Translation missing --]]
 L["SHOW_BUTTONS"] = "Show buttons"
 L["SHOW_SORT_BUTTON"] = "정렬 버튼 표시"
 --[[Translation missing --]]
@@ -2953,9 +2856,9 @@ L["SORTING"] = "정렬"
 --[[Translation missing --]]
 L["SOUL"] = "Soul"
 --[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
 --[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
 --[[Translation missing --]]
 L["TAB_INFO"] = "Tab Information"
 --[[Translation missing --]]
@@ -3108,6 +3011,8 @@ L["BOU"] = "BoU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(category view only)"
 --[[Translation missing --]]
 L["BRACKETS_RELOAD_REQUIRED"] = "(reload required)"
+--[[Translation missing --]]
+L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
 --[[Translation missing --]]
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
@@ -3421,6 +3326,8 @@ L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
+L["SHOW_ADD_BUTTONS"] = "Show add buttons"
+--[[Translation missing --]]
 L["SHOW_BUTTONS"] = "Show buttons"
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show sort button"
@@ -3449,9 +3356,9 @@ L["SORTING"] = "Sorting"
 --[[Translation missing --]]
 L["SOUL"] = "Soul"
 --[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
 --[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
 --[[Translation missing --]]
 L["TAB_INFO"] = "Tab Information"
 --[[Translation missing --]]

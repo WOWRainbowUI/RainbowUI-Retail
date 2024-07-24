@@ -1,3 +1,4 @@
+local _, addonTable = ...
 BaganatorCustomiseDialogCategoriesSectionEditorMixin = {}
 
 function BaganatorCustomiseDialogCategoriesSectionEditorMixin:OnLoad()
@@ -8,7 +9,20 @@ function BaganatorCustomiseDialogCategoriesSectionEditorMixin:OnLoad()
 
     local newValue = "_" .. self.SectionName:GetText():gsub("_", " ")
 
-    local displayOrder = Baganator.Config.Get(Baganator.Config.Options.CATEGORY_DISPLAY_ORDER)
+    local displayOrder = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER)
+
+    if self.currentSection ~= newValue then
+      local existingIndex = tIndexOf(displayOrder, newValue)
+      if existingIndex then
+        table.remove(displayOrder, existingIndex)
+        for i = 1, #displayOrder do
+          if displayOrder[i] == addonTable.CategoryViews.Constants.SectionEnd then
+            table.remove(displayOrder, i)
+            break
+          end
+        end
+      end
+    end
 
     local oldIndex = tIndexOf(displayOrder, self.currentSection)
     if oldIndex then
@@ -16,12 +30,12 @@ function BaganatorCustomiseDialogCategoriesSectionEditorMixin:OnLoad()
       displayOrder[oldIndex] = newValue
     else
       table.insert(displayOrder, 1, newValue)
-      table.insert(displayOrder, 2, Baganator.CategoryViews.Constants.SectionEnd)
+      table.insert(displayOrder, 2, addonTable.CategoryViews.Constants.SectionEnd)
     end
-    Baganator.Config.Set(Baganator.Config.Options.CATEGORY_DISPLAY_ORDER, CopyTable(displayOrder))
+    addonTable.Config.Set(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER, CopyTable(displayOrder))
   end
 
-  Baganator.CallbackRegistry:RegisterCallback("EditCategorySection", function(_, value)
+  addonTable.CallbackRegistry:RegisterCallback("EditCategorySection", function(_, value)
     self:Show()
     if value == "_" then
       self.currentSection = "_" .. BAGANATOR_L_NEW_SECTION
@@ -33,13 +47,13 @@ function BaganatorCustomiseDialogCategoriesSectionEditorMixin:OnLoad()
     end
   end)
 
-  Baganator.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
+  addonTable.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
     if not self:IsVisible() then
       return
     end
 
-    if settingName == Baganator.Config.Options.CATEGORY_DISPLAY_ORDER then
-      local displayOrder = Baganator.Config.Get(Baganator.Config.Options.CATEGORY_DISPLAY_ORDER)
+    if settingName == addonTable.Config.Options.CATEGORY_DISPLAY_ORDER then
+      local displayOrder = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER)
       if not tIndexOf(displayOrder, self.currentSection) then
         self:Hide()
       end
@@ -53,7 +67,7 @@ function BaganatorCustomiseDialogCategoriesSectionEditorMixin:OnLoad()
     end
   end)
 
-  Baganator.Skins.AddFrame("EditBox", self.SectionName)
+  addonTable.Skins.AddFrame("EditBox", self.SectionName)
 end
 
 function BaganatorCustomiseDialogCategoriesSectionEditorMixin:Disable()
