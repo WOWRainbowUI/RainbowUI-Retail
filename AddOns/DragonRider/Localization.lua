@@ -107,6 +107,14 @@ if LOCALE == "enUS" then
 	--L["SetMapPin_TT"] = "Click to set Map Pin"
 	L["MuteVigorSound_Settings"] = "Mute Vigor Sound"
 	L["MuteVigorSound_SettingsTT"] = "Toggle the sound that plays when the dragonriding mount naturally gains a stack of vigor."
+	L["SpeedometerTheme"] = "Speedometer Theme"
+	L["SpeedometerThemeTT"] = "Customize the Speedometer theme."
+	L["Algari"] = "Algari"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "Minimalist"
+	L["Alliance"] = "Alliance"
+	L["Horde"] = "Horde"
+
 
 return end
 
@@ -205,6 +213,14 @@ if LOCALE == "esES" or LOCALE == "esMX" then
 	L["SilverTime"] = "Tiempo Plata: "
 	L["MuteVigorSound_Settings"] = "Silenciar sonido de Vigor"
 	L["MuteVigorSound_SettingsTT"] = "Alternar el sonido que se reproduce cuando la montura dragón naturalmente obtiene una acumulación de vigor."
+	L["SpeedometerTheme"] = "Tema del velocímetro"
+	L["SpeedometerThemeTT"] = "Personaliza el tema del velocímetro."
+	L["Algari"] = "Algari"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "Minimalista"
+	L["Alliance"] = "Alianza"
+	L["Horde"] = "Horda"
+
 
 
 return end
@@ -304,6 +320,13 @@ if LOCALE == "deDE" then
 	L["SilverTime"] = "Silberzeit: "
 	L["MuteVigorSound_Settings"] = "Vigor-Ton stummschalten"
 	L["MuteVigorSound_SettingsTT"] = "Schaltet den Ton ein/aus, der abgespielt wird, wenn das Drachenreittier natürlich einen Stapel an Ausdauer erhält."
+	L["SpeedometerTheme"] = "Tachometer-Thema"
+	L["SpeedometerThemeTT"] = "Passen Sie das Thema des Tachometers an."
+	L["Algari"] = "Algari"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "Minimalistisch"
+	L["Alliance"] = "Allianz"
+	L["Horde"] = "Horde"
 
 
 return end
@@ -403,6 +426,14 @@ if LOCALE == "frFR" then
 	L["SilverTime"] = "Temps Argent : "
 	L["MuteVigorSound_Settings"] = "Muter le son de Vigueur"
 	L["MuteVigorSound_SettingsTT"] = "Activer/désactiver le son qui se joue lorsque la monture de dragon obtient naturellement une pile de vigueur."
+	L["SpeedometerTheme"] = "Thème du tachymètre"
+	L["SpeedometerThemeTT"] = "Personnalisez le thème du tachymètre."
+	L["Algari"] = "Algari"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "Minimaliste"
+	L["Alliance"] = "Alliance"
+	L["Horde"] = "Horde"
+
 
 
 return end
@@ -502,6 +533,14 @@ if LOCALE == "itIT" then
 	L["SilverTime"] = "Tempo Argento: "
 	L["MuteVigorSound_Settings"] = "Silenzia suono Vigore"
 	L["MuteVigorSound_SettingsTT"] = "Attiva/disattiva il suono che si riproduce quando la montatura del drago guadagna naturalmente uno stack di vigore."
+	L["SpeedometerTheme"] = "Tema del tachimetro"
+	L["SpeedometerThemeTT"] = "Personalizza il tema del tachimetro."
+	L["Algari"] = "Algari"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "Minimalista"
+	L["Alliance"] = "Alleanza"
+	L["Horde"] = "Orda"
+
 
 
 return end
@@ -601,6 +640,14 @@ if LOCALE == "ptBR" then
 	L["SilverTime"] = "Tempo Prata: "
 	L["MuteVigorSound_Settings"] = "Silenciar Som de Vigor"
 	L["MuteVigorSound_SettingsTT"] = "Alternar o som que é reproduzido quando a montaria de dragão naturalmente ganha uma pilha de vigor."
+	L["SpeedometerTheme"] = "Tema do velocímetro"
+	L["SpeedometerThemeTT"] = "Personalize o tema do velocímetro."
+	L["Algari"] = "Algari"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "Minimalista"
+	L["Alliance"] = "Aliança"
+	L["Horde"] = "Horda"
+
 
 
 -- Note that the EU Portuguese WoW client also
@@ -702,6 +749,14 @@ if LOCALE == "ruRU" then
 	L["SilverTime"] = "Серебряное время: "
 	L["MuteVigorSound_Settings"] = "Выключить звук силы"
 	L["MuteVigorSound_SettingsTT"] = "Переключить звук, который проигрывается, когда ездовое средство на драконе естественным образом получает стопку силы."
+	L["SpeedometerTheme"] = "Тема спидометра"
+	L["SpeedometerThemeTT"] = "Настройте тему спидометра."
+	L["Algari"] = "Алгари"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "Минималистичный"
+	L["Alliance"] = "Альянс"
+	L["Horde"] = "Орда"
+
 
 
 
@@ -802,6 +857,14 @@ if LOCALE == "koKR" then
 	L["SilverTime"] = "은 시간: "
 	L["MuteVigorSound_Settings"] = "체력 사운드 음소거"
 	L["MuteVigorSound_SettingsTT"] = "드래곤 라이딩 마운트가 체력 스택을 자연적으로 얻을 때 재생되는 소리를 토글합니다."
+	L["SpeedometerTheme"] = "속도계 테마"
+	L["SpeedometerThemeTT"] = "속도계 테마를 사용자 정의합니다."
+	L["Algari"] = "알가리"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "미니멀리스트"
+	L["Alliance"] = "얼라이언스"
+	L["Horde"] = "호드"
+
 
 
 
@@ -904,6 +967,14 @@ if LOCALE == "zhCN" then
 	L["MuteVigorSound_Settings"] = "静音精力音效" -- translated
 	L["MuteVigorSound_SettingsTT"] = "切换驭空术坐骑获得精力时播放的声音。"  -- translated 11.0
 	--non-official translations
+	L["SpeedometerTheme"] = "速度计主题"
+	L["SpeedometerThemeTT"] = "自定义速度计主题。"
+	L["Algari"] = "阿尔加里"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "极简主义"
+	L["Alliance"] = "联盟"
+	L["Horde"] = "部落"
+
 
 
 return end
@@ -1003,6 +1074,15 @@ if LOCALE == "zhTW" then
 	L["SilverTime"] = "銀牌時間: "
 	L["MuteVigorSound_Settings"] = "静音活力音效"
 	L["MuteVigorSound_SettingsTT"] = "切换龙骑坐骑自然获得活力堆栈时播放的声音。"
+	L["SpeedometerTheme"] = "速度計主題"
+	L["SpeedometerThemeTT"] = "自訂速度計主題。"
+	L["Algari"] = "阿爾加里"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "極簡主義"
+	L["Alliance"] = "聯盟"
+	L["Horde"] = "部落"
+
+
 
 
 return end
