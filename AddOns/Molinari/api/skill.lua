@@ -65,7 +65,7 @@ else
 
 		for index = 1, GetNumSkillLines() do
 			local skillName, isHeader, isExpanded, skillLevel = GetSkillLineInfo(index)
-			if skillName == _G.TRADE_SKILLS and isHeader and not isExpanded then
+			if skillName == TRADE_SKILLS and isHeader and not isExpanded then
 				ExpandSkillHeader(index)
 				return
 			else
@@ -78,7 +78,7 @@ else
 	end
 
 	function addon:RequiredDisenchantingLevel(itemID)
-		local _, _, _, _, itemRequiredLevel = (GetItemInfo or C_Item.GetItemInfo)(itemID)
+		local _, _, _, _, itemRequiredLevel = C_Item.GetItemInfo(itemID)
 		if not itemRequiredLevel then
 			return
 		end
