@@ -138,7 +138,6 @@ L["Aqua Rager"] = "Aqua Rager"
 L["Aqu'sirr"] = "阿库希尔"
 --[[Translation missing --]]
 L["Arachnopod Destroyer"] = "Arachnopod Destroyer"
---[[Translation missing --]]
 L["AraKara"] = "『回音之城』厄拉卡拉"
 L["Aranasi Broodmother"] = "阿兰纳丝蛛后"
 L["Arcane Anomaly"] = "奥术畸体"
@@ -473,7 +472,6 @@ L["Chrono-Lord Deios"] = "Chrono-Lord Deios"
 L["Chrono-Lord Epoch"] = "Chrono-Lord Epoch"
 --[[Translation missing --]]
 L["CityofEchoes"] = ""
---[[Translation missing --]]
 L["CityOfThreads"] = "蛛絲城"
 --[[Translation missing --]]
 L["Claw Fighter"] = "Claw Fighter"
@@ -487,7 +485,6 @@ L["Click to toggle AddOn Window"] = "左鍵: 打開主視窗"
 L["Clicking this button will attempt to join the ongoing Live Session of your group or create a new one if none is found"] = "點一下此按鈕會嘗試加入你所在隊伍的即時連線，如果沒有正在進行中的即時連線，則會建立一個新的。"
 --[[Translation missing --]]
 L["Clockwork Sapper"] = "Clockwork Sapper"
---[[Translation missing --]]
 L["Close"] = "關閉"
 --[[Translation missing --]]
 L["Cloud Prince"] = "Cloud Prince"
@@ -941,7 +938,6 @@ L["Emissary of the Tides"] = "潮汐使者"
 L["Empty"] = "空白"
 --[[Translation missing --]]
 L["Empyrean Assassin"] = "Empyrean Assassin"
---[[Translation missing --]]
 L["Enable Compartment Button"] = "啟用插件選單按鈕"
 L["Enable Minimap Button"] = "啟用小地圖按鈕"
 L["Enchanted Broodling"] = "魔化巢蛛"
@@ -1245,7 +1241,6 @@ L["Granyth"] = "Granyth"
 L["Graveyard"] = "墓地"
 L["Grease Bot"] = "油滋滋"
 L["Grievous"] = "兇殘"
---[[Translation missing --]]
 L["Grim Batol"] = "格瑞姆巴托"
 L["Grimhorn the Enslaver"] = "奴役者格里霍恩"
 L["Grimrail Bombardier"] = "恐轨投弹手"
@@ -2471,7 +2466,6 @@ L["Seaspray Crab"] = "逐潮蟹"
 L["Seat of the Archon"] = "御靈者之座"
 L["Seat of the Triumvirate"] = "三傑議會之座"
 L["Seat of the Triumvirate Sublevel"] = "三傑議會之座"
---[[Translation missing --]]
 L["Select all"] = "全選"
 L["Select the dungeon level"] = "選擇地城層數"
 L["Sending: %.1f"] = "正在傳送: %.1f"
@@ -2886,7 +2880,6 @@ L["The Crybaby Hozen"] = "The Crybaby Hozen"
 --[[Translation missing --]]
 L["The Culling of Stratholme"] = "The Culling of Stratholme"
 L["The Curator"] = "馆长"
---[[Translation missing --]]
 L["The Dawnbreaker"] = "破曉者號"
 L["The Drain"] = "排水口"
 L["The Emerald Archives"] = "翡翠圖書館"
@@ -2947,7 +2940,6 @@ L["The Servant's Quarters"] = "佣人區"
 L["The Songbird Queen"] = "The Songbird Queen"
 --[[Translation missing --]]
 L["The Spark of Imagination"] = "The Spark of Imagination"
---[[Translation missing --]]
 L["The Stonevault"] = "石庫"
 --[[Translation missing --]]
 L["The Talking Fish"] = "The Talking Fish"
@@ -2962,7 +2954,6 @@ L["The Vestibules of Drak'Tharon"] = "The Vestibules of Drak'Tharon"
 --[[Translation missing --]]
 L["The Violet Hold"] = "The Violet Hold"
 L["The Vortex Pinnacle"] = "漩渦尖塔"
---[[Translation missing --]]
 L["The War Within Season 1"] = "地心之戰第1季"
 L["The Warden's Court"] = "看守者之廷"
 L["TheArcaneConservatory"] = "祕法存護所"
@@ -3197,7 +3188,6 @@ L["Urg'roth, Breaker of Heroes"] = "乌尔格斯，勇士噬灭者"
 L["Urh Relic"] = "尤型圣物"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "輸入 /mdt reset 來重置 MDT 視窗，恢復成預設的大小和位置。"
 L["Use as a starting point:"] = "從這個規劃路線開始編輯:"
---[[Translation missing --]]
 L["Use forces count"] = "側欄顯示部隊數量"
 --[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
