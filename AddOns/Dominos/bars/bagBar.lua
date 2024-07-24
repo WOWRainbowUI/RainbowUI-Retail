@@ -21,7 +21,8 @@ end
 function BagBar:GetDefaults()
     if Addon:IsBuild("retail") then
         return {
-            displayLayer = 'LOW',
+            hidden = true,
+			displayLayer = 'LOW',
             point = 'BOTTOMRIGHT',
             x = 0,
             y = 40,
