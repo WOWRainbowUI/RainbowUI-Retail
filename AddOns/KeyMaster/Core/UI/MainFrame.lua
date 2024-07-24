@@ -4,7 +4,7 @@ KM_PLAYER_IN_COMBAT = false
 
 -- mainFrame hide handler for events
 local function hideOnEvent(frame)
-    if frame:IsShown() then
+    if frame and frame:IsShown() then -- 暫時修正
         frame:Hide() 
     end
 end
