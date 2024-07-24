@@ -6,8 +6,6 @@ local function ConvertTags(tags)
   return res
 end
 
-Baganator.Constants.ButtonFrameOffset = 0
-
 local backdropInfo = {
   bgFile = "Interface/AddOns/Baganator-Simple/Assets/minimalist-backgroundfile",
   edgeFile = "Interface/AddOns/Baganator-Simple/Assets/minimalist-edgefile",
@@ -149,11 +147,11 @@ local skinners = {
     table.insert(toColor.backdrops, {backdrop = frame, bgAlpha = 0.7, borderAlpha = 1, borderLightened = 0.3})
 
     if tags.backpack then
-      frame.TopButtons[1]:SetPoint("TOPLEFT", Baganator.Constants.ButtonFrameOffset + 1, -1)
+      frame.TopButtons[1]:SetPoint("TOPLEFT", 1, -1)
     elseif tags.bank then
-      frame.Character.TopButtons[1]:SetPoint("TOPLEFT", Baganator.Constants.ButtonFrameOffset + 1, -1)
+      frame.Character.TopButtons[1]:SetPoint("TOPLEFT", 1, -1)
     elseif tags.guild then
-      frame.ToggleTabTextButton:SetPoint("TOPLEFT", Baganator.Constants.ButtonFrameOffset + 1, -1)
+      frame.ToggleTabTextButton:SetPoint("TOPLEFT", 1, -1)
     end
   end,
   SearchBox = function(frame)
@@ -180,7 +178,7 @@ local skinners = {
   end,
 }
 
-if C_AddOns.IsAddOnLoaded("Masque") or not Baganator.Config.Get(Baganator.Config.Options.EMPTY_SLOT_BACKGROUND) then
+if C_AddOns.IsAddOnLoaded("Masque") or not BAGANATOR_CONFIG["empty_slot_background"] then
   skinners.ItemButton = function() end
 else
   hooksecurefunc("SetItemButtonQuality", ItemButtonQualityHook)

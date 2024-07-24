@@ -1,6 +1,6 @@
 ## Interface: 11503, 40400, 100207, 110000
 ## Title: Baganator (Simple Skin)
-## Version: 1
+## Version: 2
 ## Author: plusmouse
 ## RequiredDeps: Baganator
 

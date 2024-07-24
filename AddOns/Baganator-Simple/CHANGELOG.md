@@ -1,6 +1,6 @@
 # Baganator (Simple Skin)
 
-## [1](https://github.com/Baganator/Baganator-Minimalist/tree/1) (2024-06-17)
-[Full Changelog](https://github.com/Baganator/Baganator-Minimalist/commits/1) 
+## [2](https://github.com/Baganator/Baganator-Minimalist/tree/2) (2024-07-22)
+[Full Changelog](https://github.com/Baganator/Baganator-Minimalist/compare/1...2) 
 
-- Initial commit  
+- Update for Baganator using addonTable  
