@@ -7,7 +7,7 @@
 ## Notes-zhTW: HideActionbarAnimations |n|n不要顯示快捷列新的施法讀條效果和完成閃光動畫。
 ## X-Category-zhTW: 介面
 ## DefaultState: disabled
-## Version: 2.43
+## Version: 2.44
 
 HideActionbarAnimations.lua
 SpellActivationAlert.lua
