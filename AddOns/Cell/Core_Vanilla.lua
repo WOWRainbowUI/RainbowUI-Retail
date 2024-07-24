@@ -19,8 +19,8 @@ local L = Cell.L
 -- sharing version check
 Cell.MIN_VERSION = 200
 Cell.MIN_CLICKCASTINGS_VERSION = 228
-Cell.MIN_LAYOUTS_VERSION = 231
-Cell.MIN_INDICATORS_VERSION = 231
+Cell.MIN_LAYOUTS_VERSION = 235
+Cell.MIN_INDICATORS_VERSION = 235
 Cell.MIN_DEBUFFS_VERSION = 228
 
 --[==[@debug@
@@ -152,6 +152,7 @@ function eventFrame:ADDON_LOADED(arg1)
                 ["tooltipsPosition"] = {"BOTTOMLEFT", "Default", "TOPLEFT", 0, 15},
                 ["showSolo"] = true,
                 ["showParty"] = true,
+                ["showRaid"] = true,
                 ["hideBlizzardParty"] = true,
                 ["hideBlizzardRaid"] = true,
                 ["locked"] = false,
@@ -159,7 +160,6 @@ function eventFrame:ADDON_LOADED(arg1)
                 ["menuPosition"] = "top_bottom",
                 ["alwaysUpdateBuffs"] = false,
                 ["alwaysUpdateDebuffs"] = true,
-                ["overrideLGF"] = true,
                 ["framePriority"] = "normal_spotlight_quickassist",
                 ["useCleuHealthUpdater"] = false,
                 ["translit"] = false,
@@ -656,8 +656,6 @@ function eventFrame:PLAYER_LOGIN()
     I.UpdateExternals(CellDB["externals"])
     -- update pixel perfect
     Cell:Fire("UpdatePixelPerfect")
-    -- overrideLGF
-    F:OverrideLGF(CellDB["general"]["overrideLGF"])
     -- LibHealComm
     -- F:EnableLibHealComm(CellDB["appearance"]["useLibHealComm"])
 end

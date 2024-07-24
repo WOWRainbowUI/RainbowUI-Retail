@@ -88,7 +88,11 @@ end
 -- VerticalCooldown
 -------------------------------------------------
 local function ReCalcTexCoord(self, width, height)
-    self.icon:SetTexCoord(unpack(F:GetTexCoord(width, height)))
+    local texCoord = F:GetTexCoord(width, height)
+    self.icon:SetTexCoord(unpack(texCoord))
+    if self.cooldown.icon then
+        self.cooldown.icon:SetTexCoord(unpack(texCoord))
+    end
 end
 
 local function VerticalCooldown_OnUpdate(self, elapsed)
@@ -134,7 +138,7 @@ local function Shared_CreateCooldown_Vertical(frame)
     P:Point(cooldown, "BOTTOMRIGHT", frame.icon, "BOTTOMRIGHT", 0, CELL_BORDER_SIZE)
     cooldown:SetOrientation("VERTICAL")
     cooldown:SetReverseFill(true)
-    cooldown:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
+    cooldown:SetStatusBarTexture(Cell.vars.whiteTexture)
 
     local texture = cooldown:GetStatusBarTexture()
     texture:SetAlpha(0)
@@ -147,18 +151,17 @@ local function Shared_CreateCooldown_Vertical(frame)
     spark:SetPoint("TOPRIGHT", texture, "BOTTOMRIGHT")
 
     local mask = cooldown:CreateMaskTexture()
-    mask:SetTexture("Interface\\Buttons\\WHITE8x8", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    mask:SetTexture(Cell.vars.whiteTexture, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
     mask:SetPoint("TOPLEFT")
     mask:SetPoint("BOTTOMRIGHT", texture)
 
     local icon = cooldown:CreateTexture(nil, "ARTWORK")
     cooldown.icon = icon
-    icon:SetTexCoord(0.12, 0.88, 0.12, 0.88)
+    -- icon:SetTexCoord(0.12, 0.88, 0.12, 0.88)
     icon:SetDesaturated(true)
     icon:SetAllPoints(frame.icon)
     icon:SetVertexColor(0.5, 0.5, 0.5, 1)
     icon:AddMaskTexture(mask)
-    cooldown:SetScript("OnSizeChanged", ReCalcTexCoord)
 end
 
 local function Shared_CreateCooldown_Vertical_NoIcon(frame)
@@ -174,7 +177,7 @@ local function Shared_CreateCooldown_Vertical_NoIcon(frame)
     P:Point(cooldown, "BOTTOMRIGHT", frame, -CELL_BORDER_SIZE, CELL_BORDER_SIZE + CELL_BORDER_SIZE)
     cooldown:SetOrientation("VERTICAL")
     cooldown:SetReverseFill(true)
-    cooldown:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
+    cooldown:SetStatusBarTexture(Cell.vars.whiteTexture)
 
     local texture = cooldown:GetStatusBarTexture()
     texture:SetVertexColor(0, 0, 0, 0.8)
@@ -195,32 +198,11 @@ local function Shared_CreateCooldown_Clock(frame)
     frame.cooldown = cooldown
     cooldown:Hide()
 
-    cooldown:SetAllPoints(frame.icon)
-    cooldown:SetReverse(true)
-    cooldown:SetDrawEdge(false)
-    cooldown:SetSwipeTexture("Interface\\Buttons\\WHITE8x8")
-    cooldown:SetSwipeColor(0, 0, 0, 0.8)
-    -- cooldown:SetEdgeTexture([[Interface\Cooldown\UI-HUD-ActionBar-SecondaryCooldown]])
-
-    -- cooldown text
-    cooldown:SetHideCountdownNumbers(true)
-    -- disable omnicc
-    cooldown.noCooldownCount = true
-    -- prevent some dirty addons from adding cooldown text
-    cooldown.ShowCooldown = cooldown.SetCooldown
-    cooldown.SetCooldown = nil
-end
-
-local function Shared_CreateCooldown_Clock_NoIcon(frame)
-    local cooldown = CreateFrame("Cooldown", nil, frame)
-    frame.cooldown = cooldown
-    cooldown:Hide()
-
     P:Point(cooldown, "TOPLEFT", frame, CELL_BORDER_SIZE, -CELL_BORDER_SIZE)
     P:Point(cooldown, "BOTTOMRIGHT", frame, -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
     cooldown:SetReverse(true)
     cooldown:SetDrawEdge(false)
-    cooldown:SetSwipeTexture("Interface\\Buttons\\WHITE8x8")
+    cooldown:SetSwipeTexture(Cell.vars.whiteTexture)
     cooldown:SetSwipeColor(0, 0, 0, 0.8)
     -- cooldown:SetEdgeTexture([[Interface\Cooldown\UI-HUD-ActionBar-SecondaryCooldown]])
 
@@ -232,7 +214,6 @@ local function Shared_CreateCooldown_Clock_NoIcon(frame)
     cooldown.ShowCooldown = cooldown.SetCooldown
     cooldown.SetCooldown = nil
 end
-
 
 -------------------------------------------------
 -- SetCooldownStyle
@@ -248,11 +229,7 @@ local function Shared_SetCooldownStyle(frame, style, noIcon)
     frame.style = style
 
     if style == "CLOCK" then
-        if noIcon then
-            Shared_CreateCooldown_Clock_NoIcon(frame)
-        else
-            Shared_CreateCooldown_Clock(frame)
-        end
+        Shared_CreateCooldown_Clock(frame)
     else
         if noIcon then
             Shared_CreateCooldown_Vertical_NoIcon(frame)
@@ -430,7 +407,7 @@ function I.CreateAura_BorderIcon(name, parent, borderSize)
     local frame = CreateFrame("Frame", name, parent, "BackdropTemplate")
     frame:Hide()
     -- frame:SetSize(11, 11)
-    frame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+    frame:SetBackdrop({bgFile = Cell.vars.whiteTexture})
     frame:SetBackdropColor(0, 0, 0, 0.85)
 
     local border = frame:CreateTexture(name.."Border", "BORDER")
@@ -441,7 +418,7 @@ function I.CreateAura_BorderIcon(name, parent, borderSize)
     local cooldown = CreateFrame("Cooldown", name.."Cooldown", frame)
     frame.cooldown = cooldown
     cooldown:SetAllPoints(frame)
-    cooldown:SetSwipeTexture("Interface\\Buttons\\WHITE8x8")
+    cooldown:SetSwipeTexture(Cell.vars.whiteTexture)
     cooldown:SetSwipeColor(1, 1, 1)
     cooldown:SetHideCountdownNumbers(true)
     -- disable omnicc
@@ -493,6 +470,7 @@ local function BarIcon_SetCooldown(frame, start, duration, debuffType, texture, 
     if duration == 0 then
         frame.cooldown:Hide()
         frame.duration:Hide()
+        frame.stack:SetParent(frame)
         frame:SetScript("OnUpdate", nil)
         frame._start = nil
         frame._duration = nil
@@ -571,12 +549,12 @@ function I.CreateAura_BarIcon(name, parent)
     local frame = CreateFrame("Frame", name, parent, "BackdropTemplate")
     frame:Hide()
     -- frame:SetSize(11, 11)
-    frame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+    frame:SetBackdrop({bgFile = Cell.vars.whiteTexture})
     frame:SetBackdropColor(0, 0, 0, 1)
 
     local icon = frame:CreateTexture(name.."Icon", "ARTWORK")
     frame.icon = icon
-    icon:SetTexCoord(0.12, 0.88, 0.12, 0.88)
+    -- icon:SetTexCoord(0.12, 0.88, 0.12, 0.88)
     P:Point(icon, "TOPLEFT", frame, "TOPLEFT", CELL_BORDER_SIZE, -CELL_BORDER_SIZE)
     P:Point(icon, "BOTTOMRIGHT", frame, "BOTTOMRIGHT", -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
     -- icon:SetDrawLayer("ARTWORK", 1)
@@ -605,6 +583,8 @@ function I.CreateAura_BarIcon(name, parent)
     frame.UpdatePixelPerfect = BarIcon_UpdatePixelPerfect
 
     Shared_SetCooldownStyle(frame, CELL_COOLDOWN_STYLE)
+
+    frame:SetScript("OnSizeChanged", ReCalcTexCoord)
 
     -- frame:SetScript("OnEnter", function()
         -- local f = frame
@@ -891,7 +871,7 @@ function I.CreateAura_Rect(name, parent)
     local frame = CreateFrame("Frame", name, parent, "BackdropTemplate")
     frame:Hide()
     frame.indicatorType = "rect"
-    frame:SetBackdrop({edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=P:Scale(1)})
+    frame:SetBackdrop({edgeFile=Cell.vars.whiteTexture, edgeSize=P:Scale(1)})
     frame:SetBackdropBorderColor(0, 0, 0, 1)
 
     local tex = frame:CreateTexture(nil, "BORDER", nil, -7)
@@ -1076,8 +1056,9 @@ local function Color_SetCooldown(color, start, duration, debuffType)
     color:Show()
 end
 
+-- +6 ~ +55
 local function Color_SetFrameLevel(color, frameLevel)
-    color:_SetFrameLevel(frameLevel + 1)
+    color:_SetFrameLevel(frameLevel + 5)
 end
 
 local function Color_SetAnchor(color, anchorTo)
@@ -1093,7 +1074,7 @@ local function Color_SetAnchor(color, anchorTo)
         P:Point(color, "BOTTOMRIGHT", color.parent, "BOTTOMRIGHT", -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
     end
 
-    color:SetFrameLevel(color:GetParent():GetFrameLevel() + color.configs.frameLevel)
+    -- color:SetFrameLevel(color:GetParent():GetFrameLevel() + color.configs.frameLevel)
 end
 
 local function Color_SetColors(self, colors)
@@ -1151,7 +1132,7 @@ function I.CreateAura_Color(name, parent)
 
     local gradientTex = color:CreateTexture(nil, "ARTWORK")
     color.gradientTex = gradientTex
-    gradientTex:SetTexture("Interface\\Buttons\\WHITE8x8")
+    gradientTex:SetTexture(Cell.vars.whiteTexture)
     gradientTex:SetAllPoints(color)
     gradientTex:Hide()
 
@@ -1200,6 +1181,7 @@ function I.CreateAura_Texture(name, parent)
             texture._duration = nil
             texture._remain = nil
             texture._elapsed = nil
+            tex:SetAlpha(1)
         end
         texture:Show()
     end
@@ -1237,6 +1219,8 @@ local function Icons_UpdateSize(icons, numAuras)
         for i = 1, icons.maxNum do
             if icons[i]:IsShown() then
                 numAuras = i
+            else
+                break
             end
         end
     end
@@ -1442,7 +1426,7 @@ function I.CreateAura_Icons(name, parent, num)
     icons.UpdatePixelPerfect = Icons_UpdatePixelPerfect
 
     for i = 1, num do
-        local name = name.."Icons"..i
+        local name = name.."Icon"..i
         local frame = I.CreateAura_BarIcon(name, icons)
         icons[i] = frame
     end
@@ -1532,12 +1516,12 @@ function I.CreateAura_Glow(name, parent)
         glow.glowOptions = options
     end
 
-    glow:SetScript("OnHide", function()
-        LCG.ButtonGlow_Stop(glow)
-        LCG.PixelGlow_Stop(glow)
-        LCG.AutoCastGlow_Stop(glow)
-        LCG.ProcGlow_Stop(glow)
-    end)
+    -- glow:SetScript("OnHide", function()
+    --     LCG.ButtonGlow_Stop(glow)
+    --     LCG.PixelGlow_Stop(glow)
+    --     LCG.AutoCastGlow_Stop(glow)
+    --     LCG.ProcGlow_Stop(glow)
+    -- end)
 
     return glow
 end
@@ -1728,13 +1712,14 @@ local function Overlay_SetColors(overlay, colors)
     overlay.colors = colors
 end
 
+-- +56 ~ +110
 local function Overlay_SetFrameLevel(overlay, frameLevel)
-    overlay:_SetFrameLevel(frameLevel + 10)
+    overlay:_SetFrameLevel(frameLevel + 55)
 end
 
 function I.CreateAura_Overlay(name, parent)
     local overlay = CreateFrame("StatusBar", name, parent.widgets.healthBar)
-    overlay:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
+    overlay:SetStatusBarTexture(Cell.vars.whiteTexture)
     overlay:Hide()
     overlay.indicatorType = "overlay"
 
@@ -1951,7 +1936,7 @@ function I.CreateAura_Block(name, parent)
     frame:Hide()
     frame.indicatorType = "block"
 
-    frame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(CELL_BORDER_SIZE)})
+    frame:SetBackdrop({bgFile = Cell.vars.whiteTexture, edgeFile = Cell.vars.whiteTexture, edgeSize = P:Scale(CELL_BORDER_SIZE)})
 
     Shared_SetCooldownStyle(frame, CELL_COOLDOWN_STYLE, true)
 
@@ -2079,4 +2064,90 @@ function I.CreateAura_Blocks(name, parent, num)
     end
 
     return blocks
+end
+
+-------------------------------------------------
+-- CreateAura_Border
+-------------------------------------------------
+local function Border_OnUpdate(border, elapsed)
+    border._elapsed = border._elapsed + elapsed
+    if border._elapsed >= 0.1 then
+        border._elapsed = 0
+
+        border._remain = border._duration - (GetTime() - border._start)
+        if border._remain < 0 then border._remain = 0 end
+        border:SetAlpha(border._remain / border._duration * 0.9 + 0.1)
+    end
+end
+
+local function Border_SetFadeOut(border, fadeOut)
+    border.fadeOut = fadeOut
+end
+
+local function Border_SetCooldown(border, start, duration, _, _, _, _, color)
+    if border.fadeOut then
+        border._start = start
+        border._duration = duration
+        border._elapsed = 0.1 -- update immediately
+        border:SetScript("OnUpdate", Border_OnUpdate)
+    else
+        border:SetScript("OnUpdate", nil)
+        border._start = nil
+        border._duration = nil
+        border._remain = nil
+        border._elapsed = nil
+        border:SetAlpha(1)
+    end
+    border.tex:SetVertexColor(color[1], color[2], color[3], color[4])
+    border:Show()
+end
+
+local function Border_UpdatePixelPerfect(border)
+    P:Repoint(border)
+    P:Repoint(border.mask)
+    P:Repoint(border.mask2)
+end
+
+local function Border_SetThickness(border, thickness)
+    P:ClearPoints(border.mask)
+    P:Point(border.mask, "TOPLEFT", thickness, -thickness)
+    P:Point(border.mask, "BOTTOMRIGHT", -thickness, thickness)
+    P:ClearPoints(border.mask2)
+    P:Point(border.mask2, "TOPLEFT", thickness+CELL_BORDER_SIZE, -thickness-CELL_BORDER_SIZE)
+    P:Point(border.mask2, "BOTTOMRIGHT", -thickness-CELL_BORDER_SIZE, thickness+CELL_BORDER_SIZE)
+end
+
+function I.CreateAura_Border(name, parent)
+    local border = CreateFrame("Frame", name, parent)
+    border:Hide()
+    border.indicatorType = "border"
+
+    P:Point(border, "TOPLEFT", CELL_BORDER_SIZE, -CELL_BORDER_SIZE)
+    P:Point(border, "BOTTOMRIGHT", -CELL_BORDER_SIZE, CELL_BORDER_SIZE)
+
+    local mask = border:CreateMaskTexture()
+    border.mask = mask
+    mask:SetTexture(Cell.vars.emptyTexture, "CLAMPTOWHITE","CLAMPTOWHITE")
+
+    local tex = border:CreateTexture(nil, "ARTWORK")
+    border.tex = tex
+    tex:SetAllPoints()
+    tex:SetTexture(Cell.vars.whiteTexture)
+    tex:AddMaskTexture(mask)
+
+    local mask2 = border:CreateMaskTexture()
+    border.mask2 = mask2
+    mask2:SetTexture(Cell.vars.emptyTexture, "CLAMPTOWHITE","CLAMPTOWHITE")
+
+    local tex2 = border:CreateTexture(nil, "ARTWORK", nil, -1)
+    tex2:SetAllPoints()
+    tex2:SetColorTexture(0, 0, 0)
+    tex2:AddMaskTexture(mask2)
+
+    border.SetCooldown = Border_SetCooldown
+    border.SetFadeOut = Border_SetFadeOut
+    border.SetThickness = Border_SetThickness
+    border.UpdatePixelPerfect = Border_UpdatePixelPerfect
+
+    return border
 end

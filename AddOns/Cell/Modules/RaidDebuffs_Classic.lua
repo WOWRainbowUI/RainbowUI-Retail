@@ -370,7 +370,7 @@ local function CreateInstanceFrame()
     -- instance image frame
     local imageFrame = Cell:CreateFrame("RaidDebuffsTab_InstanceImage", debuffsTab, 128, 64, true)
     imageFrame.bg = imageFrame:CreateTexture(nil, "BACKGROUND")
-    imageFrame.bg:SetTexture("Interface\\Buttons\\WHITE8x8")
+    imageFrame.bg:SetTexture(Cell.vars.whiteTexture)
     imageFrame.bg:SetGradient("HORIZONTAL", CreateColor(0.1, 0.1, 0.1, 0), CreateColor(0.1, 0.1, 0.1, 1))
 
     imageFrame.tex = imageFrame:CreateTexture(nil, "ARTWORK")
@@ -489,7 +489,7 @@ local function CreateBossesFrame()
     -- boss image frame
     local imageFrame = Cell:CreateFrame("RaidDebuffsTab_BossImage", debuffsTab, 128, 64, true)
     imageFrame.bg = imageFrame:CreateTexture(nil, "BACKGROUND")
-    imageFrame.bg:SetTexture("Interface\\Buttons\\WHITE8x8")
+    imageFrame.bg:SetTexture(Cell.vars.whiteTexture)
     imageFrame.bg:SetGradient("HORIZONTAL", CreateColor(0.1, 0.1, 0.1, 0), CreateColor(0.1, 0.1, 0.1, 1))
     -- imageFrame.bg:SetAllPoints(imageFrame)
 
@@ -708,15 +708,18 @@ local function CreateDebuffsFrame()
             local spellId = tonumber(popup.editBox:GetText())
             if not spellId then
                 CellSpellTooltip:Hide()
+                popup.button1:SetEnabled(false)
                 return
             end
 
             local name, icon = F:GetSpellInfo(spellId)
             if not name then
                 CellSpellTooltip:Hide()
+                popup.button1:SetEnabled(false)
                 return
             end
 
+            popup.button1:SetEnabled(true)
             CellSpellTooltip:SetOwner(popup, "ANCHOR_NONE")
             CellSpellTooltip:SetPoint("TOPLEFT", popup, "BOTTOMLEFT", 0, -1)
             CellSpellTooltip:SetSpellByID(spellId, icon)

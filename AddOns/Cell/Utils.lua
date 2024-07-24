@@ -222,17 +222,22 @@ end
 --     return rr1 + (rr2 - rr1) * relperc, rg1 + (rg2 - rg1) * relperc, rb1 + (rb2 - rb1) * relperc
 -- end
 
-function F:ColorGradient(perc, c1, c2, c3)
+function F:ColorGradient(perc, c1, c2, c3, lowBound, highBound)
     local r1, g1, b1 = c1[1], c1[2], c1[3]
     local r2, g2, b2 = c2[1], c2[2], c2[3]
     local r3, g3, b3 = c3[1], c3[2], c3[3]
 
+    lowBound = lowBound or 0
+    highBound = highBound or 1
+
     perc = perc or 1
-    if perc >= 1 then
+    if perc >= highBound then
         return r3, g3, b3
-    elseif perc <= 0 then
+    elseif perc <= lowBound then
         return r1, g1, b1
     end
+
+    perc = (perc - lowBound) / (highBound - lowBound)
 
     local segment, relperc = math.modf(perc * 2)
     local rr1, rg1, rb1, rr2, rg2, rb2 = select((segment * 3) + 1, r1,g1,b1, r2,g2,b2, r3,g3,b3)
@@ -895,11 +900,10 @@ function F:IterateSharedUnitButtons(func)
     end
 end
 
-local spotlights = {}
 function F:GetUnitButtonByUnit(unit, getSpotlights, getQuickAssist)
     if not unit then return end
 
-    local normal, quickAssist
+    local normal, spotlights, quickAssist
 
     if Cell.vars.groupType == "raid" then
         if Cell.vars.inBattleground == 5 then
@@ -914,9 +918,9 @@ function F:GetUnitButtonByUnit(unit, getSpotlights, getQuickAssist)
     end
 
     if getSpotlights then
-        wipe(spotlights)
+        spotlights = {}
         for _, b in pairs(Cell.unitButtons.spotlight) do
-            if b.states.unit and UnitIsUnit(b.states.unit, unit) then
+            if b.unit and UnitIsUnit(b.unit, unit) then
                 tinsert(spotlights, b)
             end
         end
@@ -929,12 +933,12 @@ function F:GetUnitButtonByUnit(unit, getSpotlights, getQuickAssist)
     return normal, spotlights, quickAssist
 end
 
-function F:GetUnitButtonByGUID(guid, getSpotlights)
-    return F:GetUnitButtonByUnit(Cell.vars.guids[guid], getSpotlights)
+function F:GetUnitButtonByGUID(guid, getSpotlights, getQuickAssist)
+    return F:GetUnitButtonByUnit(Cell.vars.guids[guid], getSpotlights, getQuickAssist)
 end
 
-function F:GetUnitButtonByName(name, getSpotlights)
-    return F:GetUnitButtonByUnit(Cell.vars.names[name], getSpotlights)
+function F:GetUnitButtonByName(name, getSpotlights, getQuickAssist)
+    return F:GetUnitButtonByUnit(Cell.vars.names[name], getSpotlights, getQuickAssist)
 end
 
 function F:HandleUnitButton(type, unit, func, ...)
@@ -1054,10 +1058,10 @@ local UnitInPartyIsAI = UnitInPartyIsAI or function() end
 -------------------------------------------------
 -- frame colors
 -------------------------------------------------
-local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 function F:GetClassColor(class)
     if class and class ~= "" and RAID_CLASS_COLORS[class] then
-        if CUSTOM_CLASS_COLORS then
+        if CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] then
             return CUSTOM_CLASS_COLORS[class].r, CUSTOM_CLASS_COLORS[class].g, CUSTOM_CLASS_COLORS[class].b
         else
             return RAID_CLASS_COLORS[class]:GetRGB()
@@ -1069,7 +1073,11 @@ end
 
 function F:GetClassColorStr(class)
     if class and class ~= "" and RAID_CLASS_COLORS[class] then
-        return "|c"..RAID_CLASS_COLORS[class].colorStr
+        if CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] then
+            return "|c"..CUSTOM_CLASS_COLORS[class].colorStr
+        else
+            return "|c"..RAID_CLASS_COLORS[class].colorStr
+        end
     else
         return "|cffffffff"
     end
@@ -1158,12 +1166,12 @@ function F:GetHealthBarColor(percent, isDeadOrGhost, r, g, b)
         elseif CellDB["appearance"]["barColor"][1] == "class_color_dark" then
             barR, barG, barB = r*0.2, g*0.2, b*0.2
         elseif CellDB["appearance"]["barColor"][1] == "gradient" then
-            barR, barG, barB = F:ColorGradient(percent, CellDB["appearance"]["gradientColors"][1], CellDB["appearance"]["gradientColors"][2], CellDB["appearance"]["gradientColors"][3])
+            barR, barG, barB = F:ColorGradient(percent, CellDB["appearance"]["gradientColors"][1], CellDB["appearance"]["gradientColors"][2], CellDB["appearance"]["gradientColors"][3], CellDB["appearance"]["gradientColors"][4], CellDB["appearance"]["gradientColors"][5])
         elseif CellDB["appearance"]["barColor"][1] == "gradient2" then
             if percent == 1 then
                 barR, barG, barB = r, g, b -- full: class color
             else
-                barR, barG, barB = F:ColorGradient(percent, CellDB["appearance"]["gradientColors"][1], CellDB["appearance"]["gradientColors"][2], CellDB["appearance"]["gradientColors"][3])
+                barR, barG, barB = F:ColorGradient(percent, CellDB["appearance"]["gradientColors"][1], CellDB["appearance"]["gradientColors"][2], CellDB["appearance"]["gradientColors"][3], CellDB["appearance"]["gradientColors"][4], CellDB["appearance"]["gradientColors"][5])
             end
         else
             barR = CellDB["appearance"]["barColor"][2][1]
@@ -1666,7 +1674,7 @@ end
 -- RangeCheck debug
 -------------------------------------------------
 local debug = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
-debug:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+debug:SetBackdrop({bgFile = Cell.vars.whiteTexture})
 debug:SetBackdropColor(0.1, 0.1, 0.1, 0.9)
 debug:SetBackdropBorderColor(0, 0, 0, 1)
 debug:SetSize(1, 1)
@@ -1752,6 +1760,8 @@ end
 -- LibSharedMedia
 -------------------------------------------------
 Cell.vars.texture = "Interface\\AddOns\\Cell\\Media\\statusbar.tga"
+Cell.vars.emptyTexture = "Interface\\AddOns\\Cell\\Media\\empty.tga"
+Cell.vars.whiteTexture = "Interface\\AddOns\\Cell\\Media\\white.tga"
 
 local LSM = LibStub("LibSharedMedia-3.0", true)
 LSM:Register("statusbar", "Cell ".._G.DEFAULT, Cell.vars.texture)
@@ -2170,76 +2180,43 @@ end
 -------------------------------------------------
 -- LibGetFrame
 -------------------------------------------------
--- function Cell.GetUnitFrame(unit)
---     local normal, spotlights, quickAssist = F:GetUnitButtonByUnit(unit, true, true)
---     if CellDB["general"]["framePriority"] == "normal_spotlight_quickassist" then
---         if normal then return normal end
---         if spotlights[1] then return spotlights[1] end
---         return quickAssist
---     elseif CellDB["general"]["framePriority"] == "spotlight_normal_quickassist" then
---         if spotlights[1] then return spotlights[1] end
---         if normal then return normal end
---         return quickAssist
---     else -- "quickassist_normal_spotlight"
---         if quickAssist then return quickAssist end
---         if normal then return normal end
---         return spotlights[1]
---     end
--- end
+function Cell.GetUnitFramesForLGF(unit, frames, priorities)
+    frames = frames or {}
 
-local WA_GetUnitFrame, LGF_GetUnitFrame
-
-function Cell.GetUnitFrame(unit)
     local normal, spotlights, quickAssist = F:GetUnitButtonByUnit(unit, true, true)
 
+    if normal and normal:IsVisible() and normal.widgets and normal.widgets.highLevelFrame then
+        frames[normal.widgets.highLevelFrame] = "CellNormalUnitFrame"
+    end
+
+    if spotlights then
+        for _, spotlight in pairs(spotlights) do
+            if not strfind(spotlight.unit, "target$") and spotlight.widgets and spotlight.widgets.highLevelFrame then
+                frames[spotlight.widgets.highLevelFrame] = "CellSpotlightUnitFrame"
+                break
+            end
+        end
+    end
+
+    if quickAssist and quickAssist:IsVisible() then
+        frames[quickAssist] = "CellQuickAssistUnitFrame"
+    end
+
     if CellDB["general"]["framePriority"] == "normal_spotlight_quickassist" then
-        if normal and normal:IsVisible() then
-            frame = normal
-        elseif spotlights[1] and spotlights[1]:IsVisible() then
-            frame = spotlights[1]
-        else
-            frame = quickAssist
-        end
+        tinsert(priorities, 1, "^CellNormalUnitFrame$")
+        tinsert(priorities, 2, "^CellSpotlightUnitFrame$")
+        tinsert(priorities, 3, "^CellQuickAssistUnitFrame$")
+
     elseif CellDB["general"]["framePriority"] == "spotlight_normal_quickassist" then
-        if spotlights[1] and spotlights[1]:IsVisible() then
-            frame = spotlights[1]
-        elseif normal and normal:IsVisible() then
-            frame = normal
-        else
-            frame = quickAssist
-        end
+        tinsert(priorities, 1, "^CellSpotlightUnitFrame$")
+        tinsert(priorities, 2, "^CellNormalUnitFrame$")
+        tinsert(priorities, 3, "^CellQuickAssistUnitFrame$")
+
     else -- "quickassist_normal_spotlight"
-        if quickAssist and quickAssist:IsVisible() then
-            frame = quickAssist
-        elseif normal and normal:IsVisible() then
-            frame = normal
-        else
-            frame = spotlights[1]
-        end
+        tinsert(priorities, 1, "^CellQuickAssistUnitFrame$")
+        tinsert(priorities, 2, "^CellNormalUnitFrame$")
+        tinsert(priorities, 3, "^CellSpotlightUnitFrame$")
     end
 
-    if frame then
-        return frame.widgets.highLevelFrame
-    elseif WA_GetUnitFrame then
-        return WA_GetUnitFrame(unit)
-    elseif LGF_GetUnitFrame then
-        return LGF_GetUnitFrame(unit)
-    end
-end
-
-function F:OverrideLGF(override)
-    if not override then return end
-
-    -- override LGF
-    local LGF = LibStub("LibGetFrame-1.0", true)
-    if LGF then
-        LGF_GetUnitFrame = LGF.GetUnitFrame
-        LGF.GetUnitFrame = Cell.GetUnitFrame
-        LGF.GetFrame = Cell.GetUnitFrame
-    end
-    -- override WA
-    if WeakAuras then
-        WA_GetUnitFrame = WeakAuras.GetUnitFrame
-        WeakAuras.GetUnitFrame = Cell.GetUnitFrame
-    end
+    return frames
 end

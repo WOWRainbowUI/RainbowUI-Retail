@@ -3047,8 +3047,6 @@ function F:Revise()
 
     -- r234-release
     if CellDB["revise"] and dbRevision < 234 then
-        CellDB["general"]["overrideLGF"] = true
-
         for _, layout in pairs(CellDB["layouts"]) do
             for _, i in pairs(layout["indicators"]) do
                 if i.indicatorName == "readyCheckIcon" then
@@ -3056,7 +3054,35 @@ function F:Revise()
                         i.position = {"CENTER", "CENTER", 0, 0}
                     end
                 end
+
+                if i.type == "overlay" then
+                    if i.frameLevel > 50 then
+                        i.frameLevel = 50
+                    end
+                end
             end
+        end
+    end
+
+    -- r235-release
+    if CellDB["revise"] and dbRevision < 235 then
+        for _, layout in pairs(CellDB["layouts"]) do
+            for _, i in pairs(layout["indicators"]) do
+                if i.indicatorName == "statusText" then
+                    if #i.position ~= 3 then
+                        i.position[3] = "justify"
+                    end
+                end
+            end
+        end
+
+        if #CellDB["appearance"]["gradientColors"] ~= 5 then
+            CellDB["appearance"]["gradientColors"][4] = 0.05
+            CellDB["appearance"]["gradientColors"][5] = 0.95
+        end
+
+        if type(CellDB["general"]["showRaid"]) ~= "boolean" then
+            CellDB["general"]["showRaid"] = true
         end
     end
 

@@ -394,9 +394,10 @@ end
 -- create text
 -------------------------------------------------
 function U:CreateDispelRequestText(parent)
-    local drText = CreateFrame("Frame", parent:GetName().."DispelRequestText", parent.widgets.drGlowFrame)
+    local drText = CreateFrame("Frame", parent:GetName().."DispelRequestText", parent.widgets.indicatorFrame)
     parent.widgets.drText = drText
     drText:SetIgnoreParentAlpha(true)
+    drText:SetFrameLevel(parent.widgets.indicatorFrame:GetFrameLevel()+110)
     drText:Hide()
 
     local tex = drText:CreateTexture(nil, "ARTWORK")

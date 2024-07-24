@@ -124,7 +124,7 @@ Cell.defaults.layout = {
             ["indicatorName"] = "statusText",
             ["type"] = "built-in",
             ["enabled"] = true,
-            ["position"] = {"BOTTOM", 0},
+            ["position"] = {"BOTTOM", 0, "justify"},
             ["frameLevel"] = 30,
             ["font"] = {"Cell ".._G.DEFAULT, 11, "None", true},
             ["showTimer"] = true,
@@ -216,7 +216,7 @@ Cell.defaults.layout = {
             ["type"] = "built-in",
             ["enabled"] = true,
             ["position"] = {"TOP", "TOP", 0, 3},
-            ["frameLevel"] = 2,
+            ["frameLevel"] = 5,
             ["size"] = {14, 14},
             ["alpha"] = 0.77,
         }, -- 10
@@ -226,7 +226,7 @@ Cell.defaults.layout = {
             ["type"] = "built-in",
             ["enabled"] = false,
             ["position"] = {"TOP", "TOP", -14, 3},
-            ["frameLevel"] = 2,
+            ["frameLevel"] = 5,
             ["size"] = {14, 14},
             ["alpha"] = 0.77,
         }, -- 11
@@ -236,7 +236,7 @@ Cell.defaults.layout = {
             ["type"] = "built-in",
             ["enabled"] = false,
             ["position"] = {"TOPLEFT", "TOPLEFT", 0, 0},
-            ["frameLevel"] = 3,
+            ["frameLevel"] = 7,
             ["size"] = {11, 11},
         }, -- 12
         {
@@ -341,7 +341,7 @@ Cell.defaults.layout = {
             ["type"] = "built-in",
             ["enabled"] = true,
             ["position"] = {"BOTTOMLEFT", "BOTTOMLEFT", 1, 4},
-            ["frameLevel"] = 2,
+            ["frameLevel"] = 5,
             ["size"] = {{13, 13}, {17, 17}},
             ["showDuration"] = false,
             ["showAnimation"] = true,
