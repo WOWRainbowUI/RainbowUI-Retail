@@ -1,3 +1,7 @@
+# v2.43.0
+
+- Updated for 11.0.0
+
 # v2.42.1
 
 - Updated to use multiple interface numbers
