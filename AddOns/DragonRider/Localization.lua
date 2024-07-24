@@ -107,6 +107,13 @@ if LOCALE == "enUS" then
 	--L["SetMapPin_TT"] = "Click to set Map Pin"
 	L["MuteVigorSound_Settings"] = "Mute Vigor Sound"
 	L["MuteVigorSound_SettingsTT"] = "Toggle the sound that plays when the dragonriding mount naturally gains a stack of vigor."
+	L["SpeedometerTheme"] = "Speedometer Theme"
+	L["SpeedometerThemeTT"] = "Customize the Speedometer theme."
+	L["Algari"] = "Algari"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "Minimalist"
+	L["Alliance"] = "Alliance"
+	L["Horde"] = "Horde"
 
 return end
 
@@ -207,6 +214,13 @@ if LOCALE == "zhCN" then
 	L["MuteVigorSound_Settings"] = "静音精力音效" -- translated
 	L["MuteVigorSound_SettingsTT"] = "切换驭空术坐骑获得精力时播放的声音。"  -- translated 11.0
 	--non-official translations
+	L["SpeedometerTheme"] = "速度计主题"
+	L["SpeedometerThemeTT"] = "自定义速度计主题。"
+	L["Algari"] = "阿尔加里"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "极简主义"
+	L["Alliance"] = "联盟"
+	L["Horde"] = "部落"
 
 return end
 
@@ -305,5 +319,12 @@ if LOCALE == "zhTW" then
 	L["SilverTime"] = "銀牌時間: "
 	L["MuteVigorSound_Settings"] = "靜音活力音效"
 	L["MuteVigorSound_SettingsTT"] = "切換飛龍坐騎自然獲得活力格數時播放的音效。"
+	L["SpeedometerTheme"] = "速度條主題"
+	L["SpeedometerThemeTT"] = "自訂速度條主題。"
+	L["Algari"] = "阿爾加里"
+	L["Default"] = DEFAULT
+	L["Minimalist"] = "極簡主義"
+	L["Alliance"] = "聯盟"
+	L["Horde"] = "部落"
 
 return end
