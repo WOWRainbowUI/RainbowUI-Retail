@@ -86,7 +86,7 @@ local IsSpellInRange = _G.IsSpellInRange or function(id, unit)
   return nil
 end
 local IsSpellBookItemInRange = _G.IsSpellInRange or function(index, spellBank, unit)
-  local result = C_SpellBook.IsSpellBookItemInRange(index, spellBank, unit)
+  local result = C_SpellBook.IsSpellBookItemInRange(spellBank, unit) -- 暫時修正
   if result == true then
     return 1
   elseif result == false then
