@@ -8,10 +8,10 @@ local VUHDO_RAID = {};
 
 local sqrt = sqrt;
 local WorldMapFrame = WorldMapFrame;
-local GetMouseFocus = GetMouseFocus;
+local GetMouseFocus = GetMouseFocus or VUHDO_getMouseFocus;
 local pairs = pairs;
 local GetTime = GetTime;
-local GetSpellCooldown = GetSpellCooldown;
+local GetSpellCooldown = GetSpellCooldown or VUHDO_getSpellCooldown;
 local twipe = table.wipe;
 local tsort = table.sort;
 local VUHDO_setMapToCurrentZone;

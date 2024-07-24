@@ -246,13 +246,16 @@ end
 
 --
 function VUHDO_reloadBuffPanel()
-	if InCombatLockdown() or sIsForceHide or (VUHDO_BUFF_SETTINGS["CONFIG"]["HIDE_OUT_OF_COMBAT"] and sIsOutOfCombat) then 
-		if VuhDoBuffWatchMainFrame then	VuhDoBuffWatchMainFrame:Hide(); end
+
+	if InCombatLockdown() or sIsForceHide then
 		return;
 	end
 
-	if not VUHDO_BUFF_SETTINGS["CONFIG"] then
-		if VuhDoBuffWatchMainFrame then	VuhDoBuffWatchMainFrame:Hide(); end
+	if not VUHDO_BUFF_SETTINGS["CONFIG"] or (VUHDO_BUFF_SETTINGS["CONFIG"]["HIDE_OUT_OF_COMBAT"] and sIsOutOfCombat) then
+		if VuhDoBuffWatchMainFrame then
+			VuhDoBuffWatchMainFrame:Hide();
+		end
+
 		return;
 	end
 
@@ -287,4 +290,5 @@ function VUHDO_reloadBuffPanel()
 	else
 		VuhDoBuffWatchMainFrame:Hide();
 	end
+
 end

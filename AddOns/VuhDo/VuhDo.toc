@@ -1,8 +1,8 @@
-## Interface: 100207
+## Interface: 110000, 110002
 
 ## Title: VuhDo ['vu:du:]
 ## Author: Iza@Gilneas, humfras, Ivaria@Hyjal
-## Version: 3.166
+## Version: 3.171
 ## Notes: Raid Frames providing click-heal functionality, buff and debuff control, main tank management and much more
 ## IconTexture: Interface\AddOns\VuhDo\Images\TemporaryPortrait-Female-BloodElf-VuhDo
 

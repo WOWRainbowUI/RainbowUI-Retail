@@ -39,9 +39,9 @@ VUHDO_BOSS_UNITS = { };
 local VUHDO_MAX_BOSS_FRAMES = 8;
 
 for i = 1, VUHDO_MAX_BOSS_FRAMES do -- FIXME: Blizzard forgot to update the MAX_BOSS_FRAMES constant for 9.2
-	local bossUnitId = format("boss%d", i);
+	local tBossUnitId = format("boss%d", i);
 
-	VUHDO_BOSS_UNITS[bossUnitId] = true;
+	VUHDO_BOSS_UNITS[tBossUnitId] = true;
 end
 
 VUHDO_PLAYER_CLASS = nil;
@@ -318,8 +318,9 @@ function VUHDO_setHealth(aUnit, aMode)
 
 		tIsDead = UnitIsDeadOrGhost(aUnit) and not UnitIsFeignDeath(aUnit);
 		if tIsDead then
-			VUHDO_removeAllDebuffIcons(aUnit);
 			VUHDO_removeHots(aUnit);
+			VUHDO_removeAllDebuffIcons(aUnit);
+
 			VUHDO_initEventBouquetsFor(aUnit);
 		end
 
@@ -599,8 +600,8 @@ end
 
 --
 local function VUHDO_addUnitToBosses()
-	for bossUnitId, _ in pairs(VUHDO_BOSS_UNITS) do
-		VUHDO_tableUniqueAdd(VUHDO_GROUPS[44], bossUnitId); -- VUHDO_ID_BOSSES
+	for tBossUnitId, _ in pairs(VUHDO_BOSS_UNITS) do
+		VUHDO_tableUniqueAdd(VUHDO_GROUPS[44], tBossUnitId); -- VUHDO_ID_BOSSES
 	end
 end
 
@@ -820,20 +821,21 @@ function VUHDO_reloadRaidMembers()
 			VUHDO_setHealthSafe("target", 1); -- VUHDO_UPDATE_ALL
 		end
 
-		for bossUnitId, _ in pairs(VUHDO_BOSS_UNITS) do
-			if UnitExists(bossUnitId) then
-				VUHDO_setHealth(bossUnitId, 1); -- VUHDO_UPDATE_ALL
+		for tBossUnitId, _ in pairs(VUHDO_BOSS_UNITS) do
+			if UnitExists(tBossUnitId) then
+				VUHDO_setHealth(tBossUnitId, 1); -- VUHDO_UPDATE_ALL
 			else
 				-- FIXME: find a more efficient way to trigger boss removal
-				VUHDO_removeHots(bossUnitId);
-				VUHDO_resetDebuffsFor(bossUnitId);
-				VUHDO_removeAllDebuffIcons(bossUnitId);
-				VUHDO_updateTargetBars(bossUnitId);
-				table.wipe(VUHDO_RAID[bossUnitId] or tEmptyInfo);
-				VUHDO_RAID[bossUnitId] = nil;
+				VUHDO_removeHots(tBossUnitId);
+				VUHDO_removeAllDebuffIcons(tBossUnitId);
+				VUHDO_resetDebuffsFor(tBossUnitId);
 
-				VUHDO_updateHealthBarsFor(bossUnitId, 1); -- VUHDO_UPDATE_ALL
-				VUHDO_initEventBouquetsFor(bossUnitId);
+				VUHDO_updateTargetBars(tBossUnitId);
+				table.wipe(VUHDO_RAID[tBossUnitId] or tEmptyInfo);
+				VUHDO_RAID[tBossUnitId] = nil;
+
+				VUHDO_updateHealthBarsFor(tBossUnitId, 1); -- VUHDO_UPDATE_ALL
+				VUHDO_initEventBouquetsFor(tBossUnitId);
 			end
 		end
 
@@ -884,7 +886,6 @@ function VUHDO_refreshRaidMembers()
 		if UnitExists(tPlayer) and tPlayer ~= VUHDO_PLAYER_RAID_ID then
 			tInfo = VUHDO_RAID[tPlayer];
 			if not tInfo or VUHDO_RAID_GUIDS[UnitGUID(tPlayer)] ~= tPlayer then
-				--VUHDO_xMsg("VUHDO_refreshRaidMembers", "VUHDO_setHealth", tPlayer or "no player", tInfo and "in raid" or "not in raid", VUHDO_RAID_GUIDS[UnitGUID(tPlayer)] or "no raid guid");
 				VUHDO_setHealth(tPlayer, 1); -- VUHDO_UPDATE_ALL
 			else
 				tInfo["group"] = VUHDO_getUnitGroup(tPlayer, false);
@@ -922,30 +923,31 @@ function VUHDO_refreshRaidMembers()
 		VUHDO_setHealthSafe("target", 1); -- VUHDO_UPDATE_ALL
 	end
 
-	for bossUnitId, _ in pairs(VUHDO_BOSS_UNITS) do
-		if UnitExists(bossUnitId) then -- and UnitIsFriend("player", bossUnitId) then
-			tInfo = VUHDO_RAID[bossUnitId];
+	for tBossUnitId, _ in pairs(VUHDO_BOSS_UNITS) do
+		if UnitExists(tBossUnitId) then -- and UnitIsFriend("player", tBossUnitId) then
+			tInfo = VUHDO_RAID[tBossUnitId];
 
-			if not tInfo or VUHDO_RAID_GUIDS[UnitGUID(bossUnitId)] ~= bossUnitId then
-				VUHDO_setHealth(bossUnitId, 1); -- VUHDO_UPDATE_ALL
+			if not tInfo or VUHDO_RAID_GUIDS[UnitGUID(tBossUnitId)] ~= tBossUnitId then
+				VUHDO_setHealth(tBossUnitId, 1); -- VUHDO_UPDATE_ALL
 			else
-				tInfo["group"] = VUHDO_getUnitGroup(bossUnitId, false);
-				tInfo["isVehicle"] = UnitHasVehicleUI(bossUnitId);
+				tInfo["group"] = VUHDO_getUnitGroup(tBossUnitId, false);
+				tInfo["isVehicle"] = UnitHasVehicleUI(tBossUnitId);
 
 				tInfo["afk"] = false;
 				tInfo["connected"] = true;
 			end
 		else
 			-- FIXME: find a more efficient way to trigger boss removal
-			VUHDO_removeHots(bossUnitId);
-			VUHDO_resetDebuffsFor(bossUnitId);
-			VUHDO_removeAllDebuffIcons(bossUnitId);
-			VUHDO_updateTargetBars(bossUnitId);
-			table.wipe(VUHDO_RAID[bossUnitId] or tEmptyInfo);
-			VUHDO_RAID[bossUnitId] = nil;
+			VUHDO_removeHots(tBossUnitId);
+			VUHDO_removeAllDebuffIcons(tBossUnitId);
+			VUHDO_resetDebuffsFor(tBossUnitId);
 
-			VUHDO_updateHealthBarsFor(bossUnitId, 1); -- VUHDO_UPDATE_ALL
-			VUHDO_initEventBouquetsFor(bossUnitId);
+			VUHDO_updateTargetBars(tBossUnitId);
+			table.wipe(VUHDO_RAID[tBossUnitId] or tEmptyInfo);
+			VUHDO_RAID[tBossUnitId] = nil;
+
+			VUHDO_updateHealthBarsFor(tBossUnitId, 1); -- VUHDO_UPDATE_ALL
+			VUHDO_initEventBouquetsFor(tBossUnitId);
 		end
 	end
 

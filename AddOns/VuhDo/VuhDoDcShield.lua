@@ -248,7 +248,7 @@ end
 
 
 --
-local VUHDO_SAFE_PARTY = { "player", "party1",	"party2",	"party3",	"party4" };
+local VUHDO_SAFE_PARTY = { "player", "party1", "party2", "party3", "party4" };
 
 
 

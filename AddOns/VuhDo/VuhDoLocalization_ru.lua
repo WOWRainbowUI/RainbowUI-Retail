@@ -612,3 +612,5 @@ VUHDO_I18N_TEXT_PROVIDER_MANA_KILO_OF = "Мана: <#nk>/<#nk>";
 VUHDO_I18N_TEXT_PROVIDER_MANA = "Мана: <#n>";
 VUHDO_I18N_TEXT_PROVIDER_MANA_KILO = "Мана: <#nk>";
 VUHDO_I18N_BOUQUET_STATUS_HEALTH_IF_ACTIVE = "Панель статуса: Здоровье % если активно";
+
+VUHDO_I18N_DEF_COUNTER_ACTIVE_AURAS = "Counter: Active Bouquet Auras #k";

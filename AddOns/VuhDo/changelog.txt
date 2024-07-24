@@ -1,3 +1,112 @@
+Version 3.171  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+  
+  
+Improvements:  
+-- Bump TOC interface for 11.0.0 The War Within pre-patch  
+-- Added new bouquet validator 'Counter: Active Bouquet Auras #k'  
+  
+  
+--------------------------------------------------------------  
+Version 3.170  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
+Version 3.169  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed Buff Watch 'Missing' color during combat  
+-- Fixed dispellable debuff bar color fallback for custom debuffs  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
+Version 3.168  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
+Version 3.167  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
 Version 3.166  
   
   

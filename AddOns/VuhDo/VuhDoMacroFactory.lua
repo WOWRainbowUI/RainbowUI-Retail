@@ -9,7 +9,7 @@ local VUHDO_SPELL_CONFIG;
 
 local GetMacroIndexByName = GetMacroIndexByName;
 local GetMacroInfo = GetMacroInfo;
-local GetSpellBookItemTexture = GetSpellBookItemTexture;
+local GetSpellName = C_Spell.GetSpellName;
 local VUHDO_replaceMacroTemplates;
 local gsub = gsub;
 local twipe = table.wipe;
@@ -199,7 +199,7 @@ local function VUHDO_generateTargetMacroText(aTarget, aFriendlyAction, aHostileA
 		tFriendText = "/focus [noharm,@vuhdo]\n";
 	elseif "assist" == tLowerFriendly then
 		tFriendText = "/assist [noharm,@vuhdo]\n";
-	elseif #aFriendlyAction > 0 and GetSpellInfo(aFriendlyAction) then
+	elseif #aFriendlyAction > 0 and GetSpellName(aFriendlyAction) then
 		if (VUHDO_SPELLS[aFriendlyAction] or sEmpty)["nohelp"] then
 			tModiSpell = "[@vuhdo] ";
 			tIsNoHelp = true;
@@ -234,7 +234,7 @@ local function VUHDO_generateTargetMacroText(aTarget, aFriendlyAction, aHostileA
 		tEnemyText = "/focus [harm,@vuhdo]";
 	elseif "assist" == tLowerHostile then
 		tEnemyText = "/assist [harm,@vuhdo]";
-	elseif #aHostileAction > 0 and GetSpellInfo(aHostileAction) then
+	elseif #aHostileAction > 0 and GetSpellName(aHostileAction) then
 		tEnemyText = "/use [harm,@vuhdo] " .. aHostileAction;
 	else
 		tEnemyText = "";
