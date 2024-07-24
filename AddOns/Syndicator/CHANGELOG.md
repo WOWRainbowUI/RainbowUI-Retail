@@ -1,6 +1,6 @@
 # Syndicator
 
-## [73](https://github.com/Baganator/Syndicator/tree/73) (2024-07-13)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/72...73) 
+## [77](https://github.com/Baganator/Syndicator/tree/77) (2024-07-23)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/76...77) 
 
-- Share substitution function for keywords so Baganator can use it  
+- Add another event for potentially when warband tabs are purchased  
