@@ -52,7 +52,7 @@ end)
 -- create
 -------------------------------------------------
 function I.CreateStatusIcon(parent)
-    local statusIcon = CreateFrame("Frame", parent:GetName().."StatusIcon", parent.widgets.highLevelFrame)
+    local statusIcon = CreateFrame("Frame", parent:GetName().."StatusIcon", parent.widgets.indicatorFrame)
     parent.indicators.statusIcon = statusIcon
     statusIcon:Hide()
 
@@ -78,7 +78,7 @@ function I.CreateStatusIcon(parent)
     end
 
     -- resurrection icon ----------------------------------
-    local resurrectionIcon = CreateFrame("Frame", parent:GetName().."ResurrectionIcon", parent.widgets.highLevelFrame)
+    local resurrectionIcon = CreateFrame("Frame", parent:GetName().."ResurrectionIcon", parent.widgets.indicatorFrame)
     parent.indicators.resurrectionIcon = resurrectionIcon
     resurrectionIcon:SetAllPoints(statusIcon)
     resurrectionIcon:Hide()
@@ -93,7 +93,7 @@ function I.CreateStatusIcon(parent)
     bar:SetAllPoints(resurrectionIcon)
     bar:SetOrientation("VERTICAL")
     bar:SetReverseFill(true)
-    bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
+    bar:SetStatusBarTexture(Cell.vars.whiteTexture)
     bar:GetStatusBarTexture():SetAlpha(0)
     bar.elapsedTime = 0
     bar:SetScript("OnUpdate", function(self, elapsed)
@@ -105,7 +105,7 @@ function I.CreateStatusIcon(parent)
     end)
 
     local mask = resurrectionIcon:CreateMaskTexture()
-    mask:SetTexture("Interface\\Buttons\\WHITE8x8", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    mask:SetTexture(Cell.vars.whiteTexture, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
     mask:SetPoint("TOPLEFT", bar:GetStatusBarTexture(), "BOTTOMLEFT")
     mask:SetPoint("BOTTOMRIGHT")
 

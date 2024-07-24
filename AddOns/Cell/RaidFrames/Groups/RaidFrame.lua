@@ -273,6 +273,22 @@ local function GetPoints(layout)
     return point, anchorPoint, groupAnchorPoint, unitSpacing, groupSpacing, unitSpacingX, unitSpacingY, verticalSpacing, horizontalSpacing, headerPoint, headerColumnAnchorPoint
 end
 
+local function UpdateHeadersShowRaidAttribute()
+    local shouldShowRaid = CellDB["general"]["showRaid"]
+
+    if Cell.vars.currentLayoutTable["main"]["combineGroups"] then
+        combinedHeader:SetAttribute("showRaid", shouldShowRaid)
+        for _, header in ipairs(separatedHeaders) do
+            header:SetAttribute("showRaid", nil)
+        end
+    else
+        combinedHeader:SetAttribute("showRaid", nil)
+        for _, header in ipairs(separatedHeaders) do
+            header:SetAttribute("showRaid", shouldShowRaid)
+        end
+    end
+end
+
 local function UpdateHeader(header, layout, which)
     if not which or which == "header" or which == "main-size" or which == "main-power" or which == "groupFilter" or which == "barOrientation" or which == "powerFilter" then
         local width, height = unpack(layout["main"]["size"])
@@ -342,7 +358,11 @@ local function RaidFrame_UpdateLayout(layout, which)
             if k == 1 then
                 arenaPetButtons[k]:SetPoint(point, npcFrameAnchor)
             else
-                arenaPetButtons[k]:SetPoint(point, arenaPetButtons[k-1], anchorPoint, 0, unitSpacing)
+                if layout["main"]["orientation"] == "vertical" then
+                    arenaPetButtons[k]:SetPoint(point, arenaPetButtons[k-1], anchorPoint, 0, unitSpacing)
+                else
+                    arenaPetButtons[k]:SetPoint(point, arenaPetButtons[k-1], anchorPoint, unitSpacing, 0)
+                end
             end
         end
     end
@@ -355,15 +375,12 @@ local function RaidFrame_UpdateLayout(layout, which)
         end
     end
 
+    if not which or which == "header" then
+        UpdateHeadersShowRaidAttribute()
+    end
+
     if layout["main"]["combineGroups"] then
         UpdateHeader(combinedHeader, layout, which)
-
-        if not which or which == "header" then
-            combinedHeader:SetAttribute("showRaid", true)
-            for _, header in ipairs(separatedHeaders) do
-                header:SetAttribute("showRaid", nil)
-            end
-        end
 
         if not which or which == "header" or which == "main-arrangement" or which == "rows_columns" or which == "groupSpacing" or which == "unitsPerColumn" then
             combinedHeader:ClearAllPoints()
@@ -416,13 +433,6 @@ local function RaidFrame_UpdateLayout(layout, which)
         end
 
     else
-        if not which or which == "header" then
-            combinedHeader:SetAttribute("showRaid", nil)
-            for _, header in ipairs(separatedHeaders) do
-                header:SetAttribute("showRaid", true)
-            end
-        end
-
         if not which or which == "header" or which == "main-arrangement" or which == "rows_columns" or which == "groupSpacing" or which == "groupFilter" then
             for i, group in ipairs(shownGroups) do
                 local header = separatedHeaders[group]
@@ -443,8 +453,12 @@ local function RaidFrame_UpdateLayout(layout, which)
                     if i == 1 then
                         header:SetPoint(point)
                     else
-                        if i / layout["main"]["maxColumns"] > 1 then -- not the first row
-                            header:SetPoint(point, separatedHeaders[shownGroups[i-layout["main"]["maxColumns"]]], anchorPoint, 0, verticalSpacing)
+                        local headersPerRow = layout["main"]["maxColumns"]
+                        local headerCol = i % layout["main"]["maxColumns"]
+                        headerCol = headerCol == 0 and headersPerRow or headerCol
+
+                        if headerCol == 1 then -- first column on each row
+                            header:SetPoint(point, separatedHeaders[shownGroups[i-headersPerRow]], anchorPoint, 0, verticalSpacing)
                         else
                             header:SetPoint(point, separatedHeaders[shownGroups[i-1]], groupAnchorPoint, groupSpacing, 0)
                         end
@@ -463,18 +477,13 @@ local function RaidFrame_UpdateLayout(layout, which)
 
                     if i == 1 then
                         header:SetPoint(point)
-                        -- arena pets
-                        for k in ipairs(arenaPetButtons) do
-                            arenaPetButtons[k]:ClearAllPoints()
-                            if k == 1 then
-                                arenaPetButtons[k]:SetPoint(point, npcFrameAnchor)
-                            else
-                                arenaPetButtons[k]:SetPoint(point, arenaPetButtons[k-1], anchorPoint, unitSpacing, 0)
-                            end
-                        end
                     else
-                        if i / layout["main"]["maxColumns"] > 1 then -- not the first column
-                            header:SetPoint(point, separatedHeaders[shownGroups[i-layout["main"]["maxColumns"]]], anchorPoint, horizontalSpacing, 0)
+                        local headersPerCol = layout["main"]["maxColumns"]
+                        local headerRow = i % layout["main"]["maxColumns"]
+                        headerRow = headerRow == 0 and headersPerCol or headerRow
+
+                        if headerRow == 1 then -- first row on each column
+                            header:SetPoint(point, separatedHeaders[shownGroups[i-headersPerCol]], anchorPoint, horizontalSpacing, 0)
                         else
                             header:SetPoint(point, separatedHeaders[shownGroups[i-1]], groupAnchorPoint, 0, groupSpacing)
                         end
@@ -536,3 +545,17 @@ local function RaidFrame_UpdateLayout(layout, which)
     end
 end
 Cell:RegisterCallback("UpdateLayout", "RaidFrame_UpdateLayout", RaidFrame_UpdateLayout)
+
+local function RaidFrame_UpdateVisibility(which)
+    if not which or which == "raid" then
+        UpdateHeadersShowRaidAttribute()
+
+        if CellDB["general"]["showRaid"] then
+            RegisterAttributeDriver(raidFrame, "state-visibility", "show")
+        else
+            UnregisterAttributeDriver(raidFrame, "state-visibility")
+            raidFrame:Hide()
+        end
+    end
+end
+Cell:RegisterCallback("UpdateVisibility", "RaidFrame_UpdateVisibility", RaidFrame_UpdateVisibility)

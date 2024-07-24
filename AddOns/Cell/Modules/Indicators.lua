@@ -571,6 +571,13 @@ local function InitIndicator(indicatorName)
                 indicator.preview.elapsedTime = 13 -- update now!
             end)
             SetOnUpdate(indicator, nil, 134400, 0)
+        elseif indicator.indicatorType == "border" then
+            function indicator:SetFadeOut(fadeOut)
+                indicator.fadeOut = fadeOut
+                indicator.preview.elapsedTime = 13 -- update now!
+            end
+            local color = {1, 0.26667, 0.4}
+            SetOnUpdate(indicator, nil, 134400, 0, color)
         else
             SetOnUpdate(indicator, nil, 134400, 5)
         end
@@ -600,8 +607,12 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
                 InitIndicator(t["indicatorName"])
                 -- update position
                 if t["position"] then
-                    P:ClearPoints(indicator)
-                    P:Point(indicator, t["position"][1], previewButton, t["position"][2], t["position"][3], t["position"][4])
+                    if t["indicatorName"] == "statusText" then
+                        indicator:SetPosition(t["position"][1], t["position"][2], t["position"][3])
+                    else
+                        P:ClearPoints(indicator)
+                        P:Point(indicator, t["position"][1], previewButton, t["position"][2], t["position"][3], t["position"][4])
+                    end
                 end
                 -- update anchor
                 if t["anchor"] then
@@ -808,8 +819,12 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             --     if indicator.isTargetedSpells then indicator:HideGlowPreview() end
             -- end
         elseif setting == "position" then
-            P:ClearPoints(indicator)
-            P:Point(indicator, value[1], previewButton, value[2], value[3], value[4])
+            if indicatorName == "statusText" then
+                indicator:SetPosition(value[1], value[2], value[3])
+            else
+                P:ClearPoints(indicator)
+                P:Point(indicator, value[1], previewButton, value[2], value[3], value[4])
+            end
             -- update arrangement
             if indicator.indicatorType == "icons" then
                 indicator:SetOrientation(indicator.orientation)
@@ -970,7 +985,11 @@ local function UpdateIndicators(layout, indicatorName, setting, value, value2)
             if value["size"] then
                 P:Size(indicator, value["size"][1], value["size"][2])
             end
-            -- update frame level
+            -- update thickness
+            if value["thickness"] then
+                indicator:SetThickness(value["thickness"])
+            end
+            -- update frameLevel
             if value["frameLevel"] then
                 indicator:SetFrameLevel(indicator:GetParent():GetFrameLevel()+value["frameLevel"])
             end
@@ -1350,16 +1369,20 @@ local typeItems = {
         ["value"] = "overlay",
     },
     {
-        ["text"] = L["Text"],
-        ["value"] = "text",
-    },
-    {
         ["text"] = L["Color"],
         ["value"] = "color",
     },
     {
+        ["text"] = L["Text"],
+        ["value"] = "text",
+    },
+    {
         ["text"] = L["Glow"],
         ["value"] = "glow",
+    },
+    {
+        ["text"] = L["Border"],
+        ["value"] = "border",
     },
     {
         ["text"] = L["Texture"],
@@ -1531,7 +1554,7 @@ if Cell.isRetail then
         ["aggroBorder"] = {"enabled", "thickness", "frameLevel"},
         ["aggroBar"] = {"enabled", "size-bar", "position", "frameLevel"},
         ["shieldBar"] = {"enabled", "checkbutton:onlyShowOvershields", "color-alpha", "height", "shieldBarPosition", "frameLevel"},
-        ["aoeHealing"] = {"|cffb7b7b7"..L["Display a gradient texture when the player receives a heal from certain AoE healing spells."], "enabled", "color", "height"},
+        ["aoeHealing"] = {"|cffb7b7b7"..L["Display a gradient texture when the unit receives a heal from your certain AoE healing spells."], "enabled", "color", "height"},
         ["externalCooldowns"] = {L["Even if disabled, the settings below affect \"Externals + Defensives\" indicator"], "enabled", "builtInExternals", "customExternals", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
         ["defensiveCooldowns"] = {L["Even if disabled, the settings below affect \"Externals + Defensives\" indicator"], "enabled", "builtInDefensives", "customDefensives", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
         ["allCooldowns"] = {"enabled", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
@@ -1570,7 +1593,7 @@ elseif Cell.isCata or Cell.isWrath then
         ["aggroBar"] = {"enabled", "size-bar", "position", "frameLevel"},
         ["shieldBar"] = {"enabled", "checkbutton:onlyShowOvershields", "color-alpha", "height", "shieldBarPosition", "frameLevel"},
         ["powerWordShield"] = {L["To show shield value, |cffff2727Glyph of Power Word: Shield|r is required"], "enabled", "checkbutton:shieldByMe", "shape", "size-square", "position", "frameLevel"},
-        ["aoeHealing"] = {"|cffb7b7b7"..L["Display a gradient texture when the player receives a heal from certain AoE healing spells."], "enabled", "color", "height"},
+        ["aoeHealing"] = {"|cffb7b7b7"..L["Display a gradient texture when the unit receives a heal from your certain AoE healing spells."], "enabled", "color", "height"},
         ["externalCooldowns"] = {L["Even if disabled, the settings below affect \"Externals + Defensives\" indicator"], "enabled", "builtInExternals", "customExternals", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
         ["defensiveCooldowns"] = {L["Even if disabled, the settings below affect \"Externals + Defensives\" indicator"], "enabled", "builtInDefensives", "customDefensives", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
         ["allCooldowns"] = {"enabled", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
@@ -1604,7 +1627,7 @@ elseif Cell.isVanilla then
         ["aggroBlink"] = {"enabled", "size", "position", "frameLevel"},
         ["aggroBorder"] = {"enabled", "thickness", "frameLevel"},
         ["aggroBar"] = {"enabled", "size-bar", "position", "frameLevel"},
-        ["aoeHealing"] = {"|cffb7b7b7"..L["Display a gradient texture when the player receives a heal from certain AoE healing spells."], "enabled", "color", "height"},
+        ["aoeHealing"] = {"|cffb7b7b7"..L["Display a gradient texture when the unit receives a heal from your certain AoE healing spells."], "enabled", "color", "height"},
         ["externalCooldowns"] = {L["Even if disabled, the settings below affect \"Externals + Defensives\" indicator"], "enabled", "builtInExternals", "customExternals", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
         ["defensiveCooldowns"] = {L["Even if disabled, the settings below affect \"Externals + Defensives\" indicator"], "enabled", "builtInDefensives", "customDefensives", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
         ["allCooldowns"] = {"enabled", "durationVisibility", "checkbutton:showAnimation", "size", "num:5", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"},
@@ -1655,11 +1678,13 @@ local function ShowIndicatorSettings(id)
         elseif indicatorType == "glow" then
             settingsTable = {"enabled", "checkbutton3:fadeOut", "auras", "glowOptions", "frameLevel"}
         elseif indicatorType == "overlay" then
-            settingsTable = {"enabled", "auras", "overlayColors", "checkbutton3:smooth", "barOrientation", "frameLevel"}
+            settingsTable = {"enabled", "auras", "overlayColors", "checkbutton3:smooth", "barOrientation", "frameLevel:50"}
         elseif indicatorType == "block" then
             settingsTable = {"enabled", "auras", "blockColors", "checkbutton3:showStack", "durationVisibility", "size", "position", "frameLevel", "font1:stackFont", "font2:durationFont"}
         elseif indicatorType == "blocks" then
             settingsTable = {"enabled", "auras", "checkbutton3:showStack", "durationVisibility", "size", "num:10", "numPerLine:10", "spacing", "orientation", "position", "frameLevel", "font1:stackFont", "font2:durationFont"}
+        elseif indicatorType == "border" then
+            settingsTable = {"enabled", "checkbutton3:fadeOut", "auras", "thickness", "frameLevel:50"}
         end
 
         if indicatorTable["auraType"] == "buff" then
@@ -1745,7 +1770,8 @@ local function ShowIndicatorSettings(id)
 
         -- auras
         elseif currentSetting == "auras" then
-            w:SetDBValue(L[F:UpperFirst(indicatorTable["auraType"]).." List"], indicatorTable["auras"], indicatorType == "glow", indicatorType == "icons", indicatorType == "blocks" and "single")
+            w:SetDBValue(L[F:UpperFirst(indicatorTable["auraType"]).." List"], indicatorTable["auras"], indicatorType == "glow", indicatorType == "icons",
+                indicatorType == "blocks" or indicatorType == "border")
             w:SetFunc(function(value)
                 -- NOTE: already changed in widget
                 Cell:Fire("UpdateIndicators", notifiedLayout, indicatorName, "auras", indicatorTable["auraType"], value)
@@ -2117,6 +2143,9 @@ LoadIndicatorList = function()
                     LCG.PixelGlow_Start(i, nil, nil, nil, nil, nil, 2, 2)
                 else
                     LCG.PixelGlow_Start(i)
+                end
+                if i._PixelGlow then
+                    i._PixelGlow:SetIgnoreParentAlpha(true)
                 end
             end
         else

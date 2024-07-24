@@ -56,7 +56,7 @@ local function CreateAnimationGroup_TypeA(parent)
     -- texture
     local tex = f:CreateTexture(nil, "ARTWORK")
     tex:SetAllPoints(f)
-    tex:SetTexture("Interface\\Buttons\\WHITE8x8")
+    tex:SetTexture(Cell.vars.whiteTexture)
 
     tex:AddMaskTexture(parent.mask)
 
@@ -441,7 +441,7 @@ local previews = {}
 local previewOrientation
 
 function I.CreateActions(parent, isPreview)
-    local actions = CreateFrame("Frame", parent:GetName().."ActionsParent", isPreview and parent or parent.widgets.highLevelFrame)
+    local actions = CreateFrame("Frame", parent:GetName().."ActionsParent", isPreview and parent or parent.widgets.indicatorFrame)
 
     -- mask
     local mask = actions:CreateMaskTexture()

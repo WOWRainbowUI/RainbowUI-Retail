@@ -666,12 +666,13 @@ end
 -- end
 
 function U:CreateSpellRequestIcon(parent)
-    local srIcon = CreateFrame("Frame", parent:GetName().."SpellRequestIcon", parent.widgets.srGlowFrame)
+    local srIcon = CreateFrame("Frame", parent:GetName().."SpellRequestIcon", parent.widgets.indicatorFrame)
     parent.widgets.srIcon = srIcon
     srIcon:SetIgnoreParentAlpha(true)
+    srIcon:SetFrameLevel(parent.widgets.indicatorFrame:GetFrameLevel()+110)
     srIcon:Hide()
 
-    -- srIcon:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+    -- srIcon:SetBackdrop({bgFile = Cell.vars.whiteTexture})
     -- srIcon:SetBackdropColor(0, 0, 0, 1)
 
     srIcon.icon = srIcon:CreateTexture(nil, "ARTWORK")
