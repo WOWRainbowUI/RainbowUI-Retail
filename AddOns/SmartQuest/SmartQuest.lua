@@ -37,7 +37,7 @@ SmartQuest = {
 	--
 	-- **********************************************************************************************
 
-	Version = "1.27";
+	Version = "1.28";
 	ModCode = "KSQ";
 	DataCode = "1";
 	Quest = { };
@@ -70,7 +70,7 @@ SmartQuest = {
 
 SmartQuestOptions = { };
 
-if (select(4, GetBuildInfo()) > 101000) then
+if (select(4, GetBuildInfo()) > 110100) then
 	SmartQuest.BetaMode = true;
 end
 if (select(4, GetBuildInfo()) >= 100000) then
@@ -702,7 +702,7 @@ function SmartQuest_Command(arg1)
 end
 
 function SmartQuest_Command_Options()
-	if (SmartQuest.BetaMode) then
+	if (SmartQuest.DragonflightMode) then
 		Settings.OpenToCategory("SmartQuest");
 	else
 		InterfaceOptionsFrame_OpenToCategory("SmartQuest");
@@ -759,7 +759,7 @@ function SmartQuest_RenderOptions()
 	
 	local ConfigurationPanel = CreateFrame("FRAME","SmartQuest_MainFrame");
 	ConfigurationPanel.name = "任務-通報";
-	if (SmartQuest.BetaMode) then
+	if (SmartQuest.DragonflightMode) then
 		category, layout = Settings.RegisterCanvasLayoutCategory(ConfigurationPanel, ConfigurationPanel.name);
 		category.ID = "SmartQuest"
 		Settings.RegisterAddOnCategory(category);
