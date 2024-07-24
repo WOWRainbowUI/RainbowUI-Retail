@@ -1039,7 +1039,7 @@ function Spy:ParseUnitAbility(analyseSpell, event, player, class, race, spellId,
 						end
 					end	
 				else	
---					print(spellId, " - ", spellName)
+--					print(spellId, " - ", spellName, " - ", class)
 				end
 				if class and race and level == Spy.MaximumPlayerLevel then
 					isGuess = false
@@ -1630,6 +1630,7 @@ Spy_AbilityList = {
 	[374111]={ class = "DEATHKNIGHT", level = 26, },
 	[194916]={ class = "DEATHKNIGHT", level = 27, },
 	[275699]={ class = "DEATHKNIGHT", level = 27, },
+	[343758]={ class = "DEATHKNIGHT", level = 27, },
 	[207311]={ class = "DEATHKNIGHT", level = 27, },
 	[49028]={ class = "DEATHKNIGHT", level = 27, },
 	[207317]={ class = "DEATHKNIGHT", level = 27, },
@@ -1710,6 +1711,7 @@ Spy_AbilityList = {
 	[391566]={ class = "DEATHKNIGHT", level = 50, },
 	[206967]={ class = "DEATHKNIGHT", level = 50, },
 	[42650]={ class = "DEATHKNIGHT", level = 51, },
+	[275430]={ class = "DEATHKNIGHT", level = 51, },
 	[207142]={ class = "DEATHKNIGHT", level = 51, },
 	[377098]={ class = "DEATHKNIGHT", level = 51, },
 	[377537]={ class = "DEATHKNIGHT", level = 51, },
@@ -1724,6 +1726,7 @@ Spy_AbilityList = {
 	[194878]={ class = "DEATHKNIGHT", level = 52, },
 	[374261]={ class = "DEATHKNIGHT", level = 52, },
 	[276837]={ class = "DEATHKNIGHT", level = 53, },
+	[317776]={ class = "DEATHKNIGHT", level = 53, },
 	[377590]={ class = "DEATHKNIGHT", level = 53, },
 	[279302]={ class = "DEATHKNIGHT", level = 53, },
 	[377587]={ class = "DEATHKNIGHT", level = 53, },
@@ -2809,6 +2812,7 @@ Spy_AbilityList = {
 	[378438]={ class = "EVOKER", level = 20, },
 	[378437]={ class = "EVOKER", level = 20, },
 --++ Hunter Abilities ++	
+	[75]={ class = "HUNTER", level = 1, },
 	[137014]={ class = "HUNTER", level = 1, },
 	[272790]={ class = "HUNTER", level = 1, },
 	[138430]={ class = "HUNTER", level = 35, },
@@ -2830,6 +2834,7 @@ Spy_AbilityList = {
 	[19883]={ class = "HUNTER", level = 4, },
 	[19884]={ class = "HUNTER", level = 4, },
 	[186257]={ class = "HUNTER", level = 5, },
+	[186258]={ class = "HUNTER", level = 5, },
 	[1462]={ class = "HUNTER", level = 5, },
 	[883]={ class = "HUNTER", level = 5, },
 	[2641]={ class = "HUNTER", level = 5, },
@@ -3026,6 +3031,7 @@ Spy_AbilityList = {
 	[193455]={ class = "HUNTER", level = 11, },
 	[186270]={ class = "HUNTER", level = 11, },
 	[270581]={ class = "HUNTER", level = 12, },
+	[246152]={ class = "Hunter", level = 13, },
 	[321293]={ class = "HUNTER", level = 13, },
 	[263186]={ class = "HUNTER", level = 13, },
 	[321018]={ class = "HUNTER", level = 13, },
@@ -4261,8 +4267,9 @@ Spy_AbilityList = {
 	[393024]={ class = "PALADIN", level = 12, },
 	[377016]={ class = "PALADIN", level = 12, },
 	[376996]={ class = "PALADIN", level = 12, },
-	[267344]={ class = "PALADIN", level = 13, },
-	[317912]={ class = "PALADIN", level = 13, },
+	[231843]={ class = "PALADIN", level = 17, },
+	[267344]={ class = "PALADIN", level = 17, },
+	[317912]={ class = "PALADIN", level = 17, },
 	[204019]={ class = "PALADIN", level = 13, },
 	[53385]={ class = "PALADIN", level = 13, },
 	[53595]={ class = "PALADIN", level = 13, },
@@ -5879,6 +5886,7 @@ Spy_AbilityList = {
 	[389609]={ class = "WARLOCK", level = 14, },
 	[386105]={ class = "WARLOCK", level = 14, },
 	[196406]={ class = "WARLOCK", level = 15, },
+	[117828]={ class = "WARLOCK", level = 15, },
 	[267211]={ class = "WARLOCK", level = 15, },
 	[386185]={ class = "WARLOCK", level = 15, },
 	[267171]={ class = "WARLOCK", level = 15, },
@@ -5984,6 +5992,7 @@ Spy_AbilityList = {
 	[108415]={ class = "WARLOCK", level = 50, },
 	[385881]={ class = "WARLOCK", level = 50, },
 	[387494]={ class = "WARLOCK", level = 51, },
+	[387496]={ class = "Warlock", level = 51, },
 	[264000]={ class = "WARLOCK", level = 51, },
 	[387173]={ class = "WARLOCK", level = 51, },
 	[267217]={ class = "WARLOCK", level = 51, },
@@ -6431,6 +6440,7 @@ Spy_AbilityList = {
 	[391572]={ class = "WARRIOR", level = 56, },
 	[390140]={ class = "WARRIOR", level = 56, },
 	[383916]={ class = "WARRIOR", level = 57, },
+	[383915]={ class = "WARRIOR", level = 57, },
 	[386394]={ class = "WARRIOR", level = 57, },
 	[390713]={ class = "WARRIOR", level = 57, },
 	[391683]={ class = "WARRIOR", level = 57, },
@@ -7104,6 +7114,7 @@ Spy_AbilityList = {
 	[212638]={ level = 1, },
 	[53480]={ level = 1, },
 	[131894]={ level = 1, },
+	[390232]={ level = 1, },
 	[217200]={ level = 1, },
 	[186387]={ level = 1, },
 	[5116]={ level = 1, },
@@ -7268,6 +7279,7 @@ Spy_AbilityList = {
 	[15407]={ level = 1, },
 	[34914]={ level = 1, },
 	[14914]={ level = 1, },
+	[390669]={ level = 1, },
 	[335467]={ level = 1, },
 	[64843]={ level = 1, },
 	[205364]={ level = 1, },
