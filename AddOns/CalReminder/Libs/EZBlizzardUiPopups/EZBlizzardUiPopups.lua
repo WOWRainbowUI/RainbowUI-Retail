@@ -1,3 +1,16 @@
+local _, _, _, tocversion = GetBuildInfo()
+
+function EZBlizzUiPop_GetMouseFocus()
+	local frame = nil
+	if tocversion >= 110000 then
+		local region = GetMouseFoci()
+		frame = region[1]
+	else
+		frame = GetMouseFocus()
+	end
+	return frame
+end
+
 if (not EZBlizzardUiPopupsTooltip) then
 	CreateFrame("GameTooltip", "EZBlizzardUiPopupsTooltip", UIParent, "GameTooltipTemplate")
 	EZBlizzardUiPopupsTooltip:SetFrameStrata("TOOLTIP")
