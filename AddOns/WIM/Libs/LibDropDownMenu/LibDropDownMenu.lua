@@ -317,7 +317,7 @@ end
 
 function UIDropDownMenuButton_ShouldShowIconTooltip(self)
 	if self.Icon and (self.iconTooltipTitle or self.iconTooltipText) and (self.icon or self.mouseOverIcon) then
-		return GetMouseFocus() == self.Icon;
+		return self.Icon:IsMouseMotionFocus();
 	end
 	return false;
 end

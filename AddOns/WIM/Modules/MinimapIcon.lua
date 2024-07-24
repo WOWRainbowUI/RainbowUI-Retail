@@ -7,7 +7,7 @@ local math = math;
 local table = table;
 local pairs = pairs;
 local string = string;
-local GetMouseFocus = GetMouseFocus;
+local GetMouseFocus = GetMouseFoci;
 local IsShiftKeyDown = IsShiftKeyDown;
 
 -- set namespace
