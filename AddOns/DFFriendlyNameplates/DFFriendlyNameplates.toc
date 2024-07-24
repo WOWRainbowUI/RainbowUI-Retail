@@ -1,7 +1,7 @@
 ## Interface: 110000
 ## Title: DF Friendly Nameplates
 ## Author: Httpsx
-## Version: 1.0.9
+## Version: 1.0.10
 ## Notes: Friendly nameplates for raids/dungeons WoW Retail.
 ## SavedVariables: DFFriendlyNamePlates
 
