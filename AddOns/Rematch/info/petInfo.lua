@@ -357,7 +357,7 @@ function funcs:StrongVs()
     if abilityList then
         for _,abilityID in ipairs(abilityList) do
             local _,_,_,_,_,_,abilityType,noHints = C_PetBattles.GetAbilityInfoByID(abilityID)
-            if not noHints then -- skipping self heals and such that don't attack
+            if not noHints and abilityType then -- skipping self heals and such that don't attack
                 strongVs[abilityID] = C.HINTS_OFFENSE[abilityType][1]
             end
         end

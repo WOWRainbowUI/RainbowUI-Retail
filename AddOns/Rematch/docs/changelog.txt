@@ -1,3 +1,9 @@
+07/24/2024 version 5.2.1
+- Fix for blank window due to compatability issues with PetTracker version 10.2.7 (by removing breed support for that specific version--an update to PetTracker's version should attempt to use it again for breed data)
+- Fix for error when filtering pets by Strong Vs when it encounters an ability without a type (like abilityID 931 Croak)
+- Fix for potential error when random pets with abilities without a type are found
+- On the pet card, abilities without a type are now displayed but with no type icon
+
 07/23/2024 version 5.2.0
 - Many internal changes to support The War Within clients
 - Added The War Within expansion to pet filters and pet card artwork
