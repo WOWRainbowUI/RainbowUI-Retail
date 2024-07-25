@@ -10,8 +10,7 @@ local L = WeakAuras.L
 	L[" and |cFFFF0000mirrored|r"] = "y |cFFFF0000reflejado|r"
 	L["-- Do not remove this comment, it is part of this aura: "] = "-- No elimines este comentario, forma parte de esta aura:"
 	L[" rotated |cFFFF0000%s|r degrees"] = "rotado |cFFFF0000%s|r grados"
-	--[[Translation missing --]]
-	L["% - To show a percent sign"] = "% - To show a percent sign"
+	L["% - To show a percent sign"] = "% - Para mostrar un signo de porcentaje"
 	L["% of Progress"] = "% de progreso"
 	L["%d |4aura:auras; added"] = "%d |4aura:auras; añadida(s)"
 	L["%d |4aura:auras; deleted"] = "%d |4aura:auras; eliminada(s)"
@@ -174,8 +173,7 @@ Si la duración de la animación es |cFF00CC0010%|r, y el disparador del aura es
 	L["At a position a bit left of Left HUD position."] = "En una posición un poco a la izquierda de la posición izquierda del HUD."
 	L["At a position a bit left of Right HUD position"] = "En una posición un poco a la izquierda de la posición derecha del HUD"
 	L["At the same position as Blizzard's spell alert"] = "En la misma posición que la alerta de hechizo de Blizzard"
-	--[[Translation missing --]]
-	L["Attach to Foreground"] = "Attach to Foreground"
+	L["Attach to Foreground"] = "Adjuntar al primer plano"
 	L["Aura"] = "Aura"
 	L[ [=[Aura is
 Off Screen]=] ] = "Aura está fuera de la pantalla"
@@ -222,8 +220,7 @@ Off Screen]=] ] = "Aura está fuera de la pantalla"
 	L["Bottom Right"] = "Abajo a la derecha"
 	L["Bracket Matching"] = "Coincidencia de soportes"
 	L["Browse Wago, the largest collection of auras."] = "Explora Wago, la mayor colección de auras."
-	--[[Translation missing --]]
-	L["By default this shows the information from the trigger selected via dynamic information. The information from a specific trigger can be shown via e.g. %2.p."] = "By default this shows the information from the trigger selected via dynamic information. The information from a specific trigger can be shown via e.g. %2.p."
+	L["By default this shows the information from the trigger selected via dynamic information. The information from a specific trigger can be shown via e.g. %2.p."] = "Por defecto, esto muestra la información del disparador seleccionado a través de información dinámica. La información de un disparador específico puede mostrarse mediante, por ejemplo, %2.p."
 	L["Can be a UID (e.g., party1)."] = "Puede ser un UID (por ejemplo, party1)."
 	L["Can set to 0 if Columns * Width equal File Width"] = "Puede ponerse a 0 si Columnas * Anchura es igual a Anchura de fila"
 	L["Can set to 0 if Rows * Height equal File Height"] = "Puede ponerse a 0 si Filas * Altura es igual a Altura de fila"
@@ -283,8 +280,7 @@ Off Screen]=] ] = "Aura está fuera de la pantalla"
 	L["Crop X"] = "Cortar X"
 	L["Crop Y"] = "Cortar Y"
 	L["Custom"] = "Personalizado"
-	--[[Translation missing --]]
-	L["Custom - Allows you to define a custom Lua function that returns a list of string values. %c1 will be replaced by the first value returned, %c2 by the second, etc."] = "Custom - Allows you to define a custom Lua function that returns a list of string values. %c1 will be replaced by the first value returned, %c2 by the second, etc."
+	L["Custom - Allows you to define a custom Lua function that returns a list of string values. %c1 will be replaced by the first value returned, %c2 by the second, etc."] = "Personalizado - Te permite definir una función Lua personalizada que devuelve una lista de valores en cadena. %c1 será reemplazado por el primer valor devuelto, %c2 por el segundo, etc."
 	L["Custom Anchor"] = "Ancla personalizada"
 	L["Custom Check"] = "Comprobación personalizada"
 	L["Custom Code"] = "Código Personalizado"
@@ -344,8 +340,7 @@ Off Screen]=] ] = "Aura está fuera de la pantalla"
 	L["Dynamic Information"] = "Información dinámica"
 	L["Dynamic information from first active trigger"] = "Información dinámica del primer activador activo"
 	L["Dynamic information from Trigger %i"] = "Información dinámica del activador %i"
-	--[[Translation missing --]]
-	L["Dynamic Text Replacements"] = "Dynamic Text Replacements"
+	L["Dynamic Text Replacements"] = "Reemplazos de texto dinámico"
 	L["Ease Strength"] = "Fuerza"
 	L["Ease type"] = "Tipo"
 	L["Edge"] = "Borde"
@@ -495,8 +490,7 @@ Con |cFF00CC00>= 0|r se activará siempre.]=]
 	L["Hybrid Position"] = "Posición de híbrido"
 	L["Hybrid Sort Mode"] = "Modo de orden híbrido"
 	L["Icon"] = "Icono"
-	--[[Translation missing --]]
-	L["Icon - The icon associated with the display"] = "Icon - The icon associated with the display"
+	L["Icon - The icon associated with the display"] = "Icono - El icono asociado con la visualización"
 	L["Icon Info"] = "Información del Icono"
 	L["Icon Inset"] = "Interior del Icono"
 	L["Icon Picker"] = "Selector de iconos"
@@ -542,8 +536,7 @@ Con |cFF00CC00>= 0|r se activará siempre.]=]
 	L["Indent Size"] = "Tamaño de sangría"
 	L["Information"] = "Información"
 	L["Inner"] = "Interior"
-	--[[Translation missing --]]
-	L["Insert text replacement codes to make text dynamic."] = "Insert text replacement codes to make text dynamic."
+	L["Insert text replacement codes to make text dynamic."] = "Insertar códigos de reemplazo de texto para hacer el texto dinámico."
 	L["Invalid Item ID"] = "ID de objeto no válido"
 	L["Invalid Item Name/ID/Link"] = "Nombre de objeto/ID/enlace no válidos"
 	L["Invalid Spell ID"] = "ID de hechizo no válido"
@@ -624,8 +617,7 @@ Cualquier combinación de valores es posible.]=]
 |cFF777777Ignorado|r - |cFF00FF00Único|r - |cFF777777Múltiple|r
 Sólo un valor coincidente puede ser escogido.]=]
 	L["Must be a power of 2"] = "Debe ser una potencia de 2"
-	--[[Translation missing --]]
-	L["Name - The name of the display (usually an aura name), or the display's ID if there is no dynamic name"] = "Name - The name of the display (usually an aura name), or the display's ID if there is no dynamic name"
+	L["Name - The name of the display (usually an aura name), or the display's ID if there is no dynamic name"] = "Nombre - El nombre de la visualización (usualmente un nombre de aura), o el ID de la visualización si no hay un nombre dinámico"
 	L["Name Info"] = "Información del Nombre"
 	L["Name Pattern Match"] = "Coincidencia de patrón de nombre"
 	L["Name(s)"] = "Nombre(s)"
@@ -705,8 +697,7 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = "Ocurrencia d
 	L["Press Ctrl+C to copy"] = "Pulsa Ctrl+C para copiar"
 	L["Press Ctrl+C to copy the URL"] = "Pulsa Ctrl+C para copiar la URL"
 	L["Prevent Merging"] = "Evitar la fusión"
-	--[[Translation missing --]]
-	L["Progress - The remaining time of a timer, or a non-timer value"] = "Progress - The remaining time of a timer, or a non-timer value"
+	L["Progress - The remaining time of a timer, or a non-timer value"] = "Progreso - El tiempo restante de un temporizador, o un valor que no es de temporizador"
 	L["Progress Bar"] = "Barra de progreso"
 	L["Progress Bar Settings"] = "Configuración de la barra de progreso"
 	L["Progress Settings"] = "Configuración de progreso"
@@ -835,8 +826,7 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = "Ocurrencia d
 	L["Spell Selection Filters"] = "Filtros de selección de hechizo"
 	L["Stack Count"] = "Recuento de acumulaciones"
 	L["Stack Info"] = "Información de Acumulaciones"
-	--[[Translation missing --]]
-	L["Stacks - The number of stacks of an aura (usually)"] = "Stacks - The number of stacks of an aura (usually)"
+	L["Stacks - The number of stacks of an aura (usually)"] = "Acumulaciones - El número de acumulaciones de un aura (usualmente)"
 	L["Stagger"] = "Tambaleo"
 	L["Standby"] = "En espera"
 	L["Star"] = "Estrella"
@@ -876,12 +866,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = "Ocurrencia d
 	L["The duration of the animation in seconds. The finish animation does not start playing until after the display would normally be hidden."] = [=[La duración de la animación en segundos. La animación de finalización no comienza a reproducirse hasta que la visualización normalmente estaría oculta.
 ]=]
 	L["The group and all direct children will share the same base frame level."] = "El grupo y todos los hijos directos compartirán el mismo nivel de marco base."
-	--[[Translation missing --]]
-	L["The trigger number is optional. When no trigger number is specified, the trigger selected via dynamic information will be used."] = "The trigger number is optional. When no trigger number is specified, the trigger selected via dynamic information will be used."
+	L["The trigger number is optional. When no trigger number is specified, the trigger selected via dynamic information will be used."] = "El número de disparador es opcional. Cuando no se especifica un número de disparador, se usará el disparador seleccionado a través de información dinámica."
 	L["The type of trigger"] = "El tipo de activador"
 	L["Then "] = "Entonces"
-	--[[Translation missing --]]
-	L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."] = "There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."
+	L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."] = "Hay varios códigos especiales disponibles para hacer que este texto sea dinámico. Haz clic para ver una lista con todos los códigos de texto dinámico."
 	L["Thickness"] = "Espesor"
 	L["This adds %raidMark as text replacements."] = "Esto agrega %raidMark como reemplazos de texto."
 	L["This adds %role, %roleIcon as text replacements. Does nothing if the unit is not a group member."] = "Esto agrega %role, %roleIcon como reemplazos de texto. No hace nada si la unidad no es miembro del grupo."
@@ -927,8 +915,7 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["Top Left"] = "Superior izquierda"
 	L["Top Right"] = "Superior derecha"
 	L["Total"] = "Total"
-	--[[Translation missing --]]
-	L["Total - The maximum duration of a timer, or a maximum non-timer value"] = "Total - The maximum duration of a timer, or a maximum non-timer value"
+	L["Total - The maximum duration of a timer, or a maximum non-timer value"] = "Total - La duración máxima de un temporizador, o un valor máximo que no sea de temporizador"
 	L["Total Angle"] = "Ángulo total"
 	L["Total Time"] = "Tiempo total"
 	L["Trigger"] = "Activador"

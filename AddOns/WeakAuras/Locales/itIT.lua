@@ -336,6 +336,8 @@ L["Combat Log"] = "Registro di combattimento"
 L[ [=[COMBAT_LOG_EVENT_UNFILTERED without a filter is generally advised against as it’s very performance costly.
 Find more information:
 https://github.com/WeakAuras/WeakAuras2/wiki/Custom-Triggers#events]=] ] = "COMBAT_LOG_EVENT_UNFILTERED senza filtro è generalmente sconsigliato poiché è molto costoso in termini di prestazioni. Trova ulteriori informazioni: https://github.com/WeakAuras/WeakAuras2/wiki/Custom-Triggers#events"
+--[[Translation missing --]]
+L["Communities"] = "Communities"
 L["Condition Custom Text"] = "Condizione Testo Personalizzato"
 L["Conditions"] = "Condizioni"
 L["Contains"] = "Contiene"
@@ -1400,8 +1402,6 @@ L["Not on Cooldown"] = "Not on Cooldown"
 --[[Translation missing --]]
 L["Not On Threat Table"] = "Not On Threat Table"
 --[[Translation missing --]]
-L["Note, that cross realm transmission is possible if you are on the same group"] = "Note, that cross realm transmission is possible if you are on the same group"
---[[Translation missing --]]
 L["Note: Due to how complicated the swing timer behavior is and the lack of APIs from Blizzard, results are inaccurate in edge cases."] = "Note: Due to how complicated the swing timer behavior is and the lack of APIs from Blizzard, results are inaccurate in edge cases."
 --[[Translation missing --]]
 L["Note: 'Hide Alone' is not available in the new aura tracking system. A load option can be used instead."] = "Note: 'Hide Alone' is not available in the new aura tracking system. A load option can be used instead."
@@ -1689,8 +1689,6 @@ L["Progress Value"] = "Progress Value"
 L["Pulse"] = "Pulse"
 --[[Translation missing --]]
 L["PvP Flagged"] = "PvP Flagged"
---[[Translation missing --]]
-L["PvP Talent %i"] = "PvP Talent %i"
 --[[Translation missing --]]
 L["PvP Talent selected"] = "PvP Talent selected"
 --[[Translation missing --]]

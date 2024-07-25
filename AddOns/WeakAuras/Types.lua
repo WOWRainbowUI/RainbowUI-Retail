@@ -1833,14 +1833,6 @@ else
 end
 
 ---@type table<number, string>
-Private.pvp_talent_types = {}
-if WeakAuras.IsRetail() then
-  for i = 1,10 do
-    tinsert(Private.pvp_talent_types, string.format(L["PvP Talent %i"], i));
-  end
-end
-
----@type table<number, string>
 Private.talent_extra_option_types = {
     [0] = L["Talent Known"],
     [1] = L["Talent Selected"],
@@ -2967,6 +2959,7 @@ Private.chat_message_types = {
   CHAT_MSG_BG_SYSTEM_HORDE = L["BG-System Horde"],
   CHAT_MSG_BN_WHISPER = L["Battle.net Whisper"],
   CHAT_MSG_CHANNEL = L["Channel"],
+  CHAT_MSG_COMMUNITIES_CHANNEL = L["Communities"],
   CHAT_MSG_EMOTE = L["Emote"],
   CHAT_MSG_GUILD = L["Guild"],
   CHAT_MSG_MONSTER_YELL = L["Monster Yell"],

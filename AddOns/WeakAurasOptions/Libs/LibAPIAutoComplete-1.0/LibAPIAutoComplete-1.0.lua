@@ -6,6 +6,23 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 
 local config = {}
 
+local skipWords = {
+  ["local"] = true,
+  ["print"] = true,
+  ["player"] = true,
+  ["display"] = true,
+  ["return"] = true,
+  ["function"] = true
+}
+
+local maxMatches = 100
+
+for k in pairs(skipWords) do
+  for i = #k, 5, -1 do
+     skipWords[k:sub(1, i)] = true
+  end
+end
+
 local function LoadBlizzard_APIDocumentation()
   local apiAddonName = "Blizzard_APIDocumentation"
   local _, loaded = C_AddOns.IsAddOnLoaded(apiAddonName)
@@ -105,14 +122,25 @@ local function Init()
   scrollBox:SetScript("OnKeyDown", function(self, key)
     if key == "DOWN" then
       lib.scrollBox:SetPropagateKeyboardInput(false)
-      self.selectionBehaviour:SelectNextElementData()
+      if not self.selectionBehaviour:HasSelection() then
+        self.selectionBehaviour:SelectFirstElementData()
+      else
+        self.selectionBehaviour:SelectNextElementData()
+      end
     elseif key == "UP" then
-      self.selectionBehaviour:SelectPreviousElementData()
-    elseif key == "ENTER" then
       lib.scrollBox:SetPropagateKeyboardInput(false)
+      if not self.selectionBehaviour:HasSelection() then
+        self.selectionBehaviour:SelectFirstElementData()
+      else
+        self.selectionBehaviour:SelectPreviousElementData()
+      end
+    elseif key == "ENTER" and not IsModifierKeyDown() then
       local selectedElementData = self.selectionBehaviour:GetFirstSelectedElementData()
-      local elementFrame = scrollBox:FindFrame(selectedElementData)
-      elementFrame:Insert()
+      if selectedElementData then
+        lib.scrollBox:SetPropagateKeyboardInput(false)
+        local elementFrame = scrollBox:FindFrame(selectedElementData)
+        elementFrame:Insert()
+      end
     elseif key == "ESCAPE" then
       lib.scrollBox:SetPropagateKeyboardInput(false)
       lib.data:Flush()
@@ -140,7 +168,7 @@ local function OnCursorChanged(editbox, x, y, w, h)
     lib.scrollBox:ClearAllPoints()
     lib.scrollBox:SetPoint("TOPLEFT", editbox, "TOPLEFT", x, y - h)
     local currentWord = lib:GetWord(editbox)
-    if #currentWord > 4 then
+    if #currentWord > 4 and not skipWords[currentWord] then
       lib:Search(currentWord, config[editbox])
       if lib.data:GetSize() == 1 and lib.data:Find(1).name == currentWord then
         lib.data:Flush()
@@ -180,7 +208,6 @@ function lib:enable(editbox, params)
     disableSystems = params and params.disableSystems or false,
   }
   Init()
-  editbox.APIDoc_oldOnCursorChanged = editbox:GetScript("OnCursorChanged")
   -- hack for WeakAuras
   editbox.APIDoc_originalGetText = editbox.GetText
   -- hack for WowLua
@@ -189,8 +216,11 @@ function lib:enable(editbox, params)
       return WowLua.indent.coloredGetText(editbox)
     end
   end
+  editbox.APIDoc_oldOnCursorChanged = editbox:GetScript("OnCursorChanged")
   editbox:SetScript("OnCursorChanged", function(...)
-    editbox.APIDoc_oldOnCursorChanged(...)
+    if editbox.APIDoc_oldOnCursorChanged then
+      editbox.APIDoc_oldOnCursorChanged(...)
+    end
     OnCursorChanged(...)
   end)
   editbox:SetScript("OnHide", function(...)
@@ -267,6 +297,10 @@ function lib:Search(word, config)
           end
         end
       end
+
+      if self.data:GetSize() > maxMatches then
+        break
+      end
     end
   end
 end
@@ -313,7 +347,6 @@ function lib:UpdateWidget(editbox)
     self.scrollBar:SetFrameStrata("TOOLTIP")
     self.scrollBox:Show()
     self.scrollBar:SetShown(lines > maxLinesShown)
-    self.selectionBehaviour:SelectFirstElementData()
     self.editbox = editbox
   end
 end
@@ -419,6 +452,11 @@ function lib:SetWord(editbox, word)
   -- replace word
   text = text:sub(1, startPosition - 1) .. word .. text:sub(endPosition + 1, #text)
   editbox:SetText(text)
+  -- SetText triggers the OnTextChanged handler without the "userInput" flag. We need that flag set to true, so run the handler again
+  local script = editbox:GetScript("OnTextChanged")
+  if script then
+    script(editbox, true)
+  end
 
   -- move cursor at end of word or start of parenthese
   local parenthesePosition = word:find("%(")

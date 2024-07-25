@@ -801,20 +801,22 @@ if WeakAuras.IsRetail() then
   end
 end
 
----@param index integer
+---@param spellId integer
 ---@return boolean hasTalent
----@return number? talentId
-function WeakAuras.CheckPvpTalentByIndex(index)
+---@return number? spellid
+function WeakAuras.CheckPvpTalentBySpellId(spellId)
   local checkTalentSlotInfo = C_SpecializationInfo.GetPvpTalentSlotInfo(1)
   if checkTalentSlotInfo then
-    local checkTalentId = checkTalentSlotInfo.availableTalentIDs[index]
     for i = 1, 3 do
       local talentSlotInfo = C_SpecializationInfo.GetPvpTalentSlotInfo(i)
-      if talentSlotInfo and (talentSlotInfo.selectedTalentID == checkTalentId) then
-        return true, checkTalentId
+      if talentSlotInfo and talentSlotInfo.selectedTalentID then
+        local selectedSpellId = select(6, GetPvpTalentInfoByID(talentSlotInfo.selectedTalentID))
+        if selectedSpellId == spellId then
+          return true, spellId
+        end
       end
     end
-    return false, checkTalentId
+    return false, spellId
   end
   return false
 end
@@ -1663,17 +1665,23 @@ Private.load_prototype = {
             single_spec = GetSpecialization();
           end
 
-          -- print ("Using talent cache", single_class, single_spec);
           -- If a single specific class was found, load the specific list for it
+          if not single_class then
+            single_class = select(2, UnitClass("player"))
+          end
+          if not single_spec then
+            single_spec  = GetSpecialization()
+          end
+
           if(single_class and Private.pvp_talent_types_specific[single_class]
             and single_spec and Private.pvp_talent_types_specific[single_class][single_spec]) then
             return Private.pvp_talent_types_specific[single_class][single_spec];
           else
-            return Private.pvp_talent_types;
+            return {}
           end
         end
       end,
-      test = "WeakAuras.CheckPvpTalentByIndex(%d)",
+      test = "WeakAuras.CheckPvpTalentBySpellId(%d)",
       enable = WeakAuras.IsRetail(),
       hidden = not WeakAuras.IsRetail(),
       events = {"PLAYER_PVP_TALENT_UPDATE"}
@@ -2541,7 +2549,7 @@ Private.event_prototypes = {
     init = function(trigger)
       local ret = [=[
         local useWatched = %s
-        local factionID = useWatched and select(6, GetWatchedFactionInfo()) or %q
+        local factionID = useWatched and Private.ExecEnv.GetWatchedFactionId() or %q
         local minValue, maxValue, currentValue
         local factionData = Private.ExecEnv.GetFactionDataByID(factionID)
         local name, description = factionData.name, factionData.description
@@ -5108,6 +5116,7 @@ Private.event_prototypes = {
       else
         name = type(trigger.spellName) == "number" and Private.ExecEnv.GetSpellName(trigger.spellName) or trigger.spellName
       end
+      if name == nil then return {} end
       return { "WA_UPDATE_OVERLAY_GLOW:" .. name }
     end,
     force_events = "WA_UPDATE_OVERLAY_GLOW",
@@ -5182,6 +5191,7 @@ Private.event_prototypes = {
       else
         spellName = type(trigger.spellName) == "number" and Private.ExecEnv.GetSpellName(trigger.spellName) or trigger.spellName;
       end
+      if spellName == nil then return {} end
       local events = {
         "SPELL_COOLDOWN_CHANGED:" .. spellName,
         "COOLDOWN_REMAINING_CHECK:" .. spellName,
@@ -5252,7 +5262,7 @@ Private.event_prototypes = {
         local charges, maxCharges, spellCount, chargeGainTime, chargeLostTime = WeakAuras.GetSpellCharges(spellname, ignoreSpellKnown, followoverride)
         local stacks = maxCharges and maxCharges ~= 1 and charges or (spellCount and spellCount > 0 and spellCount) or nil;
         if showlossofcontrol and startTime and duration then
-          local locStart, locDuration = GetSpellLossOfControlCooldown(spellname);
+          local locStart, locDuration = WeakAuras.GetSpellLossOfControlCooldown(spellname);
           if locStart and locDuration and (locStart + locDuration) > (startTime + duration) then
             startTime = locStart
             duration = locDuration
@@ -5579,7 +5589,7 @@ Private.event_prototypes = {
         test = "true",
         conditionType = "bool",
         conditionTest = function(state, needle)
-          return state and state.show and (Private.ExecEnv.IsUsableSpell(state.spellname) == (needle == 1))
+          return state and state.show and (Private.ExecEnv.IsUsableSpell(state.spellname or "") == (needle == 1))
         end,
         conditionEvents = AddTargetConditionEvents({
           "SPELL_UPDATE_USABLE",
@@ -5593,7 +5603,7 @@ Private.event_prototypes = {
         test = "true",
         conditionType = "bool",
         conditionTest = function(state, needle)
-          return state and state.show and (select(2, Private.ExecEnv.IsUsableSpell(state.spellname)) == (needle == 1));
+          return state and state.show and (select(2, Private.ExecEnv.IsUsableSpell(state.spellname or "")) == (needle == 1));
         end,
         conditionEvents = AddTargetConditionEvents({
           "SPELL_UPDATE_USABLE",
@@ -5648,6 +5658,7 @@ Private.event_prototypes = {
       else
         spellName = type(trigger.spellName) == "number" and Private.ExecEnv.GetSpellName(trigger.spellName) or trigger.spellName;
       end
+      if spellName == nil then return {} end
       return { "SPELL_COOLDOWN_READY:" .. spellName }
     end,
     name = L["Cooldown Ready Event"],
@@ -5747,6 +5758,7 @@ Private.event_prototypes = {
       else
         spellName = type(trigger.spellName) == "number" and Private.ExecEnv.GetSpellName(trigger.spellName) or trigger.spellName;
       end
+      if spellName == nil then return {} end
       return { "SPELL_CHARGES_CHANGED:" .. spellName }
     end,
     name = L["Charges Changed Event"],
@@ -6608,6 +6620,7 @@ Private.event_prototypes = {
       else
         spellName = type(trigger.spellName) == "number" and Private.ExecEnv.GetSpellName(trigger.spellName) or trigger.spellName;
       end
+      if spellName == nil then return {} end
       return { "SPELL_COOLDOWN_CHANGED:" .. spellName }
     end,
     force_events = "SPELL_UPDATE_USABLE",
@@ -6645,7 +6658,7 @@ Private.event_prototypes = {
           charges = (duration == 0 or gcdCooldown) and 1 or 0;
         end
         local ready = (startTime == 0 and not paused) or charges > 0
-        local active = Private.ExecEnv.IsUsableSpell(spellName) and ready
+        local active = Private.ExecEnv.IsUsableSpell(spellName or "") and ready
       ]=]
       if(trigger.use_targetRequired) then
         ret = ret.."active = active and WeakAuras.IsSpellInRange(spellName or '', 'target')\n";
@@ -7135,9 +7148,9 @@ Private.event_prototypes = {
           local index = %s
           local activeName, activeIcon, _
 
-          local active, talentId = WeakAuras.CheckPvpTalentByIndex(index)
-          if talentId then
-            _, activeName, activeIcon = GetPvpTalentInfoByID(talentId)
+          local active, spellId = WeakAuras.CheckPvpTalentBySpellId(index)
+          if spellId then
+            activeName, _, activeIcon = Private.ExecEnv.GetSpellInfo(spellId)
           end
         ]]):format(index or 0))
         if (inverse) then
@@ -7158,9 +7171,9 @@ Private.event_prototypes = {
             table.insert(ret, ([[
               if (not active) then
                 local index = %s
-                active, talentId = WeakAuras.CheckPvpTalentByIndex(index)
-                if active and talentId then
-                  _, activeName, activeIcon = GetPvpTalentInfoByID(talentId)
+                active, spellId = WeakAuras.CheckPvpTalentBySpellId(index)
+                if active and spellId then
+                  activeName, _, activeIcon = Private.ExecEnv.GetSpellInfo(spellId)
                 end
               end
             ]]):format(index))
@@ -7185,7 +7198,7 @@ Private.event_prototypes = {
           if(Private.pvp_talent_types_specific[class] and  Private.pvp_talent_types_specific[class][spec]) then
             return Private.pvp_talent_types_specific[class][spec];
           else
-            return Private.pvp_talent_types;
+            return {}
           end
         end,
         test = "active",
@@ -7943,7 +7956,8 @@ Private.event_prototypes = {
           "CHAT_MSG_YELL",
           "CHAT_MSG_SYSTEM",
           "CHAT_MSG_TEXT_EMOTE",
-          "CHAT_MSG_LOOT"
+          "CHAT_MSG_LOOT",
+          "CHAT_MSG_COMMUNITIES_CHANNEL"
         }
       }
     end,

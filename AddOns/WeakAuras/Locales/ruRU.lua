@@ -332,6 +332,8 @@ L[ [=[COMBAT_LOG_EVENT_UNFILTERED without a filter is generally advised against 
 Find more information:
 https://github.com/WeakAuras/WeakAuras2/wiki/Custom-Triggers#events]=] ] = [=[Использование события COMBAT_LOG_EVENT_UNFILTERED без фильтра не рекомендуется, поскольку это очень затратно с точки зрения производительности. Подробная информация на странице:
 https://github.com/WeakAuras/WeakAuras2/wiki/Custom-Triggers#events]=]
+--[[Translation missing --]]
+L["Communities"] = "Communities"
 L["Condition Custom Text"] = "Пользовательский текст условия"
 L["Conditions"] = "Условия"
 L["Contains"] = "Содержит"
@@ -909,8 +911,6 @@ L["Not in Group"] = "Не в группе"
 L["Not in Smart Group"] = "Сторонний обьект"
 L["Not on Cooldown"] = "Не восстанавливается"
 L["Not On Threat Table"] = "Не в списке угроз"
-L["Note, that cross realm transmission is possible if you are on the same group"] = [=[Передача данных между игровыми мирами возможна,
-если вы находитесь в одной группе!]=]
 L["Note: Due to how complicated the swing timer behavior is and the lack of APIs from Blizzard, results are inaccurate in edge cases."] = "|cFFFFCC00Примечание.|r Из-за сложности поведения таймера Swing и отсутствия API со стороны Blizzard результаты в крайних случаях неточны."
 L["Note: 'Hide Alone' is not available in the new aura tracking system. A load option can be used instead."] = "|cFFFFCC00Предупреждение.|r Параметр \"Скрыть когда не в группе\" недоступен в новой версии триггера. Вместо него может быть использовано соответствующее условие на вкладке Загрузка."
 L["Note: The available text replacements for multi triggers match the normal triggers now."] = "|cFFFFCC00Примечение.|r Теперь для данного варианта триггера (несколько целей) доступны такие же шаблоны замены текста, как и для остальных."
@@ -1094,7 +1094,6 @@ L["Progress Total"] = "Общее значение"
 L["Progress Value"] = "Текущее значение"
 L["Pulse"] = "Пульсация"
 L["PvP Flagged"] = "В режиме PvP"
-L["PvP Talent %i"] = "PvP талант %i"
 L["PvP Talent selected"] = "PvP талант выбран"
 L["PvP Talent Selected"] = "PvP талант выбран"
 L["Quality Id"] = "ID качества"

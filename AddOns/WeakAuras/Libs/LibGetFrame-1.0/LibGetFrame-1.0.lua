@@ -1,5 +1,5 @@
 local MAJOR_VERSION = "LibGetFrame-1.0"
-local MINOR_VERSION = 58
+local MINOR_VERSION = 60
 if not LibStub then
   error(MAJOR_VERSION .. " requires LibStub.")
 end
@@ -442,6 +442,13 @@ local function ElvuiWorkaround(frame)
   end
 end
 
+local function CellGetUnitFrames(target, frames, framePriorities)
+  if not C_AddOns.IsAddOnLoaded("Cell") or not Cell.GetUnitFramesForLGF then
+    return frames
+  end
+  return Cell.GetUnitFramesForLGF(target, frames, framePriorities)
+end
+
 local defaultOptions = {
   framePriorities = defaultFramePriorities,
   ignorePlayerFrame = true,
@@ -466,6 +473,7 @@ local defaultOptions = {
     "InvenUnitFrames_TargetTargetTarget",
     "CellQuickCastButton",
   },
+  skipCellOverrides = false,
   returnAll = false,
 }
 local getDefaultOptions = function()
@@ -491,6 +499,15 @@ end
 
 local unitPetState = {} -- track if unit's pet exists
 
+local saveGetUnitFrame
+local function fixGetUnitFrameIntegrity()
+  lib.GetUnitFrame = saveGetUnitFrame
+  lib.GetFrame = saveGetUnitFrame
+  if WeakAuras and WeakAuras.GetUnitFrame then
+    WeakAuras.GetUnitFrame = saveGetUnitFrame
+  end
+end
+
 local GetFramesCacheListener
 local function Init(noDelay)
   GetFramesCacheListener = CreateFrame("Frame")
@@ -501,6 +518,7 @@ local function Init(noDelay)
   GetFramesCacheListener:RegisterEvent("UNIT_PET")
   GetFramesCacheListener:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
   GetFramesCacheListener:SetScript("OnEvent", function(self, event, unit, ...)
+    fixGetUnitFrameIntegrity()
     if event == "GROUP_ROSTER_UPDATE" then
       wipe(unitPetState)
       for member in IterateGroupMembers() do
@@ -573,6 +591,11 @@ function lib.GetUnitFrame(target, opt)
   end
 
   local frames = GetUnitFrames(target, ignoredFrames)
+
+  if not (opt.ignoreRaidFrame or opt.skipCellOverrides) then
+    frames = CellGetUnitFrames(target, frames, opt.framePriorities)
+  end
+
   if not frames then
     return
   end
@@ -594,6 +617,7 @@ function lib.GetUnitFrame(target, opt)
     return frames
   end
 end
+saveGetUnitFrame = lib.GetUnitFrame
 lib.GetFrame = lib.GetUnitFrame -- compatibility
 
 -- nameplates
