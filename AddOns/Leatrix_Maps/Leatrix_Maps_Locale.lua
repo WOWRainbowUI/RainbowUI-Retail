@@ -889,4 +889,6 @@ L["Shadowmoon Valley"] = "影月谷"
 L["Jade Forest"] = "翠玉林"
 L["Show additional icons"] = "顯示更多圖示"
 L["If checked, additional icons (such as portals) will be shown."] = "勾選時，會顯示更多圖示 (例如傳送門)。"
+L["Hide filter reset button"] = "隱藏重置過濾按鈕"
+L["If checked, the world map filter reset button will be hidden."] = "勾選時，會隱藏世界地圖過濾方式的重置按鈕。"
 end

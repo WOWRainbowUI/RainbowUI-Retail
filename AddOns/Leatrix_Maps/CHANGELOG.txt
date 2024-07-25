@@ -1,4 +1,28 @@
-﻿10.2.27 - 15th May 2024
+﻿11.0.01 - 24th July 2024
+- Welcome to The War Within!
+- Added map reveal data for the Khaz Algar zones.
+- Removed the 'Remove map border' option.
+- Removed Dragonflight transitional code.
+
+10.2.40 - 4th July 2024
+- This is the last release that is compatible with both Dragonflight and The War Within.
+- Future releases will be for The War Within only.
+- Republished due to an issue with CurseForge.
+
+10.2.34 - 15th June 2024
+- The War Within Beta: For 'Show unexplored areas', the 'Tint unexplored areas' setting is now available in the world map filter menu.
+- The War Within Beta: Added a new option 'Hide filter reset button'.  If enabled, the filter reset button will be hidden.  The filter reset button appears when you make changes to the map filter menu.
+
+10.2.33 - 12th June 2024
+- The War Within Beta: For 'Show unexplored areas', the 'Tint unexplored areas' setting is now available once again.
+
+10.2.32 - 6th June 2024
+- The War Within Beta: Update.
+
+10.2.31 - 6th June 2024
+- Preliminary update for The War Within Beta.
+
+10.2.27 - 15th May 2024
 - Updated deprecated functions.
 
 10.2.26 - 8th May 2024
