@@ -1,8 +1,8 @@
-## Interface: 100207, 110000
+## Interface: 110000
 ## Title: Stuf Unit Frames
 ## Author: TotalPackage
 ## Notes: Main unitframes replacement. Assembly optional.
-## Version: 11.0.1
+## Version: 11.0.2
 
 ## SavedVariables: StufDB
 ## SavedVariablesPerCharacter: StufCharDB
