@@ -19,6 +19,7 @@
 ## Notes-zhTW: SexyMap |n|n讓你的小地圖更具特色和樂趣，並增添一些性感的選項設定。|n|n|cffffd200使用方法：|r從Esc>選項>插件>小地圖，進行設定。
 ## X-Category-zhTW: 地圖
 ## IconTexture: Interface\Icons\inv_misc_celestialmap
+## DefaultState: disabled
 
 embeds.xml
 
