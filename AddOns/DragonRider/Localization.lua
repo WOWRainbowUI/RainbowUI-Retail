@@ -874,26 +874,26 @@ if LOCALE == "zhCN" then
 	-- Simplified Chinese translations go here
 	-- Provided by 枫聖御雷 (https://legacy.curseforge.com/wow/addons/dragon-rider#c33)
 	L["Vigor"] = "精力"
-	L["Speedometer"] = "车速表"
+	L["Speedometer"] = "速度计"
 	L["ToggleModelsName"] = "显示精力模型"
 	L["ToggleModelsTT"] = "显示精力泡泡上的旋转模型效果。"
-	L["SpeedPosPointName"] = "车速表位置"
+	L["SpeedPosPointName"] = "速度计位置"
 	L["SpeedPosPointTT"] = "调整速度计相对于精力条的固定位置。"
 	L["Top"] = "顶部"
 	L["Bottom"] = "底部"
 	L["Left"] = "左边"
 	L["Right"] = "右边"
-	L["SpeedPosXName"] = "车速表水平位置"
-	L["SpeedPosXTT"] = "调整车速表的水平位置。"
-	L["SpeedPosYName"] = "车速表垂直位置"
-	L["SpeedPosYTT"] = "调整车速表的垂直位置。"
-	L["SpeedScaleName"] = "车速表刻度"
-	L["SpeedScaleTT"] = "调整车速表的刻度。"
+	L["SpeedPosXName"] = "速度计水平位置"
+	L["SpeedPosXTT"] = "调整速度计的水平位置。"
+	L["SpeedPosYName"] = "速度计垂直位置"
+	L["SpeedPosYTT"] = "调整速度计的垂直位置。"
+	L["SpeedScaleName"] = "速度计刻度"
+	L["SpeedScaleTT"] = "调整速度计的刻度。"
 	L["Large"] = "大的"
 	L["Small"] = "小的"
-	L["Units"] = "车速表文本"
-	L["UnitsTT"] = "更改车速表上显示的单位。\n（机械上 1 米 = 1 码）"
-	L["UnitsColor"] = "车速表文字颜色"
+	L["Units"] = "速度计文本"
+	L["UnitsTT"] = "更改速度计上显示的单位。\n（机械上 1 米 = 1 码）"
+	L["UnitsColor"] = "速度计文字颜色"
 	L["UnitYards"] = "码/秒"
 	L["Yards"] = "码数"
 	L["UnitMiles"] = "英里/小时"
@@ -904,22 +904,22 @@ if LOCALE == "zhCN" then
 	L["Kilometers"] = "公里"
 	L["UnitPercent"] = "%"
 	L["Percent"] = "百分比"
-	L["SpeedTextScale"] = "车速表文字大小"
-	L["SpeedTextScaleTT"] = "调整车速表上文字的大小。"
+	L["SpeedTextScale"] = "速度计文字大小"
+	L["SpeedTextScaleTT"] = "调整速度计上文字的大小。"
 	L["Version"] = "版本 %s"
 	L["ResetAllSettings"] = "重置所有龙骑士设置"
 	L["ResetAllSettingsTT"] = "专门为此插件重置所有设置。 这将包括自定义颜色值。"
 	L["ResetAllSettingsConfirm"] = "您确定要重置《龙骑士》的设置吗？"
 	L["Low"] = "低"
 	L["High"] = "高"
-	L["ProgressBar"] = "车速表"
-	L["ProgressBarColor"] = "车速表颜色"
-	L["ColorPickerLowProgTT"] = "为车速表的低速值选择自定义颜色。 当玩家没有获得任何精力时就会发生这种情况。"
-	L["ColorPickerMidProgTT"] = "为车速表的精力速度值标准时选择自定义颜色。 当玩家在标准速度范围内获得精力时，就会发生这种情况。"
-	L["ColorPickerHighProgTT"] = "为车速表的高速值选择自定义颜色。 当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。"
-	L["ColorPickerLowTextTT"] = "为速度值的低速度值选择自定义颜色。 当玩家没有获得任何精力时就会发生这种情况。"
-	L["ColorPickerMidTextTT"] = "为速度值的精力速度值选择自定义颜色。 当玩家在标准速度范围内获得精力时，就会发生这种情况。"
-	L["ColorPickerHighTextTT"] = "为速度值的高速值选择自定义颜色。 当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。"
+	L["ProgressBar"] = "速度计"
+	L["ProgressBarColor"] = "速度计颜色"
+	L["ColorPickerLowProgTT"] = "为速度计的低速值选择自定义颜色。 当玩家没有获得任何精力时就会发生这种情况。"
+	L["ColorPickerMidProgTT"] = "为速度计的精力速度值标准时选择自定义颜色。 当玩家在标准速度范围内获得精力时，就会发生这种情况。"
+	L["ColorPickerHighProgTT"] = "为速度计的高速值选择自定义颜色。 当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。"
+	L["ColorPickerLowTextTT"] = "为速度计的低速度值选择自定义颜色。 当玩家没有获得任何精力时就会发生这种情况。"
+	L["ColorPickerMidTextTT"] = "为速度计的精力速度值选择自定义颜色。 当玩家在标准速度范围内获得精力时，就会发生这种情况。"
+	L["ColorPickerHighTextTT"] = "为速度计的高速值选择自定义颜色。 当玩家精力充沛但速度高于标准速度范围时，就会发生这种情况。"
 	L["DragonridingTalents"] = "驭空术天赋" -- translated 11.0
 	L["OpenDragonridingTalents"] = "打开驭空术天赋" -- translated 11.0
 	L["OpenDragonridingTalentsTT"] = "打开驭空术天赋窗口。" -- translated 11.0
@@ -929,7 +929,7 @@ if LOCALE == "zhCN" then
 	L["BugfixesTT"] = "当默认暴雪框架未按预期工作时尝试进行实验性错误修复。"
 	L["BugfixHideVigor"] = "强制隐藏精力条"
 	L["BugfixHideVigorTT"] = "下坐骑时强制隐藏精力条，骑上驭空术飞行坐骑时重新显示。" -- translated 11.0
-	L["FadeSpeedometer"] = "淡出车速表"
+	L["FadeSpeedometer"] = "淡出速度计"
 	L["FadeSpeedometerTT"] = "在不滑行时切换速度计的淡出。"
 	L["ShowVigorTooltip"] = "显示精力条上鼠标提示"
 	L["ShowVigorTooltipTT"] = "切换精力条上鼠标提示的显示。"
@@ -966,14 +966,14 @@ if LOCALE == "zhCN" then
 	L["SilverTime"] = "银牌时间: "
 	L["MuteVigorSound_Settings"] = "静音精力音效" -- translated
 	L["MuteVigorSound_SettingsTT"] = "切换驭空术坐骑获得精力时播放的声音。"  -- translated 11.0
-	--non-official translations
 	L["SpeedometerTheme"] = "速度计主题"
 	L["SpeedometerThemeTT"] = "自定义速度计主题。"
-	L["Algari"] = "阿尔加里"
+	L["Algari"] = "阿加驭雷者"
 	L["Default"] = DEFAULT
-	L["Minimalist"] = "极简主义"
+	L["Minimalist"] = "简单"
 	L["Alliance"] = "联盟"
-	L["Horde"] = "部落"
+	L["Horde"] = "部落" -- (last updated https://github.com/nanjuekaien1/DragonRider-zhCN/blob/main/zhCN.lua)
+	--non-official translations
 
 
 
