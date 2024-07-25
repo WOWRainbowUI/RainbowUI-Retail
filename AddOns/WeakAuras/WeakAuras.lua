@@ -1003,19 +1003,20 @@ local function CreatePvPTalentCache()
   Private.pvp_talent_types_specific[player_class] = Private.pvp_talent_types_specific[player_class] or {};
   Private.pvp_talent_types_specific[player_class][spec] = Private.pvp_talent_types_specific[player_class][spec] or {};
 
+  --- @type fun(talentId: number): number, string
   local function formatTalent(talentId)
-    local _, name, icon = GetPvpTalentInfoByID(talentId);
-    return "|T"..icon..":0|t "..name
+    local _, name, icon, _, _, spellId = GetPvpTalentInfoByID(talentId);
+    return spellId, "|T"..icon..":0|t "..name
   end
 
   local slotInfo = C_SpecializationInfo.GetPvpTalentSlotInfo(1);
   if (slotInfo) then
-
     Private.pvp_talent_types_specific[player_class][spec] = {};
 
     local pvpSpecTalents = slotInfo.availableTalentIDs;
-    for i, talentId in ipairs(pvpSpecTalents) do
-      Private.pvp_talent_types_specific[player_class][spec][i] = formatTalent(talentId);
+    for _, talentId in ipairs(pvpSpecTalents) do
+      local index, displayText = formatTalent(talentId)
+      Private.pvp_talent_types_specific[player_class][spec][index] = displayText
     end
   end
 end
@@ -1076,10 +1077,15 @@ function Private.CountWagoUpdates()
   return updatedSlugsCount
 end
 
-local function tooltip_draw(isAddonCompartment)
-  local tooltip = GameTooltip;
-  tooltip:ClearLines();
-  tooltip:AddDoubleLine(L["WeakAuras"], versionString);
+local function tooltip_draw(isAddonCompartment, blizzardTooltip)
+  local tooltip
+  if isAddonCompartment then
+    tooltip = blizzardTooltip
+  else
+    tooltip = GameTooltip
+  end
+  tooltip:ClearLines()
+  tooltip:AddDoubleLine(L["WeakAuras"], versionString)
   if Private.CompanionData.slugs then
     local count = Private.CountWagoUpdates()
     if count > 0 then

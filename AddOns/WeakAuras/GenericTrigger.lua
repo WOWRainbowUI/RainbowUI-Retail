@@ -2611,6 +2611,17 @@ do
     end
   end
 
+
+  ---@param identifier string | number
+  ---@return number? startTime, number? duration
+  function WeakAuras.GetSpellLossOfControlCooldown(identifier)
+    if WeakAuras.IsTWW() then
+      return C_Spell.GetSpellLossOfControlCooldown(identifier)
+    else
+      return GetSpellLossOfControlCooldown(identifier)
+    end
+  end
+
   ---@param id string
   ---@param ignoreRuneCD boolean
   ---@param showgcd boolean
@@ -4411,8 +4422,8 @@ function GenericTrigger.GetAdditionalProperties(data, triggernum)
       local variables = GenericTrigger.GetTsuConditionVariables(data.id, triggernum)
       if (type(variables) == "table") then
         for var, varData in pairs(variables) do
-          if (type(varData) == "table") and varData.display then
-            props[var] = varData.display
+          if (type(varData) == "table") then
+            props[var] = varData.display or var
           end
         end
       end
