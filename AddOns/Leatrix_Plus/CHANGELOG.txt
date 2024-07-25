@@ -1,10 +1,54 @@
-﻿10.2.26 - 8th May 2024
+﻿11.0.01 - 24th July 2024
+- Welcome to The War Within!
+- For 'Enhance minimap', added a button texture for Zygor.
+- Updated dropdown menu code.
+- Removed Dragonflight transitional code.
+
+10.2.40 - 4th July 2024
+- This is the last release that is compatible with both Dragonflight and The War Within.
+- Future releases will be for The War Within only.
+- Republished due to an issue with CurseForge.
+
+10.2.37 - 26th June 2024
+- The War Within Beta: The 'Combat plates' option ('System') is available once again.
+
+10.2.36 - 21st June 2024
+- The War Within Beta: For 'Sell junk automatically' ('Automation'), the two transmogrify settings have been removed.  In The War Within, all uncollected gear is collected automatically when sold regardless of whether it can be equipped or not so the settings are no longer needed.
+- The War Within Beta: The 'Combat plates' option ('System') is not available for now due to a bug in the game.
+
+10.2.35 - 19th June 2024
+- The War Within Beta: The 'Show character addons' option ('System') is now available.
+- The War Within Beta: For 'Recent chat window' ('Chat'), you can now right-click the chat tab and click recent chat window to show the recent chat window.
+
+10.2.34 - 15th June 2024
+- For 'Enhance minimap' ('Interface'), if 'Hide addon menu' is disabled, the addon menu will always be visible.
+- Fixed an issue with the minimap addon compartment menu which caused the Leatrix Plus entry to do nothing when clicked.
+- The War Within Beta: For 'Enhance tooltip' ('Interface'), fixed the 'Hide tooltips for world units during combat' setting.  Also fixed a Lua error when the tooltip anchor is set to the cursor.
+- The War Within Beta: You can now hold CTRL and left-click the Leatrix Plus minimap button to toggle target tracking.
+- The War Within Beta: Fixed the web link feature.
+
+10.2.32 - 6th June 2024
+- Preliminary update for The War Within Beta.  Please report any issues.
+
+10.2.30 - 5th June 2024
+- Mists of Pandaria Remix: Added a new option 'Show Theads of Time' ('Interface').  If enabled, your character's total Threads of Time will be shown in the character frame next to the average item level.
+- Added the 'Disable bag automation' option ('System') once again.
+- For 'Mute mount sounds' ('System'), you can now make jewelcrafting panther mounts quieter ('Panthers').
+- For 'Recent chat window' ('Chat'), increased the number of recent chat messages shown from 128 to 256.
+- For 'Restore chat messages' ('Chat'), increased the number of restored chat messages from 128 to 256.
+- Structural changes.
+
+10.2.28 - 22nd May 2024
+- For 'Enhance minimap', added support for Narcissus custom minimap button.
+- For 'Mute mount sounds' ('System'), fixed an issue whereby mount sounds would be muted/unmuted on startup even if the option was disabled.
+
+10.2.26 - 8th May 2024
 - Updated for game patch 10.2.7.
-- For 'Mute mount sounds', added 'Soar' (Dracthyr).
+- For 'Mute mount sounds' ('System'), added 'Soar' (Dracthyr).
 - Added ability to toggle the main panel by clicking the slash command logo in the interface options panel.
 
 10.2.24 - 24th April 2024
-- Added a new setting called 'Keep audio synced' ('System').  If checked, when you change the audio output device in your operating system, the game audio output device will change automatically.|n|nFor this to work, the game audio output device will be set to system default.
+- Added a new setting called 'Keep audio synced' ('System').  If checked, when you change the audio output device in your operating system, the game audio output device will change automatically.  For this to work, the game audio output device will be set to system default.
 
 10.2.23 - 10th April 2024
 - For 'Remove transforms' ('System'), added a new setting 'Noblegarden: Noblegarden Bunny".  If checked, Noblegarden bunny transforms will be removed when applied.
