@@ -270,6 +270,8 @@ L["March"] = "March"
 --[[Translation missing --]]
 L["May"] = "May"
 --[[Translation missing --]]
+L["Min Level to track"] = "Min Level to track"
+--[[Translation missing --]]
 L["Missions"] = "Missions"
 --[[Translation missing --]]
 L["Modules"] = "Modules"
@@ -461,6 +463,8 @@ L["Weekly reset in: "] = "Weekly reset in: "
 L["Weekly Rewards"] = "Weekly Rewards"
 --[[Translation missing --]]
 L["Weekly/Daily Quests"] = "Weekly/Daily Quests"
+--[[Translation missing --]]
+L["World"] = "World"
 --[[Translation missing --]]
 L["World Bosses"] = "World Bosses"
 --[[Translation missing --]]

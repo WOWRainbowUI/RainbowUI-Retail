@@ -30,25 +30,16 @@ local GetAverageItemLevel, GetSpecialization, GetSpecializationInfo =
 local C_Timer = C_Timer
 local C_ArtifactUI = C_ArtifactUI
 local HasArtifactEquipped = HasArtifactEquipped
-local GetItemInfo, GetInventoryItemLink = GetItemInfo, GetInventoryItemLink
+local GetItemInfo, GetInventoryItemLink = C_Item.GetItemInfo, GetInventoryItemLink
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local GetGameTime, GetTime, debugprofilestop = GetGameTime, GetTime, debugprofilestop
-local InCombatLockdown = InCombatLockdown
 local strsplit = strsplit
 local UIParent, WorldMapFrame = UIParent, WorldMapFrame
-local GetItemGem, UnitAura, GetTalentInfo, GetProfessions, GetProfessionInfo, IsInRaid =
-    GetItemGem,
-    UnitAura,
-    GetTalentInfo,
+local GetItemGem, GetProfessions, GetProfessionInfo, IsInRaid =
+    C_Item.GetItemGem,
     GetProfessions,
     GetProfessionInfo,
     IsInRaid
-local GetScreenWidth, GetScreenHeight, GetCurrentRegion, CalendarGetDate, GetQuestResetTime =
-    GetScreenWidth,
-    GetScreenHeight,
-    GetCurrentRegion,
-    CalendarGetDate,
-    GetQuestResetTime
 local hooksecurefunc, SendChatMessage = hooksecurefunc, SendChatMessage
 -- lua api
 local tonumber = _G.tonumber
@@ -65,7 +56,7 @@ local timer = Exlist.timers
 LSM:Register("font", "PT_Sans_Narrow", [[Interface\Addons\Exlist\Media\Font\font.ttf]])
 local settings = {
    -- default settings
-   minLevel = 80,
+   minLevelToTrack = 60,
    fonts = { big = { size = 15 }, medium = { size = 13 }, small = { size = 11 } },
    Font = "PT_Sans_Narrow",
    tooltipHeight = 600,
@@ -472,7 +463,7 @@ local function AuraFromId(unit, ID, filter)
       timeMod,
       value1,
       value2,
-      value3 = UnitAura(unit, i, filter)
+      value3 = C_UnitAuras.GetAuraDataByIndex(unit, i, filter)
       if name then
          if spellId and spellId == ID then
             return name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge,
@@ -540,7 +531,7 @@ local function AddModulesToSettings()
 end
 
 local function UpdateChar(key, data, charname, charrealm)
-   if not data then
+   if not data or (UnitLevel('player') < (Exlist.ConfigDB.minLevelToTrack or settings.minLevelToTrack)) then
       return
    end
    charrealm = charrealm or GetRealmName()
@@ -604,6 +595,10 @@ local function DeleteCharacterKey(name, realm, key)
    db[realm][name][key] = nil
 end
 
+local function WipeAll()
+   db = {}
+end
+
 local function WipeKey(key)
    -- ... yea
    -- if i need to delete 1 key info from all characters on all realms
@@ -649,7 +644,7 @@ local function UpdateCharacterGear()
       local iLink = GetInventoryItemLink("player", order[i])
       if iLink then
          local itemName, itemLink, itemRarity, _, _, _, _, _, _, itemTexture, _ = GetItemInfo(iLink)
-         local ilvl = GetDetailedItemLevelInfo(iLink)
+         local ilvl = C_Item.GetDetailedItemLevelInfo(iLink)
          local relics = {}
          local enchant = GetItemEnchant(iLink)
          local gem = GetItemGems(iLink)
@@ -677,7 +672,7 @@ local function UpdateCharacterGear()
       for i = 1, 3 do
          local name, icon, slotTypeName, link = C_ArtifactUI.GetEquippedArtifactRelicInfo(i)
          if name then
-            local ilvl = GetDetailedItemLevelInfo(link)
+            local ilvl = C_Item.GetDetailedItemLevelInfo(link)
             table.insert(
                t,
                {
@@ -1207,8 +1202,7 @@ butTool:SetScript("OnEnter", OnEnter)
 
 -- config --
 local function OpenConfig(self, button)
-   InterfaceOptionsFrame_OpenToCategory(addonName)
-   InterfaceOptionsFrame_OpenToCategory(addonName)
+   Settings.OpenToCategory(addonName)
 end
 butTool:SetScript("OnMouseUp", OpenConfig)
 
@@ -1463,6 +1457,26 @@ local IGNORED_EVENTS = {
 }
 
 local function IsEventEligible(event)
+   if (not Exlist.ConfigDB) then
+      if (delay) then
+         if not running then
+            C_Timer.After(
+               4,
+               function()
+                  Exlist.SendFakeEvent("Exlist_DELAY")
+               end
+            )
+            delayedEvents[event] = 1
+            running = true
+         else
+            delayedEvents[event] = 1
+         end
+      end
+      return
+   end
+   if (UnitLevel('player') < (Exlist.ConfigDB.minLevelToTrack or settings.minLevelToTrack)) then
+      return false
+   end
    if runEvents[event] then
       if GetTime() - runEvents[event] > 0.5 then
          runEvents[event] = nil
@@ -1490,9 +1504,6 @@ local function DebugTimeColors(timeSpent)
 end
 
 function frame:OnEvent(event, ...)
-   if not IsEventEligible(event) then
-      return
-   end
    if event == "PLAYER_LOGOUT" then
       -- save things
       if db and next(db) ~= nil then
@@ -1515,6 +1526,9 @@ function frame:OnEvent(event, ...)
             Exlist.accountSync.init()
          end
       )
+      return
+   end
+   if not IsEventEligible(event) then
       return
    end
    -- Delays
@@ -1622,6 +1636,8 @@ function SlashCmdList.CHARINF(msg, editbox)
          -- testing purposes
          WipeKey(args[2])
       end
+   elseif args[1] == "wipeall" then
+      WipeAll()
    elseif args[1] == "triggerreset" then
       if args[2] then
          WipeKeysForReset(args[2])
