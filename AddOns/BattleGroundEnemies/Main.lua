@@ -33,9 +33,12 @@ local GetBattlefieldTeamInfo = GetBattlefieldTeamInfo
 local GetBestMapForUnit = C_Map.GetBestMapForUnit
 local GetNumBattlefieldScores = GetNumBattlefieldScores
 local GetNumGroupMembers = GetNumGroupMembers
+local GetNumSpellTabs = C_Spell and C_Spell.GetNumSpellBookSkillLines or GetNumSpellTabs
 local GetRaidRosterInfo = GetRaidRosterInfo
 local GetSpecializationInfoByID = GetSpecializationInfoByID
-local GetSpellInfo = GetSpellInfo
+local GetSpellBookItemName = C_Spell and C_Spell.GetSpellBookItemName or GetSpellBookItemName
+local GetSpellInfo = C_Spell and C_Spell.GetSpellInfo or GetSpellInfo
+local GetSpellTabInfo = C_Spell and C_Spell.GetSpellTabInfo or GetSpellTabInfo
 local GetTime = GetTime
 local GetUnitName = GetUnitName
 local InCombatLockdown = InCombatLockdown
@@ -3413,7 +3416,7 @@ function CombatLogevents.UNIT_DIED(self, _, destName, _, _, _)
 end
 
 function BattleGroundEnemies:UpdateEnemiesFromCombatlogScanning()
-	self.Enemies.BeforePlayerSourceUpdate(PlayerSources.CombatLog)
+	self.Enemies:BeforePlayerSourceUpdate(PlayerSources.CombatLog)
 	for guid, data in pairs(self.PlayerGUIDs) do
 		if data.IsEnemy then
 			--check if its still a enemy, a ally might have joined and we might have gotten a combat log event before that
