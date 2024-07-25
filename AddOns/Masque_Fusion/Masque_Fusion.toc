@@ -1,8 +1,8 @@
-## Interface: 11503, 30403, 40400, 100207, 110000
+## Interface: 11503, 30403, 40400, 110000, 110002
 
 ## Author: StormFX
 ## Title: Masque: Fusion
-## Version: 10.2.10
+## Version: 11.0.0
 
 ## Dependencies: Masque
 ## IconTexture: Interface\AddOns\Masque_Fusion\Textures\Icon

@@ -25,10 +25,10 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 100209
+local API_VERSION = 110000
 
 -- Skin Info
-local Version = "10.2.10"
+local Version = "11.0.0"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Fusion",
 	"https://www.curseforge.com/wow/addons/masque-fusion",
@@ -518,6 +518,10 @@ MSQ:AddSkin("Fusion", {
 		Classic = {
 			Height = 32,
 			Width = 32,
+		},
+		Modern = {
+			Height = 33,
+			Width = 33,
 		},
 		Thin = {
 			Height = 30,
