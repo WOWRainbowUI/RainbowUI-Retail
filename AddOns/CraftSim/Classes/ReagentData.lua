@@ -72,8 +72,11 @@ function CraftSim.ReagentData:GetProfessionStatsByOptionals()
         totalStats:add(stat)
     end)
 
+    -- TODO
+    local statPercentModTable = CraftSim.CONST.PERCENT_MODS[CraftSim.CONST.EXPANSION_IDS.THE_WAR_WITHIN]
+
     -- since ooey gooey chocolate gives us math.huge on multicraft we need to limit it to 100%
-    totalStats.multicraft.value = math.min(1 / CraftSim.CONST.PERCENT_MODS.MULTICRAFT, totalStats.multicraft.value)
+    totalStats.multicraft.value = math.min(1 / statPercentModTable.MULTICRAFT, totalStats.multicraft.value)
 
 
     return totalStats
@@ -224,7 +227,9 @@ function CraftSim.ReagentData:GetMaxSkillFactor()
     print("ReagentData: Could not determine max reagent skill factor: operationInfos nil")
 end
 
-function CraftSim.ReagentData:GetSkillFromRequiredReagents()
+---@return number skillWithReagents
+---@return number concentrationCosts
+function CraftSim.ReagentData:GetSkillAndConcentrationCostFromRequiredReagents()
     local requiredTbl = self:GetRequiredCraftingReagentInfoTbl()
 
     local recipeID = self.recipeData.recipeID
@@ -247,7 +252,7 @@ function CraftSim.ReagentData:GetSkillFromRequiredReagents()
         local baseSkill = baseOperationInfo.baseSkill + baseOperationInfo.bonusSkill
         local skillWithReagents = operationInfoWithReagents.baseSkill + operationInfoWithReagents.bonusSkill
 
-        return skillWithReagents - baseSkill
+        return skillWithReagents - baseSkill, operationInfoWithReagents.concentrationCost or 0
     end
     print("ReagentData: Could not determine required reagent skill: operationInfos nil")
     return 0
