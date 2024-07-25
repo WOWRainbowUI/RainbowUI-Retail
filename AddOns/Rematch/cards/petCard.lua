@@ -273,13 +273,18 @@ function rematch.petCard.Content.Front.Abilities:Update()
             if abilityID then
                 local button = self.Buttons[buttonIndex]
                 local _,name,icon,_,_,_,petType = C_PetBattles.GetAbilityInfoByID(abilityID)
-                if name and icon and petType then
+                if name and icon then
                     button.abilityID = abilityID
                     button.Name:SetText(name)
                     button.Icon:SetTexture(icon)
-                    local x = ((petType-1)%4)*0.25
-                    local y = floor((petType-1)/4)*0.25
-                    button.TypeDecal:SetTexCoord(x,x+0.25,y,y+0.171875)
+                    if petType then
+                        local x = ((petType-1)%4)*0.25
+                        local y = floor((petType-1)/4)*0.25
+                        button.TypeDecal:SetTexCoord(x,x+0.25,y,y+0.171875)
+                        button.TypeDecal:Show()
+                    else
+                        button.TypeDecal:Hide()
+                    end
                     button:Show()
                     if teamID then
                         -- if card is shown for a pet in a team, dim the ability if it's not used in the team

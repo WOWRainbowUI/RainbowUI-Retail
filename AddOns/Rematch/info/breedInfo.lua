@@ -27,14 +27,14 @@ function rematch.breedInfo:GetBreedSource()
     if breedSource==nil then -- can be false if a prior search for a source didn't find any
         if settings.BreedSource=="BattlePetBreedID" and C_AddOns.IsAddOnLoaded("BattlePetBreedID") then
             breedSource = "BattlePetBreedID"
-        elseif settings.BreedSource=="PetTracker" and C_AddOns.IsAddOnLoaded("PetTracker") then
+        elseif settings.BreedSource=="PetTracker" and C_AddOns.IsAddOnLoaded("PetTracker") and C_AddOns.GetAddOnMetadata("PetTracker","Version")~="10.2.7" then
             breedSource = "PetTracker"
         elseif settings.BreedSource=="None" then
             breedSource = false
         elseif C_AddOns.IsAddOnLoaded("BattlePetBreedID") then
             breedSource = "BattlePetBreedID"
             settings.BreedSource = breedSource
-        elseif C_AddOns.IsAddOnLoaded("PetTracker") and PetTracker and PetTracker.Pet and PetTracker.Pet.GetBreed then
+        elseif C_AddOns.IsAddOnLoaded("PetTracker") and PetTracker and PetTracker.Pet and PetTracker.Pet.GetBreed and C_AddOns.GetAddOnMetadata("PetTracker","Version")~="10.2.7" then
             breedSource = "PetTracker"
             settings.BreedSource = breedSource
         end
