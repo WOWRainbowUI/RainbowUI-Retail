@@ -7,7 +7,7 @@ local math = math;
 local table = table;
 local pairs = pairs;
 local string = string;
-local GetMouseFocus = GetMouseFoci;
+local GetMouseFocus = WIM.GetMouseTopFocus;
 local IsShiftKeyDown = IsShiftKeyDown;
 
 -- set namespace
