@@ -25,10 +25,10 @@ local L = Core.Locale
 -- Locals
 ---
 
-local API_VERSION = 100209
+local API_VERSION = 110000
 
 -- Skin Info
-local Version = "10.2.10"
+local Version = "11.0.0"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Entropy",
 	"https://www.curseforge.com/wow/addons/masque-entropy",
@@ -539,6 +539,10 @@ MSQ:AddSkin("Entropy - Silver", {
 		Height = 32,
 		Width = 32,
 		Classic = {
+			Height = 26,
+			Width = 26,
+		},
+		Modern = {
 			Height = 26,
 			Width = 26,
 		},
