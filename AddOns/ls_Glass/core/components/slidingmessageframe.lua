@@ -978,14 +978,6 @@ function object_proto:UpdateChatWidgetFading()
 				end)
 			end
 
-			E:FadeIn(ChatFrame1EditBox, DOCK_FADE_IN_DURATION, function()
-				if self.isMouseOver or ChatFrame1EditBox:HasFocus() then
-					E:StopFading(ChatFrame1EditBox, 1)
-				else
-					E:FadeOut(ChatFrame1EditBox, DOCK_FADE_OUT_DELAY, DOCK_FADE_OUT_DURATION)
-				end
-			end)
-			
 			E:FadeIn(self.ButtonFrame, DOCK_FADE_IN_DURATION, function()
 				if self.isMouseOver then
 					E:StopFading(self.ButtonFrame, 1)
@@ -1027,7 +1019,6 @@ function object_proto:UpdateChatWidgetFading()
 			end
 
 			E:FadeOut(self.ButtonFrame, DOCK_FADE_OUT_DELAY, DOCK_FADE_OUT_DURATION)
-			E:FadeOut(ChatFrame1EditBox, DOCK_FADE_OUT_DELAY, DOCK_FADE_OUT_DURATION)
 
 			if C.db.profile.chat.buttons.up_and_down then
 				E:FadeOut(self.ScrollDownButton, DOCK_FADE_OUT_DELAY, DOCK_FADE_OUT_DURATION)
