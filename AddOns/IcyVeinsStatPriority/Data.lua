@@ -12,8 +12,7 @@ local data = {
     },
     -- 252 - Death Knight: Unholy -- https://www.icy-veins.com/wow/unholy-death-knight-pve-dps-stat-priority
     [252] = {
-        {"Mastery > Haste > Critical Strike > Versatility", "單目標"},
-        {"Mastery > Critical Strike > Haste > Versatility", "多目標"},
+        {"Mastery > Haste > Critical Strike > Versatility"},
     },
 
     -- 577 - Demon Hunter: Havoc -- https://www.icy-veins.com/wow/havoc-demon-hunter-pve-dps-stat-priority
@@ -23,7 +22,7 @@ local data = {
     },
     -- 581 - Demon Hunter: Vengeance -- https://www.icy-veins.com/wow/vengeance-demon-hunter-pve-tank-stat-priority
     [581] = {
-        {"Agility > Critical Strike > Haste > Versatility > Mastery"},
+        {"Agility > Critical Strike = Haste > Versatility > Mastery"},
     },
 
     -- 102 - Druid: Balance -- https://www.icy-veins.com/wow/balance-druid-pve-dps-stat-priority
@@ -37,12 +36,12 @@ local data = {
     },
     -- 104 - Druid: Guardian -- https://www.icy-veins.com/wow/guardian-druid-pve-tank-stat-priority
     [104] = {
-        {"Agility > Haste > Versatility > Mastery > Critical Strike", "生存能力"},
+        {"Item Level > Agility > Haste > Versatility > Mastery > Critical Strike", "生存能力"},
         {"Agility > Versatility = Haste = Critical Strike > Mastery", "傷害輸出"},
     },
     -- Druid: Restoration -- https://www.icy-veins.com/wow/restoration-druid-pve-healing-stat-priority
     [105] = {
-        {"Intellect > Haste > Mastery > Critical Strike = Versatility", "補團隊"},
+        {"Intellect > Haste > Mastery > Versatility > Critical Strike", "補團隊"},
         {"Intellect > Mastery = Haste > Versatility > Critical Strike", "補 M+"},
         {"Intellect > Haste > Versatility > Critical Strike > Mastery", "M+ 傷害輸出"},
     },
@@ -53,7 +52,7 @@ local data = {
     },
     -- Evoker: Preservation -- https://www.icy-veins.com/wow/preservation-evoker-pve-healing-stat-priority
     [1468] = {
-        {"Intellect > Mastery > Critical Strike > Versatility > Haste", "團隊"},
+        {"Intellect > Mastery > Critical Strike > Haste > Versatility", "團隊"},
         {"Intellect > Critical Strike > Haste > Versatility > Mastery", "M+"},
     },
 	-- Evoker: Augmentation -- https://www.icy-veins.com/wow/augmentation-evoker-pve-dps-stat-priority
@@ -62,15 +61,16 @@ local data = {
     },
     -- 253 - Hunter: Beast Mastery -- https://www.icy-veins.com/wow/beast-mastery-hunter-pve-dps-stat-priority
     [253] = {
-        {"Haste (30%) > Critical Strike (44%) > Mastery (5400) > Versatility"},
+        {"Agility > Critical Strike (44%) > Haste (30%) > Mastery (5400) >>> Versatility", "單目標"},
+        {"Agility > Mastery > Critical Strike (44%) > Haste (30%) > Versatility > Critical Strike/Haste", "多目標"},
     },
     -- 254 - Hunter: Marksmanship -- https://www.icy-veins.com/wow/marksmanship-hunter-pve-dps-stat-priority
     [254] = {
-        {"Haste (30%) > Critical Strike (44%) > Mastery = Versatility"},
+        {"Agility > Critical Strike > Haste (30%) > Mastery (5400) > Versatility > Haste/Mastery"},
     },
     -- 255 - Hunter: Survival -- https://www.icy-veins.com/wow/survival-hunter-pve-dps-stat-priority
     [255] = {
-        {"Haste (30%) > Critical Strike (44%) > Versatility > Haste = Critical Strike > Mastery"},
+        {"Agility > Haste (30%) > Mastery (5400) > Versatility (30%) > Critical Strike (44%) > Haste/Mastery/Versatility"},
     },
 
     -- 62 - Mage: Arcane -- https://www.icy-veins.com/wow/arcane-mage-pve-dps-stat-priority
@@ -83,7 +83,7 @@ local data = {
     },
     -- 64 - Mage: Frost -- https://www.icy-veins.com/wow/frost-mage-pve-dps-stat-priority
     [64] = {
-        {"Intellect > Mastery > Haste > Critical Strike (33.34%) > Versatility"},
+        {"Intellect > Mastery > Haste > Critical Strike (33.34%) > Versatility > Critical Strike"},
     },
 
     -- 268 - Monk: Brewmaster -- https://www.icy-veins.com/wow/brewmaster-monk-pve-tank-stat-priority
@@ -93,7 +93,7 @@ local data = {
     },
     -- 269 - Monk: Windwalker -- https://www.icy-veins.com/wow/windwalker-monk-pve-dps-stat-priority
     [269] = {
-        {"Weapon Damage > Agility > Versatility = Critical Strike > Mastery > Haste"},
+        {"Weapon Damage > Agility > Haste > Versatility > Critical Strike > Mastery"},
     },
     -- 270 - Monk: Mistweaver -- https://www.icy-veins.com/wow/mistweaver-monk-pve-healing-stat-priority
     [270] = {
@@ -108,12 +108,11 @@ local data = {
     },
     -- 66 - Paladin: Protection -- https://www.icy-veins.com/wow/protection-paladin-pve-tank-stat-priority
     [66] = {
-        {"Strength > Haste ≥ Mastery ≥ Versatility > Critical Strike", "防禦"},
+        {"Haste > Mastery > Versatility > Critical Strike"},
     },
     -- 70 - Paladin: Retribution -- https://www.icy-veins.com/wow/retribution-paladin-pve-dps-stat-priority
     [70] = {
-        {"Strength > Haste > Versatility = Critical Strike > Mastery", "征戰聖擊"},
-        {"Strength > Versatility > Haste = Critical Strike > Mastery", "聖殿騎士追擊"},
+        {"Strength > Mastery > Critical Strike = Haste = Versatility"},
     },
 
     -- 256 - Priest: Discipline -- https://www.icy-veins.com/wow/discipline-priest-pve-healing-stat-priority
@@ -136,7 +135,7 @@ local data = {
     },
     -- 260 - Rogue: Outlaw -- https://www.icy-veins.com/wow/outlaw-rogue-pve-dps-stat-priority
     [260] = {
-        {"Versatility > Critical Strike > Mastery > Haste"},
+        {"Versatility > Haste > Critical Strike > Mastery"},
     },
     -- 261 - Rogue: Subtlety -- https://www.icy-veins.com/wow/subtlety-rogue-pve-dps-stat-priority
     [261] = {
@@ -146,8 +145,7 @@ local data = {
 
     -- 262 - Shaman: Elemental -- https://www.icy-veins.com/wow/elemental-shaman-pve-dps-stat-priority
     [262] = {
-        {"Intellect > Mastery > Haste > Versatility > Critical Strike", "火"},
-        {"Intellect > Haste > Critical Strike > Versatility > Mastery", "電"},
+        {"Intellect > Haste > Critical Strike > Versatility > Mastery", "火"},
     },
     -- 263 - Shaman: Enhancement -- https://www.icy-veins.com/wow/enhancement-shaman-pve-dps-stat-priority
     [263] = {
