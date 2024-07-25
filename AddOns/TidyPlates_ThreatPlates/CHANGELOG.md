@@ -1,4 +1,4 @@
-# 12.0.0-beta4 (2024-07-21)
+# 12.0.0 (2024-07-24)
 
 * Updated Threat Plates for The War Within pre-patch [GH-524, GH-525].
 * Added Bad Manner (Hunter, Pet) as a CC aura to the Auras widget [GH-531].
