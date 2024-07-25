@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(816, "DBM-Raids-MoP", 2, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240426181222")
+mod:SetRevision("20240603224722")
 mod:SetCreatureID(69078, 69132, 69134, 69131)--69078 Sul the Sandcrawler, 69132 High Prestess Mar'li, 69131 Frost King Malakk, 69134 Kazra'jin --Adds: 69548 Shadowed Loa Spirit,
 mod:SetEncounterID(1570)
 mod:SetUsedIcons(7, 6)
@@ -20,10 +20,10 @@ mod:RegisterEventsInCombat(
 	"UNIT_SPELLCAST_SUCCEEDED boss1 boss2 boss3 boss4 boss5"
 )
 
-local Sul = DBM:EJ_GetSectionInfo(7049)
-local Malakk = DBM:EJ_GetSectionInfo(7047)
-local Marli = DBM:EJ_GetSectionInfo(7050)
-local Kazrajin = DBM:EJ_GetSectionInfo(7048)
+--local Sul = DBM:EJ_GetSectionInfo(7049)
+--local Malakk = DBM:EJ_GetSectionInfo(7047)
+--local Marli = DBM:EJ_GetSectionInfo(7050)
+--local Kazrajin = DBM:EJ_GetSectionInfo(7048)
 
 --All
 local warnPossessed					= mod:NewStackAnnounce(136442, 2, nil, nil, "warnPossessed")
@@ -32,7 +32,7 @@ local warnPossessed					= mod:NewStackAnnounce(136442, 2, nil, nil, "warnPossess
 local warnSandBolt					= mod:NewCountAnnounce(136189, 3, nil, false)--Spammy but important for heroic for internet rotation.
 local warnQuicksand					= mod:NewSpellAnnounce(136521, 2)
 --High Prestess Mar'li
-local warnMarkedSoul				= mod:NewTargetAnnounce(137359, 4)--Shadowed Loa Spirit fixate target, no need to warn for Shadowed Loa Spirit AND this, so we just warn for this
+local warnMarkedSoul				= mod:NewTargetNoFilterAnnounce(137359, 4)--Shadowed Loa Spirit fixate target, no need to warn for Shadowed Loa Spirit AND this, so we just warn for this
 --Frost King Malak
 local warnBitingCold				= mod:NewTargetAnnounce(136992, 3)--136917 is cast ID version, 136992 is player debuff
 local warnFrostBite					= mod:NewTargetAnnounce(136922, 4)--136990 is cast ID version, 136922 is player debuff
@@ -67,12 +67,12 @@ local timerDarkPowerCD				= mod:NewCDTimer(68, 136507)
 --Kazra'jin
 local timerRecklessChargeCD			= mod:NewCDTimer(6, 137122, nil, false, nil, 3)
 --Sul the Sandcrawler
-local timerQuickSandCD				= mod:NewCDTimer(35, 136521, nil, nil, nil, 3)
+local timerQuickSandCD				= mod:NewCDTimer(32.7, 136521, nil, nil, nil, 3)
 local timerSandStormCD				= mod:NewCDTimer(35, 136894, nil, nil, nil, 2)
 --High Prestess Mar'li
-local timerBlessedLoaSpiritCD		= mod:NewCDTimer(33, 137203, nil, nil, nil, 1)--Every 33-35 seconds.
-local timerShadowedLoaSpiritCD		= mod:NewCDTimer(33, 137350, nil, nil, nil, 1)--Possessed version of above, shared CD
-local timerTwistedFateCD			= mod:NewCDTimer(33, 137891, nil, nil, nil, 3)--On heroic, this replaces shadowed loa spirit
+local timerBlessedLoaSpiritCD		= mod:NewCDTimer(32.7, 137203, nil, nil, nil, 1)--Every 33-35 seconds.
+local timerShadowedLoaSpiritCD		= mod:NewCDTimer(32.7, 137350, nil, nil, nil, 1)--Possessed version of above, shared CD
+local timerTwistedFateCD			= mod:NewCDTimer(32.7, 137891, nil, nil, nil, 3)--On heroic, this replaces shadowed loa spirit
 local timerMarkedSoul				= mod:NewTargetTimer(20, 137359)
 --Frost King Malak
 local timerBitingCold				= mod:NewBuffFadesTimer(30, 136917)
@@ -80,7 +80,7 @@ local timerBitingColdCD				= mod:NewCDTimer(45, 136917, nil, nil, nil, 3)--10 ma
 local timerFrostBite				= mod:NewBuffFadesTimer(30, 136990)
 local timerFrostBiteCD				= mod:NewCDTimer(45, 136990, nil, nil, nil, 3)--^same comment as above
 local timerFrigidAssault			= mod:NewTargetTimer(15, 136903, nil, "Tank|Healer")
-local timerFrigidAssaultCD			= mod:NewCDTimer(30, 136904, nil, "Tank|Healer", nil, 5)--30 seconds after last one ended (maybe even a next timer, i'll change it with more logs.)
+local timerFrigidAssaultCD			= mod:NewCDTimer(32.7, 136904, nil, "Tank|Healer", nil, 5)--30 seconds after last one ended (maybe even a next timer, i'll change it with more logs.)
 --Kazra'jin
 
 
@@ -103,7 +103,7 @@ function mod:OnCombatStart(delay)
 	darkPowerWarned = false
 	possessesDone = 0
 	boltCasts = 0
-	timerQuickSandCD:Start(8-delay)
+	timerQuickSandCD:Start(5.8-delay)
 	timerRecklessChargeCD:Start(10-delay)--the trigger is 6 seconds from pull, charge will happen at 10. I like timer ending at cast finish for this one though vs tryng to have TWO timers for something that literally only has 6 second cd
 	timerBitingColdCD:Start(15-delay)--15 seconds until debuff, 13 til cast.
 	timerBlessedLoaSpiritCD:Start(25-delay)

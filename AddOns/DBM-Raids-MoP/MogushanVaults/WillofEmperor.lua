@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(677, "DBM-Raids-MoP", 5, 317)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240426181222")
+mod:SetRevision("20240616044127")
 mod:SetCreatureID(60399, 60400)--60396 (Rage), 60397 (Strength), 60398 (Courage), 60480 (Titan Spark), 60399 (Qin-xi), 60400 (Jan-xi)
 mod:SetEncounterID(1407)
 
@@ -11,8 +11,8 @@ mod:SetMinCombatTime(25)
 mod:RegisterEventsInCombat(
 	"SPELL_AURA_APPLIED 116525 116778 116829",
 	"CHAT_MSG_MONSTER_YELL",
-	"UNIT_SPELLCAST_SUCCEEDED boss1 boss2 target focus"--Target and focus needed for Focused smash used by the big adds
---	"UNIT_POWER_UPDATE boss1 boss2"
+	"UNIT_SPELLCAST_SUCCEEDED boss1 boss2 target focus",--Target and focus needed for Focused smash used by the big adds
+	"UNIT_POWER_UPDATE boss1 boss2"
 )
 
 mod:RegisterEvents(
@@ -59,6 +59,7 @@ local timerCourageActivates		= mod:NewNextCountTimer(100, -5676, nil, nil, nil, 
 local timerBossesActivates		= mod:NewNextTimer(107, -5726, nil, nil, nil, 1, 116815)--Might be a little funny sounding "Next Jan-xi and Qin-xi" May just localize it later.
 local timerTitanGas				= mod:NewBuffActiveTimer(30, 116779, nil, nil, nil, 5, nil, DBM_COMMON_L.HEALER_ICON..DBM_COMMON_L.TANK_ICON)
 local timerTitanGasCD			= mod:NewNextCountTimer(150, 116779, nil, nil, nil, 6)
+local timerComboCD				= mod:NewNextTimer(20, -5672, nil, nil, nil, 3)
 
 local berserkTimer				= mod:NewBerserkTimer(780)
 
@@ -80,12 +81,12 @@ mod.vb.prevBoss1Power = 0
 mod.vb.prevBoss2Power = 0
 
 --NOTE, spawns are altered when they are rapidly killed on retail
-local rageTimers = {
+--[[local rageTimers = {
 	[0] = 15.6,--Varies from heroic vs normal, number here doesn't matter though, we don't start this on pull we start it off first yell (which does always happen).
 	[1] = 33,
 	[2] = 33,
-	[3] = 33,
-	[4] = 33,--24.3 now? no idea, maybe this one is just random 33-40, rest are dead on though.
+	[3] = 24.3,--Confirmed lower than rest for some reason, seen it multiple times now
+	[4] = 33,
 	[5] = 33,
 	[6] = 83,
 	[7] = 33,--15.5?
@@ -96,7 +97,7 @@ local rageTimers = {
 	[12]= 83,
 --Rest are all 33
 --timers variate slightly so never will be perfect but trying to get as close as possible. seem same in all modes.
-}
+}--]]
 
 local function addsDelay(self, add)
 	if add == "Courage" then
@@ -131,8 +132,9 @@ local function addsDelay(self, add)
 		self.vb.rageCount = self.vb.rageCount + 1
 		warnRageActivated:Show(self.vb.rageCount)
 		--Titan gas delay has funny interaction with these and causes 30 or 60 second delays. Pretty much have to use a table.
-		timerRageActivates:Start(rageTimers[self.vb.rageCount] or 33, self.vb.rageCount+1)
-		self:Schedule(rageTimers[self.vb.rageCount] or 33, addsDelay, self, "Rage")--Because he doesn't always yell, schedule next one here as a failsafe
+--		local timer = rageTimers[self.vb.rageCount] or 33
+--		timerRageActivates:Start(timer, self.vb.rageCount+1)
+--		self:Schedule(timer, addsDelay, self, "Rage")--Because he doesn't always yell, schedule next one here as a failsafe
 	elseif add == "Boss" then
 		if self.Options[specWarnBossesActivated.option] then
 			specWarnBossesActivated:Show()
@@ -140,6 +142,7 @@ local function addsDelay(self, add)
 		else
 			warnBossesActivated:Show()
 		end
+		timerComboCD:Start()
 		if not self:IsHeroic() then
 			timerTitanGasCD:Start(113, 1)
 		end
@@ -161,7 +164,7 @@ function mod:OnCombatStart(delay)
 		timerCourageActivates:Start(69-delay, 1)
 		timerBossesActivates:Start(101-delay)
 	else
-		timerStrengthActivates:Start(42-delay, 1)
+		timerStrengthActivates:Start(41.4-delay, 1)
 		timerCourageActivates:Start(75-delay, 1)
 		timerBossesActivates:Start(-delay)
 	end
@@ -220,7 +223,7 @@ function mod:RAID_BOSS_EMOTE(msg)
 		self:Unschedule(addsDelay, self, "Courage")
 		self:Schedule(10, addsDelay, self, "Courage")
 	elseif msg == L.Boss or msg:find(L.Boss) then
-		warnBossesActivatedSoon:Show(10)
+		warnBossesActivatedSoon:Show()
 		self:Schedule(10, addsDelay, self, "Boss")
 	elseif msg:find("spell:116779") then
 		if self:IsHeroic() then--On heroic the boss activates this perminantly on pull and it's always present
@@ -299,22 +302,23 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
 	end
 end
 
---[[
 do
-	--On 10.2.6 the bosses are buggged and never reset energy, once they start a combo they do it the rest of the fight
-	--They also seem to only have 2 power. They start at 1, go to 2 then stay at 2 spamming combo indefinitely
+	--On 10.2.7 it seems to be 100 based power now not 20 based like OG mop or 2 based like bugged 10.2.6 and previous.
+	--"<141.70 23:20:55> [UNIT_POWER_UPDATE] boss2#Jan-xi#TYPE:ENERGY/3#MAIN:0/100#ALT:0/0",
+	--"<162.94 23:21:16> [UNIT_POWER_UPDATE] boss2#Jan-xi#TYPE:ENERGY/3#MAIN:100/100#ALT:0/0",
 	local warned = {}
 	function mod:UNIT_POWER_UPDATE(uId)
 		local powerLevel = UnitPower(uId)
 		if UnitIsUnit(uId, "target") or UnitIsUnit(uId, "targettarget") then
-			if not warned[uId] and powerLevel >= 18 then--Give more than 1 second to find comboMob
+			if not warned[uId] and powerLevel >= 85 then--Give more than 1 second to find comboMob
 				warned[uId] = true
 				specWarnCombo:Show(UnitName(uId))
 				specWarnCombo:Play("specialsoon")
 			end
 		end
-		if warned[uId] and powerLevel < 18 then
+		if warned[uId] and powerLevel < 10 then
 			warned[uId] = false
+			timerComboCD:Start()
 			if uId == "boss1" then
 				self.vb.boss1ComboCount = 0
 			else
@@ -323,4 +327,3 @@ do
 		end
 	end
 end
---]]

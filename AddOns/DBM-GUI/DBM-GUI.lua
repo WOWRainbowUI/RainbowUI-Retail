@@ -93,6 +93,15 @@ local challengeModeIds = {
 	[456] = 643, -- Throne of the Tides
 	[463] = 2579, -- Dawn of the Infinite: Galakrond's Fall
 	[464] = 2579, -- Dawn of the Infinite: Murozond's Rise
+	[499] = 2649, -- Priory of the Sacred Flame
+	[500] = 2648, -- The Rookery
+	[501] = 2652, -- The Stonevault
+	[502] = 2669, -- City of Threads
+	[503] = 2660, -- Ara-Kara, City of Echoes
+	[504] = 2651, -- Darkflame Cleft
+	[505] = 2662, -- The Dawnbreaker
+	[506] = 2661, -- Cinderbrew Meadery
+	[507] = 670, -- Grim Batol
 }
 
 do
@@ -756,7 +765,7 @@ function DBM_GUI:CreateBossModTab(addon, panel, subtab)
 	area.frame:SetPoint("TOPLEFT", 10, modProfileArea and -270 or -25)
 
 	local statOrder = {
-		"lfr", "follower", "normal", "normal25", "heroic", "heroic25", "mythic", "challenge", "timewalker"
+		"follower", "story", "lfr", "normal", "normal25", "heroic", "heroic25", "mythic", "challenge", "timewalker"
 	}
 
 	for _, mod in ipairs(DBM.Mods) do
@@ -824,6 +833,7 @@ function DBM_GUI:CreateBossModTab(addon, panel, subtab)
 
 			local statTypes = {
 				follower	= L.FOLLOWER,--no PLAYER_DIFFICULTY entry yet
+				story		= L.STORY,--no PLAYER_DIFFICULTY entry yet
 				lfr25		= PLAYER_DIFFICULTY3,
 				normal		= mod.addon.minExpansion < 5 and RAID_DIFFICULTY1 or PLAYER_DIFFICULTY1,
 				normal25	= RAID_DIFFICULTY2,
@@ -853,10 +863,10 @@ function DBM_GUI:CreateBossModTab(addon, panel, subtab)
 					lastArea = lastArea + 1
 					local section = sections[lastArea]
 					section.header:SetText(statTypes[statType])
-					local kills, pulls, bestRank, bestTime = mod.stats[statType .. "Kills"] or 0, mod.stats[statType .. "Pulls"] or 0, mod.stats[statType .. "BestRank"] or 0, mod.stats[statType .. "BestTime"]
+					local kills, pulls, bestRank, bestTime = mod.stats[statType .. "Kills"] or 0, mod.stats[statType .. "Pulls"] or 0, mod.stats["challengeBestRank"] or 0, mod.stats[statType .. "BestTime"]
 					section.value1:SetText(kills)
 					section.value2:SetText(pulls - kills)
-					if statType == "challenge" and bestRank > 0 then
+					if bestRank > 0 then--statType == "challenge" and
 						section.value3:SetText(bestTime and ("%d:%02d (%d)"):format(mfloor(bestTime / 60), bestTime % 60, bestRank) or "-")
 					else
 						section.value3:SetText(bestTime and ("%d:%02d"):format(mfloor(bestTime / 60), bestTime % 60) or "-")

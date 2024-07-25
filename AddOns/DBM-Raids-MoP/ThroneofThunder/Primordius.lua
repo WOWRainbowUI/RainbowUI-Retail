@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(820, "DBM-Raids-MoP", 2, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240426181222")
+mod:SetRevision("20240525221104")
 mod:SetCreatureID(69017)--69070 Viscous Horror, 69069 good ooze, 70579 bad ooze (patched out of game, :\)
 mod:SetEncounterID(1574)
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3, 2, 1)--Although if you have 8 viscous horrors up, you are probably doing fight wrong.
@@ -21,13 +21,13 @@ mod:RegisterEventsInCombat(
 local warnDebuffCount				= mod:NewAnnounce("warnDebuffCount", 1, 140546)
 local warnMalformedBlood			= mod:NewStackAnnounce(136050, 2, nil, "Tank|Healer")--No cd bars for this because it's HIGHLY variable (lowest priority spell so varies wildly depending on bosses 3 buffs)
 local warnPrimordialStrike			= mod:NewSpellAnnounce(136037, 3, nil, "Tank|Healer")
-local warnGasBladder				= mod:NewTargetAnnounce(136215, 4)--Stack up in front for (but not too close or cleave will get you)
-local warnEruptingPustules			= mod:NewTargetAnnounce(136246, 4)
-local warnPathogenGlands			= mod:NewTargetAnnounce(136225, 3)
-local warnVolatilePathogen			= mod:NewTargetAnnounce(136228, 4)
-local warnMetabolicBoost			= mod:NewTargetAnnounce(136245, 3)--Makes Malformed Blood, Primordial Strike and melee 50% more often
-local warnVentralSacs				= mod:NewTargetAnnounce(136210, 2)--This one is a joke, if you get it, be happy.
-local warnAcidicSpines				= mod:NewTargetAnnounce(136218, 3)
+local warnGasBladder				= mod:NewTargetNoFilterAnnounce(136215, 4)--Stack up in front for (but not too close or cleave will get you)
+local warnEruptingPustules			= mod:NewTargetNoFilterAnnounce(136246, 4)
+local warnPathogenGlands			= mod:NewTargetNoFilterAnnounce(136225, 3)
+local warnVolatilePathogen			= mod:NewTargetNoFilterAnnounce(136228, 4)
+local warnMetabolicBoost			= mod:NewTargetNoFilterAnnounce(136245, 3)--Makes Malformed Blood, Primordial Strike and melee 50% more often
+local warnVentralSacs				= mod:NewTargetNoFilterAnnounce(136210, 2)--This one is a joke, if you get it, be happy.
+--local warnAcidicSpines				= mod:NewTargetAnnounce(136218, 3)
 local warnBlackBlood				= mod:NewStackAnnounce(137000, 2, nil, "Tank|Healer")
 
 local specWarnFullyMutated			= mod:NewSpecialWarningYou(140546)
@@ -39,7 +39,7 @@ local specWarnEruptingPustules		= mod:NewSpecialWarningTarget(136246, false)
 
 local timerFullyMutated				= mod:NewBuffFadesTimer(120, 140546)
 local timerMalformedBlood			= mod:NewTargetTimer(60, 136050, nil, "Tank|Healer", nil, 5)
-local timerPrimordialStrikeCD		= mod:NewCDTimer(24, 136037)
+local timerPrimordialStrikeCD		= mod:NewCDTimer(21.1, 136037)--Used to be 24?
 local timerCausticGasCD				= mod:NewCDTimer(14, 136216)
 local timerVolatilePathogenCD		= mod:NewCDTimer(27, 136228)
 local timerBlackBlood				= mod:NewTargetTimer(60, 137000, nil, "Tank|Healer")

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(713, "DBM-Raids-MoP", 4, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240426181222")
+mod:SetRevision("20240602111719")
 mod:SetCreatureID(63191)--Also has CID 62164. He has 2 CIDs for a single target, wtf? It seems 63191 is one players attack though so i'll try just it.
 mod:SetEncounterID(1463)
 mod:SetUsedIcons(2)
@@ -157,11 +157,11 @@ mod.SPELL_MISSED = mod.SPELL_DAMAGE
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	if msg:find("spell:122774") then
-		timerCrush:Start()
 		if self:IsHeroic() and not msg:find(L.UnderHim) then
 			crushCount = crushCount + 1
 			warnCrush:Show(crushCountWarnText:format(crushCount))
 			specwarnCrush:Show()
+			timerCrush:Start()
 			timerCrushCD:Start(nil, crushCount+1)
 		elseif self:AntiSpam(3, 2) then
 			warnCrush:Show(crushWarnText)

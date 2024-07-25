@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(729, "DBM-Raids-MoP", 3, 320)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240426181222")
+mod:SetRevision("20240601045013")
 mod:SetCreatureID(62983)--62995 Animated Protector
 mod:SetEncounterID(1506)
 
@@ -36,7 +36,7 @@ local timerScaryFogCD					= mod:NewNextTimer(10, 123705, nil, nil, nil, 2)
 local berserkTimer						= mod:NewBerserkTimer(600)
 
 mod:AddRangeFrameOption(3, nil, true)
-mod:AddSetIconOption("SetIconOnProtector", -6224, false, 5, {3, 4, 5, 6, 7, 8})
+mod:AddSetIconOption("SetIconOnProtector", -6224, true, 5, {3, 4, 5, 6, 7, 8})
 
 mod.vb.specialCast = 0
 mod.vb.hideActive = false
@@ -147,9 +147,11 @@ function mod:SPELL_AURA_REMOVED(args)
 			local protectElapsed = GetTime() - lastProtect
 			local specialCD = self.vb.specialRemaining - protectElapsed
 			if specialCD < 5 then
-				timerSpecialCD:Restart(5, self.vb.specialCast+1)
+				timerSpecialCD:Stop()
+				timerSpecialCD:Start(5, self.vb.specialCast+1)
 			else
-				timerSpecialCD:Restart(specialCD, self.vb.specialCast+1)
+				timerSpecialCD:Stop()
+				timerSpecialCD:Start(specialCD, self.vb.specialCast+1)
 			end
 		end
 	elseif spellId == 123121 then

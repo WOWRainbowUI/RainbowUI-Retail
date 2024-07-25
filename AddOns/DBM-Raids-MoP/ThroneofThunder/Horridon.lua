@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(819, "DBM-Raids-MoP", 2, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20230617070727")
+mod:SetRevision("20240525221104")
 mod:SetCreatureID(68476)
 mod:SetEncounterID(1575)
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3, 1)
@@ -25,7 +25,7 @@ TODO: See if this has some target scanning. On heroic these can one shot non tan
 "<431.7 15:32:55> [CLEU] SPELL_CAST_SUCCESS#false#0xF1310E38000020EE#Amani'shi Beast Shaman#2632#128##Unknown#-2147483648#-2147483648#136487#Lightning Nova Totem#1", -- [67956]
 "<431.7 15:32:55> [CLEU] SPELL_SUMMON#false#0xF1310E38000020EE#Amani'shi Beast Shaman#2632#128#0xF1310E5F00002779#Lightning Nova Totem#2600#0#136487#Lightning Nova Totem#1", -- [67957]
 --]]
-local warnCharge				= mod:NewTargetAnnounce(136769, 4)
+local warnCharge				= mod:NewTargetNoFilterAnnounce(136769, 4)
 local warnPuncture				= mod:NewStackAnnounce(136767, 2, nil, "Tank|Healer")
 local warnAdds					= mod:NewAnnounce("warnAdds", 2, 43712)--Some random troll icon
 local warnOrbofControl			= mod:NewAnnounce("warnOrbofControl", 4, "134333")
@@ -64,7 +64,7 @@ local timerPuncture				= mod:NewTargetTimer(90, 136767, nil, false, 2)
 local timerPunctureCD			= mod:NewCDTimer(10.5, 136767, nil, "Tank|Healer", nil, 5)
 local timerJalakCD				= mod:NewNextTimer(10, "ej7087", nil, nil, nil, 1, 2457)--Maybe it's time for a better worded spawn timer than "Next mobname". Maybe NewSpawnTimer with "mobname activates" or something.
 local timerBestialCryCD			= mod:NewNextCountTimer(10, 136817, nil, nil, nil, 2)
-local timerDireCallCD			= mod:NewCDCountTimer(62, 137458, nil, nil, nil, 2)--Heroic (every 62-70 seconds)
+local timerDireCallCD			= mod:NewCDCountTimer(60.4, 137458, nil, nil, nil, 2)--Heroic (every 60.4-70 seconds)
 
 local berserkTimer				= mod:NewBerserkTimer(720)
 
@@ -135,7 +135,7 @@ function mod:SPELL_CAST_START(args)
 		end
 	elseif spellId == 136770 and self:AntiSpam(3, 5) then--Double swipe that follows a charge (136769)
 		specWarnDoubleSwipe:Show()
-		timerDoubleSwipeCD:Start(10.6)--Hard coded failsafe. 136741 version is always 11 seconds after 136770 version
+		timerDoubleSwipeCD:Start(6.2)--Hard coded failsafe. 136741 version is always 11 seconds after 136770 version (was 10.6)
 	elseif spellId == 137458 then
 		direNumber = direNumber + 1
 		specWarnDireCall:Show(direNumber)

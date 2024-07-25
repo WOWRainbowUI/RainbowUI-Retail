@@ -1,10 +1,10 @@
 local mod	= DBM:NewMod(2572, "DBM-Party-WarWithin", 4, 1269)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240428124541")
+mod:SetRevision("20240718015351")
 mod:SetCreatureID(210108)
 mod:SetEncounterID(2854)
-mod:SetHotfixNoticeRev(20240428000000)
+mod:SetHotfixNoticeRev(20240717000000)
 --mod:SetMinSyncRevision(20211203000000)
 --mod.respawnTime = 29
 mod.sendMainBossGUID = true
@@ -22,10 +22,11 @@ mod:RegisterEventsInCombat(
 )
 
 --[[
-(ability.id = 24879 or ability.id = 424888 or ability.id = 424903) and type = "begincast"
+(ability.id = 424879 or ability.id = 424888 or ability.id = 424903) and type = "begincast"
 or ability.id = 424795 and type = "applydebuff"
 or type = "dungeonencounterstart" or type = "dungeonencounterend"
 --]]
+--NOTE, timers are obsolete, needs new timers as of June 25th beta patch notes
 local warnRefractingBeam					= mod:NewTargetNoFilterAnnounce(424795, 3)
 local warnSeismicReverberation				= mod:NewTargetNoFilterAnnounce(424889, 3, nil, "RemoveMagic|Tank")
 local warnEarthShield						= mod:NewTargetNoFilterAnnounce(424893, 3, nil, false)
@@ -37,10 +38,10 @@ local specWarnSeismicSmash					= mod:NewSpecialWarningDefensive(424888, nil, nil
 local specWarnVolatileSpike					= mod:NewSpecialWarningCount(424903, nil, nil, nil, 2, 2)
 --local specWarnGTFO						= mod:NewSpecialWarningGTFO(372820, nil, nil, nil, 1, 8)
 
-local timerRefractingBeamCD					= mod:NewCDCountTimer(10.9, 424795, nil, nil, nil, 3)
-local timerEarthShattererCD					= mod:NewAITimer(33.9, 424879, nil, nil, nil, 2, nil, DBM_COMMON_L.MYTHIC_ICON)
-local timerSeismicSmashCD					= mod:NewCDCountTimer(23, 424888, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON..DBM_COMMON_L.HEALER_ICON)
-local timerVolatileSpikeCD					= mod:NewCDCountTimer(14.5, 424903, nil, nil, nil, 3)
+local timerRefractingBeamCD					= mod:NewCDCountTimer(10.9, 424795, nil, nil, nil, 3)--20 28 alternating
+local timerEarthShattererCD					= mod:NewCDCountTimer(48, 424879, nil, nil, nil, 2, nil, DBM_COMMON_L.MYTHIC_ICON)
+local timerSeismicSmashCD					= mod:NewCDCountTimer(23, 424888, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON..DBM_COMMON_L.HEALER_ICON)--20 28 alternating
+local timerVolatileSpikeCD					= mod:NewCDCountTimer(14.5, 424903, nil, nil, nil, 3)--20 28 alternating
 
 --local castsPerGUID = {}
 
@@ -54,11 +55,11 @@ function mod:OnCombatStart(delay)
 	self.vb.shatterCount = 0
 	self.vb.smashCount = 0
 	self.vb.spikeCount = 0
-	timerVolatileSpikeCD:Start(8.4-delay, 1)
-	timerRefractingBeamCD:Start(10.9-delay, 1)
-	timerSeismicSmashCD:Start(15.7-delay, 1)
+	timerVolatileSpikeCD:Start(6-delay, 1)
+	timerRefractingBeamCD:Start(14-delay, 1)
+	timerSeismicSmashCD:Start(18-delay, 1)
 	if self:IsMythic() then
-		timerEarthShattererCD:Start(1-delay)
+		timerEarthShattererCD:Start(42.9-delay, 1)
 	end
 end
 
@@ -72,10 +73,14 @@ function mod:SPELL_CAST_START(args)
 		self.vb.shatterCount = self.vb.shatterCount + 1
 		specWarnEarthShatterer:Show(self.vb.shatterCount)
 		specWarnEarthShatterer:Play("aesoon")
-		timerEarthShattererCD:Start()
+		timerEarthShattererCD:Start(nil, self.vb.shatterCount+1)
 	elseif spellId == 424888 then
 		self.vb.smashCount = self.vb.smashCount + 1
-		timerSeismicSmashCD:Start(nil, self.vb.smashCount+1)
+		if self.vb.smashCount % 2 == 0 then
+			timerSeismicSmashCD:Start(28, self.vb.smashCount+1)
+		else
+			timerSeismicSmashCD:Start(20, self.vb.smashCount+1)
+		end
 		if self:IsTanking("player", "boss1", nil, true) then
 			specWarnSeismicSmash:Show()
 			specWarnSeismicSmash:Play("defensive")
@@ -84,7 +89,11 @@ function mod:SPELL_CAST_START(args)
 		self.vb.spikeCount = self.vb.spikeCount + 1
 		specWarnVolatileSpike:Show(self.vb.spikeCount)
 		specWarnVolatileSpike:Play("watchstep")
-		timerVolatileSpikeCD:Start(nil, self.vb.spikeCount+1)
+		if self.vb.spikeCount % 2 == 0 then
+			timerVolatileSpikeCD:Start(28, self.vb.spikeCount+1)
+		else
+			timerVolatileSpikeCD:Start(20, self.vb.spikeCount+1)
+		end
 	end
 end
 
@@ -101,13 +110,20 @@ function mod:SPELL_AURA_APPLIED(args)
 	local spellId = args.spellId
 	if spellId == 424795 then
 		self.vb.laserCount = self.vb.laserCount + 1
-		timerRefractingBeamCD:Start(nil, self.vb.laserCount+1)--No cast event
+		if self:AntiSpam(3, 1) then
+			if self.vb.laserCount % 2 == 0 then
+				timerRefractingBeamCD:Start(28, self.vb.laserCount+1)
+			else
+				timerRefractingBeamCD:Start(20, self.vb.laserCount+1)
+			end
+		end
+		if not self:IsMythic() then
+			warnRefractingBeam:CombinedShow(0.5, args.destName)
+		end
 		if args:IsPlayer() then
 			specWarnRefractingBeam:Show()
 			specWarnRefractingBeam:Play("laserrun")
 			yellRefractingBeam:Yell()
-		else
-			warnRefractingBeam:Show(args.destName)
 		end
 	elseif spellId == 424889 then
 		warnSeismicReverberation:Show(args.destName)

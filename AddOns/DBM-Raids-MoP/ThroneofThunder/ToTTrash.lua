@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("ToTTrash", "DBM-Raids-MoP", 2)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20230617070727")
+mod:SetRevision("20240525004759")
 mod:SetModelID(47785)
 
 mod.isTrashMod = true
@@ -129,7 +129,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
 end
 
 function mod:OnSync(msg, guid)
-	if msg == "OMGSnail" and guid  then
+	if msg == "OMGSnail" and guid then
 		warnFixated:Show()
 		timerFixatedCD:Start(nil, guid)
 	end

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2589, "DBM-Party-WarWithin", 7, 1272)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240428124541")
+mod:SetRevision("20240714045506")
 mod:SetCreatureID(218523)
 mod:SetEncounterID(2930)
 mod:SetUsedIcons(1, 2)
@@ -93,7 +93,7 @@ function mod:SPELL_CAST_START(args)
 	elseif spellId == 436592 then
 		self.vb.cannonCount = self.vb.cannonCount + 1
 		if self:IsTanking("player", "boss1", nil, true) then
-			specWarnCashCannon:Show()
+			specWarnCashCannon:Show(self.vb.cannonCount)
 			specWarnCashCannon:Play("carefly")
 		end
 		timerCashCannonCD:Start(nil, self.vb.cannonCount+1)
@@ -153,7 +153,12 @@ function mod:SPELL_AURA_REMOVED(args)
 			timerCinderWounds:Stop()
 		end
 	elseif spellId == 436644 then
-
+		if self.Options.SetIconOnExplosiveEruption then
+			self:SetIcon(args.destName, 0)
+		end
+		if args:IsPlayer() then
+			yellBurningRicochetFades:Cancel()
+		end
 	end
 end
 

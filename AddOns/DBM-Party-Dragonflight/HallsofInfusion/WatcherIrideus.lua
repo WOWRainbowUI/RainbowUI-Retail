@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2504, "DBM-Party-Dragonflight", 8, 1204)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240513062426")
+mod:SetRevision("20240526011020")
 mod:SetCreatureID(189719)
 mod:SetEncounterID(2615)
 mod:SetHotfixNoticeRev(20230507000000)
@@ -119,7 +119,7 @@ function mod:SPELL_AURA_REMOVED(args)
 		timerTitanicFistCD:Start(6.1)
 		timerStaticSurgeCD:Start(10.7, self.vb.surgeCount+1)
 		timerPowerOverloadCD:Start(24.3)
-		timerSparkVolleyCD:Start(31.6)
+		timerSparkVolleyCD:Start(28.0)
 	end
 end
 

@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20230504231118")
+mod:SetRevision("20240601044955")
 mod:SetCreatureID(75509)
 mod:SetEncounterID(1677)
 mod.sendMainBossGUID = true
@@ -56,7 +56,8 @@ function mod:SPELL_CAST_SUCCESS(args)
 		specWarnWhispers:Show()
 		specWarnWhispers:Play("aesoon")
 		timerWhispersCD:Start()
-		timerDaggerfallCD:Restart(8.4)
+		timerDaggerfallCD:Stop()
+		timerDaggerfallCD:Start(8.4)
 	end
 end
 

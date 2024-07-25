@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(742, "DBM-Raids-MoP", 3, 320)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240417064737")
+mod:SetRevision("20240603224722")
 mod:SetCreatureID(62442)--62919 Unstable Sha, 62969 Embodied Terror
 mod:SetEncounterID(1505)
 mod:SetReCombatTime(60)--fix lfr combat re-starts after killed.
@@ -40,7 +40,7 @@ local timerNightmaresCD					= mod:NewNextTimer(15.5, 122770, nil, nil, nil, 3, n
 local timerDarkOfNightCD				= mod:NewCDCountTimer(30.5, -6550, nil, nil, nil, 1, 130013)
 local timerDayCD						= mod:NewNextTimer(121, -6315, nil, nil, nil, 6, 122789)
 local timerSummonUnstableShaCD			= mod:NewNextTimer(18, -6320, nil, nil, nil, 1, "627685")
-local timerSummonEmbodiedTerrorCD		= mod:NewNextCountTimer(41, -6316, nil, nil, nil, 1, "627685")
+local timerSummonEmbodiedTerrorCD		= mod:NewNextCountTimer(40.7, -6316, nil, nil, nil, 1, "627685")
 local timerTerrorizeCD					= mod:NewCDTimer(13.5, 123012, nil, nil, nil, 5)--Besides being cast 14 seconds after they spawn, i don't know if they recast it if they live too long, their health was too undertuned to find out.
 local timerSunBreathCD					= mod:NewNextCountTimer(29, 122855, nil, nil, nil, 5, nil, nil, nil, mod:IsHealer() and 1 or nil, 4)--LuaLS has a problem with this for some reason but seems valid
 local timerBathedinLight				= mod:NewBuffFadesTimer(6, 122858, nil, "Healer", nil, 5)
@@ -149,7 +149,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
 		if timerDayCD:GetTime() < 106 then
 			timerNightmaresCD:Start()
 		end
-	elseif spellId == 123252 and self:IsInCombat() then--Dread Shadows Cancel (Sun Phase)
+	elseif spellId == 123252 and self:IsInCombat() and self:AntiSpam(3, 2) then--Dread Shadows Cancel (Sun Phase)
 		self.vb.lightOfDayCount = 0
 		self.vb.terrorCount = 0
 		self.vb.breathCount = 0
@@ -160,12 +160,12 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
 		warnDay:Show()
 		timerSunBreathCD:Start(29, 1)
 		timerNightCD:Start(nil, self.vb.darkOfNightCount+1)
-	elseif spellId == 122953 and self:AntiSpam(2, 1) then--Summon Unstable Sha (122946 is another ID, but it always triggers at SAME time as Dread Shadows Cancel so can just trigger there too without additional ID scanning.
+	elseif spellId == 122953 and self:AntiSpam(2, 3) then--Summon Unstable Sha (122946 is another ID, but it always triggers at SAME time as Dread Shadows Cancel so can just trigger there too without additional ID scanning.
 		warnSummonUnstableSha:Show()
 		if timerNightCD:GetTime(self.vb.darkOfNightCount+1) < 103 then
 			timerSummonUnstableShaCD:Start()
 		end
-	elseif spellId == 122767 then--Dread Shadows (Night Phase)
+	elseif spellId == 122767 and self:AntiSpam(3, 4) then--Dread Shadows (Night Phase)
 		timerSummonUnstableShaCD:Cancel()
 		timerSummonEmbodiedTerrorCD:Cancel()
 		timerSunBreathCD:Cancel()
@@ -177,7 +177,7 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
 			timerDarkOfNightCD:Start(10, self.vb.darkOfNightCount+1)
 			self.vb.darkOfNightCount = 0
 		end
-	elseif spellId == 123813 then--The Dark of Night (Night Phase)
+	elseif spellId == 123813 and self:AntiSpam(3, 5) then--The Dark of Night (Night Phase)
 		self.vb.darkOfNightCount = self.vb.darkOfNightCount + 1
 		specWarnDarkOfNight:Show(self.vb.darkOfNightCount)
 		specWarnDarkOfNight:Play("targetchange")

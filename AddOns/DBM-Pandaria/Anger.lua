@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(691, "DBM-Pandaria", nil, 322)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240428104741")
+mod:SetRevision("20240525221445")
 mod:SetCreatureID(60491)
 mod:SetEncounterID(1564)
 mod:SetReCombatTime(20, 10)
@@ -52,7 +52,7 @@ function mod:OnCombatStart(delay, yellTriggered)
 	playerMCed = false
 	if yellTriggered then
 		timerUnleashedWrathCD:Start(-delay)
-		timerGrowingAngerCD:Start(-delay)
+		timerGrowingAngerCD:Start(30.6-delay)
 	end
 end
 

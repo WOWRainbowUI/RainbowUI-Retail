@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,lfr"
 
-mod:SetRevision("20240426181222")
+mod:SetRevision("20240530095837")
 mod:SetCreatureID(71152, 71153, 71154, 71155, 71156, 71157, 71158, 71160, 71161)
 mod:SetEncounterID(1593)
 mod:DisableESCombatDetection()
@@ -157,7 +157,6 @@ local berserkTimer					= mod:NewBerserkTimer(720)
 mod:AddRangeFrameOption("6/5/3")
 mod:AddSetIconOption("SetIconOnAim", 142948, false)
 mod:AddSetIconOption("SetIconOnMesmerize", 142671, false)
-mod:AddArrowOption("AimArrow", 142948, false, true)
 
 local calculatingDude, readyToFight = DBM:EJ_GetSectionInfo(8012), DBM:GetSpellName(143542)
 local vulnerable1, vulnerable2, vulnerable3, vulnerable4 = DBM:GetSpellName(143279), DBM:GetSpellName(143275), DBM:GetSpellName(142929), DBM:GetSpellName(142931)
@@ -260,13 +259,13 @@ local function CheckBosses(self)
 				timerMutateCD:Start(23, 1)
 				if DBM:UnitDebuff("player", vulnerable2) then vulnerable = true end
 			elseif cid == 71153 then--Hisek the Swarmkeeper
-				timerAimCD:Start(32, 1)--Might be 35-37 with unitdebuff filter
+				timerAimCD:Start(21.2, 1)--Might be 35-37 with unitdebuff filter (former 32)
 				if self:IsMythic() then
 					timerRapidFireCD:Start(47.5)--47-50 with unitdebuff filter
 				end
 			elseif cid == 71161 then--Kil'ruk the Wind-Reaver
 				if self:IsMythic() then
-					timerReaveCD:Start(38.5)
+					timerReaveCD:Start(32.2)
 				end
 				self:StopRepeatedScan("DFAScan")
 				self:ScheduleMethod(23, "StartRepeatedScan", unitGUID, "DFAScan", 0.25, true)--Not a large sample size, data shows it happen 29-30 seconds after IEEU fires on two different pulls. Although 2 is a poor sample
@@ -280,7 +279,7 @@ local function CheckBosses(self)
 			elseif cid == 71155 then--Korven the Prime
 				timerShieldBashCD:Start(19)--20seconds from REAL IEEU
 			elseif cid == 71160 then--Iyyokuk the Lucid
-				timerInsaneCalculationCD:Start()
+				timerInsaneCalculationCD:Start(15)--Former 25
 			elseif cid == 71154 then--Ka'roz the Locust
 				timerWhirlingCD:Start(9.8)
 				timerHurlAmberCD:Start(41.3)
@@ -464,9 +463,6 @@ function mod:OnCombatEnd()
 	if self.Options.RangeFrame then
 		DBM.RangeCheck:Hide()
 	end
-	if self.Options.AimArrow then
-		DBM.Arrow:Hide()
-	end
 end
 
 --"<13.6 19:16:29> [UNIT_SPELLCAST_SUCCEEDED] Iyyokuk the Lucid [[boss2:Jump to Center::0:143545]]", -- [95]
@@ -603,7 +599,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 	if spellId == 142528 then
 		self.vb.toxicInjection = true
 		warnToxicInjection:Show()
-		timerToxicCatalystCD:Start(20)
+		timerToxicCatalystCD:Start(16.9)--Former 20
 	elseif spellId == 142232 then
 		self:StopRepeatedScan("DFAScan")
 		self:ScheduleMethod(28, "StartRepeatedScan", args.sourceGUID, "DFAScan", 0.25, true)
@@ -717,9 +713,6 @@ function mod:SPELL_AURA_APPLIED(args)
 		end
 		if self.Options.SetIconOnAim then
 			self:SetIcon(args.destName, 3)
-		end
-		if self.Options.AimArrow then
-			DBM.Arrow:ShowRunTo(args.destName, 3, 5)
 		end
 	end
 end

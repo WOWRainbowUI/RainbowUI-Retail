@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(744, "DBM-Raids-MoP", 4, 330)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20230617070727")
+mod:SetRevision("20240616044127")
 mod:SetCreatureID(62543)
 mod:SetEncounterID(1504)
 
@@ -130,7 +130,7 @@ end
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	if msg:find("spell:122949") and target then--Does not show in combat log except for after it hits. IT does fire a UNIT_SPELLCAST event but has no target info. You can get target 1 sec faster with UNIT_AURA but it's more cpu and not worth the trivial gain IMO
-		target = DBM:GetUnitFullName(target)
+		target = DBM:GetUnitFullName(target) or target
 		warnUnseenStrike:Show(target)
 		timerUnseenStrike:Start()
 		timerUnseenStrikeCD:Start()

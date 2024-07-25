@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(726, "DBM-Raids-MoP", 5, 317)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240415052810")
+mod:SetRevision("20240521003658")
 mod:SetCreatureID(60410)--Energy Charge (60913), Emphyreal Focus (60776), Cosmic Spark (62618), Celestial Protector (60793)
 mod:SetEncounterID(1500)
 mod:DisableESCombatDetection()--TODO, see if 10.2.7 fixes this
@@ -70,7 +70,7 @@ function mod:OnCombatStart(delay)
 	self.vb.powerCount = 0
 	table.wipe(closedCircuitTargets)
 	table.wipe(stunTargets)
-	timerBreathCD:Start(3.4-delay)--Will use instant on pull if tank range pulls it
+--	timerBreathCD:Start(3.4-delay)--Will use instant on pull if tank range pulls it (which is most of time so disabling timer)
 	timerProtectorCD:Start(10-delay, 1)
 	berserkTimer:Start(-delay)
 end

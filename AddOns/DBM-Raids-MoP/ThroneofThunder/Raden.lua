@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,heroic25"
 
-mod:SetRevision("20240428104741")
+mod:SetRevision("20240614022422")
 mod:SetCreatureID(69473)--69888
 mod:SetEncounterID(1580, 1581)
 mod:SetUsedIcons(1)
@@ -24,11 +24,11 @@ mod:RegisterEventsInCombat(
 
 --Anima
 local warnAnima					= mod:NewSpellAnnounce(138331, 2)--Switched to anima phase
-local warnUnstableAnima			= mod:NewTargetAnnounce(138288)--May range frame needed. 138295/138296 is damage ids, 138288 is debuff cast.
+local warnUnstableAnima			= mod:NewTargetNoFilterAnnounce(138288)--May range frame needed. 138295/138296 is damage ids, 138288 is debuff cast.
 local warnSanguineHorror		= mod:NewCountAnnounce(138338, 3, nil, "-Healer")--Adds
 --Vita
 local warnVita					= mod:NewSpellAnnounce(138332, 2)--Switched to vita phase
-local warnUnstableVita			= mod:NewTargetAnnounce(138297, 4)
+local warnUnstableVita			= mod:NewTargetNoFilterAnnounce(138297, 4)
 --General
 local warnPhase2				= mod:NewPhaseAnnounce(2, 2)
 
@@ -61,7 +61,7 @@ local timerCracklingStalkerCD	= mod:NewCDCountTimer(41, 138339, nil, nil, nil, 1
 local timerCreationCD			= mod:NewCDCountTimer(32.5, 138321, nil, nil, nil, 1, nil, nil, nil, 1, 4)--32.5-35second variation
 local timerCallEssenceCD		= mod:NewNextTimer(15.5, 139040, nil, nil, nil, 1)
 
-mod:AddSetIconOption("SetIconsOnVita", 418720, false, 0, {1})
+mod:AddSetIconOption("SetIconsOnVita", 138297, false, 0, {1})
 
 local creationCount = 0
 local stalkerCount = 0

@@ -1,8 +1,9 @@
 local mod	= DBM:NewMod("HallsofInfusionTrash", "DBM-Party-Dragonflight", 8)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240513062426")
+mod:SetRevision("20240622210644")
 --mod:SetModelID(47785)
+--mod:SetZone(1234)--FIXME RIGHT ID
 mod.isTrashMod = true
 
 mod:RegisterEvents(
@@ -82,7 +83,7 @@ local timerRefreshingTidesCD				= mod:NewCDNPTimer(30, 376171, nil, nil, nil, 4,
 local timerThunderstrikeCD					= mod:NewCDNPTimer(23.1, 437719, nil, nil, nil, 3)
 local timerSeismicSlamCD					= mod:NewCDNPTimer(17, 374073, nil, nil, nil, 3)
 
-mod:AddBoolOption("AGBuffs", true)
+mod:AddGossipOption(true, "Buff")
 
 --local playerName = UnitName("player")
 
@@ -320,7 +321,7 @@ end
 function mod:GOSSIP_SHOW()
 	local gossipOptionID = self:GetGossipID()
 	if gossipOptionID then
-		if self.Options.AGBuffs and (gossipOptionID == 107192 or gossipOptionID == 107206) then -- Engineer/Herb Buff
+		if self.Options.AutoGossipBuff and (gossipOptionID == 107192 or gossipOptionID == 107206) then -- Engineer/Herb Buff
 			self:SelectGossip(gossipOptionID)
 		end
 	end

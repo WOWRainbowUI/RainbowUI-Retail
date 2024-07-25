@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(827, "DBM-Raids-MoP", 2, 362)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240426181222")
+mod:SetRevision("20240616044127")
 mod:SetCreatureID(69465)
 mod:SetEncounterID(1577)
 
@@ -16,8 +16,8 @@ mod:RegisterEventsInCombat(
 )
 
 local warnFocusedLightning			= mod:NewTargetAnnounce(137399, 4)
-local warnStaticBurst				= mod:NewTargetAnnounce(137162, 3, nil, "Tank|Healer")
-local warnThrow						= mod:NewTargetAnnounce(137175, 2)
+local warnStaticBurst				= mod:NewTargetNoFilterAnnounce(137162, 3, nil, "Tank|Healer")
+local warnThrow						= mod:NewTargetNoFilterAnnounce(137175, 2)
 
 local specWarnFocusedLightning		= mod:NewSpecialWarningRun(137422, nil, nil, 2, 4)
 local yellFocusedLightning			= mod:NewYell(137422)
@@ -31,7 +31,7 @@ local specWarnElectrifiedWaters		= mod:NewSpecialWarningMove(138006)
 local specWarnIonization			= mod:NewSpecialWarningSpell(138732, "-Tank", nil, nil, 2)
 
 local timerFocusedLightningCD		= mod:NewCDTimer(10, 137399, nil, nil, nil, 3)--10-18 second variation, tends to lean toward 11-12 except when delayed by other casts such as throw or storm. Pull one also seems to variate highly
-local timerStaticBurstCD			= mod:NewCDTimer(19, 137162, nil, "Tank", nil, 5)
+local timerStaticBurstCD			= mod:NewCDTimer(18.6, 137162, nil, "Tank", nil, 5)
 local timerThrowCD					= mod:NewCDTimer(26, 137175, nil, nil, nil, 5)--90-93 variable (26-30 seconds after storm. verified in well over 50 logs)
 local timerStorm					= mod:NewBuffActiveTimer(17, 137313)--2 second cast, 15 second duration
 local timerStormCD					= mod:NewCDTimer(60.5, 137313, nil, nil, nil, 2)--90-93 variable (60.5~67 seconds after throw)
@@ -177,7 +177,7 @@ mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, _, _, _, target)
 	if msg:find("spell:137175") and target then
-		target = DBM:GetUnitFullName(target)
+		target = DBM:GetUnitFullName(target) or target
 		warnThrow:Show(target)
 		timerStormCD:Start()
 		self:Schedule(55.5, checkWaterStorm)--check before 5 sec.

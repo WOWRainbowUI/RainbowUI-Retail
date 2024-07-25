@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(687, "DBM-Raids-MoP", 5, 317)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240420125214")
+mod:SetRevision("20240601045013")
 mod:SetCreatureID(60701, 60708, 60709, 60710)--Adds: 60731 Undying Shadow, 60958 Pinning Arrow
 mod:SetEncounterID(1436)
 mod:SetBossHPInfoToHighest()
@@ -115,7 +115,7 @@ function mod:OnCombatStart(delay)
 	self.vb.QiangActive = true
 	berserkTimer:Start(-delay)
 	timerAnnihilateCD:Start(10.5)
-	timerFlankingOrdersCD:Start(25)
+	timerFlankingOrdersCD:Start(16.9)--Old 25
 	if self:IsHeroic() then
 		timerImperviousShieldCD:Start(40.7)
 		warnImperviousShieldSoon:Schedule(35.7)
@@ -190,7 +190,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 	local spellId = args.spellId
 	if spellId == 117685 then
 		warnChargedShadows:Show(args.destName)
-		timerChargingShadowsCD:Start()
+		timerChargingShadowsCD:Start(10.7)
 	elseif spellId == 117506 then
 		warnUndyingShadows:Show()
 		if self.vb.ZianActive then
@@ -278,27 +278,28 @@ function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
 			timerChargingShadowsCD:Cancel()
 			timerShieldOfDarknessCD:Cancel()
 			warnShieldOfDarknessSoon:Cancel()
-			timerUndyingShadowsCD:Update(40.3, 41.5)--This boss retains Undying Shadows
+			timerUndyingShadowsCD:Cancel()--Used to restart, but in 10.2.7 now fires instantly on becoming ghost
 			if self.Options.RangeFrame and not self.vb.SubetaiActive then--Close range frame, but only if zian is also not active, otherwise we still need it
 				DBM.RangeCheck:Hide()
 			end
 		elseif cid == 60708 then
 			self.vb.MengActive = false
 			timerDeliriousCD:Cancel()
-			timerMaddeningShoutCD:Restart(30)--This boss retains Maddening Shout
+			timerMaddeningShoutCD:Stop()
+			timerMaddeningShoutCD:Start(30)--This boss retains Maddening Shout
 		elseif cid == 60709 then
 			self.vb.QiangActive = false
 			timerMassiveAttackCD:Cancel()
 			timerAnnihilateCD:Cancel()
 			timerImperviousShieldCD:Cancel()
 			warnImperviousShieldSoon:Cancel()
-			timerFlankingOrdersCD:Update(37.6, 40)--Used to restart to 30 remaining, but is 2.4 now? (two pull sample size)
+			timerFlankingOrdersCD:Cancel()--Used to restart to 30 remaining, but in 10.2.7 now fires instantly on becoming ghost
 		elseif cid == 60710 then
 			self.vb.SubetaiActive = false
 			timerVolleyCD:Cancel()
 			timerRainOfArrowsCD:Cancel()
 			timerSleightOfHandCD:Cancel()
-			timerPillageCD:Restart(30)--This boss retains Pillage
+			timerPillageCD:Cancel()--Used to restart to 30 remaining, but in 10.2.7 now fires instantly on becoming ghost
 			if self.Options.RangeFrame and not self.vb.ZianActive then--Close range frame, but only if subetai is also not active, otherwise we still need it
 				DBM.RangeCheck:Hide()
 			end
@@ -333,7 +334,7 @@ function mod:CHAT_MSG_MONSTER_YELL(msg, boss)
 	if boss == Zian then
 		warnActivated:Show(boss)
 		self.vb.ZianActive = true
-		timerChargingShadowsCD:Start()
+		timerChargingShadowsCD:Start(9.9)
 		timerUndyingShadowsCD:Start(20)
 		if self:IsHeroic() then
 			warnShieldOfDarknessSoon:Schedule(35, 5)--Start pre warning with regular warnings only as you don't move at this point yet.

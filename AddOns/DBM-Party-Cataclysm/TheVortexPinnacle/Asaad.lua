@@ -2,10 +2,14 @@ local isRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)
 local mod	= DBM:NewMod(116, "DBM-Party-Cataclysm", 8, 68)
 local L		= mod:GetLocalizedStrings()
 
-mod.statTypes = "normal,heroic,challenge,timewalker"
-mod.upgradedMPlus = true
+if not mod:IsCata() then
+	mod.statTypes = "normal,heroic,challenge,timewalker"
+	mod.upgradedMPlus = true
+else
+	mod.statTypes = "normal,heroic"
+end
 
-mod:SetRevision("20240410220045")
+mod:SetRevision("20240615053330")
 mod:SetCreatureID(43875)
 mod:SetEncounterID(1042)
 mod:SetHotfixNoticeRev(20230526000000)
@@ -121,14 +125,19 @@ function mod:SPELL_AURA_APPLIED(args)
 		specWarnGroundingField:Play("findshelter")
 		timerStorm:Start()
 		if self:IsMythicPlus() then
-			timerChainLightningCD:Restart(16.9)--First cast can be delayed or skipped entirely
-			timerNovaCD:Restart(25.4, self.vb.novaCount+1)
-			timerStaticClingCD:Restart(33.7)
+			timerChainLightningCD:Stop()
+			timerChainLightningCD:Start(16.9)--First cast can be delayed or skipped entirely
+			timerNovaCD:Stop()
+			timerNovaCD:Start(25.4, self.vb.novaCount+1)
+			timerStaticClingCD:Stop()
+			timerStaticClingCD:Start(33.7)
 			timerGroundingFieldCD:Start(65.5, self.vb.groundingCount+1)
 		else
-			timerStaticClingCD:Restart(12)
+			timerStaticClingCD:Stop()
+			timerStaticClingCD:Start(12)
 			--timerChainLightningCD:Start(19.3)
-			timerNovaCD:Restart(22.9, self.vb.novaCount+1)
+			timerNovaCD:Stop()
+			timerNovaCD:Start(22.9, self.vb.novaCount+1)
 			timerGroundingFieldCD:Start(45.7, self.vb.groundingCount+1)--45.7
 		end
 	end

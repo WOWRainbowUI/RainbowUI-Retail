@@ -19,6 +19,7 @@ L.OTabOptions						= "Core Options"
 L.OTabAbout							= "About"
 
 L.FOLLOWER							= "Follower"--i.e. the new dungeon type in 10.2.5. I haven't found a translated string yet
+L.STORY					    		= "Story"--i.e. the new dungeon type in 11.0.0. I haven't found a translated string yet
 
 L.TabCategory_CURRENT_SEASON		= "Current Season"
 
@@ -114,13 +115,13 @@ L.RecordOnlyBosses					= "Do not record trash (Only records Bosses. Use '/dbm pu
 L.DoNotLogLFG						= "Do not record LFG or LFR (queued content)"
 --Auto Logging: Recorded Content types
 L.Area_AutoLoggingContent			= "Auto Logging Content"
-L.LogCurrentMythicRaids				= "Current level Mythic raids"--Retail Only
-L.LogCurrentRaids					= "Current level non Mythic raids (Heroic, Normal, and LFR if LFG/LFR filter is disabled)"
-L.LogTWRaids						= "Timewalking or Chromie Time raids"--Retail Only
+L.LogCurrentMythicRaids				= "Current level (or remix) Mythic raids"--Retail Only
+L.LogCurrentRaids					= "Current level (or remix) non Mythic raids (Heroic, Normal, and LFR if LFG/LFR filter is disabled)"
+L.LogTWRaids						= "Timewalking or Chromie Time raids (does NOT include remix)"--Retail Only
 L.LogTrivialRaids					= "Trivial (below character level) raids"
-L.LogCurrentMPlus					= "Current level M+ dungeons"--Retail Only
-L.LogCurrentMythicZero				= "Current level Mythic 0 dungeons"--Retail Only
-L.LogTWDungeons						= "Timewalking or Chromie Time dungeons"--Retail Only
+L.LogCurrentMPlus					= "Current level (or remix) M+ dungeons"--Retail Only
+L.LogCurrentMythicZero				= "Current level (or remix) Mythic 0 dungeons"--Retail Only
+L.LogTWDungeons						= "Timewalking or Chromie Time dungeons (does NOT include remix)"--Retail Only
 L.LogCurrentHeroic					= "Current level Heroic dungeons (Note: if you are doing heroic via queuing and want it logged, turn off LFG filter)"
 
 -- Panel: Extra Features
@@ -257,7 +258,7 @@ L.Area_ChatAlerts					= "Additional Alert Options"
 L.RoleSpecAlert						= "Show alert message on raid join when your loot spec does not match current spec"
 L.CheckGear							= "Show gear alert message during pull (when your equipped ilvl is much lower than bag ilvl (40+) or main weapon is not equipped)"
 L.WorldBossAlert					= "Show alert message when world bosses might have been engaged on your realm by guildies or friends (inaccurate if sender is CRZed)"
-L.WorldBuffAlert					= "Show alert message and timer when world buff RP has been started on your realm"
+L.WorldBuffAlert					= "Show alert message and timer when world buff RP has been started on your realm (Disabled in SOD)"
 
 L.Area_BugAlerts					= "Bug Reporting Alert Options"
 L.BadTimerAlert						= "Show chat message when DBM detects a bad timer with at least 1 second of incorrectness"

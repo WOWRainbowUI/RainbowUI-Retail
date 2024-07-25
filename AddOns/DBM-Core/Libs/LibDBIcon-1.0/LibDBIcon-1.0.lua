@@ -6,7 +6,7 @@
 --
 
 local DBICON10 = "LibDBIcon-1.0"
-local DBICON10_MINOR = 54 -- Bump on changes
+local DBICON10_MINOR = 52 -- Bump on changes
 if not LibStub then error(DBICON10 .. " requires LibStub.") end
 local ldb = LibStub("LibDataBroker-1.1", true)
 if not ldb then error(DBICON10 .. " requires LibDataBroker-1.1.") end
@@ -25,15 +25,6 @@ function lib:IconCallback(event, name, key, value)
 	if lib.objects[name] then
 		if key == "icon" then
 			lib.objects[name].icon:SetTexture(value)
-			if lib:IsButtonInCompartment(name) then
-				local addonList = AddonCompartmentFrame.registeredAddons
-				for i =1, #addonList do
-					if addonList[i].text == name then
-						addonList[i].icon = value
-						return
-					end
-				end
-			end
 		elseif key == "iconCoords" then
 			lib.objects[name].icon:UpdateCoord()
 		elseif key == "iconR" then
@@ -103,8 +94,8 @@ local function onLeave(self)
 	end
 end
 
-local function onEnterCompartment(self, menu)
-	local buttonName = menu.text
+local function onEnterCompartment(self)
+	local buttonName = self.value
 	local object = lib.objects[buttonName]
 	if object and object.dataObject then
 		if object.dataObject.OnTooltipShow then
@@ -118,10 +109,10 @@ local function onEnterCompartment(self, menu)
 	end
 end
 
-local function onLeaveCompartment(self, menu)
+local function onLeaveCompartment(self)
 	lib.tooltip:Hide()
 
-	local buttonName = menu.text
+	local buttonName = self.value
 	local object = lib.objects[buttonName]
 	if object and object.dataObject then
 		if object.dataObject.OnLeave then
@@ -516,8 +507,8 @@ function lib:AddButtonToCompartment(buttonName, customIcon)
 			icon = customIcon or object.dataObject.icon,
 			notCheckable = true,
 			registerForAnyClick = true,
-			func = function(_, menuInputData, menu)
-				object.dataObject.OnClick(menu, menuInputData.buttonName)
+			func = function(frame, _, _, _, clickType)
+				object.dataObject.OnClick(frame, clickType)
 			end,
 			funcOnEnter = onEnterCompartment,
 			funcOnLeave = onLeaveCompartment,

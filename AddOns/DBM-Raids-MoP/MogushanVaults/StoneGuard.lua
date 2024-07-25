@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(679, "DBM-Raids-MoP", 5, 317)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240426181222")
+mod:SetRevision("20240519190428")
 mod:SetCreatureID(60051, 60043, 59915, 60047)--Cobalt: 60051, Jade: 60043, Jasper: 59915, Amethyst: 60047
 mod:SetEncounterID(1395)
 
@@ -206,7 +206,9 @@ function mod:SPELL_AURA_APPLIED(args)
 	local spellId = args.spellId
 	if spellId == 130395 then
 		jasperChainsTargets[#jasperChainsTargets + 1] = args.destName
-		timerJasperChainsCD:Start()
+		if self:AntiSpam(3, 1) then
+			timerJasperChainsCD:Start()
+		end
 		self:Unschedule(warnJasperChainsTargets)
 		self:Schedule(0.3, warnJasperChainsTargets)
 		if self.vb.activePetrification ~= "Jasper" then

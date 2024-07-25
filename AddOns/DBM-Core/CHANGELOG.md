@@ -1,49 +1,45 @@
-# <DBM Mod> Delves (TWW)
+# DBM - Core
 
-## [10.2.41](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/10.2.41) (2024-05-16)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/10.2.40...10.2.41) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.0](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.0) (2024-07-23)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/10.2.54...11.0.0) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- prep new tag for war within alpha delves support and better support for MoP scenarios returning in tomorrow remix  
-- RU locale for Delves (#1088)  
-- Make sync debug easier to notice since it's higher prio  
-- Fix regression with loadmod, handle it a diff way that still fixes scenario starts  
-- add 3 new trash abilities to delves  
-    Added support for FungalFolley's end boss  
-- support start delay for scenario's, since delves are always delayed by 5 seconds.  
-- Fix bug that caused scenario mods like delves to re-enter combat due to fact LoadModsOnDemands were firing scenariocheck on all map changes and not just instance map changes. The load type is now scoped better and filtered appropriately  
-- case sensitive fix  
-- Tweaks  
-- Fix 100206 getting flagged by packager  
-- Fix rename mapping  
-- Fix typo  
-- Fixed delve bug where a wipe would end delve with a success  
-- Add more zones for the special load conditions of delves to core  
-    Split trash abilities into their own common mod since trash abilities are shared between ALL delves so needed a unified trash mod  
-    Added earthcrawl mines end boss support  
-    Added lava blast to delve trash alerts  
-- quiet luacheck  
-- template remaining delve mods  
-- Remove diagnostic disables  
-- More LuaLS annotations for variables storing mods  
-- Tests: add /dbm test clear  
-- Tests: Make AntiSpam more deterministic  
-- Fix comparison function  
-    Check to see if it's a number, and not string of "No Raid Module"  
-- Delves kr locale initializing (#1087)  
-- Tag that as a TWW mod to future proof before it's too late.  
-- Add another spell to the spiral weave  
-    another delve core fix  
-- Fix another delve niche case  
-- fix bad option keys  
-- Support delves in trivial checks, and special load conditions, and check for wipe  
-- Preliminary delve work  
-- Fix bad case of stripping `-` from instance names;  
-    - Use a special case match of ` - `, to actually detect the space cases we wanted. this means moving away from strsplit as that is a list of deliminators rather than a pattern.  
-- Fix GetSpellDescription on alpha  
-- Fix UnitName issue in pull timer target  
-    Utilise `DBM:GetUnitFullName` instead, for appropriate filtering of friendly targets.  
-- change this to debuglevel 3. it spams a TON on retail (since group size changes every time someone joins or leaves raid.  
-- Fixed bugs with classic subversion check  
-     - It now ACTUALLY checks classic subversion instead of echoing DBM core version check (and only running IF dbm core is out of date)  
-     - It no longer runs on retail  
+- Prep new DBM core with version bump and Delve tier detection support for statistics.  
+- Push delve tier fix  
+- Begin work on supporting delve tiers in stats recording and GUI. This way it records highest delves as priority over shortest time, similar to Mythic + behavior  
+    Fixed bug where story raid returned "delves" type  
+    Queen Ansurek will now store/show story kills in GUI  
+- Make sure LuaLS recognizes "self" in all local functions used by mods, to avoid missing any errors (none found, but just good convention to practice now)  
+- Add some nil error protection on Rashanan that i missed on normal  
+- fix counts in initial timers on each movement  
+- another fix  
+- Fixes to Rashanan  
+- Update koKR (#1151)  
+- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1152  
+- disable two warnings inconsiquential in LFR. Closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1153  
+- Redo how timers and phases are handled on Rashanan to be accurate to way it's coded.  
+- Fix a bug where tank combo and shroud timer on biurna could fully start new timers on phase 2 start because the previous timer had already expired. Now if previous timer has expired, no replacement timer is created as the abilities remain off CD on stage 2 start (intended behavior)  
+    Closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1149  
+- Update DBM-Raids-WarWithin\_Mainline.toc (#1147)  
+- Create localization.tw.lua (#1146)  
+- Update koKR (#1145)  
+- Update localization.ru.lua (#1144)  
+- Update commonlocal.ru.lua (#1143)  
+- Core/Timers: add missing timerTypes to options constructor (#1148)  
+- Add icontarget yell type that just shows 5 icons (#1142)  
+- Make IsTanking object more robust by validating both enemy and player UIDs. Now test I did in video would fail ;)  
+    Ironically scanning entirety of DBMs history found 0 occurances that was ever typoed, but now it can't be.  
+- Tests: update filters and fix bug when parsing logs with source flags  
+- Tests: reconstruct unit targets without boss unit IDs (for classic)  
+- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1136  
+- Update localization.ru.lua (#1141)  
+- Add a common local for an idea i'm thinking about  
+- Update koKR (#1140)  
+- prune some deprecated stuff and cleanup  
+- Special warning objects now have more robust LuaLS checking  
+    Fixed a bug on Magmorax where Blazing Breath alert gave no count  
+    Fixed a bug on Raszageth where Ball lighting gave no count  
+    Fixed a bug on Sennarth where Gossamer burst gave no count  
+- scope last  
+- Fix DBM not reporting new dungeon in SoD as having dungeon mods available.  
 - bump alpha  
+- Update localization.ru.lua (#1139)  

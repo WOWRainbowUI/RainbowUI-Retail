@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(689, "DBM-Raids-MoP", 5, 317)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240501100959")
+mod:SetRevision("20240525101145")
 mod:SetCreatureID(60009)--60781 Soul Fragment
 mod:SetEncounterID(1390)
 mod:SetUsedIcons(1, 2, 3, 4, 7)
@@ -71,12 +71,12 @@ local specWarnNullBarrier			= mod:NewSpecialWarningSpell(115817, nil, nil, nil, 
 --Nature/Fist
 local timerLightningLash			= mod:NewTargetTimer(20, 131788, nil, false, 2, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerLightningLashCD			= mod:NewCDTimer(7.3, 131788, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)--7.3-20 second variation.
-local timerLightningFistsCD			= mod:NewCDTimer(14, 116157, nil, nil, nil, 3, nil, DBM_COMMON_L.TANK_ICON)
+local timerLightningFistsCD			= mod:NewCDTimer(13.3, 116157, nil, nil, nil, 3, nil, DBM_COMMON_L.TANK_ICON)
 local timerEpicenterCD				= mod:NewCDCountTimer(27.9, 116018, nil, nil, nil, 2)
 local timerEpicenter				= mod:NewBuffActiveTimer(10, 116018, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON..DBM_COMMON_L.HEALER_ICON)
 --Fire/Spear
 local timerFlamingSpear				= mod:NewTargetTimer(20, 116942, nil, false, 2, 5, nil, DBM_COMMON_L.TANK_ICON)
-local timerFlamingSpearCD			= mod:NewCDTimer(9, 116942, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)--8-11second variation, usually 10 though.
+local timerFlamingSpearCD			= mod:NewCDTimer(8, 116942, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)--8-11second variation, usually 10 though.
 local timerWildSpark				= mod:NewTargetTimer(5, 116784, nil, false, 2, 5)
 local timerDrawFlame				= mod:NewBuffActiveTimer(6, 116711, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON..DBM_COMMON_L.HEALER_ICON)
 local timerDrawFlameCD				= mod:NewNextCountTimer(30, 116711, nil, nil, nil, 2)--30 seconds after last ended.
@@ -200,6 +200,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		timerArcaneVelocity:Start()
 		if DBM:UnitBuff("player", nullBarrier) and self:IsDifficulty("lfr25") then
 			specWarnBarrierNow:Show()
+			specWarnBarrierNow:Play("useextraaction")
 		end
 	end
 end
@@ -304,6 +305,7 @@ function mod:SPELL_CAST_START(args)
 		timerEpicenterCD:Start(nil, self.vb.specialCount + 1)
 		if DBM:UnitBuff("player", nullBarrier) and self:IsDifficulty("lfr25") then
 			specWarnBarrierNow:Schedule(2)
+			specWarnBarrierNow:ScheduleVoice(2, "useextraaction")
 		end
 	elseif args:IsSpellID(116157, 116295) then
 		warnLightningFists:Show()
@@ -356,8 +358,8 @@ function mod:OnSync(msg)
 		self:SetStage(0)
 		warnPhase:Show(self.vb.phase)
 		timerEpicenterCD:Start(3.3, 1)--Seems much shorter now
+		timerLightningFistsCD:Start(5)
 		timerLightningLashCD:Start(7)
-		timerLightningFistsCD:Start(11.3)
 		if self.Options.RangeFrame then
 			DBM.RangeCheck:Hide()
 		end
@@ -365,7 +367,7 @@ function mod:OnSync(msg)
 		self:SetStage(0)
 		warnPhase:Show(self.vb.phase)
 		timerFlamingSpearCD:Start(5.5)
-		timerDrawFlameCD:Start(35, 1)--No variation, or not enough logs of fire phase.
+		timerDrawFlameCD:Start(9.3, 1)--No variation, or not enough logs of fire phase. (was 35 prior to 10.2.7, so remember this if they make classic MoP)
 		if self.Options.RangeFrame then
 			DBM.RangeCheck:Hide()
 		end
@@ -376,7 +378,7 @@ function mod:OnSync(msg)
 		-- 10/13 01:11:24.437  YELL: Oh sage of the ages! Instill to me your arcane wisdom!
 		-- 10/13 01:11:36.671  SPELL_CAST_SUCCESS,0xF150EA690000478E,"",0x10a48,0x0,0x0000000000000000,nil,0x80000000,0x80000000,116417,"",0x40
 		timerArcaneResonanceCD:Start(12)
-		timerArcaneVelocityCD:Start(14.5, 1)--It's either this, or this +10. Not yet sure what causes the +10
+		timerArcaneVelocityCD:Start(8.8, 1)--It's either this, or this +10. Not yet sure what causes the +10 (14.5 old timer)
 		if self.Options.RangeFrame then
 			DBM.RangeCheck:Show(6)
 		end

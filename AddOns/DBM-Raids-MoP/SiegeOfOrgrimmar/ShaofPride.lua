@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,lfr"
 
-mod:SetRevision("20230617070727")
+mod:SetRevision("20240602102337")
 mod:SetCreatureID(71734)
 mod:SetEncounterID(1604)
 mod:SetUsedIcons(8, 7, 6, 5, 4, 3, 2, 1)
@@ -31,8 +31,6 @@ local warnProjection			= mod:NewTargetAnnounce(146822, 3)--50-74 Energy (VERY im
 local warnAuraOfPride			= mod:NewTargetAnnounce(146817, 3, nil, false)--75-99 Energy (not important who has them)
 local warnOvercome				= mod:NewTargetAnnounce(144843, 3)--100 Energy (pre mind control) Also very important who has
 local warnOvercomeMC			= mod:NewTargetAnnounce(605, 4)--Mind control version (use priest mind control spellid to discribe. because have same spell name in pre-warning)
---Manifestation of Pride
-local warnMockingBlast			= mod:NewSpellAnnounce(144379, 3, nil, false)
 
 --Sha of Pride
 local specWarnGiftOfTitans		= mod:NewSpecialWarningYou(144359, "Healer")
@@ -74,7 +72,7 @@ local timerProjection			= mod:NewCastTimer(6, 146822)
 
 local berserkTimer				= mod:NewBerserkTimer(600)
 
-mod:AddInfoFrameOption("ej8255")
+mod:AddInfoFrameOption(-8255)
 mod:AddSetIconOption("SetIconOnMark", 144351, false)
 mod:AddBoolOption("SetIconOnFragment", false)--This does not get along with SetIconOnMark though
 mod.findFastestComputer = {"SetIconOnFragment"} -- for set icon stuff.
@@ -125,20 +123,22 @@ function mod:SPELL_CAST_START(args)
 		self.vb.swellingCount = self.vb.swellingCount + 1
 		specWarnSwellingPride:Show(self.vb.swellingCount)
 	elseif spellId == 144379 then
-		local sourceGUID = args.sourceGUID
-		warnMockingBlast:Show()
-		if sourceGUID == UnitGUID("target") or sourceGUID == UnitGUID("focus") then
+		if self:CheckInterruptFilter(args.sourceGUID, nil, true) then
 			specWarnMockingBlast:Show(args.sourceName)
 		end
 	elseif spellId == 144832 then
 		--These abilitie cd reset on SPELL_CAST_START (they no longer desync though, they sync back up after first off sync cast)
 		timerSwellingPrideCD:Cancel()
 		if not self:IsDifficulty("lfr25") then
+			timerWoundedPrideCD:Stop()
 			timerWoundedPrideCD:Start()
 		end
+		timerSelfReflectionCD:Stop()
 		timerSelfReflectionCD:Start()
+		timerCorruptedPrisonCD:Stop()
 		timerCorruptedPrisonCD:Start()
 		if self:IsMythic() then
+			timerBanishmentCD:Stop()
 			timerBanishmentCD:Start()
 		end
 	end
@@ -150,15 +150,22 @@ function mod:SPELL_CAST_SUCCESS(args)
 		self.vb.woundCount = 0
 		bpSpecWarnFired = false
 		--Since we register this event anyways for bursting, might as well start cd bars here instead
+		timerMarkCD:Stop()
 		timerMarkCD:Start(10.5)
+		timerSelfReflectionCD:Stop()
 		timerSelfReflectionCD:Start()
+		timerCorruptedPrisonCD:Stop()
 		timerCorruptedPrisonCD:Start()
+		timerManifestationCD:Stop()
 		timerManifestationCD:Start()
+		timerSwellingPrideCD:Stop()
 		timerSwellingPrideCD:Start(nil, self.vb.swellingCount + 1)
 		if not self:IsDifficulty("lfr25") then
+			timerWoundedPrideCD:Stop()
 			timerWoundedPrideCD:Start(11)
 		end
 		if self:IsMythic() then
+			timerBanishmentCD:Stop()
 			timerBanishmentCD:Start()
 		end
 		--This is done here because a lot can change during a cast, and we need to know players energy when cast ends, i.e. this event

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("d504", "DBM-Scenario-MoP")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240516060654")
+mod:SetRevision("20240603224722")
 
 mod:RegisterCombat("scenario", 1030)
 
@@ -24,7 +24,7 @@ local warnCloudofAnger		= mod:NewSpellAnnounce(120824, 3, 120743)--142432 is her
 
 --Jin Ironfist
 --local specWarnRelentless	= mod:NewSpecialWarningRun(120817)--Maybe on heroic this actually deadly and you must run? if so, uncomment
-local specWarnEnrage		= mod:NewSpecialWarningDispel(127823, "RemoveEnrage")
+local specWarnEnrage		= mod:NewSpecialWarningDispel(127823, "RemoveEnrage", nil, nil, 1, 2)
 --Maragor
 local specWarnFear			= mod:NewSpecialWarningInterrupt(142884, "HasInterrupt", nil, nil, 1, 2)
 local specWarnGuardianStrike= mod:NewSpecialWarningRun(119843, "Melee", nil, nil, 4, 2)
@@ -36,10 +36,10 @@ local timerRelentless		= mod:NewTargetTimer(10, 120817, nil, nil, nil, 5)
 local timerEnrage			= mod:NewBuffActiveTimer(10, 127823, nil, nil, nil, 5, nil, DBM_COMMON_L.ENRAGE_ICON)
 --local timerRelentlessCD		= mod:NewCDTimer(10, 120817)
 --Abomination of Anger
-local timerBreathCD			= mod:NewCDTimer(21.5, 120929, nil, nil, nil, 3)--Limited sample size, may be shorter
+local timerBreathCD			= mod:NewCDTimer(18.2, 120929, nil, nil, nil, 3)
 local timerCloudofAngerCD	= mod:NewCDTimer(17, 120824, nil, nil, nil, 3)--Limited sample size, may be shorter
 local timerDarkforce		= mod:NewCastTimer(5, 120215, nil, nil, nil, 5)
-local timerDarkforceCD		= mod:NewCDTimer(32, 120215, nil, nil, nil, 3)
+local timerDarkforceCD		= mod:NewCDTimer(30.1, 120215, nil, nil, nil, 3)
 
 function mod:SPELL_CAST_START(args)
 	if args.spellId == 142884 then

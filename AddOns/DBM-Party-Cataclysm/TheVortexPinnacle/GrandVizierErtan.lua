@@ -1,10 +1,14 @@
 local mod	= DBM:NewMod(114, "DBM-Party-Cataclysm", 8, 68)
 local L		= mod:GetLocalizedStrings()
 
-mod.statTypes = "normal,heroic,challenge,timewalker"
-mod.upgradedMPlus = true
+if not mod:IsCata() then
+	mod.statTypes = "normal,heroic,challenge,timewalker"
+	mod.upgradedMPlus = true
+else
+	mod.statTypes = "normal,heroic"
+end
 
-mod:SetRevision("20230621232728")
+mod:SetRevision("20240615053330")
 mod:SetCreatureID(43878)
 mod:SetEncounterID(1043)
 mod:SetHotfixNoticeRev(20230427000000)
@@ -81,7 +85,8 @@ function mod:SPELL_AURA_REMOVED(args)
 	if args.spellId == 86295 then
 		self.vb.shieldCount = self.vb.shieldCount + 1
 		warnShield:Show(self.vb.shieldCount)
-		timerShield:Restart(40, self.vb.shieldCount+1)--Restart used purely to avoid a bug where when boss is killed it fires debug
+		timerShield:Stop()
+		timerShield:Start(40, self.vb.shieldCount+1)--Restart used purely to avoid a bug where when boss is killed it fires debug
 	elseif args.spellId == 86310 then
 		warnShieldEnd:Show()
 	end
