@@ -189,7 +189,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		Settings.RegisterAddOnCategory(Settings.RegisterCanvasLayoutCategory(panel, L["LS_GLASS"]))
 
 		AddonCompartmentFrame:RegisterAddon({
-			text = L["LS_GLASS"],
+			text = C_AddOns.GetAddOnMetadata(addonName, "Title"),
 			icon = "Interface\\AddOns\\ls_Glass\\assets\\logo-32",
 			notCheckable = true,
 			registerForAnyClick = true,
