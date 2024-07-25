@@ -169,7 +169,13 @@ function panel:InitializeOptions()
 	self.panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
 	---@diagnostic disable-next-line: inject-field
 	self.panel.name = "一鍵吃糖"
-	InterfaceOptions_AddCategory(self.panel)
+	if InterfaceOptions_AddCategory then
+		InterfaceOptions_AddCategory(self.panel)
+	else
+		local category = Settings.RegisterCanvasLayoutCategory(self.panel, self.panel.name);
+		category.ID = self.panel.name
+		Settings.RegisterAddOnCategory(category);
+	end
 
 	-------------  HEADER  -------------
 	local title = self.panel:CreateFontString("ARTWORK", nil, "GameFontNormalHuge")
@@ -337,5 +343,5 @@ SLASH_HAM3 = "/ap"
 SLASH_HAM4 = "/autopotion"
 
 SlashCmdList.HAM = function(msg, editBox)
-	InterfaceOptionsFrame_OpenToCategory(panel.panel)
+	Settings.OpenToCategory(panel.panel.name)
 end
