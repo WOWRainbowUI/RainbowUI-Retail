@@ -5,9 +5,9 @@ local AceGUI = LibStub("AceGUI-3.0")
 local AceConfReg = LibStub("AceConfigRegistry-3.0")
 local AceConfDia = LibStub("AceConfigDialog-3.0")
 
-local addonVersion = GetAddOnMetadata(name, "version")
+local addonVersion = C_AddOns.GetAddOnMetadata(name, "version")
 -- @debug@
-if addonVersion == "1.7.3" then
+if addonVersion == "1.8.0" then
    addonVersion = "Development"
 end
 -- @end-debug@
@@ -55,8 +55,10 @@ local function UpdateCharOrder()
    local chars = Exlist.ConfigDB.settings.allowedCharacters
    local order = 0
    for _, char in ipairs(charOrder) do
-      chars[char].order = order
-      order = order + 1
+      if (chars[char]) then
+         chars[char].order = order
+         order = order + 1
+      end
    end
 end
 local function GetCharPosition(char)
@@ -198,6 +200,21 @@ Exlist.SetupConfig = function(refresh)
                   end,
                   set = function(self, v)
                      Exlist.ConfigDB.settings.iconAlpha = v
+                     Exlist.RefreshAppearance()
+                  end
+               },
+               minLevelToTrack = {
+                  order = 2.1,
+                  type = "range",
+                  name = L["Min Level to track"],
+                  min = 1,
+                  max = 100,
+                  step = 1,
+                  get = function(self)
+                     return Exlist.ConfigDB.settings.minLevelToTrack or 70
+                  end,
+                  set = function(self, v)
+                     Exlist.ConfigDB.settings.minLevelToTrack = v
                      Exlist.RefreshAppearance()
                   end
                },

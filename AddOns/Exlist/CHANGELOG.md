@@ -1,18 +1,21 @@
-# [1.7.3](https://github.com/sragia/Exlist/tree/1.7.3) (2024-04-27)
+# [1.8.0](https://github.com/sragia/Exlist/tree/1.8.0) (2024-07-24)
 
-[Full Changelog](https://github.com/sragia/Exlist/compare/1.7.2...1.7.3)
+[Full Changelog](https://github.com/sragia/Exlist/compare/1.7.3...1.8.0)
 
 ## Highlights
 
- Affix thresholds and Awakened LFR 
+ The War Within Prepatch Release. 
 
 ## Commits
 
-Aigars Bedeicis (1):
+Aigars Bedeicis (8):
 
-- Add Awakened LFR
-
-MarkW (1):
-
-- Update new affix thresholds
+- Fix account sync a little
+- Fix missed adjustment
+- Update TOC
+- Prepatch Fixes
+- Add Raids and World Bosses
+- Add new World Weekly Reward
+- Add min level to track config
+- Initial TWW compatibility fixes
 
