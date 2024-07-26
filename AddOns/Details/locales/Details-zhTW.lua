@@ -2651,7 +2651,7 @@ L["Details!: Average Dps for "] = "Details!: 平均 DPS - "
 
 -- frames\window_mythicplus\window_end_of_run.lua 更改字體大小
 L["Details! Mythic Run Completed!"] = "Details! 傳奇地城通關!"
-L["Under development."] = "開發中。"
+L["Under development"] = "開發中"
 L["Waiting for loot"] = "等待拾取"
 L["Show Breakdown"] = "顯示分析"
 L["Show Damage Graphic"] = "顯示傷害圖表"
