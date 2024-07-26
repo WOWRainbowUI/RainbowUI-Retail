@@ -1,4 +1,5 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
     <Script file='Core\Localization\Localization.enUS.lua'/>
     <Script file='Core\Localization\Localization.zhTW.lua'/>
+    <Script file='Core\Localization\Localization.zhCN.lua'/>
 </Ui>
