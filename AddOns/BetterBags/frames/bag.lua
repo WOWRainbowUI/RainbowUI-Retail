@@ -79,6 +79,9 @@ local themes = addon:GetModule('Themes')
 ---@class WindowGroup: AceModule
 local windowGroup = addon:GetModule('WindowGroup')
 
+---@class Tabs: AceModule
+local tabs = addon:GetModule('Tabs')
+
 -------
 --- Bag Prototype
 -------
@@ -98,7 +101,6 @@ local windowGroup = addon:GetModule('WindowGroup')
 ---@field currentItemCount number
 ---@field private sections table<string, Section>
 ---@field slots bagSlots
----@field isReagentBank boolean
 ---@field decorator Texture
 ---@field bg Texture
 ---@field moneyFrame Money
@@ -114,7 +116,31 @@ local windowGroup = addon:GetModule('WindowGroup')
 ---@field sideAnchor Frame
 ---@field previousSize number
 ---@field searchFrame SearchFrame
+---@field tabs Tab
+---@field bankTab BankTab
 bagFrame.bagProto = {}
+
+function bagFrame.bagProto:GenerateWarbankTabs()
+  local tabData = C_Bank.FetchPurchasedBankTabData(Enum.BankType.Account)
+  for _, data in pairs(tabData) do
+    if not self.tabs:TabExists(data.name) then
+      self.tabs:AddTab(data.name, data.ID)
+    end
+  end
+
+  if not self.tabs:TabExists("Purchase Warbank Tab") then
+    self.tabs:AddTab("Purchase Warbank Tab", nil, function()
+      StaticPopup_Show("CONFIRM_BUY_BANK_TAB", nil, nil, { bankType = Enum.BankType.Account })
+    end)
+  end
+
+  if C_Bank.HasMaxBankTabs(Enum.BankType.Account) then
+    self.tabs:HideTab("Purchase Warbank Tab")
+  else
+    self.tabs:MoveToEnd("Purchase Warbank Tab")
+    self.tabs:ShowTab("Purchase Warbank Tab")
+  end
+end
 
 function bagFrame.bagProto:Show()
   if self.frame:IsShown() then
@@ -122,6 +148,11 @@ function bagFrame.bagProto:Show()
   end
   --addon.ForceShowBlizzardBags()
   PlaySound(self.kind == const.BAG_KIND.BANK and SOUNDKIT.IG_MAINMENU_OPEN or SOUNDKIT.IG_BACKPACK_OPEN)
+
+  if self.kind == const.BAG_KIND.BANK and addon.isRetail and C_PlayerInfo.HasAccountInventoryLock() then
+    self:GenerateWarbankTabs()
+  end
+
   self.frame:Show()
 end
 
@@ -133,7 +164,11 @@ function bagFrame.bagProto:Hide()
   PlaySound(self.kind == const.BAG_KIND.BANK and SOUNDKIT.IG_MAINMENU_CLOSE or SOUNDKIT.IG_BACKPACK_CLOSE)
   self.frame:Hide()
   if self.kind == const.BAG_KIND.BANK then
-    CloseBankFrame()
+    if C_Bank then
+      C_Bank.CloseBankFrame()
+    else
+      CloseBankFrame()
+    end
   elseif self.kind == const.BAG_KIND.BACKPACK then
     self.searchFrame:Hide()
   end
@@ -262,37 +297,69 @@ function bagFrame.bagProto:SetTitle(text)
   themes:SetTitle(self.frame, text)
 end
 
-function bagFrame.bagProto:ToggleReagentBank()
-  local ctx = context:New()
-  -- This should never happen, but just in case!
-  if self.kind == const.BAG_KIND.BACKPACK then return end
-  self.isReagentBank = not self.isReagentBank
-  items:ClearBankCache()
-  if self.isReagentBank then
-    BankFrame.selectedTab = 2
-    self:SetTitle(L:G("Reagent Bank"))
-    self.currentItemCount = -1
-    --self:ClearRecentItems()
-    self:Wipe()
-    ctx:Set('wipe', true)
-    items:RefreshReagentBank(ctx)
-  else
-    BankFrame.selectedTab = 1
-    self:SetTitle(L:G("Bank"))
-    self.currentItemCount = -1
-    --self:ClearRecentItems()
-    self:Wipe()
-    ctx:Set('wipe', true)
-    items:RefreshBank(ctx)
-  end
-end
-
 function bagFrame.bagProto:SwitchToBank()
-  if self.kind == const.BAG_KIND.BACKPACK then return end
-  self.isReagentBank = false
+  local ctx = context:New()
+  self.bankTab = const.BANK_TAB.BANK
   BankFrame.selectedTab = 1
   self:SetTitle(L:G("Bank"))
-  items:ClearBankCache()
+  self.currentItemCount = -1
+  BankFrame.activeTabIndex = 1
+  AccountBankPanel.selectedTabID = nil
+  self:Wipe()
+  ctx:Set('wipe', true)
+  items:RefreshBank(ctx)
+end
+
+function bagFrame.bagProto:SwitchToReagentBank()
+  local ctx = context:New()
+  if not IsReagentBankUnlocked() then
+    StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
+    return false
+  end
+  self.bankTab = const.BANK_TAB.REAGENT
+  BankFrame.selectedTab = 2
+  self:SetTitle(L:G("Reagent Bank"))
+  self.currentItemCount = -1
+  BankFrame.activeTabIndex = 1
+  AccountBankPanel.selectedTabID = nil
+  self:Wipe()
+  ctx:Set('wipe', true)
+  items:RefreshBank(ctx)
+  return true
+end
+
+---@param tabIndex number
+---@return boolean
+function bagFrame.bagProto:SwitchToAccountBank(tabIndex)
+  local ctx = context:New()
+  self.bankTab = tabIndex
+  BankFrame.selectedTab = 1
+  BankFrame.activeTabIndex = 3
+  local tabData = C_Bank.FetchPurchasedBankTabData(Enum.BankType.Account)
+  for _, data in pairs(tabData) do
+    if data.ID == tabIndex then
+      AccountBankPanel.selectedTabID = data.ID
+      break
+    end
+  end
+  self:SetTitle(ACCOUNT_BANK_PANEL_TITLE)
+  self.currentItemCount = -1
+  self:Wipe()
+  ctx:Set('wipe', true)
+  items:RefreshBank(ctx)
+  return true
+end
+
+function bagFrame.bagProto:SwitchToBankAndWipe()
+  if self.kind == const.BAG_KIND.BACKPACK then return end
+  local ctx = context:New()
+  ctx:Set('wipe', true)
+  self.tabs:SetTab("Bank")
+  self.bankTab = const.BANK_TAB.BANK
+  BankFrame.selectedTab = 1
+  BankFrame.activeTabIndex = 1
+  self:SetTitle(L:G("Bank"))
+  items:ClearBankCache(ctx)
   self:Wipe()
 end
 
@@ -355,7 +422,7 @@ function bagFrame:Create(kind)
   b.currentItemCount = 0
   b.drawOnClose = false
   b.drawAfterCombat = false
-  b.isReagentBank = false
+  b.bankTab = const.BANK_TAB.BANK
   b.sections = {}
   b.toRelease = {}
   b.toReleaseSections = {}
@@ -429,7 +496,6 @@ function bagFrame:Create(kind)
   b.slots = slots
 
   if kind == const.BAG_KIND.BACKPACK then
-    -- print("search frame made")
     b.searchFrame = search:Create(b.frame)
   end
 
@@ -441,6 +507,30 @@ function bagFrame:Create(kind)
     b.themeConfigFrame = themeConfig:Create(b.sideAnchor)
     b.windowGrouping:AddWindow('themeConfig', b.themeConfigFrame)
     b.windowGrouping:AddWindow('currencyConfig', b.currencyFrame)
+  end
+
+  if kind == const.BAG_KIND.BANK then
+    b.tabs = tabs:Create(b.frame)
+    b.tabs:AddTab("Bank")
+    b.tabs:AddTab("Reagent Bank")
+
+    b.tabs:SetTab("Bank")
+
+    b.tabs:SetClickHandler(function(tabIndex)
+      if tabIndex == 1 then
+        b:SwitchToBank()
+      elseif tabIndex == 2 then
+        return b:SwitchToReagentBank()
+      else
+        b:SwitchToAccountBank(tabIndex)
+      end
+      return true
+    end)
+    -- BANK_TAB_SETTINGS_UPDATED
+    -- BANK_TABS_CHANGED
+    events:RegisterEvent('PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED', function()
+      b:GenerateWarbankTabs()
+    end)
   end
 
   b.sectionConfigFrame = sectionConfig:Create(kind, b.sideAnchor)
