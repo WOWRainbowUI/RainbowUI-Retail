@@ -130,9 +130,9 @@ local function handleUnitFramePortraitUpdate(self)
   elseif self.unit == "pet" then
     healthBar = PetFrameHealthBar
   elseif self.unit == "target" then
-    healthBar = TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar
+    healthBar = TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar
   elseif self.unit == "focus" then
-    healthBar = FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar
+    healthBar = FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar
   elseif self.unit == "vehicle" then
     healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar
   end
