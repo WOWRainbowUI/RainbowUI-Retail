@@ -43,15 +43,13 @@ local rhToys = {
 --------------------------------------------------------------------
 -- Options panel
 --------------------------------------------------------------------
-
 local rhOptionsPanel = CreateFrame("Frame")
 rhOptionsPanel.name = "Random Hearthstone"
-rhOptionsPanel.okay = function() optionsOkay(); end
-rhOptionsPanel.cancel = function() optionsCancel(); end
--- InterfaceOptions_AddCategory(rhOptionsPanel)
-local category = Settings.RegisterCanvasLayoutCategory(rhOptionsPanel, rhOptionsPanel.name)
-category.ID = "RandomHearth"
-Settings.RegisterAddOnCategory(category)
+rhOptionsPanel.OnCommit = function() optionsOkay(); end
+rhOptionsPanel.OnDefault = function() end
+rhOptionsPanel.OnRefresh = function() end
+local rhCategory = Settings.RegisterCanvasLayoutCategory(rhOptionsPanel, "Random Hearthstone")
+Settings.RegisterAddOnCategory(rhCategory)
 
 -- Title
 local rhTitle = CreateFrame("Frame",nil, rhOptionsPanel)
@@ -348,5 +346,10 @@ end
 --------------------------------------------------------------------
 SLASH_RandomHearthstone1 = "/rh"
 function SlashCmdList.RandomHearthstone(msg, editbox)
-Settings.OpenToCategory("RandomHearth")
+Settings.OpenToCategory(rhCategory:GetID())
 end
+
+--[[
+	Ignore this, it's for future me when Blizz breaks things again:
+	/Interface/SharedXML/Settings/Blizzard_Settings.lua
+]]
