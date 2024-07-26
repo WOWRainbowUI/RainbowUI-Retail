@@ -1045,7 +1045,7 @@ D["GladiatorlosSA2"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_GLADIATORLOSSA"]("gui") end,
+        callback = function(cfg, v, loading) Settings.OpenToCategory("PvP 技能語音") end,
     },
 	{
 		type = "text",
@@ -2143,15 +2143,11 @@ D["SimpleAddonManager"] = {
     },
 };
 D["SimpleItemLevel"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "ITEM" },
-	title = "顯示物品等級",
-	desc = "在角色視窗的裝備欄位、背包和浮動提示資訊中顯示物品等級數字，大小、位置都可以調整。``|cffFF2D2D特別注意: '裝備觀察' 插件也有顯示物品等級的功能，如果發現兩個重疊的物品等級數字，建議在 '裝備觀察' 插件的設定中關閉相關選項 (例如角色視窗、背包...)。`",
+	title = "(請刪除) 顯示物品等級",
+	desc = "|cffFF2D2D'裝備觀察' 插件已有顯示物品等級的功能，不再需要這個插件。|r``請刪除 AddOns 裡面的 SimpleItemLevel 資料夾。`",
 	icon = "Interface\\Icons\\achievement_garrisonfollower_itemlevel600",
-	{
-        text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["SIMPLEITEMLEVEL"]("") end,
-    },
 };
 D["SimpleVignette"] = {
     defaultEnable = 0,
@@ -2380,12 +2376,6 @@ D["TinyChat"] = {
 	},
 };
 D["TinyInspect"] = {
-    defaultEnable = 0,
-	tags = { "ITEM" },
-	title = "(請刪除) 裝備觀察",
-	desc = "這是舊的插件，已改用另一個裝備觀察插件。``請刪除舊的資料夾 (AddOns 裡面的 TinyInspect) 以避免發生衝突。`",
-};
-D["TinyInspect-Reforged"] = {
     defaultEnable = 1,
 	tags = { "ITEM" },
 	title = "裝備觀察",
@@ -2396,6 +2386,12 @@ D["TinyInspect-Reforged"] = {
         text = "設定選項",
         callback = function(cfg, v, loading) SlashCmdList["TinyInspect"]("") end,
     },
+};
+D["TinyInspect-Reforged"] = {
+    defaultEnable = 1,
+	tags = { "ITEM" },
+	title = "(請刪除) 裝備觀察",
+	desc = "|cffFF2D2D這是舊的插件，已改用另一個裝備觀察插件。|r``請刪除 AddOns 裡面的 TinyInspect-Reforged 資料夾，以避免發生衝突。`",
 };
 D["TinyTooltip"] = {
     defaultEnable = 0,
