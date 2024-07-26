@@ -1,10 +1,10 @@
-﻿## Interface: 100207
+﻿## Interface: 110000
 ## Title: GladiatorlosSA
 ## Notes: PvP Sound Alerter
-## Author: xGrit
+## Author: Mulvark
 ## IconTexture: interface\icons\spell_misc_emotionangry.blp
 ## SavedVariables: GladiatorlosSADB
-## Version: 4.4
+## Version: TWWB1
 
 ## Title-zhTW: |cffFF0000[PvP]|r 敵方技能監控 (語音)
 ## Notes-zhTW: GladiatorlosSA |n|n用語音報出敵方玩家正在施放的技能。|n|n|cffffd200使用方法: |r從Esc>選項>插件>PvP技能語音，進行設定。
