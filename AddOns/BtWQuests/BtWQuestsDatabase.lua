@@ -950,7 +950,7 @@ function ChainMixin:GetSubtext(character, small)
 end
 function ChainMixin:GetLink()
     if self.link == nil then
-        self.link = format("\124cffffff00\124Hbtwquests:chain:%s\124h[%s]\124h\124r", self:GetID(), self:GetName())
+        self.link = format("\124cffffff00\124Hgarrmission:btwquests:chain:%s\124h[%s]\124h\124r", self:GetID(), self:GetName())
     end
 
     return self.link
@@ -1125,7 +1125,7 @@ function CategoryMixin:GetParent()
 end
 function CategoryMixin:GetLink()
     if self.link == nil then
-        self.link = format("\124cffffff00\124Hbtwquests:category:%s\124h[%s]\124h\124r", self:GetID(), self:GetName())
+        self.link = format("\124cffffff00\124Hgarrmission:btwquests:category:%s\124h[%s]\124h\124r", self:GetID(), self:GetName())
     end
 
     return self.link
@@ -1290,7 +1290,7 @@ end
 local ExpansionMixin = CreateFromMixins(CategoryMixin);
 function ExpansionMixin:GetLink()
     if self.link == nil then
-        self.link = format("\124cffffff00\124Hbtwquests:expansion:%s\124h[%s]\124h\124r", self:GetID(), self:GetName())
+        self.link = format("\124cffffff00\124Hgarrmission:btwquests:expansion:%s\124h[%s]\124h\124r", self:GetID(), self:GetName())
     end
 
     return self.link

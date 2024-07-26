@@ -1,3 +1,7 @@
+# v2.43.1
+
+- Fixed an issue that prevented copying outfits from the Dressing Room and possibly other "Blocked by addon" issues
+
 # v2.43.0
 
 - Updated for 11.0.0
