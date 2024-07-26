@@ -5,7 +5,9 @@ XIVBar.Changelog[3020] = {
     release_date = "2024/07/25",
     important = {
         ["zhCN"] = {},
-        ["zhTW"] = {},
+        ["zhTW"] = {
+            "[正式版] 修正 11.0.0 的 [貨幣] 模組。",
+        },
         ["enUS"] = {
             "[Retail] [Currency] module fix for Retail 11.0.0.",
         },
