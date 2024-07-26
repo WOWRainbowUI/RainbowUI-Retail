@@ -192,7 +192,7 @@ end, textInit)
 Baganator.API.RegisterCornerWidget(BAGANATOR_L_QUANTITY, "quantity", function(_, details)
   return details.itemCount > 1
 end, function(itemButton)
-  itemButton.Count.sizeFont = true
+  itemButton.Count.sizeFont = false -- 自行修改，不調整物品數量文字大小
   return itemButton.Count
 end)
 
