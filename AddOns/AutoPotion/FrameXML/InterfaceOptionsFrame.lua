@@ -166,15 +166,15 @@ function panel:updatePrio()
 end
 
 function panel:InitializeOptions()
-	self.panel = CreateFrame("Frame", "Auto Potion", InterfaceOptionsFramePanelContainer)
+	self.panel = CreateFrame("Frame", addonName, InterfaceOptionsFramePanelContainer)
 	---@diagnostic disable-next-line: inject-field
 	self.panel.name = "一鍵吃糖"
 	if InterfaceOptions_AddCategory then
 		InterfaceOptions_AddCategory(self.panel)
 	else
 		local category = Settings.RegisterCanvasLayoutCategory(self.panel, self.panel.name);
-		category.ID = self.panel.name
 		Settings.RegisterAddOnCategory(category);
+		self.panel.categoryID = category:GetID() -- for OpenToCategory use
 	end
 
 	-------------  HEADER  -------------
@@ -343,5 +343,10 @@ SLASH_HAM3 = "/ap"
 SLASH_HAM4 = "/autopotion"
 
 SlashCmdList.HAM = function(msg, editBox)
-	Settings.OpenToCategory(panel.panel.name)
+	if InterfaceOptions_AddCategory then
+		InterfaceOptionsFrame_OpenToCategory(panel.panel.name)
+	else
+		local settingsCategoryID = _G[addonName].categoryID
+		Settings.OpenToCategory(settingsCategoryID)
+	end
 end
