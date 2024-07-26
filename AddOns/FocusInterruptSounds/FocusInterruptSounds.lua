@@ -59,11 +59,7 @@ local DEFAULT_BLACKLIST =
 ]];
 
 local DEFAULT_LOW_PRIORITY_SPELLS =
-[[; Shadowlands
-323538; HoA Bolt of Power
-322767; MoTS Spirit Bolt
-330784; ToP Necrotic Bolt
-; Dragonflight S1
+[[; Dragonflight S1
 152814; SBG Shadow Bolt
 397888; TotJS Hydrolance
 388862; AA Surge
@@ -143,39 +139,7 @@ local DEFAULT_ARENA_PURGE =
 ]];
 
 local DEFAULT_PVE_PURGE =
-[[; Shadowlands
-317936; SoA Forsworn Doctrine
-320272; ToP Spectral Transference
-322433; SD Stoneskin
-324776; MoTS Bramblethorn Coat
-324914; MoTS Nourish the Forest
-326046; MoTS Stimulate Resistance
-326607; HoA Turn to Stone
-327332; SoA Imbue Weapon
-327655; SoA Infuse Weapon
-328015; PF Wonder Grow
-328288; SoA Bless Weapon
-333875; DoS Death's Embrace
-335141; NW Dark Shroud
-341902; ToP Unholy Fervor
-344739; DoS Spectral
-355980; T:SoW Refraction Shield
-355934; T:SoW Hard Light Barrier
-349933; T:SoW Flagellation Protocol
-347775; T:SoW Spam Filter
-357284; T:GMBT Reinvigorate
-300514; M:JY Stoneskin
-301629; M:JY Enlarge
-299588; M:JY Overclock
-303941; M:JY Defensive Countermeasure
-293930; M:WKSP Overclock
-297133; M:WKSP Defensive Countermeasure
-164426; ID Reckless Provocation
-166335; GRD Storm Shield
-227987; KZN:L Dinner Bell
-228280; KZN:L Oath of Fealty
-228225; KZN:L Sultry Heat
-; Dragonflight
+[[; Dragonflight
 395820; VoI Frost Barrier
 385063; RS Burning Ambition
 373972; RS Blaze of Glory
@@ -1059,14 +1023,26 @@ function FocusInterruptSounds:FIsPlayerSpellAvailable(strSpellName)
 	end
 
 	-- Verify that the spell isn't on cooldown
-	local iStartTime, _, fSpellEnabled = GetSpellCooldown(strSpellName);
+	-- local iStartTime, _, fSpellEnabled = GetSpellCooldown(strSpellName);
+	local iStartTime, fSpellEnabled 
+	local spellCooldownInfo = C_Spell.GetSpellCooldown(strSpellName);
+	if spellCooldownInfo then
+		iStartTime = spellCooldownInfo.startTime
+		fSpellEnabled = spellCooldownInfo.isEnabled
+	end
 	if (iStartTime ~= 0 or not fSpellEnabled) then
 		-- self:CheckAndPrintMessage(strSpellName .. " on CD");
 		return false;
 	end
 
 	-- Verify display name (if applicable) and mana/energy
-	local strSpellDisplayName, _, _, iCost, _, _, _, _, _ = GetSpellInfo(strSpellName);
+	-- local strSpellDisplayName, _, _, iCost, _, _, _, _, _ = GetSpellInfo(strSpellName);
+	local strSpellDisplayName, iCost -- 暫時修正
+	local spellInfo = C_Spell.GetSpellInfo(strSpellName)
+	if spellInfo then
+		strSpellDisplayName = spellInfo.name
+		iCost = spellInfo.castTime
+	end
 	if (nil ~= strSpellDisplayNameVerify and strSpellDisplayNameVerify ~= strSpellDisplayName) then
 		-- self:CheckAndPrintMessage(strSpellName .. " has DN " .. strSpellDisplayName .. " but not " .. strSpellDisplayNameVerify);
 		return false
@@ -1245,7 +1221,7 @@ function FocusInterruptSounds:COMBAT_LOG_EVENT_UNFILTERED(event)
 			end
 
 			if (nil ~= strChannel) then
-				SendChatMessage("[斷法] 已打斷 " .. strDestName .. " 的 " .. GetSpellLink(varParam4), strChannel);
+				SendChatMessage("[斷法] 已打斷 " .. strDestName .. " 的 " .. C_Spell.GetSpellLink(varParam4), strChannel);
 			end
 		end
 		fHandled = true;
