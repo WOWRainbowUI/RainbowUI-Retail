@@ -1,6 +1,7 @@
 # NameplateSCT
 
-## [1.40](https://github.com/Justw8/NameplateSCT/tree/1.40) (2024-07-25)
-[Full Changelog](https://github.com/Justw8/NameplateSCT/compare/1.39...1.40) [Previous Releases](https://github.com/Justw8/NameplateSCT/releases)
+## [1.41](https://github.com/Justw8/NameplateSCT/tree/1.41) (2024-07-26)
+[Full Changelog](https://github.com/Justw8/NameplateSCT/compare/1.40...1.41) [Previous Releases](https://github.com/Justw8/NameplateSCT/releases)
 
-- Fix /nsct chat command  
+- Tweak Overkill Display  
+- Update zhCN.lua (#46)  

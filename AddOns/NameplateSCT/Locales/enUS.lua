@@ -1,6 +1,7 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("NameplateSCT", "enUS", true)
 
 L["%s (A: %s)"] = true -- A for Absorb
+L["%s (O: %s)"] = true -- O for Overkill
 L["Abilities"] = true
 L["Absorbed"] = true
 L["Alpha"] = true
@@ -42,6 +43,7 @@ L["Embiggen Miss/Parry/Dodge/etc"] = true
 L["Enable Masque"] = true
 L["Enable"] = true
 L["Evaded"] = true
+L["Filters"] = true
 L["Font Flags"] = true
 L["Font"] = true
 L["Fountain"] = true
