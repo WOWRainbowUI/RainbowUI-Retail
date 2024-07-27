@@ -1603,6 +1603,5 @@ end
 SLASH_OmniBar1 = "/ob"
 SLASH_OmniBar2 = "/omnibar"
 SlashCmdList.OmniBar = function()
-	InterfaceOptionsFrame_OpenToCategory(L["OmniBar"])
-	InterfaceOptionsFrame_OpenToCategory(L["OmniBar"])
+	Settings.OpenToCategory(L["OmniBar"])
 end
