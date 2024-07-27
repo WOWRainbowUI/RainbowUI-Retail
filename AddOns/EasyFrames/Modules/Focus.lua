@@ -198,7 +198,7 @@ function Focus:ShowNameInsideFrame(value)
             healthBar.RightText,
             healthBar.LeftText,
             healthBar.TextString,
-            healthBar.DeadText
+            focusFrameContentMain.HealthBarsContainer.DeadText
         }
 
         for _, healthBarText in pairs(HealthBarTexts) do

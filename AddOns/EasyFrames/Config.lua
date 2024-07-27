@@ -4914,7 +4914,7 @@ local bossOptions = {
 }
 
 function EasyFrames:ChatCommand(input)
-    Settings.OpenToCategory(L["Easy Frames"])
+    Settings.OpenToCategory(EasyFrames.optFrames.EasyFrames.name)
 end
 
 function EasyFrames:SetupOptions()

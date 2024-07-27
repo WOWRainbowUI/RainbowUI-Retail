@@ -198,7 +198,7 @@ function Target:ShowNameInsideFrame(value)
             healthBar.RightText,
             healthBar.LeftText,
             healthBar.TextString,
-            healthBar.DeadText
+            targetFrameContentMain.HealthBarsContainer.DeadText
         }
 
         for _, healthBarText in pairs(HealthBarTexts) do

@@ -613,7 +613,7 @@ function Core:MovePlayerFrameBars(isVehicle)
         healthBar.MyHealPredictionBar:SetParent(PlayerFrame)
         healthBar.OtherHealPredictionBar:SetParent(PlayerFrame)
 
-        healthBar.HealthBarMask:Hide()
+        PlayerFrame_GetHealthBarContainer().HealthBarMask:Hide()
 
         self:MoveRegion(healthBar, "CENTER", PlayerFrame, "CENTER", 27, 9)
 
@@ -648,7 +648,7 @@ function Core:MovePlayerFrameBars(isVehicle)
         self:MoveRegion(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PrestigeBadge, "CENTER", PlayerFrame, "CENTER", -97, 7)
     else
         healthBar:SetParent(playerFrameContentMain.HealthBarsContainer)
-        healthBar.HealthBarMask:Show()
+        PlayerFrame_GetHealthBarContainer().HealthBarMask:Show()
 
         self:MoveRegion(healthBar, "TOPLEFT", playerFrameContentMain.HealthBarsContainer, "TOPLEFT", 91, -40)
 
@@ -690,7 +690,7 @@ function Core:MoveTargetFrameBars()
     originHealthBar.HealAbsorbBar:SetAlpha(0)
 
     self:MoveRegion(localHealthBar, "CENTER", TargetFrame, "CENTER", -27, 9)
-    self:MoveRegion(originHealthBar.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0)
+    self:MoveRegion(targetFrameContentMain.HealthBarsContainer.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0)
 
     numericalThreat:SetScale(0.9)
     self:MoveRegion(numericalThreat, "CENTER", TargetFrame, "CENTER", 44, 48)
@@ -739,7 +739,7 @@ function Core:MoveFocusFrameBars()
     originHealthBar.HealAbsorbBar:SetAlpha(0)
 
     self:MoveRegion(localHealthBar, "CENTER", FocusFrame, "CENTER", -27, 9)
-    self:MoveRegion(originHealthBar.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0)
+    self:MoveRegion(focusFrameContentMain.HealthBarsContainer.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0)
 
     numericalThreat:SetScale(0.9)
     self:MoveRegion(numericalThreat, "CENTER", FocusFrame, "CENTER", 44, 48)
