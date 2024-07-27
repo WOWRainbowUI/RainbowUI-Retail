@@ -1,5 +1,5 @@
 ## Interface: 11503, 30403, 40400, 110000
-## Version: 2.1.1
+## Version: 2.1.2
 ## Title: - |cffffe568F|r|cffffffffinal|r |cffffe568F|r|cffffffffantasy|r |cffffe568L|r|cffffffffevel|r |cffffe568U|r|cffffffffp!|r - |cff8080ff2.1.1|r 
 ## Notes: Play the Final Fantasy level up sound!.|n|r   |cffffe568By Uivi US-BleedingHollow|r
 ## Author: DonnieDice

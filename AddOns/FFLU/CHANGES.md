@@ -1,1 +1,2 @@
-- Updated - [release.yml]
+- Updated - ToC for _classic_era_ - Season of Discovery Phase 4 (1.15.3.55646) [ToC.11503]
+- Updated - ToC for _retail_ - TWW Pre-Patch (11.0.0.55793) [ToC.110000]
