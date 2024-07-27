@@ -2,6 +2,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale("NameplateSCT", "zhTW")
 if not L then return end
 
 --L["%s (A: %s)"] = "%s (A: %s)" -- A for Absorb
+--L["%s (O: %s)"] = "%s (O: %s)" -- O for Overkill
 L["Abilities"] = "技能"
 L["Absorbed"] = "吸收"
 L["Alpha"] = "透明度"
@@ -43,6 +44,7 @@ L["Embiggen Miss/Parry/Dodge/etc"] = "放大未擊中/格擋/閃躲...等等"
 L["Enable Masque"] = "啟用按鈕外觀插件"
 L["Enable"] = "啟用"
 L["Evaded"] = "迴避"
+L["Filters"] = "過濾法術"
 L["Font Flags"] = "文字樣式"
 L["Font"] = "字體"
 L["Fountain"] = "潮吹噴泉"
@@ -128,5 +130,3 @@ L["YOUR ENEMY NAMEPLATES ARE DISABLED, NAMEPLATESCT WILL NOT WORK!!"] = "敵方�
 -- 自行加入
 L["NameplateSCT"] = "戰鬥-浮動文字"
 L["Nameplate Scrolling Combat Text"] = "血條浮動戰鬥文字"
-L[" Overkill("] = " 過量傷害("
-L["Filters"] = "過濾法術"
