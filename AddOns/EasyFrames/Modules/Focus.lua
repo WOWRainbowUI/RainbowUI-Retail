@@ -57,7 +57,7 @@ function Focus:OnEnable()
     self:SetAttackBackgroundOpacity(db.focus.attackBackgroundOpacity)
     self:ShowPVPIcon(db.focus.showPVPIcon)
 
-    hooksecurefunc(focusFrameContentMain.HealthBar, "UpdateTextString", function()
+    hooksecurefunc(focusFrameContentMain.HealthBarsContainer.HealthBar, "UpdateTextString", function()
         self:UpdateHealthBarTextString(FocusFrame)
     end)
 
@@ -147,7 +147,7 @@ end
 function Focus:UpdateHealthBarTextString(frame)
     if (frame.unit == "focus") then
         UpdateHealthValues(
-            focusFrameContentMain.HealthBar,
+            focusFrameContentMain.HealthBarsContainer.HealthBar,
             db.focus.healthFormat,
             db.focus.customHealthFormat,
             db.focus.customHealthFormatFormulas,
@@ -192,13 +192,13 @@ function Focus:ShowNameInsideFrame(value)
     if db.general.useEFTextures then
         local Core = EasyFrames:GetModule("Core")
 
-        local healthBar = focusFrameContentMain.HealthBar
+        local healthBar = focusFrameContentMain.HealthBarsContainer.HealthBar
 
         local HealthBarTexts = {
             healthBar.RightText,
             healthBar.LeftText,
             healthBar.TextString,
-            healthBar.DeadText
+            focusFrameContentMain.HealthBarsContainer.DeadText
         }
 
         for _, healthBarText in pairs(HealthBarTexts) do
@@ -222,7 +222,7 @@ function Focus:SetHealthBarsFont()
     local fontFamily = Media:Fetch("font", db.focus.healthBarFontFamily)
     local fontStyle = db.focus.healthBarFontStyle
 
-    local healthBar = focusFrameContentMain.HealthBar
+    local healthBar = focusFrameContentMain.HealthBarsContainer.HealthBar
 
     healthBar.TextString:SetFont(fontFamily, fontSize, fontStyle)
     healthBar.RightText:SetFont(fontFamily, fontSize, fontStyle)

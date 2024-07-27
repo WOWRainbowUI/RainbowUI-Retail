@@ -220,9 +220,9 @@ function General:MakeFramesColored(statusbar, unit)
 
     if (UnitIsConnected(unit) and unit == statusbar.unit) then
         -- Ovrerwrite to local.
-        if (db.general.useEFTextures and statusbar == TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar) then
+        if (db.general.useEFTextures and statusbar == TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar) then
             ClassColored(statusbar, unit, GetTargetHealthBar())
-        elseif (db.general.useEFTextures and statusbar == FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar) then
+        elseif (db.general.useEFTextures and statusbar == FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar) then
             ClassColored(statusbar, unit, GetFocusHealthBar())
         else
             -- Old (normal) behavior.
