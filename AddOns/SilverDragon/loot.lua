@@ -990,6 +990,7 @@ do
 	ns.Loot.Window.Get = GetWindow
 
 	ns.Loot.Window.Release = function(window)
+		if not window then return end
 		-- this will hide / clearallpoints / clearloot the window
 		if not window then return end -- 暫時修正
 		windowPool:Release(window)
