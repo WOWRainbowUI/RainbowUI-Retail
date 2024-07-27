@@ -104,8 +104,6 @@ function Addon.EnableGuideMode(noZoom)
         main.toolbar.toggleButton:GetScript("OnClick")()
     end
 
-    MDT:ToggleBoralusSelector()
-
     -- Adjust enemy info frame
     if MDT.EnemyInfoFrame and MDT.EnemyInfoFrame:IsShown() then
         Addon.AdjustEnemyInfo()

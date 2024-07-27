@@ -1,8 +1,8 @@
-## Interface: 100207
+## Interface: 110000
 ## Title: MDTGuide
 ## Notes: Guide mode for Mythic Dungeon Tools.
 ## Notes-deDE: Guide-Modus für Mythic Dungeon Tools.
-## Version: 1.29
+## Version: 1.30
 ## OptionalDeps: MythicDungeonTools
 ## SavedVariables: MDTGuideDB, MDTGuideActive, MDTGuideOptions
 
