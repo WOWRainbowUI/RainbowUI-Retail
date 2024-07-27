@@ -116,12 +116,12 @@ function addon:EnableAddon()
 		--	InterfaceOptionsFrame:Show() --has to be here to load the about frame onLoad
 		-- end
 		-- InterfaceOptionsFrame_OpenToCategory(addon.aboutPanel) --force the panel to show
-		Settings.OpenToCategory("xanSoundAlerts")
+		Settings.OpenToCategory(addon.aboutPanel.name)
 	end
 
 	if addon.configFrame then addon.configFrame:EnableConfig() end
 
-	-- local ver = GetAddOnMetadata(ADDON_NAME,"Version") or '1.0'
+	-- local ver = C_AddOns.GetAddOnMetadata(ADDON_NAME,"Version") or '1.0'
 	-- DEFAULT_CHAT_FRAME:AddMessage(string.format("|cFF99CC33%s|r [v|cFF20ff20%s|r] loaded:   /xsa", ADDON_NAME, ver or "1.0"))
 end
 

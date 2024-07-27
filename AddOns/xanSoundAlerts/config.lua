@@ -133,11 +133,15 @@ local function LoadAboutFrame()
 			anchor = title
 		end
 	end
-	
-	-- InterfaceOptions_AddCategory(about)
-	local category = Settings.RegisterCanvasLayoutCategory(about, about.name)
-	category.ID = "xanSoundAlerts"
-	Settings.RegisterAddOnCategory(category)
+
+	if InterfaceOptions_AddCategory then
+		InterfaceOptions_AddCategory(about)
+	else
+		local category, layout = _G.Settings.RegisterCanvasLayoutCategory(about, about.name);
+		_G.Settings.RegisterAddOnCategory(category);
+		category.ID = about.name
+		addon.settingsCategory = category
+	end
 
 	return about
 end
