@@ -1,3 +1,8 @@
+07/26/2024 version 5.2.2
+- Fix for option Keep Companion not working
+- Fix for potential lua errors when the window appears under the mouse
+- Fix for potential lua errors when window layout changes
+
 07/24/2024 version 5.2.1
 - Fix for blank window due to compatability issues with PetTracker version 10.2.7 (by removing breed support for that specific version--an update to PetTracker's version should attempt to use it again for breed data)
 - Fix for error when filtering pets by Strong Vs when it encounters an ability without a type (like abilityID 931 Croak)
