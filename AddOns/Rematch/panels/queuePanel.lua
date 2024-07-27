@@ -241,7 +241,7 @@ function rematch.queuePanel.List.GlowFrame:OnUpdate(elapsed)
     self.GlowLine.direction = nil -- potentially one of C.DRAG_DIRECTION_PREV/NEXT/END
 
     if MouseIsOver(self) then
-        if focus.petID then
+        if focus and focus.petID then
             if (cursorY/scale)>centerY then -- if cursor is in top half of button, anchor to top
                 self.GlowLine:SetPoint("CENTER",focus,"TOP")
                 self.GlowLine.direction = C.DRAG_DIRECTION_PREV

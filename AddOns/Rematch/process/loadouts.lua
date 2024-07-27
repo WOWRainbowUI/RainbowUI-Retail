@@ -74,7 +74,8 @@ end
 -- started from above SlotPet, waits until GCD is over and either restores the previously summoned pet or dismisses if none out
 function rematch.loadouts:RestoreKeptCompanion()
     -- if still in GCD from the swap (or happened to go into combat during the swap) wait a little longer
-    if C_Spell.GetSpellCooldown(C.GCD_SPELL_ID)~=0 or InCombatLockdown() then
+    local info = C_Spell.GetSpellCooldown(C.GCD_SPELL_ID)
+    if info.startTime~=0 or InCombatLockdown() then
         rematch.timer:Start(0.5,rematch.loadouts.RestoreKeptCompanion)
     else -- done swapping
         local petID = C_PetJournal.GetSummonedPetGUID()
