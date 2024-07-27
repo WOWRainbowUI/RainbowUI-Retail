@@ -72,7 +72,7 @@ local function LFGListAdvancedFiltersCheckAllDungeons(enabled)
 end
 
 local function UpdateFilterRedX()
-    local redx = LFGListFrame.SearchPanel.FilterButton.ResetToDefaults;
+    local redx = LFGListFrame.SearchPanel.FilterButton.ResetButton;
     local enabled = C_LFGList.GetAdvancedFilter();
     if LFGListFrame.CategorySelection.selectedCategory ~= GROUP_FINDER_CATEGORY_ID_DUNGEONS
             or LFGListAdvancedFiltersIsDefault(enabled) then
@@ -91,7 +91,7 @@ function PGF.GetAdvancedFilterDefaults()
     enabled.hasTank = false;
     enabled.hasHealer = false;
     enabled.minimumRating = 0;
-    MinRatingFrame.MinRating:SetNumber(0);
+    --MinRatingFrame.MinRating:SetNumber(0);
     enabled.activities = {};
     LFGListAdvancedFiltersCheckAllDifficulties(enabled);
     LFGListAdvancedFiltersCheckAllDungeons(enabled);
@@ -103,7 +103,7 @@ end
 
 function PGF.SetAdvancedFilter(enabled)
     C_LFGList.SaveAdvancedFilter(enabled)
-    MinRatingFrame.MinRating:SetNumber(enabled.minimumRating)
+    --MinRatingFrame.MinRating:SetNumber(enabled.minimumRating)
     UpdateFilterRedX()
 end
 
