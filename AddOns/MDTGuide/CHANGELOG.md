@@ -1,3 +1,7 @@
+Version 1.29
+
+- Updated for patch 10.2.7
+
 Version 1.28
 
 - Updated for patch 10.2.5
