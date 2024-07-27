@@ -238,11 +238,6 @@ function BUII_OnEventHandler(self, event, arg1, ...)
       _G["BUIIOptionsPanelHideStanceBar"]:SetChecked(true)
     end
 
-    if BUIIDatabase["quick_keybind_shortcut"] then
-      BUII_QuickKeybindModeShortcutEnable()
-      _G["BUIIOptionsPanelQuickKeybindShortcut"]:SetChecked(true)
-    end
-
     if BUIIDatabase["improved_edit_mode"] then
       BUII_ImprovedEditModeEnable()
       _G["BUIIOptionsPanelImprovedEditMode"]:SetChecked(true)
