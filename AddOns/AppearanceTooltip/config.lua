@@ -207,9 +207,9 @@ do
     -- customGenderDropdown:SetPoint("TOPLEFT", customRaceDropdown, "TOPRIGHT", 4, 0)
 
     -- InterfaceOptions_AddCategory(panel)
-	local category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
-	category.ID = panel.name
-	Settings.RegisterAddOnCategory(category)
+    local category, layout = Settings.RegisterCanvasLayoutCategory(panel, panel.name, panel.name)
+    category.ID = panel.name
+    Settings.RegisterAddOnCategory(category)
 end
 
 -- Overlay config
@@ -255,14 +255,13 @@ do
     encounterjournal:SetPoint("TOPLEFT", loot, "BOTTOMLEFT", 0, -4)
 	setjournal:SetPoint("TOPLEFT", encounterjournal, "BOTTOMLEFT", 0, -4)
 
-    -- InterfaceOptions_AddCategory(panel)
-	category = Settings.GetCategory(panel.parent)
-	local subcategory = Settings.RegisterCanvasLayoutSubcategory(category, panel, panel.name)
+    local category = Settings.GetCategory(panel.parent)
+    local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, panel, panel.name, panel.name)
+    subcategory.ID = panel.name
 end
 
 -- Slash handler
 SlashCmdList.APPEARANCETOOLTIP = function(msg)
-    -- InterfaceOptionsFrame_OpenToCategory("塑形預覽")
     Settings.OpenToCategory("塑形預覽")
 end
 SLASH_APPEARANCETOOLTIP1 = "/appearancetooltip"
