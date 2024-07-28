@@ -336,7 +336,7 @@ local function InitCheckbox(parent)
     end
 end
 
-local frame = CreateFrame("Frame", nil, UIParent)
+local frame = CreateFrame("Frame")
 frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 frame.title:SetPoint("TOPLEFT", 18, -16)
 frame.title:SetText(L.Title)
