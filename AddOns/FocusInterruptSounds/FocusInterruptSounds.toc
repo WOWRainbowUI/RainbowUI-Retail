@@ -1,0 +1,16 @@
+## Interface: 100205
+
+## Title: Focus Interrupt Sounds |cff7fff7f -Ace3-|r
+## Version: 4.0
+## Author: Corg
+## X-Category: Combat
+## X-Website: https://www.curseforge.com/wow/addons/focus-interrupt-sounds
+## X-AceForum: 13375
+## Notes: Makes a sound when your focus starts casting.  Use with [target=focus] macros for interrupts (Counterspell, Spell Lock, Wind Shear, ...).
+## SavedVariables: FocusInterruptSoundsDB
+
+## OptionalDeps: Ace3
+
+embeds.xml
+
+FocusInterruptSounds.lua
