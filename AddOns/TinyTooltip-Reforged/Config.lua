@@ -2,9 +2,9 @@
 local addon = TinyTooltipReforged
  
 addon.db = {
-    version = 9.3,
+    version = 11.0,
     general = {
-        scale             = 1.1,
+        scale             = 0.9,
         mask              = true,
         bgfile            = "Blizzard Parchment",
         background        = {0, 0, 0, 0.7},
@@ -24,7 +24,7 @@ addon.db = {
         statusbarTexture  = "Blizzard",
 	statusbarTextFormat = "health/max (percent)",
         anchor            = { position = "cursor", hiddenInCombat = false, defaultInCombat = true, defaultOnUnitFrame = false, cp = "BOTTOMLEFT", p = "BOTTOMRIGHT", cx = 20, cy = 0, },        
-        alwaysShowIdInfo  = false,        
+        alwaysShowIdInfo  = true,        
         skinMoreFrames    = true,
         headerFont        = "default",
         headerFontSize    = "default",
@@ -38,7 +38,7 @@ addon.db = {
         player = {
             coloredBorder = "class",
             background = { colorfunc = "class", alpha = 0.9, },
-            anchor = { position = "inherit", hiddenInCombat = false, defaultInCombat = true, defaultOnUnitFrame = false, cp = "BOTTOM", p = "BOTTOMRIGHT", },
+            anchor = { position = "inherit", hiddenInCombat = false, defaultInCombat = false, defaultOnUnitFrame = false, cp = "BOTTOM", p = "BOTTOMRIGHT", },
             showTarget = true, 
 	    showSpec = true,
             showTargetBy = true,
@@ -81,7 +81,7 @@ addon.db = {
             coloredBorder = "reaction",
             background = { colorfunc = "default", alpha = 0.9, },
             showTarget = true,
-            showTargetBy = false,
+            showTargetBy = true,
             grayForDead = true,
             showModel = false,
             anchor = { position = "inherit", hiddenInCombat = false, defaultInCombat = false, defaultOnUnitFrame = false, cp = "BOTTOM", p = "BOTTOMRIGHT", },
@@ -107,9 +107,9 @@ addon.db = {
     item = {
         coloredItemBorder = true,
         showItemIcon = false,
-	showExpansionInformation = false,
+	showExpansionInformation = true,
 	showStackCount = false,
-        showStackCountAlt = false,
+        showStackCountAlt = true,
     },
     spell = {
         borderColor = {0.6, 0.6, 0.6, 0.8},

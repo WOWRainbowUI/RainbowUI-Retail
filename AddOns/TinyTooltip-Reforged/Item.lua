@@ -1,4 +1,3 @@
-
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 local clientVer, clientBuild, clientDate, clientToc = GetBuildInfo()
 
@@ -32,7 +31,7 @@ end
 
 local function ItemIcon(tip, link)
     if (addon.db.item.showItemIcon) then
-        local texture = select(10, GetItemInfo(link))
+        local texture = select(10, C_Item.GetItemInfo(link))
         local text = addon:GetLine(tip,1):GetText()
         if (texture and not strfind(text, "^|T")) then
             addon:GetLine(tip,1):SetFormattedText("|T%s:16:16:0:0:32:32:2:30:2:30|t %s", texture, text)
@@ -42,7 +41,7 @@ end
 
 local stacks = setmetatable({}, {
     __index = function(t,i)
-        local _, _, _, _, _, _, _, stack = GetItemInfo(i)
+        local _, _, _, _, _, _, _, stack = C_Item.GetItemInfo(i)
         t[i] = stack
         return stack
     end
@@ -50,7 +49,7 @@ local stacks = setmetatable({}, {
 
 local function ItemStackCount(tip, link)
     if (addon.db.item.showStackCount) then
-        local stackCount = select(8, GetItemInfo(link))
+        local stackCount = select(8, C_Item.GetItemInfo(link))
         if (stackCount and stackCount > 1) then        
             local text = addon:GetLine(tip,1):GetText() .. format(" |cff00eeee/%s|r", stackCount)
             addon:GetLine(tip,1):SetText(text)
@@ -60,13 +59,15 @@ local function ItemStackCount(tip, link)
         local stack = stacks[link]
         if (stack and stack > 1) then
             tip:AddLine(format("Stack Size: |cff00eeee%d|r",stack))
+	    tip:Show()
         end 
     end
 end
 
 LibEvent:attachTrigger("tooltip:item", function(self, tip, link)
-    local quality = select(3, GetItemInfo(link)) or 0
-    local r, g, b = GetItemQualityColor(quality)
+    local quality = select(3, C_Item.GetItemInfo(link)) or 0
+    local name = select(1, C_Item.GetItemInfo(link)) or 0
+    local r, g, b = C_Item.GetItemQualityColor(quality)
     ColorBorder(tip, r, g, b)
     ItemStackCount(tip, link)
     ItemIcon(tip, link)

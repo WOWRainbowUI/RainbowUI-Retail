@@ -1,9 +1,11 @@
-## Interface: 100207
+## Interface: 100207, 110000
+
 ## Title: TinyTooltip-Reforged |cFF69CCF0by Beezer|r
-## Notes: |cff4488ffTinyTooltip (Reforged)|r v9.3|n Options use /ttr|n Reset use /ttr reset
+## Description: |cff4488ffTinyTooltip (Reforged)|r|n Options use /ttr|n Reset use /ttr reset
+## Notes: |cff4488ffTinyTooltip (Reforged)|r|n Options use /ttr|n Reset use /ttr reset
 ## Author: Beezer
-## Version: 9.4
-## SavedVariables: BigTipReforgedDB
+## Version: 11.0
+## SavedVariables: TinyTooltipReforgedDB
 ## SavedVariablesPerCharacter: TinyTooltipReforgedCharacterDB
 ## X-Category: Tooltip
 ## IconTexture: Interface\AddOns\TinyTooltip-Reforged\images\Icon.tga
@@ -24,7 +26,7 @@ LinkID.lua
 Mount.lua
 SkinFrames.lua
 ExpansionInfo.lua
+Options.lua
 
 libs\Template.xml
 locales\locales.xml
-Options.lua

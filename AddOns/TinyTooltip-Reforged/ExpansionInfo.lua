@@ -40,7 +40,7 @@ function AddExpansionInfo(tooltip, data)
     if (data.type == Enum.TooltipDataType.Item) then
         local itemName, itemLink, itemID = TooltipUtil.GetDisplayedItem(tooltip)
         if (not itemLink) then return end
-        local expID = select(15, GetItemInfo(itemLink))
+        local expID = select(15, C_Item.GetItemInfo(itemLink))
         local itemID, bonusIDList, bonusIDCount = addon:ParseItemLink(itemLink, true)
         if (not expID) then return end
         if (expID > 0) then
