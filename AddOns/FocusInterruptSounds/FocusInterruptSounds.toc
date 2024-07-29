@@ -1,4 +1,4 @@
-## Interface: 100205
+## Interface: 110000
 
 ## Title: Focus Interrupt Sounds |cff7fff7f -Ace3-|r
 ## Version: 4.0
