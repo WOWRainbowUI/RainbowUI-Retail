@@ -152,7 +152,7 @@ addonTable.Config.Defaults = {
   [addonTable.Config.Options.CATEGORY_HIDDEN] = {},
   [addonTable.Config.Options.CATEGORY_SECTION_TOGGLED] = {},
   [addonTable.Config.Options.CATEGORY_HORIZONTAL_SPACING] = 0.15,
-  [addonTable.Config.Options.CATEGORY_ITEM_GROUPING] = true,
+  [addonTable.Config.Options.CATEGORY_ITEM_GROUPING] = false, -- -- 更改預設值
   [addonTable.Config.Options.ADD_TO_CATEGORY_BUTTONS] = true,
 }
 
