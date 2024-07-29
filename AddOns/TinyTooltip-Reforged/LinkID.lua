@@ -90,9 +90,9 @@ if (clientToc>=100002) then
 else
     GameTooltip:HookScript("OnTooltipSetSpell", function(self) ShowId(self, "Spell", (select(2,self:GetSpell()))) end)
 end
-hooksecurefunc(GameTooltip, "SetUnitAura", function(self, ...) ShowId(self, "Spell", (C_UnitAuras.GetAuraDataByIndex(...).spellId)) end)
-hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...) ShowId(self, "Spell", (C_UnitAuras.GetBuffDataByIndex(...).spellId)) end)
-hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self, ...) ShowId(self, "Spell", (C_UnitAuras.GetDebuffDataByIndex(...).spellId)) end)
+--hooksecurefunc(GameTooltip, "SetUnitAura", function(self, ...) ShowId(self, "Spell", (select(10,C_UnitAuras.UnitAura(...)))) end)
+hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...) ShowId(self, "Spell", (select(10,UnitBuff(...)))) end)
+hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self, ...) ShowId(self, "Spell", (select(10,UnitDebuff(...)))) end)
 if (GameTooltip.SetArtifactPowerByID) then
     hooksecurefunc(GameTooltip, "SetArtifactPowerByID", function(self, powerID)
         ShowId(self, "Power", powerID)

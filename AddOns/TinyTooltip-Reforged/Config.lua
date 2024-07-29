@@ -2,7 +2,7 @@
 local addon = TinyTooltipReforged
  
 addon.db = {
-    version = 9.3,
+    version = 11.0,
     general = {
         scale             = 1,
         mask              = true,
@@ -81,7 +81,7 @@ addon.db = {
             coloredBorder = "reaction",
             background = { colorfunc = "default", alpha = 0.9, },
             showTarget = true,
-            showTargetBy = false,
+            showTargetBy = true,
             grayForDead = true,
             showModel = false,
             anchor = { position = "inherit", hiddenInCombat = false, defaultInCombat = false, defaultOnUnitFrame = false, cp = "BOTTOM", p = "BOTTOMRIGHT", },
@@ -109,7 +109,7 @@ addon.db = {
         showItemIcon = false,
 		showExpansionInformation = false,
 		showStackCount = false,
-        showStackCountAlt = false,		
+        showStackCountAlt = true,		
     },
     spell = {
         borderColor = {0.6, 0.6, 0.6, 0.8},
