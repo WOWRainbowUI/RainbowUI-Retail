@@ -1,7 +1,7 @@
 ## Interface: 11503, 40400, 110000
 ## Title: Advanced Interface Options
 ## Author: Stanzilla, Semlar
-## Version: 1.9.1
+## Version: 2.0.0
 ## IconTexture: 134521
 ## Notes: Restores access to removed interface options in Legion
 ## X-Category: Interface Enhancements
@@ -12,13 +12,23 @@
 ## LoadOnDemand: 0
 ## SavedVariables: AdvancedInterfaceOptionsSaved
 
-## Title-zhTW: |cffFF9900[進階]|r 介面選項
+## Title-zhTW: |cffFF9900[進階]|r 遊戲選項
 ## Notes-zhTW: Advanced Interface Options |n|n讓你可以使用一些被移除的遊戲選項，以及修改 CVars 參數值。|n|n|cffffd200使用方法: |r從Esc>選項>插件>進階介面選項，進行設定。
 ## DefaultState: disabled
 ## X-Category-zhTW: 進階
 
 semlib\semlib.xml
+
 utils.lua
 cvars.lua
+
+gui\GeneralConfigPanel.lua
+gui\ChatConfigPanel.lua
+gui\CombatConfigPanel.lua
+gui\FloatingCombatTextConfigPanel.lua
+gui\StatusTextConfigPanel.lua
+gui\NameplateConfigPanel.lua
+gui\CVarConfigPanel.lua
+
 browser.lua
 basicOptions.lua
