@@ -2593,8 +2593,10 @@ end
 ------------------------------------------------------------
 
 function PawnInterfaceOptionsFrame_OnLoad()
-	if InterfaceOptions_AddCategory then
-		-- Register the Interface Options page. This no longer exists in The War Within / 11.0.
+	if Settings and Settings.RegisterCanvasLayoutCategory then
+		local Category = Settings.RegisterCanvasLayoutCategory(PawnInterfaceOptionsFrame, PawnLocal.UI.Pawn)
+		Settings.RegisterAddOnCategory(Category)
+	elseif InterfaceOptions_AddCategory then
 		PawnInterfaceOptionsFrame.name = PawnLocal.UI.Pawn
 		InterfaceOptions_AddCategory(PawnInterfaceOptionsFrame)
 	end
