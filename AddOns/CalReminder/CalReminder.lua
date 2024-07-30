@@ -120,7 +120,8 @@ function CalReminder:ReloadData()
 			frame = EZBlizzUiPop_npcDialog(chief, string.format(L["CALREMINDER_LDAY_REMINDER"], UnitName("player"), L["SPACE_BEFORE_DOT"], firstEvent.title), "CalReminderFrameTemplate")
 		end
 		if not frame then
-			EZBlizzUiPop_ToastFakeAchievementNew(CalReminder, firstEvent.title, 9680, not CalReminderOptionsData["SoundsDisabled"], 10, L["CALREMINDER_ACHIV_REMINDER"], function()  CalReminderShowCalendar(firstEventMonthOffset, firstEventDay, firstEventId)  end)
+			local isGuildEvent = GetGuildInfo("player") ~= nil and firstEvent.calendarType == "GUILD_EVENT"
+			EZBlizzUiPop_ToastFakeAchievement(CalReminder, not CalReminderOptionsData["SoundsDisabled"], 4, nil, firstEvent.title, nil, 237538, isGuildEvent, L["CALREMINDER_ACHIV_REMINDER"], true, function()  CalReminderShowCalendar(firstEventMonthOffset, firstEventDay, firstEventId)  end)
 		end
 	end
 end

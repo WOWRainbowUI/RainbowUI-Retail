@@ -1,8 +1,9 @@
 local _, _, _, tocversion = GetBuildInfo()
 
+local EZBlizzUiPop_WoWRetail = tocversion >= 110000
 function EZBlizzUiPop_GetMouseFocus()
 	local frame = nil
-	if tocversion >= 110000 then
+	if EZBlizzUiPop_WoWRetail then
 		local region = GetMouseFoci()
 		frame = region[1]
 	else
@@ -46,11 +47,7 @@ end
 
 --local function alertOnClick(self, ...)
 function EZBlizzUiPop_AlertFrame_OnClick(self, ...)
-	if (self.delay == -1) then
-		self:SetScript("OnLeave", AlertFrame_ResumeOutAnimation)
-		self.delay = 0
-	end
-	if (self.onClick) then
+		if (self.onClick) then
 		if (AlertFrame_OnClick(self, ...)) then  return;  end -- Handle right-clicking to hide the frame.
 		self.onClick(self, ...)
 	elseif (self.onClick == false) then
@@ -60,42 +57,147 @@ function EZBlizzUiPop_AlertFrame_OnClick(self, ...)
 	end
 end
 
-local function EZBlizzUiPop_AlertFrame_SetUp(frame, achievementID, alreadyEarned, name, delay, toptext, onClick, icon)
-	-- An alert flagged as alreadyEarned has more space for the text to display since there's no shield+points icon.
-	local ret = AchievementAlertFrame_SetUp(frame, achievementID, alreadyEarned)
-	frame.Name:SetText(name)
-	frame.Unlocked:SetText(toptext or (toptext == false and THIS_TITLE) or ACHIEVEMENT_UNLOCKED)
-	frame.onClick = onClick
-	frame.delay = delay
+local function EZBlizzUiPop_AlertFrame_SetUp(frame, AchievementInfo)
+	frame.onClick = AchievementInfo.onClick
 	frame:SetScript("OnClick", EZBlizzUiPop_AlertFrame_OnClick)
-	if (delay) then
-		if (delay <= 0) then
-			C_Timer.After(0, function()  AlertFrame_StopOutAnimation(frame);  end)
-		else
-			C_Timer.After(0, function()
-				frame.waitAndAnimOut.animOut:SetStartDelay(delay)
-			end)
+	
+	local displayName = frame.Name;
+	local shieldPoints = frame.Shield.Points;
+	local shieldIcon = frame.Shield.Icon;
+	local unlocked = frame.Unlocked;
+
+	unlocked:SetPoint("TOP", 7, -23);
+
+	displayName:SetText(AchievementInfo.name or "");
+
+	AchievementShield_SetPoints(AchievementInfo.points or 0, shieldPoints, GameFontNormal, GameFontNormalSmall);
+	if ( AchievementInfo.isGuildAch ) then
+		local guildName = frame.GuildName;
+		local guildBorder = frame.GuildBorder;
+		local guildBanner = frame.GuildBanner;
+		shieldPoints:Show();
+		shieldIcon:Show();
+		frame:SetHeight(104);
+		local background = frame.Background;
+		local iconBorder = frame.Icon.Overlay;
+		if EZBlizzUiPop_WoWRetail then
+			background:SetAtlas("ui-achievement-guild-background", TextureKitConstants.UseAtlasSize);
+			iconBorder:SetAtlas("ui-achievement-guild-iconframe", TextureKitConstants.UseAtlasSize);
+			iconBorder:SetPoint("CENTER", 0, 0);
+			frame.Icon:SetPoint("TOPLEFT", 0, -25);
+			frame.Icon.Texture:SetPoint("CENTER", -1, -2);
+			frame.Shield:SetPoint("TOPRIGHT", -12, -25);
+			shieldPoints:SetPoint("CENTER", 2, -2);
+			unlocked:SetPoint("TOP", 0, -38);
+			frame.glow:SetAtlas("ui-achievement-guild-glow", TextureKitConstants.UseAtlasSize);
+			frame.shine:SetAtlas("ui-achievement-guild-shine", TextureKitConstants.UseAtlasSize);
+		else -- not Retail
+			frame.oldCheevo = nil
+			background:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Guild");
+			background:SetTexCoord(0.00195313, 0.62890625, 0.00195313, 0.19140625);
+			background:SetPoint("TOPLEFT", -2, 2);
+			background:SetPoint("BOTTOMRIGHT", 8, 8);
+			iconBorder:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Guild");
+			iconBorder:SetTexCoord(0.25976563,0.40820313,0.50000000,0.64453125);
+			iconBorder:SetPoint("CENTER", 0, 1);
+			frame.Icon:SetPoint("TOPLEFT", -26, 2);
+			displayName:SetPoint("BOTTOMLEFT", 79, 37);
+			displayName:SetPoint("BOTTOMRIGHT", -79, 37);
+			frame.Shield:SetPoint("TOPRIGHT", -15, -28);
+			shieldPoints:SetPoint("CENTER", 7, 5);
+			shieldIcon:SetTexCoord(0, 0.5, 0.5, 1);
+			unlocked:SetPoint("TOP", -1, -36);
+			frame.glow:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Guild");
+			frame.glow:SetTexCoord(0.00195313, 0.74804688, 0.19531250, 0.49609375);
+			frame.shine:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Guild");
+			frame.shine:SetTexCoord(0.75195313, 0.91601563, 0.19531250, 0.35937500);
+		end
+		shieldPoints:SetVertexColor(0, 1, 0);
+		unlocked:SetText(AchievementInfo.toptext or GUILD_ACHIEVEMENT_UNLOCKED);
+		guildName:Show();
+		guildBanner:Show();
+		guildBorder:Show();
+		frame.shine:SetPoint("BOTTOMLEFT", 0, 16);
+		guildName:SetText(GetGuildInfo("player"));
+		SetSmallGuildTabardTextures("player", nil, guildBanner, guildBorder);
+	else
+		shieldPoints:Show();
+		shieldIcon:Show();
+		local background = frame.Background;
+		local iconBorder = frame.Icon.Overlay;
+		if EZBlizzUiPop_WoWRetail then
+			frame:SetHeight(101);
+			background:SetAtlas("ui-achievement-alert-background", TextureKitConstants.UseAtlasSize);
+			iconBorder:SetAtlas("ui-achievement-iconframe", TextureKitConstants.UseAtlasSize);
+			iconBorder:SetPoint("CENTER", -1, 1);
+			frame.Icon:SetPoint("TOPLEFT", -4, -15);
+			frame.Shield:SetPoint("TOPRIGHT", -8, -15);
+			shieldPoints:SetPoint("CENTER", 2, -2);
+			frame.glow:SetAtlas("ui-achievement-glow-glow", TextureKitConstants.UseAtlasSize);
+			frame.shine:SetAtlas("ui-achievement-glow-shine", TextureKitConstants.UseAtlasSize);
+		else -- not Retail
+			frame.oldCheevo = nil
+			frame:SetHeight(88);
+			background:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Alert-Background");
+			background:SetTexCoord(0, 0.605, 0, 0.703);
+			background:SetPoint("TOPLEFT", 0, 0);
+			background:SetPoint("BOTTOMRIGHT", 0, 0);
+			iconBorder:SetTexture("Interface\\AchievementFrame\\UI-Achievement-IconFrame");
+			iconBorder:SetTexCoord(0, 0.5625, 0, 0.5625);
+			iconBorder:SetPoint("CENTER", -1, 2);
+			frame.Icon:SetPoint("TOPLEFT", -26, 16);
+			displayName:SetPoint("BOTTOMLEFT", 72, 36);
+			displayName:SetPoint("BOTTOMRIGHT", -60, 36);
+			frame.Shield:SetPoint("TOPRIGHT", -10, -13);
+			shieldPoints:SetPoint("CENTER", 7, 2);
+			frame.glow:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Alert-Glow");
+			frame.glow:SetTexCoord(0, 0.78125, 0, 0.66796875);
+			frame.shine:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Alert-Glow");
+			frame.shine:SetTexCoord(0.78125, 0.912109375, 0, 0.28125);
+		end
+		shieldPoints:SetVertexColor(1, 1, 1);
+		unlocked:SetPoint("TOP", 7, -23);
+		unlocked:SetText(AchievementInfo.toptext or ACHIEVEMENT_UNLOCKED);
+		frame.GuildName:Hide();
+		frame.GuildBorder:Hide();
+		frame.GuildBanner:Hide();
+		frame.shine:SetPoint("BOTTOMLEFT", 0, 8);
+
+		-- Center all text horizontally if the achievement has been earned and there's no points display
+		if (AchievementInfo.alreadyEarned) then
+			if EZBlizzUiPop_WoWRetail then
+				unlocked:SetPoint("TOP", 27, -23);
+			else -- not Retail
+				unlocked:SetPoint("TOP", 15, -23);
+				--displayName:SetPoint("TOP", unlocked, "BOTTOM", 0, -10);
+			end
 		end
 	end
-	if (delay == -1) then
-		frame:SetScript("OnLeave", nil)
+
+	shieldPoints:SetShown(not AchievementInfo.alreadyEarned);
+	shieldIcon:SetShown(not AchievementInfo.alreadyEarned);
+
+	if ( points == 0 ) then
+		if EZBlizzUiPop_WoWRetail then
+			shieldIcon:SetAtlas("UI-Achievement-Shield-NoPoints", TextureKitConstants.UseAtlasSize);
+		else -- not Retail
+			shieldIcon:SetTexture([[Interface\AchievementFrame\UI-Achievement-Shields-NoPoints]]);
+		end
 	else
-		frame:SetScript("OnLeave", AlertFrame_ResumeOutAnimation)
+		if EZBlizzUiPop_WoWRetail then
+			shieldIcon:SetAtlas("ui-achievement-shield-2", TextureKitConstants.UseAtlasSize);
+		else -- not Retail
+			shieldIcon:SetTexture([[Interface\AchievementFrame\UI-Achievement-Shields]]);
+		end
 	end
-	if (icon) then
-		--HEY = HEY or { frame.Icon.Texture:GetTexCoord() }
-		frame.Icon.Texture:SetTexture(icon)
-		frame.Icon.Texture:SetTexCoord(0.0, 1.0, 0.0, 1.0)
-		--frame.Background:SetTexture(TexAlert)
-		--frame.OldAchievement:SetTexture(TexAlertBorders)
-	else
-		frame.Icon.Texture:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1)
-		--frame.Background:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Alert-Background")
-		--frame.OldAchievement:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Borders")
-	end
+
+	frame.Icon.Texture:SetTexture(AchievementInfo.icon or 236376);
+
+	frame.id = AchievementInfo.achievementID or "EZBlizzUiPop"
+	return true;
 end
 
-function EZBlizzUiPop_ToastFakeAchievementNew(addon, name, baseID, playSound, delay, toptext, onClick, icon, newEarn)
+local function ToastFakeAchievement(addon, playSound, delay, AchievementInfo)
   if AchievementFrame_LoadUI then
 	  if (IsKioskModeEnabled and IsKioskModeEnabled()) then
 		return
@@ -105,14 +207,29 @@ function EZBlizzUiPop_ToastFakeAchievementNew(addon, name, baseID, playSound, de
 	  end
 
 	  if (not addon.AlertSystem) then
-		addon.AlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("AchievementAlertFrameTemplate", EZBlizzUiPop_AlertFrame_SetUp, 4, math.huge)
+		addon.AlertSystem = AlertFrame:AddQueuedAlertFrameSubSystem("AchievementAlertFrameTemplate", EZBlizzUiPop_AlertFrame_SetUp, delay, math.huge)
 	  end
-
-	  if (not baseID) then  baseID = 5208 end -- 5208 is "Twin Peaking", chosen because of its thumbs-up texture.
-	  addon.AlertSystem:AddAlert(baseID, not newEarn, name, delay, toptext, onClick, icon)
+	  addon.AlertSystem:AddAlert(AchievementInfo)
 
 	  if (playSound) then EZBlizzUiPop_PlaySound(12891) end -- UI_Alert_AchievementGained
   end
+end
+
+function EZBlizzUiPop_ToastFakeAchievement(addon, playSound, delay, idNumber, name, points, icon, isGuildAch, toptext, alreadyEarned, onClick)
+	local AchievementInfo = {}
+	AchievementInfo.achievementID = idNumber
+	AchievementInfo.name          = name
+	AchievementInfo.points        = points
+	AchievementInfo.icon          = icon
+	AchievementInfo.isGuildAch    = isGuildAch
+	AchievementInfo.toptext       = toptext
+	AchievementInfo.alreadyEarned = alreadyEarned
+	AchievementInfo.onClick       = onClick
+	ToastFakeAchievement(addon, playSound, delay, AchievementInfo)
+end
+
+function EZBlizzUiPop_ToastFakeAchievementNew(addon, name, baseID, playSound, delay, toptext, onClick, icon, newEarn)
+	EZBlizzUiPop_ToastFakeAchievement(addon, playSound, delay, idNumber, name, points, icon, isGuildAch, toptext, not newEarn, onClick)
 end
 
 -- NPC dialog pop-up
