@@ -4,22 +4,15 @@ local L = LibStub("AceLocale-3.0"):GetLocale("OmniCC")
 local DEFAULT_DURATION = 30
 
 local function getRandomIcon()
-    local icons = {}
-
-    for i = 1, C_SpellBook.GetNumSpellBookSkillLines() do
-        local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(i)
-		local offset, numSpells = skillLineInfo.itemIndexOffset, skillLineInfo.numSpellBookItems
-        local tabEnd = offset + numSpells
-
-        for j = offset, tabEnd - 1 do
-            local texture = C_SpellBook.GetSpellBookItemTexture(j, Enum.SpellBookSpellBank.Player)
-            if texture then
-                tinsert(icons, texture)
-            end
-        end
+    if type(GetSpellBookItemTexture) == "function" then
+        local _, _, offset, numSlots = GetSpellTabInfo(GetNumSpellTabs())
+        return GetSpellBookItemTexture(math.random(offset + numSlots - 1), 'player')
     end
 
-    return icons[math.random(1, #icons)]
+    local i = C_SpellBook.GetSpellBookSkillLineInfo(C_SpellBook.GetNumSpellBookSkillLines())
+    local offset = i.itemIndexOffset
+    local numSlots = i.numSpellBookItems
+    return C_SpellBook.GetSpellBookItemTexture(math.random(offset + numSlots - 1), Enum.SpellBookSpellBank.Player)
 end
 
 -- preview dialog
@@ -87,8 +80,9 @@ cooldown:SetSwipeColor(0, 0, 0)
 cooldown:SetDrawEdge(false)
 cooldown:SetScript(
     "OnCooldownDone",
-    function(self)
+    function()
         if PreviewDialog:IsVisible() then
+            PreviewDialog.icon:SetTexture(getRandomIcon())
             PreviewDialog:StartCooldown(PreviewDialog.duration:GetValue())
         end
     end
@@ -108,7 +102,7 @@ editBox:SetWidth(container:GetWidth() - 54)
 editBox:SetMinMaxValues(0, 9999999)
 editBox:SetMaxLetters(7)
 editBox:SetValue(DEFAULT_DURATION)
-editBox:SetOnValueChangedCallback(function(self, value)
+editBox:SetOnValueChangedCallback(function(_, value)
     PreviewDialog:StartCooldown(value or 0)
 end)
 
