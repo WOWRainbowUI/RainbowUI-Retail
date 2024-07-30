@@ -650,7 +650,7 @@ function Core:MovePlayerFrameBars(isVehicle)
         healthBar:SetParent(playerFrameContentMain.HealthBarsContainer)
         PlayerFrame_GetHealthBarContainer().HealthBarMask:Show()
 
-        self:MoveRegion(healthBar, "TOPLEFT", playerFrameContentMain.HealthBarsContainer, "TOPLEFT", 91, -40)
+        self:MoveRegion(healthBar, "CENTER", playerFrameContentMain.HealthBarsContainer, "CENTER", 0, 0)
 
         manaBar:SetParent(playerFrameContentMain)
         manaBar.ManaBarMask:Show()
@@ -800,8 +800,12 @@ end
 
 function Core:MovePlayerFramesBarsTextString()
     self:MoveRegion(PlayerFrame_GetHealthBar().TextString, "CENTER", PlayerFrame_GetHealthBar(), "CENTER", 0, 0)
+    self:MoveRegion(PlayerFrame_GetHealthBar().RightText, "RIGHT", PlayerFrame_GetHealthBar(), "RIGHT", -5, 0)
+    self:MoveRegion(PlayerFrame_GetHealthBar().LeftText, "LEFT", PlayerFrame_GetHealthBar(), "LEFT", 2, 0)
 
     self:MoveRegion(PlayerFrame_GetManaBar().TextString, "CENTER", PlayerFrame_GetManaBar(), "CENTER", 0, 0)
+    self:MoveRegion(PlayerFrame_GetManaBar().RightText, "RIGHT", PlayerFrame_GetManaBar(), "RIGHT", -4, 0)
+    self:MoveRegion(PlayerFrame_GetManaBar().LeftText, "LEFT", PlayerFrame_GetManaBar(), "LEFT", 3, 0)
 end
 
 function Core:MoveTargetFramesBarsTextString()
