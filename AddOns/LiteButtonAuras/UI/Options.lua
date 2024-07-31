@@ -1,6 +1,6 @@
 --[[----------------------------------------------------------------------------
 
-  LiteBag/Options.lua
+  LiteButtonAuras/Options.lua
 
   Copyright 2015 Mike Battersby
 
@@ -58,7 +58,11 @@ local function ValidateSpellValue(_, v)
     elseif v and C_Spell.GetSpellInfo(v) ~= nil then
         return true
     else
-        return format(L["無效的法術: %s.\n\n不在你的法術書裡面的法術請使用法術 ID 數字。"], ORANGE_FONT_COLOR:WrapTextInColorCode(v))
+        return format(
+                L["無效的法術: %s。"] ..
+                 "\n\n" ..
+                 L["不在你的法術書裡面的法術請使用法術 ID 數字。"],
+                ORANGE_FONT_COLOR:WrapTextInColorCode(v))
     end
 end
 
