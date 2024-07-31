@@ -17,6 +17,8 @@ local CONST_INSPECT_ACHIEVEMENT_DISTANCE = 1 --Compare Achievements, 28 yards
 local CONST_SPELLBOOK_GENERAL_TABID = 1
 local CONST_SPELLBOOK_CLASSSPELLS_TABID = 2
 
+local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
+
 local storageDebug = false --remember to turn this to false!
 
 function Details:UpdateGears()
@@ -824,6 +826,15 @@ Details222.Parser.EventFrame:SetScript("OnEvent", function(self, event, ...)
 		end
 	end
 end)
+
+function Details222.Parser.GetState()
+	local parserEngine = Details222.parser_frame:GetScript("OnEvent")
+	if (parserEngine == Details222.Parser.OnParserEvent) then
+		return "STATE_REGULAR"
+	elseif (parserEngine == Details222.Parser.OnParserEventOutOfCombat) then
+		return "STATE_RESTRICTED"
+	end
+end
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
