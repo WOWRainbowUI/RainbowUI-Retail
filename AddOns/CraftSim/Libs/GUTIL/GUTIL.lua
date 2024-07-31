@@ -282,8 +282,8 @@ end
 ---@return number?
 ---@return number?
 function GUTIL:GetMoneyValuesFromCopper(copperValue, formatString)
-    local gold = math.floor(copperValue / 10000)
-    local silver = math.floor(copperValue % 10000 / 100)
+    local gold = math.floor(copperValue / 1e4)
+    local silver = math.floor(copperValue / 100 % 100)
     local copper = math.floor(copperValue % 100)
 
     if not formatString then
@@ -311,6 +311,8 @@ function GUTIL:GetFormatter()
     local whisper = GUTIL.COLORS.WHISPER
     local white = GUTIL.COLORS.WHITE
     local gold = GUTIL.COLORS.GOLD
+    local silver = GUTIL.COLORS.SILVER
+    local copper = GUTIL.COLORS.COPPER
 
     local c = function(text, color)
         return GUTIL:ColorizeText(text, color)
@@ -354,6 +356,12 @@ function GUTIL:GetFormatter()
     end
     formatter.gold = function(text)
         return c(text, gold)
+    end
+    formatter.silver = function(text)
+        return c(text, silver)
+    end
+    formatter.copper = function(text)
+        return c(text, copper)
     end
     formatter.p = p
     formatter.s = s
@@ -444,7 +452,8 @@ end
 ---@param useColor? boolean -- colors the numbers green if positive and red if negative
 ---@param percentRelativeTo number? if included: will be treated as 100% and a % value in relation to the coppervalue will be added
 ---@param separateThousands? boolean
-function GUTIL:FormatMoney(copperValue, useColor, percentRelativeTo, separateThousands)
+---@param noTextures? boolean
+function GUTIL:FormatMoney(copperValue, useColor, percentRelativeTo, separateThousands, noTextures)
     copperValue = GUTIL:Round(copperValue) -- there is no such thing as decimal coppers (we no fuel station here)
     local absValue = abs(copperValue)
     local minusText = ""
@@ -460,10 +469,17 @@ function GUTIL:FormatMoney(copperValue, useColor, percentRelativeTo, separateTho
         color = GUTIL.COLORS.RED
     end
 
+    local moneyText = GetMoneyString(absValue, separateThousands)
+    if noTextures then
+        local f = self:GetFormatter()
+        local g, s, c = self:GetMoneyValuesFromCopper(absValue)
+        moneyText = g .. f.gold("g") .. " " .. s .. f.silver("s") .. " " .. c .. f.copper("c")
+    end
+
     if useColor then
-        return GUTIL:ColorizeText(minusText .. GetMoneyString(absValue, separateThousands) .. percentageText, color)
+        return GUTIL:ColorizeText(minusText .. moneyText .. percentageText, color)
     else
-        return minusText .. GetMoneyString(absValue, separateThousands) .. percentageText
+        return minusText .. moneyText .. percentageText
     end
 end
 
@@ -779,7 +795,7 @@ function GUTIL:Split(t, splitFunc)
     return tableA, tableB
 end
 
----@param iconPath string
+---@param iconPath string|number
 ---@param height number
 ---@param width number?
 ---@param offsetX number?

@@ -119,6 +119,22 @@ function CraftSim.UTIL:IsWorkOrder()
     return ProfessionsFrame.OrdersPage.OrderView.OrderDetails:IsVisible()
 end
 
+---@param skillLineID number
+---@return CraftSim.EXPANSION_IDS expansionID
+function CraftSim.UTIL:GetExpansionIDBySkillLineID(skillLineID)
+    local skillLineIDMap = CraftSim.CONST.TRADESKILLLINEIDS
+
+    for _, expansionData in pairs(skillLineIDMap) do
+        for expansionID, _skillLineID in pairs(expansionData) do
+            if _skillLineID == skillLineID then
+                return expansionID
+            end
+        end
+    end
+
+    return 0 -- sometimes happens if not yet initialized
+end
+
 -- from stackoverflow:
 -- https://stackoverflow.com/questions/9079853/lua-print-integer-as-a-binary
 function CraftSim.UTIL:toBits(num, bits)

@@ -550,6 +550,7 @@ greater or equal the configured sale rate threshold.
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_CRAFTING_COSTS_LABEL] = "Crafting Costs: ",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_AVERAGE_PROFIT_LABEL] = "Average Profit: ",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_RESULTS_LABEL] = "Results",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_CONCENTRATION_CHECKBOX] = " Concentration",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_AUCTIONATOR_SHOPPING_LIST_PER_CHARACTER_CHECKBOX] = "Per Character",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_AUCTIONATOR_SHOPPING_LIST_PER_CHARACTER_CHECKBOX_TOOLTIP] = "Create an " ..
             f.bb("Auctionator Shopping List") .. " for each crafter character\ninstead of one shopping list for all",
@@ -582,6 +583,8 @@ greater or equal the configured sale rate threshold.
         [CraftSim.CONST.TEXT.COOLDOWNS_CHARGES_HEADER] = "Charges",
         [CraftSim.CONST.TEXT.COOLDOWNS_NEXT_HEADER] = "Next Charge",
         [CraftSim.CONST.TEXT.COOLDOWNS_ALL_HEADER] = "Charges Full",
+
+        [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_TITLE] = "CraftSim Concentration",
 
         -- static popups
         [CraftSim.CONST.TEXT.STATIC_POPUPS_YES] = "Yes",
