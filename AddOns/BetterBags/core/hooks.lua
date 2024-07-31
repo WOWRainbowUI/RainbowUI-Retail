@@ -28,6 +28,10 @@ local interactionEvents = {
   [Enum.PlayerInteractionType.ItemUpgrade] = true,
 }
 
+if addon.isRetail then
+  interactionEvents[Enum.PlayerInteractionType.AccountBanker] = true
+end
+
 function addon.ForceHideBlizzardBags()
   for i = 1, NUM_TOTAL_BAG_FRAMES, 1 do
     CloseBag(i)
@@ -65,6 +69,9 @@ function addon:OpenInteractionWindow(interactionType)
     return
   end
   debug:Log("Interaction", "OpenInteractionWindow", interactionType)
+  if interactionType == Enum.PlayerInteractionType.AccountBanker then
+    addon.atWarbank = true
+  end
   addon.atInteracting = true
   addon.backpackShouldOpen = true
   events:SendMessageLater('bags/OpenClose')
@@ -75,6 +82,7 @@ function addon:CloseInteractionWindow(interactionType)
   if interactionEvents[interactionType] == nil then return end
   debug:Log("Interaction", "CloseInteractionWindow", interactionType)
   addon.atInteracting = false
+  addon.atWarbank = false
   addon.backpackShouldClose = true
   events:SendMessage('bags/FullRefreshAll')
   events:SendMessageLater('bags/OpenClose')
