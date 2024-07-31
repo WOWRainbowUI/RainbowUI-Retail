@@ -1,0 +1,22 @@
+## Interface: 11503, 30403, 40400, 110000
+## Title: BlizzMove
+## Notes: Makes blizzard frames movable
+## Author: Kiatra, zaCade, Numy - github.com/Kiatra/BlizzMove/
+## IconTexture: 982414
+## X-WoWI-ID: 23875
+## X-Curse-Project-ID: 17809
+## Version: v3.5.34
+## OptionalDeps: Ace3
+## X-Embeds: Ace3
+## SavedVariables: BlizzMoveDB
+
+## Title-zhTW: |cff0099FF[介面]|r 移動暴雪視窗
+## Notes-zhTW: BlizzMove |n|n允許自由拖曳移動和縮放遊戲內建的各種視窗，可選擇是否要永久保存位置，還是登出/重載後要還原。|n|n如果怕不小心移動到，可以在設定選項中勾選需要按住輔助按鍵，才能移動/縮放。|n|n|cffffd200使用方法: |r請看設定選項中的說明。
+## IconTexture: Interface\Icons\inv_gizmo_bronzeframework_01
+## X-Category-zhTW: 介面
+
+# Add-On
+BlizzMove.lua
+BlizzMoveAPI.lua
+BlizzMoveConfig.lua
+Frames.lua
