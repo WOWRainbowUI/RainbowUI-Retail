@@ -1,8 +1,11 @@
 # Details! Damage Meter
 
-## [Details.12822.159](https://github.com/Tercioo/Details-Damage-Meter/tree/Details.12822.159) (2024-07-30)
-[Full Changelog](https://github.com/Tercioo/Details-Damage-Meter/compare/Details.12821.159...Details.12822.159) 
+## [Details.12823.159](https://github.com/Tercioo/Details-Damage-Meter/tree/Details.12823.159) (2024-07-31)
+[Full Changelog](https://github.com/Tercioo/Details-Damage-Meter/compare/Details.12822.159...Details.12823.159) 
 
-- Fixed /key not showing the map name  
-- Fixed GetItemInfo not using C\_Item namespace  
-- Cutting off events that are beyond 10 seconds from the character death  
+- Fixed an issue with the loot on the end of the mythic plus panel  
+- Merge pull request #798 from Flamanis/LineTwo-not-existing  
+    Add check for lineTwo not existing in GetPetOwner  
+- Add check for lineTwo not existing on buff uptime  
+- If actor serial is missing, use an empty string for GetPlayerInfoByGUID()  
+- Framework Update  
