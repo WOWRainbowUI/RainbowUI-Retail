@@ -8,9 +8,12 @@ CraftSim.SPECIALIZATION_DATA = CraftSim.SPECIALIZATION_DATA
 ---@field nodeID number
 ---@field childNodeIDs? string[]
 ---@field threshold? number
----@field idMapping? table<CraftSim.RecipeCategories, CraftSim.RecipeItemSubTypes>
+---@field idMapping? table<CraftSim.RecipeCategories, CraftSim.RecipeItemSubTypes[]>
+---@field locMapping? table<CraftSim.RecipeCategories, CraftSim.ItemEquipLocation[]>
+---@field idLocMapping? table<CraftSim.RecipeCategories, table<CraftSim.RecipeItemSubTypes, CraftSim.ItemEquipLocation>[]>
 ---@field exceptionRecipeIDs? number[]
 ---@field affectedReagentIDs? number[]
+---@field activationBuffIDs? number[]
 ---@field equalsSkill? number
 ---@field equalsResourcefulness? number
 ---@field equalsMulticraft? number

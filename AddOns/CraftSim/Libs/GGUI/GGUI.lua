@@ -820,7 +820,7 @@ end
 ---@field parent? Frame
 ---@field offsetX? number
 ---@field offsetY? number
----@field texturePath? string
+---@field texturePath? string | number
 ---@field sizeX? number
 ---@field sizeY? number
 ---@field qualityIconScale? number
@@ -4166,17 +4166,19 @@ function GGUI.SpellIcon:new(options)
     self.icon:SetPoint(options.anchorA, options.anchorParent, options.anchorB, options.offsetX, options.offsetY)
     self.icon:SetSize(options.sizeX, options.sizeY)
 
-    local texture = GetSpellTexture(self.spellID)
-    if texture then
-        local buttonTexture = self.icon:CreateTexture(nil, "BACKGROUND")
-        buttonTexture:SetAllPoints()
-        buttonTexture:SetTexture(texture)
-        self.icon:SetNormalTexture(buttonTexture)
+    if self.spellID then
+        local texture = C_Spell.GetSpellTexture(self.spellID)
+        if texture then
+            local buttonTexture = self.icon:CreateTexture(nil, "BACKGROUND")
+            buttonTexture:SetAllPoints()
+            buttonTexture:SetTexture(texture)
+            self.icon:SetNormalTexture(buttonTexture)
 
-        GGUI:SetSpellTooltip(self.frame, self.spellID, self.icon, "ANCHOR_RIGHT")
+            GGUI:SetSpellTooltip(self.frame, self.spellID, self.icon, "ANCHOR_RIGHT")
 
-        if self.desaturate then
-            self:Desaturate()
+            if self.desaturate then
+                self:Desaturate()
+            end
         end
     end
 
@@ -4209,7 +4211,7 @@ end
 
 ---@param spellID number
 function GGUI.SpellIcon:SetSpell(spellID)
-    local texture = GetSpellTexture(spellID)
+    local texture = C_Spell.GetSpellTexture(spellID)
     self.spellID = spellID
     if texture then
         self.icon:SetNormalTexture(texture)
