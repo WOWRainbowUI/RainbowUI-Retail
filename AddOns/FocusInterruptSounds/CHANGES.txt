@@ -1,10 +1,10 @@
-lightweight tag 81ed8cdf3634a34c58c9de7319ced701ea9d5a34 r148
+lightweight tag 975dfbed230c4224d24e5d4b236c66f410089580 r149
 Author:	Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:	Sun Jul 28 19:50:05 2024 -0700
+Date:	Tue Jul 30 20:08:05 2024 -0700
 
-commit 81ed8cdf3634a34c58c9de7319ced701ea9d5a34
+commit 975dfbed230c4224d24e5d4b236c66f410089580
 Author: Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:   Sun Jul 28 19:50:05 2024 -0700
+Date:   Tue Jul 30 20:08:05 2024 -0700
 
-    Update toc
+    Fix error when interrupting in a group.
 

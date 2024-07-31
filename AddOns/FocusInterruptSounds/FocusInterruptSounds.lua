@@ -1041,14 +1041,14 @@ function FocusInterruptSounds:FIsPlayerSpellAvailable(strSpellName)
 	end
 
 	-- Verify that the spell isn't on cooldown
-	local iStartTime, _, fSpellEnabled = GetSpellCooldown(strSpellName);
+	local iStartTime, _, fSpellEnabled = C_Spell.GetSpellCooldown(strSpellName);
 	if (iStartTime ~= 0 or not fSpellEnabled) then
 		-- self:CheckAndPrintMessage(strSpellName .. " on CD");
 		return false;
 	end
 
 	-- Verify display name (if applicable) and mana/energy
-	local strSpellDisplayName, _, _, iCost, _, _, _, _, _ = GetSpellInfo(strSpellName);
+	local strSpellDisplayName, _, _, iCost, _, _, _, _, _ = C_Spell.GetSpellInfo(strSpellName);
 	if (nil ~= strSpellDisplayNameVerify and strSpellDisplayNameVerify ~= strSpellDisplayName) then
 		-- self:CheckAndPrintMessage(strSpellName .. " has DN " .. strSpellDisplayName .. " but not " .. strSpellDisplayNameVerify);
 		return false
@@ -1227,7 +1227,7 @@ function FocusInterruptSounds:COMBAT_LOG_EVENT_UNFILTERED(event)
 			end
 
 			if (nil ~= strChannel) then
-				SendChatMessage("[FIS] Interrupted " .. strDestName .. "'s " .. GetSpellLink(varParam4), strChannel);
+				SendChatMessage("[FIS] Interrupted " .. strDestName .. "'s " .. C_Spell.GetSpellLink(varParam4), strChannel);
 			end
 		end
 		fHandled = true;
