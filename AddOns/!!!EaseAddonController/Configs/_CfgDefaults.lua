@@ -362,6 +362,23 @@ D["BigDebuffs"] = {
 		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
 	},
 };
+D["BlizzMove"] = {
+	defaultEnable = 1,
+	tags = { "ENHANCEMENT" }, 
+	title = "移動暴雪視窗",
+	desc = "允許自由拖曳移動和縮放遊戲內建的各種視窗，可選擇是否要永久保存位置，還是登出/重載後要還原。``如果怕不小心移動到，可以在設定選項中勾選需要按住輔助按鍵，才能移動/縮放。`",
+	modifier = "彩虹ui",
+	icon = "Interface\\Icons\\inv_gizmo_bronzeframework_01",
+	img = true,
+	{
+        text = "設定選項",
+        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BLIZZMOVE"]("config") end,
+    },
+	{
+		type = "text",
+		text = "移動視窗: 按住左鍵拖曳視窗標題，或拖曳視窗內沒有功能的地方來移動位置。\n\n縮放視窗: 按住 Ctrl 在視窗標題列上滾動滑鼠滾輪。\n\n重置位置: 按住 Shift 在視窗標題列上點右鍵。\n\n重置縮放: 按住 Ctrl 在視窗標題列上點右鍵。\n",
+	},
+};
 D["BlockMessageTeamGuard"] = {
     defaultEnable = 1,
 	tags = { "SOCIAL" },
@@ -818,12 +835,11 @@ D["DragonRider"] = {
     },
 };
 D["Drift"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "ENHANCEMENT" }, 
-	title = "移動和縮放視窗",
+	title = "(請刪除) 移動和縮放視窗",
 	desc = "允許自由拖曳移動和縮放遊戲內建的各種視窗，並且會保存位置，就算登出登入後位置也不會跑掉。``如果怕不小心移動到，可以在設定選項中勾選鎖定移動和鎖定縮放，並且設定需要按住的按鍵，才能拖曳/縮放。``|cffFF2D2D特別注意：使用 '任務追蹤清單增強' 插件時，請勿在設定選項中勾選 '任務追蹤清單'。要移動任務追蹤清單請到 '任務追蹤清單增強' 插件的設定選項中調整。|r`",
 	modifier = "彩虹ui",
-	img = true,
 	{
         text = "設定選項",
 		callback = function(cfg, v, loading)
