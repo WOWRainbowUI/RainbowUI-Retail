@@ -64,6 +64,9 @@ local currency = addon:GetModule('Currency')
 ---@class Context: AceModule
 local context = addon:GetModule('Context')
 
+---@class SearchBox: AceModule
+local searchBox = addon:GetModule('SearchBox')
+
 ---@class Search: AceModule
 local search = addon:GetModule('Search')
 
@@ -123,7 +126,9 @@ bagFrame.bagProto = {}
 function bagFrame.bagProto:GenerateWarbankTabs()
   local tabData = C_Bank.FetchPurchasedBankTabData(Enum.BankType.Account)
   for _, data in pairs(tabData) do
-    if not self.tabs:TabExists(data.name) then
+    if self.tabs:TabExistsByID(data.ID) and self.tabs:GetTabNameByID(data.ID) ~= data.name then
+      self.tabs:RenameTabByID(data.ID, data.name)
+    elseif not self.tabs:TabExistsByID(data.ID) then
       self.tabs:AddTab(data.name, data.ID)
     end
   end
@@ -140,6 +145,34 @@ function bagFrame.bagProto:GenerateWarbankTabs()
     self.tabs:MoveToEnd("Purchase Warbank Tab")
     self.tabs:ShowTab("Purchase Warbank Tab")
   end
+  -- TODO(lobato): this
+  --self.currentView:UpdateWidth()
+  local w = self.tabs.width
+  if self.frame:GetWidth() + const.OFFSETS.BAG_LEFT_INSET + -const.OFFSETS.BAG_RIGHT_INSET < w + const.OFFSETS.BAG_LEFT_INSET + -const.OFFSETS.BAG_RIGHT_INSET then
+    self.frame:SetWidth(w + const.OFFSETS.BAG_LEFT_INSET + -const.OFFSETS.BAG_RIGHT_INSET)
+  end
+end
+
+---@param id number
+---@return BankTabData
+function bagFrame.bagProto:GetWarbankTabDataByID(id)
+  local tabData = C_Bank.FetchPurchasedBankTabData(Enum.BankType.Account)
+  for _, data in pairs(tabData) do
+    if data.ID == id then
+      return data
+    end
+  end
+  return {}
+end
+
+function bagFrame.bagProto:HideBankAndReagentTabs()
+  self.tabs:HideTab("Bank")
+  self.tabs:HideTab("Reagent Bank")
+end
+
+function bagFrame.bagProto:ShowBankAndReagentTabs()
+  self.tabs:ShowTab("Bank")
+  self.tabs:ShowTab("Reagent Bank")
 end
 
 function bagFrame.bagProto:Show()
@@ -149,8 +182,15 @@ function bagFrame.bagProto:Show()
   --addon.ForceShowBlizzardBags()
   PlaySound(self.kind == const.BAG_KIND.BANK and SOUNDKIT.IG_MAINMENU_OPEN or SOUNDKIT.IG_BACKPACK_OPEN)
 
-  if self.kind == const.BAG_KIND.BANK and addon.isRetail and C_PlayerInfo.HasAccountInventoryLock() then
+  if self.kind == const.BAG_KIND.BANK and addon.isRetail then
     self:GenerateWarbankTabs()
+    if addon.atWarbank then
+      self:HideBankAndReagentTabs()
+      self.tabs:SetTab(self.tabs:GetTabNameByID(13))
+    else
+      self:ShowBankAndReagentTabs()
+    end
+   self.moneyFrame:Update()
   end
 
   self.frame:Show()
@@ -227,14 +267,18 @@ function bagFrame.bagProto:Refresh()
   end
 end
 
--- Search will search all items in the bag for the given text.
--- If a match is found for an item, it will be highlighted, while
--- items that don't match will dim.
----@param text? string
-function bagFrame.bagProto:Search(text)
+---@param results table<string, boolean>
+function bagFrame.bagProto:Search(results)
   if not self.currentView then return end
   for _, item in pairs(self.currentView:GetItemsByBagAndSlot()) do
-    item:UpdateSearch(text)
+    item:UpdateSearch(results[item.slotkey])
+  end
+end
+
+function bagFrame.bagProto:ResetSearch()
+  if not self.currentView then return end
+  for _, item in pairs(self.currentView:GetItemsByBagAndSlot()) do
+    item:UpdateSearch(true)
   end
 end
 
@@ -260,8 +304,10 @@ function bagFrame.bagProto:Draw(ctx, slotInfo)
   view:GetContent():Show()
   self.currentView = view
   self.frame:SetScale(database:GetBagSizeInfo(self.kind, database:GetBagView(self.kind)).scale / 100)
-  local text = search:GetText()
-  self:Search(text)
+  local text = searchBox:GetText()
+  if text ~= "" and text ~= nil then
+    self:Search(search:Search(text))
+  end
   self:OnResize()
   if database:GetBagView(self.kind) == const.BAG_VIEW.SECTION_ALL_BAGS and not self.slots:IsShown() then
     self.slots:Draw()
@@ -486,6 +532,13 @@ function bagFrame:Create(kind)
     b.moneyFrame = moneyFrame
   end
 
+    -- ...except for warbank!
+  if kind == const.BAG_KIND.BANK then
+    local moneyFrame = money:Create(true)
+    moneyFrame.frame:SetPoint("BOTTOMRIGHT", bottomBar, "BOTTOMRIGHT", -4, 0)
+    moneyFrame.frame:SetParent(b.frame)
+    b.moneyFrame = moneyFrame
+  end
   -- Setup the context menu.
   b.menuList = contextMenu:CreateContextMenu(b)
 
@@ -496,7 +549,7 @@ function bagFrame:Create(kind)
   b.slots = slots
 
   if kind == const.BAG_KIND.BACKPACK then
-    b.searchFrame = search:Create(b.frame)
+    b.searchFrame = searchBox:Create(b.frame)
   end
 
   if kind == const.BAG_KIND.BACKPACK then
@@ -510,18 +563,46 @@ function bagFrame:Create(kind)
   end
 
   if kind == const.BAG_KIND.BANK then
+    -- Move the settings menu to the bag frame.
+    AccountBankPanel.TabSettingsMenu:SetParent(b.frame)
+    AccountBankPanel.TabSettingsMenu:ClearAllPoints()
+    AccountBankPanel.TabSettingsMenu:SetPoint("BOTTOMLEFT", b.frame, "BOTTOMRIGHT", 10, 0)
+
+    -- Adjust the settings function so the tab settings menu is populated correctly.
+    AccountBankPanel.TabSettingsMenu.GetBankFrame = function()
+      return {
+        GetTabData = function(_, id)
+          local bankTabData = b:GetWarbankTabDataByID(id)
+          return {
+            ID = id,
+            icon = bankTabData.icon,
+            name = b.tabs:GetTabNameByID(id),
+            depositFlags = bankTabData.depositFlags,
+            bankType = Enum.BankType.Account,
+          }
+        end
+      }
+    end
+
     b.tabs = tabs:Create(b.frame)
     b.tabs:AddTab("Bank")
     b.tabs:AddTab("Reagent Bank")
 
     b.tabs:SetTab("Bank")
 
-    b.tabs:SetClickHandler(function(tabIndex)
+    b.tabs:SetClickHandler(function(tabIndex, button)
       if tabIndex == 1 then
+        AccountBankPanel.TabSettingsMenu:Hide()
         b:SwitchToBank()
       elseif tabIndex == 2 then
+        AccountBankPanel.TabSettingsMenu:Hide()
         return b:SwitchToReagentBank()
       else
+        if button == "RightButton" or AccountBankPanel.TabSettingsMenu:IsShown() then
+          AccountBankPanel.TabSettingsMenu:SetSelectedTab(tabIndex)
+          AccountBankPanel.TabSettingsMenu:Show()
+          AccountBankPanel.TabSettingsMenu:Update()
+        end
         b:SwitchToAccountBank(tabIndex)
       end
       return true
@@ -529,6 +610,9 @@ function bagFrame:Create(kind)
     -- BANK_TAB_SETTINGS_UPDATED
     -- BANK_TABS_CHANGED
     events:RegisterEvent('PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED', function()
+      b:GenerateWarbankTabs()
+    end)
+    events:RegisterEvent('BANK_TAB_SETTINGS_UPDATED', function()
       b:GenerateWarbankTabs()
     end)
   end

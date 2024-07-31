@@ -3,9 +3,9 @@
 ## Title: BetterBags
 ## Notes: Better Bags for everyone!
 ## Author: Cidan
-## Version: v0.1.79
+## Version: v0.1.84
 ## SavedVariables: BetterBagsDB
-## X-Date: 2024-07-24T21:21:24Z
+## X-Date: 2024-07-31T00:42:30Z
 ## X-License: MIT
 ## X-Curse-Project-ID: 942432
 ## X-Wago-ID: aNDmy96o
@@ -46,6 +46,11 @@ core\fonts.lua
 # The Theme API loads earlier than actual themes.
 themes\themes.lua
 
+util\trees\trees.lua
+util\trees\intervaltree.lua
+util\query.lua
+
+data\search.lua
 data\equipmentsets.lua
 data\categories.lua
 data\items.lua
