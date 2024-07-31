@@ -1024,7 +1024,7 @@ function FocusInterruptSounds:FIsPlayerSpellAvailable(strSpellName)
 
 	-- Verify that the spell isn't on cooldown
 	-- local iStartTime, _, fSpellEnabled = GetSpellCooldown(strSpellName);
-	local iStartTime, fSpellEnabled 
+	local iStartTime, fSpellEnabled -- 暫時修正
 	local spellCooldownInfo = C_Spell.GetSpellCooldown(strSpellName);
 	if spellCooldownInfo then
 		iStartTime = spellCooldownInfo.startTime
