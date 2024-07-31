@@ -1,6 +1,6 @@
 ## Interface: 110002, 110000, 100207, 40400, 11503
 ## Title: LiteButtonAuras
-## Version: 11.0.0-2
+## Version: 11.0.0-3
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
@@ -10,6 +10,7 @@
 
 embeds.xml
 
+Localization.lua
 ClassicCompat.lua
 SpellData.lua
 ColorGradient.lua
