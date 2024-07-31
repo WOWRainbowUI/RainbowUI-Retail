@@ -32,9 +32,6 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
 end)
 
 hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...)
-
--- print("Mount.lua HERE 1")
-
     local spellID = select(10, UnitBuff(...))
     if (mounts[spellID]) then
         self:AddLine(" ")
