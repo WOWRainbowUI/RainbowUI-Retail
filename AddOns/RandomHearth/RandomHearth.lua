@@ -49,7 +49,7 @@ rhOptionsPanel.OnCommit = function() optionsOkay(); end
 rhOptionsPanel.OnDefault = function() end
 rhOptionsPanel.OnRefresh = function() end
 local rhCategory = Settings.RegisterCanvasLayoutCategory(rhOptionsPanel, rhOptionsPanel.name)
-category.ID = rhOptionsPanel.name
+rhCategory.ID = rhOptionsPanel.name
 Settings.RegisterAddOnCategory(rhCategory)
 
 -- Title
