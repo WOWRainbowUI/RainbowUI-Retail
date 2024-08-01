@@ -2561,12 +2561,18 @@ D["WIM"] = {
         text = "點小地圖按鈕的 '即時通' 按鈕顯示密語視窗。",
 	},
 };
-D["WorldFlightMap"] = {
+D["WorldQuestTracker"] = {
 	defaultEnable = 1,
-	title = "世界鳥點地圖",
-	desc = "使用完整的世界地圖來顯示鳥點和飛行路線，選擇鳥點的同時也可以看到任務位置。`",
-	icon = "Interface\\Icons\\ability_mount_warhippogryph",
-	img = true,
+	tags = { "QUEST" },
+	title = "世界任務追蹤",
+	desc = "加強地圖上世界任務圖示的相關功能、提供世界任務追蹤清單，更容易找到和追蹤你要的世界任務。`",
+	modifier = "BNS, mccma, qkdev5307, sopgri, 彩虹ui",
+	icon = "Interface\\Icons\\inv_ability_holyfire_orb",
+	{
+		type = "text",
+        text = "點世界地圖左下角的 '選項' 進行設定。",
+	},
+
 };
 D["WorldMapTrackingEnhanced"] = {
 	defaultEnable = 1,
