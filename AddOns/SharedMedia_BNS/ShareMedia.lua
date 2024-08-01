@@ -7,15 +7,6 @@ local MediaType_FONT = LSM.MediaType.FONT
 local MediaType_STATUSBAR = LSM.MediaType.STATUSBAR
 
 -- -----
--- BACKGROUND
--- -----
-LSM:Register(MediaType_BACKGROUND, "Moo", 			[[Interface\Addons\SharedMedia_BNS\background\moo.tga]])
-LSM:Register(MediaType_BACKGROUND, "Bricks", 		[[Interface\Addons\SharedMedia_BNS\background\bricks.tga]])
-LSM:Register(MediaType_BACKGROUND, "Brushed Metal", [[Interface\Addons\SharedMedia_BNS\background\brushedmetal.tga]])
-LSM:Register(MediaType_BACKGROUND, "Copper",		[[Interface\Addons\SharedMedia_BNS\background\copper.tga]])
-LSM:Register(MediaType_BACKGROUND, "Smoke", 		[[Interface\Addons\SharedMedia_BNS\background\smoke.tga]])
-
--- -----
 -- borders
 -- -----
 
@@ -36,9 +27,9 @@ LSM:Register(MediaType_BORDER, "fer13", [[Interface\AddOns\SharedMedia_BNS\Borde
 -- -----
 --   FONT
 -- -----
-LSM:Register(MediaType_FONT, " 昭源黑體123",					[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHK-M.ttf]], zhCN + zhTW + western)
-LSM:Register(MediaType_FONT, " 芫茜雅楷",					[[Interface\Addons\SharedMedia_BNS\font\JyunsaiKaai-Bold.ttf]], zhCN + zhTW + western)
-LSM:Register(MediaType_FONT, " 更莎黑體等寬",				[[Interface\Addons\SharedMedia_BNS\font\SarasaMonoTC-Regular.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 昭源黑體改123",						[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-SemiBold.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 芫茜雅楷123",						[[Interface\Addons\SharedMedia_BNS\font\JyunsaiKaai-Bold.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 更莎黑體等寬",					[[Interface\Addons\SharedMedia_BNS\font\SarasaMonoTC-Regular.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "Alata",							[[Interface\Addons\SharedMedia_BNS\font\Alata.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "MaJi Bold",						[[Interface\Addons\SharedMedia_BNS\font\MaJi-Bold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "US Damage text",					[[Interface\Addons\SharedMedia_BNS\font\US_damage_Font_Bold.TTF]], zhCN + zhTW + western)
@@ -83,7 +74,6 @@ LSM:Register("sound", "#|cff00c0ff語音：結束|r", [[Interface\Addons\SharedM
 LSM:Register("sound", "#|cff00c0ff語音：快集合|r", [[Interface\Addons\SharedMedia_BNS\sound\gather.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：集合分攤|r", [[Interface\Addons\SharedMedia_BNS\sound\gathershare.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：快驅散|r", [[Interface\Addons\SharedMedia_BNS\sound\dispelnow.ogg]]) 
-LSM:Register("sound", "#|cff00c0ff語音：幫忙驅散|r", [[Interface\Addons\SharedMedia_BNS\sound\helpdispel.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：幫忙吸收|r", [[Interface\Addons\SharedMedia_BNS\sound\helpsoad.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：準備打斷|r", [[Interface\Addons\SharedMedia_BNS\sound\interruptsoon.ogg]]) 
 LSM:Register("sound", "#|cff00c0ff語音：快打斷|r", [[Interface\Addons\SharedMedia_BNS\sound\kickcast.ogg]]) 
@@ -117,8 +107,6 @@ LSM:Register("sound", "#|cff00c0ff語音：下一棒|r", [[Interface\Addons\Shar
 LSM:Register("sound", "#|cff00c0ff語音：快卡視野|r", [[Interface\Addons\SharedMedia_BNS\sound\快卡視野.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：注意寶珠|r", [[Interface\Addons\SharedMedia_BNS\sound\watchorb.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：小怪快打|r", [[Interface\Addons\SharedMedia_BNS\sound\killmob.ogg]])
-LSM:Register("sound", "#|cff00c0ff語音：受難出現|r", [[Interface\Addons\SharedMedia_BNS\sound\shounanchuxian.ogg]])
-LSM:Register("sound", "#|cff00c0ff語音：虛体出現|r", [[Interface\Addons\SharedMedia_BNS\sound\xutichuxian.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：你被強化|r", [[Interface\Addons\SharedMedia_BNS\sound\你被強化.ogg]])
 LSM:Register("sound", "!|cff00c0ffJoJo冒險野郎1|r", [[Interface\Addons\SharedMedia_BNS\sound\Fists of Fury_1.ogg]]) 
 LSM:Register("sound", "!|cff00c0ffJoJo冒險野郎2|r", [[Interface\Addons\SharedMedia_BNS\sound\Fists of Fury_2.ogg]]) 
