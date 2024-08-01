@@ -594,6 +594,50 @@ function BaganatorLiveBagLayoutMixin:ApplySearch(text)
   self.SearchMonitor:StartSearch(text)
 end
 
+local function InitializeCategoryEmptySlot(button, details)
+  local count, bagType = details.itemCount, details.bagType
+  SetItemButtonCount(button, bagType ~= "keyring" and count or 1)
+  if not button.bagTypeIcon then
+    button.bagTypeIcon = button:CreateTexture(nil, "OVERLAY")
+    button.bagTypeIcon:SetSize(20, 20)
+    button.bagTypeIcon:SetPoint("CENTER")
+    button.bagTypeIcon:SetDesaturated(true)
+    button.oldUpdateTooltip = button.UpdateTooltip
+    button.oldOnEnter = button:GetScript("OnEnter")
+    button.oldOnLeave = button:GetScript("OnLeave")
+    button:SetScript("OnEnter", function()
+      if button.tooltipHeader then
+        GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+        GameTooltip:SetText(button.tooltipHeader)
+      end
+    end)
+    button:SetScript("OnLeave", function()
+      GameTooltip:Hide()
+    end)
+  end
+  button.UpdateTooltip = nil -- Prevents the tooltip hiding immediately
+  local details = addonTable.Constants.ContainerKeyToInfo[bagType]
+  if details then
+    if details.type == "atlas" then
+      button.bagTypeIcon:SetAtlas(details.value)
+    else
+      button.bagTypeIcon:SetTexture(details.value)
+    end
+    button.tooltipHeader = details.tooltipHeader
+  else
+    button.bagTypeIcon:SetTexture(nil)
+    button.tooltipHeader = nil
+  end
+end
+
+local function RestoreCategoryButtonFromEmptySlot(button)
+  button.tooltipHeader = nil
+  button.UpdateTooltip = button.oldUpdateTooltip
+  button:SetScript("OnEnter", button.oldOnEnter)
+  button:SetScript("OnLeave", button.oldOnLeave)
+  button.bagTypeIcon:SetTexture(nil)
+end
+
 BaganatorLiveCategoryLayoutMixin = {}
 
 function BaganatorLiveCategoryLayoutMixin:OnLoad()
@@ -867,6 +911,11 @@ function BaganatorLiveCategoryLayoutMixin:ShowGroup(cacheList, rowWidth, categor
     for _, details in ipairs(toSet) do
       details[1]:SetItemDetails(details[2])
       details[1].addedDirectly = details[2].addedDirectly
+      if details[2].itemLink == nil then
+        InitializeCategoryEmptySlot(details[1], details[2])
+      elseif details[1].bagTypeIcon then
+        RestoreCategoryButtonFromEmptySlot(details[1])
+      end
     end
   end
 
@@ -950,6 +999,11 @@ function BaganatorCachedCategoryLayoutMixin:ShowGroup(cacheList, rowWidth)
   for index, button in ipairs(self.buttons) do
     button:Show()
     button:SetItemDetails(cacheList[index])
+    if cacheList[index].itemLink == nil then
+      InitializeCategoryEmptySlot(button, cacheList[index])
+    elseif button.bagTypeIcon then
+      RestoreCategoryButtonFromEmptySlot(button)
+    end
   end
 end
 
@@ -1153,7 +1207,7 @@ function BaganatorLiveWarbandLayoutMixin:RebuildLayout(tabSize, rowWidth)
     table.insert(self.buttons, b)
   end
 
-  FlowButtonsRows(self, rowWidth)
+  FlowButtonsColumns(self, rowWidth)
 
   self.initialized = true
 end
@@ -1181,7 +1235,7 @@ function BaganatorLiveWarbandLayoutMixin:ShowTab(tabIndex, indexes, rowWidth)
     self.waitingUpdate = true
   elseif self.reflow or rowWidth ~= self.oldRowWidth then
     self.reflow = false
-    FlowButtonsRows(self, rowWidth)
+    FlowButtonsColumns(self, rowWidth)
   end
 
   if self.updateTextures then
@@ -1261,7 +1315,7 @@ function BaganatorCachedWarbandLayoutMixin:RebuildLayout(tabSize, rowWidth)
 
   for slotIndex = 1, tabSize do
     local b = self.buttonPool:Acquire()
-    addonTable.Skins.AddFrame("ItemButton", button)
+    addonTable.Skins.AddFrame("ItemButton", b)
     if not b.texturesSetup then
       b.texturesSetup = true
       MasqueRegistration(b)
@@ -1271,7 +1325,7 @@ function BaganatorCachedWarbandLayoutMixin:RebuildLayout(tabSize, rowWidth)
     table.insert(self.buttons, b)
   end
 
-  FlowButtonsRows(self, rowWidth)
+  FlowButtonsColumns(self, rowWidth)
 
   self.initialized = true
 end
@@ -1295,7 +1349,7 @@ function BaganatorCachedWarbandLayoutMixin:ShowTab(tabIndex, indexes, rowWidth)
     self.waitingUpdate = true
   elseif self.reflow or rowWidth ~= self.oldRowWidth then
     self.reflow = false
-    FlowButtonsRows(self, rowWidth)
+    FlowButtonsColumns(self, rowWidth)
   end
 
   if self.updateTextures then

@@ -10,12 +10,6 @@ function BaganatorCategoryViewBackpackViewMixin:OnLoad()
   self.LiveLayouts = {}
   self.CachedLayouts = {}
 
-  self.liveEmptySlotsPool = addonTable.ItemViewCommon.GetLiveItemButtonPool(self)
-  for i = 1, #Syndicator.Constants.AllBagIndexes do
-    self.liveEmptySlotsPool:Acquire()
-  end
-  self.liveEmptySlotsPool:ReleaseAll()
-
   self:RegisterEvent("CURSOR_CHANGED")
 
   self.labelsPool = CreateFramePool("Button", self, "BaganatorCategoryViewsCategoryButtonTemplate")
@@ -26,10 +20,17 @@ function BaganatorCategoryViewBackpackViewMixin:OnLoad()
 
   addonTable.CallbackRegistry:RegisterCallback("ContentRefreshRequired",  function()
     self.MultiSearch:ResetCaches()
+    self.results = nil
     for _, layout in ipairs(self.Layouts) do
       layout:RequestContentRefresh()
     end
     if self:IsVisible() and self.lastCharacter ~= nil then
+      self:UpdateForCharacter(self.lastCharacter, self.isLive)
+    end
+  end)
+
+  addonTable.CallbackRegistry:RegisterCallback("ForceClearedNewItems",  function()
+    if self:IsVisible() and self.lastCharacter ~= nil and self.isLive then
       self:UpdateForCharacter(self.lastCharacter, self.isLive)
     end
   end)
@@ -39,10 +40,13 @@ function BaganatorCategoryViewBackpackViewMixin:OnLoad()
       return
     end
     if tIndexOf(addonTable.CategoryViews.Constants.RedisplaySettings, settingName) ~= nil then
+      self.searchToApply = true
+      self.results = nil
       if self:IsVisible() then
         self:UpdateForCharacter(self.lastCharacter, self.isLive)
       end
     elseif settingName == addonTable.Config.Options.SORT_METHOD then
+      self.results = nil
       for _, layout in ipairs(self.Layouts) do
         layout:InformSettingChanged(settingName)
       end
@@ -50,6 +54,7 @@ function BaganatorCategoryViewBackpackViewMixin:OnLoad()
         self:UpdateForCharacter(self.lastCharacter, self.isLive)
       end
     elseif settingName == addonTable.Config.Options.JUNK_PLUGIN then
+      self.results = nil
       self.MultiSearch:ResetCaches()
       if self:IsVisible() then
         self:UpdateForCharacter(self.lastCharacter, self.isLive)
@@ -101,6 +106,7 @@ end
 function BaganatorCategoryViewBackpackViewMixin:OnShow()
   BaganatorItemViewCommonBackpackViewMixin.OnShow(self)
   addonTable.NewItems:ClearNewItemsForTimeout()
+  self.results = nil
 end
 
 -- Clear new item status on items that are hidden as part of a stack
@@ -137,7 +143,7 @@ function BaganatorCategoryViewBackpackViewMixin:TransferCategory(associatedSearc
     return
   end
 
-  self:Transfer(true, function() return self.results[associatedSearch].all end)
+  self:Transfer(true, function() return tFilter(self.results[associatedSearch].all, function(a) return a.itemLink ~= nil end, true) end)
 end
 
 function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, isLive)
@@ -154,7 +160,7 @@ function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, is
     topSpacing = 7
   end
 
-  self.isGrouping = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_ITEM_GROUPING) and not self.splitStacksDueToTransfer
+  self.isGrouping = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_ITEM_GROUPING) and (not self.splitStacksDueToTransfer or not self.isLive)
 
   if self.addToCategoryMode and C_Cursor.GetCursorItem() == nil then
     self.addToCategoryMode = false

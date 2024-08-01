@@ -1,4 +1,9 @@
 local _, addonTable = ...
+
+if not Syndicator then
+  return
+end
+
 local inventorySlots = {
   "INVTYPE_2HWEAPON",
   "INVTYPE_WEAPON",
@@ -178,11 +183,11 @@ local function GetAuto(category, everything)
     local names = addonTable.ItemViewCommon.GetEquipmentSetNames()
     if #names == 0 then
       table.insert(searchLabels, BAGANATOR_L_CATEGORY_EQUIPMENT_SET)
-      table.insert(searches, SYNDICATOR_L_KEYWORD_EQUIPMENT_SET)
+      table.insert(searches, "#" .. SYNDICATOR_L_KEYWORD_EQUIPMENT_SET)
     else
       for _, name in ipairs(names) do
         table.insert(searchLabels, name)
-        table.insert(searches, SYNDICATOR_L_KEYWORD_EQUIPMENT_SET .. "&" .. name:lower())
+        table.insert(searches, "#" .. SYNDICATOR_L_KEYWORD_EQUIPMENT_SET .. "&" .. name:lower())
       end
     end
   elseif category.auto == "inventory_slots" then
@@ -190,7 +195,7 @@ local function GetAuto(category, everything)
       local name = _G[slot]
       if name then
         table.insert(searchLabels, name)
-        table.insert(searches, SYNDICATOR_L_KEYWORD_GEAR .. "&" .. name:lower())
+        table.insert(searches, "#" .. SYNDICATOR_L_KEYWORD_GEAR .. "&#" .. name:lower())
       end
     end
   elseif category.auto == "recents" then
@@ -203,6 +208,33 @@ local function GetAuto(category, everything)
       end
     end
     attachedItems[1] = newItems
+  elseif category.auto == "tradeskillmaster" then
+    local groups = {}
+    for _, item in ipairs(everything) do
+      local itemString = TSM_API.ToItemString(item.itemLink)
+      if itemString then
+        local groupPath = TSM_API.GetGroupPathByItem(itemString)
+        if groupPath then
+          if groupPath:find("`") then
+            groupPath = groupPath:match("`([^`]*)$")
+          end
+          if not groups[groupPath] then
+            groups[groupPath] = {}
+          end
+          groups[groupPath][item.key] = true
+        end
+      end
+    end
+    for _, groupPath in ipairs(TSM_API.GetGroupPaths({})) do
+      if groupPath:find("`") then
+        groupPath = groupPath:match("`([^`]*)$")
+      end
+      if groups[groupPath] then
+        table.insert(searches, "")
+        table.insert(searchLabels, groupPath)
+        table.insert(attachedItems, groups[groupPath])
+      end
+    end
   else
     error("automatic category type not supported")
   end
@@ -245,6 +277,8 @@ function addonTable.CategoryViews.ComposeCategories(everything)
       currentSection = section
     end
 
+    local priority = categoryMods[source] and categoryMods[source].priority and (categoryMods[source].priority + 1) * 200 or 0
+
     local category = addonTable.CategoryViews.Constants.SourceToCategory[source]
     if category then
       if category.auto then
@@ -259,7 +293,7 @@ function addonTable.CategoryViews.ComposeCategories(everything)
             source = source,
             search = search,
             label = autoDetails.searchLabels[index],
-            priority = category.searchPriority,
+            priority = category.priorityOffset + priority,
             index = #allDetails + 1,
             attachedItems = autoDetails.attachedItems[index],
             auto = true,
@@ -268,9 +302,14 @@ function addonTable.CategoryViews.ComposeCategories(everything)
         end
       elseif category.emptySlots then
         allDetails[#allDetails + 1] = {
-          type = "empty slots category",
+          type = "category",
           index = #allDetails + 1,
           section = currentSection,
+          search = "________" .. (#allDetails + 1),
+          priority = 0,
+          auto = true,
+          emptySlots = true,
+          label = BAGANATOR_L_EMPTY,
         }
       else
         allDetails[#allDetails + 1] = {
@@ -278,7 +317,7 @@ function addonTable.CategoryViews.ComposeCategories(everything)
           source = source,
           search = category.search,
           label = category.name,
-          priority = category.searchPriority,
+          priority = category.priorityOffset + priority,
           index = #allDetails + 1,
           attachedItems = nil,
           section = currentSection,
@@ -297,7 +336,7 @@ function addonTable.CategoryViews.ComposeCategories(everything)
         source = source,
         search = search,
         label = category.name,
-        priority = category.searchPriority,
+        priority = priority,
         index = #allDetails + 1,
         attachedItems = nil,
         section = currentSection,

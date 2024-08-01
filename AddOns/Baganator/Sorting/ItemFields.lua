@@ -157,8 +157,12 @@ keysMapping["expansion"] = function(self)
     return 0
   end
 
-  local expansion = select(15, C_Item.GetItemInfo(self.itemLink))
-  return expansion
+  if C_Item.IsItemDataCachedByID(self.itemID) then
+    local expansion = select(15, C_Item.GetItemInfo(self.itemID))
+    return expansion
+  else
+    return 0
+  end
 end
 
 keysMapping["invertedExpansion"] = function(self)
@@ -176,6 +180,14 @@ end
 
 keysMapping["invertedItemLevelRaw"] = function(self)
   return self.itemLevelRaw and -self.itemLevelRaw
+end
+
+keysMapping["invertedItemLevelEquipment"] = function(self)
+  if Syndicator.Utilities.IsEquipment(self.itemLink) then
+    return self.itemLevelRaw and -self.itemLevelRaw
+  else
+    return 0
+  end
 end
 
 -- Dragonflight crafting reagent quality

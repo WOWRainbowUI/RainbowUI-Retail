@@ -106,6 +106,8 @@ local function GetCategoryContainer(parent, pickupCallback)
       frame:SetScript("OnClick", function(self, button)
         if self.value:match("^_") then
           addonTable.CallbackRegistry:TriggerEvent("EditCategorySection", self.value)
+        elseif self.value == "default_auto_recents" then
+          addonTable.CallbackRegistry:TriggerEvent("EditCategoryRecent")
         else
           addonTable.CallbackRegistry:TriggerEvent("EditCategory", self.value)
         end
@@ -143,7 +145,7 @@ local function GetCategoryContainer(parent, pickupCallback)
     local default = addonTable.CategoryViews.Constants.SourceToCategory[frame.value]
     local divider = frame.value == addonTable.CategoryViews.Constants.DividerName
     local categoryEnd = frame.value == addonTable.CategoryViews.Constants.SectionEnd
-    frame:SetEnabled(not categoryEnd and not divider and (not default or not default.auto))
+    frame:SetEnabled(not categoryEnd and not divider and (not default or not default.auto or default.auto ~= "recent"))
     frame.repositionButton:SetShown(not categoryEnd)
   end)
   container.ScrollBar = CreateFrame("EventFrame", nil, container, "WowTrimScrollBar")
@@ -184,7 +186,7 @@ local function SetCategoriesToDropDown(dropDown, ignore)
   local entries, values = {
     NORMAL_FONT_COLOR:WrapTextInColorCode(BAGANATOR_L_CREATE_NEW_CATEGORY),
     NORMAL_FONT_COLOR:WrapTextInColorCode(BAGANATOR_L_CREATE_NEW_SECTION),
-    BAGANATOR_L_CATEGORY_DIVIDER,
+    NORMAL_FONT_COLOR:WrapTextInColorCode(BAGANATOR_L_CREATE_NEW_DIVIDER),
   }, {
     "",
     "_",
@@ -301,8 +303,10 @@ function addonTable.CustomiseDialog.GetCategoriesOrganiser(parent)
   hooksecurefunc(dropDown, "OnEntryClicked", function(_, option)
     if option.value == "_" then
       addonTable.CallbackRegistry:TriggerEvent("EditCategorySection", option.value)
+    elseif option.value == addonTable.CategoryViews.Constants.DividerName then
+      Pickup(option.value, BAGANATOR_L_CATEGORY_DIVIDER, nil)
     elseif option.value ~= "" then
-      Pickup(option.value, option.label, option.value ~= addonTable.CategoryViews.Constants.DividerName and tIndexOf(categoryOrder.elements, option.value) or nil)
+      Pickup(option.value, option.label, tIndexOf(categoryOrder.elements, option.value))
     else
       addonTable.CallbackRegistry:TriggerEvent("EditCategory", option.value)
     end

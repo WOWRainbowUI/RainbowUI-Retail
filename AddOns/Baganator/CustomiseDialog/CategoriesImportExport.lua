@@ -10,7 +10,6 @@ function addonTable.CustomiseDialog.SingleCategoryExport(name)
   local category = addonTable.Config.Get("custom_categories")[name]
   table.insert(export.categories, {
     name = category.name,
-    priority = category.searchPriority,
     search = category.search,
   })
   local mods = addonTable.Config.Get("category_modifications")[name]
@@ -31,6 +30,7 @@ function addonTable.CustomiseDialog.SingleCategoryExport(name)
     items = #items > 0 and items or nil,
     pets = #pets > 0 and pets or nil,
     group = mods and mods.group,
+    priority = mods.priority,
   })
 
   return addonTable.json.encode(export)
@@ -47,7 +47,6 @@ function addonTable.CustomiseDialog.CategoriesExport()
   for _, category in pairs(addonTable.Config.Get("custom_categories")) do
     table.insert(export.categories, {
       name = category.name,
-      priority = category.searchPriority,
       search = category.search,
     })
   end
@@ -69,6 +68,7 @@ function addonTable.CustomiseDialog.CategoriesExport()
       items = #items > 0 and items or nil,
       pets = #pets > 0 and pets or nil,
       group = mods.group,
+      priority = mods.priority,
     })
   end
   for source, isHidden in pairs(addonTable.Config.Get("category_hidden")) do
@@ -83,8 +83,9 @@ end
 local function ImportCategories(import)
   local customCategories = {}
   local categoryMods = {}
+  local priorities = {}
   for _, c in ipairs(import.categories) do
-    if type(c.priority) ~= "number" or type(c.search) ~= "string" or
+    if (type(c.priority) ~= "nil" and type(c.priority) ~= "number") or type(c.search) ~= "string" or
       type(c.name) ~= "string" or c.name == "" or
       (c.items ~= nil and type(c.items) ~= "table") or
       (c.pets ~= nil and type(c.pets) ~= "table") then
@@ -95,8 +96,10 @@ local function ImportCategories(import)
     local newCategory = {
       name = c.name,
       search = c.search,
-      searchPriority = c.priority,
     }
+    if c.priority then
+      priorities[c.name] = addonTable.CategoryViews.Constants.OldPriorities[c.priority]
+    end
 
     customCategories[newCategory.name] = newCategory
   end
@@ -106,6 +109,13 @@ local function ImportCategories(import)
   -- separately
   for _, c in ipairs(import.modifications or import.categories) do
     local newMods = {}
+    if import.modifications then
+      if type(c.priority) ~= "nil" and type(c.priority) ~= "number" then
+        addonTable.Utilities.Message(BAGANATOR_L_INVALID_CATEGORY_IMPORT_FORMAT)
+        return
+      end
+      newMods.priority = c.priority
+    end
     if c.items then
       newMods.addedItems = newMods.addedItems or {}
       for _, itemID in ipairs(c.items) do
@@ -140,12 +150,20 @@ local function ImportCategories(import)
         addonTable.Utilities.Message(BAGANATOR_L_INVALID_CATEGORY_IMPORT_FORMAT)
         return
       end
-      newMods.group = group
+      newMods.group = c.group
     end
     categoryMods[c.source or c.name] = newMods
   end
 
-  return customCategories, categoryMods
+  for source, priority in pairs(customCategories) do
+    if not categoryMods[source] then
+      categoryMods[source] = {priority = priorities[source] or 0}
+    elseif not categoryMods[source].priority then
+      categoryMods[source].priority = priorities[source] or 0
+    end
+  end
+
+  return customCategories, categoryMods, seenItems
 end
 
 function addonTable.CustomiseDialog.CategoriesImport(input)
@@ -158,7 +176,7 @@ function addonTable.CustomiseDialog.CategoriesImport(input)
     addonTable.Utilities.Message(BAGANATOR_L_INVALID_CATEGORY_IMPORT_FORMAT)
     return
   end
-  local customCategories, categoryMods = ImportCategories(import)
+  local customCategories, categoryMods, seenItems = ImportCategories(import)
   if import.order then
     if type(import.order) ~= "table" then
       addonTable.Utilities.Message(BAGANATOR_L_INVALID_CATEGORY_IMPORT_FORMAT)
@@ -221,6 +239,18 @@ function addonTable.CustomiseDialog.CategoriesImport(input)
     end
     local currentCustomCategories = addonTable.Config.Get(addonTable.Config.Options.CUSTOM_CATEGORIES)
     local currentCategoryMods = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_MODIFICATIONS)
+    for source, details in pairs(currentCategoryMods) do
+      if categoryMods[source] == nil and details.addedItems and #details.addedItems > 0 then
+        for i = #details.addedItems, 1 do
+          local item = details.addedItems[i]
+          if item.itemID and seenItems["i:" .. item.itemID] then
+            table.remove(details.addedItems, i)
+          elseif item.petID and seenItems["p:" .. item.petID] then
+            table.remove(details.addedItems, i)
+          end
+        end
+      end
+    end
     Mixin(currentCustomCategories, customCategories)
     Mixin(currentCategoryMods, categoryMods)
     addonTable.Config.Set(addonTable.Config.Options.CUSTOM_CATEGORIES, CopyTable(currentCustomCategories))

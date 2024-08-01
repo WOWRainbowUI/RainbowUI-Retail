@@ -1,6 +1,6 @@
-## Interface: 11503, 30403, 40400, 100207, 110000
+## Interface: 11503, 30403, 40400, 110000
 ## Title: Baganator
-## Version: 370
+## Version: 395
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -72,6 +72,7 @@ ItemViewCommon\BankView.lua
 ItemViewCommon\BankView.xml
 ItemViewCommon\BagTransfers.lua
 ItemViewCommon\NewItemsTracking.lua
+ItemViewCommon\AnchorSetter.lua
 ItemViewCommon\Initialize.lua
 
 SingleViews\Pools.lua
@@ -113,6 +114,7 @@ CustomiseDialog\CategoriesEditor.lua
 CustomiseDialog\CategoriesEditor.xml
 CustomiseDialog\CategoriesSectionEditor.lua
 CustomiseDialog\CategoriesSectionEditor.xml
+CustomiseDialog\CategoriesRecentEditor.lua
 CustomiseDialog\CategoriesImportExport.lua
 CustomiseDialog\Main.lua
 CustomiseDialog\Main.xml

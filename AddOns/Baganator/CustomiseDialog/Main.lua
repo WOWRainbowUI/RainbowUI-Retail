@@ -126,6 +126,11 @@ local LAYOUT_OPTIONS = {
     text = BAGANATOR_L_LOCK_WINDOWS,
     option = "lock_frames",
   },
+  {
+    type = "checkbox",
+    text = BAGANATOR_L_CHANGE_WINDOW_ANCHORS,
+    option = "setting_anchors",
+  },
 }
 
 local THEME_OPTIONS = {
@@ -738,6 +743,7 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
     local allModes = {
       {"type", BAGANATOR_L_ITEM_TYPE},
       {"quality", BAGANATOR_L_ITEM_QUALITY},
+      {"item-level", BAGANATOR_L_ITEM_LEVEL},
       {"combine_stacks_only", BAGANATOR_L_COMBINE_STACKS_ONLY},
       {"expansion", BAGANATOR_L_EXPANSION},
     }
@@ -903,13 +909,30 @@ function BaganatorCustomiseDialogMixin:SetupCategoriesOptions()
   table.insert(allFrames, categoriesSectionEditor)
   categoriesSectionEditor:Hide()
 
+  local categoriesRecentEditor = addonTable.CustomiseDialog.GetCategoriesRecentEditor(frame)
+  categoriesRecentEditor:SetPoint("TOP", editorHeader, "BOTTOM")
+  categoriesRecentEditor:SetPoint("RIGHT", frame, -28, 0)
+  categoriesRecentEditor:SetPoint("LEFT", frame, "CENTER", addonTable.Constants.ButtonFrameOffset - 10, 0)
+  categoriesRecentEditor:SetHeight(210)
+  table.insert(allFrames, categoriesRecentEditor)
+  categoriesRecentEditor:Hide()
+
   categoriesEditor:HookScript("OnShow", function()
     categoriesSectionEditor:Hide()
+    categoriesRecentEditor:Hide()
   end)
   categoriesSectionEditor:HookScript("OnShow", function()
     categoriesEditor:Hide()
+    categoriesRecentEditor:Hide()
   end)
   categoriesSectionEditor:HookScript("OnHide", function()
+    categoriesEditor:Show()
+  end)
+  categoriesRecentEditor:HookScript("OnShow", function()
+    categoriesEditor:Hide()
+    categoriesSectionEditor:Hide()
+  end)
+  categoriesRecentEditor:HookScript("OnHide", function()
     categoriesEditor:Show()
   end)
 
