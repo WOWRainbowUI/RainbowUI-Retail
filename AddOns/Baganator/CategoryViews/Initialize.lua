@@ -9,6 +9,18 @@ local function MigrateFormat()
     end
     addonTable.Config.Set(addonTable.Config.Options.CATEGORY_MIGRATION, 1)
   end
+  if addonTable.Config.Get(addonTable.Config.Options.CATEGORY_MIGRATION) == 1 then
+    local customCategories = addonTable.Config.Get(addonTable.Config.Options.CUSTOM_CATEGORIES)
+    local categoryMods = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_MODIFICATIONS)
+    for key, categoryDetails in pairs(customCategories) do
+      if not categoryMods[key] then
+        categoryMods[key] = {}
+      end
+      categoryMods[key].priority = addonTable.CategoryViews.Constants.OldPriorities[categoryDetails.searchPriority] or 0
+      categoryDetails.searchPriority = nil
+    end
+    addonTable.Config.Set(addonTable.Config.Options.CATEGORY_MIGRATION, 2)
+  end
 end
 
 local function SetupCategories()
@@ -25,16 +37,6 @@ local function SetupCategories()
     end
   end
 
-  local customCategories = addonTable.Config.Get(addonTable.Config.Options.CUSTOM_CATEGORIES)
-  if #displayOrder > 0 then
-    for i = #displayOrder, 1, -1 do
-      local source = displayOrder[i]
-      local category = addonTable.CategoryViews.Constants.SourceToCategory[source] or customCategories[source]
-      if not category and source ~= addonTable.CategoryViews.Constants.DividerName and not source:match("^_") then
-        table.remove(displayOrder, i)
-      end
-    end
-  end
   for _, source in ipairs(addonTable.CategoryViews.Constants.ProtectedCategories) do
     if tIndexOf(displayOrder, source) == nil then
       table.insert(displayOrder, source)
@@ -108,3 +110,18 @@ function addonTable.CategoryViews.Initialize()
 
   SetupAddRemoveItems()
 end
+
+EventRegistry:RegisterFrameEventAndCallback("PLAYER_LOGIN", function()
+  local displayOrder = addonTable.Config.Get(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER)
+  local customCategories = addonTable.Config.Get(addonTable.Config.Options.CUSTOM_CATEGORIES)
+  if #displayOrder > 0 then
+    for i = #displayOrder, 1, -1 do
+      local source = displayOrder[i]
+      local category = addonTable.CategoryViews.Constants.SourceToCategory[source] or customCategories[source]
+      if not category and source ~= addonTable.CategoryViews.Constants.DividerName and not source:match("^_") then
+        table.remove(displayOrder, i)
+      end
+    end
+  end
+  addonTable.Config.Set(addonTable.Config.Options.CATEGORY_DISPLAY_ORDER, CopyTable(displayOrder))
+end)

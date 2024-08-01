@@ -48,6 +48,7 @@ L["CATEGORY_GROUPS"] = "Category groups"
 L["BRACKETS_RELOAD_REQUIRED"] = "(reload required)"
 L["RESET_POSITIONS"] = "Reset Positions"
 L["LOCK_WINDOWS"] = "Lock windows"
+L["CHANGE_WINDOW_ANCHORS"] = "Change window anchors"
 L["REMOVE_BORDERS"] = "Remove borders"
 L["SHOW_SORT_BUTTON"] = "Show sort button"
 L["ITEM_QUALITY"] = "Item Quality"
@@ -168,7 +169,7 @@ L["TRANSFER_BANK_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the ban
 L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the bank."
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a mail for sending."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
-L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Sell searched for items to the merchant (max 6)."
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
 L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = "Move searched for items out from the bags into the guild bank.\n\nTransfers are slow due to the underlying guild bank being slow."
 L["TRANSFER_GUILD_VIEW_TOOLTIP_TEXT"] = "Move searched for items out from the guild bank into the bags.\n\nTransfers are slow due to the underlying guild bank being slow."
@@ -239,6 +240,7 @@ L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventory Slots (Auto)"
 L["CATEGORY_RECENT"] = "Recent"
 L["CATEGORY_RECENT_AUTO"] = "Recent (Auto)"
 L["CATEGORY_DIVIDER"] = "———Divider———"
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
 
 L["CATEGORY_SPACING"] = "Category spacing"
 L["EDIT"] = "Edit"
@@ -252,6 +254,7 @@ L["PRIORITY"] = "Priority"
 L["INSERT_OR_CREATE"] = "Insert or create"
 L["CREATE_NEW_CATEGORY"] = "Create new category..."
 L["CREATE_NEW_SECTION"] = "Create new section..."
+L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 L["REMOVE_FROM_CATEGORY"] = "Remove from category"
 L["NEW_CATEGORY"] = "New Category"
 L["NEW_SECTION"] = "New Section"
@@ -276,6 +279,10 @@ L["NONE"] = "None"
 L["GROUP_BY"] = "Group by"
 L["SHOW_ADD_BUTTONS"] = "Show add buttons"
 L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
+L["RECENT_TIMER"] = "Recent timer"
+L["IMMEDIATE"] = "Immediate"
+L["FOREVER"] = "Forever"
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Click heading to clear immediately."
 
 L["HELP_COLON_SEARCH"] = "Help: Search"
 L["HELP"] = "Help"
@@ -295,6 +302,8 @@ L["WELCOME_DESCRIPTION"] = "Decide which kind of bags you want. This can be chan
 L["CHOOSE"] = "Choose"
 L["SINGLE_BAG_DESCRIPTION"] = "The most common option. Keeps your items in one large container."
 L["CATEGORY_GROUPS_DESCRIPTION"] = "Group items by type, with features to add new custom categories."
+
+L["CATEGORIES_FAILED_WARNING"] = "Something went wrong when displaying the categories.\n\nFailed search was \"%s\". The following items failed:\n%s\n\nScreenshot this and visit the discord:"
 
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
@@ -339,6 +348,13 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Impossible d’ajouter d’autre
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifier cet onglet"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
 L["CATEGORIES"] = "Catégories"
+--[[Translation missing --]]
+L["CATEGORIES_FAILED_WARNING"] = [=[Something went wrong when displaying the categories.
+
+Failed search was "%s". The following items failed:
+%s
+
+Screenshot this and visit the discord:]=]
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Ensemble d'équipement"
 L["CATEGORY_BAG"] = "Sac"
 L["CATEGORY_DIVIDER"] = "———Séparateur———"
@@ -356,6 +372,10 @@ L["CATEGORY_RECENT"] = "Récent"
 L["CATEGORY_RECENT_AUTO"] = "Récent (Auto)"
 L["CATEGORY_SPACING"] = "Espacement des catégories"
 L["CATEGORY_TOY"] = "Jouet"
+--[[Translation missing --]]
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+--[[Translation missing --]]
+L["CHANGE_WINDOW_ANCHORS"] = "Change window anchors"
 L["CHARACTER"] = "Personnage"
 L["CHARACTER_PANEL"] = "Fiche de personnage"
 L["CHOOSE"] = "Choix"
@@ -366,6 +386,8 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Voulez-vous transférer TOUS 
 L["COOKING"] = "Cuisine"
 L["CRAFTING_WINDOW"] = "Fenêtre d’artisanat"
 L["CREATE_NEW_CATEGORY"] = "Créer une nouvelle catégorie..."
+--[[Translation missing --]]
+L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 L["CREATE_NEW_SECTION"] = "Créer une nouvelle section..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C pour copier"
 L["CUSTOMISE_BAGANATOR"] = "Personnaliser Baganator"
@@ -382,6 +404,8 @@ L["EXPANSION"] = "Extension "
 L["EXPORT"] = "Exporter"
 L["FISHING"] = "Pêche "
 L["FLASH_DUPLICATE_ITEMS"] = "Faire clignoter les objets en double"
+--[[Translation missing --]]
+L["FOREVER"] = "Forever"
 L["FORGE_OF_BONDS"] = "Forge des liens"
 L["FROM_THE_BOTTOM"] = "Depuis le bas"
 L["FROM_THE_TOP"] = "Depuis le haut"
@@ -431,6 +455,8 @@ L["ICONS"] = "Icônes"
 L["IGNORED_BAG_SLOTS"] = "Emplacements de sac ignorés (spécifiques au personnage)"
 L["IGNORED_BANK_SLOTS"] = "Emplacements de banque ignorés (spécifiques au personnage)"
 L["IGNORED_SLOTS"] = "Emplacements ignorés"
+--[[Translation missing --]]
+L["IMMEDIATE"] = "Immediate"
 L["IMPORT"] = "Importer"
 L["INCLUDE_REAGENTS"] = "Inclure les composants"
 L["INSCRIPTION"] = "Calligraphie"
@@ -476,6 +502,10 @@ L["REAGENTS"] = "Composants"
 L["REALM_WIDE_GOLD_X"] = "Or sur le serveur: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["RECENT_CHARACTER_TABS"] = "Onglets de personnages récents"
+--[[Translation missing --]]
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Click heading to clear immediately."
+--[[Translation missing --]]
+L["RECENT_TIMER"] = "Recent timer"
 L["REDUCE_UI_SPACING"] = "Réduire l’espacement de l’interface utilisateur"
 L["REMOVE_BORDERS"] = "Supprimer les bordures"
 L["REMOVE_FROM_CATEGORY"] = "Retirer de la catégorie"
@@ -531,6 +561,8 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Déplacez les objets recherchés de
 L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = "Déplacez les objets recherchés des sacs vers la banque de guilde. Les transferts sont lents en raison de la lenteur de la banque de guilde."
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Joignez les objets recherchés à un e-mail pour les envoyer."
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Vendre les objets recherchés au marchand (max 12)."
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Sell searched for items to the merchant (max 6)."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Placez les objets recyclables dans la machine."
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Ajouter les objets recherchés à la fenêtre d’échange (max 6)."
 L["TRANSPARENCY"] = "Transparence"
@@ -546,6 +578,8 @@ L["WARBAND"] = "Bataillon"
 L["WARBAND_BANK_COLUMNS"] = "Colonnes de banque du bataillon"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "Données du bataillon manquantes. Rendez visite à un banquier avec n’importe quel personnage pour peupler cette vue."
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "L’espace de la banque du bataillon n’a pas été acheté. Utilisez le bouton nouvel onglet à droite pour acheter"
+--[[Translation missing --]]
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "Warband Bank temporarily disabled by Blizzard."
 L["WELCOME_DESCRIPTION"] = "Décidez du type de sacs que vous voulez. Cela peut être modifié ultérieurement."
 L["WELCOME_TO_BAGANATOR"] = "Bienvenue sur Baganator"
 L["WHEN_HOLDING_ALT"] = "Lorsque vous maintenez Alt enfoncé"
@@ -596,6 +630,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Es können keine weiteren Gegens
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Du hast keine Berechtigung diesen Tab zu bearbeiten"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Es können keine weiteren Gegenstände aus der Gildenbank entnommen werden"
 L["CATEGORIES"] = "Kategorien"
+L["CATEGORIES_FAILED_WARNING"] = "Bei der Anzeige der Kategorien ist etwas schief gelaufen. Die fehlgeschlagene Suche lautete „%s“. Die folgenden Elemente sind fehlgeschlagen: „%s“. Mache einen Screenshot davon und besuche den Discord:"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Ausrüstungs-Sets"
 L["CATEGORY_BAG"] = "Tasche"
 L["CATEGORY_DIVIDER"] = "———Trenner———"
@@ -613,6 +648,8 @@ L["CATEGORY_RECENT"] = "Zuletzt"
 L["CATEGORY_RECENT_AUTO"] = "Zuletzt (Auto)"
 L["CATEGORY_SPACING"] = "Kategorie Abstände"
 L["CATEGORY_TOY"] = "Spielzeug"
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+L["CHANGE_WINDOW_ANCHORS"] = "Fenster-Anker ändern"
 L["CHARACTER"] = "Charakter"
 L["CHARACTER_PANEL"] = "Charakterfenster"
 L["CHOOSE"] = "Wähle"
@@ -623,6 +660,7 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Wirklich ALLE Gegenstände au
 L["COOKING"] = "Kochen"
 L["CRAFTING_WINDOW"] = "Handwerks-Fenster"
 L["CREATE_NEW_CATEGORY"] = "Erstelle neue Kategorie"
+L["CREATE_NEW_DIVIDER"] = "Neue Trennlinie erstellen..."
 L["CREATE_NEW_SECTION"] = "Neuen Bereich erstellen..."
 L["CTRL_C_TO_COPY"] = "Strg+C zum Kopieren"
 L["CUSTOMISE_BAGANATOR"] = "Baganator anpassen"
@@ -639,6 +677,7 @@ L["EXPANSION"] = "Erweiterung"
 L["EXPORT"] = "Exportieren"
 L["FISHING"] = "Angeln"
 L["FLASH_DUPLICATE_ITEMS"] = "Doppelte Gegenstände aufblitzen lassen"
+L["FOREVER"] = "Für immer"
 L["FORGE_OF_BONDS"] = [=[Schmiede der Bande
 ]=]
 L["FROM_THE_BOTTOM"] = "Von unten"
@@ -687,6 +726,7 @@ L["ICONS"] = "Icons"
 L["IGNORED_BAG_SLOTS"] = "Ignorierte Taschenplätze (charakterspezifisch)"
 L["IGNORED_BANK_SLOTS"] = "Ignorierte Bankfächer (charakterspezifisch)"
 L["IGNORED_SLOTS"] = "Ignorierte Taschenplätze"
+L["IMMEDIATE"] = "Sofort"
 L["IMPORT"] = "Importieren"
 L["INCLUDE_REAGENTS"] = "Reagenzien einbeziehen"
 L["INSCRIPTION"] = "Inschriftenkunde"
@@ -732,6 +772,8 @@ L["REAGENTS"] = "Reagenzien"
 L["REALM_WIDE_GOLD_X"] = "Server Gold: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["RECENT_CHARACTER_TABS"] = "Letzte Charakter-Tabs"
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Zum sofortigen Entfernen auf die Überschrift klicken."
+L["RECENT_TIMER"] = "Neuer Timer"
 L["REDUCE_UI_SPACING"] = "UI-Abstände verringern"
 L["REMOVE_BORDERS"] = "Rahmen entfernen"
 L["REMOVE_FROM_CATEGORY"] = "Aus Kategorie entfernen"
@@ -786,6 +828,7 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "Verschiebe die gesuchten Gegenstän
 L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = "Verschiebe gesuchte Gegenstände aus deinen Taschen in die Gildenbank. (Der Transfer wird nur langsam von statten gehen, weil die zugrundeliegende Gildenbank sehr langsam ist)"
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Hänge die gesuchten Artikel zum Senden an eine Brief an."
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Verkaufe gesuchte Gegenstände an den Händler (max. 12)."
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Verkaufe die gesuchten Gegenstände an den Händler (max. 6)."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Verschrottungsfähige Gegenstände in die Verschrottungsmaschine legen"
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Füge gesuchte Gegenstände in das Handelsfenster ein (max. 6)."
 L["TRANSPARENCY"] = "Transparenz"
@@ -801,6 +844,7 @@ L["WARBAND"] = "Kriegsmeute"
 L["WARBAND_BANK_COLUMNS"] = "Kriegsmeuten-Bank Spalten"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "Kriegsmeuten Bankdaten fehlen. Besuche einen Bankier mit einem beliebigen Charakter, um diese Ansicht zu aktualisieren."
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Kriegsmeuten Bank Platz noch nicht gekauft. Verwende den neuen Tab-Button auf der rechten Seite, um diesen zu kaufen."
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "Die Kriegsmeuten-Bank wurde von Blizzard vorübergehend deaktiviert."
 L["WELCOME_DESCRIPTION"] = "Entscheide, welche Art von Taschen du haben möchtest. Dies kann später geändert werden."
 L["WELCOME_TO_BAGANATOR"] = "Willkommen bei Baganator"
 L["WHEN_HOLDING_ALT"] = "Bei gedrückter Alt-Taste"
@@ -852,6 +896,13 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "Превышен лимит на
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "У вас нет разрешения на редактирование этой ячейки"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Превышен лимит на съем предметов из банка гильдии"
 L["CATEGORIES"] = "Категории"
+--[[Translation missing --]]
+L["CATEGORIES_FAILED_WARNING"] = [=[Something went wrong when displaying the categories.
+
+Failed search was "%s". The following items failed:
+%s
+
+Screenshot this and visit the discord:]=]
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Авто: комплекты экип."
 L["CATEGORY_BAG"] = "Сумка"
 L["CATEGORY_DIVIDER"] = "———Разделитель———"
@@ -869,6 +920,10 @@ L["CATEGORY_RECENT"] = "Новое"
 L["CATEGORY_RECENT_AUTO"] = "Новое (авто)"
 L["CATEGORY_SPACING"] = "Расстояние между категориями"
 L["CATEGORY_TOY"] = "Игрушка"
+--[[Translation missing --]]
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+--[[Translation missing --]]
+L["CHANGE_WINDOW_ANCHORS"] = "Change window anchors"
 L["CHARACTER"] = "Персонаж"
 L["CHARACTER_PANEL"] = "Окно персонажа"
 L["CHOOSE"] = "Выберите"
@@ -879,6 +934,8 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "Вы хотите перен�
 L["COOKING"] = "Кулинария"
 L["CRAFTING_WINDOW"] = "Окно создания предметов"
 L["CREATE_NEW_CATEGORY"] = "Новая категория..."
+--[[Translation missing --]]
+L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 L["CREATE_NEW_SECTION"] = "Новый раздел..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C для копирования"
 L["CUSTOMISE_BAGANATOR"] = "Настройка Baganator"
@@ -895,6 +952,8 @@ L["EXPANSION"] = "Дополнение"
 L["EXPORT"] = "Экспорт"
 L["FISHING"] = "Рыбная ловля"
 L["FLASH_DUPLICATE_ITEMS"] = "Подсвечивать одинаковые предметы"
+--[[Translation missing --]]
+L["FOREVER"] = "Forever"
 L["FORGE_OF_BONDS"] = "Горнило Уз"
 L["FROM_THE_BOTTOM"] = "Снизу"
 L["FROM_THE_TOP"] = "Сверху"
@@ -942,6 +1001,8 @@ L["ICONS"] = "Иконки"
 L["IGNORED_BAG_SLOTS"] = "Игноририруемые в сумках (привязано к персонажу)"
 L["IGNORED_BANK_SLOTS"] = "Игноририруемые в банке (привязано к персонажу)"
 L["IGNORED_SLOTS"] = "Игнорируемые слоты"
+--[[Translation missing --]]
+L["IMMEDIATE"] = "Immediate"
 L["IMPORT"] = "Импорт"
 L["INCLUDE_REAGENTS"] = "Включать материалы"
 L["INSCRIPTION"] = "Начертание"
@@ -987,6 +1048,10 @@ L["REAGENTS"] = "Материалы"
 L["REALM_WIDE_GOLD_X"] = "Всего на сервере: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["RECENT_CHARACTER_TABS"] = "Вкладки недавних персонажей"
+--[[Translation missing --]]
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Click heading to clear immediately."
+--[[Translation missing --]]
+L["RECENT_TIMER"] = "Recent timer"
 L["REDUCE_UI_SPACING"] = "Уменьшить расстояния в интерфейсе"
 L["REMOVE_BORDERS"] = "Убрать границы"
 L["REMOVE_FROM_CATEGORY"] = "Убрать из категории"
@@ -1046,6 +1111,8 @@ L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = [=[Перенести предме�
 Перенос происходит медленно из-за специфики работы банка гильдии]=]
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Перенести предметы, найденные через строку поиска, в почту для отправки"
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Продать торговцу предметы, найденные через строку поиска (максимум 12)"
+--[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Sell searched for items to the merchant (max 6)."
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Поместить предметы, найденные через строку поиска, в утилизатор"
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Добавить предметы, найденные через строку поиска, в окно обмена (до 6 штук)"
 L["TRANSPARENCY"] = "Непрозрачность"
@@ -1061,6 +1128,8 @@ L["WARBAND"] = "Отряд"
 L["WARBAND_BANK_COLUMNS"] = "Столбцов в отряде"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "Нет данных о банке отряда. Посетите банкира любым персонажем для отображения содержимого этого окна."
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Банк отряда не приобретен. Используйте кнопку справа для покупки."
+--[[Translation missing --]]
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "Warband Bank temporarily disabled by Blizzard."
 L["WELCOME_DESCRIPTION"] = "Выберите, какой вид сумок использовать. Вы сможете изменить это позже."
 L["WELCOME_TO_BAGANATOR"] = "Добро пожаловать в Baganator"
 L["WHEN_HOLDING_ALT"] = "При зажатом Alt"
@@ -1130,6 +1199,13 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "No se pueden añadir más artíc
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pestaña"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más artículos del banco de la hermandad"
 L["CATEGORIES"] = "Categorías"
+--[[Translation missing --]]
+L["CATEGORIES_FAILED_WARNING"] = [=[Something went wrong when displaying the categories.
+
+Failed search was "%s". The following items failed:
+%s
+
+Screenshot this and visit the discord:]=]
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Conjuntos de Equipamento"
 L["CATEGORY_BAG"] = "Bolsa"
 L["CATEGORY_DIVIDER"] = "———Divisor———"
@@ -1153,6 +1229,10 @@ L["CATEGORY_RECENT_AUTO"] = "Recent (Auto)"
 --[[Translation missing --]]
 L["CATEGORY_SPACING"] = "Category spacing"
 L["CATEGORY_TOY"] = "Juguete"
+--[[Translation missing --]]
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+--[[Translation missing --]]
+L["CHANGE_WINDOW_ANCHORS"] = "Change window anchors"
 L["CHARACTER"] = "Personaje"
 L["CHARACTER_PANEL"] = "Panel de Personajes"
 --[[Translation missing --]]
@@ -1171,6 +1251,8 @@ L["COOKING"] = "Cooking"
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
 L["CREATE_NEW_CATEGORY"] = "Create new category..."
+--[[Translation missing --]]
+L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 --[[Translation missing --]]
 L["CREATE_NEW_SECTION"] = "Create new section..."
 --[[Translation missing --]]
@@ -1203,6 +1285,8 @@ L["EXPORT"] = "Export"
 L["FISHING"] = "Fishing"
 --[[Translation missing --]]
 L["FLASH_DUPLICATE_ITEMS"] = "Flash duplicate items"
+--[[Translation missing --]]
+L["FOREVER"] = "Forever"
 --[[Translation missing --]]
 L["FORGE_OF_BONDS"] = "Forge of Bonds"
 --[[Translation missing --]]
@@ -1298,6 +1382,8 @@ L["IGNORED_BANK_SLOTS"] = "Ignored bank slots (character specific)"
 --[[Translation missing --]]
 L["IGNORED_SLOTS"] = "Ignored slots"
 --[[Translation missing --]]
+L["IMMEDIATE"] = "Immediate"
+--[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
 L["INCLUDE_REAGENTS"] = "Include Reagents"
@@ -1388,6 +1474,10 @@ L["REALM_X_X_X"] = "%s (x%s)"
 --[[Translation missing --]]
 L["RECENT_CHARACTER_TABS"] = "Recent character tabs"
 --[[Translation missing --]]
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Click heading to clear immediately."
+--[[Translation missing --]]
+L["RECENT_TIMER"] = "Recent timer"
+--[[Translation missing --]]
 L["REDUCE_UI_SPACING"] = "Reduce UI spacing"
 --[[Translation missing --]]
 L["REMOVE_BORDERS"] = "Remove borders"
@@ -1444,9 +1534,9 @@ L["SORTING"] = "Sorting"
 --[[Translation missing --]]
 L["SOUL"] = "Soul"
 --[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 --[[Translation missing --]]
 L["TAB_INFO"] = "Tab Information"
 --[[Translation missing --]]
@@ -1500,6 +1590,8 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a 
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Sell searched for items to the merchant (max 6)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
@@ -1529,6 +1621,8 @@ L["WARBAND_BANK_COLUMNS"] = "Warband bank columns"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
 --[[Translation missing --]]
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
+--[[Translation missing --]]
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "Warband Bank temporarily disabled by Blizzard."
 --[[Translation missing --]]
 L["WELCOME_DESCRIPTION"] = "Decide which kind of bags you want. This can be changed later."
 --[[Translation missing --]]
@@ -1611,6 +1705,13 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit thi
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any more items from the guild bank"
 L["CATEGORIES"] = "Categorías"
 --[[Translation missing --]]
+L["CATEGORIES_FAILED_WARNING"] = [=[Something went wrong when displaying the categories.
+
+Failed search was "%s". The following items failed:
+%s
+
+Screenshot this and visit the discord:]=]
+--[[Translation missing --]]
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Equipment Sets"
 --[[Translation missing --]]
 L["CATEGORY_BAG"] = "Bag"
@@ -1645,6 +1746,10 @@ L["CATEGORY_SPACING"] = "Category spacing"
 --[[Translation missing --]]
 L["CATEGORY_TOY"] = "Toy"
 --[[Translation missing --]]
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+--[[Translation missing --]]
+L["CHANGE_WINDOW_ANCHORS"] = "Change window anchors"
+--[[Translation missing --]]
 L["CHARACTER"] = "Character"
 --[[Translation missing --]]
 L["CHARACTER_PANEL"] = "Character Panel"
@@ -1664,6 +1769,8 @@ L["COOKING"] = "Cooking"
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
 L["CREATE_NEW_CATEGORY"] = "Create new category..."
+--[[Translation missing --]]
+L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 --[[Translation missing --]]
 L["CREATE_NEW_SECTION"] = "Create new section..."
 --[[Translation missing --]]
@@ -1691,6 +1798,8 @@ L["EXPORT"] = "Exportar"
 L["FISHING"] = "Fishing"
 --[[Translation missing --]]
 L["FLASH_DUPLICATE_ITEMS"] = "Flash duplicate items"
+--[[Translation missing --]]
+L["FOREVER"] = "Forever"
 --[[Translation missing --]]
 L["FORGE_OF_BONDS"] = "Forge of Bonds"
 --[[Translation missing --]]
@@ -1774,6 +1883,8 @@ L["IGNORED_BAG_SLOTS"] = "Ignored bag slots (character specific)"
 L["IGNORED_BANK_SLOTS"] = "Ignored bank slots (character specific)"
 --[[Translation missing --]]
 L["IGNORED_SLOTS"] = "Ignored slots"
+--[[Translation missing --]]
+L["IMMEDIATE"] = "Immediate"
 L["IMPORT"] = "Importar"
 --[[Translation missing --]]
 L["INCLUDE_REAGENTS"] = "Include Reagents"
@@ -1849,6 +1960,10 @@ L["REALM_X_X_X"] = "%s (X%s)"
 --[[Translation missing --]]
 L["RECENT_CHARACTER_TABS"] = "Recent character tabs"
 --[[Translation missing --]]
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Click heading to clear immediately."
+--[[Translation missing --]]
+L["RECENT_TIMER"] = "Recent timer"
+--[[Translation missing --]]
 L["REDUCE_UI_SPACING"] = "Reduce UI spacing"
 --[[Translation missing --]]
 L["REMOVE_BORDERS"] = "Remove borders"
@@ -1901,9 +2016,9 @@ L["SORTBAGS"] = "SortBags"
 L["SORTING"] = "Sorting"
 L["SOUL"] = "Alma"
 --[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 --[[Translation missing --]]
 L["TAB_INFO"] = "Tab Information"
 --[[Translation missing --]]
@@ -1955,6 +2070,8 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a 
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Sell searched for items to the merchant (max 6)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
@@ -1982,6 +2099,8 @@ L["WARBAND_BANK_COLUMNS"] = "Warband bank columns"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
 --[[Translation missing --]]
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
+--[[Translation missing --]]
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "Warband Bank temporarily disabled by Blizzard."
 --[[Translation missing --]]
 L["WELCOME_DESCRIPTION"] = "Decide which kind of bags you want. This can be changed later."
 --[[Translation missing --]]
@@ -2034,6 +2153,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "無法在此交易加入更多�
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您沒有權限編輯此標籤頁"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "無法從公會銀行提取更多物品"
 L["CATEGORIES"] = "分類"
+L["CATEGORIES_FAILED_WARNING"] = "顯示分類時出現報錯。\"%s\"搜尋失敗。以下物品失敗：%s 截圖並訪問 discord："
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "自動：裝備套裝"
 L["CATEGORY_BAG"] = "背包"
 L["CATEGORY_DIVIDER"] = "———分割線———"
@@ -2051,6 +2171,8 @@ L["CATEGORY_RECENT"] = "最近"
 L["CATEGORY_RECENT_AUTO"] = "最近 (自動)"
 L["CATEGORY_SPACING"] = "分類間距"
 L["CATEGORY_TOY"] = "玩具"
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (自動)"
+L["CHANGE_WINDOW_ANCHORS"] = "更改視窗定位點"
 L["CHARACTER"] = "角色"
 L["CHARACTER_PANEL"] = "角色面板"
 L["CHOOSE"] = "選擇"
@@ -2061,6 +2183,7 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "你想從公會銀行轉移�
 L["COOKING"] = "烹飪"
 L["CRAFTING_WINDOW"] = "製作視窗"
 L["CREATE_NEW_CATEGORY"] = "建立新分類..."
+L["CREATE_NEW_DIVIDER"] = "建立新分隔線..."
 L["CREATE_NEW_SECTION"] = "建立新群組..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C來複製"
 L["CUSTOMISE_BAGANATOR"] = "自定義Baganator"
@@ -2077,6 +2200,7 @@ L["EXPANSION"] = "資料片"
 L["EXPORT"] = "匯出"
 L["FISHING"] = "釣魚"
 L["FLASH_DUPLICATE_ITEMS"] = "閃光重複的物品"
+L["FOREVER"] = "永遠"
 L["FORGE_OF_BONDS"] = "靈魂之絆熔爐"
 L["FROM_THE_BOTTOM"] = "從底部"
 L["FROM_THE_TOP"] = "從頂部"
@@ -2124,6 +2248,7 @@ L["ICONS"] = "圖示"
 L["IGNORED_BAG_SLOTS"] = "忽略的背包格位 (角色特定)"
 L["IGNORED_BANK_SLOTS"] = "忽略的銀行格位 (角色特定)"
 L["IGNORED_SLOTS"] = "忽略的格位"
+L["IMMEDIATE"] = "即時"
 L["IMPORT"] = "匯入"
 L["INCLUDE_REAGENTS"] = "包含材料"
 L["INSCRIPTION"] = "銘文"
@@ -2169,6 +2294,8 @@ L["REAGENTS"] = "材料"
 L["REALM_WIDE_GOLD_X"] = "金幣總計：%s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["RECENT_CHARACTER_TABS"] = "最近的角色標籤"
+L["RECENT_HEADER_CLICK_MESSAGE"] = "點擊標題即可立即清除。"
+L["RECENT_TIMER"] = "最近計時器"
 L["REDUCE_UI_SPACING"] = "減少介面間距"
 L["REMOVE_BORDERS"] = "移除外框"
 L["REMOVE_FROM_CATEGORY"] = "從分類中移除"
@@ -2223,6 +2350,7 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "將背包搜尋的物品轉移放�
 L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = "將搜尋到的物品從背包內轉移到公會銀行。由於公會銀行欄較多讀取速度較慢，因此傳輸速度也較慢。"
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "將搜尋到的物品附加到郵件中發送。"
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "將搜尋到的商品出售給商店（最多 12 件）。"
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "將搜尋到的物品出售給商人（最多 6 件）。"
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "將可報廢的物品放入破爛回收機。"
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "將搜尋到的商品加入交易視窗（最多 6 個商品）。"
 L["TRANSPARENCY"] = "透明度"
@@ -2238,6 +2366,7 @@ L["WARBAND"] = "戰隊"
 L["WARBAND_BANK_COLUMNS"] = "戰隊銀行欄"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "戰隊銀行數據缺失。訪問任何角色的銀行NPC都可填充此庫。"
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "未購買戰隊背包欄。使用右側的新標簽按鈕購買"
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "暴雪暫時停用了戰隊銀行。"
 L["WELCOME_DESCRIPTION"] = "決定您想要哪種型態背包，稍後可做更改。"
 L["WELCOME_TO_BAGANATOR"] = "歡迎使用 Baganator"
 L["WHEN_HOLDING_ALT"] = "當按住Alt時"
@@ -2288,6 +2417,7 @@ L["CANNOT_ADD_ANY_MORE_ITEMS_TO_THIS_TRADE"] = "无法添加更多物品到此�
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您无权编辑此选项"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "无法从公会银行提取更多物品"
 L["CATEGORIES"] = "分类"
+L["CATEGORIES_FAILED_WARNING"] = "显示分类时出现报错。搜索失败的是\"%s\"。以下物品失败：%s 截图并访问 discord："
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "自动：装备方案"
 L["CATEGORY_BAG"] = "背包"
 L["CATEGORY_DIVIDER"] = "———分割线———"
@@ -2305,6 +2435,8 @@ L["CATEGORY_RECENT"] = "最近"
 L["CATEGORY_RECENT_AUTO"] = "最近（自动）"
 L["CATEGORY_SPACING"] = "分类间距"
 L["CATEGORY_TOY"] = "玩具"
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster（自动）"
+L["CHANGE_WINDOW_ANCHORS"] = "更改窗口锚点"
 L["CHARACTER"] = "角色"
 L["CHARACTER_PANEL"] = "角色界面"
 L["CHOOSE"] = "选择"
@@ -2315,6 +2447,7 @@ L["CONFIRM_TRANSFER_ALL_ITEMS_FROM_GUILD_BANK"] = "您想从公会银行转移�
 L["COOKING"] = "烹饪"
 L["CRAFTING_WINDOW"] = "专业窗口"
 L["CREATE_NEW_CATEGORY"] = "创建新分类..."
+L["CREATE_NEW_DIVIDER"] = "创建新分隔线..."
 L["CREATE_NEW_SECTION"] = "创建新组..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C 复制"
 L["CUSTOMISE_BAGANATOR"] = "自定义Baganator设置"
@@ -2331,6 +2464,7 @@ L["EXPANSION"] = "展开"
 L["EXPORT"] = "导出"
 L["FISHING"] = "钓鱼"
 L["FLASH_DUPLICATE_ITEMS"] = "闪光重复物品"
+L["FOREVER"] = "永久"
 L["FORGE_OF_BONDS"] = "羁绊熔炉"
 L["FROM_THE_BOTTOM"] = "从底部"
 L["FROM_THE_TOP"] = "从顶部"
@@ -2378,6 +2512,7 @@ L["ICONS"] = "图标"
 L["IGNORED_BAG_SLOTS"] = "忽略背包栏位（特定角色）"
 L["IGNORED_BANK_SLOTS"] = "忽略银行栏位（特定角色）"
 L["IGNORED_SLOTS"] = "忽略的格位"
+L["IMMEDIATE"] = "直接"
 L["IMPORT"] = "导入"
 L["INCLUDE_REAGENTS"] = "包含材料"
 L["INSCRIPTION"] = "铭文"
@@ -2423,6 +2558,8 @@ L["REAGENTS"] = "材料"
 L["REALM_WIDE_GOLD_X"] = "金币总计：%s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["RECENT_CHARACTER_TABS"] = "最近角色标签"
+L["RECENT_HEADER_CLICK_MESSAGE"] = "点击标题立即清除。"
+L["RECENT_TIMER"] = "最新计时器"
 L["REDUCE_UI_SPACING"] = "减少界面间距"
 L["REMOVE_BORDERS"] = "移除边框"
 L["REMOVE_FROM_CATEGORY"] = "从分类中移除"
@@ -2477,6 +2614,7 @@ L["TRANSFER_MAIN_VIEW_BANK_TOOLTIP_TEXT"] = "将背包内搜索出来的物品�
 L["TRANSFER_MAIN_VIEW_GUILD_TOOLTIP_TEXT"] = "将搜索到的物品从背包内转移到公会银行。由于公会银行栏较多读取速度较慢，因此传输速度也较慢。"
 L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "将搜索到的物品添加到邮件内并发送。"
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "将搜索到的物品出售给商人（最多 12 件）。"
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "将搜索到的物品出售给商人（最多 6 件）。"
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "将可拆解物品放入拆解机内。"
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "将搜索到的物品添加到交易窗口（最多 6 个物品）。"
 L["TRANSPARENCY"] = "透明度"
@@ -2492,6 +2630,7 @@ L["WARBAND"] = "战团"
 L["WARBAND_BANK_COLUMNS"] = "战团银行栏"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "战团银行数据丢失。访问任何角色的银行NPC都可填充此库。"
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "未购买战团背包栏。使用右侧的新标签按钮购买"
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "暴雪暂时禁用战团银行。"
 L["WELCOME_DESCRIPTION"] = "决定您想要哪种背包。稍后可以更改。"
 L["WELCOME_TO_BAGANATOR"] = "欢迎使用 Baganator"
 L["WHEN_HOLDING_ALT"] = "安装Alt键时"
@@ -2567,6 +2706,13 @@ L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any 
 --[[Translation missing --]]
 L["CATEGORIES"] = "Categories"
 --[[Translation missing --]]
+L["CATEGORIES_FAILED_WARNING"] = [=[Something went wrong when displaying the categories.
+
+Failed search was "%s". The following items failed:
+%s
+
+Screenshot this and visit the discord:]=]
+--[[Translation missing --]]
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Equipment Sets"
 --[[Translation missing --]]
 L["CATEGORY_BAG"] = "Bag"
@@ -2601,6 +2747,10 @@ L["CATEGORY_SPACING"] = "Category spacing"
 --[[Translation missing --]]
 L["CATEGORY_TOY"] = "Toy"
 --[[Translation missing --]]
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+--[[Translation missing --]]
+L["CHANGE_WINDOW_ANCHORS"] = "Change window anchors"
+--[[Translation missing --]]
 L["CHARACTER"] = "Character"
 --[[Translation missing --]]
 L["CHARACTER_PANEL"] = "Character Panel"
@@ -2618,6 +2768,8 @@ L["COOKING"] = "요리"
 L["CRAFTING_WINDOW"] = "제작창"
 --[[Translation missing --]]
 L["CREATE_NEW_CATEGORY"] = "Create new category..."
+--[[Translation missing --]]
+L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 --[[Translation missing --]]
 L["CREATE_NEW_SECTION"] = "Create new section..."
 --[[Translation missing --]]
@@ -2642,6 +2794,8 @@ L["EXPORT"] = "Export"
 L["FISHING"] = "낚시"
 --[[Translation missing --]]
 L["FLASH_DUPLICATE_ITEMS"] = "Flash duplicate items"
+--[[Translation missing --]]
+L["FOREVER"] = "Forever"
 L["FORGE_OF_BONDS"] = "결속의 제련소"
 --[[Translation missing --]]
 L["FROM_THE_BOTTOM"] = "From the bottom"
@@ -2731,6 +2885,8 @@ L["IGNORED_BANK_SLOTS"] = "Ignored bank slots (character specific)"
 --[[Translation missing --]]
 L["IGNORED_SLOTS"] = "Ignored slots"
 --[[Translation missing --]]
+L["IMMEDIATE"] = "Immediate"
+--[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
 L["INCLUDE_REAGENTS"] = "Include Reagents"
@@ -2807,6 +2963,10 @@ L["REALM_X_X_X"] = "%s (x%s)"
 --[[Translation missing --]]
 L["RECENT_CHARACTER_TABS"] = "Recent character tabs"
 --[[Translation missing --]]
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Click heading to clear immediately."
+--[[Translation missing --]]
+L["RECENT_TIMER"] = "Recent timer"
+--[[Translation missing --]]
 L["REDUCE_UI_SPACING"] = "Reduce UI spacing"
 --[[Translation missing --]]
 L["REMOVE_BORDERS"] = "Remove borders"
@@ -2857,9 +3017,9 @@ L["SORTING"] = "정렬"
 --[[Translation missing --]]
 L["SOUL"] = "Soul"
 --[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 --[[Translation missing --]]
 L["TAB_INFO"] = "Tab Information"
 --[[Translation missing --]]
@@ -2910,6 +3070,8 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a 
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Sell searched for items to the merchant (max 6)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
@@ -2937,6 +3099,8 @@ L["WARBAND_BANK_COLUMNS"] = "Warband bank columns"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
 --[[Translation missing --]]
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
+--[[Translation missing --]]
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "Warband Bank temporarily disabled by Blizzard."
 --[[Translation missing --]]
 L["WELCOME_DESCRIPTION"] = "Decide which kind of bags you want. This can be changed later."
 --[[Translation missing --]]
@@ -3031,6 +3195,13 @@ L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Cannot withdrawl any 
 --[[Translation missing --]]
 L["CATEGORIES"] = "Categories"
 --[[Translation missing --]]
+L["CATEGORIES_FAILED_WARNING"] = [=[Something went wrong when displaying the categories.
+
+Failed search was "%s". The following items failed:
+%s
+
+Screenshot this and visit the discord:]=]
+--[[Translation missing --]]
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Equipment Sets"
 --[[Translation missing --]]
 L["CATEGORY_BAG"] = "Bag"
@@ -3065,6 +3236,10 @@ L["CATEGORY_SPACING"] = "Category spacing"
 --[[Translation missing --]]
 L["CATEGORY_TOY"] = "Toy"
 --[[Translation missing --]]
+L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+--[[Translation missing --]]
+L["CHANGE_WINDOW_ANCHORS"] = "Change window anchors"
+--[[Translation missing --]]
 L["CHARACTER"] = "Character"
 --[[Translation missing --]]
 L["CHARACTER_PANEL"] = "Character Panel"
@@ -3084,6 +3259,8 @@ L["COOKING"] = "Cooking"
 L["CRAFTING_WINDOW"] = "Crafting Window"
 --[[Translation missing --]]
 L["CREATE_NEW_CATEGORY"] = "Create new category..."
+--[[Translation missing --]]
+L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 --[[Translation missing --]]
 L["CREATE_NEW_SECTION"] = "Create new section..."
 --[[Translation missing --]]
@@ -3116,6 +3293,8 @@ L["EXPORT"] = "Export"
 L["FISHING"] = "Fishing"
 --[[Translation missing --]]
 L["FLASH_DUPLICATE_ITEMS"] = "Flash duplicate items"
+--[[Translation missing --]]
+L["FOREVER"] = "Forever"
 --[[Translation missing --]]
 L["FORGE_OF_BONDS"] = "Forge of Bonds"
 --[[Translation missing --]]
@@ -3211,6 +3390,8 @@ L["IGNORED_BANK_SLOTS"] = "Ignored bank slots (character specific)"
 --[[Translation missing --]]
 L["IGNORED_SLOTS"] = "Ignored slots"
 --[[Translation missing --]]
+L["IMMEDIATE"] = "Immediate"
+--[[Translation missing --]]
 L["IMPORT"] = "Import"
 --[[Translation missing --]]
 L["INCLUDE_REAGENTS"] = "Include Reagents"
@@ -3301,6 +3482,10 @@ L["REALM_X_X_X"] = "%s (x%s)"
 --[[Translation missing --]]
 L["RECENT_CHARACTER_TABS"] = "Recent character tabs"
 --[[Translation missing --]]
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Click heading to clear immediately."
+--[[Translation missing --]]
+L["RECENT_TIMER"] = "Recent timer"
+--[[Translation missing --]]
 L["REDUCE_UI_SPACING"] = "Reduce UI spacing"
 --[[Translation missing --]]
 L["REMOVE_BORDERS"] = "Remove borders"
@@ -3357,9 +3542,9 @@ L["SORTING"] = "Sorting"
 --[[Translation missing --]]
 L["SOUL"] = "Soul"
 --[[Translation missing --]]
-L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use addonTable."
+L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 --[[Translation missing --]]
-L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use addonTable."
+L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
 --[[Translation missing --]]
 L["TAB_INFO"] = "Tab Information"
 --[[Translation missing --]]
@@ -3413,6 +3598,8 @@ L["TRANSFER_MAIN_VIEW_MAIL_TOOLTIP_TEXT"] = "Attach the searched for items to a 
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT"] = "Sell searched for items to the merchant (max 12)."
 --[[Translation missing --]]
+L["TRANSFER_MAIN_VIEW_MERCHANT_TOOLTIP_TEXT_2"] = "Sell searched for items to the merchant (max 6)."
+--[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_SCRAPPER_TOOLTIP_TEXT"] = "Place scrappable items into the scrapping machine."
 --[[Translation missing --]]
 L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Add searched for items to the trade window (up to 6 items)."
@@ -3442,6 +3629,8 @@ L["WARBAND_BANK_COLUMNS"] = "Warband bank columns"
 L["WARBAND_BANK_DATA_MISSING_HINT"] = "Warband Bank data missing. Visit a banker with any character to populate this view."
 --[[Translation missing --]]
 L["WARBAND_BANK_NOT_PURCHASED_HINT"] = "Warband Bank space not purchased. Use the new tab button on the right to purchase"
+--[[Translation missing --]]
+L["WARBAND_BANK_TEMPORARILY_DISABLED_HINT"] = "Warband Bank temporarily disabled by Blizzard."
 --[[Translation missing --]]
 L["WELCOME_DESCRIPTION"] = "Decide which kind of bags you want. This can be changed later."
 --[[Translation missing --]]

@@ -20,6 +20,7 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:OnLoad()
 
   addonTable.CallbackRegistry:RegisterCallback("ContentRefreshRequired",  function()
     self.MultiSearch:ResetCaches()
+    self.results = nil
     for _, layout in ipairs(self.Layouts) do
       layout:RequestContentRefresh()
     end
@@ -33,6 +34,8 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:OnLoad()
       return
     end
     if tIndexOf(addonTable.CategoryViews.Constants.RedisplaySettings, settingName) ~= nil then
+      self.searchToApply = true
+      self.results = nil
       if self:IsVisible() then
         self:GetParent():UpdateView()
       end
@@ -40,11 +43,13 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:OnLoad()
       for _, layout in ipairs(self.Layouts) do
         layout:InformSettingChanged(settingName)
       end
+      self.results = nil
       if self:IsVisible() then
         self:UpdateForCharacter(self.lastCharacter, self.isLive)
       end
     elseif settingName == addonTable.Config.Options.JUNK_PLUGIN then
       self.MultiSearch:ResetCaches()
+      self.results = nil
       if self:IsVisible() then
         self:GetParent():UpdateView()
       end
@@ -74,7 +79,7 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:TransferCategory(associ
     return
   end
 
-  self:RemoveSearchMatches(function() return self.results[associatedSearch].all end)
+  self:RemoveSearchMatches(function() return tFilter(self.results[associatedSearch].all, function(a) return a.itemLink ~= nil end, true) end)
 end
 
 function BaganatorCategoryViewBankViewCharacterViewMixin:GetSearchMatches()
@@ -133,6 +138,7 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:UpdateForCharacter(char
   end
 
   self.isGrouping = not self.isLive and addonTable.Config.Get(addonTable.Config.Options.CATEGORY_ITEM_GROUPING)
+  self.splitStacksDueToTransfer = self.isLive
 
   if self.addToCategoryMode and C_Cursor.GetCursorItem() == nil then
     self.addToCategoryMode = false

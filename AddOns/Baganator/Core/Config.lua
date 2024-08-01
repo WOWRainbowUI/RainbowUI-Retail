@@ -51,9 +51,11 @@ addonTable.Config.Options = {
   GUILD_VIEW_DIALOG_POSITION = "guild_view_dialog_position",
   SHOW_BUTTONS_ON_ALT = "show_buttons_on_alt",
   CHARACTER_SELECT_POSITION = "character_select_position",
+  SETTING_ANCHORS = "setting_anchors",
 
   DEBUG_TIMERS = "debug_timers",
   DEBUG_KEYWORDS = "debug_keywords",
+  DEBUG_CATEGORIES_SEARCH = "debug_categories_search",
 
   AUTO_OPEN = "auto_open",
 
@@ -68,6 +70,7 @@ addonTable.Config.Options = {
   CATEGORY_SECTION_TOGGLED = "category_section_toggled",
   CATEGORY_HORIZONTAL_SPACING = "category_horizontal_spacing",
   CATEGORY_ITEM_GROUPING = "category_item_grouping",
+  RECENT_TIMEOUT = "recent_timeout",
   ADD_TO_CATEGORY_BUTTONS = "add_to_category_buttons",
 }
 
@@ -119,9 +122,11 @@ addonTable.Config.Defaults = {
   [addonTable.Config.Options.AUTO_SORT_ON_OPEN] = false,
   [addonTable.Config.Options.JUNK_PLUGIN] = "poor_quality",
   [addonTable.Config.Options.JUNK_PLUGINS_IGNORED] = {},
+  [addonTable.Config.Options.SETTING_ANCHORS] = false,
 
   [addonTable.Config.Options.DEBUG_TIMERS] = false,
   [addonTable.Config.Options.DEBUG_KEYWORDS] = false,
+  [addonTable.Config.Options.DEBUG_CATEGORIES_SEARCH] = false,
 
   [addonTable.Config.Options.GUILD_BANK_SORT_METHOD] = "unset",
 
@@ -154,6 +159,7 @@ addonTable.Config.Defaults = {
   [addonTable.Config.Options.CATEGORY_HORIZONTAL_SPACING] = 0.15,
   [addonTable.Config.Options.CATEGORY_ITEM_GROUPING] = true,
   [addonTable.Config.Options.ADD_TO_CATEGORY_BUTTONS] = true,
+  [addonTable.Config.Options.RECENT_TIMEOUT] = 15,
 }
 
 addonTable.Config.IsCharacterSpecific = {
