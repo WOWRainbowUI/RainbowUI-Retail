@@ -1,45 +1,37 @@
 # DBM - Core
 
-## [11.0.0](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.0) (2024-07-23)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/10.2.54...11.0.0) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.2](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.2) (2024-07-28)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.1...11.0.2) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- Prep new DBM core with version bump and Delve tier detection support for statistics.  
-- Push delve tier fix  
-- Begin work on supporting delve tiers in stats recording and GUI. This way it records highest delves as priority over shortest time, similar to Mythic + behavior  
-    Fixed bug where story raid returned "delves" type  
-    Queen Ansurek will now store/show story kills in GUI  
-- Make sure LuaLS recognizes "self" in all local functions used by mods, to avoid missing any errors (none found, but just good convention to practice now)  
-- Add some nil error protection on Rashanan that i missed on normal  
-- fix counts in initial timers on each movement  
-- another fix  
-- Fixes to Rashanan  
-- Update koKR (#1151)  
-- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1152  
-- disable two warnings inconsiquential in LFR. Closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1153  
-- Redo how timers and phases are handled on Rashanan to be accurate to way it's coded.  
-- Fix a bug where tank combo and shroud timer on biurna could fully start new timers on phase 2 start because the previous timer had already expired. Now if previous timer has expired, no replacement timer is created as the abilities remain off CD on stage 2 start (intended behavior)  
-    Closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1149  
-- Update DBM-Raids-WarWithin\_Mainline.toc (#1147)  
-- Create localization.tw.lua (#1146)  
-- Update koKR (#1145)  
-- Update localization.ru.lua (#1144)  
-- Update commonlocal.ru.lua (#1143)  
-- Core/Timers: add missing timerTypes to options constructor (#1148)  
-- Add icontarget yell type that just shows 5 icons (#1142)  
-- Make IsTanking object more robust by validating both enemy and player UIDs. Now test I did in video would fail ;)  
-    Ironically scanning entirety of DBMs history found 0 occurances that was ever typoed, but now it can't be.  
-- Tests: update filters and fix bug when parsing logs with source flags  
-- Tests: reconstruct unit targets without boss unit IDs (for classic)  
-- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1136  
-- Update localization.ru.lua (#1141)  
-- Add a common local for an idea i'm thinking about  
-- Update koKR (#1140)  
-- prune some deprecated stuff and cleanup  
-- Special warning objects now have more robust LuaLS checking  
-    Fixed a bug on Magmorax where Blazing Breath alert gave no count  
-    Fixed a bug on Raszageth where Ball lighting gave no count  
-    Fixed a bug on Sennarth where Gossamer burst gave no count  
-- scope last  
-- Fix DBM not reporting new dungeon in SoD as having dungeon mods available.  
+- prep new tag  
+- Tests: Give mods more time to detect a wipe if necessary (#1171)  
+- Tests: restructure UI a bit (#1170)  
+- AnnoyingPopup: Simplify logic (#1168)  
+- Update koKR (#1169)  
+- Update localization.tw.lua  
+- Update localization.ru.lua (#1165)  
+- fix link  
+- Update localization.ru.lua (#1163)  
+- Update koKR (#1164)  
+- improve instructional language  
+- Also support M+ dungeons for that alert  
+- Fix delves and molten core showing needless + sign. that was bad copy and paste from Mythic+  
+    Add regular vanilla, wrath, and cata raid popups  
+    Fix wago url for vanilla raid module  
+- Show more annoying nag if important raid mods are missing (#1162)  
+- Push core fixes for delve loading timing  
+- Fix last to actually use faster function on retail  
+- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1159  
+    Fixes cross realm pull timers no longer working in pre patch. Also fixes pull timers never fully working correctly in Classic Era and Classic Cata  
+- Tests: strip prefix when auto-generating test report files  
+- Tests: pre-fill more metadata based on educated guesses when generating tests  
+- Tests: parse difficulty modifier from Transcriptor logs  
+- Tests: update transcriptor filter  
+- Tests: fake player debuff on test start for MC heat levels  
+- Core: don't special-case unnamed AntiSpam() calls  
+    This avoids a somewhat obscure problem in tests: it was generating a  
+    trailing whitespace in the record because the check result gets removed  
+    from an array with a hole due to the previous nil-value.  
+- Add new nil warning object to avoid a LuaLS nil checking bug (#1158)  
+- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1160  
 - bump alpha  
-- Update localization.ru.lua (#1139)  
