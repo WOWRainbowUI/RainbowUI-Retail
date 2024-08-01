@@ -150,6 +150,7 @@ local function EZBlizzUiPop_AlertFrame_SetUp(frame, AchievementInfo)
 			displayName:SetPoint("BOTTOMRIGHT", -60, 36);
 			frame.Shield:SetPoint("TOPRIGHT", -10, -13);
 			shieldPoints:SetPoint("CENTER", 7, 2);
+			shieldIcon:SetTexCoord(0, 0.5, 0, 0.45);
 			frame.glow:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Alert-Glow");
 			frame.glow:SetTexCoord(0, 0.78125, 0, 0.66796875);
 			frame.shine:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Alert-Glow");
@@ -164,7 +165,7 @@ local function EZBlizzUiPop_AlertFrame_SetUp(frame, AchievementInfo)
 		frame.shine:SetPoint("BOTTOMLEFT", 0, 8);
 
 		-- Center all text horizontally if the achievement has been earned and there's no points display
-		if (AchievementInfo.alreadyEarned) then
+		if (AchievementInfo.alreadyEarned or AchievementInfo.points == 0) then
 			if EZBlizzUiPop_WoWRetail then
 				unlocked:SetPoint("TOP", 27, -23);
 			else -- not Retail
@@ -177,15 +178,22 @@ local function EZBlizzUiPop_AlertFrame_SetUp(frame, AchievementInfo)
 	shieldPoints:SetShown(not AchievementInfo.alreadyEarned);
 	shieldIcon:SetShown(not AchievementInfo.alreadyEarned);
 
-	if ( points == 0 ) then
+	if ( AchievementInfo.points == 0 ) then
 		if EZBlizzUiPop_WoWRetail then
-			shieldIcon:SetAtlas("UI-Achievement-Shield-NoPoints", TextureKitConstants.UseAtlasSize);
+			--shieldIcon:SetAtlas("UI-Achievement-Shield-NoPoints", TextureKitConstants.UseAtlasSize);
+			shieldPoints:Hide()
+			shieldIcon:Hide()
 		else -- not Retail
 			shieldIcon:SetTexture([[Interface\AchievementFrame\UI-Achievement-Shields-NoPoints]]);
 		end
 	else
 		if EZBlizzUiPop_WoWRetail then
-			shieldIcon:SetAtlas("ui-achievement-shield-2", TextureKitConstants.UseAtlasSize);
+			--shieldIcon:SetAtlas("ui-achievement-shield-2", TextureKitConstants.UseAtlasSize);
+			if AchievementInfo.isGuildAch then
+				shieldIcon:SetAtlas("ui-achievement-shield-2", TextureKitConstants.UseAtlasSize)
+			else
+				shieldIcon:SetAtlas("ui-achievement-shield-1", TextureKitConstants.UseAtlasSize)
+			end
 		else -- not Retail
 			shieldIcon:SetTexture([[Interface\AchievementFrame\UI-Achievement-Shields]]);
 		end
@@ -219,7 +227,7 @@ function EZBlizzUiPop_ToastFakeAchievement(addon, playSound, delay, idNumber, na
 	local AchievementInfo = {}
 	AchievementInfo.achievementID = idNumber
 	AchievementInfo.name          = name
-	AchievementInfo.points        = points
+	AchievementInfo.points        = tonumber(points) or 0
 	AchievementInfo.icon          = icon
 	AchievementInfo.isGuildAch    = isGuildAch
 	AchievementInfo.toptext       = toptext
@@ -417,4 +425,3 @@ end
 	totopModel:SetRotation(-0.3)
 
 --]]
-

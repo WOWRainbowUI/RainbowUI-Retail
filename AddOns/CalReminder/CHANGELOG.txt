@@ -1,4 +1,6 @@
-﻿- v1.2.6
+﻿- v1.2.7
+	- [EZBlizzardUiPopups] v1.0.9 integration.
+- v1.2.6
 	- [EZBlizzardUiPopups] v1.0.6 integration.
 - v1.2.5
 	- TOC for 11.0.0.
