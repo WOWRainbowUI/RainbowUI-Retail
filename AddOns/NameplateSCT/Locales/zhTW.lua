@@ -1,8 +1,8 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("NameplateSCT", "zhTW")
 if not L then return end
 
---L["%s (A: %s)"] = "%s (A: %s)" -- A for Absorb
---L["%s (O: %s)"] = "%s (O: %s)" -- O for Overkill
+-- L["%s (A: %s)"] = "%s (吸收: %s)" -- A for Absorb
+-- L["%s (O: %s)"] = "%s (過量: %s)" -- O for Overkill
 L["Abilities"] = "技能"
 L["Absorbed"] = "吸收"
 L["Alpha"] = "透明度"
@@ -61,7 +61,7 @@ L["Icons"] = "圖示"
 L["If the addon is enabled."] = "啟用這個插件。"
 L["Immune"] = "免疫"
 L["Inverse Filter"] = "反向過濾"
-L["Inverse the logic, and only show the spells and npc's in the list instead of filtering them away."] = "反轉邏輯，僅顯示法術和 NPC，而不是將它們過濾掉。"
+L["Inverse the logic, and only show the spells and npc's in the list instead of filtering them away."] = "反向的邏輯，僅在清單中顯示法術和 NPC，而不是將它們過濾掉。"
 L["Left"] = "左"
 L["Let Masuqe skin the icons"] = "讓 Masuqe 插件更改圖示外觀。"
 L["Low"] = "低"
@@ -109,7 +109,7 @@ L["Tooltip"] = "滑鼠提示"
 L["Top Left"] = "左上"
 L["Top Right"] = "右上"
 L["Top"] = "上"
-L["Truncate Letter East Asia"] = "縮寫亞洲數字"
+L["Truncate Letter East Asia"] = "w"
 L["Truncate Method:\n\nWestern:\n  1000=>1K,\n  1000K=>1M\nAsia East:\n  10000=>1w"] = "縮寫規則:\n\n西方:\n  1000=>1K,\n  1000K=>1M\n亞洲:\n  10000=>1w"
 L["Truncate Number"] = "顯示縮寫數字"
 L["Use Crit Color"] = "使用致命一擊顏色"
