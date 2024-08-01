@@ -26,7 +26,7 @@ L["Disabling the texture will make them reset next time you reload, are you sure
 L["Sort"] = "排序"
 L["The higher the rank ordering more right"] = "優先順序愈高排列愈靠右"
 L["Resource Number"] = "資源數值"
-L["Show"] = "顯示"
+L["Show"] = "顯示 (調整後需要重新載入介面才會生效，包括下方的設定)"
 L["alignment"] = "對齊"
 L["left"] = "左"
 L["center"] = "中"

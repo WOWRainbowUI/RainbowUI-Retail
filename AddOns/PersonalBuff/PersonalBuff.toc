@@ -10,7 +10,7 @@
 
 ## Title-zhTW: |cff4DD2FF[頭像]|r 個人資源條增強
 ## Notes-zhTW: Personal Buff |n|n讓角色下方的個人資源條能夠自訂要顯示哪些增益/減益圖示，還可以自訂位置、字體、顯示數值、永遠顯示...等。|n|n|cffffd200使用方法：|r從Esc>選項>插件>個人資源條，進行設定。
-## Version: 11.0.00002
+## Version: 11.0.00002 Fix
 ## X-Category-zhTW: 介面
 ## IconTexture: Interface\Icons\ability_earthen_azeritesurge
 ## DefaultState: disabled

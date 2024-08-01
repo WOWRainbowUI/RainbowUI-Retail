@@ -405,7 +405,9 @@ local function EventHandler(self, event,...)
     elseif event == "NAME_PLATE_UNIT_ADDED" then
         healthBarReset(...)
 		hideBlizzardBuffFrame(...)
-        setNameplateNumber(...)
+        if aceDB.char.resourceNumber then -- 暫時修正
+			setNameplateNumber(...)
+		end
         setBuffFramePoint()
     elseif event == "PLAYER_REGEN_ENABLED" then
         checkDefaultSpellListDB()
