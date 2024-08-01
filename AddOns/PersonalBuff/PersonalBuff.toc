@@ -1,0 +1,27 @@
+## Interface: 110000, 110002
+## Title: Personal Buff
+## Title-zhTW: 個人血條增益
+## Notes: Show buff icons on personal nameplate
+## Notes-zhTW: 顯示增益圖示於個人血條
+## SavedVariables: PersonalBuffAceDB
+
+# localization file
+# Locale Translations
+
+## Title-zhTW: |cff4DD2FF[頭像]|r 個人資源條增強
+## Notes-zhTW: Personal Buff |n|n讓角色下方的個人資源條能夠自訂要顯示哪些增益/減益圖示，還可以自訂位置、字體、顯示數值、永遠顯示...等。|n|n|cffffd200使用方法：|r從Esc>選項>插件>個人資源條，進行設定。
+## Version: 11.0.00002
+## X-Category-zhTW: 介面
+## IconTexture: Interface\Icons\ability_earthen_azeritesurge
+## DefaultState: disabled
+
+libs\LibDDI-1.0\lib.xml
+
+src\Locales.xml
+src\zhTW.lua
+src\enUS.lua
+
+src\BuffFrame.lua
+src\PersonalBuff.lua
+src\config.lua
+src\PersonalNumber.lua
