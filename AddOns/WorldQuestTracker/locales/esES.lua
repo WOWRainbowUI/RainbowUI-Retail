@@ -285,10 +285,8 @@ L["S_OPTIONS_WORLDMAP_ANCHOR_TO"] = "Añadir A"
 L["S_OPTIONS_WORLDMAP_ORGANIZEBY"] = "Organizar las Misiones Por"
 L["S_OPTIONS_WORLDMAP_WIDGET_ALPHA"] = "Pin Alfa"
 L["S_OPTIONS_ZONE_SHOWONLYTRACKED"] = "Sólo Seguidos"
---[[Translation missing --]]
-L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST"] = "Auto Accept Abandon Quests"
---[[Translation missing --]]
-L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST_DESC"] = "Don't show the confirmation dialog when abandoning a quest."
+L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST"] = "Auto Aceptar Abandonar Misiones"
+L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST_DESC"] = "No mostrar el cuadro de diálogo de confirmación al abandonar una misión."
 L["S_OPTTIONS_DRAGONRACE_MINIMAP"] = "Mostrar Seguimiento en el Minimapa"
 L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "Color del Seguimiento"
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "Carrera de Dragones"
