@@ -135,44 +135,27 @@ L["BAGS_X"] = "Sacs: %s"
 L["BANK_LOWER"] = "banque"
 L["BANK_X"] = "Banque : %s"
 L["CANNOT_SEARCH_BY_ITEM_LINK"] = "Impossible d’effectuer une recherche par lien d’objet"
---[[Translation missing --]]
-L["DELETE_CHARACTER"] = "Delete Character"
+L["DELETE_CHARACTER"] = "Supprimer le personnage"
 L["EQUIPPED_LOWER"] = "équipé "
 L["EQUIPPED_X"] = "Equipé: %s "
---[[Translation missing --]]
-L["GROUP_ARMOR_TYPE"] = "Armor Type"
---[[Translation missing --]]
-L["GROUP_BATTLE_PET"] = "Battle Pet Type"
---[[Translation missing --]]
-L["GROUP_CONSUMABLE"] = "Consumable"
---[[Translation missing --]]
-L["GROUP_EXPANSION"] = "Expansion"
---[[Translation missing --]]
-L["GROUP_GLYPH"] = "Glyph"
---[[Translation missing --]]
-L["GROUP_ITEM_DETAIL"] = "Item Detail"
---[[Translation missing --]]
-L["GROUP_ITEM_TYPE"] = "Item Type"
---[[Translation missing --]]
-L["GROUP_QUALITY"] = "Quality"
---[[Translation missing --]]
-L["GROUP_RECIPE"] = "Recipe"
---[[Translation missing --]]
-L["GROUP_SLOT"] = "Equipment Slot"
---[[Translation missing --]]
-L["GROUP_SOCKET"] = "Socket"
---[[Translation missing --]]
-L["GROUP_STAT"] = "Stat"
---[[Translation missing --]]
-L["GROUP_TRADE_GOODS"] = "Trade Goods"
---[[Translation missing --]]
-L["GROUP_WEAPON_TYPE"] = "Weapon Type"
+L["GROUP_ARMOR_TYPE"] = "Type d'armure"
+L["GROUP_BATTLE_PET"] = "Type de mascotte"
+L["GROUP_CONSUMABLE"] = "Consommable"
+L["GROUP_EXPANSION"] = "Extension"
+L["GROUP_GLYPH"] = "Glyphe"
+L["GROUP_ITEM_DETAIL"] = "Description de l'objet"
+L["GROUP_ITEM_TYPE"] = "Type d'objet"
+L["GROUP_QUALITY"] = "Qualité"
+L["GROUP_RECIPE"] = "Recette"
+L["GROUP_SLOT"] = "Emplacement"
+L["GROUP_SOCKET"] = "Châsse"
+L["GROUP_STAT"] = "Caractéristique"
+L["GROUP_TRADE_GOODS"] = "Artisanat"
+L["GROUP_WEAPON_TYPE"] = "Type d'arme"
 L["GUILD_LOWER"] = "guilde"
 L["GUILD_X"] = "Guilde: %s"
---[[Translation missing --]]
-L["HIDE_IN_TOOLTIPS"] = "Hide in tooltips"
---[[Translation missing --]]
-L["HOLD_SHIFT_TO_DISPLAY"] = "Hold shift to display"
+L["HIDE_IN_TOOLTIPS"] = "Cacher dans l'infobulle"
+L["HOLD_SHIFT_TO_DISPLAY"] = "Maintenir MAJ pour afficher"
 L["INVENTORY"] = "Inventaire"
 L["KEYWORD_ACCOUNT_BOUND"] = "lié au compte"
 L["KEYWORD_AXE"] = "hache"
@@ -186,30 +169,24 @@ L["KEYWORD_BOP"] = "lqr"
 L["KEYWORD_BOU"] = "lqu"
 L["KEYWORD_BRACERS"] = "brassards"
 L["KEYWORD_CLOAK"] = "cape"
---[[Translation missing --]]
-L["KEYWORD_COLLECTED"] = "collected"
+L["KEYWORD_COLLECTED"] = "obtenu"
 L["KEYWORD_COSMETIC"] = "cosmétique"
---[[Translation missing --]]
-L["KEYWORD_CURRENCY"] = "currency"
+L["KEYWORD_CURRENCY"] = "monnaie"
 L["KEYWORD_DRINK"] = "boisson"
 L["KEYWORD_ENGRAVABLE"] = "gravable"
 L["KEYWORD_ENGRAVED"] = "gravée"
 L["KEYWORD_EQUIPMENT"] = "équipement"
---[[Translation missing --]]
-L["KEYWORD_EQUIPMENT_SET"] = "equipment set"
---[[Translation missing --]]
-L["KEYWORD_FISH"] = "fish"
+L["KEYWORD_EQUIPMENT_SET"] = "set d'armure"
+L["KEYWORD_FISH"] = "poisson"
 L["KEYWORD_FOOD"] = "nourriture"
 L["KEYWORD_GEAR"] = "équipement"
 L["KEYWORD_GLOVES"] = "mains"
 L["KEYWORD_HELM"] = "casque"
 L["KEYWORD_JUNK"] = "camelote"
---[[Translation missing --]]
-L["KEYWORD_KEY"] = "key"
+L["KEYWORD_KEY"] = "clé"
 L["KEYWORD_MACE"] = "masse"
 L["KEYWORD_MANUSCRIPT"] = "manuscrit"
---[[Translation missing --]]
-L["KEYWORD_OBJECTIVE"] = "objective"
+L["KEYWORD_OBJECTIVE"] = "objectif"
 L["KEYWORD_OFF_HAND"] = "main gauche"
 L["KEYWORD_OPEN"] = "ouvrir"
 L["KEYWORD_PET"] = "mascotte"
@@ -219,8 +196,7 @@ L["KEYWORD_RELIC"] = "relique"
 L["KEYWORD_REPUTATION"] = "réputation"
 L["KEYWORD_SET"] = "set"
 L["KEYWORD_SOCKET"] = "châsse"
---[[Translation missing --]]
-L["KEYWORD_SOCKETED"] = "socketed"
+L["KEYWORD_SOCKETED"] = "enchâssé"
 L["KEYWORD_SOULBOUND"] = "lié"
 L["KEYWORD_STACKABLE"] = "empilable "
 L["KEYWORD_STACKS"] = "piles"
@@ -229,42 +205,29 @@ L["KEYWORD_SWORD"] = "épée"
 L["KEYWORD_TRADABLE_LOOT"] = "butin échangeable"
 L["KEYWORD_TRADEABLE_LOOT"] = "butin échangeable"
 L["KEYWORD_TRASH"] = "camelote"
---[[Translation missing --]]
-L["KEYWORD_UNCOLLECTED"] = "uncollected"
---[[Translation missing --]]
-L["KEYWORD_USABLE"] = "usable"
+L["KEYWORD_UNCOLLECTED"] = "non obtenu"
+L["KEYWORD_USABLE"] = "utilisable"
 L["KEYWORD_USE"] = "utiliser"
 L["MAIL_LOWER"] = "courrier"
 L["MAIL_X"] = "Courrier : %s"
---[[Translation missing --]]
-L["SAME_CONNECTED_REALMS"] = "Same connected realms"
---[[Translation missing --]]
-L["SAME_FACTION"] = "Same faction"
+L["SAME_CONNECTED_REALMS"] = "même serveur"
+L["SAME_FACTION"] = "même faction"
 L["SEARCHED_EVERYWHERE_COLON"] = "Recherche Globale:"
---[[Translation missing --]]
-L["SHOW_CURRENCY"] = "Show currency"
---[[Translation missing --]]
-L["SHOW_EQUIPPED"] = "Show equipped"
---[[Translation missing --]]
-L["SHOW_GUILD_BANKS"] = "Show guild banks"
---[[Translation missing --]]
-L["SHOW_IN_TOOLTIPS"] = "Show in tooltips"
---[[Translation missing --]]
-L["SHOW_INVENTORY"] = "Show inventory"
---[[Translation missing --]]
-L["SHOW_RACE_ICONS"] = "Show race icons"
---[[Translation missing --]]
-L["SORT_BY_NAME"] = "Sort by name"
+L["SHOW_CURRENCY"] = "Afficher les monnaies"
+L["SHOW_EQUIPPED"] = "Afficher équipé"
+L["SHOW_GUILD_BANKS"] = "Afficher la banque de guilde"
+L["SHOW_IN_TOOLTIPS"] = "Afficher dans l'infobulle"
+L["SHOW_INVENTORY"] = "Afficher l'inventaire"
+L["SHOW_RACE_ICONS"] = "Afficher les icônes de race"
+L["SORT_BY_NAME"] = "Trier par nom"
 L["SYNDICATOR"] = "Syndicator"
 L["TOOLTIP_SETTINGS"] = "Options des infobulles"
 L["TOTAL_X"] = "Total: %s"
 L["VERSION_COLON_X"] = "Version: %s"
 L["VOID_LOWER"] = "vide"
 L["VOID_X"] = "Vide: %s"
---[[Translation missing --]]
-L["WARBAND"] = "Warband"
---[[Translation missing --]]
-L["WARBAND_LOWER"] = "warband"
+L["WARBAND"] = "Bataillon"
+L["WARBAND_LOWER"] = "bataillon"
 L["X_CHARACTERS_SHOWN"] = "%s Personnages affichés"
 
 
