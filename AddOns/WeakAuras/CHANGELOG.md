@@ -1,23 +1,29 @@
-# [5.15.3](https://github.com/WeakAuras/WeakAuras2/tree/5.15.3) (2024-07-25)
+# [5.15.4](https://github.com/WeakAuras/WeakAuras2/tree/5.15.4) (2024-07-27)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.15.2...5.15.3)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.15.3...5.15.4)
 
 ## Highlights
 
-  
+ - Class and Specialzation triggers now support class/spec conditions 
 
 ## Commits
 
-Stanzilla (1):
+Boneshock (1):
 
-- Fix addon compartment for 11.0
+- fix error when creating new reputation trigger
 
-mrbuds (2):
+InfusOnWoW (6):
 
-- Prepare triggerTemplates for herotalent
-- Fix potential error with some triggers with no spell set
+- Class and Specialization Trigger: Add condition for class/spec
+- Triggers: Don't set state.icon if the icon is unknown
+- Model Sub Element: Fix model frame level
+- Model+Model Sub Element: Remove model_path
+- Model Sub Element: Fix Model option
+- Fix custom text function returning a table leading to a lua error
 
-potat0nerd (1):
+mrbuds (3):
 
-- Update GetWatchedFactionInfo to new API (#5242)
+- Fix transmission of auras
+- submodel: change default on classic for an existing model
+- Model: change default on classic for an existing model
 
