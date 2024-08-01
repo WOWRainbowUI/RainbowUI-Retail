@@ -259,7 +259,11 @@ D["Baganator"] = {
     },
 	{
 		type = "text",
-        text = "自動整理背包: 在設定選項中可以啟用 '整理按鈕'。\n\n物品數量統計: 這個背包有內建物品數量統計的功能 (預設關閉)，建議和 '物品數量統計' 插件擇一使用即可。",       
+        text = "自訂分類: 在設定選項>分類>建立新分類。\n\n用過關鍵字過濾的方式來決定自訂分類要擺放哪些物品。\n\n例如輸入 '裝綁' 就會把所有裝備綁定的物品放在一起。\n\n其他關鍵字請按 '說明' 按鈕查看。\n",       
+	},
+	{
+		type = "text",
+        text = "外觀主題: 載入 '多角色背包外觀-簡單黑' 插件就會改變背包的外觀。\n\n要恢復成原本的外觀只要取消載入外觀插件即可。\n",       
 	},
 };
 D["BagSync"] = {
@@ -1876,8 +1880,23 @@ D["PetTracker"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
+D["PersonalBuff"] = {
+	defaultEnable = 0,
+	tags = { "UNITFRAME" },
+	title = "個人資源條增強",
+	desc = "如果你有習慣使用人物下方的個人資源條 (血量和法力條) 推薦搭配這個插件一起使用。``讓個人資源條能夠自訂要顯示哪些增益/減益圖示，還可以自訂位置、字體、顯示數值、永遠顯示...等。`",
+	author = "Killangel41",
+	modifier = "彩虹ui",
+	icon = "Interface\\Icons\\ability_earthen_azeritesurge",
+	{
+        text = "設定選項",
+        callback = function(cfg, v, loading) 
+			Settings.OpenToCategory("個人資源條")
+		end,
+    },
+};
 D["Plumber"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
 	title = "夢境工具組",
 	desc = "讓你在世界地圖上就能看到夢境種子的位置和生長時間，稍微改善貢獻種子的介面，還有其他功能。``請到 Esc>選項>插件>夢境工具，查看詳細介紹。`",
