@@ -26,10 +26,7 @@ local function GetClassSubClass(details)
     details.classID = Enum.ItemClass.Battlepet
     details.subClassID = petType - 1
   else
-    local classID, subClassID = select(6, C_Item.GetItemInfoInstant(details.itemLink))
-    if not classID then
-      classID, subClassID = C_Item.GetItemInfoInstant(details.itemID)
-    end
+    local classID, subClassID = select(6, C_Item.GetItemInfoInstant(details.itemID))
     details.classID = classID
     details.subClassID = subClassID
   end
@@ -64,10 +61,6 @@ local function EngravedCheck(details)
   return details.engravingInfo ~= nil
 end
 
-local function BindOnEquipCheck(details)
-  return not details.isBound and (Syndicator.Utilities.IsEquipment(details.itemLink) or details.classID == Enum.ItemClass.Container)
-end
-
 local function EquipmentCheck(details)
   GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Armor or details.classID == Enum.ItemClass.Weapon
@@ -78,7 +71,7 @@ local function FoodCheck(details)
 end
 
 local function PotionCheck(details)
-  return details.classID == Enum.ItemClass.Consumable and (details.subClassID == 1 or details.subClassID == 2)
+  return details.classID == Enum.ItemClass.Consumable and (details.subClassID == 1 or details.subClassID == 2 or details.subClassID == 3)
 end
 
 local function CosmeticCheck(details)
@@ -91,12 +84,6 @@ local function CosmeticCheck(details)
   end
   details.isCosmetic = C_Item.IsCosmeticItem(details.itemLink)
   return details.isCosmetic
-end
-
-local function GetQualityCheck(quality)
-  return function(details)
-    return details.quality == quality
-  end
 end
 
 local function AxeCheck(details)
@@ -295,11 +282,24 @@ local function JunkCheck(details)
   end
 end
 
-local function BindOnAccountCheck(details)
-  if not details.isBound then
+local function BindOnEquipCheck(details)
+  if details.isBound or (not Syndicator.Utilities.IsEquipment(details.itemLink) and details.classID ~= Enum.ItemClass.Container) then
     return false
   end
 
+  GetTooltipInfoSpell(details)
+
+  if details.tooltipInfoSpell then
+    for _, row in ipairs(details.tooltipInfoSpell.lines) do
+      if row.leftText == ITEM_BIND_ON_EQUIP then
+        return true
+      end
+    end
+    return false
+  end
+end
+
+local function BindOnAccountCheck(details)
   GetTooltipInfoSpell(details)
 
   if details.tooltipInfoSpell then
@@ -353,7 +353,7 @@ local function UseCheck(details)
   local usableSeen = false
   if details.tooltipInfoSpell then
     for _, row in ipairs(details.tooltipInfoSpell.lines) do
-      if row.leftColor.r == 0 and row.leftColor.g == 1 and row.leftColor.b == 0 and row.leftText:match("^" .. USE_COLON) then
+      if row.leftColor.r == 0 and row.leftColor.g == 1 and row.leftColor.b == 0 and row.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONUSE) then
         usableSeen = true
       elseif row.leftColor.r == 1 and row.leftColor.g < 0.2 and row.leftColor.b < 0.2 then
         return false
@@ -570,20 +570,6 @@ if Syndicator.Constants.IsRetail then
   AddKeyword(TOY:lower(), ToyCheck, SYNDICATOR_L_GROUP_ITEM_TYPE)
   if Syndicator.Constants.WarbandBankActive then
     AddKeyword(ITEM_ACCOUNTBOUND:lower(), BindOnAccountCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
-  end
-end
-
-local function PetCollectedCheck(details)
-  local speciesID
-  if details.itemID == Syndicator.Constants.BattlePetCageID then
-    speciesID = tonumber((details.itemLink:match("battlepet:(%d+)")))
-  elseif C_PetJournal.GetPetInfoByItemID(details.itemID) ~= nil then
-    speciesID = select(13, C_PetJournal.GetPetInfoByItemID(details.itemID))
-  end
-  if speciesID then
-    return C_PetJournal.GetNumCollectedInfo(speciesID) == 0
-  else
-    return false
   end
 end
 
@@ -1086,7 +1072,7 @@ local function GetTooltipSpecialTerms(details)
       if term then
         table.insert(details.searchKeywordsTmp, term:lower())
       else
-        local match = line.leftText:match("^" .. USE_COLON) or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP) or (UPGRADE_PATH_PATTERN and line.leftText:match(UPGRADE_PATH_PATTERN))
+        local match = line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONUSE) or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP) or (UPGRADE_PATH_PATTERN and line.leftText:match(UPGRADE_PATH_PATTERN))
         if details.classID ~= Enum.ItemClass.Recipe and match then
           table.insert(details.searchKeywordsTmp, line.leftText:lower())
         end
@@ -1395,6 +1381,7 @@ function Syndicator.Search.CheckItem(details, searchString)
     matches[searchString] = check
   end
 
+  local doNotCache
   result, doNotCache = check(details, searchString)
   if not doNotCache then
     details.fullMatchInfo[searchString] = result
@@ -1449,7 +1436,6 @@ function Syndicator.Search.InitializeSearchEngine()
   end
 
   local armorTypesToCheck = {
-    1, -- cloth
     2, -- leather
     3, -- mail
     4, -- plate
@@ -1469,6 +1455,12 @@ function Syndicator.Search.InitializeSearchEngine()
       end, SYNDICATOR_L_GROUP_ARMOR_TYPE)
     end
   end
+  -- cloth armor, but excluding cloaks
+  AddKeyword(C_Item.GetItemSubClassInfo(Enum.ItemClass.Armor, 1):lower(), function(details)
+    GetClassSubClass(details)
+    GetInvType(details)
+    return details.classID == Enum.ItemClass.Armor and details.subClassID == 1 and details.invType ~= "INVTYPE_CLOAK"
+  end, SYNDICATOR_L_GROUP_ARMOR_TYPE)
 
   -- All weapons + fishingpole
   for subClass = 0, 20 do

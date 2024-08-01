@@ -83,7 +83,7 @@ function Syndicator.SlashCmd.HideCharacter(characterName)
   if not success then
     Syndicator.Utilities.Message("無法辨識的角色")
   else
-    local guildData = Syndicator.API.GetByCharacterFullName(characterName)
+    local characterData = Syndicator.API.GetByCharacterFullName(characterName)
     Syndicator.Utilities.Message("角色 '" .. characterName .. "' 已隱藏: " .. tostring(characterData.details.hidden))
   end
 end
