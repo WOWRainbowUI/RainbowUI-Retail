@@ -56,7 +56,7 @@ local defaults = {
 		xOffset = 0,
 		yOffset = -280,
 		width = 280,
-		maxHeight = 600,
+		maxHeight = 500,
 		frameScrollbar = true,
 		frameStrata = "LOW",
 		
@@ -118,7 +118,7 @@ local defaults = {
 		modulesOrder = KT.BLIZZARD_MODULES,
 
 		addonMasque = false,
-		addonPetTracker = true,
+		addonPetTracker = false,
 		addonTomTom = false,
 
 		hackLFG = true,
