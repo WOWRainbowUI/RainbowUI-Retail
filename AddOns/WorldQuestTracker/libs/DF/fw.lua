@@ -2914,9 +2914,9 @@ end
 
 --DF.font_templates ["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 11, font = "Accidental Presidency"}
 --DF.font_templates ["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 12, font = "Accidental Presidency"}
---DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 16, font = DF:GetBestFontForLanguage()}
+--DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = "orange", size = 10, font = DF:GetBestFontForLanguage()}
 DF.font_templates["ORANGE_FONT_TEMPLATE"] = {color = {1, 0.8235, 0, 1}, size = 16, font = DF:GetBestFontForLanguage()}
---DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 14, font = DF:GetBestFontForLanguage()}
+--DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = "yellow", size = 9.6, font = DF:GetBestFontForLanguage()}
 DF.font_templates["OPTIONS_FONT_TEMPLATE"] = {color = {1, 1, 1, 0.9}, size = 14, font = DF:GetBestFontForLanguage()}
 DF.font_templates["SMALL_SILVER"] = {color = "silver", size = 12, font = DF:GetBestFontForLanguage()}
 
