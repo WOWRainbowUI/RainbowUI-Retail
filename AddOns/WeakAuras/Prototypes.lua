@@ -2552,6 +2552,8 @@ Private.event_prototypes = {
         local factionID = useWatched and Private.ExecEnv.GetWatchedFactionId() or %q
         local minValue, maxValue, currentValue
         local factionData = Private.ExecEnv.GetFactionDataByID(factionID)
+        if not factionData then return end;
+
         local name, description = factionData.name, factionData.description
         local standingID = factionData.reaction
         local hasRep = factionData.isHeaderWithRep
@@ -5160,7 +5162,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -5639,7 +5641,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -5738,7 +5740,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -5859,7 +5861,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -6022,7 +6024,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -6225,7 +6227,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -6310,7 +6312,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -6372,7 +6374,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -6445,7 +6447,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -6561,7 +6563,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -6771,7 +6773,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -7249,6 +7251,8 @@ Private.event_prototypes = {
         display = L["Class and Specialization"],
         type = "multiselect",
         values = "spec_types_all",
+        store = "true",
+        conditionType = "select"
       },
       {
         hidden = true,
@@ -7872,7 +7876,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -8657,7 +8661,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -8782,7 +8786,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = "true",
-        init = "icon or 'Interface/Icons/INV_Misc_QuestionMark'",
+        init = "icon",
         store = "true",
         test = "true",
       },
@@ -8976,7 +8980,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -9619,7 +9623,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
@@ -10990,7 +10994,7 @@ Private.event_prototypes = {
       {
         name = "icon",
         hidden = true,
-        init = "icon or 'Interface\\AddOns\\WeakAuras\\Media\\Textures\\icon'",
+        init = "icon",
         test = "true",
         store = true
       },
