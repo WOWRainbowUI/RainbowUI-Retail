@@ -1,0 +1,52 @@
+## Interface: 110000
+
+## Title: World Quest Tracker
+## Notes: An addon by Terciob. Make more easy to see world quests
+## SavedVariables: WQTrackerDB, WQTrackerLanguage
+## SavedVariablesPerCharacter: WQTrackerDBChr
+
+## X-Curse-Project-ID: 100610
+## X-Wago-ID: lQNlrEKe
+
+## Version: v11.0.0.503-Retail
+
+
+#@no-lib-strip@
+libs\libs.xml
+#@end-no-lib-strip@
+
+locales\enUS.lua
+locales\deDE.lua
+locales\esES.lua
+locales\esMX.lua
+locales\frFR.lua
+locales\itIT.lua
+locales\koKR.lua
+locales\ptBR.lua
+locales\ruRU.lua
+locales\zhCN.lua
+locales\zhTW.lua
+
+WorldQuestTracker.xml
+
+WorldQuestTracker_Initialize.lua
+WorldQuestTracker_IDs.lua
+
+WorldQuestTracker.lua
+WorldQuestTracker_Tracker.lua
+
+WorldQuestTracker_Core.lua
+
+WorldQuestTracker_FrameAPI.lua
+WorldQuestTracker_MapAPI.lua
+WorldQuestTracker_GroupFinder.lua
+WorldQuestTracker_RareFinder.lua
+WorldQuestTracker_ZoneMap.lua
+WorldQuestTracker_WorldMap.lua
+WorldQuestTracker_Taxi.lua
+
+WorldQuestTracker_OptionsPanel.lua
+
+WorldQuestTrackerMixin.xml
+
+racing_helper.lua
