@@ -328,6 +328,7 @@ L["Do you really want to delete all data for %s-%s?\n\nType \"DELETE\" into the 
 L["Tracks professions KPs"] = "追蹤專業知識點數"
 L["Slimmed down version of main tooltip i.e. +15 Neltharions Lair -> +15 NL\nMostly affects tooltip in horizontal orientation"] = "使用較窄的版面來顯示主要浮動提示資訊，例如 +15 奈薩里奧巢穴 -> +15 奈穴\n主要影響水平方向的浮動提示資訊"
 L["Available Knowledge Point Weeklies"] = "每週可取得的知識點數"
+L["Min Level to track"] = "要追蹤的最低等級"
 
 -- 10.0 S1
 L["HoV"] = "英靈"
