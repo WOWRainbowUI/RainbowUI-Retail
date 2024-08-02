@@ -167,7 +167,9 @@ local function getClassOption()
                         type = "toggle",
                         name = L["customTexture"],
                         confirm = function(info, v)
-                            if not v then
+                            if v then
+								return L["Changes will take effect the next time you reload"]
+							else
                                 return L["Disabling the texture will make them reset next time you reload, are you sure?"]
                             end
                         end,
@@ -188,6 +190,9 @@ local function getClassOption()
                         disabled = function()
                             return not (aceDB.char.customTexture)
                         end,
+						confirm = function(info, v)
+							return L["Changes will take effect the next time you reload"]
+                        end,
                         get = function(info)
                             for i, v in next, media:List("statusbar") do
                                 if v == aceDB.char.barTexture then
@@ -207,7 +212,9 @@ local function getClassOption()
                         type = "toggle",
                         name = L["change health bar Color by class color"],
                         confirm = function(info, v)
-                            if not v then
+                            if v then
+								return L["Health bar color will change after the character moves"]
+							else
                                 return L["Reset the health bar color next time you reload"]
                             end
                         end,
@@ -399,6 +406,9 @@ local function getClassOption()
                         order = 1,
                         type = "toggle",
                         name = L["Show"],
+						confirm = function(info, v)
+							return L["Changes will take effect the next time you reload"]
+                        end,
 
                         get = function(info)
                             return aceDB.char.resourceNumber
@@ -419,6 +429,9 @@ local function getClassOption()
                         name = L["font"],
                         values = media:List("font"),
                         itemControl = "DDI-Font",
+						confirm = function(info, v)
+							return L["Changes will take effect the next time you reload"]
+                        end,
                         get = function(info)
                             for i, v in next, media:List("font") do
                                 if v == aceDB.char.resourceFont then
@@ -442,6 +455,9 @@ local function getClassOption()
                         min = 6,
                         max = 14,
                         step = 1,
+						confirm = function(info, v)
+							return L["Changes will take effect the next time you reload"]
+                        end,
                         get = function(info)
                             return aceDB.char.resourceFontSize
                         end,
@@ -462,6 +478,9 @@ local function getClassOption()
                             CENTER = L["center"],
                             RIGHT = L["right"],
                         },
+						confirm = function(info, v)
+							return L["Changes will take effect the next time you reload"]
+                        end,
                         get = function(info)
                             return aceDB.char.resourceAlignment
                         end,
@@ -482,6 +501,9 @@ local function getClassOption()
                             Percent = L["Percent"],
                             Both = L["Both"],
                         },
+						confirm = function(info, v)
+							return L["Changes will take effect the next time you reload"]
+                        end,
                         get = function(info)
                             return aceDB.char.resourceNumberType
                         end,

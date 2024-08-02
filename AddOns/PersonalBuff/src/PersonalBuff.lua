@@ -63,7 +63,7 @@ local function InitializeDB()
             resourceFont = "BIG_BOLD",
             resourceFontSize = 8,
             resourceAlignment = "CENTER",
-            changeHealthBarColor = false,
+            changeHealthBarColor = true,
 			showDefault = true,
             spellList = {
                 defaultSpellList = {},
@@ -115,23 +115,22 @@ local function setNameplateBarTexture()
         local nameplate = C_NamePlate.GetNamePlateForUnit("player", issecure())
         if nameplate then
             if original == nil then
-                original = nameplate.UnitFrame.healthBar.barTexture:GetTexture()
+                original = nameplate.UnitFrame.HealthBarsContainer.healthBar.barTexture:GetTexture()
             end
             if nameplate.driverFrame and nameplate.driverFrame.classNamePlatePowerBar then
                 nameplate.driverFrame.classNamePlatePowerBar.Texture:SetTexture(media.MediaTable.statusbar[barTexture])
             end
-            nameplate.UnitFrame.healthBar.barTexture:SetTexture(media.MediaTable.statusbar[barTexture])
+            nameplate.UnitFrame.HealthBarsContainer.healthBar.barTexture:SetTexture(media.MediaTable.statusbar[barTexture])
         end
     end
 end
 
 local function setHealthBarClassColor()
     local nameplate = C_NamePlate.GetNamePlateForUnit("player", issecure())
-    local changeHealthBarColor = aceDB.char.changeHealthBarColor
-    if changeHealthBarColor~=false and nameplate then
+    if nameplate then
         local _,classFilename = UnitClass("player")
-        local r,g,b,a = GetClassColor(classFilename)
-        nameplate.UnitFrame.healthBar:SetStatusBarColor(r,g,b,a)
+        local r,g,b = GetClassColor(classFilename) -- 暫時修正
+        nameplate.UnitFrame.HealthBarsContainer.healthBar:SetStatusBarColor(r,g,b,1)
     end
 end
 
@@ -140,7 +139,7 @@ local function healthBarReset(nameplateToken)
     if playerNameplate ~=nil and playerNameplate.namePlateUnitToken == nameplateToken then
     elseif original ~= nil then
         local nameplate = C_NamePlate.GetNamePlateForUnit(nameplateToken, issecure())
-        nameplate.UnitFrame.healthBar.barTexture:SetTexture(original)
+        nameplate.UnitFrame.HealthBarsContainer.healthBar.barTexture:SetTexture(original)
     end
 end
 
@@ -149,9 +148,9 @@ local function setNameplateHealthText(unitToken)
     if UnitIsUnit("player",unitToken) and nameplate ~= nil then
         local alpha = nameplate:GetAlpha()
         if healthFrame == nil then
-            InitializeHealthNumber(nameplate.UnitFrame.healthBar:GetSize())
+            InitializeHealthNumber(nameplate.UnitFrame.HealthBarsContainer.healthBar:GetSize())
         end
-        healthFrame:SetAllPoints(nameplate.UnitFrame.healthBar)
+        healthFrame:SetAllPoints(nameplate.UnitFrame.HealthBarsContainer.healthBar)
         healthFrame:SetAlpha(alpha)
         healthFrame.update()
 
@@ -408,6 +407,10 @@ local function EventHandler(self, event,...)
         if aceDB.char.resourceNumber then -- 暫時修正
 			setNameplateNumber(...)
 		end
+		if aceDB.char.changeHealthBarColor then
+			setHealthBarClassColor() -- 暫時修正
+		end
+		setNameplateBarTexture() -- 暫時修正
         setBuffFramePoint()
     elseif event == "PLAYER_REGEN_ENABLED" then
         checkDefaultSpellListDB()
