@@ -1,21 +1,14 @@
-# [1.8.0](https://github.com/sragia/Exlist/tree/1.8.0) (2024-07-24)
+# [1.8.1](https://github.com/sragia/Exlist/tree/1.8.1) (2024-07-25)
 
-[Full Changelog](https://github.com/sragia/Exlist/compare/1.7.3...1.8.0)
+[Full Changelog](https://github.com/sragia/Exlist/compare/1.8.0...1.8.1)
 
 ## Highlights
 
- The War Within Prepatch Release. 
+ Small typo fix for accountsync 
 
 ## Commits
 
-Aigars Bedeicis (8):
+Aigars Bedeicis (1):
 
-- Fix account sync a little
-- Fix missed adjustment
-- Update TOC
-- Prepatch Fixes
-- Add Raids and World Bosses
-- Add new World Weekly Reward
-- Add min level to track config
-- Initial TWW compatibility fixes
+- Fix typo
 
