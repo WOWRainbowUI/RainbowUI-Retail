@@ -387,6 +387,9 @@ function addon:GetMobInfo(id)
 		return name, m.vignette or name, m.tameable, globaldb.mob_seen[id], globaldb.mob_count[id]
 	end
 end
+function addon:MobHasVignette(id)
+	return mobdb[id] and mobdb[id].vignette
+end
 function addon:IsMobInZone(id, zone)
 	if mobsByZone[zone] then
 		return mobsByZone[zone][id]
@@ -460,7 +463,7 @@ end
 
 do
 	local lastseen = {}
-	function addon:NotifyForMob(id, zone, x, y, is_dead, source, unit, silent, force, vignetteGUID)
+	function addon:NotifyForMob(id, zone, x, y, is_dead, source, unit, silent, force, GUID)
 		self.events:Fire("Seen_Raw", id, zone, x, y, is_dead, source, unit)
 
 		if silent then
@@ -471,7 +474,7 @@ do
 			Debug("Skipping notification: ignored", id, source)
 			return
 		end
-		if not force and lastseen[id..zone] and time() < lastseen[id..zone] + self.db.profile.delay then
+		if not force and not self:WouldNotifyForMob(id, zone) then
 			Debug("Skipping notification: seen", id, lastseen[id..zone], time() - self.db.profile.delay, source)
 			return
 		end
@@ -482,8 +485,11 @@ do
 		globaldb.mob_count[id] = globaldb.mob_count[id] + 1
 		globaldb.mob_seen[id] = time()
 		lastseen[id..zone] = time()
-		self.events:Fire("Seen", id, zone, x or 0, y or 0, is_dead, source, unit, vignetteGUID)
+		self.events:Fire("Seen", id, zone, x or 0, y or 0, is_dead, source, unit, GUID)
 		return true
+	end
+	function addon:WouldNotifyForMob(id, zone)
+		return not (lastseen[id..zone] and time() < (lastseen[id..zone] + self.db.profile.delay))
 	end
 end
 do

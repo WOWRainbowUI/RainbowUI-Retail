@@ -86,11 +86,11 @@ end
 function module:RefreshMobData(popup)
 	local data = popup.data
 	popup.title:SetText(core:GetMobLabel(data.id))
-	popup.source:SetText(data.source or "")
+	popup:SetSource(data.source)
 
 	local achievement, achievement_name, completed = ns:AchievementMobStatus(data.id)
 	if achievement then
-		popup.status:SetFormattedText("%s%s|r", completed and escapes.green or escapes.red, achievement_name)
+		popup.status:SetFormattedText("%s%s|r", completed and escapes.green or escapes.red, achievement_name or UNKNOWN)
 	else
 		popup.status:SetText("")
 	end
@@ -98,7 +98,7 @@ end
 function module:RefreshLootData(popup)
 	local data = popup.data
 	popup.title:SetText(data.name or UNKNOWN)
-	popup.source:SetText("vignette")
+	popup:SetSource("vignette")
 	-- TODO: work out the Treasure of X achievements?
 	popup.status:SetText("")
 	popup.raidIcon:Hide()
@@ -141,6 +141,11 @@ function module:SetModel(popup)
 	popup.model.fallback:Hide()
 
 	local data = popup.data
+	if not self.db.profile.model then
+		popup.model.fallback:SetAtlas(data.type == "loot" and "BonusLoot-Chest" or "sniper_shot-icon")
+		popup.model.fallback:Show()
+		return
+	end
 	if (data.type == "mob" and data.id or data.unit) and not self:IsModelBlacklisted(data.id, data.unit) then
 		if data.unit then
 			popup.model:SetUnit(data.unit)
@@ -337,6 +342,7 @@ function module:CreatePopup(look)
 	shineTranslate:SetOffset(165, 0)
 	shineTranslate:SetDuration(0.425)
 	shineTranslate:SetOrder(2)
+	shine.animIn.translate = shineTranslate
 
 	popup.animFade = popup:CreateAnimationGroup()
 	popup.animFade:SetScript("OnFinished", popup.scripts.AnimationRequestHideParent)
@@ -385,6 +391,10 @@ end
 function PopupMixin:SetRaidIcon(icon)
 	SetRaidTargetIconTexture(self.raidIcon, icon)
 	self.raidIcon:Show()
+end
+
+function PopupMixin:SetSource(source)
+	self.source:SetText(source or "")
 end
 
 function PopupMixin:DoIgnore()

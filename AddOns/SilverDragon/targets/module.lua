@@ -20,6 +20,7 @@ module.defaults = {
 		closeAfter = 30,
 		closeDead = true,
 		stacksize = 4,
+		model = true,
 		announce = "IMMEDIATELY", -- or "OPENLAST"
 		announceChannel = "CHANNEL",
 		sources = {
@@ -32,6 +33,7 @@ module.defaults = {
 			chat = true,
 			groupsync = true,
 			guildsync = false,
+			darkmagic = true,
 			fake = true,
 		},
 		anchor = {
@@ -275,7 +277,7 @@ function module:CreateAnchor()
 	title:SetWordWrap(true)
 	title:SetPoint("TOPLEFT", anchor, "TOPLEFT", 15, -10)
 	title:SetPoint("RIGHT", anchor, "RIGHT", -20, 10)
-	title:SetText(myname)
+	title:SetText(myname .. " " .. TARGET)
 	title:SetWidth(anchor:GetWidth())
 
 	local text = anchor:CreateFontString(nil, "BORDER", "FriendsFont_Normal")
