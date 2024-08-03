@@ -97,16 +97,11 @@ function UMPD_Init()
     function UMPDO.OnDefault() end
     function UMPDO.OnRefresh() end
 
-    -- Temp TWW Workaround
-    if InterfaceOptions_AddCategory == nil then
-        local category, layout = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.addonName);
-        layout:AddAnchorPoint("TOPLEFT", 0, 0);
-        layout:AddAnchorPoint("BOTTOMRIGHT", 0, 0);
-        category.ID = UMPDO.name
-        Settings.RegisterAddOnCategory(category)
-    else
-        InterfaceOptions_AddCategory(UMPDO, _UMPD.addonName)
-    end
+    local category, layout = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.addonName);
+    layout:AddAnchorPoint("TOPLEFT", 0, 0);
+    layout:AddAnchorPoint("BOTTOMRIGHT", 0, 0);
+    category.ID = UMPDO.name
+    Settings.RegisterAddOnCategory(category)
     
     -- Title
     local title = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
