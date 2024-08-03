@@ -1,12 +1,11 @@
 local GetAddOnMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+local SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack = SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack
 
 _UMPD               = {}
 _UMPD.name          = "UMPD"
 _UMPD.addonName     = GetAddOnMetadata("UnlimitedMapPinDistance", "Title")
 _UMPD.version       = GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
 _UMPD.init          = false
-
-local SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack = SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack
 
 do
     local dAlpha = SuperTrackedFrame.GetTargetAlphaBaseValue -- Unused?
