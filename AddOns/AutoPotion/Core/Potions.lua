@@ -7,6 +7,12 @@ local isCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
 --ham.leywine = ham.Item.new(194684,"Azure Leywine")
 --ham.healthstone = ham.Item.new(117, "Healthstone")
 ham.healthstone = ham.Item.new(5512, "Healthstone")
+ham.algariHealingPotionR3 = ham.Item.new(211880, "Algari Healing Potion")
+ham.algariHealingPotionR2 = ham.Item.new(211879, "Algari Healing Potion")
+ham.algariHealingPotionR1 = ham.Item.new(211878, "Algari Healing Potion")
+ham.fleetingAlgariHealingPotionR3 = ham.Item.new(212944, "Fleeting Algari Healing Potion")
+ham.fleetingAlgariHealingPotionR2 = ham.Item.new(212943, "Fleeting Algari Healing Potion")
+ham.fleetingAlgariHealingPotionR1 = ham.Item.new(212942, "Fleeting Algari Healing Potion")
 ham.thirdWind = ham.Item.new(138486, "\"Third Wind\" Potion")
 ham.witheringDreamsR3 = ham.Item.new(207041, "Potion of Withering Dreams")
 ham.witheringDreamsR2 = ham.Item.new(207040, "Potion of Withering Dreams")
@@ -72,9 +78,9 @@ ham.major2 = ham.Item.new(19013, "Major Healthstone")
 ham.master0 = ham.Item.new(22103, "Master Healthstone")
 ham.master1 = ham.Item.new(22104, "Master Healthstone")
 ham.master2 = ham.Item.new(22105, "Master Healthstone")
-ham.demonic0 = ham.Item.new(36889, "Demonic Healthstone")
-ham.demonic1 = ham.Item.new(36890, "Demonic Healthstone")
-ham.demonic2 = ham.Item.new(36891, "Demonic Healthstone")
+ham.demonicWotLK0 = ham.Item.new(36889, "Demonic Healthstone")
+ham.demonicWotLK1 = ham.Item.new(36890, "Demonic Healthstone")
+ham.demonicWotLK2 = ham.Item.new(36891, "Demonic Healthstone")
 ham.fel0 = ham.Item.new(36892, "Fel Healthstone")
 ham.fel1 = ham.Item.new(36893, "Fel Healthstone")
 ham.fel2 = ham.Item.new(36894, "Fel Healthstone")
@@ -91,6 +97,12 @@ end
 function ham.getPots()
   if isRetail then
     local pots = {
+      ham.algariHealingPotionR3,
+      ham.algariHealingPotionR2,
+      ham.algariHealingPotionR1,
+      ham.fleetingAlgariHealingPotionR3,
+      ham.fleetingAlgariHealingPotionR2,
+      ham.fleetingAlgariHealingPotionR1,
       ham.thirdWind,
       ham.dreamR3,
       ham.dreamsR2,
@@ -224,9 +236,9 @@ function ham.getHealthstonesClassic()
       ham.fel2,
       ham.fel1,
       ham.fel0,
-      ham.demonic2,
-      ham.demonic1,
-      ham.demonic0,
+      ham.demonicWotLK2,
+      ham.demonicWotLK1,
+      ham.demonicWotLK0,
       ham.master2,
       ham.master1,
       ham.master0,
@@ -253,9 +265,9 @@ function ham.getHealthstonesClassic()
       ham.fel2,
       ham.fel1,
       ham.fel0,
-      ham.demonic2,
-      ham.demonic1,
-      ham.demonic0,
+      ham.demonicWotLK2,
+      ham.demonicWotLK1,
+      ham.demonicWotLK0,
       ham.master2,
       ham.master1,
       ham.master0,
