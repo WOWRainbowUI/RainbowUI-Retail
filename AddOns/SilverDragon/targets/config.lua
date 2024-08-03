@@ -49,6 +49,16 @@ function module:RegisterConfig()
 					end,
 					order = 21,
 				},
+				model = {
+					type = "toggle",
+					name = "Show 3d model",
+					desc = "Whether to show the fully 3d model of the mob. In some styles this will fall back to a 2d icon, in others it'll go away entirely.",
+					set = function(info, v)
+						self.db.profile[info[#info]] = v
+						module:Redraw()
+					end,
+					order = 23,
+				},
 				anchor = {
 					type = "execute",
 					name = function() return self.anchor:IsShown() and "隱藏對齊位置" or "顯示對齊位置" end,
@@ -58,7 +68,7 @@ function module:RegisterConfig()
 						self.anchor[self.anchor:IsShown() and "Hide" or "Show"](self.anchor)
 						AceConfigRegistry:NotifyChange(myname)
 					end,
-					order = 22,
+					order = 25,
 				},
 				stacksize = {
 					type = "range",
@@ -67,7 +77,7 @@ function module:RegisterConfig()
 					min = 1,
 					max = 6,
 					step = 1,
-					order = 23,
+					order = 30,
 				},
 				scale = {
 					type = "range",
@@ -84,7 +94,7 @@ function module:RegisterConfig()
 							self:SetModel(popup)
 						end
 					end,
-					order = 24,
+					order = 35,
 				},
 				closeAfter = {
 					type = "range",
@@ -94,13 +104,13 @@ function module:RegisterConfig()
 					min = 5,
 					max = 600,
 					step = 1,
-					order = 25,
+					order = 40,
 				},
 				closeDead = config.toggle("死亡時關閉", "稀有怪死掉時會試著關閉可點擊的目標框架。只有當你在稀有怪附近進入戰鬥才能 *知道* 牠已經死掉。然後必須等到你脫離戰鬥後才會關閉框架。", 30),
 				announceHeader = {
 					type = "header",
 					name = "聊天通報",
-					order = 40,
+					order = 50,
 				},
 				announceDesc = config.desc("按住 Shift 點一下可點擊的目標框架會嘗試傳送稀有怪的訊息。如果你將牠選為目標了，或是靠的夠近能夠看到血條，便會包括血量。\n如果你打開了文字輸入框，會把訊息貼到裡面方便你傳送。如果沒有打開文字輸入框，會使用下面的設定:", 41),
 				announce = {
@@ -110,7 +120,7 @@ function module:RegisterConfig()
 						OPENLAST = "打開上次使用的文字輸入框",
 						IMMEDIATELY = "直接送出",
 					},
-					order = 45,
+					order = 55,
 				},
 				announceChannel = {
 					type = "select",
@@ -124,7 +134,7 @@ function module:RegisterConfig()
 						["GUILD"] = CHAT_MSG_GUILD,
 						["OFFICER"] = CHAT_MSG_OFFICER,
 					},
-					order = 46,
+					order = 60,
 				},
 				sources = {
 					type = "group",
@@ -146,6 +156,7 @@ function module:RegisterConfig()
 								chat = "大喊",
 								groupsync = "隊伍同步",
 								guildsync = "公會同步",
+								darkmagic = "黑魔法",
 							},
 							order = 10,
 						},

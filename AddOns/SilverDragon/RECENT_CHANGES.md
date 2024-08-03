@@ -1,6 +1,4 @@
-## Changed in v2024.8
+## Changed in v2024.10.1
 
-* Show more information about items in tooltips (item type, cosmetic)
-* Add Aurastor to Emerald Dream
-* BfA assaults: add Shek'zara and Vuk'laz loot, fix multi-assault rares that weren't showing
+* Option to show relative times in the history window, on by default
 

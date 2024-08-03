@@ -9,7 +9,6 @@ local core = LibStub("AceAddon-3.0"):GetAddon("SilverDragon")
 local module = core:NewModule("LDB", "AceEvent-3.0")
 
 local dataobject, tooltip
-local rares_seen = {}
 
 local default_help = {
 	"右鍵: 設定選項",
@@ -38,7 +37,7 @@ L["guildsync"] = "公會同步"
 function module:OnInitialize()
 	self.db = core.db:RegisterNamespace("LDB", {
 		profile = {
-			minimap = {},
+			minimap = {showInCompartment=true},
 			worldmap = true,
 			mounts = true,
 			tooltip = "always",
@@ -202,14 +201,6 @@ function module:SetupDataObject()
 		if self.db.profile.show_lastseen then
 			dataobject.text = core:GetMobLabel(id)
 		end
-		table.insert(rares_seen, {
-			id = id,
-			zone = zone,
-			x = x,
-			y = y,
-			source = source,
-			when = time(),
-		})
 	end)
 
 	if icon then
@@ -685,12 +676,13 @@ do
 		end
 
 		if options.recent then
-			if #rares_seen > 0 then
+			local history = core:GetModule("History", true)
+			if history and #history:GetRares() > 0 then
 				if options.nearby then
 					tooltip:AddHeader("此次登入看到")
 				end
 				tooltip:AddHeader("名字", "區域", "座標", "時間", "來源")
-				for i,rare in ipairs(rares_seen) do
+				for i, rare in ipairs(history:GetRares()) do
 					tooltip:AddLine(
 						core:GetMobLabel(rare.id) or core:NameForMob(rare.id) or UNKNOWN,
 						core.zone_names[rare.zone] or UNKNOWN,
