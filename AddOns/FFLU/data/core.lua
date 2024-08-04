@@ -1,7 +1,7 @@
 local frame_a = CreateFrame("Frame")
 frame_a:RegisterEvent("PLAYER_LEVEL_UP")
 frame_a:SetScript("OnEvent", function(self, event, ...)
-	PlaySoundFile("Interface\\Addons\\FFLU\\sounds\\final_fantasy_med.ogg", "Master")
+	PlaySoundFile("Interface\\Addons\\FFLU\\FFXIV_Level_Up.mp3", "Master")
 end)
 local frame_b = CreateFrame("Frame")
 frame_b:RegisterEvent("ADDON_LOADED")
