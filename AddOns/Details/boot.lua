@@ -19,8 +19,8 @@
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
 
-		Details.build_counter = 12826
-		Details.alpha_build_counter = 12826 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 12827
+		Details.alpha_build_counter = 12827 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
@@ -1566,7 +1566,7 @@ function Details222.ClassCache.MakeCache()
 end
 
 Details222.UnitIdCache.Party = {"player"}
-Details222.UnitIdCache.PartyPet = {"playetpet"}
+Details222.UnitIdCache.PartyPet = {"playerpet"}
 for i = 1, 4 do
 	table.insert(Details222.UnitIdCache.Party, "party" .. i)
 	table.insert(Details222.UnitIdCache.PartyPet, "partypet" .. i)
