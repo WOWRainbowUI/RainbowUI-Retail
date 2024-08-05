@@ -500,7 +500,7 @@ do
 			end
 
 			if not InCombatLockdown() then
-				if VUHDO_RESET_SIZES then resetSizeCalcCaches(); end
+				if VUHDO_RESET_SIZES then VUHDO_resetSizeCalcCaches(); end
 
 				if strfind(aModel, "VUHDO_OPTIONS_SETTINGS.", 1, true)
 					or strfind(aModel, "INTERNAL_MODEL_", 1, true) then
@@ -678,7 +678,6 @@ do
 		tModel = aSlider:GetParent():GetAttribute("model");
 
 		if tModel and strfind(tModel, "barTexture", 1, true) then
-			local tIndex, tInfo;
 			for tIndex, tInfo in pairs(VUHDO_STATUS_BARS) do
 				if tInfo[1] == tValue then
 					tValue = tIndex;

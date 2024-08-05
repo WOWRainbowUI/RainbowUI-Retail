@@ -377,7 +377,7 @@ function VUHDO_shareCurrentKeyLayout(aUnitName, aKeyLayoutName)
 	end
 
 	local tQuestion = VUHDO_PLAYER_NAME .. " requests to transmit\nKey Layout " .. aKeyLayoutName .. " to you.\nProceed?"
-	VUHDO_startShare(aUnitName, { aKeyLayoutName, tLayout }, sCmdKeyLayoutDataChunk, sCmdKeyLayoutDataEnd, tQuestion);
+	VUHDO_startShare(aUnitName, { aKeyLayoutName, tLayout }, VUHDO_sCmdKeyLayoutDataChunk, VUHDO_sCmdKeyLayoutDataEnd, tQuestion);
 end
 
 

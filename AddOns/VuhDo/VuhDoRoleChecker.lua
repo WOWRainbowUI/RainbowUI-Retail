@@ -10,14 +10,11 @@ VUHDO_NEXT_INSPECT_TIME_OUT = nil;
 
 
 --------------------------------------------------------------
-local twipe = table.wipe;
-local UnitIsUnit = UnitIsUnit;
 local NotifyInspect = NotifyInspect;
 local GetSpecializationInfo = GetSpecializationInfo;
 local ClearInspectPlayer = ClearInspectPlayer;
 local UnitStat = UnitStat;
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned;
-local UnitLevel = UnitLevel;
 local UnitPowerType = UnitPowerType;
 local VUHDO_isUnitInModel;
 local VUHDO_checkInteractDistance;

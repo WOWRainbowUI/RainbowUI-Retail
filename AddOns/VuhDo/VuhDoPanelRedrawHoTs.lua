@@ -13,7 +13,6 @@ local sHotPos;
 local sBarsPos;
 local sBarColors;
 local sStacksRadio;
-local sIcqqonRadio;
 local sIconRadio;
 local sHotBarConfig = { };
 local sOrientation = { };

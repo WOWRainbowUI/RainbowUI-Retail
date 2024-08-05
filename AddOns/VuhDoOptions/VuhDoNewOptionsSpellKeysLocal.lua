@@ -132,6 +132,7 @@ end
 
 
 --
+local tIndex;
 function VUHDO_checkTypeChange(aFrame)
 	local _, _, _, _, tOrigType = VUHDO_isActionValid(aFrame["originalName"], true);
 	tIndex = aFrame:GetAttribute("list_index");
@@ -189,7 +190,7 @@ end
 --
 local function VUHDO_removeKeyFromList(aKey)
 	local tResult = nil;
-	for tIndex, tEntries in pairs(VUHDO_SPELLS_KEYBOARD["INTERNAL"]) do
+	for _, tEntries in pairs(VUHDO_SPELLS_KEYBOARD["INTERNAL"]) do
 		if (tEntries[2] == aKey) then
 			tEntries[2] = nil;
 			tResult = tEntries[1];

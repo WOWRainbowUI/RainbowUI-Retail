@@ -348,7 +348,8 @@ VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST = "Spruch-Layout \"%s\" existiert nicht.";
 --VUHDO_I18N_ADDON_WARNING = "WARNUNG: Das möglicherweise problematische Addon |cffffffff\"%s\"|r ist mit VuhDo aktiv. Grund: %s";
 --VUHDO_I18N_MAY_CAUSE_LAGS = "Kann zu erheblichen Lags führen.";
 
-VUHDO_I18N_DISABLE_BY_VERSION = "!!! VUHDO IS DISABLED !!! This version is for client versions %d and above only !!!"
+VUHDO_I18N_DISABLE_BY_MIN_VERSION = "!!! VUHDO IS DISABLED !!! This version (%s) is for client versions %d and above only !!!"
+VUHDO_I18N_DISABLE_BY_MAX_VERSION = "!!! VUHDO IS DISABLED !!! This version (%s) is for client versions %d and below only !!!"
 
 VUHDO_I18N_BOUQUET_STATUS_ALTERNATE_POWERS = "Statusbar: Alt. Energie %"
 VUHDO_I18N_BOUQUET_ALTERNATE_POWERS_ABOVE = "Flag: Alt. Ernergie > %";

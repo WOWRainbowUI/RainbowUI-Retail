@@ -277,6 +277,7 @@ end
 local tButtonX;
 local tButtonY;
 local tHots;
+local tHotslots;
 local tScaling;
 local tGridColumn;
 local tNumBars;

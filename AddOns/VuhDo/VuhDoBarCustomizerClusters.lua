@@ -42,7 +42,7 @@ local sClusterSlot;
 local sCdSpell;
 local sCone;
 local sJumpRangePow;
-local aAreTargetsRandom;
+local sAreTargetsRandom;
 function VUHDO_customClustersInitLocalOverrides()
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_ACTIVE_HOTS = _G["VUHDO_ACTIVE_HOTS"];

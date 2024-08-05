@@ -100,7 +100,6 @@ end
 
 
 --
-local tInfo;
 local function VUHDO_getBouquetItemDisplayText(aName)
 	if (VUHDO_BOUQUET_BUFFS_SPECIAL[aName] ~= nil) then
 		return "[" .. VUHDO_BOUQUET_BUFFS_SPECIAL[aName]["displayName"] .. "]";
@@ -587,7 +586,7 @@ function VUHDO_rebuildAllBouquetItems(aParent, aCursorPos)
 		tBouquet = VUHDO_getCurrentBouquet();
 
 		if (tBouquet ~= nil) then
-			for tIndex, tBuffInfo in ipairs(tBouquet) do
+			for tIndex, _ in ipairs(tBouquet) do
 				tPanel = VUHDO_getOrCreateBouqetItem(tIndex, tParent);
 			end
 

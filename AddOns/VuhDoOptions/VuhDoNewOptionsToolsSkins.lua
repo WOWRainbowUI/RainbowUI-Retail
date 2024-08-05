@@ -619,7 +619,7 @@ function VUHDO_shareCurrentProfile(aUnitName, aProfileName)
 		return;
 	end
 	local tQuestion = VUHDO_PLAYER_NAME .. " requests to transmit\nProfile " .. aProfileName .. " to you.\nThis will take about 60 secs. Proceed?"
-	VUHDO_startShare(aUnitName, tProfile, sCmdProfileDataChunk, sCmdProfileDataEnd, tQuestion);
+	VUHDO_startShare(aUnitName, tProfile, VUHDO_sCmdProfileDataChunk, VUHDO_sCmdProfileDataEnd, tQuestion);
 end
 
 

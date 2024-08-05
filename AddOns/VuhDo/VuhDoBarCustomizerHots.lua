@@ -1,5 +1,4 @@
 local _;
-local huge = math.huge;
 local format = format;
 
 local sIsFade;
@@ -191,6 +190,7 @@ local tClock;
 local tDuration;
 local tHotCfg;
 local tIsChargeAlpha;
+local tChargeColor;
 local tStarted;
 local tClockDuration;
 local tOpacity, tTextOpacity;

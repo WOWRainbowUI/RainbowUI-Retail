@@ -243,6 +243,7 @@ local tAllButtons;
 local tAbsorbAmount, tOverallShieldRemain;
 local tShieldOpacity, tOvershieldOpacity;
 local tHealthBar, tHealthBarWidth, tHealthBarHeight, tHealthDeficit;
+local tShieldBar;
 local tOvershieldBar, tOvershieldBarSize, tOvershieldBarSizePercent, tOvershieldBarOffset, tOvershieldBarOffsetPercent;
 local tVisibleAmountInc;
 local tOrientation, tOrientationOvershield;

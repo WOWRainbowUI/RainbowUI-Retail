@@ -33,7 +33,7 @@ local sHealButtonWidthCache = { };
 local sTopHeightCache = { };
 local sBottomHeightCache = { };
 
-function resetSizeCalcCaches()
+function VUHDO_resetSizeCalcCaches()
 	table.wipe(sHealButtonWidthCache);
 	table.wipe(sTopHeightCache);
 	table.wipe(sBottomHeightCache);

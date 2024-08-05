@@ -282,7 +282,6 @@ local tTarget;
 local tIsWheel;
 local tHostSpell;
 local tWheelDefString;
-local tCnt;
 local tFrame;
 local tBinding;
 function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceTarget, anIsTgButton, anIsIcButton)
@@ -405,7 +404,6 @@ end
 
 
 --
-local tCnt;
 function VUHDO_disableActions(aButton)
 	VUHDO_setupAllHealButtonAttributes(aButton, nil, true, false, false, false);
 

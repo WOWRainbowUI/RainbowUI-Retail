@@ -583,7 +583,7 @@ local sAllMorePanels = { };
 
 --
 local tIndex, tIndicator;
-local tBouqetSlotName, tBouquetSlot, tXOfs, tYOfs, tOffset, tMorePanel, tHeight;
+local tBouqetSlotName, tBouquetSlot, tXOfs, tYOfs, tYIndex, tOffset, tMorePanel, tHeight;
 function VUHDO_newOptionsIndicatorsBuildScrollChild(aScrollChild)
 	tXOfs = 10;
 	tYOfs = 0;

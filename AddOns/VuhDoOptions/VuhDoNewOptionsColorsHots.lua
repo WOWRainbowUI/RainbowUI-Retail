@@ -49,7 +49,8 @@ end
 
 
 --
-function	VUHDO_colorsHotsSetSwatchHotName(aTexture, aHotNum)
+local tHotName;
+function VUHDO_colorsHotsSetSwatchHotName(aTexture, aHotNum)
 	tHotName = VUHDO_PANEL_SETUP["HOTS"]["SLOTS"][aHotNum] or "";
 
 	if (not VUHDO_strempty(tHotName)) then
