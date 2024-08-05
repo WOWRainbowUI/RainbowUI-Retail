@@ -1,10 +1,10 @@
-lightweight tag 975dfbed230c4224d24e5d4b236c66f410089580 r149
+lightweight tag 4d699dfa678e67d297681502fcd30b6ea27dbd90 r151
 Author:	Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:	Tue Jul 30 20:08:05 2024 -0700
+Date:	Sun Aug 4 16:14:51 2024 -0700
 
-commit 975dfbed230c4224d24e5d4b236c66f410089580
+commit 4d699dfa678e67d297681502fcd30b6ea27dbd90
 Author: Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:   Tue Jul 30 20:08:05 2024 -0700
+Date:   Sun Aug 4 16:14:51 2024 -0700
 
-    Fix error when interrupting in a group.
+    Remove debug message
 

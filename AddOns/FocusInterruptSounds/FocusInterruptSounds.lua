@@ -90,25 +90,23 @@ local DEFAULT_LOW_PRIORITY_SPELLS =
 -- 392279; ignore test
 
 local DEFAULT_PLAYER_INTERRUPT_SPELLS =
-[[壓制
-復仇之盾
-惡魔號令->投擲利斧
-惡魔號令->法術封鎖
-駁火反擊
-法術反制
-吞噬魔法
-腳踢
-心智冰封
-封口
-拳擊
-責難
-沉默
-碎顱猛擊
-太陽光束
-天矛鎖喉手
-絞殺
-削風術
-干擾
+[[p89766; (寵物) 投擲利斧
+p19647; (寵物) 法術封鎖
+31935;  復仇之盾
+147362; 駁火反擊
+2139;   法術反制
+183752; 干擾
+1766;   腳踢
+47528;  心智冰封
+187707; 封口
+6552;   拳擊
+351338; 壓制
+96231;  責難
+15487;  沉默
+106839; 碎顱猛擊
+78675;  太陽光束
+116705; 天矛鎖喉手
+57994;  削風術
 ]];
 
 local DEFAULT_AURA_BLACKLIST =
@@ -1002,55 +1000,44 @@ end
 --
 function FocusInterruptSounds:FIsPlayerSpellAvailable(strSpellName)
 
-	local strSpellDisplayNameVerify = nil;
+	-- Trim off any ; comments
+	local iSemiColonIndex = strSpellName:find(";");
+	if (nil ~= iSemiColonIndex) then
+		strSpellName = strSpellName:sub(1, iSemiColonIndex - 1);
+	end
 
-	-- Is there a | special character?
-	local iBarIndex = strSpellName:find("->");
-	if (nil ~= iBarIndex) then
-		strSpellDisplayNameVerify = strSpellName:sub(iBarIndex + 2);
-		strSpellName = strSpellName:sub(0, iBarIndex - 1);
+	-- Is it a pet spell
+	local iPetIndex = strSpellName:find("p");
+	local isPetSpell = false;
+	if (1 == iPetIndex) then
+		isPetSpell = true;
+		strSpellName = strSpellName:sub(2, #strSpellName);
 	end
 
 	-- Make sure the user wants these extra checks
 	if (not self.db.profile.fCheckSpellAvailability) then
 		return true;
 	end
-
-	-- Make sure that there is a spell
-	if (nil == strSpellName) then
-		-- self:CheckAndPrintMessage("Nil spell name");
+	
+	-- Make sure there's a pet if this is a pet spell (for some reason, IsSpellKnown() is returning true for Felhunter spells
+	-- on my rogue)
+	if (isPetSpell and 0 <= C_StableInfo.GetNumActivePets()) then
+		return false;
+	end
+	
+	-- Is the spell known?
+	if (nil ~= tonumber(strSpellName) and not IsSpellKnown(strSpellName, isPetSpell)) then
 		return false;
 	end
 
 	-- Verify that the spell isn't on cooldown
-	-- local iStartTime, _, fSpellEnabled = GetSpellCooldown(strSpellName);
-	local iStartTime, fSpellEnabled -- 暫時修正
-	local spellCooldownInfo = C_Spell.GetSpellCooldown(strSpellName);
-	if spellCooldownInfo then
-		iStartTime = spellCooldownInfo.startTime
-		fSpellEnabled = spellCooldownInfo.isEnabled
-	end
-	if (iStartTime ~= 0 or not fSpellEnabled) then
-		-- self:CheckAndPrintMessage(strSpellName .. " on CD");
+	local tbSpellCooldown = C_Spell.GetSpellCooldown(strSpellName);
+	if (nil == tbSpellCooldown or tbSpellCooldown["startTime"] ~= 0 or not tbSpellCooldown["isEnabled"]) then
+		-- self:CheckAndPrintMessage(strSpellName .. " not known or on CD");
 		return false;
 	end
 
-	-- Verify display name (if applicable) and mana/energy
-	-- local strSpellDisplayName, _, _, iCost, _, _, _, _, _ = GetSpellInfo(strSpellName);
-	local strSpellDisplayName, iCost -- 暫時修正
-	local spellInfo = C_Spell.GetSpellInfo(strSpellName)
-	if spellInfo then
-		strSpellDisplayName = spellInfo.name
-		iCost = spellInfo.castTime
-	end
-	if (nil ~= strSpellDisplayNameVerify and strSpellDisplayNameVerify ~= strSpellDisplayName) then
-		-- self:CheckAndPrintMessage(strSpellName .. " has DN " .. strSpellDisplayName .. " but not " .. strSpellDisplayNameVerify);
-		return false
-	elseif (UnitPowerType("player") < iCost) then
-		-- self:CheckAndPrintMessage(strSpellName .. " low power");
-		return false;
-	end
-
+	-- self:CheckAndPrintMessage(strSpellName .. " available");
 	return true;
 end
 
