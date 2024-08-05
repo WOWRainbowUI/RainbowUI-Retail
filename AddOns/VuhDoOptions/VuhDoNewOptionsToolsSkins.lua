@@ -618,8 +618,8 @@ function VUHDO_shareCurrentProfile(aUnitName, aProfileName)
 		VUHDO_Msg("無法分享強制鎖定的設定檔，請先建立一份複製的版本。", 1, 0.4, 0.4);
 		return;
 	end
-	local tQuestion = VUHDO_PLAYER_NAME .. " 請求傳送設定檔 " .. aProfileName .. " 給你。\n將會需要使用約 60 秒的時間，是否要繼續?"
-	VUHDO_startShare(aUnitName, tProfile, sCmdProfileDataChunk, sCmdProfileDataEnd, tQuestion);
+	local tQuestion = VUHDO_PLAYER_NAME .. " 請求傳送\n設定檔 " .. aProfileName .. " 給你。\n將會需要使用約 60 秒的時間，是否要繼續?"
+	VUHDO_startShare(aUnitName, tProfile, VUHDO_sCmdProfileDataChunk, VUHDO_sCmdProfileDataEnd, tQuestion);
 end
 
 

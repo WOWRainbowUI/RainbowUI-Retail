@@ -1104,7 +1104,7 @@ local function VUHDO_addDefaultBouquet(aName)
 		return;
 	end
 	aName = VUHDO_decompressIfCompressed(aName);
-	for tKey, tValue in pairs(aName) do
+	for tKey, _ in pairs(aName) do
 		VUHDO_BOUQUETS["STORED"][tKey] = VUHDO_deepCopyTable(aName[tKey]);
 	end
 end
@@ -1342,7 +1342,7 @@ end
 
 --
 local function VUHDO_AddSpellBouquetItem(aBouquetName, ...)
-	local tId, tNewItem;
+	local tId, tNewItem, tName;
 	for tCnt = 1, select("#", ...) do
 		tId = select(tCnt, ...);
 		tNewItem = VUHDO_deepCopyTable(VUHDO_SANE_BOUQUET_ITEM);
@@ -1790,7 +1790,7 @@ function VUHDO_loadDefaultBouquets()
 
 				tPanelIndicatorConfig["TEXT_INDICATORS"] = VUHDO_decompressOrCopy(VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"]);
 
-				for tTextIndicatorName, tTextIndicatorConfig in pairs(tPanelIndicatorConfig["TEXT_INDICATORS"]) do
+				for _, tTextIndicatorConfig in pairs(tPanelIndicatorConfig["TEXT_INDICATORS"]) do
 					if type(tTextIndicatorConfig["TEXT_PROVIDER"]) == "table" then
 						tTextIndicatorConfig["TEXT_PROVIDER"] = tTextIndicatorConfig["TEXT_PROVIDER"][tPanelNum] or "";
 

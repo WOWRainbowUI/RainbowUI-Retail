@@ -989,6 +989,7 @@ local VUHDO_initHealButton = VUHDO_initHealButton;
 local tHealButton;
 local tGroupPanel;
 local tNumButtons;
+local tCnt;
 local function VUHDO_initAllHealButtons(aPanel, aPanelNum)
 	tNumButtons = VUHDO_getNumButtonsPanel(aPanelNum);
 	for tCnt  = 1, tNumButtons do
@@ -1142,6 +1143,7 @@ end
 
 
 --
+local tPanel;
 function VUHDO_redrawPanel(aPanelNum, anIsFixAllFrameLevels)
 
 	if VUHDO_isPanelPopulated(aPanelNum) then
@@ -1176,7 +1178,7 @@ local VUHDO_redrawPanel = VUHDO_redrawPanel;
 --
 function VUHDO_redrawAllPanels(anIsFixAllFrameLevels)
 	VUHDO_resetMacroCaches();
-	resetSizeCalcCaches();
+	VUHDO_resetSizeCalcCaches();
 	twipe(VUHDO_UNIT_BUTTONS);
 	twipe(VUHDO_UNIT_BUTTONS_PANEL);
 

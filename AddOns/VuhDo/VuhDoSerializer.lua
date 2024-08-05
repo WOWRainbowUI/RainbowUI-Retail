@@ -7,16 +7,13 @@ local strfind = strfind;
 local strbyte = strbyte;
 local floor = floor;
 local format = format;
-local twipe = table.wipe;
 local tinsert = tinsert;
 local tsort = table.sort;
 local strchar = strchar;
 local bor = bit.bor;
 local band = bit.band;
-local tconcat = table.concat;
 local lshift = bit.lshift;
 local rshift = bit.rshift;
-local tremove = tremove;
 local next = next;
 
 -- Sabc=S5+abcde

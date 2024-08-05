@@ -179,6 +179,7 @@ local sIsPlayerFirst;
 local sIsPetsLast;
 local tInfo1, tInfo2;
 local tRole1, tRole2;
+local tFirstIdx, tSecondIdx;
 
 
 

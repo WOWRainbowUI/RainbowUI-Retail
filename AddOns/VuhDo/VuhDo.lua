@@ -539,7 +539,7 @@ end
 
 --
 local function VUHDO_removeSpecialFromAllRaidGroups()
-	for tUnit, tInfo in pairs(VUHDO_RAID) do
+	for tUnit, _ in pairs(VUHDO_RAID) do
 		if VUHDO_CONFIG["OMIT_MAIN_TANKS"] and VUHDO_isModelConfigured(41) and VUHDO_isUnitInModelIterative(tUnit, 41) then -- VUHDO_ID_MAINTANKS
 			VUHDO_removeUnitFromRaidGroups(tUnit); -- VUHDO_ID_MAINTANKS
 		elseif VUHDO_CONFIG["OMIT_PLAYER_TARGETS"] and VUHDO_isModelConfigured(42) and VUHDO_isUnitInModelIterative(tUnit, 42) then -- VUHDO_ID_PRIVATE_TANKS
@@ -640,7 +640,7 @@ end
 --
 local function VUHDO_updateGroupArrays(anWasMacroRestore)
 	-- Get an empty array for each group
-	for tType, tTypeMembers in pairs(VUHDO_ID_TYPE_MEMBERS) do
+	for _, tTypeMembers in pairs(VUHDO_ID_TYPE_MEMBERS) do
 		for _, tMember in pairs(tTypeMembers) do
 			if not VUHDO_GROUPS[tMember] then VUHDO_GROUPS[tMember] = { };
 			else twipe(VUHDO_GROUPS[tMember]); end

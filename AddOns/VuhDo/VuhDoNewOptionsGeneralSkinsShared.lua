@@ -2260,6 +2260,7 @@ function VUHDO_createNewProfileName(aName, aUnitName)
 	local tIdx = 1;
 	local tProfile = { };
 	local tPrefix = aUnitName .. ": ";
+	local tNewName;
 
 	while tProfile do
 		tNewName = tPrefix .. aName;
@@ -2279,6 +2280,7 @@ function VUHDO_createNewLayoutName(aName, aUnitName)
 	local tIdx = 1;
 	local tLayout = { };
 	local tPrefix = aUnitName .. ": ";
+	local tNewName;
 
 	while tLayout do
 		tNewName = tPrefix .. aName;

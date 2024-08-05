@@ -349,7 +349,8 @@ VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST = "法术配置设定 \"%s\" 不存在.";
 --VUHDO_I18N_ADDON_WARNING = "WARNING: Addon |cffffffff\"%s\"|r is enabled along with VuhDo, which may be problematic. Reason: %s";
 --VUHDO_I18N_MAY_CAUSE_LAGS = "May cause severe lags.";
 
-VUHDO_I18N_DISABLE_BY_VERSION = "!!! VUHDO 已经停用 !!! 这个版本需要游戏版本 %d 或更新的版本才能使用 !!!"
+VUHDO_I18N_DISABLE_BY_MIN_VERSION = "!!! VUHDO IS DISABLED !!! This version (%s) is for client versions %d and above only !!!"
+VUHDO_I18N_DISABLE_BY_MAX_VERSION = "!!! VUHDO IS DISABLED !!! This version (%s) is for client versions %d and below only !!!"
 
 VUHDO_I18N_BOUQUET_STATUS_ALTERNATE_POWERS = "状态列: 特殊能量 %"
 VUHDO_I18N_BOUQUET_ALTERNATE_POWERS_ABOVE = "标志: 特殊能量 > %";

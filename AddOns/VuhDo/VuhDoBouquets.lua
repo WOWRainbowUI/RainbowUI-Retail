@@ -6,8 +6,6 @@ local select = select;
 local strfind = strfind;
 local twipe = table.wipe;
 local pairs = pairs;
-local sIsSuspended = false;
-local tEmptyColor = { };
 local sPlayerArray = { };
 local VUHDO_MY_AND_OTHERS_HOTS = { };
 local VUHDO_MY_HOTS = { };
@@ -17,7 +15,6 @@ local VUHDO_RAID = { };
 local VUHDO_CONFIG = { };
 local VUHDO_BOUQUET_BUFFS_SPECIAL = { };
 local VUHDO_CUSTOM_ICONS;
-local VUHDO_CUSTOM_INFO;
 
 local VUHDO_CUSTOM_BOUQUETS = {
 	VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH,
@@ -37,7 +34,6 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_CUSTOM_ICONS = _G["VUHDO_CUSTOM_ICONS"];
 	VUHDO_BOUQUET_BUFFS_SPECIAL = _G["VUHDO_BOUQUET_BUFFS_SPECIAL"];
-	VUHDO_CUSTOM_INFO = _G["VUHDO_CUSTOM_INFO"];
 	sPlayerArray["player"] = VUHDO_RAID["player"];
 end
 
@@ -69,7 +65,7 @@ end
 
 
 --
-local tHasChanged, tCnt, tLastTime, tArg;
+local tHasChanged, tLastTime;
 local function VUHDO_hasBouquetChanged(aUnit, aBouquetName, anArg1, anArg2, anArg3, anArg4, anArg5, anArg6, anArg7, anArg8, anArg9, anArg10)
 	tLastTime = VUHDO_LAST_EVALUATED_BOUQUETS[aBouquetName][aUnit];
 	if not tLastTime then
@@ -94,12 +90,11 @@ end
 
 
 --
-local tColor, tMode;
+local tColor;
+local tFactor;
 local tModi, tInvModi;
-local tR1, tG1, tB1;
-local tR2, tG2, tB2;
-local tTR1, tTG1, tTB1, tO1;
-local tTR2, tTG2, tTB2, tO2;
+local tR1, tG1, tB1, tO1;
+local tR2, tG2, tB2, tO2;
 local tGood, tFair, tLow;
 local tDestColor = { ["useBackground"] = true, ["useOpacity"] = true };
 local tRadio;
@@ -147,15 +142,6 @@ local function VUHDO_getBouquetStatusBarColor(anEntry, anInfo, aValue, aMaxValue
 		return tDestColor;
 	end
 end
-
-
-
--- For Buffs/Debuffs vertex color is white
-local tDefaultBouquetColor = {
-	["R"] = 1, ["G"] = 1, ["B"] = 1, ["O"] = 1,
-	["TR"] = 1, ["TG"] = 1, ["TB"] = 1, ["TO"] = 1,
-	["useText"] = true, ["useBackground"] = true, ["useOpacity"] = true,
-};
 
 
 
@@ -218,9 +204,8 @@ local tDuration;
 local tBuffInfo;
 local tTimer2
 local tClipL, tClipR, tClipT, tClipB;
-local tType;
 local tAnzInfos;
-local tColor, tIcon;
+local tColor;
 local sEmpty = { };
 local txIcon;
 local txDuration;
@@ -228,7 +213,6 @@ local txName;
 local txLevel;
 local txTimer2;
 local txClipL, txClipR, txClipT, txClipB;
-local tDestColor = { };
 local tFactor;
 local tInfo, tUnit;
 local tEmptyInfo = { };
@@ -457,7 +441,6 @@ end
 --
 local tHotSlots;
 local tAlreadyRegistered = { };
-local tBouquetName;
 function VUHDO_registerAllBouquets(aDoCompress)
 
 	twipe(VUHDO_REGISTERED_BOUQUETS);
@@ -753,7 +736,7 @@ function VUHDO_updateAllCyclicBouquets(anIsPlayerOnly)
 	for tBouquetName, _ in pairs(VUHDO_CYCLIC_BOUQUETS) do
 		tAllListeners = VUHDO_REGISTERED_BOUQUETS[tBouquetName];
 
-		for tUnit, tInfo in pairs(tDestArray) do
+		for tUnit, _ in pairs(tDestArray) do
 			tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, tHasChanged,
 				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB = VUHDO_evaluateBouquet(tUnit, tBouquetName, nil);
 

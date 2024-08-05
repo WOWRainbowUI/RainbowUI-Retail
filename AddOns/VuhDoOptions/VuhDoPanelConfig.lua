@@ -301,6 +301,7 @@ end
 
 
 --
+local tModelType;
 function VUHDO_getGuessedModel(aPanelNum)
 
 	local tTypeCount = {
@@ -309,7 +310,7 @@ function VUHDO_getGuessedModel(aPanelNum)
 		[VUHDO_ID_TYPE_SPECIAL] = 0,
 	};
 
-	for tIndex, tModelId in ipairs(VUHDO_PANEL_MODELS[aPanelNum]) do
+	for _, tModelId in ipairs(VUHDO_PANEL_MODELS[aPanelNum]) do
 		tModelType = VUHDO_getModelType(tModelId);
 		tTypeCount[tModelType] = tTypeCount[tModelType] + 1;
 	end

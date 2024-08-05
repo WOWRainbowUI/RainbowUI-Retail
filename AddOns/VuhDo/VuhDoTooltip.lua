@@ -296,12 +296,12 @@ function VUHDO_updateTooltip()
 	VUHDO_addTooltipLineRight(" ", tClassColor, 9);
 
 	-- Distance
-	VUHDO_addTooltipLineLeft(VUHDO_I18N_TT_DISTANCE, nil, 8);
-	VUHDO_addTooltipLineRight(VUHDO_getDistanceText(tUnit), VUHDO_VALUE_COLOR, 10);
+	VUHDO_addTooltipLineLeft(VUHDO_I18N_TT_DISTANCE);
+	VUHDO_addTooltipLineRight(VUHDO_getDistanceText(tUnit), VUHDO_VALUE_COLOR, 12);
 
 	-- Position
-	VUHDO_addTooltipLineLeft(VUHDO_I18N_TT_POSITION, nil, 8);
-	VUHDO_addTooltipLineRight(tInfo["zone"] or GetRealZoneText() or " ", VUHDO_VALUE_COLOR, 10);
+	VUHDO_addTooltipLineLeft(VUHDO_I18N_TT_POSITION);
+	VUHDO_addTooltipLineRight(tInfo["zone"] or GetRealZoneText() or " ", VUHDO_VALUE_COLOR, 12);
 
 	tLeftText =
 		UnitIsGhost(tUnit) and VUHDO_I18N_TT_GHOST

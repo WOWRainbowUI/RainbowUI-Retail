@@ -351,7 +351,8 @@ VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST = "法術配置設定 \"%s\" 不存在。";
 --VUHDO_I18N_ADDON_WARNING = "WARNING: Addon |cffffffff\"%s\"|r is enabled along with VuhDo, which may be problematic. Reason: %s";
 --VUHDO_I18N_MAY_CAUSE_LAGS = "May cause severe lags.";
 
-VUHDO_I18N_DISABLE_BY_VERSION = "!!! VUHDO 已經停用 !!! 這個版本需要遊戲版本 %d 或更新的版本才能使用 !!!"
+VUHDO_I18N_DISABLE_BY_MIN_VERSION = "!!! VUHDO 已被停用 !!! 此版本 (%s) 是給 %d 或更高的魔獸版本使用的 !!!"
+VUHDO_I18N_DISABLE_BY_MAX_VERSION = "!!! VUHDO 已被停用 !!! 此版本 (%s) 是給 %d 或更低的魔獸版本使用的 !!!"
 
 VUHDO_I18N_BOUQUET_STATUS_ALTERNATE_POWERS = "狀態列: 特殊能量 %"
 VUHDO_I18N_BOUQUET_ALTERNATE_POWERS_ABOVE = "標籤: 特殊能量 > %";

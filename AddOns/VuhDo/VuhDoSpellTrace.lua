@@ -5,6 +5,7 @@ local tonumber = tonumber;
 local tinsert = table.insert;
 local twipe = table.wipe;
 local GetSpellInfo = GetSpellInfo or VUHDO_getSpellInfo;
+local _;
 
 local VUHDO_ACTIVE_TRACE_SPELLS = { 
 	-- [<unit GUID>] = {
@@ -380,7 +381,6 @@ end
 function VUHDO_updateSpellTrace()
 
 	for tUnitGuid, tActiveTrace in pairs(VUHDO_ACTIVE_TRACE_SPELLS) do
-		local i = 0;
 		local tActiveTraceSpells = tActiveTrace["spells"];
 		local tCurrentTime = GetTime();
 

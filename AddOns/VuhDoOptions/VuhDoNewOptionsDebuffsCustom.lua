@@ -432,7 +432,7 @@ end
 
 --
 function VUHDO_applyToAllCustomDebuffOnClick()
-	for tName, tSettings in pairs(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"]) do
+	for _, tSettings in pairs(VUHDO_CONFIG["CUSTOM_DEBUFF"]["STORED_SETTINGS"]) do
 		tSettings["isIcon"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isIcon;
 		tSettings["isColor"] = VUHDO_CONFIG.CUSTOM_DEBUFF.isColor;
 		tSettings["SOUND"] = VUHDO_CONFIG.CUSTOM_DEBUFF.SOUND;

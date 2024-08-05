@@ -3,7 +3,6 @@ local _;
 VUHDO_COMBO_MAX_ENTRIES = 10000;
 
 local floor = floor;
-local mod = mod;
 local tonumber = tonumber;
 local strsub = strsub;
 local pairs = pairs;
@@ -775,20 +774,21 @@ function VUHDO_fixFrameLevels(anIsForceUpdateChildren, aFrame, aBaseLevel, ...)
 	local tChild = select(tCnt, ...);
 	aFrame:SetFrameLevel(aBaseLevel);
 	while tChild do -- Layer components seem to have no name, important for HoT icons.
-		if tChild:GetName() then
-			tOurLevel = aBaseLevel + 1 + (tChild["addLevel"] or 0);
+		if tChild.IsForbidden and not tChild:IsForbidden() then
+			if tChild.GetName and tChild:GetName() then
+				tOurLevel = aBaseLevel + 1 + (tChild["addLevel"] or 0);
 
-			if not tChild["vfl"] then
-				if not VUHDO_isConfigPanelShowing() then
-					tChild:SetFrameStrata(aFrame:GetFrameStrata());
+				if not tChild["vfl"] then
+					if not VUHDO_isConfigPanelShowing() then
+						tChild:SetFrameStrata(aFrame:GetFrameStrata());
+					end
+					tChild:SetFrameLevel(tOurLevel);
+					tChild["vfl"] = true;
+					VUHDO_fixFrameLevels(anIsForceUpdateChildren, tChild, tOurLevel, tChild:GetChildren());
+				elseif(anIsForceUpdateChildren) then
+					VUHDO_fixFrameLevels(true, tChild, tOurLevel, tChild:GetChildren());
 				end
-				tChild:SetFrameLevel(tOurLevel);
-				tChild["vfl"] = true;
-				VUHDO_fixFrameLevels(anIsForceUpdateChildren, tChild, tOurLevel, tChild:GetChildren());
-			elseif(anIsForceUpdateChildren) then
-				VUHDO_fixFrameLevels(true, tChild, tOurLevel, tChild:GetChildren());
 			end
-
 		end
 		tCnt = tCnt + 1;
 		tChild = select(tCnt, ...);

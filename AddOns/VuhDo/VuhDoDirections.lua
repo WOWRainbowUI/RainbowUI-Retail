@@ -1,6 +1,9 @@
 local VUHDO_1_DIV_2_PI_MUL_108 = 108 / math.pi / 2;
+
 local UnitIsUnit = UnitIsUnit;
 local floor = floor;
+local _;
+
 local sOldButton;
 local sOldDistance;
 local sIsDeadOnly;
@@ -101,6 +104,7 @@ local VUHDO_shouldDisplayArrow = VUHDO_shouldDisplayArrow;
 
 --
 local tUnit;
+local tDirection;
 local tCell;
 local sLastCell = nil;
 local tButton = nil;

@@ -2434,7 +2434,7 @@ function VUHDO_loadDefaultConfig()
 		194509  -- Power Word: Radiance
 	);
 
-	for tIndex, tName in pairs(VUHDO_CONFIG["SPELL_TRACE"]["STORED"]) do
+	for _, tName in pairs(VUHDO_CONFIG["SPELL_TRACE"]["STORED"]) do
 		VUHDO_spellTraceAddDefaultSettings(tName);
 
 		VUHDO_CONFIG["SPELL_TRACE"]["STORED_SETTINGS"][tName] = VUHDO_ensureSanity(
