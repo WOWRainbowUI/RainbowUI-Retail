@@ -83,24 +83,23 @@ local DEFAULT_LOW_PRIORITY_SPELLS =
 -- 392279; ignore test
 
 local DEFAULT_PLAYER_INTERRUPT_SPELLS =
-[[Avenger's Shield
-Command Demon->Axe Toss
-Command Demon->Spell Lock
-Counter Shot
-Counterspell
-Disrupt
-Kick
-Mind Freeze
-Muzzle
-Pummel
-Quell
-Rebuke
-Silence
-Skull Bash
-Solar Beam
-Spear Hand Strike
-Strangulate
-Wind Shear
+[[p89766; (pet) Axe Toss
+p19647; (pet) Spell Lock
+31935;  Avenger's Shield
+147362; Counter Shot
+2139;   Counterspell
+183752; Disrupt
+1766;   Kick
+47528;  Mind Freeze
+187707; Muzzle
+6552;   Pummel
+351338; Quell
+96231;  Rebuke
+15487;  Silence
+106839; Skull Bash
+78675;  Solar Beam
+116705; Spear Hand Strike
+57994;  Wind Shear
 ]];
 
 local DEFAULT_AURA_BLACKLIST =
@@ -1020,43 +1019,44 @@ end
 --
 function FocusInterruptSounds:FIsPlayerSpellAvailable(strSpellName)
 
-	local strSpellDisplayNameVerify = nil;
+	-- Trim off any ; comments
+	local iSemiColonIndex = strSpellName:find(";");
+	if (nil ~= iSemiColonIndex) then
+		strSpellName = strSpellName:sub(1, iSemiColonIndex - 1);
+	end
 
-	-- Is there a | special character?
-	local iBarIndex = strSpellName:find("->");
-	if (nil ~= iBarIndex) then
-		strSpellDisplayNameVerify = strSpellName:sub(iBarIndex + 2);
-		strSpellName = strSpellName:sub(0, iBarIndex - 1);
+	-- Is it a pet spell
+	local iPetIndex = strSpellName:find("p");
+	local isPetSpell = false;
+	if (1 == iPetIndex) then
+		isPetSpell = true;
+		strSpellName = strSpellName:sub(2, #strSpellName);
 	end
 
 	-- Make sure the user wants these extra checks
 	if (not self.db.profile.fCheckSpellAvailability) then
 		return true;
 	end
-
-	-- Make sure that there is a spell
-	if (nil == strSpellName) then
-		-- self:CheckAndPrintMessage("Nil spell name");
+	
+	-- Make sure there's a pet if this is a pet spell (for some reason, IsSpellKnown() is returning true for Felhunter spells
+	-- on my rogue)
+	if (isPetSpell and 0 <= C_StableInfo.GetNumActivePets()) then
+		return false;
+	end
+	
+	-- Is the spell known?
+	if (nil ~= tonumber(strSpellName) and not IsSpellKnown(strSpellName, isPetSpell)) then
 		return false;
 	end
 
 	-- Verify that the spell isn't on cooldown
-	local iStartTime, _, fSpellEnabled = C_Spell.GetSpellCooldown(strSpellName);
-	if (iStartTime ~= 0 or not fSpellEnabled) then
-		-- self:CheckAndPrintMessage(strSpellName .. " on CD");
+	local tbSpellCooldown = C_Spell.GetSpellCooldown(strSpellName);
+	if (nil == tbSpellCooldown or tbSpellCooldown["startTime"] ~= 0 or not tbSpellCooldown["isEnabled"]) then
+		-- self:CheckAndPrintMessage(strSpellName .. " not known or on CD");
 		return false;
 	end
 
-	-- Verify display name (if applicable) and mana/energy
-	local strSpellDisplayName, _, _, iCost, _, _, _, _, _ = C_Spell.GetSpellInfo(strSpellName);
-	if (nil ~= strSpellDisplayNameVerify and strSpellDisplayNameVerify ~= strSpellDisplayName) then
-		-- self:CheckAndPrintMessage(strSpellName .. " has DN " .. strSpellDisplayName .. " but not " .. strSpellDisplayNameVerify);
-		return false
-	elseif (UnitPowerType("player") < iCost) then
-		-- self:CheckAndPrintMessage(strSpellName .. " low power");
-		return false;
-	end
-
+	-- self:CheckAndPrintMessage(strSpellName .. " available");
 	return true;
 end
 
@@ -1233,3 +1233,4 @@ function FocusInterruptSounds:COMBAT_LOG_EVENT_UNFILTERED(event)
 		fHandled = true;
 	end
 end
+w
