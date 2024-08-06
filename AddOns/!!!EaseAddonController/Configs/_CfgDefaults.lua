@@ -10,7 +10,7 @@ D["!!!gmFonts"] = {
 	modifier = "彩虹ui",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("字體")
 		end,
     },
@@ -51,7 +51,7 @@ D["!KalielsTracker"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["KALIELSTRACKER"]("config") end,
+        callback = function() SlashCmdList["KALIELSTRACKER"]("config") end,
     },
 };
 D["Accountant_Classic"] = {
@@ -63,11 +63,11 @@ D["Accountant_Classic"] = {
 	img = true,
 	{
         text = "顯示/隱藏個人會計",
-        callback = function(cfg, v, loading) AccountantClassic_ButtonOnClick() end,
+        callback = function() AccountantClassic_ButtonOnClick() end,
     },
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("個人會計")
 		end,
     },
@@ -85,11 +85,11 @@ D["ActionCamPlus"] = {
 	icon = "Interface\\Icons\\ability_eyeoftheowl",
     {
         text = "開/關動感鏡頭",
-        callback = function(cfg, v, loading) SlashCmdList["ACTIONCAMPLUS"]("") end,
+        callback = function() SlashCmdList["ACTIONCAMPLUS"]("") end,
     },
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACTIONCAMPLUS"]("h") end,
+        callback = function() SlashCmdList["ACTIONCAMPLUS"]("h") end,
     },
 };
 D["AdiBags"] = {
@@ -101,7 +101,7 @@ D["AdiBags"] = {
 	icon = "Interface\\Icons\\inv_misc_bag_08",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_ADIBAGS"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_ADIBAGS"]("") end,
     },
 	{
 		type = "text",
@@ -117,7 +117,7 @@ D["AdvancedInterfaceOptions"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["AIO"]("") end,
+        callback = function() SlashCmdList["AIO"]("") end,
     },
 	{
 		type = "text",
@@ -140,19 +140,19 @@ D["Align"] = {
 	img = true,
     {
         text = "32x32 網格",
-        callback = function(cfg, v, loading) SlashCmdList["TOGGLEGRID"]("32") end,
+        callback = function() SlashCmdList["TOGGLEGRID"]("32") end,
     },
 	{
         text = "64x64 網格",
-        callback = function(cfg, v, loading) SlashCmdList["TOGGLEGRID"]("64") end,
+        callback = function() SlashCmdList["TOGGLEGRID"]("64") end,
     },
 	{
         text = "128x128 網格",
-        callback = function(cfg, v, loading) SlashCmdList["TOGGLEGRID"]("128") end,
+        callback = function() SlashCmdList["TOGGLEGRID"]("128") end,
     },
 	{
         text = "256x256 網格",
-        callback = function(cfg, v, loading) SlashCmdList["TOGGLEGRID"]("256") end,
+        callback = function() SlashCmdList["TOGGLEGRID"]("256") end,
     },
 	{
 		type = "text",
@@ -167,7 +167,7 @@ D["AngryKeystones"] = {
 	icon = "Interface\\Icons\\ability_evoker_timedilation",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["AngryKeystones"]("") end,
+        callback = function() SlashCmdList["AngryKeystones"]("") end,
     },
 };
 D["AppearanceTooltip"] = {
@@ -179,7 +179,7 @@ D["AppearanceTooltip"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["APPEARANCETOOLTIP"]("") end,
+        callback = function() SlashCmdList["APPEARANCETOOLTIP"]("") end,
     },
 	{
 		type = "text",
@@ -195,7 +195,7 @@ D["AstralKeys"] = {
 	img = true,
     {
         text = "顯示主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["ASTRALKEYS"]("") end,
+        callback = function() SlashCmdList["ASTRALKEYS"]("") end,
     },
 	{
 		type = "text",
@@ -219,7 +219,7 @@ D["Auctionator"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) AuctionatorConfigTabMixin:OpenOptions() end,
+        callback = function() AuctionatorConfigTabMixin:OpenOptions() end,
     },
 	{
 		type = "text",
@@ -240,7 +240,7 @@ D["AutoPotion"] = {
 	},
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["HAM"]("") end,
+        callback = function() SlashCmdList["HAM"]("") end,
     },
 	{
 		type = "text",
@@ -255,7 +255,7 @@ D["Baganator"] = {
 	modifier = "BNS, 彩虹ui",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["Baganator"]("") end,
+        callback = function() SlashCmdList["Baganator"]("") end,
     },
 	{
 		type = "text",
@@ -273,31 +273,31 @@ D["BagSync"] = {
 	modifier = "BNS, 彩虹ui",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BAGSYNC"]("config") end,
+        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("config") end,
     },
 	{
         text = "搜尋",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BAGSYNC"]("search") end,
+        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("search") end,
     },
 	{
         text = "金錢",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BAGSYNC"]("gold") end,
+        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("gold") end,
     },
 	{
         text = "黑名單",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BAGSYNC"]("blacklist") end,
+        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("blacklist") end,
     },
 	{
         text = "優化資料庫",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BAGSYNC"]("fixdb") end,
+        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("fixdb") end,
     },
 	{
         text = "重置資料庫",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BAGSYNC"]("resetdb") end,
+        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("resetdb") end,
     },
 	{
         text = "刪除角色資料",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BAGSYNC"]("profiles") end,
+        callback = function() SlashCmdList["ACECONSOLE_BAGSYNC"]("profiles") end,
     },
 };
 D["BattleGroundEnemies"] = {
@@ -309,7 +309,7 @@ D["BattleGroundEnemies"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["BattleGroundEnemies"]("") end,
+        callback = function() SlashCmdList["BattleGroundEnemies"]("") end,
     },
 	{
 		type = "text",
@@ -325,7 +325,7 @@ D["BattlePetBreedID"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["BATTLEPETBREEDID"]("") end,
+        callback = function() SlashCmdList["BATTLEPETBREEDID"]("") end,
     },
 	{
 		type = "text",
@@ -341,7 +341,7 @@ D["BetterBags"] = {
 	icon = "Interface\\Icons\\reliquarybag_icon",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory(GetLocale() == "zhTW" and "背包" or "BetterBags")
 		end,
     },
@@ -357,7 +357,7 @@ D["BigDebuffs"] = {
 	modifier = "Kokusho",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("PvP 控場圖示")
 		end,
     },
@@ -376,7 +376,7 @@ D["BlizzMove"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_BLIZZMOVE"]("config") end,
+        callback = function() SlashCmdList["ACECONSOLE_BLIZZMOVE"]("config") end,
     },
 	{
 		type = "text",
@@ -390,7 +390,7 @@ D["BlockMessageTeamGuard"] = {
 	desc = "過濾掉聊天訊息中的廣告、自動拒絕陌生人的組隊邀請，讓你有個乾淨舒服的遊戲環境。``可以自訂關鍵字，還有更多功能。",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["BlockMessageTeamGuard"]("") end,
+        callback = function() SlashCmdList["BlockMessageTeamGuard"]("") end,
     },
 };
 D["Breakables"] = {
@@ -402,7 +402,7 @@ D["Breakables"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("專業-分解")
 		end,
     },
@@ -419,7 +419,7 @@ D["BravosUIImprovements"] = {
 	modifier = "彩虹ui",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("介面增強")
 		end,
     },
@@ -433,7 +433,7 @@ D["BtWLoadouts"] = {
 	icon = "Interface\\Icons\\Ability_marksmanship",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["BTWLOADOUTS"]("") end,
+        callback = function() SlashCmdList["BTWLOADOUTS"]("") end,
     },
 	{
 		type = "text",
@@ -448,7 +448,7 @@ D["BtWQuests"] = {
 	modifier = "Breeni, mccma, 彩虹ui",
     {
         text = "打開任務指南",
-        callback = function(cfg, v, loading) SlashCmdList["BTWQUESTS"]("") end,
+        callback = function() SlashCmdList["BTWQUESTS"]("") end,
     },
 	{
 		type = "text",
@@ -465,11 +465,11 @@ D["BugSack"] = {
 	protected = true,
 	{
         text = "查看錯誤訊息",
-        callback = function(cfg, v, loading) SlashCmdList["BugSack"]("show") end,
+        callback = function() SlashCmdList["BugSack"]("show") end,
     },
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["BugSack"]("") end,
+        callback = function() SlashCmdList["BugSack"]("") end,
     },
 	{
 		type = "text",
@@ -484,7 +484,7 @@ D["ButtonForge"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading)
+        callback = function()
 			if (BFConfigureLayer:IsShown()) then
 				BFConfigureLayer:Hide();
 			else
@@ -501,7 +501,7 @@ D["ButtonForge"] = {
 		type = "spin",
 		range = {0, 20, 1},
 		default	= 6,
-        callback = function(cfg, v, loading) SlashCmdList["BUTTONFORGE"]("-gap "..v) end,
+        callback = function(cfg, v, loadin) SlashCmdList["BUTTONFORGE"]("-gap "..v) end,
     },
 };
 D["BuyEmAll"] = {
@@ -519,7 +519,7 @@ D["CalReminder"] = {
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_CRM"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_CRM"]("") end,
     },
 };
 D["Cell"] = {
@@ -530,15 +530,15 @@ D["Cell"] = {
 	modifier = "BSN, 彩虹ui",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["CELL"]("options") end,
+        callback = function() SlashCmdList["CELL"]("options") end,
     },
 	{
         text = "重置位置",
-        callback = function(cfg, v, loading) SlashCmdList["CELL"]("resetposition") end,
+        callback = function() SlashCmdList["CELL"]("resetposition") end,
     },
 	{
         text = "恢復為預設值",
-        callback = function(cfg, v, loading) SlashCmdList["CELL"]("resetall") end,
+        callback = function() SlashCmdList["CELL"]("resetall") end,
     },
 };
 D["ClearMapPin"] = {
@@ -571,7 +571,7 @@ D["CombatTimeTracker"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_CTT"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_CTT"]("") end,
     },
 	{
 		type = "text",
@@ -595,7 +595,7 @@ D["Combuctor"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["Combuctor"]("options") end,
+        callback = function() SlashCmdList["Combuctor"]("options") end,
     },
 	{
 		type = "text",
@@ -623,7 +623,7 @@ D["CopyAnything"] = {
 	icon = "Interface\\Icons\\boss_odunrunes_orange",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("複製文字")
 		end,
     },
@@ -644,7 +644,7 @@ D["CraftSim"] = {
 	modifier = "Tmv3v, 彩虹ui",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["CRAFTSIM"]("") end,
+        callback = function() SlashCmdList["CRAFTSIM"]("") end,
     },
 	{
 		type = "text",
@@ -659,7 +659,7 @@ D["CursorTrail"] = {
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["CursorTrail"]("") end,
+        callback = function() SlashCmdList["CursorTrail"]("") end,
     },
 	{
 		type = "text",
@@ -679,11 +679,11 @@ D["DBM-StatusBarTimers"] = {
 	img = true,
     {
         text = "測試計時條",
-        callback = function(cfg, v, loading) DBM:DemoMode() end,
+        callback = function() DBM:DemoMode() end,
     },
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["DEADLYBOSSMODS"]("") end,
+        callback = function() SlashCmdList["DEADLYBOSSMODS"]("") end,
     },
 	{
 		type = "text",
@@ -710,7 +710,7 @@ D["Decursive"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_DECURSIVE"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_DECURSIVE"]("") end,
     },
 	{
         type = "text",
@@ -725,7 +725,7 @@ D["Defs-Rare-Safari"] = {
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["DEFRS"]("") end,
+        callback = function() SlashCmdList["DEFRS"]("") end,
     },
 	{
 		type = "text",
@@ -741,15 +741,15 @@ D["Details"] = {
 	img = true,
 	{
         text = "顯示/隱藏主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["DETAILS"]("toggle") end,
+        callback = function() SlashCmdList["DETAILS"]("toggle") end,
     },
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["DETAILS"]("config") end,
+        callback = function() SlashCmdList["DETAILS"]("config") end,
     },
 	{
         text = "重置設定/重新安裝",
-        callback = function(cfg, v, loading) SlashCmdList["DETAILS"]("reinstall") end,
+        callback = function() SlashCmdList["DETAILS"]("reinstall") end,
     },
 	{
 		type = "text",
@@ -768,7 +768,7 @@ D["DFFriendlyNameplates"] = {
 	icon = "Interface\\Icons\\boss_odunrunes_green",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["CFRN"]("") end,
+        callback = function() SlashCmdList["CFRN"]("") end,
     },
 };
 D["DialogueUI"] = {
@@ -794,15 +794,15 @@ D["Dominos"] = {
 	img = true,
 	{
         text = "設定快捷列",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_DOMINOS"]("config") end,
+        callback = function() SlashCmdList["ACECONSOLE_DOMINOS"]("config") end,
     },
 	{
         text = "設定快捷鍵",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_DOMINOS"]("bind") end,
+        callback = function() SlashCmdList["ACECONSOLE_DOMINOS"]("bind") end,
     },
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_DOMINOS"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_DOMINOS"]("") end,
     },
 	{
 		type = "text",
@@ -827,13 +827,13 @@ D["DragonRider"] = {
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
-		callback = function(cfg, v, loading)
+		callback = function()
 			Settings.OpenToCategory("DragonRider")
 		end,
     },
 	{
         text = "分龍騎術競賽成績",
-		callback = function(cfg, v, loading)
+		callback = function()
 			SlashCmdList["DRAGONRIDER"]("")
 		end,
     },
@@ -846,7 +846,7 @@ D["Drift"] = {
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
-		callback = function(cfg, v, loading)
+		callback = function()
 			Settings.OpenToCategory("移動視窗")
 		end,
     },
@@ -871,7 +871,7 @@ D["EasyFrames"] = {
 	img = true,
     {
         text = "設定選項",
-		callback = function(cfg, v, loading) 
+		callback = function() 
 			SlashCmdList["ACECONSOLE_EASYFRAMES"]("")
 		end,
     },
@@ -896,7 +896,7 @@ D["EditModeExpanded"] = {
 	modifier = "彩虹ui",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("編輯模式")
 		end,
     },
@@ -914,11 +914,11 @@ D["EnhBloodlust"] = {
 	img = true,
 	{
         text = "測試音樂",
-        callback = function(cfg, v, loading) SlashCmdList["ENHBLOODLUST"]("") end,
+        callback = function() SlashCmdList["ENHBLOODLUST"]("") end,
     },
 	{
         text = "測試短嗜血音樂",
-        callback = function(cfg, v, loading) SlashCmdList["ENHBLOODLUST"](true) end,
+        callback = function() SlashCmdList["ENHBLOODLUST"](true) end,
     },
 	{
 		type = "text",
@@ -939,7 +939,7 @@ D["Exlist"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["CHARINF"]("") end,
+        callback = function() SlashCmdList["CHARINF"]("") end,
     },
 	{
 		type = "text",
@@ -1003,7 +1003,7 @@ D["FocusInterruptSounds"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("斷法")
 		end,
     },
@@ -1033,7 +1033,7 @@ D["FriendListColors"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("好友名單")
 		end,
     },
@@ -1051,7 +1051,7 @@ D["GatherMate2"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["GatherMate2"]("") end,
+        callback = function() SlashCmdList["GatherMate2"]("") end,
     },
 	{
 		type = "text",
@@ -1065,7 +1065,7 @@ D["GladiatorlosSA2"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) Settings.OpenToCategory("PvP 技能語音") end,
+        callback = function() Settings.OpenToCategory("PvP 技能語音") end,
     },
 	{
 		type = "text",
@@ -1082,19 +1082,19 @@ D["GladiusEx"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["GLADIUSEX"]("ui") end,
+        callback = function() SlashCmdList["GLADIUSEX"]("ui") end,
     },
 	{
         text = "顯示測試框架",
-        callback = function(cfg, v, loading) SlashCmdList["GLADIUSEX"]("test 3") end,
+        callback = function() SlashCmdList["GLADIUSEX"]("test 3") end,
     },
 	{
         text = "隱藏測試框架",
-        callback = function(cfg, v, loading) SlashCmdList["GLADIUSEX"]("hide") end,
+        callback = function() SlashCmdList["GLADIUSEX"]("hide") end,
     },    
 	{
         text = "恢復為預設值",
-        callback = function(cfg, v, loading) SlashCmdList["GLADIUSEX"]("reset") end,
+        callback = function() SlashCmdList["GLADIUSEX"]("reset") end,
     },
 	{
 		type = "text",
@@ -1119,7 +1119,7 @@ D["GTFO"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["GTFO"]("options") end,
+        callback = function() SlashCmdList["GTFO"]("options") end,
     },
 };
 D["GW2_UI"] = {
@@ -1132,7 +1132,7 @@ D["GW2_UI"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["GWSLASH"]("") end,
+        callback = function() SlashCmdList["GWSLASH"]("") end,
     },
 };
 D["HandyMinimapArrow"] = {
@@ -1144,7 +1144,7 @@ D["HandyMinimapArrow"] = {
 	icon = "Interface\\Minimap\\MinimapArrow",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("HandyMinimapArrow")
 		end,
     },
@@ -1158,7 +1158,7 @@ D["HandyNotes"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_HANDYNOTES"]("gui") end,
+        callback = function() SlashCmdList["ACECONSOLE_HANDYNOTES"]("gui") end,
     },
 	{
 		type = "text",
@@ -1167,6 +1167,28 @@ D["HandyNotes"] = {
 	{
 		type = "text",
         text = "如果覺得地圖上的圖示太多太亂，可以在設定選項中關閉不想看到的特定圖示。\n",       
+	},
+};
+D["Hekili"] = {
+	defaultEnable = 0,
+	title = "Hekili 輸出助手",
+	desc = "畫面上會顯示3個圖示，提示現在和接下來建議施放的技能，可以做為輸出迴圈的新手教學，快速上手這個職業。``也可以在設定中啟用快捷列閃爍的功能，提示你該施放哪個技能。`",
+	modifier = "彩虹ui",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["ACECONSOLE_HEKILI"]("") end,
+    },
+	{
+        text = "解鎖/鎖定位置",
+        callback = function() SlashCmdList["ACECONSOLE_HEKILI"]("move") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+	{
+		type = "text",
+        text = "點 'Hekili 輸出助手' 的小地圖按鈕也可以打開設定選項。\n\n快捷列閃爍: 設定選項 > 主要 > SpellFlash > 啟用。\n",       
 	},
 };
 D["HideActionbarAnimations"] = {
@@ -1191,7 +1213,7 @@ D["HidingBar"] = {
 	modifier = "BNS, sfmict, terry1314, 彩虹ui",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["HIDDINGBAR"]("") end,
+        callback = function() SlashCmdList["HIDDINGBAR"]("") end,
     },
 };
 D["IcyVeinsStatPriority"] = {
@@ -1216,7 +1238,7 @@ D["Immersion"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["IMMERSION"]("") end,
+        callback = function() SlashCmdList["IMMERSION"]("") end,
     },
 	{
 		type = "text",
@@ -1236,7 +1258,7 @@ D["InProgressMissions"] = {
 	img = true,
     {
         text = "顯示任務報告",
-        callback = function(cfg, v, loading) SlashCmdList["InProgressMissions"]("") end,
+        callback = function() SlashCmdList["InProgressMissions"]("") end,
     },
 	{
 		type = "text",
@@ -1256,7 +1278,7 @@ D["InstanceAchievementTracker"] = {
 	img = true,
     {
         text = "顯示主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["IAT"]("") end,
+        callback = function() SlashCmdList["IAT"]("") end,
     },
 	{
 		type = "text",
@@ -1279,7 +1301,7 @@ D["iPMythicTimer"] = {
 	desc = "在傳奇鑰石的副本中，顯示兩箱、三箱的時間和小怪進度。`",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["IPMTOPTS"]("") end,
+        callback = function() SlashCmdList["IPMTOPTS"]("") end,
     },
 	{
 		type = "text",
@@ -1300,7 +1322,7 @@ D["KeyMaster"] = {
 	desc = "顯示你和隊友的 M+ 詳細資訊，有非常清楚漂亮的介面。`",
     {
         text = "打開主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["KeyMaster"]("") end,
+        callback = function() SlashCmdList["KeyMaster"]("") end,
     },
 	{
 		type = "text",
@@ -1318,7 +1340,7 @@ D["KeystoneLoot"] = {
 	desc = "方便尋找在 M+ 地城和寶庫可取得的裝備，可以依照職業、專精、部位和物品等級來找裝備，還能加入我的最愛。`",
     {
         text = "打開主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["KEYSTONELOOT"]("") end,
+        callback = function() SlashCmdList["KEYSTONELOOT"]("") end,
     },
 	{
 		type = "text",
@@ -1338,7 +1360,7 @@ D["Krowi_ExtendedVendorUI"] = {
 	icon = "Interface\\Icons\\inv_misc_coin_01",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("商人")
 		end,
     },
@@ -1356,7 +1378,7 @@ D["Leatrix_Maps"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["Leatrix_Maps"]("") end,
+        callback = function() SlashCmdList["Leatrix_Maps"]("") end,
     },
 	{
 		type = "text",
@@ -1372,7 +1394,7 @@ D["Leatrix_Plus"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["Leatrix_Plus"]("") end,
+        callback = function() SlashCmdList["Leatrix_Plus"]("") end,
     },
 	{
 		type = "text",
@@ -1388,7 +1410,7 @@ D["LiteButtonAuras"] = {
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) Settings.OpenToCategory("光環時間") end,
+        callback = function() Settings.OpenToCategory("光環時間") end,
     },
 };
 D["LOIHLoot"] = {
@@ -1401,7 +1423,7 @@ D["LOIHLoot"] = {
 	img = true,
     {
         text = "打開主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["LOIHLOOT"]("") end,
+        callback = function() SlashCmdList["LOIHLOOT"]("") end,
     },
 	{
 		type = "text",
@@ -1417,7 +1439,7 @@ D["ls_Glass"] = {
 	icon = "Interface\\Icons\\ability_evoker_powerswell",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["LSGLASS"]("") end,
+        callback = function() SlashCmdList["LSGLASS"]("") end,
     },
 	{
 		type = "text",
@@ -1433,7 +1455,7 @@ D["ls_Toasts"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["LSTOASTS"]("") end,
+        callback = function() SlashCmdList["LSTOASTS"]("") end,
     },
 	{
 		type = "text",
@@ -1457,11 +1479,11 @@ D["MailLogger"] = {
 	-- img = true,
 	{
         text = "顯示交易記錄",
-        callback = function(cfg, v, loading) SlashCmdList["MLC"]("all") end,
+        callback = function() SlashCmdList["MLC"]("all") end,
     },
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["MLC"]("gui") end,
+        callback = function() SlashCmdList["MLC"]("gui") end,
     },
 	{
 		type = "text",
@@ -1478,15 +1500,15 @@ D["MapPinEnhanced"] = {
 	-- img = true,
 	{
         text = "顯示標記點清單",
-        callback = function(cfg, v, loading) SlashCmdList["MPH"]("pintracker") end,
+        callback = function() SlashCmdList["MPH"]("pintracker") end,
     },
     {
         text = "顯示匯入視窗",
-        callback = function(cfg, v, loading) SlashCmdList["MPH"]("import") end,
+        callback = function() SlashCmdList["MPH"]("import") end,
     },
 	{
         text = "清除所有標記點",
-        callback = function(cfg, v, loading) SlashCmdList["MPH"]("removeall") end,
+        callback = function() SlashCmdList["MPH"]("removeall") end,
     },
 	{
 		type = "text",
@@ -1506,7 +1528,7 @@ D["Masque"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["MASQUE"]("") end,
+        callback = function() SlashCmdList["MASQUE"]("") end,
     },
 	{
 		type = "text",
@@ -1520,11 +1542,11 @@ D["MBB"] = {
 	img = true,
     {
         text = "重置按鈕位置",
-        callback = function(cfg, v, loading) SlashCmdList["MBB"]("reset position") end,
+        callback = function() SlashCmdList["MBB"]("reset position") end,
     },
 	{
         text = "恢復為預設值",
-        callback = function(cfg, v, loading) SlashCmdList["MBB"]("reset all") end,
+        callback = function() SlashCmdList["MBB"]("reset all") end,
     },
 	{
 		type = "text",
@@ -1558,11 +1580,11 @@ D["MythicDungeonTools"] = {
 	img = true,
     {
         text = "顯示主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["MYTHICDUNGEONTOOLS"]("") end,
+        callback = function() SlashCmdList["MYTHICDUNGEONTOOLS"]("") end,
     },
 	{
         text = "重置視窗位置",
-        callback = function(cfg, v, loading) SlashCmdList["MYTHICDUNGEONTOOLS"]("reset") end,
+        callback = function() SlashCmdList["MYTHICDUNGEONTOOLS"]("reset") end,
     },
 	{
 		type = "text",
@@ -1582,7 +1604,7 @@ D["MikScrollingBattleText"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["MSBT"]("") end,
+        callback = function() SlashCmdList["MSBT"]("") end,
     },
 };
 D["MythicPlusLoot"] = {
@@ -1593,7 +1615,7 @@ D["MythicPlusLoot"] = {
 	icon = "Interface\\AddOns\\MythicPlusLoot\\textures\\icon",
     {
         text = "打開主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["MYTHICPLUSLOOT"]("") end,
+        callback = function() SlashCmdList["MYTHICPLUSLOOT"]("") end,
     },
 };
 D["MythicPlusPullReEstimated"] = {
@@ -1603,7 +1625,7 @@ D["MythicPlusPullReEstimated"] = {
 	desc = "預設在畫面右側、任務清單上方顯示拉怪的預估%，在滑鼠指向的浮動提示資訊中顯示每一隻小怪的%，也可以在敵人的血條旁顯示% (需要在選項中啟用)。`",
     {
         text = "設定選項",
-		callback = function(cfg, v, loading) 
+		callback = function() 
 			Settings.OpenToCategory("M+ 小怪%")
 		end,
     },
@@ -1625,7 +1647,7 @@ D["Molinari"] = {
 	desc = "提供快速拆裝分解、研磨草藥、勘探寶石和開鎖的功能!``只要按下 Ctrl+Alt 鍵再點一下背包中物品，立馬分解!``設定選項中可以將要避免不小心被處理掉的物品加入忽略清單。`",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["MolinariSlash"]("") end,
+        callback = function() SlashCmdList["MolinariSlash"]("") end,
     },
 	{
 		type = "text",
@@ -1646,7 +1668,7 @@ D["MRT"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["mrtSlash"]("set") end,
+        callback = function() SlashCmdList["mrtSlash"]("set") end,
     },
 	{
 		type = "text",
@@ -1667,7 +1689,7 @@ D["NameplateCCnTrinket"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_NAMEPLATECCNTRINKET"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_NAMEPLATECCNTRINKET"]("") end,
     },
 	{
 		type = "text",
@@ -1684,7 +1706,7 @@ D["NameplateCooldowns"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["NAMEPLATECOOLDOWNS"]("") end,
+        callback = function() SlashCmdList["NAMEPLATECOOLDOWNS"]("") end,
     },
 	{
 		type = "text",
@@ -1701,7 +1723,7 @@ D["NameplateSCT"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_NSCT"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_NSCT"]("") end,
     },
 	{
 		type = "text",
@@ -1727,7 +1749,7 @@ D["NugComboBar"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["NCBSLASH"]("gui") end,
+        callback = function() SlashCmdList["NCBSLASH"]("gui") end,
     },
 };
 D["OmniBar"] = {
@@ -1738,7 +1760,7 @@ D["OmniBar"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["OmniBar"]("") end,
+        callback = function() SlashCmdList["OmniBar"]("") end,
     },
 };
 D["OmniCC"] = {
@@ -1749,7 +1771,7 @@ D["OmniCC"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["OmniCC"]("") end,
+        callback = function() SlashCmdList["OmniCC"]("") end,
     },
 	{
 		type = "text",
@@ -1765,7 +1787,7 @@ D["OmniCD"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["OmniCD"]("") end,
+        callback = function() SlashCmdList["OmniCD"]("") end,
     },
 	{
 		type = "text",
@@ -1780,7 +1802,7 @@ D["OPie"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["OPIE"]("") end,
+        callback = function() SlashCmdList["OPIE"]("") end,
     },
 	{
 		type = "text",
@@ -1801,7 +1823,7 @@ D["ParagonAnnouncer"] = {
 	-- img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["PARANNOUNCER"]("") end,
+        callback = function() SlashCmdList["PARANNOUNCER"]("") end,
     },
 };
 D["ParagonReputation"] = {
@@ -1812,7 +1834,7 @@ D["ParagonReputation"] = {
 	modifier = "彩虹ui",
      {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("聲望")
 		end,
     },
@@ -1827,7 +1849,7 @@ D["Pawn"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["PAWN"]("") end,
+        callback = function() SlashCmdList["PAWN"]("") end,
     },
 	{
 		type = "text",
@@ -1845,19 +1867,19 @@ D["PersoLootRoll"] = {
 	icon = "Interface\\Buttons\\UI-GroupLoot-Dice-Up",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("options") end,
+        callback = function() SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("options") end,
     },
 	{
         text = "顯示分裝視窗",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("") end,
     },
 	{
         text = "擲骰說明",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("roll") end,
+        callback = function() SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("roll") end,
     },
 	{
         text = "競標說明",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("bid") end,
+        callback = function() SlashCmdList["ACECONSOLE_PERSOLOOTROLL"]("bid") end,
     },
 	{
 		type = "text",
@@ -1871,7 +1893,7 @@ D["PetTracker"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("|Tinterface/addons/pettracker/art/compass:16:16|t 戰寵")
 		end,
     },
@@ -1890,7 +1912,7 @@ D["PersonalBuff"] = {
 	icon = "Interface\\Icons\\ability_earthen_azeritesurge",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("個人資源條")
 		end,
     },
@@ -1934,7 +1956,7 @@ D["PremadeSort"] = {
 	modifier = "彩虹ui",
 	{
         text = "顯示/隱藏時間標記",
-        callback = function(cfg, v, loading) SlashCmdList["PREMADESORT"]("timestamp") end,
+        callback = function() SlashCmdList["PREMADESORT"]("timestamp") end,
     },
 	{
 		type = "text",
@@ -1963,7 +1985,7 @@ D["Quartz"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("施法條")
 		end,
     },
@@ -1998,7 +2020,7 @@ D["RandomHearth"] = {
 	icon = "Interface\\Icons\\inv_10_misc_dragonorb_color1",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["RandomHearthstone"]("") end,
+        callback = function() SlashCmdList["RandomHearthstone"]("") end,
     },
 };
 D["RangeDisplay"] = {
@@ -2011,7 +2033,7 @@ D["RangeDisplay"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["RANGEDISPLAY"]("") end,
+        callback = function() SlashCmdList["RANGEDISPLAY"]("") end,
     },
 	{
 		type = "text",
@@ -2053,7 +2075,7 @@ D["REPorter"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("PvP 戰場地圖")
 		end,
     },
@@ -2070,11 +2092,11 @@ D["SavedInstances"] = {
 	icon = "Interface\\Icons\\inv_misc_key_05",
 	{
         text = "顯示/隱藏角色進度",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_SAVEDINSTANCES"]("show") end,
+        callback = function() SlashCmdList["ACECONSOLE_SAVEDINSTANCES"]("show") end,
     },
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_SAVEDINSTANCES"]("config") end,
+        callback = function() SlashCmdList["ACECONSOLE_SAVEDINSTANCES"]("config") end,
     },
 	{
 		type = "text",
@@ -2089,7 +2111,7 @@ D["SexyMap"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["SexyMap"]("") end,
+        callback = function() SlashCmdList["SexyMap"]("") end,
     },
 	{
 		type = "text",
@@ -2142,7 +2164,7 @@ D["SilverDragon"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_SILVERDRAGON"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_SILVERDRAGON"]("") end,
     },
 	{
 		type = "text",
@@ -2170,7 +2192,7 @@ D["SimpleAddonManager"] = {
 	icon = "Interface\\Icons\\inv_10_engineering_manufacturedparts_gear_frost",
 	{
         text = "打開插件管理員",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_SIMPLEADDONMANAGER"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_SIMPLEADDONMANAGER"]("") end,
     },
 	{
 		type = "text",
@@ -2193,7 +2215,7 @@ D["SimpleVignette"] = {
 	icon = "Interface\\Icons\\inv_foxpet",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["SIMPLEVIGNETTE"]("") end,
+        callback = function() SlashCmdList["SIMPLEVIGNETTE"]("") end,
     },
 };
 D["Skada"] = {
@@ -2205,11 +2227,11 @@ D["Skada"] = {
 	img = true,
     {
         text = "顯示/隱藏戰鬥統計",
-        callback = function(cfg, v, loading) SlashCmdList["SKADA"]("toggle") end,
+        callback = function() SlashCmdList["SKADA"]("toggle") end,
     },
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["SKADA"]("config") end,
+        callback = function() SlashCmdList["SKADA"]("config") end,
     },
 	{
 		type = "text",
@@ -2225,7 +2247,7 @@ D["Skillet"] = {
 	icon = "Interface\\Icons\\ability_mount_rocketmount",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("專業-助手")
 		end,
     },
@@ -2238,7 +2260,7 @@ D["SmartQuest"] = {
 	icon = "Interface\\Icons\\achievement_quests_completed_uldum",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["SMARTQUEST"]("OPTIONS") end,
+        callback = function() SlashCmdList["SMARTQUEST"]("OPTIONS") end,
     },
 };
 D["Sorted"] = {
@@ -2270,19 +2292,19 @@ D["Spy"] = {
 	},
 	{
         text = "顯示主視窗",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_SPY"]("show") end,
+        callback = function() SlashCmdList["ACECONSOLE_SPY"]("show") end,
     },
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_SPY"]("config") end,
+        callback = function() SlashCmdList["ACECONSOLE_SPY"]("config") end,
     },
 	{
         text = "調整警告位置",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_SPY"]("test") end,
+        callback = function() SlashCmdList["ACECONSOLE_SPY"]("test") end,
     },
 	{
         text = "恢復為預設值",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_SPY"]("reset") end,
+        callback = function() SlashCmdList["ACECONSOLE_SPY"]("reset") end,
     },
 	{
 		type = "text",
@@ -2298,7 +2320,7 @@ D["Stuf"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["STUF"]("") SlashCmdList["STUF"]("") end,
+        callback = function() SlashCmdList["STUF"]("") SlashCmdList["STUF"]("") end,
     },
 	{
 		type = "text",
@@ -2321,7 +2343,7 @@ D["Syndicator"] = {
 	modifier = "BNS, plusmouse, 彩虹ui",
     {
         text = "設定選項",
-        callback = function(cfg, v, loading)
+        callback = function()
 			Settings.OpenToCategory("Syndicator")
 		end,
     },
@@ -2353,7 +2375,7 @@ D["TargetNameplateIndicator"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_TNI"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_TNI"]("") end,
     },
 };
 D["TidyPlates_ThreatPlates"] = {
@@ -2366,11 +2388,11 @@ D["TidyPlates_ThreatPlates"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["ACECONSOLE_TPTP"]("") end,
+        callback = function() SlashCmdList["ACECONSOLE_TPTP"]("") end,
     },
 	{
         text = "切換血條重疊/堆疊",
-        callback = function(cfg, v, loading) SlashCmdList["TPTPOVERLAP"]("") end,
+        callback = function() SlashCmdList["TPTPOVERLAP"]("") end,
     },
 	{
 		type = "text",
@@ -2399,7 +2421,7 @@ D["TinyChat"] = {
     img = true,
 	{
         text = "重置聊天按鈕位置",
-        callback = function(cfg, v, loading) resetTinyChat() end,
+        callback = function() resetTinyChat() end,
     },
 	{
 		type = "text",
@@ -2419,7 +2441,7 @@ D["TinyInspect"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["TinyInspect"]("") end,
+        callback = function() SlashCmdList["TinyInspect"]("") end,
     },
 };
 D["TinyInspect-Reforged"] = {
@@ -2445,11 +2467,11 @@ D["TinyTooltip-Reforged"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["TinyTooltipReforged"]("") end,
+        callback = function() SlashCmdList["TinyTooltipReforged"]("") end,
     },
 	{
         text = "恢復為預設值",
-        callback = function(cfg, v, loading) SlashCmdList["TinyTooltipReforged"]("reset") end,
+        callback = function() SlashCmdList["TinyTooltipReforged"]("reset") end,
 		reload = true,
     },
 	{
@@ -2487,7 +2509,7 @@ D["tullaRange"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("快捷列-著色")
 		end,
     },
@@ -2501,7 +2523,7 @@ D["UnlimitedMapPinDistance"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["UMPDO"]("") end,
+        callback = function() SlashCmdList["UMPDO"]("") end,
     },
 };
 D["VenturePlan"] = {
@@ -2533,7 +2555,7 @@ D["VuhDo"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["VUHDO"]("opt") end,
+        callback = function() SlashCmdList["VUHDO"]("opt") end,
     },
 	{
 		type = "text",
@@ -2549,7 +2571,7 @@ D["WeakAuras"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["WEAKAURAS"]("") end,
+        callback = function() SlashCmdList["WEAKAURAS"]("") end,
     },
 	{
 		type = "text",
@@ -2569,7 +2591,7 @@ D["WIM"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) WIM.ShowOptions() end,
+        callback = function() WIM.ShowOptions() end,
     },
 	{
 		type = "text",
@@ -2601,7 +2623,7 @@ D["WorldMapTrackingEnhanced"] = {
 	img = true,
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			WorldMapTrackingEnhanced:OpenOptions()
 		end,
     },
@@ -2638,7 +2660,7 @@ D["xanSoundAlerts"] = {
 	desc = "血量或法力/能量太低時，會發出音效來提醒。``支援多種能量類型，可在設定選項中勾選。",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) SlashCmdList["XANSOUNDALERTS"]("") end,
+        callback = function() SlashCmdList["XANSOUNDALERTS"]("") end,
     },
 	{
 		type = "text",
@@ -2661,7 +2683,7 @@ D["XIV_Databar_Continued"] = {
 	img = true,
     {
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("資訊列")
 		end,
     },
@@ -2705,7 +2727,7 @@ D["zz_itemsdb"] = {
 	icon = "Interface\\Icons\\achievement_guild_otherworldlydiscounts",
 	{
         text = "設定選項",
-        callback = function(cfg, v, loading) 
+        callback = function() 
 			Settings.OpenToCategory("背包-物品數量")
 		end,
     },
