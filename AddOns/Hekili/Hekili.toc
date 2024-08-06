@@ -10,6 +10,11 @@
 ## X-WoWI-ID: 24608
 ## X-Wago-ID: WYK9WXNL
 
+## Title-zhTW: |cffFF2D2D[戰鬥]|r Hekili 輸出助手
+## Notes-zhTW: Hekili |n|n畫面上會顯示3個圖示，提示現在和接下來建議施放的技能，可以做為輸出迴圈的新手教學，快速上手這個職業。|n|n|cffffd200使用方法: |r右鍵點小地圖按鈕打開設定選項，同時也可移動位置。|n|n|cffFF2D2D特別注意: |rHekili 輸出助手是為當前遊戲版本內容所設計的，建議 50 級以上使用。
+## X-Category-zhTW: 戰鬥
+## DefaultState: disabled
+
 embeds.xml
 
 Hekili.lua

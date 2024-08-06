@@ -61,8 +61,8 @@ local specTemplate = {
     maxTime = 20,
 
     -- Toggles
-    custom1Name = "Custom 1",
-    custom2Name = "Custom 2",
+    custom1Name = "自訂 1",
+    custom2Name = "自訂 2",
     noFeignedCooldown = false,
 
     abilities = {
@@ -2345,7 +2345,7 @@ do
 
     all:RegisterAbility( "potion", {
         name = "Potion",
-        listName = '|T136243:0|t |cff00ccff[Potion]|r',
+        listName = '|T136243:0|t |cff00ccff[藥水]|r',
         cast = 0,
         cooldown = 300,
         gcd = "off",
@@ -2379,7 +2379,7 @@ do
 
         usable = function ()
             if getValidPotion() ~= nil then return true end
-            return false, "no valid potions found in inventory"
+            return false, "背包中沒有有效的藥水"
         end,
     } )
 end

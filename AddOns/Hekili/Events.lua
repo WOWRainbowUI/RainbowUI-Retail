@@ -1189,7 +1189,7 @@ RegisterUnitEvent( "UNIT_SPELLCAST_SUCCEEDED", "player", "target", function( eve
         Hekili:Notify( UnitClass( "player" ) .. " does not have any Hekili modules loaded (yet).\nWatch for updates.", 5 )
         noClassWarned = true
     elseif not lowLevelWarned and UnitLevel( "player" ) < 50 then
-        Hekili:Notify( "Hekili is designed for current content.\nUse below level 50 at your own risk.", 5 )
+        Hekili:Notify( "Hekili 輸出助手是為當前遊戲版本內容所設計的。\n等級 50 以下使用請自行承擔風險。", 5 )
         lowLevelWarned = true
     end
 

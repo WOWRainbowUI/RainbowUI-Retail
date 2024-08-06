@@ -174,7 +174,7 @@ function ns.StartConfiguration( external )
         f.Header:SetFont( path, 18, "OUTLINE" )
     end
     f.Header:SetAllPoints( HekiliNotificationMover )
-    f.Header:SetText( "Notifications" )
+    f.Header:SetText( "通知" )
     f.Header:SetJustifyH( "CENTER" )
     f.Header:Show()
 
@@ -195,9 +195,9 @@ function ns.StartConfiguration( external )
         if H.Config then
             Tooltip:SetOwner( self, "ANCHOR_TOPRIGHT" )
 
-            Tooltip:SetText( "Hekili: Notifications" )
-            Tooltip:AddLine( "Left-click and hold to move.", 1, 1, 1 )
-            Tooltip:AddLine( "Right-click to open Notification panel settings.", 1, 1, 1 )
+            Tooltip:SetText( "Hekili 輸出助手: 通知" )
+            Tooltip:AddLine( "左鍵 拖曳移動", 1, 1, 1 )
+            Tooltip:AddLine( "右鍵 打開通知設定", 1, 1, 1 )
             Tooltip:Show()
         end
     end )
@@ -275,10 +275,10 @@ function ns.StartConfiguration( external )
                 if H.Config then
                     Tooltip:SetOwner( self, "ANCHOR_TOPRIGHT" )
 
-                    Tooltip:SetText( "Hekili: " .. i )
-                    Tooltip:AddLine( "Left-click and hold to move.", 1, 1, 1 )
-                    Tooltip:AddLine( "Right-click to open " .. i .. " display settings.", 1, 1, 1 )
-                    if not H:IsDisplayActive( i, true ) then Tooltip:AddLine( "This display is not currently active.", 0.5, 0.5, 0.5 ) end
+                    Tooltip:SetText( "Hekili 輸出助手: " .. i )
+                    Tooltip:AddLine( "左鍵 拖曳移動", 1, 1, 1 )
+                    Tooltip:AddLine( "右鍵 打開 " .. i .. " 技能組設定", 1, 1, 1 )
+                    if not H:IsDisplayActive( i, true ) then Tooltip:AddLine( "此技能組目前尚未啟用。", 0.5, 0.5, 0.5 ) end
                     Tooltip:Show()
                 end
             end )
@@ -298,6 +298,8 @@ function ns.StartConfiguration( external )
             if i == "Defensives" then v.Header:SetText( AtlasToString( "nameplates-InterruptShield" ) )
             elseif i == "Interrupts" then v.Header:SetText( AtlasToString( "voicechat-icon-speaker-mute" ) )
             elseif i == "Cooldowns" then v.Header:SetText( AtlasToString( "chromietime-32x32" ) )
+            elseif i == "Primary" then v.Header:SetText("主要")
+            elseif i == "AOE" then v.Header:SetText("多目標")
             else v.Header:SetText( i ) end
 
             v.Header:SetJustifyH("CENTER")
@@ -418,18 +420,18 @@ do
     local menuData = {
         {
             isTitle = 1,
-            text = "Hekili",
+            text = "Hekili 輸出助手",
             notCheckable = 1,
         },
 
         {
-            text = "Enable",
+            text = "啟用",
             func = function () Hekili:Toggle() end,
             checked = function () return Hekili.DB.profile.enabled end,
         },
 
         {
-            text = "Pause",
+            text = "暫停",
             func = function () return Hekili:TogglePause() end,
             checked = function () return Hekili.Pause end,
         },
@@ -440,36 +442,36 @@ do
 
         {
             isTitle = 1,
-            text = "Display Mode",
+            text = "技能組模式",
             notCheckable = 1,
         },
 
         {
-            text = "Auto",
+            text = "自動",
             func = function () SetDisplayMode( "automatic" ) end,
             checked = function () return IsDisplayMode( p, "automatic" ) end,
         },
 
         {
-            text = "Single",
+            text = "單目標",
             func = function () SetDisplayMode( "single" ) end,
             checked = function () return IsDisplayMode( p, "single" ) end,
         },
 
         {
-            text = "AOE",
+            text = "多目標",
             func = function () SetDisplayMode( "aoe" ) end,
             checked = function () return IsDisplayMode( p, "aoe" ) end,
         },
 
         {
-            text = "Dual",
+            text = "雙組技能",
             func = function () SetDisplayMode( "dual" ) end,
             checked = function () return IsDisplayMode( p, "dual" ) end,
         },
 
         {
-            text = "Reactive",
+            text = "反應式",
             func = function () SetDisplayMode( "reactive" ) end,
             checked = function () return IsDisplayMode( p, "reactive" ) end,
         },
@@ -480,36 +482,36 @@ do
 
         {
             isTitle = 1,
-            text = "Toggles",
+            text = "切換",
             notCheckable = 1,
         },
 
         {
-            text = "Cooldowns",
+            text = "冷卻",
             func = function() Hekili:FireToggle( "cooldowns" ); ns.UI.Minimap:RefreshDataText() end,
             checked = function () return Hekili.DB.profile.toggles.cooldowns.value end,
         },
 
         {
-            text = "Minor CDs",
+            text = "次要冷卻",
             func = function() Hekili:FireToggle( "essences" ); ns.UI.Minimap:RefreshDataText() end,
             checked = function () return Hekili.DB.profile.toggles.essences.value end,
         },
 
         {
-            text = "Interrupts",
+            text = "斷法",
             func = function() Hekili:FireToggle( "interrupts" ); ns.UI.Minimap:RefreshDataText() end,
             checked = function () return Hekili.DB.profile.toggles.interrupts.value end,
         },
 
         {
-            text = "Defensives",
+            text = "防禦",
             func = function() Hekili:FireToggle( "defensives" ); ns.UI.Minimap:RefreshDataText() end,
             checked = function () return Hekili.DB.profile.toggles.defensives.value end,
         },
 
         {
-            text = "Potions",
+            text = "藥水",
             func = function() Hekili:FireToggle( "potions" ); ns.UI.Minimap:RefreshDataText() end,
             checked = function () return Hekili.DB.profile.toggles.potions.value end,
         },
@@ -542,18 +544,18 @@ do
                             hidden = function () return Hekili.State.spec.id ~= i end,
                         } )
                         insert( menuData, {
-                            text = "|TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t Recommend Target Swaps",
-                            tooltipTitle = "|TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t Recommend Target Swaps",
-                            tooltipText = "If checked, the |TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t indicator may be displayed which means you should use the ability on a different target.",
+                            text = "|TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t 建議換目標",
+                            tooltipTitle = "|TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t 建議換目標",
+                            tooltipText = "勾選時，可能會顯示 |TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t 指示器，表示你應該對不同的目標使用該能力。",
                             tooltipOnButton = true,
                             func = function ()
                                 local spec = rawget( Hekili.DB.profile.specs, i )
                                 if spec then
                                     spec.cycle = not spec.cycle
                                     if Hekili.DB.profile.notifications.enabled then
-                                        Hekili:Notify( "Recommend Target Swaps: " .. ( spec.cycle and "ON" or "OFF" ) )
+                                        Hekili:Notify( "建議換目標: " .. ( spec.cycle and "ON" or "OFF" ) )
                                     else
-                                        Hekili:Print( "Recommend Target Swaps: " .. ( spec.cycle and " |cFF00FF00ENABLED|r." or " |cFFFF0000DISABLED|r." ) )
+                                        Hekili:Print( "建議換目標: " .. ( spec.cycle and " |cFF00FF00已啟用|r。" or " |cFFFF0000已停用|r。" ) )
                                     end
                                 end
                             end,
@@ -584,7 +586,7 @@ do
                                             if Hekili.DB.profile.notifications.enabled then
                                                 Hekili:Notify( nm .. ": " .. ( setting.info.get( menu.args ) and "ON" or "OFF" ) )
                                             else
-                                                Hekili:Print( nm .. ": " .. ( setting.info.get( menu.args ) and " |cFF00FF00ENABLED|r." or " |cFFFF0000DISABLED|r." ) )
+                                                Hekili:Print( nm .. ": " .. ( setting.info.get( menu.args ) and " |cFF00FF00已啟用|r。" or " |cFFFF0000已停用|r。" ) )
                                             end
 
                                             submenu.text = nm

@@ -41,7 +41,7 @@ local function EmbedBlizOptions()
     open:SetPoint( "CENTER", panel, "CENTER", 0, 0 )
     open:SetWidth( 250 )
     open:SetHeight( 25 )
-    open:SetText( "Open Hekili Options Panel" )
+    open:SetText( "打開 Hekili 輸出助手設定選項" )
 
     open:SetScript( "OnClick", function ()
         ns.StartConfiguration()
@@ -98,15 +98,15 @@ function Hekili:OnInitialize()
 
         if p.toggles.essences.override then
             -- Don't show Essences here if it's overridden by CDs anyway?
-            return format( "|c%s%s|r %sCD|r %sInt|r %sDef|r", color,
-                m == "single" and "ST" or ( m == "aoe" and "AOE" or ( m == "dual" and "Dual" or ( m == "reactive" and "React" or "Auto" ) ) ),
+            return format( "|c%s%s|r %s冷卻|r %s斷法|r %s防禦|r", color,
+                m == "single" and "單目標" or ( m == "aoe" and "多目標" or ( m == "dual" and "雙組" or ( m == "reactive" and "反應式" or "自動" ) ) ),
                 p.toggles.cooldowns.value and "|cFF00FF00" or "|cFFFF0000",
                 p.toggles.interrupts.value and "|cFF00FF00" or "|cFFFF0000",
                 p.toggles.defensives.value and "|cFF00FF00" or "|cFFFF0000" )
         else
-            return format( "|c%s%s|r %sCD|r %smCD|r %sInt|r",
+            return format( "|c%s%s|r %s冷卻|r %s次冷卻|r %s斷法|r",
                 color,
-                m == "single" and "ST" or ( m == "aoe" and "AOE" or ( m == "dual" and "Dual" or ( m == "reactive" and "React" or "Auto" ) ) ),
+                m == "single" and "單目標" or ( m == "aoe" and "多目標" or ( m == "dual" and "雙組" or ( m == "reactive" and "反應式" or "自動" ) ) ),
                 p.toggles.cooldowns.value and "|cFF00FF00" or "|cFFFF0000",
                 p.toggles.essences.value and "|cFF00FF00" or "|cFFFF0000",
                 p.toggles.interrupts.value and "|cFF00FF00" or "|cFFFF0000" )
@@ -115,9 +115,9 @@ function Hekili:OnInitialize()
 
     Hekili_OnAddonCompartmentEnter = function( addonName, button )
         GameTooltip:SetOwner( AddonCompartmentFrame )
-        GameTooltip:AddDoubleLine( "Hekili", GetDataText() )
-        GameTooltip:AddLine( "|cFFFFFFFFLeft-click to make quick adjustments.|r" )
-        GameTooltip:AddLine( "|cFFFFFFFFRight-click to open the options interface.|r" )
+        GameTooltip:AddDoubleLine( "Hekili 輸出助手", GetDataText() )
+        GameTooltip:AddLine( "|cFFFFFFFF左鍵 快速調整|r" )
+        GameTooltip:AddLine( "|cFFFFFFFF右鍵 打開設定|r" )
         GameTooltip:Show()
     end
 
@@ -126,7 +126,7 @@ function Hekili:OnInitialize()
     end
 
     AddonCompartmentFrame:RegisterAddon({
-        text = "Hekili",
+        text = C_AddOns.GetAddOnMetadata("Hekili", "Title"),
         icon = "Interface\\AddOns\\Hekili\\Textures\\LOGO-ORANGE.blp",
         registerForAnyClick = true,
         notCheckable = true,
@@ -143,9 +143,9 @@ function Hekili:OnInitialize()
             OnClick = Hekili_OnAddonCompartmentClick,
             OnEnter = function( self )
                 GameTooltip:SetOwner( self )
-                GameTooltip:AddDoubleLine( "Hekili", ns.UI.Minimap.text )
-                GameTooltip:AddLine( "|cFFFFFFFFLeft-click to make quick adjustments.|r" )
-                GameTooltip:AddLine( "|cFFFFFFFFRight-click to open the options interface.|r" )
+                GameTooltip:AddDoubleLine( "Hekili 輸出助手", ns.UI.Minimap.text )
+                GameTooltip:AddLine( "|cFFFFFFFF左鍵 快速調整|r" )
+                GameTooltip:AddLine( "|cFFFFFFFF右鍵 打開設定|r" )
                 GameTooltip:Show()
             end,
             OnLeave = Hekili_OnAddonCompartmentLeave
@@ -202,7 +202,7 @@ function Hekili:OnEnable()
     self:ForceUpdate( "ADDON_ENABLED" )
 
     if self.BuiltFor > self.CurrentBuild then
-        self:Notify( "|cFFFF0000WARNING|r: This version of Hekili is for a future version of WoW; you should reinstall for " .. self.GameBuild .. "." )
+        self:Notify( "|cFFFF0000警告|r: 此版本的 Hekili 輸出助手適用於魔獸世界正式版；你應該重新安裝 " .. self.GameBuild .. "。" )
     end
 end
 
@@ -2057,7 +2057,7 @@ function Hekili.Update( initial )
     end
 
     if snaps then
-        Hekili:Print( "Snapshots saved:  " .. snaps .. "." )
+        Hekili:Print( "已儲存快照:  " .. snaps .. "。" )
     end
 end
 Hekili:ProfileCPU( "ThreadedUpdate", Hekili.Update )
@@ -2067,17 +2067,17 @@ function Hekili_GetRecommendedAbility( display, entry )
     entry = entry or 1
 
     if not rawget( Hekili.DB.profile.displays, display ) then
-        return nil, "Display not found."
+        return nil, "沒有找到技能組。"
     end
 
     if not ns.queue[ display ] then
-        return nil, "No queue for that display."
+        return nil, "該技能組沒有排隊圖示。"
     end
 
     local slot = ns.queue[ display ][ entry ]
 
     if not slot or not slot.actionID then
-        return nil, "No entry #" .. entry .. " for that display."
+        return nil, "該技能組沒有項目 #" .. entry .. "。"
     end
 
     local payload = Hekili.DisplayPool[ display ].EventPayload
