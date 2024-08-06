@@ -125,7 +125,7 @@ spec:RegisterTalents( {
     -- Herald of the Sun
     aurora                          = {  95069, 439760, 1 }, -- After you cast Holy Prism or Barrier of Faith, gain Divine Purpose.  Divine Purpose Holy Power abilities have a 15% chance to make your next Holy Power ability free and deal 15% increased damage and healing.
     blessing_of_anshe               = {  95071, 445200, 1 }, -- Your damage and healing over time effects have a chance to increase the healing or damage of your next Holy Shock by 200%.
-    dawnlight                       = {  95099, 431377, 1 }, -- Casting Holy Prism or Barrier of Faith causes your next 2 Holy Power spending abilities to apply Dawnlight on your target, dealing 52,908 Radiant damage or 84,652 healing over 8 sec. 10% of Dawnlight's damage and healing radiates to nearby allies or enemies, reduced beyond 5 targets.
+    dawnlight                       = {  95099, 431377, 1, "herald_of_the_sun" }, -- Casting Holy Prism or Barrier of Faith causes your next 2 Holy Power spending abilities to apply Dawnlight on your target, dealing 52,908 Radiant damage or 84,652 healing over 8 sec. 10% of Dawnlight's damage and healing radiates to nearby allies or enemies, reduced beyond 5 targets.
     eternal_flame                   = {  95095, 156322, 1 }, -- Heals an ally for 60,214 and an additional 15,843 over 16 sec. Healing increased by 25% when cast on self.
     gleaming_rays                   = {  95073, 431480, 1 }, -- While a Dawnlight is active, your Holy Power spenders deal 6% additional damage or healing.
     illumine                        = {  95098, 431423, 1 }, -- Dawnlight reduces the movement speed of enemies by 50% and increases the movement speed of allies by 20%.
@@ -147,7 +147,7 @@ spec:RegisterTalents( {
     fear_no_evil                    = {  95232, 432834, 1 }, -- While wielding an Armament the duration of Fear effects is reduced by 50%.
     forewarning                     = {  95231, 432804, 1 }, -- The cooldown of Holy Armaments is reduced by 20%.
     hammer_and_anvil                = {  95238, 433718, 1 }, -- Judgment critical strikes cause a shockwave around the target, dealing 30,124 healing at the target's location.
-    holy_armaments                  = {  95234, 432459, 1 }, -- Will the Light to coalesce and become manifest as a Holy Armament, wielded by your friendly target.  Holy Bulwark: While wielding a Holy Bulwark, gain an absorb shield for 15.0% of your max health and an additional 2.0% every 2 sec. Lasts 20 sec. Becomes Sacred Weapon after use.
+    holy_armaments                  = {  95234, 432459, 1, "lightsmith" }, -- Will the Light to coalesce and become manifest as a Holy Armament, wielded by your friendly target.  Holy Bulwark: While wielding a Holy Bulwark, gain an absorb shield for 15.0% of your max health and an additional 2.0% every 2 sec. Lasts 20 sec. Becomes Sacred Weapon after use.
     laying_down_arms                = {  95236, 432866, 1 }, -- When an Armament fades from you, the cooldown of Lay on Hands is reduced by 15.0 sec and you gain Infusion of Light.
     rite_of_adjuration              = {  95233, 433583, 1 }, -- Imbue your weapon with the power of the Light, increasing your Stamina by 3% and causing your Holy Power abilities to sometimes unleash a burst of healing around a target. Lasts 1 |4hour:hrs;.
     rite_of_sanctification          = {  95233, 433568, 1 }, -- Imbue your weapon with the power of the Light, increasing your armor by 5% and your primary stat by 1%. Lasts 1 |4hour:hrs;.
@@ -212,16 +212,25 @@ spec:RegisterAuras( {
         id = 156910,
         duration = 3600,
         max_stack = 1,
+        dot = "buff",
+        friendly = true,
+        no_ticks = true,
     },
     beacon_of_light = {
         id = 53563,
         duration = 3600,
         max_stack = 1,
+        dot = "buff",
+        friendly = true,
+        no_ticks = true,
     },
     beacon_of_virtue = {
         id = 200025,
         duration = 8,
         max_stack = 1,
+        dot = "buff",
+        friendly = true,
+        no_ticks = true,
     },
     bestow_faith = {
         id = 223306,
@@ -685,6 +694,7 @@ spec:RegisterAbilities( {
 
         handler = function ()
             applyBuff( "beacon_of_faith" )
+            active_dot.beacon_of_faith = 1
         end,
     },
 
@@ -703,6 +713,7 @@ spec:RegisterAbilities( {
 
         handler = function ()
             applyBuff( "beacon_of_light" )
+            active_dot.beacon_of_light = 1
         end,
     },
 
@@ -1700,4 +1711,4 @@ spec:RegisterOptions( {
 } )
 
 
-spec:RegisterPack( "Holy Paladin", 20240731, [[Hekili:TE13VTTnq4)wYljByjAs2nnTdW5HT9WQ3qqbub6BsIMI2IZuKAKuXnac8V9DKkYMu)OffOVKyZ7JF3rE39D0zjzFklTePjzpTkE1BIFyDsu89jRxTolv)sdjlTbHpIoaFGJQH)(xc2lMIpIyOsk3A9fMavAzrjALyarw6Uwkt)bE2U5PEfGTHGZE6T3NLwrllj9qjkmWpbXistrJKkKunLOmfijXu8NFm9U9cCRIuAkeCik2A2Aj(U4hUBD8Vzk(ufa7ZiyZFMQRSrhJQ0kxS1q4LeP9Zp5oYeoAhJuM97zPyWnejfLLELPqdENRJqNqhjCk)q0RanfDDqGG10Nj5eoP2fypAksYsTRkaVPQOewzUyFUUIKlPhQ0erRktdxal6ZLD41MIdsrBZfhWSuA5VeDIBPD93nTxi7Kq6I1dmH8fGmTndSh1Y0NVKgGkj7Aps890WrAab6zc)a4M8tsKUAeY1ZIelBviiNmc8B8bdlRuwWqCQARRNG((LqJA1T18rOF7sOpr56jC)WIrcuBYpmc978r7suQ8)TT8qnKggb99(qBe9)pars8Ij2DT73hTJjeLSwLoQTPVY0TCywybBd37r(vw7Pqo2sQZ7bjFOHlhCETACmUCnTxF0eVg0pHfcwP4eFgCssnIY77XoGlJQrFPFpvGauEJ4eGbQxPyQ2uSXued9FAjfBJSlbpgXy59Fj3kg0ljK3lLDwuWUNGI0s6ZuojxlySXN6G6Z(yrsv1JHD)x7Ybl4kcgYrajUS019slW3go)52dZrseLNlrCR875JK3MDUkOQUcz7sC10Z0jMeutVq5zY7MCevvc8XXWE)IhXZP1lBEU8P3zk8u7KxIdunKyKlHiLtcy4RnscwuVdnv6QIGK6CO3LWXEky7C7d25Zq(3cCyefugDcjTkMq9UBGcTUriHAS9cyWYnd1m3ykKK)RfABGszLOgacsoIAyChSaUYMZurMT)duhbdjGPt)HGdoZz(MXQZaBAXmRp0Ta2)PKV8ZN5B1py(w)dJpZ2zU0EDUY35D2shYXsfJdULKC8dYp4IplTRhA9mfUxlaMT1tI9u25Mo1VS5x7NbA2EzLq12zTmec(gNotBjR9ZWwYA)mRfz2nJY36Ozs(M6Nb5VY55b3s3VzYiNUU5h3mEDVrn(KFEII)IJvQV1QrVzOD72ET9nj245QLY0DDF7bkp(Q4tx30bjBI9JiVHa(lFrZpi89uLDX4in(R)g67bEiud330CzVlISbbuOJSX0xrwE4wjOkoqZ1218QTOHScaAH38gKMgul66SeC59ZpMmlLbVY1s0yEU29S4z3BWJANBVqlDRUsaV17VblIJWVJHtDJcY())]] )
+spec:RegisterPack( "Holy Paladin", 20240805, [[Hekili:nE12UnUnq0VL9LCbnrvox3Ty9(qBFOBArWc4fyFts0s0wSHIuLKYEnGb)27murYKYsobbi2MZHZmKZzMJuYSKVNSOGyOjpFt8n3f)X47JIF4U7U9XKfMD10Kf1K8xiRHViivW))ljFNn7BeoPGjqR74ssb6fTSrLdiswSSHXnFvKSCCxFpGTMMN88dW3kzff0wOuDo4FkHtv2SAftQyggvBZikQn7p)2IRxjZB00cBMuazXt2NqhFD8JxFB8VzZ(Eja7heyZ)GzkXSJZ0gTl3QPIcQc)(ZUJmvqwYPfj)EYICimufJGNaU0MDMn7cBwjKhMYO6CJn7Z2ShJTz73BZ(GnJ(FnS6AArKUKr5qYCPBplBwTcxsWeRtvS1LgQSrlOADQIsk2f1u36chqAv9oyzrkNUMKJgtwqYnmjK1BLQIu5Q01CPAxIbU(MmJxRKOBFFH)qe4ODmefKTcmc3IrOZA75cnBkPh8LFkyG)Gc2ksd30FN2TFfDzZl0q4TNHoeKnuXAmr3QiMYbiVDuK5QgnbkHdaFNpyyzTgbdPUUPQ6i03pfAsJPPsma9dtHEltyoY3pozMauzX6bO)OpAx5qN(VnfRROcZaOFYhATS9ZaeZINKG4Ofl5szbVrBc5GHvHjS1DVhWFwXGAm6ux0dk(q)zke8k9WCCAsm0tzGMEHzKO(6gAZSCPKxi3kgbNIwrycywXxSzRZlIQi)SDpLW8Q0A5wadWxz5mOFEUnlgO5gflhZSdjFoHZtB)rko7ODcsA7KV(zi4EciPfSnmbn1i58HN6a(zBUOy6QHWU)0D4EelkjhsoGwTHPmnu3UF4uxTaCnnhQWW(JEDyrR3I6U9sXRIxOrmrQIiWz99xiEB2fQawEjb7XCDeJ0hplGJpb5E2No6csxkZFz40JPz49KIdBEm2G3zk8u7CFafMOYjUYPsDucd)SwrZLvljMtlM4AJQB1jH5lkseMLEKg6gxVSZ2PNYJBzdnTqAIou)Ddn64YhtpCM7hN(gIhJgGveqfD6a4m7UrG7KnqFbAVxPhuXikulcMd40Lzv1sfKVRKG(85VkDCUntHYPkSdxlRaCWKyzf8qdWc5LizuhzF6FG2lB2SBar()qkGG5SF(utna3AKNWE3ufa3fZ(5Lr4ts8vx(HU92U(dBM75haZyrxUIX77m0r9SGFz(VgukVITA(41E7tJT5bLmC7txVNh)woXvwqN4QUNnDLfDvVZax0QA7VsO(WOw6Ur9nESk8uwBvDNYARk7KE2PQ6BDGkQVPwvt)v6vW6lx(IK73pUa5W19eh9DEVgO)Id1wUcvvM3jQCvRA08zy(8HPiU73)2sGF51bE73FS0Nh9bPThKT8x(GkvWD)aHNEkwWz0tUWDqgi(Cwl0jfEcsJqXfFtJvIpm9piHcdeMtNqVO7QlGQhig41Ye1v6aqbpXoge8njo7IdVdXNFmE)(pm4nhU8S3XdT)kL743xy0ej4b7pmf4DeNrD3KVja05wkHNa(VbIQ8fyqNG5ecs()p]] )

@@ -158,7 +158,15 @@ local oneTimeFixes = {
             end
         end
     end,
-}
+
+    fixHavocPriorityVersion_20240805 = function( p )
+        local havoc = p.packs[ "Havoc" ]
+        if havoc and ( havoc.date == 20270727 or havoc.version == 20270727 ) then
+            havoc.date = 20240727
+            havoc.version = 20240727
+        end
+    end,
+  }
 
 
 function Hekili:RunOneTimeFixes()
@@ -1759,7 +1767,7 @@ do
     end
 
     local function WrapDesc( db, data )
-        local option, _, _, descfunc = GetOptionData( db, data )
+        local option, getfunc, _, descfunc = GetOptionData( db, data )
         if descfunc and modified[ descfunc ] then
             return descfunc
         end
