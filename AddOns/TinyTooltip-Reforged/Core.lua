@@ -860,10 +860,7 @@ LibEvent:attachTrigger("tooltip.style.init", function(self, tip)
             local flag = info.tooltipData.type
             local guid = info.tooltipData.guid
             if (flag == 0) then
---                local link = select(2, GetItemInfo(info.tooltipData.id))
-
 		local link = select(2, C_Item.GetItemInfo(info.tooltipData.id))
-
                 if (self.GetItem) then
                     local link = select(2, self:GetItem())
                 end
