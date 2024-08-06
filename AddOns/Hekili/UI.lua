@@ -546,7 +546,7 @@ do
                         insert( menuData, {
                             text = "|TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t 建議換目標",
                             tooltipTitle = "|TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t 建議換目標",
-                            tooltipText = "勾選時，可能會顯示 |TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t 指示器，表示你應該對不同的目標使用該能力。",
+                            tooltipText = "勾選時，可能會顯示 |TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t 指示器，表示你應該對不同的目標使用該技能。",
                             tooltipOnButton = true,
                             func = function ()
                                 local spec = rawget( Hekili.DB.profile.specs, i )
