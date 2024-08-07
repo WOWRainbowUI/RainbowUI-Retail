@@ -1040,7 +1040,8 @@ function FocusInterruptSounds:FIsPlayerSpellAvailable(strSpellName)
 	
 	-- Make sure there's a pet if this is a pet spell (for some reason, IsSpellKnown() is returning true for Felhunter spells
 	-- on my rogue)
-	if (isPetSpell and 0 <= C_StableInfo.GetNumActivePets()) then
+	if (isPetSpell and not IsPetActive()) then
+		-- self:CheckAndPrintMessage("No pet active");
 		return false;
 	end
 	
@@ -1233,4 +1234,3 @@ function FocusInterruptSounds:COMBAT_LOG_EVENT_UNFILTERED(event)
 		fHandled = true;
 	end
 end
-w
