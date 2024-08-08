@@ -1978,10 +1978,11 @@ D["PrettyReps"] = {
 };
 D["Quartz"] = {
 	defaultEnable = 0,
-	title = "施法條",
-	desc = "功能增強、模組化、可自訂外觀的施法條。``包括玩家、目標、專注目標、寵物、敵方的施法條，還有 GCD、增益/減益效果和環境對應的計時條，都可以自訂調整。`",
-	modifier = "a9012456, Adavak, alpha2009, Adavak, Nevcairiel, Seelerv, Whyv, YuiFAN, zhTW, 彩虹ui",
-	icon = "Interface\\Icons\\spell_holy_renew",
+	tags = { "ENHANCEMENT" },
+	title = "施法條增強",
+	desc = "功能增強、模組化、可自訂外觀的施法條。``包括玩家、寵物的施法條，還有 GCD、揮擊、增益/減益效果和環境對應的計時條，都可以自訂調整。`",
+	modifier = "a9012456, Adavak, alpha2009, Adavak, Ananhaid, nevcairiel, Seelerv, Whyv, YuiFAN, 半熟魷魚, 彩虹ui",
+	icon = "Interface\\Icons\\spell_holy_divineprovidence",
 	img = true,
     {
         text = "設定選項",
