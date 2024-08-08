@@ -751,10 +751,10 @@ function Hekili:GetPredictionFromAPL( dispName, packName, listName, slot, action
                     end
 
                 elseif state.whitelist and not state.whitelist[ action ] and ( ability.id < -99 or ability.id > 0 ) then
-                    -- if debug then self:Debug( "[---] %s ( %s - %d) not castable while casting a spell; skipping...", action, listName, actID ) end
+                    if debug then self:Debug( "[---] %s ( %s - %d) not castable while casting a spell; skipping...", action, listName, actID ) end
 
                 elseif rWait <= state.cooldown.global_cooldown.remains and not state.spec.can_dual_cast and ability.gcd ~= "off" then
-                    -- if debug then self:Debug( "Only off-GCD abilities would be usable before the currently selected ability; skipping..." ) end
+                    if debug then self:Debug( "Only off-GCD abilities would be usable before the currently selected ability; skipping..." ) end
 
                 else
                     local entryReplaced = false
@@ -1407,7 +1407,6 @@ function Hekili:GetNextPrediction( dispName, packName, slot )
     end
 
     if pack.lists.default and wait > 0 then
-        local list = pack.lists.default
         local listName = "default"
 
         if debug then self:Debug( 1, "\nProcessing default action list [ %s - %s ].", packName, listName ); self:Debug( 2, "" ) end
@@ -1415,6 +1414,7 @@ function Hekili:GetNextPrediction( dispName, packName, slot )
         if debug then self:Debug( 1, "\nCompleted default action list [ %s - %s ].", packName, listName ) end
     end
 
+    state:SetWhitelist( nil )
     if debug then self:Debug( "Recommendation is %s at %.2f + %.2f.", action or "NO ACTION", state.offset, wait ) end
 
     return action, wait, depth
