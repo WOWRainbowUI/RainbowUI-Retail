@@ -10,7 +10,7 @@
 -- @name LibSpellRange-1.0.lua
 
 local major = "SpellRange-1.0"
-local minor = 13
+local minor = 22
 
 assert(LibStub, format("%s requires LibStub.", major))
 
@@ -21,16 +21,43 @@ local tonumber = _G.tonumber
 local strlower = _G.strlower
 local wipe = _G.wipe
 local type = _G.type
+local select = _G.select
 
-local GetSpellTabInfo = _G.GetSpellTabInfo
-local GetNumSpellTabs = _G.GetNumSpellTabs
-local GetSpellBookItemInfo = _G.GetSpellBookItemInfo
-local GetSpellBookItemName = _G.GetSpellBookItemName
-local GetSpellLink = _G.GetSpellLink
-local GetSpellInfo = _G.GetSpellInfo
+local GetSpellBookItemInfo = _G.GetSpellBookItemInfo or _G.C_SpellBook.GetSpellBookItemType
+local GetSpellBookItemName = _G.GetSpellBookItemName or _G.C_SpellBook.GetSpellBookItemName
+local GetSpellLink = _G.GetSpellLink or _G.C_Spell.GetSpellLink
+local GetSpellInfo = _G.GetSpellInfo or _G.C_Spell.GetSpellName
 
-local IsSpellInRange = _G.IsSpellInRange
-local SpellHasRange = _G.SpellHasRange
+local IsSpellInRange = _G.IsSpellInRange or function(id, unit)
+  local result = C_Spell.IsSpellInRange(id, unit)
+  if result == true then
+    return 1
+  elseif result == false then
+    return 0
+  end
+  return nil
+end
+local isTWWSpellInRange = IsSpellInRange ~= _G.IsSpellInRange
+local IsSpellBookItemInRange = _G.IsSpellInRange or function(index, spellBank, unit)
+  local result = C_SpellBook.IsSpellBookItemInRange(index, spellBank, unit)
+  if result == true then
+    return 1
+  elseif result == false then
+    return 0
+  end
+  return nil
+end
+
+local SpellHasRange = _G.SpellHasRange or _G.C_Spell.SpellHasRange
+local isTWWSpellHasRange = SpellHasRange ~= _G.SpellHasRange
+local SpellBookHasRange = _G.SpellHasRange or _G.C_SpellBook.IsSpellBookItemInRange
+
+local UnitExists = _G.UnitExists
+local GetPetActionInfo = _G.GetPetActionInfo
+local UnitIsUnit = _G.UnitIsUnit
+
+local playerBook = _G.GetSpellBookItemName and "spell" or _G.Enum.SpellBookSpellBank.Player
+local petBook = _G.GetSpellBookItemName and "pet" or _G.Enum.SpellBookSpellBank.Pet
 
 -- isNumber is basically a tonumber cache for maximum efficiency
 Lib.isNumber = Lib.isNumber or setmetatable({}, {
@@ -74,14 +101,45 @@ local spellsByName_pet = Lib.spellsByName_pet
 Lib.spellsByID_pet = Lib.spellsByID_pet or {}
 local spellsByID_pet = Lib.spellsByID_pet
 
+-- Matches pet spell names to their pet action bar slot
+Lib.actionsByName_pet = Lib.actionsByName_pet or {}
+local actionsByName_pet = Lib.actionsByName_pet
+
+-- Matches pet spell IDs to their pet action bar slot
+Lib.actionsById_pet = Lib.actionsById_pet or {}
+local actionsById_pet = Lib.actionsById_pet
+
+-- Caches whether a pet spell has been observed to ever have had a range.
+-- Since this should never change for any particular spell,
+-- it is not wiped.
+Lib.petSpellHasRange = Lib.petSpellHasRange or {}
+local petSpellHasRange = Lib.petSpellHasRange
+
 -- Updates spellsByName and spellsByID
+
+local GetNumSpellTabs = _G.GetNumSpellTabs or C_SpellBook.GetNumSpellBookSkillLines
+local GetSpellTabInfo = _G.GetSpellTabInfo or function(index)
+	local skillLineInfo = C_SpellBook.GetSpellBookSkillLineInfo(index);
+	if skillLineInfo then
+		return	skillLineInfo.name,
+				skillLineInfo.iconID,
+				skillLineInfo.itemIndexOffset,
+				skillLineInfo.numSpellBookItems,
+				skillLineInfo.isGuild,
+				skillLineInfo.offSpecID,
+				skillLineInfo.shouldHide,
+				skillLineInfo.specID;
+	end
+end
+
 local function UpdateBook(bookType)
-	local _, _, offs, numspells = GetSpellTabInfo(3)
-	local max = offs -- The offset of the next tab is the max ID of the previous tab.
-	if numspells == 0 then
-		-- New characters pre level 10 only have 2 tabs.
-		local _, _, offs, numspells = GetSpellTabInfo(2)
-		max = offs + numspells 
+	local book = bookType == "spell" and playerBook or petBook
+	local max = 0
+	for i = 1, GetNumSpellTabs() do
+		local _, _, offs, numspells, _, specId = GetSpellTabInfo(i)
+		if specId == 0 then
+			max = offs + numspells
+		end
 	end
 
 	local spellsByName = Lib["spellsByName_" .. bookType]
@@ -91,12 +149,14 @@ local function UpdateBook(bookType)
 	wipe(spellsByID)
 	
 	for spellBookID = 1, max do
-		local type, baseSpellID = GetSpellBookItemInfo(spellBookID, bookType)
+		local type, baseSpellID = GetSpellBookItemInfo(spellBookID, book)
 		
 		if type == "SPELL" or type == "PETACTION" then
-			local currentSpellName = GetSpellBookItemName(spellBookID, bookType)
-			local link = GetSpellLink(currentSpellName)
-			local currentSpellID = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
+			local currentSpellName, _, currentSpellID = GetSpellBookItemName(spellBookID, book)
+			if not currentSpellID then
+				local link = GetSpellLink(currentSpellName)
+				currentSpellID = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
+			end
 
 			-- For each entry we add to a table,
 			-- only add it if there isn't anything there already.
@@ -130,16 +190,43 @@ local function UpdateBook(bookType)
 	end
 end
 
+local function UpdatePetBar()
+	wipe(actionsByName_pet)
+	wipe(actionsById_pet)
+	if not UnitExists("pet") then return end
+
+	for i = 1, NUM_PET_ACTION_SLOTS do
+		local name, texture, isToken, isActive, autoCastAllowed, autoCastEnabled, spellID, checksRange, inRange = GetPetActionInfo(i)
+		if checksRange then
+			actionsByName_pet[strlower(name)] = i
+			actionsById_pet[spellID] = i
+
+			petSpellHasRange[strlower(name)] = true
+			petSpellHasRange[spellID] = true
+		end
+	end
+end
+UpdatePetBar()
+
 -- Handles updating spellsByName and spellsByID
 if not Lib.updaterFrame then
 	Lib.updaterFrame = CreateFrame("Frame")
 end
 Lib.updaterFrame:UnregisterAllEvents()
 Lib.updaterFrame:RegisterEvent("SPELLS_CHANGED")
+Lib.updaterFrame:RegisterEvent("PET_BAR_UPDATE")
+Lib.updaterFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 
-local function UpdateSpells()
-	UpdateBook("spell")
-	UpdateBook("pet")
+local function UpdateSpells(_, event)
+	if event == "PET_BAR_UPDATE" then
+		UpdatePetBar()
+	elseif event == "PLAYER_TARGET_CHANGED" then
+		-- `checksRange` from GetPetActionInfo() changes based on whether the player has a target or not.
+		UpdatePetBar()
+	elseif event == "SPELLS_CHANGED" then
+		UpdateBook("spell")
+		UpdateBook("pet")
+	end
 end
 
 Lib.updaterFrame:SetScript("OnEvent", UpdateSpells)
@@ -163,29 +250,52 @@ function Lib.IsSpellInRange(spellInput, unit)
 	if isNumber[spellInput] then
 		local spell = spellsByID_spell[spellInput]
 		if spell then
-			return IsSpellInRange(spell, "spell", unit)
+			return IsSpellBookItemInRange(spell, playerBook, unit)
 		else
 			local spell = spellsByID_pet[spellInput]
 			if spell then
-				return IsSpellInRange(spell, "pet", unit)
+				local petResult = IsSpellBookItemInRange(spell, petBook, unit)
+				if petResult ~= nil then
+					return petResult
+				end
+				
+				-- IsSpellInRange seems to no longer work for pet spellbook,
+				-- so we also try the action bar API.
+				local actionSlot = actionsById_pet[spellInput]
+				if actionSlot and (unit == "target" or UnitIsUnit(unit, "target")) then
+					return select(9, GetPetActionInfo(actionSlot)) and 1 or 0
+				end
 			end
+		end
+		if isTWWSpellInRange then
+			return IsSpellInRange(spellInput, unit)
+		else
+			return IsSpellInRange(GetSpellInfo(spellInput), unit)
 		end
 	else
 		local spellInput = strlowerCache[spellInput]
 		
 		local spell = spellsByName_spell[spellInput]
 		if spell then
-			return IsSpellInRange(spell, "spell", unit)
+			return IsSpellBookItemInRange(spell, playerBook, unit)
 		else
 			local spell = spellsByName_pet[spellInput]
 			if spell then
-				return IsSpellInRange(spell, "pet", unit)
+				local petResult = IsSpellBookItemInRange(spell, petBook, unit)
+				if petResult ~= nil then
+					return petResult
+				end
+
+				-- IsSpellInRange seems to no longer work for pet spellbook,
+				-- so we also try the action bar API.
+				local actionSlot = actionsByName_pet[spellInput]
+				if actionSlot and (unit == "target" or UnitIsUnit(unit, "target")) then
+					return select(9, GetPetActionInfo(actionSlot)) and 1 or 0
+				end
 			end
 		end
-		
 		return IsSpellInRange(spellInput, unit)
 	end
-	
 end
 
 
@@ -206,27 +316,32 @@ function Lib.SpellHasRange(spellInput)
 	if isNumber[spellInput] then
 		local spell = spellsByID_spell[spellInput]
 		if spell then
-			return SpellHasRange(spell, "spell")
+			return SpellBookHasRange(spell, playerBook)
 		else
 			local spell = spellsByID_pet[spellInput]
 			if spell then
-				return SpellHasRange(spell, "pet")
+				-- SpellHasRange seems to no longer work for pet spellbook.
+				return SpellBookHasRange(spell, petBook) or petSpellHasRange[spellInput] or false
 			end
+		end
+		if isTWWSpellHasRange then
+			return SpellHasRange(spellInput)
+		else
+			return SpellHasRange(GetSpellInfo(spellInput))
 		end
 	else
 		local spellInput = strlowerCache[spellInput]
 		
 		local spell = spellsByName_spell[spellInput]
 		if spell then
-			return SpellHasRange(spell, "spell")
+			return SpellBookHasRange(spell, playerBook)
 		else
 			local spell = spellsByName_pet[spellInput]
 			if spell then
-				return SpellHasRange(spell, "pet")
+				-- SpellHasRange seems to no longer work for pet spellbook.
+				return SpellBookHasRange(spell, petBook) or petSpellHasRange[spellInput] or false
 			end
 		end
-		
 		return SpellHasRange(spellInput)
 	end
-	
 end
