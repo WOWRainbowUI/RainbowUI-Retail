@@ -1,0 +1,48 @@
+## Title: Quartz
+## Interface: 11503, 30403, 40400, 110000
+## Notes: Modular casting bar.
+## Author: Nevcairiel, Nymbia
+## Version: 3.7.12
+## X-License: GPL v2
+## X-Credits: Ammo (some code based on PitBull_CastBar), kergoth (Tradeskill Merge module idea), Roartindon (Lag Embed mode for Latency module)
+## X-Curse-Project-ID: 4558
+## X-WoWI-ID: 7158
+
+## Title-ruRU: Кварц
+## Notes-ruRU: Модульная полоса применений.
+## Notes-frFR: Barres d'incantation modulaires.
+## Notes-zhCN: 模块化施法条。
+## Notes-zhTW: 模組化施法條。
+
+## SavedVariables: Quartz3DB
+## OptionalDeps: Ace3, LibDualSpec-1.0, LibWindow-1.1, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, SharedMedia
+
+## Title-zhTW: |cff0099FF[介面]|r 施法條增強
+## Notes-zhTW: Quartz |n|n功能增強、模組化、可自訂外觀的施法條。包括：玩家、目標、專注目標、寵物、GCD、增益效果和敵方施法條。|n|n|cffffd200使用方法: |r從Esc>介面>插件>施法條，移動位置和進行設定。
+## X-Category-zhTW: 介面
+## DefaultState: disabled
+
+locale\locale.xml
+
+Quartz.lua
+Config.lua
+
+QuartzStatusBar.lua
+
+CastBarTemplate.lua
+
+modules\Player.lua
+modules\Target.lua
+modules\Focus.lua
+modules\Pet.lua
+modules\Latency.lua
+modules\Tradeskill.lua
+modules\GCD.lua
+modules\Buff.lua
+modules\Mirror.lua
+modules\Timer.lua
+modules\Swing.lua
+modules\Interrupt.lua
+modules\Range.lua
+modules\Flight.lua
+modules\EnemyCasts.lua
