@@ -7,6 +7,8 @@ local L = addon.L;
 
 
 --DO NOT TRANSLATE
+L["Abbrev Breakpoint 1000"] = "千";     --1,000 = 1K
+L["Abbrev Breakpoint 10000"] = "萬";    --Reserved for Asian languages that have words for 10,000
 L["Match Stat Armor"] = "([,%d%.]+)點護甲";
 L["Match Stat Stamina"] = "([,%d%.]+)耐力";     --No Space!
 L["Match Stat Strengh"] = "([,%d%.]+)力量";
@@ -64,6 +66,7 @@ L["Gossip Quest Option Prepend"] = "(任務)";   --Some gossip options start wit
 L["TTS Button Tooltip"] = "左鍵: 開始/停止唸出內容\n右鍵: 開啟/關閉自動播放";
 L["Item Is An Upgrade"] = "這件裝備對你有提升";
 L["Identical Stats"] = "這兩件裝備的屬性相同";   --Two items provide the same stats
+L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "你的戰隊已經完成此任務。");
 
 
 --String Format
@@ -132,6 +135,8 @@ L["Simplify Currency Rewards"] = "簡化貨幣獎勵";
 L["Simplify Currency Rewards Desc"] = "貨幣獎勵顯示為小圖示並省略名稱。";
 L["Mark Highest Sell Price"] = "標示售價最高的";
 L["Mark Highest Sell Price Desc"] = "選擇獎勵時，顯示哪件商品的售價最高。";
+L["Use Blizzard Tooltip"] = "使用暴雪浮動提示資訊";
+L["Use Blizzard Tooltip Desc"] = "任務獎勵按鈕使用遊戲內建的浮動提示資訊，而不是我們的特殊浮動提示資訊。";
 L["Roleplaying"] = GDAPI_REALMTYPE_RP or "角色扮演";
 L["Use RP Name In Dialogues"] = "對話視窗使用 RP 名字";
 L["Use RP Name In Dialogues Desc"] = "將對話視窗文字中，你的角色名字換成你的 RP 名字。";
@@ -197,3 +202,8 @@ L["TTS Auto Stop Desc"] = "離開 NPC 時停止唸出內容。";
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 打開設定";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 打開設定";   --Use this if gamepad enabled
+L["Instuction Open Settings"] = "要打開設定選項，請在和 NPC 互動時按下 [KEY:PC:F1]。 ";    --Used in Game Menu - AddOns
+L["Instuction Open Settings Console"] = "要打開設定選項，請在和 NPC 互動時按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU]。";
+
+-- 自行加入
+L["Dialogue UI"] = "任務對話"
