@@ -245,7 +245,7 @@ function funcs:Stats()
         local owner = self.battleOwner
         local index = self.battleIndex
         if C_PetBattles.GetPetSpeciesID(owner,index) then
-            rarity = C_PetBattles.GetBreedQuality(owner,index)
+            rarity = C_PetBattles.GetBreedQuality(owner,index)+1
             health = C_PetBattles.GetHealth(owner,index)
             maxHealth = C_PetBattles.GetMaxHealth(owner,index)
             power = C_PetBattles.GetPower(owner,index)

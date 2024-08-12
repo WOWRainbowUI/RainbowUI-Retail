@@ -92,8 +92,7 @@ rematch.constants = {
         [7] = "FFF468", -- battle for azeroth
         [8] = "9798FE", -- shadowlands
         [9] = "53B39F", -- dragonflight
-        [10] = "309BD6", -- the war within
-        --[10] = "B0EEFF", -- the war within
+        [10] = "90CCDD", -- the war within (was 309BD6)
     },
     -- color picker adds these to EXPANSION_COLORS to build color swatches
     COLOR_PICKER_COLORS = {
