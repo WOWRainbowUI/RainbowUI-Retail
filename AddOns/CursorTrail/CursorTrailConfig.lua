@@ -301,6 +301,22 @@ end
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 -------------------------------------------------------------------------------
+function OptionsFrame_ToggleUI()
+    --|traceCfg("IN OptionsFrame_ToggleUI().")
+    if not OptionsFrame then
+        OptionsFrame_Create()
+    end
+
+    if OptionsFrame:IsShown() then
+        OptionsFrame:Hide()
+    else
+        OptionsFrame:Show()
+        if isCursorTrailOff() then CursorTrail_ON(true) end
+    end
+    --|traceCfg("OUT OptionsFrame_ToggleUI().")
+end
+
+-------------------------------------------------------------------------------
 function OptionsFrame_Create()
     --|traceCfg("IN OptionsFrame_Create().")
     --|if OptionsFrame then traceCfg("OUT OptionsFrame_Create(), early 1."); return; end  -- Return now if it already exists.
