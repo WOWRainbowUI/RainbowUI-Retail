@@ -1,6 +1,6 @@
 # Edit Mode Expanded
 
-## [11.0-002](https://github.com/teelolws/EditModeExpanded/tree/11.0-002) (2024-07-24)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-001...11.0-002) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.0-003](https://github.com/teelolws/EditModeExpanded/tree/11.0-003) (2024-08-07)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-002...11.0-003) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Update LibUIDropDownMenu.lua  
+- Update 10.0 micro menu option for changes in 11.0  
