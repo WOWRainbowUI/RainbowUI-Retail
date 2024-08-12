@@ -21,7 +21,7 @@ function addon:RenderString(s, context)
 		mainid, subid = mainid and tonumber(mainid), subid and tonumber(subid)
 		id = tonumber(id)
 		if variant == "item" then
-			local name, link, _, _, _, _, _, _, _, icon = GetItemInfo(id)
+			local name, link, _, _, _, _, _, _, _, icon = C_Item.GetItemInfo(id)
 			if link and icon then
 				return quick_texture_markup(icon) .. " " .. link:gsub("[%[%]]", "")
 			end
@@ -140,6 +140,10 @@ do
 	end
 end
 
+function addon:ColorTextByCompleteness(complete, text)
+	return (complete and completeColor or incompleteColor):WrapTextInColorCode(text)
+end
+
 -- GUID / unit
 
 do
@@ -180,6 +184,24 @@ do
 				end
 			end
 		end
+	end
+end
+do
+	local valid_types = {
+		Creature = true, -- npcs
+		Vehicle = true, -- vehicles
+		Vignette = true, -- vignettes ()
+	}
+	-- See: https://warcraft.wiki.gg/wiki/GUID#Creature
+	function addon:GUIDShard(guid)
+		if not guid then return end
+		-- local unitType, _, serverID, instanceID, zoneUID, mobID, spawnUID = strsplit("-", guid)
+		local guidType, _, serverID, instanceID, zoneUID, id, spawnUID = strsplit("-", guid)
+		if not (guidType and valid_types[guidType]) then return end
+		return tonumber(zoneUID)
+	end
+	function addon:UnitShard(unit)
+		return self:GUIDShard(UnitGUID(unit))
 	end
 end
 

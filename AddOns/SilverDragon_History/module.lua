@@ -21,10 +21,12 @@ function module:OnInitialize()
 		profile = {
 			enabled = true,
 			collapsed = false,
+			grow = true,
 			-- locked = true,
 			relative = true,
 			empty = true,
 			combat = false,
+			othershard = "dim", -- show / dim / hide
 			sources = {
 				target = false,
 				grouptarget = true,
@@ -44,12 +46,16 @@ function module:OnInitialize()
 				x = 50,
 				y =  0,
 				scale = 1,
+				width = 240,
+				height = 250,
 			},
 		},
 	})
 	db = self.db.profile
 
+	self.data = {}
 	self.rares = {}
+	self.removed = {}
 	self.dataProvider = self:CreateDataProvider()
 
 	self:RegisterConfig()
@@ -57,11 +63,24 @@ function module:OnInitialize()
 	self:SetEnabledState(db.enabled)
 end
 
+local currentShardSources = {
+	target = true,
+	-- grouptarget = true,
+	mouseover = true,
+	nameplate = true,
+	vignette = true,
+	['point-of-interest'] = true,
+	chat = true,
+	groupsync = false,
+	guildsync = false,
+	darkmagic = true,
+	fake = true,
+}
 function module:OnEnable()
 	if not self.window then
 		self.window = self:CreateWindow()
 	end
-	core.RegisterCallback("History", "Seen", function(callback, id, zone, x, y, dead, source)
+	core.RegisterCallback("History", "Seen", function(callback, id, zone, x, y, dead, source, unit, guid)
 		if not self.db.profile.sources[source] then
 			return
 		end
@@ -72,17 +91,15 @@ function module:OnEnable()
 			y = y,
 			source = source,
 			when = time(),
+			guid = guid,
 			mob = true,
 			type = "mob",
 		}
 		table.insert(self.rares, data)
 		self:AddData(data)
 	end)
-	core.RegisterCallback("History", "SeenLoot", function(callback, name, id, zone, x, y, GUID)
-		if not self.db.profile.loot then
-			return
-		end
-		local vignetteInfo = GUID and C_VignetteInfo.GetVignetteInfo(GUID)
+	core.RegisterCallback("History", "SeenLoot", function(callback, name, id, zone, x, y, guid)
+		local vignetteInfo = guid and C_VignetteInfo.GetVignetteInfo(guid)
 		self:AddData{
 			id = id,
 			name = name,
@@ -92,10 +109,21 @@ function module:OnEnable()
 			source = "vignette",
 			when = time(),
 			atlas = vignetteInfo and vignetteInfo.atlasName,
-			guid = GUID,
+			guid = guid,
 			loot = true,
 			type = "loot",
 		}
+	end)
+	core.RegisterCallback("History", "ShardChanged", function(callback, currentShard, previousShard, guid)
+		self.currentShard = currentShard
+		if self.dataProvider and previousShard == "unknown" then
+			for _, data in ipairs(self.dataProvider:GetCollection()) do
+				if currentShardSources[data.source] and not data.shard then
+					data.shard = currentShard
+				end
+			end
+		end
+		self:Refresh()
 	end)
 
 	self:RegisterEvent("PET_BATTLE_OPENING_START", "Refresh")
@@ -107,13 +135,17 @@ function module:OnEnable()
 end
 
 function module:AddData(data)
-	if not self.dataProvider then return end
-	local collection = self.dataProvider:GetCollection()
-	if collection[#collection] and collection[#collection].when == data.when then
+	if self.data[#self.data] and self.data[#self.data].when == data.when then
 		-- time is in seconds, so moments when we see multiples can be a problem
 		data.when = data.when + 0.01
 	end
-	self.dataProvider:Insert(data)
+	-- Fix up the shard if it wasn't available from the source
+	data.shard = core:GUIDShard(data.guid) or (currentShardSources[data.source] and self.currentShard) or nil
+	-- DevTools_Dump(data)
+	table.insert(self.data, data)
+	if self:ShouldAddToDataProvider(data) then
+		self.dataProvider:Insert(data)
+	end
 end
 
 function module:OnDisable()
@@ -128,7 +160,7 @@ function module:GetRares()
 end
 
 function module:CreateDataProvider()
-	local dataProvider = CreateDataProvider(self.vignetteLogOrder)
+	local dataProvider = CreateDataProvider()
 	-- It's stored in an append-table, but I want the new events at the top:
 	dataProvider:SetSortComparator(function(lhs, rhs)
 		return lhs.when > rhs.when
@@ -136,12 +168,37 @@ function module:CreateDataProvider()
 	return dataProvider
 end
 
+function module:RebuildDataProvider()
+	Debug("History: rebuilding data provider")
+	self.dataProvider:Flush()
+	local newdata = {}
+	for _, data in ipairs(self.data) do
+		if self:ShouldAddToDataProvider(data) then
+			table.insert(newdata, data)
+		end
+	end
+	self.dataProvider:Insert(unpack(newdata))
+end
+
+function module:ShouldAddToDataProvider(data)
+	if data.loot and not self.db.profile.loot then
+		return
+	end
+	if db.othershard == "hide" and data.shard ~= self.currentShard then
+		return
+	end
+	if self.removed[data] then
+		return
+	end
+	return true
+end
+
 local MAXHEIGHT = 250
 local HEADERHEIGHT = 28
 local LINEHEIGHT = 26
 function module:CreateWindow()
 	local frame = CreateFrame("Frame", "SilverDragonHistoryFrame", UIParent, "BackdropTemplate")
-	frame:SetSize(240, MAXHEIGHT)
+	frame:SetSize(db.position.width, db.position.height)
 	frame:SetBackdrop({
 		edgeFile = [[Interface\Buttons\WHITE8X8]],
 		bgFile = [[Interface\Buttons\WHITE8X8]],
@@ -160,6 +217,9 @@ function module:CreateWindow()
 
 	frame:EnableMouse(true)
 	frame:SetClampedToScreen(true)
+	frame:SetResizable(true)
+	frame:SetResizeBounds(160, 100, 320, 600)
+
 	frame:SetScript("OnMouseUp", function(w, button)
 		if button == "RightButton" then
 			return module:ShowConfigMenu(w)
@@ -184,19 +244,19 @@ function module:CreateWindow()
 		local size = self.dataProvider:GetSize()
 		self.title:SetFormattedText("%d 已看到", size)
 
-		if size == 0 or db.collapsed then
+		if db.collapsed then
 			self.container:Hide()
+			self.resize:Hide()
 			self:SetHeight(HEADERHEIGHT)
 		else
 			self.container:Show()
-			local height = min((size * LINEHEIGHT) + HEADERHEIGHT, MAXHEIGHT)
-			self:SetHeight(height)
-			if height == MAXHEIGHT then
-				self.container.scrollBar:Show()
-				self.container.scrollBar:SetPoint("TOPRIGHT", -8, 5)
+			self.resize:Show()
+			if db.grow then
+				-- self.container.scrollBox:GetExtent() doesn't play well here, sadly
+				local scrollHeight = size * LINEHEIGHT
+				self:SetHeight(min(scrollHeight + HEADERHEIGHT, db.position.height))
 			else
-				self.container.scrollBar:Hide()
-				self.container.scrollBar:SetPoint("TOPRIGHT", 12, 5)
+				self:SetHeight(db.position.height)
 			end
 		end
 		self.clearButton:SetEnabled(size > 0)
@@ -246,9 +306,32 @@ function module:CreateWindow()
 	clear:SetButtonMode("Delete")
 	clear:SetPoint("RIGHT", collapse, "LEFT", -2, 0)
 	clear:SetScript("OnMouseUp", function(button)
-		frame.dataProvider:Flush()
+		for _, data in ipairs(self.data) do
+			self.removed[data] = true
+		end
+		self:RebuildDataProvider()
 	end)
 	frame.clearButton = clear
+
+	local resize = CreateFrame("Button", nil, frame)
+	resize:EnableMouse(true)
+	resize:SetPoint("BOTTOMRIGHT", 1, -1)
+	resize:SetSize(16,16)
+	resize:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
+	resize:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight", "ADD")
+	resize:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
+	resize:SetScript("OnMouseDown", function()
+		-- to counter grow:
+		frame:SetHeight(db.position.height)
+		frame:StartSizing("BOTTOMRIGHT")
+	end)
+	resize:SetScript("OnMouseUp", function()
+		frame:StopMovingOrSizing("BOTTOMRIGHT")
+		db.position.width = frame:GetWidth()
+		db.position.height = frame:GetHeight()
+		frame:RefreshForContents()
+	end)
+	frame.resize = resize
 
 	-- scrollframe with dataprovider:
 
@@ -256,14 +339,15 @@ function module:CreateWindow()
 	container:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, -HEADERHEIGHT)
 	container:SetPoint("BOTTOMRIGHT")
 
-	local scrollBar = CreateFrame("EventFrame", nil, container, "MinimalScrollBar")
-	scrollBar:SetPoint("BOTTOMRIGHT")
-	container.scrollBar = scrollBar
-
 	local scrollBox = CreateFrame("Frame", nil, container, "WowScrollBoxList")
-	scrollBox:SetPoint("TOPLEFT")
-	scrollBox:SetPoint("BOTTOMRIGHT", scrollBar, "BOTTOMLEFT", -6, 0)
+	-- setpoint handled by manager below
 	container.scrollBox = scrollBox
+
+	local scrollBar = CreateFrame("EventFrame", nil, container, "MinimalScrollBar")
+	scrollBar:SetPoint("TOPLEFT", scrollBox, "TOPRIGHT", 4, -3)
+	scrollBar:SetPoint("BOTTOMLEFT", scrollBox, "BOTTOMRIGHT", 4, 3)
+	scrollBar:SetHideTrackIfThumbExceedsTrack(true)
+	container.scrollBar = scrollBar
 
 	local scrollView = CreateScrollBoxListLinearView()
 	scrollView:SetDataProvider(self.dataProvider)
@@ -279,6 +363,16 @@ function module:CreateWindow()
 	container.scrollView = scrollView
 
 	ScrollUtil.InitScrollBoxWithScrollBar(scrollBox, scrollBar, scrollView)
+	ScrollUtil.AddManagedScrollBarVisibilityBehavior(scrollBox, scrollBar,
+		{  -- with bar
+			CreateAnchor("TOPLEFT", container),
+			CreateAnchor("BOTTOMRIGHT", container, "BOTTOMRIGHT", -18, 0),
+		},
+		{ -- without bar
+			CreateAnchor("TOPLEFT", container),
+			CreateAnchor("BOTTOMRIGHT", container, "BOTTOMRIGHT", -4, 0),
+		}
+	)
 
 	self.dataProvider:RegisterCallback("OnSizeChanged", function()
 		frame:RefreshForContents()
@@ -292,6 +386,7 @@ function module:CreateWindow()
 end
 
 function module:Refresh()
+	self:RebuildDataProvider()
 	-- Force a redraw of the frames in the scrollbox
 	self.window.container.scrollBox:Rebuild(true) --retainScrollPosition
 	-- Resize the window around the redrawn scrollbox
@@ -330,8 +425,22 @@ function module:ShowConfigMenu(frame)
 		end, "enabled")
 		rootDescription:CreateCheckbox("戰鬥中要顯示", isChecked, toggleChecked, "combat")
 		rootDescription:CreateCheckbox("顯示空的清單", isChecked, toggleChecked, "empty")
-		rootDescription:CreateCheckbox("使用箱對時間", isChecked, toggleChecked, "relative")
+		rootDescription:CreateCheckbox("自動調整高度", isChecked, toggleChecked, "grow")
+		rootDescription:CreateCheckbox("使用相對時間", isChecked, toggleChecked, "relative")
 		rootDescription:CreateCheckbox("包含寶藏圖示", isChecked, toggleChecked, "loot")
+
+		local shardIsSelected = function(val) return db.othershard == val end
+		local shardSelect = function(val)
+			db.othershard = val
+			module:Refresh()
+			AceConfigRegistry:NotifyChange(myname)
+			return MenuResponse.Close
+		end
+		local othershard = rootDescription:CreateButton("來自其他鏡像的稀有怪...")
+		othershard:CreateRadio("顯示", shardIsSelected, shardSelect, "show")
+		othershard:CreateRadio("淡出", shardIsSelected, shardSelect, "dim")
+		othershard:CreateRadio("隱藏", shardIsSelected, shardSelect, "hide")
+
 		rootDescription:CreateDivider()
 		rootDescription:CreateButton(CLEAR_ALL, function()
 			module.dataProvider:Flush()
@@ -402,6 +511,7 @@ LineMixin = {
 	end,
 	SetData = function(self, data)
 		self:SetAttribute("macrotext1", "")
+		self:SetAlpha(1)
 
 		self.data = data
 		self.title:SetText(data.name or core:GetMobLabel(data.id) or data.id)
@@ -448,6 +558,11 @@ LineMixin = {
 			self.title:SetTextColor(1, 1, 1, 1)
 			self.icon:SetAtlas(data.atlas or "VignetteLoot")
 		end
+
+		if db.othershard ~= "show" and data.shard ~= module.currentShard then
+			-- the "hide" case was filtered out earlier
+			self:SetAlpha(0.5)
+		end
 	end,
 	Refresh = function(self)
 		self:SetData(self.data)
@@ -478,19 +593,26 @@ LineMixin = {
 				GameTooltip:AddDoubleLine(core.zone_names[uiMapID] or UNKNOWN, UNKNOWN)
 			end
 			GameTooltip:AddDoubleLine("遇過", core:FormatLastSeen(data.when))
+			GameTooltip:AddDoubleLine("鏡像", core:ColorTextByCompleteness(data.shard == module.currentShard, data.shard or UNKNOWN))
 			if data.mob and not InCombatLockdown() then
 				GameTooltip:AddLine("在附近時點一下可選為目標", 0, 1, 1)
 			end
 			GameTooltip:AddLine("Ctrl+左鍵 設定導航", 0, 1, 1)
 			GameTooltip:AddLine("Shift+左鍵 將位置貼到聊天", 0, 1, 1)
+			GameTooltip:AddLine("右鍵 移除此項目", 1, 0, 1)
 			GameTooltip:Show()
 		end,
 
 		OnLeave = GameTooltip_Hide,
 
 		OnMouseUp = function(self, button)
-			if button ~= "LeftButton" then return end
 			if not self.data then return end
+			if button == "RightButton" then
+				module.removed[self.data] = true
+				module.dataProvider:Remove(self.data)
+				return
+			end
+			if button ~= "LeftButton" then return end
 			-- local zone, x, y = core:GetClosestLocationForMob(self.data.id)
 			if IsControlKeyDown() then
 				local idOrName, zone, x, y = self.data.id or self.data.name, self.data.zone, self.data.x, self.data.y
