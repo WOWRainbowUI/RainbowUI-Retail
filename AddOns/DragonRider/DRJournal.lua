@@ -402,6 +402,10 @@ function DR.mainFrame.PopulationData(continent)
 				--if DragonRider_DB.raceData[charKey] == nil then
 					--DragonRider_DB.raceData[charKey] = {};
 				--end
+
+				if DragonRider_DB.raceData == nil then
+					DragonRider_DB.raceData = {};
+				end
 				if DragonRider_DB.raceData["Account"] == nil then
 					DragonRider_DB.raceData["Account"] = {};
 				end
