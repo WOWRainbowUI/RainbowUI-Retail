@@ -662,6 +662,7 @@ DR.EventsList:RegisterEvent("PLAYER_CAN_GLIDE_CHANGED")
 DR.EventsList:RegisterEvent("COMPANION_UPDATE")
 DR.EventsList:RegisterEvent("PLAYER_LOGIN")
 DR.EventsList:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
+DR.EventsList:RegisterEvent("UPDATE_UI_WIDGET")
 
 
 
@@ -1337,6 +1338,17 @@ end
 
 function DR:toggleEvent(event, arg1)
 
+
+	--[[ -- hiding code test
+	if event == "UPDATE_UI_WIDGET" then
+		if UIWidgetPowerBarContainerFrame and UIWidgetPowerBarContainerFrame.widgetFrames[4460] then
+			if (UIWidgetPowerBarContainerFrame.widgetFrames[4460]:IsShown()) then
+				UIWidgetPowerBarContainerFrame.widgetFrames[4460]:Hide()
+			end
+		end
+	end
+	]]
+
 	if event == "CURRENCY_DISPLAY_UPDATE" then
 		if arg1 == 2019 then
 			silverTime = C_CurrencyInfo.GetCurrencyInfo(arg1).quantity;
@@ -1491,7 +1503,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1517,7 +1529,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1537,7 +1549,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1559,7 +1571,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1581,7 +1593,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1611,7 +1623,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1631,7 +1643,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1650,7 +1662,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1670,7 +1682,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1687,7 +1699,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1704,7 +1716,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1721,7 +1733,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1741,7 +1753,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
@@ -1759,7 +1771,7 @@ function DR:toggleEvent(event, arg1)
 
 			local setting
 			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, name, variable, variable, DragonRider_DB, type(defaultValue), defaultValue)
+				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
 			else
 				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
 			end
