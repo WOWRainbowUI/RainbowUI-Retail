@@ -1,3 +1,8 @@
+08/01/2024 version 5.2.3
+- Added The War Within (Khaz Algal) targets to the Targets tab (all except Ziriak)
+- Changed the expansion color for The War Within to a lighter shade that's easier to read
+- Fix for opponent pet cards in battle showing wrong rarity
+
 07/26/2024 version 5.2.2
 - Fix for option Keep Companion not working
 - Fix for potential lua errors when the window appears under the mouse

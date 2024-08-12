@@ -26,14 +26,18 @@ rematch.targetData = {}
 -- content first, though one-off additions like Anthea added to Pandaria in the Shadowlands expansions is
 -- added to the top of the Pandaria targets.
 rematch.targetData.notableTargets = {
-    -- -- Isle of Dorn (2248)
-    -- {2248,223407,2248,10,nil,"battlepet:4561:1:4:177:11:14"}, -- Isle of Dorn, Awakened Custodian
-    -- {2248,223446,2248,10,nil,"battlepet:4561:1:4:177:11:14","battlepet:4550:1:2:155:11:11","battlepet:4549:1:2:155:15:11"}, -- Isle of Dorn, Collector Dyna
-    -- -- The Ringing Deeps (2214)
-    -- {2214,223444,2214,10,nil,"battlepet:4488:1:4:161:12:10","battlepet:4553:1:3:159:12:12","battlepet:4554:1:2:155:11:11"}, -- The Ringing Deeps, Friendhaver Grem
-    -- {2214,222535,2214,10,nil,"battlepet:4488:1:4:161:12:10"}, -- The Ringing Deeps, Haywire Servobot
-    -- -- AkAzj-Kahet
-    -- {2255,223406,2255,10,nil,"battlepet:4560:1:4:161:12:14"}, -- Azj-Kahet, Zaedu
+    -- Isle of Dorn (2248)
+    {2248,223446,2248,10,nil,"battlepet:4551:25:4:1587:297:297","battlepet:4550:25:3:1481:276:276","battlepet:4549:25:3:1481:374:276"}, -- Isle of Dorn, Collector Dyna
+    {2248,223407,2248,10,nil,"battlepet:4561:25:5:2426:300:338"}, -- Isle of Dorn, Awakened Custodian
+    -- The Ringing Deeps (2214)
+    {2214,223444,2214,10,nil,"battlepet:4564:25:4:1587:297:297","battlepet:4553:25:4:1587:297:297","battlepet:4554:25:3:1481:276:276"}, -- The Ringing Deeps, Friendhaver Grem
+    {2214,222535,2214,10,nil,"battlepet:4488:25:5:2020:342:244"}, -- The Ringing Deeps, Haywire Servobot
+    -- Hallowfall
+    {2215,223442,2215,10,nil,"battlepet:4559:25:3:1481:276:276","battlepet:4555:25:4:1587:297:297","battlepet:4552:25:3:1481:276:276"}, -- Hallowfall, Kyrie
+    {2215,223409,2215,10,nil,"battlepet:4562:25:5:2504:285:319"}, -- Hallowfall, Guttergunk
+    -- AkAzj-Kahet
+    {2255,223406,2255,10,nil,"battlepet:4560:25:5:2036:330:338"}, -- Azj-Kahet, Zaedu
+    -- Zirik is in City of Threads dungeon?
     -- The Waking Shores (2022)
     {2022,196264,2022,9,66551,"battlepet:3387:25:2:1225:285:255","battlepet:3386:25:3:1684:317:195","battlepet:3388:25:4:2112:332:385"}, -- The Waking Shores, Haniko
     {2022,189376,2022,9,66588,"battlepet:3268:25:5:4183:315:300"}, -- The Waking Shores, Swog
