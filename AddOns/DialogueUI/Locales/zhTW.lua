@@ -165,6 +165,8 @@ L["Primary Control Key"] = "確認按鈕";
 L["Primary Control Key Desc"] = "按此鍵來選擇第一個可用選項，例如「接受任務」。"
 L["Press Button To Scroll Down"] = "按下按鈕往下捲頁";
 L["Press Button To Scroll Down Desc"] = "如果內容超出可以看見的範圍，按下確認按鈕將向下捲動頁面而不是接受任務。";
+L["Right Click To Close UI"] = "點右鍵關閉介面";
+L["Right Click To Close UI Desc"] = "在任務對話的介面上點右鍵將它關閉。";
 
 L["Key Space"] = "空白";
 L["Key Interact"] = "互動";
