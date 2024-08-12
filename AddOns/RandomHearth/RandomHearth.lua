@@ -1,4 +1,5 @@
-local rhList, count, src
+local rhList, count, src, rhOverrideChk, allCovenant, validCovHearths
+local rhCheckButtons = {}
 local addon = ...
 
 --------------------------------------------------------------------
@@ -10,11 +11,11 @@ local addon = ...
 -- of the item page on Wowhead.com
 --------------------------------------------------------------------
 local rhToys = {
+	{184353, "Kyrian Hearthstone"},
+	{183716, "Venthyr Sinstone"},
 	{180290, "Night Fae Hearthstone"},
 	{182773, "Necrolord Hearthstone"},
-	{183716, "Venthyr Sinstone"},
-	{184353, "Kyrian Hearthstone"},
-	{54452, "Ethereal Portal"},
+ 	{54452, "Ethereal Portal"},
 	{64488, "The Innkeeper's Daughter"},
 	{93672, "Dark Portal"},
 	{142542, "Tome of Town Portal"},
@@ -38,21 +39,165 @@ local rhToys = {
 	{206195, "Path of the Naaru"},
 	{212337, "Stone of the Hearth"},
 	{210455, "Draenic Hologem"},
+}
+
+--------------------------------------------------------------------
+-- Frames
+--------------------------------------------------------------------
+local rhOptionsPanel = CreateFrame("Frame")
+local rhTitle = CreateFrame("Frame",nil, rhOptionsPanel)
+local rhDesc = CreateFrame("Frame", nil, rhOptionsPanel)
+local rhOptionsScroll = CreateFrame("ScrollFrame", nil, rhOptionsPanel, "UIPanelScrollFrameTemplate")
+local rhDivider = rhOptionsScroll:CreateLine()
+local rhScrollChild = CreateFrame("Frame")
+local rhSelectAll = CreateFrame("Button", nil, rhOptionsPanel, "UIPanelButtonTemplate")
+local rhDeselectAll = CreateFrame("Button", nil, rhOptionsPanel, "UIPanelButtonTemplate")
+local rhOverride = CreateFrame("CheckButton", nil, rhOptionsPanel, "UICheckButtonTemplate")
+local rhListener = CreateFrame("Frame")
+local rhBtn = CreateFrame("Button", "rhButton", nil,  "SecureActionButtonTemplate")
+
+--------------------------------------------------------------------
+-- Functions
+--------------------------------------------------------------------
+-- Generate a list of valid toys
+local function listGenerate()
+	rhList = {}
+	count = 0
+	local covenantHearths = {
+		-- {Criteria index, Covenant index, Covenant toy, Enabled}
+		{1,1,184353,false}, --Kyrian
+		{4,2,183716,false}, --Venthyr
+		{3,3,180290,false}, --Night Fae
+		{2,4,182773,false}  --Necrolord
 	}
+	for i,v in pairs(covenantHearths) do
+		if select(3,GetAchievementCriteriaInfo(15646,v[1])) == true then
+			covenantHearths[i][4] = true
+		elseif C_Covenants.GetActiveCovenantID() ~= v[2] then
+			rhCheckButtons[i].Text:SetText("  " .. rhToys[i][2] .. "  |cff777777(Renown locked)|r")
+		end
+	end
+
+	if select(4,GetAchievementInfo(15241)) == true then
+		if rhOverrideChk == true then
+			allCovenant = false
+		else
+			allCovenant = true
+		end
+	end
+
+	for i=1, #rhOptions do
+		if rhOptions[i][2] == true then
+			if PlayerHasToy(rhOptions[i][1]) then
+				local addToy = true
+				-- Check for Covenant
+				for _,v in pairs(covenantHearths) do
+					if rhOptions[i][1] == v[3] then
+						if v[4] == false and C_Covenants.GetActiveCovenantID() ~= v[2] then
+							addToy = false
+						elseif allCovenant == false and C_Covenants.GetActiveCovenantID() ~= v[2] then
+							addToy = false
+							break
+						end
+					end
+				end
+				-- Check Draenai
+				if rhOptions[i][1] == 210455 then
+					local _,_,raceID = UnitRace("player")
+					if raceID ~= 11 or raceID ~= 30 then
+						addToy = false
+					end
+				end
+				-- Create the list
+				if addToy == true then
+					count = count + 1
+					table.insert(rhList,rhOptions[i][1])
+				end
+			end
+		end
+	end
+
+	if #rhList == 0 then 
+		print("|cffFF0000No valid Hearthstone toy chosen -|r Setting macro to use Hearthstone")
+		src = "\n/use Hearthstone"
+	else 
+		src = "\n/click rhButton 1\n/click rhButton LeftButton 1" 
+	end
+end
+
+-- Create or update global macro
+local function updateMacro(name,icon)
+	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+		local macroIndex = GetMacroIndexByName("Random Hearth")
+		if macroIndex > 0 then
+			EditMacro(macroIndex, "Random Hearth", icon, "#showtooltip " .. name .. src)
+		else
+			CreateMacro("Random Hearth", icon, "#showtooltip " .. name .. src, nil)
+		end
+	end
+end
+
+-- Set random Hearthstone
+local function setRandom()
+	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) and #rhList > 0 then
+		local rnd = math.random(1,count)
+		local item = Item:CreateFromItemID(rhList[rnd])
+		item:ContinueOnItemLoad(function()
+			local name = item:GetItemName()
+			local icon = item:GetItemIcon()
+			rhBtn:SetAttribute("toy",name)
+			updateMacro(name,icon)
+		end)
+	elseif #rhList == 0 then
+		updateMacro("Hearthstone","134414")
+	end
+end
+
+-- Update Hearthstone selections when options panel closes
+local function rhOptionsOkay()
+	for i = 1, #rhOptions do
+		for _,v in pairs(rhOptions) do
+			if rhCheckButtons[i].ID == v[1] then
+				v[2] = rhCheckButtons[i]:GetChecked()
+			end
+		end
+	end
+	rhOverrideChk = rhOverride:GetChecked()
+	listGenerate()
+	setRandom()
+end
+
+--------------------------------------------------------------------
+-- Button creation
+--------------------------------------------------------------------
+rhBtn:RegisterEvent("PLAYER_ENTERING_WORLD")
+rhBtn:RegisterEvent("UNIT_SPELLCAST_STOP")
+rhBtn:RegisterForClicks("LeftButtonDown", "LeftButtonUp" )
+rhBtn:SetAttribute("type","toy")
+rhBtn:SetScript("OnEvent", function(self,event, arg1)
+	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+		if event == "PLAYER_ENTERING_WORLD" then
+			listGenerate()
+			setRandom()
+		end
+		
+		if event == "UNIT_SPELLCAST_STOP" and arg1 == "player" then
+			setRandom()
+		end
+	end
+end)
 
 --------------------------------------------------------------------
 -- Options panel
 --------------------------------------------------------------------
-local rhOptionsPanel = CreateFrame("Frame")
 rhOptionsPanel.name = "Random Hearthstone"
-rhOptionsPanel.OnCommit = function() optionsOkay(); end
+rhOptionsPanel.OnCommit = function() rhOptionsOkay(); end
 rhOptionsPanel.OnDefault = function() end
 rhOptionsPanel.OnRefresh = function() end
 local rhCategory = Settings.RegisterCanvasLayoutCategory(rhOptionsPanel, "Random Hearthstone")
 Settings.RegisterAddOnCategory(rhCategory)
 
 -- Title
-local rhTitle = CreateFrame("Frame",nil, rhOptionsPanel)
 rhTitle:SetPoint("TOPLEFT", 10, -10)
 rhTitle:SetWidth(SettingsPanel.Container:GetWidth()-35)
 rhTitle:SetHeight(1)
@@ -69,7 +214,6 @@ rhOptionsPanel.Thanks:SetFont("Fonts\\FRIZQT__.TTF", 9)
 rhOptionsPanel.Thanks:SetJustifyH("RIGHT")
 
 -- Description
-local rhDesc = CreateFrame("Frame", nil, rhOptionsPanel)
 rhDesc:SetPoint("TOPLEFT", 20, -40)
 rhDesc:SetWidth(SettingsPanel.Container:GetWidth()-35)
 rhDesc:SetHeight(1)
@@ -79,25 +223,21 @@ rhDesc.text:SetText("Add or remove hearthstone toys from rotation")
 rhDesc.text:SetFont("Fonts\\FRIZQT__.TTF", 14)
 
 -- Scroll Frame
-local rhOptionsScroll = CreateFrame("ScrollFrame", nil, rhOptionsPanel, "UIPanelScrollFrameTemplate")
 rhOptionsScroll:SetPoint("TOPLEFT", 5, -60)
 rhOptionsScroll:SetPoint("BOTTOMRIGHT", -25, 100)
 
 -- Divider
-local rhDivider = rhOptionsScroll:CreateLine()
 rhDivider:SetStartPoint("BOTTOMLEFT", 20, -10)
 rhDivider:SetEndPoint("BOTTOMRIGHT", 0, -10)
 rhDivider:SetColorTexture(0.25,0.25,0.25,1)
 rhDivider:SetThickness(1.2)
 
 -- Scroll Frame child
-local rhScrollChild = CreateFrame("Frame")
 rhOptionsScroll:SetScrollChild(rhScrollChild)
 rhScrollChild:SetWidth(SettingsPanel.Container:GetWidth()-35)
 rhScrollChild:SetHeight(1)
 
 -- Checkbox for each toy
-local rhCheckButtons = {}
 for i = 1, #rhToys do
 	local chkOffset = 0
 	if i > 1 then
@@ -114,7 +254,6 @@ for i = 1, #rhToys do
 end
 
 -- Select All button
-local rhSelectAll = CreateFrame("Button", nil, rhOptionsPanel, "UIPanelButtonTemplate")
 rhSelectAll:SetPoint("BOTTOMLEFT", 20, 50)
 rhSelectAll:SetSize(100,25)
 rhSelectAll:SetText("Select all")
@@ -125,7 +264,6 @@ rhSelectAll:SetScript("OnClick", function(self)
 end)
 
 -- Deselect All button
-local rhDeselectAll = CreateFrame("Button", nil, rhOptionsPanel, "UIPanelButtonTemplate")
 rhDeselectAll:SetPoint("BOTTOMLEFT", 135, 50)
 rhDeselectAll:SetSize(100,25)
 rhDeselectAll:SetText("Deselect all")
@@ -136,18 +274,16 @@ rhDeselectAll:SetScript("OnClick", function(self)
 end)
 
 -- Covenant override checkbox
-local rhOverride = CreateFrame("CheckButton", nil, rhOptionsPanel, "UICheckButtonTemplate")
 rhOverride:SetPoint("BOTTOMLEFT", 20, 20)
 rhOverride:SetSize(25,25)
-rhOverride.Text:SetText("  Coventant Hearth override")
+rhOverride.Text:SetText("  Active Covenant only")
 rhOverride.Text:SetTextColor(1,1,1,1)
 rhOverride.Text:SetFont("Fonts\\FRIZQT__.TTF", 13)
 rhOverride.Extratext = rhOverride:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 rhOverride.Extratext:SetPoint("TOPLEFT", rhOverride, 32, -25)
-rhOverride.Extratext:SetText("Will only allow current covenant hearthstone if ticked")
+rhOverride.Extratext:SetText("Will only allow player's current Covenant hearthstone if ticked")
 rhOverride.Extratext:SetFont("Fonts\\FRIZQT__.TTF", 12)
 
-local rhListener = CreateFrame("Frame")
 rhListener:RegisterEvent("ADDON_LOADED")
 rhListener:SetScript("OnEvent", function(self, event, arg1)
 	if event == "ADDON_LOADED" and arg1 == addon then
@@ -204,142 +340,6 @@ rhListener:SetScript("OnEvent", function(self, event, arg1)
 	self:UnregisterEvent("ADDON_LOADED")
 	end
 end)
-
-function optionsOkay()
-	for i = 1, #rhOptions do
-		for _,v in pairs(rhOptions) do
-			if rhCheckButtons[i].ID == v[1] then
-				v[2] = rhCheckButtons[i]:GetChecked()
-			end
-		end
-	end
-	rhOverrideChk = rhOverride:GetChecked()
-	listGenerate()
-	setRandom()
-end
-
-function optionsCancel()
-	for i,v in pairs(rhOptions) do
-		for l = 1, #rhOptions do
-			if rhCheckButtons[l].ID == v[1] and v[2] == true then
-				rhCheckButtons[l]:SetChecked(true)
-			end
-		end
-	end
-	rhOverride:SetChecked(rhOverrideChk)
-end
-
---------------------------------------------------------------------
--- Button creation
---------------------------------------------------------------------
-local rhBtn = CreateFrame("Button", "rhButton", nil,  "SecureActionButtonTemplate")
-rhBtn:RegisterEvent("PLAYER_ENTERING_WORLD")
-rhBtn:RegisterEvent("UNIT_SPELLCAST_STOP")
-rhBtn:RegisterForClicks("LeftButtonDown", "LeftButtonUp" )
-rhBtn:SetAttribute("type","toy")
-rhBtn:SetScript("OnEvent", function(self,event, arg1)
-		if not InCombatLockdown() then
-			if event == "PLAYER_ENTERING_WORLD" then
-				listGenerate()
-				setRandom()
-			end
-			
-			if event == "UNIT_SPELLCAST_STOP" and arg1 == "player" then
-				setRandom()
-			end
-		end
-	end)
-
---------------------------------------------------------------------
--- Generate list of valid Hearthstone toys
---------------------------------------------------------------------
-local covenantHearths = {
-	{1,184353}, --Kyrian
-	{2,183716}, --Venthyr
-	{3,180290}, --Night Fae
-	{4,182773}  --Necrolord
-}
-
-function listGenerate()
-	rhList = {}
-	count = 0
-
-	if select(4,GetAchievementInfo(15241)) == true then
-		if rhOverrideChk == true then
-			allCovenant = false
-		else
-			allCovenant = true
-		end
-	end
-
-	for i=1, #rhOptions do
-		if rhOptions[i][2] == true then
-			if PlayerHasToy(rhOptions[i][1]) then
-				local addToy = true
-				-- Check for Covenant
-				for _,v in pairs(covenantHearths) do
-					if rhOptions[i][1] == v[2] then
-						if allCovenant == false and C_Covenants.GetActiveCovenantID() ~= v[1] then
-							addToy = false
-							break
-						end
-					end
-				end
-				-- Check Draenai
-				if rhOptions[i][1] == 210455 then
-					local _,_,raceID = UnitRace("player")
-					if raceID ~= 11 or raceID ~= 30 then
-						addToy = false
-					end
-				end
-				-- Create the list
-				if addToy == true then
-					count = count + 1
-					table.insert(rhList,rhOptions[i][1])
-				end
-			end
-		end
-	end
-
-	if #rhList == 0 then 
-		print("|cffFF0000No valid Hearthstone toy chosen -|r Setting macro to use Hearthstone")
-		src = "\n/use Hearthstone"
-	else 
-		src = "\n/click rhButton 1\n/click rhButton LeftButton 1" 
-	end
-end
-
---------------------------------------------------------------------
--- Set random Hearthstone
---------------------------------------------------------------------
-function setRandom()
-	if not InCombatLockdown() and #rhList > 0 then
-		local rnd = math.random(1,count)
-		local item = Item:CreateFromItemID(rhList[rnd])
-		item:ContinueOnItemLoad(function()
-			local name = item:GetItemName()
-			local icon = item:GetItemIcon()
-			rhBtn:SetAttribute("toy",name)
-			updateMacro(name,icon)
-		end)
-	elseif #rhList == 0 then
-		updateMacro("Hearthstone","134414")
-	end
-end
-
---------------------------------------------------------------------
--- Create or update global macro
---------------------------------------------------------------------
-function updateMacro(name,icon)
-	if not InCombatLockdown() then
-		local macroIndex = GetMacroIndexByName("Random Hearth")
-		if macroIndex > 0 then
-			EditMacro(macroIndex, "Random Hearth", icon, "#showtooltip " .. name .. src)
-		else
-			CreateMacro("Random Hearth", icon, "#showtooltip " .. name .. src, nil)
-		end
-	end
-end
 
 --------------------------------------------------------------------
 -- Create slash command
