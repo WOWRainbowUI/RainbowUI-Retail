@@ -99,4 +99,5 @@ if locale == "zhTW" then
 	-- 自行加入
 	L["LiteButtonAuras"] = "光環時間"
 	L["Lite Button Auras"] = "光環時間 (快捷列)"
+	L["Font"] = "文字"
 end
