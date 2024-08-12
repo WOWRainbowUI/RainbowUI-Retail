@@ -336,7 +336,6 @@ function CharactersFrame:CreateCharacters()
 
             characterRow:Show()
             prevRowAnchor = characterRow
-
             updateCharacterData(guid, characterData)
             if guid == selectedCharacterGUID then
                 toggleActiveCharacterRow(guid, true)

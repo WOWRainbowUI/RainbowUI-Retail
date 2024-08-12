@@ -12,7 +12,7 @@ local L = KM_Localization_zhTW
 
 -- Translation issue? Assist us in correcting it! Visit: https://discord.gg/bbMaUpfgn8
 
-L.LANGUAGE = "正體中文 (TW)"
+L.LANGUAGE = "繁體中文 (TW)"
 L.TRANSLATOR = "三皈依" -- Translator display name
 
 L.TOCNOTES = {} -- these are manaually copied to the TOC so they show up in the appropriate language in the AddOns list. Please translate them both but let a dev know if you update them later.
@@ -65,10 +65,10 @@ L.ON = "開"
 L.OFF = "關"
 L.ENABLED = "啟用"
 L.DISABLED = "停用"
-L.CLICK = "點擊"
-L.CLICKDRAG = "點擊 + 拖拉"
-L.TOOPEN = "來開啟"
-L.TOREPOSITION = "來重新定位"
+L.CLICK = "左鍵"
+L.CLICKDRAG = "左鍵拖曳"
+L.TOOPEN = "打開主視窗"
+L.TOREPOSITION = "調整位置"
 L.EXCLIMATIONPOINT = "!"
 L.THISWEEKSAFFIXES = "本週..."
 L.YOURRATING = "你的評分"
@@ -131,7 +131,7 @@ L.CHARACTERINFO["AskMerchant"] = { name = "詢問鑰石商人", text = "鑰石�
 L.TABPLAYER = "玩家"
 L.TABPARTY = "隊伍"
 L.TABABOUT = "關於"
-L.TABCONFIG = "配置"
+L.TABCONFIG = "設定"
 
 L.CONFIGURATIONFRAME = {}
 L.CONFIGURATIONFRAME["DisplaySettings"] = { name = "顯示設定", text = "顯示設定"}
