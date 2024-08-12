@@ -8,22 +8,22 @@
 
 local addonName, LBA = ...
 
-local C_Spell = LBA.C_Spell or C_Spell
+local L = LBA.L
 
-local L = setmetatable({}, { __index = function (t,k) return k end })
+local C_Spell = LBA.C_Spell or C_Spell
 
 local LSM = LibStub('LibSharedMedia-3.0')
 local FONT = LSM.MediaType.FONT
 local ALL_FONTS = LSM:HashTable(FONT)
 
 local ANCHOR_SELECT_VALUES = {
-    BOTTOMLEFT = L["Bottom Left"],
+    BOTTOMLEFT = L["Bottom left"],
     BOTTOM = L["Bottom"],
-    BOTTOMRIGHT = L["Bottom Right"],
+    BOTTOMRIGHT = L["Bottom right"],
     RIGHT = L["Right"],
-    TOPRIGHT = L["Top Right"],
+    TOPRIGHT = L["Top right"],
     TOP = L["Top"],
-    TOPLEFT = L["Top Left"],
+    TOPLEFT = L["Top left"],
     LEFT = L["Left"],
     CENTER = L["Center"]
 }
@@ -59,9 +59,9 @@ local function ValidateSpellValue(_, v)
         return true
     else
         return format(
-                L["無效的法術: %s。"] ..
+                L["Error: unknown spell: %s"] ..
                  "\n\n" ..
-                 L["不在你的法術書裡面的法術請使用法術 ID 數字。"],
+                 L["For spells that aren't in your spell book use the spell ID number."],
                 ORANGE_FONT_COLOR:WrapTextInColorCode(v))
     end
 end
@@ -73,11 +73,11 @@ do
 end
 
 local addAuraMap = { }
-local addDenyAbility
+local addIgnoreAbility
 
 local options = {
     type = "group",
-	name = "光環時間 (快捷列)",
+	name = L["Lite Button Auras"],
     childGroups = "tab",
     args = {
         GeneralGroup = {
@@ -95,31 +95,31 @@ local options = {
                 },
                 showTimers = {
                     type = "toggle",
-                    name = L["顯示光環持續時間"],
+                    name = L["Display aura duration timers."],
                     order = order(),
                     width = "full",
                 },
                 colorTimers = {
                     type = "toggle",
-                    name = L["依據剩餘時間變化文字顏色"],
+                    name = L["Color aura duration timers based on remaining time."],
                     order = order(),
                     width = "full",
                 },
                 decimalTimers = {
                     type = "toggle",
-                    name = L["時間顯示小數點"],
+                    name = L["Show fractions of a second on timers."],
                     order = order(),
                     width = "full",
                 },
                 showStacks = {
                     type = "toggle",
-                    name = L["顯示光環層數"],
+                    name = L["Show aura stacks."],
                     order = order(),
                     width = "full",
                 },
                 showSuggestions = {
                     type = "toggle",
-                    name = L["斷法和安撫按鈕發光"],
+                    name = L["Highlight buttons for interrupt and soothe."],
                     order = order(),
                     width = "full",
                 },
@@ -131,7 +131,7 @@ local options = {
                 },
                 FontHeader = {
                     type = "header",
-                    name = L["文字大小"],
+                    name = L["Font"],
                     order = order(),
                 },
                 postFontHeaderGap = {
@@ -148,7 +148,7 @@ local options = {
                 },
                 fontPath = {
                     type = "select",
-                    name = L["字體"],
+                    name = L["Font name"],
                     order = order(),
                     dialogControl = 'LSM30_Font',
                     values = ALL_FONTS,
@@ -163,7 +163,7 @@ local options = {
                 },
                 fontSize = {
                     type = "range",
-                    name = L["文字大小"],
+                    name = L["Font size"],
                     order = order(),
                     min = 6,
                     max = 24,
@@ -177,7 +177,7 @@ local options = {
                 },
                 AnchorHeader = {
                     type = "header",
-                    name = L["位置"],
+                    name = L["Text positions"],
                     order = order(),
                 },
                 postAnchorHeaderGap = {
@@ -193,7 +193,7 @@ local options = {
                     order = order(),
                 },
                 timerAnchor = {
-                    name = L["時間位置"],
+                    name = L["Timer text position"],
                     type = "select",
                     control = 'LBAAnchorButtons',
                     values = ANCHOR_SELECT_VALUES,
@@ -206,7 +206,7 @@ local options = {
                     order = order(),
                 },
                 stacksAnchor = {
-                    name = L["層數位置"],
+                    name = L["Stack text position"],
                     type = "select",
                     control = 'LBAAnchorButtons',
                     values = ANCHOR_SELECT_VALUES,
@@ -225,7 +225,7 @@ local options = {
                     order = order(),
                 },
                 timerAdjust = {
-                    name = L["時間位置偏移"],
+                    name = L["Timer text offset"],
                     type = "range",
                     order = order(),
                     min = -16,
@@ -239,7 +239,7 @@ local options = {
                     order = order(),
                 },
                 stacksAdjust = {
-                    name = L["層數位置偏移"],
+                    name = L["Stack text offset"],
                     type = "range",
                     order = order(),
                     min = -16,
@@ -249,12 +249,13 @@ local options = {
             },
         },
         MappingGroup = {
-            name = L["額外顯示光環"],
             type = "group",
+            name = L["Extra aura displays"],
             inline = false,
+            order = order(),
             args = {
                 showAura = {
-                    name = L["顯示光環"],
+                    name = L["Show aura"],
                     type = "input",
                     width = 1.4,
                     order = order(),
@@ -270,7 +271,7 @@ local options = {
                             local info = C_Spell.GetSpellInfo(v)
                             addAuraMap[1] = info and info.spellID or nil
                         end,
-                    control = 'LBAInputSpellID',
+                    control = 'LBAInputFocus',
                     validate = ValidateSpellValue,
                 },
                 preOnAbilityGap = {
@@ -280,7 +281,7 @@ local options = {
                     order = order(),
                 },
                 onAbility = {
-                    name = L["於技能"],
+                    name = L["On ability"],
                     type = "input",
                     width = 1.4,
                     order = order(),
@@ -332,7 +333,7 @@ local options = {
                         end,
                 },
                 Mappings = {
-                    name = L["額外顯示光環"],
+                    name = L["Extra aura displays"],
                     type = "group",
                     order = order(),
                     inline = true,
@@ -342,26 +343,27 @@ local options = {
             }
         },
         IgnoreGroup = {
-            name = L["忽略技能"],
             type = "group",
+            name = L["Ignored abilities"],
+            order = order(),
             inline = false,
             args = {
-                denyAbility = {
-                    name = L["忽略技能"],
+                ignoreAbility = {
+                    name = L["Add ability"],
                     type = "input",
                     width = 1,
                     order = order(),
                     get =
                         function ()
-                            if addDenyAbility then
-                                local info = C_Spell.GetSpellInfo(addDenyAbility)
-                                return ("%s (%s)"):format(info.name, info.spellID) .. "\0" .. addDenyAbility
+                            if addIgnoreAbility then
+                                local info = C_Spell.GetSpellInfo(addIgnoreAbility)
+                                return ("%s (%s)"):format(info.name, info.spellID) .. "\0" .. addIgnoreAbility
                             end
                         end,
                     set =
                         function (_, v)
                             local info = C_Spell.GetSpellInfo(v)
-                            addDenyAbility = info and info.spellID or nil
+                            addIgnoreAbility = info and info.spellID or nil
                         end,
                     control = 'LBAInputFocus',
                     validate = ValidateSpellValue,
@@ -373,21 +375,21 @@ local options = {
                     order = order(),
                     disabled =
                         function ()
-                            if addDenyAbility then
-                                return not C_Spell.GetSpellInfo(addDenyAbility)
+                            if addIgnoreAbility then
+                                return not C_Spell.GetSpellInfo(addIgnoreAbility)
                             end
                         end,
                     func =
                         function ()
-                            local info = addDenyAbility and C_Spell.GetSpellInfo(addDenyAbility)
+                            local info = addIgnoreAbility and C_Spell.GetSpellInfo(addIgnoreAbility)
                             if info then
-                                LBA.AddDenySpell(info.spellID)
-                                addDenyAbility = nil
+                                LBA.AddIgnoreSpell(info.spellID)
+                                addIgnoreAbility = nil
                             end
                         end,
                 },
                 Abilities = {
-                    name = L["技能"],
+                    name = L["Ignored abilities"],
                     type = "group",
                     order = order(),
                     inline = true,
@@ -399,13 +401,12 @@ local options = {
     },
 }
 
-
-local function UpdateDynamicOptions()
+local function GenerateOptions()
     local auraMapList = LBA.GetAuraMapList()
-    local auraMaps = {}
+    local auraMaps = { }
     for i, entry in ipairs(auraMapList) do
         auraMaps["mapAura"..i] = {
-            order = 10*i,
+            order = 10*i+1,
             name = LBA.SpellString(entry[1], entry[2]),
             type = "description",
             image = C_Spell.GetSpellTexture(entry[1] or entry[2]),
@@ -415,7 +416,7 @@ local function UpdateDynamicOptions()
         }
         auraMaps["onText"..i] = {
             order = 10*i+2,
-            name = GRAY_FONT_COLOR:WrapTextInColorCode(L["於"]),
+            name = GRAY_FONT_COLOR:WrapTextInColorCode(L["on"]),
             type = "description",
             width = 0.15,
         }
@@ -429,7 +430,7 @@ local function UpdateDynamicOptions()
             width = 1.4,
         }
         auraMaps["delete"..i] = {
-            order = 10*i+5,
+            order = 10*i+4,
             name = DELETE,
             type = "execute",
             func = function () LBA.RemoveAuraMap(entry[1], entry[3]) end,
@@ -438,7 +439,7 @@ local function UpdateDynamicOptions()
     end
     options.args.MappingGroup.args.Mappings.plugins.auraMaps = auraMaps
 
-    local denySpellList = {}
+    local ignoreSpellList = {}
     local cc = ContinuableContainer:Create()
     for spellID in pairs(LBA.db.profile.denySpells) do
         local spell = Spell:CreateFromSpellID(spellID)
@@ -449,15 +450,15 @@ local function UpdateDynamicOptions()
                 spell.ContinueWithCancelOnItemLoad = spell.ContinueWithCancelOnSpellLoad
             end
             cc:AddContinuable(spell)
-            table.insert(denySpellList, spell)
+            table.insert(ignoreSpellList, spell)
         end
     end
 
     local ignoreAbilities = {}
     cc:ContinueOnLoad(
         function ()
-            table.sort(denySpellList, function (a, b) return a:GetSpellName() < b:GetSpellName() end)
-            for i, spell in ipairs(denySpellList) do
+            table.sort(ignoreSpellList, function (a, b) return a:GetSpellName() < b:GetSpellName() end)
+            for i, spell in ipairs(ignoreSpellList) do
                 ignoreAbilities["ability"..i] = {
                     name = format("%s (%d)",
                                 NORMAL_FONT_COLOR:WrapTextInColorCode(spell:GetSpellName()),
@@ -467,18 +468,19 @@ local function UpdateDynamicOptions()
                     imageWidth = 22,
                     imageHeight = 22,
                     width = 2.5,
-                    order = 10*i,
+                    order = 10*i+1,
                 }
                 ignoreAbilities["delete"..i] = {
-                    order = 10*i+5,
                     name = DELETE,
                     type = "execute",
-                    func = function () LBA.RemoveDenySpell(spell:GetSpellID()) end,
+                    func = function () LBA.RemoveIgnoreSpell(spell:GetSpellID()) end,
                     width = 0.5,
+                    order = 10*i+2,
                 }
             end
             options.args.IgnoreGroup.args.Abilities.plugins.ignoreAbilites = ignoreAbilities
         end)
+    return options
 end
 
 -- The sheer amount of crap required here is ridiculous. I bloody well hate
@@ -495,20 +497,15 @@ local AceDBOptions =  LibStub("AceDBOptions-3.0")
 -- added, not sorted by name. In order to mostly get them to
 -- appear in the right order, add the main panel when loaded.
 
-AceConfig:RegisterOptionsTable(addonName, options, { "litebuttonauras", "lba" })
-local optionsPanel, category = AceConfigDialog:AddToBlizOptions(addonName, "光環時間")
+AceConfig:RegisterOptionsTable(addonName, GenerateOptions, { "litebuttonauras", "lba" })
+local optionsPanel, category = AceConfigDialog:AddToBlizOptions(addonName, L[addonName])
 
 function LBA.InitializeGUIOptions()
     local profileOptions = AceDBOptions:GetOptionsTable(LBA.db)
     AceConfig:RegisterOptionsTable(addonName.."Profiles", profileOptions)
-    AceConfigDialog:AddToBlizOptions(addonName.."Profiles", profileOptions.name, "光環時間")
-    LBA.db.RegisterCallback(LBA, "OnProfileChanged", UpdateDynamicOptions)
-    LBA.db.RegisterCallback(LBA, "OnProfileCopied", UpdateDynamicOptions)
-    LBA.db.RegisterCallback(LBA, "OnProfileReset", UpdateDynamicOptions)
-    LBA.db.RegisterCallback(LBA, "OnModified", UpdateDynamicOptions)
-    UpdateDynamicOptions()
+    AceConfigDialog:AddToBlizOptions(addonName.."Profiles", profileOptions.name, L[addonName])
 end
 
 function LBA.OpenOptions()
-    Settings.OpenToCategory(category)
+    Settings.OpenToCategory(category.ID)
 end
