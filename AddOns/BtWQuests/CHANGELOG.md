@@ -1,3 +1,11 @@
+# v2.44.0
+
+- Added The War Within Introduction questline
+- Added the Tyr's Return questline
+- Fixed restrictions and prerequisites for Reforging the Tyr's Hand questline
+- Fixed an issue with tooltips not displaying in the category view
+- Fixed an issue with the nav bar dropdown menu not working correctly
+
 # v2.43.1
 
 - Fixed an issue that prevented copying outfits from the Dressing Room and possibly other "Blocked by addon" issues
