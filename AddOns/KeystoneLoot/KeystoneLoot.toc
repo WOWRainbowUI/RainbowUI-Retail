@@ -4,13 +4,13 @@
 ## Notes-ruRU: Компактный аддон, который показывает уровни предметов из подземелий М+
 ## Author: Selina Ruesch
 ## X-Email: selina.ruesch@gmail.com
-## Version: 1.8.3
+## Version: 1.8.4
 ## IconTexture: Interface\Icons\INV_Relics_Hourglass_02
 ## SavedVariables: KeystoneLootDB
 ## SavedVariablesPerCharacter: KeystoneLootCharDB
 
-## Title-zhTW: |cffFF7F00[M+]|r 裝備查詢
-## Notes-zhTW: |cff9d5db8Keystone Loot|r |n|n方便尋找在 M+ 地城和寶庫可取得的裝備，可以依照職業、專精、部位和物品等級來找裝備。|n|n|cffffd200使用方法: |r點小地圖按鈕。
+## Title-zhTW: |cffB973CC[物品]|r 裝備查詢
+## Notes-zhTW: |cff9d5db8Keystone Loot|r |n|n方便尋找在 M+ 地城、團隊和寶庫可取得的裝備，可以依照職業、專精、部位和物品等級來找裝備。|n|n|cffffd200使用方法: |r點小地圖按鈕。
 ## X-Category-zhTW: 物品
 ## DefaultState: disabled
 

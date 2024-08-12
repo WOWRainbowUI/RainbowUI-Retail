@@ -21,4 +21,4 @@ Translate['Correct loot specialization set?'] = '是否有正確設定戰利品�
 Translate['Show Item Level In Keystone Tooltip'] = '在鑰石的浮動提示中顯示物品等級';
 
 -- 自行加入
-Translate['KeystoneLoot'] = "M+ 裝備查詢"
+Translate['KeystoneLoot'] = "裝備查詢"
