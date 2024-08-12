@@ -599,6 +599,8 @@ L.cd2ColSetIconMasque = "啟用Masque支援"
 PH.cd2ColSetRightToLeft = "定位為從右到左"
 L.cd2AutoChangeSpecTooltip = "為專精自動切換設定檔"
 L.cd2ClickKeyMod = "點擊按鍵修改"
+L.cd2SpellIsTalent = "法術為天賦"
+L.cd2SpellIsTalentTip = "法術將會隱藏直到玩家第一次使用"
 
 L.sallspellsEggClear = "清空"
 L.sallspellsEgg = "戰鬥記錄"

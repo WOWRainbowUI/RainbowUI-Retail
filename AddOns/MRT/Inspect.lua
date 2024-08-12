@@ -784,6 +784,18 @@ do
 end
 
 do
+	local GetAndCacheSubTreeInfo_Data = {}
+	local function GetAndCacheSubTreeInfo(subTreeID,activeConfig)
+		if not GetAndCacheSubTreeInfo_Data[subTreeID] then
+			GetAndCacheSubTreeInfo_Data[subTreeID] = C_Traits.GetSubTreeInfo(activeConfig, subTreeID)
+		end
+	
+		return GetAndCacheSubTreeInfo_Data[subTreeID]
+	end
+	local function GetAndCacheSubTreeInfo_Reset()
+		wipe(GetAndCacheSubTreeInfo_Data)
+	end
+
 	local lastInspectTime = {}
 	function module.main:INSPECT_READY(arg)
 		if module.db.inspectCleared or RaidInCombat() then
@@ -880,6 +892,8 @@ do
 				local activeConfig = Constants.TraitConsts.INSPECT_TRAIT_CONFIG_ID--C_ClassTalents.GetActiveConfigID()
 				local config = C_Traits.GetConfigInfo(activeConfig)
 				if config and config.treeIDs then
+					GetAndCacheSubTreeInfo_Reset()
+
 					local treeID = config.treeIDs[1]
 					--local treeInfo = C_Traits.GetTreeInfo(activeConfig,treeID)	--not used
 					local nodes = C_Traits.GetTreeNodes(treeID)
@@ -905,21 +919,26 @@ do
 									if entry then
 										if Enum.TraitNodeType and Enum.TraitNodeType.SubTreeSelection and node.type == Enum.TraitNodeType.SubTreeSelection then 
 											
-										else
+										elseif entry.definitionID then
 											local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
 											if definitionInfo and definitionInfo.spellID then
 												local spellID = definitionInfo.spellID
 												if j==1 then
+													local x,y = node.posX, node.posY
 													tree[#tree+1] = {
 														spellID = spellID,
-														x = node.posX,
-														y = node.posY,
+														x = x,
+														y = y,
 														max = node.maxRanks and node.maxRanks > 1 and node.maxRanks or nil,
+														subTree = node.subTreeID and node.subTreeID or nil,
 													}
-													if tree.minX > node.posX then tree.minX = node.posX end
-													if tree.maxX < node.posX then tree.maxX = node.posX end
-													if tree.minY > node.posY then tree.minY = node.posY end
-													if tree.maxY < node.posY then tree.maxY = node.posY end
+													--tree[#tree].nodeRaw = node
+													if not node.subTreeID then
+														if tree.minX > x then tree.minX = x end
+														if tree.maxX < x then tree.maxX = x end
+														if tree.minY > y then tree.minY = y end
+														if tree.maxY < y then tree.maxY = y end
+													end
 													if node.visibleEdges then
 														for k=1,#node.visibleEdges do
 															local edge = node.visibleEdges[k]
@@ -943,9 +962,22 @@ do
 								end
 							end
 						end
+						for i=1,#tree do
+							local node = tree[i]
+							if node.subTree then
+								local subTreeInfo = GetAndCacheSubTreeInfo(node.subTree,activeConfig)
+								if subTreeInfo then
+									node.x = node.x - subTreeInfo.posX
+									node.y = node.y - subTreeInfo.posY
+								end
+								node.x = tree.minX + (tree.maxX - tree.minX) * 0.5 + node.x
+								node.y = tree.minY + (tree.maxY - tree.minY) * 0.35 + node.y
+							end
+						end
 					end
 					
 	
+					data.talentSubTree = nil
 					local entries = {}
 					local c = 0
 					for i=1,#nodes do
@@ -956,8 +988,8 @@ do
 							local entry = C_Traits.GetEntryInfo(activeConfig,entryID)
 							if entry then
 								if Enum.TraitNodeType and Enum.TraitNodeType.SubTreeSelection and node.type == Enum.TraitNodeType.SubTreeSelection then 
-																			
-								else
+
+								elseif entry.definitionID then
 									local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
 									if definitionInfo then
 										local spellID = definitionInfo.spellID
@@ -974,7 +1006,10 @@ do
 											if not ExRT.F.table_find(list[specIndex],spellID) then
 												list[specIndex][ #list[specIndex]+1 ] = spellID
 											end
-											if node.currentRank and node.currentRank > 0 then
+											if node.subTreeID and (not data.talentSubTree or node.subTreeActive) then
+												data.talentSubTree = node.subTreeID
+											end
+											if node.currentRank and node.currentRank > 0 and (not node.subTreeID or node.subTreeActive) then
 												c = c + 1
 												data[c] = spellID
 												if node.maxRanks and node.maxRanks > 1 then
@@ -1035,70 +1070,7 @@ do
 						end
 					end
 				end
-			elseif not ExRT.isClassic then
-				for i=0,20 do
-					local row,col = (i-i%3)/3+1,i%3+1
-	
-					local talentID, _, _, selected, available, spellID, _, _, _, _, grantedByAura = GetTalentInfo(row,col,specIndex,true,inspectedName)
-					if selected then
-						data[row] = col
-						data.talentsIDs[row] = talentID
-					end
-	
-					--------> ExCD2
-					if spellID then
-						local list = cooldownsModule.db.spell_talentsList[class]
-						if not list then
-							list = {}
-							cooldownsModule.db.spell_talentsList[class] = list
-						end
-	
-						list[specIndex] = list[specIndex] or {}
-	
-						list[specIndex][i+1] = spellID
-						if selected or grantedByAura then
-							cooldownsModule.db.session_gGUIDs[name] = {spellID,"talent"}
-	
-							if cooldownsModule.db.spell_talentProvideAnotherTalents[spellID] then
-								for k,v in pairs(cooldownsModule.db.spell_talentProvideAnotherTalents[spellID]) do
-									cooldownsModule.db.session_gGUIDs[name] = {v,"talent"}
-								end
-							end
-						end
-	
-						cooldownsModule.db.spell_isTalent[spellID] = true
-					end
-					--------> /ExCD2
-				end
-
-				for i=1,4 do
-					local talentID = C_SpecializationInfo_GetInspectSelectedPvpTalent(inspectedName, i)
-					if talentID then
-						data[i+7] = 1
-						data.talentsIDs[i+7] = talentID
-	
-						local _, _, _, selected, available, spellID, _, _, _, _, grantedByAura = GetPvpTalentInfoByID(talentID)
-						if spellID then
-							local list = cooldownsModule.db.spell_talentsList[class]
-							if not list then
-								list = {}
-								cooldownsModule.db.spell_talentsList[class] = list
-							end
-	
-							list[-1] = list[-1] or {}
-	
-							list[-1][spellID] = spellID
-	
-							cooldownsModule.db.session_gGUIDs[name] = {spellID,"pvptalent"}
-	
-							--cooldownsModule.db.spell_isTalent[spellID] = true
-							cooldownsModule.db.spell_isPvpTalent[spellID] = true
-						end
-					end
-				end
-			end
-
-			if ExRT.isLK then
+			elseif ExRT.isLK then
 				local talentsStr, specIndex = module:GetInspectTalentsClassicData(class)
 
 				data.talentsStr = talentsStr and time()..":"..talentsStr or nil
@@ -1653,13 +1625,13 @@ function module.main:ENCOUNTER_START()
 						if entry then
 							if Enum.TraitNodeType and Enum.TraitNodeType.SubTreeSelection and node.type == Enum.TraitNodeType.SubTreeSelection then 
 								
-							else
+							elseif entry.definitionID then
 								local definitionInfo = C_Traits.GetDefinitionInfo(entry.definitionID)
 								if definitionInfo then
 									local spellID = definitionInfo.spellID
 									if spellID then
 										tal = tal .. ":" .. (spellID or 0)
-										if node.maxRanks and node.maxRanks > 1 then
+										if node.maxRanks and node.maxRanks > 1 and (not node.subTreeID or node.subTreeActive) then
 											tal = tal .. "-" .. (node.activeRank)
 										end
 									end

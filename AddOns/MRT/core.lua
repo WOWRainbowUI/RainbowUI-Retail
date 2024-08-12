@@ -1,8 +1,8 @@
---	20.06.2024
+--	03.08.2024
 
 local GlobalAddonName, MRT = ...
 
-MRT.V = 4880
+MRT.V = 4890
 MRT.T = "R"
 
 MRT.Slash = {}			--> функции вызова из коммандной строки
@@ -32,6 +32,7 @@ MRT.locale = GetLocale()
 do
 	local version, buildVersion, buildDate, uiVersion = GetBuildInfo()
 	
+	MRT.clientBuildVersion = buildVersion
 	MRT.clientUIinterface = uiVersion
 	local expansion,majorPatch,minorPatch = (version or "5.0.0"):match("^(%d+)%.(%d+)%.(%d+)")
 	MRT.clientVersion = (expansion or 0) * 10000 + (majorPatch or 0) * 100 + (minorPatch or 0)
@@ -759,7 +760,7 @@ MRT.frame:SetScript("OnEvent",function (self, event, ...)
 		MRT.AddonLoaded = true
 
 		if not MRT.isClassic then
-			if not VMRT.Addon.EJ_CHECK_VER or VMRT.Addon.EJ_CHECK_VER ~= MRT.clientUIinterface then
+			if not VMRT.Addon.EJ_CHECK_VER or VMRT.Addon.EJ_CHECK_VER ~= MRT.clientUIinterface or (((type(IsTestBuild)=="function" and IsTestBuild()) or (type(IsBetaBuild)=="function" and IsBetaBuild())) and VMRT.Addon.EJ_CHECK_VER_PTR ~= MRT.clientBuildVersion) then
 				C_Timer.After(10,function()
 					MRT.F.EJ_AutoScan()
 				end)

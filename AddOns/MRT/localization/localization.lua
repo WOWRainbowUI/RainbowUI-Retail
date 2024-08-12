@@ -229,6 +229,7 @@ local zoneEJids = {
 	S_ZoneT29VotI = 1200,
 	S_ZoneT30 = 1208,
 	S_ZoneT31 = 1207,
+	S_ZoneT32 = 1273,
 }
 for prefix,eID in pairs(zoneEJids) do
 	L[prefix] = EJ_GetInstanceInfo(eID)
@@ -299,15 +300,6 @@ local encounterIDtoEJidChache = {
 }
 
 local encounterIDtoNamePredef = {
-	[2820] = "Gnarlroot",	--
-	[2709] = "Igira the Cruel",	--
-	[2737] = "Volcoross",	--
-	[2731] = "Larodar, Keeper of the Flame",	--
-	[2728] = "Council of Dreams",	--
-	[2708] = "Nymue, Weaver of the Cycle",	--
-	[2824] = "Smolderon",	--
-	[2786] = "Tindral Sageswift, Seer of Flame",	--
-	[2677] = "Fyrakk the Blazing",	--
 }
 
 L.bossName = setmetatable({}, {__index=function (t, k)

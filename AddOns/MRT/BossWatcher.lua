@@ -2761,6 +2761,7 @@ function BWInterfaceFrameLoad()
 
 	local function CloseDropDownMenus_fix()
 		CloseDropDownMenus()
+		return 4
 	end
 
 	local function timestampToFightTime(time)
@@ -3097,7 +3098,20 @@ function BWInterfaceFrameLoad()
 			notCheckable = true,
 			func = CloseDropDownMenus_fix,
 		}
-		EasyMenu(fightsList, BWInterfaceFrame.bossButtonDropDown, "cursor", 10 , -15, "MENU")
+		if MenuUtil then
+			MenuUtil.CreateContextMenu(BWInterfaceFrame.bossButtonDropDown, function(ownerRegion, rootDescription)
+				for i=1,#fightsList do
+					local menu = fightsList[i]
+					if menu.isTitle then
+						rootDescription:CreateTitle(menu.text)
+					else
+						rootDescription:CreateButton(menu.text, menu.func)
+					end
+				end
+			end)
+		else
+			EasyMenu(fightsList, BWInterfaceFrame.bossButtonDropDown, "cursor", 10 , -15, "MENU")
+		end
 	end)
 	BWInterfaceFrame.bossButton.tooltipText = L.BossWatcherSelectFight
 
@@ -3142,7 +3156,20 @@ function BWInterfaceFrameLoad()
 			notCheckable = true,
 			func = CloseDropDownMenus_fix,
 		}
-		EasyMenu(fightsList, BWInterfaceFrame.bossButtonDropDown, "cursor", 10 , -15, "MENU")
+		if MenuUtil then
+			MenuUtil.CreateContextMenu(BWInterfaceFrame.bossButtonDropDown, function(ownerRegion, rootDescription)
+				for i=1,#fightsList do
+					local menu = fightsList[i]
+					if menu.isTitle then
+						rootDescription:CreateTitle(menu.text)
+					else
+						rootDescription:CreateButton(menu.text, menu.func)
+					end
+				end
+			end)
+		else
+			EasyMenu(fightsList, BWInterfaceFrame.bossButtonDropDown, "cursor", 10 , -15, "MENU")
+		end
 	end)
 
 
@@ -6097,7 +6124,19 @@ function BWInterfaceFrameLoad()
 				end
 				aurasTab.linesRightClickMoreInfoData = self.spellID
 				aurasTab.linesRightClickLineData = self.lineData
-				EasyMenu(aurasTab.linesRightClickMenu, aurasTab.linesRightClickMenuDropDown, "cursor", 10 , -15, "MENU")
+				if MenuUtil then
+					MenuUtil.CreateContextMenu(aurasTab.linesRightClickMenuDropDown, function(ownerRegion, rootDescription)
+						for i=1,#aurasTab.linesRightClickMenu do
+							if aurasTab.linesRightClickMenu[i].isTitle then
+								rootDescription:CreateTitle(aurasTab.linesRightClickMenu[i].text)
+							else
+								rootDescription:CreateButton(aurasTab.linesRightClickMenu[i].text, aurasTab.linesRightClickMenu[i].func)
+							end
+						end
+					end)
+				else
+					EasyMenu(aurasTab.linesRightClickMenu, aurasTab.linesRightClickMenuDropDown, "cursor", 10 , -15, "MENU")
+				end
 			end
 		end
 	end
@@ -7994,7 +8033,20 @@ function BWInterfaceFrameLoad()
 				func = CloseDropDownMenus_fix,
 			}
 		}
-		EasyMenu(zoomList, graphsTab.graphZoomDropDown, "cursor", 10 , -15, "MENU")
+		if MenuUtil then
+			MenuUtil.CreateContextMenu(graphsTab.graphZoomDropDown, function(ownerRegion, rootDescription)
+				for i=1,#zoomList do
+					local menu = zoomList[i]
+					if menu.isTitle then
+						rootDescription:CreateTitle(menu.text)
+					else
+						rootDescription:CreateButton(menu.text, menu.func)
+					end
+				end
+			end)
+		else
+			EasyMenu(zoomList, graphsTab.graphZoomDropDown, "cursor", 10 , -15, "MENU")
+		end
 	end
 
 	local function GraphGetFightMax()
