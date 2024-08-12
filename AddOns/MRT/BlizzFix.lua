@@ -29,8 +29,9 @@ if C_Spell and C_Spell.GetSpellInfo then	--11.0
 		end
 	end
 
+	local null_table_charges = {currentCharges = 0, maxCharges = 0, cooldownStartTime = 0, cooldownDuration = 0, chargeModRate = 0}
 	ExRT.F.GetSpellCharges = function(spellID)
-		local chargeInfo = C_Spell.GetSpellCharges(spellID) or {currentCharges = 0, maxCharges = 0, cooldownStartTime = 0, cooldownDuration = 0, chargeModRate = 0}
+		local chargeInfo = C_Spell.GetSpellCharges(spellID) or null_table_charges
 		return chargeInfo.currentCharges, chargeInfo.maxCharges, chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration
 	end
 end

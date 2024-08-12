@@ -313,7 +313,12 @@ do
 		if not x then
 			x,y = GetCursorPos(frame)
 		end
-		local obj = GetMouseFoci and GetMouseFoci()[1] or GetMouseFocus()
+		local obj
+		if GetMouseFoci then
+			obj = GetMouseFoci()[1]
+		else
+			obj = GetMouseFocus()
+		end
 		if x > 0 and y > 0 and x < frame:GetWidth() and y < frame:GetHeight() and (obj == frame or (childs and FindAllParents(frame,obj))) then
 			return true
 		end
@@ -2469,7 +2474,19 @@ do
 				CloseDropDownMenus() 
 			end,
 		}
-		EasyMenu(dropDownList, self.dropDown, "cursor", 10 , -15, "MENU")
+		if MenuUtil then
+			MenuUtil.CreateContextMenu(self.dropDown, function(ownerRegion, rootDescription)
+				for i=1,#dropDownList do
+					if dropDownList[i].isTitle then
+						rootDescription:CreateTitle(dropDownList[i].text)
+					else
+						rootDescription:CreateButton(dropDownList[i].text, dropDownList[i].func)
+					end
+				end
+			end)
+		else
+			EasyMenu(dropDownList, self.dropDown, "cursor", 10 , -15, "MENU")
+		end
 	end
 
 	local function Widget_SetSize(self,width,height)

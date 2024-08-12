@@ -1,6 +1,9 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4890
+* updates
+
 v.4880
 * Fixes for 11.0 beta
 * Added Italian translation (by Grifo92)

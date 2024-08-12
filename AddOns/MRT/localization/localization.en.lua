@@ -595,6 +595,8 @@ PH.cd2ColSetRightToLeft = "Anchor from right to left"
 L.cd2AutoChangeSpecTooltip = "Autochange profile for spec"
 L.cd2ColSetTextShowTargetName = "Show target name"
 L.cd2ClickKeyMod = "Click key modifiers"
+L.cd2SpellIsTalent = "Spell is talent"
+L.cd2SpellIsTalentTip = "Spell will be hidden until very first usage by player"
 
 L.sallspellsEggClear = "Clear"
 L.sallspellsEgg = "Combat log"
