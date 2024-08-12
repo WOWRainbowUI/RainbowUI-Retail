@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.7.20) add-on for World of Warcraft UI
+    Decursive (v 2.7.21) add-on for World of Warcraft UI
     Copyright (C) 2006-2019 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2024-07-16T09:27:29Z
+    This file was last updated on 2024-08-05T16:51:41Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ local abs               = _G.math.abs;
 local GetNumRaidMembers = DC.GetNumRaidMembers;
 local GetNumPartyMembers= _G.GetNumSubgroupMembers;
 local InCombatLockdown  = _G.InCombatLockdown;
-local GetSpellBookItemInfo  = _G.C_SpellBook and _G.C_SpellBook.GetSpellBookItemInfo or _G.GetSpellBookItemInfo;
+local GetItemInfo           = _G.C_Item and _G.C_Item.GetItemInfo or _G.GetItemInfo;
 local GetSpellInfo          = _G.C_Spell and _G.C_Spell.GetSpellInfo or _G.GetSpellInfo;
 local GetSpellName          = _G.C_Spell and _G.C_Spell.GetSpellName or function (spellId) return (GetSpellInfo(spellId)) end;
 local GetSpellDescription = _G.C_Spell and _G.C_Spell.GetSpellDescription or _G.GetSpellDescription;
@@ -601,10 +601,10 @@ local function GetStaticOptions ()
             -- We got a item link!
             isItem = true;
             v = D:GetItemFromLink(v);
-        elseif type(v) == 'string' and (GetSpellBookItemInfo(v)) then -- not a number, not a spell link, then a spell name?
+        elseif type(v) == 'string' and (D:GetSpellUsefulInfoIfKnown(v)) then -- not a number, not a spell link, then a spell name?
             -- We got a spell name!
-            D:Debug(v, "is a spell name in our book:", GetSpellBookItemInfo(v));
-            local SPItype, id = GetSpellBookItemInfo(v);
+            D:Debug(v, "is a spell name in our book:", D:GetSpellUsefulInfoIfKnown(v));
+            local id, SPItype = D:GetSpellUsefulInfoIfKnown(v);
             v = id;
             isPetAbility = SPItype == "PETACTION" and true or false;
         elseif type(v) == 'string' and (GetItemInfo(v)) then
@@ -1941,7 +1941,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.7.20", "John Wellesz", ("2024-07-19T13:31:22Z"):sub(1,10),
+                                    "2.7.21", "John Wellesz", ("2024-08-05T23:21:19Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -3750,6 +3750,6 @@ function D:QuickAccess (CallingObject, button) -- {{{
 end -- }}}
 
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.7.20";
+T._LoadedFiles["Dcr_opt.lua"] = "2.7.21";
 
 -- Closer
