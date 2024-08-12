@@ -12,11 +12,13 @@ local addonName, LBA = ...
 
 local C_Spell = LBA.C_Spell or C_Spell
 
+local L = LBA.L
+
 local function TrueStr(x)
     return x and "on" or "off"
 end
 
-local header = ORANGE_FONT_COLOR:WrapTextInColorCode(addonName ..': ')
+local header = ORANGE_FONT_COLOR:WrapTextInColorCode(addonName..': ')
 
 local function printf(...)
     local msg = string.format(...)
@@ -26,44 +28,44 @@ end
 local function PrintUsage()
     printf(GAMEMENU_HELP .. ":")
     printf("  /lba options")
-    printf("  /lba stacks on|off|default")
-    printf("  /lba stacksanchor point [offset]")
-    printf("  /lba timers on|off|default")
-    printf("  /lba colortimers on|off|default")
-    printf("  /lba decimaltimers on|off|default")
-    printf("  /lba timeranchor point [offset]")
+    printf("  /lba stack on|off|default")
+    printf("  /lba stackposition point [offset]")
+    printf("  /lba timer on|off|default")
+    printf("  /lba colortimer on|off|default")
+    printf("  /lba decimaltimer on|off|default")
+    printf("  /lba timerposition point [offset]")
     printf("  /lba font FontName|default")
     printf("  /lba font path [ size [ flags ] ]")
     printf("  /lba aura help")
-    printf("  /lba deny help")
+    printf("  /lba ignore help")
 end
 
 local function PrintAuraUsage()
     printf(GAMEMENU_HELP .. ":")
     printf("  /lba aura list")
+    printf("  /lba aura add <auraID> on <ability>")
+    printf("  /lba aura remove <auraID> on <ability>")
     printf("  /lba aura wipe")
-    printf("  /lba aura hide <auraSpellID> on <ability>")
-    printf("  /lba aura show <auraSpellID> on <ability>")
 end
 
-local function PrintDenyUsage()
+local function PrintIgnoreUsage()
     printf(GAMEMENU_HELP .. ":")
-    printf("  /lba deny defaults")
-    printf("  /lba deny list")
-    printf("  /lba deny wipe")
-    printf("  /lba deny add <abilit>")
-    printf("  /lba deny remove <abilit>")
+    printf("  /lba ignore list")
+    printf("  /lba ignore add <ability")
+    printf("  /lba ignore remove <ability>")
+    printf("  /lba ignore default")
+    printf("  /lba ignore wipe")
 end
 
 local function PrintOptions()
     local p = LBA.db.profile
     printf(SETTINGS .. ':')
-    printf("  stacks = " .. TrueStr(p.showStacks))
-    printf("  stacksAnchor = %s %d", p.stacksAnchor, p.stacksAdjust)
+    printf("  stack = " .. TrueStr(p.showStacks))
+    printf("  stackPosition = %s %d", p.stacksAnchor, p.stacksAdjust)
     printf("  timer = " .. TrueStr(p.showTimers))
     printf("  colorTimer = " .. TrueStr(p.colorTimers))
     printf("  decimalTimer = " .. TrueStr(p.decimalTimers))
-    printf("  timerAnchor = %s %d", p.timerAnchor, p.timerAdjust)
+    printf("  timerPosition = %s %d", p.timerAnchor, p.timerAdjust)
     printf("  font = [ '%s', %.1f, '%s' ]", p.fontPath, p.fontSize, p.fontFlags)
 end
 
@@ -99,7 +101,7 @@ local function ParseAuraMap(cmdarg)
 end
 
 local function PrintAuraMapList()
-    printf("Aura list:")
+    printf(L["Aura list"] .. ":")
     for i, entry in ipairs(LBA.GetAuraMapList()) do
         printf("%3d. %s", i, LBA.AuraMapString(unpack(entry)))
     end
@@ -109,28 +111,28 @@ local function AuraCommand(argstr)
     local _, cmd, cmdarg = strsplit(" ", argstr, 3)
     if cmd == 'list' then
         PrintAuraMapList()
-    elseif cmd == 'show' and cmdarg then
+    elseif cmd == 'add' and cmdarg then
         local aura, auraName, ability, abilityName = ParseAuraMap(cmdarg)
         if not aura then
-            printf("Error: unknown aura spell: %s", NORMAL_FONT_COLOR:WrapTextInColorCode(auraName))
+            printf(L["Error: unknown aura spell: %s"], NORMAL_FONT_COLOR:WrapTextInColorCode(auraName))
         elseif not ability then
-            printf("Error: unknown ability spell: %s", NORMAL_FONT_COLOR:WrapTextInColorCode(abilityName))
+            printf(L["Error: unknown ability spell: %s"], NORMAL_FONT_COLOR:WrapTextInColorCode(abilityName))
         else
-            printf("show %s", LBA.AuraMapString(aura, auraName, ability, abilityName))
+            printf(ADD.." %s", LBA.AuraMapString(aura, auraName, ability, abilityName))
             LBA.AddAuraMap(aura, ability)
         end
-    elseif cmd == 'hide' and cmdarg then
+    elseif cmd == 'remove' and cmdarg then
         local aura, auraName, ability, abilityName = ParseAuraMap(cmdarg)
         if not aura then
-            printf("Error: unknown aura spell.")
+            printf(L["Error: unknown aura spell: %s"], NORMAL_FONT_COLOR:WrapTextInColorCode(auraName))
         elseif not ability then
-            printf("Error: unknown ability spell.")
+            printf(L["Error: unknown ability spell: %s"], NORMAL_FONT_COLOR:WrapTextInColorCode(abilityName))
         else
-            printf("hide %s", LBA.AuraMapString(aura, auraName, ability, abilityName))
+            printf(REMOVE.." %s", LBA.AuraMapString(aura, auraName, ability, abilityName))
             LBA.RemoveAuraMap(aura, ability)
         end
     elseif cmd == 'wipe' then
-        printf("Wiping aura list.")
+        printf(L["Wiping aura list."])
         LBA.WipeAuraMap()
     else
         PrintAuraUsage()
@@ -139,7 +141,7 @@ local function AuraCommand(argstr)
     return true
 end
 
-local function PrintDenyList()
+local function PrintIgnoreList()
     local spells = { }
     for spellID in pairs(LBA.db.profile.denySpells) do
         local spell = Spell:CreateFromSpellID(spellID)
@@ -148,36 +150,36 @@ local function PrintDenyList()
         end
     end
     table.sort(spells, function (a, b) return a:GetSpellName() < b:GetSpellName() end)
-    printf("Deny list:")
+    printf(L["Ignored abilities"]..":")
     for i, spell in ipairs(spells) do
         printf("%3d. %s (%d)", i, spell:GetSpellName() or "?", spell:GetSpellID())
     end
 end
 
-local function DenyCommand(argstr)
+local function IgnoreCommand(argstr)
     local _, cmd, spell = strsplit(" ", argstr, 3)
     if cmd == 'list' then
-        PrintDenyList()
+        PrintIgnoreList()
     elseif cmd == 'default' then
-        LBA.DefaultDenySpells()
+        LBA.DefaultIgnoreSpells()
     elseif cmd == 'wipe' then
-        LBA.WipeDenySpells()
+        LBA.WipeIgnoreSpells()
     elseif cmd == 'add' and spell then
         local info = C_Spell.GetSpellInfo(spell)
         if info then
-            LBA.AddDenySpell(info.spellID)
+            LBA.AddIgnoreSpell(info.spellID)
         else
-            printf("Error: unknown spell: " .. spell)
+            printf(L["Error: unknown spell: %s"], spell)
         end
     elseif cmd == 'remove' and spell then
         local info = C_Spell.GetSpellInfo(spell)
         if info then
-            LBA.RemoveDenySpell(info.spellID)
+            LBA.RemoveIgnoreSpell(info.spellID)
         else
-            printf("Error: unknown spell: " .. spell)
+            printf(L["Error: unknown spell: %s"], spell)
         end
     else
-        PrintDenyUsage()
+        PrintIgnoreUsage()
     end
     return true
 end
@@ -191,9 +193,9 @@ local function SlashCommand(argstr)
         PrintOptions()
     elseif cmd == ('options'):sub(1,n) then
         LBA.OpenOptions()
-    elseif cmd:lower() == 'stacks' and #args == 1 then
+    elseif cmd:lower() == 'stack' and #args == 1 then
         LBA.SetOption('showStacks', args[1])
-    elseif cmd:lower() == 'stacksanchor' and WithinRange(#args, 1, 2) then
+    elseif cmd:lower() == 'stackposition' and WithinRange(#args, 1, 2) then
         LBA.SetOption('stacksAnchor', args[1])
         if args[2] then LBA.SetOption('stacksAdjust', args[2]) end
     elseif cmd:lower() == 'timer' and #args == 1 then
@@ -204,13 +206,13 @@ local function SlashCommand(argstr)
         LBA.SetOption('decimalTimers', args[1])
     elseif cmd:lower() == 'font' and WithinRange(#args, 1, 3) then
         SetFont(args)
-    elseif cmd:lower() == 'timeranchor' and WithinRange(#args, 1, 2) then
+    elseif cmd:lower() == 'timerposition' and WithinRange(#args, 1, 2) then
         LBA.SetOption('timerAnchor', args[1])
         if args[2] then LBA.SetOption('timerAdjust', args[2]) end
     elseif cmd:lower() == 'aura' then
         AuraCommand(argstr)
-    elseif cmd:lower() == 'deny' then
-        DenyCommand(argstr)
+    elseif cmd:lower() == 'ignore' then
+        IgnoreCommand(argstr)
     elseif cmd:lower() == 'dump' then
         LiteButtonAurasController:DumpAllOverlays()
     else
