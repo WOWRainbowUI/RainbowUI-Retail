@@ -1,5 +1,8 @@
+## Bugfixes
+- Translation fixed
+
 ## Other Changes
-- Update zhTW.lua
-- Update zhCN.lua
-- Update zhTW.lua
-- Update zhTW/zhCN from EKE00372
+- New lettering removed
+- Texture no longer necessary as it is now implemented in the game
+- DF Season 3 removed
+- Bump interface version
