@@ -1,4 +1,4 @@
-### Changes in 110000.116-Release:
+### Changes in 110000.117-Release:
 
-- Fixed: Errors when using profession keys to open lockboxes
+- Fixed: Compatibility with 11.0.2 patch
 
