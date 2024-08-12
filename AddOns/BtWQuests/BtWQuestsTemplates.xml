@@ -1567,7 +1567,7 @@
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
-						<FontString name="$parentText" inherits="GameFontNormalSmall" text="Auto Load">
+						<FontString name="$parentText" inherits="GameFontNormalSmall" text="自動載入">
 							<Anchors>
 								<Anchor point="LEFT" relativePoint="RIGHT"/>
 							</Anchors>

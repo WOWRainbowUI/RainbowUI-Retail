@@ -1,6 +1,6 @@
 ## Interface: 100207, 110000, 110002
 ## Title: BtWQuests: Dragonflight
-## Version: 11.1
+## Version: 12.0
 ## Notes: Dragonflight quest data for BtWQuests
 ## Author: Breen
 ## Dependencies: BtWQuests
@@ -16,7 +16,7 @@
 ## X-Wago-ID: Xb6XkoNp
 
 ## Title-zhTW: |cff00FFFF[任務]|r 指南-巨龍崛起
-## Notes-zhTW: BtWQuests |n|n提供巨龍崛起的任務資料。
+## Notes-zhTW: BtWQuests: Dragonflight |n|n提供巨龍崛起的任務資料。
 ## X-Category-zhTW: 任務
 ## IconTexture: Interface\QuestFrame\UI-QuestLog-BookIcon
 ## DefaultState: disabled
