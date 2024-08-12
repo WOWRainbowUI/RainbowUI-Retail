@@ -150,7 +150,7 @@ function internal.CalculateBreedID(nSpeciesID, nQuality, nLevel, nMaxHP, nPower,
                 trueresults[1] = breedID
             end
         
-        -- Lowbie pets go here, the bane of my existance. calculations must be intense and logic loops numerous
+        -- Lowbie pets go here, the bane of my existence. Calculations must be intense and logic loops numerous.
         else
             -- Calculate diffs much more intensely. Round calculations with 10^-2 and math.floor. Also, properly devalue HP by dividing its absolute value by 5
             local diff3 = (abs((floor(((ihp + 5) * nQL * 5 + 10000) / wildHPFactor * 0.01 + 0.5) / 0.01) - thp) / 5) + abs((floor( ((ipower + 5) * nQL) / wildPowerFactor * 0.01 + 0.5) / 0.01) - tpower) + abs((floor( ((ispeed + 5) * nQL) * 0.01 + 0.5) / 0.01) - tspeed)
@@ -343,7 +343,9 @@ function internal.CacheAllPets()
             local nMaxHP = CPB.GetMaxHealth(iOwner, iIndex)
             local nPower = CPB.GetPower(iOwner, iIndex)
             local nSpeed = CPB.GetSpeed(iOwner, iIndex)
-            local nQuality = CPB.GetBreedQuality(iOwner, iIndex)
+			-- In Patch 11.0.0, Blizzard decreased the natural quality values passed from this function by 1.
+			-- This is inconsistent with all other quality APIs.
+            local nQuality = CPB.GetBreedQuality(iOwner, iIndex) + 1
             local wild = false
             local flying = false
             
@@ -378,8 +380,8 @@ function internal.CacheAllPets()
                     local wildnum, flyingnum = 1, 1
                     if wild then wildnum = 1.2 end
                     if flying then flyingnum = 1.5 end
-                    print(string.format("發現新品級；主人 #%i, 寵物 #%i, 野生狀態 %s, 種類ID %u, 基本屬性 %4.2f / %4.2f / %4.2f", iOwner, iIndex, wild and "true" or "false", nSpeciesID, ((nMaxHP * wildnum - 100) / 5) / (nLevel * (1 + (0.1 * (nQuality - 1)))), nPower / (nLevel * (1 + (0.1 * (nQuality - 1)))), (nSpeed / flyingnum) / (nLevel * (1 + (0.1 * (nQuality - 1))))))
-                    if (breed ~= "NEW") then SELECTED_CHAT_FRAME:AddMessage("發現新品級：" .. breed) end
+                    print(string.format("發現新品級; 擁有者 #%i, 寵物 #%i, 野生狀態 %s, 種類ID %u, 基本屬性 %4.4f / %4.4f / %4.4f", iOwner, iIndex, wild and "true" or "false", nSpeciesID, ((nMaxHP * wildnum - 100) / 5) / (nLevel * (1 + (0.1 * (nQuality - 1)))), nPower / (nLevel * (1 + (0.1 * (nQuality - 1)))), (nSpeed / flyingnum) / (nLevel * (1 + (0.1 * (nQuality - 1))))))
+                    if (breed ~= "NEW") then SELECTED_CHAT_FRAME:AddMessage("發現新品級: " .. breed) end
                 elseif (breed ~= "???") and (sub(tostring(breed), 1, 3) ~= "ERR") then
                     local exists = false
                     if BPBID_Arrays.BreedsPerSpecies[nSpeciesID] then
@@ -391,7 +393,7 @@ function internal.CacheAllPets()
                         local wildnum, flyingnum = 1, 1
                         if wild then wildnum = 1.2 end
                         if flying then flyingnum = 1.5 end
-                        print(string.format("已有的種類發現新品級；主人 #%i, 寵物 #%i, 野生狀態 %s, 種類ID %u, 基本屬性 %4.2f / %4.2f / %4.2f, 品級 %s", iOwner, iIndex, wild and "true" or "false", nSpeciesID, ((nMaxHP * wildnum - 100) / 5) / (nLevel * (1 + (0.1 * (nQuality - 1)))), nPower / (nLevel * (1 + (0.1 * (nQuality - 1)))), (nSpeed / flyingnum) / (nLevel * (1 + (0.1 * (nQuality - 1)))), breed))
+                        print(string.format("已有的種類發現新品級; 擁有者 #%i, 寵物 #%i, 野生狀態 %s, 種類ID %u, 基本屬性 %4.4f / %4.4f / %4.4f, 品級 %s", iOwner, iIndex, wild and "true" or "false", nSpeciesID, ((nMaxHP * wildnum - 100) / 5) / (nLevel * (1 + (0.1 * (nQuality - 1)))), nPower / (nLevel * (1 + (0.1 * (nQuality - 1)))), (nSpeed / flyingnum) / (nLevel * (1 + (0.1 * (nQuality - 1)))), breed))
                     end
                 end
                 
