@@ -121,8 +121,8 @@ local defaults = {
 		addonPetTracker = false,
 		addonTomTom = false,
 
-		hackLFG = true,
-		hackWorldMap = true,
+		hackLFG = false,
+		hackWorldMap = false,
 	},
 	char = {
 		collapsed = false,
