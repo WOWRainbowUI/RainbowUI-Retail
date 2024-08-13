@@ -9,7 +9,7 @@ local function CreateIcon(IconSetting)
 
     local icon = frame:CreateTexture(nil, "BACKGROUND")
     icon:SetAllPoints()
-    icon:SetTexture(GetSpellTexture(IconSetting.SpellID))
+    icon:SetTexture(C_Spell.GetSpellTexture(IconSetting.SpellID))
     frame.icon = icon
 
     local count = frame:CreateFontString(nil, "ARTWORK")

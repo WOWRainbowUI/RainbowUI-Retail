@@ -11,8 +11,8 @@ function UpdateCustomBuffs()
         mainOption.args["Buffs"].args["customBuff" .. i] = {
             order = order,
             type = "toggle",
-            name = function() return format("|T%s:16|t %s", GetSpellTexture(k[1]), GetSpellInfo(k[1])) end,
-            desc = string.format("%s \nid : %d",GetSpellDescription(k[1]),k[1]),
+            name = function() return format("|T%s:16|t %s", C_Spell.GetSpellTexture(k[1]), C_Spell.GetSpellInfo(k[1])["name"]) end,
+            desc = string.format("%s \nid : %d",C_Spell.GetSpellDescription(k[1]),k[1]),
             get = function(info) return customBuffDB[i][2] end,
             set = function(info, value) customBuffDB[i][2] = value end,
         }
@@ -51,8 +51,8 @@ function UpdateDefaultBuffs()
         mainOption.args["Buffs"].args["defaultBuff" .. i] = {
             order = order,
             type = "toggle",
-            name = function() return format("|T%s:16|t %s", GetSpellTexture(k[1]), GetSpellInfo(k[1])) end,
-            desc = string.format("%s \nid : %d",GetSpellDescription(k[1]),k[1]),
+            name = function() return format("|T%s:16|t %s", C_Spell.GetSpellTexture(k[1]), C_Spell.GetSpellInfo(k[1])["name"]) end,
+            desc = string.format("%s \nid : %d",C_Spell.GetSpellDescription(k[1]),k[1]),
             get = function(info) return defaultBuffDB[i][2] end,
             set = function(info, value) defaultBuffDB[i][2] = value end,
         }
@@ -405,6 +405,7 @@ local function getClassOption()
                         end,
                         set = function(info, val)
                             aceDB.char.resourceNumber = val
+                            showNameplateNumber = aceDB.char.resourceNumber
                         end,
                     },
                     header = {
@@ -555,8 +556,8 @@ function setBuffConfig(buffTable)
         mainOption.args["Buffs"].args[tostring(((i + 2) * 2 ) - 1)] = {
             type = "toggle",
             order = order,
-            name = function() return format("|T%s:16|t %s", GetSpellTexture(k[1]), GetSpellInfo(k[1])) end,
-            desc = string.format("%s \nid : %d",GetSpellDescription(k[1]),k[1]),
+            name = function() return format("|T%s:16|t %s", C_Spell.GetSpellTexture(k[1]), C_Spell.GetSpellInfo(k[1])["name"]) end,
+            desc = string.format("%s \nid : %d",C_Spell.GetSpellDescription(k[1]),k[1]),
             get = function(info)
                 return aceDB.char.spellList.partySpellList[i][2]
             end,

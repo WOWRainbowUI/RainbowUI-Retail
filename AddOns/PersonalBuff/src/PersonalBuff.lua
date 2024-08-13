@@ -7,11 +7,11 @@ local media = LibStub("LibSharedMedia-3.0")
 local XOffset = 0
 local YOffset = 0
 local enableAuraTable = {}
-local showNameplateNumber
 local buffFrame
 defaultBuffDB={}
 customBuffDB={}
 partyBuffDB={}
+showNameplateNumber = false
 
 local function iconEnable(spellID)
     for _,i in ipairs(enabledSpell) do
@@ -58,7 +58,7 @@ local function InitializeDB()
             YOffset = 0,
             customTexture = true,
             barTexture = "Flat_N",
-            resourceNumber = false,
+            resourceNumber = true,
             resourceNumberType = "Numerical",
             resourceFont = "BIG_BOLD",
             resourceFontSize = 8,
@@ -146,7 +146,7 @@ end
 
 local function setNameplateHealthText(unitToken)
     local nameplate = C_NamePlate.GetNamePlateForUnit("player", issecure())
-    if UnitIsUnit("player",unitToken) and nameplate ~= nil then
+    if UnitIsUnit("player",unitToken) and nameplate ~= nil and showNameplateNumber then
         local alpha = nameplate:GetAlpha()
         if healthFrame == nil then
             InitializeHealthNumber(nameplate.UnitFrame.healthBar:GetSize())
@@ -160,7 +160,7 @@ end
 
 local function setNameplatePowerText(unitToken)
     local nameplate = C_NamePlate.GetNamePlateForUnit("player", issecure())
-    if UnitIsUnit("player",unitToken) and nameplate ~= nil then
+    if UnitIsUnit("player",unitToken) and nameplate ~= nil and showNameplateNumber then
         local alpha = nameplate:GetAlpha()
         if nameplate.driverFrame and nameplate.driverFrame.classNamePlatePowerBar then
 
@@ -395,6 +395,7 @@ local function EventHandler(self, event,...)
         buffFrame = initialBuffFrame()
         UpdateDefaultBuffs()
         UpdateCustomBuffs()
+        showNameplateNumber = aceDB.char.resourceNumber
         setBuffConfig(partyBuffDB)
 	elseif event == "NAME_PLATE_UNIT_REMOVED" then
         if  UnitIsUnit("player",select(1, ...)) then
