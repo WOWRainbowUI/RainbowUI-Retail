@@ -162,9 +162,9 @@ end
 
 function CraftSim.INIT:InitStaticPopups()
 	StaticPopupDialogs["CRAFT_SIM_ACCEPT_NO_PRICESOURCE_WARNING"] = {
-		text = "Are you sure you do not want to be reminded to get a price source?",
-		button1 = "Yes",
-		button2 = "No",
+		text = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.NO_PRICESOURCE_WARNING),
+		button1 = YES,
+		button2 = NO,
 		OnAccept = function(self, data1, data2)
 			CraftSim.DB.OPTIONS:Save("PRICE_SOURCE_REMINDER_DISABLED", true)
 		end,
