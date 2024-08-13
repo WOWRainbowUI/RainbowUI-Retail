@@ -207,3 +207,8 @@ Change Log:
 
 1.28
 * Updated TOC for 11.0
+
+1.29
+* Fixed options menu opening incorrectly
+* Fixed an issue when using characters of the same name on the same account on different realms
+* Updated TOC for Classic 1.5.3
