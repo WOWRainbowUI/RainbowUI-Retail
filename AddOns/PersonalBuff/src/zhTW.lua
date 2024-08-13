@@ -60,3 +60,5 @@ L["Enter the Spell ID of the buff you want to add."] = "輸入想要新增的法
 -- 自行加入
 L["Health bar color will change after the character moves"] = "角色移動後血條顏色便會更改"
 L["Changes will take effect the next time you reload"] = "變更會在下次重新載入時會生效"
+L["Invalid Spell ID."] = "無效的法術 ID。"
+L["Please enter a valid number."] = "請輸入有效的數字。"

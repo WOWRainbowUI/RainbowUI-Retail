@@ -108,9 +108,9 @@ local function getClassOption()
                         set = function(info, value)
                             local spellID = tonumber(value)
                             if spellID then
-                                local spellName = GetSpellInfo(spellID)
+                                local spellName = C_Spell.GetSpellInfo(spellID)
                                 if spellName then
-                                    StaticPopup_Show("CONFIRM_ADD_CUSTOM_BUFF", spellName, spellID, {spellID = spellID, spellName = spellName})
+                                    StaticPopup_Show("CONFIRM_ADD_CUSTOM_BUFF", spellName.name, spellID, {spellID = spellID, spellName = spellName.name})
                                 else
                                     print(L["Invalid Spell ID."])
                                 end

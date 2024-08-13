@@ -52,3 +52,9 @@ L["added successfully."] = "added successfully."
 L["is exist."] = "is exist."
 L["Add Custom Buff (Spell ID)"] = "Add Custom Buff (Spell ID)"
 L["Enter the Spell ID of the buff you want to add."] = "Enter the Spell ID of the buff you want to add."
+
+-- 自行加入
+L["Health bar color will change after the character moves"] = "Health bar color will change after the character moves"
+L["Changes will take effect the next time you reload"] = "Changes will take effect the next time you reload"
+L["Invalid Spell ID."] = "Invalid Spell ID."
+L["Please enter a valid number."] = "Please enter a valid number."
