@@ -1,9 +1,9 @@
 ## Interface: 110000
 ## Title: Random Hearthstone
-## Author: Jamien
-## Version: 1.3.0
+## Author: JamienAU
+## Version: r14
 ## Notes: Uses a random hearthstone toy
-## SavedVariables: rhOptions, rhOverrideChk
+## SavedVariables: rhDB
 ## IconTexture: Interface\Icons\Inv_misc_rune_01
 
 ## X-Localizations: enUS, enGB
