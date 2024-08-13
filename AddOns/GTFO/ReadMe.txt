@@ -2076,3 +2076,10 @@ Change Log:
 * Added TWW spells for Darkflame Cleft
 * Added Dragonflight spells (world)
 * Added Shadowlands spells (world)
+
+5.11
+* Updated TOC for Classic 1.5.3
+* Fixed options menu opening incorrectly
+* Added Addon Compartment support (Thanks NoctusMirus)
+* Fixed BFA spells for Battle of Dazar'alor
+* Fixed Cataclysm spells for Blackwing Descent (Thanks Emuburger)
