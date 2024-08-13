@@ -76,6 +76,7 @@ function env.GetStablePetInfo(idx)
 	end
 end
 
+env.Vector2DMixin = Vector2DMixin
 
 local function proxyFor(p, t)
 	setmetatable(p, {__index=t, __newindex=function(_,k,v) return rawset(t, k, v) end})

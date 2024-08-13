@@ -1,4 +1,4 @@
-local MAJ, REV, COMPAT, _, T = 1, 9, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 10, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
@@ -199,7 +199,7 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 		for id in sidlist:gmatch("%d+") do
 			id = id + 0
 			sn, sr = GetSpellInfo(id), GetSpellSubtext(id)
-			ar = GetSpellSubtext(sn)
+			ar = sn and GetSpellSubtext(sn)
 			local isCastable, castFlag = RW:IsSpellCastable(id, noEscapes)
 			if not MODERN and not isCastable and tk ~= "spellr" then
 				local id2 = select(7,GetSpellInfo(sn))
