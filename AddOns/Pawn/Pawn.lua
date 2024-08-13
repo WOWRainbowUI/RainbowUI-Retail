@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.0914
+PawnVersion = 2.1000
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.18
@@ -4846,6 +4846,7 @@ function PawnIsItemAnItemLevelUpgrade(Item)
 	if not Item.CanEquip then return end
 
 	local Slot1, Slot2 = PawnGetSlotsForItemType(Item.InvType)
+
 	if (Slot1 and PawnOptions.ItemLevels[Slot1] and Item.Link == PawnOptions.ItemLevels[Slot1].Link) or (Slot2 and PawnOptions.ItemLevels[Slot2] and Item.Link == PawnOptions.ItemLevels[Slot2].Link) then
 		-- If the item is already one of your best, it can't be an upgrade.
 		return
