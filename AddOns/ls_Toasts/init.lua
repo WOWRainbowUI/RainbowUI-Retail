@@ -118,7 +118,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		Settings.RegisterAddOnCategory(Settings.RegisterCanvasLayoutCategory(panel, L["LS_TOASTS"]))
 
 		AddonCompartmentFrame:RegisterAddon({
-			text = GetAddOnMetadata("ls_Toasts", "Title"),
+			text = C_AddOns.GetAddOnMetadata("ls_Toasts", "Title"),
 			icon = "Interface\\AddOns\\ls_Toasts\\assets\\logo-32",
 			notCheckable = true,
 			registerForAnyClick = true,
