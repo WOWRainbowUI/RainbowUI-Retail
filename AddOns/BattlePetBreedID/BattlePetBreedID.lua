@@ -621,3 +621,21 @@ SLASH_BATTLEPETBREEDID3 = "/breedID"
 SlashCmdList["BATTLEPETBREEDID"] = function(msg)
     Settings.OpenToCategory(addonname)
 end
+
+local mouseButtonNote = "\n在寵物日誌、寵物對戰、聊天連結和拍賣場的浮動提示資訊中顯示寵物的品級。";
+AddonCompartmentFrame:RegisterAddon({
+	text = C_AddOns.GetAddOnMetadata(addonname, "Title"),
+	icon = "Interface/Icons/petjournalportrait.blp",
+	notCheckable = true,
+	func = function(button, menuInputData, menu)
+		Settings.OpenToCategory(addonname)
+	end,
+	funcOnEnter = function(button)
+		MenuUtil.ShowTooltip(button, function(tooltip)
+			tooltip:SetText(addonname .. mouseButtonNote)
+		end)
+	end,
+	funcOnLeave = function(button)
+		MenuUtil.HideTooltip(button)
+	end,
+})
