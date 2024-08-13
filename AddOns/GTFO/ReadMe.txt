@@ -2083,3 +2083,9 @@ Change Log:
 * Added Addon Compartment support (Thanks NoctusMirus)
 * Fixed BFA spells for Battle of Dazar'alor
 * Fixed Cataclysm spells for Blackwing Descent (Thanks Emuburger)
+
+5.11.1
+* Fixed issue with update notifications
+
+5.11.2
+* Updated for patch 11.0.2
