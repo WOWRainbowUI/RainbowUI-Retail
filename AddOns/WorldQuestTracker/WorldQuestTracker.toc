@@ -1,4 +1,4 @@
-## Interface: 110000
+## Interface: 110002
 
 ## Title: World Quest Tracker
 ## Notes: An addon by Terciob. Make more easy to see world quests

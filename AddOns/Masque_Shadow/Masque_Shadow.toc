@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 110000
+## Interface: 11503, 30403, 40400, 110002
 ## Author: Fedorenko R.D. јфем-„ерныйЎрам
 ## Title: Masque|cff36e5ff:|r|cff1784d1 Shadow|r 
 ## Version: v6.2.2

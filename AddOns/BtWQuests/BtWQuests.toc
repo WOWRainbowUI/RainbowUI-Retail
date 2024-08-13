@@ -1,4 +1,4 @@
-## Interface: 100207, 110000, 110002
+## Interface: 110002
 ## Title: BtWQuests
 ## Version: 2.44.0
 ## Notes: 

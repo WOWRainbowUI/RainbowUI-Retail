@@ -1,4 +1,4 @@
-## Interface: 110000## IconTexture: 982414
+## Interface: 110002## IconTexture: 982414
 ## Notes: Wowhead Data dump for GatherMate2
 ## Title: GatherMate2Data
 ## Author: kagaro, Xinhuan

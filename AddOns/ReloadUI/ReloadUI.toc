@@ -1,4 +1,4 @@
-## Interface: 110000
+## Interface: 110002
 ## Title: ReloadUI
 ## Author: Sharpedge_Gaming
 ## Version: v.2.2
