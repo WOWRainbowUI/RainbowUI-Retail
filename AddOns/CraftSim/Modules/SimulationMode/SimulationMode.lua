@@ -17,7 +17,6 @@ local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.SIMULATION_M
 function CraftSim.SIMULATION_MODE:ResetSpecData()
     CraftSim.SIMULATION_MODE.specializationData = CraftSim.SIMULATION_MODE.recipeData.specializationData:Copy()
 
-    CraftSim.SIMULATION_MODE.UI:InitSpecModBySpecData() -- revert
     CraftSim.INIT:TriggerModuleUpdate()
 end
 
@@ -27,51 +26,45 @@ function CraftSim.SIMULATION_MODE:MaxSpecData()
     end
     for _, nodeData in pairs(CraftSim.SIMULATION_MODE.specializationData.nodeData) do
         nodeData.rank = nodeData.maxRank
-        nodeData:UpdateAffectance()
-        nodeData:UpdateProfessionStats()
     end
 
     CraftSim.SIMULATION_MODE.specializationData:UpdateProfessionStats()
-    CraftSim.SIMULATION_MODE.UI:InitSpecModBySpecData() -- update
     CraftSim.INIT:TriggerModuleUpdate()
 end
 
-function CraftSim.SIMULATION_MODE:OnSpecModified(userInput, nodeModFrame)
+---@param userInput boolean
+---@param numericInput GGUI.NumericInput
+function CraftSim.SIMULATION_MODE:OnSpecModified(userInput, numericInput)
     local recipeData = CraftSim.SIMULATION_MODE.recipeData
     if not userInput or not recipeData then
         return
     end
 
-    local inputNumber = CraftSim.UTIL:ValidateNumberInput(nodeModFrame.input, true)
+    local inputNodeData = numericInput.nodeData --[[@as CraftSim.NodeData]]
+
+    if not inputNodeData then return end
+
+    local inputNumber = math.min(numericInput.currentValue, inputNodeData.maxRank)
+
+    if inputNumber > inputNodeData.maxRank then
+        -- adjust input number in input field
+        numericInput.textInput:SetText(tonumber(inputNumber), false)
+    end
 
     print("startinput after validation: " .. inputNumber)
-
-    if inputNumber > nodeModFrame.nodeProgressBar.maxValue then
-        inputNumber = nodeModFrame.nodeProgressBar.maxValue
-    elseif inputNumber < -1 then
-        inputNumber = -1
-    end
-    nodeModFrame.Update(inputNumber)
-
-    print("inputNumber after update: " .. inputNumber)
 
     -- update specdata
     ---@type CraftSim.NodeData
     local nodeData = GUTIL:Find(CraftSim.SIMULATION_MODE.specializationData.nodeData,
-        function(nodeData) return nodeData.nodeID == nodeModFrame.nodeID end)
+        function(nodeData) return nodeData.nodeID == inputNodeData.nodeID end)
+
     if not nodeData then
         return
     end
     nodeData.rank = inputNumber
-    nodeData.active = inputNumber > -1
 
     print("new rank: " .. nodeData.rank)
     print("new active: " .. tostring(nodeData.active))
-
-    nodeData:UpdateProfessionStats()
-
-    print("nodeData stats: ")
-    print(nodeData.professionStats, true, false, 2)
 
     CraftSim.SIMULATION_MODE.specializationData:UpdateProfessionStats()
 
@@ -140,9 +133,14 @@ function CraftSim.SIMULATION_MODE:UpdateProfessionStatModifiersByInputs()
     local baseProfessionStatsSpec = nil
     local professionStatsSpec = nil
     local professionStatsSpecDiff = nil
-    if not recipeData.isCooking then
+    if recipeData.specializationData then
+        CraftSim.SIMULATION_MODE.specializationData:UpdateProfessionStats()
         baseProfessionStatsSpec = CraftSim.SIMULATION_MODE.specializationData.professionStats
         professionStatsSpec = recipeData.specializationData.professionStats
+
+        print("base stats spec multi: " .. baseProfessionStatsSpec.multicraft.value)
+        print("profession stats spec multi: " .. professionStatsSpec.multicraft.value)
+
         professionStatsSpecDiff = baseProfessionStatsSpec:Copy()
         professionStatsSpecDiff:subtract(professionStatsSpec)
         recipeData.professionStatModifiers:add(professionStatsSpecDiff)
@@ -156,7 +154,7 @@ function CraftSim.SIMULATION_MODE:UpdateProfessionStatModifiersByInputs()
     recipeData.professionStatModifiers.recipeDifficulty:addValue(recipeDifficultyMod)
 
     -- update skill based on input
-    local skillMod = CraftSim.UTIL:ValidateNumberInput(simulationModeFrames.baseSkillMod, true)
+    local skillMod = simulationModeFrames.baseSkillMod.currentValue
     recipeData.professionStatModifiers.skill:addValue(skillMod)
 
     -- update other stats
@@ -220,9 +218,9 @@ function CraftSim.SIMULATION_MODE:UpdateRequiredReagentsByInputs()
 end
 
 function CraftSim.SIMULATION_MODE:UpdateSimulationMode()
+    CraftSim.SIMULATION_MODE:UpdateRecipeDataBuffsBySimulatedBuffs()
     CraftSim.SIMULATION_MODE:UpdateRequiredReagentsByInputs()
     CraftSim.SIMULATION_MODE:UpdateProfessionStatModifiersByInputs()
-    CraftSim.SIMULATION_MODE:UpdateRecipeDataBuffsBySimulatedBuffs()
     CraftSim.SIMULATION_MODE.recipeData:Update() -- update recipe Data by modifiers/reagents and such
     CraftSim.SIMULATION_MODE.UI:UpdateCraftingDetailsPanel()
 end
@@ -253,7 +251,7 @@ end
 function CraftSim.SIMULATION_MODE:InitializeSimulationMode(recipeData)
     CraftSim.SIMULATION_MODE.recipeData = recipeData
 
-    if not recipeData.isCooking and not recipeData.isOldWorldRecipe then
+    if recipeData.specializationData then
         CraftSim.SIMULATION_MODE.specializationData = recipeData.specializationData:Copy()
     end
 
@@ -261,7 +259,6 @@ function CraftSim.SIMULATION_MODE:InitializeSimulationMode(recipeData)
     CraftSim.SIMULATION_MODE.UI:UpdateVisibility()
     CraftSim.SIMULATION_MODE.UI:InitReagentOverwriteFrames(CraftSim.SIMULATION_MODE.recipeData)
     CraftSim.SIMULATION_MODE.UI:InitOptionalReagentItemSelectors(CraftSim.SIMULATION_MODE.recipeData)
-    CraftSim.SIMULATION_MODE.UI:InitSpecModBySpecData()
 
     -- -- update simulation recipe data and frontend
     CraftSim.SIMULATION_MODE:UpdateSimulationMode()
