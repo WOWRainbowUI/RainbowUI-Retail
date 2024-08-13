@@ -37,7 +37,7 @@ SmartQuest = {
 	--
 	-- **********************************************************************************************
 
-	Version = "1.28";
+	Version = "1.29";
 	ModCode = "KSQ";
 	DataCode = "1";
 	Quest = { };
@@ -121,56 +121,65 @@ function SmartQuest_OnEvent(self, event, ...)
 		SmartQuestFrame:RegisterEvent("QUEST_TURNED_IN");
 		SmartQuestFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
 		SmartQuestFrame:RegisterEvent("PLAYER_LEAVING_WORLD");
+		
+		if (SmartQuestOptions.Setting[SmartQuest.Data.Me]) then
+			-- Migrate and delete old settings
+			SmartQuest_ErrorPrint("Migrating old profile settings to new system.");
+			SmartQuestOptions.Setting[SmartQuest.Data.MeFull] = SmartQuestOptions.Setting[SmartQuest.Data.Me];
+			SmartQuestOptions.Setting[SmartQuest.Data.Me] = nil;
+		end
+
+		
 		if (SmartQuestOptions.DataCode ~= SmartQuest.DataCode or not (SmartQuestOptions.Setting)) then
 			SmartQuestOptions = { };
 			SmartQuestOptions.DataCode = SmartQuest.DataCode;
 			SmartQuestOptions.Setting = { };
-			SmartQuestOptions.Setting[SmartQuest.Data.Me] = { };
+			SmartQuestOptions.Setting[SmartQuest.Data.MeFull] = { };
 			SmartQuest_ErrorPrint("New database detected. Clearing settings.");
-		elseif (SmartQuestOptions.Setting[SmartQuest.Data.Me]) then
-			if (SmartQuestOptions.Setting[SmartQuest.Data.Me].Sound) then
-				SmartQuest.Setting.MySound = SmartQuestOptions.Setting[SmartQuest.Data.Me].Sound;
-				SmartQuest.Setting.PartySound = SmartQuestOptions.Setting[SmartQuest.Data.Me].Sound;
-				SmartQuestOptions.Setting[SmartQuest.Data.Me].Sound = nil;
+		elseif (SmartQuestOptions.Setting[SmartQuest.Data.MeFull]) then
+			if (SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Sound) then
+				SmartQuest.Setting.MySound = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Sound;
+				SmartQuest.Setting.PartySound = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Sound;
+				SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Sound = nil;
 			else
-				SmartQuest.Setting.MySound = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySound;
-				SmartQuest.Setting.PartySound = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySound;
+				SmartQuest.Setting.MySound = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySound;
+				SmartQuest.Setting.PartySound = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySound;
 			end
 			
-			if (SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundObjective ~= nil) then
+			if (SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundObjective ~= nil) then
 				-- Current support
-				SmartQuest.Setting.MySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundObjective;
-				SmartQuest.Setting.MySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundItem;
-				SmartQuest.Setting.MySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundDone;
-				SmartQuest.Setting.MySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundFailed;
-				SmartQuest.Setting.PartySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundObjective;
-				SmartQuest.Setting.PartySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundItem;
-				SmartQuest.Setting.PartySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundDone;
-				SmartQuest.Setting.PartySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundFailed;
+				SmartQuest.Setting.MySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundObjective;
+				SmartQuest.Setting.MySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundItem;
+				SmartQuest.Setting.MySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundDone;
+				SmartQuest.Setting.MySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundFailed;
+				SmartQuest.Setting.PartySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundObjective;
+				SmartQuest.Setting.PartySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundItem;
+				SmartQuest.Setting.PartySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundDone;
+				SmartQuest.Setting.PartySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundFailed;
 			else
 				-- Legacy support, import old settings
-				SmartQuest.Setting.MySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySound;
-				SmartQuest.Setting.MySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySound;
-				SmartQuest.Setting.MySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySound;
-				SmartQuest.Setting.MySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySound;
-				SmartQuest.Setting.PartySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySound;
-				SmartQuest.Setting.PartySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySound;
-				SmartQuest.Setting.PartySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySound;
-				SmartQuest.Setting.PartySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySound;
+				SmartQuest.Setting.MySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySound;
+				SmartQuest.Setting.MySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySound;
+				SmartQuest.Setting.MySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySound;
+				SmartQuest.Setting.MySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySound;
+				SmartQuest.Setting.PartySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySound;
+				SmartQuest.Setting.PartySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySound;
+				SmartQuest.Setting.PartySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySound;
+				SmartQuest.Setting.PartySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySound;
 			end
 			
-			SmartQuest.Setting.Monitor = SmartQuestOptions.Setting[SmartQuest.Data.Me].Monitor;
-			SmartQuest.Setting.SelfMonitor = SmartQuestOptions.Setting[SmartQuest.Data.Me].SelfMonitor;
-			if (SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor) then
+			SmartQuest.Setting.Monitor = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Monitor;
+			SmartQuest.Setting.SelfMonitor = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].SelfMonitor;
+			if (SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor) then
 				SmartQuest.Setting.TextColor = { };
-				SmartQuest.Setting.TextColor.R = SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor.R;
-				SmartQuest.Setting.TextColor.G = SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor.G;
-				SmartQuest.Setting.TextColor.B = SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor.B;
+				SmartQuest.Setting.TextColor.R = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor.R;
+				SmartQuest.Setting.TextColor.G = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor.G;
+				SmartQuest.Setting.TextColor.B = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor.B;
 			end
-			SmartQuest.Setting.ChatFrameId = SmartQuestOptions.Setting[SmartQuest.Data.Me].ChatFrameId or SmartQuest.DefaultSetting.ChatFrameId;
+			SmartQuest.Setting.ChatFrameId = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].ChatFrameId or SmartQuest.DefaultSetting.ChatFrameId;
 		else
 			SmartQuest_ErrorPrint("New player detected. Setting defaults.");
-			SmartQuestOptions.Setting[SmartQuest.Data.Me] = { };
+			SmartQuestOptions.Setting[SmartQuest.Data.MeFull] = { };
 		end
 
 		SmartQuest_RenderOptions();
@@ -762,7 +771,7 @@ function SmartQuest_RenderOptions()
 	ConfigurationPanel.name = "SmartQuest";
 	if (SmartQuest.DragonflightMode) then
 		category, layout = Settings.RegisterCanvasLayoutCategory(ConfigurationPanel, ConfigurationPanel.name);
-		Settings.RegisterCategory(category);
+		Settings.RegisterAddOnCategory(category);
 		SmartQuest.SettingsCategoryId = category:GetID();
 	else
 		InterfaceOptions_AddCategory(ConfigurationPanel);	
@@ -960,25 +969,25 @@ function SmartQuest_RenderOptions()
 		end
 	ConfigurationPanel.cancel = 
 		function (self)
-			SmartQuest.Setting.MySound = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySound;
-			SmartQuest.Setting.PartySound = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySound;
-			SmartQuest.Setting.Monitor = SmartQuestOptions.Setting[SmartQuest.Data.Me].Monitor;
-			SmartQuest.Setting.SelfMonitor = SmartQuestOptions.Setting[SmartQuest.Data.Me].SelfMonitor;
-			SmartQuest.Setting.MySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundObjective;
-			SmartQuest.Setting.MySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundItem;
-			SmartQuest.Setting.MySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundDone;
-			SmartQuest.Setting.MySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundFailed;
-			SmartQuest.Setting.PartySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundObjective;
-			SmartQuest.Setting.PartySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundItem;
-			SmartQuest.Setting.PartySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundDone;
-			SmartQuest.Setting.PartySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundFailed;
+			SmartQuest.Setting.MySound = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySound;
+			SmartQuest.Setting.PartySound = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySound;
+			SmartQuest.Setting.Monitor = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Monitor;
+			SmartQuest.Setting.SelfMonitor = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].SelfMonitor;
+			SmartQuest.Setting.MySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundObjective;
+			SmartQuest.Setting.MySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundItem;
+			SmartQuest.Setting.MySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundDone;
+			SmartQuest.Setting.MySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundFailed;
+			SmartQuest.Setting.PartySoundObjective = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundObjective;
+			SmartQuest.Setting.PartySoundItem = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundItem;
+			SmartQuest.Setting.PartySoundDone = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundDone;
+			SmartQuest.Setting.PartySoundFailed = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundFailed;
 			SmartQuest.Setting.TextColor = 
 			{
-				R = SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor.R;
-				G = SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor.G;
-				B = SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor.B;
+				R = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor.R;
+				G = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor.G;
+				B = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor.B;
 			};
-			SmartQuest.Setting.ChatFrameId = SmartQuestOptions.Setting[SmartQuest.Data.Me].ChatFrameId or SmartQuest.DefaultSetting.ChatFrameId;
+			SmartQuest.Setting.ChatFrameId = SmartQuestOptions.Setting[SmartQuest.Data.MeFull].ChatFrameId or SmartQuest.DefaultSetting.ChatFrameId;
 			SmartQuest_SaveSettings();
 		end
 	ConfigurationPanel.default = 
@@ -1027,7 +1036,7 @@ function SmartQuest_Option_SetColor(button, r, g, b)
 		G = g;
 		B = b;
 	};
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor = 
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor = 
 	{
 		R = SmartQuest.Setting.TextColor.R;
 		G = SmartQuest.Setting.TextColor.G;
@@ -1079,28 +1088,28 @@ function SmartQuest_SaveSettings()
 	getglobal("SmartQuest_PartySoundDoneButton"):SetChecked(SmartQuest.Setting.PartySoundDone);
 	getglobal("SmartQuest_PartySoundFailedButton"):SetChecked(SmartQuest.Setting.PartySoundFailed);
 	SmartQuest_Option_SetColor(getglobal("SmartQuest_TextColorButton"), SmartQuest.Setting.TextColor.R, SmartQuest.Setting.TextColor.G, SmartQuest.Setting.TextColor.B);	
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].MySound = SmartQuest.Setting.MySound;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySound = SmartQuest.Setting.PartySound;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].Monitor = SmartQuest.Setting.Monitor;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].SelfMonitor = SmartQuest.Setting.SelfMonitor;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySound = SmartQuest.Setting.MySound;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySound = SmartQuest.Setting.PartySound;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].Monitor = SmartQuest.Setting.Monitor;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].SelfMonitor = SmartQuest.Setting.SelfMonitor;
 
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundObjective = SmartQuest.Setting.MySoundObjective;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundItem = SmartQuest.Setting.MySoundItem;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundDone = SmartQuest.Setting.MySoundDone;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].MySoundFailed = SmartQuest.Setting.MySoundFailed;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundObjective = SmartQuest.Setting.PartySoundObjective;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundItem = SmartQuest.Setting.PartySoundItem;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundDone = SmartQuest.Setting.PartySoundDone;
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].PartySoundFailed = SmartQuest.Setting.PartySoundFailed;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundObjective = SmartQuest.Setting.MySoundObjective;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundItem = SmartQuest.Setting.MySoundItem;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundDone = SmartQuest.Setting.MySoundDone;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].MySoundFailed = SmartQuest.Setting.MySoundFailed;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundObjective = SmartQuest.Setting.PartySoundObjective;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundItem = SmartQuest.Setting.PartySoundItem;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundDone = SmartQuest.Setting.PartySoundDone;
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].PartySoundFailed = SmartQuest.Setting.PartySoundFailed;
 
-	SmartQuestOptions.Setting[SmartQuest.Data.Me].TextColor = 
+	SmartQuestOptions.Setting[SmartQuest.Data.MeFull].TextColor = 
 	{
 		R = SmartQuest.Setting.TextColor.R;
 		G = SmartQuest.Setting.TextColor.G;
 		B = SmartQuest.Setting.TextColor.B;
 	};
 	if (SmartQuest.UIRendered) then
-		SmartQuestOptions.Setting[SmartQuest.Data.Me].ChatFrameId = SmartQuest.Setting.ChatFrameId;
+		SmartQuestOptions.Setting[SmartQuest.Data.MeFull].ChatFrameId = SmartQuest.Setting.ChatFrameId;
 	end
 end
 
