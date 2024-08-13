@@ -212,3 +212,6 @@ Change Log:
 * Fixed options menu opening incorrectly
 * Fixed an issue when using characters of the same name on the same account on different realms
 * Updated TOC for Classic 1.5.3
+
+1.29.1
+* Updated TOC to 11.0.2
