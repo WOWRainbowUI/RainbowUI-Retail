@@ -58,7 +58,7 @@ local function InitializeDB()
             YOffset = 0,
             customTexture = true,
             barTexture = "Flat_N",
-            resourceNumber = true,
+            resourceNumber = false,
             resourceNumberType = "Numerical",
             resourceFont = "BIG_BOLD",
             resourceFontSize = 8,
