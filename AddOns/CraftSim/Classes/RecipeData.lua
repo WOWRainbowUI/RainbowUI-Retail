@@ -31,6 +31,11 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
     self.concentrating = false
     self.concentrationCost = 0
 
+    ---@class CraftSim.ConcentrationCurveData
+    ---@field costConstantData table<number, number>
+    ---@field curveData table<number, number>
+    self.concentrationCurveData = nil
+
     -- important for recipedata of alts to check if data was cached (and for any recipe data creation b4 tradeskill is ready)
     self.specializationDataCached = false
     self.operationInfoCached = false
@@ -116,17 +121,6 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
 
     if self.recipeInfo.hyperlink and not self.isEnchantingRecipe then
         local itemInfoInstant = { C_Item.GetItemInfoInstant(self.recipeInfo.hyperlink) }
-        local subclassID = itemInfoInstant[7]
-        ---@type number?
-        self.subtypeID = subclassID
-        ---@type Enum.InventoryType?
-        self.inventoryType = nil
-        ---@type CraftSim.ItemEquipLocation?
-        self.itemEquipLocation = nil
-        if itemInfoInstant[1] then
-            self.inventoryType = C_Item.GetItemInventoryTypeByID(itemInfoInstant[1])
-            self.itemEquipLocation = itemInfoInstant[4]
-        end
         -- 4th return value is item equip slot, so if its of non type its not equipable, otherwise its gear
         self.isGear = not tContains(CraftSim.CONST.INVENTORY_TYPES_NON_GEAR, itemInfoInstant[4])
     end
@@ -244,7 +238,7 @@ function CraftSim.RecipeData:new(recipeID, isRecraft, isWorkOrder, crafterData)
     self.baseProfessionStats:subtract(self.buffData.professionStats)
     -- As we dont know in this case what the factors are without gear and reagents and such
     -- we set them to 0 and let them accumulate in UpdateProfessionStats
-    self.baseProfessionStats:ClearFactors()
+    self.baseProfessionStats:ClearExtraValues()
 
     self:UpdateProfessionStats()
 
@@ -453,21 +447,81 @@ function CraftSim.RecipeData:SetNonQualityReagentsMax()
     end
 end
 
-function CraftSim.RecipeData:GetConcentrationCosts()
-    -- includes required and optionals
-    local allReagentsTbl = self.reagentData:GetCraftingReagentInfoTbl()
-    -- on purpose do not use concentration so we will always get the costs
-    local operationInfo
-    if self.orderData then
-        operationInfo = C_TradeSkillUI.GetCraftingOperationInfoForOrder(self.recipeID, allReagentsTbl,
-            self.orderData.orderID,
-            false)
-    else
-        operationInfo = C_TradeSkillUI.GetCraftingOperationInfo(self.recipeID, allReagentsTbl, self.allocationItemGUID,
-            false)
-    end
+---@return number concentrationCost
+function CraftSim.RecipeData:GetConcentrationCost()
+    if not self.baseOperationInfo then return 0, nil end
+    local craftingDataID = self.baseOperationInfo.craftingDataID
 
-    return (operationInfo and operationInfo.concentrationCost) or 0
+    self.concentrationCurveData = CraftSim.CONCENTRATION_CURVE_DATA[craftingDataID]
+
+    local isBeta = CraftSim.UTIL:IsBetaBuild()
+
+    -- try to only enable it for simulation mode?
+    if self.concentrationCurveData and isBeta and CraftSim.SIMULATION_MODE.isActive then
+        -- get skill bracket and associated start and end skillCurveValues
+        local playerSkill = self.professionStats.skill.value
+        local baseDifficulty = self.baseOperationInfo.baseDifficulty -- TODO: what about varying difficulty?
+        local playerSkillFactor = (playerSkill / (baseDifficulty / 100)) / 100
+
+        -- recipeDifficulty here or playerSkill ?
+        local curveConstantData, nextCurveConstantData = CraftSim.UTIL:FindBracketData(playerSkill,
+            self.concentrationCurveData.costConstantData)
+        local curveData, nextCurveData = CraftSim.UTIL:FindBracketData(playerSkillFactor,
+            self.concentrationCurveData.curveData)
+
+        local curveConstant = CraftSim.UTIL:CalculateCurveConstant(baseDifficulty, curveConstantData,
+            nextCurveConstantData)
+        local recipeDifficultyFactor = (curveData and curveData.index) or 0
+        local nextRecipeDifficultyFactor = (nextCurveData and nextCurveData.index) or 1
+        local skillCurveValueStart = (curveData and curveData.data) or 0
+        local skillCurveValueEnd = (nextCurveData and nextCurveData.data) or 1
+        local skillStart = baseDifficulty * recipeDifficultyFactor
+        local skillEnd = baseDifficulty * nextRecipeDifficultyFactor
+
+        -- CraftSim.DEBUG:InspectTable({
+        --     concentrationCurveData = self.concentrationCurveData or {},
+        --     curveConstantData = curveConstantData or {},
+        --     nextCurveConstantData = nextCurveConstantData or {},
+        --     curveData = curveData or {},
+        --     nextCurveData = nextCurveData or {},
+        --     calculationData = {
+        --         curveConstant = curveConstant,
+        --         playerSkill = playerSkill,
+        --         skillStart = skillStart,
+        --         skillEnd = skillEnd,
+        --         skillCurveValueStart = skillCurveValueStart,
+        --         skillCurveValueEnd = skillCurveValueEnd,
+        --     },
+        -- }, "debugGetConcentrationCost")
+
+        return CraftSim.UTIL:CalculateConcentrationCost(
+            curveConstant,
+            playerSkill,
+            skillStart,
+            skillEnd,
+            skillCurveValueStart,
+            skillCurveValueEnd)
+    else
+        -- if by any chance the data for this recipe is not mapped in the db2 data, get a good guess via the api
+        -- or if we are not in the current beta (08.08.2024)
+        -- this works for reagent skill but not for any custom skill changes like in simulation mode or when simming different skill from profession tools...
+
+        -- includes required and optionals
+        local allReagentsTbl = self.reagentData:GetCraftingReagentInfoTbl()
+        -- on purpose do not use concentration so we will always get the costs
+        local operationInfo
+        if self.orderData then
+            operationInfo = C_TradeSkillUI.GetCraftingOperationInfoForOrder(self.recipeID, allReagentsTbl,
+                self.orderData.orderID,
+                false)
+        else
+            operationInfo = C_TradeSkillUI.GetCraftingOperationInfo(self.recipeID, allReagentsTbl,
+                self.allocationItemGUID,
+                false)
+        end
+
+        return (operationInfo and operationInfo.concentrationCost) or 0
+    end
 end
 
 -- Update the professionStats property of the RecipeData according to set reagents and gearSet (and any stat modifiers)
@@ -476,8 +530,6 @@ function CraftSim.RecipeData:UpdateProfessionStats()
     local optionalStats = self.reagentData:GetProfessionStatsByOptionals()
     local itemStats = self.professionGearSet.professionStats
     local buffStats = self.buffData.professionStats
-
-    self.concentrationCost = self:GetConcentrationCosts()
 
     self.professionStats:Clear()
 
@@ -493,17 +545,20 @@ function CraftSim.RecipeData:UpdateProfessionStats()
 
     -- this should cover each case of non specialization data implemented professions
     if self.specializationData then
-        local specExtraFactors = self.specializationData:GetExtraFactors()
-        self.professionStats:add(specExtraFactors)
+        local specExtraValues = self.specializationData:GetExtraValues()
+        self.professionStats:add(specExtraValues)
     end
 
     -- finally add any custom modifiers
     self.professionStats:add(self.professionStatModifiers)
-    -- its the only one which uses "extraValueAfterFactor"
 
     -- since ooey gooey chocolate gives us math.huge on multicraft we need to limit it to 100%
     self.professionStats.multicraft.value = math.min(1 / self.professionStats.multicraft.percentMod,
         self.professionStats.multicraft.value)
+
+    if self.supportsQualities then
+        self.concentrationCost = self:GetConcentrationCost()
+    end
 end
 
 --- Updates professionStats based on reagentData and professionGearSet -> Then updates resultData based on professionStats -> Then updates priceData based on resultData
@@ -652,7 +707,6 @@ function CraftSim.RecipeData:GetJSON(indent)
     jb:Begin()
     jb:Add("recipeID", self.recipeID)
     jb:Add("categoryID", self.categoryID)
-    jb:Add("subtypeID", self.subtypeID)
     jb:Add("concentrating", self.concentrating)
     jb:Add("learned", self.learned)
     jb:Add("numSkillUps", self.numSkillUps)
@@ -857,11 +911,11 @@ function CraftSim.RecipeData:GetSpecializationDataForRecipeCrafter()
         -- if too early, use from db
         if not self.isOldWorldRecipe and #specializationData.nodeData == 0 then
             specializationData = CraftSim.DB.CRAFTER:GetSpecializationData(crafterUID, self)
+            return specializationData
         else
             CraftSim.DB.CRAFTER:SaveSpecializationData(crafterUID, specializationData)
+            return specializationData
         end
-
-        return specializationData
     end
 end
 

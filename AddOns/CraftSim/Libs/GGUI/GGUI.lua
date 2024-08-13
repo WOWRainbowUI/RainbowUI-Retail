@@ -1860,6 +1860,13 @@ function GGUI.Button:new(options)
     end
 end
 
+function GGUI.Button:SetVisible(visible)
+    GGUI.Button.super.SetVisible(self, visible)
+    if self.labelTexture then
+        self.labelTexture:SetVisible(visible)
+    end
+end
+
 function GGUI.Button:SetAttribute(name, value)
     self.frame:SetAttribute(name, value)
 end
