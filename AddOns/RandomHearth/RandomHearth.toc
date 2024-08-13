@@ -9,7 +9,7 @@
 ## X-Localizations: enUS, enGB
 ## X-CompatibleLocales: enUS, enGB
 
-## Title-zhTW: |cffB973CC[物品]|r 新隨機爐石
+## Title-zhTW: |cffB973CC[物品]|r 隨機爐石
 ## Notes-zhTW: Random Hearthstone |n|n隨機使用你有的爐石玩具。|n|n|cffffd200使用方法: 會自動產生一個叫做 "爐石" 的巨集，將這個巨集拖曳到快捷列上使用即可。|n|n從Esc>選項>插件>爐石，選擇要隨機使用哪些爐石玩具。
 ## X-Category-zhTW: 物品
 ## IconTexture: Interface\Icons\inv_10_misc_dragonorb_color1
