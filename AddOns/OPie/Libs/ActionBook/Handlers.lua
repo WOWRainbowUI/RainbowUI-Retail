@@ -66,33 +66,22 @@ if MODERN_MOUNTS then -- mount: mount ID
 		return "func", callSummonMount, mountID
 	end
 	if CLASS == "DRUID" then
-		local clickPrefix do
-			local MOONKIN_FORM = GetSpellInfo(24858)
+		local actType, clickPrefix do
 			local bn = newWidgetName("AB:M!")
-			local b = CreateFrame("Button", bn, nil, "SecureActionButtonTemplate")
-			b:SetAttribute("pressAndHoldAction", 1)
-			b:SetAttribute("macrotext", "/cancelform [nocombat]")
-			b:SetScript("PreClick", function()
-				local sf = GetShapeshiftForm()
-				local _, _, _, fsid = GetShapeshiftFormInfo(sf ~= 0 and sf or -1)
-				local n = GetSpellInfo(fsid or -1)
-				if not (InCombatLockdown() or MODERN and n == MOONKIN_FORM) then
-					b:SetAttribute("type", "macro")
-				end
-			end)
-			b:SetScript("PostClick", function(_, btn)
-				if not InCombatLockdown() then
-					b:SetAttribute("type", nil)
-				end
+			local b = CreateFrame("Button", bn, nil)
+			b:SetScript("OnClick", function(_, btn)
 				btn = tonumber(btn)
 				if btn then
 					C_MountJournal.SummonByID(btn)
 				end
 			end)
-			clickPrefix = SLASH_CLICK1 .. " " .. bn .. " "
+			actType, clickPrefix = "macrotext", SLASH_CLICK1 .. " " .. bn .. " "
+			if MODERN then
+				actType, clickPrefix = "retext", SLASH_CANCELFORM1 .. " [form,noform:moonkin,nocombat]\n" .. clickPrefix
+			end
 		end
 		summonAction = function(mountID)
-			return "attribute", "type","macro", "macrotext",clickPrefix .. mountID .. " 1"
+			return actType, clickPrefix .. mountID
 		end
 	end
 
@@ -142,11 +131,11 @@ else
 end
 do -- spell: spell ID + mount spell ID
 	local actionMap, spellMap = {}, {}
-	local function isCurrentForm(q)
+	local function isCurrentForm(q, qsid)
 		local id = GetShapeshiftForm()
 		if id == 0 then return end
 		local _, _, _, sid = GetShapeshiftFormInfo(id)
-		return q == sid or q == GetSpellInfo(sid or 0) or (sid and q and ("" .. sid) == q)
+		return q == sid or qsid == sid or q == GetSpellInfo(sid or 0) or (sid and q and ("" .. sid) == q)
 	end
 	local SetSpellBookItem, SetSpellByID, SetSpellByExactID do
 		if MODERN then
@@ -218,7 +207,7 @@ do -- spell: spell ID + mount spell ID
 		local cooldown, cdLength, enabled = GetSpellCooldown(n)
 		local cdLeft = (cooldown or 0) > 0 and (enabled ~= 0) and (cooldown + cdLength - time) or 0
 		local count, charges, maxCharges, chargeStart, chargeDuration = GetSpellCount(n), GetSpellCharges(n)
-		local state = ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n)  or enabled == 0) and 1 or 0) +
+		local state = ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n, sid) or enabled == 0) and 1 or 0) +
 		              (MODERN and IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) +
 		              (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
 		usable = not not (usable and inRange and (cooldown or 0) == 0 or (enabled == 0))
@@ -1245,8 +1234,8 @@ do -- uipanel: token
 		character={CHARACTER, icon="Interface/PVPFrame/Icons/prestige-icon-7-3", gw=PaperDollFrame, tw=CharacterFrameTab1},
 		reputation={REPUTATION, icon="Interface/Icons/Achievement_Reputation_01", gw=ReputationFrame, tw=MODERN and CharacterFrameTab2 or CharacterFrameTab3},
 		currency={CURRENCY, icon="Interface/Icons/INV_Misc_Coin_17", gw=TokenFrame, tw=MODERN and CharacterFrameTab3 or CF_WRATH and CharacterFrameTab5},
-		spellbook={SPELLBOOK, icon="Interface/Icons/INV_Misc_Book_09", gw=SpellBookFrame, tmt="/click SpellbookMicroButton\n" .. (MODERN and "/click SpellBookFrameTabButton1\n" or "") .. "/click SpellBookFrameCloseButton", ow=MODERN and SpellBookFrameTabButton1, cw=SpellBookFrameCloseButton},
-		talents={TALENTS_BUTTON, icon="Interface/Icons/Ability_Marksmanship", gn=MODERN and "ClassTalentFrame" or "PlayerTalentFrame", tw=TalentMicroButton, req=function() return (UnitLevel("player") or 0) >= 10 end},
+		spellbook={SPELLBOOK, icon="Interface/Icons/INV_Misc_Book_09", gw=CF_CLASSIC and SpellBookFrame, tmt="/click SpellbookMicroButton\n/click SpellBookFrameCloseButton", cw=SpellBookFrameCloseButton},
+		talents={TALENTS_BUTTON, icon="Interface/Icons/Ability_Marksmanship", gn=CF_CLASSIC and "PlayerTalentFrame", tw=CF_CLASSIC and TalentMicroButton, req=function() return (UnitLevel("player") or 0) >= 10 end},
 		achievements={ACHIEVEMENTS, atlas="UI-HUD-MicroMenu-Achievements-Up", gn="AchievementFrame", tw=AchievementMicroButton, tcr=1},
 		quests={QUESTLOG_BUTTON, icon="Interface/Icons/INV_Misc_Book_08", gw=MODERN and QuestMapFrame or QuestLogFrame, tw=QuestLogMicroButton},
 		groupfinder={DUNGEONS_BUTTON, icon=MODERN and "Interface/Icons/LEVELUPICON-LFD" or "Interface/LFGFrame/BattlenetWorking0", gw=PVEFrame, tw=LFDMicroButton},
@@ -1254,14 +1243,15 @@ do -- uipanel: token
 		adventureguide=MODERN and {ADVENTURE_JOURNAL, icon="Interface/EncounterJournal/UI-EJ-PortraitIcon", gn="EncounterJournal", tw=EJMicroButton},
 		guild=MODERN and {GUILD_AND_COMMUNITIES, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gn="CommunitiesFrame", tw=GuildMicroButton},
 		map={WORLD_MAP, icon=CI_ERA and "Interface/Worldmap/WorldMap-Icon" or "Interface/Icons/Inv_Misc_Map08", gw=WorldMapFrame, tw=MODERN and MinimapCluster.ZoneTextButton or MiniMapWorldMapButton},
-		social={SOCIAL_BUTTON, icon=MODERN and "Interface/Icons/UI_Chat" or "Interface/Icons/INV_Scroll_03", gw=FriendsFrame, tw=MODERN and QuickJoinToastButton or SocialsMicroButton},
+		social={SOCIAL_BUTTON, icon=MODERN and "Interface/Icons/UI_Chat" or "Interface/Icons/INV_Scroll_03", gw=FriendsFrame, tw=MODERN and QuickJoinToastButton or FriendsMicroButton},
 		calendar={L"Calendar", icon="Interface/Icons/Spell_Holy_BorrowedTime", gn="CalendarFrame", tw=GameTimeFrame},
-		options={OPTIONS, icon=MODERN and "Interface/Icons/Misc_RnRWrenchButtonRight" or "Interface/Icons/INV_Misc_Wrench_01", gw=SettingsPanel, ow=GameMenuButtonSettings or GameMenuButtonOptions, noduck=1},
+		options={OPTIONS, icon=MODERN and "Interface/Icons/Misc_RnRWrenchButtonRight" or "Interface/Icons/INV_Misc_Wrench_01", gw=SettingsPanel, noduck=1, open=function() Settings.OpenToCategory(nil) end},
 		macro={MACROS, icon="Interface/Icons/INV_Misc_Note_06", gn="MacroFrame", tmt=SLASH_MACRO1},
+		profs=MODERN and {TRADE_SKILLS, icon="interface/icons/inv_pick_02", tw=ProfessionMicroButton},
 		gamemenu={MAINMENU_BUTTON, icon=CF_CLASSIC and "Interface/Icons/INV_Misc_PunchCards_Red", atlas="UI-HUD-MicroMenu-GameMenu-Up", gw=GameMenuFrame, tmt="/click GameMenuButtonContinue", noduck=1, pre=function() return not GameMenuFrame:IsShown() or nil end, post=function() RatingMenuFrame:Show() RatingMenuFrame:Hide() PlaySound(SOUNDKIT.IG_MAINMENU_OPEN) end},
-		csp={gw=SettingsPanel},
-		cgm={gw=GameMenuFrame},
-		csf={pre=duckStore},
+		csp={gw=SettingsPanel, cpreamble=true},
+		cgm={gw=GameMenuFrame, cpreamble=true},
+		csf={pre=duckStore, cpreamble=true},
 	}
 	do -- further panels init
 		local function closeButton(p)
@@ -1274,7 +1264,21 @@ do -- uipanel: token
 		panels.cgm.cw = closeButton(GameMenuFrame)
 		panels.options.postmt = pyCLICK .. "csp 1\n" .. pyCLICK .. "cgm 1"
 		panels.macro.postmt = widgetClickCommand("cmf", panels.macro.cw)
-		if not MODERN then
+		if MODERN then
+			panels.gamemenu.cw, panels.gamemenu.tmt = panels.cgm.cw, nil
+			panels.spellbook.tmt, panels.spellbook.cwrap, panels.spellbook.cw, panels.spellbook.ow = "/click PlayerSpellsFrameCloseButton\n/click PlayerSpellsMicroButton\n" .. pyCLICK .. " spelltab 1", 1, nil
+			panels.talents.tmt, panels.talents.cwrap, panels.talents.tw = "/click PlayerSpellsFrameCloseButton\n/click PlayerSpellsMicroButton\n" .. pyCLICK .. " talenttab 1", 1, nil
+			function EV.PLAYER_LOGIN()
+				pcall(C_AddOns.LoadAddOn, "Blizzard_PlayerSpells")
+				panels.spellbook.gw = PlayerSpellsFrame.SpellBookFrame
+				panels.talents.gw, panels.talents.gn = PlayerSpellsFrame.TalentsFrame, nil
+				panels.spellbook.ow, panels.talents.ow = PlayerSpellsFrameCloseButton, PlayerSpellsFrameCloseButton
+				if PlayerSpellsFrame and PlayerSpellsFrame.tabSystem and PlayerSpellsFrame.tabSystem.tabs then
+					widgetClickCommand("spelltab", PlayerSpellsFrame.tabSystem.tabs[PlayerSpellsFrame.spellBookTabID])
+					widgetClickCommand("talenttab", PlayerSpellsFrame.tabSystem.tabs[PlayerSpellsFrame.talentTabID])
+				end
+			end
+		else -- not MODERN
 			panels.guild = {title=GUILD, icon="Interface/Icons/INV_Shirt_GuildTabard_01", gw=GuildFrame, ow=FriendsFrameTab3, cw=FriendsFrameCloseButton, req=IsInGuild}
 			if CF_WRATH then
 				panels.achievements.icon = "Interface/PvPFrame/Icons/prestige-icon-4"
@@ -1322,15 +1326,13 @@ do -- uipanel: token
 		local ex = CreateFrame("Button", exName, nil, "SecureActionButtonTemplate")
 		ex:SetAttribute("type", "macro")
 		ex:SetAttribute("pressAndHoldAction", 1)
-		cmdPrefix = clickEx .. "csf 1\n" .. clickEx
-		cmdDuckPrefix = cmdPrefix .. "csp 1\n" .. clickEx .. "cgm 1\n" .. clickEx
 		local function prerun(k)
 			local i, r = panels[k], 0
-			local tw, gw, cw, ow, scs = i.tw, i.gw, i.cw, i.ow, i.skipCloseSound
+			local tw, gw, cw, ow, ofun, scs = i.tw, i.gw, i.cw, i.ow, i.open, i.skipCloseSound
 			if tw and not tw:IsEnabled() then
 				r = i.tcr and r + 1 or r; tw:Enable()
 			end
-			if cw or ow or scs then
+			if cw or ow or scs or ofun then
 				local gh, cd, od = not (gw and gw:IsShown()), not (cw and cw:IsEnabled()), not (ow and ow:IsEnabled())
 				if cw and gh ~= cd then
 					r = r + (gh and 6 or 2); cw:SetEnabled(not gh)
@@ -1343,6 +1345,9 @@ do -- uipanel: token
 					if ok and sh then
 						r, i.stopSoundHandle = r + 32, sh
 					end
+				end
+				if ofun and gh == od then
+					securecall(ofun)
 				end
 			end
 			return r ~= 0 and r or nil
@@ -1362,11 +1367,13 @@ do -- uipanel: token
 			end
 		end)
 		ex:SetScript("PostClick", function(_, b)
-			local i = panels[b]
-			local pm = i and i.postMessage
+			local i, bp, pm = panels[b]
+			bp = i and i.cpreamble and b or b:match("^post%-(.*)")
+			i = panels[bp]
+			pm = i and i.postMessage
 			if pm ~= nil and i.post then
 				i.postMessage = nil
-				i.post(b, pm)
+				i.post(bp, pm)
 			end
 		end)
 		local pmeta = {__index=function(t, k)
@@ -1389,7 +1396,7 @@ do -- uipanel: token
 			elseif v.cw or v.ow then
 				tmt = widgetClickCommand(k, v.ow) .. widgetClickCommand(k, v.cw)
 			end
-			if v.tw or v.cw or v.ow then
+			if v.tw or v.cw or v.ow or v.open or v.cwrap then
 				v.pre, v.post = v.pre or prerun, v.post or postrun
 			end
 			if tmt and v.premt then
@@ -1398,9 +1405,18 @@ do -- uipanel: token
 			if tmt and v.postmt then
 				tmt = tmt .. "\n" .. v.postmt
 			end
+			if v.post then
+				tmt = tmt .. (tmt:sub(-1) ~= "\n" and "\n" or "") .. clickEx .. "post-" .. k
+			end
+			if v.cpreamble then
+				ex:SetAttribute("type-" .. k, "click")
+				ex:SetAttribute("clickbutton-" .. k, v.cw)
+			end
 			setmetatable(v, pmeta)
-			ex:SetAttribute("macrotext-" .. k, tmt)
+			panels[k], v.mainText = v, tmt
 		end
+		cmdPrefix = clickEx .. "csf 1\n" .. clickEx
+		cmdDuckPrefix = cmdPrefix .. "csp 1\n" .. clickEx .. "cgm 1\n" .. clickEx
 	end
 	local function panelHint(tk)
 		local i = panels[tk]
@@ -1415,8 +1431,8 @@ do -- uipanel: token
 	local function createPanel(tk)
 		local r = panelMap[tk]
 		local pi = r == nil and panels[tk]
-		if pi and pi[1] and (pi.req == nil or pi.req()) then
-			local mt = (pi.noduck and cmdPrefix or cmdDuckPrefix) .. tk .. " 1"
+		if pi and pi[1] and pi.mainText and (pi.req == nil or pi.req()) then
+			local mt = (pi.noduck and cmdPrefix or cmdDuckPrefix) .. tk .. " 1\n" .. pi.mainText
 			r = AB:CreateActionSlot(panelHint, tk, "macrotext", mt)
 			panelMap[tk] = r
 		end

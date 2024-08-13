@@ -10,11 +10,11 @@ V =
       "Neues Makro", "Zeige nur wenn angelegt", "Begleiterfähigkeit", "Begleiterfähigkeiten", "Zielmarkierungssymbol", "Weltmarkierung", "Markierungssymbole", "Zeige einen Platzhalter wenn nicht verfügbar", "Zauber", "Spielzeug",
       "Spielzeuge", "UI Fenster", "Benutze den höchsten bekannten Rang", "Zonenfähigkeiten",
     }
-    or C == "esES" and { -- 25/34 (73%)
-      "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", z, "Macro personalizado", z, "Conjunto de equipamientos", "Conjuntos de equipamientos", "Botón de acción extra",
-      "Montura voladora", "Monutra de tierra", z, "Artículo", "Artículos", "Macro", "Macros", "Misceláneo", "Montura", "Monturas",
-      z, "Mostrar sólo al equipar", z, "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Mostrar esta rodaja siempre", "Hechizo", "Juegete",
-      z, z, z, z,
+    or C == "esES" and { -- 34/34 (100%)
+      "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", "Calendario", "Macro personalizado", "Montura de Dracoequitación", "Conjunto de equipamiento", "Conjuntos de equipamiento", "Botón de acción extra",
+      "Montura voladora", "Montura terrestre", "Panel de interfaz", "Artículo", "Artículos", "Macro", "Macros", "Misceláneo", "Montura", "Monturas",
+      "Nueva macro", "Mostrar sólo al equipar", "Habilidad de mascota", "Habilidades de mascota", "Marcador de objetivo", "Marcador del mundo", "Marcadores del mundo", "Mostrar un marcador cuando no esté disponible", "Hechizo", "Juguete",
+      "Juguetes", "Paneles de IU", "Usar el rango mas alto", "Habilidades de zona",
     }
     or C == "esMX" and { -- 30/34 (88%)
       "Habilidades", "Usar otros artículos con el mismo nombre", "Mascota de duelo", "Mascotas de duelo", "Calendario", "Macro personalizado", z, "Conjunto de equipamientos", "Conjuntos de equipamientos", "Botón de acción extra",
@@ -28,11 +28,11 @@ V =
       "Nouvelle Macro", "Afficher seulement quand équipé", "Compétence du Familier", "Compétences du familier", "Marqueur de Raid", "Marqueur de Terrain", "Marqueurs de Raid", "Afficher un remplacement quand indisponible", "Sort", "Jouet",
       "Jouets", "Fenêtres", "Utiliser le rang le plus élevé connu", z,
     }
-    or C == "koKR" and { -- 29/34 (85%)
-      "능력", "같은 이름의 아이템 사용", "애완동물 대전", "전투 애완동물", z, "사용자 정의 매크로", z, "장비 구성", "장비 구성", "추가 행동 버튼",
-      "나는 탈것", "지상 탈것", z, "아이템", "아이템", "매크로", "매크로", "기타", "탈것", "탈것",
+    or C == "koKR" and { -- 34/34 (100%)
+      "능력", "같은 이름의 아이템 사용", "애완동물 대전", "전투 애완동물", "달력", "사용자 정의 매크로", "용조련술 탈것", "장비 구성", "장비 구성", "추가 행동 버튼",
+      "나는 탈것", "지상 탈것", "인터페이스 메뉴", "아이템", "아이템", "매크로", "매크로", "기타", "탈것", "탈것",
       "새 매크로", "착용 시에만 표시", "소환수 능력", "소환수 능력", "공격대 징표", "공격대 위치 표시기", "공격대 징표", "이 조각 항상 표시", "주문", "장난감",
-      "장난감", z, "알려진 최고 레벨 사용", z,
+      "장난감", "UI 메뉴", "알려진 최고 레벨 사용", "지역 기술",
     }
     or C == "ruRU" and { -- 30/34 (88%)
       "Способности", "Использовать предметы с таким же именем", "Боевой питомец", "Боевые питомцы", "Календарь", "Пользовательские макросы", z, "Комплект экипировки", "Комплекты экипировки", z,

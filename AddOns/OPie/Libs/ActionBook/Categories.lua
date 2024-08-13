@@ -314,7 +314,7 @@ do -- aliases
 	AB:AddCategoryAlias("Miscellaneous", L"Miscellaneous")
 end
 do
-	local panels = {"character", "reputation", "currency", "spellbook", "talents", "achievements", "quests", "groupfinder", "collections", "adventureguide", "guild", "map", "social", "calendar", "macro", "options", "gamemenu"}
+	local panels = {"character", "reputation", "currency", "spellbook", "talents", "profs", "achievements", "quests", "groupfinder", "collections", "adventureguide", "guild", "map", "social", "calendar", "macro", "options", "gamemenu"}
 	AB:AugmentCategory(L"UI panels", function(_, add)
 		for i=1,#panels do
 			i = panels[i]

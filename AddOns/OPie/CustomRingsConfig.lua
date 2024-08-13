@@ -1508,7 +1508,7 @@ function api.setSliceProperty(prop, ...)
 end
 function api.noQuickActionHint(ringName)
 	local noQuickAction = not (PC:GetOption("CenterAction", ringName) or PC:GetOption("MotionAction", ringName))
-	local opt = noQuickAction and ("|cffffffff" .. (L"Quick action repeat:"):gsub("%s*:%s*$", "") .. "|r")
+	local opt = noQuickAction and ("|cffffffff" .. (L"Quick action repeat trigger:"):gsub("%s*:%s*$", "") .. "|r")
 	return noQuickAction and (L"You must enable a %s interaction for this ring in OPie options to use quick actions."):format(opt)
 end
 function api.updateSliceOptions(slice)

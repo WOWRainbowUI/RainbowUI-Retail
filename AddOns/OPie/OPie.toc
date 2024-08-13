@@ -1,6 +1,6 @@
-## Interface: 11503, 40400, 100207
+## Interface: 11503, 40400, 110000
 ## Title: OPie
-## Version: Zeta 8a
+## Version: Ælling 2
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
@@ -8,7 +8,7 @@
 ## AddonCompartmentFunc: OPie_OpenSettings
 ## IconTexture: Interface/AddOns/OPie/gfx/opie_ring_icon
 ## Notes-deDE: Fähigkeiten in Ringen gruppieren, die erscheinen, wenn eine Tastenbelegung ausgelöst wird.
-## Notes-esES: Agrupar habilitades en anillos que se aparecen al presionar teclados.
+## Notes-esES: Agrupa habilidades en anillos que se muestran al pulsar una tecla.
 ## Notes-esMX: Agrupar habilitades en anillos que se aparecen al presionar teclados.
 ## Notes-frFR: Regrouper les sorts dans des anneaux qui apparaissent quand vous maintenez un raccourci
 ## Notes-koKR: 단축키를 눌렀을 때 표시되는 고리로 능력을 분류합니다.
@@ -28,6 +28,7 @@ Libs\ActionBook\ActionBook.xml
 Libs\Mirage.lua
 Libs\TenSettings.lua
 Libs\NotGameTooltip.lua
+Meta\PackTag-1.lua
 Meta\Widgets.lua
 Locale.lua
 OPieCore.lua
