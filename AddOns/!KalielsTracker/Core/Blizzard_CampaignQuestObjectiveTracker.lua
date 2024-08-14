@@ -6,5 +6,5 @@ KT_CAMPAIGN_QUEST_TRACKER_MODULE:SetHeader(KT_ObjectiveTrackerFrame.BlocksFrame.
 
 function KT_CAMPAIGN_QUEST_TRACKER_MODULE:ShouldDisplayQuest(quest)
 	-- return (quest:GetSortType() == QuestSortType.Campaign) and not quest:IsDisabledForSession();
-	return not quest:IsDisabledForSession();
+	return false
 end
