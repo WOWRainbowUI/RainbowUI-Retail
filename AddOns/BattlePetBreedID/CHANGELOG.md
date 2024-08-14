@@ -1,8 +1,7 @@
 # Battle Pet BreedID
 
-## [v1.30.0](https://github.com/MMOSimca/BattlePetBreedID/tree/v1.30.0) (2024-08-13)
-[Full Changelog](https://github.com/MMOSimca/BattlePetBreedID/compare/v1.29.1...v1.30.0) [Previous Releases](https://github.com/MMOSimca/BattlePetBreedID/releases)
+## [v1.30.1](https://github.com/MMOSimca/BattlePetBreedID/tree/v1.30.1) (2024-08-14)
+[Full Changelog](https://github.com/MMOSimca/BattlePetBreedID/compare/v1.30.0...v1.30.1) [Previous Releases](https://github.com/MMOSimca/BattlePetBreedID/releases)
 
-- Updated Interface version for Patch 11.0.2.  
-- Updated the description of the addon slightly.  
-- Adding Blizzard AddOn compartment code (#15)  
+- Fixes C\_AddOns.GetAddOnMetadata for 11.0.2 (#17)  
+    as suggested by @niftyneato, fixes #16  
