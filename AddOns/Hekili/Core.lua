@@ -681,7 +681,6 @@ function Hekili:GetPredictionFromAPL( dispName, packName, listName, slot, action
 
     local debug = self.ActiveDebug
 
-    if debug then self:Debug( "Current recommendation was %s at +%.2fs.", action or "NO ACTION", wait or state.delayMax ) end
     -- if debug then self:Debug( "ListCheck: Success(%s-%s)", packName, listName ) end
 
     local precombatFilter = listName == "precombat" and state.time > 0
@@ -693,6 +692,8 @@ function Hekili:GetPredictionFromAPL( dispName, packName, listName, slot, action
     local strict = false -- disabled for now.
     local force_channel = false
     local stop = false
+
+    if debug then self:Debug( "Current recommendation was %s at +%.2fs.", action or "NO ACTION", wait or state.delayMax ) end
 
     if self:IsListActive( packName, listName ) then
         local actID = 1
@@ -1454,7 +1455,7 @@ local displayRules = {
     Defensives = { function( p ) return p.toggles.defensives.value and p.toggles.defensives.separate end, false, "Cooldowns"  },
     Cooldowns  = { function( p ) return p.toggles.cooldowns.value  and p.toggles.cooldowns.separate  end, false, "Primary"    },
     Primary    = { function(   ) return true                                                         end, true , "AOE"        },
-    AOE        = { aoeDisplayRule                                                                       , false, "Interrupts" }
+    AOE        = { aoeDisplayRule                                                                       , true , "Interrupts" }
 }
 local lastDisplay = "AOE"
 

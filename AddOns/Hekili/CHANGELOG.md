@@ -1,17 +1,18 @@
 # Hekili
 
-## [v11.0.0-1.0.2](https://github.com/Hekili/hekili/tree/v11.0.0-1.0.2) (2024-08-08)
-[Full Changelog](https://github.com/Hekili/hekili/compare/v11.0.0-1.0.1...v11.0.0-1.0.2) [Previous Releases](https://github.com/Hekili/hekili/releases)
+## [v11.0.0-1.0.5](https://github.com/Hekili/hekili/tree/v11.0.0-1.0.5) (2024-08-12)
+[Full Changelog](https://github.com/Hekili/hekili/compare/v11.0.0-1.0.4...v11.0.0-1.0.5) [Previous Releases](https://github.com/Hekili/hekili/releases)
 
-- Augmentation: Maybe detect Breath of Eons with Maneuverability  
-- Unholy priority update  
-- Unholy priority update  
-- Devastation: Add missing Azure Strike to st priority  
-- Holy Paladin: Set talent requirements on beacon\_of\_x  
-- Clear cast-while-casting whitelist after finishing cast/channel.  
-- Survival priority update; fix Viper's Venom  
-- Tweak Arcane priority with cancel\_pom option  
 - Feral priority update  
-- More debug in snapshot.  
-- Outlaw, Affliction: Priority adjustments  
-- Retribution: Remove duplicate Rebuke  
+- Move debug message  
+- Fix #3471  
+- Druids use MOTW  
+- Modernize toggle notification  
+- Unholy priority update  
+- Shadow: update priority to buff PW:F  
+- Survival: Remove Coordinated Assault macro option  
+- MM: Priority fix for Steady Focus  
+- Protection Paladin priority pupdate  
+- BM, Survival priority updates, fixes  
+- Assassin priority fix  
+- Affliction: Add preferred pet setting  
