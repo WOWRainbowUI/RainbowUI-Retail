@@ -832,7 +832,7 @@ D["DragonRider"] = {
 		end,
     },
 	{
-        text = "分龍騎術競賽成績",
+        text = "天空騎術競賽成績",
 		callback = function()
 			SlashCmdList["DRAGONRIDER"]("")
 		end,
