@@ -16,6 +16,18 @@ if Masque ~= nil then
     BigDebuffs.MasqueGroup.NamePlate = Masque:Group(L["BigDebuffs "], L["Nameplates"])
 end
 
+local UnitDebuff, UnitBuff = C_UnitAuras.GetDebuffDataByIndex, C_UnitAuras.GetBuffDataByIndex
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+local GetSpellInfo = C_Spell and C_Spell.GetSpellInfo or GetSpellInfo
+
+local function GetSpellName(id)
+    if C_Spell and C_Spell.GetSpellName then
+        return C_Spell.GetSpellName(id)
+    else
+        return GetSpellInfo(id)
+    end
+end
+
 -- Defaults
 local defaults = {
     profile = {
@@ -177,7 +189,7 @@ local spellIdByName
 if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
     spellIdByName = {}
     for id, value in pairs(BigDebuffs.Spells) do
-        local spellName =  GetSpellInfo(id)
+        local spellName = GetSpellName(id)
         if spellName and (not value.parent) then spellIdByName[spellName] = id end
     end
 else
@@ -282,25 +294,25 @@ if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
         },
         [1467] = { -- Devastation Evoker
             Poison = true,
-            Disease = function() return IsUsableSpell(GetSpellInfo(374251)) end,
-            Curse = function() return IsUsableSpell(GetSpellInfo(374251)) end,
+            Disease = function() return IsUsableSpell(GetSpellName(374251)) end,
+            Curse = function() return IsUsableSpell(GetSpellName(374251)) end,
         },
         [1468] = { -- Preservation Evoker
             Magic = true,
             Poison = true,
-            Disease = function() return IsUsableSpell(GetSpellInfo(374251)) end,
-            Curse = function() return IsUsableSpell(GetSpellInfo(374251)) end,
+            Disease = function() return IsUsableSpell(GetSpellName(374251)) end,
+            Curse = function() return IsUsableSpell(GetSpellName(374251)) end,
         },
         [1473] = { -- Augmentation Evoker
             Poison = true,
-            Disease = function() return IsUsableSpell(GetSpellInfo(374251)) end,
-            Curse = function() return IsUsableSpell(GetSpellInfo(374251)) end,
+            Disease = function() return IsUsableSpell(GetSpellName(374251)) end,
+            Curse = function() return IsUsableSpell(GetSpellName(374251)) end,
         },
         [577] = {
-            Magic = function() return GetSpellInfo(205604) end, -- Reverse Magic
+            Magic = function() return GetSpellName(205604) end, -- Reverse Magic
         },
         [581] = {
-            Magic = function() return GetSpellInfo(205604) end, -- Reverse Magic
+            Magic = function() return GetSpellName(205604) end, -- Reverse Magic
         },
     }
 else
@@ -325,17 +337,17 @@ else
             Disease = true,
             Poison = true,
             -- Shamans 'Cleanse Spirit' restoration talent
-            Curse = function() return IsUsableSpell(GetSpellInfo(51886)) end
+            Curse = function() return IsUsableSpell(GetSpellName(51886)) end
         },
         WARLOCK = {
             -- Felhunter's Devour Magic or Doomguard's Dispel Magic
-            Magic = function() return IsUsableSpell(GetSpellInfo(19736)) or IsUsableSpell(GetSpellInfo(19476)) end,
+            Magic = function() return IsUsableSpell(GetSpellName(19736)) or IsUsableSpell(GetSpellName(19476)) end,
         },
         EVOKER = {
-            Bleed = function() return IsUsableSpell(GetSpellInfo(374251)) end,
+            Bleed = function() return IsUsableSpell(GetSpellName(374251)) end,
             Poison = true,
-            Disease = function() return IsUsableSpell(GetSpellInfo(374251)) end,
-            Curse = function() return IsUsableSpell(GetSpellInfo(374251)) end,
+            Disease = function() return IsUsableSpell(GetSpellName(374251)) end,
+            Curse = function() return IsUsableSpell(GetSpellName(374251)) end,
         },
     }
     if WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
@@ -374,8 +386,6 @@ end
 for i = 1, 40 do
     table.insert(unitsWithRaid, "raid" .. i)
 end
-
-local UnitDebuff, UnitBuff = UnitDebuff, UnitBuff
 
 local GetAnchor = {
     ElvUIFrames = function(anchor)
@@ -1135,8 +1145,16 @@ end
 local function UnitDebuffTest(unit, index)
     local debuff = TestDebuffs[index]
     if not debuff then return end
-    -- name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, _, spellId
-    return "Test", debuff[2], 0, debuff[4], 60, GetTime() + 60, nil, nil, nil, debuff[1]
+    return {
+        spellId = debuff[1],
+        icon = debuff[2],
+        applications = 1,
+        isRaid = false,
+        expirationTime = GetTime() + 60,
+        duration = 60,
+        dispelName = debuff[4],
+        points = {},
+    }
 end
 
 function BigDebuffs:OnEnable()
@@ -1185,7 +1203,7 @@ end
 
 local function UnitBuffByName(unit, name)
     for i = 1, 40 do
-        local n = UnitBuff(unit, i)
+        local n = AuraUtil.UnpackAuraData(UnitBuff(unit, i))
         if n == name then return true end
     end
 end
@@ -1514,7 +1532,7 @@ if LibClassicDurations then
     hooksecurefunc("CompactUnitFrame_UtilSetBuff", function(buffFrame, unit, index, filter)
         if not LibClassicDurations then return end
         local name, icon, count, debuffType, duration, expirationTime, unitCaster,
-        canStealOrPurge, _, spellId, canApplyAura = UnitBuff(unit, index, filter);
+        canStealOrPurge, _, spellId, canApplyAura = AuraUtil.UnpackAuraData(UnitBuff(unit, index, filter));
         local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellId, unitCaster)
         if duration == 0 and durationNew then
             duration = durationNew
@@ -1587,11 +1605,11 @@ else
                 -- for backwards compatibility - this functionality will be removed in a future update
                 if unit then
                     if (isBossBuff) then
-                        name, icon, count, debuffType, duration, expirationTime, unitCaster, _, _, spellId = UnitBuff(unit,
-                            index, filter);
+                        name, icon, count, debuffType, duration, expirationTime, unitCaster, _, _, spellId = AuraUtil.UnpackAuraData(UnitBuff(unit,
+                            index, filter));
                     else
-                        name, icon, count, debuffType, duration, expirationTime, unitCaster, _, _, spellId = UnitDebuff(unit
-                            , index, filter);
+                        name, icon, count, debuffType, duration, expirationTime, unitCaster, _, _, spellId = AuraUtil.UnpackAuraData(UnitDebuff(unit
+                            , index, filter));
                     end
                 else
                     return;
@@ -1648,12 +1666,12 @@ else
     local Default_CompactUnitFrame_UtilIsPriorityDebuff = CompactUnitFrame_UtilIsPriorityDebuff
 
     local function CompactUnitFrame_UtilIsPriorityDebuff(unit, index, filter)
-        local _, _, _, _, _, _, _, _, _, spellId = UnitDebuff(unit, index, filter)
+        local _, _, _, _, _, _, _, _, _, spellId = AuraUtil.UnpackAuraData(UnitDebuff(unit, index, filter))
         return BigDebuffs:IsPriorityDebuff(spellId) or Default_CompactUnitFrame_UtilIsPriorityDebuff(unit, index, filter)
     end
 
     local function CompactUnitFrame_UtilShouldDisplayBuff(unit, index, filter)
-        local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, _, spellId, canApplyAura = UnitBuff(unit, index, filter);
+        local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, _, spellId, canApplyAura = AuraUtil.UnpackAuraData(UnitBuff(unit, index, filter));
 
         local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId,
             UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT");
@@ -1695,7 +1713,7 @@ else
         --Show both Boss buffs & debuffs in the debuff location
         --First, we go through all the debuffs looking for any boss flagged ones.
         while (frameNum <= maxDebuffs) do
-            local debuffName = UnitDebuff(frame.displayedUnit, index, filter);
+            local debuffName = AuraUtil.UnpackAuraData(UnitDebuff(frame.displayedUnit, index, filter));
             if (debuffName) then
                 if (CompactUnitFrame_UtilIsBossAura(frame.displayedUnit, index, filter, false)) then
                     local debuffFrame = frame.debuffFrames[frameNum];
@@ -1713,7 +1731,7 @@ else
         --Then we go through all the buffs looking for any boss flagged ones.
         index = 1;
         while (frameNum <= maxDebuffs) do
-            local debuffName = UnitBuff(frame.displayedUnit, index, filter);
+            local debuffName = AuraUtil.UnpackAuraData(UnitBuff(frame.displayedUnit, index, filter));
             if (debuffName) then
                 if (CompactUnitFrame_UtilIsBossAura(frame.displayedUnit, index, filter, true)) then
                     local debuffFrame = frame.debuffFrames[frameNum];
@@ -1732,7 +1750,7 @@ else
         --Now we go through the debuffs with a priority (e.g. Weakened Soul and Forbearance)
         index = 1;
         while (frameNum <= maxDebuffs) do
-            local debuffName = UnitDebuff(frame.displayedUnit, index, filter);
+            local debuffName = AuraUtil.UnpackAuraData(UnitDebuff(frame.displayedUnit, index, filter));
             if (debuffName) then
                 if (CompactUnitFrame_UtilIsPriorityDebuff(frame.displayedUnit, index, filter)) then
                     local debuffFrame = frame.debuffFrames[frameNum];
@@ -1753,7 +1771,7 @@ else
         --Now, we display all normal debuffs.
         if (frame.optionTable.displayNonBossDebuffs) then
             while (frameNum <= maxDebuffs) do
-                local debuffName = UnitDebuff(frame.displayedUnit, index, filter);
+                local debuffName = AuraUtil.UnpackAuraData(UnitDebuff(frame.displayedUnit, index, filter));
                 if (debuffName) then
                     if (
                         CompactUnitFrame_UtilShouldDisplayDebuff(frame.displayedUnit, index, filter) and
@@ -1801,7 +1819,7 @@ else
         local frameNum = 1;
         local filter = nil;
         while (frameNum <= maxBuffs) do
-            local buffName = UnitBuff(frame.displayedUnit, index, filter);
+            local buffName = AuraUtil.UnpackAuraData(UnitBuff(frame.displayedUnit, index, filter));
             if ( buffName ) then
                 if ( CompactUnitFrame_UtilShouldDisplayBuff(frame.displayedUnit, index, filter) and not CompactUnitFrame_UtilIsBossAura(frame.displayedUnit, index, filter, true) ) then
                     local buffFrame = frame.buffFrames[frameNum];
@@ -1954,7 +1972,7 @@ else
         local warning, warningId
 
         for i = 1, 40 do
-            local _, _, _, dispelType, _, time, caster, _, _, id = UnitDebuff(frame.displayedUnit, i)
+            local _, _, _, dispelType, _, time, caster, _, _, id = AuraUtil.UnpackAuraData(UnitDebuff(frame.displayedUnit, i))
             if id then
                 local reaction = caster and UnitReaction("player", caster) or 0
                 local friendlySmokeBomb = id == 212183 and reaction > 4
@@ -2079,7 +2097,7 @@ function BigDebuffs:UNIT_AURA(unit)
 
     for i = 1, 40 do
         -- Check debuffs
-        local _, n, _, _, d, e, caster, _, _, id = UnitDebuff(unit, i)
+        local _, n, _, _, d, e, caster, _, _, id = AuraUtil.UnpackAuraData(UnitDebuff(unit, i))
         if id then
             if self.Spells[id] and (not tContains(self.HiddenDebuffs, id)) then
                 if LibClassicDurations then
@@ -2109,7 +2127,7 @@ function BigDebuffs:UNIT_AURA(unit)
         if LibClassicDurations then
             _, n, _, _, d, e, caster, _, _, id = LibClassicDurations:UnitAura(unit, i, "HELPFUL")
         else
-            _, n, _, _, d, e, caster, _, _, id = UnitBuff(unit, i)
+            _, n, _, _, d, e, caster, _, _, id = AuraUtil.UnpackAuraData(UnitBuff(unit, i))
         end
         if id then
             if self.Spells[id] then
@@ -2197,7 +2215,6 @@ end
 
 function BigDebuffs:UNIT_AURA_NAMEPLATE(unit)
     if not self.db.profile.nameplates.enabled then return end
-
     self:AttachNameplate(unit)
 
     local frame = self.Nameplates[unit]
@@ -2210,7 +2227,7 @@ function BigDebuffs:UNIT_AURA_NAMEPLATE(unit)
 
     for i = 1, 40 do
         -- Check debuffs
-        local _, n, _, _, d, e, caster, _, _, id = UnitDebuff(unit, i)
+        local _, n, _, _, d, e, caster, _, _, id = AuraUtil.UnpackAuraData(UnitDebuff(unit, i))
         if id then
             if self.Spells[id] and (not tContains(self.HiddenDebuffs, id)) then
                 if LibClassicDurations then
@@ -2240,7 +2257,7 @@ function BigDebuffs:UNIT_AURA_NAMEPLATE(unit)
         if LibClassicDurations then
             _, n, _, _, d, e, caster, _, _, id = LibClassicDurations:UnitAura(unit, i, "HELPFUL")
         else
-            _, n, _, _, d, e, caster, _, _, id = UnitBuff(unit, i)
+            _, n, _, _, d, e, caster, _, _, id = AuraUtil.UnpackAuraData(UnitBuff(unit, i))
         end
         if id then
             if self.Spells[id] then

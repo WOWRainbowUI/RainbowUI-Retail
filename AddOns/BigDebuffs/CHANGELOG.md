@@ -1,6 +1,13 @@
 # BigDebuffs
 
-## [v30](https://github.com/jordonwow/bigdebuffs/tree/v30) (2024-08-11)
-[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v29...v30) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
+## [v31](https://github.com/jordonwow/bigdebuffs/tree/v31) (2024-08-14)
+[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v30...v31) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
 
-- fix: change gnaw spell ID (#764)  
+- Update .luacheckrc  
+- Fix Test mode  
+- Add fallback to deprecated API if C\_Spell is not available  
+- Add Shadowmeld  
+- TWW fix deprecated functions (#767)  
+    * fix deprecated functions  
+    * fix deprecated functions in options  
+    * missed UnpackAuraData usage  
