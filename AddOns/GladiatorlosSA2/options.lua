@@ -57,11 +57,12 @@ local function getOption(info)
 end
 
 local function spellOption(order, spellID, ...)
-	local spellname, _, icon = GetSpellInfo(spellID)	
-	if (spellname ~= nil) then
+	-- local spellname, _, icon = GetSpellInfo(spellID)	
+	local spellInfo = C_Spell.GetSpellInfo(spellID) -- 暫時修正
+	if (spellInfo ~= nil) then
 		return {
 			type = 'toggle',
-			name = "\124T" .. icon .. ":24\124t" .. spellname,			
+			name = "\124T" .. spellInfo.iconID .. ":24\124t" .. spellInfo.name,			
 			desc = function ()
 				GameTooltip:SetOwner(UIParent, "ANCHOR_CURSOR")
 				GameTooltip:SetHyperlink(C_Spell.GetSpellLink(spellID))
