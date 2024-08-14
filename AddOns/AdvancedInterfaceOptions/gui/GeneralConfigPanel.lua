@@ -3,13 +3,6 @@ local _, addon = ...
 -- Constants
 local THIRD_WIDTH = 1.25
 
-local maxCameraZoomFactor
-if addon.IsClassicEra() then
-  maxCameraZoomFactor = 3.4
-else
-  maxCameraZoomFactor = 2.6
-end
-
 -------------------------------------------------------------------------
 -------------------------------------------------------------------------
 
@@ -245,48 +238,6 @@ function addon:CreateGeneralOptions()
         end,
         width = THIRD_WIDTH,
         order = 31,
-      },
-      actionCam = {
-        type = "select",
-        name = "動感鏡頭模式:",
-        desc = "選擇動感鏡頭的模式。",
-        values = {
-          ["default"] = "預設",
-          ["on"] = "開啟",
-          ["basic"] = "基本",
-          ["full"] = "完整",
-        },
-        sorting = {
-          "default",
-          "on",
-          "basic",
-          "full",
-        },
-        get = function()
-          return self.getActionCamMode()
-        end,
-        set = function(_, value)
-          ConsoleExec("actioncam" .. " " .. value)
-        end,
-        width = THIRD_WIDTH,
-        order = 32,
-      },
-      -- TODO: This might need more work for classic
-      cameraDistanceMaxZoomFactor = {
-        type = "range",
-        name = MAX_FOLLOW_DIST,
-        desc = OPTION_TOOLTIP_MAX_FOLLOW_DIST,
-        min = 1,
-        max = maxCameraZoomFactor,
-        step = 0.1,
-        get = function()
-          return tonumber(C_CVar.GetCVar("cameraDistanceMaxZoomFactor"))
-        end,
-        set = function(_, value)
-          self:SetCVar("cameraDistanceMaxZoomFactor", value)
-        end,
-        width = THIRD_WIDTH,
-        order = 33,
       },
       -------------------------------------------------
       dataHeader = {

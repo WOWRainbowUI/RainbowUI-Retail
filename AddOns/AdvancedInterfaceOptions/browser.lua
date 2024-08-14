@@ -120,7 +120,7 @@ function addon:PopulateCVarPanel(OptionsPanel)
   Title:SetJustifyV("TOP")
   Title:SetJustifyH("LEFT")
   Title:SetPoint("TOPLEFT", 10, -16)
-  Title:SetText("CVar Browser")
+  Title:SetText("CVar 瀏覽器")
 
   local SubText = OptionsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
   SubText:SetMaxLines(3)

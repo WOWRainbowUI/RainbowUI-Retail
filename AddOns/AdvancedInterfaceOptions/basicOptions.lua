@@ -99,6 +99,7 @@ function E:Init() -- Runs after our saved variables are loaded and cvars have be
 
   --Register our options with the Blizzard Addon Options panel
   AceConfigRegistry:RegisterOptionsTable("AdvancedInterfaceOptions", addon:CreateGeneralOptions())
+  AceConfigRegistry:RegisterOptionsTable("AdvancedInterfaceOptions_Camera", addon:CreateCameraOptions())
   AceConfigRegistry:RegisterOptionsTable("AdvancedInterfaceOptions_Chat", addon:CreateChatOptions())
   AceConfigRegistry:RegisterOptionsTable("AdvancedInterfaceOptions_Combat", addon:CreateCombatOptions())
   AceConfigRegistry:RegisterOptionsTable("AdvancedInterfaceOptions_FloatingCombatText", addon:CreateFloatingCombatTextOptions())
@@ -107,6 +108,7 @@ function E:Init() -- Runs after our saved variables are loaded and cvars have be
   AceConfigRegistry:RegisterOptionsTable("AdvancedInterfaceOptions_cVar", addon:CreateCVarOptions())
 
   local categoryFrame, mainCategoryID = AceConfigDialog:AddToBlizOptions("AdvancedInterfaceOptions", "進階選項")
+  AceConfigDialog:AddToBlizOptions("AdvancedInterfaceOptions_Camera", "鏡頭", "進階選項")
   AceConfigDialog:AddToBlizOptions("AdvancedInterfaceOptions_Chat", "聊天", "進階選項")
   AceConfigDialog:AddToBlizOptions("AdvancedInterfaceOptions_Combat", "戰鬥", "進階選項")
   AceConfigDialog:AddToBlizOptions("AdvancedInterfaceOptions_FloatingCombatText", "浮動戰鬥文字", "進階選項")
