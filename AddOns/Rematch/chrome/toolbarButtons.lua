@@ -348,9 +348,9 @@ end
 
 function RematchToolbarButtonMixin:OnDragStart()
     if self:GetAttribute("item") then
-        PickupItem(self:GetAttribute("item"))
+        C_Item.PickupItem(self:GetAttribute("item"))
     elseif self:GetAttribute("spell") then
-        PickupSpell(self:GetAttribute("spell"))
+        C_Spell.PickupSpell(self:GetAttribute("spell"))
     end
 end
 

@@ -448,8 +448,8 @@ function rematch.utils:GetBuffIndex(spellID)
     local buff
     repeat
         index = index + 1
-        buff = select(10,UnitBuff("player",index))
-        if buff==spellID then
+        buff = C_UnitAuras.GetBuffDataByIndex("player",index)
+        if buff and buff.spellId==spellID then
             return index
         end
     until not buff
