@@ -1,8 +1,10 @@
 ## Bugfixes
-- Translation fixed
+- Cooldown error with the teleport buttons has been fixed #26
 
 ## Other Changes
-- New lettering removed
-- Texture no longer necessary as it is now implemented in the game
-- DF Season 3 removed
-- Bump interface version
+- Update zhTW.lua
+- Update zhTW.lua
+- Merge pull request [#25](https://github.com/Wolkenschutz/KeystoneLoot/pull/25) by [EKE00372](https://github.com/EKE00372) from EKE00372/patch-2
+
+## Other Changes
+- Bump TOC version
