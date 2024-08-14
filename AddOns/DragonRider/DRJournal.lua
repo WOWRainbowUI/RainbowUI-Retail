@@ -7,16 +7,25 @@ local function Print(...)
 end
 
 function DR.tooltip_OnEnter(frame, tooltip)
-	GameTooltip:SetOwner(frame, "ANCHOR_NONE")
-	GameTooltip:SetPoint(getAnchors(frame))
-	--GameTooltip_SetDefaultAnchor(GameTooltip, frame);
-	--GameTooltip_SetTitle(GameTooltip);
+	GameTooltip:SetOwner(frame, "ANCHOR_TOP")
 	GameTooltip_AddNormalLine(GameTooltip, tooltip);
 	GameTooltip:Show();
 end
 
 function DR.tooltip_OnLeave()
 	GameTooltip:Hide();
+end
+
+local function SetupFade(self)
+	local minAlpha = 0.5;
+	local maxAlpha = 1.0;
+	local duration = 0.5;
+	local predicate = function() return not self:IsMouseOver(); end;
+	PlayerMovementFrameFader.AddDeferredFrame(self, minAlpha, maxAlpha, duration, predicate);
+end
+
+local function CleanupFade(self)
+	PlayerMovementFrameFader.RemoveFrame(self);
 end
 
 DR.mainFrame = CreateFrame("Frame", "DragonRiderMainFrame", UIParent, "PortraitFrameTemplateMinimizable")
@@ -306,7 +315,7 @@ function DR.mainFrame.WorldQuestHandler()
 				end);
 
 				DR.mainFrame["WorldQuestList_"..v]:SetScript("OnClick", function(self)
-					BonusObjectiveTracker_TrackWorldQuest(v, 1)
+					QuestUtil.TrackWorldQuest(v, 1)
 					C_SuperTrack.SetSuperTrackedQuestID(v);
 					PlaySound(170270);
 				end);
@@ -528,10 +537,12 @@ function DR.mainFrame.PopulationData(continent)
 		local questName = DR.QuestTitleFromID[DR.RaceData[continent][k]["questID"]]
 		local silverTime = DR.RaceData[continent][k]["silverTime"]
 		local goldTime = DR.RaceData[continent][k]["goldTime"]
+		local mapPOI = DR.RaceData[continent][k]["mapPOI"]
 		local medalBronze = "|A:challenges-medal-small-bronze:15:15|a"
 		local medalSilver = "|A:challenges-medal-small-silver:15:15|a"
 		local medalGold = "|A:challenges-medal-small-gold:15:15|a"
 		local medalValue = ""
+		local trackedTooltip = (questName or "") .. "\n" .. "|A:Waypoint-MapPin-Tracked:15:15|a" ..VOICE_CHAT_CHANNEL_INACTIVE_TOOLTIP_INSTRUCTIONS
 		-- Purge old data in the SVs that is now established in DRRaceData.lua
 		--(look at silver time because not all EK/Kalimdor Cup times were recorded yet, they're still missing)
 		if DR.RaceData[continent][k]["silverTime"] ~= nil then
@@ -548,6 +559,21 @@ function DR.mainFrame.PopulationData(continent)
 			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetFont(STANDARD_TEXT_FONT, 11);
 			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetText(questName);
 			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetParent(DR.mainFrame["backFrame"..continent]);
+			if mapPOI then
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY] = CreateFrame("Button", nil, content1);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continent], "TOPLEFT", 10, -15*placeValueY-20);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetSize(DR.mainFrame["Course"..continent.."_"..placeValueY]:GetStringWidth(), 15)
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetParent(DR.mainFrame["backFrame"..continent]);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:EnableMouse(true)
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnClick", function(self, button, down)
+					C_SuperTrack.SetSuperTrackedMapPin(0, mapPOI);
+					PlaySound(170270);
+				end);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnEnter", function(self)
+					DR.tooltip_OnEnter(self, trackedTooltip)
+				end);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnLeave", DR.tooltip_OnLeave);
+			end
 		end
 		if placeValueX > 6 then
 			placeValueX = 1
@@ -559,7 +585,24 @@ function DR.mainFrame.PopulationData(continent)
 			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetFont(STANDARD_TEXT_FONT, 11);
 			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetText(questName);
 			DR.mainFrame["Course"..continent.."_"..placeValueY]:SetParent(DR.mainFrame["backFrame"..continent]);
+			if mapPOI then
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY] = CreateFrame("Button", nil, content1);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetPoint("TOPLEFT", DR.mainFrame["backFrame"..continent], "TOPLEFT", 10, -15*placeValueY-20);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetSize(DR.mainFrame["Course"..continent.."_"..placeValueY]:GetStringWidth(), 15)
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetParent(DR.mainFrame["backFrame"..continent]);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:EnableMouse(true)
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnClick", function(self, button, down)
+					C_SuperTrack.SetSuperTrackedMapPin(0, mapPOI);
+					PlaySound(170270);
+				end);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnEnter", function(self)
+					DR.tooltip_OnEnter(self, trackedTooltip)
+				end);
+				DR.mainFrame["CourseTracker"..continent.."_"..placeValueY]:SetScript("OnLeave", DR.tooltip_OnLeave);
+			end
 		end
+
+		
 
 		---future hyperlink waypoint feature
 		--[[
@@ -857,3 +900,5 @@ end
 
 DR.mainFrame:SetScript("OnSizeChanged", DR.mainFrame.Script_OnSizeChanged)
 DR.mainFrame:SetScript("OnShow", DR.mainFrame.Script_OnShow)
+DR.mainFrame:HookScript("OnShow", SetupFade);
+DR.mainFrame:HookScript("OnHide", CleanupFade);

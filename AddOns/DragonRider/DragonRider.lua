@@ -1,7 +1,11 @@
 local DragonRider, DR = ...
 local _, L = ...
 
+--A purposeful global variable for other addons
+DragonRider_API = DR
 
+---@type LibAdvFlight
+local LibAdvFlight = LibStub:GetLibrary("LibAdvFlight-1.0");
 
 local defaultsTable = {
 	toggleModels = true,
@@ -73,156 +77,32 @@ local defaultsTable = {
 
 };
 
-local function ProgBarLowColor(restore)
-	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
-	if restore then
-	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR = restore["r"]
-		newG = restore["g"]
-		newB = restore["b"]
-		newA = restore["a"]
-	else
-	 -- Something changed
-		newA, newR, newG, newB = ColorPickerFrame:GetColorAlpha(), ColorPickerFrame:GetColorRGB();
+-- here, we just pass in the table containing our saved color config
+function DR:ShowColorPicker(configTable)
+	local r, g, b, a = configTable.r, configTable.g, configTable.b, configTable.a;
+
+	local function OnColorChanged()
+		local newR, newG, newB = ColorPickerFrame:GetColorRGB();
+		local newA = ColorPickerFrame:GetColorAlpha();
+		configTable.r, configTable.g, configTable.b, configTable.a = newR, newG, newB, newA;
 	end
-	 -- Update our internal storage.
-	r, g, b, a = newR, newG, newB, newA
-	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedBarColor.slow.r, DragonRider_DB.speedBarColor.slow.g, DragonRider_DB.speedBarColor.slow.b, DragonRider_DB.speedBarColor.slow.a = newR, newG, newB, newA;
-end
 
-local function ProgBarMidColor(restore)
-	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
-	if restore then
-	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR = restore["r"]
-		newG = restore["g"]
-		newB = restore["b"]
-		newA = restore["a"]
-	else
-	 -- Something changed
-		newA, newR, newG, newB = ColorPickerFrame:GetColorAlpha(), ColorPickerFrame:GetColorRGB();
+	local function OnCancel()
+		configTable.r, configTable.g, configTable.b, configTable.a = r, g, b, a;
 	end
-	 -- Update our internal storage.
-	r, g, b, a = newR, newG, newB, newA
-	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedBarColor.vigor.r, DragonRider_DB.speedBarColor.vigor.g, DragonRider_DB.speedBarColor.vigor.b, DragonRider_DB.speedBarColor.vigor.a = newR, newG, newB, newA;
-end
 
-local function ProgBarHighColor(restore)
-	local newR, newG, newB, newA; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
-	if restore then
-	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR = restore["r"]
-		newG = restore["g"]
-		newB = restore["b"]
-		newA = restore["a"]
-	else
-	 -- Something changed
-		newA, newR, newG, newB = ColorPickerFrame:GetColorAlpha(), ColorPickerFrame:GetColorRGB();
-	end
-	 -- Update our internal storage.
-	r, g, b, a = newR, newG, newB, newA
-	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedBarColor.over.r, DragonRider_DB.speedBarColor.over.g, DragonRider_DB.speedBarColor.over.b, DragonRider_DB.speedBarColor.over.a = newR, newG, newB, newA;
-end
+	local options = {
+		swatchFunc = OnColorChanged,
+		opacityFunc = OnColorChanged,
+		cancelFunc = OnCancel,
+		hasOpacity = a ~= nil,
+		opacity = a,
+		r = r,
+		g = g,
+		b = b,
+	};
 
-local function TextLowColor(restore)
-	local newR, newG, newB; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
-	if restore then
-	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR = restore["r"]
-		newG = restore["g"]
-		newB = restore["b"]
-	else
-	 -- Something changed
-		newR, newG, newB = ColorPickerFrame:GetColorRGB();
-	end
-	 -- Update our internal storage.
-	r, g, b = newR, newG, newB
-	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedTextColor.slow.r, DragonRider_DB.speedTextColor.slow.g, DragonRider_DB.speedTextColor.slow.b = newR, newG, newB;
-end
-
-local function TextMidColor(restore)
-	local newR, newG, newB; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
-	if restore then
-	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR = restore["r"]
-		newG = restore["g"]
-		newB = restore["b"]
-	else
-	 -- Something changed
-		newR, newG, newB = ColorPickerFrame:GetColorRGB();
-	end
-	 -- Update our internal storage.
-	r, g, b = newR, newG, newB
-	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedTextColor.vigor.r, DragonRider_DB.speedTextColor.vigor.g, DragonRider_DB.speedTextColor.vigor.b, DragonRider_DB.speedTextColor.vigor.a = newR, newG, newB;
-end
-
-local function TextHighColor(restore)
-	local newR, newG, newB; -- I forgot what to do with the alpha value but it's needed to not swap RGB values
-	if restore then
-	 -- The user bailed, we extract the old color from the table created by ShowColorPicker.
-		newR = restore["r"]
-		newG = restore["g"]
-		newB = restore["b"]
-	else
-	 -- Something changed
-		newR, newG, newB = ColorPickerFrame:GetColorRGB();
-	end
-	 -- Update our internal storage.
-	r, g, b = newR, newG, newB
-	 -- And update any UI elements that use this color...
-	DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b = newR, newG, newB;
-end
-
-function DR:ShowColorPicker(r, g, b, a, callbackFunc)
-	if ColorPickerFrame.SetupColorPickerAndShow then
-		local options = {
-			swatchFunc = callbackFunc,
-			opacityFunc = callbackFunc,
-			cancelFunc = callbackFunc,
-			hasOpacity = true,
-			r = r,
-			g = g,
-			b = b,
-			opacity = a,
-		};
-
-		ColorPickerFrame:SetupColorPickerAndShow(options);
-	else
-		ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = true, a;
-		ColorPickerFrame.previousValues = {r,g,b,a};
-		ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = callbackFunc, callbackFunc, callbackFunc;
-		ColorPickerFrame:SetColorRGB(r,g,b,a);
-		ColorPickerFrame:Hide();
-		ColorPickerFrame:Show();
-	end
-end
-
-function DR:ShowColorPickerText(r, g, b, callbackFunc)
-	if ColorPickerFrame.SetupColorPickerAndShow then
-		local options = {
-			swatchFunc = callbackFunc,
-			opacityFunc = callbackFunc,
-			cancelFunc = callbackFunc,
-			hasOpacity = false,
-			r = r,
-			g = g,
-			b = b,
-		};
-
-		ColorPickerFrame:SetupColorPickerAndShow(options);
-	else
-		ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = false, a;
-		ColorPickerFrame.previousValues = {r,g,b};
-		ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = callbackFunc, callbackFunc, callbackFunc;
-		ColorPickerFrame:SetColorRGB(r,g,b);
-		ColorPickerFrame:Hide();
-		ColorPickerFrame:Show();
-	end
+	ColorPickerFrame:SetupColorPickerAndShow(options);
 end
 
 DR.WidgetFrameIDs = {
@@ -262,7 +142,6 @@ DR.statusbar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
 DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
 DR.statusbar:GetStatusBarTexture():SetVertTile(false)
 DR.statusbar:SetStatusBarColor(.98, .61, .0)
-DR.statusbar:SetMinMaxValues(0, 100)
 Mixin(DR.statusbar, SmoothStatusBarMixin)
 DR.statusbar:SetMinMaxSmoothedValue(0,100)
 
@@ -473,10 +352,12 @@ function DR.toggleCharges(self, event, arg1)
 					DR.charge[i].texFill:Hide();
 				end
 			end
+			DR.setPositions();
 		else
 			for i = 1,10 do
 				DR.charge[i].texFill:Hide();
 			end
+			DR.setPositions();
 		end
 	end
 	if event == "SPELL_UPDATE_COOLDOWN" then
@@ -511,7 +392,7 @@ function DR.useUnits()
 	elseif DragonRider_DB.speedValUnits == 4 then
 		return " " .. L["UnitKilometers"]
 	elseif DragonRider_DB.speedValUnits == 5 then
-		return "%" .. L["UnitPercent"]
+		return "%" --.. L["UnitPercent"]
 	elseif DragonRider_DB.speedValUnits == 6 then
 		return ""
 	else
@@ -537,99 +418,66 @@ function DR:convertUnits(forwardSpeed)
 	end
 end
 
+local DRAGON_RACE_AURA_ID = 369968;
+
 function DR.updateSpeed()
-	local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
-	local base = isGliding and forwardSpeed or GetUnitSpeed("player")
-	local movespeed = Round(base / BASE_MOVEMENT_SPEED * 100)
-	local roundedSpeed = Round(forwardSpeed, 3)
-	local racing = C_UnitAuras.GetPlayerAuraBySpellID(369968)
-	
-	if DR.DragonRidingZoneCheck() == true or racing then
-		DR.statusbar:SetMinMaxValues(0, 100)
-		if forwardSpeed > 65 then
-			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.over)):GenerateHexColor()
-			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice purple?) -
-			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.over))
-		elseif forwardSpeed >= 60 and forwardSpeed <= 65 then
-			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.vigor)):GenerateHexColor()
-			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice blue?) - 
-			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.vigor))
-		else
-			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.slow)):GenerateHexColor()
-			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- fff2a305 (nice yellow?) - 
-			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.slow))
-		end
-	else
-		DR.statusbar:SetMinMaxValues(0, 85)
-		if forwardSpeed > 85*.65 then
-			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.over)):GenerateHexColor()
-			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice purple?) -
-			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.over))
-		elseif forwardSpeed >= 85*.60 and forwardSpeed <= 85*.65 then
-			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.vigor)):GenerateHexColor()
-			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- ff71d5ff (nice blue?) - 
-			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.vigor))
-		else
-			local textColor = CreateColor(ColorMixin.GetRGB(DragonRider_DB.speedTextColor.slow)):GenerateHexColor()
-			DR.glide:SetText(format("|c" .. textColor .. "%.1f" .. DR.useUnits() .. "|r", DR:convertUnits(forwardSpeed))) -- fff2a305 (nice yellow?) - 
-			DR.statusbar:SetStatusBarColor(ColorMixin.GetRGBA(DragonRider_DB.speedBarColor.slow))
-		end
+	if not LibAdvFlight.IsAdvFlyEnabled() then
+		return;
 	end
+
+	local forwardSpeed = LibAdvFlight.GetForwardSpeed();
+	local racing = C_UnitAuras.GetPlayerAuraBySpellID(DRAGON_RACE_AURA_ID)
+
+	local THRESHOLD_HIGH;
+	local THRESHOLD_LOW;
+	local MIN_BAR_VALUE;
+	local MAX_BAR_VALUE;
+
+	if DR.DragonRidingZoneCheck() == true or racing then
+		THRESHOLD_HIGH = 65;
+		THRESHOLD_LOW = 60;
+		MIN_BAR_VALUE = 0;
+		MAX_BAR_VALUE = 100;
+	else
+		THRESHOLD_HIGH = 85 * .65;
+		THRESHOLD_LOW = 85 * .60;
+		MIN_BAR_VALUE = 0;
+		MAX_BAR_VALUE = 85;
+	end
+
+	DR.statusbar:SetMinMaxValues(MIN_BAR_VALUE, MAX_BAR_VALUE);
+	local textColor;
+	local barColor;
+
+	if forwardSpeed > THRESHOLD_HIGH then
+		textColor = DragonRider_DB.speedTextColor.over;
+		barColor = DragonRider_DB.speedBarColor.over;
+	elseif forwardSpeed >= THRESHOLD_LOW and forwardSpeed <= THRESHOLD_HIGH then
+		textColor = DragonRider_DB.speedTextColor.vigor;
+		barColor = DragonRider_DB.speedBarColor.vigor;
+	else
+		textColor = DragonRider_DB.speedTextColor.slow;
+		barColor = DragonRider_DB.speedBarColor.slow;
+	end
+
+	textColor = CreateColor(textColor.r, textColor.g, textColor.b, textColor.a);
+	local text = format("|c%s%.1f%s|r", textColor:GenerateHexColor(), DR:convertUnits(forwardSpeed), DR.useUnits());
+	DR.glide:SetText(text);
+	DR.statusbar:SetStatusBarColor(barColor.r, barColor.g, barColor.b, barColor.a);
+
 	if DragonRider_DB.speedValUnits == 6 then
 		DR.glide:SetText("")
 	end
 	DR.statusbar:SetSmoothedValue(forwardSpeed)
 end
 
-DR.TimerNamed = C_Timer.NewTicker(.1, function()
-	DR.updateSpeed()
-end)
-DR.TimerNamed:Cancel();
+function DR.vigorCounter(vigorCurrent)
+	if not vigorCurrent then
+		-- vigorCurrent will be nil during login I think
+		return;
+	end
 
-
-DR.MountEvents = {
-	["PLAYER_MOUNT_DISPLAY_CHANGED"] = true,
-	["MOUNT_JOURNAL_USABILITY_CHANGED"] = true,
-	["LEARNED_SPELL_IN_TAB"] = true,
-	["PLAYER_CAN_GLIDE_CHANGED"] = true,
-	["COMPANION_UPDATE"] = true,
-	["PLAYER_LOGIN"] = true,
-};
-
-DR.Mounts = {
-	-- Cup Race Buffs (fake)
-	413409, -- highland drake [OLD]
-	417548, -- proto-drake [OLD]
-	417554, -- wylderdrake [OLD]
-	417552, -- velocidrake [OLD]
-	417556, -- slitherdrake [OLD]
-	412088, -- grotto netherwing drake
-	425338, -- flourishing whimsydrake
-	-- Non-mounts
-	369536, -- soar
-	-- Real Mounts
-	360954, -- highland drake
-	368896, -- proto-drake
-	368901, -- wylderdrake
-	368899, -- velocidrake
-	368893, -- slitherdrake
-	412088, -- grotto netherwing drake
-	417888, -- algarian stormrider
-	425338, -- flourishing whimsydrake
-};
-
---other buffs
---418590, -- Static Charge (stacks on algarian stormrider, 10 = 418592 (Lightning Rush) is usable)
-
-DR.vigorEvent = CreateFrame("Frame")
-DR.vigorEvent:RegisterEvent("UNIT_POWER_UPDATE")
-
-
-function DR.vigorCounter()
-	local vigorCurrent = UnitPower("player", Enum.PowerType.AlternateMount)
-	local vigorMax = UnitPowerMax("player", Enum.PowerType.AlternateMount)
-
-	if DragonRider_DB.toggleModels == false then
+	if not DragonRider_DB.toggleModels then
 		DR.toggleModels()
 		return
 	end
@@ -650,7 +498,7 @@ function DR.vigorCounter()
 	DR.setPositions()
 end
 
-DR.vigorEvent:SetScript("OnEvent", DR.vigorCounter)
+LibAdvFlight.RegisterCallback(LibAdvFlight.Events.VIGOR_CHANGED, DR.vigorCounter);
 
 DR.EventsList = CreateFrame("Frame")
 
@@ -663,7 +511,11 @@ DR.EventsList:RegisterEvent("COMPANION_UPDATE")
 DR.EventsList:RegisterEvent("PLAYER_LOGIN")
 DR.EventsList:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 DR.EventsList:RegisterEvent("UPDATE_UI_WIDGET")
-
+DR.EventsList:SetScript("OnEvent", function(self, event, ...)
+	if self[event] then
+		self[event](self, ...);
+	end
+end);
 
 
 function DR.GetWidgetAlpha()
@@ -672,93 +524,58 @@ function DR.GetWidgetAlpha()
 	end
 end
 
-local function getAnchors(frame)
-	local x, y = frame:GetCenter()
-	if not x or not y then return "CENTER" end
-	local hhalf = (x > UIParent:GetWidth()*2/3) and "RIGHT" or (x < UIParent:GetWidth()/3) and "LEFT" or ""
-	local vhalf = (y > UIParent:GetHeight()/2) and "TOP" or "BOTTOM"
-	return vhalf..hhalf, frame, (vhalf == "TOP" and "BOTTOM" or "TOP")..hhalf
-end
-
-function DR.tooltip_OnEnter(frame, tooltip)
-	GameTooltip:SetOwner(frame, "ANCHOR_NONE")
-	GameTooltip:SetPoint(getAnchors(frame))
-	--GameTooltip_SetDefaultAnchor(GameTooltip, frame);
-	--GameTooltip_SetTitle(GameTooltip);
-	GameTooltip_AddNormalLine(GameTooltip, tooltip);
-	GameTooltip:Show();
-end
-
-function DR.tooltip_OnLeave()
-	GameTooltip:Hide();
-end
-
-
 function DR.GetVigorValueExact()
 	if UnitPower("player", Enum.PowerType.AlternateMount) and C_UIWidgetManager.GetFillUpFramesWidgetVisualizationInfo(4460) then
 		local fillCurrent = (UnitPower("player", Enum.PowerType.AlternateMount) + (C_UIWidgetManager.GetFillUpFramesWidgetVisualizationInfo(4460).fillValue*.01) )
 		--local fillMin = C_UIWidgetManager.GetFillUpFramesWidgetVisualizationInfo(4460).fillMax
 		local fillMax = C_UIWidgetManager.GetFillUpFramesWidgetVisualizationInfo(4460).numTotalFrames
 		return fillCurrent, fillMax
-	else
-		return
 	end
 end
 
+-- this runs every frame
 function DR.FixBlizzFrames()
-	DR.EventsList:SetScript("OnUpdate", function()
-		for k, v in pairs(DR.WidgetFrameIDs) do
-			if UIWidgetPowerBarContainerFrame.widgetFrames[v] ~= nil then
-				local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
-				if canGlide == false then
-					if UIWidgetPowerBarContainerFrame.widgetFrames[v] then
-						if UIWidgetPowerBarContainerFrame.widgetFrames[v]:IsShown() then
-							UIWidgetPowerBarContainerFrame.widgetFrames[v]:Hide();
-							UIWidgetPowerBarContainerFrame:UpdateWidgetLayout();
-							if DragonRider_DB.debug == true then
-								print("Fixing a Blizzard bug where widgets persisted.")
-							end
-						end
+	for _, v in pairs(DR.WidgetFrameIDs) do
+		local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
+		if f then
+			local canGlide = LibAdvFlight.IsAdvFlyEnabled();
+			if not canGlide then
+				if f:IsShown() then
+					f:Hide();
+					if DragonRider_DB.debug then
+						print("Fixing a Blizzard bug where widgets persisted.")
 					end
-					if DragonRider_DB.sideArt == true then
-						local PowerBarChildren = {UIWidgetPowerBarContainerFrame:GetChildren()}
-						if PowerBarChildren[3] ~= nil and PowerBarChildren[3]:IsShown() then
-							for _, child in ipairs({PowerBarChildren[3]:GetRegions()}) do
-								child:SetAlpha(0)
-							end
-							if DragonRider_DB.debug == true then
-								print("Hiding wings asset.")
-							end
+				end
+				if DragonRider_DB.sideArt then
+					local PowerBarChildren = {UIWidgetPowerBarContainerFrame:GetChildren()}
+					if PowerBarChildren[3] ~= nil and PowerBarChildren[3]:IsShown() then
+						for _, child in ipairs({PowerBarChildren[3]:GetRegions()}) do
+							child:SetAlpha(0)
+						end
+						if DragonRider_DB.debug then
+							print("Hiding wings asset.")
 						end
 					end
 				end
-				return
 			end
-		end
-	end)
-end
-DR.FixBlizzFrames()
-
-
-function DR.DoWidgetThings()
-	local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
-	local fillCurrent, fillMax = DR.GetVigorValueExact()
-	for k, v in pairs(DR.WidgetFrameIDs) do
-		if UIWidgetPowerBarContainerFrame.widgetFrames[v] ~= nil then
-			
-
-			-- These will be for tooltip on mouseover options.
-			if UIWidgetPowerBarContainerFrame.widgetFrames[v] then
-				if DragonRider_DB.showtooltip == false then
-					UIWidgetPowerBarContainerFrame.widgetFrames[v]:SetScript("OnEnter", nil)
-				else
-					UIWidgetPowerBarContainerFrame.widgetFrames[v]:SetScript("OnEnter", function() if UIWidgetPowerBarContainerFrame.widgetFrames[v] then DR.tooltip_OnEnter(UIWidgetPowerBarContainerFrame.widgetFrames[v], UIWidgetPowerBarContainerFrame.widgetFrames[v].tooltip); end end )
-					UIWidgetPowerBarContainerFrame.widgetFrames[v]:SetScript("OnLeave", function() DR.tooltip_OnLeave(); end )
-				end
-			end
-
 		end
 	end
+	UIWidgetPowerBarContainerFrame:UpdateWidgetLayout();
+end
+
+function DR.SetupVigorToolip()
+	EmbeddedItemTooltip:HookScript("OnShow", function(self)
+		if not DragonRider_DB.showtooltip then
+			for _, v in pairs(DR.WidgetFrameIDs) do
+				local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
+				if f then
+					if self:GetOwner() == f then
+						self:Hide();
+					end
+				end
+			end
+		end
+	end);
 end
 
 function DR.SetTheme()
@@ -1109,8 +926,8 @@ function DR.setPositions()
 		DR.modelScene[i]:SetParent(ParentFrame)
 		DR.modelScene[i]:ClearAllPoints();
 	end
-	
-	if C_UnitAuras.GetPlayerAuraBySpellID(417888) then 
+
+	if C_UnitAuras.GetPlayerAuraBySpellID(417888) then
 		local spacing = 50
 		if DR.model[1]:GetModelFileID() == 1100194 then
 			for i = 1,6 do
@@ -1219,6 +1036,9 @@ DR.fadeOutBar:SetDuration(.1) -- Duration of the fade out animation
 
 -- Set scripts for when animations start and finish
 DR.fadeOutBarGroup:SetScript("OnFinished", function()
+	if LibAdvFlight.IsAdvFlying() then
+		return
+	end
 	DR.statusbar:ClearAllPoints();
 	DR.statusbar:Hide(); -- Hide the frame when the fade out animation is finished
 end)
@@ -1336,9 +1156,50 @@ function DR.MuteVigorSound()
 	end
 end
 
-function DR:toggleEvent(event, arg1)
+-- event handling
 
+function DR.EventsList:CURRENCY_DISPLAY_UPDATE(currencyID)
+	if currencyID == 2019 then
+		silverTime = C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity;
+	end
+	if currencyID == 2020 then
+		goldTime = C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity;
+	end
+	for k, v in pairs(DR.DragonRaceCurrencies) do
+		if currencyID == v then
+			currentRace = currencyID
+			if DragonRider_DB.raceDataCollector == nil then
+				DragonRider_DB.raceDataCollector = {};
+			end
+			for a, b in pairs(DR.RaceData) do
+				for c, d in pairs(b) do
+					if d["currencyID"] == currentRace then
+						if d["goldTime"] == nil or d["silverTime"] == nil then
+							if DragonRider_DB.raceDataCollector[currentRace] == nil then
+								DragonRider_DB.raceDataCollector[currentRace] = {currencyID = currentRace,goldTime=goldTime, silverTime=silverTime};
+								if DragonRider_DB.debug == true then
+									Print("Saving Temp Race Data")
+								end
+							end
+						end
+					end
+				end
+			end
+			DR.mainFrame.UpdatePopulation()
+			if DragonRider_DB.debug == true then
+				Print(currencyID .. ": " .. C_CurrencyInfo.GetCurrencyInfo(currencyID).name)
+				Print(C_CurrencyInfo.GetCurrencyInfo(currencyID).quantity/1000)
+				Print(currentRace .. ": " .. "gold: " .. goldTime .. ", silver: " .. silverTime);
+			end
+		end
+	end
+end
 
+function DR.EventsList:PLAYER_LOGIN()
+	DR.mainFrame.DoPopulationStuff();
+end
+
+function DR.OnAddonLoaded()
 	--[[ -- hiding code test
 	if event == "UPDATE_UI_WIDGET" then
 		if UIWidgetPowerBarContainerFrame and UIWidgetPowerBarContainerFrame.widgetFrames[4460] then
@@ -1349,54 +1210,13 @@ function DR:toggleEvent(event, arg1)
 	end
 	]]
 
-	if event == "CURRENCY_DISPLAY_UPDATE" then
-		if arg1 == 2019 then
-			silverTime = C_CurrencyInfo.GetCurrencyInfo(arg1).quantity;
-		end
-		if arg1 == 2020 then
-			goldTime = C_CurrencyInfo.GetCurrencyInfo(arg1).quantity;
-		end
-		for k, v in pairs(DR.DragonRaceCurrencies) do
-			if arg1 == v then
-				currentRace = arg1
-				if DragonRider_DB.raceDataCollector == nil then
-					DragonRider_DB.raceDataCollector = {};
-				end
-				for a, b in pairs(DR.RaceData) do
-					for c, d in pairs(b) do
-						if d["currencyID"] == currentRace then
-							if d["goldTime"] == nil or d["silverTime"] == nil then
-								if DragonRider_DB.raceDataCollector[currentRace] == nil then
-									DragonRider_DB.raceDataCollector[currentRace] = {currencyID = currentRace,goldTime=goldTime, silverTime=silverTime};
-									if DragonRider_DB.debug == true then
-										Print("Saving Temp Race Data")
-									end
-								end
-							end
-						end
-					end
-				end
-				DR.mainFrame.UpdatePopulation()
-				if DragonRider_DB.debug == true then
-					Print(arg1 .. ": " .. C_CurrencyInfo.GetCurrencyInfo(arg1).name)
-					Print(C_CurrencyInfo.GetCurrencyInfo(arg1).quantity/1000)
-					Print(currentRace .. ": " .. "gold: " .. goldTime .. ", silver: " .. silverTime);
-				end
-			end
-		end
-	end
-
-	if event == "PLAYER_LOGIN" then
-		DR.mainFrame.DoPopulationStuff()
-	end
-
-	if event == "ADDON_LOADED" and arg1 == "DragonRider" then
+	do
 		local realmKey = GetRealmName()
 		local charKey = UnitName("player") .. " - " .. realmKey
 
 		SLASH_DRAGONRIDER1 = "/"..L["COMMAND_dragonrider"]
 		SlashCmdList.DRAGONRIDER = HandleSlashCommands;
-		
+
 		if DragonRider_DB == nil then
 			DragonRider_DB = CopyTable(defaultsTable)
 		end
@@ -1458,17 +1278,22 @@ function DR:toggleEvent(event, arg1)
 			DragonRider_DB.themeSpeed = 1
 		end
 
+		---------------------------------------------------------------------------------------------------------------------------------
+		---------------------------------------------------------------------------------------------------------------------------------
+		---------------------------------------------------------------------------------------------------------------------------------
 
-		---------------------------------------------------------------------------------------------------------------------------------
-		---------------------------------------------------------------------------------------------------------------------------------
-		---------------------------------------------------------------------------------------------------------------------------------
+		local version, bild = GetBuildInfo(); -- temp fix for beta
+		--local IS_FUTURE = (version == "11.0.2") and tonumber(bild) > 55763;
 
 		local function OnSettingChanged(_, setting, value)
 			local variable = setting:GetVariable()
-			DragonRider_DB[variable] = value
+
+			if strsub(variable, 1, 3) == "DR_" then
+				variable = strsub(variable, 4); -- remove our prefix so it matches existing savedvar keys
+			end
+
 			DR.vigorCounter()
 			DR.setPositions()
-			DR.DoWidgetThings()
 			DR.MuteVigorSound()
 		end
 
@@ -1482,8 +1307,17 @@ function DR:toggleEvent(event, arg1)
 		local CreateDropdown = Settings.CreateDropdown or Settings.CreateDropDown
 		local CreateCheckbox = Settings.CreateCheckbox or Settings.CreateCheckBox
 
-		local version, bild = GetBuildInfo(); -- temp fix for beta
-		local IS_FUTURE = (version == "11.0.2") and tonumber(bild) > 55763;
+		local function RegisterSetting(variableKey, defaultValue, name)
+			local uniqueVariable = "DR_" .. variableKey; -- these have to be unique or calamity ensues, savedvars will be unaffected
+
+			local setting;
+			setting = Settings.RegisterAddOnSetting(category, uniqueVariable, variableKey, DragonRider_DB, type(defaultValue), name, defaultValue);
+
+			setting:SetValue(DragonRider_DB[variableKey]);
+			Settings.SetOnValueChangedCallback(uniqueVariable, OnSettingChanged);
+
+			return setting;
+		end
 
 		do
 			local variable = "themeSpeed"
@@ -1501,15 +1335,8 @@ function DR:toggleEvent(event, arg1)
 				return container:GetData()
 			end
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateDropdown(category, setting, GetOptions, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1527,15 +1354,8 @@ function DR:toggleEvent(event, arg1)
 				return container:GetData()
 			end
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
-			CreateDropdown(category, setting, GetOptions, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateDropdown(category, setting, GetOptions, tooltip);
 		end
 
 		do
@@ -1547,17 +1367,10 @@ function DR:toggleEvent(event, arg1)
 			local maxValue = Round(GetScreenWidth())
 			local step = 1
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
-			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
+			local setting = RegisterSetting(variable, defaultValue, name);
+			local options = Settings.CreateSliderOptions(minValue, maxValue, step);
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
-			Settings.CreateSlider(category, setting, options, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
+			Settings.CreateSlider(category, setting, options, tooltip);
 		end
 
 		do
@@ -1569,17 +1382,10 @@ function DR:toggleEvent(event, arg1)
 			local maxValue = Round(GetScreenHeight())
 			local step = 1
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
 			Settings.CreateSlider(category, setting, options, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1591,17 +1397,10 @@ function DR:toggleEvent(event, arg1)
 			local maxValue = 4
 			local step = .1
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
 			Settings.CreateSlider(category, setting, options, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1621,15 +1420,8 @@ function DR:toggleEvent(event, arg1)
 				return container:GetData()
 			end
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateDropdown(category, setting, GetOptions, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1641,17 +1433,10 @@ function DR:toggleEvent(event, arg1)
 			local maxValue = 30
 			local step = .5
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			local options = Settings.CreateSliderOptions(minValue, maxValue, step)
 			options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
 			Settings.CreateSlider(category, setting, options, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1660,17 +1445,9 @@ function DR:toggleEvent(event, arg1)
 			local tooltip = L["FadeSpeedometerTT"]
 			local defaultValue = true
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateCheckbox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
-
 
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["Vigor"]));
 
@@ -1680,15 +1457,8 @@ function DR:toggleEvent(event, arg1)
 			local tooltip = L["ToggleModelsTT"]
 			local defaultValue = true
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateCheckbox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1697,15 +1467,8 @@ function DR:toggleEvent(event, arg1)
 			local tooltip = L["SideArtTT"]
 			local defaultValue = true
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateCheckbox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1714,15 +1477,8 @@ function DR:toggleEvent(event, arg1)
 			local tooltip = L["ShowVigorTooltipTT"]
 			local defaultValue = true
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateCheckbox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1731,17 +1487,9 @@ function DR:toggleEvent(event, arg1)
 			local tooltip = L["MuteVigorSound_SettingsTT"]
 			local defaultValue = false
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateCheckbox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
-
 
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(SPECIAL));
 
@@ -1751,15 +1499,8 @@ function DR:toggleEvent(event, arg1)
 			local tooltip = L["LightningRushTT"]
 			local defaultValue = true
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateCheckbox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
 
 		do
@@ -1767,19 +1508,10 @@ function DR:toggleEvent(event, arg1)
 			local name = L["DynamicFOV"]
 			local tooltip = L["DynamicFOVTT"]
 			local defaultValue = true
-			
 
-			local setting
-			if IS_FUTURE then
-				setting = Settings.RegisterAddOnSetting(category, variable, variable, DragonRider_DB, type(defaultValue), name, defaultValue)
-			else
-				setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue)
-			end
+			local setting = RegisterSetting(variable, defaultValue, name);
 			CreateCheckbox(category, setting, tooltip)
-			Settings.SetOnValueChangedCallback(variable, OnSettingChanged)
-			setting:SetValue(DragonRider_DB[variable])
 		end
-
 
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["DragonridingTalents"]));
 
@@ -1793,78 +1525,61 @@ function DR:toggleEvent(event, arg1)
 			layout:AddInitializer(initializer);
 		end
 
-
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(COLOR_PICKER));
 
 		do -- color picker - low progress bar color
 			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedBarColor.slow.r, DragonRider_DB.speedBarColor.slow.g, DragonRider_DB.speedBarColor.slow.b, DragonRider_DB.speedBarColor.slow.a, ProgBarLowColor);
+				DR:ShowColorPicker(DragonRider_DB.speedBarColor.slow);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["Low"], COLOR_PICKER, OnButtonClick, L["ColorPickerLowProgTT"], true);
 			layout:AddInitializer(initializer);
 		end
 
-
 		do -- color picker - mid progress bar color
 			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedBarColor.vigor.r, DragonRider_DB.speedBarColor.vigor.g, DragonRider_DB.speedBarColor.vigor.b, DragonRider_DB.speedBarColor.vigor.a, ProgBarMidColor);
+				DR:ShowColorPicker(DragonRider_DB.speedBarColor.vigor);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["Vigor"], COLOR_PICKER, OnButtonClick, L["ColorPickerMidProgTT"], true);
 			layout:AddInitializer(initializer);
 		end
 
-
 		do -- color picker - high progress bar color
 			local function OnButtonClick()
-				DR:ShowColorPicker(DragonRider_DB.speedBarColor.over.r, DragonRider_DB.speedBarColor.over.g, DragonRider_DB.speedBarColor.over.b, DragonRider_DB.speedBarColor.over.a, ProgBarHighColor);
+				DR:ShowColorPicker(DragonRider_DB.speedBarColor.over);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["ProgressBarColor"] .. " - " .. L["High"], COLOR_PICKER, OnButtonClick, L["ColorPickerHighProgTT"], true);
 			layout:AddInitializer(initializer);
 		end
 
-
 		do -- color picker - low speed text color
 			local function OnButtonClick()
-				DR:ShowColorPickerText(DragonRider_DB.speedTextColor.slow.r, DragonRider_DB.speedTextColor.slow.g, DragonRider_DB.speedTextColor.slow.b, TextLowColor);
+				DR:ShowColorPicker(DragonRider_DB.speedTextColor.slow);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["Low"], COLOR_PICKER, OnButtonClick, L["ColorPickerLowTextTT"], true);
 			layout:AddInitializer(initializer);
 		end
 
-
 		do -- color picker - mid speed text color
 			local function OnButtonClick()
-				DR:ShowColorPickerText(DragonRider_DB.speedTextColor.vigor.r, DragonRider_DB.speedTextColor.vigor.g, DragonRider_DB.speedTextColor.vigor.b, TextMidColor);
+				DR:ShowColorPicker(DragonRider_DB.speedTextColor.vigor);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["Vigor"], COLOR_PICKER, OnButtonClick, L["ColorPickerMidTextTT"], true);
 			layout:AddInitializer(initializer);
 		end
 
-
 		do -- color picker - high speed text color
 			local function OnButtonClick()
-				DR:ShowColorPickerText(DragonRider_DB.speedTextColor.over.r, DragonRider_DB.speedTextColor.over.g, DragonRider_DB.speedTextColor.over.b, TextHighColor);
+				DR:ShowColorPicker(DragonRider_DB.speedTextColor.over);
 			end
 
 			local initializer = CreateSettingsButtonInitializer(L["UnitsColor"] .. " - " .. L["High"], COLOR_PICKER, OnButtonClick, L["ColorPickerHighTextTT"], true);
 			layout:AddInitializer(initializer);
 		end
-
-
-
-
-
-
-
-
-
-
-
 
 		layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(RESET));
 
@@ -1873,7 +1588,6 @@ function DR:toggleEvent(event, arg1)
 			button1 = "Yes",
 			button2 = "No",
 			OnAccept = function()
-				DragonRider_DB = nil;
 				DragonRider_DB = CopyTable(defaultsTable);
 				DR.vigorCounter();
 				DR.setPositions();
@@ -1894,8 +1608,6 @@ function DR:toggleEvent(event, arg1)
 		end
 
 		Settings.RegisterAddOnCategory(category)
-
-
 
 		function DragonRider_OnAddonCompartmentClick(addonName, buttonName, menuButtonFrame)
 			if buttonName == "RightButton" then
@@ -1919,7 +1631,6 @@ function DR:toggleEvent(event, arg1)
 				else
 					concatenatedString = concatenatedString .. "\n".. v
 				end
-				
 			end
 			DR.tooltip_OnEnter(menuButtonFrame, concatenatedString);
 		end
@@ -1928,52 +1639,69 @@ function DR:toggleEvent(event, arg1)
 			DR.tooltip_OnLeave();
 		end
 
-
-
 		---------------------------------------------------------------------------------------------------------------------------------
 		---------------------------------------------------------------------------------------------------------------------------------
 		---------------------------------------------------------------------------------------------------------------------------------
 
-		DR.vigorCounter()
-
-
-		function DR.RepeatChecker()
-			local curentVigor, maxVigor = DR.GetVigorValueExact()
-			--print(curentVigor) -- for some fun spam
-			DR.DoWidgetThings()
-			local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo()
-			if canGlide == true and isGliding == true then
-				DR.setPositions();
-				DR.TimerNamed:Cancel();
-				DR.TimerNamed = C_Timer.NewTicker(.1, function()
-					DR.updateSpeed();
-				end)
+		-- when the player takes off and starts flying
+		local function OnAdvFlyStart()
+			if DragonRider_DB.fadeSpeed then
 				DR.ShowWithFadeBar();
-
-			elseif canGlide == true and isGliding == false then
-				if DragonRider_DB.fadeSpeed == true then
-					DR.clearPositions();
-					DR.TimerNamed:Cancel();
-				else
-					DR.setPositions();
-					DR.TimerNamed:Cancel();
-					DR.TimerNamed = C_Timer.NewTicker(.1, function()
-						DR.updateSpeed();
-					end)
-					DR.ShowWithFadeBar();
-				end
-
 			else
-				DR.clearPositions();
-				DR.TimerNamed:Cancel();
+				DR.statusbar:SetAlpha(1)
+				DR.statusbar:Show()
 			end
+			DR.setPositions();
 		end
 
-		C_Timer.NewTicker(1, DR.RepeatChecker)
-	end
+		-- when the player mounts but isn't flying yet
+		-- OR when the player lands after flying but is still mounted
+		local function OnAdvFlyEnabled()
+			if DragonRider_DB.fadeSpeed then
+				DR.HideWithFadeBar();
+			else
+				DR.statusbar:SetAlpha(1)
+				DR.statusbar:Show()
+			end
+			DR.setPositions();
+			DR.FixBlizzFrames()
+		end
 
-	
+		local function OnAdvFlyEnd()
+			if DragonRider_DB.fadeSpeed then
+				DR.HideWithFadeBar();
+			end
+			DR.setPositions();
+			DR.FixBlizzFrames()
+		end
+
+		-- when the player dismounts
+		local function OnAdvFlyDisabled()
+			if DragonRider_DB.fadeSpeed then
+				DR.HideWithFadeBar();
+			else
+				DR.statusbar:SetAlpha(1)
+			end
+			DR.clearPositions();
+			DR.FixBlizzFrames()
+		end
+
+		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_START, OnAdvFlyStart);
+		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_END, OnAdvFlyEnd);
+		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_ENABLED, OnAdvFlyEnabled);
+		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_DISABLED, OnAdvFlyDisabled);
+
+		-- this will run every frame, forever :)
+		-- put anything that needs to run every frame in here
+		local function OnUpdate()
+			DR.updateSpeed();
+			RunNextFrame(OnUpdate);
+		end
+
+		OnUpdate();
+
+		DR.SetupVigorToolip();
+	end
 end
 
-
-DR.EventsList:SetScript("OnEvent", DR.toggleEvent)
+EventUtil.ContinueOnAddOnLoaded("DragonRider", DR.OnAddonLoaded);
