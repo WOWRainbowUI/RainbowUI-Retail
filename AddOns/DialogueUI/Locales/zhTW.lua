@@ -208,4 +208,4 @@ L["Instuction Open Settings"] = "要打開設定選項，請在和 NPC 互動時
 L["Instuction Open Settings Console"] = "要打開設定選項，請在和 NPC 互動時按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU]。";
 
 -- 自行加入
-L["Dialogue UI"] = "任務對話"
+L["Dialogue UI"] = "任務-對話"
