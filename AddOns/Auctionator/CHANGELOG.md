@@ -1,6 +1,7 @@
 # Auctionator
 
-## [11.0.0](https://github.com/Auctionator/Auctionator/tree/11.0.0) (2024-07-26)
-[Full Changelog](https://github.com/Auctionator/Auctionator/compare/10.2.55...11.0.0) 
+## [11.0.4](https://github.com/Auctionator/Auctionator/tree/11.0.4) (2024-08-14)
+[Full Changelog](https://github.com/Auctionator/Auctionator/compare/11.0.3...11.0.4) 
 
-- [Fixes #1536] Retail: Error when crafting Dragonflight enchanting recipes  
+- Fixes for issues with full scan lag/freezes  
+- Resolve freeze/failed full scans  
