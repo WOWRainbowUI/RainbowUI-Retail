@@ -2,7 +2,7 @@
 
 ## Author: StormFX
 ## Title: Masque: Fusion
-## Version: 11.0.0
+## Version: 11.0.1
 
 ## Dependencies: Masque
 ## IconTexture: Interface\AddOns\Masque_Fusion\Textures\Icon
