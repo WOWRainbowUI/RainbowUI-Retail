@@ -23,10 +23,17 @@ Addon.ROUTE_MAX_TOTAL = 5
 -- Tolerance for spawn time comparison
 Addon.SPAWN_TIME_TOLERANCE = 2
 
+---@alias EnemyGroup { clones: MDTClone[] }[] | { x: number, y: number, length: number, sublevel: number | false }
+
+---@type string[], number, number[]
 local queue, queueSize, weights = {}, 0, {}
+---@type number, number
 local maxLength, minWeight = 0, math.huge
+---@type number[], EnemyGroup[], number[][]
 local pulls, groups, portals = {}, {}, {}
+---@type number, table<string, true>
 local combatStart, hits = math.huge, {}
+---@type thread?, boolean?, boolean?, table?
 local co, rerun, zoom, retry
 
 -- DEBUG
@@ -36,14 +43,20 @@ local useRoute = true
 
 local debug = Addon.Debug
 
+---@param enemyId number
+---@param cloneId number
 local function Node(enemyId, cloneId)
     return "e" .. enemyId .. "c" .. cloneId
 end
 
+---@param path string
+---@param node string
 local function Path(path, node)
     return path .. "-" .. node .. "-"
 end
 
+---@param path string
+---@param n number
 local function Sub(path, n)
     for _=1,n or 1 do
        path = path:gsub("%-[^-]+-$", "")
@@ -51,10 +64,14 @@ local function Sub(path, n)
     return path
 end
 
+---@param path string
+---@param node string
 local function Contains(path, node)
     return path:find("%-" .. node .. "%-") ~= nil
 end
 
+---@param path string
+---@param enemies? MDTEnemy[]
 local function Last(path, enemies)
     if path == "" then
         local dungeon = Addon.GetCurrentDungeonId()
@@ -77,15 +94,20 @@ local function Last(path, enemies)
     end
 end
 
+---@param path string
 local function Length(path)
     return path:gsub("e%d+c%d+", ""):len() / 2
 end
 
-local function Position(clone)
-    local grp = clone.g and groups[clone.g]
-    return grp and grp.sublevel and grp or clone
+---@param pos MDTPosition
+local function Position(pos)
+    local grp = pos.g and groups[pos.g]
+    return grp and grp.sublevel and grp or pos
 end
 
+---@param from MDTPosition
+---@param to MDTPosition
+---@param forceSub? number
 local function Distance(from, to, forceSub)
     from, to = Position(from), Position(to)
     local fromSub, toSub = forceSub or from.sublevel, forceSub or to.sublevel
@@ -118,6 +140,9 @@ local function Distance(from, to, forceSub)
     return min
 end
 
+
+---@param path string
+---@param enemies MDTEnemy[]
 local function Weight(path, enemies)
     if path == "" then
         return 0
@@ -155,6 +180,7 @@ local function Weight(path, enemies)
     return weights[path]
 end
 
+---@param path string
 local function CheckPath(path)
     local length, weight = Length(path), weights[path]
 
@@ -171,6 +197,7 @@ local function CheckPath(path)
     return result
 end
 
+---@param path string
 local function Enqueue(path)
     local weight = weights[path]
 
@@ -192,7 +219,7 @@ local function Dequeue()
         queue[1], queue[queueSize], queueSize = queue[queueSize], nil, queueSize - 1
 
         -- Heapify
-        local min, i, l, r = 1
+        local min, i, l, r = 1, nil, nil, nil
         repeat
             i, l, r = min, 2*min, 2*min+1
             if l <= queueSize and weights[queue[l]] < weights[queue[min]] then 
@@ -210,6 +237,9 @@ local function Dequeue()
     end
 end
 
+---@param path string
+---@param enemies MDTEnemy[]
+---@param grp? EnemyGroup
 local function DeepSearch(path, enemies, grp)
     local enemyId = MDTGuideDB.route.kills[Length(path)+1]
     local minPath
@@ -236,6 +266,9 @@ local function DeepSearch(path, enemies, grp)
     return minPath or path
 end
 
+---@param path string
+---@param enemies MDTEnemy[]
+---@param grps string[]
 local function WideSearch(path, enemies, grps)
     local enemyId = MDTGuideDB.route.kills[Length(path)+1]
     local found
@@ -337,7 +370,7 @@ function Addon.CalculateRoute()
     Addon.ColorEnemies()
 
     if zoom then
-        zoom = rerun
+        zoom = not not rerun
         Addon.ZoomToCurrentPull()
     end
     if rerun then
@@ -360,6 +393,7 @@ function Addon.UseRoute(val)
     return MDTGuideDB.options.route and useRoute
 end
 
+---@param z? boolean
 function Addon.UpdateRoute(z)
     zoom = zoom or z
     rerun = false
@@ -394,6 +428,8 @@ function Addon.ResetRoute()
     useRoute = true
 end
 
+---@return number?
+---@return MDTPull?
 function Addon.GetCurrentPullByRoute()
     local path = MDTGuideDB.route.path
 
@@ -469,7 +505,7 @@ function Addon.BuildGroups()
                 grp.y = grp.y + (clone.y - grp.y) / grp.length
             else
                 grp.sublevel = false
-                grp.x, grp.y = nil
+                grp.x, grp.y = nil, nil
             end
         end
     end)
