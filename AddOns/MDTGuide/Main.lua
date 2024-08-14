@@ -6,7 +6,9 @@ local Addon = select(2, ...)
 MDTG = Addon
 MDTGuideDB = {
     active = false,
+    ---@type number?
     dungeon = nil,
+    ---@type { path: string, kills: number[] }
     route = { path = "", kills = {} },
     options = {
         height = 200,
@@ -129,29 +131,29 @@ function Addon.DisableGuideMode()
     Addon.ToggleHideFrames()
 
     -- Reset top panel
-    local f = main.topPanel
-    f:ClearAllPoints()
-    f:SetPoint("BOTTOMLEFT", main, "TOPLEFT")
-    f:SetPoint("BOTTOMRIGHT", main, "TOPRIGHT")
-    f:SetHeight(30)
-    f = main.topPanelLogo
-    f:SetWidth(24)
-    f:SetHeight(24)
+    local w = main.topPanel
+    w:ClearAllPoints()
+    w:SetPoint("BOTTOMLEFT", main, "TOPLEFT")
+    w:SetPoint("BOTTOMRIGHT", main, "TOPRIGHT")
+    w:SetHeight(30)
+    w = main.topPanelLogo
+    w:SetWidth(24)
+    w:SetHeight(24)
 
     -- Reset bottom panel
     main.bottomPanel:SetHeight(30)
 
     -- Reset side panel
-    f = main.sidePanel
-    f:SetWidth(251)
-    f:SetPoint("TOPLEFT", main, "TOPRIGHT", 0, 30)
-    f:SetPoint("BOTTOMLEFT", main, "BOTTOMRIGHT", 0, -30)
+    w = main.sidePanel
+    w:SetWidth(251)
+    w:SetPoint("TOPLEFT", main, "TOPRIGHT", 0, 30)
+    w:SetPoint("BOTTOMLEFT", main, "BOTTOMRIGHT", 0, -30)
     toggleBtn:SetPoint("RIGHT", main.maximizeButton, "LEFT", 0, 0)
     currentPullBtn:Hide()
     announceBtn:Hide()
 
     -- Reset enemy info
-    f = main.sidePanel.PullButtonScrollGroup.frame
+    local f = main.sidePanel.PullButtonScrollGroup.frame
     f:ClearAllPoints()
     f:SetWidth(248)
     f:SetHeight(410)
@@ -231,6 +233,7 @@ function Addon.ToggleHideFrames()
     local main = MDT.main_frame
     local fn = MDTGuideDB.active and "Hide" or "Show"
 
+    ---@type table<FontString | AceGUIWidget>
     hideFrames = hideFrames or {
         main.bottomPanelString,
         main.sidePanel.WidgetGroup,
@@ -515,6 +518,7 @@ end
 --                Announce
 -- ---------------------------------------
 
+---@param n? number
 function Addon.AnnouncePull(n)
     n = n or MDT:GetCurrentPreset().value.currentPull
     if not n then return end
@@ -539,6 +543,7 @@ function Addon.AnnouncePull(n)
     end
 end
 
+---@param selection? number[]
 function Addon.AnnounceSelectedPulls(selection)
     selection = selection or MDT:GetCurrentPreset().value.selection
     if not selection then return end
@@ -548,6 +553,7 @@ function Addon.AnnounceSelectedPulls(selection)
     end
 end
 
+---@param n? number 
 function Addon.AnnounceNextPulls(n)
     n = n or MDT:GetCurrentPreset().value.currentPull
     if not n then return end
@@ -571,6 +577,8 @@ function Addon.GetEnemyForces()
     return tonumber((curr:gsub("%%", ""))), total
 end
 
+---@param encounterID number
+---@return boolean?
 function Addon.IsEncounterDefeated(encounterID)
     -- The asset ID seems to be the only thing connecting scenario steps
     -- and journal encounters, other than trying to match the name :/
@@ -586,6 +594,8 @@ function Addon.IsEncounterDefeated(encounterID)
     end
 end
 
+---@return number?
+---@return MDTPull?
 function Addon.GetCurrentPullByEnemyForces()
     local ef = Addon.GetEnemyForces()
     if not ef then return end
@@ -617,7 +627,7 @@ function Addon.ZoomToCurrentPull(refresh)
         Addon.UpdateRoute(true)
     elseif Addon.IsActive() then
         local n, pull = Addon.GetCurrentPull()
-        if n then
+        if n then ---@cast pull -?
             MDT:SetSelectionToPull(n)
             if MDT:GetCurrentSubLevel() ~= Addon.GetBestSubLevel(pull) then
                 Addon.ZoomToPull(n)
@@ -736,6 +746,7 @@ local OnEvent = function(_, ev, ...)
                 end
 
                 if not announceBtn then
+                    ---@type SquareIconButton
                     announceBtn = CreateFrame("Button", nil, MDT.main_frame, "SquareIconButtonTemplate")
                     announceBtn:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Up")
                     announceBtn:SetDisabledTexture("Interface\\Buttons\\UI-GuildButton-MOTD-Disabled")
@@ -923,18 +934,15 @@ function SlashCmdList.MDTG(args)
 
     -- Zoom
     elseif cmd == "zoom" then
-        arg1 = tonumber(arg1)
-        if not arg1 then
-            return Addon.Echo(cmd, "First parameter must be a number.")
-        end
-        arg2 = not arg2 and arg1 or tonumber(arg2)
-        if not arg2 then
-            return Addon.Echo(cmd, "Second parameter must be a number if set.")
-        end
+        local min = tonumber(arg1)
+        if not min then return Addon.Echo(cmd, "First parameter must be a number.") end
 
-        op.zoomMin = arg1
-        op.zoomMax = arg2
-        Addon.Echo("Zoom scale", "Set to %s/%s", arg1, arg2)
+        local max = not arg2 and min or tonumber(arg2)
+        if not max then return Addon.Echo(cmd, "Second parameter must be a number if set.") end
+
+        op.zoomMin = min
+        op.zoomMax = max
+        Addon.Echo("Zoom scale", "Set to %s/%s", min, max)
 
     -- Fade
     elseif cmd == "fade" then

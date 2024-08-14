@@ -53,6 +53,12 @@ function Addon.GetCurrentPulls()
     return MDT:GetCurrentPreset().value.pulls
 end
 
+---@generic P, R1, R2
+---@param pull MDTPull | number
+---@param fn fun(clone: MDTClone, enemy: MDTEnemy, cloneId: number, enemyId: number, pull: MDTPull, ...: any): R1?, R2?
+---@param ... P
+---@return R1?
+---@return R2?
 function Addon.IteratePull(pull, fn, ...)
     local enemies = Addon.GetCurrentEnemies()
 
@@ -73,6 +79,11 @@ function Addon.IteratePull(pull, fn, ...)
     end
 end
 
+---@generic P, R1, R2
+---@param fn fun(clone: MDTClone, enemy: MDTEnemy, cloneId: number, enemyId: number, pull: MDTPull, pullId: number, ...: P): R1?, R2?
+---@param ... P
+---@return R1?
+---@return R2?
 function Addon.IteratePulls(fn, ...)
     for i,pull in ipairs(Addon.GetCurrentPulls()) do
         local a, b = Addon.IteratePull(pull, fn, i, ...)
@@ -80,6 +91,9 @@ function Addon.IteratePulls(fn, ...)
     end
 end
 
+---@param pull MDTPull
+---@param level number
+---@param border? number
 function Addon.GetPullRect(pull, level, border)
     ---@type number, number, number, number
     local minX, minY, maxX, maxY
@@ -99,6 +113,14 @@ function Addon.GetPullRect(pull, level, border)
     return minX, minY, maxX, maxY
 end
 
+---@param minX number?
+---@param minY number?
+---@param maxX number?
+---@param maxY number?
+---@param left number?
+---@param top number?
+---@param right number?
+---@param bottom number?
 function Addon.ExtendRect(minX, minY, maxX, maxY, left, top, right, bottom)
     if not minX or not left then return minX, minY, maxX, maxY end
 
@@ -109,6 +131,14 @@ function Addon.ExtendRect(minX, minY, maxX, maxY, left, top, right, bottom)
     return max(0, minX - left), min(0, minY - top), maxX + right, maxY + bottom
 end
 
+---@param minX number?
+---@param minY number?
+---@param maxX number?
+---@param maxY number?
+---@param minX2 number?
+---@param minY2 number?
+---@param maxX2 number?
+---@param maxY2 number?
 function Addon.CombineRects(minX, minY, maxX, maxY, minX2, minY2, maxX2, maxY2)
     if not minX or not minX2 then return minX, minY, maxX, maxY end
 
@@ -116,8 +146,11 @@ function Addon.CombineRects(minX, minY, maxX, maxY, minX2, minY2, maxX2, maxY2)
     return Addon.ExtendRect(minX, minY, maxX, maxY, diffX, diffY)
 end
 
+---@param pull MDTPull
+---@return number
 function Addon.GetBestSubLevel(pull)
     local currSub, minDiff = MDT:GetCurrentSubLevel()
+
     Addon.IteratePull(pull, function (clone)
         local diff = clone.sublevel - currSub
         if not minDiff or abs(diff) < abs(minDiff) or abs(diff) == abs(minDiff) and diff < minDiff then
@@ -125,15 +158,23 @@ function Addon.GetBestSubLevel(pull)
         end
         return minDiff == 0
     end)
+
     return minDiff and currSub + minDiff
 end
 
+---@param pull MDTPull
+---@return number
 function Addon.GetLastSubLevel(pull)
     local sublevel
     Addon.IteratePull(pull, function (clone) sublevel = clone.sublevel or sublevel end)
     return sublevel
 end
 
+---@param tbl table
+---@param key1 any
+---@param val1 any
+---@param key2 any
+---@param val2 any
 function Addon.FindWhere(tbl, key1, val1, key2, val2)
     for i,v in pairs(tbl) do
         if v[key1] == val1 and (not key2 or v[key2] == val2) then
