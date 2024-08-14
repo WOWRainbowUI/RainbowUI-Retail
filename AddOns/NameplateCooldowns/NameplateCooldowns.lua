@@ -1,10 +1,10 @@
 -- luacheck: no max line length
--- luacheck: globals GetBuildInfo LibStub NAuras_LibButtonGlow UIParent bit GetTime C_Timer C_NamePlate UnitGUID InterfaceOptionsFrameCancel wipe
+-- luacheck: globals GetBuildInfo LibStub NAuras_LibButtonGlow UIParent bit GetTime C_Timer C_NamePlate UnitGUID wipe
 -- luacheck: globals C_Spell SLASH_NAMEPLATECOOLDOWNS1 SlashCmdList UNKNOWN IsInGroup LE_PARTY_CATEGORY_INSTANCE IsInRaid C_ChatInfo CreateFrame
 -- luacheck: globals unpack InCombatLockdown ColorPickerFrame BackdropTemplateMixin UIDropDownMenu_SetWidth UIDropDownMenu_AddButton GameFontNormal
--- luacheck: globals InterfaceOptionsFrame_OpenToCategory GetSpellInfo GameFontHighlightSmall hooksecurefunc ALL GameTooltip FillLocalizedClassList
+-- luacheck: globals GameFontHighlightSmall hooksecurefunc ALL GameTooltip FillLocalizedClassList
 -- luacheck: globals OTHER PlaySound SOUNDKIT COMBATLOG_OBJECT_REACTION_HOSTILE CombatLogGetCurrentEventInfo IsInInstance strsplit UnitName GetRealmName
--- luacheck: globals UnitReaction UnitAura GetInstanceInfo
+-- luacheck: globals UnitReaction GetInstanceInfo C_UnitAuras
 
 local _, addonTable = ...;
 local Interrupts = addonTable.Interrupts;
@@ -12,7 +12,7 @@ local Trinkets = addonTable.Trinkets;
 local Reductions = addonTable.Reductions;
 
 --@non-debug@
-local buildTimestamp = "110000.0-release";
+local buildTimestamp = "110002.1-release";
 --@end-non-debug@
 
 -- Libraries
@@ -59,7 +59,7 @@ local FeignDeathGUIDs = {};
 
 local pairs, string_gsub, string_find, bit_band, GetTime, math_ceil, table_sort, string_format, C_Timer_NewTimer, math_max, C_NamePlate_GetNamePlateForUnit, UnitGUID =
 	  pairs, string.gsub,	string.find, bit.band, GetTime, math.ceil, table.sort, string.format, C_Timer.NewTimer, math.max, C_NamePlate.GetNamePlateForUnit, UnitGUID;
-local wipe, IsInGroup, unpack, tinsert, UnitReaction, UnitAura = wipe, IsInGroup, unpack, table.insert, UnitReaction, UnitAura;
+local wipe, IsInGroup, unpack, tinsert, UnitReaction, C_UnitAuras_GetAuraDataByIndex = wipe, IsInGroup, unpack, table.insert, UnitReaction, C_UnitAuras.GetAuraDataByIndex;
 local GetInstanceInfo, CTimerAfter, GetSpellLink = GetInstanceInfo, C_Timer.After, C_Spell.GetSpellLink;
 
 local OnStartup, InitializeDB;
@@ -849,10 +849,11 @@ do
 			if (not unitIsFriend or (db.ShowCDOnAllies == true and unitGUID ~= LocalPlayerGUID)) then
 				local feignDeathFound = false;
 				for auraIndex = 1, 40 do
-					local spellName, _, _, _, _, _, _, _, _, spellId = UnitAura(_unitID, auraIndex);
-					if (spellName == nil) then
+					local aura = C_UnitAuras_GetAuraDataByIndex(_unitID, auraIndex);
+					if (aura == nil) then
 						break;
 					end
+					local spellId = aura.spellId;
 					if (spellId == HUNTER_FEIGN_DEATH) then
 						feignDeathFound = true;
 						break;
