@@ -425,7 +425,7 @@ function module:ShowConfigMenu(frame)
 	end
 	MenuUtil.CreateContextMenu(frame, function(owner, rootDescription)
 		rootDescription:SetTag("MENU_SILVERDRAGON_HISTORY_CONTEXT")
-		rootDescription:CreateTitle("稀有怪獸與牠們的產地: " .. HISTORY)
+		rootDescription:CreateTitle("稀有怪獸與牠們的產地: 歷史記錄")
 		rootDescription:CreateCheckbox("啟用", isChecked, function()
 			db.enabled = false
 			module:Disable()

@@ -12,7 +12,7 @@ function module:RegisterConfig()
 	if not config then return end
 	config.options.plugins.history = { history = {
 		type = "group",
-		name = HISTORY,
+		name = "歷史記錄",
 		get = function(info) return self.db.profile[info[#info]] end,
 		set = function(info, v)
 			self.db.profile[info[#info]] = v
