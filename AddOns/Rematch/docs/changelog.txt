@@ -1,3 +1,9 @@
+08/13/2024 version 5.2.4
+- Fix for lua error when picking up a spell or item from the toolbar
+- Fix for buff-related errors when wearing a Safari Hat
+- Updated docs/extending.txt to describe how to add new stats/buttons to pet cards
+- toc update for 11.0.2 patch
+
 08/01/2024 version 5.2.3
 - Added The War Within (Khaz Algal) targets to the Targets tab (all except Ziriak)
 - Changed the expansion color for The War Within to a lighter shade that's easier to read

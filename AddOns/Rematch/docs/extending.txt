@@ -145,7 +145,7 @@ __ Adding Badges __
         "groups"  : team group headers
 
     To register a badge (within this addon and outside it), use:
-    
+
     Rematch.badges:RegisterBadge(list,name,icon,coords,callback,override)
 
         list (string) is one of the above four lists (can be anything but Rematch only adds badges for these)
@@ -257,9 +257,30 @@ treated as a literal always.
 
 __ Pet Cards __
 
-Any button can show a pet card by setting up an OnEnter, OnLeave and OnClick like below.
+An outside addon can easily add its own "stats" to the front of the pet card, which can be purely informational
+or can also be clickable. This example adds an Auction House Price button to pet cards of pets with "Cat" in
+their name, that could potentially open another window when clicked:
 
-Assuming 'self' is a reference to the button and button.petID contains the petID to show:
+    tinsert(Rematch.petCardStats,{
+        icon = "Interface\\Buttons\\UI-GroupLoot-Coin-Up",
+        tooltipTitle = "Auction House Price",
+        tooltipBody = Rematch.constants.LMB_TEXT_ICON.." Click for more details.",
+        show = function(self,petInfo)
+            return petInfo.name:match("Cat")
+        end,
+        value = function(self,petInfo)
+            return "500g"
+        end,
+        click = function(self,petInfo)
+            print("open another window here")
+        end
+    })
+
+See cards/petCardStats.lua to see more information and how other stats are defined.
+
+Also, any button can show a pet card by setting up an OnEnter, OnLeave and OnClick like below.
+
+Assuming 'self' is a reference to the button and self.petID contains the petID to show:
 
     Rematch.cardManager:OnEnter(Rematch.petCard,self,self.petID)
     Rematch.cardManager:OnLeave(Rematch.petCard,self,self.petID)
