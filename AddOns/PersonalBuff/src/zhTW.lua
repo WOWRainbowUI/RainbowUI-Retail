@@ -53,7 +53,7 @@ L["Party buff"] = "小隊增益"
 L["CONFIRM_ADD_CUSTOM_BUFF"] = "確定新增自訂增益"
 L["Do you want to add the buff: %s (%d)?"] = "是否要新增增益: %s (%d)?"
 L["added successfully."] = "新增成功。"
-L["is exist."] = "已存在。"
+L["is exist."] = "已經有了。"
 L["Add Custom Buff (Spell ID)"] = "新增自訂增益 (法術ID)"
 L["Enter the Spell ID of the buff you want to add."] = "輸入想要新增的法術ID。"
 

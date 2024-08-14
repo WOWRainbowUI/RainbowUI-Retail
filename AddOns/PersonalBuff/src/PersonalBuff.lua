@@ -413,6 +413,11 @@ local function EventHandler(self, event,...)
 		end
 		setNameplateBarTexture() -- 暫時修正
         setBuffFramePoint()
+		-- if nameplate show before UNIT_AURA ,maybe buff frame will not show so need trigger it
+		if  UnitIsUnit("player",select(1, ...)) then
+            getDefaultBuffIDTable()
+            updateAura()
+        end
     elseif event == "PLAYER_REGEN_ENABLED" then
         checkDefaultSpellListDB()
         UpdateDefaultBuffs()
