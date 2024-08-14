@@ -127,7 +127,7 @@ function CalReminder:ReloadData()
 end
 
 function CalReminderShowCalendar(monthOffset, day, id)
-	if ( not IsAddOnLoaded("Blizzard_Calendar") ) then
+	if ( not C_AddOns.IsAddOnLoaded("Blizzard_Calendar") ) then
 		UIParentLoadAddOn("Blizzard_Calendar")
 	end
 	if ( Calendar_Toggle ) then

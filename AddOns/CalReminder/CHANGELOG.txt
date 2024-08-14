@@ -1,4 +1,7 @@
-﻿- v1.2.7
+﻿- v1.2.8
+	- TOC for 11.0.2.
+	- Fixed: Deprecated calls.
+- v1.2.7
 	- [EZBlizzardUiPopups] v1.0.9 integration.
 - v1.2.6
 	- [EZBlizzardUiPopups] v1.0.6 integration.
