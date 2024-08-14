@@ -108,10 +108,13 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
 
   local bagWidth = addonTable.Config.Get(addonTable.Config.Options.BAG_VIEW_WIDTH)
 
-  activeBag:ShowCharacter(character, "bags", Syndicator.Constants.AllBagIndexes, self.lastBagDetails.mainIndexesToUse, bagWidth)
+  local characterData = Syndicator.API.GetCharacter(character) 
+  local bagData = characterData and characterData.bags
+
+  activeBag:ShowBags(bagData, character, Syndicator.Constants.AllBagIndexes, self.lastBagDetails.mainIndexesToUse, bagWidth)
 
   for index, layout in ipairs(activeBagCollapsibles) do
-    layout:ShowCharacter(character, "bags", Syndicator.Constants.AllBagIndexes, self.CollapsingBags[index].indexesToUse, bagWidth)
+    layout:ShowBags(bagData, character, Syndicator.Constants.AllBagIndexes, self.CollapsingBags[index].indexesToUse, bagWidth)
   end
 
   if self.searchToApply then
@@ -164,6 +167,8 @@ function BaganatorSingleViewBackpackViewMixin:UpdateForCharacter(character, isLi
   end
 
   self:UpdateAllButtons()
+
+  self.CurrencyWidget:UpdateCurrencyTextVisibility(lastButton and lastButton:GetRight() - self:GetLeft() + 10 or sideSpacing + addonTable.Constants.ButtonFrameOffset)
 
   addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
 

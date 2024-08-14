@@ -83,6 +83,13 @@ local function SetupBackpackView()
     UpdateButtons()
   end)
 
+  addonTable.CallbackRegistry:RegisterCallback("QuickSearch",  function(_)
+    if not backpackView:IsShown() then
+      addonTable.CallbackRegistry:TriggerEvent("BagShow")
+    end
+    backpackView.SearchWidget.SearchBox:SetFocus()
+  end)
+
   addonTable.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
     if settingName == addonTable.Config.Options.VIEW_TYPE then
       local isShown = backpackView:IsShown()
@@ -189,7 +196,7 @@ local function SetupBankView()
       bankView:Show()
       bankView:UpdateViewToCharacter(characterName)
     elseif type(entity) == "number" then -- Warband bank
-      subView = subView or 1
+      subView = subView or addonTable.Config.Get(addonTable.Config.Options.WARBAND_CURRENT_TAB)
       bankView:Show()
       bankView:UpdateViewToWarband(entity, subView)
     end
@@ -376,7 +383,14 @@ function addonTable.ViewManagement.Initialize()
   xpcall(function()
     local info = C_XMLUtil.GetTemplateInfo("BackpackTokenTemplate")
     local tokenWidth = info and info.width or 50
-    BackpackTokenFrame:SetWidth(tokenWidth * 3 + 1) -- Support tracking up to 3 currencies
+    -- Reverts token frame width change after using the character frame to avoid
+    -- unexpected freezes.
+    TokenFramePopup:HookScript("OnShow", function()
+      BackpackTokenFrame:SetWidth(tokenWidth * addonTable.Constants.MaxPinnedCurrencies + 1) -- Support tracking up to 100 currencies
+    end)
+    TokenFramePopup:HookScript("OnHide", function()
+      BackpackTokenFrame:SetWidth(tokenWidth * 3 + 1)
+    end)
   end, CallErrorHandler)
 
   xpcall(function()

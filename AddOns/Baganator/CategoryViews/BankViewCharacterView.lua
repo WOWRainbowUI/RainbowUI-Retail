@@ -8,19 +8,14 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:OnLoad()
   self.LiveLayouts = {}
   self.CachedLayouts = {}
 
+  self.LayoutManager = CreateFrame("Frame", nil, self)
+  Mixin(self.LayoutManager, addonTable.CategoryViews.BagLayoutMixin)
+  self.LayoutManager:OnLoad()
+
   self:RegisterEvent("CURSOR_CHANGED")
 
-  for _, layout in ipairs(self.LiveLayouts) do
-    layout:SetPool(self.liveItemButtonPool)
-  end
-
-  self.labelsPool = CreateFramePool("Button", self, "BaganatorCategoryViewsCategoryButtonTemplate")
-  self.sectionButtonPool = addonTable.CategoryViews.GetSectionButtonPool(self)
-  self.dividerPool = CreateFramePool("Button", self, "BaganatorBagDividerTemplate")
-
   addonTable.CallbackRegistry:RegisterCallback("ContentRefreshRequired",  function()
-    self.MultiSearch:ResetCaches()
-    self.results = nil
+    self.LayoutManager:FullRefresh()
     for _, layout in ipairs(self.Layouts) do
       layout:RequestContentRefresh()
     end
@@ -35,7 +30,7 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:OnLoad()
     end
     if tIndexOf(addonTable.CategoryViews.Constants.RedisplaySettings, settingName) ~= nil then
       self.searchToApply = true
-      self.results = nil
+      self.LayoutManager:SettingChanged(settingName)
       if self:IsVisible() then
         self:GetParent():UpdateView()
       end
@@ -43,13 +38,12 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:OnLoad()
       for _, layout in ipairs(self.Layouts) do
         layout:InformSettingChanged(settingName)
       end
-      self.results = nil
+      self.LayoutManager:SettingChanged(settingName)
       if self:IsVisible() then
         self:UpdateForCharacter(self.lastCharacter, self.isLive)
       end
     elseif settingName == addonTable.Config.Options.JUNK_PLUGIN then
-      self.MultiSearch:ResetCaches()
-      self.results = nil
+      self.LayoutManager:SettingChanged(settingName)
       if self:IsVisible() then
         self:GetParent():UpdateView()
       end
@@ -79,7 +73,7 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:TransferCategory(associ
     return
   end
 
-  self:RemoveSearchMatches(function() return tFilter(self.results[associatedSearch].all, function(a) return a.itemLink ~= nil end, true) end)
+  self:RemoveSearchMatches(function() return self.LayoutManager.results and tFilter(self.LayoutManager.results[associatedSearch].all, function(a) return a.itemLink ~= nil end, true) end)
 end
 
 function BaganatorCategoryViewBankViewCharacterViewMixin:GetSearchMatches()
@@ -103,15 +97,15 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:ApplySearch(text)
 end
 
 function BaganatorCategoryViewBankViewCharacterViewMixin:NotifyBagUpdate(updatedBags)
+  self.LayoutManager:NotifyBagUpdate(updatedBags.bank)
 end
 
 function BaganatorCategoryViewBankViewCharacterViewMixin:UpdateForCharacter(character, isLive)
+  if character ~= self.lastCharacter then
+    self.LayoutManager:NewCharacter()
+  end
+
   BaganatorItemViewCommonBankViewCharacterViewMixin.UpdateForCharacter(self, character, isLive)
-
-  self:GetParent().AllButtons = {}
-
-  tAppendAll(self:GetParent().AllButtons, self:GetParent().AllFixedButtons)
-  tAppendAll(self:GetParent().AllButtons, self.TopButtons)
 
   -- Copied from SingleViews/BagView.lua
   local sideSpacing, topSpacing = 13, 14
@@ -119,6 +113,27 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:UpdateForCharacter(char
     sideSpacing = 8
     topSpacing = 7
   end
+
+  if self.BankMissingHint:IsShown() then
+    self:SetSize(
+      math.max(400, self.BankMissingHint:GetWidth()) + sideSpacing * 2 + addonTable.Constants.ButtonFrameOffset + 40,
+      80 + topSpacing / 2
+    )
+    self.CurrencyWidget:UpdateCurrencyTextVisibility()
+    for _, l in ipairs(self.Layouts) do
+      l:Hide()
+    end
+    self.LayoutManager:ClearVisuals()
+
+    addonTable.CallbackRegistry:TriggerEvent("ViewComplete")
+    self:GetParent():OnTabFinished()
+    return
+  end
+
+  self:GetParent().AllButtons = {}
+
+  tAppendAll(self:GetParent().AllButtons, self:GetParent().AllFixedButtons)
+  tAppendAll(self:GetParent().AllButtons, self.TopButtons)
 
   local buttonPadding = 0
 
@@ -145,27 +160,14 @@ function BaganatorCategoryViewBankViewCharacterViewMixin:UpdateForCharacter(char
   end
 
   local characterData = Syndicator.API.GetCharacter(character)
-  if characterData and characterData.bank == nil or #characterData.bank == 0 then
-    self:SetSize(
-      math.max(400, self.BankMissingHint:GetWidth()) + sideSpacing * 2 + addonTable.Constants.ButtonFrameOffset + 40,
-      80 + topSpacing / 2 + buttonPadding
-    )
-    for _, l in ipairs(self.Layouts) do
-      l:Hide()
-    end
-    self.labelsPool:ReleaseAll()
-    self.sectionButtonPool:ReleaseAll()
-    self.dividerPool:ReleaseAll()
-    self:GetParent():OnTabFinished()
-    return
-  end
-
   local bagTypes = addonTable.CategoryViews.Utilities.GetBagTypes(characterData, "bank", Syndicator.Constants.AllBankIndexes)
-  addonTable.CategoryViews.LayoutContainers(self, characterData.bank, "bank", bagTypes, Syndicator.Constants.AllBankIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight)
+  local bagWidth = addonTable.Config.Get(addonTable.Config.Options.BANK_VIEW_WIDTH)
+  self.LayoutManager:Layout(characterData.bank, bagWidth, bagTypes, Syndicator.Constants.AllBankIndexes, sideSpacing, topSpacing, function(maxWidth, maxHeight)
     self:SetSize(
       math.max(addonTable.CategoryViews.Constants.MinWidth, maxWidth + sideSpacing * 2 + addonTable.Constants.ButtonFrameOffset - 2),
       maxHeight + 75 + topSpacing / 2 + buttonPadding
     )
+    self.CurrencyWidget:UpdateCurrencyTextVisibility(sideSpacing + addonTable.Constants.ButtonFrameOffset)
 
     local searchText = self:GetParent().SearchWidget.SearchBox:GetText()
     if self.searchToApply then
