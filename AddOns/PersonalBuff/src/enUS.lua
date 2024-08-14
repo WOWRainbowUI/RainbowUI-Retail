@@ -58,3 +58,4 @@ L["Health bar color will change after the character moves"] = "Health bar color 
 L["Changes will take effect the next time you reload"] = "Changes will take effect the next time you reload"
 L["Invalid Spell ID."] = "Invalid Spell ID."
 L["Please enter a valid number."] = "Please enter a valid number."
+L["IconGroup"] = "IconGroup"

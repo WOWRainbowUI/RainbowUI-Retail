@@ -223,7 +223,8 @@ function CreateBuffFrame(FrameSetting)
     BuffFrame.icons = {}
 
     if Masque then
-        IconGroup = Masque:Group("PersonalBuff", "IconGroup")
+        local L = LibStub("AceLocale-3.0"):GetLocale("PersonalBuff")
+		IconGroup = Masque:Group(L["Personal Buff"], L["IconGroup"])
     end
 
     for _,i in ipairs(FrameSetting.Spells) do

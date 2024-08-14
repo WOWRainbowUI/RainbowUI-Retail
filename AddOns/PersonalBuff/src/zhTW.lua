@@ -62,3 +62,4 @@ L["Health bar color will change after the character moves"] = "角色移動後�
 L["Changes will take effect the next time you reload"] = "變更會在下次重新載入時會生效"
 L["Invalid Spell ID."] = "無效的法術 ID。"
 L["Please enter a valid number."] = "請輸入有效的數字。"
+L["IconGroup"] = "圖示群組"
