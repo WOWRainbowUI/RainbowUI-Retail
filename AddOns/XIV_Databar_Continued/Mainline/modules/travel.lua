@@ -337,16 +337,21 @@ function TravelModule:SetHearthColor()
             end
         end -- if toy/item
         if IsPlayerSpell(v) then
-            if GetSpellCooldown(v) == 0 then
-                hearthName, _ = GetSpellInfo(v)
-                if xb.db.profile.randomizeHs then
-                    table.insert(keyset, i)
-                    self.availableHearthstones[v] = {name = hearthName}
-                else
-                    hearthActive = true
-                    self.hearthButton:SetAttribute("macrotext",
-                                                   "/cast " .. hearthName)
-                end
+            -- if GetSpellCooldown(v) == 0 then
+			local spellCooldownInfo = C_Spell.GetSpellCooldown(v)
+            if spellCooldownInfo and spellCooldownInfo.startTime == 0 then
+                -- hearthName, _ = GetSpellInfo(v)
+				local spellInfo = C_Spell.GetSpellInfo(v)
+                if spellInfo ~= nil then
+					if xb.db.profile.randomizeHs then
+						table.insert(keyset, i)
+						self.availableHearthstones[v] = {name = spellInfo.name}
+					else
+						hearthActive = true
+						self.hearthButton:SetAttribute("macrotext",
+													   "/cast " .. spellInfo.name)
+					end
+				end
             end
         end -- if is spell
     end -- for hearthstones
@@ -417,12 +422,14 @@ function TravelModule:SetPortColor()
             end
         end -- if toy
         if IsPlayerSpell(v) then
-            if GetSpellCooldown(v) == 0 then
-                hearthName, _ = GetSpellInfo(v)
-                if hearthName ~= nil then
+			local spellCooldownInfo = C_Spell.GetSpellCooldown(v)
+            if spellCooldownInfo and spellCooldownInfo.startTime == 0 then
+                -- hearthName, _ = GetSpellInfo(v)
+				local spellInfo = C_Spell.GetSpellInfo(v)
+                if spellInfo ~= nil then
                     hearthActive = true
                     self.portButton:SetAttribute("macrotext",
-                                                 "/cast " .. hearthName)
+                                                 "/cast " .. spellInfo.name)
                 end
             end
         end -- if is spell
@@ -637,7 +644,10 @@ function TravelModule:ShowTooltip()
                     GameTooltip:AddDoubleLine(v.text, cdString, r, g, b, 1, 1, 1)
                 end
                 if IsPlayerSpell(v.portId) then
-                    local _, cd, _ = GetSpellCooldown(v.portId)
+                    -- local _, cd, _ = GetSpellCooldown(v.portId)
+					local cd = 0
+					local spellCooldownInfo = C_Spell.GetSpellCooldown(v.portId)
+					if spellCooldownInfo then cd = spellCooldownInfo.duration end
                     local cdString = self:FormatCooldown(cd)
                     GameTooltip:AddDoubleLine(v.text, cdString, r, g, b, 1, 1, 1)
                 end
