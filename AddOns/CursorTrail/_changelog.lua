@@ -7,6 +7,22 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.2.1
+Released 2024-08-13
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.2.1 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for WoW 11.0.2.
+- Fixed bugs caused by WoW API changes.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 4.4.0.9 for Classic Cataclysm
+Version 1.15.3.4 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+=======================================
 RELEASE 11.0.0.2
 Released 2024-08-10
 
