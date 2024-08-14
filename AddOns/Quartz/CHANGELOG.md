@@ -1,9 +1,10 @@
 # Quartz
 
-## [3.7.12](https://github.com/Nevcairiel/Quartz/tree/3.7.12) (2024-07-27)
-[Full Changelog](https://github.com/Nevcairiel/Quartz/compare/3.7.11...3.7.12) [Previous Releases](https://github.com/Nevcairiel/Quartz/releases)
+## [3.7.13](https://github.com/Nevcairiel/Quartz/tree/3.7.13) (2024-08-14)
+[Full Changelog](https://github.com/Nevcairiel/Quartz/compare/3.7.12...3.7.13) [Previous Releases](https://github.com/Nevcairiel/Quartz/releases)
 
-- Fix syntax error  
-- Remove 10.2.7 from the TOC  
-- Update slash command for WoW 11  
-- Update C\_AddOns API  
+- Fix merge mistake  
+- Fix Priest channeling ticks  
+    - Add Mind Flay: Insanity spell  
+    - Update talent check verification to IsPlayerSpell()  
+    - Update event list to include new TRAIT\_CONFIG\_UPDATED event for talent changes  
