@@ -487,5 +487,6 @@ function KT_QUEST_TRACKER_MODULE:ShouldDisplayQuest(quest)
 		return false;
 	end
 
-	return quest:GetSortType() ~= QuestSortType.Campaign;
+	-- return quest:GetSortType() ~= QuestSortType.Campaign;
+	return true;
 end
