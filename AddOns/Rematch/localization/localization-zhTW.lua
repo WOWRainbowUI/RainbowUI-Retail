@@ -984,6 +984,6 @@ L["Top Right"] = "右上"
 L["Top Center"] = "中上"
 L["Top Left"] = "左上"
 L["None"] = "無"
-L["Even If Team Already Loaded"] = "即使隊伍已經載入"
-L["Always interact with a saved target even if a team is already loaded for that target."] = "總是和已儲存的對手互動，即使為該對手載入隊伍。"
+L["Even If Team Already Loaded"] = "即使已經載入隊伍"
+L["Always interact with a saved target even if a team is already loaded for that target."] = "總是和已儲存的對手互動，即使已為該對手載入隊伍。"
 end
