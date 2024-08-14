@@ -164,7 +164,6 @@ function BUII_OnLoadHandler(self)
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED") -- 自行加入，修正切換專精後施法條圖示會消失
   EventRegistry:RegisterCallback("EditMode.Exit", editMode_OnExit, "BUII_Improvements_OnExit")
-  hooksecurefunc("UnitFramePortrait_Update", handleUnitFramePortraitUpdate)
 
   self.name = "介面增強"
   -- InterfaceOptions_AddCategory(self)
@@ -209,8 +208,9 @@ function BUII_OnEventHandler(self, event, arg1, ...)
 
     self:UnregisterEvent("ADDON_LOADED")
   elseif event == "PLAYER_ENTERING_WORLD" then
-    if BUIIDatabase["class_color"] then
+	if BUIIDatabase["class_color"] then
       _G["BUIIOptionsPanelHealthClassColor"]:SetChecked(true)
+	  hooksecurefunc("UnitFramePortrait_Update", handleUnitFramePortraitUpdate)
     end
 
     if BUIIDatabase["castbar_timers"] then
