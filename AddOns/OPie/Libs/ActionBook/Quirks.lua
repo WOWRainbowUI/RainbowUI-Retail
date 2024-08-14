@@ -159,7 +159,7 @@ if CF_CATA and playerClass == "PALADIN" and playerRace ~= "Tauren" then -- Only 
 end
 
 if MODERN then -- failing ability rank disambiguation
-	local Spell_ForcedID = {126819, 28272, 28271, 161372, 51514, 210873, 211004, 211010, 211015, 783}
+	local Spell_ForcedID = {126819, 28272, 28271, 161372, 51514, 210873, 211004, 211010, 211015, 783, 126892}
 	local function checkForcedIDCastable(id)
 		return not not FindSpellBookSlotBySpellID(id), "forced-id-cast"
 	end
