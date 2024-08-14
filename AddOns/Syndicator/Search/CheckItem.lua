@@ -33,6 +33,7 @@ local function GetClassSubClass(details)
 end
 
 local function PetCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Battlepet or (details.classID == Enum.ItemClass.Miscellaneous and details.subClassID == Enum.ItemMiscellaneousSubclass.CompanionPet)
 end
 
@@ -54,7 +55,7 @@ local function SetCheck(details)
 end
 
 local function EngravableCheck(details)
-  return details.isEngravable
+  return details.isEngravable == true
 end
 
 local function EngravedCheck(details)
@@ -67,10 +68,12 @@ local function EquipmentCheck(details)
 end
 
 local function FoodCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Consumable and details.subClassID == 5
 end
 
 local function PotionCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Consumable and (details.subClassID == 1 or details.subClassID == 2 or details.subClassID == 3)
 end
 
@@ -87,26 +90,32 @@ local function CosmeticCheck(details)
 end
 
 local function AxeCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Weapon and (details.subClassID == Enum.ItemWeaponSubclass.Axe2H or details.subClassID == Enum.ItemWeaponSubclass.Axe1H)
 end
 
 local function MaceCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Weapon and (details.subClassID == Enum.ItemWeaponSubclass.Mace2H or details.subClassID == Enum.ItemWeaponSubclass.Mace1H)
 end
 
 local function SwordCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Weapon and (details.subClassID == Enum.ItemWeaponSubclass.Sword2H or details.subClassID == Enum.ItemWeaponSubclass.Sword1H)
 end
 
 local function StaffCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Weapon and (details.subClassID == Enum.ItemWeaponSubclass.Stave)
 end
 
 local function MountCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Miscellaneous and details.subClassID == Enum.ItemMiscellaneousSubclass.Mount
 end
 
 local function RelicCheck(details)
+  GetClassSubClass(details)
   return details.classID == Enum.ItemClass.Gem and details.subClassID == Enum.ItemGemSubclass.Artifactrelic
 end
 
@@ -131,35 +140,45 @@ local function SocketedCheck(details)
   end
 end
 
-local function IsTMogCollectedCompletionist(itemLink)
+local function GetSourceID(itemLink)
   local _, sourceID = C_TransmogCollection.GetItemInfo(itemLink)
+  if sourceID then
+    return sourceID
+  end
+  local _, sourceID = C_TransmogCollection.GetItemInfo((C_Item.GetItemInfoInstant(itemLink)))
+  return sourceID
+end
+
+local function IsTMogCollectedCompletionist(itemLink)
+  local sourceID = GetSourceID(itemLink)
   if not sourceID then
     return nil
   else
-    local info = C_TransmogCollection.GetSourceInfo(sourceID)
-    return info and info.isCollected
+    return C_TransmogCollection.PlayerHasTransmogItemModifiedAppearance(sourceID)
   end
 end
 
 local function IsTMogCollectedUnique(itemLink)
-  local _, sourceID = C_TransmogCollection.GetItemInfo(itemLink)
+  local sourceID = GetSourceID(itemLink)
   if not sourceID then
-    return nil
+    return
   else
-    local info = C_TransmogCollection.GetSourceInfo(sourceID)
-    if info then
-      local allSources = C_TransmogCollection.GetAllAppearanceSources(info.visualID)
-      local anyCollected = false
-      for _, alternateSourceID in ipairs(allSources) do
-        if C_TransmogCollection.GetSourceInfo(alternateSourceID).isCollected then
-          anyCollected = true
-          break
-        end
-      end
-      return anyCollected
-    else
-      return nil
+    local subClass = select(7, C_Item.GetItemInfoInstant(itemLink))
+    local sourceInfo = C_TransmogCollection.GetSourceInfo(sourceID)
+    local allSources = C_TransmogCollection.GetAllAppearanceSources(sourceInfo.visualID)
+    if #allSources == 0 then
+      allSources = {sourceID}
     end
+    local anyCollected = false
+    for _, alternateSourceID in ipairs(allSources) do
+      local altInfo = C_TransmogCollection.GetSourceInfo(alternateSourceID)
+      local altSubClass = select(7, C_Item.GetItemInfoInstant(altInfo.itemID))
+      if altInfo.isCollected and altSubClass == subClass then
+        anyCollected = true
+        break
+      end
+    end
+    return anyCollected
   end
 end
 
@@ -305,6 +324,19 @@ local function BindOnAccountCheck(details)
   if details.tooltipInfoSpell then
     for _, row in ipairs(details.tooltipInfoSpell.lines) do
       if tIndexOf(Syndicator.Constants.AccountBoundTooltipLines, row.leftText) ~= nil then
+        return true
+      end
+    end
+    return false
+  end
+end
+
+local function WarboundUntilEquippedCheck(details)
+  GetTooltipInfoSpell(details)
+
+  if details.tooltipInfoSpell then
+    for _, row in ipairs(details.tooltipInfoSpell.lines) do
+      if row.leftText == ITEM_ACCOUNTBOUND_UNTIL_EQUIP then
         return true
       end
     end
@@ -553,7 +585,6 @@ AddKeyword(SYNDICATOR_L_KEYWORD_ACCOUNT_BOUND, BindOnAccountCheck, SYNDICATOR_L_
 AddKeyword(SYNDICATOR_L_KEYWORD_USE, UseCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeyword(SYNDICATOR_L_KEYWORD_USABLE, UsableCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeyword(SYNDICATOR_L_KEYWORD_OPEN, OpenCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
-AddKeyword(MOUNT:lower(), MountCheck, SYNDICATOR_L_GROUP_ITEM_TYPE)
 AddKeyword(SYNDICATOR_L_KEYWORD_TRADEABLE_LOOT, IsTradeableLoot, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeyword(SYNDICATOR_L_KEYWORD_TRADABLE_LOOT, IsTradeableLoot, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeyword(SYNDICATOR_L_KEYWORD_RELIC, RelicCheck, SYNDICATOR_L_GROUP_ARMOR_TYPE)
@@ -570,6 +601,7 @@ if Syndicator.Constants.IsRetail then
   AddKeyword(TOY:lower(), ToyCheck, SYNDICATOR_L_GROUP_ITEM_TYPE)
   if Syndicator.Constants.WarbandBankActive then
     AddKeyword(ITEM_ACCOUNTBOUND:lower(), BindOnAccountCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
+    AddKeyword(ITEM_ACCOUNTBOUND_UNTIL_EQUIP:lower(), WarboundUntilEquippedCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
   end
 end
 
@@ -719,7 +751,7 @@ function Syndicator.Search.GetExpansion(details)
   if major then
     return major - 1
   end
-  return Baganator.Constants.IsRetail and (select(15, C_Item.GetItemInfo(details.itemID)))
+  return Syndicator.Constants.IsRetail and (select(15, C_Item.GetItemInfo(details.itemID)))
 end
 for key, expansionID in pairs(TextToExpansion) do
   AddKeyword(key, function(details)
@@ -788,6 +820,25 @@ local function GetGemStatCheck(statKey)
   end
 end
 
+local function GetResistanceStatCheck(stat)
+  return function(details)
+    if not Syndicator.Utilities.IsEquipment(details.itemLink) then
+      return false
+    end
+
+    GetTooltipInfoSpell(details)
+
+    if details.tooltipInfoSpell then
+      for _, line in ipairs(details.tooltipInfoSpell.lines) do
+        if line.leftText:find(stat) then
+          return true
+        end
+      end
+      return false
+    end
+  end
+end
+
 -- Based off of GlobalStrings.db2
 local stats = {
   "AGILITY",
@@ -847,6 +898,14 @@ for _, s in ipairs(stats) do
   end
 end
 AddKeyword(STAT_ARMOR:lower(), GetGemStatCheck(STAT_ARMOR), SYNDICATOR_L_GROUP_STAT)
+if Syndicator.Constants.IsClassic then
+  for i = 0, 6 do
+    local keyword = _G["RESISTANCE" .. i .. "_NAME"]
+    if keyword ~= nil then
+      AddKeyword(keyword:lower(), GetResistanceStatCheck(keyword), SYNDICATOR_L_GROUP_STAT)
+    end
+  end
+end
 
 -- Sorted in initialize function later
 local sortedKeywords = {}
@@ -1064,17 +1123,17 @@ local function GetTooltipSpecialTerms(details)
     return
   end
 
-  if not details.searchKeywordsTmp then
-    details.searchKeywordsTmp = {details.itemName:lower()}
+  if not details.searchKeywords then
+    details.searchKeywords = {details.itemName:lower()}
 
     for _, line in ipairs(details.tooltipInfoSpell.lines) do
       local term = line.leftText:match("^|cFF......(.*)|r$")
       if term then
-        table.insert(details.searchKeywordsTmp, term:lower())
+        table.insert(details.searchKeywords, term:lower())
       else
         local match = line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONUSE) or line.leftText:match("^" .. ITEM_SPELL_TRIGGER_ONEQUIP) or (UPGRADE_PATH_PATTERN and line.leftText:match(UPGRADE_PATH_PATTERN))
         if details.classID ~= Enum.ItemClass.Recipe and match then
-          table.insert(details.searchKeywordsTmp, line.leftText:lower())
+          table.insert(details.searchKeywords, line.leftText:lower())
         end
       end
     end
@@ -1082,14 +1141,11 @@ local function GetTooltipSpecialTerms(details)
     if details.setInfo then
       for _, info in ipairs(details.setInfo) do
         if type(info.name) == "string" then
-          table.insert(details.searchKeywordsTmp, info.name:lower())
+          table.insert(details.searchKeywords, info.name:lower())
         end
       end
     end
   end
-
-  details.searchKeywords = details.searchKeywordsTmp
-  details.searchKeywordsTmp = nil
 end
 
 local function MatchesText(details, searchString)
@@ -1514,6 +1570,11 @@ function Syndicator.Search.InitializeSearchEngine()
         return details.classID == Enum.ItemClass.Consumable and details.subClassID == subClass
       end, SYNDICATOR_L_GROUP_CONSUMABLE)
     end
+  end
+
+  local mount = C_Item.GetItemSubClassInfo(Enum.ItemClass.Miscellaneous, Enum.ItemMiscellaneousSubclass.Mount)
+  if mount ~= nil then
+    AddKeyword(mount:lower(), MountCheck, SYNDICATOR_L_GROUP_ITEM_TYPE)
   end
 
   Syndicator.Search.RebuildKeywordList()
