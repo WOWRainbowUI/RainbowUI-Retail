@@ -1,6 +1,6 @@
-## Interface: 110000
+## Interface: 110000, 110002
 ## Title: Baganator
-## Version: 396
+## Version: 421
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -68,6 +68,7 @@ ItemViewCommon\BankView.xml
 ItemViewCommon\BagTransfers.lua
 ItemViewCommon\NewItemsTracking.lua
 ItemViewCommon\AnchorSetter.lua
+ItemViewCommon\ShowBlizzardBagPreferences.lua
 ItemViewCommon\Initialize.lua
 
 SingleViews\Pools.lua
@@ -88,6 +89,8 @@ CategoryViews\ComposeCategories.lua
 CategoryViews\Packing.lua
 CategoryViews\BagLayout.lua
 CategoryViews\CategorySearch.lua
+CategoryViews\CategorySort.lua
+CategoryViews\ItemsPreparation.lua
 CategoryViews\Components.lua
 CategoryViews\Components.xml
 CategoryViews\BankViewCharacterView.lua

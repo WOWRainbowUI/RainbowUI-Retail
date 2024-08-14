@@ -123,7 +123,6 @@ local function FlowButtonsColumns(self, rowWidth)
   for _, button in ipairs(self.buttons) do
     button:SetPoint("TOPLEFT", self, cols * (37 + iconPaddingScaled), - rows * (37 + iconPaddingScaled))
     button:SetScale(iconSize / 37)
-    MasqueRegistration(button)
     rows = rows + 1
     if rows >= columnHeight then
       rows = 0
@@ -256,7 +255,7 @@ function BaganatorCachedBagLayoutMixin:RebuildLayout(newBags, indexes, indexesTo
   FlowButtonsRows(self, rowWidth)
 end
 
-function BaganatorCachedBagLayoutMixin:ShowCharacter(character, section, indexes, indexesToUse, rowWidth)
+function BaganatorCachedBagLayoutMixin:ShowBags(bagData, source, indexes, indexesToUse, rowWidth)
   if indexesToUse == nil then
     indexesToUse = {}
     for index in ipairs(indexes) do
@@ -266,19 +265,15 @@ function BaganatorCachedBagLayoutMixin:ShowCharacter(character, section, indexes
 
   local start = debugprofilestop()
 
-  local characterData = Syndicator.API.GetCharacter(character)
-
-  if not characterData then
+  if not bagData then
     return
   end
 
-  local sectionData = characterData[section]
-
   local iconSize = addonTable.Config.Get(addonTable.Config.Options.BAG_ICON_SIZE)
 
-  if self.prevState.character ~= character or self.prevState.section ~= section or
-      self:CompareButtonIndexes(indexes, indexesToUse, sectionData) then
-    self:RebuildLayout(sectionData, indexes, indexesToUse, rowWidth)
+  if self.prevState.source ~= source or self.prevState.section ~= section or
+      self:CompareButtonIndexes(indexes, indexesToUse, bagData) then
+    self:RebuildLayout(bagData, indexes, indexesToUse, rowWidth)
     self.waitingUpdate = {}
     for _, bagID in ipairs(indexes) do
       self.waitingUpdate[bagID] = true
@@ -303,11 +298,11 @@ function BaganatorCachedBagLayoutMixin:ShowCharacter(character, section, indexes
 
   for bagID in pairs(self.waitingUpdate) do
     local bagIndex = tIndexOf(indexes, bagID)
-    if bagIndex ~= nil and sectionData[bagIndex] and indexesToUse[bagIndex] then
+    if bagIndex ~= nil and bagData[bagIndex] and indexesToUse[bagIndex] then
       local bag = self.buttonsByBag[bagID]
       -- bag may be nil due to past caching error (now fixed)
       if bag ~= nil then
-        for index, slotInfo in ipairs(sectionData[bagIndex]) do
+        for index, slotInfo in ipairs(bagData[bagIndex]) do
           local button = bag[index]
           button:SetItemDetails(slotInfo)
         end
@@ -325,7 +320,7 @@ function BaganatorCachedBagLayoutMixin:ShowCharacter(character, section, indexes
 
   self.waitingUpdate = {}
   self.prevState = {
-    character = character,
+    source = source,
     section = section,
   }
 end
@@ -519,7 +514,7 @@ function BaganatorLiveBagLayoutMixin:MarkBagsPending(section, updatedWaiting)
   end
 end
 
-function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, indexesToUse, rowWidth)
+function BaganatorLiveBagLayoutMixin:ShowBags(bagData, source, indexes, indexesToUse, rowWidth)
   if indexesToUse == nil then
     indexesToUse = {}
     for index in ipairs(indexes) do
@@ -529,11 +524,9 @@ function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, 
 
   local start = debugprofilestop()
 
-  local characterData = Syndicator.API.GetCharacter(character)
-
   local iconSize = addonTable.Config.Get(addonTable.Config.Options.BAG_ICON_SIZE)
 
-  if self:CompareButtonIndexes(indexes, indexesToUse) or self.prevState.character ~= character or self.prevState.section ~= section then
+  if self:CompareButtonIndexes(indexes, indexesToUse) or self.prevState.source ~= source or self.prevState.section ~= section then
     if addonTable.Config.Get(addonTable.Config.Options.DEBUG_TIMERS) then
       print("rebuild")
     end
@@ -560,14 +553,12 @@ function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, 
     end
   end
 
-  local sectionData = characterData[section]
-
   for bagID in pairs(self.waitingUpdate) do
     local bagIndex = tIndexOf(indexes, bagID)
-    if bagIndex ~= nil and sectionData[bagIndex] and indexesToUse[bagIndex] then
+    if bagIndex ~= nil and bagData[bagIndex] and indexesToUse[bagIndex] then
       local bag = self.buttonsByBag[bagID]
-      if #bag == #sectionData[bagIndex] then
-        for index, cacheData in ipairs(sectionData[bagIndex]) do
+      if #bag == #bagData[bagIndex] then
+        for index, cacheData in ipairs(bagData[bagIndex]) do
           local button = bag[index]
           if IsDifferentCachedData(button.BGR, cacheData) then
             button:SetItemDetails(cacheData)
@@ -584,7 +575,7 @@ function BaganatorLiveBagLayoutMixin:ShowCharacter(character, section, indexes, 
   end
 
   self.prevState = {
-    character = character,
+    source = source,
     section = section,
   }
   self.waitingUpdate = {}
@@ -926,7 +917,7 @@ function BaganatorLiveCategoryLayoutMixin:ShowGroup(cacheList, rowWidth, categor
 
   for _, details in ipairs(toResetCache) do
     addonTable.ItemButtonUtil.ResetCache(details[1], details[2])
-    if details.itemLink == nil then
+    if details[2].itemLink == nil then
       InitializeCategoryEmptySlot(details[1], details[2])
     end
   end
@@ -993,9 +984,13 @@ function BaganatorCachedCategoryLayoutMixin:ShowGroup(cacheList, rowWidth)
       button.texturesSetup = true
       MasqueRegistration(button)
       button:UpdateTextures()
+    elseif self.updateTextures then
+      button:UpdateTextures()
     end
     table.insert(self.buttons, button)
   end
+
+  self.updateTextures = false
 
   FlowButtonsRows(self, rowWidth)
 

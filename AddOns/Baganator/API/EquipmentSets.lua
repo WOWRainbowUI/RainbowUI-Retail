@@ -1,13 +1,9 @@
 local _, addonTable = ...
 -- Blizzard Equipment sets (Wrath onwards)
-do
+if not addonTable.Constants.IsEra then
   local BlizzardSetTracker = CreateFrame("Frame")
 
   function BlizzardSetTracker:OnLoad()
-    if addonTable.Constants.IsRetail and IsMacClient() then
-      return
-    end
-
     FrameUtil.RegisterFrameForEvents(self, {
       "BANKFRAME_OPENED",
       "EQUIPMENT_SETS_CHANGED",
