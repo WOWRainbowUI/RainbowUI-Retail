@@ -1,6 +1,6 @@
 ## Interface: 110002
 ## Author: Keyboardturner
-## Version: 0.4.0
+## Version: 0.4.1
 ## Title: Dragon Rider
 ## Notes: Displays a speedometer paired with the vigor bar and some other dragonriding-related options.
 ## AddonCompartmentFunc: DragonRider_OnAddonCompartmentClick
@@ -35,9 +35,12 @@
 ## Notes-zhTW: 顯示與活力條和其他一些與龍騎術相關的選項配對的速度計。
 ## SavedVariables: DragonRider_DB
 
-## Title-zhTW: |cff0099FF[介面]|r 飛龍速度條
-## Notes-zhTW: Dragon Rider |n|n顯示飛龍騎術的飛行速度，方便達成快意翱翔的效果。|n|n|cffffd200使用方法: |r從Esc>選項>插件>飛龍速度條，進行設定。
+## Title-zhTW: |cff0099FF[介面]|r 飛行速度條
+## Notes-zhTW: Dragon Rider |n|n顯示天空騎術的飛行速度，方便達成快意翱翔的效果。|n|n|cffffd200使用方法: |r從Esc>選項>插件>飛行速度條，進行設定。
 ## X-Category-zhTW: 介面
+
+Libs/LibStub/LibStub.lua
+Libs/LibAdvFlight-1.0/lib.xml
 
 Localization.lua
 DRRaceData.lua
