@@ -1,10 +1,10 @@
-lightweight tag 457437c9371ce79289a7f34d6ce7740308f95fa1 r153
+lightweight tag 2ed6e5a805ec7b3b553f19a8ffeba8502572ce5e r154
 Author:	Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:	Tue Aug 6 19:08:10 2024 -0700
+Date:	Tue Aug 13 19:33:03 2024 -0700
 
-commit 457437c9371ce79289a7f34d6ce7740308f95fa1
+commit 2ed6e5a805ec7b3b553f19a8ffeba8502572ce5e
 Author: Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:   Tue Aug 6 19:08:10 2024 -0700
+Date:   Tue Aug 13 19:33:03 2024 -0700
 
-    Fix lock pet interrupt detection
+    Fix errors in latest patch
 
