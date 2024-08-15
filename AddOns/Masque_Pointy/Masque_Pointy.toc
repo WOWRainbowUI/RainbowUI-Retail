@@ -1,0 +1,24 @@
+## Interface: 11503, 30403, 40400, 110002
+
+## Title: Masque: Pointy
+## Notes: Pointy Skin for Masque, inspired by GW2 and FFXIV
+
+## Version: 1.0.4
+## Author: AllLucky7s
+## Dependencies: Masque
+
+## X-Website: https://github.com/dlecina/Masque_Pointy
+## X-Category: Interface Enhancements
+## X-Credits: AllLucky7s
+## X-Curse-Project-ID: 690853
+## X-WoWI-ID: XXXX
+## X-Wago-ID: 9rN4OjGD
+
+## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀主題-尖角
+## Notes-zhTW: Masque: Pointy |n|n靈感來自 GW2 和 FF14 的增益/減益效果圖示。
+## X-Category-zhTW: 介面
+## IconTexture: 982414
+## DefaultState: disabled
+
+# Skins
+Skins.lua
