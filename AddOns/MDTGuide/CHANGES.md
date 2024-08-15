@@ -1,1 +1,1 @@
-- Updated for patch 11.0.2
+- Fixed call to remove C_Scenario.GetCriteriaInfo method
