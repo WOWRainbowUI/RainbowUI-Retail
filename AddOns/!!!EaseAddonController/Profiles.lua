@@ -186,7 +186,7 @@ function P:EnableOrDisableAddOn(addons)
             if v==1 then
                 if not origin then EacEnableAddOn(k) end
             else
-                if origin then DisableAddOn(k) end
+                if origin then EacDisableAddOn(k) end
             end
         end
     end
