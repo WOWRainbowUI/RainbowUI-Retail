@@ -572,7 +572,7 @@ function Addon.GetEnemyForces()
     if not n or n == 0 then return end
 
     ---@type number, _, _, string
-    local total, _, _, curr = select(5, C_Scenario.GetCriteriaInfo(n)) --[[@as any]]
+    local total, _, _, curr = select(5, C_ScenarioInfo.GetCriteriaInfo(n)) --[[@as any]]
 
     return tonumber((curr:gsub("%%", ""))), total
 end
@@ -587,7 +587,7 @@ function Addon.IsEncounterDefeated(encounterID)
     if not assetID or not n or n == 0 then return end
 
     for i = 1, n - 1 do
-        local isDead, _, _, _, stepAssetID = select(3, C_Scenario.GetCriteriaInfo(i))
+        local isDead, _, _, _, stepAssetID = select(3, C_ScenarioInfo.GetCriteriaInfo(i))
         if stepAssetID == assetID then
             return isDead
         end
