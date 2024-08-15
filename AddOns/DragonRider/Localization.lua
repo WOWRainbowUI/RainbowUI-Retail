@@ -326,6 +326,7 @@ if LOCALE == "deDE" then
 	L["Minimalist"] = "Minimalistisch"
 	L["Alliance"] = "Allianz"
 	L["Horde"] = "Horde"
+	-- Above officially translated by Cirez
 
 
 return end
