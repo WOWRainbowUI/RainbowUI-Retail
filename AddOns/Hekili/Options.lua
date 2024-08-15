@@ -58,16 +58,7 @@ local GetSpellTabInfo = function(index)
     end
 end
 
-local GetSpellInfo = function( spellID )
-    if not spellID then
-        return nil;
-    end
-
-    local spellInfo = C_Spell.GetSpellInfo(spellID);
-    if spellInfo then
-        return spellInfo.name, nil, spellInfo.iconID, spellInfo.castTime, spellInfo.minRange, spellInfo.maxRange, spellInfo.spellID, spellInfo.originalIconID;
-    end
-end
+local GetSpellInfo = ns.GetUnpackedSpellInfo
 
 local GetSpellDescription = C_Spell.GetSpellDescription
 
@@ -3666,7 +3657,7 @@ do
 					type = "execute",
 					name = "通知面板",
 					desc = "通知面板會在戰鬥中更改或" ..
-						"切換設定時提供簡要的通知。",
+						"開關設定時提供簡要的通知。",
 					func = function ()
 						ACD:SelectGroup( "Hekili", "displays", "nPanel" )
 					end,
@@ -3677,7 +3668,7 @@ do
 					type = "group",
 					name = "|cFF1EFF00通知面板|r",
 					desc = "通知面板會在戰鬥中更改或" ..
-						"切換設定時提供簡要的通知。",
+						"開關設定時提供簡要的通知。",
 					order = 952,
 					get = GetNotifOption,
 					set = SetNotifOption,
@@ -4701,8 +4692,8 @@ do
 
 			toggle = {
 				type = "select",
-				name = "需要切換",
-				desc = "指定在插件動作列表中使用此動作所需的切換。當切換關閉時，技能將被視為" ..
+				name = "需要開關",
+				desc = "指定在插件動作列表中使用此動作所需的開關。當開關關閉時，技能將被視為" ..
 					"不可用，並且插件會假設它們正在冷卻中 (除非有另外指定)。",
 				width = 1.5,
 				order = 2,
@@ -4826,8 +4817,8 @@ do
 
                     toggle = {
                         type = "select",
-                        name = "需要切換",
-						desc = "指定在插件動作列表中使用此動作所需的切換。當切換關閉時，技能將被視為" ..
+                        name = "需要開關",
+						desc = "指定在插件動作列表中使用此動作所需的開關。當開關關閉時，技能將被視為" ..
 							"不可用，並且插件會假設它們正在冷卻中 (除非有另外指定)。",
                         width = 1.5,
                         order = 1.2,
@@ -4865,7 +4856,7 @@ do
                         desc = "勾選時|cFFFFD100和|r單獨顯示冷卻|cFFFFD100和|r已啟用冷卻時間，插件將|cFFFF0000不會|r假裝你的" ..
                             "冷卻技能已經完全冷卻。\n\n這可能有助於解決由於冷卻時間顯示和其他顯示之間的行為差異" ..
                             "而導致技能不同步的情況。\n\n" ..
-                            "請看 |cFFFFD100切換|r > |cFFFFD100冷卻時間|r 以取得 |cFFFFD100冷卻時間: 單獨顯示|r 的功能。",
+                            "請看 |cFFFFD100開關|r > |cFFFFD100冷卻時間|r 以取得 |cFFFFD100冷卻時間: 單獨顯示|r 的功能。",
                         set = function()
                             self.DB.profile.specs[ state.spec.id ].noFeignedCooldown = not self.DB.profile.specs[ state.spec.id ].noFeignedCooldown
                         end,
@@ -5102,8 +5093,8 @@ do
 
 			toggle = {
 				type = "select",
-				name = "需要切換",
-				desc = "指定在插件動作列表中使用此動作所需的切換。當切換關閉時，技能將被視為" ..
+				name = "需要開關",
+				desc = "指定在插件動作列表中使用此動作所需的開關。當開關關閉時，技能將被視為" ..
 						"不可用，並且插件會假設它們正在冷卻中 (除非有另外指定)。",
 				width = 1.5,
 				order = 3,
@@ -5230,8 +5221,8 @@ do
 
                     toggle = {
                         type = "select",
-                        name = "需要切換",
-                        desc = "指定在插件動作列表中使用此動作所需的切換。當切換關閉時，技能將被視為" ..
+                        name = "需要開關",
+                        desc = "指定在插件動作列表中使用此動作所需的開關。當開關關閉時，技能將被視為" ..
                             "不可用，並且插件會假設它們正在冷卻中 (除非有另外指定)。",
                         width = 1.5,
                         order = 3,
@@ -5410,7 +5401,7 @@ do
                     end
                     desc = desc or ability
 
-                    return "移除 " .. desc .. "，從 " .. ( useName or section ) .. " 切換。"
+                    return "移除 " .. desc .. "，從 " .. ( useName or section ) .. " 開關。"
                 end
                 e.image = RedX
                 e.imageHeight = 16
@@ -8106,7 +8097,7 @@ do
                                                         cycle_targets = {
                                                             type = "toggle",
                                                             name = "循環目標",
-                                                            desc = "勾選時，插件將檢查每個可用目標，並顯示是否切換目標。",
+                                                            desc = "勾選時，插件將檢查每個可用目標，並顯示是否開關目標。",
                                                             order = 1,
                                                             width = "single",
                                                         },
@@ -8508,8 +8499,8 @@ do
 
 		db.args.toggles = db.args.toggles or {
 			type = "group",
-			name = "切換",
-			desc = "切換是可以用來控制哪些技能可以被推薦以及它們顯示位置的按鍵綁定。",
+			name = "開關",
+			desc = "開關是可以用來控制哪些技能可以被推薦以及它們顯示位置的按鍵綁定。",
 			order = 20,
 			childGroups = "tab",
 			get = GetToggle,
@@ -8518,7 +8509,7 @@ do
 				cooldowns = {
 					type = "group",
 					name = "傷害冷卻時間",
-					desc = "切換主要和次要冷卻時間，以確保它們在理想的時間被推薦。",
+					desc = "開關主要和次要冷卻時間，以確保它們在理想的時間被推薦。",
 					order = 2,
 					args = {
 						key = {
@@ -8531,9 +8522,9 @@ do
 						value = {
 							type = "toggle",
 							name = "啟用主要冷卻時間",
-							desc = "勾選時，會推薦需要 |cFFFFD100主要冷卻時間|r 切換的技能和物品。\n\n"
-								.. "此切換通常適用於冷卻時間為 60 秒或更長的主要傷害技能。\n\n"
-								.. "可以在 |cFFFFD100技能|r 和/或 |cFFFFD100裝備和物品|r 部分中新增/移除此切換的技能。",
+							desc = "勾選時，會推薦需要 |cFFFFD100主要冷卻時間|r 開關的技能和物品。\n\n"
+								.. "此開關通常適用於冷卻時間為 60 秒或更長的主要傷害技能。\n\n"
+								.. "可以在 |cFFFFD100技能|r 和/或 |cFFFFD100裝備和物品|r 部分中新增/移除此開關的技能。",
 							order = 2,
 							width = 2,
 						},
@@ -8555,7 +8546,7 @@ do
 						separate = {
 							type = "toggle",
 							name = format( "在單獨的 %s 冷卻時間技能組中顯示", AtlasToString( "chromietime-32x32" ) ),
-							desc = format( "勾選時，當切換啟用時，受此切換控制的技能將在你的 |W%s |cFFFFD100主要冷卻時間|r|w 技能組中單獨顯示。\n\n"
+							desc = format( "勾選時，當開關啟用時，受此開關控制的技能將在你的 |W%s |cFFFFD100主要冷卻時間|r|w 技能組中單獨顯示。\n\n"
 								.. "這是一項實驗性功能，可能不適用於某些專精。", AtlasToString( "chromietime-32x32" ) ),
 							width = 2,
 							order = 3,
@@ -8578,7 +8569,7 @@ do
 						override = {
 							type = "toggle",
 							name = format( "%s 期間啟用", Hekili:GetSpellLinkWithTexture( 2825 ) ),
-							desc = format( "勾選時，當任何 %s 效果處於啟用狀態時，即使未勾選，|cFFFFD100主要冷卻時間|r 切換也將被視為啟用。", Hekili:GetSpellLinkWithTexture( 2825 ) ),
+							desc = format( "勾選時，當任何 %s 效果處於啟用狀態時，即使未勾選，|cFFFFD100主要冷卻時間|r 開關也將被視為啟用。", Hekili:GetSpellLinkWithTexture( 2825 ) ),
 							width = 2,
 							order = 4,
 						},
@@ -8600,7 +8591,7 @@ do
 						infusion = {
 							type = "toggle",
 							name = format( "%s 期間啟用", Hekili:GetSpellLinkWithTexture( 10060 ) ),
-							desc = format( "勾選時，當 %s 處於啟用狀態時，即使未勾選，|cFFFFD100主要冷卻時間|r 切換也將被視為啟用。", Hekili:GetSpellLinkWithTexture( 10060 ) ),
+							desc = format( "勾選時，當 %s 處於啟用狀態時，即使未勾選，|cFFFFD100主要冷卻時間|r 開關也將被視為啟用。", Hekili:GetSpellLinkWithTexture( 10060 ) ),
 							width = 2,
 							order = 5
 						},
@@ -8622,10 +8613,10 @@ do
 								value = {
 									type = "toggle",
 									name = "啟用次要冷卻時間",
-									desc = "勾選時，會推薦需要 |cFFFFD100次要冷卻時間|r 切換的技能。\n\n"
-										.. "此切換通常適用於冷卻時間為 30 到 60 秒的增傷技能，或你可能"
+									desc = "勾選時，會推薦需要 |cFFFFD100次要冷卻時間|r 開關的技能。\n\n"
+										.. "此開關通常適用於冷卻時間為 30 到 60 秒的增傷技能，或你可能"
 										.. "想要與主要冷卻時間分開控制的技能。\n\n"
-										.. "可以在 |cFFFFD100技能|r 和/或 |cFFFFD100裝備和物品|r 部分中新增/移除此切換的技能。",
+										.. "可以在 |cFFFFD100技能|r 和/或 |cFFFFD100裝備和物品|r 部分中新增/移除此開關的技能。",
 									width = 2,
 									order = 2,
 								},
@@ -8647,7 +8638,7 @@ do
 								separate = {
 									type = "toggle",
 									name = format( "在單獨的 %s 冷卻時間顯示中顯示", AtlasToString( "chromietime-32x32" ) ),
-									desc = format( "勾選時，當切換啟用時，需要 |cFFFFD100次要冷卻時間|r 切換的技能將在你的 |W%s "
+									desc = format( "勾選時，當開關啟用時，需要 |cFFFFD100次要冷卻時間|r 開關的技能將在你的 |W%s "
 										.. "|cFFFFD100冷卻時間|r|w 顯示中單獨顯示。\n\n"
 										.. "這是一項實驗性功能，可能不適用於某些專精。", AtlasToString( "chromietime-32x32" ) ),
 									width = 2,
@@ -8671,7 +8662,7 @@ do
 								override = {
 									type = "toggle",
 									name = "當 |cFFFFD100主要冷卻時間|r 啟用時自動啟用",
-									desc = "勾選時，當 |cFFFFD100主要冷卻時間|r 啟用 (或自動啟用) 時，即使切換本身未勾選，也可能會推薦你的 |cFFFFD100次要冷卻時間|r。",
+									desc = "勾選時，當 |cFFFFD100主要冷卻時間|r 啟用 (或自動啟用) 時，即使開關本身未勾選，也可能會推薦你的 |cFFFFD100次要冷卻時間|r。",
 									width = 2,
 									order = 4,
 								},
@@ -8694,7 +8685,7 @@ do
 								value = {
 									type = "toggle",
 									name = "啟用藥水",
-									desc = "勾選時，會推薦需要 |cFFFFD100藥水|r 切換的技能。",
+									desc = "勾選時，會推薦需要 |cFFFFD100藥水|r 開關的技能。",
 									width = 2,
 									order = 2,
 								},
@@ -8716,7 +8707,7 @@ do
 								separate = {
 									type = "toggle",
 									name = format( "在單獨的 %s 冷卻時間顯示中顯示", AtlasToString( "chromietime-32x32" ) ),
-									desc = format( "勾選時，當切換啟用時，需要 |cFFFFD100藥水|r 切換的技能將在你的 |W%s "
+									desc = format( "勾選時，當開關啟用時，需要 |cFFFFD100藥水|r 開關的技能將在你的 |W%s "
 										.. "|cFFFFD100冷卻時間|r|w 顯示中單獨顯示。\n\n"
 										.. "這是一項實驗性功能，可能不適用於某些專精。", AtlasToString( "chromietime-32x32" ) ),
 									width = 2,
@@ -8740,7 +8731,7 @@ do
 								override = {
 									type = "toggle",
 									name = "當 |cFFFFD100主要冷卻時間|r 啟用時自動啟用",
-									desc = "勾選時，當 |cFFFFD100主要冷卻時間|r 啟用 (或自動啟用) 時，即使切換本身未勾選，也可能會推薦你的 |cFFFFD100藥水|r。",
+									desc = "勾選時，當 |cFFFFD100主要冷卻時間|r 啟用 (或自動啟用) 時，即使開關本身未勾選，也可能會推薦你的 |cFFFFD100藥水|r。",
 									width = 2,
 									order = 4,
 								},
@@ -8752,7 +8743,7 @@ do
 				interrupts = {
 					type = "group",
 					name = "斷法和防禦",
-					desc = "根據需要切換斷法 (和其他實用技能) 和防禦。",
+					desc = "根據需要開關斷法 (和其他實用技能) 和防禦。",
 					order = 4,
 					args = {
 						key = {
@@ -8765,7 +8756,7 @@ do
 						value = {
 							type = "toggle",
 							name = "啟用斷法",
-							desc = "勾選時，會推薦需要 |cFFFFD100斷法|r 切換的技能。",
+							desc = "勾選時，會推薦需要 |cFFFFD100斷法|r 開關的技能。",
 							order = 2,
 						},
 
@@ -8786,7 +8777,7 @@ do
 						separate = {
 							type = "toggle",
 							name = format( "在單獨的 %s 斷法技能組中顯示", AtlasToString( "voicechat-icon-speaker-mute" ) ),
-							desc = format( "勾選時，需要 |cFFFFD100斷法|r 切換的技能將在你的 %s 斷法技能組中單獨顯示。",
+							desc = format( "勾選時，需要 |cFFFFD100斷法|r 開關的技能將在你的 %s 斷法技能組中單獨顯示。",
 								AtlasToString( "voicechat-icon-speaker-mute" ) ),
 							width = 2,
 							order = 3,
@@ -8811,8 +8802,8 @@ do
 							type = "toggle",
 							name = format( "%s 過濾 M+ 斷法 (巨龍崛起第 4 季)", NewFeature ),
 							desc = format( "勾選時，當你的目標可能使用應被斷法的技能時，將忽略低優先級的敵人施法。\n\n"
-								.. "例如: 在永茂林中，塑地者泰魯的 |W%s|w 將被忽略，而 |W%s|w 將被斷法。", ( GetSpellInfo( 168040 ).name or "自然之怒" ),
-								( GetSpellInfo( 427459 ).name or "毒性綻放" ) ),
+								.. "例如: 在永茂林中，塑地者泰魯的 |W%s|w 將被忽略，而 |W%s|w 將被斷法。", ( GetSpellInfo( 168040 ) or "自然之怒" ),
+								( GetSpellInfo( 427459 ) or "毒性綻放" ) ),
 							width = 2,
 							order = 4
 						},
@@ -8827,15 +8818,15 @@ do
 									type = "keybinding",
 									name = "防禦",
 									desc = "設定一個按鍵來切換開啟或關閉防禦的建議。\n\n"
-										.. "此切換主要適用於坦克專精。",
+										.. "此開關主要適用於坦克專精。",
 									order = 1,
 								},
 
 								value = {
 									type = "toggle",
 									name = "啟用防禦",
-									desc = "勾選時，會推薦需要 |cFFFFD100防禦|r 切換的技能。\n\n"
-										.. "此切換主要適用於坦克專精。",
+									desc = "勾選時，會推薦需要 |cFFFFD100防禦|r 開關的技能。\n\n"
+										.. "此開關主要適用於坦克專精。",
 									order = 2,
 								},
 
@@ -8857,7 +8848,7 @@ do
 									type = "toggle",
 									name = format( "在單獨的 %s 防禦技能組中顯示", AtlasToString( "nameplates-InterruptShield" ) ),
 									desc = format( "勾選時，防禦/減傷技能將在你的 |W%s |cFFFFD100防禦|r|w 技能組中單獨顯示。\n\n"
-										.. "此切換主要適用於坦克專精。", AtlasToString( "nameplates-InterruptShield" ) ),
+										.. "此開關主要適用於坦克專精。", AtlasToString( "nameplates-InterruptShield" ) ),
 									width = 2,
 									order = 3,
 								}
@@ -8912,7 +8903,7 @@ do
 								automatic = {
 									type = "toggle",
 									name = "自動 " .. BlizzBlue .. "(預設)|r",
-									desc = "勾選時，技能組模式切換可以選擇自動模式。\n\n主要技能組會根據偵測到的敵人數量顯示建議 (依據你的專精選項)。",
+									desc = "勾選時，切換技能組模式可以選擇自動模式。\n\n主要技能組會根據偵測到的敵人數量顯示建議 (依據你的專精選項)。",
 									width = "full",
 									order = 3,
 								},
@@ -8943,7 +8934,7 @@ do
 								single = {
 									type = "toggle",
 									name = "單體目標",
-									desc = "勾選時，技能組模式切換可以選擇單體目標模式。\n\n主要技能組會顯示建議，就好像你只有一個目標 (即使偵測到更多目標)。",
+									desc = "勾選時，切換技能組模式可以選擇單體目標模式。\n\n主要技能組會顯示建議，就好像你只有一個目標 (即使偵測到更多目標)。",
 									width = "full",
 									order = 4,
 								},
@@ -8976,7 +8967,7 @@ do
 									type = "toggle",
 									name = "多目標 AOE",
 									desc = function ()
-										return format( "勾選時，技能組模式切換可以選擇多目標模式。\n\n主要技能組會顯示建議，就好像你至少有 |cFFFFD100%d|r 個目標 (即使偵測到的目標較少)。\n\n" ..
+										return format( "勾選時，切換技能組模式可以選擇多目標模式。\n\n主要技能組會顯示建議，就好像你至少有 |cFFFFD100%d|r 個目標 (即使偵測到的目標較少)。\n\n" ..
 														"目標數量在你的專精選項中設定。", self.DB.profile.specs[ state.spec.id ].aoe or 3 )
 									end,
 									width = "full",
@@ -9014,7 +9005,7 @@ do
 									type = "toggle",
 									name = "雙技能組",
 									desc = function ()
-										return format( "勾選時，技能組模式切換可以選擇雙技能組模式。\n\n主要技能組會顯示單體目標建議，而多目標技能組會顯示針對 |cFFFFD100%d|r 個或更多目標的建議 (即使偵測到的目標較少)。\n\n" ..
+										return format( "勾選時，切換技能組模式可以選擇雙技能組模式。\n\n主要技能組會顯示單體目標建議，而多目標技能組會顯示針對 |cFFFFD100%d|r 個或更多目標的建議 (即使偵測到的目標較少)。\n\n" ..
 														"多目標數量在你的專精選項中設定。", self.DB.profile.specs[ state.spec.id ].aoe or 3 )
 									end,
 									width = "full",
@@ -9054,7 +9045,7 @@ do
 									type = "toggle",
 									name = "反應式雙技能組",
 									desc = function ()
-										return format( "勾選時，技能組模式切換可以選擇反應式模式。\n\n主要技能組會顯示單體目標建議，而多目標技能組會保持隱藏，直到/除非偵測到 |cFFFFD100%d|r 個或更多目標。", self.DB.profile.specs[ state.spec.id ].aoe or 3 )
+										return format( "勾選時，切換技能組模式可以選擇反應式模式。\n\n主要技能組會顯示單體目標建議，而多目標技能組會保持隱藏，直到/除非偵測到 |cFFFFD100%d|r 個或更多目標。", self.DB.profile.specs[ state.spec.id ].aoe or 3 )
 									end,
 									width = "full",
 									order = 7,
@@ -9138,8 +9129,8 @@ do
 
 				custom = {
 					type = "group",
-					name = "自訂切換",
-					desc = "這些切換允許建立自訂按鍵綁定來控制特定技能。",
+					name = "自訂開關",
+					desc = "這些開關允許建立自訂按鍵綁定來控制特定技能。",
 					order = 30,
 					args = {
 						custom1 = {
@@ -9151,7 +9142,7 @@ do
 								key = {
 									type = "keybinding",
 									name = "自訂 #1",
-									desc = "設定一個按鍵來切換你的第一個自訂設定。",
+									desc = "設定一個按鍵來開關你的第一個自訂設定。",
 									width = 1,
 									order = 1,
 								},
@@ -9181,7 +9172,7 @@ do
 								name = {
 									type = "input",
 									name = "自訂 #1 名稱",
-									desc = "為此自訂切換指定一個描述性的名稱。",
+									desc = "為此自訂開關指定一個描述性的名稱。",
 									width = 2,
 									order = 3
 								}
@@ -9197,7 +9188,7 @@ do
 								key = {
 									type = "keybinding",
 									name = "自訂 #2",
-									desc = "設定一個按鍵來切換你的第二個自訂設定。",
+									desc = "設定一個按鍵來開關你的第二個自訂設定。",
 									width = 1,
 									order = 1,
 								},
@@ -9227,7 +9218,7 @@ do
 								name = {
 									type = "input",
 									name = "自訂 #2 名稱",
-									desc = "為此自訂切換指定一個描述性的名稱。",
+									desc = "為此自訂開關指定一個描述性的名稱。",
 									width = 2,
 									order = 3
 								}
@@ -10285,18 +10276,18 @@ do
 
 					q2 = {
 						type = "header",
-						name = "使用切換",
+						name = "使用開關",
 						order = 2,
 						width = "full",
 					},
 					a2 = {
 						type = "description",
-						name = "插件有幾個 |cFFFFD100切換|r 可用，可以幫助你控制在戰鬥中收到的建議類型。 有關具體資訊，請參閱 |cFFFFD100切換|r 部分。\n\n" ..
+						name = "插件有幾個 |cFFFFD100開關|r 可用，可以幫助你控制在戰鬥中收到的建議類型。 有關具體資訊，請參閱 |cFFFFD100開關|r 部分。\n\n" ..
 							"|cFFFFD100模式|r: 默認情況下，|cFFFFD100自動模式|r 會自動偵測你正在與多少個目標交戰，並根據偵測到的目標數量提供建議。 在某些情況下，你可能希望插件假設只有一個目標，或者有多個目標，" ..
 							"或者顯示兩種情況的建議。 你可以使用 |cFFFFD100模式|r 切換在自動、單體目標、AOE 和反應式模式之間切換。\n\n" ..
-							"|cFFFFD100技能|r: 你的某些技能可以通過特定的切換來控制。 例如，你的主要 DPS 冷卻時間會分配給 |cFFFFD100冷卻時間|r 切換。 此功能允許你通過使用分配的按鍵綁定在戰鬥中啟用/停用這些技能。 你可以在 |cFFFFD100技能|r 或 |cFFFFD100裝備和飾品|r 部分中將技能添加到（或從中移除）" ..
-							"這些切換。 當從切換中移除時，無論切換是開啟還是關閉，都可以隨時推薦技能。\n\n" ..
-							"|cFFFFD100顯示|r: 你的打斷、防禦和冷卻時間切換與同名顯示有特殊關係。 如果勾選了該切換的 |cFFFFD100單獨顯示|r，則這些技能將顯示在該切換的顯示中，而不是 |cFFFFD100主要|r 或 |cFFFFD100AOE|r 顯示中。\n",
+							"|cFFFFD100技能|r: 你的某些技能可以通過特定的開關來控制。 例如，你的主要 DPS 冷卻時間會分配給 |cFFFFD100冷卻時間|r 開關。 此功能允許你通過使用分配的按鍵綁定在戰鬥中啟用/停用這些技能。 你可以在 |cFFFFD100技能|r 或 |cFFFFD100裝備和飾品|r 部分中將技能添加到（或從中移除）" ..
+							"這些開關。 當從開關中移除時，無論開關是開啟還是關閉，都可以隨時推薦技能。\n\n" ..
+							"|cFFFFD100顯示|r: 你的打斷、防禦和冷卻時間開關與同名顯示有特殊關係。 如果勾選了該開關的 |cFFFFD100單獨顯示|r，則這些技能將顯示在該開關的顯示中，而不是 |cFFFFD100主要|r 或 |cFFFFD100AOE|r 顯示中。\n",
 						order = 2.1,
 						width = "full",
 					},
@@ -10339,7 +10330,7 @@ do
 			abilities = {
 				type = "group",
 				name = "技能",
-				desc = "編輯特定技能，例如停用、分配切換、覆蓋按鍵綁定文字或圖示等。",
+				desc = "編輯特定技能，例如停用、分配開關、覆蓋按鍵綁定文字或圖示等。",
 				order = 80,
 				childGroups = "select",
 				args = {
@@ -10362,7 +10353,7 @@ do
 			items = {
 				type = "group",
 				name = "裝備和物品",
-				desc = "編輯特定物品，例如停用、分配切換、覆蓋按鍵綁定文字等。",
+				desc = "編輯特定物品，例如停用、分配開關、覆蓋按鍵綁定文字等。",
 				order = 81,
 				childGroups = "select",
 				args = {
@@ -10419,7 +10410,7 @@ do
 							return "快照是插件針對一組建議的決策過程日誌。 如果你對插件的建議有疑問或不同意，" ..
 							"查看快照可以幫助你識別導致你看到的特定建議的因素。\n\n" ..
 							"快照僅捕捉特定時間點，因此必須在你看到你關心的特定建議時截取快照。 你可以通過" ..
-							"使用切換部分中的 |cffffd100快照|r 綁定 (|cffffd100" .. ( Hekili.DB.profile.toggles.snapshot.key or "未綁定" ) .. "|r) 來產生快照。\n\n" ..
+							"使用開關部分中的 |cffffd100快照|r 綁定 (|cffffd100" .. ( Hekili.DB.profile.toggles.snapshot.key or "未綁定" ) .. "|r) 來產生快照。\n\n" ..
 							"你也可以使用 |cffffd100暫停|r 綁定 (|cffffd100" .. ( Hekili.DB.profile.toggles.pause.key or "未綁定" ) .. "|r) 凍結插件的建議。 這樣做會凍結插件的建議，讓你可以將滑鼠指向技能組" ..
 							"並查看哪些條件滿足了顯示這些建議的條件。 再次按下暫停以解除凍結插件。\n\n" ..
 							"最後，使用此面板底部的設定，你可以要求插件在無法提出任何建議時自動為你產生快照。\n\n"
@@ -10799,7 +10790,7 @@ do
     local toggleInstructions = {
         "on|r (以啟用)",
         "off|r (以停用)",
-        "|r (以切換)",
+        "|r (以開關)",
     }
 
     local info = {}
@@ -10940,16 +10931,16 @@ do
 
                     output = format( "%s\n - |cFFFFD100cycle|r、|cFFFFD100swap|r 或 |cFFFFD100target_swap|r = %s|r (%s)", output, spec.cycle and "|cFF00FF00開啟" or "|cFFFF0000關閉", "推薦換目標" )
 
-                    output = format( "%s\n\n要控制你的切換（|cFFFFD100cooldowns|r、|cFFFFD100covenants|r、|cFFFFD100defensives|r、|cFFFFD100interrupts|r、|cFFFFD100potions|r、|cFFFFD100custom1|r 和 |cFFFFD100custom2|r）:\n" ..
+                    output = format( "%s\n\n要控制你的開關（|cFFFFD100cooldowns|r、|cFFFFD100covenants|r、|cFFFFD100defensives|r、|cFFFFD100interrupts|r、|cFFFFD100potions|r、|cFFFFD100custom1|r 和 |cFFFFD100custom2|r）:\n" ..
                         " - 啟用冷卻時間:  |cFFFFD100/hek set cooldowns on|r\n" ..
                         " - 停用打斷:  |cFFFFD100/hek set interupts off|r\n" ..
-                        " - 切換防禦:  |cFFFFD100/hek set defensives|r", output )
+                        " - 開關防禦:  |cFFFFD100/hek set defensives|r", output )
 
-                    output = format( "%s\n\n要控制你的技能組模式 (目前為 |cFFFFD100%s|r):\n - 切換模式:  |cFFFFD100/hek set mode|r\n - 設定模式:  |cFFFFD100/hek set mode aoe|r（或 |cFFFFD100automatic|r、|cFFFFD100single|r、|cFFFFD100dual|r、|cFFFFD100reactive|r)", output, self.DB.profile.toggles.mode.value or "未知" )
+                    output = format( "%s\n\n要控制你的技能組模式 (目前為 |cFFFFD100%s|r):\n - 開關模式:  |cFFFFD100/hek set mode|r\n - 設定模式:  |cFFFFD100/hek set mode aoe|r（或 |cFFFFD100automatic|r、|cFFFFD100single|r、|cFFFFD100dual|r、|cFFFFD100reactive|r)", output, self.DB.profile.toggles.mode.value or "未知" )
 
                     if hasToggle then
-                        output = format( "%s\n\n要設定 |cFFFFD100專精切換|r，請使用以下指令:\n" ..
-                            " - 切換開啟/關閉:  |cFFFFD100/hek set %s|r\n" ..
+                        output = format( "%s\n\n要設定 |cFFFFD100專精開關|r，請使用以下指令:\n" ..
+                            " - 開關開啟/關閉:  |cFFFFD100/hek set %s|r\n" ..
                             " - 啟用:  |cFFFFD100/hek set %s on|r\n" ..
                             " - 停用:  |cFFFFD100/hek set %s off|r\n" ..
                             " - 重設為預設值:  |cFFFFD100/hek set %s default|r", output, exToggle, exToggle, exToggle, exToggle )
@@ -10984,7 +10975,7 @@ do
                         to = not profile.toggles[ tab ].value
                     end
 
-                    Hekili:Print( format( "|cFFFFD100%s|r 切換設定為 %s。", text, ( to and "|cFF00FF00開啟|r" or "|cFFFF0000關閉|r" ) ) )
+                    Hekili:Print( format( "|cFFFFD100%s|r 開關設定為 %s。", text, ( to and "|cFF00FF00開啟|r" or "|cFFFF0000關閉|r" ) ) )
 
                     profile.toggles[ tab ].value = to
 
