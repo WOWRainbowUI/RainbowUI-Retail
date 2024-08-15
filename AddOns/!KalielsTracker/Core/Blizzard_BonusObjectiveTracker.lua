@@ -682,7 +682,7 @@ local function AddBonusObjectiveQuest(module, questID, posIndex, isTrackedWorldQ
 			local info = C_QuestLog.GetQuestTagInfo(questID);
 			QuestUtil.SetupWorldQuestButton(block.TrackedQuest, info, info, isSuperTracked, nil, nil, isTrackedWorldQuest);
 
-			if C_GameModeManager.IsFeatureEnabled(Enum.GameModeFeatureSetting.QuestSuperTracking) then
+			if Enum.GameModeFeatureSetting and C_GameModeManager.IsFeatureEnabled(Enum.GameModeFeatureSetting.QuestSuperTracking) then -- 暫時修正
 				block.TrackedQuest:SetScale(.9);
 				block.TrackedQuest:SetPoint("TOPRIGHT", block.currentLine, "TOPLEFT", 18, 0);
 				block.TrackedQuest:Show();
