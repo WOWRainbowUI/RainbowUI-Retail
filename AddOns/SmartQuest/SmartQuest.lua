@@ -122,7 +122,7 @@ function SmartQuest_OnEvent(self, event, ...)
 		SmartQuestFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
 		SmartQuestFrame:RegisterEvent("PLAYER_LEAVING_WORLD");
 		
-		if (SmartQuestOptions.Setting[SmartQuest.Data.Me]) then
+		if (SmartQuestOptions.Setting and SmartQuestOptions.Setting[SmartQuest.Data.Me]) then -- 暫時修正
 			-- Migrate and delete old settings
 			SmartQuest_ErrorPrint("Migrating old profile settings to new system.");
 			SmartQuestOptions.Setting[SmartQuest.Data.MeFull] = SmartQuestOptions.Setting[SmartQuest.Data.Me];
