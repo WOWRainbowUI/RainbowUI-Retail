@@ -156,7 +156,6 @@ local defaultSavedVars = {
     enemyForcesFormat = 2,
     useForcesCount = false, -- replaces percent in pull buttons with count
     enemyStyle = 1,
-    currentDungeonIdx = 31,
     currentDifficulty = 10,
     xoffset = -80,
     yoffset = -100,
@@ -182,7 +181,9 @@ local defaultSavedVars = {
       customPaletteValues = {},
       numberCustomColors = 12,
     },
-    selectedDungeonList = 9,
+    currentDungeonIdx = 42,
+    selectedDungeonList = 8,
+    latestSeenDungeonList = 0,
     knownAffixWeeks = {},
   },
 }
@@ -199,6 +200,10 @@ do
     }
     defaultSavedVars.global.currentPreset[i] = 1
   end
+end
+
+function MDT:GetDefaultSavedVariables()
+  return defaultSavedVars
 end
 
 -- Init db
@@ -4723,6 +4728,7 @@ function initFrames()
     end
   end
   MDT:RegisterErrorHandledFunctions()
+  MDT:CheckSeenDungeonLists()
 
   local initSpinner = CreateFrame("Button", "MDTInitSpinner", UIParent, "LoadingSpinnerTemplate")
   initSpinner.BackgroundFrame.Background:SetVertexColor(0, 1, 0, 1)
