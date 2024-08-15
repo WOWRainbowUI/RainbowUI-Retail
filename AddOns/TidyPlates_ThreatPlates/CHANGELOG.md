@@ -1,3 +1,4 @@
-# 12.0.6 (2024-08-14)
+# 12.0.8 (2024-08-15)
 
-* Fixed a Lua bug in Stealth widget due to API changes in Path 11.0.2 [GH-544].
+* Fixed Lua errors caused by bugfixes for API changes in WoW Mainline Patch 11.0.2 not working in WoW Classic.
+* Fixed a error bug when loading LibDogTag for custom status text due to API changes in Patch 11.0.2 [GH-549].
