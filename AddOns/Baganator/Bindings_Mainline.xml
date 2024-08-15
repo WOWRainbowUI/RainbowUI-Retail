@@ -1,14 +1,14 @@
 <Bindings>
-  <Binding name="BAGANATOR_OPEN_BANK" category="Baganator">
+  <Binding name="BAGANATOR_OPEN_BANK" category="ADDONS">
     Baganator.CallbackRegistry:TriggerEvent("BankShow")
   </Binding>
-  <Binding name="BAGANATOR_OPEN_WARBAND_BANK" category="Baganator">
+  <Binding name="BAGANATOR_OPEN_WARBAND_BANK" category="ADDONS">
     Baganator.CallbackRegistry:TriggerEvent("BankShow", 1)
   </Binding>
-  <Binding name="BAGANATOR_OPEN_GUILD_BANK" category="Baganator">
+  <Binding name="BAGANATOR_OPEN_GUILD_BANK" category="ADDONS">
     Baganator.CallbackRegistry:TriggerEvent("GuildShow")
   </Binding>
-  <Binding name="BAGANATOR_QUICK_SEARCH" category="Baganator">
+  <Binding name="BAGANATOR_QUICK_SEARCH" category="ADDONS">
     Baganator.CallbackRegistry:TriggerEvent("QuickSearch")
   </Binding>
 </Bindings>
