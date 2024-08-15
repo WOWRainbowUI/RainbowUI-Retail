@@ -164,7 +164,7 @@ local skinTable = {
             ["texture_custom_file"] = "Interface\\",
             ["textR_class_colors"] = false,
             ["texture_custom"] = "",
-            ["textL_class_colors"] = false,
+            ["textL_class_colors"] = true,
             ["alpha"] = 1,
             ["no_icon"] = false,
             ["texture"] = "TheWarWithinBar",
@@ -174,7 +174,7 @@ local skinTable = {
 
             ["fixed_texture_background_color"] = {1, 1, 1, 1}, --
             ["font_face"] = "Friz Quadrata TT", --
-            ["font_size"] = 11, --
+            ["font_size"] = 14, --
             ["textL_offset"] = 0, --
             ["text_yoffset"] = 7, --
             ["texture_class_colors"] = true,
