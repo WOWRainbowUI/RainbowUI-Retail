@@ -134,7 +134,7 @@ function DR.DragonRidingZoneCheck()
 	end
 end
 
-DR.statusbar = CreateFrame("StatusBar", nil, UIParent)
+DR.statusbar = CreateFrame("StatusBar", "DRStatusBar", UIParent)
 DR.statusbar:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 DR.statusbar:SetWidth(305/1.25)
 DR.statusbar:SetHeight(66.5/2.75)
@@ -560,7 +560,7 @@ function DR.FixBlizzFrames()
 			end
 		end
 	end
-	UIWidgetPowerBarContainerFrame:UpdateWidgetLayout();
+	--UIWidgetPowerBarContainerFrame:UpdateWidgetLayout(); -- This seems to cause some kind of edit mode taint. Yeeting this for now and keeping this note here.
 end
 
 function DR.SetupVigorToolip()
