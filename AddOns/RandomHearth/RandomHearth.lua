@@ -79,10 +79,10 @@ local function updateMacro()
 			macroText = "#showtooltip " .. macroName .. "\n/stopcasting\n/click [btn:2]rhB 2;[btn:3]rhB 3;rhB"
 		end
 		local macroIndex = GetMacroIndexByName("Random Hearth")
-		if macroIndex > 0 then
-			EditMacro(macroIndex, "Random Hearth", macroIcon, macroText)
-		else
+		if macroIndex == 0 then
 			CreateMacro("Random Hearth", macroIcon, macroText, nil)
+		else
+			EditMacro(macroIndex, nil, macroIcon, macroText)
 		end
 	end
 end
@@ -105,7 +105,7 @@ local function listGenerate()
 		elseif C_Covenants.GetActiveCovenantID() ~= v[2] then
 			if rhDB.L.tList[v[3]] ~= nil then
 				rhCheckButtons[v[3]].Extratext = rhCheckButtons[v[3]]:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-				rhCheckButtons[v[3]].Extratext:SetFont("Fonts\\FRIZQT__.TTF", 13)
+				rhCheckButtons[v[3]].Extratext:SetFont("STANDARD_TEXT_FONT", 13)
 				rhCheckButtons[v[3]].Extratext:SetText("|cff777777(Renown locked)|r")
 				rhCheckButtons[v[3]].Extratext:SetPoint("LEFT", rhCheckButtons[v[3]].Text, "RIGHT", 10, 0)
 			end
@@ -175,6 +175,13 @@ local function setRandom()
 	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) and #rhList > 0 then
 		local rnd = rhList[math.random(1, count)]
 		rhBtn:SetAttribute("toy", rhDB.L.tList[rnd]["name"])
+		if rhDB.iconOverride.name == "Random" then
+			macroIcon = rhDB.L.tList[rnd]["icon"]
+			local macroIndex = GetMacroIndexByName("Random Hearth")
+			if macroIndex ~= 0 then
+				EditMacro(macroIndex, nil, macroIcon)
+			end
+		end
 	end
 end
 
@@ -273,13 +280,13 @@ rhTitle:SetHeight(1)
 rhTitle.text = rhTitle:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 rhTitle.text:SetPoint("TOPLEFT", rhTitle, 0, 0)
 rhTitle.text:SetText("Random Hearthstone")
-rhTitle.text:SetFont("Fonts\\FRIZQT__.TTF", 18)
+rhTitle.text:SetFont("STANDARD_TEXT_FONT", 18)
 
 -- Thanks
 rhOptionsPanel.Thanks = rhOptionsPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 rhOptionsPanel.Thanks:SetPoint("BOTTOMRIGHT", -5, 5)
 rhOptionsPanel.Thanks:SetText("Thanks for using my addon :)\nNiian - Khaz'Goroth")
-rhOptionsPanel.Thanks:SetFont("Fonts\\FRIZQT__.TTF", 9)
+rhOptionsPanel.Thanks:SetFont("STANDARD_TEXT_FONT", 9)
 rhOptionsPanel.Thanks:SetJustifyH("RIGHT")
 
 -- Description
@@ -289,7 +296,7 @@ rhDesc:SetHeight(1)
 rhDesc.text = rhDesc:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 rhDesc.text:SetPoint("TOPLEFT", rhDesc, 0, 0)
 rhDesc.text:SetText("Add or remove hearthstone toys from rotation")
-rhDesc.text:SetFont("Fonts\\FRIZQT__.TTF", 14)
+rhDesc.text:SetFont("STANDARD_TEXT_FONT", 14)
 
 -- Scroll Frame
 rhOptionsScroll:SetPoint("TOPLEFT", 5, -60)
@@ -320,7 +327,7 @@ for i = 1, #rhToys do
 		rhCheckButtons[rhToys[i]].Text:SetText(item:GetItemName())
 	end)
 	rhCheckButtons[rhToys[i]].Text:SetTextColor(1, 1, 1, 1)
-	rhCheckButtons[rhToys[i]].Text:SetFont("Fonts\\FRIZQT__.TTF", 13)
+	rhCheckButtons[rhToys[i]].Text:SetFont("STANDARD_TEXT_FONT", 13)
 	rhCheckButtons[rhToys[i]].Text:SetPoint("LEFT", 28, 0)
 end
 
@@ -350,7 +357,7 @@ rhDropdown.Texture = rhDropdown:CreateTexture()
 rhDropdown.Texture:SetSize(24, 24)
 rhDropdown.Texture:SetPoint("LEFT", rhDropdown, "RIGHT", -10, 2)
 rhDropdown.Extratext = rhDropdown:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-rhDropdown.Extratext:SetFont("Fonts\\FRIZQT__.TTF", 13)
+rhDropdown.Extratext:SetFont("STANDARD_TEXT_FONT", 13)
 rhDropdown.Extratext:SetText("Macro icon")
 rhDropdown.Extratext:SetPoint("RIGHT", rhDropdown, "LEFT", 10, 2)
 
@@ -359,21 +366,21 @@ rhOverride:SetPoint("TOPLEFT", rhOverride:GetParent(), "BOTTOMLEFT", 15, -50)
 rhOverride:SetSize(25, 25)
 rhOverride.Text:SetText(" Allow player's current Covenant hearthstone only")
 rhOverride.Text:SetTextColor(1, 1, 1, 1)
-rhOverride.Text:SetFont("Fonts\\FRIZQT__.TTF", 13)
+rhOverride.Text:SetFont("STANDARD_TEXT_FONT", 13)
 
 -- Dalaran hearth checkbox
 rhDalHearth:SetPoint("TOPLEFT", rhOverride, "BOTTOMLEFT", 0, 0)
 rhDalHearth:SetSize(25, 25)
 rhDalHearth.Text:SetText(" Cast Dalaran Hearth on macro right click")
 rhDalHearth.Text:SetTextColor(1, 1, 1, 1)
-rhDalHearth.Text:SetFont("Fonts\\FRIZQT__.TTF", 13)
+rhDalHearth.Text:SetFont("STANDARD_TEXT_FONT", 13)
 
 -- Garrison hearth checkbox
 rhGarHearth:SetPoint("TOPLEFT", rhDalHearth, "BOTTOMLEFT", 0, 0)
 rhGarHearth:SetSize(25, 25)
 rhGarHearth.Text:SetText(" Cast Garrison Hearth on macro middle click")
 rhGarHearth.Text:SetTextColor(1, 1, 1, 1)
-rhGarHearth.Text:SetFont("Fonts\\FRIZQT__.TTF", 13)
+rhGarHearth.Text:SetFont("STANDARD_TEXT_FONT", 13)
 
 -- Listener for addon loaded shenanigans
 rhListener:RegisterEvent("ADDON_LOADED")
