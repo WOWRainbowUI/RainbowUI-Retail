@@ -1988,9 +1988,9 @@ D["Quartz"] = {
     },
 };
 D["QuestPlates"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "QUEST" },
-	title = "任務怪提示",
+	title = "(暫時無法使用) 任務怪提示",
 	desc = "在任務怪名字和血條的左側顯示任務目標進度的提示圖示，開啟敵方血條就會出現。``圖示內的數字表示完成任務還需要多少數量或百分比。",
 	icon = "Interface\\Icons\\achievement_garrisonquests_0100",
 	img = true,
