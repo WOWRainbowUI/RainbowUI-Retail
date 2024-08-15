@@ -157,8 +157,8 @@ Enable this setting if you want this timer to be hidden, or when using a WeakAur
 	L["Anchor"] = "고정 지점"
 	L["Anchor Point"] = "고정 지점"
 	L["Anchored To"] = "고정 위치:"
-	L["And "] = "And"
 	L["and"] = "그리고"
+	L["And "] = "And"
 	L["and %s"] = "and %s"
 	L["and aligned left"] = ", 왼쪽 정렬"
 	L["and aligned right"] = ", 오른쪽 정렬"
@@ -309,8 +309,7 @@ Off Screen]=] ] = "위크오라가 화면 밖에 있습니다"
 	L["Custom Options"] = "사용자 정의 옵션"
 	L["Custom Sort"] = "사용자 정의 정렬"
 	L["Custom Trigger"] = "사용자 정의 활성 조건"
-	L["Custom trigger event tooltip"] = [=[
-사용자 정의 활성 조건이 확인하도록 만들 이벤트를 선택하세요.쉼표나 공백을 사용해 여러 이벤트를 지정할 수 있습니다.
+	L["Custom trigger event tooltip"] = [=[사용자 정의 활성 조건이 확인하도록 만들 이벤트를 선택하세요.쉼표나 공백을 사용해 여러 이벤트를 지정할 수 있습니다.
 
 • "UNIT" 이벤트는 콜론을 사용해 등록할 유닛 ID를 정할 수 있습니다. 유닛ID는 유닛 종류별로 다른 것을 사용하며, "nameplate", "group", "raid", "party", "arena", "boss"가 포함됩니다.
 • "CLEU"를 COMBAT_LOG_EVENT_UNFILTERED 대신 사용할 수 있고 받고 싶은 "subEvents" 인자를 콜론으로 구분해서 지정할 수 있습니다.
@@ -318,8 +317,7 @@ Off Screen]=] ] = "위크오라가 화면 밖에 있습니다"
 
 |cFF4444FF예제:|r
 UNIT_POWER_UPDATE:player, UNIT_AURA:nameplate:group PLAYER_TARGET_CHANGED CLEU:SPELL_CAST_SUCCESS TRIGGER:3:1]=]
-	L["Custom trigger status tooltip"] = [=[
-사용자 정의 활성 조건이 확인하도록 만들 이벤트를 선택하세요.쉼표나 공백을 사용해 여러 이벤트를 지정할 수 있습니다.
+	L["Custom trigger status tooltip"] = [=[사용자 정의 활성 조건이 확인하도록 만들 이벤트를 선택하세요.쉼표나 공백을 사용해 여러 이벤트를 지정할 수 있습니다.
 
 • "UNIT" 이벤트는 콜론을 사용해 등록할 유닛 ID를 정할 수 있습니다. 유닛ID는 유닛 종류별로 다른 것을 사용하며, "nameplate", "group", "raid", "party", "arena", "boss"가 포함됩니다.
 • "CLEU"를 COMBAT_LOG_EVENT_UNFILTERED 대신 사용할 수 있고 받고 싶은 "subEvents" 인자를 콜론으로 구분해서 지정할 수 있습니다.
@@ -987,8 +985,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["Use Display Info Id"] = "디스플레이 정보 ID 사용"
 	L["Use SetTransform"] = "SetTransform 사용"
 	L["Use Texture"] = "텍스쳐 사용"
-	L["Used in Auras:"] = "위크오라에서 사용됨:"
 	L["Used in auras:"] = "위크오라에서 사용됨:"
+	L["Used in Auras:"] = "위크오라에서 사용됨:"
 	L["Uses Texture Coordinates to rotate the texture."] = "텍스쳐를 회전시키려면 텍스쳐 좌표를 사용하세요."
 	L["Uses UnitInRange() to check if in range. Matches default raid frames out of range behavior, which is between 25 to 40 yards depending on your class and spec."] = "사거리 안에 있는지 검사를 위해 UnitInRange()를 사용합니다. 기본 공격대 프레임의 사거리 밖 동작과 일치하며 직업과 전문화에 따라 25에서 40미터 사이에서 작동합니다."
 	L["Uses UnitIsVisible() to check if game client has loaded a object for this unit. This distance is around 100 yards. This is polled every second."] = "UnitIsVisible()을 사용해서 게임 클라이언트가 이 유닛에 대응하는 물체를 불러왔는지 검사합니다. 검사 거리는 약 100미터 정도입니다. 매 초마다 검사합니다."
@@ -1013,8 +1011,8 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["X Offset"] = "X 위치 조정"
 	L["X Rotation"] = "X 회전"
 	L["X Scale"] = "가로 크기"
-	L["x-Offset"] = "x-위치 조정"
 	L["X-Offset"] = "X-위치 조정"
+	L["x-Offset"] = "x-위치 조정"
 	L["Y Offset"] = "Y 위치 조정"
 	L["Y Rotation"] = "Y 회전"
 	L["Y Scale"] = "세로 크기"
