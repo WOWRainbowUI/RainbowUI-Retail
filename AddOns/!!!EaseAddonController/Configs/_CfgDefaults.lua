@@ -1299,6 +1299,7 @@ D["InvenUnitFrames"] = {
 	tags = { "UNITFRAME" },
 	title = "IUF 頭像",
 	desc = "喜歡傳統風格頭像的玩家不要錯過! 提供多種外觀樣式可供選擇，還有豐富的自訂選項。`",
+	modifier = "彩虹ui",
     {
         text = "設定選項",
         callback = function() SlashCmdList["INVENUNITFRAMES"]("") end,

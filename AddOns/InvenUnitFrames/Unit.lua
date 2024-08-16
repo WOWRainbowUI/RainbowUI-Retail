@@ -655,20 +655,20 @@ function callbacks:State()
 	if self.stateText:IsShown() then
 		if self.values.connect then
 			if self.values.ghost then
-				self.stateText:SetText("유령")
+				self.stateText:SetText("鬼魂")
 			elseif self.values.dead then
-				self.stateText:SetText("죽음")
+				self.stateText:SetText("死亡")
 			elseif self.values.tapped then
-				self.stateText:SetText("선점")
+				self.stateText:SetText("無效")
 			elseif self.values.afk then
-				self.stateText:SetText("자리")
+				self.stateText:SetText("暫離")
 			elseif self.values.threatvalue and self.values.threatvalue > 0 then
 				self.stateText:SetFormattedText("%d%%", self.values.threatvalue)
 			else
 				self.stateText:SetText(nil)
 			end
 		else
-			self.stateText:SetText("오프")
+			self.stateText:SetText("離線")
 		end
 	else
 		self.stateText:SetText(nil)
