@@ -1,0 +1,13 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+<Script file="Skins\DefaultNoPortrait.lua"/>
+<Script file="Skins\Ammo.lua"/>
+<Script file="Skins\AmmoPortrait.lua"/>
+<Script file="Skins\Blizzard.lua"/>
+<Script file="Skins\Kp.lua"/>
+<Script file="Skins\Nivaya.lua"/>
+<Script file="Skins\Perl.lua"/>
+<Script file="Skins\Quest.lua"/>
+
+</Ui>
