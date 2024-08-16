@@ -50,7 +50,7 @@ L["S_GROUPFINDER_RESULTS_FOUND"] = [=[找到 %d 個隊伍
 L["S_GROUPFINDER_RESULTS_FOUND1"] = [=[找到 1 個隊伍
 點一下加入]=]
 L["S_GROUPFINDER_RESULTS_UNAPPLY"] = "尚有 %d 個申請..."
-L["S_GROUPFINDER_RIGHTCLICKCLOSE"] = "點一下右鍵關閉面板"
+L["S_GROUPFINDER_RIGHTCLICKCLOSE"] = "點右鍵關閉此視窗"
 L["S_GROUPFINDER_SECONDS"] = "秒"
 L["S_GROUPFINDER_TUTORIAL1"] = "加入正在做同一個任務的隊伍，更快完成世界任務!"
 L["S_INCREASESIZE"] = "放大"
@@ -212,3 +212,4 @@ L["Ignore New Zones"] = "忽略新地圖"
 L["World quets on new zones will always be shown.\n\nCurrent new zones:\n-Najatar\n-Machagon."] = "永遠顯示新地圖的世界任務。\n\n目前的新地圖是:\n-納沙塔爾\n-機械岡島。"
 L["World Quest Tracker - Race Track"] = "世界任務追蹤 - 競速追蹤"
 L["World Quest Tracker"] = "世界任務追蹤"
+L["For group search, enter questId:"] = "輸入任務ID來搜尋隊伍:"

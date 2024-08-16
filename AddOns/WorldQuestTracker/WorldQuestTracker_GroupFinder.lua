@@ -87,7 +87,7 @@ local isWorldQuest = QuestUtils_IsQuestWorldQuest
 	end)
 
 	--right click to close label
-		ff.RightClickClose = DF:CreateLabel (ff, "right click to close this window")
+		ff.RightClickClose = DF:CreateLabel (ff, L["S_GROUPFINDER_RIGHTCLICKCLOSE"])
 		ff.RightClickClose:SetPoint("bottom", ff, "bottom", 0, 2)
 		ff.RightClickClose.color = "gray"
 
@@ -103,7 +103,7 @@ local isWorldQuest = QuestUtils_IsQuestWorldQuest
 		end
 
 		local captchaTextInstruction = ff:CreateFontString(nil, "overlay", "GameFontNormal")
-		captchaTextInstruction:SetText("For group search, enter questId:")
+		captchaTextInstruction:SetText(L["For group search, enter questId:"])
 		--captchaTextInstruction:SetPoint("topleft", ff, "topleft", 2, -26)
 		captchaTextInstruction:SetPoint("topleft", ff, "topleft", 2, ff.divBarY - 7)
 		DF:SetFontSize(captchaTextInstruction, 10)
