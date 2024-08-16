@@ -14,6 +14,8 @@ local GetTotemTimeLeft = _G.GetTotemTimeLeft
 local GetSpecialization = _G.GetSpecialization
 local GetShapeshiftFormID = _G.GetShapeshiftFormID
 local InCombatLockdown = _G.InCombatLockdown
+local UnitBuff = C_UnitAuras.GetBuffDataByIndex
+local UnitDebuff = C_UnitAuras.GetDebuffDataByIndex
 
 local classBarBorderColor = { 0.45, 0.45, 0.45, 1 }
 IUF.unit = "player"

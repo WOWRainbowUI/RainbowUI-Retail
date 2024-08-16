@@ -21,7 +21,7 @@ local GetThreatStatusColor = _G.GetThreatStatusColor
 local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
 local AbbreviateLargeNumbers = _G.AbbreviateLargeNumbers
 
-local classificationText = { ["worldboss"] = "보스", ["rareelite"] = "희귀 정예", ["elite"] = "정예", ["rare"] = "희귀", ["trivial"] = "민간인" }
+local classificationText = { ["worldboss"] = "世界王", ["rareelite"] = "稀有精英", ["elite"] = "精英", ["rare"] = "稀有", ["trivial"] = "小怪" }
 local classificationColor = { ["worldboss"] = { 1, 0.2, 0.2 }, ["rareelite"] = { 1, 0, 0.65 }, ["elite"] = { 1, 1, 0 }, ["rare"] = { 0.96, 0, 1 }, ["trivial"] = { 0.72, 0.72, 0.72 } }
 local creatureIcons = {
 	["야수"] = "Interface\\Icons\\Ability_Mount_JungleTiger", ["Beast"] = "Interface\\Icons\\Ability_Mount_JungleTiger",
@@ -70,9 +70,9 @@ if GetLocale() == "koKR" then
 else
 	abbreviateLargeNumbers = function(value)
 		if value >= 100000000 then	-- 9
-			return strsub(value, 1, -7)..SECOND_NUMBER_CAP
-		elseif value >= 100000 then	-- 6
-			return strsub(value, 1, -4)..FIRST_NUMBER_CAP
+			return strsub(value, 1, -9)..SECOND_NUMBER_CAP
+		elseif value >= 10000 then	-- 6
+			return strsub(value, 1, -5)..FIRST_NUMBER_CAP
 		else
 			return value
 		end
