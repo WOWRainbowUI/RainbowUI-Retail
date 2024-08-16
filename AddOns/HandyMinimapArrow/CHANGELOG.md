@@ -1,6 +1,6 @@
 # Handy Minimap Arrow
 
-## [v3](https://github.com/kemayo/wow-handyminimaparrow/tree/v3) (2022-10-28)
-[Full Changelog](https://github.com/kemayo/wow-handyminimaparrow/commits/v3) [Previous Releases](https://github.com/kemayo/wow-handyminimaparrow/releases)
+## [v4](https://github.com/kemayo/wow-handyminimaparrow/tree/v4) (2024-08-15)
+[Full Changelog](https://github.com/kemayo/wow-handyminimaparrow/commits/v4) [Previous Releases](https://github.com/kemayo/wow-handyminimaparrow/releases)
 
-- Add config so the scale / atlas can be changed  
+- Bump TOC for 11.0.2  
