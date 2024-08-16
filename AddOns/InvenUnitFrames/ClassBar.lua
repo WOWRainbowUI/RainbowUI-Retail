@@ -14,8 +14,6 @@ local GetTotemTimeLeft = _G.GetTotemTimeLeft
 local GetSpecialization = _G.GetSpecialization
 local GetShapeshiftFormID = _G.GetShapeshiftFormID
 local InCombatLockdown = _G.InCombatLockdown
-local UnitBuff = C_UnitAuras.GetBuffDataByIndex
-local UnitDebuff = C_UnitAuras.GetDebuffDataByIndex
 
 local classBarBorderColor = { 0.45, 0.45, 0.45, 1 }
 IUF.unit = "player"
@@ -243,20 +241,25 @@ local function createTotem(object, num, pos, shown)
 end
 
 local function findBuffById(id, filter)
-	local name, rank = GetSpellInfo(id)
+	local name = C_Spell.GetSpellName(id)
+	local rank = nil
 	--if name then
-		local buff = select(10, UnitBuff("player", name, rank, filter))
+		-- local buff = select(10, UnitBuff("player", name, rank, filter))
+		local aura = C_UnitAuras.GetBuffDataByIndex("player", name, rank, filter)
+		local buff = aura and aura.spellId or nil
 		if buff == id then
 			return true
 		elseif buff then
 			rank = 1
-			buff = select(10, UnitBuff("player", rank, filter))
+			aura = C_UnitAuras.GetBuffDataByIndex("player", rank, filter)
+			buff = aura and aura.spellId or nil
 			while buff do
 				if buff == id then
 					return true
 				end
 				rank = rank + 1
-				buff = select(10, UnitBuff("player", rank, filter))
+				aura = C_UnitAuras.GetBuffDataByIndex("player", rank, filter)
+				buff = aura and aura.spellId or nil
 			end
 		end
 	--end
@@ -1696,7 +1699,7 @@ elseif playerClass == "WARLOCK" then
 
 		local UnitPower = _G.UnitPower
 		local UnitPowerMax = _G.UnitPowerMax
-		local UnitBuff = _G.UnitBuff
+		-- local UnitBuff = _G.UnitBuff
 		local IsPlayerSpell = _G.IsPlayerSpell
 		local UnitHasVehicleUI = _G.UnitHasVehicleUI
 
@@ -2107,7 +2110,7 @@ elseif playerClass == "MAGE" then
 
 		local UnitPower = _G.UnitPower
 		local UnitPowerMax = _G.UnitPowerMax
-		local UnitBuff = _G.UnitBuff
+		-- local UnitBuff = _G.UnitBuff
 		local IsPlayerSpell = _G.IsPlayerSpell
 		local UnitHasVehicleUI = _G.UnitHasVehicleUI
 		local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ArcaneCharges);
@@ -2273,7 +2276,7 @@ elseif playerClass == "ROGUE" then
 
 		local UnitPower = _G.UnitPower
 		local UnitPowerMax = _G.UnitPowerMax
-		local UnitBuff = _G.UnitBuff
+		-- local UnitBuff = _G.UnitBuff
 		local IsPlayerSpell = _G.IsPlayerSpell
 		local UnitHasVehicleUI = _G.UnitHasVehicleUI
 		local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints);

@@ -10,8 +10,6 @@ local pairs = _G.pairs
 local wipe = _G.table.wipe
 local IsSpellKnown = _G.IsSpellKnown
 local IsSpellKnownOrOverridesKnown = _G.IsSpellKnownOrOverridesKnown
-local UnitBuff = C_UnitAuras.GetBuffDataByIndex
-local UnitDebuff = C_UnitAuras.GetDebuffDataByIndex
 local UnitCanAttack = _G.UnitCanAttack
 local UnitCanAssist = _G.UnitCanAssist
 if not IsSpellKnownOrOverridesKnown then IsSpellKnownOrOverridesKnown = IsSpellKnown end
@@ -303,31 +301,51 @@ function lib:CheckHelpDispel(aura)
 end
 
 function lib:IsDispelable(unit, index)
+	local aura, auraType, auraID
 	if UnitCanAttack("player", unit) then
-		local auraType, _, _, _, _, _, auraID = select(4, UnitBuff(unit, index))
+		-- local auraType, _, _, _, _, _, auraID = select(4, UnitBuff(unit, index))
+		aura = C_UnitAuras.GetBuffDataByIndex(unit, index)
+		if aura then
+			auraType = aura.dispelName
+			auraID = aura.spellId
+		end
 		return lib:CheckHarmDispel(auraType, auraID)
 	elseif UnitCanAssist("player", unit) then
-		return lib:CheckHelpDispel(select(4, UnitDebuff(unit, index)) or nil)
+		aura = C_UnitAuras.GetDebuffDataByIndex(unit, index)
+		if aura then
+			auraType = aura.dispelName
+		end
+		return lib:CheckHelpDispel(auraType or nil)
 	end
 	return nil
 end
 
 function lib:DispelHelp(unit, usablefunc)
 	if next(lib.help) then
+		local aura, name, auraType, spellId
 		for i = 1, 40 do
-			local name, _, _, auraType, _, _, _, _, _, spellId = UnitDebuff(unit, i)
+			-- local name, _, _, auraType, _, _, _, _, _, spellId = UnitDebuff(unit, i)
+			aura = C_UnitAuras.GetDebuffDataByIndex(unit, i)
+			if aura then
+				name = aura.name
+				auraType = aura.dispelName
+				spellId = aura.spellId
+			end
 			if name then
 				if lib:CheckHelpDispel(auraType) then
 					if type(usablefunc) == "function" then
 						if usablefunc(name, spellId) then
-							return UnitDebuff(unit, i)
+							-- return UnitDebuff(unit, i)
+							return C_UnitAuras.GetDebuffDataByIndex(unit, i)
 						end
 					elseif type(usablefunc) == "table" then
 						if not usablefunc[name] and not usablefunc[auraID] then
-							return UnitDebuff(unit, i)
+							-- return UnitDebuff(unit, i)
+							return C_UnitAuras.GetDebuffDataByIndex(unit, i)
 						end
 					else
-						return UnitDebuff(unit, i)
+						-- return UnitDebuff(unit, i)
+						return C_UnitAuras.GetDebuffDataByIndex(unit, i)
 					end
 				end
 			else
@@ -340,20 +358,30 @@ end
 
 function lib:DispelHarm(unit, usablefunc)
 	if lib.harm or lib.tranquilize then
+		local aura, name, auraType, auraID
 		for i = 1, 40 do
-			local name, _, _, auraType, _, _, _, _, _, auraID = UnitBuff(unit, i)
+			-- local name, _, _, auraType, _, _, _, _, _, auraID = UnitBuff(unit, i)
+			aura = C_UnitAuras.GetBuffDataByIndex(unit, i)
+			if aura then
+				name = aura.name
+				auraType = aura.dispelName
+				auraID = aura.spellId
+			end
 			if name then
 				if lib:CheckHarmDispel(auraType, auraID) then
 					if type(usablefunc) == "function" then
 						if usablefunc(name) then
-							return UnitBuff(unit, i)
+							-- return UnitBuff(unit, i)
+							return C_UnitAuras.GetBuffDataByIndex(unit, i)
 						end
 					elseif type(usablefunc) == "table" then
 						if not usablefunc[name] and not usablefunc[auraID] then
-							return UnitBuff(unit, i)
+							-- return UnitBuff(unit, i)
+							return C_UnitAuras.GetBuffDataByIndex(unit, i)
 						end
 					else
-						return UnitBuff(unit, i)
+						-- return UnitBuff(unit, i)
+						return C_UnitAuras.GetBuffDataByIndex(unit, i)
 					end
 				end
 			else

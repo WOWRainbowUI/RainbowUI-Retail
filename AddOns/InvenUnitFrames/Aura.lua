@@ -4,9 +4,6 @@ local _G = _G
 local pairs = _G.pairs
 local ipairs = _G.ipairs
 local tinsert = _G.table.insert
-local UnitAura = _G.UnitAura
-local UnitBuff = C_UnitAuras.GetBuffDataByIndex
-local UnitDebuff = C_UnitAuras.GetDebuffDataByIndex
 local UnitIsFriend = _G.UnitIsFriend
 local CreateFrame = _G.CreateFrame
 
