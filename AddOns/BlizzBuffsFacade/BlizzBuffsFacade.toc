@@ -1,13 +1,14 @@
-## Interface: 110002
+## Interface: 11503, 30403, 40400, 110002
 ## Title: Masque Skinner: Blizz Buffs
 ## Version: 10.1.0
 ## Author: Cybeloras of Aerie Peak
 ## Notes: Skins the Blizzard buff and debuff frames with Masque
+## RequiredDeps: Masque
+
 ## Title-zhTW: |cff00CCFF[快捷列]|r 按鈕外觀-暴雪增益/減益
 ## Notes-zhTW: Masque Skinner: Blizz Buffs |n|n讓畫面右上角遊戲內建的增益/減益圖示支援按鈕外觀插件，也能更換外觀。
 ## X-Category-zhTW: 介面
 ## IconTexture: 982414
 ## DefaultState: disabled
-## RequiredDeps: Masque
 
 BlizzBuffsFacade.lua
