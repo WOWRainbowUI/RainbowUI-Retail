@@ -103,7 +103,7 @@ local function previewOnUpdate(preview, timer)
 		preview.updateTime = 0
 		if not preview.values.castingEndTime and random(1, 3) == 1 then
 			preview.values.castingIsChannel = random(1, 3) == 1
-			preview.values.castingIcon = select(3, GetSpellInfo(random(10, 60000))) or "Interface\\Icons\\Temp"
+			preview.values.castingIcon = select(3, C_Spell.GetSpellName(random(10, 60000))) or "Interface\\Icons\\Temp"
 			preview.values.castingStartTime = preview.currentTime * 1000
 			preview.values.castingEndTime = (preview.currentTime + random(15, 50) / 10) * 1000
 			preview.values.castingName = "시전바"

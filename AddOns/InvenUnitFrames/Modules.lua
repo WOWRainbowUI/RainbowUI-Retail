@@ -139,7 +139,7 @@ function IUF:LoadSkinAddOn(skin)
 		elseif skinAddOns[skin] then
 			if skinAddOnsIndex[skinAddOns[skin]] then
 				skinAddOnsIndex[skinAddOns[skin]] = nil
-				LoadAddOn(skinAddOns[skin])
+				C_AddOns.LoadAddOn(skinAddOns[skin])
 			end
 			if loadedSkins[skin] then
 				return true
