@@ -2843,7 +2843,7 @@ function Hekili:BuildUI()
 
         if Masque then
             Masque:Register( addon, MasqueUpdate, self )
-            MasqueGroup = Masque:Group( addon )
+            MasqueGroup = Masque:Group( addon.." 輸出助手" )
         end
     end
 
