@@ -1,0 +1,15 @@
+## Interface: 110002
+## Title: I|cffa2e665nven|r Unit Frames: Skin Pack
+## Notes: 인벤 유닛 프레임: 스킨 팩
+## Author: Inven - InTheBlue
+## Dependencies: InvenUnitFrames
+## LoadOnDemand: 1
+## X-InvenUnitFrames-Skin: DefaultNoPortrait, Ammo, AmmoPortrait, Blizzard, Kp, Nivaya, Perl, Quest
+
+## Title-zhTW: |cff4DD2FF[頭像]|r IUF頭像-外觀組合包
+## Notes-zhTW: I|cffa2e665nven|r Unit Frames: Skin Pack |n|n包含多種IUF頭像框架的預設外觀可供選擇。|n|n|cffffd200使用方法: |r從 Esc>選項>插件>IUF頭像>整體>基本>外觀主題，選擇外觀。
+## X-Category-zhTW: 介面
+## IconTexture: Interface\Icons\inv_pet_frostwolfpup
+## DefaultState: disabled
+
+Skins.xml

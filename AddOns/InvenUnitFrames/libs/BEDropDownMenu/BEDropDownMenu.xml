@@ -1,0 +1,21 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="BEDropDownMenu.lua"/>
+	<Include file="BEDropDownMenuTemplates.xml"/>
+	<Button name="BEDropDownList1" toplevel="true" frameStrata="FULLSCREEN_DIALOG" inherits="BEDropDownListTemplate" hidden="true" id="1">
+		<Size>
+			<AbsDimension x="180" y="10"/>
+		</Size>
+		<Scripts>
+			<OnLoad>
+				local fontName, fontHeight, fontFlags = _G["DropDownList1Button1NormalText"]:GetFont();
+				BEDROPDOWNMENU_DEFAULT_TEXT_HEIGHT = fontHeight;
+			</OnLoad>
+		</Scripts>
+	</Button>
+	<Button name="BEDropDownList2" toplevel="true" frameStrata="FULLSCREEN_DIALOG" inherits="BEDropDownListTemplate" hidden="true" id="2">
+		<Size>
+			<AbsDimension x="180" y="10"/>
+		</Size>
+	</Button>
+</Ui>

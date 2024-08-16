@@ -1,0 +1,18 @@
+## Interface: 110002
+## Title: I|cffa2e665nven|r Unit Frames: Option
+## Notes: 인벤 유닛 프레임: 옵션 창
+## Dependencies: InvenUnitFrames
+## LoadOnDemand: 1
+## X-InvenUnitFrames-Module: Option
+
+## Title-zhTW: |cff4DD2FF[頭像]|r IUF頭像-設定選項
+## Notes-zhTW: I|cffa2e665nven|r Unit Frames: Option |n|nIUF頭像框架的設定選項。|n|n|cffffd200使用方法: |r輸入 /iuf ，或從 Esc>選項>插件>IUF頭像，開啟設定。
+## X-Category-zhTW: 介面
+## IconTexture: Interface\Icons\inv_pet_frostwolfpup
+## DefaultState: disabled
+
+libs\LibBlueOption-1.0\LibBlueOption-1.0.xml
+
+Core.lua
+Skin.lua
+Preview.lua

@@ -1294,6 +1294,20 @@ D["InterruptedIn"] = {
 	icon = "Interface\\Icons\\spell_holy_borrowedtime",
 	img = true,
 };
+D["InvenUnitFrames"] = {
+    defaultEnable = 0,
+	tags = { "UNITFRAME" },
+	title = "IUF 頭像",
+	desc = "喜歡傳統風格頭像的玩家不要錯過! 提供多種外觀樣式可供選擇，還有豐富的自訂選項。`",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["INVENUNITFRAMES"]("") end,
+    },
+	{
+		type = "text",
+        text = "更改外觀: 設定選項>整體>基本>外觀主題，選擇外觀。|n",
+    },
+};
 D["iPMythicTimer"] = {
     defaultEnable = 1,
 	tags = { "BOSSRAID" },

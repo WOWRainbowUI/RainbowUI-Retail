@@ -1,0 +1,188 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+	<Button name="InvenUnitFrames3BaseTemplate" useParentLevel="true" hidden="true" virtual="true">
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestTitleHighlight" parentKey="highlight" setAllPoints="true" alphaMode="ADD" hidden="true"/>
+			</Layer>
+		</Layers>
+		<Attributes>
+			<Attribute name="*type1" type="string" value="target"/>
+			<Attribute name="*type2" type="string" value="togglemenu"/>
+			<Attribute name="toggleForVehicle" type="boolean" value="true"/>
+		</Attributes>
+		<Scripts>
+			<OnEnter function="InvenUnitFrames3Member_OnEnter"/>
+			<OnLeave function="InvenUnitFrames3Member_OnLeave"/>
+			<OnDragStart function="InvenUnitFrames3Member_OnDragStart"/>
+			<OnDragStop function="InvenUnitFrames3Member_OnDragStop"/>
+			<OnMouseDown>
+				InvenUnitFrames3Member_OnDragStop()
+			</OnMouseDown>
+		</Scripts>
+	</Button>
+	<Button name="InvenUnitFrames3MemberBaseTemplate" inherits="SecureUnitButtonTemplate,InvenUnitFrames3BaseTemplate" hidden="true" virtual="true">
+		<Size x="0.1" y="0.1"/>
+		<Attributes>
+			<Attribute name="_childupdate-clearallpoints" type="string" value="self:ClearAllPoints()"/>
+			<Attribute name="_childupdate-width" type="string" value="self:SetWidth(message)"/>
+			<Attribute name="_childupdate-height" type="string" value="self:SetHeight(message)"/>
+		</Attributes>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentBackground" parentKey="background" setAllPoints="true"/>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString name="$parentName" parentKey="name" inherits="GameFontHighlightSmall" maxLines="1"/>
+				<FontString name="$parentLostText" parentKey="losttext" inherits="GameFontHighlightSmall" maxLines="1"/>
+				<Texture name="$parentLeaderIcon" hidden="true" parentKey="leaderIcon"/>
+				<Texture name="$parentRoleIcon" hidden="true" parentKey="roleIcon"/>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="3">
+				<Texture name="$parentRaidIcon1" parentKey="raidIcon1" file="Interface\TargetingFrame\UI-RaidTargetingIcons" hidden="true">
+					<Size x="0.001" y="0.001"/>
+				</Texture>
+				<Texture name="$parentRaidIcon2" parentKey="raidIcon2" file="Interface\TargetingFrame\UI-RaidTargetingIcons" hidden="true">
+					<Size x="0.001" y="0.001"/>
+				</Texture>
+				<Texture name="$parentBuffIcon1" parentKey="buffIcon1" hidden="true">
+					<Size x="0.001" y="0.001"/>
+					<TexCoords left="0.07" right="0.93" top="0.07" bottom="0.93"/>
+				</Texture>
+				<Texture name="$parentBuffIcon2" parentKey="buffIcon2" hidden="true">
+					<Size x="0.001" y="0.001"/>
+					<TexCoords left="0.07" right="0.93" top="0.07" bottom="0.93"/>
+				</Texture>
+				<Texture name="$parentBuffIcon3" parentKey="buffIcon3" hidden="true">
+					<Size x="0.001" y="0.001"/>
+					<TexCoords left="0.07" right="0.93" top="0.07" bottom="0.93"/>
+				</Texture>
+				<Texture name="$parentHealIcon" parentKey="healIcon" file="Interface\ChatFrame\ChatFrameColorSwatch" hidden="true">
+					<Size x="0.001" y="0.001"/>
+				</Texture>
+				<Texture name="$parentOverAbsorbGlow" parentKey="overAbsorbGlow"/>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="4">
+				<Texture name="$parentReadyCheckIcon" parentKey="readyCheckIcon" ignoreParentAlpha="true"/>
+			</Layer>
+		</Layers>
+		<Frames>
+			<StatusBar name="$parentHealthBar" parentKey="healthBar" useParentLevel="true">
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="2">
+						<Texture name="$parentBackground" parentKey="background" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</StatusBar>
+			<StatusBar name="$parentPowerBar" parentKey="powerBar" useParentLevel="true">
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="2">
+						<Texture name="$parentBackground" parentKey="background" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</StatusBar>
+			<StatusBar name="$parentMyHealPredictionBar" parentKey="myHealPredictionBar" useParentLevel="true"/>
+			<StatusBar name="$parentOtherHealPredictionBar" parentKey="otherHealPredictionBar" useParentLevel="true"/>
+			<StatusBar name="$parentAbsorbPredictionBar" parentKey="absorbPredictionBar" useParentLevel="true"/>
+			<Frame name="$parentDebuffIcon1" parentKey="debuffIcon1" inherits="InvenUnitFrames3DebuffIconTemplate"/>
+			<Frame name="$parentDebuffIcon2" parentKey="debuffIcon2" inherits="InvenUnitFrames3DebuffIconTemplate"/>
+			<Frame name="$parentDebuffIcon3" parentKey="debuffIcon3" inherits="InvenUnitFrames3DebuffIconTemplate"/>
+			<Frame name="$parentDebuffIcon4" parentKey="debuffIcon4" inherits="InvenUnitFrames3DebuffIconTemplate"/>
+			<Frame name="$parentDebuffIcon5" parentKey="debuffIcon5" inherits="InvenUnitFrames3DebuffIconTemplate"/>
+			<Frame name="$parentSpellTimer1" parentKey="spellTimer1" inherits="InvenUnitFrames3SpellTimerTemplate"/>
+			<Frame name="$parentSpellTimer2" parentKey="spellTimer2" inherits="InvenUnitFrames3SpellTimerTemplate"/>
+			<Frame name="$parentSpellTimer3" parentKey="spellTimer3" inherits="InvenUnitFrames3SpellTimerTemplate"/>
+			<Frame name="$parentSpellTimer4" parentKey="spellTimer4" inherits="InvenUnitFrames3SpellTimerTemplate"/>
+			<Frame name="$parentSpellTimer5" parentKey="spellTimer5" inherits="InvenUnitFrames3SpellTimerTemplate"/>
+			<Frame name="$parentSpellTimer6" parentKey="spellTimer6" inherits="InvenUnitFrames3SpellTimerTemplate"/>
+			<Frame name="$parentSpellTimer7" parentKey="spellTimer7" inherits="InvenUnitFrames3SpellTimerTemplate"/>
+			<Frame name="$parentSpellTimer8" parentKey="spellTimer8" inherits="InvenUnitFrames3SpellTimerTemplate"/>
+			<Frame name="$parentBossAura" parentKey="bossAura" hidden="true" enableMouse="false">
+				<Size x="0.001" y="0.001"/>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="bg" setAllPoints="true">
+							<Color r="0" g="0" b="0" a="1"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture name="$parentIcon" parentKey="icon">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="1" y="-1"/>
+								<Anchor point="BOTTOMRIGHT" x="-1" y="1"/>
+							</Anchors>
+							<TexCoords left="0.07" right="0.93" top="0.07" bottom="0.93"/>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<FontString inherits="NumberFontNormalSmall" parentKey="count" maxLines="1">
+							<Anchors>
+								<Anchor point="BOTTOMRIGHT" relativeTo="$parentIcon" relativePoint="BOTTOMRIGHT" x="5" y="-2"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Cooldown parentKey="cooldown" inherits="CooldownFrameTemplate" reverse="true" hidden="true">
+						<Anchors>
+							<Anchor point="CENTER" x="0" y="-1"/>
+						</Anchors>
+					</Cooldown>
+					<Frame parentKey="timerParent" setAllPoints="true">
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString inherits="GameFontHighlight" parentKey="text" maxLines="1">
+									<Anchors>
+										<Anchor point="TOPLEFT" x="0" y="0"/>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnLoad function="InvenUnitFrames3Member_BossAuraOnLoad"/>
+					<OnUpdate function="InvenUnitFrames3Member_AuraIconOnUpdate"/>
+				</Scripts>
+			</Frame>
+			<Frame name="$parentCenterStatusIcon" parentKey="centerStatusIcon" hidden="true" enableMouse="false">
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="10">
+						<Texture setAllPoints="true" parentKey="texture"/>
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="11">
+						<Texture setAllPoints="true" parentKey="border"/>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnUpdate function="InvenUnitFrames3Member_CenterStatusIconOnUpdate"/>
+					<OnHide function="InvenUnitFrames3Member_CenterStatusIconOnHide"/>
+				</Scripts>
+			</Frame>
+			<StatusBar name="$parentCastingBar" parentKey="castingBar" hidden="true"/>
+			<StatusBar name="$parentPowerBarAlt" parentKey="powerBarAlt" hidden="true"/>
+			<StatusBar name="$parentResurrectionBar" parentKey="resurrectionBar" useParentLevel="true" hidden="true" setAllPoints="true"/>
+			<Frame name="$parentDropDown" inherits="UIDropDownMenuTemplate" parentKey="dropDown" hidden="true">
+				<Size>
+					<AbsDimension x="10" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOP">
+						<Offset>
+							<AbsDimension x="10" y="-60"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+			<Frame parentKey="topLevel" setAllPoints="true"/>
+		</Frames>
+		<Scripts>
+			<OnLoad function="InvenUnitFrames3Member_OnLoad"/>
+			<OnShow function="InvenUnitFrames3Member_OnShow"/>
+			<OnHide function="InvenUnitFrames3Member_OnHide"/>
+			<OnAttributeChanged function="InvenUnitFrames3Member_OnAttributeChanged"/>
+		</Scripts>
+	</Button>
+
+</Ui>

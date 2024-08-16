@@ -1,0 +1,22 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+<Script file="LibBlueOption-1.0.lua"/>
+<Script file="widgets\BasicTemplates.lua"/>
+<Script file="widgets\Button.lua"/>
+<Script file="widgets\CheckBox.lua"/>
+<Script file="widgets\ColorPicker.lua"/>
+<Script file="widgets\DropDown.lua"/>
+<Script file="widgets\EditBox.lua"/>
+<Script file="widgets\Heading.lua"/>
+<Script file="widgets\Media.lua"/>
+<Script file="widgets\ScrollFrame.lua"/>
+<Script file="widgets\ShowHide.lua"/>
+<Script file="widgets\Slider.lua"/>
+<Script file="widgets\Tab.lua"/>
+<Script file="widgets\Menu.lua"/>
+<Script file="widgets\Font.lua"/>
+<Script file="widgets\List.lua"/>
+<Script file="widgets\TitleBorder.lua"/>
+
+</Ui>
