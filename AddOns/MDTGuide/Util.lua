@@ -208,11 +208,13 @@ Addon.Chat = function (msg)
 end
 
 -- General purpose function slow-down
----@param fn function
+---@generic F: function
+---@param fn F
 ---@param n number
----@param debounce boolean
----@param leading boolean
----@param update boolean
+---@param debounce? boolean
+---@param leading? boolean
+---@param update? boolean
+---@return F
 function Addon.FnSlowDown(fn, n, debounce, leading, update)
     local args = {}
     local handle, called, scheduler, handler
@@ -250,19 +252,23 @@ function Addon.FnSlowDown(fn, n, debounce, leading, update)
 end
 
 -- Throttle a function, so it is executed at most every n seconds
----@param fn function
+---@generic F: function
+---@param fn F
 ---@param n number
----@param leading boolean
----@param update boolean
+---@param leading? boolean
+---@param update? boolean
+---@return F
 function Addon.FnThrottle(fn, n, leading, update)
     return Addon.FnSlowDown(fn, n, false, leading, update)
 end
 
 -- Debounce a function, so it is executed only n seconds after the last call
----@param fn function
+---@generic F: function
+---@param fn F
 ---@param n number
----@param leading boolean
----@param update boolean
+---@param leading? boolean
+---@param update? boolean
+---@return F
 function Addon.FnDebounce(fn, n, leading, update)
     return Addon.FnSlowDown(fn, n, true, leading, update)
 end

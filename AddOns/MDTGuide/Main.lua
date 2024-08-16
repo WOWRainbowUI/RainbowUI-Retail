@@ -261,15 +261,10 @@ function Addon.Zoom(s, x, y, smooth)
     -- Don't go out of bounds
     local scale = MDT:GetScale()
     local width, height = Addon.WIDTH * scale, Addon.HEIGHT * scale
+    local f = 1 - 1 / s
 
-    if x > width * (1 - 1 / s) then
-        local diff = x + width * (1 / s - 1)
-        x, y, s = x + diff, y + diff * (1 / Addon.RATIO), 1 / (1 - (x + diff) / width)
-    end
-    if y > height * (1 - 1 / s) then
-        local diff = y + height * (1 / s - 1)
-        y, x, s = y + diff, x + diff * Addon.RATIO, 1 / (1 - (y + diff) / height)
-    end
+    x = math.max(0, math.min(x, width * f))
+    y = math.max(0, math.min(y, height * f))
 
     if zoomAnimGrp then
         zoomAnimGrp = zoomAnimGrp:Stop()
@@ -301,6 +296,9 @@ function Addon.Zoom(s, x, y, smooth)
         MDT:ZoomMap(0)
     end
 end
+
+-- This seems to fix screen freezes due to multiple rapid calls
+Addon.Zoom = Addon.FnDebounce(Addon.Zoom, 0, true, true)
 
 function Addon.ZoomBy(factor)
     local main = MDT.main_frame

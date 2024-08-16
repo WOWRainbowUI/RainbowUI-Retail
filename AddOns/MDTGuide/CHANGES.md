@@ -1,1 +1,2 @@
-- Fixed call to remove C_Scenario.GetCriteriaInfo method
+- Maybe fixed screen freeze caused by rapidely triggering multiple animated map zooms
+- Fixed going out of map bounds when zooming to pull
