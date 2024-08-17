@@ -170,11 +170,14 @@ function Addon.GetLastSubLevel(pull)
     return sublevel
 end
 
----@param tbl table
+---@generic T
+---@param tbl T[]
 ---@param key1 any
 ---@param val1 any
 ---@param key2 any
 ---@param val2 any
+---@return T?
+---@return any?
 function Addon.FindWhere(tbl, key1, val1, key2, val2)
     for i,v in pairs(tbl) do
         if v[key1] == val1 and (not key2 or v[key2] == val2) then
@@ -187,23 +190,32 @@ Addon.Debug = function (...)
     if Addon.DEBUG then print(...) end
 end
 
+---@param title? string
+---@param line? string
+---@param ... any
 Addon.Echo = function (title, line, ...)
     print("|cff00bbbb[MDTG]|r " .. (title and title ..": " or "") .. (line or ""):format(...))
 end
 
+---@param cmd string
+---@param desc string
+---@param ... any
 Addon.Command = function (cmd, desc, ...)
     Addon.Echo("|cffcccccc/mdtg " .. cmd .. "|r", desc, ...)
 end
 
+---@param line string
+---@param ... any
 Addon.Error = function (line, ...)
     print("|cffff0000[MDTG]|r " .. line:format(...))
 end
 
+---@param msg string
 Addon.Chat = function (msg)
     if IsInGroup() then
         SendChatMessage(msg, IsInGroup(LE_PARTY_CATEGORY_INSTANCE) and "INSTANCE_CHAT" or "PARTY")
     else
-        Addon.Echo(nil, msg)
+        Addon.Echo(nil, msg:gsub("%%", "%%%%"))
     end
 end
 

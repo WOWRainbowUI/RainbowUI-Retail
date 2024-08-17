@@ -1,3 +1,8 @@
+Version 1.33
+
+- Maybe fixed screen freeze caused by rapidely triggering multiple animated map zooms
+- Fixed going out of map bounds when zooming to pull
+
 Version 1.32
 
 - Fixed call to remove C_Scenario.GetCriteriaInfo method
