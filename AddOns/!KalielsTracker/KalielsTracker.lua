@@ -3050,7 +3050,7 @@ function KT:OnEnable()
 	SetFrames()
 	SetHooks()
 
-	self.Hacks:Enable()
+	-- self.Hacks:Enable()
 	self.QuestLog:Enable()
 	self.Filters:Enable()
 	if self.AddonPetTracker.isLoaded then self.AddonPetTracker:Enable() end

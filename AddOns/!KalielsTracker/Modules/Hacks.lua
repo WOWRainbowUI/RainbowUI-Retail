@@ -233,9 +233,9 @@ end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
-    -- Hack_LFG()
-    -- Hack_WorldMap()
-    -- Hack_EditMode()
-    -- Hack_EncounterJournal()
-    -- Hack_TaintedFrames()
+    Hack_LFG()
+    Hack_WorldMap()
+    Hack_EditMode()
+    Hack_EncounterJournal()
+    Hack_TaintedFrames()
 end
