@@ -1696,12 +1696,18 @@ function UUI.CreateUI()
 	:un()
 	
 	GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
-	GameMenuFrame.Header:SetScript("OnMouseDown", function() UUI.ToggleUI() end)
+	GameMenuFrame.Header:SetScript("OnMouseDown", function(self, button)
+		if button == "LeftButton" or button == "RightButton" then
+			UUI.ToggleUI() 
+		else
+			ReloadUI()
+		end
+	end)
 	GameMenuFrame.Header:SetScript("OnShow", function(self) UICoreFrameFlash(self.logo.highlight, 2 , 2, -1, nil, 0, 0) end)
 	GameMenuFrame.Header:SetScript("OnHide", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
 	GameMenuFrame.Header:SetScript("OnEnter", function(self) UICoreFrameFlashStop(self.logo.highlight); UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
 	GameMenuFrame.Header:SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight); UICoreFrameFlash(self.logo.highlight, 2 , 2, -1, nil, 0, 0) end)
-	CoreUIEnableTooltip(GameMenuFrame.Header, L["Open Ease Addon Controller's main panel"])
+	CoreUIEnableTooltip(GameMenuFrame.Header, L["Left or Right click: Open Ease Addon Controller's main panel\nOther mouse buttons: Reload UI"])
 
 	-- Buttons on GameMenuFrame
 	--[[
