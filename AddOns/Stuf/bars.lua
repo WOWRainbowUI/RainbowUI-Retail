@@ -1178,3 +1178,46 @@ if CLS == "EVOKER" then  -- Evoker Essences Frame ------------------------------
 		end)
 	end)
 end
+if CLS == "DRUID" then  -- Druid Combo Point Bar Frame -----------------------------------------------------------------------------------------------
+	Stuf:AddBuilder("combopointbar", function(unit, uf, name, db, a5, config) 
+		if unit ~= "player" then return end
+		local f = _G.DruidComboPointBarFrame
+		if not f or db.hide then
+			if f then f:Hide() end
+			return
+		end
+		
+
+		f:SetParent(uf)
+		f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0)
+		f:SetScale(db.scale or 1)
+		f:SetAlpha(db.alpha or 1)
+		if db.framelevel then
+			f:SetFrameLevel(db.framelevel)
+		end
+		if db.strata then
+			f:SetFrameStrata(db.strata)
+		end
+		if _G.DruidComboPointBarFrame then _G.DruidComboPointBarFrame:EnableMouse(not db.nomouse) end
+		
+		hooksecurefunc(DruidComboPointBarFrame, "Show", function()
+			local f = DruidComboPointBarFrame
+			if not f or db.hide then
+				if f then f:Hide() end
+				return
+			end
+
+			f:SetParent(uf)
+			f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0)
+			f:SetScale(db.scale or 1)
+			f:SetAlpha(db.alpha or 1)
+			if db.framelevel then
+				f:SetFrameLevel(db.framelevel)
+			end
+			if db.strata then
+				f:SetFrameStrata(db.strata)
+			end
+			if _G.DruidComboPointBarFrame then _G.DruidComboPointBarFrame:EnableMouse(not db.nomouse) end
+		end)
+	end)
+end

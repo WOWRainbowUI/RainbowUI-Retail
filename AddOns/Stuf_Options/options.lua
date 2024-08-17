@@ -451,6 +451,7 @@ function Stuf:LoadDefaults(db, restore, perchar, justboss)
 			arcanebar={ x=90, y=50, },
 			essencesbar={ x=90, y=45, },
 			priestbar={ x=90, y=50, },
+			combopointbar={ x=90, y=45, },
 		},
 		target={
 			frame={ x=55, y=-50, w=320, h=8, bordercolormethod="classreaction", },
@@ -1891,6 +1892,13 @@ local essencesbar={
 		x=x2, y=y2, scale=scale, alpha=alpha, framelevel=framelevel, nomouse=nomouse, strata=bstrata,
 	},
 }
+local combopointbar={
+	name=L["Combo Frame"], type="group", hidden=function() return Stuf.CLS ~= "DRUID" end, order=30,
+	args={
+		hide=hide, blank=blank,
+		x=x2, y=y2, scale=scale, alpha=alpha, framelevel=framelevel, nomouse=nomouse, strata=bstrata,
+	},
+}
 local function pointhide(info)
 	local unit, object, setting = infobreakdown(info)
 	return db[unit][object].combostyle ~= 2
@@ -2133,7 +2141,7 @@ options={
 				lfgicon=lfgicon,
 				totembar=totembar,
 				runebar=runebar, druidbar=druidbar, holybar=holybar, shardbar=shardbar,
-				chibar=chibar, priestbar=priestbar, arcanebar=arcanebar, essencesbar=essencesbar,
+				chibar=chibar, priestbar=priestbar, arcanebar=arcanebar, essencesbar=essencesbar, combopointbar=combopointbar,
 				castbar=castbar,
 			},
 		},
