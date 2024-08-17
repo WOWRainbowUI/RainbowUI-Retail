@@ -254,8 +254,9 @@ function KT_BonusObjectiveTracker_OnEvent(self, event, ...)
 			local block = self.module:GetBlock(blockKey);
 			if( block ) then
 				for criteriaIndex = 1, numCriteria do
-					local criteriaInfo = C_ScenarioInfo.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
-					if( criteriaInfo and criteriaInfo.criteriaID == id ) then
+					--local _, _, _, _, _, _, _, _, criteriaID = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
+					local criteriaID = C_ScenarioInfo.GetCriteriaInfo(criteriaIndex).criteriaID;
+					if( id == criteriaID ) then
 						local questID = C_Scenario.GetBonusStepRewardQuestID(bonusStepIndex);
 						if ( questID ~= 0 ) then
 							KT_BonusObjectiveTracker_AddReward(questID, block);
@@ -290,7 +291,7 @@ function KT_BonusObjectiveTracker_AddReward(questID, block, xp, money)
 		data.posIndex = block.posIndex;
 		data.objectives = { };
 		local isInArea, isOnMap, numObjectives, taskName, displayAsObjective = GetTaskInfo(questID);
-		for objectiveIndex = 1, (numObjectives or 0) do
+		for objectiveIndex = 1, numObjectives do
 			local text, objectiveType, finished = GetQuestObjectiveInfo(questID, objectiveIndex, true);
 			tinsert(data.objectives, text);
 			data.objectiveType = objectiveType;
@@ -325,17 +326,8 @@ function KT_BonusObjectiveTracker_AddReward(questID, block, xp, money)
 		tinsert(data.rewards, t);
 	end
 	-- currencies
-	local currencies = C_QuestLog.GetQuestRewardCurrencies(questID) or { };
-	local numCurrencies = #currencies;
+	local numCurrencies = GetNumQuestLogRewardCurrencies(questID);
 	for i = 1, numCurrencies do
-		local function GetQuestLogRewardCurrencyInfo(currencyIndex, questID)
-			local questCurrencies = C_QuestLog.GetQuestRewardCurrencies(questID)
-			questCurrencies = questCurrencies or { }
-			local questRewardCurrencyInfo = questCurrencies[currencyIndex]
-			if (questRewardCurrencyInfo) then
-				return questRewardCurrencyInfo.name, questRewardCurrencyInfo.texture, questRewardCurrencyInfo.baseRewardAmount, questRewardCurrencyInfo.currencyID, questRewardCurrencyInfo.quality
-			end
-		end
 		local name, texture, count = GetQuestLogRewardCurrencyInfo(i, questID);
 		local t = { };
 		t.label = name;
@@ -397,8 +389,8 @@ function KT_BonusObjectiveTracker_ShowRewardsTooltip(block)
 		end
 	end
 
-	local questCurrencies = C_QuestLog.GetQuestRewardCurrencies(questID) or { };
-	if ( HaveQuestRewardData(questID) and GetQuestLogRewardXP(questID) == 0 and #questCurrencies == 0 and GetNumQuestLogRewards(questID) == 0 and GetQuestLogRewardMoney(questID) == 0 and GetQuestLogRewardArtifactXP(questID) == 0 ) then
+	if ( HaveQuestRewardData(questID) and GetQuestLogRewardXP(questID) == 0 and GetNumQuestLogRewardCurrencies(questID) == 0
+								and GetNumQuestLogRewards(questID) == 0 and GetQuestLogRewardMoney(questID) == 0 and GetQuestLogRewardArtifactXP(questID) == 0 ) then
 		GameTooltip:Hide();
 		return;
 	end
@@ -514,9 +506,11 @@ local function UpdateScenarioBonusObjectives(module)
 				local name, description, numCriteria, stepFailed, isBonusStep, isForCurrentStepOnly, shouldShowBonusObjective = C_Scenario.GetStepInfo(bonusStepIndex);
 				local completed = true;
 				for criteriaIndex = 1, numCriteria do
-					local criteriaInfo = C_ScenarioInfo.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
-					if ( criteriaInfo ) then
-						if ( not criteriaInfo.completed ) then
+					--local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed, criteriaFailed = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
+					local criInfo = C_ScenarioInfo.GetCriteriaInfo(criteriaIndex);
+					local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, criteriaID, duration, elapsed, criteriaFailed = criInfo.description, criInfo.criteriaType, criInfo.completed, criInfo.quantity, criInfo.totalQuantity, criInfo.flags, criInfo.assetID, criInfo.criteriaID, criInfo.duration, criInfo.elapsed, criInfo.failed;
+					if ( criteriaString ) then
+						if ( not criteriaCompleted ) then
 							completed = false;
 							break;
 						end
@@ -545,13 +539,14 @@ local function UpdateScenarioBonusObjectives(module)
 				local block = module:GetBlock(blockKey);
 				local stepFinished = true;
 				for criteriaIndex = 1, numCriteria do
-					local criteriaInfo = C_ScenarioInfo.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
-					if ( criteriaInfo ) then
-						local criteriaString = criteriaInfo.description;
-						if (not criteriaInfo.isWeightedProgress and not criteriaInfo.isFormatted) then
-							criteriaString = string.format("%d/%d %s", criteriaInfo.quantity, criteriaInfo.totalQuantity, criteriaInfo.description);
+					--local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed, criteriaFailed, isWeightedProgress = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
+					local criInfo = C_ScenarioInfo.GetCriteriaInfo(criteriaIndex);
+					local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, criteriaID, duration, elapsed, criteriaFailed, isWeightedProgress = criInfo.description, criInfo.criteriaType, criInfo.completed, criInfo.quantity, criInfo.totalQuantity, criInfo.flags, criInfo.assetID, criInfo.criteriaID, criInfo.duration, criInfo.elapsed, criInfo.failed, criInfo.isWeightedProgress;
+					if ( criteriaString ) then
+						if (not isWeightedProgress) then
+							criteriaString = string.format("%d/%d %s", quantity, totalQuantity, criteriaString);
 						end
-						if ( criteriaInfo.completed ) then
+						if ( criteriaCompleted ) then
 							local existingLine = block.lines[criteriaIndex];
 							module:AddObjective(block, criteriaIndex, criteriaString, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE_AND_COLLAPSE, KT_OBJECTIVE_TRACKER_COLOR["Complete"]);
 							local line = block.currentLine;
@@ -560,7 +555,7 @@ local function UpdateScenarioBonusObjectives(module)
 								line.Sheen.Anim:Play();
 							end
 							line.finished = true;
-						elseif ( criteriaInfo.failed ) then
+						elseif ( criteriaFailed ) then
 							stepFinished = false;
 							module:AddObjective(block, criteriaIndex, criteriaString, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE_AND_COLLAPSE, KT_OBJECTIVE_TRACKER_COLOR["Failed"]);
 						else
@@ -568,8 +563,8 @@ local function UpdateScenarioBonusObjectives(module)
 							module:AddObjective(block, criteriaIndex, criteriaString, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE_AND_COLLAPSE);
 						end
 						-- timer bar
-						if ( criteriaInfo.duration > 0 and criteriaInfo.elapsed <= criteriaInfo.duration and not (criteriaInfo.failed or criteriaInfo.completed) ) then
-							module:AddTimerBar(block, block.currentLine, criteriaInfo.duration, GetTime() - criteriaInfo.elapsed);
+						if ( duration > 0 and elapsed <= duration and not (criteriaFailed or criteriaCompleted) ) then
+							module:AddTimerBar(block, block.currentLine, duration, GetTime() - elapsed);
 						elseif ( block.currentLine.TimerBar ) then
 							module:FreeTimerBar(block, block.currentLine);
 						end
@@ -680,7 +675,9 @@ local function AddBonusObjectiveQuest(module, questID, posIndex, isTrackedWorldQ
 
 		if ( QuestUtils_IsQuestWorldQuest(questID) ) then
 			local info = C_QuestLog.GetQuestTagInfo(questID);
-			QuestUtil.SetupWorldQuestButton(block.TrackedQuest, info, info, isSuperTracked, nil, nil, isTrackedWorldQuest);
+			-- Always have the WQ icon show ! instead of ?
+			local inProgress = false;
+			QuestUtil.SetupWorldQuestButton(block.TrackedQuest, info, inProgress, isSuperTracked, nil, nil, isTrackedWorldQuest);
 
 			if Enum.GameModeFeatureSetting and C_GameModeManager.IsFeatureEnabled(Enum.GameModeFeatureSetting.QuestSuperTracking) then -- 暫時修正
 				block.TrackedQuest:SetScale(.9);
@@ -1095,16 +1092,7 @@ function KT_BonusObjectiveTrackerProgressBar_UpdateReward(progressBar)
 			texture = icon or "Interface\\Icons\\INV_Misc_QuestionMark";
 		end
 		-- currency
-		local questCurrencies = C_QuestLog.GetQuestRewardCurrencies(progressBar.questID) or { };
-		if ( not texture and #questCurrencies > 0 ) then
-			local function GetQuestLogRewardCurrencyInfo(currencyIndex, questID)
-				local questCurrencies = C_QuestLog.GetQuestRewardCurrencies(questID)
-				questCurrencies = questCurrencies or { }
-				local questRewardCurrencyInfo = questCurrencies[currencyIndex]
-				if (questRewardCurrencyInfo) then
-					return questRewardCurrencyInfo.name, questRewardCurrencyInfo.texture, questRewardCurrencyInfo.baseRewardAmount, questRewardCurrencyInfo.currencyID, questRewardCurrencyInfo.quality
-				end
-			end
+		if ( not texture and GetNumQuestLogRewardCurrencies(progressBar.questID) > 0 ) then
 			_, texture = GetQuestLogRewardCurrencyInfo(1, progressBar.questID);
 		end
 		-- money?

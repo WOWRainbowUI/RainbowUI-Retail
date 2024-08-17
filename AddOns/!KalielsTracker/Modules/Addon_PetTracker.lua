@@ -23,12 +23,12 @@ OBJECTIVE_TRACKER_UPDATE_PETTRACKER = 0x2000000
 PETTRACKER_TRACKER_MODULE = KT_ObjectiveTracker_GetModuleInfoTable("PETTRACKER_TRACKER_MODULE")
 
 M.Texts = {
-	TrackPets = C_Spell.GetSpellInfo(122026).name,
-	CapturedPets = "顯示已有的",
-	DisplayCondition = "顯示條件",
-	DisplayAlways = "總是",
-	DisplayMissingRares = "缺少的稀有",
-	DisplayMissingPets = "缺少的寵物"
+	TrackPets = C_Spell.GetSpellName(122026),
+	CapturedPets = "Show Captured",
+	DisplayCondition = "Display Condition",
+	DisplayAlways = "Always",
+	DisplayMissingRares = "Missing Rares",
+	DisplayMissingPets = "Missing Pets"
 }
 
 --------------
