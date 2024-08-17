@@ -147,8 +147,8 @@ local defaults = {
 		damageColorPersonal = false,
 		defaultColorPersonal = "ff0000",
 
-		truncateMethod = 'EASTASIA',
-		truncateLetter = false,
+		truncateMethod = 'NONE',
+		truncateLetter = true,
 		commaSeperate = true,
 
 		sizing = {
