@@ -137,13 +137,21 @@ local function Hack_EditMode()
         end)
     end
 
-    --GameMenuButtonEditMode:HookScript("PreClick", function()
-    --    -- Clean DropDownList
-    --    local dropdown = LFDQueueFrameTypeDropDown
-    --    local parent = dropdown:GetParent()
-    --    dropdown:SetParent(nil)
-    --    dropdown:SetParent(parent)
-    --end)
+    local function GetGameMenuEditModeButton()
+        local menu = _G.GameMenuFrame
+        return menu and menu.MenuButtons and menu.MenuButtons[_G.HUD_EDIT_MODE_MENU]
+    end
+
+    local button = GetGameMenuEditModeButton()
+    if button then
+        button:HookScript("PreClick", function()
+            -- Clean DropDownList
+            local dropdown = LFDQueueFrameTypeDropDown
+            local parent = dropdown:GetParent()
+            dropdown:SetParent(nil)
+            dropdown:SetParent(parent)
+        end)
+    end
 end
 
 -- EncounterJournal (from 10.1.0)

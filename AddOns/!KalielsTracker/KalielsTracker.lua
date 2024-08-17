@@ -956,7 +956,7 @@ local function SetHooks()
 							end
 						end)
 					else
-						--KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, block.id)
+						KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, block.id)
 					end
 				end
 				if IsInGroup() then
@@ -1592,7 +1592,7 @@ local function SetHooks()
 			else
 				GameTooltip:SetHyperlink(questLink)
 				if db.tooltipShowRewards then
-					--KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, questID, true)
+					KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, questID, true)
 					GameTooltip_SetTooltipWaitingForData(GameTooltip, false);
 				end
 				if db.tooltipShowID then
@@ -1665,8 +1665,7 @@ local function SetHooks()
 	end)
 
 	local function AutoQuestPopupTracker_ShouldDisplayQuest(questID, owningModule)
-		--return not C_QuestLog.IsQuestBounty(questID) and owningModule:ShouldDisplayQuest(QuestCache:Get(questID));
-		return not C_QuestLog.IsQuestBounty(questID) and owningModule:ShouldDisplayQuest(questID);
+		return not C_QuestLog.IsQuestBounty(questID) and owningModule:ShouldDisplayQuest(QuestCache:Get(questID));
 	end
 
 	hooksecurefunc("KT_AutoQuestPopupTracker_Update", function(owningModule)
@@ -1880,9 +1879,18 @@ local function SetHooks()
 
 	-- QuestUtils.lua
 	function QuestUtils_AddQuestCurrencyRewardsToTooltip(questID, tooltip, currencyContainerTooltip)  -- RO
-		local numQuestCurrencies = GetNumQuestLogRewardCurrencies(questID);
+		local QuestCurrencies = C_QuestLog.GetQuestRewardCurrencies(questID) or { };
+		local numQuestCurrencies = #QuestCurrencies;
 		local currencies = { };
 		local uniqueCurrencyIDs = { };
+		local function GetQuestLogRewardCurrencyInfo(currencyIndex, questID)
+			local questCurrencies = C_QuestLog.GetQuestRewardCurrencies(questID)
+			questCurrencies = questCurrencies or { }
+			local questRewardCurrencyInfo = questCurrencies[currencyIndex]
+			if (questRewardCurrencyInfo) then
+				return questRewardCurrencyInfo.name, questRewardCurrencyInfo.texture, questRewardCurrencyInfo.baseRewardAmount, questRewardCurrencyInfo.currencyID, questRewardCurrencyInfo.quality
+			end
+		end
 		for i = 1, numQuestCurrencies do
 			local name, texture, numItems, currencyID = GetQuestLogRewardCurrencyInfo(i, questID);
 			local rarity = C_CurrencyInfo.GetCurrencyInfo(currencyID).quality;

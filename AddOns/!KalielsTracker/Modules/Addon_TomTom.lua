@@ -9,6 +9,7 @@ local M = KT:NewModule(addonName.."_AddonTomTom")
 KT.AddonTomTom = M
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
+local hbd = LibStub("HereBeDragons-2.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db
@@ -129,9 +130,24 @@ local function AddWaypoint(questID, isSilent)
 		title = C_QuestLog.GetTitleForQuestID(questID)
 		mapID = GetQuestUiMapID(questID)
 		if mapID ~= 0 and KT.GetCurrentMapContinent().mapID == KT.GetMapContinent(mapID).mapID then
-			--completed, x, y,  = QuestPOIGetIconInfo(questID)
-			x, y = select(2, C_QuestLog.GetNextWaypoint(questID))
-			completed = C_QuestLog.IsComplete(questID)
+			local function  QuestPOIGetIconInfo(questID)
+				local HBDmaps = hbd:GetAllMapIDs()
+				table.sort(HBDmaps, function(a, b) return a > b end)
+				for _, mapId in ipairs(HBDmaps) do
+					local mapInfo = C_Map.GetMapInfo(mapId)
+					if mapInfo.mapType == 3 then
+						local quests = C_QuestLog.GetQuestsOnMap(mapId)
+						for _, quest in pairs(quests) do
+							if quest.questID == questID then
+								local completed = false
+								return completed, quest.x, quest.y
+							end
+						end
+					end
+				end
+			end
+
+			completed, x, y = QuestPOIGetIconInfo(questID)
 		end
 	end
 
