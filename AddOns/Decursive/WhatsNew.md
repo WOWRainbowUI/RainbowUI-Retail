@@ -1,5 +1,15 @@
-Decursive 2.7.21
+Decursive 2.7.22
 ================
+
+Decursive 2.7.22 (2024-08-16)
+-----------------------------
+
+- Fix Cooldown related Lua error in WoW 11
+
+
+**New Way to support Decursive:** If you are an [ADA/Cardano](https://cardano.org) holder you can
+delegate your stake to my pool: [anfra.io](https://anfra.io)
+
 
 Decursive 2.7.21 (2024-08-06)
 -----------------------------
@@ -13,11 +23,7 @@ Decursive 2.7.21 (2024-08-06)
 - Fix bug introduced in 2.7.20 for spells set up to only work on the player (or
   all other units but the player), they had become unusable.
 
-- Mark this version as incompatible with WoW Cataclysm (This version of WoW classic is still being used in China - Players from China need to stick with Decursive 2.7.17 when playing on cataclysm).
-
-
-**New Way to support Decursive:** If you are an [ADA/Cardano](https://cardano.org) holder you can
-delegate your stake to my pool: [anfra.io](https://anfra.io)
+- Mark this version as incompatible with WotLK (This version of WoW classic is still being used in China - Players from China need to stick with Decursive 2.7.17 when playing WotLK).
 
 
 Decursive 2.7.20 (2024-07-19)

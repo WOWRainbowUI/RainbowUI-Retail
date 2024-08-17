@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.7.21) add-on for World of Warcraft UI
+    Decursive (v 2.7.22) add-on for World of Warcraft UI
     Copyright (C) 2006-2019 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2024-08-05T15:30:29Z
+    This file was last updated on 2024-08-11T22:33:29Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -656,7 +656,7 @@ function D:isSpellReady(spellID, isPetAbility)
 
         local spellName = GetSpellName(spellID); -- may return nil if the spell is not known depending on wow version and whether it is a pet ability or not...
 
-        if not DC.WOTLK then -- but ranks are back in wotlk and former ranks disappear when the next one is learned...
+        if not DC.CATACLYSM then -- but ranks are back in wotlk and former ranks disappear when the next one is learned... Todo: check if still true for Cataclysm
             local spellType, id
 
             if spellName then
@@ -1061,4 +1061,4 @@ do
         return nocase:trim();
     end
 end
-T._LoadedFiles["Dcr_utils.lua"] = "2.7.21";
+T._LoadedFiles["Dcr_utils.lua"] = "2.7.22";
