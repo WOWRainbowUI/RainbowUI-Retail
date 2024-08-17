@@ -451,7 +451,7 @@ function Stuf:LoadDefaults(db, restore, perchar, justboss)
 			arcanebar={ x=90, y=50, },
 			essencesbar={ x=90, y=45, },
 			priestbar={ x=90, y=50, },
-			combopointbar={ x=90, y=45, },
+			combopointbar={ x=90, y=55, },
 		},
 		target={
 			frame={ x=55, y=-50, w=320, h=8, bordercolormethod="classreaction", },
@@ -1893,7 +1893,7 @@ local essencesbar={
 	},
 }
 local combopointbar={
-	name=L["Combo Frame"], type="group", hidden=function() return Stuf.CLS ~= "DRUID" end, order=30,
+	name=L["Combo Frame"], type="group", hidden=function() return Stuf.CLS ~= "DRUID" and Stuf.CLS ~= "ROGUE" end, order=30,
 	args={
 		hide=hide, blank=blank,
 		x=x2, y=y2, scale=scale, alpha=alpha, framelevel=framelevel, nomouse=nomouse, strata=bstrata,
