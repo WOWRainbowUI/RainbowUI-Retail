@@ -23,7 +23,7 @@ OBJECTIVE_TRACKER_UPDATE_PETTRACKER = 0x2000000
 PETTRACKER_TRACKER_MODULE = KT_ObjectiveTracker_GetModuleInfoTable("PETTRACKER_TRACKER_MODULE")
 
 M.Texts = {
-	TrackPets = GetSpellInfo(122026),
+	TrackPets = C_Spell.GetSpellInfo(122026).name,
 	CapturedPets = "Show Captured",
 	DisplayCondition = "Display Condition",
 	DisplayAlways = "Always",

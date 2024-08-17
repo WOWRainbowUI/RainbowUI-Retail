@@ -4,6 +4,9 @@ KT_CAMPAIGN_QUEST_TRACKER_MODULE.updateReasonEvents = KT_OBJECTIVE_TRACKER_UPDAT
 
 KT_CAMPAIGN_QUEST_TRACKER_MODULE:SetHeader(KT_ObjectiveTrackerFrame.BlocksFrame.CampaignQuestHeader, TRACKER_HEADER_CAMPAIGN_QUESTS, KT_OBJECTIVE_TRACKER_UPDATE_QUEST_ADDED);
 
-function KT_CAMPAIGN_QUEST_TRACKER_MODULE:ShouldDisplayQuest(quest)
-	return (quest:GetSortType() == QuestSortType.Campaign) and not quest:IsDisabledForSession();
+function KT_CAMPAIGN_QUEST_TRACKER_MODULE:ShouldDisplayQuest(questID)
+	--return quest:GetSortType() == QuestSortType.Campaign and not quest:IsDisabledForSession();
+	local questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID);
+	local campaignID, isHeader = C_QuestLog.GetInfo(questLogIndex).campaignID, C_QuestLog.GetInfo(questLogIndex).isHeader;
+	return (campaignID ~= nil and isHeader == false) and not C_QuestLog.IsQuestDisabledForSession(questID);
 end

@@ -234,7 +234,7 @@ function KT_QUEST_TRACKER_MODULE:BuildQuestWatchInfos()
 		local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(i);
 		if questID then
 			local quest = QuestCache:Get(questID);
-			if self:ShouldDisplayQuest(quest) then
+			if self:ShouldDisplayQuest(questID) then
 				table.insert(infos, { quest = quest, index = i });
 			end
 		end
@@ -482,10 +482,13 @@ function KT_QUEST_TRACKER_MODULE:Update()
 	self:EndLayout();
 end
 
-function KT_QUEST_TRACKER_MODULE:ShouldDisplayQuest(quest)
-	if quest.isTask or (quest.isBounty and not isComplete) or quest:IsDisabledForSession() then
+function KT_QUEST_TRACKER_MODULE:ShouldDisplayQuest(questID)
+	local questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID);
+	local info = C_QuestLog.GetInfo(questLogIndex)
+	--if quest.isTask or (quest.isBounty and not isComplete) or quest:IsDisabledForSession() then
+	if info.isTask or (info.isBounty and not isComplete) or C_QuestLog.IsQuestDisabledForSession(questID) then
 		return false;
 	end
 
-	return quest:GetSortType() ~= QuestSortType.Campaign;
+	return info.campaignID == nil;
 end
