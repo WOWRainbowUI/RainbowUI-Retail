@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.7.21) add-on for World of Warcraft UI
+    Decursive (v 2.7.22) add-on for World of Warcraft UI
     Copyright (C) 2006-2019 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2024-08-05T20:58:21Z
+    This file was last updated on 2024-08-11T22:20:16Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -1384,7 +1384,11 @@ do
     local GetSpellCooldown  = _G.C_Spell and _G.C_Spell.GetSpellCooldown and function(spellid)
         local cooldownInfo = _G.C_Spell.GetSpellCooldown(spellid);
 
-        return cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled;
+        if cooldownInfo then
+            return cooldownInfo.startTime, cooldownInfo.duration, cooldownInfo.isEnabled;
+        else
+            return nil, nil, nil;
+        end
     end or _G.GetSpellCooldown;
 
     local GetItemCooldown   = _G.C_Container and _G.C_Container.GetItemCooldown or _G.GetItemCooldown;
@@ -1867,6 +1871,6 @@ local MF_Textures = { -- unused
 
 -- }}}
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.7.21";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.7.22";
 
 -- Heresy
