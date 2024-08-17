@@ -867,18 +867,25 @@ local OnEvent = function(_, ev, ...)
             end
 
             -- Hook hull number drawing
-            hooksecurefunc(MDT, "DrawHullFontString", function ()
+            hooksecurefunc(MDT, "DrawHullFontString", function (_, _, pullIdx)
                 local name = "MDTFontStringContainerFrame"
                 local scale = MDTGuideDB.active and MDT:GetScale() or 1
 
                 local zoomScale = Addon.GetZoomScale()
                 if scale ~= 1 and zoomScale < 1 then scale = scale * zoomScale end
 
-                local i = 0
-                while _G[name .. i] ~= nil do
-                    _G[name .. i].fs:SetTextScale(scale)
+                local i, frame = -1, _G[name .. (pullIdx - 1)]
+                repeat
+                    if frame and frame.pullIdx == pullIdx then
+                        local point, relativeTo, relativePoint, x, y = frame:GetPoint(1)
+                        frame:SetScale(scale)
+                        frame:ClearAllPoints()
+                        frame:SetPoint(point, relativeTo, relativePoint, x / scale, y / scale)
+                        break
+                    end
                     i = i + 1
-                end
+                    frame = _G[name .. i]
+                until not frame
             end)
         end
     elseif ev == "SCENARIO_CRITERIA_UPDATE" and not Addon.UseRoute() then
