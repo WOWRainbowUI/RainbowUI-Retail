@@ -845,9 +845,9 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 	end)
 	editBox:HookScript("OnKeyDown", function(self, key, ...)
 		if key == "TAB" then
-			if not ElvUI and not NDui then
-				UpdateChannel(self)
-			end
+			-- if not ElvUI and not NDui then
+			-- UpdateChannel(self)
+			-- end
 			if NDui then
 				hooksecurefunc("ChatEdit_CustomTabPressed", function(self)
 					ChannelChange(self, bg, bg3, border, backdropFrame2, texture_btn, channel_name, II_LANG)
