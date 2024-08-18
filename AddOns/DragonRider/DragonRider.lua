@@ -533,20 +533,13 @@ function DR.GetVigorValueExact()
 	end
 end
 
--- this runs every frame
 function DR.FixBlizzFrames()
 	for _, v in pairs(DR.WidgetFrameIDs) do
 		local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
 		if f then
 			local canGlide = LibAdvFlight.IsAdvFlyEnabled();
 			if not canGlide then
-				if f:IsShown() then
-					f:Hide();
-					if DragonRider_DB.debug then
-						print("Fixing a Blizzard bug where widgets persisted.")
-					end
-				end
-				if DragonRider_DB.sideArt then
+				if DragonRider_DB.sideArt then -- when the wings asset persists despite the vigor bar being hidden.
 					local PowerBarChildren = {UIWidgetPowerBarContainerFrame:GetChildren()}
 					if PowerBarChildren[3] ~= nil and PowerBarChildren[3]:IsShown() then
 						for _, child in ipairs({PowerBarChildren[3]:GetRegions()}) do
@@ -560,8 +553,31 @@ function DR.FixBlizzFrames()
 			end
 		end
 	end
+end
+
+ -- sticking this around for knowledge purposes. Do not use this code.
+ -- This caused the vigor bar to "move", the widgets didn't update proper
+ -- This was repeatedly happening on loading screen portals where you retain a mount
+ -- such as between valdrakken and the emerald dream portal.
+--[[
+function DR.FixBlizzFrames_OLD()
+	for _, v in pairs(DR.WidgetFrameIDs) do
+		local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
+		if f then
+			local canGlide = LibAdvFlight.IsAdvFlyEnabled();
+			if not canGlide then
+				if f:IsShown() then
+					f:Hide(); -- this now causes issues where it moves the vigor bar. Unsure if this bug is even still around, so we'll see what happens :)
+					if DragonRider_DB.debug then
+						print("Fixing a Blizzard bug where widgets persisted.")
+					end
+				end
+			end
+		end
+	end
 	--UIWidgetPowerBarContainerFrame:UpdateWidgetLayout(); -- This seems to cause some kind of edit mode taint. Yeeting this for now and keeping this note here.
 end
+]]
 
 function DR.SetupVigorToolip()
 	EmbeddedItemTooltip:HookScript("OnShow", function(self)
