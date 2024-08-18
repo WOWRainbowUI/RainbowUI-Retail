@@ -439,9 +439,9 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 
 	local accountInfo = FriendGroups_GetInfoByName(contextData.name, bnetfriend)
 	if bnetfriend then
-		note = accountInfo.note
+		note = accountInfo and accountInfo.note or "" -- 暫時修正
 	else
-		note = accountInfo.notes
+		note = accountInfo and accountInfo.notes or ""
 	end
 
 	local groups = FriendGroups_GetPlayerGroups(note)
