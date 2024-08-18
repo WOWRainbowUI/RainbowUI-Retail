@@ -7,6 +7,8 @@ if not L then return end
 
 -- MythicPlusPullReEstimated
 --[[Translation missing --]]
+L["A long way of writing 100%%."] = "A long way of writing 100%%."
+--[[Translation missing --]]
 L["Adds percentage info to the unit tooltip"] = "Adds percentage info to the unit tooltip"
 --[[Translation missing --]]
 L["Adds the % info to the enemy nameplates"] = "Adds the % info to the enemy nameplates"
@@ -128,6 +130,26 @@ L["Simulation Current Points"] = "Simulation Current Points"
 L["Simulation Mode"] = "Simulation Mode"
 --[[Translation missing --]]
 L["Simulation Required Points"] = "Simulation Required Points"
+--[[Translation missing --]]
+L["Text Format"] = "Text Format"
+--[[Translation missing --]]
+L["The count of mobs pulled."] = "The count of mobs pulled."
+--[[Translation missing --]]
+L["The current count of mobs killed."] = "The current count of mobs killed."
+--[[Translation missing --]]
+L["The current percentage of mobs killed."] = "The current percentage of mobs killed."
+--[[Translation missing --]]
+L["The estimated count after all pulled mobs are killed."] = "The estimated count after all pulled mobs are killed."
+--[[Translation missing --]]
+L["The estimated percentage after all pulled mobs are killed."] = "The estimated percentage after all pulled mobs are killed."
+--[[Translation missing --]]
+L["The following placeholders are available:"] = "The following placeholders are available:"
+--[[Translation missing --]]
+L["The percentage of mobs pulled."] = "The percentage of mobs pulled."
+--[[Translation missing --]]
+L["The required count of mobs to reach 100%%."] = "The required count of mobs to reach 100%%."
+--[[Translation missing --]]
+L["The text format of the pull frame. Use placeholders to display information."] = "The text format of the pull frame. Use placeholders to display information."
 --[[Translation missing --]]
 L["These options are experimental and may not work as intended."] = "These options are experimental and may not work as intended."
 --[[Translation missing --]]

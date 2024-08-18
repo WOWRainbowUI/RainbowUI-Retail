@@ -10,6 +10,7 @@ debug = true
 local L = LibStub("AceLocale-3.0"):NewLocale(name, "enUS", true, debug)
 
 -- MythicPlusPullReEstimated
+L["A long way of writing 100%%."] = "A long way of writing 100%%."
 L["Adds percentage info to the unit tooltip"] = "Adds percentage info to the unit tooltip"
 L["Adds the % info to the enemy nameplates"] = "Adds the % info to the enemy nameplates"
 L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."] = "Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."
@@ -71,6 +72,16 @@ L["Simulated number of 'points' required to complete the run"] = "Simulated numb
 L["Simulation Current Points"] = "Simulation Current Points"
 L["Simulation Mode"] = "Simulation Mode"
 L["Simulation Required Points"] = "Simulation Required Points"
+L["Text Format"] = "Text Format"
+L["The count of mobs pulled."] = "The count of mobs pulled."
+L["The current count of mobs killed."] = "The current count of mobs killed."
+L["The current percentage of mobs killed."] = "The current percentage of mobs killed."
+L["The estimated count after all pulled mobs are killed."] = "The estimated count after all pulled mobs are killed."
+L["The estimated percentage after all pulled mobs are killed."] = "The estimated percentage after all pulled mobs are killed."
+L["The following placeholders are available:"] = "The following placeholders are available:"
+L["The percentage of mobs pulled."] = "The percentage of mobs pulled."
+L["The required count of mobs to reach 100%%."] = "The required count of mobs to reach 100%%."
+L["The text format of the pull frame. Use placeholders to display information."] = "The text format of the pull frame. Use placeholders to display information."
 L["These options are experimental and may not work as intended."] = "These options are experimental and may not work as intended."
 L["Tooltip"] = "Tooltip"
 L["Version:"] = "Version:"

@@ -1,12 +1,10 @@
 -- upvalue the globals
 local _G = getfenv(0)
 local LibStub = _G.LibStub
-local GetAddOnMetadata = _G.GetAddOnMetadata or _G.C_AddOns.GetAddOnMetadata
 local pairs = _G.pairs
 local GetTime = _G.GetTime
 local select = _G.select
 local strsplit = _G.strsplit
-local strtrim = _G.strtrim
 local string = _G.string
 local math = _G.math
 local table = _G.table
@@ -21,9 +19,7 @@ local UIParent = _G.UIParent
 local unpack = _G.unpack
 local UnitThreatSituation = _G.UnitThreatSituation
 local UnitPlayerControlled = _G.UnitPlayerControlled
-local UnitAffectingCombat = _G.UnitAffectingCombat
 local C_NamePlate = _G.C_NamePlate
-local IsControlKeyDown = _G.IsControlKeyDown
 local StaticPopup_Show = _G.StaticPopup_Show
 local StaticPopupDialogs = _G.StaticPopupDialogs
 local max = _G.max
@@ -33,70 +29,36 @@ local C_ChallengeMode = _G.C_ChallengeMode
 
 local name, ns = ...
 
+--- @class MMPE: AceAddon, AceConsole-3.0, AceHook-3.0, AceEvent-3.0
 local MMPE = LibStub('AceAddon-3.0'):NewAddon(name, 'AceConsole-3.0', 'AceHook-3.0', 'AceEvent-3.0');
 if not MMPE then return end
 
 local L = LibStub('AceLocale-3.0'):GetLocale(name)
 
--- expose to the world, that we exist
+-- expose to the world that we exist
 _G['MMPE'] = MMPE
 
-ns.addon = MMPE
-ns.data = {}
-MMPE.ns = ns
+--
+-- Public API
+--
+MPP_API = {};
+--- @param npcID number
+--- @return number? rawCount
+function MPP_API:GetNpcCount(npcID)
+    return MMPE:GetValue(npcID)
+end
 
-MMPE.loaded = false
-MMPE.quantity = 0
-MMPE.previousQuantity = 0
-MMPE.lastKill = { 0} -- To be populated later, do not remove the initial value. The zero means inconclusive/invalid data.
-MMPE.currentPullUpdateTimer = 0
-MMPE.activeNameplates = {}
+--- Returns progress and pull count information. Pull count information is updated on a timer (roughly 5x per second)
+--- @return number? currentCount # this is a best effort number, since blizzard's API does not return this data anymore; may return 0 instead of nil
+--- @return number? maxCount # total count required for completion, can be used to calculate progress %
+--- @return number? pullCount # total count of NPCs in the current pull
+function MPP_API:GetProgress()
+    return MMPE:GetCurrentQuantity(), MMPE:GetMaxQuantity(), MMPE:GetPulledProgress()
+end
 
-MMPE.simulationActive = false
-MMPE.simulationMax = 220
-MMPE.simulationCurrent = 28
-MMPE.simulationMapId = 234 -- upper kara
-
-MMPE.version = GetAddOnMetadata(name, "Version") or "unknown"
-MMPE.defaultSettings = {
-    enabled = true,
-
-    autoLearnScores = 'newOnly',
-    inconclusiveDataThreshold = 100, -- Mobs killed within this span of time (in milliseconds) will not be processed since we might not get the criteria update fast enough to know which mob gave what progress. Well, that's the theory anyway.
-    maxTimeSinceKill = 600, -- Lag tolerance between a mob dying and the progress criteria updating, in milliseconds.
-
-    enableTooltip = true,
-    includeCountInTooltip = true,
-    tooltipColor = "82E0FF",
-
-    enablePullEstimate = true,
-    pullEstimateCombatOnly = false,
-
-    nameplateUpdateRate = 200, -- Rate (in milliseconds) at which we update the progress we get from the current pull, as estimated by active name plates you're in combat with. Also the update rate of getting new values for nameplate text overlay if enabled.
-
-    offsetx = 0, -- extra offset for nameplate text
-    offsety = 0,
-
-    enableNameplateText = true,
-    nameplateTextColor = "FFFFFFFF",
-
-    lockPullFrame = false,
-    pullFramePoint = {
-        ["anchorPoint"] = "CENTER",
-        ["relativeFrame"] = "UIParent",
-        ["relativePoint"] = "CENTER",
-        ["offX"] = 400,
-        ["offY"] = 300,
-    },
-
-    debug = false,
-    debugNewNPCScores = false,
-
-    enableMdtEmulation = true,
-}
-
-MMPE.warnings = {}
-
+--
+-- Emulated MDT API
+--
 local MDTEmulated = {
     GetEnemyForces = function(_, npcID)
         local count = MMPE:GetValue(npcID);
@@ -107,13 +69,44 @@ local MDTEmulated = {
     end,
     GetCurrentPreset = function() end, -- some WA uses this for some reason /shrug
     IsPresetTeeming = function() return false; end, -- used together with GetCurrentPreset
+    zoneIdToDungeonIdx = {},
+    dungeonTotalCount = {},
 };
+do
+    -- some addons use these internals, while they probably shouldn't.. we'll just hardcode a dungeonIndex of 1
+    setmetatable(MDTEmulated.zoneIdToDungeonIdx, {__index = function(_, key)
+        if key == C_Map.GetBestMapForUnit("player") then return 1; end
+    end});
+    setmetatable(MDTEmulated.dungeonTotalCount, {__index = function(_, key)
+        if key ~= 1 then return; end
+        local maxCount = MMPE:GetMaxQuantity();
+        return { normal = maxCount, teeming = maxCount, teemingEnabled = true };
+    end});
+end
+
+ns.addon = MMPE
+ns.data = {}
+MMPE.ns = ns
+
+MMPE.loaded = false
+MMPE.quantity = 0
+MMPE.previousQuantity = 0
+MMPE.lastKill = { 0 } -- To be populated later, do not remove the initial value. The zero means inconclusive/invalid data.
+MMPE.currentPullUpdateTimer = 0
+MMPE.activeNameplates = {}
+
+MMPE.simulationActive = false
+MMPE.simulationMax = 220
+MMPE.simulationCurrent = 28
+MMPE.simulationMapId = 234 -- upper kara
+
+MMPE.warnings = {}
 
 --
 -- GENERAL ADDON UTILITY
 --
 
-local function GetTimeInSeconds()
+local function GetTimeInMilliSeconds()
     return GetTime() * 1000
 end
 
@@ -142,9 +135,8 @@ function MMPE:DebugPrint(...)
     if self:GetSetting('debug') then
         if(DevTool and DevTool.AddData) then
             DevTool:AddData({ ... }, "MMPE DebugPrint")
-        else
-            self:Print(...)
         end
+        self:Print(...)
     end
 end
 
@@ -166,27 +158,6 @@ function MMPE:PrintWarning(message)
     return false
 end
 
-function MMPE:GetSetting(setting)
-    if (not setting or self.DB.settings[setting] == nil) then
-        self:PrintWarning(L["MPP attempted to get missing setting:"] .. " " .. (setting or "nil"))
-        return
-    end
-    return self.DB.settings[setting]
-end
-
-function MMPE:SetSetting(setting, value)
-    if (not setting or self.DB.settings[setting] == nil) then
-        self:PrintWarning(L["MPP attempted to set missing setting:"] .. " " .. (setting or "nil"))
-        return
-    end
-    self.DB.settings[setting] = value
-    return value
-end
-
-function MMPE:ToggleSetting(setting)
-    return self:SetSetting(setting, not self:GetSetting(setting))
-end
-
 --
 -- WOW GENERAL WRAPPERS/EZUTILITIES
 --
@@ -202,7 +173,7 @@ function MMPE:GetNPCID(guid)
 end
 
 function MMPE:IsValidTarget(unit)
-    if UnitCanAttack("player", unit) and not UnitIsDead(unit) then
+    if UnitCanAttack("player", unit) then
         return true
     end
 end
@@ -211,15 +182,15 @@ function MMPE:GetSteps()
     return select(3, C_Scenario.GetStepInfo())
 end
 
-function MMPE:IsDungeonFinished()
-    if self.simulationActive then return false end
+function MMPE:IsDungeonFinished(ignoreSimulation)
+    if not ignoreSimulation and self.simulationActive then return false end
     return (self:GetSteps() and self:GetSteps() < 1)
 end
 
-function MMPE:IsMythicPlus()
-    if self.simulationActive then return true end
+function MMPE:IsMythicPlus(ignoreSimulation)
+    if not ignoreSimulation and self.simulationActive then return true end
     local difficulty = select(3, GetInstanceInfo()) or -1
-    if difficulty == 8 and not self:IsDungeonFinished() then
+    if difficulty == 8 and not self:IsDungeonFinished(ignoreSimulation) then
         return true
     else
         return false
@@ -230,15 +201,8 @@ function MMPE:GetProgressInfo()
     if self:IsMythicPlus() then
         local numSteps = self:GetSteps()
         if numSteps and numSteps > 0 then
-            if C_Scenario and C_Scenario.GetCriteriaInfo then
-                local info = {C_Scenario.GetCriteriaInfo(numSteps)}
-                if info[13] == true then -- if isWeightedProgress
-                    return info
-                end
-            elseif C_ScenarioInfo and C_ScenarioInfo.GetCriteriaInfo then
-                local info = C_ScenarioInfo.GetCriteriaInfo(numSteps)
-                return info.isWeightedProgress and info or nil
-            end
+            local info = C_ScenarioInfo.GetCriteriaInfo(numSteps)
+            return info.isWeightedProgress and info or nil
         end
     end
 end
@@ -247,7 +211,7 @@ function MMPE:GetMaxQuantity()
     if self.simulationActive then return self.simulationMax end
     local info = self:GetProgressInfo()
     if info then
-        return info[5] or info.totalQuantity
+        return info.totalQuantity
     end
 
     return 0
@@ -257,21 +221,19 @@ function MMPE:GetCurrentQuantity()
     if self.simulationActive then return self.simulationCurrent end
     local info = self:GetProgressInfo()
     if info then
-        -- there's a bug/feature in TWW, that C_ScenarioInfo.GetCriteriaInfo.quantity reports the % instead of raw quantity count :/
-        -- this math does mean we lose quite a lot of precision
-        return info[8] and strtrim(info[8], "%") or (info.totalQuantity * (info.quantity/100))
+        self.countTracker:RefreshInfo()
+
+        return self.countTracker.count
     end
 
     return 0
 end
 
+--- Returns exact float value of current enemies killed progress (1-100).
 function MMPE:GetEnemyForcesProgress()
-    self:DebugPrint("getEnemyForcesProgress called.")
-    -- Returns exact float value of current enemies killed progress (1-100).
     local quantity = self:GetCurrentQuantity() or 0
     local maxQuantity = self:GetMaxQuantity() or 1
     local progress = (quantity / maxQuantity) * 100
-    self:DebugPrint(progress)
 
     return progress
 end
@@ -287,7 +249,6 @@ end
 --
 
 function MMPE:GetValue(npcID)
-    self:DebugPrint("GetValue called. Args:", npcID)
     local activeMapId = self:GetChallengeMapId()
     if (activeMapId and self.dungeonOverrides[activeMapId] and self.dungeonOverrides[activeMapId][npcID] and self.dungeonOverrides[activeMapId][npcID].count) then
         return self.dungeonOverrides[activeMapId][npcID].count
@@ -305,6 +266,7 @@ function MMPE:GetValue(npcID)
             return bestValue
         end
     end
+    -- self:DebugPrint("GetValue failed to find NPC. Args:", npcID)
 end
 
 function MMPE:DeleteEntry(npcID)
@@ -394,7 +356,6 @@ end
 --
 
 function MMPE:GetEstimatedProgress(npcID)
-    self:DebugPrint("getEstimatedProgress called. Args:", npcID)
     local npcValue = self:GetValue(npcID)
     local maxQuantity = self:GetMaxQuantity()
     if npcValue and maxQuantity then
@@ -414,8 +375,8 @@ function MMPE:OnProgressUpdated(deltaProgress)
     end
     local timestamp, npcID, npcName, isDataUseful = unpack(self.lastKill) -- See what the last mob we killed was
     if timestamp and npcID and deltaProgress and isDataUseful then -- Assert that we have some useful data to work with
-        local timeSinceKill = GetTimeInSeconds() - timestamp
-        self:DebugPrint("timeSinceKill: " .. timestamp .. " Current Time: " .. GetTimeInSeconds() .. "Timestamp of kill: " .. timeSinceKill)
+        local timeSinceKill = GetTimeInMilliSeconds() - timestamp
+        self:DebugPrint("timeSinceKill: " .. timestamp .. " Current Time: " .. GetTimeInMilliSeconds() .. "Timestamp of kill: " .. timeSinceKill)
         if timeSinceKill <= self:GetSetting("maxTimeSinceKill") then
             self:DebugPrint(string.format("Gained %f%%. Last mob killed was %s (%i) %fs ago", deltaProgress, npcName, npcID, timeSinceKill/1000))
             if ((self.DB.autoLearnScores == 'newOnly' and self:GetValue(npcID)) or self.DB.autoLearnScores == 'off') then
@@ -445,7 +406,6 @@ function MMPE:OnCriteriaUpdate()
         self.previousQuantity = newQuantity
         self:OnProgressUpdated(deltaQuantity)
     end
-
 end
 
 -- Called directly by our hook
@@ -456,12 +416,12 @@ function MMPE:OnCombatLogEvent(args)
         local npcID = self:GetNPCID(destGUID)
         if npcID then
             local isDataUseful = true
-            local timeSinceLastKill = GetTimeInSeconds() - self.lastKill[1]
+            local timeSinceLastKill = GetTimeInMilliSeconds() - self.lastKill[1]
             if timeSinceLastKill <= self:GetSetting("inconclusiveDataThreshold") then
-                self:DebugPrint("Data not useful: " .. timeSinceLastKill .. " - " .. self.lastKill[1] .. " - " .. GetTimeInSeconds())
+                self:DebugPrint("Data not useful: " .. timeSinceLastKill .. " - " .. self.lastKill[1] .. " - " .. GetTimeInMilliSeconds())
                 isDataUseful = false
             end
-            self.lastKill = { GetTimeInSeconds(), npcID, destName, isDataUseful} -- timestamp is not at all accurate, we use GetTime() instead.
+            self.lastKill = { GetTimeInMilliSeconds(), npcID, destName, isDataUseful} -- timestamp is not at all accurate, we use GetTime() instead.
             self:DebugPrint('lastKill:', unpack(self.lastKill))
         end
     end
@@ -622,7 +582,8 @@ function MMPE:GetPulledUnits()
     return ret
 end
 
-function MMPE:GetPulledProgress(pulledUnits)
+function MMPE:GetPulledProgress()
+    local pulledUnits = self:GetPulledUnits()
     local estimatedProgress = 0
     for _, guid in pairs(pulledUnits) do
         local npcID = self:GetNPCID(guid)
@@ -650,8 +611,7 @@ function MMPE:SetCurrentPullEstimateLabel(s)
 end
 
 function MMPE:UpdateCurrentPullEstimate()
-    local pulledUnits = self:GetPulledUnits()
-    local estimatedCount = self:GetPulledProgress(pulledUnits)
+    local estimatedCount = self:GetPulledProgress()
     if not self:ShouldShowCurrentPullEstimate(estimatedCount > 0) then
         self.currentPullFrame:Hide()
         return
@@ -665,12 +625,21 @@ function MMPE:UpdateCurrentPullEstimate()
     if estimatedCount == 0 then
         message = L["No recorded mobs pulled or nameplates inactive."]
     else
-        message = string.format(
-            L["Current pull:"] .. " %.2f%% + %.2f%% = %.2f%%",
-            (currentCount / maxCount) * 100,
-            (estimatedCount / maxCount) * 100,
-            (totalCount / maxCount) * 100
-        )
+        message = self:GetSetting('pullFrameTextFormat'); --[[@as string]]
+        local percentString = '%.2f%%%%';
+        local placeholderReplacements = {
+            ['%$current%$'] = currentCount,
+            ['%$pull%$'] = estimatedCount,
+            ['%$estimated%$'] = totalCount,
+            ['%$required%$'] = maxCount,
+            ['%$current%%%$'] = percentString:format((currentCount / maxCount) * 100),
+            ['%$pull%%%$'] = percentString:format((estimatedCount / maxCount) * 100),
+            ['%$estimated%%%$'] = percentString:format((totalCount / maxCount) * 100),
+            ['%$required%%%$'] = percentString:format(100),
+        };
+        for placeholder, replacement in pairs(placeholderReplacements) do
+            message = string.gsub(message, placeholder, replacement);
+        end
     end
     self:SetCurrentPullEstimateLabel(message)
 end
@@ -742,7 +711,6 @@ function MMPE:ShouldShowNameplateTexts()
 end
 
 function MMPE:OnAddNameplate(unit)
-    self:DebugPrint('OnAddNameplate', unit)
     if self:ShouldShowNameplateTexts() then
         self:CreateNameplateText(unit)
         self:UpdateNameplateValue(unit)
@@ -825,367 +793,6 @@ function MMPE:CheckMdtEmulation()
     end
 end
 
-function MMPE:InitPopup()
-    if not StaticPopupDialogs["MPPEDataExportDialog"] then
-        StaticPopupDialogs["MPPEDataExportDialog"] = {
-            text = L["CTRL-C to copy"],
-            button1 = CLOSE,
-            OnShow = function(dialog, data)
-                local function HidePopup()
-                    dialog:Hide();
-                end
-                dialog.editBox:SetScript("OnEscapePressed", HidePopup);
-                dialog.editBox:SetScript("OnEnterPressed", HidePopup);
-                dialog.editBox:SetScript("OnKeyUp", function(_, key)
-                    if IsControlKeyDown() and key == "C" then
-                        HidePopup();
-                    end
-                end);
-                dialog.editBox:SetMaxLetters(0);
-                dialog.editBox:SetText(data);
-                dialog.editBox:HighlightText();
-            end,
-            hasEditBox = true,
-            editBoxWidth = 240,
-            timeout = 0,
-            whileDead = true,
-            hideOnEscape = true,
-            preferredIndex = 3,
-        };
-    end
-end
-
-function MMPE:InitConfig()
-    local mdtLoaded = C_AddOns.IsAddOnLoaded("MythicDungeonTools");
-
-    local count = 0
-    local function increment() count = count + 1; return count end
-    local options = {
-        type = "group",
-        childGroups = "tab",
-        name = L["Mythic Plus Progress"],
-        desc = L["Mythic Plus Progress tracker"],
-        get = function(info) return self:GetSetting(info[#info]) end,
-        set = function(info, value) self:SetSetting(info[#info], value) end,
-        args = {
-            version = {
-                order = increment(),
-                type = "description",
-                name = L["Version:"] .. " " .. self.version,
-            },
-            enabled = {
-                order = increment(),
-                type = "toggle",
-                name = L["Enabled"],
-                desc = L["Enable/Disable the addon"],
-            },
-            wipesettings = {
-                order = increment(),
-                type = "execute",
-                name = L["Reset Settings to default"],
-                desc = L["Reset Settings to default"],
-                func = function()
-                    self:VerifySettings(true)
-                end,
-                width = "double",
-            },
-------------- disabled for now, might get re-enabled in the future, right now it's incorrectly detecting spiteful kills, and DH demon kills.
---[[            scores = {
---                order = increment(),
---                type = "group",
---                name = "Auto Learn Scores",
---                args = {
---                    autoLearnScores = {
---                        order = increment(),
---                        name = "Auto Learn Scores",
---                        desc = "New Only >> Only learn scores that for new NPCs. Useful for new dungeons, and the addon isn't updated yet.\nAlways >> Always learn updated scores. This might make the percentage inaccurate.\nOff >> Don't learn scores.",
---                        type = "select",
---                        values = {
---                            newOnly = "New Only (Recommended)",
---                            always = "Always (Risky)",
---                            off = "Off",
---                        },
---                    },
---                    inconclusiveDataThreshold = {
---                        order = increment(),
---                        name = "Inconclusive Data Threshold",
---                        desc = "Mobs killed within this span of time (in milliseconds) will not be processed since we might not get the criteria update fast enough to know which mob gave what progress.",
---                        type = "range",
---                        min = 50,
---                        max = 400,
---                        step = 10,
---                        hidden = true,
---                    },
---                    maxTimeSinceKill = {
---                        order = increment(),
---                        name = "Max Time Since Kill",
---                        desc = "Lag tolerance between a mob dying and the progress criteria updating, in milliseconds.",
---                        type = "range",
---                        min = 0,
---                        max = 1000,
---                        step = 10,
---                        hidden = true,
---                    },
---                },
---            },--]]
-            mainOptions = {
-                order = increment(),
-                type = "group",
-                name = L["Main Options"],
-                args = {
-                    tooltip = {
-                        order = increment(),
-                        type = "group",
-                        name = L["Tooltip"],
-                        inline = true,
-                        args = {
-                            enableTooltip = {
-                                order = increment(),
-                                type = "toggle",
-                                name = L["Enable Tooltip"],
-                                desc = L["Adds percentage info to the unit tooltip"],
-                            },
-                            includeCountInTooltip = {
-                                order = increment(),
-                                type = "toggle",
-                                name = L["Include Count"],
-                                desc = L["Include the raw count value in the tooltip, as well as the percentage"],
-                            },
-                        },
-                    },
-                    pullEstimateFrame = {
-                        order = increment(),
-                        type = "group",
-                        name = L["Pull Estimate frame"],
-                        inline = true,
-                        args = {
-                            enablePullEstimate = {
-                                order = increment(),
-                                type = "toggle",
-                                name = L["Enable Current Pull frame"],
-                                desc = L["Display a frame with current pull information"],
-                            },
-                            pullEstimateCombatOnly = {
-                                order = increment(),
-                                type = "toggle",
-                                name = L["Only in combat"],
-                                desc = L["Only show the frame when you are in combat"],
-                            },
-                            lockPullFrame = {
-                                order = increment(),
-                                type = "toggle",
-                                name = L["Lock frame"],
-                                desc = L["Lock the frame in place"],
-                                set = function(info, value)
-                                    self:SetSetting(info[#info], value)
-                                    self.currentPullFrame:EnableMouse(not value)
-                                end,
-                            },
-                            reset = {
-                                order = increment(),
-                                type = "execute",
-                                name = L["Reset position"],
-                                desc = L["Reset position of Current Pull frame to the default"],
-                                func = function()
-                                    self.DB.settings.pullFramePoint = self.defaultSettings.pullFramePoint
-                                    SetFramePoint(self.currentPullFrame, self.DB.settings.pullFramePoint)
-                                end,
-                            },
-                        },
-                    },
-                    nameplate = {
-                        order = increment(),
-                        type = "group",
-                        name = L["Nameplate"],
-                        inline = true,
-                        args = {
-                            enableNameplateText = {
-                                order = increment(),
-                                type = "toggle",
-                                name = L["Enable Nameplate Text"],
-                                desc = L["Adds the % info to the enemy nameplates"],
-                            },
-                            nameplateTextColor = {
-                                order = increment(),
-                                type = "color",
-                                name = L["Nameplate Text Color"],
-                                desc = L["Color of the text on the enemy nameplates"],
-                                hasAlpha = true,
-                                get = function(info)
-                                    local hex = self:GetSetting(info[#info])
-                                    return tonumber(hex:sub(3,4), 16) / 255, tonumber(hex:sub(5,6), 16) / 255, tonumber(hex:sub(7,8), 16) / 255, tonumber(hex:sub(1,2), 16) / 255
-                                end,
-                                set = function(info, r, g, b, a)
-                                    self:SetSetting(info[#info], string.format("%02x%02x%02x%02x", a * 255, r * 255, g * 255, b * 255))
-                                end,
-                            },
-                            offsetx = {
-                                order = increment(),
-                                type = "range",
-                                name = L["Horizontal offset ( <-> )"],
-                                desc = L["Horizontal offset of the nameplate text"],
-                                width = "double",
-                                softMin = -100,
-                                softMax = 100,
-                                bigStep = 1,
-                            },
-                            offsety = {
-                                order = increment(),
-                                type = "range",
-                                name = L["Vertical Offset ( | )"],
-                                desc = L["Vertical offset of the nameplate text"],
-                                width = "double",
-                                softMin = -100,
-                                softMax = 100,
-                                bigStep = 1,
-                            },
-                        },
-                    },
-                    experimental = {
-                        order = increment(),
-                        type = "group",
-                        name = L["Experimental"],
-                        inline = true,
-                        args = {
-                            description = {
-                                order = increment(),
-                                type = "description",
-                                name = L["These options are experimental and may not work as intended."],
-                            },
-                            mdtEmulation = {
-                                order = increment(),
-                                type = "group",
-                                inline = true,
-                                name = L["MDT Emulation"],
-                                args = {
-                                    mdtEmulationDescription = {
-                                        order = increment(),
-                                        type = "description",
-                                        name = mdtLoaded and L["Disabled when MythicDungeonTools is loaded"] or L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."],
-                                        width = "full",
-                                    },
-                                    enableMdtEmulation = {
-                                        order = increment(),
-                                        type = "toggle",
-                                        name = L["Enable MDT Emulation"],
-                                        desc = "",
-                                        set = function(info, value)
-                                            self:SetSetting(info[#info], value)
-                                            self:CheckMdtEmulation()
-                                        end,
-                                        disabled = mdtLoaded,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-            devOptions = {
-                order = increment(),
-                type = "group",
-                name = L["Developer Options"],
-                args = {
-                    debug = {
-                        order = increment(),
-                        type = "toggle",
-                        name = L["Debug"],
-                        desc = L["Enable/Disable debug prints"],
-                    },
-                    debugNewNPCScores = {
-                        order = increment(),
-                        type = "toggle",
-                        name = L["Debug New NPC Scores"],
-                        desc = L["Enable/Disable debug prints for new NPC scores"],
-                    },
-                    exportData = {
-                        order = increment(),
-                        type = "execute",
-                        name = L["Export NPC data"],
-                        desc = L["Opens a popup which allows copying the data"],
-                        func = function() self:ExportData() end,
-                    },
-                    exportUpdatedData = {
-                        order = increment(),
-                        type = "execute",
-                        name = L["Export updated NPC data"],
-                        desc = L["Export only data that is different from the default values"],
-                        func = function() self:ExportData(true) end,
-                    },
-                    npcDataPatchVersion = {
-                        order = increment(),
-                        type = "description",
-                        name = function() return
-                        string.format(
-                                L["NPC data patch version: %s, build %d (ts %d)"],
-                                self.DB.npcDataPatchVersionInfo.version,
-                                self.DB.npcDataPatchVersionInfo.build,
-                                self.DB.npcDataPatchVersionInfo.timestamp
-                        )
-                        end,
-                    },
-                    resetNpcData = {
-                        order = increment(),
-                        type = "execute",
-                        name = L["Reset NPC data"],
-                        desc = L["Reset the NPC data to the default values"],
-                        func = function() self:VerifyDB(false, true) end,
-                        confirm = true,
-                        confirmText = L["Are you sure you want to reset the NPC data to the defaults?"],
-                    },
-                    simulationActive = {
-                        order = increment(),
-                        type = "toggle",
-                        name = L["Simulation Mode"],
-                        desc = L["Enable/Disable Simulation Mode"],
-                        width = "double",
-                        get = function(info) return self.simulationActive end,
-                        set = function(info, value) self.simulationActive = value end,
-                    },
-                    simulationMax = {
-                        order = increment(),
-                        type = "range",
-                        name = L["Simulation Required Points"],
-                        desc = L["Simulated number of 'points' required to complete the run"],
-                        softMin = 1,
-                        softMax = 100,
-                        bigStep = 1,
-                        get = function(info) return self.simulationMax end,
-                        set = function(info, value) self.simulationMax = value end,
-                    },
-                    simulationCurrent = {
-                        order = increment(),
-                        type = "range",
-                        name = L["Simulation Current Points"],
-                        desc = L["Simulated number of 'points' currently earned"],
-                        softMin = 1,
-                        softMax = 100,
-                        bigStep = 1,
-                        get = function(info) return self.simulationCurrent end,
-                        set = function(info, value) self.simulationCurrent = value end,
-                    },
-                    wipeAll = {
-                        order = increment(),
-                        type = "execute",
-                        name = L["Wipe All Data"],
-                        desc = L["Wipe all data"],
-                        func = function() self:VerifyDB(true) end,
-                        confirm = true,
-                        confirmText = L["Are you sure you want to wipe all data?"],
-                    },
-                },
-            },
-        },
-    }
-
-    self.configCategory = "MythicPlusProgress"
-    LibStub("AceConfig-3.0"):RegisterOptionsTable(self.configCategory, options)
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions(self.configCategory)
-end
-
-function MMPE:OpenConfig()
-    Settings.OpenToCategory(self.configCategory);
-end
 
 function MMPE:OnUpdate(elapsed)
     self.currentPullUpdateTimer = self.currentPullUpdateTimer + elapsed * 1000
