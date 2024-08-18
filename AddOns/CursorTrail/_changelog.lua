@@ -7,6 +7,21 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.2.2
+Released 2024-08-17
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.2.2 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Fixed bug causing CursorTrail to add itself to the game's "AddOn Compartment" button multiple times.  This was happening everytime players entered and exited an instance.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 4.4.0.10 for Classic Cataclysm
+Version 1.15.3.5 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+=======================================
 RELEASE 11.0.2.1
 Released 2024-08-13
 
