@@ -257,15 +257,18 @@ handlers:SetScript("OnEvent", function(self, event, unit, ...)
 		end
 		
 	elseif event == "PLAYER_TARGET_CHANGED" then
+
 		unit = "target"
 		for i = 1, 3 do
 			if IUF.units[unit] then
 				IUF.units[unit].values.combo = nil
 				if UnitExists(unit) then
 					handlers.PLAYER_ENTERING_WORLD(IUF.units[unit])
+
 				end
 			end
 			unit = unit.."target"
+
 		end
 		
 		IUF:READY_CHECK()
@@ -360,6 +363,7 @@ function handlers:PLAYER_ENTERING_WORLD()
 		self.values.vehicle = UnitHasVehicleUI(self.realunit) and 1 or nil
 		for _, event in ipairs(updateEvents) do
 			handlers[event](self)
+
 		end
 		if not self.needAutoUpdate then
 			handlers.GROUP_ROSTER_UPDATE(self)
