@@ -1286,7 +1286,7 @@ D["InstanceAchievementTracker"] = {
     },
 };
 D["InputInput"] = {
-    defaultEnable = 0,
+    defaultEnable = 1,
 	tags = { "SOCIAL" },
 	title = "大型聊天輸入框",
 	desc = "位於角色下方超大號的聊天文字輸入框，習慣了就會愛上它!",

@@ -18,6 +18,5 @@
 ## Title-zhTW: |cffFF9999[聊天]|r 大型輸入框
 ## Notes-zhTW: |cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r |n|n位於角色下方超大號的聊天文字輸入框，習慣了就會愛上它!|n|n|cffffd200使用方法: |rEsc>選項>插件>聊天-輸入框>進行設定。
 ## X-Category-zhTW: 社交
-## DefaultState: disabled
 
 Init.xml
