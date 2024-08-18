@@ -13,7 +13,9 @@ E.VER.string = C_AddOns.GetAddOnMetadata(addonName, "Version")
 E.VER.number = tonumber(E.VER.string:gsub("%D", ""), nil)
 
 local function updateCallback()
-	E:UpdateEditBoxFont()
+	if not C_AddOns.IsAddOnLoaded("InputInput") then -- InputInput 相容性修正
+		E:UpdateEditBoxFont()
+	end
 	E:UpdateMessageFonts()
 	E:UpdateTabAlpha()
 	E:UpdateScrollButtonAlpha()
@@ -77,7 +79,9 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 			end
 
 			E:HandleChatTab(_G["ChatFrame" .. i .. "Tab"])
-			E:HandleEditBox(_G["ChatFrame" .. i .. "EditBox"])
+			if not C_AddOns.IsAddOnLoaded("InputInput") then -- InputInput 相容性修正
+				E:HandleEditBox(_G["ChatFrame" .. i .. "EditBox"])
+			end
 			E:HandleMinimizeButton(_G["ChatFrame" .. i .. "ButtonFrameMinimizeButton"], _G["ChatFrame" .. i .. "Tab"])
 
 			if i == 1 then
@@ -108,7 +112,9 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 				local frame = E:HandleChatFrame(chatFrame, 1)
 				if frame then
 					E:HandleChatTab(_G[chatFrame:GetName() .. "Tab"])
-					E:HandleEditBox(_G[chatFrame:GetName() .. "EditBox"])
+					if not C_AddOns.IsAddOnLoaded("InputInput") then -- InputInput 相容性修正
+						E:HandleEditBox(_G[chatFrame:GetName() .. "EditBox"])
+					end
 					E:HandleMinimizeButton(_G[chatFrame:GetName() .. "ButtonFrameMinimizeButton"], _G[chatFrame:GetName() .. "Tab"])
 
 					tempChatFrames[frame] = true
