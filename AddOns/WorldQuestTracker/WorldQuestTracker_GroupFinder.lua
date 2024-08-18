@@ -848,7 +848,7 @@ local playerEnteredWorldQuestZone = function(questID, npcID, npcName)
 				C_Timer.After(3, function()
 					groupButtons_OpenGroupFinder:Enable()
 				end)
-
+				--[[
 				local findButton = QuestObjectiveFindGroup_AcquireButton(ff, questID)
 				findButton:ClearAllPoints()
 				findButton:SetPoint("center", ff, "center", 0, -28)
@@ -863,6 +863,7 @@ local playerEnteredWorldQuestZone = function(questID, npcID, npcName)
 				--TODO > não poder abrir o frame do LFG enquanto estiver em combate
 
 				ff.buttonAcquired = findButton
+				--]]
 			end
 		end
 
