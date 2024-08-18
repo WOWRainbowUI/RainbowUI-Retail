@@ -111,6 +111,7 @@ do
 		["ROGUE"] = 57934,
 		["DRUID"] = 29166,
 		["EVOKER"] = 360827,
+		["PALADIN"] = 1044,
 	}
 
 	---@param class string
@@ -127,6 +128,7 @@ do
 		["ROGUE"] = "TANK",
 		["DRUID"] = "HEALER",
 		["EVOKER"] = "TANK",
+		["PALADIN"] = "TANK",
 	}
 
 	---@param class string

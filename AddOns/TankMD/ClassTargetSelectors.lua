@@ -61,6 +61,10 @@ function ClassTargetSelectors.ROGUE()
 	return chainWithFocus(getTankSelector(addon.db.profile.tankSelectionMethod))
 end
 
+function ClassTargetSelectors.PALADIN()
+	return chainWithFocus(getTankSelector(addon.db.profile.tankSelectionMethod))
+end
+
 function ClassTargetSelectors.EVOKER()
 	return chainWithFocus(TargetSelector.Chain({
 		getTankSelector(addon.db.profile.tankSelectionMethod),
