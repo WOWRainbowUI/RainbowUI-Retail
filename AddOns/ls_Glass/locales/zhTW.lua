@@ -38,5 +38,5 @@ L["Y_PADDING"] = "垂直內邊界"
 
 
 -- 自行加入
-L["LS_GLASS"] = "聊天視窗"
+L["LS_GLASS"] = "聊天-視窗"
 L["LS GLASS"] = "聊天視窗美化"
