@@ -114,7 +114,7 @@ local function ReplaceIconString(text)
     local H_type, id = text:match("%|H(.-):(%d+)")
     local icon
     local suffix = ''
-    if H_type then
+    if H_type and id then -- 暫時修正
         if H_type == 'item' then
             if ElvUI == nil then
                 local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount,
@@ -190,7 +190,7 @@ local function ReplaceIconString(text)
         end
     else
         H_type, id = text:match("%|H(.-):(.+)|h%[.-%]")
-        if H_type then
+        if H_type and id then -- 暫時修正
             if H_type == 'clubFinder' then
                 local clubInfo = C_ClubFinder_GetRecruitingClubInfoFromFinderGUID(id)
                 if clubInfo and clubInfo.numActiveMembers > 0 then

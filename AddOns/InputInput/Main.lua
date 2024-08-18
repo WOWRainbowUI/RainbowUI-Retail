@@ -508,6 +508,9 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 	local info = ChatTypeInfo[chatType]
 	local r, g, b = info.r, info.g, info.b
 	local chatGroup = Chat_GetChatCategory(chatType);
+	
+	local isTinyChatEnabled = C_AddOns.IsAddOnLoaded("TinyChat") -- TinyChat 相容性修正
+	
 	if chatType == "CHANNEL" then
 		local channelTarget = editBox:GetAttribute("channelTarget") or 'SAY'
 		local channelNumber, channelname = GetChannelName(channelTarget)
@@ -557,8 +560,10 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 	local c_h = 0
 	for k = 0, 4 do
 		local msg = msg_list[#msg_list - k]
-		msg = M.ICON:EmojiFilter(msg)
-		msg = M.ICON:IconFilter(msg)
+		if not isTinyChatEnabled then -- 有 TinyChat 就不再額外顯示圖示和表情圖案
+			msg = M.ICON:EmojiFilter(msg)
+			msg = M.ICON:IconFilter(msg)
+		end
 		msg = U:BTagFilter(msg)
 		msg = U:TTagFilter(msg, showTime)
 		if msg and #msg > 0 then
