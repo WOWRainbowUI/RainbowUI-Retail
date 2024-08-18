@@ -568,7 +568,7 @@ function       EventFrame:PLAYER_ENTERING_WORLD()
 
     -- Add this addon to the game's "AddOn Compartment" button.
     local AddonCompartmentFrame = Globals.AddonCompartmentFrame
-    if AddonCompartmentFrame then
+    if AddonCompartmentFrame and not private.addedCompartmentButton then
         local iconFileName = GetAddOnMetadata(kAddonFolderName, "IconTexture")
         if iconFileName then iconFileName = iconFileName .. ".blp" end
         AddonCompartmentFrame:RegisterAddon({
@@ -590,6 +590,7 @@ function       EventFrame:PLAYER_ENTERING_WORLD()
             ----    Globals.MenuUtil.HideTooltip(buttonFrame)
             ----end,
         })
+        private.addedCompartmentButton = true
     end
 end
 
