@@ -855,6 +855,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 			end
 		elseif key == "UP" then
 			-- 上滚历史消息
+			if TinyChatDB and TinyChatDB.HistoryNeedAlt and not IsAltKeyDown() then return end -- TinyChat 相容性，上下鍵選擇是否需要按住 Alt
 			if not ElvUI then
 				if historyIndex > 1 then
 					historyIndex = historyIndex - 1
@@ -864,6 +865,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 				end
 			end
 		elseif key == "DOWN" then
+			if TinyChatDB and TinyChatDB.HistoryNeedAlt and not IsAltKeyDown() then return end -- TinyChat 相容性，上下鍵選擇是否需要按住 Alt
 			if not ElvUI then
 				-- 下滚历史消息
 				if historyIndex < #messageHistory then
