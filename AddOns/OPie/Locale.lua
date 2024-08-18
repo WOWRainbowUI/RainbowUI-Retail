@@ -3,10 +3,10 @@ local _, T = ...
 
 local C, z, V, K = GetLocale(), nil
 V =
-    C == "deDE" and { -- 199/202 (98%)
+    C == "deDE" and { -- 200/202 (99%)
       "%d |4minute:minuten; früher (%s)", "%s, um abzubrechen", "%s, um in aktuellen Ergebnissen zu suchen", "(Standard)", "(Gebe hier einen Icon-Namen oder Pfad ein)", "Ring hinzufügen", "Neuen Abschnitt hinzufügen", "Weiter drehen nach Gebrauch", "Alle %s-Charaktere", "Alle %s-Spezialisierungen",
       "Alle Einstellungen", "Alle Charaktere", "Als Schnellaktion erlauben", "Klicke bei gedrückter Alt-Taste, um die bedingte Bindung festzulegen", "Übergänge animieren", "Animation", "Aussehen", "Aspekte", "Allen Spezialisierungen zuweisen", "In der Mitte des Rings",
-      "Basiert auf der Aktion des Abschnitts", "Verhalten", "Tastaturbelegungskonflikt", "Tastaturbelegung:", "Kamera-Analogstick", "Abbrechen", "Aktion ändern", "Änderungen werden nicht gespeichert", "Wähle eine Tastenbelegung für diesen Ring aus oder aktiviere die Option %s in den OPie-Optionen.", z,
+      "Basiert auf der Aktion des Abschnitts", "Verhalten", "Tastaturbelegungskonflikt", "Tastaturbelegung:", "Kamera-Analogstick", "Abbrechen", "Aktion ändern", "Änderungen werden nicht gespeichert", "Wähle eine Tastenbelegung für diesen Ring aus oder aktiviere die Option %s in den OPie-Optionen.", "Nach kurzer Aktion schließen",
       "Ring schließen", "Farbe:", "Kampf", "Bedingte Tastaturbelegungen", "Bedingte Sichtbarkeit", "Kollidiert mit: %s", "Controller-Interaktionsmodus", "Profil erstellen", "Neues Profil erstellen", "Neuen Ring erstellen",
       "Neues Profil erstellen", "Eigene Ringe", "Benutzerdefinierter Abschnitt", "Passe OPie an, indem du bestehende Ringe änderst oder eigene erstellst.", "Hier können die Tastaturbelegungen für OPie angepasst werden. |cffa0a0a0Graue|r und |cffFA2800Rote|r Belegungen kollidieren mit anderen und sind im Moment nicht aktiv.", "Passe OPies Aussehen und Verhalten an. Ein Rechtsklick auf eine Checkbox stellt den Standardwert wieder her.", "Tastaturbelegungen anpassen", "Einstellungen anpassen", "Benutzerdefiniertes Symbol", "Standardbelegung deaktiviert",
       "Standards", "Standards für alle Ringe", "Aktuelles Profil löschen", "Ring löschen", "Abschnitt löschen", "Dämonen", "Deaktiviert", "Zeige einen ausklappbaren Abschnitt an", "Darstellung als verschachtelter Ring", "Darstellen als:",
