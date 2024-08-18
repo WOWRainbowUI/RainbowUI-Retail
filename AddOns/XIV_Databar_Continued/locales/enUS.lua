@@ -202,3 +202,4 @@ L['Call of Duty: Modern Warfare II'] = true;
 L["Diablo 4"] = true;
 L["Blizzard Arcade Collection"] = true;
 L["Crash Bandicoot 4"] = true;
+L["Hide Friends Playing Other Games"] = true;

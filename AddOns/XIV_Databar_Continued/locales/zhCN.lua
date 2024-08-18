@@ -86,6 +86,7 @@ L['No Info'] = "暂无信息";
 L['Classic'] = "经典怀旧服";
 L['Alliance'] = "联盟";
 L['Horde'] = "部落";
+L["Hide Friends Playing Other Games"] = "隐藏其他游戏好友"; 
 
 L['Durability Warning Threshold'] = "耐久性警告閾值";
 L['Show Item Level'] = "顯示物品等級";
