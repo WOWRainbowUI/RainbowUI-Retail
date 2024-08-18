@@ -24,6 +24,8 @@ local IsLeftShiftKeyDown = API.IsLeftShiftKeyDown
 
 local measureFontString = UIParent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 
+local isTinyChatEnabled
+
 local tip = ''
 -- 更新显示 FontString 位置的函数
 local function UpdateFontStringPosition(editBox, displayFontString, msg)
@@ -508,8 +510,6 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 	local info = ChatTypeInfo[chatType]
 	local r, g, b = info.r, info.g, info.b
 	local chatGroup = Chat_GetChatCategory(chatType);
-	
-	local isTinyChatEnabled = C_AddOns.IsAddOnLoaded("TinyChat") -- TinyChat 相容性修正
 	
 	if chatType == "CHANNEL" then
 		local channelTarget = editBox:GetAttribute("channelTarget") or 'SAY'
@@ -1025,6 +1025,9 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 			MAIN:Init()
 	end
 	if event == 'PLAYER_ENTERING_WORLD' or strfind(event, "WHISPER", 0, true) then
+		
+		isTinyChatEnabled = C_AddOns.IsAddOnLoaded("TinyChat") -- TinyChat 相容性修正
+		
 		for _, chatFrameName in pairs(CHAT_FRAMES) do
 			local chatFrameTab = _G[chatFrameName .. "Tab"]
 			-- Hook点击标签的事件
