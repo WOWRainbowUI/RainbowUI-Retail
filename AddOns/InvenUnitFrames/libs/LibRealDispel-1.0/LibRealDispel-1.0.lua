@@ -169,14 +169,14 @@ lib.enrageSpells[91668] = true
 --lib.enrageSpells[314466] = true	-- 8.0
 lib.enrageSpells[228318] = true	-- 9.0
 lib.enrageSpells[257260] = true	-- 8.0	Mythic Dungeon
-lib.enrageSpells[324085] = true	-- 9.0	°íÅëÀÇ Åõ±âÀå - Âü¼öÀÚ µ¥½Ã¾Æ
-lib.enrageSpells[324737] = true	-- 9.0	Æ¼¸£³Ê »çÀÌµåÀÇ ¾È°³ - ¾È°³Àå¸· ¼öÈ£º´
-lib.enrageSpells[333227] = true	-- 9.0	ÀúÆí - µÇ»ì¾Æ³­ Àå±º
-lib.enrageSpells[334967] = true	-- 9.0	ÀúÆí - ¾î¹Ì Ä®³¯ºÎ¸®
-lib.enrageSpells[326450] = true	-- 9.0	¼ÓÁËÀÇ Àü´ç - Å¸¶ôÇÑ »ç³É°³Á¶·Ã»ç
-lib.enrageSpells[321220] = true	-- 9.0	ÇÍºû ½É¿¬ - ±¤Æ÷ÇÑ ±¸¿ï
-lib.enrageSpells[334470] = true	-- 9.0	ÇÍºû ½É¿¬ - ²ÒÁËÁËÇÑ Èë¿ì°ÆÀÌ
-lib.enrageSpells[320703] = true	-- 9.0	Á×À½ÀÇ »óÈç, ½ÂÃµÀÇ º¸·ç - ´©´õ±â »óºÀ´ë
+lib.enrageSpells[324085] = true	-- 9.0	              -           Ã¾ 
+lib.enrageSpells[324737] = true	-- 9.0	Æ¼        Ìµ     È°  -  È°  å¸·   È£  
+lib.enrageSpells[333227] = true	-- 9.0	     -  Ç» Æ³   å±º
+lib.enrageSpells[334967] = true	-- 9.0	     -     Ä®   Î¸ 
+lib.enrageSpells[326450] = true	-- 9.0	            - Å¸       É°    Ã» 
+lib.enrageSpells[321220] = true	-- 9.0	 Íº   É¿  -            
+lib.enrageSpells[334470] = true	-- 9.0	 Íº   É¿  -                
+lib.enrageSpells[320703] = true	-- 9.0	           ,   Ãµ        -             
 
 
 if class == "WARRIOR" then
@@ -302,31 +302,49 @@ function lib:CheckHelpDispel(aura)
 end
 
 function lib:IsDispelable(unit, index)
+local aura,auraType,auraID
 	if UnitCanAttack("player", unit) then
-		local auraType, _, _, _, _, _, auraID = select(4, UnitBuff(unit, index))
+--		local auraType, _, _, _, _, _, auraID = select(4, UnitBuff(unit, index))
+		aura = C_UnitAuras.GetBuffDataByIndex(unit,index)
+		auraType = aura.dispelName
+		auraID = aura.spellId
+
 		return lib:CheckHarmDispel(auraType, auraID)
 	elseif UnitCanAssist("player", unit) then
-		return lib:CheckHelpDispel(select(4, UnitDebuff(unit, index)) or nil)
+		aura = C_UnitAuras.GetDebuffDataByIndex(unit,index)
+		auraType = aura.dispelName
+		auraID = aura.spellId
+		return lib:CheckHelpDispel(aura.dispelName or nil)
 	end
 	return nil
 end
 
 function lib:DispelHelp(unit, usablefunc)
-	if next(lib.help) then
+local name,aura,auraType,auraID
+
+	if next(lib.help)   then
 		for i = 1, 40 do
-			local name, _, _, auraType, _, _, _, _, _, spellId = UnitDebuff(unit, i)
+--			local name, _, _, auraType, _, _, _, _, _, spellId = UnitDebuff(unit, i)
+			aura = C_UnitAuras.GetDebuffDataByIndex(unit,i)
+			if aura then
+				name = aura.name
+				auraType = aura.dispelName
+				auraID = aura.spellId
+			end
 			if name then
 				if lib:CheckHelpDispel(auraType) then
 					if type(usablefunc) == "function" then
 						if usablefunc(name, spellId) then
-							return UnitDebuff(unit, i)
+							return name
+
 						end
 					elseif type(usablefunc) == "table" then
 						if not usablefunc[name] and not usablefunc[auraID] then
-							return UnitDebuff(unit, i)
+							return name
 						end
 					else
-						return UnitDebuff(unit, i)
+						return name
+
 					end
 				end
 			else
@@ -338,21 +356,31 @@ function lib:DispelHelp(unit, usablefunc)
 end
 
 function lib:DispelHarm(unit, usablefunc)
+local name,aura,auraType,auraID
 	if lib.harm or lib.tranquilize then
 		for i = 1, 40 do
-			local name, _, _, auraType, _, _, _, _, _, auraID = UnitBuff(unit, i)
+--			local name, _, _, auraType, _, _, _, _, _, auraID = UnitBuff(unit, i)
+			aura = C_UnitAuras.GetDebuffDataByIndex(unit,i)
+			if aura then
+				name = aura.name
+				auraType = aura.dispelName
+				auraID = aura.spellId
+			end
+
 			if name then
 				if lib:CheckHarmDispel(auraType, auraID) then
 					if type(usablefunc) == "function" then
 						if usablefunc(name) then
-							return UnitBuff(unit, i)
+							return name
 						end
 					elseif type(usablefunc) == "table" then
 						if not usablefunc[name] and not usablefunc[auraID] then
-							return UnitBuff(unit, i)
+							return name
 						end
 					else
-						return UnitBuff(unit, i)
+
+						return name
+
 					end
 				end
 			else
