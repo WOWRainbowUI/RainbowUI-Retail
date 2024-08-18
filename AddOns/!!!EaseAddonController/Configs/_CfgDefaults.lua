@@ -1306,6 +1306,10 @@ D["InvenUnitFrames"] = {
     },
 	{
 		type = "text",
+		text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",
+	},
+	{
+		type = "text",
         text = "更改外觀: 設定選項>整體>基本>外觀主題，選擇外觀。|n|n移動位置：設定選項>整體>基本>鎖定框架，取消打勾。|n|n(不是使用編輯模式移動!)|n",
     },
 };
@@ -2037,7 +2041,7 @@ D["RandomHearth"] = {
 };
 D["RangeDisplay"] = {
     defaultEnable = 0,
-	tags = { "COMBAT" },
+	tags = { "UNITFRAME" },
 	title = "顯示距離",
 	desc = "顯示你和目標之間的距離，包括當前目標、專注目標、寵物、滑鼠指向對象以及競技場對象。還可以依據距離遠近來設定警告音效。``|cffFF2D2D特別注意：Stuf 頭像已有顯示距離的功能，如無特別需求可以不用載入這個插件。|r``使用暴雪頭像 (美化調整) 或遊戲內建的頭像時，可以搭配此插件一起使用。`",
 	modifier = "alpha2009, BNS, lcncg, 彩虹ui",
