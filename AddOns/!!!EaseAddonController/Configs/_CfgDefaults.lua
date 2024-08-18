@@ -1285,6 +1285,25 @@ D["InstanceAchievementTracker"] = {
         text = "點小地圖按鈕的 '副本成就追蹤' 按鈕也可以打開主視窗。",
     },
 };
+D["InputInput"] = {
+    defaultEnable = 0,
+	tags = { "SOCIAL" },
+	title = "大型聊天輸入框",
+	desc = "位於角色下方超大號的聊天文字輸入框，習慣了就會愛上它!",
+	modifier = "彩虹ui",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["INPUTINPUT"]("") end,
+    },
+	{
+		type = "text",
+        text = "移動: Shift+左鍵拖曳輸入框\n\n縮放: Shift+左鍵拖曳右邊箭頭\n\n重置: Shift+右鍵點擊輸入框\n",
+    },
+	{
+		type = "text",
+        text = "切換頻道: 按 Tab 鍵\n\n歷史記錄: 方向鍵上/下\n\n表情圖案: 輸入 {\n\n(搭配 '聊天按鈕和功能增強' 插件一起使用時)\n",
+    },
+};
 D["InterruptedIn"] = {
 	defaultEnable = 0,
 	tags = { "MISC" },
