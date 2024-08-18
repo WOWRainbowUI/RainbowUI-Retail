@@ -1,6 +1,6 @@
 ## Interface: 110002
-## Title: Mythic Plus Pull ReEstimated
-## Version: v1.9.10
+## Title: Mythic Plus Pull
+## Version: v1.10.1
 ## Notes: Tracks and displays % progress gained from individual mobs or entire pulls in Mythic+ dungeons. /mpp for options
 ## Notes-ruRU: Отслеживает и отображает % прогресса, полученного от отдельных мобов или всех пуллов в подземельях М+ режима. Введите /mpp для вызова настроек
 ## Author: Numy
@@ -18,6 +18,8 @@
 locale\locale.xml
 
 MythicPlusPullReEstimated.lua
+Config.lua
+CountTracker.lua
 
 Data\WarWithin.lua
 Data\Dragonflight.lua

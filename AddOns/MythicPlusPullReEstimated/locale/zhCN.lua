@@ -6,6 +6,8 @@ local L = LibStub("AceLocale-3.0"):NewLocale(name, "zhCN")
 if not L then return end
 
 -- MythicPlusPullReEstimated
+--[[Translation missing --]]
+L["A long way of writing 100%%."] = "A long way of writing 100%%."
 L["Adds percentage info to the unit tooltip"] = "在鼠标提示显进度百分比"
 L["Adds the % info to the enemy nameplates"] = "在敌方姓名板显示进度百分比"
 L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."] = "允许调用 MDT 进度数据的插件或 WA 以此插件代替。"
@@ -67,6 +69,26 @@ L["Simulated number of 'points' required to complete the run"] = "模拟通关�
 L["Simulation Current Points"] = "模拟当前分数"
 L["Simulation Mode"] = "模拟模式"
 L["Simulation Required Points"] = "模拟所需分数"
+--[[Translation missing --]]
+L["Text Format"] = "Text Format"
+--[[Translation missing --]]
+L["The count of mobs pulled."] = "The count of mobs pulled."
+--[[Translation missing --]]
+L["The current count of mobs killed."] = "The current count of mobs killed."
+--[[Translation missing --]]
+L["The current percentage of mobs killed."] = "The current percentage of mobs killed."
+--[[Translation missing --]]
+L["The estimated count after all pulled mobs are killed."] = "The estimated count after all pulled mobs are killed."
+--[[Translation missing --]]
+L["The estimated percentage after all pulled mobs are killed."] = "The estimated percentage after all pulled mobs are killed."
+--[[Translation missing --]]
+L["The following placeholders are available:"] = "The following placeholders are available:"
+--[[Translation missing --]]
+L["The percentage of mobs pulled."] = "The percentage of mobs pulled."
+--[[Translation missing --]]
+L["The required count of mobs to reach 100%%."] = "The required count of mobs to reach 100%%."
+--[[Translation missing --]]
+L["The text format of the pull frame. Use placeholders to display information."] = "The text format of the pull frame. Use placeholders to display information."
 L["These options are experimental and may not work as intended."] = "下列设置仍是实验性的，有可能不按预期方式运作。"
 L["Tooltip"] = "鼠标提示"
 L["Version:"] = "版本："

@@ -1,8 +1,6 @@
-# Mythic Plus Pull ReEstimated
+# Mythic Plus Pull
 
-## [v1.9.10](https://github.com/NumyAddon/MythicPlusPullReEstimated/tree/v1.9.10) (2024-07-07)
-[Full Changelog](https://github.com/NumyAddon/MythicPlusPullReEstimated/compare/v1.9.9...v1.9.10) [Previous Releases](https://github.com/NumyAddon/MythicPlusPullReEstimated/releases)
+## [v1.10.1](https://github.com/NumyAddon/MythicPlusPullReEstimated/tree/v1.10.1) (2024-08-17)
+[Full Changelog](https://github.com/NumyAddon/MythicPlusPullReEstimated/compare/v1.10.0...v1.10.1) [Previous Releases](https://github.com/NumyAddon/MythicPlusPullReEstimated/releases)
 
-- TWW: Data update and fix mayor bugs  
-- Adjust localization script  
-- Add prettier notifications to Discord on updates  
+- Percentage and count information is once again 100% accurate and reliable (thanks to blizzard updating the API)  

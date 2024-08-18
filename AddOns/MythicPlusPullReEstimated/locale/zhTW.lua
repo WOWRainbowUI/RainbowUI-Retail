@@ -6,6 +6,7 @@ local L = LibStub("AceLocale-3.0"):NewLocale(name, "zhTW")
 if not L then return end
 
 -- MythicPlusPullReEstimated
+L["A long way of writing 100%%."] = "一個長遠的路來寫入到100%%。"
 L["Adds percentage info to the unit tooltip"] = "在浮動提示資訊顯示進度百分比"
 L["Adds the % info to the enemy nameplates"] = "在敵方名條顯示進度百分比"
 L["Allows addons and WAs that use MythicDungeonTools for % info to work with this addon instead."] = "允許使用 MythicDungeonTools 來取得 % 資訊的插件或 WA 改用本插件。"
@@ -67,6 +68,16 @@ L["Simulated number of 'points' required to complete the run"] = "模擬通關�
 L["Simulation Current Points"] = "模擬當前分數"
 L["Simulation Mode"] = "模擬模式"
 L["Simulation Required Points"] = "模擬所需分數"
+L["Text Format"] = "文字格式"
+L["The count of mobs pulled."] = "拉怪計數。"
+L["The current count of mobs killed."] = "目前殺怪計數。"
+L["The current percentage of mobs killed."] = "目前殺怪百分比。"
+L["The estimated count after all pulled mobs are killed."] = "全部拉怪擊殺後的估計數。"
+L["The estimated percentage after all pulled mobs are killed."] = "全部拉怪擊殺後的估計百分比。"
+L["The following placeholders are available:"] = "以下佔位符可用："
+L["The percentage of mobs pulled."] = "拉怪的百分比。"
+L["The required count of mobs to reach 100%%."] = "所需的小怪數量達到100%%。"
+L["The text format of the pull frame. Use placeholders to display information."] = "拉怪框架文字的格式。使用佔位符來顯示資訊。"
 L["These options are experimental and may not work as intended."] = "下列選項是實驗性功能，可能無法按預期方式運作。"
 L["Tooltip"] = "浮動提示資訊"
 L["Version:"] = "版本："
@@ -74,3 +85,8 @@ L["Vertical Offset ( | )"] = "垂直偏移 ( | )"
 L["Vertical offset of the nameplate text"] = "名條文字的垂直偏移"
 L["Wipe all data"] = "清空所有資料"
 L["Wipe All Data"] = "清空所有資料"
+
+
+-- 自行加入
+L["Reset Text Format"] = "重置文字格式"
+L["Reset the text format to the default."] = "將文字格式重置成預設值。"
