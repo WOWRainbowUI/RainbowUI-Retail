@@ -46,6 +46,7 @@ local IsEquippableItem = API.IsEquippableItem;
 local GetSpellName = API.GetSpellName;      --TWW
 local GetItemCount = C_Item.GetItemCount;
 local strlen = string.len;
+local After = C_Timer.After;
 local C_GossipInfo = C_GossipInfo;
 local CompleteQuest = CompleteQuest;
 local CloseQuest = CloseQuest;
@@ -444,7 +445,7 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo, requery)
             elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
                 typeText = API.GetQuestTimeLeft(questInfo.questID, true);
                 if (not requery) and (not typeText) then
-                    C_Timer.After(0.5, function()
+                    After(0.5, function()
                         if self:IsVisible() and self.questID and self.questID == questInfo.questID then
                             self:SetQuestTypeText(questInfo, true)
                         end
@@ -1193,8 +1194,11 @@ function ItemButtonSharedMixin:GetClipboardOutput()
     elseif self.objectType == "reputation" then
         idFormat = "[FactionID: %s]";
         id = self.factionID;
-        name = self.factionName.." "..self.rewardAmount
-
+        name = self.factionName.." "..self.rewardAmount;
+    elseif self.objectType == "currency" then
+        idFormat = "[CurrencyID: %s]";
+        id = self.currencyID;
+        name = self.Name:GetText().." "..self.rewardAmount;
     elseif self.objectType == "skill" then
         local skillName, skillIcon, skillPoints = GetRewardSkillPoints();
         name = skillName .. " "..skillPoints;
@@ -1432,6 +1436,7 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
     local name, texture, count, quality, isUsable, itemID, questRewardContextFlags = GetQuestItemInfo(questInfoType, index);    --no itemID in Classic; questRewardContextFlags TWW
 
     self.itemID = itemID;
+    self.rewardAmount = count;
     self.Icon:SetTexture(texture);
     self:SetItemName(name, quality);
     self:SetItemCount(count);
@@ -1499,6 +1504,7 @@ function DUIDialogItemButtonMixin:SetCurrency(questInfoType, index)
     if not amount then
         amount = 1;
     end
+    self.rewardAmount = amount;
 
     self:SetItemName(name, quality);
     self.Icon:SetTexture(texture);
@@ -1985,7 +1991,7 @@ end
 
 function DUIDialogInputBoxMixin:SetFocus()
     self:ClearText();
-    C_Timer.After(0, function()
+    After(0, function()
         --Avoid OnKeyDown propagation
         self.EditBox:SetFocus();
     end);
