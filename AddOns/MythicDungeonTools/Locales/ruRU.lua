@@ -2494,6 +2494,8 @@ L["Void Discharge"] = "Выброс Бездны"
 L["Void Flayer"] = "Щупальце-живодер Бездны"
 L["Void Spawn"] = "Дитя Бездны"
 --[[Translation missing --]]
+L["Void Speaker Eirich"] = "Void Speaker Eirich"
+--[[Translation missing --]]
 L["Void Touched Elemental"] = "Void Touched Elemental"
 L["Void-Touched Emissary"] = "Меченная Бездной посланница"
 L["Voidweaver Mal'thir"] = "Мал'тир - маг Бездны"
