@@ -245,6 +245,7 @@ PawnLocal =
 		["WeaponTypeWarglaiveInfo"] = "物品类型为战刃。",
 	},
 	["UI"] = {
+		["Pawn"] = "Pawn",
 		["AboutHeader"] = "关于 Pawn",
 		["AboutMrRobot"] = "现在Pawn插件的属性权重标准是参考了Ask Mr. Robot网站提供的标准属性权重，这个网站提供了根据你角色的天赋和现有装备计算如何提升和现阶段的属性权重。有兴趣可以去askmrrobot.com尝试使用。（译者注，似乎不支持国服，尝试国服角色总是报错）",
 		["AboutReadme"] = "新手？看看“准备开始”标签。",
