@@ -1,12 +1,10 @@
 ## Interface: 110002
 ## Title: Random Hearthstone
 ## Author: JamienAU
-## Version: r18
+## Version: r19
 ## Notes: Uses a random hearthstone toy
 ## SavedVariables: rhDB
 ## IconTexture: Interface\Icons\Inv_misc_rune_01
 
-## X-Localizations: enUS, enGB
-## X-CompatibleLocales: enUS, enGB
-
+Localisation.lua
 RandomHearth.lua
