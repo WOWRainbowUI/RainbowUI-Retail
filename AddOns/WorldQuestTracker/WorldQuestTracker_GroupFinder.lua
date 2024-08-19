@@ -570,10 +570,10 @@ local isWorldQuest = QuestUtils_IsQuestWorldQuest
 				end
 
 				if (not added) then
-					GameCooltip2:AddLine ("No other players nearby.")
+					GameCooltip2:AddLine (L["No other players nearby."])
 				end
 			else
-				GameCooltip2:AddLine ("No other players nearby.")
+				GameCooltip2:AddLine (L["No other players nearby."])
 			end
 		end
 
@@ -619,19 +619,19 @@ local isWorldQuest = QuestUtils_IsQuestWorldQuest
 			_G.LFGListUtil_OpenBestWindow()
 			_G.LFGListCategorySelection_SelectCategory(LFGListFrame.CategorySelection, 1, 0)
 			_G.LFGListCategorySelection_StartFindGroup(LFGListFrame.CategorySelection, 0)
-		end, "Open Premade Groups")
+		end, L["Open Premade Groups"])
 
 	--ignore quest
 		local groupButtons_IgnoreQuest = CreateFrame("button", "$parentIgnoreQuestButton", ff.GroupButtonsFrame, "BackdropTemplate")
 		setupGroupButton(groupButtons_IgnoreQuest, 3, [[Interface\COMMON\icon-noloot]], {0, 1, .1, .9}, function()
-			DF:ShowPromptPanel ("Don't Show Popups for the Quest: " .. (ff.CurrentQuestName or "-") .. "?", function()
+			DF:ShowPromptPanel (L["Don't Show Popups for the Quest: "] .. (ff.CurrentQuestName or "-") .. "?", function()
 				if (ff.CurrentWorldQuest) then
 					WorldQuestTracker.db.profile.groupfinder.ignored_quests [ff.CurrentWorldQuest] = true
-					WorldQuestTracker:Msg ("Quest " .. (ff.CurrentQuestName or "-") .. " added to ignore list.")
+					WorldQuestTracker:Msg (L["Quest "] .. (ff.CurrentQuestName or "-") .. L[" added to ignore list."])
 				end
 				ff:HideFrame (true)
 			end, function() end)
-		end, "Ignore this quest (won't popup next time)")
+		end, L["Ignore this quest (won't popup next time)"])
 
 	--leave group
 		local groupButtons_LeaveGroup = CreateFrame("button", "$parentLeaveGroupButton", ff.GroupButtonsFrame, "BackdropTemplate")
@@ -649,7 +649,7 @@ local isWorldQuest = QuestUtils_IsQuestWorldQuest
 
 			ff:HideFrame(true)
 			C_PartyInfo.LeaveParty()
-		end, "Leave Group")
+		end, L["Leave Group"])
 
 	--place holder
 	--[=[
@@ -670,7 +670,7 @@ local isWorldQuest = QuestUtils_IsQuestWorldQuest
 	ff.leaveButtonSolo = leaveButtonSolo
 	leaveButtonSolo.text = leaveButtonSolo:CreateFontString(nil, "overlay", "GameFontNormal")
 	leaveButtonSolo.text:SetPoint("center", 0, 0)
-	leaveButtonSolo.text:SetText("Leave Group")
+	leaveButtonSolo.text:SetText(L["Leave Group"])
 
 	--create a title bar
 		DF:CreateTitleBar(ff, "Title")
@@ -1639,7 +1639,7 @@ end
 		GameCooltip:AddLine ("$div", nil, 1, nil, -5, -11)
 		--
 
-		GameCooltip:AddLine ("Don't Show if Already in Group")
+		GameCooltip:AddLine (L["S_OPTIONS_GF_DONT_SHOW_IFGROUP"])
 		if (WorldQuestTracker.db.profile.groupfinder.dont_open_in_group) then
 			GameCooltip:AddIcon ([[Interface\BUTTONS\UI-CheckBox-Check]], 1, 1, 16, 16)
 		else
