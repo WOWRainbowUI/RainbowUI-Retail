@@ -1,4 +1,4 @@
-### Changes in 110000.117-Release:
+### Changes in 110000.118-Release:
 
-- Fixed: Compatibility with 11.0.2 patch
+- Fixed: Settings colliding or not loading/saving properly
 
