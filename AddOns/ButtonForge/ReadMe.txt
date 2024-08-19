@@ -5,7 +5,7 @@ Author: Massiner of Nathrezim
 Contributor: xfsbill
 Past Contributors: DT85, DandierSphinx
 
-Version: 1.3.0.3
+Version: 1.3.0.4
 
 Description: Graphically create as many Action Bars and Buttons in the game as you choose
 
@@ -23,6 +23,8 @@ Restrictions:
 
 
 History:
+19-Aug-2024		v1.3.0.4 - Fixed a stack overflow issue that could happen coming out of combat if a high number of bars are created (probably 50+ bars)
+						 - Also fixed an issue in high bar situations where sometimes the keybind and count text could appear behind some of the buttons
 15-Aug-2024		v1.3.0.3 - Corrected issue with spell glow overlay triggering an error due to old spell api call
 						 - Updated to WoW v110002
 25-Jul-2024		v1.3.0.2 - Corrected issue where spells removed from the game (if on a bar) could cause BF to error - Thanks to Aurleis on CurseForge for catching that
