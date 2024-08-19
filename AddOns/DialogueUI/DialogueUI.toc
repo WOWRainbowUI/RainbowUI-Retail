@@ -1,5 +1,5 @@
 ## Interface: 11503, 40400, 110002
-## Version: 0.3.8
+## Version: 0.3.9
 
 ## Title: Dialogue UI
 
@@ -10,8 +10,6 @@
 
 ## IconTexture: Interface\AddOns\DialogueUI\Art\Icons\Logo
 ## AddonCompartmentFunc: DialogueUI_ShowSettingsFrame
-## AddonCompartmentFuncOnEnter: DialogueUI_AddonCompartmentOnEnterLeave
-## AddonCompartmentFuncOnLeave: DialogueUI_AddonCompartmentOnEnterLeave
 
 ## Title-zhTW: |cff00FFFF[任務]|r 對話 (羊皮紙)
 ## Notes-zhTW: Dialogue UI |n|n與NPC對話、接受/交回任務時，將任務內容顯示在羊皮紙上，取代傳統的任務說明，讓你更能享受並融入任務內容的對話劇情。|n|n對話時會隱藏遊戲介面，並將鏡頭拉近放大角色，有沉浸感。也可以設定為不要移動鏡頭。|n|n|cffffd200使用方法: |r和 NPC 對話時按下 F1 打開設定。|n|n|cffFF2D2D特別注意: |r有多種任務對話插件，選擇其中一種載入使用就好，不要同時載入。
