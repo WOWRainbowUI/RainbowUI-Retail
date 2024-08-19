@@ -19,6 +19,11 @@ local function createButton(name, spell)
 	button:SetAttribute("checkselfcast", false)
 	button:SetAttribute("checkfocuscast", false)
 	button:SetAttribute("allowVehicleTarget", false)
+	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		-- Ensures the action always fires on Down, regardless of the ActionButtonUseKeyDown cvar
+		button:SetAttribute("pressAndHoldAction", "1")
+		button:SetAttribute("typerelease", "spell")
+	end
 	button:RegisterForClicks("LeftButtonDown", "LeftButtonUp")
 	return button
 end
