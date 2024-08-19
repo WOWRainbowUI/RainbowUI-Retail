@@ -1,10 +1,10 @@
 ## Interface: 110002
 ## Author: p3lim
-## Version: 110002.117-Release
+## Version: 110000.118-Release
 ## Title: Molinari
 ## Notes: One-click Milling, Prospecting, Disenchanting, Lockpicking, and more!
 ## IconTexture: Interface\Icons\ability_miling
-## SavedVariables: MolinariBlacklistDB, MolinariDB, MolinariDB2
+## SavedVariables: MolinariBlacklistDB, MolinariDB, MolinariDB2, MolinariDB3
 
 ## X-Curse-Project-ID: 20338
 ## X-WoWI-ID: 13188

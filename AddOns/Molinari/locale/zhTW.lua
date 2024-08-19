@@ -7,4 +7,4 @@ L['ALT + SHIFT key'] = ALT_KEY_TEXT .. ' + ' .. SHIFT_KEY
 L['Modifier to activate %s'] = '分解時要按住的輔助鍵'
 
 -- 自行加入
-L['Molinari'] = '一鍵分解'
+L['Molinari'] = '專業-分解'
