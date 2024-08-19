@@ -14,7 +14,7 @@ addon.defaultProfile = {
 
 ---@type AceConfig.OptionsTable
 addon.optionsTable = {
-	name = L.title,
+	name = L.header,
 	type = "group",
 	childGroups = "tab",
 	order = 1,

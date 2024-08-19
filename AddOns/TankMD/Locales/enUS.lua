@@ -22,4 +22,7 @@ L["to_fourth"] = "%s to fourth %s"
 L["to_second"] = "%s to second %s"
 L["to_third"] = "%s to third %s"
 
+-- 自行加入
+L["header"] = "TankMD Misdirect"
+
 
