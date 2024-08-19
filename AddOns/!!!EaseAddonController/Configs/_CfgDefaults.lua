@@ -1297,6 +1297,10 @@ D["InputInput"] = {
     },
 	{
 		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+	{
+		type = "text",
         text = "移動: Shift+左鍵拖曳輸入框\n\n縮放: Shift+左鍵拖曳右邊箭頭\n\n重置: Shift+右鍵點擊輸入框\n",
     },
 	{
@@ -2395,6 +2399,12 @@ D["TankMD"] = {
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_hunter_misdirection",
 	img = true,
+	 {
+        text = "設定選項",
+        callback = function()
+			Settings.OpenToCategory(GetLocale() == "zhTW" and "一鍵誤導" or "TankMD")
+		end,
+    },
 	{
 		type = "text",
 		text = "快速鍵：從 Esc > 選項 > 按鍵綁定 > 插件 > 一鍵誤導/偷天/啟動，設定按鍵。\n\n快捷列按鈕：新增巨集拉到快捷列上。\n\n誤導給第一個坦克的巨集內容為：\n\n#showtooltip 誤導\n/click TankMDButton1 LeftButton 1\n/click TankMDButton1 LeftButton 0\n\n誤導給第二個坦克的巨集內容為：\n\n#showtooltip 誤導\n/click TankMDButton2 LeftButton 1\n/click TankMDButton2 LeftButton 0\n\n(每個 /click ... 為同一行不換行)\n\n盜賊和德魯伊請自行將誤導改為偷天換日或啟動\n\n這是插件所提供的巨集指令，需要載入插件才能使用。",
