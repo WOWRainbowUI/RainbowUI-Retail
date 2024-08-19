@@ -28,6 +28,8 @@ Addon.Config = { --默认config
 	["SelectName"] = nil,
 	["LogEverything"] = false,
 	["EnableML"] = true,
+	["OnlyThisCharacter"] = false;
+	["Mode"] = "ALL";
 }
 
 Addon.IgnoreItems = {
