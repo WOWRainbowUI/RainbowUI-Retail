@@ -1,0 +1,14 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Frame name="vcbZlave" parent="UIParent" frameStrata="BACKGROUND" frameLevel="0" hidden="true">
+		<Scripts>
+			<OnLoad>
+				self:RegisterEvent("PLAYER_LOGIN")
+				self:RegisterEvent("CURRENT_SPELL_CAST_CHANGED")
+				self:RegisterEvent("UNIT_SPELLCAST_START")
+				self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Script file="VCB_Zlave.lua"/>
+</Ui>

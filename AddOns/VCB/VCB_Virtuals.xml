@@ -1,0 +1,360 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="VCB_Virtuals.lua"/>
+<!-- The Tabs Panel -->
+	<Frame name="vcbTabsPanel" frameStrata="DIALOG" frameLevel="250" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
+		<Size x="488" y="564"/>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="-7">
+				<Texture parentKey="BGtexture" file="Interface\BlackMarket\BlackMarketBackground-Tile.blp">
+					<Scripts>
+						<OnLoad>
+							self:SetDesaturation(0)
+						</OnLoad>
+					</Scripts>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="ExitButton" inherits="InsecureActionButtonTemplate" frameLevel="510">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-4" y="-4"/>
+				</Anchors>
+				<NormalTexture atlas="communities-icon-redx" desaturated="false" alpha="0.6"/>
+				<PushedTexture atlas="communities-icon-redx" desaturated="true" alpha="0.4"/>
+				<Scripts>
+					<OnEnter>
+						GameTooltip_ClearStatusBars(GameTooltip)
+						GameTooltip:SetOwner(self, "ANCHOR_NONE")
+						GameTooltip:ClearAllPoints()
+						GameTooltip:SetPoint("BOTTOM", self, "TOP", 0, 0)
+						GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nClose this Panel!")
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide()
+					</OnLeave>
+					<OnClick>
+						if button == "LeftButton" and down == false then
+							self:GetParent():Hide()
+							PlaySound(858, "Master")
+						end
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+	</Frame>
+<!-- The Tabs button -->
+	<Button name="vcbTabsButton" inherits="InsecureActionButtonTemplate" frameLevel="500" virtual="true">
+		<Size x="128" y="32"/>
+		<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER"/>
+		<NormalTexture atlas="common-gray-button-entrybox-center"/>
+		<HighlightTexture atlas="Adventures_MissionList_Highlight" desaturated="true" alphaMode="ADD"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="CenterTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="TOP" relativePoint="BOTTOM" x="0" y="-16"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetTextColor(vcbMainColor:GetRGB())
+						</OnLoad>
+						<OnShow>
+							self:SetWidth(self:GetParent():GetWidth()*0.95)
+						</OnShow>
+					</Scripts>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnClick>
+				PlaySound(858, "Master")
+			</OnClick>
+		</Scripts>
+	</Button>
+<!-- The Options Panel -->
+	<Frame name="vcbOptionsPanel" inherits="InsetFrameTemplate4" frameStrata="DIALOG" frameLevel="0" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
+		<Size x="360" y="564"/>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="-7">
+				<Texture parentKey="BGtexture" file="Interface\BlackMarket\BlackMarketBackground-Tile.blp">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetVertexColor(vcbMainColor:GetRGB())
+							self:SetDesaturation(0)
+						</OnLoad>
+					</Scripts>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="TitleTxt" font="Fonts\skurri.TTF" justifyV="MIDDLE" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="TOP" x="0" y="-14"/>
+					</Anchors>
+					<FontHeight val="22"/>
+					<Shadow>
+					  <Offset>
+						<AbsDimension x="2" y="-2"/>
+					  </Offset>
+					  <Color r="0" g="0" b="0"/>
+					</Shadow>
+					<Scripts>
+						<OnLoad>
+							self:SetTextColor(vcbMainColor:GetRGB())
+							self:SetText(C_AddOns.GetAddOnMetadata("VCB", "Title").."|nVersion: "..vcbHighColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Version")))
+						</OnLoad>
+					</Scripts>
+				</FontString>
+				<FontString parentKey="TopTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="TOP" relativeKey="$parent.TitleTxt" relativePoint="BOTTOM" x="0" y="-8"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetTextColor(vcbMainColor:GetRGB())
+						</OnLoad>
+						<OnShow>
+							self:SetWidth(self:GetParent():GetWidth()*0.95)
+						</OnShow>
+					</Scripts>
+				</FontString>
+				<FontString parentKey="CenterTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="CENTER" relativePoint="CENTER" x="0" y="-12"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetTextColor(vcbMainColor:GetRGB())
+						</OnLoad>
+						<OnShow>
+							self:SetWidth(self:GetParent():GetWidth()*0.95)
+						</OnShow>
+					</Scripts>
+				</FontString>
+				<FontString parentKey="BottomTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="120"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetTextColor(vcbMainColor:GetRGB())
+						</OnLoad>
+						<OnShow>
+							self:SetWidth(self:GetParent():GetWidth()*0.95)
+						</OnShow>
+					</Scripts>
+				</FontString>
+				<FontString parentKey="BottomRightTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-2" y="4"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetTextColor(vcbMainColor:GetRGB())
+							self:SetText(C_AddOns.GetAddOnMetadata("VCB", "X-Website"))
+						</OnLoad>
+						<OnShow>
+							self:SetWidth(self:GetParent():GetWidth()*0.95)
+						</OnShow>
+					</Scripts>
+				</FontString>
+				<FontString parentKey="BottomLeftTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="4" y="4"/>
+					</Anchors>
+					<Scripts>
+						<OnLoad>
+							self:SetTextColor(vcbMainColor:GetRGB())
+							self:SetText("Created by: ".. C_AddOns.GetAddOnMetadata("VCB", "Author"))
+						</OnLoad>
+						<OnShow>
+							self:SetWidth(self:GetParent():GetWidth()*0.95)
+						</OnShow>
+					</Scripts>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+<!-- Options Box -->
+	<Frame name="vcbOptionsBox" frameStrata="DIALOG" frameLevel="200" enableMouse="false" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="false" virtual="true">
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="BorderTop" file="Interface\Common\ThinBorder2-Top">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="3" y="0"/>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-3" y="0"/>
+					</Anchors>
+					<Size y="4"/>
+					<Scripts>
+						<OnLoad>
+							self:SetVertexColor(vcbMainColor:GetRGB())
+						</OnLoad>
+					</Scripts>
+				</Texture>
+				<Texture parentKey="BorderBottom" file="Interface\Common\ThinBorder2-Top">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="3" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="0"/>
+					</Anchors>
+					<Size y="4"/>
+					<Scripts>
+						<OnLoad>
+							self:SetVertexColor(vcbMainColor:GetRGB())
+						</OnLoad>
+					</Scripts>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString parentKey="TitleTxt" font="Fonts\skurri.TTF" justifyV="MIDDLE" justifyH="CENTER">
+					<Anchors>
+						<Anchor point="TOP" relativePoint="TOP" x="0" y="-6"/>
+					</Anchors>
+					<FontHeight val="16"/>
+					<Shadow>
+					  <Offset>
+						<AbsDimension x="2" y="-2"/>
+					  </Offset>
+					  <Color r="0" g="0" b="0"/>
+					</Shadow>
+					<Scripts>
+						<OnLoad>
+							self:SetTextColor(vcbHighColor:GetRGB())
+						</OnLoad>
+					</Scripts>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+<!-- Options Button -->
+	<Button name="vcbOptionsButton" inherits="InsecureActionButtonTemplate" frameLevel="500" virtual="true">
+		<Size x="128" y="34"/>
+		<ButtonText parentKey="Text" font="Fonts\skurri.TTF" justifyV="MIDDLE" justifyH="CENTER" outline="NORMAL">
+			<FontHeight val="14"/>
+			<Scripts>
+				<OnLoad>
+					self:SetTextColor(vcbMainColor:GetRGB())
+				</OnLoad>
+			</Scripts>
+		</ButtonText>
+		<NormalTexture atlas="common-button-tertiary-normal-small" >
+			<Scripts>
+				<OnLoad>
+					self:SetVertexColor(vcbMainColor:GetRGB())
+					self:SetDesaturation(1)
+				</OnLoad>
+			</Scripts>
+		</NormalTexture>
+		<PushedTexture atlas="common-button-tertiary-pressed-small" >
+			<Scripts>
+				<OnLoad>
+					self:SetVertexColor(vcbMainColor:GetRGB())
+					self:SetDesaturation(1)
+				</OnLoad>
+			</Scripts>
+		</PushedTexture>
+		<HighlightTexture atlas="common-button-tertiary-hover-small" desaturated="true" alphaMode="ADD"/>
+	</Button>
+<!-- Options Pop Out -->
+	<Button name="vcbPopOut" frameStrata="DIALOG" frameLevel="525" virtual="true">
+		<Size x="176" y="32" />
+		<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+			<Scripts>
+				<OnLoad>
+					self:SetTextColor(vcbMainColor:GetRGB())
+				</OnLoad>
+			</Scripts>
+		</ButtonText>
+		<NormalTexture atlas="charactercreate-customize-dropdownbox-open">
+			<Scripts>
+				<OnLoad>
+					self:SetVertexColor(vcbMainColor:GetRGB())
+				</OnLoad>
+			</Scripts>
+		</NormalTexture>
+		<PushedTexture atlas="charactercreate-customize-dropdownbox"/>
+		<HighlightTexture atlas="charactercreate-customize-dropdownbox-hover" alphaMode="ADD"/>
+		<Frames>
+<!-- Choice 0 -->
+			<Button name="$parentChoice0" inherits="InsecureActionButtonTemplate" hidden="true">
+				<Anchors>
+					<Anchor point="TOP" relativePoint="BOTTOM" x="0" y="4"/>
+				</Anchors>
+				<Size x="160" y="24"/>
+				<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER"/>
+				<NormalTexture atlas="AftLevelup-ToastBG"/>
+				<HighlightTexture atlas="Adventures_MissionList_Highlight" desaturated="true" alphaMode="ADD"/>
+				<Scripts>
+					<OnShow>
+						self:GetParent():SetNormalAtlas("charactercreate-customize-dropdownbox-hover")
+					</OnShow>
+					<OnHide>
+						self:GetParent():SetNormalAtlas("charactercreate-customize-dropdownbox-open")
+						PlaySound(858, "Master")
+					</OnHide>
+				</Scripts>
+			</Button>
+		</Frames>
+	</Button>
+<!-- Pop Out Button -->
+	<Button name="vcbPopOutButton" frameStrata="DIALOG" frameLevel="750" virtual="true">
+		<Size x="160" y="24"/>
+		<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER"/>
+		<NormalTexture atlas="AftLevelup-ToastBG"/>
+		<HighlightTexture atlas="Adventures_MissionList_Highlight" desaturated="true" alphaMode="ADD"/>
+	</Button>
+<!-- Options Check Button -->
+	<CheckButton name="vcbCheckButton" inherits="SettingsCheckBoxTemplate" frameLevel="510" virtual="true">
+		<Size x="22" y="22"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="LEFT" >
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight.blp" alphaMode="ADD"/>
+	</CheckButton>
+<!--Options Slider -->	
+	<Frame name="vcbSlider" inherits="MinimalSliderWithSteppersTemplate" frameLevel="510" virtual="true">
+		<Scripts>
+			<OnLoad>
+				CallbackRegistryMixin.OnLoad(self)
+				local forward = false
+				self.Back:SetScript("OnClick", GenerateClosure(self.OnStepperClicked, self, forward))
+				local backward = true
+				self.Forward:SetScript("OnClick", GenerateClosure(self.OnStepperClicked, self, backward))
+				self:SetScale(1)
+				self.Slider.Thumb:SetVertexColor(vcbMainColor:GetRGB())
+				self.Back:GetRegions():SetVertexColor(vcbMainColor:GetRGB())
+				self.Back:SetHighlightAtlas("Minimal_SliderBar_Button_Left", "ADD")
+				self.Forward:GetRegions():SetVertexColor(vcbMainColor:GetRGB())
+				self.Forward:SetHighlightAtlas("Minimal_SliderBar_Button_Right", "ADD")
+				self.TopText:Show()
+				self.TopText:SetTextColor(vcbHighColor:GetRGB())
+				self.MinText:Show()
+				self.MinText:SetTextColor(vcbMainColor:GetRGB())
+				self.MaxText:Show()
+				self.MaxText:SetTextColor(vcbMainColor:GetRGB())
+				self.Slider:SetValueStep(1)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+<!-- Edit Box -->
+	<Frame name="vcbEditBox" inherits="GlowBoxTemplate" frameStrata="DIALOG" frameLevel="510" enableMouse="true" clampedToScreen="true" virtual="true">
+		<Size x="256" y="16"/>
+		<Frames>
+			<EditBox parentKey="WritingLine" inherits="InputBoxScriptTemplate" frameStrata="DIALOG" font="GameFontHighlight" letters="0" blinkSpeed="0.5" numeric="false" alphabeticOnly="false" password="false" multiLine="0" historyLines="0" autoFocus="false" ignoreArrows="false" countInvisibleLetters="false" invisibleBytes="nil">
+				<Anchors>
+					<Anchor point="CENTER" relativePoint="CENTER" x="0" y="0"/>
+				</Anchors>
+			</EditBox>
+		</Frames>
+	</Frame>
+</Ui>

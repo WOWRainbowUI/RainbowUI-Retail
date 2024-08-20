@@ -1,0 +1,64 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Frame name="vcbOptions4" inherits="vcbOptionsPanel" parent="UIParent">
+		<Frames>
+<!-- First Options Box -->
+			<Frame name="$parentBox1" inherits="vcbOptionsBox">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.TopTxt" relativePoint="BOTTOM" x ="0" y="-8"/>
+				</Anchors>
+				<Size x="360" y="72"/>
+				<Frames>
+<!--Edit Box 1 Saving profiles -->
+					<Frame name="$parentEditBox1" inherits="vcbEditBox">
+						<Anchors>
+							<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="16"/>
+						</Anchors>
+					</Frame>
+				</Frames>
+			</Frame>
+<!-- Second Options Box -->
+			<Frame name="$parentBox2" inherits="vcbOptionsBox">
+				<Size x="360" y="68"/>
+				<Frames>
+<!-- Pop Out Button 1 loading profiles -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="8"/>
+						</Anchors>
+					</Button>
+				</Frames>
+			</Frame>
+<!-- Third Options Box -->
+			<Frame name="$parentBox3" inherits="vcbOptionsBox">
+				<Size x="360" y="68"/>
+				<Frames>
+<!-- Pop Out Button 1 deleting profiles -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="8"/>
+						</Anchors>
+					</Button>
+				</Frames>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString parentKey="CenterTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+							<Anchors>
+								<Anchor point="TOP" relativePoint="BOTTOM" x="0" y="-16"/>
+							</Anchors>
+							<Scripts>
+								<OnLoad>
+									self:SetTextColor(vcbMainColor:GetRGB())
+								</OnLoad>
+								<OnShow>
+									self:SetWidth(self:GetParent():GetWidth()*0.95)
+								</OnShow>
+							</Scripts>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+	</Frame>
+	<Script file="VCB_Options_4.lua"/>
+</Ui>

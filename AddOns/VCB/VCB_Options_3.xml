@@ -1,0 +1,72 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Frame name="vcbOptions3" inherits="vcbOptionsPanel" parent="UIParent">
+		<Frames>
+<!-- First Options Box -->
+			<Frame name="$parentBox1" inherits="vcbOptionsBox">
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.TopTxt" relativePoint="BOTTOM" x ="0" y="-8"/>
+				</Anchors>
+				<Size x="360" y="112"/>
+				<Frames>
+<!--Check Button 1 lock & unlock target's castbar -->
+					<CheckButton name="$parentCheckButton1" inherits="vcbCheckButton">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="8" y="-28"/>
+						</Anchors>
+					</CheckButton>
+<!--Slider 1 scale of the target's castbar -->	
+					<Frame name="$parentSlider1" inherits="vcbSlider">
+						<Anchors>
+							<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="12"/>
+						</Anchors>
+					</Frame>
+<!-- Pop Out Button 1 other add-ons -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-8" y="-24"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+				</Frames>
+			</Frame>
+		</Frames>
+	</Frame>
+<!-- Focus Casting Bar Preview	-->
+	<Frame parentKey="CBpreview" parent="FocusFrame" frameStrata="BACKGROUND" enableMouse="true" movable="true" dontSavePosition="true" clampedToScreen="true" hidden="true">
+		<Size x="150" y="10"/>
+		<Layers>
+			<Layer level="BACKGROUND" textureSubLevel="0">
+				<Texture parentKey="TextBorder" atlas="ui-castingbar-textbox">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="-12"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="Background" atlas="ui-castingbar-background">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="BorderShield" atlas="ui-castingbar-shield">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-20" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER" outline="NORMAL" text="Focus CB preview">
+					<Anchors>
+						<Anchor point="BOTTOM" relativePoint="TOP" x="0" y="8"/>
+					</Anchors>
+					<FontHeight val="12" />
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+	<Script file="VCB_Options_3.lua"/>
+</Ui>
