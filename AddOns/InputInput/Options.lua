@@ -3,11 +3,14 @@ local W, M, U, D, G, L, E = unpack(T)
 local OPT = {}
 M.OPT = OPT
 
-local settings = {
+local settings = { -- 預設值
     showChat = true,
     showChannel = true,
     showTime = true,
-    showbg = false
+    showbg = true,
+	noFade = false,
+	keepHistory =  true,
+	showLines = 10
 }
 
 
@@ -62,6 +65,9 @@ local function changeSetting()
     M.MAIN:HideChannel(settings.showChannel)
     M.MAIN:HideTime(settings.showTime)
     M.MAIN:Hidebg(settings.showbg)
+    M.MAIN:NoFade(settings.noFade)
+    M.MAIN:KeepHistory(settings.keepHistory)
+    M.MAIN:ShowLines(settings.showLines)
 end
 
 function OPT:loadOPT()
@@ -90,14 +96,50 @@ function OPT:loadOPT()
     showbg:SetPoint("TOPLEFT", 32, -130)
     showbg.Text:SetText(L['Show bg'])
     showbg:SetChecked(settings.showbg)
+	
+	-- 不要淡出
+	local noFade = CreateFrame("CheckButton", N .. "noFade", options,
+        "InterfaceOptionsCheckButtonTemplate")
+    noFade:SetPoint("TOPLEFT", 32, -162)
+    noFade.Text:SetText(L['No Fading'])
+    noFade:SetChecked(settings.noFade)
+	
+	-- 永久保存
+	local keepHistory = CreateFrame("CheckButton", N .. "keepHistory", options,
+        "InterfaceOptionsCheckButtonTemplate")
+    keepHistory:SetPoint("TOPLEFT", 32, -194)
+    keepHistory.Text:SetText(L['Keep Chat History'])
+    keepHistory:SetChecked(settings.keepHistory)
 
     -- 初始化和加载设置
     -- Show channel Name 显示频道名称
     local showChannel = CreateFrame("CheckButton", N .. "showChannel", options,
         "InterfaceOptionsCheckButtonTemplate")
-    showChannel:SetPoint("TOPLEFT", 16, -168)
+    showChannel:SetPoint("TOPLEFT", 16, -304)
     showChannel.Text:SetText(L['Show channel Name'])
     showChannel:SetChecked(settings.showChannel)
+	
+	
+	-- 要顯示幾行訊息
+	local showLines = CreateFrame("Slider", N .. "showLines", options, "OptionsSliderTemplate")
+	showLines:SetPoint("TOPLEFT", 32 , -252)
+	showLines:SetWidth(200)
+	showLines:SetHeight(20)
+	showLines:SetMinMaxValues(10, 30)
+	showLines:SetValue(settings.showLines and settings.showLines or 10)
+	showLines:SetValueStep(1)
+	showLines:SetObeyStepOnDrag(true)
+	showLines.Text:SetText(string.format(L["Show %d messages"], settings.showLines or 10))
+	showLines.Low:SetText("10")
+	showLines.High:SetText("30")
+	
+	showLines:SetScript("OnValueChanged", function(self, value)
+	    settings.showLines = value
+        D:SaveDB("settings", settings)
+        changeSetting()
+		
+		showLines.Text:SetText(string.format(L["Show %d messages"], value))
+	end)
 
     changeSetting()
 
@@ -108,10 +150,16 @@ function OPT:loadOPT()
         if settings.showChat then
             showTime:Show()
             showbg:Show()
-            showChannel:SetPoint("TOPLEFT", 16, -168)
+			noFade:Show()
+            keepHistory:Show()
+            showLines:Show()
+            showChannel:SetPoint("TOPLEFT", 16, -304)
         else
             showTime:Hide()
             showbg:Hide()
+			noFade:Hide()
+            keepHistory:Hide()
+            showLines:Hide()
             showChannel:SetPoint("TOPLEFT", 16, -98)
         end
     end)
@@ -125,8 +173,18 @@ function OPT:loadOPT()
         D:SaveDB("settings", settings)
         changeSetting()
     end)
-    showbg:SetScript("OnClick", function(self)
+	showbg:SetScript("OnClick", function(self)
         settings.showbg = self:GetChecked()
+        D:SaveDB("settings", settings)
+        changeSetting()
+    end)
+	noFade:SetScript("OnClick", function(self)
+        settings.noFade = self:GetChecked()
+        D:SaveDB("settings", settings)
+        changeSetting()
+    end)
+	keepHistory:SetScript("OnClick", function(self)
+        settings.keepHistory = self:GetChecked()
         D:SaveDB("settings", settings)
         changeSetting()
     end)
@@ -136,7 +194,10 @@ function OPT:loadOPT()
             showChat = true,
             showChannel = true,
             showTime = true,
-            showbg = false
+            showbg = true,
+            noFade = false,
+            keepHistory = true,
+            showLines = 10,
         }
         D:SaveDB("settings", settings)
         changeSetting()
@@ -144,14 +205,24 @@ function OPT:loadOPT()
         if settings.showChat then
             showTime:Show()
             showbg:Show()
-            showChannel:SetPoint("TOPLEFT", 16, -168)
+            noFade:Show()
+            keepHistory:Show()
+            showLines:Show()
+            showChannel:SetPoint("TOPLEFT", 16, -304)
         else
             showTime:Hide()
             showbg:Hide()
+			noFade:Hide()
+            keepHistory:Hide()
+            showLines:Hide()
             showChannel:SetPoint("TOPLEFT", 16, -98)
         end
         showTime:SetChecked(settings.showTime)
         showbg:SetChecked(settings.showbg)
         showChannel:SetChecked(settings.showChannel)
+        noFade:SetChecked(settings.noFade)
+        keepHistory:SetChecked(settings.keepHistory)
+        showLines:SetValue(settings.showLines)
+		showLines.Text:SetText(string.format(L["Show %d messages"], settings.showLines or 10))
     end)
 end

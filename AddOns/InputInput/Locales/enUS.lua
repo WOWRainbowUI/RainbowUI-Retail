@@ -85,3 +85,6 @@ L['Default Setting'] = "Default"
 -- 自行加入
 L['Input Input'] = "|cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r"
 L['InputInput'] = "InputInput"
+L['No Fading'] = "No Fading"
+L['Keep Chat History'] = "Keep Chat History"
+L["Show %d messages"] = "Show %d messages"

@@ -85,3 +85,6 @@ L['Default Setting'] = "預設值"
 -- 自行加入
 L['Input Input'] = "大型聊天輸入框"
 L['InputInput'] = "聊天-輸入框"
+L['No Fading'] = "不要淡出"
+L['Keep Chat History'] = "永久保存"
+L["Show %d messages"] = "顯示 %d 則訊息"

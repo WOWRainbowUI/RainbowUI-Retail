@@ -450,6 +450,10 @@ end
 
 local showTime = false
 local showbg = false
+local noFade = false
+local keepHistory = true
+
+
 function SaveMSG(saveKey, channel, senderGUID, msg, isChannel, sender, isPlayer)
 	local key = saveKey
 	local w = strfind(channel, 'BN_WHISPER')
@@ -458,8 +462,8 @@ function SaveMSG(saveKey, channel, senderGUID, msg, isChannel, sender, isPlayer)
 	currtime = "|TTag:" .. time() .. "|TTag"
 	tinsert(channelMsg, currtime .. FormatMSG(channel, senderGUID, msg, isChannel, sender, isPlayer))
 	local temp = {}
-	if #channelMsg > 10 then
-		for k = #channelMsg - 10, #channelMsg do
+	if #channelMsg > 30 then -- 最多幾行訊息
+		for k = #channelMsg - 30, #channelMsg do
 			tinsert(temp, channelMsg[k])
 		end
 	else
@@ -486,6 +490,15 @@ local ChatLabels = {
 	["BN_WHISPER_INFORM"]    = 'CHAT_MSG_BN_WHISPER_INFORM',
 }
 
+local function WipeMSG()
+	for k, v in pairs(ChatLabels) do
+		D:SaveDB(k, {})
+	end
+	for k = 1, 10 do
+		D:SaveDB("CHANNEL"..k, {})
+	end
+end
+
 function HideEuiBorder(editBox)
 	---@diagnostic disable-next-line: undefined-global
 	if ElvUI then
@@ -505,6 +518,8 @@ function HideEuiBorder(editBox)
 end
 
 local showChannelName = true
+local showLines = 10
+
 function Chat(editBox, chatType, backdropFrame2, channel_name)
 	local msg_list
 	local info = ChatTypeInfo[chatType]
@@ -558,7 +573,8 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 	end
 	-- chat_h = 1
 	local c_h = 0
-	for k = 0, 4 do
+	showLines = showLines or 10
+	for k = 0, showLines do  -- 顯示幾行訊息
 		local msg = msg_list[#msg_list - k]
 		if not isTinyChatEnabled then -- 有 TinyChat 就不再額外顯示圖示和表情圖案
 			msg = M.ICON:EmojiFilter(msg)
@@ -589,11 +605,17 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 			end
 			local fontfile, _, flags = fontString:GetFont()
 			fontString:SetFont(fontfile, 16 * scale, flags)
-			local a = 1 - math.log(k + 1) + 2 / math.log(#msg_list)
-			if a < 0 then a = 0 end
-			if a > 1 then a = 1 end
-			fontString:SetAlpha(a)
-			bgTexture:SetAlpha(a)
+			-- 淡出
+			if noFade then
+				fontString:SetAlpha(1)
+				bgTexture:SetAlpha(1)
+			else
+				local a = 1 - math.log(k + 1) + (10-(50/showLines)) / math.log(#msg_list)
+				if a < 0 then a = 0 end
+				if a > 1 then a = 1 end
+				fontString:SetAlpha(a)
+				bgTexture:SetAlpha(a)
+			end
 			fontString:Show()
 			if showbg then
 				bgTexture:Show()
@@ -1004,6 +1026,18 @@ local function optionSetup(backdropFrame2)
 	function MAIN:Hidebg(show)
 		showbg = show
 	end
+	
+	function MAIN:NoFade(value)
+		noFade = value
+	end
+	
+	function MAIN:KeepHistory(value)
+		keepHistory = value
+	end
+	
+	function MAIN:ShowLines(value)
+		showLines = value
+	end
 
 	M.OPT:loadOPT()
 end
@@ -1021,7 +1055,7 @@ for _, event in pairs(ChatTypeGroup["WHISPER"]) do
 end
 local editBox, bg, border, backdropFrame2, resizeButton, resizeBtnTexture, channel_name, II_TIP, II_LANG, bg3
 
-frame:HookScript("OnEvent", function(self_f, event, ...)
+frame:HookScript("OnEvent", function(self_f, event, isLogin, ...)
 	if not isInit then
 		editBox, bg, border, backdropFrame2, resizeButton, resizeBtnTexture, channel_name, II_TIP, II_LANG, bg3 =
 			MAIN:Init()
@@ -1029,6 +1063,11 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 	if event == 'PLAYER_ENTERING_WORLD' or strfind(event, "WHISPER", 0, true) then
 		
 		isTinyChatEnabled = C_AddOns.IsAddOnLoaded("TinyChat") -- TinyChat 相容性修正
+		
+		-- 登入時清空聊天內容
+		if isLogin and not keepHistory then
+			WipeMSG()
+		end
 		
 		for _, chatFrameName in pairs(CHAT_FRAMES) do
 			local chatFrameTab = _G[chatFrameName .. "Tab"]
