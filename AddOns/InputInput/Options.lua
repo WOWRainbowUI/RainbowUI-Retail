@@ -10,7 +10,7 @@ local settings = { -- 預設值
     showbg = true,
 	noFade = false,
 	keepHistory =  true,
-	showLines = 10
+	showLines = 7
 }
 
 
@@ -125,12 +125,12 @@ function OPT:loadOPT()
 	showLines:SetPoint("TOPLEFT", 32 , -252)
 	showLines:SetWidth(200)
 	showLines:SetHeight(20)
-	showLines:SetMinMaxValues(10, 30)
-	showLines:SetValue(settings.showLines and settings.showLines or 10)
+	showLines:SetMinMaxValues(7, 30)
+	showLines:SetValue(settings.showLines and settings.showLines or 7)
 	showLines:SetValueStep(1)
 	showLines:SetObeyStepOnDrag(true)
-	showLines.Text:SetText(string.format(L["Show %d messages"], settings.showLines or 10))
-	showLines.Low:SetText("10")
+	showLines.Text:SetText(string.format(L["Show %d messages"], settings.showLines or 7))
+	showLines.Low:SetText("7")
 	showLines.High:SetText("30")
 	
 	showLines:SetScript("OnValueChanged", function(self, value)
@@ -197,7 +197,7 @@ function OPT:loadOPT()
             showbg = true,
             noFade = false,
             keepHistory = true,
-            showLines = 10,
+            showLines = 7,
         }
         D:SaveDB("settings", settings)
         changeSetting()
@@ -223,6 +223,6 @@ function OPT:loadOPT()
         noFade:SetChecked(settings.noFade)
         keepHistory:SetChecked(settings.keepHistory)
         showLines:SetValue(settings.showLines)
-		showLines.Text:SetText(string.format(L["Show %d messages"], settings.showLines or 10))
+		showLines.Text:SetText(string.format(L["Show %d messages"], settings.showLines or 7))
     end)
 end

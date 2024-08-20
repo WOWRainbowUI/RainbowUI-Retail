@@ -531,6 +531,15 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 		local channelNumber, channelname = GetChannelName(channelTarget)
 		local channelText = ""
 		if showChannelName then
+			if strfind(channelname, "Community") then
+				local clubInfo = C_Club.GetClubInfo(channelname:match(":(%d+):"));
+				if clubInfo then
+					local streamInfo = C_Club.GetStreamInfo(clubInfo.clubId, channelname:match(":(%d+)$"));
+					if streamInfo then
+						channelname = (clubInfo.shortName and clubInfo.shortName or clubInfo.name) .. " - " .. streamInfo.name
+					end
+				end
+			end
 			channelText = '|cFF' .. U:RGBToHex(r, g, b) .. channelTarget .. ' ' .. channelname .. '|r'
 		end
 		channel_name:SetText(channelText)
@@ -573,7 +582,7 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 	end
 	-- chat_h = 1
 	local c_h = 0
-	showLines = showLines or 10
+	showLines = showLines or 7
 	for k = 0, showLines do  -- 顯示幾行訊息
 		local msg = msg_list[#msg_list - k]
 		if not isTinyChatEnabled then -- 有 TinyChat 就不再額外顯示圖示和表情圖案
@@ -943,6 +952,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		frame_E:RegisterEvent(v)
 	end
 	frame_E:RegisterEvent('CHAT_MSG_CHANNEL')
+	frame_E:RegisterEvent('CHAT_MSG_COMMUNITIES_CHANNEL')
 
 	frame_E:HookScript("OnEvent",
 		function(self, ...)
@@ -986,7 +996,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 				end
 			end
 
-			if event == 'CHAT_MSG_CHANNEL' then
+			if event == 'CHAT_MSG_CHANNEL' or event == 'CHAT_MSG_COMMUNITIES_CHANNEL' then
 				SaveMSG('CHANNEL' .. channelNumber, 'CHANNEL' .. channelNumber, guid or bnSenderID, msg,
 					true, sender)
 				if ChatChange then
