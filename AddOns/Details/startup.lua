@@ -377,25 +377,6 @@ function Details222.StartUp.StartMeUp()
 
 	--check is this is the first run of this version
 	if (Details.is_version_first_run) then
-		local breakdownData = Details.breakdown_spell_tab
-		if (breakdownData) then
-			local spellContainerHeaders = breakdownData.spellcontainer_headers
-			if (spellContainerHeaders) then
-				if (spellContainerHeaders.overheal) then
-					spellContainerHeaders.overheal.enabled = true
-					spellContainerHeaders.overheal.width = 70
-				end
-			end
-
-			local targetContainerHeaders = breakdownData.targetcontainer_headers
-			if (targetContainerHeaders) then
-				if (targetContainerHeaders.overheal) then
-					targetContainerHeaders.overheal.enabled = true
-					targetContainerHeaders.overheal.width = 70
-				end
-			end
-		end
-
 		local lowerInstanceId = Details:GetLowerInstanceNumber()
 		if (lowerInstanceId) then
 			lowerInstanceId = Details:GetInstance(lowerInstanceId)
@@ -432,6 +413,20 @@ function Details222.StartUp.StartMeUp()
 					GarrisonMissionTutorialFrame:Hide()
 				end)
 				GarrisonMissionTutorialFrame:Hide()
+			end
+			if (addOnName == "Blizzard_VoidStorageUI") then
+				VoidStorageBorderFrameMouseBlockFrame:HookScript("OnShow", function(self)
+					VoidStorageBorderFrameMouseBlockFrame:Hide();
+					VoidStoragePurchaseFrame:Hide();
+					VoidStorageBorderFrame.Bg:Hide();
+
+					if (not CanUseVoidStorage()) then
+						VoidStoragePurchaseFrame:Show();
+					end
+				end)
+				VoidStorageBorderFrameMouseBlockFrame:Hide();
+				VoidStoragePurchaseFrame:Hide();
+				VoidStorageBorderFrame.Bg:Hide();
 			end
 		end)
 	end
