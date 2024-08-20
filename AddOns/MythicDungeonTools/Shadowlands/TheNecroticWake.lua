@@ -20,7 +20,7 @@ MDT.dungeonSubLevels[dungeonIndex] = {
   [1] = L["TheNecroticWakeFloor1"]
 }
 
-MDT.dungeonTotalCount[dungeonIndex] = {normal = 283, teeming = 1000, teemingEnabled = true}
+MDT.dungeonTotalCount[dungeonIndex] = {normal = 332, teeming = 1000, teemingEnabled = true}
 
 MDT.mapPOIs[dungeonIndex] = {}
 
@@ -598,7 +598,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
   [5] = {
     ["name"] = "Zolramus Gatekeeper",
     ["id"] = 165137,
-    ["count"] = 6,
+    ["count"] = 15,
     ["health"] = 27332030,
     ["scale"] = 1.6,
     ["displayId"] = 95231,
@@ -1082,7 +1082,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
   [13] = {
     ["name"] = "Skeletal Marauder",
     ["id"] = 165919,
-    ["count"] = 6,
+    ["count"] = 10,
     ["health"] = 36442707,
     ["scale"] = 1.4,
     ["displayId"] = 96115,
@@ -1245,7 +1245,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
   [15] = {
     ["name"] = "Nar'zudah",
     ["id"] = 165824,
-    ["count"] = 15,
+    ["count"] = 20,
     ["health"] = 43731248,
     ["scale"] = 1.6,
     ["displayId"] = 94780,
@@ -1279,7 +1279,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
   [16] = {
     ["name"] = "Skeletal Monstrosity",
     ["id"] = 165197,
-    ["count"] = 12,
+    ["count"] = 20,
     ["health"] = 396955,
     ["scale"] = 1.6,
     ["displayId"] = 94814,
@@ -1844,7 +1844,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
   [24] = {
     ["name"] = "Separation Assistant",
     ["id"] = 167731,
-    ["count"] = 4,
+    ["count"] = 8,
     ["health"] = 36442707,
     ["scale"] = 2,
     ["displayId"] = 98227,
@@ -1874,7 +1874,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
   [25] = {
     ["name"] = "Stitching Assistant",
     ["id"] = 173044,
-    ["count"] = 4,
+    ["count"] = 8,
     ["health"] = 36442707,
     ["scale"] = 2,
     ["displayId"] = 98226,
