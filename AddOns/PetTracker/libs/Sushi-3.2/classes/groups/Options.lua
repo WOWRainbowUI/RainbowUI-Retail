@@ -55,10 +55,15 @@ function Group:New(category, subcategory)
 	dock.OnCommit = function() group:FireCalls('OnOkay') end
 	dock:Hide()
 
-	Settings.RegisterAddOnCategory(subcategory and
-		Settings.RegisterCanvasLayoutSubcategory(Group.GetCategory(category), dock, group.title) or
-		Settings.RegisterCanvasLayoutCategory(dock, group.title))
-
+	--Settings.RegisterAddOnCategory(subcategory and
+	--	Settings.RegisterCanvasLayoutSubcategory(Group.GetCategory(category), dock, group.title) or
+	--	Settings.RegisterCanvasLayoutCategory(dock, group.title))
+	-- 暫時修正，指定 ID 以便能開啟設定
+	local newCategory = subcategory and 
+		Settings.RegisterCanvasLayoutSubcategory(Group.GetCategory(category), dock, group.title) or 
+		Settings.RegisterCanvasLayoutCategory(dock, group.title)
+	newCategory.ID = group.title
+	Settings.RegisterAddOnCategory(newCategory)
 	return group
 end
 
