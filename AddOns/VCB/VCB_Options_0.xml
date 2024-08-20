@@ -1,0 +1,34 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Frame name="vcbOptions0" inherits="vcbOptionsPanel">
+		<Scripts>
+			<OnLoad>
+				self:RegisterEvent("PLAYER_LOGIN")
+			</OnLoad>
+		</Scripts>
+		<Frames>
+<!-- Button 1 -->
+			<Button name="$parentButton1" inherits="vcbOptionsButton">
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="68"/>
+				</Anchors>
+			</Button>
+		</Frames>
+	</Frame>
+	<Frame name="vcbOptions00" inherits="vcbTabsPanel" parent="UIParent">
+		<Anchors>
+			<Anchor point="RIGHT" relativePoint="RIGHT" x="0" y="0"/>
+		</Anchors>
+		<Frames>
+			<Button name="$parentTab1" inherits="vcbTabsButton">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="0" y="-24"/>
+				</Anchors>
+			</Button>
+			<Button name="$parentTab2" inherits="vcbTabsButton"/>
+			<Button name="$parentTab3" inherits="vcbTabsButton"/>
+			<Button name="$parentTab4" inherits="vcbTabsButton"/>
+		</Frames>
+	</Frame>
+	<Script file="VCB_Options_0.lua"/>
+</Ui>
