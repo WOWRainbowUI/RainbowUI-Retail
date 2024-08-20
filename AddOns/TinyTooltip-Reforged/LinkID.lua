@@ -91,8 +91,8 @@ else
     GameTooltip:HookScript("OnTooltipSetSpell", function(self) ShowId(self, "Spell", (select(2,self:GetSpell()))) end)
 end
 --hooksecurefunc(GameTooltip, "SetUnitAura", function(self, ...) ShowId(self, "Spell", (select(10,C_UnitAuras.UnitAura(...)))) end)
-hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...) ShowId(self, "Spell", (select(10,UnitBuff(...)))) end)
-hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self, ...) ShowId(self, "Spell", (select(10,UnitDebuff(...)))) end)
+hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...) ShowId(self, "Spell", (select(10,C_UnitAuras.UnitBuff(...)))) end)
+hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self, ...) ShowId(self, "Spell", (select(10,C_UnitAuras.UnitDebuff(...)))) end)
 if (GameTooltip.SetArtifactPowerByID) then
     hooksecurefunc(GameTooltip, "SetArtifactPowerByID", function(self, powerID)
         ShowId(self, "Power", powerID)
