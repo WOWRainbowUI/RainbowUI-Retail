@@ -1,6 +1,6 @@
 ## Interface: 11503
 ## Author: p3lim
-## Version: 110000.118-Release
+## Version: 110000.119-Release
 ## Title: Molinari
 ## Notes: One-click Milling, Prospecting, Disenchanting, Lockpicking, and more!
 ## SavedVariables: MolinariBlacklistDB, MolinariDB, MolinariDB2
@@ -9,7 +9,7 @@
 ## X-WoWI-ID: 13188
 ## X-Wago-ID: WqKQQEKx
 
-libs\Dashi\embed.xml
+libs\Dashi\embed_classic.xml
 
 utils.lua
 addon.lua
