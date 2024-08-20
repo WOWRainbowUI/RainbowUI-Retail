@@ -542,6 +542,7 @@ local options = {
         { keystring = "general.borderCorner",       type = "dropdown", dropdata = widgets.borderDropdata },
         { keystring = "general.bgfile",             type = "dropdown", dropdata = widgets.bgfileDropdata },
         { keystring = "general.anchor",             type = "anchor", dropdata = {"default","cursor", "cursorRight", "static"} },
+	{ keystring = "general.ColorBlindMode",     type = "checkbox" },
         { keystring = "item.showStackCount",        type = "checkbox" },
         { keystring = "item.showStackCountAlt",     type = "checkbox" },
 		{ keystring = "item.coloredItemBorder",     type = "checkbox" },

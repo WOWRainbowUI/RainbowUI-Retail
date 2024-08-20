@@ -33,6 +33,7 @@ addon.db = {
         bodyFontSize      = "default",
         bodyFontFlag      = "default",
         SavedVariablesPerCharacter = false,
+        ColorBlindMode 	  = false,
      },
     unit = {
         player = {
