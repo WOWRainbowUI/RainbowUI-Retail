@@ -17,13 +17,12 @@ You should have received a copy of the GNU General Public License
 along with Sushi. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Popup = LibStub('Sushi-3.2').Group:NewSushi('Popup', 6)
+local Popup = LibStub('Sushi-3.2').Group:NewSushi('Popup', 8)
 if not Popup then return end
 Popup.Active = Popup.Active or {}
 Popup.Size = 420
 Popup.Max = 6
 
-local Defaults = StaticPopup_DisplayedFrames
 local Magnifier = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 'communities-icon-searchmagnifyingglass' or 'shop-games-magnifyingglass'
 local Locale, Go2Browser = GetLocale()
 
@@ -49,6 +48,19 @@ else
     Go2Browser = 'Copy this url into your browser'
 end
 
+local function lastPopup()
+	if StaticPopup_DisplayedFrames then
+		return StaticPopup_DisplayedFrames[#StaticPopup_DisplayedFrames]
+	end
+
+	for i = 1, STATICPOPUP_NUMDIALOGS do --> thanks blizz, very simple and efficient, great change
+		local frame = _G['StaticPopup'..i]
+		if frame:IsShown() and select(2, frame:GetPointByName('TOP')) == UIParent then
+			return frame
+		end
+	end
+end
+
 
 --[[ Manage ]]--
 
@@ -67,7 +79,7 @@ end
 
 function Popup:Organize()
 	for i, f in self:IterateActive() do
-		local anchor = i == 1 and Defaults[#Defaults] or self.Active[i-1]
+		local anchor = i == 1 and lastPopup() or self.Active[i-1]
 		if anchor then
 			f:SetPoint('TOP', anchor, 'BOTTOM', 0, -15)
 		else
@@ -135,6 +147,7 @@ function Popup:New(input)
 	f:SetCall('OnAccept', info.OnAccept)
 	f:SetCall('OnCancel', info.OnCancel)
 	f:SetChildren(self.Populate)
+	f:SetFrameStrata('DIALOG')
 	f:Show()
 
 	local icon = info.icon or (info.showAlert and 357854) or (info.showAlertGear and 357855)
