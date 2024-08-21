@@ -301,7 +301,7 @@ do
 			},
 
 			path = {
-				enabled = true,
+				enabled = false,
 				ColorSRGB = {1, 1, 1, 1},
 				DotSize = 5,
 				DotAmount = 20,
