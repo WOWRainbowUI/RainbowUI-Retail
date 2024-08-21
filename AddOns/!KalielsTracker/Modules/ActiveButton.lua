@@ -88,9 +88,7 @@ local function UpdateBlizzardButtonIconID()
 		local button = ExtraActionBarFrame.button
 		local actionType, id = GetActionInfo(button.action)
 		if actionType == "spell" then
-			-- iconID = select(3, GetSpellInfo(id))
-			local spellInfo = C_Spell.GetSpellInfo(id)
-			iconID = spellInfo and spellInfo.iconID or 0
+			iconID = select(3, GetSpellInfo(id))
 		end
 	end
 	blizzardButtonIconID = iconID

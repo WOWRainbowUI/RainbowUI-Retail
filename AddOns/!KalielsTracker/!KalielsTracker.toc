@@ -1,7 +1,7 @@
-## Interface: 110002
+## Interface: 100207
 ## Title: Kaliel's Tracker
 ## Notes: Improved Blizzard Objective Tracker
-## Version: 6.6.0 Fix9a
+## Version: 6.6.0
 ## Author: Kaliel (Marouan Sabbagh)
 ## IconTexture: Interface\Addons\!KalielsTracker\Media\KT_logo
 

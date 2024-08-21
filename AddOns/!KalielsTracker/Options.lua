@@ -56,7 +56,7 @@ local defaults = {
 		xOffset = 0,
 		yOffset = -280,
 		width = 280,
-		maxHeight = 500,
+		maxHeight = 600,
 		frameScrollbar = true,
 		frameStrata = "LOW",
 		
@@ -118,11 +118,11 @@ local defaults = {
 		modulesOrder = KT.BLIZZARD_MODULES,
 
 		addonMasque = false,
-		addonPetTracker = false,
+		addonPetTracker = true,
 		addonTomTom = false,
 
-		hackLFG = false,
-		hackWorldMap = false,
+		hackLFG = true,
+		hackWorldMap = true,
 	},
 	char = {
 		collapsed = false,
@@ -1386,7 +1386,6 @@ local options = {
 				},
 			},
 		},
-		--[[
 		hacks = {
 			name = "駭客工具",
 			type = "group",
@@ -1452,14 +1451,13 @@ local options = {
 				},
 			},
 		},
-		--]]
 	},
 }
 
 local general = options.args.general.args
 local modules = options.args.modules.args
 local addons = options.args.addons.args
--- local hacks = options.args.hacks.args
+local hacks = options.args.hacks.args
 
 function KT:CheckAddOn(addon, version, isUI)
 	local name = strsplit("_", addon)
@@ -1558,7 +1556,7 @@ function KT:SetupOptions()
 	self.optionsFrame.general = ACD:AddToBlizOptions(addonName, "任務-追蹤清單", nil, "general")
 	self.optionsFrame.modules = ACD:AddToBlizOptions(addonName, options.args.modules.name, "任務-追蹤清單", "modules")
 	self.optionsFrame.addons = ACD:AddToBlizOptions(addonName, options.args.addons.name, "任務-追蹤清單", "addons")
-	-- self.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, "任務-追蹤清單", "hacks")
+	self.optionsFrame.hacks = ACD:AddToBlizOptions(addonName, options.args.hacks.name, "任務-追蹤清單", "hacks")
 	self.optionsFrame.profiles = ACD:AddToBlizOptions(addonName, options.args.profiles.name, "任務-追蹤清單", "profiles")
 
 	self.db.RegisterCallback(self, "OnProfileChanged", "InitProfile")
