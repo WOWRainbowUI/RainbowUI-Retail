@@ -3,11 +3,28 @@ local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local fn = LibStub("LibFunctional-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
 
+function GetTexCoordsForRole(role)
+	local textureHeight, textureWidth = 256, 256
+	local roleHeight, roleWidth = 67, 67
+	
+	if ( role == "GUIDE" ) then
+		return GetTexCoordsByGrid(1, 1, textureWidth, textureHeight, roleWidth, roleHeight)
+	elseif ( role == "TANK" ) then
+		return GetTexCoordsByGrid(1, 2, textureWidth, textureHeight, roleWidth, roleHeight)
+	elseif ( role == "HEALER" ) then
+		return GetTexCoordsByGrid(2, 1, textureWidth, textureHeight, roleWidth, roleHeight)
+	elseif ( role == "DAMAGER" ) then
+		return GetTexCoordsByGrid(2, 2, textureWidth, textureHeight, roleWidth, roleHeight)
+	else
+		error("Unknown role: "..tostring(role))
+	end
+end
+
 -- upvalues
 local strfind = string.find
 local pairs, select, unpack = pairs, select, unpack
 local GetTime, SetPortraitTexture = GetTime, SetPortraitTexture
-local GetSpellInfo, UnitAura, UnitClass, UnitGUID, UnitBuff, UnitDebuff = GetSpellInfo, UnitAura, UnitClass, UnitGUID, UnitBuff, UnitDebuff
+local UnitClass, UnitGUID = UnitClass, UnitGUID
 local UnitIsVisible, UnitIsConnected, GetTexCoordsForRole = UnitIsVisible, UnitIsConnected, GetTexCoordsForRole
 
 local GetDefaultImportantAuras = GladiusEx.Data.DefaultClassicon
@@ -21,23 +38,24 @@ local defaults = {
 	classIconCooldown = true,
 	classIconCooldownReverse = true,
 	classIconAuras = GetDefaultImportantAuras(),
-  classIconSideViewMode = "SPEC",
-  classIconSideViewAttachTo = "Frame",
-  classIconSideViewSize = 20,
+	classIconSideViewMode = "SPEC",
+	classIconSideViewAttachTo = "Frame",
+	classIconSideViewSize = 20,
+	classIconShowLowestRemainingAura = true,
 }
 
 local ClassIcon = GladiusEx:NewGladiusExModule("ClassIcon",
 	fn.merge(defaults, {
-    classIconSideView = true,
+	classIconSideView = true,
 		classIconPosition = "LEFT",
-    classIconSideViewOffsetX = 80,
-    classIconSideViewOffsetY = -20,
+	classIconSideViewOffsetX = 80,
+	classIconSideViewOffsetY = -20,
 	}),
 	fn.merge(defaults, {
-    classIconSideView = false,
-		classIconPosition = "RIGHT",
-    classIconSideViewOffsetX = 20,
-    classIconSideViewOffsetY = -20,
+	classIconSideView = false,
+	classIconPosition = "RIGHT",
+	classIconSideViewOffsetX = 20,
+	classIconSideViewOffsetY = -20,
 	}))
 
 function ClassIcon:OnEnable()
@@ -50,6 +68,10 @@ function ClassIcon:OnEnable()
 	if not self.frame then
 		self.frame = {}
 	end
+	
+	self:InsertTestDebuff(8122, 8, "Magic") -- Psychic Scream
+	self:InsertTestDebuff(19503, 4, nil) -- Scatter Shot
+	self:InsertTestDebuff(408, 6, nil) -- Kidney Shot
 end
 
 function ClassIcon:OnDisable()
@@ -106,17 +128,61 @@ function ClassIcon:UNIT_MODEL_CHANGED(event, unit)
 	self:UpdateAura(unit)
 end
 
+local TestDebuffs = {}
+
+function ClassIcon:InsertTestDebuff(spellID, timeLeft, dispelType)
+  local name, texture = nil
+  if C_Spell and C_Spell.GetSpellTexture then
+    name = C_Spell.GetSpellName(spellID)
+    texture = C_Spell.GetSpellTexture(spellID)
+  else
+    name, _, texture = GetSpellInfo(spellID)
+  end
+	table.insert(TestDebuffs, { spellID, texture, timeLeft, dispelType, name })
+end
+
+function ClassIcon.UnitDebuffTest(unit, index)
+	local debuff = TestDebuffs[index]
+	if not debuff then return end
+
+	local self = ClassIcon
+	
+	local frame = self.frame[unit]
+	local timer = frame.testTimer
+	local ClassIcon = ClassIcon -- local reference for the timer function to utilize
+
+	if timer and not timer.expired then
+		return debuff[5], debuff[2], 0, debuff[4], debuff[3], timer.start + debuff[3], nil, nil, nil, debuff[1]
+	elseif not timer then
+		local t = GetTime()
+		timer = C_Timer.NewTimer(debuff[3] + 0.01, function(self) 
+			self.expired = true
+			if GladiusEx:IsTesting(unit) then
+				ClassIcon:UNIT_AURA("UNIT_AURA", unit)
+			end 
+		end)
+		timer.start = t
+		frame.testTimer = timer
+
+		return debuff[5], debuff[2], 0, debuff[4], debuff[3], t + debuff[3], nil, nil, nil, debuff[1]
+	end
+end
+
 function ClassIcon:ScanAuras(unit)
 	local best_priority = 0
 	local best_name, best_icon, best_duration, best_expires
 
+	local showShortest = self.db[unit].classIconShowLowestRemainingAura
+	
+	local UnitDebuff = GladiusEx:IsTesting(unit) and ClassIcon.UnitDebuffTest or (C_UnitAuras and GladiusEx.UnitDebuff or UnitDebuff)
+
 	-- debuffs
 	local index = 1
 	while true do
-		local name, icon, _, _, duration, expires, _, _, _, spellid = UnitDebuff(unit, index)
+		local name, icon, _, _, duration, expires, _, _, _, spellid = GladiusEx.UnitDebuff(unit, index)
 		if not name then break end
 		local prio = self:GetImportantAura(unit, name) or self:GetImportantAura(unit, spellid)
-		if prio and prio > best_priority or (prio == best_priority and best_expires and expires < best_expires) then
+		if prio and prio > best_priority or (prio == best_priority and best_expires and ((showShortest and expires and expires <= best_expires) or (not showShortest and (not expires or expires >= best_expires)))) then
 			best_name, best_icon, best_duration, best_expires, best_priority = name, icon, duration, expires, prio
 		end
 		index = index + 1
@@ -125,10 +191,10 @@ function ClassIcon:ScanAuras(unit)
 	-- buffs
 	index = 1
 	while true do
-		local name, icon, _, _, duration, expires, _, _, _, spellid = UnitBuff(unit, index)
+		local name, icon, _, _, duration, expires, _, _, _, spellid = GladiusEx.UnitBuff(unit, index)
 		if not name then break end
 		local prio = self:GetImportantAura(unit, name) or self:GetImportantAura(unit, spellid)
-		if prio and prio > best_priority or (prio == best_priority and best_expires and expires < best_expires) then
+		if prio and prio > best_priority or (prio == best_priority and best_expires and ((showShortest and expires and expires <= best_expires) or (not showShortest and (not expires or expires >= best_expires)))) then
 			best_name, best_icon, best_duration, best_expires, best_priority = name, icon, duration, expires, prio
 		end
 		index = index + 1
@@ -139,7 +205,7 @@ function ClassIcon:ScanAuras(unit)
 	if interrupt then
 		interrupt = {interrupt:GetInterruptFor(unit)}
 		local name, icon, duration, expires, prio = unpack(interrupt)
-		if prio and prio > best_priority or (prio == best_priority and best_expires and expires < best_expires) then
+		if prio and prio > best_priority or (prio == best_priority and best_expires and ((showShortest and expires and expires <= best_expires) or (not showShortest and (not expires or expires >= best_expires)))) then
 			best_name, best_icon, best_duration, best_expires, best_priority = name, icon, duration, expires, prio
 		end
 	end
@@ -425,6 +491,9 @@ function ClassIcon:Reset(unit)
 end
 
 function ClassIcon:Test(unit)
+	self.frame[unit].testTimer = nil
+	
+	self:UNIT_AURA("UNIT_AURA", unit)
 end
 
 function ClassIcon:GetImportantAura(unit, name)
@@ -540,6 +609,13 @@ function ClassIcon:GetOptions(unit)
 							hasAlpha = true,
 							disabled = function() return not self:IsUnitEnabled(unit) end,
 							order = 25,
+						},
+						classIconShowLowestRemainingAura = {
+							type = "toggle",
+							name = L["Show important aura with least time left"] ,
+							desc = L["If toggled, the important aura with the lowest remaining duration will be showed if there is a tie in priority"],
+							disabled = function() return not self:IsUnitEnabled(unit) or not self.db[unit].classIconImportantAuras end,
+							order = 30,
 						},
 					},
 				},
@@ -723,7 +799,7 @@ function ClassIcon:SetupAuraOptions(options, unit, aura)
 	local function setAura(info, value)
 		if (info[#(info)] == "name") then
 			local new_name = value
-			if tonumber(new_name) and GetSpellInfo(new_name) then
+			if tonumber(new_name) and (C_Spell and C_Spell.GetSpellName(new_name) or GetSpellInfo(new_name)) then
 				new_name = tonumber(new_name)
 			end
 
