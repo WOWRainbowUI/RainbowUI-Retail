@@ -178,6 +178,51 @@ do
 					hidden=point.hidden,
 					worldquest=point.worldquest,
 				}
+				-- variations on "also register this elsewhere":
+				if point.translate or point.parent or point.levels then
+					local translateTo = {}
+					if point.translate then
+						for tzone in pairs(point.translate) do
+							if tzone ~= uiMapID then
+								translateTo[tzone] = true
+							end
+						end
+					end
+					if point.parent then
+						local mapinfo = C_Map.GetMapInfo(uiMapID)
+						if mapinfo and mapinfo.parentMapID and mapinfo.parentMapID ~= 0 then
+							local pzone = mapinfo.parentMapID
+							translateTo[pzone] = true
+						end
+					end
+					if point.levels then
+						-- Show on other levels of the same zone
+						local groupID = C_Map.GetMapGroupID(uiMapID)
+						if groupID then
+							local members = C_Map.GetMapGroupMembersInfo(groupID)
+							if members then
+								for _, member in pairs(members) do
+									if member.mapID ~= uiMapID then
+										translateTo[member.mapID] = true
+									end
+								end
+							end
+						end
+					end
+					local x, y = addon:GetXY(coord)
+					for tzone in pairs(translateTo) do
+						local tx, ty = HBD:TranslateZoneCoordinates(x, y, uiMapID, tzone)
+						if tx and ty then
+							if not data.locations[tzone] then
+								data.locations[tzone] = {}
+							end
+							local tcoord = addon:GetCoord(tx, ty)
+							table.insert(data.locations[tzone], tcoord)
+						else
+							Debug("translation failed", x, y, uiMapID, tzone)
+						end
+					end
+				end
 				if point.additional then
 					for _,acoord in pairs(point.additional) do
 						table.insert(data.locations[uiMapID], acoord)
@@ -296,7 +341,10 @@ function addon:OnInitialize()
 			datasources = {
 				['*'] = true,
 			},
-			always = {
+			custom = {
+				-- [uiMapID] = {}
+				any = {},
+				['*'] = {},
 			},
 			ignore = {
 				['*'] = false,
@@ -342,6 +390,11 @@ function addon:OnInitialize()
 
 		_G["SilverDragon2DB"] = nil
 	end
+
+	if globaldb.always then
+		MergeTable(globaldb.custom.any, globaldb.always)
+		globaldb.always = nil
+	end
 end
 
 function addon:OnEnable()
@@ -366,17 +419,56 @@ function addon:SetIgnore(id, ignore, quiet)
 end
 
 -- returns true if the change had an effect
-function addon:SetCustom(id, watch, quiet)
+function addon:SetCustom(uiMapID, id, watch, quiet)
+	-- uiMapID can be 'any' as a special wildcard all-zones scanner
 	if not id then return false end
-	if (watch and globaldb.always[id]) or (not watch and not globaldb.always[id]) then
+	if (watch and globaldb.custom[uiMapID][id]) or (not watch and not globaldb.custom[uiMapID][id]) then
 		-- to avoid the nil/false issue
 		return false
 	end
-	globaldb.always[id] = watch or nil
+	globaldb.custom[uiMapID][id] = watch or nil
 	if not quiet then
-		self.events:Fire("CustomChanged", id, globaldb.always[id])
+		self.events:Fire("CustomChanged", id, globaldb.custom[uiMapID][id], uiMapID)
 	end
 	return true
+end
+
+function addon:IsCustom(id, uiMapID, suppressAnyZone)
+	if not id then return false end
+	if uiMapID and globaldb.custom[uiMapID] and globaldb.custom[uiMapID][id] then return true end
+	if not suppressAnyZone and globaldb.custom.any[id] then return true end
+	return false
+end
+
+do
+	local empty = {}
+	local function mobsForZone(uiMapID, suppressAnyZone)
+		local mobs = ns.mobsByZone[uiMapID] or empty
+		for id, coords in pairs(mobs) do
+			coroutine.yield(id, #coords > 0)
+		end
+		if globaldb.custom[uiMapID] then
+			for id in pairs(globaldb.custom[uiMapID]) do
+				if not mobs[id] then
+					coroutine.yield(id, false)
+				end
+			end
+		end
+		if not suppressAnyZone then
+			for id in pairs(globaldb.custom.any) do
+				if not mobs[id] then
+					coroutine.yield(id, false)
+				end
+			end
+		end
+	end
+	-- Get mobs that're relevant to the a given map; this means known rares, custom mobs for that map, and custom mobs for all maps
+	-- iterator returns: id, hasCoords
+	function addon:IterateRelevantMobs(uiMapID, suppressAnyZone)
+		return coroutine.wrap(function()
+			return mobsForZone(uiMapID, suppressAnyZone)
+		end)
+	end
 end
 
 -- returns name, vignette, tameable, last_seen, times_seen
@@ -390,10 +482,12 @@ end
 function addon:MobHasVignette(id)
 	return mobdb[id] and mobdb[id].vignette
 end
-function addon:IsMobInZone(id, zone)
-	if mobsByZone[zone] then
-		return mobsByZone[zone][id]
+function addon:IsMobInZone(id, uiMapID, suppressAnyZone)
+	-- returns isInZone, hasCoords
+	if uiMapID and mobsByZone[uiMapID] and mobsByZone[uiMapID][id] then
+		return true, #mobsByZone[uiMapID][id] > 0
 	end
+	return self:IsCustom(id, uiMapID, suppressAnyZone), false
 end
 do
 	local poi_expirations = {}
@@ -426,7 +520,7 @@ do
 	end
 	function addon:IsMobInPhase(id, zone)
 		local phased, poi = true, true
-		if not mobdb[id] then return end
+		if not mobdb[id] then return true end
 		if mobdb[id].art then
 			phased = mobdb[id].art == C_Map.GetMapArtID(zone)
 		end
@@ -502,7 +596,7 @@ do
 		if globaldb.ignore[id] then
 			return true
 		end
-		if globaldb.always[id] then
+		if self:IsCustom(id, zone) then
 			-- If you've manually added a mob we should take that a signal that you always want it announced
 			-- (Unless you've also, weirdly, manually told it to be ignored as well.)
 			return false

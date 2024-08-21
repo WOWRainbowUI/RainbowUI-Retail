@@ -19,7 +19,7 @@ local commands = {
     add = function(self, arg)
         local npcid = ns.input_to_mobid(arg)
         if npcid then
-            if not core:SetCustom(npcid, true) then
+            if not core:SetCustom('any', npcid, true) then
                 return self:Printf("%s (%d) 已經在自訂觀察名單中", core:NameForMob(npcid) or UNKNOWN, npcid)
             end
             return self:Printf("已經將 %s (%d) 加入自訂觀察名單", core:NameForMob(npcid) or UNKNOWN, npcid)
@@ -29,7 +29,7 @@ local commands = {
     remove = function(self, arg)
         local npcid = ns.input_to_mobid(arg)
         if npcid then
-            if not core:SetCustom(npcid, false) then
+            if not core:SetCustom('any', npcid, false) then
                 return self:Printf("%s (%d) 不在自訂觀察名單中", core:NameForMob(npcid) or UNKNOWN, npcid)
             end
             return self:Printf("已經將 %s (%d) 從自訂觀察名單中移除", core:NameForMob(npcid) or UNKNOWN, npcid)

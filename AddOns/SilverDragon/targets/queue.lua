@@ -25,7 +25,11 @@ function module:Acquire(look)
 end
 
 function module:Release(popup)
-	if popup then self:GetPopupLookPool(popup.look):Release(popup) end -- 暫時修正
+	if not popup then return end -- 暫時修正
+	local pool = self:GetPopupLookPool(popup.look)
+	if pool:IsActive(popup) then
+		pool:Release(popup)
+	end
 end
 
 do
