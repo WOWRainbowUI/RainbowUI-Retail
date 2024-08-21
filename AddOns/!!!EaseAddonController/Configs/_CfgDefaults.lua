@@ -892,7 +892,7 @@ D["EditModeExpanded"] = {
 	defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
 	title = "編輯模式擴充包",
-	desc = "讓編輯模式可以調整更多介面框架。``|cffFF2D2D可以在設定選項中關閉不需要調整的框架，以避免和其他插件衝突。|r`",
+	desc = "讓編輯模式可以調整更多介面框架。``在設定選項中勾選後，還有更多框架可供調整!``|cffFF2D2D特別注意：請在設定選項中關閉不需要調整的框架，以避免和其他插件衝突。|r`",
 	modifier = "彩虹ui",
     {
         text = "設定選項",
