@@ -241,54 +241,40 @@ local function SetupTutorials()
 					cTitle.."尋求組隊駭客|r\n\n"..
 					cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
 					"啟用駭客工具時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
-					cWarning2.."負面影響|r:\n"..
+					cWarning2.."負面影響:|r\n"..
 					"- 建立預組隊伍的對話框中會隱藏 \"目標\" 項目。\n"..
-					"- 預組隊伍列表中項目的滑鼠提示會隱藏第二行 (綠色) 的 \"目標\"。\n"..
+					"- 預組隊伍列表中項目的浮動提示資訊會隱藏第二行 (綠色) 的 \"目標\"。\n"..
 					"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，"..
-																						  
-					offs.."  例如 M+ 鑰石層數。\n\n"..
+					offs.."例如 M+ 鑰石層數。\n\n"..
 					cTitle.."世界地圖駭客|r "..beta.."\n\n"..
 					cBold.."影響世界地圖|r並且移除汙染錯誤。"..
 					"這個駭客工具移除了對受限函數 SetPassThroughButtons 的呼叫。"..
 					"停用駭客工具時，世界地圖顯示會導致錯誤。"..
-					"由於追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 10.2.7 尚未可知。\n",
+					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
+					cWarning2.."負面影響:|r 在魔獸世界 11.0.2 尚未可知。",
 			textY = -20,
 		},
 		{	-- 12
 			image = helpPath.."help_whats-new_logo",
-			imageWidth = 182,
-			imageHeight = 40,
-			imageTexCoords = { 0, 0.75, 0, 0.65625 },
+			imageWidth = 256,
+			imageHeight = 128,
+			imageTexCoords = { 0, 1, 0, 1 },
 			imagePoint = "TOPRIGHT",
-			imageX = -20,
-			imageY = 7,
+			imageX = -8,
+			imageY = 1,
 			imageAbsolute = true,
-			text = "            |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."6.6.0 版本|r\n"..
-					"- 新增 - 支援插件選單 AddonCompartmentFrame (畫面右上角"..
-					offs.."行事曆按鈕下方) - 切換顯示/隱藏任務追蹤清單\n"..
-					"- 新增 - 指令 '/kt hide' 切換顯示/隱藏任務追蹤清單\n"..
-					"- 新增 - 阻止在戰鬥中打開收藏視窗 (外觀、寵物日誌...)\n"..
-					"- 新增 - 汙染框架駭客工具 - 戰鬥中打開/關閉已被汙染的視窗"..
-					offs.."(任務日誌、成就...等。)\n"..
-					"- 新增 - 世界地圖駭客工具 [Beta] - 不會產生錯誤，這個駭客工具移除了"..
-					offs.."對受限函數 SetPassThroughButtons 的呼叫。詳情請見說明第 11 頁。\n"..
-					"- 新增 - 支援魔獸世界 10.2.7\n"..
-					"- 新增 - 支援魔獸世界 10.2.6\n"..
-					"- 變更 - Wowhead 彈出視窗\n"..
-					"- 變更 - 支援插件 - RealUI 2.3.14\n"..
-					"- 變更 - 支援插件 - ElvUI 13.64\n"..
-					"- 變更 - 支援插件 - TomTom 3.6.2-release\n"..
-					"- 變更 - 支援插件 - Masque 10.2.7\n"..
-					"- 變更 - 支援插件 - PetTracker 10.2.7\n"..
-					"- 變更 (說明) - 更新資訊頁面\n"..
+			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."版本 7.0.0|r\n"..
+					"- 新增 - 測試自動追蹤任務+帶有修正說明的警報 (在選項內)\n"..
+					"- 新增 (過濾方式) - 測試最多可追蹤的任務數量 (25)\n"..
+					"- 新增 - 支援魔獸世界 11.0.2\n"..
+					"- 變更 (說明) - Active Patrons\n"..
+					"- 變更 - 支援插件 - ElvUI 13.74, Tukui 20.443\n"..
+					"- 變更 - 支援插件 - TomTom 4.0.1\n"..
+					"- 變更 - 支援插件 - Masque 11.0.1\n"..
+					"- 變更 - 停止支援插件 - PetTracker\n"..
 					"- 變更 - 函式庫\n"..
-					"- 修正 - 編輯模式有時會保持開啟狀態\n"..
-					"- 修正 (任務) - 收起有彈出任務的區塊會產生錯誤 (2+)\n"..
-					"- 效能 (任務) - 彈出任務的外觀\n"..
-					"- 移除 - 支援插件 - SyncUI\n"..
-					"- 移除 - 支援插件 - SpartanUI\n"..
+					"- 移除 (任務) - 追蹤覆蓋\n"..
 					"\n"..
 
 					cTitle.."回報問題|r\n"..
@@ -321,7 +307,7 @@ local function SetupTutorials()
 				end
 			elseif i == 3 then
 				local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(1)
-				local block = KT_QUEST_TRACKER_MODULE:GetExistingBlock(questID)
+				local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
 				if block then
 					self[i].shine = block
 				end
@@ -330,9 +316,9 @@ local function SetupTutorials()
 			elseif i == 10 then
 				for j=1, C_QuestLog.GetNumQuestWatches() do
 					local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(j)
-					local block = KT_QUEST_TRACKER_MODULE:GetExistingBlock(questID)
-					if block and (QuestHasPOIInfo(questID) or block.questCompleted) then
-						self[i].shine = KT_ObjectiveTrackerFrame.BlocksFrame:FindButtonByQuestID(questID)
+					local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
+					if block and block.poiButton then
+						self[i].shine = block.poiButton
 						break
 					end
 				end
@@ -360,9 +346,12 @@ local function SetupTutorials()
 					cTitle.."Active Patrons|r\n"..
 					SetFormatedPatronName("Epic", "Haekwon", "Elune")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
+					SetFormatedPatronName("Rare", "A")..
 					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
+					SetFormatedPatronName("Uncommon", "Calvin Jones")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Flex (drantor)")..
+					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
 					SetFormatedPatronName("Uncommon", "Jeffrey Hofer")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..

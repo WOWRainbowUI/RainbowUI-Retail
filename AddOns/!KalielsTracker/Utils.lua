@@ -61,6 +61,11 @@ function KT.IsTableEmpty(table)
     return (next(table) == nil)
 end
 
+-- Tasks
+function KT.GetNumTasks()
+    return #GetTasksTable()
+end
+
 -- Recipes
 function KT.GetNumTrackedRecipes()
     return #C_TradeSkillUI.GetRecipesTracked(true) + #C_TradeSkillUI.GetRecipesTracked(false)
@@ -185,7 +190,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
     local xp = GetQuestLogRewardXP(questID)
     local money = GetQuestLogRewardMoney(questID)
     local artifactXP = GetQuestLogRewardArtifactXP(questID)
-    local numQuestCurrencies = GetNumQuestLogRewardCurrencies(questID)
+    local numQuestCurrencies = #C_QuestLog.GetQuestRewardCurrencies(questID)
     local numQuestRewards = GetNumQuestLogRewards(questID)
     local numQuestSpellRewards, questSpellRewards = KT.GetQuestRewardSpells(questID)
     local numQuestChoices = GetNumQuestLogChoices(questID, true)
@@ -319,14 +324,6 @@ function KT.GetQuestTagInfo(questID)
     return C_QuestLog.GetQuestTagInfo(questID) or {}
 end
 
-function KT.GetQuestLogSpecialItemInfo(questLogIndex)
-    local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(questLogIndex)
-    if charges and charges <= 0 then
-        charges = GetItemCount(link)
-    end
-    return link, item, charges, showItemWhenComplete
-end
-
 function KT.GetNumQuests()
     local numQuests = 0
     local numEntries = C_QuestLog.GetNumQuestLogEntries()
@@ -415,7 +412,7 @@ end
 function KT.InCombatBlocked()
     local blocked = InCombatLockdown()
     if blocked then
-        UIErrorsFrame:AddExternalErrorMessage("This operation cannot be completed during combat.")
+        UIErrorsFrame:AddExternalErrorMessage("戰鬥中無法完成此操作。")
     end
     return blocked
 end
@@ -496,7 +493,7 @@ StaticPopupDialogs[addonName.."_WowheadURL"] = {
         elseif self.text.text_arg1 == "achievement" then
             name = select(2, GetAchievementInfo(self.text.text_arg2))
         elseif self.text.text_arg1 == "spell" then
-            name = GetSpellInfo(self.text.text_arg2)
+            name = C_Spell.GetSpellName(self.text.text_arg2)
         elseif self.text.text_arg1 == "activity" then
             local activityInfo = C_PerksActivities.GetPerksActivityInfo(self.text.text_arg2)
             if activityInfo then
@@ -528,14 +525,14 @@ function KT:Alert_ResetIncompatibleProfiles(version)
                 profile[k] = nil
             end
         end
-        StaticPopup_Show(addonName.."_Info", nil, "All profiles have been reset, because the new version %s is not compatible with stored settings.", { self.version })
+        StaticPopup_Show(addonName.."_Info", nil, "所有設定檔都已重置，因為新版本 %s 和原本儲存的設定不相容。", { self.version })
     end
 end
 
 function KT:Alert_IncompatibleAddon(addon, version)
     if not self.IsHigherVersion(C_AddOns.GetAddOnMetadata(addon, "Version"), version) then
         self.db.profile["addon"..addon] = false
-        StaticPopup_Show(addonName.."_ReloadUI", nil, "|cff00ffe3%s|r support has been disabled. Please install version |cff00ffe3%s|r or later and enable addon support.", { C_AddOns.GetAddOnMetadata(addon, "Title"), version })
+        StaticPopup_Show(addonName.."_ReloadUI", nil, "已停用支援 |cff00ffe3%s|r，請安裝 |cff00ffe3%s|r 或更新的版本以啟用支援該插件。", { C_AddOns.GetAddOnMetadata(addon, "Title"), version })
     end
 end
 

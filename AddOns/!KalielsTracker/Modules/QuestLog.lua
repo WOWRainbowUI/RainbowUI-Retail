@@ -20,34 +20,50 @@ local dropDownFrame
 
 local function QuestMapQuestOptionsDropDown_Initialize(self)
 	local info = MSA_DropDownMenu_CreateInfo();
-	info.isNotRadio = true;
-	info.notCheckable = true;
+	info.text = C_QuestLog.GetTitleForQuestID(self.questID);
+	info.isTitle = 1;
+	info.notCheckable = 1;
+	MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
 
-	info.text = TRACK_QUEST;
-	if ( QuestUtils_IsQuestWatched(self.questID) ) then
-		info.text = UNTRACK_QUEST;
+	info = MSA_DropDownMenu_CreateInfo();
+	info.notCheckable = 1;
+
+	if C_SuperTrack.GetSuperTrackedQuestID() ~= self.questID then
+		info.text = SUPER_TRACK_QUEST
+		info.func = function()
+			C_SuperTrack.SetSuperTrackedQuestID(self.questID)
+		end
+	else
+		info.text = STOP_SUPER_TRACK_QUEST
+		info.func = function()
+			C_SuperTrack.SetSuperTrackedQuestID(0)
+		end
 	end
+	MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
+
+	info.text = QuestUtils_IsQuestWatched(self.questID) and UNTRACK_QUEST or TRACK_QUEST;
 	info.disabled = (db.filterAuto[1])
-	info.func =function(_, questID) QuestMapQuestOptions_TrackQuest(questID) end;
-	info.arg1 = self.questID;
+	info.func = function()
+		QuestMapQuestOptions_TrackQuest(self.questID)
+	end;
 	MSA_DropDownMenu_AddButton(info, MSA_DROPDOWNMENU_MENU_LEVEL);
 
 	info.disabled = false;
 
 	info.text = SHARE_QUEST;
-	info.func = function(_, questID) QuestMapQuestOptions_ShareQuest(questID) end;
-	info.arg1 = self.questID;
-	if ( not C_QuestLog.IsPushableQuest(self.questID) or not IsInGroup() ) then
-		info.disabled = 1;
-	end
+	info.func = function()
+		QuestMapQuestOptions_ShareQuest(self.questID)
+	end;
+	info.disabled = (not C_QuestLog.IsPushableQuest(self.questID) or not IsInGroup());
 	MSA_DropDownMenu_AddButton(info, MSA_DROPDOWNMENU_MENU_LEVEL);
 
 	info.disabled = false;
 
 	if C_QuestLog.CanAbandonQuest(self.questID) then
 		info.text = ABANDON_QUEST;
-		info.func = function(_, questID) QuestMapQuestOptions_AbandonQuest(questID) end;
-		info.arg1 = self.questID;
+		info.func = function()
+			QuestMapQuestOptions_AbandonQuest(self.questID)
+		end;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWNMENU_MENU_LEVEL);
 	end
 
@@ -63,16 +79,16 @@ end
 local function SetHooks()
 	-- DropDown - QuestMapFrame.lua
 	function QuestMapLogTitleButton_OnClick(self, button)  -- R
-		if ( ChatEdit_TryInsertQuestLinkForQuestID(self.questID) ) then
+		if ChatEdit_TryInsertQuestLinkForQuestID(self.questID) then
 			return;
 		end
 
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 
-		local isDisabledQuest = C_QuestLog.IsQuestDisabledForSession(self.questID);
-		if not isDisabledQuest and IsShiftKeyDown() then
-			QuestMapQuestOptions_TrackQuest(self.questID);
+		if IsShiftKeyDown() then
+			self:ToggleTracking();
 		else
+			local isDisabledQuest = C_QuestLog.IsQuestDisabledForSession(self.questID);
 			if not isDisabledQuest and button == "RightButton" then
 				if ( self.questID ~= dropDownFrame.questID ) then
 					MSA_CloseDropDownMenus();

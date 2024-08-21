@@ -88,7 +88,7 @@ local function UpdateBlizzardButtonIconID()
 		local button = ExtraActionBarFrame.button
 		local actionType, id = GetActionInfo(button.action)
 		if actionType == "spell" then
-			iconID = select(3, GetSpellInfo(id))
+			iconID = C_Spell.GetSpellTexture(id)
 		end
 	end
 	blizzardButtonIconID = iconID
@@ -211,13 +211,13 @@ local function SetFrames()
 		button.text:SetJustifyH("LEFT")
 		button.text:SetPoint("TOPLEFT", button.icon, 4, -7)
 		
-		button:SetScript("OnEvent", KT_QuestObjectiveItem_OnEvent)
-		button:SetScript("OnUpdate", KT_QuestObjectiveItem_OnUpdate)
-		button:SetScript("OnShow", KT_QuestObjectiveItem_OnShow)
-		button:SetScript("OnHide", KT_QuestObjectiveItem_OnHide)
-		button:SetScript("OnEnter", KT_QuestObjectiveItem_OnEnter)
-		button:SetScript("OnLeave", QuestObjectiveItem_OnLeave)
-		button:RegisterForClicks("AnyDown", "AnyUp")  -- TODO: Change it in 10.0.2
+		button:SetScript("OnEvent", KT.ItemButton.OnEvent)
+		button:SetScript("OnUpdate", KT.ItemButton.OnUpdate)
+		button:SetScript("OnShow", KT.ItemButton.OnShow)
+		button:SetScript("OnHide", KT.ItemButton.OnHide)
+		button:SetScript("OnEnter", KT.ItemButton.OnEnter)
+		button:SetScript("OnLeave", KT.ItemButton.OnLeave)
+		button:RegisterForClicks("AnyUp")
 		button:SetAttribute("type", "item")
 		
 		button:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
@@ -300,20 +300,20 @@ function M:Update(id)
 		if button.item ~= blizzardButtonIconID then
 			local autoShowTooltip = false
 			if GameTooltip:IsShown() and GameTooltip:GetOwner() == abutton then
-				QuestObjectiveItem_OnLeave(abutton)
+				KT.ItemButton.OnLeave(abutton)
 				autoShowTooltip = true
 			end
 
 			abutton.block = button.block
 			abutton.questID = closestQuestID
-			abutton:SetID(button:GetID())
+			abutton.questLogIndex = button.questLogIndex
 			abutton.charges = button.charges
 			abutton.rangeTimer = button.rangeTimer
 			abutton.item = button.item
 			abutton.link = button.link
 			SetItemButtonTexture(abutton, button.item)
 			SetItemButtonCount(abutton, button.charges)
-			KT_QuestObjectiveItem_UpdateCooldown(abutton)
+			KT.ItemButton.UpdateCooldown(abutton)
 			abutton.text:SetText(button.num)
 			abutton:SetAttribute("item", button.link)
 
@@ -323,7 +323,7 @@ function M:Update(id)
 			end
 
 			if autoShowTooltip then
-				KT_QuestObjectiveItem_OnEnter(abutton)
+				KT.ItemButton.OnEnter(abutton)
 			end
 		else
 			ActiveFrame_Hide()
