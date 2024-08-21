@@ -61,7 +61,7 @@ local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
         local function OnPinReleased(pinPool, pin)
-            Pool_HideAndClearAnchors(pinPool, pin);
+            FramePool_HideAndClearAnchors(pinPool, pin);
             pin:OnReleased();
             pin.pinTemplate = nil;
             pin.owningMap = nil;
@@ -137,13 +137,13 @@ local function Hack_EditMode()
         end)
     end
 
-    --GameMenuButtonEditMode:HookScript("PreClick", function()
-    --    -- Clean DropDownList
-    --    local dropdown = LFDQueueFrameTypeDropDown
-    --    local parent = dropdown:GetParent()
-    --    dropdown:SetParent(nil)
-    --    dropdown:SetParent(parent)
-    --end)
+    GameMenuButtonEditMode:HookScript("PreClick", function()
+        -- Clean DropDownList
+        local dropdown = LFDQueueFrameTypeDropDown
+        local parent = dropdown:GetParent()
+        dropdown:SetParent(nil)
+        dropdown:SetParent(parent)
+    end)
 end
 
 -- EncounterJournal (from 10.1.0)

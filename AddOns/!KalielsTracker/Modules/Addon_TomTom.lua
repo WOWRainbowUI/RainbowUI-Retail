@@ -129,9 +129,7 @@ local function AddWaypoint(questID, isSilent)
 		title = C_QuestLog.GetTitleForQuestID(questID)
 		mapID = GetQuestUiMapID(questID)
 		if mapID ~= 0 and KT.GetCurrentMapContinent().mapID == KT.GetMapContinent(mapID).mapID then
-			--completed, x, y,  = QuestPOIGetIconInfo(questID)
-			x, y = select(2, C_QuestLog.GetNextWaypoint(questID))
-			completed = C_QuestLog.IsComplete(questID)
+			completed, x, y = QuestPOIGetIconInfo(questID)
 		end
 	end
 

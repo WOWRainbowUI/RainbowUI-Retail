@@ -716,8 +716,7 @@ end
 
 function KT_ScenarioTrackerProgressBar_GetProgress(self)
 	if (self.criteriaIndex) then
-		--return select(4, C_Scenario.GetCriteriaInfo(self.criteriaIndex)) or 0;
-		return C_ScenarioInfo.GetCriteriaInfo(self.criteriaIndex).quantity or 0;
+		return select(4, C_Scenario.GetCriteriaInfo(self.criteriaIndex)) or 0;
 	else
 		return select(10, C_Scenario.GetStepInfo()) or 0;
 	end
@@ -1177,16 +1176,7 @@ function KT_SCENARIO_CONTENT_TRACKER_MODULE:UpdateCriteria(numCriteria, objectiv
 	end
 
 	for criteriaIndex = 1, numCriteria do
-		--Blizzard changed ralevant API from C_Scenario to C_ScenarioInfo category
-		--And GetCriteriaInfo() now return a table rather than raw values.
-		--And ,whether it's a bug or not, the 'quantityString' is no longer returned.
-		--Luckily it is not used here, so we are still safe.
-
-		--local criteriaString, criteriaType, completed, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed, _, isWeightedProgress = C_Scenario.GetCriteriaInfo(criteriaIndex);
-
-		local criInfo = C_ScenarioInfo.GetCriteriaInfo(criteriaIndex);
-		local criteriaString, criteriaType, completed, quantity, totalQuantity, flags, assetID, criteriaID, duration, elapsed, isWeightedProgress = criInfo.description, criInfo.criteriaType, criInfo.completed, criInfo.quantity, criInfo.totalQuantity, criInfo.flags, criInfo.assetID, criInfo.criteriaID, criInfo.duration, criInfo.elapsed, criInfo.isWeightedProgress;
-		
+		local criteriaString, criteriaType, completed, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed, _, isWeightedProgress = C_Scenario.GetCriteriaInfo(criteriaIndex);
 		if (criteriaString) then
 			if (not isWeightedProgress) then
 				criteriaString = string.format("%d/%d %s", quantity, totalQuantity, criteriaString);

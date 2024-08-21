@@ -254,8 +254,7 @@ function KT_BonusObjectiveTracker_OnEvent(self, event, ...)
 			local block = self.module:GetBlock(blockKey);
 			if( block ) then
 				for criteriaIndex = 1, numCriteria do
-					--local _, _, _, _, _, _, _, _, criteriaID = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
-					local criteriaID = C_ScenarioInfo.GetCriteriaInfo(criteriaIndex).criteriaID;
+					local _, _, _, _, _, _, _, _, criteriaID = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
 					if( id == criteriaID ) then
 						local questID = C_Scenario.GetBonusStepRewardQuestID(bonusStepIndex);
 						if ( questID ~= 0 ) then
@@ -506,9 +505,7 @@ local function UpdateScenarioBonusObjectives(module)
 				local name, description, numCriteria, stepFailed, isBonusStep, isForCurrentStepOnly, shouldShowBonusObjective = C_Scenario.GetStepInfo(bonusStepIndex);
 				local completed = true;
 				for criteriaIndex = 1, numCriteria do
-					--local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed, criteriaFailed = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
-					local criInfo = C_ScenarioInfo.GetCriteriaInfo(criteriaIndex);
-					local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, criteriaID, duration, elapsed, criteriaFailed = criInfo.description, criInfo.criteriaType, criInfo.completed, criInfo.quantity, criInfo.totalQuantity, criInfo.flags, criInfo.assetID, criInfo.criteriaID, criInfo.duration, criInfo.elapsed, criInfo.failed;
+					local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed, criteriaFailed = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
 					if ( criteriaString ) then
 						if ( not criteriaCompleted ) then
 							completed = false;
@@ -539,9 +536,7 @@ local function UpdateScenarioBonusObjectives(module)
 				local block = module:GetBlock(blockKey);
 				local stepFinished = true;
 				for criteriaIndex = 1, numCriteria do
-					--local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed, criteriaFailed, isWeightedProgress = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
-					local criInfo = C_ScenarioInfo.GetCriteriaInfo(criteriaIndex);
-					local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, criteriaID, duration, elapsed, criteriaFailed, isWeightedProgress = criInfo.description, criInfo.criteriaType, criInfo.completed, criInfo.quantity, criInfo.totalQuantity, criInfo.flags, criInfo.assetID, criInfo.criteriaID, criInfo.duration, criInfo.elapsed, criInfo.failed, criInfo.isWeightedProgress;
+					local criteriaString, criteriaType, criteriaCompleted, quantity, totalQuantity, flags, assetID, quantityString, criteriaID, duration, elapsed, criteriaFailed, isWeightedProgress = C_Scenario.GetCriteriaInfoByStep(bonusStepIndex, criteriaIndex);
 					if ( criteriaString ) then
 						if (not isWeightedProgress) then
 							criteriaString = string.format("%d/%d %s", quantity, totalQuantity, criteriaString);
