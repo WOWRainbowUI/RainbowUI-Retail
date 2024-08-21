@@ -123,7 +123,7 @@ do
 			},
 
 			groupfinder = {
-				enabled = true,
+				enabled = false, -- 更改預設值
 				invasion_points = false, --deprecated
 				tracker_buttons = false,
 				autoleave = false,
@@ -157,7 +157,7 @@ do
 				show_icons = true,
 				alerts_anywhere = false,
 				join_channel = false,
-				search_group = true,
+				search_group = false, -- 更改預設值
 				recently_spotted = {},
 				recently_killed = {},
 				name_cache = {},
@@ -235,13 +235,13 @@ do
 			arrow_update_frequence = 0.016,
 			map_lock = false,
 			sound_enabled = true,--a
-			use_tracker = true,
+			use_tracker = false, -- 更改預設值
 			tracker_attach_to_questlog = true,
 			tracker_is_locked = false,
 			tracker_only_currentmap = false,
 			tracker_scale = 1,
 			tracker_show_time = false,
-			tracker_textsize = 12,
+			tracker_textsize = 15,
 			tracker_background_alpha = 0.15,
 
 			talking_heads_heard = {},--a
