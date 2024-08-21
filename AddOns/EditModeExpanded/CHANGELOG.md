@@ -1,7 +1,7 @@
 # Edit Mode Expanded
 
-## [11.0-006](https://github.com/teelolws/EditModeExpanded/tree/11.0-006) (2024-08-19)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-005...11.0-006) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.0-007](https://github.com/teelolws/EditModeExpanded/tree/11.0-007) (2024-08-20)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-006...11.0-007) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Fix Druid combo points issue  
-    Closes: https://github.com/teelolws/EditModeExpanded/issues/138  
+- Fix issue with raid manager frame  
+    Closes: https://github.com/teelolws/EditModeExpanded/issues/139  
