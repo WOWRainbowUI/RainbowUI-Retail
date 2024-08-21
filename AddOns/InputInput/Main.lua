@@ -639,6 +639,8 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 					end
 				end
 			end
+			info = ChatTypeInfo[chatType..channelTarget]
+			r, g, b = info.r, info.g, info.b
 			channelText = '|cFF' .. U:RGBToHex(r, g, b) .. channelTarget .. ' ' .. channelname .. '|r'
 		end
 		channel_name:SetText(channelText)
@@ -751,8 +753,15 @@ function ChannelChange(editBox, bg, bg3, border, backdropFrame2, resizeBtnTextur
 	end
 	editBox:SetTextInsets(10, 10, 0, 0) -- 左, 右, 上, 下
 	local chatType = editBox:GetAttribute("chatType") or "SAY"
-	local info = ChatTypeInfo[chatType]
-	local r, g, b = info.r, info.g, info.b
+	local info
+	local r, g, b
+	if chatType == "CHANNEL" then
+		local channelTarget = editBox:GetAttribute("channelTarget") or 'SAY'
+		info = ChatTypeInfo[chatType..channelTarget]
+	else
+		info = ChatTypeInfo[chatType]
+	end
+	r, g, b = info.r, info.g, info.b
 	bg:SetColorTexture(r, g, b, 0.15)
 	II_LANG:SetTextColor(r, g, b, 0.6)
 	-- local c_start = CreateColor(0, 0, 0, 0.3)
