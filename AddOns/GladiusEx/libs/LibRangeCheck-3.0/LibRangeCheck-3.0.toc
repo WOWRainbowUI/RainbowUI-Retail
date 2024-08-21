@@ -1,8 +1,8 @@
-## Interface: 100207
+## Interface: 110000, 110002
 ## Title: Lib: RangeCheck-3.0
 ## Notes: A library to determine estimated range.
 ## Author: The WoWUIDev Community
-## Version: 37ccc8e
+## Version: cf92afa
 ## LoadOnDemand: 1
 ## X-Curse-Project-ID: 887398
 ## X-Category: Library

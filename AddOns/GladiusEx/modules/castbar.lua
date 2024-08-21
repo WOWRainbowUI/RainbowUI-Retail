@@ -9,6 +9,7 @@ local pairs = pairs
 local min = math.min
 local GetTime = GetTime
 local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 
 local time_text_format_normal = "%.01f "
 local time_text_format_delay = "+%.01f %.01f "

@@ -74,11 +74,6 @@
 						<Anchor point="CENTER" x="0" y="0"/>
 					</Anchors>
 				</Texture>
-				<Texture parentKey="LevelLinkLockIcon" atlas="QuestSharing-Padlock" useAtlasSize="true" hidden="true">
-					<Anchors>
-						<Anchor point="CENTER"/>
-					</Anchors>
-				</Texture>
 			</Layer>
 		</Layers>
 		<Animations>
@@ -88,12 +83,6 @@
 			</AnimationGroup>
 		</Animations>
 		<Frames>
-			<Frame name="$parentShine" parentKey="AutoCastShine" inherits="AutoCastShineTemplate">
-				<Anchors>
-					<Anchor point="CENTER" x="0" y="0"/>
-				</Anchors>
-				<Size x="28" y="28"/>
-			</Frame>
 			<Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate" parentKey="cooldown">
 				<Size x="36" y="36"/>
 				<Anchors>

@@ -49,7 +49,16 @@ local pvp_spelldata = {}
 do
 	for spellid, spelldata in pairs(LCT_SpellData) do
 		if type(spelldata) == "table" then
-			local name, _, icon = GetSpellInfo(spellid)
+			local name, icon
+
+			if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+				local spellInfoTable = C_Spell.GetSpellInfo(spellid)
+				name = spellInfoTable.name
+				icon = spellInfoTable.iconID
+			else
+				name, _, icon = GetSpellInfo(spellid)
+			end
+
 			if not name then
 				DEFAULT_CHAT_FRAME:AddMessage("LibCooldownTracker-1.0: bad spellid for " .. (spelldata.class or spelldata.race or "ITEM") .. ": " .. spellid)
 				LCT_SpellData[spellid] = nil
@@ -66,7 +75,12 @@ do
 
 				-- add required aura name
 				if spelldata.requires_aura then
-					spelldata.requires_aura_name = GetSpellInfo(spelldata.requires_aura)
+					if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+						local spellIconTable = C_Spell.GetSpellInfo(spelldata.requires_aura)
+						spelldata.requires_aura_name = spellIconTable.name
+					else
+						spelldata.requires_aura_name = GetSpellInfo(spelldata.requires_aura)
+					end
 					if not spelldata.requires_aura_name then
 						DEFAULT_CHAT_FRAME:AddMessage("LibCooldownTracker-1.0: bad aura spellid: " .. spelldata.requires_aura)
 					end
@@ -517,6 +531,7 @@ local function enable()
   lib.frame:RegisterEvent("ARENA_CROWD_CONTROL_SPELL_UPDATE")
   lib.frame:RegisterEvent("ARENA_COOLDOWNS_UPDATE")
   lib.frame:RegisterEvent("ARENA_OPPONENT_UPDATE")
+
   if IsRetail then
     lib.frame:RegisterEvent("PVP_MATCH_ACTIVE")
   end
@@ -847,15 +862,16 @@ function events:UNIT_NAME_UPDATE(event, unit)
 end
 
 function events:ARENA_CROWD_CONTROL_SPELL_UPDATE(event, unit, spellID)
-	-- V: sometimes we receive such an event for "nameplateX" or "focus"
+  -- V: sometimes we receive such an event for "nameplateX" or "focus"
   --print("unit = " .. unit .. ", spellId = " .. (spellID or "nil"))
-	if string.sub(unit, 1, 5) ~= "arena" then return end
-	
-  if not spellID then
+  if string.sub(unit, 1, 5) ~= "arena" then return end
+
+  if not spellID or spellID == 0 then
     return
   end
+
   lib:DetectSpell(unit, spellID)
-	lib.callbacks:Fire("LCT_CooldownDetected", unit, spellid)
+  lib.callbacks:Fire("LCT_CooldownDetected", unit, spellid)
 end
 
 function events:ARENA_OPPONENT_UPDATE(event, unit, unitEvent)
@@ -865,19 +881,48 @@ function events:ARENA_OPPONENT_UPDATE(event, unit, unitEvent)
 end
 
 function events:ARENA_COOLDOWNS_UPDATE(event, unit)
-	if string.sub(unit, 1, 5) ~= "arena" then return end
+  if string.sub(unit, 1, 5) ~= "arena" then return end
   --print("unit = " .. unit .. ", spellId = " .. (spellID or "nil") .. ", start = " .. (startTime or "nil") .. ", duration = " .. (duration or "nil"))
 
-	local spellid, startTime, duration = C_PvP.GetArenaCrowdControlInfo(unit)
+  local spellid, startTime, duration = C_PvP.GetArenaCrowdControlInfo(unit)
+
+  if not isRetail then
+    -- K: Haxx to make up for Blizzard mistakes carrying over DF changes to Classic during early Cata Classic
+
+    -- K: Blizzard made the API return 60sec CD for regular PvP Trinket in Classic (carry-over from Mainline)
+    -- and are also supplying the duration/startTime the wrong format / order
+    -- that's why the bug only appears sometimes (i.e. not vs Humans with EMFH/WtS)
+
+    -- print("LibCooldownTracker", "ARENA_COOLDOWNS_UPDATE", spellid, startTime, duration)
+
+    local tempDuration
+
+    -- Hardcoded fix or WotF
+    if spellid == 7744 then -- WotF
+      tempDuration = 30 * 1000
+    else
+      tempDuration = 120 * 1000
+    end
+
+    if duration ~= tempDuration then
+      duration = tempDuration
+      startTime = GetTime() * 1000
+    end
+
+    return
+  end
+
   if not spellid then
     C_PvP.RequestCrowdControlSpell(unit)
     return
   end
+
   lib:DetectSpell(unit, spellid)
-	lib.callbacks:Fire("LCT_CooldownDetected", unit, spellid)
+  lib.callbacks:Fire("LCT_CooldownDetected", unit, spellid)
+
   if not startTime or not duration then return end
 
   lib.tracked_players[unit][spellid].cooldown_start = (startTime / 1000)
   lib.tracked_players[unit][spellid].cooldown_end = (startTime / 1000) + (duration / 1000)
-	lib.callbacks:Fire("LCT_CooldownUsed", unit, spellid)
+  lib.callbacks:Fire("LCT_CooldownUsed", unit, spellid)
 end
