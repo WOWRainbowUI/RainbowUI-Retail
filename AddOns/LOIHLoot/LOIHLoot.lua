@@ -1636,7 +1636,9 @@ do
 	local Options = CreateFrame("Frame", "privateOptions", InterfaceOptionsFramePanelContainer)
 	Options.name = ADDON_NAME
 	private.OptionsPanel = Options
-	InterfaceOptions_AddCategory(Options)
+	--InterfaceOptions_AddCategory(Options)
+	local category = Settings.RegisterCanvasLayoutCategory(Options, ADDON_NAME)
+	Settings.RegisterAddOnCategory(category)
 
 	Options:Hide()
 	Options:SetScript("OnShow", function(self)
