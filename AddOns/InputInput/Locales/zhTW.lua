@@ -79,12 +79,26 @@ L['TO'] = "密"
 L['Show Chat'] = "顯示聊天內容"
 L['Show channel Name'] = '顯示頻道名稱'
 L['Show Timestamp'] = "顯示時間標記"
-L['Show bg'] = "顯示背景"
+L['Show bg'] = "顯示訊息背景"
 L['Default Setting'] = "預設值"
+L['Enable InputInput_Libraries_zh'] = '啟用中文詞庫 %s'
+L['Need To Reload'] = '需要重新載入介面'
+L['Do you want to reload the addOnes'] = '是否要重新載入介面?'
+
+L['Yes'] = '確定'
+L['No'] = '取消'
+
+L['Chinese word processing module can make input prompts more intelligent'] = '中文詞語處理模組，可以使輸入提示更智能。\n需要下載安裝 InputInput_Libraries_zh'
+
+-- Login Information
+L['Login Information 1'] = "您正在使用%s輸入框增強插件，使用過程中的任何問題都可以透過 %s 或到插件網站 %s 進行反饋"
+L['Login Information 2'] = "輸入 %s 或 %s 打開設定面板"
+
+L['Not enabled, enter/ii to enable'] = '未啟用，輸入 %s 來啟用'
 
 -- 自行加入
 L['Input Input'] = "大型聊天輸入框"
 L['InputInput'] = "聊天-輸入框"
-L['No Fading'] = "不要淡出"
+L['No Fading'] = "不要漸層淡出"
 L['Keep Chat History'] = "保存聊天內容"
 L["Show %d messages"] = "顯示 %d 則訊息"

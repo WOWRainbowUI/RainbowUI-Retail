@@ -1,5 +1,4 @@
-local N, T = ...
-local W, M, U, D, G, L, E, API = unpack(T)
+local W, M, U, D, G, L, E, API, LOG = unpack((select(2, ...)))
 local MAIN = {}
 M.MAIN = MAIN
 
@@ -20,7 +19,9 @@ local GetCursorPosition = API.GetCursorPosition
 local InCombatLockdown = API.InCombatLockdown
 local IsLeftControlKeyDown = API.IsLeftControlKeyDown
 local IsLeftShiftKeyDown = API.IsLeftShiftKeyDown
-
+local C_AddOns_GetAddOnEnableState = API.C_AddOns_GetAddOnEnableState
+local C_AddOns_EnableAddOn = API.C_AddOns_EnableAddOn
+local C_AddOns_DisableAddOn = API.C_AddOns_DisableAddOn
 
 local measureFontString = UIParent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 
@@ -28,6 +29,9 @@ local isTinyChatEnabled
 
 local tip = ''
 -- 更新显示 FontString 位置的函数
+---@param editBox EditBox
+---@param displayFontString FontString
+---@param msg string
 local function UpdateFontStringPosition(editBox, displayFontString, msg)
 	if not msg or #msg <= 0 then
 		displayFontString:Hide()
@@ -119,41 +123,103 @@ local function UpdateFontStringPosition(editBox, displayFontString, msg)
 	displayFontString:Show()
 end
 
-local replace = {}
+local function getLastUTF8Char(s)
+	if not s or #s <= 0 then return '' end
+	-- 初始化起始位置
+	local lastCharStart = nil
+
+	-- 遍历字符串，找到最后一个字符的起始位置
+	for i = 1, #s do
+		local c = string.byte(s, i)
+		if c >= 128 then
+			-- 多字节字符的处理
+			if c >= 240 then
+				lastCharStart = i
+				i = i + 3
+			elseif c >= 224 then
+				lastCharStart = i
+				i = i + 2
+			elseif c >= 192 then
+				lastCharStart = i
+				i = i + 1
+			end
+		else
+			-- 单字节字符的处理
+			lastCharStart = i
+		end
+	end
+
+	-- 返回最后一个字符
+	return s:sub(lastCharStart)
+end
 
 local function FindHis(his, patt)
 	if not his or #his <= 0 or not patt or #patt <= 0 then return '' end
-	local second = ''
+	patt = patt:gsub("%|c.-(%[.-%]).-%|r", function(a1)
+		return a1
+	end)
+	local lastChat = getLastUTF8Char(patt)
+	local pattp = U:CutWord(patt)
+	if not pattp or #pattp <= 0 then return '' end
 	for i = #his, 1, -1 do
 		local h = his[i]
 		if h and #h > 0 then
-			-- |cff0070dd|Hitem:38613::::::::80:::::::::|h[火热珠串]|h|r
-			h = h:gsub("(%|c.-%|H.-%|h(%[.-%])%|h|r)", function(a1, a2)
-				replace[a2] = a1
-				return a2
+			h = h:gsub("%|c.-(%[.-%]).-%|r", function(a1)
+				-- LOG:Debug(a1)
+				return a1
 			end)
-			local hisp = U:MergeMultipleArrays({ h }, U:SplitMSG(h))
+			-- LOG:Debug(h)
+			local hisp = U:CutWord(h)
+
 			for h_index, h2 in ipairs(hisp) do
-				local ha = U:MergeMultipleArrays({ patt }, U:SplitMSG(patt))
-				for p_index, patt2 in ipairs(ha) do
-					if not (p_index == 1 and h_index == 1) then
-						local start, _end = strfind(h2, patt2, 1, true)
-						if start and start > 0 and _end ~= #h2 then
-							local p = strsub(h2, _end + 1)
-							if start == 1 then
-								return p
-							else
-								if second == '' then
-									second = p
-								end
-							end
+				-- 先按分词匹配
+				local patt2 = pattp[#pattp]
+				-- LOG:Debug(patt2)
+				local start, _end = strfind(h2, patt2, 1, true)
+				if start and start > 0 then
+					-- LOG:Debug(patt2)
+					if _end ~= # h2 then
+						return strsub(h2, _end + 1)
+					else
+						local pnex = hisp[h_index + 1]
+						if pnex and #pnex > 0 then
+							return pnex
+						end
+					end
+				end
+				-- 再使用最后一个字符匹配
+				patt2 = lastChat
+				start, _end = strfind(h2, patt2, 1, true)
+				if start and start > 0 then
+					-- LOG:Debug(patt2)
+					if _end ~= # h2 then
+						return strsub(h2, _end + 1)
+					else
+						local pnex = hisp[h_index + 1]
+						if pnex and #pnex > 0 then
+							return pnex
 						end
 					end
 				end
 			end
+			-- 如果分词匹配不到，使用输入的最后一个字符匹配
+			local start, _end = strfind(h, lastChat, 1, true)
+			if start and start > 0 and _end ~= #h then
+				return strsub(h, _end + 1)
+			end
+			-- LOG:Debug(lastChat)
+			local playerTip = U:PlayerTip(patt, pattp[#pattp])
+			if playerTip then
+				return playerTip
+			else
+				playerTip = U:PlayerTip(patt, lastChat)
+				if playerTip then
+					return playerTip
+				end
+			end
 		end
 	end
-	return second
+	return ''
 end
 
 local lastChannel = ''
@@ -204,12 +270,12 @@ local newFontSize = 32 -- 新的字体大小
 
 function LoadPostion(editBox)
 	-- load point
-	if D:HasInKey('editBoxPosition') then
-		local point, relativePoint, xOfs, yOfs = unpack(
-			D:ReadDB('editBoxPosition'))
-		editBox:ClearAllPoints()
-		editBox:SetPoint(point, UIParent, relativePoint, xOfs, yOfs)
-	end
+	local point, relativePoint, xOfs, yOfs =
+		unpack(D:ReadDB('editBoxPosition', { "CENTER", "BOTTOM", 0, 330 }, false))
+	editBox:ClearAllPoints()
+	-- LOG:Debug(point, relativePoint, xOfs, yOfs)
+	editBox:SetPoint(point, UIParent, relativePoint, xOfs, yOfs)
+	-- LOG:Debug(editBox:GetPoint())
 end
 
 local scale = 1
@@ -217,6 +283,13 @@ local chat_frame = {}
 local chat_frame_texture = {}
 local scale_temp = scale
 local chat_h = 1
+
+---@param scale number
+---@param editBox EditBox
+---@param backdropFrame2 table|BackdropTemplate|Frame
+---@param channel_name FontString
+---@param II_TIP FontString
+---@param II_LANG FontString
 function LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
 	editBox:SetWidth(480 * scale)
 	local font, _, flags = editBox:GetFont()
@@ -228,7 +301,7 @@ function LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
 
 	backdropFrame2:SetWidth(480 * scale)
 	local fontfile, _, flags = channel_name:GetFont()
-	channel_name:SetFont(fontfile, newFontSize * scale, flags)
+	channel_name:SetFont(fontfile or W.defaultFontName, newFontSize * scale, flags)
 
 	local c_h = 0
 	for idx, v in ipairs(chat_frame) do
@@ -256,6 +329,7 @@ local isInit = false
 function MAIN:Init()
 	scale = D:ReadDB('input_size', 1)
 	messageHistory = D:ReadDB('messageHistory', {}, true)
+	U:InitWordCache(messageHistory)
 	historyIndex = #messageHistory + 1
 	-- 获取默认的聊天输入框
 	local editBox = ChatFrame1EditBox
@@ -268,7 +342,7 @@ function MAIN:Init()
 	editBox:SetAltArrowKeyMode(false)
 	-- editBox:SetAutoFocus(true)  -- 自动获得焦点
 
-	LoadPostion(editBox)
+	-- LoadPostion(editBox)
 
 	-- 设置聊天输入框的字体大小
 	local font, _, flags = editBox:GetFont()
@@ -303,11 +377,11 @@ function MAIN:Init()
 
 	local bg2 = backdropFrame:CreateTexture("II_BG_FRAME_TEXTURE2", "BACKGROUND")
 	bg2:SetColorTexture(0, 0, 0, 0.5) -- 半透明黑色背景
-	bg2:SetAllPoints(backdropFrame)
+	bg2:SetAllPoints()
 
 	local bg = backdropFrame:CreateTexture("II_BG_FRAME_TEXTURE", "BACKGROUND")
 	-- bg:SetColorTexture(0, 0, 0, 0.5) -- 半透明黑色背景
-	bg:SetAllPoints(backdropFrame)
+	bg:SetAllPoints()
 
 	local channel_name = backdropFrame:CreateFontString("II_CHANNEL_NAME", "OVERLAY", "GameFontNormal")
 	channel_name:SetPoint('TOP', backdropFrame, 'BOTTOM', 0, -20)
@@ -374,12 +448,15 @@ function MAIN:Init()
 	II_LANG:SetFont(font, fontsize * 0.4, flags)
 	II_LANG:SetText(_G["INPUT_" .. editBox:GetInputLanguage()])
 
-	LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
+	-- LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
 
 	isInit = true
 	return editBox, bg, border, backdropFrame2, resizeButton, texture_btn, channel_name, II_TIP, II_LANG, bg3
 end
 
+---@param name string
+---@param realm string
+---@return string
 local function addLevel(name, realm)
 	local maxLevel = GetMaxPlayerLevel()
 	local level = UnitLevel(name)
@@ -393,6 +470,13 @@ local function addLevel(name, realm)
 	return name_realm
 end
 
+---@param channel string
+---@param senderGUID string|nil
+---@param msg string
+---@param isChannel boolean
+---@param sender string|nil
+---@param isPlayer boolean|nil
+---@return string
 function FormatMSG(channel, senderGUID, msg, isChannel, sender, isPlayer)
 	local info = ChatTypeInfo[channel]
 	local channelColor = U:RGBToHex(info.r, info.g, info.b)
@@ -415,7 +499,7 @@ function FormatMSG(channel, senderGUID, msg, isChannel, sender, isPlayer)
 		end
 	end
 	if #name_realm <= 0 then
-		name_realm = sender
+		name_realm = sender or ''
 		local name, realm = strsplit('-', name_realm)
 		class = UnitClass(name)
 		name_realm = addLevel(name, realm)
@@ -453,7 +537,13 @@ local showbg = false
 local noFade = false
 local keepHistory = true
 
-
+---@param saveKey string
+---@param channel string
+---@param senderGUID string|nil
+---@param msg string
+---@param isChannel boolean
+---@param sender string|nil
+---@param isPlayer boolean|nil
 function SaveMSG(saveKey, channel, senderGUID, msg, isChannel, sender, isPlayer)
 	local key = saveKey
 	local w = strfind(channel, 'BN_WHISPER')
@@ -500,26 +590,35 @@ local function WipeMSG()
 end
 
 function HideEuiBorder(editBox)
-	---@diagnostic disable-next-line: undefined-global
 	if ElvUI then
+		---@diagnostic disable-next-line: undefined-field
 		editBox:SetBackdropBorderColor(0, 0, 0, 0)
+		---@diagnostic disable-next-line: undefined-field
 		editBox:SetBackdropColor(0, 0, 0, 0)
 		-- editBox:StripTextures()
+		---@diagnostic disable-next-line: undefined-field
 		if editBox.shadow then
+			---@diagnostic disable-next-line: undefined-field
 			editBox.shadow:Hide()
 		end
 		local font, _, flags = editBox:GetFont()
 		editBox:SetFont(font, newFontSize * scale, flags)
-
+		---@diagnostic disable-next-line: undefined-field
 		if editBox.characterCount then
+			---@diagnostic disable-next-line: undefined-field
 			editBox.characterCount:Hide()
 		end
 	end
 end
 
 local showChannelName = true
-local showLines = 10
+local showLines = 7
 
+
+---@param editBox EditBox
+---@param chatType string
+---@param backdropFrame2 table|BackdropTemplate|Frame
+---@param channel_name FontString
 function Chat(editBox, chatType, backdropFrame2, channel_name)
 	local msg_list
 	local info = ChatTypeInfo[chatType]
@@ -613,7 +712,7 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 				fontString:SetPoint("BOTTOMLEFT", chat_frame[k], "TOPLEFT", 0, 3)
 			end
 			local fontfile, _, flags = fontString:GetFont()
-			fontString:SetFont(fontfile, 16 * scale, flags)
+			fontString:SetFont(fontfile or W.defaultFontName, 16 * scale, flags)
 			-- 淡出
 			if noFade then
 				fontString:SetAlpha(1)
@@ -637,6 +736,14 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 	backdropFrame2:SetHeight(c_h)
 end
 
+---@param editBox EditBox
+---@param bg Texture
+---@param bg3 Texture
+---@param border table|BackdropTemplate|Frame
+---@param backdropFrame2 table|BackdropTemplate|Frame
+---@param resizeBtnTexture Texture
+---@param channel_name FontString
+---@param II_LANG FontString
 function ChannelChange(editBox, bg, bg3, border, backdropFrame2, resizeBtnTexture, channel_name, II_LANG)
 	HideEuiBorder(editBox)
 	for i = 1, #G.CHAT_FRAMES do
@@ -705,6 +812,16 @@ local function chatEventHandler(event, arg1, arg2, arg3, arg4, arg5, arg6, arg7,
 		arg17
 end
 local last_text = ''
+
+---@param editBox EditBox
+---@param bg Texture
+---@param border table|BackdropTemplate|Frame
+---@param backdropFrame2 table|BackdropTemplate|Frame
+---@param resizeButton table|Button
+---@param texture_btn Texture
+---@param channel_name FontString
+---@param II_TIP FontString
+---@param II_LANG FontString
 local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, texture_btn, channel_name, II_TIP, II_LANG,
 						  bg3)
 	editBox:HookScript("OnEscapePressed", editBox.ClearFocus) -- 允许按下 Esc 清除焦点+
@@ -715,7 +832,9 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 			LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
 			local children = { editBox:GetChildren() }
 			for _, child in ipairs(children) do
+				---@diagnostic disable-next-line: undefined-field
 				if child.__bgTex then
+					---@diagnostic disable-next-line: undefined-field
 					child:Hide()
 				end
 			end
@@ -803,15 +922,8 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		local message = self:GetText()
 		if II_TIP:IsShown() and IsLeftControlKeyDown() then
 			local p = message .. tip
-			local inp, count = p:gsub("(%|c.-%|H.-%|h(%[.-%])%|h|r)", function(a1, a2)
-				replace[a2] = a1
-				return a2
-			end)
-			for k, v in pairs(replace) do
-				inp = U:ReplacePlainTextUsingFind(inp, k, v)
-			end
-			self:SetText(inp)
-			M.HISTORY:simulateInputChange(inp, self:GetInputLanguage())
+			self:SetText(p)
+			M.HISTORY:simulateInputChange(p, self:GetInputLanguage())
 			return
 		end
 		-- 检查输入框是否有内容
@@ -819,8 +931,8 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 			U:AddOrMoveToEnd(messageHistory, message)
 		end
 		local temp = {}
-		if #messageHistory > 200 then
-			for k = #messageHistory - 200, #messageHistory do
+		if #messageHistory > 100 then
+			for k = #messageHistory - 100, #messageHistory do
 				tinsert(temp, messageHistory[k])
 			end
 		else
@@ -861,9 +973,13 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		end
 		last_text = ''
 	end)
+	local cacheTxt = ''
 	editBox:HookScript("OnTextChanged", function(self, userInput)
 		local text = self:GetText()
-		tip = FindHis(messageHistory, text)
+		if text ~= cacheTxt then
+			tip = FindHis(messageHistory, text)
+			cacheTxt = text
+		end
 		UpdateFontStringPosition(self, II_TIP, tip)
 		if userInput then
 			M.HISTORY:simulateInputChange(text, self:GetInputLanguage())
@@ -932,8 +1048,8 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		HideEuiBorder(self)
 		-- Elvui 会重置输入框的位置大小
 		if ElvUI then
-			LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
-			LoadPostion(editBox)
+			LoadSize(scale, self, backdropFrame2, channel_name, II_TIP, II_LANG)
+			LoadPostion(self)
 		end
 		ChatChange = true
 		self:SetText(last_text)
@@ -958,8 +1074,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		function(self, ...)
 			local event, msg, sender, language, channelString, target, flags, zoneChannelID, channelNumber,
 			channelName, languageID, _, guid, bnSenderID, isMobile, isSubtitle, supressRaidIcons = ...
-
-			U:SaveLog('msg_even_' .. event, { ... })
+			LOG:SaveLog('msg_even_' .. event, { ... })
 
 			local chatType = strsub(event, 10) or 'SAY';
 
@@ -991,13 +1106,13 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 				local usingDifferentLanguage = (language ~= "") and
 					(language ~= ChatFrame1.alternativeDefaultLanguage)
 				local languageHeader = "[" .. language .. "] "
-				if (not ElvUI or not strfind(msg, languageHeader, 1, true)) and usingDifferentLanguage then
+				if msg and type(msg) == 'string' and (not ElvUI or not strfind(msg, languageHeader, 1, true)) and usingDifferentLanguage then
 					msg = languageHeader .. msg
 				end
 			end
 
 			if event == 'CHAT_MSG_CHANNEL' or event == 'CHAT_MSG_COMMUNITIES_CHANNEL' then
-				SaveMSG('CHANNEL' .. channelNumber, 'CHANNEL' .. channelNumber, guid or bnSenderID, msg,
+				SaveMSG('CHANNEL' .. channelNumber, 'CHANNEL' .. channelNumber, guid or bnSenderID, msg or '',
 					true, sender)
 				if ChatChange then
 					ChannelChange(editBox, bg, bg3, border, backdropFrame2, texture_btn, channel_name, II_LANG)
@@ -1005,7 +1120,8 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 			end
 			for k, v in pairs(ChatLabels) do
 				if event == v then
-					SaveMSG(chatGroup, k, guid or bnSenderID, msg, false, sender, event:find('_INFORM'))
+					local start, _end = event:find('_INFORM')
+					SaveMSG(chatGroup, k, guid or bnSenderID, msg or '', false, sender, start and start > 0)
 					if ChatChange then
 						ChannelChange(editBox, bg, bg3, border, backdropFrame2, texture_btn, channel_name, II_LANG)
 					end
@@ -1014,7 +1130,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 			end
 		end)
 end
-
+---@param backdropFrame2 table|BackdropTemplate|Frame
 local function optionSetup(backdropFrame2)
 	-- options 设置
 	function MAIN:HideChat(show)
@@ -1049,6 +1165,18 @@ local function optionSetup(backdropFrame2)
 		showLines = value
 	end
 
+	function M.MAIN:EnableIL_zh(show)
+		local isLoad = C_AddOns_GetAddOnEnableState("InputInput_Libraries_zh") == 2
+		if (isLoad and not show) or (not isLoad and show) then
+			StaticPopup_Show("InputInput_RELOAD_UI_CONFIRMATION")
+		end
+		if show then
+			C_AddOns_EnableAddOn('InputInput_Libraries_zh')
+		else
+			C_AddOns_DisableAddOn('InputInput_Libraries_zh')
+		end
+	end
+
 	M.OPT:loadOPT()
 end
 
@@ -1057,6 +1185,15 @@ local frame = CreateFrame("Frame", "II_MAIN_FRAME")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("CVAR_UPDATE")
+frame:RegisterEvent("ADDON_LOADED")
+
+frame:RegisterEvent("ZONE_CHANGED")
+frame:RegisterEvent("ZONE_CHANGED_INDOORS")
+frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+
+frame:RegisterEvent("GROUP_ROSTER_UPDATE")
+frame:RegisterEvent("RAID_ROSTER_UPDATE")
+
 for _, event in pairs(ChatTypeGroup["BN_WHISPER"]) do
 	frame:RegisterEvent(event);
 end
@@ -1109,20 +1246,94 @@ frame:HookScript("OnEvent", function(self_f, event, isLogin, ...)
 				self:SetText(temp)
 			end
 		end)
+		U:InitZones()
 	elseif event == 'CVAR_UPDATE' then
 		local cvarName, value = ...
 		if cvarName == 'chatStyle' or cvarName == 'whisperMode' then
 			LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
 			LoadPostion(editBox)
 		end
+	elseif event == 'FRIENDLIST_UPDATE' then
+		U:InitFriends()
+	elseif event == 'GUILD_ROSTER_UPDATE' then
+		U:InitGuilds()
+	elseif event == 'ADDON_LOADED' then
+		local addOnName, containsBindings = ...
+		if addOnName == "InputInput_Libraries_zh" then
+			LOG:Debug("---加载词库0%---")
+			W.dict1 = LibStub("inputinput-dict1").dict
+			W.dict2 = LibStub("inputinput-dict2").dict
+			W.dict3 = LibStub("inputinput-dict3").dict
+			W.dict4 = LibStub("inputinput-dict4").dict
+			W.dict5 = LibStub("inputinput-dict5").dict
+			W.dict6 = LibStub("inputinput-dict6").dict
+
+			local total = 60101967
+
+			local logtotal = math.log(total)
+
+			for i, v in pairs(W.dict1) do
+				W.dict1[i] = math.log(v) - logtotal
+			end
+			for i, v in pairs(W.dict2) do
+				W.dict2[i] = math.log(v) - logtotal
+			end
+			for i, v in pairs(W.dict3) do
+				W.dict3[i] = math.log(v) - logtotal
+			end
+			for i, v in pairs(W.dict4) do
+				W.dict4[i] = math.log(v) - logtotal
+			end
+			for i, v in pairs(W.dict5) do
+				W.dict5[i] = math.log(v) - logtotal
+			end
+			for i, v in pairs(W.dict6) do
+				W.dict6[i] = math.log(v) - logtotal
+			end
+			LOG:Debug("---加载词库100%---")
+			U:InitWordCache(messageHistory)
+		end
+	elseif event == 'ZONE_CHANGED' or event == 'ZONE_CHANGED_INDOORS' or event == 'ZONE_CHANGED_NEW_AREA' then
+		U:InitZones()
+	elseif event == 'GROUP_ROSTER_UPDATE' or event == 'RAID_ROSTER_UPDATE' then
+		U:InitGroupMembers()
 	else
-		---@diagnostic disable-next-line: undefined-global
-		if (ElvUI ~= nil and C_AddOns_IsAddOnLoaded("ElvUI") or ElvUI == nil) and
-			(NDui ~= nil and C_AddOns_IsAddOnLoaded("NDui") or NDui == nil) then
+		if (C_AddOns_IsAddOnLoaded("ElvUI") or ElvUI == nil) and
+			(C_AddOns_IsAddOnLoaded("NDui") or NDui == nil) then
 			eventSetup(editBox, bg, border, backdropFrame2, resizeButton, resizeBtnTexture, channel_name, II_TIP, II_LANG,
 				bg3)
 
 			optionSetup(backdropFrame2)
+			--[[
+			C_Timer.After(5, function(cb)
+				LOG:Info(string.format(L['Login Information 1'],
+					W.colorName,
+					"|cff409EFFDiscord|r |cFFFFFFFF[https://discord.gg/qC9RAdXN]|r",
+					"|cff409EFFCurseForge|r |cFFFFFFFF[https://www.curseforge.com/wow/addons/inputinput/comments]|r"))
+			end)
+			C_Timer.After(6, function(cb)
+				LOG:Info(string.format(L['Login Information 2'], "|cff409EFF/ii|r", "|cff409EFF/inputinput|r"))
+			end)
+			C_Timer.After(7, function(cb)
+				local isLoad = C_AddOns_GetAddOnEnableState("InputInput_Libraries_zh") == 2
+				if GetLocale() == 'zhCN' or GetLocale() == 'zhTW' then
+					if not (C_AddOns_GetAddOnEnableState("InputInput_Libraries_zh") == 2) then
+						LOG:Warn('|cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r_Libraries_|cffF56C6Czh|r' ..
+							format(L['Not enabled, enter/ii to enable'], "|cff409EFF/ii|r"))
+					end
+				end
+			end)
+			--]]
+			U:InitFriends()
+			U:InitGuilds()
+			U:InitGroupMembers()
+			LoadSize(scale, editBox, backdropFrame2, channel_name, II_TIP, II_LANG)
+			LoadPostion(editBox)
+
+			-- local jieba = LibStub("inputinput-jieba")
+			-- for _, i in ipairs(jieba.lcut('地精', false, true)) do
+			-- 	LOG:Debug(i)
+			-- end
 		end
 	end
 end)

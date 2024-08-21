@@ -1,13 +1,13 @@
 ## Interface: 11503, 30403, 40400, 110002
-## IconTexture: Interface\ICONS\pet_type_dragon
+## IconTexture: Interface\AddOns\InputInput\Media\pet_type_dragon
 
 ## Title: |cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r
 ## Notes: Input box enhancement
 ## Notes-zhCN: 输入框增强
 ## Notes-zhTW: 輸入框增強
 ## Author: York
-## Version: 1.0.8 Fix4-b3
-## X-Date: 2024-08-15
+## Version: 1.0.9a
+## X-Date: 2024-08-18
 
 ## X-Category: Interface Enhancements
 ## X-Curse-Project-ID: 1076615
@@ -18,6 +18,5 @@
 ## Title-zhTW: |cffFF9999[聊天]|r 大型輸入框
 ## Notes-zhTW: |cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r |n|n位於角色下方超大號的聊天文字輸入框，習慣了就會愛上它!|n|n|cffffd200使用方法: |rEsc>選項>插件>聊天-輸入框>進行設定。
 ## X-Category-zhTW: 社交
-## DefaultState: disabled
 
 Init.xml
