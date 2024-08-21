@@ -1,5 +1,2 @@
-Add localisation
-zhCN - Thank you to [Maple Saint](https://github.com/nanjuekaien1)
-zhTW - Thank you to [BlueNightSky](https://github.com/BlueNightSky)
-
-Fix Draenic Hologem logic
+Fix Draenic Hologem logic, properly this time.
+Fix timeout for randomising toys when only one is enabled with 'Random' icon selected
