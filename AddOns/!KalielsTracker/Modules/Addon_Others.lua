@@ -48,13 +48,10 @@ end
 
 -- ElvUI
 local function ElvUI_SetSupport()
-    if KT:CheckAddOn("ElvUI", "v13.64", true) then
+    if KT:CheckAddOn("ElvUI", "v13.74", true) then
         local E = unpack(_G.ElvUI)
         local B = E:GetModule("Blizzard")
-        B.SetObjectiveFrameHeight = function() end    -- preventive
-        B.SetObjectiveFrameAutoHide = function() end  -- preventive
-        B.HandleMawBuffsFrame = function() end        -- preventive
-        B.MoveObjectiveFrame = function() end
+        B.ObjectiveTracker_Setup = function() end  -- preventive
         if E.private.skins.blizzard.objectiveTracker then
             StaticPopup_Show(addonName.."_ReloadUI", nil, "Activate changes for |cff00ffe3ElvUI|r.")
         end
@@ -67,7 +64,7 @@ local function ElvUI_SetSupport()
                 options.args[addonName.."Warning"] = {
                     name = "\n"..KTwarning,
                     type = "description",
-                    order = 2.99,
+                    order = 20.99,
                 }
             end
         end)
@@ -76,7 +73,7 @@ end
 
 -- Tukui
 local function Tukui_SetSupport()
-    if KT:CheckAddOn("Tukui", "20.41", true) then
+    if KT:CheckAddOn("Tukui", "v20.443", true) then
         local T = unpack(_G.Tukui)
         T.Miscellaneous.ObjectiveTracker.Enable = function() end
     end
@@ -101,10 +98,10 @@ end
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
-    self.isLoadedMasque = (KT:CheckAddOn("Masque", "10.2.7") and db.addonMasque)
+    self.isLoadedMasque = (KT:CheckAddOn("Masque", "11.0.1") and db.addonMasque)
 
     if self.isLoadedMasque then
-        KT:Alert_IncompatibleAddon("Masque", "10.0.1")
+        KT:Alert_IncompatibleAddon("Masque", "11.0.1")
     end
 end
 

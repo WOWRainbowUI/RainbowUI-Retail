@@ -7,35 +7,25 @@
 local _, KT = ...
 
 -- Constants
-KT.BLIZZARD_MODULES = {
-    "KT_SCENARIO_CONTENT_TRACKER_MODULE",
-    "KT_UI_WIDGET_TRACKER_MODULE",
-    "KT_CAMPAIGN_QUEST_TRACKER_MODULE",
-    "KT_QUEST_TRACKER_MODULE",
-    "KT_ADVENTURE_TRACKER_MODULE",
-    "KT_BONUS_OBJECTIVE_TRACKER_MODULE",
-    "KT_WORLD_QUEST_TRACKER_MODULE",
-    "KT_ACHIEVEMENT_TRACKER_MODULE",
-    "KT_PROFESSION_RECIPE_TRACKER_MODULE",
-    "KT_MONTHLY_ACTIVITIES_TRACKER_MODULE"
+KT.MODULES = {
+    "KT_ScenarioObjectiveTracker",
+    "KT_UIWidgetObjectiveTracker",
+    "KT_CampaignQuestObjectiveTracker",
+    "KT_QuestObjectiveTracker",
+    "KT_AdventureObjectiveTracker",
+    "KT_AchievementObjectiveTracker",
+    "KT_MonthlyActivitiesObjectiveTracker",
+    "KT_ProfessionsRecipeTracker",
+    "KT_BonusObjectiveTracker",
+    "KT_WorldQuestObjectiveTracker"
 }
 
-KT.ALL_BLIZZARD_MODULES = {
-    -- Don't change the order!
-    "KT_QUEST_TRACKER_MODULE",
-    "KT_CAMPAIGN_QUEST_TRACKER_MODULE",
-    "KT_ACHIEVEMENT_TRACKER_MODULE",
-    "KT_BONUS_OBJECTIVE_TRACKER_MODULE",
-    "KT_WORLD_QUEST_TRACKER_MODULE",
-    "KT_SCENARIO_CONTENT_TRACKER_MODULE",
-    "KT_SCENARIO_TRACKER_MODULE",
-    "KT_UI_WIDGET_TRACKER_MODULE",
-    "KT_PROFESSION_RECIPE_TRACKER_MODULE",
-    "KT_MONTHLY_ACTIVITIES_TRACKER_MODULE",
-    "KT_ADVENTURE_TRACKER_MODULE"
-}
+KT.EXPANSION = EXPANSION_NAME9
 
 KT.QUEST_DASH = "- "
+KT_QUEST_DASH = KT.QUEST_DASH
+
+KT.TRACKER_DEFAULT_COLOR = { r = 0.93, g = 0.76, b = 0 }
 
 KT.PLAYER_FACTION_COLORS = {
     Horde = "ff0000",
@@ -74,6 +64,8 @@ KT_OBJECTIVE_TRACKER_COLOR["Label"] = { r = 0.5, g = 0.5, b = 0.5 }             
 KT_OBJECTIVE_TRACKER_COLOR["LabelHighlight"] = { r = 0.6, g = 0.6, b = 0.6 }     -- gray
 KT_OBJECTIVE_TRACKER_COLOR["Zone"] = { r = 0.1, g = 0.65, b = 1 }                -- blue
 KT_OBJECTIVE_TRACKER_COLOR["ZoneHighlight"] = { r = 0.3, g = 0.8, b = 1 }        -- blue
+KT_OBJECTIVE_TRACKER_COLOR["Inactive"] = GRAY_FONT_COLOR                         -- gray
+KT_OBJECTIVE_TRACKER_COLOR["InactiveHighlight"] = LIGHTGRAY_FONT_COLOR           -- gray
 KT_OBJECTIVE_TRACKER_COLOR["Header"].reverse = KT_OBJECTIVE_TRACKER_COLOR["HeaderHighlight"]
 KT_OBJECTIVE_TRACKER_COLOR["HeaderHighlight"].reverse = KT_OBJECTIVE_TRACKER_COLOR["Header"]
 KT_OBJECTIVE_TRACKER_COLOR["Complete"].reverse = KT_OBJECTIVE_TRACKER_COLOR["CompleteHighlight"]
@@ -84,7 +76,8 @@ KT_OBJECTIVE_TRACKER_COLOR["Label"].reverse = KT_OBJECTIVE_TRACKER_COLOR["LabelH
 KT_OBJECTIVE_TRACKER_COLOR["LabelHighlight"].reverse = KT_OBJECTIVE_TRACKER_COLOR["Label"]
 KT_OBJECTIVE_TRACKER_COLOR["Zone"].reverse = KT_OBJECTIVE_TRACKER_COLOR["ZoneHighlight"]
 KT_OBJECTIVE_TRACKER_COLOR["ZoneHighlight"].reverse = KT_OBJECTIVE_TRACKER_COLOR["Zone"]
+KT_OBJECTIVE_TRACKER_COLOR["Inactive"].reverse = KT_OBJECTIVE_TRACKER_COLOR["InactiveHighlight"]
+KT_OBJECTIVE_TRACKER_COLOR["InactiveHighlight"].reverse = KT_OBJECTIVE_TRACKER_COLOR["Inactive"]
 
 -- Max Quests - fix Blizz bug
 MAX_QUESTS = C_QuestLog.GetMaxNumQuestsCanAccept()
-Constants.QuestWatchConsts.MAX_QUEST_WATCHES = MAX_QUESTS

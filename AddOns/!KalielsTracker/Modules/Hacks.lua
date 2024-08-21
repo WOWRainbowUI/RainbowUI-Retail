@@ -56,19 +56,19 @@ end
 -- Affects World Map and removes taint errors. The hack removes call of restricted function SetPassThroughButtons.
 -- When the hack is inactive World Map display causes errors. It is not possible to get rid of these errors, since
 -- the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 10.2.7
+-- Negative impacts: unknown in WoW 11.0.0
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
         local function OnPinReleased(pinPool, pin)
-            FramePool_HideAndClearAnchors(pinPool, pin);
+            Pool_HideAndClearAnchors(pinPool, pin);
             pin:OnReleased();
             pin.pinTemplate = nil;
             pin.owningMap = nil;
         end
 
         local function OnPinMouseUp(pin, button, upInside)
-            pin:OnMouseUp(button);
+            pin:OnMouseUp(button, upInside);
             if upInside then
                 pin:OnClick(button);
             end
@@ -82,6 +82,9 @@ local function Hack_WorldMap()
 
             local pin, newPin = self.pinPools[pinTemplate]:Acquire();
 
+            pin.pinTemplate = pinTemplate;
+            pin.owningMap = self;
+
             if newPin then
                 local isMouseClickEnabled = pin:IsMouseClickEnabled();
                 local isMouseMotionEnabled = pin:IsMouseMotionEnabled();
@@ -89,6 +92,12 @@ local function Hack_WorldMap()
                 if isMouseClickEnabled then
                     pin:SetScript("OnMouseUp", OnPinMouseUp);
                     pin:SetScript("OnMouseDown", pin.OnMouseDown);
+
+                    -- Prevent OnClick handlers from being run twice, once a frame is in the mapCanvas ecosystem it needs
+                    -- to process mouse events only via the map system.
+                    if pin:IsObjectType("Button") then
+                        pin:SetScript("OnClick", nil);
+                    end
                 end
 
                 if isMouseMotionEnabled then
@@ -105,11 +114,9 @@ local function Hack_WorldMap()
                 pin:SetMouseMotionEnabled(isMouseMotionEnabled);
             end
 
-            pin.pinTemplate = pinTemplate;
-            pin.owningMap = self;
-
             if newPin then
                 pin:OnLoad();
+                pin.UpdateMousePropagation = function() end
             end
 
             self.ScrollContainer:MarkCanvasDirty();
@@ -137,12 +144,28 @@ local function Hack_EditMode()
         end)
     end
 
-    GameMenuButtonEditMode:HookScript("PreClick", function()
-        -- Clean DropDownList
-        local dropdown = LFDQueueFrameTypeDropDown
-        local parent = dropdown:GetParent()
-        dropdown:SetParent(nil)
-        dropdown:SetParent(parent)
+    GameMenuFrame:HookScript("OnShow", function(self)
+        local button
+        local frames = { self:GetChildren() }
+        for _, frame in ipairs(frames) do
+            if frame.layoutIndex and frame:GetText() == HUD_EDIT_MODE_MENU then
+                button = frame
+                break
+            end
+        end
+
+        if button and self.KTeditModeButton ~= button then
+            button:HookScript("PreClick", function(self)
+                if self:GetText() == HUD_EDIT_MODE_MENU then
+                    -- Clean DropDownList
+                    local dropdown = LFDQueueFrameTypeDropdown
+                    local parent = dropdown:GetParent()
+                    dropdown:SetParent(nil)
+                    dropdown:SetParent(parent)
+                end
+            end)
+            self.KTeditModeButton = button
+        end
     end)
 end
 
@@ -150,7 +173,7 @@ end
 -- Affects Encounter Journal (Adventure Guide) and removes taint errors.
 -- Negative impacts: unknown
 local function Hack_EncounterJournal()
-    C_EncounterJournal.OnOpen = function() end
+    --C_EncounterJournal.OnOpen = function() end
 end
 
 -- Open/Close tainted frames during combat
@@ -227,7 +250,7 @@ function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
     Hack_LFG()
     Hack_WorldMap()
-    Hack_EditMode()
+    --Hack_EditMode()
     Hack_EncounterJournal()
     Hack_TaintedFrames()
 end

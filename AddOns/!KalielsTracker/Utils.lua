@@ -61,6 +61,11 @@ function KT.IsTableEmpty(table)
     return (next(table) == nil)
 end
 
+-- Tasks
+function KT.GetNumTasks()
+    return #GetTasksTable()
+end
+
 -- Recipes
 function KT.GetNumTrackedRecipes()
     return #C_TradeSkillUI.GetRecipesTracked(true) + #C_TradeSkillUI.GetRecipesTracked(false)
@@ -185,7 +190,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
     local xp = GetQuestLogRewardXP(questID)
     local money = GetQuestLogRewardMoney(questID)
     local artifactXP = GetQuestLogRewardArtifactXP(questID)
-    local numQuestCurrencies = GetNumQuestLogRewardCurrencies(questID)
+    local numQuestCurrencies = #C_QuestLog.GetQuestRewardCurrencies(questID)
     local numQuestRewards = GetNumQuestLogRewards(questID)
     local numQuestSpellRewards, questSpellRewards = KT.GetQuestRewardSpells(questID)
     local numQuestChoices = GetNumQuestLogChoices(questID, true)
@@ -317,14 +322,6 @@ end
 -- Quest
 function KT.GetQuestTagInfo(questID)
     return C_QuestLog.GetQuestTagInfo(questID) or {}
-end
-
-function KT.GetQuestLogSpecialItemInfo(questLogIndex)
-    local link, item, charges, showItemWhenComplete = GetQuestLogSpecialItemInfo(questLogIndex)
-    if charges and charges <= 0 then
-        charges = GetItemCount(link)
-    end
-    return link, item, charges, showItemWhenComplete
 end
 
 function KT.GetNumQuests()
@@ -496,7 +493,7 @@ StaticPopupDialogs[addonName.."_WowheadURL"] = {
         elseif self.text.text_arg1 == "achievement" then
             name = select(2, GetAchievementInfo(self.text.text_arg2))
         elseif self.text.text_arg1 == "spell" then
-            name = GetSpellInfo(self.text.text_arg2)
+            name = C_Spell.GetSpellName(self.text.text_arg2)
         elseif self.text.text_arg1 == "activity" then
             local activityInfo = C_PerksActivities.GetPerksActivityInfo(self.text.text_arg2)
             if activityInfo then

@@ -18,12 +18,16 @@ local PetTracker = PetTracker
 local header, content
 local filterButton
 
+-- TODO: Update the entire module
+M.isLoaded = KT:CheckAddOn("PetTracker", "10.2.7")
+if true then return end
+
 OBJECTIVE_TRACKER_UPDATE_MODULE_PETTRACKER = 0x1000000
 OBJECTIVE_TRACKER_UPDATE_PETTRACKER = 0x2000000
 PETTRACKER_TRACKER_MODULE = KT_ObjectiveTracker_GetModuleInfoTable("PETTRACKER_TRACKER_MODULE")
 
 M.Texts = {
-	TrackPets = GetSpellInfo(122026),
+	TrackPets = C_Spell.GetSpellName(122026),
 	CapturedPets = "Show Captured",
 	DisplayCondition = "Display Condition",
 	DisplayAlways = "Always",

@@ -251,45 +251,30 @@ local function SetupTutorials()
 					cBold.."Affects World Map|r and removes taint errors. The hack removes call of restricted function "..
 					"SetPassThroughButtons. When the hack is inactive World Map display causes errors. It is not possible "..
 					"to get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
-					cWarning2.."Negative impacts:|r unknown in WoW 10.2.7",
+					cWarning2.."Negative impacts:|r unknown in WoW 11.0.2",
 			textY = -20,
 		},
 		{	-- 12
 			image = helpPath.."help_whats-new_logo",
-			imageWidth = 182,
-			imageHeight = 40,
-			imageTexCoords = { 0, 0.75, 0, 0.65625 },
+			imageWidth = 256,
+			imageHeight = 128,
+			imageTexCoords = { 0, 1, 0, 1 },
 			imagePoint = "TOPRIGHT",
-			imageX = -20,
-			imageY = 7,
+			imageX = -8,
+			imageY = 1,
 			imageAbsolute = true,
-			text = "            |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 6.6.0|r\n"..
-					"- ADDED - AddonCompartmentFrame support (button in the upper right corner"..
-					offs.."below the calendar button) - toggle show/hide the tracker\n"..
-					"- ADDED - command '/kt hide' for toggle show/hide the tracker\n"..
-					"- ADDED - blocking the opening of Collections frame (Appearances, Pet Journal)"..
-					offs.."during combat\n"..
-					"- ADDED - Tainted frames Hack - open/close tainted frames during combat (Quest"..
-					offs.."Log, Achievements etc.)\n"..
-					"- ADDED - World Map Hack [Beta] - errors are gone, the hack removes call of"..
-					offs.."restricted function SetPassThroughButtons, see Help page 11\n"..
-					"- ADDED - support for WoW 10.2.7\n"..
-					"- ADDED - support for WoW 10.2.6\n"..
-					"- CHANGED - Wowhead popup\n"..
-					"- CHANGED - addon support - RealUI 2.3.14\n"..
-					"- CHANGED - addon support - ElvUI 13.64\n"..
-					"- CHANGED - addon support - TomTom 3.6.2-release\n"..
-					"- CHANGED - addon support - Masque 10.2.7\n"..
-					"- CHANGED - addon support - PetTracker 10.2.7\n"..
-					"- CHANGED (help) - page What's New\n"..
+			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."Version 7.0.0|r\n"..
+					"- ADDED - test of automatically tracked quests + alert with instructions for fix (inside Options)\n"..
+					"- ADDED (filter) - test of maximum tracked quests (25)\n"..
+					"- ADDED - support for WoW 11.0.2\n"..
+					"- CHANGED (help) - Active Patrons\n"..
+					"- CHANGED - addon support - ElvUI 13.74, Tukui 20.443\n"..
+					"- CHANGED - addon support - TomTom 4.0.1\n"..
+					"- CHANGED - addon support - Masque 11.0.1\n"..
+					"- CHANGED - addon support disabled - PetTracker\n"..
 					"- CHANGED - Libs\n"..
-					"- FIXED - Edit Mode sometimes stays open\n"..
-					"- FIXED (quests) - error after collapsing a section, when there are Popup quests"..
-					offs.."(2+)\n"..
-					"- PERFORMANCE (quests) - skin Popup quests\n"..
-					"- REMOVED - addon support - SyncUI\n"..
-					"- REMOVED - addon support - SpartanUI\n"..
+					"- REMOVED (quests) - tracking override\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
@@ -322,7 +307,7 @@ local function SetupTutorials()
 				end
 			elseif i == 3 then
 				local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(1)
-				local block = KT_QUEST_TRACKER_MODULE:GetExistingBlock(questID)
+				local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
 				if block then
 					self[i].shine = block
 				end
@@ -331,9 +316,9 @@ local function SetupTutorials()
 			elseif i == 10 then
 				for j=1, C_QuestLog.GetNumQuestWatches() do
 					local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(j)
-					local block = KT_QUEST_TRACKER_MODULE:GetExistingBlock(questID)
-					if block and (QuestHasPOIInfo(questID) or block.questCompleted) then
-						self[i].shine = KT_ObjectiveTrackerFrame.BlocksFrame:FindButtonByQuestID(questID)
+					local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
+					if block and block.poiButton then
+						self[i].shine = block.poiButton
 						break
 					end
 				end
@@ -362,9 +347,12 @@ local function SetupTutorials()
 					cTitle.."Active Patrons|r\n"..
 					SetFormatedPatronName("Epic", "Haekwon", "Elune")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
+					SetFormatedPatronName("Rare", "A")..
 					SetFormatedPatronName("Uncommon", "Anaara", "Auchindoun")..
+					SetFormatedPatronName("Uncommon", "Calvin Jones")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Flex (drantor)")..
+					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
 					SetFormatedPatronName("Uncommon", "Jeffrey Hofer")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
