@@ -44,8 +44,7 @@ local rhToys = {
 -- Unless you want to, I'm not your supervisor.
 
 local rhList, count, macroIcon, macroName
-local rhCheckButtons = {}
-local wait = false
+local rhCheckButtons, wait, lastRnd = {}, false, 0
 local addon, RH = ...
 local L = RH.Localisation
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -138,7 +137,7 @@ local function listGenerate()
 				-- Check Draenai
 				if i == 210455 then
 					local _, _, raceID = UnitRace("player")
-					if (raceID ~= 11 or raceID ~= 30) then
+					if not (raceID == 11 or raceID == 30) then
 						addToy = false
 					end
 				end
@@ -174,6 +173,12 @@ end
 local function setRandom()
 	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) and #rhList > 0 then
 		local rnd = rhList[math.random(1, count)]
+		if count > 1 then
+			while rnd == lastRnd do
+				rnd = rhList[math.random(1, count)]
+			end
+			lastRnd = rnd
+		end
 		rhBtn:SetAttribute("toy", rhDB.L.tList[rnd]["name"])
 		if rhDB.iconOverride.name == L["RANDOM"] then
 			macroIcon = rhDB.L.tList[rnd]["icon"]
