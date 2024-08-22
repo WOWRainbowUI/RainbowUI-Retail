@@ -25,7 +25,7 @@ end
 
 Menu.ModifyMenu('MENU_WORLD_MAP_TRACKING', function(_, drop)
     drop:CreateDivider()
-    drop:CreateTitle('|TInterface/Addons/PetTracker/art/compass:16:16|t PetTracker:')
+    drop:CreateTitle('|TInterface/Addons/PetTracker/art/compass:16:16|t '..L.ADDON..':')
     drop:CreateCheckbox(L.Species, get, set, 'hideSpecies')
 
     local box = drop:CreateTemplate('SearchBoxTemplate')
