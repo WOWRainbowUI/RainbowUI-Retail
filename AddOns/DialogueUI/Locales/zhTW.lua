@@ -210,6 +210,9 @@ L["TTS Volume"] = VOLUME or "音量";
 L["TTS Volume Desc"] = "調整說話音量。";
 L["TTS Rate"] = "說話速度";
 L["TTS Rate Desc"] = "調整說話速度。";
+L["TTS Include Content"] = "包含內文";
+L["TTS Content NPC Name"] = "NPC 名字";
+L["TTS Content Quest Name"] = "任務標題";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 打開設定";
