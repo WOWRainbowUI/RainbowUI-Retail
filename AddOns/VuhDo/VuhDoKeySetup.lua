@@ -373,6 +373,9 @@ local tProhibitSmartCastOn = {
 	["boss3"] = true,
 	["boss4"] = true,
 	["boss5"] = true,
+	["boss6"] = true,
+	["boss7"] = true,
+	["boss8"] = true,
 };
 -- Setup for smart cast
 local tKey;

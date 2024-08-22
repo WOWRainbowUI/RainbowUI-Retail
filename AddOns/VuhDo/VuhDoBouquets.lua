@@ -7,9 +7,6 @@ local strfind = strfind;
 local twipe = table.wipe;
 local pairs = pairs;
 local sPlayerArray = { };
-local VUHDO_MY_AND_OTHERS_HOTS = { };
-local VUHDO_MY_HOTS = { };
-local VUHDO_OTHER_HOTS = { };
 local VUHDO_BOUQUETS = { };
 local VUHDO_RAID = { };
 local VUHDO_CONFIG = { };
@@ -26,9 +23,6 @@ local VUHDO_CUSTOM_BOUQUETS = {
 
 
 function VUHDO_bouquetsInitLocalOverrides()
-	VUHDO_MY_AND_OTHERS_HOTS = _G["VUHDO_MY_AND_OTHERS_HOTS"];
-	VUHDO_MY_HOTS = _G["VUHDO_MY_HOTS"];
-	VUHDO_OTHER_HOTS = _G["VUHDO_OTHER_HOTS"];
 	VUHDO_BOUQUETS = _G["VUHDO_BOUQUETS"];
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
@@ -201,7 +195,10 @@ local tIcon;
 local tTimer;
 local tCounter;
 local tDuration;
-local tBuffInfo;
+local tSourceType;
+local tUnitHot;
+local tUnitHotInfo;
+local tNow;
 local tTimer2
 local tClipL, tClipR, tClipT, tClipB;
 local tAnzInfos;
@@ -264,30 +261,55 @@ local function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 		else -- Buff/Debuff
 			tName = tInfos["name"];
 
-			tBuffInfo = ((tInfos["mine"] and tInfos["others"] and VUHDO_MY_AND_OTHERS_HOTS
-					or tInfos["mine"] and VUHDO_MY_HOTS
-					or tInfos["others"] and VUHDO_OTHER_HOTS
-					or sEmpty)[tUnit]	or sEmpty)[tName];
+			tIsActive = false;
+			tSourceType = 0;
 
-			tIsActive = tBuffInfo ~= nil;
-			if tIsActive then
-				txActiveAuras = txActiveAuras + 1;
+			if tInfos["mine"] and tInfos["others"] then
+				tSourceType = VUHDO_UNIT_HOT_TYPE_BOTH;
+			elseif tInfos["mine"] then
+				tSourceType = VUHDO_UNIT_HOT_TYPE_MINE;
+			elseif tInfos["others"] then
+				tSourceType = VUHDO_UNIT_HOT_TYPE_OTHERS;
+			end
 
-				tIcon, tTimer, tCounter, tDuration = tBuffInfo[3], tBuffInfo[tInfos["alive"] and 5 or 1], tBuffInfo[2], tBuffInfo[4];
+			if tSourceType > 0 then
+				tUnitHot, _ = VUHDO_getUnitHot(tUnit, tName, tSourceType);
 
-				if tTimer then
-					tTimer = floor(tTimer * 10) * 0.1;
-				end
-				
-				tColor = tInfos["color"];
-			
-				if tInfos["icon"] ~= 1 then
-					tIcon = VUHDO_CUSTOM_ICONS[tInfos["icon"]][2];
-					tColor["isDefault"] = false;
-				else
-					tColor["isDefault"] = true;
+				if tUnitHot and tUnitHot["auraInstanceId"] then
+					-- tUnitHotInfo: aura icon, expiration, stacks, duration, isMine, name, spell ID
+					tUnitHotInfo = VUHDO_getUnitHotInfo(aUnit, tUnitHot["auraInstanceId"]);
+
+					if tUnitHotInfo then
+						tIsActive = true;
+
+						txActiveAuras = txActiveAuras + 1;
+
+						tNow = GetTime();
+
+						if tInfos["alive"] then
+							tTimer = tNow - tUnitHotInfo[2] + (tUnitHotInfo[4] or 0);
+						else
+							tTimer = tUnitHotInfo[2] - tNow;
+						end
+
+						tIcon, tCounter, tDuration = tUnitHotInfo[1], tUnitHotInfo[3], tUnitHotInfo[4];
+
+						if tTimer then
+							tTimer = floor(tTimer * 10) * 0.1;
+						end
+
+						tColor = tInfos["color"];
+
+						if tInfos["icon"] ~= 1 then
+							tIcon = VUHDO_CUSTOM_ICONS[tInfos["icon"]][2];
+							tColor["isDefault"] = false;
+						else
+							tColor["isDefault"] = true;
+						end
+					end
 				end
 			end
+
 			tTimer2, tClipL, tClipR, tClipT, tClipB = nil, nil, nil, nil, nil;
 		end
 
@@ -610,9 +632,11 @@ local function VUHDO_updateEventBouquet(aUnit, aBouquetName)
 		tHasChanged, tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB
 		= VUHDO_evaluateBouquet(aUnit, aBouquetName, nil);
 
-	if not tHasChanged then return; end
+	if not tHasChanged then
+		return;
+	end
 
-	if tIsActive then
+	if tHasChanged or tIsActive then
 		for _, tDelegate in pairs(VUHDO_REGISTERED_BOUQUETS[aBouquetName]) do
 			tDelegate(aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
 				tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB);
@@ -760,7 +784,6 @@ function VUHDO_bouqetsChanged()
 	twipe(VUHDO_EVENT_BOUQUETS);
 	VUHDO_initFromSpellbook();
 	VUHDO_registerAllBouquets(false);
-	VUHDO_resetHotBuffCache();
 end
 
 

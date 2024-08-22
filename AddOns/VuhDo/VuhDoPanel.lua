@@ -499,9 +499,9 @@ local VUHDO_RAID_SORTERS = {
 					return true;
 				elseif tRole2 == VUHDO_ID_MELEE_TANK and tRole1 ~= VUHDO_ID_MELEE_TANK then
 					return false;
-				elseif tRole2 == VUHDO_ID_RANGED_DPS and tRole1 ~= VUHDO_ID_RANGED_DPS then
+				elseif tRole2 == VUHDO_ID_RANGED_DAMAGE and tRole1 ~= VUHDO_ID_RANGED_DAMAGE then
 					return true;
-				elseif tRole1 == VUHDO_ID_RANGED_DPS and tRole2 ~= VUHDO_ID_RANGED_DPS then
+				elseif tRole1 == VUHDO_ID_RANGED_DAMAGE and tRole2 ~= VUHDO_ID_RANGED_DAMAGE then
 					return false;
 				elseif tRole1 == VUHDO_ID_RANGED_HEAL and 
 					(tRole2 == VUHDO_ID_RANGED_DAMAGE or tRole2 == VUHDO_ID_MELEE_DAMAGE) then

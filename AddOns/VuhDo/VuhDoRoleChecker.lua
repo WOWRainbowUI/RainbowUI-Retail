@@ -130,6 +130,7 @@ local tClassId;
 local tRole;
 local tTreeId;
 function VUHDO_inspectRole(aUnit)
+
 	tInfo = VUHDO_RAID[aUnit];
 
 	if not tInfo then 
@@ -143,7 +144,7 @@ function VUHDO_inspectRole(aUnit)
 			return VUHDO_ID_UNDEFINED;
 		end
 		
-		tTreeId, _, _, _, _, tRole = GetSpecializationInfo(tActiveTree, false, false);
+		tTreeId, _, _, _, tRole = GetSpecializationInfo(tActiveTree, false, false);
 	else
 		tTreeId = GetInspectSpecialization(aUnit);
 		tRole = GetSpecializationRoleByID(tTreeId);
@@ -191,6 +192,7 @@ function VUHDO_inspectRole(aUnit)
 	else
 		return VUHDO_ID_UNDEFINED;
 	end
+
 end
 
 
@@ -219,7 +221,7 @@ function VUHDO_inspectLockRole()
 			return;
 		end
 
-		tTreeId, _, _, _, _, tRole = GetSpecializationInfo(tActiveTree, false, false);
+		tTreeId, _, _, _, tRole = GetSpecializationInfo(tActiveTree, false, false);
 	else
 		tTreeId = GetInspectSpecialization(VUHDO_NEXT_INSPECT_UNIT);
 		tRole = GetSpecializationRoleByID(tTreeId);
@@ -448,8 +450,8 @@ function VUHDO_determineRole(aUnit)
 		end
 
 	elseif 32 == tClassId then -- VUHDO_ID_EVOKERS
-		-- FIXME: at max level does Devastation still have this low cap?
-		if UnitPowerMax(aUnit) == 10000 then
+		-- FIXME: all Evoker specs have the same max mana and essence
+		if UnitPowerMax(aUnit) == 250000 then
 			return 62; -- VUHDO_ID_RANGED_DAMAGE
 		else
 			return 63; -- VUHDO_ID_RANGED_HEAL
