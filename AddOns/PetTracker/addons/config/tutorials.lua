@@ -21,7 +21,7 @@ function Tutorials:OnEnable()
 end
 
 function Tutorials:Load()
-	local mapTrackingButton = Addon.MapSearch.Frames[WorldMapFrame]
+	-- local mapTrackingButton = Addon.MapSearch.Frames[WorldMapFrame]
 
 	self:RegisterTutorials {
 		title = ADDON,
@@ -60,6 +60,7 @@ function Tutorials:Load()
 			shineTop = 9, shineBottom = -9,
 			y = -15
 		},
+		--[[
 		{
 			text = L.Tutorial[5],
 			point = 'TOPRIGHT', relPoint = 'BOTTOMLEFT',
@@ -77,6 +78,7 @@ function Tutorials:Load()
 			anchor = mapTrackingButton,
 			x = -5, y = -5
 		},
+		--]]
 		{
 			text = L.Tutorial[7],
 			point = 'BOTTOM', relPoint = 'TOP',
@@ -130,7 +132,7 @@ function Tutorials:Load()
 	}
 
 	self:TriggerOn(mapTrackingButton, 5)
-	self:TriggerOn(Addon.MapSearch.Editbox, 7)
+	-- self:TriggerOn(Addon.MapSearch.Editbox, 7)
 	self:TriggerOn(Addon.TrackToggle, 9)
 	self:TriggerOn(Addon.RivalsJournal, 12)
 end
