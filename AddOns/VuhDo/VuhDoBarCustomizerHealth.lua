@@ -647,6 +647,7 @@ local tHealthBar;
 local tSetup;
 local tLifeConfig;
 local tOwnerInfo;
+local tNickname;
 local tMaxChars;
 local tLifeString;
 local tUnit, tInfo;
@@ -659,6 +660,7 @@ local tTagText;
 local tIsLifeLeftOrRight;
 local tPanelNum;
 function VUHDO_customizeText(aButton, aMode, anIsTarget)
+
 	tUnit, tInfo = VUHDO_getDisplayUnit(aButton);
  	tHealthBar = VUHDO_getHealthBar(aButton, 1);
 
@@ -690,21 +692,20 @@ function VUHDO_customizeText(aButton, aMode, anIsTarget)
 	tIsLife = aMode ~= 7 or tIsLifeInName; -- VUHDO_UPDATE_AGGRO
 
 	tTextString = "";
+
 	-- Basic name text
 	if tIsName then
 
 		tOwnerInfo = VUHDO_RAID[tInfo["ownerUnit"]];
 		tIndex = tInfo["name"] .. (tInfo["ownerUnit"] or "") .. tPanelNum;
 
+		if VUHDO_LibNickTag and tSetup["ID_TEXT"]["showNickname"] then
+			tNickname = VUHDO_LibNickTag:GetNickname(tInfo["name"]) or tInfo["name"];
+		else
+			tNickname = tInfo["name"];
+		end
+
 		if not VUHDO_NAME_TEXTS[tIndex] or tInfo["name"] ~= tNickname then
-			local tNickname;
-
-			if VUHDO_LibNickTag and tSetup["ID_TEXT"]["showNickname"] then
-				tNickname = VUHDO_LibNickTag:GetNickname(tInfo["name"]) or tInfo["name"];
-			else
-				tNickname = tInfo["name"];
-			end
-
 			if tSetup["ID_TEXT"]["showName"] then
 				tTextString = (tSetup["ID_TEXT"]["showClass"] and not tInfo["isPet"] and tInfo["className"]) 
 					and tInfo["className"] .. ": " or "";

@@ -119,8 +119,6 @@ function VUHDO_initFromSpellbook()
 				if #tHotSlots == 10 then break; end
 			end
 		end
-		
-		tHotSlots[10] = "BOUQUET_" .. VUHDO_I18N_DEF_AOE_ADVICE;
 	end
 
 	local tHotCfg = VUHDO_PANEL_SETUP["HOTS"]["SLOTCFG"];

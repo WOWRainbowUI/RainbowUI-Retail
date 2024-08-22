@@ -430,7 +430,7 @@ local function VUHDO_healthBelowValidator(anInfo, aSomeCustom)
 		return 100 * anInfo["health"] / anInfo["healthmax"] < aSomeCustom["custom"][1],
 			nil, -1, -1, -1;
 	else
-		return false, nil, tPower, -1, -1;
+		return false, nil, -1, -1, -1;
 	end
 end
 
@@ -442,7 +442,7 @@ local function VUHDO_healthAboveValidator(anInfo, aSomeCustom)
 		return 100 * anInfo["health"] / anInfo["healthmax"] >= aSomeCustom["custom"][1],
 			nil, -1, -1, -1;
 	else
-		return false, nil, tPower, -1, -1;
+		return false, nil, -1, -1, -1;
 	end
 end
 
@@ -468,7 +468,7 @@ local function VUHDO_manaBelowValidator(anInfo, aSomeCustom)
 		return anInfo["powertype"] == 0 and 100 * anInfo["power"] / anInfo["powermax"] < aSomeCustom["custom"][1],
 			nil, -1, -1, -1;
 	else
-		return false, nil, tPower, -1, -1;
+		return false, nil, -1, -1, -1;
 	end
 end
 

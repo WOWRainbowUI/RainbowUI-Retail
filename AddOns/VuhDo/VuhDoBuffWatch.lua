@@ -880,7 +880,7 @@ function VUHDO_updateBuffSwatch(aSwatch)
 
 	if not InCombatLockdown() then
 		aSwatch:SetAttribute("lowtarget", tLowestUnit);
-		aSwatch:SetAttribute("goodtarget", tGoodTarget);
+		aSwatch:SetAttribute("goodtarget", tVariant[2] == VUHDO_BUFF_TARGET_SELF and "player" or tGoodTarget);
 	end
 
 	VUHDO_NUM_LOWS[tSwatchName] = #(tLowGroup or sEmpty) + #(tMissGroup or sEmpty);

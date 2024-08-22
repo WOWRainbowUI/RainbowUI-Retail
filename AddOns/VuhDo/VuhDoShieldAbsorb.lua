@@ -34,6 +34,7 @@ local VUHDO_PUMP_SHIELDS = {
 -- Note: if adding by spell ID table key must be a string e.g. ["17"] not [17]
 local VUHDO_IMMEDIATE_HOTS = {
 	[VUHDO_SPELL_ID.ATONEMENT] = true,
+	["194384"] = true, -- VUHDO_SPELL_ID.ATONEMENT
 }
 
 
@@ -418,7 +419,7 @@ function VUHDO_parseCombatLogShieldAbsorb(aMessage, aSrcGuid, aDstGuid, aShieldN
 		tInfo = VUHDO_RAID[tUnit];
 
 		if tInfo then
-			VUHDO_updateHots(tUnit, tInfo);
+			VUHDO_updateHots(tUnit, tInfo, aShieldName, aSpellId);
 
 			-- FIXME: why all?
 			VUHDO_updateAllCyclicBouquets(true);

@@ -395,6 +395,7 @@
 							<OnLoad>
 								VUHDO_setComboModel(self, "VUHDO_CONFIG.SOUND_DEBUFF", VUHDO_SOUNDS);
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K279);
+								self:SetAttribute("custom_function", VUHDO_notifySoundSelect);
 							</OnLoad>
 						</Scripts>
 					</Button>

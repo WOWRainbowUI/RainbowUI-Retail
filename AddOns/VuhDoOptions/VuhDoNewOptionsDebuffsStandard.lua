@@ -244,3 +244,17 @@ function VUHDO_importDebuffIgnoreOkayClicked(aButton)
 	VuhDoYesNoFrame:Show();
 
 end
+
+
+
+--
+local tOldValue = nil;
+function VUHDO_notifySoundSelect(aComboBox, aValue)
+	if (aValue ~= nil and tOldValue ~= aValue) then
+		local tSuccess = VUHDO_playSoundFile(aValue);
+
+		if tSuccess then
+			tOldValue = aValue;
+		end
+	end
+end

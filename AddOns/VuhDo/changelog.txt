@@ -1,3 +1,31 @@
+Version 3.173  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed Spell Trace bouquet updates on target and focus units  
+-- Fixed Buff Watch self targeted buffs during combat  
+-- Fixed Buff Watch when previously enabled abilities are untalented  
+-- Fixed player specialization based role detection  
+-- Fixed fallback role detection for Evoker damage specializations  
+-- Fixed dragging of spellbook items in 'VuhDo Options > Spells'  
+-- Fixed profile loading of tooltip spell info setting  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
 Version 3.172  
   
   

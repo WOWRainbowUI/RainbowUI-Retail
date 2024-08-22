@@ -160,7 +160,8 @@ end
 
 --
 local function VUHDO_addAllBuffPanels()
-	local tBuffPanel;
+
+	local tBuffPanel, tNewBuffPanel;
 	local tColPanels;
 
 	VUHDO_PANEL_OFFSET_Y = VUHDO_BUFF_PANEL_GAP_TOP;
@@ -179,8 +180,11 @@ local function VUHDO_addAllBuffPanels()
 				tIndex = tIndex + 1;
 				if (VUHDO_BUFF_SETTINGS[tCategName] or { })["enabled"] then
 
-					tBuffPanel = VUHDO_addBuffPanel(tCategName);
-					if tBuffPanel then
+					tNewBuffPanel = VUHDO_addBuffPanel(tCategName);
+
+					if tNewBuffPanel then
+						tBuffPanel = tNewBuffPanel;
+
 						tColPanels = tColPanels + 1;
 
 						VUHDO_PANEL_OFFSET_Y = VUHDO_PANEL_OFFSET_Y + VUHDO_IN_PANEL_HEIGHT;
@@ -210,6 +214,7 @@ local function VUHDO_addAllBuffPanels()
 	if tBuffPanel then
 		VUHDO_PANEL_WIDTH = VUHDO_PANEL_WIDTH + tBuffPanel:GetWidth();
 	end
+
 end
 
 

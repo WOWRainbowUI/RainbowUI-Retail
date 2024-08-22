@@ -326,8 +326,8 @@
 			</Layer>
 			</Layers>
 		<Scripts>
-			<OnMouseDown>VuhDoTooltipOnMouseDown(self,arg1)</OnMouseDown>
-			<OnMouseUp>VuhDoTooltipOnMouseUp(self,arg1)</OnMouseUp>
+			<OnMouseDown>VuhDoTooltipOnMouseDown(self)</OnMouseDown>
+			<OnMouseUp>VuhDoTooltipOnMouseUp(self)</OnMouseUp>
 		</Scripts>
 	 </Frame>
 

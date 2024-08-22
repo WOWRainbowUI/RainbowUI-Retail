@@ -589,7 +589,7 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, arg1);
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 										VUHDO_setColorManuallyChanged();
 									</OnMouseDown>
 									<OnLoad>
@@ -962,7 +962,7 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, arg1);
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 										VUHDO_setColorManuallyChanged();
 									</OnMouseDown>
 									<OnLoad>
@@ -1033,7 +1033,7 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, arg1);
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 									</OnMouseDown>
 									<OnLoad>
 										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_LOW, VUHDO_I18N_LOW);
@@ -1055,7 +1055,7 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, arg1);
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 									</OnMouseDown>
 									<OnLoad>
 										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_FAIR, VUHDO_I18N_FAIR);
@@ -1077,7 +1077,7 @@
 								</Anchors>
 								<Scripts>
 									<OnMouseDown>
-										VUHDO_lnfColorSwatchShowColorPicker(self, arg1);
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
 										VUHDO_setColorManuallyChanged();
 									</OnMouseDown>
 									<OnLoad>
