@@ -2,6 +2,13 @@ local addonId = ...
 local languageTable = DetailsFramework.Language.RegisterLanguage(addonId, "enUS")
 local L = languageTable
 
+L["S_SPEEDRUN"] = "Speed Run"
+L["S_SPEEDRUN_AUTO_ACCEPT"] = "Auto Accept Quests"
+L["S_SPEEDRUN_AUTO_COMPLETE"] = "Auto Complete Quests"
+L["S_SPEEDRUN_CANCEL_CINEMATIC"] = "Auto Skip Cinematics"
+
+L["S_OPTTIONS_NUMERATE_QUEST"] = "Enumerate Quests"
+L["S_OPTTIONS_NUMERATE_QUEST_DESC"] = "Show a number for each quest in the map frame and in the objective tracker."
 
 L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST"] = "Auto Accept Abandon Quests"
 L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST_DESC"] = "Don't show the confirmation dialog when abandoning a quest."
@@ -331,6 +338,8 @@ L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST"] = "Auto Accept Abandon Quests"
 L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST_DESC"] = "Don't show the confirmation dialog when abandoning a quest."
 L["S_OPTTIONS_DRAGONRACE_MINIMAP"] = "Show Track Minimap"
 L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "Track Color"
+L["S_OPTTIONS_NUMERATE_QUEST"] = "Enumerate Quests"
+L["S_OPTTIONS_NUMERATE_QUEST_DESC"] = "Show a number for each quest in the map frame and in the objective tracker."
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "Dragon Race"
 L["S_OPTTIONS_TAB_GENERAL_SETTINGS"] = "General Settings"
 L["S_OPTTIONS_TAB_GROUPFINDER_SETTINGS"] = "Group Finder"
@@ -370,6 +379,10 @@ L["S_RAREFINDER_TOOLTIP_SPOTTEDBY"] = "Spotted By"
 L["S_RAREFINDER_TOOLTIP_TIMEAGO"] = "minutes ago"
 L["S_SCALE"] = "Scale"
 L["S_SLASH_OPENMAP_FIRST"] = "World Quest Tracker did not loaded yet, open the map to load."
+L["S_SPEEDRUN"] = "Speed Run"
+L["S_SPEEDRUN_AUTO_ACCEPT"] = "Auto Accept Quests"
+L["S_SPEEDRUN_AUTO_COMPLETE"] = "Auto Complete Quests"
+L["S_SPEEDRUN_CANCEL_CINEMATIC"] = "Auto Skip Cinematics"
 L["S_SUMMARYPANEL_EXPIRED"] = "EXPIRED"
 L["S_SUMMARYPANEL_LAST15DAYS"] = "Last 15 Days"
 L["S_SUMMARYPANEL_LIFETIMESTATISTICS_ACCOUNT"] = "Account Life Time Statistics"
