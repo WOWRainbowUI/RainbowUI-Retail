@@ -72,7 +72,7 @@
 --     Returns an array with the set of unit ids for the current group.
 --]]
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", 96
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", 97
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
@@ -96,14 +96,14 @@ local INSPECT_TIMEOUT = 10 -- If we get no notification within 10s, give up on u
 
 local MAX_ATTEMPTS = 2
 
---[==[@debug@
+--[===[@debug@
 lib.debug = false
 local function debug (...)
   if lib.debug then  -- allow programmatic override of debug output by client addons
     print (...)
   end
 end
---@end-debug@]==]
+--@end-debug@]===]
 
 function lib.events:OnUsed(target, eventname)
   if eventname == INSPECT_READY_EVENT then
@@ -331,8 +331,8 @@ function lib:GetCachedTalentInfoByID(talent_id, config_id)
   if not talent then
     local entry = C_Traits.GetEntryInfo(config_id or -3, talent_id)
     if not entry then
-      --[==[@debug@
-      debug("GetCachedTalentInfoByID(" .. tostring(talent_id) .. "," .. tostring(config_id) .. ") returned nil") --@end-debug@]==]
+      --[===[@debug@
+      debug("GetCachedTalentInfoByID(" .. tostring(talent_id) .. "," .. tostring(config_id) .. ") returned nil") --@end-debug@]===]
       return nil
     end
     if entry.definitionID then
@@ -357,8 +357,8 @@ function lib:GetCachedPvpTalentInfoByID (talent_id)
   if not talent then
     local _, name, icon, _, _, spell_id = GetPvpTalentInfoByID (talent_id)
     if not name then
-      --[==[@debug@
-      debug ("GetCachedPvpTalentInfo("..tostring(talent_id)..") returned nil") --@end-debug@]==]
+      --[===[@debug@
+      debug ("GetCachedPvpTalentInfo("..tostring(talent_id)..") returned nil") --@end-debug@]===]
       return nil
     end
 
@@ -432,8 +432,8 @@ end
 function lib:Refresh (unit)
   local guid = UnitGUID (unit)
   if not guid then return end
-  --[==[@debug@
-  debug ("Refreshing "..unit) --@end-debug@]==]
+  --[===[@debug@
+  debug ("Refreshing "..unit) --@end-debug@]===]
   if not self.state.mainq[guid] then
     self.state.staleq[guid] = 1
     self.frame:Show ()
@@ -452,8 +452,8 @@ function lib:ProcessQueues ()
   local staleq = self.state.staleq
 
   if not next (mainq) and next(staleq) then
-    --[==[@debug@
-    debug ("Main queue empty, swapping main and stale queues") --@end-debug@]==]
+    --[===[@debug@
+    debug ("Main queue empty, swapping main and stale queues") --@end-debug@]===]
     self.state.mainq, self.state.staleq = self.state.staleq, self.state.mainq
     mainq, staleq = staleq, mainq
   end
@@ -462,17 +462,17 @@ function lib:ProcessQueues ()
     -- If there was an inspect going, it's timed out, so either retry or move it to stale queue
     local guid = self.state.current_guid
     if guid then
-      --[==[@debug@
-      debug ("Inspect timed out for "..guid) --@end-debug@]==]
+      --[===[@debug@
+      debug ("Inspect timed out for "..guid) --@end-debug@]===]
 
       local count = mainq and mainq[guid] or (MAX_ATTEMPTS + 1)
       if not self:GuidToUnit (guid) then
-        --[==[@debug@
-        debug ("No longer applicable, removing from queues") --@end-debug@]==]
+        --[===[@debug@
+        debug ("No longer applicable, removing from queues") --@end-debug@]===]
         mainq[guid], staleq[guid] = nil, nil
       elseif count > MAX_ATTEMPTS then
-        --[==[@debug@
-        debug ("Excessive retries, moving to stale queue") --@end-debug@]==]
+        --[===[@debug@
+        debug ("Excessive retries, moving to stale queue") --@end-debug@]===]
         mainq[guid], staleq[guid] = nil, 1
       else
         mainq[guid] = count + 1
@@ -486,16 +486,16 @@ function lib:ProcessQueues ()
   for guid,count in pairs (mainq) do
     local unit = self:GuidToUnit (guid)
     if not unit then
-      --[==[@debug@
-      debug ("No longer applicable, removing from queues") --@end-debug@]==]
+      --[===[@debug@
+      debug ("No longer applicable, removing from queues") --@end-debug@]===]
       mainq[guid], staleq[guid] = nil, nil
     elseif not CanInspect (unit) or not UnitIsConnected (unit) then
-      --[==[@debug@
-      debug ("Cannot inspect "..unit..", aka "..(UnitName(unit) or "nil")..", moving to stale queue") --@end-debug@]==]
+      --[===[@debug@
+      debug ("Cannot inspect "..unit..", aka "..(UnitName(unit) or "nil")..", moving to stale queue") --@end-debug@]===]
       mainq[guid], staleq[guid] = nil, 1
     else
-      --[==[@debug@
-      debug ("Inspecting "..unit..", aka "..(UnitName(unit) or "nil")) --@end-debug@]==]
+      --[===[@debug@
+      debug ("Inspecting "..unit..", aka "..(UnitName(unit) or "nil")) --@end-debug@]===]
       mainq[guid] = count + 1
       self.state.current_guid = guid
       NotifyInspect (unit)
@@ -635,8 +635,8 @@ function lib:INSPECT_READY (guid)
     if guid == self.state.current_guid then
       self.state.current_guid = nil -- Got what we asked for
       finalize = true
-      --[==[@debug@
-      debug ("Got inspection data for requested guid "..guid) --@end-debug@]==]
+      --[===[@debug@
+      debug ("Got inspection data for requested guid "..guid) --@end-debug@]===]
     end
 
     local mainq, staleq = self.state.mainq, self.state.staleq
@@ -736,8 +736,8 @@ function lib:SendLatestSpecData ()
     datastr = datastr..COMMS_DELIM..0
   end
 
-  --[==[@debug@
-  debug ("Sending LGIST update to "..scope) --@end-debug@]==]
+  --[===[@debug@
+  debug ("Sending LGIST update to "..scope) --@end-debug@]===]
   SendAddonMessage(COMMS_PREFIX, datastr, scope)
 end
 
@@ -766,7 +766,7 @@ local function decode_talent_string(import_string, talents_table)
     return false
   end
 
-  -- Serialization Version 1
+  -- Serialization Version 2
   local import_stream = ExportUtil.MakeImportDataStream(import_string)
 
   local header_bit_width = 8 + 16 + 128 -- version + spec_id + tree_hash
@@ -775,7 +775,7 @@ local function decode_talent_string(import_string, talents_table)
   end
 
   local serialization_version = import_stream:ExtractValue(8)
-  if serialization_version ~= C_Traits.GetLoadoutSerializationVersion() then
+  if serialization_version ~= 2 then -- bump to match C_Traits.GetLoadoutSerializationVersion()
     return false
   end
 
@@ -786,25 +786,32 @@ local function decode_talent_string(import_string, talents_table)
   local tree_id = C_ClassTalents.GetTraitTreeForSpec(spec_id)
   for _, node_id in ipairs(C_Traits.GetTreeNodes(tree_id)) do
     if import_stream:ExtractValue(1) == 1 then -- isNodeSelected
+      local is_node_purchased = import_stream:ExtractValue(1) == 1
+      -- local is_node_granted = not is_node_purchased
+
       local node = C_Traits.GetNodeInfo(config_id, node_id)
       if not node then
-        --[==[@debug@
-        debug(_G.ERROR_COLOR:WrapTextInColorCode(("Error decoding talents (config:%s, tree:%s, node:%s)"):format(tostringall(config_id, tree_id, node_id)))) --@end-debug@]==]
+        --[===[@debug@
+        debug(_G.ERROR_COLOR:WrapTextInColorCode(("Error decoding talents (config:%s, tree:%s, node:%s)"):format(tostringall(config_id, tree_id, node_id)))) --@end-debug@]===]
         wipe(talents_table)
         return false
       end
       local entry_id = node.activeEntry and node.activeEntry.entryID
-      local rank = node.maxRanks
-      if import_stream:ExtractValue(1) == 1 then -- isPartiallyRankedValue
-        rank = import_stream:ExtractValue(6) -- bitWidthRanksPurchased
+      local rank = node.maxRanks -- is_node_granted and 1 or node.maxRanks
+
+      if is_node_purchased then
+        if import_stream:ExtractValue(1) == 1 then -- isPartiallyRankedValue
+          rank = import_stream:ExtractValue(6) -- bitWidthRanksPurchased
+        end
+        if import_stream:ExtractValue(1) == 1 then -- isChoiceNode
+          local choice_node_index = import_stream:ExtractValue(2) + 1 -- stored as zero-index
+          entry_id = node.entryIDs[choice_node_index]
+        end
+        if not entry_id then
+          entry_id = node.entryIDs[1]
+        end
       end
-      if import_stream:ExtractValue(1) == 1 then -- isChoiceNode
-        local choice_node_index = import_stream:ExtractValue(2) + 1
-        entry_id = node.entryIDs[choice_node_index]
-      end
-      if not entry_id then
-        entry_id = node.entryIDs[1]
-      end
+
       local talent = lib:GetCachedTalentInfoByID(entry_id)
       if talent then
         talent.rank = rank
@@ -821,8 +828,8 @@ function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   if prefix ~= COMMS_PREFIX or scope ~= self.commScope then return end
   sender = Ambiguate(sender, "none")
 
-  --[==[@debug@
-  debug(("Incoming LGIST update from %s/%s: %s"):format(tostringall(scope, sender, datastr:gsub(COMMS_DELIM, "#")))) --@end-debug@]==]
+  --[===[@debug@
+  debug(("Incoming LGIST update from %s/%s: %s"):format(tostringall(scope, sender, datastr:gsub(COMMS_DELIM, "#")))) --@end-debug@]===]
 
   local fmt = strsplit(COMMS_DELIM, datastr, 1)
   if fmt ~= COMMS_FMT then return end -- Unknown format, ignore
@@ -885,8 +892,8 @@ function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   mainq[guid], staleq[guid] = need_inspect, want_inspect
   if need_inspect or want_inspect then self.frame:Show () end
 
-  --[==[@debug@
-  debug ("Firing LGIST update event for unit "..unit..", GUID "..guid..", inspect "..tostring(not not need_inspect)) --@end-debug@]==]
+  --[===[@debug@
+  debug ("Firing LGIST update event for unit "..unit..", GUID "..guid..", inspect "..tostring(not not need_inspect)) --@end-debug@]===]
   self.events:Fire (UPDATE_EVENT, guid, unit, info)
   self.events:Fire (QUEUE_EVENT)
 end
@@ -941,8 +948,8 @@ function lib:UNIT_AURA (unit)
       if UnitIsVisible (unit) then
         if info.not_visible then
           info.not_visible = nil
-          --[==[@debug@
-          debug (unit..", aka "..(UnitName(unit) or "nil")..", is now visible") --@end-debug@]==]
+          --[===[@debug@
+          debug (unit..", aka "..(UnitName(unit) or "nil")..", is now visible") --@end-debug@]===]
           if not self.state.mainq[guid] then
             self.state.staleq[guid] = 1
             self.frame:Show ()
@@ -950,11 +957,11 @@ function lib:UNIT_AURA (unit)
           end
         end
       elseif UnitIsConnected (unit) then
-        --[==[@debug@
+        --[===[@debug@
         if not info.not_visible then
           debug (unit..", aka "..(UnitName(unit) or "nil")..", is no longer visible")
         end
-        --@end-debug@]==]
+        --@end-debug@]===]
         info.not_visible = true
       end
     end
