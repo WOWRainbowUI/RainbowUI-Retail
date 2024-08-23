@@ -15,6 +15,27 @@ function Auctionator.DatabaseMixin:Init(db)
   self.processor.queue = {}
   self.processor.running = false
   self.processor.index = 1
+  self.processor.UpdateScript = function()
+    self.processor:SetScript("OnUpdate", nil)
+    local count = 50
+    while count > 0 and self.processor.index <= #self.processor.queue do
+      count = count - 1
+      local dbKey = self.processor.queue[self.processor.index]
+      local data = self.db[dbKey]
+      if data.pending then
+        self.db[dbKey] = data.old
+        self:_SetPrice(dbKey, data.buyoutPrice, data.available)
+      end
+      self.processor.index = self.processor.index + 1
+    end
+    if self.processor.index > #self.processor.queue then
+      self.processor.index = 1
+      self.processor.running = false
+      self.processor.queue = {}
+    else
+      self.processor:SetScript("OnUpdate", self.processor.UpdateScript)
+    end
+  end
 
   for dbKey, data in pairs(self.db) do
     if type(data) == "table" and data.pending then
@@ -42,26 +63,7 @@ function Auctionator.DatabaseMixin:_Queue(dbKey)
   table.insert(self.processor.queue, dbKey)
   if not self.processor.running then
     self.processor.running = true
-    self.processor:SetScript("OnUpdate", function()
-      local count = 50
-      while count > 0 and self.processor.index <= #self.processor.queue do
-        count = count - 1
-        local dbKey = self.processor.queue[self.processor.index]
-        local data = self.db[dbKey]
-        if data.pending then
-          self.db[dbKey] = data.old
-          self:_SetPrice(dbKey, data.buyoutPrice, data.available)
-        end
-        self.processor.index = self.processor.index + 1
-      end
-      if self.processor.index > #self.processor.queue then
-        self.processor.index = 1
-        self.processor:SetScript("OnUpdate", nil)
-        self.processor.running = false
-        self.processor.queue = {}
-        return
-      end
-    end)
+    self.processor:SetScript("OnUpdate", self.processor.UpdateScript)
   end
 end
 
@@ -81,7 +83,7 @@ function Auctionator.DatabaseMixin:SetPrice(dbKey, buyoutPrice, available)
 end
 
 function Auctionator.DatabaseMixin:_SetPrice(dbKey, buyoutPrice, available)
-  if not self.db[dbKey] or not self.db[dbKey].old then
+  if not self.db[dbKey] then
     self.db[dbKey] = {
       l={}, -- Lowest low price on a given day
       h={}, -- Highest low price on a given day
@@ -125,25 +127,25 @@ function Auctionator.DatabaseMixin:_SetPrice(dbKey, buyoutPrice, available)
     end
   end
 
+  local cutoffDay = self.cutoffDay
+
+  local daysToRemove = {}
   -- Prune old days
   for day, _ in pairs(priceData.h) do
-    day = tonumber(day)
-    if day <= self.cutoffDay then
+    if tonumber(day) <= cutoffDay then
       priceData.h[day] = nil
     end
   end
 
   for day, _ in pairs(priceData.l) do
-    day = tonumber(day)
-    if day <= self.cutoffDay then
+    if tonumber(day) <= cutoffDay then
       priceData.l[day] = nil
     end
   end
 
   if priceData.a ~= nil then
     for day, _ in pairs(priceData.a) do
-      day = tonumber(day)
-      if day <= self.cutoffDay then
+      if tonumber(day) <= cutoffDay then
         priceData.a[day] = nil
       end
     end
