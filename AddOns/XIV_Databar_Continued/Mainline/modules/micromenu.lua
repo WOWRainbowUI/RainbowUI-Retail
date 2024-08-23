@@ -1023,18 +1023,20 @@ function MenuModule:CreateClickFunctions()
         end
     end; -- menu
 
-    self.functions.chat = function(self, button, down)
+    --[[
+	self.functions.chat = function(self, button, down)
         if (not xb.db.profile.modules.microMenu.combatEn) and InCombatLockdown() then
             return;
         end
         if button == "LeftButton" then
-            -- if ChatMenu:IsVisible() then
-            --     ChatMenu:Hide()
-            -- else
-            --     ChatFrame_ToggleMenu()
-            -- end
+            if ChatMenu:IsVisible() then
+                ChatMenu:Hide()
+            else
+                ChatFrame_ToggleMenu()
+            end
         end
     end; -- chat
+	--]]
 
     self.functions.guild = function(self, button, down)
         if (not xb.db.profile.modules.microMenu.combatEn) and InCombatLockdown() then
@@ -1166,7 +1168,7 @@ function MenuModule:GetDefaultOptions()
         hideSocialText = false,
         osSocialText = 12,
         menu = true,
-        chat = false,
+        -- chat = false,
         guild = true,
         social = true,
         char = true,
@@ -1372,7 +1374,8 @@ function MenuModule:GetConfig()
 							self:Refresh();
                         end
                     },
-                    chat = {
+                    --[[
+					chat = {
                         name = L['Show Chat Button'],
                         order = 2,
                         type = "toggle",
@@ -1385,6 +1388,7 @@ function MenuModule:GetConfig()
                             self:Refresh();
                         end
                     },
+					--]]
                     guild = {
                         name = L['Show Guild Button'],
                         order = 3,
