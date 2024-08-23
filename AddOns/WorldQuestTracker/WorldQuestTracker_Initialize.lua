@@ -143,7 +143,7 @@ do
 				dont_open_in_group = true,
 
 				kfilter = { --anti spam on pre-made dungeons
-					enabled = true,
+					enabled = false, -- 更改預設值
 					ignore_leaders_enabled = true,
 					leaders_ignored = {},
 					ignore_by_time = 30,
