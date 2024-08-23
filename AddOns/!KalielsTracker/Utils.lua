@@ -63,7 +63,14 @@ end
 
 -- Tasks
 function KT.GetNumTasks()
-    return #GetTasksTable()
+    local tasksTable = GetTasksTable()
+    local numTasks = #tasksTable
+    for i = 1, #tasksTable do
+        if not QuestUtils_IsQuestWatched(tasksTable[i]) then
+            numTasks = numTasks - 1
+        end
+    end
+    return numTasks
 end
 
 -- Recipes
@@ -259,7 +266,7 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
 
         -- money
         if money > 0 then
-            tooltip:AddLine(GetCoinTextureString(money, 12), 1, 1, 1)
+            tooltip:AddLine(C_CurrencyInfo.GetCoinTextureString(money, 12), 1, 1, 1)
             if isWarModeDesired and isQuestWorldQuest and questHasWarModeBonus then
                 tooltip:AddLine(WAR_MODE_BONUS_PERCENTAGE_FORMAT:format(C_PvP.GetWarModeRewardBonus()))
             end
@@ -353,7 +360,7 @@ end
 -- Scenario
 function KT.IsScenarioHidden()
     local _, _, numStages = C_Scenario.GetInfo()
-    return numStages == 0 or not ShouldShowMawBuffs() or IsOnGroundFloorInJailersTower()
+    return numStages == 0 or IsOnGroundFloorInJailersTower()
 end
 
 -- Time

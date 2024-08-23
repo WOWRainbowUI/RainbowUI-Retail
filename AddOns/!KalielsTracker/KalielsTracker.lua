@@ -297,17 +297,12 @@ local function SetFrames()
 			KT.inWorld = false
 		elseif event == "SCENARIO_UPDATE" then
 			local newStage = ...
-			if newStage == nil then
+			if not C_Scenario.IsInScenario() or IsInJailersTower() == nil or IsOnGroundFloorInJailersTower() == true then
 				KT.inScenario = false
-			elseif not KT.inScenario then
-				C_Timer.After(0.1, function()  -- WTF ???
-					if IsInJailersTower() == nil or IsOnGroundFloorInJailersTower() == true then
-						KT.inScenario = false
-					else
-						KT.inScenario = true
-					end
-				end)
+			else
+				KT.inScenario = true
 			end
+			KT_ScenarioObjectiveTracker:MarkDirty()
 			if not newStage then
 				-- TODO
 				--[[local numSpells = KT_ScenarioObjectiveTracker.ObjectivesBlock.numSpells or 0
@@ -404,7 +399,7 @@ local function SetFrames()
 	button:SetPoint("TOPRIGHT", -8, -7)
 	button:SetNormalTexture(mediaPath.."UI-KT-HeaderButtons")
 	button:GetNormalTexture():SetTexCoord(0, 0.5, 0.25, 0.5)
-	button:RegisterForClicks("AnyUp")
+	button:RegisterForClicks("AnyDown")
 	button:SetScript("OnClick", function(self, btn)
 		if IsAltKeyDown() then
 			KT:OpenOptions()
@@ -1089,7 +1084,7 @@ local function SetHooks()
 				button.text:SetJustifyH("LEFT")
 				button.text:SetPoint("TOPLEFT", button.icon, 1, -3)
 
-				button:RegisterForClicks("AnyUp")
+				button:RegisterForClicks("AnyDown", "AnyUp")
 
 				button:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
 				do local tex = button:GetNormalTexture()
@@ -1403,6 +1398,9 @@ local function SetHooks()
 		self.Bar.Icon:Hide()
 		self.Bar.IconBG:Hide()
 	end
+
+	KT_BonusObjectiveTrackerProgressBarMixin.PlayFlareAnim = function() end
+	KT_ScenarioTrackerProgressBarMixin.PlayFlareAnim = function() end
 
 	local function SetTimerBarStyle(block, progressBar)
 		if not progressBar.KTskinned or KT.forcedUpdate then
@@ -2457,7 +2455,7 @@ function KT:SetOtherButtons()
 		button:SetPoint("TOPRIGHT", KTF.FilterButton or KTF.MinimizeButton, "TOPLEFT", -4, 0)
 		button:SetNormalTexture(mediaPath.."UI-KT-HeaderButtons")
 		button:GetNormalTexture():SetTexCoord(0.5, 1, 0.25, 0.5)
-		button:RegisterForClicks("AnyUp")
+		button:RegisterForClicks("AnyDown")
 		button:SetScript("OnClick", function(self, btn)
 			ToggleAchievementFrame()
 		end)
@@ -2479,7 +2477,7 @@ function KT:SetOtherButtons()
 		button:SetPoint("TOPRIGHT", KTF.AchievementsButton, "TOPLEFT", -4, 0)
 		button:SetNormalTexture(mediaPath.."UI-KT-HeaderButtons")
 		button:GetNormalTexture():SetTexCoord(0.5, 1, 0, 0.25)
-		button:RegisterForClicks("AnyUp")
+		button:RegisterForClicks("AnyDown")
 		button:SetScript("OnClick", function(self, btn)
 			ToggleQuestLog()
 		end)

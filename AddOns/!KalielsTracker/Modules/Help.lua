@@ -220,7 +220,9 @@ local function SetupTutorials()
 			text = cTitle.."Support addon TomTom|r\n\n"..
 					"TomTom support combined Blizzard's POI and TomTom's Arrow.\n\n"..
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0|t"..cDots.."...|r   Active POI button of quest with TomTom Waypoint.\n \n"..
+					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   Active POI button with TomTom Waypoint.\n"..
+					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
+					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   Active POI button without TomTom Waypoint (no data).\n\n"..
 					"Features:\n"..
 					"- Available for Quests and World Quests, but Quest waypoints are only for"..
 					offs.."current zone!|r (TomTom and Blizzard limitations)\n"..
@@ -264,6 +266,16 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."Version 7.0.1|r\n"..
+					"- CHANGED - addon support - TomTom 4.0.3\n"..
+					"- CHANGED - TomTom - show POI button with and without waypoint (waypoint announcement removed)\n"..
+					"- CHANGED - deprecated functions in WoW 11.0.2\n"..
+					"- FIXED - some buttons stopped working only for some players\n"..
+					"- FIXED (scenario) - incorrect Scenario detection\n"..
+					"- FIXED - incorrect progress bar animation\n"..
+					"- FIXED (worldquests) - incorrect num task detection\n"..
+					"- FIXED (filter) - lose the focused quest when change zone with auto filter on\n"..
+					"\n"..
 					cTitle.."Version 7.0.0|r\n"..
 					"- ADDED - test of automatically tracked quests + alert with instructions for fix (inside Options)\n"..
 					"- ADDED (filter) - test of maximum tracked quests (25)\n"..
