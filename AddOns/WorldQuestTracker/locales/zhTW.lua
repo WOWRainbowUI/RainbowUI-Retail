@@ -293,6 +293,10 @@ L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST"] = "自動接受放棄任務"
 L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST_DESC"] = "放棄任務時不顯示確認對話框。"
 L["S_OPTTIONS_DRAGONRACE_MINIMAP"] = "顯示小地圖追蹤"
 L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "追蹤顏色"
+--[[Translation missing --]]
+L["S_OPTTIONS_NUMERATE_QUEST"] = "Enumerate Quests"
+--[[Translation missing --]]
+L["S_OPTTIONS_NUMERATE_QUEST_DESC"] = "Show a number for each quest in the map frame and in the objective tracker."
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "飛龍競速"
 L["S_OPTTIONS_TAB_GENERAL_SETTINGS"] = "一般設定"
 L["S_OPTTIONS_TAB_GROUPFINDER_SETTINGS"] = "隊伍搜尋器"
@@ -332,6 +336,14 @@ L["S_RAREFINDER_TOOLTIP_SPOTTEDBY"] = "發現於"
 L["S_RAREFINDER_TOOLTIP_TIMEAGO"] = "分鐘前"
 L["S_SCALE"] = "縮放大小"
 L["S_SLASH_OPENMAP_FIRST"] = "尚未載入世界任務追蹤，請打開地圖來載入。"
+--[[Translation missing --]]
+L["S_SPEEDRUN"] = "Speed Run"
+--[[Translation missing --]]
+L["S_SPEEDRUN_AUTO_ACCEPT"] = "Auto Accept Quests"
+--[[Translation missing --]]
+L["S_SPEEDRUN_AUTO_COMPLETE"] = "Auto Complete Quests"
+--[[Translation missing --]]
+L["S_SPEEDRUN_CANCEL_CINEMATIC"] = "Auto Skip Cinematics"
 L["S_SUMMARYPANEL_EXPIRED"] = "已過期"
 L["S_SUMMARYPANEL_LAST15DAYS"] = "最近15天"
 L["S_SUMMARYPANEL_LIFETIMESTATISTICS_ACCOUNT"] = "帳號上線統計"

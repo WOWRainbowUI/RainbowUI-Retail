@@ -303,6 +303,10 @@ L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST_DESC"] = "Don't show the confirmation dial
 L["S_OPTTIONS_DRAGONRACE_MINIMAP"] = "Show Track Minimap"
 --[[Translation missing --]]
 L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "Track Color"
+--[[Translation missing --]]
+L["S_OPTTIONS_NUMERATE_QUEST"] = "Enumerate Quests"
+--[[Translation missing --]]
+L["S_OPTTIONS_NUMERATE_QUEST_DESC"] = "Show a number for each quest in the map frame and in the objective tracker."
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "Гонка на Драконах"
 L["S_OPTTIONS_TAB_GENERAL_SETTINGS"] = "Общие настройки"
 L["S_OPTTIONS_TAB_GROUPFINDER_SETTINGS"] = "Поиск группы"
@@ -342,6 +346,14 @@ L["S_RAREFINDER_TOOLTIP_SPOTTEDBY"] = "Обнаружил(а)"
 L["S_RAREFINDER_TOOLTIP_TIMEAGO"] = "минут назад"
 L["S_SCALE"] = "Масштаб"
 L["S_SLASH_OPENMAP_FIRST"] = "World Quest Tracker еще не загружен. Откройте карту для загрузки."
+--[[Translation missing --]]
+L["S_SPEEDRUN"] = "Speed Run"
+--[[Translation missing --]]
+L["S_SPEEDRUN_AUTO_ACCEPT"] = "Auto Accept Quests"
+--[[Translation missing --]]
+L["S_SPEEDRUN_AUTO_COMPLETE"] = "Auto Complete Quests"
+--[[Translation missing --]]
+L["S_SPEEDRUN_CANCEL_CINEMATIC"] = "Auto Skip Cinematics"
 L["S_SUMMARYPANEL_EXPIRED"] = "ИСТЕКШИЕ"
 L["S_SUMMARYPANEL_LAST15DAYS"] = "Последние 15 дней"
 L["S_SUMMARYPANEL_LIFETIMESTATISTICS_ACCOUNT"] = "Статистика аккаунта"

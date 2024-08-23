@@ -325,6 +325,10 @@ L["S_OPTTIONS_DRAGONRACE_MINIMAP"] = "Show Track Minimap"
 --[[Translation missing --]]
 L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "Track Color"
 --[[Translation missing --]]
+L["S_OPTTIONS_NUMERATE_QUEST"] = "Enumerate Quests"
+--[[Translation missing --]]
+L["S_OPTTIONS_NUMERATE_QUEST_DESC"] = "Show a number for each quest in the map frame and in the objective tracker."
+--[[Translation missing --]]
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "Dragon Race"
 --[[Translation missing --]]
 L["S_OPTTIONS_TAB_GENERAL_SETTINGS"] = "General Settings"
@@ -374,6 +378,14 @@ L["S_RAREFINDER_TOOLTIP_TIMEAGO"] = "전"
 L["S_SCALE"] = "Scale"
 --[[Translation missing --]]
 L["S_SLASH_OPENMAP_FIRST"] = "World Quest Tracker did not loaded yet, open the map to load."
+--[[Translation missing --]]
+L["S_SPEEDRUN"] = "Speed Run"
+--[[Translation missing --]]
+L["S_SPEEDRUN_AUTO_ACCEPT"] = "Auto Accept Quests"
+--[[Translation missing --]]
+L["S_SPEEDRUN_AUTO_COMPLETE"] = "Auto Complete Quests"
+--[[Translation missing --]]
+L["S_SPEEDRUN_CANCEL_CINEMATIC"] = "Auto Skip Cinematics"
 L["S_SUMMARYPANEL_EXPIRED"] = "만료"
 L["S_SUMMARYPANEL_LAST15DAYS"] = "최근 15일"
 L["S_SUMMARYPANEL_LIFETIMESTATISTICS_ACCOUNT"] = "계정 전체 시간 통계"
