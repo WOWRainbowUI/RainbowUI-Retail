@@ -118,15 +118,6 @@ local function FirstTimeSavedVariables()
 		}
 	end
 end
--- Slash Command --
-SLASH_VOODOOCASTINGBAR1, SLASH_VOODOOCASTINGBAR2 = '/vcb', '/voodoocastingbar'
-function SlashCmdList.VOODOOCASTINGBAR(msg, editBox)
-	if not vcbOptions00:IsShown() then
-		vcbOptions00:Show()
-	else
-		vcbOptions00:Hide()
-	end
-end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3)
 	if event == "PLAYER_LOGIN" then
