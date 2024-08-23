@@ -1,6 +1,7 @@
 # Syndicator
 
-## [102](https://github.com/Baganator/Syndicator/tree/102) (2024-08-14)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/101...102) 
+## [104](https://github.com/Baganator/Syndicator/tree/104) (2024-08-20)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/103...104) 
 
-- Rework guild realm detection to account for missing realm data from player names  
+- Classic: Search: Fix expansion searches not finishing when no data provider  
+- Update issue templates  

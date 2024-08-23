@@ -751,7 +751,11 @@ function Syndicator.Search.GetExpansion(details)
   if major then
     return major - 1
   end
-  return Syndicator.Constants.IsRetail and (select(15, C_Item.GetItemInfo(details.itemID)))
+  if not Syndicator.Constants.IsRetail then
+    return -1
+  else
+    return (select(15, C_Item.GetItemInfo(details.itemID)))
+  end
 end
 for key, expansionID in pairs(TextToExpansion) do
   AddKeyword(key, function(details)
@@ -794,6 +798,19 @@ local function GetGearStatCheck(statKey)
       end
     end
     return false
+  end
+end
+
+if C_TradeSkillUI and C_TradeSkillUI.GetItemReagentQualityByItemInfo then
+  for tier = 1, 5 do
+    AddKeyword(SYNDICATOR_L_KEYWORD_RX:format(tier), function(details)
+      if not C_Item.IsItemDataCachedByID(details.itemID) then
+        C_Item.RequestLoadItemDataByID(details.itemID)
+        return nil
+      end
+      local craftedQuality = C_TradeSkillUI.GetItemReagentQualityByItemInfo(details.itemID) or C_TradeSkillUI.GetItemCraftedQualityByItemInfo(details.itemLink)
+      return craftedQuality == tier
+    end, SYNDICATOR_L_GROUP_QUALITY)
   end
 end
 
