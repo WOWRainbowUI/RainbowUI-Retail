@@ -3443,7 +3443,7 @@ function Database:GetQuestItem(questID, character)
     end
 
     for i = 1,#item do
-        if self:IsValidForCharacter(item[i], character) then
+        if self:IsItemValidForCharacter(item[i], character) then
             return self:CreateItem(0, item[i]);
         end
     end
