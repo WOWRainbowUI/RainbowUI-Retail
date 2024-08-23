@@ -217,7 +217,7 @@ local function SetFrames()
 		button:SetScript("OnHide", KT.ItemButton.OnHide)
 		button:SetScript("OnEnter", KT.ItemButton.OnEnter)
 		button:SetScript("OnLeave", KT.ItemButton.OnLeave)
-		button:RegisterForClicks("AnyUp")
+		button:RegisterForClicks("AnyDown", "AnyUp")
 		button:SetAttribute("type", "item")
 		
 		button:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")

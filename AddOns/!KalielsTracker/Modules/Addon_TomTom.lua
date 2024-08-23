@@ -15,6 +15,7 @@ local db
 local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
 local questWaypoint
 local superTrackedQuestID = 0
+local stopUpdate = false
 
 local OTF = KT_ObjectiveTrackerFrame
 
@@ -31,7 +32,9 @@ local function SetupOptions()
 				name = "TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
 						"|cffff7f00注意:|r 原本的 \"TomTom > 任務目標\" 選項會被忽略!\n\n\n"..
 						"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-						"|T"..mediaPath.."KT-TomTomTag:32:32:-8:10|t...   點一下任務的 POI 按鈕來使用 TomTom 導航。",
+						"|T"..mediaPath.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   啟用 POI 按鈕包含 TomTom 導航。\n"..
+						"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
+						"|T"..mediaPath.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   啟用 POI 按鈕不包含 TomTom 導航 (沒有資料)。",
 				type = "description",
 				order = 1,
 			},
@@ -46,16 +49,6 @@ local function SetupOptions()
 				end,
 				order = 2,
 			},
-			tomtomAnnounce = {
-				name = "導航通知",
-				desc = "新增/移除任務導航時在聊天視窗顯示通知。停用此選項時只會看到 \"沒有資料可供導航任務\" 的訊息。",
-				type = "toggle",
-				width = 1.1,
-				set = function()
-					db.tomtomAnnounce = not db.tomtomAnnounce
-				end,
-				order = 3,
-			},
 		},
 	}
 
@@ -64,12 +57,6 @@ local function SetupOptions()
 	-- Reverts the option to display Quest Objectives
 	if not GetCVarBool("questPOI") then
 		SetCVar("questPOI", 1)
-	end
-end
-
-local function Announce(msg, force)
-	if db.tomtomAnnounce or force then
-		ChatFrame1:AddMessage("|cff33ff99"..KT.title..":|r "..msg)
 	end
 end
 
@@ -124,9 +111,13 @@ local function SetWaypointTag(button, show)
 			end
 		end
 
-		if button.KTtomtom and button.pinScale then
-			local scale = button.KTtomtom:GetParent():GetPinScale()
-			button.KTtomtom:SetSize(scale * 32, scale * 32)
+		local scale = button.KTtomtom:GetParent():GetPinScale()
+		button.KTtomtom:SetSize(scale * 32, scale * 32)
+
+		if questWaypoint then
+			button.KTtomtom:SetTexCoord(0, 0.5, 0, 1)
+		else
+			button.KTtomtom:SetTexCoord(0.5, 1, 0, 1)
 		end
 	else
 		if button.KTtomtom then
@@ -135,7 +126,7 @@ local function SetWaypointTag(button, show)
 	end
 end
 
-local function AddWaypoint(questID, isSilent)
+local function AddWaypoint(questID)
 	if C_QuestLog.IsQuestCalling(questID) then
 		return false
 	end
@@ -167,9 +158,6 @@ local function AddWaypoint(questID, isSilent)
 	end
 
 	if not mapID or mapID == 0 or not x or not y then
-		if not isSilent then
-			Announce("|cffff0000沒有資料可供導航任務|r ..."..title, true)
-		end
 		return false
 	end
 
@@ -185,10 +173,6 @@ local function AddWaypoint(questID, isSilent)
 	uid.questID = questID
 	questWaypoint = uid
 
-	if not isSilent then
-		Announce("已新增導航任務 ..."..title)
-	end
-
 	return true
 end
 
@@ -203,10 +187,9 @@ end
 local function SetSuperTrackedQuestWaypoint(questID, force)
 	if questID ~= superTrackedQuestID or force then
 		RemoveWaypoint(superTrackedQuestID)
-		if not QuestUtils_IsQuestBonusObjective(questID) then
-			if AddWaypoint(questID, force) then
-				superTrackedQuestID = questID
-			end
+		if questID > 0 and not QuestUtils_IsQuestBonusObjective(questID) then
+			AddWaypoint(questID)
+			superTrackedQuestID = questID
 		end
 	end
 end
@@ -222,6 +205,7 @@ local function SetHooks()
 			TomTom.profile.poi.arrival = 0
 			bck_TomTom_EnableDisablePOIIntegration(self)
 		end
+		TomTom:EnableDisablePOIIntegration()
 	end
 
 	hooksecurefunc(TomTom, "ClearWaypoint", function(self, uid)
@@ -243,7 +227,10 @@ local function SetHooks()
 
 	-- Blizzard
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedQuestID", function(questID)
-		SetSuperTrackedQuestWaypoint(questID)
+		stopUpdate = questID > 0 and not QuestUtils_IsQuestWatched(questID)
+		if not stopUpdate then
+			SetSuperTrackedQuestWaypoint(questID)
+		end
 	end)
 
 	hooksecurefunc(C_SuperTrack, "ClearAllSuperTracked", function()
@@ -284,6 +271,11 @@ local function SetEvents()
 		KT:UnregEvent(eventID)
 	end)
 
+	-- Disable stop update after quest is accepted
+	KT:RegEvent("QUEST_ACCEPTED", function()
+		stopUpdate = false
+	end)
+
 	-- Update waypoint after quest objectives changed
 	KT:RegEvent("QUEST_WATCH_UPDATE", function(_, questID)
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
@@ -297,8 +289,10 @@ local function SetEvents()
 	KT:RegEvent("QUEST_POI_UPDATE", function()
 		local questID = C_SuperTrack.GetSuperTrackedQuestID()
 		if questID then
-			SetSuperTrackedQuestWaypoint(questID)
-			OTF:Update()
+			C_Timer.After(0, function()
+				SetSuperTrackedQuestWaypoint(questID)
+				OTF:Update()
+			end)
 		end
 	end)
 end
@@ -310,7 +304,7 @@ end
 function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
-	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.1-release") and db.addonTomTom)
+	self.isLoaded = (KT:CheckAddOn("TomTom", "v4.0.3-release") and db.addonTomTom)
 
 	if self.isLoaded then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.0.1-release")
@@ -319,7 +313,6 @@ function M:OnInitialize()
 	local defaults = KT:MergeTables({
 		profile = {
 			tomtomArrival = 20,
-			tomtomAnnounce = true,
 		}
 	}, KT.db.defaults)
 	KT.db:RegisterDefaults(defaults)

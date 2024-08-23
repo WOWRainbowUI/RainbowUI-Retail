@@ -283,6 +283,7 @@ end
 local function Filter_Quests(spec, idx)
 	if not spec then return end
 	local numEntries, _ = C_QuestLog.GetNumQuestLogEntries()
+	local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
 
 	KT.stopUpdate = true
 	if C_QuestLog.GetNumQuestWatches() > 0 then
@@ -400,6 +401,7 @@ local function Filter_Quests(spec, idx)
 	C_QuestLog.SortQuestWatches()
 	KT_CampaignQuestObjectiveTracker:MarkDirty()
 	KT_QuestObjectiveTracker:MarkDirty()
+	C_SuperTrack.SetSuperTrackedQuestID(superTrackedQuestID)
 end
 
 local function GetCategoryByZone()

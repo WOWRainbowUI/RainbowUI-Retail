@@ -220,13 +220,15 @@ local function SetupTutorials()
 			text = cTitle.."支援插件: 箭頭導航 - TomTom|r\n\n"..
 					"TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0|t"..cDots.."...|r   點一下任務的 POI 按鈕來使用 TomTom 導航。\n \n"..
+					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   啟用 POI 按鈕包含 TomTom 導航。\n"..
+					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
+					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   啟用 POI 按鈕不包含 TomTom 導航 (沒有資料)。\n\n"..
 					"功能:\n"..
-					"- 一般任務和世界任務都可以使用，但是只有目前區域的任務才能導航!|r "..
+					"- 一般任務和世界任務都可以使用，但是只有當前區域的任務才能導航!|r"..
 					offs.." (這是 TomTom 和暴雪的功能限制)\n"..
 					"- "..cBold.."點一下|r (任務清單中或是世界地圖上的) POI 按鈕會顯示該任務的"..
 					offs.."路線導航箭頭。\n"..
-					"- 新追蹤或最靠近的任務會自動顯示路線導航。\n"..
+					"- 新追蹤或距離最近的任務會自動顯示路線導航。\n"..
 					"- 取消追蹤或放棄任務時會移除導航。\n"..
 					AddonInfo("TomTom"),
 			shineTop = 10,
@@ -264,6 +266,16 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."版本 7.0.1|r\n"..
+					"- 變更 - 支援插件 - TomTom 4.0.3\n"..
+					"- 變更 - TomTom - 顯示 POI 按鈕包含或不包含導航 (已移除導航通知)\n"..
+					"- 變更 - WoW 11.0.2 中移除的函數\n"..
+					"- 修正 - 某些玩家遇到無法使用某些按鈕\n"..
+					"- 修正 (事件) - 不正確的偵測事件\n"..
+					"- 修正 - 不正確的進度條動畫\n"..
+					"- 修正 (世界任務) - 不正確的偵側任務數量\n"..
+					"- 修正 (過濾方式) - 開啟自動過濾並且切換地圖時會，設為焦點的任務會被取消\n"..
+					"\n"..
 					cTitle.."版本 7.0.0|r\n"..
 					"- 新增 - 測試自動追蹤任務+帶有修正說明的警報 (在選項內)\n"..
 					"- 新增 (過濾方式) - 測試最多可追蹤的任務數量 (25)\n"..
