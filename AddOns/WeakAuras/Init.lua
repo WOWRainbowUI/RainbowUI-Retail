@@ -376,8 +376,8 @@ WeakAuras.normalWidth = 1.3
 WeakAuras.halfWidth = WeakAuras.normalWidth / 2
 WeakAuras.doubleWidth = WeakAuras.normalWidth * 2
 local versionStringFromToc = C_AddOns.GetAddOnMetadata("WeakAuras", "Version")
-local versionString = "5.15.4-36-gc0d2ee1"
-local buildTime = "20240814180937"
+local versionString = "5.16.1"
+local buildTime = "20240816193319"
 
 local flavorFromToc = C_AddOns.GetAddOnMetadata("WeakAuras", "X-Flavor")
 local flavorFromTocToNumber = {
@@ -396,16 +396,16 @@ else
   WeakAuras.buildType = "beta"
 end
 
---@alpha@
+--[=[@alpha@
 WeakAuras.buildType = "alpha"
---@end-alpha@
+--@end-alpha@]=]
 
 --[=====[@experimental@
 WeakAuras.buildType = "pr"
 --@end-experimental@]=====]
 
 --[==[@debug@
-if versionStringFromToc == "5.15.4-36-gc0d2ee1" then
+if versionStringFromToc == "5.16.1" then
   versionStringFromToc = "Dev"
   buildTime = "Dev"
   WeakAuras.buildType = "dev"
