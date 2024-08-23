@@ -543,6 +543,10 @@ do
                         value = true,
                         override = true,
                     },
+                    funnel = {
+                        key = "",
+                        value = false,
+                    },
 
                     custom1 = {
                         key = "",
@@ -6588,34 +6592,36 @@ do
 					order = 101,
 				},
 
-				sharePacks = {
-					type = "group",
-					name = "|cFF1EFF00分享優先順序|r",
-					desc = "可以使用這些匯出字串與其他插件使用者分享你的優先順序。\n\n" ..
-						"也可以在此處匯入分享的匯出字串。",
-					childGroups = "tab",
-					get = 'GetPackShareOption',
-					set = 'SetPackShareOption',
-					order = 1001,
-					args = {
-						import = {
-							type = "group",
-							name = "匯入",
-							order = 1,
-							args = {
-								stage0 = {
-									type = "group",
-									name = "",
-									inline = true,
-									order = 1,
-									args = {
-										guide = {
-											type = "description",
-											name = "在此處貼上優先順序匯入字串以開始。",
-											order = 1,
-											width = "full",
-											fontSize = "medium",
-										},
+                sharePacks = {
+                    type = "group",
+                    name = "|cFF1EFF00分享優先順序|r",
+                    desc = "可以使用這些匯出字串與其他插件使用者分享你的優先順序。\n\n" ..
+                        "也可以在此處匯入分享的匯出字串。",
+                    childGroups = "tab",
+                    get = 'GetPackShareOption',
+                    set = 'SetPackShareOption',
+                    order = 1001,
+                    args = {
+                        import = {
+                            type = "group",
+                            name = "匯入",
+                            order = 1,
+                            args = {
+                                stage0 = {
+                                    type = "group",
+                                    name = "",
+                                    inline = true,
+                                    order = 1,
+                                    args = {
+                                        guide = {
+                                            type = "description",
+                                            name = "|cFFFF0000不為自訂或從其他地方匯入的優先順序提供支援。|r\n\n" .. 
+                                                    "|cFF00CCFF插件中包含的預設優先順序是最新的，與你的角色相容，並且不需要額外的更改。|r\n\n" .. 
+                                                    "請在下面的文字框中貼上優先順序匯入字串以開始。",
+                                            order = 1,
+                                            width = "full",
+                                            fontSize = "medium",
+                                        },
 
 										separator = {
 											type = "header",
@@ -7211,10 +7217,18 @@ do
                                     width = "full",
                                 },
 
+                                profilewarning = {
+                                    type = "description",
+                                    name = "|cFFFF0000無需匯入 SimulationCraft 設定檔即可使用此插件。不為自訂或從其他地方匯入的優先順序提供支援。|r\n\n" .. 
+                                        "|cFF00CCFF插件包含的預設優先順序是最新的，與你的角色相容，並且不需要額外的更改。|r\n\n", 
+                                    order = 2.1,
+                                    fontSize = "medium",
+                                    width = "full",
+                                },
                                 warnings = {
                                     type = "input",
                                     name = "匯入日誌",
-                                    order = 5,
+                                    order = 5.3,
                                     -- fontSize = "medium",
                                     width = "full",
                                     multiline = 20,
@@ -7223,12 +7237,22 @@ do
                                         return not p.warnings or p.warnings == ""
                                     end,
                                 },
-
+                                profileconsiderations = {
+                                    type = "description",
+                                    name = "|cFF00CCFF嘗試匯入設定檔之前，請考慮以下事項:|r\n\n" ..
+                                    " - 對於各個角色來說，SimulationCraft 的動作列表往往不會發生顯著變化。 這些設定檔的編寫包括適用於所有裝備、天賦和其他因素的條件。\n\n" ..
+                                    " - 大多數 SimulationCraft  動作列表都需要一些額外的自訂才能與插件一起使用。 例如，|cFFFFD100target_if|r 條件不會直接轉換為插件，必須重寫。\n\n" ..
+                                    " - 有些 SimulationCraft 動作設定檔有經過修改，使插件更有效率並使用更少的處理時間。\n\n" ..
+                                    " - 此功能已留給修補者和進階使用者。\n\n",
+                                    order = 5.2,
+                                    fontSize = "medium",
+                                    width = "full",
+                                },
                                 reimport = {
                                     type = "execute",
                                     name = "匯入",
                                     desc = "從上述設定檔重建動作列表。",
-                                    order = 5,
+                                    order = 5.1,
                                     func = function ()
                                         local p = rawget( Hekili.DB.profile.packs, pack )
                                         local profile = p.profile:gsub( '"', '' )
@@ -8689,6 +8713,29 @@ do
 									width = 2,
 									order = 2,
 								},
+						funnel = {
+                            type = "group",
+                            name = "",
+                            inline = true,
+                            order = 8,
+                            args = {
+                                key = {
+                                    type = "keybinding",
+                                    name = "專注單體迴圈",
+                                    desc = "替支援專注單體迴圈的專精設定按鈕來切換開啟或關閉專注單體迴圈。",
+                                    width = 1,
+                                    order = 1,
+                                        },
+
+                                value = {
+                                    type = "toggle",
+                                    name = "啟用專注單體迴圈",
+                                    desc = "啟用時，專注單體專精的迴圈會稍微變化，在 AoE 中使用單體目標。\n\n",
+                                    width = 2,
+                                    order = 2,
+                                        },
+                                    },
+                        },
 
 								--[[ potLineBreak1 = {
 									type = "description",
@@ -10191,16 +10238,16 @@ do
 						width = "full"
 					},
 
-					supporters = {
-						type = "description",
-						name = function ()
-							return "|cFF00CCFF感謝我們的贊助者!|r\n\n" .. ns.Patrons .. "\n\n" ..
-								"請參閱 |cFFFFD100問題回報|r 連結以取得有關回報錯誤的資訊。\n\n"
-						end,
-						fontSize = "medium",
-						order = 6,
-						width = "full"
-					},
+                    supporters = {
+                        type = "description",
+                        name = function ()
+                            return "|cFF00CCFF感謝我們的贊助者!|r\n\n" .. ns.Patrons .. "\n\n" ..
+                                "請參閱 |cFFFFD100問題回報 (快照)|r 連結以取得有關回報錯誤的資訊。\n\n"
+                        end,
+                        fontSize = "medium",
+                        order = 6,
+                        width = "full"
+                    },
 
 					curse = {
 						type = "input",
@@ -10252,80 +10299,106 @@ do
 				}
 			},
 
-
-			--[[ gettingStarted = {
+			gettingStarted = {
 				type = "group",
-				name = "入門",
+				name = "開始使用",
+				desc = "此部分為插件的快速教學和說明。",
 				order = 11,
-				childGroups = "tree",
+				childGroups = "tab",
 				args = {
-					q1 = {
+					gettingStarted_welcome_header = {
 						type = "header",
-						name = "移動顯示",
+						name = "歡迎使用 Hekili\n",
 						order = 1,
 						width = "full"
 					},
-					a1 = {
+					gettingStarted_welcome_info = {
 						type = "description",
-						name = "當這些選項開啟時，所有顯示都是可見的，並且可以通過點擊和拖動來移動。 你可以通過點擊 |cFFFFD100Hekili|r 標題並將其拖動到其他位置來移動此選項畫面。\n\n" ..
-							"你也可以在 |cFFFFD100顯示|r 部分的每個顯示的 |cFFFFD100主要|r 標籤頁中設定精確的 X/Y 位置。\n\n" ..
-							"你也可以通過在聊天中輸入 |cFFFFD100/hek move|r 來移動顯示。 再次輸入 |cFFFFD100/hek move|r 以鎖定顯示。\n",
+						name = "此部分簡要概述了插件的基本知識，最後面還有我們在 Github 或 Discord 上收到的一些最常見問題的答案。\n\n" ..
+							"|cFF00CCFF強烈建議你花幾分鐘時間閱讀，以改善你的體驗！|r\n\n",
 						order = 1.1,
+						fontSize = "medium",
 						width = "full",
 					},
-
-					q2 = {
-						type = "header",
-						name = "使用開關",
+					gettingStarted_toggles = {
+						type = "group",
+						name = "如何使用開關",
 						order = 2,
 						width = "full",
+						args = {
+							gettingStarted_toggles_info = {
+								type = "description",
+								name = "該插件有幾個可用的 |cFFFFD100開關|r，可幫助你控制在戰鬥中接收到的推薦類型，這些開關可以通過快速鍵進行切換。具體內容請參閱 |cFFFFD100開關|r 部分。\n\n" ..
+									"|cFFFFD100傷害冷卻時間|r：你的主要 DPS 冷卻時間分配給 |cFF00CCFF冷卻時間|r 開關。允許你透過使用按鍵綁定在戰鬥中啟用/停用這些技能，這可以防止插件在某些不希望的情況下推薦給你重要冷卻時間，例如:\n" ..
+									"· 在地城小怪結束時\n" ..
+									"· 在團隊首領無敵階段期間，或在易傷階段之前\n\n" ..
+									"你可以在 |cFFFFD100技能|r 或 |cFFFFD100裝備和物品|r 部分中新增/刪除這些開關中的技能。\n\n|cFF00CCFF學會在遊戲中使用冷卻時間開關可以大大提高你的 DPS！|r\n\n",
+								order = 2.1,
+								fontSize = "medium",
+								width = "full",
+							},
+						},
 					},
-					a2 = {
-						type = "description",
-						name = "插件有幾個 |cFFFFD100開關|r 可用，可以幫助你控制在戰鬥中收到的建議類型。 有關具體資訊，請參閱 |cFFFFD100開關|r 部分。\n\n" ..
-							"|cFFFFD100模式|r: 默認情況下，|cFFFFD100自動模式|r 會自動偵測你正在與多少個目標交戰，並根據偵測到的目標數量提供建議。 在某些情況下，你可能希望插件假設只有一個目標，或者有多個目標，" ..
-							"或者顯示兩種情況的建議。 你可以使用 |cFFFFD100模式|r 切換在自動、單體目標、AOE 和反應式模式之間切換。\n\n" ..
-							"|cFFFFD100技能|r: 你的某些技能可以通過特定的開關來控制。 例如，你的主要 DPS 冷卻時間會分配給 |cFFFFD100冷卻時間|r 開關。 此功能允許你通過使用分配的按鍵綁定在戰鬥中啟用/停用這些技能。 你可以在 |cFFFFD100技能|r 或 |cFFFFD100裝備和飾品|r 部分中將技能添加到（或從中移除）" ..
-							"這些開關。 當從開關中移除時，無論開關是開啟還是關閉，都可以隨時推薦技能。\n\n" ..
-							"|cFFFFD100顯示|r: 你的打斷、防禦和冷卻時間開關與同名顯示有特殊關係。 如果勾選了該開關的 |cFFFFD100單獨顯示|r，則這些技能將顯示在該開關的顯示中，而不是 |cFFFFD100主要|r 或 |cFFFFD100AOE|r 顯示中。\n",
-						order = 2.1,
-						width = "full",
-					},
-
-					q3 = {
-						type = "header",
-						name = "導入設定檔",
+					gettingStarted_displays = {
+						type = "group",
+						name = "設定你的技能組",
 						order = 3,
-						width = "full",
+						args = {
+							gettingStarted_displays_info = {
+								type = "description",
+								name = "|cFFFFD100技能組|r 是 Hekili 向你顯示推薦施放的法術和物品的地方，|cFF00CCFF主要|r 技能組是你的 DPS 迴圈。當此選項視窗打開時，所有技能組都可見。\n" ..
+									"\n|cFFFFD100技能組|r 可以通過以下方式移動:\n" ..
+									"· 點擊並拖曳它們\n" ..
+									"  - 你可以通過點擊最上方的 |cFFFFD100Hekili " .. Hekili.Version .. " |r 標題並將其拖曳到一邊來移開此視窗。\n" ..
+									"  - 或者可以輸入 |cFFFFD100/hek move|r 來允許移動技能組，但不會打開選項。再次輸入可鎖定技能組。\n" ..
+									"· 在 |cFFFFD100技能組|r 部分的每個技能組的 |cFFFFD100圖示|r 選項卡上設定精確的 X/Y 位置。\n\n" ..
+									"預設情況下，插件使用 |cFFFFD100自動|r 模式，根據檢測到的目標數量決定是執行 |cFF00CCFF單目標|r 還是 |cFF00CCFF多目標|r 迴圈。可以在 |cFFFFD100開關|r > |cFFFFD100技能組控制|r 部分中啟用其他類型的技能組。" ..
+									"還有其他類型的技能組可以使用，並可以選擇將它們與你的 |cFF00CCFF主要|r 技能組分開顯示。\n" ..
+									"\n其他技能組：\n· |cFF00CCFF冷卻時間|r\n" .. "· |cFF00CCFF斷法|r\n" .. "· |cFF00CCFF防禦|r\n\n",
+								order = 3.1,
+								fontSize = "medium",
+								width = "full",
+							},
+						},
 					},
-					a3 = {
-						type = "description",
-						name = "|cFFFF0000你不需要導入 SimulationCraft 設定檔即可使用此插件。|r\n\n" ..
-							"在嘗試導入設定檔之前，請考慮以下事項:\n\n" ..
-							" - SimulationCraft 動作列表對於單個角色而言通常不會有顯著變化。 設定檔的編寫包含適用於所有裝備、天賦和其他因素的條件。\n\n" ..
-							" - 大多數 SimulationCraft 動作列表需要一些額外的自訂才能與插件一起使用。 例如，|cFFFFD100target_if|r 條件無法直接轉換為插件，必須重寫。\n\n" ..
-							" - 一些 SimulationCraft 動作設定檔已針對插件進行了修改，以提高效率並減少處理時間。\n\n" ..
-							"插件中包含的預設優先順序會保持最新狀態，與你的角色相容，並且不需要額外更改。 |cFFFF0000不支援來自其他地方的自訂或導入優先順序。|r\n",
-						order = 3.1,
-						width = "full",
-					},
-
-					q4 = {
-						type = "header",
-						name = "出現問題",
+					gettingStarted_faqs = {
+						type = "group",
+						name = "常見問題",
 						order = 4,
 						width = "full",
+						args = {
+							gettingStarted_toggles_info = {
+								type = "description",
+								name = "前 3 個問題/問題\n\n" ..
+									"1. 我的按鍵綁定沒有正確顯示\n- |cFF00CCFF使用巨集或潛行條時，有時會發生這種情況。你可以在|r |cFFFFD100技能|r |cFF00CCFF部分中手動告訴插件使用哪個按鍵綁定。從下拉選單中找到法術，然後使用|r |cFFFFD100覆蓋按鍵綁定|r |cFF00CCFF文字框。飾品也可以在|r |cFFFFD100裝備和物品|r 下執行相同的操作。\n\n" ..
+									"2. 我不認識這個法術! 這是什麼?\n- |cFF00CCFF如果你是冰霜法師，那可能是你的水元素寵物法術，冰凍。否則，它可能是一個飾品。你可以按 |cFFFFD100alt-shift-p|r 暫停插件並將滑鼠指向圖示，查看它是什麼!|r\n\n" ..
+									"3. 如何停用某個技能或飾品?\n- |cFF00CCFF到 |cFFFFD100技能|r 或 |cFFFFD100裝備和物品|r，在下拉選單中找到它，然後將其停用。\n\n|r" ..
+									"\n我已經看到最底部了，但我仍然有一個問題! \n- |cFF00CCFF請到|r |cFFFFD100問題回報|r |cFF00CCFF獲得更詳細的說明。",
+								order = 4.1,
+								fontSize = "medium",
+								width = "full",
+							},
+						},
 					},
-					a4 = {
-						type = "description",
-						name = "你可以通過 |cFFFFD100問題回報|r 部分中的連結提交問題、疑慮和想法。\n\n" ..
-							"如果你不同意插件的建議，則可以使用 |cFFFFD100快照|r 功能在顯示特定建議的確切時刻捕捉插件決策過程的日誌。" ..
-							"當你提交問題時，請務必建立快照（而不是螢幕截圖！），將文字放在 Pastebin 上，並在提交問題單時包含連結。",
-						order = 4.1,
+
+
+				--[[q5 = {
+						type = "header",
+						name = "出現錯誤",
+						order = 5,
 						width = "full",
-					}
+					},
+					a5 = {
+						type = "description",
+						name = "你可以通過 |cFFFFD100問題回報|r 部分中的鏈接提交問題、疑慮和想法。\n\n" ..
+							"如果你不同意插件的建議，|cFFFFD100快照|r 功能允許你捕獲插件在顯示特定建議時做出的決策日誌。" ..
+							"當你提交問題時，請務必截取快照（而不是屏幕截圖！），將文本放在 Pastebin 上，並在提交問題單時包含該鏈接。",
+						order = 5.1,
+						fontSize = "medium",
+						width = "full",
+					}--]]
 				}
-			}, ]]
+			},
 
 			abilities = {
 				type = "group",
@@ -10775,6 +10848,7 @@ do
         minorCDs = 55,
         custom1 = 56,
         custom2 = 57,
+        funnel = 58,
     }
 
     local indexToToggle = {
@@ -10785,6 +10859,7 @@ do
         [55] = { "essences", "次要冷卻" },
         [56] = { "custom1", "自訂 #1" },
         [57] = { "custom2", "自訂 #2" },
+		[58] = { "funnel", "專注單體" },
     }
 
     local toggleInstructions = {
