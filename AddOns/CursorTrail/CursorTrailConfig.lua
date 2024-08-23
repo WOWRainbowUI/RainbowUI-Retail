@@ -933,6 +933,11 @@ function OptionsFrame_OnHide()
     CursorTrail_HideChangelog()
     OptionsFrame.OriginalConfig = nil  -- Free memory.
     EventFrame:UnregisterEvent("GLOBAL_MOUSE_DOWN")
+
+    -- Free garbage memory now!  This prevents excessive build up caused by
+    -- calling GetMouseFocus()/GetMouseFoci() in the main OnUpdate() function,
+    -- and also from using the color picker window.
+    Globals.collectgarbage("collect")
     --|traceCfg("OUT OptionsFrame_OnHide().")
 end
 

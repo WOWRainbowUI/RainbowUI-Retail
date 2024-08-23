@@ -21,6 +21,7 @@ local _  -- Prevent tainting global _ .
 local abs = _G.math.abs
 local assert = _G.assert
 local C_Timer = _G.C_Timer
+----local collectgarbage = _G.collectgarbage
 local ColorPickerFrame = _G.ColorPickerFrame
 local CopyTable = _G.CopyTable
 local CreateFrame = _G.CreateFrame
@@ -28,6 +29,7 @@ local CreateVector3D = _G.CreateVector3D
 local DEFAULT_CHAT_FRAME = _G.DEFAULT_CHAT_FRAME
 local DoesAncestryInclude = _G.DoesAncestryInclude
 local floor = _G.floor
+----local GetAddOnMemoryUsage = _G.GetAddOnMemoryUsage
 local GetAddOnMetadata = _G.GetAddOnMetadata or _G.C_AddOns.GetAddOnMetadata
 local GetBuildInfo = _G.GetBuildInfo
 local GetCursorPosition = _G.GetCursorPosition
@@ -52,6 +54,7 @@ local table = _G.table
 local tonumber = _G.tonumber
 local UIParent = _G.UIParent
 local UnitAffectingCombat = _G.UnitAffectingCombat
+----local UpdateAddOnMemoryUsage = _G.UpdateAddOnMemoryUsage
 local xpcall = _G.xpcall
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -126,8 +129,9 @@ kScreenBottomFourthMult = 1.077
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 kNewFeatures =  -- For flagging new features in the UI.
 {
-    -- Added in version 10.1.7.4 ...
-    {anchor="TOP", relativeTo="ChangelogBtn", relativeAnchor="BOTTOM", x=0, y=3},
+--~ Disabled this notification in 11.0.2.3 ...
+--~     -- Added in version 10.1.7.4 ...
+--~     {anchor="TOP", relativeTo="ChangelogBtn", relativeAnchor="BOTTOM", x=0, y=3},
 
 --~ Disabled this notification in 10.2.7.4 ...
 --~     -- Added in version 10.2.7.2 ...
@@ -184,6 +188,11 @@ gShowOrHide = nil  -- Can be kShow, kHide, or nil (no change).
 gPreviousX = nil
 gPreviousY = nil
 
+-- Define global vector variables for use with SetTransform() to avoid excessive
+-- garbage memory building up that occured when using local variables.
+gPosVector = CreateVector3D(0, 0, 0)  -- Position vector.
+gRotVector = CreateVector3D(0, 0, 0)  -- Rotation vector.
+
 -- Sparkling shape color arrays:
 gShapeSparkleIndex = 1
 gShapeSparkleMax = 60
@@ -197,8 +206,11 @@ for i = 1, gShapeSparkleMax do
 end
 
 -- Timer variables:
-gTimer1 = 0
-kTimer1Interval = 0.250 -- seconds
+gTimer_MouseLook = 0
+kTimerInterval_MouseLook = 0.250 -- seconds
+
+----gTimer_GC = 0
+----kTimerInterval_GC = 5  -- seconds
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 --[[                       Helper Functions                                  ]]
@@ -451,10 +463,13 @@ Globals.SlashCmdList[kAddonFolderName] = function (params)
     --____________________________________________________
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "memory" then  -- For debugging.
-        Globals.collectgarbage("collect")  -- Frees any "garbage memory" immediately.
-        ----printMsg(kAddonFolderName.." Memory:"..round(Globals.collectgarbage("count"),1).."k")
+        local numDecPts = 1
         Globals.UpdateAddOnMemoryUsage(kAddonFolderName)
-        printMsg(kAddonFolderName.." Memory: "..round(Globals.GetAddOnMemoryUsage(kAddonFolderName),1).."k")
+        local preGC = round(Globals.GetAddOnMemoryUsage(kAddonFolderName), numDecPts)
+        Globals.collectgarbage("collect")  -- Frees any "garbage memory" immediately.
+        Globals.UpdateAddOnMemoryUsage(kAddonFolderName)
+        local currMemory = round(Globals.GetAddOnMemoryUsage(kAddonFolderName), numDecPts)
+        printMsg(kAddonFolderName.." Memory: ".. currMemory .."k", " (Max: ".. preGC .."k)")
 --~     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 --~     elseif cmd == "deleteallprofiles!" then
 --~         OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
@@ -695,10 +710,12 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
     ----DebugText("Shadow% "..round(Globals.CursorTrail_PlayerConfig.UserShadowAlpha,2), 100)
     ----DebugText("Fade: "..(Globals.CursorTrail_Config.Profiles.Test.FadeOut and "true" or "false"), 80)
     ----local t0 = GetTime()
+    ----gTimer_GC = gTimer_GC + elapsedSeconds
     local bOptionsShown = (OptionsFrame and OptionsFrame:IsShown())
     local bIsMouseLooking = IsMouselooking()
+
     if (PlayerConfig.UserShowMouseLook == true) then
-        gTimer1 = 0  -- Prevents hiding during "mouse look".
+        gTimer_MouseLook = 0  -- Prevents hiding during "mouse look".
         if (bIsMouseLooking == true and PlayerConfig.FadeOut == true) then
             gMotionIntensity = 1.0  -- Force show during mouse look.
         end
@@ -706,9 +723,9 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
         -- - - - - - - - - - - - - - - - - - - - - - - - --
         -- Hide cursor effect during "mouse look".
         -- - - - - - - - - - - - - - - - - - - - - - - - --
-        gTimer1 = gTimer1 + elapsedSeconds
-        if (gTimer1 >= kTimer1Interval) then
-            gTimer1 = 0
+        gTimer_MouseLook = gTimer_MouseLook + elapsedSeconds
+        if (gTimer_MouseLook >= kTimerInterval_MouseLook) then
+            gTimer_MouseLook = 0
             ----if (OptionsFrame and OptionsFrame:IsShown() ~= true) then
             if not bOptionsShown then
                 if bIsMouseLooking then
@@ -906,6 +923,14 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                 ----print("shape alpha:", round(alpha,2))
             end
         end
+    ----elseif (gTimer_GC >= kTimerInterval_GC) then
+    ----    -- Collect garbage perdiocally while mouse is idle to avoid memory build up from calls to GetMouseFoci() and CreateVector3D().
+    ----    gTimer_GC = 0
+    ----    UpdateAddOnMemoryUsage(kAddonFolderName)
+    ----    if GetAddOnMemoryUsage(kAddonFolderName) > 2500 then
+    ----        collectgarbage("collect")  -- Frees any "garbage memory" immediately.
+    ----        ----Globals.PlaySound(855) -- 839
+    ----    end
     end
 
     ----DebugText("dt: "..GetTime()-t0, 200)
@@ -941,8 +966,13 @@ function Addon_Initialize()
     ----    Globals.CursorTrail_Config.LastChangelogVersion = kAddonVersion
     ----end
 
-    -- New features notification.
+    -- If no new features and no new models, wipe saved vars that are no longer relevant.
     Globals.CursorTrail_Config.NewFeaturesSeen = Globals.CursorTrail_Config.NewFeaturesSeen or {}
+    if isEmpty(kNewFeatures) and isEmpty(kNewModels) then
+        Globals.CursorTrail_Config.NewFeaturesSeen = {}  -- Wipe these saved vars.
+    end
+
+    -- Print a message if there are new features to be seen.
     local newFeaturesCount = 0
     for _, pt in pairs(kNewFeatures) do
         local newFeatureName = pt.relativeTo
@@ -1374,9 +1404,9 @@ function CursorModel_SetTransform(cursorX, cursorY)
     local modelZ = CursorModel.OfsZ
     ----CursorModel:SetPosition(modelZ, modelX, modelY)  --<<< NO EFFECT.
     ----CursorModel:SetViewTranslation(cursorX-ScreenMidX, cursorY-ScreenMidY)
-    CursorModel:SetTransform( CreateVector3D(modelX, modelY, modelZ),  -- (Position x,y,z)
-                    CreateVector3D(CursorModel.RotX, CursorModel.RotY, CursorModel.RotZ),  -- (Rotation x,y,z)
-                    CursorModel.Scale )
+    gPosVector:SetXYZ(modelX, modelY, modelZ)
+    gRotVector:SetXYZ(CursorModel.RotX, CursorModel.RotY, CursorModel.RotZ)
+    CursorModel:SetTransform(gPosVector, gRotVector, CursorModel.Scale)
 end
 
 -------------------------------------------------------------------------------
