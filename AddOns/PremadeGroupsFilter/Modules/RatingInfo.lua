@@ -40,13 +40,13 @@ function PGF.GetOrCreateRatingInfoFrame(self)
         frame:SetPoint("TOP", 0, -4)
 
         frame.Rating = frame:CreateFontString("$parentRating", "ARTWORK", "GameFontNormalSmall")
-        frame.Rating:SetSize(35, 15)
+        frame.Rating:SetSize(50, 15) -- 暫時修正，M+分數
         frame.Rating:SetPoint("TOP")
         frame.Rating:SetJustifyH("RIGHT")
         frame.Rating:SetTextColor(1, 1, 1)
 
         frame.ExtraText = frame:CreateFontString("$parentExtraText", "ARTWORK", "GameFontNormalSmall")
-        frame.ExtraText:SetSize(35, 15)
+        frame.ExtraText:SetSize(50, 15) -- 暫時修正，M+分數
         frame.ExtraText:SetPoint("BOTTOM")
         frame.ExtraText:SetJustifyH("RIGHT")
         frame.ExtraText:SetTextColor(1, 1, 1)
@@ -69,9 +69,9 @@ function PGF.AddRatingInfo(self, searchResultInfo)
         return -- stop if feature disabled
     end
 
-    local _, appStatus, pendingStatus = C_LFGList.GetApplicationInfo(self.resultID)
-    if appStatus ~= "none" or pendingStatus then
-        return -- stop if already applied/invited/timedout/declined/declined_full/declined_delisted
+    local appStatus, isApplication, isDeclined = PGF.GetAppStatus(self.resultID, searchResultInfo)
+    if isApplication or isDeclined then
+        return -- stop if special status
     end
 
     local rightPos = -130
@@ -84,7 +84,7 @@ function PGF.AddRatingInfo(self, searchResultInfo)
         rating = searchResultInfo.leaderOverallDungeonScore or 0
         ratingColor = C_ChallengeMode.GetDungeonScoreRarityColor(rating) or ratingColor
         if searchResultInfo.leaderDungeonScoreInfo and searchResultInfo.leaderDungeonScoreInfo.bestRunLevel > 0 then
-            extraText = "+" .. searchResultInfo.leaderDungeonScoreInfo.bestRunLevel
+            -- extraText = "+" .. searchResultInfo.leaderDungeonScoreInfo.bestRunLevel -- 暫時修正，不顯示層數 
             if not searchResultInfo.leaderDungeonScoreInfo.finishedSuccess then
                 extraTextColor = { r = 0.6, g = 0.6, b = 0.6 }
             end
