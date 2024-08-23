@@ -1,3 +1,16 @@
+-- function for showing the menu --
+function vcbShowMenu()
+	if not vcbOptions00:IsShown() then
+		vcbOptions00:Show()
+	else
+		vcbOptions00:Hide()
+	end
+end
+-- Slash Command --
+SLASH_VOODOOCASTINGBAR1, SLASH_VOODOOCASTINGBAR2 = '/vcb', '/voodoocastingbar'
+function SlashCmdList.VOODOOCASTINGBAR(msg, editBox)
+	vcbShowMenu()
+end
 -- Colors --
 vcbMainColor = CreateColorFromRGBAHexString("F0E68CFF")
 vcbHighColor = CreateColorFromRGBAHexString("9ACD32FF")
@@ -7,13 +20,7 @@ vcbNoColor  = CreateColorFromRGBAHexString("00000000")
 -- Clicky Clicky --
 function vcbMinimapClick(addonName, buttonName)
 	if buttonName == "LeftButton" then
-		if not vcbOptions00:IsShown() then
-			vcbOptions00:Show()
-			PlaySound(855, "Master")
-		else
-			vcbOptions00:Hide()
-			PlaySound(858, "Master")
-		end
+		vcbShowMenu()
 	end
 end
 -- On Enter --
@@ -29,14 +36,14 @@ function vcbMinimapOnLeave()
 end
 -- functions for the buttons and popouts --
 -- on enter --
-function vcbEntering(self)
+function vcbEnteringMenus(self)
 	GameTooltip_ClearStatusBars(GameTooltip)
 	GameTooltip:SetOwner(self, "ANCHOR_NONE")
 	GameTooltip:ClearAllPoints()
 	GameTooltip:SetPoint("RIGHT", self, "LEFT", 0, 0)
 end
 -- on leave --
-function vcbLeaving()
+function vcbLeavingMenus()
 	GameTooltip:Hide()
 end
 -- click on Pop Out --

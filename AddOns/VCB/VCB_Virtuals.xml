@@ -25,24 +25,25 @@
 				<PushedTexture atlas="communities-icon-redx" desaturated="true" alpha="0.4"/>
 				<Scripts>
 					<OnEnter>
-						GameTooltip_ClearStatusBars(GameTooltip)
-						GameTooltip:SetOwner(self, "ANCHOR_NONE")
-						GameTooltip:ClearAllPoints()
-						GameTooltip:SetPoint("BOTTOM", self, "TOP", 0, 0)
+						vcbEnteringMenus(self)
 						GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nClose this Panel!")
 					</OnEnter>
 					<OnLeave>
-						GameTooltip:Hide()
+						vcbLeavingMenus()
 					</OnLeave>
 					<OnClick>
 						if button == "LeftButton" and down == false then
 							self:GetParent():Hide()
-							PlaySound(858, "Master")
 						end
 					</OnClick>
 				</Scripts>
 			</Button>
 		</Frames>
+		<Scripts>
+			<OnHide>
+				PlaySound(858, "Master")
+			</OnHide>
+		</Scripts>
 	</Frame>
 <!-- The Tabs button -->
 	<Button name="vcbTabsButton" inherits="InsecureActionButtonTemplate" frameLevel="500" virtual="true">
@@ -67,11 +68,6 @@
 				</FontString>
 			</Layer>
 		</Layers>
-		<Scripts>
-			<OnClick>
-				PlaySound(858, "Master")
-			</OnClick>
-		</Scripts>
 	</Button>
 <!-- The Options Panel -->
 	<Frame name="vcbOptionsPanel" inherits="InsetFrameTemplate4" frameStrata="DIALOG" frameLevel="0" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
@@ -179,6 +175,11 @@
 				</FontString>
 			</Layer>
 		</Layers>
+		<Scripts>
+			<OnShow>
+				PlaySound(855, "Master")
+			</OnShow>
+		</Scripts>
 	</Frame>
 <!-- Options Box -->
 	<Frame name="vcbOptionsBox" frameStrata="DIALOG" frameLevel="200" enableMouse="false" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="false" virtual="true">
@@ -294,7 +295,6 @@
 					</OnShow>
 					<OnHide>
 						self:GetParent():SetNormalAtlas("charactercreate-customize-dropdownbox-open")
-						PlaySound(858, "Master")
 					</OnHide>
 				</Scripts>
 			</Button>
@@ -356,5 +356,25 @@
 				</Anchors>
 			</EditBox>
 		</Frames>
+		<Scripts>
+			<OnLoad>
+				self["GlowTopLeft"]:SetDesaturation(1)
+				self["GlowTopLeft"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowTopRight"]:SetDesaturation(1)
+				self["GlowTopRight"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowBottomLeft"]:SetDesaturation(1)
+				self["GlowBottomLeft"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowBottomRight"]:SetDesaturation(1)
+				self["GlowBottomRight"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowTop"]:SetDesaturation(1)
+				self["GlowTop"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowBottom"]:SetDesaturation(1)
+				self["GlowBottom"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowLeft"]:SetDesaturation(1)
+				self["GlowLeft"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowRight"]:SetDesaturation(1)
+				self["GlowRight"]:SetVertexColor(vcbMainColor:GetRGB())
+			</OnLoad>
+		</Scripts>
 	</Frame>
 </Ui>

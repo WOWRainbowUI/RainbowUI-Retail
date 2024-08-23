@@ -43,10 +43,10 @@ local function CheckSavedVariables()
 end
 -- taking care of the target preview --
 FocusFrame.CBpreview:SetScript("OnEnter", function(self)
-	vcbEntering(self)
+	vcbEnteringMenus(self)
 	GameTooltip:SetText("左鍵拖曳移動!") 
 end)
-FocusFrame.CBpreview:SetScript("OnLeave", vcbLeaving)
+FocusFrame.CBpreview:SetScript("OnLeave", vcbLeavingMenus)
 -- Function for stoping the movement --
 local function StopMoving(self)
 	VCBrFocus["Position"]["X"] = Round(self:GetLeft())
@@ -76,11 +76,11 @@ end
 -- check button 1 do it --
 vcbOptions3Box1CheckButton1.Text:SetText("解鎖")
 vcbOptions3Box1CheckButton1:SetScript("OnEnter", function(self)
-	vcbEntering(self)
+	vcbEnteringMenus(self)
 	GameTooltip:SetText("打勾解鎖目標施法條!") 
 end)
-vcbOptions3Box1CheckButton1:SetScript("OnLeave", vcbLeaving)
-vcbOptions3Box1CheckButton1:SetScript("OnClick", function (self, button)
+vcbOptions3Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
+vcbOptions3Box1CheckButton1:HookScript("OnClick", function (self, button)
 	if button == "LeftButton" then
 		if self:GetChecked() == true then
 			VCBrFocus["Unlock"] = true
@@ -97,10 +97,10 @@ vcbOptions3Box1Slider1.MaxText:SetText(2)
 vcbOptions3Box1Slider1.Slider:SetMinMaxValues(10, 200)
 -- slider 1 do it --
 vcbOptions3Box1Slider1.Slider:SetScript("OnEnter", function(self)
-	vcbEntering(self)
+	vcbEnteringMenus(self)
 	GameTooltip:SetText("也可以使用滑鼠滾輪或兩邊的按鈕來更改數值!") 
 end)
-vcbOptions3Box1Slider1.Slider:SetScript("OnLeave", vcbLeaving)
+vcbOptions3Box1Slider1.Slider:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions3Box1Slider1.Slider:SetScript("OnMouseWheel", MouseWheelSlider)
 -- On Value Changed --
 vcbOptions3Box1Slider1.Slider:SetScript("OnValueChanged", function (self, value, userInput)
@@ -110,22 +110,22 @@ vcbOptions3Box1Slider1.Slider:SetScript("OnValueChanged", function (self, value,
 end)
 -- Popout 1, entering, leaving, click --
 vcbOptions3Box1PopOut1:SetScript("OnEnter", function(self)
-	vcbEntering(self)
+	vcbEnteringMenus(self)
 	GameTooltip:SetText("是否有使用任何單位框架/頭像插件?") 
 end)
-vcbOptions3Box1PopOut1:SetScript("OnLeave", vcbLeaving)
+vcbOptions3Box1PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 vcbClickPopOut(vcbOptions3Box1PopOut1, vcbOptions3Box1PopOut1Choice0)
 -- sort & clicking --
 vcbOptions3Box1PopOut1Choice1:SetParent(vcbOptions3Box1PopOut1Choice0)
 vcbOptions3Box1PopOut1Choice1:SetPoint("TOP",vcbOptions3Box1PopOut1Choice0, "BOTTOM", 0, 0)
-vcbOptions3Box1PopOut1Choice0:SetScript("OnClick", function(self, button, down)
+vcbOptions3Box1PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
 		VCBrFocus["otherAdddon"] = self.Text:GetText()
 		vcbOptions3Box1PopOut1.Text:SetText(self:GetText())
 		vcbOptions3Box1PopOut1Choice0:Hide()
 	end
 end)
-vcbOptions3Box1PopOut1Choice1:SetScript("OnClick", function(self, button, down)
+vcbOptions3Box1PopOut1Choice1:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
 		local _, finished = C_AddOns.IsAddOnLoaded("ShadowedUnitFrames")
 		if finished then
@@ -142,12 +142,12 @@ end)
 vcbOptions3Box1PopOut1Choice0.Text:SetText("無")
 vcbOptions3Box1PopOut1Choice1.Text:SetText("Shadowed Unit Frame")
 vcbOptions3Box1PopOut1Choice1:SetScript("OnEnter", function(self)
-	vcbEntering(self)
+	vcbEnteringMenus(self)
 	GameTooltip:SetText("使用 SUF 的玩家，請在 SUF 選項>隱藏暴雪>隱藏目標框架，取消打勾。|n然後選擇 'Shadow Unit Frame'|n完成此操作後請重新啟動遊戲!") 
 end)
-vcbOptions3Box1PopOut1Choice1:SetScript("OnLeave", vcbLeaving)
+vcbOptions3Box1PopOut1Choice1:SetScript("OnLeave", vcbLeavingMenus)
 -- Showing the panel --
-vcbOptions3:SetScript("OnShow", function(self)
+vcbOptions3:HookScript("OnShow", function(self)
 	CheckSavedVariables()
 	FocusFrame.CBpreview:SetIgnoreParentAlpha(true)
 	FocusFrame.CBpreview:SetAlpha(1)
