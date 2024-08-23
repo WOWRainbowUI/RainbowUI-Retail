@@ -1,4 +1,16 @@
 local _, addonTable = ...
+
+local function GetViewType(view)
+  if view == "bag" then
+    return addonTable.Config.Get(addonTable.Config.Options.BAG_VIEW_TYPE)
+  elseif view == "bank" then
+    return addonTable.Config.Get(addonTable.Config.Options.BANK_VIEW_TYPE)
+  end
+end
+
+local hidden = CreateFrame("Frame")
+hidden:Hide()
+
 local function SetupBackpackView()
   local backpackView
   local allBackpackViews = {
@@ -10,7 +22,7 @@ local function SetupBackpackView()
     return backpackView
   end
 
-  backpackView = allBackpackViews[addonTable.Config.Get(addonTable.Config.Options.VIEW_TYPE)]
+  backpackView = allBackpackViews[GetViewType("bag")]
 
   local bagButtons = {}
 
@@ -91,10 +103,10 @@ local function SetupBackpackView()
   end)
 
   addonTable.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
-    if settingName == addonTable.Config.Options.VIEW_TYPE then
+    if settingName == addonTable.Config.Options.BAG_VIEW_TYPE then
       local isShown = backpackView:IsShown()
       backpackView:Hide()
-      backpackView = allBackpackViews[addonTable.Config.Get(settingName)]
+      backpackView = allBackpackViews[GetViewType("bag")] or backpackView
       if isShown then
         addonTable.CallbackRegistry:TriggerEvent("BagShow")
       end
@@ -152,7 +164,11 @@ local function SetupBankView()
     category = CreateFrame("Frame", "Baganator_CategoryViewBankViewFrame", UIParent, "BaganatorCategoryViewBankViewTemplate"),
   }
 
-  bankView = allBankViews[addonTable.Config.Get(addonTable.Config.Options.VIEW_TYPE)]
+  bankView = allBankViews[GetViewType("bank")]
+
+  function addonTable.ViewManagement.GetBankFrame()
+    return bankView
+  end
 
   FrameUtil.RegisterFrameForEvents(bankView, {
     "BANKFRAME_OPENED",
@@ -207,13 +223,13 @@ local function SetupBankView()
   end)
 
   addonTable.CallbackRegistry:RegisterCallback("SettingChanged", function(_, settingName)
-    if settingName == addonTable.Config.Options.VIEW_TYPE then
+    if settingName == addonTable.Config.Options.BANK_VIEW_TYPE then
       bankView:Hide()
       FrameUtil.UnregisterFrameForEvents(bankView, {
         "BANKFRAME_OPENED",
         "BANKFRAME_CLOSED",
       })
-      bankView = allBankViews[addonTable.Config.Get(settingName)]
+      bankView = allBankViews[GetViewType("bank")] or bankView
       FrameUtil.RegisterFrameForEvents(bankView, {
         "BANKFRAME_OPENED",
         "BANKFRAME_CLOSED",
