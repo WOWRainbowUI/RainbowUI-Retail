@@ -7,6 +7,19 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.2.3
+Released 2024-08-22
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.2.3 for Retail WoW
+Version 4.4.0.11 for Classic Cataclysm
+Version 1.15.3.6 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Fixed excessive memory usage caused by certain models (ones that use the SetTransform function).
+- Obsolete variables used in older versions for marking new features will be periodically removed from saved memory.
+- Updated the "/ct memory" slash command to also print the maximum memory used by CursorTrail before it "collects the garbage".
+
+=======================================
 RELEASE 11.0.2.2
 Released 2024-08-17
 

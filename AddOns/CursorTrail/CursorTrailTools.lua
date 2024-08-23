@@ -19,6 +19,7 @@ local C_Timer = _G.C_Timer
 local CreateFrame = _G.CreateFrame
 local CopyTable = _G.CopyTable
 local date = _G.date
+local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local floor = _G.floor
 local GetBuildInfo = _G.GetBuildInfo
 local GetCurrentResolution = _G.GetCurrentResolution
@@ -36,10 +37,12 @@ local pairs = _G.pairs
 local PlaySound = _G.PlaySound
 local print = _G.print
 local select = _G.select
+----local SELECTED_CHAT_FRAME = SELECTED_CHAT_FRAME  <<-- NEVER MAKE THIS A LOCAL VARIABLE!
 local SOUNDKIT = _G.SOUNDKIT
 local string = _G.string
 local table = _G.table
 local tonumber = _G.tonumber
+local tostringall = tostringall
 local type = _G.type
 local UIParent = _G.UIParent
 local WorldFrame = _G.WorldFrame
@@ -58,8 +61,8 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 msgBox = private.UDControls.MsgBox
 
 -------------------------------------------------------------------------------
-function printMsg(msg)
-	(Globals.SELECTED_CHAT_FRAME or Globals.DEFAULT_CHAT_FRAME):AddMessage(msg)
+function printMsg(...)
+	(Globals.SELECTED_CHAT_FRAME or DEFAULT_CHAT_FRAME):AddMessage( string.join(" ", tostringall(...)) );
 end
 
 -------------------------------------------------------------------------------
