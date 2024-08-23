@@ -1,3 +1,14 @@
+# v2.45.0
+
+- Temporarily readded Dragonflight data until after full release
+- Fixed a bug with the GetQuestItem database api
+
+# v2.44.1
+
+- Added The War Within
+- Removed The War Within Prologue
+- Removed Dragonflight
+
 # v2.44.0
 
 - Added The War Within Introduction questline
