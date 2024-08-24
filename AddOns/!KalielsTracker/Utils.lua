@@ -230,10 +230,10 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
                 color = isUsable and ITEM_QUALITY_COLORS[quality] or colorNotUsable
             elseif lootType == 1 then
                 -- currency
-                local name, texture, amount, currencyID, quality = GetQuestLogRewardCurrencyInfo(i, questID, true)
-                amount = FormatLargeNumber(amount)
-                text = format(BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT, texture, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(amount), name)
-                color = ITEM_QUALITY_COLORS[quality]
+				local currencyInfo = C_QuestLog.GetQuestRewardCurrencyInfo(questID, i, true)
+				local amount = FormatLargeNumber(currencyInfo.totalRewardAmount)
+				text = format(BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT, currencyInfo.texture, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(amount), currencyInfo.name)
+				color = ITEM_QUALITY_COLORS[currencyInfo.quality]
             end
             if text and color then
                 tooltip:AddLine(text, color.r, color.g, color.b)
