@@ -216,7 +216,7 @@ L["S_GROUPFINDER_RESULTS_FOUND"] = [=[找到 %d 個隊伍
 L["S_GROUPFINDER_RESULTS_FOUND1"] = [=[找到 1 個隊伍
 點一下加入]=]
 L["S_GROUPFINDER_RESULTS_UNAPPLY"] = "尚有 %d 個申請..."
-L["S_GROUPFINDER_RIGHTCLICKCLOSE"] = "點一下右鍵關閉面板"
+L["S_GROUPFINDER_RIGHTCLICKCLOSE"] = "點右鍵關閉"
 L["S_GROUPFINDER_SECONDS"] = "秒"
 L["S_GROUPFINDER_TUTORIAL1"] = "加入正在做同一個任務的隊伍，更快完成世界任務!"
 L["S_INCREASESIZE"] = "放大"
@@ -293,10 +293,8 @@ L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST"] = "自動接受放棄任務"
 L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST_DESC"] = "放棄任務時不顯示確認對話框。"
 L["S_OPTTIONS_DRAGONRACE_MINIMAP"] = "顯示小地圖追蹤"
 L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "追蹤顏色"
---[[Translation missing --]]
-L["S_OPTTIONS_NUMERATE_QUEST"] = "Enumerate Quests"
---[[Translation missing --]]
-L["S_OPTTIONS_NUMERATE_QUEST_DESC"] = "Show a number for each quest in the map frame and in the objective tracker."
+L["S_OPTTIONS_NUMERATE_QUEST"] = "列舉任務"
+L["S_OPTTIONS_NUMERATE_QUEST_DESC"] = "在地圖視窗和任務追蹤清單中顯示每個任務的編號。"
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "飛龍競速"
 L["S_OPTTIONS_TAB_GENERAL_SETTINGS"] = "一般設定"
 L["S_OPTTIONS_TAB_GROUPFINDER_SETTINGS"] = "隊伍搜尋器"
@@ -336,14 +334,10 @@ L["S_RAREFINDER_TOOLTIP_SPOTTEDBY"] = "發現於"
 L["S_RAREFINDER_TOOLTIP_TIMEAGO"] = "分鐘前"
 L["S_SCALE"] = "縮放大小"
 L["S_SLASH_OPENMAP_FIRST"] = "尚未載入世界任務追蹤，請打開地圖來載入。"
---[[Translation missing --]]
-L["S_SPEEDRUN"] = "Speed Run"
---[[Translation missing --]]
-L["S_SPEEDRUN_AUTO_ACCEPT"] = "Auto Accept Quests"
---[[Translation missing --]]
-L["S_SPEEDRUN_AUTO_COMPLETE"] = "Auto Complete Quests"
---[[Translation missing --]]
-L["S_SPEEDRUN_CANCEL_CINEMATIC"] = "Auto Skip Cinematics"
+L["S_SPEEDRUN"] = "競速"
+L["S_SPEEDRUN_AUTO_ACCEPT"] = "自動接受任務"
+L["S_SPEEDRUN_AUTO_COMPLETE"] = "自動完成任務"
+L["S_SPEEDRUN_CANCEL_CINEMATIC"] = "自動跳過動畫"
 L["S_SUMMARYPANEL_EXPIRED"] = "已過期"
 L["S_SUMMARYPANEL_LAST15DAYS"] = "最近15天"
 L["S_SUMMARYPANEL_LIFETIMESTATISTICS_ACCOUNT"] = "帳號上線統計"
