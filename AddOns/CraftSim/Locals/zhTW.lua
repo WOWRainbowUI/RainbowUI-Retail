@@ -261,6 +261,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_TOOLS] = "最佳化專業工具",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_TOOLS_TOOLTIP] = "為每個配方最佳化你的專業工具以獲取利潤\n\n",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_TOOLS_WARNING] = "如果你的背包中有很多工具\n掃描期間可能會降低遊戲效能",
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_CRAFTER_HEADER] = "製作者",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_RECIPE_HEADER] = "配方",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_LEARNED_HEADER] = "已學會",
 		[CraftSim.CONST.TEXT.RECIPE_SCAN_RESULT_HEADER] = "結果",
@@ -554,5 +555,9 @@ function CraftSim.LOCAL_TW:GetData()
 		[CraftSim.CONST.TEXT.CRAFT_QUEUE_RECIPE_REQUIREMENTS_TOOLTIP] = "要製作配方，必須滿足所有需求。",
 		[CraftSim.CONST.TEXT.UTIL_FORMAT] = "格式: 100g10s1c",
 		[CraftSim.CONST.TEXT.NO_PRICESOURCE_WARNING] = "是否確定不要再次提醒你取得價格來源?",
+		[CraftSim.CONST.TEXT.CURRENT] = "目前",
+		[CraftSim.CONST.TEXT.MAX] = "最大值",
+		[CraftSim.CONST.TEXT.CONCENTRATION_FULL] = "專注已滿",
+		
     }
 end

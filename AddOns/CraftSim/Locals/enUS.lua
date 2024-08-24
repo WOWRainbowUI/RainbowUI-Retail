@@ -601,5 +601,8 @@ greater or equal the configured sale rate threshold.
 		[CraftSim.CONST.TEXT.CRAFT_QUEUE_RECIPE_REQUIREMENTS_TOOLTIP] = "All Requirements need to be fulfilled in order to craft a recipe",
 		[CraftSim.CONST.TEXT.UTIL_FORMAT] = "Format: 100g10s1c",
 		[CraftSim.CONST.TEXT.NO_PRICESOURCE_WARNING] = "Are you sure you do not want to be reminded to get a price source?",
+		[CraftSim.CONST.TEXT.CURRENT] = "Current",
+		[CraftSim.CONST.TEXT.MAX] = "Max",
+		[CraftSim.CONST.TEXT.CONCENTRATION_FULL] = "Concentration Full",
     }
 end
