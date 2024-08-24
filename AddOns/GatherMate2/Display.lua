@@ -2,12 +2,6 @@ local GatherMate = LibStub("AceAddon-3.0"):GetAddon("GatherMate2")
 local Display = GatherMate:NewModule("Display","AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("GatherMate2")
 
--- WoW 10.0 tracking API compat
-local GetNumTrackingTypes = GetNumTrackingTypes or C_Minimap.GetNumTrackingTypes
-local GetTrackingInfo = GetTrackingInfo or C_Minimap.GetTrackingInfo
-
-local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
-
 -- Current minimap pin set
 local minimapPins, minimapPinCount = {}, 0
 -- Current worldmap pin set
@@ -60,7 +54,9 @@ local continentZoneList = {
 	[572] = true, -- Draenor
 	[619] = true, -- Broken Isles
 	[875] = true, -- Zandalar
-	[876] = true, -- Kul Tiras
+	[1550] = true, -- Shadowlands
+	[1978] = true, -- Dragon Isles
+	[2274] = true, -- Khaz Algar
 }
 
 --[[
@@ -329,15 +325,14 @@ function Display:SKILL_LINES_CHANGED()
 end
 
 function Display:MINIMAP_UPDATE_TRACKING()
-	local count = GetNumTrackingTypes();
-	local info;
+	local count = C_Minimap.GetNumTrackingTypes()
 	for id=1, count do
-		local name, texture, active, category  = GetTrackingInfo(id);
-		if tracking_spells[name] and active then
-			active_tracking[tracking_spells[name]] = true
+		local info = C_Minimap.GetTrackingInfo(id)
+		if info.active and tracking_spells[info.name] then
+			active_tracking[tracking_spells[info.name]] = true
 		else
-			if tracking_spells[name] and not active then
-				active_tracking[tracking_spells[name]] = false
+			if tracking_spells[info.name] and not info.active then
+				active_tracking[tracking_spells[info.name]] = false
 			end
 		end
 	end
@@ -349,8 +344,8 @@ local digSites = {}
 function Display:DigsitesChanged()
 	table.wipe(digSites)
 	for continent in pairs(continentZoneList) do
-		local digSites = C_ResearchInfo.GetDigSitesForMap(continent)
-		for i, digSiteInfo in ipairs(digSites) do
+		local digSitesOnMap = C_ResearchInfo.GetDigSitesForMap(continent)
+		for i, digSiteInfo in ipairs(digSitesOnMap) do
 			local positionMapInfo = C_Map.GetMapInfoAtPosition(continent, digSiteInfo.position.x, digSiteInfo.position.y)
 			if positionMapInfo and positionMapInfo.mapID ~= continent then
 				digSites[positionMapInfo.mapID] = true
@@ -399,7 +394,7 @@ function Display:UpdateVisibility()
 end
 
 function Display:SetTrackingSpell(skill,spell)
-	local spellName = GetSpellName(spell)
+	local spellName = C_Spell.GetSpellName(spell)
 	if not spellName then return end
 	tracking_spells[spellName] = skill
 	if fullInit then self:MINIMAP_UPDATE_TRACKING() end
