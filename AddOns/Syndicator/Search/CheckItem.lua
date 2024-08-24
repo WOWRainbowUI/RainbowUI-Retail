@@ -323,7 +323,8 @@ local function BindOnAccountCheck(details)
 
   if details.tooltipInfoSpell then
     for _, row in ipairs(details.tooltipInfoSpell.lines) do
-      if tIndexOf(Syndicator.Constants.AccountBoundTooltipLines, row.leftText) ~= nil then
+      if tIndexOf(Syndicator.Constants.AccountBoundTooltipLines, row.leftText) ~= nil or
+          (not details.isBound and tIndexOf(Syndicator.Constants.AccountBoundTooltipLinesNotBound, row.leftText) ~= nil) then
         return true
       end
     end
@@ -336,7 +337,7 @@ local function WarboundUntilEquippedCheck(details)
 
   if details.tooltipInfoSpell then
     for _, row in ipairs(details.tooltipInfoSpell.lines) do
-      if row.leftText == ITEM_ACCOUNTBOUND_UNTIL_EQUIP then
+      if row.leftText == ITEM_ACCOUNTBOUND_UNTIL_EQUIP or (not details.isBound and row.leftText == ITEM_BIND_TO_ACCOUNT_UNTIL_EQUIP) then
         return true
       end
     end
@@ -562,6 +563,7 @@ AddKeyword(SYNDICATOR_L_KEYWORD_BATTLE_PET, PetCheck, SYNDICATOR_L_GROUP_ITEM_TY
 AddKeyword(SYNDICATOR_L_KEYWORD_SOULBOUND, SoulboundCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeyword(SYNDICATOR_L_KEYWORD_BOP, SoulboundCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeyword(SYNDICATOR_L_KEYWORD_BOE, BindOnEquipCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
+AddKeyword(SYNDICATOR_L_KEYWORD_BWE, BindOnEquipCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeyword(SYNDICATOR_L_KEYWORD_BOU, BindOnUseCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
 AddKeyword(SYNDICATOR_L_KEYWORD_EQUIPMENT, EquipmentCheck, SYNDICATOR_L_GROUP_ITEM_TYPE)
 AddKeyword(SYNDICATOR_L_KEYWORD_GEAR, EquipmentCheck, SYNDICATOR_L_GROUP_ITEM_TYPE)
@@ -602,6 +604,7 @@ if Syndicator.Constants.IsRetail then
   if Syndicator.Constants.WarbandBankActive then
     AddKeyword(ITEM_ACCOUNTBOUND:lower(), BindOnAccountCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
     AddKeyword(ITEM_ACCOUNTBOUND_UNTIL_EQUIP:lower(), WarboundUntilEquippedCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
+    AddKeyword(SYNDICATOR_L_KEYWORD_WUE, WarboundUntilEquippedCheck, SYNDICATOR_L_GROUP_ITEM_DETAIL)
   end
 end
 
@@ -1152,6 +1155,13 @@ local function GetTooltipSpecialTerms(details)
         if details.classID ~= Enum.ItemClass.Recipe and match then
           table.insert(details.searchKeywords, line.leftText:lower())
         end
+      end
+    end
+
+    if #details.tooltipInfoSpell.lines > 1 then
+      local color = details.tooltipInfoSpell.lines[2].leftColor
+      if color ~= nil and math.floor(color.r * 100) == 52 and math.floor(color.g * 100) == 67 and color.b == 1 then
+        table.insert(details.searchKeywords, details.tooltipInfoSpell.lines[2].leftText:lower())
       end
     end
 

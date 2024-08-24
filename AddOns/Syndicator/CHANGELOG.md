@@ -1,7 +1,7 @@
 # Syndicator
 
-## [104](https://github.com/Baganator/Syndicator/tree/104) (2024-08-20)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/103...104) 
+## [106](https://github.com/Baganator/Syndicator/tree/106) (2024-08-23)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/105...106) 
 
-- Classic: Search: Fix expansion searches not finishing when no data provider  
-- Update issue templates  
+- Fix searching for Pet Charms with #warbound search  
+- Support searching offline bags for Warbound until equipped gear  
