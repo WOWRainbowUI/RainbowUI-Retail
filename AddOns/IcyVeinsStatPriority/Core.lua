@@ -140,8 +140,10 @@ local function ShowHelpFrame(bgColor, borderColor)
     helpFrameText:SetText(L["HELP"])
     -- resize
     helpFrameHiddenText:SetText(string.match(helpFrameText:GetText(), ".+\n(.+)\n.+"))
-    helpFrame:SetSize(helpFrameHiddenText:GetStringWidth() + 10, helpFrameHiddenText:GetStringHeight() * 3 + 45)
     helpFrame:Show()
+    C_Timer.After(0, function()
+        helpFrame:SetSize(helpFrameHiddenText:GetStringWidth() + 10, helpFrameHiddenText:GetStringHeight() * 3 + 45)
+    end)
 end
 
 -----------------------------------------------
@@ -401,7 +403,7 @@ local function AddItem(text, k)
 
     -- highlight texture
     item.highlight = item:CreateTexture()
-    item.highlight:SetColorTexture(0.5, 1, 0, 1)
+    item.highlight:SetColorTexture(0.41, 0.8, 0.94, 1)
     item.highlight:SetSize(5, item:GetHeight() - 2)
     item.highlight:SetPoint("LEFT", 1, 0)
     item.highlight:Hide()
@@ -748,7 +750,7 @@ function frame:ADDON_LOADED(arg1)
         borderColorPicker:SetBackdropColor(unpack(IVSP_Config["borderColor"]))
         fontColorPicker:SetBackdropColor(unpack(IVSP_Config["fontColor"]))
 
-        versionText:SetText("Version: " .. C_AddOns.GetAddOnMetadata(addonName, "version"))
+        versionText:SetText("Version: |cff69CCF0" .. C_AddOns.GetAddOnMetadata(addonName, "version"))
     end
 end
 

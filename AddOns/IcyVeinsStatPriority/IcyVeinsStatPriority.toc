@@ -1,6 +1,6 @@
 ## Interface: 110002
 ## Title: |cff69CCF0Icy Veins|r Stat Priority
-## Version: 2024-07-25
+## Version: 2024-08-24
 ## Author: enderneko
 ## SavedVariables: IVSP_Config, IVSP_Custom
 
