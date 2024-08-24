@@ -1,8 +1,8 @@
-## Interface: 40400
+## Interface: 30403
 ## Title: Premade Groups Filter
 ## Version: 6.0.1
 ## IconTexture: 397907
-## X-Flavor: Cata
+## X-Flavor: Wrath
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
 ## Notes-deDE: Ermöglicht das Filtern organisierter Gruppen mithilfe der Benutzeroberfläche oder erweiterter Filterausdrücke.
 ## Notes-frFR: Permet de filtrer des groupes prédéfinis à l'aide d'une interface utilisateur ou d'expressions de filtre avancées.
