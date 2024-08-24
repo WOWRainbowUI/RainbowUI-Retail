@@ -829,6 +829,7 @@ end
 ---@field anchorParent? Region
 ---@field hideQualityIcon? boolean
 ---@field isAtlas? boolean
+---@field desaturate? boolean
 
 ---@class GGUI.Icon : GGUI.Widget
 ---@overload fun(options:GGUI.IconConstructorOptions): GGUI.Icon
@@ -847,6 +848,7 @@ function GGUI.Icon:new(options)
     ---@type ItemMixin?
     self.item = nil
     self.isAtlas = options.isAtlas or false
+    self.desaturate = options.desaturate or false
 
     local newIcon = CreateFrame("Button", nil, options.parent, "GameMenuButtonTemplate")
     GGUI.Icon.super.new(self, newIcon)
@@ -879,6 +881,10 @@ function GGUI.Icon:new(options)
             end)
         end
     end)
+
+    if self.desaturate then
+        self:Desaturate()
+    end
 end
 
 ---@class GGUI.IconSetItemOptions
@@ -940,6 +946,22 @@ function GGUI.Icon:SetQuality(qualityID)
     else
         self.qualityIcon:Hide()
     end
+end
+
+function GGUI.Icon:Saturate()
+    local texture = self.frame:GetNormalTexture()
+    if texture then
+        texture:SetVertexColor(1, 1, 1)
+    end
+    self.desaturate = false
+end
+
+function GGUI.Icon:Desaturate()
+    local texture = self.frame:GetNormalTexture()
+    if texture then
+        texture:SetVertexColor(0.2, 0.2, 0.2)
+    end
+    self.desaturate = true
 end
 
 --- GGUI.QualityIcon
@@ -2115,6 +2137,13 @@ function GGUI.Checkbox:SetLabel(label)
         self.frame.Text:SetText(label or "")
     else
         self.labelText:SetText(label or "")
+    end
+end
+
+function GGUI.Checkbox:SetVisible(visible)
+    GGUI.Checkbox.super.SetVisible(self, visible)
+    if self.labelText then
+        self.labelText:SetVisible(visible)
     end
 end
 
