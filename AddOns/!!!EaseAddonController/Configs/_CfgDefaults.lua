@@ -44,7 +44,7 @@ D["!BugGrabber"] = {
 	img = true,
 };
 D["!KalielsTracker"] = {
-	defaultEnable = 0,
+	defaultEnable = 1,
 	title = "任務追蹤清單增強",
 	desc = "增強畫面右方任務追蹤清單的功能。在設定選項中可以調整位置和文字大小。`",
 	modifier = "BNS, 彩虹ui",
@@ -372,7 +372,6 @@ D["BlizzMove"] = {
 	title = "移動暴雪視窗",
 	desc = "允許自由拖曳移動和縮放遊戲內建的各種視窗，可選擇是否要永久保存位置，還是登出/重載後要還原。``如果怕不小心移動到，可以在設定選項中勾選需要按住輔助按鍵，才能移動/縮放。`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_gizmo_bronzeframework_01",
 	img = true,
 	{
         text = "設定選項",
