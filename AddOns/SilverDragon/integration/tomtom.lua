@@ -8,7 +8,10 @@ function module:OnInitialize()
 	self.db = core.db:RegisterNamespace("TomTom", {
 		profile = {
 			enabled = true,
+			mob = true,
+			loot = true,
 			duration = 120,
+			mappinenhanced = true,
 			blizzard = true,
 			tomtom = true,
 			dbm = false,
@@ -28,20 +31,31 @@ function module:OnInitialize()
 				set = function(info, v) self.db.profile[info[#info]] = v end,
 				args = {
 					about = config.desc("When we see a mob via its minimap icon, we can ask an arrow to point us to it", 0),
-					enabled = config.toggle("Automatically", "Make a waypoint for the mob as soon as it's seen", 20),
-					whiledead = config.toggle("While dead", "...even when you're dead", 21),
-					blizzard = config.toggle("Use built-in", "Use the built-in Blizzard waypoints", 24),
-					tomtom = config.toggle("Use TomTom", "If TomTom is installed, use it", 25, nil, function() return not TomTom end),
-					dbm = config.toggle("Use DeadlyBossMods", "If DeadlyBossMods is installed, use it", 26, nil, function() return not DBM end),
-					replace = config.toggle("Replace waypoints", "Replace an existing waypoint if one is set (doesn't apply to TomTom)", 30),
+					enabled = config.toggle("Automatically", "Make a waypoint as soon as something is seen", 20),
+					types = {
+						type = "group",
+						inline = true,
+						name = "Make a waypoint for...",
+						order = 25,
+						args = {
+							mob = config.toggle("Mobs", "Make a waypoint for mobs", 23),
+							loot = config.toggle("Loot", "Make a waypoint for loot", 27),
+						},
+					},
+					whiledead = config.toggle("While dead", "...even when you're dead", 30),
+					blizzard = config.toggle("Use built-in", "Use the built-in Blizzard waypoints", 40),
+					mappinenhanced = config.toggle("Use MapPinEnhanced", "If MapPinEnhanced is installed, use it", 50, nil, function() return not MapPinEnhanced end),
+					tomtom = config.toggle("Use TomTom", "If TomTom is installed, use it", 60, nil, function() return not TomTom end),
+					dbm = config.toggle("Use DeadlyBossMods", "If DeadlyBossMods is installed, use it", 70, nil, function() return not DBM end),
+					replace = config.toggle("Replace waypoints", "Replace an existing waypoint if one is set (doesn't apply to TomTom)", 80),
 					duration = {
 						type = "range",
 						name = "Duration",
 						desc = "How long to wait before clearing the waypoint if you don't reach it",
 						min = 0, max = (10 * 60), step = 5,
-						order = 40,
+						order = 90,
 					},
-					popup = config.toggle("Remove when target popup closed", "Clear the waypoint when the click target popup is closed. Only when you manually close it.", 50),
+					popup = config.toggle("Remove when target popup closed", "Clear the waypoint when the click target popup is closed. Only when you manually close it.", 100),
 				},
 			},
 		}
@@ -50,6 +64,7 @@ end
 
 function module:OnEnable()
 	core.RegisterCallback(self, "Announce")
+	core.RegisterCallback(self, "AnnounceLoot")
 	core.RegisterCallback(self, "PopupHide")
 end
 
@@ -63,16 +78,25 @@ local sources = {
 	darkmagic = false, -- only know where the player is
 }
 function module:Announce(_, id, zone, x, y, is_dead, source, unit)
-	if not self.db.profile.enabled then return end
+	if not (self.db.profile.enabled and self.db.profile.mob) then return end
 	if not self.db.profile.whiledead and UnitIsDead("player") then return end
 	if not (source and sources[source]) then return end
 	if not (zone and x and y and x > 0 and y > 0) then return end
 	self:PointTo(id, zone, x, y, self.db.profile.duration)
 end
 
+function module:AnnounceLoot(_, name, id, zone, x, y, vignetteGUID)
+	if not (self.db.profile.enabled and self.db.profile.loot) then return end
+	if not self.db.profile.whiledead and UnitIsDead("player") then return end
+	-- if not sources.vignette then return end
+	if not (zone and x and y and x > 0 and y > 0) then return end
+	self:PointTo(name, zone, x, y, self.db.profile.duration)
+end
+
 function module:CanPointTo(zone)
 	if not zone then return false end
 	local db = self.db.profile
+	if MapPinEnhanced and db.mappinenhanced then return true end
 	if TomTom and db.tomtom then return true end
 	if DBM and db.dbm then return true end
 	if db.blizzard and C_Map.CanSetUserWaypointOnMap and C_Map.CanSetUserWaypointOnMap(zone) then return true end
@@ -86,6 +110,15 @@ do
 		Debug("Waypoint.PointTo", id, zone, x, y, duration, force)
 		local db = self.db.profile
 		local title = type(id) == "number" and core:GetMobLabel(id) or id or UNKNOWN
+		if MapPinEnhanced and MapPinEnhanced.AddPin and db.mappinenhanced then
+			MapPinEnhanced:AddPin{
+				mapID = zone,
+				x = x,
+				y = y,
+				setTracked = db.replace,
+				title = title,
+			}
+		end
 		if TomTom and db.tomtom and (db.replace or not waypoints.tomtom or not TomTom:IsValidWaypoint(waypoints.tomtom)) then
 			if waypoints.tomtom then
 				TomTom:RemoveWaypoint(waypoints.tomtom)
