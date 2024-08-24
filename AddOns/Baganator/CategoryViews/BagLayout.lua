@@ -1,5 +1,4 @@
 local _, addonTable = ...
-local addonName, addonTable = ...
 
 local linkMap = {}
 
@@ -352,6 +351,8 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
       addonTable.Skins.AddFrame("CategoryLabel", label)
       label:SetText(details.label)
       label.categorySearch = index
+      label.source = details.source
+      label.groupLabel = details.groupLabel
       activeLabels[index] = label
       layout.type = details.type
     else

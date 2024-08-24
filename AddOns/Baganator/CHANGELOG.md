@@ -1,6 +1,6 @@
 # Baganator
 
-## [444](https://github.com/Baganator/Baganator/tree/444) (2024-08-22)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/443...444) 
+## [447](https://github.com/Baganator/Baganator/tree/447) (2024-08-24)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/446...447) 
 
-- Fix view layout resetting after update  
+- Cleanup based on Globe results  

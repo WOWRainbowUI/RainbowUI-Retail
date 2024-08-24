@@ -1,5 +1,4 @@
 local _, addonTable = ...
-local addonName, addonTable = ...
 
 BaganatorCategoryViewBackpackViewMixin = CreateFromMixins(BaganatorItemViewCommonBackpackViewMixin)
 
@@ -129,12 +128,12 @@ function BaganatorCategoryViewBackpackViewMixin:GetSearchMatches()
   return matches
 end
 
-function BaganatorCategoryViewBackpackViewMixin:TransferCategory(index)
-  if not self.isLive or not index then
+function BaganatorCategoryViewBackpackViewMixin:TransferCategory(index, source, groupLabel)
+  if not self.isLive then
     return
   end
 
-  self:Transfer(true, function() return self.LayoutManager.composed and tFilter(self.LayoutManager.composed.details[index].results or {}, function(a) return a.itemLink ~= nil end, true) end)
+  self:Transfer(true, function() return addonTable.CategoryViews.Utilities.GetItemsFromComposed(self.LayoutManager.composed, index, source, groupLabel) end)
 end
 
 function BaganatorCategoryViewBackpackViewMixin:UpdateForCharacter(character, isLive)
