@@ -1,8 +1,9 @@
 # Edit Mode Expanded
 
-## [11.0-008](https://github.com/teelolws/EditModeExpanded/tree/11.0-008) (2024-08-23)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-007...11.0-008) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.0-009](https://github.com/teelolws/EditModeExpanded/tree/11.0-009) (2024-08-24)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-008...11.0-009) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Include achievement criteria in achievement alert resizing  
-    https://github.com/teelolws/EditModeExpanded/issues/135  
-- Update Raid.lua  
+- Disabled action bars "set icon padding to zero" option due to taint issues  
+    Suggest you use an addon that completely replaces the action bars as I cannot find a way to make this work without spreading taint  
+- Update EditModeExpanded-1.0.lua  
+- Fix potential lua error on fresh installs  
