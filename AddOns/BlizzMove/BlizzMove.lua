@@ -55,7 +55,7 @@ end
 local IsFrame;
 do
     function IsFrame(value)
-        return type(value) == "table" and value.GetObjectType and value:GetObjectType() == "Frame";
+        return type(value) == "table" and type(value.IsObjectType) == "function" and value:IsObjectType("Frame");
     end
 
     function BlizzMove:ValidateFrame(frameName, frameData, isSubFrame)
@@ -105,12 +105,12 @@ do
             elseif (
                 key == "Detachable"
                 or key == "ManuallyScaleWithParent"
+                or key == "ForceParentage"
             ) then
                 if (type(value) ~= "boolean" or (value == true and not isSubFrame)) then validationError = true; end
             elseif (
                 key == "IgnoreMouse"
                 or key == "IgnoreMouseWheel"
-                or key == "ForceParentage"
                 or key == "NonDraggable"
                 or key == "DefaultDisabled"
                 or key == "SilenceCompatabilityWarnings"
@@ -666,6 +666,7 @@ do
             ) then
                     local userPlaced = frame:IsUserPlaced();
 
+                    frame:SetMovable(true);
                     frame:StartMoving();
                     frame:SetUserPlaced(userPlaced);
                     frameData.storage.points.startPoints = frameData.storage.points.startPoints or GetFramePoints(frame);
@@ -1324,10 +1325,18 @@ do
 
         -- fix anchor family connection issues when opening/closing the hero talents dialog
         if addOnName == "Blizzard_PlayerSpells" and _G.HeroTalentsSelectionDialog and _G.PlayerSpellsFrame then
-            _G.HeroTalentsSelectionDialog:StartMoving();
-            _G.HeroTalentsSelectionDialog:StopMovingOrSizing();
-            _G.PlayerSpellsFrame:StartMoving();
-            _G.PlayerSpellsFrame:StopMovingOrSizing();
+            local function startStopMoving(frame)
+                local backup = frame:IsMovable();
+                frame:SetMovable(true);
+                frame:StartMoving();
+                frame:StopMovingOrSizing();
+                frame:SetMovable(backup);
+            end
+            startStopMoving(_G.HeroTalentsSelectionDialog);
+            PlayerSpellsFrame:HookScript('OnShow', function(frame)
+                startStopMoving(frame);
+                RunNextFrame(function() startStopMoving(frame); end);
+            end);
         end
 
         if addOnName == self.name then
