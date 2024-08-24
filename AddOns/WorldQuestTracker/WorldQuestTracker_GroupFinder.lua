@@ -1759,7 +1759,7 @@ function kspam.OnClickConfigButton()
 	DF:ApplyStandardBackdrop(kspamOptions)
 
 	--title
-	kspamOptions.titleBar = DF:CreateTitleBar(kspamOptions, "World  Quest Tracker Ad-Blocker")
+	kspamOptions.titleBar = DF:CreateTitleBar(kspamOptions, L["World  Quest Tracker Ad-Blocker"])
 
 	local options = {
 		--filter #ads (default enabled)
@@ -1769,8 +1769,8 @@ function kspam.OnClickConfigButton()
 			set = function(self, fixedparam, value)
 				WorldQuestTracker.db.profile.groupfinder.kfilter.enabled = value
 			end,
-			name = "Ad-Blocker Enabled",
-			desc = "Ad-Blocker Enabled",
+			name = L["Ad-Blocker Enabled"],
+			desc = L["Ad-Blocker Enabled"],
 		},
 
 		{type = "blank"},
@@ -1780,8 +1780,8 @@ function kspam.OnClickConfigButton()
 			set = function(self, fixedparam, value)
 				WorldQuestTracker.db.profile.groupfinder.kfilter.dont_show_ignored_leaders = value
 			end,
-			name = "Don't Show Blacklisted Leaders",
-			desc = "Won't show groups where the leader previously got caught doing an Ad.",
+			name = L["Don't Show Blacklisted Leaders"],
+			desc = L["Won't show groups where the leader previously got caught doing an Ad."],
 		},
 
 		--purge list of banned leaders
@@ -1792,8 +1792,8 @@ function kspam.OnClickConfigButton()
 				--feedback
 				WorldQuestTracker:Msg("Leaders list wiped.")
 			end,
-			name = "Wipe Blacklisted Leaders",
-			desc = "Wipe Blacklisted Leaders",
+			name = L["Wipe Blacklisted Leaders"],
+			desc = L["Wipe Blacklisted Leaders"],
 		},
 
 		{type = "blank"},
@@ -1808,8 +1808,8 @@ function kspam.OnClickConfigButton()
 			min = 1,
 			max = 60,
 			step = 1,
-			name = "Time Limit in Minutes",
-			desc = "Don't show groups where created time is bigger than 'X' minutes ago.",
+			name = L["Time Limit in Minutes"],
+			desc = L["Don't show groups where created time is bigger than 'X' minutes ago."],
 		},
 
 		{type = "blank"},
@@ -1837,7 +1837,7 @@ function kspam.OnClickConfigButton()
 	DF:BuildMenu(kspamOptions, options, 5, -30, 360, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 end
 
-local configButton = DF:CreateButton(LFGListFrame.SearchPanel, kspam.OnClickConfigButton, 70, 20, "options")
+local configButton = DF:CreateButton(LFGListFrame.SearchPanel, kspam.OnClickConfigButton, 70, 20, L["options"])
 local options_button_template = DF.table.copy({}, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
 options_button_template.backdropcolor = {.2, .2, .2, .6}
 options_button_template.backdropbordercolor = {0, 0, 0, 1}
@@ -1845,9 +1845,9 @@ configButton:SetTemplate(options_button_template)
 configButton:Hide()
 
 if (UsePGFButton) then
-	configButton:SetPoint("right", UsePGFButton, "left", -8, 0)
+	configButton:SetPoint("right", UsePGFButton, "left", -69, 0)
 else
-	configButton:SetPoint("right", LFGListFrame.SearchPanel.RefreshButton, "left", -5, 0)
+	configButton:SetPoint("right", LFGListFrame.SearchPanel.RefreshButton, "left", -69, 0) -- 按鈕位置
 end
 configButton:Hide()
 
