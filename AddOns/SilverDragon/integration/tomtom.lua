@@ -47,7 +47,7 @@ function module:OnInitialize()
 					mappinenhanced = config.toggle("使用 MapPinEnhanced", "如果有安裝 MapPinEnhanced 插件則使用它", 50, nil, function() return not MapPinEnhanced end),
 					tomtom = config.toggle("使用 TomTom", "如果有安裝 TomTom 插件則使用它", 60, nil, function() return not TomTom end),
 					dbm = config.toggle("使用 DBM", "如果有安裝 DeadlyBossMods 插件則使用它", 70, nil, function() return not DBM end),
-					replace = config.toggle("取代導航", "用新的導航取代原有的導航 (不會套用到 TomTom)", 80),
+					replace = config.toggle("取代導航", "用新的導航取代原有的導航", 80),
 					duration = {
 						type = "range",
 						name = "持續時間",
@@ -119,7 +119,7 @@ do
 				title = title,
 			}
 		end
-		if TomTom and db.tomtom and (db.replace or not waypoints.tomtom or not TomTom:IsValidWaypoint(waypoints.tomtom)) then
+		if TomTom and db.tomtom then
 			if waypoints.tomtom then
 				TomTom:RemoveWaypoint(waypoints.tomtom)
 			end
@@ -128,6 +128,8 @@ do
 				persistent = false,
 				minimap = false,
 				world = false,
+				-- Tomtom has multiple waypoints, so we'll interpret the "don't replace" as "don't push onto the crazy arrow"
+				crazy = force or db.replace or not (waypoints.tomtom and TomTom:IsValidWaypoint(waypoints.tomtom)),
 				cleardistance = 25
 			})
 			waypoints.tomtom.mobid = id
