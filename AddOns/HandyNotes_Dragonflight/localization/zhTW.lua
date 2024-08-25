@@ -60,6 +60,8 @@ L['options_icons_tuskarr_tacklebox_desc'] = '顯示 {object:巨牙海民釣具�
 L['squirrels_note'] = '你必須對小動物而不是戰寵使用表情 {emote:/love}'
 L['options_icons_squirrels'] = '{achievement:16729}'
 L['options_icons_squirrels_desc'] = '顯示 {achievement:16729} 成就中小動物的位置。'
+L['options_icons_zaralek_squirrels'] = '{achievement:18361}'
+L['options_icons_zaralek_squirrels_desc'] = '顯示 {achievement:18361} 成就中小動物的位置.'
 
 L['hnj_sublabel'] = '需要當地的席卡氏族大狩獵'
 L['hnj_western_azure_span_hunt'] = '在死掉樹的頂端'
@@ -666,7 +668,7 @@ L['naszuro_thaldraszus_peak'] = '在山的第二高峰上.'
 L['naszuro_temporal_conflux'] = '在龍雕像的頭上.'
 
 L['revival_catalyst_label'] = '重生育籃控制臺'
-L['revival_catalyst_note'] = '將非套裝裝備轉換為對應裝等部位的套裝部件。'
+L['revival_catalyst_note'] = '將非套裝裝備轉換為對應裝等部位的套裝部件。\n\n{currency:2912}: %d/%d'
 
 L['provisioner_aristta_note'] = '用 {currency:2657} 交換塑型和一隻座騎.'
 
@@ -1019,6 +1021,7 @@ L['mbc_vial_k'] = '卡林多'
 L['mbc_vial_n'] = '北裂境'
 L['mbc_vial_o'] = '外域'
 
+L['mbc_vial_b_location'] = '維爾薩拉，薩斯塔拉'
 L['mbc_vial_d_location'] = '影月谷，星落哨站'
 L['mbc_vial_e_location'] = '暮色森林，黎明森林'
 L['mbc_vial_k_location'] = '月光林地，怒風獸穴'
