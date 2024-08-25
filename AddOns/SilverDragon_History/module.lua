@@ -24,7 +24,7 @@ function module:OnInitialize()
 			grow = true,
 			-- locked = true,
 			relative = true,
-			empty = true,
+			empty = false, -- 更改預設值
 			combat = false,
 			othershard = "dim", -- show / dim / hide
 			sources = {
