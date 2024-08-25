@@ -1,0 +1,17 @@
+## Interface: 110002
+## Title: HandyNotes: The War Within
+## Version: 71
+## Notes: The War Within Notes
+## OptionalDeps: Ace3
+## RequiredDeps: HandyNotes
+## X-Embeds: Ace3
+## SavedVariables: HandyNotes_TheWarWithinDB
+## IconTexture: 4640486
+
+## Title-zhTW: |cff4DFF4D[地圖]|r 地圖標記-地心之戰
+## Notes-zhTW: HandyNotes: The War Within |n|n在地圖上顯示地心之戰的寶藏和稀有怪位置。
+## X-Category-zhTW: 地圖
+
+libs\Krowi_WorldMapButtons-1.4\Krowi_WorldMapButtons-1.4.xml
+core\core.xml
+plugin.xml
