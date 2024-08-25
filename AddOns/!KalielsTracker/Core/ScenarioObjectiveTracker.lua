@@ -311,7 +311,15 @@ function KT_ScenarioObjectiveTrackerMixin:SlideInContents()
 	self:Slide(slideInfo);	
 end
 
+function KT_ScenarioObjectiveTrackerMixin:SetStageBlockModelScenesShown(shown)
+	if self.StageBlock.WidgetContainer then
+		self.StageBlock.WidgetContainer:SetModelScenesShown(shown);
+	end
+end
+
 function KT_ScenarioObjectiveTrackerMixin:SlideOutContents()
+	self:SetStageBlockModelScenesShown(false);
+
 	local slideInfo = {
 		travel = -(self.StageBlock.height),
 		adjustModule = true,
@@ -335,6 +343,8 @@ function KT_ScenarioObjectiveTrackerMixin:OnEndSlide(slideOut, finished)
 		-- we need to maintain the visual state at the end of the slideout for 1 frame
 		self.StageBlock:Hide();
 		self:SetHeight(self.headerHeight);
+	else
+		self:SetStageBlockModelScenesShown(true);
 	end
 
 	self:MarkDirty();
@@ -760,7 +770,7 @@ function KT_ScenarioObjectiveTrackerChallengeModeMixin:Activate(timerID, elapsed
 	statusBar:SetMinMaxValues(0, self.timeLimit);
 	self:UpdateTime(elapsedTime);
 	KT_ScenarioTimerFrame:StartTimer(self);
-	KT_ScenarioObjectiveTracker:ForceExpand();
+	--KT_ScenarioObjectiveTracker:ForceExpand();  -- MSA
 end
 
 function KT_ScenarioObjectiveTrackerChallengeModeMixin:UpdateDeathCount()
@@ -868,7 +878,7 @@ function KT_ScenarioObjectiveTrackerProvingGroundsMixin:Activate(timerID, elapse
 
 	self:UpdateTime(elapsedTime);
 	KT_ScenarioTimerFrame:StartTimer(self);
-	KT_ScenarioObjectiveTracker:ForceExpand();
+	--KT_ScenarioObjectiveTracker:ForceExpand();  -- MSA
 end
 
 function KT_ScenarioObjectiveTrackerProvingGroundsMixin:UpdateTime(elapsedTime)

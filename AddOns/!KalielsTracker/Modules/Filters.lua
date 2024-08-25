@@ -15,6 +15,7 @@ local gsub = string.gsub
 local ipairs = ipairs
 local pairs = pairs
 local strfind = string.find
+local strsub = string.sub
 
 -- WoW API
 local _G = _G
@@ -355,6 +356,13 @@ local function Filter_Quests(spec, idx)
 				end
 			end
 		end
+	elseif spec == "campaign" then
+		for i = 1, numEntries do
+			local questInfo = C_QuestLog.GetInfo(i)
+			if not questInfo.isHidden and not questInfo.isHeader and not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) and questInfo.campaignID then
+				C_QuestLog.AddQuestWatch(questInfo.questID)
+			end
+		end
 	elseif spec == "daily" then
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
@@ -414,8 +422,11 @@ local function GetCategoryByZone()
 	local continent = KT.GetCurrentMapContinent()
 	local category = continent.name
 	local mapID = KT.GetCurrentMapAreaID()
+	-- 10 - The War Within
+	if continent.mapID == 2274 then
+		category = strsub(EXPANSION_NAME10, 5)
 	-- 8 - Shadowlands
-	if continent.mapID == 1550 then
+	elseif continent.mapID == 1550 then
 		category = EXPANSION_NAME8
 	-- 7 - Battle for Azeroth
 	elseif continent.mapID == 875 or      -- Zandalar
@@ -493,18 +504,17 @@ local function Filter_Achievements(spec)
 			local name, parentID, _ = GetCategoryInfo(categoryID)
 
 			if db.filterAchievCat[parentID] then
-				if (parentID == 92) or                                              -- Character
-						(parentID == 96 and
-								(name == categoryName or name == KT.EXPANSION)) or  -- Quests
-						(parentID == 97 and name == categoryName) or                -- Exploration
-						(parentID == 95 and strfind(name, zoneNamePattern)) or      -- Player vs. Player
-						(categoryID == instance or parentID == instance) or         -- Dungeons & Raids
-						(parentID == 169) or                                        -- Professions
-						(parentID == 201) or                                        -- Reputation
-						(parentID == 155 and strfind(events, name)) or              -- World Events
-						(categoryID == 15117 or parentID == 15117) or               -- Pet Battles
-						(parentID == 15301 and categoryID == 15462) or              -- Expansion Features (only Dragonriding)
-						(parentID == remixID) then                                  -- Remix
+				if (parentID == 92) or                                          -- Character
+						(parentID == 96 and name == categoryName) or            -- Quests
+						(parentID == 97 and name == categoryName) or            -- Exploration
+						(parentID == 95 and strfind(name, zoneNamePattern)) or  -- Player vs. Player
+						(categoryID == instance or parentID == instance) or     -- Dungeons & Raids
+						(parentID == 169) or                                    -- Professions
+						(parentID == 201) or                                    -- Reputation
+						(parentID == 155 and strfind(events, name)) or          -- World Events
+						(categoryID == 15117 or parentID == 15117) or           -- Pet Battles
+						(parentID == 15301 and categoryID == 15462) or          -- Expansion Features (only Dragonriding)
+						(parentID == remixID) then                              -- Remix
 					local numAchievements, _ = GetCategoryNumAchievements(categoryID)
 					for i=1, numAchievements do
 						local track = false
@@ -719,6 +729,10 @@ function DropDown_Initialize(self, level)
 
 		info.text = "Zone"
 		info.arg1 = "zone"
+		MSA_DropDownMenu_AddButton(info)
+
+		info.text = "Campaign"
+		info.arg1 = "campaign"
 		MSA_DropDownMenu_AddButton(info)
 
 		info.text = "Daily / Weekly"

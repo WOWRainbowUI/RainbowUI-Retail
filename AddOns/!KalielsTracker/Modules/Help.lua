@@ -117,7 +117,7 @@ local function SetupTutorials()
 			shine = KTF.MinimizeButton,
 			shineTop = 13,
 			shineBottom = -14,
-			shineRight = 16,
+			shineRight = 15,
 		},
 		{	-- 3
 			image = helpPath.."help_quest-title-tags",
@@ -127,14 +127,14 @@ local function SetupTutorials()
 					"Tags are also in quest titles inside Quest Log.\n\n"..
 					"|cff00b3ff!|r|T:14:3|t "..cDots..".......|r Daily quest|T:14:121|t|cff00b3ffr|r "..cDots..".......|r Raid quest\n"..
 					"|cff00b3ff!!|r "..cDots.."......|r Weekly quest|T:14:108|t|cff00b3ffr10|r "..cDots.."...|r 10-man raid quest\n"..
-					"|cff00b3ffg3|r "..cDots..".....|r Group quest w/ group size|T:14:25|t|cff00b3ffr25|r "..cDots.."...|r 25-man raid quest\n"..
+					"|cff00b3ffg3|r "..cDots..".....|r Group quest w/ group size|T:14:22|t|cff00b3ffr25|r "..cDots.."...|r 25-man raid quest\n"..
 					"|cff00b3ffpvp|r "..cDots.."...|r PvP quest|T:14:133|t|cff00b3ffs|r "..cDots..".......|r Scenario quest\n"..
 					"|cff00b3ffd|r "..cDots..".......|r Dungeon quest|T:14:97|t|cff00b3ffa|r "..cDots..".......|r Account quest\n"..
 					"|cff00b3ffhc|r "..cDots..".....|r Heroic quest|T:14:113|t|cff00b3ffleg|r "..cDots.."....|r Legendary quest",
-			shineTop = 10,
+			shineTop = 11,
 			shineBottom = -9,
-			shineLeft = -12,
-			shineRight = 10,
+			shineLeft = -11,
+			shineRight = 13,
 		},
 		{	-- 4
 			image = helpPath.."help_tracker-filters",
@@ -150,8 +150,8 @@ local function SetupTutorials()
 					"This menu displays other options affecting the content of the tracker (e.g. options for addon PetTracker).",
 			textY = 16,
 			shine = KTF.FilterButton,
-			shineTop = 10,
-			shineBottom = -11,
+			shineTop = 9,
+			shineBottom = -10,
 			shineLeft = -10,
 			shineRight = 11,
 		},
@@ -266,27 +266,15 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 7.0.1|r\n"..
-					"- CHANGED - addon support - TomTom 4.0.3\n"..
-					"- CHANGED - TomTom - show POI button with and without waypoint (waypoint announcement removed)\n"..
-					"- CHANGED - deprecated functions in WoW 11.0.2\n"..
-					"- FIXED - some buttons stopped working only for some players\n"..
-					"- FIXED (scenario) - incorrect Scenario detection\n"..
-					"- FIXED - incorrect progress bar animation\n"..
-					"- FIXED (worldquests) - incorrect num task detection\n"..
-					"- FIXED (filter) - lose the focused quest when change zone with auto filter on\n"..
-					"\n"..
-					cTitle.."Version 7.0.0|r\n"..
-					"- ADDED - test of automatically tracked quests + alert with instructions for fix (inside Options)\n"..
-					"- ADDED (filter) - test of maximum tracked quests (25)\n"..
-					"- ADDED - support for WoW 11.0.2\n"..
+					cTitle.."Version 7.1.0|r\n"..
+					"- ADDED (achievements) - filter support for The War Within\n"..
+					"- ADDED (quests) - filter by Campaign\n"..
+					"- ADDED - support for WoW 11.0.2.56196\n"..
 					"- CHANGED (help) - Active Patrons\n"..
-					"- CHANGED - addon support - ElvUI 13.74, Tukui 20.443\n"..
-					"- CHANGED - addon support - TomTom 4.0.1\n"..
-					"- CHANGED - addon support - Masque 11.0.1\n"..
-					"- CHANGED - addon support disabled - PetTracker\n"..
-					"- CHANGED - Libs\n"..
-					"- REMOVED (quests) - tracking override\n"..
+					"- CHANGED (scenario) - support for Proving Grounds and minor improvements\n"..
+					"- FIXED (scenario) - forced expand after stage update (Challenge Mode, Proving Grounds)\n"..
+					"- FIXED - TomTom - issue with remove waypoint when click on Bonus quest POI\n"..
+					"- FIXED (quests) - error getting currency for tooltip\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
@@ -313,9 +301,9 @@ local function SetupTutorials()
 			end
 			if i == 2 then
 				if KTF.FilterButton then
-					self[i].shineLeft = db.hdrOtherButtons and -75 or -35
+					self[i].shineLeft = db.hdrOtherButtons and -74 or -34
 				else
-					self[i].shineLeft = db.hdrOtherButtons and -55 or -15
+					self[i].shineLeft = db.hdrOtherButtons and -54 or -14
 				end
 			elseif i == 3 then
 				local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(1)
@@ -326,12 +314,15 @@ local function SetupTutorials()
 			elseif i == 5 then
 				self[i].shine = KTF.Buttons
 			elseif i == 10 then
-				for j=1, C_QuestLog.GetNumQuestWatches() do
+				local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
+				for j = 1, C_QuestLog.GetNumQuestWatches() do
 					local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(j)
 					local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
 					if block and block.poiButton then
-						self[i].shine = block.poiButton
-						break
+						if superTrackedQuestID == 0 or superTrackedQuestID == questID then
+							self[i].shine = block.poiButton
+							break
+						end
 					end
 				end
 			end
@@ -357,6 +348,7 @@ local function SetupTutorials()
 					"of time that addon development requires.\n\n"..
 					"                                    Many thanks to all supporters  |T"..helpPath.."help_patreon:16:16:0:0:256:32:157:173:0:16|t\n\n"..
 					cTitle.."Active Patrons|r\n"..
+					SetFormatedPatronName("Legendary", "Zayah", "Vek'nilash")..
 					SetFormatedPatronName("Epic", "Haekwon", "Elune")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Rare", "A")..

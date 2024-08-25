@@ -11,7 +11,7 @@
     <Frame name="KT2_ObjectiveTrackerBlockTemplate" mixin="KT_ObjectiveTrackerBlockMixin" hidden="true" virtual="true">
         <Layers>
             <Layer level="ARTWORK">
-                <FontString parentKey="HeaderText" inherits="ObjectiveTrackerLineFont">
+                <FontString parentKey="HeaderText" inherits="KT_ObjectiveTrackerLineFont">
                     <Anchors>
                         <Anchor point="TOPLEFT"/>
                         <Anchor point="RIGHT"/>

@@ -56,7 +56,7 @@ end
 -- Affects World Map and removes taint errors. The hack removes call of restricted function SetPassThroughButtons.
 -- When the hack is inactive World Map display causes errors. It is not possible to get rid of these errors, since
 -- the tracker has a lot of interaction with the game frames.
--- Negative impacts: unknown in WoW 11.0.0
+-- Negative impacts: unknown in WoW 11.0.2
 local function Hack_WorldMap()
     if db.hackWorldMap then
         -- Blizzard_MapCanvas.lua
