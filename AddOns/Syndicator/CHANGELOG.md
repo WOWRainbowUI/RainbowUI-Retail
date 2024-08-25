@@ -1,7 +1,6 @@
 # Syndicator
 
-## [106](https://github.com/Baganator/Syndicator/tree/106) (2024-08-23)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/105...106) 
+## [107](https://github.com/Baganator/Syndicator/tree/107) (2024-08-24)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/106...107) 
 
-- Fix searching for Pet Charms with #warbound search  
-- Support searching offline bags for Warbound until equipped gear  
+- Fix error when deleting character which hasn't had bag changes processed  
