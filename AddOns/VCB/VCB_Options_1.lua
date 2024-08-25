@@ -393,6 +393,8 @@ vcbClickPopOut(vcbOptions1Box5PopOut2, vcbOptions1Box5PopOut2Choice0)
 -- sort & clicking --
 vcbOptions1Box5PopOut2Choice1:SetParent(vcbOptions1Box5PopOut2Choice0)
 vcbOptions1Box5PopOut2Choice1:SetPoint("TOP",vcbOptions1Box5PopOut2Choice0, "BOTTOM", 0, 0)
+vcbOptions1Box5PopOut2Choice2:SetParent(vcbOptions1Box5PopOut2Choice0)
+vcbOptions1Box5PopOut2Choice2:SetPoint("TOP",vcbOptions1Box5PopOut2Choice1, "BOTTOM", 0, 0)
 vcbOptions1Box5PopOut2Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
 		VCBrPlayer["Color"] = self.Text:GetText()
@@ -407,9 +409,17 @@ vcbOptions1Box5PopOut2Choice1:HookScript("OnClick", function(self, button, down)
 		vcbOptions1Box5PopOut2Choice0:Hide()
 	end
 end)
+vcbOptions1Box5PopOut2Choice2:HookScript("OnClick", function(self, button, down)
+	if button == "LeftButton" and down == false then
+		VCBrPlayer["Color"] = self.Text:GetText()
+		vcbOptions1Box5PopOut2.Text:SetText(self:GetText())
+		vcbOptions1Box5PopOut2Choice0:Hide()
+	end
+end)
 -- naming --
 vcbOptions1Box5PopOut2Choice0.Text:SetText("Default Color")
 vcbOptions1Box5PopOut2Choice1.Text:SetText("Class' Color")
+vcbOptions1Box5PopOut2Choice2.Text:SetText("Spell School Color")
 -- Box 6 Ticks of the Spells --
 -- pop out 1 Ticks of the Spells --
 -- enter --

@@ -30,6 +30,22 @@ VCBiconSpell:SetWidth(PlayerCastingBarFrame.Icon:GetWidth())
 VCBiconSpell:SetHeight(PlayerCastingBarFrame.Icon:GetHeight())
 VCBiconSpell:SetScale(1.3)
 VCBiconSpell:Hide()
+-- Texture of Spell's Shield Left --
+VCBshieldSpellLeft = PlayerCastingBarFrame:CreateTexture(nil, "ARTWORK", nil, 0)
+VCBshieldSpellLeft:SetAtlas("UI-CastingBar-Shield")
+VCBshieldSpellLeft:SetPoint("TOPLEFT", PlayerCastingBarFrame.Icon, "TOPLEFT", -6, 6)
+VCBshieldSpellLeft:SetPoint("BOTTOMRIGHT", PlayerCastingBarFrame.Icon, "BOTTOMRIGHT", 6, -12)
+VCBshieldSpellLeft:SetBlendMode("BLEND")
+VCBshieldSpellLeft:SetAlpha(0.85)
+VCBshieldSpellLeft:Hide()
+-- Texture of Spell's Shield Right --
+VCBshieldSpellRight = PlayerCastingBarFrame:CreateTexture(nil, "ARTWORK", nil, 0)
+VCBshieldSpellRight:SetAtlas("UI-CastingBar-Shield")
+VCBshieldSpellRight:SetPoint("TOPLEFT", VCBiconSpell, "TOPLEFT", -6, 6)
+VCBshieldSpellRight:SetPoint("BOTTOMRIGHT", VCBiconSpell, "BOTTOMRIGHT", 6, -12)
+VCBshieldSpellRight:SetBlendMode("BLEND")
+VCBshieldSpellRight:SetAlpha(0.85)
+VCBshieldSpellRight:Hide()
 -- function for the lag bars --
 local function VCBlagBars(var1)
 	var1:SetTexture("Interface\\RAIDFRAME\\Raid-Bar-Hp-Fill")
@@ -145,6 +161,7 @@ local function EventsTime(self, event, arg1, arg2, arg3)
 		VCBlagBar2:Hide()
 		PlayerCastLagBar(arg3)
 	elseif event == "UNIT_SPELLCAST_CHANNEL_START" and arg1 == "player" then
+		vcbChannelSpellID = arg3
 		VCBarg3 = arg3
 		vcbHideTicks()
 		VCBlagBar1:Hide()
@@ -154,6 +171,16 @@ local function EventsTime(self, event, arg1, arg2, arg3)
 		VCBlagBar1:Hide()
 		VCBlagBar2:Hide()
 		vcbHideTicks()
+	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
+		local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
+		local spellId, spellName, spellSchool = select(12, CombatLogGetCurrentEventInfo())
+		if subevent == "SPELL_CAST_START" and sourceName == UnitFullName("player") then
+			vcbSpellSchool = spellSchool
+		elseif subevent == "SPELL_CAST_SUCCESS" and spellId == vcbChannelSpellID and sourceName == UnitFullName("player") then
+			vcbSpellSchool = spellSchool
+		end
+	elseif (event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_SENT") and arg1 == "player" then
+		vcbSpellSchool = 0
 	end
 end
 vcbZlave:SetScript("OnEvent", EventsTime)
