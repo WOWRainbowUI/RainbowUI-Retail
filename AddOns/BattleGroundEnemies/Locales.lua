@@ -429,6 +429,7 @@ L["Width"] = "Width"
 L["BattleGroundEnemies"] = "BattleGroundEnemies"
 L["BattleGroundEnemies "] = "BattleGroundEnemies"
 L["you don't seem to have a specialization. The testmode requires one."] = "you don't seem to have a specialization. The testmode requires one."
+L["PlayerCount_Enabled"] = "Enable Player Count"
 
 local L = Data.L;
 
@@ -1202,4 +1203,5 @@ L["Width"] = "寬度"
 L["BattleGroundEnemies"] = "PvP 戰場目標"
 L["BattleGroundEnemies "] = "PvP 戰場目標框架"
 L["you don't seem to have a specialization. The testmode requires one."] = "你似乎還沒有選擇專精，測試模式需要先有專精。"
+L["PlayerCount_Enabled"] = "顯示玩家數量"
 end
