@@ -1,7 +1,10 @@
 # BattleGroundEnemies
 
-## [11.0.2.2](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.2.2) (2024-08-16)
-[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.0.2.1...11.0.2.2) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
+## [11.0.2.3](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.2.3) (2024-08-25)
+[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.0.2.2...11.0.2.3) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
 
-- fixed error on classic  
-- fix error on classic, C\_PvP.GetScoreInfoByPlayerGuid doesn't exist there  
+- trigger new build for new LibGroupInSpecT  
+- cosmetics  
+- cleaner that way  
+- C\_Spell.GetSpellInfo() returns table now, still keep backwards compability to old GetSpellInfo()  
+- cosmectical  

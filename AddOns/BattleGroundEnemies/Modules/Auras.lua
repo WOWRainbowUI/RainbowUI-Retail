@@ -3,7 +3,8 @@ local L = Data.L
 
 local table_insert = table.insert
 
-local GetSpellInfo = C_Spell and C_Spell.GetSpellInfo or GetSpellInfo
+local C_Spell = C_Spell
+local GetSpellInfo = GetSpellInfo
 local SpellGetVisibilityInfo = SpellGetVisibilityInfo
 local SpellIsPriorityAura = SpellIsPriorityAura
 local SpellIsSelfBuff = SpellIsSelfBuff
@@ -242,9 +243,20 @@ local function AddFilteringSettings(location, filter)
 							end,
 							values = function()
 								local valueTable = {}
+
 								for spellId in pairs(location.CustomFiltering.SpellIDFiltering_Filterlist) do
-									valueTable[spellId] = spellId..": "..(GetSpellInfo(spellId) or "")
+									local spellName
+									if C_Spell and C_Spell.GetSpellInfo then
+										local spellInfo = C_Spell.GetSpellInfo(spellId)
+										if spellInfo then
+											spellName = spellInfo.name
+										end
+									else
+										spellName = GetSpellInfo(spellId)
+									end
+									valueTable[spellId] = spellId..": "..(spellName or "")
 								end
+
 								return valueTable
 							end,
 							order = 14
@@ -519,7 +531,7 @@ local function AttachToPlayerButton(playerButton, filterr, isPriorityContainer)
 		local canApplyAura = aura.canApplyAura
 		local debuffType = aura.dispelName
 		local unitCaster = aura.sourceUnit
-		
+
 
 		if aura.Priority then
 			return self.isPriorityContainer -- its an important aura, we dont do any special filtering, we only care about if the container is for important auras
@@ -604,10 +616,8 @@ local function AttachToPlayerButton(playerButton, filterr, isPriorityContainer)
 		-- 	}
 		-- end
 
-		if not auraContainer:CareAboutThisAura(unitID, filter, aura) then
-			return
-		end
-	
+		if not auraContainer:CareAboutThisAura(unitID, filter, aura) then return end
+
 		self:NewInput(aura)
 	end
 
