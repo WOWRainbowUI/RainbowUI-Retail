@@ -479,7 +479,9 @@ local function SetFrames()
 	KT_ScenarioObjectiveTracker.fromBlockOffsetY = 0
 	KT_ScenarioObjectiveTracker.lineSpacing = 4
 	KT_ScenarioObjectiveTracker.ObjectivesBlock.offsetX = 40
+	KT_ScenarioObjectiveTracker.ObjectivesBlock.HeaderButton:EnableMouse(false)
 	KT_ScenarioObjectiveTracker.StageBlock.offsetX = 24
+	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.offsetX = 27
 	KT_ScenarioObjectiveTracker.MawBuffsBlock.offsetX = 0
 	KT_ScenarioObjectiveTracker.TopWidgetContainerBlock.offsetX = 28
 	MawBuffs.List:SetParent(UIParent)
@@ -695,7 +697,7 @@ local function SetHooks()
 		if line.Icon and (not line.Icon.KTskinned or KT.forcedUpdate) then
 			line.Icon:SetSize(db.fontSize, db.fontSize)
 			line.Icon:ClearAllPoints()
-			line.Icon:SetPoint("TOPLEFT", round(-db.fontSize * 0.4) + (db.fontFlag == "" and 0 or 1), db.fontSize >= 18 and 1 or 0)
+			line.Icon:SetPoint("TOPLEFT", round(-db.fontSize * 0.4) + (db.fontFlag == "" and 0 or 1), 1)
 			line.Icon.KTskinned = true
 		end
 
@@ -2369,6 +2371,7 @@ function KT:SetBackground()
 	KTF.Bar.texture:SetColorTexture(self.borderColor.r, self.borderColor.g, self.borderColor.b, db.borderAlpha)
 end
 
+-- TODO: Rename function
 function KT:SetText()
 	self.font = LSM:Fetch("font", db.font)
 	testLine.Dash:SetFont(self.font, db.fontSize, db.fontFlag)
@@ -2379,6 +2382,9 @@ function KT:SetText()
 
 	-- Others
 	KT_ScenarioObjectiveTracker.StageBlock.Stage:SetFont(self.font, db.fontSize + 5, db.fontFlag)
+	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.WaveLabel:SetFont(self.font, db.fontSize + 5, db.fontFlag)
+	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.Wave:SetFont(self.font, db.fontSize + 5, db.fontFlag)
+	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.StatusBar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
 end
 
 function KT:SetHeaderButtons(numAddButtons)

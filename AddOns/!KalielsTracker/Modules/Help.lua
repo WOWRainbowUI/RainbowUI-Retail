@@ -117,7 +117,7 @@ local function SetupTutorials()
 			shine = KTF.MinimizeButton,
 			shineTop = 13,
 			shineBottom = -14,
-			shineRight = 16,
+			shineRight = 15,
 		},
 		{	-- 3
 			image = helpPath.."help_quest-title-tags",
@@ -131,10 +131,10 @@ local function SetupTutorials()
 					"|cff00b3ffpvp|r "..cDots.."...|r PvP 任務|T:14:105|t|cff00b3ffs|r "..cDots.."........|r 事件任務\n"..
 					"|cff00b3ffd|r "..cDots..".......|r 地城任務|T:14:102|t|cff00b3ffa|r "..cDots.."........|r 帳號共通任務\n"..
 					"|cff00b3ffhc|r "..cDots..".....|r 英雄任務|T:14:103|t|cff00b3ffleg|r "..cDots..".....|r 傳說任務",
-			shineTop = 10,
+			shineTop = 11,
 			shineBottom = -9,
-			shineLeft = -12,
-			shineRight = 10,
+			shineLeft = -11,
+			shineRight = 13,
 		},
 		{	-- 4
 			image = helpPath.."help_tracker-filters",
@@ -150,8 +150,8 @@ local function SetupTutorials()
 					"這個選單也會顯示影響追蹤清單內容的其他選項 (例如 戰寵助手插件 PetTracker 所使用的選項)。",
 			textY = 16,
 			shine = KTF.FilterButton,
-			shineTop = 10,
-			shineBottom = -11,
+			shineTop = 9,
+			shineBottom = -10,
 			shineLeft = -10,
 			shineRight = 11,
 		},
@@ -266,27 +266,15 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."版本 7.0.1|r\n"..
-					"- 變更 - 支援插件 - TomTom 4.0.3\n"..
-					"- 變更 - TomTom - 顯示 POI 按鈕包含或不包含導航 (已移除導航通知)\n"..
-					"- 變更 - WoW 11.0.2 中移除的函數\n"..
-					"- 修正 - 某些玩家遇到無法使用某些按鈕\n"..
-					"- 修正 (事件) - 不正確的偵測事件\n"..
-					"- 修正 - 不正確的進度條動畫\n"..
-					"- 修正 (世界任務) - 不正確的偵側任務數量\n"..
-					"- 修正 (過濾方式) - 開啟自動過濾並且切換地圖時會，設為焦點的任務會被取消\n"..
-					"\n"..
-					cTitle.."版本 7.0.0|r\n"..
-					"- 新增 - 測試自動追蹤任務+帶有修正說明的警報 (在選項內)\n"..
-					"- 新增 (過濾方式) - 測試最多可追蹤的任務數量 (25)\n"..
-					"- 新增 - 支援魔獸世界 11.0.2\n"..
+					cTitle.."版本 7.1.0|r\n"..
+					"- 新增 (成就) - 過濾方式支援地心之戰\n"..
+					"- 新增 (任務) - 依戰役過濾\n"..
+					"- 新增 - 支援魔獸世界 11.0.2.56196\n"..
 					"- 變更 (說明) - Active Patrons\n"..
-					"- 變更 - 支援插件 - ElvUI 13.74, Tukui 20.443\n"..
-					"- 變更 - 支援插件 - TomTom 4.0.1\n"..
-					"- 變更 - 支援插件 - Masque 11.0.1\n"..
-					"- 變更 - 停止支援插件 - PetTracker\n"..
-					"- 變更 - 函式庫\n"..
-					"- 移除 (任務) - 追蹤覆蓋\n"..
+					"- 變更 (事件) - 支援試煉場和次要增強\n"..
+					"- 修正 (事件) - 階段更新後強制展開 (挑戰模式、試煉場)\n"..
+					"- 修正 - TomTom - 移除導航和點擊獎勵任務 POI 的問題\n"..
+					"- 修正 (任務) - 浮動提示資訊取得貨幣的錯誤\n"..
 					"\n"..
 
 					cTitle.."回報問題|r\n"..
@@ -313,9 +301,9 @@ local function SetupTutorials()
 			end
 			if i == 2 then
 				if KTF.FilterButton then
-					self[i].shineLeft = db.hdrOtherButtons and -75 or -35
+					self[i].shineLeft = db.hdrOtherButtons and -74 or -34
 				else
-					self[i].shineLeft = db.hdrOtherButtons and -55 or -15
+					self[i].shineLeft = db.hdrOtherButtons and -54 or -14
 				end
 			elseif i == 3 then
 				local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(1)
@@ -326,12 +314,15 @@ local function SetupTutorials()
 			elseif i == 5 then
 				self[i].shine = KTF.Buttons
 			elseif i == 10 then
-				for j=1, C_QuestLog.GetNumQuestWatches() do
+				local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
+				for j = 1, C_QuestLog.GetNumQuestWatches() do
 					local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(j)
 					local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
 					if block and block.poiButton then
-						self[i].shine = block.poiButton
-						break
+						if superTrackedQuestID == 0 or superTrackedQuestID == questID then
+							self[i].shine = block.poiButton
+							break
+						end
 					end
 				end
 			end
@@ -356,6 +347,7 @@ local function SetupTutorials()
 					"經過了 10 年的插件工作後，我啟用了 Patreon，作為開發插件所需時間的補償。\n\n"..
 					"                                    非常感謝所有贊助者  |T"..helpPath.."help_patreon:16:16:0:0:256:32:157:173:0:16|t\n\n"..
 					cTitle.."Active Patrons|r\n"..
+					SetFormatedPatronName("Legendary", "Zayah", "Vek'nilash")..
 					SetFormatedPatronName("Epic", "Haekwon", "Elune")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Rare", "A")..

@@ -187,7 +187,7 @@ end
 local function SetSuperTrackedQuestWaypoint(questID, force)
 	if questID ~= superTrackedQuestID or force then
 		RemoveWaypoint(superTrackedQuestID)
-		if questID > 0 and not QuestUtils_IsQuestBonusObjective(questID) then
+		if questID > 0 then
 			AddWaypoint(questID)
 			superTrackedQuestID = questID
 		end
@@ -227,7 +227,10 @@ local function SetHooks()
 
 	-- Blizzard
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedQuestID", function(questID)
-		stopUpdate = questID > 0 and not QuestUtils_IsQuestWatched(questID)
+		if QuestUtils_IsQuestBonusObjective(questID) then
+			RemoveWaypoint(superTrackedQuestID)
+		end
+		stopUpdate = not QuestUtils_IsQuestWatched(questID)
 		if not stopUpdate then
 			SetSuperTrackedQuestWaypoint(questID)
 		end
