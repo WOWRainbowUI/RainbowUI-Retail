@@ -1144,9 +1144,9 @@ function Hekili:RestoreDefaults()
         local msg
 
         if #changed == 1 then
-            msg = "The |cFFFFD100" .. changed[1] .. "|r priority was updated."
+            msg = "|cFFFFD100" .. changed[1] .. "|r 的技能優先順序已經更新。"
         elseif #changed == 2 then
-            msg = "The |cFFFFD100" .. changed[1] .. "|r and |cFFFFD100" .. changed[2] .. "|r priorities were updated."
+            msg = "|cFFFFD100" .. changed[1] .. "|r 和 |cFFFFD100" .. changed[2] .. "|r 的技能優先順序已經更新。"
         else
             msg = "|cFFFFD100" .. changed[1] .. "|r"
 
@@ -1154,7 +1154,7 @@ function Hekili:RestoreDefaults()
                 msg = msg .. ", |cFFFFD100" .. changed[i] .. "|r"
             end
 
-            msg = "The " .. msg .. ", and |cFFFFD100" .. changed[ #changed ] .. "|r priorities were updated."
+            msg = msg .. ", 和 |cFFFFD100" .. changed[ #changed ] .. "|r 的技能優先順序已經更新。"
         end
 
         if msg then
