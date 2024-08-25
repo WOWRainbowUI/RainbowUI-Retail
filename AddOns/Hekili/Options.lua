@@ -7213,7 +7213,7 @@ do
                                     name = "設定檔",
                                     desc = "如果此動作包的動作列表是從 SimulationCraft 設定檔匯入的，則設定檔會包含在此處。",
                                     order = 4,
-                                    multiline = 20,
+                                    multiline = 10,
                                     width = "full",
                                 },
 
@@ -11639,6 +11639,7 @@ do
         { "rune_word%.([%w_]+)%.enabled"                    , "buff.rune_word_%1.up"                    },
         { "conduit%.([%w_]+)"                               , "conduit.%1.enabled"                      },
         { "soulbind%.([%w_]+)"                              , "soulbind.%1.enabled"                     },
+        { "soul_shard%.deficit"                             , "soul_shard_deficit"                      },
         { "pet.[%w_]+%.([%w_]+)%.([%w%._]+)"                , "%1.%2"                                   },
         { "essence%.([%w_]+).rank(%d)"                      , "essence.%1.rank>=%2"                     },
         { "target%.1%.time_to_die"                          , "time_to_die"                             },
