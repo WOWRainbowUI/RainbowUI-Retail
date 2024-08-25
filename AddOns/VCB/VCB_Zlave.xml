@@ -7,6 +7,9 @@
 				self:RegisterEvent("CURRENT_SPELL_CAST_CHANGED")
 				self:RegisterEvent("UNIT_SPELLCAST_START")
 				self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+				self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+				self:RegisterEvent("UNIT_SPELLCAST_SENT")
+				self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 			</OnLoad>
 		</Scripts>
 	</Frame>
