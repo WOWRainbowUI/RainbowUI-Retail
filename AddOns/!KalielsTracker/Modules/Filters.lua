@@ -281,6 +281,10 @@ local function IsInstanceQuest(questID)
 	return false
 end
 
+local function IsFilterableQuest(info)
+	return not info.isHidden and not info.isHeader and not info.isTask and (not info.isBounty or C_QuestLog.IsComplete(info.questID))
+end
+
 local function Filter_Quests(spec, idx)
 	if not spec then return end
 	local numEntries, _ = C_QuestLog.GetNumQuestLogEntries()
@@ -299,7 +303,7 @@ local function Filter_Quests(spec, idx)
 	if spec == "all" then
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
-			if not questInfo.isHidden and not questInfo.isHeader and not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) then
+			if IsFilterableQuest(questInfo) then
 				if C_QuestLog.GetNumQuestWatches() >= Constants.QuestWatchConsts.MAX_QUEST_WATCHES then
 					UIErrorsFrame:AddMessage(format(OBJECTIVES_WATCH_TOO_MANY, Constants.QuestWatchConsts.MAX_QUEST_WATCHES), 1.0, 0.1, 0.1, 1.0)
 					break
@@ -334,7 +338,7 @@ local function Filter_Quests(spec, idx)
 			local questInfo = C_QuestLog.GetInfo(i)
 			if not questInfo.isHidden then
 				if questInfo.isHeader then
-					isInZone = (questInfo.isOnMap or questInfo.title == zoneName)
+					isInZone = (questInfo.isOnMap or questInfo.title == zoneName or (dbChar.filter.quests.showCampaign and questInfo.campaignID))
 					if mapID == 1473 then  -- BfA - Chamber of Heart
 						isInZone = (isInZone or
 								questInfo.title == "Heart of Azeroth" or  -- TODO: other languages
@@ -359,21 +363,21 @@ local function Filter_Quests(spec, idx)
 	elseif spec == "campaign" then
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
-			if not questInfo.isHidden and not questInfo.isHeader and not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) and questInfo.campaignID then
+			if IsFilterableQuest(questInfo) and questInfo.campaignID then
 				C_QuestLog.AddQuestWatch(questInfo.questID)
 			end
 		end
 	elseif spec == "daily" then
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
-			if not questInfo.isHidden and not questInfo.isHeader and not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) and questInfo.frequency >= Enum.QuestFrequency.Daily then
+			if IsFilterableQuest(questInfo) and questInfo.frequency >= Enum.QuestFrequency.Daily then
 				C_QuestLog.AddQuestWatch(questInfo.questID)
 			end
 		end
 	elseif spec == "instance" then
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
-			if not questInfo.isHidden and not questInfo.isHeader and not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) then
+			if IsFilterableQuest(questInfo) then
 				local tagInfo = KT.GetQuestTagInfo(questInfo.questID)
 				if tagInfo.tagID == Enum.QuestTag.Dungeon or
 						tagInfo.tagID == Enum.QuestTag.Heroic or
@@ -387,7 +391,7 @@ local function Filter_Quests(spec, idx)
 	elseif spec == "unfinished" then
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
-			if not questInfo.isHidden and not questInfo.isHeader and not questInfo.isTask and not questInfo.isBounty and not C_QuestLog.IsComplete(questInfo.questID) then
+			if IsFilterableQuest(questInfo) and not C_QuestLog.IsComplete(questInfo.questID) then
 				if C_QuestLog.GetNumQuestWatches() >= Constants.QuestWatchConsts.MAX_QUEST_WATCHES then
 					UIErrorsFrame:AddMessage(format(OBJECTIVES_WATCH_TOO_MANY, Constants.QuestWatchConsts.MAX_QUEST_WATCHES), 1.0, 0.1, 0.1, 1.0)
 					break
@@ -399,7 +403,7 @@ local function Filter_Quests(spec, idx)
 	elseif spec == "complete" then
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
-			if not questInfo.isHidden and not questInfo.isHeader and not questInfo.isTask and (not questInfo.isBounty or C_QuestLog.IsComplete(questInfo.questID)) and C_QuestLog.IsComplete(questInfo.questID) then
+			if IsFilterableQuest(questInfo) and C_QuestLog.IsComplete(questInfo.questID) then
 				C_QuestLog.AddQuestWatch(questInfo.questID)
 			end
 		end
@@ -756,9 +760,24 @@ function DropDown_Initialize(self, level)
 		info.arg1 = ""
 		MSA_DropDownMenu_AddButton(info)
 
-		info.text = "|cff00ff00自動|r區域"
 		info.notCheckable = false
 		info.disabled = false
+
+		info.text = "顯示戰役"
+		info.keepShownOnClick = true
+		info.checked = dbChar.filter.quests.showCampaign
+		info.func = function()
+			dbChar.filter.quests.showCampaign = not dbChar.filter.quests.showCampaign
+			if db.filterAuto[1] == "zone" then
+				Filter_Quests("zone")
+			end
+		end
+		MSA_DropDownMenu_AddButton(info)
+
+		info.keepShownOnClick = false
+		info.disabled = false
+
+		info.text = "|cff00ff00自動|r區域"
 		info.arg1 = 1
 		info.arg2 = "zone"
 		info.checked = (db.filterAuto[info.arg1] == info.arg2)
@@ -1066,6 +1085,7 @@ function M:OnInitialize()
 				[92] = true,     -- Character
 				[96] = true,     -- Quests
 				[97] = true,     -- Exploration
+				[15522] = true,  -- Delves
 				[95] = true,     -- Player vs. Player
 				[168] = true,    -- Dungeons & Raids
 				[169] = true,    -- Professions
@@ -1075,7 +1095,14 @@ function M:OnInitialize()
 				[15301] = true,  -- Expansion Features
 			},
 			filterWQTimeLeft = nil,
-        }
+        },
+		char = {
+			filter = {
+				quests = {
+					showCampaign = true
+				},
+			}
+		}
     }, KT.db.defaults)
 	KT.db:RegisterDefaults(defaults)
 end
