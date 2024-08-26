@@ -31,6 +31,8 @@ L['turtles_thanks_1_note'] = nil
 L['turtles_thanks_2_note'] = nil
 L['turtles_thanks_3_note'] = nil
 
+L['cendvin_note'] = nil
+
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = '顯示成就 {achievement:40606} 的位置.'
 
@@ -154,6 +156,7 @@ L['furball_location'] = nil
 L['dander_location'] = nil
 L['gobbo_location'] = nil
 
+L['beledars_spawn_note'] = nil
 L['croakit_note'] = nil
 L['deathtide_note'] = nil
 L['murkshade_note'] = nil
