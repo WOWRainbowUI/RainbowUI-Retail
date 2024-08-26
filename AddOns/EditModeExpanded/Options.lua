@@ -47,7 +47,7 @@ local defaults = {
             debuffFrame = true,
             objectiveTrackerFrame = true,
             targetFrameBuffs = false,
-            gameMenu = true,
+            gameMenu = false,
         },
         QueueStatusButton = {},
         TotemFrame = {},
