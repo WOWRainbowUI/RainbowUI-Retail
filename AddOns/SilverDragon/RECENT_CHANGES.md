@@ -1,5 +1,5 @@
-## Changed in v2024.15
+## Changed in v2024.16
 
-* A bunch of new loot for the Ringing Deeps
-* Fix ctrl-clicking to set a waypoint from popups/history/etc not forcing its way into TomTom's crazy arrow
+* A bunch of new loot for Hallowfall
+* Fix TomTom waypoints still pushing onto the arrow (with a more specific combination of settings between addons required now!), and not clearing after the popup closed
 
