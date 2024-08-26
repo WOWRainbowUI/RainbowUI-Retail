@@ -432,7 +432,8 @@ UNIT_POWER  UNIT_AURA, PLAYER_TARGET_CHANGED]=]
 	L["Filter by Arena Spec"] = "Фильтр по специализации на арене"
 	L["Filter by Class"] = "Фильтр по классу"
 	L["Filter by Group Role"] = "Фильтр по выбранной роли"
-	L["Filter by Nameplate Type"] = "Тип индикатора здоровья"
+	--[[Translation missing --]]
+	L["Filter by Hostility"] = "Filter by Hostility"
 	L["Filter by Npc ID"] = "Фильтр по ID NPC"
 	L["Filter by Raid Role"] = "Фильтр по роли в рейде"
 	L["Filter by Specialization"] = "Фильтр по специализации"
@@ -443,7 +444,10 @@ Supports multiple entries, separated by commas
 Can use \ to escape -.]=] ] = [=[Формат записи: Имя, Имя-Игровой мир, -Игровой мир.
 
 Можно указать несколько значений, разделенных запятыми. Если название уже содержит дефис, экранируйте его при помощи символа \]=]
-	L["Filter to only dispellable de/buffs of the given type(s)"] = "Фильтр на основе типа рассеивания эффекта"
+	--[[Translation missing --]]
+	L[ [=[Filter to only dispellable de/buffs of the given type(s)
+Bleed classification via LibDispel]=] ] = [=[Filter to only dispellable de/buffs of the given type(s)
+Bleed classification via LibDispel]=]
 	L["Find Auras"] = "Найти индикации"
 	L["Finish"] = "Конечная"
 	L["Finishing..."] = "Завершение..."

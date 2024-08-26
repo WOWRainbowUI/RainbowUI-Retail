@@ -415,7 +415,7 @@ UNIT_POWER, UNIT_AURA PLAYER_TARGET_CHANGED]=]
 	L["Filter by Arena Spec"] = "根据竞技场专精过滤"
 	L["Filter by Class"] = "根据职业过滤"
 	L["Filter by Group Role"] = "根据团队职责过滤"
-	L["Filter by Nameplate Type"] = "根据姓名版类型过滤"
+	L["Filter by Hostility"] = "根据敌意过滤"
 	L["Filter by Npc ID"] = "根据NPC ID过滤"
 	L["Filter by Raid Role"] = "根据团队职责过滤"
 	L["Filter by Specialization"] = "根据专精过滤"
@@ -427,7 +427,8 @@ Can use \ to escape -.]=] ] = [=[过滤格式：'名称'，'名称-服务器'，
 
 支持多个条目，由英文逗号分隔。
 可以使用 \ 转义 - 。]=]
-	L["Filter to only dispellable de/buffs of the given type(s)"] = "根据光环法术类型过滤"
+	L[ [=[Filter to only dispellable de/buffs of the given type(s)
+Bleed classification via LibDispel]=] ] = "仅过滤给定类型的可驱散的增益/减益效果的流血分类，通过 LibDispel"
 	L["Find Auras"] = "寻找光环"
 	L["Finish"] = "结束"
 	L["Finishing..."] = "即将完成"

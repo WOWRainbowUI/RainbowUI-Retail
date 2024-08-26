@@ -409,7 +409,7 @@ UNIT_POWER, UNIT_AURA PLAYER_TARGET_CHANGED]=]
 	L["Filter by Arena Spec"] = "依競技場專精過濾"
 	L["Filter by Class"] = "依職業過濾"
 	L["Filter by Group Role"] = "依角色職責過濾"
-	L["Filter by Nameplate Type"] = "依名條類型過濾"
+	L["Filter by Hostility"] = "過濾根據是否敵方"
 	L["Filter by Npc ID"] = "依 NPC ID 過濾"
 	L["Filter by Raid Role"] = "依團隊角色職責過濾"
 	L["Filter by Specialization"] = "根據專精過濾"
@@ -418,7 +418,8 @@ UNIT_POWER, UNIT_AURA PLAYER_TARGET_CHANGED]=]
 
 Supports multiple entries, separated by commas
 Can use \ to escape -.]=] ] = "過濾格式: '名字'、'名字-伺服器'、'-伺服器'。支援輸入多個項目，使用逗號分隔。要將 - 當成一般文字可使用跳脫符號 \\"
-	L["Filter to only dispellable de/buffs of the given type(s)"] = "只過濾給予類型的可驅散增減益"
+	L[ [=[Filter to only dispellable de/buffs of the given type(s)
+Bleed classification via LibDispel]=] ] = "過濾只有通過 LibDispel 進行出血分類給定類型，可驅散的減/增益。"
 	L["Find Auras"] = "尋找提醒效果"
 	L["Finish"] = "結束"
 	L["Finishing..."] = "快完成了..."

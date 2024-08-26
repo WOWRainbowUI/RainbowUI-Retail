@@ -401,7 +401,7 @@ Off Screen]=] ] = "El aura está fuera de la pantalla"
 	L["Filter by Arena Spec"] = "Filtrar por especialización de arena"
 	L["Filter by Class"] = "Filtrar por clase"
 	L["Filter by Group Role"] = "Filtrar por rol de grupo"
-	L["Filter by Nameplate Type"] = "Filtrar por tipo de placa"
+	L["Filter by Hostility"] = "Filtrar por hostilidad"
 	L["Filter by Npc ID"] = "Filtrar por ID de PNJ"
 	L["Filter by Raid Role"] = "Filtrar por rol de banda"
 	L["Filter by Specialization"] = "Filtrar por especialización"
@@ -410,7 +410,8 @@ Off Screen]=] ] = "El aura está fuera de la pantalla"
 
 Supports multiple entries, separated by commas
 Can use \ to escape -.]=] ] = "Formatos de filtro: 'Nombre', 'Nombre-Reino', '-Reino'. Admite varias entradas, separadas por comas. Puedes utilizar \\ para escapar -."
-	L["Filter to only dispellable de/buffs of the given type(s)"] = "Filtrar solo los perjuicios o beneficios disipables de los tipos indicados"
+	L[ [=[Filter to only dispellable de/buffs of the given type(s)
+Bleed classification via LibDispel]=] ] = "Filtrar solo los perjuicios/beneficios de tipo clasificable como Sangrar mediante LibDispel"
 	L["Find Auras"] = "Encontrar auras"
 	L["Finish"] = "Finalizar"
 	L["Finishing..."] = "Finalizando..."

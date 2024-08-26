@@ -74,7 +74,7 @@ local L = WeakAuras.L
 	L["%s, Offset: %0.2f;%0.2f"] = "%s, Versatz: %0.2f;%0.2f"
 	L["%s, offset: %0.2f;%0.2f"] = "%s, Versatz: %0.2f;%0.2f"
 	L["%s, Start Animation"] = "%s, Startanimation"
-	L["%s|cFFFF0000custom|r texture with |cFFFF0000%s|r blend mode%s%s"] = "%s|cFFFF0000benutzerdefinie|r Texture mit |cFFFF0000%s|r blendungsmodus%"
+	L["%s|cFFFF0000custom|r texture with |cFFFF0000%s|r blend mode%s%s"] = "%s|cFFFF0000benutzerdefiniert|r Texture mit |cFFFF0000%s|r Mischmodus%s%s"
 	L["(Right click to rename)"] = "(Rechtsklick zum Umbenennen)"
 	L["|c%02x%02x%02x%02xCustom Color|r"] = "|c%02x%02x%02x%02xbenutzerdefiniert Farbe|r"
 	L["|cff999999Triggers tracking multiple units will default to being active even while no affected units are found without a Unit Count or Match Count setting applied.|r"] = "|cff999999Trigger die multiplen Einheiten verfolgen sind standardmäßig aktiv, selbst wenn keine Einheiten gefunden werden, falls sie keinen UnitCount oder MatchCount Einstellung enthalten.|r"
@@ -256,7 +256,7 @@ Off Screen]=]
 	L["Bar Color/Gradient Start"] = "Bar Color/Gradient Start"
 	L["Bar Texture"] = "Balkentextur"
 	L["Big Icon"] = "Großes Symbol"
-	L["Blend Mode"] = "Blendmodus"
+	L["Blend Mode"] = "Mischmodus"
 	--[[Translation missing --]]
 	L["Blizzard Cooldown Reduction"] = "Blizzard Cooldown Reduction"
 	L["Blue Rune"] = "Blaue Rune"
@@ -562,7 +562,8 @@ UNIT_POWER, UNIT_AURA PLAYER_TARGET_CHANGED]=]
 	L["Filter by Arena Spec"] = "Filter by Arena Spec"
 	L["Filter by Class"] = "Nach Klasse filtern"
 	L["Filter by Group Role"] = "Nach Gruppenrolle filtern"
-	L["Filter by Nameplate Type"] = "Filter nach Namensschildertypen"
+	--[[Translation missing --]]
+	L["Filter by Hostility"] = "Filter by Hostility"
 	--[[Translation missing --]]
 	L["Filter by Npc ID"] = "Filter by Npc ID"
 	L["Filter by Raid Role"] = "Filter nach Schlachtzugsrollen"
@@ -579,7 +580,9 @@ Can use \ to escape -.]=] ] = [=[Filter formats: 'Name', 'Name-Realm', '-Realm'.
 Supports multiple entries, separated by commas
 Can use \ to escape -.]=]
 	--[[Translation missing --]]
-	L["Filter to only dispellable de/buffs of the given type(s)"] = "Filter to only dispellable de/buffs of the given type(s)"
+	L[ [=[Filter to only dispellable de/buffs of the given type(s)
+Bleed classification via LibDispel]=] ] = [=[Filter to only dispellable de/buffs of the given type(s)
+Bleed classification via LibDispel]=]
 	L["Find Auras"] = "Finde Auren"
 	L["Finish"] = "Endanimation"
 	--[[Translation missing --]]

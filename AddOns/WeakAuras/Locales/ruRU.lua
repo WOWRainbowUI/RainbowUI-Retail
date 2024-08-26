@@ -211,6 +211,8 @@ L["BigWigs Message"] = "Сообщение BigWigs"
 L["BigWigs Stage"] = "Фаза сражения с боссом BigWigs"
 L["BigWigs Timer"] = "Таймер BigWigs"
 L["Black Wing Lair"] = "Логово Крыла Тьмы"
+--[[Translation missing --]]
+L["Bleed"] = "Bleed"
 L["Blizzard Combat Text"] = "Текст боя Blizzard"
 L["Blizzard Cooldown Reduction"] = "Сокращение восстановления (Blizzard)"
 L["Block"] = "Блок"
@@ -663,8 +665,8 @@ L["Hybrid"] = "Гибридная"
 L["Icon"] = "Иконка"
 L["Icon Function"] = "Функция иконки"
 L["Icon Function (fallback state)"] = "Функция иконки (резервное состояние)"
-L["Id"] = "ID"
 L["ID"] = "ID"
+L["Id"] = "ID"
 L["If you require additional assistance, please open a ticket on GitHub or visit our Discord at https://discord.gg/weakauras!"] = "Если вам необходима дополнительная помощь, пожалуйста, откройте запрос на GitHub или посетите наш сервер в Discord по адресу https://discord.gg/weakauras."
 L["Ignore Dead"] = "Не учитывать мёртвые цели"
 L["Ignore Disconnected"] = "Не учитывать игроков не в сети"
@@ -689,6 +691,10 @@ L["Include Bank"] = "Учитывать банк"
 L["Include Charges"] = "Учитывать заряды"
 L["Include Death Runes"] = "Учитывать руны смерти"
 L["Include Pets"] = "Учитывать питомцев"
+--[[Translation missing --]]
+L["Include Reagent Bank"] = "Include Reagent Bank"
+--[[Translation missing --]]
+L["Include War Band Bank"] = "Include War Band Bank"
 L["Incoming Heal"] = "Поступающее исцеление"
 L["Increase Precision Below"] = "Увеличить точность, если меньше"
 L["Increases by one per stage or intermission."] = "Увеличивается на единицу за каждую фазу или смену фаз"
@@ -698,8 +704,8 @@ L["Instakill"] = "Моментальное убийство"
 L["Install the addons BugSack and BugGrabber for detailed error logs."] = "Установите аддоны BugSack и BugGrabber для получения подробных записей об ошибках."
 L["Instance"] = "Подземелье"
 L["Instance Difficulty"] = "Сложность подземелья"
-L["Instance Id"] = "ID подземелья"
 L["Instance ID"] = "Идентификатор подземелья"
+L["Instance Id"] = "ID подземелья"
 L["Instance Info"] = "Информация о подземелье"
 L["Instance Name"] = "Название подземелья"
 L["Instance Size Type"] = "Тип размера подземелья"
@@ -1151,6 +1157,8 @@ L["Right, then Centered Vertical"] = "Справа > По вертикали п�
 L["Right, then Down"] = "Справа > Вниз"
 L["Right, then Up"] = "Справа > Вверх"
 L["Role"] = "Роль"
+--[[Translation missing --]]
+L["Rollback snapshot is complete. Thank you for your patience!"] = "Rollback snapshot is complete. Thank you for your patience!"
 L["Rotate Animation"] = "Анимация вращения"
 L["Rotate Left"] = "Поворот влево"
 L["Rotate Right"] = "Поворот вправо"
@@ -1323,15 +1331,20 @@ L["Supports multiple entries, separated by commas"] = "Можно указать
 L[ [=[Supports multiple entries, separated by commas
 ]=] ] = [=[Можно указать несколько значений, разделенных запятыми.
 ]=]
-L["Supports multiple entries, separated by commas. Escape ',' with \\"] = "Можно указать несколько значений, разделенных запятыми. Если название уже содержит запятую, экранируйте ее при помощи символа \\"
+--[[Translation missing --]]
+L["Supports multiple entries, separated by commas. Escape ',' with \\. Prefix with '-' for negation."] = "Supports multiple entries, separated by commas. Escape ',' with \\. Prefix with '-' for negation."
+--[[Translation missing --]]
+L["Supports multiple entries, separated by commas. Prefix with '-' for negation."] = "Supports multiple entries, separated by commas. Prefix with '-' for negation."
 --[[Translation missing --]]
 L[ [=[Supports multiple entries, separated by commas. To include child zone ids, prefix with 'c', e.g. 'c2022'.
 Group Zone IDs must be prefixed with 'g', e.g. 'g277'. 
 Supports Area IDs from https://wago.tools/db2/AreaTable prefixed with 'a'. 
-Supports Instance IDs prefixed with 'i'.]=] ] = [=[Supports multiple entries, separated by commas. To include child zone ids, prefix with 'c', e.g. 'c2022'.
+Supports Instance IDs prefixed with 'i'.
+Entries can be prefixed with '-' to negate.]=] ] = [=[Supports multiple entries, separated by commas. To include child zone ids, prefix with 'c', e.g. 'c2022'.
 Group Zone IDs must be prefixed with 'g', e.g. 'g277'. 
 Supports Area IDs from https://wago.tools/db2/AreaTable prefixed with 'a'. 
-Supports Instance IDs prefixed with 'i'.]=]
+Supports Instance IDs prefixed with 'i'.
+Entries can be prefixed with '-' to negate.]=]
 L["Swing"] = "Ближний бой"
 L["Swing Timer"] = "Таймер Swing (время между атаками)"
 L["Swipe"] = "Эффект Swipe (затемнение)"
@@ -1426,6 +1439,8 @@ L["Total Unit Count"] = "Общее количество единиц"
 L["Total Units"] = "Общее количество единиц"
 L["Totem"] = "Тотем"
 L["Totem #%i"] = "Тотем #%i"
+--[[Translation missing --]]
+L["Totem Icon"] = "Totem Icon"
 L["Totem Name"] = "Название тотема"
 L["Totem Name Pattern Match"] = "Совпадение названия тотема с образцом"
 L["Totem Number"] = "Номер тотема"
@@ -1515,7 +1530,8 @@ Last upgrade: %s
 Дата последнего обновления: %s
 
 |cffff0000Настоятельно рекомендуется создать резервную копию папки WTF перед тем, как продолжить.|r]=]
-L["WeakAuras has encountered an error during the login process. Please report this issue at https://github.com/WeakAuras/Weakauras2/issues/new."] = "Во время процесса входа в игру возникла ошибка. Пожалуйста, сообщите об этой проблеме по адресу https://github.com/WeakAuras/Weakauras2/issues/new."
+--[[Translation missing --]]
+L["WeakAuras is creating a rollback snapshot of your auras. This snapshot will allow you to revert to the current state of your auras if something goes wrong. This process may cause your framerate to drop until it is complete."] = "WeakAuras is creating a rollback snapshot of your auras. This snapshot will allow you to revert to the current state of your auras if something goes wrong. This process may cause your framerate to drop until it is complete."
 L["WeakAuras Profiling"] = "Профилирование WeakAuras"
 L["WeakAuras Profiling Report"] = "Отчёт профилирования"
 L["WeakAuras Version: %s"] = "Версия WeakAuras: %s"
