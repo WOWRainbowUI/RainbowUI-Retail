@@ -49,9 +49,7 @@ L['not_so_quick_fix_note'] = 'Réparez la console terrestre cassée.'
 L['water_console_location'] = 'A côté de l\'escalier.'
 L['abyssal_console_location'] = 'Dans une alcôve.'
 L['taelloch_console_location'] = 'Sur un pont entre les tonneaux.'
-L['obsidian_console_location'] = nil
 L['lost_console_location'] = 'Dans une alcôve.'
-L['earthen_console_location'] = nil
 
 L['options_icons_notable_machines'] = '{achievement:40628}'
 L['options_icons_notable_machines_desc'] = 'Afficher les emplacements des notes pour le haut-fait {achievement:40628}.'
@@ -193,6 +191,8 @@ L['options_icons_beacon_of_hope_desc'] = 'Afficher les emplacements des flammecl
 
 L['beacon_of_hope_note'] = 'Donnez des {item:206350} pour allumer les flammeclés inférieures et achever les quêtes suivantes.'
 
+L['parasidious_note'] = nil
+
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
 -------------------------------------------------------------------------------
@@ -209,10 +209,17 @@ L['thimble_location'] = nil
 L['scampering_weave_rat_location'] = nil
 L['generals_scouting_shadecaster_location'] = nil
 
+L['options_icons_bookworm'] = '{achievement:40629}'
+L['options_icons_bookworm_desc'] = nil
+
+L['nerubian_potion_note'] = 'Achetez une {item:225784} à {npc:218192} contre 500x {currency:3056}.'
+L['bookworm_note'] = nil
+L['bookworm_1_location'] = nil
+
 L['options_icons_smelling_history'] = '{achievement:40542}'
 L['options_icons_smelling_history_desc'] = 'Afficher les emplacements des livres pour le haut-fait {achievement:40542}.'
 
-L['smelling_history_note'] = 'Achetez une {item:225784} à {npc:218192} contre 500x {currency:3056}.'
+L['smelling_history_note'] = nil
 L['smelling_history_1_location'] = 'A l\'intérieur du bâtiment, sur le comptoir.'
 L['smelling_history_2_location'] = 'Le parchemin se trouve sur un coffre.'
 L['smelling_history_3_location'] = 'Le parchemin est posé sur une table.'
@@ -230,7 +237,7 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = 'Afficher l\'itinéraire de la Trotteuse pour le haut-fait {achievement:40727}.'
 L['skittershaw_spin_note'] = 'Chevauchez la {npc:224973} et faites un tour complet du quartier.\n\nLa {npc:224973} s\'arrêtera à ces emplacements {dot:Red} le long du trajet.'
 
-L['memory_cache_note'] = 'Obtenez le buff {spell:420847} à partir d\'une ({dot:Blue}) {object:Remise de l\'extracteur} proche. Tuez le {npc:223908} pour obtenir la {item:223870} permettant d\'ouvrir la {object:Cache de souvenirs}.'
+L['memory_cache_note'] = 'Obtenez le buff {spell:420847} à partir d\'une ({dot:Red}) {object:Remise de l\'extracteur} proche. Tuez le {npc:223908} pour obtenir la {item:223870} permettant d\'ouvrir la {object:Cache de souvenirs}.'
 L['niffen_stash_note'] = 'Situé sous le pont.'
 L['trapped_trove_note'] = 'Dans un bâtiment suspendu au plafond. Évitez les toiles d\'araignées au sol.'
 

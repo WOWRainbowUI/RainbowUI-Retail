@@ -48,9 +48,7 @@ L['not_so_quick_fix_note'] = nil
 L['water_console_location'] = nil
 L['abyssal_console_location'] = nil
 L['taelloch_console_location'] = nil
-L['obsidian_console_location'] = nil
 L['lost_console_location'] = nil
-L['earthen_console_location'] = nil
 
 L['options_icons_notable_machines'] = nil
 L['options_icons_notable_machines_desc'] = nil
@@ -173,6 +171,8 @@ L['options_icons_beacon_of_hope_desc'] = nil
 
 L['beacon_of_hope_note'] = nil
 
+L['parasidious_note'] = nil
+
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
 -------------------------------------------------------------------------------
@@ -188,6 +188,13 @@ L['rumurh_location'] = nil
 L['thimble_location'] = nil
 L['scampering_weave_rat_location'] = nil
 L['generals_scouting_shadecaster_location'] = nil
+
+L['options_icons_bookworm'] = '{achievement:40629}'
+L['options_icons_bookworm_desc'] = nil
+
+L['nerubian_potion_note'] = nil
+L['bookworm_note'] = nil
+L['bookworm_1_location'] = nil
 
 L['options_icons_smelling_history'] = '{achievement:40542}'
 L['options_icons_smelling_history_desc'] = nil

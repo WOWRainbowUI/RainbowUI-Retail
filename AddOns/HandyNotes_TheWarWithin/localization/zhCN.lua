@@ -48,9 +48,7 @@ L['not_so_quick_fix_note'] = '修复坏掉的土灵控制台。'
 L['water_console_location'] = '在楼梯旁边。'
 L['abyssal_console_location'] = '在小屋里。'
 L['taelloch_console_location'] = '在桥上的桶之间。'
-L['obsidian_console_location'] = '占位符'
 L['lost_console_location'] = '在小屋里。'
-L['earthen_console_location'] = '占位符'
 
 L['options_icons_notable_machines'] = '{achievement:40628}'
 L['options_icons_notable_machines_desc'] = '显示 {achievement:40628} 成就中记事的位置。'
@@ -105,7 +103,14 @@ L['dark_ritual_note'] = '与 {object:黑暗仪式} 互动并击败所有 {npc:22
 L['illuminated_footlocker_note'] = '从 {npc:220703} 处接住5个掉落的 {spell:442389} 以获得 {spell:442529} 并发现 {object:光耀提箱}。'
 L['illusive_kobyss_lure_note'] = '组合全部4个物品制造 {item:225641}：'
 L['sunless_lure_location'] = '由 {location:无晖之滨} 的 {npc:215653} 掉落。'
-L['sky_captains_sunken_cache_note'] = nil
+L['sky_captains_sunken_cache_note'] = [[
+与四位不同的天空船长在他们的飞艇上交谈以揭示宝藏。
+
+{npc:222333}（{dot:Green}）逆时针飞行。
+{npc:222311}（{dot:Yellow}）逆时针飞行。
+{npc:222323}（{dot:Red}）顺时针飞行。
+{npc:222337}（{dot:Orange}）逆时针飞行。
+]]
 L['murkfin_lure_location'] = '由 {location:威尔汉之征} 的 {npc:213622} 掉落。它们伪装起来并使用 {npc:215623} 作为诱饵。'
 L['hungering_shimmerfin_location'] = '由 {location:饥寒之池} 的 {npc:215243} 掉落。它们伪装起来并使用 {npc:219210} 作为诱饵。'
 L['ragefin_necrostaff_location'] = '由 {location:崇圣之地} 的 {npc:213406} 掉落。'
@@ -175,8 +180,8 @@ L['murkshade_note'] = '与 {npc:218455} 互动。'
 L['options_icons_mereldar_menace'] = '{achievement:40151}'
 L['options_icons_mereldar_menace_desc'] = '显示 {achievement:40151} 成就中的目标位置。'
 
-L['mereldar_menace_note'] = '与 {object:掷出石子} 互动并将其扔向目标。'
-L['light_and_flame_location'] = '瞄准 {object:掷出石子} 东边的 {npc:218472}。'
+L['mereldar_menace_note'] = '与 {object:飞掷之石} 互动并将其扔向目标。'
+L['light_and_flame_location'] = '{object:飞掷之石} 瞄准东边的 {npc:218472}。'
 L['lamplighter_doorway_location'] = '瞄准东边建筑物的门口。'
 L['barracks_doorway_location'] = '瞄准西边红色和金色帐篷的门口。'
 
@@ -184,6 +189,8 @@ L['options_icons_beacon_of_hope'] = '{achievement:40308}'
 L['options_icons_beacon_of_hope_desc'] = '显示 {achievement:40308} 成就中小型钥焰的位置。'
 
 L['beacon_of_hope_note'] = '捐献 {item:206350} 来点亮小型钥焰并完成接下来的任务。'
+
+L['parasidious_note'] = nil
 
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
@@ -201,10 +208,17 @@ L['thimble_location'] = '占位符'
 L['scampering_weave_rat_location'] = '占位符'
 L['generals_scouting_shadecaster_location'] = '占位符'
 
+L['options_icons_bookworm'] = '{achievement:40629}'
+L['options_icons_bookworm_desc'] = '显示 {achievement:40629} 成就中书籍的位置。'
+
+L['nerubian_potion_note'] = '以500个 {currency:3056} 从 {npc:218192} 购买 {item:225784}。'
+L['bookworm_note'] = '{note:还可以使用 {item:225784} 完成 {achievement:40542} 成就。}'
+L['bookworm_1_location'] = '在小洞窟入口处。'
+
 L['options_icons_smelling_history'] = '{achievement:40542}'
 L['options_icons_smelling_history_desc'] = '显示 {achievement:40542} 成就中书籍的位置。'
 
-L['smelling_history_note'] = '以500个 {currency:3056} 从 {npc:218192} 购买 {item:225784}。'
+L['smelling_history_note'] = '{note:还可以使用 {item:225784} 完成 {achievement:40629} 成就。}'
 L['smelling_history_1_location'] = '在建筑物内的柜台上。'
 L['smelling_history_2_location'] = '卷轴在一个箱子上。'
 L['smelling_history_3_location'] = '卷轴在桌子上。'
@@ -213,7 +227,7 @@ L['smelling_history_5_location'] = '在建筑物内的桌子上。'
 L['smelling_history_6_location'] = '在房间南侧的床上。'
 L['smelling_history_7_location'] = '在一堆书的上面。'
 L['smelling_history_8_location'] = '在房间北边床边的桌子上。'
-L['smelling_history_9_location'] = '占位符'
+L['smelling_history_9_location'] = '在桌子后面，在 {npc:226024} 旁边。'
 L['smelling_history_10_location'] = '在长凳上。'
 L['smelling_history_11_location'] = '书在床边的桌子上。入口在喷泉上方。'
 L['smelling_history_12_location'] = '在建筑物内的桌子上。'
@@ -222,7 +236,7 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = '显示 {achievement:40727} 成就中虫车路线位置。'
 L['skittershaw_spin_note'] = '骑乘 {npc:224973} 绕区域一圈。\n\n{npc:224973} 将在路线上的 {dot:Red} 点处停止。'
 
-L['memory_cache_note'] = '从附近的（{dot:Blue}）{object:提取器存储} 获取 {spell:420847}。击杀 {npc:223908} 后获取 {item:223870} 以打开 {object:记忆箱子}。'
+L['memory_cache_note'] = '从附近的（{dot:Red}）{object:提取器存储} 获取 {spell:420847}。击杀 {npc:223908} 后获取 {item:223870} 以打开 {object:记忆箱子}。'
 L['niffen_stash_note'] = '在桥下。'
 L['trapped_trove_note'] = '在从天花板垂下的建筑物中。避开地板上的蜘蛛网。'
 

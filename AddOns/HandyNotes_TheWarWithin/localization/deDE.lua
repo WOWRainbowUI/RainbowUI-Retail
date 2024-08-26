@@ -49,9 +49,7 @@ L['not_so_quick_fix_note'] = 'Repariere die defekte Konsole der Irdenen.'
 L['water_console_location'] = 'Neben der Treppe.'
 L['abyssal_console_location'] = nil
 L['taelloch_console_location'] = 'Auf der Brücke zwischen den Fässern.'
-L['obsidian_console_location'] = nil
 L['lost_console_location'] = 'Im Eingang der eingestürzten Mine.'
-L['earthen_console_location'] = nil
 
 L['options_icons_notable_machines'] = '{achievement:40628}'
 L['options_icons_notable_machines_desc'] = 'Zeigt die Positionen der Notizen für den Erfolg {achievement:40628} an.'
@@ -185,6 +183,8 @@ L['options_icons_beacon_of_hope_desc'] = 'Zeigt die Positionen der kleinen Schl�
 
 L['beacon_of_hope_note'] = 'Steuert {item:206350} bei, um kleinere Schlüsselflammen zu entzünden und die folgenden Quests abzuschließen. '
 
+L['parasidious_note'] = nil
+
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
 -------------------------------------------------------------------------------
@@ -201,28 +201,35 @@ L['thimble_location'] = nil
 L['scampering_weave_rat_location'] = nil
 L['generals_scouting_shadecaster_location'] = nil
 
+L['options_icons_bookworm'] = '{achievement:40629}'
+L['options_icons_bookworm_desc'] = 'Zeigt die Positionen von Büchern für den Erfolg {achievement:40629} an.'
+
+L['nerubian_potion_note'] = 'Um die Bücher lesen zu können, benötigst du einen {item:225784} ({note:Buff hält 10 Minuten an}). Diesen kannst du von {npc:218192} für 500x {currency:3056} kaufen.'
+L['bookworm_note'] = '{note:Du kannst gleichzeitig den Erfolg {achievement:40542} mit dem {item:225784} erringen.}'
+L['bookworm_1_location'] = 'Am Eingang der kleinen Höhle.'
+
 L['options_icons_smelling_history'] = '{achievement:40542}'
 L['options_icons_smelling_history_desc'] = 'Zeigt die Positionen von Büchern für den Erfolg {achievement:40542} an.'
 
-L['smelling_history_note'] = 'Kaufe {item:225784} von {npc:218192} für 500x {currency:3056}.' -- review
-L['smelling_history_1_location'] = 'Im Gebäude auf dem Tresen.'
+L['smelling_history_note'] = '{note:Du kannst gleichzeitig den Erfolg {achievement:40629} mit dem {item:225784} erringen.}'
+L['smelling_history_1_location'] = 'Im Gebäude auf dem Tisch.'
 L['smelling_history_2_location'] = 'Auf einer Truhe.'
-L['smelling_history_3_location'] = 'Auf einem Tisch.'
+L['smelling_history_3_location'] = 'In einer kleinen Höhle auf einem Tisch.'
 L['smelling_history_4_location'] = 'Im Gebäude auf einem Tisch.'
 L['smelling_history_5_location'] = 'Im Gebäude auf einem Tisch.'
-L['smelling_history_6_location'] = 'Auf dem Bett an der Südseite des Zimmers.'
-L['smelling_history_7_location'] = 'Auf auf einem Stapel von Büchern.'
-L['smelling_history_8_location'] = 'Auf dem Tisch neben dem Bett an der Nordseite des Zimmers.'
-L['smelling_history_9_location'] = nil
-L['smelling_history_10_location'] = 'Auf einer Bank.'
-L['smelling_history_11_location'] = 'Das Buch liegt auf einem Tisch neben dem Bett. Der Eingang befindet sich oberhalb des Brunnens.'
+L['smelling_history_6_location'] = 'Im Gebäude auf dem Bett an der Südseite des Zimmers.'
+L['smelling_history_7_location'] = 'Im Gebäude auf auf dem Bücherstapel.'
+L['smelling_history_8_location'] = 'Im Gebäude auf dem Tisch neben dem Bett an der Nordseite des Zimmers.'
+L['smelling_history_9_location'] = 'Im Gebäude, von hinten angelehnt an den Tisch von {npc:226024}.'
+L['smelling_history_10_location'] = 'Im Gebäude auf der Bank.'
+L['smelling_history_11_location'] = 'Im Gebäude auf dem Tisch neben dem Bett. Der Eingang befindet sich oberhalb des Brunnens.'
 L['smelling_history_12_location'] = 'Im Gebäude auf einem Tisch.'
 
 L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = 'Zeigt die Position des Krabblertaxis für den Erfolg {achievement:40727} an.'
 L['skittershaw_spin_note'] = 'Fahre mit dem {npc:224973} eine ganze Runde um den Distrikt.\n\nDas {npc:224973} hält an verschiedenen Stellen ({dot:Red}) entlang der Runde.'
 
-L['memory_cache_note'] = 'Erhalte {spell:420847} von einem {object:Extractor Storage} ({dot:Blue}) in der Nähe. After kill the {npc:223908} to get the {item:223870} to open the {object:Memory Cache}.' -- review WHAT?
+L['memory_cache_note'] = 'Hole dir den Schwächungszauber {spell:420847} von einem {object:Extraktor} ({dot:Red}) in der Nähe und töte dann die {npc:223908} vor der Kiste, um den {item:223870} zu erhalten.'
 L['niffen_stash_note'] = 'Befindet sich unter der Brücke.'
 L['trapped_trove_note'] = 'In einem Gebäude das von der Decke hängt. Vermeide die Spinnweben am Boden.'
 

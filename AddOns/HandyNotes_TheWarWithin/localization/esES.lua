@@ -48,9 +48,7 @@ L['not_so_quick_fix_note'] = 'Repara la consolas terránea estropeada.'
 L['water_console_location'] = 'Junto a las escaleras.'
 L['abyssal_console_location'] = 'En una alcoba.'
 L['taelloch_console_location'] = 'Entre los barriles de un puente.'
-L['obsidian_console_location'] = nil
 L['lost_console_location'] = 'En una alcoba.'
-L['earthen_console_location'] = nil
 
 L['options_icons_notable_machines'] = '{achievement:40628}'
 L['options_icons_notable_machines_desc'] = 'Muestra dónde están las notas del logro {achievement:40628}.'
@@ -105,7 +103,14 @@ L['dark_ritual_note'] = 'Interactúa con el {object:Ritual Oscuro} y derrota a {
 L['illuminated_footlocker_note'] = 'Consigue 5x {spell:442389} que caen de {npc:220703} para conseguir {spell:442529} y descubrir el {object:Baúl Iluminado}.'
 L['illusive_kobyss_lure_note'] = 'Combina los 4 objetos para crear {item:225641}:'
 L['sunless_lure_location'] = 'Se despoja de {npc:215653} en la {location:Playa del Sol Ausente}.'
-L['sky_captains_sunken_cache_note'] = nil
+L['sky_captains_sunken_cache_note'] = [[
+Habla con los cuatro capitanes diferentes en sus navíos voladores para conseguir el tesoro.
+
+{npc:222333} ({dot:Green}) vuela en sentido antihorario.
+{npc:222311} ({dot:Yellow}) vuela en sentido antihorario.
+{npc:222323} ({dot:Red}) vuela en sentido horario.
+{npc:222337} ({dot:Orange}) vuela en sentido antihorario.
+]]
 L['murkfin_lure_location'] = 'Se despoja de {npc:213622} en {location:Reclamación de Velhan}. Están camuflados y has de usar {npc:215623} como cebo.'
 L['hungering_shimmerfin_location'] = 'Se despoja de {npc:215243} en el {location:Charco Hambriento}. Están camuflados y has de usar {npc:219210} como cebo.'
 L['ragefin_necrostaff_location'] = 'Se despoja de {npc:213406} en las {location:Tierras de Veneración}.'
@@ -185,6 +190,8 @@ L['options_icons_beacon_of_hope_desc'] = 'Muestra dónde están las llaves ardie
 
 L['beacon_of_hope_note'] = 'Contribuye con {item:206350} para encender las llaves ardientes inferiores y completar las misiones siguientes.'
 
+L['parasidious_note'] = nil
+
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
 -------------------------------------------------------------------------------
@@ -201,10 +208,17 @@ L['thimble_location'] = nil
 L['scampering_weave_rat_location'] = nil
 L['generals_scouting_shadecaster_location'] = nil
 
+L['options_icons_bookworm'] = '{achievement:40629}'
+L['options_icons_bookworm_desc'] = 'Muestra dónde están los libros para el logro {achievement:40629}.'
+
+L['nerubian_potion_note'] = 'Compra la {item:225784} ({note:el buff dura 10 minutos}) de {npc:218192} por 500x {currency:3056}.'
+L['bookworm_note'] = '{note:También puedes completar el logro {achievement:40542} con la {item:225784}.}'
+L['bookworm_1_location'] = 'En la entrada de la cueva pequeña.'
+
 L['options_icons_smelling_history'] = '{achievement:40542}'
 L['options_icons_smelling_history_desc'] = 'Muestra dónde están los libros del logro {achievement:40542}.'
 
-L['smelling_history_note'] = 'Compra la {item:225784} de {npc:218192} por 500x {currency:3056}.'
+L['smelling_history_note'] = '{note:También puedes completar el logro {achievement:40629} con la {item:225784}.}'
 L['smelling_history_1_location'] = 'Dentro del edificio, en el mostrador.'
 L['smelling_history_2_location'] = 'El pergamino está en un cofre.'
 L['smelling_history_3_location'] = 'El pergamino está en una mesa.'
@@ -213,7 +227,7 @@ L['smelling_history_5_location'] = 'Dentro del edificio, en una mesa.'
 L['smelling_history_6_location'] = 'En la cama del lado sur de la habitación.'
 L['smelling_history_7_location'] = 'Encima de una pila de libros.'
 L['smelling_history_8_location'] = 'En la mesa junto a la cama en el lado norte de la habitación.'
-L['smelling_history_9_location'] = nil
+L['smelling_history_9_location'] = 'Detrás del escritorio inclinado al lado de {npc:226024}.'
 L['smelling_history_10_location'] = 'En un banco.'
 L['smelling_history_11_location'] = 'El libro está en una mesa junto a la cama. La entrada está encima de la fuente.'
 L['smelling_history_12_location'] = 'Dentro del edificio, en una mesa.'
@@ -222,7 +236,7 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = 'Muestra las rutas de los correteadores para el logro {achievement:40727}.'
 L['skittershaw_spin_note'] = 'Conduce el {npc:224973} durante una vuelta completa alrededor del distrito.\n\nEl {npc:224973} se parará en los puntos {dot:Red} a lo largo de la ruta.'
 
-L['memory_cache_note'] = 'Consigue {spell:420847} de un ({dot:Blue}) {object:Extractor de Almacenaje} cercano. Después mata la {npc:223908} para conseguir la {item:223870} que abrirá el {object:Alijo de Recuerdos}.'
+L['memory_cache_note'] = 'Consigue {spell:420847} de un ({dot:Red}) {object:Extractor de Almacenaje} cercano. Después mata la {npc:223908} para conseguir la {item:223870} que abrirá el {object:Alijo de Recuerdos}.'
 L['niffen_stash_note'] = 'Está debajo del puente.'
 L['trapped_trove_note'] = 'En un edificio que cuelga del techo. Evita las telarañas del suelo.'
 
