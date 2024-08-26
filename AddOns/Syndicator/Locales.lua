@@ -77,7 +77,6 @@ L["KEYWORD_SWORD"] = "sword"
 L["KEYWORD_USE"] = "use"
 L["KEYWORD_USABLE"] = "usable"
 L["KEYWORD_OPEN"] = "open"
-L["KEYWORD_MANUSCRIPT"] = "manuscript"
 L["KEYWORD_STAFF"] = "staff"
 L["KEYWORD_HELM"] = "helm"
 L["KEYWORD_CLOAK"] = "cloak"
@@ -174,6 +173,8 @@ L["KEYWORD_BOOTS"] = "pieds"
 L["KEYWORD_BOP"] = "lqr"
 L["KEYWORD_BOU"] = "lqu"
 L["KEYWORD_BRACERS"] = "brassards"
+--[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
 L["KEYWORD_CLOAK"] = "cape"
 L["KEYWORD_COLLECTED"] = "obtenu"
 L["KEYWORD_COSMETIC"] = "cosmétique"
@@ -200,6 +201,8 @@ L["KEYWORD_POTION"] = "potion"
 L["KEYWORD_REAGENT"] = "composant"
 L["KEYWORD_RELIC"] = "relique"
 L["KEYWORD_REPUTATION"] = "réputation"
+--[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
 L["KEYWORD_SET"] = "set"
 L["KEYWORD_SOCKET"] = "châsse"
 L["KEYWORD_SOCKETED"] = "enchâssé"
@@ -214,10 +217,18 @@ L["KEYWORD_TRASH"] = "camelote"
 L["KEYWORD_UNCOLLECTED"] = "non obtenu"
 L["KEYWORD_USABLE"] = "utilisable"
 L["KEYWORD_USE"] = "utiliser"
+--[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "courrier"
 L["MAIL_X"] = "Courrier : %s"
 L["SAME_CONNECTED_REALMS"] = "même serveur"
 L["SAME_FACTION"] = "même faction"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 L["SEARCHED_EVERYWHERE_COLON"] = "Recherche Globale:"
 L["SHOW_CURRENCY"] = "Afficher les monnaies"
 L["SHOW_EQUIPPED"] = "Afficher équipé"
@@ -279,6 +290,8 @@ L["KEYWORD_BOOTS"] = "füße"
 L["KEYWORD_BOP"] = "bop"
 L["KEYWORD_BOU"] = "bou"
 L["KEYWORD_BRACERS"] = "amschienen"
+--[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
 L["KEYWORD_CLOAK"] = "umhang"
 L["KEYWORD_COLLECTED"] = "gesammelt"
 L["KEYWORD_COSMETIC"] = "kosmetisch"
@@ -305,6 +318,8 @@ L["KEYWORD_POTION"] = "trank"
 L["KEYWORD_REAGENT"] = "reagenz"
 L["KEYWORD_RELIC"] = "relikt"
 L["KEYWORD_REPUTATION"] = "ruf"
+--[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
 L["KEYWORD_SET"] = "set"
 L["KEYWORD_SOCKET"] = "sockel"
 L["KEYWORD_SOCKETED"] = "gesockelt"
@@ -319,10 +334,18 @@ L["KEYWORD_TRASH"] = "müll"
 L["KEYWORD_UNCOLLECTED"] = "nicht gesammelt"
 L["KEYWORD_USABLE"] = "benutzbar"
 L["KEYWORD_USE"] = "benutzen"
+--[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "post"
 L["MAIL_X"] = "Post: %s"
 L["SAME_CONNECTED_REALMS"] = "Gleiche verbundene Server"
 L["SAME_FACTION"] = "Gleiche Fraktion"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 L["SEARCHED_EVERYWHERE_COLON"] = "Überall gesucht:"
 L["SHOW_CURRENCY"] = "Währung anzeigen"
 L["SHOW_EQUIPPED"] = "Ausgerüstet anzeigen"
@@ -384,6 +407,8 @@ L["KEYWORD_BOOTS"] = "ступни"
 L["KEYWORD_BOP"] = "персональный"
 L["KEYWORD_BOU"] = "персональным"
 L["KEYWORD_BRACERS"] = "запястья"
+--[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
 L["KEYWORD_CLOAK"] = "плащ"
 L["KEYWORD_COLLECTED"] = "полученный"
 L["KEYWORD_COSMETIC"] = "декоративный"
@@ -410,6 +435,8 @@ L["KEYWORD_POTION"] = "зелье"
 L["KEYWORD_REAGENT"] = "материалы"
 L["KEYWORD_RELIC"] = "реликвия"
 L["KEYWORD_REPUTATION"] = "репутация"
+--[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
 L["KEYWORD_SET"] = "комплект"
 L["KEYWORD_SOCKET"] = "гнездо"
 L["KEYWORD_SOCKETED"] = "инкрустировать"
@@ -424,10 +451,18 @@ L["KEYWORD_TRASH"] = "хлам"
 L["KEYWORD_UNCOLLECTED"] = "неполученный"
 L["KEYWORD_USABLE"] = "пригодное"
 L["KEYWORD_USE"] = "использование"
+--[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "Почта -"
 L["MAIL_X"] = "Почта: %s"
 L["SAME_CONNECTED_REALMS"] = "Только тот же игровой мир"
 L["SAME_FACTION"] = "Только та же фракция"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 L["SEARCHED_EVERYWHERE_COLON"] = "Результаты глобального поиска:"
 L["SHOW_CURRENCY"] = "Отображать валюту"
 L["SHOW_EQUIPPED"] = "Отображать экипированное"
@@ -489,6 +524,8 @@ L["KEYWORD_BOOTS"] = "botas"
 L["KEYWORD_BOP"] = "bop"
 L["KEYWORD_BOU"] = "bou"
 L["KEYWORD_BRACERS"] = "brazales"
+--[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
 L["KEYWORD_CLOAK"] = "capa"
 L["KEYWORD_COLLECTED"] = "recogidos"
 L["KEYWORD_COSMETIC"] = "cosméticos"
@@ -516,6 +553,8 @@ L["KEYWORD_POTION"] = "poción"
 L["KEYWORD_REAGENT"] = "componentes"
 L["KEYWORD_RELIC"] = "reliquia"
 L["KEYWORD_REPUTATION"] = "reputación"
+--[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
 L["KEYWORD_SET"] = "set"
 L["KEYWORD_SOCKET"] = "ranura"
 --[[Translation missing --]]
@@ -531,10 +570,18 @@ L["KEYWORD_TRASH"] = "chatarra"
 L["KEYWORD_UNCOLLECTED"] = "no obtenido"
 L["KEYWORD_USABLE"] = "utilizable"
 L["KEYWORD_USE"] = "uso"
+--[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "correo"
 L["MAIL_X"] = "Correo: %s"
 L["SAME_CONNECTED_REALMS"] = "Los mismos reinos conectados"
 L["SAME_FACTION"] = "MISMA_FACCIÓN"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 L["SEARCHED_EVERYWHERE_COLON"] = "Buscado en todas partes:"
 L["SHOW_CURRENCY"] = "Mostrar moneda"
 L["SHOW_EQUIPPED"] = "Mostrar equipados"
@@ -638,6 +685,8 @@ L["KEYWORD_BOU"] = "bou"
 --[[Translation missing --]]
 L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
+--[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COLLECTED"] = "collected"
@@ -690,6 +739,8 @@ L["KEYWORD_RELIC"] = "relic"
 --[[Translation missing --]]
 L["KEYWORD_REPUTATION"] = "reputation"
 --[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
+--[[Translation missing --]]
 L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
@@ -718,6 +769,8 @@ L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
+--[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
@@ -725,6 +778,12 @@ L["MAIL_X"] = "Mail: %s"
 L["SAME_CONNECTED_REALMS"] = "Same connected realms"
 --[[Translation missing --]]
 L["SAME_FACTION"] = "Same faction"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 --[[Translation missing --]]
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
@@ -803,6 +862,8 @@ L["KEYWORD_BOOTS"] = "腳"
 L["KEYWORD_BOP"] = "拾綁"
 L["KEYWORD_BOU"] = "用綁"
 L["KEYWORD_BRACERS"] = "手腕"
+--[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
 L["KEYWORD_CLOAK"] = "披風"
 L["KEYWORD_COLLECTED"] = "已收藏"
 L["KEYWORD_COSMETIC"] = "外型"
@@ -829,6 +890,8 @@ L["KEYWORD_POTION"] = "藥水"
 L["KEYWORD_REAGENT"] = "配方"
 L["KEYWORD_RELIC"] = "聖物"
 L["KEYWORD_REPUTATION"] = "聲望"
+--[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
 L["KEYWORD_SET"] = "套裝"
 L["KEYWORD_SOCKET"] = "插槽"
 L["KEYWORD_SOCKETED"] = "插槽"
@@ -843,10 +906,18 @@ L["KEYWORD_TRASH"] = "垃圾"
 L["KEYWORD_UNCOLLECTED"] = "未收藏"
 L["KEYWORD_USABLE"] = "可使用"
 L["KEYWORD_USE"] = "使用"
+--[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "郵件"
 L["MAIL_X"] = "信箱：%s"
 L["SAME_CONNECTED_REALMS"] = "相同連結伺服器"
 L["SAME_FACTION"] = "相同陣營"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 L["SEARCHED_EVERYWHERE_COLON"] = "廣泛搜尋："
 L["SHOW_CURRENCY"] = "顯示兌換通貨"
 L["SHOW_EQUIPPED"] = "顯示裝備"
@@ -908,6 +979,8 @@ L["KEYWORD_BOOTS"] = "脚部"
 L["KEYWORD_BOP"] = "拾绑"
 L["KEYWORD_BOU"] = "使用后绑定"
 L["KEYWORD_BRACERS"] = "腕部"
+--[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
 L["KEYWORD_CLOAK"] = "背部"
 L["KEYWORD_COLLECTED"] = "已收藏"
 L["KEYWORD_COSMETIC"] = "外观"
@@ -934,6 +1007,8 @@ L["KEYWORD_POTION"] = "药水"
 L["KEYWORD_REAGENT"] = "材料"
 L["KEYWORD_RELIC"] = "圣物"
 L["KEYWORD_REPUTATION"] = "声望"
+--[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
 L["KEYWORD_SET"] = "套装"
 L["KEYWORD_SOCKET"] = "插槽"
 L["KEYWORD_SOCKETED"] = "插槽"
@@ -948,10 +1023,18 @@ L["KEYWORD_TRASH"] = "垃圾"
 L["KEYWORD_UNCOLLECTED"] = "未收藏"
 L["KEYWORD_USABLE"] = "可使用"
 L["KEYWORD_USE"] = "使用（use）"
+--[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
 L["MAIL_LOWER"] = "信箱"
 L["MAIL_X"] = "信箱：%s"
 L["SAME_CONNECTED_REALMS"] = "互通的其他服务器"
 L["SAME_FACTION"] = "同阵营"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 L["SEARCHED_EVERYWHERE_COLON"] = "扩大搜索："
 L["SHOW_CURRENCY"] = "显示货币"
 L["SHOW_EQUIPPED"] = "显示物品"
@@ -1041,6 +1124,8 @@ L["KEYWORD_BOP"] = "bop"
 --[[Translation missing --]]
 L["KEYWORD_BOU"] = "bou"
 L["KEYWORD_BRACERS"] = "손목"
+--[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
 L["KEYWORD_CLOAK"] = "망토"
 --[[Translation missing --]]
 L["KEYWORD_COLLECTED"] = "collected"
@@ -1081,6 +1166,8 @@ L["KEYWORD_REAGENT"] = "재료"
 --[[Translation missing --]]
 L["KEYWORD_RELIC"] = "relic"
 L["KEYWORD_REPUTATION"] = "평판"
+--[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
 L["KEYWORD_SET"] = "세트"
 L["KEYWORD_SOCKET"] = "소켓"
 --[[Translation missing --]]
@@ -1105,12 +1192,20 @@ L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
+--[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 L["MAIL_X"] = "우편함: %s"
 --[[Translation missing --]]
 L["SAME_CONNECTED_REALMS"] = "Same connected realms"
 --[[Translation missing --]]
 L["SAME_FACTION"] = "Same faction"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 --[[Translation missing --]]
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
@@ -1228,6 +1323,8 @@ L["KEYWORD_BOU"] = "bou"
 --[[Translation missing --]]
 L["KEYWORD_BRACERS"] = "bracers"
 --[[Translation missing --]]
+L["KEYWORD_BWE"] = "bwe"
+--[[Translation missing --]]
 L["KEYWORD_CLOAK"] = "cloak"
 --[[Translation missing --]]
 L["KEYWORD_COLLECTED"] = "collected"
@@ -1280,6 +1377,8 @@ L["KEYWORD_RELIC"] = "relic"
 --[[Translation missing --]]
 L["KEYWORD_REPUTATION"] = "reputation"
 --[[Translation missing --]]
+L["KEYWORD_RX"] = "r%s"
+--[[Translation missing --]]
 L["KEYWORD_SET"] = "set"
 --[[Translation missing --]]
 L["KEYWORD_SOCKET"] = "socket"
@@ -1308,6 +1407,8 @@ L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
 L["KEYWORD_USE"] = "use"
 --[[Translation missing --]]
+L["KEYWORD_WUE"] = "wue"
+--[[Translation missing --]]
 L["MAIL_LOWER"] = "mail"
 --[[Translation missing --]]
 L["MAIL_X"] = "Mail: %s"
@@ -1315,6 +1416,12 @@ L["MAIL_X"] = "Mail: %s"
 L["SAME_CONNECTED_REALMS"] = "Same connected realms"
 --[[Translation missing --]]
 L["SAME_FACTION"] = "Same faction"
+--[[Translation missing --]]
+L["SEARCH_AND"] = "and"
+--[[Translation missing --]]
+L["SEARCH_NOT"] = "not"
+--[[Translation missing --]]
+L["SEARCH_OR"] = "or"
 --[[Translation missing --]]
 L["SEARCHED_EVERYWHERE_COLON"] = "Searched Everywhere:"
 --[[Translation missing --]]
