@@ -2,7 +2,8 @@ if GetLocale() ~= "zhTW" then
 	return
 end
 
-local _, L = ...
+local _, ns = ...
+local L = ns.L
 
 L["author"] = "作者"
 L["%s Configuration"] = "%s設定"
@@ -41,6 +42,7 @@ L["Background"] = "背景"
 L["Fade out line"] = "淡出|cff%s直線|r"
 L["Fade out bar"] = "淡出選單"
 L["Opacity"] = "透明度"
+L["Hide the bar in Pet Battle"] = "寵物對暫時隱藏"
 L["Line width"] = "|cff%s直線|r寬度"
 L["Line Border"] = "直線邊框"
 L["Line Border Offset"] = "|cff%s直線|r邊框位置"
