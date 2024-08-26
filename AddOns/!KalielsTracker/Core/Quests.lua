@@ -41,6 +41,10 @@ function KT.QuestsCache_Update(isForced)
     return numQuests
 end
 
+function KT.QuestsCache_GetInfo(questID)
+    return questsCache[questID] and questsCache[questID]
+end
+
 function KT.QuestsCache_GetProperty(questID, key)
     return questsCache[questID] and questsCache[questID][key]
 end

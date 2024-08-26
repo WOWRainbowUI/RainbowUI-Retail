@@ -266,13 +266,15 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 7.2.0|r\n"..
-					"- ADDED (achievements) - filter support for The War Within (Delves)\n"..
-					"- ADDED (quests) - option to always show Campaign quests in zone filtering\n"..
-					"- CHANGED - TomTom - improved auto set waypoint after update quest objective\n"..
-					"- FIXED - TomTom - switching POI focus does not remove waypoint\n"..
-					"- FIXED (quests) - Popup quest not showing in empty tracker\n"..
-					"- PERFORMANCE (questy) - optimization of filtering code\n"..
+					cTitle.."Version 7.3.0|r\n"..
+					"- ADDED (quests) - filter support for Delves (Instance filter)\n"..
+					"- ADDED (scenario) - support for Delves and minor improvements (2)\n"..
+					"- ADDED (quests) - new tag for Delves\n"..
+					"- ADDED (filter) - use Shift+Click in the F menu, for incremental filtering of quests (Click only switches between groups of filters)\n"..
+					"- ADDED (scenario) - support for Delves and minor improvements\n"..
+					"- ADDED (quests) - sorting - is on map > zone > level > title\n"..
+					"- CHANGED - TomTom - minor improvements\n"..
+					"- PERFORMANCE (achievements) - optimization of filtering code\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
@@ -295,7 +297,7 @@ local function SetupTutorials()
 		},
 		onShow = function(self, i)
 			if dbChar.collapsed then
-				KT:MinimizeButton_OnClick(true)
+				KT:MinimizeButton_OnClick()
 			end
 			if i == 2 then
 				if KTF.FilterButton then
