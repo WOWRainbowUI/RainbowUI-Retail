@@ -57,6 +57,7 @@ KT.frame = KTF
 local OTF = KT_ObjectiveTrackerFrame
 local OTFHeader = OTF.Header
 local MawBuffs = KT_ScenarioObjectiveTracker.MawBuffsBlock.Container
+local BaseScenarioWidget
 
 --------------
 -- Internal --
@@ -312,6 +313,7 @@ local function SetFrames()
 			KT.inWorld = false
 		elseif event == "SCENARIO_UPDATE" then
 			local newStage = ...
+			KT.inInstance = IsInInstance()
 			if not C_Scenario.IsInScenario() or IsInJailersTower() == nil or IsOnGroundFloorInJailersTower() == true then
 				KT.inScenario = false
 			else
@@ -327,6 +329,7 @@ local function SetFrames()
 				KT_ObjectiveTracker_Update()]]
 			end
 		elseif event == "SCENARIO_COMPLETED" then
+			KT.inInstance = IsInInstance()
 			KT.inScenario = false
 			KT_ScenarioObjectiveTracker:MarkDirty()
 		elseif event == "QUEST_AUTOCOMPLETE" then
@@ -1494,18 +1497,28 @@ local function SetHooks()
 		end
 	end)
 
+	-- WidgetSetID:
+	-- 461 ... Ember Court
+	-- 291 ... Torghast (3302, 11)
+	-- 842 ... Delves (6183, 29)
 	hooksecurefunc(KT_ScenarioObjectiveTracker.StageBlock, "UpdateStageBlock", function(self, scenarioID, scenarioType, widgetSetID, textureKit, flags, currentStage, stageName, numStages)
-		if textureKit == "jailerstower-scenario" then
+		if widgetSetID == 291 then
 			self.offsetX = 27
 			self.KTtooltipOffsetXmod = 3
+			self.KTtooltipOffsetYmod = 0
+		elseif widgetSetID == 842 then
+			self.offsetX = 17
+			self.KTtooltipOffsetXmod = -7
+			self.KTtooltipOffsetYmod = 3
 		else
 			self.offsetX = 24
 			self.KTtooltipOffsetXmod = 0
+			self.KTtooltipOffsetYmod = 0
 		end
 	end)
 
 	KT_ScenarioObjectiveTracker.StageBlock:HookScript("OnEnter", function(self)
-		TooltipPosition(self, 19, -1, -26 - self.KTtooltipOffsetXmod, -1)
+		TooltipPosition(self, 19, -1, -26 - self.KTtooltipOffsetXmod, -1 - self.KTtooltipOffsetYmod)
 	end)
 
 	hooksecurefunc(OTF.Header, "SetCollapsed", function(self, collapsed)
@@ -1541,6 +1554,14 @@ local function SetHooks()
 		poiButton:SetPoint("TOPRIGHT", self.HeaderText, "TOPLEFT", -7, 3)
 		poiButton:SetPingWorldMap(isWorldQuest)
 	end
+
+	hooksecurefunc(UIWidgetBaseScenarioHeaderTemplateMixin, "Setup", function(self, widgetInfo, widgetContainer)
+		if not self.KTskinned or KT.forcedUpdate then
+			self.HeaderText:SetFont(KT.font, db.fontSize + 4, db.fontFlag)  -- see KT:SetText()
+			BaseScenarioWidget = self
+			self.KTskinned = true
+		end
+	end)
 
 	-- ContentTrackingManager.lua
 	local function OnContentTrackingUpdate(self, trackableType, id, isTracked)
@@ -2243,10 +2264,9 @@ end
 -- External --
 --------------
 
-function KT:MinimizeButton_OnClick(autoClick)
+function KT:MinimizeButton_OnClick()
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	ObjectiveTracker_Toggle()
-	self.collapsedByUser = autoClick and nil or dbChar.collapsed
 end
 
 function KT_WorldQuestPOIButton_OnClick(self)
@@ -2393,6 +2413,9 @@ function KT:SetText()
 	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.WaveLabel:SetFont(self.font, db.fontSize + 5, db.fontFlag)
 	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.Wave:SetFont(self.font, db.fontSize + 5, db.fontFlag)
 	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.StatusBar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
+	if BaseScenarioWidget then
+		BaseScenarioWidget.HeaderText:SetFont(self.font, db.fontSize + 4, db.fontFlag)  -- see UIWidgetBaseScenarioHeaderTemplateMixin:Setup
+	end
 end
 
 function KT:SetHeaderButtons(numAddButtons)
@@ -2616,6 +2639,8 @@ function KT:CreateQuestTag(level, questTag, frequency, suggestedGroup)
 			tag = "r10"
 		elseif questTag == Enum.QuestTag.Raid25 then
 			tag = "r25"
+		elseif questTag == Enum.QuestTag.Delve then
+			tag = "de"
 		elseif questTag == Enum.QuestTag.Scenario then
 			tag = "s"
 		elseif questTag == Enum.QuestTag.Account then
@@ -2762,7 +2787,6 @@ function KT:OnInitialize()
 	self.hiddenQuestPopUps = false
 	self.stopUpdate = true
 	self.questStateStopUpdate = false
-	self.collapsedByUser = dbChar.collapsed
 	self.hidden = false
 	self.locked = false
 	self.initialized = false

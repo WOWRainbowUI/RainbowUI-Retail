@@ -266,13 +266,15 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."版本 7.2.0|r\n"..
-					"- 新增 (成就) - 過濾方式支援地心之戰 (研究中)\n"..
-					"- 新增 (任務) - 區域過濾方式新增總是顯示戰役的選項\n"..
-					"- 變更 - TomTom - 增強任務目標更新後自動設定導航\n"..
-					"- 修正 - TomTom - 切換選取 POI 不會移除導航\n"..
-					"- 修正 (任務) - 空的清單不會顯示彈出的任務\n"..
-					"- 效能 (任務) - 最佳化過濾方式程式碼\n"..
+					cTitle.."版本 7.3.0|r\n"..
+					"- 新增 (任務) - 過濾方式支援探究 (副本過濾)\n"..
+					"- 新增 (事件) - 支援探究和其他次要增強 (2)\n"..
+					"- 新增 (任務) - 探究的新標籤\n"..
+					"- 新增 (過濾方式) - Shift+左鍵點擊 F 選單， 可以增加過濾任務 (點擊只會在過濾方式分組之間切換)\n"..
+					"- 新增 (事件) - 支援探究和次要增強\n"..
+					"- 新增 (任務) - 排序 - 地圖 > 區域 > 等級 > 標題\n"..
+					"- 變更 - TomTom - 次要增強\n"..
+					"- 效能 (成就) - 最佳化過濾方式程式碼\n"..
 					"\n"..
 
 					cTitle.."回報問題|r\n"..
@@ -295,7 +297,7 @@ local function SetupTutorials()
 		},
 		onShow = function(self, i)
 			if dbChar.collapsed then
-				KT:MinimizeButton_OnClick(true)
+				KT:MinimizeButton_OnClick()
 			end
 			if i == 2 then
 				if KTF.FilterButton then

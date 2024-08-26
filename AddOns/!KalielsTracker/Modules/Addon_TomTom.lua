@@ -282,7 +282,7 @@ local function SetEvents()
 	-- Update waypoint after quest objectives changed
 	KT:RegEvent("QUEST_WATCH_UPDATE", function(_, questID)
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
-			C_Timer.After(0.1, function()
+			C_Timer.After(0.2, function()
 				SetSuperTrackedQuestWaypoint(questID, true)
 			end)
 		end

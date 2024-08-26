@@ -141,11 +141,27 @@ local function CompareQuestWatchInfos(info1, info2)
 		return quest1:IsCalling();
 	end
 
-	if quest1.overridesSortOrder ~= quest2.overridesSortOrder then
+	-- MSA
+	--[[if quest1.overridesSortOrder ~= quest2.overridesSortOrder then
 		return quest1.overridesSortOrder;
+	end]]
+
+	-- MSA
+	-- is on Map
+	if quest1:IsOnMap() ~= quest2:IsOnMap() then
+		return quest1:IsOnMap()
+	end
+	-- by Zone
+	local KTquest1, KTquest2 = info1.KTquest, info2.KTquest;
+	if KTquest1.zone ~= KTquest2.zone then
+		return KTquest1.zone < KTquest2.zone
+	end
+	-- by Level
+	if quest1.level ~= quest2.level then
+		return quest1.level > quest2.level
 	end
 
-	return info1.index < info2.index;
+	return quest1.title < quest2.title;  -- MSA
 end
 
 function KT_QuestObjectiveTrackerMixin:BuildQuestWatchInfos()
@@ -156,7 +172,7 @@ function KT_QuestObjectiveTrackerMixin:BuildQuestWatchInfos()
 		if questID then
 			local quest = QuestCache:Get(questID);
 			if self:ShouldDisplayQuest(quest) then
-				table.insert(infos, { quest = quest, index = i });
+				table.insert(infos, { quest = quest, index = i, KTquest = KT.QuestsCache_GetInfo(questID) });  -- MSA
 			end
 		end
 	end
