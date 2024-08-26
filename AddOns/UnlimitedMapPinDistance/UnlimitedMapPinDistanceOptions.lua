@@ -99,7 +99,7 @@ function UMPD_Init()
     function UMPDO.OnDefault() end
     function UMPDO.OnRefresh() end
 
-    local category, layout = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.addonName);
+    local category, layout = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.name);
     layout:AddAnchorPoint("TOPLEFT", 0, 0);
     layout:AddAnchorPoint("BOTTOMRIGHT", 0, 0);
     category.ID = UMPDO.name
