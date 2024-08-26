@@ -182,6 +182,7 @@ local function UpdateRosterInfo(force, clearSession)
 			CM:DequeueInspect(guid)
 		elseif clearSession then
 			wipe(info.sessionItemData)
+			info.auras.session_flashHeal = nil
 		end
 	end
 
