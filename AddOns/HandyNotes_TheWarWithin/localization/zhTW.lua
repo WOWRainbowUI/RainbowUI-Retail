@@ -6,9 +6,9 @@ if not L then return end
 --------------------------------- KHAZ ALGAR ----------------------------------
 -------------------------------------------------------------------------------
 
-L['skyriding_glyph'] = '馭空術魔符'
-L['options_icons_skyriding_glyph'] = '馭空術魔符'
-L['options_icons_skyriding_glyph_desc'] = '顯示全部馭空術魔符的位置。'
+L['skyriding_glyph'] = '天空騎術雕紋'
+L['options_icons_skyriding_glyph'] = '天空騎術雕紋'
+L['options_icons_skyriding_glyph_desc'] = '顯示全部天空騎術雕紋的位置。'
 
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
 L['options_icons_khaz_algar_lore_hunter_desc'] = '顯示 {achievement:40762} 成就中劇情物品的位置。'
@@ -29,7 +29,7 @@ L['thaks_treasure_note'] = '與 {npc:223227} 交談並跟隨他。'
 L['trees_treasure_note'] = '與 {npc:222940} 交談，獲得 {item:224185}。引導6個 {npc:224548}（{dot:Green}）繞過 {location:多恩島} 返回 {npc:222940}。將所有螃蟹引導回來後，返回洞穴中的 {npc:222940} 並與她交談。'
 L['turtles_thanks_1_note'] = '交出5個 {item:220143}（可從 {object:平靜的浮面漣漪} 魚點釣魚或從拍賣行購買）。{note:離開該區域並立即返回交出下一條魚。}'
 L['turtles_thanks_2_note'] = '交出1個 {item:222533}（可從 {object:浮光之池}，{object:潰爛的腐臭之池}，{object:Infused Ichor Spill} 魚點釣魚或從拍賣行購買）。'
-L['turtles_thanks_3_note'] = '在 {location:多恩諾嘉爾} 與 {npc:223338} 會面並與她交談以發現寶藏。'
+L['turtles_thanks_3_note'] = '在 {location:多恩諾加} 與 {npc:223338} 會面並與她交談以發現寶藏。'
 
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = '顯示 {achievement:40606} 成就中的位置。'
@@ -48,9 +48,7 @@ L['not_so_quick_fix_note'] = '修復壞掉的土靈控制台。'
 L['water_console_location'] = '在樓梯旁邊。'
 L['abyssal_console_location'] = '在小屋裡。'
 L['taelloch_console_location'] = '在橋上的桶之間。'
-L['obsidian_console_location'] = '占位符'
 L['lost_console_location'] = '在小屋裡。'
-L['earthen_console_location'] = '占位符'
 
 L['options_icons_notable_machines'] = '{achievement:40628}'
 L['options_icons_notable_machines_desc'] = '顯示 {achievement:40628} 成就中記事的位置。'
@@ -59,7 +57,7 @@ L['notable_machines_note'] = '閱讀記事。'
 L['fragment_I_location'] = '在地面上。'
 L['fragment_II_location'] = '在崖邊上。'
 L['fragment_III_location'] = '在建築物頂上。'
-L['fragment_IV_location'] = '在高高的木塔上（建議使用穩定飛行來獲得它）。'
+L['fragment_IV_location'] = '在高高的木塔上（建議使用穩定飛行來獲得）。'
 L['fragment_V_location'] = '在樓梯頂端的拱門上。'
 L['fragment_VI_location'] = '在地面上，路燈旁邊。'
 
@@ -81,26 +79,38 @@ L['sathilga_location'] = '在土靈采礦機械建築物附近的崖邊上。'
 L['trungal_note'] = '擊殺在入口周圍和洞穴下方出現的 {npc:220615} 後出現。'
 L['disturbed_earthgorger_note'] = '使用額外動作法術 {spell:437003} 對地面使用3次後出現。'
 L['deepflayer_broodmother_note'] = '在高空飛來飛去。'
-L['lurker_note'] = '{note:需要5名玩家才能出現。}\n\n在10秒內激活5個 {dot:Red}{object:細小的控制杆} 即可出現。\n成功觸發後，將看到區域範圍的消息。'
+L['lurker_note'] = '{note:需要5名玩家才能出現。}\n\n在10秒內啟動5個 {dot:Red}{object:細小的控制杆} 即可出現。\n成功觸發後，將看到區域範圍的消息。'
 
-L['gnawbles_ruby_vendor_note'] = [[從 {object:翻動過的土地} 收集 {item:212493} 並將其帶給 {npc:225166}。
+L['gnawbles_ruby_vendor_note'] = [[從 {object:受打擾的土地} 收集 {item:212493} 並將其帶給 {npc:225166}。
 
 一旦完成了10次貢獻或總共貢獻了50次 {item:212493}，將收到 {item:224642}。
 
 每件物品花費1個 {item:224642}。]]
-L['options_icons_disturbed_earth'] = '翻動過的土地'
-L['options_icons_disturbed_earth_desc'] = '顯示 {object:翻動過的土地} 的位置。'
+L['options_icons_disturbed_earth'] = '受打擾的土地'
+L['options_icons_disturbed_earth_desc'] = '顯示 {object:受打擾的土地} 的位置。'
+
+L['options_icons_gobblin_with_glublurp'] = '{achievement:40614}'
+L['options_icons_gobblin_with_glublurp_desc'] = '顯示 {achievement:40614} 成就中的位置。'
+L['gobblin_with_glublurp_note'] = '點擊一個 {dot:Red}{object:爍光水晶} 來獲得 {spell:456739}。抓獲一個飛在 ' .. ns.color.Orange('橙圈') .. ' 的 {npc:227138} 並把它帶回給 {npc:227132}。\n\n（建議使用穩定飛行來獲得）。'
 
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
 
-L['arathi_loremaster_note'] = '與 {location:米雷達爾} 內的 {npc:221630} 交談並正確回答幾個問題即可獲得 {item:225659}。\n\n可以在 {location:隕聖峪} 周圍的書籍中找到答案。'
-L['caesper_note'] = '從 {location:隕聖峪} {location:度耐爾之仁} 的（{dot:Blue}）{npc:217645} 購買 {item:225238}。\n\n將其喂給 {npc:225948} 並跟隨他找到寶藏。'
+L['arathi_loremaster_note'] = '與 {location:米雷達爾} 內的 {npc:221630} 交談並正確回答幾個問題即可獲得 {item:225659}。\n\n可以在 {location:聖落之地} 周圍的書籍中找到答案。'
+L['caesper_note'] = '從 {location:聖落之地} {location:度耐爾之仁} 的（{dot:Blue}）{npc:217645} 購買 {item:225238}。\n\n將其喂給 {npc:225948} 並跟隨他找到寶藏。'
 L['dark_ritual_note'] = '與 {object:黑暗儀式} 互動並擊敗所有 {npc:226059}、{npc:226052} 和 {npc:226062} 以拾取 {object:綴影精華}。'
 L['illuminated_footlocker_note'] = '從 {npc:220703} 處接住5個掉落的 {spell:442389} 以獲得 {spell:442529} 並發現 {object:光耀提箱}。'
 L['illusive_kobyss_lure_note'] = '組合全部4個物品制造 {item:225641}：'
 L['sunless_lure_location'] = '由 {location:無暉之濱} 的 {npc:215653} 掉落。'
+L['sky_captains_sunken_cache_note'] = [[
+與四位不同的天空船長在他們的飛艇上交談以揭示寶藏。
+
+{npc:222333}（{dot:Green}）逆時針飛行。
+{npc:222311}（{dot:Yellow}）逆時針飛行。
+{npc:222323}（{dot:Red}）順時針飛行。
+{npc:222337}（{dot:Orange}）逆時針飛行。
+]]
 L['murkfin_lure_location'] = '由 {location:威爾漢之征} 的 {npc:213622} 掉落。它們偽裝起來並使用 {npc:215623} 作為誘餌。'
 L['hungering_shimmerfin_location'] = '由 {location:飢寒之池} 的 {npc:215243} 掉落。它們偽裝起來並使用 {npc:219210} 作為誘餌。'
 L['ragefin_necrostaff_location'] = '由 {location:崇聖之地} 的 {npc:213406} 掉落。'
@@ -133,7 +143,7 @@ L['biblo_book_11_location'] = '在建築物內的桌子上。'
 L['options_icons_lost_and_found'] = '{achievement:40618}'
 L['options_icons_lost_and_found_desc'] = '顯示 {achievement:40618} 成就中紀念物的位置。'
 
-L['lost_and_found_note'] = '從（{dot:Blue}）{npc:220718} 的任務 {quest:80673} 開始推進蒼穹之憶故事線。{note:任務每周解鎖}。\n\n每周可以完成3個紀念物，直到完成任務 {quest:82813}。'
+L['lost_and_found_note'] = '從（{dot:Red}）{npc:220718} 的任務 {quest:80673} 開始推進蒼穹之憶故事線。{note:任務每周解鎖}。\n\n每周可以完成3個紀念物，直到完成任務 {quest:82813}。'
 L['broken_bracelet_location'] = '將物品 {item:219810} 交給 {npc:215527}。'
 L['stuffed_lynx_toy_location'] = '將物品 {item:219809} 交給 {npc:218486}。'
 L['tarnished_compass_location'] = '將物品 {item:219524} 交給 {object:墓祭地點}。'
@@ -170,15 +180,17 @@ L['murkshade_note'] = '與 {npc:218455} 互動。'
 L['options_icons_mereldar_menace'] = '{achievement:40151}'
 L['options_icons_mereldar_menace_desc'] = '顯示 {achievement:40151} 成就中的目標位置。'
 
-L['mereldar_menace_note'] = '與 {object:擲出石子} 互動並將其扔向目標。'
-L['light_and_flame_location'] = '瞄准 {object:擲出石子} 東邊的 {npc:218472}。'
+L['mereldar_menace_note'] = '與 {object:飛擲之石} 互動並將其扔向目標。'
+L['light_and_flame_location'] = '{object:飛擲之石} 瞄准東邊的 {npc:218472}。'
 L['lamplighter_doorway_location'] = '瞄准東邊建築物的門口。'
 L['barracks_doorway_location'] = '瞄准西邊紅色和金色帳篷的門口。'
 
 L['options_icons_beacon_of_hope'] = '{achievement:40308}'
-L['options_icons_beacon_of_hope_desc'] = '顯示{achievement:40308}成就較小的關鍵火焰位置。'
+L['options_icons_beacon_of_hope_desc'] = '顯示 {achievement:40308} 成就中小型鑰焰的位置。'
 
-L['beacon_of_hope_note'] = '貢獻{item：206350}以點亮較小的關鍵火焰並完成以下任務。'
+L['beacon_of_hope_note'] = '捐獻 {item:206350} 來點亮小型鑰焰並完成接下來的任務。'
+
+L['parasidious_note'] = '要讓此稀有出現你需要從{npc:206533}購買item:206670} (啟動較小的鑰焰讓他出現) 然後轉到Duskrise Acreage，然後拉動{NPC：206870}，當您拉出葡萄藤時，葡萄藤會從您身上射出到受干擾的污垢，它將成長/改變，直到最終稀有出現。'
 
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
@@ -196,10 +208,17 @@ L['thimble_location'] = '占位符'
 L['scampering_weave_rat_location'] = '占位符'
 L['generals_scouting_shadecaster_location'] = '占位符'
 
+L['options_icons_bookworm'] = '{achievement:40629}'
+L['options_icons_bookworm_desc'] = '顯示 {achievement:40629} 成就中書籍的位置。'
+
+L['nerubian_potion_note'] = '以500個 {currency:3056} 從 {npc:218192} 購買 {item:225784}。'
+L['bookworm_note'] = '{note:還可以使用 {item:225784} 完成 {achievement:40542} 成就。}'
+L['bookworm_1_location'] = '在小洞窟入口處。'
+
 L['options_icons_smelling_history'] = '{achievement:40542}'
 L['options_icons_smelling_history_desc'] = '顯示 {achievement:40542} 成就中書籍的位置。'
 
-L['smelling_history_note'] = '以500個 {currency:3056} 從 {npc:218192} 購買 {item:225784}。'
+L['smelling_history_note'] = '{note:還可以使用 {item:225784} 完成 {achievement:40629} 成就。}'
 L['smelling_history_1_location'] = '在建築物內的櫃台上。'
 L['smelling_history_2_location'] = '卷軸在一個箱子上。'
 L['smelling_history_3_location'] = '卷軸在桌子上。'
@@ -217,7 +236,7 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = '顯示 {achievement:40727} 成就中蟲車路線位置。'
 L['skittershaw_spin_note'] = '騎乘 {npc:224973} 繞區域一圈。\n\n{npc:224973} 將在路線上的 {dot:Red} 點處停止。'
 
-L['memory_cache_note'] = '從附近的（{dot:Blue}）{object:提取器存儲} 獲取 {spell:420847}。擊殺 {npc:223908} 後獲取 {item:223870} 以打開 {object:記憶箱子}。'
+L['memory_cache_note'] = '從附近的（{dot:Red}）{object:提取器存儲} 獲取 {spell:420847}。擊殺 {npc:223908} 後獲取 {item:223870} 以打開 {object:記憶箱子}。'
 L['niffen_stash_note'] = '在橋下。'
 L['trapped_trove_note'] = '在從天花板垂下的建築物中。避開地板上的蜘蛛網。'
 

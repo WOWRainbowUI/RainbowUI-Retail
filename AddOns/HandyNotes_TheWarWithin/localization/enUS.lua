@@ -48,9 +48,7 @@ L['not_so_quick_fix_note'] = 'Repair the busted earthen console.'
 L['water_console_location'] = 'Next to the stairs.'
 L['abyssal_console_location'] = 'In an alcove.'
 L['taelloch_console_location'] = 'On a bridge between the barrels.'
-L['obsidian_console_location'] = 'PH'
 L['lost_console_location'] = 'In an alcove.'
-L['earthen_console_location'] = 'PH'
 
 L['options_icons_notable_machines'] = '{achievement:40628}'
 L['options_icons_notable_machines_desc'] = 'Display note locations for {achievement:40628} achievement.'
@@ -122,10 +120,7 @@ L['priory_satchel_location'] = 'Loot the {object:Windswept Satchel} hanging from
 L['smugglers_treasure_note'] = 'Loot the required {item:225335} from the ({dot:Blue}) {npc:226025} below the cliff.'
 L['smugglers_treasure_location'] = 'High on the cliff between several rocks.'
 L['coral_fused_clam'] = 'Coral-Fused Clam'
-L['coral_fused_clam_note'] = [[Loot {item:218354} from the {object:Clammer's Kit} to open the Clam.
-
-{note:Requires level 80 to pick up.}
-]] -- from wowhead, needs to be reviewed
+L['coral_fused_clam_note'] = 'Loot {item:218354} from the {object:Clammer\'s Kit} to open the Clam.'
 
 L['options_icons_biblo_archivist'] = '{achievement:40622}'
 L['options_icons_biblo_archivist_desc'] = 'Display book locations for {achievement:40622} achievement.'
@@ -174,9 +169,7 @@ L['croakit_note'] = [[To attack {npc:214757} you must first fish 10x {item:21147
 
 Once you have all the fish go to {npc:214757} and toss them to him.]] -- from wowhead, needs to be confirmed.
 L['deathtide_note'] = [[To summon him you must use {item:220123} on the {object:Ominous Altar}.
-You need to combine {item:220122} {dot:Blue} and {item:220124} {dot:Green} to get {item:220123}.
-
-{note:You need to be level 80 to pick them up.} ]] -- from wowhead, needs to be reviewed
+You need to combine {item:220122} {dot:Blue} and {item:220124} {dot:Green} to get {item:220123}.]]
 L['murkshade_note'] = 'Interact with the {npc:218455}.'
 
 L['options_icons_mereldar_menace'] = '{achievement:40151}'
@@ -191,6 +184,8 @@ L['options_icons_beacon_of_hope'] = '{achievement:40308}'
 L['options_icons_beacon_of_hope_desc'] = 'Display lesser keyflame locations for the {achievement:40308} achievement.'
 
 L['beacon_of_hope_note'] = 'Contribute {item:206350} to light lesser keyflames and complete the following quests.'
+
+L['parasidious_note'] = 'To spawn this rare you\'ll need to buy {item:206670} from {npc:206533} (activate the lesser keyflame to make him appear) then go to the Duskrise Acreage and pull the {npc:206870}, as you pull them a vine will shoot out of you to the Disturbed Dirt and it will grow/change until the rare eventually spawns.' -- from wowhead, needs to be reviewed
 
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
@@ -208,10 +203,17 @@ L['thimble_location'] = 'PH'
 L['scampering_weave_rat_location'] = 'PH'
 L['generals_scouting_shadecaster_location'] = 'PH'
 
+L['options_icons_bookworm'] = '{achievement:40629}'
+L['options_icons_bookworm_desc'] = 'Display book locations for the {achievement:40629} achievement.'
+
+L['nerubian_potion_note'] = 'Buy {item:225784} ({note:buff lasts 10 minutes}) from {npc:218192} for 500x {currency:3056}.'
+L['bookworm_note'] = '{note:You can also complete the achievement {achievement:40542} with the {item:225784}.}'
+L['bookworm_1_location'] = 'At the entrance of the small cave.'
+
 L['options_icons_smelling_history'] = '{achievement:40542}'
 L['options_icons_smelling_history_desc'] = 'Display book locations for {achievement:40542} achievement.'
 
-L['smelling_history_note'] = 'Buy {item:225784} from {npc:218192} for 500x {currency:3056}.'
+L['smelling_history_note'] = '{note:You can also complete the achievement {achievement:40629} with the {item:225784}.}'
 L['smelling_history_1_location'] = 'Inside the building on the counter.'
 L['smelling_history_2_location'] = 'The scroll is on a chest.'
 L['smelling_history_3_location'] = 'The scroll is on a table.'
@@ -220,7 +222,7 @@ L['smelling_history_5_location'] = 'Inside the building on a table.'
 L['smelling_history_6_location'] = 'On the bed on the south side of the room.'
 L['smelling_history_7_location'] = 'On top of a pile of books.'
 L['smelling_history_8_location'] = 'On the table next to the bed on the north side of the room.'
-L['smelling_history_9_location'] = 'PH'
+L['smelling_history_9_location'] = 'Behind the desk leaning against it right next to {npc:226024}.'
 L['smelling_history_10_location'] = 'On a bench.'
 L['smelling_history_11_location'] = 'Book is on a table next to the bed. Entrance is above the fountain.'
 L['smelling_history_12_location'] = 'Inside the building on a table.'
@@ -229,7 +231,7 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = 'Display Skittershaw route locations for {achievement:40727} achievement.'
 L['skittershaw_spin_note'] = 'Ride the {npc:224973} for a full lap around the district.\n\nThe {npc:224973} will stop at the {dot:Red} points along the route.'
 
-L['memory_cache_note'] = 'Get {spell:420847} from a nearby ({dot:Blue}) {object:Extractor Storage}. After kill the {npc:223908} to get the {item:223870} to open the {object:Memory Cache}.'
+L['memory_cache_note'] = 'Get {spell:420847} from a nearby ({dot:Red}) {object:Extractor Storage}. After kill the {npc:223908} to get the {item:223870} to open the {object:Memory Cache}.'
 L['niffen_stash_note'] = 'Located under the bridge.'
 L['trapped_trove_note'] = 'In a building that hangs from the ceiling. Avoid the spiderwebs on the floor.'
 

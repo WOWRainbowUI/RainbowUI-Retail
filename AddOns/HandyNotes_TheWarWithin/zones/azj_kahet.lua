@@ -61,7 +61,11 @@ map.nodes[70722147] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69661})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69661}),
+        Transmog({item = 221212, type = L['mail']}), -- Death Burrower Handguards
+        Transmog({item = 221237, type = L['offhand']}) -- Lamentable Vagrant's Lantern
+    },
     pois = {POI({70102201})} -- Entrance
 }) -- Cha'tak
 
@@ -71,7 +75,12 @@ cot.nodes[30755599] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69657})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69657}),
+        Transmog({item = 221214, type = L['mail']}), -- Chitin Chain Headpiece
+        Transmog({item = 221240, type = L['1h_sword']}), -- Nerubian Stagshell Gouger
+        Transmog({item = 221252, type = L['2h_sword']}) -- Nerubian Slayer's Claymore
+    },
     parent = map.id
 }) -- The Groundskeeper (Chitin Hulk)
 
@@ -81,7 +90,12 @@ map.nodes[64560668] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69669})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69669}),
+        Transmog({item = 223923, type = L['plate']}), -- Gilded Cryptlord's Sabatons
+        Transmog({item = 223916, type = L['polearm']}), -- Nerubian Cutthroat's Reach
+        Transmog({item = 223915, type = L['dagger']}) -- Nerubian Orator's Stiletto
+    },
     pois = {Path({64500582, 64650782})}
 }) -- Deepcrawler Tx'kesh
 
@@ -91,7 +105,12 @@ map.nodes[58036210] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69664})}
+    rewards = {
+        Achievement({id = 40840, criteria = 69664}),
+        Transmog({item = 221243, type = L['cloth']}), -- Slippers of Delirium
+        Transmog({item = 221255, type = L['dagger']}), -- Sharpened Scalepiercer
+        Transmog({item = 221248, type = L['1h_axe']}) -- Deep Terror Carver
+    }
 }) -- Enduring Gutterface
 
 map.nodes[61232730] = Rare({
@@ -110,7 +129,11 @@ akl.nodes[65198283] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69667})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69667}),
+        Transmog({item = 223941, type = L['plate']}), -- Nerubian Cultivator's Girdle
+        Transmog({item = 223915, type = L['dagger']}) -- Nerubian Orator's Stiletto
+    },
     pois = {
         Path({
             65738036, 65288117, 65248203, 65198283, 64948363, 64678446,
@@ -126,7 +149,11 @@ akl.nodes[67438318] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69665})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69665}),
+        Transmog({item = 223950, type = L['leather']}), -- Corruption Sifter's Treads
+        Transmog({item = 223917, type = L['cloak']}) -- Nerubian Covert's Cloak
+    },
     parent = map.id
 }) -- Jix'ak the Crazed
 
@@ -136,7 +163,12 @@ map.nodes[62400703] = Rare({ -- renamed by Blizzard?
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69670})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69670}),
+        Transmog({item = 223939, type = L['cloth']}), -- Esteemed Nerubian's Mantle
+        Transmog({item = 223916, type = L['polearm']}), -- Nerubian Cutthroat's Reach
+        Transmog({item = 223915, type = L['dagger']}) -- Nerubian Orator's Stiletto
+    },
     pois = {Path({62870495, 62610615, 62400703, 62070804, 61830851, 61160787})}
 
 }) -- Kaheti Bladeguard
@@ -147,7 +179,12 @@ map.nodes[63152530] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69659})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69659}),
+        Transmog({item = 221206, type = L['plate']}), -- Reinforced Chitin Chestpiece
+        Transmog({item = 221252, type = L['2h_sword']}), -- Nerubian Slayer's Claymore
+        Transmog({item = 221240, type = L['1h_sword']}) -- Nerubian Stagshell Gouger
+    },
     pois = {
         Path({
             65121909, 65182000, 64882081, 64542159, 64232241, 63912321,
@@ -163,7 +200,12 @@ map.nodes[66496197] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69663})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69663}),
+        Transmog({item = 221217, type = L['cloth']}), -- Nerubian Bomber's Leggings
+        Transmog({item = 221252, type = L['2h_sword']}), -- Nerubian Slayer's Claymore
+        Transmog({item = 221240, type = L['1h_sword']}) -- Nerubian Stagshell Gouger
+    },
     pois = {
         Path({
             64406543, 63386508, 62406514, 61816617, 61426703, 61616794,
@@ -181,13 +223,24 @@ map.nodes[69986923] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69662})}
+    rewards = {
+        Achievement({id = 40840, criteria = 69662}),
+        Transmog({item = 221227, type = L['leather']}), -- Monstrous Fungal Cord
+        Transmog({item = 221253, type = L['fist']}), -- Cultivator's Plant Puncher
+        Transmog({item = 221250, type = L['1h_sword']}) -- Creeping Lasher Machete
+    }
 }) -- Monstrous Lasharoth
 
 map.nodes[43863678] = Rare({
     id = 216032, -- 221032 Rhak'ik
     quest = 81694, -- One Time Kill
-    rewards = {Achievement({id = 40840, criteria = 69653})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69653}),
+        Transmog({item = 223378, type = L['cloth']}), -- Footguards of the Nerubian Twins
+        Transmog({item = 223407, type = L['cloth']}), -- Sabatons of the Nerubian Twins
+        Transmog({item = 223408, type = L['cloth']}), -- Treads of the Nerubian Twins
+        Transmog({item = 223406, type = L['cloth']}) -- Slippers of the Nerubian Twins
+    },
     pois = {
         Path({
             44043048, 43773132, 43533211, 43443299, 43293385, 43273476,
@@ -204,7 +257,10 @@ akl.nodes[61918962] = Rare({
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
     location = L['in_small_cave'],
-    rewards = {Achievement({id = 40840, criteria = 69666})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69666}),
+        Transmog({item = 223931, type = L['cloth']}) -- Black Blood Cowl
+    },
     parent = map.id,
     pois = {POI({63418984})} -- Entrance
 }) -- The Oozekhan
@@ -216,7 +272,10 @@ map.nodes[76585780] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69660})},
+    rewards = {
+        Achievement({id = 40840, criteria = 69660}),
+        Transmog({item = 221231, type = L['leather']}) -- Steam-Powered Wristwatch
+    },
     pois = {POI({77485899})} -- Entrance
 }) -- The XT-Minecrusher 8700
 
@@ -226,7 +285,12 @@ map.nodes[64590352] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69668})}
+    rewards = {
+        Achievement({id = 40840, criteria = 69668}),
+        Transmog({item = 223930, type = L['mail']}), -- Monstrous Chain Pincers
+        Transmog({item = 221240, type = L['1h_sword']}), -- Nerubian Stagshell Gouger
+        Transmog({item = 221252, type = L['2h_sword']}) -- Nerubian Slayer's Claymore
+    }
 }) -- Umbraclaw Matra
 
 map.nodes[34694110] = Rare({
@@ -254,7 +318,11 @@ cotl.nodes[67525826] = Rare({
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
     -- ReputationGain(50, 2607), -- The Vizier
-    rewards = {Achievement({id = 40840, criteria = 69658})}
+    rewards = {
+        Achievement({id = 40840, criteria = 69658}),
+        Transmog({item = 221221, type = L['plate']}), -- Venomous Lurker's Greathelm
+        Transmog({item = 221506, type = L['cloak']}) -- Arachnid's Web-Sown Guise
+    }
 }) -- Xishorr
 
 -------------------------------------------------------------------------------
@@ -283,6 +351,7 @@ map.nodes[62816618] = Rare({
 akl.nodes[62728795] = Treasure({
     quest = 82520,
     parent = map.id,
+    requires = ns.requirement.Item(223870), -- Cache Key
     note = L['memory_cache_note'],
     -- ReputationGain(50, 2601), -- The Weaver
     -- ReputationGain(50, 2605), -- The General
@@ -291,7 +360,9 @@ akl.nodes[62728795] = Treasure({
         Achievement({id = 40828, criteria = 69615}),
         Pet({item = 225544, id = 4599}) -- Mind Slurp
     },
-    pois = {POI({61498384, 62338363, 63478590, 65238877})}
+    pois = {
+        POI({points = {61498384, 62338363, 63478590, 65238877}, color = 'Red'})
+    }
 }) -- Memory Cache
 
 map.nodes[67459072] = Treasure({
@@ -466,6 +537,33 @@ map.nodes[56545524] = PT.Skinning({quest = 83921, id = 226347}) -- Carapace Shin
 map.nodes[53285313] = PT.Tailoring({quest = 83928, id = 226354}) -- Nerubian Quilt
 cot.nodes[50321682] =
     PT.Tailoring({quest = 83929, id = 226355, parent = map.id}) -- Nerubian's Pincushion
+
+-------------------------------------------------------------------------------
+---------------------------- ACHIEVEMENT: BOOKWORM ----------------------------
+-------------------------------------------------------------------------------
+
+local Bookworm = Class('bookworm', Collectible, {
+    icon = 4549129,
+    group = ns.groups.BOOKWORM,
+    requires = ns.requirement.Spell(456122), -- Polymorphic Translation: Nerubian
+    note = L['nerubian_potion_note'] .. '\n\n' .. L['bookworm_note'],
+    pois = {POI({47166941, color = 'Red'})} -- Siesbarg
+})
+
+map.nodes[40103980] = Bookworm({
+    location = L['bookworm_1_location'],
+    rewards = {Achievement({id = 40629, criteria = 68983})}
+}) -- Entomological Essay on Grubs, Volume 1
+
+map.nodes[39794051] = Bookworm({
+    location = L['in_small_cave'],
+    rewards = {Achievement({id = 40629, criteria = 68989})}
+}) -- Entomological Essay on Grubs, Volume 2
+
+map.nodes[39094259] = Bookworm({
+    location = L['in_small_cave'],
+    rewards = {Achievement({id = 40629, criteria = 68990})}
+}) -- Entomological Essay on Grubs, Volume 3
 
 -------------------------------------------------------------------------------
 --------------------------- AZJ-KAHET GLYPH HUNTER ----------------------------
@@ -645,13 +743,15 @@ map.nodes[71126233] = LoreObject({
 local SmellingHistory = Class('smelling_history', Collectible, {
     icon = 4549130,
     group = ns.groups.SMELLING_HISTORY,
-    note = L['smelling_history_note']
+    requires = ns.requirement.Spell(456122), -- Polymorphic Translation: Nerubian
+    note = L['nerubian_potion_note'] .. '\n\n' .. L['smelling_history_note']
 })
 
 cot.nodes[45291254] = SmellingHistory({
-    parent = map.id,
     id = 218192,
     icon = 134713,
+    location = L['in_building'],
+    parent = map.id,
     rewards = {Achievement({id = 40542})}
 }) -- Siesbarg
 
@@ -669,7 +769,7 @@ map.nodes[62963117] = SmellingHistory({
 map.nodes[66693128] = SmellingHistory({
     location = L['smelling_history_3_location'],
     rewards = {Achievement({id = 40542, criteria = 68980})},
-    pois = {POI({65422765})}
+    pois = {POI({65422765, 64712965})}
 }) -- Ethos of War, Part 2
 
 map.nodes[48852400] = SmellingHistory({
@@ -703,9 +803,11 @@ cot.nodes[38423227] = SmellingHistory({
     pois = {POI({40743385})}
 }) -- Queen Zaltra
 
-map.nodes[08002400] = SmellingHistory({ -- review
+cot.nodes[38203910] = SmellingHistory({
+    parent = map.id,
     location = L['smelling_history_9_location'],
-    rewards = {Achievement({id = 40542, criteria = 68987})}
+    rewards = {Achievement({id = 40542, criteria = 68987})},
+    pois = {POI({40173874})}
 }) -- Treatise on Forms: Sages
 
 cot.nodes[38543774] = SmellingHistory({
