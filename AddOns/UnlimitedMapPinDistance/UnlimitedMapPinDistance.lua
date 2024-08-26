@@ -6,6 +6,7 @@ _UMPD.name          = "導航"
 _UMPD.addonName     = "無限距離導航"
 _UMPD.version       = GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
 _UMPD.init          = false
+_UMPD.blizzEnabled  = false
 
 do
     -- Time to reach Pin
@@ -15,14 +16,9 @@ do
 
     -- Override default SuperTrackedFrame:GetTargetAlphaBaseValue()
     function SuperTrackedFrame:GetTargetAlphaBaseValue()
-        -- Check if Navigation is Enabled
-        if C_Navigation.GetTargetState() == 0 then
-            return 0
-        end
-
         -- Update Alpha on Pin
         local d = C_Navigation.GetDistance()
-        if (d >= UMPD.minDistance and d <= UMPD.maxDistance) or (d >= UMPD.minDistance and UMPD.maxDistance == 0) then
+        if (_UMPD.blizzEnabled) and ((d >= UMPD.minDistance and d <= UMPD.maxDistance) or (d >= UMPD.minDistance and UMPD.maxDistance == 0)) then
             if SuperTrackedFrame.isClamped then
                 return UMPD.pinAlphaClamped/100
             elseif d > UMPD.fadeDistance then
@@ -203,18 +199,30 @@ function _UMPD:SUPER_TRACKING_CHANGED()
     end
 end
 
+function _UMPD:CVAR_UPDATE()
+    if GetCVar('showInGameNavigation') == "1" then
+        _UMPD.blizzEnabled = true
+    else
+        _UMPD.blizzEnabled = false
+    end
+end
+
 local f = CreateFrame("Frame")
 f:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" and _UMPD.init == false then
+        _UMPD:CVAR_UPDATE()
         UMPD_Init()
     elseif _UMPD.init == true then
         if event == "USER_WAYPOINT_UPDATED" then
             _UMPD:USER_WAYPOINT_UPDATED()
         elseif event == "SUPER_TRACKING_CHANGED" then
             _UMPD:SUPER_TRACKING_CHANGED()
+        elseif event == "CVAR_UPDATE" then
+            _UMPD:CVAR_UPDATE()
         end
     end
 end)
 f:RegisterEvent("USER_WAYPOINT_UPDATED")
 f:RegisterEvent("SUPER_TRACKING_CHANGED")
 f:RegisterEvent("PLAYER_LOGIN")
+f:RegisterEvent("CVAR_UPDATE")
