@@ -51,7 +51,7 @@ local L = RH.Localisation
 -- Frames
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 local rhOptionsPanel = CreateFrame("Frame")
-local rhCategory = Settings.RegisterCanvasLayoutCategory(rhOptionsPanel, "Random Hearthstone")
+local rhCategory = Settings.RegisterCanvasLayoutCategory(rhOptionsPanel, L["MACRO_NAME"])
 local rhTitle = CreateFrame("Frame", nil, rhOptionsPanel)
 local rhDesc = CreateFrame("Frame", nil, rhOptionsPanel)
 local rhOptionsScroll = CreateFrame("ScrollFrame", nil, rhOptionsPanel, "UIPanelScrollFrameTemplate")
