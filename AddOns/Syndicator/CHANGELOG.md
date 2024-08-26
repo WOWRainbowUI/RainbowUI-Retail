@@ -1,6 +1,8 @@
 # Syndicator
 
-## [107](https://github.com/Baganator/Syndicator/tree/107) (2024-08-24)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/106...107) 
+## [108](https://github.com/Baganator/Syndicator/tree/108) (2024-08-25)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/107...108) 
 
-- Fix error when deleting character which hasn't had bag changes processed  
+- Fix indentation  
+- Rework item data loading to avoid source of blocked actions  
+- SearcH: New (optional) syntax "and", "or", "not" instead of "&", "|" and "!"  
