@@ -127,7 +127,7 @@ vcbOptions2Box1PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 end)
 vcbOptions2Box1PopOut1Choice1:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
-		local _, finished = IsAddOnLoaded("ShadowedUnitFrames")
+		local _, finished = C_AddOns.IsAddOnLoaded("ShadowedUnitFrames")
 		if finished then
 			VCBrTarget["otherAdddon"] = self.Text:GetText()
 			vcbOptions2Box1PopOut1.Text:SetText(self:GetText())
