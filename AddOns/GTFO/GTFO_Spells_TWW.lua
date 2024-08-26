@@ -11,6 +11,47 @@ if (GTFO.RetailMode) then
 --- *  Khaz Algar (World)  *
 --- ************************
 
+GTFO.SpellID["447917"] = {
+  --desc = "Lava Patch (Master Machinist Dunstan)";
+  sound = 1;
+};
+
+GTFO.SpellID["426836"] = {
+  --desc = "Wildfire";
+  sound = 1;
+};
+
+GTFO.SpellID["456309"] = {
+  --desc = "Shadow Wreath (Aelric Leid)";
+  sound = 1;
+};
+
+GTFO.SpellID["456057"] = {
+  --desc = "Black Blood";
+  sound = 1;
+};
+
+GTFO.SpellID["457741"] = {
+  --desc = "Fel Damage";
+  sound = 1;
+};
+
+GTFO.SpellID["454741"] = {
+  --desc = "Slobber (Tka'ktath)";
+  sound = 1;
+};
+
+GTFO.SpellID["439523"] = {
+  --desc = "Dusk Demise (Shadowtide Corruptor)";
+  sound = 1;
+};
+
+GTFO.SpellID["458771"] = {
+  --desc = "Ravage (Ravageant)";
+  sound = 1;
+  applicationOnly = true;
+  trivialLevel = 80;
+};
 
 --- ****************************
 --- * Ara-Kara, City of Echoes *
@@ -205,7 +246,6 @@ GTFO.SpellID["434096"] = {
 GTFO.SpellID["424966"] = {
   --desc = "Lingering Void (Stormguard Gorren)";
   sound = 1;
-  test = true; -- Verification
 };
 
 --- ******************
@@ -237,7 +277,7 @@ GTFO.SpellID["457465"] = {
 };
 
 --- ***************
---- * TWW Devles  *
+--- * TWW Delves  *
 --- ***************
 
 GTFO.SpellID["448346"] = {
@@ -389,6 +429,16 @@ GTFO.SpellID["445781"] = {
   --desc = "Lava Blast (Stolen Loader)";
   sound = 3;
   applicationOnly = true;
+};
+
+GTFO.SpellID["461742"] = {
+  --desc = "Consecration (Sir Finley Mrrgglton)";
+  sound = 1;
+};
+
+GTFO.SpellID["463426"] = {
+  --desc = "Freezing (Stalker)";
+  sound = 1;
 };
 
 --- *******************

@@ -2095,3 +2095,8 @@ Change Log:
 * Added The War Within spells (world)
 * Added TWW spells for The Rookery
 * Fixed TWW general environment debuff spells for TWW Delves to be less spammy
+
+5.11.4
+* Added The War Within spells (world)
+* Added TWW spells for The Rookery
+* Added TWW spells for TWW Delves 
