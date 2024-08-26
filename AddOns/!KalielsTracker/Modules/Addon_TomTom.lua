@@ -230,7 +230,7 @@ local function SetHooks()
 		if QuestUtils_IsQuestBonusObjective(questID) then
 			RemoveWaypoint(superTrackedQuestID)
 		end
-		stopUpdate = not QuestUtils_IsQuestWatched(questID)
+		stopUpdate = questID > 0 and not QuestUtils_IsQuestWatched(questID)
 		if not stopUpdate then
 			SetSuperTrackedQuestWaypoint(questID)
 		end
@@ -282,7 +282,7 @@ local function SetEvents()
 	-- Update waypoint after quest objectives changed
 	KT:RegEvent("QUEST_WATCH_UPDATE", function(_, questID)
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
-			C_Timer.After(0, function()
+			C_Timer.After(0.1, function()
 				SetSuperTrackedQuestWaypoint(questID, true)
 			end)
 		end

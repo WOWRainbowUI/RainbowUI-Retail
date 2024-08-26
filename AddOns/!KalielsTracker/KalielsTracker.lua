@@ -88,7 +88,25 @@ local function ObjectiveTracker_Toggle()
 	OTF:ToggleCollapsed()
 end
 
-local function SetHeaders(type)
+local function HasTrackerContents()
+	local result = false
+	for _, module in ipairs(OTF.modules) do
+		if module.hasContents then
+			result = true
+			break
+		end
+	end
+	return result
+end
+
+local function ShowTrackerHeader()
+	local show = (not dbChar.collapsed and HasTrackerContents()) or db.hdrCollapsedTxt > 1
+	OTFHeader.Background:SetShown(db.hdrTrackerBgrShow and db.hdrBgr > 1 and show)
+	OTFHeader.Logo:SetShown(show)
+	OTFHeader.Text:SetShown(show)
+end
+
+local function SetHeadersStyle(type)
 	local bgrColor = db.hdrBgrColorShare and KT.borderColor or db.hdrBgrColor
 	local txtColor = db.hdrTxtColorShare and KT.borderColor or db.hdrTxtColor
 	if db.hdrBgr == 2 then
@@ -96,14 +114,11 @@ local function SetHeaders(type)
 	end
 
 	if not type or type == "background" then
-		if not db.hdrTrackerBgrShow or db.hdrBgr == 1 then
-			OTFHeader.Background:Hide()
-		elseif db.hdrBgr == 2 then
+		if db.hdrBgr == 2 then
 			OTFHeader.Background:SetAtlas("ui-questtracker-primary-objective-header", true)
 			OTFHeader.Background:SetVertexColor(1, 1, 1)
 			OTFHeader.Background:ClearAllPoints()
 			OTFHeader.Background:SetPoint("CENTER")
-			OTFHeader.Background:SetShown(not dbChar.collapsed or db.hdrCollapsedTxt == 2)
 		elseif db.hdrBgr >= 3 then
 			OTFHeader.Background:SetTexture(mediaPath.."UI-KT-HeaderBackground-"..(db.hdrBgr - 2))
 			OTFHeader.Background:SetVertexColor(bgrColor.r, bgrColor.g, bgrColor.b)
@@ -111,8 +126,8 @@ local function SetHeaders(type)
 			OTFHeader.Background:SetPoint("TOPLEFT", -20, -2)
 			OTFHeader.Background:SetPoint("TOPRIGHT", 17, -2)
 			OTFHeader.Background:SetHeight(32)
-			OTFHeader.Background:SetShown(not dbChar.collapsed or db.hdrCollapsedTxt == 2)
 		end
+		ShowTrackerHeader()
 
 		for _, header in ipairs(KT.headers) do
 			if db.hdrBgr == 1 then
@@ -403,7 +418,7 @@ local function SetFrames()
 	button:SetScript("OnClick", function(self, btn)
 		if IsAltKeyDown() then
 			KT:OpenOptions()
-		elseif not KT:IsTrackerEmpty() and not KT.locked then
+		elseif HasTrackerContents() and not KT.locked then
 			KT:MinimizeButton_OnClick()
 		end
 	end)
@@ -602,13 +617,6 @@ local function SetHooks()
 
 	-- ------------------------------------------------------------------------------------------------
 
-	local function SetTrackerHeader(show)
-		show = db.hdrCollapsedTxt > 1 or show
-		OTFHeader.Background:SetShown((db.hdrTrackerBgrShow and db.hdrBgr > 1) and show)
-		OTFHeader.Logo:SetShown(show)
-		OTFHeader.Text:SetShown(show)
-	end
-
 	local bck_OTF_Update = OTF.Update
 	function OTF:Update(dirtyUpdate)
 		if KT.stopUpdate then return end
@@ -616,7 +624,7 @@ local function SetHooks()
 		bck_OTF_Update(self, dirtyUpdate)
 
 		FixedButtonsReanchor()
-		SetTrackerHeader(not dbChar.collapsed)
+		ShowTrackerHeader()
 		KT:ToggleEmptyTracker()
 		KT:SetSize()
 	end
@@ -2259,7 +2267,7 @@ function KT:SetSize()
 	end
 
 	_DBG(" - height = "..OTF.contentsHeight)
-	if not dbChar.collapsed and not self:IsTrackerEmpty() then
+	if not dbChar.collapsed and HasTrackerContents() then
 		-- width
 		KTF:SetWidth(db.width)
 
@@ -2340,7 +2348,7 @@ function KT:SetBackground()
 	KTF:SetBackdropColor(db.bgrColor.r, db.bgrColor.g, db.bgrColor.b, db.bgrColor.a)
 	KTF:SetBackdropBorderColor(self.borderColor.r, self.borderColor.g, self.borderColor.b, db.borderAlpha)
 
-	SetHeaders("background")
+	SetHeadersStyle("background")
 
 	if db.hdrBgr == 2 then
 		self.hdrBtnColor = self.TRACKER_DEFAULT_COLOR
@@ -2378,7 +2386,7 @@ function KT:SetText()
 	self.dashWidth = testLine.Dash:GetWidth() + 1
 
 	-- Headers
-	SetHeaders("text")
+	SetHeadersStyle("text")
 
 	-- Others
 	KT_ScenarioObjectiveTracker.StageBlock.Stage:SetFont(self.font, db.fontSize + 5, db.fontFlag)
@@ -2654,7 +2662,7 @@ end
 
 function KT:ToggleEmptyTracker()
 	local alpha, mouse = 1, true
-	if self:IsTrackerEmpty() or self.hidden then
+	if not HasTrackerContents() or self.hidden then
 		KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0.5, 0.75)
 		if db.hideEmptyTracker or self.hidden then
 			alpha = 0

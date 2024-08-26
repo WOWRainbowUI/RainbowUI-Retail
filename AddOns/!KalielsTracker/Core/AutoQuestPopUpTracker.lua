@@ -15,7 +15,7 @@ end
 function KT_AutoQuestPopupTrackerMixin:AddAutoQuestObjectives()
 	-- MSA
 	KT.hiddenQuestPopUps = SplashFrame:IsShown()
-	if KT.hiddenQuestPopUps or not KT.initialized then return end
+	if KT.hiddenQuestPopUps then return end
 	--[[if SplashFrame:IsShown() then
 		return;
 	end]]

@@ -266,15 +266,13 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 7.1.0|r\n"..
-					"- ADDED (achievements) - filter support for The War Within\n"..
-					"- ADDED (quests) - filter by Campaign\n"..
-					"- ADDED - support for WoW 11.0.2.56196\n"..
-					"- CHANGED (help) - Active Patrons\n"..
-					"- CHANGED (scenario) - support for Proving Grounds and minor improvements\n"..
-					"- FIXED (scenario) - forced expand after stage update (Challenge Mode, Proving Grounds)\n"..
-					"- FIXED - TomTom - issue with remove waypoint when click on Bonus quest POI\n"..
-					"- FIXED (quests) - error getting currency for tooltip\n"..
+					cTitle.."Version 7.2.0|r\n"..
+					"- ADDED (achievements) - filter support for The War Within (Delves)\n"..
+					"- ADDED (quests) - option to always show Campaign quests in zone filtering\n"..
+					"- CHANGED - TomTom - improved auto set waypoint after update quest objective\n"..
+					"- FIXED - TomTom - switching POI focus does not remove waypoint\n"..
+					"- FIXED (quests) - Popup quest not showing in empty tracker\n"..
+					"- PERFORMANCE (questy) - optimization of filtering code\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
