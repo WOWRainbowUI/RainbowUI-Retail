@@ -173,6 +173,11 @@ function UMPD_Init()
     cbShortNumbers:HookScript("OnClick", function(self,value)
         UMPD.shortNumbers = self:GetChecked()
     end)
+    local cbBlizzNav = createCheckbox(UMPDO,GetCVar('showInGameNavigation'),"st","Blizzard In Game Navigation")
+    cbBlizzNav:SetPoint("TOPLEFT", 8, -372)
+    cbBlizzNav:HookScript("OnClick", function(self,value)
+        SetCVar('showInGameNavigation', self:GetChecked())
+    end)
 
     -- Notes
     local notes = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")

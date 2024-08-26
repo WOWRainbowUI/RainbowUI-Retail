@@ -8,8 +8,6 @@ _UMPD.version       = GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
 _UMPD.init          = false
 
 do
-    local dAlpha = SuperTrackedFrame.GetTargetAlphaBaseValue -- Unused?
-
     -- Time to reach Pin
     SuperTrackedFrame.Time = SuperTrackedFrame:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
     SuperTrackedFrame.Time:SetSize(0, 1)
@@ -17,6 +15,12 @@ do
 
     -- Override default SuperTrackedFrame:GetTargetAlphaBaseValue()
     function SuperTrackedFrame:GetTargetAlphaBaseValue()
+        -- Check if Navigation is Enabled
+        if C_Navigation.GetTargetState() == 0 then
+            return 0
+        end
+
+        -- Update Alpha on Pin
         local d = C_Navigation.GetDistance()
         if (d >= UMPD.minDistance and d <= UMPD.maxDistance) or (d >= UMPD.minDistance and UMPD.maxDistance == 0) then
             if SuperTrackedFrame.isClamped then
