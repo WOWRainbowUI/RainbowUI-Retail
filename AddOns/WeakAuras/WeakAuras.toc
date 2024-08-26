@@ -1,7 +1,7 @@
 ## Interface: 110002
 ## Title: WeakAuras
 ## Author: The WeakAuras Team
-## Version: 5.16.1
+## Version: 5.17.0
 ## IconTexture: Interface\AddOns\WeakAuras\Media\Textures\icon.blp
 ## X-Flavor: Mainline
 ## Notes: A powerful, comprehensive utility for displaying graphics and information based on buffs, debuffs, and other triggers.
@@ -29,6 +29,7 @@ embeds.xml
 
 # Client flavor specific libs
 Libs\LibSpecialization\LibSpecialization.lua
+Libs\LibDispel\LibDispel.lua
 
 Init.lua
 Compatibility.lua
