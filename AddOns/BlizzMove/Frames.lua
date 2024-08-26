@@ -230,13 +230,15 @@ BlizzMoveAPI:RegisterFrames(
     ["GameMenuFrame"] =
     {
         MinVersion = 0,
-        SubFrames =
+        --[[ -- 暫時修正
+		SubFrames =
         {
             ["GameMenuFrame.Header"] =
             {
                 MinVersion = 110000,
             },
         },
+		--]]
     },
     ["GossipFrame"] =
     {
