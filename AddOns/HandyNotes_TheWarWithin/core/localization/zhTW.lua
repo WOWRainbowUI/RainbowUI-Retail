@@ -53,7 +53,27 @@ L['ranked_research'] = '%s (等級 %d/%d)'
 
 L['focus'] = '追蹤'
 L['retrieving'] = '正在取得物品連結 ...'
-L['in_cave'] = '在洞穴裡。'
+
+L['normal'] = '普通'
+L['hard'] = '困難'
+
+L['completed'] = '已完成'
+L['incomplete'] = '未完成'
+L['claimed'] = '共享'
+L['unclaimed'] = '未共享'
+L['known'] = '已獲得'
+L['missing'] = '未獲得'
+L['unobtainable'] = '無法獲得'
+L['unlearnable'] = '無法解鎖'
+L['defeated'] = '已擊敗'
+L['undefeated'] = '未擊敗'
+L['elite'] = '菁英'
+L['quest'] = '任務'
+L['quest_repeatable'] = '可重複任務'
+L['achievement'] = '成就'
+
+---------------------------------- LOCATION -----------------------------------
+L['in_cave'] = '在洞穴。'
 L['in_small_cave'] = '在小洞穴。'
 L['in_water_cave'] = '在水下洞穴。'
 L['in_waterfall_cave'] = '在瀑布後的洞穴內。'
@@ -122,7 +142,7 @@ L['options_icons_dragonrace_desc'] = '顯示區域內所有飛龍競速的位置
 -------------------------------------------------------------------------------
 
 L['context_menu_set_waypoint'] = '顯示地圖導航'
-L['context_menu_add_tomtom'] = '加入 TomTom 路線導航'
+L['context_menu_add_tomtom'] = '加入 TomTom 導航'
 L['context_menu_add_group_tomtom'] = '加入群組到 TomTom'
 L['context_menu_add_focus_group_tomtom'] = '加入相關地點到 TomTom'
 L['context_menu_hide_node'] = '隱藏這個地點'
@@ -190,6 +210,10 @@ L['options_transmog_rewards'] = '顯示塑形外觀獎勵'
 L['options_transmog_rewards_desc'] = '在浮動提示資訊中顯示塑形外觀獎勵，並且追蹤收藏狀態。'
 L['options_all_transmog_rewards'] = '顯示無法取得的塑形外觀獎勵'
 L['options_all_transmog_rewards_desc'] = '顯示其他職業才能取得的塑形外觀獎勵。'
+L['options_rep_rewards'] = '顯示聲望獎勵'
+L['options_rep_rewards_desc'] = '在浮動提示資訊中顯示聲望獎勵，並且追蹤目前狀態。'
+L['options_claimed_rep_rewards'] = '顯示共享的聲望獎勵'
+L['options_claimed_rep_rewards_desc'] = '顯示戰隊共享的聲望獎勵。'
 
 L['options_icons_misc_desc'] = '顯示其他未分類的地點。'
 L['options_icons_misc'] = '其他'

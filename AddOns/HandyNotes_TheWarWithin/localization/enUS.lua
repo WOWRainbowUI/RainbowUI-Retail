@@ -31,6 +31,8 @@ L['turtles_thanks_1_note'] = 'Hand in 5x {item:220143} (can be fished from {obje
 L['turtles_thanks_2_note'] = 'Hand in 1x {item:222533} (can be fished from {object:Glimmerpool}, {object:Festering Rotpool}, {object:Infused Ichor Spill} pool or bought from the auction house).'
 L['turtles_thanks_3_note'] = 'Meet the {npc:223338} in {location:Dornogal} and speak with her to reveal the treasure.'
 
+L['cendvin_note'] = 'Farm 900x {item:225557} in {location:Cinderwold} from elite mobs to buy the {item:223153} mount from {npc:226205}.'
+
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = 'Display location for {achievement:40606} achievement.'
 
@@ -165,6 +167,7 @@ L['furball_location'] = 'Inside the ruined building.'
 L['dander_location'] = 'Outside.'
 L['gobbo_location'] = 'Inside the building on the bed.'
 
+L['beledars_spawn_note'] = 'This rare spawns at one of several locations at a fixed interval.\n\nNext spawn in:\n{note:%s (%s)}'
 L['croakit_note'] = [[To attack {npc:214757} you must first fish 10x {item:211474} from the water nearby.
 
 Once you have all the fish go to {npc:214757} and toss them to him.]] -- from wowhead, needs to be confirmed.
@@ -185,7 +188,7 @@ L['options_icons_beacon_of_hope_desc'] = 'Display lesser keyflame locations for 
 
 L['beacon_of_hope_note'] = 'Contribute {item:206350} to light lesser keyflames and complete the following quests.'
 
-L['parasidious_note'] = 'To spawn this rare you\'ll need to buy {item:206670} from {npc:206533} (activate the lesser keyflame to make him appear) then go to the Duskrise Acreage and pull the {npc:206870}, as you pull them a vine will shoot out of you to the Disturbed Dirt and it will grow/change until the rare eventually spawns.' -- from wowhead, needs to be reviewed
+L['parasidious_note'] = 'To spawn this rare you\'ll need to buy {item:206670} from {npc:206533} (activate the {object:Lesser Keyflame} to make him appear) then go to the {location:Duskrise Acreage} and pull the {npc:206870}. As you pull them, a vine will shoot out of you to the {npc:206978} and it will grow/change until the rare eventually spawns.' -- from wowhead, needs to be reviewed
 
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------

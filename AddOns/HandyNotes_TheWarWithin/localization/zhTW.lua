@@ -31,6 +31,8 @@ L['turtles_thanks_1_note'] = '交出5個 {item:220143}（可從 {object:平靜�
 L['turtles_thanks_2_note'] = '交出1個 {item:222533}（可從 {object:浮光之池}，{object:潰爛的腐臭之池}，{object:Infused Ichor Spill} 魚點釣魚或從拍賣行購買）。'
 L['turtles_thanks_3_note'] = '在 {location:多恩諾加} 與 {npc:223338} 會面並與她交談以發現寶藏。'
 
+L['cendvin_note'] = '在{location:Cinderwold} 從精英怪上農900x {item:225557}，從{npc:226205}購買{item:223153}坐騎。'
+
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = '顯示 {achievement:40606} 成就中的位置。'
 
@@ -120,10 +122,7 @@ L['priory_satchel_location'] = '拾取懸掛在 {location:聖焰隱修院} 教�
 L['smugglers_treasure_note'] = '從懸崖下方的（{dot:Blue}）{npc:226025} 拾取所需的 {item:225335}。'
 L['smugglers_treasure_location'] = '在懸崖高處幾塊岩石之間。'
 L['coral_fused_clam'] = '珊瑚包裹蛤蜊'
-L['coral_fused_clam_note'] = [[從 {object:捕蛤者的工具} 中拾取 {item:218354} 來打開蛤蜊。
-
-{note:需要80級才能拾取。}
-]] -- from wowhead, needs to be reviewed
+L['coral_fused_clam_note'] = '從 {object:捕蛤者的工具} 中拾取 {item:218354} 來打開蛤蜊。'
 
 L['options_icons_biblo_archivist'] = '{achievement:40622}'
 L['options_icons_biblo_archivist_desc'] = '顯示 {achievement:40622} 成就中書籍的位置。'
@@ -168,13 +167,12 @@ L['furball_location'] = '在廢墟建築內。'
 L['dander_location'] = '在外面。'
 L['gobbo_location'] = '在建築內的床上。'
 
+L['beledars_spawn_note'] = '此稀有會以固定的時間間隔在多個位置之一出現。\n\n下次出現：\n{note:%s（%s）}'
 L['croakit_note'] = [[要攻擊 {npc:214757}，必須先從附近的水中釣出10個 {item:211474}。
 
-收集完所有魚後，去找 {npc:214757} 並把它們扔給他。]] -- from wowhead, needs to be confirmed.
+收集完所有魚後，去找 {npc:214757} 並把它們扔給他。]]
 L['deathtide_note'] = [[要召喚他，必須在 {object:不祥祭壇} 上使用 {item:220123}。
-需要結合 {item:220122} {dot:Blue} 和 {item:220124} {dot:Green} 來獲得 {item:220123}。
-
-{note:需要達到80級才能拾取它們。} ]] -- from wowhead, needs to be reviewed
+需要結合 {item:220122} {dot:Blue} 和 {item:220124} {dot:Green} 來獲得 {item:220123}。]]
 L['murkshade_note'] = '與 {npc:218455} 互動。'
 
 L['options_icons_mereldar_menace'] = '{achievement:40151}'
@@ -190,7 +188,7 @@ L['options_icons_beacon_of_hope_desc'] = '顯示 {achievement:40308} 成就中�
 
 L['beacon_of_hope_note'] = '捐獻 {item:206350} 來點亮小型鑰焰並完成接下來的任務。'
 
-L['parasidious_note'] = '要讓此稀有出現你需要從{npc:206533}購買item:206670} (啟動較小的鑰焰讓他出現) 然後轉到Duskrise Acreage，然後拉動{NPC：206870}，當您拉出葡萄藤時，葡萄藤會從您身上射出到受干擾的污垢，它將成長/改變，直到最終稀有出現。'
+L['parasidious_note'] = '要出現此稀有，需要從 {npc:206533} 購買 {item:206670}（啟動 {object:小型鑰焰} 使其出現），然後前往 {location:暮升遼原} 並拉動 {npc:206870}。當拉動它們時，一根藤蔓會從身上射出並到達 {npc:206978}，它會生長/變化，直到稀有最終出現。'
 
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
@@ -227,7 +225,7 @@ L['smelling_history_5_location'] = '在建築物內的桌子上。'
 L['smelling_history_6_location'] = '在房間南側的床上。'
 L['smelling_history_7_location'] = '在一堆書的上面。'
 L['smelling_history_8_location'] = '在房間北邊床邊的桌子上。'
-L['smelling_history_9_location'] = '占位符'
+L['smelling_history_9_location'] = '在桌子後面，在 {npc:226024} 旁邊。'
 L['smelling_history_10_location'] = '在長凳上。'
 L['smelling_history_11_location'] = '書在床邊的桌子上。入口在噴泉上方。'
 L['smelling_history_12_location'] = '在建築物內的桌子上。'
