@@ -1,6 +1,6 @@
 ## Interface: 110002
 ## Title: Edit Mode Expanded
-## Version: 11.0-009
+## Version: 11.0-010
 ## Notes: Expands Edit Mode to apply to other frames
 ## Author: Teelo
 ## SavedVariables: EditModeExpandedADB
@@ -22,6 +22,7 @@ FrameHandlers\ChatButtons.lua
 FrameHandlers\FocusCast.lua
 FrameHandlers\FocusFrame.lua
 FrameHandlers\FocusToT.lua
+FrameHandlers\GameMenu.lua
 FrameHandlers\GroupLoot.lua
 FrameHandlers\LFG.lua
 FrameHandlers\Menu.lua

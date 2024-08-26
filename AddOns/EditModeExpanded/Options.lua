@@ -46,7 +46,8 @@ local defaults = {
             buffFrame = true,
             debuffFrame = true,
             objectiveTrackerFrame = true,
-			targetFrameBuffs = false,
+            targetFrameBuffs = false,
+            gameMenu = true,
         },
         QueueStatusButton = {},
         TotemFrame = {},
@@ -92,6 +93,7 @@ local defaults = {
         MinimapSeparated = {},
 		TargetDebuffs = {},
         TargetBuffs = {},
+        GameMenuFrame = {},
     }
 }
 
