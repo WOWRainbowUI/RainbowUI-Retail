@@ -73,6 +73,8 @@ function UMPD_Init()
     UMPD.pinAlphaShort = UMPD.pinAlphaShort or 100
     UMPD.pinAlphaClamped = UMPD.pinAlphaClamped or 100
 
+    _UMPD.blizzEnabled = GetCVar('showInGameNavigation')
+
     if UMPD.autoTrackPins == nil then
         UMPD.autoTrackPins = true
     end
@@ -172,11 +174,6 @@ function UMPD_Init()
     cbShortNumbers:SetPoint("TOPLEFT", 8, -342)
     cbShortNumbers:HookScript("OnClick", function(self,value)
         UMPD.shortNumbers = self:GetChecked()
-    end)
-    local cbBlizzNav = createCheckbox(UMPDO,GetCVar('showInGameNavigation'),"st","Blizzard In Game Navigation")
-    cbBlizzNav:SetPoint("TOPLEFT", 8, -372)
-    cbBlizzNav:HookScript("OnClick", function(self,value)
-        SetCVar('showInGameNavigation', self:GetChecked())
     end)
 
     -- Notes
