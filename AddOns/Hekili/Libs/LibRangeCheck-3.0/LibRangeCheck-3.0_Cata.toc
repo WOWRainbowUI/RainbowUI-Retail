@@ -2,7 +2,7 @@
 ## Title: Lib: RangeCheck-3.0
 ## Notes: A library to determine estimated range.
 ## Author: The WoWUIDev Community
-## Version: 5a653fb
+## Version: 50a1a83
 ## LoadOnDemand: 1
 ## X-Category: Library
 ## X-Credits: mitch0
