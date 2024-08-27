@@ -2100,3 +2100,12 @@ Change Log:
 * Added The War Within spells (world)
 * Added TWW spells for The Rookery
 * Added TWW spells for TWW Delves 
+
+5.12
+* Improved internal scanner to assist with verifying alerts marked as "test"
+* Added The War Within spells (world)
+* Added TWW spells for The Rookery
+* Added TWW spells for The Stonevault
+* Added TWW spells for Darkflame Cleft
+* Added TWW spells for Priory of the Scared Flame
+* Added special ignore for "Smothering Shadows" (Darkflame Cleft - TWW)

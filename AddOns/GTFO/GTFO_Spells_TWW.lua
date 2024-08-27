@@ -50,7 +50,19 @@ GTFO.SpellID["458771"] = {
   --desc = "Ravage (Ravageant)";
   sound = 1;
   applicationOnly = true;
-  trivialLevel = 80;
+  trivialLevel = 90;
+};
+
+GTFO.SpellID["451287"] = {
+  --desc = "Rotting Sludge (Rotbark the Unfelled)";
+  sound = 1;
+  trivialLevel = 90;
+};
+
+GTFO.SpellID["435440"] = {
+  --desc = "Toxic Outbreak";
+  sound = 1;
+  ignoreApplication = true;
 };
 
 --- ****************************
@@ -75,6 +87,10 @@ GTFO.SpellID["433781"] = {
   sound = 1;
 };
 
+GTFO.SpellID["439832"] = {
+  --desc = "Bloody Miasma";
+  sound = 1;
+};
 
 --- **********************
 --- * Cinderbrew Meadery *
@@ -170,20 +186,17 @@ GTFO.SpellID["438601"] = {
 GTFO.SpellID["426265"] = {
   --desc = "Ceaseless Flame (Sootsnout)";
   sound = 1;
-};
-
-GTFO.SpellID["426295"] = {
-  --desc = "Flaming Tether (Sootsnout)";
-  applicationOnly = true;
-  negatingDebuffSpellID = 426295; -- Flaming Tether
-  sound = 1;
-  test = true;
+  negatingDebuffSpellID = 426277; -- One-Hand Headlock
 };
 
 GTFO.SpellID["421638"] = {
   --desc = "Wicklighter Barrage (Blazikon)";
   sound = 1;
-  test = true; -- Verification
+};
+
+GTFO.SpellID["440653"] = {
+  --desc = "Surging Wax (Wandering Candle - Wax puddle)";
+  sound = 1;
 };
 
 GTFO.SpellID["421067"] = {
@@ -194,8 +207,8 @@ GTFO.SpellID["421067"] = {
 GTFO.SpellID["422806"] = {
   --desc = "Smothering Shadows";
   applicationOnly = true;
+  category = "SmotheringShadows";
   sound = 2;
-  test = true; -- Verification, might get annoying
 };
 
 --- ******************************
@@ -205,13 +218,19 @@ GTFO.SpellID["422806"] = {
 GTFO.SpellID["427473"] = {
   --desc = "Flamestrike (Fanatical Mage)";
   sound = 1;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["424430"] = {
   --desc = "Consecration (Ardent Paladin)";
   sound = 1;
+  ignoreApplication = true;
 };
+
+GTFO.SpellID["427900"] = {
+  --desc = "Molten Pool (Forge Master Damian)";
+  sound = 1;
+};
+
 
 GTFO.SpellID["425554"] = {
   --desc = "Purifying Light (Prioress Murrpray - Moving Laser)";
@@ -248,32 +267,33 @@ GTFO.SpellID["424966"] = {
   sound = 1;
 };
 
+GTFO.SpellID["433067"] = {
+  --desc = "Seeping Fragment (Voidstone Monstrosity)";
+  sound = 1;
+};
+
 --- ******************
 --- * The Stonevault *
 --- ******************
 
 GTFO.SpellID["428819"] = {
-  --desc = "Exhaust Vents (Vent Stalker)";
+  --desc = "Exhaust Vents (Speaker Brokk)";
   sound = 1;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["429999"] = {
-  --desc = "Flaming Scrap (Vent Stalker)";
+  --desc = "Flaming Scrap (Speaker Brokk)";
   sound = 1;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["427329"] = {
   --desc = "Void Corruption (High Speaker Eirich)";
   sound = 2;
-  test = true; -- Verification, need more information, such as well to turn on the high damage warning if it's on too long
 };
 
 GTFO.SpellID["457465"] = {
   --desc = "Entropy (High Speaker Eirich)";
   sound = 1;
-  test = true; -- Verification
 };
 
 --- ***************
