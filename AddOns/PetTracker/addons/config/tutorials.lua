@@ -27,7 +27,7 @@ function Tutorials:Load()
 
 		{
 			text = L.Tutorial[1],
-			image = 'Interface/Addons/PetTracker/art/pets',
+			image = 'Interface/Addons/PetTracker/art/welcome',
 			point = 'CENTER'
 		},
 		{
