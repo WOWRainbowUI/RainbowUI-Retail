@@ -2223,7 +2223,7 @@ WorldQuestTracker.OnToggleWorldMap = function(self)
 					factionButton:ClearAllPoints()
 					local mapId = WorldQuestTracker.GetCurrentMapAreaID()
 					local factionsOfTheMap = WorldQuestTracker.GetFactionsAllowedOnMap(mapId)
-
+					--dumpt(factionsOfTheMap) = none
 					if (factionsOfTheMap) then
 						if (factionsOfTheMap[factionButton.FactionID]) then
 							if (anchorSide == "left") then
@@ -2381,14 +2381,20 @@ WorldQuestTracker.OnToggleWorldMap = function(self)
 					--play quick flash on squares showing quests of this faction
 					for _, widget in ipairs(WorldQuestTracker.WorldSummaryQuestsSquares) do
 						if (widget.FactionID == self.MyObject.FactionID) then
-							widget.LoopFlash:Play()
+							local bAwardReputation = C_QuestLog.DoesQuestAwardReputationWithFaction(widget.questID, factionID)
+							if (bAwardReputation) then
+								widget.LoopFlash:Play()
+							end
 						end
 					end
 
 					--play quick flash on widgets shown in the world map(quest locations)
 					for questCounter, button in pairs(WorldQuestTracker.WorldMapSmallWidgets) do
 						if (button.FactionID == self.MyObject.FactionID) then
-							button.FactionPulseAnimation:Play()
+							local bAwardReputation = C_QuestLog.DoesQuestAwardReputationWithFaction(button.questID, factionID)
+							if (bAwardReputation) then
+								button.FactionPulseAnimation:Play()
+							end
 						end
 					end
 
@@ -2419,7 +2425,7 @@ WorldQuestTracker.OnToggleWorldMap = function(self)
 					end
 				end
 
-				--create buttons
+				--create buttons, one for each faction, amount of buttons created is around ~42 button
 				for factionID, _ in pairs(WorldQuestTracker.MapData.AllFactionIds) do --creates one button for each faction registered
 					if (type(factionID) == "number") then
 						local factionName = WorldQuestTracker.GetFactionDataByID(factionID)
@@ -3476,7 +3482,7 @@ WorldQuestTracker.OnToggleWorldMap = function(self)
 				button.Text = button:CreateFontString(nil, "overlay", "GameFontNormal")
 				button.Text:SetText(name)
 
-				WorldQuestTracker:SetFontSize(button.Text, 10)
+				WorldQuestTracker:SetFontSize(button.Text, 11)
 				WorldQuestTracker:SetFontColor(button.Text, "orange")
 				button.Text:SetPoint("center")
 
@@ -4156,17 +4162,17 @@ WorldQuestTracker.OnToggleWorldMap = function(self)
 			resource_PetFrame.QuestType = WQT_QUESTTYPE_PETBATTLE
 
 			-- ~resources ~recursos
-			local resource_GoldIcon = DF:CreateImage(resource_GoldFrame, [[Interface\AddOns\WorldQuestTracker\media\icons_resourcesT]], 16, 16, "overlay", {64/128, 96/128, 0, .25})
+			local resource_GoldIcon = DF:CreateImage(resource_GoldFrame, [[Interface\AddOns\WorldQuestTracker\media\icons_resourcesT.png]], 16, 16, "overlay", {64/128, 96/128, 0, .25})
 			resource_GoldIcon:SetDrawLayer("overlay", 7)
 			resource_GoldIcon:SetAlpha(.78)
 			local resource_GoldText = DF:CreateLabel(resource_GoldFrame, "", ResourceFontTemplate)
 
-			local resource_ResourcesIcon = DF:CreateImage(resource_ResourcesFrame, [[Interface\AddOns\WorldQuestTracker\media\icons_resourcesT]], 16, 16, "overlay", {0, 32/128, 0, .25})
+			local resource_ResourcesIcon = DF:CreateImage(resource_ResourcesFrame, [[Interface\AddOns\WorldQuestTracker\media\icons_resourcesT.png]], 16, 16, "overlay", {0, 32/128, 0, .25})
 			resource_ResourcesIcon:SetDrawLayer("overlay", 7)
 			resource_ResourcesIcon:SetAlpha(.78)
 			local resource_ResourcesText = DF:CreateLabel(resource_ResourcesFrame, "", ResourceFontTemplate)
 
-			local resource_APowerIcon = DF:CreateImage(resource_APowerFrame, [[Interface\AddOns\WorldQuestTracker\media\icons_resourcesT]], 16, 16, "overlay", {32/128, 64/128, 0, .25})
+			local resource_APowerIcon = DF:CreateImage(resource_APowerFrame, [[Interface\AddOns\WorldQuestTracker\media\icons_resourcesT.png]], 16, 16, "overlay", {32/128, 64/128, 0, .25})
 			resource_APowerIcon:SetDrawLayer("overlay", 7)
 			resource_APowerIcon:SetAlpha(.78)
 			resource_APowerFrame.Icon = resource_APowerIcon
@@ -4179,13 +4185,13 @@ WorldQuestTracker.OnToggleWorldMap = function(self)
 
 			resource_APowerIcon:SetPoint("right", resource_APowerText, "left", -2, 0)
 
-			resource_ResourcesText:SetPoint("right", resource_APowerIcon, "left", -10, 0)
+			resource_ResourcesText:SetPoint("right", resource_APowerIcon, "left", -24, 0)
 			resource_ResourcesIcon:SetPoint("right", resource_ResourcesText, "left", -2, 0)
 
-			resource_GoldText:SetPoint("right", resource_ResourcesIcon, "left", -10, 0)
+			resource_GoldText:SetPoint("right", resource_ResourcesIcon, "left", -24, 0)
 			resource_GoldIcon:SetPoint("right", resource_GoldText, "left", -2, 0)
 
-			resource_PetText:SetPoint("right", resource_GoldIcon, "left", -2, 0)
+			resource_PetText:SetPoint("right", resource_GoldIcon, "left", -24, 0)
 			resource_PetIcon:SetPoint("right", resource_PetText, "left", -2, 0)
 
 			resource_PetText.text = 996
