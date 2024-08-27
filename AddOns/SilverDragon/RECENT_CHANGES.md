@@ -1,5 +1,7 @@
-## Changed in v2024.16
+## Changed in v2024.17
 
-* A bunch of new loot for Hallowfall
-* Fix TomTom waypoints still pushing onto the arrow (with a more specific combination of settings between addons required now!), and not clearing after the popup closed
+* New loot for all War Within zones
+* Don't put tomtom waypoints on the world map, stick to the crazy arrow
+* Improve the tooltips for history and popups
+* Add data to show in treasure-popups in Isle of Dorn and Ringing Deeps
 
