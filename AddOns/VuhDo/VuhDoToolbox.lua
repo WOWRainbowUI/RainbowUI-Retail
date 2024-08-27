@@ -140,11 +140,22 @@ end
 
 
 --
+local VUHDO_RANGE_SPELLS_REMAP = {
+	["HELPFUL"] = {
+		[VUHDO_SPELL_ID.LIVING_FLAME] = { VUHDO_SPELL_ID.EMERALD_BLOSSOM },
+	},
+	["HARMFUL"] = {
+		[VUHDO_SPELL_ID.SMITE] = { VUHDO_SPELL_ID.SHADOW_WORD_PAIN },
+		[VUHDO_SPELL_ID.LIVING_FLAME] = { VUHDO_SPELL_ID.AZURE_STRIKE },
+		[VUHDO_SPELL_ID.LIGHTNING_BOLT] = { VUHDO_SPELL_ID.FLAME_SHOCK },
+	},
+};
+
 local tIsSpellInRange;
-function VUHDO_isSpellInRange(aSpell, aUnit)
+function VUHDO_isSpellInRange(aSpell, aUnit, aUnitReaction)
 
 	if not aSpell or not aUnit then
-		return nil;
+		return;
 	end
 
 	if IsSpellInRange then
@@ -152,6 +163,19 @@ function VUHDO_isSpellInRange(aSpell, aUnit)
 	end
 
 	tIsSpellInRange = C_Spell.IsSpellInRange(aSpell, aUnit);
+
+	if tIsSpellInRange == nil and aUnitReaction and
+		VUHDO_RANGE_SPELLS_REMAP[aUnitReaction] and VUHDO_RANGE_SPELLS_REMAP[aUnitReaction][aSpell] then
+		for _, tRangeSpell in pairs(VUHDO_RANGE_SPELLS_REMAP[aUnitReaction][aSpell]) do
+			tIsSpellInRange = C_Spell.IsSpellInRange(tRangeSpell, aUnit);
+
+			if tIsSpellInRange == true then
+				return 1;
+			elseif tIsSpellInRange == false then
+				return 0;
+			end
+		end
+	end
 
 	return tIsSpellInRange and 1 or 0;
 
@@ -417,9 +441,9 @@ function VUHDO_checkInteractDistance(aUnit, aDistIndex)
 		return CheckInteractDistance(aUnit, aDistIndex);
 	else
 		if not sIsHarmfulGuessRange and UnitCanAttack("player", aUnit) then
-			return (VUHDO_isSpellInRange(sRangeSpell["HARMFUL"], aUnit) == 1) and true or false;
+			return (VUHDO_isSpellInRange(sRangeSpell["HARMFUL"], aUnit, "HARMFUL") == 1) and true or false;
 		elseif not sIsHelpfulGuessRange then
-			return (VUHDO_isSpellInRange(sRangeSpell["HELPFUL"], aUnit) == 1) and true or false;
+			return (VUHDO_isSpellInRange(sRangeSpell["HELPFUL"], aUnit, "HELPFUL") == 1) and true or false;
 		else
 			-- default to showing in-range when we don't know any better
 			return true;
@@ -461,6 +485,9 @@ end
 
 
 -- returns whether or not a unit is in range
+local tIsGuessRange;
+local tRangeSpell;
+local tUnitReaction;
 function VUHDO_isInRange(aUnit)
 	
 	if "player" == aUnit then 
@@ -470,22 +497,21 @@ function VUHDO_isInRange(aUnit)
 	elseif VUHDO_unitPhaseReason(aUnit) then
 		return false;
 	else
-		local tIsGuessRange;
-		local tRangeSpell;
-
 		if UnitCanAttack("player", aUnit) then
 			tIsGuessRange = sIsHarmfulGuessRange;
-			tRangeSpell = sRangeSpell["HARMFUL"];
+			tUnitReaction = "HARMFUL";
 		else
 			tIsGuessRange = sIsHelpfulGuessRange;
-			tRangeSpell = sRangeSpell["HELPFUL"];
+			tUnitReaction = "HELPFUL";
 		end
+
+		tRangeSpell = sRangeSpell[tUnitReaction];
 
 		if tIsGuessRange or not tRangeSpell then
 			return UnitInRange(aUnit);
 		end
 
-		local tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit);
+		local tIsSpellInRange = VUHDO_isSpellInRange(tRangeSpell, aUnit, tUnitReaction);
 
 		if tIsSpellInRange ~= nil then
 			return (tIsSpellInRange == 1) and true or false;

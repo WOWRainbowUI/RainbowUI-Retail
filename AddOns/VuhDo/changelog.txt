@@ -1,3 +1,27 @@
+Version 3.174  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed range check when using spells that change based on hero talents  
+-- Fixed Druid 'Swiftmend' cooldown tracking when untalented  
+  
+  
+Improvements:  
+-- Added default bouquets to track both echo and non-echo Evoker HoTs  
+  
+  
+--------------------------------------------------------------  
 Version 3.173  
   
   
