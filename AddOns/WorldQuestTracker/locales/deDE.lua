@@ -328,15 +328,11 @@ L["S_OPTIONS_ZONE_SHOWONLYTRACKED"] = "Nur verfolgte"
 --[[Translation missing --]]
 L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST"] = "Auto Accept Abandon Quests"
 --[[Translation missing --]]
-L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST_DESC"] = "Don't show the confirmation dialog when abandoning a quest."
---[[Translation missing --]]
 L["S_OPTTIONS_DRAGONRACE_MINIMAP"] = "Show Track Minimap"
 --[[Translation missing --]]
 L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "Track Color"
 --[[Translation missing --]]
 L["S_OPTTIONS_NUMERATE_QUEST"] = "Enumerate Quests"
---[[Translation missing --]]
-L["S_OPTTIONS_NUMERATE_QUEST_DESC"] = "Show a number for each quest in the map frame and in the objective tracker."
 --[[Translation missing --]]
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "Dragon Race"
 --[[Translation missing --]]
