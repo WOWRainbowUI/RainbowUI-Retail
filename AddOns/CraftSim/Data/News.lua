@@ -15,6 +15,13 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
     local news = {
         f.bb("                   Hello and thank you for using CraftSim!\n"),
         f.bb("                                 ( You are awesome! )"),
+        newP("17.1.8"),
+        f.p .. "Fixed concentration calculation not considering",
+        f.a .. "less concentration usage from specs",
+        f.p .. f.bb("Cooldowns Module:"),
+        f.a .. "- Now tracking" .. f.bb(" Invent") .. " and " .. f.bb(" Experiments"),
+        f.a .. "- Now offering an expansion filter option",
+        f.p .. "Changed Default Multicraft Constant to " .. f.g("2.2"),
         newP("17.1.7"),
         f.s .. "Added an " .. f.g("Add First Crafts Button") .. " to the " .. f.bb("CraftQueue"),
         f.a .. "Now only queues recipes for open profession",
