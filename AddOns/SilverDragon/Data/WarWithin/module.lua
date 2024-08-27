@@ -66,6 +66,222 @@ ns.PROF_WW_MINING = 2881
 ns.PROF_WW_SKINNING = 2882
 ns.PROF_WW_TAILORING = 2883 -- spell:
 
+-- Treasures
+
+core:RegisterTreasureData("WarWithin", {
+	-- Isle of Dorn
+	[6210] = {
+		name="Tree's Treasure",
+		achievement=40434, criteria=68197,
+		quest=83242, -- 82160 when treasure appears
+		loot={{224585, toy=true}}, -- Hanna's Locket
+		notes="In cave; talk to {npc:222940:Freysworn Letitia} for a {item:224185:Crab-Guiding Branch}, then go find {npc:222941:Pearlescent Shellcrab} around the zone",
+	},
+	[6224] = {
+		name="Magical Treasure Chest",
+		achievement=40434, criteria=68199,
+		quest=83243, -- 82212 for giving Lionel crabs
+		loot={{224579, pet=3362}}, -- Sapphire Crab
+		notes="Push {npc:223104:Lionel} into the water, talk to it, then go gather 5x {item:223159:Plump Snapcrab} nearby",
+	},
+	[6208] = {
+		name="Mysterious Orb",
+		achievement=40434, criteria=68201,
+		quest=83244, -- 82047 after talking, 82134 after giving, also 82252 when looted
+		loot={224373}, -- Waterlord's Iridescent Gem
+		notes="Talk to {npc:222847:Weary Water Elemental}, then go fetch its {item:221504:Elemental Pearl}",
+	},
+	[6209] = {
+		name="Mushroom Cap",
+		achievement=40434, criteria=68202,
+		quest=83245, -- 82142 after giving cap, 82253 as well on loot
+		loot={210796}, -- Mycobloom
+		notes="Talk to {npc:222894:U'llort the Self-Exiled} then fetch a {item:221550:Boskroot Cap} from the nearby woods",
+	},
+	[6236] = {
+		name="Thak's Treasure",
+		achievement=40434, criteria=68203,
+		quest=82246,
+		loot={
+			212498, -- Ambivalent Amber
+			212511, -- Ostentatious Onyx
+		},
+		notes="Talk to {npc:223227:One-Eyed Thak} and follow him to the treasure",
+	},
+	[6212] = {
+		name="Lost Mosswool (Mosswool Flower)",
+		achievement=40434, criteria=68204,
+		quest=82145, -- when flower spawns
+		loot={{224450, pet=4527}}, -- Lil' Moss Rosy
+		notes="Chase {npc:222956:Lost Mosswool} to the flower",
+	},
+	[6238] = {
+		name="Mosswool Flower",
+		achievement=40434, criteria=68204,
+		quest=83246, -- 82251 also when looted
+		loot={{224450, pet=4527}}, -- Lil' Moss Rosy
+		requires=ns.conditions.QuestComplete(82145),
+		notes="Chase {npc:222956:Lost Mosswool} to the flower; if another player has recently looted if you may have to wait for it to appear",
+	},
+	[6273] = {
+		name="Kobold Pickaxe",
+		achievement=40434, criteria=68205,
+		quest=82325,
+		loot={223484}, -- Kobold Mastermind's "Pivel"
+		notes="Despawns for a while after someone loots it, so you might need to wait around",
+	},
+	[6262] = {
+		name="Jade Pearl",
+		achievement=40434, criteria=68206,
+		quest=82287,
+		loot={223280}, -- Jade Pearl
+		note="Despawns for a while after someone loots it, so you might need to wait around",
+	},
+	[6274] = {
+		name="Shimmering Opal Lily",
+		achievement=40434, criteria=68207,
+		quest=82326,
+		loot={
+			213197, -- Null Lotus
+			210800, -- Luredrop
+		},
+		path=47316149,
+		notes="At the bottom of the cave; despawns for a while after someone loots it, so you might need to wait around",
+	},
+	[6292] = {
+		name="Infused Cinderbrew",
+		achievement=40434, criteria=68208,
+		quest=82714,
+		loot={224263}, -- Infused Fire-Honey Milk
+		notes="On the desk; despawns for a while after someone loots it, so you might need to wait around"
+	},
+	[6293] = {
+		name="Web-Wrapped Axe",
+		achievement=40434, criteria=68209,
+		quest=82715,
+		loot={224290}, -- Storm Defender's Axe
+		notes="Inside the building; despawns for a while after someone loots it, so you might need to wait around",
+	},
+
+	-- Turtle's Thanks
+	[6244] = {
+		name="Dalaran Sewer Turtle",
+		achievement=40434, criteria=68198,
+		quest=79585, -- pike
+		loot={{224549,pet=4594}}, -- Sewer Turtle Whistle
+		notes="Give {npc:223338:Dalaran Sewer Turtle} 5x {item:220143:Dornish Pike}, then leave the area and return to give it 1x {item:222533:Goldengill Trout}. Then go find it again in Dornegal.",
+		active=ns.conditions.Item(220143, 5),
+	},
+	[6245] = {
+		name="Dalaran Sewer Turtle",
+		achievement=40434, criteria=68198,
+		quest=79586, -- trout
+		loot={{224549,pet=4594}}, -- Sewer Turtle Whistle
+		note="Give {npc:223338:Dalaran Sewer Turtle} 1x {item:222533:Goldengill Trout}. Then go find it again in Dornegal.",
+		active=ns.conditions.Item(222533),
+	},
+	[6246] = {
+		name="Dalaran Sewer Turtle",
+		achievement=40434, criteria=68198,
+		quest=82255,
+		loot={{224549,pet=4594}}, -- Sewer Turtle Whistle
+		requires=ns.conditions.QuestComplete(79586), -- moves here
+		notes="Talk to the turtle to spawn the treasure",
+	},
+	[6579] = {
+		name="Turtle's Thanks",
+		achievement=40434, criteria=68198,
+		quest=82716, -- final!, also  when treasure spawns
+		loot={{224549,pet=4594}}, -- Sewer Turtle Whistle
+		requires=ns.conditions.QuestComplete(79586), -- moves here
+		notes="Talk to the turtle to spawn the treasure",
+	},
+
+	-- Ringing Deeps
+	[6286] = {
+		name="Dusty Prospector's Chest",
+		achievement=40724, criteria=69312,
+		quest=82464,
+		loot={212495, 212505, 212508}, -- some gems
+		requires={ns.conditions.Level(71), ns.conditions.Item(223878), ns.conditions.Item(223879), ns.conditions.Item(223880), ns.conditions.Item(223881), ns.conditions.Item(223882)},
+		notes="At the back of the inn; gather the five shards first",
+	},
+	[5994] = {
+		name="Webbed Knapsack",
+		achievement=40724, criteria=69280,
+		quest=79308,
+		loot={
+			213254, -- Big Gold Nugget
+			213251, -- Cinderbee Wax Jar
+			213250, -- Cracked Gem
+			213253, -- Gilded Candle
+			213255, -- Wax Canary
+			213252, -- Stolen Earthen Contraption
+			213257, -- Wax Shovel
+		},
+		level=71,
+		notes="In cave",
+	},
+	[6232] = {
+		name="Cursed Pickaxe",
+		achievement=40724, criteria=69281,
+		quest=82230,
+		loot={224837}, -- Cursed Pickaxe
+		level=71,
+	},
+	[6233] = {
+		name="Munderut's Forgotten Stash",
+		achievement=40724, criteria=69282,
+		quest=82235,
+		loot={212498}, -- Ambivalent Amber + commendations
+		level=71,
+	},
+	[6235] = {
+		name="Discarded Toolbox",
+		achievement=40724, criteria=69283,
+		quest=82239,
+		loot={224644}, -- Lava-Forged Cogwhee
+		level=73,
+	},
+	[6356] = {
+		name="Waterlogged Refuse",
+		achievement=40724, criteria=69304,
+		quest=83030,
+		loot={213250, 213255, 213253, 213254}, -- various grays
+		level=71,
+	},
+	[6277] = {
+		name="Scary Dark Chest",
+		achievement=40724, criteria=69307,
+		quest=82818,
+		loot={{224439, pet=4470}}, -- Oop'lajax
+		level=71,
+	},
+	[6241] = {
+		name="Kaja'Cola Machine",
+		achievement=40724, criteria=69308,
+		quest=82819,
+		loot={220774}, -- Goblin Mini Fridge
+		notes="Order four drinks in the right order: Bluesberry, Orange, Oyster, Mangoro (BOOM!)",
+	},
+	[6284] = {
+		name="Dislodged Blockage",
+		achievement=40724, criteria=69311,
+		quest=82820,
+		loot={{221548, pet=4536}}, -- Blightbud
+		notes="Solve a sliding-tiles puzzle",
+		level=71, -- can solve the puzzle, but not loot the chest
+	},
+	[6074] = {
+		name="Forgotten Treasure",
+		achievement=40724, criteria=69313,
+		quest=80485, -- chests: 80488, 80489, 80490, 80487
+		loot={{224783, toy=true}},
+		notes="Cave behind the waterfall; open chests until you find the key",
+		level=71,
+	},
+}, true)
+
 -- Rares
 
 local LOC_allkhazalgar = {[ns.KHAZALGAR]={},[ns.DORNOGAL]={},[ns.ISLEOFDORN]={},[ns.RINGINGDEEPS]={},[ns.HALLOWFALL]={},[ns.AZJKAHET]={},}
@@ -89,7 +305,7 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 		criteria=68229,
 		quest=81923,
 		npc=221126,
-			loot={
+		loot={
 			223922, -- Cinder Pollen Cloak
 			223937, -- Honey Deliverer's Leggings
 		},
@@ -125,12 +341,14 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 	[74082756] = {
 		label="Shallowshell the Clacker",
 		criteria=68221,
-		quest=81903,
+		quest=81903, -- 84032
 		npc=219278,
 		loot={
 			221224, -- Bouldershell Waistguard
 			221233, -- Deephunter's Bloody Hook
 			221255, -- Sharpened Scalepiercer
+			221234, -- Tidal Pendant
+			221248, -- Deep Terror Carver
 		},
 		vignette=6052,
 	},
@@ -174,7 +392,7 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 		label="Clawbreaker K'zithix",
 		-- [80003500]
 		criteria=68224,
-		quest=81920,
+		quest=81920, -- 84036
 		npc=221128,
 		loot={
 			223140, -- Formula: Enchant Cloak - Chant of Burrowing Rapidity
@@ -201,6 +419,10 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 		quest=81907,
 		npc=219266,
 		vignette=6049,
+		loot={
+			221208, -- Unseen Cutthroat's Tunic
+			221235, -- Dark Agent's Cloak
+		},
 	},
 	[73004010] = {
 		label="Matriarch Charfuria",
@@ -210,6 +432,9 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 		loot={
 			223948, -- Stubborn Wolf's Greathelm
 			221247, -- Cavernous Critter Shooter
+			221251, -- Bestial Underground Cleaver
+			221265, -- Charm of the Underground Beast
+			221246, -- Fierce Beast Staff
 		},
 		vignette=6114,
 	},
@@ -232,13 +457,16 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 		loot={
 			221222, -- Water-Imbued Spaulders
 			221234, -- Tidal Pendant
+			221248, -- Deep Terror Carver
+			221255, -- Sharpened Scalepiercer
+			221233, -- Deephunter's Bloody Hook
 		},
 		vignette=6048,
 	},
 	[57072279] = {
 		label="Twice-Stinger the Wretched",
 		criteria=68222,
-		quest=81904,
+		quest=81904, -- 84033
 		npc=219271,
 		loot={
 			221219, -- Silkwing Trousers
@@ -276,7 +504,7 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 	[50876984] = {
 		label="Plaguehart",
 		criteria=68216,
-		quest=81897,
+		quest=81897, -- also 84026?
 		npc=219267,
 		loot={
 			221213, -- Shawl of the Plagued
@@ -295,6 +523,8 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 		npc=220883,
 		loot={
 			223929, -- Honey Sweetener's Squeezers
+			223921, -- Ever-Oozing Signet
+			223920, -- Slime Deflecting Stopper
 		},
 		vignette=6113,
 	},
@@ -348,6 +578,12 @@ ns.RegisterPoints(ns.ISLEOFDORN, {
 		label="Malfunctioning Spire",
 		quest=81891,
 		npc=220068,
+		loot={
+			210931, -- Bismuth
+			210934, -- Aqirite
+			210937, -- Ironclaw Ore
+			210939, -- Null Stone
+		},
 		vignette=6073,
 	},
 	[46003180] = {
@@ -468,6 +704,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 			221220, -- Basilisk Scale Pauldrons
 			221246, -- Fierce Beast Staff
 			221247, -- Cavernous Critter Shooter
+			221251, -- Bestial Underground Cleaver
 			221265, -- Charm of the Underground Beast
 		},
 		vignette=6079,
@@ -498,7 +735,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		vignette=6081,
 		note="Walking in the lava",
 	},
-	[47074696] = {
+	[47224696] = {
 		label="Kelpmire",
 		criteria=69635,
 		quest=81485,
@@ -532,7 +769,9 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		npc=220268,
 		loot={
 			221228, -- Infested Fungal Wristwraps
+			221253, -- Cultivator's Plant Puncher
 			221264, -- Fungarian Mystic's Cluster
+			223005, -- String of Fungal Fruits
 		},
 		note="Kill the {npc:220615:Root of Trungal} to spawn",
 		path={72534569, 72844444},
@@ -544,6 +783,7 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		quest=81652,
 		npc=221217,
 		loot={
+			223918, -- Specter Stalker's Shotgun
 			223919, -- Abducted Lawman's Gavel
 			223942, -- Spore-Encrusted Ribbon
 		},
@@ -569,6 +809,11 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		criteria=69640,
 		quest=80003,
 		npc=218393,
+		loot={
+			221237, -- Lamentable Vagrant's Lantern
+			223926, -- Earthgorger's Chain Bib
+			223943, -- Cord of the Earthbreaker
+		},
 		vignette=6031,
 	},
 	[66716881] = {
@@ -590,6 +835,10 @@ ns.RegisterPoints(ns.RINGINGDEEPS, {
 		npc=220285,
 		loot={
 			{223501, mount=2205}, -- Regurgitated Mole Reins
+			221233, -- Deephunter's Bloody Hook
+			221234, -- Tidal Pendant
+			221248, -- Deep Terror Carver
+			221255, -- Sharpened Scalepiercer
 		},
 		vignette=6110,
 		note="Pull 5 levers across the zone at the same time to summon; they stay activated for ~10 seconds, so you'll need a group",
@@ -614,7 +863,9 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		quest=81756,
 		npc=221534,
 		loot={
+			221207, -- Den Mother's Chestpiece
 			221246, -- Fierce Beast Staff
+			221251, -- Bestial Underground Cleaver
 			221265, -- Charm of the Underground Beast
 		},
 		vignette=6145,
@@ -626,10 +877,13 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		npc=206203,
 		loot={
 			211973, -- Spider-Touched Bag
+			221240, -- Nerubian Stagshell Gouger
 			221252, -- Nerubian Slayer's Claymore
+			221263, -- Nerubian Venom-Tipped Dart
 			223924, -- Chitin-Inscribed Vest
 		},
 		vignette=5958,
+		note="Objective of {questname:76588}",
 	},
 	[44011639] = {
 		label="The Perchfather",
@@ -638,6 +892,10 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		npc=221648,
 		loot={
 			221229, -- Perchfather's Cuffs
+			221246, -- Fierce Beast Staff
+			221247, -- Cavernous Critter Shooter
+			221251, -- Bestial Underground Cleaver
+			221265, -- Charm of the Underground Beast
 		},
 		vignette=6151,
 	},
@@ -649,6 +907,8 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		loot={
 			221215, -- Taskmaster's Mining Cap
 			221240, -- Nerubian Stagshell Gouger
+			221252, -- Nerubian Slayer's Claymore
+			221263, -- Nerubian Venom-Tipped Dart
 		},
 		vignette=6033,
 	},
@@ -679,6 +939,8 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		npc=221690, -- Rage of Beledar
 		loot={
 			221216, -- Bruin Strength Legplates
+			221246, -- Fierce Beast Staff
+			221247, -- Cavernous Critter Shooter
 			221251, -- Bestial Underground Cleaver
 			221265, -- Charm of the Underground Beast
 			221508, -- Pelt of Beledar's Strength
@@ -704,7 +966,15 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		criteria=69728,
 		quest=82565,
 		npc=220771,
+		loot={
+			221233, -- Deephunter's Bloody Hook
+			221234, -- Tidal Pendant
+			221248, -- Deep Terror Carver
+			221255, -- Sharpened Scalepiercer
+			223934, -- Makrura's Foreboding Legplates
+		},
 		vignette=6123,
+		note="Objective of {questname:76588}",
 	},
 	[63643204] = {
 		label="Deathpetal",
@@ -712,10 +982,14 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		quest=82559,
 		npc=206184,
 		loot={
-			211967, -- Large Sealed Crate
+			221250, -- Creeping Lasher Machete
+			221253, -- Cultivator's Plant Puncher
+			221264, -- Fungarian Mystic's Cluster
+			223005, -- String of Fungal Fruits
 			223927, -- Vinewrapped Leather Tunic
 		},
 		vignette=6078,
+		note="Objective of {questname:76588}",
 	},
 	[72136436] = {
 		label="Deepfiend Azellix",
@@ -736,9 +1010,12 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		quest=82562,
 		npc=221179,
 		loot={
+			223918, -- Specter Stalker's Shotgun
+			223919, -- Abducted Lawman's Gavel
 			223936, -- Shadow Bog Trousers
 		},
 		vignette=6122,
+		note="Objective of {questname:76588}",
 	},
 	[36687172] = {
 		label="Funglour",
@@ -768,13 +1045,19 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		npc=221668,
 		loot={
 			221211, -- Grasp of the Shallows
+			221233, -- Deephunter's Bloody Hook
 			221234, -- Tidal Pendant
+			221248, -- Deep Terror Carver
 			221255, -- Sharpened Scalepiercer
 		},
 		vignette=6152,
 		note="Very long patrol",
 		route={
-			43410990,43870879,44520774,45250767,45970726,45540662,44870677,44270749,43710858,43230977,42781094,42351213,41981324,41631452,41391580,41051714,40501821,39731909,38871990,38132054,37392117,36652173,35992256,35292353,34632446,33992545,33422650,32912763,32492891,32153010,31783130,30933154,29993162,29123191,28213204,27343238,26553287,26513416,26813550,27393654,27983757,28633853,29403934,30173998,30764092,30984221,30594339,29814381,28934419,28064452,27194486,26364534,25664611,24954700,24144768,23314830,23274858,22464885,21604925,20774968,19904976,19565105,20285138,20865040,21614971,22474926,
+			43410990, 43870879, 44520774, 45250767, 45970726, 45540662, 44870677, 44270749, 43710858, 41631452,
+			41391580, 41051714, 40501821, 39731909, 36652173, 33992545, 33422650, 32912763, 31783130, 30933154,
+			29993162, 29123191, 28213204, 27343238, 26553287, 26513416, 26813550, 27983757, 28633853, 29403934,
+			30173998, 30764092, 30984221, 30594339, 29814381, 27194486, 26364534, 25664611, 24954700, 23314830,
+			23274858, 22464885, 20774968, 19904976, 19565105, 20285138, 20865040, 21614971, 22474926,
 			r=0,g=0,b=1,
 		},
 	},
@@ -785,6 +1068,7 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		npc=215805,
 		loot={
 			221223, -- Bog Beast Mantle
+			221250, -- Creeping Lasher Machete
 			221253, -- Cultivator's Plant Puncher
 			221264, -- Fungarian Mystic's Cluster
 			223005, -- String of Fungal Fruits
@@ -811,11 +1095,15 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		quest=82560,
 		npc=214757,
 		loot={
+			221246, -- Fierce Beast Staff
 			221247, -- Cavernous Critter Shooter
+			221251, -- Bestial Underground Cleaver
+			221265, -- Charm of the Underground Beast
 			223938, -- Marsh Hopper's Spaulders
 		},
 		vignette=6125,
 		--tameable=true, -- hopper
+		note="Objective of {questname:76588}",
 	},
 	[57304858] = {
 		label="Pride of Beledar",
@@ -827,6 +1115,7 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 			221246, -- Fierce Beast Staff
 			221247, -- Cavernous Critter Shooter
 			221251, -- Bestial Underground Cleaver
+			221265, -- Charm of the Underground Beast
 			223007, -- Lance of Beledar's Pride
 		},
 		vignette=6159,
@@ -838,6 +1127,8 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		quest=82561,
 		npc=207803,
 		loot={
+			223920, -- Slime Deflecting Stopper
+			223921, -- Ever-Oozing Signet
 			223933, -- Slime Goliath's Cap
 		},
 		vignette=6084,
@@ -852,6 +1143,7 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 			211968, -- Blueprint Bundle
 			221238, -- Pillar of Constructs
 			223928, -- Crop Cutter's Gauntlets
+			223935, -- Cabbage Harvester's Pantaloons
 		},
 		vignette=6120,
 		note="Objective of {questname:76588}",
@@ -861,7 +1153,10 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		criteria=69727,
 		quest=82564,
 		npc=207780, -- also 220492?
-		loot={},
+		loot={
+			221234, -- Tidal Pendant
+			223925, -- Blood Hungerer's Chestplate
+		},
 		vignette=6085,
 		note="Objective of {questname:76588}",
 	},
@@ -873,9 +1168,21 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		loot={
 			221240, -- Nerubian Stagshell Gouger
 			221252, -- Nerubian Slayer's Claymore
+			221263, -- Nerubian Venom-Tipped Dart
 			223932, -- Scarab's Carapace Cap
 		},
 		vignette=6124,
+		note="Objective of {questname:76588}",
+	},
+	[61403220] = {
+		label="Parasidious",
+		criteria=69725,
+		quest=82563,
+		npc=206977,
+		loot={
+			221250, -- Creeping Lasher Machete
+		},
+		vignette=6361,
 		note="Objective of {questname:76588}",
 	},
 	-- UNKNOWN LOCATION
@@ -886,13 +1193,6 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		quest=80486,
 		npc=220159,
 		vignette=6075,
-	},
-	[] = {
-		label="Parasidious",
-		criteria=69725,
-		quest=82563,
-		npc=206977,
-		vignette=6361,
 	},
 	--]]
 }, {
@@ -925,7 +1225,10 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 	criteria=69716,
 	quest=81763,
 	npc=207802,
-	loot={{223315, mount=2192}}, -- Beledar's Spawn
+	loot={
+		{223315, mount=2192,}, -- Beledar's Spawn
+		223006, -- Signet of Dark Horizons
+	},
 	requires=ns.conditions.MajorFaction(ns.FACTION_ARATHI, 23),
 	active=ns.conditions.QuestComplete(82998), -- attunement
 	note="Buy and use {item:224553:Beledar's Attunement} from {majorfaction:2570:Hallowfall Arathi} to access",
@@ -944,8 +1247,9 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		label="Deathtide",
 		npc=221753,
 		loot={
+			223920, -- Slime Deflecting Stopper
 			223921, -- Ever-Oozing Signet
-			225997, -- Earthen Adventurer's Spaulders (zone-wide?)
+			225997, -- Earthen Adventurer's Spaulders
 		},
 		vignette=6156,
 		active=ns.conditions.Item(220123), -- Ominous Offering
@@ -986,6 +1290,7 @@ ns.RegisterPoints(ns.HALLOWFALL, {
 		quest=nil, -- 76588 defender of the flame
 		npc=214905,
 		vignette=5984,
+		note="Objective of {questname:76588}",
 	},
 })
 
@@ -998,6 +1303,12 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69659,
 		quest=81702,
 		npc=221327,
+		loot={
+			221206, -- Reinforced Chitin Chestpiece
+			221240, -- Nerubian Stagshell Gouger
+			221252, -- Nerubian Slayer's Claymore
+			221263, -- Nerubian Venom-Tipped Dart
+		},
 		vignette=6134,
 		route={65201896, 65142033, 63122532, 62492877, 61882919},
 		note="Slowly wanders back and forth",
@@ -1007,6 +1318,10 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69660,
 		quest=81703,
 		npc=216034,
+		loot={
+			221231, -- Steam-Powered Wristwatch
+			221232, -- Polished Goblin Bling
+		},
 		vignette=6131,
 	},
 	[47204320] = {
@@ -1016,8 +1331,10 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		quest=81695,
 		npc=216031,
 		loot={
+			223389, -- Legplates of Dark Hunger
 			223390, -- Leggings of Dark Hunger
 			223391, -- Legguards of Dark Hunger
+			223392, -- Trousers of Dark Hunger
 		},
 		vignette=6129,
 	},
@@ -1026,6 +1343,12 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69663,
 		quest=81706,
 		npc=216044,
+		loot={
+			221217, -- Nerubian Bomber's Leggings
+			221240, -- Nerubian Stagshell Gouger
+			221252, -- Nerubian Slayer's Claymore
+			221263, -- Nerubian Venom-Tipped Dart
+		},
 		vignette=6138,
 		route={
 			68876480, 69006715, 67206730, 65596605, 63576530, 61636444, 61006640,
@@ -1053,7 +1376,9 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69655,
 		quest=81699,
 		npc=216041,
-		loot={223369}, -- Webspeaker's Spiritual Cloak
+		loot={
+			223369, -- Webspeaker's Spiritual Cloak
+		},
 		vignette=6135,
 	},
 	[70732146] = {
@@ -1061,6 +1386,10 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69661,
 		quest=81704,
 		npc=216042,
+		loot={
+			221212, -- Death Burrower Handguards
+			221237, -- Lamentable Vagrant's Lantern
+		},
 		vignette=6136,
 		note="Cave behind the waterfall",
 	},
@@ -1069,6 +1398,13 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69664,
 		quest=81707,
 		npc=216045,
+		loot={
+			221233, -- Deephunter's Bloody Hook
+			221234, -- Tidal Pendant
+			221243, -- Slippers of Delirium
+			221248, -- Deep Terror Carver
+			221255, -- Sharpened Scalepiercer
+		},
 		vignette=6139,
 	},
 	[69996920] = {
@@ -1076,8 +1412,30 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69662,
 		quest=81705,
 		npc=216043,
+		loot={
+			221227, -- Monstrous Fungal Cord
+			221250, -- Creeping Lasher Machete
+			221253, -- Cultivator's Plant Puncher
+			221264, -- Fungarian Mystic's Cluster
+			223005, -- String of Fungal Fruits
+		},
 		vignette=6137,
 	},
+	[44803980] = {
+		label="Khak'ik",
+		criteria=69653,
+		quest=81694,
+		npc=216032,
+		loot={
+			223378, -- Footguards of the Nerubian Twins
+			223406, -- Slippers of the Nerubian Twins
+			223407, -- Sabatons of the Nerubian Twins
+			223408, -- Treads of the Nerubian Twins
+		},
+		vignette=6130,
+		note="Patrols with {npc:221032:Rhak'ik}",
+	},
+	--[[ -- with Khak'ik:
 	[43763953] = {
 		label="Rhak'ik",
 		-- [44803880, 44803980, 45204440]
@@ -1087,21 +1445,15 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		vignette=6130, -- Stronghold Scouts
 		note="Patrols with {npc:216032:Khak'ik}",
 	},
-	--[[ -- with Rhak'ik:
-	[44803980] = {
-		label="Khak'ik",
-		-- [44803980, 45003780, 45403660]
-		criteria=69653,
-		quest=81694,
-		npc=216032,
-		vignette=6130,
-	},
 	--]]
 	[37944285] = {
 		label="Ahg'zagall",
 		criteria=69654,
 		quest=78905,
 		npc=214151,
+		loot={
+			223375, -- Clattering Chitin Necklace
+		},
 		vignette=5973,
 	},
 	[64600352] = {
@@ -1109,6 +1461,11 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69668,
 		quest=82037,
 		npc=216051,
+		loot={
+			221240, -- Nerubian Stagshell Gouger
+			221252, -- Nerubian Slayer's Claymore
+			223930, -- Monstrous Chain Pincers
+		},
 		vignette=6186,
 	},
 	[62940509] = {
@@ -1116,6 +1473,11 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69670,
 		quest=82078,
 		npc=216052, -- Skirmisher Sa'ztyk
+		loot={
+			223915, -- Nerubian Orator's Stiletto
+			223916, -- Nerubian Cutthroat's Reach
+			223939, -- Esteemed Nerubian's Mantle
+		},
 		vignette=6204,
 		note="Patrols the area",
 	},
@@ -1124,6 +1486,11 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		criteria=69669,
 		quest=82077,
 		npc=222624,
+		loot={
+			223915, -- Nerubian Orator's Stiletto
+			223916, -- Nerubian Cutthroat's Reach
+			223923, -- Gilded Cryptlord's Sabatons
+		},
 		vignette=6203,
 	},
 }, {
@@ -1138,6 +1505,11 @@ ns.RegisterPoints(2256, {
 		criteria=69667,
 		quest=82036,
 		npc=216050,
+		loot={
+			223915, -- Nerubian Orator's Stiletto
+			223916, -- Nerubian Cutthroat's Reach
+			223941, -- Nerubian Cultivator's Girdle
+		},
 		vignette=6185,
 	},
 	[61938973] = {
@@ -1145,6 +1517,10 @@ ns.RegisterPoints(2256, {
 		criteria=69666,
 		quest=82035,
 		npc=216049,
+		loot={
+			223006, -- Signet of Dark Horizons
+			223931, -- Black Blood Cowl
+		},
 		vignette=6184,
 	},
 	[67458318] = {
@@ -1152,6 +1528,12 @@ ns.RegisterPoints(2256, {
 		criteria=69665,
 		quest=82034,
 		npc=216048,
+		loot={
+			223915, -- Nerubian Orator's Stiletto
+			223916, -- Nerubian Cutthroat's Reach
+			223917, -- Nerubian Covert's Cloak
+			223950, -- Corruption Sifter's Treads
+		},
 		vignette=6183,
 	},
 }, {
@@ -1159,12 +1541,33 @@ ns.RegisterPoints(2256, {
 	levels=true,
 })
 
+ns.RegisterPoints(ns.AZJKAHET, {
+	[63409500] = {
+		label="The One Left",
+		quest=nil,
+		npc=216047,
+		loot={
+			221246, -- Fierce Beast Staff
+			221247, -- Cavernous Critter Shooter
+			221251, -- Bestial Underground Cleaver
+			221265, -- Charm of the Underground Beast
+			225998, -- Earthen Adventurer's Cloak
+		},
+		path=65269328,
+	},
+}, {levels=true})
+
 ns.RegisterPoints(ns.CITYOFTHREADS, {
 	[36404160] = {
 		label="The Groundskeeper",
 		criteria=69657,
 		quest=81634,
 		npc=216038,
+		loot={
+			221214, -- Chitin Chain Headpiece
+			221240, -- Nerubian Stagshell Gouger
+			221263, -- Nerubian Venom-Tipped Dart
+		},
 		vignette=6111,
 	},
 	[67165840] = {
@@ -1172,6 +1575,11 @@ ns.RegisterPoints(ns.CITYOFTHREADS, {
 		criteria=69658,
 		quest=81701,
 		npc=216039,
+		loot={
+			221221, -- Venomous Lurker's Greathelm
+			221239, -- Spider Blasting Blunderbuss
+			221506, -- Arachnid's Web-Sown Guise
+		},
 		vignette=6133,
 	},
 }, {
@@ -1187,6 +1595,9 @@ ns.RegisterPoints(ns.AZJKAHET, {
 		loot={
 			{225952, quest=83627}, -- Vial of Tka'ktath's Bloo
 			-- {224150, mount=2222}, -- Siesbarg
+			221240, -- Nerubian Stagshell Gouger
+			221252, -- Nerubian Slayer's Claymore
+			221263, -- Nerubian Venom-Tipped Dart
 		},
 		vignette=6265,
 		note="Begins a quest chain leading to the mount {item:224150:Siesbarg}",
