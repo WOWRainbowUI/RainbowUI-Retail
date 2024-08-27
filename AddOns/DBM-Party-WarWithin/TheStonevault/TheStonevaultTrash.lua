@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TheStonevaultTrash", "DBM-Party-WarWithin", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240820072838")
+mod:SetRevision("20240824045847")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -145,7 +145,6 @@ function mod:SPELL_CAST_START(args)
 			specWarnShieldStampede:Play("shockwave")
 		end
 	elseif spellId == 429427 then
-		timerEarthBurstTotemCD:Start(nil, args.sourceGUID)
 		if self:AntiSpam(3, 6) then
 			warnEarthBurstTotem:Show()
 			warnEarthBurstTotem:Play("crowdcontrol")
@@ -191,7 +190,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 	elseif spellId == 449130 then
 		timerLavaCannonCD:Start(9.1, args.sourceGUID)
 	elseif spellId == 448852 then
-		timerDefilingOutburstCD:Start(nil, args.sourceGUID)
+		timerDefilingOutburstCD:Start(14.2, args.sourceGUID)
 	end
 end
 
@@ -207,7 +206,7 @@ function mod:SPELL_INTERRUPT(args)
 	elseif spellId == 429109 then
 		timerRestoringMetalsCD:Start(16.3, args.sourceGUID)
 	elseif spellId == 448852 then
-		timerDefilingOutburstCD:Start(nil, args.sourceGUID)
+		timerDefilingOutburstCD:Start(14.2, args.sourceGUID)
 	end
 end
 
