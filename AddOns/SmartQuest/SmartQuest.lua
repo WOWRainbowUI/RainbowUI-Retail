@@ -85,7 +85,7 @@ function SmartQuest_ResetDefaults()
 	SmartQuest.Setting.PartySound = SmartQuest.DefaultSetting.PartySound;
 
 	SmartQuest.Setting.MySoundObjective = SmartQuest.DefaultSetting.MySound;
-	SmartQuest.Setting.MySoundItem = SmartQuest.DefaultSetting.MySound;
+	SmartQuest.Setting.MySoundItem = false -- SmartQuest.DefaultSetting.MySound; -- 更改預設值
 	SmartQuest.Setting.MySoundDone = SmartQuest.DefaultSetting.MySound;
 	SmartQuest.Setting.MySoundFailed = SmartQuest.DefaultSetting.MySound;
 	SmartQuest.Setting.PartySoundObjective = SmartQuest.DefaultSetting.PartySound;
