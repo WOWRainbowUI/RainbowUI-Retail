@@ -187,9 +187,9 @@ D["AppearanceTooltip"] = {
 	},
 };
 D["AstralKeys"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "BOSSRAID" },
-	title = "M+ 鑰石名單",
+	title = "(暫時停用) M+ 鑰石名單",
 	desc = "列出你的每個角色、公會成員和好友的鑰石，也會顯示保底打了沒，一起揪揪 M+！！`",
 	modifier = "彩虹ui",
 	img = true,
