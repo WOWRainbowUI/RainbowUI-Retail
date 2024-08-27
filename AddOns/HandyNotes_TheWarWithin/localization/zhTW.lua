@@ -10,6 +10,9 @@ L['skyriding_glyph'] = '天空騎術雕紋'
 L['options_icons_skyriding_glyph'] = '天空騎術雕紋'
 L['options_icons_skyriding_glyph_desc'] = '顯示全部天空騎術雕紋的位置。'
 
+L['options_icons_profession_treasures'] = '專業寶藏'
+L['options_icons_profession_treasures_desc'] = '顯示給予專業知識的寶藏位置。'
+
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
 L['options_icons_khaz_algar_lore_hunter_desc'] = '顯示 {achievement:40762} 成就中劇情物品的位置。'
 
@@ -17,7 +20,7 @@ L['options_icons_khaz_algar_lore_hunter_desc'] = '顯示 {achievement:40762} 成
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
 
-L['alunira_note'] = '收集10個 {item:224025} 並組合成 {item:224026} 以移除她的 {spell:451570}。'
+L['alunira_note'] = '從 {location:多恩島} 的怪物收集10個 {item:224025} 並組合成 {item:224026} 以移除她的 {spell:451570}。'
 L['violet_hold_prisoner'] = '紫羅蘭監獄囚犯'
 
 L['elemental_geode_label'] = '元素晶簇'
@@ -27,11 +30,12 @@ L['mushroom_cap_note'] = '在附近的森林中收集一個 {object:藪根傘菇
 L['mysterious_orb_note'] = '將 {object:元素珍珠} 帶回給 {npc:222847}。'
 L['thaks_treasure_note'] = '與 {npc:223227} 交談並跟隨他。'
 L['trees_treasure_note'] = '與 {npc:222940} 交談，獲得 {item:224185}。引導6個 {npc:224548}（{dot:Green}）繞過 {location:多恩島} 返回 {npc:222940}。將所有螃蟹引導回來後，返回洞穴中的 {npc:222940} 並與她交談。'
-L['turtles_thanks_1_note'] = '交出5個 {item:220143}（可從 {object:平靜的浮面漣漪} 魚點釣魚或從拍賣行購買）。{note:離開該區域並立即返回交出下一條魚。}'
-L['turtles_thanks_2_note'] = '交出1個 {item:222533}（可從 {object:浮光之池}，{object:潰爛的腐臭之池}，{object:Infused Ichor Spill} 魚點釣魚或從拍賣行購買）。'
+L['turtles_thanks_1_note'] = '交出5個 {item:220143}（可從 {object:平靜的浮面漣漪} 漁點釣魚或從拍賣行購買）。{note:離開該區域並立即返回交出下一條魚。}'
+L['turtles_thanks_2_note'] = '交出1個 {item:222533}（可從 {object:浮光之池}，{object:潰爛的腐臭之池}，{object:飛濺的注能膿液} 漁點釣魚或從拍賣行購買）。'
 L['turtles_thanks_3_note'] = '在 {location:多恩諾加} 與 {npc:223338} 會面並與她交談以發現寶藏。'
+L['web_wrapped_axe_note'] = '在一樓。\n\n{note:有1-2小時的刷新時間。}'
 
-L['cendvin_note'] = '在{location:Cinderwold} 從精英怪上農900x {item:225557}，從{npc:226205}購買{item:223153}坐騎。'
+L['cendvin_note'] = '在 {location:燼燧荒原} 從精英怪物那裡獲得900個 {item:225557} 之後從 {npc:226205} 購買 {item:223153} 坐騎。'
 
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = '顯示 {achievement:40606} 成就中的位置。'
@@ -168,11 +172,8 @@ L['dander_location'] = '在外面。'
 L['gobbo_location'] = '在建築內的床上。'
 
 L['beledars_spawn_note'] = '此稀有會以固定的時間間隔在多個位置之一出現。\n\n下次出現：\n{note:%s（%s）}'
-L['croakit_note'] = [[要攻擊 {npc:214757}，必須先從附近的水中釣出10個 {item:211474}。
-
-收集完所有魚後，去找 {npc:214757} 並把它們扔給他。]]
-L['deathtide_note'] = [[要召喚他，必須在 {object:不祥祭壇} 上使用 {item:220123}。
-需要結合 {item:220122} {dot:Blue} 和 {item:220124} {dot:Green} 來獲得 {item:220123}。]]
+L['croakit_note'] = '從附近的 {object:影盲石斑魚群} 釣起10個 {item:211474}（或者從拍賣行購買）然後把它們扔給它，使稀有可被攻擊。'
+L['deathtide_note'] = '收集一個 {item:220122} {dot:Red} 和一個 {item:220124} {dot:Green}。將它們組合成 {item:220123}，在 {object:不祥祭壇} 召喚稀有。'
 L['murkshade_note'] = '與 {npc:218455} 互動。'
 
 L['options_icons_mereldar_menace'] = '{achievement:40151}'
