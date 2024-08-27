@@ -1,7 +1,8 @@
 # Baganator
 
-## [451](https://github.com/Baganator/Baganator/tree/451) (2024-08-26)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/450...451) 
+## [452](https://github.com/Baganator/Baganator/tree/452) (2024-08-27)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/451...452) 
 
-- Fix help dialog for search terms on classic  
-- Fix spelling of atlas for engineering bags to match Blizzard's misspelling  
+- Categories: Fix picking up an item causing an error  
+- Categories: Fix sorting causing recent items to include not-new items  
+- Categories: Fix dropped clicks when right-click moving identical items quickly  
