@@ -1158,7 +1158,7 @@ function MenuModule:GetDefaultOptions()
         mainMenuSpacing = 2,
         iconSpacing = 2,
         modifierTooltip = 1,
-        showGMOTD = true,
+        showGMOTD = false,
         hideSocialText = false,
         osSocialText = 12,
         menu = true,
