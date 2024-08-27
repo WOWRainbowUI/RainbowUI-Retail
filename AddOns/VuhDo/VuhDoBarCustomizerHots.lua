@@ -1322,7 +1322,7 @@ local function VUHDO_updateSwiftmendCooldown()
 	if not sSwiftmendCooldown[0] or not sSwiftmendCooldown[1] then
 		tStart, tDuration = GetSpellCooldown(VUHDO_SPELL_ID.SWIFTMEND);
 
-		if tStart > 0 and tDuration > 1.5 then
+		if (tStart == nil and tDuration == nil) or (tStart > 0 and tDuration > 1.5) then
 			sSwiftmendCooldown[0], sSwiftmendCooldown[1] = tStart, tDuration;
 
 			sIsPlayerCanCastSwiftmend = false;

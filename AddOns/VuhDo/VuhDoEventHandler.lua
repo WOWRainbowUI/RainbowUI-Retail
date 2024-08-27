@@ -1182,7 +1182,7 @@ end
 
 --
 local tIsInRange, tIsCharmed;
-local tIsRangeKnown, tRangeSpell;
+local tIsRangeKnown, tRangeSpell, tUnitReaction;
 local function VUHDO_updateAllRange()
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
 		tInfo["baseRange"] = "player" == tUnit or "pet" == tUnit or UnitInRange(tUnit);
@@ -1202,15 +1202,17 @@ local function VUHDO_updateAllRange()
 			-- Check if unit is in range
 			if UnitCanAttack("player", tUnit) then
 				tIsRangeKnown = sIsHarmfulRangeKnown;
-				tRangeSpell = sRangeSpell["HARMFUL"];
+				tUnitReaction = "HARMFUL";
 			else
 				tIsRangeKnown = sIsHelpfulRangeKnown;
-				tRangeSpell = sRangeSpell["HELPFUL"];
+				tUnitReaction = "HELPFUL";
 			end
+
+			tRangeSpell = sRangeSpell[tUnitReaction];
 
 			if tIsRangeKnown then
 				tIsInRange = tInfo["connected"] and 
-					((tRangeSpell and 1 == IsSpellInRange(tRangeSpell, tUnit)) or 
+					((tRangeSpell and 1 == IsSpellInRange(tRangeSpell, tUnit, tUnitReaction)) or 
 						((tInfo["dead"] or tInfo["charmed"]) and tInfo["baseRange"]) or "player" == tUnit or 
 						(VUHDO_isSpecialUnit(tUnit) and VUHDO_checkInteractDistance(tUnit, 1)));
 			else
