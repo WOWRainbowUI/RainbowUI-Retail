@@ -1,9 +1,6 @@
 # Edit Mode Expanded
 
-## [11.0-011](https://github.com/teelolws/EditModeExpanded/tree/11.0-011) (2024-08-26)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-010...11.0-011) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.0-012](https://github.com/teelolws/EditModeExpanded/tree/11.0-012) (2024-08-27)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-011...11.0-012) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Add combat checks to mana bar hide  
-    https://github.com/teelolws/EditModeExpanded/issues/141  
-- Update GameMenu.lua  
-- Delay Game Menu init until its actually made visible  
+- Fix issue with end-of-combat check logic  
