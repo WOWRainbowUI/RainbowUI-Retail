@@ -1507,7 +1507,7 @@ local function CreateScrollAreaMoverFrame(scrollArea)
 		frame:SetScript("OnMouseUp", MoverFrameOnMouseUp)
 
 		local fontString = frame:CreateFontString(nil, "OVERLAY")
-		local fontPath = "Fonts\\ARIALN.TTF"
+		local fontPath = STANDARD_TEXT_FONT
 		if (GetLocale() == "koKR") then fontPath = "Fonts\\2002.TTF" end
 		fontString:SetFont(fontPath, 12)
 		fontString:SetPoint("CENTER")
