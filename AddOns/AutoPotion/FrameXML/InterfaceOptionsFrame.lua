@@ -215,7 +215,7 @@ function panel:InitializeOptions()
 	local raidStoneButton = CreateFrame("CheckButton", nil, self.panel, "InterfaceOptionsCheckButtonTemplate")
 	raidStoneButton:SetPoint("TOPLEFT", lastStaticElement, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	raidStoneButton.Text:SetText("Low Priority Healthstones(Instance only)")
+	raidStoneButton.Text:SetText("治療石的優先順序較低 (只在副本)")
 	raidStoneButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.raidStone = raidStoneButton:GetChecked()
 		self:updatePrio()
@@ -224,7 +224,7 @@ function panel:InitializeOptions()
 		---@diagnostic disable-next-line: param-type-mismatch
 		GameTooltip:SetOwner(raidStoneButton, "ANCHOR_TOPRIGHT")
 		GameTooltip:SetText(
-			"This option will prioritize health potions over a healthstone while in a Instance")
+			"在副本中時治療藥水會比治療石優先使用")
 		GameTooltip:Show()
 	end)
 	raidStoneButton:HookScript("OnLeave", function(_, btn, down)
