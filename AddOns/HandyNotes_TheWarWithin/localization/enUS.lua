@@ -10,6 +10,9 @@ L['skyriding_glyph'] = 'Skyriding Glyph'
 L['options_icons_skyriding_glyph'] = 'Skyriding Glyphs'
 L['options_icons_skyriding_glyph_desc'] = 'Display the location of all skyriding glyphs.'
 
+L['options_icons_profession_treasures'] = 'Profession Treasures'
+L['options_icons_profession_treasures_desc'] = 'Display locations of treasures which grant profession knowledge.'
+
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
 L['options_icons_khaz_algar_lore_hunter_desc'] = 'Display lore object locations for {achievement:40762} achievement.'
 
@@ -17,7 +20,7 @@ L['options_icons_khaz_algar_lore_hunter_desc'] = 'Display lore object locations 
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
 
-L['alunira_note'] = 'Collect 10x {item:224025} and combine them into a {item:224026} to remove her {spell:451570}.'
+L['alunira_note'] = 'Collect 10x {item:224025} from mobs on the {location:Isle of Dorn} and combine them into a {item:224026} to remove her {spell:451570}.'
 L['violet_hold_prisoner'] = 'Violet Hold Prisoner'
 
 L['elemental_geode_label'] = 'Elemental Geode'
@@ -30,8 +33,9 @@ L['trees_treasure_note'] = 'Speak with {npc:222940} to get a {item:224185}. Guid
 L['turtles_thanks_1_note'] = 'Hand in 5x {item:220143} (can be fished from {object:Calm Surfacing Ripple} pools or bought from the auction house). {note:Leave the area and return immediately to hand in the next fish.}'
 L['turtles_thanks_2_note'] = 'Hand in 1x {item:222533} (can be fished from {object:Glimmerpool}, {object:Festering Rotpool}, {object:Infused Ichor Spill} pool or bought from the auction house).'
 L['turtles_thanks_3_note'] = 'Meet the {npc:223338} in {location:Dornogal} and speak with her to reveal the treasure.'
+L['web_wrapped_axe_note'] = 'On the first floor.\n\n{note:Have 1-2 Hours spawn time.}'
 
-L['cendvin_note'] = 'Farm 900x {item:225557} in {location:Cinderwold} from elite mobs to buy the {item:223153} mount from {npc:226205}.'
+L['cendvin_note'] = 'Farm 900x {item:225557} in {location:Cinderwold} from elite mobs to purchase the {item:223153} mount from {npc:226205}.'
 
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = 'Display location for {achievement:40606} achievement.'
@@ -168,11 +172,8 @@ L['dander_location'] = 'Outside.'
 L['gobbo_location'] = 'Inside the building on the bed.'
 
 L['beledars_spawn_note'] = 'This rare spawns at one of several locations at a fixed interval.\n\nNext spawn in:\n{note:%s (%s)}'
-L['croakit_note'] = [[To attack {npc:214757} you must first fish 10x {item:211474} from the water nearby.
-
-Once you have all the fish go to {npc:214757} and toss them to him.]] -- from wowhead, needs to be confirmed.
-L['deathtide_note'] = [[To summon him you must use {item:220123} on the {object:Ominous Altar}.
-You need to combine {item:220122} {dot:Blue} and {item:220124} {dot:Green} to get {item:220123}.]]
+L['croakit_note'] = 'Fish up 10x {item:211474} from a nearby {object:Shadowblind Grouper School} (or purchase from the auction house) and throw them to him to make the rare attackable.'
+L['deathtide_note'] = 'Collect an {item:220122} {dot:Red} and a {item:220124} {dot:Green}. Combine them to {item:220123} to summon the rare at the {object:Ominous Altar}.'
 L['murkshade_note'] = 'Interact with the {npc:218455}.'
 
 L['options_icons_mereldar_menace'] = '{achievement:40151}'
@@ -188,7 +189,7 @@ L['options_icons_beacon_of_hope_desc'] = 'Display lesser keyflame locations for 
 
 L['beacon_of_hope_note'] = 'Contribute {item:206350} to light lesser keyflames and complete the following quests.'
 
-L['parasidious_note'] = 'To spawn this rare you\'ll need to buy {item:206670} from {npc:206533} (activate the {object:Lesser Keyflame} to make him appear) then go to the {location:Duskrise Acreage} and pull the {npc:206870}. As you pull them, a vine will shoot out of you to the {npc:206978} and it will grow/change until the rare eventually spawns.' -- from wowhead, needs to be reviewed
+L['parasidious_note'] = 'Purchase 1x {item:206670} from {npc:206533} (light up the {object:Lesser Keyflame} to spawn him) then go to the {location:Duskrise Acreage} and pull {npc:206870} until the rare spawns. {note: Only spawns if the {npc:206978} is in this location}.'
 
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
@@ -209,7 +210,7 @@ L['generals_scouting_shadecaster_location'] = 'PH'
 L['options_icons_bookworm'] = '{achievement:40629}'
 L['options_icons_bookworm_desc'] = 'Display book locations for the {achievement:40629} achievement.'
 
-L['nerubian_potion_note'] = 'Buy {item:225784} ({note:buff lasts 10 minutes}) from {npc:218192} for 500x {currency:3056}.'
+L['nerubian_potion_note'] = 'Purchase a {item:225784} ({note:buff lasts 10 minutes}) from {npc:218192} for 500x {currency:3056}.'
 L['bookworm_note'] = '{note:You can also complete the achievement {achievement:40542} with the {item:225784}.}'
 L['bookworm_1_location'] = 'At the entrance of the small cave.'
 

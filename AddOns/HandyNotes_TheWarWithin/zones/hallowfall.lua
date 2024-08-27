@@ -132,9 +132,13 @@ map.nodes[44744241] = Rare({
         Transmog({item = 225997}) -- Earthen Adventurer's Spaulders
     },
     pois = {
-        POI({48001668, color = 'Green'}), -- Jar of Mucus
+        POI({points = {48001668, 48805020}, color = 'Green'}), -- Jar of Mucus
         POI({
-            28925120, 34185782, 34365357, 43451413, 50094966, 53771913, 55142344
+            points = {
+                28925120, 34185782, 34365357, 43451413, 50094966, 53771913,
+                55142344, 52385016
+            },
+            color = 'Red'
         }) -- Offering of Pure Water
     }
 }) -- Deathtide
@@ -296,15 +300,17 @@ map.nodes[61981331] = Rare({ -- patrols
     }
 }) -- Murkspike
 
-map.nodes[61803220] = Rare({
+map.nodes[61613277] = Rare({
     id = 206977,
-    quest = 82563, -- review -- need rep quest id if triggered
-    note = L['parasidious_note'], -- review, text from wowhead comment
+    quest = 82563,
+    note = L['parasidious_note'],
     rewards = {
         Achievement({id = 40851, criteria = 69725}),
-        Transmog({item = 223940, type = L['mail']}), -- Deranged Fungarian's Epaulets
-        Transmog({item = 221520, type = L['1h_sword']}) -- Creeping Lasher Machete
-    }
+        Reputation({id = 2570, gain = 150, quest = 84057}),
+        Transmog({item = 223940, type = L['mail']}), -- Deranged Fungarian's Epaulets -- review later
+        Transmog({item = 221250, type = L['1h_sword']}) -- Creeping Lasher Machete
+    },
+    pois = {POI({64463107})} -- Chef Dinaire
 }) -- Parasidious
 
 map.nodes[57304857] = Rare({
@@ -321,8 +327,8 @@ map.nodes[57304857] = Rare({
     }
 }) -- Pride of Beledar
 
-map.nodes[59702107] = Rare({
-    id = 207826, -- Multiple spawn points 61933187
+map.nodes[61943197] = Rare({
+    id = 207826,
     quest = 82566, --- 84058
     rewards = {
         Achievement({id = 40851, criteria = 69726}),
@@ -352,11 +358,11 @@ map.nodes[73405259] = Rare({
         Reputation({id = 2570, gain = 150, quest = 84062}),
         Transmog({item = 221223, type = L['mail']}), -- Bog Beast Mantle
         Transmog({item = 221253, type = L['fist']}), -- Cultivator's Plant Puncher
-        Transmog({item = 221520, type = L['1h_sword']}) -- Creeping Lasher Machete
+        Transmog({item = 221250, type = L['1h_sword']}) -- Creeping Lasher Machete
     }
 }) -- Sloshmuck
 
-map.nodes[42703134] = Rare({
+map.nodes[43602994] = Rare({
     id = 221690,
     quest = 81849, -- 84066
     rewards = {
@@ -441,7 +447,8 @@ map.nodes[40035112] = Treasure({
     note = L['arathi_loremaster_note'],
     rewards = {
         Achievement({id = 40848, criteria = 69695}), --
-        Reputation({id = 2570, gain = 150, quest = 83298}), Toy({item = 225659}) -- Arathi Book Collection
+        Reputation({id = 2570, gain = 150, quest = 83298}), --
+        Toy({item = 225659}) -- Arathi Book Collection
     },
     pois = {
         POI({48756471}), Path({Circle({origin = 48756471, radius = 2})}), -- Palawltar's Codez of Dimensional Structure -- q83309
@@ -489,7 +496,8 @@ map.nodes[58382715] = Treasure({
     note = L['illuminated_footlocker_note'],
     rewards = {
         Achievement({id = 40848, criteria = 69701}), --
-        Reputation({id = 2570, gain = 150, quest = 81468}), Toy({item = 224552}) -- Cave Spelunker's Torch
+        Reputation({id = 2570, gain = 150, quest = 81468}), --
+        Toy({item = 224552}) -- Cave Spelunker's Torch
     },
     pois = {POI({57642740})} -- Entrance
 }) -- Illuminated Footlocker
@@ -500,7 +508,8 @@ local IllusiveKobyssLure = Class('IllusiveKobyssLure', Treasure, {
     fgroup = 'illusive_kobyss_lure',
     rewards = {
         Achievement({id = 40848, criteria = 69696}), --
-        Reputation({id = 2570, gain = 150, quest = 83299}), Toy({item = 225641}) -- Illusive Kobyss Lure
+        Reputation({id = 2570, gain = 150, quest = 83299}), --
+        Toy({item = 225641}) -- Illusive Kobyss Lure
     }
 }) -- Illusive Kobyss Lure
 
@@ -594,7 +603,8 @@ map.nodes[45944513] = Treasure({
     note = L['sky_captains_sunken_cache_note'],
     rewards = {
         Achievement({id = 40848, criteria = 69700}),
-        Reputation({id = 2570, gain = 150, quest = 82005}), Toy({item = 224554})
+        Reputation({id = 2570, gain = 150, quest = 82005}), --
+        Toy({item = 224554}) -- Silver Linin' Scepter
     },
     pois = {
         Path({

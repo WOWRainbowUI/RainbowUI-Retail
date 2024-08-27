@@ -10,6 +10,9 @@ L['skyriding_glyph'] = 'Glifo de Surcacielos'
 L['options_icons_skyriding_glyph'] = 'Glifos de Surcacielos'
 L['options_icons_skyriding_glyph_desc'] = 'Muestra dónde están los glifos de surcacielos.'
 
+L['options_icons_profession_treasures'] = 'Tesoros de Profesión'
+L['options_icons_profession_treasures_desc'] = 'Muestra dónde están los tesoros que garantizan conocimiento de profesión.'
+
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
 L['options_icons_khaz_algar_lore_hunter_desc'] = 'Muestra dónde están los objetos históricos del logro {achievement:40762}.'
 
@@ -30,6 +33,7 @@ L['trees_treasure_note'] = 'Habla con {npc:222940} para conseguir {item:224185}.
 L['turtles_thanks_1_note'] = 'Entrega 5x {item:220143} (puede ser pescado de bancos {object:Onda calmada} o comprados en la casa de subastas). {note:Deja la zona y vuelve inmediatamente para entregar el siguiente pez.}'
 L['turtles_thanks_2_note'] = 'Entrega 1x {item:222533} (puede ser pescado de bancos {object:Lagoluz}, {object:Charco de Putrefacción Purulenta}, {object:Vertido de Ícor Imbuido} o comprados en la casa de subastas).'
 L['turtles_thanks_3_note'] = 'Alimenta a {npc:223338} en {location:Dornogal} y habla con ella para revelar el tesoro.'
+L['web_wrapped_axe_note'] = nil
 
 L['cendvin_note'] = 'Consigue 900x {item:225557} en {location:Foldeceniza} de los enemigos élite para comprar la montura {item:223153} a {npc:226205}.'
 
@@ -172,7 +176,7 @@ L['croakit_note'] = [[Para atacar a {npc:214757} primero tienes que pescar 10x {
 
 Una vez los tengas todos ve a {npc:214757} y échaselos.]]
 L['deathtide_note'] = [[Para invocarlo tienes que usar una {item:220123} en el {object:Altar Agorero}.
-Necesitarás combinar {item:220122} {dot:Blue} y {item:220124} {dot:Green} para conseguir la {item:220123}.]]
+Necesitarás combinar {item:220122} {dot:Red} y {item:220124} {dot:Green} para conseguir la {item:220123}.]]
 L['murkshade_note'] = 'Interactúa con {npc:218455}.'
 
 L['options_icons_mereldar_menace'] = '{achievement:40151}'

@@ -10,6 +10,9 @@ L['skyriding_glyph'] = '天空騎術雕紋'
 L['options_icons_skyriding_glyph'] = '天空騎術雕紋'
 L['options_icons_skyriding_glyph_desc'] = '顯示所有天空騎術雕紋的位置.'
 
+L['options_icons_profession_treasures'] = '專業技能寶藏'
+L['options_icons_profession_treasures_desc'] = '顯示會給予專業技能知識的寶藏位置.'
+
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
 L['options_icons_khaz_algar_lore_hunter_desc'] = '顯示成就 {achievement:40762} 所需的知識位置.'
 
@@ -30,6 +33,7 @@ L['trees_treasure_note'] = '和 {npc:222940} 說話來取得 {item:224185}. 引�
 L['turtles_thanks_1_note'] = nil
 L['turtles_thanks_2_note'] = nil
 L['turtles_thanks_3_note'] = nil
+L['web_wrapped_axe_note'] = nil
 
 L['cendvin_note'] = nil
 

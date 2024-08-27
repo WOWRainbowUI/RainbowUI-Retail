@@ -11,6 +11,9 @@ L['skyriding_glyph'] = nil
 L['options_icons_skyriding_glyph'] = nil
 L['options_icons_skyriding_glyph_desc'] = nil
 
+L['options_icons_profession_treasures'] = 'Сокровища Профессии'
+L['options_icons_profession_treasures_desc'] = 'Отображение местонахождения сокровищ, дающих знания для профессий.'
+
 L['options_icons_khaz_algar_lore_hunter'] = nil
 L['options_icons_khaz_algar_lore_hunter_desc'] = nil
 
@@ -31,6 +34,7 @@ L['trees_treasure_note'] = nil
 L['turtles_thanks_1_note'] = nil
 L['turtles_thanks_2_note'] = nil
 L['turtles_thanks_3_note'] = nil
+L['web_wrapped_axe_note'] = nil
 
 L['cendvin_note'] = nil
 
