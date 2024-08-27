@@ -1357,9 +1357,9 @@ D["JsFilter"] = {
 	desc = "在預組隊伍視窗上方新增過濾方式，可以篩選是否要看到簡體中文和英文的隊伍。``|cffFF2D2D特別注意：切換過濾方式後，需要按一下重新搜尋按鈕，隊伍列表才會更新。|r`",
 };
 D["KeyMaster"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "BOSSRAID" },
-	title = "M+ 鑰石大師",
+	title = "(暫時停用) M+ 鑰石大師",
 	desc = "顯示你和隊友的 M+ 詳細資訊，有非常清楚漂亮的介面。`",
     {
         text = "打開主視窗",
