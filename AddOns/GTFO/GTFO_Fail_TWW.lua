@@ -193,6 +193,67 @@ GTFO.SpellID["455343"] = {
 GTFO.SpellID["446535"] = {
   --desc = "Goring Charge (Warphorn)";
   sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["449368"] = {
+  --desc = "Clear the Deck! (Wanderer Ida)";
+  sound = 3;
+};
+
+GTFO.SpellID["449388"] = {
+  --desc = "Cast the Nets! (Wanderer Ida)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["448173"] = {
+  --desc = "Strangling Seaweed (Enormous Kelp-Snaggler)";
+  sound = 3;
+};
+
+GTFO.SpellID["397095"] = {
+  --desc = "Kelp's Clutches (Seaborne Colossus)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["435409"] = {
+  --desc = "Mineshroom Detonation (Explosive Mineshroom)";
+  sound = 3;
+};
+
+GTFO.SpellID["435310"] = {
+  --desc = "Vine Snare (Murmuring Trapcap)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["446325"] = {
+  --desc = "Feather Storm (Infected Peafowl)";
+  sound = 3;
+};
+
+GTFO.SpellID["435453"] = {
+  --desc = "Mycopsychosis (Frightfilled Mineshroom)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["451284"] = {
+  --desc = "Rotting Charge (Rotbark the Unfelled)";
+  sound = 3;
+};
+
+GTFO.SpellID["456940"] = {
+  --desc = "Sacred Wave (Manifested Protocol)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["446006"] = {
+  --desc = "Burrow (Deeps Larva)";
+  sound = 3;
 };
 
 
@@ -258,8 +319,13 @@ GTFO.SpellID["432119"] = {
   --desc = "Faded (Ki'katal the Harvester)";
   applicationOnly = true;
   sound = 3;
-  test = true; -- Verification
 };
+
+GTFO.SpellID["453767"] = {
+  --desc = "Aerial Defense Orbs (Colossal Titan Construct)";
+  sound = 3;
+};
+
 
 --- **********************
 --- * Cinderbrew Meadery *
@@ -402,15 +468,57 @@ GTFO.SpellID["422274"] = {
   sound = 3;
 };
 
+GTFO.SpellID["422125"] = {
+  --desc = "Reckless Charge (Ol' Waxbeard)";
+  sound = 3;
+};
+
 GTFO.SpellID["424821"] = {
   --desc = "High Speed Collision (Ol' Waxbeard - Creaky Mine Cart)";
   sound = 3;
 };
 
+GTFO.SpellID["426779"] = {
+  --desc = "Explosive Flame (Blazing Fiend)";
+  sound = 3;
+};
+
+GTFO.SpellID["426883"] = {
+  --desc = "Bonk! (Kobold Taskworker)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["443969"] = {
+  --desc = "Enkindling Inferno (Blazikon)";
+  sound = 3;
+  test = true; -- Verification, make sure this doesn't go off when standing in safe areas
+};
+
 GTFO.SpellID["428650"] = {
   --desc = "Burning Backlash (Wandering Candle)";
   sound = 3;
-  test = true; -- Verification
+};
+
+GTFO.SpellID["440652"] = {
+  --desc = "Surging Wax (Wandering Candle)";
+  sound = 3;
+};
+
+GTFO.SpellID["421282"] = {
+  --desc = "Darkflame Pickaxe (The Candle King)";
+  sound = 3;
+};
+
+GTFO.SpellID["421146"] = {
+  --desc = "Throw Darkflame (The Candle King)";
+  soundFunction = function() -- Warn only if you get hit more than once 
+	if (GTFO_FindEvent("DarkflameCandleKing")) then
+		return 3;
+	end
+	GTFO_AddEvent("DarkflameCandleKing", 3);
+	return 0;
+  end
 };
 
 GTFO.SpellID["422393"] = {
@@ -425,7 +533,6 @@ GTFO.SpellID["427011"] = {
 	GTFO_AddEvent("Shadowblast", 9);
 	return 0;
   end;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["427011"] = {
@@ -433,13 +540,11 @@ GTFO.SpellID["427011"] = {
   negatingDebuffSpellID = 427015; -- Shadowblast
   ignoreEvent = "Shadowblast";
   sound = 4;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["427100"] = {
   --desc = "Umbral Slash (The Darkness)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["422414"] = {
@@ -455,19 +560,11 @@ GTFO.SpellID["453461"] = {
   --desc = "Caltrops (Fervent Sharpshooter)";
   applicationOnly = true;
   sound = 3;
-  test = true; -- Verification
-};
-
-GTFO.SpellID["448492"] = {
-  --desc = "Thunderclap (Guard Captain Suleyman)";
-  sound = 3;
-  test = true; -- Avoidable?
 };
 
 GTFO.SpellID["427472"] = {
   --desc = "Flamestrike (Fanatical Mage - Impact)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["424621"] = {
@@ -491,19 +588,16 @@ GTFO.SpellID["424420"] = {
 GTFO.SpellID["424460"] = {
   --desc = "Ember Storm (Taener Duelmal)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["423076"] = {
   --desc = "Hammer of Purity (Baron Braunpyke - Impact)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["423121"] = {
   --desc = "Hammer of Purity (Baron Braunpyke - Flying Hammer)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["446657"] = {
@@ -582,6 +676,12 @@ GTFO.SpellID["434441"] = {
 -- TODO: Thunderbolt (Kyrioss) - Mythic
 -- TODO: Void Chunks (Voidstone Monstrosity) - Mythic, Avoidable?
 
+GTFO.SpellID["420679"] = {
+  --desc = "Tornado Winds";
+  applicationOnly = true;
+  sound = 3;
+};
+
 GTFO.SpellID["444411"] = {
   --desc = "Stormheart (Kyrioss)";
   sound = 3;
@@ -603,9 +703,16 @@ GTFO.SpellID["434950"] = {
 };
 
 GTFO.SpellID["433078"] = {
-  --desc = "Implosion (Void Cursed Crusher)";
+  -- Hidden aura, DBM detects this via SPELL_CAST_START 423979 on target, but only seems to cast on the tank
+  --desc = "Implosion (Void Cursed Crusher - Initial circle)";
+  sound = 4;
+  tankSound = 0;
+  test = true; -- Not sure why this isn't working
+};
+
+GTFO.SpellID["423981"] = {
+  --desc = "Implosion (Void Cursed Crusher - Post-pull explosion)";
   sound = 3;
-  test = true;
 };
 
 GTFO.SpellID["426968"] = {
@@ -629,7 +736,6 @@ GTFO.SpellID["427616"] = {
 GTFO.SpellID["419871"] = {
   --desc = "Lightning Dash (Kyrioss)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["420739"] = {
@@ -659,13 +765,6 @@ GTFO.SpellID["444250"] = {
 GTFO.SpellID["452932"] = {
   --desc = "Attracting Shadows (Corrupted Thunderer)";
   sound = 3;
-  test = true; -- Verification
-};
-
-GTFO.SpellID["423981"] = {
-  --desc = "Implosion (Corrupted Rookguard)";
-  sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["430186"] = {
@@ -676,7 +775,6 @@ GTFO.SpellID["430186"] = {
 GTFO.SpellID["443847"] = {
   --desc = "Instability (Inflicted Civilian)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["425113"] = {
@@ -692,8 +790,24 @@ GTFO.SpellID["426136"] = {
 GTFO.SpellID["425052"] = {
   --desc = "Dark Gravity (Stormguard Gorren)";
   sound = 3;
+};
+
+GTFO.SpellID["424739"] = {
+  --desc = "Chaotic Corruption (Stormguard Gorren)";
   applicationOnly = true;
-  trivialLevel = 90;
+  soundFunction = function() 
+	GTFO_AddEvent("ChaoticCorruption", 6.5);
+	if (GTFO_HasDebuff("player", 424797)) then -- Chaotic Vulnerability
+		return 3;
+	end
+	return 0;
+  end;
+};
+
+GTFO.SpellID["426171"] = {
+  --desc = "Chaotic Explosion (Stormguard Gorren)";
+  sound = 4;
+  ignoreEvent = "ChaoticCorruption";
 };
 
 GTFO.SpellID["442192"] = {
@@ -706,25 +820,44 @@ GTFO.SpellID["438848"] = {
   sound = 3;
 };
 
-GTFO.SpellID["430288"] = {
+GTFO.SpellID["430c"] = {
   --desc = "Crushing Darkness (Void Fragment)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["445537"] = {
   --desc = "Oblivion Wave (Voidstone Monstrosity)";
   sound = 3;
   tankSound = 0;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["423356"] = {
   --desc = "Null Upheaval (Voidstone Monstrosity)";
   sound = 3;
-  test = true; -- Verification
 };
 
+GTFO.SpellID["429493"] = {
+  --desc = "Unleash Corruption (Voidstone Monstrosity)";
+  applicationOnly = true;
+  soundFunction = function() 
+	GTFO_AddEvent("UnleashCorruption", 8);
+	return 0;
+  end;
+};
+
+GTFO.SpellID["429521"] = {
+  --desc = "Unleash Corruption (Voidstone Monstrosity)";
+  soundFunction = function() -- Warn if you get hit more than once if you had a circle or if you didn't have a circle and got hit
+	if (GTFO_FindEvent("UnleashCorruption")) then
+		if (GTFO_FindEvent("UnleashCorruptionDouble")) then
+			return 3;
+		end
+		GTFO_AddEvent("UnleashCorruptionDouble", 3);
+		return 0;
+	end
+	return 3;
+  end;
+};
 
 --- ******************
 --- * The Stonevault *
@@ -747,9 +880,23 @@ GTFO.SpellID["449129"] = {
 };
 
 GTFO.SpellID["428547"] = {
-  --desc = "Scrap Cube (Scrap Block)";
+  --desc = "Scrap Cube (Speaker Brokk)";
   sound = 3;
   applicationOnly = true;
+};
+
+GTFO.SpellID["449169"] = {
+  --desc = "Lava Cannon (Speaker Dorlita)";
+  sound = 3;
+  applicationOnly = true;
+  trivialLevel = 90;
+};
+
+GTFO.SpellID["464392"] = {
+  --desc = "Blazing Shrapnel (Speaker Dorlita)";
+  sound = 3;
+  applicationOnly = true;
+  trivialLevel = 90;
 };
 
 GTFO.SpellID["449070"] = {
@@ -767,6 +914,11 @@ GTFO.SpellID["423538"] = {
   sound = 3;
 };
 
+GTFO.SpellID["443405"] = {
+  --desc = "Unstable Fragments (Skarmorak)";
+  sound = 3;
+};
+
 GTFO.SpellID["448975"] = {
   --desc = "Shield Stampede (Cursedforge Honor Guard)";
   sound = 3;
@@ -780,8 +932,19 @@ GTFO.SpellID["428709"] = {
 GTFO.SpellID["427869"] = {
   --desc = "Unbridled Void (High Speaker Eirich)";
   sound = 3;
-  test = true; -- Verification
 };
+
+GTFO.SpellID["427854"] = {
+  --desc = "Entropic Reckoning (Void Speaker Eirich)";
+  soundFunction = function() -- Warn only if you get hit more than once 
+	if (GTFO_FindEvent("EntropicReckoning")) then
+		return 3;
+	end
+	GTFO_AddEvent("EntropicReckoning", 3);
+	return 0;
+  end
+};
+
 
 --- ***************
 --- * TWW Delves  *
