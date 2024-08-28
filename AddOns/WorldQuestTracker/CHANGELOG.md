@@ -1,6 +1,6 @@
 # World Quest Tracker
 
-## [v11.0.2.512](https://github.com/Tercioo/World-Quest-Tracker/tree/v11.0.2.512) (2024-08-26)
-[Full Changelog](https://github.com/Tercioo/World-Quest-Tracker/compare/v11.0.2.511...v11.0.2.512) 
+## [v11.0.2.513](https://github.com/Tercioo/World-Quest-Tracker/tree/v11.0.2.513) (2024-08-28)
+[Full Changelog](https://github.com/Tercioo/World-Quest-Tracker/compare/v11.0.2.512...v11.0.2.513) 
 
-- Use the artifact power counter to count the amount of Resonance Crystals  
+- Settings a default factionID if the faction is nil  
