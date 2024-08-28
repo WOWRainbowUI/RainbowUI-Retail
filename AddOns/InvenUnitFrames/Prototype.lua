@@ -191,7 +191,7 @@ function IUF:CreateObject(unit, parent)
 	object:RegisterForClicks("AnyUp")
 	object.SetSafeAttribute = setSafeAttribute
 	object.SetManyAttributes = setManyAttributes
-	object:SetManyAttributes("unit", unit, "*type1", "target", "realunit", unit)
+	object:SetManyAttributes("unit", unit, "*type1", "target", "realunit", unit,"*type2","togglemenu")
 	object.unit = unit
 	object.realunit = unit
 	object.objectType = unit:gsub("(%d+)", "")

@@ -82,6 +82,7 @@ end
 
 function IUF:UpdateAllObject()
 	for _, object in pairs(self.units) do
+
 		self:UpdateObject(object)
 	end
 end
