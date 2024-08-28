@@ -3,7 +3,6 @@ local addonName = ...
 ---@class AddonNamespace
 local addon = select(2, ...)
 
-local LGIST = LibStub("LibGroupInSpecT-1.1", true)
 local AceAddon = LibStub("AceAddon-3.0")
 local AceDB = LibStub("AceDB-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
@@ -31,7 +30,6 @@ end
 
 function TankMD:OnEnable()
 	self:CreateMisdirectButtons()
-	self:RegisterLGIST()
 	self:RegisterChatCommand("tankmd", "SlashCommand")
 
 	AceConfig:RegisterOptionsTable(addonName, addon.optionsTable)
@@ -62,18 +60,6 @@ function TankMD:SlashCommand(args)
 				)
 			end
 		end
-	end
-end
-
-function TankMD:RegisterLGIST()
-	if LGIST then
-		local inspectHandler = {
-			GroupInSpecT_Update = function()
-				self:QueueButtonTargetUpdate()
-			end,
-		}
-
-		LGIST.RegisterCallback(inspectHandler, "GroupInSpecT_Update")
 	end
 end
 
