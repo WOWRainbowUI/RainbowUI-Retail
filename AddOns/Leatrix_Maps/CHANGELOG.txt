@@ -1,4 +1,8 @@
-﻿11.0.04 - 14th August 2024
+﻿11.0.06 - 28th August 2024
+- For 'Show additional icons', added 'Stormwind' and 'Orgrimmar' portal icons to the 'Dornogal' map.
+- The world map frame can no longer be dragged completely off the screen.
+
+11.0.04 - 14th August 2024
 - Updated for game patch 11.0.2.
 
 11.0.03 - 7th August 2024

@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 11.0.05 (21st August 2024)
+	-- 	Leatrix Maps 11.0.06 (28th August 2024)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "11.0.05"
+	LeaMapsLC["AddonVer"] = "11.0.06"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -35,7 +35,6 @@
 
 	-- Check for addons
 	if C_AddOns.IsAddOnLoaded("ElvUI") then LeaMapsLC.ElvUI = unpack(ElvUI) end
-	if C_AddOns.IsAddOnLoaded("Demodal") then LeaMapsLC.Demodal = true end
 	if C_AddOns.IsAddOnLoaded("WorldQuestTracker") then LeaMapsLC.WorldQuestTracker = true end
 
 	-- Set bindings translations
@@ -672,12 +671,16 @@
 				end
 			end)
 
+			WorldMapFrame:SetClampedToScreen(true)
+
 			-- Set position when map size is toggled
 			hooksecurefunc(WorldMapFrame, "SynchronizeDisplayState", function()
 				WorldMapFrame:ClearAllPoints()
 				if not WorldMapFrame:IsMaximized() then
+					WorldMapFrame:SetClampRectInsets(600, -600, -64, 470)
 					WorldMapFrame:SetPoint(LeaMapsLC["MapPosA"], UIParent, LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"])
 				else
+					WorldMapFrame:SetClampRectInsets(900, -900, -64, 700)
 					WorldMapFrame:SetPoint(LeaMapsLC["MaxMapPosA"], UIParent, LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"])
 				end
 			end)
@@ -688,13 +691,6 @@
 				WorldMapFrame:SetPoint(LeaMapsLC["MapPosA"], UIParent, LeaMapsLC["MapPosR"], LeaMapsLC["MapPosX"], LeaMapsLC["MapPosY"])
 			else
 				WorldMapFrame:SetPoint(LeaMapsLC["MaxMapPosA"], UIParent, LeaMapsLC["MaxMapPosR"], LeaMapsLC["MaxMapPosX"], LeaMapsLC["MaxMapPosY"])
-			end
-
-			-- Fix for Demodal clamping the map frame to the screen
-			if LeaMapsLC.Demodal then
-				if WorldMapFrame:IsClampedToScreen() then
-					WorldMapFrame:SetClampedToScreen(false)
-				end
 			end
 
 			----------------------------------------------------------------------
@@ -1416,22 +1412,20 @@
 			subTitle:ClearAllPoints()
 			subTitle:SetPoint("BOTTOM", 0, 72)
 
-			local slashButton = CreateFrame("Button", nil, interPanel)
-			slashButton:SetPoint("BOTTOM", subTitle, "TOP", 0, 40)
-			slashButton:SetScript("OnClick", function() SlashCmdList["Leatrix_Maps"]("") end)
-
-			local slashTitle = LeaMapsLC:MakeTx(slashButton, "/ltm", 0, 0)
+			local slashTitle = LeaMapsLC:MakeTx(interPanel, "/ltm", 0, 0)
 			slashTitle:SetFont(slashTitle:GetFont(), 72)
 			slashTitle:ClearAllPoints()
-			slashTitle:SetAllPoints()
-
-			slashButton:SetSize(slashTitle:GetSize())
-			slashButton:SetScript("OnEnter", function()
+			slashTitle:SetPoint("BOTTOM", subTitle, "TOP", 0, 40)
+			slashTitle:SetScript("OnMouseUp", function(self, button)
+				if button == "LeftButton" then
+					SlashCmdList["Leatrix_Maps"]("")
+				end
+			end)
+			slashTitle:SetScript("OnEnter", function()
 				slashTitle.r,  slashTitle.g, slashTitle.b = slashTitle:GetTextColor()
 				slashTitle:SetTextColor(1, 1, 0)
 			end)
-
-			slashButton:SetScript("OnLeave", function()
+			slashTitle:SetScript("OnLeave", function()
 				slashTitle:SetTextColor(slashTitle.r, slashTitle.g, slashTitle.b)
 			end)
 
