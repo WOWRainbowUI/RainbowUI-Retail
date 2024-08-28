@@ -10,6 +10,7 @@ local L = ns.locale
 
 ns.optionDefaults = {
     profile = {
+		icon_display_skyriding_glyph  = true, -- 預設顯示天空騎術雕紋
         show_worldmap_button = true,
 
         -- visibility
