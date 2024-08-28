@@ -95,6 +95,10 @@ L['options_icons_gobblin_with_glublurp'] = '{achievement:40614}'
 L['options_icons_gobblin_with_glublurp_desc'] = nil
 L['gobblin_with_glublurp_note'] = nil
 
+L['critter_love_note'] = nil
+L['options_icons_critter_love'] = nil
+L['options_icons_critter_love_desc'] = nil
+
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
@@ -224,8 +228,21 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = nil
 L['skittershaw_spin_note'] = nil
 
+L['options_icons_no_harm_from_reading'] = '{achievement:40632}'
+L['options_icons_no_harm_from_reading_desc'] = nil
+L['no_harm_from_reading_note'] = nil
+L['another_you_4_note'] = nil
+
 L['memory_cache_note'] = nil
 L['niffen_stash_note'] = nil
 L['trapped_trove_note'] = nil
 
 L['tkaktath_note'] = nil
+
+L['options_icons_the_unseeming'] = '{achievement:40633}'
+L['options_icons_the_unseeming_desc'] = nil
+L['the_unseeming_note'] = nil
+
+L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
+L['options_icons_you_cant_hang_with_us_desc'] = nil
+L['you_cant_hang_with_us_note'] = nil

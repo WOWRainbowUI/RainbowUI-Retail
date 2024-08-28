@@ -99,6 +99,10 @@ L['options_icons_gobblin_with_glublurp'] = '{achievement:40614}'
 L['options_icons_gobblin_with_glublurp_desc'] = '显示 {achievement:40614} 成就中的位置。'
 L['gobblin_with_glublurp_note'] = '点击一个 {dot:Red}{object:烁光水晶} 来获得 {spell:456739}。抓获一个飞在 ' .. ns.color.Orange('橙圈') .. ' 的 {npc:227138} 并把它带回给 {npc:227132}。\n\n（建议使用稳定飞行来获得）。'
 
+L['critter_love_note'] = '必须对小动物使用表情 {emote:/爱}、{emote:/love}，而不是战斗宠物。'
+L['options_icons_critter_love'] = '{achievement:40475}'
+L['options_icons_critter_love_desc'] = '显示 {achievement:40475} 成就中小动物的位置。'
+
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
@@ -108,7 +112,7 @@ L['caesper_note'] = '从 {location:陨圣峪} {location:度耐尔之仁} 的（{
 L['dark_ritual_note'] = '与 {object:黑暗仪式} 互动并击败所有 {npc:226059}、{npc:226052} 和 {npc:226062} 以拾取 {object:缀影精华}。'
 L['illuminated_footlocker_note'] = '从 {npc:220703} 处接住5个掉落的 {spell:442389} 以获得 {spell:442529} 并发现 {object:光耀提箱}。'
 L['illusive_kobyss_lure_note'] = '组合全部4个物品制造 {item:225641}：'
-L['sunless_lure_location'] = '由 {location:无晖之滨} 的 {npc:215653} 掉落。'
+L['sunless_lure_location'] = '由 {location:无晖之滨} 的 {npc:215653} 掉落。它们伪装起来并使用 {npc:215623} 作为诱饵。'
 L['sky_captains_sunken_cache_note'] = [[
 与四位不同的天空船长在他们的飞艇上交谈以揭示宝藏。
 
@@ -235,8 +239,31 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = '显示 {achievement:40727} 成就中虫车路线位置。'
 L['skittershaw_spin_note'] = '骑乘 {npc:224973} 绕区域一圈。\n\n{npc:224973} 将在路线上的 {dot:Red} 点处停止。'
 
+L['options_icons_no_harm_from_reading'] = '{achievement:40632}'
+L['options_icons_no_harm_from_reading_desc'] = '显示 {achievement:40632} 成就中 NPC {npc:227421} 的位置。'
+L['no_harm_from_reading_note'] = [[
+进入（{dot:Yellow}）洞穴，前往（{dot:Red），爬上3只蜘蛛所在的墙壁，然后进入顶部蜘蛛后面的洞。
+
+掉下去后，与附近的 {object:血肉魔典} 互动，出现4个 {npc:227421}。
+
+{npc:227421} 随后会消失，然后重新出现在地图周围。
+
+追踪每个 {npc:227421} 并与他们互动，将他们送回 {object:血肉魔典}。
+
+找到所有4个 {npc:227421} 后，返回 {object:血肉魔典} 并与 {npc:227421} 交谈。
+]]
+L['another_you_4_note'] = '沿着标记的路径巡逻。'
+
 L['memory_cache_note'] = '从附近的（{dot:Red}）{object:提取器存储} 获取 {spell:420847}。击杀 {npc:223908} 后获取 {item:223870} 以打开 {object:记忆箱子}。'
 L['niffen_stash_note'] = '在桥下。'
 L['trapped_trove_note'] = '在从天花板垂下的建筑物中。避开地板上的蜘蛛网。'
 
 L['tkaktath_note'] = '开始任务链以获取 {item:224150} 坐骑。'
+
+L['options_icons_the_unseeming'] = '{achievement:40633}'
+L['options_icons_the_unseeming_desc'] = '显示 {achievement:40633} 成就中的位置。'
+L['the_unseeming_note'] = '站在池子里直到有100层堆叠 {spell:420847}。'
+
+L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
+L['options_icons_you_cant_hang_with_us_desc'] = '显示 {achievement:40634} 成就中的位置。'
+L['you_cant_hang_with_us_note'] = '找到一个带有 {spell:434734} 增益效果的 {npc:211816} 并攻击他，会给你 {spell:443190} 负面效果（1分钟）。（{note:不要击杀他！}）会干扰并叠加 {spell:454666} 负面效果在身上。叠加至10层时，将被强制驱逐出城。'

@@ -100,6 +100,10 @@ L['options_icons_gobblin_with_glublurp'] = '{achievement:40614}'
 L['options_icons_gobblin_with_glublurp_desc'] = 'Zeigt die Position für den Erfolg {achievement:40614} an.'
 L['gobblin_with_glublurp_note'] = 'Klicke einen {object:Funkelnder Kristall} ({dot:Red}) an, um den Stärkungszauber {spell:456739} zu erhalten. Fange damit einen {npc:227138} bei dem kleinen Teich (' .. ns.color.Orange('Orangener Kreis') .. ') und bringe diesen zu {npc:227132}.\n\n(statisches Fliegen wird empfohlen, um dies zu erreichen).'
 
+L['critter_love_note'] = 'Du musst das Emote {emote:/liebe} auf Kleintiere anwenden (KEINE Kampfhaustiere).'
+L['options_icons_critter_love'] = '{achievement:40475}'
+L['options_icons_critter_love_desc'] = 'Zeigt die Positionen der Kleintiere für den Erfolg {achievement:40475} an.'
+
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
@@ -236,8 +240,32 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = 'Zeigt die Position des Krabblertaxis für den Erfolg {achievement:40727} an.'
 L['skittershaw_spin_note'] = 'Fahre mit dem {npc:224973} eine ganze Runde um den Distrikt.\n\nDas {npc:224973} hält an verschiedenen Stellen ({dot:Red}) entlang der Runde.'
 
+L['options_icons_no_harm_from_reading'] = '{achievement:40632}'
+L['options_icons_no_harm_from_reading_desc'] = 'Display {npc:227421} locations for the {achievement:40632} achievement.'
+L['no_harm_from_reading_note'] = [[
+Gehe in die Höhle ({dot:Yellow}) zur Wand mit den drei Spinnen ({dot:Red}).
+Klettere die Wand hoch und springe in das Loch.
+
+Lese das Buch {object:Fleischiger Foliant}, um vier {npc:227421} erscheinen zu lassen, die dann verschwinden.
+
+Die vier {npc:227421} erscheinen in {location:Azj-Kahet} an verschiedenen Orten.
+
+Spüre diese auf und spreche mit ihnen, um sie zurück zu schicken.
+
+Sobald du alle vier {npc:227421} gefunden hast, gehen zurück zum Buch {object:Fleischiger Foliant} und spreche mit einem der vier {npc:227421}.
+]]
+L['another_you_4_note'] = 'Läuft im {location:Nest der Weberin} herum.'
+
 L['memory_cache_note'] = 'Hole dir den Schwächungszauber {spell:420847} von einem {object:Extraktor} ({dot:Red}) in der Nähe und töte dann die {npc:223908} vor der Kiste, um den {item:223870} zu erhalten.'
 L['niffen_stash_note'] = 'Befindet sich unter der Brücke.'
 L['trapped_trove_note'] = 'In einem Gebäude das von der Decke hängt. Vermeide die Spinnweben am Boden.'
 
 L['tkaktath_note'] = 'Startet eine Questreihe, um das Reittier {item:224150} zu erhalten.'
+
+L['options_icons_the_unseeming'] = '{achievement:40633}'
+L['options_icons_the_unseeming_desc'] = 'Zeigt die Position für den Erfolg {achievement:40633} an.'
+L['the_unseeming_note'] = 'Stelle dich in die Pfütze bis du 100x Stapel {spell:420847} hast.'
+
+L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
+L['options_icons_you_cant_hang_with_us_desc'] = 'Zeigt die Positionen für den Erfolg {achievement:40634} an.'
+L['you_cant_hang_with_us_note'] = 'Finde einen {npc:211816} mit dem Stärkungszauber {spell:434734} und greife ihn an, um den Schwächungszauber {spell:443190} (1 Minute) zu erhalten. Ein {npc:225408} ({note:Töte ihn nicht!}) wird sich einmischen und den Schwächungszauber {spell:454666} auf dir stapeln. Bei 10 Stapeln wirst du gewaltsam aus der Stadt entfernt.'

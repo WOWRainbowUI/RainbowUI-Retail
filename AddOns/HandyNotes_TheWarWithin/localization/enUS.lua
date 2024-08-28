@@ -99,6 +99,10 @@ L['options_icons_gobblin_with_glublurp'] = '{achievement:40614}'
 L['options_icons_gobblin_with_glublurp_desc'] = 'Display locations for {achievement:40614} achievement.'
 L['gobblin_with_glublurp_note'] = 'Click on a {dot:Red}{object:Glimmering Crystal} to gain {spell:456739}. Catch a {npc:227138} flying in the ' .. ns.color.Orange('Orange Circle') .. ' and bring it to {npc:227132}.\n\n(Steady Flying is recommended to get this).'
 
+L['critter_love_note'] = 'You must use the emote {emote:/love} on critters, not battle pets.'
+L['options_icons_critter_love'] = '{achievement:40475}'
+L['options_icons_critter_love_desc'] = 'Display critter locations for {achievement:40475} achievement.'
+
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
@@ -108,7 +112,7 @@ L['caesper_note'] = 'Purchase {item:225238} from ({dot:Blue}) {npc:217645} in {l
 L['dark_ritual_note'] = 'Interact with the {object:Dark Ritual} and defeat all the {npc:226059}, {npc:226052}, and {npc:226062} to loot the {object:Shadowed Essence}.'
 L['illuminated_footlocker_note'] = 'Catch 5x falling {spell:442389} from the {npc:220703} to receive {spell:442529} and reveal the {object:Illuminated Footlocker}.'
 L['illusive_kobyss_lure_note'] = 'Combine all 4 items to create {item:225641}:'
-L['sunless_lure_location'] = 'Dropped by {npc:215653} on the {location:Sunless Strand}.'
+L['sunless_lure_location'] = 'Dropped by {npc:215653} on the {location:Sunless Strand}. They are camouflaged and use an {npc:215623} as bait.'
 L['sky_captains_sunken_cache_note'] = [[
 Speak with four different Sky-Captains on their airships to reveal the treasure.
 
@@ -235,8 +239,31 @@ L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = 'Display Skittershaw route locations for {achievement:40727} achievement.'
 L['skittershaw_spin_note'] = 'Ride the {npc:224973} for a full lap around the district.\n\nThe {npc:224973} will stop at the {dot:Red} points along the route.'
 
+L['options_icons_no_harm_from_reading'] = '{achievement:40632}'
+L['options_icons_no_harm_from_reading_desc'] = 'Display {npc:227421} locations for {achievement:40632} achievement.'
+L['no_harm_from_reading_note'] = [[
+Enter the ({dot:Yellow}) Cave, and head to the ({dot:Red}) and climb the wall where the 3 spiders are located and enter the hole behind the spider at the top.
+
+Once you have fallen through interact with the nearby {object:Fleshy Grimoire} to spawn the 4 {npc:227421}.
+
+The {npc:227421} will then disappear and reappear around the map.
+
+Track down each {npc:227421} and interact with them to return them back to the {object:Fleshy Grimoire}.
+
+Once you have found all 4 {npc:227421}, head back to the {object:Fleshy Grimoire} and talk to the {npc:227421}.
+]]
+L['another_you_4_note'] = 'Patrols along the marked path.'
+
 L['memory_cache_note'] = 'Get {spell:420847} from a nearby ({dot:Red}) {object:Extractor Storage}. After kill the {npc:223908} to get the {item:223870} to open the {object:Memory Cache}.'
 L['niffen_stash_note'] = 'Located under the bridge.'
 L['trapped_trove_note'] = 'In a building that hangs from the ceiling. Avoid the spiderwebs on the floor.'
 
 L['tkaktath_note'] = 'Starts a quest chain to get the {item:224150} mount.'
+
+L['options_icons_the_unseeming'] = '{achievement:40633}'
+L['options_icons_the_unseeming_desc'] = 'Display location for the {achievement:40633} achievement.'
+L['the_unseeming_note'] = 'Stand in the pool until you have 100x stacks {spell:420847}.'
+
+L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
+L['options_icons_you_cant_hang_with_us_desc'] = 'Display locations for the {achievement:40634} achievement.'
+L['you_cant_hang_with_us_note'] = 'Find a {npc:211816} with the {spell:434734} buff and attack him, to get the {spell:443190} debuff (1 minute). A {npc:225408} ({note:Do not kill him!}) will interfere and stack the {spell:454666} debuff on you. At 10 stacks, you will be forcibly removed from the City.'
