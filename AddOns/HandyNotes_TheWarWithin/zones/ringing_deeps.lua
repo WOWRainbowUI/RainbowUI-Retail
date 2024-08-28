@@ -41,7 +41,9 @@ map.nodes[52591991] = Rare({
     quest = 81674, -- 84046
     rewards = {
         Achievement({id = 40837, criteria = 69634}),
-        Reputation({id = 2594, gain = 150, quest = 84046})
+        Reputation({id = 2594, gain = 150, quest = 84046}),
+        Transmog({item = 221218, slot = L['mail']}), -- Reinforced Construct's Greaves
+        Transmog({item = 221238, slot = L['staff']}) -- Pillar of Constructs
     }
 }) -- Automaxor
 
@@ -68,8 +70,10 @@ map.nodes[66232975] = Rare({ -- flyes around
     rewards = {
         Achievement({id = 40837, criteria = 69623}),
         Reputation({id = 2594, gain = 150, quest = 80505}),
+        Transmog({item = 223360, slot = L['plate']}), -- Flying Kobold's Seatbelt
         Transmog({item = 223363, slot = L['leather']}), -- Flying Kobold's Seatbelt
-        Transmog({item = 223360, slot = L['plate']}) -- Flying Kobold's Seatbelt
+        Transmog({item = 223362, slot = L['mail']}), -- Flying Kobold's Seatbelt
+        Transmog({item = 223361, slot = L['cloth']}) -- Flying Kobold's Seatbelt
     }
 }) -- Candleflyer Captain
 
@@ -78,7 +82,9 @@ map.nodes[41371692] = Rare({
     quest = 81562, -- 84044
     rewards = {
         Achievement({id = 40837, criteria = 69632}),
-        Reputation({id = 2594, gain = 150, quest = 84044})
+        Reputation({id = 2594, gain = 150, quest = 84044}),
+        Transmog({item = 221209, slot = L['leather']}), -- Flame Trader's Gloves
+        Transmog({item = 221249, slot = L['1h_mace']}) -- Kobold Rodent Squasher
     }
 }) -- Charmonger
 
@@ -98,7 +104,9 @@ map.nodes[50994631] = Rare({
     rewards = {
         Achievement({id = 40837, criteria = 69630}),
         Reputation({id = 2594, gain = 150, quest = 84042}),
-        Transmog({item = 221205, slot = L['cloth']}) -- Vest of the River
+        Transmog({item = 221205, slot = L['cloth']}), -- Vest of the River
+        Transmog({item = 221507, slot = L['cloak']}), -- Earth Golem's Wrap
+        Transmog({item = 221554, slot = L['polearm']}) -- Earthshatter Lance
     }
 }) -- Cragmund
 
@@ -118,7 +126,10 @@ map.nodes[67045265] = Rare({
     note = L['disturbed_earthgorger_note'],
     rewards = {
         Achievement({id = 40837, criteria = 69640}),
-        Reputation({id = 2594, gain = 150, quest = 84050})
+        Reputation({id = 2594, gain = 150, quest = 84050}),
+        Transmog({item = 223926, slot = L['mail']}), -- Earthgorger's Chain Bib
+        Transmog({item = 223943, slot = L['leather']}), -- Cord of the Earthbreaker
+        Transmog({item = 221237, slot = L['offhand']}) -- Lamentable Vagrant's Lantern
     }
 }) -- Disturbed Earthgorger
 
@@ -135,7 +146,9 @@ map.nodes[53000880] = Rare({
     rewards = {
         Achievement({id = 40837, criteria = 69636}),
         Reputation({id = 2594, gain = 150, quest = 85162}),
-        Transmog({item = 221507, slot = L['cloak']}) -- Earth Golem's Wrap
+        Transmog({item = 221254, slot = L['polearm']}), -- Earthshatter Lance
+        Transmog({item = 221507, slot = L['cloak']}), -- Earth Golem's Wrap
+        Transmog({item = 225999, slot = L['tabard']}) -- Earthen Adventurer's Tabard
     }
 }) -- Deepflayer Broodmother
 
@@ -144,7 +157,10 @@ map.nodes[65354950] = Rare({
     quest = 81648, -- 84048
     rewards = {
         Achievement({id = 40837, criteria = 69639}),
-        Reputation({id = 2594, gain = 150, quest = 84048})
+        Reputation({id = 2594, gain = 150, quest = 84048}),
+        Transmog({item = 223949, slot = L['mail']}), -- Dark Depth Stompers
+        Transmog({item = 221248, slot = L['1h_axe']}), -- Deep Terror Carver
+        Transmog({item = 221255, slot = L['dagger']}) -- Sharpened Scalepiercer
     }
 }) -- Hungerer of the Deeps
 
@@ -153,7 +169,10 @@ map.nodes[47064697] = Rare({
     quest = 81485, -- 84047
     rewards = {
         Achievement({id = 40837, criteria = 69635}),
-        Reputation({id = 2594, gain = 150, quest = 84047})
+        Reputation({id = 2594, gain = 150, quest = 84047}),
+        Transmog({item = 221204, slot = L['plate']}), -- Spore Giant's Stompers
+        Transmog({item = 221250, slot = L['1h_sword']}), -- Creeping Lasher Machete
+        Transmog({item = 221253, slot = L['fist']}) -- Cultivator's Plant Puncher
     }
 }) -- Kelpmire
 
@@ -177,7 +196,9 @@ map.nodes[60887668] = Rare({
     rewards = {
         Achievement({id = 40837, criteria = 69637}),
         Mount({item = 223501, id = 2205}), -- Ol' Mole Rufus
-        Reputation({id = 2594, gain = 150, quest = 85163})
+        Reputation({id = 2594, gain = 150, quest = 85163}),
+        Transmog({item = 221255, slot = L['dagger']}), -- Sharpened Scalepiercer
+        Transmog({item = 221248, slot = L['1h_axe']}) -- Deep Terror Carver
     },
     pois = {
         POI({
@@ -205,7 +226,10 @@ map.nodes[66214622] = Rare({
     quest = 81652, -- 84049
     rewards = {
         Achievement({id = 40837, criteria = 69638}),
-        Reputation({id = 2594, gain = 150, quest = 84049})
+        Reputation({id = 2594, gain = 150, quest = 84049}),
+        Transmog({item = 223942, slot = L['cloth']}), -- Spore-Encrusted Ribbon
+        Transmog({item = 223919, slot = L['1h_mace']}), -- Abducted Lawman's Gavel
+        Transmog({item = 223918, slot = L['gun']}) -- Specter Stalker's Shotgun
     },
     pois = {
         Path({
@@ -221,8 +245,9 @@ map.nodes[47621217] = Rare({
     rewards = {
         Achievement({id = 40837, criteria = 69628}),
         Reputation({id = 2594, gain = 150, quest = 84040}),
-        Transmog({item = 221242, slot = L['plate']}) -- Forgeborn Helm
-
+        Transmog({item = 221242, slot = L['plate']}), -- Forgeborn Helm
+        Transmog({item = 221248, slot = L['1h_axe']}), -- Deep Terror Carver
+        Transmog({item = 221255, slot = L['dagger']}) -- Sharpened Scalepiercer
     }
 }) -- Terror of the Forge
 
@@ -233,7 +258,9 @@ map.nodes[71654630] = Rare({
     rewards = {
         Achievement({id = 40837, criteria = 69631}),
         Reputation({id = 2594, gain = 150, quest = 84043}),
-        Transmog({item = 221228, slot = L['cloth']}) -- Infested Fungal Wristwraps
+        Transmog({item = 221228, slot = L['cloth']}), -- Infested Fungal Wristwraps
+        Transmog({item = 221253, slot = L['fist']}), -- Cultivator's Plant Puncher
+        Transmog({item = 221250, slot = L['1h_sword']}) -- Creeping Lasher Machete
     },
     pois = {POI({72844447})} -- Entrance
 }) -- Trungal
@@ -244,7 +271,10 @@ map.nodes[52032657] = Rare({
     rewards = {
         Achievement({id = 40837, criteria = 69629}),
         Reputation({id = 2594, gain = 150, quest = 84041}),
-        Transmog({item = 221220, slot = L['leather']}) -- Basilisk Scale Pauldrons
+        Transmog({item = 221220, slot = L['leather']}), -- Basilisk Scale Pauldrons
+        Transmog({item = 221246, slot = L['staff']}), -- Fierce Beast Staff
+        Transmog({item = 221247, slot = L['crossbow']}), -- Cavernous Critter Shooter
+        Transmog({item = 221251, slot = L['2h_axe']}) -- Bestial Underground Cleaver
     }
 }) -- Zilthara
 
@@ -718,3 +748,41 @@ map.nodes[66733837] = DisturbedEarth()
 map.nodes[67753931] = DisturbedEarth()
 map.nodes[67794830] = DisturbedEarth()
 map.nodes[75624339] = DisturbedEarth() -- ?
+
+-------------------------------------------------------------------------------
+-------------------- ACHIEVEMENT: To All the Slimes I Love --------------------
+-------------------------------------------------------------------------------
+
+local CritterLove = Class('CritterLove', Collectible, {
+    group = ns.groups.CRITTER_LOVE,
+    icon = 3459801,
+    note = L['critter_love_note']
+})
+
+function CritterLove:Initialize(id)
+    Collectible.Initialize(self)
+    self.criteria = id
+end
+
+function CritterLove.getters:rewards()
+    return {Achievement({id = 40475, criteria = self.criteria})}
+end
+
+map.nodes[57486764] = CritterLove(68670) -- Spring Mole
+map.nodes[51281543] = CritterLove(68673) -- Snake
+map.nodes[64533238] = CritterLove(68674) -- Lightdarter
+map.nodes[52855473] = CritterLove(68676) -- Tiny Sporbit
+map.nodes[42011638] = CritterLove(68677) -- Dustcrawler Beetle
+map.nodes[60319221] = CritterLove(68675) -- Mass of Worms
+map.nodes[58796861] = CritterLove(68731) -- Grottoscale Hatchling
+map.nodes[54672992] = CritterLove(68729) -- Crackcreeper
+map.nodes[48501257] = CritterLove(68730) -- Lava Slug
+map.nodes[45781352] = CritterLove(68732) -- Earthenwork Stoneskitterer
+map.nodes[72853965] = CritterLove(68733) -- Cavern Skiplet
+map.nodes[57306574] = CritterLove(68734) -- Moss Sludglet
+map.nodes[42011638] = CritterLove(68747) -- Cavern Mote
+map.nodes[61963027] = CritterLove(68748) -- Stumblegrub
+map.nodes[54413473] = CritterLove(69805) -- Darkgrotto Hopper
+map.nodes[67013878] = CritterLove(68749) -- Oozeling
+map.nodes[59404592] = CritterLove(68750) -- Pebble Scarab
+map.nodes[42421437] = CritterLove(68751) -- Rock Snail

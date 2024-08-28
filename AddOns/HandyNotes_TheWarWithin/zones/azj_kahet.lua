@@ -21,6 +21,7 @@ local Toy = ns.reward.Toy
 local Transmog = ns.reward.Transmog
 local Reputation = ns.reward.Reputation
 
+local Circle = ns.poi.Circle
 local POI = ns.poi.POI
 local Path = ns.poi.Path
 
@@ -920,6 +921,117 @@ cot.nodes[65255720] = SkittershawSpin({
                 color = 'Red'
             })
         }
+    }
+})
+
+-----------------------------------------------------------------------------------------------------
+--------------------- ACHIEVEMENT: NO HARM EVER CAME FROM READING A BOOK  ---------------------------
+-----------------------------------------------------------------------------------------------------
+
+local NoHarmFromReading = Class('no_harm_from_reading', Collectible, {
+    icon = 463284,
+    group = ns.groups.NO_HARM_FROM_READING
+})
+
+cotl.nodes[68195603] = NoHarmFromReading({
+    label = '{achievement:40632}',
+    note = L['no_harm_from_reading_note'],
+    rewards = {Achievement({id = 40632, criteria = 0, oneline = true})},
+    pois = {
+        POI({
+            points = {72035705}, -- Cave entrance
+            color = 'Yellow'
+        }), POI({
+            points = {66735661}, -- Spider Wall
+            color = 'Red'
+        })
+    },
+    parent = {
+        {
+            id = cot.id,
+            pois = {
+                POI({
+                    points = {72035705}, -- Cave entrance
+                    color = 'Yellow'
+                })
+            }
+        }, {
+            id = map.id,
+            pois = {
+                POI({
+                    points = {56468493}, -- Cave entrance
+                    color = 'Yellow'
+                })
+            }
+        }
+    }
+})
+
+map.nodes[24205274] = NoHarmFromReading({
+    id = 227421,
+    quest = 83744,
+    questDeps = 83741
+}) -- Another You 1
+
+map.nodes[58692012] = NoHarmFromReading({
+    id = 227421,
+    quest = 83745,
+    questDeps = 83741
+}) -- Another You 2
+
+map.nodes[78896056] = NoHarmFromReading({
+    id = 227421,
+    quest = 83746,
+    questDeps = 83741
+}) -- Another You 3
+
+map.nodes[56874401] = NoHarmFromReading({
+    id = 227421,
+    note = L['another_you_4_note'],
+    quest = 83747,
+    questDeps = 83741,
+    pois = {
+        Path({
+            points = {
+                57414429, 57324406, 57164432, 56874401, 56604340, 56514327,
+                56344326, 56264336, 56694303
+            }
+        })
+    }
+}) -- Another You 4
+
+-------------------------------------------------------------------------------
+-------------------------- ACHIEVEMENT: THE UNSEEMING -------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[62848495] = Collectible({
+    icon = 1386549,
+    label = '{achievement:40633}',
+    note = L['the_unseeming_note'],
+    group = ns.groups.THE_UNSEEMING,
+    rewards = {Achievement({id = 40633})}
+})
+
+-------------------------------------------------------------------------------
+--------------------- ACHIEVEMENT: YOU CAN'T HANG WITH US ---------------------
+-------------------------------------------------------------------------------
+
+cot.nodes[53622079] = Collectible({
+    icon = 237431,
+    label = '{achievement:40634}',
+    note = L['you_cant_hang_with_us_note'],
+    group = ns.groups.YOU_CANT_HANG_WITH_US,
+    parent = {
+        id = map.id,
+        pois = {
+            Path({Circle({origin = 50047228, radius = 3.5})}),
+            Path({Circle({origin = 54397843, radius = 2.5})})
+        }
+    },
+    rewards = {Achievement({id = 40634})},
+    pois = {
+        Path({Circle({origin = 53622079, radius = 10})}),
+        Path({Circle({origin = 66123842, radius = 7.4})})
     }
 })
 
