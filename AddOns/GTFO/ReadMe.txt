@@ -2109,3 +2109,8 @@ Change Log:
 * Added TWW spells for Darkflame Cleft
 * Added TWW spells for Priory of the Scared Flame
 * Added special ignore for "Smothering Shadows" (Darkflame Cleft - TWW)
+
+5.12.1
+* Added TWW spells for City of Threads
+* Added TWW spells for The Dawnbreaker
+* Added TWW spells for Cinderbrew Meadery

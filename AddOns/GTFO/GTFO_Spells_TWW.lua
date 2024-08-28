@@ -174,9 +174,13 @@ GTFO.SpellID["434926"] = {
 };
 
 GTFO.SpellID["438601"] = {
-  --desc = "Void Surge (The Coaglamation)";
+  --desc = "Black Blood (The Coaglamation)";
   sound = 1;
-  test = true; -- Verification
+};
+
+GTFO.SpellID["462439"] = {
+  --desc = "Black Blood (Outer edge)";
+  sound = 1;
 };
 
 --- *******************
@@ -249,13 +253,28 @@ GTFO.SpellID["425556"] = {
 
 GTFO.SpellID["449332"] = {
   --desc = "Encroaching Shadows";
-  sound = 1;
+  soundFunction = function() -- Don't alert when it first goes off, but warn if the player waits too long
+	GTFO_AddEvent("EncroachingShadowsDebuff", 2, GTFO.SpellID["449332"].specialFunction);
+	GTFO_AddEvent("EncroachingShadowsInitial", 1.9);
+	return 0;
+  end;
+  specialFunction = function() -- Check to see if the player still has the debuff
+	if GTFO_HasDebuff("player", 449332) then
+		if not GTFO_FindEvent("EncroachingShadowsInitial") and not UnitIsDead("player") then
+			local time = GTFO_DebuffTime("player", 449332);
+			if (time > 0 and time < 12) then
+				GTFO_PlaySound(1);
+			end
+			GTFO_AddEvent("EncroachingShadowsDebuff"..math.random(), 1, GTFO.SpellID["449332"].specialFunction);
+		end
+	end
+  end;
 };
 
 GTFO.SpellID["434096"] = {
   --desc = "Sticky Webs (Rasha'nan)";
+  ignoreApplication = true;
   sound = 1;
-  test = true; -- Verification
 };
 
 --- ***************

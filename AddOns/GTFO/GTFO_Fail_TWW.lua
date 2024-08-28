@@ -373,6 +373,7 @@ GTFO.SpellID["441344"] = {
 GTFO.SpellID["439468"] = {
   --desc = "Downward Trend (Yes Man)";
   sound = 3;
+  applicationOnly = true;
 };
 
 GTFO.SpellID["436592"] = {
@@ -422,6 +423,26 @@ GTFO.SpellID["448047"] = {
   sound = 3;
 };
 
+GTFO.SpellID["440049"] = {
+  --desc = "Synergic Step (Nx)";
+  sound = 3;
+};
+
+GTFO.SpellID["439696"] = {
+  --desc = "Duskbringer (Nx)";
+  sound = 3;
+};
+
+GTFO.SpellID["439687"] = {
+  --desc = "Shade Slash (Nx)";
+  sound = 3;
+};
+
+GTFO.SpellID["439686"] = {
+  --desc = "Shade Slash (Nx)";
+  sound = 3;
+};
+
 GTFO.SpellID["434133"] = {
   --desc = "Venomous Spray (Royal Venomshell)";
   sound = 3;
@@ -432,23 +453,22 @@ GTFO.SpellID["445838"] = {
   sound = 3;
 };
 
-GTFO.SpellID["446086"] = {
-  --desc = "Void Wave (Sureki Unnaturaler)";
-  sound = 3;
-};
-
 GTFO.SpellID["447271"] = {
   --desc = "Tremor Slam (Hulking Warshell)";
-  sound = 3;
-  test = true; -- Verification
+  sound = 0;
+  test = true; -- Need to determine appropriate minimum, doesn't appear to use 2 spell IDs for proximity
 };
 
 GTFO.SpellID["437700"] = {
   --desc = "Tremor Slam (Izo, the Grand Splicer)";
-  sound = 3;
-  test = true; -- Verification, is the within 12 yards version a different spell ID?
+  sound = 0;
+  test = true; -- Need to determine appropriate minimum, doesn't appear to use 2 spell IDs for proximity
 };
 
+GTFO.SpellID["439481"] = {
+  --desc = "Shifting Anomalies (Izo, the Grand Splicer)";
+  sound = 3;
+};
 
 --- *******************
 --- * Darkflame Cleft *
@@ -622,6 +642,7 @@ GTFO.SpellID["451606"] = {
 --- * The Dawnbreaker *
 --- *******************
 
+-- TODO: Stygian Seed (Nightfall Ritualist)
 -- TODO: Obsidian Beam (Shadowcrown) - Mythic
 -- TODO: Collapsing Night (Shadowcrown) - Mythic
 -- TODO: Expel Webs (Rasha'nan) - Mythic
@@ -634,6 +655,13 @@ GTFO.SpellID["430655"] = {
 GTFO.SpellID["451093"] = {
   --desc = "Arathi Bomb";
   sound = 3;
+};
+
+GTFO.SpellID["451104"] = {
+  --desc = "Bursting Cocoon (Sureki Webmage)";
+  sound = 4;
+  applicationOnly = true; -- Friendly Fire applies a debuff, cocoon target doesn't get one
+  trivialLevel = 90;
 };
 
 GTFO.SpellID["426715"] = {
@@ -662,11 +690,42 @@ GTFO.SpellID["432606"] = {
   sound = 3;
 };
 
+GTFO.SpellID["431494"] = {
+  --desc = "Black Edge (Nightfall Tactician)";
+  sound = 3;
+  trivialLevel = 90;
+};
+
+GTFO.SpellID["460135"] = {
+  --desc = "Dark Scars (Deathscreamer Iken'tak)";
+  applicationOnly = true;
+  sound = 3;
+  trivialLevel = 90;
+};
+
+GTFO.SpellID["451115"] = {
+  --desc = "Terrifying Slam (Ixkreten the Unbreakable)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["427007"] = {
+  --desc = "Terrifying Slam (Anub'ikkaj)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["427378"] = {
+  --desc = "Dark Scars (Anub'ikkaj)";
+  applicationOnly = true;
+  sound = 3;
+  trivialLevel = 90;
+};
+
 GTFO.SpellID["434441"] = {
   --desc = "Rolling Acid (Rasha'nan)";
   applicationOnly = true;
   sound = 3;
-  test = true; -- Verification
 };
 
 --- ***************
