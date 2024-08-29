@@ -534,17 +534,8 @@ function DR.GetVigorValueExact()
 end
 
 -- ugly hack fix for the vigor widget not disappearing when it should
-local WIDGET_IDS = {
-	4460, -- generic DR
-	4604, -- non-DR
-	5140, -- gold gryphon
-	5143, -- silver gryphon
-	5144, -- bronze gryphon
-	5145, -- dark gryphon
-};
-
 LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_DISABLED, function()
-    for _, v in ipairs(WIDGET_IDS) do
+    for _, v in ipairs(DR.WidgetFrameIDs) do
         C_Timer.After(1, function()
             local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
             if f and f:IsShown() then
@@ -855,6 +846,12 @@ function DR.SetTheme()
 	end
 end
 
+local ParentFrame = CreateFrame("Frame", nil, UIParent)
+ParentFrame:SetPoint("TOPLEFT", UIWidgetPowerBarContainerFrame, "TOPLEFT")
+ParentFrame:SetPoint("BOTTOMRIGHT", UIWidgetPowerBarContainerFrame, "BOTTOMRIGHT")
+-- this should solve that weird "moving" thing, the widget adjusts its size based on children
+
+
 function DR.setPositions()
 	DR.SetTheme()
 	if DragonRider_DB.DynamicFOV == true then
@@ -863,10 +860,15 @@ function DR.setPositions()
 		C_CVar.SetCVar("AdvFlyingDynamicFOVEnabled", 0)
 	end
 
-	local ParentFrame = UIWidgetPowerBarContainerFrame
+	ParentFrame:ClearAllPoints()
+	ParentFrame:SetScale(UIWidgetPowerBarContainerFrame:GetScale()) -- because some of you are rescaling this thing...... the "moving vigor bar" was your fault.
+	ParentFrame:SetPoint("TOPLEFT", UIWidgetPowerBarContainerFrame, "TOPLEFT")
+	ParentFrame:SetPoint("BOTTOMRIGHT", UIWidgetPowerBarContainerFrame, "BOTTOMRIGHT")
 	for k, v in pairs(DR.WidgetFrameIDs) do
 		if UIWidgetPowerBarContainerFrame.widgetFrames[v] then
-			ParentFrame = UIWidgetPowerBarContainerFrame.widgetFrames[v]
+			ParentFrame:ClearAllPoints()
+			ParentFrame:SetPoint("TOPLEFT", UIWidgetPowerBarContainerFrame.widgetFrames[v], "TOPLEFT")
+			ParentFrame:SetPoint("BOTTOMRIGHT", UIWidgetPowerBarContainerFrame.widgetFrames[v], "BOTTOMRIGHT")
 		end
 	end
 	DR.statusbar:ClearAllPoints();

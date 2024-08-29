@@ -369,7 +369,7 @@ DR.RaceData = {
 		[9] = {
 			["currencyID"] = 2936,
 			["silverTime"] = 65,
-			["goldTime"] = 60,
+			["goldTime"] = 62, -- was 60 in beta
 			["questID"] = 80220,
 			["mapPOI"] = 7794,
 		},
