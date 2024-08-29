@@ -2,11 +2,12 @@ local _, ns = ...;
 
 ns.hookedFrames = {};
 ns.ignore = {
-    WarboardQuestChoiceFrame = true,
-    MacroFrame = true,
-    CinematicFrame = true,
-    BarberShopFrame = true,
+    BarberShopFrame = true, -- barbershop frame, better to allow it to hide the UI
+    CinematicFrame = true, -- cinematic frame, better to allow it to hide the UI
     CommunitiesFrame = true,
+    MacroFrame = true,
+    PerksProgramFrame = true, -- trading post frame, better to allow it to hide the UI
+    WarboardQuestChoiceFrame = true,
 };
 local nukedCenterPanels = {
     ClassTalentFrame = true,
@@ -188,6 +189,7 @@ function ns:ConfigureSecureEscHandler(frame)
     escHandler.name = name;
     escHandler.panel = frame;
     escHandler:SetFrameRef('panel', frame);
+    escHandler:SetFrameRef('UIParent', UIParent);
     escHandler:RegisterEvent('PLAYER_REGEN_ENABLED');
     escHandler:RegisterEvent('PLAYER_REGEN_DISABLED');
     escHandler:HookScript('OnEvent', function(handlerFrame, event)
@@ -210,6 +212,14 @@ function ns:ConfigureSecureEscHandler(frame)
     escHandler:SetAttribute('_onshow', [[
         if PlayerInCombat() then
             self:SetBindingClick(true, 'ESCAPE', self);
+            local panel = self:GetFrameRef('panel');
+            panel:Raise();
+            if (not panel:GetPoint()) then
+                -- disabling the UIPanelLayout system removes the default location, so let's set one
+                local UIParent = self:GetFrameRef('UIParent');
+                local ofsx, ofsy = 50, -50;
+                panel:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', ofsx, ofsy);
+            end
         end
     ]]);
 end

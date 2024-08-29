@@ -1,8 +1,7 @@
 # NoAutoClose
 
-## [v1.2.11](https://github.com/NumyAddon/NoAutoClose/tree/v1.2.11) (2024-07-14)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.2.10...v1.2.11) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.2.12](https://github.com/NumyAddon/NoAutoClose/tree/v1.2.12) (2024-08-29)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.2.11...v1.2.12) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- Classic TOC Bump  
-- Minor fixes  
-- Add prettier notifications to Discord on updates  
+- Improvements to showing protected frames while in combat  
+- Trading post now correctly hides the rest of the UI  
