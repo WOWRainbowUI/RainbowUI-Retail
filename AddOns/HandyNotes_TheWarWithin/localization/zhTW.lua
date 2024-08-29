@@ -170,11 +170,11 @@ L['options_icons_missing_lynx_desc'] = '顯示成就 {achievement:40625} 所需�
 
 L['missing_lynx_note'] = '撫摸兇狠的戰貓.'
 L['magpie_location'] = '在牌子旁邊的地面上。'
-L['nightclaw_location'] = '點亮附近的 {object:小型鑰焰}。'
-L['purrlock_location'] = '點亮附近的 {object:聖光之榮鑰焰}。'
-L['shadowpouncer_location'] = '點亮附近的 {object:聖光之榮鑰焰}。'
+L['nightclaw_location'] = '點亮附近的 {object:低階鑰炎}。'
+L['purrlock_location'] = '點亮附近的 {object:聖光之榮鑰炎}。'
+L['shadowpouncer_location'] = '點亮附近的 {object:聖光之榮鑰炎}。'
 L['miral_murder_mittens_location'] = '在外面。'
-L['fuzzy_location'] = '在 {object:小型鑰焰} 附近的地面上。'
+L['fuzzy_location'] = '在 {object:低階鑰炎} 附近的地面上。'
 L['furball_location'] = '在廢墟建築內。'
 L['dander_location'] = '在外面。'
 L['gobbo_location'] = '在建築內的床上。'
@@ -188,16 +188,18 @@ L['options_icons_mereldar_menace'] = '{achievement:40151}'
 L['options_icons_mereldar_menace_desc'] = '顯示 {achievement:40151} 成就中的目標位置。'
 
 L['mereldar_menace_note'] = '與 {object:飛擲之石} 互動並將其扔向目標。'
-L['light_and_flame_location'] = '{object:飛擲之石} 瞄准東邊的 {npc:218472}。'
-L['lamplighter_doorway_location'] = '瞄准東邊建築物的門口。'
+L['light_and_flame_location'] = '{object:飛擲之石} 瞄準東邊的 {npc:218472}。'
+L['lamplighter_doorway_location'] = '瞄準東邊建築物的門口。'
 L['barracks_doorway_location'] = '瞄准西邊紅色和金色帳篷的門口。'
 
 L['options_icons_beacon_of_hope'] = '{achievement:40308}'
-L['options_icons_beacon_of_hope_desc'] = '顯示 {achievement:40308} 成就中小型鑰焰的位置。'
+L['options_icons_beacon_of_hope_desc'] = '顯示 {achievement:40308} 成就中低階鑰炎的位置。'
 
-L['beacon_of_hope_note'] = '捐獻 {item:206350} 來點亮小型鑰焰並完成接下來的任務。'
+L['beacon_of_hope_note'] = '捐獻 {item:206350} 來點亮低階鑰炎並完成接下來的任務。'
 
-L['parasidious_note'] = '要出現此稀有，需要從 {npc:206533} 購買 {item:206670}（啟動 {object:小型鑰焰} 使其出現），然後前往 {location:暮升遼原} 並拉動 {npc:206870}。當拉動它們時，一根藤蔓會從身上射出並到達 {npc:206978}，它會生長/變化，直到稀有最終出現。'
+L['parasidious_note'] = '要出現此稀有，需要從 {npc:206533} 購買 {item:206670}（啟動 {object:低階鑰炎} 使其出現），然後前往 {location:暮升遼原} 並拉動 {npc:206870}。當拉動它們時，一根藤蔓會從身上射出並到達 {npc:206978}，它會生長/變化，直到稀有最終出現。'
+
+L['flamegards_hope_note'] = '幫助 {npc:213319} 治療 {npc:220225s} 20天。\n\n如果當前職業無法治療，可以使用 {spell:372009} 或 {item:211878}。'
 
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------

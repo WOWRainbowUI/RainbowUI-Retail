@@ -1196,14 +1196,14 @@ local BeaconOfHope = Class('beacon_of_hope', Collectible, {
 
 -- TODO: Add Missing criterias
 -- {id = 67677}, -- Blossoming Delight
--- {id = 67679}, -- Seeds of Salvation
--- {id = 67680}, -- Tater Trawl
 
 map.nodes[65392809] = BeaconOfHope({
     rewards = {
         Achievement({
             id = 40308,
             criteria = {
+                {id = 67679}, -- Seeds of Salvation
+                {id = 67680}, -- Tater Trawl
                 {id = 67681} -- Right Between the Gyro-Optics
             }
         })
@@ -1291,4 +1291,16 @@ map.nodes[61501747] = BeaconOfHope({
             }
         })
     }
+})
+
+-------------------------------------------------------------------------------
+------------------------ ACHIEVEMENT: FLAMEGARD'S HOPE ------------------------
+-------------------------------------------------------------------------------
+
+map.nodes[43205177] = Collectible({
+    icon = 463526,
+    quest = 79081,
+    label = '{achievement:20594}',
+    note = L['flamegards_hope_note'],
+    rewards = {Achievement({id = 20594, criteria = {id = 1, qty = true}})}
 })

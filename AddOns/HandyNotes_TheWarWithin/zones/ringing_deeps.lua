@@ -106,7 +106,7 @@ map.nodes[50994631] = Rare({
         Reputation({id = 2594, gain = 150, quest = 84042}),
         Transmog({item = 221205, slot = L['cloth']}), -- Vest of the River
         Transmog({item = 221507, slot = L['cloak']}), -- Earth Golem's Wrap
-        Transmog({item = 221554, slot = L['polearm']}) -- Earthshatter Lance
+        Transmog({item = 221254, slot = L['polearm']}) -- Earthshatter Lance
     }
 }) -- Cragmund
 
@@ -726,7 +726,7 @@ map.nodes[57486764] = CritterLove(68670) -- Spring Mole
 map.nodes[51281543] = CritterLove(68673) -- Snake
 map.nodes[64533238] = CritterLove(68674) -- Lightdarter
 map.nodes[52855473] = CritterLove(68676) -- Tiny Sporbit
-map.nodes[42011638] = CritterLove(68677) -- Dustcrawler Beetle
+map.nodes[63463980] = CritterLove(68677) -- Dustcrawler Beetle
 map.nodes[60319221] = CritterLove(68675) -- Mass of Worms
 map.nodes[58796861] = CritterLove(68731) -- Grottoscale Hatchling
 map.nodes[54672992] = CritterLove(68729) -- Crackcreeper
