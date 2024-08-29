@@ -1,6 +1,8 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
+local GUTIL = CraftSim.GUTIL
+
 CraftSim.NEWS = {}
 
 local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.NEWS)
@@ -8,13 +10,22 @@ local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.NEWS)
 ---@param itemMap table<string, ItemMixin>
 function CraftSim.NEWS:GET_NEWS(itemMap)
     -- minimize names to make manual formatting easier :p
-    local f = CraftSim.GUTIL:GetFormatter()
+    local f = GUTIL:GetFormatter()
     local function newP(v) return f.l("\n                                   --- Version " .. v .. " ---\n") end
     local supporterListUpdate = f.p .. f.patreon("Supporter List Update ") ..
         CraftSim.MEDIA:GetAsTextIcon(CraftSim.MEDIA.IMAGES.PIXEL_HEART, 0.15)
     local news = {
         f.bb("                   Hello and thank you for using CraftSim!\n"),
         f.bb("                                 ( You are awesome! )"),
+        newP("17.1.10"),
+        f.p .. f.bb("Concentration Tracker") .. " Tooltip now only lists",
+        f.a .. "tracked professions from currently open expansion",
+        f.p .. f.bb("Specialization Data Update") .. " for 11.0.2.56313",
+        f.p .. "Changed general money format from",
+        f.a .. GUTIL:FormatMoney(12345678, false, nil, false, true) .. " to " .. GUTIL:FormatMoney(12345678),
+        newP("17.1.9"),
+        f.p .. "Fixed Average Yield Calculation for Sub Recipe Optimization",
+        f.a .. "- Thank you " .. f.bb("DiegoSnoop") .. " for pointing that out!",
         newP("17.1.8"),
         f.p .. "Fixed concentration calculation not considering",
         f.a .. "less concentration usage from specs",
