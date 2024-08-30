@@ -104,7 +104,7 @@ function module:OnInitialize()
 			already_transmog = false,
 			already_alt = true,
 			sink_opts = {},
-			channel = "Master",
+			channel = "Music", -- 更改預設值
 			unmute = false,
 			background = false,
 			loot = true,
