@@ -359,7 +359,7 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
         end
     end
     -- SimpleItemLevel 相容性
-	if C_AddOns.IsAddOnLoaded("SimpleItemLevel") then TinyInspectReforgedDB.EnableItemLevel  = false end
+	if C_AddOns.IsAddOnLoaded("SimpleItemLevel") then TinyInspectDB.EnableItemLevel  = false end
 	
 	InitCheckbox(frame)
 end)
