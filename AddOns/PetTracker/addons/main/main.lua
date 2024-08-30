@@ -5,7 +5,7 @@ All Rights Reserved
 
 local ADDON, Addon = ...
 local C = LibStub('C_Everywhere')
-local Addon = LibStub('WildAddon-1.0'):NewAddon(ADDON, Addon, 'MutexDelay-1.0', 'StaleCheck-1.0')
+local Addon = LibStub('WildAddon-1.1'):NewAddon(ADDON, Addon, 'MutexDelay-1.0', 'StaleCheck-1.0')
 Addon.MaxPlayerQuality = 4
 Addon.MaxQuality = 6
 Addon.MaxLevel = 25
@@ -13,7 +13,7 @@ Addon.MaxLevel = 25
 
 --[[ Events ]]--
 
-function Addon:OnEnable()
+function Addon:OnLoad()
 	self.state = PetTracker_State or {}
 	self.sets = self:SetDefaults(PetTracker_Sets or {}, {
 		showSpecies = true, showStables = true, specieIcons = true, rivalPortraits = true,
