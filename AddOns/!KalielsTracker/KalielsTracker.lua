@@ -46,6 +46,7 @@ local freeIcons = {}
 local freeTags = {}
 local freeButtons = {}
 local msgPatterns = {}
+local tooltipUpdate = { questID = 0, counter = 0 }
 local combatLockdown = false
 local db, dbChar
 
@@ -824,8 +825,8 @@ local function SetHooks()
 		end
 	end
 
-	local function TooltipPosition(block, xOffsetLeft, yOffsetLeft, xOffsetRight, yOffsetRight)
-		if not GameTooltip:GetOwner() then
+	local function TooltipPosition(block, xOffsetLeft, yOffsetLeft, xOffsetRight, yOffsetRight, skipSetOwner)
+		if not skipSetOwner then
 			GameTooltip:SetOwner(block, "ANCHOR_NONE")
 		end
 		GameTooltip:ClearAllPoints()
@@ -850,8 +851,21 @@ local function SetHooks()
 				end
 				GameTooltip:SetHyperlink(questLink)
 				if db.tooltipShowRewards then
-					if HaveQuestRewardData(block.id) then
+					-- Check only 4 times, because some quests always return false
+					if HaveQuestRewardData(block.id) or tooltipUpdate.counter >= 4 then
+						tooltipUpdate.questID = 0
+						tooltipUpdate.counter = 0
 						KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, block.id)
+					else
+						tooltipUpdate.questID = block.id
+						tooltipUpdate.counter = tooltipUpdate.counter + 1
+						GameTooltip:AddLine(" ")
+						GameTooltip:AddLine(KT.RETRIEVING_DATA, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
+						C_Timer.After(0.1, function()
+							if tooltipUpdate.questID == block.id then
+								self:OnBlockHeaderEnter(block)
+							end
+						end)
 					end
 				end
 				if IsInGroup() then
@@ -886,6 +900,11 @@ local function SetHooks()
 
 	function KT_ObjectiveTrackerModuleMixin:OnBlockHeaderLeave(block)
 		if db.tooltipShow then
+			if self == KT_QuestObjectiveTracker or
+					self == KT_CampaignQuestObjectiveTracker then
+				tooltipUpdate.questID = 0
+				tooltipUpdate.counter = 0
+			end
 			GameTooltip:Hide()
 		end
 	end
@@ -911,19 +930,20 @@ local function SetHooks()
 
 			TooltipPosition(self)
 
-			if not HaveQuestRewardData(questID) then
-				GameTooltip:AddLine(RETRIEVING_DATA, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
-				GameTooltip_SetTooltipWaitingForData(GameTooltip, true);
-			else
-				GameTooltip:SetHyperlink(questLink)
-				if db.tooltipShowRewards then
+			GameTooltip:SetHyperlink(questLink)
+			if db.tooltipShowRewards then
+				if not HaveQuestRewardData(questID) then
+					GameTooltip:AddLine(" ")
+					GameTooltip:AddLine(KT.RETRIEVING_DATA, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
+					GameTooltip_SetTooltipWaitingForData(GameTooltip, true);
+				else
 					KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, questID, true)
 					GameTooltip_SetTooltipWaitingForData(GameTooltip, false);
 				end
-				if db.tooltipShowID then
-					GameTooltip:AddLine(" ")
-					GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..questID)
-				end
+			end
+			if db.tooltipShowID then
+				GameTooltip:AddLine(" ")
+				GameTooltip:AddDoubleLine(" ", "ID: |cffffffff"..questID)
 			end
 
 			GameTooltip:Show();
@@ -1518,7 +1538,7 @@ local function SetHooks()
 	end)
 
 	KT_ScenarioObjectiveTracker.StageBlock:HookScript("OnEnter", function(self)
-		TooltipPosition(self, 19, -1, -26 - self.KTtooltipOffsetXmod, -1 - self.KTtooltipOffsetYmod)
+		TooltipPosition(self, 19, -1, -26 - self.KTtooltipOffsetXmod, -1 - self.KTtooltipOffsetYmod, true)
 	end)
 
 	hooksecurefunc(OTF.Header, "SetCollapsed", function(self, collapsed)
@@ -1631,23 +1651,31 @@ local function SetHooks()
 			if firstInstance then
 				uniqueCurrencyIDs[currencyReward.currencyID] = true;
 			end
-			local currencyInfo = { name = currencyReward.name, texture = currencyReward.texture, numItems = currencyReward.totalRewardAmount, currencyID = currencyReward.currencyID, rarity = rarity, firstInstance = firstInstance };
+			local currencyInfo = { name = currencyReward.name,
+								   texture = currencyReward.texture,
+								   numItems = currencyReward.totalRewardAmount,
+								   currencyID = currencyReward.currencyID,
+								   questRewardContextFlags = currencyReward.questRewardContextFlags,
+								   rarity = rarity,
+								   firstInstance = firstInstance,
+								};
 			if(currencyInfo.currencyID ~= ECHOS_OF_NYLOTHA_CURRENCY_ID or #currencyRewards == 1) then
 				tinsert(currencies, currencyInfo);
 			end
 		end
 
 		table.sort(currencies,
-				function(currency1, currency2)
-					if currency1.rarity ~= currency2.rarity then
-						return currency1.rarity > currency2.rarity;
-					end
-					return currency1.currencyID > currency2.currencyID;
+			function(currency1, currency2)
+				if currency1.rarity ~= currency2.rarity then
+					return currency1.rarity > currency2.rarity;
 				end
+				return currency1.currencyID > currency2.currencyID;
+			end
 		);
 
 		local addedQuestCurrencies = 0;
 		local alreadyUsedCurrencyContainerId = 0; --In the case of multiple currency containers needing to displayed, we only display the first.
+		local alreadyUsedCurrencyContainerInfo = nil;  --In the case of multiple currency containers needing to displayed, we only display the first.
 		local warModeBonus = C_PvP.GetWarModeRewardBonus();
 
 		for i, currencyInfo in ipairs(currencies) do
@@ -1665,6 +1693,7 @@ local function SetHooks()
 
 					addedQuestCurrencies = addedQuestCurrencies + 1;
 					alreadyUsedCurrencyContainerId = currencyInfo.currencyID;
+					alreadyUsedCurrencyContainerInfo = currencyInfo;
 				end
 			elseif ( tooltip ) then
 				if( alreadyUsedCurrencyContainerId ~= currencyInfo.currencyID ) then --if there's already a currency container of this same type skip it entirely
@@ -1674,6 +1703,10 @@ local function SetHooks()
 						color = { r = 1, g = 1, b = 1 }
 					else
 						text = BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT:format(currencyInfo.texture, currencyInfo.numItems, currencyInfo.name);
+						local contextIcon = KT.GetBestQuestRewardContextIcon(currencyInfo.questRewardContextFlags)
+						if contextIcon then
+							text = text..CreateAtlasMarkup(contextIcon, 12, 16, 3, -1)
+						end
 						color = GetColorForCurrencyReward(currencyInfo.currencyID, currencyInfo.numItems);
 					end
 					tooltip:AddLine(text, color.r, color.g, color.b)
@@ -1686,7 +1719,7 @@ local function SetHooks()
 				end
 			end
 		end
-		return addedQuestCurrencies, alreadyUsedCurrencyContainerId > 0;
+		return addedQuestCurrencies, alreadyUsedCurrencyContainerId > 0, alreadyUsedCurrencyContainerInfo;
 	end
 
 	-- SplashFrame.lua

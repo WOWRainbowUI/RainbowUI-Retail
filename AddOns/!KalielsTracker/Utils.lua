@@ -417,6 +417,24 @@ function KT.InCombatBlocked()
     return blocked
 end
 
+-- Icons
+local QUEST_REWARD_CONTEXT_ICONS = {
+    [Enum.QuestRewardContextFlags.FirstCompletionBonus] = "warbands-icon",
+    [Enum.QuestRewardContextFlags.RepeatCompletionBonus] = "warbands-icon",
+}
+
+function KT.GetBestQuestRewardContextIcon(questRewardContextFlags)
+    local contextIcon
+    if questRewardContextFlags then
+        if (FlagsUtil.IsSet(questRewardContextFlags, Enum.QuestRewardContextFlags.FirstCompletionBonus)) then
+            contextIcon = QUEST_REWARD_CONTEXT_ICONS[Enum.QuestRewardContextFlags.FirstCompletionBonus]
+        elseif (FlagsUtil.IsSet(questRewardContextFlags, Enum.QuestRewardContextFlags.RepeatCompletionBonus)) then
+            contextIcon = QUEST_REWARD_CONTEXT_ICONS[Enum.QuestRewardContextFlags.RepeatCompletionBonus]
+        end
+    end
+    return contextIcon
+end
+
 -- =====================================================================================================================
 
 local function StatiPopup_OnShow(self)

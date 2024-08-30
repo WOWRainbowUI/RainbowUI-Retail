@@ -148,8 +148,10 @@ local function CompareQuestWatchInfos(info1, info2)
 
 	-- MSA
 	-- is on Map
-	if quest1:IsOnMap() ~= quest2:IsOnMap() then
-		return quest1:IsOnMap()
+	if not WorldMapFrame:IsShown() then
+		if quest1:IsOnMap() ~= quest2:IsOnMap() then
+			return quest1:IsOnMap()
+		end
 	end
 	-- by Zone
 	local KTquest1, KTquest2 = info1.KTquest, info2.KTquest;
@@ -161,7 +163,7 @@ local function CompareQuestWatchInfos(info1, info2)
 		return quest1.level > quest2.level
 	end
 
-	return quest1.title < quest2.title;  -- MSA
+	return info1.index > info2.index;  -- MSA
 end
 
 function KT_QuestObjectiveTrackerMixin:BuildQuestWatchInfos()
