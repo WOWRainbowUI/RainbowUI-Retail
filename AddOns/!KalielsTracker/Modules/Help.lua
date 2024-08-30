@@ -266,6 +266,14 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."Version 7.3.1|r\n"..
+					"- ADDED (quest) - show the Warband bonus icon on the reward in the tooltip\n"..
+					"- CHANGED - TomTom - minor improvements\n"..
+					"- FIXED (quests) - reward information in the tooltip is sometimes not displayed\n"..
+					"- FIXED - TomTom - green tag is not hidden when switching to Blizzard pin\n"..
+					"- PERFORMANCE (quests) - optimization of sorting code\n"..
+					"- PERFORMANCE - optimization of zone filtering code\n"..
+					"\n"..
 					cTitle.."Version 7.3.0|r\n"..
 					"- ADDED (quests) - filter support for Delves (Instance filter)\n"..
 					"- ADDED (scenario) - support for Delves and minor improvements (2)\n"..

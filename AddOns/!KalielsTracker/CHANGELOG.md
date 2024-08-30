@@ -1,4 +1,11 @@
 # Kaliel's Tracker changelog
+### 7.3.1
+- ADDED (quest) - show the Warband bonus icon on the reward in the tooltip
+- CHANGED - TomTom - minor improvements
+- FIXED (quests) - reward information in the tooltip is sometimes not displayed
+- FIXED - TomTom - green tag is not hidden when switching to Blizzard pin
+- PERFORMANCE (quests) - optimization of sorting code
+- PERFORMANCE - optimization of zone filtering code
 ### 7.3.0
 - ADDED (quests) - filter support for Delves (Instance filter)
 - ADDED (scenario) - support for Delves and minor improvements (2)

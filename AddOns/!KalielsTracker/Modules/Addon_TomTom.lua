@@ -242,6 +242,24 @@ local function SetHooks()
 		end
 	end)
 
+	hooksecurefunc(C_SuperTrack, "SetSuperTrackedContent", function(trackableType, trackableID)
+		if superTrackedQuestID > 0 then
+			RemoveWaypoint(superTrackedQuestID)
+		end
+	end)
+
+	hooksecurefunc(C_SuperTrack, "SetSuperTrackedMapPin", function(type, typeID)
+		if superTrackedQuestID > 0 then
+			RemoveWaypoint(superTrackedQuestID)
+		end
+	end)
+
+	hooksecurefunc(C_SuperTrack, "SetSuperTrackedUserWaypoint", function(superTracked)
+		if superTracked and superTrackedQuestID > 0 then
+			RemoveWaypoint(superTrackedQuestID)
+		end
+	end)
+
 	hooksecurefunc(C_QuestLog, "AbandonQuest", function()
 		local questID = QuestMapFrame.DetailsFrame.questID or QuestLogPopupDetailFrame.questID
 		RemoveWaypoint(questID)
@@ -282,7 +300,7 @@ local function SetEvents()
 	-- Update waypoint after quest objectives changed
 	KT:RegEvent("QUEST_WATCH_UPDATE", function(_, questID)
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
-			C_Timer.After(0.2, function()
+			C_Timer.After(0.3, function()
 				SetSuperTrackedQuestWaypoint(questID, true)
 			end)
 		end

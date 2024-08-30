@@ -337,6 +337,9 @@ local function Filter_Quests(spec, idx)
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
 			if not questInfo.isHidden then
+				if mapID == 2274 then  -- TWW - Khaz Algar (continent)
+					questInfo.isOnMap = false
+				end
 				if questInfo.isHeader then
 					isInZone = (questInfo.isOnMap or questInfo.title == zoneName or (dbChar.filter.quests.showCampaign and questInfo.campaignID))
 					if mapID == 1473 then  -- BfA - Chamber of Heart
@@ -842,7 +845,7 @@ function DropDown_Initialize(self, level)
 		info.func = function()
 			dbChar.filter.quests.showCampaign = not dbChar.filter.quests.showCampaign
 			if db.filterAuto[1] == "zone" then
-				Filter_Menu_Quests("zone")
+				Filter_Menu_Quests(_, "zone")
 			end
 		end
 		MSA_DropDownMenu_AddButton(info)
@@ -1059,15 +1062,18 @@ local function SetFrames()
 			elseif event == "ACHIEVEMENT_EARNED" then
 				RemoveFavorite("achievements", arg1)
 			elseif event == "PLAYER_ENTERING_WORLD" then
-				if not KT.IsInBetween() then
-					if db.filterAuto[1] == "zone" then
-						Filter_Quests("zone")
+				local isInitialLogin, isReloadingUi = arg1, ...
+				if not isInitialLogin and isReloadingUi then
+					if not KT.IsInBetween() then
+						if db.filterAuto[1] == "zone" then
+							Filter_Quests("zone")
+						end
+						if db.filterAuto[2] == "zone" then
+							Filter_Achievements("zone")
+						end
 					end
-					if db.filterAuto[2] == "zone" then
-						Filter_Achievements("zone")
-					end
+					self:UnregisterEvent(event)
 				end
-				self:UnregisterEvent(event)
 			elseif event == "QUEST_POI_UPDATE" then
 				KT.questStateStopUpdate = true
 				Filter_Quests("zone")
