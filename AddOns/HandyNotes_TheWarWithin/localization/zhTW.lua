@@ -10,7 +10,7 @@ L['skyriding_glyph'] = '天空騎術雕紋'
 L['options_icons_skyriding_glyph'] = '天空騎術雕紋'
 L['options_icons_skyriding_glyph_desc'] = '顯示全部天空騎術雕紋的位置。'
 
-L['options_icons_profession_treasures'] = '專業寶藏'
+L['options_icons_profession_treasures'] = '專業技能寶藏'
 L['options_icons_profession_treasures_desc'] = '顯示會給予專業技能知識的寶藏位置.'
 
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
@@ -20,7 +20,7 @@ L['options_icons_khaz_algar_lore_hunter_desc'] = '顯示成就 {achievement:4076
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
 
-L['alunira_note'] = '從 {location:多恩島} 的怪物收集10個 {item:224025} 並組合成 {item:224026} 以移除她的 {spell:451570}。'
+L['alunira_note'] = '收集 10x {item:224025} 並組合成 {item:224026} 來移除她的 {spell:451570}.'
 L['violet_hold_prisoner'] = '紫羅蘭堡囚犯'
 
 L['elemental_geode_label'] = '元素晶簇'
@@ -35,7 +35,7 @@ L['turtles_thanks_2_note'] = '繳交 1x {item:222533} (可以從 {object:微光�
 L['turtles_thanks_3_note'] = '在 {location:多恩諾加} 找到 {npc:223338} 並和他說話來接露寶藏.'
 L['web_wrapped_axe_note'] = '在一樓.\n\n{note:重生時間1-2小時.}'
 
-L['cendvin_note'] = '在 {location:森德文} 的菁英怪農 900x {item:225557} 來從 {npc:226205} 購買 {item:223153} 坐騎.'
+L['cendvin_note'] = '在 {location:火渣林} 的菁英怪農 900x {item:225557} 來從 {npc:226205} 購買 {item:223153} 坐騎.'
 
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = '顯示成就 {achievement:40606} 的位置.'
@@ -49,7 +49,7 @@ L['kaja_cola_machine_note'] = '以下列順序購買飲料 {item:223741} > {item
 
 L['options_icons_i_only_need_one_trip'] = '{achievement:40623}'
 L['options_icons_i_only_need_one_trip_desc'] = '顯示 {achievement:40623} 成就中的位置。'
-L['i_only_need_one_trip_note'] = '在{wq:信使任務：礦石回收} 世界任務中一次性存放全部10個礦石。'
+L['i_only_need_one_trip_note'] = '在世界任務 {wq:信差任務: 回收礦石} 一次繳交10個礦石.'
 
 L['options_icons_not_so_quick_fix'] = '{achievement:40473}'
 L['options_icons_not_so_quick_fix_desc'] = '顯示成就 {achievement:40473} 所需的控制臺位置.'
@@ -84,7 +84,7 @@ L['merunth_location'] = '在樓梯上方的管道上。'
 L['varerko_location'] = '在崖邊上。'
 L['alfritha_location'] = '在懸崖邊上。'
 L['gundrig_location'] = '在崖邊上。'
-L['sathilga_location'] = '在土靈采礦機械建築物附近的崖邊上。'
+L['sathilga_location'] = '在岩架上. 靠近土靈挖掘機建築旁.'
 
 L['trungal_note'] = '擊殺在入口周圍和洞穴下方出現的 {npc:220615} 後出現。'
 L['disturbed_earthgorger_note'] = '使用額外動作法術 {spell:437003} 對地面使用3次後出現。'
@@ -101,7 +101,7 @@ L['options_icons_disturbed_earth_desc'] = '顯示 {object:受打擾的土地} �
 
 L['options_icons_gobblin_with_glublurp'] = '{achievement:40614}'
 L['options_icons_gobblin_with_glublurp_desc'] = '顯示 {achievement:40614} 成就中的位置。'
-L['gobblin_with_glublurp_note'] = '點擊一個 {dot:Red}{object:爍光水晶} 來獲得 {spell:456739}。抓獲一個飛在 ' .. ns.color.Orange('橙圈') .. ' 的 {npc:227138} 並把它帶回給 {npc:227132}。\n\n（建議使用穩定飛行來獲得）。'
+L['gobblin_with_glublurp_note'] = '點擊一個 {dot:Red}{object:微光水晶} 來取得 {spell:456739}. 抓住一個在' .. ns.color.Orange('橘色圓圈') .. '飛行的 {npc:227138} 並帶回去給 {npc:227132}.\n\n(推薦使用穩速飛行來取得).'
 
 L['critter_love_note'] = '必須對小動物使用表情 {emote:/愛}、{emote:/love}，而不是戰鬥寵物。'
 L['options_icons_critter_love'] = '{achievement:40475}'
@@ -220,7 +220,7 @@ L['generals_scouting_shadecaster_location'] = '占位符'
 L['options_icons_bookworm'] = '{achievement:40629}'
 L['options_icons_bookworm_desc'] = '顯示 {achievement:40629} 成就中書籍的位置。'
 
-L['nerubian_potion_note'] = '以500個 {currency:3056} 從 {npc:218192} 購買 {item:225784}。'
+L['nerubian_potion_note'] = '以33個 {currency:3056} 從 {npc:218192} 購買 {item:225784}。'
 L['bookworm_note'] = '{note:還可以使用 {item:225784} 完成 {achievement:40542} 成就。}'
 L['bookworm_1_location'] = '在小洞窟入口處。'
 
