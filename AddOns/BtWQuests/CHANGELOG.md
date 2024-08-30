@@ -1,3 +1,15 @@
+# v2.47.0
+
+- Added an option to view the chain for a quest from the quest log and objective tracker context menus
+- Added A Star of Dorn questline to the Isle of Dorn
+- Added Dogged Pursuit questline to Azj-Kahet
+- Added The Beginning of Something Beautiful questline to Azj-Kahet
+- Fixed wait time for Striking Steel questline
+- Fixed an error showing detailed tooltips
+- Fixed an error checking item counts
+- Fixed an error reading faction data for a currently unknown faction
+- Removed Dragonflight data, it is now available as a separate addon BtWQuests: Dragonflight
+
 # v2.46.0
 
 - Added option to view chains as your Warband

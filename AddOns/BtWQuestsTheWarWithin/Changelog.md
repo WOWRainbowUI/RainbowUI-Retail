@@ -1,3 +1,10 @@
+# v2.0
+
+- Added A Star of Dorn questline to the Isle of Dorn
+- Added Dogged Pursuit questline to Azj-Kahet
+- Added The Beginning of Something Beautiful questline to Azj-Kahet
+- Fixed wait time for Striking Steel questline
+
 # v1.1
 
 - Fixed active and completion checks for Saving private Spindle questline in Azj-Kahet
