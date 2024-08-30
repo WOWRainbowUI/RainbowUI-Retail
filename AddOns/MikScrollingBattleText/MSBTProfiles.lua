@@ -3323,7 +3323,7 @@ end
 local function SetupBlizzardOptions()
 	-- Create a container frame for the Blizzard options area.
 	local frame = CreateFrame("Frame")
-	frame.name = "MikScrollingBattleText"
+	frame.name = L.MSBT_MSBT
 
 	-- Create an option button in the center of the frame to launch MSBT's options.
 	local button = CreateFrame("Button", nil, frame, IsClassic and "OptionsButtonTemplate" or "UIPanelButtonTemplate")
