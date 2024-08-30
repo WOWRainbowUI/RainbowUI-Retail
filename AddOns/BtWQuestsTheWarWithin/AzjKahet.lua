@@ -44,6 +44,9 @@ Chain.TempChain22 = 110432
 Chain.TempChain23 = 110433
 Chain.TempChain24 = 110434
 Chain.TempChain25 = 110435
+Chain.TempChain26 = 110436
+Chain.TempChain27 = 110437
+Chain.TempChain28 = 110438
 Chain.OtherAlliance = 110497
 Chain.OtherHorde = 110498
 Chain.OtherBoth = 110499
@@ -1714,38 +1717,91 @@ Database:AddChain(Chain.TempChain20, {
         id = 82124,
     },
     items = {
-        {
-            type = "quest",
-            id = 83587,
-            x = 0,
-            connections = {
-                1
-            }
-        },
-        {
-            type = "quest",
-            id = 82124,
-            x = 0,
-        },
     },
 })
 Database:AddChain(Chain.TempChain21, {
-    name = "To Kill a Queen",
+    name = { -- To Kill a Queen
+        type = "quest",
+        id = 82141,
+    },
     category = CATEGORY_ID,
     expansion = EXPANSION_ID,
     range = LEVEL_RANGE,
+    prerequisites = {
+        {
+            type = "level",
+            variations = {
+                { level = 68, restrictions = THREADS_OF_FATE_RESTRICTION, },
+                { level = 74, },
+            }
+        },
+        {
+            name = "Timegated for raid unlock?",
+        },
+    },
+    active = {
+        type = "quest",
+        id = 83587,
+    },
     completed = {
         type = "quest",
         id = 82141,
     },
     items = {
         {
+            type = "npc",
+            id = 227217,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 83587,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 82124,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 82125,
+            x = 0,
+            connections = {
+                1, 2, 
+            },
+        },
+        {
+            type = "quest",
+            id = 82126,
+            x = -1,
+            connections = {
+                2, 
+            },
+        },
+        {
+            type = "quest",
+            id = 82127,
+            connections = {
+                1, 
+            },
+        },
+        {
             type = "quest",
             id = 82130,
             x = 0,
             connections = {
-                1
-            }
+                1, 
+            },
         },
         {
             type = "quest",
@@ -1913,6 +1969,204 @@ Database:AddChain(Chain.TempChain25, {
         {
             type = "quest",
             id = 83277,
+            x = 0,
+        },
+    },
+})
+Database:AddChain(Chain.TempChain26, {
+    name = { -- Dogged Pursuit
+        type = "quest",
+        id = 79730,
+    },
+    category = CATEGORY_ID,
+    expansion = EXPANSION_ID,
+    range = LEVEL_RANGE,
+    prerequisites = {
+        {
+            type = "level",
+            variations = {
+                { level = 68, restrictions = THREADS_OF_FATE_RESTRICTION, },
+                { level = 74, },
+            }
+        },
+    },
+    active = {
+        type = "quest",
+        id = 79717,
+    },
+    completed = {
+        type = "quest",
+        id = 79730,
+    },
+    items = {
+        {
+            type = "npc",
+            id = 217692,
+            x = 0,
+            connections = {
+                1, 2, 
+            },
+        },
+        {
+            type = "quest",
+            id = 79717,
+            x = -1,
+            connections = {
+                2, 3, 
+            },
+        },
+        {
+            type = "quest",
+            id = 79718,
+            connections = {
+                1, 2, 
+            },
+        },
+        {
+            type = "quest",
+            id = 79723,
+            x = -1,
+            connections = {
+                2, 
+            },
+        },
+        {
+            type = "quest",
+            id = 79729,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 79730,
+            x = 0,
+        },
+    },
+})
+Database:AddChain(Chain.TempChain27, {
+    name = { -- Socialized Medicine
+        type = "quest",
+        id = 83177,
+    },
+    category = CATEGORY_ID,
+    expansion = EXPANSION_ID,
+    range = LEVEL_RANGE,
+    prerequisites = {
+        {
+            type = "level",
+            variations = {
+                { level = 68, restrictions = THREADS_OF_FATE_RESTRICTION, },
+                { level = 78, },
+            }
+        },
+        {
+            type = "reputation",
+            id = 2605,
+            standing = 6,
+        },
+    },
+    active = {
+        type = "quest",
+        id = 83177,
+    },
+    completed = {
+        type = "quest",
+        id = 83178,
+    },
+    items = {
+        {
+            name = "rep locked, at least 5? (6? beta)",
+        },
+        {
+            type = "npc",
+            id = 208782,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 83177,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 83178,
+            x = 0,
+        },
+    },
+})
+Database:AddChain(Chain.TempChain28, {
+    name = { -- The Beginning of Something Beautiful
+        type = "quest",
+        id = 83627,
+    },
+    category = CATEGORY_ID,
+    expansion = EXPANSION_ID,
+    range = LEVEL_RANGE,
+    prerequisites = {
+        {
+            type = "level",
+            variations = {
+                { level = 68, restrictions = THREADS_OF_FATE_RESTRICTION, },
+                { level = 78, },
+            }
+        },
+    },
+    active = {
+        type = "quest",
+        id = 79717,
+    },
+    completed = {
+        type = "quest",
+        id = 83721,
+    },
+    items = {
+        {
+            name = {
+                type = "kill",
+                id = 216046,
+            },
+            type = "item",
+            id = 225952,
+            breadcrumb = true,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 83627,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 83719,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 83720,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 83721,
             x = 0,
         },
     },
@@ -2479,6 +2733,14 @@ Database:AddCategory(CATEGORY_ID, {
             type = "chain",
             id = Chain.TempChain25,
         },
+        {
+            type = "chain",
+            id = Chain.TempChain26,
+        },
+        {
+            type = "chain",
+            id = Chain.TempChain28,
+        },
 --[==[@debug@
         {
             type = "chain",
@@ -2487,6 +2749,10 @@ Database:AddCategory(CATEGORY_ID, {
         {
             type = "chain",
             id = Chain.TempChain21,
+        },
+        {
+            type = "chain",
+            id = Chain.TempChain27,
         },
         {
             type = "chain",
@@ -2525,6 +2791,28 @@ Database:AddMapRecursive(2216, {
     type = "category",
     id = CATEGORY_ID,
 })
+
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.FriendsInTheDark)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.UnravelingTheTrapped)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.PlansWithinPlans)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.RakUshSwarmery)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.PillarnestVosh)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.GutterWork)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.MelodyOfMadness)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.PawnsAndPuppetry)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TheWormlands)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.HagglingWithMmarl)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TheSecondFront)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.MrSunflowersTherapy)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TheWildCamp)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.PillarnestOfHorrors)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.SubterfugeInSilk)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.SilkenWard)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.GrieveWeave)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.AllGoodThings)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TempChain25)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TempChain26)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TempChain28)
 
 --[==[@debug@
 Database:AddContinentItems(CONTINENT_ID, {

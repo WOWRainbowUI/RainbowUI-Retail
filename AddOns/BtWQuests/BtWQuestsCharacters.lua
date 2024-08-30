@@ -66,7 +66,7 @@ end
 local GetNumFactions = C_Reputation and C_Reputation.GetNumFactions or GetNumFactions;
 local GetFactionDataByID = C_Reputation and C_Reputation.GetFactionDataByID or function (id)
     local name, _, standing, barMin, barMax, barValue, _, _, _, _, _, _, _, factionID = GetFactionInfoByID(id);
-    return {
+    return name and {
         name = name,
         factionID = factionID,
         reaction = standing,
@@ -77,7 +77,7 @@ local GetFactionDataByID = C_Reputation and C_Reputation.GetFactionDataByID or f
 end;
 local GetFactionDataByIndex = C_Reputation and C_Reputation.GetFactionDataByIndex or function (i)
     local name, _, standing, barMin, barMax, barValue, _, _, _, _, _, _, _, factionID = GetFactionInfo(i);
-    return {
+    return name and {
         name = name,
         factionID = factionID,
         reaction = standing,
@@ -179,7 +179,7 @@ end
 -- @TODO Should probably just get character related info
 function BtWQuestsCharactersCharacterMixin:GetFactionInfoByID(factionID)
     local name
-    local tbl = GetFactionDataByID(factionID)
+    local tbl = GetFactionDataByID(factionID) or {}
     local factionName, standing, barMin, barMax, value = tbl.name, tbl.reaction, tbl.currentReactionThreshold, tbl.nextReactionThreshold, tbl.currentStanding
 
     if self.t.reputations then
@@ -600,7 +600,7 @@ if C_TradeSkillUI then
     end
 end
 function BtWQuestsCharactersPlayerMixin:GetFactionInfoByID(factionID)
-    local tbl = GetFactionDataByID(factionID)
+    local tbl = GetFactionDataByID(factionID) or {}
     local factionName, standing, barMin, barMax, value = tbl.name, tbl.reaction, tbl.currentReactionThreshold, tbl.nextReactionThreshold, tbl.currentStanding
 
     return factionName, standing, barMin, barMax, value

@@ -846,3 +846,9 @@ BtWQuestsDatabase:AddExpansionItems(EXPANSION_ID, {
         id = Chain.TheMachinesMarchToWar,
     },
 })
+
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.Introduction)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.AgainstTheCurrent)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TiesThatBind)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.NewsFromBelow)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TheMachinesMarchToWar)
