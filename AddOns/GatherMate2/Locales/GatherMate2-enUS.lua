@@ -736,6 +736,7 @@ NL["Waterlogged Wreckage Pool"] = true
 NL["Webbed Aqirite"] = true
 NL["Webbed Bismuth"] = true
 NL["Webbed Ironclaw"] = true
+NL["Webbed Ore Deposit"] = true
 NL["Weeping Aqirite"] = true
 NL["Weeping Bismuth"] = true
 NL["Weeping Ironclaw"] = true
