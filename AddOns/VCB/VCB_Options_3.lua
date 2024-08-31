@@ -1,10 +1,5 @@
 -- taking care of the panel --
-vcbOptions3:ClearAllPoints()
-vcbOptions3:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
-vcbOptions3.BGtexture:SetAlpha(1)
 vcbOptions3.TopTxt:SetText("Focus' Castbar Options!|n|nPLEASE CLOSE ALL OTHER PANELS|nKEEP THIS PANEL OPEN|nAND TAKE A FOCUS!")
-vcbOptions3.CenterTxt:Hide()
-vcbOptions3.BottomLeftTxt:Hide()
 vcbOptions3Box1.TitleTxt:SetText("Position & Scale of the Focus' Castbar!")
 -- fuction for Available --
 local function vcbAvailable()
@@ -44,7 +39,7 @@ end
 -- taking care of the target preview --
 FocusFrame.CBpreview:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nLeft click and drag to move me!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nLeft click and drag to move me!") 
 end)
 FocusFrame.CBpreview:SetScript("OnLeave", vcbLeavingMenus)
 -- Function for stoping the movement --
@@ -77,7 +72,7 @@ end
 vcbOptions3Box1CheckButton1.Text:SetText("Unlock")
 vcbOptions3Box1CheckButton1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nCheck me! if you want to unlock|nthe focus' cast bar!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nCheck me! if you want to unlock|nthe focus' cast bar!") 
 end)
 vcbOptions3Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions3Box1CheckButton1:HookScript("OnClick", function (self, button)
@@ -98,7 +93,7 @@ vcbOptions3Box1Slider1.Slider:SetMinMaxValues(10, 200)
 -- slider 1 do it --
 vcbOptions3Box1Slider1.Slider:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nYou can also use your mousewheel|nor the buttons to the edge|nto change the value!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nYou can also use your mousewheel|nor the buttons to the edge|nto change the value!") 
 end)
 vcbOptions3Box1Slider1.Slider:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions3Box1Slider1.Slider:SetScript("OnMouseWheel", MouseWheelSlider)
@@ -111,7 +106,7 @@ end)
 -- Popout 1, entering, leaving, click --
 vcbOptions3Box1PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you have any add on|nfor the Unit Frames?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you have any add on|nfor the Unit Frames?") 
 end)
 vcbOptions3Box1PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 vcbClickPopOut(vcbOptions3Box1PopOut1, vcbOptions3Box1PopOut1Choice0)
@@ -134,17 +129,19 @@ vcbOptions3Box1PopOut1Choice1:HookScript("OnClick", function(self, button, down)
 			vcbOptions3Box1PopOut1Choice0:Hide()
 		else
 			local vcbTime = GameTime_GetTime(false)
-			DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] You don't use the Shadowed Unit Frame add on, you don't need to choose that option!")
+			DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] You don't use the Shadowed Unit Frame add on, you don't need to choose that option!")
 		end
 	end
 end)
 -- naming --
 vcbOptions3Box1PopOut1Choice0.Text:SetText("None")
 vcbOptions3Box1PopOut1Choice1.Text:SetText("Shadowed Unit Frame")
+-- enter choice 1 --
 vcbOptions3Box1PopOut1Choice1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nFor people who uses SUF,|nplease from SUF options UNCHECK the option|nfrom Hide Blizzard - Hide focus frames.|nThen choose the 'Shadow Unit Frame'|nPlease restart your game client after this action!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nFor people who uses SUF!|nFrom SUF options UNCHECK the option|nHide Blizzard - Hide focus frames!|nPlease restart your game client after this action!|nAnd then choose the 'Shadow Unit Frame'!") 
 end)
+-- leave choice 1 --
 vcbOptions3Box1PopOut1Choice1:SetScript("OnLeave", vcbLeavingMenus)
 -- Showing the panel --
 vcbOptions3:HookScript("OnShow", function(self)

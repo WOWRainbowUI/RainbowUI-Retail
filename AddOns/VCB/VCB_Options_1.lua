@@ -1,10 +1,5 @@
 -- taking care of the panel --
-vcbOptions1:ClearAllPoints()
-vcbOptions1:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
-vcbOptions1.BGtexture:SetAlpha(1)
 vcbOptions1.TopTxt:SetText("Player's Castbar Options!")
-vcbOptions1.CenterTxt:Hide()
-vcbOptions1.BottomLeftTxt:Hide()
 -- naming the boxes --
 vcbOptions1Box1.TitleTxt:SetText("Spell's Icon & Spell's Name")
 vcbOptions1Box2.TitleTxt:SetText("Current Cast Time")
@@ -37,7 +32,7 @@ end
 -- enter --
 vcbOptions1Box1PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nSpell's Icon to be shown?") 
+	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nSpell's Icon to be shown?") 
 end)
 -- leave --
 vcbOptions1Box1PopOut1:SetScript("OnLeave", vcbLeavingMenus)
@@ -72,7 +67,7 @@ vcbOptions1Box1PopOut1Choice3.Text:SetText("Hide")
 -- enter --
 vcbOptions1Box1PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nSpell's Name to be shown?") 
+	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nSpell's Name to be shown?") 
 end)
 -- leave --
 vcbOptions1Box1PopOut2:SetScript("OnLeave", vcbLeavingMenus)
@@ -103,7 +98,7 @@ end)
 -- enter --
 vcbOptions1Box2PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nCurrent Cast Time to be shown?") 
+	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nCurrent Cast Time to be shown?") 
 end)
 -- leave --
 vcbOptions1Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
@@ -133,7 +128,7 @@ end)
 -- enter --
 vcbOptions1Box2PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nHow do you want the|ndirection of time to be?|nBoth means that the timer,|nwhile casting would be Ascending, and|nwhile channeling would be Descending!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nHow do you want the|ndirection of time to be?|nBoth means that the timer,|nwhile casting would be Ascending, and|nwhile channeling would be Descending!") 
 end)
 -- leave --
 vcbOptions1Box2PopOut2:SetScript("OnLeave", vcbLeavingMenus)
@@ -167,7 +162,7 @@ vcbOptions1Box2PopOut2Choice2.Text:SetText("Both")
 -- enter --
 vcbOptions1Box2PopOut3:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
+	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
 end)
 -- leave --
 vcbOptions1Box2PopOut3:SetScript("OnLeave", vcbLeavingMenus)
@@ -198,7 +193,7 @@ vcbOptions1Box2PopOut3Choice1.Text:SetText("Hide")
 -- enter --
 vcbOptions1Box3PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nCurrent/Total Cast Time to be shown?") 
+	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nCurrent/Total Cast Time to be shown?") 
 end)
 -- leave --
 vcbOptions1Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
@@ -228,7 +223,7 @@ end)
 -- enter --
 vcbOptions1Box3PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nHow do you want the|ndirection of time to be?|nBoth means that the timer,|nwhile casting would be Ascending, and|nwhile channeling would be Descending!") 
+	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nHow do you want the|ndirection of time to be?|nBoth means that the timer,|nwhile casting would be Ascending, and|nwhile channeling would be Descending!") 
 end)
 -- leave --
 vcbOptions1Box3PopOut2:SetScript("OnLeave", vcbLeavingMenus)
@@ -262,7 +257,7 @@ vcbOptions1Box3PopOut2Choice2.Text:SetText("Both")
 -- enter --
 vcbOptions1Box3PopOut3:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
 end)
 -- leave --
 vcbOptions1Box3PopOut3:SetScript("OnLeave", vcbLeavingMenus)
@@ -293,7 +288,7 @@ vcbOptions1Box3PopOut3Choice1.Text:SetText("Hide")
 -- enter --
 vcbOptions1Box4PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nTotal Cast Time to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nTotal Cast Time to be shown?") 
 end)
 -- leave --
 vcbOptions1Box4PopOut1:SetScript("OnLeave", vcbLeavingMenus)
@@ -323,7 +318,7 @@ end)
 -- enter --
 vcbOptions1Box4PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
 end)
 -- leave --
 vcbOptions1Box4PopOut2:SetScript("OnLeave", vcbLeavingMenus)
@@ -354,7 +349,7 @@ vcbOptions1Box4PopOut2Choice1.Text:SetText("Hide")
 -- enter --
 vcbOptions1Box5PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nLatency's Bar to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nLatency's Bar to be shown?") 
 end)
 -- leave --
 vcbOptions1Box5PopOut1:SetScript("OnLeave", vcbLeavingMenus)
@@ -384,7 +379,7 @@ vcbOptions1Box5PopOut1Choice1.Text:SetText("Hide")
 -- enter --
 vcbOptions1Box5PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhat color do you want the|nCastbar to be?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhat color do you want the|nCastbar to be?") 
 end)
 -- leave --
 vcbOptions1Box5PopOut2:SetScript("OnLeave", vcbLeavingMenus)
@@ -425,7 +420,7 @@ vcbOptions1Box5PopOut2Choice2.Text:SetText("Spell School Color")
 -- enter --
 vcbOptions1Box6PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nTicks of the Spells to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nTicks of the Spells to be shown?") 
 end)
 -- leave --
 vcbOptions1Box6PopOut1:SetScript("OnLeave", vcbLeavingMenus)

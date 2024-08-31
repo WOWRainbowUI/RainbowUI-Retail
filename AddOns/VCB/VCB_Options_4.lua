@@ -57,18 +57,13 @@ local function DeletingProfiles()
 	end
 end
 -- taking care of the panel --
-vcbOptions4:ClearAllPoints()
-vcbOptions4:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
-vcbOptions4.BGtexture:SetAlpha(1)
 vcbOptions4.TopTxt:SetText("Create and load profiles!")
-vcbOptions4.CenterTxt:Hide()
-vcbOptions4.BottomLeftTxt:Hide()
 vcbOptions4Box1.TitleTxt:SetText("Create a profile!")
 vcbOptions4Box2:SetPoint("TOP", vcbOptions4Box1, "BOTTOM", 0, 0)
 vcbOptions4Box2.TitleTxt:SetText("Load a profile!")
 vcbOptions4Box3:SetPoint("TOP", vcbOptions4Box2, "BOTTOM", 0, 0)
 vcbOptions4Box3.TitleTxt:SetText("Delete a profile!")
-vcbOptions4Box3.CenterTxt:SetText(vcbHighColor:WrapTextInColorCode("Note: ").."When you "..vcbHighColor:WrapTextInColorCode("SAVE")..", "..vcbHighColor:WrapTextInColorCode("LOAD")..", or "..vcbHighColor:WrapTextInColorCode("DELETE").." a Profile, the UI will be RELOADED!")
+vcbOptions4Box3.CenterTxt:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note: ").."When you "..vcbHighColor:WrapTextInColorCode("SAVE")..", "..vcbHighColor:WrapTextInColorCode("LOAD")..", or "..vcbHighColor:WrapTextInColorCode("DELETE").." a Profile, the UI will be RELOADED!")
 -- taking care of the edit box --
 -- width and height --
 local fontFile, height, flags = vcbOptions4Box1EditBox1.WritingLine:GetFont()
@@ -76,11 +71,12 @@ vcbOptions4Box1EditBox1.WritingLine:SetHeight(height)
 vcbOptions4Box1EditBox1:SetWidth(vcbOptions4Box1:GetWidth()*0.65)
 vcbOptions4Box1EditBox1:SetHeight(vcbOptions4Box1EditBox1.WritingLine:GetHeight()*1.75)
 vcbOptions4Box1EditBox1.WritingLine:SetWidth(vcbOptions4Box1EditBox1:GetWidth()*0.95)
--- entering, leaving --
+-- enter --
 vcbOptions4Box1EditBox1.WritingLine:HookScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWrite a name for your profile in the Edit Box and|npress enter to save your settings/options!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWrite a name for your profile in the Edit Box and|npress enter to save your settings/options!") 
 end)
+-- leave --
 vcbOptions4Box1EditBox1.WritingLine:HookScript("OnLeave", vcbLeavingMenus)
 -- pressing enter --
 vcbOptions4Box1EditBox1.WritingLine:SetScript("OnEnterPressed", function(self)
@@ -95,7 +91,7 @@ vcbOptions4Box1EditBox1.WritingLine:SetScript("OnEnterPressed", function(self)
 			end
 			if NameExist then
 				local vcbTime = GameTime_GetTime(false)
-				DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] This Profile already exist please try another name!")
+				DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] This Profile already exist please try another name!")
 				return
 			end
 		end
@@ -104,38 +100,50 @@ vcbOptions4Box1EditBox1.WritingLine:SetScript("OnEnterPressed", function(self)
 		C_UI.Reload()
 	else
 		local vcbTime = GameTime_GetTime(false)
-		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] Please enter a name for your profile!")
+		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] Please enter a name for your profile!")
 	end
 end)
--- Popout 1, entering, leaving, click --
+-- Box 2 --
+-- Popout 1 LOAD --
+-- width --
 vcbOptions4Box2PopOut1:SetWidth(vcbOptions4Box2:GetWidth()*0.65)
+-- enter --
 vcbOptions4Box2PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nSelect one of the profiles to be "..vcbHighColor:WrapTextInColorCode("LOADED!")) 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nSelect one of the profiles to be "..vcbHighColor:WrapTextInColorCode("LOADED!")) 
 end)
+-- leave --
 vcbOptions4Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
 vcbClickPopOut(vcbOptions4Box2PopOut1, vcbOptions4Box2PopOut1Choice0)
+-- choice 0 --
 vcbOptions4Box2PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
 		local vcbTime = GameTime_GetTime(false)
-		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] I did nothing, I literally do nothing as button!")
+		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] I did nothing, I literally do nothing as button!")
 		vcbOptions4Box2PopOut1Choice0:Hide()
 	end
 end)
 -- naming --
 vcbOptions4Box2PopOut1Choice0.Text:SetText("Nothing")
--- Popout 1, entering, leaving, click --
+-- Box 3 --
+-- Popout 1 DELETE --
+-- width --
 vcbOptions4Box3PopOut1:SetWidth(vcbOptions4Box3:GetWidth()*0.65)
+-- enter --
 vcbOptions4Box3PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nSelect one of the profiles to be "..vcbHighColor:WrapTextInColorCode("DELETED!")) 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nSelect one of the profiles to be "..vcbHighColor:WrapTextInColorCode("DELETED!")) 
 end)
+-- leave --
 vcbOptions4Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
 vcbClickPopOut(vcbOptions4Box3PopOut1, vcbOptions4Box3PopOut1Choice0)
+-- choice 0 --
 vcbOptions4Box3PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
 		local vcbTime = GameTime_GetTime(false)
-		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] I did nothing, I literally do nothing as button!")
+		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] I did nothing, I literally do nothing as button!")
 		vcbOptions4Box3PopOut1Choice0:Hide()
 	end
 end)
@@ -156,3 +164,12 @@ vcbOptions4:HookScript("OnShow", function(self)
 	vcbOptions00Tab3.Text:SetTextColor(vcbDeafultColor:GetRGB())
 	vcbOptions00Tab4.Text:SetTextColor(vcbHighColor:GetRGB())
 end)
+-- taking of the options panels --
+for i = 1, 4, 1 do
+	_G["vcbOptions"..i]:ClearAllPoints()
+	_G["vcbOptions"..i]:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
+	_G["vcbOptions"..i].BGtexture:SetAlpha(1)
+	_G["vcbOptions"..i].CenterTxt:Hide()
+	_G["vcbOptions"..i].BottomTxt:Hide()
+	_G["vcbOptions"..i].BottomLeftTxt:Hide()
+end

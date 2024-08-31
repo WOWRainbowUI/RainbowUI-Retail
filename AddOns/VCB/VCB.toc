@@ -1,14 +1,14 @@
 ## Interface: 110002
 ## Title: Voodoo |cff9ACD32Casting|r Bar
 ## Notes: |cffF0E68CMake some |cff9ACD32Voodoo|r to the default Casting Bar|r!
-## IconAtlas: Relic-Arcane-TraitGlow
+## IconAtlas: Relic-Fel-TraitBG
 ## AddonCompartmentFunc: vcbMinimapClick
 ## AddonCompartmentFuncOnEnter: vcbMinimapOnEnter
 ## AddonCompartmentFuncOnLeave: vcbMinimapOnLeave
 ## DefaultState: enabled
 ## SavedVariables: VCBrNumber VCBrProfile VCBrCounterLoading VCBrCounterDeleting
 ## SavedVariablesPerCharacter: VCBrPlayer VCBrTarget VCBrFocus
-## Version: 1.40
+## Version: 1.41
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 

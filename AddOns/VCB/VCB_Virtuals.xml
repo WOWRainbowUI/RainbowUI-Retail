@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 	<Script file="VCB_Virtuals.lua"/>
-<!-- The Tabs Panel -->
+<!-- Tabs Panel -->
 	<Frame name="vcbTabsPanel" frameStrata="DIALOG" frameLevel="250" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
 		<Size x="488" y="564"/>
 		<Layers>
@@ -26,7 +26,7 @@
 				<Scripts>
 					<OnEnter>
 						vcbEnteringMenus(self)
-						GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nClose this Panel!")
+						GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nClick: "..vcbMainColor:WrapTextInColorCode("Close this Panel!"))
 					</OnEnter>
 					<OnLeave>
 						vcbLeavingMenus()
@@ -45,7 +45,7 @@
 			</OnHide>
 		</Scripts>
 	</Frame>
-<!-- The Tabs button -->
+<!-- Tabs button -->
 	<Button name="vcbTabsButton" inherits="InsecureActionButtonTemplate" frameLevel="500" virtual="true">
 		<Size x="128" y="32"/>
 		<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER"/>
@@ -69,7 +69,7 @@
 			</Layer>
 		</Layers>
 	</Button>
-<!-- The Options Panel -->
+<!-- Panel Options -->
 	<Frame name="vcbOptionsPanel" inherits="InsetFrameTemplate4" frameStrata="DIALOG" frameLevel="0" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
 		<Size x="360" y="564"/>
 		<Layers>
@@ -181,7 +181,36 @@
 			</OnShow>
 		</Scripts>
 	</Frame>
-<!-- Options Box -->
+<!-- Button -->
+	<Button name="vcbOptionsButton" inherits="InsecureActionButtonTemplate" frameLevel="500" virtual="true">
+		<Size x="128" y="34"/>
+		<ButtonText parentKey="Text" font="Fonts\skurri.TTF" justifyV="MIDDLE" justifyH="CENTER" outline="NORMAL">
+			<FontHeight val="14"/>
+			<Scripts>
+				<OnLoad>
+					self:SetTextColor(vcbMainColor:GetRGB())
+				</OnLoad>
+			</Scripts>
+		</ButtonText>
+		<NormalTexture atlas="common-button-tertiary-normal-small" >
+			<Scripts>
+				<OnLoad>
+					self:SetVertexColor(vcbMainColor:GetRGB())
+					self:SetDesaturation(1)
+				</OnLoad>
+			</Scripts>
+		</NormalTexture>
+		<PushedTexture atlas="common-button-tertiary-pressed-small" >
+			<Scripts>
+				<OnLoad>
+					self:SetVertexColor(vcbMainColor:GetRGB())
+					self:SetDesaturation(1)
+				</OnLoad>
+			</Scripts>
+		</PushedTexture>
+		<HighlightTexture atlas="common-button-tertiary-hover-small" desaturated="true" alphaMode="ADD"/>
+	</Button>
+<!-- Box Options -->
 	<Frame name="vcbOptionsBox" frameStrata="DIALOG" frameLevel="200" enableMouse="false" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="false" virtual="true">
 		<Layers>
 			<Layer level="BORDER">
@@ -231,36 +260,7 @@
 			</Layer>
 		</Layers>
 	</Frame>
-<!-- Options Button -->
-	<Button name="vcbOptionsButton" inherits="InsecureActionButtonTemplate" frameLevel="500" virtual="true">
-		<Size x="128" y="34"/>
-		<ButtonText parentKey="Text" font="Fonts\skurri.TTF" justifyV="MIDDLE" justifyH="CENTER" outline="NORMAL">
-			<FontHeight val="14"/>
-			<Scripts>
-				<OnLoad>
-					self:SetTextColor(vcbMainColor:GetRGB())
-				</OnLoad>
-			</Scripts>
-		</ButtonText>
-		<NormalTexture atlas="common-button-tertiary-normal-small" >
-			<Scripts>
-				<OnLoad>
-					self:SetVertexColor(vcbMainColor:GetRGB())
-					self:SetDesaturation(1)
-				</OnLoad>
-			</Scripts>
-		</NormalTexture>
-		<PushedTexture atlas="common-button-tertiary-pressed-small" >
-			<Scripts>
-				<OnLoad>
-					self:SetVertexColor(vcbMainColor:GetRGB())
-					self:SetDesaturation(1)
-				</OnLoad>
-			</Scripts>
-		</PushedTexture>
-		<HighlightTexture atlas="common-button-tertiary-hover-small" desaturated="true" alphaMode="ADD"/>
-	</Button>
-<!-- Options Pop Out -->
+<!-- Pop Out -->
 	<Button name="vcbPopOut" frameStrata="DIALOG" frameLevel="525" virtual="true">
 		<Size x="176" y="32" />
 		<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
@@ -307,7 +307,7 @@
 		<NormalTexture atlas="AftLevelup-ToastBG"/>
 		<HighlightTexture atlas="Adventures_MissionList_Highlight" desaturated="true" alphaMode="ADD"/>
 	</Button>
-<!-- Options Check Button -->
+<!-- Check Box -->
 	<CheckButton name="vcbCheckButton" inherits="SettingsCheckBoxTemplate" frameLevel="510" virtual="true">
 		<Size x="22" y="22"/>
 		<Layers>
@@ -321,7 +321,7 @@
 		</Layers>
 		<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight.blp" alphaMode="ADD"/>
 	</CheckButton>
-<!--Options Slider -->	
+<!-- Slider -->	
 	<Frame name="vcbSlider" inherits="MinimalSliderWithSteppersTemplate" frameLevel="510" virtual="true">
 		<Scripts>
 			<OnLoad>
