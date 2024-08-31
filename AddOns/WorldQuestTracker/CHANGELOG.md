@@ -1,6 +1,6 @@
 # World Quest Tracker
 
-## [v11.0.2.513](https://github.com/Tercioo/World-Quest-Tracker/tree/v11.0.2.513) (2024-08-28)
-[Full Changelog](https://github.com/Tercioo/World-Quest-Tracker/compare/v11.0.2.512...v11.0.2.513) 
+## [v11.0.2.517](https://github.com/Tercioo/World-Quest-Tracker/tree/v11.0.2.517) (2024-08-30)
+[Full Changelog](https://github.com/Tercioo/World-Quest-Tracker/compare/v11.0.2.516...v11.0.2.517) 
 
-- Settings a default factionID if the faction is nil  
+- Added options to adjust the quest location size per world maps  

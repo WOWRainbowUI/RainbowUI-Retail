@@ -176,13 +176,15 @@ do
 
 			world_map_config = {
 				onmap_show = true,
-				onmap_scale_offset = 0.6,
+				onmap_scale_offset = 1.0,
 				summary_show = true,
 				summary_scale = 0.95,
 				summary_showby = "bytype", --"bytype" or "byzone"
 				summary_anchor = "left",
 				summary_widgets_per_row = 8,
 			},
+
+			world_map_hubscale = {},
 
 			speed_run = {
 				auto_accept = false,
@@ -270,6 +272,10 @@ do
 			use_quest_summary = true,
 			quest_summary_minimized = false,
 			show_summary_minimize_button = true,
+
+			pins_discovered = {
+				["worldquest-Capstone-questmarker-epic-Locked"] = {},
+			},
 
 			zone_map_config = {
 				summary_show = true,
@@ -497,7 +503,7 @@ if (not GetQuestLogRewardCurrencyInfo) then
 		tQuestCurrencies = tQuestCurrencies or {}
 		local questRewardCurrencyInfo = tQuestCurrencies[currencyIndex]
 		if (questRewardCurrencyInfo) then
-			return questRewardCurrencyInfo.name, questRewardCurrencyInfo.texture, questRewardCurrencyInfo.baseRewardAmount, questRewardCurrencyInfo.currencyID, questRewardCurrencyInfo.bonusRewardAmount
+			return questRewardCurrencyInfo.name, questRewardCurrencyInfo.texture, questRewardCurrencyInfo.totalRewardAmount, questRewardCurrencyInfo.currencyID, questRewardCurrencyInfo.bonusRewardAmount
 		end
 	end
 else

@@ -289,6 +289,8 @@ L["S_OPTTIONS_AUTOACCEPT_ABANDONQUEST"] = "Auto Aceptar Abandonar Misiones"
 L["S_OPTTIONS_DRAGONRACE_MINIMAP"] = "Mostrar Seguimiento en el Minimapa"
 L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "Color del Seguimiento"
 L["S_OPTTIONS_NUMERATE_QUEST"] = "Numerar Misiones"
+--[[Translation missing --]]
+L["S_OPTTIONS_QUESTLOCATIONSCALE_BYWORLDMAP"] = "Quest Scale by World Map"
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "Carrera de Dragones"
 L["S_OPTTIONS_TAB_GENERAL_SETTINGS"] = "Configuración General"
 L["S_OPTTIONS_TAB_GROUPFINDER_SETTINGS"] = "Buscador de Grupos"

@@ -334,6 +334,8 @@ L["S_OPTTIONS_DRAGONRACE_TRACKCOLOR"] = "Track Color"
 --[[Translation missing --]]
 L["S_OPTTIONS_NUMERATE_QUEST"] = "Enumerate Quests"
 --[[Translation missing --]]
+L["S_OPTTIONS_QUESTLOCATIONSCALE_BYWORLDMAP"] = "Quest Scale by World Map"
+--[[Translation missing --]]
 L["S_OPTTIONS_TAB_DRAGONRACE_SETTINGS"] = "Dragon Race"
 --[[Translation missing --]]
 L["S_OPTTIONS_TAB_GENERAL_SETTINGS"] = "General Settings"
