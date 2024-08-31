@@ -1197,7 +1197,7 @@ function WorldQuestTrackerAddon.OpenOptionsPanel()
         local optionsTable = {
             {
                 type = "label",
-                get = function() return "S_OPTTIONS_QUESTLOCATIONSCALE_BYWORLDMAP" end,
+                get = function() return L["S_OPTTIONS_QUESTLOCATIONSCALE_BYWORLDMAP"] end,
                 text_template = DF:GetTemplate("font", "ORANGE_FONT_TEMPLATE")
             },
         }
