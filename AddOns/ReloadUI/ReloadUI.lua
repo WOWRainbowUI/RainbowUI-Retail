@@ -53,6 +53,12 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
     end
 end)
 
+-- Add reload option to addon action forbidden
+do local ADDON_ACTION_FORBIDDEN = StaticPopupDialogs.ADDON_ACTION_FORBIDDEN;
+	ADDON_ACTION_FORBIDDEN.button3 = RELOADUI;
+	ADDON_ACTION_FORBIDDEN.OnAlt = ReloadUI;
+end
+
 
 
 
