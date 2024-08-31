@@ -1,6 +1,6 @@
 # Auto Potion
 
-## [3.5.11](https://github.com/ollidiemaus/AutoPotion/tree/3.5.11) (2024-08-29)
-[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.5.10...3.5.11) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
+## [3.5.12](https://github.com/ollidiemaus/AutoPotion/tree/3.5.12) (2024-08-30)
+[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.5.11...3.5.12) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
 
-- performance improvements in macro updating  
+- removed duplicate demonic healthstone  
