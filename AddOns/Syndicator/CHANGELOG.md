@@ -1,7 +1,8 @@
 # Syndicator
 
-## [111](https://github.com/Baganator/Syndicator/tree/111) (2024-08-28)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/110...111) 
+## [112](https://github.com/Baganator/Syndicator/tree/112) (2024-08-30)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/111...112) 
 
-- Simplify check for warband bank being active  
-- [Fixes #42] Retail: Take currency transfer tax into account  
+- Search: Add "read" keyword for items that you can read  
+- Add "combat curio" and "utility curio" keywords  
+- Add "upgrade" keyword, requires bag addon with support for it  

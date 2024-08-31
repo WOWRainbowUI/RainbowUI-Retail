@@ -77,6 +77,7 @@ L["KEYWORD_SWORD"] = "sword"
 L["KEYWORD_USE"] = "use"
 L["KEYWORD_USABLE"] = "usable"
 L["KEYWORD_OPEN"] = "open"
+L["KEYWORD_READ"] = "read"
 L["KEYWORD_STAFF"] = "staff"
 L["KEYWORD_HELM"] = "helm"
 L["KEYWORD_CLOAK"] = "cloak"
@@ -101,6 +102,7 @@ L["KEYWORD_OBJECTIVE"] = "objective"
 L["KEYWORD_COLLECTED"] = "collected"
 L["KEYWORD_UNCOLLECTED"] = "uncollected"
 L["KEYWORD_RX"] = "r%s"
+L["KEYWORD_UPGRADE"] = "upgrade"
 L["SEARCH_AND"] = "and"
 L["SEARCH_OR"] = "or"
 L["SEARCH_NOT"] = "not"
@@ -198,6 +200,8 @@ L["KEYWORD_OFF_HAND"] = "main gauche"
 L["KEYWORD_OPEN"] = "ouvrir"
 L["KEYWORD_PET"] = "mascotte"
 L["KEYWORD_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "composant"
 L["KEYWORD_RELIC"] = "relique"
 L["KEYWORD_REPUTATION"] = "réputation"
@@ -215,6 +219,8 @@ L["KEYWORD_TRADABLE_LOOT"] = "butin échangeable"
 L["KEYWORD_TRADEABLE_LOOT"] = "butin échangeable"
 L["KEYWORD_TRASH"] = "camelote"
 L["KEYWORD_UNCOLLECTED"] = "non obtenu"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 L["KEYWORD_USABLE"] = "utilisable"
 L["KEYWORD_USE"] = "utiliser"
 --[[Translation missing --]]
@@ -315,6 +321,8 @@ L["KEYWORD_OFF_HAND"] = "nebenhand"
 L["KEYWORD_OPEN"] = "offen"
 L["KEYWORD_PET"] = "haustier"
 L["KEYWORD_POTION"] = "trank"
+--[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "reagenz"
 L["KEYWORD_RELIC"] = "relikt"
 L["KEYWORD_REPUTATION"] = "ruf"
@@ -332,6 +340,8 @@ L["KEYWORD_TRADABLE_LOOT"] = "handelbare beute"
 L["KEYWORD_TRADEABLE_LOOT"] = "handelbare beute"
 L["KEYWORD_TRASH"] = "müll"
 L["KEYWORD_UNCOLLECTED"] = "nicht gesammelt"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 L["KEYWORD_USABLE"] = "benutzbar"
 L["KEYWORD_USE"] = "benutzen"
 --[[Translation missing --]]
@@ -431,6 +441,8 @@ L["KEYWORD_OFF_HAND"] = "левая рука"
 L["KEYWORD_OPEN"] = "использование"
 L["KEYWORD_PET"] = "питомец"
 L["KEYWORD_POTION"] = "зелье"
+--[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "материалы"
 L["KEYWORD_RELIC"] = "реликвия"
 L["KEYWORD_REPUTATION"] = "репутация"
@@ -447,6 +459,8 @@ L["KEYWORD_TRADABLE_LOOT"] = "персональный"
 L["KEYWORD_TRADEABLE_LOOT"] = "персональный"
 L["KEYWORD_TRASH"] = "хлам"
 L["KEYWORD_UNCOLLECTED"] = "неполученный"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 L["KEYWORD_USABLE"] = "пригодное"
 L["KEYWORD_USE"] = "использование"
 L["KEYWORD_WUE"] = "отряд"
@@ -543,6 +557,8 @@ L["KEYWORD_OFF_HAND"] = "mano izquierda"
 L["KEYWORD_OPEN"] = "abrir"
 L["KEYWORD_PET"] = "mascota"
 L["KEYWORD_POTION"] = "poción"
+--[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "componentes"
 L["KEYWORD_RELIC"] = "reliquia"
 L["KEYWORD_REPUTATION"] = "reputación"
@@ -559,6 +575,8 @@ L["KEYWORD_TRADABLE_LOOT"] = "botín comerciable"
 L["KEYWORD_TRADEABLE_LOOT"] = "objetos intercambiables"
 L["KEYWORD_TRASH"] = "chatarra"
 L["KEYWORD_UNCOLLECTED"] = "no obtenido"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 L["KEYWORD_USABLE"] = "utilizable"
 L["KEYWORD_USE"] = "uso"
 --[[Translation missing --]]
@@ -721,6 +739,8 @@ L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
 L["KEYWORD_POTION"] = "potion"
 --[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
+--[[Translation missing --]]
 L["KEYWORD_REAGENT"] = "reagent"
 --[[Translation missing --]]
 L["KEYWORD_RELIC"] = "relic"
@@ -752,6 +772,8 @@ L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
 L["KEYWORD_TRASH"] = "trash"
 --[[Translation missing --]]
 L["KEYWORD_UNCOLLECTED"] = "uncollected"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 --[[Translation missing --]]
 L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
@@ -874,6 +896,8 @@ L["KEYWORD_OFF_HAND"] = "副手"
 L["KEYWORD_OPEN"] = "開啟"
 L["KEYWORD_PET"] = "寵物"
 L["KEYWORD_POTION"] = "藥水"
+--[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "配方"
 L["KEYWORD_RELIC"] = "聖物"
 L["KEYWORD_REPUTATION"] = "聲望"
@@ -890,6 +914,8 @@ L["KEYWORD_TRADABLE_LOOT"] = "可交易拾取"
 L["KEYWORD_TRADEABLE_LOOT"] = "可交易拾取"
 L["KEYWORD_TRASH"] = "垃圾"
 L["KEYWORD_UNCOLLECTED"] = "未收藏"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 L["KEYWORD_USABLE"] = "可使用"
 L["KEYWORD_USE"] = "使用"
 L["KEYWORD_WUE"] = "裝前戰綁"
@@ -985,6 +1011,8 @@ L["KEYWORD_OFF_HAND"] = "副手"
 L["KEYWORD_OPEN"] = "打开"
 L["KEYWORD_PET"] = "宠物"
 L["KEYWORD_POTION"] = "药水"
+--[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "材料"
 L["KEYWORD_RELIC"] = "圣物"
 L["KEYWORD_REPUTATION"] = "声望"
@@ -1001,6 +1029,8 @@ L["KEYWORD_TRADABLE_LOOT"] = "可交易拾取（时限）"
 L["KEYWORD_TRADEABLE_LOOT"] = "可交易拾取（时限）"
 L["KEYWORD_TRASH"] = "垃圾"
 L["KEYWORD_UNCOLLECTED"] = "未收藏"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 L["KEYWORD_USABLE"] = "可使用"
 L["KEYWORD_USE"] = "使用（use）"
 L["KEYWORD_WUE"] = "装前战绑"
@@ -1138,6 +1168,8 @@ L["KEYWORD_OFF_HAND"] = "보조장비"
 L["KEYWORD_OPEN"] = "open"
 L["KEYWORD_PET"] = "소환수"
 L["KEYWORD_POTION"] = "물약"
+--[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "재료"
 --[[Translation missing --]]
 L["KEYWORD_RELIC"] = "relic"
@@ -1163,6 +1195,8 @@ L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
 L["KEYWORD_TRASH"] = "trash"
 --[[Translation missing --]]
 L["KEYWORD_UNCOLLECTED"] = "uncollected"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 --[[Translation missing --]]
 L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
@@ -1347,6 +1381,8 @@ L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
 L["KEYWORD_POTION"] = "potion"
 --[[Translation missing --]]
+L["KEYWORD_READ"] = "read"
+--[[Translation missing --]]
 L["KEYWORD_REAGENT"] = "reagent"
 --[[Translation missing --]]
 L["KEYWORD_RELIC"] = "relic"
@@ -1378,6 +1414,8 @@ L["KEYWORD_TRADEABLE_LOOT"] = "tradeable loot"
 L["KEYWORD_TRASH"] = "trash"
 --[[Translation missing --]]
 L["KEYWORD_UNCOLLECTED"] = "uncollected"
+--[[Translation missing --]]
+L["KEYWORD_UPGRADE"] = "upgrade"
 --[[Translation missing --]]
 L["KEYWORD_USABLE"] = "usable"
 --[[Translation missing --]]
