@@ -57,18 +57,13 @@ local function DeletingProfiles()
 	end
 end
 -- taking care of the panel --
-vcbOptions4:ClearAllPoints()
-vcbOptions4:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
-vcbOptions4.BGtexture:SetAlpha(1)
 vcbOptions4.TopTxt:SetText("建立和載入設定檔!")
-vcbOptions4.CenterTxt:Hide()
-vcbOptions4.BottomLeftTxt:Hide()
 vcbOptions4Box1.TitleTxt:SetText("建立設定檔!")
 vcbOptions4Box2:SetPoint("TOP", vcbOptions4Box1, "BOTTOM", 0, 0)
 vcbOptions4Box2.TitleTxt:SetText("載入設定檔!")
 vcbOptions4Box3:SetPoint("TOP", vcbOptions4Box2, "BOTTOM", 0, 0)
 vcbOptions4Box3.TitleTxt:SetText("刪除設定檔!")
-vcbOptions4Box3.CenterTxt:SetText(vcbHighColor:WrapTextInColorCode("注意: ").."當你"..vcbHighColor:WrapTextInColorCode("儲存").."、"..vcbHighColor:WrapTextInColorCode("載入").."和"..vcbHighColor:WrapTextInColorCode("刪除").."設定檔時，\n都會重新載入介面!")
+vcbOptions4Box3.CenterTxt:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("注意: ")..vcbHighColor:WrapTextInColorCode("儲存").."、"..vcbHighColor:WrapTextInColorCode("載入").."和"..vcbHighColor:WrapTextInColorCode("刪除").."設定檔時，\n都會重新載入介面!")
 -- taking care of the edit box --
 -- width and height --
 local fontFile, height, flags = vcbOptions4Box1EditBox1.WritingLine:GetFont()
@@ -76,11 +71,12 @@ vcbOptions4Box1EditBox1.WritingLine:SetHeight(height)
 vcbOptions4Box1EditBox1:SetWidth(vcbOptions4Box1:GetWidth()*0.65)
 vcbOptions4Box1EditBox1:SetHeight(vcbOptions4Box1EditBox1.WritingLine:GetHeight()*1.75)
 vcbOptions4Box1EditBox1.WritingLine:SetWidth(vcbOptions4Box1EditBox1:GetWidth()*0.95)
--- entering, leaving --
+-- enter --
 vcbOptions4Box1EditBox1.WritingLine:HookScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("在文字欄位中輸入設定檔名稱，然後按下 Enter 鍵來儲存設定/選項!") 
 end)
+-- leave --
 vcbOptions4Box1EditBox1.WritingLine:HookScript("OnLeave", vcbLeavingMenus)
 -- pressing enter --
 vcbOptions4Box1EditBox1.WritingLine:SetScript("OnEnterPressed", function(self)
@@ -95,7 +91,7 @@ vcbOptions4Box1EditBox1.WritingLine:SetScript("OnEnterPressed", function(self)
 			end
 			if NameExist then
 				local vcbTime = GameTime_GetTime(false)
-				DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 設定檔已經存在，請嘗試其他名稱!")
+				DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 設定檔已經存在，請嘗試其他名稱!")
 				return
 			end
 		end
@@ -104,38 +100,50 @@ vcbOptions4Box1EditBox1.WritingLine:SetScript("OnEnterPressed", function(self)
 		C_UI.Reload()
 	else
 		local vcbTime = GameTime_GetTime(false)
-		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 請輸入設定檔名稱!")
+		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 請輸入設定檔名稱!")
 	end
 end)
--- Popout 1, entering, leaving, click --
+-- Box 2 --
+-- Popout 1 LOAD --
+-- width --
 vcbOptions4Box2PopOut1:SetWidth(vcbOptions4Box2:GetWidth()*0.65)
+-- enter --
 vcbOptions4Box2PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("請選擇要"..vcbHighColor:WrapTextInColorCode("載入").."的設定檔!")
 end)
+-- leave --
 vcbOptions4Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
 vcbClickPopOut(vcbOptions4Box2PopOut1, vcbOptions4Box2PopOut1Choice0)
+-- choice 0 --
 vcbOptions4Box2PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
 		local vcbTime = GameTime_GetTime(false)
-		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 我什麼都沒做，作為按鈕我什麼也沒做!")
+		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 我什麼都沒做，作為按鈕我什麼也沒做!")
 		vcbOptions4Box2PopOut1Choice0:Hide()
 	end
 end)
 -- naming --
 vcbOptions4Box2PopOut1Choice0.Text:SetText("沒事")
--- Popout 1, entering, leaving, click --
+-- Box 3 --
+-- Popout 1 DELETE --
+-- width --
 vcbOptions4Box3PopOut1:SetWidth(vcbOptions4Box3:GetWidth()*0.65)
+-- enter --
 vcbOptions4Box3PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("請選擇要"..vcbHighColor:WrapTextInColorCode("刪除").."的設定檔!")
 end)
+-- leave --
 vcbOptions4Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
 vcbClickPopOut(vcbOptions4Box3PopOut1, vcbOptions4Box3PopOut1Choice0)
+-- choice 0 --
 vcbOptions4Box3PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
 		local vcbTime = GameTime_GetTime(false)
-		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 我什麼都沒做，作為按鈕我什麼也沒做!")
+		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 我什麼都沒做，作為按鈕我什麼也沒做!")
 		vcbOptions4Box3PopOut1Choice0:Hide()
 	end
 end)
@@ -156,3 +164,12 @@ vcbOptions4:HookScript("OnShow", function(self)
 	vcbOptions00Tab3.Text:SetTextColor(vcbDeafultColor:GetRGB())
 	vcbOptions00Tab4.Text:SetTextColor(vcbHighColor:GetRGB())
 end)
+-- taking of the options panels --
+for i = 1, 4, 1 do
+	_G["vcbOptions"..i]:ClearAllPoints()
+	_G["vcbOptions"..i]:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
+	_G["vcbOptions"..i].BGtexture:SetAlpha(1)
+	_G["vcbOptions"..i].CenterTxt:Hide()
+	_G["vcbOptions"..i].BottomTxt:Hide()
+	_G["vcbOptions"..i].BottomLeftTxt:Hide()
+end

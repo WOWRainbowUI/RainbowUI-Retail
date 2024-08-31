@@ -1,10 +1,5 @@
 -- taking care of the panel --
-vcbOptions2:ClearAllPoints()
-vcbOptions2:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
-vcbOptions2.BGtexture:SetAlpha(1)
 vcbOptions2.TopTxt:SetText("目標施法條選項!|n|n請關閉其他所有視窗|n保持打開此面板|n並且選取一個目標!")
-vcbOptions2.CenterTxt:Hide()
-vcbOptions2.BottomLeftTxt:Hide()
 vcbOptions2Box1.TitleTxt:SetText("目標施法條的位置 & 縮放大小!")
 -- fuction for Available --
 local function vcbAvailable()
@@ -134,17 +129,19 @@ vcbOptions2Box1PopOut1Choice1:HookScript("OnClick", function(self, button, down)
 			vcbOptions2Box1PopOut1Choice0:Hide()
 		else
 			local vcbTime = GameTime_GetTime(false)
-			DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 你沒有使用 Shadow Unit Frame 插件，不需要選擇該選項!")
+			DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 你沒有使用 Shadow Unit Frame 插件，不需要選擇該選項!")
 		end
 	end
 end)
 -- naming --
 vcbOptions2Box1PopOut1Choice0.Text:SetText("無")
 vcbOptions2Box1PopOut1Choice1.Text:SetText("Shadowed Unit Frame")
+-- enter choice 1 --
 vcbOptions2Box1PopOut1Choice1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("使用 SUF 的玩家，請在 SUF 選項>隱藏暴雪>隱藏目標框架，取消打勾。|n然後選擇 'Shadow Unit Frame'|n完成此操作後請重新啟動遊戲!") 
 end)
+-- leave choice 1 --
 vcbOptions2Box1PopOut1Choice1:SetScript("OnLeave", vcbLeavingMenus)
 -- Showing the panel --
 vcbOptions2:HookScript("OnShow", function(self)

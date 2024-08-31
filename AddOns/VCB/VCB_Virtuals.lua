@@ -61,7 +61,7 @@ end
 function vcbMinimapOnEnter()
 	GameTooltip_ClearStatusBars(GameTooltip)
 	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|n點一下: "..vcbMainColor:WrapTextInColorCode("打開設定選項!")) 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|n點一下: "..vcbMainColor:WrapTextInColorCode("打開設定選項!")) 
 	GameTooltip:Show()
 end
 -- On Leave --

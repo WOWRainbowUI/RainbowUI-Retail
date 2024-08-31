@@ -1,10 +1,5 @@
 -- taking care of the panel --
-vcbOptions3:ClearAllPoints()
-vcbOptions3:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
-vcbOptions3.BGtexture:SetAlpha(1)
 vcbOptions3.TopTxt:SetText("專注目標施法條選項!|n|n請關閉其他所有視窗|n保持打開此面板|n並且設定專注目標!")
-vcbOptions3.CenterTxt:Hide()
-vcbOptions3.BottomLeftTxt:Hide()
 vcbOptions3Box1.TitleTxt:SetText("專注目標施法條的位置 & 縮放大小!")
 -- fuction for Available --
 local function vcbAvailable()
@@ -134,7 +129,7 @@ vcbOptions3Box1PopOut1Choice1:HookScript("OnClick", function(self, button, down)
 			vcbOptions3Box1PopOut1Choice0:Hide()
 		else
 			local vcbTime = GameTime_GetTime(false)
-			DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 你沒有使用 Shadow Unit Frame 插件，不需要選擇該選項!")
+			DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 你沒有使用 Shadow Unit Frame 插件，不需要選擇該選項!")
 		end
 	end
 end)

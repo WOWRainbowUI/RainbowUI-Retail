@@ -1,10 +1,5 @@
 -- taking care of the panel --
-vcbOptions1:ClearAllPoints()
-vcbOptions1:SetPoint("TOPLEFT", vcbOptions00, "TOPLEFT", 0, 0)
-vcbOptions1.BGtexture:SetAlpha(1)
 vcbOptions1.TopTxt:SetText("玩家施法條選項!")
-vcbOptions1.CenterTxt:Hide()
-vcbOptions1.BottomLeftTxt:Hide()
 -- naming the boxes --
 vcbOptions1Box1.TitleTxt:SetText("法術圖示 & 法術名稱")
 vcbOptions1Box2.TitleTxt:SetText("目前施法時間")
