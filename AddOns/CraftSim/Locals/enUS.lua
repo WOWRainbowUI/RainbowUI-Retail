@@ -140,11 +140,12 @@ function CraftSim.LOCAL_EN:GetData()
             "So if we have one " ..
             f.bb("case A with chance 30%") ..
             " and profit " ..
-            f.m(-100 * 10000) ..
+            CraftSim.UTIL:FormatMoney(-100 * 10000, true) ..
             " and a " ..
             f.bb("case B with chance 70%") ..
-            " and profit " .. f.m(300 * 10000) .. " then the expected profit of that is\n" ..
-            f.bb("\nE(X) = -100*0.3 + 300*0.7  ") .. "which is " .. f.m((-100 * 0.3 + 300 * 0.7) * 10000) .. "\n" ..
+            " and profit " .. CraftSim.UTIL:FormatMoney(300 * 10000, true) .. " then the expected profit of that is\n" ..
+            f.bb("\nE(X) = -100*0.3 + 300*0.7  ") ..
+            "which is " .. CraftSim.UTIL:FormatMoney((-100 * 0.3 + 300 * 0.7) * 10000, true) .. "\n" ..
             "You can view all cases for your current recipe in the " .. f.bb("Statistics") .. " window!"
         ,
 
@@ -445,10 +446,13 @@ function CraftSim.LOCAL_EN:GetData()
         [CraftSim.CONST.TEXT.CONTROL_PANEL_RESET_FRAMES] = "Reset Frame Positions",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_OPTIONS] = "Options",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_NEWS] = "News",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_EASYCRAFT_EXPORT] = f.l("Easycraft") .. " Export",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_EASYCRAFT_EXPORTING] = "Exporting",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_EASYCRAFT_EXPORT_NO_RECIPE_FOUND] = "No recipe to export for The War Within expansion",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_FORGEFINDER_EXPORT] = f.l("ForgeFinder") .. " Export",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_FORGEFINDER_EXPORTING] = "Exporting",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_FORGEFINDER_EXPLANATION] = f.l("www.wowforgefinder.com") ..
-            "\nis a website to search and offer " .. f.bb("WoW Crafting Orders"),
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_EXPORT_EXPLANATION] = f.l("wowforgefinder.com") .. " and " .. f.l("easycraft.io") ..
+            "\nare websites to search and offer " .. f.bb("WoW Crafting Orders"),
         [CraftSim.CONST.TEXT.CONTROL_PANEL_DEBUG] = "Debug",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_TITLE] = "Control Panel",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_SUPPORTERS_BUTTON] = f.patreon("Supporters"),

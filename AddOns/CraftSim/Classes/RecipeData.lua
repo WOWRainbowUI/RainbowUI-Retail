@@ -463,6 +463,8 @@ function CraftSim.RecipeData:GetConcentrationCost()
         local playerSkillFactor = (playerSkill / (baseDifficulty / 100)) / 100
         local specExtraValues = self.specializationData:GetExtraValues()
         local lessConcentrationUsageFactor = specExtraValues.ingenuity:GetExtraValue(2)
+        local optionalReagentStats = self.reagentData:GetProfessionStatsByOptionals()
+        local lessConcentrationUsageFactor2 = optionalReagentStats.ingenuity:GetExtraValue(2)
 
         -- recipeDifficulty here or playerSkill ?
         local curveConstantData, nextCurveConstantData = CraftSim.UTIL:FindBracketData(playerSkill,
@@ -485,7 +487,7 @@ function CraftSim.RecipeData:GetConcentrationCost()
             skillStart,
             skillEnd,
             skillCurveValueStart,
-            skillCurveValueEnd, lessConcentrationUsageFactor)
+            skillCurveValueEnd, { lessConcentrationUsageFactor, lessConcentrationUsageFactor2 })
     else
         -- if by any chance the data for this recipe is not mapped in the db2 data, get a good guess via the api
         -- or if we are not in the current beta (08.08.2024)
@@ -762,6 +764,52 @@ function CraftSim.RecipeData:GetForgeFinderExport(indent)
         print("json, adding skill: ")
         jb:Add("skill", self.professionStats.skill.value)                     -- skill without reagent bonus TODO: if single export, consider removing reagent bonus
         jb:Add("difficulty", self.baseProfessionStats.recipeDifficulty.value) -- base difficulty (without optional reagents)
+    end
+    if self.supportsCraftingStats then
+        if self.supportsMulticraft then
+            if not self.supportsResourcefulness then
+                jb:Add("multicraft", professionStatsForExport.multicraft:GetPercent(true), true)
+            else
+                jb:Add("multicraft", professionStatsForExport.multicraft:GetPercent(true))
+            end
+        end
+        if self.supportsResourcefulness then
+            jb:Add("resourcefulness", professionStatsForExport.resourcefulness:GetPercent(true), true)
+        end
+    end
+    jb:End()
+
+    return jb.json
+end
+
+function CraftSim.RecipeData:GetEasycraftExport(indent)
+    indent = indent or 0
+    local jb = CraftSim.JSONBuilder(indent)
+
+    jb:Begin()
+    jb:AddList("itemIDs", GUTIL:Map(self.resultData.itemsByQuality, function(item)
+        return item:GetItemID()
+    end))
+    local reagents = {}
+    for _, reagent in pairs(self.reagentData.requiredReagents) do
+        for _, reagentItem in pairs(reagent.items) do
+            reagents[reagentItem.item:GetItemID()] = reagent.requiredQuantity
+        end
+    end
+
+    local professionStatsForExport = self.professionStats:Copy()
+    professionStatsForExport:subtract(self.buffData.professionStats)
+
+    jb:Add("spellID", self.recipeID)
+    jb:Add("expectedQuality", self.resultData.expectedQuality)
+    jb:Add("expectedQualityConcentration", self.resultData.expectedQualityConcentration)
+    jb:Add("reagents", reagents) -- itemID mapped to required quantity
+    if self.supportsQualities then
+        print("json, adding skill: ")
+        jb:Add("skill", self.professionStats.skill.value)                     -- skill without reagent bonus TODO: if single export, consider removing reagent bonus
+        jb:Add("difficulty", self.baseProfessionStats.recipeDifficulty.value) -- base difficulty (without optional reagents)
+        jb:Add("concentration", self.concentrationCost)
+        jb:Add("ingenuity", self.professionStats.ingenuity.value)
     end
     if self.supportsCraftingStats then
         if self.supportsMulticraft then
@@ -1108,7 +1156,8 @@ function CraftSim.RecipeData:OptimizeSubRecipes(optimizeOptions, visitedRecipeID
 
                             -- caches the expect costs info automatically
                             recipeData:OptimizeProfit(optimizeOptions)
-                            print("- Profit: " .. GUTIL:FormatMoney(recipeData.averageProfitCached, true, nil, true))
+                            print("- Profit: " ..
+                                CraftSim.UTIL:FormatMoney(recipeData.averageProfitCached, true, nil, true))
 
                             -- if the necessary item quality is reachable, map it to the recipe
                             local reagentQualityReachable, concentrationOnly = recipeData.resultData
