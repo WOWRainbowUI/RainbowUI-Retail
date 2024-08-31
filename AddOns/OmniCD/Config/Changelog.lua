@@ -19,8 +19,11 @@ v4.4.0.2803
 	minor bug fix
 ]=]
 else E.changelog = [=[
-v11.0.2.2803
+v11.0.2.2804
+	minor bug fixes
+	zhCN localization update
 
+v11.0.2.2803
 	Release for WoW: The War Within
 
 ]=]

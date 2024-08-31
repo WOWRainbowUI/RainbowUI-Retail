@@ -81,7 +81,6 @@ function E:ProcessSpellDB()
 		end
 	end
 
-
 	for castID, v in pairs(self.spell_merged) do
 		if not self.spell_highlighted[castID] then
 			self.spell_highlighted[castID] = true

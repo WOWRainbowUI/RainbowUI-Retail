@@ -973,8 +973,8 @@ local function FindValidSpellID(info, v)
 end
 
 function CM:UpdateCooldownSyncIDs(info)
-	if E.preCata or info.isAdminObsForMDI then return end
 	wipe(self.cooldownSyncIDs)
+	if info.isAdminObsForMDI then return end
 	local notRaid = P.zone ~= "raid"
 	for id, t in E.pairs(E.sync_cooldowns.ALL, E.sync_cooldowns[E.userClass]) do
 		if notRaid or E.sync_in_raid[id] then
@@ -1029,7 +1029,9 @@ function CM:InspectUser()
 	local encodedData = LibDeflate:EncodeForWoWAddonChannel(compressedData)
 	self.serializedSyncData = encodedData
 
-	self:UpdateCooldownSyncIDs(info)
+	if not E.preCata then
+		self:UpdateCooldownSyncIDs(info)
+	end
 
 	if P.groupInfo[E.userGUID] then
 		P:UpdateUnitBar(E.userGUID)
