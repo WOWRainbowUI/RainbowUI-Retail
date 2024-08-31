@@ -2422,6 +2422,20 @@ D["TargetNameplateIndicator"] = {
         callback = function() SlashCmdList["ACECONSOLE_TNI"]("") end,
     },
 };
+D["TeleportMenu"] = {
+	defaultEnable = 1,
+	tags = { "ENHANCEMENT" },
+	title = "傳送選單",
+	desc = "在 Esc 遊戲選單旁邊顯示各種爐石/傳送法術的按鈕。`",
+	modifier = "BNS, 彩虹ui",
+	img = true,
+	{
+        text = "設定選項",
+        callback = function() 
+			Settings.OpenToCategory("TeleportMenu")
+		end,
+    },
+};
 D["TidyPlates_ThreatPlates"] = {
     defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
