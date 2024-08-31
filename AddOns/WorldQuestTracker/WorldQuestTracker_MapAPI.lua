@@ -581,7 +581,6 @@ local ItemTooltipScan = CreateFrame ("GameTooltip", "WQTItemTooltipScan", UIPare
 		local numQuestCurrencies = GetNumQuestLogRewardCurrencies(questID)
 
 		if (numQuestCurrencies == 1) then
-
 			--is artifact power? bfa
 			do
 				local name, texture, numItems, currencyId, quality = GetQuestLogRewardCurrencyInfo(1, questID)
@@ -593,21 +592,18 @@ local ItemTooltipScan = CreateFrame ("GameTooltip", "WQTItemTooltipScan", UIPare
 
 			--is artifact power wow11
 			do
-				local name, texture, numItems, currencyId, quality = GetQuestLogRewardCurrencyInfo(1, questID)
+				local name, texture, baseRewardAmount, currencyId, bonusRewardAmount = GetQuestLogRewardCurrencyInfo(1, questID)
 				if (texture == 2967113) then --resonance crystals
-					return name, texture, 0, 1, 1, false, 0, 8, numItems or 0, false, 1
+					return name, texture, 0, 1, 1, false, 0, 8, baseRewardAmount or 0, false, 1
 				end
 			end
-
-			--print("currency: ", name, texture, numItems, currencyId, quality)
-			--aaaa[currencyId] = {name, texture, numItems, currencyId, quality}
 		end
 
 		local numQuestRewards = GetNumQuestLogRewards(questID)
+
 		if (numQuestRewards > 0) then
 			local itemName, itemTexture, quantity, itemQuality, isUsable, itemID, itemLevel = GetQuestLogRewardInfo(1, questID)
 			itemLevel = itemLevel or 0
-
 
 			if (itemID) then
 				local itemName, itemLink, itemRarity, nopItemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice, itemClassID, itemSubClassID = GetItemInfo(itemID)
