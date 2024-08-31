@@ -1,6 +1,6 @@
 ## Interface: 11503, 30403, 40400, 110002
 ## Title: Baganator
-## Version: 456
+## Version: 458
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -131,6 +131,7 @@ Help\Search.lua
 
 API\Main.lua
 API\Junk.lua
+API\Upgrades.lua
 API\ItemButton.lua
 API\EquipmentSets.lua
 API\Sorting.lua

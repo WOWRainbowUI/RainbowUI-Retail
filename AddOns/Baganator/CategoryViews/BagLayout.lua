@@ -8,6 +8,8 @@ local function Prearrange(isLive, bagID, bag, bagType)
   if junkPluginID == "poor_quality" then
     junkPlugin = nil
   end
+  local upgradePluginID = addonTable.Config.Get("upgrade_plugin")
+  local upgradePlugin = addonTable.API.UpgradePlugins[upgradePluginID] and addonTable.API.UpgradePlugins[upgradePluginID].callback
 
   local emptySlots = {}
   local everything = {}
@@ -40,6 +42,7 @@ local function Prearrange(isLive, bagID, bag, bagType)
     end
     if info.itemID then
       info.guid = info.guid or ""
+      info.isUpgradeGetter = upgradePlugin and function() local _, result = pcall(upgradePlugin, info.itemLink); return result == true end
       info.iconTexture = slot.iconTexture
       info.keyLink = linkMap[info.itemLink]
       if not info.keyLink then
@@ -369,6 +372,11 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
 end
 
 function addonTable.CategoryViews.BagLayoutMixin:Layout(allBags, bagWidth, bagTypes, bagIndexes, sideSpacing, topSpacing, callback)
+  if self.inProgress then
+    return
+  end
+  self.inProgress = true
+
   local container = self:GetParent()
   local s1 = debugprofilestop()
 
@@ -421,6 +429,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Layout(allBags, bagWidth, bagTy
           local s4 = debugprofilestop()
           local maxWidth, maxHeight = self:Display(bagWidth, bagIndexes, bagTypes, composed, emptySlotsOrder, emptySlotsByType, bagWidth, sideSpacing, topSpacing)
 
+          self.inProgress = false
           callback(maxWidth, maxHeight)
         end)
       end)
