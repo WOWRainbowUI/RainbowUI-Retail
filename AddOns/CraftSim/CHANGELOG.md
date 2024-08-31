@@ -1,11 +1,7 @@
 # CraftSim
 
-## [17.1.10](https://github.com/derfloh205/CraftSim/tree/17.1.10) (2024-08-28)
-[Full Changelog](https://github.com/derfloh205/CraftSim/compare/17.1.9...17.1.10) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
+## [17.2.1](https://github.com/derfloh205/CraftSim/tree/17.2.1) (2024-08-30)
+[Full Changelog](https://github.com/derfloh205/CraftSim/compare/17.2.0...17.2.1) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
 
-- small craft queue ui fix  
-- update  
-- gutil  
-- gutil  
-- Format Money Changes in GUTIL  
-- tracker fix, spec data update  
+- news and v  
+- forgefinder export updated for df+tww  

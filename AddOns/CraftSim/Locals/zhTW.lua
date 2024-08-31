@@ -91,8 +91,10 @@ function CraftSim.LOCAL_TW:GetData()
             "所以如果我們有一個 " ..
             f.bb("情況 A 機率 30%") ..
             " 利潤 " .. f.m(-100 * 10000) ..
-            " 和一個" .. f.bb("情況 B 機率 70%") .. " 利潤 " .. f.m(300 * 10000) .. " 那該情況的期望利潤就是\n" ..
-            f.bb("\nE(X) = -100*0.3 + 300*0.7 ") .. " 是 " .. f.m((-100 * 0.3 + 300 * 0.7) * 10000) .. "\n" ..
+            " 和一個" ..
+            f.bb("情況 B 機率 70%") .. " 利潤 " .. CraftSim.UTIL:FormatMoney(300 * 10000, true) .. " 那該情況的期望利潤就是\n" ..
+            f.bb("\nE(X) = -100*0.3 + 300*0.7 ") ..
+            " 是 " .. CraftSim.UTIL:FormatMoney((-100 * 0.3 + 300 * 0.7) * 10000, true) .. "\n" ..
             "你可以在" .. f.bb("統計資料") .. "視窗中檢視當前配方的所有情況！"
         ,
 
@@ -338,9 +340,12 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CONTROL_PANEL_RESET_FRAMES] = "重置框架位置",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_OPTIONS] = "選項",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_NEWS] = "更新資訊",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_EASYCRAFT_EXPORT] = f.l("Easycraft") .. " 匯出",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_EASYCRAFT_EXPORTING] = "正在匯出",
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_EASYCRAFT_EXPORT_NO_RECIPE_FOUND] = "没有适用于 The War Within 扩展包的导出配方",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_FORGEFINDER_EXPORT] = f.l("ForgeFinder") .. " 匯出",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_FORGEFINDER_EXPORTING] = "正在匯出",
-        [CraftSim.CONST.TEXT.CONTROL_PANEL_FORGEFINDER_EXPLANATION] = f.l("www.wowforgefinder.com") ..
+        [CraftSim.CONST.TEXT.CONTROL_PANEL_EXPORT_EXPLANATION] = f.l("wowforgefinder.com") .. " & " .. f.l("easycraft.io") ..
             "\n是個尋找和提供" .. f.bb("魔獸世界製造訂單") .. "的網站。",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_DEBUG] = "除錯",
         [CraftSim.CONST.TEXT.CONTROL_PANEL_TITLE] = "控制台",

@@ -265,7 +265,7 @@ function CraftSim.STATISTICS.UI:InitProbabilityTableTab(tab)
             profitColumn.text = GGUI.Text({
                 parent = profitColumn,
                 anchorParent = profitColumn,
-                text = GUTIL:FormatMoney(11312313, true),
+                text = CraftSim.UTIL:FormatMoney(11312313, true),
                 justifyOptions = { type = "H", align = "LEFT" },
             })
 
@@ -376,7 +376,7 @@ function CraftSim.STATISTICS.UI:UpdateDisplay(recipeData)
 
                 row.chance = probabilityInfo.chance
                 chanceColumn.text:SetText(GUTIL:Round(row.chance * 100, 2) .. "%")
-                profitColumn.text:SetText(GUTIL:FormatMoney(probabilityInfo.profit, true))
+                profitColumn.text:SetText(CraftSim.UTIL:FormatMoney(probabilityInfo.profit, true))
 
                 if recipeData.supportsMulticraft then
                     multicraftColumn:SetChecked(probabilityInfo.multicraft)
@@ -400,7 +400,7 @@ function CraftSim.STATISTICS.UI:UpdateDisplay(recipeData)
         local probabilityPositive = CraftSim.STATISTICS:GetProbabilityOfPositiveProfitByCrafts(probabilityTable,
             numCrafts)
 
-        content.expectedProfitValue:SetText(GUTIL:FormatMoney(meanProfit, true))
+        content.expectedProfitValue:SetText(CraftSim.UTIL:FormatMoney(meanProfit, true))
         local roundedProfit = GUTIL:Round(probabilityPositive * 100, 5)
         if probabilityPositive == 1 then
             -- if e.g. every craft has a positive outcome
@@ -434,6 +434,8 @@ function CraftSim.STATISTICS.UI:UpdateDisplay(recipeData)
 
             local specExtraValues = recipeData.specializationData:GetExtraValues()
             local lessConcentrationUsageFactor = specExtraValues.ingenuity:GetExtraValue(2)
+            local optionalReagentStats = recipeData.reagentData:GetProfessionStatsByOptionals()
+            local lessConcentrationUsageFactor2 = optionalReagentStats.ingenuity:GetExtraValue(2)
 
             local points = {}
             for x, y in pairs(curveData) do
@@ -452,7 +454,8 @@ function CraftSim.STATISTICS.UI:UpdateDisplay(recipeData)
                 local skillEnd = recipeDifficulty * nextRecipeDifficultyFactor
 
                 local pointCost = CraftSim.UTIL:CalculateConcentrationCost(pointConstant, pointDifficulty, skillStart,
-                    skillEnd, skillCurveValueStart, skillCurveValueEnd, lessConcentrationUsageFactor)
+                    skillEnd, skillCurveValueStart, skillCurveValueEnd,
+                    { lessConcentrationUsageFactor, lessConcentrationUsageFactor2 })
                 tinsert(points, { pointDifficulty, pointCost })
             end
             table.sort(points, function(a, b)
