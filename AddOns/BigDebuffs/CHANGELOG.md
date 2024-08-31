@@ -1,8 +1,8 @@
 # BigDebuffs
 
-## [v34](https://github.com/jordonwow/bigdebuffs/tree/v34) (2024-08-15)
-[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v33...v34) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
+## [v35](https://github.com/jordonwow/bigdebuffs/tree/v35) (2024-08-31)
+[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v34...v35) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
 
-- Use IsPlayerSpell() to check for Reverse Magic  
-- fixed Avenger's Shield spellid (#774)  
-    https://github.com/jordonwow/bigdebuffs/issues/762  
+- TWW Update #2 (#780)  
+    * TWW Update #2  
+    * Correction  
