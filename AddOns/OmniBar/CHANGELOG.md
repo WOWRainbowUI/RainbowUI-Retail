@@ -1,6 +1,6 @@
 # OmniBar
 
-## [v22](https://github.com/jordonwow/omnibar/tree/v22) (2024-08-15)
-[Full Changelog](https://github.com/jordonwow/omnibar/compare/v21...v22) [Previous Releases](https://github.com/jordonwow/omnibar/releases)
+## [v23](https://github.com/jordonwow/omnibar/tree/v23) (2024-08-31)
+[Full Changelog](https://github.com/jordonwow/omnibar/compare/v22...v23) [Previous Releases](https://github.com/jordonwow/omnibar/releases)
 
-- 11.0.2 Changes (#262)  
+- Omnibar TWW #2 (#263)  
