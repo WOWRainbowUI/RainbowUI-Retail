@@ -1,6 +1,13 @@
 ------------------------------------------------------------------------------
 -- Dragonflight
 --
+v11.0.2.2804
+	Combustion highlight will correctly be removed
+	sync modrate fix
+	taking demonic healthstone talent will remove preexisting normal healthstone icon
+	additional 11.0 trinkets added
+	zhCN localization update
+
 v11.0.2.2803
 	Release for WoW: TWW
 

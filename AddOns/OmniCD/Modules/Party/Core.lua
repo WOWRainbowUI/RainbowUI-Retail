@@ -64,6 +64,11 @@ function P:ResetModule(isModuleDisabled)
 	end
 	self.callbackTimers = {}
 
+
+
+
+
+
 	CM:Disable()
 	CD:Disable()
 

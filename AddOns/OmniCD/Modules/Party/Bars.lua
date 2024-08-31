@@ -638,7 +638,7 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 				elseif cat == "ESSENCE" then
 					isValidSpell = info.talentData[spec]
 				elseif not E.BOOKTYPE_CATEGORY[cat] then
-					isValidSpell = self:IsEquipped(info, item, item2) or info.sessionItemData[item]
+					isValidSpell = self:IsEquipped(info, item, item2) or (info.sessionItemData[item] and (item ~= 5512 or not info.talentData[386689]))
 				end
 			else
 				if cat == class then

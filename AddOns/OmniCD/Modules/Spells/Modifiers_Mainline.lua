@@ -399,6 +399,7 @@ E.spell_cdmod_by_haste = {
 
 
 
+
 local blessingOfTheBronze = { 0,"timeSpiral",	0.85,"blessingOfTheBronze"	}
 E.spell_cdmod_by_aura_mult = {
 	[49576]	= { 0,"gripOfTheEverlasting" },
@@ -417,7 +418,7 @@ E.spell_cdmod_by_aura_mult = {
 	[109132]	= { 0,"thunderousFocusTeaPVP",	0,"timeSpiral",	0.85,"blessingOfTheBronze" },
 	[115008]	= { 0,"thunderousFocusTeaPVP",	0,"timeSpiral",	0.85,"blessingOfTheBronze" },
 	[190784]	= blessingOfTheBronze,
-	[73325]	= blessingOfTheBronze,
+	[73325]	= { 0,"saveTheDay",	0,"timeSpiral",	0.85,"blessingOfTheBronze"	},
 	[2983]	= blessingOfTheBronze,
 	[79206]	= blessingOfTheBronze,
 	[58875]	= blessingOfTheBronze,
@@ -428,7 +429,6 @@ E.spell_cdmod_by_aura_mult = {
 	[257044]	= { 0.3,"isTrueshot"	},
 	[212431]	= { 0,"bombardier"	},
 	[31935]	= { 0.25,"momentOfGlory"	},
-	[73325]	= { 0,"saveTheDay"	},
 	[32379]	= { 0,"deathSpeaker"	},
 	[36554]	= { 0,"deathsArrival"	},
 	[195457]	= { 0,"deathsArrival"	},
@@ -448,8 +448,9 @@ E.spell_linked = {
 	[1022]	= { 204018, 1022 },
 }
 
-E.spell_merged = {
 
+
+E.spell_merged = {
 
 	[410358]	= 48707,
 	[196770]	= 287250,
@@ -823,6 +824,7 @@ E.spell_auraapplied_processspell = {
 	[417069]	= 417050,
 	[442489]	= 442489,
 	[451568]	= 451568,
+	[457489]	= 457489,
 
 	[342246]	= 342245,
 	[305395]	= 1044,
@@ -1247,6 +1249,8 @@ E.item_unity = {
 
 
 
+
+
 E.sync_cooldowns = {
 	["DEATHKNIGHT"]	= {
 		[49576]	= { {251,252},	276079	},
@@ -1369,7 +1373,6 @@ E.sync_in_raid = {
 	[33891]	= true,
 	[31850]	= true,
 	[642]	= true,
-	[31884]	= true,
 	[108280]	= true,
 	[871]	= true,
 }

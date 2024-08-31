@@ -3,7 +3,7 @@ local P = E.Party
 
 local MIN_RESET_DURATION = ((E.isWOTLKC or E.isCata) or E.TocVersion > 90100) and 120 or 180
 
-function P:ResetCooldown(icon)
+function P:ResetCooldown(icon, resetAllCharges)
 	local info = self.groupInfo[icon.guid]
 	if not info then
 		return
@@ -32,6 +32,14 @@ function P:ResetCooldown(icon)
 	local currCharges = active.charges
 	local statusBar = icon.statusBar
 	if maxcharges and currCharges and currCharges + 1 < maxcharges then
+		if resetAllCharges then
+			active.charges = maxcharges
+			icon.cooldown:Clear()
+			if statusBar then
+				self.OmniCDCastingBarFrame_OnEvent(statusBar.CastingBar, 'UNIT_SPELLCAST_FAILED')
+			end
+			return
+		end
 		currCharges = currCharges + 1
 		icon.count:SetText(currCharges)
 		active.charges = currCharges
@@ -53,7 +61,7 @@ function P:ResetCooldown(icon)
 	end
 end
 
-function P:UpdateCooldown(icon, reducedTime, bronzeAuraMult)
+function P:UpdateCooldown(icon, reducedTime, updateActiveTimer)
 	local info = self.groupInfo[icon.guid]
 	if not info then
 		return
@@ -81,11 +89,10 @@ function P:UpdateCooldown(icon, reducedTime, bronzeAuraMult)
 
 
 
-	if bronzeAuraMult then
-		local elapsed = (now - startTime) * bronzeAuraMult
+	if updateActiveTimer then
+		local elapsed = (now - startTime) * updateActiveTimer
 		startTime = now - elapsed
-		duration = duration * bronzeAuraMult
-
+		duration = duration * updateActiveTimer
 	end
 
 	startTime = startTime - reducedTime
@@ -337,7 +344,7 @@ function P:ResetAllIcons(reason, clearSession)
 
 		for k, timer in pairs(info.callbackTimers) do
 
-			if type(timer) == "userdata" and (k ~= "inCombatTicker" or notEncounterEnd) then
+			if type(timer) == "userdata" and (notEncounterEnd or k ~= "inCombatTicker") then
 				timer:Cancel()
 			end
 			info.callbackTimers[k] = nil

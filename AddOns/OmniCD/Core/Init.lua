@@ -18,6 +18,7 @@ NS[1].Libs.ACD = LibStub("AceConfigDialog-3.0-OmniCD")
 NS[1].Libs.ACR = LibStub("AceConfigRegistry-3.0")
 NS[1].Libs.CBH = LibStub("CallbackHandler-1.0"):New(NS[1])
 NS[1].Libs.LSM = LibStub("LibSharedMedia-3.0")
+
 NS[1].Libs.OmniCDC = LibStub("OmniCDC")
 
 NS[1].Party = CreateFrame("Frame")
