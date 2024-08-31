@@ -111,19 +111,19 @@ L['options_icons_critter_love_desc'] = '顯示 {achievement:40475} 成就中小�
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
 
-L['arathi_loremaster_note'] = '和在 {location:米雷達爾} 的 {npc:221630} 交談, 並正確的回答他幾個問題猴可以取得 {item:225659}.\n\n答案可以在 {location:聖落之地} 裡的書本內找到.'
-L['caesper_note'] = '從 {location:聖落之地} 的 {location:頓內爾的恩典} 內的 ({dot:Blue}) {npc:217645} 購買 {item:225238}.\n\n餵給 {npc:225948} 後跟著他找到寶藏.'
-L['dark_ritual_note'] = '和 {object:黑暗儀式} 互動並擊敗所有 {npc:226059}, {npc:226052},和 {npc:226062} 以拾取 {object:暗影精華}.'
+L['arathi_loremaster_note'] = '和在 {location:米雷達爾} 的 {npc:221630} 交談, 並正確的回答他幾個問題後可以取得 {item:225659}.\n\n答案可以在 {location:聖落之地} 裡的書本內找到。'
+L['caesper_note'] = '從 {location:聖落之地} 的 {location:頓內爾的恩典} 內的 ({dot:Blue}) {npc:217645} 購買 {item:225238}.\n\n餵給 {npc:225948} 後跟著他找到寶藏。'
+L['dark_ritual_note'] = '和 {object:黑暗儀式} 互動並擊敗所有 {npc:226059}, {npc:226052},和 {npc:226062} 以拾取 {object:暗影精華}。'
 L['illuminated_footlocker_note'] = '接住5個從 {npc:220703} 落下的 {spell:442389} 來獲得 {spell:442529} 以揭露 {object:發光的置物箱}.'
 L['illusive_kobyss_lure_note'] = '組合全部4個物品製造 {item:225641}：'
-L['sunless_lure_location'] = '由 {location:無日海岸} 的 {npc:215653} 掉落. 它們會偽裝並使用 {npc:215623} 作為誘餌.'
+L['sunless_lure_location'] = '由 {location:無日海岸} 的 {npc:215653} 掉落. 它們會偽裝並使用 {npc:215623} 作為誘餌。'
 L['sky_captains_sunken_cache_note'] = [[
-和4艘不同飛船上的船長講話來揭露寶藏.
+和4艘不同飛船上的船長講話來揭露寶藏。
 
-{npc:222333} ({dot:Green}) 逆時鐘飛行.
-{npc:222311} ({dot:Yellow}) 逆時鐘飛行.
-{npc:222323} ({dot:Red}) 順時鐘飛行.
-{npc:222337} ({dot:Orange}) 逆時鐘飛行.
+{npc:222333} ({dot:Green}) 逆時鐘飛行。
+{npc:222311} ({dot:Yellow}) 逆時鐘飛行。
+{npc:222323} ({dot:Red}) 順時鐘飛行。
+{npc:222337} ({dot:Orange}) 逆時鐘飛行。
 ]]
 L['murkfin_lure_location'] = '由 {location:瓦爾罕領地} 的 {npc:213622} 掉落. 它們會偽裝並使用 {npc:215623} 作為誘餌.'
 L['hungering_shimmerfin_location'] = '由 {location:飢餓渦池} 的 {npc:215243} 掉落. 它們會偽裝並使用 {npc:219210} 作為誘餌.'
