@@ -1212,7 +1212,7 @@ function WorldQuestTracker.UpdateWorldQuestsOnWorldMap(noCache, showFade, isQues
 		--> show a message telling why world quests aren't shown
 		if (WorldQuestTracker.db.profile and not WorldQuestTracker.db.profile.low_level_tutorial) then
 			WorldQuestTracker.db.profile.low_level_tutorial = true
-			WorldQuestTracker:Msg("World quests aren't shown because you're below level 50.") --> localize-me
+			WorldQuestTracker:Msg(L["World quests aren't shown because you're below level 50."]) --> localize-me
 		end
 		return
 	end
