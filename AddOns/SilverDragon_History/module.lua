@@ -51,15 +51,9 @@ function module:OnInitialize()
 			},
 		},
 	})
-	db = self.db.profile
-
-	-- sanity-check for some data that people reported being off-kilter:
-	if type(db.position.width) ~= "number" then
-		db.position.width = 240
-	end
-	if type(db.position.height) ~= "number" then
-		db.position.width = 250
-	end
+	self.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
+	self.db.RegisterCallback(self, "OnProfileCopied", "RefreshConfig")
+	self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
 
 	self.data = {}
 	self.rares = {}
@@ -67,8 +61,20 @@ function module:OnInitialize()
 	self.dataProvider = self:CreateDataProvider()
 
 	self:RegisterConfig()
+	self:RefreshConfig()
 
-	self:SetEnabledState(db.enabled)
+	self:SetEnabledState(self.db.profile.enabled)
+end
+
+function module:RefreshConfig()
+	db = self.db.profile
+	if self.window then
+		-- already loaded
+		LibWindow.RegisterConfig(self.window, db.position)
+		LibWindow.RestorePosition(self.window)
+		self:Refresh()
+		self[db.enabled and "Enable" or "Disable"](self)
+	end
 end
 
 local currentShardSources = {
@@ -136,10 +142,18 @@ function module:OnEnable()
 
 	self:RegisterEvent("PET_BATTLE_OPENING_START", "Refresh")
 	self:RegisterEvent("PET_BATTLE_CLOSE", "Refresh")
-	self:RegisterEvent("PLAYER_REGEN_DISABLED", "Refresh")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "Refresh")
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 	self:Refresh()
+end
+
+function module:PLAYER_REGEN_DISABLED()
+	-- InCombatLockdown starts returning true *after* this event, so we can't
+	-- just hook this up to Refresh.
+	if not db.combat then
+		self.window:Hide()
+	end
 end
 
 function module:AddData(data)
@@ -273,7 +287,7 @@ function module:CreateWindow()
 
 		if
 			(C_PetBattles and C_PetBattles.IsInBattle()) or
-			(not db.combat and InCombatLockdown()) or
+			((not db.combat) and InCombatLockdown()) or
 			(size == 0 and not db.empty)
 		then
 			self:Hide()
@@ -402,6 +416,7 @@ function module:CreateWindow()
 end
 
 function module:Refresh()
+	if not self.window then return end
 	self:RebuildDataProvider()
 	-- Force a redraw of the frames in the scrollbox
 	self.window.container.scrollBox:Rebuild(true) --retainScrollPosition
