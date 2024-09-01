@@ -6,6 +6,9 @@ if not L then return end
 --------------------------------- KHAZ ALGAR ----------------------------------
 -------------------------------------------------------------------------------
 
+L['options_icons_delve_rewards'] = 'Recompensas de Profundidades'
+L['options_icons_delve_rewards_desc'] = 'Muestra dónde hay recompensas de {location:Profundidades} en las descripciones.'
+
 L['skyriding_glyph'] = 'Glifo de Surcacielos'
 L['options_icons_skyriding_glyph'] = 'Glifos de Surcacielos'
 L['options_icons_skyriding_glyph_desc'] = 'Muestra dónde están los glifos de surcacielos.'
@@ -273,3 +276,28 @@ L['the_unseeming_note'] = 'Párate en el agua hasta que acumules 100x {spell:420
 L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
 L['options_icons_you_cant_hang_with_us_desc'] = 'Muestra dónde ir para el logro {achievement:40634}.'
 L['you_cant_hang_with_us_note'] = 'Busca un {npc:211816} con el buff {spell:434734} y atácale para conseguir el debuff {spell:443190} (1 minuto de duración). Un {npc:225408} ({note:¡No le mates!}) interferirá y te echará el debuff {spell:454666}. Con 10 acumulaciones, serás expulsado por la fuerza de la Ciudad.'
+
+-------------------------------------------------------------------------------
+----------------------------------- DELVES ------------------------------------
+-------------------------------------------------------------------------------
+
+L['sturdy_chest'] = 'Cofre Robusto'
+L['sturdy_chest_suffix'] = 'Cofre robusto encontrado'
+
+L['ecm_chest_3_location'] = 'En la grúa. Salta desde el nivel superior.'
+L['fol_chest_1_location'] = 'En la roca bajo las setas de los arbustos.'
+L['fol_chest_3_location'] = 'Al pie de la cascada.'
+L['fol_use_mushrooms'] = 'Salta sobre las setas a lo largo del camino.'
+L['kvr_chest_2_location'] = 'Encima del andamio de madera.'
+L['nfs_chest_2_location'] = 'En la planta.'
+L['nfs_chest_3_location'] = 'Dentro del edificio.'
+L['nfs_chest_4_location'] = 'Salta desde la nave voladora.'
+L['ski_chest_3_location'] = 'Dentro del edificio.'
+L['tra_chest_2_location'] = 'Encima del coral.'
+L['tsw_chest_2_location'] = 'En lo alto de la viga.'
+L['tsw_chest_2_note'] = '{note:Sólo disponible en la variante de la historia "De la Tejedora con Amor".}'
+L['tsw_chest_3_location'] = 'En lo alto de un pilar cerca del menú desplegable de la sala del tesoro.'
+L['tsw_chest_4_location'] = 'En lo alto de una viga. Bájate del pilar cerca del otro cofre.'
+L['tuk_chest_1_note'] = 'Detrás de la estatua.'
+L['tuk_chest_2_note'] = '{note:Sólo disponible en la variante de la historia "Víctimas de Tortura".}'
+L['tuk_chest_3_note'] = '{note:Sólo disponible en la variante de la historia "Rescate de la Tejedora".}'

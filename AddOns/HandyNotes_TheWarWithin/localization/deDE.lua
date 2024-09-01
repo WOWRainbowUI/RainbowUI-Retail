@@ -7,6 +7,9 @@ if not L then return end
 --------------------------------- KHAZ ALGAR ----------------------------------
 -------------------------------------------------------------------------------
 
+L['options_icons_delve_rewards'] = 'Tiefen'
+L['options_icons_delve_rewards_desc'] = 'Zeigt die Belohnungen im Tooltip der {location:Tiefe} an.'
+
 L['skyriding_glyph'] = 'Glyphe des Himmelsreitens'
 L['options_icons_skyriding_glyph'] = 'Glyphen des Himmelsreitens'
 L['options_icons_skyriding_glyph_desc'] = 'Zeigt die Positionen aller Glyphen des Himmelsreitens an.'
@@ -275,3 +278,28 @@ L['the_unseeming_note'] = 'Stelle dich in die Pfütze bis du 100x Stapel {spell:
 L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
 L['options_icons_you_cant_hang_with_us_desc'] = 'Zeigt die Positionen für den Erfolg {achievement:40634} an.'
 L['you_cant_hang_with_us_note'] = 'Finde einen {npc:211816} mit dem Stärkungszauber {spell:434734} und greife ihn an, um den Schwächungszauber {spell:443190} (1 Minute) zu erhalten. Ein {npc:225408} ({note:Töte ihn nicht!}) wird sich einmischen und den Schwächungszauber {spell:454666} auf dir stapeln. Bei 10 Stapeln wirst du gewaltsam aus der Stadt entfernt.'
+
+-------------------------------------------------------------------------------
+----------------------------------- DELVES ------------------------------------
+-------------------------------------------------------------------------------
+
+L['sturdy_chest'] = 'Robuste Truhe'
+L['sturdy_chest_suffix'] = 'robuste Truhen geöffnet'
+
+L['ecm_chest_3_location'] = 'Auf dem Kran. Springe von der oberen Ebene runter.'
+L['fol_chest_1_location'] = 'Auf dem Felsen unter den Pilzen im Gebüsch.'
+L['fol_chest_3_location'] = 'Unten am Wasserfall.'
+L['fol_use_mushrooms'] = 'Springe auf den Pilzen entlang des Weges.'
+L['kvr_chest_2_location'] = 'Auf dem Holzgerüst.'
+L['nfs_chest_2_location'] = 'Auf der Pflanze.'
+L['nfs_chest_3_location'] = 'Im Gebäude'
+L['nfs_chest_4_location'] = 'Springe vom Himmelsschiff runter.'
+L['ski_chest_3_location'] = 'Im Gebäude'
+L['tra_chest_2_location'] = 'Oben in der Koralle.'
+L['tsw_chest_2_location'] = 'Oben auf dem Balken.'
+L['tsw_chest_2_note'] = '{note:Nur in der Geschichtenvariantion "Alles Liebe von der Weberin" verfügbar.}'
+L['tsw_chest_3_location'] = 'Oben auf der Säule in der Nähe des Absprungs in die Schatzkammer.'
+L['tsw_chest_4_location'] = 'Oben auf dem Balken. Springe von der Säule runter, auf der die andere Truhe steht.'
+L['tuk_chest_1_note'] = 'Hinter der Statue.'
+L['tuk_chest_2_note'] = '{note:Nur in den Geschichtenvariantionen "Ausreißersevolution" und "Folteropfer" verfügbar.}'
+L['tuk_chest_3_note'] = '{note:Nur in den Geschichtenvariantionen "Ausreißersevolution" und "Weberrettung" verfügbar.}'

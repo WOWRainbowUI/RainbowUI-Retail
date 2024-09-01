@@ -7,6 +7,9 @@ if not L then return end
 --------------------------------- KHAZ ALGAR ----------------------------------
 -------------------------------------------------------------------------------
 
+L['options_icons_delve_rewards'] = 'Récompenses des Gouffres'
+L['options_icons_delve_rewards_desc'] = 'Afficher les récompenses des {location:Gouffres} dans les infobulles.'
+
 L['skyriding_glyph'] = 'Glyphe de vol dynamique'
 L['options_icons_skyriding_glyph'] = 'Glyphes de vol dynamique'
 L['options_icons_skyriding_glyph_desc'] = 'Afficher les emplacements des glyphes de vol dynamique.'
@@ -274,3 +277,28 @@ L['the_unseeming_note'] = 'Restez dans le bassin jusqu\'à ce que vous ayez 100x
 L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
 L['options_icons_you_cant_hang_with_us_desc'] = 'Afficher les emplacements pour le haut-fait {achievement:40634}.'
 L['you_cant_hang_with_us_note'] = 'Trouvez une {npc:211816} avec l\'effet {spell:434734} et attaquez-la pour obtenir l\'affaiblissement {spell:443190} (1 minute). Un {npc:225408} interviendra ({note:Ne le tuez pas !}) et vous appliquera des charges de l\'affaiblissement {spell:454666}. À 10 charges, vous serez expulsé de force de la Cité.'
+
+-------------------------------------------------------------------------------
+----------------------------------- DELVES ------------------------------------
+-------------------------------------------------------------------------------
+
+L['sturdy_chest'] = 'Coffre solide'
+L['sturdy_chest_suffix'] = 'Coffre solide trouvé'
+
+L['ecm_chest_3_location'] = 'Sur la grue. Sautez du palier supérieur.'
+L['fol_chest_1_location'] = 'Sur le rocher sous les champignons dans les buissons.'
+L['fol_chest_3_location'] = 'Au pied de la cascade.'
+L['fol_use_mushrooms'] = 'Sautez sur les champignons le long du chemin.'
+L['kvr_chest_2_location'] = 'En haut de l\'échafaudage en bois.'
+L['nfs_chest_2_location'] = 'Sur la plante.'
+L['nfs_chest_3_location'] = 'À l\'intérieur du bâtiment.'
+L['nfs_chest_4_location'] = 'Sautez du dirigeable.'
+L['ski_chest_3_location'] = 'À l\'intérieur du bâtiment.'
+L['tra_chest_2_location'] = 'Sur le corail.'
+L['tsw_chest_2_location'] = 'En haut de la poutre.'
+L['tsw_chest_2_note'] = '{note:Disponible uniquement pendant la variante de l’histoire "Avec les compliments de la Tisserande".}'
+L['tsw_chest_3_location'] = 'En haut d\'un pilier, près du passage vers la salle du trésor.'
+L['tsw_chest_4_location'] = 'En haut d\'une poutre. Descendez du pilier près de l\'autre coffre.'
+L['tuk_chest_1_note'] = 'Derrière la statue.'
+L['tuk_chest_2_note'] = '{note:Disponible uniquement pendant la variante de l’histoire "Victimes de tortures".}'
+L['tuk_chest_3_note'] = '{note:Disponible uniquement pendant la variante de l’histoire "Sauvetage de tisserande".}'
