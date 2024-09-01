@@ -535,14 +535,14 @@ end
 
 -- ugly hack fix for the vigor widget not disappearing when it should
 LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_DISABLED, function()
-    for _, v in ipairs(DR.WidgetFrameIDs) do
-        C_Timer.After(1, function()
-            local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
-            if f and f:IsShown() then
-                f:Hide();
-            end
-        end);
-    end
+	for _, v in ipairs(DR.WidgetFrameIDs) do
+		C_Timer.After(1, function()
+			local f = UIWidgetPowerBarContainerFrame.widgetFrames[v];
+			if f and f:IsShown() then
+				f:Hide();
+			end
+		end);
+	end
 end);
 
 function DR.SetupVigorToolip()
@@ -1631,43 +1631,6 @@ function DR.OnAddonLoaded()
 
 		function DragonRider_OnAddonCompartmentLeave(addonName, menuButtonFrame)
 			DR.tooltip_OnLeave();
-		end
-
-		local addon = LibStub("AceAddon-3.0"):NewAddon("DragonRider");
-		local DragonRider_DB = LibStub("LibDataBroker-1.1"):NewDataObject("DragonRider", {
-			type = "data source",
-			text = L["DragonRider"],
-			icon = "Interface\\Icons\\ability_dragonriding_glyph01",
-			OnClick = function(self, buttonName)
-				if buttonName == "RightButton" then
-					--local category, layout = Settings.RegisterVerticalLayoutCategory("Dragon Rider")
-					Settings.OpenToCategory(category.ID);
-				else
-					if DR.mainFrame:IsShown() then
-						DR.mainFrame:Hide();
-					else
-						DR.mainFrame:Show();
-					end
-				end
-			end, 
-			OnTooltipShow = function(tt)
-				tt:SetText("|cFFFFF569"..L["DragonRider"].."|r")
-				tt:AddLine("|cFFFFFFFF"..L["RightClick_TT_Line"].."|r");
-				tt:AddLine("|cFFFFFFFF"..L["LeftClick_TT_Line"].."|r");
-				tt:AddLine("|cFFFFFFFF"..L["SlashCommands_TT_Line"].."|r");
-			end,
-		})  
-		local icon = LibStub("LibDBIcon-1.0");
-
-		function addon:OnInitialize()
-			self.db = LibStub("AceDB-3.0"):New("DragonRider_DB", {
-				profile = {
-					minimap = {
-						hide = false,
-					},
-				},
-			})
-			icon:Register("DragonRider", DragonRider_DB, self.db.profile.minimap);
 		end
 
 		---------------------------------------------------------------------------------------------------------------------------------
