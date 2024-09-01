@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("CityofThreadsTrash", "DBM-Party-WarWithin", 8)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240820072838")
+mod:SetRevision("20240901002640")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -211,11 +211,11 @@ function mod:SPELL_INTERRUPT(args)
 	if not self.Options.Enabled then return end
 	local spellId = args.extraSpellId
 	if spellId == 443430 then
-		timerSilkBindingCD:Start(24.5, args.sourceGUID)
+		timerSilkBindingCD:Start(24.5, args.destGUID)
 	elseif spellId == 452162 then
-		timerMendingWebCD:Start(16.6, args.sourceGUID)
+		timerMendingWebCD:Start(16.6, args.destGUID)
 	elseif spellId == 446086 then
-		timerVoidWaveCD:Start(15.4, args.sourceGUID)
+		timerVoidWaveCD:Start(15.4, args.destGUID)
 	end
 end
 

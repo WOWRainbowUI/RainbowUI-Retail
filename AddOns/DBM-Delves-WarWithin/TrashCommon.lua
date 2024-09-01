@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("DelveTrashCommon", "DBM-Delves-WarWithin")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240830215855")
+mod:SetRevision("20240901002640")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)--Stays active in all zones for zone change handlers, but registers events based on dungeon ids
 
 mod.isTrashMod = true
@@ -337,7 +337,7 @@ function mod:SPELL_INTERRUPT(args)
 	elseif args.extraSpellId == 433410 then
 		timerFearfulShriekCD:Start(10.4, args.destGUID)--13.4 - 3
 	elseif args.extraSpellId == 459421 then
-		timerHolyLightCD:Start(14.5, args.sourceGUID)--17-2.5
+		timerHolyLightCD:Start(14.5, args.destGUID)--17-2.5
 	end
 end
 

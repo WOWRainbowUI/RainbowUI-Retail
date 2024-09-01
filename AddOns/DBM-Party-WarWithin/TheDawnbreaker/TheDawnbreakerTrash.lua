@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TheDawnbreakerTrash", "DBM-Party-WarWithin", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240825075851")
+mod:SetRevision("20240901002640")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -217,11 +217,11 @@ function mod:SPELL_INTERRUPT(args)
 	if not self.Options.Enabled then return end
 	local spellId = args.extraSpellId
 	if spellId == 450756 then
-		timerAbyssalHowlCD:Start(25.6, args.sourceGUID)
+		timerAbyssalHowlCD:Start(25.6, args.destGUID)
 	elseif spellId == 432520 then
-		timerUmbrelBarrierCD:Start(24.2, args.sourceGUID)
+		timerUmbrelBarrierCD:Start(24.2, args.destGUID)
 	elseif spellId == 431309 then
-		timerEnsharingShadowsCD:Start(18.1, args.sourceGUID)
+		timerEnsharingShadowsCD:Start(18.1, args.destGUID)
 	end
 end
 

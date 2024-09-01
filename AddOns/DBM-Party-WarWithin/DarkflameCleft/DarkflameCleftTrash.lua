@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("DarkflameCleftTrash", "DBM-Party-WarWithin", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240830215855")
+mod:SetRevision("20240901002640")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -159,9 +159,9 @@ function mod:SPELL_INTERRUPT(args)
 	if not self.Options.Enabled then return end
 	local spellId = args.extraSpellId
 	if spellId == 426295 then
---		timerFlamingTetherCD:Start(20.1, args.sourceGUID)
+--		timerFlamingTetherCD:Start(20.1, args.destGUID)
 	elseif spellId == 424322 then
-		timerBlazingFlameCD:Start(20.4, args.sourceGUID)
+		timerBlazingFlameCD:Start(20.4, args.destGUID)
 	end
 end
 

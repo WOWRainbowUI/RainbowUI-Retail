@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TheRookeryTrash", "DBM-Party-WarWithin", 3)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240820080631")
+mod:SetRevision("20240901002640")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -167,9 +167,9 @@ function mod:SPELL_INTERRUPT(args)
 	if not self.Options.Enabled then return end
 	local spellId = args.extraSpellId
 	if spellId == 430805 then
-		timerArcingVoidCD:Start(13.5, args.sourceGUID)
+		timerArcingVoidCD:Start(13.5, args.destGUID)
 	elseif spellId == 432959 then
-		timerVoidVolleyCD:Start(15.6, args.sourceGUID)
+		timerVoidVolleyCD:Start(15.6, args.destGUID)
 	end
 end
 

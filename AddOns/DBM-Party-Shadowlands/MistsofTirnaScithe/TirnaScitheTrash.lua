@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TirnaScitheTrash", "DBM-Party-Shadowlands", 3)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240809034357")
+mod:SetRevision("20240901002640")
 --mod:SetModelID(47785)
 
 mod.isTrashMod = true
@@ -283,13 +283,13 @@ end
 function mod:SPELL_INTERRUPT(args)
 	if type(args.extraSpellId) ~= "number" then return end
 	if args.extraSpellId == 324914 then
-		timerNourishtheForestCD:Start(nil, args.sourceGUID)
+		timerNourishtheForestCD:Start(nil, args.destGUID)
 	elseif args.extraSpellId == 324776 then
-		timerBramblethornCoatCD:Start(nil, args.sourceGUID)
+		timerBramblethornCoatCD:Start(nil, args.destGUID)
 	elseif args.extraSpellId == 326046 then
-		timerStimulateResistanceCD:Start(nil, args.sourceGUID)
+		timerStimulateResistanceCD:Start(nil, args.destGUID)
 	elseif args.extraSpellId == 460092 then
-		timerAcidNovaCD:Start(nil, args.sourceGUID)
+		timerAcidNovaCD:Start(nil, args.destGUID)
 	end
 end
 
