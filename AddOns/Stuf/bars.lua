@@ -1013,7 +1013,10 @@ if CLS == "DEATHKNIGHT" then  -- Rune Bar --------------------------------------
 		f:Show()
 		
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 	end)
 
@@ -1041,7 +1044,10 @@ if CLS == "PALADIN" then  -- Holy Bar ------------------------------------------
 		f:EnableMouse(not db.nomouse)
 		--PaladinPowerBar_OnLoad(f)
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 	end)
 
@@ -1068,7 +1074,10 @@ if CLS == "PRIEST" then  -- Priest Power Frame ---------------------------------
 		f:EnableMouse(not db.nomouse)
 		
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 	end)
 
@@ -1097,7 +1106,10 @@ if CLS == "WARLOCK" then  -- Warlock Power Frame -------------------------------
 		if _G.BurningEmbersBarFrame then _G.BurningEmbersBarFrame:EnableMouse(not db.nomouse) end
 
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 	end)
 
@@ -1129,7 +1141,10 @@ if CLS == "MONK" then  -- Monk Power Frame -------------------------------------
 		end
 		
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 	end)
 end
@@ -1155,7 +1170,10 @@ if CLS == "MAGE" then  -- Mage Arcane Charges Frame ----------------------------
 		if _G.MageArcaneChargesFrame then _G.MageArcaneChargesFrame:EnableMouse(not db.nomouse) end
 		
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 	end)
 end
@@ -1181,7 +1199,10 @@ if CLS == "EVOKER" then  -- Evoker Essences Frame ------------------------------
 		if _G.EssencePlayerFrame then _G.EssencePlayerFrame:EnableMouse(not db.nomouse) end
 		
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 
 	end)
@@ -1209,7 +1230,10 @@ if CLS == "DRUID" then  -- Druid Combo Point Bar Frame -------------------------
 		if _G.DruidComboPointBarFrame then _G.DruidComboPointBarFrame:EnableMouse(not db.nomouse) end
 		
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 	end)
 end
@@ -1236,7 +1260,10 @@ if CLS == "ROGUE" then  -- Rogue Combo Point Bar Frame -------------------------
 		if _G.RogueComboPointBarFrame then _G.RogueComboPointBarFrame:EnableMouse(not db.nomouse) end
 		
 		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function() f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) end)
+			C_Timer.After(0.1, function()
+				f:SetParent(uf)
+				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
+			end)
 		end)
 	end)
 end
