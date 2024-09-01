@@ -6,6 +6,9 @@ if not L then return end
 --------------------------------- KHAZ ALGAR ----------------------------------
 -------------------------------------------------------------------------------
 
+L['options_icons_delve_rewards'] = '探究獎勵'
+L['options_icons_delve_rewards_desc'] = '在提示中顯示 {location:探究} 獎勵。'
+
 L['skyriding_glyph'] = '天空騎術雕紋'
 L['options_icons_skyriding_glyph'] = '天空騎術雕紋'
 L['options_icons_skyriding_glyph_desc'] = '顯示全部天空騎術雕紋的位置。'
@@ -48,47 +51,47 @@ L['forgotten_treasure_note'] = '開啟附近的 {object:地底藏寶} 來取得 
 L['kaja_cola_machine_note'] = '以下列順序購買飲料 {item:223741} > {item:223743} > {item:223744} > {item:223742}.'
 
 L['options_icons_i_only_need_one_trip'] = '{achievement:40623}'
-L['options_icons_i_only_need_one_trip_desc'] = '顯示 {achievement:40623} 成就中的位置。'
+L['options_icons_i_only_need_one_trip_desc'] = '顯示成就 {achievement:40623} 所需位置。'
 L['i_only_need_one_trip_note'] = '在世界任務 {wq:信差任務: 回收礦石} 一次繳交10個礦石.'
 
 L['options_icons_not_so_quick_fix'] = '{achievement:40473}'
 L['options_icons_not_so_quick_fix_desc'] = '顯示成就 {achievement:40473} 所需的控制臺位置.'
 
-L['not_so_quick_fix_note'] = '修復壞掉的土靈控制台。'
-L['water_console_location'] = '在樓梯旁邊。'
-L['abyssal_console_location'] = '在小屋裡。'
-L['taelloch_console_location'] = '在橋上的桶之間。'
-L['lost_console_location'] = '在小屋裡。'
+L['not_so_quick_fix_note'] = '修復損壞的土靈控制臺'
+L['water_console_location'] = '在階梯旁.'
+L['abyssal_console_location'] = '在一個凹室內.'
+L['taelloch_console_location'] = '在橋上的兩個桶子間'
+L['lost_console_location'] = '在一個凹室內.'
 
 L['options_icons_notable_machines'] = '{achievement:40628}'
 L['options_icons_notable_machines_desc'] = '顯示成就 {achievement:40628} 所需的筆記位置.'
 
-L['notable_machines_note'] = '閱讀筆記。'
-L['fragment_I_location'] = '在地面上。'
-L['fragment_II_location'] = '在崖邊上。'
-L['fragment_III_location'] = '在建築物頂上。'
-L['fragment_IV_location'] = '在高高的木塔上（建議使用穩定飛行來獲得）。'
-L['fragment_V_location'] = '在樓梯頂端的拱門上。'
-L['fragment_VI_location'] = '在地面上，路燈旁邊。'
+L['notable_machines_note'] = '閱讀筆記.'
+L['fragment_I_location'] = '在地上.'
+L['fragment_II_location'] = '在岩架上.'
+L['fragment_III_location'] = '在建築頂端.'
+L['fragment_IV_location'] = '在木頭塔上 (推薦使用穩速飛行來取得).'
+L['fragment_V_location'] = '在階梯頂端的拱門上方.'
+L['fragment_VI_location'] = '在地上, 路燈旁邊.'
 
 L['options_icons_rocked_to_sleep'] = '{achievement:40504}'
 L['options_icons_rocked_to_sleep_desc'] = '顯示成就 {achievement:40504} 顯示成就 {achievement:40504} 所需的名牌位置.'
 
-L['rocked_to_sleep_note'] = '閱讀下列失能土靈的名牌。'
-L['attwogaz_location'] = '在崖邊上。'
-L['halthaz_location'] = '在柱子底部的崖邊上。'
-L['krattdaz_location'] = '在兩座瀑布之間的崖邊上。'
-L['uisgaz_location'] = '在崖邊上。'
-L['venedaz_location'] = '在管道旁邊的平台上。'
-L['merunth_location'] = '在樓梯上方的管道上。'
-L['varerko_location'] = '在崖邊上。'
-L['alfritha_location'] = '在懸崖邊上。'
-L['gundrig_location'] = '在崖邊上。'
+L['rocked_to_sleep_note'] = '閱讀靜滯土靈的名牌'
+L['attwogaz_location'] = '在岩架上.'
+L['halthaz_location'] = '在柱子地基的岩架上.'
+L['krattdaz_location'] = '在兩個瀑布間岩架上.'
+L['uisgaz_location'] = '在岩架上.'
+L['venedaz_location'] = '在管線旁的平台上.'
+L['merunth_location'] = '在階梯上方的管線上.'
+L['varerko_location'] = '在岩架上.'
+L['alfritha_location'] = '坐在峭壁邊緣.'
+L['gundrig_location'] = '坐在岩架頂端.'
 L['sathilga_location'] = '在岩架上. 靠近土靈挖掘機建築旁.'
 
 L['trungal_note'] = '擊殺在入口周圍和洞穴下方出現的 {npc:220615} 後出現。'
 L['disturbed_earthgorger_note'] = '使用額外動作法術 {spell:437003} 對地面使用3次後出現。'
-L['deepflayer_broodmother_note'] = '在高空飛來飛去。'
+L['deepflayer_broodmother_note'] = '在高處飛行'
 L['lurker_note'] = '{note:需要5個玩家以召喚}\n\n在10秒內啟動5個 {dot:Red}{object:不顯眼的控制桿} 來召喚稀有.\n當成功啟動時你會看到區域性的廣播.'
 
 L['gnawbles_ruby_vendor_note'] = [[從 {object:受打擾的土地} 收集 {item:212493} 並將其帶給 {npc:225166}。
@@ -185,15 +188,15 @@ L['deathtide_note'] = '收集一個 {item:220122} {dot:Red} 和一個 {item:2201
 L['murkshade_note'] = '與 {npc:218455} 互動。'
 
 L['options_icons_mereldar_menace'] = '{achievement:40151}'
-L['options_icons_mereldar_menace_desc'] = '顯示 {achievement:40151} 成就中的目標位置。'
+L['options_icons_mereldar_menace_desc'] = '顯示成就 {achievement:40151} 所需的目標位置.'
 
-L['mereldar_menace_note'] = '與 {object:飛擲之石} 互動並將其扔向目標。'
-L['light_and_flame_location'] = '{object:飛擲之石} 瞄準東邊的 {npc:218472}。'
-L['lamplighter_doorway_location'] = '瞄準東邊建築物的門口。'
-L['barracks_doorway_location'] = '瞄准西邊紅色和金色帳篷的門口。'
+L['mereldar_menace_note'] = '和 {object:投擲石頭} 互動並對目標丟石頭.'
+L['light_and_flame_location'] = '瞄準 {object:投擲石頭} 東邊的 {npc:218472}.'
+L['lamplighter_doorway_location'] = '瞄準東方的建築門口.'
+L['barracks_doorway_location'] = '瞄準西方金紅帳篷的門框上方.'
 
 L['options_icons_beacon_of_hope'] = '{achievement:40308}'
-L['options_icons_beacon_of_hope_desc'] = '顯示 {achievement:40308} 成就中低階鑰炎的位置。'
+L['options_icons_beacon_of_hope_desc'] = '顯示成就 {achievement:40308} 所需的低階鑰炎位置.'
 
 L['beacon_of_hope_note'] = '捐獻 {item:206350} 來點亮低階鑰炎並完成接下來的任務。'
 
@@ -225,7 +228,7 @@ L['bookworm_note'] = '{note:還可以使用 {item:225784} 完成 {achievement:40
 L['bookworm_1_location'] = '在小洞窟入口處。'
 
 L['options_icons_smelling_history'] = '{achievement:40542}'
-L['options_icons_smelling_history_desc'] = '顯示 {achievement:40542} 成就中書籍的位置。'
+L['options_icons_smelling_history_desc'] = '顯示成就 {achievement:40542} 所需的書籍位置.'
 
 L['smelling_history_note'] = '{note:還可以使用 {item:225784} 完成 {achievement:40629} 成就。}'
 L['smelling_history_1_location'] = '在建築物內的櫃台上。'
@@ -243,7 +246,7 @@ L['smelling_history_12_location'] = '在建築物內的桌子上。'
 
 L['options_icons_skittershaw_spin'] = '{achievement:40727}'
 L['options_icons_skittershaw_spin_desc'] = '顯示成就 {achievement:40727} 飛掠拉車路線位置.'
-L['skittershaw_spin_note'] = '騎乘 {npc:224973} 繞區域一圈。\n\n{npc:224973} 將在路線上的 {dot:Red} 點處停止。'
+L['skittershaw_spin_note'] = '在這區搭乘 {npc:224973} 一整圈.\n\n{npc:224973} 會停留在 {dot:Red} 位置.'
 
 L['options_icons_no_harm_from_reading'] = '{achievement:40632}'
 L['options_icons_no_harm_from_reading_desc'] = '顯示 {achievement:40632} 成就中 NPC {npc:227421} 的位置。'
@@ -272,3 +275,28 @@ L['the_unseeming_note'] = '站在池子裡直到有100層堆疊 {spell:420847}�
 L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
 L['options_icons_you_cant_hang_with_us_desc'] = '顯示 {achievement:40634} 成就中的位置。'
 L['you_cant_hang_with_us_note'] = '找到一個帶有 {spell:434734} 增益效果的 {npc:211816} 並攻擊他，會給你 {spell:443190} 負面效果（1分鐘）。（{note:不要擊殺他！}）會干擾並疊加 {spell:454666} 負面效果在身上。疊加至10層時，將被強制驅逐出城。'
+
+-------------------------------------------------------------------------------
+----------------------------------- DELVES ------------------------------------
+-------------------------------------------------------------------------------
+
+L['sturdy_chest'] = '堅固的箱子'
+L['sturdy_chest_suffix'] = '找到堅固的箱子'
+
+L['ecm_chest_3_location'] = '在起重機上。從上層跳。'
+L['fol_chest_1_location'] = '在灌木叢中的蘑菇下面的岩石上。'
+L['fol_chest_3_location'] = '在瀑布的底部。'
+L['fol_use_mushrooms'] = '沿著路徑的蘑菇跳躍。.'
+L['kvr_chest_2_location'] = '在木製支架的頂部。'
+L['nfs_chest_2_location'] = '在植物上。'
+L['nfs_chest_3_location'] = '建築物內部。'
+L['nfs_chest_4_location'] = '從飛船上跳下來。'
+L['ski_chest_3_location'] = '建築物內部。'
+L['tra_chest_2_location'] = '在珊瑚之上。'
+L['tsw_chest_2_location'] = '高高的在光束上。'
+L['tsw_chest_2_note'] = '{note:僅在“紡絲者愛的問候”故事變種。}'
+L['tsw_chest_3_location'] = '在通往寶藏室的下拉欄附近的柱子上。'
+L['tsw_chest_4_location'] = '在橫梁上。從另一個寶箱附近的柱子上掉下來。'
+L['tuk_chest_1_note'] = '雕像後面。'
+L['tuk_chest_2_note'] = '{note:僅在“煎熬受害者”故事變種。}'
+L['tuk_chest_3_note'] = '{note:僅在“紡絲者救援”故事變種。}'
