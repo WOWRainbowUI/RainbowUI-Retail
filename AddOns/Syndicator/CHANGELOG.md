@@ -1,8 +1,7 @@
 # Syndicator
 
-## [112](https://github.com/Baganator/Syndicator/tree/112) (2024-08-30)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/111...112) 
+## [113](https://github.com/Baganator/Syndicator/tree/113) (2024-08-31)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/112...113) 
 
-- Search: Add "read" keyword for items that you can read  
-- Add "combat curio" and "utility curio" keywords  
-- Add "upgrade" keyword, requires bag addon with support for it  
+- [Fixes #253] Fix not working on latest SoD alpha due to missing template  
+- Add keyword "my class" for gear that is somewhat sensible for your current class  
