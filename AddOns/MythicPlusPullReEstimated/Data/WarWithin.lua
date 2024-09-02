@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1720351840,
+        timestamp = 1725186710,
         version = '11.0.2',
-        build = 55399,
+        build = 56421,
     }
 end
 
@@ -26,6 +26,7 @@ function data:GetNPCData()
         [211341] = { ["name"] = "Manifested Shadow", ["count"] = 16 },
         [212389] = { ["name"] = "Cursedheart Invader", ["count"] = 5 },
         [212400] = { ["name"] = "Void Touched Elemental", ["count"] = 4 },
+        [212403] = { ["name"] = "Cursedheart Invader", ["count"] = 5 },
         [212405] = { ["name"] = "Aspiring Forgehand", ["count"] = 1 },
         [212453] = { ["name"] = "Ghastly Voidsoul", ["count"] = 7 },
         [212764] = { ["name"] = "Engine Speaker", ["count"] = 3 },
@@ -36,7 +37,7 @@ function data:GetNPCData()
         [213892] = { ["name"] = "Nightfall Shadowmage", ["count"] = 5 },
         [213893] = { ["name"] = "Nightfall Darkcaster", ["count"] = 5 },
         [213894] = { ["name"] = "Nightfall Curseblade", ["count"] = 5 },
-        [213895] = { ["name"] = "Nightfall Shadowalker", ["count"] = 3 },
+        [213895] = { ["name"] = "Nightfall Shadowalker", ["count"] = 5 },
         [213932] = { ["name"] = "Sureki Militant", ["count"] = 12 },
         [213934] = { ["name"] = "Nightfall Tactician", ["count"] = 10 },
         [213954] = { ["name"] = "Rock Smasher", ["count"] = 12 },
@@ -64,7 +65,6 @@ function data:GetNPCData()
         [217531] = { ["name"] = "Ixin", ["count"] = 12 },
         [217533] = { ["name"] = "Atik", ["count"] = 12 },
         [218324] = { ["name"] = "Nakt", ["count"] = 12 },
-        [219984] = { ["name"] = "Xeph'itik", ["count"] = 16 },
         [220003] = { ["name"] = "Eye of the Queen", ["count"] = 20 },
         [220193] = { ["name"] = "Sureki Venomblade", ["count"] = 10 },
         [220195] = { ["name"] = "Sureki Silkbinder", ["count"] = 10 },
@@ -82,6 +82,9 @@ function data:GetNPCData()
         [223253] = { ["name"] = "Bloodstained Webmage", ["count"] = 7 },
         [223357] = { ["name"] = "Sureki Conscript", ["count"] = 3 },
         [223844] = { ["name"] = "Covert Webmancer", ["count"] = 14 },
+        [224731] = { ["name"] = "Web Marauder", ["count"] = 14 },
+        [224732] = { ["name"] = "Covert Webmancer", ["count"] = 14 },
         [224962] = { ["name"] = "Cursedforge Mender", ["count"] = 5 },
+        [228361] = { ["name"] = "Agile Pursuer", ["count"] = 14 },
     }
 end

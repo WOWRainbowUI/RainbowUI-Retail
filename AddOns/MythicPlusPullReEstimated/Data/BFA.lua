@@ -5,14 +5,29 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1720351840,
+        timestamp = 1725186710,
         version = '11.0.2',
-        build = 55399,
+        build = 56421,
     }
 end
 
 function data:GetDungeonOverrides()
     return {
+        [353] = { -- Siege of Boralus
+            [128969] = { ["name"] = "Ashvane Commander", ["count"] = 8 },
+            [129367] = { ["name"] = "Bilge Rat Tempest", ["count"] = 4 },
+            [129369] = { ["name"] = "Irontide Raider", ["count"] = 8 },
+            [129370] = { ["name"] = "Irontide Waveshaper", ["count"] = 4 },
+            [129371] = { ["name"] = "Riptide Shredder", ["count"] = 4 },
+            [129372] = { ["name"] = "Blacktar Bomber", ["count"] = 4 },
+            [129374] = { ["name"] = "Scrimshaw Enforcer", ["count"] = 4 },
+            [135241] = { ["name"] = "Bilge Rat Pillager", ["count"] = 4 },
+            [135245] = { ["name"] = "Bilge Rat Demolisher", ["count"] = 8 },
+            [138254] = { ["name"] = "Irontide Powdershot", ["count"] = 1 },
+            [138464] = { ["name"] = "Ashvane Deckhand", ["count"] = 4 },
+            [138465] = { ["name"] = "Ashvane Cannoneer", ["count"] = 4 },
+            [144071] = { ["name"] = "Irontide Waveshaper", ["count"] = 4 },
+        },
         [369] = { -- Operation: Mechagon - Junkyard
             [189878] = { ["name"] = "Nathrezim Infiltrator", ["count"] = 7 },
             [190128] = { ["name"] = "Zul'gamux", ["count"] = 21 },
@@ -56,15 +71,8 @@ function data:GetNPCData()
         [128455] = { ["name"] = "T'lonja", ["count"] = 8 },
         [128551] = { ["name"] = "Irontide Mastiff", ["count"] = 4 },
         [128967] = { ["name"] = "Ashvane Sniper", ["count"] = 4 },
-        [128969] = { ["name"] = "Ashvane Commander", ["count"] = 8 },
         [129366] = { ["name"] = "Bilge Rat Buccaneer", ["count"] = 4 },
-        [129367] = { ["name"] = "Bilge Rat Tempest", ["count"] = 4 },
-        [129369] = { ["name"] = "Irontide Raider", ["count"] = 8 },
-        [129370] = { ["name"] = "Irontide Waveshaper", ["count"] = 4 },
-        [129371] = { ["name"] = "Riptide Shredder", ["count"] = 4 },
-        [129372] = { ["name"] = "Blacktar Bomber", ["count"] = 4 },
         [129373] = { ["name"] = "Dockhound Packmaster", ["count"] = 4 },
-        [129374] = { ["name"] = "Scrimshaw Enforcer", ["count"] = 4 },
         [129526] = { ["name"] = "Bilge Rat Swabby", ["count"] = 5 },
         [129527] = { ["name"] = "Bilge Rat Buccaneer", ["count"] = 5 },
         [129529] = { ["name"] = "Blacktooth Scrapper", ["count"] = 3 },
@@ -192,8 +200,6 @@ function data:GetNPCData()
         [135235] = { ["name"] = "Spectral Beastmaster", ["count"] = 4 },
         [135239] = { ["name"] = "Spectral Witch Doctor", ["count"] = 4 },
         [135240] = { ["name"] = "Soul Essence", ["count"] = 1 },
-        [135241] = { ["name"] = "Bilge Rat Pillager", ["count"] = 4 },
-        [135245] = { ["name"] = "Bilge Rat Demolisher", ["count"] = 8 },
         [135254] = { ["name"] = "Irontide Raider", ["count"] = 4 },
         [135258] = { ["name"] = "Irontide Marauder", ["count"] = 1 },
         [135263] = { ["name"] = "Ashvane Spotter", ["count"] = 4 },
@@ -243,11 +249,8 @@ function data:GetNPCData()
         [138019] = { ["name"] = "Kul Tiran Vanguard", ["count"] = 4 },
         [138187] = { ["name"] = "Grotesque Horror", ["count"] = 7 },
         [138247] = { ["name"] = "Irontide Marauder", ["count"] = 1 },
-        [138254] = { ["name"] = "Irontide Powdershot", ["count"] = 1 },
         [138255] = { ["name"] = "Ashvane Spotter", ["count"] = 4 },
         [138281] = { ["name"] = "Faceless Corruptor", ["count"] = 10 },
-        [138464] = { ["name"] = "Ashvane Deckhand", ["count"] = 4 },
-        [138465] = { ["name"] = "Ashvane Cannoneer", ["count"] = 4 },
         [138489] = { ["name"] = "Shadow of Zul", ["count"] = 8 },
         [139110] = { ["name"] = "Spark Channeler", ["count"] = 11 },
         [139269] = { ["name"] = "Gloom Horror", ["count"] = 2 },
@@ -266,7 +269,6 @@ function data:GetNPCData()
         [141495] = { ["name"] = "Kul Tiran Footman", ["count"] = 1 },
         [141565] = { ["name"] = "Kul Tiran Footman", ["count"] = 1 },
         [141566] = { ["name"] = "Scrimshaw Gutter", ["count"] = 1 },
-        [144071] = { ["name"] = "Irontide Waveshaper", ["count"] = 4 },
         [144293] = { ["name"] = "Waste Processing Unit", ["count"] = 6 },
         [144294] = { ["name"] = "Mechagon Tinkerer", ["count"] = 3 },
         [144295] = { ["name"] = "Mechagon Mechanic", ["count"] = 3 },

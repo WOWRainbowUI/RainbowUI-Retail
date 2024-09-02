@@ -29,8 +29,8 @@ local C_ChallengeMode = _G.C_ChallengeMode
 
 local name, ns = ...
 
---- @class MMPE: AceAddon, AceConsole-3.0, AceHook-3.0, AceEvent-3.0
-local MMPE = LibStub('AceAddon-3.0'):NewAddon(name, 'AceConsole-3.0', 'AceHook-3.0', 'AceEvent-3.0');
+--- @class MMPE: AceAddon, AceConsole-3.0, AceEvent-3.0
+local MMPE = LibStub('AceAddon-3.0'):NewAddon(name, 'AceConsole-3.0', 'AceEvent-3.0');
 if not MMPE then return end
 
 local L = LibStub('AceLocale-3.0'):GetLocale(name)
@@ -756,7 +756,7 @@ function MMPE:OnInitialize()
     self:RegisterEvent("NAME_PLATE_UNIT_REMOVED", function(_, unit) self:OnRemoveNameplate(unit) end)
 
     self.frame = CreateFrame("FRAME")
-    self:HookScript(self.frame, "OnUpdate", function(_, elapsed) self:OnUpdate(elapsed) end)
+    self.frame:SetScript("OnUpdate", function(_, elapsed) self:OnUpdate(elapsed) end)
     TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(tooltip) self:OnNPCTooltip(tooltip) end)
 
     --- wipe NPC data for now, just to make sure that old, bad data is removed for everyone.
