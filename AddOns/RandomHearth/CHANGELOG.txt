@@ -1,8 +1,3 @@
-Add timer for macro update and re-add macro tooltip updates
-Add additional option to customise macro name
-Set macro to randomise on PostClick
-Fix setting to Hearthstone on no-valid selection
-Limit no-valid warning message
-Add additional localisation
-   zhCN - Thank you to [Maple Saint](https://github.com/nanjuekaien1)
-   zhTW - Thank you to [BlueNightSky](https://github.com/BlueNightSky)
+Update rhBtn attribute type to "item" to allow non-toy items
+Add Notorious Thread's Hearthstone
+Add combat check for Dalaran/Garrison Hearth
