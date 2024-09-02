@@ -32,3 +32,26 @@
 ## Title-zhTW: |cffFF7F00[M+]|r 鑰石大師
 ## Notes-zhTW: |cffb09c60Key Master|r |n|n顯示你和隊友的 M+ 詳細資訊。|n|n|cffffd200使用方法: |r點小地圖按鈕。
 ## X-Category-zhTW: 團隊
+
+Embeds.xml
+Core\Localization\Localization.lua
+Core\CharacterInfo.lua
+Core\UI\MainInterface.lua
+Core\CharacterData.lua
+Core\UnitData.lua
+Core\UI\PlayerFrameMapping.lua
+Core\UI\PartyFrameMapping.lua
+Core\UI\HeaderFrameMapping.lua
+Core\Coms.lua
+Core\UI\InfoFrame.lua
+Core\UI\ConfigFrame.lua
+Core\UI\PlayerFrame.lua
+Core\UI\MainFrameTemplate.xml
+Core\UI\MainFrame.lua
+Core\UI\HeaderFrame.lua
+Core\UI\PartyFrame.lua
+Core\UI\CharactersFrame.lua
+Core\UI\WhatsNew.xml
+Core\UI\WhatsNew.lua
+Core\UI\UIinit.lua
+KeyMaster.lua
