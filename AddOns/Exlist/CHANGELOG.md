@@ -1,14 +1,15 @@
-# [1.8.1](https://github.com/sragia/Exlist/tree/1.8.1) (2024-07-25)
+# [1.8.3](https://github.com/sragia/Exlist/tree/1.8.3) (2024-09-01)
 
-[Full Changelog](https://github.com/sragia/Exlist/compare/1.8.0...1.8.1)
+[Full Changelog](https://github.com/sragia/Exlist/compare/1.8.2...1.8.3)
 
 ## Highlights
 
- Small typo fix for accountsync 
+ Fix profession KP not showing for characters with 0 earned so far 
 
 ## Commits
 
-Aigars Bedeicis (1):
+Aigars Bedeicis (2):
 
-- Fix typo
+- Remove debug
+- Show KP for characters with 0 earned
 
