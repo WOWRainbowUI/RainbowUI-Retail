@@ -1,15 +1,14 @@
-# [1.8.3](https://github.com/sragia/Exlist/tree/1.8.3) (2024-09-01)
+# [1.8.4](https://github.com/sragia/Exlist/tree/1.8.4) (2024-09-02)
 
-[Full Changelog](https://github.com/sragia/Exlist/compare/1.8.2...1.8.3)
+[Full Changelog](https://github.com/sragia/Exlist/compare/1.8.3...1.8.4)
 
 ## Highlights
 
- Fix profession KP not showing for characters with 0 earned so far 
+ Fix for hanging up on login 
 
 ## Commits
 
-Aigars Bedeicis (2):
+Aigars Bedeicis (1):
 
-- Remove debug
-- Show KP for characters with 0 earned
+- Temp fix for DF checking until I find proper solution
 
