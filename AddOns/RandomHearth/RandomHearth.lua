@@ -7,6 +7,10 @@ ItemID can be found from the URL of the item page on Wowhead.com
 
 Weary Spirit Binding (ID: 163206) does not appear to be in-game. Adding it to the list below will cause errors!
 
+If you would like to contribute to localisation translations please reach out on:
+	Github	https://github.com/JamienAU/RandomHearth/
+	Curse	https://legacy.curseforge.com/private-messages/send?recipient=jamienau
+
 ]]
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 local rhToys = {
@@ -37,16 +41,18 @@ local rhToys = {
 	206195, --Path of the Naaru
 	212337, --Stone of the Hearth
 	210455, --Draenic Hologem
+	228940, --Notorious Thread's Hearthstone (Not a toy)
 }
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 -- DO NOT EDIT BELOW HERE
 -- Unless you want to, I'm not your supervisor.
 
-local rhList, count, macroIcon, macroToyName, macroTimer, waitTimer
+local rhList, macroIcon, macroToyName, macroTimer, waitTimer
 local rhCheckButtons, wait, lastRnd, loginMsg = {}, false, 0, "r21"
 local addon, RH = ...
 local L = RH.Localisation
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Frames
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -62,17 +68,24 @@ local rhDeselectAll = CreateFrame("Button", nil, rhOptionsScroll, "UIPanelButton
 local rhOverride = CreateFrame("CheckButton", nil, rhOptionsScroll, "UICheckButtonTemplate")
 local rhListener = CreateFrame("Frame")
 local rhBtn = CreateFrame("Button", "rhB", nil, "SecureActionButtonTemplate")
-local rhDropdown = CreateFrame("Frame", nil, rhOptionsScroll, "UIDropDownMenuTemplate")
-local rhDalHearth = CreateFrame("CheckButton", nil, rhOptionsScroll, "UICheckButtonTemplate")
-local rhGarHearth = CreateFrame("CheckButton", nil, rhOptionsScroll, "UICheckButtonTemplate")
+local rhDropdown = CreateFrame("Frame", nil, rhOptionsPanel, "UIDropDownMenuTemplate")
+local rhDalHearth = CreateFrame("CheckButton", nil, rhOptionsPanel, "UICheckButtonTemplate")
+local rhGarHearth = CreateFrame("CheckButton", nil, rhOptionsPanel, "UICheckButtonTemplate")
 local rhMacroName = CreateFrame("EditBox", nil, rhOptionsPanel, "InputBoxTemplate")
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Functions
 ------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Combat Check
+local function combatCheck()
+	if (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+		return true
+	end
+end
+
 -- Create or update global macro
 local function updateMacro()
-	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+	if not combatCheck() then
 		local macroText
 		if #rhList == 0 then
 			if rhDB.settings.warnMsg ~= true then
@@ -101,7 +114,7 @@ local function updateMacro()
 end
 
 local function updateMacroName()
-	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+	if not combatCheck() then
 		local name = rhMacroName:GetText()
 		local macroIndex = GetMacroIndexByName(rhDB.settings.macroName)
 		if macroIndex == 0 then
@@ -115,7 +128,7 @@ local function updateMacroName()
 end
 
 local function checkMacroName()
-	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+	if not combatCheck() then
 		local name = rhMacroName:GetText()
 		if name == rhDB.settings.macroName or string.len(name) == 0 then return end
 		if GetMacroIndexByName(name) == 0 then
@@ -126,17 +139,17 @@ local function checkMacroName()
 end
 -- Set random Hearthstone
 local function setRandom()
-	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+	if not combatCheck() then
 		if #rhList > 0 then
-			local rnd = rhList[math.random(1, count)]
-			if count > 1 then
+			local rnd = rhList[math.random(1, #rhList)]
+			if #rhList > 1 then
 				while rnd == lastRnd do
-					rnd = rhList[math.random(1, count)]
+					rnd = rhList[math.random(1, #rhList)]
 				end
 				lastRnd = rnd
 			end
 			macroToyName = rhDB.L.tList[rnd]["name"]
-			rhBtn:SetAttribute("toy", macroToyName)
+			rhBtn:SetAttribute("item", macroToyName)
 			if rhDB.iconOverride.name == L["RANDOM"] then
 				macroIcon = rhDB.L.tList[rnd]["icon"]
 			else
@@ -153,7 +166,6 @@ end
 -- Generate a list of valid toys
 local function listGenerate()
 	rhList = {}
-	count = 0
 	local allCovenant
 	local covenantHearths = {
 		-- {Criteria index, Covenant index, Covenant toy, Enabled}
@@ -184,7 +196,11 @@ local function listGenerate()
 
 	for i, v in pairs(rhDB.L.tList) do
 		if v["status"] == true then
-			if PlayerHasToy(i) then
+			if i == 228940 then
+				if C_Item.IsUsableItem(i) then 
+					table.insert(rhList, i)
+				end
+			elseif PlayerHasToy(i) then
 				local addToy = true
 				-- Check for Covenant
 				for _, k in pairs(covenantHearths) do
@@ -206,7 +222,6 @@ local function listGenerate()
 				end
 				-- Create the list
 				if addToy == true then
-					count = count + 1
 					table.insert(rhList, i)
 				end
 			end
@@ -275,24 +290,26 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 rhBtn:RegisterForClicks("AnyDown")
 rhBtn:SetAttribute("pressAndHoldAction", true)
-rhBtn:SetAttribute("type", "toy")
-rhBtn:SetAttribute("typerelease", "toy")
+rhBtn:SetAttribute("type", "item")
+rhBtn:SetAttribute("typerelease", "item")
 rhBtn:SetScript("PreClick", function(self, button, isDown)
-	if not (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+	if not combatCheck() then
 		if (button == "2" or button == "RightButton") and rhDB.settings.dalOpt then
-			rhBtn:SetAttribute("toy", rhDB.L.dalaran)
+			rhBtn:SetAttribute("item", rhDB.L.dalaran)
 		elseif (button == "3" or button == "MiddleButton") and rhDB.settings.garOpt then
-			rhBtn:SetAttribute("toy", rhDB.L.garrison)
+			rhBtn:SetAttribute("item", rhDB.L.garrison)
 		end
 	end
 end)
 rhBtn:SetScript("PostClick", function(self, button)
-	if (button == "2" or button == "RightButton") and rhDB.settings.dalOpt then
-		rhBtn:SetAttribute("toy", macroToyName)
-	elseif (button == "3" or button == "MiddleButton") and rhDB.settings.garOpt then
-		rhBtn:SetAttribute("toy", macroToyName)
-	else
-		setRandom()
+	if not combatCheck() then
+		if (button == "2" or button == "RightButton") and rhDB.settings.dalOpt then
+			rhBtn:SetAttribute("item", macroToyName)
+		elseif (button == "3" or button == "MiddleButton") and rhDB.settings.garOpt then
+			rhBtn:SetAttribute("item", macroToyName)
+		else
+			setRandom()
+		end
 	end
 end)
 
