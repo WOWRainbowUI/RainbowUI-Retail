@@ -12,7 +12,7 @@ L['leather'] = '皮甲'
 L['mail'] = '鎖甲'
 L['plate'] = '鎧甲'
 L['cosmetic'] = '裝飾品'
-L['tabard'] = nil
+L['tabard'] = '外袍'
 
 L['1h_mace'] = '單手錘'
 L['1h_sword'] = '單手劍'
@@ -59,8 +59,8 @@ L['hard'] = '困難'
 
 L['completed'] = '已完成'
 L['incomplete'] = '未完成'
-L['claimed'] = nil
-L['unclaimed'] = nil
+L['claimed'] = '已取得'
+L['unclaimed'] = '未取得'
 L['known'] = '已獲得'
 L['missing'] = '未獲得'
 L['unobtainable'] = '無法獲得'
@@ -81,6 +81,7 @@ L['in_water'] = '在水下。'
 L['in_building'] = '在建築內.'
 
 ------------------------------------ TIME -------------------------------------
+L['now'] = '現在'
 L['hourly'] = '每小時'
 L['daily'] = '每日'
 L['weekly'] = '每週'
@@ -123,7 +124,7 @@ L['dr_advanced'] = '進階'
 L['dr_reverse'] = '逆向'
 L['dr_challenge'] = '挑戰'
 L['dr_reverse_challenge'] = '逆向挑戰'
-L['dr_storm_race'] = nil
+L['dr_storm_race'] = '風暴競速'
 L['dr_bronze'] = '完成賽事來取得 ' .. ns.color.Bronze('銅牌') .. '.'
 L['dr_vendor_note'] = '使用 {currency:2588} 交換飛龍觀察者手稿和塑型.'
 L['options_icons_dragonrace'] = '飛龍競速'
@@ -176,6 +177,8 @@ L['options_show_completed_nodes'] = '顯示已完成'
 L['options_show_completed_nodes_desc'] = '顯示所有的節點，即使它今天已被拾取或完成。'
 L['options_toggle_hide_done_rare'] = '隱藏所有戰利品已收藏的稀有'
 L['options_toggle_hide_done_rare_desc'] = '隱藏所有戰利品已收藏的稀有。'
+L['options_toggle_hide_done_treasure'] = nil
+L['options_toggle_hide_done_treasure_desc'] = nil
 L['options_toggle_hide_minimap'] = '隱藏小地圖上的所有圖示'
 L['options_toggle_hide_minimap_desc'] = '在小地圖上隱藏此插件的所有圖示，並只在主地圖上顯示它們。'
 L['options_toggle_maximized_enlarged'] = '當世界地圖時最大化時放大圖示'
@@ -189,8 +192,8 @@ L['options_restore_hidden_nodes_desc'] = '恢復所有使用右鍵選單隱藏�
 
 L['options_rewards_settings'] = '獎勵'
 L['options_reward_types'] = '顯示獎勵類型'
-L['options_manuscript_rewards'] = nil
-L['options_manuscript_rewards_desc'] = nil
+L['options_manuscript_rewards'] = '顯示飛龍觀察者手稿獎勵'
+L['options_manuscript_rewards_desc'] = '在提示顯示飛龍觀察者手稿並追蹤收集狀態'
 L['options_mount_rewards'] = '顯示坐騎獎勵'
 L['options_mount_rewards_desc'] = '在提示顯示坐騎獎勵並追蹤收集狀態'
 L['options_pet_rewards'] = '顯示戰寵獎勵'
@@ -203,10 +206,10 @@ L['options_transmog_rewards'] = '顯示塑形獎勵'
 L['options_transmog_rewards_desc'] = '在提示顯示塑型獎勵並追蹤收集狀態'
 L['options_all_transmog_rewards'] = '顯示無法取得的塑形獎勵'
 L['options_all_transmog_rewards_desc'] = '顯示其他職業可以取得的塑形獎勵'
-L['options_rep_rewards'] = nil
-L['options_rep_rewards_desc'] = nil
-L['options_claimed_rep_rewards'] = nil
-L['options_claimed_rep_rewards_desc'] = nil
+L['options_rep_rewards'] = '顯示聲望獎勵'
+L['options_rep_rewards_desc'] = '在提示顯示聲望獎勵並追蹤收集狀態'
+L['options_claimed_rep_rewards'] = '在提示顯示已取得的聲望獎勵'
+L['options_claimed_rep_rewards_desc'] = '在提示顯示已由你的戰隊取得的聲望獎勵'
 
 L['options_icons_misc_desc'] = '顯示其他節點的位置。'
 L['options_icons_misc'] = '其他'
@@ -238,6 +241,8 @@ L['options_toggle_show_notes'] = '顯示註記'
 L['options_toggle_show_notes_desc'] = '在可用的工具提示中加入有用的註記'
 L['options_toggle_use_standard_time'] = '使用12小時制'
 L['options_toggle_use_standard_time_desc'] = '在提示使用12小時制 (例. 8:00 PM) 而不是24小時制 (例. 20:00).'
+L['options_toggle_show_npc_id'] = nil
+L['options_toggle_show_npc_id_desc'] = nil
 
 --------------------------------- DEVELOPMENT ---------------------------------
 

@@ -81,6 +81,7 @@ L['in_water'] = 'Dans l\'eau.'
 L['in_building'] = 'A l\'intérieur du bâtiment.'
 
 ------------------------------------ TIME -------------------------------------
+L['now'] = 'Maintenant'
 L['hourly'] = 'Une fois par heure'
 L['daily'] = 'Quotidiennement'
 L['weekly'] = 'Hebdomadaire'
@@ -176,6 +177,8 @@ L['options_show_completed_nodes'] = 'Afficher les noeuds complétés'
 L['options_show_completed_nodes_desc'] = 'Afficher tous les nœuds même s\'ils ont déjà été looté ou terminés aujourd\'hui.'
 L['options_toggle_hide_done_rare'] = 'Cacher rare si tout le butin est connu'
 L['options_toggle_hide_done_rare_desc'] = 'Cacher toutes les rares pour qui tout le butin est connu.'
+L['options_toggle_hide_done_treasure'] = 'Cacher le trésor si toutes les récompenses sont connues'
+L['options_toggle_hide_done_treasure_desc'] = 'Cachez tous les trésors pour lesquels la totalité du butin est connue.'
 L['options_toggle_hide_minimap'] = 'Cacher toutes les icônes sur la minicarte'
 L['options_toggle_hide_minimap_desc'] = 'Cache toutes les icônes de cet addon sur la minicarte et les affiche uniquement sur la carte principale.'
 L['options_toggle_maximized_enlarged'] = 'Augmenter la taille des icones sur la carte du monde plein écran'
@@ -203,10 +206,10 @@ L['options_transmog_rewards'] = 'Afficher les transmos en récompense'
 L['options_transmog_rewards_desc'] = 'Afficher les transmos en récompenses dans les infobulles et suivre leur état de possession.'
 L['options_all_transmog_rewards'] = 'Afficher les transmos plus obtenables en récompense'
 L['options_all_transmog_rewards_desc'] = 'Afficher les transmos en récompenses pouvant être obtenus par d\'autres classes.'
-L['options_rep_rewards'] = nil
-L['options_rep_rewards_desc'] = nil
-L['options_claimed_rep_rewards'] = nil
-L['options_claimed_rep_rewards_desc'] = nil
+L['options_rep_rewards'] = 'Afficher les récompenses de réputation'
+L['options_rep_rewards_desc'] = 'Afficher les récompenses de réputation dans les infobulles et suivre l\'état de leur acquisition.'
+L['options_claimed_rep_rewards'] = 'Afficher les récompenses de réputation réclamées'
+L['options_claimed_rep_rewards_desc'] = 'Afficher les récompenses de réputation qui ont déjà été réclamées par votre bataillon.'
 
 L['options_icons_misc_desc'] = 'Afficher les emplacements des nœuds divers'
 L['options_icons_misc'] = 'Divers'
@@ -238,6 +241,8 @@ L['options_toggle_show_notes'] = 'Montrer les Notes'
 L['options_toggle_show_notes_desc'] = 'Ajouter les notes utiles à l\'infobulle le cas échéant'
 L['options_toggle_use_standard_time'] = 'Utiliser l\'horloge de 12 heures'
 L['options_toggle_use_standard_time_desc'] = 'Utiliser l\'horloge de 12 heures (ex : 8:00 PM) à la place de l\'horloge de 24 heures (ex : 20:00) dans les infobulles.'
+L['options_toggle_show_npc_id'] = nil
+L['options_toggle_show_npc_id_desc'] = nil
 
 --------------------------------- DEVELOPMENT ---------------------------------
 

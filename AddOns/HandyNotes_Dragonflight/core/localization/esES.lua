@@ -81,6 +81,7 @@ L['in_water'] = 'Bajo el agua.'
 L['in_building'] = 'En el edificio.'
 
 ------------------------------------ TIME -------------------------------------
+L['now'] = 'Ahora'
 L['hourly'] = 'Horaria'
 L['daily'] = 'Diaria'
 L['weekly'] = 'Semanal'
@@ -176,6 +177,8 @@ L['options_show_completed_nodes'] = 'Mostrar completados'
 L['options_show_completed_nodes_desc'] = 'Muestra todos los nodos incluso si ya han sido despojados o completados hoy.'
 L['options_toggle_hide_done_rare'] = 'Ocultar los raros, si se conoce todo el botín'
 L['options_toggle_hide_done_rare_desc'] = 'Oculta todos los raros a los que se les conozca el botín.'
+L['options_toggle_hide_done_treasure'] = 'Ocultar los tesoros si ya se tiene todas las recompensas'
+L['options_toggle_hide_done_treasure_desc'] = 'Oculta los tesoros que ya se tengan todas sus recompensas.'
 L['options_toggle_hide_minimap'] = 'Ocultar todos los iconos sobre el minimapa'
 L['options_toggle_hide_minimap_desc'] = 'Oculta todos los iconos de este addon sobre el minimapa y mostrarlos solamente sobre el mapa principal.'
 L['options_toggle_maximized_enlarged'] = 'Agrandar iconos en el mapa del mundo maximizado'
@@ -238,6 +241,8 @@ L['options_toggle_show_notes'] = 'Mostrar las Notas'
 L['options_toggle_show_notes_desc'] = 'Agrega las notas útiles en la descripción cuando esté disponible'
 L['options_toggle_use_standard_time'] = 'Usar Reloj de 12-Horas'
 L['options_toggle_use_standard_time_desc'] = 'Usa el reloj de 12-horas (ej: 8:00 PM) en lugar del reloj de 24-horas (ej: 20:00) en las descripciones.'
+L['options_toggle_show_npc_id'] = 'Mostrar el ID del NPC'
+L['options_toggle_show_npc_id_desc'] = 'Muestra el ID de los NPC para usarlo en addons de búsqueda de raros.'
 
 --------------------------------- DEVELOPMENT ---------------------------------
 

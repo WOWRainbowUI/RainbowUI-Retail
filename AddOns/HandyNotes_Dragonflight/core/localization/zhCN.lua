@@ -59,10 +59,10 @@ L['hard'] = '困难'
 
 L['completed'] = '已完成'
 L['incomplete'] = '未完成'
-L['claimed'] = nil
-L['unclaimed'] = nil
-L['known'] = '已获得'
-L['missing'] = '未获得'
+L['claimed'] = '已获得'
+L['unclaimed'] = '未获得'
+L['known'] = '已知'
+L['missing'] = '缺少'
 L['unobtainable'] = '无法获得'
 L['unlearnable'] = '无法解锁'
 L['defeated'] = '已击杀'
@@ -81,6 +81,7 @@ L['in_water'] = '在水中。'
 L['in_building'] = '在建筑里面。'
 
 ------------------------------------ TIME -------------------------------------
+L['now'] = '现在'
 L['hourly'] = '每小时'
 L['daily'] = '每日'
 L['weekly'] = '每周'
@@ -174,8 +175,10 @@ L['options_visibility_settings'] = '可见性'
 L['options_general_settings'] = '通用'
 L['options_show_completed_nodes'] = '显示已完成'
 L['options_show_completed_nodes_desc'] = '显示全部项即使它们今天已被拾取或完成。'
-L['options_toggle_hide_done_rare'] = '隐藏所有拾取已解锁的稀有'
-L['options_toggle_hide_done_rare_desc'] = '隐藏所有拾取已解锁的稀有。'
+L['options_toggle_hide_done_rare'] = '隐藏所有拾取已知的稀有'
+L['options_toggle_hide_done_rare_desc'] = '隐藏所有拾取已知的稀有。'
+L['options_toggle_hide_done_treasure'] = '隐藏所有拾取已知的宝藏'
+L['options_toggle_hide_done_treasure_desc'] = '隐藏所有拾取已知的宝藏。'
 L['options_toggle_hide_minimap'] = '隐藏小地图上的所有图标'
 L['options_toggle_hide_minimap_desc'] = '在小地图上隐藏此插件的所有图标，只会在世界地图上显示。'
 L['options_toggle_maximized_enlarged'] = '世界地图最大化时图标放大'
@@ -203,10 +206,10 @@ L['options_transmog_rewards'] = '显示幻化奖励'
 L['options_transmog_rewards_desc'] = '在提示中显示幻化奖励并跟踪其收集状态。'
 L['options_all_transmog_rewards'] = '显示无法获取的幻化奖励'
 L['options_all_transmog_rewards_desc'] = '显示其它职业可以获取的幻化奖励。'
-L['options_rep_rewards'] = nil
-L['options_rep_rewards_desc'] = nil
-L['options_claimed_rep_rewards'] = nil
-L['options_claimed_rep_rewards_desc'] = nil
+L['options_rep_rewards'] = '显示声望奖励'
+L['options_rep_rewards_desc'] = '在提示中显示声望奖励并跟踪其收集状态。'
+L['options_claimed_rep_rewards'] = '显示以已获得声望奖励'
+L['options_claimed_rep_rewards_desc'] = '在提示中显示获得战团已获得声望奖励。'
 
 L['options_icons_misc_desc'] = '显示其它未分类项的位置。'
 L['options_icons_misc'] = '杂项'
@@ -238,6 +241,8 @@ L['options_toggle_show_notes'] = '显示注释'
 L['options_toggle_show_notes_desc'] = '在提示中添加注释'
 L['options_toggle_use_standard_time'] = '使用12小时时钟'
 L['options_toggle_use_standard_time_desc'] = '在提示中使用12小时时钟（如：8:00 PM）而不是24小时时钟（如：20:00）。'
+L['options_toggle_show_npc_id'] = nil
+L['options_toggle_show_npc_id_desc'] = nil
 
 --------------------------------- DEVELOPMENT ---------------------------------
 

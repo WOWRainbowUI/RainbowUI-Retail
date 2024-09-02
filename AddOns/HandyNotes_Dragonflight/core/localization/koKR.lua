@@ -81,6 +81,7 @@ L['in_water'] = '물 속에 있음.'
 L['in_building'] = nil
 
 ------------------------------------ TIME -------------------------------------
+L['now'] = nil
 L['hourly'] = '한시간단위'
 L['daily'] = '일간'
 L['weekly'] = '주간'
@@ -176,6 +177,8 @@ L['options_show_completed_nodes'] = '완료 지점 표시'
 L['options_show_completed_nodes_desc'] = '이미 완료한 지점도 표시하도록 설정합니다'
 L['options_toggle_hide_done_rare'] = '모든 보상을 획득한 희귀몹 숨김'
 L['options_toggle_hide_done_rare_desc'] = '모든 보상을 획득한 희귀몹을 지도에서 숨깁니다.'
+L['options_toggle_hide_done_treasure'] = nil
+L['options_toggle_hide_done_treasure_desc'] = nil
 L['options_toggle_hide_minimap'] = '미니맵 상의 모든 아이콘 숨김'
 L['options_toggle_hide_minimap_desc'] = '이 애드온이 표시하는 미니맵 내의 모든 아이콘을 숨기고 지도에서만 나타나도록 합니다'
 L['options_toggle_maximized_enlarged'] = '세계지도 최대화면 모드에서 아이콘 확대'
@@ -238,6 +241,8 @@ L['options_toggle_show_notes'] = '가이드 표시'
 L['options_toggle_show_notes_desc'] = '가이드가 있으면 툴팁에 표시합니다'
 L['options_toggle_use_standard_time'] = nil
 L['options_toggle_use_standard_time_desc'] = nil
+L['options_toggle_show_npc_id'] = nil
+L['options_toggle_show_npc_id_desc'] = nil
 
 --------------------------------- DEVELOPMENT ---------------------------------
 

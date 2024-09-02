@@ -81,6 +81,7 @@ L['in_water'] = 'В воде.'
 L['in_building'] = 'В здании.'
 
 ------------------------------------ TIME -------------------------------------
+L['now'] = 'Сейчас'
 L['hourly'] = 'Ежечасно'
 L['daily'] = 'Ежедневно'
 L['weekly'] = 'Раз в неделю'
@@ -176,6 +177,8 @@ L['options_show_completed_nodes'] = 'Показать завершеные'
 L['options_show_completed_nodes_desc'] = 'Показать все точки, даже если они уже были получены или завершены сегодня.'
 L['options_toggle_hide_done_rare'] = 'Скрыть редких монстров, если все награды получены'
 L['options_toggle_hide_done_rare_desc'] = 'Скрыть всех редких монстров, с которых получены все награды.'
+L['options_toggle_hide_done_treasure'] = nil
+L['options_toggle_hide_done_treasure_desc'] = nil
 L['options_toggle_hide_minimap'] = 'Скрыть все значки на миникарте'
 L['options_toggle_hide_minimap_desc'] = 'Скрывает все иконки из этого аддона на миникарте и отображает их только на главной карте.'
 L['options_toggle_maximized_enlarged'] = 'Увеличивайте значки на увеличенной карте мира.'
@@ -238,6 +241,8 @@ L['options_toggle_show_notes'] = 'Показать заметки'
 L['options_toggle_show_notes_desc'] = 'Добавьте полезные заметки в подсказку, где это возможно'
 L['options_toggle_use_standard_time'] = 'Использовать 12-часовой формат'
 L['options_toggle_use_standard_time_desc'] = 'Используйте 12-часовой формат времени (например, 08:00 вечера) вместо 24-часового формата (например, 20:00) во всплывающих подсказках.'
+L['options_toggle_show_npc_id'] = nil
+L['options_toggle_show_npc_id_desc'] = nil
 
 --------------------------------- DEVELOPMENT ---------------------------------
 
