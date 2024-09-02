@@ -441,7 +441,7 @@ local function AddWorldBossOptions()
    local numExpansions = #Exlist.Expansions
    local configOpt = {
       type = "group",
-      name = "World Bosses",
+      name = L["World Bosses"],
       args = {
          desc = {
             type = "description",
