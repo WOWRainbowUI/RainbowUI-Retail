@@ -37,7 +37,13 @@ L['turtles_thanks_1_note'] = 'Entrega 5x {item:220143} (puede ser pescado de ban
 L['turtles_thanks_2_note'] = 'Entrega 1x {item:222533} (puede ser pescado de bancos {object:Lagoluz}, {object:Charco de Putrefacción Purulenta}, {object:Vertido de Ícor Imbuido} o comprados en la casa de subastas).'
 L['turtles_thanks_3_note'] = 'Alimenta a {npc:223338} en {location:Dornogal} y habla con ella para revelar el tesoro.'
 L['web_wrapped_axe_note'] = 'En el primer piso.\n\n{note:Reaparece cada 1-2 horas.}'
-
+L['faithful_dog_note'] = [[
+1. Encuentra al {npc:59533} en {location:Los Cultivos Florecientes} en el {locations:Valle de los Cuatro Vientos} en {location:Pandaria} y completa la misión {quest:30526}.
+2. Construye el {object:Jardín de Hierbas} en tu {location:Ciudadela} en {location:Draenor}.
+3. Encuentra un {item:147420} en {location:Dalaran} ({location:Islas Abruptas}) y habla con {npc:87553} en el {location:Jardín de Hierbas} de tu {location:Ciudadela}.
+El {npc:87553} estará ahora en {location:Monturas Exóticas} en {location:Dalaran}.
+4. Interactúa con el {object:Cuenco de Perro Semienterrado} en {location:Isla de Dorn} y habla con {npc:87553} para conseguir la mascota.
+]]
 L['cendvin_note'] = 'Consigue 900x {item:225557} en {location:Foldeceniza} de los enemigos élite para comprar la montura {item:223153} a {npc:226205}.'
 
 L['options_icons_flat_earthen'] = '{achievement:40606}'
@@ -202,6 +208,8 @@ L['beacon_of_hope_note'] = 'Contribuye con {item:206350} para encender las llave
 
 L['parasidious_note'] = 'Compra unos {item:206670} al {npc:206533} (enciende la {object:Llave Ardiente Inferior} para hacer que aparezca) e ir al {location:Paraje Alzaocaso} y sacar {npc:206870} hasta que aparezca el raro. {note: Sólo aparece si hay un {npc:206978} donde estás}.'
 
+L['options_icons_flamegards_hope'] = '{achievement:20594}'
+L['options_icons_flamegards_hope_desc'] = 'Muestra los sitios para hacer el logro {achievement:20594}.'
 L['flamegards_hope_note'] = 'Ayuda a {npc:213319} durante 20 Días curando las {npc:220225}.\n\nTambién puedes usar una {spell:372009} o una {item:211878} si tu clase no puede curar.'
 
 -------------------------------------------------------------------------------
@@ -299,5 +307,5 @@ L['tsw_chest_2_note'] = '{note:Sólo disponible en la variante de la historia "D
 L['tsw_chest_3_location'] = 'En lo alto de un pilar cerca del menú desplegable de la sala del tesoro.'
 L['tsw_chest_4_location'] = 'En lo alto de una viga. Bájate del pilar cerca del otro cofre.'
 L['tuk_chest_1_note'] = 'Detrás de la estatua.'
-L['tuk_chest_2_note'] = '{note:Sólo disponible en la variante de la historia "Víctimas de Tortura".}'
-L['tuk_chest_3_note'] = '{note:Sólo disponible en la variante de la historia "Rescate de la Tejedora".}'
+L['tuk_chest_2_note'] = '{note:Sólo disponible en las variantes de la historia "Evolución Incontrolable" y "Víctimas de Tortura".}'
+L['tuk_chest_3_note'] = '{note:Sólo disponible en las variantes de la historia "Evolución Incontrolable" y "Rescate de la Tejedora".}'

@@ -37,6 +37,13 @@ L['turtles_thanks_1_note'] = 'Hand in 5x {item:220143} (can be fished from {obje
 L['turtles_thanks_2_note'] = 'Hand in 1x {item:222533} (can be fished from {object:Glimmerpool}, {object:Festering Rotpool}, {object:Infused Ichor Spill} pool or bought from the auction house).'
 L['turtles_thanks_3_note'] = 'Meet the {npc:223338} in {location:Dornogal} and speak with her to reveal the treasure.'
 L['web_wrapped_axe_note'] = 'On the first floor.\n\n{note:Have 1-2 Hours spawn time.}'
+L['faithful_dog_note'] = [[
+1. Find the {npc:59533} in {location:The Heartland} in {map:376} in {map:424} and complete {quest:30526}.
+2. Build the {object:Herb Garden} in your {area:7490} in {map:572}.
+3. Find a {item:147420} in the {map:619} {map:627} then talk with {npc:87553} in your {area:7490} {object:Herb Garden}.
+The {npc:87553} will now be at the {location:Magical Menagerie} in {map:627}
+4. Interact with the {object:Half-Buried Dog Bowl} in {map:2248} then speak with {npc:87553} to receive the pet.
+]]
 
 L['cendvin_note'] = 'Farm 900x {item:225557} in {location:Cinderwold} from elite mobs to purchase the {item:223153} mount from {npc:226205}.'
 
@@ -202,6 +209,8 @@ L['beacon_of_hope_note'] = 'Contribute {item:206350} to light lesser keyflames a
 
 L['parasidious_note'] = 'Purchase 1x {item:206670} from {npc:206533} (light up the {object:Lesser Keyflame} to spawn him) then go to the {location:Duskrise Acreage} and pull {npc:206870} until the rare spawns. {note: Only spawns if the {npc:206978} is in this location}.'
 
+L['options_icons_flamegards_hope'] = '{achievement:20594}'
+L['options_icons_flamegards_hope_desc'] = 'Display location for the {achievement:20594} achievement.'
 L['flamegards_hope_note'] = 'Help out {npc:213319} for 20 Days healing the {npc:220225s}.\n\nYou can also use a {spell:372009} or {item:211878} if your class can\'t heal.'
 
 -------------------------------------------------------------------------------

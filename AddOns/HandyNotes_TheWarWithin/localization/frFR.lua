@@ -38,6 +38,13 @@ L['turtles_thanks_1_note'] = 'Apportez 5x {item:220143} (à pêcher dans les {ob
 L['turtles_thanks_2_note'] = 'Apportez 1x {item:222533} (à pêcher dans les {object:Bassin scintillant}, {object:Bassin de pourriture purulente}, {object:Éclaboussure d\'ichor imprégné} ou à acheter à l\'hôtel des ventes).'
 L['turtles_thanks_3_note'] = 'Rencontrez la {npc:223338} à {location:Dornogal} et parlez-lui pour faire apparaître le trésor.'
 L['web_wrapped_axe_note'] = 'Au premier étage.\n\n{note:A un temps de réapparition de 1 à 2 heures.}'
+L['faithful_dog_note'] = [[
+1. Trouvez le {npc:59533} aux coordonnées 42.40 50.00 à {map:376} dans la {map:424} et terminez {quest:30526}.
+2. Construisez le {object:Jardin des simples} dans votre {area:7490} en {map:572}.
+3. Trouvez un {item:147420} à {map:619} {map:627}, puis parlez avec le {npc:87553} dans le {object:Jardin des simples} de votre {area:7490}.
+Le {npc:87553} sera maintenant situé à la {location:Ménagerie magique} à {map:627}.
+4. Interagissez avec la {object:Gamelle pour chien partiellement enterrée} sur l'{map:2248}, puis parlez avec le {npc:87553} pour recevoir la mascotte.
+]]
 
 L['cendvin_note'] = 'Obtenez 900x {item:225557} sur les monstres élites à {location:Braiselande} pour acheter la monture {item:223153} à {npc:226205}.'
 
@@ -203,6 +210,8 @@ L['beacon_of_hope_note'] = 'Donnez des {item:206350} pour allumer les flammeclé
 
 L['parasidious_note'] = 'Achetez 1x {item:206670} au {npc:206533} (allumez la {object:flammeclé inférieure} pour le faire apparaître), allez ensuite à la {location:Terre du Crépuscule} et tirez sur les {npc:206870} jusqu\'à ce que le rare apparaisse. {note: Il n\'apparaît que si la {npc:206978} se trouve à cet endroit}.'
 
+L['options_icons_flamegards_hope'] = '{achievement:20594}'
+L['options_icons_flamegards_hope_desc'] = 'Afficher l\'emplacement pour le haut-fait {achievement:20594}.'
 L['flamegards_hope_note'] = 'Aidez {npc:213319} à soigner les {npc:220225} pendant 20 jours.\n\nVous pouvez également utiliser un {spell:372009} ou une {item:211878} si votre classe ne peut pas soigner.'
 
 -------------------------------------------------------------------------------
@@ -300,5 +309,5 @@ L['tsw_chest_2_note'] = '{note:Disponible uniquement pendant la variante de l’
 L['tsw_chest_3_location'] = 'En haut d\'un pilier, près du passage vers la salle du trésor.'
 L['tsw_chest_4_location'] = 'En haut d\'une poutre. Descendez du pilier près de l\'autre coffre.'
 L['tuk_chest_1_note'] = 'Derrière la statue.'
-L['tuk_chest_2_note'] = '{note:Disponible uniquement pendant la variante de l’histoire "Victimes de tortures".}'
-L['tuk_chest_3_note'] = '{note:Disponible uniquement pendant la variante de l’histoire "Sauvetage de tisserande".}'
+L['tuk_chest_2_note'] = '{note:Disponible uniquement pendant les variantes d’histoires "Évolution incontrôlable" et "Victimes de tortures".}'
+L['tuk_chest_3_note'] = '{note:Disponible uniquement pendant les variantes d’histoires "Évolution incontrôlable" et "Sauvetage de tisserande".}'

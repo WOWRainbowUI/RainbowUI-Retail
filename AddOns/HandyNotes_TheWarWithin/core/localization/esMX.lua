@@ -177,6 +177,8 @@ L['options_show_completed_nodes'] = nil
 L['options_show_completed_nodes_desc'] = nil
 L['options_toggle_hide_done_rare'] = 'Ocultar el raro si todo el botín se conoce'
 L['options_toggle_hide_done_rare_desc'] = 'Ocultar todos los raros de botín conocido.'
+L['options_toggle_hide_done_treasure'] = nil
+L['options_toggle_hide_done_treasure_desc'] = nil
 L['options_toggle_hide_minimap'] = 'Ocultar todos los íconos sobre el minimapa'
 L['options_toggle_hide_minimap_desc'] = 'Oculta todos íconos de este addon sobre el minimapa y los mostra solamente sobre el mapa principal.'
 L['options_toggle_maximized_enlarged'] = nil
@@ -239,6 +241,8 @@ L['options_toggle_show_notes'] = 'Mostrar las Notas'
 L['options_toggle_show_notes_desc'] = 'Agregar las notas útiles al tooltip cuando esté disponible'
 L['options_toggle_use_standard_time'] = nil
 L['options_toggle_use_standard_time_desc'] = nil
+L['options_toggle_show_npc_id'] = nil
+L['options_toggle_show_npc_id_desc'] = nil
 
 --------------------------------- DEVELOPMENT ---------------------------------
 

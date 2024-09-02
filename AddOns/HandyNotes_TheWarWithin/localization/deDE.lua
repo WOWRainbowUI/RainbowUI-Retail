@@ -38,6 +38,7 @@ L['turtles_thanks_1_note'] = 'Biete 5x {item:220143} an (kann in dem Schwarm {ob
 L['turtles_thanks_2_note'] = 'Biete 1x {item:222533} an (kann in den Schwärmen {object:Glimmerbecken}, {object:Schwärender Fäulnisteich}, {object:Energieerfüllter Sekretfleck} geangelt oder im Auktionshaus gekauft werden).'
 L['turtles_thanks_3_note'] = 'Treffe dich mit der {npc:223338} in {location:Dornogal} und spreche mit ihr, um den Schatz zu enthüllen.'
 L['web_wrapped_axe_note'] = 'In der ersten Etage.\n\n{note:Erscheint erst wieder nach 1 bis 2 Stunden.}'
+L['faithful_dog_note'] = nil
 
 L['cendvin_note'] = 'Plündere 900x {item:225557} in {location:Aschenholtz} von Elitegegnern, um das Reittier {item:223153} von {npc:226205} kaufen zu können.'
 
@@ -203,6 +204,8 @@ L['beacon_of_hope_note'] = 'Steuere {item:206350} bei, um kleinere Schlüsselfla
 
 L['parasidious_note'] = 'Kaufe 1x {item:206670} von {npc:206533} (entfache die {object:Kleine Schlüsselflamme}, damit dieser erscheint). Gehe zum {location:Dämmerhöhenacker} und ziehe an {npc:206870} bis der seltene Gegner erscheint. {note: Kann nur erscheinen, wenn {npc:206978} an dieser Position ist.}'
 
+L['options_icons_flamegards_hope'] = '{achievement:20594}'
+L['options_icons_flamegards_hope_desc'] = 'Zeigt die Position für den Erfolg {achievement:20594} an.'
 L['flamegards_hope_note'] = 'Hilf {npc:213319} 20 Tage lang die {npc:verletzten Soldaten} zu heilen.\n\nDu kannst auch einen {spell:372009} oder {item:211878} nutzen, wenn deine Klasse nicht heilen kann.'
 
 -------------------------------------------------------------------------------
