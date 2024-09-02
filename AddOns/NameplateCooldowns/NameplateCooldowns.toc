@@ -2,9 +2,10 @@
 ## Title: NameplateCooldowns
 ## Notes: Shows the cooldowns of enemy players above their nameplates
 ## SavedVariables: NameplateCooldownsAceDB
-## Version: 110002.1-release
+## Version: 110002.2-release
 ## X-Curse-Project-ID: 66866
 ## X-Wago-ID: 0mNwjlGo
+## IconTexture: Interface\AddOns\NameplateCooldowns\media\icon
 
 ## Title-zhTW: |cffFF0000[PvP]|r 敵方技能監控 (血條)
 ## Notes-zhTW: NameplateCooldowns |n在血條上方顯示敵人的技能冷卻時間。|n|cffffd200使用方法：|r從Esc>選項>插件>PVP血條技能，進行設定。
