@@ -87,6 +87,10 @@ L['daily'] = '每日'
 L['weekly'] = '每週'
 L['normal'] = '普通'
 L['hard'] = '困難'
+
+L['time_format_12hrs'] = '%B %d - %I:%M %p 本地時間'
+L['time_format_24hrs'] = '%B %d - %H:%M 本地時間'
+----------------------------------- REWARDS -----------------------------------
 L['heirloom'] = '傳家寶'
 L['item'] = '物品'
 L['mount'] = '坐騎'
@@ -110,16 +114,15 @@ L['quest'] = '任務'
 L['quest_repeatable'] = '可重覆任務'
 L['achievement'] = '成就'			
 
+---------------------------------- FOLLOWERS ----------------------------------
 L['follower_type_follower'] = '追隨者'
 L['follower_type_champion'] = '勇士'
 L['follower_type_companion'] = '夥伴'
 
+--------------------------------- REPUTATION ----------------------------------
 L['rep_honored'] = '尊敬'
 L['rep_revered'] = '崇敬'
 L['rep_exalted'] = '崇拜'
-
-L['time_format_12hrs'] = '%B %d - %I:%M %p 本地時間'
-L['time_format_24hrs'] = '%B %d - %H:%M 本地時間'
 
 -------------------------------------------------------------------------------
 --------------------------------- DRAGONRACES ---------------------------------
@@ -133,10 +136,10 @@ L['dr_normal'] = '普通'
 L['dr_advanced'] = '進階'
 L['dr_reverse'] = '反向'
 L['dr_challenge'] = '挑戰'
-L['dr_reverse_challenge'] = '反向挑戰'
+L['dr_reverse_challenge'] = '逆向挑戰'
 L['dr_storm_race'] = '風暴競速'
-L['dr_bronze'] = '完成賽事來取得 ' .. ns.color.Bronze('銅牌') .. '。'
-L['dr_vendor_note'] = '使用 {currency:2588} 兌換飛龍觀察者手稿和外觀。'
+L['dr_bronze'] = '完成賽事來取得 ' .. ns.color.Bronze('銅牌') .. '.'
+L['dr_vendor_note'] = '使用 {currency:2588} 交換飛龍觀察者手稿和外觀。'
 L['options_icons_dragonrace'] = '飛龍競速'
 L['options_icons_dragonrace_desc'] = '顯示區域內所有飛龍競速的位置。'
 
@@ -186,6 +189,8 @@ L['options_show_completed_nodes'] = '顯示已完成的'
 L['options_show_completed_nodes_desc'] = '就算全部都拾取過，或是今天的已經完成了，也要顯示所有地點。'
 L['options_toggle_hide_done_rare'] = '隱藏獎勵全部都拿到的稀有怪'
 L['options_toggle_hide_done_rare_desc'] = '如果稀有怪掉落的物品都已收藏，隱藏這些稀有怪。'
+L['options_toggle_hide_done_treasure'] = '隱藏獎勵全部都拿到的寶藏'
+L['options_toggle_hide_done_treasure_desc'] = '如果寶藏拾取的物品都已收藏，隱藏這些寶藏。'
 L['options_toggle_hide_minimap'] = '隱藏小地圖的所有圖示'
 L['options_toggle_hide_minimap_desc'] = '隱藏小地圖上來自此插件的所有圖示，只顯示在大地圖上。'
 L['options_toggle_maximized_enlarged'] = '放大最大化世界地圖上的圖示'
@@ -215,8 +220,8 @@ L['options_all_transmog_rewards'] = '顯示無法取得的塑形外觀獎勵'
 L['options_all_transmog_rewards_desc'] = '顯示其他職業才能取得的塑形外觀獎勵。'
 L['options_rep_rewards'] = '顯示聲望獎勵'
 L['options_rep_rewards_desc'] = '在浮動提示資訊中顯示聲望獎勵，並且追蹤目前狀態。'
-L['options_claimed_rep_rewards'] = '顯示共享的聲望獎勵'
-L['options_claimed_rep_rewards_desc'] = '顯示戰隊共享的聲望獎勵。'
+L['options_claimed_rep_rewards'] = '顯示已取得的聲望獎勵'
+L['options_claimed_rep_rewards_desc'] = '顯示已由戰隊取得的聲望獎勵。'
 
 L['options_icons_misc_desc'] = '顯示其他未分類的地點。'
 L['options_icons_misc'] = '其他'
@@ -249,6 +254,8 @@ L['options_toggle_show_notes'] = '顯示註記'
 L['options_toggle_show_notes_desc'] = '在浮動提示中顯示有用的註記，如果有的話。'
 L['options_toggle_use_standard_time'] = '使用 12小時制'
 L['options_toggle_use_standard_time_desc'] = '浮動提示資訊中的時間使用 12小時制 (例如: 8:00 PM) 而不是 24小時制 (例如: 20:00)。'
+L['options_toggle_show_npc_id'] = '顯示 NPC ID'
+L['options_toggle_show_npc_id_desc'] = '顯示 NPC 的 ID，以便在稀有怪通知插件中使用。'
 
 --------------------------------- DEVELOPMENT ---------------------------------
 

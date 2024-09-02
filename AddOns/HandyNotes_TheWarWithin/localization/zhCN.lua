@@ -37,6 +37,13 @@ L['turtles_thanks_1_note'] = '交出5个 {item:220143}（可从 {object:平静�
 L['turtles_thanks_2_note'] = '交出1个 {item:222533}（可从 {object:浮光之池}，{object:溃烂的腐臭之池}，{object:飞溅的注能脓液} 渔点钓鱼或从拍卖行购买）。'
 L['turtles_thanks_3_note'] = '在 {location:多恩诺嘉尔} 与 {npc:223338} 会面并与她交谈以发现宝藏。'
 L['web_wrapped_axe_note'] = '在一楼。\n\n{note:有1-2小时的刷新时间。}'
+L['faithful_dog_note'] = [[
+1. 在 {map:424} 的 {map:376} 的 {location:汇风岭} 处找到 {npc:59533} 并完成 {quest:30526}。
+2. 在 {map:572} 的 {area:7490} 中建造 {object:药圃}。
+3. 在 {map:619} {map:627} 中找到 {item:147420}，然后与 {area:7490} {object:药圃} 中的 {npc:87553} 交谈。
+{npc:87553} 现在位于 {map:627} 的 {location:魔法动物店}
+4. 与 {map:2248} 中的 {object:半埋的狗食盆} 互动，然后与 {npc:87553} 交谈以获取宠物。
+]]
 
 L['cendvin_note'] = '在 {location:烬燧荒原} 从精英怪物那里获得900个 {item:225557} 之后从 {npc:226205} 购买 {item:223153} 坐骑。'
 
@@ -202,6 +209,8 @@ L['beacon_of_hope_note'] = '捐献 {item:206350} 来点亮小型钥焰并完成�
 
 L['parasidious_note'] = '要出现此稀有，需要从 {npc:206533} 购买 {item:206670}（激活 {object:小型钥焰} 使其出现），然后前往 {location:暮升辽原} 并拉动 {npc:206870}。当拉动它们时，一根藤蔓会从身上射出并到达 {npc:206978}，它会生长/变化，直到稀有最终出现。' -- from wowhead, needs to be reviewed
 
+L['options_icons_flamegards_hope'] = '{achievement:20594}'
+L['options_icons_flamegards_hope_desc'] = '显示 {achievement:20594} 成就中的位置。'
 L['flamegards_hope_note'] = '帮助 {npc:213319} 治疗 {npc:220225} 20天。\n\n如果当前职业无法治疗，可以使用 {spell:372009} 或 {item:211878}。'
 
 -------------------------------------------------------------------------------
@@ -299,5 +308,5 @@ L['tsw_chest_2_note'] = '{note:仅在“纺丝者爱的问候”故事变种。}
 L['tsw_chest_3_location'] = '在通往宝藏室的下拉栏附近的柱子上。'
 L['tsw_chest_4_location'] = '在横梁上。从另一个宝箱附近的柱子上掉下来。'
 L['tuk_chest_1_note'] = '雕像后面。'
-L['tuk_chest_2_note'] = '{note:仅在“煎熬受害者”故事变种。}'
-L['tuk_chest_3_note'] = '{note:仅在“纺丝者救援”故事变种。}'
+L['tuk_chest_2_note'] = '{note:仅在“逃亡的进化体”和“煎熬受害者”故事变种。}'
+L['tuk_chest_3_note'] = '{note:仅在“逃亡的进化体”和“纺丝者救援”故事变种。}'
