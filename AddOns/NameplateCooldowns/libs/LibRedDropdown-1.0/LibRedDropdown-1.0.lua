@@ -1,14 +1,15 @@
 -- luacheck: no max line length
--- luacheck: globals LibStub IndentationLib CreateFrame UIParent BackdropTemplateMixin Spell hooksecurefunc GameFontHighlightSmall unpack GetBuildInfo CLOSE GetSpellTexture ColorPickerFrame
--- luacheck: globals OpacitySliderFrame ChatFontNormal ACCEPT INFO
+-- luacheck: globals LibStub IndentationLib CreateFrame UIParent BackdropTemplateMixin Spell hooksecurefunc GameFontHighlightSmall unpack GetBuildInfo CLOSE ColorPickerFrame
+-- luacheck: globals OpacitySliderFrame ChatFontNormal ACCEPT INFO C_Spell
 
 local wowBuild = select(4, GetBuildInfo());
 
 local LIB_NAME = "LibRedDropdown-1.0";
-local lib = LibStub:NewLibrary(LIB_NAME, 20);
+local lib = LibStub:NewLibrary(LIB_NAME, 22);
 if (not lib) then return; end -- No upgrade needed
 
 local table_insert, string_find, string_format, max = table.insert, string.find, string.format, math.max;
+local C_Spell_GetSpellTexture =  C_Spell.GetSpellTexture;
 
 local IndentationLib = IndentationLib;
 
@@ -265,6 +266,264 @@ function lib.CreateDropdownMenu()
 	return selectorEx;
 end
 
+function lib.CreateDropdownMenu2()
+	local SPACE_BETWEEN_BUTTON_AND_CLOSEBUTTON = 3;
+	local SCROLL_AREA_Y_OFFSET = -30;
+
+	local selectorEx = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate");
+	selectorEx:SetPoint("CENTER", UIParent, "CENTER", 0, 0);
+	selectorEx:SetSize(350, 300);
+	selectorEx:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+		tile = 1,
+		tileSize = 16,
+		edgeSize = 16,
+		insets = { left = 4, right = 4, top = 4, bottom = 4 }
+	});
+	selectorEx:SetBackdropColor(0.1, 0.1, 0.2, 1);
+	selectorEx:SetBackdropBorderColor(0.8, 0.8, 0.9, 0.4);
+
+	selectorEx.searchTextChangedHandler = nil;
+	selectorEx.buttons = { };
+	selectorEx.list = { };
+	selectorEx.currentPosition = -1;
+	selectorEx.dataSource = nil;
+
+	selectorEx.searchBox = CreateFrame("EditBox", nil, selectorEx, "InputBoxTemplate");
+	selectorEx.searchBox:SetAutoFocus(false);
+	selectorEx.searchBox:SetFontObject(GameFontHighlightSmall);
+	selectorEx.searchBox:SetPoint("TOPLEFT", selectorEx, "TOPLEFT", 10, -5);
+	selectorEx.searchBox:SetPoint("RIGHT", selectorEx, "RIGHT", -10, 0);
+	selectorEx.searchBox:SetHeight(20);
+	selectorEx.searchBox:SetWidth(175);
+	selectorEx.searchBox:SetJustifyH("LEFT");
+	selectorEx.searchBox:EnableMouse(true);
+	selectorEx.searchBox:SetScript("OnEscapePressed", function() selectorEx.searchBox:ClearFocus(); end);
+	selectorEx.searchBox:SetScript("OnTextChanged", function(self)
+		if (selectorEx.searchTextChangedHandler == nil) then
+			return;
+		end
+
+		local text = self:GetText();
+		selectorEx:searchTextChangedHandler(text);
+		selectorEx.scrollArea:SetVerticalScroll(0);
+	end);
+	local searchBoxText = selectorEx.searchBox:CreateFontString(nil, "ARTWORK", "GameFontDisable");
+	searchBoxText:SetPoint("LEFT", 0, 0);
+	searchBoxText:SetText("Click to search...");
+	selectorEx.searchBox:SetScript("OnEditFocusGained", function() searchBoxText:Hide(); end);
+	selectorEx.searchBox:SetScript("OnEditFocusLost", function()
+		local text = selectorEx.searchBox:GetText();
+		if (text == nil or text == "") then
+			searchBoxText:Show();
+		end
+	end);
+	selectorEx.searchBox.hint = CreateFrame("Frame", nil, selectorEx.searchBox);
+	selectorEx.searchBox.hint:SetWidth(selectorEx.searchBox:GetHeight());
+	selectorEx.searchBox.hint:SetHeight(selectorEx.searchBox:GetHeight());
+	selectorEx.searchBox.hint:SetPoint("RIGHT", selectorEx.searchBox, "RIGHT", -4, 0);
+	selectorEx.searchBox.hint.texture = selectorEx.searchBox.hint:CreateTexture(nil, "OVERLAY");
+	selectorEx.searchBox.hint.texture:SetTexture("Interface\\common\\help-i");
+	selectorEx.searchBox.hint.texture:SetAllPoints(selectorEx.searchBox.hint);
+	selectorEx.searchBox.hint:Hide();
+
+	selectorEx.scrollArea = CreateFrame("ScrollFrame", nil, selectorEx, "UIPanelScrollFrameTemplate");
+	selectorEx.scrollArea:SetPoint("TOPLEFT", selectorEx, "TOPLEFT", 5, SCROLL_AREA_Y_OFFSET);
+	selectorEx.scrollArea:SetPoint("BOTTOMRIGHT", selectorEx, "BOTTOMRIGHT", -30, 5);
+	selectorEx.scrollArea:Show();
+
+	selectorEx.scrollAreaChildFrame = CreateFrame("Frame", nil, selectorEx.scrollArea);
+	selectorEx.scrollArea:SetScrollChild(selectorEx.scrollAreaChildFrame);
+	selectorEx.scrollAreaChildFrame:SetWidth(selectorEx.scrollArea:GetWidth());
+	selectorEx.scrollAreaChildFrame:SetHeight(288);
+
+	local function GetButton(s, counter)
+		if (s.buttons[counter] == nil) then
+			local line = CreateFrame("frame", nil, s.scrollAreaChildFrame);
+			line:SetHeight(20);
+			line:SetPoint("TOPLEFT", 5, -counter * 22 + 20);
+			line:SetPoint("RIGHT", 0, 0);
+			line:Show();
+			local button = lib.CreateButton();
+			local originalShow = button.Show;
+			button.Show = function(self) originalShow(self); line:Show(); end
+			local originalHide = button.Hide;
+			button.Hide = function(self) originalHide(self); line:Hide(); end
+			button:SetParent(line);
+			button.font, button.fontSize, button.fontFlags = button.Text:GetFont();
+
+			button.Icon = button:CreateTexture();
+			button.Icon:SetTexCoord(0.07, 0.93, 0.07, 0.93);
+			button.Icon:SetPoint("LEFT", line, "LEFT", 0, 0);
+			button.Icon:SetWidth(line:GetHeight());
+			button.Icon:SetHeight(line:GetHeight());
+
+			button.closeButton = lib.CreateButton();
+			button.closeButton:SetParent(line);
+			button.closeButton:SetWidth(line:GetHeight());
+			button.closeButton:SetHeight(line:GetHeight());
+			button.closeButton:SetPoint("RIGHT", line, "RIGHT", 0, 0);
+			button.closeButton.Text:SetText("X");
+
+			button:SetHeight(line:GetHeight());
+			button:SetPoint("LEFT", button.Icon, "RIGHT", SPACE_BETWEEN_BUTTON_AND_CLOSEBUTTON, 0);
+			button:SetPoint("RIGHT", button.closeButton, "LEFT", -SPACE_BETWEEN_BUTTON_AND_CLOSEBUTTON, 0);
+			button:Hide();
+
+			s.buttons[counter] = button;
+			return button;
+		else
+			return s.buttons[counter];
+		end
+	end
+
+	-- value.text, value.font, value.icon, value.func, value.onEnter, value.onLeave, value.disabled, value.dontCloseOnClick, value.checkBoxEnabled,
+	--value.onCheckBoxClick, value.checkBoxState, onCloseButtonClick, buttonColor
+	local function SetList(s, t)
+		for _, button in pairs(s.buttons) do
+			button:SetGray(false);
+			button:Hide();
+			button.Text:SetFont(button.font, button.fontSize, button.fontFlags);
+			button.Text:SetText();
+			button.closeButton:Hide();
+			button.closeButton:SetScript("OnClick", nil);
+			button:SetScript("OnClick", nil);
+			button:SetCheckBoxVisible(false);
+			button.Normal:SetColorTexture(unpack(BUTTON_COLOR_NORMAL));
+		end
+		local counter = 1;
+		for _, value in pairs(t) do
+			local button = GetButton(s, counter);
+			button.Text:SetText(value.text);
+			if (value.font ~= nil) then
+				button.Text:SetFont(value.font, button.fontSize, button.fontFlags);
+			end
+			if (value.disabled) then
+				button:SetGray(true);
+			end
+			if (value.icon ~= nil) then
+				button.Icon:SetTexture(value.icon);
+				button.Icon:Show();
+				button:SetPoint("LEFT", button.Icon, "RIGHT", SPACE_BETWEEN_BUTTON_AND_CLOSEBUTTON, 0);
+			else
+				button.Icon:Hide();
+				button:SetPoint("LEFT", button:GetParent(), "LEFT", 0, 0);
+			end
+			if (value.func ~= nil) then
+				button:SetScript("OnClick", function()
+					value:func();
+					if (not value.dontCloseOnClick) then
+						s:Hide();
+					else
+						s:Update();
+					end
+				end);
+			end
+			if (value.checkBoxEnabled) then
+				button:SetCheckBoxVisible(true);
+				button:SetCheckBoxOnClickHandler(function(_self)
+					value.onCheckBoxClick(_self);
+					s:Update();
+				end);
+				button:SetChecked(value.checkBoxState);
+			end
+			if (value.onCloseButtonClick ~= nil) then
+				button.closeButton:Show();
+				button:SetPoint("RIGHT", button.closeButton, "LEFT", -SPACE_BETWEEN_BUTTON_AND_CLOSEBUTTON, 0);
+				button.closeButton:SetScript("OnClick", function()
+					value:onCloseButtonClick();
+					s:Update();
+				end);
+			else
+				button.closeButton:Hide();
+				button:SetPoint("RIGHT", button:GetParent(), "RIGHT", 0, 0);
+			end
+			if (value.buttonColor ~= nil) then
+				button.Normal:SetColorTexture(unpack(value.buttonColor));
+			end
+			button:SetScript("OnEnter", value.onEnter);
+			button:SetScript("OnLeave", value.onLeave);
+			button:Show();
+			counter = counter + 1;
+		end
+
+		s.list = t;
+	end
+
+	selectorEx.SetDataSource = function(_self, _func)
+		if (type(_func) ~= "function") then
+			error("Parameter must be a function");
+		end
+		_self.dataSource = _func;
+	end
+
+	selectorEx.Update = function(_self)
+		local data = _self:dataSource();
+		SetList(_self, data);
+	end
+
+	selectorEx.GetSearchText = function(_self)
+		return _self.searchBox:GetText() or "";
+	end
+
+	selectorEx.SetSearchTextChangedHandler = function(_self, _func)
+		_self.searchTextChangedHandler = _func;
+	end
+
+	selectorEx.SetSearchBoxHint = function(_self, _hint)
+		if (_hint ~= nil and _hint ~= "") then
+			_self.searchBox.hint:Show();
+			lib.SetTooltip(_self.searchBox.hint, _hint, "LEFT");
+		else
+			_self.searchBox.hint:Hide();
+		end
+	end
+
+	selectorEx.GetButtonByText = function(s, text)
+		for _, button in pairs(s.buttons) do
+			if (button.Text:GetText() == text) then
+				return button;
+			end
+		end
+		return nil;
+	end
+
+	local setWidth = selectorEx.SetWidth;
+	selectorEx.SetWidth = function(_self, _width)
+		setWidth(_self, _width);
+		_self.scrollAreaChildFrame:SetWidth(_self.scrollArea:GetWidth());
+	end
+
+	selectorEx.SetVerticalScroll = function(_self, _scroll)
+		_self.currentPosition = _scroll;
+		_self.scrollArea:SetVerticalScroll(_self.currentPosition < 0 and 0 or _self.currentPosition);
+	end
+
+	SetList(selectorEx, {});
+	selectorEx:Hide();
+	selectorEx:HookScript("OnShow", function(self)
+		self:SetFrameStrata("TOOLTIP");
+
+		self:Update();
+
+		if (self.autoAdjustHeight and #self.buttons > 0) then
+			local _, _, _, _, yOffset = self.buttons[#self.buttons]:GetPoint();
+			self:SetHeight(-SCROLL_AREA_Y_OFFSET + -yOffset + self.buttons[#self.buttons]:GetHeight() + 10);
+		end
+
+		self.scrollArea:SetVerticalScroll(self.currentPosition == -1 and 0 or self.currentPosition);
+		self.scrollAreaChildFrame:SetWidth(self.scrollArea:GetWidth());
+		self.scrollAreaChildFrame:SetHeight(self:GetHeight() - 12);
+	end);
+	selectorEx:HookScript("OnHide", function(self)
+		self.searchBox:SetText("");
+		self.currentPosition = self.scrollArea:GetVerticalScroll();
+	end);
+
+	return selectorEx;
+end
+
 function lib.CreateTooltip()
 	local frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate");
 	frame:SetFrameStrata("TOOLTIP");
@@ -325,7 +584,7 @@ function lib.CreateTooltip()
 		spell:ContinueOnSpellLoad(function()
 			local spellName = spell:GetSpellName();
 			local spellDesc = spell:GetSpellDescription();
-			local spellTexture = GetSpellTexture(spellID);
+			local spellTexture = C_Spell_GetSpellTexture(spellID);
 			self:SetText(string_format("%s\n\n%s\n%s", spellName, spellDesc, ColorizeText("Spell ID: " .. spellID, 91/255, 165/255, 249/255)), spellTexture);
 		end);
 	end
