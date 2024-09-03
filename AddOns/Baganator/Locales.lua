@@ -321,8 +321,15 @@ L["BINDING_OPEN_WARBAND_BANK"] = "Open Warband Bank"
 L["BINDING_OPEN_GUILD_BANK"] = "Open Guild Bank"
 L["BINDING_QUICK_SEARCH"] = "Quick Search"
 
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
+L["ENABLED"] = "enabled"
+L["DISABLED"] = "disabled"
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
+
 L["SYNDICATOR_ENABLE_MESSAGE"] = "|cffd1b219Syndicator|r is required to use Baganator."
 L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cffd1b219Syndicator|r in order to use Baganator."
+
 
 local L = Locales.frFR
 L["ACCOUNT_GOLD_X"] = "Or du compte : %s"
@@ -375,6 +382,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifie
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
 L["CATEGORIES"] = "Catégories"
 L["CATEGORIES_FAILED_WARNING"] = "Quelque chose s'est mal passé pendant l'affichage des catégories. La recherche qui a échoué \"%s\". Les objets suivants ont échoué : %s. Capture cet écran et visite ce Discord :"
+--[[Translation missing --]]
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Ensemble d'équipement"
 L["CATEGORY_BAG"] = "Sac"
 L["CATEGORY_EQUIPMENT_SET"] = "Ensemble d'équipement"
@@ -409,10 +418,14 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C pour copier"
 L["CUSTOMISE_BAGANATOR"] = "Personnaliser Baganator"
 L["DEPOSIT_REAGENTS"] = "Dépôt des composants"
 L["DEPOSIT_WARBOUND"] = "Déposer les objets liés au bataillon"
+--[[Translation missing --]]
+L["DISABLED"] = "disabled"
 L["DISCORD_DESCRIPTION"] = "Mises à jour, suggestions de fonctionnalités et assistance"
 L["EDIT"] = "Modifier"
 L["EMPTY"] = "Vide"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "Vous devez utilser la disposition Catégories si vous souhaitez utiliser des catégories"
+--[[Translation missing --]]
+L["ENABLED"] = "enabled"
 L["ENCHANTING"] = "Enchantement"
 L["ENGINEERING"] = "Ingénierie"
 L["ENGRAVED_RUNE"] = "Rune gravée"
@@ -490,6 +503,8 @@ L["JUNK"] = "Camelote"
 L["JUNK_DETECTION_2"] = "Détection d'objets indésirables"
 L["KEYS"] = "Clés"
 L["KEYSTONE_LEVEL"] = "Niveau de clé"
+--[[Translation missing --]]
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
 L["LAYOUT"] = "Disposition"
 L["LEATHERWORKING"] = "Travail du cuir"
 L["LOCK_WINDOWS"] = "Verrouillage les fenêtres"
@@ -525,6 +540,8 @@ L["RECENT_TIMER"] = "Durée Récent"
 L["REDUCE_UI_SPACING"] = "Réduire l’espacement de l’interface utilisateur"
 L["REMOVE_BORDERS"] = "Supprimer les bordures"
 L["REMOVE_FROM_CATEGORY"] = "Retirer de la catégorie"
+--[[Translation missing --]]
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 L["RESET_POSITIONS"] = "Position par défaut"
 L["REVERSE_GROUPS_SORT_ORDER"] = "Inverser l’ordre de tri des groupes"
 L["REVERT_CHANGES"] = "Annuler les changements"
@@ -581,6 +598,8 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Ajouter les objets recherchés à 
 L["TRANSPARENCY"] = "Transparence"
 L["TYPE"] = "Type"
 L["UNLIMITED"] = "Illimité"
+--[[Translation missing --]]
+L["UPGRADE_DETECTION"] = "Upgrade detection"
 L["USE_DEFAULT"] = "Par défaut"
 L["USING_X"] = "Utilisant %s"
 L["VENDOR"] = "Vendeur"
@@ -656,6 +675,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Du hast keine Berechtigung diesen Tab z
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Es können keine weiteren Gegenstände aus der Gildenbank entnommen werden"
 L["CATEGORIES"] = "Kategorien"
 L["CATEGORIES_FAILED_WARNING"] = "Bei der Anzeige der Kategorien ist etwas schief gelaufen. Die fehlgeschlagene Suche lautete „%s“. Die folgenden Elemente sind fehlgeschlagen: „%s“. Mache einen Screenshot davon und besuche den Discord:"
+--[[Translation missing --]]
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Ausrüstungs-Sets"
 L["CATEGORY_BAG"] = "Tasche"
 L["CATEGORY_EQUIPMENT_SET"] = "Ausrüstungs-Set"
@@ -690,11 +711,15 @@ L["CTRL_C_TO_COPY"] = "Strg+C zum Kopieren"
 L["CUSTOMISE_BAGANATOR"] = "Baganator anpassen"
 L["DEPOSIT_REAGENTS"] = "Reagenzien einlagern"
 L["DEPOSIT_WARBOUND"] = "Kriegsgebundene Gegenstände einlagern"
+--[[Translation missing --]]
+L["DISABLED"] = "disabled"
 L["DISCORD_DESCRIPTION"] = "Updates, Verbesserungsvorschläge und Support"
 L["EDIT"] = "Bearbeiten"
 L["EMPTY"] = "Leer"
 --[[Translation missing --]]
 L["ENABLE_CATEGORY_MODE_WARNING"] = "You need to enable category view if you want to use categories"
+--[[Translation missing --]]
+L["ENABLED"] = "enabled"
 L["ENCHANTING"] = "Verzauberkunst"
 L["ENGINEERING"] = "Ingenieurskunst"
 L["ENGRAVED_RUNE"] = "Eingravierte Runen"
@@ -771,6 +796,8 @@ L["JUNK"] = "Schrott"
 L["JUNK_DETECTION_2"] = "Schrott-Erkennung"
 L["KEYS"] = "Schlüssel"
 L["KEYSTONE_LEVEL"] = "Schlüsselsteinstufe"
+--[[Translation missing --]]
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
 L["LAYOUT"] = "Layout"
 L["LEATHERWORKING"] = "Lederverarbeitung"
 L["LOCK_WINDOWS"] = "Fenster sperren"
@@ -806,6 +833,8 @@ L["RECENT_TIMER"] = "Neuer Timer"
 L["REDUCE_UI_SPACING"] = "UI-Abstände verringern"
 L["REMOVE_BORDERS"] = "Rahmen entfernen"
 L["REMOVE_FROM_CATEGORY"] = "Aus Kategorie entfernen"
+--[[Translation missing --]]
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 L["RESET_POSITIONS"] = "Positionen zurücksetzen"
 L["REVERSE_GROUPS_SORT_ORDER"] = "Umkehrung der Gruppensortierung"
 L["REVERT_CHANGES"] = "Rückgängig"
@@ -862,6 +891,8 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Füge gesuchte Gegenstände in das
 L["TRANSPARENCY"] = "Transparenz"
 L["TYPE"] = "Typ"
 L["UNLIMITED"] = "Unbegrenzt"
+--[[Translation missing --]]
+L["UPGRADE_DETECTION"] = "Upgrade detection"
 L["USE_DEFAULT"] = "Voreinstellung"
 L["USING_X"] = "Benutze %s"
 L["VENDOR"] = "Händler"
@@ -934,6 +965,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "У вас нет разрешения �
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Превышен лимит на съем предметов из банка гильдии"
 L["CATEGORIES"] = "Категории"
 L["CATEGORIES_FAILED_WARNING"] = "Что-то пошло не так при отображении категорий. Проблемным поиском было - '%s'. Следующие предметы не прошли проверку: %s. Сделайте скриншот и посетите Discord:"
+--[[Translation missing --]]
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Авто: комплекты экип."
 L["CATEGORY_BAG"] = "Сумка"
 L["CATEGORY_EQUIPMENT_SET"] = "Комплект экипировки"
@@ -968,10 +1001,14 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C для копирования"
 L["CUSTOMISE_BAGANATOR"] = "Настройка Baganator"
 L["DEPOSIT_REAGENTS"] = "Перенести материалы из сумок"
 L["DEPOSIT_WARBOUND"] = "Перенести предметы отряда"
+--[[Translation missing --]]
+L["DISABLED"] = "disabled"
 L["DISCORD_DESCRIPTION"] = "Обновления, запрос новых функций и поддержка"
 L["EDIT"] = "Редактирование"
 L["EMPTY"] = "Пусто"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "Вы должны включить отображение категорий, если хотите их использовать"
+--[[Translation missing --]]
+L["ENABLED"] = "enabled"
 L["ENCHANTING"] = "Наложение чар"
 L["ENGINEERING"] = "Инженерное дело"
 L["ENGRAVED_RUNE"] = "Руна для гравировки"
@@ -1047,6 +1084,8 @@ L["JUNK"] = "Хлам"
 L["JUNK_DETECTION_2"] = "Определение хлама"
 L["KEYS"] = "Ключи"
 L["KEYSTONE_LEVEL"] = "Уровень ключа"
+--[[Translation missing --]]
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
 L["LAYOUT"] = "Раскладка"
 L["LEATHERWORKING"] = "Кожевничество"
 L["LOCK_WINDOWS"] = "Блокировка окон"
@@ -1082,6 +1121,8 @@ L["RECENT_TIMER"] = "Таймер недавнего"
 L["REDUCE_UI_SPACING"] = "Уменьшить расстояния в интерфейсе"
 L["REMOVE_BORDERS"] = "Убрать границы"
 L["REMOVE_FROM_CATEGORY"] = "Убрать из категории"
+--[[Translation missing --]]
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 L["RESET_POSITIONS"] = "Сброс позиции"
 L["REVERSE_GROUPS_SORT_ORDER"] = "Обратный порядок сортировки"
 L["REVERT_CHANGES"] = "Отменить изменения"
@@ -1142,6 +1183,8 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Добавить предметы,
 L["TRANSPARENCY"] = "Непрозрачность"
 L["TYPE"] = "Тип"
 L["UNLIMITED"] = "Без лимита"
+--[[Translation missing --]]
+L["UPGRADE_DETECTION"] = "Upgrade detection"
 L["USE_DEFAULT"] = "По умолчанию"
 L["USING_X"] = "Используется %s"
 L["VENDOR"] = "Торговец"
@@ -1214,6 +1257,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "No tienes permisos para editar esta pes
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "No se pueden retirar más artículos del banco de la hermandad"
 L["CATEGORIES"] = "Categorías"
 L["CATEGORIES_FAILED_WARNING"] = "Algo ha fallado al mostrar las categorías. La búsqueda fallida fue «%s». Los siguientes elementos fallaron: %s Haz una captura de pantalla y visita el discord:"
+--[[Translation missing --]]
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Set de Equipamiento"
 L["CATEGORY_BAG"] = "Bolsas"
 L["CATEGORY_EQUIPMENT_SET"] = "Conjuntos de Equipamiento"
@@ -1248,11 +1293,15 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C para copiar"
 L["CUSTOMISE_BAGANATOR"] = "Personalizar Baganator"
 L["DEPOSIT_REAGENTS"] = "Depositar Componentes"
 L["DEPOSIT_WARBOUND"] = "Depositar objetos relacionados con la Banda de Guerra"
+--[[Translation missing --]]
+L["DISABLED"] = "disabled"
 L["DISCORD_DESCRIPTION"] = "Actualizaciones, sugerencias de funciones y asistencia"
 L["EDIT"] = "Editar"
 L["EMPTY"] = "Libre"
 --[[Translation missing --]]
 L["ENABLE_CATEGORY_MODE_WARNING"] = "You need to enable category view if you want to use categories"
+--[[Translation missing --]]
+L["ENABLED"] = "enabled"
 L["ENCHANTING"] = "Encantamiento"
 L["ENGINEERING"] = "Ingeniería"
 L["ENGRAVED_RUNE"] = "Runas grabadas"
@@ -1328,6 +1377,8 @@ L["JUNK"] = "Basura"
 L["JUNK_DETECTION_2"] = "Detección de basura"
 L["KEYS"] = "Piedra angular"
 L["KEYSTONE_LEVEL"] = "Nivel de Piedra angular"
+--[[Translation missing --]]
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
 L["LAYOUT"] = "Diseño"
 L["LEATHERWORKING"] = "Peletería"
 L["LOCK_WINDOWS"] = "Bloquear ventanas"
@@ -1363,6 +1414,8 @@ L["RECENT_TIMER"] = "Nuevo temporizador"
 L["REDUCE_UI_SPACING"] = "Reducir el espaciado de la IU"
 L["REMOVE_BORDERS"] = "Eliminar bordes"
 L["REMOVE_FROM_CATEGORY"] = "Eliminar de la categoría"
+--[[Translation missing --]]
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 L["RESET_POSITIONS"] = "Restablecer posiciones"
 L["REVERSE_GROUPS_SORT_ORDER"] = "Invertir el orden de clasificación de los grupos"
 L["REVERT_CHANGES"] = "Revertir cambios"
@@ -1419,6 +1472,8 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Añade los objetos que buscas a la
 L["TRANSPARENCY"] = "Transparencia"
 L["TYPE"] = "Tipo"
 L["UNLIMITED"] = "Ilimitado"
+--[[Translation missing --]]
+L["UPGRADE_DETECTION"] = "Upgrade detection"
 L["USE_DEFAULT"] = "Utilizar por defecto"
 L["USING_X"] = "Utilizando %s"
 L["VENDOR"] = "Vendedor"
@@ -1532,6 +1587,8 @@ Failed search was "%s". The following items failed:
 
 Screenshot this and visit the discord:]=]
 --[[Translation missing --]]
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
+--[[Translation missing --]]
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Equipment Sets"
 --[[Translation missing --]]
 L["CATEGORY_BAG"] = "Bag"
@@ -1600,11 +1657,15 @@ L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 --[[Translation missing --]]
+L["DISABLED"] = "disabled"
+--[[Translation missing --]]
 L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 L["EDIT"] = "Editar"
 L["EMPTY"] = "Vacío"
 --[[Translation missing --]]
 L["ENABLE_CATEGORY_MODE_WARNING"] = "You need to enable category view if you want to use categories"
+--[[Translation missing --]]
+L["ENABLED"] = "enabled"
 --[[Translation missing --]]
 L["ENCHANTING"] = "Enchanting"
 L["ENGINEERING"] = "Ingeniería"
@@ -1736,6 +1797,8 @@ L["KEYS"] = "Llaves"
 --[[Translation missing --]]
 L["KEYSTONE_LEVEL"] = "Keystone Level"
 --[[Translation missing --]]
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
+--[[Translation missing --]]
 L["LAYOUT"] = "Layout"
 L["LEATHERWORKING"] = "Peletería"
 --[[Translation missing --]]
@@ -1795,6 +1858,8 @@ L["REDUCE_UI_SPACING"] = "Reduce UI spacing"
 L["REMOVE_BORDERS"] = "Remove borders"
 --[[Translation missing --]]
 L["REMOVE_FROM_CATEGORY"] = "Remove from category"
+--[[Translation missing --]]
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 --[[Translation missing --]]
 L["RESET_POSITIONS"] = "Reset Positions"
 --[[Translation missing --]]
@@ -1905,6 +1970,8 @@ L["TYPE"] = "Type"
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
 --[[Translation missing --]]
+L["UPGRADE_DETECTION"] = "Upgrade detection"
+--[[Translation missing --]]
 L["USE_DEFAULT"] = "Use Default"
 --[[Translation missing --]]
 L["USING_X"] = "Using %s"
@@ -1987,6 +2054,8 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您沒有權限編輯此標籤頁"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "無法從公會銀行提取更多物品"
 L["CATEGORIES"] = "分類"
 L["CATEGORIES_FAILED_WARNING"] = "顯示分類時出現報錯。\"%s\"搜尋失敗。以下物品失敗：%s 截圖並訪問 discord："
+--[[Translation missing --]]
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "自動：裝備套裝"
 L["CATEGORY_BAG"] = "背包"
 L["CATEGORY_EQUIPMENT_SET"] = "裝備設定"
@@ -2021,10 +2090,14 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C來複製"
 L["CUSTOMISE_BAGANATOR"] = "自定義Baganator"
 L["DEPOSIT_REAGENTS"] = "存放材料"
 L["DEPOSIT_WARBOUND"] = "存放戰隊物品"
+--[[Translation missing --]]
+L["DISABLED"] = "disabled"
 L["DISCORD_DESCRIPTION"] = "更新、功能建議以及支援"
 L["EDIT"] = "編輯"
 L["EMPTY"] = "空"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "如果要使用分類，則需要啟用分類視覽"
+--[[Translation missing --]]
+L["ENABLED"] = "enabled"
 L["ENCHANTING"] = "附魔"
 L["ENGINEERING"] = "工程"
 L["ENGRAVED_RUNE"] = "銘刻符文"
@@ -2100,6 +2173,8 @@ L["JUNK"] = "垃圾"
 L["JUNK_DETECTION_2"] = "垃圾偵測"
 L["KEYS"] = "鑰匙"
 L["KEYSTONE_LEVEL"] = "鑰石層級"
+--[[Translation missing --]]
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
 L["LAYOUT"] = "布局"
 L["LEATHERWORKING"] = "製皮"
 L["LOCK_WINDOWS"] = "鎖定視窗"
@@ -2135,6 +2210,8 @@ L["RECENT_TIMER"] = "最近計時器"
 L["REDUCE_UI_SPACING"] = "減少介面間距"
 L["REMOVE_BORDERS"] = "移除外框"
 L["REMOVE_FROM_CATEGORY"] = "從分類中移除"
+--[[Translation missing --]]
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 L["RESET_POSITIONS"] = "重設位置"
 L["REVERSE_GROUPS_SORT_ORDER"] = "反轉群組排列順序"
 L["REVERT_CHANGES"] = "還原變更"
@@ -2191,6 +2268,8 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "將搜尋到的商品加入交易�
 L["TRANSPARENCY"] = "透明度"
 L["TYPE"] = "類型"
 L["UNLIMITED"] = "無限制"
+--[[Translation missing --]]
+L["UPGRADE_DETECTION"] = "Upgrade detection"
 L["USE_DEFAULT"] = "使用系統預設值"
 L["USING_X"] = "使用 %s"
 L["VENDOR"] = "商店"
@@ -2263,6 +2342,7 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "您无权编辑此选项"
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "无法从公会银行提取更多物品"
 L["CATEGORIES"] = "分类"
 L["CATEGORIES_FAILED_WARNING"] = "显示分类时出现错误。\"%s\"搜索失败。以下物品导致失败：%s。截图并访问 discord："
+L["CATEGORIES_IN_TOOLTIPS_X"] = "背包物品鼠标提示中的分类匹配现在%s"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "自动：装备方案"
 L["CATEGORY_BAG"] = "背包"
 L["CATEGORY_EQUIPMENT_SET"] = "装备方案"
@@ -2297,10 +2377,12 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C 复制"
 L["CUSTOMISE_BAGANATOR"] = "自定义Baganator设置"
 L["DEPOSIT_REAGENTS"] = "存放材料"
 L["DEPOSIT_WARBOUND"] = "存放战团绑定物品"
+L["DISABLED"] = "已禁用"
 L["DISCORD_DESCRIPTION"] = "更新、功能建议和支持"
 L["EDIT"] = "编辑"
 L["EMPTY"] = "空"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "需要启用分类浏览才能使用分类功能"
+L["ENABLED"] = "已启用"
 L["ENCHANTING"] = "附魔"
 L["ENGINEERING"] = "工程"
 L["ENGRAVED_RUNE"] = "铭刻符文"
@@ -2376,6 +2458,7 @@ L["JUNK"] = "垃圾"
 L["JUNK_DETECTION_2"] = "垃圾检测"
 L["KEYS"] = "钥匙"
 L["KEYSTONE_LEVEL"] = "钥石等级"
+L["KEYWORDS_IN_TOOLTIPS_X"] = "背包物品鼠标提示中的关键词现在%s"
 L["LAYOUT"] = "布局"
 L["LEATHERWORKING"] = "制皮"
 L["LOCK_WINDOWS"] = "锁定窗口"
@@ -2411,6 +2494,7 @@ L["RECENT_TIMER"] = "最新计时器"
 L["REDUCE_UI_SPACING"] = "减少界面间距"
 L["REMOVE_BORDERS"] = "移除边框"
 L["REMOVE_FROM_CATEGORY"] = "从分类中移除"
+L["REMOVED_UNUSED_CATEGORIES"] = "已删除所有未使用的自定义分类"
 L["RESET_POSITIONS"] = "重置位置"
 L["REVERSE_GROUPS_SORT_ORDER"] = "反转分类的排序"
 L["REVERT_CHANGES"] = "恢复更改"
@@ -2467,6 +2551,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "将搜索到的物品添加到交�
 L["TRANSPARENCY"] = "透明度"
 L["TYPE"] = "类型"
 L["UNLIMITED"] = "无限"
+L["UPGRADE_DETECTION"] = "升级检测"
 L["USE_DEFAULT"] = "使用默认"
 L["USING_X"] = "使用 %s"
 L["VENDOR"] = "商人"
@@ -2552,6 +2637,8 @@ L["CATEGORIES_FAILED_WARNING"] = [=[카테고리를 표시하는 중에 문제�
 %s
 
 Screenshot this and visit the discord:]=]
+--[[Translation missing --]]
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "자동 : 장비 세트"
 L["CATEGORY_BAG"] = "가방"
 L["CATEGORY_EQUIPMENT_SET"] = "장비 세트"
@@ -2586,11 +2673,15 @@ L["CTRL_C_TO_COPY"] = "Ctrl+C to copy"
 L["CUSTOMISE_BAGANATOR"] = "Baganator 설정"
 L["DEPOSIT_REAGENTS"] = "재료 은행에 보관"
 L["DEPOSIT_WARBOUND"] = "전투부대 아이템 보관"
+--[[Translation missing --]]
+L["DISABLED"] = "disabled"
 L["DISCORD_DESCRIPTION"] = "업데이트, 기능 제안 및 지원"
 L["EDIT"] = "편집"
 L["EMPTY"] = "빈칸"
 --[[Translation missing --]]
 L["ENABLE_CATEGORY_MODE_WARNING"] = "You need to enable category view if you want to use categories"
+--[[Translation missing --]]
+L["ENABLED"] = "enabled"
 L["ENCHANTING"] = "마법부여"
 L["ENGINEERING"] = "기계공학"
 L["ENGRAVED_RUNE"] = "새겨진 룬"
@@ -2666,6 +2757,8 @@ L["JUNK"] = "쓰레기"
 L["JUNK_DETECTION_2"] = "쓰레기 감지"
 L["KEYS"] = "열쇠"
 L["KEYSTONE_LEVEL"] = "쐐기돌 레벨"
+--[[Translation missing --]]
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
 L["LAYOUT"] = "외형"
 L["LEATHERWORKING"] = "가죽세공"
 L["LOCK_WINDOWS"] = "창 잠금"
@@ -2701,6 +2794,8 @@ L["RECENT_TIMER"] = "최근 타이머"
 L["REDUCE_UI_SPACING"] = "UI 간격 줄이기"
 L["REMOVE_BORDERS"] = "테두리 제거"
 L["REMOVE_FROM_CATEGORY"] = "카테고리에서 제거"
+--[[Translation missing --]]
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 L["RESET_POSITIONS"] = "위치 초기화"
 L["REVERSE_GROUPS_SORT_ORDER"] = "역순으로 정렬"
 L["REVERT_CHANGES"] = "변경사항 되돌리기"
@@ -2761,6 +2856,8 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "검색된 항목을 거래창에 �
 L["TRANSPARENCY"] = "투명도"
 L["TYPE"] = "타입"
 L["UNLIMITED"] = "무제한"
+--[[Translation missing --]]
+L["UPGRADE_DETECTION"] = "Upgrade detection"
 L["USE_DEFAULT"] = "기본값 사용"
 L["USING_X"] = "%s 사용"
 L["VENDOR"] = "상인"
@@ -2891,6 +2988,8 @@ Failed search was "%s". The following items failed:
 
 Screenshot this and visit the discord:]=]
 --[[Translation missing --]]
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
+--[[Translation missing --]]
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Equipment Sets"
 --[[Translation missing --]]
 L["CATEGORY_BAG"] = "Bag"
@@ -2959,6 +3058,8 @@ L["DEPOSIT_REAGENTS"] = "Deposit Reagents"
 --[[Translation missing --]]
 L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 --[[Translation missing --]]
+L["DISABLED"] = "disabled"
+--[[Translation missing --]]
 L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
 --[[Translation missing --]]
 L["EDIT"] = "Edit"
@@ -2966,6 +3067,8 @@ L["EDIT"] = "Edit"
 L["EMPTY"] = "Empty"
 --[[Translation missing --]]
 L["ENABLE_CATEGORY_MODE_WARNING"] = "You need to enable category view if you want to use categories"
+--[[Translation missing --]]
+L["ENABLED"] = "enabled"
 --[[Translation missing --]]
 L["ENCHANTING"] = "Enchanting"
 --[[Translation missing --]]
@@ -3117,6 +3220,8 @@ L["KEYS"] = "Keys"
 --[[Translation missing --]]
 L["KEYSTONE_LEVEL"] = "Keystone Level"
 --[[Translation missing --]]
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
+--[[Translation missing --]]
 L["LAYOUT"] = "Layout"
 --[[Translation missing --]]
 L["LEATHERWORKING"] = "Leatherworking"
@@ -3186,6 +3291,8 @@ L["REDUCE_UI_SPACING"] = "Reduce UI spacing"
 L["REMOVE_BORDERS"] = "Remove borders"
 --[[Translation missing --]]
 L["REMOVE_FROM_CATEGORY"] = "Remove from category"
+--[[Translation missing --]]
+L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 --[[Translation missing --]]
 L["RESET_POSITIONS"] = "Reset Positions"
 --[[Translation missing --]]
@@ -3302,6 +3409,8 @@ L["TRANSPARENCY"] = "Transparency"
 L["TYPE"] = "Type"
 --[[Translation missing --]]
 L["UNLIMITED"] = "Unlimited"
+--[[Translation missing --]]
+L["UPGRADE_DETECTION"] = "Upgrade detection"
 --[[Translation missing --]]
 L["USE_DEFAULT"] = "Use Default"
 --[[Translation missing --]]

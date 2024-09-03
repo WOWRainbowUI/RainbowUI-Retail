@@ -62,9 +62,9 @@ end
 addonTable.CategoryViews.BagLayoutMixin = {}
 
 function addonTable.CategoryViews.BagLayoutMixin:OnLoad()
-  self.labelsPool = CreateFramePool("Button", self:GetParent(), "BaganatorCategoryViewsCategoryButtonTemplate")
-  self.sectionButtonPool = addonTable.CategoryViews.GetSectionButtonPool(self:GetParent())
-  self.dividerPool = CreateFramePool("Button", self:GetParent(), "BaganatorBagDividerTemplate")
+  self.labelsPool = CreateFramePool("Button", self:GetParent().Container, "BaganatorCategoryViewsCategoryButtonTemplate")
+  self.sectionButtonPool = addonTable.CategoryViews.GetSectionButtonPool(self:GetParent().Container)
+  self.dividerPool = CreateFramePool("Button", self:GetParent().Container, "BaganatorBagDividerTemplate")
 
   self.updatedBags = {}
 
@@ -145,11 +145,11 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
     end
   end
   while #container.LiveLayouts < layoutCount do
-    table.insert(container.LiveLayouts, CreateFrame("Frame", nil, container, "BaganatorLiveCategoryLayoutTemplate"))
+    table.insert(container.LiveLayouts, CreateFrame("Frame", nil, container.Container, "BaganatorLiveCategoryLayoutTemplate"))
     if container.liveItemButtonPool then
       container.LiveLayouts[#container.LiveLayouts]:SetPool(container.liveItemButtonPool)
     end
-    table.insert(container.CachedLayouts, CreateFrame("Frame", nil, container, "BaganatorCachedCategoryLayoutTemplate"))
+    table.insert(container.CachedLayouts, CreateFrame("Frame", nil, container.Container, "BaganatorCachedCategoryLayoutTemplate"))
   end
 
   local start2 = debugprofilestop()
@@ -264,22 +264,34 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
     end
   end
 
+  local sourceKeysInUse = {}
+
+  for _, details in ipairs(composed.details) do
+    if details.results then
+      details.sourceKey = details.source .. "_" .. details.label .. "_" .. (details.groupLabel or "")
+      if #details.results > 0 then
+        sourceKeysInUse[details.sourceKey] = true
+      end
+    end
+  end
+
   local activeLayouts
 
   if container.isLive then
-    local layoutIndex = 1
     -- Ensure we don't overflow the preallocated buttons by returning all
     -- buttons no longer needed by a particular group
     for index, details in pairs(composed.details) do
-      if details.results then
-        container.LiveLayouts[layoutIndex]:DeallocateUnusedButtons(details.results)
-        layoutIndex = layoutIndex + 1
+      if details.results and #details.results > 0 then
+        local layout = FindValueInTableIf(container.LiveLayouts, function(a) return a.sourceKey == details.sourceKey end)
+        if layout then
+          layout:DeallocateUnusedButtons(details.results)
+        end
       end
     end
-    if #container.LiveLayouts > layoutCount then
-      for index = layoutCount + 1, #container.LiveLayouts do
-        container.LiveLayouts[index]:DeallocateUnusedButtons({})
-        container.LiveLayouts[index]:Hide()
+    for _, layout in ipairs(container.LiveLayouts) do
+      if not sourceKeysInUse[layout.sourceKey] then
+        layout:DeallocateUnusedButtons({})
+        layout:Hide()
       end
     end
     for _, layout in ipairs(container.CachedLayouts) do
@@ -300,9 +312,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
 
   local layoutsShown, activeLabels = {}, {}
   local inactiveSections = {}
-  local layoutOffset = 0
   for index, details in ipairs(composed.details) do
-    layoutOffset = layoutOffset - 1
     if details.type == "divider" then
       if inactiveSections[details.section] then
         table.insert(layoutsShown, {}) -- {} causes the packing code to ignore this
@@ -344,20 +354,27 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
         table.insert(layoutsShown, {}) -- {} causes the packing code to ignore this
       end
     elseif details.type == "category" then
-      layoutOffset = layoutOffset + 1
-      local searchResults = details.results
-      local layout = activeLayouts[index + layoutOffset]
-      layout:ShowGroup(details.results, math.min(bagWidth, #details.results), details.source)
-      table.insert(layoutsShown, layout)
-      layout.section = details.section
-      local label = self.labelsPool:Acquire()
-      addonTable.Skins.AddFrame("CategoryLabel", label)
-      label:SetText(details.label)
-      label.categorySearch = index
-      label.source = details.source
-      label.groupLabel = details.groupLabel
-      activeLabels[index] = label
-      layout.type = details.type
+      if #details.results > 0 then
+        local searchResults = details.results
+        local layout = FindValueInTableIf(activeLayouts, function(a) return a.sourceKey == details.sourceKey end)
+        if not layout then
+          layout = FindValueInTableIf(activeLayouts, function(a) return not sourceKeysInUse[a.sourceKey] end)
+        end
+        layout:ShowGroup(details.results, math.min(bagWidth, #details.results), details.source)
+        table.insert(layoutsShown, layout)
+        layout.section = details.section
+        layout.sourceKey = details.sourceKey
+        local label = self.labelsPool:Acquire()
+        addonTable.Skins.AddFrame("CategoryLabel", label)
+        label:SetText(details.label)
+        label.categorySearch = index
+        label.source = details.source
+        label.groupLabel = details.groupLabel
+        activeLabels[index] = label
+        layout.type = details.type
+      else
+        table.insert(layoutsShown, {})
+      end
     else
       error("unrecognised layout type")
     end
@@ -368,7 +385,7 @@ function addonTable.CategoryViews.BagLayoutMixin:Display(bagWidth, bagIndexes, b
 
   local left = sideSpacing + addonTable.Constants.ButtonFrameOffset - 2
   local right = sideSpacing
-  return addonTable.CategoryViews.PackSimple(layoutsShown, activeLabels, left, -50 - topSpacing / 4, bagWidth, addonTable.CategoryViews.Constants.MinWidth - left - right)
+  return addonTable.CategoryViews.PackSimple(layoutsShown, activeLabels, 0, 0, bagWidth, addonTable.CategoryViews.Constants.MinWidth - left - right)
 end
 
 function addonTable.CategoryViews.BagLayoutMixin:Layout(allBags, bagWidth, bagTypes, bagIndexes, sideSpacing, topSpacing, callback)
