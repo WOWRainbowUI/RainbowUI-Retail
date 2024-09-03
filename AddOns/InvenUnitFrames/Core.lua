@@ -85,6 +85,7 @@ local function changeParent(frame, prevParent, newParent)
 end
 
 function IUF:HideBlizzardPartyFrame(hide)
+
 	if hide then
 		for i = 1, MAX_PARTY_MEMBERS do
 			changeParent(_G["PartyMemberFrame"..i], UIParent, self.dummyParent)
@@ -315,6 +316,7 @@ function IUF:PLAYER_REGEN_DISABLED()
 	if self.onEnter and (self.db.tooltip == 2 or self.db.tooltip == 3) then
 		self:UpdateUnitTooltip(self.onEnter)
 	end
+	hideBlizFrames()
 end
 
 local changeModelCamera = {
@@ -361,6 +363,7 @@ do
 	
 	-- 블리자드 유닛 프레임 숨김
 	function hideBlizzard(self)
+
 		if self then
 			UnregisterUnitWatch(self)
 			self:UnregisterAllEvents()
