@@ -123,9 +123,12 @@ function ArmorModule:RegisterFrameEvents()
                     if v.pc <= 20 then
                         u20G, u20B = 0, 0
                     end
-                    GameTooltip:AddDoubleLine(format('|T%s:14:14:0:0:64:64:4:60:4:60|t %s',
-                        GetInventoryItemTexture('player', i), GetInventoryItemLink('player', i)),
-                        string.format('%d/%d (%d%%)', v.cur, v.max, v.pc), r, g, b, 1, u20G, u20B)
+
+                    if GetInventoryItemTexture('player', i) then -- 暫時修正
+						GameTooltip:AddDoubleLine(format('|T%s:14:14:0:0:64:64:4:60:4:60|t %s',
+							GetInventoryItemTexture('player', i), GetInventoryItemLink('player', i)),
+							string.format('%d/%d (%d%%)', v.cur, v.max, v.pc), r, g, b, 1, u20G, u20B)
+					end
 
                     -- GameTooltip:AddDoubleLine(format('|T%s:14:14:0:0:64:64:4:60:4:60|t %s', GetInventoryItemTexture('player', i), GetInventoryItemLink('player', i))..string.format('%d/%d (%d%%)', v.cur, v.max, v.pc), r, g, b, 1, u20G, u20B )		
                 end
