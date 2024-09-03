@@ -1,8 +1,12 @@
 # DBM - Core
 
-## [11.0.4](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.4) (2024-09-02)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.3...11.0.4) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.5](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.5) (2024-09-03)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.3...11.0.5) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
+- Fix a typo that slipped through testing (since 0 of those objects existed at time of tag)  
+    Prep new tag to push typo fix and callback updates out  
+- split nameplate only timers into a different simpType so it's easy for weak auras to filter nameplate only timer object as they wish  
+- bump alpha  
 - prep new tag  
 - Update localization.ru.lua (#1211)  
 - Update localization.es.lua (#1212)  
