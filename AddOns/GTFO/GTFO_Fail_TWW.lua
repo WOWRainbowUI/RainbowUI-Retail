@@ -256,6 +256,38 @@ GTFO.SpellID["446006"] = {
   sound = 3;
 };
 
+GTFO.SpellID["462826"] = {
+  --desc = "Self Destruct (Explosive Bomberbot)";
+  sound = 3;
+};
+
+GTFO.SpellID["463094"] = {
+  --desc = "Earthshaking Charge (Awakened Phalanx)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["463065"] = {
+  --desc = "Cave In (Awakened Phalanx)";
+  sound = 3;
+};
+
+GTFO.SpellID["455231"] = {
+  --desc = "Deathbud (Lashroom Ambusher)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["446646"] = {
+  --desc = "Double Impact (Surek'Tak the Sundered)";
+  sound = 3;
+};
+
+GTFO.SpellID["452204"] = {
+  --desc = "Light Burst (Ravenous Glowmite)";
+  applicationOnly = true;
+  sound = 3;
+};
 
 --- ****************************
 --- * Ara-Kara, City of Echoes *
@@ -456,13 +488,13 @@ GTFO.SpellID["445838"] = {
 GTFO.SpellID["447271"] = {
   --desc = "Tremor Slam (Hulking Warshell)";
   sound = 0;
-  test = true; -- Need to determine appropriate minimum, doesn't appear to use 2 spell IDs for proximity
+  test = true; -- Need to determine appropriate minimum, doesn't use 2 spell IDs for proximity
 };
 
 GTFO.SpellID["437700"] = {
   --desc = "Tremor Slam (Izo, the Grand Splicer)";
   sound = 0;
-  test = true; -- Need to determine appropriate minimum, doesn't appear to use 2 spell IDs for proximity
+  test = true; -- Need to determine appropriate minimum, doesn't use 2 spell IDs for proximity
 };
 
 GTFO.SpellID["439481"] = {
@@ -512,7 +544,6 @@ GTFO.SpellID["426883"] = {
 GTFO.SpellID["443969"] = {
   --desc = "Enkindling Inferno (Blazikon)";
   sound = 3;
-  test = true; -- Verification, make sure this doesn't go off when standing in safe areas
 };
 
 GTFO.SpellID["428650"] = {
@@ -590,19 +621,11 @@ GTFO.SpellID["427472"] = {
 GTFO.SpellID["424621"] = {
   --desc = "Brutal Smash (Sergeant Shaynemail)";
   sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["427601"] = {
   --desc = "Burst of Light (Lightspawn)";
   sound = 3;
-};
-
-GTFO.SpellID["424420"] = {
-  --desc = "Cinderblast (Taener Duelmal)";
-  applicationOnly = true;
-  sound = 3;
-  test = true; -- Verification
 };
 
 GTFO.SpellID["424460"] = {
@@ -1182,6 +1205,7 @@ GTFO.SpellID["445781"] = {
 GTFO.SpellID["415253"] = {
   --desc = "Fungal Breath (Invasive Sporecap)";
   sound = 3;
+  applicationOnly = true;
 };
 
 GTFO.SpellID["415356"] = {
@@ -1209,6 +1233,22 @@ GTFO.SpellID["463418"] = {
   sound = 3;
 };
 
+GTFO.SpellID["458875"] = {
+  --desc = "Shadow Wave (Speaker Xanventh)";
+  applicationOnly = true;
+  sound = 3;
+  trivialLevel = 90;
+};
+
+GTFO.SpellID["445492"] = {
+  --desc = "Serrated Cleave (Wandering Gutter)";
+  sound = 3;
+};
+
+GTFO.SpellID["390957"] = {
+  --desc = "Electric Cataclysm (Cragpie)";
+  sound = 3;
+};
 
 --- *******************
 --- * Nerub-ar Palace *
