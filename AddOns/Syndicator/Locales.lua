@@ -196,13 +196,14 @@ L["KEYWORD_HELM"] = "casque"
 L["KEYWORD_JUNK"] = "camelote"
 L["KEYWORD_KEY"] = "clé"
 L["KEYWORD_MACE"] = "masse"
-L["KEYWORD_MANUSCRIPT"] = "manuscrit"
 L["KEYWORD_MY_CLASS"] = "ma classe"
 L["KEYWORD_OBJECTIVE"] = "objectif"
 L["KEYWORD_OFF_HAND"] = "main gauche"
 L["KEYWORD_OPEN"] = "ouvrir"
 L["KEYWORD_PET"] = "mascotte"
 L["KEYWORD_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 L["KEYWORD_READ"] = "lire"
 L["KEYWORD_REAGENT"] = "composant"
 L["KEYWORD_RELIC"] = "relique"
@@ -317,7 +318,6 @@ L["KEYWORD_HELM"] = "helm"
 L["KEYWORD_JUNK"] = "plunder"
 L["KEYWORD_KEY"] = "Schlüssel"
 L["KEYWORD_MACE"] = "streitkolben"
-L["KEYWORD_MANUSCRIPT"] = "manuskript"
 --[[Translation missing --]]
 L["KEYWORD_MY_CLASS"] = "my class"
 L["KEYWORD_OBJECTIVE"] = "zweck"
@@ -325,6 +325,8 @@ L["KEYWORD_OFF_HAND"] = "nebenhand"
 L["KEYWORD_OPEN"] = "offen"
 L["KEYWORD_PET"] = "haustier"
 L["KEYWORD_POTION"] = "trank"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 --[[Translation missing --]]
 L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "reagenz"
@@ -439,13 +441,14 @@ L["KEYWORD_HELM"] = "голова"
 L["KEYWORD_JUNK"] = "хлам"
 L["KEYWORD_KEY"] = "ключ"
 L["KEYWORD_MACE"] = "дробящее"
-L["KEYWORD_MANUSCRIPT"] = "манускрипт"
 L["KEYWORD_MY_CLASS"] = "мой класс"
 L["KEYWORD_OBJECTIVE"] = "задание"
 L["KEYWORD_OFF_HAND"] = "левая рука"
 L["KEYWORD_OPEN"] = "использование"
 L["KEYWORD_PET"] = "питомец"
 L["KEYWORD_POTION"] = "зелье"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 L["KEYWORD_READ"] = "прочитать"
 L["KEYWORD_REAGENT"] = "материалы"
 L["KEYWORD_RELIC"] = "реликвия"
@@ -554,7 +557,6 @@ L["KEYWORD_HELM"] = "casco"
 L["KEYWORD_JUNK"] = "chatarra"
 L["KEYWORD_KEY"] = "llave"
 L["KEYWORD_MACE"] = "maza"
-L["KEYWORD_MANUSCRIPT"] = "manuscrito"
 --[[Translation missing --]]
 L["KEYWORD_MY_CLASS"] = "my class"
 L["KEYWORD_OBJECTIVE"] = "objetivo"
@@ -562,6 +564,8 @@ L["KEYWORD_OFF_HAND"] = "mano izquierda"
 L["KEYWORD_OPEN"] = "abrir"
 L["KEYWORD_PET"] = "mascota"
 L["KEYWORD_POTION"] = "poción"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 --[[Translation missing --]]
 L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "componentes"
@@ -732,8 +736,6 @@ L["KEYWORD_KEY"] = "key"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
-L["KEYWORD_MANUSCRIPT"] = "manuscript"
---[[Translation missing --]]
 L["KEYWORD_MY_CLASS"] = "my class"
 --[[Translation missing --]]
 L["KEYWORD_OBJECTIVE"] = "objective"
@@ -745,6 +747,8 @@ L["KEYWORD_OPEN"] = "open"
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
 L["KEYWORD_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 --[[Translation missing --]]
 L["KEYWORD_READ"] = "read"
 --[[Translation missing --]]
@@ -897,13 +901,14 @@ L["KEYWORD_HELM"] = "頭"
 L["KEYWORD_JUNK"] = "垃圾"
 L["KEYWORD_KEY"] = "鑰匙"
 L["KEYWORD_MACE"] = "錘"
-L["KEYWORD_MANUSCRIPT"] = "手稿"
 L["KEYWORD_MY_CLASS"] = "我的職業"
 L["KEYWORD_OBJECTIVE"] = "目標"
 L["KEYWORD_OFF_HAND"] = "副手"
 L["KEYWORD_OPEN"] = "開啟"
 L["KEYWORD_PET"] = "寵物"
 L["KEYWORD_POTION"] = "藥水"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 L["KEYWORD_READ"] = "讀取"
 L["KEYWORD_REAGENT"] = "配方"
 L["KEYWORD_RELIC"] = "聖物"
@@ -1011,13 +1016,14 @@ L["KEYWORD_HELM"] = "头部"
 L["KEYWORD_JUNK"] = "垃圾"
 L["KEYWORD_KEY"] = "钥匙"
 L["KEYWORD_MACE"] = "锤"
-L["KEYWORD_MANUSCRIPT"] = "手稿"
 L["KEYWORD_MY_CLASS"] = "我的职业"
 L["KEYWORD_OBJECTIVE"] = "目标"
 L["KEYWORD_OFF_HAND"] = "副手"
 L["KEYWORD_OPEN"] = "打开"
 L["KEYWORD_PET"] = "宠物"
 L["KEYWORD_POTION"] = "药水"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 L["KEYWORD_READ"] = "读取"
 L["KEYWORD_REAGENT"] = "材料"
 L["KEYWORD_RELIC"] = "圣物"
@@ -1165,8 +1171,6 @@ L["KEYWORD_JUNK"] = "junk"
 L["KEYWORD_KEY"] = "key"
 L["KEYWORD_MACE"] = "둔기"
 --[[Translation missing --]]
-L["KEYWORD_MANUSCRIPT"] = "manuscript"
---[[Translation missing --]]
 L["KEYWORD_MY_CLASS"] = "my class"
 --[[Translation missing --]]
 L["KEYWORD_OBJECTIVE"] = "objective"
@@ -1175,6 +1179,8 @@ L["KEYWORD_OFF_HAND"] = "보조장비"
 L["KEYWORD_OPEN"] = "open"
 L["KEYWORD_PET"] = "소환수"
 L["KEYWORD_POTION"] = "물약"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 --[[Translation missing --]]
 L["KEYWORD_READ"] = "read"
 L["KEYWORD_REAGENT"] = "재료"
@@ -1376,8 +1382,6 @@ L["KEYWORD_KEY"] = "key"
 --[[Translation missing --]]
 L["KEYWORD_MACE"] = "mace"
 --[[Translation missing --]]
-L["KEYWORD_MANUSCRIPT"] = "manuscript"
---[[Translation missing --]]
 L["KEYWORD_MY_CLASS"] = "my class"
 --[[Translation missing --]]
 L["KEYWORD_OBJECTIVE"] = "objective"
@@ -1389,6 +1393,8 @@ L["KEYWORD_OPEN"] = "open"
 L["KEYWORD_PET"] = "pet"
 --[[Translation missing --]]
 L["KEYWORD_POTION"] = "potion"
+--[[Translation missing --]]
+L["KEYWORD_PVP"] = "pvp"
 --[[Translation missing --]]
 L["KEYWORD_READ"] = "read"
 --[[Translation missing --]]
