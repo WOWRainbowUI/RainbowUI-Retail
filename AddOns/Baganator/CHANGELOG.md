@@ -1,6 +1,9 @@
 # Baganator
 
-## [458](https://github.com/Baganator/Baganator/tree/458) (2024-08-30)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/457...458) 
+## [460](https://github.com/Baganator/Baganator/tree/460) (2024-09-02)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/459...460) 
 
-- [Fixes #251] Bags not always opening on keyboard shortcut  
+- Categories: Fix overlapping Auto categories  
+- Use BlizzMove IgnoreClamping parameter  
+- Fix issues dragging windows around when scaled  
+- Integrate with BlizzMove for window scaling  
