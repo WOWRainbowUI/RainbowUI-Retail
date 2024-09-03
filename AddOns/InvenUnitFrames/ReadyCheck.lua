@@ -15,7 +15,7 @@ local function ReadyCheckFinishAnim(reset)
 	timer = timer - 0.02
 	if timer > 0 then
 		for object in pairs(IUF.visibleObject) do
-			if object then
+			if object and object.readyCheckIcon then
 				object.readyCheckIcon:SetAlpha(timer)
 			end
 		end
@@ -55,7 +55,7 @@ function IUF:ReadyCheckHide()
 	end
 
 	for object in pairs(IUF.visibleObject) do
-		if object then
+		if object and object.readyCheckIcon then
 			object.readyCheckIcon:Hide()
 		end
 	end
@@ -66,7 +66,7 @@ function IUF:UpdateReadyCheck(self)
 		if GetReadyCheckStatus(self.unit) then
 			IUF:UpdateReadyCheck2(self)
 		end
-	else
+	elseif self.readyCheckIcon then
 		self.readyCheckIcon:Hide()
 	end
 end
@@ -77,8 +77,10 @@ function IUF:READY_CHECK()
 	
 	for object in pairs(IUF.visibleObject) do
 		if object then
+			if object.readyCheckIcon then
 			object.readyCheckIcon:SetAlpha(1)
 			object.readyCheckIcon:SetTexture("")
+			end
 			IUF:UpdateReadyCheck(object)
 		end
 	end
@@ -91,6 +93,7 @@ function IUF:UpdateReadyCheck2(self)
 	
 	local readyCheckStatus = GetReadyCheckStatus(self.unit)
 	self.readyCheckStatus = readyCheckStatus
+	if self.readyCheckIcon then
 	if ( readyCheckStatus == "ready" ) then
 		self.readyCheckIcon:SetAtlas(READY_CHECK_READY_TEXTURE, TextureKitConstants.IgnoreAtlasSize);
 		self.readyCheckIcon:Show()
@@ -102,5 +105,6 @@ function IUF:UpdateReadyCheck2(self)
 		self.readyCheckIcon:Show()
 	else
 		self.readyCheckIcon:Hide()
+	end
 	end
 end
