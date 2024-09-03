@@ -1,4 +1,5 @@
-﻿if GetLocale()~="zhTW" and GetLocale()~="zhCN" then return end
+﻿if GetLocale()=="zhTW" or GetLocale()=="zhCN" then return end
+
 local IUF = CreateFrame("Frame", "InvenUnitFrames", UIParent)
 IUF:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 IUF:RegisterEvent("ADDON_LOADED")
@@ -31,13 +32,13 @@ function IUF:ADDON_LOADED()
 	-- 옵션 프레임 생성
 	self.optionFrame = CreateFrame("Frame", "InvenUnitFramesOptionFrame", InterfaceOptionsFramePanelContainer)
 	self.optionFrame:Hide()
-	self.optionFrame.name = "IUF 頭像"
+	self.optionFrame.name = "Inven Unit Frame"
 	self.optionFrame:SetScript("OnShow", function(self)
 		self:SetScript("OnShow", nil)
 		InvenUnitFrames:LoadModule("Option")
 	end)
 --	InterfaceOptions_AddCategory(self.optionFrame)
-category, layout = Settings.RegisterCanvasLayoutCategory(self.optionFrame, "IUF 頭像")
+category, layout = Settings.RegisterCanvasLayoutCategory(self.optionFrame, "InvenUnitFrame")
 Settings.RegisterAddOnCategory(category)
 layout:AddAnchorPoint("TOPLEFT", 10, -10);
 layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
@@ -86,7 +87,6 @@ local function changeParent(frame, prevParent, newParent)
 end
 
 function IUF:HideBlizzardPartyFrame(hide)
-
 	if hide then
 		for i = 1, MAX_PARTY_MEMBERS do
 			changeParent(_G["PartyMemberFrame"..i], UIParent, self.dummyParent)
@@ -243,9 +243,9 @@ end
 
 function IUF:OnTooltip(tooltip)
 	tooltip = tooltip or GameTooltip
-	tooltip:AddLine("IUF 頭像 v"..IUF.version)
+	tooltip:AddLine("Inven Unit Frame v"..IUF.version)
 	tooltip:AddLine("http://wow.inven.co.kr", 1, 1, 1)
-	tooltip:AddLine("點一下打開設定選項", 1, 1, 0)
+	tooltip:AddLine("클릭: 설정창 열기", 1, 1, 0)
 end
 
 function IUF:CollectGarbage()
@@ -364,7 +364,6 @@ do
 	
 	-- 블리자드 유닛 프레임 숨김
 	function hideBlizzard(self)
-
 		if self then
 			UnregisterUnitWatch(self)
 			self:UnregisterAllEvents()

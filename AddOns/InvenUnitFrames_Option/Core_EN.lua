@@ -1,4 +1,4 @@
-﻿if GetLocale()~="zhTW" and GetLocale()~="zhCN" then return end
+﻿if GetLocale()=="zhTW" or GetLocale()=="zhCN" then return end
 local IUF = InvenUnitFrames
 local Option = IUF.optionFrame
 Option:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
@@ -21,19 +21,19 @@ local defaultStatusBarTexture = "Smooth v2"
 
 local mainMenu, unitMenu, basicMenu
 local unitLink = {
-	["玩家"] = "player",
-	["寵物"] = "pet",
-	["寵物的目標"] = "pettarget",
-	["目標"] = "target",
-	["目標的目標"] = "targettarget",
-	["目標的目標的目標"] = "targettargettarget",
-	["專注目標"] = "focus",
-	["專注目標的目標"] = "focustarget",
-	["專注目標的目標的目標"] = "focustargettarget",
-	["隊伍"] = "party",
-	["隊友寵物"] = "partypet",
-	["隊友的目標"] = "partytarget",
-	["首領"] = "boss",
+	["Player"] = "player",
+	["Pet"] = "pet",
+	["Pet Target"] = "pettarget",
+	["Target"] = "target",
+	["Target of Target"] = "targettarget",
+	["Target of ToT"] = "targettargettarget",
+	["Focus"] = "focus",
+	["Focus Target"] = "focustarget",
+	["Focus ToT"] = "focustargettarget",
+	["Party"] = "party",
+	["Party Pet"] = "partypet",
+	["Party Target"] = "partytarget",
+	["Boss"] = "boss",
 }
 
 local function showDetailMenu(idx)
@@ -100,44 +100,44 @@ local function toggleUnitMenu(idx)
 end
 
 mainMenu = {
-	{ name = "整體", desc = "設定單位框架的基本選項。", func = showDetailMenu, needMenu = true },
-	{ name = "顏色", desc = "設定單位框架使用的各種顏色。", func = showDetailMenu, option = "Color" },
-	{ name = "玩家", desc = "設定玩家框架。", func = showDetailMenu, needMenu = true },
-	{ name = "寵物", desc = "設定寵物框架。", func = showDetailMenu, needMenu = true },
-	{ name = "寵物的目標", desc = "設定寵物的目標框架。", func = showDetailMenu, needMenu = true },
-	{ name = "目標", desc = "設定目標框架。", func = showDetailMenu, needMenu = true },
-	{ name = "目標的目標", desc = "設定目標的目標框架。", func = showDetailMenu, needMenu = true },
-	{ name = "目標的目標的目標", desc = "設定目標的目標的目標框架。", func = showDetailMenu, needMenu = true },
-	{ name = "專注目標", desc = "設定專注目標框架。", func = showDetailMenu, needMenu = true },
-	{ name = "專注目標的目標", desc = "設定專注目標的目標框架。", func = showDetailMenu, needMenu = true },
-	{ name = "專注目標的目標的目標", desc = "設定專注目標的目標的目標框架。", func = showDetailMenu, needMenu = true },
-	{ name = "隊伍", desc = "設定隊伍框架。", func = showDetailMenu, needMenu = true },
-	{ name = "隊友寵物", desc = "設定隊友寵物框架。", func = showDetailMenu, needMenu = true },
-	{ name = "隊友的目標", desc = "設定隊友的目標框架。", func = showDetailMenu, needMenu = true },
-	{ name = "首領", desc = "設定首領框架。", func = showDetailMenu, needMenu = true },
-	{ name = "可驅散的減益效果", desc = "當有可驅散的減益效果時，框架會被顯著標示。", func = showDetailMenu, option = "Dispel" },
-	{ name = "即將治療", desc = "設定血量條上顯示即將治療量。", func = showDetailMenu, option = "Heal" },
-	{ name = "職業資源條", desc = "設定在玩家框架底部顯示職業和天賦專精的特殊次要資源條。", func = showDetailMenu, option = "ClassBar" },
+	{ name = "Basic", desc = "Basic settinf for unit frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Color", desc = "Defind colors for unit frame.", func = showDetailMenu, option = "Color" },
+	{ name = "Player", desc = "Setting for player frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Pet", desc = "Setting for pet frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Pet Target", desc = "Setting for pet target frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Target", desc = "Setting for target frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Target of Target", desc = "Setting for target of target frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Target of ToT", desc = "Setting for target of target of target frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Focus", desc = "Setting for focus frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Focus Target", desc = "Setting for target of focus frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Focus ToT", desc = "Setting for target of target of focus frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Party", desc = "Setting for party frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Party Pet", desc = "Setting for party pet frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Party Target", desc = "Setting for party target frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Boss", desc = "Setting for boss frame.", func = showDetailMenu, needMenu = true },
+	{ name = "Dispellable debuff", desc = "Highlight frame when dispellable debuff applied.", func = showDetailMenu, option = "Dispel" },
+	{ name = "Heal prediction", desc = "Display heal prediction on healthbar.", func = showDetailMenu, option = "Heal" },
+	{ name = "Class bar", desc = "Display class powerbar at bottom.", func = showDetailMenu, option = "ClassBar" },
 }
 
 basicMenu = {
-	{ name = "基本", func = toggleBasicMenu, option = "Basic" },
-	{ name = "設定檔", func = toggleBasicMenu, option = "Profile" },
-	{ name = "狀態條", func = toggleBasicMenu, option = "BasicStatusBar" },
-	{ name = "字體", func = toggleBasicMenu, option = "BasicFont" },
-	{ name = "專注目標快速鍵", func = toggleBasicMenu, option = "FocusKey" },
+	{ name = "Basic setting", func = toggleBasicMenu, option = "Basic" },
+	{ name = "Profile", func = toggleBasicMenu, option = "Profile" },
+	{ name = "Texture", func = toggleBasicMenu, option = "BasicStatusBar" },
+	{ name = "Font", func = toggleBasicMenu, option = "BasicFont" },
+	{ name = "Focus Key", func = toggleBasicMenu, option = "FocusKey" },
 }
 
 unitMenu = {
-	{ name = "  基本  ", func = toggleUnitMenu, option = "UnitBasic" },
-	{ name = "  血量條  ", func = toggleUnitMenu, option = "UnitHealth" },
-	{ name = "  血量條文字  ", func = toggleUnitMenu, option = "UnitHealthText" },
-	{ name = "  法力條  ", func = toggleUnitMenu, option = "UnitMana" },
-	{ name = "  法力條文字  ", func = toggleUnitMenu, option = "UnitManaText" },
-	{ name = "  施法條  ", func = toggleUnitMenu, option = "UnitCastingBar" },
-	{ name = "  增益效果  ", func = toggleUnitMenu, option = "UnitBuff" },
-	{ name = "  減益效果  ", func = toggleUnitMenu, option = "UnitDebuff" },
-	{ name = "  文字  ", func = toggleUnitMenu, option = "UnitText" },
+	{ name = "  Basic  ", func = toggleUnitMenu, option = "UnitBasic" },
+	{ name = "  Health bar  ", func = toggleUnitMenu, option = "UnitHealth" },
+	{ name = "  Health text  ", func = toggleUnitMenu, option = "UnitHealthText" },
+	{ name = "  Power bar  ", func = toggleUnitMenu, option = "UnitMana" },
+	{ name = "  Power text  ", func = toggleUnitMenu, option = "UnitManaText" },
+	{ name = "  Cast bar  ", func = toggleUnitMenu, option = "UnitCastingBar" },
+	{ name = "  Buff  ", func = toggleUnitMenu, option = "UnitBuff" },
+	{ name = "  Debuff  ", func = toggleUnitMenu, option = "UnitDebuff" },
+	{ name = "  Text  ", func = toggleUnitMenu, option = "UnitText" },
 }
 
 local partyUnitList = { party = {}, partypet = {}, partytarget = {}, boss = {} }
@@ -166,35 +166,35 @@ local unitsdb = {
 	boss = IUF.units.boss1.db,
 }
 local barTextTypes = {
-	"不顯示", "[百分比%]", "[當前]/[最大]", "[當前(短)]/[最大(短)]",
-	"[當前]/[最大] [百分比%]", "[當前(短)]/[最大(短)] [百分比%]",
-	"[百分比%] [當前]/[最大]", "[百分比%] [當前(短)]/[最大(短)]",
-	"[損失]", "[損失(短)]", "[當前]", "[當前(短)]", "[最大]", "[最大(短)]",
-	"[當前實際值]/[最大實際值]", "[當前實際值]/[最大實際值] [百分比%]",
-	"[百分比%] [當前實際值]/[最大實際值]", "[當前實際值]", "[最大實際值]",
+	"None", "[%]", "[Health]/[Max]", "[Health]/[Max]",
+	"[Health]/[Max] [%]", "[Short Health]/[Short Max] [%]",
+	"[%] [Health]/[Max]", "[%] [Short Health]/[Short Max]",
+	"[Loss]", "[Short Loss]", "[Health]", "[Short Health]", "[Max]","[Short Max]",
+	"[Health Number]/[Max Number]", "[Health Number]/[Max Number] [%]",
+	"[%] [Health Number]/[Max Number]", "[Health Number]", "[Max Number]",
 }
-local barTextList = { "左側", "中間", "右側", "左側外部", "右側外部" }
-local fontAttribute = { "無", "外框", "粗外框", "無消除鋸齒", "無消除鋸齒外框", "無消除鋸齒粗外框" }
+local barTextList = { "LEFT", "CENTER", "RIGHT", "LEFT OUT", "RIGHT OUT" }
+local fontAttribute = { "NONE", "OUTLINE", "THICKOUTLINE", "MONOCHROME", "OUTLINE,MONOCHROME", "THICKOUTLINE,MONOCHROME" }
 local fontAttributeSet = {
-	["外框"] = "OUTLINE",
-	["OUTLINE"] = "外框",
-	["粗外框"] = "THICKOUTLINE",
-	["THICKOUTLINE"] = "粗外框",
-	["無消除鋸齒"] = "MONOCHROME",
-	["MONOCHROME"] = "無消除鋸齒",
-	["無消除鋸齒外框"] = "OUTLINE,MONOCHROME",
-	["OUTLINE,MONOCHROME"] = "無消除鋸齒外框",
-	["無消除鋸齒粗外框"] = "THICKOUTLINE,MONOCHROME",
-	["THICKOUTLINE,MONOCHROME"] = "無消除鋸齒粗外框",
+	["OUTLINE"] = "OUTLINE",
+	["OUTLINE"] = "OUTLINE",
+	["THICKOUTLINE"] = "THICKOUTLINE",
+	["THICKOUTLINE"] = "THICKOUTLINE",
+	["MONOCHROME"] = "MONOCHROME",
+	["MONOCHROME"] = "MONOCHROME",
+	["OUTLINE,MONOCHROME"] = "OUTLINE,MONOCHROME",
+	["OUTLINE,MONOCHROME"] = "OUTLINE,MONOCHROME",
+	["THICKOUTLINE,MONOCHROME"] = "THICKOUTLINE,MONOCHROME",
+	["THICKOUTLINE,MONOCHROME"] = "THICKOUTLINE,MONOCHROME",
 }
 local auraFiltering = {
 	[1] = "",	[""] = 1,
 	[2] = "PLAYER",	["PLAYER"] = 2,
 	[3] = "RAID",	["RAID"] = 3,
 }
-local buffFilteringList = { "全部顯示", "只顯示我施放的", "只顯示可施放的" }
-local debuffFilteringList = { "全部顯示", "只顯示我施放的", "只顯示可驅散的" }
-local auraPositionList = { "上", "下", "左", "右" }
+local buffFilteringList = { "Show all", "My cast", "Able to cast" }
+local debuffFilteringList = { "Show all", "My cast", "Dispellable" }
+local auraPositionList = { "TOP", "BOTTOM", "LEFT", "RIGHT" }
 local auraPositions = {
 	[1] = "TOP",	TOP = 1,
 	[2] = "BOTTOM",	BOTTOM = 2,
@@ -255,7 +255,7 @@ function Option:ADDON_LOADED()
 	-- 유닛 메뉴 만들기
 	self.unitMenu, self.unitDetail = self:CreateTabMenu("unit", unitMenu)
 	-- 미리보기 버튼 만들기
-	self.previewButton = LBO:CreateWidget("Button", self, IUF.previewMode and "關閉預覽" or "開啟預覽", "開啟或關閉預覽模式。", nil, nil, true, 
+	self.previewButton = LBO:CreateWidget("Button", self, IUF.previewMode and "Close preview" or "Open preview", "Toggle preview.", nil, nil, true,
 		function(_, mode)
 			IUF:SetPreviewMode(mode)
 		end,
@@ -473,7 +473,7 @@ local function getMostOptionValue(...)
 end
 
 function Option:CreateBasicMenu(menu, parent)
-	menu.skin = LBO:CreateWidget("DropDown", parent, "外觀主題", "設定框架的外觀。", nil, nil, true,
+	menu.skin = LBO:CreateWidget("DropDown", parent, "Skin", "Choose frame skins.", nil, nil, true,
 		function() return IUF.db.skinName, IUF.skinDB.list end,
 		function(v)
 			v = IUF.skinDB.name[v]
@@ -487,24 +487,24 @@ function Option:CreateBasicMenu(menu, parent)
 	menu.skin.button:SetScript("PreClick", function()
 		IUF:LoadAllSkinAddOns()
 		sort(IUF.skinDB.list, function(a, b)
-			if a:find("^基本") then
-				if b:find("^基本") then
+			if a:find("^Default") then
+				if b:find("^Default") then
 					return a < b
 				else
 					return true
 				end
-			elseif b:find("^基本") then
+			elseif b:find("^Default") then
 				return false
 			else
 				return a < b
 			end
 		end)
 	end)
-	menu.tooltip = LBO:CreateWidget("DropDown", parent, "浮動提示資訊", "設定浮動提示資訊的顯示方式。", nil, nil, nil, function() return IUF.db.tooltip, { "總是顯示", "非戰鬥中顯示", "戰鬥中顯示", "不顯示" } end, function(v) IUF.db.tooltip = v end)
+	menu.tooltip = LBO:CreateWidget("DropDown", parent, "Tooltip", "Setting for tooltip display.", nil, nil, nil, function() return IUF.db.tooltip, { "Always", "Not in combat", "In combat", "None" } end, function(v) IUF.db.tooltip = v end)
 	menu.tooltip:SetPoint("TOPRIGHT", -5, -5)
-	menu.lock = LBO:CreateWidget("CheckBox", parent, "鎖定框架", "鎖定框架以防止移動。 專注目標框架可以使用 Alt+左鍵拖曳移動。", nil, nil, nil, function() return IUF.db.lock end, function(v) IUF.db.lock = v end)
+	menu.lock = LBO:CreateWidget("CheckBox", parent, "Lock frame", "Lock frame disable drag to move. Focus frame still movale by Alt+Drag.", nil, nil, nil, function() return IUF.db.lock end, function(v) IUF.db.lock = v end)
 	menu.lock:SetPoint("TOP", menu.skin, "BOTTOM", 0, -10)
-	menu.highlight = LBO:CreateWidget("Slider", parent, "顯著標示透明度", "設定滑鼠移到框架上時顯示的顯著標示透明度。 設定為 0% 將不會顯著標示。", nil, nil, nil,
+	menu.highlight = LBO:CreateWidget("Slider", parent, "Highlight alpha", "Set highlight opacity. Set this value to 0 to hide.", nil, nil, nil,
 		function() return IUF.db.highlightAlpha * 100, 0, 100, 1, "%" end,
 		function(v)
 			IUF.db.highlightAlpha = v / 100
@@ -519,20 +519,20 @@ function Option:CreateBasicMenu(menu, parent)
 		end
 	)
 	menu.highlight:SetPoint("TOP", menu.tooltip, "BOTTOM", 0, -10)
-	menu.reset = LBO:CreateWidget("Button", parent, "重設設定", "將所有單位框架的詳細設定還原為預設值。", nil, nil, true,
+	menu.reset = LBO:CreateWidget("Button", parent, "Reset all", "Reset all unit frame detail setting.", nil, nil, true,
 		function()
 			Option:ClearSetting()
 			LBO:Refresh()
 		end
 	)
 	menu.reset:SetPoint("TOP", menu.lock, "BOTTOM", 0, 0)
-	menu.resetLoc = LBO:CreateWidget("Button", parent, "重設位置", "將所有單位框架的位置還原為預設值。", nil, nil, true,
+	menu.resetLoc = LBO:CreateWidget("Button", parent, "Reset position", "Reset all unit frame position.", nil, nil, true,
 		function()
 			Option:ClearLocation()
 		end
 	)
 	menu.resetLoc:SetPoint("TOP", menu.highlight, "BOTTOM", 0, 0)
-	menu.scale = LBO:CreateWidget("Slider", parent, "整體大小", "設定所有單位框架的大小。", nil, nil, true,
+	menu.scale = LBO:CreateWidget("Slider", parent, "All size", "Size for all unit frames.", nil, nil, true,
 		function() return IUF.db.scale * 100, 50, 150, 1, "%" end,
 		function(v)
 			IUF.db.scale = v / 100
@@ -540,7 +540,7 @@ function Option:CreateBasicMenu(menu, parent)
 		end
 	)
 	menu.scale:SetPoint("TOP", menu.reset, "BOTTOM", 0, 0)
-	menu.mapButtonShown = LBO:CreateWidget("CheckBox", parent, "顯示小地圖按鈕", "顯示或隱藏小地圖按鈕。", nil, nil, nil,
+	menu.mapButtonShown = LBO:CreateWidget("CheckBox", parent, "Show minimap button", "Toggle minimap button.", nil, nil, nil,
 		function() return InvenUnitFramesDB.minimapButton.show end,
 		function(v)
 			InvenUnitFramesDB.minimapButton.show = v
@@ -553,7 +553,7 @@ function Option:CreateBasicMenu(menu, parent)
 		end
 	)
 	menu.mapButtonShown:SetPoint("TOP", menu.scale, "BOTTOM", 0, 0)
-	menu.mapButtonDrag = LBO:CreateWidget("CheckBox", parent, "鎖定小地圖按鈕", "鎖定小地圖按鈕以防止移動。", nil,
+	menu.mapButtonDrag = LBO:CreateWidget("CheckBox", parent, "Lock minimap button", "Lock minimap button.", nil,
 		function() return not InvenUnitFramesDB.minimapButton.show end, nil,
 		function() return not InvenUnitFramesDB.minimapButton.dragable end,
 		function(v)
@@ -562,7 +562,7 @@ function Option:CreateBasicMenu(menu, parent)
 	)
 	menu.mapButtonDrag:SetPoint("TOP", menu.resetLoc, "BOTTOM", 0, -44)
 
-	menu.hideInRaid = LBO:CreateWidget("CheckBox", parent, "加入團隊時隱藏隊伍框架", "加入團隊時隱藏隊伍框架。", nil , nil, true,
+	menu.hideInRaid = LBO:CreateWidget("CheckBox", parent, "Hide in raid", "Hide party from when player in raid group.", nil , nil, true,
 		function() return IUF.db.hideInRaid end,
 		function(v)
 			IUF.db.hideInRaid = v
@@ -571,7 +571,7 @@ function Option:CreateBasicMenu(menu, parent)
 	)
 	menu.hideInRaid:SetPoint("TOP", menu.mapButtonShown, "BOTTOM", 0, 0)
 
-	menu.hidePartyFrame = LBO:CreateWidget("CheckBox", parent, "總是隱藏隊伍框架", "總是隱藏隊伍框架。", nil , nil, true,
+	menu.hidePartyFrame = LBO:CreateWidget("CheckBox", parent, "Always hide party frame", "Always hide party frame.", nil , nil, true,
 		function() return IUF.db.hidePartyFrame end,
 		function(v)
 			IUF.db.hidePartyFrame = v
@@ -580,9 +580,9 @@ function Option:CreateBasicMenu(menu, parent)
 	)
 	menu.hidePartyFrame:SetPoint("TOP", menu.hideInRaid, "BOTTOM", 0, 0)
 
-	local aggroBorderList = { "顯示", "閃爍", "不顯示" }
+	local aggroBorderList = { "Display", "Blink", "None" }
 
-	menu.aggorBorder = LBO:CreateWidget("DropDown", parent, "獲得仇恨邊框", "設定獲得仇恨時在頭像周圍顯示的紅色邊框。", nil, nil, nil,
+	menu.aggorBorder = LBO:CreateWidget("DropDown", parent, "Threat border", "Set red border in portrait when player get target threat.", nil, nil, nil,
 		function() return IUF.db.aggroBorder, aggroBorderList end,
 		function(v)
 			IUF.db.aggroBorder = v
@@ -618,21 +618,21 @@ function Option:CreateProfileMenu(menu, parent)
 		sort(profiles, sortfunc)
 		return profiles
 	end
-	menu.select = LBO:CreateWidget("DropDown", parent, "選擇設定檔", "選擇要使用的設定檔。", nil, nil, true,
+	menu.select = LBO:CreateWidget("DropDown", parent, "Profile", "Select profile.", nil, nil, true,
 		function() return InvenUnitFramesDB.profile[IUF.dbKey], returnProfiles() end,
 		function(v)
 			if InvenUnitFramesDB.profile[IUF.dbKey] ~= v then
-				Option:Message(("%s|1設定檔已變更。"):format(v))
+				Option:Message(("Profile changed to %s"):format(v))
 				IUF:SelectProfile(v)
 				LBO:Refresh()
 			end
 		end
 	)
 	menu.select:SetPoint("TOPLEFT", 5, -5)
-	menu.reset = LBO:CreateWidget("Button", parent, "重置設定檔", "將目前設定檔初始化。", nil, nil, true, function() IUF:ResetProfile(InvenUnitFramesDB.profile[IUF.dbKey]) end)
+	menu.reset = LBO:CreateWidget("Button", parent, "Reset profile", "Reset current profile.", nil, nil, true, function() IUF:ResetProfile(InvenUnitFramesDB.profile[IUF.dbKey]) end)
 	menu.reset:SetPoint("TOPRIGHT", -5, -5)
 	menu.copyTargetProfile = "Default"
-	menu.copyTarget = LBO:CreateWidget("DropDown", parent, nil, "建立新的設定檔。", nil, nil, true,
+	menu.copyTarget = LBO:CreateWidget("DropDown", parent, nil, "Create new profile.", nil, nil, true,
 		function() return menu.copyTargetProfile, returnProfiles() end,
 		function(v)
 			menu.copyTargetProfile = v
@@ -640,14 +640,14 @@ function Option:CreateProfileMenu(menu, parent)
 	)
 	menu.copyTarget:SetWidth(130)
 	menu.copyTarget:SetPoint("TOPRIGHT", menu.reset, "BOTTOMRIGHT", 0, 0)
-	menu.copy = LBO:CreateWidget("EditBox", parent, "建立新的設定檔", "建立新的設定檔。", nil, nil, true, nil,
+	menu.copy = LBO:CreateWidget("EditBox", parent, "Create new profile", "Create new profile.", nil, nil, true, nil,
 		function(v)
 			if v and v:len() > 0 then
 				if InvenUnitFramesDB.profiles[v] then
-					Option:Message(("%s|1設定檔已存在，無法建立。"):format(v))
+					Option:Message(("Profile %s is already exists."):format(v))
 				else
 					IUF:CreateNewProfile(v, menu.copyTargetProfile)
-					Option:Message(("%s|1設定檔已建立。"):format(v))
+					Option:Message(("New profile created : %s"):format(v))
 					LBO:Refresh()
 				end
 			end
@@ -669,11 +669,11 @@ function Option:CreateProfileMenu(menu, parent)
 		sort(delprofiles, sortfunc)
 		return delprofiles
 	end
-	menu.delete = LBO:CreateWidget("DropDown", parent, "刪除設定檔", "刪除選定的設定檔。", nil, function() return #(returnDeletableProfiles()) == 0 end, true,
+	menu.delete = LBO:CreateWidget("DropDown", parent, "Delete profile", "Delete selected profile.", nil, function() return #(returnDeletableProfiles()) == 0 end, true,
 		function() return "", returnDeletableProfiles() end,
 		function(v)
 			IUF:DeleteProfile(v)
-			Option:Message(("%s 設定檔已刪除。"):format(v))
+			Option:Message(("Profile deleted : %s"):format(v))
 			if v == copyTarget then
 				copyTarget = "Default"
 			end
@@ -684,7 +684,7 @@ function Option:CreateProfileMenu(menu, parent)
 end
 
 function Option:CreateBasicStatusBarMenu(menu, parent)
-	menu.barAll = LBO:CreateWidget("Media", parent, "所有狀態條樣式", "統一設定所有單位框架的狀態條樣式。", nil, nil, nil,
+	menu.barAll = LBO:CreateWidget("Media", parent, "All bars", "Change all unit frame bars.", nil, nil, nil,
 		function()
 			return getMostOptionValue("healthBarTexture", "powerBarTexture", "castingBarTexture") or "Smooth v2", "statusbar"
 		end,
@@ -707,7 +707,7 @@ function Option:CreateBasicStatusBarMenu(menu, parent)
 		end
 	)
 	menu.barAll:SetPoint("TOPLEFT", 5, -5)
-	menu.barHealth = LBO:CreateWidget("Media", parent, "所有血量條樣式", "統一設定所有單位框架的血量條樣式。", nil, nil, nil,
+	menu.barHealth = LBO:CreateWidget("Media", parent, "All health bar", "Change health bar for all unit frames.", nil, nil, nil,
 		function()
 			return getMostOptionValue("healthBarTexture") or "Smooth v2", "statusbar"
 		end,
@@ -721,7 +721,7 @@ function Option:CreateBasicStatusBarMenu(menu, parent)
 		end
 	)
 	menu.barHealth:SetPoint("TOPRIGHT", -5, -5)
-	menu.barPower = LBO:CreateWidget("Media", parent, "所有能量條樣式", "統一設定所有單位框架的能量條樣式。", nil, nil, nil,
+	menu.barPower = LBO:CreateWidget("Media", parent, "All power bar", "Change power bar for all unit frames", nil, nil, nil,
 		function()
 			return getMostOptionValue("powerBarTexture") or "Smooth v2", "statusbar"
 		end,
@@ -739,7 +739,7 @@ function Option:CreateBasicStatusBarMenu(menu, parent)
 		end
 	)
 	menu.barPower:SetPoint("TOP", menu.barAll, "BOTTOM", 0, -5)
-	menu.barCasting = LBO:CreateWidget("Media", parent, "所有施法條樣式", "統一設定所有單位框架的施法條樣式。", nil, nil, nil,
+	menu.barCasting = LBO:CreateWidget("Media", parent, "all cast bar", "Change cast bar for all unit frames.", nil, nil, nil,
 		function()
 			return getMostOptionValue("castingBarTexture") or "Smooth v2", "statusbar"
 		end,
@@ -753,7 +753,7 @@ function Option:CreateBasicStatusBarMenu(menu, parent)
 		end
 	)
 	menu.barCasting:SetPoint("TOP", menu.barHealth, "BOTTOM", 0, -5)
-	menu.classColor = LBO:CreateWidget("CheckBox", parent, "血量條顯示職業顏色", "使用職業顏色顯示血量條。", nil, nil, nil,
+	menu.classColor = LBO:CreateWidget("CheckBox", parent, "Class color", "Use class color for health bar.", nil, nil, nil,
 		function()
 			return getMostOptionValue("healthBarClassColor")
 		end,
@@ -771,7 +771,7 @@ function Option:CreateBasicStatusBarMenu(menu, parent)
 		end
 	)
 	menu.classColor:SetPoint("TOP", menu.barPower, "BOTTOM", 0, 0)
-	menu.classColorEnemy = LBO:CreateWidget("CheckBox", parent, "敵對陣營玩家也顯示職業顏色", "敵對陣營玩家也使用職業顏色顯示血量條。", nil,
+	menu.classColorEnemy = LBO:CreateWidget("CheckBox", parent, "Use class color for harm players", "Use class color for harm players.", nil,
 		function()
 			return not getMostOptionValue("healthBarClassColor")
 		end, nil,
@@ -787,7 +787,7 @@ function Option:CreateBasicStatusBarMenu(menu, parent)
 	)
 	menu.classColorEnemy:SetPoint("TOP", menu.classColor, "BOTTOM", 0, 15)
 
-	menu.barAnimation = LBO:CreateWidget("CheckBox", parent, "使用狀態條動畫", "狀態條的減少呈現平滑的動畫效果。", nil, nil, nil,
+	menu.barAnimation = LBO:CreateWidget("CheckBox", parent, "Use bar animation", "Use smooth display for bar animation.", nil, nil, nil,
 		function()
 			return IUF.db.barAnimation
 		end,
@@ -817,14 +817,14 @@ function Option:CreateBasicFontMenu(menu, parent)
 		tinsert(self.fontAttributes, p.."FontAttribute")
 		tinsert(self.fontShadows, p.."FontShadow")
 	end
-	local textFontList = { "名字", "等級", "狀態", "施法條", "生命值", "法力值" }
+	local textFontList = { "Name", "Level", "Status", "Cast", "Health", "Power" }
 	local textFontElement = {
-		["名字"] = { "nameText" },
-		["等級"] = { "levelText" },
-		["狀態"] = { "stateText" },
-		["施法條"] = { "castingBarText", "castingBarTime" },
-		["生命值"] = { "healthText1", "healthText2", "healthText3", "healthText4", "healthText5" },
-		["法力值"] = { "powerText1", "powerText2", "powerText3", "powerText4", "powerText5" },
+		["Name"] = { "nameText" },
+		["Level"] = { "levelText" },
+		["Status"] = { "stateText" },
+		["Cast"] = { "castingBarText", "castingBarTime" },
+		["Health"] = { "healthText1", "healthText2", "healthText3", "healthText4", "healthText5" },
+		["Power"] = { "powerText1", "powerText2", "powerText3", "powerText4", "powerText5" },
 	}
 	local textFontFiles, textFontAttributes, textFontShadows, textFontHeights = {}, {}, {}, {}
 	for p, t in pairs(textFontElement) do
@@ -856,7 +856,7 @@ function Option:CreateBasicFontMenu(menu, parent)
 			end
 		end
 	end
-	menu.fontAll = LBO:CreateWidget("Font", parent, "所有字體", "統一設定所有單位框架的字體。", nil, nil, nil, getFontValue,
+	menu.fontAll = LBO:CreateWidget("Font", parent, "All font", "Change font for all unti frames.", nil, nil, nil, getFontValue,
 		function(file, _, attribute, shadow)
 			for element in pairs(Option.fontElements) do
 				updateFontValue(element, file, attribute, shadow)
@@ -872,7 +872,7 @@ function Option:CreateBasicFontMenu(menu, parent)
 		end
 	end
 	for i, name in ipairs(textFontList) do
-		menu["font"..i] = LBO:CreateWidget("Font", parent, "所有"..name.."字體", "統一設定所有單位框架的"..name.."字體。", nil, nil, nil, getFontValue, setFontValue, name)
+		menu["font"..i] = LBO:CreateWidget("Font", parent, "All "..name.." font", "Change "..name.." font for all unit frames.", nil, nil, nil, getFontValue, setFontValue, name)
 		if i == 1 then
 			menu.font1:SetPoint("TOP", menu.fontAll, "BOTTOM", 0, -10)
 		elseif i == 2 then
@@ -890,9 +890,9 @@ function Option:CreateFocusKeyMenu(menu, parent)
 	menu.desc:SetJustifyH("LEFT")
 	menu.desc:SetJustifyV("TOP")
 	menu.desc:SetHeight(90)
-	menu.desc:SetText("點擊非專注目標的單位框架時，使用設定的組合鍵將其設為專注目標；點擊專注目標框架時，將取消專注目標。")
-	local modList = { "不使用", "Shift", "Ctrl", "Alt", "Shift+Ctrl", "Shift+Alt", "Alt+Ctrl" }
-	menu.modkey = LBO:CreateWidget("DropDown", parent, "輔助按鍵", nil, nil, nil, true,
+	menu.desc:SetText("Use function key to set new focus or clearing.")
+	local modList = { "None", "Shift", "Ctrl", "Alt", "Shift+Ctrl", "Shift+Alt", "Alt+Ctrl" }
+	menu.modkey = LBO:CreateWidget("DropDown", parent, "Function key", nil, nil, nil, true,
 		function()
 			menu.setting:update()
 			return IUF.db.focusKey.mod + 1, modList
@@ -906,8 +906,8 @@ function Option:CreateFocusKeyMenu(menu, parent)
 		end
 	)
 	menu.modkey:SetPoint("TOPLEFT", menu.desc, "BOTTOMLEFT", 0, 0)
-	local buttonList = { "左鍵", "右鍵", "中鍵", "按鈕4", "按鈕5", "按鈕6", "按鈕7", "按鈕8", "按鈕9", "按鈕10" }
-	menu.button = LBO:CreateWidget("DropDown", parent, "滑鼠按鍵", nil, nil, function() return IUF.db.focusKey.mod == 0 end, true,
+	local buttonList = { "Left button", "Right button", "Center button", "Button4", "Button5", "Button6", "Button7", "Button8", "Button9", "Button10" }
+	menu.button = LBO:CreateWidget("DropDown", parent, "Mouse Button", nil, nil, function() return IUF.db.focusKey.mod == 0 end, true,
 		function()
 			menu.setting:update()
 			return IUF.db.focusKey.button, buttonList
@@ -927,9 +927,9 @@ function Option:CreateFocusKeyMenu(menu, parent)
 	menu.setting:SetHeight(40)
 	menu.setting.update = function(self)
 		if IUF.db.focusKey.mod == 0 then
-			self:SetText("不使用設定和取消專注目標的功能。")
+			self:SetText("Focus target not used.")
 		else
-			self:SetFormattedText("|cffffff00%s + %s|r|1可以設定或取消專注目標。", modList[IUF.db.focusKey.mod + 1]:gsub("%+", " + "), buttonList[IUF.db.focusKey.button])
+			self:SetFormattedText("|cffffff00%s + Mouse %s|r|1 set to focus target.", modList[IUF.db.focusKey.mod + 1]:gsub("%+", " + "), buttonList[IUF.db.focusKey.button])
 		end
 	end
 end
@@ -949,15 +949,15 @@ function Option:CreateColorMenu(menu, parent)
 			updatefunc()
 		end
 	end
-	menu.class = LBO:CreateWidget("Heading", parent, "職業顏色")
+	menu.class = LBO:CreateWidget("Heading", parent, "Class color")
 	menu.class:SetPoint("TOPLEFT", 5, 10)
 	menu.class:SetPoint("TOPRIGHT", -5, 10)
 	menu.class:SetScale(1.2)
 	local classOrder = { "WARRIOR", "ROGUE", "PRIEST", "MAGE", "WARLOCK", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "DEATHKNIGHT", "MONK", "PET", "FRIEND", "NEUTRAL", "ENEMY" }
 	local classNames = {
-		WARRIOR = "戰士", ROGUE = "盜賊", PRIEST = "牧師", MAGE = "法師", WARLOCK = "術士",
-		HUNTER = "獵人", DRUID = "德魯伊", SHAMAN = "薩滿", PALADIN = "聖騎士", DEATHKNIGHT = "死亡騎士", MONK = "武僧",
-		PET = "寵物", FRIEND = "友方目標", NEUTRAL = "中立目標", ENEMY = "敵方目標",
+		WARRIOR = "WARRIOR", ROGUE = "ROGUE", PRIEST = "PRIEST", MAGE = "MAGE", WARLOCK = "WARLOCK",
+		HUNTER = "HUNTER", DRUID = "DRUID", SHAMAN = "SHAMAN", PALADIN = "PALADIN", DEATHKNIGHT = "DEATHKNIGHT", MONK = "MONK",
+		PET = "PET", FRIEND = "FRIEND", NEUTRAL = "NEUTRAL", ENEMY = "ENEMY",
 	}
 	local function classColorUpdate()
 		for _, object in pairs(IUF.units) do
@@ -971,7 +971,7 @@ function Option:CreateColorMenu(menu, parent)
 			end
 		end
 	end
-	menu.classReset = LBO:CreateWidget("Button", parent, "預設", "將所有職業顏色還原成預設值。", nil, nil, nil,
+	menu.classReset = LBO:CreateWidget("Button", parent, "Reset", "Reset all class color.", nil, nil, nil,
 		function()
 			IUF.colordb.class.FRIEND[1] = 0
 			IUF.colordb.class.FRIEND[2] = 1
@@ -1000,8 +1000,10 @@ function Option:CreateColorMenu(menu, parent)
 	menu.classReset:SetScale(0.9)
 	menu.classReset:SetWidth(60)
 	for i, class in ipairs(classOrder) do
-		menu["class"..i] = LBO:CreateWidget("ColorPicker", parent, classNames[class], "設定"..classNames[class].."的顏色。", nil, nil, nil, getColor, setColor, "class", class, classColorUpdate)
-		menu["class"..i]:SetWidth(90)
+
+		menu["class"..i] = LBO:CreateWidget("ColorPicker", parent, classNames[class], "Set class color for "..classNames[class], nil, nil, nil, getColor, setColor, "class", class, classColorUpdate)
+
+	menu["class"..i]:SetWidth(90)
 		if i == 1 then
 			menu["class"..i]:SetPoint("TOPLEFT", 5, -16)
 		elseif i == 2 then
@@ -1012,7 +1014,7 @@ function Option:CreateColorMenu(menu, parent)
 			menu["class"..i]:SetPoint("TOP", menu["class"..(i - 3)], "BOTTOM", 0, 12)
 		end
 	end
-	menu.power = LBO:CreateWidget("Heading", parent, "能量顏色")
+	menu.power = LBO:CreateWidget("Heading", parent, "Power bar color")
 	menu.power:SetPoint("TOPLEFT", 5, -146)
 	menu.power:SetPoint("TOPRIGHT", -5, -146)
 	menu.power:SetScale(1.2)
@@ -1029,7 +1031,7 @@ function Option:CreateColorMenu(menu, parent)
 			end
 		end
 	end
-	menu.powerReset = LBO:CreateWidget("Button", parent, "預設", "將所有能量顏色還原成預設值。", nil, nil, nil,
+	menu.powerReset = LBO:CreateWidget("Button", parent, "Reset", "Rest all power bar color.", nil, nil, nil,
 		function()
 			for power, color in pairs(IUF.colordb.power) do
 				if PowerBarColor[power] then
@@ -1046,9 +1048,10 @@ function Option:CreateColorMenu(menu, parent)
 	menu.powerReset:SetScale(0.9)
 	menu.powerReset:SetWidth(60)
 	local powerOrder = { 0, 1, 3, 6, 2, 8 }
-	local powerNames = { [0] = "法力", [1] = "怒氣", [3] = "能量", [6] = "符能", [2] = "集中值", [8] = "星能" }
+	local powerNames = { [0] = "Mana", [1] = "Rage", [3] = "Energy", [6] = "Runic Power", [2] = "Focus", [8] = "Astral Power" }
+
 	for i, power in ipairs(powerOrder) do
-		menu["power"..i] = LBO:CreateWidget("ColorPicker", parent, powerNames[power], "設定"..powerNames[power].."的顏色。", nil, nil, nil, getColor, setColor, "power", power, powerColorUpdate)
+		menu["power"..i] = LBO:CreateWidget("ColorPicker", parent, powerNames[power], "Set color of " ..powerNames[power], nil, nil, nil, getColor, setColor, "power", power, powerColorUpdate)
 		menu["power"..i]:SetWidth(90)
 		if i == 1 then
 			menu["power"..i]:SetPoint("TOPLEFT", menu.power, "BOTTOMLEFT", 0, 26)
@@ -1060,7 +1063,7 @@ function Option:CreateColorMenu(menu, parent)
 			menu["power"..i]:SetPoint("TOP", menu["power"..(i - 3)], "BOTTOM", 0, 12)
 		end
 	end
-	menu.casting = LBO:CreateWidget("Heading", parent, "施法條顏色")
+	menu.casting = LBO:CreateWidget("Heading", parent, "Cast bar color")
 	menu.casting:SetPoint("TOPLEFT", 5, -216)
 	menu.casting:SetPoint("TOPRIGHT", -5, -216)
 	menu.casting:SetScale(1.2)
@@ -1074,7 +1077,7 @@ function Option:CreateColorMenu(menu, parent)
 			end
 		end
 	end
-	menu.castingReset = LBO:CreateWidget("Button", parent, "預設", "將施法條顏色還原成預設值。", nil, nil, nil,
+	menu.castingReset = LBO:CreateWidget("Button", parent, "Reset", "Reset all cast bar color.", nil, nil, nil,
 		function()
 			IUF.colordb.casting.NORMAL[1] = 1
 			IUF.colordb.casting.NORMAL[2] = 0.7
@@ -1093,9 +1096,9 @@ function Option:CreateColorMenu(menu, parent)
 	menu.castingReset:SetScale(0.9)
 	menu.castingReset:SetWidth(60)
 	local castingOrder = { "NORMAL", "CHANNEL", "SHIELD" }
-	local castingNames = { "一般", "引導", "無法打斷" }
+	local castingNames = { "Normal", "Channel", "Not interruptable" }
 	for i, casting in ipairs(castingOrder) do
-		menu["casting"..i] = LBO:CreateWidget("ColorPicker", parent, castingNames[i], "設定"..castingNames[i].."的顏色。", nil, nil, nil, getColor, setColor, "casting", casting, castingColorUpdate)
+		menu["casting"..i] = LBO:CreateWidget("ColorPicker", parent, castingNames[i], "Set color of " ..castingNames[i] , nil, nil, nil, getColor, setColor, "casting", casting, castingColorUpdate)
 		menu["casting"..i]:SetWidth(90)
 		if i == 1 then
 			menu["casting"..i]:SetPoint("TOPLEFT", menu.casting, "BOTTOMLEFT", 0, 26)
@@ -1107,7 +1110,7 @@ function Option:CreateColorMenu(menu, parent)
 			menu["casting"..i]:SetPoint("TOP", menu["casting"..(i - 3)], "BOTTOM", 0, 12)
 		end
 	end
-	menu.etc = LBO:CreateWidget("Heading", parent, "連擊點數顏色")
+	menu.etc = LBO:CreateWidget("Heading", parent, "Combo point color")
 	menu.etc:SetPoint("TOPLEFT", 5, -260)
 	menu.etc:SetPoint("TOPRIGHT", -5, -260)
 	menu.etc:SetScale(1.2)
@@ -1125,7 +1128,7 @@ function Option:CreateColorMenu(menu, parent)
 			end
 		end
 	end
-	menu.etcReset = LBO:CreateWidget("Button", parent, "預設", "將連擊點數顏色還原成預設值。", nil, nil, nil,
+	menu.etcReset = LBO:CreateWidget("Button", parent, "Reset", "Rest combo point color.", nil, nil, nil,
 		function()
 			IUF.colordb.combo[1] = 1
 			IUF.colordb.combo[2] = 1
@@ -1137,7 +1140,7 @@ function Option:CreateColorMenu(menu, parent)
 	menu.etcReset:SetPoint("RIGHT", menu.etc, "RIGHT", 0, 0)
 	menu.etcReset:SetScale(0.9)
 	menu.etcReset:SetWidth(60)
-	menu.combo = LBO:CreateWidget("ColorPicker", parent, "連擊點數", "設定連擊點數的顏色。", nil, nil, nil,
+	menu.combo = LBO:CreateWidget("ColorPicker", parent, "Combo point", "Set combo point color.", nil, nil, nil,
 		function() return unpack(IUF.colordb.combo) end,
 		function(r, g, b)
 			IUF.colordb.combo[1] = r
@@ -1150,7 +1153,7 @@ function Option:CreateColorMenu(menu, parent)
 end
 
 function Option:CreateBlizzardMenu(menu, parent)
-	menu.hiddenBlizzard = LBO:CreateWidget("CheckBox", parent, "隱藏遊戲內建施法條", "顯示或隱藏魔獸世界預設的施法條。", nil, nil, nil,
+	menu.hiddenBlizzard = LBO:CreateWidget("CheckBox", parent, "Hide Blizzard cast bar", "Hide Blizzard default cast bar.", nil, nil, nil,
 		function()
 			return unitsdb.player.hiddenBlizzardCastingBar
 		end,
@@ -1173,7 +1176,7 @@ function Option:CreateBlizzardMenu(menu, parent)
 end
 
 function Option:CreateUnitBasicMenu(menu, parent)
-	menu.active = LBO:CreateWidget("CheckBox", parent, "啟用", "啟用此框架。", nil, notActiveParentObject, true,
+	menu.active = LBO:CreateWidget("CheckBox", parent, "Enable", "Enable Inven Unit Frame.", nil, notActiveParentObject, true,
 		function() return IUF.db.units[Option.unit].active end,
 		function(v)
 			IUF.db.units[Option.unit].active = v
@@ -1185,12 +1188,12 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.active:SetPoint("TOPLEFT", 5, -5)
-	menu.skinType = LBO:CreateWidget("DropDown", parent, "樣式", "變更框架的樣式。", nil, notActiveParentObject, true,
+	menu.skinType = LBO:CreateWidget("DropDown", parent, "Skin", "Change frame skin.", nil, notActiveParentObject, true,
 		function()
-			return IUF.db.units[Option.unit].skin.override or "預設", Option:GetSkinTypes(Option.unit)
+			return IUF.db.units[Option.unit].skin.override or "Default", Option:GetSkinTypes(Option.unit)
 		end,
 		function(v)
-			v = v ~= "預設" and v or nil
+			v = v ~= "기본값" and v or nil
 			if v ~= IUF.db.units[Option.unit].skin.override then
 				IUF.db.units[Option.unit].skin.override = v
 				setCoreValue(Option.unit, "SetObjectSkin")
@@ -1199,7 +1202,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.skinType:SetPoint("TOPRIGHT", -5, -5)
-	menu.reset = LBO:CreateWidget("Button", parent, "重設設定", "將目前框架的所有設定還原為預設值。", nil, notActiveObject, true,
+	menu.reset = LBO:CreateWidget("Button", parent, "Reset all setting", "Reset all setting of Inven Unit Frame.", nil, notActiveObject, true,
 		function()
 			local update = nil
 			for p in pairs(IUF.db.units[Option.unit].skin) do
@@ -1213,7 +1216,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.reset:SetPoint("TOP", menu.active, "BOTTOM", 0, -5)
-	menu.resetPos = LBO:CreateWidget("Button", parent, "重設位置", "將目前框架的位置還原為預設值。", nil, notActiveObject, true,
+	menu.resetPos = LBO:CreateWidget("Button", parent, "Reset position", "Reset current frame position.", nil, notActiveObject, true,
 		function()
 			if IUF.db.units[Option.unit].pos[1] then
 				IUF.db.units[Option.unit].pos[1], IUF.db.units[Option.unit].pos[2] = nil
@@ -1224,7 +1227,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.resetPos:SetPoint("TOP", menu.skinType, "BOTTOM", 0, -5)
-	menu.pos_x = LBO:CreateWidget("EditBox", parent, "水平位置", "設定框架的水平位置。", nil, notActiveObject, true,
+	menu.pos_x = LBO:CreateWidget("EditBox", parent, "Position X", "Set frame horizental positoin.", nil, notActiveObject, true,
 		function()
 			return tonumber(("%.2f"):format(IUF:GetObjectPoint(Option.unit)))
 		end,
@@ -1236,7 +1239,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 	)
 	menu.pos_x:SetNumeric(true)
 	menu.pos_x:SetPoint("TOP", menu.reset, "BOTTOM", 0, 10)
-	menu.pos_y = LBO:CreateWidget("EditBox", parent, "垂直位置", "設定框架的垂直位置。", nil, notActiveObject, true,
+	menu.pos_y = LBO:CreateWidget("EditBox", parent, "Position Y", "Set frame vertical positoin.", nil, notActiveObject, true,
 		function()
 			return -tonumber(("%.2f"):format(select(2, IUF:GetObjectPoint(Option.unit))))
 		end,
@@ -1249,9 +1252,9 @@ function Option:CreateUnitBasicMenu(menu, parent)
 	menu.pos_y:SetNumeric(true)
 	menu.pos_y:SetPoint("TOP", menu.resetPos, "BOTTOM", 0, 10)
 	self.xPos, self.yPos = menu.pos_x, menu.pos_y
-	menu.width = LBO:CreateWidget("Slider", parent, "寬度", "設定框架的寬度。", nil, notActiveObject, true,
+	menu.width = LBO:CreateWidget("Slider", parent, "Width", "Set frame width.", nil, notActiveObject, true,
 		function()
-			return unitsdb[Option.unit].width, floor(unitsdb[Option.unit].height * 1.5), unitsdb[Option.unit].height * 10, 1, "像素"
+			return unitsdb[Option.unit].width, floor(unitsdb[Option.unit].height * 1.5), unitsdb[Option.unit].height * 10, 1, "픽셀"
 		end,
 		function(v)
 			unitsdb[Option.unit].width = v
@@ -1260,7 +1263,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.width:SetPoint("TOP", menu.pos_x, "BOTTOM", 0, 0)
-	menu.scale = LBO:CreateWidget("Slider", parent, "大小", "設定框架的大小。", nil, notActiveObject, true,
+	menu.scale = LBO:CreateWidget("Slider", parent, "Size", "Set frame size.", nil, notActiveObject, true,
 		function()
 			return floor(unitsdb[Option.unit].scale * 100), 40, 160, 1, "%"
 		end,
@@ -1271,7 +1274,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.scale:SetPoint("TOP", menu.pos_y, "BOTTOM", 0, 0)
-	menu.pvp = LBO:CreateWidget("CheckBox", parent, "顯示 PvP 圖示", "啟用 PvP 狀態時顯示圖示。",
+	menu.pvp = LBO:CreateWidget("CheckBox", parent, "Show PvP Icon", "Display PvP activation icon.",
 		function()
 			if Option.unit then
 				return not(type(unitsdb[Option.unit].pvpIcon) == "string" and unitsdb[Option.unit].pvpIcon:find("^return"))
@@ -1289,7 +1292,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.pvp:SetPoint("TOP", menu.width, "BOTTOM", 0, 0)
-	menu.elite = LBO:CreateWidget("CheckBox", parent, "顯示精英邊框", "如果是精英，則顯示金色邊框。",
+	menu.elite = LBO:CreateWidget("CheckBox", parent, "Show Elite texture", "Display Elite border.",
 		function()
 			if Option.unit then
 				if IUF.db.skin == "Blizzard" then
@@ -1317,7 +1320,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.elite:SetPoint("TOP", menu.scale, "BOTTOM", 0, 0)
-	menu.model3d = LBO:CreateWidget("CheckBox", parent, "3D 頭像", "使用 3D 模型頭像。",
+	menu.model3d = LBO:CreateWidget("CheckBox", parent, "3D model portrait", "Use 3D portrate.",
 		function()
 			if Option.unit and type(unitsdb[Option.unit].portrait) == "string" and unitsdb[Option.unit].portrait:find("^return") then
 				return nil
@@ -1342,7 +1345,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 			return true
 		end
 	end
-	menu.feedback = LBO:CreateWidget("CheckBox", parent, "顯示戰鬥文字", "顯示戰鬥回饋文字 (傷害、治療)。", checkFeedback, notActiveObject, nil,
+	menu.feedback = LBO:CreateWidget("CheckBox", parent, "Show combat feedback text", "Display combat text.", checkFeedback, notActiveObject, nil,
 		function()
 			return unitsdb[Option.unit].combatFeedback
 		end,
@@ -1353,7 +1356,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.feedback:SetPoint("TOP", menu.model3d, "BOTTOM", 0, 0)
-	menu.feedbackFontSize = LBO:CreateWidget("Slider", parent, "戰鬥文字大小", "設定戰鬥回饋文字的字體大小。", checkFeedback,
+	menu.feedbackFontSize = LBO:CreateWidget("Slider", parent, "Combat text font size", "Set combat text font size.", checkFeedback,
 		function()
 			if notActiveObject() then
 				return true
@@ -1364,7 +1367,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 			end
 		end, nil,
 		function()
-			return unitsdb[Option.unit].combatFeedbackFontSize, 7, 34, 1, "點"
+			return unitsdb[Option.unit].combatFeedbackFontSize, 7, 34, 1, "point"
 		end,
 		function(v)
 			unitsdb[Option.unit].combatFeedbackFontSize = v
@@ -1372,16 +1375,16 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.feedbackFontSize:SetPoint("TOP", menu.elite, "BOTTOM", 0, -44)
-	menu.partyOffset = LBO:CreateWidget("Slider", parent, "隊伍框架間距", "設定隊伍框架之間的間距。",
+	menu.partyOffset = LBO:CreateWidget("Slider", parent, "Party frame space", "Set space among party frames.",
 		function() return Option.unit ~= "party" end, notActiveObject, true,
-		function() return unitsdb[Option.unit].partyOffset, 0, 200, 1, "像素" end,
+		function() return unitsdb[Option.unit].partyOffset, 0, 200, 1, "pixel" end,
 		function(v)
 			unitsdb[Option.unit].partyOffset = v
 			setCoreValue(Option.unit, "SetObjectPoint")
 		end
 	)
 	menu.partyOffset:SetPoint("TOP", menu.elite, "BOTTOM", 0, 0)
-	menu.hideInRaid = LBO:CreateWidget("CheckBox", parent, "加入團隊時隱藏", "加入團隊時隱藏隊伍框架。",
+	menu.hideInRaid = LBO:CreateWidget("CheckBox", parent, "Hide party frame in raid", "Hide party frame in raid.",
 		function() return Option.unit ~= "party" end, notActiveObject, true,
 		function() return IUF.db.hideInRaid end,
 		function(v)
@@ -1390,9 +1393,9 @@ function Option:CreateUnitBasicMenu(menu, parent)
 		end
 	)
 	menu.hideInRaid:SetPoint("TOP", menu.partyOffset, "BOTTOM", 0, 0)
-	menu.bossOffset = LBO:CreateWidget("Slider", parent, "首領框架間距", "設定首領框架之間的間距。",
+	menu.bossOffset = LBO:CreateWidget("Slider", parent, "Boss frame space", "Set space among boss frames.",
 		function() return Option.unit ~= "boss" end, notActiveObject, true,
-		function() return unitsdb[Option.unit].bossOffset, 0, 200, 1, "像素" end,
+		function() return unitsdb[Option.unit].bossOffset, 0, 200, 1, "pixel" end,
 		function(v)
 			unitsdb[Option.unit].bossOffset = v
 			setCoreValue(Option.unit, "SetObjectPoint")
@@ -1402,7 +1405,7 @@ function Option:CreateUnitBasicMenu(menu, parent)
 end
 
 function Option:CreateUnitHealthMenu(menu, parent)
-	menu.texture = LBO:CreateWidget("Media", parent, "狀態條樣式", "設定血量條材質樣式。", nil, notActiveObject, nil,
+	menu.texture = LBO:CreateWidget("Media", parent, "Bar texture", "Set health bar texture.", nil, notActiveObject, nil,
 		function()
 			return unitsdb[Option.unit].healthBarTexture or defaultStatusBarTexture, "StatusBar"
 		end,
@@ -1413,7 +1416,7 @@ function Option:CreateUnitHealthMenu(menu, parent)
 	)
 	menu.texture:SetPoint("TOPLEFT", 5, -5)
 
-	menu.barAnimation = LBO:CreateWidget("CheckBox", parent, "使用狀態條動畫", "血量條減少時呈現平滑的動畫效果。", nil, notActiveObject, nil,
+	menu.barAnimation = LBO:CreateWidget("CheckBox", parent, "Use bar animation", "Animated effect for health bar", nil, notActiveObject, nil,
 		function()
 			return IUF.db.barAnimation
 		end,
@@ -1422,7 +1425,7 @@ function Option:CreateUnitHealthMenu(menu, parent)
 		end
 	)
 	menu.barAnimation:SetPoint("TOPRIGHT", -5, -12)
-	menu.classColor = LBO:CreateWidget("CheckBox", parent, "顯示職業顏色", "使用職業顏色顯示血量條。", nil, notActiveObject, nil,
+	menu.classColor = LBO:CreateWidget("CheckBox", parent, "Use class color", "Use class color for health bar.", nil, notActiveObject, nil,
 		function()
 			return unitsdb[Option.unit].healthBarClassColor
 		end,
@@ -1434,7 +1437,7 @@ function Option:CreateUnitHealthMenu(menu, parent)
 		end
 	)
 	menu.classColor:SetPoint("TOP", menu.texture, "BOTTOM", 0, -10)
-	menu.classColorEnemy = LBO:CreateWidget("CheckBox", parent, "敵對陣營玩家也顯示職業顏色", "敵對陣營玩家也使用職業顏色顯示血量條。", nil,
+	menu.classColorEnemy = LBO:CreateWidget("CheckBox", parent, "Use class color for enemy players", "Use class color for enemy players.", nil,
 		function()
 			if not notActiveObject() then
 				return Option.unit and (not unitsdb[Option.unit].healthBarClassColor)
@@ -1456,7 +1459,7 @@ function Option:CreateUnitHealthMenu(menu, parent)
 end
 
 function Option:CreateUnitHealthTextMenu(menu, parent)
-	menu.clearAll = LBO:CreateWidget("Button", parent, "全部隱藏", "隱藏所有已設定的生命值顯示方式。", nil, notActiveObject, nil,
+	menu.clearAll = LBO:CreateWidget("Button", parent, "Hide all", "Hide all health display setting.", nil, notActiveObject, nil,
 		function()
 			for i = 1, 5 do
 				unitsdb[Option.unit]["healthText"..i] = false
@@ -1469,7 +1472,7 @@ function Option:CreateUnitHealthTextMenu(menu, parent)
 		end
 	)
 	menu.clearAll:SetPoint("TOPLEFT", 5, 0)
-	menu.resetAll = LBO:CreateWidget("Button", parent, "預設值", "將所有已設定的生命值顯示方式還原為預設值。", nil, notActiveObject, nil,
+	menu.resetAll = LBO:CreateWidget("Button", parent, "Reset", "Reset all health display setting.", nil, notActiveObject, nil,
 		function()
 			for i = 1, 5 do
 				IUF.db.units[Option.unit].skin["healthText"..i] = nil
@@ -1533,15 +1536,15 @@ function Option:CreateUnitHealthTextMenu(menu, parent)
 		end
 	end
 	for i, name in ipairs(barTextList) do
-		menu["text"..i] = LBO:CreateWidget("Heading", parent, "血量條 "..name, nil, nil, notActiveObject)
+		menu["text"..i] = LBO:CreateWidget("Heading", parent, "Health bar "..name, nil, nil, notActiveObject)
 		menu["text"..i]:SetScale(1.1)
 		menu["text"..i]:SetPoint("TOPLEFT", menu["text"..(i - 1)], "BOTTOMLEFT", 0, -80)
 		menu["text"..i]:SetPoint("TOPRIGHT", menu["text"..(i - 1)], "BOTTOMRIGHT", 0, -80)
-		menu["textType"..i] = LBO:CreateWidget("DropDown", parent, "顯示方式", "血量條"..name.."文字的顯示方式。", nil, notActiveObject, nil, getTextType, setTextType, i)
+		menu["textType"..i] = LBO:CreateWidget("DropDown", parent, "Display", "Set text display of Health bar "..name..".", nil, notActiveObject, nil, getTextType, setTextType, i)
 		menu["textType"..i]:SetPoint("TOPLEFT", menu["text"..i], "BOTTOMLEFT", 0, 18)
-		menu["textInCombat"..i] = LBO:CreateWidget("CheckBox", parent, "戰鬥中顯示", "血量條"..name.."文字僅在戰鬥中顯示。", nil, disableTextFont, nil, getTextCombat, setTextCombat, i)
+		menu["textInCombat"..i] = LBO:CreateWidget("CheckBox", parent, "Only in combat", "Health bar "..name.." text displayed in combat only.", nil, disableTextFont, nil, getTextCombat, setTextCombat, i)
 		menu["textInCombat"..i]:SetPoint("TOPRIGHT", menu["text"..i], "BOTTOMRIGHT", 0, 18)
-		menu["textFont"..i] = LBO:CreateWidget("Font", parent, "字體", "血量條"..name.."的字體。", nil, disableTextFont, nil, getTextFont, setTextFont, i)
+		menu["textFont"..i] = LBO:CreateWidget("Font", parent, "Font", "Set font of Health bar "..name..".", nil, disableTextFont, nil, getTextFont, setTextFont, i)
 		menu["textFont"..i]:SetPoint("TOP", menu["textType"..i], "BOTTOM", 0, -5)
 	end
 	menu.text1:ClearAllPoints()
@@ -1550,7 +1553,7 @@ function Option:CreateUnitHealthTextMenu(menu, parent)
 end
 
 function Option:CreateUnitManaMenu(menu, parent)
-	menu.texture = LBO:CreateWidget("Media", parent, "狀態條樣式", "法力條材質樣式。", nil, notActiveObject, nil,
+	menu.texture = LBO:CreateWidget("Media", parent, "Bar texture", "Set power bar texture.", nil, notActiveObject, nil,
 		function()
 			return unitsdb[Option.unit].powerBarTexture or defaultStatusBarTexture, "StatusBar"
 		end,
@@ -1563,12 +1566,12 @@ function Option:CreateUnitManaMenu(menu, parent)
 		end
 	)
 	menu.texture:SetPoint("TOPLEFT", 5, -5)
-	menu.barAnimation = LBO:CreateWidget("CheckBox", parent, "使用狀態條動畫", "法力條減少時呈現平滑的動畫效果。", nil, notActiveObject, nil,
+	menu.barAnimation = LBO:CreateWidget("CheckBox", parent, "Use bar animation", "Animation effor for power bar.", nil, notActiveObject, nil,
 		function() return IUF.db.barAnimation end,
 		function(v) IUF.db.barAnimation = v end
 	)
 	menu.barAnimation:SetPoint("TOPRIGHT", -5, -12)
-	menu.barHeight = LBO:CreateWidget("Slider", parent, "法力條比例", "設定法力條的比例。",
+	menu.barHeight = LBO:CreateWidget("Slider", parent, "Power bar scale", "Set power bar scale.",
 		function()
 			if Option.unit then
 				return type(unitsdb[Option.unit].powerBarHeight) ~= "number"
@@ -1585,7 +1588,7 @@ function Option:CreateUnitManaMenu(menu, parent)
 end
 
 function Option:CreateUnitManaTextMenu(menu, parent)
-	menu.clearAll = LBO:CreateWidget("Button", parent, "全部隱藏", "隱藏所有已設定的法力值顯示方式。", nil, notActiveObject, nil,
+	menu.clearAll = LBO:CreateWidget("Button", parent, "Hide all", "Hide all power bar setting.", nil, notActiveObject, nil,
 		function()
 			for i = 1, 5 do
 				unitsdb[Option.unit]["powerText"..i] = false
@@ -1598,7 +1601,7 @@ function Option:CreateUnitManaTextMenu(menu, parent)
 		end
 	)
 	menu.clearAll:SetPoint("TOPLEFT", 5, 0)
-	menu.resetAll = LBO:CreateWidget("Button", parent, "預設值", "將所有已設定的法力值顯示方式還原為預設值。", nil, notActiveObject, nil,
+	menu.resetAll = LBO:CreateWidget("Button", parent, "Reset", "Reset all power bar setting.", nil, notActiveObject, nil,
 		function()
 			for i = 1, 5 do
 				IUF.db.units[Option.unit].skin["powerText"..i] = nil
@@ -1662,15 +1665,15 @@ function Option:CreateUnitManaTextMenu(menu, parent)
 		end
 	end
 	for i, name in ipairs(barTextList) do
-		menu["text"..i] = LBO:CreateWidget("Heading", parent, "法力條 "..name, nil, nil, notActiveObject)
+		menu["text"..i] = LBO:CreateWidget("Heading", parent, "Power bar "..name, nil, nil, notActiveObject)
 		menu["text"..i]:SetScale(1.1)
 		menu["text"..i]:SetPoint("TOPLEFT", menu["text"..(i - 1)], "BOTTOMLEFT", 0, -80)
 		menu["text"..i]:SetPoint("TOPRIGHT", menu["text"..(i - 1)], "BOTTOMRIGHT", 0, -80)
-		menu["textType"..i] = LBO:CreateWidget("DropDown", parent, "顯示方式", "法力條"..name.."文字的顯示方式。", nil, notActiveObject, nil, getTextType, setTextType, i)
+		menu["textType"..i] = LBO:CreateWidget("DropDown", parent, "display type", "Set text type of power bar "..name..".", nil, notActiveObject, nil, getTextType, setTextType, i)
 		menu["textType"..i]:SetPoint("TOPLEFT", menu["text"..i], "BOTTOMLEFT", 0, 18)
-		menu["textInCombat"..i] = LBO:CreateWidget("CheckBox", parent, "戰鬥中顯示", "法力條"..name.."文字僅在戰鬥中顯示。", nil, disableTextFont, nil, getTextCombat, setTextCombat, i)
+		menu["textInCombat"..i] = LBO:CreateWidget("CheckBox", parent, "Only in combat", "Power "..name.." text displayed only in combat.", nil, disableTextFont, nil, getTextCombat, setTextCombat, i)
 		menu["textInCombat"..i]:SetPoint("TOPRIGHT", menu["text"..i], "BOTTOMRIGHT", 0, 18)
-		menu["textFont"..i] = LBO:CreateWidget("Font", parent, "字體", "法力條"..name.."的字體。", nil, disableTextFont, nil, getTextFont, setTextFont, i)
+		menu["textFont"..i] = LBO:CreateWidget("Font", parent, "Font", "Set font of power bar "..name..".", nil, disableTextFont, nil, getTextFont, setTextFont, i)
 		menu["textFont"..i]:SetPoint("TOP", menu["textType"..i], "BOTTOM", 0, -5)
 	end
 	menu.text1:ClearAllPoints()
@@ -1679,7 +1682,7 @@ function Option:CreateUnitManaTextMenu(menu, parent)
 end
 
 function Option:CreateUnitCastingBarMenu(menu, parent)
-	menu.use = LBO:CreateWidget("CheckBox", parent, "顯示施法條", "設定是否在框架上顯示施法條。", nil, notActiveObject, nil,
+	menu.use = LBO:CreateWidget("CheckBox", parent, "Show cast bar", "Show or hide cast bar in frame.", nil, notActiveObject, nil,
 		function()
 			return unitsdb[Option.unit].castingBarUse
 		end,
@@ -1694,7 +1697,7 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 		end
 	)
 	menu.use:SetPoint("TOPLEFT", 5, -5)
-	menu.hiddenBlizzard = LBO:CreateWidget("CheckBox", parent, "隱藏內建施法條", "顯示或隱藏魔獸世界預設的施法條。",
+	menu.hiddenBlizzard = LBO:CreateWidget("CheckBox", parent, "Hide Blizzard cast bar", "Show or hide blizzard default cast bar.",
 		function()
 			return Option.unit ~= "player"
 		end, nil, nil,
@@ -1724,7 +1727,7 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 			return not unitsdb[Option.unit].castingBarUse
 		end
 	end
-	menu.texture = LBO:CreateWidget("Media", parent, "狀態條樣式", "設定施法條的樣式。", nil, isnotCastingBarUse, nil,
+	menu.texture = LBO:CreateWidget("Media", parent, "Bar Texture", "Set castbar texture.", nil, isnotCastingBarUse, nil,
 		function()
 			return unitsdb[Option.unit].castingBarTexture or defaultStatusBarTexture, "statusbar"
 		end,
@@ -1736,12 +1739,12 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 	)
 	menu.texture:SetPoint("TOP", menu.use, "BOTTOM", 0, 5)
 	local castingBarPosLink = { "TOPAURA", "TOP", "BOTTOM", "BOTTOMAURA" }
-	local castingBarPos = { "最上方", "框架上方", "框架下方", "最下方" }
+	local castingBarPos = { "Most Top", "Frame Top", "Frame Bottom", "Most Bottom" }
 	local castingBarPosID = {}
 	for p, v in pairs(castingBarPosLink) do
 		castingBarPosID[v] = p
 	end
-	menu.pos = LBO:CreateWidget("DropDown", parent, "位置", "設定施法條的位置。", nil, isnotCastingBarUse, nil,
+	menu.pos = LBO:CreateWidget("DropDown", parent, "Position", "Set cast bar position.", nil, isnotCastingBarUse, nil,
 		function()
 			return castingBarPosID[unitsdb[Option.unit].castingBarPos or "BOTTOM"] or 2, castingBarPos
 		end,
@@ -1752,9 +1755,9 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 		end
 	)
 	menu.pos:SetPoint("TOP", menu.hiddenBlizzard, "BOTTOM", 0, 5)
-	menu.height = LBO:CreateWidget("Slider", parent, "高度", "設定施法條的高度。", nil, isnotCastingBarUse, nil,
+	menu.height = LBO:CreateWidget("Slider", parent, "Height", "Set castbar height.", nil, isnotCastingBarUse, nil,
 		function()
-			return unitsdb[Option.unit].castingBarHeight, 1, 30, 1, "像素"
+			return unitsdb[Option.unit].castingBarHeight, 1, 30, 1, "pixel"
 		end,
 		function(v)
 			unitsdb[Option.unit].castingBarHeight = v
@@ -1763,7 +1766,7 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 		end
 	)
 	menu.height:SetPoint("TOP", menu.texture, "BOTTOM", 0, -5)
-	menu.textUse = LBO:CreateWidget("CheckBox", parent, "顯示法術名字", "顯示施法中的法術名字。", nil, isnotCastingBarUse, nil,
+	menu.textUse = LBO:CreateWidget("CheckBox", parent, "Show spell name", "Show spell name in casting.", nil, isnotCastingBarUse, nil,
 		function()
 			return unitsdb[Option.unit].castingBarTextUse
 		end,
@@ -1775,7 +1778,7 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 		end
 	)
 	menu.textUse:SetPoint("TOP", menu.height, "BOTTOM", 0, 0)
-	menu.textFont = LBO:CreateWidget("Font", parent, "法術名字字體", "設定施法中法術名字的字體。", nil,
+	menu.textFont = LBO:CreateWidget("Font", parent, "Spell name font", "Set font for spell name in casting.", nil,
 		function()
 			if not isnotCastingBarUse() then
 				return not unitsdb[Option.unit].castingBarTextUse
@@ -1797,7 +1800,7 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 		end
 	)
 	menu.textFont:SetPoint("TOP", menu.textUse, "BOTTOM", 0, 5)
-	menu.timerUse = LBO:CreateWidget("CheckBox", parent, "顯示剩餘時間", "顯示施法中法術的剩餘時間。", nil, isnotCastingBarUse, nil,
+	menu.timerUse = LBO:CreateWidget("CheckBox", parent, "Show remain time", "Shows remain time in casting.", nil, isnotCastingBarUse, nil,
 		function()
 			return unitsdb[Option.unit].castingBarTimeUse
 		end,
@@ -1809,7 +1812,7 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 		end
 	)
 	menu.timerUse:SetPoint("TOPLEFT", menu.pos, "BOTTOMLEFT", 0, -49)
-	menu.timerFont = LBO:CreateWidget("Font", parent, "剩餘時間字體", "設定施法中法術的剩餘時間的字體。", nil,
+	menu.timerFont = LBO:CreateWidget("Font", parent, "Remain time font", "Set font for remain time in casting.", nil,
 		function()
 			if not isnotCastingBarUse() then
 				return not unitsdb[Option.unit].castingBarTimeUse
@@ -1834,7 +1837,7 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 end
 
 function Option:CreateUnitBuffMenu(menu, parent)
-	menu.use = LBO:CreateWidget("CheckBox", parent, "顯示增益效果", "設定是否顯示增益效果。", nil, notActiveObject, nil,
+	menu.use = LBO:CreateWidget("CheckBox", parent, "Show buff", "Show or hide buff.", nil, notActiveObject, nil,
 		function() return unitsdb[Option.unit].buffUse end,
 		function(v)
 			unitsdb[Option.unit].buffUse = v
@@ -1850,15 +1853,15 @@ function Option:CreateUnitBuffMenu(menu, parent)
 			return not unitsdb[Option.unit].buffUse
 		end
 	end
-	menu.num = LBO:CreateWidget("Slider", parent, "增益效果數量", "設定要顯示的增益效果數量。", nil, isnotBuffUse, nil,
-		function() return unitsdb[Option.unit].buffNum, 0, 40, 1, "個" end,
+	menu.num = LBO:CreateWidget("Slider", parent, "Number of buff to display", "Number of buff to display.", nil, isnotBuffUse, nil,
+		function() return unitsdb[Option.unit].buffNum, 0, 40, 1, "개" end,
 		function(v)
 			unitsdb[Option.unit].buffNum = v
 			setCoreValue(Option.unit, "UpdateSkinAura", "buff")
 		end
 	)
 	menu.num:SetPoint("TOPRIGHT", -5, -5)
-	menu.pos = LBO:CreateWidget("DropDown", parent, "增益效果位置", "設定增益效果的顯示位置。", nil, isnotBuffUse, nil,
+	menu.pos = LBO:CreateWidget("DropDown", parent, "Buff position", "Set buff position.", nil, isnotBuffUse, nil,
 		function()
 			return auraPositions[unitsdb[Option.unit].buffPos or "TOP"] or 1, auraPositionList
 		end,
@@ -1868,9 +1871,9 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.pos:SetPoint("TOP", menu.use, "BOTTOM", 0, 10)
-	menu.small = LBO:CreateWidget("Slider", parent, "增益效果大小", "設定非我施放的增益效果大小。", nil, isnotBuffUse, nil,
+	menu.small = LBO:CreateWidget("Slider", parent, "Buff size", "Set buff icon size of other players.", nil, isnotBuffUse, nil,
 		function()
-			return unitsdb[Option.unit].buffSmallSize, 10, 40, 1, "像素"
+			return unitsdb[Option.unit].buffSmallSize, 10, 40, 1, "픽셀"
 		end,
 		function(v)
 			unitsdb[Option.unit].buffSmallSize = v
@@ -1878,9 +1881,9 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.small:SetPoint("TOP", menu.pos, "BOTTOM", 0, -10)
-	menu.countSize = LBO:CreateWidget("Slider", parent, "層數字體大小", "設定疊加次數字體的大小。", nil, isnotBuffUse, nil,
+	menu.countSize = LBO:CreateWidget("Slider", parent, "Font size for stack", "Set stack font size.", nil, isnotBuffUse, nil,
 		function()
-			return unitsdb[Option.unit].buffCountTextFontSize, 7, 37, 1, "點"
+			return unitsdb[Option.unit].buffCountTextFontSize, 7, 37, 1, "point"
 		end,
 		function(v)
 			unitsdb[Option.unit].buffCountTextFontSize = v
@@ -1890,7 +1893,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 	menu.countSize:SetPoint("TOP", menu.small, "TOP", 0, 0)
 	menu.countSize:SetPoint("RIGHT", menu.num, "RIGHT", 0, 0)
 
-	menu.smallTexture = LBO:CreateWidget("CheckBox", parent, "顯示冷卻時間動畫", "顯示或隱藏非我施放的增益效果的時鐘材質。", nil, isnotBuffUse, nil,
+	menu.smallTexture = LBO:CreateWidget("CheckBox", parent, "Show cooldown texture", "Show or hide cooldown texture of other players.", nil, isnotBuffUse, nil,
 		function() return not unitsdb[Option.unit].buffHiddenSmallCooldownTexture end,
 		function(v)
 			unitsdb[Option.unit].buffHiddenSmallCooldownTexture = not v
@@ -1898,7 +1901,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.smallTexture:SetPoint("TOP", menu.small, "BOTTOM", 0, 5)
-	menu.line = LBO:CreateWidget("CheckBox", parent, "自動換行", "根據框架大小自動換行。", nil, isnotBuffUse, nil,
+	menu.line = LBO:CreateWidget("CheckBox", parent, "Auto line feed", "Auto line feed by frame size.", nil, isnotBuffUse, nil,
 		function() return not unitsdb[Option.unit].buffSkipLine end,
 		function(v)
 			unitsdb[Option.unit].buffSkipLine = not v
@@ -1910,12 +1913,12 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		return Option.unit ~= "player" and Option.unit ~= "target" and Option.unit ~= "focus" and Option.unit ~= "party" and Option.unit ~= "boss"
 	end
 
-	menu.filterLine = LBO:CreateWidget("Heading", parent, "過濾增益效果", nil, nil, isnotBuffUse)
+	menu.filterLine = LBO:CreateWidget("Heading", parent, "Buff filtering", nil, nil, isnotBuffUse)
 	menu.filterLine:SetScale(1.2)
 	menu.filterLine:SetPoint("TOPLEFT", menu.small, "BOTTOMLEFT", 0, -18)
 	menu.filterLine:SetPoint("TOPRIGHT", menu.countSize, "BOTTOMRIGHT", 0, -18)
 
-	menu.filterHelpMine = LBO:CreateWidget("CheckBox", parent, "友方: 我施放的", "當目標是友方時，顯示我施放的增益效果。", nil, isnotBuffUse, nil,
+	menu.filterHelpMine = LBO:CreateWidget("CheckBox", parent, "Help: My cast", "Show my buff for helpful target.", nil, isnotBuffUse, nil,
 		function() return unitsdb[Option.unit].buffFilterHelpMine end,
 		function(v)
 			unitsdb[Option.unit].buffFilterHelpMine = v
@@ -1924,7 +1927,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.filterHelpMine:SetPoint("TOPLEFT", menu.filterLine, "BOTTOMLEFT", 0, 20)
-	menu.filterHelpMineBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是友方時，顯著標示我施放的增益效果。", isnotMyBuff,
+	menu.filterHelpMineBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphsize my buff for helpful target.", isnotMyBuff,
 		function()
 			return isnotBuffUse() or not unitsdb[Option.unit].buffFilterHelpMine
 		end, nil,
@@ -1936,7 +1939,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 	)
 	menu.filterHelpMineBig:SetPoint("TOPLEFT", menu.filterHelpMine, "BOTTOMLEFT", 24, 24)
 	menu.filterHelpMineBig:SetScale(0.9)
-	menu.filterHelpCast = LBO:CreateWidget("CheckBox", parent, "友方: 可施放的", "當目標是友方時，顯示我可施放的增益效果。", nil, isnotBuffUse, nil,
+	menu.filterHelpCast = LBO:CreateWidget("CheckBox", parent, "Help: Able to cast", "Show my available buff for helpful target.", nil, isnotBuffUse, nil,
 		function() return unitsdb[Option.unit].buffFilterHelpCast end,
 		function(v)
 			unitsdb[Option.unit].buffFilterHelpCast = v
@@ -1945,7 +1948,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.filterHelpCast:SetPoint("TOPLEFT", menu.filterHelpMine, "BOTTOMLEFT", 0, 0)
-	menu.filterHelpCastBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是友方時，顯著標示我可施放的增益效果。", isnotMyBuff,
+	menu.filterHelpCastBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphszie my avilable buff for helpful target.", isnotMyBuff,
 		function()
 			return isnotBuffUse() or not unitsdb[Option.unit].buffFilterHelpCast
 		end, nil,
@@ -1956,7 +1959,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.filterHelpCastBig:SetPoint("TOPLEFT", menu.filterHelpCast, "BOTTOMLEFT", 24, 24)
-	menu.filterHelpOhter = LBO:CreateWidget("CheckBox", parent, "友方: 其他", "當目標是友方時，顯示其他增益效果。", nil, isnotBuffUse, nil,
+	menu.filterHelpOhter = LBO:CreateWidget("CheckBox", parent, "Help : Others", "Show other buff for helpful target.", nil, isnotBuffUse, nil,
 		function() return unitsdb[Option.unit].buffFilterHelpOhter end,
 		function(v)
 			unitsdb[Option.unit].buffFilterHelpOhter = v
@@ -1965,7 +1968,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.filterHelpOhter:SetPoint("TOPLEFT", menu.filterHelpCast, "BOTTOMLEFT", 0, 0)
-	menu.filterHelpOhterBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是友方時，顯著標示其他增益效果。", isnotMyBuff,
+	menu.filterHelpOhterBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphasize other buff for helpful target.", isnotMyBuff,
 		function()
 			return isnotBuffUse() or not unitsdb[Option.unit].buffFilterHelpOhter
 		end, nil,
@@ -1977,7 +1980,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 	)
 	menu.filterHelpOhterBig:SetPoint("TOPLEFT", menu.filterHelpOhter, "BOTTOMLEFT", 24, 24)
 
-	menu.filterHarmDispel = LBO:CreateWidget("CheckBox", parent, "敵方: 可驅散的", "當目標是敵方時，顯示我可驅散的增益效果。", nil, isnotBuffUse, nil,
+	menu.filterHarmDispel = LBO:CreateWidget("CheckBox", parent, "Hostile: Dispellable", "Show dispellable buff for harmful target.", nil, isnotBuffUse, nil,
 		function() return unitsdb[Option.unit].buffFilterHarmDispel end,
 		function(v)
 			unitsdb[Option.unit].buffFilterHarmDispel = v
@@ -1986,7 +1989,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.filterHarmDispel:SetPoint("TOPRIGHT", menu.filterLine, "BOTTOMRIGHT", 0, 20)
-	menu.filterHarmDispelBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是敵方時，顯著標示我可驅散的增益效果。", isnotMyBuff,
+	menu.filterHarmDispelBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphasize dispellable buff for harmful target.", isnotMyBuff,
 		function()
 			return isnotBuffUse() or not unitsdb[Option.unit].buffFilterHarmDispel
 		end, nil,
@@ -1997,7 +2000,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.filterHarmDispelBig:SetPoint("TOPLEFT", menu.filterHarmDispel, "BOTTOMLEFT", 24, 24)
-	menu.filterHarmOhter = LBO:CreateWidget("CheckBox", parent, "敵方: 其他", "當目標是敵方時，顯示其他增益效果。", nil, isnotBuffUse, nil,
+	menu.filterHarmOhter = LBO:CreateWidget("CheckBox", parent, "Hostile: Others", "Show other buff for harmful target.", nil, isnotBuffUse, nil,
 		function() return unitsdb[Option.unit].buffFilterHarmOhter end,
 		function(v)
 			unitsdb[Option.unit].buffFilterHarmOhter = v
@@ -2006,7 +2009,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.filterHarmOhter:SetPoint("TOPLEFT", menu.filterHarmDispel, "BOTTOMLEFT", 0, 0)
-	menu.filterHarmOhterBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是敵方時，顯著標示其他增益效果。", isnotMyBuff,
+	menu.filterHarmOhterBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphasize other buff for harmful target.", isnotMyBuff,
 		function()
 			return isnotBuffUse() or not unitsdb[Option.unit].buffFilterHarmOhter
 		end, nil,
@@ -2018,11 +2021,11 @@ function Option:CreateUnitBuffMenu(menu, parent)
 	)
 	menu.filterHarmOhterBig:SetPoint("TOPLEFT", menu.filterHarmOhter, "BOTTOMLEFT", 24, 24)
 
-	menu.mybuff = LBO:CreateWidget("Heading", parent, "顯著標示的增益效果", nil, isnotMyBuff, isnotBuffUse)
+	menu.mybuff = LBO:CreateWidget("Heading", parent, "Emphasized buff", nil, isnotMyBuff, isnotBuffUse)
 	menu.mybuff:SetScale(1.2)
 	menu.mybuff:SetPoint("TOPLEFT", menu.filterHelpOhter, "BOTTOMLEFT", 0, 0)
 	menu.mybuff:SetPoint("RIGHT", menu.filterHarmOhter, "RIGHT", 0, 0)
-	menu.big = LBO:CreateWidget("Slider", parent, "放大顯著標示的增益", "放大顯著標示的增益效果。", isnotMyBuff, isnotBuffUse, nil,
+	menu.big = LBO:CreateWidget("Slider", parent, "Enlarge emphasized buff", "Enlarge emphasized buff.", isnotMyBuff, isnotBuffUse, nil,
 		function()
 			return unitsdb[Option.unit].buffBigScale * 100, 100, 200, 1, "%"
 		end,
@@ -2032,7 +2035,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.big:SetPoint("TOPLEFT", menu.mybuff, "BOTTOMLEFT", 0, 10)
-	menu.bigTexture = LBO:CreateWidget("CheckBox", parent, "顯示冷卻時間動畫", "顯示或隱藏顯著標示的增益效果的時鐘材質。", isnotMyBuff, isnotBuffUse, nil,
+	menu.bigTexture = LBO:CreateWidget("CheckBox", parent, "Show cooldown texture", "Show or hide cooldown texture for emphasized buff.", isnotMyBuff, isnotBuffUse, nil,
 		function() return not unitsdb[Option.unit].buffHiddenBigCooldownTexture end,
 		function(v)
 			unitsdb[Option.unit].buffHiddenBigCooldownTexture = not v
@@ -2040,7 +2043,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 		end
 	)
 	menu.bigTexture:SetPoint("TOPRIGHT", menu.mybuff, "BOTTOMRIGHT", 0, 10)
-	menu.cdUse = LBO:CreateWidget("CheckBox", parent, "顯示剩餘時間", "顯示顯著標示的增益效果的剩餘時間。 (僅顯示 10 分鐘以內的時間)", isnotMyBuff, isnotBuffUse, nil,
+	menu.cdUse = LBO:CreateWidget("CheckBox", parent, "Show remain time", "Display remain time of emphasized buff(only remain time less than 10 min).", isnotMyBuff, isnotBuffUse, nil,
 		function() return unitsdb[Option.unit].buffCooldownTextUse end,
 		function(v)
 			unitsdb[Option.unit].buffCooldownTextUse = v
@@ -2050,7 +2053,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 	)
 	menu.cdUse:SetPoint("TOP", menu.big, "BOTTOM", 0, -5)
 -- 추가	
-	menu.cdFullTime = LBO:CreateWidget("CheckBox", parent, "忽略 10 分鐘限制", "忽略 10 分鐘以內顯示限制。", isnotMyBuff, isnotBuffUse, nil,
+	menu.cdFullTime = LBO:CreateWidget("CheckBox", parent, "Ignore 10 min limit", "Ignor 10 min limit.", isnotMyBuff, isnotBuffUse, nil,
 		function() return unitsdb[Option.unit].buffCooldownFullTime end,
 		function(v)
 			unitsdb[Option.unit].buffCooldownFullTime = v
@@ -2060,7 +2063,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 	)
 	menu.cdFullTime:SetPoint("TOP", menu.big, "BOTTOM", 100, -5)
 -- 끝
-	menu.cd = LBO:CreateWidget("Font", parent, "剩餘時間字體", "設定顯著標示的增益效果的剩餘時間字體。", isnotMyBuff,
+	menu.cd = LBO:CreateWidget("Font", parent, "Remain time font", "Set font for remain time.", isnotMyBuff,
 		function()
 			if not isnotMyBuff() and not isnotBuffUse() then
 				return not unitsdb[Option.unit].buffCooldownTextUse
@@ -2083,7 +2086,7 @@ function Option:CreateUnitBuffMenu(menu, parent)
 end
 
 function Option:CreateUnitDebuffMenu(menu, parent)
-	menu.use = LBO:CreateWidget("CheckBox", parent, "顯示減益效果", "設定是否顯示減益效果。", nil, notActiveObject, nil,
+	menu.use = LBO:CreateWidget("CheckBox", parent, "Show debuff", "Show or hide debuff.", nil, notActiveObject, nil,
 		function() return unitsdb[Option.unit].debuffUse end,
 		function(v)
 			unitsdb[Option.unit].debuffUse = v
@@ -2099,15 +2102,15 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 			return not unitsdb[Option.unit].debuffUse
 		end
 	end
-	menu.num = LBO:CreateWidget("Slider", parent, "減益效果數量", "設定要顯示的減益效果數量。", nil, isnotDebuffUse, nil,
-		function() return unitsdb[Option.unit].debuffNum, 0, 40, 1, "個" end,
+	menu.num = LBO:CreateWidget("Slider", parent, "Debuff number to display", "Number of debuff to display.", nil, isnotDebuffUse, nil,
+		function() return unitsdb[Option.unit].debuffNum, 0, 40, 1, "개" end,
 		function(v)
 			unitsdb[Option.unit].debuffNum = v
 			setCoreValue(Option.unit, "UpdateSkinAura", "debuff")
 		end
 	)
 	menu.num:SetPoint("TOPRIGHT", -5, -5)
-	menu.pos = LBO:CreateWidget("DropDown", parent, "減益效果位置", "設定減益效果的顯示位置。", nil, isnotDebuffUse, nil,
+	menu.pos = LBO:CreateWidget("DropDown", parent, "Debuff position", "Set debuff position.", nil, isnotDebuffUse, nil,
 		function()
 			return auraPositions[unitsdb[Option.unit].debuffPos or "TOP"] or 1, auraPositionList
 		end,
@@ -2117,9 +2120,9 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.pos:SetPoint("TOP", menu.use, "BOTTOM", 0, 10)
-	menu.small = LBO:CreateWidget("Slider", parent, "減益效果大小", "設定非我施放的減益效果大小。", nil, isnotDebuffUse, nil,
+	menu.small = LBO:CreateWidget("Slider", parent, "Debuff size", "Set debuff size of other players.", nil, isnotDebuffUse, nil,
 		function()
-			return unitsdb[Option.unit].debuffSmallSize, 10, 40, 1, "像素"
+			return unitsdb[Option.unit].debuffSmallSize, 10, 40, 1, "pixel"
 		end,
 		function(v)
 			unitsdb[Option.unit].debuffSmallSize = v
@@ -2127,9 +2130,9 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.small:SetPoint("TOP", menu.pos, "BOTTOM", 0, -10)
-	menu.countSize = LBO:CreateWidget("Slider", parent, "層數字體大小", "設定疊加次數字體的大小。", nil, isnotDebuffUse, nil,
+	menu.countSize = LBO:CreateWidget("Slider", parent, "Font size for stack", "Set stack font size.", nil, isnotDebuffUse, nil,
 		function()
-			return unitsdb[Option.unit].debuffCountTextFontSize, 7, 37, 1, "點"
+			return unitsdb[Option.unit].debuffCountTextFontSize, 7, 37, 1, "point"
 		end,
 		function(v)
 			unitsdb[Option.unit].debuffCountTextFontSize = v
@@ -2138,7 +2141,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 	)
 	menu.countSize:SetPoint("TOP", menu.small, "TOP", 0, 0)
 	menu.countSize:SetPoint("RIGHT", menu.num, "RIGHT", 0, 0)
-	menu.smallTexture = LBO:CreateWidget("CheckBox", parent, "顯示冷卻時間動畫", "顯示或隱藏非我施放的減益效果的時鐘材質。", nil, isnotDebuffUse, nil,
+	menu.smallTexture = LBO:CreateWidget("CheckBox", parent, "Show cooldown texture", "Show or hide cooldown texture of other player's debuff.", nil, isnotDebuffUse, nil,
 		function() return not unitsdb[Option.unit].debuffHiddenSmallCooldownTexture end,
 		function(v)
 			unitsdb[Option.unit].debuffHiddenSmallCooldownTexture = not v
@@ -2146,7 +2149,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.smallTexture:SetPoint("TOP", menu.small, "BOTTOM", 0, 5)
-	menu.line = LBO:CreateWidget("CheckBox", parent, "自動換行", "根據框架大小自動換行。", nil, isnotDebuffUse, nil,
+	menu.line = LBO:CreateWidget("CheckBox", parent, "Auto linefeed", "Auto linefeed by frame size.", nil, isnotDebuffUse, nil,
 		function() return not unitsdb[Option.unit].debuffSkipLine end,
 		function(v)
 			unitsdb[Option.unit].debuffSkipLine = not v
@@ -2162,12 +2165,12 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	end
 
-	menu.filterLine = LBO:CreateWidget("Heading", parent, "過濾減益效果", nil, nil, isnotDebuffUse)
+	menu.filterLine = LBO:CreateWidget("Heading", parent, "Debuff Filtering", nil, nil, isnotDebuffUse)
 	menu.filterLine:SetScale(1.2)
 	menu.filterLine:SetPoint("TOPLEFT", menu.small, "BOTTOMLEFT", 0, -18)
 	menu.filterLine:SetPoint("TOPRIGHT", menu.countSize, "BOTTOMRIGHT", 0, -18)
 
-	menu.filterHarmMine = LBO:CreateWidget("CheckBox", parent, "敵方: 我施放的", "當目標是敵方時，顯示我施放的減益效果。", nil, isnotDebuffUse, nil,
+	menu.filterHarmMine = LBO:CreateWidget("CheckBox", parent, "Hostile: My cast", "Show my debuff for harmful target.", nil, isnotDebuffUse, nil,
 		function() return unitsdb[Option.unit].debuffFilterHarmMine end,
 		function(v)
 			unitsdb[Option.unit].debuffFilterHarmMine = v
@@ -2176,7 +2179,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.filterHarmMine:SetPoint("TOPLEFT", menu.filterLine, "BOTTOMLEFT", 0, 20)
-	menu.filterHarmMineBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是敵方時，顯著標示我施放的減益效果。", isnotMyDebuff,
+	menu.filterHarmMineBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphasize my debuff for harmful target.", isnotMyDebuff,
 		function()
 			return isnotDebuffUse() or not unitsdb[Option.unit].debuffFilterHarmMine
 		end, nil,
@@ -2188,7 +2191,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 	)
 	menu.filterHarmMineBig:SetPoint("TOPLEFT", menu.filterHarmMine, "BOTTOMLEFT", 24, 24)
 	menu.filterHarmMineBig:SetScale(0.9)
-	menu.filterHarmCast = LBO:CreateWidget("CheckBox", parent, "敵方: 可施放的", "當目標是敵方時，顯示我可施放的減益效果。", nil, isnotDebuffUse, nil,
+	menu.filterHarmCast = LBO:CreateWidget("CheckBox", parent, "Hostile: Able to cast", "Show my available debuff for harmful target.", nil, isnotDebuffUse, nil,
 		function() return unitsdb[Option.unit].debuffFilterHarmCast end,
 		function(v)
 			unitsdb[Option.unit].debuffFilterHarmCast = v
@@ -2197,7 +2200,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.filterHarmCast:SetPoint("TOPLEFT", menu.filterHarmMine, "BOTTOMLEFT", 0, 0)
-	menu.filterHarmCastBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是敵方時，顯著標示我可施放的減益效果。", isnotMyDebuff,
+	menu.filterHarmCastBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphasize my available debuff for harmful target.", isnotMyDebuff,
 		function()
 			return isnotDebuffUse() or not unitsdb[Option.unit].debuffFilterHarmCast
 		end, nil,
@@ -2208,7 +2211,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.filterHarmCastBig:SetPoint("TOPLEFT", menu.filterHarmCast, "BOTTOMLEFT", 24, 24)
-	menu.filterHarmOhter = LBO:CreateWidget("CheckBox", parent, "敵方: 其他", "當目標是敵方時，顯示其他減益效果。", nil, isnotDebuffUse, nil,
+	menu.filterHarmOhter = LBO:CreateWidget("CheckBox", parent, "Hostile: Other", "Show other debuff for harmful target.", nil, isnotDebuffUse, nil,
 		function() return unitsdb[Option.unit].debuffFilterHarmOhter end,
 		function(v)
 			unitsdb[Option.unit].debuffFilterHarmOhter = v
@@ -2217,7 +2220,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.filterHarmOhter:SetPoint("TOPLEFT", menu.filterHarmCast, "BOTTOMLEFT", 0, 0)
-	menu.filterHarmOhterBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是敵方時，顯著標示其他減益效果。", isnotMyDebuff,
+	menu.filterHarmOhterBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphasize other debuff for harmful target.", isnotMyDebuff,
 		function()
 			return isnotDebuffUse() or not unitsdb[Option.unit].debuffFilterHarmOhter
 		end, nil,
@@ -2229,7 +2232,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 	)
 	menu.filterHarmOhterBig:SetPoint("TOPLEFT", menu.filterHarmOhter, "BOTTOMLEFT", 24, 24)
 
-	menu.filterHelpDispel = LBO:CreateWidget("CheckBox", parent, "友方: 可驅散的", "當目標是友方時，顯示我可驅散的減益效果。", nil, isnotDebuffUse, nil,
+	menu.filterHelpDispel = LBO:CreateWidget("CheckBox", parent, "Help : Dispellable", "Show debuffs for helpful targets.", nil, isnotDebuffUse, nil,
 		function() return unitsdb[Option.unit].debuffFilterHelpDispel end,
 		function(v)
 			unitsdb[Option.unit].debuffFilterHelpDispel = v
@@ -2238,7 +2241,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.filterHelpDispel:SetPoint("TOPRIGHT", menu.filterLine, "BOTTOMRIGHT", 0, 20)
-	menu.filterHelpDispelBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是友方時，顯著標示我可驅散的減益效果。", isnotMyDebuff,
+	menu.filterHelpDispelBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphasize debuffs for helpful targets.", isnotMyDebuff,
 		function()
 			return isnotDebuffUse() or not unitsdb[Option.unit].debuffFilterHelpDispel
 		end, nil,
@@ -2249,7 +2252,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.filterHelpDispelBig:SetPoint("TOPLEFT", menu.filterHelpDispel, "BOTTOMLEFT", 24, 24)
-	menu.filterHelpOhter = LBO:CreateWidget("CheckBox", parent, "友方: 其他", "當目標是友方時，顯示其他減益效果。", nil, isnotDebuffUse, nil,
+	menu.filterHelpOhter = LBO:CreateWidget("CheckBox", parent, "Help : Others", "Display other debuffs for helpful targets.", nil, isnotDebuffUse, nil,
 		function() return unitsdb[Option.unit].debuffFilterHelpOhter end,
 		function(v)
 			unitsdb[Option.unit].debuffFilterHelpOhter = v
@@ -2258,7 +2261,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.filterHelpOhter:SetPoint("TOPLEFT", menu.filterHelpDispel, "BOTTOMLEFT", 0, 0)
-	menu.filterHelpOhterBig = LBO:CreateWidget("CheckBox", parent, "顯著標示", "當目標是友方時，顯著標示其他減益效果。", isnotMyDebuff,
+	menu.filterHelpOhterBig = LBO:CreateWidget("CheckBox", parent, "Emphasize", "Emphasize other debuffs for helpful targets.", isnotMyDebuff,
 		function()
 			return isnotDebuffUse() or not unitsdb[Option.unit].debuffFilterHelpOhter
 		end, nil,
@@ -2270,11 +2273,11 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 	)
 	menu.filterHelpOhterBig:SetPoint("TOPLEFT", menu.filterHelpOhter, "BOTTOMLEFT", 24, 24)
 
-	menu.mydebuff = LBO:CreateWidget("Heading", parent, "顯著標示的減益效果", nil, isnotMyDebuff, isnotDebuffUse)
+	menu.mydebuff = LBO:CreateWidget("Heading", parent, "Emphasized debuff", nil, isnotMyDebuff, isnotDebuffUse)
 	menu.mydebuff:SetScale(1.2)
 	menu.mydebuff:SetPoint("TOPLEFT", menu.filterHarmOhter, "BOTTOMLEFT", 0, 0)
 	menu.mydebuff:SetPoint("RIGHT", menu.filterHelpOhter, "RIGHT", 0, 0)
-	menu.big = LBO:CreateWidget("Slider", parent, "放大顯著標示的減益", "放大顯著標示的減益效果。", isnotMyDebuff, isnotDebuffUse, nil,
+	menu.big = LBO:CreateWidget("Slider", parent, "Enlarge emphasized debuff", "Enlarge emphasized debuff.", isnotMyDebuff, isnotDebuffUse, nil,
 		function()
 			return unitsdb[Option.unit].debuffBigScale * 100, 100, 200, 1, "%"
 		end,
@@ -2284,7 +2287,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.big:SetPoint("TOPLEFT", menu.mydebuff, "BOTTOMLEFT", 0, 10)
-	menu.bigTexture = LBO:CreateWidget("CheckBox", parent, "顯示冷卻時間動畫", "顯示或隱藏顯著標示的減益效果的時鐘材質。", isnotMyDebuff, isnotDebuffUse, nil,
+	menu.bigTexture = LBO:CreateWidget("CheckBox", parent, "Show cooldown texture", "Show or hide cooldown texture of emphasized debuff.", isnotMyDebuff, isnotDebuffUse, nil,
 		function() return not unitsdb[Option.unit].debuffHiddenBigCooldownTexture end,
 		function(v)
 			unitsdb[Option.unit].debuffHiddenBigCooldownTexture = not v
@@ -2292,7 +2295,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 		end
 	)
 	menu.bigTexture:SetPoint("TOPRIGHT", menu.mydebuff, "BOTTOMRIGHT", 0, 10)
-	menu.cdUse = LBO:CreateWidget("CheckBox", parent, "顯示剩餘時間", "顯示顯著標示的減益效果的剩餘時間。 (僅顯示 10 分鐘以內的時間)", isnotMyDebuff, isnotDebuffUse, nil,
+	menu.cdUse = LBO:CreateWidget("CheckBox", parent, "Show remain time", "Show remain time of emphasized debuff.Only shows remain time less than 10 min.", isnotMyDebuff, isnotDebuffUse, nil,
 		function() return unitsdb[Option.unit].debuffCooldownTextUse end,
 		function(v)
 			unitsdb[Option.unit].debuffCooldownTextUse = v
@@ -2302,7 +2305,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 	)
 	menu.cdUse:SetPoint("TOP", menu.big, "BOTTOM", 0, -5)
 -- 추가	
-	menu.cdFullTime = LBO:CreateWidget("CheckBox", parent, "忽略 10 分鐘限制", "忽略 10 分鐘以內顯示限制。", isnotMyDebuff, isnotDebuffUse, nil,
+	menu.cdFullTime = LBO:CreateWidget("CheckBox", parent, "Ignore 10 min limit", "Ignore 10 min left display.", isnotMyDebuff, isnotDebuffUse, nil,
 		function() return unitsdb[Option.unit].debuffCooldownFullTime end,
 		function(v)
 			unitsdb[Option.unit].debuffCooldownFullTime = v
@@ -2312,7 +2315,7 @@ function Option:CreateUnitDebuffMenu(menu, parent)
 	)
 	menu.cdFullTime:SetPoint("TOP", menu.big, "BOTTOM", 100, -5)
 -- 끝
-	menu.cd = LBO:CreateWidget("Font", parent, "剩餘時間字體", "設定顯著標示的減益效果的剩餘時間字體。", isnotMyDebuff,
+	menu.cd = LBO:CreateWidget("Font", parent, "Remain time font", "Set remain time font for highlighed debuff.", isnotMyDebuff,
 		function()
 			if not isnotMyDebuff() and not isnotDebuffUse() then
 				return not unitsdb[Option.unit].debuffCooldownTextUse
@@ -2352,9 +2355,9 @@ function Option:CreateUnitTextMenu(menu, parent)
 		unitsdb[Option.unit][key.."FontShadow"] = shadow
 		updateFontString(Option.unit, key)
 	end
-	menu.name = LBO:CreateWidget("Font", parent, "名字字體", "設定名字文字的字體。", hideTextOption, notActiveObject, nil, getFont, setFont, "nameText")
+	menu.name = LBO:CreateWidget("Font", parent, "Name font", "Set name text font.", hideTextOption, notActiveObject, nil, getFont, setFont, "nameText")
 	menu.name:SetPoint("TOPLEFT", 5, -5)
-	menu.classColor = LBO:CreateWidget("CheckBox", parent, "名字顯示職業顏色", "使用職業顏色顯示名字文字。", hideTextOption, notActiveObject, nil,
+	menu.classColor = LBO:CreateWidget("CheckBox", parent, "Class color for text", "Set cUse class color for name.", hideTextOption, notActiveObject, nil,
 		function() return unitsdb[Option.unit].nameTextClassColor end,
 		function(v)
 			unitsdb[Option.unit].nameTextClassColor = v
@@ -2363,16 +2366,16 @@ function Option:CreateUnitTextMenu(menu, parent)
 		end,
 	"nameText")
 	menu.classColor:SetPoint("TOPRIGHT", -5, -5)
-	menu.level = LBO:CreateWidget("Font", parent, "等級字體", "設定等級文字的字體。", hideTextOption, notActiveObject, nil, getFont, setFont, "levelText")
+	menu.level = LBO:CreateWidget("Font", parent, "Level font", "Set level text font.", hideTextOption, notActiveObject, nil, getFont, setFont, "levelText")
 	menu.level:SetPoint("TOP", menu.name, "BOTTOM", 0, -10)
-	menu.state = LBO:CreateWidget("Font", parent, "狀態字體", "設定顯示離線、暫離等狀態的文字的字體。", hideTextOption, notActiveObject, nil, getFont, setFont, "stateText")
+	menu.state = LBO:CreateWidget("Font", parent, "Status font", "Set status like AFK or offline.", hideTextOption, notActiveObject, nil, getFont, setFont, "stateText")
 	menu.state:SetPoint("TOP", menu.classColor, "BOTTOM", 0, -10)
-	menu.class = LBO:CreateWidget("Font", parent, "職業字體", "設定職業文字的字體。", hideTextOption, notActiveObject, nil, getFont, setFont, "classText")
+	menu.class = LBO:CreateWidget("Font", parent, "Class font", "Set font for class.", hideTextOption, notActiveObject, nil, getFont, setFont, "classText")
 	menu.class:SetPoint("TOP", menu.level, "BOTTOM", 0, -10)
 end
 
 function Option:CreateDispelMenu(menu, parent)
-	menu.use = LBO:CreateWidget("CheckBox", parent, "啟用顯著標示可驅散的減益效果", "當目標有可驅散的減益效果時，框架會被顯著標示。", nil, nil, nil,
+	menu.use = LBO:CreateWidget("CheckBox", parent, "Highlight dispellable debuff", "Highlight frame at dispellable debuff.", nil, nil, nil,
 		function() return IUF.db.dispel.active end,
 		function(v)
 			IUF.db.dispel.active = v
@@ -2382,7 +2385,7 @@ function Option:CreateDispelMenu(menu, parent)
 		end
 	)
 	menu.use:SetPoint("TOPLEFT", 5, 5)
-	menu.alpha = LBO:CreateWidget("Slider", parent, "透明度", "設定減益效果的顯著標示透明度。", nil, nil, nil,
+	menu.alpha = LBO:CreateWidget("Slider", parent, "Opacity", "Set debuff highligh opacity.", nil, nil, nil,
 		function() return IUF.db.dispel.alpha * 100, 0, 100, 1, "%" end,
 		function(v)
 			IUF.db.dispel.alpha = v / 100
@@ -2400,7 +2403,7 @@ local function notActivePlayerUnit()
 end
 
 function Option:CreateHealMenu(menu, parent)
-	menu.use = LBO:CreateWidget("CheckBox", parent, "顯示即將治療量", "在血量條上顯示即將治療量。", nil, nil, nil,
+	menu.use = LBO:CreateWidget("CheckBox", parent, "Show heal prediction", "Show heal prediction.", nil, nil, nil,
 		function() return IUF.db.heal.active end,
 		function(v)
 			IUF.db.heal.active = v
@@ -2414,7 +2417,7 @@ function Option:CreateHealMenu(menu, parent)
 	local function notActive()
 		return not IUF.db.heal.active
 	end
-	menu.player = LBO:CreateWidget("CheckBox", parent, "計算自身治療量", "在即將治療量中包含自身的治療量。", nil, notActive, nil,
+	menu.player = LBO:CreateWidget("CheckBox", parent, "Show my heal", "Show player's heal amount at prediction.", nil, notActive, nil,
 		function() return IUF.db.heal.player end,
 		function(v)
 			IUF.db.heal.player = v
@@ -2426,7 +2429,7 @@ function Option:CreateHealMenu(menu, parent)
 		end
 	)
 	menu.player:SetPoint("TOP", menu.use, "BOTTOM", 0, 0)
-	menu.alpha = LBO:CreateWidget("Slider", parent, "透明度", "設定即將治療量的透明度。", nil, notActive, nil,
+	menu.alpha = LBO:CreateWidget("Slider", parent, "Opacity", "Set heal prediction opacity.", nil, notActive, nil,
 		function() return IUF.db.heal.alpha * 100, 0, 80, 1, "%" end,
 		function(v)
 			IUF.db.heal.alpha = v / 100
@@ -2449,7 +2452,7 @@ function Option:CreateClassBarMenu(menu, parent)
 		return not IUF.db.classBar.use
 	end
 
-	menu.use = LBO:CreateWidget("CheckBox", parent, "啟用職業資源條", "在玩家框架底部顯示職業和天賦專精的特殊次要資源條。", nil, nil, nil,
+	menu.use = LBO:CreateWidget("CheckBox", parent, "Use class bar", "Show class specific bar.", nil, nil, nil,
 		function() return IUF.db.classBar.use end,
 		function(v)
 			IUF.db.classBar.use = v
@@ -2459,8 +2462,8 @@ function Option:CreateClassBarMenu(menu, parent)
 	)
 	menu.use:SetPoint("TOPLEFT", 5, 5)
 
-	local tvb = { "上方", "下方" }
-	menu.pos = LBO:CreateWidget("DropDown", parent, "職業資源條位置", "設定職業資源條在玩家框架中的位置。", nil, notActive, nil,
+	local tvb = { "위쪽", "아래쪽" }
+	menu.pos = LBO:CreateWidget("DropDown", parent, "Class bar position", "Set class bar position.", nil, notActive, nil,
 		function() return IUF.db.classBar.pos == "TOP" and 1 or 2, tvb end,
 		function(v)
 			IUF.db.classBar.pos = v == 1 and "TOP" or "BOTTOM"
@@ -2469,7 +2472,7 @@ function Option:CreateClassBarMenu(menu, parent)
 	)
 	menu.pos:SetPoint("TOP", menu.use, "BOTTOM", 0, 0)
 
-	menu.texture = LBO:CreateWidget("Media", parent, "狀態條樣式", "統一設定職業資源條的樣式。", nil, notActive, nil,
+	menu.texture = LBO:CreateWidget("Media", parent, "Bar texture", "Set texture of all class bar.", nil, notActive, nil,
 		function()
 			return IUF.db.classBar.texture or "Smooth v2", "statusbar"
 		end,
@@ -2480,7 +2483,7 @@ function Option:CreateClassBarMenu(menu, parent)
 	)
 	menu.texture:SetPoint("TOPRIGHT", -5, -39)
 
-	menu.blizzard = LBO:CreateWidget("CheckBox", parent, "顯示遊戲內建的職業資源條", "使用魔獸世界預設框架的職業資源條，而不是 InvenUnitFrames 的職業資源條。 如果其他插件也包含變更職業資源條位置的功能，可能會發生衝突。", nil, notActive, nil,
+	menu.blizzard = LBO:CreateWidget("CheckBox", parent, "Display WoW default class bar", "Use Wow defualt classbar instead of Inven Unit Frame.", nil, notActive, nil,
 		function()
 			return IUF.db.classBar.useBlizzard
 		end,
@@ -2491,7 +2494,7 @@ function Option:CreateClassBarMenu(menu, parent)
 	)
 	menu.blizzard:SetPoint("TOP", menu.pos, "BOTTOM", 0, -10)
 -- 추가된 내용	
-	menu.druidMana = LBO:CreateWidget("CheckBox", parent, "德魯伊野性變身時隱藏法力值", "當使用非消耗法力的變身形態時，不顯示法力值。", nil, nil, nil,
+	menu.druidMana = LBO:CreateWidget("CheckBox", parent, "Hide mana while feral form", "Hide mana while non-mana form.", nil, nil, nil,
 		function() return IUF.db.classBar.druidManaDisible end,
 		function(v)
 			IUF.db.classBar.druidManaDisible = v

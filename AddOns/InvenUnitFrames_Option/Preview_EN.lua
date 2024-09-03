@@ -1,4 +1,4 @@
-﻿if GetLocale()~="zhTW" and GetLocale()~="zhCN" then return end
+﻿if GetLocale()=="zhTW" or GetLocale()=="zhCN" then return end
 local IUF = InvenUnitFrames
 
 local _G = _G
@@ -6,58 +6,20 @@ local pairs = _G.pairs
 local random = _G.random
 local UnitClass = _G.UnitClass
 
-local objectName = {
-  ["player"] = "玩家",
-  ["pet"] = "寵物",
-  ["pettarget"] = "寵物的目標",
-  ["target"] = "目標",
-  ["targettarget"] = "目標的目標",
-  ["targettargettarget"] = "目標的目標的目標",
-  ["focus"] = "專注目標目標",
-  ["focustarget"] = "專注目標目標的目標",
-  ["focustargettarget"] = "專注目標目標的目標的目標",
-}
+local objectName = { ["player"] = "플레이어", ["pet"] = "소환수", ["pettarget"] = "소환수의 대상", ["target"] = "대상", ["targettarget"] = "대상의 대상", ["targettargettarget"] = "대상의 대상의 대상", ["focus"] = "주시대상", ["focustarget"] = "주시대상의 대상", ["focustargettarget"] = "주시대상의 대상의 대상" }
 for i = 1, MAX_PARTY_MEMBERS do
-  objectName["party"..i] = "隊伍"..i
-  objectName["partypet"..i] = "隊友"..i.."的寵物"
-  objectName["party"..i.."target"] = "隊友"..i.."的目標"
-  objectName["party"..i.."targettarget"] = "隊友"..i.."的目標的目標"
+	objectName["party"..i] = "파티"..i
+	objectName["partypet"..i] = "파티"..i.."의 소환수"
+	objectName["party"..i.."target"] = "파티"..i.."의 대상"
+	objectName["party"..i.."targettarget"] = "파티"..i.."의 대상의 대상"
 end
 for i = 1, MAX_BOSS_FRAMES do
-  objectName["boss"..i] = "首領"..i
+	objectName["boss"..i] = "보스"..i
 end
 
-local objectClass = {
-  "WARRIOR",
-  "PALADIN",
-  "DEATHKNIGHT",
-  "ROGUE",
-  "PRIEST",
-  "MAGE",
-  "WARLOCK",
-  "HUNTER",
-  "DRUID",
-  "SHAMAN",
-  "MONK",
-}
-local classText = {
-  ["WARRIOR"] = "戰士",
-  ["PALADIN"] = "聖騎士",
-  ["DEATHKNIGHT"] = "死亡騎士",
-  ["ROGUE"] = "盜賊",
-  ["PRIEST"] = "牧師",
-  ["MAGE"] = "法師",
-  ["WARLOCK"] = "術士",
-  ["HUNTER"] = "獵人",
-  ["DRUID"] = "德魯伊",
-  ["SHAMAN"] = "薩滿",
-  ["MONK"] = "武僧",
-}
-local classPowerType = {
-  ["WARRIOR"] = 1,
-  ["ROGUE"] = 3,
-  ["DEATHKNIGHT"] = 6,
-}
+local objectClass = { "WARRIOR", "PALADIN", "DEATHKNIGHT", "ROGUE", "PRIEST", "MAGE", "WARLOCK", "HUNTER", "DRUID", "SHAMAN", "MONK" }
+local classText = { ["WARRIOR"] = "전사", ["PALADIN"] = "성기사", ["DEATHKNIGHT"] = "죽음의 기사", ["ROGUE"] = "도적", ["PRIEST"] = "사제", ["MAGE"] = "마법사", ["WARLOCK"] = "흑마법사", ["HUNTER"] = "사냥꾼", ["DRUID"] = "드루이드", ["SHAMAN"] = "주술사", ["MONK"] = "수도사" }
+local classPowerType = { ["WARRIOR"] = 1, ["ROGUE"] = 3, ["DEATHKNIGHT"] = 6 }
 
 local dummy = function() end
 
@@ -142,10 +104,10 @@ local function previewOnUpdate(preview, timer)
 		preview.updateTime = 0
 		if not preview.values.castingEndTime and random(1, 3) == 1 then
 			preview.values.castingIsChannel = random(1, 3) == 1
-			preview.values.castingIcon = "Interface\\Icons\\Temp" -- C_Spell.GetSpellInfo(random(10, 60000)).iconID or "Interface\\Icons\\Temp"
+			preview.values.castingIcon = select(3, GetSpellInfo(random(10, 60000))) or "Interface\\Icons\\Temp"
 			preview.values.castingStartTime = preview.currentTime * 1000
 			preview.values.castingEndTime = (preview.currentTime + random(15, 50) / 10) * 1000
-			preview.values.castingName = "好棒棒!"
+			preview.values.castingName = "시전바"
 			IUF.callbacks.CastingBar(preview)
 			IUF.callbacks.CastingBarColor(preview)
 		end
@@ -366,7 +328,7 @@ function IUF:SetPreviewMode(mode)
 		objectName, objectClass, classPowerType = nil
 		IUF.movingFrame2:Show()
 		if IUF.optionFrame.previewButton then
-			IUF.optionFrame.previewButton.title:SetText("關閉預覽")
+			IUF.optionFrame.previewButton.title:SetText("Hide preview")
 			IUF.optionFrame.previewButton.arg1 = nil
 		end
 	else
@@ -377,7 +339,7 @@ function IUF:SetPreviewMode(mode)
 		end
 		IUF.movingFrame2:Hide()
 		if IUF.optionFrame.previewButton then
-			IUF.optionFrame.previewButton.title:SetText("開啟預覽")
+			IUF.optionFrame.previewButton.title:SetText("Show preview")
 			IUF.optionFrame.previewButton.arg1 = true
 		end
 	end
@@ -396,7 +358,7 @@ local function createAura(preview, idx, isbuff)
 	btn = IUF.CreateAuraButton(preview, isbuff)
 	btn:SetScript("OnEnter", auraonenter)
 	btn:SetScript("OnLeave", GameTooltip_Hide)
-	btn.tooltipText = (isbuff and "增益 " or "減益 ")..idx
+	btn.tooltipText = (isbuff and "Buff " or "Debuff ")..idx
 	btn.icon:SetTexture("Interface\\Icons\\Spell_Charge"..(isbuff and "Positive" or "Negative"))
 	btn.count:SetText(idx)
 	btn.icon.SetTexture = dummy
