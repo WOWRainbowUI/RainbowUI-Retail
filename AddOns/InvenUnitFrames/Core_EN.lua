@@ -1,4 +1,5 @@
-﻿if GetLocale()~="koKR" then return end
+﻿if GetLocale()=="koKR" then return end
+
 local IUF = CreateFrame("Frame", "InvenUnitFrames", UIParent)
 IUF:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 IUF:RegisterEvent("ADDON_LOADED")
@@ -31,7 +32,7 @@ function IUF:ADDON_LOADED()
 	-- 옵션 프레임 생성
 	self.optionFrame = CreateFrame("Frame", "InvenUnitFramesOptionFrame", InterfaceOptionsFramePanelContainer)
 	self.optionFrame:Hide()
-	self.optionFrame.name = "인벤 유닛 프레임"
+	self.optionFrame.name = "Inven Unit Frame"
 	self.optionFrame:SetScript("OnShow", function(self)
 		self:SetScript("OnShow", nil)
 		InvenUnitFrames:LoadModule("Option")
@@ -86,7 +87,6 @@ local function changeParent(frame, prevParent, newParent)
 end
 
 function IUF:HideBlizzardPartyFrame(hide)
-
 	if hide then
 		for i = 1, MAX_PARTY_MEMBERS do
 			changeParent(_G["PartyMemberFrame"..i], UIParent, self.dummyParent)
@@ -243,7 +243,7 @@ end
 
 function IUF:OnTooltip(tooltip)
 	tooltip = tooltip or GameTooltip
-	tooltip:AddLine("인벤 유닛 프레임 v"..IUF.version)
+	tooltip:AddLine("Inven Unit Frame v"..IUF.version)
 	tooltip:AddLine("http://wow.inven.co.kr", 1, 1, 1)
 	tooltip:AddLine("클릭: 설정창 열기", 1, 1, 0)
 end
@@ -364,7 +364,6 @@ do
 	
 	-- 블리자드 유닛 프레임 숨김
 	function hideBlizzard(self)
-
 		if self then
 			UnregisterUnitWatch(self)
 			self:UnregisterAllEvents()

@@ -1,4 +1,4 @@
-﻿if GetLocale()~="koKR" then return end
+﻿if GetLocale()=="koKR" then return end
 local IUF = InvenUnitFrames
 
 local _G = _G
@@ -104,7 +104,7 @@ local function previewOnUpdate(preview, timer)
 		preview.updateTime = 0
 		if not preview.values.castingEndTime and random(1, 3) == 1 then
 			preview.values.castingIsChannel = random(1, 3) == 1
-			preview.values.castingIcon = select(3, C_Spell.GetSpellName(random(10, 60000))) or "Interface\\Icons\\Temp"
+			preview.values.castingIcon = select(3, GetSpellInfo(random(10, 60000))) or "Interface\\Icons\\Temp"
 			preview.values.castingStartTime = preview.currentTime * 1000
 			preview.values.castingEndTime = (preview.currentTime + random(15, 50) / 10) * 1000
 			preview.values.castingName = "시전바"
@@ -328,7 +328,7 @@ function IUF:SetPreviewMode(mode)
 		objectName, objectClass, classPowerType = nil
 		IUF.movingFrame2:Show()
 		if IUF.optionFrame.previewButton then
-			IUF.optionFrame.previewButton.title:SetText("미리보기 끄기")
+			IUF.optionFrame.previewButton.title:SetText("Hide preview")
 			IUF.optionFrame.previewButton.arg1 = nil
 		end
 	else
@@ -339,7 +339,7 @@ function IUF:SetPreviewMode(mode)
 		end
 		IUF.movingFrame2:Hide()
 		if IUF.optionFrame.previewButton then
-			IUF.optionFrame.previewButton.title:SetText("미리보기 켜기")
+			IUF.optionFrame.previewButton.title:SetText("Show preview")
 			IUF.optionFrame.previewButton.arg1 = true
 		end
 	end
@@ -358,7 +358,7 @@ local function createAura(preview, idx, isbuff)
 	btn = IUF.CreateAuraButton(preview, isbuff)
 	btn:SetScript("OnEnter", auraonenter)
 	btn:SetScript("OnLeave", GameTooltip_Hide)
-	btn.tooltipText = (isbuff and "버프 " or "디버프 ")..idx
+	btn.tooltipText = (isbuff and "Buff " or "Debuff ")..idx
 	btn.icon:SetTexture("Interface\\Icons\\Spell_Charge"..(isbuff and "Positive" or "Negative"))
 	btn.count:SetText(idx)
 	btn.icon.SetTexture = dummy

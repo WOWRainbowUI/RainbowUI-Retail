@@ -8,5 +8,7 @@
 libs\LibBlueOption-1.0\LibBlueOption-1.0.xml
 
 Core.lua
+Core_EN.lua
 Skin.lua
 Preview.lua
+Preview_EN.lua

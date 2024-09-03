@@ -1,4 +1,4 @@
-﻿if GetLocale()~="koKR" then return end
+﻿if GetLocale()=="koKR" then return end
 local IUF = InvenUnitFrames
 local callbacks = IUF.callbacks
 
@@ -22,17 +22,17 @@ local GetThreatStatusColor = _G.GetThreatStatusColor
 local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
 local AbbreviateLargeNumbers = _G.AbbreviateLargeNumbers
 
-local classificationText = { ["worldboss"] = "보스", ["rareelite"] = "희귀 정예", ["elite"] = "정예", ["rare"] = "희귀", ["trivial"] = "민간인" }
+local classificationText = { ["worldboss"] = "Boss", ["rareelite"] = "Elite Rare", ["elite"] = "Elite", ["rare"] = "Rare", ["trivial"] = "Citizen" }
 local classificationColor = { ["worldboss"] = { 1, 0.2, 0.2 }, ["rareelite"] = { 1, 0, 0.65 }, ["elite"] = { 1, 1, 0 }, ["rare"] = { 0.96, 0, 1 }, ["trivial"] = { 0.72, 0.72, 0.72 } }
 local creatureIcons = {
-	["야수"] = "Interface\\Icons\\Ability_Mount_JungleTiger", ["Beast"] = "Interface\\Icons\\Ability_Mount_JungleTiger",
-	["악마"] = "Interface\\Icons\\Achievement_Boss_Kiljaedan", ["Demon"] = "Interface\\Icons\\Achievement_Boss_Kiljaedan",
-	["용족"] = "Interface\\Icons\\Achievement_Boss_Sartharion_01", ["Dragonkin"] = "Interface\\Icons\\Achievement_Boss_Sartharion_01",
-	["정령"] = "Interface\\Icons\\Spell_Frost_SummonWaterElemental", ["Elemental"] = "Interface\\Icons\\Spell_Frost_SummonWaterElemental",
-	["거인"] = "Interface\\Icons\\Achievement_Dungeon_UlduarRaid_IronSentinel_01", ["Giant"] = "Interface\\Icons\\Achievement_Dungeon_UlduarRaid_IronSentinel_01",
-	["인간형"] = "Interface\\Icons\\Achievement_Leader_King_Varian_Wrynn", ["Humanoid"] = "Interface\\Icons\\Achievement_Leader_King_Varian_Wrynn",
-	["기계"] = "Interface\\Icons\\INV_Misc_Head_ClockworkGnome_01", ["Mechanical"] = "Interface\\Icons\\INV_Misc_Head_ClockworkGnome_01",
-	["언데드"] = "Interface\\Icons\\INV_Misc_Head_Undead_01", ["Undead"] = "Interface\\Icons\\INV_Misc_Head_Undead_01",
+	["Beast"] = "Interface\\Icons\\Ability_Mount_JungleTiger", ["Beast"] = "Interface\\Icons\\Ability_Mount_JungleTiger",
+	["Demon"] = "Interface\\Icons\\Achievement_Boss_Kiljaedan", ["Demon"] = "Interface\\Icons\\Achievement_Boss_Kiljaedan",
+	["Dragonkin"] = "Interface\\Icons\\Achievement_Boss_Sartharion_01", ["Dragonkin"] = "Interface\\Icons\\Achievement_Boss_Sartharion_01",
+	["Element"] = "Interface\\Icons\\Spell_Frost_SummonWaterElemental", ["Elemental"] = "Interface\\Icons\\Spell_Frost_SummonWaterElemental",
+	["Giant"] = "Interface\\Icons\\Achievement_Dungeon_UlduarRaid_IronSentinel_01", ["Giant"] = "Interface\\Icons\\Achievement_Dungeon_UlduarRaid_IronSentinel_01",
+	["Humanoid"] = "Interface\\Icons\\Achievement_Leader_King_Varian_Wrynn", ["Humanoid"] = "Interface\\Icons\\Achievement_Leader_King_Varian_Wrynn",
+	["Machenical"] = "Interface\\Icons\\INV_Misc_Head_ClockworkGnome_01", ["Mechanical"] = "Interface\\Icons\\INV_Misc_Head_ClockworkGnome_01",
+	["Undead"] = "Interface\\Icons\\INV_Misc_Head_Undead_01", ["Undead"] = "Interface\\Icons\\INV_Misc_Head_Undead_01",
 }
 
 local function lookupTable(tbl, v)
@@ -656,13 +656,13 @@ function callbacks:State()
 	if self.stateText:IsShown() then
 		if self.values.connect then
 			if self.values.ghost then
-				self.stateText:SetText("유령")
+				self.stateText:SetText("Ghost")
 			elseif self.values.dead then
-				self.stateText:SetText("죽음")
+				self.stateText:SetText("Dead")
 			elseif self.values.tapped then
-				self.stateText:SetText("선점")
+				self.stateText:SetText("Tapped")
 			elseif self.values.afk then
-				self.stateText:SetText("자리")
+				self.stateText:SetText("AFK")
 			elseif self.values.threatvalue and self.values.threatvalue > 0 then
 				self.stateText:SetFormattedText("%d%%", self.values.threatvalue)
 			else

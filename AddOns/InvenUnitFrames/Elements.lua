@@ -260,7 +260,11 @@ function IUF:CreateObjectElements(object)
 		object.pvpTimer:RegisterEvent("PLAYER_FLAGS_CHANGED")
 		object.pvpTimer.OnUpdate = function(self)
 			GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
-			GameTooltip:AddLine("남은 시간")
+			if GetLocale()=="koKR" then
+				GameTooltip:AddLine("남은 시간")
+			else
+				GameTooltip:AddLine("Remain ")
+			end
 			GameTooltip:AddLine(SecondsToTime(floor(GetPVPTimer() / 1000)), 1, 1, 1)
 			GameTooltip:Show()
 		end
