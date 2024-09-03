@@ -65,6 +65,49 @@ GTFO.SpellID["435440"] = {
   ignoreApplication = true;
 };
 
+GTFO.SpellID["455915"] = {
+  --desc = "Congealed Goop (Oozemodius)";
+  sound = 1;
+};
+
+GTFO.SpellID["462985"] = {
+  --desc = "Magma Puddle";
+  sound = 1;
+  ignoreApplication = true;
+};
+
+GTFO.SpellID["432458"] = {
+  --desc = "Itching Waters";
+  applicationOnly = true;
+  sound = 2;
+};
+
+GTFO.SpellID["433301"] = {
+  --desc = "Parasitic Infestation";
+	soundFunction = function() 
+		-- Alert if hit more than 5 times
+		if (not GTFO.VariableStore.ParasiticInfestation) then
+			GTFO.VariableStore.ParasiticInfestation = 0;
+		end
+		local stacks = tonumber(GTFO_DebuffStackCount("player", 433301));
+		if (stacks ~= GTFO.VariableStore.ParasiticInfestation) then
+			GTFO.VariableStore.ParasiticInfestation = stacks;
+			return 0;
+		end
+		return 1;
+	end;
+};
+
+GTFO.SpellID["454901"] = {
+  --desc = "Sundered Wrath (Surek'Tak the Sundered)";
+  sound = 1;
+};
+
+GTFO.SpellID["452261"] = {
+  --desc = "Black Blood Vial (Harvest Warden Izk'tilak)";
+  sound = 1;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -195,6 +238,13 @@ GTFO.SpellID["426265"] = {
 
 GTFO.SpellID["421638"] = {
   --desc = "Wicklighter Barrage (Blazikon)";
+  sound = 1;
+  ignoreApplication = true;
+};
+
+GTFO.SpellID["424223"] = {
+  --desc = "Incite Flames (Blazikon)";
+  ignoreApplication = true;
   sound = 1;
 };
 
@@ -477,6 +527,11 @@ GTFO.SpellID["461742"] = {
 
 GTFO.SpellID["463426"] = {
   --desc = "Freezing (Stalker)";
+  sound = 1;
+};
+
+GTFO.SpellID["458836"] = {
+  --desc = "Shadowspin (Speaker Xanventh)";
   sound = 1;
 };
 

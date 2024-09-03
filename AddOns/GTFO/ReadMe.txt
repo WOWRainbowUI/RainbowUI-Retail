@@ -2114,3 +2114,10 @@ Change Log:
 * Added TWW spells for City of Threads
 * Added TWW spells for The Dawnbreaker
 * Added TWW spells for Cinderbrew Meadery
+
+5.12.2
+* Added The War Within spells (world)
+* Added TWW spells for Darkflame Cleft
+* Added TWW spells for Priory of the Scared Flame
+* Added TWW spells for TWW Delves 
+
