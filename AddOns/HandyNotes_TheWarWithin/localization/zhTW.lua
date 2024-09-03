@@ -42,7 +42,8 @@ L['faithful_dog_note'] = [[
 2. 在 {map:572} 的 {area:7490} 中建造 {object:藥圃}。
 3. 在 {map:619} {map:627} 中找到 {item:147420}，然後與 {area:7490} {object:藥圃} 中的 {npc:87553} 交談。
 {npc:87553} 現在位於 {map:627} 的 {location:魔法動物店}
-4. 與 {map:2248} 中的 {object:半埋的狗食盆} 互動，然後與 {npc:87553} 交談以獲取寵物。]]
+4. 與 {map:2248} 中的 {object:半埋的狗碗} 互動，然後與 {npc:87553} 交談獲取寵物。
+]]
 
 L['cendvin_note'] = '在 {location:火渣林} 的菁英怪農 900x {item:225557} 來從 {npc:226205} 購買 {item:223153} 坐騎.'
 
