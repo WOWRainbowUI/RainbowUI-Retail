@@ -1,17 +1,20 @@
 # Kaliel's Tracker changelog
-### 7.3.1
-- ADDED (quest) - show the Warband bonus icon on the reward in the tooltip
-- CHANGED - TomTom - minor improvements
-- FIXED (quests) - reward information in the tooltip is sometimes not displayed
-- FIXED - TomTom - green tag is not hidden when switching to Blizzard pin
-- PERFORMANCE (quests) - optimization of sorting code
-- PERFORMANCE - optimization of zone filtering code
-### 7.3.0
-- ADDED (quests) - filter support for Delves (Instance filter)
-- ADDED (scenario) - support for Delves and minor improvements (2)
-- ADDED (quests) - new tag for Delves
-- ADDED (filter) - use Shift+Click in the &quot;F&quot; menu, for incremental filtering of quests (Click only switches between groups of filters)
-- ADDED (scenario) - support for Delves and minor improvements
-- ADDED (quests) - sorting - is on map &gt; zone &gt; level &gt; title
-- CHANGED - TomTom - minor improvements
-- PERFORMANCE (achievements) - optimization of filtering code
+### 7.4.0
+- ADDED (quest) - show the Warband bonus icon on the reward in the tooltip (choices)
+- ADDED (quests) - auto/manual focus closest quest (manual - Right Click on Minimize Button)
+- ADDED (scenario) - skin other widgets (text)
+- CHANGED - TomTom - better waypoint update while moving
+- CHANGED - TomTom - better getting coordinates for quests/objectives, additional info text to waypoint arrow
+- CHANGED (quests) - improvement of zone filtering (instance quests)
+- CHANGED (worldquests) - small visual improvements
+- CHANGED (scenario) - Delves - small visual improvements
+- CHANGED - World Map Hack [Beta] - minor improvement
+- CHANGED (quests) - focus closest quest improvements
+- CHANGED - TomTom - better switching between waypoint and Blizzard pin (2)
+- CHANGED - TomTom - better switching between waypoint and Blizzard pin
+- CHANGED (filter) - minor improvements
+- FIXED - TomTom - animation bug on POI with waypoint tag
+- FIXED (quests) - Bonus objectives - sometimes the title does not appear in the context menu
+- FIXED (scenario) - visual bug on Delves spell icons
+- PERFORMANCE (quests) - optimization of sorting code (completed quests at end of list)
+- REMOVED (scenario) - skin other widgets (taint problem)

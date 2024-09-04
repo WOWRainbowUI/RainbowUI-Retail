@@ -1,7 +1,7 @@
 local _, KT = ...
 
 -- shared pool since there are several modules that can display quests, but a given quest can only appear in a specific module
-local g_questPOIButtonPool = CreateFramePool("BUTTON", nil, "KT_ObjectiveTrackerPOIButtonTemplate");
+local g_questPOIButtonPool = CreateFramePool("BUTTON", nil, "KT2_ObjectiveTrackerPOIButtonTemplate");  -- MSA
 
 KT_ObjectiveTrackerQuestPOIBlockMixin = CreateFromMixins(KT_ObjectiveTrackerAnimBlockMixin);
 

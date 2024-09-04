@@ -58,7 +58,7 @@ KT.frame = KTF
 local OTF = KT_ObjectiveTrackerFrame
 local OTFHeader = OTF.Header
 local MawBuffs = KT_ScenarioObjectiveTracker.MawBuffsBlock.Container
-local BaseScenarioWidget
+local UIWidgetBaseScenarioHeaderText
 
 --------------
 -- Internal --
@@ -268,7 +268,7 @@ local function Init()
 
 	KT:MoveTracker()
 	KT:SetBackground()
-	KT:SetText()
+	KT:SetText(true)
 
 	KT.stopUpdate = false
 	KT.inWorld = true
@@ -333,20 +333,33 @@ local function SetFrames()
 			KT.inInstance = IsInInstance()
 			KT.inScenario = false
 			KT_ScenarioObjectiveTracker:MarkDirty()
+		elseif event == "QUEST_DETAIL" then
+			C_SuperTrack.ClearAllSuperTracked()
 		elseif event == "QUEST_AUTOCOMPLETE" then
 			KTF.Scroll.value = 0
-		elseif event == "QUEST_ACCEPTED" or event == "QUEST_REMOVED" then
+		elseif event == "QUEST_ACCEPTED" then
 			local questID = ...
 			if not C_QuestLog.IsQuestTask(questID) and not C_QuestLog.IsQuestBounty(questID) then
 				local numQuests = KT.QuestsCache_Update()
 				dbChar.quests.num = numQuests
 				KT:SetQuestsHeaderText()
-				if event == "QUEST_ACCEPTED" then
-					KT.QuestsCache_UpdateProperty(questID, "startMapID", KT.GetCurrentMapAreaID())
-				elseif event == "QUEST_REMOVED" then
-					KT.QuestsCache_RemoveQuest(questID)
+
+				KT.QuestsCache_UpdateProperty(questID, "startMapID", KT.GetCurrentMapAreaID())
+			end
+		elseif event == "QUEST_REMOVED" then
+			local questID = ...
+			if not C_QuestLog.IsQuestTask(questID) and not C_QuestLog.IsQuestBounty(questID) then
+				local numQuests = KT.QuestsCache_Update()
+				dbChar.quests.num = numQuests
+				KT:SetQuestsHeaderText()
+
+				KT.QuestsCache_RemoveQuest(questID)
+				if not C_SuperTrack.GetSuperTrackedQuestID() then
+					KT.QuestSuperTracking_ChooseClosestQuest()
 				end
 			end
+		elseif event == "QUEST_TURNED_IN" then
+			KT.QuestSuperTracking_ChooseClosestQuest()
 		elseif event == "ACHIEVEMENT_EARNED" then
 			KT:SetAchievsHeaderText()
 		elseif event == "PLAYER_REGEN_ENABLED" and combatLockdown then
@@ -381,6 +394,7 @@ local function SetFrames()
 	KTF:RegisterEvent("QUEST_WATCH_LIST_CHANGED")
 	KTF:RegisterEvent("SCENARIO_UPDATE")
 	KTF:RegisterEvent("SCENARIO_COMPLETED")
+	KTF:RegisterEvent("QUEST_DETAIL")
 	KTF:RegisterEvent("QUEST_AUTOCOMPLETE")
 	KTF:RegisterEvent("QUEST_ACCEPTED")
 	KTF:RegisterEvent("QUEST_REMOVED")
@@ -420,7 +434,10 @@ local function SetFrames()
 	button:GetNormalTexture():SetTexCoord(0, 0.5, 0.25, 0.5)
 	button:RegisterForClicks("AnyDown")
 	button:SetScript("OnClick", function(self, btn)
-		if IsAltKeyDown() then
+		if btn == "RightButton" then
+			KT.QuestSuperTracking_ChooseClosestQuest()
+			KT:Update()
+		elseif IsAltKeyDown() then
 			KT:OpenOptions()
 		elseif HasTrackerContents() and not KT.locked then
 			KT:MinimizeButton_OnClick()
@@ -431,6 +448,7 @@ local function SetFrames()
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		local title = (db.keyBindMinimize ~= "") and KT.title.." "..NORMAL_FONT_COLOR_CODE.."("..db.keyBindMinimize..")|r" or KT.title
 		GameTooltip:AddLine("任務追蹤清單增強", 1, 1, 1)
+		GameTooltip:AddLine("右鍵: 將最近的任務設為焦點", 0.5, 0.5, 0.5)
 		GameTooltip:AddLine("Alt+左鍵: 設定選項", 0.5, 0.5, 0.5)
 		GameTooltip:Show()
 	end)
@@ -493,8 +511,7 @@ local function SetFrames()
 	OTFHeader.FilterButton:Hide()
 	OTFHeader.Text:SetWidth(db.width - 85)
 	OTFHeader.Text:SetWordWrap(false)
-	-- OTF.headerText = "任務追蹤清單增強"
-	KT_ScenarioObjectiveTracker.fromHeaderOffsetY = -9
+	-- OTF.headerText = KT.title
 	KT_ScenarioObjectiveTracker.fromBlockOffsetY = 0
 	KT_ScenarioObjectiveTracker.lineSpacing = 4
 	KT_ScenarioObjectiveTracker.ObjectivesBlock.offsetX = 40
@@ -698,19 +715,19 @@ local function SetHooks()
 				end
 				line.dashStyle = dashStyle;
 			end
-			if not line.Dash.KTskinned or KT.forcedUpdate then
+			if line.Dash.KTskinID ~= KT.skinID then
 				line.Dash:SetFont(KT.font, db.fontSize, db.fontFlag)
 				line.Dash:SetShadowColor(0, 0, 0, db.fontShadow)
-				line.Dash.KTskinned = true
+				line.Dash.KTskinID = KT.skinID
 			end
 		end
 
 		-- check
-		if line.Icon and (not line.Icon.KTskinned or KT.forcedUpdate) then
+		if line.Icon and line.Icon.KTskinID ~= KT.skinID then
 			line.Icon:SetSize(db.fontSize, db.fontSize)
 			line.Icon:ClearAllPoints()
 			line.Icon:SetPoint("TOPLEFT", round(-db.fontSize * 0.4) + (db.fontFlag == "" and 0 or 1), 1)
-			line.Icon.KTskinned = true
+			line.Icon.KTskinID = KT.skinID
 		end
 
 		local lineSpacing = self.parentModule.lineSpacing;
@@ -761,11 +778,11 @@ local function SetHooks()
 	end
 
 	function KT_ObjectiveTrackerBlockMixin:SetStringText(fontString, text, useFullHeight, colorStyle, useHighlight)  -- RO
-		if not fontString.KTskinned or KT.forcedUpdate then
+		if fontString.KTskinID ~= KT.skinID then
 			fontString:SetFont(KT.font, db.fontSize, db.fontFlag)
 			fontString:SetShadowColor(0, 0, 0, db.fontShadow)
 			fontString:SetWordWrap(db.textWordWrap)
-			fontString.KTskinned = true
+			fontString.KTskinID = KT.skinID
 		end
 
 		if useFullHeight then
@@ -869,23 +886,13 @@ local function SetHooks()
 					end
 				end
 				if IsInGroup() then
-					GameTooltip:AddLine(" ")
 					local tooltipData = C_TooltipInfo.GetQuestPartyProgress(block.id, true)
 					if tooltipData then
+						GameTooltip:AddLine(" ")
 						local tooltipInfo = { tooltipData = tooltipData, append = true }
 						GameTooltip:ProcessInfo(tooltipInfo)
 					end
 				end
-				-- TODO: Update
-				--[[if IsInGroup() then
-					GameTooltip:ClearAllPoints();
-					GameTooltip:SetPoint("TOPRIGHT", block, "TOPLEFT", 0, 0);
-					GameTooltip:SetOwner(block, "ANCHOR_PRESERVE");
-					GameTooltip:SetQuestPartyProgress(block.id);
-					EventRegistry:TriggerEvent("OnQuestBlockHeader.OnEnter", block, block.id, true);
-				else
-					EventRegistry:TriggerEvent("OnQuestBlockHeader.OnEnter", block, block.id, false);
-				end]]
 			else
 				GameTooltip:SetHyperlink(GetAchievementLink(block.id))
 			end
@@ -1014,6 +1021,12 @@ local function SetHooks()
 	function KT_ObjectiveTrackerBlockMixin:OnMouseUp(mouseButton)
 		self:OnHeaderClick(mouseButton)
 	end
+
+	hooksecurefunc(QuestUtil, "UntrackWorldQuest", function(questID)
+		if not C_SuperTrack.GetSuperTrackedQuestID() then
+			KT.QuestSuperTracking_ChooseClosestQuest()
+		end
+	end)
 
 	local function AddFixedTag(block, tag)
 		if block.rightEdgeFrame == tag then
@@ -1277,7 +1290,8 @@ local function SetHooks()
 	KT.SpellButton.OnEnter = KT_ScenarioSpellButtonMixin.OnEnter
 
 	function KT_ObjectiveTrackerBlockMixin:SetHeader(text, questID, questLogIndex, isQuestComplete)
-		if questLogIndex then
+		local isWorldQuest = self.parentModule.showWorldQuests
+		if questLogIndex and not isWorldQuest then
 			local questInfo = C_QuestLog.GetInfo(questLogIndex)
 			if db.questShowTags then
 				local tagInfo = KT.GetQuestTagInfo(questID)
@@ -1303,7 +1317,7 @@ local function SetHooks()
 			self.HeaderText.colorStyle = colorStyle
 		end
 
-		if questLogIndex then
+		if not isWorldQuest then
 			local questsCache = dbChar.quests.cache
 			if db.questShowZones and questsCache[questID] then
 				local infoText = questsCache[questID].zone
@@ -1315,9 +1329,7 @@ local function SetHooks()
 				end
 				self:AddObjective("Zone", infoText, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Zone"])
 			end
-		end
-
-		if self.parentModule.showWorldQuests then
+		else
 			local _, factionID, capped = C_TaskQuest.GetQuestInfoByQuestID(questID)
 			local factionData = factionID and C_Reputation.GetFactionDataByID(factionID)
 			local factionColor = KT_OBJECTIVE_TRACKER_COLOR["Zone"]
@@ -1371,7 +1383,7 @@ local function SetHooks()
 	KT_WorldQuestObjectiveTracker.OnFreeBlock = KT_BonusObjectiveTracker.OnFreeBlock
 
 	local function SetProgressBarStyle(block, progressBar, xOffsetMod)
-		if not progressBar.KTskinned or KT.forcedUpdate then
+		if progressBar.KTskinID ~= KT.skinID then
 			block.height = block.height - progressBar.height
 
 			progressBar:SetSize(240, 21)
@@ -1413,7 +1425,7 @@ local function SetHooks()
 			progressBar.Bar.Label:SetPoint("CENTER", 0, 0.5)
 			progressBar.Bar.Label:SetFont(LSM:Fetch("font", "Arial Narrow"), 13, "")
 			progressBar.Bar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
-			progressBar.KTskinned = true
+			progressBar.KTskinID = KT.skinID
 			progressBar.isSkinned = true  -- ElvUI hack
 
 			block.height = block.height + progressBar.height
@@ -1436,7 +1448,7 @@ local function SetHooks()
 	KT_ScenarioTrackerProgressBarMixin.PlayFlareAnim = function() end
 
 	local function SetTimerBarStyle(block, progressBar)
-		if not progressBar.KTskinned or KT.forcedUpdate then
+		if progressBar.KTskinID ~= KT.skinID then
 			block.height = block.height - progressBar.height
 
 			local barHeight = max(12, db.fontSize + fmod(db.fontSize, 2))
@@ -1470,7 +1482,7 @@ local function SetHooks()
 			border2:SetColorTexture(0.4, 0.4, 0.4)
 
 			progressBar.Bar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
-			progressBar.KTskinned = true
+			progressBar.KTskinID = KT.skinID
 			progressBar.isSkinned = true  -- ElvUI hack
 
 			block.height = block.height + progressBar.height
@@ -1537,6 +1549,9 @@ local function SetHooks()
 		end
 	end)
 
+	-- Disable all spell effects (I can't beat the magic of Blizzard widgets)
+	UIWidgetTemplateScenarioHeaderDelvesMixin.UpdateSpellFrameEffects = function() end
+
 	KT_ScenarioObjectiveTracker.StageBlock:HookScript("OnEnter", function(self)
 		TooltipPosition(self, 19, -1, -26 - self.KTtooltipOffsetXmod, -1 - self.KTtooltipOffsetYmod, true)
 	end)
@@ -1576,10 +1591,11 @@ local function SetHooks()
 	end
 
 	hooksecurefunc(UIWidgetBaseScenarioHeaderTemplateMixin, "Setup", function(self, widgetInfo, widgetContainer)
-		if not self.KTskinned or KT.forcedUpdate then
-			self.HeaderText:SetFont(KT.font, db.fontSize + 4, db.fontFlag)  -- see KT:SetText()
-			BaseScenarioWidget = self
-			self.KTskinned = true
+		if self.KTskinID ~= KT.skinID then
+			local fontSize = db.fontSize + 4
+			self.HeaderText:SetFont(KT.font, fontSize, db.fontFlag)  -- see KT:SetText()
+			UIWidgetBaseScenarioHeaderText = self.HeaderText
+			self.KTskinID = KT.skinID
 		end
 	end)
 
@@ -1768,25 +1784,11 @@ local function SetHooks()
 
 	function KT_QuestObjectiveTracker:UntrackQuest(questID)  -- N
 		C_QuestLog.RemoveQuestWatch(questID)
+		if not C_SuperTrack.GetSuperTrackedQuestID() then
+			KT.QuestSuperTracking_ChooseClosestQuest()
+		end
 	end
 	KT_CampaignQuestObjectiveTracker.UntrackQuest = KT_QuestObjectiveTracker.UntrackQuest
-
-	local function SetItem_SuperTracking(questID)
-		local info = MSA_DropDownMenu_CreateInfo()
-		info.notCheckable = true
-		if C_SuperTrack.GetSuperTrackedQuestID() ~= questID then
-			info.text = SUPER_TRACK_QUEST
-			info.func = function()
-				C_SuperTrack.SetSuperTrackedQuestID(questID)
-			end
-		else
-			info.text = STOP_SUPER_TRACK_QUEST
-			info.func = function()
-				C_SuperTrack.SetSuperTrackedQuestID(0)
-			end
-		end
-		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL)
-	end
 
 	function KT_QuestObjectiveTracker:OnBlockHeaderClick(block, mouseButton)  -- R
 		if ChatEdit_TryInsertQuestLinkForQuestID(block.id) then
@@ -1998,7 +2000,7 @@ local function SetHooks()
 		local addStopTracking = QuestUtils_IsQuestWatched(questID);
 
 		local info = MSA_DropDownMenu_CreateInfo();
-		info.text = C_TaskQuest.GetQuestInfoByQuestID(questID)
+		info.text = C_TaskQuest.GetQuestInfoByQuestID(questID) or C_QuestLog.GetTitleForQuestID(questID)
 		info.isTitle = 1;
 		info.notCheckable = 1;
 		MSA_DropDownMenu_AddButton(info, MSA_DROPDOWN_MENU_LEVEL);
@@ -2222,7 +2224,7 @@ local function SetHooks()
 
 	-- Torghast
 	hooksecurefunc(UIWidgetTemplateStatusBarMixin, "Setup", function(self, widgetInfo, widgetContainer)
-		if self.isJailersTowerBar and not self.KTskinned then
+		if self.isJailersTowerBar and self.KTskinID ~= KT.skinID then
 			local bck_Bar_OnEnter = self.Bar:GetScript("OnEnter")
 			self.Bar:SetScript("OnEnter", function(self)
 				if KTF.anchorLeft then
@@ -2235,7 +2237,7 @@ local function SetHooks()
 				self.tooltipYOffset = 0
 				bck_Bar_OnEnter(self)
 			end)
-			self.KTskinned = true
+			self.KTskinID = KT.skinID
 		end
 	end)
 
@@ -2296,6 +2298,13 @@ end
 --------------
 -- External --
 --------------
+
+function KT:Update(forced)
+	if forced then
+		self.skinID = self.skinID + 1
+	end
+	OTF:Update()
+end
 
 function KT:MinimizeButton_OnClick()
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
@@ -2433,7 +2442,11 @@ function KT:SetBackground()
 end
 
 -- TODO: Rename function
-function KT:SetText()
+function KT:SetText(forced)
+	if forced then
+		self.skinID = self.skinID + 1
+	end
+
 	self.font = LSM:Fetch("font", db.font)
 	testLine.Dash:SetFont(self.font, db.fontSize, db.fontFlag)
 	self.dashWidth = testLine.Dash:GetWidth() + 1
@@ -2442,12 +2455,15 @@ function KT:SetText()
 	SetHeadersStyle("text")
 
 	-- Others
-	KT_ScenarioObjectiveTracker.StageBlock.Stage:SetFont(self.font, db.fontSize + 5, db.fontFlag)
-	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.WaveLabel:SetFont(self.font, db.fontSize + 5, db.fontFlag)
-	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.Wave:SetFont(self.font, db.fontSize + 5, db.fontFlag)
-	KT_ScenarioObjectiveTracker.ProvingGroundsBlock.StatusBar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
-	if BaseScenarioWidget then
-		BaseScenarioWidget.HeaderText:SetFont(self.font, db.fontSize + 4, db.fontFlag)  -- see UIWidgetBaseScenarioHeaderTemplateMixin:Setup
+	if KT_ScenarioObjectiveTracker.KTskinID ~= KT.skinID then
+		KT_ScenarioObjectiveTracker.StageBlock.Stage:SetFont(self.font, db.fontSize + 5, db.fontFlag)
+		KT_ScenarioObjectiveTracker.ProvingGroundsBlock.WaveLabel:SetFont(self.font, db.fontSize + 5, db.fontFlag)
+		KT_ScenarioObjectiveTracker.ProvingGroundsBlock.Wave:SetFont(self.font, db.fontSize + 5, db.fontFlag)
+		KT_ScenarioObjectiveTracker.ProvingGroundsBlock.StatusBar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
+		if UIWidgetBaseScenarioHeaderText then
+			UIWidgetBaseScenarioHeaderText:SetFont(self.font, db.fontSize + 4, db.fontFlag)  -- see UIWidgetBaseScenarioHeaderTemplateMixin:Setup
+		end
+		KT_ScenarioObjectiveTracker.KTskinID = KT.skinID
 	end
 end
 
@@ -2812,6 +2828,8 @@ function KT:OnInitialize()
 	self.borderColor = {}
 	self.hdrBtnColor = {}
 	self.fixedButtons = {}
+	self.skinID = 0
+	self.font = ""
 	self.dashWidth = 0
 	self.inWorld = false
 	self.inInstance = IsInInstance()

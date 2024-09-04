@@ -105,11 +105,11 @@ local function SetHooks()
 	end
 
 	hooksecurefunc(PetTracker.ProgressBar, "SetProgress", function(self, progress)
-		if not self.KTskinned or KT.forcedUpdate then
+		if self.KTskinID ~= KT.skinID then
 			for _, bar in ipairs(self.Bars) do
 				bar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
 			end
-			self.KTskinned = true
+			self.KTskinID = KT.skinID
 		end
 	end)
 end

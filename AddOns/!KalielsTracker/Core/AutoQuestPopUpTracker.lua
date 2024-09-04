@@ -29,9 +29,9 @@ function KT_AutoQuestPopupTrackerMixin:AddAutoQuestObjectives()
 				if self:LayoutBlock(block) then
 					block:Update(questTitle, questID, popUpType);
 					-- MSA
-					if not block.KTskinned or KT.forcedUpdate then
+					if block.KTskinID ~= KT.skinID then
 						block.Contents.QuestName:SetFont(KT.font, 16, "")
-						block.KTskinned = true
+						block.KTskinID = KT.skinID
 					end
 				else
 					return;

@@ -11,11 +11,15 @@ KT.AddonTomTom = M
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
+-- Lua API
+local ipairs = ipairs
+
 local db
 local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
 local questWaypoint
 local superTrackedQuestID = 0
 local stopUpdate = false
+local autoQuestWatch = GetCVarBool("autoQuestWatch")
 
 local OTF = KT_ObjectiveTrackerFrame
 
@@ -60,26 +64,30 @@ local function SetupOptions()
 	end
 end
 
-local QuestPOIGetIconInfo = QuestPOIGetIconInfo
-if not QuestPOIGetIconInfo then
-	QuestPOIGetIconInfo = function(questID)
-		local x, y
-		local completed = C_QuestLog.IsComplete(questID)
-		local mapID = GetQuestUiMapID(questID)
-		if mapID and mapID > 0 then
-			local quests = C_QuestLog.GetQuestsOnMap(mapID)
-			if quests then
-				for _, info in pairs(quests) do
-					if info.questID == questID then
-						x = info.x
-						y = info.y
-						break
+-- Super turbo function :)
+local function QuestPOIGetIconInfo(questID)
+	local completed = C_QuestLog.IsComplete(questID)
+	local waypointText = C_QuestLog.GetNextWaypointText(questID)
+	local mapID, x, y = C_QuestLog.GetNextWaypoint(questID)
+	if not x or not y then
+		mapID = KT.GetCurrentMapAreaID()
+		if mapID then
+			x, y = C_QuestLog.GetNextWaypointForMap(questID, mapID)
+			if not x or not y then
+				local quests = C_QuestLog.GetQuestsOnMap(mapID)
+				if quests then
+					for _, info in ipairs(quests) do
+						if info.questID == questID then
+							x = info.x
+							y = info.y
+							break
+						end
 					end
 				end
 			end
 		end
-		return completed, x, y
 	end
+	return mapID, x, y, completed, waypointText
 end
 
 local function WorldQuestPOIGetIconInfo(mapID, questID)
@@ -104,11 +112,11 @@ local function SetWaypointTag(button, show)
 		if button.KTtomtom then
 			button.KTtomtom:Show()
 		else
-			if button.Display then
-				button.KTtomtom = button.Display:CreateTexture(nil, "OVERLAY")
-				button.KTtomtom:SetTexture(mediaPath.."KT-TomTomTag")
-				button.KTtomtom:SetPoint("CENTER")
-			end
+			-- Only for new POI button tags on World Map!
+			-- The tracker has tag inside KT2_ObjectiveTrackerPOIButtonTemplate (animation bug prevention)
+			button.KTtomtom = button:CreateTexture(nil, "OVERLAY")
+			button.KTtomtom:SetTexture(mediaPath.."KT-TomTomTag")
+			button.KTtomtom:SetPoint("CENTER")
 		end
 
 		local scale = button.KTtomtom:GetParent():GetPinScale()
@@ -131,8 +139,7 @@ local function AddWaypoint(questID)
 		return false
 	end
 
-	local title, mapID
-	local x, y, completed
+	local title, mapID, x, y, completed, waypointText
 	if QuestUtils_IsQuestWorldQuest(questID) then
 		title = C_TaskQuest.GetQuestInfoByQuestID(questID)
 		mapID = C_TaskQuest.GetQuestZoneID(questID)
@@ -141,13 +148,13 @@ local function AddWaypoint(questID)
 		end
 	else
 		title = C_QuestLog.GetTitleForQuestID(questID)
-		mapID = GetQuestUiMapID(questID)
-		if mapID and mapID > 0 then
-			completed, x, y = QuestPOIGetIconInfo(questID)
+		mapID, x, y, completed, waypointText = QuestPOIGetIconInfo(questID)
+		if waypointText then
+			title = title.."\n("..waypointText..")"
 		end
 	end
 
-	if not title then
+	if not mapID or not x or not y or not title then
 		return false
 	end
 
@@ -155,10 +162,6 @@ local function AddWaypoint(questID)
 		title = "|TInterface\\GossipFrame\\ActiveQuestIcon:0:0:0:0|t "..title
 	else
 		title = "|TInterface\\GossipFrame\\AvailableQuestIcon:0:0:0:0|t "..title
-	end
-
-	if not mapID or mapID == 0 or not x or not y then
-		return false
 	end
 
 	local uid = TomTom:AddWaypoint(mapID, x, y, {
@@ -227,11 +230,11 @@ local function SetHooks()
 
 	-- Blizzard
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedQuestID", function(questID)
-		if QuestUtils_IsQuestBonusObjective(questID) then
+		stopUpdate = questID > 0 and not QuestUtils_IsQuestWatched(questID) and not C_QuestLog.IsWorldQuest(questID)
+		if stopUpdate then
+			-- after focus on Unwatched Quests or Bonus Objectives
 			RemoveWaypoint(superTrackedQuestID)
-		end
-		stopUpdate = questID > 0 and not QuestUtils_IsQuestWatched(questID)
-		if not stopUpdate then
+		else
 			SetSuperTrackedQuestWaypoint(questID)
 		end
 	end)
@@ -246,23 +249,35 @@ local function SetHooks()
 		if superTrackedQuestID > 0 then
 			RemoveWaypoint(superTrackedQuestID)
 		end
+		superTrackedQuestID = trackableID
 	end)
 
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedMapPin", function(type, typeID)
 		if superTrackedQuestID > 0 then
 			RemoveWaypoint(superTrackedQuestID)
 		end
+		superTrackedQuestID = typeID
 	end)
 
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedUserWaypoint", function(superTracked)
-		if superTracked and superTrackedQuestID > 0 then
+		if superTrackedQuestID > 0 then
 			RemoveWaypoint(superTrackedQuestID)
+		end
+		if superTracked then
+			superTrackedQuestID = 100000  -- fake ID
 		end
 	end)
 
 	hooksecurefunc(C_QuestLog, "AbandonQuest", function()
 		local questID = QuestMapFrame.DetailsFrame.questID or QuestLogPopupDetailFrame.questID
 		RemoveWaypoint(questID)
+	end)
+
+	hooksecurefunc("QuestMapQuestOptions_TrackQuest", function(questID)
+		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
+			SetSuperTrackedQuestWaypoint(questID, true)
+			QuestMapFrame:Refresh()
+		end
 	end)
 
 	-- Only for World Quests
@@ -286,7 +301,7 @@ local function SetEvents()
 	-- Update waypoint after reload with supertracking
 	KT:RegEvent("QUEST_LOG_UPDATE", function(eventID)
 		local questID = C_SuperTrack.GetSuperTrackedQuestID()
-		if questID then
+		if questID and (QuestUtils_IsQuestWatched(questID) or C_QuestLog.IsWorldQuest(questID)) then
 			SetSuperTrackedQuestWaypoint(questID)
 		end
 		KT:UnregEvent(eventID)
@@ -294,22 +309,42 @@ local function SetEvents()
 
 	-- Disable stop update after quest is accepted
 	KT:RegEvent("QUEST_ACCEPTED", function()
-		stopUpdate = false
+		stopUpdate = not autoQuestWatch
+	end)
+
+	-- Enable stop update after quest is removed
+	KT:RegEvent("QUEST_REMOVED", function()
+		stopUpdate = true
+	end)
+
+	-- Enable stop update after quest is turned in
+	KT:RegEvent("QUEST_TURNED_IN", function()
+		stopUpdate = true
 	end)
 
 	-- Update waypoint after quest objectives changed
 	KT:RegEvent("QUEST_WATCH_UPDATE", function(_, questID)
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
 			C_Timer.After(0.3, function()
-				SetSuperTrackedQuestWaypoint(questID, true)
+				if not stopUpdate then
+					SetSuperTrackedQuestWaypoint(questID, true)
+				end
 			end)
+		end
+	end)
+
+	-- Updates waypoint while moving
+	KT:RegEvent("WAYPOINT_UPDATE", function()
+		local questID = C_SuperTrack.GetSuperTrackedQuestID()
+		if questID then
+			SetSuperTrackedQuestWaypoint(questID, true)
 		end
 	end)
 
 	-- Update waypoint after accept quest
 	KT:RegEvent("QUEST_POI_UPDATE", function()
 		local questID = C_SuperTrack.GetSuperTrackedQuestID()
-		if questID then
+		if questID and QuestUtils_IsQuestWatched(questID) then
 			C_Timer.After(0, function()
 				SetSuperTrackedQuestWaypoint(questID)
 				OTF:Update()

@@ -104,6 +104,12 @@ local function SetHooks()
 			end
 		end
 	end
+
+	hooksecurefunc("QuestMapQuestOptions_TrackQuest", function(questID)
+		if not C_SuperTrack.GetSuperTrackedQuestID() then
+			KT.QuestSuperTracking_ChooseClosestQuest()
+		end
+	end)
 end
 
 local function SetFrames()
