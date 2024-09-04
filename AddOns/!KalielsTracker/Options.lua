@@ -1066,14 +1066,14 @@ local options = {
 							order = 6.12,
 						},
 						tooltipTitle = {
-							name = "\n"..cTitle.."滑鼠提示",
+							name = "\n"..cTitle.."浮動提示資訊",
 							type = "description",
 							fontSize = "medium",
 							order = 6.2,
 						},
 						tooltipShow = {
-							name = "顯示滑鼠提示",
-							desc = "顯示任務/世界任務/成就/事件的滑鼠提示。",
+							name = "顯示浮動提示資訊",
+							desc = "顯示任務/世界任務/成就/事件的浮動提示資訊。",
 							type = "toggle",
 							set = function()
 								db.tooltipShow = not db.tooltipShow
@@ -1082,7 +1082,7 @@ local options = {
 						},
 						tooltipShowRewards = {
 							name = "顯示獎勵",
-							desc = "在滑鼠提示內顯示任務獎勵 - 神兵之力、職業大廳資源、金錢、裝備...等。",
+							desc = "在浮動提示資訊內顯示任務獎勵 - 神兵之力、職業大廳資源、金錢、裝備...等。",
 							type = "toggle",
 							disabled = function()
 								return not db.tooltipShow
@@ -1094,7 +1094,7 @@ local options = {
 						},
 						tooltipShowID = {
 							name = "顯示 ID",
-							desc = "在滑鼠提示內顯示任務/世界任務/成就的 ID。",
+							desc = "在浮動提示資訊內顯示任務/世界任務/成就的 ID。",
 							type = "toggle",
 							disabled = function()
 								return not db.tooltipShow
@@ -1414,7 +1414,7 @@ local options = {
 									"啟用駭客工具時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
 									cWarning2.."負面影響:|r\n"..
 									"- 建立預組隊伍的對話框中會隱藏 \"目標\" 項目。\n"..
-									"- 預組隊伍列表中項目的滑鼠提示會隱藏第二行 (綠色) 的 \"目標\"。\n"..
+									"- 預組隊伍列表中項目的浮動提示資訊會隱藏第二行 (綠色) 的 \"目標\"。\n"..
 									"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，\n"..
 									"  例如 M+ 鑰石層數。\n",
 							descStyle = "inline",
