@@ -44,14 +44,19 @@
     </Frame>
 
     <Button name="KT2_ObjectiveTrackerPOIButtonTemplate" inherits="KT_ObjectiveTrackerPOIButtonTemplate" virtual="true">
-        <Layers>
-            <Layer level="OVERLAY">
-                <Texture parentKey="KTtomtom" file="Interface\AddOns\!KalielsTracker\Media\KT-TomTomTag" hidden="true">
-                    <Anchors>
-                        <Anchor point="CENTER"/>
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
+        <Frames>
+            <Frame parentKey="Display" inherits="POIButtonDisplayLayerTemplate">
+                <Layers>
+                    <Layer level="OVERLAY">
+                        <Texture parentKey="KTtomtom" file="Interface\AddOns\!KalielsTracker\Media\KT-TomTomTag" hidden="true">
+                            <Size x="32" y="32"/>
+                            <Anchors>
+                                <Anchor point="CENTER"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Frame>
+        </Frames>
     </Button>
 </Ui>

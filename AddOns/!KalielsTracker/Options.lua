@@ -107,6 +107,8 @@ local defaults = {
         questDefaultActionMap = true,
 		questShowTags = true,
 		questShowZones = true,
+		taskShowFactions = true,
+		questAutoFocusClosest = true,
 
 		messageQuest = true,
 		messageAchievement = true,
@@ -1155,6 +1157,7 @@ local options = {
 							name = "顯示任務標籤",
 							desc = "在任務追蹤清單中顯示/隱藏任務標籤 (任務等級、任務類型)。",
 							type = "toggle",
+							width = "normal+half",
 							set = function()
 								db.questShowTags = not db.questShowTags
 								OTF:Update()
@@ -1165,16 +1168,29 @@ local options = {
 							name = "顯示任務區域",
 							desc = "在任務追蹤清單中顯示/隱藏任務區域。",
 							type = "toggle",
+							width = "normal+half",
 							set = function()
 								db.questShowZones = not db.questShowZones
 								OTF:Update()
 							end,
 							order = 6.43,
 						},
+						taskShowFactions = {
+							name = "顯示世界任務陣營",
+							desc = "顯示/隱藏追蹤清單中的世界任務的陣營。",
+							type = "toggle",
+							width = "normal+half",
+							set = function()
+								db.taskShowFactions = not db.taskShowFactions
+								OTF:Update()
+							end,
+							order = 6.44,
+						},
 						questAutoTrack = {
 							name = "自動追蹤新任務",
 							desc = "接受任務時自動追蹤任務，使用遊戲內建的 \"autoQuestWatch\" 參數值。\n"..warning,
 							type = "toggle",
+							width = "normal+half",
 							confirm = true,
 							confirmText = warning,
 							get = function()
@@ -1184,7 +1200,7 @@ local options = {
 								SetCVar("autoQuestWatch", value)
 								ReloadUI()
 							end,
-							order = 6.44,
+							order = 6.45,
 						},
 						questProgressAutoTrack = {
 							name = "自動追蹤任務進度",
@@ -1200,7 +1216,22 @@ local options = {
 								SetCVar("autoQuestProgress", value)
 								ReloadUI()
 							end,
-							order = 6.45,
+							order = 6.46,
+						},
+						questAutoFocusClosest = {
+							name = "自動將最近的任務設為焦點                            ",  -- space for a wider tooltip
+							desc = "下列情況會自動將最近的任務設為焦點:\n"..
+									"- 交回設為焦點的任務，\n"..
+									"- 放棄設為焦點的任務，\n"..
+									"- 取消追蹤設為焦點的任務，\n"..
+									"- 取消追蹤設為焦點的世界任務，\n"..
+									"- 手動或自動選擇區域過濾方式時，沒有任何東西設為焦點。",
+							type = "toggle",
+							width = "normal+half",
+							set = function()
+								db.questAutoFocusClosest = not db.questAutoFocusClosest
+							end,
+							order = 6.47,
 						},
 					},
 				},

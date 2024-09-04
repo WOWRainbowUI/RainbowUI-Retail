@@ -426,7 +426,7 @@ local function Filter_Quests(spec, idx)
 	KT_QuestObjectiveTracker:MarkDirty()
 	if lastSuperTrackedQuestID > 0 and QuestUtils_IsQuestWatched(lastSuperTrackedQuestID) then
 		C_SuperTrack.SetSuperTrackedQuestID(lastSuperTrackedQuestID)
-	elseif not C_SuperTrack.IsSuperTrackingAnything() then
+	elseif db.questAutoFocusClosest and not C_SuperTrack.IsSuperTrackingAnything() then
 		KT.QuestSuperTracking_ChooseClosestQuest()
 	end
 end
@@ -734,7 +734,7 @@ end
 
 local function Filter_Menu_Quests(self, spec, idx)
 	Filter_Quests(spec, idx)
-	if not C_SuperTrack.GetSuperTrackedQuestID() then
+	if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 		KT.QuestSuperTracking_ChooseClosestQuest()
 	end
 end
@@ -748,7 +748,7 @@ local function Filter_Menu_AutoTrack(self, id, spec)
 	if db.filterAuto[id] then
 		if id == 1 then
 			Filter_Quests(spec)
-			if not C_SuperTrack.GetSuperTrackedQuestID() then
+			if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 				KT.QuestSuperTracking_ChooseClosestQuest()
 			end
 		elseif id == 2 then

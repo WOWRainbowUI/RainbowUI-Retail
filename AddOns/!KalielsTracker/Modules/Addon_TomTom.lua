@@ -108,28 +108,28 @@ local function WorldQuestPOIGetIconInfo(mapID, questID)
 end
 
 local function SetWaypointTag(button, show)
+	local tag = button.Display.KTtomtom
 	if show then
-		if button.KTtomtom then
-			button.KTtomtom:Show()
+		if tag then
+			tag:Show()
 		else
 			-- Only for new POI button tags on World Map!
 			-- The tracker has tag inside KT2_ObjectiveTrackerPOIButtonTemplate (animation bug prevention)
-			button.KTtomtom = button:CreateTexture(nil, "OVERLAY")
-			button.KTtomtom:SetTexture(mediaPath.."KT-TomTomTag")
-			button.KTtomtom:SetPoint("CENTER")
+			tag = button.Display:CreateTexture(nil, "OVERLAY")
+			tag:SetTexture(mediaPath.."KT-TomTomTag")
+			tag:SetSize(32, 32)
+			tag:SetPoint("CENTER")
+			button.Display.KTtomtom = tag
 		end
-
-		local scale = button.KTtomtom:GetParent():GetPinScale()
-		button.KTtomtom:SetSize(scale * 32, scale * 32)
 
 		if questWaypoint then
-			button.KTtomtom:SetTexCoord(0, 0.5, 0, 1)
+			tag:SetTexCoord(0, 0.5, 0, 1)
 		else
-			button.KTtomtom:SetTexCoord(0.5, 1, 0, 1)
+			tag:SetTexCoord(0.5, 1, 0, 1)
 		end
 	else
-		if button.KTtomtom then
-			button.KTtomtom:Hide()
+		if tag then
+			tag:Hide()
 		end
 	end
 end
