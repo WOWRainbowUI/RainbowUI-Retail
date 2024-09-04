@@ -266,23 +266,25 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 7.3.1|r\n"..
-					"- ADDED (quest) - show the Warband bonus icon on the reward in the tooltip\n"..
-					"- CHANGED - TomTom - minor improvements\n"..
-					"- FIXED (quests) - reward information in the tooltip is sometimes not displayed\n"..
-					"- FIXED - TomTom - green tag is not hidden when switching to Blizzard pin\n"..
-					"- PERFORMANCE (quests) - optimization of sorting code\n"..
-					"- PERFORMANCE - optimization of zone filtering code\n"..
-					"\n"..
-					cTitle.."Version 7.3.0|r\n"..
-					"- ADDED (quests) - filter support for Delves (Instance filter)\n"..
-					"- ADDED (scenario) - support for Delves and minor improvements (2)\n"..
-					"- ADDED (quests) - new tag for Delves\n"..
-					"- ADDED (filter) - use Shift+Click in the F menu, for incremental filtering of quests (Click only switches between groups of filters)\n"..
-					"- ADDED (scenario) - support for Delves and minor improvements\n"..
-					"- ADDED (quests) - sorting - is on map > zone > level > title\n"..
-					"- CHANGED - TomTom - minor improvements\n"..
-					"- PERFORMANCE (achievements) - optimization of filtering code\n"..
+					cTitle.."Version 7.4.0|r\n"..
+					"- ADDED (quest) - show the Warband bonus icon on the reward in the tooltip (choices)\n"..
+					"- ADDED (quests) - auto/manual focus closest quest (manual - Right Click on Minimize Button)\n"..
+					"- ADDED (scenario) - skin other widgets (text)\n"..
+					"- CHANGED - TomTom - better waypoint update while moving\n"..
+					"- CHANGED - TomTom - better getting coordinates for quests/objectives, additional info text to waypoint arrow\n"..
+					"- CHANGED (quests) - improvement of zone filtering (instance quests)\n"..
+					"- CHANGED (worldquests) - small visual improvements\n"..
+					"- CHANGED (scenario) - Delves - small visual improvements\n"..
+					"- CHANGED - World Map Hack [Beta] - minor improvement\n"..
+					"- CHANGED (quests) - focus closest quest improvements\n"..
+					"- CHANGED - TomTom - better switching between waypoint and Blizzard pin (2)\n"..
+					"- CHANGED - TomTom - better switching between waypoint and Blizzard pin\n"..
+					"- CHANGED (filter) - minor improvements\n"..
+					"- FIXED - TomTom - animation bug on POI with waypoint tag\n"..
+					"- FIXED (quests) - Bonus objectives - sometimes the title does not appear in the context menu\n"..
+					"- FIXED (scenario) - visual bug on Delves spell icons\n"..
+					"- PERFORMANCE (quests) - optimization of sorting code (completed quests at end of list)\n"..
+					"- REMOVED (scenario) - skin other widgets (taint problem)\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..

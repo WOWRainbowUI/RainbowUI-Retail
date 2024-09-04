@@ -147,16 +147,15 @@ local function CompareQuestWatchInfos(info1, info2)
 	end]]
 
 	-- MSA
+	-- Completed at end of list
+	if quest1:IsComplete() ~= quest2:IsComplete() then
+		return quest2:IsComplete()
+	end
 	-- is on Map
 	if not WorldMapFrame:IsShown() then
 		if quest1:IsOnMap() ~= quest2:IsOnMap() then
 			return quest1:IsOnMap()
 		end
-	end
-	-- by Zone
-	local KTquest1, KTquest2 = info1.KTquest, info2.KTquest;
-	if KTquest1.zone ~= KTquest2.zone then
-		return KTquest1.zone < KTquest2.zone
 	end
 	-- by Level
 	if quest1.level ~= quest2.level then

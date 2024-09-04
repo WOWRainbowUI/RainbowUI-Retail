@@ -116,6 +116,7 @@ local function Hack_WorldMap()
 
             if newPin then
                 pin:OnLoad();
+                pin.CheckMouseButtonPassthrough = function() end
                 pin.UpdateMousePropagation = function() end
             end
 

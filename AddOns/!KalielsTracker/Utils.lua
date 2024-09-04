@@ -226,6 +226,10 @@ function KT.GameTooltip_AddQuestRewardsToTooltip(tooltip, questID, isBonus)
                 local currencyInfo = C_QuestLog.GetQuestRewardCurrencyInfo(questID, i, true)
                 local amount = FormatLargeNumber(currencyInfo.totalRewardAmount)
                 text = format(BONUS_OBJECTIVE_REWARD_WITH_COUNT_FORMAT, currencyInfo.texture, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(amount), currencyInfo.name)
+                local contextIcon = KT.GetBestQuestRewardContextIcon(currencyInfo.questRewardContextFlags)
+                if contextIcon then
+                    text = text..CreateAtlasMarkup(contextIcon, 12, 16, 3, -1)
+                end
                 color = ITEM_QUALITY_COLORS[currencyInfo.quality]
             end
             if text and color then
@@ -348,6 +352,50 @@ function KT.GetNumQuestWatches()
         end
     end
     return numWatches
+end
+
+function KT.QuestSuperTracking_ChooseClosestQuest()
+    local closestQuestID = 0
+    local minDistSqr = math.huge
+
+    for i = 1, C_QuestLog.GetNumQuestLogEntries() do
+        local questInfo = C_QuestLog.GetInfo(i)
+        if not questInfo.isHeader and questInfo.isHidden and C_QuestLog.IsWorldQuest(questInfo.questID) then
+            local distanceSq = C_QuestLog.GetDistanceSqToQuest(questInfo.questID)
+            if distanceSq and distanceSq <= minDistSqr then
+                minDistSqr = distanceSq
+                closestQuestID = questInfo.questID
+            end
+        end
+    end
+
+    if closestQuestID == 0 then
+        for i = 1, C_QuestLog.GetNumWorldQuestWatches() do
+            local watchedWorldQuestID = C_QuestLog.GetQuestIDForWorldQuestWatchIndex(i)
+            if watchedWorldQuestID then
+                local distanceSq = C_QuestLog.GetDistanceSqToQuest(watchedWorldQuestID)
+                if distanceSq and distanceSq <= minDistSqr then
+                    minDistSqr = distanceSq
+                    closestQuestID = watchedWorldQuestID
+                end
+            end
+        end
+    end
+
+    if closestQuestID == 0 then
+        for i = 1, C_QuestLog.GetNumQuestWatches() do
+            local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(i)
+            if questID and QuestHasPOIInfo(questID) then
+                local distSqr, onContinent = C_QuestLog.GetDistanceSqToQuest(questID)
+                if onContinent and distSqr <= minDistSqr then
+                    minDistSqr = distSqr
+                    closestQuestID = questID
+                end
+            end
+        end
+    end
+
+    C_SuperTrack.SetSuperTrackedQuestID(closestQuestID)
 end
 
 -- Scenario

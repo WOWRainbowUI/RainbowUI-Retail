@@ -5,7 +5,6 @@
 --- This file is part of addon Kaliel's Tracker.
 
 local addonName, KT = ...
-KT.forcedUpdate = false
 
 local ACD = LibStub("MSA-AceConfigDialog-3.0")
 local ACR = LibStub("AceConfigRegistry-3.0")
@@ -493,13 +492,11 @@ local options = {
 							values = WidgetLists.statusbar,
 							set = function(_, value)
 								db.progressBar = value
-								KT.forcedUpdate = true
-								OTF:Update()
+								KT:Update(true)
 								-- TODO: Update
 								--[[if PetTracker then
 									PetTracker.Objectives:Update()
 								end]]
-								KT.forcedUpdate = false
 							end,
 							order = 2.9,
 						},
@@ -518,14 +515,12 @@ local options = {
 							values = WidgetLists.font,
 							set = function(_, value)
 								db.font = value
-								KT.forcedUpdate = true
-								KT:SetText()
-								OTF:Update()
+								KT:SetText(true)
+								KT:Update()
 								-- TODO: Update
 								--[[if PetTracker then
 									PetTracker.Objectives:Update()
 								end]]
-								KT.forcedUpdate = false
 							end,
 							order = 3.1,
 						},
@@ -537,14 +532,12 @@ local options = {
 							step = 1,
 							set = function(_, value)
 								db.fontSize = value
-								KT.forcedUpdate = true
-								KT:SetText()
-								OTF:Update()
+								KT:SetText(true)
+								KT:Update()
 								-- TODO: Update
 								--[[if PetTracker then
 									PetTracker.Objectives:Update()
 								end]]
-								KT.forcedUpdate = false
 							end,
 							order = 3.2,
 						},
@@ -561,14 +554,12 @@ local options = {
 							end,
 							set = function(_, value)
 								db.fontFlag = value
-								KT.forcedUpdate = true
-								KT:SetText()
-								OTF:Update()
+								KT:SetText(true)
+								KT:Update()
 								-- TODO: Update
 								--[[if PetTracker then
 									PetTracker.Objectives:Update()
 								end]]
-								KT.forcedUpdate = false
 							end,
 							order = 3.3,
 						},
@@ -604,9 +595,7 @@ local options = {
 							type = "toggle",
 							set = function()
 								db.textWordWrap = not db.textWordWrap
-								KT.forcedUpdate = true
-								OTF:Update()
-								KT.forcedUpdate = false
+								KT:Update(true)
 							end,
 							order = 3.6,
 						},
