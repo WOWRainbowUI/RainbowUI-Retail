@@ -354,12 +354,14 @@ local function SetFrames()
 				KT:SetQuestsHeaderText()
 
 				KT.QuestsCache_RemoveQuest(questID)
-				if not C_SuperTrack.GetSuperTrackedQuestID() then
+				if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 					KT.QuestSuperTracking_ChooseClosestQuest()
 				end
 			end
 		elseif event == "QUEST_TURNED_IN" then
-			KT.QuestSuperTracking_ChooseClosestQuest()
+			if db.questAutoFocusClosest then
+				KT.QuestSuperTracking_ChooseClosestQuest()
+			end
 		elseif event == "ACHIEVEMENT_EARNED" then
 			KT:SetAchievsHeaderText()
 		elseif event == "PLAYER_REGEN_ENABLED" and combatLockdown then
@@ -1023,7 +1025,7 @@ local function SetHooks()
 	end
 
 	hooksecurefunc(QuestUtil, "UntrackWorldQuest", function(questID)
-		if not C_SuperTrack.GetSuperTrackedQuestID() then
+		if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 			KT.QuestSuperTracking_ChooseClosestQuest()
 		end
 	end)
@@ -1330,15 +1332,17 @@ local function SetHooks()
 				self:AddObjective("Zone", infoText, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, KT_OBJECTIVE_TRACKER_COLOR["Zone"])
 			end
 		else
-			local _, factionID, capped = C_TaskQuest.GetQuestInfoByQuestID(questID)
-			local factionData = factionID and C_Reputation.GetFactionDataByID(factionID)
-			local factionColor = KT_OBJECTIVE_TRACKER_COLOR["Zone"]
-			if factionData then
-				local reputationYieldsRewards = not capped or C_Reputation.IsFactionParagon(factionID)
-				if not reputationYieldsRewards then
-					factionColor = KT_OBJECTIVE_TRACKER_COLOR["Inactive"]
+			if db.taskShowFactions then
+				local _, factionID, capped = C_TaskQuest.GetQuestInfoByQuestID(questID)
+				local factionData = factionID and C_Reputation.GetFactionDataByID(factionID)
+				local factionColor = KT_OBJECTIVE_TRACKER_COLOR["Zone"]
+				if factionData then
+					local reputationYieldsRewards = not capped or C_Reputation.IsFactionParagon(factionID)
+					if not reputationYieldsRewards then
+						factionColor = KT_OBJECTIVE_TRACKER_COLOR["Inactive"]
+					end
+					self:AddObjective("Faction", factionData.name, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, factionColor)
 				end
-				self:AddObjective("Faction", factionData.name, nil, nil, KT_OBJECTIVE_DASH_STYLE_HIDE, factionColor)
 			end
 		end
 	end
@@ -1784,7 +1788,7 @@ local function SetHooks()
 
 	function KT_QuestObjectiveTracker:UntrackQuest(questID)  -- N
 		C_QuestLog.RemoveQuestWatch(questID)
-		if not C_SuperTrack.GetSuperTrackedQuestID() then
+		if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 			KT.QuestSuperTracking_ChooseClosestQuest()
 		end
 	end

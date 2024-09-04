@@ -107,6 +107,8 @@ local defaults = {
         questDefaultActionMap = true,
 		questShowTags = true,
 		questShowZones = true,
+		taskShowFactions = true,
+		questAutoFocusClosest = true,
 
 		messageQuest = true,
 		messageAchievement = true,
@@ -1155,6 +1157,7 @@ local options = {
 							name = "Show Quest tags",
 							desc = "Show / Hide Quest tags (quest level, quest type) inside the tracker.",
 							type = "toggle",
+							width = "normal+half",
 							set = function()
 								db.questShowTags = not db.questShowTags
 								OTF:Update()
@@ -1165,16 +1168,29 @@ local options = {
 							name = "Show Quest Zones",
 							desc = "Show / Hide Quest Zones inside the tracker.",
 							type = "toggle",
+							width = "normal+half",
 							set = function()
 								db.questShowZones = not db.questShowZones
 								OTF:Update()
 							end,
 							order = 6.43,
 						},
+						taskShowFactions = {
+							name = "Show World Quest Factions",
+							desc = "Show / Hide World Quest Factions inside the tracker.",
+							type = "toggle",
+							width = "normal+half",
+							set = function()
+								db.taskShowFactions = not db.taskShowFactions
+								OTF:Update()
+							end,
+							order = 6.44,
+						},
 						questAutoTrack = {
 							name = "Auto Quest tracking",
 							desc = "Quests are automatically watched when accepted. Uses Blizzard's value \"autoQuestWatch\".\n"..warning,
 							type = "toggle",
+							width = "normal+half",
 							confirm = true,
 							confirmText = warning,
 							get = function()
@@ -1184,7 +1200,7 @@ local options = {
 								SetCVar("autoQuestWatch", value)
 								ReloadUI()
 							end,
-							order = 6.44,
+							order = 6.45,
 						},
 						questProgressAutoTrack = {
 							name = "Auto Quest progress tracking",
@@ -1200,7 +1216,22 @@ local options = {
 								SetCVar("autoQuestProgress", value)
 								ReloadUI()
 							end,
-							order = 6.45,
+							order = 6.46,
+						},
+						questAutoFocusClosest = {
+							name = "Auto focus closest Quest                            ",  -- space for a wider tooltip
+							desc = "Closest Quest is automatically focussed in specific situations:\n"..
+									"- Quest was turned in and was focused,\n"..
+									"- Quest was abandoned and was focused,\n"..
+									"- Quest was untracked and was focused,\n"..
+									"- World Quest was untracked and was focus,\n"..
+									"- you manually or automatically select a Zone Filter and nothing is focused.",
+							type = "toggle",
+							width = "normal+half",
+							set = function()
+								db.questAutoFocusClosest = not db.questAutoFocusClosest
+							end,
+							order = 6.47,
 						},
 					},
 				},

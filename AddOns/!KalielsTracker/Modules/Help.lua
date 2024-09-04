@@ -266,6 +266,11 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
+					cTitle.."Version 7.4.1|r\n"..
+					"- ADDED (quests) - Option for enable/disable Auto focus closest Quest\n"..
+					"- ADDED (worldquests) - Option for show/hide Faction name in tracked World quests\n"..
+					"- FIXED - TomTom - waypoint tag is sometimes under POI elements\n"..
+					"\n"..
 					cTitle.."Version 7.4.0|r\n"..
 					"- ADDED (quest) - show the Warband bonus icon on the reward in the tooltip (choices)\n"..
 					"- ADDED (quests) - auto/manual focus closest quest (manual - Right Click on Minimize Button)\n"..

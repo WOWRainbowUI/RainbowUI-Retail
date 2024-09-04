@@ -1,4 +1,8 @@
 # Kaliel's Tracker changelog
+### 7.4.1
+- ADDED (quests) - Option for enable/disable Auto focus closest Quest
+- ADDED (worldquests) - Option for show/hide Faction name in tracked World quests
+- FIXED - TomTom - waypoint tag is sometimes under POI elements
 ### 7.4.0
 - ADDED (quest) - show the Warband bonus icon on the reward in the tooltip (choices)
 - ADDED (quests) - auto/manual focus closest quest (manual - Right Click on Minimize Button)
