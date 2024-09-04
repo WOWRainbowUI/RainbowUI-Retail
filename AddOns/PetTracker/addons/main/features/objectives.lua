@@ -49,7 +49,7 @@ function Objectives:Layout()
 end
 
 function Objectives:GetContent()
-	if Addon.sets.zoneTracker then
+	if Addon.sets.zoneTracker and self:GetParent().modules then -- 暫時修正
 		local used = 0
 		for i, module in ipairs(self:GetParent().modules) do
 			local height = module:GetContentsHeight()
