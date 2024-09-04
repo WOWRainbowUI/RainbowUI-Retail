@@ -1,3 +1,10 @@
+# v2.47.1
+
+- Added A Light in the Dark campaign questline
+- Added Fractured Legacy of Anub'azal questline in Azj-Kahet
+- Fixed renown requirements for A Star of Dorn
+- Fixed missing uqest from A Star of Dorn
+
 # v2.47.0
 
 - Added an option to view the chain for a quest from the quest log and objective tracker context menus

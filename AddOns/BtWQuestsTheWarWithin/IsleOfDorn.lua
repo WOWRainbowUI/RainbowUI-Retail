@@ -1813,13 +1813,22 @@ Database:AddChain(Chain.TempChain32, {
             id = 214296,
             x = 1,
             connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 79150,
+            x = 1,
+            aside = true,
+            connections = {
                 2, 
             },
         },
         {
             type = "currency",
             id = 2900,
-            amount = 5,
+            amount = 8,
             x = -1,
             connections = {
                 2, 
@@ -1827,7 +1836,7 @@ Database:AddChain(Chain.TempChain32, {
         },
         {
             type = "quest",
-            id = 79150,
+            id = 79282,
             aside = true,
         },
         {
@@ -1861,7 +1870,7 @@ Database:AddChain(Chain.TempChain32, {
         {
             type = "currency",
             id = 2900,
-            amount = 15,
+            amount = 14,
             x = -1,
             connections = {
                 2, 
@@ -1882,7 +1891,7 @@ Database:AddChain(Chain.TempChain32, {
         {
             type = "currency",
             id = 2900,
-            amount = 20,
+            amount = 21,
             connections = {
                 2, 
             },

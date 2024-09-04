@@ -686,6 +686,39 @@ BtWQuestsDatabase:AddNPCsTable({
             },
         },
     },
+    [214271] = {
+        name = "General Steelstrike",
+        locations = {
+            [2215] = {
+                {
+                    x = 0.716405,
+                    y = 0.592089,
+                },
+            },
+        },
+    },
+    [214273] = {
+        name = "Anduin Wrynn",
+        locations = {
+            [2215] = {
+                {
+                    x = 0.645292,
+                    y = 0.617816,
+                },
+            },
+        },
+    },
+    [214276] = {
+        name = "Lady Jaina Proudmoore",
+        locations = {
+            [2215] = {
+                {
+                    x = 0.685459,
+                    y = 0.64153,
+                },
+            },
+        },
+    },
     [214296] = {
         name = "Stage Manager Huberta",
         locations = {
@@ -2665,6 +2698,17 @@ BtWQuestsDatabase:AddNPCsTable({
                 {
                     x = 0.625718,
                     y = 0.792083,
+                },
+            },
+        },
+    },
+    [220688] = {
+        name = "Alleria Windrunner",
+        locations = {
+            [2215] = {
+                {
+                    x = 0.359303,
+                    y = 0.354589,
                 },
             },
         },
