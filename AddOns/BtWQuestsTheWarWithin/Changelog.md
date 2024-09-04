@@ -1,3 +1,10 @@
+# v3.0
+
+- Added A Light in the Dark campaign questline
+- Added Fractured Legacy of Anub'azal questline in Azj-Kahet
+- Fixed renown requirements for A Star of Dorn
+- Fixed missing uqest from A Star of Dorn
+
 # v2.0
 
 - Added A Star of Dorn questline to the Isle of Dorn

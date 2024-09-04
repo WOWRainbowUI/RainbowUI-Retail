@@ -23,6 +23,18 @@
 
 Defines.lua
 
+Localization.lua
+Localization.deDE.lua
+Localization.esES.lua
+Localization.esMX.lua
+Localization.frFR.lua
+Localization.itIT.lua
+Localization.koKR.lua
+Localization.ptBR.lua
+Localization.ruRU.lua
+Localization.zhCN.lua
+Localization.zhTW.lua
+
 Database/Quests.lua
 Database/Quests.zhCN.lua
 Database/Quests.zhTW.lua

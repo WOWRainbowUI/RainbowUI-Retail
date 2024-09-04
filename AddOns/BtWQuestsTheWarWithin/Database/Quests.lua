@@ -4281,6 +4281,76 @@ BtWQuestsDatabase:AddQuestsTable({
             },
         },
     },
+    [78941] = {
+        name = "A Tide Needing Turned",
+        contentTuningID = 2462,
+        source = {
+            type = "npc",
+            id = 223944,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
+    },
+    [78942] = {
+        name = "The Might of Khaz Algar",
+        contentTuningID = 2462,
+        source = {
+            type = "npc",
+            id = 214271,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 468000,
+            },
+        },
+    },
+    [78943] = {
+        name = "Steel and Flames",
+        contentTuningID = 2462,
+        source = {
+            type = "npc",
+            id = 214271,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
+    [78948] = {
+        name = "A Light in the Dark",
+        contentTuningID = 2462,
+        source = {
+            type = "npc",
+            id = 214273,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 468000,
+            },
+        },
+    },
+    [78950] = {
+        name = "Cutting Off the Legs",
+        contentTuningID = 2462,
+        source = {
+            type = "npc",
+            id = 214276,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
+    },
     [78951] = {
         name = "Ever Deeper Shadow",
         contentTuningID = 2799,
@@ -6013,7 +6083,11 @@ BtWQuestsDatabase:AddQuestsTable({
     },
     [79282] = {
         name = "The Grand Debut",
-        contentTuningID = 2829,
+        contentTuningID = 2837,
+        source = {
+            type = "npc",
+            id = 214296,
+        },
         rewards = {
             {
                 type = "money",
@@ -11107,6 +11181,14 @@ BtWQuestsDatabase:AddQuestsTable({
         },
     },
     [81498] = {
+        name = "Wild Reagents: Twitching Gorge",
+        contentTuningID = 2861,
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
     },
     [81499] = {
     },
@@ -11121,6 +11203,14 @@ BtWQuestsDatabase:AddQuestsTable({
         },
     },
     [81501] = {
+        name = "Testing Formulae: Roiling Elixir",
+        contentTuningID = 2861,
+        rewards = {
+            {
+                type = "money",
+                amount = 234000,
+            },
+        },
     },
     [81502] = {
         name = "Testing Formulae: Malodorous Philter",
@@ -13417,7 +13507,7 @@ BtWQuestsDatabase:AddQuestsTable({
     },
     [82344] = {
         name = "Weathered Crests",
-        contentTuningID = 2832,
+        contentTuningID = 2892,
     },
     [82355] = {
         name = "Special Assignment: Cinderbee Surge",
@@ -15207,7 +15297,7 @@ BtWQuestsDatabase:AddQuestsTable({
     },
     [83240] = {
         name = "The Theater Troupe",
-        contentTuningID = 2837,
+        contentTuningID = 2462,
     },
     [83247] = {
         name = "Suspicious Minds",
@@ -15608,6 +15698,20 @@ BtWQuestsDatabase:AddQuestsTable({
         },
     },
     [83501] = {
+    },
+    [83503] = {
+        name = "Return to Dornogal",
+        contentTuningID = 2462,
+        source = {
+            type = "npc",
+            id = 220688,
+        },
+        rewards = {
+            {
+                type = "money",
+                amount = 23400,
+            },
+        },
     },
     [83529] = {
         name = "Hallowfall Fishing Derby",

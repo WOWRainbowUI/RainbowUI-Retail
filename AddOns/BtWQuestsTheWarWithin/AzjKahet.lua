@@ -1,5 +1,6 @@
 local BtWQuests = BtWQuests
 local Database = BtWQuests.Database
+local L = BtWQuests.L
 local EXPANSION_ID = BtWQuests.Constant.Expansions.TheWarWithin
 local CATEGORY_ID = BtWQuests.Constant.Category.TheWarWithin.AzjKahet
 local Chain = BtWQuests.Constant.Chain.TheWarWithin.AzjKahet
@@ -47,6 +48,7 @@ Chain.TempChain25 = 110435
 Chain.TempChain26 = 110436
 Chain.TempChain27 = 110437
 Chain.TempChain28 = 110438
+Chain.TempChain29 = 110439
 Chain.OtherAlliance = 110497
 Chain.OtherHorde = 110498
 Chain.OtherBoth = 110499
@@ -2171,6 +2173,57 @@ Database:AddChain(Chain.TempChain28, {
         },
     },
 })
+Database:AddChain(Chain.TempChain29, {
+    name = L["FRACTURED_LEGACY_OF_ANUBAZAL"],
+    category = CATEGORY_ID,
+    expansion = EXPANSION_ID,
+    range = LEVEL_RANGE,
+    prerequisites = {
+        {
+            type = "level",
+            variations = {
+                { level = 68, restrictions = THREADS_OF_FATE_RESTRICTION, },
+                { level = 78, },
+            }
+        },
+        {
+            type = "currency",
+            id = 2904,
+            amount = 11,
+        },
+    },
+    active = {
+        type = "quest",
+        id = 82338,
+    },
+    completed = {
+        type = "quest",
+        id = 82339,
+    },
+    items = {
+        {
+            type = "npc",
+            id = 224345,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 82338,
+            x = 0,
+            connections = {
+                1, 
+            },
+        },
+        {
+            type = "quest",
+            id = 82339,
+            x = 0,
+        },
+    },
+})
 Database:AddChain(Chain.OtherAlliance, {
     name = "Other Alliance",
     category = CATEGORY_ID,
@@ -2741,6 +2794,10 @@ Database:AddCategory(CATEGORY_ID, {
             type = "chain",
             id = Chain.TempChain28,
         },
+        {
+            type = "chain",
+            id = Chain.TempChain29,
+        },
 --[==[@debug@
         {
             type = "chain",
@@ -2813,6 +2870,7 @@ BtWQuestsDatabase:AddQuestItemsForChain(Chain.AllGoodThings)
 BtWQuestsDatabase:AddQuestItemsForChain(Chain.TempChain25)
 BtWQuestsDatabase:AddQuestItemsForChain(Chain.TempChain26)
 BtWQuestsDatabase:AddQuestItemsForChain(Chain.TempChain28)
+BtWQuestsDatabase:AddQuestItemsForChain(Chain.TempChain29)
 
 --[==[@debug@
 Database:AddContinentItems(CONTINENT_ID, {
