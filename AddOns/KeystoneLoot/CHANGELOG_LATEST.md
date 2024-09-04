@@ -1,2 +1,2 @@
 ## Other Changes
-- Raid update for TWW Season 1 (M+ dungeons coming later)
+- M+ dungeon update for TWW Season 1
