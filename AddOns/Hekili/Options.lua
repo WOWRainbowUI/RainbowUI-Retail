@@ -8737,7 +8737,7 @@ do
                                     
                                 supportedSpecs = {
                                     type = "description",
-                                    name = "Supported Specs: Subtlety, Assassination, Enhancement, Destruction",
+                                    name = "支援專精: 敏銳、刺殺、增強、毀滅",
                                     desc = "",
                                     width = "full",
                                     order = 3,
