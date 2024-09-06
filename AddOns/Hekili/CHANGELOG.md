@@ -1,35 +1,19 @@
 # Hekili
 
-## [v11.0.2-1.0.8](https://github.com/Hekili/hekili/tree/v11.0.2-1.0.8) (2024-09-05)
-[Full Changelog](https://github.com/Hekili/hekili/compare/v11.0.2-1.0.7a...v11.0.2-1.0.8) [Previous Releases](https://github.com/Hekili/hekili/releases)
+## [v11.0.2-1.0.9](https://github.com/Hekili/hekili/tree/v11.0.2-1.0.9) (2024-09-06)
+[Full Changelog](https://github.com/Hekili/hekili/compare/v11.0.2-1.0.8...v11.0.2-1.0.9) [Previous Releases](https://github.com/Hekili/hekili/releases)
 
-- Destro immolate adjustment  
+- Shadow: Distinguish VB from MB and tweak priority  
 - Merge branch 'thewarwithin' of https://github.com/Hekili/hekili into thewarwithin  
-- Arms/Fury priority updates  
-- Assassin priority update  
-- Shadow priority update  
-- Brewmaster CB adjustment  
-- Balance priority update  
-- Assassin: Fix cold\_blood some more  
-- Shadow: Make Mind Blast flash consistently?  
-- DK priority updates  
-- Merge pull request #3648 from syrifgit/thewarwithin  
-    Finish Global Funnel damage support  
-- Shadow: Control MB/VB texture  
-- You don't actually use this sublist.  
-    as per explanation by spec TC, Porom.  
-- Merge branch 'Hekili:thewarwithin' into thewarwithin  
-- Actually fix cold blood this time  
-- legacy support  
-- fix space  
-- Guardian Pack String out of date  
-    But using the right paste this time  
-- Guardian Pack String out of date  
-    didn't include the mitigation list, it now does  
-- Assassination Rogue global funnel support  
-- Pack String  
-- Assassination Rogue global funnel support  
-- enhance global funnel support  
-- better description  
-- Funnel Toggle Support: Enhance  
-- Specify which specs can funnel  
+- Fix Ravage  
+- Merge pull request #3675 from ambonif/patch-5  
+    Fix #3641  
+- Merge branch 'thewarwithin' into patch-5  
+- Merge pull request #3678 from syrifgit/thewarwithin  
+    Significant Arcane Fixes  
+- Significant Arcane Fixes  
+    Added many missing handlers, corrected buff/spell IDs, made up some hacky APL logic and mana trickery, but it now actually replicates the sim rotation reliably for the Sunfury spec.  
+    Any previous discussion can be seen on: https://github.com/Hekili/hekili/pull/3669  
+- Fix #3641  
+    Basically, the issue is that Magis Spark is not actually a buff applied to the player. The code originally references this https://www.wowhead.com/spell=450004/magis-spark.  
+    The talent simply modifies the Touch of the Magi debuff. So the changes here take that into account. Applying the three ability debuffs (magis\_spark\_arcane\_barrage, magis\_spark\_arcane\_missles, and magis\_spark\_arcane\_blast) now apply properly when Touch of the Magi is cast, and Arcane Blast is recommended once even while in AOE range.  
