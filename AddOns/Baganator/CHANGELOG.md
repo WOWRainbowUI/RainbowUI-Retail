@@ -1,6 +1,6 @@
 # Baganator
 
-## [465](https://github.com/Baganator/Baganator/tree/465) (2024-09-06)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/464...465) 
+## [466](https://github.com/Baganator/Baganator/tree/466) (2024-09-06)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/465...466) 
 
-- Fix section and skin analytics check  
+- [Fixes #266] Categories: Items stacking/mixing when they shouldn't  
