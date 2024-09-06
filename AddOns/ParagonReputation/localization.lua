@@ -28,6 +28,10 @@ if LOCALE == "zhCN" then
 	PR.L["DEFICIT"] = "还需要多少声望"
 	PR.L["SOUND"] = "音效通知"
 	PR.L["ANCHOR"] = "锚点"
+	
+	-- 自行加入
+	PR.L["Paragon Reputation"] = "声望"
+	PR.L["|cff0088eeParagon|r Reputation |cff0088eev"] = "|cff0088ee巅峰|r声望 |cff0088eev"
 
 -- Chinese (Traditional) (Thanks gaspy10 & BNSSNB)
 elseif LOCALE == "zhTW" then
