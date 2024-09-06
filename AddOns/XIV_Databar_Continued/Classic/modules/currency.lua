@@ -118,18 +118,20 @@ function CurrencyModule:Refresh()
         self.xpFrame:Show()
     else -- show xp bar/show currencies
         local iconsWidth = 0
-        for i = 1, GetNumWatchedTokens() do
+        for i = 1, 10 do -- GetNumWatchedTokens() do -- 暫時修正
             -- if db.modules.currency[self.intToOpt[i]] ~= '0' then
             local name, count, icon, currencyID = GetBackpackCurrencyInfo(i)
-            iconsWidth = iconsWidth + self:StyleCurrencyFrame(currencyID, count, i)
-            -- end
-            if i == 1 then
-                self.curButtons[1]:SetPoint('LEFT')
-            elseif i == 2 then
-                self.curButtons[2]:SetPoint('LEFT', self.curButtons[1], 'RIGHT', 5, 0)
-            elseif i == 3 then
-                self.curButtons[3]:SetPoint('LEFT', self.curButtons[2], 'RIGHT', 5, 0)
-            end
+            if currencyID then
+				iconsWidth = iconsWidth + self:StyleCurrencyFrame(currencyID, count, i)
+				-- end
+				if i == 1 then
+					self.curButtons[1]:SetPoint('LEFT')
+				elseif i == 2 then
+					self.curButtons[2]:SetPoint('LEFT', self.curButtons[1], 'RIGHT', 5, 0)
+				elseif i == 3 then
+					self.curButtons[3]:SetPoint('LEFT', self.curButtons[2], 'RIGHT', 5, 0)
+				end
+			end
         end
         self.currencyFrame:SetSize(iconsWidth, xb:GetHeight())
     end -- show currencies
@@ -323,9 +325,11 @@ function CurrencyModule:ShowTooltip()
         GameTooltip:AddLine("|cFFFFFFFF[|r" .. CURRENCY .. "|cFFFFFFFF]|r", r, g, b)
         GameTooltip:AddLine(" ")
 
-        for i = 1, GetNumWatchedTokens() do
+        for i = 1, 10 do -- GetNumWatchedTokens() do -- 暫時修正
             local name, count, icon, currencyID = GetBackpackCurrencyInfo(i)
-            GameTooltip:AddDoubleLine(name, string.format('%d', count), r, g, b, 1, 1, 1)
+            if name then
+				GameTooltip:AddDoubleLine(name, string.format('%d', count), r, g, b, 1, 1, 1)
+			end
         end
 
         GameTooltip:AddLine(" ")
