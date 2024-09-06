@@ -1,7 +1,7 @@
-## Interface: 110002
+## Interface: 11503, 30403, 40400, 110002
 ## Title: !!!Ease Addon Controller
 ## Title-zhCN: !!!网易有爱控制台单体版
-## Version: 11.0.3
+## Version: 11.0.4
 ## Author: NetEase Inc. (warbaby & yleaf)
 ## IconTexture: Interface\AddOns\!!!EaseAddonController\Textures\UI2-logo
 ## SavedVariables: U1DBG

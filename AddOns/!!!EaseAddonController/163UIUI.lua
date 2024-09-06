@@ -872,11 +872,11 @@ function UUI.Center.ScrollCreateOnButton(lineButton)
     -- if create texture directly, highlight effect is different.
     local anchor = (UUI.BUTTON_H - UUI.ICON_W)/2
     -- 經典版移除圖示
-	-- if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 		local icon = b:Frame():Key("icon"):Size(UUI.ICON_W):TL(math.max(2, anchor-2), -anchor+1)
 		:Texture():Key("tex"):ALL():SetTexture("Interface\\Buttons\\Button-Backpack-Up"):up()
 		:un();
-	-- end
+	end
 
     local check = b:CheckButton(nil, "UICheckButtonTemplate"):Key("check"):RIGHT(-UUI.CHECK_W/4, 0):Size(UUI.CHECK_W):AddFrameLevel(1)
     :SetMotionScriptsWhileDisabled(true)
@@ -940,18 +940,18 @@ function UUI.Center.ScrollUpdateOneButton(b, idx)
     end
 
     -- 經典版移除圖示
-	-- if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 		b.icon.tex:SetTexture(info.icon or UUI.DEFAULT_ICON)
-	-- end
+	end
 
     local addonId = info.installed;
     if addonId then
         b:Enable();
         b:GetHighlightTexture():Show()
         -- 經典版移除圖示
-		-- if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 			b.icon.tex:SetVertexColor(1,1,1)
-		-- end
+		end
         b.check:Show()
 
         CoreUIEnableOrDisable(b.check, not info.protected and not InCombatLockdown());
@@ -966,9 +966,9 @@ function UUI.Center.ScrollUpdateOneButton(b, idx)
             b.text1:SetShadowOffset(2,-2)
             b:GetNormalTexture():SetVertexColor(1,1,1)
             -- 經典版移除圖示
-			-- if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+			if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 				CoreUIUndesaturateTexture(b.icon.tex);
-			-- end
+			end
             CoreUIUndesaturateTexture(b:GetNormalTexture());
             if(enabled) then
                 b.text1:SetTextColor(0.81, 0.65, 0.48);
@@ -979,9 +979,9 @@ function UUI.Center.ScrollUpdateOneButton(b, idx)
             b.text1:SetShadowOffset(1,-1)
             b:GetNormalTexture():SetVertexColor(.75,.75,.75)
             -- 經典版移除圖示
-			-- if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+			if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 				if not (info.lod and enabled) then CoreUIDesaturateTexture(b.icon.tex); end
-			-- end
+			end
             CoreUIDesaturateTexture(b:GetNormalTexture());
             if(enabled) then
                 if info.lod then
@@ -1006,9 +1006,9 @@ function UUI.Center.ScrollUpdateOneButton(b, idx)
         b:Disable();
         b:GetHighlightTexture():Hide()
         -- 經典版移除圖示
-		-- if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 			b.icon.tex:SetVertexColor(.3,.3,.3)
-		-- end
+		end
         b.check:Hide()
 
         b.text1:SetTextColor(.5, .5, .5, .5);
@@ -1016,9 +1016,9 @@ function UUI.Center.ScrollUpdateOneButton(b, idx)
         b:GetNormalTexture():SetVertexColor(.3,.3,.3)
         CoreUIDesaturateTexture(b:GetNormalTexture())
         -- 經典版移除圖示
-		-- if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 			CoreUIDesaturateTexture(b.icon.tex);
-		-- end
+		end
     end
 
     -- highlight when searching
@@ -1689,48 +1689,49 @@ function UUI.CreateUI()
     end
 	
 	-- 遊戲選單的彩虹ui按鈕
-	WW:Button(nil, GameMenuFrame.Header):Key("logo"):CENTER(GameMenuFrame.Header, "LEFT", 0, 0):Size(40):EnableMouse(false)
-	:CreateTexture():SetTexture(UUI.Tex"UI2-logo"):ALL():up()
-	:CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
-	:SetBlendMode("ADD"):SetDrawLayer("OVERLAY"):Hide():up()
-	:un()
-	
-	GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
-	GameMenuFrame.Header:SetScript("OnMouseDown", function(self, button)
-		if button == "LeftButton" or button == "RightButton" then
-			UUI.ToggleUI() 
-		else
-			ReloadUI()
-		end
-	end)
-	GameMenuFrame.Header:SetScript("OnShow", function(self) UICoreFrameFlash(self.logo.highlight, 2 , 2, -1, nil, 0, 0) end)
-	GameMenuFrame.Header:SetScript("OnHide", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
-	GameMenuFrame.Header:SetScript("OnEnter", function(self) UICoreFrameFlashStop(self.logo.highlight); UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
-	GameMenuFrame.Header:SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight); UICoreFrameFlash(self.logo.highlight, 2 , 2, -1, nil, 0, 0) end)
-	CoreUIEnableTooltip(GameMenuFrame.Header, L["Left or Right click: Open Ease Addon Controller's main panel\nOther mouse buttons: Reload UI"])
-
+	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+		WW:Button(nil, GameMenuFrame.Header):Key("logo"):CENTER(GameMenuFrame.Header, "LEFT", 0, 0):Size(40):EnableMouse(false)
+		:CreateTexture():SetTexture(UUI.Tex"UI2-logo"):ALL():up()
+		:CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
+		:SetBlendMode("ADD"):SetDrawLayer("OVERLAY"):Hide():up()
+		:un()
+		
+		GameMenuFrame.Header.Text:SetText(L["Ease AddOn"])
+		GameMenuFrame.Header:SetScript("OnMouseDown", function(self, button)
+			if button == "LeftButton" or button == "RightButton" then
+				UUI.ToggleUI() 
+			else
+				ReloadUI()
+			end
+		end)
+		GameMenuFrame.Header:SetScript("OnShow", function(self) UICoreFrameFlash(self.logo.highlight, 2 , 2, -1, nil, 0, 0) end)
+		GameMenuFrame.Header:SetScript("OnHide", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
+		GameMenuFrame.Header:SetScript("OnEnter", function(self) UICoreFrameFlashStop(self.logo.highlight); UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
+		GameMenuFrame.Header:SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight); UICoreFrameFlash(self.logo.highlight, 2 , 2, -1, nil, 0, 0) end)
+		CoreUIEnableTooltip(GameMenuFrame.Header, L["Left or Right click: Open Ease Addon Controller's main panel\nOther mouse buttons: Reload UI"])
+	else
 	-- Buttons on GameMenuFrame
-	--[[
-    CoreHookScript(GameMenuFrame, "OnShow", function()
-        GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
-        if GameMenuFrame.btn163 then return end
+		CoreHookScript(GameMenuFrame, "OnShow", function()
+			GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + 26)
+			if GameMenuFrame.btn163 then return end
 
-        WW:Button(nil, GameMenuFrame, "GameMenuButtonTemplate"):Key("btn163")
-        :SetText(L["Ease AddOn"])
-        :TOP(select(2, GameMenuButtonAddons:GetPoint()), "BOTTOM", 0, -1)
-        :SetScript("OnClick", UUI.ToggleUI)
-        :SetScript("OnEnter", function(self) UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
-        :SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
-        :Button():Key("logo"):CENTER("$parent", "LEFT", 0, 0):Size(32):EnableMouse(false)
-        --:CreateTexture():SetColorTexture(0, 1, 0, 0.4):ALL():up()
-        :CreateTexture():SetTexture(UUI.Tex"UI2-logo"):ALL():up()
-        :CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
-        :SetBlendMode("ADD"):SetDrawLayer("OVERLAY"):Hide():up()
-        :un()
-        GameMenuButtonAddons:SetPoint("TOP", GameMenuFrame.btn163, "BOTTOM", 0, -1)
-        CoreUIEnableTooltip(GameMenuFrame.btn163, L["Ease Addon Controller"], L["Open Ease Addon Controller's main panel"])
-    end, true)
-	--]]
+			WW:Button(nil, GameMenuFrame, "GameMenuButtonTemplate"):Key("btn163")
+			:SetText(L["Ease AddOn"])
+			:TOP(select(2, GameMenuButtonAddons:GetPoint()), "BOTTOM", 0, -1)
+			:SetScript("OnClick", UUI.ToggleUI)
+			:SetScript("OnEnter", function(self) UICoreFrameFlash(self.logo.highlight, 0.5 , 0.5, -1, nil, 0, 0) end)
+			:SetScript("OnLeave", function(self) UICoreFrameFlashStop(self.logo.highlight) end)
+			:Button():Key("logo"):CENTER("$parent", "LEFT", 0, 0):Size(32):EnableMouse(false)
+			--:CreateTexture():SetColorTexture(0, 1, 0, 0.4):ALL():up()
+			:CreateTexture():SetTexture(UUI.Tex"UI2-logo"):ALL():up()
+			:CreateTexture():Key("highlight"):TL(-3,3):BR(3,-3):SetTexture("Interface\\UnitPowerBarAlt\\Atramedes_Circular_Flash")
+			:SetBlendMode("ADD"):SetDrawLayer("OVERLAY"):Hide():up()
+			:un()
+			GameMenuButtonAddons:SetPoint("TOP", GameMenuFrame.btn163, "BOTTOM", 0, -1)
+			CoreUIEnableTooltip(GameMenuFrame.btn163, L["Ease Addon Controller"], L["Open Ease Addon Controller's main panel"])
+		end, true)
+	end
+
 
 end
 

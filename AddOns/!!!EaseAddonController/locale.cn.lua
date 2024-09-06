@@ -148,6 +148,7 @@ L["help.SEARCH"] = "这里可以输入汉字或者英文进行搜索，例如'|c
 L["Ease AddOn"] = "网易有爱"
 L["Ease Addon Controller"] = "网易有爱"
 L["Left or Right click: Open Ease Addon Controller's main panel\nOther mouse buttons: Reload UI"] = "左键/右键: 打开插件控制台\n其他按键: 重新加载界面"
+L["Open Ease Addon Controller's main panel"] = "显示网易有爱插件控制台主界面"
 L["An advanced in-game addon control center, which combines Categoring, Searching, Loading and Setting of wow addons all together."] = "    网易有爱（163UI）是网易游戏频道隆重推出的新一代整合插件。其设计理念是兼顾整合插件的易用性和单体插件的灵活性，同时适合普通和高级用户群体。|n|n    功能上，网易有爱实现了任意插件的随需加载，并可先进入游戏再逐一加载插件，此为全球首创。此外还有标签分类、拼音检索、界面缩排等特色功能。"
 L["Right click to open quick menu."] = "鼠标右键点击可打开快捷设置"
 
