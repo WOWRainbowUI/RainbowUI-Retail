@@ -1,0 +1,35 @@
+## Interface: 110002
+## Notes: Gathering Node data from WoWHead for GatherMate2
+## Title: WoWGatheringNodes v.V11.0_Update_9.4.24
+## Author: SLOKnightfall
+## X-Category: Map
+## X-Email:
+## Version:V11.0_Update_9.4.24
+## OptionalDeps: GatherMate2, Carbonite
+## X-Gatherer-Plugin-Name: WoWGatheringNodes
+## X-Gatherer-Plugin-Type: DATABASE
+## X-Gatherer-Plugin-DatabaseID: WoWGatheringNodes 2024-09-05T00:15:20Z
+## X-Curse-Project-ID: 279801
+## X-Wago-ID: j6jzv46R
+
+## SavedVariables: WoWGatheringNodesConfig,
+
+## Title-zhTW: |cffFFFF99[專業]|r 採集助手-新資料庫
+## Notes-zhTW: WoWGatheringNodes |n|n由 Wowhead 轉存至採集助手的資料庫。|n|n|cffffd200使用方法: |r從Esc>選項>插件>專業-採集>匯入資料>勾選草藥、採礦...等>匯入 WoWGatheringNodes，將草礦等各種採集點的資料匯入使用。
+## Dependencies: GatherMate2
+## DefaultState: disabled
+## X-Category-zhTW: 交易
+
+#Localization
+Localization\objectNames.enUS.lua
+Localization\objectNames.zhCN.lua
+Localization\objectNames.zhTW.lua
+
+#Core
+WoWGatheringNodes.lua
+WoWGatheringNodesData.lua
+WoWGatheringNodeCatagories.lua
+
+#Files for Gathermate importing
+Gathermate_ImportConfig.lua
+Gathermate_Import.lua
