@@ -39,22 +39,9 @@ local function editBoxGetValue(box)
 	end
 end
 
-
 local function editBoxSetValue(box, value)
---s = "($1,000)"
---res, _ = s:gsub("%D+", "")
---print(res)
 	if box.numeric then
-	if   type(value)=="number" then 
---print(value)
-box.prevalue = value or 0
-		
-		
-	else
-box.prevalue , _ = value:gsub("%D+", "")		
-	end
-
-
+		box.prevalue = value or 0
 		box:SetNumber(box.prevalue)
 	else
 		box.prevalue = (value or ""):trim()
@@ -153,9 +140,9 @@ end
 local function dropdownOnClick(self)
 	if self.func then
 		if self.func(self:GetParent()) then
-			--PlaySound("igMainMenuOptionCheckBoxOn") -- fix 8.0
+			--PlaySound("igMainMenuOptionCheckBoxOn")
 		else
-			--PlaySound("igMainMenuOptionCheckBoxOff") -- fix 8.0
+			--PlaySound("igMainMenuOptionCheckBoxOff")
 		end
 	end
 end
@@ -187,7 +174,6 @@ function LBO:CreateDropDown(parent, notNewCreate, clickfunc)
 	dropdown.title = dropdown:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	dropdown.title:SetPoint("TOP", dropdown, "TOP", 0, -2)
 	dropdown.title:SetTextColor(1, 1, 1)
-	dropdown.title:SetMaxLines(1)
 	dropdown.button = CreateFrame("Button", nil, dropdown)
 	dropdown.button:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
 	dropdown.button:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
@@ -207,7 +193,6 @@ function LBO:CreateDropDown(parent, notNewCreate, clickfunc)
 	dropdown.text = dropdown.over:CreateFontString(nil, "OVERLAY", "GameFontHighlightLeft")
 	dropdown.text:SetPoint("LEFT", 12, 0)
 	dropdown.text:SetPoint("RIGHT", 0, 0)
-	dropdown.text:SetMaxLines(1)
 	dropdown.Disable = dropDownDisable
 	dropdown.Enable = dropDownEnable
 	return dropdown

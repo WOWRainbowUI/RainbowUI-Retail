@@ -571,15 +571,6 @@ function Option:CreateBasicMenu(menu, parent)
 	)
 	menu.hideInRaid:SetPoint("TOP", menu.mapButtonShown, "BOTTOM", 0, 0)
 
-	menu.hidePartyFrame = LBO:CreateWidget("CheckBox", parent, "항상 파티 프레임 숨김", "항상 파티 프레임을 숨겨줍니다.", nil , nil, true,
-		function() return IUF.db.hidePartyFrame end,
-		function(v)
-			IUF.db.hidePartyFrame = v
-			setCoreValue("party", "SetActiveObject")
-		end
-	)
-	menu.hidePartyFrame:SetPoint("TOP", menu.hideInRaid, "BOTTOM", 0, 0)
-
 	local aggroBorderList = { "표시", "깜빡임", "표시 안함" }
 
 	menu.aggorBorder = LBO:CreateWidget("DropDown", parent, "어그로 획득 테두리", "어그로 획득시 초상화 주면에 표시되는 붉은 테두리를 설정합니다.", nil, nil, nil,
@@ -594,7 +585,7 @@ function Option:CreateBasicMenu(menu, parent)
 			end
 		end
 	)
-	menu.aggorBorder:SetPoint("TOP", menu.hidePartyFrame, "BOTTOM", 0, 0)
+	menu.aggorBorder:SetPoint("TOP", menu.hideInRaid, "BOTTOM", 0, 0)
 end
 
 function Option:CreateProfileMenu(menu, parent)
@@ -1157,16 +1148,14 @@ function Option:CreateBlizzardMenu(menu, parent)
 		function(v)
 			unitsdb.player.hiddenBlizzardCastingBar = v
 			if v then
-				PlayerCastingBarFrame.showCastbar = nil
+				CastingBarFrame.showCastbar = nil
 				PetCastingBarFrame.showCastbar = nil
 			else
-				PlayerCastingBarFrame.showCastbar = true
+				CastingBarFrame.showCastbar = true
 				PetCastingBarFrame.showCastbar = true
 			end
-			--CastingBarFrame_UpdateIsShown(PlayerCastingBarFrame)
-			--CastingBarFrame_UpdateIsShown(PetCastingBarFrame)
-			PlayerCastingBarFrame:UpdateIsShown()
-			PetCastingBarFrame:UpdateIsShown()
+			CastingBarFrame_UpdateIsShown(CastingBarFrame)
+			CastingBarFrame_UpdateIsShown(PetCastingBarFrame)
 		end
 	)
 	menu.hiddenBlizzard:SetPoint("TOPLEFT", 5, -5)
@@ -1704,16 +1693,14 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 		function(v)
 			unitsdb[Option.unit].hiddenBlizzardCastingBar = v
 			if v then
-				PlayerCastingBarFrame.showCastbar = nil
+				CastingBarFrame.showCastbar = nil
 				PetCastingBarFrame.showCastbar = nil
 			else
-				PlayerCastingBarFrame.showCastbar = true
+				CastingBarFrame.showCastbar = true
 				PetCastingBarFrame.showCastbar = true
 			end
-			--CastingBarFrame_UpdateIsShown(PlayerCastingBarFrame)
-			--CastingBarFrame_UpdateIsShown(PetCastingBarFrame)				
-			PlayerCastingBarFrame:UpdateIsShown()
-			PetCastingBarFrame:UpdateIsShown()
+			CastingBarFrame_UpdateIsShown(CastingBarFrame)
+			CastingBarFrame_UpdateIsShown(PetCastingBarFrame)
 		end
 	)
 	menu.hiddenBlizzard:SetPoint("TOPRIGHT", -5, -5)
@@ -2479,17 +2466,18 @@ function Option:CreateClassBarMenu(menu, parent)
 		end
 	)
 	menu.texture:SetPoint("TOPRIGHT", -5, -39)
-
+--[[
 	menu.blizzard = LBO:CreateWidget("CheckBox", parent, "와우 기본 직업 특수바 보기", "인벤 유닛 프레임의 직업 특수바 대신 와우 기본 프레임의 직업 특수바를 사용합니다. 다른 애드온에서 직업 특수바의 위치를 변경하는 기능이 포함되어 있을 경우 충돌이 일어 날 수 있습니다.", nil, notActive, nil,
 		function()
 			return IUF.db.classBar.useBlizzard
 		end,
 		function(v)
-			IUF.db.classBar.useBlizzard = v
+			IUF.db.classBar.useBlizzard = false --비활성화
 			updateClassBar()
 		end
 	)
 	menu.blizzard:SetPoint("TOP", menu.pos, "BOTTOM", 0, -10)
+--]]
 -- 추가된 내용	
 	menu.druidMana = LBO:CreateWidget("CheckBox", parent, "드루이드 야드 변신중 마나 표시 끄기", "마나를 사용하지 않는 변신 폼일 때 마나를 표시 하지 않습니다.", nil, nil, nil,
 		function() return IUF.db.classBar.druidManaDisible end,
@@ -2499,5 +2487,5 @@ function Option:CreateClassBarMenu(menu, parent)
 			updateClassBar()
 		end
 	)
-	menu.druidMana:SetPoint("TOP", menu.blizzard, "BOTTOM", 0, -10)
+	menu.druidMana:SetPoint("TOP", menu.texture, "BOTTOM", 0, -10)
 end

@@ -22,7 +22,8 @@ local function sliderOnValueChanged(self, value)
 	self = self:GetParent()
 	value = floor(value + 0.5)
 	self.box:ClearFocus()
-	self.box:SetValue(self.pattern:format(self.value, self.unit))
+--	self.box:SetValue(self.pattern:format(self.value, self.unit))
+	self.box:SetValue(self.value)
 	if self.value ~= value then
 		self.value = value
 		self:SetValue(self.value)
@@ -34,7 +35,8 @@ local function editBoxOnEnterPressed(self, value)
 	value = min(max(self.min, value), self.max)
 	self.slider:SetValue(value)
 	self.box:ClearFocus()
-	self.box:SetValue(self.pattern:format(value, self.unit))
+--	self.box:SetValue(self.pattern:format(value, self.unit))
+	self.box:SetValue(value)
 end
 
 local function update(self)
@@ -49,15 +51,15 @@ local function update(self)
 	end
 	self.min = self.min or 0
 	self.max = self.max or 100
- 	self.value = min(max(self.min, self.value or 0), self.max)
+	self.value = min(max(self.min, self.value), self.max)
 	self.unit = (self.unit or ""):trim()
 	self.slider:SetScript("OnValueChanged", nil)
 	self.slider:SetMinMaxValues(self.min, self.max)
-	self.slider:SetValue(self.value or 0)
+	self.slider:SetValue(self.value)
 	self.slider:SetValueStep(self.step)
 	self.minText:SetText(self.min)
 	self.maxText:SetText(self.max)
-	--self.box:SetValue(self.pattern:format(self.value, self.unit))
+--	self.box:SetValue(self.pattern:format(self.value, self.unit))
 	self.box:SetValue(self.value)
 	self.slider:SetScript("OnValueChanged", sliderOnValueChanged)
 end
@@ -92,10 +94,8 @@ LBO:RegisterWidget(widget, version, function(self, name)
 	self.slider:SetScript("OnValueChanged", sliderOnValueChanged)
 	self.minText = self.slider:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	self.minText:SetPoint("TOPLEFT", self.slider, "BOTTOMLEFT", 2, 3)
-	self.minText:SetMaxLines(1)
 	self.maxText = self.slider:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	self.maxText:SetPoint("TOPRIGHT", self.slider, "BOTTOMRIGHT", -2, 3)
-	self.maxText:SetMaxLines(1)
 	self.box = LBO:CreateEditBox(self, editBoxOnEnterPressed, "GameFontHighlightSmall", nil, true)
 	self.box:SetPoint("BOTTOM", self ,"BOTTOM", 0, 1)
 	self.box:SetHeight(14)
@@ -104,7 +104,6 @@ LBO:RegisterWidget(widget, version, function(self, name)
 	self.title = self:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	self.title:SetPoint("TOP", self, "TOP", 0, -2)
 	self.title:SetTextColor(1, 1, 1)
-	self.title:SetMaxLines(1)
 	self.Setup = update
 	self.Enable = enable
 	self.Disable = disable

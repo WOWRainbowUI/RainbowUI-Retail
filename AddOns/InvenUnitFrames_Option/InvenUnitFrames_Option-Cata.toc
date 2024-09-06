@@ -1,4 +1,4 @@
-## Interface: 11504
+## Interface: 40401
 ## Title: I|cffa2e665nven|r Unit Frames: Option
 ## Notes: 인벤 유닛 프레임: 옵션 창
 ## Dependencies: InvenUnitFrames

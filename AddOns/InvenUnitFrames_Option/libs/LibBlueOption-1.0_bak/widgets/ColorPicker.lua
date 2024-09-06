@@ -7,7 +7,7 @@ local type = _G.type
 
 local function update(self)
 	self.color.r, self.color.g, self.color.b, self.color.a = self:GetValue()
-	self.color:SetVertexColor(self.color.r or 1, self.color.g or 1, self.color.b or 1, self.color.a or 1)
+	self.color:SetVertexColor(self.color.r, self.color.g, self.color.b, self.color.a or 1)
 end
 
 local function setColor(self)
@@ -89,7 +89,7 @@ local function hide()
 end
 
 local function click(self)
-	--PlaySound("igMainMenuOptionCheckBoxOn") -- fix 8.0
+--	PlaySound("igMainMenuOptionCheckBoxOn")
 	hide()
 	self = self:GetParent()
 	self.color.r, self.color.g, self.color.b, self.color.a = self:GetValue()
@@ -139,17 +139,16 @@ LBO:RegisterWidget(widget, version, function(self)
 	self.grid:SetWidth(14)
 	self.grid:SetHeight(14)
 	self.color = self:CreateTexture(nil, "ARTWORK")
-	self.color:SetColorTexture(1, 1, 1, 1)
+	self.color:SetTexture(1, 1, 1, 1)
 	self.color:SetAllPoints(self.grid)
 	self.overlay = self:CreateTexture(nil, "OVERLAY")
-	self.overlay:SetColorTexture(0, 0, 0, 1)
+	self.overlay:SetTexture(0, 0, 0, 1)
 	self.overlay:SetAllPoints(self.grid)
 	self.overlay:Hide()
 	self.title = self:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	self.title:SetPoint("LEFT", self.bg, "RIGHT", 0, 0)
 	self.title:SetTextColor(1, 1, 1)
 	self.title:SetJustifyH("LEFT")
-	self.title:SetMaxLines(1)
 	self.button = CreateFrame("Button", nil, self)
 	self.button:RegisterForClicks("LeftButtonUp")
 	self.button:SetPoint("LEFT", self.bg, "LEFT", 0, 0)

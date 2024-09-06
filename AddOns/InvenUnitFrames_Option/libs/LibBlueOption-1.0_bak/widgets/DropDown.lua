@@ -23,7 +23,7 @@ local function update(self)
 end
 
 local function listButtonOnClick(button)
-	--PlaySound("igMainMenuOptionCheckBoxOff") -- fix 8.0
+--	PlaySound("igMainMenuOptionCheckBoxOff")
 	if button:GetID() > 0 then
 		if type(menu.value) == "number" then
 			menu.parent:SetValue(button:GetID())
@@ -51,7 +51,6 @@ local function createListButton(idx)
 	menu.buttons[idx].text = menu.buttons[idx]:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmallLeft")
 	menu.buttons[idx].text:SetPoint("LEFT", menu.buttons[idx].checked, "RIGHT", 0, 0)
 	menu.buttons[idx].text:SetPoint("RIGHT", menu.buttons[idx], "RIGHT", -10, 0)
-	menu.buttons[idx].text:SetMaxLines(1)
 	if idx > 1 then
 		menu.buttons[idx]:SetPoint("TOPLEFT", menu.buttons[idx - 1], "BOTTOMLEFT", 0, 0)
 		menu.buttons[idx]:SetPoint("TOPRIGHT", menu.buttons[idx - 1], "BOTTOMRIGHT", 0, 0)

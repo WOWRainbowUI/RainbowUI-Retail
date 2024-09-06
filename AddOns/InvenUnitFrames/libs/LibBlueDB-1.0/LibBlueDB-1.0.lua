@@ -127,9 +127,14 @@ if not InterfaceOptionsFrame.LibBlueOptionHandler then
 	InterfaceOptionsFrame:SetScript("OnDragStop", InterfaceOptionsFrame.StopMovingOrSizing)
 	UIParent.SetFrameStrata(InterfaceOptionsFrame, "HIGH")
 	InterfaceOptionsFrame.SetFrameStrata = InterfaceOptionsFrame.GetFrameStrata
-	InterfaceOptionsFrame:SetMinResize(856, 656)
+	if InterfaceOptionsFrame.SetMinResize then
+		InterfaceOptionsFrame:SetMinResize(856, 656)
+		InterfaceOptionsFrame.SetMinResize = InterfaceOptionsFrame.GetMinResize
+	elseif InterfaceOptionsFrame.SetResizeBounds then
+		InterfaceOptionsFrame:SetResizeBounds(856, 656)
+		InterfaceOptionsFrame.SetMinResize = InterfaceOptionsFrame.GetResizeBounds
+	end
 	InterfaceOptionsFrame:SetSize(856, 656)
-	InterfaceOptionsFrame.SetMinResize = InterfaceOptionsFrame.GetMinResize
 	InterfaceOptionsFrame.SetWidth = InterfaceOptionsFrame.GetWidth
 	InterfaceOptionsFrame.SetHeight = InterfaceOptionsFrame.GetHeight
 	InterfaceOptionsFrame.SetSize = InterfaceOptionsFrame.GetSize

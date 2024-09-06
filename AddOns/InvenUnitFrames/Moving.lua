@@ -114,7 +114,7 @@ function IUF:RegisterMoving(object)
 	object.registerMoving = true
 	object:SetMovable(true)
 	object:RegisterForDrag("LeftButton")
-	if SetUserPlaced then object:SetUserPlaced(false) end
+	object:SetUserPlaced(false)
 	object:SetScript("OnDragStart", objectStartMoving)
 	object:SetScript("OnDragStop", objectStopMoving)
 	object:HookScript("OnHide", objectStopMoving)
@@ -131,106 +131,53 @@ end
 
 moving:RegisterEvent("PLAYER_REGEN_DISABLED")
 moving:SetScript("OnEvent", moving.Hide)
-
 moving:SetScript("OnUpdate", function(self)
 	if self.parent and self.parent:IsVisible() then
-		if self.parent.unit == "target" then
-			self.px, self.py = savePos(self.parent)
-			updateOptionValue(self.parent)
-			if IUF.previewMode and self.xvalue then
-				self:SetAlpha(1)
-				self.xvalue:SetFormattedText("%.2f", self.px)
-				self.yvalue:SetFormattedText("%.2f", -self.py)
+		self.px, self.py = savePos(self.parent)
+		updateOptionValue(self.parent)
+		if IUF.previewMode and self.xvalue then
+			self:SetAlpha(1)
+			self.xvalue:SetFormattedText("%.2f", self.px)
+			self.yvalue:SetFormattedText("%.2f", -self.py)
+		else
+			self:SetAlpha(0)
+		end
+		if self.parent.objectType == "partypet" then
+			self.unitformat = "partypet%d"
+		elseif self.parent.objectType == "partytarget" then
+			self.unitformat = "party%dtarget"
+		else
+			self.unitformat = nil
+		end
+		if self.unitformat then
+			if InCombatLockdown() then
+				self.px, self.py = nil
+				self:Hide()
 			else
-				self:SetAlpha(0)
-			end
-			if self.parent.objectType == "partypet" then
-				self.unitformat = "partypet%d"
-			elseif self.parent.objectType == "partytarget" then
-				self.unitformat = "party%dtarget"
-			else
-				self.unitformat = nil
-			end
-			if self.unitformat then
-				if InCombatLockdown() then
-					self.px, self.py = nil
-					self:Hide()
-				else
-					if self.px ~= self.pxp or self.py ~= self.pyp then
-						self.pxp, self.pyp = self.px, self.py
-						for i = 1, 4 do
-							self.unit = self.unitformat:format(i)
-							if self.parent.realunit ~= self.unit then
-								loadPos(IUF.units[self.unit])
-								if IUF.units[self.unit].preview then
-									loadPos(IUF.units[self.unit].preview)
-								end
+				if self.px ~= self.pxp or self.py ~= self.pyp then
+					self.pxp, self.pyp = self.px, self.py
+					for i = 1, 4 do
+						self.unit = self.unitformat:format(i)
+						if self.parent.realunit ~= self.unit then
+							loadPos(IUF.units[self.unit])
+							if IUF.units[self.unit].preview then
+								loadPos(IUF.units[self.unit].preview)
 							end
 						end
 					end
 				end
-			elseif self.parent.isPreview and not InCombatLockdown() then
-				loadPos(IUF.units[self.parent.realunit])
-			elseif self.parent.preview then
-				loadPos(self.parent.preview)
 			end
+		elseif self.parent.isPreview and not InCombatLockdown() then
+			loadPos(IUF.units[self.parent.realunit])
+		elseif self.parent.preview then
+			loadPos(self.parent.preview)
 		end
 	else
 		self.px, self.py = nil
 		self:Hide()
 	end
 end)
-
 moving:SetScript("OnHide", function(self)
-	if self.parent and self.parent:IsVisible() then
-		if self.parent.unit ~= "target" then
-			self.px, self.py = savePos(self.parent)
-			updateOptionValue(self.parent)
-			if IUF.previewMode and self.xvalue then
-				self:SetAlpha(1)
-				self.xvalue:SetFormattedText("%.2f", self.px)
-				self.yvalue:SetFormattedText("%.2f", -self.py)
-			else
-				self:SetAlpha(0)
-			end
-			if self.parent.objectType == "partypet" then
-				self.unitformat = "partypet%d"
-			elseif self.parent.objectType == "partytarget" then
-				self.unitformat = "party%dtarget"
-			else
-				self.unitformat = nil
-			end
-			if self.unitformat then
-				if InCombatLockdown() then
-					self.px, self.py = nil
-					self:Hide()
-				else
-					if self.px ~= self.pxp or self.py ~= self.pyp then
-						self.pxp, self.pyp = self.px, self.py
-						for i = 1, 4 do
-							self.unit = self.unitformat:format(i)
-							if self.parent.realunit ~= self.unit then
-								loadPos(IUF.units[self.unit])
-								if IUF.units[self.unit].preview then
-									loadPos(IUF.units[self.unit].preview)
-								end
-							end
-						end
-					end
-				end
-			elseif self.parent.isPreview and not InCombatLockdown() then
-				loadPos(IUF.units[self.parent.realunit])
-			elseif self.parent.preview then
-				loadPos(self.parent.preview)
-			end
-		end
-	else
-		self.px, self.py = nil
-		if not InCombatLockdown() then
-			self:Hide()
-		end
-	end
-	
 	if self.parent then
 		objectStopMoving(self.parent)
 	end

@@ -1,4 +1,4 @@
-## Interface: 11504
+## Interface: 40401
 ## Title: I|cffa2e665nven|r Unit Frames: Skin Pack
 ## Notes: 인벤 유닛 프레임: 스킨 팩
 ## Author: Inven - InTheBlue

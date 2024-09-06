@@ -120,6 +120,7 @@ function IUF:CreateObjectElements(object)
 	object.portrait.model3d:SetPoint("CENTER")
 	object.portrait.model3d.bg = object.portrait.model3d:CreateTexture(nil, "BACKGROUND")
 	object.portrait.model3d.bg:SetAllPoints(object.portrait)
+	object.portrait.model3d:SetPortraitZoom(1)
 	object.portrait.model2d = object.portrait:CreateTexture(nil, "BACKGROUND")
 	object.portrait.model2d:SetAllPoints()
 	object.portrait.border = object.portrait:CreateTexture(nil, "ARTWORK")
@@ -260,17 +261,13 @@ function IUF:CreateObjectElements(object)
 		object.pvpTimer:RegisterEvent("PLAYER_FLAGS_CHANGED")
 		object.pvpTimer.OnUpdate = function(self)
 			GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
-			if GetLocale()=="koKR" then
-				GameTooltip:AddLine("남은 시간")
-			else
-				GameTooltip:AddLine("Remain ")
-			end
+			GameTooltip:AddLine("남은 시간")
 			GameTooltip:AddLine(SecondsToTime(floor(GetPVPTimer() / 1000)), 1, 1, 1)
 			GameTooltip:Show()
 		end
 		object.pvpTimer.OnHide = function(self)
 			self:SetScript("OnUpdate", nil)
-			--GameTooltip:Hide()	-- pvp map bug
+			GameTooltip:Hide()
 		end
 		object.pvpTimer:SetScript("OnEvent", function(self)
 			self.running = IsPVPTimerRunning()
@@ -290,76 +287,7 @@ function IUF:CreateObjectElements(object)
 		object.pvpTimer:SetScript("OnLeave", object.pvpTimer.OnHide)
 		object.pvpTimer:SetScript("OnHide", object.pvpTimer.OnHide)
 	end
-
------------------------------------------------------------------------------------------------------------------------------------------------------------
-	object.readyCheckIcon = object.portrait:CreateTexture(nil, "ARTWORK")
-	object.readyCheckIcon:SetParent(object.portrait)
-	object.readyCheckIcon:SetDrawLayer("OVERLAY", 7)
-	object.readyCheckIcon:ClearAllPoints()
-	object.readyCheckIcon:SetPoint("CENTER", 0, 0)
-	object.readyCheckIcon:SetSize(50, 50)	
-	
------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
---~ 	if UnitIsUnit(object.unit, "player") or UnitIsUnit(object.unit, "pet") or UnitIsUnit(object.unit, "target") or UnitIsUnit(object.unit, "focus") then
-   	if unit == "player" or unit == "pet" or unit == "target" or unit == "focus" then
-	
-	else
-		object.layoutIndex = 1
-		object.DropDown = CreateFrame("Frame", nil, object, "UIDropDownMenuTemplate")
-		object.DropDown:SetAllPoints()
-		object.DropDown:SetPoint("TOP", -20, -10)
-		object.DropDown:SetSize(10, 10)
-		object.DropDown:SetFrameLevel(object:GetFrameLevel())
-		object.DropDown.id = nil
-			
-		local function InitializeDropDown(self)
-			
-			local unit = self:GetParent().unit;
-			if ( not unit ) then
-				return;
-			end
-			local menu;
-			local name;
-			local id = nil;
-			if ( UnitIsUnit(unit, "player") ) then
-				menu = "SELF";
-			elseif ( UnitIsUnit(unit, "vehicle") ) then
-				-- NOTE: vehicle check must come before pet check for accuracy's sake because
-				-- a vehicle may also be considered your pet
-				menu = "VEHICLE";
-			elseif ( UnitIsUnit(unit, "pet") ) then
-				menu = "PET";
-			elseif ( UnitIsPlayer(unit) ) then
-				id = UnitInRaid(unit);
-				if ( id ) then
-					menu = "RAID_PLAYER";
-				elseif ( UnitInParty(unit) ) then
-					menu = "PARTY";
-				else
-					menu = "PLAYER";
-				end
-			else
-				menu = "TARGET";
-				name = RAID_TARGET_ICON;
-			end
-			if ( menu ) then
---				UnitPopup_ShowMenu(self, menu, unit, name, id);
-			end
-		end
-		
-		UIDropDownMenu_SetInitializeFunction(object.DropDown, InitializeDropDown);
-		UIDropDownMenu_SetDisplayMode(object.DropDown, "MENU");
-			
-		local function buttonOnClick(self, button)
-			if button == "RightButton" then
-				ToggleDropDownMenu(1, nil, self.DropDown, "cursor");
-			end
-		end
-		object:SetScript("OnMouseUp", buttonOnClick)
-	end
 end
-
 
 function IUF:SetFontString(fontString, file, size, attribute, shadow)
 	fontString:SetFont(SM:Fetch("font", file or "기본 폰트") or STANDARD_TEXT_FONT, size or 13, attribute or "")
@@ -632,10 +560,11 @@ local function setupSkinElement(object, element, width, height)
 						object[element].gradient:ClearAllPoints()
 						object[element].gradient:SetPoint("TOPLEFT", backdrop.insets.left or 0, -(backdrop.insets.top or 0))
 						object[element].gradient:SetPoint("BOTTOMRIGHT", -(backdrop.insets.right or 0), backdrop.insets.bottom)
---						object[element].gradient:SetGradientAlpha(unpack(object.db.backdropGradient))
---						object[element].gradient:SetAlpha(1.0)
---						object[element].gradient:SetVertexColor(0.1, 0.1, 0.1)
-						object[element].gradient:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0), CreateColor(0.1, 0.1, 0.1, 1))
+						if object[element].gradient.SetGradientAlpha then
+							object[element].gradient:SetGradientAlpha(unpack(object.db.backdropGradient))
+						elseif object[element].gradient.SetGradient then
+							object[element].gradient:SetGradient("VERTICAL", CreateColor(0, 0, 0, 0), CreateColor(0.1, 0.1, 0.1, 1))
+						end
 						object[element].gradient:Show()
 					else
 						object[element].gradient:Hide()
@@ -726,16 +655,14 @@ function IUF:SetObjectSkin(object)
 	refreshAnchors(object)
 	if object.objectType == "player" then
 		if object.db.hiddenBlizzardCastingBar then
-			PlayerCastingBarFrame.showCastbar = nil
+			CastingBarFrame.showCastbar = nil
 			PetCastingBarFrame.showCastbar = nil
 		else
-			PlayerCastingBarFrame.showCastbar = true
+			CastingBarFrame.showCastbar = true
 			PetCastingBarFrame.showCastbar = true
 		end
-		--CastingBarFrame_UpdateIsShown(PlayerCastingBarFrame)
-		--CastingBarFrame_UpdateIsShown(PetCastingBarFrame)
-		PlayerCastingBarFrame:UpdateIsShown()
-		PetCastingBarFrame:UpdateIsShown()
+		CastingBarFrame_UpdateIsShown(CastingBarFrame)
+		CastingBarFrame_UpdateIsShown(PetCastingBarFrame)
 	end
 	if object.feedbackFrame then
 		IUF:RegsiterCombatFeedback()

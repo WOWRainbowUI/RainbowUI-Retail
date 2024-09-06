@@ -47,7 +47,7 @@ local function addNewConfig(db)
 		db.classBar.pos = "BOTTOM"
 	end
 	if not db.classBar.texture then
-		db.classBar.use = true
+		db.classBar.use = false
 		db.classBar.texture = "Smooth v2"
 		db.classBar.useBlizzard = false
 	end
@@ -92,7 +92,6 @@ function IUF:InitDB()
 				[2] = { PowerBarColor[2].r, PowerBarColor[2].g, PowerBarColor[2].b },	-- Focus
 				[3] = { PowerBarColor[3].r, PowerBarColor[3].g, PowerBarColor[3].b },	-- Energy
 				[6] = { PowerBarColor[6].r, PowerBarColor[6].g, PowerBarColor[6].b },	-- Runic Power
-				[8] = { PowerBarColor[8].r, PowerBarColor[8].g, PowerBarColor[8].b },	-- Lunar
 			},
 			casting = {
 				NORMAL = { 1, 0.7, 0 },
@@ -109,9 +108,6 @@ function IUF:InitDB()
 		end
 	end
 	self.colordb = InvenUnitFramesDB.colors
-	
-	InvenUnitFramesDB.hidePartyFrame = false
-	
 	createNewProfiles("Default")
 	for _, db in pairs(InvenUnitFramesDB.profiles) do
 		addNewConfig(db)
@@ -125,7 +121,7 @@ function IUF:InitDB()
 		InvenUnitFramesDB.profile[self.dbKey] = "Default"
 		self.db = InvenUnitFramesDB.profiles.Default
 	end
-	self.version = C_AddOns.GetAddOnMetadata("InvenUnitFrames", "Version")
+	self.version = GetAddOnMetadata("InvenUnitFrames", "Version")
 end
 
 function IUF:SelectProfile(profile)

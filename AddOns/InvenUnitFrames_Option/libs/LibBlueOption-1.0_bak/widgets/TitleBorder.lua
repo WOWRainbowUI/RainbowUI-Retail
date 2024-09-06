@@ -21,7 +21,6 @@ end
 LBO:RegisterWidget(widget, version, function(self, name)
 	self:SetBackdrop(backdrop)
 	self.title = self:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	self.title:SetMaxLines(1)
 	self.title:SetPoint("CENTER", self, "TOP", 0, -3)
 
 	self._top0 = select(3, self:GetRegions())

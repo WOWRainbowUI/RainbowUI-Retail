@@ -104,7 +104,7 @@ local function previewOnUpdate(preview, timer)
 		preview.updateTime = 0
 		if not preview.values.castingEndTime and random(1, 3) == 1 then
 			preview.values.castingIsChannel = random(1, 3) == 1
-			preview.values.castingIcon = select(3, C_Spell.GetSpellName(random(10, 60000))) or "Interface\\Icons\\Temp"
+			preview.values.castingIcon = select(3, GetSpellInfo(random(10, 60000))) or "Interface\\Icons\\Temp"
 			preview.values.castingStartTime = preview.currentTime * 1000
 			preview.values.castingEndTime = (preview.currentTime + random(15, 50) / 10) * 1000
 			preview.values.castingName = "시전바"
@@ -270,19 +270,17 @@ local function createMovingAnchor()
 	IUF.movingFrame.xvalue = IUF.movingFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	IUF.movingFrame.xvalue:SetPoint("RIGHT", IUF.movingFrame.xline, "LEFT", -2, 0)
 	
-	IUF.movingFrame2.xcenter = IUF.movingFrame2:CreateTexture(nil, "ARTWORK")
-	IUF.movingFrame2.xcenter:SetTexture(1, 0, 0)
-	IUF.movingFrame2.xcenter:SetHeight(1)
-	IUF.movingFrame2.xcenter:SetPoint("LEFT", UIParent, "LEFT", 0, 0)
-	IUF.movingFrame2.xcenter:SetPoint("RIGHT", UIParent, "RIGHT", 0, 0)
-	IUF.movingFrame2.xcenter:SetVertexColor(0,1,0,0.5)
+	IUF.movingFrame.xcenter = IUF.movingFrame:CreateTexture(nil, "ARTWORK")
+	IUF.movingFrame.xcenter:SetTexture(1, 0, 0)
+	IUF.movingFrame.xcenter:SetHeight(1)
+	IUF.movingFrame.xcenter:SetPoint("LEFT", UIParent, "LEFT", 0, 0)
+	IUF.movingFrame.xcenter:SetPoint("RIGHT", UIParent, "RIGHT", 0, 0)
 	
-	IUF.movingFrame2.ycenter = IUF.movingFrame2:CreateTexture(nil, "ARTWORK")
-	IUF.movingFrame2.ycenter:SetTexture(1, 0, 0)
-	IUF.movingFrame2.ycenter:SetWidth(1)
-	IUF.movingFrame2.ycenter:SetPoint("TOP", UIParent, "TOP", 0, 0)
-	IUF.movingFrame2.ycenter:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 0)
-	IUF.movingFrame2.ycenter:SetVertexColor(0,1,0,0.5)
+	IUF.movingFrame.ycenter = IUF.movingFrame:CreateTexture(nil, "ARTWORK")
+	IUF.movingFrame.ycenter:SetTexture(1, 0, 0)
+	IUF.movingFrame.ycenter:SetWidth(1)
+	IUF.movingFrame.ycenter:SetPoint("TOP", UIParent, "TOP", 0, 0)
+	IUF.movingFrame.ycenter:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 0)
 	local pixel, tex = 25
 	for i = 1, 50 do
 		tex = IUF.movingFrame2:CreateTexture(nil, "BORDER")

@@ -89,7 +89,7 @@ local function listButtonOnClick(button)
 	if menu.type == "sound" then
 		PlaySoundFile(SM:Fetch("sound", button.value))
 	else
-		--PlaySound("igMainMenuOptionCheckBoxOff") -- fix 8.0
+--		PlaySound("igMainMenuOptionCheckBoxOff")
 	end
 	menu.parent:SetValue(button.value)
 end
@@ -109,7 +109,6 @@ local function createListButton(idx)
 		menu.buttons[idx].text:SetPoint("LEFT", 2, 0)
 		menu.buttons[idx].text:SetPoint("RIGHT", -2, 0)
 		menu.buttons[idx].text:SetJustifyH("CENTER")
-		menu.buttons[idx].text:SetMaxLines(1)
 		menu.buttons[idx]:SetScript("OnEnter", listButtonOnEnter)
 		menu.buttons[idx]:SetScript("OnLeave", listButtonOnLeave)
 		menu.buttons[idx]:SetScript("OnClick", listButtonOnClick)
@@ -226,7 +225,7 @@ LBO:RegisterWidget(widget, version, function(self, name)
 	self.texture:SetPoint("TOPLEFT", 7, -3)
 	self.texture:SetPoint("BOTTOMRIGHT", 3, 3)
 	self.textureBG = self.over:CreateTexture(nil, "BORDER")
-	self.textureBG:SetColorTexture(0, 0, 0)
+	self.textureBG:SetTexture(0, 0, 0)
 	self.textureBG:SetAllPoints(self.texture)
 	self.Setup = update
 	self.DropdownDisable = self.Disable

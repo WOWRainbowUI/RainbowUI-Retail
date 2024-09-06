@@ -160,34 +160,24 @@ lib.enrageSpells[86736] = true
 lib.enrageSpells[90045] = true
 lib.enrageSpells[91668] = true
 
---lib.enrageSpells[264064] = true	-- 8.0
---lib.enrageSpells[274780] = true	-- 8.0
---lib.enrageSpells[311086] = true	-- 8.0
---lib.enrageSpells[313675] = true	-- 8.0
---lib.enrageSpells[314466] = true	-- 8.0
-
---lib.enrageSpells[314466] = true	-- 8.0
-lib.enrageSpells[228318] = true	-- 9.0
-lib.enrageSpells[257260] = true	-- 8.0	Mythic Dungeon
-lib.enrageSpells[324085] = true	-- 9.0	              -           þ 
-lib.enrageSpells[324737] = true	-- 9.0	Ƽ        ̵     Ȱ  -  Ȱ  帷   ȣ  
-lib.enrageSpells[333227] = true	-- 9.0	     -  ǻ Ƴ   屺
-lib.enrageSpells[334967] = true	-- 9.0	     -     Į   θ 
-lib.enrageSpells[326450] = true	-- 9.0	            - Ÿ       ɰ    û 
-lib.enrageSpells[321220] = true	-- 9.0	 ͺ   ɿ  -            
-lib.enrageSpells[334470] = true	-- 9.0	 ͺ   ɿ  -                
-lib.enrageSpells[320703] = true	-- 9.0	           ,   õ        -             
-
-
 if class == "WARRIOR" then
 	function scanDispel()
+		local isGlyphSlam = false
+		if IsSpellKnown(23922) then
+			for i = 1, GetNumGlyphSockets() do
+				local enabled, _, _, spellId = GetGlyphSocketInfo(i)
+				if enabled and (spellId or 0) == 58375 then
+					isGlyphSlam = true
+				end
+			end
+		end
 		lib.tranquilize = nil
-		lib.harm = nil--IsSpellKnown(58375) and true or nil
+		lib.harm = isGlyphSlam
 		wipe(lib.help)
 	end
 elseif class == "ROGUE" then
 	function scanDispel()
-		lib.tranquilize = nil--IsSpellKnown(5938) and true or nil
+		lib.tranquilize = IsSpellKnown(5938) and true or nil
 		lib.harm = nil
 		wipe(lib.help)
 	end
@@ -231,45 +221,31 @@ elseif class == "DRUID" then
 elseif class == "SHAMAN" then
 	function scanDispel()
 		lib.tranquilize = nil
-		lib.harm = (IsPlayerSpell(370) or IsPlayerSpell(378773)) and true or nil
+		lib.harm = IsSpellKnown(370) and true or nil
 		wipe(lib.help)
-		lib.help.Poison = IsPlayerSpell(383013) and true or nil
-		lib.help.Curse = IsPlayerSpell(383016) and true or nil
-		lib.help.Magic = (IsPlayerSpell(77130) or IsPlayerSpell(383016)) and true or nil
+		lib.help.Curse = (IsSpellKnown(51886) or IsSpellKnown(95862)) and true or nil
+		lib.help.Magic = IsSpellKnown(95862) and true or nil
 	end
 elseif class == "PALADIN" then
 	function scanDispel()
 		lib.tranquilize = nil
 		lib.harm = nil
 		wipe(lib.help)
-		lib.help.Poison = (IsSpellKnown(213644) or IsSpellKnown(4987)) and true or nil
-		lib.help.Disease = lib.help.Poison
-		lib.help.Magic = IsSpellKnown(4987) and true or nil
+		lib.help.Poison = IsSpellKnown(4987) and true or nil
+		if lib.help.Poison then
+			lib.help.Disease = true
+			lib.help.Magic = IsSpellKnown(53551) and true or nil
+		end
 	end
 elseif class == "MONK" then
 	function scanDispel()
 		lib.tranquilize = nil
 		lib.harm = nil
-		wipe(lib.help)
-		lib.help.Poison = (IsSpellKnown(218164) or IsSpellKnown(115450)) and true or nil
-		lib.help.Disease = lib.help.Poison
-		lib.help.Magic = (IsSpellKnown(115450) or IsSpellKnown(115310) or IsSpellKnown(117907)) and true or nil	-- 115450 bug
-	end
-elseif class == "DEMONHUNTER" then
-	function scanDispel()
-		lib.tranquilize = nil
-		lib.harm = nil
-		wipe(lib.help)
-	end
-elseif class == "EVOKER" then
-	function scanDispel()
-		lib.tranquilize = nil
-		lib.harm = nil
-		wipe(lib.help)
-		lib.help.Poison = (IsSpellKnownOrOverridesKnown(365585) or IsSpellKnownOrOverridesKnown(360823) or IsSpellKnownOrOverridesKnown(374251)) and true or nil
-		lib.help.Disease = IsSpellKnownOrOverridesKnown(374251) and true or nil
-		lib.help.Curse = IsSpellKnownOrOverridesKnown(374251) and true or nil
-		lib.help.Magic = IsSpellKnownOrOverridesKnown(360823) and true or nil
+		lib.help.Poison = IsSpellKnown(115450) and true or nil
+		if lib.help.Poison then
+			lib.help.Disease = true
+			lib.help.Magic = IsSpellKnown(115451) and true or nil
+		end
 	end
 else
 	lib.Dispel = lib.blankfunc
@@ -302,49 +278,31 @@ function lib:CheckHelpDispel(aura)
 end
 
 function lib:IsDispelable(unit, index)
-local aura,auraType,auraID
 	if UnitCanAttack("player", unit) then
---		local auraType, _, _, _, _, _, auraID = select(4, UnitBuff(unit, index))
-		aura = C_UnitAuras.GetBuffDataByIndex(unit,index)
-		auraType = aura.dispelName
-		auraID = aura.spellId
-
+		auraType, _, _, _, _, _, auraID = select(4, UnitBuff(unit, index))
 		return lib:CheckHarmDispel(auraType, auraID)
 	elseif UnitCanAssist("player", unit) then
-		aura = C_UnitAuras.GetDebuffDataByIndex(unit,index)
-		auraType = aura.dispelName
-		auraID = aura.spellId
-		return lib:CheckHelpDispel(aura.dispelName or nil)
+		return lib:CheckHelpDispel(select(4, UnitDebuff(unit, index)) or nil)
 	end
 	return nil
 end
 
 function lib:DispelHelp(unit, usablefunc)
-local name,aura,auraType,auraID
-
-	if next(lib.help)   then
+	if next(lib.help) then
 		for i = 1, 40 do
---			local name, _, _, auraType, _, _, _, _, _, spellId = UnitDebuff(unit, i)
-			aura = C_UnitAuras.GetDebuffDataByIndex(unit,i)
-			if aura then
-				name = aura.name
-				auraType = aura.dispelName
-				auraID = aura.spellId
-			end
+			name, _, _, auraType, _, _, _, _, _, spellId = UnitDebuff(unit, i)
 			if name then
 				if lib:CheckHelpDispel(auraType) then
 					if type(usablefunc) == "function" then
 						if usablefunc(name, spellId) then
-							return name
-
+							return UnitDebuff(unit, i)
 						end
 					elseif type(usablefunc) == "table" then
 						if not usablefunc[name] and not usablefunc[auraID] then
-							return name
+							return UnitDebuff(unit, i)
 						end
 					else
-						return name
-
+						return UnitDebuff(unit, i)
 					end
 				end
 			else
@@ -356,31 +314,21 @@ local name,aura,auraType,auraID
 end
 
 function lib:DispelHarm(unit, usablefunc)
-local name,aura,auraType,auraID
 	if lib.harm or lib.tranquilize then
 		for i = 1, 40 do
---			local name, _, _, auraType, _, _, _, _, _, auraID = UnitBuff(unit, i)
-			aura = C_UnitAuras.GetDebuffDataByIndex(unit,i)
-			if aura then
-				name = aura.name
-				auraType = aura.dispelName
-				auraID = aura.spellId
-			end
-
+			name, _, _, auraType, _, _, _, _, _, auraID = UnitBuff(unit, i)
 			if name then
 				if lib:CheckHarmDispel(auraType, auraID) then
 					if type(usablefunc) == "function" then
 						if usablefunc(name) then
-							return name
+							return UnitBuff(unit, i)
 						end
 					elseif type(usablefunc) == "table" then
 						if not usablefunc[name] and not usablefunc[auraID] then
-							return name
+							return UnitBuff(unit, i)
 						end
 					else
-
-						return name
-
+						return UnitBuff(unit, i)
 					end
 				end
 			else
@@ -407,9 +355,9 @@ lib.frame = lib.frame or CreateFrame("Frame")
 lib.frame:UnregisterAllEvents()
 lib.frame:RegisterEvent("PLAYER_LOGIN")
 lib.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-lib.frame:RegisterEvent("PLAYER_TALENT_UPDATE")
+--lib.frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 lib.frame:RegisterEvent("SPELLS_CHANGED")
-lib.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+--lib.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 lib.frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
 lib.frame:SetScript("OnEvent", function()
 	p_tranquilize = lib.tranquilize

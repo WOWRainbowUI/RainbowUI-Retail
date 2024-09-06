@@ -60,12 +60,18 @@ local function createFontFrame()
 		menu = LBO:CreateDropDownMenu(widget, "DIALOG")
 		menu:SetWidth(150)
 		menu:SetHeight(230)
-		menu.attributeList = { "없음", "외곽선", "굵은 외곽선" }
+		menu.attributeList = { "없음", "외곽선", "굵은 외곽선", "예리하게", "예리한 외곽선", "예리한 굵은 외곽선" }
 		menu.attributeSet = {
 			["외곽선"] = "OUTLINE",
 			["OUTLINE"] = "외곽선",
 			["굵은 외곽선"] = "THICKOUTLINE",
 			["THICKOUTLINE"] = "굵은 외곽선",
+			["예리하게"] = "MONOCHROME",
+			["MONOCHROME"] = "예리하게",
+			["예리한 외곽선"] = "OUTLINE,MONOCHROME",
+			["OUTLINE,MONOCHROME"] = "예리한 외곽선",
+			["예리한 굵은 외곽선"] = "THICKOUTLINE,MONOCHROME",
+			["THICKOUTLINE,MONOCHROME"] = "예리한 굵은 외곽선",
 		}
 		menu.info = {}
 		local function hidden(key)

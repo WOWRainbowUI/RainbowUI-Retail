@@ -49,6 +49,18 @@ InvenUnitFrames:RegisterSkin("AmmoPortrait", "Ammo 초상화", {
 			self:SetJustifyH("LEFT")
 		]],
 		classTextFontSize = 11,
+		raidIcon = [[
+			self:SetWidth(24)
+			self:SetHeight(24)
+			self:SetPoint("CENTER", object.portrait, "TOP", 0, -8)
+		]],
+		raidIconUse = true,
+		pvpIcon = [[
+			self:SetPoint("CENTER", object.portrait, "LEFT", 0, 0)
+			self:SetWidth(20)
+			self:SetHeight(20)
+		]],
+		pvpIconUse = true,
 		combatIcon = [[
 			self:SetPoint("CENTER", object, "LEFT", 0, 0)
 			self:SetWidth(20)
@@ -161,6 +173,12 @@ InvenUnitFrames:RegisterSkin("AmmoPortrait", "Ammo 초상화", {
 			self:SetHeight(92)
 			self:SetPoint("CENTER", object, "RIGHT", -14, -2)
 		]],
+		pvpIcon = [[
+			self:SetPoint("CENTER", object.portrait, "RIGHT", 0, 0)
+			self:SetWidth(20)
+			self:SetHeight(20)
+		]],
+		pvpIconUse = true,
 		eliteFrameUse = true,
 		comboFrameIsLeftPos = false, eliteFrameIsLeft = false,
 	},
@@ -189,6 +207,7 @@ InvenUnitFrames:RegisterSkin("AmmoPortrait", "Ammo 초상화", {
 		]],
 		healthText3 = 1, powerText3 = false,
 		levelText = false, classText = false, stateText = false,
+		pvpIconUse = false,
 		combatIcon = false, combatIconUse = false,
 		leaderIcon = false, leaderIconUse = false,
 		lootIcon = false, lootIconUse = false,

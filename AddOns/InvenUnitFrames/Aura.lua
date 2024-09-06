@@ -12,6 +12,19 @@ local CreateFrame = _G.CreateFrame
 
 local numBuff, numDebuff, auraName, auraIcon, auraCount, auraType, auraDuration, auraEndTime, auraCaster, auraStealable, auraSpellID, _
 local button, auraWidth, prevAnchor, firstAura, lastAura, isFriend, buffAnchor, debuffAnchor, dispel, stealType, topAnchor, bottomAnchor
+
+local LibClassicDurations = LibStub("LibClassicDurations", true)
+if LibClassicDurations then
+	LibClassicDurations:Register("InvenUnitFrames")
+	UnitAura = LibClassicDurations.UnitAuraWrapper
+	UnitBuff = function(unit, index)
+		return UnitAura(unit, index, "HELPFUL")
+	end
+	UnitDebuff = function(unit, index)
+		return UnitAura(unit, index, "HARMFUL")
+	end
+end
+
 local LRD = LibStub("LibRealDispel-1.0")
 local isHarm, isHelp
 local playerUnits = { player = true, pet = true, vehicle = true }
@@ -94,11 +107,15 @@ local function auraOnUpdate(aura, timer)
 end
 
 local function auraOnEnter(aura)
-	GameTooltip:SetOwner(aura, "ANCHOR_BOTTOMRIGHT")
-	GameTooltip:SetUnitAura(aura:GetParent().unit, aura:GetID(), aura.isBuff and "HELPFUL" or "HARMFUL")
-	GameTooltip:Show()
-	aura:SetScript("OnUpdate", auraOnUpdate)
+if (IUF.db.tooltip == 1 or (IUF.db.tooltip == 2 and not InCombatLockdown()) or (IUF.db.tooltip == 3 and InCombatLockdown()))  then
+    GameTooltip:SetOwner(aura, "ANCHOR_BOTTOMRIGHT")
+    GameTooltip:SetUnitAura(aura:GetParent().unit, aura:GetID(), aura.isBuff and "HELPFUL" or "HARMFUL")
+    GameTooltip:Show()
+
+    aura:SetScript("OnUpdate", auraOnUpdate)
 end
+end
+
 
 local function auraOnLeave(aura)
 	aura:SetScript("OnUpdate", nil)
@@ -335,26 +352,12 @@ local function auraUpdate(object)
 	-- 버프 검색
 	numBuff = 0
 	dispel = nil
-	local aurainfo
 	if object.buff.num > 0 then
 		if isHarm then
 			if object.buff.filters.harmDispel or object.buff.filters.harmOhter then
 				for i = 1, 40 do
 					if numBuff < object.buff.num then
---						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = C_UnitAuras.GetBuffDataByIndex(object.unit, i)
-
-aurainfo=C_UnitAuras.GetBuffDataByIndex(object.unit, i)
-auraName = aurainfo and aurainfo.name or nil
-auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
-auraType  = aurainfo and aurainfo.dispelName or nil
-auraDuration  = aurainfo and aurainfo.duration or nil
-auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
-auraCaster = aurainfo and aurainfo.sourceUnit or nil
-auraSpellID = aurainfo and aurainfo.spellId or nil
-
-
-
+						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = UnitBuff(object.unit, i)
 						if auraName then
 							if LRD:CheckHarmDispel(auraType, auraSpellID) then
 								dispel = auraType or ""
@@ -377,22 +380,10 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 				end
 			end
 		elseif isHelp then
-
 			if object.buff.filters.helpMine or object.buff.filters.helpCast or object.buff.filters.helpOhter then
 				for i = 1, 40 do
 					if numBuff < object.buff.num then
---						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = C_UnitAuras.GetBuffDataByIndex(object.unit, i)
-
-aurainfo=C_UnitAuras.GetBuffDataByIndex(object.unit, i)
-auraName = aurainfo and aurainfo.name or nil
-auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
-auraType  = aurainfo and aurainfo.dispelName or nil
-auraDuration  = aurainfo and aurainfo.duration or nil
-auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
-auraCaster = aurainfo and aurainfo.sourceUnit or nil
-auraSpellID = aurainfo and aurainfo.spellId or nil
-
+						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = UnitBuff(object.unit, i)
 						if auraName then
 							if playerUnits[auraCaster or ""] then
 								if object.buff.filters.helpMine then
@@ -416,17 +407,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 		elseif object.buff.filters.helpOhter then
 			for i = 1, 40 do
 				if numBuff < object.buff.num then
---					auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime = C_UnitAuras.GetBuffDataByIndex(object.unit, i)
-aurainfo=C_UnitAuras.GetBuffDataByIndex(object.unit, i)
-auraName = aurainfo and aurainfo.name or nil
-auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
-auraType  = aurainfo and aurainfo.dispelName or nil
-auraDuration  = aurainfo and aurainfo.duration or nil
-auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
-auraCaster = aurainfo and aurainfo.sourceUnit or nil
-auraSpellID = aurainfo and aurainfo.spellId or nil
-
+					auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime = UnitBuff(object.unit, i)
 					if auraName then
 						showBuff(object, i, object.buff.filters.helpOhterBig, 0, 0, 0, 0.6)
 					else
@@ -453,17 +434,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 			if object.debuff.filters.harmMine or object.debuff.filters.harmCast or object.debuff.filters.harmOhter then
 				for i = 1, 40 do
 					if numDebuff < object.debuff.num then
---						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
-aurainfo=C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
-auraName = aurainfo and aurainfo.name or nil
-auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
-auraType  = aurainfo and aurainfo.dispelName or nil
-auraDuration  = aurainfo and aurainfo.duration or nil
-auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
-auraCaster = aurainfo and aurainfo.sourceUnit or nil
-auraSpellID = aurainfo and aurainfo.spellId or nil
-
+						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = UnitDebuff(object.unit, i)
 						if auraName then
 							if playerUnits[auraCaster or ""] then
 								if object.debuff.filters.harmMine then
@@ -488,17 +459,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 			if object.debuff.filters.helpDispel or object.debuff.filters.helpOhter then
 				for i = 1, 40 do
 					if numDebuff < object.debuff.num then
---						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime = C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
-aurainfo=C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
-auraName = aurainfo and aurainfo.name or nil
-auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
-auraType  = aurainfo and aurainfo.dispelName or nil
-auraDuration  = aurainfo and aurainfo.duration or nil
-auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
-auraCaster = aurainfo and aurainfo.sourceUnit or nil
-auraSpellID = aurainfo and aurainfo.spellId or nil
-
+						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime = UnitDebuff(object.unit, i)
 						if auraName then
 							if LRD:CheckHelpDispel(auraType, auraSpellID) then
 								dispel = auraType or ""
@@ -523,17 +484,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 		elseif object.debuff.filters.helpOhter then
 			for i = 1, 40 do
 				if numDebuff < object.debuff.num then
-				--	auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
-aurainfo=C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
-auraName = aurainfo and aurainfo.name or nil
-auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
-auraType  = aurainfo and aurainfo.dispelName or nil
-auraDuration  = aurainfo and aurainfo.duration or nil
-auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
-auraCaster = aurainfo and aurainfo.sourceUnit or nil
-auraSpellID = aurainfo and aurainfo.spellId or nil
-
+					auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = UnitDebuff(object.unit, i)
 					if auraName then
 						showDebuff(object, i, object.debuff.filters.helpOhterBig, 0.8, 0, 0, 0.6)
 					else

@@ -19,7 +19,7 @@ local UnitFactionGroup = _G.UnitFactionGroup
 local UnitSelectionColor = _G.UnitSelectionColor
 local HasPetUI = _G.HasPetUI
 local GetThreatStatusColor = _G.GetThreatStatusColor
-local GetUnitPowerBarTextureInfo = _G.GetUnitPowerBarTextureInfo
+local UnitAlternatePowerTextureInfo = _G.UnitAlternatePowerTextureInfo
 local AbbreviateLargeNumbers = _G.AbbreviateLargeNumbers
 
 local classificationText = { ["worldboss"] = "Boss", ["rareelite"] = "Elite Rare", ["elite"] = "Elite", ["rare"] = "Rare", ["trivial"] = "Citizen" }
@@ -270,9 +270,9 @@ function callbacks:Name()
 		else
 			namevalue = self.values.name
 		end
-		if self.values.group then
-			namevalue = namevalue.."|cffffffff("..self.values.group..")|r"
-		end
+--		if self.values.group then
+--			namevalue = namevalue.."|cffffffff("..self.values.group..")|r"
+--		end
 		self.nameText:SetText(namevalue)
 	else
 		self.nameText:SetText(nil)
@@ -301,12 +301,8 @@ function callbacks:Level()
 				self.levelText:SetFormattedText("%s%s", self.levelText:GetText(), "*")
 			end
 		elseif self.values.level and self.values.level > 0 then
-			if ( UnitIsWildBattlePet(self.unit) or UnitIsBattlePetCompanion(self.unit) ) then
-				self.levelText:SetTextColor(1.0, 0.82, 0.0)
-			else
-				color = GetQuestDifficultyColor(self.values.level)
-				self.levelText:SetTextColor(color.r, color.g, color.b)
-			end
+			color = GetQuestDifficultyColor(self.values.level)
+			self.levelText:SetTextColor(color.r, color.g, color.b)
 			if self.values.elite then
 				self.levelText:SetText(self.values.level.."+")
 			else
@@ -347,12 +343,16 @@ function callbacks:Role()
 	end
 end
 
-local CLASS_BUTTONS = CLASS_ICON_TCOORDS
 function callbacks:Class()
 	if self.classIcon.use then
+		if PetFrameHappiness then
+		PetFrameHappiness:SetParent(InvenUnitFrames_Pet);
+		PetFrameHappiness:ClearAllPoints();PetFrameHappiness:SetPoint("LEFT", "InvenUnitFrames_Pet", "RIGHT", 0, 0);
+		end
+
 		self.classIcon:Show()
 		self.creatureIcon:Hide()
-		if CLASS_BUTTONS[self.values.class or ""] then
+		if CLASS_BUTTONS and CLASS_BUTTONS[self.values.class or ""] then
 			if self.classIcon.isCircle then
 				self.classIcon:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
 			else
@@ -372,14 +372,14 @@ function callbacks:Class()
 			if IUF.db.skin == "Blizzard" then
 				self.texture1:Hide()
 			end
-			if self.values.creature and creatureIcons[self.values.creature] and IUF.db.skin ~= "Blizzard" then
-				self.classIcon:SetWidth(self.classIcon:GetHeight())
-				self.creatureIcon:SetTexture(creatureIcons[self.values.creature])
-				self.creatureIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-				self.creatureIcon:Show()
-			else
-				self.classIcon:SetWidth(0.0001)
-			end
+--~ 			if self.values.creature and creatureIcons[self.values.creature] and IUF.db.skin ~= "Blizzard" then
+--~ 				self.classIcon:SetWidth(self.classIcon:GetHeight())
+--~ 				self.creatureIcon:SetTexture(creatureIcons[self.values.creature])
+--~ 				self.creatureIcon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+--~ 				self.creatureIcon:Show()
+--~ 			else
+ 				self.classIcon:SetWidth(0.0001)
+--~ 			end
 		end
 	else
 		self.classIcon:SetTexCoord(0, 0, 0, 0)
@@ -498,20 +498,16 @@ local pcr, pcg, pcb
 function callbacks:PowerColor()
 	if self.powerBar:IsShown() then
 		self.powerBar.fadeTex.value = 0
-		if self.values.powertype == "ALTERNATE" then
-			pcr, pcg, pcb = select(2, GetUnitPowerBarTextureInfo(self.unit, 2))
-			if pcr then
-				self.powerBar:SetColor(pcr, pcg, pcb)
-			else
-				self.powerBar:SetColor(1, 0, 1)
-			end
-		else
-			if self.values.powertype == 8 and not IUF.colordb.power[8] then	-- LUNAR_POWER
-				self.powerBar:SetColor(0.30, 0.52, 0.90)
-			else
-				self.powerBar:SetColor(unpack(IUF.colordb.power[self.values.powertype or 0] or IUF.colordb.power[0]))
-			end
-		end
+--		if self.values.powertype == "ALTERNATE" then
+--			pcr, pcg, pcb = select(2, UnitAlternatePowerTextureInfo(self.unit, 2))
+--			if pcr then
+--				self.powerBar:SetColor(pcr, pcg, pcb)
+--			else
+--				self.powerBar:SetColor(1, 0, 1)
+--			end
+--		else
+			self.powerBar:SetColor(unpack(IUF.colordb.power[self.values.powertype or 0] or IUF.colordb.power[0]))
+--		end
 	end
 end
 
@@ -682,8 +678,8 @@ function callbacks:StateColor()
 			self.stateText:SetTextColor(0.58, 0.58, 0.58)
 		elseif self.values.tapped then
 			self.stateText:SetTextColor(0.76, 0.76, 0.76)
-		elseif self.values.threatvalue and self.values.threatvalue > 0 then
-			self.stateText:SetTextColor(GetThreatStatusColor(self.values.threatstatus))
+--		elseif self.values.threatvalue and self.values.threatvalue > 0 then
+--			self.stateText:SetTextColor(GetThreatStatusColor(self.values.threatstatus))
 		else
 			self.stateText:SetTextColor(1, 1, 1)
 		end
@@ -831,9 +827,9 @@ function callbacks:CastingBar()
 		self.castingBar.icon:SetTexture(self.values.castingIcon)
 		self.castingBar.icon:SetHeight(self.castingBar.icon:GetWidth())
 		self.castingBar.bar.isChannel = self.values.castingIsChannel
-		self.castingBar.bar.startTime = self.values.castingStartTime
-		self.castingBar.bar.endTime = self.values.castingEndTime
-		self.castingBar.bar:SetMinMaxValues(0, self.castingBar.bar.endTime - self.castingBar.bar.startTime)
+		self.castingBar.bar.startTime = self.values.castingStartTime / 1000
+		self.castingBar.bar.endTime = self.values.castingEndTime / 1000
+		self.castingBar.bar:SetMinMaxValues(self.castingBar.bar.startTime, self.castingBar.bar.endTime)
 		callbacks.CastingBarColor(self)
 		if self.castingBar.text:IsShown() then
 			rankNumber = tonumber((self.values.castingRank or ""):match("(%d+)") or "")

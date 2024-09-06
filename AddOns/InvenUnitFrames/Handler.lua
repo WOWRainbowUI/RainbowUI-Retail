@@ -52,13 +52,23 @@ local UnitChannelInfo = _G.UnitChannelInfo
 local UnitCreatureType = _G.UnitCreatureType
 local UnitThreatSituation = _G.UnitThreatSituation
 local UnitAlternatePowerInfo = _G.UnitAlternatePowerInfo
-local GetUnitPowerBarInfo = _G.GetUnitPowerBarInfo
 local UnitGetIncomingHeals = _G.UnitGetIncomingHeals
 local UnitIsQuestBoss = _G.UnitIsQuestBoss
 
 local targetFrame, targetUnit, _
 
-local updateEvents = { "OnUpdate", "UNIT_NAME_UPDATE", "UNIT_MAXHEALTH", "UNIT_HEALTH", "UNIT_DISPLAYPOWER", "RAID_TARGET_UPDATE", "PLAYER_UPDATE_RESTING", "UNIT_SPELLCAST_START", "UNIT_AURA", "UNIT_POWER_UPDATE", "UNIT_HEAL_PREDICTION" }
+--classic
+local UnitHasVehicleUI = function() return false end
+local UnitIsQuestBoss = function() return false end
+--local UnitCastingInfo = _G.CastingInfo
+--local UnitChannelInfo = _G.ChannelInfo
+
+local updateEvents = {}
+if (select(4,GetBuildInfo()) <= 90000) then
+	updateEvents = { "OnUpdate", "UNIT_NAME_UPDATE", "UNIT_MAXHEALTH", "UNIT_HEALTH", "UNIT_HEALTH_FREQUENT", "UNIT_DISPLAYPOWER", "RAID_TARGET_UPDATE", "PLAYER_UPDATE_RESTING", "UNIT_SPELLCAST_START", "UNIT_AURA", "UNIT_POWER_UPDATE", "UNIT_HEAL_PREDICTION", "UNIT_HAPPINESS" }
+else
+	updateEvents = { "OnUpdate", "UNIT_NAME_UPDATE", "UNIT_MAXHEALTH", "UNIT_HEALTH", "UNIT_DISPLAYPOWER", "RAID_TARGET_UPDATE", "PLAYER_UPDATE_RESTING", "UNIT_SPELLCAST_START", "UNIT_AURA", "UNIT_POWER_UPDATE", "UNIT_HEAL_PREDICTION", "UNIT_HAPPINESS" }
+end
 --local updateEvents = { "OnUpdate", "UNIT_NAME_UPDATE", "UNIT_MAXHEALTH", "UNIT_HEALTH", "UNIT_HEALTH_FREQUENT", "UNIT_DISPLAYPOWER", "RAID_TARGET_UPDATE", "PLAYER_UPDATE_RESTING", "UNIT_SPELLCAST_START", "UNIT_AURA", "UNIT_POWER_UPDATE", "UNIT_HEAL_PREDICTION" }
 
 local creatureTypes = {
@@ -82,7 +92,6 @@ end
 
 function IUF:UpdateAllObject()
 	for _, object in pairs(self.units) do
-
 		self:UpdateObject(object)
 	end
 end
@@ -131,14 +140,12 @@ function IUF:RegisterHandlerEvents()
 	self:RegisterObjectValueHandler("heal", "Heal")
 	handlers:RegisterEvent("PLAYER_ENTERING_WORLD")
 	handlers:RegisterEvent("PLAYER_TARGET_CHANGED")
-	handlers:RegisterEvent("PLAYER_FOCUS_CHANGED")
+--	handlers:RegisterEvent("PLAYER_FOCUS_CHANGED")
 	handlers:RegisterEvent("PLAYER_UPDATE_RESTING")
 	handlers:RegisterEvent("GROUP_ROSTER_UPDATE")
 	handlers:RegisterEvent("RAID_TARGET_UPDATE")
-	handlers:RegisterEvent("PARTY_LEADER_CHANGED")
-	handlers:RegisterEvent("GROUP_LEFT")
-	handlers:RegisterEvent("READY_CHECK")
 	handlers:RegisterUnitEvent("UNIT_POWER_UPDATE", "player", "vehicle")
+
 	if self.RegisterClassBarHandlerEvents then
 		self:RegisterClassBarHandlerEvents()
 	end
@@ -220,6 +227,9 @@ function IUF:RegisterObjectEvents(object)
 	object:RegisterUnitEvent("UNIT_NAME_UPDATE", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_HEALTH", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_MAXHEALTH", object.realunit, object.petunit)
+--if (select(4,GetBuildInfo()) <= 90000) then
+	object:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", object.realunit, object.petunit)
+--end
 	object:RegisterUnitEvent("UNIT_POWER_UPDATE", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_DISPLAYPOWER", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_MAXPOWER", object.realunit, object.petunit)
@@ -230,24 +240,26 @@ function IUF:RegisterObjectEvents(object)
 	object:RegisterUnitEvent("UNIT_LEVEL", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_FACTION", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_CLASSIFICATION_CHANGED", object.realunit, object.petunit)
-	object:RegisterUnitEvent("UNIT_HEAL_PREDICTION", object.realunit, object.petunit)
+--	object:RegisterUnitEvent("UNIT_HEAL_PREDICTION", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_MODEL_CHANGED", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_SPELLCAST_START", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_SPELLCAST_STOP", object.realunit, object.petunit)
-	object:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", object.realunit, object.petunit)
-	object:RegisterUnitEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE", object.realunit, object.petunit)
+--	object:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", object.realunit, object.petunit)
+--	object:RegisterUnitEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", object.realunit, object.petunit)
+	object:RegisterUnitEvent("UNIT_HAPPINESS", object.realunit, object.petunit)
 	object:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", object.realunit, object.petunit)
-	object:RegisterUnitEvent("READY_CHECK_CONFIRM", object.realunit, object.petunit)
+--[[
 	if object.realunit == "player" or object.objectType == "party" then
 		for event in pairs(objectVehicleEvents) do
 			object:RegisterUnitEvent(event, object.realunit)
 		end
 	end
+--]]	
 	object:SetScript("OnEvent", objectOnEvent)
 end
 
@@ -256,24 +268,17 @@ handlers:SetScript("OnEvent", function(self, event, unit, ...)
 		for object in pairs(IUF.visibleObject) do
 			handlers[event](object)
 		end
-		
 	elseif event == "PLAYER_TARGET_CHANGED" then
-
 		unit = "target"
 		for i = 1, 3 do
 			if IUF.units[unit] then
 				IUF.units[unit].values.combo = nil
 				if UnitExists(unit) then
 					handlers.PLAYER_ENTERING_WORLD(IUF.units[unit])
-
 				end
 			end
 			unit = unit.."target"
-
 		end
-		
-		IUF:READY_CHECK()
-		
 	elseif event == "PLAYER_FOCUS_CHANGED" then
 		unit = "focus"
 		for i = 1, 3 do
@@ -285,16 +290,10 @@ handlers:SetScript("OnEvent", function(self, event, unit, ...)
 			end
 			unit = unit.."target"
 		end
-		
-		IUF:READY_CHECK()
-		
 	elseif event == "PLAYER_UPDATE_RESTING" then
 		if IUF.units.player then
 			handlers[event](IUF.units.player)
 		end
-		
-	elseif event == "GROUP_LEFT" then
-		handlers["GROUP_ROSTER_UPDATE"](IUF.units.player)
 		
 	elseif event == "GROUP_ROSTER_UPDATE" then
 		for unit, object in pairs(IUF.units) do
@@ -305,8 +304,6 @@ handlers:SetScript("OnEvent", function(self, event, unit, ...)
 				IUF:UpdateObject(object)
 			end
 		end
-	elseif event == "READY_CHECK" then
-		IUF:READY_CHECK()
 		
 	elseif handlers[event] then
 		if unit then
@@ -346,8 +343,7 @@ function handlers:OnUpdate()
 		self.values.connect = UnitIsConnected(self.realunit)
 		self.values.combat = UnitAffectingCombat(self.unit)
 		self.values.visible = UnitIsVisible(self.unit)
---		self.values.tapped = UnitIsTapped(self.unit) and not UnitPlayerControlled(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit)
-		self.values.tapped = UnitIsTapDenied(self.unit)
+		self.values.tapped = (not UnitPlayerControlled(self.unit) and UnitIsTapDenied(self.unit))--UnitIsTapped(self.unit) and not UnitPlayerControlled(self.unit) and not UnitIsTappedByPlayer(self.unit) and not UnitIsTappedByAllThreatList(self.unit)
 		self.values.afk = (UnitIsAFK(self.unit) or UnitIsAFK(self.realunit)) and 1 or nil
 		if self.realunit == "target" then
 			if self.values.combat and self.values.attack and not self.values.player then
@@ -364,7 +360,6 @@ function handlers:PLAYER_ENTERING_WORLD()
 		self.values.vehicle = UnitHasVehicleUI(self.realunit) and 1 or nil
 		for _, event in ipairs(updateEvents) do
 			handlers[event](self)
-
 		end
 		if not self.needAutoUpdate then
 			handlers.GROUP_ROSTER_UPDATE(self)
@@ -416,13 +411,6 @@ function handlers:UNIT_PORTRAIT_UPDATE()
 	end
 end
 
-local function getUnitLevel(unit)
-	if ( UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit) ) then
-		return UnitBattlePetLevel(unit);
-	end
-	return UnitLevel(unit) or -1
-end
-
 local unitName, unitRealm
 
 function handlers:UNIT_NAME_UPDATE()
@@ -440,7 +428,7 @@ function handlers:UNIT_NAME_UPDATE()
 	else
 		self.values.name = UnitName(self.unit) or UNKNOWNOBJECT
 	end
-	self.values.level = getUnitLevel(self.unit)
+	self.values.level = UnitLevel(self.unit) or -1
 	self.values.attack = UnitCanAttack("player", self.unit)
 	self.values.player = UnitIsPlayer(self.unit)
 	if self.values.player then
@@ -482,6 +470,10 @@ function handlers:UNIT_NAME_UPDATE()
 	end
 end
 
+function handlers:UNIT_HAPPINESS()
+	PetFrame_SetHappiness()
+end
+
 function handlers:UNIT_HEALTH()
 	self.values.health = UnitHealth(self.unit)
 	self.values.dead = UnitIsDead(self.unit)
@@ -492,26 +484,20 @@ function handlers:UNIT_MAXHEALTH()
 	self.values.healthmax = UnitHealthMax(self.unit)
 end
 
-function handlers:READY_CHECK_CONFIRM(isReady)
-	IUF:UpdateReadyCheck(self)
-end
 
-
-if (select(4,GetBuildInfo()) <= 90000) then
+--if (select(4,GetBuildInfo()) <= 90000) then
 function handlers:UNIT_HEALTH_FREQUENT()
 	self.values.health = UnitHealth(self.unit)
+	self.values.dead = UnitIsDead(self.unit)
+	self.values.ghost = UnitIsGhost(self.unit)
 end
-end
+--end
 
 function handlers:UNIT_DISPLAYPOWER()
 	local alternatePower = false
 	local minPower = 0
-
-	local barInfo = GetUnitPowerBarInfo(self.unit);
-	if barInfo and barInfo.minPower then
-		alternatePower = true
-		minPower = barInfo.minPower;
-	end
+--	alternatePower = UnitAlternatePowerInfo(self.unit)
+--	minPower = select(2, UnitAlternatePowerInfo(self.unit)) or 0
 
 	if alternatePower and not UnitIsPlayer(self.unit) then
 		self.values.powertype = "ALTERNATE"
@@ -538,12 +524,9 @@ end
 
 function handlers:UNIT_MAXPOWER()
 	local minPower = 0
+--	minPower = select(2, UnitAlternatePowerInfo(self.unit)) or 0
 
-	local barInfo = GetUnitPowerBarInfo(self.unit);
-	if barInfo and barInfo.minPower then
-		minPower = barInfo.minPower;
-	end
-
+	
 	if self.values.powertype == "ALTERNATE" then
 		self.values.powermin = minPower
 		self.values.powermax = UnitPowerMax(self.unit, ALTERNATE_POWER_INDEX) - self.values.powermin
@@ -621,11 +604,13 @@ function handlers:UNIT_SPELLCAST_NOT_INTERRUPTIBLE()
 end
 
 function handlers:UNIT_HEAL_PREDICTION()
+--[[
 	if IUF.db.heal.player then
 		self.values.heal = UnitGetIncomingHeals(self.unit) or 0
 	else
 		self.values.heal = (UnitGetIncomingHeals(self.unit) or 0) - (UnitGetIncomingHeals(self.unit, "player") or 0)
 	end
+--]]	
 end
 
 function handlers:UNIT_THREAT_SITUATION_UPDATE()
@@ -639,6 +624,7 @@ end
 local raidIndex, raidRank, raidGroup, roleIsTank, roleIsHeal, roleIsDPS
 
 function handlers:GROUP_ROSTER_UPDATE()
+
 	if UnitInRaid(self.realunit) and IsInGroup() and IsInRaid() then
 		self.values.role = nil
 		raidIndex = UnitInRaid(self.realunit)
@@ -656,20 +642,20 @@ function handlers:GROUP_ROSTER_UPDATE()
 			self.values.group = nil
 		end
 	elseif (self.realunit == "player" or UnitInParty(self.realunit)) and IsInGroup() then
-		if self.objectType == "player" or self.objectType == "party" then
-			roleIsTank = UnitGroupRolesAssigned(self.realunit)
-			if roleIsTank == "TANK" then
-				self.values.role = 1
-			elseif roleIsTank == "HEALER" then
-				self.values.role = 2
-			elseif roleIsTank == "DAMAGER" then
-				self.values.role = 3
-			else
-				self.values.role = nil
-			end
-		else
+--~ 		if self.objectType == "player" or self.objectType == "party" then
+--~ 			roleIsTank = UnitGroupRolesAssigned(self.realunit)
+--~ 			if roleIsTank == "TANK" then
+--~ 				self.values.role = 1
+--~ 			elseif roleIsTank == "HEALER" then
+--~ 				self.values.role = 2
+--~ 			elseif roleIsTank == "DAMAGER" then
+--~ 				self.values.role = 3
+--~ 			else
+--~ 				self.values.role = nil
+--~ 			end
+--~ 		else
 			self.values.role = nil
-		end
+--~ 		end
 		if UnitIsGroupLeader(self.realunit) then
 			self.values.leader = 1
 			self.values.looter = GetLootMethod() == "master" and 1 or nil
@@ -680,9 +666,9 @@ function handlers:GROUP_ROSTER_UPDATE()
 	else
 		self.values.group, self.values.leader, self.values.looter, self.values.role = nil
 	end
+	
 end
 
-handlers.PARTY_LEADER_CHANGED = handlers.GROUP_ROSTER_UPDATE
 handlers.UNIT_LEVEL = handlers.UNIT_NAME_UPDATE
 handlers.UNIT_FACTION = handlers.UNIT_NAME_UPDATE
 handlers.UNIT_CLASSIFICATION_CHANGED = handlers.UNIT_NAME_UPDATE

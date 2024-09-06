@@ -1,5 +1,4 @@
 ﻿if GetLocale()=="koKR" then return end
-
 local IUF = CreateFrame("Frame", "InvenUnitFrames", UIParent)
 IUF:SetScript("OnEvent", function(self, event, ...) self[event](self, ...) end)
 IUF:RegisterEvent("ADDON_LOADED")
@@ -20,12 +19,6 @@ local category ,layout
 local Broker = LibStub("LibDataBroker-1.1")
 local MapButton = LibStub("LibMapButton-1.1")
 
-function IUF:PRINT(...)
-	if IRF3Debug then
-		print(...)
-	end
-end
-
 function IUF:ADDON_LOADED()
 	self:UnregisterEvent("ADDON_LOADED")
 	self.ADDON_LOADED = nil
@@ -37,11 +30,13 @@ function IUF:ADDON_LOADED()
 		self:SetScript("OnShow", nil)
 		InvenUnitFrames:LoadModule("Option")
 	end)
---	InterfaceOptions_AddCategory(self.optionFrame)
-category, layout = Settings.RegisterCanvasLayoutCategory(self.optionFrame, "InvenUnitFrame")
-Settings.RegisterAddOnCategory(category)
-layout:AddAnchorPoint("TOPLEFT", 10, -10);
-layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
+
+if InterfaceOptions_AddCategory then
+	InterfaceOptions_AddCategory(self.optionFrame)
+else
+	category, layout = Settings.RegisterCanvasLayoutCategory(self.optionFrame, "InvenUnitFrame")
+	Settings.RegisterAddOnCategory(category)
+end
 	-- 슬래쉬 커맨드 등록
 	SLASH_INVENUNITFRAMES1 = "/iuf"
 	SLASH_INVENUNITFRAMES2 = "/인벤유닛"
@@ -70,12 +65,7 @@ layout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
 	self:Show()
 	self:SetAllPoints()
 	self:RegisterEvent("PLAYER_LOGIN")
-	self:RegisterEvent("UPDATE_ALL_UI_WIDGETS")	--add 9.2.0
-	self:RegisterEvent("CLIENT_SCENE_CLOSED")	--add 9.2.0
-	self:RegisterEvent("CLIENT_SCENE_OPENED")	--add 9.2.0
-	
 end
-
 
 IUF.dummyParent = CreateFrame("Frame")
 IUF.dummyParent:Hide()
@@ -99,43 +89,16 @@ function IUF:HideBlizzardPartyFrame(hide)
 		changeParent(PartyMemberBackground, self.dummyParent, UIParent)
 	end
 end
-
-local function hideBlizFrames()
-	if not InCombatLockdown() then
-		if PlayerFrame:IsShown() then
-			PlayerFrame:Hide()
-		end	
-		if TargetFrame:IsShown() then
-			TargetFrame:Hide()
-		end
-		if PartyFrame:IsShown() then
-			PartyFrame:Hide()
-		end	PlayerFrame:ClearAllPoints()
-		
-		if IUF then
-			PlayerFrame:ClearAllPoints()
-			PlayerFrame:SetPoint("TOPLEFT", IUF.units.player, "TOPLEFT", 0, 0)
-			PetFrame:ClearAllPoints()
-			PetFrame:SetPoint("TOPLEFT", IUF.units.pet, "TOPLEFT", 0, 0)
-			TargetFrame:ClearAllPoints()
-			TargetFrame:SetPoint("TOPLEFT", IUF.units.target, "TOPLEFT", 0, 0)
-			FocusFrame:ClearAllPoints()
-			FocusFrame:SetPoint("TOPLEFT", IUF.units.focus, "TOPLEFT", 0, 0)
-		end
+--[[
+local frame = CreateFrame("Frame")
+frame:RegisterAllEvents()
+frame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+frame:SetScript("OnEvent", function(self, event, ...)
+	if not event:find("^UNIT_") and not event:find("^GARRISON_") and not event:find("^SPELL_") and not event:find("^UPDATE_") then
+		print(event, GetAddOnMetadata("InvenUnitFrames_Option", "X-InvenUnitFrames-Module"))
 	end
-end
-
-function IUF:UPDATE_ALL_UI_WIDGETS()
-	hideBlizFrames()
-end
-
-function IUF:CLIENT_SCENE_CLOSED()
-	hideBlizFrames()
-end
-
-function IUF:CLIENT_SCENE_OPENED()
-	hideBlizFrames()
-end
+end)
+]]
 
 function IUF:PLAYER_LOGIN()
 	self:UnregisterEvent("PLAYER_LOGIN")
@@ -156,12 +119,14 @@ function IUF:PLAYER_LOGIN()
 		end
 	end
 	self.db.skinName = self.skinDB.idx[self.db.skin]
+
+	self.db.classBar.useBlizzard = false --대격변에서 와우 자체 직업바가 없음	
+
+
 	self:SetScale(self.db.scale)
-	
 	-- 미니맵 버튼, 미니맵 메뉴 생성
 	MapButton:CreateButton(self, "InvenUnitFramesMapButton", "Interface\\AddOns\\InvenUnitFrames\\Texture\\Icon.tga", 190, InvenUnitFramesDB.minimapButton)
 	-- 유닛 프레임 생성 시작
-	local partys = {}
 	self:CreateObject("player")
 	self:CreateObject("pet", "player")
 	self:CreateObject("pettarget", "player")
@@ -172,7 +137,7 @@ function IUF:PLAYER_LOGIN()
 	self:CreateObject("focustarget", "focus")
 	self:CreateObject("focustargettarget", "focus")
 	for i = 1, MAX_PARTY_MEMBERS do
-		partys[i] = self:CreateObject("party"..i)
+		self:CreateObject("party"..i)
 		self:CreateObject("partypet"..i, "party"..i)
 		self:CreateObject("party"..i.."target", "party"..i)
 	end
@@ -185,7 +150,6 @@ function IUF:PLAYER_LOGIN()
 	self:RegisterUnitEvent("UNIT_FACTION", "player")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
-
 	self:Hide()
 	self:Show()
 	for _, unit in ipairs(self.objectOrder) do
@@ -195,37 +159,6 @@ function IUF:PLAYER_LOGIN()
 	self:RegisterHandlerEvents()
 	self:EnableModules()
 	self.isLoading = nil
-	
-	PlayerFrameBottomManagedFramesContainer:SetParent(IUF)
-	PlayerFrameBottomManagedFramesContainer:ClearAllPoints()
-	PlayerFrameBottomManagedFramesContainer:SetPoint("TOP", IUF.units.player, "BOTTOM", 30, 0)
-	
-	PlayerFrame:ClearAllPoints()
-	PlayerFrame:SetPoint("TOPLEFT", self.units.player, "TOPLEFT", 0, 0)
-	PetFrame:ClearAllPoints()
-	PetFrame:SetPoint("TOPLEFT", self.units.pet, "TOPLEFT", 0, 0)
-	TargetFrame:ClearAllPoints()
-	TargetFrame:SetPoint("TOPLEFT", self.units.target, "TOPLEFT", 0, 0)
-	
-	FocusFrame:ClearAllPoints()	
-
-	parent = self.units.focus:GetParent()
-	scale = self.units.focus:GetEffectiveScale() / parent:GetEffectiveScale()
-	local left = self.units.focus:GetLeft() * scale - parent:GetLeft()
-	local top = self.units.focus:GetTop() * scale - parent:GetTop()
-	FocusFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 200 + left, -200 + top)
---~ 	FocusFrame:SetPoint("TOPLEFT", self.units.focus, "TOPLEFT", 0, 0)
-
-	IUF:InitSetPoint(PlayerFrame, self.units.player)
-	IUF:InitSetParent(PlayerFrame, self.units.player)
-	IUF:InitSetPoint(PetFrame, self.units.pet)
-	IUF:InitSetParent(PetFrame, self.units.pet)
-	IUF:InitSetPoint(TargetFrame, self.units.target)
-	IUF:InitSetParent(TargetFrame, self.units.target)
---~ 	IUF:InitFocusSetPoint()
-	IUF:InitSetPoint(FocusFrame, self.units.focus)
-	IUF:InitSetParent(FocusFrame, self.units.focus)
-
 end
 
 function IUF:OnClick(button)
@@ -241,11 +174,12 @@ function IUF:OnClick(button)
 	end
 end
 
+
 function IUF:OnTooltip(tooltip)
 	tooltip = tooltip or GameTooltip
 	tooltip:AddLine("Inven Unit Frame v"..IUF.version)
 	tooltip:AddLine("http://wow.inven.co.kr", 1, 1, 1)
-	tooltip:AddLine("클릭: 설정창 열기", 1, 1, 0)
+
 end
 
 function IUF:CollectGarbage()
@@ -255,14 +189,14 @@ end
 local function targettingSound(unit)
 	if UnitExists(unit) then
 		if UnitIsEnemy(unit, "player") then
-			PlaySound(SOUNDKIT.IG_CREATURE_AGGRO_SELECT);
+			--PlaySound("igCreatureAggroSelect")
 		elseif UnitIsFriend("player", unit) then
-			PlaySound(SOUNDKIT.IG_CHARACTER_NPC_SELECT);
+			--PlaySound("igCharacterNPCSelect")
 		else
-			PlaySound(SOUNDKIT.IG_CREATURE_NEUTRAL_SELECT);
+			--PlaySound("igCreatureNeutralSelect")
 		end
 	else
-		PlaySound(SOUNDKIT.INTERFACE_SOUND_LOST_TARGET_UNIT);
+		--PlaySound("INTERFACESOUND_LOSTTARGETUNIT")
 	end
 end
 
@@ -278,7 +212,7 @@ function IUF:UNIT_FACTION(unit)
 	if UnitIsPVPFreeForAll("player") or UnitIsPVP("player") then
 		if not self.playerIsPVP then
 			self.playerIsPVP = true
-			PlaySound(SOUNDKIT.IG_PVP_UPDATE);
+			--PlaySound("igPVPUpdate")
 		end
 	else
 		self.playerIsPVP = nil
@@ -292,6 +226,11 @@ local function updatePlayerInCombat()
 			IUF.callbacks.Power(object)
 		end
 	end
+	
+	if PlayerFrame:IsShown() then
+--~ 		hideBlizzard(PlayerFrame)
+		PlayerFrame:Hide()
+	end
 end
 
 function IUF:PLAYER_REGEN_ENABLED()
@@ -301,8 +240,6 @@ function IUF:PLAYER_REGEN_ENABLED()
 	if self.onEnter and (self.db.tooltip == 2 or self.db.tooltip == 3) then
 		self:UpdateUnitTooltip(self.onEnter)
 	end
-	
-	hideBlizFrames()
 end
 
 function IUF:PLAYER_REGEN_DISABLED()
@@ -317,7 +254,6 @@ function IUF:PLAYER_REGEN_DISABLED()
 	if self.onEnter and (self.db.tooltip == 2 or self.db.tooltip == 3) then
 		self:UpdateUnitTooltip(self.onEnter)
 	end
-	hideBlizFrames()
 end
 
 local changeModelCamera = {
@@ -358,10 +294,8 @@ do
 	local dummy = CreateFrame("Frame")
 	dummy:Hide()
 	dummy:SetAlpha(0)
-	
-	-- This stops the compact party frame from being shown
-	UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE")
-	
+
+	local buffFramePoint = BuffFrame:GetPoint()
 	-- 블리자드 유닛 프레임 숨김
 	function hideBlizzard(self)
 		if self then
@@ -383,13 +317,13 @@ do
 		end
 	end
 
-	hideBlizzard(PlayerFrame)
+ 	hideBlizzard(PlayerFrame)
+--~ 	BuffFrame_Update();			-- 미니맵 옆에 버프창이 안뜨는 문제 수정.
 	hideBlizzard(PetFrame)
 	hideBlizzard(TargetFrame)
 	hideBlizzard(ComboFrame)
 	hideBlizzard(FocusFrame)
 	hideBlizzard(PartyMemberBackground)
-	hideBlizzard(PartyFrame)
 
 	for i = 1, MAX_PARTY_MEMBERS do
 		hideBlizzard(_G["PartyMemberFrame"..i])
@@ -538,91 +472,4 @@ end
 
 function IUF:UIFrameFlashStop(frame)
 	UIFrameFlashStop(frame)
-end
-
---[[
-function IUF:InitSetPoint(frame, parent)
-	local origsetpoint = getmetatable(frame).__index.SetPoint
-	local function move1(self)
-		if not InCombatLockdown() then
-			self:ClearAllPoints()
-			origsetpoint(self, "TOPLEFT", UIParent, "TOPLEFT", 0, 0)
-		end
-	end
-	hooksecurefunc(frame, "SetPoint", move1)
-end
-
-function IUF:InitSetParent(frame, parent)
-	local origsetParent = getmetatable(frame).__index.SetParent
-	local function move2(self)
-	   origsetParent(self, parent)
-	end
-	hooksecurefunc(frame, "SetParent", move2)
-end
-
-function IUF:InitFocusSetPoint()
-	local origsetpoint = getmetatable(FocusFrame).__index.SetPoint
-	local function move3(self)
-		if not InCombatLockdown() then
-			FocusFrame:ClearAllPoints()
-			parent = IUF.units.focus:GetParent()
-			scale = IUF.units.focus:GetEffectiveScale() / parent:GetEffectiveScale()
-			local left = 200 + IUF.units.focus:GetLeft() * scale - parent:GetLeft()
-			local top = -200 + IUF.units.focus:GetTop() * scale - parent:GetTop()
---~ 			origsetpoint(FocusFrame, "TOPLEFT", left, top)
-			origsetpoint(FocusFrame, "TOPLEFT", UIParent, "TOPLEFT", left, top)
-		end
-	end
-	hooksecurefunc(FocusFrame, "SetPoint", move3)
-end
---]]
-	
-function IUF:InitSetPoint(frame, parent)
-	local origsetpoint = getmetatable(frame).__index.SetPoint
-	local function move1(self)
-
-		if not InCombatLockdown() then
-			local frame = self
-			local parent = nil
-			if self == PlayerFrame then
-				parent = IUF.units.player
-			elseif self == PetFrame then
-				parent = IUF.units.pet
-			elseif self == TargetFrame then
-				parent = IUF.units.target
-			elseif self == FocusFrame then
-				parent = IUF.units.focus
-			end
-			if frame and parent then
-				if self == FocusFrame then
-					if parent:GetParent() then
-						frame:ClearAllPoints()
-						scale = parent:GetEffectiveScale() / parent:GetParent():GetEffectiveScale()
-						local left = 200 + parent:GetLeft() * scale - parent:GetParent():GetLeft()
-						local top = -200 + parent:GetTop() * scale - parent:GetParent():GetTop()
-						origsetpoint(frame, "TOPLEFT", UIParent, "TOPLEFT", left, top)
-					end
-				elseif self == PlayerFrame then
-					frame:ClearAllPoints()
-					local left = 0
-					local top = 0
-					origsetpoint(frame, "TOPLEFT", parent, "TOPLEFT", left, -top)
-				else
-					frame:ClearAllPoints()
-					local left = parent:GetLeft()
-					local top = parent:GetTop()
-					origsetpoint(frame, "TOPLEFT", UIParent, "TOPLEFT", left, -top)
-				end
-			end
-		end
-	end
-	hooksecurefunc(frame, "SetPoint", move1)
-end
-
-function IUF:InitSetParent(frame, parent)
-	local origsetParent = getmetatable(frame).__index.SetParent
-	local function move2(self)
-	   origsetParent(self, parent)
-	end
-	hooksecurefunc(frame, "SetParent", move2)
 end

@@ -12,7 +12,7 @@ local function setSize(self, w, h)
 end
 
 local function click(self, button)
-	--PlaySound("igMainMenuOptionCheckBoxOn") -- fix 8.0
+--	PlaySound("igMainMenuOptionCheckBoxOn")
 	self = self:GetParent()
 	if type(self.get) == "function" then
 		self.get(button, self.arg1, self.arg2, self.arg3)

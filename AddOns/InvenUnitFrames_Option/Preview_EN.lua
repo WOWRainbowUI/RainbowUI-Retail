@@ -270,19 +270,17 @@ local function createMovingAnchor()
 	IUF.movingFrame.xvalue = IUF.movingFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	IUF.movingFrame.xvalue:SetPoint("RIGHT", IUF.movingFrame.xline, "LEFT", -2, 0)
 	
-	IUF.movingFrame2.xcenter = IUF.movingFrame2:CreateTexture(nil, "ARTWORK")
-	IUF.movingFrame2.xcenter:SetTexture(1, 0, 0)
-	IUF.movingFrame2.xcenter:SetHeight(1)
-	IUF.movingFrame2.xcenter:SetPoint("LEFT", UIParent, "LEFT", 0, 0)
-	IUF.movingFrame2.xcenter:SetPoint("RIGHT", UIParent, "RIGHT", 0, 0)
-	IUF.movingFrame2.xcenter:SetVertexColor(0,1,0,0.5)
+	IUF.movingFrame.xcenter = IUF.movingFrame:CreateTexture(nil, "ARTWORK")
+	IUF.movingFrame.xcenter:SetTexture(1, 0, 0)
+	IUF.movingFrame.xcenter:SetHeight(1)
+	IUF.movingFrame.xcenter:SetPoint("LEFT", UIParent, "LEFT", 0, 0)
+	IUF.movingFrame.xcenter:SetPoint("RIGHT", UIParent, "RIGHT", 0, 0)
 	
-	IUF.movingFrame2.ycenter = IUF.movingFrame2:CreateTexture(nil, "ARTWORK")
-	IUF.movingFrame2.ycenter:SetTexture(1, 0, 0)
-	IUF.movingFrame2.ycenter:SetWidth(1)
-	IUF.movingFrame2.ycenter:SetPoint("TOP", UIParent, "TOP", 0, 0)
-	IUF.movingFrame2.ycenter:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 0)
-	IUF.movingFrame2.ycenter:SetVertexColor(0,1,0,0.5)
+	IUF.movingFrame.ycenter = IUF.movingFrame:CreateTexture(nil, "ARTWORK")
+	IUF.movingFrame.ycenter:SetTexture(1, 0, 0)
+	IUF.movingFrame.ycenter:SetWidth(1)
+	IUF.movingFrame.ycenter:SetPoint("TOP", UIParent, "TOP", 0, 0)
+	IUF.movingFrame.ycenter:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 0)
 	local pixel, tex = 25
 	for i = 1, 50 do
 		tex = IUF.movingFrame2:CreateTexture(nil, "BORDER")
@@ -328,7 +326,7 @@ function IUF:SetPreviewMode(mode)
 		objectName, objectClass, classPowerType = nil
 		IUF.movingFrame2:Show()
 		if IUF.optionFrame.previewButton then
-			IUF.optionFrame.previewButton.title:SetText("Hide preview")
+			IUF.optionFrame.previewButton.title:SetText("미리보기 끄기")
 			IUF.optionFrame.previewButton.arg1 = nil
 		end
 	else
@@ -339,7 +337,7 @@ function IUF:SetPreviewMode(mode)
 		end
 		IUF.movingFrame2:Hide()
 		if IUF.optionFrame.previewButton then
-			IUF.optionFrame.previewButton.title:SetText("Show preview")
+			IUF.optionFrame.previewButton.title:SetText("미리보기 켜기")
 			IUF.optionFrame.previewButton.arg1 = true
 		end
 	end
@@ -358,7 +356,7 @@ local function createAura(preview, idx, isbuff)
 	btn = IUF.CreateAuraButton(preview, isbuff)
 	btn:SetScript("OnEnter", auraonenter)
 	btn:SetScript("OnLeave", GameTooltip_Hide)
-	btn.tooltipText = (isbuff and "Buff " or "Debuff ")..idx
+	btn.tooltipText = (isbuff and "버프 " or "디버프 ")..idx
 	btn.icon:SetTexture("Interface\\Icons\\Spell_Charge"..(isbuff and "Positive" or "Negative"))
 	btn.count:SetText(idx)
 	btn.icon.SetTexture = dummy
