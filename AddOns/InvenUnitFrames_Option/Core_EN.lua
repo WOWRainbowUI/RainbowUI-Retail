@@ -487,8 +487,8 @@ function Option:CreateBasicMenu(menu, parent)
 	menu.skin.button:SetScript("PreClick", function()
 		IUF:LoadAllSkinAddOns()
 		sort(IUF.skinDB.list, function(a, b)
-			if a:find("^기본") then
-				if b:find("^기본") then
+			if a:find("^Default") then
+				if b:find("^Default") then
 					return a < b
 				else
 					return true
@@ -571,9 +571,18 @@ function Option:CreateBasicMenu(menu, parent)
 	)
 	menu.hideInRaid:SetPoint("TOP", menu.mapButtonShown, "BOTTOM", 0, 0)
 
-	local aggroBorderList = { "Show", "Blink", "Nonw" }
+	menu.hidePartyFrame = LBO:CreateWidget("CheckBox", parent, "Always hide party frame", "Always hide party frame.", nil , nil, true,
+		function() return IUF.db.hidePartyFrame end,
+		function(v)
+			IUF.db.hidePartyFrame = v
+			setCoreValue("party", "SetActiveObject")
+		end
+	)
+	menu.hidePartyFrame:SetPoint("TOP", menu.hideInRaid, "BOTTOM", 0, 0)
 
-	menu.aggorBorder = LBO:CreateWidget("DropDown", parent, "Threat border", "Setting red border for threat.", nil, nil, nil,
+	local aggroBorderList = { "Display", "Blink", "None" }
+
+	menu.aggorBorder = LBO:CreateWidget("DropDown", parent, "Threat border", "Set red border in portrait when player get target threat.", nil, nil, nil,
 		function() return IUF.db.aggroBorder, aggroBorderList end,
 		function(v)
 			IUF.db.aggroBorder = v
@@ -585,7 +594,7 @@ function Option:CreateBasicMenu(menu, parent)
 			end
 		end
 	)
-	menu.aggorBorder:SetPoint("TOP", menu.hideInRaid, "BOTTOM", 0, 0)
+	menu.aggorBorder:SetPoint("TOP", menu.hidePartyFrame, "BOTTOM", 0, 0)
 end
 
 function Option:CreateProfileMenu(menu, parent)
@@ -930,16 +939,12 @@ function Option:CreateColorMenu(menu, parent)
 		IUF.colordb.power[8] = { 0.3, 0.52, 0.9 }
 	end
 	local function getColor(colortype, colorsubtype)
-
 		return unpack(IUF.colordb[colortype][colorsubtype])
---		return IUF.colordb
 	end
 	local function setColor(r, g, b, colortype, colorsubtype, updatefunc)
-
 		IUF.colordb[colortype][colorsubtype][1] = r
 		IUF.colordb[colortype][colorsubtype][2] = g
 		IUF.colordb[colortype][colorsubtype][3] = b
-
 		if type(updatefunc) == "function" then
 			updatefunc()
 		end
@@ -981,9 +986,7 @@ function Option:CreateColorMenu(menu, parent)
 			IUF.colordb.class.PET[2] = 1
 			IUF.colordb.class.PET[3] = 0
 			for class, color in pairs(RAID_CLASS_COLORS) do
-
 				if IUF.colordb.class[class] then
-
 					IUF.colordb.class[class][1] = color.r
 					IUF.colordb.class[class][2] = color.g
 					IUF.colordb.class[class][3] = color.b
@@ -1000,7 +1003,7 @@ function Option:CreateColorMenu(menu, parent)
 
 		menu["class"..i] = LBO:CreateWidget("ColorPicker", parent, classNames[class], "Set class color for "..classNames[class], nil, nil, nil, getColor, setColor, "class", class, classColorUpdate)
 
-		menu["class"..i]:SetWidth(90)
+	menu["class"..i]:SetWidth(90)
 		if i == 1 then
 			menu["class"..i]:SetPoint("TOPLEFT", 5, -16)
 		elseif i == 2 then
@@ -1157,14 +1160,16 @@ function Option:CreateBlizzardMenu(menu, parent)
 		function(v)
 			unitsdb.player.hiddenBlizzardCastingBar = v
 			if v then
-				CastingBarFrame.showCastbar = nil
+				PlayerCastingBarFrame.showCastbar = nil
 				PetCastingBarFrame.showCastbar = nil
 			else
-				CastingBarFrame.showCastbar = true
+				PlayerCastingBarFrame.showCastbar = true
 				PetCastingBarFrame.showCastbar = true
 			end
-			CastingBarFrame_UpdateIsShown(CastingBarFrame)
-			CastingBarFrame_UpdateIsShown(PetCastingBarFrame)
+			--CastingBarFrame_UpdateIsShown(PlayerCastingBarFrame)
+			--CastingBarFrame_UpdateIsShown(PetCastingBarFrame)
+			PlayerCastingBarFrame:UpdateIsShown()
+			PetCastingBarFrame:UpdateIsShown()
 		end
 	)
 	menu.hiddenBlizzard:SetPoint("TOPLEFT", 5, -5)
@@ -1702,14 +1707,16 @@ function Option:CreateUnitCastingBarMenu(menu, parent)
 		function(v)
 			unitsdb[Option.unit].hiddenBlizzardCastingBar = v
 			if v then
-				CastingBarFrame.showCastbar = nil
+				PlayerCastingBarFrame.showCastbar = nil
 				PetCastingBarFrame.showCastbar = nil
 			else
-				CastingBarFrame.showCastbar = true
+				PlayerCastingBarFrame.showCastbar = true
 				PetCastingBarFrame.showCastbar = true
 			end
-			CastingBarFrame_UpdateIsShown(CastingBarFrame)
-			CastingBarFrame_UpdateIsShown(PetCastingBarFrame)
+			--CastingBarFrame_UpdateIsShown(PlayerCastingBarFrame)
+			--CastingBarFrame_UpdateIsShown(PetCastingBarFrame)				
+			PlayerCastingBarFrame:UpdateIsShown()
+			PetCastingBarFrame:UpdateIsShown()
 		end
 	)
 	menu.hiddenBlizzard:SetPoint("TOPRIGHT", -5, -5)
@@ -2475,20 +2482,17 @@ function Option:CreateClassBarMenu(menu, parent)
 		end
 	)
 	menu.texture:SetPoint("TOPRIGHT", -5, -39)
- 
---대격변에서 와우 자체 클래스바 없음
---[[
-	menu.blizzard = LBO:CreateWidget("CheckBox", parent, "Show Blizzard class bar", "Use Blizzard class bar instead of Inven Unit Frame. Other with frame position change can be conflicted.", nil, notActive, nil,
+
+	menu.blizzard = LBO:CreateWidget("CheckBox", parent, "Display WoW default class bar", "Use Wow defualt classbar instead of Inven Unit Frame.", nil, notActive, nil,
 		function()
 			return IUF.db.classBar.useBlizzard
 		end,
 		function(v)
-			IUF.db.classBar.useBlizzard = false --비활성화 함
+			IUF.db.classBar.useBlizzard = v
 			updateClassBar()
 		end
 	)
 	menu.blizzard:SetPoint("TOP", menu.pos, "BOTTOM", 0, -10)
---]]
 -- 추가된 내용	
 	menu.druidMana = LBO:CreateWidget("CheckBox", parent, "Hide mana while feral form", "Hide mana while non-mana form.", nil, nil, nil,
 		function() return IUF.db.classBar.druidManaDisible end,
@@ -2498,5 +2502,5 @@ function Option:CreateClassBarMenu(menu, parent)
 			updateClassBar()
 		end
 	)
-	menu.druidMana:SetPoint("TOP", menu.texture, "BOTTOM", 0, -10)
+	menu.druidMana:SetPoint("TOP", menu.blizzard, "BOTTOM", 0, -10)
 end

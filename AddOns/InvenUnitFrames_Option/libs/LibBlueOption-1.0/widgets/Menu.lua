@@ -39,7 +39,7 @@ end
 
 local function buttonOnClick(self)
 	selectMenu(self:GetParent():GetParent():GetParent():GetParent(), self:GetID())
-	--PlaySound("igMainMenuOptionCheckBoxOn") -- fix 8.0
+--	PlaySound("igMainMenuOptionCheckBoxOn")
 end
 
 local function buttonOnEnter(self)

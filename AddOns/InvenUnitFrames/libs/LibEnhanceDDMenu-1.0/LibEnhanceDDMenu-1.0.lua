@@ -78,7 +78,6 @@ end
 
 if not DropDownList1._LEDDM then
 	DropDownList1._LEDDM = CreateFrame("Frame", nil, DropDownList1)
-	DropDownList1:SetClampedToScreen(true) 
 	DropDownList1._LEDDM:RegisterEvent("PLAYER_REGEN_DISABLED")
 	DropDownList1._LEDDM:SetScript("OnEvent", buttonPostClick)
 	hooksecurefunc("UnitPopup_ShowMenu", function(dropdownMenu)
@@ -134,6 +133,7 @@ DropDownList1._LEDDM:SetScript("OnShow", function(self)
 				end
 			else
 				self.safemenu = nil
+				return
 			end
 			if lib.buttonIndex > 0 or next(lib.disableUnitMenu) then
 				local prev = lib.buttons[lib.buttonIndex] or DropDownList1Button1

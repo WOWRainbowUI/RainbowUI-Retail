@@ -1,4 +1,4 @@
-local MAJOR_VERSION, MINOR_VERSION = "LibBlueOption-1.0", 5
+local MAJOR_VERSION, MINOR_VERSION = "LibBlueOption-1.0", 4
 if not LibStub then error(MAJOR_VERSION .. " requires LibStub.") end
 local lib = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end

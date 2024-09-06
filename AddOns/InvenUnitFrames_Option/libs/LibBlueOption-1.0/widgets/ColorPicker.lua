@@ -98,7 +98,7 @@ local function click(self)
 	ColorPickerFrame.func = function() setColor(self) end
 	ColorPickerFrame.cancelFunc = function() undoColor(self) end
 	ColorPickerFrame.swatchFunc = function() setColor(self) end
-	ColorPickerFrame:SetColorRGB(self.color.r, self.color.g, self.color.b)
+--	ColorPickerFrame:SetColorRGB(self.color.r, self.color.g, self.color.b)
 	if self.color.a then
 		ColorPickerFrame.opacityFunc, ColorPickerFrame.hasOpacity, ColorPickerFrame.opacity = function() setColor(self) end, true, 1 - self.color.a
 	else

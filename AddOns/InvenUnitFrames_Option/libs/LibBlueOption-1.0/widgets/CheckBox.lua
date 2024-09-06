@@ -14,9 +14,9 @@ local function click(self)
 	self = self:GetParent()
 	self:SetValue(not self:GetValue())
 	if self.check:IsShown() then
-		--PlaySound("igMainMenuOptionCheckBoxOn") -- fix 8.0
+--		PlaySound("igMainMenuOptionCheckBoxOn")
 	else
-		--PlaySound("igMainMenuOptionCheckBoxOff") -- fix 8.0
+--		PlaySound("igMainMenuOptionCheckBoxOff")
 	end
 end
 
@@ -55,7 +55,6 @@ LBO:RegisterWidget(widget, version, function(self)
 	self.title:SetPoint("LEFT", self.bg, "RIGHT", 0, 0)
 	self.title:SetTextColor(1, 1, 1)
 	self.title:SetJustifyH("LEFT")
-	self.title:SetMaxLines(1)
 	self.highlight = self:CreateTexture(nil, "ARTWORK")
 	self.highlight:SetTexture("Interface\\Buttons\\UI-CheckBox-Highlight")
 	self.highlight:SetBlendMode("ADD")

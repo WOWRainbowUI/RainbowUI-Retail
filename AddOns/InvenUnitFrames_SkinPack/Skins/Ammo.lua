@@ -29,8 +29,7 @@ InvenUnitFrames:RegisterSkin("Ammo", nil, {
 		]],
 		stateTextFontSize = 11,
 		nameText = [[
---			self:SetPoint("LEFT", object.stateText, "RIGHT", 2, 0)
-			self:SetPoint("LEFT", object.healthBar, "LEFT", 2, 1)
+			self:SetPoint("LEFT", object.stateText, "RIGHT", 2, 0)
 			self:SetPoint("RIGHT", object.healthText3, "LEFT", -1, 0)
 			self:SetJustifyH("LEFT")
 		]],
@@ -45,18 +44,6 @@ InvenUnitFrames:RegisterSkin("Ammo", nil, {
 			self:SetJustifyH("LEFT")
 		]],
 		classTextFontSize = 11,
-		raidIcon = [[
-			self:SetWidth(24)
-			self:SetHeight(24)
-			self:SetPoint("CENTER", object, "TOP", 0, -8)
-		]],
-		raidIconUse = true,
-		pvpIcon = [[
-			self:SetPoint("CENTER", object, "LEFT", 5, 0)
-			self:SetWidth(20)
-			self:SetHeight(20)
-		]],
-		pvpIconUse = true,
 		combatIcon = [[
 			self:SetPoint("CENTER", object, "LEFT", 0, 0)
 			self:SetWidth(20)
@@ -104,12 +91,6 @@ InvenUnitFrames:RegisterSkin("Ammo", nil, {
 			self:SetHeight(92)
 			self:SetPoint("CENTER", object, "RIGHT", -14, -2)
 		]], eliteFrameUse = true,
-		pvpIcon = [[
-			self:SetPoint("CENTER", object, "RIGHT", 0, 0)
-			self:SetWidth(20)
-			self:SetHeight(20)
-		]],		
-		pvpIconUse = true,
 		comboFrameIsLeftPos = false, eliteFrameIsLeft = false,
 	},
 	targettarget = {
@@ -128,7 +109,6 @@ InvenUnitFrames:RegisterSkin("Ammo", nil, {
 		healthText3 = 1, powerText3 = false,
 		levelText = false, classText = false, stateText = false,
 		combatIcon = false, combatIconUse = false,
-		pvpIconUse = false,
 		leaderIcon = false, leaderIconUse = false,
 		lootIcon = false, lootIconUse = false,
 		nameTextFontSize = 9, healthText3FontSize = 9,

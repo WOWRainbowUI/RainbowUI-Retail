@@ -1,4 +1,4 @@
-local widget, version = "EditBox", 2
+local widget, version = "EditBox", 1
 local LBO = LibStub("LibBlueOption-1.0")
 if not LBO:NewWidget(widget, version) then return end
 
@@ -7,10 +7,7 @@ local CreateFrame = _G.CreateFrame
 
 local function update(self)
 	self.box:ClearFocus()
-	--Fix unknown 6.0 bliz bug.
-	C_Timer.After(0.01, function()
-		self.box:SetValue(self:GetValue())
-	end)
+	self.box:SetValue(self:GetValue())
 end
 
 local function enterPressed(self, value)
@@ -37,7 +34,6 @@ LBO:RegisterWidget(widget, version, function(self)
 	self.title = self:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	self.title:SetPoint("LEFT", 2, 0)
 	self.title:SetTextColor(1, 1, 1)
-	self.title:SetMaxLines(1)
 	self.box = LBO:CreateEditBox(self, enterPressed, nil, nil, true)
 	self.box:SetHeight(18)
 	self.box:SetPoint("LEFT", self.title, "RIGHT", 2, -1)

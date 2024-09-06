@@ -71,12 +71,30 @@ local function buttonOnClick(self)
 end
 
 local function createButton(self, i)
+	self:Hide()
 	self.buttons[i] = CreateFrame("Button", self:GetName().."Tab"..i, self, "OptionsFrameTabButtonTemplate")
 	self.buttons[i]:SetPoint("TOPLEFT", self.buttons[i - 1], "TOPRIGHT", -12, 0)
 	self.buttons[i]:SetID(i)
 	self.buttons[i]:SetText(self.get[i].name or "")
 	self.buttons[i]:SetScript("OnClick", buttonOnClick)
 	self.buttons[i].func = self.get[i].func
+	
+	local buttonText = _G[self.buttons[i]:GetName() .. "Text"]
+	self.buttons[i].Text = buttonText
+	self.buttons[i].Left = _G[self.buttons[i]:GetName() .. "Left"]
+	self.buttons[i].Right = _G[self.buttons[i]:GetName() .. "Right"]
+	self.buttons[i].Middle = _G[self.buttons[i]:GetName() .. "Middle"]
+	self.buttons[i].LeftActive = self.buttons[i].LeftDisabled or _G[self.buttons[i]:GetName().."LeftDisabled"];
+	self.buttons[i].MiddleActive = self.buttons[i].MiddleDisabled or _G[self.buttons[i]:GetName().."MiddleDisabled"];
+	self.buttons[i].RightActive = self.buttons[i].RightDisabled or _G[self.buttons[i]:GetName().."RightDisabled"];	
+	self.buttons[i].Text:SetPoint("LEFT", 20, -2)
+	self:Show()
+	self.buttons[i]:HookScript("OnShow", function()
+		_G[self.buttons[i]:GetName() .. "Middle"]:SetWidth(buttonText:GetWidth())
+		_G[self.buttons[i]:GetName() .. "MiddleDisabled"]:SetWidth(buttonText:GetWidth())
+		_G[self.buttons[i]:GetName() .. "HighlightTexture"]:SetPoint("RIGHT", 10, -4)
+	end)
+	
 	PanelTemplates_TabResize(self.buttons[i], 0)
 end
 

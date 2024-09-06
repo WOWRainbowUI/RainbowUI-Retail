@@ -19,11 +19,11 @@ local moduleAddOns = {}
 
 function IUF:SearchModules()
 	local enabled, reason, moduletype, loaded
-	for i = 1, GetNumAddOns() do
-		enabled, reason = select(4, GetAddOnInfo(i))
+	for i = 1, C_AddOns.GetNumAddOns() do
+		enabled, reason = select(4, C_AddOns.GetAddOnInfo(i))
 		if enabled or reason == "DEMAND_LOADED" then
-			moduletype = GetAddOnMetadata(i, "X-InvenUnitFrames-Skin")
-			loaded = IsAddOnLoaded(i)
+			moduletype = C_AddOns.GetAddOnMetadata(i, "X-InvenUnitFrames-Skin")
+			loaded = C_AddOns.IsAddOnLoaded(i)
 			if moduletype then
 				for skin in moduletype:gmatch("[^ ,]+") do
 					skin = (skin or ""):trim()
@@ -35,7 +35,7 @@ function IUF:SearchModules()
 					end
 				end
 			end
-			moduletype = GetAddOnMetadata(i, "X-InvenUnitFrames-Module")
+			moduletype = C_AddOns.GetAddOnMetadata(i, "X-InvenUnitFrames-Module")
 			if moduletype and moduletype ~= "Heal" then
 				moduletype = (moduletype or ""):trim()
 				if moduletype ~= "" then
@@ -61,7 +61,7 @@ function IUF:LoadModule(module)
 		if self.modules[module] then
 			return true
 		elseif moduleAddOns[module] then
-			LoadAddOn(moduleAddOns[module])
+			C_AddOns.LoadAddOn(moduleAddOns[module])
 			moduleAddOns[module] = nil
 			self.modules[module] = self.modules[module] or true
 			return self.modules[module]
@@ -139,7 +139,7 @@ function IUF:LoadSkinAddOn(skin)
 		elseif skinAddOns[skin] then
 			if skinAddOnsIndex[skinAddOns[skin]] then
 				skinAddOnsIndex[skinAddOns[skin]] = nil
-				LoadAddOn(skinAddOns[skin])
+				C_AddOns.LoadAddOn(skinAddOns[skin])
 			end
 			if loadedSkins[skin] then
 				return true
@@ -154,7 +154,7 @@ end
 function IUF:LoadAllSkinAddOns()
 	for i in pairs(skinAddOnsIndex) do
 		skinAddOnsIndex[i] = nil
-		LoadAddOn(i)
+		C_AddOns.LoadAddOn(i)
 		for skin, idx in pairs(skinAddOns) do
 			if i == idx then
 				skinAddOns[skin] = nil
