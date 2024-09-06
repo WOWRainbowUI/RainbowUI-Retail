@@ -143,7 +143,7 @@ L['lost_necklace_note'] = '在祭壇邊緣拾取 {object:遺失的紀念物}.'
 L['priory_satchel_location'] = '在 {location:聖焰隱修院} 拾取掛在角落的 {object:疾風背袋}.'
 L['smugglers_treasure_note'] = '從懸崖底下的 ({dot:Blue}) {npc:226025} 處拾取需要的 {item:225335}。'
 L['smugglers_treasure_location'] = '在懸崖高處幾塊岩石之間。'
-L['coral_fused_clam'] = '珊瑚包裹蛤蜊'
+L['coral_fused_clam'] = '被珊瑚包裹的蛤蜊'
 L['coral_fused_clam_note'] = '從 {object:捕蛤者的工具} 中拾取 {item:218354} 來打開蛤蜊。'
 
 L['options_icons_biblo_archivist'] = '{achievement:40622}'
@@ -272,6 +272,7 @@ L['no_harm_from_reading_note'] = [[
 ]]
 L['another_you_4_note'] = '沿著標記的路徑巡邏。'
 
+L['concealed_contraband_note'] = '從財寶移除 {object:Web Cocoon} 來顯露它。'
 L['memory_cache_note'] = '從附近的（{dot:Red}）{object:提取器存儲} 獲取 {spell:420847}。擊殺 {npc:223908} 後獲取 {item:223870} 以打開 {object:記憶寶箱}。'
 L['niffen_stash_note'] = '在橋下。'
 L['trapped_trove_note'] = '在從天花板垂下的建築物中。避開地板上的蜘蛛網。'

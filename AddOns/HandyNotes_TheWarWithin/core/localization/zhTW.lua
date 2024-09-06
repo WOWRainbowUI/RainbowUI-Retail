@@ -203,6 +203,7 @@ L['options_restore_hidden_nodes'] = '恢復隱藏的圖示'
 L['options_restore_hidden_nodes_desc'] = '恢復所有使用右鍵選單隱藏的圖示。'
 
 L['options_rewards_settings'] = '獎勵'
+L['options_reward_behaviors_settings'] = '獎勵行為'
 L['options_reward_types'] = '顯示獎勵類型'
 L['options_manuscript_rewards'] = '顯示飛龍手稿獎勵'
 L['options_manuscript_rewards_desc'] = '在浮動提示資訊中顯示飛龍觀察者手稿獎勵，並且追蹤收藏狀態。'
