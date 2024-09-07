@@ -1,6 +1,8 @@
 # Baganator
 
-## [467](https://github.com/Baganator/Baganator/tree/467) (2024-09-07)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/466...467) 
+## [470](https://github.com/Baganator/Baganator/tree/470) (2024-09-07)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/469...470) 
 
-- Add remaining settings to Wago analytics  
+- Add missing setting to Wago analytics  
+- Sorting: Remove ignore slots option (due to less than 1% of users using it)  
+- Remove unused guild bank sort button (that used external sort methods)  

@@ -331,37 +331,6 @@ local SORTING_OPTIONS = {
     }
   },
   { type = "spacing" },
-  {
-    type = "dropdown",
-    text = BAGANATOR_L_IGNORED_SLOTS,
-    option = "sort_ignore_slots_at_end",
-    entries = {
-      BAGANATOR_L_FROM_THE_TOP,
-      BAGANATOR_L_FROM_THE_BOTTOM,
-    },
-    values = {
-      false,
-      true,
-    }
-  },
-  {
-    type = "slider",
-    min = 0,
-    max = 128,
-    lowText = "0",
-    highText = "128",
-    text = BAGANATOR_L_IGNORED_BAG_SLOTS,
-    option = "sort_ignore_slots_count_2",
-  },
-  {
-    type = "slider",
-    min = 0,
-    max = 500,
-    lowText = "0",
-    highText = "500",
-    text = BAGANATOR_L_IGNORED_BANK_SLOTS,
-    option = "sort_ignore_bank_slots_count",
-  },
 }
 
 local CATEGORIES_OPTIONS = {
@@ -817,37 +786,6 @@ function BaganatorCustomiseDialogMixin:SetupSorting()
     end
 
     table.insert(SORTING_OPTIONS, 5, typeDropDown)
-  end
-  if next(addonTable.API.ExternalGuildBankSorts) ~= nil then
-    local allModes = {}
-
-    addonTable.Utilities.AutoSetGuildSortMethod()
-
-    for id, details in pairs(addonTable.API.ExternalGuildBankSorts) do
-      table.insert(allModes, {id, details.label})
-    end
-
-    table.sort(allModes, function(a, b) return a[2] < b[2] end)
-
-    local typeDropDown = {
-      type = "dropdown",
-      option = "guild_bank_sort_method",
-      entries = {NONE},
-      values = {"none"},
-    }
-
-    for _, details in ipairs(allModes) do
-      table.insert(typeDropDown.values, details[1])
-      table.insert(typeDropDown.entries, details[2])
-    end
-
-    table.insert(SORTING_OPTIONS, {
-      type = "header",
-      text = BAGANATOR_L_GUILD_BANK_SORT_METHOD,
-      level = 2,
-    })
-
-    table.insert(SORTING_OPTIONS, typeDropDown)
   end
 
   local allFrames = GenerateFrames(SORTING_OPTIONS, frame)
