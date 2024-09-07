@@ -1,6 +1,6 @@
 # Baganator
 
-## [466](https://github.com/Baganator/Baganator/tree/466) (2024-09-06)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/465...466) 
+## [467](https://github.com/Baganator/Baganator/tree/467) (2024-09-07)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/466...467) 
 
-- [Fixes #266] Categories: Items stacking/mixing when they shouldn't  
+- Add remaining settings to Wago analytics  
