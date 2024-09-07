@@ -1,6 +1,6 @@
 ## Interface: 11503, 30403, 40400, 110002
 ## Title: Baganator
-## Version: 467
+## Version: 470
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -137,7 +137,6 @@ API\Upgrades.lua
 API\ItemButton.lua
 API\EquipmentSets.lua
 API\Sorting.lua
-API\GuildBankSorting.lua
 API\Pawn.lua
 
 Compatibility\VanillaEngraving.lua
