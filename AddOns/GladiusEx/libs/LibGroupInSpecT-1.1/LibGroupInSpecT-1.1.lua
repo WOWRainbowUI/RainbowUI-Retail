@@ -72,7 +72,7 @@
 --     Returns an array with the set of unit ids for the current group.
 --]]
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", 96
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", 97
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
@@ -766,7 +766,7 @@ local function decode_talent_string(import_string, talents_table)
     return false
   end
 
-  -- Serialization Version 1
+  -- Serialization Version 2
   local import_stream = ExportUtil.MakeImportDataStream(import_string)
 
   local header_bit_width = 8 + 16 + 128 -- version + spec_id + tree_hash
@@ -775,7 +775,7 @@ local function decode_talent_string(import_string, talents_table)
   end
 
   local serialization_version = import_stream:ExtractValue(8)
-  if serialization_version ~= C_Traits.GetLoadoutSerializationVersion() then
+  if serialization_version ~= 2 then -- bump to match C_Traits.GetLoadoutSerializationVersion()
     return false
   end
 
@@ -786,6 +786,9 @@ local function decode_talent_string(import_string, talents_table)
   local tree_id = C_ClassTalents.GetTraitTreeForSpec(spec_id)
   for _, node_id in ipairs(C_Traits.GetTreeNodes(tree_id)) do
     if import_stream:ExtractValue(1) == 1 then -- isNodeSelected
+      local is_node_purchased = import_stream:ExtractValue(1) == 1
+      -- local is_node_granted = not is_node_purchased
+
       local node = C_Traits.GetNodeInfo(config_id, node_id)
       if not node then
         --[==[@debug@
@@ -794,17 +797,21 @@ local function decode_talent_string(import_string, talents_table)
         return false
       end
       local entry_id = node.activeEntry and node.activeEntry.entryID
-      local rank = node.maxRanks
-      if import_stream:ExtractValue(1) == 1 then -- isPartiallyRankedValue
-        rank = import_stream:ExtractValue(6) -- bitWidthRanksPurchased
+      local rank = node.maxRanks -- is_node_granted and 1 or node.maxRanks
+
+      if is_node_purchased then
+        if import_stream:ExtractValue(1) == 1 then -- isPartiallyRankedValue
+          rank = import_stream:ExtractValue(6) -- bitWidthRanksPurchased
+        end
+        if import_stream:ExtractValue(1) == 1 then -- isChoiceNode
+          local choice_node_index = import_stream:ExtractValue(2) + 1 -- stored as zero-index
+          entry_id = node.entryIDs[choice_node_index]
+        end
+        if not entry_id then
+          entry_id = node.entryIDs[1]
+        end
       end
-      if import_stream:ExtractValue(1) == 1 then -- isChoiceNode
-        local choice_node_index = import_stream:ExtractValue(2) + 1
-        entry_id = node.entryIDs[choice_node_index]
-      end
-      if not entry_id then
-        entry_id = node.entryIDs[1]
-      end
+
       local talent = lib:GetCachedTalentInfoByID(entry_id)
       if talent then
         talent.rank = rank
