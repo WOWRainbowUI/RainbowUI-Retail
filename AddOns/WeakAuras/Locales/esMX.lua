@@ -638,10 +638,8 @@ L["Include Bank"] = "Incluye el Banco"
 L["Include Charges"] = "Incluye las Cargas"
 L["Include Death Runes"] = "Incluir runas de muerte"
 L["Include Pets"] = "Incluir mascotas"
---[[Translation missing --]]
-L["Include Reagent Bank"] = "Include Reagent Bank"
---[[Translation missing --]]
-L["Include War Band Bank"] = "Include War Band Bank"
+L["Include Reagent Bank"] = "Incluir banco de componentes"
+L["Include War Band Bank"] = "Incluir banco de tropas"
 L["Incoming Heal"] = "Sanación entrante"
 L["Increase Precision Below"] = "Aumentar la precisión por debajo de"
 L["Increases by one per stage or intermission."] = "Aumenta en uno por etapa o intervalo."
@@ -1052,8 +1050,7 @@ L["Right, then Centered Vertical"] = "Derecha, luego centrado vertical"
 L["Right, then Down"] = "Derecha, luego abajo"
 L["Right, then Up"] = "Derecha, luego arriba"
 L["Role"] = "Rol"
---[[Translation missing --]]
-L["Rollback snapshot is complete. Thank you for your patience!"] = "Rollback snapshot is complete. Thank you for your patience!"
+L["Rollback snapshot is complete. Thank you for your patience!"] = "La instantánea de reversión está completa. ¡Gracias por tu paciencia!"
 L["Rotate Animation"] = "Rotar animación"
 L["Rotate Left"] = "Rotar a la Izquierda"
 L["Rotate Right"] = "Rotar a la Derecha"
@@ -1400,8 +1397,7 @@ Would you like to run the |cffff0000EXPERIMENTAL|r repair tool? This will overwr
 Last upgrade: %s
 
 |cffff0000You should BACKUP your WTF folder BEFORE pressing this button.|r]=] ] = "WeakAuras ha detectado que ha sido degradado. Es posible que tus auras guardadas ya no funcionen correctamente. ¿Te gustarías ejecutar la herramienta de reparación |cffff0000EXPERIMENTAL|r? Esto sobrescribirá cualquier cambio que haya realizado desde la última actualización de la base de datos. Última actualización: %s |cffff0000Debes HACER UNA COPIA DE SEGURIDAD de tu carpeta WTF ANTES de presionar este botón.|r"
---[[Translation missing --]]
-L["WeakAuras is creating a rollback snapshot of your auras. This snapshot will allow you to revert to the current state of your auras if something goes wrong. This process may cause your framerate to drop until it is complete."] = "WeakAuras is creating a rollback snapshot of your auras. This snapshot will allow you to revert to the current state of your auras if something goes wrong. This process may cause your framerate to drop until it is complete."
+L["WeakAuras is creating a rollback snapshot of your auras. This snapshot will allow you to revert to the current state of your auras if something goes wrong. This process may cause your framerate to drop until it is complete."] = "WeakAuras está creando una instantánea de reversión de tus auras. Esta instantánea te permitirá volver al estado actual de tus auras si algo sale mal. Este proceso puede hacer que tu tasa de fotogramas disminuya hasta que se complete."
 L["WeakAuras Profiling"] = "Perfilado de WeakAuras"
 L["WeakAuras Profiling Report"] = "Informe de perfilado de WeakAuras"
 L["WeakAuras Version: %s"] = "WeakAuras Versión: %s"

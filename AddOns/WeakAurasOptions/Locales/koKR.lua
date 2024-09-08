@@ -127,6 +127,7 @@ local L = WeakAuras.L
 	L[ [=[A timer will automatically be displayed according to default Interface Settings (overridden by some addons).
 Enable this setting if you want this timer to be hidden, or when using a WeakAuras text to display the timer]=] ] = "타이머가 기본 인터페이스 설정(일부 애드온에 의해 설정이 무시됨)에 따라 자동으로 표시됩니다. 이 타이머를 숨기거나 WeakAuras의 텍스트를 사용해서 표시하고 싶으면 이 설정을 켜세요."
 	L["A Unit ID (e.g., party1)."] = "유닛 ID (예, party1)."
+	L["Ace: Funkeh, Nevcairiel"] = "Ace: Funkeh, Nevcairiel"
 	L["Actions"] = "동작"
 	L["Active Aura Filters and Info"] = "오라 필터와 정보 사용"
 	L["Actual Spec"] = "실제 전문화"
@@ -150,6 +151,7 @@ Enable this setting if you want this timer to be hidden, or when using a WeakAur
 	L["Affected Unit Filters and Info"] = "오라에 걸린 유닛의 필터와 정보"
 	L["Align"] = "정렬"
 	L["Alignment"] = "정렬"
+	L["All maintainers of the libraries we use, especially:"] = "특히 우리가 사용하는 라이브러리의 모든 유지 관리자:"
 	L["All of"] = "모두 만족"
 	L["Allow Full Rotation"] = "전체 회전 허용"
 	L["Alpha"] = "투명도"
@@ -161,6 +163,7 @@ Enable this setting if you want this timer to be hidden, or when using a WeakAur
 	L["and %s"] = "and %s"
 	L["and aligned left"] = ", 왼쪽 정렬"
 	L["and aligned right"] = ", 오른쪽 정렬"
+	L["And our Patreons, Discord Regulars and Subscribers, and Friends of the Addon:"] = "그리고 우리의 Patreon, Discord의 정기 방문자 및 구독자, 그리고 애드온의 친구 여러분:"
 	L["and rotated left"] = ", 왼쪽으로 회전"
 	L["and rotated right"] = ", 오른쪽으로 회전"
 	L["and with width |cFFFF0000%s|r and %s"] = ", 너비 |cFFFF0000%s|r, %s"
@@ -441,7 +444,7 @@ UNIT_POWER_UPDATE:player, UNIT_AURA:nameplate:group PLAYER_TARGET_CHANGED CLEU:S
 
 Supports multiple entries, separated by commas
 Can use \ to escape -.]=] ] = [=[필터 형식: '이름', '이름-서버', '-서버'. 여러 항목을 지원하며, 각 항목은 쉼표로 구분합니다.
-\를 사용하면 이스케이프 -를 할 수 있습니다.]=]
+-는 앞에 \를 사용해서 이스케이프 처리를 할 수 있습니다.]=]
 	L[ [=[Filter to only dispellable de/buffs of the given type(s)
 Bleed classification via LibDispel]=] ] = "주어진 유형의 해제 가능한 디버프/버프만 필터링 (LibDispel을 통한 출혈 분류)"
 	L["Find Auras"] = "위크오라 구하기"
@@ -597,7 +600,13 @@ Bleed classification via LibDispel]=] ] = "주어진 유형의 해제 가능한 
 	L["Left HUD position"] = "좌측 HUD 위치"
 	L["Length"] = "길이"
 	L["Length of |cFFFF0000%s|r"] = "|cFFFF0000%s|r 길이"
+	L["LibCompress: Galmok"] = "LibCompress: Galmok"
+	L["LibCustomGlow: Dooez"] = "LibCustomGlow: Dooez"
+	L["LibDeflate: Yoursafety"] = "LibDeflate: Yoursafety"
+	L["LibDispel: Simpy"] = "LibDispel: Simpy"
+	L["LibSerialize: Sanjo"] = "LibSerialize: Sanjo"
 	L["LibSharedMedia"] = "LibSharedMedia"
+	L["LibSpecialization: Funkeh"] = "LibSpecialization: Funkeh"
 	L["Limit"] = "제한"
 	L["Line"] = "줄"
 	L["Lines & Particles"] = "선과 조각 개수"
@@ -713,6 +722,7 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = [=[위크오�
 	L["or %s"] = "or %s"
 	L["Orange Rune"] = "주황색 룬"
 	L["Orientation"] = "진행 방향"
+	L["Our translators (too many to name)"] = "번역가(일일이 열거하기 힘들 정도로 많음)"
 	L["Outer"] = "외부"
 	L["Outline"] = "외곽선"
 	L["Overflow"] = "텍스트 넘침"
@@ -905,6 +915,7 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = [=[위크오�
 	L["Texture Wrap"] = "텍스처 넘침"
 	L["Texture X Offset"] = "텍스처 X 위치 조정"
 	L["Texture Y Offset"] = "텍스처 Y 위치 조정"
+	L["Thanks"] = "고마워요"
 	L["The addon ElvUI is enabled. It might add cooldown numbers to the swipe. You can configure these in the ElvUI settings"] = "ElvUI 애드온이 활성화 되었습니다. 회전 애니메이션에 쿨타임 시간이 표시됩니다. ElvUI 설정에서 조정할 수 있습니다"
 	L["The addon OmniCC is enabled. It might add cooldown numbers to the swipe. You can configure these in the OmniCC settings"] = "OmniCC 애드온이 활성화 되었습니다. 회전 애니메이션에 쿨타임 시간이 표시됩니다. OmniCC 설정에서 조정할 수 있습니다"
 	L["The duration of the animation in seconds."] = "애니메이션 지속시간 (초)"
@@ -1003,6 +1014,7 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["View"] = "보기"
 	L["View custom code"] = "사용자 정의 코드 보기"
 	L["Voice"] = "음성"
+	L["We thank"] = "감사합니다"
 	L["WeakAuras %s on WoW %s"] = "WeakAuras %s (WoW %s)"
 	L["What do you want to do?"] = "무엇을 할까요?"
 	L["Whole Area"] = "전체 영역"
