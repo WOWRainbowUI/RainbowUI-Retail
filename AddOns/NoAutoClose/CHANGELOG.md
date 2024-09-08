@@ -1,6 +1,6 @@
 # NoAutoClose
 
-## [v1.2.13](https://github.com/NumyAddon/NoAutoClose/tree/v1.2.13) (2024-09-02)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.2.12...v1.2.13) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.2.14](https://github.com/NumyAddon/NoAutoClose/tree/v1.2.14) (2024-09-08)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.2.13...v1.2.14) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- Fix taint issues caused when hiding the spellbook/talent UI  
+- Made some changes that should make NAC more compatible with other addons  
