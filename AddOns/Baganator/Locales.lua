@@ -279,7 +279,9 @@ L["QUALITY"] = "Quality"
 L["NONE"] = "None"
 L["GROUP_BY"] = "Group by"
 L["SHOW_ADD_BUTTONS"] = "Show add buttons"
-L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
+L["DRAGGING"] = "Dragging"
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
+L["NEVER"] = "Never"
 L["RECENT_TIMER"] = "Recent timer"
 L["IMMEDIATE"] = "Immediate"
 L["FOREVER"] = "Forever"
@@ -372,7 +374,6 @@ L["BOA"] = "LqA"
 L["BOE"] = "LqE"
 L["BOU"] = "LqU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(vue de la catégorie uniquement)"
-L["BRACKETS_WHILE_DRAGGING"] = "(durant le déplacement)"
 L["BUY_REAGENT_BANK"] = "Acheter emplacement de banque de composants"
 L["BUY_WARBAND_BANK_TAB"] = "Acheter un onglet de la banque de bataillon"
 L["BY_PLUSMOUSE"] = "par plusmouse"
@@ -421,6 +422,10 @@ L["DEPOSIT_WARBOUND"] = "Déposer les objets liés au bataillon"
 --[[Translation missing --]]
 L["DISABLED"] = "disabled"
 L["DISCORD_DESCRIPTION"] = "Mises à jour, suggestions de fonctionnalités et assistance"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 L["EDIT"] = "Modifier"
 L["EMPTY"] = "Vide"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "Vous devez utilser la disposition Catégories si vous souhaitez utiliser des catégories"
@@ -514,6 +519,8 @@ L["MANAGE_CHARACTERS"] = "Gérer les personnages"
 L["MINING"] = "Minage"
 L["MONEY_LOGS"] = "Journaux des monnaies"
 L["MOVE"] = "Déplacer"
+--[[Translation missing --]]
+L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "Nouvelle catégorie"
 L["NEW_SECTION"] = "Nouvelle section"
 L["NO_TRANSACTIONS_AVAILABLE"] = "Aucune transaction disponible"
@@ -662,7 +669,6 @@ L["BOA"] = "BoA"
 L["BOE"] = "BoE"
 L["BOU"] = "BoU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(nur Kategorie-Ansicht)"
-L["BRACKETS_WHILE_DRAGGING"] = "(während des ziehens)"
 L["BUY_REAGENT_BANK"] = "Reagenzien-Bank kaufen"
 L["BUY_WARBAND_BANK_TAB"] = "Kriegsmeuten Bank-Tab kaufen?"
 L["BY_PLUSMOUSE"] = "von plusmouse"
@@ -709,6 +715,10 @@ L["DEPOSIT_REAGENTS"] = "Reagenzien einlagern"
 L["DEPOSIT_WARBOUND"] = "Kriegsgebundene Gegenstände einlagern"
 L["DISABLED"] = "deaktiviert"
 L["DISCORD_DESCRIPTION"] = "Updates, Verbesserungsvorschläge und Support"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 L["EDIT"] = "Bearbeiten"
 L["EMPTY"] = "Leer"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "Um Kategorien zu verwenden, muss die Kategorieansicht aktiviert werden"
@@ -799,6 +809,8 @@ L["MANAGE_CHARACTERS"] = "Charaktere verwalten"
 L["MINING"] = "Bergbau"
 L["MONEY_LOGS"] = "Währungs-Logs"
 L["MOVE"] = "Bewegen"
+--[[Translation missing --]]
+L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "Neue Kategorie"
 L["NEW_SECTION"] = "Neuer Abschnitt"
 L["NO_TRANSACTIONS_AVAILABLE"] = "Keine Transaktionen vorhanden"
@@ -945,7 +957,6 @@ L["BOA"] = "BoA"
 L["BOE"] = "BoE"
 L["BOU"] = "BoU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(только при категориях)"
-L["BRACKETS_WHILE_DRAGGING"] = "(при перетаскивании)"
 L["BUY_REAGENT_BANK"] = "Купить банк материалов"
 L["BUY_WARBAND_BANK_TAB"] = "Приобрести ячейку банка отряда?"
 L["BY_PLUSMOUSE"] = "(автор - plusmouse)"
@@ -992,6 +1003,10 @@ L["DEPOSIT_REAGENTS"] = "Перенести материалы из сумок"
 L["DEPOSIT_WARBOUND"] = "Перенести предметы отряда"
 L["DISABLED"] = "выключено"
 L["DISCORD_DESCRIPTION"] = "Обновления, запрос новых функций и поддержка"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 L["EDIT"] = "Редактирование"
 L["EMPTY"] = "Пусто"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "Вы должны включить отображение категорий, если хотите их использовать"
@@ -1081,6 +1096,8 @@ L["MANAGE_CHARACTERS"] = "Настройка"
 L["MINING"] = "Горное дело"
 L["MONEY_LOGS"] = "Журнал финансов"
 L["MOVE"] = "Передвинуть"
+--[[Translation missing --]]
+L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "Новая категория"
 L["NEW_SECTION"] = "Новая секция"
 L["NO_TRANSACTIONS_AVAILABLE"] = "Нет доступных транзакций"
@@ -1231,7 +1248,6 @@ L["BOA"] = "BoA"
 L["BOE"] = "BoE"
 L["BOU"] = "BoU"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(solo vista por categorías)"
-L["BRACKETS_WHILE_DRAGGING"] = "(Mientras se arrastra)"
 L["BUY_REAGENT_BANK"] = "Comprar Banco de Componentes"
 L["BUY_WARBAND_BANK_TAB"] = "¿Comprar pestaña de Bande de Guerra?"
 L["BY_PLUSMOUSE"] = "Por plusmouse"
@@ -1278,6 +1294,10 @@ L["DEPOSIT_REAGENTS"] = "Depositar Componentes"
 L["DEPOSIT_WARBOUND"] = "Depositar objetos relacionados con la Banda de Guerra"
 L["DISABLED"] = "desactivado"
 L["DISCORD_DESCRIPTION"] = "Actualizaciones, sugerencias de funciones y asistencia"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 L["EDIT"] = "Editar"
 L["EMPTY"] = "Libre"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "Debe activar la vista por categorías si desea utilizarlas"
@@ -1367,6 +1387,8 @@ L["MANAGE_CHARACTERS"] = "Gestionar personajes"
 L["MINING"] = "Minería"
 L["MONEY_LOGS"] = "Registro de dinero"
 L["MOVE"] = "Mover"
+--[[Translation missing --]]
+L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "Categoría nueva"
 L["NEW_SECTION"] = "Nueva sección"
 L["NO_TRANSACTIONS_AVAILABLE"] = "Transacciones no disponibles"
@@ -1540,8 +1562,6 @@ L["BOU"] = "BoU"
 --[[Translation missing --]]
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(category view only)"
 --[[Translation missing --]]
-L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
---[[Translation missing --]]
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
@@ -1637,6 +1657,10 @@ L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 L["DISABLED"] = "disabled"
 --[[Translation missing --]]
 L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 L["EDIT"] = "Editar"
 L["EMPTY"] = "Vacío"
 --[[Translation missing --]]
@@ -1790,6 +1814,8 @@ L["MINING"] = "Mining"
 L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["MOVE"] = "Move"
+--[[Translation missing --]]
+L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "Nueva Categoría"
 --[[Translation missing --]]
 L["NEW_SECTION"] = "New Section"
@@ -1903,7 +1929,7 @@ L["THAT_ITEM_IS_LISTED_ON_THE_AUCTION_HOUSE"] = "That item is listed on the auct
 L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want any of those items"
 L["THEME"] = "Tema"
 --[[Translation missing --]]
-L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
+L["TIPS_PLUGINS"] = "Enhance Baganator with additional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 --[[Translation missing --]]
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 --[[Translation missing --]]
@@ -2021,7 +2047,6 @@ L["BOA"] = "帳綁"
 L["BOE"] = "裝綁"
 L["BOU"] = "用綁"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(僅分類檢視)"
-L["BRACKETS_WHILE_DRAGGING"] = "(當拖動時)"
 L["BUY_REAGENT_BANK"] = "購買材料銀行"
 L["BUY_WARBAND_BANK_TAB"] = "購買戰隊銀行標籤嗎？"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
@@ -2068,6 +2093,10 @@ L["DEPOSIT_REAGENTS"] = "存放材料"
 L["DEPOSIT_WARBOUND"] = "存放戰隊物品"
 L["DISABLED"] = "停用"
 L["DISCORD_DESCRIPTION"] = "更新、功能建議以及支援"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 L["EDIT"] = "編輯"
 L["EMPTY"] = "空"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "如果要使用分類，則需要啟用分類視覽"
@@ -2157,6 +2186,8 @@ L["MANAGE_CHARACTERS"] = "管理角色"
 L["MINING"] = "採礦"
 L["MONEY_LOGS"] = "金幣紀錄"
 L["MOVE"] = "移動"
+--[[Translation missing --]]
+L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "新分類"
 L["NEW_SECTION"] = "新群組"
 L["NO_TRANSACTIONS_AVAILABLE"] = "無可用交易"
@@ -2303,7 +2334,6 @@ L["BOA"] = "帐绑"
 L["BOE"] = "装绑"
 L["BOU"] = "用绑"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "（仅分类浏览）"
-L["BRACKETS_WHILE_DRAGGING"] = "（拖动时）"
 L["BUY_REAGENT_BANK"] = "购买材料银行"
 L["BUY_WARBAND_BANK_TAB"] = "购买战团银行标签？"
 L["BY_PLUSMOUSE"] = "作者：plusmouse"
@@ -2350,6 +2380,10 @@ L["DEPOSIT_REAGENTS"] = "存放材料"
 L["DEPOSIT_WARBOUND"] = "存放战团物品"
 L["DISABLED"] = "禁用"
 L["DISCORD_DESCRIPTION"] = "更新、功能建议和支持"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 L["EDIT"] = "编辑"
 L["EMPTY"] = "空"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "如果要使用分类，则需要启用分类浏览"
@@ -2439,6 +2473,8 @@ L["MANAGE_CHARACTERS"] = "角色管理"
 L["MINING"] = "采矿"
 L["MONEY_LOGS"] = "货币记录"
 L["MOVE"] = "移动"
+--[[Translation missing --]]
+L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "新分类"
 L["NEW_SECTION"] = "新组"
 L["NO_TRANSACTIONS_AVAILABLE"] = "无可用交易"
@@ -2592,7 +2628,6 @@ L["BOA"] = "계귀"
 L["BOE"] = "착귀"
 L["BOU"] = "사귀"
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(카테고리 보기 전용)"
-L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
 L["BUY_REAGENT_BANK"] = "재료 은행 구매"
 L["BUY_WARBAND_BANK_TAB"] = "전투부대 은행 탭을 구매하시겠습니까?"
 --[[Translation missing --]]
@@ -2647,6 +2682,10 @@ L["DEPOSIT_WARBOUND"] = "전투부대 아이템 보관"
 --[[Translation missing --]]
 L["DISABLED"] = "disabled"
 L["DISCORD_DESCRIPTION"] = "업데이트, 기능 제안 및 지원"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 L["EDIT"] = "편집"
 L["EMPTY"] = "빈칸"
 --[[Translation missing --]]
@@ -2739,6 +2778,8 @@ L["MANAGE_CHARACTERS"] = "캐릭터 관리"
 L["MINING"] = "채광"
 L["MONEY_LOGS"] = "골드 기록"
 L["MOVE"] = "이동"
+--[[Translation missing --]]
+L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "새 카테고리"
 L["NEW_SECTION"] = "새 섹션"
 L["NO_TRANSACTIONS_AVAILABLE"] = "이용 가능한 거래가 없습니다."
@@ -2934,8 +2975,6 @@ L["BOU"] = "BoU"
 --[[Translation missing --]]
 L["BRACKETS_CATEGORY_VIEW_ONLY"] = "(category view only)"
 --[[Translation missing --]]
-L["BRACKETS_WHILE_DRAGGING"] = "(while dragging)"
---[[Translation missing --]]
 L["BUY_REAGENT_BANK"] = "Buy Reagent Bank"
 --[[Translation missing --]]
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
@@ -3032,6 +3071,10 @@ L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
 L["DISABLED"] = "disabled"
 --[[Translation missing --]]
 L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
+--[[Translation missing --]]
+L["DRAGGING"] = "Dragging"
+--[[Translation missing --]]
+L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
 --[[Translation missing --]]
 L["EDIT"] = "Edit"
 --[[Translation missing --]]
@@ -3211,6 +3254,8 @@ L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["MOVE"] = "Move"
 --[[Translation missing --]]
+L["NEVER"] = "Never"
+--[[Translation missing --]]
 L["NEW_CATEGORY"] = "New Category"
 --[[Translation missing --]]
 L["NEW_SECTION"] = "New Section"
@@ -3335,7 +3380,7 @@ L["THE_MERCHANT_DOESNT_WANT_ANY_OF_THOSE_ITEMS"] = "The merchant doesn't want an
 --[[Translation missing --]]
 L["THEME"] = "Theme"
 --[[Translation missing --]]
-L["TIPS_PLUGINS"] = "Enhance Baganator with addtional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
+L["TIPS_PLUGINS"] = "Enhance Baganator with additional features powered by integrations with popular addons like AllTheThings, CanIMogIt, Pawn, Dejunk, and more..."
 --[[Translation missing --]]
 L["TIPS_SEARCH"] = "Powerful, flexible, and fast. Use flexible query operators & (and), | (or), and ! (not) to find exactly what you need."
 --[[Translation missing --]]
