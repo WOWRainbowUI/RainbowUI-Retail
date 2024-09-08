@@ -11,7 +11,7 @@
 ## IconTexture: Interface\Icons\achievement_pvp_a_12
 ## X-Category-zhTW: PvP
 ## DefaultState: disabled
-## Version: 2.10
+## Version: 2.10.1
 
 embeds-cata.xml
 templates.xml
