@@ -1075,7 +1075,7 @@ L["Right, then Centered Vertical"] = "向右，然後居中垂直"
 L["Right, then Down"] = "先右後下"
 L["Right, then Up"] = "先右後上"
 L["Role"] = "角色"
-L["Rollback snapshot is complete. Thank you for your patience!"] = "回滾快照已完成。感謝您的耐心等待！"
+L["Rollback snapshot is complete. Thank you for your patience!"] = "還原快照已完成。感謝您的耐心等待!"
 L["Rotate Animation"] = "旋轉動畫"
 L["Rotate Left"] = "向左旋轉"
 L["Rotate Right"] = "向右旋轉"
@@ -1238,13 +1238,17 @@ L["Sun"] = "太陽"
 L["Supports multiple entries, separated by commas"] = "支援輸入多個項目，使用逗號分隔。"
 L[ [=[Supports multiple entries, separated by commas
 ]=] ] = "支援輸入多個項目，使用逗號分隔。"
-L["Supports multiple entries, separated by commas. Escape ',' with \\. Prefix with '-' for negation."] = "支援多個條目，使用逗號分隔。用 \\ 換行 ','。前綴“-”表示否定。"
-L["Supports multiple entries, separated by commas. Prefix with '-' for negation."] = "支援多個條目，使用逗號分隔。前綴“-”表示否定。"
+L["Supports multiple entries, separated by commas. Escape ',' with \\. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。用 \\ 跳脫 ','。前面加上 '-' 表示否定。"
+L["Supports multiple entries, separated by commas. Prefix with '-' for negation."] = "支援輸入多個項目，使用逗號分隔。前面加上 '-' 表示否定。"
 L[ [=[Supports multiple entries, separated by commas. To include child zone ids, prefix with 'c', e.g. 'c2022'.
 Group Zone IDs must be prefixed with 'g', e.g. 'g277'. 
 Supports Area IDs from https://wago.tools/db2/AreaTable prefixed with 'a'. 
 Supports Instance IDs prefixed with 'i'.
-Entries can be prefixed with '-' to negate.]=] ] = "支援多個條目，使用逗號分隔。若要包含子區域 ID，請新增前綴“c”，例如「c2022」。群組區域 ID 必須以「g」為前綴，例如'g277'。支援 https://wago.tools/db2/AreaTable 中以「a」為前綴的區域 ID。支援以“i”為前綴的副本ID。條目可以加上前綴“-”來表示否定。"
+Entries can be prefixed with '-' to negate.]=] ] = [=[支援輸入多個項目，以逗號分隔。若要包含子區域 ID，請在前面加上 'c'，例如「c2022」。
+群組區域 ID 必須以 'g' 開頭，例如 'g277'。
+支援 https://wago.tools/db2/AreaTable 中以 'a' 開頭的區域 ID。
+支援以 'i' 開頭的副本 ID。
+項目前面可以加上 '-' 來表示否定。]=]
 L["Swing"] = "揮動"
 L["Swing Timer"] = "揮擊計時條"
 L["Swipe"] = "轉圈"
@@ -1423,7 +1427,7 @@ Last upgrade: %s
 上次升級是: %s 
 
 |cffff0000在按下此按鈕之前，你應該先備份 WTF 資料夾。|r]=]
-L["WeakAuras is creating a rollback snapshot of your auras. This snapshot will allow you to revert to the current state of your auras if something goes wrong. This process may cause your framerate to drop until it is complete."] = "WeakAuras 正在建立您的光環的回滾快照。如果出現問題，此快照將允許您恢復到光環的目前狀態。此過程可能會導致幀速率下降，直到完成為止。"
+L["WeakAuras is creating a rollback snapshot of your auras. This snapshot will allow you to revert to the current state of your auras if something goes wrong. This process may cause your framerate to drop until it is complete."] = "WeakAuras 正在建立提醒效果的還原快照。如果出現問題，此快照將允許您恢復到提醒效果目前的狀態。此過程可能會導致幀速下降，直到完成為止。"
 L["WeakAuras Profiling"] = "WeakAuras 效能分析"
 L["WeakAuras Profiling Report"] = "WeakAuras 分析報告"
 L["WeakAuras Version: %s"] = "WeakAuras 版本: %s"

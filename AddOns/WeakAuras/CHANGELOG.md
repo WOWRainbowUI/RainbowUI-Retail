@@ -1,38 +1,47 @@
-# [5.17.0](https://github.com/WeakAuras/WeakAuras2/tree/5.17.0) (2024-08-25)
+# [5.17.1](https://github.com/WeakAuras/WeakAuras2/tree/5.17.1) (2024-09-07)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.16.1...5.17.0)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/5.17.0...5.17.1)
 
 ## Highlights
 
- - Performance improvemsn
-- Bug fixes
-- Add Bleed type via LibDispel 
+ - The options now have a "Thanks" button where we list all our supporters, thanks for being awesome!
+- Fixed a bug with cooldown tracking
+- Item Count triggers can now use reagent/account bank API 
 
 ## Commits
 
-InfusOnWoW (9):
+InfusOnWoW (7):
 
-- Item Count: Add support for reagent/account bank api
-- Fix lua errors with progressSources after trigger moving
-- Zone Names/Zone Ids, etc: Add - for negation
-- BT2: Enable hostility check for group units too
-- Spell Triggers: Handle spell names similar to before
-- BT2: Add Bleed type via LibDispel
-- Options: Allow or searching via " or " and "|"
-- Options: Update shape shift combobox if the shape shift data changed
-- Totem Trigger: Implement an icon check
+- Ensure that talent data is up to date on initial login
+- Fix Lua Error in Cooldown Tracking
+- Item Count: Add support for reagent/account bank api (#5389)
+- Update Discord List
+- Options: Add a Thanks button
+- Update Atlas File List from wago.tools
+- Update Atlas File List from wago.tools
 
-emptyrivers (6):
+Jon (1):
 
-- upgrade cachebuild priority if building & there's a cache miss
-- more improvements to spell cache thread
-- defer snapshots out of login process
-- make spellCache a background task
-- supercharge dynFrame
-- improve build advertisement
+- Fix percent progress validation and parsing (#5381)
 
-mrbuds (2):
+Stanzilla (2):
 
-- Fix issue with talent load option showing wrong hero talents in tree
-- Workaround C_Reputation.GetFactionDataByIndex returning nil when it shouldn't
+- Update WeakAurasModelPaths from wago.tools
+- Update WeakAurasModelPaths from wago.tools
+
+dependabot[bot] (1):
+
+- Bump cbrgm/mastodon-github-action from 2.1.5 to 2.1.8
+
+emptyrivers (2):
+
+- fux a small mem leak as user edits custom code
+- close a hole in the sandbox
+
+mrbuds (4):
+
+- fix (#5390)
+- fix keys with wrong type after export from wago
+- Fix data for auras with holes in multiEntry fields
+- Removing an element of a multyEntry field could leave an empty space in the list, fix #5361
 
