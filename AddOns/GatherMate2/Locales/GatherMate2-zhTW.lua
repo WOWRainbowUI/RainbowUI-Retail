@@ -332,7 +332,7 @@ NL["Emperor Salmon School"] = "帝王鮭魚群"
 NL["Empyrium Deposit"] = "燦鐵礦床"
 NL["Empyrium Seam"] = "燦鐵礦層"
 NL["Everfrost Chip"] = "永霜屑片"
-NL["EZ-Mine Aqirite"] = [=[易採雷亞基岩
+NL["EZ-Mine Aqirite"] = [=[簡易礦坑亞基岩
 
 ]=]
 NL["EZ-Mine Bismuth"] = "簡易礦坑鉍礦"
