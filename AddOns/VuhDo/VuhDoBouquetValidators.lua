@@ -185,6 +185,15 @@ end
 
 
 --
+local function VUHDO_trailOfLightNextValidator(anInfo, _)
+
+	return VUHDO_isSpellTraceTrailOfLightNextUnit(anInfo["unit"]), nil, -1, -1, -1;
+
+end
+
+
+
+--
 local tInfo;
 local function VUHDO_aoeAdviceValidator(anInfo, _)
 	tInfo = VUHDO_getAoeAdviceForUnit(anInfo["unit"]);
@@ -335,6 +344,23 @@ local function VUHDO_debuffCurseValidator(anInfo, _)
 		return false, nil, -1, -1, -1;
 	end
 end
+
+
+
+--
+local tDebuffInfo;
+local function VUHDO_debuffBleedValidator(anInfo, _)
+
+	tDebuffInfo = VUHDO_getUnitDebuffSchoolInfos(anInfo["unit"], VUHDO_DEBUFF_TYPE_BLEED);
+
+	if tDebuffInfo[2] then
+		return true, tDebuffInfo[1], floor(tDebuffInfo[2] - GetTime()), tDebuffInfo[3], tDebuffInfo[4];
+	else
+		return false, nil, -1, -1, -1;
+	end
+
+end
+
 
 
 -- return tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tTimer2, clipLeft, clipRight, clipTop, clipBottom
@@ -1553,6 +1579,13 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["interests"] = { VUHDO_UPDATE_DEBUFF },
 	},
 
+	["DEBUFF_BLEED"] = {
+		["displayName"] = VUHDO_I18N_BOUQUET_DEBUFF_BLEED,
+		["validator"] = VUHDO_debuffBleedValidator,
+		["updateCyclic"] = true,
+		["interests"] = { VUHDO_UPDATE_DEBUFF },
+	},
+
 	["DEBUFF_CHARMED"] = {
 		["displayName"] = VUHDO_I18N_BOUQUET_CHARMED,
 		["validator"] = VUHDO_debuffCharmedValidator,
@@ -2035,6 +2068,12 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 	["TRAIL_OF_LIGHT"] = {
 		["displayName"] = VUHDO_I18N_TRAIL_OF_LIGHT,
 		["validator"] = VUHDO_trailOfLightValidator,
+		["interests"] = { VUHDO_UPDATE_SPELL_TRACE },
+	},
+
+	["TRAIL_OF_LIGHT_NEXT"] = {
+		["displayName"] = VUHDO_I18N_TRAIL_OF_LIGHT_NEXT,
+		["validator"] = VUHDO_trailOfLightNextValidator,
 		["interests"] = { VUHDO_UPDATE_SPELL_TRACE },
 	},
 

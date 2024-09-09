@@ -49,7 +49,6 @@ VUHDO_UNIT_HOT_LISTS = {
 	--		<VUHDO_UNIT_HOT_TYPE_MINE|OTHERS|BOTH|OTHERSHOTS> = {
 	--			<aura instance ID list head> = {
 	--				["auraInstanceId"] = <aura instance ID>,
-	--				["next"] = <next aura>,
 	--				["prev"] = <prev aura>,
 	--			},
 	--			<aura count>,
@@ -705,22 +704,18 @@ local function VUHDO_addUnitHot(aUnit, aSpellName, aSourceType, anAuraInstanceId
 			VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1]["prev"] = {
 				["auraInstanceId"] = anAuraInstanceId,
 				["prev"] = tUnitHotListPrev["prev"],
-				["next"] = VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1],
 			};
 		else
 			VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1] = {
 				["auraInstanceId"] = anAuraInstanceId,
 				["prev"] = tUnitHotListPrev,
 			};
-
-			tUnitHotListPrev["next"] = VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1];
 		end
 	else
 		VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1] = { ["auraInstanceId"] = anAuraInstanceId };
 
 		if tUnitHotListPrev then
 			VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1]["prev"] = tUnitHotListPrev;
-			tUnitHotListPrev["next"] = VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1];
 		end
 	end
 
@@ -745,22 +740,19 @@ local function VUHDO_removeUnitHot(aUnit, aSpellName, aSourceType, anAuraInstanc
 		return;
 	end
 
+	tUnitHotListNext = false;
 	tUnitHotList = VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1];
 
 	while tUnitHotList and tUnitHotList["auraInstanceId"] do
 		if tUnitHotList["auraInstanceId"] == anAuraInstanceId then
 			tUnitHotListPrev = tUnitHotList["prev"];
-			tUnitHotListNext = tUnitHotList["next"];
 
 			if tUnitHotListPrev and not tUnitHotListNext then
 				-- remove head
-				tUnitHotListPrev["next"] = nil;
-
 				VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][1] = tUnitHotListPrev;
 			elseif tUnitHotListPrev and tUnitHotListNext then
 				-- remove link
 				tUnitHotListNext["prev"] = tUnitHotListPrev;
-				tUnitHotListPrev["next"] = tUnitHotListNext;
 			elseif not tUnitHotListPrev and tUnitHotListNext then
 				-- remove tail
 				tUnitHotListNext["prev"] = nil;
@@ -770,8 +762,9 @@ local function VUHDO_removeUnitHot(aUnit, aSpellName, aSourceType, anAuraInstanc
 
 			VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][2] = VUHDO_UNIT_HOT_LISTS[aUnit][aSpellName][aSourceType][2] - 1;
 
-			tUnitHotList = nil;
+			break;
 		else
+			tUnitHotListNext = tUnitHotList;
 			tUnitHotList = tUnitHotList["prev"];
 		end
 	end

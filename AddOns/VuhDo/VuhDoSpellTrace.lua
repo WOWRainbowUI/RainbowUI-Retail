@@ -218,6 +218,13 @@ function VUHDO_parseCombatLogSpellTrace(aMessage, aSrcGuid, aDstGuid, aSpellName
 					aDstGuid
 				}
 			);
+
+			if VUHDO_RAID_GUIDS[aDstGuid] then
+				VUHDO_updateBouquetsForEvent(VUHDO_RAID_GUIDS[aDstGuid], VUHDO_UPDATE_SPELL_TRACE);
+			end
+
+			VUHDO_updateBouquetsForEvent("target", VUHDO_UPDATE_SPELL_TRACE);
+			VUHDO_updateBouquetsForEvent("focus", VUHDO_UPDATE_SPELL_TRACE);
 		end
 
 		local flashHeal1 = VUHDO_SPELL_TRACE_TRAIL_OF_LIGHT[1];
@@ -543,5 +550,34 @@ function VUHDO_getSpellTraceTrailOfLightForUnit(aUnit)
 	end
 
 	return { ["icon"] = sTrailOfLightIcon, };
+
+end
+
+
+
+--
+local tUnitGuid;
+local tTrailOfLight;
+function VUHDO_isSpellTraceTrailOfLightNextUnit(aUnit)
+
+	if not VUHDO_INTERNAL_TOGGLES[37] or not sShowSpellTrace or
+		not sShowTrailOfLight or not sIsPlayerKnowsTrailOfLight or
+		not aUnit then
+		return;
+	end
+
+	tTrailOfLight = VUHDO_getSpellTraceTrailOfLight();
+
+	if not tTrailOfLight[1] then
+		return false;
+	end
+
+	tUnitGuid = UnitGUID(aUnit);
+
+	if not tUnitGuid or tUnitGuid ~= tTrailOfLight[1][2] then
+		return false;
+	else
+		return true;
+	end
 
 end

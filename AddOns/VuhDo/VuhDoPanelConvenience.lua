@@ -67,6 +67,15 @@ end
 
 
 --
+function VUHDO_getBarIconFrameBackground(aButton, anIconNumber)
+
+	return _G[VUHDO_BAR_ICON_FRAMES[aButton][anIconNumber]:GetName() .. "Background"];
+
+end
+
+
+
+--
 function VUHDO_getBarIcon(aButton, anIconNumber)
 	return VUHDO_BAR_ICONS[aButton][anIconNumber];
 end
@@ -92,10 +101,28 @@ end
 
 --
 function VUHDO_getOrCreateCuDeButton(aButton, anIconNumber)
+
 	if not VUHDO_BAR_ICON_BUTTONS[aButton][anIconNumber] then
 		local tParentName = aButton:GetName() .. "BgBarIcBarHlBar";
 		local tFrameName = tParentName .. "Ic" .. anIconNumber;
-		VUHDO_BAR_ICON_FRAMES[aButton][anIconNumber] = CreateFrame("Button", tFrameName, _G[tParentName], "VuhDoDebuffIconTemplate");
+
+		local tBarIconFrame = CreateFrame("Button", tFrameName, _G[tParentName], "VuhDoDebuffIconTemplate");
+		local tBarIconFrameBackground = CreateFrame("Frame", tFrameName .. "Background", tBarIconFrame, "BackdropTemplate");
+
+		tBarIconFrameBackground:SetParent(tBarIconFrame);
+		tBarIconFrameBackground:SetPoint("TOPLEFT", tBarIconFrame, -1, 1);
+		tBarIconFrameBackground:SetPoint("BOTTOMRIGHT", tBarIconFrame, 1, -1);
+		tBarIconFrameBackground:SetFrameLevel(tBarIconFrame:GetFrameLevel() == 0 and 1 or tBarIconFrame:GetFrameLevel() - 1);
+
+		tBarIconFrameBackground:SetBackdrop(
+			{
+				edgeFile = "Interface\\Buttons\\WHITE8X8",
+				edgeSize = 4,
+			}
+		);
+
+		VUHDO_BAR_ICON_FRAMES[aButton][anIconNumber] = tBarIconFrame;
+
 		VUHDO_BAR_ICON_BUTTONS[aButton][anIconNumber] = _G[tFrameName.. "B"];
 		VUHDO_BAR_ICONS[aButton][anIconNumber] = _G[tFrameName .. "BI"];
 		VUHDO_BAR_ICON_TIMERS[aButton][anIconNumber] = _G[tFrameName .. "BT"];
@@ -105,6 +132,7 @@ function VUHDO_getOrCreateCuDeButton(aButton, anIconNumber)
 	end
 
 	return VUHDO_BAR_ICON_BUTTONS[aButton][anIconNumber];
+
 end
 
 

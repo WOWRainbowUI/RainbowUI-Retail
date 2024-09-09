@@ -12,6 +12,7 @@
 	<Script file="VuhDoToolbox.lua" />
 	<Script file="VuhDoBuffConst.lua" />
 	<Script file="VuhDoDebuffConst.lua" />
+	<Script file="VuhDoDebuffConstBleed.lua" />
 	<Script file="VuhDoTextProviders.lua" />
 	<Script file="VuhDoTextProviderHandler.lua" />
 	<Script file="VuhDoDefaultsBouquets.lua" />
