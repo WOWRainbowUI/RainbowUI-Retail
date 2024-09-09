@@ -26,10 +26,13 @@ if MODERN then
 		local function have1()
 			return true, false, false, 4
 		end
-		local function consume()
+		local function c1()
 			return true, false, false, 3
 		end
-		local mapMarker = consume
+		local function c100(iid)
+			return C_Item.GetItemCount(iid) > 99, false, false, 3
+		end
+		local mapMarker = c1
 		include = {
 			[33634]=true, [35797]=true, [37888]=true, [37860]=true, [37859]=true, [37815]=true, [46847]=true, [47030]=true, [39213]=true, [42986]=true, [49278]=true,
 			[86425]={31332, 31333, 31334, 31335, 31336, 31337}, [90006]=true, [86536]=true, [86534]=true,
@@ -40,9 +43,13 @@ if MODERN then
 			[199066]=mapMarker, [199067]=mapMarker, [199068]=mapMarker, [199069]=mapMarker, [200738]=mapMarker, [202667]=mapMarker, [202668]=mapMarker,
 			[202669]=mapMarker, [202670]=mapMarker,
 			[204911]=have1,
-			[205254]=consume,
-			[199192]=have1, [204359]=have1, [205226]=have1, [210549]=have1,
-			[211279]=have1, -- remix lootboxes
+			[205254]=c1, -- Honorary Explorer's Compass [dragonscale rep]
+			[199192]=have1, [204359]=have1, [205226]=have1, [210549]=have1, [227450]=have1,  -- racer's purse
+			[228741]=have1, -- lamplighter supply satchel
+			[229899]=c100, -- coffer key shard
+			[217011]=have1, [217012]=have1, [217013]=have1, -- (isle of dorn) actor's chest
+			[227792]=have1, -- everyday cache
+			[227713]=have1, -- art consortium payout
 		}
 	end
 	local includeSpell = {

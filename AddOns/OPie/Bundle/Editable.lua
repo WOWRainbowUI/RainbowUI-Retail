@@ -16,7 +16,7 @@ R:AddDefaultRing("RaidSymbols", {
 	name=L"Target Markers", hotkey="ALT-R", _u="OPCRS", v=1
 })
 do
-	local digOverload = MODERN and "/cast [in:df,nomod,near:%1$s-overload][in:df,mod,nonear:%1$s-overload] {{spell:%d}}; {{spell:%d}}"
+	local nodeOverload = MODERN and "/cast [in:df,nomod,near:%1$s-overload][in:df,mod,nonear:%1$s-overload] {{spell:%2$d}}; [in:tww,nomod,near:tww-%1$s-overload][in:tww,mod,nonear:tww-%1$s-overload] {{spell:%3$d}}; {{spell:%4$d}}"
 	local firstAid = {id="/cast {{spell:3273}}", _u="f"}
 	R:AddDefaultRing("CommonTrades", {
 		{id="/cast {{spell:3908/51309}}", _u="t"}, -- tailoring
@@ -26,7 +26,7 @@ do
 		{id="/cast {{spell:2259/51304}}", _u="a"}, -- alchemy
 		{id="/cast [mod] {{spell:818}}; {{spell:2550/51296}}; {{spell:818}}", _u="c"}, -- cooking/campfire
 		{id="/cast {{spell:4036/51306}}", _u="g"}, -- engineering
-		{id=MODERN and digOverload:format("mine", 388213, 2656) or 2656, _u="m"}, -- smelting/mining journal
+		{id=MODERN and nodeOverload:format("mine", 388213, 423394, 2656) or 2656, _u="m"}, -- smelting/mining journal
 		(MODERN or CF_WRATH) and {id="/cast [mod] {{spell:31252}}; {{spell:25229/51311}}", _u="j"} -- jewelcrafting/prospecting
 		        or firstAid,
 		(MODERN or CF_WRATH) and {id="/cast [mod] {{spell:51005}}; {{spell:45357/45363}}", _u="i"}, -- inscription/milling
@@ -36,8 +36,8 @@ do
 		MODERN and {id="/cast [mod] {{spell:131474}}; {{spell:271990}}; {{spell:131474}}", _u="fj"} -- fish journal
 		        or CF_CATA and firstAid,
 		MODERN and {id=194174, _u ="sj"}, -- skinning journal
-		MODERN and {id=digOverload:format("herb", 390392, 193290), _u="hj"}, -- herbalism journal
-		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=2
+		MODERN and {id=nodeOverload:format("herb", 390392, 423395, 193290), _u="hj"}, -- herbalism journal
+		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=3
 	})
 end
 R:AddDefaultRing("TrinketSlots", {
@@ -46,10 +46,10 @@ R:AddDefaultRing("TrinketSlots", {
 	name=L"Trinkets", _u="OPCTS", v=1
 })
 R:AddDefaultRing("OPieAutoQuest", {
-	{"extrabutton", 1, _u="EB"},
+	{"extrabutton", 1, _u="EB", fastClick=true},
 	{"zoneability", 0, _u="ZA"},
 	{"opie.autoquest", 1, _u="AC"},
-	name=L"Quest Items", hotkey="ALT-Q", _u="OPbQI", v=1
+	name=L"Quest Items", hotkey="ALT-Q", _u="OPbQI", v=2
 })
 if MODERN or CF_CATA then
 	local clearMark = {"worldmark", 0, c="ccd8e5", _u="c"}
@@ -70,23 +70,23 @@ end
 if not MODERN then return end
 
 R:AddDefaultRing("DruidShift", {
-	{id="/cancelform [noflying,noform:moonkin]\n#imp critical\n/cast [flyable,outdoors,nocombat,noswimming,nomod] {{spell:783}}; [outpost:corral,nomod,nospec:103/104] {{spell:161691}}; [swimming,nomod][flyable,nomod] {{spell:783}}; [nocombat,outdoors,nomod:alt] {{mount:ground}}; [outdoors] {{spell:783}}", fastClick=true, _u="f"}, -- Travel
-	{c="c74cff", id=24858, _u="k"}, -- Moonkin
-	{c="fff04d", id=768, _u="c"}, -- Cat
-	{c="ff0000", id=5487, _u="b"}, -- Bear
-	{id="/cancelform [noform:moonkin,noflying]\n#imp critical\n/cast {{mount:dragon}}\n/changeactionbar [nocombat,outdoors] 1", show="[advflyable]", _u="m"}, -- Mount
-	name=L"Shapeshifts", hotkey="BUTTON4", limit="DRUID", _u="OPCDS", v=2
+	{id="/cancelform [noflying,noform:moonkin]\n#imp critical\n/cast [flyable,noadvflyable,outdoors,nocombat,noswimming,nomod] {{spell:783}}; [outpost:corral,nomod,nospec:103/104] {{spell:161691}}; [swimming,nomod][flyable,noadvflyable,nomod] {{spell:783}}; [nocombat,outdoors,nomod,noform:travel] {{spell:210053}}; [nocombat,outdoors,nomod:alt] {{mount:ground}}; [advflyable] {{spell:210053}}; {{spell:783}}", fastClick=true, _u="f"}, -- Travel
+	{id=24858, c="c74cff", _u="k"}, -- Moonkin
+	{id=768, c="fff04d", _u="c"}, -- Cat
+	{id=5487, c="ff0000", _u="b"}, -- Bear
+	{id="/cancelform [noform:moonkin,noflying]\n#imp critical\n/cast [nomod,noform:stag] {{spell:783}}; {{mount:dragon}}; {{spell:783}}\n/changeactionbar [nocombat,outdoors] 1", show="[advflyable]", fastClick=true, _u="m"}, -- Mount
+	name=L"Shapeshifts", hotkey="BUTTON4", limit="DRUID", _u="OPCDS", v=3
 })
 R:AddDefaultRing("DruidUtility", {
-	{id="/cast [combat][mod,nomod:alt] {{spell:20484}}; [@target,nodead,group,nomod] {{spell:212040}}; {{spell:50769}}", _u="r"}, -- rebirth/revit/revive
+	{id="/cast [combat][mod,nomod:alt] {{spell:20484}}; [@target,dead,help,noraid,nomod] {{spell:50769}}; [group] {{spell:212040}}; {{spell:50769}}", _u="r"}, -- rebirth/revit/revive
 	{id="/cast [mod] {{spell:16914}}; {{spell:740/16914}}", _u="t"}, -- hurricane/tranq
 	{id="/cast [nomod] {{spell:22812}}; {{spell:61336/22812}}", _u="b"}, -- bark/survival
 	{id="/cast {{spell:33891/102560}}", _u="i"}, -- Incarnation
-	{id="/cast [mod][+cleanse] {{spell:88423/2782}}; {{spell:18960/193753}}", _u="p"}, -- moonglade/cleanse
+	{id="/cast [mod][@target,cleanse,nomod][@player,cleanse][+cleanse] {{spell:88423/2782}}; {{spell:18960/193753}}", _u="p"}, -- moonglade/cleanse
 	{id=29166, _u="v"}, -- innervate
 	{id=2908, _u="s"}, -- soothe
 	{id="/cast [@target,help][@player,nomod][] {{spell:1126}}", _u="w"}, -- motw
-	name=L"Utility", hotkey="[noform:bear/cat] BUTTON5; ALT-BUTTON5", limit="DRUID", _u="OPCDU", v=1
+	name=L"Utility", hotkey="[noform:bear/cat] BUTTON5; ALT-BUTTON5", limit="DRUID", _u="OPCDU", v=2
 })
 R:AddDefaultRing("DruidFeral", {
 	{id=106951, _u="k"}, -- berserk
@@ -159,6 +159,7 @@ R:AddDefaultRing("MagePolymorph", {
 do -- MageTravel
 	local m = "/cast [mod] {{spell:%s}}; {{spell:%s}}"
 	R:AddDefaultRing("MageTravel", {
+		{id=m:format(446534, 446540), _u="1"}, -- Dornogal
 		{id=m:format(395289, 395277), _u="0"}, -- Valdrakken
 		{id=m:format(344597, 344587), _u="9"}, -- Oribos
 		{id=m:format("268969/281402", "281403/281404"), _u="8"}, -- Dazar'alor/Boralus
@@ -175,7 +176,7 @@ do -- MageTravel
 		{"ring", "ExtraPortals", _u="e"}, -- Extra Portals
 		{id=m:format(32267, 32272), _u="l"}, -- Silvermoon
 		{id=m:format(32266, 32271), _u="x"}, -- Exodar
-		name=L"Portals and Teleports", hotkey="ALT-G", limit="MAGE", _u="OPCMV", v=1
+		name=L"Portals and Teleports", hotkey="ALT-G", limit="MAGE", _u="OPCMV", v=2
 	})
 	R:AddDefaultRing("ExtraPortals", {
 		{id=m:format(120146, 120145), _u="a"}, -- Ancient Dalaran
@@ -264,7 +265,8 @@ R:AddDefaultRing("CommonHearth", {
 	{"toy", 209035, _u="df"},
 	{"toy", 212337, _u="sh"},
 	{"toy", 210455, _u="dh"},
-	name=L"Hearthstones", internal=true, _u="OPCHS", v=5
+	{"toy", 228940, _u="nt"},
+	name=L"Hearthstones", internal=true, _u="OPCHS", v=6
 })
 R:AddDefaultRing("SpecMenu", {
 	{"specset", 1, _u="1"},

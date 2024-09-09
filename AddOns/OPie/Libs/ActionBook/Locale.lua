@@ -22,11 +22,11 @@ V =
       "Nueva Macro", "Mostrar sólo al equipar", "Hablidad de mascota", "Habilidades de mascota", "Marcador del mundo", "Marcador del mundo", "Marcadores del mundo", "Mostrar esta rodaja siempre", "Hechizo", "Juegete",
       "Juguetes", z, z, "Habilidades de area",
     }
-    or C == "frFR" and { -- 33/34 (97%)
+    or C == "frFR" and { -- 34/34 (100%)
       "Compétences", "Également utiliser l'élément avec le même nom", "Mascotte de combat", "Mascottes de combat", "Calendrier", "Macro personnalisée", "Monture draconique", "Set d'équipement", "Équipement de sets", "Bouton d'action supplémentaire",
       "Montures volantes", "Monture terrestre", "Fenêtre", "Objet", "Objets", "Macro", "Macros", "Divers", "Monture", "Montures",
       "Nouvelle Macro", "Afficher seulement quand équipé", "Compétence du Familier", "Compétences du familier", "Marqueur de Raid", "Marqueur de Terrain", "Marqueurs de Raid", "Afficher un remplacement quand indisponible", "Sort", "Jouet",
-      "Jouets", "Fenêtres", "Utiliser le rang le plus élevé connu", z,
+      "Jouets", "Fenêtres de l'interface", "Utiliser le rang le plus élevé connu", "Compétences de zone",
     }
     or C == "koKR" and { -- 34/34 (100%)
       "능력", "같은 이름의 아이템 사용", "애완동물 대전", "전투 애완동물", "달력", "사용자 정의 매크로", "용조련술 탈것", "장비 구성", "장비 구성", "추가 행동 버튼",

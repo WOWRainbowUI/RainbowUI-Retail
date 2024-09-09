@@ -2,6 +2,7 @@ local configCache, _, T = {}, ...
 local PC, EV, api, iapi = T.OPieCore, T.Evie, {}, {}
 local GameTooltip = T.NotGameTooltip or GameTooltip
 local max, min, abs, floor, sin, cos = math.max, math.min, math.abs, math.floor, sin, cos
+local MODERN = select(4, GetBuildInfo()) > 11e4
 local MIN_ANIMATION_FPS, LOCKED_FRAMERATE = 20, 60 do
 	local ticks = 0
 	local function unlockTick()
@@ -736,6 +737,9 @@ function api:RegisterIndicatorConstructor(key, info)
 	assert(type(onPAC) == "function" or onPAC == nil, 'RegisterIndicatorConstructor: info.onParentAlphaChanged, if set, must be a function', 2)
 
 	local mainPool, err = ValidateIndicator(apiLevel, reqAPILevel, info)
+	if MODERN and key == "elvui" and not info.fixedFrameBuffering then
+		mainPool, err = nil, 'Disabled to avoid triggering a client crash.'
+	end
 	LastRegisteredIndicatorFactory, IndicatorFactories[key] = mainPool and key or LastRegisteredIndicatorFactory, {
 		name = iname:gsub("|+", ""),
 		apiLevel = apiLevel,
@@ -747,7 +751,7 @@ function api:RegisterIndicatorConstructor(key, info)
 		onParentAlphaChanged = onPAC,
 		err = err,
 	}
-	assert(mainPool, err, 2)
+	return not not mainPool, not mainPool and err or nil
 end
 
 for k,v in pairs({IndicatorFactory="_",
