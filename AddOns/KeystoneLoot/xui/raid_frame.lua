@@ -22,6 +22,7 @@ function KeystoneLoot:CreateRaidFrame(parent)
 	Title:SetWidth(230);
 	Title:SetJustifyH('LEFT');
 	Title:SetPoint('BOTTOMLEFT', Frame, 'TOPLEFT', 48, -2);
+	Title = Mixin(Title, AutoScalingFontStringMixin);
 
 	Frame.itemFrames = {};
 	for index=1, 5 do
@@ -53,6 +54,7 @@ function KeystoneLoot:CreateRaidFrame(parent)
 				ItemButton.Icon:SetTexture(itemInfo.icon);
 				ItemButton:UpdateFavoriteStarIcon();
 				ItemButton:UpdateOtherSpecIcon();
+				ItemButton:UpdateStatVisibility();
 				ItemButton:Show();
 			else
 				ItemButton:Hide();

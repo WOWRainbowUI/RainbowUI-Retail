@@ -73,9 +73,10 @@ function KeystoneLoot:CreateDungeonFrame(parent)
 	local Title = Frame:CreateFontString('ARTWORK', nil, 'GameFontDisableLarge');
 	Frame.Title = Title;
 	Title:SetMaxLines(1);
-	Title:SetWidth(160);
+	Title:SetWidth(156);
 	Title:SetJustifyH('LEFT');
 	Title:SetPoint('BOTTOMLEFT', Frame, 'TOPLEFT', 0, 5);
+	Title = Mixin(Title, AutoScalingFontStringMixin);
 
 	Frame.itemFrames = {};
 	for index=1, 8 do
@@ -139,6 +140,7 @@ function KeystoneLoot:CreateDungeonFrame(parent)
 				ItemButton.Icon:SetTexture(itemInfo.icon);
 				ItemButton:UpdateFavoriteStarIcon();
 				ItemButton:UpdateOtherSpecIcon();
+				ItemButton:UpdateStatVisibility();
 				ItemButton:Show();
 			else
 				ItemButton:Hide();
