@@ -608,5 +608,10 @@ greater or equal the configured sale rate threshold.
 		[CraftSim.CONST.TEXT.CURRENT] = "Current",
 		[CraftSim.CONST.TEXT.MAX] = "Max",
 		[CraftSim.CONST.TEXT.CONCENTRATION_FULL] = "Concentration Full",
+		[CraftSim.CONST.TEXT.OPTIONS_GENERAL_COIN_TEXTURES] = "Use Coin Textures: ",
+		[CraftSim.CONST.TEXT.OPTIONS_GENERAL_COIN_TEXTURES_TOOLTIP] = "Use coin icons to format money",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_FIRST_CRAFTS] = "Add First Crafts",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_IGNORE_RECIPES] = "Ignore Acuity Recipes",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_IGNORE_RECIPES_TOOLTIP] = "Do not queue first crafts that use " .. f.bb("Artisan's Acuity") .. " for crafting",
     }
 end

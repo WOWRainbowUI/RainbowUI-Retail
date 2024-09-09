@@ -561,6 +561,11 @@ function CraftSim.LOCAL_TW:GetData()
 		[CraftSim.CONST.TEXT.CURRENT] = "目前",
 		[CraftSim.CONST.TEXT.MAX] = "最大值",
 		[CraftSim.CONST.TEXT.CONCENTRATION_FULL] = "專注已滿",
+		[CraftSim.CONST.TEXT.OPTIONS_GENERAL_COIN_TEXTURES] = "使用錢幣圖示: ",
+		[CraftSim.CONST.TEXT.OPTIONS_GENERAL_COIN_TEXTURES_TOOLTIP] = "使用圖案來顯示金錢",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_FIRST_CRAFTS] = "加入首次製作",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_IGNORE_RECIPES] = "忽略敏銳度配方",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_IGNORE_RECIPES_TOOLTIP] = "不要排程使用 " .. f.bb("工匠的敏銳度") .. " 的首次製作",
 		
     }
 end
