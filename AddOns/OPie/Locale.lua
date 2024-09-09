@@ -48,7 +48,8 @@ V =
       "瞭解; 仍要繼續編輯", "復原變更", "游標未移動", "游標未移動，或在環中心", "需要更新", "使用預設的環按鍵綁定", "展開時使用第一個功能", "使用整體設定", "使用功能", "使用功能後關閉環",
       "工具", "虛擬滑鼠游標", "顯示條件:", "術士戰鬥", "術士一般", "環展開時:", "世界標記圖示", "記憶體不足! 魔獸世界無法載入 OPie 已儲存的變數，請停用其它插件。\n\n現在做的任何變更都不會被儲存。", "稍後可以取消或還原成先前的設定。", "可以使用擴充的巨集條件式；詳細內容請看 %s。",
       "要使用快速功能，必須在 OPie 選項中替這個環啟用 %s 互動。", "預設", "快捷列-環形", "每個功能按鍵綁定:",
-    } or nil
+    }
+    or nil
 
 K = V and {
       "%d |4minute:minutes; ago (%s)", "%s to cancel", "%s to search within current results", "(default)", "(enter an icon name or path here)", "Add Ring", "Add a new slice", "Advance rotation after use", "All %s characters", "All %s specializations",

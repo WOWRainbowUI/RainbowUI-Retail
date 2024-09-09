@@ -40,12 +40,14 @@ function env.GetSpellInfo(id, rt)
 	end
 end
 function env.GetSpellCooldown(id)
+	id = id and C_Spell.GetOverrideSpell(id)
 	local ci = id and C_Spell.GetSpellCooldown(id)
 	if ci then
 		return ci.startTime, ci.duration, ci.isEnabled and 1 or 0, ci.modRate
 	end
 end
 function env.GetSpellCharges(id)
+	id = id and C_Spell.GetOverrideSpell(id)
 	local ci = id and C_Spell.GetSpellCharges(id)
 	if ci then
 		return ci.currentCharges, ci.maxCharges, ci.cooldownStartTime, ci.cooldownDuration, ci.chargeModRate
@@ -79,7 +81,7 @@ end
 env.Vector2DMixin = Vector2DMixin
 
 local function proxyFor(p, t)
-	setmetatable(p, {__index=t, __newindex=function(_,k,v) return rawset(t, k, v) end})
+	setmetatable(p, {__index=t, __newindex=function(_,k,v) t[k] = v end})
 end
 env._G = env
 proxyFor(env, _G)
