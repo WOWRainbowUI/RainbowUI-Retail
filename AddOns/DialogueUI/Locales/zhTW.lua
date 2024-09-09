@@ -67,7 +67,7 @@ L["TTS Button Tooltip"] = "左鍵: 開始/停止唸出內容\n右鍵: 開啟/關
 L["Item Is An Upgrade"] = "這件裝備對你有提升";
 L["Identical Stats"] = "這兩件裝備的屬性相同";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "你的戰隊已經完成此任務。");
-
+L["New Quest Available"] = "有新任務";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "獎勵 %d 聲望和 %s";
@@ -102,6 +102,7 @@ L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "停用";
 L["Move Position"] = "移動";
 L["Reset Position"] = RESET_POSITION or "重置位置";
 L["Drag To Move"] = "左鍵拖曳移動視窗。";
+L["Middle Click To Reset Position"] = "中鍵重置位置";
 
 L["Quest"] = "任務";
 L["Gossip"] = "閒聊";
@@ -167,6 +168,12 @@ L["Press Button To Scroll Down"] = "按下按鈕往下捲頁";
 L["Press Button To Scroll Down Desc"] = "如果內容超出可以看見的範圍，按下確認按鈕將向下捲動頁面而不是接受任務。";
 L["Right Click To Close UI"] = "點右鍵關閉介面";
 L["Right Click To Close UI Desc"] = "在任務對話的介面上點右鍵將它關閉。";
+L["Experimental Features"] = "實驗性";
+L["Emulate Swipe"] = "模擬滑動手勢";
+L["Emulate Swipe Desc"] = "拖曳視窗內容來上下捲動。";
+L["Mobile Device Mode"] = "手機模式";
+L["Mobile Device Mode Desc"] = "實驗性功能:\n\n加大介面和文字大小，讓小螢幕裝置更容易閱讀。";
+L["Mobile Device Mode Override Option"] = "此選項目前沒有效果，因為在控制設定中啟用了 \"手機模式\"。";
 
 L["Key Space"] = "空白";
 L["Key Interact"] = "互動";
@@ -176,6 +183,11 @@ L["Use Default Control Key Alert"] = "將會使用 [KEY:PC:SPACE] 作為確認�
 L["Key Disabled"] = "已停用";
 L["Key Disabled Tooltip"] = "確認按鈕已被停用。\n\n你將無法使用按鍵來接受任務。";
 
+L["Auto Quest Popup"] = "自動彈出任務";
+L["Auto Quest Popup Desc"] = "如果新任務是拾取物品或進入區域時自動觸發的，便先顯示彈出通知，而不是直接顯示任務的詳細內容。\n\n不適用登入時彈出的任務。";
+L["Popup Position"] = "彈出通知位置";    --Pop-up window position
+L["Widget Is Docked Generic"] = "這個小套件會和其他彈出視窗排列在一起。";   --Indicate a window is docked with other pop-up windows
+L["Widget Is Docked Named"] = "%s 會和其他彈出視窗排列在一起。";
 L["Quest Item Display"] = "顯示任務物品";
 L["Quest Item Display Desc"] = "自動顯示任務物品的說明，無需打開袋子即可使用它。";
 L["Quest Item Display Hide Seen"] = "忽略已看見的物品";
@@ -200,12 +212,20 @@ L["TTS Use Hotkey Tooltip Xbox"] = "[KEY:XBOX:LT]";
 L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
 L["TTS Auto Play"] = "自動唸出內容";
 L["TTS Auto Play Desc"] = "自動唸出對話內容。";
+L["TTS Skip Recent"] = "跳過最近唸過的內容";
+L["TTS Skip Recent Desc"] = "跳過最近唸過的內容文字。";
 L["TTS Auto Stop"] = "離開時停止";
 L["TTS Auto Stop Desc"] = "離開 NPC 時停止唸出內容。";
+L["TTS Stop On New"] = "開始新對話時停止";
+L["TTS Stop On New Desc"] = "開始瀏覽另一個不同的對話時，停止唸出之前的內容。";
 L["TTS Voice Male"] = "男聲";
 L["TTS Voice Male Desc"] = "和男角互動時使用這個聲音:";
 L["TTS Voice Female"] = "女聲";
 L["TTS Voice Female Desc"] = "和女角互動時使用這個聲音:";
+L["TTS Use Narrator"] = "旁白";
+L["TTS Use Narrator Desc"] = "使用不同的聲音唸出 NPC 名字、任務標題、任務目標和其他用 <> 括起來的文字。";
+L["TTS Voice Narrator"] = "語音";
+L["TTS Voice Narrator Desc"] = "旁白使用這個語音:";
 L["TTS Volume"] = VOLUME or "音量";
 L["TTS Volume Desc"] = "調整說話音量。";
 L["TTS Rate"] = "說話速度";
@@ -213,6 +233,7 @@ L["TTS Rate Desc"] = "調整說話速度。";
 L["TTS Include Content"] = "包含內文";
 L["TTS Content NPC Name"] = "NPC 名字";
 L["TTS Content Quest Name"] = "任務標題";
+L["TTS Content Objective"] = "任務目標";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 打開設定";

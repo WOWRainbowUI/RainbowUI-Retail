@@ -9,6 +9,7 @@ local PlaySound = addon.PlaySound;
 local ThemeUtil = addon.ThemeUtil;
 local GetPrimaryControlKey = addon.KeyboardControl.GetPrimaryControlKey;
 local RewardTooltipCode = addon.RewardTooltipCode;
+local SwipeEmulator = addon.SwipeEmulator;
 
 -- User Settings
 local SHOW_QUEST_TYPE_TEXT = true;
@@ -190,7 +191,7 @@ local function OnClickFunc_AcceptQuest(acceptButton, fromMouseClick)
 		QuestFrame.dialog = StaticPopup_Show("CONFIRM_ACCEPT_PVP_QUEST");
 	else
 		if ( QuestFrame.autoQuest ) then
-			AcknowledgeAutoAcceptQuest();
+			API.AcknowledgeAutoAcceptQuest();
 		else
 			AcceptQuest();
 		end
@@ -349,6 +350,12 @@ end
 function DUIDialogOptionButtonMixin:OnClick(button)
     if button == "LeftButton" or button == "GamePad" then
         if self.onClickFunc then
+            if button ~= "GamePad" and SwipeEmulator:ShouldConsumeClick() then
+                --KeyboardControl sends custom "button" type here
+                --Pressing key is also deemed as "GamePad"
+                --We only consume "MouseClick" when Swiping gesture finished
+                return
+            end
             --PlaySound("DIALOG_OPTION_CLICK");
             return self.onClickFunc(self, button == "LeftButton");
         end
@@ -1529,8 +1536,16 @@ function DUIDialogItemButtonMixin:SetItem(questInfoType, index)
         --Equipment's count is always 1. No itemID in Classic
         --Inventory Itemlink may not be immediately available
         self.isEquippable = true;
-        API.IsRewardItemUpgrade(questInfoType, index);
-        addon.DialogueUI:RequestItemUpgrade();
+        if not self:DoesButtonHaveMarker("upgrade") then
+            local isUpgrade, isReady = API.IsRewardItemUpgrade(questInfoType, index);
+            if isReady then
+                if isUpgrade then
+                    self:ShowUpgradeIcon();
+                end
+            else
+                addon.DialogueUI:RequestItemUpgrade();
+            end
+        end
     else
         self.isEquippable = nil;
     end
@@ -1657,6 +1672,7 @@ end
 function DUIDialogItemButtonMixin:SetRewardspell(spellID, icon, name)
     self.dynamicResize = true;
     self.objectType = "spell";
+    self.type = "reward";
     self.spellID = spellID;
     self.itemID = nil;
     self.currencyID = nil;
@@ -1677,6 +1693,7 @@ end
 function DUIDialogItemButtonMixin:SetRewardSkill(skillIcon, skillPoints, skillName, skillLineID)
     self.dynamicResize = true;
     self.objectType = "skill";
+    self.type = "reward";
     self.spellID = nil;
     self.itemID = nil;
     self.skillLineID = skillLineID;
@@ -1693,6 +1710,7 @@ end
 function DUIDialogItemButtonMixin:SetRewardTitle(titleName)
     self.dynamicResize = true;
     self.objectType = "title";
+    self.type = "reward";
     self.spellID = nil;
     self.itemID = nil;
 
@@ -1721,6 +1739,7 @@ function DUIDialogItemButtonMixin:SetRewardHonor(honor)
 
     self.dynamicResize = true;
     self.objectType = "honor";
+    self.type = "reward";
     self.spellID = nil;
     self.itemID = nil;
 
@@ -1739,6 +1758,7 @@ function DUIDialogItemButtonMixin:SetRewardFollower(followerID)
 
     self.dynamicResize = true;
     self.objectType = "follower";
+    self.type = "reward";
     self.spellID = nil;
     self.itemID = nil;
     self.followerID = followerID;
@@ -2284,7 +2304,7 @@ do
         self.Icon:SetTexture(ICON_PATH.."ItemIsUpgrade.png");
         self.Icon:SetPoint("CENTER", self, "CENTER", 0, 0);
         if playAnimation then
-            self.t = -0.8;
+            self.t = -0.5;
             self.alpha = 0;
             self.fromY = -12;
             self.toY = 0;
@@ -2348,9 +2368,9 @@ do
     function DUIDialogQuestPortraitMixin:OnHide()
         self:SetScript("OnUpdate", nil);
         self:Hide();
-        self:SetFrameAlpha(0);
         self.alpha = 0;
         self.Model:ClearModel();
+        self:SetFrameAlpha(0);
     end
 
     function DUIDialogQuestPortraitMixin:SetFrameAlpha(alpha)
@@ -2458,11 +2478,10 @@ do
 
         --BUTTON_PADDING_LARGE = baseFontSize
         HOTKEYFRAME_PADDING = math.min(8, (BUTTON_HEIGHT_LARGE - HOTKEYFRAME_SIZE)/2);
-        BUTTON_PADDING_LARGE = (2*HOTKEYFRAME_PADDING + HOTKEYFRAME_SIZE - baseFontSize)/2
+        BUTTON_PADDING_LARGE = (2*HOTKEYFRAME_PADDING + HOTKEYFRAME_SIZE - baseFontSize)/2;
         --print("HOTKEYFRAME_PADDING", HOTKEYFRAME_PADDING)
 
         CallbackRegistry:Trigger("PostFontSizeChanged");
     end
-
     CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 end

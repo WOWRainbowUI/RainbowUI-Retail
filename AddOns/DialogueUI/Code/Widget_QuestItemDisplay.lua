@@ -4,6 +4,7 @@ local L = addon.L;
 local API = addon.API;
 local C_TooltipInfo = addon.TooltipAPI;
 local ThemeUtil = addon.ThemeUtil;
+local WidgetManager = addon.WidgetManager;
 local match = string.match;
 local GetNumLetters = strlenutf8 or string.len;
 local Round = API.Round;
@@ -15,6 +16,7 @@ local After = C_Timer.After;
 -- User Settings
 local IGNORE_SEEN_ITEM = false;
 local DBKEY_POSITION = "QuestItemDisplayPosition";
+local WIDGET_NAME = L["Quest Item Display"];
 ------------------
 
 local MAX_TEXT_WIDTH = 224; --256 when font size >12
@@ -40,8 +42,9 @@ local ALWAYS_IGNORED = {};      --Some World Quest Items
 local READABLE_ITEM = ITEM_CAN_BE_READ or "<This item can be read>";
 local START_QUEST_ITEM = ITEM_STARTS_QUEST or "This Item Begins a Quest";
 
-local QuestItemDisplay = CreateFrame("Frame");
+local QuestItemDisplay = WidgetManager:CreateWidget(DBKEY_POSITION, WIDGET_NAME);
 QuestItemDisplay:Hide();
+QuestItemDisplay.isChainable = true;
 addon.QuestItemDisplay = QuestItemDisplay;
 
 function QuestItemDisplay:Init()
@@ -58,11 +61,17 @@ function QuestItemDisplay:Init()
     bg:SetAllPoints(true);
     bg:SetTexCoord(0.25, 0.5, 0.25, 0.5);
 
-    local bgShadow = self:CreateTexture(nil, "BACKGROUND", nil, -1);
-    self.BackgroundShadow = bgShadow;
+    --Workaround for TextureSlice change in 10.2.7
+    local bgShadowContainer = CreateFrame("Frame", nil, self);
+    bgShadowContainer:SetUsingParentLevel(true);
+    bgShadowContainer:SetAllPoints(true);
+    local bgShadow = bgShadowContainer:CreateTexture(nil, "BACKGROUND", nil, -1);
+    self.BackgroundShadow = bgShadowContainer;
+    self.BackgroundShadow.Texture = bgShadow;
     local margin = 24;
     bgShadow:SetTextureSliceMargins(margin, margin, margin, margin);
     bgShadow:SetTextureSliceMode(0);
+    bgShadow:SetAllPoints(true);
     bgShadow:SetTexCoord(0.515625, 0.765625, 0.25, 0.5);
 
     local icon = self:CreateTexture(nil, "ARTWORK");
@@ -127,37 +136,8 @@ function QuestItemDisplay:Init()
     ButtonIcon:SetPoint("LEFT", tbBG, "LEFT", PADDING_TEXT_BUTTON_V, 0);
     ButtonIcon:Hide();
 
-
-    --Pseudo Close Button
-    local bt = self:CreateTexture(nil, "OVERLAY");
-    self.CloseButtonTexture = bt;
-    bt:SetSize(CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE);
-    bt:SetPoint("CENTER", self, "TOPRIGHT", -8, -8);
-    bt:SetTexCoord(0, 0.125, 0.25, 0.375);
-
-    local function CreateSwipe(isRight)
-        local sw = self:CreateTexture(nil, "OVERLAY", nil, 1);
-        sw:SetSize(CLOSE_BUTTON_SIZE/2, CLOSE_BUTTON_SIZE);
-        if isRight then
-            sw:SetPoint("LEFT", bt, "CENTER", 0, 0);
-            sw:SetTexCoord(0.0625, 0.125, 0.375, 0.5);
-        else
-            sw:SetPoint("RIGHT", bt, "CENTER", 0, 0);
-            sw:SetTexCoord(0, 0.0625, 0.375, 0.5);
-        end
-
-        local mask = self:CreateMaskTexture(nil, "OVERLAY", nil, 1);
-        sw:AddMaskTexture(mask);
-        mask:SetTexture("Interface/AddOns/DialogueUI/Art/BasicShapes/Mask-RightWhite", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE");
-        mask:SetSize(CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE);
-        mask:SetPoint("CENTER", bt, "CENTER", 0, 0);
-
-        return sw, mask
-    end
-
-    self.Swipe1, self.SwipeMask1 = CreateSwipe(true);
-    self.Swipe2, self.SwipeMask2 = CreateSwipe();
-    self.SwipeMask2:SetRotation(-PI);
+    self.CloseButton = addon.WidgetManager:CreateAutoCloseButton(self);
+    self.CloseButton:SetPoint("CENTER", self, "TOPRIGHT", -8, -8);
 
     local function CreateQueueMarker()
         --Sit below the frame, marker indicates the number of items in the queue
@@ -181,6 +161,7 @@ function QuestItemDisplay:Init()
         self:UpdateQueueMarkers();
     end);
 
+    self:SetScript("OnShow", self.OnShow);
     self:SetScript("OnHide", self.OnHide);
 
     self:LoadPosition();
@@ -189,29 +170,11 @@ function QuestItemDisplay:Init()
 
     addon.PixelUtil:AddPixelPerfectObject(self);
 
-
-    --Drag to reposition
-    self:SetClampedToScreen(true);
-    self:SetMovable(true);
-    local DragFrame = CreateFrame("Frame", nil, self);
-    DragFrame:SetAllPoints(true);
-    DragFrame:SetFrameLevel(self:GetFrameLevel() + 1);
-    DragFrame:SetScript("OnEnter", self.OnEnter);
-    DragFrame:SetScript("OnLeave", self.OnLeave);
-    DragFrame:SetScript("OnMouseUp", self.OnMouseUp);
-    DragFrame:RegisterForDrag("LeftButton");
-    DragFrame:SetScript("OnDragStart", function()
-        self:StartMoving();
-        self.isMoving = true;
-    end);
-    DragFrame:SetScript("OnDragStop", function()
-        self:StopMovingOrSizing();
-        self:SavePosition();
-        self.isMoving = nil;
-    end);
-
     self:SetFrameStrata("FULLSCREEN_DIALOG");
     self:SetFixedFrameStrata(true);
+
+    self:SetScript("OnEnter", self.OnEnter);
+    self:SetScript("OnLeave", self.OnLeave);
 end
 
 function QuestItemDisplay:UpdatePixel(scale)
@@ -233,69 +196,10 @@ function QuestItemDisplay:UpdatePixel(scale)
     self.BackgroundShadow:SetPoint("TOPLEFT", self, "TOPLEFT", -offset, offset);
     self.BackgroundShadow:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", offset, -offset);
 
-    --API.UpdateTextureSliceScale(self.Background);
-    --API.UpdateTextureSliceScale(self.BackgroundShadow);
+    API.UpdateTextureSliceScale(self.Background);
+    API.UpdateTextureSliceScale(self.BackgroundShadow.Texture);
 end
 
-function QuestItemDisplay:ResetPosition()
-    if self:IsUsingCustomPosition() then
-        addon.SetDBValue(DBKEY_POSITION, nil);
-    end
-
-    self:LoadPosition();
-
-    addon.SettingsUI:RequestUpdate();
-end
-
-function QuestItemDisplay:IsUsingCustomPosition()
-    return addon.GetDBValue(DBKEY_POSITION) ~= nil
-end
-
-function QuestItemDisplay:LoadPosition()
-    local position = addon.GetDBValue(DBKEY_POSITION);
-
-    self:ClearAllPoints();
-
-    if position then
-        self:SetPoint("LEFT", UIParent, "BOTTOMLEFT", position[1], position[2]);
-    else
-        self:SetPoint("LEFT", nil, "LEFT", 32, 32);
-    end
-end
-
-function QuestItemDisplay:SavePosition()
-    local x = self:GetLeft();
-    local _, y = self:GetCenter();
-
-    if not x and y then return end;
-
-    local position = {
-        Round(x),
-        Round(y);
-    };
-
-    addon.SetDBValue(DBKEY_POSITION, position);
-
-    addon.SettingsUI:RequestUpdate();
-end
-
-local function Countdown_OnUpdate(self, elapsed)
-    self.t = self.t + elapsed;
-    self.progress = self.t / self.duration;
-
-    if self.progress >= 1 then
-        self.progress = nil;
-        self.t = nil;
-        self:SetScript("OnUpdate", nil);
-        self:OnCountdownFinished();
-        self.Swipe1:Hide();
-    elseif self.progress >= 0.5 then
-        self.SwipeMask1:SetRotation((self.progress/0.5 - 1) * PI);
-        self.Swipe2:Hide();
-    else
-        self.SwipeMask2:SetRotation((self.progress/0.5 - 1) * PI);
-    end
-end
 
 local function FadeOut_OnUpdate(self, elapsed)
     self.alpha = self.alpha - 2 * elapsed;
@@ -313,15 +217,9 @@ local function FadeOut_OnUpdate(self, elapsed)
 end
 
 function QuestItemDisplay:SetCountdown(second)
-    self.duration = second;
-    self.t = 0;
-    self.Swipe1:Show();
-    self.Swipe2:Show();
-    self.SwipeMask1:SetRotation(0);
-    self.SwipeMask2:SetRotation(-PI);
     self.isCountingDown = true;
     self.isFadingOut = nil;
-    self:SetScript("OnUpdate", Countdown_OnUpdate);
+    self.CloseButton:SetCountdown(second);
 end
 
 function QuestItemDisplay:OnCountdownFinished()
@@ -341,13 +239,10 @@ function QuestItemDisplay:LoadTheme()
     local isDarkMode = ThemeUtil:IsDarkMode();
 
     self.Background:SetTexture(file);
-    self.BackgroundShadow:SetTexture(file);
+    self.BackgroundShadow.Texture:SetTexture(file);
     self.IconBorder:SetTexture(file);
     self.TitleBackground:SetTexture(file);
     self.TextButtonBackground:SetTexture(file);
-    self.CloseButtonTexture:SetTexture(file);
-    self.Swipe1:SetTexture(file);
-    self.Swipe2:SetTexture(file);
 
     if isDarkMode then
         self.themeID = 2;
@@ -356,6 +251,8 @@ function QuestItemDisplay:LoadTheme()
         self.themeID = 1;
         ThemeUtil:SetFontColor(self.ButtonText, "Ivory");
     end
+
+    self.CloseButton:SetTheme(self.themeID);
 
     local function SetBackGround(texture)
         texture:SetTexture(file);
@@ -435,6 +332,7 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
         self:QueueItem(itemID);
         return
     end
+    self.isEditMode = false;
 
     local tooltipData = C_TooltipInfo.GetItemByID(itemID);
     if not (tooltipData and tooltipData.lines) then
@@ -543,10 +441,17 @@ function QuestItemDisplay:TryDisplayItem(itemID, isRequery)
     self.AnimIn:Stop();
     self.AnimIn:Play();
 
-    self:Show();
-
     local readTime = math.max(DURATION_MIN, 1 + (GetNumLetters(name) + (description and GetNumLetters(description) or 0) + (buttonText and GetNumLetters(buttonText) or 0)) / READING_SPEED_LETTER * 60);
     self:SetCountdown(readTime);
+
+
+    if self:IsShown() then
+        if WidgetManager:ChainContain(self) then
+            WidgetManager:ChainLayout();
+        end
+    else
+        self:Show();
+    end
 end
 
 function QuestItemDisplay:ShowTextButton(state)
@@ -728,6 +633,16 @@ function QuestItemDisplay:Clear()
     self:Hide();
 end
 
+function QuestItemDisplay:OnDragStart()
+    WidgetManager:ChainRemove(self);
+end
+
+function QuestItemDisplay:OnShow()
+    if not self:IsUsingCustomPosition() then
+        WidgetManager:ChainAdd(self);
+    end
+end
+
 function QuestItemDisplay:OnHide()
     self.isCountingDown = nil;
     self.isFadingOut = nil;
@@ -738,33 +653,29 @@ function QuestItemDisplay:OnHide()
         self.isMoving = nil;
         self:StopMovingOrSizing();
     end
-end
 
-function QuestItemDisplay:PauseAutoCloseTimer(state)
-    if self.isCountingDown then
-        if state then
-            self:SetScript("OnUpdate", nil);
-        else
-            self:SetScript("OnUpdate", Countdown_OnUpdate);
-        end
+    if not self:IsUsingCustomPosition() then
+        WidgetManager:ChainRemove(self);
     end
 end
 
 function QuestItemDisplay:OnEnter()
-    QuestItemDisplay:PauseAutoCloseTimer(true);
+    self.CloseButton:PauseAutoCloseTimer(true);
 end
 
 function QuestItemDisplay:OnLeave()
-    QuestItemDisplay:PauseAutoCloseTimer(false);
+    self.CloseButton:PauseAutoCloseTimer(false);
+end
+
+function QuestItemDisplay:Close()
+    self:Clear();
 end
 
 function QuestItemDisplay:OnMouseUp(button)
     if button == "RightButton" then
         QuestItemDisplay:Clear();
     elseif button == "LeftButton" then
-        if QuestItemDisplay.CloseButtonTexture:IsMouseOver() then
-            QuestItemDisplay:Clear();
-        end
+
     elseif button == "MiddleButton" then
         QuestItemDisplay:ResetPosition();
     end
@@ -824,7 +735,13 @@ function QuestItemDisplay:LoadSaves()
     SEEN_ITEMS_ALL = DialogueUI_Saves.QuestItems;
 end
 
-function QuestItemDisplay:EnterEditMode()
+function QuestItemDisplay:ToggleEditMode()
+    if self.isEditMode and self:IsShown() then
+        self.isEditMode = false;
+        self:Clear();
+        return
+    end
+
     if self.Init then
         self:Init();
     end
@@ -833,13 +750,17 @@ function QuestItemDisplay:EnterEditMode()
     self.ItemName:SetText(L["Quest Item Display"]);
     self.Description:SetText(L["Drag To Move"]);
     self.ItemIcon:SetTexture(134400);   --QuestionMark
-    self.Swipe1:Hide();
-    self.Swipe2:Hide();
+    self.CloseButton:StopCountdown();
     self:ShowTextButton(false);
     self:Layout(true);
     self.AnimIn:Stop();
     self.AnimIn:Play();
     self:Show();
+    self.isEditMode = true;
+
+    --if WidgetManager:ChainContain(self) then
+    --    WidgetManager:TogglePopupAnchor(true);
+    --end
 end
 
 function QuestItemDisplay:LowerFrameStrata()
@@ -858,7 +779,9 @@ function QuestItemDisplay:LowerFrameStrata()
             self:SetAlpha(0);
         end
     end
-    self:PauseAutoCloseTimer(true);
+    if self.CloseButton then
+        self.CloseButton:PauseAutoCloseTimer(true);
+    end
 end
 
 function QuestItemDisplay:RaiseFrameStrata()
@@ -871,7 +794,9 @@ function QuestItemDisplay:RaiseFrameStrata()
             self:SetAlpha(1);
         end
     end
-    self:PauseAutoCloseTimer(false);
+    if self.CloseButton then
+        self.CloseButton:PauseAutoCloseTimer(false);
+    end
 end
 
 function QuestItemDisplay:SetDynamicFrameStrata(state, userInput)
@@ -920,27 +845,37 @@ end
 
 
 do
+    local CallbackRegistry = addon.CallbackRegistry;
+
     local function GetPlayerGUID()
         PLAYER_GUID = UnitGUID("player");
         PLAYER_NAME = UnitName("player");
     end
-    addon.CallbackRegistry:Register("PLAYER_ENTERING_WORLD", GetPlayerGUID);
+    CallbackRegistry:Register("PLAYER_ENTERING_WORLD", GetPlayerGUID);
 
     local function Settings_QuestItemDisplay(dbValue)
         QuestItemDisplay:EnableModule(dbValue == true);
     end
-    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplay", Settings_QuestItemDisplay);
+    CallbackRegistry:Register("SettingChanged.QuestItemDisplay", Settings_QuestItemDisplay);
 
     local function Settings_QuestItemDisplayHideSeen(dbValue)
         IGNORE_SEEN_ITEM = dbValue == true;
     end
-    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplayHideSeen", Settings_QuestItemDisplayHideSeen);
-
+    CallbackRegistry:Register("SettingChanged.QuestItemDisplayHideSeen", Settings_QuestItemDisplayHideSeen);
 
     local function Settings_QuestItemDisplayDynamicFrameStrata(dbValue, userInput)
         QuestItemDisplay:SetDynamicFrameStrata(dbValue == true, userInput);
     end
-    addon.CallbackRegistry:Register("SettingChanged.QuestItemDisplayDynamicFrameStrata", Settings_QuestItemDisplayDynamicFrameStrata);
+    CallbackRegistry:Register("SettingChanged.QuestItemDisplayDynamicFrameStrata", Settings_QuestItemDisplayDynamicFrameStrata);
+
+    local function OnFontSizeChanged(baseFontSize)
+        if baseFontSize > 16 then
+            MAX_TEXT_WIDTH = Round(224 * baseFontSize / 16);
+        else
+            MAX_TEXT_WIDTH = 224;
+        end
+    end
+    CallbackRegistry:Register("FontSizeChanged", OnFontSizeChanged);
 end
 
 do
@@ -964,6 +899,9 @@ do
         227450,     --Sky Racer's Purse
         212493,     --Odd Glob of Wax
         228361,     --Adventurer's Cache
+        229899,     --Coffer Key Shard
+        206350,     --Radiant Remnant
+        224784,     --Pinnacle Cache
     };
 
     for _, itemID in ipairs(Items) do
@@ -973,8 +911,10 @@ do
     Items = nil;
 end
 
+--[[
 do
-    --function Debug_QuestItemDisplay(itemID)
-    --    QuestItemDisplay:TryDisplayItem(itemID or 132120);
-    --end
+    function Debug_QuestItemDisplay(itemID)
+        QuestItemDisplay:TryDisplayItem(itemID or 132120);
+    end
 end
+--]]
