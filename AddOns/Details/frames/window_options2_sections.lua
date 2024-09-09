@@ -6387,8 +6387,8 @@ do
                     Details.streamer_config.no_helptips = value
                     afterUpdate()
                 end,
-                name = "Hide Yellow Helptips", --localize-me
-                desc = "Those yellow boxes with an arrow and a text showing a text with tips.",
+                name = Loc["Hide Yellow Helptips"], --localize-me
+                desc = Loc["Those yellow boxes with an arrow and a text showing a text with tips."],
             },
 
 

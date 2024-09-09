@@ -2329,6 +2329,8 @@ L["Keep the segments with more progress in the boss health and delete the ones w
 L["Auto Erase:"] = "自動刪除:"
 L["Shadow Color"] = "陰影顏色"
 L["Color of the text shadow"] = "文字陰影的顏色"
+L["Hide Yellow Helptips"] = "隱藏黃色說明提示"
+L["Those yellow boxes with an arrow and a text showing a text with tips."] = "那些顯示提示文字，有箭頭的黃色方框。"
 
 -- frames\window_plater.lua 更改字體大小
 -- 要加上 local Loc = _G.LibStub("AceLocale-3.0"):GetLocale("Details")
