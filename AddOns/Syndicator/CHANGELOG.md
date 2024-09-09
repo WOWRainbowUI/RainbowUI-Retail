@@ -1,6 +1,7 @@
 # Syndicator
 
-## [119](https://github.com/Baganator/Syndicator/tree/119) (2024-09-06)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/118...119) 
+## [121](https://github.com/Baganator/Syndicator/tree/121) (2024-09-09)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/120...121) 
 
-- Ensure login bag caching happens after erratic BAG\_UPDATE\_DELAYED event  
+- Remove literal "and", "or" and "not" operators due to translation issues  
+    Note: The &, | and ! still exist and work fine  
