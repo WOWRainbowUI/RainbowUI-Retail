@@ -54,6 +54,7 @@ L["TTS Button Tooltip"] = "Left Click: Play/Stop Reading.\nRight Click: Toggle A
 L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
+L["New Quest Available"] = "New Quest Available";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -88,6 +89,7 @@ L["Option Disabled"] = VIDEO_OPTIONS_DISABLED or "Disabled";
 L["Move Position"] = "Move";
 L["Reset Position"] = RESET_POSITION or "Reset Position";
 L["Drag To Move"] = "Left-click and drag to move the window.";
+L["Middle Click To Reset Position"] = "Middle-click to reset position.";
 
 L["Quest"] = "Quest";
 L["Gossip"] = "Gossip";
@@ -157,6 +159,12 @@ L["Press Button To Scroll Down"] = "Press Button To Scroll Down";
 L["Press Button To Scroll Down Desc"] = "If the content is taller than the viewport, pressing the Confirm Button will scroll the page down instead of accepting quest.";
 L["Right Click To Close UI"] = "Right Click To Close UI";
 L["Right Click To Close UI Desc"] = "Right click on the dialogue UI to close it.";
+L["Experimental Features"] = "Experimental";
+L["Emulate Swipe"] = "Emulate Swipe Gesture";
+L["Emulate Swipe Desc"] = "Scroll the dialogue UI up/down by clicking and dragging on the window.";
+L["Mobile Device Mode"] = "Mobile Device Mode";
+L["Mobile Device Mode Desc"] = "Experimental Feature:\n\nIncreases UI and font size to make texts readable on small-screen devices.";
+L["Mobile Device Mode Override Option"] = "This option currently has no effect because you have enabled \"Mobile Device Mode\" in Control.";
 
 L["Key Space"] = "Space";
 L["Key Interact"] = "Interact";
@@ -166,6 +174,11 @@ L["Use Default Control Key Alert"] = "We will still use [KEY:PC:SPACE] as the Co
 L["Key Disabled"] = "Disabled";
 L["Key Disabled Tooltip"] = "Confirm Button has been disabled.\n\nYou will not be able to accept quest by pressing keys.";
 
+L["Auto Quest Popup"] = "Auto Quest Popup";
+L["Auto Quest Popup Desc"] = "If a new quest is automatically triggered by picking up an item or entering an area, the quest will be displayed on a pop-up first instead of showing quest details.\n\nQuests triggered upon login may not meet our criteria.";
+L["Popup Position"] = "Pop-up Position";    --Pop-up window position
+L["Widget Is Docked Generic"] = "This widget is docked with other pop-ups.";   --Indicate a window is docked with other pop-up windows
+L["Widget Is Docked Named"] = "%s is docked with other pop-ups.";
 L["Quest Item Display"] = "Quest Item Display";
 L["Quest Item Display Desc"] = "Auto display the quest item's description and allow you to use it without opening bags.";
 L["Quest Item Display Hide Seen"] = "Ignore Seen Items";
@@ -191,12 +204,20 @@ L["TTS Use Hotkey Tooltip PlayStation"] = "[KEY:PS:LT]";
 L["TTS Use Hotkey Tooltip Switch"] = "[KEY:SWITCH:LT]";
 L["TTS Auto Play"] = "Auto Play";
 L["TTS Auto Play Desc"] = "Auto play dialogue texts.";
-L["TTS Auto Stop"] = "Stop When Leaving";
+L["TTS Skip Recent"] = "Skip Recently Read Texts";
+L["TTS Skip Recent Desc"] = "Skip recently read texts.";
+L["TTS Auto Stop"] = "Stop On Leaving";
 L["TTS Auto Stop Desc"] = "Stop reading when you leave the NPC.";
+L["TTS Stop On New"] = "Stop On New Dialogue";
+L["TTS Stop On New Desc"] = "Stop previous reading when you start viewing a different dialogue.";
 L["TTS Voice Male"] = "Male Voice";
 L["TTS Voice Male Desc"] = "Use this voice when you interact with a male character:";
 L["TTS Voice Female"] = "Female Voice";
 L["TTS Voice Female Desc"] = "Use this voice when you interact with a female character:";
+L["TTS Use Narrator"] = "Narrator";
+L["TTS Use Narrator Desc"] = "Use a different voice to read the NPC name, quest title, objectives, and any text in <> braces.";
+L["TTS Voice Narrator"] = "Voice";
+L["TTS Voice Narrator Desc"] = "Use this voice for narrating:";
 L["TTS Volume"] = VOLUME or "Volume";
 L["TTS Volume Desc"] = "Adjust the speech volume.";
 L["TTS Rate"] = "Rate of Speech";
@@ -204,6 +225,7 @@ L["TTS Rate Desc"] = "Adjust the rate of speech.";
 L["TTS Include Content"] = "Include Content";
 L["TTS Content NPC Name"] = "NPC Name";
 L["TTS Content Quest Name"] = "Quest Title";
+L["TTS Content Objective"] = "Quest Objectives";
 
 --Tutorial
 L["Tutorial Settings Hotkey"] = "Press [KEY:PC:F1] to toggle Settings";     --Shown when interacting with an NPC with this addon for the first time
