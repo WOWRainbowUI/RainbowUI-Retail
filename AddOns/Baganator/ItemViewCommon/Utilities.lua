@@ -276,7 +276,7 @@ function addonTable.Utilities.AddScrollBar(self)
   ScrollUtil.InitScrollBoxWithScrollBar(self.ScrollBox, self.ScrollBar, CreateScrollBoxLinearView())
   ScrollUtil.AddManagedScrollBarVisibilityBehavior(self.ScrollBox, self.ScrollBar)
 
-  function self:UpdateScroll(ySaved)
+  function self:UpdateScroll(ySaved, scale)
     local sideSpacing, topSpacing = addonTable.Utilities.GetSpacing()
     self.ScrollBox:ClearAllPoints()
     self.ScrollBox:SetPoint("TOPLEFT", sideSpacing + addonTable.Constants.ButtonFrameOffset - 2 - 2, -50 - topSpacing / 4 + 2)
@@ -286,7 +286,7 @@ function addonTable.Utilities.AddScrollBar(self)
       self.Container:GetWidth() + 4,
       math.min(
         self.Container:GetHeight() + 4,
-        UIParent:GetHeight() - ySaved
+        UIParent:GetHeight() / scale - ySaved
       )
     )
     self.ScrollBox:FullUpdate(ScrollBoxConstants.UpdateImmediately)
@@ -355,4 +355,24 @@ function addonTable.Utilities.GetSpacing()
   end
 
   return sideSpacing, topSpacing
+end
+
+addonTable.Utilities.MasqueRegistration = function() end
+
+if LibStub then
+  -- Establish a reference to Masque.
+  local Masque, MSQ_Version = LibStub("Masque", true)
+  if Masque ~= nil then
+    -- Retrieve a reference to a new or existing group.
+    local masqueGroup = Masque:Group("Baganator", "Bag")
+
+    addonTable.Utilities.MasqueRegistration = function(button)
+      if button.masqueApplied then
+        masqueGroup:ReSkin(button)
+      else
+        button.masqueApplied = true
+        masqueGroup:AddButton(button, nil, "Item")
+      end
+    end
+  end
 end
