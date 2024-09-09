@@ -16,6 +16,7 @@ local sIsSideBarLeft = { };
 local sIsSideBarRight = { };
 local sShowPanels;
 local sIsHideEmptyAndClickThrough;
+local sIsPartyFrameHooked;
 local sEmpty = { };
 
 local tEmptyColor = { };
@@ -546,17 +547,38 @@ end
 
 
 --
+local function VUHDO_updateBlizzPartyFrames()
+
+	if InCombatLockdown() then
+		return;
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 3 then
+		_G["PartyFrame"]:HidePartyFrames();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 1 then
+		for tPartyMemberFrame in _G["PartyFrame"].PartyMemberFramePool:EnumerateActive() do
+			tPartyMemberFrame:Show();
+			tPartyMemberFrame:UpdateMember();
+		end
+
+		_G["PartyFrame"]:UpdatePartyMemberBackground();
+		_G["PartyFrame"]:Layout();
+	end
+
+end
+
+
+
+--
 local function VUHDO_hideBlizzParty()
 	if not EditModeManagerFrame:UseRaidStylePartyFrames() then
 		local tPartyFrame = _G["PartyFrame"];
 
-		hooksecurefunc(tPartyFrame, "UpdatePartyFrames",
-			function()
-				if not InCombatLockdown() then
-					_G["PartyFrame"]:HidePartyFrames();
-				end
-			end
-		);
+		if not sIsPartyFrameHooked then
+			hooksecurefunc(tPartyFrame, "UpdatePartyFrames", VUHDO_updateBlizzPartyFrames);
+
+			sIsPartyFrameHooked = true;
+		end
 
 		for tPartyMemberFrame in tPartyFrame.PartyMemberFramePool:EnumerateActive() do
 			VUHDO_unregisterAndSaveEvents(false, tPartyMemberFrame, tPartyMemberFrame.HealthBar, tPartyMemberFrame.ManaBar);
@@ -583,19 +605,11 @@ local function VUHDO_showBlizzParty()
 	if not EditModeManagerFrame:UseRaidStylePartyFrames() then
 		local tPartyFrame = _G["PartyFrame"];
 
-		hooksecurefunc(tPartyFrame, "UpdatePartyFrames",
-			function()
-				if not InCombatLockdown() then
-					for tPartyMemberFrame in _G["PartyFrame"].PartyMemberFramePool:EnumerateActive() do
-						tPartyMemberFrame:Show();
-						tPartyMemberFrame:UpdateMember();
-					end
+		if not sIsPartyFrameHooked then
+			hooksecurefunc(tPartyFrame, "UpdatePartyFrames", VUHDO_updateBlizzPartyFrames);
 
-					_G["PartyFrame"]:UpdatePartyMemberBackground();
-					_G["PartyFrame"]:Layout();
-				end
-			end
-		);
+			sIsPartyFrameHooked = true;
+		end
 
 		for tPartyMemberFrame in tPartyFrame.PartyMemberFramePool:EnumerateActive() do
 			VUHDO_registerOriginalEvents(false, tPartyMemberFrame, tPartyMemberFrame.HealthBar, tPartyMemberFrame.ManaBar);

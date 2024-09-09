@@ -96,6 +96,7 @@ function VUHDO_debuffsInitLocalOverrides()
 		[3] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF3"],
 		[4] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF4"],
 		[6] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF6"],
+		[8] = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF8"],
 	};
 
 	--[[if not sColorArray then
@@ -224,10 +225,10 @@ setmetatable(VUHDO_UNIT_DEBUFF_INFOS, {
 			[VUHDO_DEBUFF_TYPE_DISEASE] = { },
 			[VUHDO_DEBUFF_TYPE_MAGIC] = { },
 			[VUHDO_DEBUFF_TYPE_CURSE] = { },
+			[VUHDO_DEBUFF_TYPE_BLEED] = { },
 --			["listHeads"] = {
 --				[<CHOSEN|VUHDO_DEBUFF_TYPE>] = {
 --					["auraInstanceId"] = <aura instance ID>,
---					["next"] = <next aura>,
 --					["prev"] = <prev aura>,
 --				},
 --			},
@@ -311,7 +312,6 @@ local function VUHDO_addUnitDebuffInfo(aUnit, aType, anAuraInstanceId, anIcon, a
 
 		if tUnitDebuffInfoListPrev then
 			VUHDO_UNIT_DEBUFF_INFOS[aUnit]["listHeads"][aType]["prev"] = tUnitDebuffInfoListPrev;
-			tUnitDebuffInfoListPrev["next"] = VUHDO_UNIT_DEBUFF_INFOS[aUnit]["listHeads"][aType];
 		end
 
 		VUHDO_UNIT_DEBUFF_INFOS[aUnit][aType][1], VUHDO_UNIT_DEBUFF_INFOS[aUnit][aType][2],
@@ -347,22 +347,19 @@ local function VUHDO_removeUnitDebuffInfo(aUnit, aType, anAuraInstanceId)
 		return;
 	end
 
+	tUnitDebuffInfoNext = false;
 	tUnitDebuffInfo = VUHDO_UNIT_DEBUFF_INFOS[aUnit]["listHeads"][aType];
 
 	while tUnitDebuffInfo and tUnitDebuffInfo["auraInstanceId"] do
 		if tUnitDebuffInfo["auraInstanceId"] == anAuraInstanceId then
 			tUnitDebuffInfoPrev = tUnitDebuffInfo["prev"];
-			tUnitDebuffInfoNext = tUnitDebuffInfo["next"];
 
 			if tUnitDebuffInfoPrev and not tUnitDebuffInfoNext then
 				-- remove head
-				tUnitDebuffInfoPrev["next"] = nil;
-
 				VUHDO_UNIT_DEBUFF_INFOS[aUnit]["listHeads"][aType] = tUnitDebuffInfoPrev;
 			elseif tUnitDebuffInfoPrev and tUnitDebuffInfoNext then
 				-- remove link
 				tUnitDebuffInfoNext["prev"] = tUnitDebuffInfoPrev;
-				tUnitDebuffInfoPrev["next"] = tUnitDebuffInfoNext;
 			elseif not tUnitDebuffInfoPrev and tUnitDebuffInfoNext then
 				-- remove tail
 				tUnitDebuffInfoNext["prev"] = nil;
@@ -372,8 +369,9 @@ local function VUHDO_removeUnitDebuffInfo(aUnit, aType, anAuraInstanceId)
 
 			tUnitDebuffInfoAuras[anAuraInstanceId] = nil;
 
-			tUnitDebuffInfo = nil;
+			break;
 		else
+			tUnitDebuffInfoNext = tUnitDebuffInfo;
 			tUnitDebuffInfo = tUnitDebuffInfo["prev"];
 		end
 	end
@@ -444,7 +442,7 @@ local VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT = { VUHDO_DEBUFF_TYPE_NONE, "", nil, false
 local sCurChosenInfo = {
 	-- [<unit ID>] = {
 	--	[<aura instance ID>] = {
-	--		VUHDO_DEBUFF_TYPE_<NONE|POISON|DISEASE|MAGIC|CURSE|CUSTOM|MISSING_BUFF>,
+	--		VUHDO_DEBUFF_TYPE_<NONE|POISON|DISEASE|MAGIC|CURSE|CUSTOM|MISSING_BUFF|BLEED>,
 	--		<aura spell Id>,
 	--		<aura name>,
 	--		<isStandard: true|false>,
@@ -496,7 +494,6 @@ local function VUHDO_addCurChosen(aUnit, anAuraInstanceId, aType, aName, aSpellI
 
 		if tCurChosenPrev then
 			sCurChosenListHead[aUnit]["prev"] = tCurChosenPrev;
-			tCurChosenPrev["next"] = sCurChosenListHead[aUnit];
 		end
 
 		sCurChosen[aUnit][1], sCurChosen[aUnit][2], sCurChosen[aUnit][3], sCurChosen[aUnit][4] =
@@ -520,22 +517,19 @@ local function VUHDO_removeCurChosen(aUnit, anAuraInstanceId)
 		return;
 	end
 
+	tCurChosenNext = false;
 	tCurChosen = sCurChosenListHead[aUnit];
 
 	while tCurChosen and tCurChosen["auraInstanceId"] do
 		if tCurChosen["auraInstanceId"] == anAuraInstanceId then
 			tCurChosenPrev = tCurChosen["prev"];
-			tCurChosenNext = tCurChosen["next"];
 
 			if tCurChosenPrev and not tCurChosenNext then
 				-- remove head
-				tCurChosenPrev["next"] = nil;
-
 				sCurChosenListHead[aUnit] = tCurChosenPrev;
 			elseif tCurChosenPrev and tCurChosenNext then
 				-- remove link
 				tCurChosenNext["prev"] = tCurChosenPrev;
-				tCurChosenPrev["next"] = tCurChosenNext;
 			elseif not tCurChosenPrev and tCurChosenNext then
 				-- remove tail
 				tCurChosenNext["prev"] = nil;
@@ -545,8 +539,9 @@ local function VUHDO_removeCurChosen(aUnit, anAuraInstanceId)
 
 			sCurChosenInfo[aUnit][anAuraInstanceId] = nil;
 
-			tCurChosen = nil;
+			break;
 		else
+			tCurChosenNext = tCurChosen;
 			tCurChosen = tCurChosen["prev"];
 		end
 	end
@@ -625,6 +620,7 @@ local function VUHDO_initDebuffInfos(aUnit)
 	tUnitDebuffInfo[2][2] = nil; -- VUHDO_DEBUFF_TYPE_DISEASE
 	tUnitDebuffInfo[3][2] = nil; -- VUHDO_DEBUFF_TYPE_MAGIC
 	tUnitDebuffInfo[4][2] = nil; -- VUHDO_DEBUFF_TYPE_CURSE
+	tUnitDebuffInfo[8][2] = nil; -- VUHDO_DEBUFF_TYPE_BLEED
 
 	if not tUnitDebuffInfo["listHeads"] then
 		tUnitDebuffInfo["listHeads"] = { };
@@ -635,6 +631,7 @@ local function VUHDO_initDebuffInfos(aUnit)
 	tUnitDebuffInfo["listHeads"][2] = nil; -- VUHDO_DEBUFF_TYPE_DISEASE
 	tUnitDebuffInfo["listHeads"][3] = nil; -- VUHDO_DEBUFF_TYPE_MAGIC
 	tUnitDebuffInfo["listHeads"][4] = nil; -- VUHDO_DEBUFF_TYPE_CURSE
+	tUnitDebuffInfo["listHeads"][8] = nil; -- VUHDO_DEBUFF_TYPE_BLEED
 
 	if not tUnitDebuffInfo["typeAuras"] then
 		tUnitDebuffInfo["typeAuras"] = { };
@@ -766,7 +763,7 @@ local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, a
 		tIsShown = true;
 	end
 
-	tType = VUHDO_DEBUFF_TYPES[aTypeString];
+	tType = VUHDO_DEBUFF_BLEED_SPELLS[aSpellId] and VUHDO_DEBUFF_TYPE_BLEED or VUHDO_DEBUFF_TYPES[aTypeString];
 	tAbility = VUHDO_PLAYER_ABILITIES[tType] and UnitIsFriend("player", sUnit);
 	tIsRelevant = not VUHDO_IGNORE_DEBUFF_NAMES[aName]
 		and not (VUHDO_IGNORE_DEBUFFS_BY_CLASS[tInfo["class"] or ""] or sEmpty)[aName];

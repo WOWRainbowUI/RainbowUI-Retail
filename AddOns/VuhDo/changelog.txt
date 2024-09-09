@@ -1,3 +1,35 @@
+Version 3.175  
+  
+  
+Known issues:  
+-- Shadowlands stat squish cleanup still a work in progress  
+--   AOE Advice spell equations need complete overhaul  
+--   Some text providers need changes to better display small numbers  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed profile and key layout auto-load on LFG forced spec change  
+-- Fixed stack overflow when hiding Blizzard default party frames  
+  
+  
+Improvements:  
+-- Added new bouquet validator 'Flag: Trail of Light (Next)'  
+-- Added new default bouquet 'Trail of Light (Next)'  
+-- Added Shaman supportive imbuements to Buff Watch  
+-- Added option to display debuff state color as debuff icon border  
+-- Added new debuff type for 'Bleed' effects  
+-- Added new bouquet validator 'Flag: Debuff Bleed'  
+-- Added Evoker 'Cauterizing Flame' debuff ability  
+-- Added Paladin 'Blessing of Protection' debuff ability  
+-- Added Shaman 'Poison Cleansing Totem' debuff ability  
+  
+  
+--------------------------------------------------------------  
 Version 3.174  
   
   

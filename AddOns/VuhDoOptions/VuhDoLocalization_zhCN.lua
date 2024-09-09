@@ -652,6 +652,7 @@ VUHDO_I18N_TT.K592 = "Check this to show private aura icons on the health bar.";
 VUHDO_I18N_TT.K593 = "Select a size for your private aura icons.";
 VUHDO_I18N_TT.K594 = "Check to sort pet units last.";
 VUHDO_I18N_TT.K595 = "Show effective HP (health including shields) of player.";
+VUHDO_I18N_TT.K596 = "Click to change color to indicate players afflicted by bleed debuffs.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "预设存档";
 VUHDO_I18N_DEFAULT_LAYOUT = "预设按键配置";
@@ -1198,3 +1199,5 @@ VUHDO_I18N_PETS_LAST = "Pets last";
 
 VUHDO_I18N_SHOW_EFFECTIVE = "Show\nEffective";
 VUHDO_I18N_DEBUFF_IGNORE_IMPORTED = "Debuff ignore list successfully imported.";
+
+VUHDO_I18N_BLEED = "Bleed";

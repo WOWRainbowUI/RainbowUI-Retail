@@ -714,6 +714,18 @@ VUHDO_DEFAULT_TRAIL_OF_LIGHT_BOUQUET = {
 };
 
 
+VUHDO_DEFAULT_TRAIL_OF_LIGHT_NEXT_BOUQUET = {
+	[VUHDO_I18N_DEF_TRAIL_OF_LIGHT_NEXT] = {
+		{
+			["name"] = "TRAIL_OF_LIGHT_NEXT",
+			["mine"] = true, ["icon"] = 1,
+			["color"] = VUHDO_makeFullColorForBouquet(1, 1, 1, 1,   1, 1, 1, 1),
+			["custom"] = { [1] = 3, ["radio"] = 2, ["bright"] = 1 },
+		},
+	},
+};
+
+
 --
 VUHDO_DEFAULT_GRID_BOUQUETS = {
 	[VUHDO_I18N_GRID_MOUSEOVER_SINGLE] = {
@@ -1843,6 +1855,13 @@ function VUHDO_loadDefaultBouquets()
 	end
 	tEvokerDreamBreathEchoSpellIds = nil;
 	tEvokerReversionEchoSpellIds = nil;
+
+	if VUHDO_BOUQUETS["VERSION"] < 32 then
+		VUHDO_BOUQUETS["VERSION"] = 32;
+		VUHDO_addDefaultBouquet(VUHDO_DEFAULT_TRAIL_OF_LIGHT_NEXT_BOUQUET);
+	end
+	VUHDO_DEFAULT_TRAIL_OF_LIGHT_NEXT_BOUQUET = nil;
+
 
 	VUHDO_buildGenericHealthBarBouquet();
 	VUHDO_buildGenericTargetHealthBouquet();
