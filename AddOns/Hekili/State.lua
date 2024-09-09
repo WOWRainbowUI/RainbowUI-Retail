@@ -4685,12 +4685,12 @@ do
                         end
 
                         -- Cache the value in case it is an intermediate value (i.e., multiple calculation steps).
-                        --[[ if debug then
+                        if debug then
                             conditions = format( "%s: %s", passed and "PASS" or "FAIL", scripts:GetConditionsAndValues( scriptID ) )
                             valueString = format( "%s: %s", state.args.value ~= nil and tostring( state.args.value ) or "nil", scripts:GetModifierValues( "value", scriptID ) )
 
                             Hekili:Debug( var .. " #" .. i .. " [" .. scriptID .. "]; conditions = " .. conditions .. "\n - value = " .. valueString )
-                        end ]]
+                        end
                         state.variable[ var ] = value
                         cache[ var ][ pathKey ] = value
                     end
@@ -5266,7 +5266,7 @@ local mt_default_action = {
             return false
 
         elseif k == "cooldown_react" then
-            return false
+            return ability.remains == 0
 
         elseif k == "cast_delay" then
             return 0
@@ -6211,6 +6211,7 @@ do
             -- Perform the action.
             self:RunHandler( action )
             self.hardcast = nil
+            self.whitelist = nil
             self.removeBuff( "casting" ) -- TODO: Revisit for Casting while Casting scenarios; check Fire Mage.
 
             if wasCycling then
@@ -6228,7 +6229,8 @@ do
 
         elseif e.type == "CHANNEL_FINISH" then
             if ability.finish then ability.finish() end
-            -- self.stopChanneling( false, ability.key )
+            self.whitelist = nil
+            self.removeBuff( "casting" )
 
         elseif e.type == "PROJECTILE_IMPACT" then
             local wasCycling = self.IsCycling( nil, true )
