@@ -1864,7 +1864,7 @@ D["ParagonAnnouncer"] = {
     },
 };
 D["ParagonReputation"] = {
-    defaultEnable = 1,
+    defaultEnable = 0,
 	tags = { "ENHANCEMENT" },
 	title = "巔峰聲望",
 	desc = "顯示巔峰聲望進度、聲望獎勵的收集進度，以及領取巔峰箱的通知。`",
