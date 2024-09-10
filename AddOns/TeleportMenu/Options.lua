@@ -43,6 +43,7 @@ local optionsCategory = Settings.RegisterVerticalLayoutCategory(L["TeleportMenu"
 optionsCategory.ID = "TeleportMenu"
 
 function tpm:GetOptionsCategory()
+    DevTool:AddData(optionsCategory, "optionsCategory")
     return optionsCategory:GetID()
 end
 
