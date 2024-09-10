@@ -214,6 +214,13 @@ L['options_icons_flamegards_hope'] = '{achievement:20594}'
 L['options_icons_flamegards_hope_desc'] = '显示 {achievement:20594} 成就中的位置。'
 L['flamegards_hope_note'] = '帮助 {npc:213319} 治疗 {npc:220225} 20天。\n\n如果当前职业无法治疗，可以使用 {spell:372009} 或 {item:211878}。'
 
+L['hallowfall_sparkfly_label'] = '陨圣峪火萤'
+L['hallowfall_sparkfly_note'] = '在 {location:静石之池} 的 {object:小型钥焰} 使用3个 {item:206350} 召唤 {npc:215956}。\n\n以2个 {item:206350} 购买 {item:218107} 并使用它来揭示附近的 {npc:222308} 直到出现 {object:陨圣峪火萤}。'
+
+L['nightfarm_growthling_note'] = '在 {location:旋辉田野} 的 {object:小型钥焰} 使用3个 {item:206350} 召唤 {npc:208186}。\n\n以2个 {item:206350} 购买 {item:219148} 并使用它来揭示 {item:221546}。'
+
+L['thunder_lynx_note'] = '1. 在 {location:炬光矿脉} 的 {object:小型钥焰} 使用3个 {item:206350} 召唤 {npc:212419}。\n\n2. 与 {npc:212419} 交谈并按照所有额外的对话框提示找到 {quest:82007}。\n\n3. 找到每只小山猫：{npc:222373}（{dot:Blue}）、{npc:222372}（{dot:Green}）、{npc:222375}（{dot:Orange}）和 {npc:222374}（{dot:Red}）。\n\n{note:请确保同时开始 {quest:76169} 以接收 {item:219198} 或使用类似物品，例如 {item:219148}。需要一盏灯来照亮 {location:霜影洞穴} 内的 {npc:222373}。}\n\n4. 拯救每一只山猫幼崽并返回 {npc:212419}。'
+
 -------------------------------------------------------------------------------
 ---------------------------------- AZJ-KAHET ----------------------------------
 -------------------------------------------------------------------------------
@@ -288,7 +295,7 @@ L['options_icons_you_cant_hang_with_us'] = '{achievement:40634}'
 L['options_icons_you_cant_hang_with_us_desc'] = '显示 {achievement:40634} 成就中的位置。'
 L['you_cant_hang_with_us_note'] = '找到一个带有 {spell:434734} 增益效果的 {npc:211816} 并攻击他，会给你 {spell:443190} 负面效果（1分钟）。（{note:不要击杀他！}）会干扰并叠加 {spell:454666} 负面效果在身上。叠加至10层时，将被强制驱逐出城。'
 
-L['kej_pet_vendor_note'] = nil
+L['kej_pet_vendor_note'] = '每只宠物的库存有限，价格为2,250个 {currency:3056}。\n\n{note:任意商人的每个宠物物品的预计刷新时间为3-4小时。}'
 
 -------------------------------------------------------------------------------
 ----------------------------------- DELVES ------------------------------------
