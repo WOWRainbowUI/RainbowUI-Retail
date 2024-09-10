@@ -1,5 +1,5 @@
 		-------------------------------------------------
-		-- Paragon Reputation 1.56 by Fail US-Ragnaros --
+		-- Paragon Reputation 1.57 by Fail US-Ragnaros --
 		-------------------------------------------------
 
 		  --[[	  Special thanks to Ammako for
@@ -64,6 +64,8 @@ function ParagonReputation:Tooltip(self)
 	EmbeddedItemTooltip:AddLine(" ")
 	EmbeddedItemTooltip:AddLine(string.format(ARCHAEOLOGY_COMPLETION,self.count))
 	EmbeddedItemTooltip:AddLine(" ")
+	EmbeddedItemTooltip:SetClampedToScreen(true)
+	EmbeddedItemTooltip.paragon_clamp = true
 	EmbeddedItemTooltip:Show()
 end
 
@@ -227,4 +229,10 @@ for _,children in ipairs({ReputationFrame.ScrollBox.ScrollTarget:GetChildren()})
 end
 hooksecurefunc(ReputationEntryMixin,"Initialize",function(self)
 	UpdateBar(self)
+end)
+EmbeddedItemTooltip:HookScript("OnHide",function(self)
+	if self.paragon_clamp then
+		self:SetClampedToScreen(false)
+		self.paragon_clamp = nil
+	end
 end)
