@@ -92,9 +92,10 @@ L.Editbox_WindowWidth		= "설정 창 너비"
 L.Editbox_WindowHeight		= "설정 창 높이"
 
 L.UIGroupingOptions			= "UI 그룹 설정 (이미 로딩이 된 모드는 UI 재시작을 해야 변경됩니다)"
-L.GroupOptionsExcludeIcon	= "주문별로 형성된 그룹에서 '공격대 징표' 설정은 제외 (대신 '공격대 징표' 카테고리로 배치됩니다)"
+L.GroupOptionsExcludeIcon	= "주문 단위로 형성된 그룹에서 '공격대 징표' 설정 제외 (제외된 설정들은 '공격대 징표' 카테고리에 배치)"
+L.GroupOptionsExcludePrivateAura	= "주문 단위로 형성된 그룹에서 '비공개 오라' 효과음 설정 제외 (제외된 설정들은 '비공개 오라' 카테고리에 배치)"
 
-L.AutoExpandSpellGroups		= "주문별로 그룹이 형성된 설정들을 자동으로 펼치기"
+L.AutoExpandSpellGroups		= "주문 단위로 그룹이 형성된 설정들을 자동으로 펼치기"
 L.ShowWAKeys				= "보스 모드 활성 조건을 이용한 WeakAuras 제작을 지원하기 위해 주문 이름 옆에 WeakAuras 키를 표시합니다."
 --L.ShowSpellDescWhenExpanded	= "설정 그룹이 펼쳐진 상태에서도 주문 설명 계속 표시"--Might not be used
 L.NoDescription				= "이 능력에 대한 설명이 없습니다"
@@ -433,9 +434,10 @@ L.SpamBlockNoShowUTimers	= "사용자 전송 타이머 표시 안함 (사용자 
 L.SpamBlockNoCountdowns		= "초읽기 음성 재생 안함"
 
 L.Area_SpamFilter_Nameplates		= "이름표"
-L.SpamBlockNoNameplate				= "특수한 보스 패턴에선 이름표 아이콘을 표시 안함"
-L.SpamBlockNoNameplateCD			= "스킬 쿨타임 타이머의 이름표 아이콘을 표시 안함"
-L.SpamBlockNoBossGUIDs				= "단일 보스 전투시엔 스킬 쿨타임 이름표 아이콘을 표시 안함\n(이 설정을 활성화했어도 일반몹이나 다중 대상 보스 전투에선 아이콘이 표시됩니다)"
+L.SpamBlockNoNameplate				= "특수한 보스 패턴의 스킬 아이콘을 이름표에 표시 안함 (예: 적에게 버프나 디버프 거는 패턴)"
+L.SpamBlockNoNameplateCD			= "스킬 쿨타임 타이머 아이콘을 이름표에 표시 안함"
+L.SpamBlockNoNameplateCasts			= "스킬 시전시 아이콘을 이름표에 표시 안함"
+L.SpamBlockNoBossGUIDs				= "복합 타이머(이름표와 일반 바 둘 다 사용)를 사용하는 스킬의 쿨타임 타이머 아이콘을 이름표에 표시 안함\n(보통 던전 보스에서 적용)"
 
 L.Area_SpamFilter_Misc		= "기타"
 L.SpamBlockNoSetIcon		= "대상에 공격대 징표를 자동으로 설정하지 않음"
@@ -586,10 +588,19 @@ L.NPIconAnchorPoint		 			= "아이콘 기준점"
 L.NPDemo							= "테스트 (이름표 보이는데서만 작동)"
 L.FontTypeTimer						= "타이머 글꼴 선택"
 L.FontTypeText						= "텍스트 글꼴 선택"
-L.NPIcon_GlowBehavior 		    	= "아이콘 반짝임 설정"
+
+L.Area_NPGlow						= "반짝임 (알림: DBM이 이름표를 제어할 때만 반짝임 설정이 적용됩니다.)"
+L.NPIcon_GlowBehavior 		    	= "쿨타임 아이콘 반짝임 작동 방식"
+L.NPIcon_CastGlowBehavior 		   	= "시전 아이콘 반짝임 작동 방식"
 L.NPIcon_GlowNone			    	= "반짝임 사용 안함"
 L.NPIcon_GlowImportant			   	= "중요한 주문의 쿨타임/시전 시간 만료시 반짝임"
 L.NPIcon_GlowAll			    	= "모든 주문의 쿨타임/시전 시간 만료시 반짝임"
+L.NPIcon_GlowTypeCD		        	= "쿨타임 아이콘 반짝임 종류"
+L.NPIcon_GlowTypeCast		        = "시전 아이콘 반짝임 종류"
+L.NPIcon_Pixel  			    	= "픽셀"
+L.NPIcon_Proc  			        	= "스킬 발동"
+L.NPIcon_AutoCast					= "자동 시전"
+L.NPIcon_Button						= "버튼"
 
 -- Misc
 L.Area_General				= "일반"
