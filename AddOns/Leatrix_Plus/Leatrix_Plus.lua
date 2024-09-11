@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.0.07 (4th September 2024)
+-- 	Leatrix Plus 11.0.08 (11th September 2024)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.0.07"
+	LeaPlusLC["AddonVer"] = "11.0.08"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -5257,7 +5257,6 @@
 			LeaPlusLC:MakeTx(SideMinimap, "Cluster scale", 356, -72)
 			LeaPlusLC:MakeSL(SideMinimap, "MiniClusterScale", "Drag to set the cluster scale.", 0.5, 2, 0.1, 356, -92, "%.2f")
 
-
 			----------------------------------------------------------------------
 			-- Hide addon menu
 			----------------------------------------------------------------------
@@ -8735,8 +8734,8 @@
 			LeaPlusCB["NoCooldownDuration"]:HookScript("OnClick", SavePanelControls)
 			LeaPlusCB["CooldownsOnPlayer"]:HookScript("OnClick", SavePanelControls)
 
-			-- Help button tooltip
-			CooldownPanel.h.tiptext = L["Enter the spell IDs for the cooldown icons that you want to see.|n|nIf a cooldown icon normally appears under the pet frame, check the pet checkbox.|n|nCooldown icons are saved to your class and specialisation."]
+			-- Help button hidden
+			CooldownPanel.h:Hide()
 
 			-- Back button handler
 			CooldownPanel.b:SetScript("OnClick", function()
@@ -8794,6 +8793,9 @@
 			local specTagBanner = CooldownPanel:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
 			specTagBanner:SetPoint("TOPLEFT", 384, -72)
 			specTagBanner:SetText(specTagName)
+
+			-- Add help button
+			LeaPlusLC:CreateHelpButton("ShowCooldownsHelpButton", CooldownPanel, specTagBanner, "Enter the spell IDs for the cooldown icons that you want to see.|n|nIf a cooldown icon normally appears under the pet frame, check the pet checkbox.|n|nCooldown icons are saved to your class and specialisation.")
 
             -- Set controls when spec changes
             local swapFrame = CreateFrame("FRAME")
@@ -11786,22 +11788,18 @@
 	function LeaPlusLC:MakeSL(frame, field, caption, low, high, step, x, y, form)
 
 		-- Create slider control
-		local Slider = CreateFrame("Slider", "LeaPlusGlobalSlider" .. field, frame, "OptionssliderTemplate")
-		LeaPlusCB[field] = Slider;
+		local Slider = CreateFrame("Slider", nil, frame, "UISliderTemplate")
+		LeaPlusCB[field] = Slider
 		Slider:SetMinMaxValues(low, high)
 		Slider:SetValueStep(step)
 		Slider:EnableMouseWheel(true)
 		Slider:SetPoint('TOPLEFT', x,y)
 		Slider:SetWidth(100)
 		Slider:SetHeight(20)
-		Slider:SetHitRectInsets(0, 0, 0, 0);
+		Slider:SetHitRectInsets(0, 0, 0, 0)
 		Slider.tiptext = L[caption]
 		Slider:SetScript("OnEnter", LeaPlusLC.TipSee)
 		Slider:SetScript("OnLeave", GameTooltip_Hide)
-
-		-- Remove slider text
-		_G[Slider:GetName().."Low"]:SetText('');
-		_G[Slider:GetName().."High"]:SetText('');
 
 		-- Create slider label
 		Slider.f = Slider:CreateFontString(nil, 'BACKGROUND')
@@ -13974,7 +13972,7 @@
 				LeaPlusLC:Print(L["Checkboxes can be set to On or Off."] .. "|n")
 				for key, value in pairs(LeaPlusDB) do
 					if LeaPlusCB[key] and LeaPlusCB[key].f then
-						if not _G["LeaPlusGlobalSlider" .. key] then
+						if LeaPlusCB[key]:GetObjectType() ~= "Slider" and LeaPlusCB[key]:GetObjectType() ~= "Button" then
 							LeaPlusLC:Print(string.gsub(LeaPlusCB[key].f:GetText(), "%*$", "") .. ": |cffffffff" .. key .. "|r |cff1eff0c(" .. value .. ")|r")
 						end
 					end
@@ -13984,16 +13982,16 @@
 				LeaPlusLC:Print(L["Sliders can be set to a numeric value which must be in the range supported by the slider."] .. "|n")
 				for key, value in pairs(LeaPlusDB) do
 					if LeaPlusCB[key] and LeaPlusCB[key].f then
-						if _G["LeaPlusGlobalSlider" .. key] then
+						if LeaPlusCB[key]:GetObjectType() == "Slider" then
 							LeaPlusLC:Print("Slider: " .. "|cffffffff" .. key .. "|r |cff1eff0c(" .. value .. ")|r" .. " (" .. string.gsub(LeaPlusCB[key].f:GetText(), "%*$", "") .. ")" )
 						end
 					end
 				end
 				-- Dropdowns
 				LeaPlusLC:Print("|n" .. L["Dropdowns"] .. "|n")
-				LeaPlusLC:Print(L["Sliders can be set to a numeric value which must be in the range supported by the dropdown."] .. "|n")
+				LeaPlusLC:Print(L["Dropdowns can be set to a numeric value which must be in the range supported by the dropdown."] .. "|n")
 				for key, value in pairs(LeaPlusDB) do
-					if key and LeaPlusCB["ListFrame" .. key] then
+					if LeaPlusCB[key] and LeaPlusCB[key]:GetObjectType() == "Button" and LeaPlusLC[key] then
 						LeaPlusLC:Print("Dropdown: " .. "|cffffffff" .. key .. "|r |cff1eff0c(" .. value .. ")|r")
 					end
 				end
