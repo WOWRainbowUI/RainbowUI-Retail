@@ -1,3 +1,8 @@
+-- Colors --
+vcbMainColor = CreateColorFromRGBAHexString("F0E68CFF")
+vcbHighColor = CreateColorFromRGBAHexString("9ACD32FF")
+vcbDeafultColor = CreateColorFromRGBAHexString("FFFFFFFF")
+vcbNoColor  = CreateColorFromRGBAHexString("00000000")
 -- function for showing the menu --
 function vcbShowMenu()
 	if not vcbOptions00:IsShown() then
@@ -11,45 +16,6 @@ SLASH_VOODOOCASTINGBAR1, SLASH_VOODOOCASTINGBAR2 = '/vcb', '/voodoocastingbar'
 function SlashCmdList.VOODOOCASTINGBAR(msg, editBox)
 	vcbShowMenu()
 end
--- Colors --
-vcbMainColor = CreateColorFromRGBAHexString("F0E68CFF")
-vcbHighColor = CreateColorFromRGBAHexString("9ACD32FF")
-vcbDeafultColor = CreateColorFromRGBAHexString("FFFFFFFF")
-vcbNoColor  = CreateColorFromRGBAHexString("00000000")
--- Spell School Color --
-vcbPhysicalColor = CreateColorFromRGBAHexString("FFFF00FF") -- 1
-vcbHolyColor = CreateColorFromRGBAHexString("FFE680FF") -- 2
-vcbFireColor = CreateColorFromRGBAHexString("FF8000FF") -- 4
-vcbNatureColor = CreateColorFromRGBAHexString("4DFF4DFF") -- 8
-vcbFrostColor = CreateColorFromRGBAHexString("80FFFFFF") -- 16
-vcbShadowColor = CreateColorFromRGBAHexString("8080FFFF") -- 32
-vcbArcaneColor = CreateColorFromRGBAHexString("FF80FFFF") -- 64
-vcbHolystrikeColor = CreateColorFromRGBAHexString("FFF04DFF") -- 3
-vcbFlamestrikeColor = CreateColorFromRGBAHexString("FFB300FF") -- 5
-vcbRadiantColor = CreateColorFromRGBAHexString("FFA933FF") -- 6
-vcbStormstrikeColor = CreateColorFromRGBAHexString("A6FF27FF") -- 9
-vcbHolystormColor = CreateColorFromRGBAHexString("A6F367FF") -- 10
-vcbVolcanicColor = CreateColorFromRGBAHexString("A6C027FF") -- 12
-vcbFroststrikeColor = CreateColorFromRGBAHexString("C0FF80FF") -- 17
-vcbHolyfrostColor = CreateColorFromRGBAHexString("B3F5CCFF") -- 18
-vcbFrostfireColor = CreateColorFromRGBAHexString("C0C080FF") -- 20
-vcbFroststormColor = CreateColorFromRGBAHexString("67FFA6FF") -- 24
-vcbShadowstrikeColor = CreateColorFromRGBAHexString("B3B399FF") -- 33
-vcbTwilightColor = CreateColorFromRGBAHexString("C0B3C0FF") -- 34
-vcbShadowflameColor = CreateColorFromRGBAHexString("B38099FF") -- 36
-vcbPlagueColor = CreateColorFromRGBAHexString("67C0A6FF") -- 40
-vcbShadowfrostColor = CreateColorFromRGBAHexString("80B3FFFF") -- 48
-vcbSpellstrikeColor = CreateColorFromRGBAHexString("FFB399FF") -- 65
-vcbDivineColor = CreateColorFromRGBAHexString("FFB3C0FF") -- 66
-vcbSpellfireColor = CreateColorFromRGBAHexString("FF8080FF") -- 68
-vcbAstralColor = CreateColorFromRGBAHexString("A6C0A6FF") -- 72
-vcbSpellfrostColor = CreateColorFromRGBAHexString("C0C0FFFF") -- 80
-vcbSpellshadowColor = CreateColorFromRGBAHexString("C080FFFF") -- 96
-vcbElementalColor = CreateColorFromRGBAHexString("99D56FFF") -- 28
-vcbChromaticColor = CreateColorFromRGBAHexString("A9C78FFF") -- 62
-vcbCosmicColor = CreateColorFromRGBAHexString("C0B9DFFF") -- 106
-vcbMagicColor = CreateColorFromRGBAHexString("B7BBA2FF") -- 126
-vcbChaosColor = CreateColorFromRGBAHexString("C1C58BFF") -- 127 - 124
 -- Mini Map Button Functions --
 -- Clicky Clicky --
 function vcbMinimapClick(addonName, buttonName)
@@ -428,3 +394,37 @@ function vcbHideTicks()
 		Hide3Ticks()
 	end
 end
+-- Spell School Color --
+vcbPhysicalColor = CreateColorFromRGBAHexString("FFFF00FF") -- 1
+vcbHolyColor = CreateColorFromRGBAHexString("FFE680FF") -- 2
+vcbFireColor = CreateColorFromRGBAHexString("FF8000FF") -- 4
+vcbNatureColor = CreateColorFromRGBAHexString("4DFF4DFF") -- 8
+vcbFrostColor = CreateColorFromRGBAHexString("80FFFFFF") -- 16
+vcbShadowColor = CreateColorFromRGBAHexString("8080FFFF") -- 32
+vcbArcaneColor = CreateColorFromRGBAHexString("FF80FFFF") -- 64
+vcbHolystrikeColor = CreateColorFromRGBAHexString("FFF04DFF") -- 3
+vcbFlamestrikeColor = CreateColorFromRGBAHexString("FFB300FF") -- 5
+vcbRadiantColor = CreateColorFromRGBAHexString("FFA933FF") -- 6
+vcbStormstrikeColor = CreateColorFromRGBAHexString("A6FF27FF") -- 9
+vcbHolystormColor = CreateColorFromRGBAHexString("A6F367FF") -- 10
+vcbVolcanicColor = CreateColorFromRGBAHexString("A6C027FF") -- 12
+vcbFroststrikeColor = CreateColorFromRGBAHexString("C0FF80FF") -- 17
+vcbHolyfrostColor = CreateColorFromRGBAHexString("B3F5CCFF") -- 18
+vcbFrostfireColor = CreateColorFromRGBAHexString("C0C080FF") -- 20
+vcbFroststormColor = CreateColorFromRGBAHexString("67FFA6FF") -- 24
+vcbShadowstrikeColor = CreateColorFromRGBAHexString("B3B399FF") -- 33
+vcbTwilightColor = CreateColorFromRGBAHexString("C0B3C0FF") -- 34
+vcbShadowflameColor = CreateColorFromRGBAHexString("B38099FF") -- 36
+vcbPlagueColor = CreateColorFromRGBAHexString("67C0A6FF") -- 40
+vcbShadowfrostColor = CreateColorFromRGBAHexString("80B3FFFF") -- 48
+vcbSpellstrikeColor = CreateColorFromRGBAHexString("FFB399FF") -- 65
+vcbDivineColor = CreateColorFromRGBAHexString("FFB3C0FF") -- 66
+vcbSpellfireColor = CreateColorFromRGBAHexString("FF8080FF") -- 68
+vcbAstralColor = CreateColorFromRGBAHexString("A6C0A6FF") -- 72
+vcbSpellfrostColor = CreateColorFromRGBAHexString("C0C0FFFF") -- 80
+vcbSpellshadowColor = CreateColorFromRGBAHexString("C080FFFF") -- 96
+vcbElementalColor = CreateColorFromRGBAHexString("99D56FFF") -- 28
+vcbChromaticColor = CreateColorFromRGBAHexString("A9C78FFF") -- 62
+vcbCosmicColor = CreateColorFromRGBAHexString("C0B9DFFF") -- 106
+vcbMagicColor = CreateColorFromRGBAHexString("B7BBA2FF") -- 126
+vcbChaosColor = CreateColorFromRGBAHexString("C1C58BFF") -- 127 - 124

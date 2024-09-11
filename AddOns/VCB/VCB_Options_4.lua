@@ -1,3 +1,11 @@
+-- taking care of the panel --
+vcbOptions4.TopTxt:SetText("Create and load profiles!")
+vcbOptions4Box1.TitleTxt:SetText("Create a profile!")
+vcbOptions4Box2:SetPoint("TOP", vcbOptions4Box1, "BOTTOM", 0, 0)
+vcbOptions4Box2.TitleTxt:SetText("Load a profile!")
+vcbOptions4Box3:SetPoint("TOP", vcbOptions4Box2, "BOTTOM", 0, 0)
+vcbOptions4Box3.TitleTxt:SetText("Delete a profile!")
+vcbOptions4Box3.CenterTxt:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note: ").."When you "..vcbHighColor:WrapTextInColorCode("SAVE")..", "..vcbHighColor:WrapTextInColorCode("LOAD")..", or "..vcbHighColor:WrapTextInColorCode("DELETE").." a Profile, the UI will be RELOADED!")
 -- some variables --
 local NameExist = false
 -- finding keys --
@@ -56,14 +64,6 @@ local function DeletingProfiles()
 		end
 	end
 end
--- taking care of the panel --
-vcbOptions4.TopTxt:SetText("Create and load profiles!")
-vcbOptions4Box1.TitleTxt:SetText("Create a profile!")
-vcbOptions4Box2:SetPoint("TOP", vcbOptions4Box1, "BOTTOM", 0, 0)
-vcbOptions4Box2.TitleTxt:SetText("Load a profile!")
-vcbOptions4Box3:SetPoint("TOP", vcbOptions4Box2, "BOTTOM", 0, 0)
-vcbOptions4Box3.TitleTxt:SetText("Delete a profile!")
-vcbOptions4Box3.CenterTxt:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note: ").."When you "..vcbHighColor:WrapTextInColorCode("SAVE")..", "..vcbHighColor:WrapTextInColorCode("LOAD")..", or "..vcbHighColor:WrapTextInColorCode("DELETE").." a Profile, the UI will be RELOADED!")
 -- taking care of the edit box --
 -- width and height --
 local fontFile, height, flags = vcbOptions4Box1EditBox1.WritingLine:GetFont()

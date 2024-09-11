@@ -5,7 +5,7 @@ vcbOptions1Box1.TitleTxt:SetText("Spell's Icon & Spell's Name")
 vcbOptions1Box2.TitleTxt:SetText("Current Cast Time")
 vcbOptions1Box3.TitleTxt:SetText("Current & Total Cast Time")
 vcbOptions1Box4.TitleTxt:SetText("Total Cast Time")
-vcbOptions1Box5.TitleTxt:SetText("Latency Bar & Castingbar's Color")
+vcbOptions1Box5.TitleTxt:SetText("Latency Bar & Cast Bar's Color")
 vcbOptions1Box6.TitleTxt:SetText("Ticks of the Spells")
 -- positioning the boxes --
 for i = 2, 6, 1 do
@@ -38,12 +38,19 @@ end)
 vcbOptions1Box1PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box1PopOut1, vcbOptions1Box1PopOut1Choice0)
--- sort & clicking --
+-- naming --
+vcbOptions1Box1PopOut1Choice0.Text:SetText("Left")
+vcbOptions1Box1PopOut1Choice1.Text:SetText("Right")
+vcbOptions1Box1PopOut1Choice2.Text:SetText("Left and Right")
+vcbOptions1Box1PopOut1Choice3.Text:SetText("Hide")
+-- parent & sort --
 for i = 1, 3, 1 do
-	local k = i - 1
 	_G["vcbOptions1Box1PopOut1Choice"..i]:SetParent(vcbOptions1Box1PopOut1Choice0)
-	_G["vcbOptions1Box1PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box1PopOut1Choice"..k], "BOTTOM", 0, 0)
-	_G["vcbOptions1Box1PopOut1Choice"..k]:HookScript("OnClick", function(self, button, down)
+	_G["vcbOptions1Box1PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box1PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 3, 1 do
+	_G["vcbOptions1Box1PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["Icon"] = self.Text:GetText()
 			vcbOptions1Box1PopOut1.Text:SetText(self:GetText())
@@ -51,18 +58,6 @@ for i = 1, 3, 1 do
 		end
 	end)
 end
-vcbOptions1Box1PopOut1Choice3:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["Icon"] = self.Text:GetText()
-		vcbOptions1Box1PopOut1.Text:SetText(self:GetText())
-		vcbOptions1Box1PopOut1Choice0:Hide()
-	end
-end)
--- naming --
-vcbOptions1Box1PopOut1Choice0.Text:SetText("Left")
-vcbOptions1Box1PopOut1Choice1.Text:SetText("Right")
-vcbOptions1Box1PopOut1Choice2.Text:SetText("Left and Right")
-vcbOptions1Box1PopOut1Choice3.Text:SetText("Hide")
 -- pop out 2 Spell's Name --
 -- enter --
 vcbOptions1Box1PopOut2:SetScript("OnEnter", function(self)
@@ -73,12 +68,14 @@ end)
 vcbOptions1Box1PopOut2:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box1PopOut2, vcbOptions1Box1PopOut2Choice0)
--- sort & clicking --
+-- parent & sort --
 for i = 1, 9, 1 do
-	local k = i - 1
 	_G["vcbOptions1Box1PopOut2Choice"..i]:SetParent(vcbOptions1Box1PopOut2Choice0)
-	_G["vcbOptions1Box1PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box1PopOut2Choice"..k], "BOTTOM", 0, 0)
-	_G["vcbOptions1Box1PopOut2Choice"..k]:HookScript("OnClick", function(self, button, down)
+	_G["vcbOptions1Box1PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box1PopOut2Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 9, 1 do
+	_G["vcbOptions1Box1PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["NameText"] = self.Text:GetText()
 			vcbOptions1Box1PopOut2.Text:SetText(self:GetText())
@@ -86,13 +83,6 @@ for i = 1, 9, 1 do
 		end
 	end)
 end
-vcbOptions1Box1PopOut2Choice9:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["NameText"] = self.Text:GetText()
-		vcbOptions1Box1PopOut2.Text:SetText(self:GetText())
-		vcbOptions1Box1PopOut2Choice0:Hide()
-	end
-end)
 -- Box 2 Current Cast Time --
 -- pop out 1 Current Cast Time --
 -- enter --
@@ -104,12 +94,14 @@ end)
 vcbOptions1Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box2PopOut1, vcbOptions1Box2PopOut1Choice0)
--- sort & clicking --
+-- parent & sort --
 for i = 1, 9, 1 do
-	local k = i - 1
 	_G["vcbOptions1Box2PopOut1Choice"..i]:SetParent(vcbOptions1Box2PopOut1Choice0)
-	_G["vcbOptions1Box2PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box2PopOut1Choice"..k], "BOTTOM", 0, 0)
-	_G["vcbOptions1Box2PopOut1Choice"..k]:HookScript("OnClick", function(self, button, down)
+	_G["vcbOptions1Box2PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box2PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 9, 1 do
+	_G["vcbOptions1Box2PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["CurrentTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions1Box2PopOut1.Text:SetText(self:GetText())
@@ -117,13 +109,6 @@ for i = 1, 9, 1 do
 		end
 	end)
 end
-vcbOptions1Box2PopOut1Choice9:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["CurrentTimeText"]["Position"] = self.Text:GetText()
-		vcbOptions1Box2PopOut1.Text:SetText(self:GetText())
-		vcbOptions1Box2PopOut1Choice0:Hide()
-	end
-end)
 -- pop out 2 Current Cast Time Direction --
 -- enter --
 vcbOptions1Box2PopOut2:SetScript("OnEnter", function(self)
@@ -134,12 +119,18 @@ end)
 vcbOptions1Box2PopOut2:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box2PopOut2, vcbOptions1Box2PopOut2Choice0)
--- sort & clicking --
+-- naming --
+vcbOptions1Box2PopOut2Choice0.Text:SetText("Ascending")
+vcbOptions1Box2PopOut2Choice1.Text:SetText("Descending")
+vcbOptions1Box2PopOut2Choice2.Text:SetText("Both")
+-- parent & sort --
 for i = 1, 2, 1 do
-	local k = i - 1
 	_G["vcbOptions1Box2PopOut2Choice"..i]:SetParent(vcbOptions1Box2PopOut2Choice0)
-	_G["vcbOptions1Box2PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box2PopOut2Choice"..k], "BOTTOM", 0, 0)
-	_G["vcbOptions1Box2PopOut2Choice"..k]:HookScript("OnClick", function(self, button, down)
+	_G["vcbOptions1Box2PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box2PopOut2Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions1Box2PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["CurrentTimeText"]["Direction"] = self.Text:GetText()
 			vcbOptions1Box2PopOut2.Text:SetText(self:GetText())
@@ -147,17 +138,6 @@ for i = 1, 2, 1 do
 		end
 	end)
 end
-vcbOptions1Box2PopOut2Choice2:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["CurrentTimeText"]["Direction"] = self.Text:GetText()
-		vcbOptions1Box2PopOut2.Text:SetText(self:GetText())
-		vcbOptions1Box2PopOut2Choice0:Hide()
-	end
-end)
--- naming --
-vcbOptions1Box2PopOut2Choice0.Text:SetText("Ascending")
-vcbOptions1Box2PopOut2Choice1.Text:SetText("Descending")
-vcbOptions1Box2PopOut2Choice2.Text:SetText("Both")
 --  pop out 3 Current Cast Time Sec? --
 -- enter --
 vcbOptions1Box2PopOut3:SetScript("OnEnter", function(self)
@@ -168,26 +148,22 @@ end)
 vcbOptions1Box2PopOut3:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box2PopOut3, vcbOptions1Box2PopOut3Choice0)
--- sort & clicking --
-vcbOptions1Box2PopOut3Choice1:SetParent(vcbOptions1Box2PopOut3Choice0)
-vcbOptions1Box2PopOut3Choice1:SetPoint("TOP",vcbOptions1Box2PopOut3Choice0, "BOTTOM", 0, 0)
-vcbOptions1Box2PopOut3Choice0:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["CurrentTimeText"]["Sec"] = self.Text:GetText()
-		vcbOptions1Box2PopOut3.Text:SetText(self:GetText())
-		vcbOptions1Box2PopOut3Choice0:Hide()
-	end
-end)
-vcbOptions1Box2PopOut3Choice1:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["CurrentTimeText"]["Sec"] = self.Text:GetText()
-		vcbOptions1Box2PopOut3.Text:SetText(self:GetText())
-		vcbOptions1Box2PopOut3Choice0:Hide()
-	end
-end)
 -- naming --
 vcbOptions1Box2PopOut3Choice0.Text:SetText("Show")
 vcbOptions1Box2PopOut3Choice1.Text:SetText("Hide")
+-- parent & sort --
+vcbOptions1Box2PopOut3Choice1:SetParent(vcbOptions1Box2PopOut3Choice0)
+vcbOptions1Box2PopOut3Choice1:SetPoint("TOP",vcbOptions1Box2PopOut3Choice0, "BOTTOM", 0, 0)
+-- clicking --
+for i = 0, 1, 1 do
+	_G["vcbOptions1Box2PopOut3Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["CurrentTimeText"]["Sec"] = self.Text:GetText()
+			vcbOptions1Box2PopOut3.Text:SetText(self:GetText())
+			vcbOptions1Box2PopOut3Choice0:Hide()
+		end
+	end)
+end
 -- Box 3 Current & Total Cast Time --
 -- pop out 1 Current & Total Cast Time --
 -- enter --
@@ -199,12 +175,14 @@ end)
 vcbOptions1Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box3PopOut1, vcbOptions1Box3PopOut1Choice0)
--- sort & clicking --
+-- parent & sort --
 for i = 1, 9, 1 do
-	local k = i - 1
 	_G["vcbOptions1Box3PopOut1Choice"..i]:SetParent(vcbOptions1Box3PopOut1Choice0)
-	_G["vcbOptions1Box3PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box3PopOut1Choice"..k], "BOTTOM", 0, 0)
-	_G["vcbOptions1Box3PopOut1Choice"..k]:HookScript("OnClick", function(self, button, down)
+	_G["vcbOptions1Box3PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box3PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 9, 1 do
+	_G["vcbOptions1Box3PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["BothTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions1Box3PopOut1.Text:SetText(self:GetText())
@@ -212,13 +190,6 @@ for i = 1, 9, 1 do
 		end
 	end)
 end
-vcbOptions1Box3PopOut1Choice9:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["BothTimeText"]["Position"] = self.Text:GetText()
-		vcbOptions1Box3PopOut1.Text:SetText(self:GetText())
-		vcbOptions1Box3PopOut1Choice0:Hide()
-	end
-end)
 -- pop out 2 Current & Total Cast Time Direction --
 -- enter --
 vcbOptions1Box3PopOut2:SetScript("OnEnter", function(self)
@@ -229,12 +200,18 @@ end)
 vcbOptions1Box3PopOut2:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box3PopOut2, vcbOptions1Box3PopOut2Choice0)
--- sort & clicking --
+-- naming --
+vcbOptions1Box3PopOut2Choice0.Text:SetText("Ascending")
+vcbOptions1Box3PopOut2Choice1.Text:SetText("Descending")
+vcbOptions1Box3PopOut2Choice2.Text:SetText("Both")
+-- parent & sort --
 for i = 1, 2, 1 do
-	local k = i - 1
 	_G["vcbOptions1Box3PopOut2Choice"..i]:SetParent(vcbOptions1Box3PopOut2Choice0)
-	_G["vcbOptions1Box3PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box3PopOut2Choice"..k], "BOTTOM", 0, 0)
-	_G["vcbOptions1Box3PopOut2Choice"..k]:HookScript("OnClick", function(self, button, down)
+	_G["vcbOptions1Box3PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box3PopOut2Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions1Box3PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["BothTimeText"]["Direction"] = self.Text:GetText()
 			vcbOptions1Box3PopOut2.Text:SetText(self:GetText())
@@ -242,17 +219,6 @@ for i = 1, 2, 1 do
 		end
 	end)
 end
-vcbOptions1Box3PopOut2Choice2:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["BothTimeText"]["Direction"] = self.Text:GetText()
-		vcbOptions1Box3PopOut2.Text:SetText(self:GetText())
-		vcbOptions1Box3PopOut2Choice0:Hide()
-	end
-end)
--- naming --
-vcbOptions1Box3PopOut2Choice0.Text:SetText("Ascending")
-vcbOptions1Box3PopOut2Choice1.Text:SetText("Descending")
-vcbOptions1Box3PopOut2Choice2.Text:SetText("Both")
 -- pop out 3 Current & Total Cast Time Sec? --
 -- enter --
 vcbOptions1Box3PopOut3:SetScript("OnEnter", function(self)
@@ -263,26 +229,22 @@ end)
 vcbOptions1Box3PopOut3:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box3PopOut3, vcbOptions1Box3PopOut3Choice0)
--- sort & clicking --
-vcbOptions1Box3PopOut3Choice1:SetParent(vcbOptions1Box3PopOut3Choice0)
-vcbOptions1Box3PopOut3Choice1:SetPoint("TOP",vcbOptions1Box3PopOut3Choice0, "BOTTOM", 0, 0)
-vcbOptions1Box3PopOut3Choice0:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["BothTimeText"]["Sec"] = self.Text:GetText()
-		vcbOptions1Box3PopOut3.Text:SetText(self:GetText())
-		vcbOptions1Box3PopOut3Choice0:Hide()
-	end
-end)
-vcbOptions1Box3PopOut3Choice1:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["BothTimeText"]["Sec"] = self.Text:GetText()
-		vcbOptions1Box3PopOut3.Text:SetText(self:GetText())
-		vcbOptions1Box3PopOut3Choice0:Hide()
-	end
-end)
 -- naming --
 vcbOptions1Box3PopOut3Choice0.Text:SetText("Show")
 vcbOptions1Box3PopOut3Choice1.Text:SetText("Hide")
+-- parent & sort --
+vcbOptions1Box3PopOut3Choice1:SetParent(vcbOptions1Box3PopOut3Choice0)
+vcbOptions1Box3PopOut3Choice1:SetPoint("TOP",vcbOptions1Box3PopOut3Choice0, "BOTTOM", 0, 0)
+-- clicking --
+for i = 0, 1, 1 do
+	_G["vcbOptions1Box3PopOut3Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["BothTimeText"]["Sec"] = self.Text:GetText()
+			vcbOptions1Box3PopOut3.Text:SetText(self:GetText())
+			vcbOptions1Box3PopOut3Choice0:Hide()
+		end
+	end)
+end
 -- Box 4 Total Cast Time --
 -- pop out 1 Total Cast Time --
 -- enter --
@@ -294,12 +256,14 @@ end)
 vcbOptions1Box4PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box4PopOut1, vcbOptions1Box4PopOut1Choice0)
--- sort & clicking --
+-- parent & sort --
 for i = 1, 9, 1 do
-	local k = i - 1
 	_G["vcbOptions1Box4PopOut1Choice"..i]:SetParent(vcbOptions1Box4PopOut1Choice0)
-	_G["vcbOptions1Box4PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box4PopOut1Choice"..k], "BOTTOM", 0, 0)
-	_G["vcbOptions1Box4PopOut1Choice"..k]:HookScript("OnClick", function(self, button, down)
+	_G["vcbOptions1Box4PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box4PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- sort & clicking --
+for i = 0, 9, 1 do
+	_G["vcbOptions1Box4PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["TotalTimeText"]["Position"] = self.Text:GetText()
 			vcbOptions1Box4PopOut1.Text:SetText(self:GetText())
@@ -307,13 +271,6 @@ for i = 1, 9, 1 do
 		end
 	end)
 end
-vcbOptions1Box4PopOut1Choice9:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["TotalTimeText"]["Position"] = self.Text:GetText()
-		vcbOptions1Box4PopOut1.Text:SetText(self:GetText())
-		vcbOptions1Box4PopOut1Choice0:Hide()
-	end
-end)
 -- pop out 2 Total Cast Time Sec? --
 -- enter --
 vcbOptions1Box4PopOut2:SetScript("OnEnter", function(self)
@@ -324,27 +281,23 @@ end)
 vcbOptions1Box4PopOut2:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box4PopOut2, vcbOptions1Box4PopOut2Choice0)
--- sort & clicking --
-vcbOptions1Box4PopOut2Choice1:SetParent(vcbOptions1Box4PopOut2Choice0)
-vcbOptions1Box4PopOut2Choice1:SetPoint("TOP",vcbOptions1Box4PopOut2Choice0, "BOTTOM", 0, 0)
-vcbOptions1Box4PopOut2Choice0:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["TotalTimeText"]["Sec"] = self.Text:GetText()
-		vcbOptions1Box4PopOut2.Text:SetText(self:GetText())
-		vcbOptions1Box4PopOut2Choice0:Hide()
-	end
-end)
-vcbOptions1Box4PopOut2Choice1:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["TotalTimeText"]["Sec"] = self.Text:GetText()
-		vcbOptions1Box4PopOut2.Text:SetText(self:GetText())
-		vcbOptions1Box4PopOut2Choice0:Hide()
-	end
-end)
 -- naming --
 vcbOptions1Box4PopOut2Choice0.Text:SetText("Show")
 vcbOptions1Box4PopOut2Choice1.Text:SetText("Hide")
--- Box 4 Lag Bar & Castbar's Color --
+-- parent & sort --
+vcbOptions1Box4PopOut2Choice1:SetParent(vcbOptions1Box4PopOut2Choice0)
+vcbOptions1Box4PopOut2Choice1:SetPoint("TOP",vcbOptions1Box4PopOut2Choice0, "BOTTOM", 0, 0)
+-- sort & clicking --
+for i = 0, 1, 1 do
+	_G["vcbOptions1Box4PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["TotalTimeText"]["Sec"] = self.Text:GetText()
+			vcbOptions1Box4PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box4PopOut2Choice0:Hide()
+		end
+	end)
+end
+-- Box 5 Lag Bar & Castbar's Color --
 -- pop out 1 Lag Bar --
 -- enter --
 vcbOptions1Box5PopOut1:SetScript("OnEnter", function(self)
@@ -355,26 +308,22 @@ end)
 vcbOptions1Box5PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box5PopOut1, vcbOptions1Box5PopOut1Choice0)
--- sort & clicking --
-vcbOptions1Box5PopOut1Choice1:SetParent(vcbOptions1Box5PopOut1Choice0)
-vcbOptions1Box5PopOut1Choice1:SetPoint("TOP",vcbOptions1Box5PopOut1Choice0, "BOTTOM", 0, 0)
-vcbOptions1Box5PopOut1Choice0:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["LagBar"] = self.Text:GetText()
-		vcbOptions1Box5PopOut1.Text:SetText(self:GetText())
-		vcbOptions1Box5PopOut1Choice0:Hide()
-	end
-end)
-vcbOptions1Box5PopOut1Choice1:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["LagBar"] = self.Text:GetText()
-		vcbOptions1Box5PopOut1.Text:SetText(self:GetText())
-		vcbOptions1Box5PopOut1Choice0:Hide()
-	end
-end)
 -- naming --
 vcbOptions1Box5PopOut1Choice0.Text:SetText("Show")
 vcbOptions1Box5PopOut1Choice1.Text:SetText("Hide")
+-- parent & sort --
+vcbOptions1Box5PopOut1Choice1:SetParent(vcbOptions1Box5PopOut1Choice0)
+vcbOptions1Box5PopOut1Choice1:SetPoint("TOP",vcbOptions1Box5PopOut1Choice0, "BOTTOM", 0, 0)
+-- clicking --
+for i = 0, 1, 1 do
+	_G["vcbOptions1Box5PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["LagBar"] = self.Text:GetText()
+			vcbOptions1Box5PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box5PopOut1Choice0:Hide()
+		end
+	end)
+end
 -- pop out 2 Castbar's Color --
 -- enter --
 vcbOptions1Box5PopOut2:SetScript("OnEnter", function(self)
@@ -385,36 +334,25 @@ end)
 vcbOptions1Box5PopOut2:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box5PopOut2, vcbOptions1Box5PopOut2Choice0)
--- sort & clicking --
-vcbOptions1Box5PopOut2Choice1:SetParent(vcbOptions1Box5PopOut2Choice0)
-vcbOptions1Box5PopOut2Choice1:SetPoint("TOP",vcbOptions1Box5PopOut2Choice0, "BOTTOM", 0, 0)
-vcbOptions1Box5PopOut2Choice2:SetParent(vcbOptions1Box5PopOut2Choice0)
-vcbOptions1Box5PopOut2Choice2:SetPoint("TOP",vcbOptions1Box5PopOut2Choice1, "BOTTOM", 0, 0)
-vcbOptions1Box5PopOut2Choice0:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["Color"] = self.Text:GetText()
-		vcbOptions1Box5PopOut2.Text:SetText(self:GetText())
-		vcbOptions1Box5PopOut2Choice0:Hide()
-	end
-end)
-vcbOptions1Box5PopOut2Choice1:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["Color"] = self.Text:GetText()
-		vcbOptions1Box5PopOut2.Text:SetText(self:GetText())
-		vcbOptions1Box5PopOut2Choice0:Hide()
-	end
-end)
-vcbOptions1Box5PopOut2Choice2:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["Color"] = self.Text:GetText()
-		vcbOptions1Box5PopOut2.Text:SetText(self:GetText())
-		vcbOptions1Box5PopOut2Choice0:Hide()
-	end
-end)
 -- naming --
 vcbOptions1Box5PopOut2Choice0.Text:SetText("Default Color")
 vcbOptions1Box5PopOut2Choice1.Text:SetText("Class' Color")
 vcbOptions1Box5PopOut2Choice2.Text:SetText("Spell School Color")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions1Box5PopOut2Choice"..i]:SetParent(vcbOptions1Box5PopOut2Choice0)
+	_G["vcbOptions1Box5PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box5PopOut2Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions1Box5PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["Color"] = self.Text:GetText()
+			vcbOptions1Box5PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box5PopOut2Choice0:Hide()
+		end
+	end)
+end
 -- Box 6 Ticks of the Spells --
 -- pop out 1 Ticks of the Spells --
 -- enter --
@@ -426,50 +364,46 @@ end)
 vcbOptions1Box6PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 -- drop down --
 vcbClickPopOut(vcbOptions1Box6PopOut1, vcbOptions1Box6PopOut1Choice0)
--- sort & clicking --
-vcbOptions1Box6PopOut1Choice1:SetParent(vcbOptions1Box6PopOut1Choice0)
-vcbOptions1Box6PopOut1Choice1:SetPoint("TOP",vcbOptions1Box6PopOut1Choice0, "BOTTOM", 0, 0)
-vcbOptions1Box6PopOut1Choice0:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["Ticks"] = self.Text:GetText()
-		vcbOptions1Box6PopOut1.Text:SetText(self:GetText())
-		vcbOptions1Box6PopOut1Choice0:Hide()
-	end
-end)
-vcbOptions1Box6PopOut1Choice1:HookScript("OnClick", function(self, button, down)
-	if button == "LeftButton" and down == false then
-		VCBrPlayer["Ticks"] = self.Text:GetText()
-		vcbOptions1Box6PopOut1.Text:SetText(self:GetText())
-		vcbOptions1Box6PopOut1Choice0:Hide()
-	end
-end)
 -- naming --
 vcbOptions1Box6PopOut1Choice0.Text:SetText("Show")
 vcbOptions1Box6PopOut1Choice1.Text:SetText("Hide")
+-- parent & sort --
+vcbOptions1Box6PopOut1Choice1:SetParent(vcbOptions1Box6PopOut1Choice0)
+vcbOptions1Box6PopOut1Choice1:SetPoint("TOP",vcbOptions1Box6PopOut1Choice0, "BOTTOM", 0, 0)
+-- sort & clicking --
+for i = 0, 1, 1 do
+	_G["vcbOptions1Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["Ticks"] = self.Text:GetText()
+			vcbOptions1Box6PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box6PopOut1Choice0:Hide()
+		end
+end)
+end
 -- naming button choices for spell's name, current cast time, current & total time, and total time --
 for i = 1, 4, 1 do
 	if i == 1 then
-		_G["vcbOptions1Box"..i.."PopOut2Choice0"].Text:SetText("Top Left")
-		_G["vcbOptions1Box"..i.."PopOut2Choice1"].Text:SetText("Left")
-		_G["vcbOptions1Box"..i.."PopOut2Choice2"].Text:SetText("Bottom Left")
-		_G["vcbOptions1Box"..i.."PopOut2Choice3"].Text:SetText("Top")
-		_G["vcbOptions1Box"..i.."PopOut2Choice4"].Text:SetText("Center")
-		_G["vcbOptions1Box"..i.."PopOut2Choice5"].Text:SetText("Bottom")
-		_G["vcbOptions1Box"..i.."PopOut2Choice6"].Text:SetText("Top Right")
-		_G["vcbOptions1Box"..i.."PopOut2Choice7"].Text:SetText("Right")
-		_G["vcbOptions1Box"..i.."PopOut2Choice8"].Text:SetText("Bottom Right")
-		_G["vcbOptions1Box"..i.."PopOut2Choice9"].Text:SetText("Hide")
+		_G["vcbOptions1Box"..i.."PopOut2Choice0"].Text:SetText("Hide")
+		_G["vcbOptions1Box"..i.."PopOut2Choice1"].Text:SetText("Top Left")
+		_G["vcbOptions1Box"..i.."PopOut2Choice2"].Text:SetText("Left")
+		_G["vcbOptions1Box"..i.."PopOut2Choice3"].Text:SetText("Bottom Left")
+		_G["vcbOptions1Box"..i.."PopOut2Choice4"].Text:SetText("Top")
+		_G["vcbOptions1Box"..i.."PopOut2Choice5"].Text:SetText("Center")
+		_G["vcbOptions1Box"..i.."PopOut2Choice6"].Text:SetText("Bottom")
+		_G["vcbOptions1Box"..i.."PopOut2Choice7"].Text:SetText("Top Right")
+		_G["vcbOptions1Box"..i.."PopOut2Choice8"].Text:SetText("Right")
+		_G["vcbOptions1Box"..i.."PopOut2Choice9"].Text:SetText("Bottom Right")
 	else
-		_G["vcbOptions1Box"..i.."PopOut1Choice0"].Text:SetText("Top Left")
-		_G["vcbOptions1Box"..i.."PopOut1Choice1"].Text:SetText("Left")
-		_G["vcbOptions1Box"..i.."PopOut1Choice2"].Text:SetText("Bottom Left")
-		_G["vcbOptions1Box"..i.."PopOut1Choice3"].Text:SetText("Top")
-		_G["vcbOptions1Box"..i.."PopOut1Choice4"].Text:SetText("Center")
-		_G["vcbOptions1Box"..i.."PopOut1Choice5"].Text:SetText("Bottom")
-		_G["vcbOptions1Box"..i.."PopOut1Choice6"].Text:SetText("Top Right")
-		_G["vcbOptions1Box"..i.."PopOut1Choice7"].Text:SetText("Right")
-		_G["vcbOptions1Box"..i.."PopOut1Choice8"].Text:SetText("Bottom Right")
-		_G["vcbOptions1Box"..i.."PopOut1Choice9"].Text:SetText("Hide")
+		_G["vcbOptions1Box"..i.."PopOut1Choice0"].Text:SetText("Hide")
+		_G["vcbOptions1Box"..i.."PopOut1Choice1"].Text:SetText("Top Left")
+		_G["vcbOptions1Box"..i.."PopOut1Choice2"].Text:SetText("Left")
+		_G["vcbOptions1Box"..i.."PopOut1Choice3"].Text:SetText("Bottom Left")
+		_G["vcbOptions1Box"..i.."PopOut1Choice4"].Text:SetText("Top")
+		_G["vcbOptions1Box"..i.."PopOut1Choice5"].Text:SetText("Center")
+		_G["vcbOptions1Box"..i.."PopOut1Choice6"].Text:SetText("Bottom")
+		_G["vcbOptions1Box"..i.."PopOut1Choice7"].Text:SetText("Top Right")
+		_G["vcbOptions1Box"..i.."PopOut1Choice8"].Text:SetText("Right")
+		_G["vcbOptions1Box"..i.."PopOut1Choice9"].Text:SetText("Bottom Right")
 	end
 end
 -- Showing the panel --

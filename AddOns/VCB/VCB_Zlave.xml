@@ -10,6 +10,8 @@
 				self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 				self:RegisterEvent("UNIT_SPELLCAST_SENT")
 				self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+				self:RegisterEvent("PLAYER_FOCUS_CHANGED")
+				self:RegisterEvent("PLAYER_TARGET_CHANGED")
 			</OnLoad>
 		</Scripts>
 	</Frame>
