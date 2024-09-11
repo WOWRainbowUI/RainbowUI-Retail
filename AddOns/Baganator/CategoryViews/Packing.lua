@@ -22,34 +22,40 @@ function addonTable.CategoryViews.PackSimple(activeLayouts, activeLabels, baseOf
   local wrapIndex = 1
   local prevHeight = 0
 
-  local function ArrangeRow()
+  local function PredictRow()
     local offsetX = 0
-    prevHeight = 0
     for _, details in ipairs(categoriesInRow) do
-      local layout, label = details.layout, details.label
-      local targetWidth = math.ceil(#layout.buttons / wrapIndex)
-      layout:Flow(targetWidth, wrapIndex)
-      layout:Show()
-      label:Resize()
-      label:Show()
-      label:SetPoint("TOPLEFT", offsetX + baseOffsetX, offsetY + baseOffsetY)
-      label:SetWidth(math.min(layout:GetWidth() + categorySpacing, targetPixelWidth - offsetX))
-      layout:ClearAllPoints()
-      layout:SetPoint("TOPLEFT", offsetX + baseOffsetX, offsetY + baseOffsetY - label:GetHeight() - headerPadding / 2)
-      prevHeight = math.max(layout:GetHeight() + label:GetHeight() + headerPadding * 3/2, prevHeight)
-      details.offsetX = offsetX
-      offsetX = offsetX + layout:GetWidth()
+      local targetWidth = math.min(bagWidth, math.ceil(#details.layout.buttons/math.min(details.wrapLimit, wrapIndex)))
+      details.targetWidth = targetWidth
+      offsetX = offsetX + targetWidth * (iconSize + iconPadding) - iconPadding
       if offsetX > targetPixelWidth then
         return false
       end
       offsetX = offsetX + categorySpacing + iconPadding
     end
-    lastOffsetX = offsetX - categorySpacing - iconPadding
     return true
+  end
+  local function ArrangeRow()
+    local offsetX = 0
+    prevHeight = 0
+    for _, details in ipairs(categoriesInRow) do
+      local layout, label = details.layout, details.label
+      layout:Flow(details.targetWidth)
+      layout:Show()
+      label:Resize()
+      label:Show()
+      label:SetPoint("TOPLEFT", offsetX + baseOffsetX, offsetY + baseOffsetY)
+      label:SetWidth(math.min(layout:GetWidth() + categorySpacing, targetPixelWidth - offsetX))
+      layout:SetPoint("TOPLEFT", offsetX + baseOffsetX, offsetY + baseOffsetY - label:GetHeight() - headerPadding / 2)
+      prevHeight = math.max(layout:GetHeight() + label:GetHeight() + headerPadding * 3/2, prevHeight)
+      details.offsetX = offsetX
+      offsetX = offsetX + layout:GetWidth() + categorySpacing + iconPadding
+    end
+    lastOffsetX = offsetX - categorySpacing - iconPadding
   end
 
   local function NewLine()
-    local labelOffsetX = categorySpacing - iconPadding - prevLayout:GetWidth()
+    ArrangeRow()
     offsetY = offsetY - prevHeight
     maxWidth = math.max(maxWidth, lastOffsetX)
     table.insert(endOfLineLabels, categoriesInRow[#categoriesInRow])
@@ -79,26 +85,40 @@ function addonTable.CategoryViews.PackSimple(activeLayouts, activeLabels, baseOf
       offsetY = offsetY - layout:GetHeight() - headerPadding
       prevLayout = layout
     elseif layout.type == "category" and #layout.buttons > 0 then
-      table.insert(categoriesInRow, {layout = layout, label = activeLabels[index]})
-      local oldWrapIndex  = wrapIndex
-      while not ArrangeRow() do
+      table.insert(categoriesInRow, {layout = layout, label = activeLabels[index], rootLimit = math.ceil(math.max(math.log(#layout.buttons)/math.log(3), 1)), goldenLimit = math.max(math.floor(math.sqrt(#layout.buttons/1.618)), 1)})
+      local oldWrapIndex = wrapIndex
+        if wrapIndex > 1 then
+          for _, details in ipairs(categoriesInRow) do
+            details.wrapLimit = details.rootLimit
+          end
+        else
+          for _, details in ipairs(categoriesInRow) do
+            details.wrapLimit = details.goldenLimit
+          end
+        end
+      while not PredictRow() do
         wrapIndex = wrapIndex + 1
-        local bail = false
+        local bail = true
         for _, details in ipairs(categoriesInRow) do
-          if not details.layout:TestWrap(wrapIndex) and wrapIndex > 1 and not details.layout:TestWrap(wrapIndex - 1) then
-            wrapIndex = oldWrapIndex
-            bail = true
-            break
+          bail = bail and details.goldenLimit < wrapIndex
+        end
+        if wrapIndex > 1 then
+          for _, details in ipairs(categoriesInRow) do
+            details.wrapLimit = details.rootLimit
+          end
+        else
+          for _, details in ipairs(categoriesInRow) do
+            details.wrapLimit = details.goldenLimit
           end
         end
         if bail then
+          wrapIndex = oldWrapIndex
+          PredictRow()
           local details = table.remove(categoriesInRow)
-          ArrangeRow()
           NewLine()
           table.insert(categoriesInRow, details)
-          while not ArrangeRow() do
+          while not PredictRow() do
             wrapIndex = wrapIndex + 1
-            ArrangeRow()
           end
           break
         end
@@ -107,6 +127,10 @@ function addonTable.CategoryViews.PackSimple(activeLayouts, activeLabels, baseOf
     end
   end
   maxWidth = math.max(maxWidth, lastOffsetX)
+
+  if #categoriesInRow > 0 then
+    ArrangeRow()
+  end
 
   for _, layout in ipairs(activeLayouts) do -- Ensure dividers don't overflow when width is reduced
     if layout.type == "divider" or layout.type == "section" then
