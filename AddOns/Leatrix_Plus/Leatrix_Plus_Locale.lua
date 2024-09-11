@@ -405,7 +405,6 @@ L["If checked, additional font sizes will be available in the chat frame font si
 L["If checked, addon buttons will be combined into a single button frame which you can toggle by right-clicking the minimap.|n|nNote that enabling this option will lock out the 'Hide addon buttons' setting."] = "勾选后，插件按钮会被整合在一起，你可以右键点击小地图打开它。|n|n启用这个选项会锁定设置“隐藏插件按钮”。"
 L["If checked, addon buttons will be hidden while the pointer is not over the minimap."] = "勾选后，插件按钮仅当你指向小地图时显示。"
 L["If checked, airships will be muted.|n|nThis applies to airship mounts and transports."] = "勾选后，飞船将被静音。|n|n这个应用于飞船坐骑及飞艇。"
-L["If checked, alert frames will not be shown."] = "勾选后，通知提示框体不再显示。"
 L["If checked, all grey items in your bags will be sold automatically when you visit a merchant.|n|nYou can hold the shift key down when you talk to a merchant to override this setting."] = "勾选后，当你访问商贩时将自动出售背包中的杂物。|n|n当你访问时按住Shift键，可以暂时忽略该功能。"
 L["If checked, an animation slider will be shown in the dressing room."] = "勾选后，一个动画滑块会显示在试衣间。"
 L["If checked, backdrops will be tinted blue (friendly) or red (hostile)."] = "勾选后，信息窗口的边框会更改为蓝色（右方）或者红色（敌方）。"
@@ -1579,7 +1578,6 @@ L["If checked, additional font sizes will be available in the chat frame font si
 L["If checked, addon buttons will be combined into a single button frame which you can toggle by right-clicking the minimap.|n|nNote that enabling this option will lock out the 'Hide addon buttons' setting."] = "勾選後，插件按鈕將合併為一個按鈕框架，您可以通過右鍵單擊小地圖來切換該框架。|n|n請注意，啟用此選項將鎖定“隱藏插件按鈕”設置。"
 L["If checked, addon buttons will be hidden while the pointer is not over the minimap."] = "勾選後，當指針不在小地圖上時，插件按鈕將被隱藏。"
 L["If checked, airships will be muted.|n|nThis applies to airship mounts and transports."] = "勾選後，飛艇將被靜音。|n|n這適用於飛艇坐騎以及運輸工具。"
-L["If checked, alert frames will not be shown."] = "勾選後，警告框架將不會顯示。"
 L["If checked, all grey items in your bags will be sold automatically when you visit a merchant.|n|nYou can hold the shift key down when you talk to a merchant to override this setting."] = "勾選後，當你訪問商販時將自動出售背包中的垃圾。|n|n當你訪問時按住Shift鍵，可以暫時忽略該功能。"
 L["If checked, all profession transforms added in Dragonflight will be removed when applied."] = "勾選後，全部巨龍崛起的專業外型變換將在生效後被移除。"
 L["If checked, an animation slider will be shown in the dressing room."] = "勾選後，試衣間中將顯示動作卷軸。"
@@ -2413,6 +2411,7 @@ L["Zul'Drak"] = "祖爾德拉克"
 L["Zul'Farrak"] = "祖爾法拉克"
 L["Zul'Gurub"] = "祖爾格拉布"
 L["Zygor addon not found."] = "你尚未安裝Zygor插件。"
+
 
 -- 自行加入
 L["Leatrix Plus"] = "功能百寶箱"
