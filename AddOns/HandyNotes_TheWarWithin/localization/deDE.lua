@@ -20,6 +20,9 @@ L['options_icons_profession_treasures_desc'] = 'Zeigt die Positionen der Schätz
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
 L['options_icons_khaz_algar_lore_hunter_desc'] = 'Zeigt die Positionen der Geschichtsobjekte für den Erfolg {achievement:40762} an.'
 
+L['options_icons_flight_master'] = '{achievement:40430}'
+L['options_icons_flight_master_desc'] = 'Zeigt die Positionen der {npc:Flugmeister} für den Erfolg {achievement:40430} an.'
+
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
@@ -315,7 +318,7 @@ L['kvr_chest_2_location'] = 'Auf dem Holzgerüst.'
 L['nfs_chest_2_location'] = 'Auf der Pflanze.'
 L['nfs_chest_3_location'] = 'Im Gebäude'
 L['nfs_chest_4_location'] = 'Springe vom Himmelsschiff runter.'
-L['ski_chest_3_location'] = 'Im Gebäude'
+L['ski_chest_3_location'] = 'Auf einem Felsvorsprung.'
 L['tra_chest_2_location'] = 'Oben in der Koralle.'
 L['tsw_chest_2_location'] = 'Oben auf dem Balken.'
 L['tsw_chest_2_note'] = '{note:Nur in der Geschichtenvariantion "Alles Liebe von der Weberin" verfügbar.}'

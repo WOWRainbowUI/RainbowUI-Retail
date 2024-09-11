@@ -20,6 +20,9 @@ L['options_icons_profession_treasures_desc'] = 'Afficher les emplacements des tr
 L['options_icons_khaz_algar_lore_hunter'] = '{achievement:40762}'
 L['options_icons_khaz_algar_lore_hunter_desc'] = 'Afficher les emplacements des objets d\'histoire pour le haut-fait {achievement:40762}.'
 
+L['options_icons_flight_master'] = '{achievement:40430}'
+L['options_icons_flight_master_desc'] = 'Afficher les emplacements des {npc:Maîtres de vol} pour le haut-fait {achievement:40430}.'
+
 -------------------------------------------------------------------------------
 -------------------------------- ISLE OF DORN ---------------------------------
 -------------------------------------------------------------------------------
@@ -313,7 +316,7 @@ L['kvr_chest_2_location'] = 'En haut de l\'échafaudage en bois.'
 L['nfs_chest_2_location'] = 'Sur la plante.'
 L['nfs_chest_3_location'] = 'À l\'intérieur du bâtiment.'
 L['nfs_chest_4_location'] = 'Sautez du dirigeable.'
-L['ski_chest_3_location'] = 'À l\'intérieur du bâtiment.'
+L['ski_chest_3_location'] = 'Sur un rebord.'
 L['tra_chest_2_location'] = 'Sur le corail.'
 L['tsw_chest_2_location'] = 'En haut de la poutre.'
 L['tsw_chest_2_note'] = '{note:Disponible uniquement pendant la variante de l’histoire "Avec les compliments de la Tisserande".}'
