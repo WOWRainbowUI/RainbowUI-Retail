@@ -129,11 +129,11 @@ DBM.DefaultOptions = {
 	SpecialWarningSound4 = not private.isClassic and 552035 or "Interface\\AddOns\\DBM-Core\\sounds\\ClassicSupport\\HoodWolfTransformPlayer01.ogg",--"Sound\\Creature\\HoodWolf\\HoodWolfTransformPlayer01.ogg"
 	SpecialWarningSound5 = 554236,--"Sound\\Creature\\Loathstare\\Loa_Naxx_Aggro02.ogg"
 	ModelSoundValue = "Short",
-	CountdownVoice = "Corsica",
-	CountdownVoice2 = "Kolt",
-	CountdownVoice3 = "Smooth",
-	PullVoice = "Corsica",
-	ChosenVoicePack2 = (GetLocale() == "enUS" or GetLocale() == "enGB") and "VEM" or "None",
+	CountdownVoice = "Genji",
+	CountdownVoice2 = "DVa",
+	CountdownVoice3 = "Overwatch",
+	PullVoice = "Meicn",
+	ChosenVoicePack2 = (GetLocale() == "enUS" or GetLocale() == "enGB") and "VEM" or "SahaJh",
 	VPReplacesAnnounce = true,
 	VPReplacesSA1 = true,
 	VPReplacesSA2 = true,
@@ -336,7 +336,7 @@ DBM.DefaultOptions = {
 	DontShowHudMap2 = false,
 	UseNameplateHandoff = true,--Power user setting, no longer shown in GUI
 	DontShowNameplateIcons = false,
-	DontShowNameplateIconsCD = false,
+	DontShowNameplateIconsCD = true,
 	DontShowNameplateIconsCast = false,
 	SendDungeonBossGUIDs = true,
 	NPAuraText = true,
