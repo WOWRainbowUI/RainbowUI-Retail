@@ -1,3 +1,21 @@
+# v95
+
+* Updated core localizations: zhTW
+
+# v92
+
+* Rares with uncollected reputation will now appear as purple skulls. This option only
+  takes effect when "Reputation rewards" are toggled on.
+
+# v90
+
+* Updated core localizations: deDE, esES, frFr, zhCN
+
+# v89
+
+* Updated reward toggles in main menu to match dropdown menu.
+* Hide manuscript toggle for expansions other than Dragonflight.
+
 # v87
 
 * Updated core localizations: deDE, frFR, zhCN
