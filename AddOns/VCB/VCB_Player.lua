@@ -1,3 +1,44 @@
+-- function for the texts --
+local function VCBtexts(var1)
+	var1:SetFontObject("GameFontHighlightSmall")
+	var1:SetHeight(PlayerCastingBarFrame.Text:GetHeight())
+	var1:Hide()
+end
+-- Name Text --
+local VCBnameText = PlayerCastingBarFrame:CreateFontString(nil, "OVERLAY", nil)
+VCBtexts(VCBnameText)
+-- Current Time Text --
+local VCBcurrentTimeText = PlayerCastingBarFrame:CreateFontString(nil, "OVERLAY", nil)
+VCBtexts(VCBcurrentTimeText)
+-- Total Time Text --
+local VCBtotalTimeText = PlayerCastingBarFrame:CreateFontString(nil, "OVERLAY", nil)
+VCBtexts(VCBtotalTimeText)
+-- Both Time Text --
+local VCBbothTimeText = PlayerCastingBarFrame:CreateFontString(nil, "OVERLAY", nil)
+VCBtexts(VCBbothTimeText)
+-- Copy Texture of Spell's Icon --
+local VCBiconSpell = PlayerCastingBarFrame:CreateTexture(nil, "ARTWORK", nil, 0)
+VCBiconSpell:SetPoint("LEFT", PlayerCastingBarFrame, "RIGHT", 2, -4)
+VCBiconSpell:SetWidth(PlayerCastingBarFrame.Icon:GetWidth())
+VCBiconSpell:SetHeight(PlayerCastingBarFrame.Icon:GetHeight())
+VCBiconSpell:SetScale(1.3)
+VCBiconSpell:Hide()
+-- Texture of Spell's Shield Left --
+local VCBshieldSpellLeft = PlayerCastingBarFrame:CreateTexture(nil, "ARTWORK", nil, 0)
+VCBshieldSpellLeft:SetAtlas("UI-CastingBar-Shield")
+VCBshieldSpellLeft:SetPoint("TOPLEFT", PlayerCastingBarFrame.Icon, "TOPLEFT", -6, 6)
+VCBshieldSpellLeft:SetPoint("BOTTOMRIGHT", PlayerCastingBarFrame.Icon, "BOTTOMRIGHT", 6, -12)
+VCBshieldSpellLeft:SetBlendMode("BLEND")
+VCBshieldSpellLeft:SetAlpha(0.85)
+VCBshieldSpellLeft:Hide()
+-- Texture of Spell's Shield Right --
+local VCBshieldSpellRight = PlayerCastingBarFrame:CreateTexture(nil, "ARTWORK", nil, 0)
+VCBshieldSpellRight:SetAtlas("UI-CastingBar-Shield")
+VCBshieldSpellRight:SetPoint("TOPLEFT", VCBiconSpell, "TOPLEFT", -6, 6)
+VCBshieldSpellRight:SetPoint("BOTTOMRIGHT", VCBiconSpell, "BOTTOMRIGHT", 6, -12)
+VCBshieldSpellRight:SetBlendMode("BLEND")
+VCBshieldSpellRight:SetAlpha(0.85)
+VCBshieldSpellRight:Hide()
 -- Position of the Name Text --
 local function NameTextPosition(self, var1, var2)
 	if VCBrPlayer[var1] == "左上" then
@@ -149,85 +190,85 @@ local function AscendingDescendingSec(self)
 	end
 end
 -- coloring the bar --
-local function PlayerColorCastBar()
+local function CastBarColor(self)
 	if VCBrPlayer["Color"] == "預設顏色" then
-		PlayerCastingBarFrame:SetStatusBarDesaturated(false)
-		PlayerCastingBarFrame:SetStatusBarColor(1, 1, 1, 1)
+		self:SetStatusBarDesaturated(false)
+		self:SetStatusBarColor(1, 1, 1, 1)
 	elseif VCBrPlayer["Color"] == "職業顏色" then
-		PlayerCastingBarFrame:SetStatusBarDesaturated(true)
-		PlayerCastingBarFrame:SetStatusBarColor(vcbClassColor:GetRGB())
-	elseif VCBrPlayer["Color"] == "Spell School Color" then
-		PlayerCastingBarFrame:SetStatusBarDesaturated(true)
-		if PlayerCastingBarFrame.barType == "uninterruptable" then PlayerCastingBarFrame:SetStatusBarTexture("UI-CastingBar-Full-Standard") end
+		self:SetStatusBarDesaturated(true)
+		self:SetStatusBarColor(vcbClassColorPlayer:GetRGB())
+	elseif VCBrPlayer["Color"] == "法術類型顏色" then
+		self:SetStatusBarDesaturated(true)
+		if self.barType == "uninterruptable" then self:SetStatusBarTexture("UI-CastingBar-Full-Standard") end
 		if vcbSpellSchool == 1 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbPhysicalColor:GetRGB())
+			self:SetStatusBarColor(vcbPhysicalColor:GetRGB())
 		elseif vcbSpellSchool == 2 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbHolyColor:GetRGB())
+			self:SetStatusBarColor(vcbHolyColor:GetRGB())
 		elseif vcbSpellSchool == 4 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbFireColor:GetRGB())
+			self:SetStatusBarColor(vcbFireColor:GetRGB())
 		elseif vcbSpellSchool == 8 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbNatureColor:GetRGB())
+			self:SetStatusBarColor(vcbNatureColor:GetRGB())
 		elseif vcbSpellSchool == 16 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbFrostColor:GetRGB())
+			self:SetStatusBarColor(vcbFrostColor:GetRGB())
 		elseif vcbSpellSchool == 32 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbShadowColor:GetRGB())
+			self:SetStatusBarColor(vcbShadowColor:GetRGB())
 		elseif vcbSpellSchool == 64 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbArcaneColor:GetRGB())
+			self:SetStatusBarColor(vcbArcaneColor:GetRGB())
 		elseif vcbSpellSchool == 3 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbHolystrikeColor:GetRGB())
+			self:SetStatusBarColor(vcbHolystrikeColor:GetRGB())
 		elseif vcbSpellSchool == 5 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbFlamestrikeColor:GetRGB())
+			self:SetStatusBarColor(vcbFlamestrikeColor:GetRGB())
 		elseif vcbSpellSchool == 6 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbRadiantColor:GetRGB())
+			self:SetStatusBarColor(vcbRadiantColor:GetRGB())
 		elseif vcbSpellSchool == 9 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbStormstrikeColor:GetRGB())
+			self:SetStatusBarColor(vcbStormstrikeColor:GetRGB())
 		elseif vcbSpellSchool == 10 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbHolystormColor:GetRGB())
+			self:SetStatusBarColor(vcbHolystormColor:GetRGB())
 		elseif vcbSpellSchool == 12 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbVolcanicColor:GetRGB())
+			self:SetStatusBarColor(vcbVolcanicColor:GetRGB())
 		elseif vcbSpellSchool == 17 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbFroststrikeColor:GetRGB())
+			self:SetStatusBarColor(vcbFroststrikeColor:GetRGB())
 		elseif vcbSpellSchool == 18 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbHolyfrostColor:GetRGB())
+			self:SetStatusBarColor(vcbHolyfrostColor:GetRGB())
 		elseif vcbSpellSchool == 20 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbFrostfireColor:GetRGB())
+			self:SetStatusBarColor(vcbFrostfireColor:GetRGB())
 		elseif vcbSpellSchool == 24 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbFroststormColor:GetRGB())
+			self:SetStatusBarColor(vcbFroststormColor:GetRGB())
 		elseif vcbSpellSchool == 33 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbShadowstrikeColor:GetRGB())
+			self:SetStatusBarColor(vcbShadowstrikeColor:GetRGB())
 		elseif vcbSpellSchool == 34 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbTwilightColor:GetRGB())
+			self:SetStatusBarColor(vcbTwilightColor:GetRGB())
 		elseif vcbSpellSchool == 36 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbShadowflameColor:GetRGB())
+			self:SetStatusBarColor(vcbShadowflameColor:GetRGB())
 		elseif vcbSpellSchool == 40 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbPlagueColor:GetRGB())
+			self:SetStatusBarColor(vcbPlagueColor:GetRGB())
 		elseif vcbSpellSchool == 48 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbShadowfrostColor:GetRGB())
+			self:SetStatusBarColor(vcbShadowfrostColor:GetRGB())
 		elseif vcbSpellSchool == 65 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbSpellstrikeColor:GetRGB())
+			self:SetStatusBarColor(vcbSpellstrikeColor:GetRGB())
 		elseif vcbSpellSchool == 66 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbDivineColor:GetRGB())
+			self:SetStatusBarColor(vcbDivineColor:GetRGB())
 		elseif vcbSpellSchool == 68 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbSpellfireColor:GetRGB())
+			self:SetStatusBarColor(vcbSpellfireColor:GetRGB())
 		elseif vcbSpellSchool == 72 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbAstralColor:GetRGB())
+			self:SetStatusBarColor(vcbAstralColor:GetRGB())
 		elseif vcbSpellSchool == 80 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbSpellfrostColor:GetRGB())
+			self:SetStatusBarColor(vcbSpellfrostColor:GetRGB())
 		elseif vcbSpellSchool == 96 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbSpellshadowColor:GetRGB())
+			self:SetStatusBarColor(vcbSpellshadowColor:GetRGB())
 		elseif vcbSpellSchool == 28 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbElementalColor:GetRGB())
+			self:SetStatusBarColor(vcbElementalColor:GetRGB())
 		elseif vcbSpellSchool == 62 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbChromaticColor:GetRGB())
+			self:SetStatusBarColor(vcbChromaticColor:GetRGB())
 		elseif vcbSpellSchool == 106 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbCosmicColor:GetRGB())
+			self:SetStatusBarColor(vcbCosmicColor:GetRGB())
 		elseif vcbSpellSchool == 126 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbMagicColor:GetRGB())
+			self:SetStatusBarColor(vcbMagicColor:GetRGB())
 		elseif vcbSpellSchool == 127 or vcbSpellSchool == 124 then
-			PlayerCastingBarFrame:SetStatusBarColor(vcbChaosColor:GetRGB())
+			self:SetStatusBarColor(vcbChaosColor:GetRGB())
 		else
-			PlayerCastingBarFrame:SetStatusBarDesaturated(false)
-			PlayerCastingBarFrame:SetStatusBarColor(1, 1, 1, 1)
+			self:SetStatusBarDesaturated(false)
+			self:SetStatusBarColor(1, 1, 1, 1)
 		end
 	end
 end
@@ -277,7 +318,7 @@ end)
 -- Hooking Time part 2 --
 PlayerCastingBarFrame:HookScript("OnUpdate", function(self)
 	self.Text:SetAlpha(0)
-	PlayerColorCastBar()
+	CastBarColor(self)
 	AscendingDescendingSec(self)
 	if VCBrPlayer["TotalTimeText"]["Sec"] == "顯示" and self.maxValue ~= nil then
 		VCBtotalTimeText:SetFormattedText("%.1f 秒", self.maxValue)

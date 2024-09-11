@@ -23,16 +23,19 @@ vcbOptions00:RegisterForDrag("LeftButton")
 vcbOptions00:SetScript("OnDragStart", vcbOptions00.StartMoving)
 vcbOptions00:SetScript("OnDragStop", vcbOptions00.StopMovingOrSizing)
 -- taking care of the Tabs --
-vcbOptions00Tab2:SetPoint("TOP", vcbOptions00Tab1, "BOTTOM", 0, 0)
-vcbOptions00Tab3:SetPoint("TOP", vcbOptions00Tab2, "BOTTOM", 0, 0)
-vcbOptions00Tab4:SetPoint("TOP", vcbOptions00Tab3, "BOTTOM", 0, 0)
+-- position --
+for i = 2, 4, 1 do
+	_G["vcbOptions00Tab"..i]:SetPoint("TOP", _G["vcbOptions00Tab"..i-1], "BOTTOM", 0, 0)
+end
+-- naming --
 vcbOptions00Tab1.Text:SetText("玩家施法條")
 vcbOptions00Tab2.Text:SetText("目標施法條")
 vcbOptions00Tab3.Text:SetText("專注目標施法條")
 vcbOptions00Tab4.Text:SetText("設定檔")
-vcbOptions00Tab1.CenterTxt:Hide()
-vcbOptions00Tab2.CenterTxt:Hide()
-vcbOptions00Tab3.CenterTxt:Hide()
+-- hiding the center text --
+for i = 1, 3, 1 do
+	_G["vcbOptions00Tab"..i].CenterTxt:Hide()
+end
 vcbOptions00Tab4.CenterTxt:SetText("感謝使用這個超棒der插件!|n你是個|cff00CED1時髦|r又|cffFF0055帥氣|r的人!|n願美好的|cff9400D3魔力|r與你同在!")
 vcbOptions00.BGtexture:SetGradient("VERTICAL", vcbNoColor, vcbMainColor)
 vcbOptions00.BGtexture:ClearAllPoints()
@@ -56,10 +59,9 @@ vcbOptions00:SetScript("OnShow", function(self)
 end)
 -- hiding the tabs --
 vcbOptions00:HookScript("OnHide", function(self)
-	if vcbOptions1:IsShown() then vcbOptions1:Hide() end
-	if vcbOptions2:IsShown() then vcbOptions2:Hide() end
-	if vcbOptions3:IsShown() then vcbOptions3:Hide() end
-	if vcbOptions4:IsShown() then vcbOptions4:Hide() end
+	for i = 1, 4, 1 do
+		if _G["vcbOptions"..i]:IsShown() then _G["vcbOptions"..i]:Hide() end
+	end
 end)
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)

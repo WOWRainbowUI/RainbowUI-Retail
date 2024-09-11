@@ -3,7 +3,7 @@
 	<Script file="VCB_Virtuals.lua"/>
 <!-- Tabs Panel -->
 	<Frame name="vcbTabsPanel" frameStrata="DIALOG" frameLevel="250" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
-		<Size x="488" y="564"/>
+		<Size x="488" y="580"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
 				<Texture parentKey="BGtexture" file="Interface\BlackMarket\BlackMarketBackground-Tile.blp">
@@ -71,7 +71,7 @@
 	</Button>
 <!-- Panel Options -->
 	<Frame name="vcbOptionsPanel" inherits="InsetFrameTemplate4" frameStrata="DIALOG" frameLevel="0" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
-		<Size x="360" y="564"/>
+		<Size x="360" y="580"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
 				<Texture parentKey="BGtexture" file="Interface\BlackMarket\BlackMarketBackground-Tile.blp">
@@ -307,6 +307,37 @@
 		<NormalTexture atlas="AftLevelup-ToastBG"/>
 		<HighlightTexture atlas="Adventures_MissionList_Highlight" desaturated="true" alphaMode="ADD"/>
 	</Button>
+<!-- Edit Box -->
+	<Frame name="vcbEditBox" inherits="GlowBoxTemplate" frameStrata="DIALOG" frameLevel="510" enableMouse="true" clampedToScreen="true" virtual="true">
+		<Size x="256" y="16"/>
+		<Frames>
+			<EditBox parentKey="WritingLine" inherits="InputBoxScriptTemplate" frameStrata="DIALOG" font="GameFontHighlight" letters="0" blinkSpeed="0.5" numeric="false" alphabeticOnly="false" password="false" multiLine="0" historyLines="0" autoFocus="false" ignoreArrows="false" countInvisibleLetters="false" invisibleBytes="nil">
+				<Anchors>
+					<Anchor point="CENTER" relativePoint="CENTER" x="0" y="0"/>
+				</Anchors>
+			</EditBox>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self["GlowTopLeft"]:SetDesaturation(1)
+				self["GlowTopLeft"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowTopRight"]:SetDesaturation(1)
+				self["GlowTopRight"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowBottomLeft"]:SetDesaturation(1)
+				self["GlowBottomLeft"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowBottomRight"]:SetDesaturation(1)
+				self["GlowBottomRight"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowTop"]:SetDesaturation(1)
+				self["GlowTop"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowBottom"]:SetDesaturation(1)
+				self["GlowBottom"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowLeft"]:SetDesaturation(1)
+				self["GlowLeft"]:SetVertexColor(vcbMainColor:GetRGB())
+				self["GlowRight"]:SetDesaturation(1)
+				self["GlowRight"]:SetVertexColor(vcbMainColor:GetRGB())
+			</OnLoad>
+		</Scripts>
+	</Frame>
 <!-- Check Box -->
 	<CheckButton name="vcbCheckButton" inherits="SettingsCheckBoxTemplate" frameLevel="510" virtual="true">
 		<Size x="22" y="22"/>
@@ -343,37 +374,6 @@
 				self.MaxText:Show()
 				self.MaxText:SetTextColor(vcbMainColor:GetRGB())
 				self.Slider:SetValueStep(1)
-			</OnLoad>
-		</Scripts>
-	</Frame>
-<!-- Edit Box -->
-	<Frame name="vcbEditBox" inherits="GlowBoxTemplate" frameStrata="DIALOG" frameLevel="510" enableMouse="true" clampedToScreen="true" virtual="true">
-		<Size x="256" y="16"/>
-		<Frames>
-			<EditBox parentKey="WritingLine" inherits="InputBoxScriptTemplate" frameStrata="DIALOG" font="GameFontHighlight" letters="0" blinkSpeed="0.5" numeric="false" alphabeticOnly="false" password="false" multiLine="0" historyLines="0" autoFocus="false" ignoreArrows="false" countInvisibleLetters="false" invisibleBytes="nil">
-				<Anchors>
-					<Anchor point="CENTER" relativePoint="CENTER" x="0" y="0"/>
-				</Anchors>
-			</EditBox>
-		</Frames>
-		<Scripts>
-			<OnLoad>
-				self["GlowTopLeft"]:SetDesaturation(1)
-				self["GlowTopLeft"]:SetVertexColor(vcbMainColor:GetRGB())
-				self["GlowTopRight"]:SetDesaturation(1)
-				self["GlowTopRight"]:SetVertexColor(vcbMainColor:GetRGB())
-				self["GlowBottomLeft"]:SetDesaturation(1)
-				self["GlowBottomLeft"]:SetVertexColor(vcbMainColor:GetRGB())
-				self["GlowBottomRight"]:SetDesaturation(1)
-				self["GlowBottomRight"]:SetVertexColor(vcbMainColor:GetRGB())
-				self["GlowTop"]:SetDesaturation(1)
-				self["GlowTop"]:SetVertexColor(vcbMainColor:GetRGB())
-				self["GlowBottom"]:SetDesaturation(1)
-				self["GlowBottom"]:SetVertexColor(vcbMainColor:GetRGB())
-				self["GlowLeft"]:SetDesaturation(1)
-				self["GlowLeft"]:SetVertexColor(vcbMainColor:GetRGB())
-				self["GlowRight"]:SetDesaturation(1)
-				self["GlowRight"]:SetVertexColor(vcbMainColor:GetRGB())
 			</OnLoad>
 		</Scripts>
 	</Frame>

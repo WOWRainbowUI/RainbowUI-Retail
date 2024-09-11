@@ -1,3 +1,11 @@
+-- taking care of the panel --
+vcbOptions4.TopTxt:SetText("建立和載入設定檔!")
+vcbOptions4Box1.TitleTxt:SetText("建立設定檔!")
+vcbOptions4Box2:SetPoint("TOP", vcbOptions4Box1, "BOTTOM", 0, 0)
+vcbOptions4Box2.TitleTxt:SetText("載入設定檔!")
+vcbOptions4Box3:SetPoint("TOP", vcbOptions4Box2, "BOTTOM", 0, 0)
+vcbOptions4Box3.TitleTxt:SetText("刪除設定檔!")
+vcbOptions4Box3.CenterTxt:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("注意: ")..vcbHighColor:WrapTextInColorCode("儲存").."、"..vcbHighColor:WrapTextInColorCode("載入").."和"..vcbHighColor:WrapTextInColorCode("刪除").."設定檔時，\n都會重新載入介面!")
 -- some variables --
 local NameExist = false
 -- finding keys --
@@ -56,14 +64,6 @@ local function DeletingProfiles()
 		end
 	end
 end
--- taking care of the panel --
-vcbOptions4.TopTxt:SetText("建立和載入設定檔!")
-vcbOptions4Box1.TitleTxt:SetText("建立設定檔!")
-vcbOptions4Box2:SetPoint("TOP", vcbOptions4Box1, "BOTTOM", 0, 0)
-vcbOptions4Box2.TitleTxt:SetText("載入設定檔!")
-vcbOptions4Box3:SetPoint("TOP", vcbOptions4Box2, "BOTTOM", 0, 0)
-vcbOptions4Box3.TitleTxt:SetText("刪除設定檔!")
-vcbOptions4Box3.CenterTxt:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("注意: ")..vcbHighColor:WrapTextInColorCode("儲存").."、"..vcbHighColor:WrapTextInColorCode("載入").."和"..vcbHighColor:WrapTextInColorCode("刪除").."設定檔時，\n都會重新載入介面!")
 -- taking care of the edit box --
 -- width and height --
 local fontFile, height, flags = vcbOptions4Box1EditBox1.WritingLine:GetFont()
