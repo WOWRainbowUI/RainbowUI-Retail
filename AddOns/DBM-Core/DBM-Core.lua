@@ -75,16 +75,16 @@ end
 ---@class DBM
 local DBM = private:GetPrototype("DBM")
 _G.DBM = DBM
-DBM.Revision = parseCurseDate("20240910055149")
+DBM.Revision = parseCurseDate("20240911080538")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 local fakeBWVersion, fakeBWHash = 351, "186d70b"--351.1
 local bwVersionResponseString = "V^%d^%s"
 local PForceDisable
 -- The string that is shown as version
-DBM.DisplayVersion = "11.0.6"--Core version
+DBM.DisplayVersion = "11.0.7"--Core version
 DBM.classicSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2024, 9, 10) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2024, 9, 11) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 PForceDisable = 14--When this is incremented, trigger force disable regardless of major patch
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
@@ -129,11 +129,11 @@ DBM.DefaultOptions = {
 	SpecialWarningSound4 = not private.isClassic and 552035 or "Interface\\AddOns\\DBM-Core\\sounds\\ClassicSupport\\HoodWolfTransformPlayer01.ogg",--"Sound\\Creature\\HoodWolf\\HoodWolfTransformPlayer01.ogg"
 	SpecialWarningSound5 = 554236,--"Sound\\Creature\\Loathstare\\Loa_Naxx_Aggro02.ogg"
 	ModelSoundValue = "Short",
-	CountdownVoice = "Genji",
-	CountdownVoice2 = "DVa",
-	CountdownVoice3 = "Overwatch",
-	PullVoice = "Meicn",
-	ChosenVoicePack2 = (GetLocale() == "enUS" or GetLocale() == "enGB") and "VEM" or "SahaJh",
+	CountdownVoice = "Corsica",
+	CountdownVoice2 = "Kolt",
+	CountdownVoice3 = "Smooth",
+	PullVoice = "Corsica",
+	ChosenVoicePack2 = (GetLocale() == "enUS" or GetLocale() == "enGB") and "VEM" or "None",
 	VPReplacesAnnounce = true,
 	VPReplacesSA1 = true,
 	VPReplacesSA2 = true,
@@ -336,7 +336,7 @@ DBM.DefaultOptions = {
 	DontShowHudMap2 = false,
 	UseNameplateHandoff = true,--Power user setting, no longer shown in GUI
 	DontShowNameplateIcons = false,
-	DontShowNameplateIconsCD = true, -- 更改預設值
+	DontShowNameplateIconsCD = false,
 	DontShowNameplateIconsCast = false,
 	SendDungeonBossGUIDs = true,
 	NPAuraText = true,
@@ -9186,7 +9186,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20240910055149" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20240911080538" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

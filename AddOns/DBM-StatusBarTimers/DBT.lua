@@ -110,7 +110,7 @@ DBT.DefaultOptions = {
 	HugeTimerY = -120,
 	ExpandUpwardsLarge = false,
 	FillUpLargeBars = true,
-	HugeBarsEnabled = false,
+	HugeBarsEnabled = true,
 	HugeTimerPoint = "CENTER",
 	HugeSort = "Sort",
 	-- Misc
