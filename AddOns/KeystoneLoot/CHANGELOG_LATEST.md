@@ -1,14 +1,6 @@
-## New Features
-- Highlighting items by stats
-
 ## Bugfixes
-- Added missing npc ids
-- Dungeon title now automatically scales so it isn't truncated
-- Raid boss title now automatically scales so it isn't truncated
-
-## Improvements
-- Added class sets for the Catalyst
+- Fresh update for TWW Season 1
 
 ## Other Changes
-- Merge branch 'main' of https://github.com/Wolkenschutz/KeystoneLoot
-- Language files updated
+- Update ruRU.lua
+- Merge pull request [#28](https://github.com/Wolkenschutz/KeystoneLoot/pull/28) by [Hollicsh](https://github.com/Hollicsh) from Hollicsh/patch-5
