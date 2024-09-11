@@ -229,7 +229,7 @@ function CraftSim.CRAFTQ.UI:Init()
                     sizeY = 25,
                     label = CraftSim.MEDIA:GetAsTextIcon(CraftSim.MEDIA.IMAGES.EDIT_PEN, 0.7),
                     tooltipOptions = {
-                        text = "Edit",
+                        text = L(CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT),
                         anchor = "ANCHOR_CURSOR_RIGHT",
                     },
                 })
@@ -1777,7 +1777,7 @@ function CraftSim.CRAFTQ.UI:UpdateCraftQueueRowByCraftQueueItem(row, craftQueueI
 
 
     local craftAmountTooltipText = ""
-    craftAmountTooltipText = "\n\nQueued Crafts: " .. craftQueueItem.amount
+    craftAmountTooltipText = L(CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFTS) .. craftQueueItem.amount
 
     row.tooltipOptions = {
         text = recipeData.reagentData:GetTooltipText(craftQueueItem.amount,

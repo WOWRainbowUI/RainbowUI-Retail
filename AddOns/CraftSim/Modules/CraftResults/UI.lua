@@ -3,6 +3,7 @@ local CraftSim = select(2, ...)
 
 local GGUI = CraftSim.GGUI
 local GUTIL = CraftSim.GUTIL
+local L = CraftSim.UTIL:GetLocalizer()
 
 ---@class CraftSim.CRAFT_RESULTS
 CraftSim.CRAFT_RESULTS = CraftSim.CRAFT_RESULTS
@@ -45,7 +46,7 @@ function CraftSim.CRAFT_RESULTS.UI:Init()
         ---@class CraftSim.CRAFT_RESULTS.CRAFT_PROFITS_TAB : GGUI.BlizzardTab
         frame.content.craftProfitsTab = GGUI.BlizzardTab {
             buttonOptions = {
-                label = "Craft Profits",
+                label = L(CraftSim.CONST.TEXT.CRAFT_RESULT_TAB_PROFITS),
                 offsetY = -3,
             },
             parent = frame.content, anchorParent = frame.content, initialTab = true,
@@ -58,7 +59,7 @@ function CraftSim.CRAFT_RESULTS.UI:Init()
         ---@class CraftSim.CRAFT_RESULTS.STATISTICS_TRACKER_TAB : GGUI.BlizzardTab
         frame.content.statisticsTrackerTab = GGUI.BlizzardTab {
             buttonOptions = {
-                label = "Statistics Tracker",
+                label = L(CraftSim.CONST.TEXT.CRAFT_RESULT_TAB_TRACKER),
                 anchorParent = frame.content.craftProfitsTab.button,
                 anchorA = "LEFT",
                 anchorB = "RIGHT",
@@ -218,12 +219,12 @@ function CraftSim.CRAFT_RESULTS.UI:InitStatisticsTrackerTab(statisticsTrackerTab
     GGUI.Text {
         parent = content,
         anchorPoints = { { anchorParent = content.resultDistributionList.frame, anchorA = "BOTTOM", anchorB = "TOP", offsetY = 2 } },
-        text = "Result Distribution"
+        text = L(CraftSim.CONST.TEXT.CRAFT_RESULT_RESULT_DISTRIBUTION)
     }
 
     GGUI.HelpIcon {
         parent = content, anchorParent = content.resultDistributionList.frame, anchorA = "BOTTOMLEFT", anchorB = "TOPRIGHT", offsetX = -5, offsetY = -4,
-        text = "Relative distribution of crafted item results.\n(Ignoring Multicraft Quantities)"
+        text = L(CraftSim.CONST.TEXT.CRAFT_RESULT_RESULT_DISTRIBUTION_TOOLTIP)
     }
 
     content.multicraftStatisticsList = GGUI.FrameList {
@@ -261,7 +262,7 @@ function CraftSim.CRAFT_RESULTS.UI:InitStatisticsTrackerTab(statisticsTrackerTab
     GGUI.Text {
         parent = content,
         anchorPoints = { { anchorParent = content.multicraftStatisticsList.frame, anchorA = "BOTTOM", anchorB = "TOP", offsetY = 2 } },
-        text = "Multicraft"
+        text = L(CraftSim.CONST.TEXT.STAT_MULTICRAFT)
     }
 
     content.resourcefulnessStatisticsList = GGUI.FrameList {
@@ -299,7 +300,7 @@ function CraftSim.CRAFT_RESULTS.UI:InitStatisticsTrackerTab(statisticsTrackerTab
     GGUI.Text {
         parent = content,
         anchorPoints = { { anchorParent = content.resourcefulnessStatisticsList.frame, anchorA = "BOTTOM", anchorB = "TOP", offsetY = 2 } },
-        text = "Resourcefulness"
+        text = L(CraftSim.CONST.TEXT.STAT_RESOURCEFULNESS)
     }
 
     content.yieldStatisticsList = GGUI.FrameList {
@@ -348,7 +349,7 @@ function CraftSim.CRAFT_RESULTS.UI:InitStatisticsTrackerTab(statisticsTrackerTab
     GGUI.Text {
         parent = content,
         anchorPoints = { { anchorParent = content.yieldStatisticsList.frame, anchorA = "BOTTOM", anchorB = "TOP", offsetY = 2 } },
-        text = "Yield Distribution"
+        text = L(CraftSim.CONST.TEXT.CRAFT_RESULT_YIELD_DISTRIBUTION)
     }
 end
 

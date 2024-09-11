@@ -566,6 +566,48 @@ function CraftSim.LOCAL_TW:GetData()
 		[CraftSim.CONST.TEXT.CRAFT_QUEUE_FIRST_CRAFTS] = "加入首次製作",
 		[CraftSim.CONST.TEXT.CRAFT_QUEUE_IGNORE_RECIPES] = "忽略敏銳度配方",
 		[CraftSim.CONST.TEXT.CRAFT_QUEUE_IGNORE_RECIPES_TOOLTIP] = "不要排程使用 " .. f.bb("工匠的敏銳度") .. " 的首次製作",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT] = "編輯",
+		[CraftSim.CONST.TEXT.REAGENT_DATA_INVENTORY] = "\n(背包: ",
+		[CraftSim.CONST.TEXT.REAGENT_DATA_PREREQUISITE] = "\n\n前提條件:",
+		[CraftSim.CONST.TEXT.TAB_OVERVIEW] = "概覽",
+		[CraftSim.CONST.TEXT.TAB_OPTIONS] = "選項",
+		[CraftSim.CONST.TEXT.COOLDOWNS_EXPANSION_FILTER] = "過濾資料片",
+		[CraftSim.CONST.TEXT.NODE_DATA_RANK] = "等級 ",
+		[CraftSim.CONST.TEXT.STATS_FROM_TALENT] = "\n\n來自天賦的總屬性:\n",
+		[CraftSim.CONST.TEXT.CRAFT_RESULT_TAB_PROFITS] = "製造利潤",
+		[CraftSim.CONST.TEXT.CRAFT_RESULT_TAB_TRACKER] = "統計資料追蹤",
+		[CraftSim.CONST.TEXT.CRAFT_RESULT_RESULT_DISTRIBUTION] = "結果分佈",
+		[CraftSim.CONST.TEXT.CRAFT_RESULT_RESULT_DISTRIBUTION_TOOLTIP] = "製作物品結果的相對分佈。\n(忽略複製製造數量)",
+		[CraftSim.CONST.TEXT.CRAFT_RESULT_YIELD_DISTRIBUTION] = "產量分佈",
+		[CraftSim.CONST.TEXT.CRAFT_COST_TAB_COSTS] = "材料成本",
+		[CraftSim.CONST.TEXT.CRAFT_COST_TAB_OPTIONS] = "子配方選項",
+		[CraftSim.CONST.TEXT.CRAFT_COST_OPTIMIZATION] = "最佳化子配方 " .. f.bb("(實驗性功能)"),
+		[CraftSim.CONST.TEXT.CRAFT_COST_OPTIMIZATION_TOOLTIP] = "啟用時，" .. f.l("CraftSim") .. " 會將你的角色和你的分身的 " .. f.g("優化製作成本") .. " 納入考慮，\n如果他們能夠製作該物品的話。\n\n"
+                .. f.r("由於大量的額外計算，可能會稍微降低效能"),
+		[CraftSim.CONST.TEXT.CRAFT_COST_CALCULATION_DEPTH] = "子配方計算深度",
+		[CraftSim.CONST.TEXT.CRAFT_COST_ENABLE_CONCENTRATION] = "啟用專注",
+		[CraftSim.CONST.TEXT.CRAFT_COST_ENABLE_CONCENTRATION_TOOLTIP] =  "啟用時，" .. f.l("CraftSim") .. " 將會包含需要專注才能製作的材料品質。",
+		[CraftSim.CONST.TEXT.CRAFT_COST_INCLUDE_COOLDOWN] = "包含冷卻時間配方",
+		[CraftSim.CONST.TEXT.CRAFT_COST_INCLUDE_COOLDOWN_TOOLTIP] = "啟用時，" .. f.l("CraftSim") .. " 在計算自製材料時將會忽略配方的冷卻時間需求",
+		[CraftSim.CONST.TEXT.CRAFT_COST_SELECT_CRAFTER] = "選擇配方製作者",
+		[CraftSim.CONST.TEXT.CRAFT_COST_AUCTION_BUYOUT] = "拍賣直購: ",
+		[CraftSim.CONST.TEXT.CRAFT_COST_OVERRIDE] = "\n\n重訂",
+		[CraftSim.CONST.TEXT.CRAFT_COST_CRAFTING] = "\n\n製造 ",
+		[CraftSim.CONST.TEXT.CRAFT_COST_EXPECTED_COSTS] = "\n- 每件物品的預期成本: ",
+		[CraftSim.CONST.TEXT.CRAFT_COST_CONCENTRATION_COST] = "專注消耗: ",
+		[CraftSim.CONST.TEXT.STATISTICS_TAB_PROBABILITY] = "概率表",
+		[CraftSim.CONST.TEXT.STATISTICS_TAB_CONCENTRATION] = "專注",
+		[CraftSim.CONST.TEXT.STATISTICS_CONCENTRATION_CURVE] = "專注成本曲線",
+		[CraftSim.CONST.TEXT.STATISTICS_CONCENTRATION_CURVE_TOOLTIP] = "指定配方基於玩家技能的專注成本\n" ..
+            f.bb("X 軸：") .. " 玩家技能\n" ..
+            f.bb("Y 軸：") .. " 專注成本",
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_CONCENTRATION] = " 專注",
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_CONCENTRATION_TOOLTIP] = "切換專注",
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZATION] = "最佳化子配方 " .. f.bb("(實驗性功能)"),
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZATION_TOOLTIP] = "啟用時，" .. f.l("CraftSim") .. " 還會最佳化已掃描配方的已緩存材料配方的製作，並使用其\n" ..
+            f.bb("預期成本") .. " 來計算最終產品的製作成本。\n\n" .. f.r("警告: 可能會降低掃描效能"),
+		[CraftSim.CONST.TEXT.RECIPE_SCAN_QUEUE_TOOLTIP] = "按下 " ..
+            CreateAtlasMarkup("NPE_LeftClick", 20, 20, 2) .. " + Shift 將選取的配方加入 " .. f.bb("製作排程"),
 		
     }
 end

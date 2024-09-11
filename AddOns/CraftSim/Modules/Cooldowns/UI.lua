@@ -59,7 +59,7 @@ function CraftSim.COOLDOWNS.UI:Init()
             parent = content,
             anchorParent = content,
             offsetY = -2,
-            label = "Overview",
+            label = L(CraftSim.CONST.TEXT.TAB_OVERVIEW),
         },
         parent = content,
         anchorParent = content,
@@ -76,7 +76,7 @@ function CraftSim.COOLDOWNS.UI:Init()
             anchorParent = content.overviewTab.button,
             anchorA = "LEFT",
             anchorB = "RIGHT",
-            label = "Options",
+            label = L(CraftSim.CONST.TEXT.TAB_OPTIONS),
         },
         parent = content,
         anchorParent = content,
@@ -228,7 +228,7 @@ function CraftSim.COOLDOWNS.UI:InitializeCooldownOptionsTab(cooldownOptionsTab)
         buttonOptions = {
             parent = content, anchorParent = content,
             anchorA = "TOP", anchorB = "TOP", offsetY = -10,
-            label = "Expansion Filter",
+            label = L(CraftSim.CONST.TEXT.COOLDOWNS_EXPANSION_FILTER),
             adjustWidth = true, sizeX = 20,
         },
         onSelectCallback = function(_, _, _)

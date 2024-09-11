@@ -6,6 +6,7 @@ local GUTIL = CraftSim.GUTIL
 
 local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.DATAEXPORT)
 local f = GUTIL:GetFormatter()
+local L = CraftSim.UTIL:GetLocalizer()
 
 ---@class CraftSim.ReagentData : CraftSim.CraftSimObject
 CraftSim.ReagentData = CraftSim.CraftSimObject:extend()
@@ -574,12 +575,12 @@ function CraftSim.ReagentData:GetTooltipText(multiplier, crafterUID)
     end
     if crafterUID ~= CraftSim.UTIL:GetPlayerCrafterUID() then
         local crafterName = self.recipeData:GetFormattedCrafterText(true)
-        text = text .. f.white("\n(Inventory of " .. crafterName .. ")")
+        text = text .. f.white(L(CraftSim.CONST.TEXT.REAGENT_DATA_INVENTORY) .. crafterName .. ")")
     end
 
     -- add parent recipe info
     if #self.recipeData.parentRecipeInfo > 0 then
-        text = text .. f.white("\n\nPrerequisite of:")
+        text = text .. f.white(L(CraftSim.CONST.TEXT.REAGENT_DATA_PREREQUISITE))
         ---@type CraftSim.RecipeData.ParentRecipeInfo[]
         local sortedInfo = GUTIL:Sort(self.recipeData.parentRecipeInfo, function(infoA, infoB)
             return infoA.crafterUID > infoB.crafterUID

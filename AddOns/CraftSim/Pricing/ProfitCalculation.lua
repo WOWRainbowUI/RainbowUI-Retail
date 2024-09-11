@@ -99,7 +99,7 @@ function CraftSim.CALC:GetAverageProfit(recipeData)
 
         local probabilityTable = {}
 
-        print("Build Probability Table (MC, RES)")
+        -- print("Build Probability Table (MC, RES)")
 
         local bitMax = "11"
         local numBits = string.len(bitMax)
@@ -164,7 +164,7 @@ function CraftSim.CALC:GetAverageProfit(recipeData)
 
         local probabilityTable = {}
 
-        print("Build Probability Table (RES)")
+        -- print("Build Probability Table (RES)")
 
         local bitMax = "1"
         local numBits = string.len(bitMax)
