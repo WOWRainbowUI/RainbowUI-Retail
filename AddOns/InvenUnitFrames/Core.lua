@@ -125,16 +125,29 @@ local function hideBlizFrames()
 	end
 end
 
+local function hideBlizFrames2()
+
+	PlayerFrame:SetAlpha(0)
+	TargetFrame:SetAlpha(0)
+	PartyFrame:SetAlpha(0)
+ 
+
+
+end
+
 function IUF:UPDATE_ALL_UI_WIDGETS()
 	hideBlizFrames()
+	hideBlizFrames2()
 end
 
 function IUF:CLIENT_SCENE_CLOSED()
 	hideBlizFrames()
+	hideBlizFrames2()
 end
 
 function IUF:CLIENT_SCENE_OPENED()
 	hideBlizFrames()
+	hideBlizFrames2()
 end
 
 function IUF:PLAYER_LOGIN()
@@ -303,6 +316,7 @@ function IUF:PLAYER_REGEN_ENABLED()
 	end
 	
 	hideBlizFrames()
+	hideBlizFrames2()
 end
 
 function IUF:PLAYER_REGEN_DISABLED()
@@ -318,6 +332,7 @@ function IUF:PLAYER_REGEN_DISABLED()
 		self:UpdateUnitTooltip(self.onEnter)
 	end
 	hideBlizFrames()
+	hideBlizFrames2()
 end
 
 local changeModelCamera = {
@@ -364,6 +379,7 @@ do
 	
 	-- 블리자드 유닛 프레임 숨김
 	function hideBlizzard(self)
+
 
 		if self then
 			UnregisterUnitWatch(self)
