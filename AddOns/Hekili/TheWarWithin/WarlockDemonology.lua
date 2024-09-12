@@ -523,6 +523,10 @@ spec:RegisterHook( "reset_precast", function()
         buff.demonic_strength.expires = buff.felstorm.expires
     end
 
+    if IsActiveSpell( 434506 ) then
+        applyBuff( "infernal_bolt" )
+    end
+
     if Hekili.ActiveDebug then
         Hekili:Debug(   " - Dreadstalkers: %d, %.2f\n" ..
                         " - Vilefiend    : %d, %.2f\n" ..
@@ -583,22 +587,48 @@ spec:RegisterHook( "spend", function( amt, resource )
                 reduceCooldown( "summon_demonic_tyrant", amt * 0.6 )
             end
 
+            if buff.art_overlord.up then
+                summon_demon( "overlord" )
+                removeBuff( "art_overlord" )
+            end
+
+            if buff.art_mother.up then
+                summon_demon( "mother_of_chaos" )
+                removeBuff( "art_mother" )
+                if talent.secrets_of_the_coven.enabled then applyBuff( "infernal_bolt" ) end
+            end
+
+            if buff.art_pit_lord.up then
+                summon_demon( "pit_lord" )
+                removeBuff( "art_pit_lord" )
+                if talent.ruination.enabled then applyBuff( "ruination" ) end
+            end
+
+            if talent.diabolic_ritual.enabled then
+                if buff.diabolic_ritual.down then applyBuff( "diabolic_ritual" )
+                else
+                    if buff.ritual_overlord.up then buff.ritual_overlord.expires = buff.ritual_overlord.expires - amt; if buff.ritual_overlord.down then applyBuff( "art_overlord" ) end end
+                    if buff.ritual_mother.up then buff.ritual_mother.expires = buff.ritual_mother.expires - amt; if buff.ritual_mother.down then applyBuff( "art_mother" ) end end
+                    if buff.ritual_pit_lord.up then buff.ritual_pit_lord.expires = buff.ritual_pit_lord.expires - amt; if buff.ritual_pit_lord.down then applyBuff( "art_pit_lord" ) end end
+                end
+            end
+
             if talent.grand_warlocks_design.enabled then
                 reduceCooldown( "summon_demonic_tyrant", amt * 0.6 )
             end
 
-            if talent.diabolic_ritual.enabled then
-                if buff.diabolic_ritual.up then
-                    buff.diabolic_ritual.expires = buff.diabolic_ritual.expires - amt
-                    if buff.diabolic_ritual.down then applyBuff( "diabolic_art" ) end
-                else
-                    applyBuff( "diabolic_ritual" )
-                    buff.diabolic_ritual.expires = 21 - amt
-                end
-            end
         elseif amt < 0 and floor( soul_shard ) < floor( soul_shard + amt ) then
             if talent.demonic_inspiration.enabled then applyBuff( "demonic_inspiration" ) end
         end
+    end
+end )
+
+
+spec:RegisterHook( "advance_end", function( time )
+    if buff.art_mother.expires > query_time - time and buff.art_mother.down then
+        summon_demon( "mother_of_chaos" )
+        removeBuff( "art_mother" )
+        if talent.secrets_of_the_coven.enabled then applyBuff( "infernal_bolt" ) end
     end
 end )
 
@@ -920,17 +950,20 @@ spec:RegisterAuras( {
     demonic_art_mother_of_chaos = {
         id = 432794,
         duration = 60,
-        max_stack = 1
+        max_stack = 1,
+        copy = { "demonic_art_mother", "art_mother" }
     },
     demonic_art_overlord = {
         id = 428524,
         duration = 60,
-        max_stack = 1
+        max_stack = 1,
+        copy = "art_overlord"
     },
     demonic_art_pit_lord = {
         id = 432795,
         duration = 60,
-        max_stack = 1
+        max_stack = 1,
+        copy = "art_pit_lord"
     },
     demonic_art = {
         alias = { "demonic_art_mother_of_chaos", "demonic_art_overlord", "demonic_art_pit_lord" },
@@ -1863,6 +1896,7 @@ spec:RegisterAbilities( {
         spendType = "soul_shards",
 
         startsCombat = true,
+        nobuff = "ruination",
 
         handler = function ()
             removeBuff( "blazing_meteor" )
@@ -1883,6 +1917,39 @@ spec:RegisterAbilities( {
                 addStack( "dread_calling", nil, 1 + extra_shards )
             end
         end,
+
+        bind = "ruination"
+    },
+
+    -- Calls down a demonic meteor full of Wild Imps which burst forth to attack the target. Deals up to 2,188 Shadowflame damage on impact to all enemies within 8 yds of the target and summons up to 3 Wild Imps, based on Soul Shards consumed.
+    ruination = {
+        id = 434635,
+        known = 105174,
+        cast = 1.5,
+        cooldown = 0,
+        gcd = "spell",
+        school = "shadowflame",
+
+        startsCombat = true,
+        buff = "ruination",
+
+        handler = function ()
+            removeBuff( "blazing_meteor" )
+
+            insert( guldan_v, query_time + 0.6 )
+            insert( guldan_v, query_time + 0.8 )
+            insert( guldan_v, query_time + 1 )
+
+            if debuff.doom_brand.up then
+                debuff.doom_brand.expires = debuff.doom_brand.expires - ( 1 + extra_shards )
+            end
+
+            if talent.dread_calling.enabled then
+                addStack( "dread_calling", nil, 3 ) -- ?
+            end
+        end,
+
+        bind = "hand_of_guldan"
     },
 
     -- Talent: Demonic forces suck all of your Wild Imps toward the target, and then cause them to violently explode, dealing 1,410 Shadowflame damage to all enemies within 8 yards.
@@ -1973,6 +2040,8 @@ spec:RegisterAbilities( {
         spendType = "mana",
 
         startsCombat = true,
+        texture = 136197,
+        nobuff = "infernal_bolt",
 
         handler = function ()
             gain( 1, "soul_shards" )
@@ -1981,6 +2050,35 @@ spec:RegisterAbilities( {
                 addStack( "balespiders_burning_core" )
             end
         end,
+
+        bind = "infernal_bolt"
+    },
+
+    infernal_bolt = {
+        id = 434506,
+        known = 686,
+        cast = function() return 2 * ( 1 - 0.25 * talent.rune_of_shadows.rank ) * haste end,
+        cooldown = 0,
+        gcd = "spell",
+        school = "shadow",
+
+        spend = 0.015,
+        spendType = "mana",
+
+        startsCombat = true,
+        texture = 841220,
+        buff = "infernal_bolt",
+
+        handler = function ()
+            removeBuff( "infernal_bolt" )
+            gain( 3, "soul_shards" )
+
+            if legendary.balespiders_burning_core.enabled then
+                addStack( "balespiders_burning_core" )
+            end
+        end,
+
+        bind = "shadow_bolt"
     },
 
     -- Fracture the soul of up to $i target players within $r yds into the shadows, reducing their damage done by $s1% and healing received by $s3% for $d. Souls are fractured up to $410615a yds from the player's location.; Players can retrieve their souls to remove this effect.

@@ -450,7 +450,7 @@ do
         { "^!?(d?e?buff%.[a-z0-9_]+)%.remains$", "%1.remains"      },
         { "^!?ticking"                         , "remains"         },
         { "^!?remains$"                        , "remains"         },
-        { "^!?up$"                              , "remains"         },
+        { "^!?up$"                             , "remains"         },
         { "^down$"                             , "remains"         },
         { "^refreshable$"                      , "time_to_refresh" },
         { "^time>=?(.-)$"                      , "0.01+%1-time"    },
@@ -461,7 +461,8 @@ do
 
         { "^(.-)%.deficit<=?(.-)$"         , "0.01+%1.timeTo(%1.max-(%2))" },
         { "^(.-)%.deficit>=?(.-)$"         , "0.01+%1.timeTo(%1.max-(%2))" },
-        { "^(.-)%.percent[<>=]+(.-)$"      , "0.01+%1.timeTo(%1.max*(%2/100))" },
+        { "^target%.health%.pe?r?ce?n?t[<>=]+(.-)$"
+                                           , "0.01+target['time_to_pct_' .. %1]" },
 
         { "^cooldown%.([a-z0-9_]+)%.ready$"                      , "cooldown.%1.remains"                      },
         { "^cooldown%.([a-z0-9_]+)%.up$"                         , "cooldown.%1.remains"                      },
@@ -639,6 +640,22 @@ do
                         return true, "0.01 + " .. rhs .. ".timeTo( " .. lhs .. " )"
                     elseif lessOrEqual[ comp ] then
                         return true, rhs .. ".timeTo( " .. lhs .. " )"
+                    end
+                end
+
+                if lhs == ( key .. ".percent" ) or lhs == ( key .. ".pct" ) then
+                    if comp == ">" then
+                        return true, "0.01 + " .. lhs .. ".timeTo( " .. key .. ".max * ( " .. rhs .. " / 100 ) )"
+                    elseif moreOrEqual[ comp ] then
+                        return true, lhs .. ".timeTo( " .. key .. ".max * ( " .. rhs .. " / 100 ) )"
+                    end
+                end
+
+                if rhs == ( key .. ".percent" ) or rhs == ( key .. ".pct" ) then
+                    if comp == "<" then
+                        return true, "0.01 + " .. rhs .. ".timeTo( " .. key .. ".max * ( " .. lhs .. " / 100 ) )"
+                    elseif lessOrEqual[ comp ] then
+                        return true, rhs .. ".timeTo( " .. key .. ".max * ( " .. lhs .. " / 100 ) )"
                     end
                 end
             end
