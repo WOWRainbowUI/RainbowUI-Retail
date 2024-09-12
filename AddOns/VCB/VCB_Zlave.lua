@@ -113,10 +113,10 @@ local function EventsTime(self, event, arg1, arg2, arg3)
 		end
 	elseif event == "PLAYER_FOCUS_CHANGED" and FocusFrame:IsShown() then
 		local classFilename = UnitClassBase("focus")
-		vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename)
+		if classFilename then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end -- 暫時修正
 	elseif event == "PLAYER_TARGET_CHANGED" and TargetFrame:IsShown() then
 		local classFilename = UnitClassBase("target")
-		vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename)
+		if classFilename then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end -- 暫時修正
 	elseif event == "CURRENT_SPELL_CAST_CHANGED" and arg1 == false then
 		lagStart = GetTime()
 	elseif event == "UNIT_SPELLCAST_START" and arg1 == "player" then
