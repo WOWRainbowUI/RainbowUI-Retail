@@ -309,7 +309,7 @@ move4(TotemFrame)
 if playerClass == "DRUID" then
 	local function updateVisible()	-- DRUID DRUID DRUID DRUID DRUID 
 		local GetShapeshiftFormID = _G.GetShapeshiftFormID
-		PlayerFrameAlternateManaBar:Hide()
+		if not InCombatLockdown() then PlayerFrameAlternateManaBar:Hide() end
 
 		local hideMana = false
 		if (GetShapeshiftFormID() == DRUID_CAT_FORM or GetShapeshiftFormID() == DRUID_BEAR_FORM) then
@@ -626,7 +626,7 @@ if playerClass == "DRUID" then
 					--setClassBar(ComboPointDruidPlayerFrame, object, UnitPowerMax("player", Enum.PowerType.ComboPoints), updateVisible)
 				end
 				object.classBar.addOn:Show()
-				ComboPointDruidPlayerFrame:Hide()
+				if not InCombatLockdown() then ComboPointDruidPlayerFrame:Hide() end
 				ComboPointDruidPlayerFrame:SetAlpha(0)
 				object.classBar.addOn.bg:SetAlpha(0)
 				TotemFrame:SetAlpha(0)
@@ -681,7 +681,7 @@ if playerClass == "DRUID" then
 				end
 			end
 			object.classBar.addOn:Hide()
-			ComboPointDruidPlayerFrame:Hide()
+			if not InCombatLockdown() then 	ComboPointDruidPlayerFrame:Hide() end
 			ComboPointDruidPlayerFrame:SetAlpha(0)
 			object.classBar.addOn.comboPoint:Hide()
 			object.classBar.addOn.comboPoint:SetAlpha(0)
@@ -2076,7 +2076,7 @@ elseif playerClass == "MAGE" then
 					classBarHeight = classBarHeight + 20
 					MageArcaneChargesFrame:Show()
 				else
-					MageArcaneChargesFrame:Hide()
+					if not InCombatLockdown() then MageArcaneChargesFrame:Hide() end
 				end
 				IUF.units.player.classBar:SetHeight(classBarHeight)
 			else
@@ -2148,7 +2148,7 @@ elseif playerClass == "MAGE" then
 					end
 					self.prev = self.value
 				end
-			elseif not UnitHasVehicleUI("player") and GetSpecialization() == SPEC_MAGE_ARCANE then	-- 여기에 쓰임 PLAYER_TALENT_UPDATE
+			elseif not UnitHasVehicleUI("player") and GetSpecialization() == SPEC_MAGE_ARCANE then	--    藪�      PLAYER_TALENT_UPDATE
 				if not self:IsShown() then
 					IUF:ClassBarSetup(self:GetParent():GetParent())
 					self:Show()
@@ -2202,7 +2202,7 @@ elseif playerClass == "MAGE" then
 					TotemFrame:ClearAllPoints()
 					TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				end
-				MageArcaneChargesFrame:Hide()
+				if not InCombatLockdown() then MageArcaneChargesFrame:Hide() end
 
 				object.classBar.addOn:Show()
 				object.classBar.addOn:ClearAllPoints()
@@ -2378,7 +2378,7 @@ elseif playerClass == "ROGUE" then
 					TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 				end
 				RogueComboPointBarFrame:SetParent(IUF.dummyParent)
-				RogueComboPointBarFrame:Hide()
+				if not InCombatLockdown() then RogueComboPointBarFrame:Hide() end
 
 				object.classBar.addOn:Show()
 				object.classBar.addOn:ClearAllPoints()
@@ -2416,7 +2416,7 @@ elseif playerClass == "ROGUE" then
 				TotemFrame:SetPoint("BOTTOM", UIParent, "TOP", 0, 2000)
 			end
 			object.classBar.addOn:Hide()
-			RogueComboPointBarFrame:Hide()
+			if not InCombatLockdown() then RogueComboPointBarFrame:Hide() end
 		end
 	end
 else
