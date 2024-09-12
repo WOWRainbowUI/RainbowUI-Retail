@@ -309,7 +309,7 @@ local LOC_allkhazalgar = {[ns.KHAZALGAR]={},[ns.DORNOGAL]={},[ns.ISLEOFDORN]={},
 
 -- World Bosses
 
-core:RegisterMobData("WarWithin", {
+core:RegisterMobData("地心之戰", {
 	[229334] = {
 		name="Kordac",
 		quest=nil,
