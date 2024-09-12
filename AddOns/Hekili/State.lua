@@ -107,7 +107,14 @@ state.max_empower = 3
 state.empowering = {}
 
 state.health = {
+    current = 1,
     max = 1,
+    percent = 100,
+    timeTo = function( amount )
+        if state.health.current >= amount then return 0 end
+        return 3600
+    end,
+
     initialized = false
 }
 state.legendary = {}
@@ -6577,6 +6584,7 @@ do
         if not state.health.initialized then
             state.health.resource = "health"
             state.health.meta = {}
+            state.health.percent = nil
             setmetatable( state.health, mt_resource )
             state.health.initialized = true
         end
