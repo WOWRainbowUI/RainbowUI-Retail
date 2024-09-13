@@ -482,6 +482,7 @@ cot.nodes[67397441] = Treasure({
 
 map.nodes[78613320] = Treasure({
     quest = 82527,
+    note = L['weaving_supplies_note'],
     rewards = {
         Achievement({id = 40828, criteria = 69643}),
         Reputation({id = 2601, gain = 50, quest = 82527}),
@@ -489,13 +490,12 @@ map.nodes[78613320] = Treasure({
         Reputation({id = 2607, gain = 50, quest = 82527}), --
         Toy({item = 225347}) -- Web-Vandal's Spinning Wheel
     },
-    pois = {POI({74794285, 74183770, 72663967})}
+    pois = {
+        POI({74794285, color = 'Purple'}), -- Violet Silk Scrap
+        POI({74183770, color = 'Yellow'}), -- Gold Silk Scrap
+        POI({72663967, color = 'Red'}) -- Crimson Silk Scrap
+    }
 }) -- Weaving Supplies
--- TODO: write a note:
--- You need to collect Hints from Silk Scraps/Threads before you can open the treasure.
--- 74794285 Violet Thread - Item 223901
--- 74183770 Gold Thread - 223903
--- 72663967 Crimson Thread - 223902
 
 map.nodes[34056102] = Treasure({
     quest = 82525,
@@ -689,11 +689,6 @@ local ItsyBitsySpider = Class('ItsyBitsySpider', Collectible, {
     note = L['itsy_bitsy_spider_note']
 })
 
-map.nodes[18001200] = ItsyBitsySpider({
-    location = L['generals_scouting_shadecaster_location'],
-    rewards = {Achievement({id = 40624, criteria = 68979})}
-}) -- General's Scouting Shadecaster
-
 map.nodes[55022662] = ItsyBitsySpider({
     location = L['rumurh_location'],
     rewards = {Achievement({id = 40624, criteria = 68976})}
@@ -754,10 +749,10 @@ map.nodes[55106876] = ItsyBitsySpider({
 }) -- Thimble
 -- npc:224887 npc:224889 npc:224893 npc:224895 npc:220568 npc:224892(226225114-cot) npc:224891(69898267 cot)
 
-map.nodes[06001200] = ItsyBitsySpider({
-    location = L['webster_location'],
-    rewards = {Achievement({id = 40624, criteria = 68972})}
-}) -- Webster npc:227217( 39386541 (Cot))
+cot.nodes[39386540] = ItsyBitsySpider({
+    rewards = {Achievement({id = 40624, criteria = 68972})},
+    parent = map.id
+}) -- Webster
 
 -------------------------------------------------------------------------------
 --------------------- ACHIEVEMENT: KHAZ ALGAR LORE HUNTER ---------------------

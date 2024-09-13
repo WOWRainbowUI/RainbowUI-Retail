@@ -232,13 +232,11 @@ L['options_icons_itsy_bitsy_spider'] = '{achievement:40624}'
 L['options_icons_itsy_bitsy_spider_desc'] = '显示 {achievement:40624} 成就中纺崽的位置。'
 
 L['itsy_bitsy_spider_note'] = '向纺崽招手（{emote:/招手}、{emote:/wave}）。'
-L['webster_location'] = '占位符'
 L['spindle_location'] = '占位符'
 L['swift_location'] = '占位符'
 L['rumurh_location'] = '占位符'
 L['thimble_location'] = '占位符'
 L['scampering_weave_rat_location'] = '占位符'
-L['generals_scouting_shadecaster_location'] = '占位符'
 
 L['options_icons_bookworm'] = '{achievement:40629}'
 L['options_icons_bookworm_desc'] = '显示 {achievement:40629} 成就中书籍的位置。'
@@ -287,6 +285,7 @@ L['concealed_contraband_note'] = '移除 {object:网茧} 后揭示宝藏。'
 L['memory_cache_note'] = '从附近的（{dot:Red}）{object:提取器存储} 获取 {spell:420847}。击杀 {npc:223908} 后获取 {item:223870} 以打开 {object:记忆箱子}。'
 L['niffen_stash_note'] = '在桥下。'
 L['trapped_trove_note'] = '在从天花板垂下的建筑物中。避开地板上的蜘蛛网。'
+L['weaving_supplies_note'] = '从附近的平台收集丝绸碎片来打开宝藏。\n\n{item:223901}（{dot:Purple}）\n{item:223903}（{dot:Yellow}）\n{item:223902}（{dot:Red}）'
 
 L['tkaktath_note'] = '开始任务链以获取 {item:224150} 坐骑。'
 

@@ -42,11 +42,11 @@ L['turtles_thanks_2_note'] = '繳交 1x {item:222533} (可以從 {object:微光�
 L['turtles_thanks_3_note'] = '在 {location:多恩諾加} 找到 {npc:223338} 並和他說話來接露寶藏。'
 L['web_wrapped_axe_note'] = '在一樓.\n\n{note:重生時間1-2小時.}'
 L['faithful_dog_note'] = [[
-1. 在 {map:424} 的 {map:376} 的 {location:彙風嶺} 處找到 {npc:59533} 並完成 {quest:30526}。
-2. 在 {map:572} 的 {area:7490} 中建造 {object:藥圃}。
-3. 在 {map:619} {map:627} 中找到 {item:147420}，然後與 {area:7490} {object:藥圃} 中的 {npc:87553} 交談。
-{npc:87553} 現在位於 {map:627} 的 {location:魔法動物店}
-4. 與 {map:2248} 中的 {object:半埋的狗碗} 互動，然後與 {npc:87553} 交談獲取寵物。
+1. 在 {map:424} {map:376} 的 {area:11053} 找到 {npc:59533} 並完成 {quest:30526}。
+2. 在 {map:572} 你的 {area:7490} 建造 {object:草藥園}。
+3. 在 {map:619} {map:627} 找到一個 {item:147420} 並在你的 {area:7490} {object:草藥園} 和 {npc:87553} 對話。
+{npc:87553} 現在會在 {map:627} 的 {location:魔法動物園}
+4. 和在 {map:2248} 的 {object:半埋住的狗碗} 互動並撫摸 {npc:87553} 來取得寵物.
 ]]
 
 L['cendvin_note'] = '在 {location:火渣林} 的菁英怪農 900x {item:225557} 來從 {npc:226205} 購買 {item:223153} 坐騎。'
@@ -218,8 +218,8 @@ L['options_icons_flamegards_hope'] = '{achievement:20594}'
 L['options_icons_flamegards_hope_desc'] = '顯示 {achievement:20594} 成就中的位置。'
 L['flamegards_hope_note'] = '幫助 {npc:213319} 治療 {npc:220225s} 20天。\n\n如果當前職業無法治療，可以使用 {spell:372009} 或 {item:211878}。'
 
-L['hallowfall_sparkfly_label'] = '聖落之地火螢'
-L['hallowfall_sparkfly_note'] = '在 {location:靜石之池} 的 {object:低階鑰炎} 使用3個 {item:206350} 召喚 {npc:215956}。\n\n以2個 {item:206350} 購買 {item:218107} 並使用它來揭示附近的 {npc:222308} 直到出現 {object:聖落之地火螢}。'
+L['hallowfall_sparkfly_label'] = '聖落之地螢花蟲'
+L['hallowfall_sparkfly_note'] = '在 {area:14852} 對 {object:低階鑰炎} 使用 3x{item:206350} 來召喚 {npc:215956}.\n\n使用 2x{item:206350} 購買 {item:218107} 並使用他來在附近的 {dot:Blue} 找尋 {npc:222308} 直到發現 {object:聖落之地螢花蟲}。'
 
 L['nightfarm_growthling_note'] = '在 {location:旋輝田野} 的 {object:低階鑰炎} 使用3個 {item:206350} 召喚 {npc:208186}。\n\n以2個 {item:206350} 購買 {item:219148} 並使用它來揭示 {item:221546}。'
 
@@ -234,13 +234,11 @@ L['options_icons_itsy_bitsy_spider'] = '{achievement:40624}'
 L['options_icons_itsy_bitsy_spider_desc'] = '顯示成就 {achievement:40624} 所需的小織蛛位置。'
 
 L['itsy_bitsy_spider_note'] = '向小織蛛揮手 ({emote:/wave})。'
-L['webster_location'] = '占位符'
 L['spindle_location'] = '占位符'
 L['swift_location'] = '占位符'
 L['rumurh_location'] = '占位符'
 L['thimble_location'] = '占位符'
 L['scampering_weave_rat_location'] = '占位符'
-L['generals_scouting_shadecaster_location'] = '占位符'
 
 L['options_icons_bookworm'] = '{achievement:40629}'
 L['options_icons_bookworm_desc'] = '顯示 {achievement:40629} 成就中書籍的位置。'
@@ -286,9 +284,11 @@ L['no_harm_from_reading_note'] = [[
 L['another_you_4_note'] = '沿著標記的路徑巡邏。'
 
 L['concealed_contraband_note'] = '移除 {object:網繭} 後揭露寶藏。'
-L['memory_cache_note'] = '從附近的（{dot:Red}）{object:提取器存儲} 獲取 {spell:420847}。擊殺 {npc:223908} 後獲取 {item:223870} 以打開 {object:記憶寶箱}。'
+L['memory_cache_note'] = '從附近的 ({dot:Red}) {object:吸取器儲藏室} 獲得 {spell:420847}. 殺掉 {npc:223908} 後取得 {item:223870} 來開啟 {object:記憶寶箱}。'
 L['niffen_stash_note'] = '在橋下。'
 L['trapped_trove_note'] = '在從天花板垂下的建築物中。避開地板上的蜘蛛網。'
+L['weaving_supplies_note'] = '從附近的平台收集絲綢碎片來打開寶藏。\n\n{item:223901}（{dot:Purple}）\n{item:223903}（{dot:Yellow}）\n{item:223902}（{dot:Red}）'
+
 L['tkaktath_note'] = '開始任務鏈以獲取 {item:224150} 坐騎。'
 
 L['options_icons_the_unseeming'] = '{achievement:40633}'
@@ -306,8 +306,8 @@ L['kej_pet_vendor_note'] = '每個寵物的庫存有限，費用為2250{currency
 ----------------------------------- DELVES ------------------------------------
 -------------------------------------------------------------------------------
 
-L['sturdy_chest'] = '結實寶箱'
-L['sturdy_chest_suffix'] = '找到結實寶箱'
+L['sturdy_chest'] = '結實的箱子'
+L['sturdy_chest_suffix'] = '結實的箱子已發現'
 
 L['ecm_chest_3_location'] = '在起重機上。從上層跳。'
 L['fol_chest_1_location'] = '在灌木叢中的蘑菇下面的岩石上。'
