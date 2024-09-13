@@ -232,13 +232,11 @@ L['options_icons_itsy_bitsy_spider'] = '{achievement:40624}'
 L['options_icons_itsy_bitsy_spider_desc'] = 'Display weave-rat locations for {achievement:40624} achievement.'
 
 L['itsy_bitsy_spider_note'] = 'Wave ({emote:/wave}) to the weave-rat.'
-L['webster_location'] = 'PH'
 L['spindle_location'] = 'PH'
 L['swift_location'] = 'PH'
 L['rumurh_location'] = 'PH'
 L['thimble_location'] = 'PH'
 L['scampering_weave_rat_location'] = 'PH'
-L['generals_scouting_shadecaster_location'] = 'PH'
 
 L['options_icons_bookworm'] = '{achievement:40629}'
 L['options_icons_bookworm_desc'] = 'Display book locations for the {achievement:40629} achievement.'
@@ -287,6 +285,7 @@ L['concealed_contraband_note'] = 'Remove the {object:Web Cocoon} from the Treasu
 L['memory_cache_note'] = 'Get {spell:420847} from a nearby ({dot:Red}) {object:Extractor Storage}. After kill the {npc:223908} to get the {item:223870} to open the {object:Memory Cache}.'
 L['niffen_stash_note'] = 'Located under the bridge.'
 L['trapped_trove_note'] = 'In a building that hangs from the ceiling. Avoid the spiderwebs on the floor.'
+L['weaving_supplies_note'] = 'Collect silk scraps from the nearby platform to open the treasure.\n\n{item:223901} ({dot:Purple})\n{item:223903} ({dot:Yellow})\n{item:223902} ({dot:Red})'
 
 L['tkaktath_note'] = 'Starts a quest chain to get the {item:224150} mount.'
 
