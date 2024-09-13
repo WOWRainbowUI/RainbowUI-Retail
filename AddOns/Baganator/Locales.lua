@@ -242,6 +242,8 @@ L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventory Slots (Auto)"
 L["CATEGORY_RECENT"] = "Recent"
 L["CATEGORY_RECENT_AUTO"] = "Recent (Auto)"
 L["CATEGORY_TRADESKILLMASTER_AUTO"] = "TradeSkillMaster (Auto)"
+L["SECTION_EQUIPMENT"] = "Equipment"
+L["SECTION_CRAFTING"] = "Crafting"
 
 L["CATEGORY_SPACING"] = "Category spacing"
 L["EDIT"] = "Edit"
@@ -294,6 +296,7 @@ L["ADD_FROM_ATT"] = "Add From ATT"
 L["ADD_FROM_ATT_MESSAGE"] = "Use items from All The Things popout mini-list windows to add into this category."
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Added %s items (from %s popouts)"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "You need to enable category view if you want to use categories"
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 
 L["HELP_COLON_SEARCH"] = "Help: Search"
 L["HELP"] = "Help"
@@ -558,9 +561,15 @@ L["SEARCH_EVERYWHERE"] = "Recherche Globale"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Affichera les résultats dans le chat."
 L["SEARCH_HELP"] = "Aide à la recherche"
 L["SEARCH_TRY_X"] = "Recherche, essayez %s"
+--[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "SellJunk"
 L["SHOW_ADD_BUTTONS"] = "Afficher les Boutons pour Ajouter"
 L["SHOW_BUTTONS"] = "Afficher les boutons"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["SHOW_SORT_BUTTON"] = "Afficher le bouton de tri"
 L["SINGLE_BAG"] = "Un seul sac"
 --[[Translation missing --]]
@@ -848,9 +857,15 @@ L["SEARCH_EVERYWHERE"] = "Überall suchen"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Gibt das Suchergebnis im Chat aus."
 L["SEARCH_HELP"] = "Hilfe zur Suche"
 L["SEARCH_TRY_X"] = "Suche, versuche: %s"
+--[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "Schrott verkaufen"
 L["SHOW_ADD_BUTTONS"] = "Hinzufügen Buttons anzeigen"
 L["SHOW_BUTTONS"] = "Zeige Buttons"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["SHOW_SORT_BUTTON"] = "Sortieren Button anzeigen"
 L["SINGLE_BAG"] = "Einzelne Tasche"
 --[[Translation missing --]]
@@ -1133,9 +1148,15 @@ L["SEARCH_EVERYWHERE"] = "Глобальный поиск"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Результаты будут выведены в чат"
 L["SEARCH_HELP"] = "Помощь по поиску"
 L["SEARCH_TRY_X"] = "Попробуйте ввести для поиска: %s"
+--[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "Аддон SellJunk"
 L["SHOW_ADD_BUTTONS"] = "Кнопки добавления"
 L["SHOW_BUTTONS"] = "Отображать кнопки"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["SHOW_SORT_BUTTON"] = "Отображать кнопку сортировки"
 L["SINGLE_BAG"] = "Единая сумка"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Упорядочение предметов по слотам. Ваши предметы находятся в большой единой сумке."
@@ -1421,13 +1442,18 @@ L["SEARCH_EVERYWHERE"] = "Buscar en todas partes"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Muestra el resultado de la búsqueda en el chat."
 L["SEARCH_HELP"] = "Ayuda en la búsqueda"
 L["SEARCH_TRY_X"] = "Buscar, ejemplo: %s"
+--[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "SellJunk"
 L["SHOW_ADD_BUTTONS"] = "Mostrar botones de añadir"
 L["SHOW_BUTTONS"] = "Mostrar botones"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["SHOW_SORT_BUTTON"] = "Mostrar botón de ordenar"
 L["SINGLE_BAG"] = "Una sola bolsa"
---[[Translation missing --]]
-L["SINGLE_BAG_DESCRIPTION_2"] = "Arrange items by slot. Keeps your items in one large container."
+L["SINGLE_BAG_DESCRIPTION_2"] = "Ordena los objetos por ranuras. Guarda tus objetos en un gran contenedor."
 L["SKINS"] = "Skins"
 L["SLOT"] = "Slot"
 L["SOCKET_INTERFACE"] = "Interfaz de socket"
@@ -1878,10 +1904,16 @@ L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Will print the search results to your c
 L["SEARCH_HELP"] = "Search Help"
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
+--[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "Vender Basura"
 --[[Translation missing --]]
 L["SHOW_ADD_BUTTONS"] = "Show add buttons"
 L["SHOW_BUTTONS"] = "Mostrar botones"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show sort button"
 L["SINGLE_BAG"] = "Una bolsa"
@@ -2218,9 +2250,15 @@ L["SEARCH_EVERYWHERE"] = "廣泛搜尋"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "將把搜尋結果發送到您的聊天中。"
 L["SEARCH_HELP"] = "搜尋幫助"
 L["SEARCH_TRY_X"] = "搜尋，嘗試 %s"
+--[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "賣出垃圾"
 L["SHOW_ADD_BUTTONS"] = "顯示新增按鈕"
 L["SHOW_BUTTONS"] = "顯示按鈕"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["SHOW_SORT_BUTTON"] = "顯示整理按鈕"
 L["SINGLE_BAG"] = "單一大背包"
 L["SINGLE_BAG_DESCRIPTION_2"] = "按部位排列物品。將您的物品存放在單一大背包中。"
@@ -2502,13 +2540,18 @@ L["SEARCH_EVERYWHERE"] = "扩大搜索"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "将搜索结果发送到聊天信息中。"
 L["SEARCH_HELP"] = "搜索帮助"
 L["SEARCH_TRY_X"] = "搜索，尝试：%s"
+--[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "出售垃圾"
 L["SHOW_ADD_BUTTONS"] = "显示添加按钮"
 L["SHOW_BUTTONS"] = "显示按钮"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["SHOW_SORT_BUTTON"] = "显示整理按键"
 L["SINGLE_BAG"] = "大背包"
---[[Translation missing --]]
-L["SINGLE_BAG_DESCRIPTION_2"] = "Arrange items by slot. Keeps your items in one large container."
+L["SINGLE_BAG_DESCRIPTION_2"] = "按部位排列物品。将您的物品存放在大背包中。"
 L["SKINS"] = "美化"
 L["SLOT"] = "装备栏"
 L["SOCKET_INTERFACE"] = "插槽界面"
@@ -2809,9 +2852,15 @@ L["SEARCH_EVERYWHERE"] = "모든곳에서 검색"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "검색 결과를 채팅에 출력합니다."
 L["SEARCH_HELP"] = "도움말 검색"
 L["SEARCH_TRY_X"] = "검색, %s 시도"
+--[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "쓰레기판매"
 L["SHOW_ADD_BUTTONS"] = "추가 버튼 표시"
 L["SHOW_BUTTONS"] = "버튼 표시"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["SHOW_SORT_BUTTON"] = "정렬 버튼 표시"
 L["SINGLE_BAG"] = "싱글 가방"
 --[[Translation missing --]]
@@ -3321,11 +3370,17 @@ L["SEARCH_HELP"] = "Search Help"
 --[[Translation missing --]]
 L["SEARCH_TRY_X"] = "Search, try %s"
 --[[Translation missing --]]
+L["SECTION_CRAFTING"] = "Crafting"
+--[[Translation missing --]]
+L["SECTION_EQUIPMENT"] = "Equipment"
+--[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
 L["SHOW_ADD_BUTTONS"] = "Show add buttons"
 --[[Translation missing --]]
 L["SHOW_BUTTONS"] = "Show buttons"
+--[[Translation missing --]]
+L["SHOW_NAME_PREFIX"] = "Show name prefix"
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show sort button"
 --[[Translation missing --]]
