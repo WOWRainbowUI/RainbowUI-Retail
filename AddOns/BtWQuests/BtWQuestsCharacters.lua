@@ -908,7 +908,7 @@ local function GetFactions(tbl)
     for i=1,numEntries do
         -- local name, _, standing, barMin, barMax, barValue, _, _, _, _, _, _, _, factionID = GetFactionInfo(i);
         local factionData = GetFactionDataByIndex(i);
-        if factionData.factionID ~= nil then
+        if factionData and factionData.factionID ~= nil then -- 暫時修正
             local data = temp[factionData.factionID] or {};
             if data[1] ~= nil then
                 wipe(data);
