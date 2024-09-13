@@ -1,8 +1,11 @@
 # DBM - Core
 
-## [11.0.8](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.8) (2024-09-12)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.7...11.0.8) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.9](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.9) (2024-09-12)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.7...11.0.9) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
+- prep new tag  
+- update pkgmeta  
+- Split Dragonflight modules  
 - Bump version and prep another tag for Season 1 delve and raid fixes  
 - Preliminary warnings for notable trash abilities in Nerubar Palace  
 - While at it, massively extend normla mode silken court phase 3 as well  
