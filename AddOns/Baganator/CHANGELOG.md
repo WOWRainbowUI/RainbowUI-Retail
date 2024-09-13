@@ -1,6 +1,6 @@
 # Baganator
 
-## [479](https://github.com/Baganator/Baganator/tree/479) (2024-09-10)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/478...479) 
+## [481](https://github.com/Baganator/Baganator/tree/481) (2024-09-12)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/480...481) 
 
-- Categories: Adjust condensed layout  
+- Categories: Update default set of categories and spacing  
