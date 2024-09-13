@@ -18,6 +18,7 @@ local tempModelFrame = CreateFrame("PlayerModel")
 
 local function portraitOnShow(model3d)
 	IUF:RefreshCamera(model3d)
+
 end
 
 local function portraitOnSizeChanged(portrait)

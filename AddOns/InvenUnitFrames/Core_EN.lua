@@ -346,6 +346,7 @@ local changeModelCamera = {
 
 function IUF:RefreshCamera(model)
 	--model:SetCamera(type(model:GetModelFileID()) == "string" and changeModelCamera[model:GetModelFileID():lower()] or 0)
+	SetPortraitZoom = 1
 end
 
 function IUF:CheckModel()
