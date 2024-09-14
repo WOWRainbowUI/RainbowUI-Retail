@@ -1,7 +1,7 @@
 # Syndicator
 
-## [121](https://github.com/Baganator/Syndicator/tree/121) (2024-09-09)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/120...121) 
+## [122](https://github.com/Baganator/Syndicator/tree/122) (2024-09-13)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/121...122) 
 
-- Remove literal "and", "or" and "not" operators due to translation issues  
-    Note: The &, | and ! still exist and work fine  
+- Remove 11.0.0 from thet toc  
+- [Fixes #49] Fix not clearing guild when guild left  
