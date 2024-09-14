@@ -15077,7 +15077,7 @@ if ExRT.isCata then
 	module.db.spell_isTalent[48505] = true
 	module.db.spell_isTalent[50334] = true
 	module.db.spell_isTalent[98008] = true
-	module.db.spell_isTalent[97462] = true
+	module.db.spell_isTalent[70940] = true
 
 	module.db.spell_resetOtherSpells[GetSpellInfo(11958) or "spell:11958"] = {GetSpellInfo(45438)}
 

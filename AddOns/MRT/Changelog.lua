@@ -1,6 +1,9 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4920
+* Raid Check: TWW updates
+
 v.4910
 * Fixes
 

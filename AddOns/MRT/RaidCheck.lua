@@ -54,8 +54,6 @@ module.db.tableFlask = not ExRT.isClassic and {
 	--Stamina,	Int,		Agi,		Str 
 	[251838]=25,	[251837]=25,	[251836]=25,	[251839]=25,
 	[298839]=38,	[298837]=38,	[298836]=38,	[298841]=38,
-
-	[432021]=38,	[432473]=38,	[431971]=38,	[431972]=38,	[431974]=38,	[431973]=38,
 } or {
 	[17629]=true,	[17627]=true,	[17628]=true,	[17626]=true,
 	[17538]=true,	[11474]=true,	[17539]=true,	[26276]=true,
@@ -192,12 +190,14 @@ module.db.raidBuffs = {
 	{SPELL_STAT3_NAME or "Stamina","PRIEST",21562,264764},
 	{SPELL_STAT4_NAME or "Int","MAGE",1459,264760},
 	{STAT_VERSATILITY or "Vers","DRUID",1126},
+	{STAT_MASTERY or "Mastery", "SHAMAN", 462854},
 	{TUTORIAL_TITLE2 or "Movement","EVOKER",381748,nil,{[381758]=true,[381732]=true,[381741]=true,[381746]=true,[381748]=true,[381750]=true,[381749]=true,[381751]=true,[381752]=true,[381753]=true,[381754]=true,[381756]=true,[381757]=true,}},
 }
 module.db.tableInt = {[1459]=true,[264760]=7,}
 module.db.tableStamina = {[21562]=true,[264764]=7,}
 module.db.tableAP = {[6673]=true,[264761]=7,}
 module.db.tableVers = {[1126]=true,}
+module.db.tableMastery = {[462854]=true,}
 module.db.tableMove = {[381758]=true,[381732]=true,[381741]=true,[381746]=true,[381748]=true,[381750]=true,[381749]=true,[381751]=true,[381752]=true,[381753]=true,[381754]=true,[381756]=true,[381757]=true,}
 module.db.tableVantus = {
 	--uldir
@@ -325,6 +325,8 @@ if not ExRT.isClassic and UnitLevel'player' > 50 then
 	--Stamina,	Main stat,
 	[307187]=70,	[307185]=70,	[307166]=70,
 	[371339]=70,	[374000]=70,	[371354]=70,	[371204]=70,	[370662]=70,	[373257]=70,	[371386]=70,	[370652]=70,	[371172]=70,	[371186]=70,
+
+	[432021]=70,	[432473]=70,	[431971]=70,	[431972]=70,	[431974]=70,	[431973]=70,
 	}
 	module.db.tableFlask_headers = {0,70}
 
@@ -1739,9 +1741,9 @@ function module:slash(arg)
 	end
 end
 
-local RCW_iconsList = {'food','flask','rune','vantus','int','ap','vers','stam','move','dur'}
-local RCW_iconsListHeaders = {L.RaidCheckHeadFood,L.RaidCheckHeadFlask,L.RaidCheckHeadRune,L.RaidCheckHeadVantus,SPELL_STAT4_NAME or "Int",ATTACK_POWER_TOOLTIP or "AP",STAT_VERSATILITY or "Vers",SPELL_STAT3_NAME or "Stamina",TUTORIAL_TITLE2 or "Movement",DURABILITY or "Durability"}
-local RCW_iconsListDebugIcons = {136000,967549,840006,1058937,135932,132333,136078,135987,4622448,132281}
+local RCW_iconsList = {'food','flask','rune','vantus','int','ap','vers','stam','mast','move','dur'}
+local RCW_iconsListHeaders = {L.RaidCheckHeadFood,L.RaidCheckHeadFlask,L.RaidCheckHeadRune,L.RaidCheckHeadVantus,SPELL_STAT4_NAME or "Int",ATTACK_POWER_TOOLTIP or "AP",STAT_VERSATILITY or "Vers",SPELL_STAT3_NAME or "Stamina",STAT_MASTERY or "Mastery",TUTORIAL_TITLE2 or "Movement",DURABILITY or "Durability"}
+local RCW_iconsListDebugIcons = {136000,967549,840006,1058937,135932,132333,136078,135987,4630367,4622448,132281}
 local RCW_iconsListWide = {}
 local RCW_liveToClassicDiff = 0
 
@@ -1799,7 +1801,7 @@ if not ExRT.isClassic and UnitLevel'player' == 60 then
 end
 
 module.frame = ELib:Template("ExRTDialogModernTemplate",UIParent)
-module.frame:SetSize(430+60+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff,100)
+module.frame:SetSize(430+60+30+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff,100)
 module.frame:SetPoint("CENTER",UIParent,"CENTER",0,0)
 module.frame:SetFrameStrata("DIALOG")
 module.frame:EnableMouse(true)
@@ -2032,8 +2034,6 @@ local function CreateCol(line,key,i)
 	end
 end
 
-local RCW_CataFix = ExRT.isCata and 55 or 0
-
 local RCW_iconsList_ORIGIN = #RCW_iconsList
 function module.frame:UpdateCols()
 	for i=RCW_iconsList_ORIGIN+1,#RCW_iconsList do
@@ -2057,7 +2057,7 @@ function module.frame:UpdateCols()
 	end
 	for i=1,40 do
 		local line = module.frame.lines[i]
-		line:SetSize(420+60+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff+colsAdd*30+RCW_CataFix,14)
+		line:SetSize(420+60+30+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff+colsAdd*30,14)
 
 		local prevPointer = line[ RCW_iconsList[RCW_iconsList_ORIGIN].."pointer" ]
 
@@ -2072,7 +2072,7 @@ function module.frame:UpdateCols()
 		end
 		
 	end	
-	module.frame:SetWidth(430+60+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff+colsAdd*30)
+	module.frame:SetWidth(430+60+30+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff+colsAdd*30)
 end
 
 function module.frame:Create()
@@ -2092,7 +2092,7 @@ function module.frame:Create()
 		else
 			line:SetPoint("TOPLEFT", module.frame.lines[i-1], "BOTTOMLEFT", 0, -0)
 		end
-		line:SetSize(420+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff+RCW_CataFix,14)
+		line:SetSize(420+60+30+(ExRT.isClassic and 30*RCW_liveToClassicDiff or 0)+RCW_liveToslDiff,14)
 
 		line.name = ELib:Text(line,"raid"..i):Size(130,12):Point("LEFT",20,0):Font(ExRT.F.defFont,12):Color():Shadow()
 
@@ -2182,7 +2182,7 @@ do
 	local cR3,cG3,cB3 = .6,.6,.2	--Mid
 	local cR2,cG2,cB2 = .2,.7,.2	--Finished
 
-	local WIDTH,WIDTH2 = 430,18
+	local WIDTH,WIDTH2 = 430+60+30,18
 
 	line:SetSize(WIDTH,18)
 	--line:SetPoint("BOTTOMLEFT",module.frame,"TOPLEFT",0,-50)
@@ -2687,6 +2687,11 @@ function module.frame:UpdateData(onlyLine)
 						line.vers.text:SetText("")
 
 						buffCount = buffCount + 1
+					elseif module.db.tableMastery[auraData.spellId] and not ExRT.isClassic then
+						line.mast.texture:SetTexture(auraData.icon)
+						line.mast.text:SetText("")
+
+ 						buffCount = buffCount + 1
 					elseif module.db.tableMove[auraData.spellId] and not ExRT.isClassic then
 						line.move.texture:SetTexture(auraData.icon)
 						line.move.text:SetText("")
@@ -2940,7 +2945,7 @@ function module:ReadyCheckWindow(starter,isTest,manual)
 	if VMRT.RaidCheck.ReadyCheckSoulstone then
 		colsAdd = bit.bor(colsAdd,0x1)
 	end
-	if (self.frame.colsAdd or 0) ~= colsAdd then
+	if (self.frame.colsAdd or -1) ~= colsAdd then
 		self.frame.colsAdd = colsAdd
 		self.frame:UpdateCols()
 	end
@@ -3320,12 +3325,18 @@ addonMsgFrame:RegisterEvent("CHAT_MSG_ADDON")
 
 if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 	local IS_DF = true
-	local IS_TWW = UnitLevel'player' > 70
+	local IS_TWW = true	--UnitLevel'player' > 70
 
 	local consumables_size = 44
 
 	local rune_item_id = IS_TWW and 224572 or IS_DF and 201325 or 181468
 	local rune_texture = IS_TWW and 4549102 or IS_DF and 4644002 or 134078
+
+	--[432021]=70,	[432473]=70,	[431971]=70,	[431972]=70,	[431974]=70,	[431973]=70,
+	local flasks_list = {
+		-212741,-212740,-212739,	-212747,-212746,-212745,	-212728,-212727,-212725,	-212731,-212730,-212729,	-212738,-212736,-212735,	-212734,-212733,-212732,
+		212283,212282,212281,		212301,212300,212299,		212271,212270,212269,		212274,212273,212272,		212280,212279,212278,		212277,212276,212275,		
+	}
 
 	local wenchants = {
 		[6190] = {ench=6190,item=171286,icon=463544},
@@ -3568,7 +3579,7 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 			local auraData = C_UnitAuras.GetAuraDataByIndex("player", i, "HELPFUL")
 			if not auraData then
 				break
-			elseif module.db.tableFood[auraData.spellId] then
+			elseif module.db.tableFood[auraData.spellId] or auraData.icon == 136000 then
 				self.buttons.food.statustexture:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
 				self.buttons.food.texture:SetDesaturated(false)
 				self.buttons.food.timeleft:SetFormattedText(GARRISON_DURATION_MINUTES,ceil((auraData.expirationTime-now)/60))
@@ -3599,30 +3610,67 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 		end
 
 		local hsCount = GetItemCount(5512,false,true)
+		local hsLockCount = GetItemCount(224464,false,true)
 		if hsCount and hsCount > 0 then
 			self.buttons.hs.count:SetFormattedText("%d",hsCount)
 			self.buttons.hs.statustexture:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
 			self.buttons.hs.texture:SetDesaturated(false)
+			if self.buttons.hs.texture.isRed then
+				self.buttons.hs.texture:SetTexture(538745)
+				self.buttons.hs.texture.isRed = false
+			end
+		elseif hsLockCount and hsLockCount > 0 then
+			self.buttons.hs.count:SetFormattedText("%d",hsLockCount)
+			self.buttons.hs.statustexture:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
+			self.buttons.hs.texture:SetDesaturated(false)
+			if not self.buttons.hs.texture.isRed then
+				self.buttons.hs.texture:SetTexture(538744)
+				self.buttons.hs.texture.isRed = true
+			end
 		else
 			self.buttons.hs.count:SetText("0")
 		end
 
 
 
-		local flaskCount = GetItemCount(171276,false,false)
-		local flaskCanCount = GetItemCount(171280,false,false)
-		if IS_DF then
-			flaskCount = 0
-			flaskCanCount = 0
+		local flaskCount = 0
+		local flaskCanCount = 0
+		local flaskItemID
+		if IS_TWW then
+			for flask_i=1,#flasks_list do
+				local flask_item_id = flasks_list[flask_i]
+				local isCan = flask_item_id < 0
+				if isCan then
+					flask_item_id = -flask_item_id
+				end
+				local flask_count = GetItemCount(flask_item_id,false,false)
+				if flask_count and flask_count > 0 then
+					flaskItemID = flask_item_id
+					if isCan then
+						flaskCanCount = flask_count
+					else
+						flaskCount = flask_count
+					end
+					break
+				end
+			end
+		elseif not IS_DF then
+			laskCount = GetItemCount(171276,false,false)
+			flaskCanCount = GetItemCount(171280,false,false)
 		end
 		if not isFlask and ((flaskCount and flaskCount > 0 and not VMRT.RaidCheck.DisableNotCauldronFlask) or (flaskCanCount and flaskCanCount > 0)) then
 			if not InCombatLockdown() then
-				local itemID = (flaskCanCount and flaskCanCount > 0) and 171280 or 171276
+				local itemID = flaskItemID or ((flaskCanCount and flaskCanCount > 0) and 171280 or 171276)
 				local itemName = GetItemInfo(itemID)
 				if itemName then
 					self.buttons.flask.click:SetAttribute("macrotext1", format("/stopmacro [combat]\n/use %s", itemName))
 					self.buttons.flask.click:Show()
 					self.buttons.flask.click.IsON = true
+
+					local texture = select(5,C_Item.GetItemInfoInstant(itemID))
+					if texture then
+						self.buttons.flask.texture:SetTexture(texture)
+					end
 				else
 					self.buttons.flask.click:Hide()
 					self.buttons.flask.click.IsON = false
@@ -3984,5 +4032,5 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 		--module.consumables:SetPoint("CENTER")
 		module.consumables:GetScript("OnEvent")(module.consumables,"READY_CHECK",isRL and UnitName'player' or "")
 	end
-	--/run GMRT.A.RaidCheck.consumables.Test()
+	--/run GMRT.A.RaidCheck.consumables.Test(true)
 end
