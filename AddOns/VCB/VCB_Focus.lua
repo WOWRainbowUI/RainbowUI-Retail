@@ -166,7 +166,7 @@ local function AscendingDescendingSec(self)
 		end
 	end
 end
--- coloring the bar --
+--[[ coloring the bar --
 local function CastBarColor(self)
 	if VCBrFocus["Color"] == "Default Color" then
 		self:SetStatusBarDesaturated(false)
@@ -175,7 +175,7 @@ local function CastBarColor(self)
 		self:SetStatusBarDesaturated(true)
 		self:SetStatusBarColor(vcbClassColorFocus:GetRGB())
 	end
-end
+end]]
 -- Hooking Time part 1 --
 FocusFrameSpellBar:HookScript("OnShow", function(self)
 	NameTextPosition(self, "NameText", VCBnameText)
@@ -188,7 +188,7 @@ FocusFrameSpellBar:HookScript("OnUpdate", function(self)
 	self.Text:SetAlpha(0)
 	VCBnameText:SetText(self.Text:GetText())
 	AscendingDescendingSec(self)
-	CastBarColor(self)
+	--CastBarColor(self)
 	if VCBrFocus["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
 		VCBtotalTimeText:SetFormattedText("%.2f sec", self.maxValue)
 	elseif VCBrFocus["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
