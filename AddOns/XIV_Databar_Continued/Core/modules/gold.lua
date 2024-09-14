@@ -42,7 +42,8 @@ local function moneyWithTexture(amount, session)
         silver, copper = "00", "00"
     end
 
-    amountStringTexture = C_CurrencyInfo.GetCoinTextureString(amount .. "" .. silver .. "" .. copper)
+    local GetCoinTextureString = C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString or GetCoinTextureString -- 暫時修正
+	amountStringTexture = GetCoinTextureString(amount .. "" .. silver .. "" .. copper)
 
     if shortThousands then
         shortGold = shortenNumber(tonumber(amount))
