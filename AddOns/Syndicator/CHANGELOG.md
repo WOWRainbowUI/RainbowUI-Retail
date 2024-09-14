@@ -1,7 +1,6 @@
 # Syndicator
 
-## [122](https://github.com/Baganator/Syndicator/tree/122) (2024-09-13)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/121...122) 
+## [123](https://github.com/Baganator/Syndicator/tree/123) (2024-09-13)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/122...123) 
 
-- Remove 11.0.0 from thet toc  
-- [Fixes #49] Fix not clearing guild when guild left  
+- Fix merging guild banks on diff realms, same connected realm and same guild name  
