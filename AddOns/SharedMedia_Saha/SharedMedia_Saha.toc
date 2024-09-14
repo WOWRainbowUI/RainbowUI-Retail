@@ -1,0 +1,11 @@
+## Interface: 110002
+## Title: |cFFFF00CD<安格斯WA團本／副本技能語音提醒>|r
+## Title-zhTW: |cffFF9900[進階]|r 安格斯 WA 團本/副本語音提醒
+## Notes-zhTW: SharedMedia_Saha |n|n此為 WA 語音包，需要同時載入 'WA 技能提醒' 插件，並且匯入 '安格斯 WA 團本/副本技能語音提醒' 的 WA 字串後才能使用。|n安格斯 WA 字串下載網址 https://addons.miliui.com/show/157
+## X-Category-zhTW: 進階
+## DefaultState: Disabled
+## Author: 安格斯
+## Version: 24-0725-033
+## IconTexture: Interface\AddOns\DBM-VPSaha\z_ags
+
+Soundpaths.lua 
