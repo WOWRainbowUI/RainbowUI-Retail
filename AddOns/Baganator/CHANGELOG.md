@@ -1,9 +1,7 @@
 # Baganator
 
-## [485](https://github.com/Baganator/Baganator/tree/485) (2024-09-14)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/484...485) 
+## [486](https://github.com/Baganator/Baganator/tree/486) (2024-09-15)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/485...486) 
 
-- Remove 11.0.0 from toc and fix extra error when Syndicator disabled  
-- Customise: Categories: Added items list, remove unused hook  
-- Customise: Categories: Tooltips for valid pets and invalid added items  
-- Customise: Categories: Show all items manually added to a category in settings  
+- Cata: For default layout fix "Equipment Sets (Auto)" not in right section  
+- Update key bindings to allow bank view toggling (character, guild & warband) (#284)  
