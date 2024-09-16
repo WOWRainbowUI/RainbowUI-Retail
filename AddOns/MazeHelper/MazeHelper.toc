@@ -1,0 +1,27 @@
+## Interface: 110002
+## Author: Voopie
+## Title: Maze Helper [|cff235be8Mists of Tirna Scithe|r]
+## Notes: Your favorite helper for «Mists of Tirna Scithe»
+## Notes-ruRU: Ваш любимый помощник для подземелья «Туманы Тирна Скитта»
+## Notes-deDE: Ihr Lieblingshelfer für «Die Nebel von Tirna Scithe»
+## Notes-frFR: Votre assistant préféré pour «Brumes de Tirna Scithe»
+## Notes-esES: Tu ayudante favorito para «Nieblas de Tirna Scithe»
+## Notes-itIT: Il tuo aiutante preferito per «Nebbie di Tirna Falcis»
+## Notes-ptBR: Seu ajudante favorito para «Brumas de Tirna Scithe»
+## Notes-zhCN: 您最喜欢的«塞兹仙林的迷雾»的助手
+## Notes-koKR: «티르너 사이드의 안개»에 가장 좋아하는 도우미
+## Version: 1.84
+## IconTexture: Interface\AddOns\MazeHelper\Media\mh_logo_mini.blp
+## SavedVariables: MHMOTSConfig
+
+## Title-zhTW: |cffFF7F00[副本]|r 迷霧助手
+## Notes-zhTW: Maze Helper [|cff235be8Mists of Tirna Scithe|r] |n|n幫忙快速解答特那希迷霧的猜猜看遊戲，平時也可以當作小遊戲玩來練習。|n|n|cffffd200使用方法: |r進入副本後會出現包含各種圖案的小視窗，|n你在遊戲中看到的哪個圖案，|n就點一下小視窗中相同的圖案，|n都點完了之後會幫你選出正確答案。
+## X-Category-zhTW: 團隊
+
+Libraries\Load_Libraries.xml
+
+Locale.lua
+Media\Data.lua
+Elements.lua
+MazeHelper.lua
+Practice.lua

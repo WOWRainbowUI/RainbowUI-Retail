@@ -1572,6 +1572,21 @@ D["Masque"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
+D["MazeHelper"] = {
+    defaultEnable = 1,
+	tags = { "BOSSRAID" },
+	title = "迷霧助手",
+	desc = "幫忙快速解答特那希迷霧的猜猜看遊戲，平時也可以當作小遊戲玩來練習。``進入副本後會出現包含各種圖案的小視窗，你在遊戲中看到的哪個圖案，就點一下小視窗中相同的圖案，都點完了之後會幫你選出正確答案。`",
+	modifier = "BNS, Voopie, 彩虹ui",
+    {
+        text = "顯示主視窗",
+        callback = function() SlashCmdList["MAZEHELPER"]("") end,
+    },
+	{
+		type = "text",
+        text = "點 '迷霧助手' 的小地圖按鈕也可以打開主視窗。",
+    },
+};
 D["MBB"] = {
     defaultEnable = 0,
 	title = "小地圖按鈕選單 (舊版)",
