@@ -1,6 +1,6 @@
 ## Interface: 110002
 ## Title: BtWQuests
-## Version: 2.47.1 Fix
+## Version: 2.48.0
 ## Notes: 
 ## Author: Breen
 ## SavedVariables: BtWQuests_Characters BtWQuests_AccountSettings

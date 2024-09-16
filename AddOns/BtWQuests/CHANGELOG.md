@@ -1,3 +1,12 @@
+# v2.48.0
+
+- Added Honor Your Efforts questlines in Hallowfall
+- Added The Flame Within questlines in Hallowfall
+- Added Socialized Medicine questline in Azj-Kahet
+- Updated some prerequisites for Azj-Kahet questlines
+- Fixed issue where player level for alts could be lost and cause errors
+- Fixed error reading faction data
+
 # v2.47.1
 
 - Added A Light in the Dark campaign questline

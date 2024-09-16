@@ -1938,9 +1938,9 @@ Database:AddChain(Chain.TempChain25, {
             }
         },
         {
-            type = "reputation",
-            id = 2605,
-            standing = 5,
+            type = "currency",
+            id = 2904,
+            amount = 3,
         },
     },
     active = {
@@ -2063,9 +2063,9 @@ Database:AddChain(Chain.TempChain27, {
             }
         },
         {
-            type = "reputation",
-            id = 2605,
-            standing = 6,
+            type = "currency",
+            id = 2904,
+            amount = 7,
         },
     },
     active = {
@@ -2077,9 +2077,6 @@ Database:AddChain(Chain.TempChain27, {
         id = 83178,
     },
     items = {
-        {
-            name = "rep locked, at least 5? (6? beta)",
-        },
         {
             type = "npc",
             id = 208782,
@@ -2784,15 +2781,19 @@ Database:AddCategory(CATEGORY_ID, {
         },
         {
             type = "chain",
-            id = Chain.TempChain25,
-        },
-        {
-            type = "chain",
             id = Chain.TempChain26,
         },
         {
             type = "chain",
             id = Chain.TempChain28,
+        },
+        {
+            type = "chain",
+            id = Chain.TempChain25,
+        },
+        {
+            type = "chain",
+            id = Chain.TempChain27,
         },
         {
             type = "chain",
@@ -2806,10 +2807,6 @@ Database:AddCategory(CATEGORY_ID, {
         {
             type = "chain",
             id = Chain.TempChain21,
-        },
-        {
-            type = "chain",
-            id = Chain.TempChain27,
         },
         {
             type = "chain",

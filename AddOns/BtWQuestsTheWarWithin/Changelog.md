@@ -1,3 +1,10 @@
+# v4.0
+
+- Added Honor Your Efforts questlines in Hallowfall
+- Added The Flame Within questlines in Hallowfall
+- Added Socialized Medicine questline in Azj-Kahet
+- Updated some prerequisites for Azj-Kahet questlines
+
 # v3.0
 
 - Added A Light in the Dark campaign questline
