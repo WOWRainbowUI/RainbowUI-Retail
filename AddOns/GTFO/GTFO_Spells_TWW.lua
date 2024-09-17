@@ -535,6 +535,12 @@ GTFO.SpellID["458836"] = {
   sound = 1;
 };
 
+GTFO.SpellID["445193"] = {
+  --desc = "Flame Patch (Spitfire Charger)";
+  sound = 1;
+};
+
+
 --- *******************
 --- * Nerub-ar Palace *
 --- *******************
@@ -561,6 +567,12 @@ GTFO.SpellID["448148"] = {
   --desc = "Black Blood (Blood Collector)";
   sound = 1;
   ignoreApplication = true;
+};
+
+GTFO.SpellID["444172"] = {
+  --desc = "Blightstorm (Xur'khun the Defiled)";
+  ignoreApplication = true;
+  sound = 1;
 };
 
 GTFO.SpellID["440904"] = {
@@ -612,6 +624,19 @@ GTFO.SpellID["442799"] = {
   --desc = "Sanguine Overflow (Broodtwister Ovi'nax)";
   sound = 1;
 };
+
+GTFO.SpellID["451086"] = {
+  --desc = "Entropic Webs (Skeinspinner Takazj)";
+  ignoreApplication = true;
+  sound = 2;
+};
+
+GTFO.SpellID["444956"] = {
+  --desc = "Noxious Discharge (Xur'khun the Defiled)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 
 end
 

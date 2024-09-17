@@ -314,6 +314,15 @@ GTFO.SpellID["459942"] = {
   sound = 3;
 };
 
+GTFO.SpellID["452210"] = {
+  --desc = "Crystalline Barrage (Aggregation of Horrors)";
+  sound = 3;
+};
+
+GTFO.SpellID["454945"] = {
+  --desc = "Bellowing Gust (Pterrordaxus)";
+  sound = 3;
+};
 
 
 --- ****************************
@@ -382,6 +391,11 @@ GTFO.SpellID["432119"] = {
 
 GTFO.SpellID["453767"] = {
   --desc = "Aerial Defense Orbs (Colossal Titan Construct)";
+  sound = 3;
+};
+
+GTFO.SpellID["461507"] = {
+  --desc = "Cultivated Poisons (Ki'katal the Harvester)";
   sound = 3;
 };
 
@@ -1295,6 +1309,36 @@ GTFO.SpellID["390957"] = {
   sound = 3;
 };
 
+GTFO.SpellID["423689"] = {
+  --desc = "Void Essence";
+  sound = 3;
+};
+
+GTFO.SpellID["453513"] = {
+  --desc = "Decay Slam";
+  sound = 3;
+};
+
+GTFO.SpellID["462690"] = {
+  --desc = "Spontaneous Explosion (Darkened Husk)";
+  sound = 3;
+};
+
+GTFO.SpellID["445776"] = {
+  --desc = "Bubble Surge (Deepwater Makura)";
+  sound = 3;
+};
+
+GTFO.SpellID["470590"] = {
+  --desc = "Bubble Surge (Deepwater Makura)";
+  sound = 3;
+};
+
+GTFO.SpellID["449319"] = {
+  --desc = "Strife (Nerubian Darkcaster)";
+  sound = 3;
+};
+
 --- *******************
 --- * Nerub-ar Palace *
 --- *******************
@@ -1407,6 +1451,11 @@ GTFO.SpellID["444023"] = {
 
 GTFO.SpellID["441612"] = {
   --desc = "Vile Discharge (Broodtwister Ovi'nax)";
+  sound = 3;
+};
+
+GTFO.SpellID["451016"] = {
+  --desc = "Shatter Existence (Skeinspinner Takazj)";
   sound = 3;
 };
 

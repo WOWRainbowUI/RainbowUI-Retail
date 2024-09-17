@@ -210,3 +210,4 @@ GTFO.IgnoreScan["454860"] = true; -- Infectious Wound
 GTFO.IgnoreScan["437839"] = true; -- Nether Rift
 GTFO.IgnoreScan["436996"] = true; -- Stalking Shadows
 GTFO.IgnoreScan["439861"] = true; -- Dark Sermon
+GTFO.IgnoreScan["460600"] = true; -- Entropic Barrage
