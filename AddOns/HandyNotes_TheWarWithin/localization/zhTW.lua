@@ -54,6 +54,15 @@ L['cendvin_note'] = '在 {location:火渣林} 的菁英怪農 900x {item:225557}
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = '顯示成就 {achievement:40606} 的位置。'
 
+L['aradan_note_start'] = '{npc:213428} 可以在 {location:多恩島} 的 {location:多恩諾加} 地下城 {location:培育所} 中找到。\n\n{note:{npc:213428} 可以在追隨者地下城模式下被馴服。}'
+L['aradan_note_step_1'] = '1. 從 {location:多恩島} 外的深水中收集 {item:220770}。'
+L['aradan_note_step_2'] = '2.（{dot:Blue}）進入 {location:培育所} 並擊敗 {npc:209230}。'
+L['aradan_note_step_3'] = '3.（{dot:Red}）跳下豎井然後跑上 {npc:215967} 出現處的樓梯。'
+L['aradan_note_step_4'] = '4.（{dot:Green}）跑到懸崖邊並使用 {item:220770}，同時瞄准 {npc:213428}。'
+L['aradan_note_step_5'] = '5. {npc:213428} 會認出錘子並飛下來，讓你馴服它。'
+L['aradan_note_end'] = '{note:{item:220770} 在使用時不會被消耗，因此可以馴服所有5種模型變體或幫助同伴獵人。}'
+
+
 -------------------------------------------------------------------------------
 -------------------------------- RINGING DEEPS --------------------------------
 -------------------------------------------------------------------------------
