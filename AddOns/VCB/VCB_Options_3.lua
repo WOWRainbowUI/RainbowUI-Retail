@@ -54,7 +54,7 @@ local function CheckSavedVariables()
 	vcbOptions3Box4PopOut1:SetText(VCBrFocus["TotalTimeText"]["Position"])
 	vcbOptions3Box4PopOut2:SetText(VCBrFocus["TotalTimeText"]["Sec"])
 	vcbOptions3Box5PopOut1:SetText(VCBrFocus["NameText"])
-	--vcbOptions3Box5PopOut2:SetText(VCBrFocus["Color"])
+	vcbOptions3Box5PopOut2:SetText(VCBrFocus["Color"])
 end
 -- taking care of the target preview --
 FocusFrame.CBpreview:SetScript("OnEnter", function(self)
@@ -406,7 +406,7 @@ for i = 0, 9, 1 do
 		end
 	end)
 end
---[[ pop out 2 Castbar's Color --
+-- pop out 2 Castbar's Color --
 -- enter --
 vcbOptions3Box5PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
@@ -433,7 +433,7 @@ for i = 0, 1, 1 do
 			vcbOptions3Box5PopOut2Choice0:Hide()
 		end
 	end)
-end]]
+end
 -- naming button choices for spell's name, current cast time, current & total time, and total time --
 for i = 2, 5, 1 do
 	_G["vcbOptions3Box"..i.."PopOut1Choice0"].Text:SetText("Hide")

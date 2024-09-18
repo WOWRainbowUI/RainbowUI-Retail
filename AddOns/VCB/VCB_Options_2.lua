@@ -53,7 +53,7 @@ local function CheckSavedVariables()
 	vcbOptions2Box4PopOut1:SetText(VCBrTarget["TotalTimeText"]["Position"])
 	vcbOptions2Box4PopOut2:SetText(VCBrTarget["TotalTimeText"]["Sec"])
 	vcbOptions2Box5PopOut1:SetText(VCBrTarget["NameText"])
-	--vcbOptions2Box5PopOut2:SetText(VCBrTarget["Color"])
+	vcbOptions2Box5PopOut2:SetText(VCBrTarget["Color"])
 end
 -- taking care of the target preview --
 TargetFrame.CBpreview:SetScript("OnEnter", function(self)
@@ -405,7 +405,7 @@ for i = 0, 9, 1 do
 		end
 	end)
 end
---[[ pop out 2 Castbar's Color --
+-- pop out 2 Castbar's Color --
 -- enter --
 vcbOptions2Box5PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
@@ -432,7 +432,7 @@ for i = 0, 1, 1 do
 			vcbOptions2Box5PopOut2Choice0:Hide()
 		end
 	end)
-end]]
+end
 -- naming button choices for spell's name, current cast time, current & total time, and total time --
 for i = 2, 5, 1 do
 	_G["vcbOptions2Box"..i.."PopOut1Choice0"].Text:SetText("Hide")
