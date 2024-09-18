@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1725186710,
+        timestamp = 1726594067,
         version = '11.0.2',
-        build = 56421,
+        build = 56625,
     }
 end
 
@@ -39,7 +39,7 @@ function data:GetNPCData()
         [162056] = { ["name"] = "Rockbound Sprite", ["count"] = 1 },
         [162057] = { ["name"] = "Chamber Sentinel", ["count"] = 7 },
         [162158] = { ["name"] = "Starving Prisoner", ["count"] = 1 },
-        [162729] = { ["name"] = "Patchwerk Soldier", ["count"] = 4 },
+        [162729] = { ["name"] = "Patchwerk Soldier", ["count"] = 1 },
         [162744] = { ["name"] = "Nekthara the Mangler", ["count"] = 20 },
         [162763] = { ["name"] = "Soulforged Bonereaver", ["count"] = 8 },
         [163058] = { ["name"] = "Mistveil Defender", ["count"] = 4 },
