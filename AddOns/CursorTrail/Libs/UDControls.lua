@@ -1,4 +1,4 @@
-local CONTROLS_VERSION = "2024-07-24"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
+local CONTROLS_VERSION = "2024-09-15"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
 
 --[[---------------------------------------------------------------------------
 FILE:   UDControls.lua
@@ -16,6 +16,8 @@ REQUIREMENTS / DEPENDANCIES:
 USAGE:  See examples at end of this comment block.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Sep 15, 2024
+        - Added CUtil.EnhanceFrameEdges(), CUtil.CreateContextMenu().
     Jul 24, 2024
         - Fixed GetMouseFocus() errors caused in WoW 11.0.  (Added CUtil.GetMouseFocus() and exported that function too.)
     Jun 25, 2024
@@ -132,6 +134,7 @@ CHANGE HISTORY:
 
         CreateCheckBox()        - Returns a CheckBox object.
         CreateColorSwatch()     - Returns a ColorSwatch object.
+        CreateContextMenu()     - Returns a ListBox object that behaves as a context menu.
         CreateDropDown()        - Returns a DropDown object.
         CreateGroupBox()        - Returns a group box frame.
         CreateIconButton()      - Returns a standard button frame.
@@ -172,6 +175,18 @@ CHANGE HISTORY:
     Variables:
         checkButton
         fontString
+
+~~~~~~~~~~~~~~~~~~~
+    ContextMenu
+~~~~~~~~~~~~~~~~~~~
+
+    Functions:
+        close()
+        getColor()
+        getBackColor()
+        open()
+        setColor()
+        setBackColor()
 
 ~~~~~~~~~~~~~~~~~~~
     ColorSwatch
@@ -412,6 +427,51 @@ CHANGE HISTORY:
     colorswatch:SetColor(1,0,0, 1)  -- RGBA (Alpha value specified.  Opacity slider will be shown in the color picker.)
 
     colorswatch:SetColorChangedHandler(function(self) YourObjectTexture:SetVertexColor(self.r, self.g, self.b, self.a) end)
+
+
+~~~~~~~~~~~~~~~~~~~~~
+ ContextMenu Example
+~~~~~~~~~~~~~~~~~~~~~
+
+    local kAddonFolderName, private = ...  -- First line of LUA file that will use these controls.
+        .                                  -- (The variable names can be changed to anything you like.)
+        .
+        .
+
+    YourOptionsFrame.contextMenu = private.UDControls.CreateContextMenu(YourOptionsFrame)
+    YourOptionsFrame.contextMenu:setColor(0.24, 0.48, 0.6,  1)
+    YourOptionsFrame.contextMenu:setBackColor(0.5, 1, 1,  0.95)
+
+    YourOptionsFrame:SetScript("OnMouseUp", function(self, mouseButton)
+            if mouseButton == "RightButton" then
+                -- Open context menu.
+                local iconR = "Interface\\COMMON\\Indicator-Red"
+                local iconG = "Interface\\COMMON\\Indicator-Green"
+
+                local lines = {}
+                local i = 1
+                lines[i] = {isDivider=true}; i=i+1
+                lines[i] = {text="Enabled Line",  icon=iconG, func=function() print("Enabled line clicked.") end}; i=i+1
+                lines[i] = {text="Disabled Line", icon=iconR, disabled=true}; i=i+1
+                lines[i] = {isDivider=true}; i=i+1
+
+                self.open( lines )
+            else
+                -- Close context menu.
+                if self.contextMenu then self.contextMenu:close() end
+            end
+        end)
+
+    hooksecurefunc(private.UDControls, "handleGlobalMouseClick", function(mouseButton)
+            -- Hide context menu when user clicks anywhere outside of it.
+            if (mouseButton == nil or mouseButton == "LeftButton") then
+                local menu = YourOptionsFrame.contextMenu
+                if menu:IsShown() and not menu:IsMouseOver() then
+                    menu:close()
+                end
+            end
+        end)
+
 
 
 ~~~~~~~~~~~~~~~~~~
@@ -4576,6 +4636,182 @@ function CUtil.GetMouseFocus()
 end
 
 
+-- ****************************************************************************
+-- Adds an "edges" variable to the specified table that adds lines around
+-- the edges of the frame.  The color of the lines can change be changed
+-- by calling frame.edges:setColor(r,g,b,a).
+-- ****************************************************************************
+function CUtil.EnhanceFrameEdges(frame, x1, y1, x2, y2)
+    assert(not frame.edges) -- Don't call this more than once, or with a frame that already has a ".edges" table.
+    frame.edges = CreateFrame("Frame", nil,  frame, "ThinBorderTemplate")
+    frame.edges:SetPoint("TOPLEFT", frame.titleBox or frame, "TOPLEFT", x1, y1)
+    frame.edges:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", x2, y2)
+    frame.edges:SetScale(0.92)
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    frame.edges.setColor = function(self, r, g, b, alpha)
+        assert(type(self) == "table") -- First param must be a frame.
+        r=r or 1; g=g or 1; b=b or 1; alpha=alpha or 1;
+        self.color = {r=r, g=g, b=b, alpha=alpha}
+        for i, region in ipairs({self:GetRegions()}) do
+            if region.SetVertexColor then region:SetVertexColor(r, g, b, alpha); end
+        end
+    end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    frame.edges.getColor = function(self)
+        if self and self.color then
+            return self.color.r, self.color.g, self.color.b, self.color.alpha
+        end
+        return 1, 1, 1, 1
+    end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    frame.edges:setColor(0.6, 0.6, 0.6,  1)  -- Set a default color.
+end
+
+-------------------------------------------------------------------------------
+function CUtil.CreateContextMenu(parent, fontTemplateName, sizes)
+    local listbox = CreateListBox( parent )
+    listbox:Hide()
+    local sizes = sizes or {}
+    listbox.sizes = {lineHeight   = sizes.lineHeight    or 20,
+                    iconSize      = sizes.iconSize      or 19,
+                    leftPadding   = sizes.leftPadding   or 6,
+                    rightPadding  = sizes.rightPadding  or 6,
+                    iconPadding   = sizes.iconPadding   or 8,
+                    bottomPadding = sizes.bottomPadding or 3,
+                    edgeW         = sizes.edgeW         or 4 }
+    listbox.fontTemplateName = fontTemplateName or "GameFontNormal"
+    listbox.separatorLeft = listbox.sizes.leftPadding - 4
+    listbox.separatorRight = -listbox.sizes.rightPadding
+    listbox:Configure(10, 10, listbox.sizes.lineHeight)  -- Temp sizes for now, so we can add items.
+    listbox:SetFrameStrata("FULLSCREEN")
+    listbox:SetClampedToScreen(true)
+
+    -------------------------
+    -- CONTEXT MENU SCRIPTS
+    -------------------------
+
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    listbox:SetScript("OnHide", function(self) self:Clear() end)
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    listbox:SetScript("OnKeyDown", function(self, key)
+            -- Close listbox when Escape key is pressed.
+            local bPassKeyToParent = false
+            if key == "ESCAPE" then self:close()
+            else bPassKeyToParent = true end
+            if not InCombatLockdown() then self:SetPropagateKeyboardInput(bPassKeyToParent) end
+        end)
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+
+    ---------------------------
+    -- CONTEXT MENU CALLBACKS
+    ---------------------------
+
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    -- OnCreateLine()
+	listbox:SetCreateLineHandler( function(thisLB)
+            local iconSize = thisLB.sizes.iconSize
+            local leftPadding = thisLB.sizes.leftPadding
+            local rightPadding = thisLB.sizes.rightPadding
+            local lineButton = CreateFrame("Button", nil, thisLB)
+
+            lineButton.fontString = lineButton:CreateFontString(nil, "OVERLAY", thisLB.fontTemplateName)
+            lineButton.fontString:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+            lineButton.fontString:SetJustifyH("LEFT")
+            lineButton.fontString:SetPoint("TOPLEFT", lineButton, "TOPLEFT", leftPadding, 0)
+            lineButton.fontString:SetPoint("BOTTOMRIGHT", lineButton, "BOTTOMRIGHT", -iconSize - rightPadding, 0)
+
+            lineButton.icon = lineButton:CreateTexture(nil, "ARTWORK")
+            lineButton.icon:SetPoint("RIGHT", lineButton, "RIGHT", -1 - rightPadding, 0)
+            lineButton.icon:SetSize(iconSize, iconSize)
+
+            return lineButton
+        end)
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    -- OnDisplayLine()
+	listbox:SetDisplayHandler( function(thisLB, lineButton, value, isSelected)
+            local line = value
+            lineButton.fontString:SetText( line.text or "" )
+            lineButton:SetEnabled( not line.disabled )
+            lineButton.icon:SetTexture( line.icon )
+            lineButton:SetTooltipTitleAndText( line.tooltipTitle, line.tooltip ) ----, "ANCHOR_LEFT")
+        end)
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    -- OnClickLine()
+	listbox:SetClickHandler( function(thisLB, lineButton, value, mouseButton, bDown)
+            local line = value
+            thisLB:Hide()
+            thisLB:ClearSelection()
+            if line.func then line.func() end  -- Execute action.
+        end)
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+
+    ---------------------------
+    -- CONTEXT MENU FUNCTIONS
+    ---------------------------
+
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    function listbox:open(lines)
+    -- Each line in the "lines" parameter can have one or more of the following values:
+    --  * text      - The text to show for this line in the menu.
+    --  * icon      - An icon (path name) to show at end of the menu line.
+    --  * func      - The function to execute when the menu line is selected.
+    --  * disabled  - Set true to disable the menu line.
+    --  * isDivider - Set true to show a divider line in the menu.
+    --  * isSpacer  - Set true to show an empty line in the menu.
+            local TextSize = CUtil.TextSize
+            TextSize:SetFontObject( self.fontTemplateName )
+
+            -- Add items.
+            self:Clear()
+            local sizes = self.sizes
+            local maxWidth = 10
+            for i = 1, #lines do
+                local line = lines[i]
+                if line.isDivider then
+                    self:AddSeparator()
+                elseif line.isSpacer then
+                    line.text = " "
+                    self:AddItem(line)
+                elseif line.title then
+                    assert(nil)  --TODO: Currently unsupported.
+                else
+                    self:AddItem(line)
+                    local width = TextSize:GetSize( line.text )
+                    maxWidth = math.max(maxWidth, width)
+                end
+            end
+
+            -- Set listbox size.
+            local listboxW = maxWidth + sizes.iconSize + sizes.iconPadding + sizes.leftPadding + sizes.rightPadding + sizes.edgeW
+            local listboxH = (#lines * sizes.lineHeight) + sizes.bottomPadding + sizes.edgeW
+            self:Configure(listboxW, listboxH, sizes.lineHeight)  -- Set final size.
+
+            -- Show context menu at mouse location.
+            local x, y = GetScaledCursorPosition()
+            x = x - (self:GetWidth() * 0.33)
+            y = y + (sizes.lineHeight * 0.5) + sizes.edgeW
+            self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+            self:Show()
+        end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    function listbox:close() self:Hide() end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    function listbox:setColor(r, g, b, alpha) self.edges:setColor(r, g, b, alpha) end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    function listbox:getColor() return self.edges:getColor() end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    function listbox:setBackColor(r, g, b, alpha)
+        self.Bg:SetVertexColor(r or 1,  g or 1,  b or 1,  alpha or 1)
+    end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    function listbox:getBackColor() return self.Bg:GetVertexColor() end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+
+    CUtil.EnhanceFrameEdges( listbox, 1, -0.5, -1, 0 )  -- (frame, x1, y1, x2, y2)
+    return listbox
+end
+
+
 --#############################################################################
 -------------------------------------------------------------------------------
 -- Module interface.
@@ -4600,11 +4836,13 @@ private.UDControls.CreateTextureButton    = CreateTextureButton  --DJUadded
 
 -- Exposed Utility Functions.  --DJUadded--
 private.UDControls.CloseDropDowns         = CUtil.CloseDropDowns
+private.UDControls.CreateContextMenu      = CUtil.CreateContextMenu
 private.UDControls.CreateHorizontalDivider= CUtil.CreateHorizontalDivider
 private.UDControls.CreateTexture_NEW      = CUtil.CreateTexture_NEW
 private.UDControls.DisplayAllFonts        = CUtil.DisplayAllFonts
-private.UDControls.GameTooltip_SetTitleAndText = CUtil.GameTooltip_SetTitleAndText  --DJUadded
-private.UDControls.GetMouseFocus          = CUtil.GetMouseFocus  --DJUadded
+private.UDControls.EnhanceFrameEdges      = CUtil.EnhanceFrameEdges
+private.UDControls.GameTooltip_SetTitleAndText = CUtil.GameTooltip_SetTitleAndText
+private.UDControls.GetMouseFocus          = CUtil.GetMouseFocus
 private.UDControls.handleGlobalMouseClick = CUtil.handleGlobalMouseClick
 private.UDControls.MsgBox                 = CUtil.MsgBox
 private.UDControls.Outline                = CUtil.Outline

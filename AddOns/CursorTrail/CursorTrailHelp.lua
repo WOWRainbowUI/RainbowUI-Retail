@@ -35,17 +35,24 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kHelpText_Options = [[
 選項視窗可從 Esc>選項>插件>滑鼠，開啟，或是輸入 /ct 或 /cursortrail。設定是每個角色分開儲存的，因此 (例如) 你的戰坦可以擁有與其他角色不同的滑鼠游標效果。
 
-* 形狀：可供選擇的形狀效果列表。 通過點擊形狀選擇右側的顏色樣本按鈕可以更改形狀的顏色。 當開啟 "閃耀" 效果時，所選的形狀顏色將被忽略，形狀將會 "閃耀"。 （閃耀效果不影響模型顏色。）
+* 圖層：選擇一個圖層分頁會顯示該圖層的選項。已啟用圖層的分頁將會呈現淡淡的綠色，而不是它的標準顏色，這表示哪些圖層已啟用，而無需選取它們。
+如果圖層具有相同的「框架層級」設定，則圖層 1 的特效會繪製在圖層 2 的特效之上。
+
+* 啟用圖層：開啟時，當前圖層的特效將會繪製在螢幕上。
+
+* 形狀：可供選擇的形狀特效清單。
+可以透過點擊形狀選擇右側的顏色樣本按鈕來更改形狀的顏色。
+當「閃爍」開啟時，將會忽略所選的形狀顏色，並且形狀會改為「閃爍」。 （閃爍不會影響模型顏色。）
 
 * 軌跡: 可供選擇的游標特效清單。可以利用下方的「調整位置」來移動位置。
 
 * 陰影%: 控制黑色背景圓圈的強度。99% 最暗，而 0% 是隱形 (關閉)。
 
-* 縮放大小%: 控制效果的大小。可以是 1 到 998。
+* 縮放比例 %：控制特效的大小。可以是 2 到 998。
 
 * 不透明度%: 控制圖形和軌跡的透明度。100% 完全可見，而 0% 則是隱形 (關閉)。
 
-* 繪圖層（視窗層級）：控制形狀和模型是繪製在其他介面物件的後面還是前面。 它不影響陰影選項。 （"背景"是最底層的繪圖層，而 "浮動提示" 是最頂層。）
+* 圖層層級：控制形狀和模型是繪製在其他 UI 物件的後面還是前面。它不會影響陰影選項。（「背景」是最底層的繪製圖層，「工具提示」是最頂層的。）
 
 * 調整位置: 移動軌跡特效的中心位置。第一個數字框是水平移動 (負數向左移動，正數向右移動)。第二個數字框是垂直移動 (負數向下移動，正數向上移動)。
 
@@ -59,17 +66,18 @@ kHelpText_Options = [[
 ]]
 
 kHelpText_Tips = [[
-- 滑鼠滾輪可以用來更改滑鼠指向的選項。
-
-- 上/下箭頭鍵可以用來更改焦點所在的選項。
-
-- 右鍵點擊設定檔名稱是一種快速保存的方法。
-
-- 右鍵點擊大多數選項會設為預設值。
-]]
-
-kHelpText_SlashCommands = [[
-輸入 "/ct help" 查看所有指令列表。
+* 圖層：
+- 在介面的空白區域點擊滑鼠右鍵會在滑鼠位置開啟一個用於選擇/啟用圖層的右鍵選單。
+- 在圖層分頁上點擊滑鼠右鍵將會選取該圖層並切換其啟用核取方塊。
+- 按下 Ctrl+Tab 或 Shift+Ctrl+Tab 會選取下一個/上一個圖層。
+- 將滑鼠懸停在圖層分頁名稱上並滾動滑鼠滾輪會循環切換所有圖層。
+* 設定檔：
+- 右鍵點擊設定檔名稱是一種快速儲存的方法。
+- 按住 Shift 並點擊設定檔清單中的名稱會在載入設定檔後保持清單開啟。
+* 變更數值：
+- 在大多數選項上點擊滑鼠右鍵會將其設定為預設值。再次點擊滑鼠右鍵會將其變更回先前的值。
+- 可以使用滑鼠滾輪來變更滑鼠下的選項。
+- 可以使用向上/向下箭頭鍵來變更具有焦點的選項。
 ]]
 
 kHelpText_ProfileCommands = [[
@@ -90,6 +98,10 @@ kHelpText_BackupCommands = [[
         /ct restore  <備份名稱>
         /ct deletebackup  <備份名稱>
         /ct listbackups
+]]
+
+kHelpText_SlashCommands = [[
+輸入 "/ct help" 查看所有可用的指令。
 ]]
 
 kHelpText_Troubleshooting = [[
@@ -123,18 +135,24 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
     local topMargin = 3
     local scrollDelaySecs = nil
     local ORANGE = "|cffEE5500"
+    local YELLOW = "|cffFFD200"
     local BLUE = "|cff0099DD"
     local GRAY = "|cff909090"
 
     if not HelpFrame then
-        HelpFrame = private.UDControls.CreateTextScrollFrame(parent, "*** "..kAddonFolderName.." Help ***", 750)
+        HelpFrame = private.UDControls.CreateTextScrollFrame(parent, "*** "..kAddonFolderName.." "..kAddonVersion.." Help ***", 750)
+        ----HelpFrame:SetFrameLevel( HelpFrame:GetFrameLevel()+1 )
         HelpFrame:Hide()
         HelpFrame.topicOffsets = {}
         scrollDelaySecs = 0.1  -- Required so this newly created window has its scrollbar update correctly.
 
         -- Colorize option names.
-        kHelpText_Options = kHelpText_Options:gsub("* ", "* "..BLUE)
+        kHelpText_Options = kHelpText_Options:gsub("* ", YELLOW.."* |r"..BLUE)
         kHelpText_Options = kHelpText_Options:gsub(": ", "|r: ")
+
+        -- Colorize tip sections.
+        kHelpText_Tips = kHelpText_Tips:gsub("* ", BLUE)
+        kHelpText_Tips = kHelpText_Tips:gsub(":", ":|r")
 
         ------ Colorize slash commands.
         ----kHelpText_ProfileCommands = kHelpText_ProfileCommands:gsub(" /ct ", BLUE.." /ct ")
@@ -149,9 +167,10 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         kHelpText_BackupCommands = kHelpText_BackupCommands:gsub(">", ">|r")
 
         ------ Colorize bullet chars.
-        ----kHelpText_ProfileCommands = kHelpText_ProfileCommands:gsub("\n%- ", BLUE.."\n- |r")
-        ----kHelpText_BackupCommands = kHelpText_BackupCommands:gsub("\n%- ", BLUE.."\n- |r")
-        ----kHelpText_Troubleshooting = kHelpText_Troubleshooting:gsub("\n%- ", BLUE.."\n- |r")
+        kHelpText_Tips = kHelpText_Tips:gsub("- ", YELLOW.."- |r")
+        kHelpText_ProfileCommands = kHelpText_ProfileCommands:gsub("\n%- ", YELLOW.."\n- |r")
+        kHelpText_BackupCommands = kHelpText_BackupCommands:gsub("\n%- ", YELLOW.."\n- |r")
+        kHelpText_Troubleshooting = kHelpText_Troubleshooting:gsub("\n%- ", YELLOW.."\n- |r")
 
         -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
         local bigFont = "GameFontNormalHuge" --"OptionsFontLarge" --"GameFontNormalLarge"
@@ -171,12 +190,6 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         HelpFrame:AddText(kHelpText_Tips, 0, lineSpacing, smallFont)
         HelpFrame:AddText(" ", 0, lineSpacing, smallFont)
 
-        -- SLASH COMMANDS:
-        ----HelpFrame.topicOffsets["SLASH_COMMANDS"] = HelpFrame:GetNextVerticalPosition()
-        HelpFrame:AddText(ORANGE.."指令", 0, 0, bigFont)
-        HelpFrame:AddText(kHelpText_SlashCommands, 0, lineSpacing, smallFont)
-        HelpFrame:AddText(" ", 0, lineSpacing, smallFont)
-
         -- PROFILE COMMANDS:
         HelpFrame.topicOffsets["PROFILE_COMMANDS"] = HelpFrame:GetNextVerticalPosition() -12
         HelpFrame:AddText(ORANGE.."設定檔", 0, 0, bigFont)
@@ -187,6 +200,12 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         HelpFrame.topicOffsets["BACKUP_COMMANDS"] = HelpFrame:GetNextVerticalPosition() -12
         HelpFrame:AddText(ORANGE.."備份", 0, 0, bigFont)
         HelpFrame:AddText(kHelpText_BackupCommands, 0, lineSpacing, smallFont)
+        HelpFrame:AddText(" ", 0, lineSpacing, smallFont)
+
+        -- SLASH COMMANDS:
+        ----HelpFrame.topicOffsets["SLASH_COMMANDS"] = HelpFrame:GetNextVerticalPosition()
+        HelpFrame:AddText(ORANGE.."指令", 0, 0, bigFont)
+        HelpFrame:AddText(kHelpText_SlashCommands, 0, lineSpacing, smallFont)
         HelpFrame:AddText(" ", 0, lineSpacing, smallFont)
 
         -- TROUBLESHOOTING:
@@ -200,7 +219,7 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         local spc = BLUE.."    "
         local addonTitle = GetAddOnMetadata(kAddonFolderName, "Title") or kAddonFolderName
         local addonVersion = GetAddOnMetadata(kAddonFolderName, "Version") or sUnknown
-        HelpFrame:AddText(ORANGE.."Versions", 0, 0, bigFont)
+        HelpFrame:AddText(ORANGE.."版本", 0, 0, bigFont)
         HelpFrame:AddText(spc..addonTitle.."|r:  "..addonVersion, 0, lineSpacing, smallFont)
         HelpFrame:AddText(spc.."Controls|r:  "..(private.UDControls.VERSION or sUnknown), 0, lineSpacing, smallFont)
         if private.ProfilesUI then
@@ -227,9 +246,9 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         HelpFrame:SetScript("OnShow", function(self)
                 Globals.PlaySound(829)  -- IG_SPELLBOOK_OPEN
             end)
-        HelpFrame:SetScript("OnHide", function(self) 
+        HelpFrame:SetScript("OnHide", function(self)
                 Globals.PlaySound(830)  -- IG_SPELLBOOK_CLOSE
-            end) 
+            end)
     end
 
     -- Scroll to top, or to specified topic.

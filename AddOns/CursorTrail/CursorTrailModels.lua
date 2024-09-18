@@ -464,14 +464,14 @@ kModelConstants =
     [166426] = {  -- "spells/intervenetrail.m2"
         Name = kCategory.Trail .. "藍色",
         BaseScale = 0.08, BaseFacing = 0,
-        BaseOfsX = 0.1, BaseOfsY = 0.5,
+        BaseOfsX = 0.1, BaseOfsY = 0.54,
         BaseStepX = 3460, BaseStepY = 3200,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166952] = {  -- "spells/sprint_impact_chest.m2"
         Name = kCategory.Trail .. "綠色",
         BaseScale = 0.08, BaseFacing = 0,
-        BaseOfsX = 0.05, BaseOfsY = -0.2,
+        BaseOfsX = 0.05, BaseOfsY = -0.14,
         BaseStepX = 3440, BaseStepY = 3140,
         IsSkewed = true, HorizontalSlope = 0,
     },
@@ -485,14 +485,14 @@ kModelConstants =
     [165784] = {  -- "spells/chargetrail.m2"
         Name = kCategory.Trail .. "紅色",
         BaseScale = 0.05, BaseFacing = 0,
-        BaseOfsX = 0.04, BaseOfsY = -0.18,
+        BaseOfsX = 0.04, BaseOfsY = 0.02,
         BaseStepX = 3419, BaseStepY = 3140,
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166731] = {  -- "spells/ribbontrail.m2"
         Name = kCategory.Trail .. "白色",
         BaseScale = 0.09, BaseFacing = 0,
-        BaseOfsX = 0.05, BaseOfsY = -0.25,
+        BaseOfsX = 0.05, BaseOfsY = -0.19,
         BaseStepX = 3420, BaseStepY = 3140,
         IsSkewed = true, HorizontalSlope = 0,
     },
