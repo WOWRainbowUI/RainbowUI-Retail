@@ -3,7 +3,6 @@ local CraftSim = select(2, ...)
 
 local GGUI = CraftSim.GGUI
 local GUTIL = CraftSim.GUTIL
-local L = CraftSim.UTIL:GetLocalizer()
 
 ---@class CraftSim.CRAFT_RESULTS
 CraftSim.CRAFT_RESULTS = CraftSim.CRAFT_RESULTS
@@ -46,7 +45,7 @@ function CraftSim.CRAFT_RESULTS.UI:Init()
         ---@class CraftSim.CRAFT_RESULTS.CRAFT_PROFITS_TAB : GGUI.BlizzardTab
         frame.content.craftProfitsTab = GGUI.BlizzardTab {
             buttonOptions = {
-                label = L(CraftSim.CONST.TEXT.CRAFT_RESULT_TAB_PROFITS),
+                label = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CRAFT_RESULTS_CRAFT_PROFITS_TAB),
                 offsetY = -3,
             },
             parent = frame.content, anchorParent = frame.content, initialTab = true,
@@ -59,7 +58,7 @@ function CraftSim.CRAFT_RESULTS.UI:Init()
         ---@class CraftSim.CRAFT_RESULTS.STATISTICS_TRACKER_TAB : GGUI.BlizzardTab
         frame.content.statisticsTrackerTab = GGUI.BlizzardTab {
             buttonOptions = {
-                label = L(CraftSim.CONST.TEXT.CRAFT_RESULT_TAB_TRACKER),
+                label = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CRAFT_RESULTS_STATISTICS_TRACKER_TAB),
                 anchorParent = frame.content.craftProfitsTab.button,
                 anchorA = "LEFT",
                 anchorB = "RIGHT",
@@ -219,12 +218,12 @@ function CraftSim.CRAFT_RESULTS.UI:InitStatisticsTrackerTab(statisticsTrackerTab
     GGUI.Text {
         parent = content,
         anchorPoints = { { anchorParent = content.resultDistributionList.frame, anchorA = "BOTTOM", anchorB = "TOP", offsetY = 2 } },
-        text = L(CraftSim.CONST.TEXT.CRAFT_RESULT_RESULT_DISTRIBUTION)
+        text = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CRAFT_RESULTS_STATISTICS_TRACKER_TAB_DISTRIBUTION_LABEL)
     }
 
     GGUI.HelpIcon {
         parent = content, anchorParent = content.resultDistributionList.frame, anchorA = "BOTTOMLEFT", anchorB = "TOPRIGHT", offsetX = -5, offsetY = -4,
-        text = L(CraftSim.CONST.TEXT.CRAFT_RESULT_RESULT_DISTRIBUTION_TOOLTIP)
+        text = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CRAFT_RESULTS_STATISTICS_TRACKER_TAB_DISTRIBUTION_HELP)
     }
 
     content.multicraftStatisticsList = GGUI.FrameList {
@@ -262,7 +261,7 @@ function CraftSim.CRAFT_RESULTS.UI:InitStatisticsTrackerTab(statisticsTrackerTab
     GGUI.Text {
         parent = content,
         anchorPoints = { { anchorParent = content.multicraftStatisticsList.frame, anchorA = "BOTTOM", anchorB = "TOP", offsetY = 2 } },
-        text = L(CraftSim.CONST.TEXT.STAT_MULTICRAFT)
+        text = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CRAFT_RESULTS_STATISTICS_TRACKER_TAB_MULTICRAFT)
     }
 
     content.resourcefulnessStatisticsList = GGUI.FrameList {
@@ -300,7 +299,7 @@ function CraftSim.CRAFT_RESULTS.UI:InitStatisticsTrackerTab(statisticsTrackerTab
     GGUI.Text {
         parent = content,
         anchorPoints = { { anchorParent = content.resourcefulnessStatisticsList.frame, anchorA = "BOTTOM", anchorB = "TOP", offsetY = 2 } },
-        text = L(CraftSim.CONST.TEXT.STAT_RESOURCEFULNESS)
+        text = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CRAFT_RESULTS_STATISTICS_TRACKER_TAB_RESOURCEFULNESS)
     }
 
     content.yieldStatisticsList = GGUI.FrameList {
@@ -349,7 +348,7 @@ function CraftSim.CRAFT_RESULTS.UI:InitStatisticsTrackerTab(statisticsTrackerTab
     GGUI.Text {
         parent = content,
         anchorPoints = { { anchorParent = content.yieldStatisticsList.frame, anchorA = "BOTTOM", anchorB = "TOP", offsetY = 2 } },
-        text = L(CraftSim.CONST.TEXT.CRAFT_RESULT_YIELD_DISTRIBUTION)
+        text = CraftSim.LOCAL:GetText(CraftSim.CONST.TEXT.CRAFT_RESULTS_STATISTICS_TRACKER_TAB_YIELD_DDISTRIBUTION)
     }
 end
 
@@ -472,8 +471,9 @@ function CraftSim.CRAFT_RESULTS.UI:UpdateRecipeData(recipeID)
                 local expectedAdditionalItems = 0
                 local multicraftExtraItemsFactor = 1 + CraftSim.INIT.currentRecipeData.professionStats.multicraft
                     :GetExtraValue()
-
-                local maxExtraItems = (CraftSim.DB.OPTIONS:Get("PROFIT_CALCULATION_MULTICRAFT_CONSTANT") * CraftSim.INIT.currentRecipeData.baseItemAmount) *
+                local mcConstant = CraftSim.UTIL:GetMulticraftConstantByBaseYield(CraftSim.INIT.currentRecipeData
+                    .baseItemAmount)
+                local maxExtraItems = (mcConstant * CraftSim.INIT.currentRecipeData.baseItemAmount) *
                     multicraftExtraItemsFactor
                 expectedAdditionalItems = tonumber(CraftSim.GUTIL:Round((1 + maxExtraItems) / 2, 2)) or 0
 

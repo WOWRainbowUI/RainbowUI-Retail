@@ -112,7 +112,8 @@ function CraftSim.RECIPE_SCAN.UI:UpdateProfessionListRowCachedRecipesInfo(select
     if C_TradeSkillUI.IsTradeSkillReady() then
         if selectedRow.crafterProfessionUID ~= CraftSim.RECIPE_SCAN:GetPlayerCrafterProfessionUID() then
             content.cachedRecipesInfoHelpIcon:Show()
-            content.cachedRecipesInfo:SetText("(Cached Recipes: " .. tostring(#cachedRecipeIDs) .. ") ")
+            content.cachedRecipesInfo:SetText("(" ..
+                L(CraftSim.CONST.TEXT.RECIPE_SCAN_CACHED_RECIPES) .. tostring(#cachedRecipeIDs) .. ") ")
         else
             content.cachedRecipesInfo:SetText("")
             content.cachedRecipesInfoHelpIcon:Hide()
@@ -122,6 +123,10 @@ function CraftSim.RECIPE_SCAN.UI:UpdateProfessionListRowCachedRecipesInfo(select
         content.cachedRecipesInfo:SetText("")
         content.cachedRecipesInfoHelpIcon:Hide()
     end
+
+    -- update concentrationToggleCB
+
+    content.concentrationToggleCB:SetChecked(CraftSim.DB.OPTIONS:Get("RECIPESCAN_ENABLE_CONCENTRATION"))
 end
 
 ---@param recipeScanTab CraftSim.RECIPE_SCAN.RECIPE_SCAN_TAB
@@ -342,8 +347,8 @@ function CraftSim.RECIPE_SCAN.UI:CreateProfessionTabContent(row, content)
 
     content.concentrationToggleCB = GGUI.Checkbox {
         parent = content, anchorParent = content.cancelScanButton.frame, anchorA = "LEFT", anchorB = "RIGHT",
-        labelOptions = { text = GUTIL:IconToText(CraftSim.CONST.CONCENTRATION_ICON, 20, 20) .. L(CraftSim.CONST.TEXT.RECIPE_SCAN_CONCENTRATION) },
-        tooltip = L(CraftSim.CONST.TEXT.RECIPE_SCAN_CONCENTRATION_TOOLTIP),
+        labelOptions = { text = GUTIL:IconToText(CraftSim.CONST.CONCENTRATION_ICON, 20, 20) .. L(CraftSim.CONST.TEXT.RECIPE_SCAN_CONCENTRATION_TOGGLE) },
+        tooltip = L(CraftSim.CONST.TEXT.RECIPE_SCAN_CONCENTRATION_TOGGLE_TOOLTIP),
         initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_ENABLE_CONCENTRATION"),
         clickCallback = function(_, checked)
             CraftSim.DB.OPTIONS:Save("RECIPESCAN_ENABLE_CONCENTRATION", checked)
@@ -555,7 +560,8 @@ function CraftSim.RECIPE_SCAN.UI:CreateProfessionTabContent(row, content)
 
     GGUI.HelpIcon {
         parent = content, anchorParent = content.resultList.frame, anchorA = "BOTTOMLEFT", anchorB = "TOPLEFT", offsetY = -4, offsetX = 65,
-        text = L(CraftSim.CONST.TEXT.RECIPE_SCAN_QUEUE_TOOLTIP),
+        text = "Press " ..
+            CreateAtlasMarkup("NPE_LeftClick", 20, 20, 2) .. " + shift to queue selected recipe into the " .. f.bb("Craft Queue"),
         scale = 1.1,
     }
 
@@ -762,9 +768,8 @@ function CraftSim.RECIPE_SCAN.UI:InitScanOptionsTab(scanOptionsTab)
 
     content.optimizeSubRecipes = GGUI.Checkbox {
         parent = content, anchorParent = content.optimizeProfessionToolsCB.frame, anchorA = "TOP", anchorB = "BOTTOM", offsetY = checkBoxSpacingY,
-        label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZATION),
-        tooltip = L(CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZATION_TOOLTIP),
-        initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_OPTIMIZE_SUBRECIPES"),
+        label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_SUBRECIPES),
+        tooltip = L(CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_SUBRECIPES_TOOLTIP),
         clickCallback = function(_, checked)
             CraftSim.DB.OPTIONS:Save("RECIPESCAN_OPTIMIZE_SUBRECIPES", checked)
         end

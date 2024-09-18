@@ -73,7 +73,7 @@ function CraftSim.STATISTICS.UI:Init()
                 parent = frame.content,
                 anchorParent = frame.content,
                 offsetY = -2,
-                label = L(CraftSim.CONST.TEXT.STATISTICS_TAB_PROBABILITY),
+                label = L(CraftSim.CONST.TEXT.STATISTICS_PROBABILITY_TABLE_TAB),
             },
             parent = frame.content,
             anchorParent = frame.content,
@@ -92,7 +92,7 @@ function CraftSim.STATISTICS.UI:Init()
                 anchorParent = frame.content.probabilityTableTab.button,
                 anchorA = "LEFT",
                 anchorB = "RIGHT",
-                label = L(CraftSim.CONST.TEXT.STATISTICS_TAB_CONCENTRATION),
+                label = L(CraftSim.CONST.TEXT.STATISTICS_CONCENTRATION_TAB),
 
             },
             parent = frame.content,
@@ -334,14 +334,14 @@ function CraftSim.STATISTICS.UI:InitConcentrationTab(tab)
             anchorA = "BOTTOM",
             anchorB = "TOP", offsetY = 5,
         } },
-        text = L(CraftSim.CONST.TEXT.STATISTICS_CONCENTRATION_CURVE)
+        text = L(CraftSim.CONST.TEXT.STATISTICS_CONCENTRATION_CURVE_GRAPH)
     }
 
     GGUI.HelpIcon {
         parent = content,
         anchorParent = content.graphTitle.frame,
         anchorA = "LEFT", anchorB = "RIGHT", offsetX = 5,
-        text = L(CraftSim.CONST.TEXT.STATISTICS_CONCENTRATION_CURVE_TOOLTIP)
+        text = L(CraftSim.CONST.TEXT.STATISTICS_CONCENTRATION_CURVE_GRAPH_HELP),
     }
 end
 
