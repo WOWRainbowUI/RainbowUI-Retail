@@ -7,6 +7,17 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.2.5
+Released 2024-09-18
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.2.5 for Retail WoW
+Version 4.4.0.13 for Classic Cataclysm
+Version 1.15.3.8 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Fixed major lag that occurred on some computers when leaving combat ... I think!  (Removed the memory check that was added last release.)
+
+=======================================
 RELEASE 11.0.2.4
 Released 2024-09-17
 
@@ -511,23 +522,6 @@ NEW FEATURES:
 
 CHANGES:
 - Improved the help text shown by /ct help.  The text can now be scrolled one line at a time in the chat window.
-
-=======================================
-RELEASE 10.0.0.1
-Released 2022-10-28
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.0.0.1 for Retail WoW ...
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Fixed bugs caused by DragonFlight release.
-- Removed the config panel from the standard addons UI.  Options can now only be accessed by using a slash command.  (/ct, or /CursorTrail)
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 1.14.3.1 for Classic WoW, and
-Version 3.4.0.1 Classic WotLK ...
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Added support for Classic World of Warcraft and Classic Wrath of Lich King.  However, there will not be as many animation model choices in the list as there are for Retail WoW.
-
 ]]
 
 --- End of File ---
