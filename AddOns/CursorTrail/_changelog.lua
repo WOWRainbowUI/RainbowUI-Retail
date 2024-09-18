@@ -7,6 +7,76 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.2.4
+Released 2024-09-17
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.2.4 for Retail WoW
+Version 4.4.0.12 for Classic Cataclysm
+Version 1.15.3.7 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW FEATURES:
+- Added a second layer, making it possible to have two models, two shapes, two shadows, or any combination of them.
+Note: If you have at least one saved profile, a backup named "@v11.0.2.3" is created to ensure your old profiles will not be lost during the conversion to the new layers format.  (Can be restored by clicking "Menu" and selecting "Restore..." from the dropdown list.)
+
+- Added a context menu for selecting and enabling layers.  (To open the menu, right-click an empty area of the option window's background.)
+
+- Added new defaults:
+            "(Start Here)"  ...  This is a good starting point for a new profile.
+            "Cross & Ring, Red"
+            "Electric B&W Rings"
+            "Fireball"  ...  Available in Retail WoW only.
+
+- Changelog button now flashes when there is new information that has not been seen yet.  (Flashing always stops after next reload.)
+
+- Checkboxes can be toggled on/off by clicking their text as well as their box.
+Note: Classic WoW checkboxes already work this way.
+
+CHANGES:
+- Fixed error caused when moving mouse over the game's "Shop" window while CursorTrail's UI is also open.
+
+- Adjusted model offsets for ...
+            Trail - Sparkling, Red
+
+- Renamed the default "Glowing Star, Red" to "Star Glow Red", and added a trail FX to it.
+
+- Renamed the option "Layer (Strata)" to "Layer Strata".
+
+- Removed the following slash commands:
+        /ct combat
+        /ct fade
+        /ct mouselook
+        /ct sparkle
+
+- Added a memory check when combat ends.  It prints a warning if CursorTrail's memory usage ever grows too large.
+
+- Fixed warning message about unsaved changes before loading another profile. (There was a bug in function defaultValuesAreLoaded.)
+
+- Updated diagnostic slash commands:
+        /ct memory
+        /ct screen
+        /ct config
+        /ct model
+        /ct camera
+
+- Added diagnostic command to help diagnose large frame rate drops on some computers.
+        /ct throttle 8
+
+- Added diagnostic command to help diagnose model position problems on ultrawide monitors.
+        /ct uw
+
+- Updated help.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.2.4 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+CHANGES:
+- Adjusted model offsets for ...
+            Trail - Sparkling, Blue
+            Trail - Sparkling, Green
+            Trail - Sparkling, White
+
+=======================================
 RELEASE 11.0.2.3
 Released 2024-08-22
 

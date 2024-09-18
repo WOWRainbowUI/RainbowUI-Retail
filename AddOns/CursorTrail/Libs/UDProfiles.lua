@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2024-06-25"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2024-09-15"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -153,8 +153,29 @@ local PROFILESUI_VERSION = "2024-06-25"  -- Version (date) of this file.  Stored
             Example: To implement a SAVE button ...
                 YourOptionsFrame.SaveButton:SetScript("OnClick", function(self) profilesUI.menu.save(); end)
 
+        - ProfilesUI:setCallback_LoadProfile() and ProfilesUI:setCallback_LoadDefault() can be used
+          to specify a function to be called after a profile or default is loaded.
+          Those callback functions will be passed the name of the profile or default.
+
+          Example:
+            profilesUI:setCallback_LoadDefault( function(defaultNameLoaded)
+                            print("Default loaded:", defaultNameLoaded)
+                        end)
+
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Sep 15, 2024
+        - Moved setRegionsTextureColor() to be a member function of the "edges" table
+          created by enhanceFrameEdges(), named setColor().  (Implemented in UDControls.lua.)
+        - Added ProfilesUI:setCallback_LoadProfile() and ProfilesUI:setCallback_LoadDefault().
+        - Added kReasons constants as a second parameter to all UI_GetValues() and UI_SetValues() calls.
+        - Improved ProfilesUI:OnCancel() so it reloads the current profile in case its settings were altered
+          by the undoing saved profile changes.
+        - Fixed bug in defaultValuesAreLoaded().  It now ignores table addresses when
+          validating default values.
+        - Added ProfilesDB:makeBackupName().  It returns a default backup name based on
+          current date and time.  (Example: "Backup_2024-09-02_15:46:37")
+        - Added private.util.tGetSub(), private.ProfilesDB, private.util.enhanceFrameEdges().
     Jun 25, 2024
         - Replaced use of Blizzard's UIDropDownMenu with a custom dropdown control.  This was
           necessary to fix taint problems that triggered ADDON_ACTION_BLOCKED errors.
@@ -292,6 +313,19 @@ local kLoadDropDownBtnH = 28.2
 local kLoadDropDownBtnOfsX = -5
 local kActionsMenu = {lineHeight=17.5, width=84, leftPadding=6, rightPadding=6, bottomPadding=4, edgeW=4}
 
+-- Reason constants. (Used in calls to UI_GetValues() and UI_SetValues().
+local kReasons = {
+    CancelingChanges  = "CancelingChanges",
+    CheckingIfDefault = "CheckingIfDefault",
+    CopyingProfile    = "CopyingProfile",
+    LoadingDefault    = "LoadingDefault",
+    LoadingProfile    = "LoadingProfile",
+    OkayingChanges    = "OkayingChanges",
+    RefreshingUI      = "RefreshingUI",
+    SavingProfile     = "SavingProfile",
+    ShowingUI         = "ShowingUI",
+}
+
 --*****************************************************************************
 --[[                        Variables                                        ]]
 --*****************************************************************************
@@ -372,6 +406,25 @@ local function tSet(tbl, key, val) -- Sets value of a key in a table, ignoring c
 end
 
 --=============================================================================
+local function tGetSub(tbl, key, i, j, bReturnMatchingName)
+-- Similar to tGet(), this function gets the value of a key in a table, ignoring case of key name.
+-- However, tGetSub() allows comparing a substring of the key name.  Refer to LUA string.sub() for more details.
+-- Returns the value and (optionally) the matching key name if successful, or nil if not.
+    assert(type(tbl) == "table")
+    assert(bReturnMatchingName == nil or bReturnMatchingName == true or bReturnMatchingName == false)
+
+    local subkeyLower = key:sub(i,j):lower()
+    for k, v in pairs(tbl) do
+        if subkeyLower == k:sub(i,j):lower() then
+            if bReturnMatchingName then
+                return v, k  -- Return value, and the case of the key name we found.
+            end
+            return v  -- Return value only.
+        end
+    end
+end
+
+--=============================================================================
 local function tEmpty(tbl) -- Returns true if table has no items, or false if it does.
     assert(type(tbl) == "table")
     return (next(tbl) == nil and true) or false
@@ -384,6 +437,51 @@ local function tCount(tbl) -- Returns the number of keys in the table.
     for k, v in pairs(tbl) do count=count+1 end
     return count
 end
+
+--~ --=============================================================================
+--~ local function tCompare(tbl1, tbl2, bNilEqualsFalse) -- Returns true if both tables have the same keys and values.
+--~ 	if tbl1 ~= tbl2 then  -- Parameters are different?
+--~         -- Verify both parameters are tables.
+--~         local badParam
+--~         if type(tbl1) ~= "table" then badParam = 1
+--~         elseif type(tbl2) ~= "table" then badParam = 2
+--~         end
+--~         if badParam then
+--~             ----print("tCompare()=FALSE.  Parameter", badParam, "is not a table.")  -- For debugging.
+--~             return false
+--~         end
+--~
+--~         -- Compare values in table 1 to those in table 2.
+--~         for key1, value1 in pairs(tbl1) do
+--~             local value2 = tbl2[key1]
+--~             if value2 == nil then  -- Table 2 is missing a value.
+--~                 ----print("tCompare()=FALSE.  '"..key1.."' differs. (", value1, "vs nil )")  -- For debugging.
+--~                 return false
+--~             end
+--~             if value1 ~= value2 then
+--~                 -- If values are tables, compare them.
+--~                 if type(value1) == "table" and type(value2) == "table" then
+--~                     if not tCompare(value1, value2) then
+--~                         return false  -- The tables do not match.
+--~                     end
+--~                 else -- Values are not tables, and are not equal.
+--~                     ----print("tCompare()=FALSE.  '"..key1.."' differs. (", value1, "vs", value2, ")")  -- For debugging.
+--~                     return false
+--~                 end
+--~             end
+--~         end
+
+--~         -- Verify table 2 doesn't have extra values not found in table 1.
+--~         for key2, value2 in pairs(tbl2) do
+--~             if tbl1[key2] == nil then
+--~                 ----print("tCompare()=FALSE.  '"..key2.."' differs. ( nil vs", value2, ")")  -- For debugging.
+--~                 return false
+--~             end
+--~         end
+--~     end
+
+--~     return true  -- The tables match.
+--~ end
 
 --*****************************************************************************
 --[[                        Helper Functions                                 ]]
@@ -581,15 +679,6 @@ local function createBgTexture(frm, left, top, right, bottom)
 end
 
 --=============================================================================
-local function setRegionsTextureColor(frm, r, g, b, alpha)
-    assert(type(frm) == "table") -- First param must be a table (frame).
-    r=r or 1; g=g or 1; b=b or 1; alpha=alpha or 1;
-	for i, region in ipairs({frm:GetRegions()}) do
-        if region.SetVertexColor then region:SetVertexColor(r, g, b, alpha); end
-    end
-end
-
---=============================================================================
 local function createTexture_DeleteX(parent)
     local tex = parent:CreateTexture(nil, "ARTWORK")
     tex:SetTexture("Interface\\BUTTONS\\UI-StopButton")
@@ -600,16 +689,11 @@ end
 
 --=============================================================================
 local function enhanceFrameEdges(frame, x1, y1, x2, y2)
-    assert(not frame.edges) -- Don't call this more than once, or with a frame that already has a ".edges" table.
-    frame.edges = CreateFrame("Frame", nil,  frame, "ThinBorderTemplate")
-    frame.edges:SetPoint("TOPLEFT", frame.titleBox or frame, "TOPLEFT", x1, y1)
-    frame.edges:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", x2, y2)
-    frame.edges:SetScale(0.92)
-
+    private.UDControls.EnhanceFrameEdges(frame, x1, y1, x2, y2)
     local color = ProfilesUI.ListBoxColor
-    setRegionsTextureColor(frame.edges, color.r, color.g, color.b, color.alpha)
-    ----setRegionsTextureColor(frame.edges, 0.8, 0, 0,  1)
-    ----setRegionsTextureColor(frame.edges, 0.3, 0.3, 0.3,  1)
+    frame.edges:setColor(color.r, color.g, color.b, color.alpha)
+    ----frame.edges:setColor(0.8, 0, 0,  1)
+    ----frame.edges:setColor(0.3, 0.3, 0.3,  1)
 end
 
 --=============================================================================
@@ -676,6 +760,52 @@ local function stripUnsavedMarker(profileName)
 end
 
 --=============================================================================
+local function equivalentValues(value1, value2)
+    -- Treat nil, false, "", and 0 as being equal.
+    if value1 == value2
+        or (value1 == nil and (value2 == false or value2 == 0 or value2 == ""))
+        or (value2 == nil and (value1 == false or value1 == 0 or value1 == ""))
+      then
+        return true
+    end
+    return false
+end
+
+--=============================================================================
+local function compareProfiles(profile1, profile2) -- Returns true if both profiles are equivalent.
+-- (This function treats nil, false, "", and 0 as being equal.  Missing keys are ignored.)
+    ----vdt_dump(profile1, "profile1 in compareProfiles()")
+    ----vdt_dump(profile2, "profile2 in compareProfiles()")
+
+    -- Compare values in profile1 to those in profile2.
+    for key1, value1 in pairs(profile1) do
+        local value2 = profile2[key1]
+        if not equivalentValues(value1, value2) then
+            -- If values are tables, compare them.
+            if type(value1) == "table" and type(value2) == "table" then
+                if not compareProfiles(value1, value2) then
+                    return false
+                end
+            else -- Values are not tables, and are not equal.
+                ----print("compareProfiles()=FALSE.  '"..key1.."' differs. (", value1, "vs", value2, ")")  -- For debugging.
+                return false
+            end
+        end
+    end
+
+    -- Check profile2 for values not found in profile1.
+    for key2, value2 in pairs(profile2) do
+        local value1 = profile1[key2]
+        if value1 == nil and not equivalentValues(value1, value2) then
+            ----print("compareProfiles()=FALSE.  '"..key2.."' differs. (", value1, "vs", value2, ")")  -- For debugging.
+            return false
+        end
+    end
+
+    return true
+end
+
+--=============================================================================
 local function defaultValuesAreLoaded()  -- [ Keywords: isDefaultData() isUnsavedDefaults() ]
   -- Returns true if displayed UI values match the named default's values, or false if not.
 
@@ -689,14 +819,9 @@ local function defaultValuesAreLoaded()  -- [ Keywords: isDefaultData() isUnsave
     -- Compare current UI values to the named default values.
     -- NOTE: Won't detect a default if main UI changed any default values that were set by UI_SetValues().
     local displayedValues = {}
-    UI_GetValues(displayedValues)
-    for key, value in pairs(gDefaultsTable[name]) do
-        if value ~= displayedValues[key] then
-            ----print("defaultValuesAreLoaded()=FALSE.  '"..key.."' differs. (", value, "vs", displayedValues[key], ")")  -- For debugging.
-            return false
-        end
-    end
-    return true
+    UI_GetValues(displayedValues, kReasons.CheckingIfDefault)
+
+    return compareProfiles(displayedValues, gDefaultsTable[name])
 end
 
 --=============================================================================
@@ -759,7 +884,7 @@ local function UI_SetDefaults(name)
 
     -- Set UI values to defaults.
     local defaultConfig = CopyTable( gDefaultsTable[name] )
-    UI_SetValues(defaultConfig)  -- Copies defaultConfig into the UI.
+    UI_SetValues(defaultConfig, kReasons.LoadingDefault)  -- Copies defaultConfig into the UI.
     return true
 end
 
@@ -1268,6 +1393,17 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
         return str
     end,
     -------------------------------------------------------------------------------
+    makeBackupName = function(self, customTitle)  -- ProfilesDB:makeBackupName()
+        -- Returns a default backup name based on current date and time.  (e.g. "Backup_2024-08-17_15:46:37")
+        assert(self == ProfilesDB)  -- Fails if function called using '.' instead of ':'.
+        local backupName = L.BackupName_Prefix .. (customTitle or self:_getBackupTime())
+        if backupName:len() > kBackupNameMaxLetters then
+            backupName = backupName:sub(1, kBackupNameMaxLetters)
+        end
+        return backupName
+
+    end,
+    -------------------------------------------------------------------------------
     ----_getRecentTimestampedName = function(self)  -- ProfilesDB:_getRecentTimestampedName()
     ----    -- Returns most recent timestamped backup name, or "" on failure.
     ----    assert(self == ProfilesDB)  -- Fails if function called using '.' instead of ':'.
@@ -1396,9 +1532,10 @@ local function ProfileOptions_Show()
         -------------------------
         local spacing = 5
         local fontTemplateName = "GameFontNormal"
+        local bClickableText = true
 
         -- CHECKBOX: SAVE ON OKAY --
-        frm.saveOnOkayCB = private.UDControls.CreateCheckBox(frm, fontTemplateName)
+        frm.saveOnOkayCB = private.UDControls.CreateCheckBox(frm, fontTemplateName, nil, nil, bClickableText)
         frm.saveOnOkayCB:SetLabel(L.OptionSaveOnOkay)
         frm.saveOnOkayCB:SetPoint("TOPLEFT", frm.TitleText, "BOTTOMLEFT", 0, -10-spacing)
         frm.saveOnOkayCB:SetPoint("RIGHT", frm, "RIGHT", -5, 0)
@@ -1407,7 +1544,7 @@ local function ProfileOptions_Show()
                 end)
 
         -- CHECKBOX: CONFIRM COPYING PROFILES --
-        frm.confirmCopyCB = private.UDControls.CreateCheckBox(frm, fontTemplateName)
+        frm.confirmCopyCB = private.UDControls.CreateCheckBox(frm, fontTemplateName, nil, nil, bClickableText)
         frm.confirmCopyCB:SetLabel(L.OptionConfirmCopy)
         frm.confirmCopyCB:SetPoint("TOPLEFT", frm.saveOnOkayCB, "BOTTOMLEFT", 0, -spacing)
         frm.confirmCopyCB:SetPoint("RIGHT", frm, "RIGHT", -5, 0)
@@ -1416,7 +1553,7 @@ local function ProfileOptions_Show()
                 end)
 
         -- CHECKBOX: CONFIRM DELETING PROFILES --
-        frm.confirmDeleteCB = private.UDControls.CreateCheckBox(frm, fontTemplateName)
+        frm.confirmDeleteCB = private.UDControls.CreateCheckBox(frm, fontTemplateName, nil, nil, bClickableText)
         frm.confirmDeleteCB:SetLabel(L.OptionConfirmDelete)
         frm.confirmDeleteCB:SetPoint("TOPLEFT", frm.confirmCopyCB, "BOTTOMLEFT", 0, -spacing)
         frm.confirmDeleteCB:SetPoint("RIGHT", frm, "RIGHT", -5, 0)
@@ -1592,7 +1729,7 @@ function actionMenuFuncs.onSelectItem( selectedItem )
     -- BACKUP --  [ Keywords: LB_Actions_Backup ]
     elseif selectedItem == L.mBackup then
         ----ProfilesUI:backupProfiles(nil, "c")  -- Prompt for confirmation, then create a timestamped backup.
-        local backupName = L.BackupName_Prefix .. ProfilesDB:_getBackupTime()
+        local backupName = ProfilesDB:makeBackupName()
         StaticPopup_Show(kAddonFolderName.."_BACKUP", nil, nil, backupName) -- (which, text1, text2, customData)
     -- RESTORE --  [ Keywords: LB_Actions_Restore ]
     elseif selectedItem == L.mRestore then
@@ -1828,19 +1965,13 @@ local function createActionsDropDown(dropDownFrameName, parent)
     --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     ---------------------------------------------------------------------------
-    function listbox:setColor(r, g, b, alpha)
-        r = r or 1;  g = g or 1;  b = b or 1;  alpha = alpha or 1
-        self.R = r;  self.G = g;  self.B = b;  self.Alpha = alpha
-        setRegionsTextureColor(self.edges, r, g, b, alpha)
-    end
+    function listbox:setColor(r, g, b, alpha) listbox.edges:setColor(r, g, b, alpha) end
     ---------------------------------------------------------------------------
-    function listbox:getColor()
-        return (self.R or 0), (self.G or 0), (self.B or 0), (self.Alpha or 1)
-    end
+    function listbox:getColor() return listbox.edges:getColor() end
     ---------------------------------------------------------------------------
 
     -- Enhance the listbox edges.
-    enhanceFrameEdges(listbox, 1, -0.5, -1, 0)  -- (frame, x1, y1, x2, y2)
+    enhanceFrameEdges( listbox, 1, -0.5, -1, 0 )  -- (frame, x1, y1, x2, y2)
     local color = ProfilesUI.ListBoxColor
     listbox:setColor(color.r, color.g, color.b, color.alpha)
 
@@ -2145,7 +2276,7 @@ local function UDProfiles_CreateUI(info)
 
                 ------ Make a copy of UI values.
                 ----ProfilesUI.OriginalValues = {}
-                ----UI_GetValues( ProfilesUI.OriginalValues )
+                ----UI_GetValues( ProfilesUI.OriginalValues, kReasons.ShowingUI )
 
                 ----dbg()
                 ----tracePUI("OUT OnShow gMainFrame")
@@ -2255,6 +2386,14 @@ function ProfilesUI:setBackColor(r, g, b, alpha) gMainFrame:SetBackColor(r, g, b
 function ProfilesUI:showOptions()       return ProfileOptions_Show() end
 function ProfilesUI:hideOptions()       return ProfileOptions_Hide() end
 -------------------------------------------------------------------------------
+function ProfilesUI:setCallback_LoadProfile(callbackFunc)
+    self.callbackLoadProfile = callbackFunc
+end
+-------------------------------------------------------------------------------
+function ProfilesUI:setCallback_LoadDefault(callbackFunc)
+    self.callbackLoadDefault = callbackFunc
+end
+-------------------------------------------------------------------------------
 function ProfilesUI:setListBoxEdgeColor(r, g, b, alpha)  -- Sets edge color and title box background color (if supported).
     if r == nil then r = self.ListBoxColor.r end
     if g == nil then g = self.ListBoxColor.g end
@@ -2363,15 +2502,15 @@ function ProfilesUI:refreshUI(bRestoringProfiles)
                 -- Either way, it's messy to try to handle this.  Just clear the profile name field.
                 self:clearProfileName()
             else
-                UI_SetValues()  -- Populates UI with last saved data.
+                UI_SetValues(nil, kReasons.RefreshingUI)  -- Populates UI with last saved data.
             end
         else
-            self:loadProfile(selectedName, "s")  -- Populates UI from saved profile data.
+            self:loadProfile(selectedName, "bs")  -- Populates UI from saved profile data.
         end
     else -- No profile selected yet.
         self:setCurrentName("")
         ----self:setCurrentName(UnitFullName("player"))
-        UI_SetValues()  -- Populates UI with last saved data, or default values.
+        UI_SetValues(nil, kReasons.RefreshingUI)  -- Populates UI with last saved data, or default values.
     end
     self:onProfilesListChanged()
     ----tracePUI("OUT refreshUI")
@@ -2382,7 +2521,7 @@ function ProfilesUI:OnOkay(bPrintMsg)  -- Updates the selected profile's config 
     ----tracePUI("IN OnOkay")
     assert(self == ProfilesUI)  -- Fails if function called using '.' instead of ':'.
     gMainFrame.closeReason = L.OKAY
-    UI_GetValues()  -- Copy values of UI widgets into persistent "SavedVariables" config data.
+    UI_GetValues(nil, kReasons.OkayingChanges)  -- Copy values of UI widgets into persistent "SavedVariables" config data.
 
     -- Save changes when user clicks OKAY (if that option is set).
     if ProfilesDB:getOptions().bSaveOnOkay then
@@ -2405,11 +2544,11 @@ function ProfilesUI:OnCancel(bPrintMsg)  -- Reverts to original profile name and
     local origName = self.OriginalProfileName
     if origName and origName ~= "" and namesDiffer(origName, currentName) then
         -- Restore original profile name and data.  (Works properly even if user reloads while UI is open!)
-        self:loadProfile( origName, (bPrintMsg and "" or "s") )
+        self:loadProfile( origName, (bPrintMsg and "" or "bs") )
         self:setProfileName(origName)  -- Fixes BUG 20240522.1.
     end
     ----self:setCurrentName(self.OriginalProfileName)  <<< This does not undo modified name if user reloads while UI is open!
-    ----UI_SetValues(self.OriginalValues)
+    ----UI_SetValues(self.OriginalValues, kReasons.CancelingChanges)
 
     -- Assuming the main UI canceled our changes to profile data, restore changes made
     -- to backups and options, and then ask the user if we should restore changes made to the profiles.
@@ -2434,6 +2573,9 @@ function ProfilesUI:OnCancel(bPrintMsg)  -- Reverts to original profile name and
                             ProfilesUI.OriginalProfiles = nil  -- Free memory.
                             PlaySound(kSound.Delete)
                             printProfilesMsg(L.CanceledProfileChanges)
+
+                            -- Reload current profile in case its settings were altered by the undo.
+                            self:loadProfile( self:getCurrentName(), "s" )
                             ----dbg()
                         end,
                 nil, nil,  -- data1, data2
@@ -2641,7 +2783,7 @@ function ProfilesUI:saveProfile(nameToSave, options, nameToLoadAfterwards)  -- [
         profileData = profileData or {}
 
         ----vdt_dump(ProfilesDB:getProfiles(), "'.Profiles' in ProfilesUI:saveProfile()")
-        UI_GetValues(profileData)  -- Copies UI values into profileData.
+        UI_GetValues(profileData, kReasons.SavingProfile)  -- Copies UI values into profileData.
         bResult = ProfilesDB:set(nameToSave, profileData)  -- Saves data from the UI to the specified profile.
         if bResult then
             -- SUCCESS.
@@ -2705,6 +2847,7 @@ function ProfilesUI:loadProfile(nameToLoad, options)  -- [ Keywords: loadProfile
 -- Otherwise, returns true and the matching name if successful, or false if not.
     --  'options' is a string of option characters:
     --      a = auto-save the current profile before loading the specified profile.
+    --      b = bypass notification callback.
     --      c = get confirmation from user to save current profile before loading another one.
     --      e = errors only (Similar to silent, except errors will be printed.)
     --      s = silent (no output printed/displayed).
@@ -2713,8 +2856,8 @@ function ProfilesUI:loadProfile(nameToLoad, options)  -- [ Keywords: loadProfile
     assert(self)  -- Fails if function called using '.' instead of ':'.
     assert(options==nil or type(options)=="string")
     options = options or ""
-    local bSilent, bConfirm, bAutoSave, bErrorsOnly
-        = sFind("s",options), sFind("c",options), sFind("a",options), sFind("e",options)
+    local bSilent, bConfirm, bAutoSave, bErrorsOnly, bBypassNotification
+        = sFind("s",options), sFind("c",options), sFind("a",options), sFind("e",options), sFind("b",options)
     nameToLoad = nameToLoad:trim()
     assert(not sFind("d",options)) -- Fails if loadProfile() is used to load a default rather than an existing profile.
 
@@ -2753,13 +2896,17 @@ function ProfilesUI:loadProfile(nameToLoad, options)  -- [ Keywords: loadProfile
         if profileData and next(profileData) ~= nil then  -- Did we get a table with data in it?
             -- SUCCESS.
             self:setProfileName( nameFound )
-            UI_SetValues( CopyTable(profileData) )  -- Copies profileData into the UI.
+            UI_SetValues( CopyTable(profileData), kReasons.LoadingProfile )  -- Copies profileData into the UI.
             ----ProfilesDB:setSelectedName(nameFound)  <-- ONLY DO THIS IN OnOkay().  Name got out of sync on reloads if UI is left open.
             if not gMainFrame:IsVisible() then  -- Load initiated by a slash command?
                 self:OnOkay() -- Must do this if UI is not displayed (so the name matches the data when UI opens next time).
             end
             bResult = true
             self.bModifiedValues = false  -- Reset.  Changed values were either saved or discarded.
+
+            if self.callbackLoadProfile and not bBypassNotification then
+                self.callbackLoadProfile(nameFound)
+            end
         end
     end
 
@@ -2819,13 +2966,21 @@ function ProfilesUI:loadDefault(nameToLoad, options)  -- [ Keywords: loadDefault
     local bResult = UI_SetDefaults(nameToLoad)
     if bResult then
         if nameToLoad then
-            ProfilesUI:setProfileName( appendUnsavedMarker(nameToLoad) )
+            ----if nameToLoad:sub(1,1) == "(" then
+            ----    -- Detault names in parenthesis, such as "(Start Here)", are special.  Don't set such names in the UI.
+            ----    ProfilesUI:clearProfileName()
+            ----else
+                ProfilesUI:setProfileName( appendUnsavedMarker(nameToLoad) )
+            ----end
             msg = L.DefaultLoaded:format(nameToLoad)
         else
             ProfilesUI:clearProfileName()
             msg = L.DefaultsLoaded
         end
         ProfilesUI:onProfilesListChanged()
+        if self.callbackLoadDefault then
+            self.callbackLoadDefault(nameToLoad)
+        end
     end
 
     if not bSilent then
@@ -2880,7 +3035,7 @@ function ProfilesUI:copyProfile(srcName, destName, options)  -- [ Keywords: copy
     if srcName and (not destName or destNameIsUnsaved) then  -- No "usable" destination name?
         ----tracePUI("copyProfile: Case 1.")
         -- Copy source data into the UI.
-        UI_SetValues( CopyTable(srcProfile) )
+        UI_SetValues( CopyTable(srcProfile), kReasons.CopyingProfile )
         ----if destNameIsUnsaved then
         ----    self:clearProfileName()  -- Clear name since displayed data is not for the old name anymore.
         ----end
@@ -2888,7 +3043,7 @@ function ProfilesUI:copyProfile(srcName, destName, options)  -- [ Keywords: copy
         ----tracePUI("copyProfile: Case 2.")
         -- Put UI values into a temp var, then copy it to the destination name.
         local tempData = {}
-        UI_GetValues(tempData)
+        UI_GetValues(tempData, kReasons.CopyingProfile)
         ProfilesDB:set(destName, nil)  -- Clears all fields and marks them for garbage collection.
         ProfilesDB:set(destName, tempData)  -- Copy temp data.  (Don't need to use CopyTable() here.)
 
@@ -2901,7 +3056,7 @@ function ProfilesUI:copyProfile(srcName, destName, options)  -- [ Keywords: copy
         local copyOfSrc = CopyTable(srcProfile)
         ----ProfilesDB:set(destName, nil)  -- Clears all fields and marks them for garbage collection.
         ----ProfilesDB:set(destName, copyOfSrc)  -- Copy default data.
-        UI_SetValues(copyOfSrc)  -- Copies data into the UI.
+        UI_SetValues(copyOfSrc, kReasons.CopyingProfile)  -- Copies data into the UI.
         self:OnValueChanged()  -- Marks profile as modified and appends "*" to end of its name.
     end
 
@@ -3030,7 +3185,7 @@ function ProfilesUI:renameProfile(oldName, newName, options)
                 local bDeleted = self:deleteProfile(oldName, "s")
                 assert(bDeleted)
             end
-            local bLoaded = self:loadProfile(newName, "s")
+            local bLoaded = self:loadProfile(newName, "bs")
             assert(bLoaded)
 
             -- SUCCESS.
@@ -3121,8 +3276,8 @@ function ProfilesUI:loadNextProfile()
     local strippedCurrentName = stripUnsavedMarker(currentName)
 
     if bUnsaved then
-        if defaultValuesAreLoaded() then  -- Does name refer to a default?
-            return self:loadFirstProfile("s")
+        if defaultValuesAreLoaded() then  -- Unmodified default data?
+            return self:loadFirstProfile("s")  -- Load first profile without getting confirmation.
         end
     end
 
@@ -3140,6 +3295,12 @@ function ProfilesUI:loadNextProfile()
         elseif namesMatch(name, strippedCurrentName) then
             bLoadNext = true
         end
+    end
+
+    if gDefaultsTable[strippedCurrentName] then
+        -- It's a modified default that has not been saved to the profile list.
+        -- Get confirmation before loading the first profile.
+        return self:loadFirstProfile("cs")
     end
 
     gMainFrame.statusText:showMsg(L.BottomOfList, kStatusMsgShorterSecs, true)
@@ -3190,6 +3351,12 @@ function ProfilesUI:loadPreviousProfile()
                 return self:loadProfile(previousName, "s")
             end
         end
+    end
+
+    if gDefaultsTable[strippedCurrentName] then
+        -- It's a modified default that has not been saved to the profile list.
+        -- Get confirmation before loading the last profile.
+        return self:loadLastProfile("cs")
     end
 
     -- If we get here, the displayed name no longer exists as a profile (nor is it a default).
@@ -3441,10 +3608,7 @@ local function createPopupListBox(parent, titleText,
     function listbox:getTitle()    return self.titleBox.title:GetText() end
     ---------------------------------------------------------------------------
     function listbox:setColor(r, g, b, alpha)
-        r = r or 1;  g = g or 1;  b = b or 1;  alpha = alpha or 1
-        self.R = r;  self.G = g;  self.B = b;  self.Alpha = alpha
-
-        setRegionsTextureColor(self.edges, r, g, b, alpha)
+        self.edges:setColor(r, g, b, alpha)
         self.sliderFrame.background:SetVertexColor(r, g, b, 0.25) -- Scrollbar background color.
         local m = 0.56
         self.titleBox:SetBackColor(r*m, g*m, b*m, 1)
@@ -3452,9 +3616,7 @@ local function createPopupListBox(parent, titleText,
         self.divider:SetColorTexture(r*m, g*m, b*m, alpha)
     end
     ---------------------------------------------------------------------------
-    function listbox:getColor()
-        return (self.R or 0), (self.G or 0), (self.B or 0), (self.Alpha or 1)
-    end
+    function listbox:getColor() return self.edges:getColor() end
     ---------------------------------------------------------------------------
     function listbox:setLinesPerPage(linesPerPage, optionalLineHeight)
         ----printProfilesMsg("listbox:setLinesPerPage():", linesPerPage, optionalLineHeight)
@@ -4325,16 +4487,20 @@ function ProfilesUI.menu.restore(bSilent)   triggerMenuItem(L.mRestore, not bSil
 
 private.UDProfiles_CreateUI = UDProfiles_CreateUI
 private.ProfilesUI = ProfilesUI  -- Expose this variable so the main UI can always get ProfilesUI.VERSION .
+private.ProfilesUI_Reasons = kReasons
 private.ProfilesUI_ProfilesHelp = L.ProfilesHelp  -- Expose this variable so the main UI can include it in its help window.
 private.ProfilesUI_BackupsHelp = L.BackupsHelp  -- Expose this variable so the main UI can include it in its help window.
+private.ProfilesDB = ProfilesDB  -- Expose this variable so the main UI can create backups before modifying config data.
 
 private.util = private.util or {}
+private.util.enhanceFrameEdges= private.util.enhanceFrameEdges or enhanceFrameEdges
 private.util.sFind            = private.util.sFind or sFind
 private.util.strEndsWith      = private.util.strEndsWith or strEndsWith
 private.util.strMatchNoCase   = private.util.strMatchNoCase or strMatchNoCase
 private.util.tCount           = private.util.tCount or tCount
 private.util.tEmpty           = private.util.tEmpty or tEmpty
 private.util.tGet             = private.util.tGet or tGet
+private.util.tGetSub          = private.util.tGetSub or tGetSub
 private.util.tSet             = private.util.tSet or tSet
 private.util.vdt_dump         = private.util.vdt_dump or vdt_dump
 

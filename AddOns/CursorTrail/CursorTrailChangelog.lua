@@ -105,6 +105,9 @@ function CursorTrail_ShowChangelog(parent)
             elseif strStartsWith(line, "Released ") then  -- Release date?
                 line = YELLOW .. line
                 dx = 1
+            elseif strStartsWith(line, "NEW FEATURES:") or strStartsWith(line, "CHANGES:") then
+                line = YELLOW .. line
+                dx = indent * 0.75
             elseif line:sub(1,5) == "- - -" then  -- Version block?
                 line = BLUE .. line
             elseif strStartsWith(line, "Version ") then  -- Version #?
@@ -147,15 +150,15 @@ function CursorTrail_ShowChangelog(parent)
         ChangelogFrame:RegisterForDrag("LeftButton")
         ChangelogFrame:SetScript("OnDragStart", function() ChangelogFrame:StartMoving() end)
         ChangelogFrame:SetScript("OnDragStop", function() ChangelogFrame:StopMovingOrSizing() end)
-        
+
         -- EVENTS --
         ChangelogFrame:SetScript("OnShow", function(self)
                 self:SetVerticalScroll(0)  -- Always open to first line of text.
                 Globals.PlaySound(829)  -- IG_SPELLBOOK_OPEN
             end)
-        ChangelogFrame:SetScript("OnHide", function(self) 
+        ChangelogFrame:SetScript("OnHide", function(self)
                 Globals.PlaySound(830)  -- IG_SPELLBOOK_CLOSE
-            end) 
+            end)
     end
 
     ChangelogFrame:Show()

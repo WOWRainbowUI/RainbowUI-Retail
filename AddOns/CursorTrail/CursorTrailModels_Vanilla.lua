@@ -263,7 +263,7 @@ kModelConstants =
     [165784] = {  -- "spells/chargetrail.m2"
         Name = kCategory.Trail .. "Sparkling, Red",
         BaseScale = 0.05, BaseFacing = 0,
-        BaseOfsX = 0.04, BaseOfsY = -0.18,
+        BaseOfsX = 0.04, BaseOfsY = -0.14,
         BaseStepX = 3419, BaseStepY = 3140,
         IsSkewed = true, HorizontalSlope = 0,
     },
