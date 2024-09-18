@@ -827,13 +827,17 @@ function       EventFrame:PLAYER_REGEN_ENABLED()  -- Combat ended.
     ----dbg("PLAYER_REGEN_ENABLED")
     gCommand = kRefresh
 
-    -- Print a warning if this addon's memory usage gets too large.
-    local memoryWarningLevel = 5000  -- kilobytes
-    UpdateAddOnMemoryUsage(kAddonFolderName)
-    if GetAddOnMemoryUsage(kAddonFolderName) > memoryWarningLevel then
-        printMsg(kAddonAlertHeading..RED2.."WARNING: Memory usage is high!  Reloading is recommended.\nIf the problem persists, try deleting some old backups.")
-        Globals.PlaySound(8959)  -- 8959=RAID_WARNING
-    end
+    ---->>> 20240918 REMOVED this check after several people complained about major FPS loss when leaving combat.
+    ----
+    ------ Print a warning if this addon's memory usage gets too large.
+    ----local memoryWarningLevel = 5000  -- kilobytes
+    --------local t0 = debugprofilestop()  -- Returns a high-precision timestamp, in milliseconds.
+    ----UpdateAddOnMemoryUsage(kAddonFolderName)
+    ----if GetAddOnMemoryUsage(kAddonFolderName) > memoryWarningLevel then
+    ----    printMsg(kAddonAlertHeading..RED2.."WARNING: Memory usage is high!  Reloading is recommended.\nIf the problem persists, try deleting some old backups.")
+    ----    Globals.PlaySound(8959)  -- 8959=RAID_WARNING
+    ----end
+    --------print("PLAYER_REGEN_ENABLED dt:", debugprofilestop()-t0)
 end
 
 -------------------------------------------------------------------------------
