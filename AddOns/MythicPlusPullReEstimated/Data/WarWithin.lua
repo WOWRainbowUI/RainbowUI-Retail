@@ -5,9 +5,9 @@ tinsert(ns.data, data)
 
 function data:GetPatchVersion()
     return {
-        timestamp = 1725186710,
+        timestamp = 1726594067,
         version = '11.0.2',
-        build = 56421,
+        build = 56625,
     }
 end
 
@@ -33,7 +33,7 @@ function data:GetNPCData()
         [212765] = { ["name"] = "Void Bound Despoiler", ["count"] = 10 },
         [213338] = { ["name"] = "Forgebound Mender", ["count"] = 5 },
         [213343] = { ["name"] = "Forge Loader", ["count"] = 10 },
-        [213885] = { ["name"] = "Nightfall Dark Architect", ["count"] = 20 },
+        [213885] = { ["name"] = "Nightfall Dark Architect", ["count"] = 30 },
         [213892] = { ["name"] = "Nightfall Shadowmage", ["count"] = 5 },
         [213893] = { ["name"] = "Nightfall Darkcaster", ["count"] = 5 },
         [213894] = { ["name"] = "Nightfall Curseblade", ["count"] = 5 },
