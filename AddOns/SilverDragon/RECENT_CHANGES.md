@@ -1,4 +1,5 @@
-## Changed in v2024.23
+## Changed in v2024.24
 
-* War Within data updates: added a few missing weekly reputation quests, filled out the loot in Treasures vignettes for Hallowfall and Azj-Kahet
+* Added quests for this week's world boss Shurrai
+* Fixed the display of the quest for Deathtide
 
