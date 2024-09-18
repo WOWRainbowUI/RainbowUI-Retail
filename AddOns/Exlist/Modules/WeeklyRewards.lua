@@ -11,7 +11,7 @@ local rewardTypes = {
       prio = 2
    },
    [Enum.WeeklyRewardChestThresholdType.RankedPvP] = { title = "PvP", prio = 3 },
-   [Enum.WeeklyRewardChestThresholdType.World] = { title = "World", prio = 3 }
+   [Enum.WeeklyRewardChestThresholdType.World] = { title = L["World"], prio = 3 }
 }
 
 local slimDifficulty = {
