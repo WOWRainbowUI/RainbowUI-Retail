@@ -5,7 +5,7 @@
 --- This file is part of addon Kaliel's Tracker.
 
 local addonName, addon = ...
-local KT = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-Event-1.0", "MSA-ProtRouter-1.0")
+local KT = LibStub("AceAddon-3.0"):NewAddon(addon, addonName, "LibSink-2.0", "MSA-Event-1.0", "MSA-ProtRouter-1.0", "MSA-EditMode-1.0")
 KT:SetDefaultModuleState(false)
 KT.title = C_AddOns.GetAddOnMetadata(addonName, "Title")
 KT.version = C_AddOns.GetAddOnMetadata(addonName, "Version")
@@ -29,7 +29,6 @@ local tinsert = table.insert
 local tremove = table.remove
 local tContains = tContains
 local unpack = unpack
-local round = function(n) return floor(n + 0.5) end
 
 -- WoW API
 local _G = _G
@@ -40,18 +39,17 @@ local InCombatLockdown = InCombatLockdown
 local FormatLargeNumber = FormatLargeNumber
 local UIParent = UIParent
 
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
 local testLine
 local freeIcons = {}
 local freeTags = {}
 local freeButtons = {}
 local msgPatterns = {}
-local tooltipUpdate = { questID = 0, counter = 0 }
+local tooltipUpdateQuestID = 0
 local combatLockdown = false
 local db, dbChar
 
 -- Main frame
-local KTF = CreateFrame("Frame", addonName.."Frame", UIParent, "BackdropTemplate")
+local KTF = CreateFrame("Frame", addonName.."Frame", UIParent)
 KT.frame = KTF
 
 -- Blizzard frame
@@ -59,6 +57,8 @@ local OTF = KT_ObjectiveTrackerFrame
 local OTFHeader = OTF.Header
 local MawBuffs = KT_ScenarioObjectiveTracker.MawBuffsBlock.Container
 local UIWidgetBaseScenarioHeaderText
+
+local KTSetShown, KTSetWidth, KTSetHeight, KTSetPoint, KTClearAllPoints, KTSetScale, KTSetFrameStrata, KTSetAlpha, KTBSetPoint
 
 --------------
 -- Internal --
@@ -92,10 +92,12 @@ end
 
 local function HasTrackerContents()
 	local result = false
-	for _, module in ipairs(OTF.modules) do
-		if module.hasContents then
-			result = true
-			break
+	if OTF.modules then
+		for _, module in ipairs(OTF.modules) do
+			if module.hasContents then
+				result = true
+				break
+			end
 		end
 	end
 	return result
@@ -117,12 +119,13 @@ local function SetHeadersStyle(type)
 
 	if not type or type == "background" then
 		if db.hdrBgr == 2 then
-			OTFHeader.Background:SetAtlas("ui-questtracker-primary-objective-header", true)
+			OTFHeader.Background:SetAtlas("ui-questtracker-primary-objective-header")
 			OTFHeader.Background:SetVertexColor(1, 1, 1)
+			OTFHeader.Background:SetHeight(40)
 			OTFHeader.Background:ClearAllPoints()
-			OTFHeader.Background:SetPoint("CENTER")
+			OTFHeader.Background:SetPoint("TOP", 0, 4)
 		elseif db.hdrBgr >= 3 then
-			OTFHeader.Background:SetTexture(mediaPath.."UI-KT-HeaderBackground-"..(db.hdrBgr - 2))
+			OTFHeader.Background:SetTexture(KT.MEDIA_PATH.."UI-KT-HeaderBackground-"..(db.hdrBgr - 2))
 			OTFHeader.Background:SetVertexColor(bgrColor.r, bgrColor.g, bgrColor.b)
 			OTFHeader.Background:ClearAllPoints()
 			OTFHeader.Background:SetPoint("TOPLEFT", -20, -2)
@@ -135,13 +138,14 @@ local function SetHeadersStyle(type)
 			if db.hdrBgr == 1 then
 				header.Background:Hide()
 			elseif db.hdrBgr == 2 then
-				header.Background:SetAtlas("UI-QuestTracker-Secondary-Objective-Header", true)
+				header.Background:SetAtlas("UI-QuestTracker-Secondary-Objective-Header")
 				header.Background:SetVertexColor(1, 1, 1)
+				header.Background:SetHeight(31)
 				header.Background:ClearAllPoints()
-				header.Background:SetPoint("CENTER")
+				header.Background:SetPoint("TOP", 0, 3)
 				header.Background:Show()
 			elseif db.hdrBgr >= 3 then
-				header.Background:SetTexture(mediaPath.."UI-KT-HeaderBackground-"..(db.hdrBgr - 2))
+				header.Background:SetTexture(KT.MEDIA_PATH.."UI-KT-HeaderBackground-"..(db.hdrBgr - 2))
 				header.Background:SetVertexColor(bgrColor.r, bgrColor.g, bgrColor.b)
 				header.Background:ClearAllPoints()
 				header.Background:SetPoint("TOPLEFT", -20, 0)
@@ -186,7 +190,7 @@ end
 local function ToggleHiddenTracker()
 	KT.hidden = not KT.hidden
 	KT.locked = KT.hidden
-	OTF:Update()
+	OTF:SetCollapsed(KT.hidden)
 end
 
 local function SlashHandler(msg)
@@ -201,7 +205,9 @@ local function SlashHandler(msg)
 end
 
 local function SetScrollbarPosition()
-	KTF.Bar:SetPoint("TOPRIGHT", -5, -round(5+(KTF.Scroll.value*(((db.maxHeight-60)/((OTF.height-db.maxHeight)/KTF.Scroll.step))/KTF.Scroll.step))))
+	local xOfs = -5
+	local yOfs = -1 * KT.round(5 + (KTF.Scroll.value * (((db.maxHeight - 60) / ((OTF.height - db.maxHeight) / KTF.Scroll.step)) / KTF.Scroll.step)))
+	KTF.Bar:SetPoint("TOPRIGHT", xOfs, yOfs)
 end
 
 local function GetTaskTimeLeftData(questID)
@@ -281,9 +287,6 @@ local function Init()
 		KT:SetQuestsHeaderText()
 		KT:SetAchievsHeaderText()
 
-		--OTF:KTSetPoint("TOPLEFT", 20, 0)
-		--OTF:KTSetPoint("BOTTOMRIGHT")
-		--OTF:KTSetPoint("TOPRIGHT", -80, -280)
 		OTF:Update()
 
 		KT.initialized = true
@@ -295,8 +298,11 @@ end
 local function SetFrames()
 	-- Main frame
 	KTF:SetWidth(db.width)
+	KTF:SetScale(db.frameScale)
 	KTF:SetFrameStrata(db.frameStrata)
 	KTF:SetFrameLevel(KTF:GetFrameLevel() + 25)
+	KTF:SetClampedToScreen(true)
+	KTF.height = 0
 	KTF.paddingTop = OTF.topModulePadding
 	KTF.paddingBottom = OTF.bottomModulePadding
 	KTF.borderSpace = 4
@@ -378,12 +384,10 @@ local function SetFrames()
 		elseif event == "QUEST_SESSION_JOINED" then
 			self:RegisterEvent("QUEST_POI_UPDATE")
 		elseif event == "PET_BATTLE_OPENING_START" then
-			KT:prot("Hide", KTF)
-			KT:prot("Hide", KTF.Buttons)
+			KT:prot("SetShown", KT, false)
 			KT.locked = true
 		elseif event == "PET_BATTLE_CLOSE" then
-			KT:prot("Show", KTF)
-			KT:prot("Show", KTF.Buttons)
+			KT:prot("SetShown", KT, true)
 			KT.locked = false
 		elseif event == "QUEST_POI_UPDATE" then
 			dbChar.quests.num = KT.GetNumQuests()
@@ -412,6 +416,11 @@ local function SetFrames()
 	KTF:RegisterEvent("PET_BATTLE_OPENING_START")
 	KTF:RegisterEvent("PET_BATTLE_CLOSE")
 
+	-- Backround
+	local background = CreateFrame("Frame", addonName.."Background", KTF, "BackdropTemplate")
+	background:SetFrameLevel(KTF:GetFrameLevel() - 1)
+	KTF.Background = background
+
 	-- Test line
 	testLine = CreateFrame("Frame", nil, KTF, "KT_ObjectiveTrackerLineTemplate")
 
@@ -432,7 +441,7 @@ local function SetFrames()
 	local button = CreateFrame("Button", addonName.."MinimizeButton", KTF.HeaderButtons)
 	button:SetSize(16, 16)
 	button:SetPoint("TOPRIGHT", -8, -7)
-	button:SetNormalTexture(mediaPath.."UI-KT-HeaderButtons")
+	button:SetNormalTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
 	button:GetNormalTexture():SetTexCoord(0, 0.5, 0.25, 0.5)
 	button:RegisterForClicks("AnyDown")
 	button:SetScript("OnClick", function(self, btn)
@@ -506,6 +515,7 @@ local function SetFrames()
 	KTF.Bar = Bar
 
 	-- Blizzard frames
+	OTF:ClearAllPoints()
 	OTF:SetParent(Scroll)
 	OTF:SetPoint("TOPLEFT", Child, "TOPLEFT", 20, 0)
 	OTF:SetPoint("BOTTOMRIGHT", Child)
@@ -531,15 +541,68 @@ local function SetFrames()
 	KT:SetOtherButtons()
 
 	-- Buttons frame
-	local Buttons = CreateFrame("Frame", addonName.."Buttons", UIParent, "BackdropTemplate")
+	local Buttons = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 	Buttons:SetSize(40, 40)
 	Buttons:SetPoint("TOPLEFT", 0, 0)
+	Buttons:SetScale(db.frameScale)
 	Buttons:SetFrameStrata(db.frameStrata)
 	Buttons:SetFrameLevel(KTF:GetFrameLevel() - 1)
 	Buttons:SetAlpha(0)
 	Buttons.num = 0
 	Buttons.reanchor = false
 	KTF.Buttons = Buttons
+
+	-- Frame resets
+	local null = function() end
+
+	OTF.Show = null
+	OTF.Hide = null
+	OTF.SetShown = null
+	OTF.SetSize = null
+	OTF.SetWidth = null
+	OTF.SetHeight = null
+	OTF.SetParent = null
+	OTF.SetPoint = null
+	OTF.SetAllPoints = null
+	OTF.ClearAllPoints = null
+	OTF.SetScale = null
+	OTF.SetAlpha = null
+	OTF.SetFrameStrata = null
+	OTF.SetFrameLevel = null
+	OTF:SetClampedToScreen(false)
+	OTF.SetClampedToScreen = null
+	OTF:EnableMouse(false)
+	OTF.EnableMouse = null
+	OTF:SetMovable(false)
+	OTF.SetMovable = null
+
+	KTF.Show = null
+	KTF.Hide = null
+	KTSetShown = KTF.SetShown
+	KTF.SetShown = null
+	KTF.SetSize = null
+	KTSetWidth = KTF.SetWidth
+	KTF.SetWidth = null
+	KTSetHeight = KTF.SetHeight
+	KTF.SetHeight = null
+	KTF.SetParent = null
+	KTSetPoint = KTF.SetPoint
+	KTF.SetPoint = null
+	KTF.SetAllPoints = null
+	KTClearAllPoints = KTF.ClearAllPoints
+	KTF.ClearAllPoints = null
+	KTSetScale = KTF.SetScale
+	KTF.SetScale = null
+	KTSetAlpha = KTF.SetAlpha
+	KTF.SetAlpha = null
+	KTSetFrameStrata = KTF.SetFrameStrata
+	KTF.SetFrameStrata = null
+	KTF.SetFrameLevel = null
+	KTF.SetClampedToScreen = null
+	KTF.EnableMouse = null
+
+	KTBSetPoint = KTF.Buttons.SetPoint
+	KTF.Buttons.SetPoint = null
 end
 
 -- Hooks ---------------------------------------------------------------------------------------------------------------
@@ -626,17 +689,6 @@ local function SetHooks()
 			KTF.Buttons:SetAlpha(1)
 		end
 	end
-
-	hooksecurefunc(OTF, "SetParent", function(self, parent)
-		if parent and parent ~= KTF.Scroll then
-			self:SetParent(KTF.Scroll)
-		end
-	end)
-
-	hooksecurefunc(OTF, "ClearAllPoints", function(self)
-		--self:KTSetPoint("TOPLEFT", 30, -1)
-		--self:KTSetPoint("BOTTOMRIGHT")
-	end)
 
 	-- ------------------------------------------------------------------------------------------------
 
@@ -728,7 +780,7 @@ local function SetHooks()
 		if line.Icon and line.Icon.KTskinID ~= KT.skinID then
 			line.Icon:SetSize(db.fontSize, db.fontSize)
 			line.Icon:ClearAllPoints()
-			line.Icon:SetPoint("TOPLEFT", round(-db.fontSize * 0.4) + (db.fontFlag == "" and 0 or 1), 1)
+			line.Icon:SetPoint("TOPLEFT", KT.round(db.fontSize * -0.4) + (db.fontFlag == "" and 0 or 1), 0)
 			line.Icon.KTskinID = KT.skinID
 		end
 
@@ -850,9 +902,9 @@ local function SetHooks()
 		end
 		GameTooltip:ClearAllPoints()
 		if KTF.anchorLeft then
-			GameTooltip:SetPoint("TOPLEFT", block, "TOPRIGHT", xOffsetLeft or 19, yOffsetLeft or 1)
+			GameTooltip:SetPoint("TOPLEFT", block, "TOPRIGHT", db.frameScale * (xOffsetLeft or 19), db.frameScale * (yOffsetLeft or 1))
 		else
-			GameTooltip:SetPoint("TOPRIGHT", block, "TOPLEFT", xOffsetRight or -42, yOffsetRight or 1)
+			GameTooltip:SetPoint("TOPRIGHT", block, "TOPLEFT", db.frameScale * (xOffsetRight or -42), db.frameScale * (yOffsetRight or 1))
 		end
 	end
 
@@ -870,18 +922,15 @@ local function SetHooks()
 				end
 				GameTooltip:SetHyperlink(questLink)
 				if db.tooltipShowRewards then
-					-- Check only 4 times, because some quests always return false
-					if HaveQuestRewardData(block.id) or tooltipUpdate.counter >= 4 then
-						tooltipUpdate.questID = 0
-						tooltipUpdate.counter = 0
+					if KT.HaveQuestRewardData(block.id) then
+						tooltipUpdateQuestID = 0
 						KT.GameTooltip_AddQuestRewardsToTooltip(GameTooltip, block.id)
 					else
-						tooltipUpdate.questID = block.id
-						tooltipUpdate.counter = tooltipUpdate.counter + 1
+						tooltipUpdateQuestID = block.id
 						GameTooltip:AddLine(" ")
 						GameTooltip:AddLine(KT.RETRIEVING_DATA, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
 						C_Timer.After(0.1, function()
-							if tooltipUpdate.questID == block.id then
+							if tooltipUpdateQuestID == block.id then
 								self:OnBlockHeaderEnter(block)
 							end
 						end)
@@ -911,8 +960,7 @@ local function SetHooks()
 		if db.tooltipShow then
 			if self == KT_QuestObjectiveTracker or
 					self == KT_CampaignQuestObjectiveTracker then
-				tooltipUpdate.questID = 0
-				tooltipUpdate.counter = 0
+				tooltipUpdateQuestID = 0
 			end
 			GameTooltip:Hide()
 		end
@@ -1066,7 +1114,7 @@ local function SetHooks()
 			else
 				tag = CreateFrame("Frame", nil, block, "BackdropTemplate")
 				tag:SetSize(32, 32)
-				tag:SetBackdrop({ bgFile = mediaPath.."UI-KT-QuestItemTag" })
+				tag:SetBackdrop({ bgFile = KT.MEDIA_PATH.."UI-KT-QuestItemTag" })
 				tag.text = tag:CreateFontString(nil, "ARTWORK", "GameFontNormalMed1")
 				tag.text:SetFont(LSM:Fetch("font", "Arial Narrow"), 13, "")
 				tag.text:SetPoint("CENTER", -0.5, 1)
@@ -1106,28 +1154,27 @@ local function SetHooks()
 				tremove(freeButtons, numFreeButtons)
 			else
 				_DBG(" - CREATE button "..questID)
-				local name = addonName.."Button"..time()..questID
-				button = CreateFrame("Button", name, KTF.Buttons, "SecureActionButtonTemplate")		--"KTQuestObjectiveItemButtonTemplate"
+				button = CreateFrame("Button", nil, KTF.Buttons, "SecureActionButtonTemplate")		--"KTQuestObjectiveItemButtonTemplate"
 				button:SetSize(26, 26)
 
-				button.icon = button:CreateTexture(name.."Icon", "BORDER")
+				button.icon = button:CreateTexture(nil, "BORDER")
 				button.icon:SetAllPoints()
 				button.Icon = button.icon   -- for Spell
 
-				button.Count = button:CreateFontString(name.."Count", "BORDER", "NumberFontNormal")
+				button.Count = button:CreateFontString(nil, "BORDER", "NumberFontNormal")
 				button.Count:SetJustifyH("RIGHT")
 				button.Count:SetPoint("BOTTOMRIGHT", button.icon, 0, 2)
 
-				button.Cooldown = CreateFrame("Cooldown", name.."Cooldown", button, "CooldownFrameTemplate")
+				button.Cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
 				button.Cooldown:SetAllPoints()
 
-				button.HotKey = button:CreateFontString(name.."HotKey", "ARTWORK", "NumberFontNormalSmallGray")
+				button.HotKey = button:CreateFontString(nil, "ARTWORK", "NumberFontNormalSmallGray")
 				button.HotKey:SetSize(29, 10)
 				button.HotKey:SetJustifyH("RIGHT")
 				button.HotKey:SetText(RANGE_INDICATOR)
 				button.HotKey:SetPoint("TOPRIGHT", button.icon, 2, -2)
 
-				button.text = button:CreateFontString(name.."Text", "ARTWORK", "NumberFontNormal")
+				button.text = button:CreateFontString(nil, "ARTWORK", "NumberFontNormal")
 				button.text:SetSize(29, 10)
 				button.text:SetJustifyH("LEFT")
 				button.text:SetPoint("TOPLEFT", button.icon, 1, -3)
@@ -1209,6 +1256,8 @@ local function SetHooks()
 	KT.ItemButton.UpdateCooldown = KT_QuestObjectiveItemButtonMixin.UpdateCooldown
 
 	function KT_QuestObjectiveItemButtonMixin:OnUpdate(elapsed)  -- R
+		if not self.questLogIndex then return end  -- for EditMode
+
 		local rangeTimer = self.rangeTimer
 		if rangeTimer then
 			rangeTimer = rangeTimer - elapsed
@@ -1264,9 +1313,9 @@ local function SetHooks()
 		self.block.isHighlighted = true
 		self.block:UpdateHighlight()
 		if KTF.anchorLeft then
-			GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 3)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT", db.frameScale * 3)
 		else
-			GameTooltip:SetOwner(self, "ANCHOR_LEFT", -3)
+			GameTooltip:SetOwner(self, "ANCHOR_LEFT", db.frameScale * -3)
 		end
 		GameTooltip:SetQuestLogSpecialItem(self.questLogIndex)
 	end
@@ -2322,27 +2371,25 @@ function KT_WorldQuestPOIButton_OnClick(self)
 	WorldMapPing_StartPingQuest(questID)
 end
 
-function KT:SetSize()
+function KT:SetSize(forced)
 	local height = KTF.headerHeight + (2 * KTF.borderSpace)
 	local mod = 0
 
-	if OTF.contentsHeight then
-		OTF.contentsHeight = round(OTF.contentsHeight)
-	else
+	if not OTF.contentsHeight then
 		return
 	end
 
 	_DBG(" - height = "..OTF.contentsHeight)
 	if not dbChar.collapsed and HasTrackerContents() then
 		-- width
-		KTF:SetWidth(db.width)
+		KTSetWidth(KTF, db.width)
 
 		-- height
 		height = KTF.paddingTop + OTF.contentsHeight + mod + 10 + KTF.paddingBottom
 		_DBG(" - "..KTF.paddingTop.." + "..OTF.contentsHeight.." + "..mod.." + 10 + "..KTF.paddingBottom.." = "..height, true)
 		OTF.height = height
 
-		if height > db.maxHeight then
+		if floor(height) > db.maxHeight then
 			_DBG("MOVE ... "..KTF.Scroll.value.." > "..OTF.height.." - "..db.maxHeight)
 			if KTF.Scroll.value > OTF.height-db.maxHeight then
 				KTF.Scroll.value = OTF.height - db.maxHeight
@@ -2362,22 +2409,24 @@ function KT:SetSize()
 				KTF.Bar:Hide()
 			end
 		end
-		if height ~= KTF.height then
-			KTF:SetHeight(height)
+
+		if height ~= KTF.height or forced then
+			KTSetHeight(KTF, KTF.directionUp and height or db.maxHeight)
+			KTF.Background:SetHeight(height)
 			KTF.height = height
 		end
+
 		self:MoveButtons()
 	else
 		-- width
 		if db.hdrCollapsedTxt == 1 then
-			KTF:SetWidth(KTF.HeaderButtons:GetWidth() + 8)
+			KTSetWidth(KTF, KTF.HeaderButtons:GetWidth() + 8)
 		else
-			KTF:SetWidth(db.width)
+			KTSetWidth(KTF, db.width)
 		end
 
 		-- height
 		OTF.height = height - 10
-		OTF:SetHeight(OTF.height)
 		if OTF.contentsHeight == 0 then
 			KTF.Scroll.value = 0
 		end
@@ -2385,20 +2434,49 @@ function KT:SetSize()
 		if db.frameScrollbar then
 			KTF.Bar:Hide()
 		end
-		if height ~= KTF.height then
-			KTF:SetHeight(height)
+
+		if height ~= KTF.height or forced then
+			KTSetHeight(KTF, KTF.directionUp and height or db.maxHeight)
+			KTF.Background:SetHeight(height)
 			KTF.height = height
 		end
 	end
 end
 
 function KT:MoveTracker()
-	KTF:ClearAllPoints()
-	KTF:SetPoint(db.anchorPoint, UIParent, db.anchorPoint, db.xOffset, db.yOffset)
 	KTF.directionUp = (db.anchorPoint == "BOTTOMLEFT" or db.anchorPoint == "BOTTOMRIGHT")
 	KTF.anchorLeft = (db.anchorPoint == "TOPLEFT" or db.anchorPoint == "BOTTOMLEFT")
 
+	local xOffset = self.round(db.xOffset / db.frameScale)
+	local yOffset = self.round(db.yOffset / db.frameScale)
+	KTClearAllPoints(KTF)
+	KTSetPoint(KTF, db.anchorPoint, UIParent, db.anchorPoint, xOffset, yOffset)
+
+	KTF.Background:ClearAllPoints()
+	if KTF.directionUp then
+		KTF.Background:SetPoint("BOTTOMLEFT")
+		KTF.Background:SetPoint("BOTTOMRIGHT")
+	else
+		KTF.Background:SetPoint("TOPLEFT")
+		KTF.Background:SetPoint("TOPRIGHT")
+	end
+
 	self:MoveButtons()
+end
+
+function KT:SetShown(show)
+	KTSetShown(KTF, show)
+	KTF.Buttons:SetShown(show)
+end
+
+function KT:SetScale(scale)
+	KTSetScale(KTF, scale)
+	KTF.Buttons:SetScale(scale)
+end
+
+function KT:SetFrameStrata(strata)
+	KTSetFrameStrata(KTF, strata)
+	KTF.Buttons:SetFrameStrata(strata)
 end
 
 function KT:SetBackground()
@@ -2410,9 +2488,9 @@ function KT:SetBackground()
 	}
 	self.borderColor = db.classBorder and self.classColor or db.borderColor
 
-	KTF:SetBackdrop(backdrop)
-	KTF:SetBackdropColor(db.bgrColor.r, db.bgrColor.g, db.bgrColor.b, db.bgrColor.a)
-	KTF:SetBackdropBorderColor(self.borderColor.r, self.borderColor.g, self.borderColor.b, db.borderAlpha)
+	KTF.Background:SetBackdrop(backdrop)
+	KTF.Background:SetBackdropColor(db.bgrColor.r, db.bgrColor.g, db.bgrColor.b, db.bgrColor.a)
+	KTF.Background:SetBackdropBorderColor(self.borderColor.r, self.borderColor.g, self.borderColor.b, db.borderAlpha)
 
 	SetHeadersStyle("background")
 
@@ -2495,7 +2573,7 @@ function KT:SetModuleHeader(module)
 	-- Module collapse icon
 	local icon = module.Header:CreateTexture(nil, "ARTWORK")
 	icon:SetSize(16, 16)
-	icon:SetTexture(mediaPath.."UI-KT-HeaderButtons")
+	icon:SetTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
 	icon:SetTexCoord(0.5, 1, 0.75, 1)
 	icon:SetPoint("LEFT", -6, 2)
 	module.Header.Icon = icon
@@ -2543,7 +2621,7 @@ function KT:SetOtherButtons()
 		button = CreateFrame("Button", addonName.."AchievementsButton", KTF.HeaderButtons)
 		button:SetSize(16, 16)
 		button:SetPoint("TOPRIGHT", KTF.FilterButton or KTF.MinimizeButton, "TOPLEFT", -4, 0)
-		button:SetNormalTexture(mediaPath.."UI-KT-HeaderButtons")
+		button:SetNormalTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
 		button:GetNormalTexture():SetTexCoord(0.5, 1, 0.25, 0.5)
 		button:RegisterForClicks("AnyDown")
 		button:SetScript("OnClick", function(self, btn)
@@ -2565,7 +2643,7 @@ function KT:SetOtherButtons()
 		button = CreateFrame("Button", addonName.."QuestLogButton", KTF.HeaderButtons)
 		button:SetSize(16, 16)
 		button:SetPoint("TOPRIGHT", KTF.AchievementsButton, "TOPLEFT", -4, 0)
-		button:SetNormalTexture(mediaPath.."UI-KT-HeaderButtons")
+		button:SetNormalTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
 		button:GetNormalTexture():SetTexCoord(0.5, 1, 0, 0.25)
 		button:RegisterForClicks("AnyDown")
 		button:SetScript("OnClick", function(self, btn)
@@ -2611,7 +2689,7 @@ function KT:MoveButtons()
 		end
 		if xOfs and yOfs then
 			KTF.Buttons:ClearAllPoints()
-			KTF.Buttons:SetPoint(point, UIParent, "BOTTOMLEFT", xOfs, yOfs)
+			KTBSetPoint(KTF.Buttons, point, UIParent, "BOTTOMLEFT", xOfs, yOfs)
 		end
 	end
 end
@@ -2753,7 +2831,8 @@ function KT:ToggleEmptyTracker()
 			KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0.25, 0.5)
 		end
 	end
-	KTF:SetAlpha(alpha)
+
+	KTSetAlpha(KTF, alpha)
 	KTF.MinimizeButton:EnableMouse(mouse)
 	if self.Filters:IsEnabled() then
 		KTF.FilterButton:EnableMouse(mouse)
@@ -2853,18 +2932,6 @@ function KT:OnEnable()
 
 	self.isTimerunningPlayer = (PlayerGetTimerunningSeasonID() ~= nil)
 
-	-- Frame resets
-	OTF.SetFrameStrata = function() end
-	OTF.SetFrameLevel = function() end
-	OTF:SetClampedToScreen(false)
-	OTF.SetClampedToScreen = function() end
-	OTF:EnableMouse(false)
-	OTF.EnableMouse = function() end
-	OTF:SetMovable(false)
-	OTF.SetAllPoints = function() end
-	OTF:ClearAllPoints()
-	OTF.SetShown = function() end
-
 	SetFrames()
 	SetHooks()
 
@@ -2897,7 +2964,7 @@ function KT:OnEnable()
 
 	AddonCompartmentFrame:RegisterAddon({
 		text = self.title,
-		icon = "Interface\\Addons\\"..addonName.."\\Media\\KT_logo",
+		icon = KT.MEDIA_PATH.."KT_logo",
 		notCheckable = true,
 		func = ToggleHiddenTracker,
 	})

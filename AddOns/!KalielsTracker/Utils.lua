@@ -18,7 +18,8 @@ local strlen = string.len
 local strsub = string.sub
 local tonumber = tonumber
 
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
+-- WoW API
+local HaveQuestRewardData = HaveQuestRewardData
 
 -- Version
 function KT.IsHigherVersion(newVersion, oldVersion)
@@ -54,6 +55,19 @@ function KT.IsHigherVersion(newVersion, oldVersion)
         end
     end
     return result
+end
+
+-- Math
+function KT.round(x, precision)
+    precision = precision or 1
+    local n
+    if precision >= 1 then
+        n = floor(x / precision + 0.5) * precision
+    else
+        local p = floor(1 / precision + 0.5)
+        n = floor(x * p + 0.5) / p
+    end
+    return n
 end
 
 -- Table
@@ -142,6 +156,34 @@ end
 function KT.GetQuestRewardSpells(questID)
     local spellRewards = C_QuestInfoSystem.GetQuestRewardSpells(questID) or {}
     return #spellRewards, spellRewards
+end
+
+-- HaveQuestRewardData always return false for reward choices
+function KT.HaveQuestRewardData(questID)
+    local result = true
+    C_QuestLog.SetSelectedQuest(questID)
+    local numQuestChoices = GetNumQuestLogChoices(questID, true)
+    if numQuestChoices > 0 then
+        for i = 1, numQuestChoices do
+            local lootType = GetQuestLogChoiceInfoLootType(i)
+            if lootType == 0 then
+                local name = GetQuestLogChoiceInfo(i)
+                if name == "" then
+                    result = false
+                    break
+                end
+            elseif lootType == 1 then
+                local currencyInfo = C_QuestLog.GetQuestRewardCurrencyInfo(questID, i, true)
+                if currencyInfo.name == "" then
+                    result = false
+                    break
+                end
+            end
+        end
+    else
+        result = HaveQuestRewardData(questID)
+    end
+    return result
 end
 
 -- Achievements
@@ -483,6 +525,16 @@ function KT.GetBestQuestRewardContextIcon(questRewardContextFlags)
     return contextIcon
 end
 
+-- Pixel Perfect
+function KT.GetPixelPerfectScale(frame)
+    local screenWidth = GetPhysicalScreenSize()
+    local parent = frame:GetParent()
+    -- TODO: Add code for frame without parent
+    assert(parent, "No parent for frame "..(frame:GetName() or ""))
+    local scale = parent:GetWidth() / screenWidth
+    return scale
+end
+
 -- =====================================================================================================================
 
 local function StatiPopup_OnShow(self)
@@ -502,7 +554,7 @@ local function StatiPopup_OnShow(self)
 end
 
 StaticPopupDialogs[addonName.."_Info"] = {
-    text = "|T"..mediaPath.."KT_logo:22:22:0:0|t"..NORMAL_FONT_COLOR_CODE..KT.title.."|r",
+    text = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..NORMAL_FONT_COLOR_CODE..KT.title.."|r",
     subText = "...",
     button2 = CLOSE,
     OnShow = StatiPopup_OnShow,
@@ -511,7 +563,7 @@ StaticPopupDialogs[addonName.."_Info"] = {
 }
 
 StaticPopupDialogs[addonName.."_ReloadUI"] = {
-    text = "|T"..mediaPath.."KT_logo:22:22:0:0|t"..NORMAL_FONT_COLOR_CODE..KT.title.."|r",
+    text = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..NORMAL_FONT_COLOR_CODE..KT.title.."|r",
     subText = "...",
     button1 = RELOADUI,
     OnShow = StatiPopup_OnShow,
@@ -523,7 +575,7 @@ StaticPopupDialogs[addonName.."_ReloadUI"] = {
 }
 
 StaticPopupDialogs[addonName.."_LockUI"] = {
-    text = "|T"..mediaPath.."KT_logo:22:22:0:0|t"..NORMAL_FONT_COLOR_CODE..KT.title.."|r",
+    text = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..NORMAL_FONT_COLOR_CODE..KT.title.."|r",
     subText = "...",
     button1 = LOCK,
     OnShow = StatiPopup_OnShow,
@@ -536,7 +588,7 @@ StaticPopupDialogs[addonName.."_LockUI"] = {
 }
 
 StaticPopupDialogs[addonName.."_WowheadURL"] = {
-    text = "|T"..mediaPath.."KT_logo:22:22:0:-1|t"..NORMAL_FONT_COLOR_CODE..KT.title.."|r - Wowhead URL",
+    text = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:-1|t"..NORMAL_FONT_COLOR_CODE..KT.title.."|r - Wowhead URL",
     button2 = CLOSE,
     hasEditBox = 1,
     editBoxWidth = 300,

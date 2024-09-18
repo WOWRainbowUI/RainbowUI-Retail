@@ -15,7 +15,6 @@ local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 local ipairs = ipairs
 
 local db
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
 local questWaypoint
 local superTrackedQuestID = 0
 local stopUpdate = false
@@ -36,9 +35,9 @@ local function SetupOptions()
 				name = "TomTom support combined Blizzard's POI and TomTom's Arrow.\n\n"..
 						"|cffff7f00Warning:|r Original \"TomTom > Quest Objectives\" options are ignored!\n\n\n"..
 						"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-						"|T"..mediaPath.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   Active POI button with TomTom Waypoint.\n"..
+						"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   Active POI button with TomTom Waypoint.\n"..
 						"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-						"|T"..mediaPath.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   Active POI button without TomTom Waypoint (no data).",
+						"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   Active POI button without TomTom Waypoint (no data).",
 				type = "description",
 				order = 1,
 			},
@@ -116,7 +115,7 @@ local function SetWaypointTag(button, show)
 			-- Only for new POI button tags on World Map!
 			-- The tracker has tag inside KT2_ObjectiveTrackerPOIButtonTemplate (animation bug prevention)
 			tag = button.Display:CreateTexture(nil, "OVERLAY")
-			tag:SetTexture(mediaPath.."KT-TomTomTag")
+			tag:SetTexture(KT.MEDIA_PATH.."KT-TomTomTag")
 			tag:SetSize(32, 32)
 			tag:SetPoint("CENTER")
 			button.Display.KTtomtom = tag

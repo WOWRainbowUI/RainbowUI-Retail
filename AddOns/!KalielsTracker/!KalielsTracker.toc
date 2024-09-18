@@ -1,7 +1,7 @@
 ## Interface: 110002
 ## Title: Kaliel's Tracker
 ## Notes: Improved Blizzard Objective Tracker
-## Version: 7.4.1
+## Version: 7.5.0
 ## Author: Kaliel (Marouan Sabbagh)
 ## IconTexture: Interface\Addons\!KalielsTracker\Media\KT_logo
 
@@ -12,8 +12,8 @@
 Core\Core.xml
 
 Libs.xml
-Media.lua
 Constants.lua
+Media.lua
 Utils.lua
 
 KalielsTracker.lua

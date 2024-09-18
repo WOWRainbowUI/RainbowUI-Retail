@@ -15,5 +15,6 @@
 	<Include file="Libs\MSA-Event-1.0\MSA-Event-1.0.xml"/>
 	<Include file="Libs\MSA-DropDownMenu-1.0\MSA-DropDownMenu-1.0.xml"/>
 	<Include file="Libs\MSA-ProtRouter-1.0\MSA-ProtRouter-1.0.xml"/>
+	<Include file="Libs\MSA-EditMode-1.0\MSA-EditMode-1.0.xml"/>
 	<Include file="Libs\MSA-Tutorials-1.0\MSA-Tutorials-1.0.xml"/>
 </Ui>

@@ -4,16 +4,14 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
-local addonName, KT = ...
+local _, KT = ...
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
-
 local media = {
     -- Textures
-    { type = "BORDER",      name = "Border",        filePath = mediaPath.."KT-border" },
-    { type = "STATUSBAR",   name = "Flat",          filePath = mediaPath.."KT-statusbar-flat" },
+    { type = "BORDER",      name = "Border",        filePath = KT.MEDIA_PATH.."KT-border" },
+    { type = "STATUSBAR",   name = "Flat",          filePath = KT.MEDIA_PATH.."KT-statusbar-flat" },
     -- Sounds (Blizzard)
     { type = "SOUND",       name = "Default",       filePath = 558132 },    -- PeonBuildingComplete1.ogg
     { type = "SOUND",       name = "BloodElf (M)",  filePath = 539400 },    -- BloodElfMaleCongratulations02.ogg

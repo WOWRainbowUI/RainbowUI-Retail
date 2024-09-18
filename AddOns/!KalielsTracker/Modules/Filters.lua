@@ -15,6 +15,7 @@ local gsub = string.gsub
 local ipairs = ipairs
 local pairs = pairs
 local strfind = string.find
+local strlower = string.lower
 local strsub = string.sub
 
 -- WoW API
@@ -22,7 +23,6 @@ local _G = _G
 
 local db, dbChar
 local remixID = 15509  -- Remix: Pandaria
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
 local OBJECTIVES_WATCH_TOO_MANY = OBJECTIVES_WATCH_TOO_MANY..".. max. %d"
 
 local KTF = KT.frame
@@ -267,7 +267,8 @@ local function GetActiveWorldEvents()
 end
 
 local function FilterSkipMap(mapID)
-	return mapID == 2274  -- 10 - The War Within - Khaz Algar (continent)
+	return not mapID or    -- Same as 947
+			mapID == 2274  -- 10 - The War Within - Khaz Algar (continent)
 end
 
 local function IsInstanceQuest(questID)
@@ -335,7 +336,7 @@ local function Filter_Quests(spec, idx)
 	elseif spec == "zone" then
 		local mapID = KT.GetCurrentMapAreaID()
 		local zoneName = GetRealZoneText() or ""
-		local zoneNamePattern = gsub(zoneName, "-", "%%-")
+		local zoneNamePattern = strlower(gsub(zoneName, "-", "%%-"))
 		local isOnMap = false
 		local isInZone = false
 		for i = 1, numEntries do
@@ -354,7 +355,7 @@ local function Filter_Quests(spec, idx)
 					end
 				else
 					local _, objectives = GetQuestLogQuestText(i)
-					local qText = questInfo.title.." - "..objectives
+					local qText = strlower(questInfo.title.." - "..objectives)
 					isOnMap = (questInfo.isOnMap or
 							KT.QuestsCache_GetProperty(questInfo.questID, "startMapID") == mapID or
 							strfind(qText, zoneNamePattern))
@@ -1130,7 +1131,7 @@ local function SetFrames()
 	local button = CreateFrame("Button", addonName.."FilterButton", KTF.HeaderButtons)
 	button:SetSize(16, 16)
 	button:SetPoint("TOPRIGHT", KTF.MinimizeButton, "TOPLEFT", -4, 0)
-	button:SetNormalTexture(mediaPath.."UI-KT-HeaderButtons")
+	button:SetNormalTexture(KT.MEDIA_PATH.."UI-KT-HeaderButtons")
 	button:GetNormalTexture():SetTexCoord(0.5, 1, 0.5, 0.75)
 	button:RegisterForClicks("AnyDown")
 	button:SetScript("OnClick", function(self, btn)

@@ -26,7 +26,9 @@ local KTwarning = "  |cff00ffffAddon "..KT.title.." is active.  "
 
 -- Masque
 local function Masque_SetSupport()
-    if M.isLoadedMasque then
+    local isLoaded = (KT:CheckAddOn("Masque", "11.0.1") and db.addonMasque)
+    if isLoaded then
+        KT:Alert_IncompatibleAddon("Masque", "11.0.1")
         msqGroup1 = MSQ:Group(KT.title, "Quest Item Buttons")
         msqGroup2 = MSQ:Group(KT.title, "Quest Active Button")
         hooksecurefunc(msqGroup2, "__Enable", function(self)
@@ -42,6 +44,19 @@ local function Masque_SetSupport()
                     button.Style:SetAlpha(1)
                 end
             end
+        end)
+    end
+end
+
+-- Auctionator
+local function Auctionator_SetSupport()
+    local isLoaded = (KT:CheckAddOn("Auctionator", "11.0.11") and db.addonAuctionator)
+    if isLoaded then
+        hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
+            local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
+            searchFrame:SetParent(KT_ProfessionsRecipeTracker.Header)
+            searchFrame:ClearAllPoints()
+            searchFrame:SetPoint("TOPRIGHT")
         end)
     end
 end
@@ -98,16 +113,12 @@ end
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
-    self.isLoadedMasque = (KT:CheckAddOn("Masque", "11.0.1") and db.addonMasque)
-
-    if self.isLoadedMasque then
-        KT:Alert_IncompatibleAddon("Masque", "11.0.1")
-    end
 end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
     Masque_SetSupport()
+    Auctionator_SetSupport()
     ElvUI_SetSupport()
     Tukui_SetSupport()
     RealUI_SetSupport()

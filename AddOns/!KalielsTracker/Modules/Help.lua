@@ -12,8 +12,7 @@ local T = LibStub("MSA-Tutorials-1.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db, dbChar
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
-local helpPath = mediaPath.."Help\\"
+local helpPath = KT.MEDIA_PATH.."Help\\"
 local helpName = "help"
 local helpNumPages = 12
 local supportersName = "supporters"
@@ -92,7 +91,7 @@ local function SetupTutorials()
 					"- Scrolling when content is greater than max. height\n"..
 					"- Remember collapsed tracker after logout/exit game\n\n"..
 					"... and many other enhancements (see next pages).",
-			shine = KTF,
+			shine = KTF.Background,
 			shineTop = 5,
 			shineBottom = -5,
 			shineLeft = -6,
@@ -103,14 +102,14 @@ local function SetupTutorials()
 			imageHeight = 128,
 			text = cTitle.."Header buttons|r\n\n"..
 					"Minimize button:                                Other buttons:\n"..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r Expand Tracker                          "..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:0:14:209:170:0|t  "..cDots.."...|r Open Quest Log\n"..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r Collapse Tracker                        "..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:16:30:209:170:0|t  "..cDots.."...|r Open Achievements\n"..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r when is tracker empty               "..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:32:46:209:170:0|t  "..cDots.."...|r Open Filters menu\n\n"..
-					"Buttons |T"..mediaPath.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:0:14:209:170:0|t and "..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:16:30:209:170:0|t you can disable in Options.\n\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r Expand Tracker                          "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:0:14:209:170:0|t  "..cDots.."...|r Open Quest Log\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r Collapse Tracker                        "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:16:30:209:170:0|t  "..cDots.."...|r Open Achievements\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r when is tracker empty               "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:32:46:209:170:0|t  "..cDots.."...|r Open Filters menu\n\n"..
+					"Buttons |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:0:14:209:170:0|t and "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:16:30:209:170:0|t you can disable in Options.\n\n"..
 					"You can set "..cBold.."[key bind]|r for Minimize button.\n"..
 					cBold.."Alt+Click|r on Minimize button opens "..KT.title.." Options.",
 			textY = 16,
@@ -139,12 +138,12 @@ local function SetupTutorials()
 		{	-- 4
 			image = helpPath.."help_tracker-filters",
 			text = cTitle.."Tracker Filters|r\n\n"..
-					"For open Filters menu "..cBold.."Click|r on the button |T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t.\n\n"..
+					"For open Filters menu "..cBold.."Click|r on the button |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t.\n\n"..
 					"There are two types of filters:\n"..
 					cTitle.."Static filter|r - adds quests/achievements to tracker by criterion (e.g. \"Daily\") and then you can add/remove items by hand.\n"..
 					cTitle.."Dynamic filter|r - automatically adding quests/achievements to tracker by criterion (e.g. \"|cff00ff00Auto|r Zone\") "..
 					"and continuously changing them. This type doesn't allow add/remove items by hand."..
-					"When is some Dynamic filter active, header button is green |T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:0:255:0|t.\n\n"..
+					"When is some Dynamic filter active, header button is green |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:0:255:0|t.\n\n"..
 					"|cff009bffFavorites|r - Quests or Achievements now you can mark as favorites and then filter according to them.\n\n"..
 					"For Achievements can change searched categories, it will affect the outcome of the filter.\n\n"..
 					"This menu displays other options affecting the content of the tracker (e.g. options for addon PetTracker).",
@@ -197,7 +196,7 @@ local function SetupTutorials()
 					"Allows to change the order of modules inside the tracker. Supports all modules including external (e.g. PetTracker).\n\n\n"..
 					cTitle.."Collapsible Modules|r\n\n"..
 					"All modules, including external ones, can be collapsed by clicking on the module header.",
-			shine = KTF,
+			shine = KTF.Background,
 			shineTop = 5,
 			shineBottom = -5,
 			shineLeft = -6,
@@ -220,9 +219,9 @@ local function SetupTutorials()
 			text = cTitle.."Support addon TomTom|r\n\n"..
 					"TomTom support combined Blizzard's POI and TomTom's Arrow.\n\n"..
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   Active POI button with TomTom Waypoint.\n"..
+					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   Active POI button with TomTom Waypoint.\n"..
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   Active POI button without TomTom Waypoint (no data).\n\n"..
+					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   Active POI button without TomTom Waypoint (no data).\n\n"..
 					"Features:\n"..
 					"- Available for Quests and World Quests, but Quest waypoints are only for"..
 					offs.."current zone!|r (TomTom and Blizzard limitations)\n"..
@@ -266,30 +265,16 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."Version 7.4.1|r\n"..
-					"- ADDED (quests) - Option for enable/disable Auto focus closest Quest\n"..
-					"- ADDED (worldquests) - Option for show/hide Faction name in tracked World quests\n"..
-					"- FIXED - TomTom - waypoint tag is sometimes under POI elements\n"..
-					"\n"..
-					cTitle.."Version 7.4.0|r\n"..
-					"- ADDED (quest) - show the Warband bonus icon on the reward in the tooltip (choices)\n"..
-					"- ADDED (quests) - auto/manual focus closest quest (manual - Right Click on Minimize Button)\n"..
-					"- ADDED (scenario) - skin other widgets (text)\n"..
-					"- CHANGED - TomTom - better waypoint update while moving\n"..
-					"- CHANGED - TomTom - better getting coordinates for quests/objectives, additional info text to waypoint arrow\n"..
-					"- CHANGED (quests) - improvement of zone filtering (instance quests)\n"..
-					"- CHANGED (worldquests) - small visual improvements\n"..
-					"- CHANGED (scenario) - Delves - small visual improvements\n"..
-					"- CHANGED - World Map Hack [Beta] - minor improvement\n"..
-					"- CHANGED (quests) - focus closest quest improvements\n"..
-					"- CHANGED - TomTom - better switching between waypoint and Blizzard pin (2)\n"..
-					"- CHANGED - TomTom - better switching between waypoint and Blizzard pin\n"..
+					cTitle.."Version 7.5.0|r\n"..
+					"- ADDED - support for WoW 11.0.2.56513\n"..
+					"- ADDED - addon support - Auctionator 11.0.11 (search button inside the Profession module header)\n"..
+					"- ADDED - Edit Mode - new positioning system inside Options (with drag and drop and scaling)\n"..
+					"- CHANGED - Masque - initialization\n"..
 					"- CHANGED (filter) - minor improvements\n"..
-					"- FIXED - TomTom - animation bug on POI with waypoint tag\n"..
-					"- FIXED (quests) - Bonus objectives - sometimes the title does not appear in the context menu\n"..
-					"- FIXED (scenario) - visual bug on Delves spell icons\n"..
-					"- PERFORMANCE (quests) - optimization of sorting code (completed quests at end of list)\n"..
-					"- REMOVED (scenario) - skin other widgets (taint problem)\n"..
+					"- CHANGED (quests) - improvement of zone filtering (instance quests)\n"..
+					"- FIXED - bug during init phase with more addons\n"..
+					"- PERFORMANCE (quests) - optimization of sorting code\n"..
+					"- PERFORMANCE (quests) - improve detect of data for reward information in the tooltip\n"..
 					"\n"..
 
 					cTitle.."Issue reporting|r\n"..
@@ -304,7 +289,7 @@ local function SetupTutorials()
 					bottom = 40,
 				}
 			},
-			shine = KTF,
+			shine = KTF.Background,
 			shineTop = 5,
 			shineBottom = -5,
 			shineLeft = -6,
