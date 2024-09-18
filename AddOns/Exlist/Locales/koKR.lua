@@ -230,9 +230,9 @@ L["Icon Alpha"] = "Icon Alpha"
 --[[Translation missing --]]
 L["Icon Scale"] = "Icon Scale"
 --[[Translation missing --]]
-L["ilvl"] = "ilvl"
---[[Translation missing --]]
 L["iLvl"] = "iLvl"
+--[[Translation missing --]]
+L["ilvl"] = "ilvl"
 --[[Translation missing --]]
 L["In Progress"] = "In Progress"
 --[[Translation missing --]]

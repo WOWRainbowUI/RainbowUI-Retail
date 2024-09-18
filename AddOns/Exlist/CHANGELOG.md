@@ -1,14 +1,14 @@
-# [1.8.4](https://github.com/sragia/Exlist/tree/1.8.4) (2024-09-02)
+# [1.8.6](https://github.com/sragia/Exlist/tree/1.8.6) (2024-09-18)
 
-[Full Changelog](https://github.com/sragia/Exlist/compare/1.8.3...1.8.4)
+[Full Changelog](https://github.com/sragia/Exlist/compare/1.8.5...1.8.6)
 
 ## Highlights
 
- Fix for hanging up on login 
+ Update m+ affix thresholds 
 
 ## Commits
 
 Aigars Bedeicis (1):
 
-- Temp fix for DF checking until I find proper solution
+- Update affix thresholds
 
