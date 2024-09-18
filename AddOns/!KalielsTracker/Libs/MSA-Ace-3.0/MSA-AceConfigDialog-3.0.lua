@@ -153,6 +153,8 @@ local stringIsLiteral = {
 local allIsLiteral = {
 	type = true,
 	descStyle = true,
+	justifyH = true,  -- MSA
+	justifyV = true,  -- MSA
 	imageWidth = true,
 	imageHeight = true,
 }
@@ -1163,10 +1165,11 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 						end
 					end
 				elseif v.type == "range" then
-					control = CreateControl(v.dialogControl or v.control, "Slider")
+					control = CreateControl(v.dialogControl or v.control, "MSA-Slider")
 					control:SetLabel(name)
 					control:SetSliderValues(v.softMin or v.min or 0, v.softMax or v.max or 100, v.bigStep or v.step or 0)
 					control:SetIsPercent(v.isPercent)
+					control:SetIsRaw(v.isRaw)  -- MSA
 					local value = GetOptionsMemberValue("get",v, options, path, appName)
 					if type(value) ~= "number" then
 						value = 0
@@ -1359,6 +1362,16 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 						control:SetFontObject(GameFontHighlightLarge)
 					else -- small or invalid
 						control:SetFontObject(GameFontHighlightSmall)
+					end
+
+					-- MSA
+					local justifyH = GetOptionsMemberValue("justifyH", v, options, path, appName)
+					if justifyH then
+						control:SetJustifyH(justifyH)
+					end
+					local justifyV = GetOptionsMemberValue("justifyV", v, options, path, appName)
+					if justifyV then
+						control:SetJustifyV(justifyV)
 					end
 
 					local imageCoords = GetOptionsMemberValue("imageCoords",v, options, path, appName)
@@ -1784,12 +1797,28 @@ reg.RegisterCallback(AceConfigDialog, "ConfigTableChange", "ConfigTableChanged")
 -- @param appName The application name as given to `:RegisterOptionsTable()`
 -- @param width The default width
 -- @param height The default height
-function AceConfigDialog:SetDefaultSize(appName, width, height)
+-- @param widget The optional frame widget
+-- @param onClose The optional frame onClose function
+function AceConfigDialog:SetDefault(appName, width, height, widget, onClose)
 	local status = AceConfigDialog:GetStatusTable(appName)
 	if type(width) == "number" and type(height) == "number" then
 		status.width = width
 		status.height = height
 	end
+	-- MSA
+	if widget and type(widget) == "string" then
+		status.widget = widget
+	end
+	if onClose and type(onClose) == "function" then
+		status.onClose = function(obj)
+			onClose(obj)
+			FrameOnClose(obj)
+		end
+	end
+end
+-- MSA - Backward Compatibility
+function AceConfigDialog:SetDefaultSize(appName, width, height)
+	AceConfigDialog:SetDefault(appName, width, height)
 end
 
 --- Open an option window at the specified path (if any).
@@ -1859,20 +1888,21 @@ function AceConfigDialog:Open(appName, container, ...)
 			f:SetTitle(name or "")
 		end
 	else
+		-- MSA (mod)
+		local status = AceConfigDialog:GetStatusTable(appName)
 		if not self.OpenFrames[appName] then
-			f = gui:Create("Frame")
+			f = gui:Create(status.widget or "Frame")
 			self.OpenFrames[appName] = f
 		else
 			f = self.OpenFrames[appName]
 		end
 		f:ReleaseChildren()
-		f:SetCallback("OnClose", FrameOnClose)
+		f:SetCallback("OnClose", status.onClose or FrameOnClose)
 		f:SetUserData("appName", appName)
 		if #path > 0 then
 			f:SetUserData("basepath", copy(path))
 		end
 		f:SetTitle(name or "")
-		local status = AceConfigDialog:GetStatusTable(appName)
 		f:SetStatusTable(status)
 	end
 

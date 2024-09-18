@@ -4,7 +4,7 @@
 ---
 --- https://www.curseforge.com/wow/addons/msa-protrouter-10
 
-local name, version = "MSA-ProtRouter-1.0", 2
+local name, version = "MSA-ProtRouter-1.0", 3
 
 local lib, oldVersion = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -44,7 +44,7 @@ function lib:prot(method, object, ...)
     end
     local params = { object, ... }
     local isProtected = false
-    if region then
+    if region and region.IsProtected then
         isProtected = region:IsProtected()
     end
 

@@ -151,12 +151,6 @@ local function CompareQuestWatchInfos(info1, info2)
 	if quest1:IsComplete() ~= quest2:IsComplete() then
 		return quest2:IsComplete()
 	end
-	-- is on Map
-	if not WorldMapFrame:IsShown() then
-		if quest1:IsOnMap() ~= quest2:IsOnMap() then
-			return quest1:IsOnMap()
-		end
-	end
 	-- by Level
 	if quest1.level ~= quest2.level then
 		return quest1.level > quest2.level

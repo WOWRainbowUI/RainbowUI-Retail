@@ -71,7 +71,7 @@ local format = string.format
 local strfind = string.find
 local round = function(n) return floor(n + 0.5) end
 
-local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 14)
+local Lib = LibStub:NewLibrary('MSA-Tutorials-1.0', 15)
 if Lib then
 	Lib.NewFrame, Lib.NewButton, Lib.UpdateFrame = nil
 	Lib.numFrames = Lib.numFrames or 1
@@ -336,13 +336,6 @@ local function NewFrame(data)
 			frame.data.onHide()
 		end
 	end)
-	frame:SetScript("OnEvent", function(self, event)
-		if event == "PLAYER_ENTERING_WORLD" then
-			UpdateFrame(self, self.i)  -- for update textHeight (UI Scale)
-			self:UnregisterEvent(event)
-		end
-	end)
-	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 	frame.button = CreateFrame('Button', nil, frame, 'UIPanelButtonTemplate')
 	frame.button:SetSize(100, 22)
@@ -366,6 +359,12 @@ local function NewFrame(data)
 
 	frame.data = data
 	Lib.numFrames = Lib.numFrames + 1
+
+	-- for update textHeight
+	hooksecurefunc(UIParent, "SetScale", function(self)
+		UpdateFrame(frame, frame.i)
+	end)
+
 	return frame
 end
 

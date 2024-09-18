@@ -841,7 +841,7 @@ function KT_ScenarioObjectiveTrackerProvingGroundsMixin:OnLoad()
 	self.CountdownAnimFrame.Anim:SetScript("OnFinished", GenerateClosure(self.OnAnimFinished, self));
 end
 
-function KT_ScenarioObjectiveTrackerProvingGroundsMixin:OnEvent(...)
+function KT_ScenarioObjectiveTrackerProvingGroundsMixin:OnEvent(event, ...)
 	local score = ...
 	self.Score:SetText(score);
 end

@@ -15,7 +15,6 @@ local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 local ipairs = ipairs
 
 local db
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
 local questWaypoint
 local superTrackedQuestID = 0
 local stopUpdate = false
@@ -36,9 +35,9 @@ local function SetupOptions()
 				name = "TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
 						"|cffff7f00注意:|r 原本的 \"TomTom > 任務目標\" 選項會被忽略!\n\n\n"..
 						"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-						"|T"..mediaPath.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   啟用 POI 按鈕包含 TomTom 導航。\n"..
+						"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   當前 POI 按鈕包含 TomTom 導航。\n"..
 						"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-						"|T"..mediaPath.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   啟用 POI 按鈕不包含 TomTom 導航 (沒有資料)。",
+						"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   當前 POI 按鈕不包含 TomTom 導航 (沒有資料)。",
 				type = "description",
 				order = 1,
 			},
@@ -116,7 +115,7 @@ local function SetWaypointTag(button, show)
 			-- Only for new POI button tags on World Map!
 			-- The tracker has tag inside KT2_ObjectiveTrackerPOIButtonTemplate (animation bug prevention)
 			tag = button.Display:CreateTexture(nil, "OVERLAY")
-			tag:SetTexture(mediaPath.."KT-TomTomTag")
+			tag:SetTexture(KT.MEDIA_PATH.."KT-TomTomTag")
 			tag:SetSize(32, 32)
 			tag:SetPoint("CENTER")
 			button.Display.KTtomtom = tag

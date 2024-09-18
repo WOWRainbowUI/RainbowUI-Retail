@@ -18,7 +18,7 @@ local db
 local OTF = KT_ObjectiveTrackerFrame
 local msqGroup1, msqGroup2
 
-local KTwarning = "  |cff00ffffAddon "..KT.title.." 已啟用。  "
+local KTwarning = "  |cff00ffff插件 "..KT.title.." 已啟用。  "
 
 --------------
 -- Internal --
@@ -26,9 +26,11 @@ local KTwarning = "  |cff00ffffAddon "..KT.title.." 已啟用。  "
 
 -- Masque
 local function Masque_SetSupport()
-    if M.isLoadedMasque then
+    local isLoaded = (KT:CheckAddOn("Masque", "11.0.1") and db.addonMasque)
+    if isLoaded then
+        KT:Alert_IncompatibleAddon("Masque", "11.0.1")
         msqGroup1 = MSQ:Group(KT.title, "任務物品按鈕")
-        msqGroup2 = MSQ:Group(KT.title, "大型任務物品按鈕")
+        msqGroup2 = MSQ:Group(KT.title, "當前任務物品按鈕")
         hooksecurefunc(msqGroup2, "__Enable", function(self)
             for button in pairs(self.Buttons) do
                 if button.Style then
@@ -42,6 +44,19 @@ local function Masque_SetSupport()
                     button.Style:SetAlpha(1)
                 end
             end
+        end)
+    end
+end
+
+-- Auctionator
+local function Auctionator_SetSupport()
+    local isLoaded = (KT:CheckAddOn("Auctionator", "11.0.11") and db.addonAuctionator)
+    if isLoaded then
+        hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
+            local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
+            searchFrame:SetParent(KT_ProfessionsRecipeTracker.Header)
+            searchFrame:ClearAllPoints()
+            searchFrame:SetPoint("TOPRIGHT")
         end)
     end
 end
@@ -98,16 +113,12 @@ end
 function M:OnInitialize()
     _DBG("|cffffff00Init|r - "..self:GetName(), true)
     db = KT.db.profile
-    self.isLoadedMasque = (KT:CheckAddOn("Masque", "11.0.1") and db.addonMasque)
-
-    if self.isLoadedMasque then
-        KT:Alert_IncompatibleAddon("Masque", "11.0.1")
-    end
 end
 
 function M:OnEnable()
     _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
     Masque_SetSupport()
+    Auctionator_SetSupport()
     ElvUI_SetSupport()
     Tukui_SetSupport()
     RealUI_SetSupport()

@@ -106,6 +106,8 @@ function KT_QuestObjectiveItemButtonMixin:SetUp(questLogIndex)
 end
 
 function KT_QuestObjectiveItemButtonMixin:UpdateCooldown()
+	if not self.questLogIndex then return end  -- MSA
+
 	local start, duration, enable = GetQuestLogSpecialItemCooldown(self.questLogIndex);
 	if start then
 		CooldownFrame_Set(self.Cooldown, start, duration, enable);

@@ -26,8 +26,7 @@ local strsplit = string.split
 local strsub = string.sub
 
 local db, dbChar
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
-local anchors = { "TOPLEFT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT" }
+local anchors = { ["TOPLEFT"] = "Top Left", ["TOPRIGHT"] = "Top Right", ["BOTTOMLEFT"] = "Bottom Left", ["BOTTOMRIGHT"] = "Bottom Right" }
 local strata = { "BACKGROUND", "LOW", "MEDIUM", "HIGH" }
 local flags = { [""] = "無", ["OUTLINE"] = "外框", ["OUTLINE, MONOCHROME"] = "無消除鋸齒外框" }
 local textures = { "無", "預設 (暴雪)", "單線", "雙線" }
@@ -44,10 +43,9 @@ local warning = cWarning.."注意:|r 將會重新載入介面!"
 local KTF = KT.frame
 local OTF = KT_ObjectiveTrackerFrame
 
-local overlay
-local overlayShown = false
+local KTSetHeight = KTF.SetHeight
 
-local OverlayFrameUpdate, OverlayFrameHide, GetModulesOptionsTable, MoveModule, SetSharedColor, IsSpecialLocale, UpdateOptions  -- functions
+local GetModulesOptionsTable, MoveModule, SetSharedColor, IsSpecialLocale  -- functions
 
 local defaults = {
 	profile = {
@@ -55,9 +53,10 @@ local defaults = {
 		xOffset = 0,
 		yOffset = -280,
 		width = 305,
-		maxHeight = 400,
-		frameScrollbar = true,
+		maxHeight = 600,
+		frameScale = 1,
 		frameStrata = "LOW",
+		frameScrollbar = true,
 		
 		bgr = "Solid",
 		bgrColor = { r=0, g=0, b=0, a=0 },
@@ -122,6 +121,7 @@ local defaults = {
 		addonMasque = false,
 		addonPetTracker = true,
 		addonTomTom = false,
+		addonAuctionator = false,
 
 		hackLFG = true,
 		hackWorldMap = true,
@@ -139,8 +139,316 @@ local defaults = {
 	}
 }
 
+-- Edit Mode - Mover
+local moverOptions
+local mover = KT:Mover_Create(addonName, KTF)
+mover.editAnchors = true
+
+local function Mover_SetPositionVars(frame)
+	local left = frame:GetLeft() * db.frameScale
+	local top = frame:GetTop() * db.frameScale
+	local bottom = frame:GetBottom() * db.frameScale
+	local width = frame:GetWidth() * db.frameScale
+	if db.anchorPoint == "TOPLEFT" then
+		db.xOffset = round(left)
+		db.yOffset = round(top - UIParent:GetHeight())
+	elseif db.anchorPoint == "TOPRIGHT" then
+		db.xOffset = round(left + width - UIParent:GetWidth())
+		db.yOffset = round(top - UIParent:GetHeight())
+	elseif db.anchorPoint == "BOTTOMLEFT" then
+		db.xOffset = round(left)
+		db.yOffset = round(bottom)
+	elseif db.anchorPoint == "BOTTOMRIGHT" then
+		db.xOffset = round(left + width - UIParent:GetWidth())
+		db.yOffset = round(bottom)
+	end
+end
+
+local function Mover_UpdateOptions(updateValues, stopUpdateUI)
+	local opt = moverOptions.args.tracker.args
+	local screenWidth = round(GetScreenWidth())
+	local screenHeight = round(GetScreenHeight())
+	local xOffsetMax = round(screenWidth - (db.width * db.frameScale))
+	local yOffsetMax = round(screenHeight - (opt.maxHeight.min * db.frameScale))
+	local anchorLeft = (db.anchorPoint == "TOPLEFT" or db.anchorPoint == "BOTTOMLEFT")
+	local directionUp = (db.anchorPoint == "BOTTOMLEFT" or db.anchorPoint == "BOTTOMRIGHT")
+
+	if anchorLeft then
+		opt.xOffset.min = 0
+		opt.xOffset.max = xOffsetMax
+	else
+		opt.xOffset.min = xOffsetMax * -1
+		opt.xOffset.max = 0
+	end
+
+	if directionUp then
+		opt.yOffset.min = 0
+		opt.yOffset.max = yOffsetMax
+	else
+		opt.yOffset.min = yOffsetMax * -1
+		opt.yOffset.max = 0
+	end
+
+	opt.maxHeight.max = round((screenHeight - abs(db.yOffset)) / db.frameScale)
+	if opt.maxHeight.max < opt.maxHeight.min then
+		opt.maxHeight.max = opt.maxHeight.min
+	end
+
+	if updateValues then
+		if round(abs(db.xOffset) + (db.width * db.frameScale)) > screenWidth then
+			if opt.width.min == opt.width.max then
+				db.xOffset = anchorLeft and opt.xOffset.max or opt.xOffset.min
+			end
+		end
+
+		if round(abs(db.yOffset) + (db.maxHeight * db.frameScale)) > screenHeight then
+			db.maxHeight = opt.maxHeight.max
+			if opt.maxHeight.min == opt.maxHeight.max then
+				db.yOffset = directionUp and opt.yOffset.max or opt.yOffset.min
+			end
+		end
+	end
+	if not stopUpdateUI then
+		ACR:NotifyChange(addonName.."EditMode")
+	end
+end
+
+local function Mover_SetScale()
+	if db.pixelPerfectScale then
+		db.frameScale = KT.GetPixelPerfectScale(KTF)
+		KT:SetScale(db.frameScale)
+	end
+	Mover_UpdateOptions(true, true)
+	KT:MoveTracker()
+	KT:Update()
+	mover:Update()
+end
+
+function mover:Anchor_OnEnter()
+	if self.value == "TOPLEFT" or self.value == "TOPRIGHT" then
+		GameTooltip:SetOwner(self, "ANCHOR_TOP", 0, 5 * db.frameScale)
+	elseif self.value == "BOTTOMLEFT" or self.value == "BOTTOMRIGHT" then
+		GameTooltip:SetOwner(self, "ANCHOR_BOTTOM", 0, -5 * db.frameScale)
+	end
+	GameTooltip:AddLine("Anchor - "..anchors[self.value], 1, 0.82, 0)
+	local leftText = "- Tracker expand direction:\n- Tooltips position:\n- Quest item buttons position:"
+	local rightText = ""
+	if self.value == "TOPLEFT" then
+		rightText = "Down\nRight\nRight"
+	elseif self.value == "TOPRIGHT" then
+		rightText = "Down\nLeft\nLeft"
+	elseif self.value == "BOTTOMLEFT" then
+		rightText = "Up\nRight\nRight"
+	elseif self.value == "BOTTOMRIGHT" then
+		rightText = "Up\nLeft\nLeft"
+	end
+	GameTooltip:AddDoubleLine(leftText, rightText, 1, 1, 1, 0, 1, 0.89)
+	GameTooltip:Show()
+end
+
+function mover:Anchor_OnClick()
+	db.anchorPoint = self.value
+	Mover_SetPositionVars(self.obj.mover)
+	Mover_UpdateOptions(true)
+	KT:MoveTracker()
+	KT:SetSize(true)
+end
+
+function mover:OnDragStart(frame)
+	if frame.Buttons.num > 0 then
+		frame.Buttons:Hide()
+	end
+	if not db.directionUp then
+		KTSetHeight(KTF, KTF.height)
+	end
+end
+
+function mover:OnDragStop(frame)
+	if frame.Buttons.num > 0 then
+		frame.Buttons:Show()
+	end
+	Mover_SetPositionVars(self.mover)
+	Mover_UpdateOptions(true)
+	KT:MoveTracker()
+	KT:SetSize(true)
+end
+
+function mover:OnMouseUp(frame, button)
+	if button == "RightButton" then
+		db.anchorPoint = defaults.profile.anchorPoint
+		db.xOffset = defaults.profile.xOffset
+		db.yOffset = defaults.profile.yOffset
+		db.maxHeight = defaults.profile.maxHeight
+
+		Mover_UpdateOptions(true)
+		KT:MoveTracker()
+		KTF.height = 0  -- force update
+		KT:Update()
+	end
+end
+
+function mover:Update()
+	self.anchorPoint = db.anchorPoint
+	self.mixin.Update(self)
+
+	local frame = self.mover
+	if frame then
+		frame:SetSize(db.width, db.maxHeight)
+		frame:ClearAllPoints()
+		frame:SetPoint(db.anchorPoint)
+	end
+end
+
+-- Edit Mode - Options
+moverOptions = {
+	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:0:0|t"..KT.title.."|cffffffff - 編輯模式",
+	type = "group",
+	get = function(info) return db[info[#info]] end,
+	args = {
+		tracker = {
+			name = "追蹤清單",
+			type = "group",
+			args = {
+				intro = {
+					name = "\n"..KT.ICONS.MouseLeft.markup..cBold.."左鍵|r 點擊方塊來拖曳移動追蹤清單。\n"..
+							KT.ICONS.MouseRight.markup..cBold.."右鍵|r 點擊方塊來恢復成預設的位置和大小。\n",
+					type = "description",
+					justifyH = "CENTER",
+					order = 0,
+				},
+				xOffset = {
+					name = "水平位移",
+					desc = "水平位置\n- 預設值: "..defaults.profile.xOffset.."\n- 每次: 1",
+					type = "range",
+					min = 0,
+					max = 0,
+					step = 1,
+					set = function(_, value)
+						db.xOffset = value
+						KT:MoveTracker()
+						mover:Update()
+					end,
+					order = 1,
+				},
+				yOffset = {
+					name = "垂直位移",
+					desc = "垂直位置\n- 預設值: "..defaults.profile.yOffset.."\n- 每次: 1",
+					type = "range",
+					min = 0,
+					max = 0,
+					step = 1,
+					set = function(_, value)
+						db.yOffset = value
+						Mover_UpdateOptions(true, true)
+						KT:MoveTracker()
+						KT:SetSize(true)
+						mover:Update()
+					end,
+					order = 2,
+				},
+				width = {
+					name = "寬度",
+					desc = "- 預設值: "..defaults.profile.width.."\n- 每次: 1",
+					type = "range",
+					min = defaults.profile.width,
+					max = defaults.profile.width,
+					step = 1,
+					disabled = true,
+					set = function(_, value)
+						db.width = value
+						KT:SetSize()
+						mover:Update()
+					end,
+					order = 3,
+				},
+				maxHeight = {
+					name = "最大高度",
+					desc = "- 預設值: "..defaults.profile.maxHeight.."\n- 每次: 1",
+					type = "range",
+					min = 130,
+					max = 130,
+					step = 1,
+					set = function(_, value)
+						db.maxHeight = value
+						KT:SetSize(true)
+						mover:Update()
+					end,
+					order = 4,
+				},
+				notes = {
+					name = cBold.." 寬度|r目前無法使用，因為尚未實裝。\n\n"..
+							cBold.." 最大高度|r和清單的垂直位移 (上/下) 有關。\n"..
+							" - 內容較少 ... 清單高度會自動增加。\n"..
+							" - 內容較多 ... 清單會啟用捲動功能。",
+					type = "description",
+					order = 5,
+				},
+				frameScale = {
+					name = "縮放大小",
+					desc = "- 預設值: "..defaults.profile.frameScale.."\n- 每次: 0.001",
+					type = "range",
+					min = 0.4,
+					max = 1.7,
+					step = 0.001,
+					isRaw = true,
+					disabled = function()
+						return db.pixelPerfectScale
+					end,
+					set = function(_, value)
+						db.frameScale = value
+						KT:SetScale(db.frameScale)
+						Mover_UpdateOptions(true, true)
+						KT:MoveTracker()
+						KTF.height = 0  -- force update
+						KT:Update()
+						mover:Update()
+					end,
+					order = 6,
+				},
+				pixelPerfectScale = {
+					name = "像素精確縮放",
+					desc = "內容使用像素精確縮放，相對於整體介面縮放。",
+					type = "toggle",
+					set = function()
+						db.pixelPerfectScale = not db.pixelPerfectScale
+						Mover_SetScale()
+					end,
+					order = 7,
+				},
+				frameStrata = {
+					name = "框架層級",
+					desc = "- 預設值: "..defaults.profile.frameStrata,
+					type = "select",
+					values = strata,
+					get = function()
+						for k, v in ipairs(strata) do
+							if db.frameStrata == v then
+								return k
+							end
+						end
+					end,
+					set = function(_, value)
+						db.frameStrata = strata[value]
+						KT:SetFrameStrata(db.frameStrata)
+					end,
+					order = 8,
+				},
+			},
+		},
+	},
+}
+KT.EditMode = KT:EditMode_Create(addonName, moverOptions, "tracker", 440, 420)
+
+local function EditMode_Enter()
+	if not KT.InCombatBlocked() then
+		KT.EditMode:ShowMover()
+		KT.EditMode:OpenOptions()
+	end
+end
+
+-- Options
 local options = {
-	name = "|T"..mediaPath.."KT_logo:22:22:-1:7|t任務追蹤清單增強",
+	name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:-1:7|t任務追蹤清單增強",
 	type = "group",
 	get = function(info) return db[info[#info]] end,
 	args = {
@@ -205,10 +513,11 @@ local options = {
 							order = 0.51,
 						},
 						supportersLabel = {
-							name = "                |cff00ff00成為贊助者",
+							name = "|cff00ff00成為贊助者",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
+							justifyH = "RIGHT",
 							order = 0.52,
 						},
 						supporters = {
@@ -230,101 +539,18 @@ local options = {
 					inline = true,
 					order = 1,
 					args = {
-						anchorPoint = {
-							name = "對齊畫面",
-							desc = "- 預設: "..defaults.profile.anchorPoint,
-							type = "select",
-							values = anchors,
-							get = function()
-								for k, v in ipairs(anchors) do
-									if db.anchorPoint == v then
-										return k
-									end
-								end
-							end,
-							set = function(_, value)
-								db.anchorPoint = anchors[value]
-								db.xOffset = 0
-								db.yOffset = 0
-								UpdateOptions()
-								KT:MoveTracker()
-								OverlayFrameUpdate()
-								OTF:Update()
-							end,
+						editMode = {
+							name = "編輯模式",
+							desc = "解鎖插件介面元素。",
+							type = "execute",
+							func = EditMode_Enter,
 							order = 1.1,
 						},
-						xOffset = {
-							name = "水平位置",
-							desc = "- 預設: "..defaults.profile.xOffset.."\n- 單位: 1",
-							type = "range",
-							min = 0,
-							max = 0,
-							step = 1,
-							set = function(_, value)
-								db.xOffset = value
-								KT:MoveTracker()
-							end,
-							order = 1.2,
-						},
-						yOffset = {
-							name = "垂直位置",
-							desc = "- 預設: "..defaults.profile.yOffset.."\n- 單位: 2",
-							type = "range",
-							min = 0,
-							max = 0,
-							step = 2,
-							set = function(_, value)
-								db.yOffset = value
-								UpdateOptions(true)
-								KT:MoveTracker()
-								KT:SetSize()
-								OverlayFrameUpdate()
-							end,
-							order = 1.3,
-						},
-						maxHeight = {
-							name = "最大高度",
-							desc = "- 預設: "..defaults.profile.maxHeight.."\n- 單位: 2",
-							type = "range",
-							min = 100,
-							max = 100,
-							step = 2,
-							set = function(_, value)
-								db.maxHeight = value
-								KT:SetSize()
-								OverlayFrameUpdate()
-							end,
-							order = 1.4,
-						},
-						maxHeightShowOverlay = {
-							name = "顯示最大高度範圍",
-							desc = "顯示區域範圍，更容易看出最大高度的值。",
-							type = "toggle",
-							width = 1.3,
-							get = function()
-								return overlayShown
-							end,
-							set = function()
-								overlayShown = not overlayShown
-								if overlayShown and not overlay then
-									overlay = CreateFrame("Frame", KTF:GetName().."Overlay", KTF)
-									overlay:SetFrameLevel(KTF:GetFrameLevel() + 12)
-									overlay:EnableMouse(true)
-									overlay.texture = overlay:CreateTexture(nil, "BACKGROUND")
-									overlay.texture:SetAllPoints()
-									overlay.texture:SetColorTexture(0, 1, 0, 0.3)
-									OverlayFrameUpdate()
-								end
-								overlay:SetShown(overlayShown)
-							end,
-							order = 1.5,
-						},
-						maxHeightNote = {
-							name = cBold.."\n 最大高度會隨著垂直位置而變動。\n"..
-								" 內容較少 ... 任務追蹤清單高度會自動縮小。\n"..
-								" 內容較多 ... 任務追蹤清單會啟用捲動功能。",
+						editModeNote = {
+							name = cBold.." 設定插件介面元素的位置、大小、縮放和框架層級。",
 							type = "description",
-							order = 1.6,
+							width = "double",
+							order = 1.2,
 						},
 						frameScrollbar = {
 							name = "顯示捲動指示軸",
@@ -335,26 +561,7 @@ local options = {
 								KTF.Bar:SetShown(db.frameScrollbar)
 								KT:SetSize()
 							end,
-							order = 1.7,
-						},
-						frameStrata = {
-							name = "框架層級",
-							desc = "- 預設: "..defaults.profile.frameStrata,
-							type = "select",
-							values = strata,
-							get = function()
-								for k, v in ipairs(strata) do
-									if db.frameStrata == v then
-										return k
-									end
-								end
-							end,
-							set = function(_, value)
-								db.frameStrata = strata[value]
-								KTF:SetFrameStrata(strata[value])
-								KTF.Buttons:SetFrameStrata(strata[value])
-							end,
-							order = 1.8,
+							order = 1.3,
 						},
 					},
 				},
@@ -866,7 +1073,7 @@ local options = {
 							order = 4.091,
 						},
 						hdrCollapsedTxt2 = {
-							name = "|T"..mediaPath.."KT_logo:22:22:2:0|t "..KT.title,
+							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t "..KT.title,
 							type = "toggle",
 							width = "normal",
 							get = function()
@@ -939,7 +1146,7 @@ local options = {
 							order = 5.2,
 						},
 						qiActiveButton = {
-							name = "啟用大型任務物品按鈕  ",
+							name = "啟用當前任務物品按鈕  ",
 							desc = "距離最近的任務的物品按鈕顯示為 \"額外快捷鍵\"。\n"..
 								   cBold.."和 額外快捷鍵1 使用相同的快捷鍵。",
 							descStyle = "inline",
@@ -959,7 +1166,7 @@ local options = {
 							order = 5.3,
 						},
 						keyBindActiveButton = {
-							name = "按鍵 - 大型任務物品按鈕",
+							name = "按鍵 - 當前任務物品按鈕",
 							type = "keybinding",
 							disabled = function()
 								return not db.qiActiveButton
@@ -985,7 +1192,7 @@ local options = {
 							order = 5.4,
 						},
 						qiActiveButtonBindingShow = {
-							name = "顯示大型任務物品按鈕按鍵文字",
+							name = "顯示當前任務物品按鈕按鍵文字",
 							width = "normal+half",
 							type = "toggle",
 							disabled = function()
@@ -1004,21 +1211,8 @@ local options = {
 							width = "half",
 							order = 5.51,
 						},
-						qiActiveButtonUnlock = {
-							name = UNLOCK,
-							type = "execute",
-							disabled = function()
-								return not db.qiActiveButton
-							end,
-							func = function()
-								HideUIPanel(SettingsPanel)
-								KTF.ActiveFrame.overlay:Show()
-								StaticPopup_Show(addonName.."_LockUI", nil, "大型任務物品按鈕已經解鎖。\n拖曳移動它，完成後按下鎖定。\n\n"..cBold.."右鍵點一下|r移動控制項\n會恢復成預設位置。")
-							end,
-							order = 5.6,
-						},
 						addonMasqueLabel = {
-							name = " 外觀選項 - 用於任務物品按鈕和大型任務物品按鈕",
+							name = " 外觀選項 - 用於任務物品按鈕和當前任務物品按鈕",
 							type = "description",
 							width = "double",
 							fontSize = "medium",
@@ -1219,13 +1413,13 @@ local options = {
 							order = 6.46,
 						},
 						questAutoFocusClosest = {
-							name = "自動將最近的任務設為焦點                            ",  -- space for a wider tooltip
-							desc = "下列情況會自動將最近的任務設為焦點:\n"..
-									"- 交回設為焦點的任務，\n"..
-									"- 放棄設為焦點的任務，\n"..
-									"- 取消追蹤設為焦點的任務，\n"..
-									"- 取消追蹤設為焦點的世界任務，\n"..
-									"- 手動或自動選擇區域過濾方式時，沒有任何東西設為焦點。",
+							name = "自動將最近的任務設為專注                            ",  -- space for a wider tooltip
+							desc = "下列情況會自動將最近的任務設為專注:\n"..
+									"- 交回設為專注的任務，\n"..
+									"- 放棄設為專注的任務，\n"..
+									"- 取消追蹤設為專注的任務，\n"..
+									"- 取消追蹤設為專注的世界任務，\n"..
+									"- 手動或自動選擇區域過濾方式時，沒有任何東西設為專注。",
 							type = "toggle",
 							width = "normal+half",
 							set = function()
@@ -1341,7 +1535,7 @@ local options = {
 							order = 1.11,
 						},
 						addonMasqueDesc = {
-							name = "Masque 提供更改任務物品按鈕外觀的功能。\n同時也會影響大型任務物品按鈕",
+							name = "Masque 提供更改任務物品按鈕外觀的功能。\n同時也會影響當前任務物品按鈕",
 							type = "description",
 							width = "double",
 							order = 1.12,
@@ -1366,7 +1560,8 @@ local options = {
 							order = 1.21,
 						},
 						addonPetTrackerDesc = {
-							name = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了顯示上的一些問題。",
+							name = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了顯示上的一些問題。"..
+								cWarning2.."暫時停用",
 							type = "description",
 							width = "double",
 							order = 1.22,
@@ -1393,6 +1588,29 @@ local options = {
 							type = "description",
 							width = "double",
 							order = 1.32,
+						},
+						addonAuctionator = {
+							name = "Auctionator",
+							desc = "Version: %s",
+							descStyle = "inline",
+							type = "toggle",
+							width = 1.05,
+							confirm = true,
+							confirmText = warning,
+							disabled = function()
+								return not C_AddOns.IsAddOnLoaded("Auctionator")
+							end,
+							set = function()
+								db.addonAuctionator = not db.addonAuctionator
+								ReloadUI()
+							end,
+							order = 1.41,
+						},
+						addonAuctionatorDesc = {
+							name = "Support for Auctionator search button inside the Profession module header.",
+							type = "description",
+							width = "double",
+							order = 1.42,
 						},
 					},
 				},
@@ -1588,7 +1806,7 @@ function KT:SetupOptions()
 		}
 	}
 
-	ACR:RegisterOptionsTable(addonName, options, nil)
+	ACR:RegisterOptionsTable(addonName, options, true)
 	
 	self.optionsFrame = {}
 	self.optionsFrame.general = ACD:AddToBlizOptions(addonName, "任務-追蹤清單", nil, "general")
@@ -1604,25 +1822,6 @@ function KT:SetupOptions()
 	-- Disable some options
 	if not IsSpecialLocale() then
 		db.objNumSwitch = false
-	end
-end
-
-SettingsPanel:HookScript("OnHide", function(self)
-	OverlayFrameHide()
-end)
-
-function OverlayFrameUpdate()
-	if overlay then
-		overlay:SetSize(db.width, db.maxHeight)
-		overlay:ClearAllPoints()
-		overlay:SetPoint(db.anchorPoint, 0, 0)
-	end
-end
-
-function OverlayFrameHide()
-	if overlayShown then
-		overlay:Hide()
-		overlayShown = false
 	end
 end
 
@@ -1746,40 +1945,6 @@ function IsSpecialLocale()
 			KT.locale == "ruRU")
 end
 
-function UpdateOptions(updateValues)
-	local options = options.args.general.args.sec1.args
-	local screenWidth = round(GetScreenWidth())
-	local screenHeight = round(GetScreenHeight())
-	local xOffsetMax = screenWidth - db.width
-	local yOffsetMax = screenHeight - options.maxHeight.min
-	local anchorLeft = (db.anchorPoint == "TOPLEFT" or db.anchorPoint == "BOTTOMLEFT")
-	local directionUp = (db.anchorPoint == "BOTTOMLEFT" or db.anchorPoint == "BOTTOMRIGHT")
-
-	if anchorLeft then
-		options.xOffset.min = 0
-		options.xOffset.max = xOffsetMax
-	else
-		options.xOffset.min = xOffsetMax * -1
-		options.xOffset.max = 0
-	end
-
-	if directionUp then
-		options.yOffset.min = 0
-		options.yOffset.max = yOffsetMax
-	else
-		options.yOffset.min = yOffsetMax * -1
-		options.yOffset.max = 0
-	end
-
-	options.maxHeight.max = screenHeight - abs(db.yOffset)
-
-	if updateValues then
-		if abs(db.yOffset) + db.maxHeight > screenHeight then
-			db.maxHeight = options.maxHeight.max
-		end
-	end
-end
-
 local function SetAlert(type)
 	if not type then return end
 
@@ -1801,7 +1966,7 @@ local function SetAlert(type)
 						order = 1.1,
 					},
 					alertText = {
-						name = "You are probably having problem with automatically tracked quests after every Login or Reload UI, try the following steps to fix it.",
+						name = "You are probably having problem with automatically tracked quests after every Login or Reload UI. Try the following steps to fix it.",
 						type = "description",
 						width = 2.8,
 						fontSize = "medium",
@@ -1833,13 +1998,13 @@ end
 KT:RegEvent("PLAYER_ENTERING_WORLD", function(eventID)
 	SetAlert("trackedQuests")
 	modules.sec1.args = GetModulesOptionsTable()
-	UpdateOptions()
+	Mover_UpdateOptions()
 	KT:RegEvent("UI_SCALE_CHANGED", function()
-		UpdateOptions()
+		Mover_SetScale()
 	end)
 	KT:UnregEvent(eventID)
 end)
 
 hooksecurefunc(UIParent, "SetScale", function(self)
-	UpdateOptions()
+	Mover_SetScale()
 end)

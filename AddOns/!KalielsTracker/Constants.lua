@@ -4,9 +4,11 @@
 ---
 --- This file is part of addon Kaliel's Tracker.
 
-local _, KT = ...
+local addonName, KT = ...
 
 -- Constants
+KT.MEDIA_PATH = "Interface\\AddOns\\"..addonName.."\\Media\\"
+
 KT.MODULES = {
     "KT_ScenarioObjectiveTracker",
     "KT_UIWidgetObjectiveTracker",
@@ -54,6 +56,21 @@ KT.WORLD_QUEST_REWARD_TYPE_FLAG_MATERIALS = 0x0008
 KT.WORLD_QUEST_REWARD_TYPE_FLAG_EQUIPMENT = 0x0010
 KT.WORLD_QUEST_REWARD_TYPE_FLAG_REPUTATION = 0x0020
 KT.WORLD_QUEST_REWARD_TYPE_FLAG_OTHERS = 0x10000
+
+KT.ICONS = {
+    MouseLeft = { atlas = "newplayertutorial-icon-mouse-leftbutton", width = 24, height = 28, offsetX = -1, offsetY = 6 },
+    MouseRight = { atlas = "newplayertutorial-icon-mouse-rightbutton", width = 24, height = 28, offsetX = -1, offsetY = 6 }
+}
+do
+    for _, info in pairs(KT.ICONS) do
+        if info.atlas then
+            local atlasInfo = C_Texture.GetAtlasInfo(info.atlas)
+            if atlasInfo then
+                info.markup = format("|A:%s:%d:%d:%d:%d|a", info.atlas, info.height, info.width, info.offsetX, info.offsetY)
+            end
+        end
+    end
+end
 
 -- Blizzard Constants
 KT_OBJECTIVE_TRACKER_COLOR["Header"] = { r = 1, g = 0.5, b = 0 }                 -- orange

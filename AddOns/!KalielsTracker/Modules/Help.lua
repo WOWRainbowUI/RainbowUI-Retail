@@ -12,8 +12,7 @@ local T = LibStub("MSA-Tutorials-1.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db, dbChar
-local mediaPath = "Interface\\AddOns\\"..addonName.."\\Media\\"
-local helpPath = mediaPath.."Help\\"
+local helpPath = KT.MEDIA_PATH.."Help\\"
 local helpName = "help"
 local helpNumPages = 12
 local supportersName = "supporters"
@@ -92,7 +91,7 @@ local function SetupTutorials()
 					"- 內容較多，超出最大高度時可以捲動\n"..
 					"- 登出/結束遊戲時會記憶收起的追蹤清單狀態\n\n"..
 					"... 還有更多其他增強功能 (請繼續看下一頁)。",
-			shine = KTF,
+			shine = KTF.Background,
 			shineTop = 5,
 			shineBottom = -5,
 			shineLeft = -6,
@@ -103,15 +102,15 @@ local function SetupTutorials()
 			imageHeight = 128,
 			text = cTitle.."標題列按鈕|r\n\n"..
 					"最小化按鈕:                                其他按鈕:\n"..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r 展開追蹤清單                    "..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:0:14:209:170:0|t  "..cDots.."...|r 開啟任務日誌\n"..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r 收起追蹤清單                    "..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:16:30:209:170:0|t  "..cDots.."...|r 開啟成就視窗\n"..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r 追蹤清單是空的時候         "..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:32:46:209:170:0|t  "..cDots.."...|r 開啟過濾方式選單\n\n"..
-					"按鈕 |T"..mediaPath.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:0:14:209:170:0|t 和 "..
-					"|T"..mediaPath.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:16:30:209:170:0|t 可以在設定選項中停用。\n\n"..
-					"可以設定"..cBold.." [快速鍵]|r 來最小化追蹤清單。\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:0:14:209:170:0|t "..cDots.."...|r 展開追蹤清單                          "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:0:14:209:170:0|t  "..cDots.."...|r 打開任務日誌\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:16:30:209:170:0|t "..cDots.."...|r 收起追蹤清單                          "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:16:30:209:170:0|t  "..cDots.."...|r 打開成就視窗\n"..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:0:14:32:46:209:170:0|t "..cDots.."...|r 追蹤清單是空的時候               "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:4:2:32:64:16:30:32:46:209:170:0|t  "..cDots.."...|r 打開過濾方式選單\n\n"..
+					"按鈕 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:0:14:209:170:0|t 和 "..
+					"|T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:0:2:32:64:16:30:16:30:209:170:0|t 可以在設定選項中停用。\n\n"..
+					"可以設定 "..cBold.."[按鍵綁定]|r 來最小化追蹤清單。\n"..
 					cBold.."Alt+左鍵|r 點擊最小化按鈕會開啟 "..KT.title.."的設定選項。",
 			textY = 16,
 			shine = KTF.MinimizeButton,
@@ -139,15 +138,15 @@ local function SetupTutorials()
 		{	-- 4
 			image = helpPath.."help_tracker-filters",
 			text = cTitle.."任務過濾|r\n\n"..
-					"要開啟過濾方式選單請"..cBold.."點一下|r這個按鈕 |T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t。\n\n"..
+					"要開啟過濾方式選單請"..cBold.."點一下|r這個按鈕 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t.\n\n"..
 					"過濾方式分為兩種類型:\n"..
-					cTitle.."固定過濾|r - 依據規則 (例如 \"每日\") 可以手動新增/移除項目。\n"..
-					cTitle.."動態過濾|r - 自動新增任務/成就依據條件 (例如 \"|cff00ff00自動|r區域\") "..
-					"會持續更新項目。這種類型不允許手動加入/移除項目。"..
-					"啟用動態過濾時，標題按鈕是綠色 |T"..mediaPath.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:0:255:0|t.\n\n"..
+					cTitle.."固定過濾|r - 依據規則 (例如 \"每日\") 加入要追蹤的任務/成就，並且可以手動新增/移除項目。\n"..
+					cTitle.."動態過濾|r - 自動依據規則加入要追蹤的任務/成就 (例如 \"|cff00ff00自動|r區域\") "..
+					"並且會持續更新項目。這種類型不允許手動加入/移除項目。"..
+					"啟用動態過濾時，標題按鈕是綠色 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:0:255:0|t.\n\n"..
 					"|cff009bff最愛|r - 現在可以將任務或成就加入最愛，然後使用這種過濾方式。\n\n"..
 					"更改成就的搜尋類別時，也會影響過濾的結果。\n\n"..
-					"這個選單也會顯示影響追蹤清單內容的其他選項 (例如 戰寵助手插件 PetTracker 所使用的選項)。",
+					"這個選單也會顯示影響追蹤清單內容的其他選項 (例如 戰寵助手插件 PetTracker 所使用的選項)",
 			textY = 16,
 			shine = KTF.FilterButton,
 			shineTop = 9,
@@ -172,20 +171,20 @@ local function SetupTutorials()
 		},
 		{	-- 6
 			image = helpPath.."help_active-button",
-			text = cTitle.."大型任務物品按鈕|r\n\n"..
-					"大型任務物品按鈕提供任務物品較佳的使用方式。將 '距離最近' 的任務的物品顯示為額外快捷鍵。(類似德拉諾的要塞技能)\n\n"..
+			text = cTitle.."當前任務物品按鈕|r\n\n"..
+					"當前任務物品按鈕提供任務物品較佳的使用方式。將 '距離最近' 的任務的物品顯示為額外快捷鍵。(類似德拉諾的要塞技能)\n\n"..
 					"功能:\n"..
 					"- "..cBold.."接近可以使用任務物品的地方時"..
-					offs.."自動顯示|r大型任務物品按鈕。\n"..
+					offs.."自動顯示|r當前任務物品按鈕。\n"..
 					"- "..cBold.."點選地圖上或任務追蹤清單旁的 POI 按鈕可以"..
-					offs.."手動顯示|r大型任務物品按鈕。\n"..
+					offs.."手動顯示|r當前任務物品按鈕。\n"..
 					"- 可以設定"..cBold.." [快速鍵]|r 來使用任務物品，請在設定選項中指定要綁定的按鍵。"..
-					offs.."大型任務物品按鈕使用和額外快捷鍵相同的按鍵綁定。\n"..
+					offs.."當前任務物品按鈕使用和額外快捷鍵相同的按鍵綁定。\n"..
 					"- 要移動按鈕請到設定選項 > \"任務物品"..
 					"按鈕\" > 按下 \"解鎖\" 後便可移動。\n\n"..
 					cWarning.."特別注意:|r\n"..
-					"- 只有已經追蹤的任務才能使用大型任務物品按鈕。\n"..
-					"- 追蹤清單收合起來的時候，會一併暫停大型任務物品按鈕的功能。",
+					"- 只有已經追蹤的任務才能使用當前任務物品按鈕。\n"..
+					"- 追蹤清單收合起來的時候，會一併暫停當前任務物品按鈕的功能。",
 			shineTop = 30,
 			shineBottom = -30,
 			shineLeft = -80,
@@ -194,10 +193,10 @@ local function SetupTutorials()
 		{	-- 7
 			image = helpPath.."help_tracker-modules",
 			text = cTitle.."模組順序|r\n\n"..
-					"允許更改模組在追蹤清單中的順序。支援所有的模組，也包含外部插件 (例如：戰寵助手)。\n\n\n"..
+					"允許更改模組在追蹤清單中的順序。支援所有模組，也包含外部插件 (例如：戰寵助手)。\n\n\n"..
 					cTitle.."可收合的模組|r\n\n"..
 					"所有模組，包含外部插件的，都可以點一下模組標題收合起來。",
-			shine = KTF,
+			shine = KTF.Background,
 			shineTop = 5,
 			shineBottom = -5,
 			shineLeft = -6,
@@ -206,7 +205,7 @@ local function SetupTutorials()
 		{	-- 8
 			image = helpPath.."help_addon-masque",
 			text = cTitle.."支援插件: 按鈕外觀 - Masque|r\n\n"..
-					"Masque 提供更改任務物品按鈕外觀的功能，同時也會影響大型任務物品按鈕 (請看上一頁)。\n"..
+					"Masque 提供更改任務物品按鈕外觀的功能，同時也會影響當前任務物品按鈕 (請看上一頁)。\n"..
 					AddonInfo("Masque"),
 		},
 		{	-- 9
@@ -220,15 +219,15 @@ local function SetupTutorials()
 			text = cTitle.."支援插件: 箭頭導航 - TomTom|r\n\n"..
 					"TomTom 的支援性整合了暴雪的 POI 和 TomTom 的導航箭頭。\n\n"..
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   啟用 POI 按鈕包含 TomTom 導航。\n"..
+					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:0:16:0:16|t"..cDots.."...|r   當前 POI 按鈕包含 TomTom 導航。\n"..
 					"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:0:256:256:128:160:96:128|t+"..
-					"|T"..mediaPath.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   啟用 POI 按鈕不包含 TomTom 導航 (沒有資料)。\n\n"..
+					"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:0:32:16:16:32:0:16|t"..cDots.."...|r   當前 POI 按鈕不包含 TomTom 導航 (沒有資料)。\n\n"..
 					"功能:\n"..
-					"- 一般任務和世界任務都可以使用，但是只有當前區域的任務才能導航!|r"..
-					offs.." (這是 TomTom 和暴雪的功能限制)\n"..
+					"- 一般任務和世界任務都可以使用，但是只有當前區域的任務才能導航!"..
+					offs.."(這是 TomTom 和暴雪的功能限制)\n"..
 					"- "..cBold.."點一下|r (任務清單中或是世界地圖上的) POI 按鈕會顯示該任務的"..
-					offs.."路線導航箭頭。\n"..
-					"- 新追蹤或距離最近的任務會自動顯示路線導航。\n"..
+					offs.."導航箭頭。\n"..
+					"- 新追蹤或距離最近的任務會自動顯示導航。\n"..
 					"- 取消追蹤或放棄任務時會移除導航。\n"..
 					AddonInfo("TomTom"),
 			shineTop = 10,
@@ -266,30 +265,16 @@ local function SetupTutorials()
 			imageY = 1,
 			imageAbsolute = true,
 			text = "          |T"..helpPath.."help_whats-new_title:32:181:0:0:256:32:0:181:0:32|t\n\n"..
-					cTitle.."版本 7.4.1|r\n"..
-					"- 新增 (任務) - 啟用/停用自動聚焦最近的任務選項\n"..
-					"- 新增 (世界任務) - 顯示/隱藏追蹤的世界任務陣營名稱選項\n"..
-					"- 修正 - TomTom - 導航標籤有時會在 POI 按鈕底下\n"..
-					"\n"..
-					cTitle.."版本 7.4.0|r\n"..
-					"- 新增 (任務) - 在浮動提示資訊中的獎勵上顯示戰隊綁定圖示 (可選擇)\n"..
-					"- 新增 (任務) - 自動/手動聚焦最近的任務 (手動 - 右鍵點一下最小化按鈕)\n"..
-					"- 新增 (事件) - 其他小套件外觀 (文字)\n"..
-					"- 變更 - TomTom - 移動時更好的更新導航\n"..
-					"- 變更 - TomTom - 更好地獲取任務/目標的座標，導航箭頭額外的資訊文字\n"..
-					"- 變更 (任務) - 增強區域過濾 (副本任務)\n"..
-					"- 變更 (世界任務) - 小的視覺增強\n"..
-					"- 變更 (事件) - 探究 - 小的視覺增強\n"..
-					"- 變更 - 世界地圖駭客工具 [Beta] - 次要增強\n"..
-					"- 變更 (任務) - 增強聚焦最近的任務\n"..
-					"- 變更 - TomTom - 較好的在內建導航之間切換 (2)\n"..
-					"- 變更 - TomTom - 較好的在內建導航之間切換\n"..
+					cTitle.."版本 7.5.0|r\n"..
+					"- 新增 - 支援魔獸世界 11.0.2.56513\n"..
+					"- 新增 - 支援插件 - Auctionator 11.0.11 (在專業模組標題列裡面顯示搜尋按鈕)\n"..
+					"- 新增 - 編輯模式 - 設定選項中新的的調整位置系統 (提供拖曳移動和縮放)\n"..
+					"- 變更 - Masque - 初始化\n"..
 					"- 變更 (過濾方式) - 次要增強\n"..
-					"- 修正 - TomTom - 帶有導航標籤的 POI 上的動畫問題\n"..
-					"- 修正 (任務) - 獎勵目標 - 有時不會在右鍵選單中顯示標題\n"..
-					"- 修正 (事件) - 探究法術圖示的視覺問題\n"..
-					"- 效能 (任務) - 最佳化排序程式碼 (已完成的任務會排在清單的最後面)\n"..
-					"- 移除 (事件) - 其他小套件外觀 (汙染問題)\n"..
+					"- 變更 (任務) - 增強區域過濾方式 (副本任務)\n"..
+					"- 修正 - 更多插件初始化階段的錯誤\n"..
+					"- 效能 (任務) - 最佳化排序程式碼\n"..
+					"- 效能 (任務) - 改進偵測浮動提示中獎勵資訊的資料\n"..
 					"\n"..
 
 					cTitle.."回報問題|r\n"..
@@ -304,7 +289,7 @@ local function SetupTutorials()
 					bottom = 25,
 				}
 			},
-			shine = KTF,
+			shine = KTF.Background,
 			shineTop = 5,
 			shineBottom = -5,
 			shineLeft = -6,
