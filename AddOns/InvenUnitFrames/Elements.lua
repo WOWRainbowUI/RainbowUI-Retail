@@ -534,6 +534,7 @@ local function setupSkinElement(object, element, width, height)
 				elseif element:find("^healthText(%d+)$") or element:find("^powerText(%d+)$") then
 					object[element].combat = object.db[element.."InCombat"]
 					if IUF:HasStatusBarDisplay(skinvalue) then
+
 						object[element].display = skinvalue
 						object[element]:Show()
 					else

@@ -126,11 +126,10 @@ local function hideBlizFrames()
 end
 
 local function hideBlizFrames2()
-
 	PlayerFrame:SetAlpha(0)
 	TargetFrame:SetAlpha(0)
 	PartyFrame:SetAlpha(0)
- 
+
 
 
 end

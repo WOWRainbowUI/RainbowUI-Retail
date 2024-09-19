@@ -134,9 +134,9 @@ local statusBarValueFunc = {
 	-- [손실 짧게]
 	function(p, v) return shortValue(v - min(p, v)) end,
 	-- [현재]
-	function(p) return abbreviateLargeNumbers(p) end,
+	function(p, v) return abbreviateLargeNumbers(p) end,
 	-- [현재 짧게]
-	function(p) return shortValue(min(p, v)) end,
+	function(p, v) return shortValue(min(p, v)) end,
 	-- [최대]
 	function(p, v) return abbreviateLargeNumbers(v) end,
 	-- [최대 짧게]
