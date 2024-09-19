@@ -1,6 +1,7 @@
 # Baganator
 
-## [488](https://github.com/Baganator/Baganator/tree/488) (2024-09-16)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/487...488) 
+## [490](https://github.com/Baganator/Baganator/tree/490) (2024-09-19)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/489...490) 
 
-- Fix currency tracking so that the Shift+Click to track a currency always works  
+- [Fixes #294] Customise: Categories: Error from static items added listing  
+- Categories: Fix save data so that using older versions doesn't corrupt display  
