@@ -611,7 +611,7 @@ local function ShowTimer()
         if Addon.season.ShowTimer then
             Addon.season:ShowTimer()
         end
-        Addon:KalielsTrackerFix()
+        -- Addon:KalielsTrackerFix()
         ObjectiveTrackerFrame:Hide()
         Addon:HideHelp()
     end
