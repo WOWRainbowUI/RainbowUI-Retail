@@ -26,7 +26,7 @@ fool.lua
 cooperation\mdt.lua
 cooperation\elvUI.lua
 cooperation\nameplateKAI.lua
-cooperation\kalielsTracker.lua
+## cooperation\kalielsTracker.lua
 
 theme\default.lua
 themes.lua
