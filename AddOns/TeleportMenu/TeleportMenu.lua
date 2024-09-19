@@ -494,6 +494,7 @@ function tpm:createCooldownFrame(frame)
     cooldownFrame:SetAllPoints()
 
 	function cooldownFrame:CheckCooldown(id, type)
+		if not id then return end -- 暫時修正
 		local start, duration, enabled
 		if type == "toy" or type == "item" then
 			start, duration, enabled = C_Item.GetItemCooldown(id)
