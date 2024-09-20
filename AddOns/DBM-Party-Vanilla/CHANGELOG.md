@@ -1,12 +1,8 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r153](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r153) (2024-09-17)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r152...r153) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r154](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r154) (2024-09-20)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r153...r154) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- adjust initial blast timer by 1  
-- small delve timer adjustments  
-- fix bug where taskmaster had duplicate entries and as such wasn't properly sending all stop callbacks  
-- add umbrel slash  
-- fix sporesong, which changed from a start even to success/applied only recently  
-- reclassify another changed alert  
-- fix crushing slam classification  
+- Added Shattering Bellow (257732) to BoralusTrash.lua (#262)  
+- honor full module disable feature on all M+ and delve trash mods  
+- Refix sporesong again. first it was a cast time, then it wasn't, then it is again.  
