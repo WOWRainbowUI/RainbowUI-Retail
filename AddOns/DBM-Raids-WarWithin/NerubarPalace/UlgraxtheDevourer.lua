@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2607, "DBM-Raids-WarWithin", 1, 1273)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240917094345")
+mod:SetRevision("20240918054723")
 mod:SetCreatureID(215657)--VERIFY
 mod:SetEncounterID(2902)
 --mod:SetUsedIcons(1, 2, 3)
@@ -134,13 +134,13 @@ function mod:SPELL_CAST_START(args)
 		specWarnChitteringSwarm:Play("killmob")
 	elseif spellId == 436200 or spellId == 436203 then--First charge, subsiquent ones
 		if spellId == 436200 then
-			self.vb.webbingChargeCount = 1
-			timerJuggernautChargeCD:Start(4.6, 2)
+			self.vb.webbingChargeCount = 0
+			timerJuggernautChargeCD:Start(4.6, 1)
 		else
 			self.vb.webbingChargeCount = self.vb.webbingChargeCount + 1
 			warnJuggernautCharge:Show(self.vb.webbingChargeCount)
 			warnJuggernautCharge:Play("chargemove")
-			if self.vb.webbingChargeCount < 5 then
+			if self.vb.webbingChargeCount < 4 then
 				timerJuggernautChargeCD:Start(7.1, self.vb.webbingChargeCount+1)
 			end
 		end

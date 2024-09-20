@@ -1,24 +1,24 @@
 # DBM - Core
 
-## [11.0.13](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.13) (2024-09-17)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.11...11.0.13) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.14](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.14) (2024-09-20)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.13...11.0.14) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- disable that last minute change for now, it has load order issues  
-- bump alpha  
-- Add option to disable built in music options. Closes https://github.com/DeadlyBossMods/DBM-SoundEventsPack/issues/5  
-- Update localization.ru.lua (#1244)  
-- Update koKR (#1243)  
-- Fixed a few places short names weren't being applied.  
-- Queen Ansurek Update:  
-     - Improved Wrest a little bit  
-     - Changed Reactive Toxin target message to give count and no longer be filtered  
-     - Added icon setting and yell ptions to reactive toxin that support both matching BW or doing it ascended method or disabling globally  
-     - Changed icons for Royal Condemnation to be more compatible  
-     - Added queens summon icon marking using remaining icons  
-     - Fixed bug where Gloom Eruption announce/timer was started in wrong spot.  
-    Blood Twister Ovinax Update:  
-     - Fixed variable names that caused raid leader overide to not be set correctly.  
-    Both of above:  
-     - Icon dropdown override menus are now categorized as "icon" options and not "misc" so they are grouped properly if user is using the "show icons as separate category" option.  
-- messaging tweaks  
+- fix some random typed characters that leaked through  
+- Prevent nil errors in test mode when mods call sorting on names that reference raids table that hasn't been created. Probably needs to just return a player mock instead but at very least this keeps some tests from failing outright  
+    prep new tag  
+- Update koKR (#1249)  
+- Core:  
+     - Delves no longer auto reply to whispers automatically  
+    Princess  
+     - Added personal announce to queen's bane since at this point it doesn't seem like blizzard is gonna fix private aura.  
+     - Fixed deathmasks timer using wrong object type  
+     - Added orbs timer on heroic and mythic  
+- Fixed bug hwere initial tank debuff timer after intermission was not updated for live values on kyveza  
+- actually set story difficulty  
+- Fix queen ansurek for story difficulty  
+- Update Mythic and LFR Rashanan timers  
+    Fixed one bad timer on heroic.  
+- Fix a few various issues I saw in raid tonight, also closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1251#issuecomment-2357512826  
+- Fix two errors  
+- Fix a bug where watchers still used old mark  
 - bump alpha  
