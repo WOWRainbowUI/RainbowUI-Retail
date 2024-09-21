@@ -629,7 +629,7 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 		local channelTarget = editBox:GetAttribute("channelTarget") or 'SAY'
 		local channelNumber, channelname = GetChannelName(channelTarget)
 		local channelText = ""
-		if showChannelName then
+		if showChannelName and channelname then
 			if strfind(channelname, "Community") then
 				local clubInfo = C_Club.GetClubInfo(channelname:match(":(%d+):"));
 				if clubInfo then
