@@ -1,24 +1,16 @@
 # DBM - Core
 
-## [11.0.14](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.14) (2024-09-20)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.13...11.0.14) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.15](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.15) (2024-09-21)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.14...11.0.15) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- fix some random typed characters that leaked through  
-- Prevent nil errors in test mode when mods call sorting on names that reference raids table that hasn't been created. Probably needs to just return a player mock instead but at very least this keeps some tests from failing outright  
-    prep new tag  
-- Update koKR (#1249)  
-- Core:  
-     - Delves no longer auto reply to whispers automatically  
-    Princess  
-     - Added personal announce to queen's bane since at this point it doesn't seem like blizzard is gonna fix private aura.  
-     - Fixed deathmasks timer using wrong object type  
-     - Added orbs timer on heroic and mythic  
-- Fixed bug hwere initial tank debuff timer after intermission was not updated for live values on kyveza  
-- actually set story difficulty  
-- Fix queen ansurek for story difficulty  
-- Update Mythic and LFR Rashanan timers  
-    Fixed one bad timer on heroic.  
-- Fix a few various issues I saw in raid tonight, also closes https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1251#issuecomment-2357512826  
-- Fix two errors  
-- Fix a bug where watchers still used old mark  
+- bump version  
+- Fix significant bugs in sikran that made almost all the timers to be non functional after first sweep due to failure to retest the mod with test tools after it was refactored to no longer reset counts. All the timer conditionals were coded relying on counts resetting after each sweep, but since they weren't anymore, it resulted in most timers to stop being functional after first sweep. This is quite frankly, an unacceptable failure in my test processes and peoples time and progress shouldn't suffer as a result of it. As such, anyone that requests a refund for last months patreon pledge, will be given one out of my own pocket  
+- Fix mask trigger not working correctly on kyveza mythic  
+    tweak option defaults for mythic Kyveza  
+- Update localization.fr.lua (#1256)  
+- Update commonlocal.es.lua (#1257)  
+- Update commonlocal.fr.lua (#1258)  
+- Update commonlocal.br.lua (#1259)  
+- Update localization.es.lua (#1255)  
+- Add ulgrax berserk timer  
 - bump alpha  
