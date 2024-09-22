@@ -2,7 +2,7 @@
 ..\FrameXML\UI.xsd">
 	<Script file="VCB_Virtuals.lua"/>
 <!-- Tabs Panel -->
-	<Frame name="vcbTabsPanel" frameStrata="DIALOG" frameLevel="250" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
+	<Frame name="vcbTabsPanel" frameStrata="DIALOG" frameLevel="250" enableKeyboard="true" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
 		<Size x="488" y="580"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
@@ -40,6 +40,9 @@
 			</Button>
 		</Frames>
 		<Scripts>
+			<OnKeyDown>
+				if key == "ESCAPE" then self:SetPropagateKeyboardInput(false) self:Hide() else self:SetPropagateKeyboardInput(true) end
+			</OnKeyDown>
 			<OnHide>
 				PlaySound(858, "Master")
 			</OnHide>
@@ -102,7 +105,7 @@
 					<Scripts>
 						<OnLoad>
 							self:SetTextColor(vcbMainColor:GetRGB())
-							self:SetText(C_AddOns.GetAddOnMetadata("VCB", "Title").."|nVersion: "..vcbHighColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Version")))
+							self:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title").."|nVersion: "..vcbHighColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Version")))
 						</OnLoad>
 					</Scripts>
 				</FontString>
