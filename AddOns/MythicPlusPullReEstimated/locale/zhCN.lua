@@ -17,6 +17,8 @@ L["Color of the text on the enemy nameplates"] = "敌方姓名板上的进度文
 L["CTRL-C to copy"] = "CTRL-C 复制"
 L["Current pull:"] = "当前进度："
 L["Debug"] = "偵錯"
+--[[Translation missing --]]
+L["Debug Criteria Events"] = "Debug Criteria Events"
 L["Debug New NPC Scores"] = "Debug 新 NPC 分数"
 L["Developer Options"] = "开发者选项"
 L["Disabled when MythicDungeonTools is loaded"] = "若 MDT 已载入则停用"
@@ -26,6 +28,8 @@ L["Enable MDT Emulation"] = "启用 MDT 模拟"
 L["Enable Nameplate Text"] = "启用姓名板文本"
 L["Enable Tooltip"] = "启用鼠标提示"
 L["Enable/Disable debug prints"] = "启用/停用 debug 信息打印"
+--[[Translation missing --]]
+L["Enable/Disable debug prints for criteria events, ignores the Debug Print setting"] = "Enable/Disable debug prints for criteria events, ignores the Debug Print setting"
 L["Enable/Disable debug prints for new NPC scores"] = "启用/停用 debug 信息打印新的 NPC 分数"
 L["Enable/Disable Simulation Mode"] = "启用/停用模拟模式"
 L["Enable/Disable the addon"] = "启用/停用本插件"
@@ -86,7 +90,13 @@ L["The following placeholders are available:"] = "The following placeholders are
 --[[Translation missing --]]
 L["The percentage of mobs pulled."] = "The percentage of mobs pulled."
 --[[Translation missing --]]
+L["The percentage the mob gives."] = "The percentage the mob gives."
+--[[Translation missing --]]
+L["The raw count the mob gives."] = "The raw count the mob gives."
+--[[Translation missing --]]
 L["The required count of mobs to reach 100%%."] = "The required count of mobs to reach 100%%."
+--[[Translation missing --]]
+L["The text format of the nameplate text. Use placeholders to display information."] = "The text format of the nameplate text. Use placeholders to display information."
 --[[Translation missing --]]
 L["The text format of the pull frame. Use placeholders to display information."] = "The text format of the pull frame. Use placeholders to display information."
 L["These options are experimental and may not work as intended."] = "下列设置仍是实验性的，有可能不按预期方式运作。"
