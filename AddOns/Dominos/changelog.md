@@ -1,5 +1,14 @@
 # Dominos Changelog
 
+## 11.0.4
+
+* Add a new slider for row spacing (contributed by [Xiaoyang-Huang](https://github.com/Xiaoyang-Huang))
+* Added a Hide at Max Level option to the display menu of progress bars
+
+## 11.0.3
+
+* Add support for classic versions 4.4.1 and 1.15.4
+
 ## 11.0.2
 
 * Update Override UI detection
