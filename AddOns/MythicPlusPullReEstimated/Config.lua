@@ -321,8 +321,8 @@ function MMPE:InitConfig()
                             resetPullFrameTextFormatormat = {
                                 order = increment(),
                                 type = "execute",
-                                name = "Reset Text Format",
-                                desc = "Reset the text format to the default.",
+                                name = L["Reset Text Format"],
+                                desc = L["Reset the text format to the default."],
                                 descStyle = "inline",
                                 width = "full",
                                 func = function() self:SetSetting("nameplateTextFormat", self.defaultSettings.nameplateTextFormat); end,
