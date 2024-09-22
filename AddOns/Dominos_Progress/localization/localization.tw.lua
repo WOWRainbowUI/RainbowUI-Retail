@@ -39,3 +39,4 @@ L.Paragon = '巔峰'
 L.Azerite = '艾澤萊晶岩'
 L.SkipInactiveModes = "跳過未啟動的模式"
 L.GoldGoal = "金錢目標數量"
+L.HideAtMaxLevel = '滿等時隱藏'

@@ -344,6 +344,30 @@ function Panel:NewRowOffsetSlider()
 	}
 end
 
+function Panel:NewRowSpacingSlider()
+	return self:NewSlider{
+		name = L.RowSpacing,
+
+		min = function()
+			return -(Round(ActionButton1:GetHeight()) + self.owner:GetSpacing())
+		end,
+
+		max = function()
+			return Round(ActionButton1:GetHeight()) + self.owner:GetSpacing()
+		end,
+
+		softLimits = true,
+
+		get = function()
+			return self.owner:GetRowSpacing()
+		end,
+
+		set = function(_, value)
+			self.owner:SetRowSpacing(value)
+		end
+	}
+end
+
 local DISPLAY_LAYER_OPTIONS = {"BACKGROUND", "LOW", "MEDIUM", "HIGH"}
 
 function Panel:NewDisplayLayerSlider(options)
@@ -482,6 +506,7 @@ function Panel:AddLayoutOptions()
 	self.colsSlider = self:NewColumnsSlider()
 	self.spacingSlider = self:NewSpacingSlider()
 	self.rowOffsetSlider = self:NewRowOffsetSlider()
+	self.rowSpacingSlider = self:NewRowSpacingSlider()
 	self:AddBasicLayoutOptions()
 end
 

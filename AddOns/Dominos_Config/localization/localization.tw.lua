@@ -82,6 +82,7 @@ L.RCUToT = "目標的目標"
 L.ResetProfile = "重置設定檔..."
 L.RightClickUnit = "右鍵點擊的目標是"
 L.RowOffset = "橫列縮排"
+L.RowSpacing = "橫列間距"
 -- L.Save = _G.SAVE
 L.Scale = "縮放大小"
 L.SelfcastKey = "自我施法鍵"
