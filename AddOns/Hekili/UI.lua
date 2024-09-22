@@ -514,8 +514,7 @@ do
             text = "藥水",
             func = function() Hekili:FireToggle( "potions" ); ns.UI.Minimap:RefreshDataText() end,
             checked = function () return Hekili.DB.profile.toggles.potions.value end,
-        },
-
+        }
     }
 
     local specsParsed = false
@@ -565,6 +564,34 @@ do
                             end,
                             hidden = function () return Hekili.State.spec.id ~= i end,
                         } )
+
+                        local potionMenu = {
+                            text = "|T967533:0|t 偏好的藥水",
+                            tooltipTitle = "|T967533:0|t 偏好的藥水",
+                            tooltipText = "選擇啟用 |cFFFFD100藥水|r 時要使用的藥水。",
+                            tooltipOnButton = true,
+                            hasArrow = true,
+                            menuList = {},
+                            notCheckable = true,
+                            hidden = function () return Hekili.State.spec.id ~= i end,
+                        }
+
+                        for k, v in orderedPairs( class.potionList ) do
+                            insert( potionMenu.menuList, {
+                                text = v,
+                                func = function ()
+                                    Hekili.DB.profile.specs[ Hekili.State.spec.id ].potion = k
+                                    for _, display in pairs( Hekili.DisplayPool ) do
+                                        display:OnEvent( "HEKILI_MENU" )
+                                    end
+                                end,
+                                checked = function ()
+                                    return Hekili.DB.profile.specs[ Hekili.State.spec.id ].potion == k
+                                end,
+                            } )
+                        end
+
+                        insert( menuData, potionMenu )
 
                         -- Check for Toggles.
                         for n, setting in pairs( spec.settings ) do

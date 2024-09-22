@@ -165,10 +165,11 @@ all:RegisterAbilities( {
         end,
 
         auras = {
-            oppressive_orators_larynx = {
-                id = 443540,
+            oppressive_orators_influence = {
+                id = 451011,
                 duration = 30,
-                max_stack = 10
+                max_stack = 10,
+                copy = 443540
             },
             oppressive_oration = {
                 id = 443552,
@@ -873,7 +874,7 @@ all:RegisterAbilities( {
         cooldown = 90,
         gcd = "off",
 
-        item = 219304,
+        item = 133300,
         toggle = "cooldowns",
 
         proc = "mastery",
