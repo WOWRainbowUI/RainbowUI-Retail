@@ -103,65 +103,201 @@ end
 -- Ascending, Descending and Sec --
 local function AscendingDescendingSec(self)
 	if self.barType == "standard" then
-		if VCBrFocus["CurrentTimeText"]["Sec"] == "Show" then
-			if VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
-				VCBcurrentTimeText:SetFormattedText("%.2f sec", self.value)
-			elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" then
-				local VCBdescending = self.maxValue - self.value
-				VCBcurrentTimeText:SetFormattedText("%.2f sec", VCBdescending)
+		if VCBrFocus["CurrentTimeText"]["Decimals"] == 2 then
+			if VCBrFocus["CurrentTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.2f sec", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.2f sec", VCBdescending)
+				end
+			elseif VCBrFocus["CurrentTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.2f", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.2f", VCBdescending)
+				end
 			end
-		elseif VCBrFocus["CurrentTimeText"]["Sec"] == "Hide" then
-			if VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
-				VCBcurrentTimeText:SetFormattedText("%.2f", self.value)
-			elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" then
-				local VCBdescending = self.maxValue - self.value
-				VCBcurrentTimeText:SetFormattedText("%.2f", VCBdescending)
+		elseif VCBrFocus["CurrentTimeText"]["Decimals"] == 1 then
+			if VCBrFocus["CurrentTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.1f sec", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.1f sec", VCBdescending)
+				end
+			elseif VCBrFocus["CurrentTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.1f", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.1f", VCBdescending)
+				end
+			end
+		elseif VCBrFocus["CurrentTimeText"]["Decimals"] == 0 then
+			if VCBrFocus["CurrentTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.0f sec", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.0f sec", VCBdescending)
+				end
+			elseif VCBrFocus["CurrentTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.0f", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.0f", VCBdescending)
+				end
 			end
 		end
-		if VCBrFocus["BothTimeText"]["Sec"] == "Show" then
-			if VCBrFocus["BothTimeText"]["Direction"] == "Ascending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
-				VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
-			elseif VCBrFocus["BothTimeText"]["Direction"] == "Descending" then
-				local VCBdescending = self.maxValue - self.value
-				VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
+		if VCBrFocus["BothTimeText"]["Decimals"] == 2 then
+			if VCBrFocus["BothTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Ascending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
+				end
+			elseif VCBrFocus["BothTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Ascending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
+				end
 			end
-		elseif VCBrFocus["BothTimeText"]["Sec"] == "Hide" then
-			if VCBrFocus["BothTimeText"]["Direction"] == "Ascending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
-				VCBbothTimeText:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
-			elseif VCBrFocus["BothTimeText"]["Direction"] == "Descending" then
-				local VCBdescending = self.maxValue - self.value
-				VCBbothTimeText:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
+		elseif VCBrFocus["BothTimeText"]["Decimals"] == 1 then
+			if VCBrFocus["BothTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Ascending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f sec", VCBdescending, self.maxValue)
+				end
+			elseif VCBrFocus["BothTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Ascending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
+				end
+			end
+		elseif VCBrFocus["BothTimeText"]["Decimals"] == 0 then
+			if VCBrFocus["BothTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Ascending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f sec", VCBdescending, self.maxValue)
+				end
+			elseif VCBrFocus["BothTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Ascending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Descending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
+				end
 			end
 		end
 	elseif self.barType == "channel" then
-		if VCBrFocus["CurrentTimeText"]["Sec"] == "Show" then
-			if VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
-				VCBcurrentTimeText:SetFormattedText("%.2f sec", self.value)
-			elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" then
-				local VCBdescending = self.maxValue - self.value
-				VCBcurrentTimeText:SetFormattedText("%.2f sec", VCBdescending)
+		if VCBrFocus["CurrentTimeText"]["Decimals"] == 2 then
+			if VCBrFocus["CurrentTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.2f sec", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.2f sec", VCBdescending)
+				end
+			elseif VCBrFocus["CurrentTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.2f", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.2f", VCBdescending)
+				end
 			end
-		elseif VCBrFocus["CurrentTimeText"]["Sec"] == "Hide" then
-			if VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
-				VCBcurrentTimeText:SetFormattedText("%.2f", self.value)
-			elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" then
-				local VCBdescending = self.maxValue - self.value
-				VCBcurrentTimeText:SetFormattedText("%.2f", VCBdescending)
+		elseif VCBrFocus["CurrentTimeText"]["Decimals"] == 1 then
+			if VCBrFocus["CurrentTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.1f sec", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.1f sec", VCBdescending)
+				end
+			elseif VCBrFocus["CurrentTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.1f", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.1f", VCBdescending)
+				end
+			end
+		elseif VCBrFocus["CurrentTimeText"]["Decimals"] == 0 then
+			if VCBrFocus["CurrentTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.0f sec", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.0f sec", VCBdescending)
+				end
+			elseif VCBrFocus["CurrentTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["CurrentTimeText"]["Direction"] == "Descending" or VCBrFocus["CurrentTimeText"]["Direction"] == "Both" then
+					VCBcurrentTimeText:SetFormattedText("%.0f", self.value)
+				elseif VCBrFocus["CurrentTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBcurrentTimeText:SetFormattedText("%.0f", VCBdescending)
+				end
 			end
 		end
-		if VCBrFocus["BothTimeText"]["Sec"] == "Show" then
-			if VCBrFocus["BothTimeText"]["Direction"] == "Descending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
-				VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
-			elseif VCBrFocus["BothTimeText"]["Direction"] == "Ascending" then
-				local VCBdescending = self.maxValue - self.value
-				VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
+		if VCBrFocus["BothTimeText"]["Decimals"] == 2 then
+			if VCBrFocus["BothTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Descending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
+				end
+			elseif VCBrFocus["BothTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Descending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
+				end
 			end
-		elseif VCBrFocus["BothTimeText"]["Sec"] == "Hide" then
-			if VCBrFocus["BothTimeText"]["Direction"] == "Descending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
-				VCBbothTimeText:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
-			elseif VCBrFocus["BothTimeText"]["Direction"] == "Ascending" then
-				local VCBdescending = self.maxValue - self.value
-				VCBbothTimeText:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
+		elseif VCBrFocus["BothTimeText"]["Decimals"] == 1 then
+			if VCBrFocus["BothTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Descending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f sec", VCBdescending, self.maxValue)
+				end
+			elseif VCBrFocus["BothTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Descending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
+				end
+			end
+		elseif VCBrFocus["BothTimeText"]["Decimals"] == 0 then
+			if VCBrFocus["BothTimeText"]["Sec"] == "Show" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Descending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f sec", VCBdescending, self.maxValue)
+				end
+			elseif VCBrFocus["BothTimeText"]["Sec"] == "Hide" then
+				if VCBrFocus["BothTimeText"]["Direction"] == "Descending" or VCBrFocus["BothTimeText"]["Direction"] == "Both" then
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
+				elseif VCBrFocus["BothTimeText"]["Direction"] == "Ascending" then
+					local VCBdescending = self.maxValue - self.value
+					VCBbothTimeText:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
+				end
 			end
 		end
 	end
@@ -178,6 +314,8 @@ local function CastBarColor(self)
 end
 -- Hooking Time part 1 --
 FocusFrameSpellBar:HookScript("OnShow", function(self)
+	self.TextBorder:GetParent():Lower()
+	self.TextBorder:SetDrawLayer("BACKGROUND")
 	NameTextPosition(self, "NameText", VCBnameText)
 	CastingTextPosition(self, "CurrentTimeText", VCBcurrentTimeText)
 	CastingTextPosition(self, "BothTimeText", VCBbothTimeText)
@@ -189,21 +327,23 @@ FocusFrameSpellBar:HookScript("OnUpdate", function(self)
 	VCBnameText:SetText(self.Text:GetText())
 	AscendingDescendingSec(self)
 	CastBarColor(self)
-	if VCBrFocus["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
-		VCBtotalTimeText:SetFormattedText("%.2f sec", self.maxValue)
-	elseif VCBrFocus["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
-		VCBtotalTimeText:SetFormattedText("%.2f", self.maxValue)
-	end
-	if VCBrFocus["Unlock"] then
-		self:SetIgnoreParentAlpha(true)
-		self:SetAlpha(1)
-		self:SetScale(VCBrFocus["Scale"]/100)
-		self:ClearAllPoints()
-		self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
-	elseif not VCBrFocus["Unlock"] then
-		self:SetIgnoreParentAlpha(false)
-		self:SetScale(1)
-		self:ClearAllPoints()
-		if self:IsUserPlaced() then self:SetUserPlaced(false) end
+	if VCBrFocus["TotalTimeText"]["Decimals"] == 2 then
+		if VCBrFocus["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
+			VCBtotalTimeText:SetFormattedText("%.2f sec", self.maxValue)
+		elseif VCBrFocus["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+			VCBtotalTimeText:SetFormattedText("%.2f", self.maxValue)
+		end
+	elseif VCBrFocus["TotalTimeText"]["Decimals"] == 1 then
+		if VCBrFocus["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
+			VCBtotalTimeText:SetFormattedText("%.1f sec", self.maxValue)
+		elseif VCBrFocus["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+			VCBtotalTimeText:SetFormattedText("%.1f", self.maxValue)
+		end
+	elseif VCBrFocus["TotalTimeText"]["Decimals"] == 0 then
+		if VCBrFocus["TotalTimeText"]["Sec"] == "Show" and self.maxValue ~= nil then
+			VCBtotalTimeText:SetFormattedText("%.0f sec", self.maxValue)
+		elseif VCBrFocus["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+			VCBtotalTimeText:SetFormattedText("%.0f", self.maxValue)
+		end
 	end
 end)

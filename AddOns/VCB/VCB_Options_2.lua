@@ -1,13 +1,14 @@
 -- taking care of the panel --
-vcbOptions2.TopTxt:SetText("Target's Castbar Options!|n|nPLEASE CLOSE ALL OTHER PANELS|nKEEP THIS PANEL OPEN|nAND TAKE A TARGET!")
+vcbOptions2.TopTxt:SetText("Target's Castbar Options!")
 -- naming the boxes --
+vcbOptions2Box0.TitleTxt:SetText("Read me please!")
 vcbOptions2Box1.TitleTxt:SetText("Position & Scale of the Target's Castbar!")
 vcbOptions2Box2.TitleTxt:SetText("Current Cast Time")
 vcbOptions2Box3.TitleTxt:SetText("Current & Total Cast Time")
 vcbOptions2Box4.TitleTxt:SetText("Total Cast Time")
 vcbOptions2Box5.TitleTxt:SetText("Spell's Name & Cast Bar's Color")
 -- positioning the boxes --
-for i = 2, 5, 1 do
+for i = 1, 5, 1 do
 	_G["vcbOptions2Box"..i]:SetPoint("TOP", _G["vcbOptions2Box"..i-1], "BOTTOM", 0, 0)
 end
 -- fuction for Available --
@@ -47,11 +48,14 @@ local function CheckSavedVariables()
 	vcbOptions2Box2PopOut1:SetText(VCBrTarget["CurrentTimeText"]["Position"])
 	vcbOptions2Box2PopOut2:SetText(VCBrTarget["CurrentTimeText"]["Direction"])
 	vcbOptions2Box2PopOut3:SetText(VCBrTarget["CurrentTimeText"]["Sec"])
+	vcbOptions2Box2PopOut4:SetText(VCBrTarget["CurrentTimeText"]["Decimals"])
 	vcbOptions2Box3PopOut1:SetText(VCBrTarget["BothTimeText"]["Position"])
 	vcbOptions2Box3PopOut2:SetText(VCBrTarget["BothTimeText"]["Direction"])
 	vcbOptions2Box3PopOut3:SetText(VCBrTarget["BothTimeText"]["Sec"])
+	vcbOptions2Box3PopOut4:SetText(VCBrTarget["BothTimeText"]["Decimals"])
 	vcbOptions2Box4PopOut1:SetText(VCBrTarget["TotalTimeText"]["Position"])
 	vcbOptions2Box4PopOut2:SetText(VCBrTarget["TotalTimeText"]["Sec"])
+	vcbOptions2Box4PopOut3:SetText(VCBrTarget["TotalTimeText"]["Decimals"])
 	vcbOptions2Box5PopOut1:SetText(VCBrTarget["NameText"])
 	vcbOptions2Box5PopOut2:SetText(VCBrTarget["Color"])
 end
@@ -86,12 +90,14 @@ local function MouseWheelSlider(self, delta)
 		self:SetValue(self:GetValue() - 1)
 	end
 end
+-- Box 0 Read me! --
+vcbOptions2Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 1: ").."Please close all other panels and keep this panel open, then take a target!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 2: ").."When you dock or undock the cast bar, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 3: ").."When you choose from the pop out the Shadowed Unit Frame (SUF), the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 4: ").."For the people who uses SUF. Before doing anything, first you go to the options of SUF, to the 'Hide Blizzard' tab and untick the option Hide target frame and then reload as the Add on suggested! (/suf --> Hide Blizzard -- > Hide target frame)")
 -- Box 1 --
 -- check button 1 do it --
-vcbOptions2Box1CheckButton1.Text:SetText("Unlock")
+vcbOptions2Box1CheckButton1.Text:SetText("Undock")
 vcbOptions2Box1CheckButton1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nCheck me! if you want to unlock|nthe target's cast bar!") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nCheck me! if you want to undock|nthe target's cast bar!") 
 end)
 vcbOptions2Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions2Box1CheckButton1:HookScript("OnClick", function (self, button)
@@ -99,9 +105,12 @@ vcbOptions2Box1CheckButton1:HookScript("OnClick", function (self, button)
 		if self:GetChecked() == true then
 			VCBrTarget["Unlock"] = true
 			vcbAvailable()
+			C_UI.Reload()
 		elseif self:GetChecked() == false then
 			VCBrTarget["Unlock"] = false
 			vcbDisable()
+			if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then VCBrTarget["otherAdddon"] = "None" end
+			C_UI.Reload()
 		end
 	end
 end)
@@ -134,7 +143,12 @@ vcbOptions2Box1PopOut1Choice1:SetParent(vcbOptions2Box1PopOut1Choice0)
 vcbOptions2Box1PopOut1Choice1:SetPoint("TOP",vcbOptions2Box1PopOut1Choice0, "BOTTOM", 0, 0)
 vcbOptions2Box1PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
-		VCBrTarget["otherAdddon"] = self.Text:GetText()
+		if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then
+			VCBrTarget["otherAdddon"] = self.Text:GetText()
+			C_UI.Reload()
+		else
+			VCBrTarget["otherAdddon"] = self.Text:GetText()
+		end
 		vcbOptions2Box1PopOut1.Text:SetText(self:GetText())
 		vcbOptions2Box1PopOut1Choice0:Hide()
 	end
@@ -146,6 +160,7 @@ vcbOptions2Box1PopOut1Choice1:HookScript("OnClick", function(self, button, down)
 			VCBrTarget["otherAdddon"] = self.Text:GetText()
 			vcbOptions2Box1PopOut1.Text:SetText(self:GetText())
 			vcbOptions2Box1PopOut1Choice0:Hide()
+			C_UI.Reload()
 		else
 			local vcbTime = GameTime_GetTime(false)
 			DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] You don't use the Shadow Unit Frame add on, you don't need to choose that option!")
@@ -243,6 +258,35 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
+-- pop out 4 Current Cast Time Decimals --
+-- enter --
+vcbOptions2Box2PopOut4:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nHow many decimals do you want to be shown!") 
+end)
+-- leave --
+vcbOptions2Box2PopOut4:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions2Box2PopOut4, vcbOptions2Box2PopOut4Choice0)
+-- naming --
+vcbOptions2Box2PopOut4Choice0.Text:SetText("0")
+vcbOptions2Box2PopOut4Choice1.Text:SetText("1")
+vcbOptions2Box2PopOut4Choice2.Text:SetText("2")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions2Box2PopOut4Choice"..i]:SetParent(vcbOptions2Box2PopOut4Choice0)
+	_G["vcbOptions2Box2PopOut4Choice"..i]:SetPoint("TOP", _G["vcbOptions2Box2PopOut4Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions2Box2PopOut4Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrTarget["CurrentTimeText"]["Decimals"] = tonumber(self.Text:GetText())
+			vcbOptions2Box2PopOut4.Text:SetText(self:GetText())
+			vcbOptions2Box2PopOut4Choice0:Hide()
+		end
+	end)
+end
 -- Box 3 Current & Total Cast Time --
 -- pop out 1 Current & Total Cast Time --
 -- enter --
@@ -324,6 +368,35 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
+-- pop out 4 Both Time Decimals --
+-- enter --
+vcbOptions2Box3PopOut4:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nHow many decimals do you want to be shown!") 
+end)
+-- leave --
+vcbOptions2Box3PopOut4:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions2Box3PopOut4, vcbOptions2Box3PopOut4Choice0)
+-- naming --
+vcbOptions2Box3PopOut4Choice0.Text:SetText("0")
+vcbOptions2Box3PopOut4Choice1.Text:SetText("1")
+vcbOptions2Box3PopOut4Choice2.Text:SetText("2")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions2Box3PopOut4Choice"..i]:SetParent(vcbOptions2Box3PopOut4Choice0)
+	_G["vcbOptions2Box3PopOut4Choice"..i]:SetPoint("TOP", _G["vcbOptions2Box3PopOut4Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions2Box3PopOut4Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrTarget["BothTimeText"]["Decimals"] = tonumber(self.Text:GetText())
+			vcbOptions2Box3PopOut4.Text:SetText(self:GetText())
+			vcbOptions2Box3PopOut4Choice0:Hide()
+		end
+	end)
+end
 -- Box 4 Total Cast Time --
 -- pop out 1 Total Cast Time --
 -- enter --
@@ -373,6 +446,35 @@ for i = 0, 1, 1 do
 			VCBrTarget["TotalTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions2Box4PopOut2.Text:SetText(self:GetText())
 			vcbOptions2Box4PopOut2Choice0:Hide()
+		end
+	end)
+end
+-- pop out 3 Total Time Decimals --
+-- enter --
+vcbOptions2Box4PopOut3:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nHow many decimals do you want to be shown!") 
+end)
+-- leave --
+vcbOptions2Box4PopOut3:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions2Box4PopOut3, vcbOptions2Box4PopOut3Choice0)
+-- naming --
+vcbOptions2Box4PopOut3Choice0.Text:SetText("0")
+vcbOptions2Box4PopOut3Choice1.Text:SetText("1")
+vcbOptions2Box4PopOut3Choice2.Text:SetText("2")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions2Box4PopOut3Choice"..i]:SetParent(vcbOptions2Box4PopOut3Choice0)
+	_G["vcbOptions2Box4PopOut3Choice"..i]:SetPoint("TOP", _G["vcbOptions2Box4PopOut3Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions2Box4PopOut3Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrTarget["TotalTimeText"]["Decimals"] = tonumber(self.Text:GetText())
+			vcbOptions2Box4PopOut3.Text:SetText(self:GetText())
+			vcbOptions2Box4PopOut3Choice0:Hide()
 		end
 	end)
 end

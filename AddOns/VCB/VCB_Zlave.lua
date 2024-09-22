@@ -43,6 +43,46 @@ local function FirstTimeSavedVariables()
 		}
 	end
 	vcbClassColorPlayer = C_ClassColor.GetClassColor(select(2, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))))
+	if VCBrPlayer["CurrentTimeText"]["Decimals"] == nil then VCBrPlayer["CurrentTimeText"]["Decimals"] = 2 end
+	if VCBrPlayer["TotalTimeText"]["Decimals"] == nil then VCBrPlayer["TotalTimeText"]["Decimals"] = 2 end
+	if VCBrPlayer["BothTimeText"]["Decimals"] == nil then VCBrPlayer["BothTimeText"]["Decimals"] = 2 end
+	if VCBrTarget["CurrentTimeText"]["Decimals"] == nil then VCBrTarget["CurrentTimeText"]["Decimals"] = 2 end
+	if VCBrTarget["TotalTimeText"]["Decimals"] == nil then VCBrTarget["TotalTimeText"]["Decimals"] = 2 end
+	if VCBrTarget["BothTimeText"]["Decimals"] == nil then VCBrTarget["BothTimeText"]["Decimals"] = 2 end
+	if VCBrFocus["CurrentTimeText"]["Decimals"] == nil then VCBrFocus["CurrentTimeText"]["Decimals"] = 2 end
+	if VCBrFocus["TotalTimeText"]["Decimals"] == nil then VCBrFocus["TotalTimeText"]["Decimals"] = 2 end
+	if VCBrFocus["BothTimeText"]["Decimals"] == nil then VCBrFocus["BothTimeText"]["Decimals"] = 2 end
+end
+-- loading saved variables --
+local function LoadSavedVariables()
+	if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then
+		TargetFrame:HookScript("OnUpdate", function(self)
+			self:SetClampedToScreen(false)
+			self:ClearAllPoints()
+			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", -1000, -1000)
+		end)
+	end
+	if VCBrTarget["Unlock"] then
+		TargetFrameSpellBar:HookScript("OnUpdate", function(self)
+			self:SetScale(VCBrTarget["Scale"]/100)
+			self:ClearAllPoints()
+			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrTarget["Position"]["X"], VCBrTarget["Position"]["Y"])
+		end)
+	end
+	if VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" then
+		FocusFrame:HookScript("OnUpdate", function(self)
+			self:SetClampedToScreen(false)
+			self:ClearAllPoints()
+			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", -1000, -1000)
+		end)
+	end
+	if VCBrFocus["Unlock"] then
+		FocusFrameSpellBar:HookScript("OnUpdate", function(self)
+			self:SetScale(VCBrFocus["Scale"]/100)
+			self:ClearAllPoints()
+			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrFocus["Position"]["X"], VCBrFocus["Position"]["Y"])
+		end)
+	end
 end
 -- Some local variables --
 local lagStart = 0
@@ -98,19 +138,10 @@ end
 local function EventsTime(self, event, arg1, arg2, arg3)
 	if event == "PLAYER_LOGIN" then
 		FirstTimeSavedVariables()
+		LoadSavedVariables()
 		PlayerCastingBarFrame.Icon:SetScale(1.3)
 		PlayerCastingBarFrame.Icon:AdjustPointsOffset(2, -4)
 		vcbCreateTicks()
-		if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then
-			TargetFrame:HookScript("OnUpdate", function(self)
-				self:SetAlpha(0)
-			end)
-		end
-		if VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" then
-			FocusFrame:HookScript("OnUpdate", function(self)
-				self:SetAlpha(0)
-			end)
-		end
 	elseif event == "PLAYER_FOCUS_CHANGED" and FocusFrame:IsShown() then
 		local classFilename = UnitClassBase("focus")
 		if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end

@@ -3,7 +3,7 @@
 	<Script file="VCB_Virtuals.lua"/>
 <!-- Tabs Panel -->
 	<Frame name="vcbTabsPanel" frameStrata="DIALOG" frameLevel="250" enableKeyboard="true" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
-		<Size x="488" y="580"/>
+		<Size x="488" y="844"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
 				<Texture parentKey="BGtexture" file="Interface\BlackMarket\BlackMarketBackground-Tile.blp">
@@ -74,7 +74,7 @@
 	</Button>
 <!-- Panel Options -->
 	<Frame name="vcbOptionsPanel" inherits="InsetFrameTemplate4" frameStrata="DIALOG" frameLevel="0" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
-		<Size x="360" y="580"/>
+		<Size x="360" y="844"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
 				<Texture parentKey="BGtexture" file="Interface\BlackMarket\BlackMarketBackground-Tile.blp">
