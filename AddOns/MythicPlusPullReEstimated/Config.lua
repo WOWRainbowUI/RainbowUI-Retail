@@ -28,6 +28,7 @@ MMPE.defaultSettings = {
     offsety = 0,
 
     enableNameplateText = true,
+    nameplateTextFormat = "+$percent$%",
     nameplateTextColor = "FFFFFFFF",
 
     lockPullFrame = false,
@@ -43,6 +44,7 @@ MMPE.defaultSettings = {
     debugNewNPCScores = false,
 
     enableMdtEmulation = true,
+    debugCriteriaEvents = false,
 }
 
 local function SetFramePoint(frame, pointInfo)
@@ -259,10 +261,10 @@ function MMPE:InitConfig()
                                     '    - $pull$ ' .. L['The count of mobs pulled.'] .. '\n' ..
                                     '    - $estimated$ ' .. L['The estimated count after all pulled mobs are killed.'] .. '\n' ..
                                     '    - $required$ ' .. L['The required count of mobs to reach 100%%.'] .. '\n' ..
-                                    '    - $current%%$ ' .. L['The current percentage of mobs killed.'] .. '\n' ..
-                                    '    - $pull%%$ ' .. L['The percentage of mobs pulled.'] .. '\n' ..
-                                    '    - $estimated%%$ ' .. L['The estimated percentage after all pulled mobs are killed.'] .. '\n' ..
-                                    '    - $required%%$ ' .. L['A long way of writing 100%%.'],
+                                    '    - $current%$ ' .. L['The current percentage of mobs killed.'] .. '\n' ..
+                                    '    - $pull%$ ' .. L['The percentage of mobs pulled.'] .. '\n' ..
+                                    '    - $estimated%$ ' .. L['The estimated percentage after all pulled mobs are killed.'] .. '\n' ..
+                                    '    - $required%$ ' .. L['A long way of writing 100%%.'],
                             },
                             resetPullFrameTextFormatormat = {
                                 order = increment(),
@@ -300,6 +302,30 @@ function MMPE:InitConfig()
                                 set = function(info, r, g, b, a)
                                     self:SetSetting(info[#info], string.format("%02x%02x%02x%02x", a * 255, r * 255, g * 255, b * 255))
                                 end,
+                            },
+                            nameplateTextFormat = {
+                                order = increment(),
+                                type = "input",
+                                name = L["Text Format"],
+                                desc = L["The text format of the nameplate text. Use placeholders to display information."],
+                                descStyle = "inline",
+                                width = "full",
+                            },
+                            nameplateTextFormatDescription = {
+                                order = increment(),
+                                type = "description",
+                                name = L['The following placeholders are available:'] .. '\n' ..
+                                    '    - $percent$ ' .. L['The percentage the mob gives.'] .. '\n' ..
+                                    '    - $count$ ' .. L['The raw count the mob gives.'],
+                            },
+                            resetPullFrameTextFormatormat = {
+                                order = increment(),
+                                type = "execute",
+                                name = "Reset Text Format",
+                                desc = "Reset the text format to the default.",
+                                descStyle = "inline",
+                                width = "full",
+                                func = function() self:SetSetting("nameplateTextFormat", self.defaultSettings.nameplateTextFormat); end,
                             },
                             offsetx = {
                                 order = increment(),
@@ -454,6 +480,12 @@ function MMPE:InitConfig()
                         func = function() self:VerifyDB(true) end,
                         confirm = true,
                         confirmText = L["Are you sure you want to wipe all data?"],
+                    },
+                    debugCriteriaEvents = {
+                        order = increment(),
+                        type = "toggle",
+                        name = L["Debug Criteria Events"],
+                        desc = L["Enable/Disable debug prints for criteria events, ignores the Debug Print setting"],
                     },
                 },
             },

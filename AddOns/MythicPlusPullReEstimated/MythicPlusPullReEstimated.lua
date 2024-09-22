@@ -10,7 +10,6 @@ local math = _G.math
 local table = _G.table
 local tonumber = _G.tonumber
 local UnitCanAttack = _G.UnitCanAttack
-local UnitIsDead = _G.UnitIsDead
 local C_Scenario = _G.C_Scenario
 local GetInstanceInfo = _G.GetInstanceInfo
 local CreateFrame = _G.CreateFrame
@@ -355,6 +354,7 @@ end
 -- Light DB wrap
 --
 
+--- @return number?, number?, number? # percent, count, requiredCount
 function MMPE:GetEstimatedProgress(npcID)
     local npcValue = self:GetValue(npcID)
     local maxQuantity = self:GetMaxQuantity()
@@ -463,6 +463,7 @@ function MMPE:VerifyDB(fullWipe, npcDataWipe)
     local newPatchVersion = currentPatchVersion
     local newPatchVersionInfo = self.DB.npcDataPatchVersionInfo or emptyPatchVersionInfo
     self.dungeonOverrides = {}
+    self.criteriaDebugData = {}
 	for _, dataProvider in pairs(ns.data) do
         local patchVersionInfo = dataProvider:GetPatchVersion()
         local patchVersion = patchVersionInfo.timestamp
@@ -479,6 +480,9 @@ function MMPE:VerifyDB(fullWipe, npcDataWipe)
         end
         if dataProvider.GetDungeonOverrides then
             self.dungeonOverrides = Mixin(self.dungeonOverrides, dataProvider:GetDungeonOverrides())
+        end
+        if dataProvider.GetDebugData then
+            self.criteriaDebugData = Mixin(self.criteriaDebugData, dataProvider:GetDebugData())
         end
 	end
     self.DB.npcDataPatchVersion = newPatchVersion
@@ -669,10 +673,18 @@ end
 function MMPE:UpdateNameplateValue(unit)
     local npcID = self:GetNPCID(UnitGUID(unit))
     if npcID then
-        local estProg = self:GetEstimatedProgress(npcID)
-        if estProg and estProg > 0 then
-            local message = "|c" .. self:GetSetting("nameplateTextColor") .. "+"
-            message = string.format("%s%.2f%%", message, estProg)
+        local estProg, count = self:GetEstimatedProgress(npcID)
+        if count and count > 0 then
+            local message = "|c" .. self:GetSetting("nameplateTextColor")
+            message = message .. self:GetSetting("nameplateTextFormat") --[[@as string]]
+            local placeholderReplacements = {
+                ['%$percent%$'] = string.format("%.2f", estProg),
+                ['%$count%$'] = count,
+            };
+            for placeholder, replacement in pairs(placeholderReplacements) do
+                message = string.gsub(message, placeholder, replacement);
+            end
+
             self.activeNameplates[unit]:SetText(message)
             self.activeNameplates[unit]:Show()
             return true
@@ -748,12 +760,13 @@ function MMPE:OnInitialize()
     MMPEDB = MMPEDB or {}
     self.DB = MMPEDB
 
-    ------------- disabled for now, might get re-enabled in the future, right now it's incorrectly detecting spiteful kills, and DH demon kills.
+    ------------- disabled for now, might get re-enabled in the future, right now it's incorrectly detecting certain kills that provide no count
     --self:RegisterEvent("SCENARIO_CRITERIA_UPDATE", function() self:OnCriteriaUpdate() end)
     --self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", function(...) self:OnCombatLogEvent({CombatLogGetCurrentEventInfo()}) end)
 
     self:RegisterEvent("NAME_PLATE_UNIT_ADDED", function(_, unit) self:OnAddNameplate(unit) end)
     self:RegisterEvent("NAME_PLATE_UNIT_REMOVED", function(_, unit) self:OnRemoveNameplate(unit) end)
+    self:RegisterEvent("SCENARIO_CRITERIA_UPDATE");
 
     self.frame = CreateFrame("FRAME")
     self.frame:SetScript("OnUpdate", function(_, elapsed) self:OnUpdate(elapsed) end)
@@ -802,4 +815,13 @@ function MMPE:OnUpdate(elapsed)
         self:UpdateNameplateValues()
     end
     self:UpdateNameplates()
+end
+
+function MMPE:SCENARIO_CRITERIA_UPDATE(_, criteriaID)
+    if not criteriaID or not self:GetSetting('debugCriteriaEvents') or not self:IsMythicPlus(true) then return end
+    local mapID = self:GetChallengeMapId()
+    local info = mapID and self.criteriaDebugData[mapID] and self.criteriaDebugData[mapID][criteriaID]
+    if not info then return end
+
+    self:Print('Criteria update for', criteriaID, 'should give count', info.count, '; associated npcID:', info.npcID)
 end

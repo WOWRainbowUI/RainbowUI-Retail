@@ -27,6 +27,8 @@ L["Current pull:"] = "Current pull:"
 --[[Translation missing --]]
 L["Debug"] = "Debug"
 --[[Translation missing --]]
+L["Debug Criteria Events"] = "Debug Criteria Events"
+--[[Translation missing --]]
 L["Debug New NPC Scores"] = "Debug New NPC Scores"
 --[[Translation missing --]]
 L["Developer Options"] = "Developer Options"
@@ -44,6 +46,8 @@ L["Enable Nameplate Text"] = "Enable Nameplate Text"
 L["Enable Tooltip"] = "Enable Tooltip"
 --[[Translation missing --]]
 L["Enable/Disable debug prints"] = "Enable/Disable debug prints"
+--[[Translation missing --]]
+L["Enable/Disable debug prints for criteria events, ignores the Debug Print setting"] = "Enable/Disable debug prints for criteria events, ignores the Debug Print setting"
 --[[Translation missing --]]
 L["Enable/Disable debug prints for new NPC scores"] = "Enable/Disable debug prints for new NPC scores"
 --[[Translation missing --]]
@@ -147,7 +151,13 @@ L["The following placeholders are available:"] = "The following placeholders are
 --[[Translation missing --]]
 L["The percentage of mobs pulled."] = "The percentage of mobs pulled."
 --[[Translation missing --]]
+L["The percentage the mob gives."] = "The percentage the mob gives."
+--[[Translation missing --]]
+L["The raw count the mob gives."] = "The raw count the mob gives."
+--[[Translation missing --]]
 L["The required count of mobs to reach 100%%."] = "The required count of mobs to reach 100%%."
+--[[Translation missing --]]
+L["The text format of the nameplate text. Use placeholders to display information."] = "The text format of the nameplate text. Use placeholders to display information."
 --[[Translation missing --]]
 L["The text format of the pull frame. Use placeholders to display information."] = "The text format of the pull frame. Use placeholders to display information."
 --[[Translation missing --]]

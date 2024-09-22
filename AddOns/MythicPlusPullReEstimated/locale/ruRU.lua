@@ -17,6 +17,8 @@ L["Color of the text on the enemy nameplates"] = "Цвет текста на и�
 L["CTRL-C to copy"] = "CTRL+C, чтобы скопировать"
 L["Current pull:"] = "Текущий пулл:"
 L["Debug"] = "Отладка"
+--[[Translation missing --]]
+L["Debug Criteria Events"] = "Debug Criteria Events"
 L["Debug New NPC Scores"] = "Отладка новых результатов NPC"
 L["Developer Options"] = "Параметры разработчика"
 L["Disabled when MythicDungeonTools is loaded"] = "Отключается при загрузке MythicDungeonTools"
@@ -26,6 +28,8 @@ L["Enable MDT Emulation"] = "Включить эмуляцию MDT"
 L["Enable Nameplate Text"] = "Включить текст индикаторов здоровья"
 L["Enable Tooltip"] = "Включить подсказку"
 L["Enable/Disable debug prints"] = "Включить/отключить отладку"
+--[[Translation missing --]]
+L["Enable/Disable debug prints for criteria events, ignores the Debug Print setting"] = "Enable/Disable debug prints for criteria events, ignores the Debug Print setting"
 L["Enable/Disable debug prints for new NPC scores"] = "Включить/отключить отладку для новых результатов NPC"
 L["Enable/Disable Simulation Mode"] = "Включить/отключить режим моделирования"
 L["Enable/Disable the addon"] = "Включить/отключить аддон"
@@ -83,7 +87,13 @@ L["The estimated percentage after all pulled mobs are killed."] = "The estimated
 L["The following placeholders are available:"] = "The following placeholders are available:"
 --[[Translation missing --]]
 L["The percentage of mobs pulled."] = "The percentage of mobs pulled."
+--[[Translation missing --]]
+L["The percentage the mob gives."] = "The percentage the mob gives."
+--[[Translation missing --]]
+L["The raw count the mob gives."] = "The raw count the mob gives."
 L["The required count of mobs to reach 100%%."] = "Необходимое количество мобов должно достичь 100%%."
+--[[Translation missing --]]
+L["The text format of the nameplate text. Use placeholders to display information."] = "The text format of the nameplate text. Use placeholders to display information."
 --[[Translation missing --]]
 L["The text format of the pull frame. Use placeholders to display information."] = "The text format of the pull frame. Use placeholders to display information."
 L["These options are experimental and may not work as intended."] = "Эти параметры являются экспериментальными и могут работать не так, как задумано."

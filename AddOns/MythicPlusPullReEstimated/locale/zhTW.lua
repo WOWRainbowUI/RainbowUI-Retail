@@ -16,6 +16,8 @@ L["Color of the text on the enemy nameplates"] = "敵方名條上的進度文字
 L["CTRL-C to copy"] = "Ctrl+C 複製"
 L["Current pull:"] = "當前進度："
 L["Debug"] = "除錯"
+--[[Translation missing --]]
+L["Debug Criteria Events"] = "Debug Criteria Events"
 L["Debug New NPC Scores"] = "除錯新 NPC 分數"
 L["Developer Options"] = "開發者選項"
 L["Disabled when MythicDungeonTools is loaded"] = "載入 MythicDungeonTools 時停用。"
@@ -25,6 +27,8 @@ L["Enable MDT Emulation"] = "啟用 MDT 模擬"
 L["Enable Nameplate Text"] = "啟用名條文字"
 L["Enable Tooltip"] = "啟用浮動提示資訊"
 L["Enable/Disable debug prints"] = "啟用/停用除錯資訊"
+--[[Translation missing --]]
+L["Enable/Disable debug prints for criteria events, ignores the Debug Print setting"] = "Enable/Disable debug prints for criteria events, ignores the Debug Print setting"
 L["Enable/Disable debug prints for new NPC scores"] = "啟用/停用輸出新 NPC 分數的除錯資訊"
 L["Enable/Disable Simulation Mode"] = "啟用/停用模擬模式"
 L["Enable/Disable the addon"] = "啟用/停用插件"
@@ -76,7 +80,13 @@ L["The estimated count after all pulled mobs are killed."] = "全部拉怪擊殺
 L["The estimated percentage after all pulled mobs are killed."] = "全部拉怪擊殺後的估計百分比。"
 L["The following placeholders are available:"] = "以下佔位符可用："
 L["The percentage of mobs pulled."] = "拉怪的百分比。"
+--[[Translation missing --]]
+L["The percentage the mob gives."] = "The percentage the mob gives."
+--[[Translation missing --]]
+L["The raw count the mob gives."] = "The raw count the mob gives."
 L["The required count of mobs to reach 100%%."] = "所需的小怪數量達到100%%。"
+--[[Translation missing --]]
+L["The text format of the nameplate text. Use placeholders to display information."] = "The text format of the nameplate text. Use placeholders to display information."
 L["The text format of the pull frame. Use placeholders to display information."] = "拉怪框架文字的格式。使用佔位符來顯示資訊。"
 L["These options are experimental and may not work as intended."] = "下列選項是實驗性功能，可能無法按預期方式運作。"
 L["Tooltip"] = "浮動提示資訊"
