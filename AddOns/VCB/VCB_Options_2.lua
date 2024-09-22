@@ -1,13 +1,14 @@
 -- taking care of the panel --
-vcbOptions2.TopTxt:SetText("目標施法條選項!|n|n請關閉其他所有視窗|n保持打開此面板|n並且選取一個目標!")
+vcbOptions2.TopTxt:SetText("目標施法條選項!")
 -- naming the boxes --
+vcbOptions2Box0.TitleTxt:SetText("請讀我!")
 vcbOptions2Box1.TitleTxt:SetText("目標施法條的位置 & 縮放大小!")
 vcbOptions2Box2.TitleTxt:SetText("目前施法時間")
 vcbOptions2Box3.TitleTxt:SetText("目前 & 總共施法時間")
 vcbOptions2Box4.TitleTxt:SetText("總共施法時間")
 vcbOptions2Box5.TitleTxt:SetText("法術名稱 & 施法條顏色")
 -- positioning the boxes --
-for i = 2, 5, 1 do
+for i = 1, 5, 1 do
 	_G["vcbOptions2Box"..i]:SetPoint("TOP", _G["vcbOptions2Box"..i-1], "BOTTOM", 0, 0)
 end
 -- fuction for Available --
@@ -47,11 +48,14 @@ local function CheckSavedVariables()
 	vcbOptions2Box2PopOut1:SetText(VCBrTarget["CurrentTimeText"]["Position"])
 	vcbOptions2Box2PopOut2:SetText(VCBrTarget["CurrentTimeText"]["Direction"])
 	vcbOptions2Box2PopOut3:SetText(VCBrTarget["CurrentTimeText"]["Sec"])
+	vcbOptions2Box2PopOut4:SetText(VCBrTarget["CurrentTimeText"]["Decimals"])
 	vcbOptions2Box3PopOut1:SetText(VCBrTarget["BothTimeText"]["Position"])
 	vcbOptions2Box3PopOut2:SetText(VCBrTarget["BothTimeText"]["Direction"])
 	vcbOptions2Box3PopOut3:SetText(VCBrTarget["BothTimeText"]["Sec"])
+	vcbOptions2Box3PopOut4:SetText(VCBrTarget["BothTimeText"]["Decimals"])
 	vcbOptions2Box4PopOut1:SetText(VCBrTarget["TotalTimeText"]["Position"])
 	vcbOptions2Box4PopOut2:SetText(VCBrTarget["TotalTimeText"]["Sec"])
+	vcbOptions2Box4PopOut3:SetText(VCBrTarget["TotalTimeText"]["Decimals"])
 	vcbOptions2Box5PopOut1:SetText(VCBrTarget["NameText"])
 	vcbOptions2Box5PopOut2:SetText(VCBrTarget["Color"])
 end
@@ -86,12 +90,14 @@ local function MouseWheelSlider(self, delta)
 		self:SetValue(self:GetValue() - 1)
 	end
 end
+-- Box 0 Read me! --
+vcbOptions2Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("注意 1: ").."請選擇一個目標，並關閉其他所有視窗，保持這個面板開啟!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("注意 2: ").."鎖定或解鎖施法條時，將會重新載入介面!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("注意 3: ").."從下拉選單中選擇 Shadowed Unit Frame (SUF)時，將會重新載入介面!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("注意 4: ").."使用 SUF 的玩家，在做任何事之前，請先到 SUF 的選項 > '隱藏暴雪' 標籤頁面 > 取消隱藏目標框架，然後依照建議重新載入介面!")
 -- Box 1 --
 -- check button 1 do it --
 vcbOptions2Box1CheckButton1.Text:SetText("解鎖")
 vcbOptions2Box1CheckButton1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("打勾解鎖目標施法條!") 
+	GameTooltip:SetText("打勾解鎖目標施法條!")
 end)
 vcbOptions2Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
 vcbOptions2Box1CheckButton1:HookScript("OnClick", function (self, button)
@@ -99,9 +105,12 @@ vcbOptions2Box1CheckButton1:HookScript("OnClick", function (self, button)
 		if self:GetChecked() == true then
 			VCBrTarget["Unlock"] = true
 			vcbAvailable()
+			C_UI.Reload()
 		elseif self:GetChecked() == false then
 			VCBrTarget["Unlock"] = false
 			vcbDisable()
+			if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then VCBrTarget["otherAdddon"] = "None" end
+			C_UI.Reload()
 		end
 	end
 end)
@@ -134,7 +143,12 @@ vcbOptions2Box1PopOut1Choice1:SetParent(vcbOptions2Box1PopOut1Choice0)
 vcbOptions2Box1PopOut1Choice1:SetPoint("TOP",vcbOptions2Box1PopOut1Choice0, "BOTTOM", 0, 0)
 vcbOptions2Box1PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
-		VCBrTarget["otherAdddon"] = self.Text:GetText()
+		if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then
+			VCBrTarget["otherAdddon"] = self.Text:GetText()
+			C_UI.Reload()
+		else
+			VCBrTarget["otherAdddon"] = self.Text:GetText()
+		end
 		vcbOptions2Box1PopOut1.Text:SetText(self:GetText())
 		vcbOptions2Box1PopOut1Choice0:Hide()
 	end
@@ -146,6 +160,7 @@ vcbOptions2Box1PopOut1Choice1:HookScript("OnClick", function(self, button, down)
 			VCBrTarget["otherAdddon"] = self.Text:GetText()
 			vcbOptions2Box1PopOut1.Text:SetText(self:GetText())
 			vcbOptions2Box1PopOut1Choice0:Hide()
+			C_UI.Reload()
 		else
 			local vcbTime = GameTime_GetTime(false)
 			DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode("內建施法條增強").."] 你沒有使用 Shadow Unit Frame 插件，不需要選擇該選項!")
@@ -243,6 +258,35 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
+-- pop out 4 Current Cast Time Decimals --
+-- enter --
+vcbOptions2Box2PopOut4:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("時間要顯示幾位小數") 
+end)
+-- leave --
+vcbOptions2Box2PopOut4:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions2Box2PopOut4, vcbOptions2Box2PopOut4Choice0)
+-- naming --
+vcbOptions2Box2PopOut4Choice0.Text:SetText("0")
+vcbOptions2Box2PopOut4Choice1.Text:SetText("1")
+vcbOptions2Box2PopOut4Choice2.Text:SetText("2")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions2Box2PopOut4Choice"..i]:SetParent(vcbOptions2Box2PopOut4Choice0)
+	_G["vcbOptions2Box2PopOut4Choice"..i]:SetPoint("TOP", _G["vcbOptions2Box2PopOut4Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions2Box2PopOut4Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrTarget["CurrentTimeText"]["Decimals"] = tonumber(self.Text:GetText())
+			vcbOptions2Box2PopOut4.Text:SetText(self:GetText())
+			vcbOptions2Box2PopOut4Choice0:Hide()
+		end
+	end)
+end
 -- Box 3 Current & Total Cast Time --
 -- pop out 1 Current & Total Cast Time --
 -- enter --
@@ -324,6 +368,35 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
+-- pop out 4 Both Time Decimals --
+-- enter --
+vcbOptions2Box3PopOut4:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("時間要顯示幾位小數") 
+end)
+-- leave --
+vcbOptions2Box3PopOut4:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions2Box3PopOut4, vcbOptions2Box3PopOut4Choice0)
+-- naming --
+vcbOptions2Box3PopOut4Choice0.Text:SetText("0")
+vcbOptions2Box3PopOut4Choice1.Text:SetText("1")
+vcbOptions2Box3PopOut4Choice2.Text:SetText("2")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions2Box3PopOut4Choice"..i]:SetParent(vcbOptions2Box3PopOut4Choice0)
+	_G["vcbOptions2Box3PopOut4Choice"..i]:SetPoint("TOP", _G["vcbOptions2Box3PopOut4Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions2Box3PopOut4Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrTarget["BothTimeText"]["Decimals"] = tonumber(self.Text:GetText())
+			vcbOptions2Box3PopOut4.Text:SetText(self:GetText())
+			vcbOptions2Box3PopOut4Choice0:Hide()
+		end
+	end)
+end
 -- Box 4 Total Cast Time --
 -- pop out 1 Total Cast Time --
 -- enter --
@@ -373,6 +446,35 @@ for i = 0, 1, 1 do
 			VCBrTarget["TotalTimeText"]["Sec"] = self.Text:GetText()
 			vcbOptions2Box4PopOut2.Text:SetText(self:GetText())
 			vcbOptions2Box4PopOut2Choice0:Hide()
+		end
+	end)
+end
+-- pop out 3 Total Time Decimals --
+-- enter --
+vcbOptions2Box4PopOut3:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("時間要顯示幾位小數") 
+end)
+-- leave --
+vcbOptions2Box4PopOut3:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions2Box4PopOut3, vcbOptions2Box4PopOut3Choice0)
+-- naming --
+vcbOptions2Box4PopOut3Choice0.Text:SetText("0")
+vcbOptions2Box4PopOut3Choice1.Text:SetText("1")
+vcbOptions2Box4PopOut3Choice2.Text:SetText("2")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions2Box4PopOut3Choice"..i]:SetParent(vcbOptions2Box4PopOut3Choice0)
+	_G["vcbOptions2Box4PopOut3Choice"..i]:SetPoint("TOP", _G["vcbOptions2Box4PopOut3Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions2Box4PopOut3Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrTarget["TotalTimeText"]["Decimals"] = tonumber(self.Text:GetText())
+			vcbOptions2Box4PopOut3.Text:SetText(self:GetText())
+			vcbOptions2Box4PopOut3Choice0:Hide()
 		end
 	end)
 end
