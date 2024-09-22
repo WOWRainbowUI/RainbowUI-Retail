@@ -594,22 +594,20 @@ local HekiliSpecMixin = {
         end
     end,
 
-
-
     RegisterPotion = function( self, potion, data )
         self.potions[ potion ] = data
 
         data.key = potion
 
-        if data.items then
-            if type( data.items ) == "table" then
-                for _, key in ipairs( data.items ) do
+        if data.copy then
+            if type( data.copy ) == "table" then
+                for _, key in ipairs( data.copy ) do
                     self.potions[ key ] = data
                     CommitKey( key )
                 end
             else
-                self.potions[ data.items ] = data
-                CommitKey( data.items )
+                self.potions[ data.copy ] = data
+                CommitKey( data.copy )
             end
         end
 
@@ -2320,22 +2318,11 @@ all:RegisterAuras( {
     },
 } )
 
+
 do
     -- Dragonflight Potions
     -- There are multiple items for each potion, and there are also Toxic potions that people may not want to use.
-    local exp_potions = {
-        {
-            name = "tempered_potion",
-            items = { 212971, 212970, 212969, 212265, 212264, 212263 }
-        },
-        {
-            name = "potion_of_unwavering_focus",
-            items = { 212965, 212964, 212963, 212259, 212258, 212257 }
-        },
-        {
-            name = "frontline_potion",
-            items = { 212968, 212967, 212966, 212262, 212261, 212260 }
-        },
+    local df_potions = {
         {
             name = "elemental_potion_of_ultimate_power",
             items = { 191914, 191913, 191912, 191383, 191382, 191381 }
@@ -2343,113 +2330,36 @@ do
         {
             name = "elemental_potion_of_power",
             items = { 191907, 191906, 191905, 191389, 191388, 191387 }
-        }
+        },
     }
 
-    all:RegisterAura( "fake_potion", {
-        duration = 30,
-        max_stack = 1,
+    all:RegisterAuras( {
+        elemental_potion_of_ultimate_power = {
+            id = 371028,
+            duration = 30,
+            max_stack = 1
+        },
+        elemental_potion_of_power = {
+            id = 371024,
+            duration = 30,
+            max_stack = 1
+        },
+        potion = {
+            alias = { "elemental_potion_of_ultimate_power", "elemental_potion_of_power" },
+            aliasMode = "first",
+            aliasType = "buff",
+            duration = 30
+        }
     } )
 
-    local first_potion, first_potion_key
-    local potion_items = {}
-
-    all:RegisterHook( "reset_precast", function ()
-        wipe( potion_items )
-        for _, potion in ipairs( exp_potions ) do
+    local function getValidPotion()
+        for _, potion in ipairs( df_potions ) do
             for _, item in ipairs( potion.items ) do
-                if GetItemCount( item, false ) > 0 then
-                    potion_items[ potion.name ] = item
-                    break
-                end
+                if GetItemCount( item, false ) > 0 then return item, potion.name end
             end
         end
-    end )
-
-    all:RegisterAura( "potion", {
-        alias = { "fake_potion" },
-        aliasMode = "first",
-        aliasType = "buff",
-        duration = 30
-    } )
-
-    local GetItemInfo = C_Item.GetItemInfo
-
-    for _, potion in ipairs( exp_potions ) do
-        local potionItem = Item:CreateFromItemID( potion.items[ #potion.items ] )
-
-        -- all:RegisterAbility( potion.name, {} ) -- Create stub.
-
-        potionItem:ContinueOnItemLoad( function()
-            all:RegisterAbility( potion.name, {
-                name = potionItem:GetItemName(),
-                listName = potionItem:GetItemLink(),
-                cast = 0,
-                cooldown = 300,
-                gcd = "off",
-
-                startsCombat = false,
-                toggle = "potions",
-
-                item = function ()
-                    return potion_items[ potion.name ] or potion.items[ #potion.items ]
-                end,
-                items = potion.items,
-                bagItem = true,
-                texture = potionItem:GetItemIcon(),
-
-                handler = function ()
-                    applyBuff( potion.name )
-                end,
-            } )
-
-            class.abilities[ potion.name ] = all.abilities[ potion.name ]
-
-            class.potions[ potion.name ] = {
-                name = potionItem:GetItemName(),
-                link = potionItem:GetItemLink(),
-                item = potion.items[ #potion.items ]
-            }
-
-            class.potionList[ potion.name ] = "|T" .. potionItem:GetItemIcon() .. ":0|t |cff00ccff[" .. potionItem:GetItemName() .. "]|r"
-
-            for i, item in ipairs( potion.items ) do
-                if not first_potion then
-                    first_potion_key = potion.name
-                    first_potion = item
-                end
-
-                local each_potion = Item:CreateFromItemID( item )
-
-                if not each_potion:IsItemEmpty() then
-                    each_potion:ContinueOnItemLoad( function()
-                        local _, spell = GetItemSpell( item )
-
-                        if not spell then Hekili:Error( "No spell found for item %d.", item ) return false end
-
-                        if not all.auras[ potion.name ] then
-                            all:RegisterAura( potion.name, {
-                                id = spell,
-                                duration = 30,
-                                max_stack = 1,
-                                copy = { spell }
-                            } )
-
-                            class.auras[ spell ] = all.auras[ potion.name ]
-                        else
-                            insert( all.auras[ potion.name ].copy, spell )
-                            all.auras[ spell ] = all.auras[ potion.name ]
-                            class.auras[ spell ] = all.auras[ potion.name ]
-                        end
-
-                        return true
-                    end )
-                else
-                    Hekili:Error( "Item %d is empty.", item )
-                end
-            end
-        end )
     end
+
 
     all:RegisterAbility( "potion", {
         name = "Potion",
@@ -2461,32 +2371,38 @@ do
         startsCombat = false,
         toggle = "potions",
 
-        consumable = function() return state.args.potion or settings.potion or first_potion_key or "elemental_potion_of_power" end,
-        item = function()
-            if state.args.potion and class.abilities[ state.args.potion ] then return class.abilities[ state.args.potion ].item end
-            if spec.potion and class.abilities[ spec.potion ] then return class.abilities[ spec.potion ].item end
-            if first_potion and class.abilities[ first_potion ] then return class.abilities[ first_potion ].item end
-            return 191387
+        item = function ()
+            return getValidPotion()
         end,
         bagItem = true,
 
-        handler = function ()
-            local use = all.abilities.potion
-            use = use and use.consumable
+        timeToReady = function ()
+            local item = getValidPotion()
 
-            if use and use ~= "global_cooldown" then
-                class.abilities[ use ].handler()
-                setCooldown( use, action[ use ].cooldown )
+            if item then
+                local start, dur = GetItemCooldown( item )
+                return max( 0, start + dur - query_time )
+            end
+
+            return 3600
+        end,
+
+        handler = function ()
+            local item, effect = getValidPotion()
+
+            if item and effect then
+                applyBuff( effect )
             end
         end,
 
         usable = function ()
-            return potion_items[ all.abilities.potion.item ], "背包中沒有有效的藥水"
+            if getValidPotion() ~= nil then return true end
+            return false, "背包中沒有有效的藥水"
         end,
-
-        copy = "potion_default"
     } )
 end
+
+
 
 
 
@@ -2845,8 +2761,12 @@ all:RegisterAbilities( {
     },
 
     healthstone = {
-        name = "Healthstone",
-        listName = "|T538745:0|t |cff00ccff[Healthstone]|r",
+        name = function () return ( GetItemInfo( 5512 ) ) or "Healthstone" end,
+        listName = function ()
+            local _, link, _, _, _, _, _, _, _, tex = GetItemInfo( 5512 )
+            if link and tex then return "|T" .. tex .. ":0|t " .. link end
+            return "|cff00ccff[Healthstone]|r"
+        end,
         cast = 0,
         cooldown = function () return time > 0 and 3600 or 60 end,
         gcd = "off",
@@ -6103,35 +6023,31 @@ end
 
 
 ns.addHook = function( hook, func )
-    insert( class.hooks[ hook ], func )
+    class.hooks[ hook ] = func
 end
 
 
 do
     local inProgress = {}
-    local vars = {}
 
-    local function load_args( ... )
-        local count = select( "#", ... )
-        if count == 0 then return end
+    ns.callHook = function( hook, ... )
+        if class.hooks[ hook ] and not inProgress[ hook ] then
+            local a1, a2, a3, a4, a5
 
-        for i = 1, count do
-            vars[ i ] = select( i, ... )
+            inProgress[ hook ] = true
+            for _, hook in ipairs( class.hooks[ hook ] ) do
+                a1, a2, a3, a4, a5 = hook ( ... )
+            end
+            inProgress[ hook ] = nil
+
+            if a1 ~= nil then
+                return a1, a2, a3, a4, a5
+            else
+                return ...
+            end
         end
-    end
 
-    ns.callHook = function( event, ... )
-        if not class.hooks[ event ] or inProgress[ event ] then return ... end
-        wipe( vars )
-        load_args( ... )
-
-        inProgress[ event ] = true
-        for i, hook in ipairs( class.hooks[ event ] ) do
-            load_args( hook( unpack( vars ) ) )
-        end
-        inProgress[ event ] = nil
-
-        return unpack( vars )
+        return ...
     end
 end
 
@@ -6363,7 +6279,6 @@ function Hekili:SpecializationChanged()
 
     wipe( class.auras )
     wipe( class.abilities )
-    wipe( class.hooks )
     wipe( class.talents )
     wipe( class.pvptalents )
     wipe( class.powers )
@@ -6477,18 +6392,14 @@ function Hekili:SpecializationChanged()
                     class.pvptalents[ talent ] = id
                 end
 
+                class.hooks = spec.hooks or {}
+                --[[ for name, func in pairs( spec.hooks ) do
+                    class.hooks[ name ] = func
+                end ]]
+
                 class.variables = spec.variables
 
-                class.potionList.default = "|T967533:0|t |cFFFFD100Default|r"
-            end
-
-            if specID == currentID or specID == 0 then
-                for event, hooks in pairs( spec.hooks ) do
-                    for _, hook in ipairs( hooks ) do
-                        class.hooks[ event ] = class.hooks[ event ] or {}
-                        insert( class.hooks[ event ], hook )
-                    end
-                end
+                class.potionList.default = "|cFFFFD100Default|r"
             end
 
             for res, model in pairs( spec.resources ) do
@@ -6497,7 +6408,6 @@ function Hekili:SpecializationChanged()
                     state[ res ] = model.state
                 end
             end
-
             if rawget( state, "runes" ) then state.rune = state.runes end
 
             for k, v in pairs( spec.auras ) do
