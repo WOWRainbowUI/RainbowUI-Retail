@@ -17,6 +17,7 @@ module.db.mapsToLog_5ppl = {
 	[1651] = true, -- Return to Karazhan
 	[657] = true,	-- The Vortex Pinnacle
 	[643] = true,	-- Throne of the Tides
+	[670] = true,	-- Grim Batol
 }
 
 module.db.mapsSoD = {	--Season of Discovery, Classic
