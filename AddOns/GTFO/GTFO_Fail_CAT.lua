@@ -1911,4 +1911,9 @@ GTFO.SpellID["450087"] = {
   sound = 3;
 };
 
+GTFO.SpellID["448566"] = {
+  --desc = "Shadowflame Breath (Twilight Drake)";
+  sound = 3;
+};
+
 end

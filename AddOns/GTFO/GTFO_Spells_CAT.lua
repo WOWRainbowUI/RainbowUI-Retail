@@ -2759,4 +2759,9 @@ GTFO.SpellID["456773"] = {
   sound = 1;
 };
 
+GTFO.SpellID["461513"] = {
+  --desc = "Shadow Gale (Erudax)";
+  sound = 1;
+};
+
 end
