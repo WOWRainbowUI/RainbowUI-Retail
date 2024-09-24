@@ -340,13 +340,13 @@ local options = {
             type = "toggle",
         },
         gameTooltip = {
-            name = "Tooltip",
-            desc = "Enables / Disables HUD Tooltip support",
+            name = "浮動提示資訊",
+            desc = "啟用/停用支援浮動提示資訊",
             type = "toggle",
         },
         lossOfControl = {
-            name = "Loss of Control",
-            desc = "Enables / Disables Loss of Control support",
+            name = "角色失去控制",
+            desc = "啟用/停用支援角色失去控制",
             type = "toggle",
         },
     },
