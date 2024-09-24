@@ -15,7 +15,7 @@ local defaults = {
             targetCast = true,
             focusTargetOfTarget = true,
             focusCast = true,
-            compactRaidFrameContainer = true,
+            compactRaidFrameContainer = false,
             talkingHead = true,
             minimap = true,
             minimapHeader = false,
@@ -49,6 +49,7 @@ local defaults = {
             targetFrameBuffs = false,
             gameMenu = true,
             gameTooltip = true,
+            lossOfControl = true,
         },
         QueueStatusButton = {},
         TotemFrame = {},
@@ -95,6 +96,7 @@ local defaults = {
         TargetDebuffs = {},
         TargetBuffs = {},
         GameMenuFrame = {},
+        LOC = {},
     }
 }
 
@@ -337,7 +339,12 @@ local options = {
         },
         gameTooltip = {
             name = "Tooltip",
-            desc = "Enables / Disabled HUD Tooltip support",
+            desc = "Enables / Disables HUD Tooltip support",
+            type = "toggle",
+        },
+        lossOfControl = {
+            name = "Loss of Control",
+            desc = "Enables / Disables Loss of Control support",
             type = "toggle",
         },
     },
