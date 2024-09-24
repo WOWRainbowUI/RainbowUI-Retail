@@ -30,6 +30,7 @@ L["XS_BAGS"] = "%s's Bags"
 L["XS_BANK"] = "%s's Bank"
 L["XS_GUILD_BANK"] = "%s's Guild Bank"
 L["ALL_CHARACTERS"] = "All Characters"
+L["CURRENCIES"] = "Currencies"
 L["BAG_SLOTS"] = "Bag Slots"
 L["GUILD_BANK"] = "Guild Bank"
 L["BANK_DATA_MISSING_HINT"] = "Bank data missing. Visit a banker with %s to populate this view."
@@ -40,6 +41,11 @@ L["GUILD_BANK_DATA_MISSING_HINT"] = "This guild bank hasn't been visited yet."
 L["GUILD_BANK_NO_TABS"] = "There are no tabs in this guild bank."
 L["CHARACTER"] = "Character"
 L["WARBAND"] = "Warband"
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
+L["TRACKED"] = "Tracked"
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
 
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 L["BAG_VIEW_TYPE"] = "Bag view type"
@@ -340,8 +346,6 @@ L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cff
 
 local L = Locales.frFR
 L["ACCOUNT_GOLD_X"] = "Or du compte : %s"
-L["ADD"] = "Ajouter"
-L["ADD_FROM_ATT"] = "Ajouter depuis ATT"
 L["ADD_FROM_ATT_MESSAGE"] = "Utiliser les objets venant de la mini-liste All The Things pour ajouter à cette catégorie"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Ajout de %s objets (depuis la fenêtre %s)"
 --[[Translation missing --]]
@@ -373,10 +377,13 @@ L["BATTLE_PET_LEVEL"] = "Niveau de mascotte"
 L["BIND_ON_ACCOUNT"] = "Liés au compte"
 L["BIND_ON_EQUIP"] = "Lié quand équipé"
 L["BIND_ON_USE"] = "Lié lors de l'utilisation"
-L["BINDING_OPEN_BANK"] = "Ouvrir la Banque"
-L["BINDING_OPEN_GUILD_BANK"] = "Ouvrir la Banque de Guilde"
-L["BINDING_OPEN_WARBAND_BANK"] = "Ouvrir la Banque du Bataillon"
 L["BINDING_QUICK_SEARCH"] = "Recherche Rapide"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
 L["BLANK_SPACE"] = "Espace vide"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "LqA"
@@ -425,6 +432,10 @@ L["CREATE_NEW_CATEGORY"] = "Créer une nouvelle catégorie..."
 L["CREATE_NEW_DIVIDER"] = "Créer un nouveau séparateur..."
 L["CREATE_NEW_SECTION"] = "Créer une nouvelle section..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C pour copier"
+--[[Translation missing --]]
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+--[[Translation missing --]]
+L["CURRENCIES"] = "Currencies"
 L["CUSTOMISE_BAGANATOR"] = "Personnaliser Baganator"
 L["DEPOSIT_REAGENTS"] = "Dépôt des composants"
 L["DEPOSIT_WARBOUND"] = "Déposer les objets liés au bataillon"
@@ -576,11 +587,17 @@ L["SECTION_CRAFTING"] = "Crafting"
 --[[Translation missing --]]
 L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "SellJunk"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 L["SHOW_ADD_BUTTONS"] = "Afficher les Boutons pour Ajouter"
 L["SHOW_BUTTONS"] = "Afficher les boutons"
 --[[Translation missing --]]
 L["SHOW_NAME_PREFIX"] = "Show name prefix"
 L["SHOW_SORT_BUTTON"] = "Afficher le bouton de tri"
+--[[Translation missing --]]
+L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["SINGLE_BAG"] = "Un seul sac"
 --[[Translation missing --]]
 L["SINGLE_BAG_DESCRIPTION_2"] = "Arrange items by slot. Keeps your items in one large container."
@@ -611,6 +628,8 @@ L["TIPS_TRANSFER"] = "Recherchez des articles, puis utilisez le bouton de transf
 L["TL"] = "OE"
 L["TO_OPEN_OPTIONS_X"] = "Accédez aux options avec /bgr"
 L["TOOLTIP_SETTINGS"] = "Paramètres de l’infobulle"
+--[[Translation missing --]]
+L["TRACKED"] = "Tracked"
 L["TRADE"] = "Echange"
 L["TRADEABLE_LOOT"] = "Butin échangeable"
 L["TRANSFER"] = "Transfert"
@@ -650,8 +669,6 @@ L["XS_GUILD_BANK"] = "Banque de Guilde de %s"
 
 local L = Locales.deDE
 L["ACCOUNT_GOLD_X"] = "Account-Gold: %s"
-L["ADD"] = "Hinzufügen"
-L["ADD_FROM_ATT"] = "Hinzufügen aus ATT"
 L["ADD_FROM_ATT_MESSAGE"] = "Verwende Elemente aus den Minilisten-Fenstern des Addons All The Things, um sie zu dieser Kategorie hinzuzufügen."
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "%s Elemente hinzugefügt (aus %s Popouts)"
 L["ADD_IDS"] = "IDs hinzufügen"
@@ -681,10 +698,13 @@ L["BATTLE_PET_LEVEL"] = "Kampfhaustier-Stufe"
 L["BIND_ON_ACCOUNT"] = "Bind on Account"
 L["BIND_ON_EQUIP"] = "Bind on Equip"
 L["BIND_ON_USE"] = "Bind on Use"
-L["BINDING_OPEN_BANK"] = "Bank öffnen"
-L["BINDING_OPEN_GUILD_BANK"] = "Gilden-Bank öffnen"
-L["BINDING_OPEN_WARBAND_BANK"] = "Kriegsmeuten-Bank öffnen"
 L["BINDING_QUICK_SEARCH"] = "Schnell-Suche"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
 L["BLANK_SPACE"] = "Leere Stelle"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "BoA"
@@ -732,6 +752,10 @@ L["CREATE_NEW_CATEGORY"] = "Erstelle neue Kategorie"
 L["CREATE_NEW_DIVIDER"] = "Neue Trennlinie erstellen..."
 L["CREATE_NEW_SECTION"] = "Neuen Bereich erstellen..."
 L["CTRL_C_TO_COPY"] = "Strg+C zum Kopieren"
+--[[Translation missing --]]
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+--[[Translation missing --]]
+L["CURRENCIES"] = "Currencies"
 L["CUSTOMISE_BAGANATOR"] = "Baganator anpassen"
 L["DEPOSIT_REAGENTS"] = "Reagenzien einlagern"
 L["DEPOSIT_WARBOUND"] = "Kriegsgebundene Gegenstände einlagern"
@@ -871,10 +895,16 @@ L["SEARCH_TRY_X"] = "Suche, versuche: %s"
 L["SECTION_CRAFTING"] = "Handwerk"
 L["SECTION_EQUIPMENT"] = "Ausrüstung"
 L["SELLJUNK"] = "Schrott verkaufen"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 L["SHOW_ADD_BUTTONS"] = "Hinzufügen Buttons anzeigen"
 L["SHOW_BUTTONS"] = "Zeige Buttons"
 L["SHOW_NAME_PREFIX"] = "Namenspräfix anzeigen"
 L["SHOW_SORT_BUTTON"] = "Sortieren Button anzeigen"
+--[[Translation missing --]]
+L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["SINGLE_BAG"] = "Einzelne Tasche"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Ordnen Sie die Gegenstände nach Plätzen. Bringt Ihre Gegenstände in einem einzelnen großen Behälter unter."
 L["SKINS"] = "Skins"
@@ -904,6 +934,8 @@ L["TIPS_TRANSFER"] = "Suche nach Gegenständen und verwende dann die Transfer-Sc
 L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Optionen anzeigen mit /bgr"
 L["TOOLTIP_SETTINGS"] = "Tooltip-Einstellungen"
+--[[Translation missing --]]
+L["TRACKED"] = "Tracked"
 L["TRADE"] = "Handeln"
 L["TRADEABLE_LOOT"] = "Handelbare Beute"
 L["TRANSFER"] = "Transferieren"
@@ -942,8 +974,6 @@ L["XS_GUILD_BANK"] = "%s's Gildenbank"
 
 local L = Locales.ruRU
 L["ACCOUNT_GOLD_X"] = "Всего на аккаунте: %s"
-L["ADD"] = "Добавить"
-L["ADD_FROM_ATT"] = "Из ATT"
 L["ADD_FROM_ATT_MESSAGE"] = "Используйте предметы из всплывающих окон All The Things для добавления в эту категорию"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Добавлено %s предметов (из %s окон)"
 L["ADD_IDS"] = "Добавить ID"
@@ -973,10 +1003,13 @@ L["BATTLE_PET_LEVEL"] = "Уровень боевого питомца"
 L["BIND_ON_ACCOUNT"] = "BoA"
 L["BIND_ON_EQUIP"] = "BoE"
 L["BIND_ON_USE"] = "BoU"
-L["BINDING_OPEN_BANK"] = "Открыть банк"
-L["BINDING_OPEN_GUILD_BANK"] = "Открыть банк гильдии"
-L["BINDING_OPEN_WARBAND_BANK"] = "Открыть банк отряда"
 L["BINDING_QUICK_SEARCH"] = "Быстрый поиск"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
 L["BLANK_SPACE"] = "Незаполненное сумками место"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "BoA"
@@ -1024,6 +1057,10 @@ L["CREATE_NEW_CATEGORY"] = "Новая категория..."
 L["CREATE_NEW_DIVIDER"] = "Новый разделитель..."
 L["CREATE_NEW_SECTION"] = "Новая секция..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C для копирования"
+--[[Translation missing --]]
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+--[[Translation missing --]]
+L["CURRENCIES"] = "Currencies"
 L["CUSTOMISE_BAGANATOR"] = "Настройка Baganator"
 L["DEPOSIT_REAGENTS"] = "Перенести материалы из сумок"
 L["DEPOSIT_WARBOUND"] = "Перенести предметы отряда"
@@ -1162,10 +1199,16 @@ L["SEARCH_TRY_X"] = "Попробуйте ввести для поиска: %s"
 L["SECTION_CRAFTING"] = "Изготовление"
 L["SECTION_EQUIPMENT"] = "Снаряжение"
 L["SELLJUNK"] = "Аддон SellJunk"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 L["SHOW_ADD_BUTTONS"] = "Кнопки добавления"
 L["SHOW_BUTTONS"] = "Отображать кнопки"
 L["SHOW_NAME_PREFIX"] = "Префикс имени"
 L["SHOW_SORT_BUTTON"] = "Отображать кнопку сортировки"
+--[[Translation missing --]]
+L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["SINGLE_BAG"] = "Единая сумка"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Упорядочение предметов по слотам. Ваши предметы находятся в большой единой сумке."
 L["SKINS"] = "Скины"
@@ -1195,6 +1238,8 @@ L["TIPS_TRANSFER"] = "Ищите предметы, а затем использ�
 L["TL"] = "Можно передать"
 L["TO_OPEN_OPTIONS_X"] = "Команда чата для открытия настроек - /bgr"
 L["TOOLTIP_SETTINGS"] = "Настройка подсказок"
+--[[Translation missing --]]
+L["TRACKED"] = "Tracked"
 L["TRADE"] = "Обмен"
 L["TRADEABLE_LOOT"] = "Можно передать"
 L["TRANSFER"] = "Перенос"
@@ -1237,8 +1282,6 @@ L["XS_GUILD_BANK"] = "%s - банк гильдии"
 
 local L = Locales.esES
 L["ACCOUNT_GOLD_X"] = "Oro de la Cuenta: %s"
-L["ADD"] = "Añadir"
-L["ADD_FROM_ATT"] = "Añadir desde ATT"
 L["ADD_FROM_ATT_MESSAGE"] = "Utilice los elementos de todas las ventanas emergentes de mini-listas para añadirlos a esta categoría."
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Añadido %s objetos (%s desde ventana emergente)"
 L["ADD_IDS"] = "Agregar IDs"
@@ -1268,10 +1311,13 @@ L["BATTLE_PET_LEVEL"] = "Nivel de Mascota de Batalla"
 L["BIND_ON_ACCOUNT"] = "Vinculado a cuenta"
 L["BIND_ON_EQUIP"] = "Vinculado al equiparse"
 L["BIND_ON_USE"] = "Vinculado al usar"
-L["BINDING_OPEN_BANK"] = "Abrir el Banco"
-L["BINDING_OPEN_GUILD_BANK"] = "Abrir el Banco de Hermandad"
-L["BINDING_OPEN_WARBAND_BANK"] = "Abrir el Banco de la Banda de Guerra"
 L["BINDING_QUICK_SEARCH"] = "Búsqueda rápida"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
 L["BLANK_SPACE"] = "Espacio vacío"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "BoA"
@@ -1319,6 +1365,10 @@ L["CREATE_NEW_CATEGORY"] = "Crear nueva categoría..."
 L["CREATE_NEW_DIVIDER"] = "Crear un nuevo divisor..."
 L["CREATE_NEW_SECTION"] = "Crear nueva sección..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C para copiar"
+--[[Translation missing --]]
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+--[[Translation missing --]]
+L["CURRENCIES"] = "Currencies"
 L["CUSTOMISE_BAGANATOR"] = "Personalizar Baganator"
 L["DEPOSIT_REAGENTS"] = "Depositar Componentes"
 L["DEPOSIT_WARBOUND"] = "Depositar objetos relacionados con la Banda de Guerra"
@@ -1457,10 +1507,16 @@ L["SEARCH_TRY_X"] = "Buscar, ejemplo: %s"
 L["SECTION_CRAFTING"] = "Elaboración"
 L["SECTION_EQUIPMENT"] = "Equipamiento"
 L["SELLJUNK"] = "SellJunk"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 L["SHOW_ADD_BUTTONS"] = "Mostrar botones de añadir"
 L["SHOW_BUTTONS"] = "Mostrar botones"
 L["SHOW_NAME_PREFIX"] = "Mostrar prefijo del nombre"
 L["SHOW_SORT_BUTTON"] = "Mostrar botón de ordenar"
+--[[Translation missing --]]
+L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["SINGLE_BAG"] = "Una sola bolsa"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Ordena los objetos por ranuras. Guarda tus objetos en un gran contenedor."
 L["SKINS"] = "Skins"
@@ -1490,6 +1546,8 @@ L["TIPS_TRANSFER"] = "Busque artículos y, a continuación, utilice el botón de
 L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Acceder a las opciones con /bgr"
 L["TOOLTIP_SETTINGS"] = "Configuración de Tooltip"
+--[[Translation missing --]]
+L["TRACKED"] = "Tracked"
 L["TRADE"] = "Comercio"
 L["TRADEABLE_LOOT"] = "Botín comerciable"
 L["TRANSFER"] = "Transferir"
@@ -1528,10 +1586,6 @@ L["XS_GUILD_BANK"] = "%s's Banco de Hermandad"
 
 local L = Locales.esMX
 L["ACCOUNT_GOLD_X"] = "Oro en cuenta: %s"
---[[Translation missing --]]
-L["ADD"] = "Add"
---[[Translation missing --]]
-L["ADD_FROM_ATT"] = "Add From ATT"
 --[[Translation missing --]]
 L["ADD_FROM_ATT_MESSAGE"] = "Use items from All The Things popout mini-list windows to add into this category."
 --[[Translation missing --]]
@@ -1579,13 +1633,13 @@ L["BIND_ON_EQUIP"] = "Bind on Equip"
 --[[Translation missing --]]
 L["BIND_ON_USE"] = "Bind on Use"
 --[[Translation missing --]]
-L["BINDING_OPEN_BANK"] = "Open Bank"
---[[Translation missing --]]
-L["BINDING_OPEN_GUILD_BANK"] = "Open Guild Bank"
---[[Translation missing --]]
-L["BINDING_OPEN_WARBAND_BANK"] = "Open Warband Bank"
---[[Translation missing --]]
 L["BINDING_QUICK_SEARCH"] = "Quick Search"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
 --[[Translation missing --]]
 L["BLANK_SPACE"] = "Blank space"
 L["BLIZZARD"] = "Blizzard"
@@ -1683,6 +1737,10 @@ L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 L["CREATE_NEW_SECTION"] = "Create new section..."
 --[[Translation missing --]]
 L["CTRL_C_TO_COPY"] = "Ctrl+C to copy"
+--[[Translation missing --]]
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+--[[Translation missing --]]
+L["CURRENCIES"] = "Currencies"
 --[[Translation missing --]]
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 --[[Translation missing --]]
@@ -1927,12 +1985,18 @@ L["SECTION_CRAFTING"] = "Crafting"
 L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "Vender Basura"
 --[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
+--[[Translation missing --]]
 L["SHOW_ADD_BUTTONS"] = "Show add buttons"
 L["SHOW_BUTTONS"] = "Mostrar botones"
 --[[Translation missing --]]
 L["SHOW_NAME_PREFIX"] = "Show name prefix"
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show sort button"
+--[[Translation missing --]]
+L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["SINGLE_BAG"] = "Una bolsa"
 --[[Translation missing --]]
 L["SINGLE_BAG_DESCRIPTION_2"] = "Arrange items by slot. Keeps your items in one large container."
@@ -1988,6 +2052,8 @@ L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 --[[Translation missing --]]
 L["TOOLTIP_SETTINGS"] = "Tooltip settings"
+--[[Translation missing --]]
+L["TRACKED"] = "Tracked"
 --[[Translation missing --]]
 L["TRADE"] = "Trade"
 --[[Translation missing --]]
@@ -2054,8 +2120,6 @@ L["XS_GUILD_BANK"] = "Banco de Hermandad de %s"
 
 local L = Locales.zhTW
 L["ACCOUNT_GOLD_X"] = "帳號金幣：%s"
-L["ADD"] = "新增"
-L["ADD_FROM_ATT"] = "加入來自ATT"
 L["ADD_FROM_ATT_MESSAGE"] = "使用 “All The Things ”彈出式迷你視窗中的物品加入到此分類中。"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "已加入 %s 物品（來自 %s 彈出視窗）"
 L["ADD_IDS"] = "新增ID"
@@ -2085,10 +2149,10 @@ L["BATTLE_PET_LEVEL"] = "戰寵等級"
 L["BIND_ON_ACCOUNT"] = "帳號綁定"
 L["BIND_ON_EQUIP"] = "裝備綁定"
 L["BIND_ON_USE"] = "使用綁定"
-L["BINDING_OPEN_BANK"] = "開啟銀行"
-L["BINDING_OPEN_GUILD_BANK"] = "開啟公會銀行"
-L["BINDING_OPEN_WARBAND_BANK"] = "開啟戰隊銀行"
 L["BINDING_QUICK_SEARCH"] = "快速搜尋"
+L["BINDING_TOGGLE_BANK"] = "切換銀行"
+L["BINDING_TOGGLE_GUILD_BANK"] = "切換公會銀行"
+L["BINDING_TOGGLE_WARBAND_BANK"] = "切換戰隊銀行"
 L["BLANK_SPACE"] = "空白"
 L["BLIZZARD"] = "暴雪"
 L["BOA"] = "帳綁"
@@ -2136,6 +2200,8 @@ L["CREATE_NEW_CATEGORY"] = "建立新分類..."
 L["CREATE_NEW_DIVIDER"] = "建立新分隔線..."
 L["CREATE_NEW_SECTION"] = "建立新群組..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C來複製"
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-點擊 來轉移>"
+L["CURRENCIES"] = "兌換通貨"
 L["CUSTOMISE_BAGANATOR"] = "自定義Baganator"
 L["DEPOSIT_REAGENTS"] = "存放材料"
 L["DEPOSIT_WARBOUND"] = "存放戰隊物品"
@@ -2274,10 +2340,13 @@ L["SEARCH_TRY_X"] = "搜尋，嘗試 %s"
 L["SECTION_CRAFTING"] = "製作"
 L["SECTION_EQUIPMENT"] = "裝備"
 L["SELLJUNK"] = "賣出垃圾"
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-點擊 來追蹤"
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-點擊 來追蹤/不追蹤>"
 L["SHOW_ADD_BUTTONS"] = "顯示新增按鈕"
 L["SHOW_BUTTONS"] = "顯示按鈕"
 L["SHOW_NAME_PREFIX"] = "顯示名稱前綴"
 L["SHOW_SORT_BUTTON"] = "顯示整理按鈕"
+L["SHOW_TRANSFERABLE_ONLY"] = "僅顯示可轉移的"
 L["SINGLE_BAG"] = "單一大背包"
 L["SINGLE_BAG_DESCRIPTION_2"] = "按部位排列物品。將您的物品存放在單一大背包中。"
 L["SKINS"] = "外觀美化"
@@ -2307,6 +2376,7 @@ L["TIPS_TRANSFER"] = "搜尋物品，然後使用轉移按鈕輕鬆將其轉移�
 L["TL"] = "交"
 L["TO_OPEN_OPTIONS_X"] = "輸入 /bgr 開啟選項"
 L["TOOLTIP_SETTINGS"] = "工具提示設定"
+L["TRACKED"] = "已追蹤"
 L["TRADE"] = "交易"
 L["TRADEABLE_LOOT"] = "可交易拾取"
 L["TRANSFER"] = "轉移"
@@ -2345,8 +2415,6 @@ L["XS_GUILD_BANK"] = "%s 的公會銀行"
 
 local L = Locales.zhCN
 L["ACCOUNT_GOLD_X"] = "帐号金币：%s"
-L["ADD"] = "添加"
-L["ADD_FROM_ATT"] = "添加自 ATT"
 L["ADD_FROM_ATT_MESSAGE"] = "使用“All The Things”小列表弹窗中的物品添加到此分类中。"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "已添加 %s 件物品（来自 %s 弹出窗口）"
 L["ADD_IDS"] = "添加ID"
@@ -2376,10 +2444,10 @@ L["BATTLE_PET_LEVEL"] = "战斗宠物等级"
 L["BIND_ON_ACCOUNT"] = "帐号绑定"
 L["BIND_ON_EQUIP"] = "装备绑定"
 L["BIND_ON_USE"] = "使用绑定"
-L["BINDING_OPEN_BANK"] = "打开银行"
-L["BINDING_OPEN_GUILD_BANK"] = "打开公会银行"
-L["BINDING_OPEN_WARBAND_BANK"] = "打开战团银行"
 L["BINDING_QUICK_SEARCH"] = "快速搜索"
+L["BINDING_TOGGLE_BANK"] = "切换银行"
+L["BINDING_TOGGLE_GUILD_BANK"] = "切换公会银行"
+L["BINDING_TOGGLE_WARBAND_BANK"] = "切换战团银行"
 L["BLANK_SPACE"] = "空白"
 L["BLIZZARD"] = "暴雪默认"
 L["BOA"] = "帐绑"
@@ -2427,6 +2495,8 @@ L["CREATE_NEW_CATEGORY"] = "创建新分类..."
 L["CREATE_NEW_DIVIDER"] = "创建新分隔线..."
 L["CREATE_NEW_SECTION"] = "创建新组..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C 复制"
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-点击 转移>"
+L["CURRENCIES"] = "货币"
 L["CUSTOMISE_BAGANATOR"] = "自定义Baganator设置"
 L["DEPOSIT_REAGENTS"] = "存放材料"
 L["DEPOSIT_WARBOUND"] = "存放战团物品"
@@ -2565,10 +2635,13 @@ L["SEARCH_TRY_X"] = "搜索，尝试：%s"
 L["SECTION_CRAFTING"] = "制造"
 L["SECTION_EQUIPMENT"] = "装备"
 L["SELLJUNK"] = "出售垃圾"
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-点击 追踪"
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-点击 追踪/不追踪>"
 L["SHOW_ADD_BUTTONS"] = "显示添加按钮"
 L["SHOW_BUTTONS"] = "显示按钮"
 L["SHOW_NAME_PREFIX"] = "显示名称前缀"
 L["SHOW_SORT_BUTTON"] = "显示整理按键"
+L["SHOW_TRANSFERABLE_ONLY"] = "仅显示可转移"
 L["SINGLE_BAG"] = "大背包"
 L["SINGLE_BAG_DESCRIPTION_2"] = "按部位排列物品。将您的物品存放在大背包中。"
 L["SKINS"] = "美化"
@@ -2598,6 +2671,7 @@ L["TIPS_TRANSFER"] = "搜索物品，然后使用转移按钮轻松将其转移�
 L["TL"] = "交"
 L["TO_OPEN_OPTIONS_X"] = "输入/bgr 打开选项"
 L["TOOLTIP_SETTINGS"] = "鼠标提示设置"
+L["TRACKED"] = "追踪"
 L["TRADE"] = "交易"
 L["TRADEABLE_LOOT"] = "可交易战利品"
 L["TRANSFER"] = "转移"
@@ -2636,8 +2710,6 @@ L["XS_GUILD_BANK"] = "%s 的公会银行"
 
 local L = Locales.koKR
 L["ACCOUNT_GOLD_X"] = "계정 총 소지금: %s"
-L["ADD"] = "추가"
-L["ADD_FROM_ATT"] = "ATT에서 추가"
 L["ADD_FROM_ATT_MESSAGE"] = "ATT(All The Things) 애드온 미니 목록 창의 항목을 사용하여 이 카테고리에 추가하세요."
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "%s 항목을 추가했습니다(%s ATT에서)."
 L["ADD_IDS"] = "ID 추가"
@@ -2667,10 +2739,13 @@ L["BATTLE_PET_LEVEL"] = "전투 애완 동물 레벨"
 L["BIND_ON_ACCOUNT"] = "계정 귀속"
 L["BIND_ON_EQUIP"] = "착용시 귀속"
 L["BIND_ON_USE"] = "사용시 귀속"
-L["BINDING_OPEN_BANK"] = "은행 열기"
-L["BINDING_OPEN_GUILD_BANK"] = "길드은행 열기"
-L["BINDING_OPEN_WARBAND_BANK"] = "Open Warband Bank"
 L["BINDING_QUICK_SEARCH"] = "빠른 검색"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
 L["BLANK_SPACE"] = "빈칸"
 L["BLIZZARD"] = "기본"
 L["BOA"] = "계귀"
@@ -2724,6 +2799,10 @@ L["CREATE_NEW_CATEGORY"] = "새 카테고리 만들기..."
 L["CREATE_NEW_DIVIDER"] = "새 구분선 만들기..."
 L["CREATE_NEW_SECTION"] = "새 그룹 만들기..."
 L["CTRL_C_TO_COPY"] = "복사하려면 Ctrl+C"
+--[[Translation missing --]]
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+--[[Translation missing --]]
+L["CURRENCIES"] = "Currencies"
 L["CUSTOMISE_BAGANATOR"] = "Baganator 설정"
 L["DEPOSIT_REAGENTS"] = "재료 은행에 보관"
 L["DEPOSIT_WARBOUND"] = "전투부대 아이템 보관"
@@ -2862,10 +2941,16 @@ L["SEARCH_TRY_X"] = "검색, %s 시도"
 L["SECTION_CRAFTING"] = "제작"
 L["SECTION_EQUIPMENT"] = "장비"
 L["SELLJUNK"] = "폐품 판매"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 L["SHOW_ADD_BUTTONS"] = "추가 버튼 표시"
 L["SHOW_BUTTONS"] = "버튼 표시"
 L["SHOW_NAME_PREFIX"] = "이름 접두사 표시"
 L["SHOW_SORT_BUTTON"] = "정렬 버튼 표시"
+--[[Translation missing --]]
+L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["SINGLE_BAG"] = "싱글 가방"
 L["SINGLE_BAG_DESCRIPTION_2"] = "슬롯별로 아이템을 정렬합니다. 하나의 큰 항목에 물품을 보관합니다."
 L["SKINS"] = "스킨"
@@ -2895,6 +2980,8 @@ L["TIPS_TRANSFER"] = "항목을 검색한 다음 전송 버튼을 사용하여 �
 L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "/bgr 명령어로 옵션 열기"
 L["TOOLTIP_SETTINGS"] = "툴팁 설정"
+--[[Translation missing --]]
+L["TRACKED"] = "Tracked"
 L["TRADE"] = "거래"
 L["TRADEABLE_LOOT"] = "교환 가능한 전리품"
 L["TRANSFER"] = "옮기기"
@@ -2938,10 +3025,6 @@ L["XS_GUILD_BANK"] = "%s의 길드 은행"
 local L = Locales.itIT
 --[[Translation missing --]]
 L["ACCOUNT_GOLD_X"] = "Account gold: %s"
---[[Translation missing --]]
-L["ADD"] = "Add"
---[[Translation missing --]]
-L["ADD_FROM_ATT"] = "Add From ATT"
 --[[Translation missing --]]
 L["ADD_FROM_ATT_MESSAGE"] = "Use items from All The Things popout mini-list windows to add into this category."
 --[[Translation missing --]]
@@ -3001,13 +3084,13 @@ L["BIND_ON_EQUIP"] = "Bind on Equip"
 --[[Translation missing --]]
 L["BIND_ON_USE"] = "Bind on Use"
 --[[Translation missing --]]
-L["BINDING_OPEN_BANK"] = "Open Bank"
---[[Translation missing --]]
-L["BINDING_OPEN_GUILD_BANK"] = "Open Guild Bank"
---[[Translation missing --]]
-L["BINDING_OPEN_WARBAND_BANK"] = "Open Warband Bank"
---[[Translation missing --]]
 L["BINDING_QUICK_SEARCH"] = "Quick Search"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
 --[[Translation missing --]]
 L["BLANK_SPACE"] = "Blank space"
 --[[Translation missing --]]
@@ -3107,6 +3190,10 @@ L["CREATE_NEW_DIVIDER"] = "Create new divider..."
 L["CREATE_NEW_SECTION"] = "Create new section..."
 --[[Translation missing --]]
 L["CTRL_C_TO_COPY"] = "Ctrl+C to copy"
+--[[Translation missing --]]
+L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+--[[Translation missing --]]
+L["CURRENCIES"] = "Currencies"
 --[[Translation missing --]]
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 --[[Translation missing --]]
@@ -3384,6 +3471,10 @@ L["SECTION_EQUIPMENT"] = "Equipment"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
 --[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
+--[[Translation missing --]]
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
+--[[Translation missing --]]
 L["SHOW_ADD_BUTTONS"] = "Show add buttons"
 --[[Translation missing --]]
 L["SHOW_BUTTONS"] = "Show buttons"
@@ -3391,6 +3482,8 @@ L["SHOW_BUTTONS"] = "Show buttons"
 L["SHOW_NAME_PREFIX"] = "Show name prefix"
 --[[Translation missing --]]
 L["SHOW_SORT_BUTTON"] = "Show sort button"
+--[[Translation missing --]]
+L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 --[[Translation missing --]]
 L["SINGLE_BAG"] = "Single bag"
 --[[Translation missing --]]
@@ -3449,6 +3542,8 @@ L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Access options with /bgr"
 --[[Translation missing --]]
 L["TOOLTIP_SETTINGS"] = "Tooltip settings"
+--[[Translation missing --]]
+L["TRACKED"] = "Tracked"
 --[[Translation missing --]]
 L["TRADE"] = "Trade"
 --[[Translation missing --]]
