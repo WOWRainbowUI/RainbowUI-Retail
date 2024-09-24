@@ -15,11 +15,12 @@
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --]]
 
-local EasyFrames = LibStub("AceAddon-3.0"):GetAddon("EasyFrames")
-local Media = LibStub("LibSharedMedia-3.0")
+local EasyFrames = LibStub("AceAddon-3.0"):GetAddon("EasyFrames");
+local Media = LibStub("LibSharedMedia-3.0");
 
-local MODULE_NAME = "Player"
-local Player = EasyFrames:NewModule(MODULE_NAME, "AceHook-3.0")
+local MODULE_NAME = "Player";
+local Player = EasyFrames:NewModule(MODULE_NAME, "AceHook-3.0", "AceEvent-3.0");
+local Core = EasyFrames:GetModule("Core");
 
 local db
 
@@ -27,8 +28,7 @@ local UpdateHealthValues = EasyFrames.Utils.UpdateHealthValues
 local UpdateManaValues = EasyFrames.Utils.UpdateManaValues
 local ClassPortraits = EasyFrames.Utils.ClassPortraits
 local DefaultPortraits = EasyFrames.Utils.DefaultPortraits
-
-local Core = EasyFrames:GetModule("Core")
+local isNeedsUpdateFrame = false;
 
 local OnShowHookScript = function(frame)
     frame:Hide()
@@ -69,6 +69,8 @@ function Player:OnEnable()
         self:SecureHook("PlayerFrame_UpdateStatus", "PlayerFrame_UpdateStatus");
         self:SecureHook("PlayerFrame_UpdatePlayerNameTextAnchor", "PlayerFrame_UpdatePlayerNameTextAnchor");
 
+        self:RegisterEvent("PLAYER_REGEN_ENABLED", "PlayerFrame_UpdateArt");
+
         self:MovePlayerClassPowerBar();
     end
 
@@ -106,11 +108,28 @@ function Player:OnProfileChanged(newDB)
     self:UpdateHealthBarTextString(PlayerFrame)
     self:UpdateManaBarTextString(PlayerFrame)
 
+    self:UnregisterEvent("PLAYER_REGEN_ENABLED");
+
     if db.general.useEFTextures then
         self:MovePlayerClassPowerBar();
+
+        self:RegisterEvent("PLAYER_REGEN_ENABLED", "PlayerFrame_UpdateArt");
     end
 end
 
+
+function Player:PlayerFrame_UpdateArt()
+    -- out of combat
+    if (isNeedsUpdateFrame) then
+        if (UnitHasVehiclePlayerFrameUI("player")) then
+            self:PlayerFrame_ToVehicleArt();
+        else
+            self:PlayerFrame_ToPlayerArt();
+        end
+
+        isNeedsUpdateFrame = false;
+    end
+end
 
 function Player:PlayerFrame_ToPlayerArt()
     local healthBarContainer = PlayerFrame_GetHealthBarContainer();
@@ -140,21 +159,25 @@ function Player:PlayerFrame_ToPlayerArt()
     statusTexture:SetTexture(Media:Fetch("misc", "player-status"));
     statusTexture:SetTexCoord(1.008, 0.025, 0.22, 1);
 
-    -- Update health bar
-    healthBarContainer:SetPoint("TOPLEFT", 85, -30);
+    if (not InCombatLockdown()) then
+        -- Update health bar
+        healthBarContainer:SetPoint("TOPLEFT", 85, -30);
 
-    healthBar:SetHeight(EasyFrames.Const.HEALTHBAR_HEIGHT);
-    healthBarContainer:SetHeight(EasyFrames.Const.HEALTHBAR_HEIGHT);
+        healthBar:SetHeight(EasyFrames.Const.HEALTHBAR_HEIGHT);
+        healthBarContainer:SetHeight(EasyFrames.Const.HEALTHBAR_HEIGHT);
 
-    healthBarContainer.HealthBarMask:Hide(); -- Reverse in Vehicle
-    healthBarContainer:SetFrameStrata("BACKGROUND"); -- Reverse in Vehicle
+        healthBarContainer.HealthBarMask:Hide(); -- Reverse in Vehicle
+        healthBarContainer:SetFrameStrata("BACKGROUND"); -- Reverse in Vehicle
 
-    -- Update mana bar
-    manaBar:SetPoint("TOPLEFT", 85, -55);
+        -- Update mana bar
+        manaBar:SetPoint("TOPLEFT", 85, -55);
 
-    -- Update alternate power bar
-    if alternatePowerBar then
-        alternatePowerBar:SetPoint("TOPLEFT", 85, -69);
+        -- Update alternate power bar
+        if alternatePowerBar then
+            alternatePowerBar:SetPoint("TOPLEFT", 85, -69);
+        end
+    else
+        isNeedsUpdateFrame = true;
     end
 
     -- Update other stuff
@@ -176,7 +199,10 @@ end
 function Player:PlayerFrame_ToVehicleArt()
     local healthBarContainer = PlayerFrame_GetHealthBarContainer();
     healthBarContainer.HealthBarMask:Show(); -- Default state.
-    healthBarContainer:SetFrameStrata("LOW"); -- Default state.
+
+    if (not InCombatLockdown()) then
+        healthBarContainer:SetFrameStrata("LOW"); -- Default state.
+    end
 
     PlayerFrame.PlayerFrameContainer.FrameFlash:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1); -- Default state.
     PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1); -- Default state.
