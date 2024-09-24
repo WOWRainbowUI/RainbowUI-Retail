@@ -2136,3 +2136,9 @@ Change Log:
 * Added SL spells for Mists of Tirna Scithe
 * Added BFA spells for Siege of Boralus
 
+5.12.5
+* Updated ToC and UI updates for WoW Cataclysm 4.4.1
+* Added The War Within spells (world)
+* Added Cataclysm spells for Grim Batol (Mythic)
+* Added TWW spells for TWW Delves 
+* Added TWW spells for Nerub-ar Palace

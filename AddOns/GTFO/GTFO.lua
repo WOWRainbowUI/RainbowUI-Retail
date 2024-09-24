@@ -26,9 +26,9 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.12.4"; -- Version number (text format)
+	Version = "5.12.5"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51204; -- Numeric version number for checking out-of-date clients (retail)
+	RetailVersionNumber = 51205; -- Numeric version number for checking out-of-date clients (retail)
 	ClassicVersionNumber = 51101; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -80,7 +80,8 @@ GTFO = {
 	BurningCrusadeMode = nil; -- WoW TBC client detection
 	WrathMode = nil; -- WoW Wrath client detection
 	CataclysmMode = nil; -- WoW Cataclysm client detection
-	NewSettingsUIMode = nil; -- New WoW UI Settings system
+	DFSettingsUIMode = nil; -- DF-era WoW UI Settings system
+	TWWSettingsUIMode = nil; -- TWW-era WoW UI Settings system
 	SoundChannels = { 
 		{ Code = "Master", Name = _G.MASTER_VOLUME },
 		{ Code = "SFX", Name = _G.SOUND_VOLUME, CVar = "Sound_EnableSFX" },
@@ -107,7 +108,7 @@ if (buildNumber <= 20000) then
 	GTFO.VersionNumber = GTFO.ClassicVersionNumber;
 	if (buildNumber >= 11404) then
 		-- Enabled for 1.14 (Hardcore)
-		GTFO.NewSettingsUIMode = true;
+		GTFO.DFSettingsUIMode = true;
 	end
 elseif (buildNumber <= 30000) then
 	GTFO.BurningCrusadeMode = true;
@@ -115,15 +116,20 @@ elseif (buildNumber <= 30000) then
 elseif (buildNumber <= 40000) then
 	GTFO.WrathMode = true;
 	GTFO.VersionNumber = GTFO.WrathVersionNumber;
-	GTFO.NewSettingsUIMode = true;
+	GTFO.DFSettingsUIMode = true;
 elseif (buildNumber <= 50000) then
 	GTFO.CataclysmMode = true;
 	GTFO.VersionNumber = GTFO.CataclysmVersionNumber;
-	GTFO.NewSettingsUIMode = true;
+	if (buildNumber >= 40401) then
+		GTFO.TWWSettingsUIMode = true;
+	else	
+		GTFO.DFSettingsUIMode = true;
+	end
 else
 	GTFO.RetailMode = true;
+	GTFO.TWWSettingsUIMode = true;
 	GTFO.VersionNumber = GTFO.RetailVersionNumber;
-	GTFO.NewSettingsUIMode = true;
+	GTFO.DFSettingsUIMode = true;
 end
 
 StaticPopupDialogs["GTFO_POPUP_MESSAGE"] = {
@@ -1160,7 +1166,7 @@ end
 
 -- Create Addon Menu options and interface
 function GTFO_RenderOptions()
-	if (GTFO.RetailMode) then
+	if (GTFO.TWWSettingsUIMode) then
 		-- TWW version (TWW)
 		local ConfigurationPanel = CreateFrame("FRAME","GTFO_MainFrame");
 		ConfigurationPanel.name = "GTFO";
@@ -1359,7 +1365,7 @@ function GTFO_RenderOptions()
 		end
 
 		GTFOSpellTooltip:ClearLines();
-	elseif (GTFO.NewSettingsUIMode) then
+	elseif (GTFO.DFSettingsUIMode) then
 		-- Dragonflight version
 		local ConfigurationPanel = CreateFrame("FRAME","GTFO_MainFrame");
 		ConfigurationPanel.name = "GTFO";
@@ -2106,7 +2112,7 @@ function GTFO_SendUpdateRequest()
 end
 
 function GTFO_Command_Options()
-	if (GTFO.RetailMode) then
+	if (GTFO.TWWSettingsUIMode) then
 		Settings.OpenToCategory(GTFO.SettingsCategoryId);
 		Settings.OpenToCategory(GTFO.SettingsCategoryId);
 		Settings.OpenToCategory(GTFO.SettingsCategoryId);
@@ -2125,7 +2131,7 @@ function GTFO_Option_SetVolume()
 	getglobal("GTFO_VolumeSlider"):SetValue(GTFO.Settings.Volume);
 	GTFO_GetSounds();
 	GTFO_Option_SetVolumeText(GTFO.Settings.Volume);
-	if (GTFO.NewSettingsUIMode) then
+	if (GTFO.DFSettingsUIMode) then
 		GTFO_SaveSettings();
 	end
 end
@@ -2158,7 +2164,7 @@ function GTFO_Option_SetTrivialDamage()
 	getglobal("GTFO_TrivialDamageSlider"):SetValue(GTFO.Settings.TrivialDamagePercent);
 	GTFO_GetSounds();
 	GTFO_Option_SetTrivialDamageText(GTFO.Settings.TrivialDamagePercent);
-	if (GTFO.NewSettingsUIMode) then
+	if (GTFO.DFSettingsUIMode) then
 		GTFO_SaveSettings();
 	end
 end
@@ -2171,7 +2177,7 @@ function GTFO_Option_SetChannel()
 	GTFO.Settings.SoundChannel = GTFO.SoundChannels[channelId].Code;
 	getglobal("GTFO_ChannelIdSlider"):SetValue(channelId);
 	GTFO_Option_SetChannelIdText(channelId);
-	if (GTFO.NewSettingsUIMode) then
+	if (GTFO.DFSettingsUIMode) then
 		GTFO_SaveSettings();
 	end
 end
@@ -2348,7 +2354,7 @@ end
 -- Save settings to persistant storage, refresh UI options
 function GTFO_SaveSettings()
 	--GTFO_DebugPrint("Saving settings");
-	if (not GTFO.NewSettingsUIMode) then
+	if (not GTFO.DFSettingsUIMode) then
 		GTFO_Option_SetVolume();
 	end
 
@@ -2405,7 +2411,7 @@ function GTFO_SaveSettings()
 		end
 	end
 
-	if (not GTFO.NewSettingsUIMode) then
+	if (not GTFO.DFSettingsUIMode) then
 		GTFO.Settings.OriginalVolume = GTFO.Settings.Volume;
 		GTFO.Settings.OriginalTrivialDamagePercent = GTFO.Settings.TrivialDamagePercent;
 		GTFO.Settings.OriginalChannelId = GTFO_GetCurrentSoundChannelId(GTFO.Settings.SoundChannel);
@@ -2903,7 +2909,7 @@ function GTFO_GetCurrentSoundChannelId(sSoundChannel)
 end
 
 function GTFO_GetSpellName(spellId)
-	if (GTFO.RetailMode) then
+	if (C_Spell and C_Spell.GetSpellInfo) then
 		local spell = C_Spell.GetSpellInfo(spellId);
 		if (spell) then
 			return spell.name;
@@ -2914,7 +2920,7 @@ function GTFO_GetSpellName(spellId)
 end
 
 function GTFO_GetSpellLink(spellId)
-	if (GTFO.RetailMode) then
+	if (C_Spell and C_Spell.GetSpellLink) then
 		return C_Spell.GetSpellLink(spellId);
 	else
 		return GetSpellLink(spellId);
@@ -2922,7 +2928,7 @@ function GTFO_GetSpellLink(spellId)
 end
 
 function GTFO_GetSpellDescription(spellId)
-	if (GTFO.RetailMode) then
+	if (C_Spell and C_Spell.GetSpellDescription) then
 		return C_Spell.GetSpellDescription(spellId);
 	else
 		return GetSpellDescription(spellId);
