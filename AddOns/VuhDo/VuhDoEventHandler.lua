@@ -156,6 +156,7 @@ local VUHDO_VARIABLES_LOADED = false;
 local VUHDO_IS_RELOAD_BUFFS = false;
 local VUHDO_LOST_CONTROL = false;
 local VUHDO_RELOAD_AFTER_BATTLE = false;
+local VUHDO_OPTIONS_SHOW_AFTER_BATTLE = false;
 local VUHDO_GCD_UPDATE = false;
 
 local VUHDO_RELOAD_PANEL_NUM = nil;
@@ -561,9 +562,21 @@ function VUHDO_OnEvent(_, anEvent, anArg1, anArg2, anArg3, anArg4, anArg5, anArg
 			end
 		end
 
+		if VUHDO_OPTIONS_SHOW_AFTER_BATTLE and VuhDoNewOptionsTabbedFrame and not VuhDoNewOptionsTabbedFrame:IsShown() then
+			VuhDoNewOptionsTabbedFrame:SetShown(true);
+
+			VUHDO_OPTIONS_SHOW_AFTER_BATTLE = false;
+		end
+
 		VUHDO_setIsOutOfCombat(true);
 
 	elseif "PLAYER_REGEN_DISABLED" == anEvent then
+		if VuhDoNewOptionsTabbedFrame and VuhDoNewOptionsTabbedFrame:IsShown() then
+			VuhDoNewOptionsTabbedFrame:SetShown(false);
+
+			VUHDO_OPTIONS_SHOW_AFTER_BATTLE = true;
+		end
+
 		VUHDO_setIsOutOfCombat(false);
 
 	elseif "UNIT_MAXHEALTH" == anEvent then

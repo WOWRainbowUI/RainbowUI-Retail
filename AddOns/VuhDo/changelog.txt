@@ -1,3 +1,28 @@
+Version 3.176  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed debuff icon border color display on multiple icons of the same type  
+-- Fixed debuff icon tracking of multiple icons with the same spell name  
+-- Fixed Monk friendly range check on forced specialization change  
+  
+  
+Improvements:  
+-- Added Paladin 'Rite of Sanctification' to Buff Watch  
+-- Added Evoker 'Sense Power' to Buff Watch  
+-- Added trinket ability 'Golden Glow' absorb tracking  
+-- VuhDo Options now automatically hides during combat  
+  
+  
+--------------------------------------------------------------  
 Version 3.175  
   
   

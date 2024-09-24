@@ -159,7 +159,7 @@ local VUHDO_DEFAULT_RANGE_SPELLS = {
 		["HARMFUL"] = { 47541, 49576 }, -- VUHDO_SPELL_ID.DEATH_COIL, VUHDO_SPELL_ID.DEATH_GRIP
 	},
 	["MONK"] = {
-		["HELPFUL"] = { VUHDO_SPELL_ID.DETOX },
+		["HELPFUL"] = { VUHDO_SPELL_ID.VIVIFY, VUHDO_SPELL_ID.DETOX },
 		["HARMFUL"] = { VUHDO_SPELL_ID.PROVOKE },
 	},
 	["DEMONHUNTER"] = {
@@ -272,7 +272,7 @@ local VUHDO_CLASS_DEFAULT_SPELL_ASSIGNMENT = {
 		["ctrl1"] = { "ctrl-", "1", VUHDO_SPELL_ID.DETOX },
 		["ctrl2"] = { "ctrl-", "2", VUHDO_SPELL_ID.LIFE_COCOON },
 
-		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.UPLIFT },
+		["shift1"] = { "shift-", "1", VUHDO_SPELL_ID.VIVIFY },
 		["shift2"] = { "shift-", "2", VUHDO_SPELL_ID.REVIVAL },
 	},
 

@@ -1,4 +1,4 @@
-Get [VuhDo release v3.171](https://www.curseforge.com/wow/addons/vuhdo/download/5560050) now with support for The War Within pre-patch 11.0.0!
+Get [VuhDo release v3.175](https://www.curseforge.com/wow/addons/vuhdo/download/5704709) now with support for The War Within pre-patch 11.0.2!
 
 To get started read the updated [guide over at Icy-Veins](https://www.icy-veins.com/forums/topic/11805-vuhdo-a-comprehensive-guide/).
 
