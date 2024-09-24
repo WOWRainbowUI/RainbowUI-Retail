@@ -1,5 +1,6 @@
-## Changed in v2024.24
+## Changed in v2024.25
 
-* Added quests for this week's world boss Shurrai
-* Fixed the display of the quest for Deathtide
+* Fix particularly short minimap route segments not being displayed
+* Fix for occasional mobs with *very specific* arrangements of loot not showing a loot icon in the LDB popup
+* Minor data improvements in Suramar
 
