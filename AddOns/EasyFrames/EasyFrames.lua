@@ -139,13 +139,6 @@ local defaults = {
             neutralFrameDefaultColors = { 1, 1, 0 },
 
             showWelcomeMessage = true,
-            framesPoints = false,
-            frameToSetPoints = "player",
-
-            --DEBUG
-            positionFrameDEBUG = "",
-            positionPosDEBUG = "",
-
         },
 
         player = {
@@ -263,9 +256,6 @@ local defaults = {
         },
 
         pet = {
-            scaleFrame = 1,
-            lockedMovableFrame = true,
-            framePositionFix = false,
             customOffset = false,
             -- Custom HP format.
             healthFormat = "2",
@@ -377,20 +367,20 @@ Media:Register("statusbar", "Smooth", "Interface\\AddOns\\EasyFrames\\Textures\\
 Media:Register("statusbar", "Striped", "Interface\\AddOns\\EasyFrames\\Textures\\StatusBarTexture\\striped")
 Media:Register("statusbar", "Swag", "Interface\\AddOns\\EasyFrames\\Textures\\StatusBarTexture\\swag")
 
-Media:Register("frames", "default", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame")
-Media:Register("frames", "default-alternate", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrameAlternate")
-Media:Register("frames", "minus", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Minus")
-Media:Register("frames", "elite", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Elite")
-Media:Register("frames", "rareelite", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Rare-Elite")
-Media:Register("frames", "rare", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Rare")
-Media:Register("frames", "smalltarget", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-SmallTargetingFramex")
-Media:Register("frames", "targettarget", "Interface\\TargetingFrame\\UI-TargetofTargetFrame")
-Media:Register("frames", "nomana", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-SmallTargetingFramex-NoMana")
-Media:Register("frames", "boss", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-UnitFrame-Boss")
+Media:Register("frames", "default", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-V3")
+Media:Register("frames", "default-alternate", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrameAlternate-V3")
+Media:Register("frames", "target-frame", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Target-V3"); -- Same as "UI-TargetingFrame-V3" but 2px larger.
+Media:Register("frames", "targetoftarget", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-TargetofTarget-V3")
+--Media:Register("frames", "minus", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Minus")
+--Media:Register("frames", "elite", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Elite")
+--Media:Register("frames", "rareelite", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Rare-Elite")
+--Media:Register("frames", "rare", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Rare")
+--Media:Register("frames", "nomana", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-SmallTargetingFramex-NoMana")
+--Media:Register("frames", "boss", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-UnitFrame-Boss")
 
-Media:Register("misc", "player-status", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-Player-Status")
-Media:Register("misc", "player-status-flash", "Interface\\TargetingFrame\\UI-TargetingFrame-Flash")
-Media:Register("misc", "pet-frame-flash", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-PartyFrame-Flash")
+Media:Register("misc", "player-status", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-Player-Status-V3")
+Media:Register("misc", "player-status-flash", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrame-Flash-V3")
+Media:Register("misc", "player-alternate-status-flash", "Interface\\AddOns\\EasyFrames\\Textures\\TargetingFrame\\UI-TargetingFrameAlternate-Flash-V3")
 
 --	self.threatIndicator:SetTexture("Interface\\TargetingFrame\\UI-UnitFrame-Boss-Flash");
 --	self.threatIndicator:SetTexture("Interface\\TargetingFrame\\UI-TargetingFrame-Flash");
@@ -407,7 +397,7 @@ function EasyFrames:OnInitialize()
     self:SetupOptions()
 end
 
-function EasyFrames:OnProfileChanged(event, database, newProfileKey)
+function EasyFrames:OnProfileChanged(_, database)
     self.db = database
     db = self.db.profile
 
@@ -607,8 +597,6 @@ function EasyFrames.Utils.GetAllFrames()
 end
 
 function EasyFrames.Utils.GetFramesHealthBar()
-    local focusFrameContentMain = EasyFrames.Utils.GetFocusFrameContentMain()
-
     return {
         PlayerFrame_GetHealthBar(),
         PetFrameHealthBar,
@@ -624,32 +612,32 @@ function EasyFrames.Utils.GetFramesHealthBar()
         --PartyMemberFrame3HealthBar,
         --PartyMemberFrame4HealthBar,
 
-        Boss1TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
-        Boss2TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
-        Boss3TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
-        Boss4TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
-        Boss5TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        --Boss1TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        --Boss2TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        --Boss3TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        --Boss4TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
+        --Boss5TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar,
     }
 end
 
 function EasyFrames.Utils.GetTargetHealthBar()
-    return EasyFrames.Utils.GetHealthBarFor(TargetFrame)
+    return EasyFrames.Utils.GetHealthBarFor(TargetFrame);
 end
 
 function EasyFrames.Utils.GetFocusHealthBar()
-    return EasyFrames.Utils.GetHealthBarFor(FocusFrame)
+    return EasyFrames.Utils.GetHealthBarFor(FocusFrame);
 end
 
 function EasyFrames.Utils.GetHealthBarFor(frame)
-    local healthBar
+    local healthBar;
 
-    if (db.general.useEFTextures) then
-        healthBar = frame.EasyFrames.healthbar
+    if (db.general.useEFTextures and frame.EasyFrames) then
+        healthBar = frame.EasyFrames.healthbar;
     else
-        healthBar = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar
+        healthBar = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar;
     end
 
-    return healthBar
+    return healthBar;
 end
 
 function EasyFrames.Utils.GetFramesManaBar()
@@ -768,7 +756,8 @@ end
 EasyFrames.Const = {
     DEFAULT_FRAMES_NAME_COLOR = DEFAULT_FRAMES_NAME_COLOR,
     HEALTHBAR_WIDTH = 113,
-    HEALTHBAR_HEIGHT = 25,
+    HEALTHBAR_WIDTH_BLIZZARD = 124,
+    HEALTHBAR_HEIGHT = 24,
     MANABAR_WIDTH = 113,
     MANABAR_HEIGHT = 12,
     TOT_MANABAR_WIDTH = 72,

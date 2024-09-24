@@ -36,10 +36,10 @@ EasyFrames.lua
 Config.lua
 
 Modules\Core.lua
-Modules\General.lua
 Modules\Player.lua
 Modules\Target.lua
 Modules\Focus.lua
 Modules\Pet.lua
+Modules\General.lua
 ## Modules\Party.lua
 ## Modules\Boss.lua

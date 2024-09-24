@@ -256,9 +256,6 @@ L["Show or hide focus PVP icon"] = "Показывать PVP иконку фок
 
 L["Pet"] = "Питомец"
 L["In pet options you can set scale pet frame, show/hide pet name, enable/disable pet hit indicators, etc"] = "В разделе Питомец вы можете установить размер (scale) фрейма питомца, Показывать имя питомца, включить отображение входящего урона и исцеления питомца и другие"
-L["Correcting the position of the Pet frame"] = "Исправить позицию фрейма"
-L["This function only correctly repositions a pet frame when out of combat. During combat, the position of the frame cannot be changed, " ..
-    "but as soon as the player exits the combat, the position of the frame will be corrected."] = "Эта функция крорректно изменяет позиции фрейма только вне боя. Во время боя нельзя изменить позицию фрейма, но как только игрок выйдет из боя позиция фрейма будет исправлена."
 L["Pet name"] = "Имя питомца"
 L["Pet name font family"] = "Шрифт имени питомца"
 L["Pet name font size"] = "Размер шрифта имени питомца"

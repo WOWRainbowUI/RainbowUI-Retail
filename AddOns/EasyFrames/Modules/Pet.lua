@@ -16,7 +16,6 @@
 --]]
 
 local EasyFrames = LibStub("AceAddon-3.0"):GetAddon("EasyFrames")
-local L = LibStub("AceLocale-3.0"):GetLocale("EasyFrames")
 local Media = LibStub("LibSharedMedia-3.0")
 
 local MODULE_NAME = "Pet"
@@ -28,245 +27,74 @@ local UpdateHealthValues = EasyFrames.Utils.UpdateHealthValues
 local UpdateManaValues = EasyFrames.Utils.UpdateManaValues
 
 local OnShowHookScript = function(frame)
-    frame:Hide()
+    frame:Hide();
 end
 
-local OnSetTextHookScript = function(frame, text, flag)
+local OnSetTextHookScript = function(frame, _, flag)
     if (flag ~= "EasyFramesHookSetText" and not db.pet.showHitIndicator) then
-        frame:SetText(nil, "EasyFramesHookSetText")
+        frame:SetText(nil, "EasyFramesHookSetText");
     end
 end
 
 
 function Pet:OnInitialize()
-    self.db = EasyFrames.db
-    db = self.db.profile
+    self.db = EasyFrames.db;
+    db = self.db.profile;
 end
 
 function Pet:OnEnable()
-    --self:PreSetMovable()
-    --self:SetMovable(db.pet.lockedMovableFrame)
     if db.general.useEFTextures then
-        self:FramePositionFix()
+        self:SecureHook("PlayerFrame_UpdateArt", "PlayerFrame_UpdateArt");
     end
 
-    self:SetHealthBarsFont()
+    self:SetHealthBarsFont();
+    self:ShowName(db.pet.showName);
+    self:SetFrameNameFont();
+    self:SetFrameNameColor();
+    self:SetManaBarsFont();
+    self:ShowHitIndicator(db.pet.showHitIndicator);
 
-    self:ShowName(db.pet.showName)
-    self:SetFrameNameFont()
-    self:SetFrameNameColor()
-    self:SetManaBarsFont()
-    self:ShowHitIndicator(db.pet.showHitIndicator)
-
-    self:ShowStatusTexture(db.pet.showStatusTexture)
-    self:ShowAttackBackground(db.pet.showAttackBackground)
-    self:SetAttackBackgroundOpacity(db.pet.attackBackgroundOpacity)
-
-    --self:PetFrameUpdateAnchoring()
-
-    --self:SecureHook("UnitFrame_Update", "PetFrameUpdate")
+    self:ShowStatusTexture(db.pet.showStatusTexture);
+    self:ShowAttackBackground(db.pet.showAttackBackground);
+    self:SetAttackBackgroundOpacity(db.pet.attackBackgroundOpacity);
 
     hooksecurefunc(PetFrameHealthBar, "UpdateTextString", function()
-        self:UpdateHealthBarTextString(PetFrame)
+        self:UpdateHealthBarTextString(PetFrame);
     end)
 
     hooksecurefunc(PetFrameManaBar, "UpdateTextString", function()
-        self:UpdateManaBarTextString(PetFrame)
+        self:UpdateManaBarTextString(PetFrame);
     end)
 end
 
 function Pet:OnProfileChanged(newDB)
-    self.db = newDB
-    db = self.db.profile
+    self.db = newDB;
+    db = self.db.profile;
 
-    --self:PreSetMovable()
-    --self:SetMovable(db.pet.lockedMovableFrame)
+    self:SetHealthBarsFont();
+    self:ShowName(db.pet.showName);
+    self:SetFrameNameFont();
+    self:SetFrameNameColor();
+    self:SetManaBarsFont();
+    self:ShowHitIndicator(db.pet.showHitIndicator);
 
-    self:SetHealthBarsFont()
+    self:ShowStatusTexture(db.pet.showStatusTexture);
+    self:ShowAttackBackground(db.pet.showAttackBackground);
+    self:SetAttackBackgroundOpacity(db.pet.attackBackgroundOpacity);
 
-    self:ShowName(db.pet.showName)
-    self:SetFrameNameFont()
-    self:SetFrameNameColor()
-    self:SetManaBarsFont()
-    self:ShowHitIndicator(db.pet.showHitIndicator)
-
-    self:ShowStatusTexture(db.pet.showStatusTexture)
-    self:ShowAttackBackground(db.pet.showAttackBackground)
-    self:SetAttackBackgroundOpacity(db.pet.attackBackgroundOpacity)
-
-    self:UpdateHealthBarTextString(PetFrame)
-    self:UpdateManaBarTextString(PetFrame)
+    self:UpdateHealthBarTextString(PetFrame);
+    self:UpdateManaBarTextString(PetFrame);
 end
 
+function Pet:PlayerFrame_UpdateArt()
+    -- Update Pet Textures
+    PetFrameTexture:SetTexture(Media:Fetch("frames", "targetoftarget"))
+    PetFrameTexture:SetTexCoord(0.01, 0.97, 0, 0.8)
 
-function Pet:FramePositionFix()
-    if db.pet.framePositionFix and not PetFrame.EasyFramesHookUpdate then
-        self:RegisterEvent("PLAYER_REGEN_ENABLED", "MovePetFrame")
+    PetFrameHealthBar:SetFrameLevel(PetFrameTexture:GetParent():GetFrameLevel());
+    PetFrameManaBar:SetFrameLevel(PetFrameTexture:GetParent():GetFrameLevel());
 
-        hooksecurefunc(PetFrame, "Update", function()
-            if not InCombatLockdown() then
-                self:MovePetFrame()
-            end
-        end)
-
-        PetFrame.EasyFramesHookUpdate = true
-    end
-
-    PetFrame:Update()
-end
-
-function Pet:MovePetFrame()
-    if PetFrame:IsShown() then
-        local point, relativeTo, relativePoint, _, yOffset = PetFrame:GetPoint()
-
-        if point then
-            PetFrame:ClearAllPoints()
-            PetFrame:SetPoint(point, relativeTo, relativePoint, -1, yOffset)
-        end
-    end
-end
-
-function Pet:PetFrameUpdate(frame, override)
-    -- new
-    --if (not PlayerFrame.animating) or override then
-    --    local previousShownState = self:IsShown();
-    --
-    --    if UnitIsVisible(self.unit) and PetUsesPetFrame() and not PlayerFrame.vehicleHidesPet then
-    --        if self:IsShown() then
-    --            UnitFrame_Update(self);
-    --        else
-    --            self:Show();
-    --        end
-    --
-    --        if UnitPowerMax(self.unit) == 0 then
-    --            PetFrameManaBarText:Hide();
-    --        end
-    --
-    --        PetAttackModeTexture:Hide();
-    --
-    --        self:UpdateAuras();
-    --    else
-    --        self:Hide();
-    --    end
-    --end
-    --
-    --PlayerFrame_AdjustAttachments();
-
-    -- old
-    --if ((not PlayerFrame.animating) or (override)) then
-    --    if (UnitIsVisible(frame.unit) and PetUsesPetFrame() and not PlayerFrame.vehicleHidesPet) then
-    --        if (frame:IsShown()) then
-    --            UnitFrame_Update(frame);
-    --        else
-    --            frame:Show();
-    --        end
-    --        --frame.flashState = 1;
-    --        --frame.flashTimer = PET_FLASH_ON_TIME;
-    --        if (UnitPowerMax(frame.unit) == 0) then
-    --            PetFrameTexture:SetTexture(Media:Fetch("frames", "nomana"));
-    --            PetFrameManaBarText:Hide();
-    --        else
-    --            PetFrameTexture:SetTexture(Media:Fetch("frames", "smalltarget"));
-    --            PetFrameFlash:SetTexture(Media:Fetch("misc", "pet-frame-flash"));
-    --        end
-    --        PetAttackModeTexture:Hide();
-    --
-    --        RefreshDebuffs(frame, frame.unit, nil, nil, true);
-    --
-    --        PetFrame.portrait:SetTexCoord(0, 1, 0, 1)
-    --        if (frame.unit == "player") then
-    --            EasyFrames:GetModule("Player"):MakeClassPortraits(frame)
-    --        end
-    --    else
-    --        if InCombatLockdown() then
-    --            return
-    --        end
-    --
-    --        frame:Hide();
-    --    end
-    --end
-    --
-    --self:PetFrameUpdateAnchoring()
-end
-
-function Pet:PetFrameUpdateAnchoring()
-    if (db.pet.customOffset) then
-        if InCombatLockdown() then
-            return
-        end
-
-        local frame = PetFrame
-        local x, y = unpack(db.pet.customOffset)
-
-        frame:ClearAllPoints()
-        frame:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", x, y)
-    end
-end
-
-function Pet:PreSetMovable()
-    local frame = PetFrame
-    local firstGetPoing, secondGetPoint, thirdGetPoint
-
-    frame:SetScript("OnMouseDown", function(frame, button)
-        if not db.pet.lockedMovableFrame and button == "LeftButton" and not frame.isMoving then
-            firstGetPoing = {frame:GetPoint()};
-
-            frame:StartMoving();
-            secondGetPoint = {frame:GetPoint()};
-
-            frame.isMoving = true;
-        end
-    end)
-    frame:SetScript("OnMouseUp", function(frame, button)
-        if not db.pet.lockedMovableFrame and button == "LeftButton" and frame.isMoving then
-            thirdGetPoint = {frame:GetPoint()};
-
-            frame:StopMovingOrSizing();
-            frame.isMoving = false;
-
-            local _, _, _, x1, y1 = unpack(firstGetPoing);
-            local _, _, _, x2, y2 = unpack(secondGetPoint);
-            local _, _, _, x3, y3 = unpack(thirdGetPoint);
-
-            frame:SetParent(PlayerFrame);
-
-            db.pet.customOffset = { x1 + (x3 - x2), y1 + (y3 - y2) }
-        end
-    end)
-    frame:SetScript("OnHide", function(frame)
-        if ( not db.pet.lockedMovableFrame and frame.isMoving ) then
-            frame:StopMovingOrSizing();
-            frame.isMoving = false;
-        end
-    end)
-end
-
-function Pet:SetMovable(value)
-    PetFrame:SetMovable(not value)
-end
-
-function Pet:ResetFramePosition()
-    local frame = PetFrame;
-
-    frame:ClearAllPoints()
-    frame:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", 60, -75)
-
-    --local _, class = UnitClass("player");
-    --if ( class == "DEATHKNIGHT" or class == "ROGUE") then
-    --    self:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", 60, -75);
-    --elseif ( class == "SHAMAN" or class == "DRUID" ) then
-    --    self:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", 60, -100);
-    --elseif ( class == "WARLOCK" ) then
-    --    self:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", 60, -90);
-    --elseif ( class == "PALADIN" ) then
-    --    self:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", 60, -90);
-    --elseif ( class == "PRIEST" ) then
-    --    self:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", 60, -90);
-    --elseif ( class == "MONK" ) then
-    --    self:SetPoint("TOPLEFT", PlayerFrame, "TOPLEFT", 90, -100);
-    --end
-
-    db.pet.customOffset = false
+    PetFrameTexture:SetDrawLayer("OVERLAY");
 end
 
 function Pet:UpdateHealthBarTextString(frame)

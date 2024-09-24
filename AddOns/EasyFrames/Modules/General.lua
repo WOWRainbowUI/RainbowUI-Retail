@@ -95,7 +95,9 @@ local function ClassColored(originStatusbar, unit, localStatusbar)
             classColor = CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] or RAID_CLASS_COLORS[class]
 
             statusbar:SetStatusBarColor(classColor.r, classColor.g, classColor.b)
-            --statusbar:SetStatusBarDesaturated(true)
+            if (statusbar.HealAbsorbBar) then
+                statusbar.HealAbsorbBar.Fill:SetVertexColor(classColor.r, classColor.g, classColor.b);
+            end
         else
             local colors
 
@@ -137,18 +139,17 @@ end
 
 function General:OnEnable()
     if db.general.useEFTextures then
-        self:SetLightTexture(db.general.lightTexture)
+        -- Bug 'Update_MaxHealthLoss'
+        --hooksecurefunc(TargetFrame, "UpdateAuras", function(unitAuraUpdateInfo)
+        --    self:UpdateAuras(TargetFrame)
+        --end)
 
-        hooksecurefunc(TargetFrame, "UpdateAuras", function(unitAuraUpdateInfo)
-            self:UpdateAuras(TargetFrame)
-        end)
+        --hooksecurefunc(FocusFrame, "UpdateAuras", function(unitAuraUpdateInfo)
+        --    self:UpdateAuras(FocusFrame)
+        --end)
 
-        hooksecurefunc(FocusFrame, "UpdateAuras", function(unitAuraUpdateInfo)
-            self:UpdateAuras(FocusFrame)
-        end)
-
-        self:SecureHook("TargetFrame_UpdateBuffAnchor", "TargetFrameUpdateBuffAnchor")
-        self:SecureHook("TargetFrame_UpdateDebuffAnchor", "TargetFrameUpdateDebuffAnchor")
+        --self:SecureHook("TargetFrame_UpdateBuffAnchor", "TargetFrame_UpdateBuffAnchor")
+        --self:SecureHook("TargetFrame_UpdateDebuffAnchor", "TargetFrame_UpdateDebuffAnchor")
     end
 
     self:SecureHook("UnitFrameHealthBar_Update", "MakeFramesColored")
@@ -166,17 +167,13 @@ function General:OnEnable()
 
     self:SetBrightFramesBorder(db.general.brightFrameBorder)
 
-    self:SetMaxBuffCount(db.general.maxBuffCount)
-    self:SetMaxDebuffCount(db.general.maxDebuffCount)
+    --self:SetMaxBuffCount(db.general.maxBuffCount)
+    --self:SetMaxDebuffCount(db.general.maxDebuffCount)
 end
 
 function General:OnProfileChanged(newDB)
     self.db = newDB
     db = self.db.profile
-
-    if db.general.useEFTextures then
-        self:SetLightTexture(db.general.lightTexture)
-    end
 
     self:SetFramesColored()
 
@@ -188,8 +185,8 @@ function General:OnProfileChanged(newDB)
 
     self:SetCustomBuffSize(db.general.customBuffSize)
 
-    self:SetMaxBuffCount(db.general.maxBuffCount)
-    self:SetMaxDebuffCount(db.general.maxDebuffCount)
+    --self:SetMaxBuffCount(db.general.maxBuffCount)
+    --self:SetMaxDebuffCount(db.general.maxDebuffCount)
 end
 
 
@@ -285,14 +282,10 @@ function General:SetFrameBarTexture(value)
         --healthbar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
     end
 
-    PlayerFrame_GetHealthBar().AnimatedLossBar:SetStatusBarTexture(texture) -- fix for blinking red texture
-    PlayerFrame_GetHealthBar().AnimatedLossBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
+    --PlayerFrame_GetHealthBar().AnimatedLossBar:SetStatusBarTexture(texture) -- fix for blinking red texture -- TODO Check it
+    --PlayerFrame_GetHealthBar().AnimatedLossBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
 
     for _, manabar in pairs(manaBars) do
-        -- This is old color and texture.
-        --manabar:SetStatusBarTexture(texture)
-        --manabar:SetStatusBarColor(0, 0, 1)
-
         manabar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
     end
 end
@@ -310,72 +303,6 @@ function General:SetBrightFramesBorder(value)
     }) do
         t:SetVertexColor(value, value, value)
     end
-end
-
-function General:SetTexture()
-    -- Player
-    PlayerFrame.PlayerFrameContainer.FrameTexture:SetTexture(Media:Fetch("frames", "default"))
-    PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture:SetTexture(Media:Fetch("frames", "default-alternate"))
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexture(Media:Fetch("misc", "player-status"))
-    PlayerFrame.PlayerFrameContainer.FrameFlash:SetTexture(Media:Fetch("misc", "player-status-flash"))
-
-    PlayerFrame.PlayerFrameContainer.FrameTexture:SetTexCoord(0.858, 0.058, 0.068, 0.658)
-    PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture:SetTexCoord(0.858, 0.058, 0.068, 0.658)
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexCoord(0.013, 0.803, 0, 0.57)
-    PlayerFrame.PlayerFrameContainer.FrameFlash:SetTexCoord(0.86, 0.07, 0.009, 0.168)
-
-    -- Target, Focus
-    local targetFrames = {
-        TargetFrame,
-        FocusFrame,
-    }
-
-    for _, frame in pairs(targetFrames) do
-        EasyFrames:GetModule("Core"):CheckClassification(frame)
-    end
-
-    TargetFrame.TargetFrameContainer.FrameTexture:SetTexCoord(0.068, 0.85, 0.084, 0.642)
-    TargetFrame.TargetFrameContainer.Flash:SetTexCoord(0.07, 0.854, 0.01, 0.16)
-
-    TargetFrameToT.FrameTexture:SetTexture(Media:Fetch("frames", "smalltarget"))
-    TargetFrameToT.FrameTexture:SetTexCoord(0.01, 0.95, 0.02, 0.765)
-
-    FocusFrame.TargetFrameContainer.FrameTexture:SetTexCoord(0.068, 0.85, 0.084, 0.642)
-    FocusFrame.TargetFrameContainer.Flash:SetTexCoord(0.07, 0.854, 0.01, 0.16)
-
-    FocusFrameToT.FrameTexture:SetTexture(Media:Fetch("frames", "smalltarget"))
-    FocusFrameToT.FrameTexture:SetTexCoord(0.01, 0.94, 0.02, 0.765)
-
-    -- Pet
-    PetFrameTexture:SetTexture(Media:Fetch("frames", "smalltarget"))
-    PetFrameTexture:SetTexCoord(0.01, 0.94, 0.02, 0.765)
-    PetFrameFlash:SetTexture(Media:Fetch("misc", "player-status-flash"))
-    PetFrameFlash:SetTexCoord(0.86, 0.103, 0.004, 0.166)
-
-    -- Party
-    --PartyIterator(function(frame)
-    --    _G[frame:GetName() .. "Texture"]:SetTexture(Media:Fetch("frames", "smalltarget"))
-    --end)
-
-    -- Boss
-    --BossIterator(function(frame)
-    --    local borderTexture = frame.TargetFrameContainer.FrameTexture;
-    --    borderTexture:SetTexture(Media:Fetch("frames", "boss"))
-    --end)
-end
-
-function General:SetLightTexture(value)
-    for key, data in pairs(Media:HashTable("frames")) do
-        if (value) then
-            Media:HashTable("frames")[key] = data .. "-Light"
-        else
-            if (string.find(data, "-Light", -7)) then
-                Media:HashTable("frames")[key] = string.sub(data, 0, -7)
-            end
-        end
-    end
-
-    self:SetTexture()
 end
 
 function General:UpdateFrames()
@@ -543,7 +470,7 @@ function General:UpdateAuraFrames(selfFrame, auraList, numAuras, numOppositeAura
     end);
 end
 
-function General:TargetFrameUpdateBuffAnchor(frame, buff, index, numDebuffs, anchorBuff, anchorIndex, size, offsetX, offsetY, mirrorVertically)
+function General:TargetFrame_UpdateBuffAnchor(frame, buff, index, numDebuffs, anchorBuff, anchorIndex, size, offsetX, offsetY, mirrorVertically)
     --For mirroring vertically
     local point, relativePoint;
     local startY, auraOffsetY;
@@ -595,7 +522,7 @@ function General:TargetFrameUpdateBuffAnchor(frame, buff, index, numDebuffs, anc
     end
 end
 
-function General:TargetFrameUpdateDebuffAnchor(frame, buff, index, numBuffs, anchorBuff, anchorIndex, size, offsetX, offsetY, mirrorVertically)
+function General:TargetFrame_UpdateDebuffAnchor(frame, buff, index, numBuffs, anchorBuff, anchorIndex, size, offsetX, offsetY, mirrorVertically)
     local isFriend = UnitIsFriend("player", frame.unit);
 
     --For mirroring vertically
@@ -663,41 +590,4 @@ function General:SetMaxDebuffCount(value)
     FocusFrame.maxDebuffs = value
 
     self:UpdateFrames()
-end
-
-function General:SaveFramesPoints()
-    for _, frame in pairs({
-        PlayerFrame,
-        TargetFrame,
-        FocusFrame
-    }) do
-        local point, relativeTo, relativePoint, xOffset, yOffset = frame:GetPoint()
-
-        db.general.framesPoints[frame.unit] = {
-            point, relativeTo:GetName(), relativePoint, xOffset, yOffset
-        }
-    end
-end
-
-function General:RestoreFramesPoints()
-    if (db.general.framesPoints) then
-        for _, frame in pairs({
-            PlayerFrame,
-            TargetFrame,
-            FocusFrame
-        }) do
-            frame:ClearAllPoints()
-            frame:SetPoint(unpack(db.general.framesPoints[frame.unit]))
-            --frame:SetUserPlaced(true)
-            -- SetResizable(true)
-        end
-    end
-end
-
-function General:SetFramePoints(frame, x, y)
-    local point, relativeTo, relativePoint = frame:GetPoint()
-
-    frame:ClearAllPoints()
-    frame:SetPoint(point, relativeTo, relativePoint, x, y)
-    frame:SetUserPlaced(true)
 end

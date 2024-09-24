@@ -15,12 +15,12 @@
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --]]
 
-local EasyFrames = LibStub("AceAddon-3.0"):GetAddon("EasyFrames")
-local L = LibStub("AceLocale-3.0"):GetLocale("EasyFrames")
-local Media = LibStub("LibSharedMedia-3.0")
+local EasyFrames = LibStub("AceAddon-3.0"):GetAddon("EasyFrames");
+local Media = LibStub("LibSharedMedia-3.0");
 
-local MODULE_NAME = "Focus"
-local Focus = EasyFrames:NewModule(MODULE_NAME, "AceHook-3.0")
+local MODULE_NAME = "Focus";
+local Focus = EasyFrames:NewModule(MODULE_NAME, "AceEvent-3.0", "AceHook-3.0");
+local CoreModule = EasyFrames:GetModule("Core");
 
 local db
 
@@ -29,21 +29,38 @@ local UpdateManaValues = EasyFrames.Utils.UpdateManaValues
 local ClassPortraits = EasyFrames.Utils.ClassPortraits
 local DefaultPortraits = EasyFrames.Utils.DefaultPortraits
 
-local focusFrameContentMain = EasyFrames.Utils.GetFocusFrameContentMain()
-local GetFocusHealthBar = EasyFrames.Utils.GetFocusHealthBar
-
+local targetFrameContentMain = EasyFrames.Utils.GetFocusFrameContentMain();
+local GetFocusHealthBar = EasyFrames.Utils.GetFocusHealthBar;
 
 local OnShowHookScript = function(frame)
-    frame:Hide()
+    frame:Hide();
 end
 
 
 function Focus:OnInitialize()
-    self.db = EasyFrames.db
-    db = self.db.profile
+    self.db = EasyFrames.db;
+    db = self.db.profile;
 end
 
 function Focus:OnEnable()
+    if db.general.useEFTextures then
+        CoreModule:CreateHealthBarFor(FocusFrame);
+
+        self:RegisterEvent("PLAYER_ENTERING_WORLD", "PlayerEnteringWorld");
+
+        hooksecurefunc(FocusFrame, "CheckClassification", function()
+            self:CheckClassification(FocusFrame);
+        end);
+
+        hooksecurefunc(FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar, "SetStatusBarTexture", function()
+            self:ManaBar_SetStatusBarTexture();
+        end);
+    else
+        hooksecurefunc(FocusFrame, "CheckClassification", function()
+            self:CheckClassificationForNonEFMode(FocusFrame);
+        end);
+    end
+
     self:ShowFocusFrameToT()
     self:ShowName(db.focus.showName)
     self:SetFrameNameFont()
@@ -57,17 +74,15 @@ function Focus:OnEnable()
     self:SetAttackBackgroundOpacity(db.focus.attackBackgroundOpacity)
     self:ShowPVPIcon(db.focus.showPVPIcon)
 
-    hooksecurefunc(focusFrameContentMain.HealthBarsContainer.HealthBar, "UpdateTextString", function()
+    hooksecurefunc(targetFrameContentMain.HealthBarsContainer.HealthBar, "UpdateTextString", function()
         self:UpdateHealthBarTextString(FocusFrame)
     end)
 
-    hooksecurefunc(focusFrameContentMain.ManaBar, "UpdateTextString", function()
+    hooksecurefunc(targetFrameContentMain.ManaBar, "UpdateTextString", function()
         self:UpdateManaBarTextString(FocusFrame)
     end)
 
     self:SecureHook("UnitFramePortrait_Update", "MakeClassPortraits")
-
-    self:SecureHook("UnitFrameManaBar_UpdateType", "UnitFrameManaBarUpdate") -- @TODO check perfomance here
 end
 
 function Focus:OnProfileChanged(newDB)
@@ -92,49 +107,100 @@ function Focus:OnProfileChanged(newDB)
     self:UpdateManaBarTextString(FocusFrame)
 end
 
-function Focus:UnitFrameManaBarUpdate(manaBar)
-    if (not manaBar or not manaBar.unitFrame.frameType or manaBar.unit ~= "focus") then
-        return;
-    end
+function Focus:PlayerEnteringWorld()
+    local reputationBar = targetFrameContentMain.ReputationColor;
+    reputationBar:Hide();
 
-    local _, powerToken, altR, altG, altB = UnitPowerType(manaBar.unit);
-    local info = PowerBarColor[powerToken];
+    -- FrameTexture
+    FocusFrame.TargetFrameContainer.FrameTexture:SetTexCoord(0.024, 0.99, 0.25, 1);
 
-    local portraitType = manaBar.unitFrame.portrait and "PortraitOn" or "PortraitOff";
+    FocusFrame.TargetFrameContainer.Flash:SetTexCoord(0.01, 0.985, 0.24, 1);
+    FocusFrame.TargetFrameContainer.Flash:SetPoint("CENTER", FocusFrame.TargetFrameContainer.Flash:GetParent(), "CENTER", 0, 0);
 
-    -- Some mana bar art is different for a frame depending on if they are in a vehicle or not.
-    -- Special case for the party frame.
-    local vehicleText = "";
-    if(manaBar.unitFrame.frameType == "Party" and manaBar.unitFrame.state == "vehicle") then
-        vehicleText = "-Vehicle";
-    end
+    -- PvP icon
+    FocusFrame.TargetFrameContent.TargetFrameContentContextual.PrestigePortrait:SetPoint("TOPRIGHT", 4, -16);
 
-    if (info) then
-        if (manaBar.unitFrame.frameType and info.atlasElementName) then
-            local manaBarTexture = "UI-HUD-UnitFrame-Player-"..portraitType..vehicleText.."-Bar-"..info.atlasElementName;
-            manaBar:SetStatusBarTexture(manaBarTexture);
-        elseif (info.atlas) then
-            manaBar:SetStatusBarTexture(info.atlas);
-        end
-    else
-        -- If we cannot find the info for what the mana bar should be, default either to Mana or Mana-Status (colorable).
-        local manaBarTexture = "UI-HUD-UnitFrame-Player-"..portraitType..vehicleText.."-Bar-Mana";
-        manaBar:SetStatusBarColor(1, 1, 1);
+    -- LevelText
+    targetFrameContentMain.LevelText:ClearAllPoints();
+    targetFrameContentMain.LevelText:SetPoint("CENTER", 83, -18);
+    FocusFrame.TargetFrameContent.TargetFrameContentContextual.HighLevelTexture:ClearAllPoints();
+    FocusFrame.TargetFrameContent.TargetFrameContentContextual.HighLevelTexture:SetPoint("CENTER", 83, -18);
 
-        if (altR) then
-            -- This steps around manaBar.lockColor as it is initially setting things.
-            manaBarTexture = "UI-HUD-UnitFrame-Player-"..portraitType..vehicleText.."-Bar-Mana-Status";
-            manaBar:SetStatusBarColor(altR, altG, altB);
-        end
+    -- PetBattleIcon
+    local point, relativeTo, relativePoint, xOffset, yOffset = FocusFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon:GetPoint();
+    FocusFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon:ClearAllPoints();
+    FocusFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon:SetPoint(point, relativeTo, relativePoint, xOffset + 5, yOffset + 20);
 
-        manaBar:SetStatusBarTexture(manaBarTexture);
-    end
+    -- Threat Frame
+        local numericalThreat = FocusFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
+    numericalThreat:SetScale(0.8);
+    numericalThreat:SetFrameLevel(FocusFrame:GetFrameLevel());
+    CoreModule:MoveRegion(numericalThreat, "BOTTOMRIGHT", FocusFrame, "RIGHT", -45, 48);
+    FocusFrameBG:Hide();
 
-    manaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
+    -- HealthBar
+    local originHealthBar = targetFrameContentMain.HealthBarsContainer.HealthBar;
+    local localHealthBar = GetFocusHealthBar();
+
+    -- Something like permanent hide.
+    originHealthBar:GetStatusBarTexture():SetAlpha(0)
+    originHealthBar.MyHealPredictionBar:SetAlpha(0)
+    originHealthBar.OtherHealPredictionBar:SetAlpha(0)
+    originHealthBar.TotalAbsorbBar:SetAlpha(0)
+    originHealthBar.OverAbsorbGlow:SetAlpha(0)
+    originHealthBar.OverHealAbsorbGlow:SetAlpha(0)
+    originHealthBar.HealAbsorbBar:SetAlpha(0)
+    targetFrameContentMain.HealthBarsContainer.TempMaxHealthLoss:SetAlpha(0);
+
+    localHealthBar:SetPoint("CENTER", FocusFrame, "CENTER", -30, 8);
+
+    -- Dead text
+    CoreModule:MoveRegion(targetFrameContentMain.HealthBarsContainer.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0);
+
+    -- TextString
+    CoreModule:MoveRegion(originHealthBar.TextString, "CENTER", localHealthBar, "CENTER", 0, 0);
+    CoreModule:MoveRegion(originHealthBar.RightText, "RIGHT", localHealthBar, "RIGHT", -5, 0);
+    CoreModule:MoveRegion(originHealthBar.LeftText, "LEFT", localHealthBar, "LEFT", 2, 0);
+
+    -- ManaBar
+    targetFrameContentMain.ManaBar:SetPoint("TOPRIGHT", targetFrameContentMain.HealthBarsContainer, 8, -15);
+    targetFrameContentMain.ManaBar:SetFrameLevel(FocusFrame.TargetFrameContainer.FrameTexture:GetParent():GetFrameLevel());
+
+    -- FocusFrameToT
+    FocusFrameToT:ClearAllPoints();
+    FocusFrameToT:SetPoint("CENTER", FocusFrame, "CENTER", 80, -53);
+
+    FocusFrameToT.FrameTexture:SetTexture(Media:Fetch("frames", "targetoftarget"));
+    FocusFrameToT.FrameTexture:SetTexCoord(0, 0.97, 0, 0.8);
+
+    FocusFrameToT.HealthBar:SetFrameLevel(FocusFrameToT.FrameTexture:GetParent():GetFrameLevel());
+    FocusFrameToT.ManaBar:SetFrameLevel(FocusFrameToT.FrameTexture:GetParent():GetFrameLevel());
+
+    FocusFrameToT.HealthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND");
+
+    --FocusFrameToT.name:ClearAllPoints();
+    --FocusFrameToT.name:SetPoint("CENTER", FocusFrameToT, "CENTER", 18, 15);
+end
+
+function Focus:CheckClassification()
+    FocusFrame.TargetFrameContainer.FrameTexture:SetTexture(Media:Fetch("frames", "target-frame"));
+    FocusFrame.TargetFrameContainer.Flash:SetTexture(Media:Fetch("misc", "player-status-flash"));
+
+    FocusFrameToT.ManaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND");
+end
+
+function Focus:CheckClassificationForNonEFMode(frame)
+    local healthBar = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar;
+
+    healthBar:SetStatusBarTexture(Media:Fetch("statusbar", db.general.barTexture));
+    healthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0);
+end
+
+function Focus:ManaBar_SetStatusBarTexture()
+    FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND");
 end
 
 function Focus:MakeClassPortraits(frame)
-    -- @TODO move focustarget to its own settings module.
     if (frame.portrait and (frame.unit == "focus" or frame.unit == "focustarget")) then
         if (db.focus.portrait == "2") then
             ClassPortraits(frame)
@@ -147,7 +213,7 @@ end
 function Focus:UpdateHealthBarTextString(frame)
     if (frame.unit == "focus") then
         UpdateHealthValues(
-            focusFrameContentMain.HealthBarsContainer.HealthBar,
+            targetFrameContentMain.HealthBarsContainer.HealthBar,
             db.focus.healthFormat,
             db.focus.customHealthFormat,
             db.focus.customHealthFormatFormulas,
@@ -160,7 +226,7 @@ end
 function Focus:UpdateManaBarTextString(frame)
     if (frame.unit == "focus") then
         UpdateManaValues(
-            focusFrameContentMain.ManaBar,
+            targetFrameContentMain.ManaBar,
             db.focus.manaFormat,
             db.focus.customManaFormat,
             db.focus.customManaFormatFormulas,
@@ -172,46 +238,53 @@ end
 
 function Focus:ShowFocusFrameToT()
     if (db.focus.showToTFrame) then
-        FocusFrameToT:SetAlpha(1)
+        FocusFrame.totFrame:SetAlpha(1)
     else
-        FocusFrameToT:SetAlpha(0)
+        FocusFrame.totFrame:SetAlpha(0)
     end
 end
 
 function Focus:ShowName(value)
     if (value) then
-        FocusFrame.name:Show()
+        FocusFrame.name:Show();
     else
-        FocusFrame.name:Hide()
+        FocusFrame.name:Hide();
     end
 
-    self:ShowNameInsideFrame(db.focus.showNameInsideFrame)
+    self:ShowNameInsideFrame(db.focus.showNameInsideFrame);
 end
 
-function Focus:ShowNameInsideFrame(value)
+function Focus:ShowNameInsideFrame(showNameInsideFrame)
     if db.general.useEFTextures then
-        local Core = EasyFrames:GetModule("Core")
+        local xOffset = -13;
+        if showNameInsideFrame then
+            xOffset = -28;
+        end
 
-        local healthBar = focusFrameContentMain.HealthBarsContainer.HealthBar
+        FocusFrame.name:SetJustifyH("CENTER");
+        FocusFrame.name:SetWidth(108);
 
+        FocusFrame.name:SetPoint("TOPLEFT", 36, xOffset);
+
+        local healthBar = targetFrameContentMain.HealthBarsContainer.HealthBar;
         local HealthBarTexts = {
             healthBar.RightText,
             healthBar.LeftText,
             healthBar.TextString,
-            focusFrameContentMain.HealthBarsContainer.DeadText
+            targetFrameContentMain.HealthBarsContainer.DeadText
         }
 
-        for _, healthBarText in pairs(HealthBarTexts) do
-            local point, relativeTo, relativePoint, xOffset, yOffset = healthBarText:GetPoint()
+        for _, healthBarTextString in pairs(HealthBarTexts) do
+            local point, relativeTo, relativePoint, xOffset = healthBarTextString:GetPoint();
 
-            if (value and db.focus.showName) then
-                Core:MoveFocusFrameName(nil, nil, -28)
+            if (showNameInsideFrame and db.focus.showName) then
+                CoreModule:MoveRegion(healthBarTextString, point, relativeTo, relativePoint, xOffset, -4);
 
-                Core:MoveRegion(healthBarText, point, relativeTo, relativePoint, xOffset, yOffset - 4)
+                --EasyFrames.Const.AURAR_MIRRORED_START_Y = -6
             else
-                Core:MoveFocusFrameName()
+                CoreModule:MoveRegion(healthBarTextString, point, relativeTo, relativePoint, xOffset, 0);
 
-                Core:MoveRegion(healthBarText, point, relativeTo, relativePoint, xOffset, 0)
+                --EasyFrames.Const.AURAR_MIRRORED_START_Y = 4
             end
         end
     end
@@ -222,7 +295,7 @@ function Focus:SetHealthBarsFont()
     local fontFamily = Media:Fetch("font", db.focus.healthBarFontFamily)
     local fontStyle = db.focus.healthBarFontStyle
 
-    local healthBar = focusFrameContentMain.HealthBarsContainer.HealthBar
+    local healthBar = targetFrameContentMain.HealthBarsContainer.HealthBar
 
     healthBar.TextString:SetFont(fontFamily, fontSize, fontStyle)
     healthBar.RightText:SetFont(fontFamily, fontSize, fontStyle)
@@ -234,7 +307,7 @@ function Focus:SetManaBarsFont()
     local fontFamily = Media:Fetch("font", db.focus.manaBarFontFamily)
     local fontStyle = db.focus.manaBarFontStyle
 
-    local manaBar = focusFrameContentMain.ManaBar
+    local manaBar = targetFrameContentMain.ManaBar
 
     manaBar.TextString:SetFont(fontFamily, fontSize, fontStyle)
     manaBar.RightText:SetFont(fontFamily, fontSize, fontStyle)
@@ -261,14 +334,14 @@ end
 
 function Focus:ReverseDirectionLosingHP(value)
     local healthBar = GetFocusHealthBar()
-    local manaBar = focusFrameContentMain.ManaBar
+    local manaBar = targetFrameContentMain.ManaBar
 
     healthBar:SetReverseFill(value)
     manaBar:SetReverseFill(value)
 end
 
 function Focus:ShowAttackBackground(value)
-    local frame = FocusFrameFlash
+    local frame = FocusFrame.TargetFrameContainer.Flash
 
     if frame then
         self:Unhook(frame, "Show")

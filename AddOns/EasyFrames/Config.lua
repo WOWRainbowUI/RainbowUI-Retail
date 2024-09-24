@@ -265,26 +265,9 @@ local generalOptions = {
                     arg = "general"
                 },
 
-                lightTexture = {
-                    type = "toggle",
-                    order = 11,
-                    name = L["Use a light texture"],
-                    desc = L["Use a brighter texture (like Blizzard's default texture)"],
-                    set = function(info, value)
-                        setOpt(info, value)
-                        EasyFrames:GetModule("General"):SetLightTexture(value)
-                    end,
-                    disabled = function()
-                        if not EasyFrames.db.profile.general.useEFTextures then
-                            return true
-                        end
-                    end,
-                    arg = "general"
-                },
-
                 brightFrameBorder = {
                     type = "range",
-                    order = 12,
+                    order = 11,
                     name = L["Bright frames border"],
                     desc = L["You can set frames border bright/dark color. From bright to dark. 0 - dark, 100 - bright"],
                     min = 0,
@@ -306,6 +289,7 @@ local generalOptions = {
             name = "",
             get = getOpt,
             set = setOpt,
+            disabled = true,
             args = {
                 header = {
                     type = "header",
@@ -316,7 +300,7 @@ local generalOptions = {
                 description = {
                     type = "description",
                     order = 2,
-                    name = L["Buffs settings (like custom buffsize, max buffs count, etc)"],
+                    name = "[IN DEVELOPING. Temporarily disabled due to API bug. Coming soon]\n\n" .. L["Buffs settings (like custom buffsize, max buffs count, etc)"],
                 },
 
                 customBuffSize = {
@@ -343,12 +327,12 @@ local generalOptions = {
                         setOpt(info, value)
                         EasyFrames:GetModule("General"):SetCustomBuffSize(true)
                     end,
-                    disabled = function()
-                        local diabled = EasyFrames.db.profile.general.customBuffSize
-                        if (diabled == false) then
-                            return true
-                        end
-                    end,
+                    --disabled = function()
+                    --    local diabled = EasyFrames.db.profile.general.customBuffSize
+                    --    if (diabled == false) then
+                    --        return true
+                    --    end
+                    --end,
                     arg = "general",
                 },
 
@@ -364,12 +348,12 @@ local generalOptions = {
                         setOpt(info, value)
                         EasyFrames:GetModule("General"):SetCustomBuffSize(true)
                     end,
-                    disabled = function()
-                        local diabled = EasyFrames.db.profile.general.customBuffSize
-                        if (diabled == false) then
-                            return true
-                        end
-                    end,
+                    --disabled = function()
+                    --    local diabled = EasyFrames.db.profile.general.customBuffSize
+                    --    if (diabled == false) then
+                    --        return true
+                    --    end
+                    --end,
                     arg = "general",
                 },
 
@@ -381,8 +365,9 @@ local generalOptions = {
                     set = function(info, value)
                         setOpt(info, value)
 
-                        SetCVar("noBuffDebuffFilterOnTarget", (value and 0 or 1))
+                        SetCVar("noBuffDebuffFilterOnTarget", not value)
                     end,
+                    disabled = false,
                     arg = "general"
                 },
 
@@ -534,99 +519,6 @@ local generalOptions = {
                     name = L["Show welcome message"],
                     desc = L["Show welcome message when addon is loaded"],
                     arg = "general"
-                },
-
-                newLine = {
-                    type = "description",
-                    order = 4,
-                    name = "",
-                },
-
-                saveFramesPoints = {
-                    type = "execute",
-                    order = 5,
-                    name = L["Save positions of frames to current profile"],
-
-                    func = function(info)
-                        info.options.args.otherGroup.args.framesPointsLog.name = L["Saved"]
-
-                        EasyFrames:GetModule("General"):SaveFramesPoints()
-                    end,
-                },
-
-                restoreFramesPoints = {
-                    type = "execute",
-                    order = 6,
-                    name = L["Restore positions of frames from current profile"],
-
-                    disabled = function()
-                        local diabled = EasyFrames.db.profile.general.framesPoints
-                        if (diabled == false) then
-                            return true
-                        end
-                    end,
-
-                    func = function(info)
-                        info.options.args.otherGroup.args.framesPointsLog.name = L["Restored"]
-
-                        EasyFrames:GetModule("General"):RestoreFramesPoints()
-                    end,
-                },
-
-                framesPointsLog = {
-                    order = 7,
-                    type = "description",
-                    name = "",
-                    width = "default",
-                },
-
-                frameToSetPoints = {
-                    type = "select",
-                    order = 8,
-                    name = L["Frame"],
-                    desc = L["Select the frame you want to set the position"],
-                    values = frames,
-                    arg = "general"
-                },
-
-                frameToSetPointX = {
-                    type = "input",
-                    order = 9,
-                    name = L["X"],
-                    desc = L["X coordinate"],
-                    get = function()
-                        local frame = EasyFrames.Utils.GetFrameByUnit(EasyFrames.db.profile.general.frameToSetPoints)
-                        local _, _, _, x = frame:GetPoint()
-
-                        return tostring(x)
-                    end,
-
-                    set = function(_, value)
-                        local frame = EasyFrames.Utils.GetFrameByUnit(EasyFrames.db.profile.general.frameToSetPoints)
-                        local _, _, _, _, y = frame:GetPoint()
-
-                        EasyFrames:GetModule("General"):SetFramePoints(frame, value, y)
-                    end
-                },
-
-                frameToSetPointY = {
-                    type = "input",
-                    order = 10,
-                    name = L["Y"],
-                    desc = L["Y coordinate"],
-                    get = function()
-                        local frame = EasyFrames.Utils.GetFrameByUnit(EasyFrames.db.profile.general.frameToSetPoints)
-                        local _, _, _, _, y = frame:GetPoint()
-
-                        return tostring(y)
-                    end,
-
-                    set = function(_, value)
-                        local frame = EasyFrames.Utils.GetFrameByUnit(EasyFrames.db.profile.general.frameToSetPoints)
-                        local _, _, _, x = frame:GetPoint()
-
-                        EasyFrames:GetModule("General"):SetFramePoints(frame, x, value)
-                    end
                 },
             }
         },
@@ -1153,7 +1045,7 @@ local playerOptions = {
                     desc = L["Show player name inside the frame"],
                     set = function(info, value)
                         setOpt(info, value)
-                        EasyFrames:GetModule("Player"):ShowNameInsideFrame(value)
+                        EasyFrames:GetModule("Player"):PlayerFrame_UpdatePlayerNameTextAnchor(value)
                     end,
                     disabled = function()
                         if not EasyFrames.db.profile.player.showName or not EasyFrames.db.profile.general.useEFTextures then
@@ -2888,59 +2780,6 @@ local petOptions = {
             order = 1,
             name = L["In pet options you can set scale pet frame, show/hide pet name, enable/disable pet hit indicators, etc"],
         },
-
-        framePositionFix = {
-            type = "toggle",
-            order = 2,
-            name = L["Correcting the position of the Pet frame"],
-            desc = L["This function only correctly repositions a pet frame when out of combat. During combat, the position of the frame cannot be changed, " ..
-                    "but as soon as the player exits the combat, the position of the frame will be corrected."],
-            set = function(info, value)
-                setOpt(info, value)
-                EasyFrames:GetModule("Pet"):FramePositionFix()
-            end,
-            disabled = function()
-                if not EasyFrames.db.profile.general.useEFTextures then
-                    return true
-                end
-            end,
-            arg = "pet"
-        },
-
-        --scaleFrame = {
-        --    type = "range",
-        --    order = 2,
-        --    name = L["Pet frame scale"],
-        --    desc = L["Scale of pet unit frame"],
-        --    min = 0.5,
-        --    max = 2,
-        --    set = function(info, value)
-        --        setOpt(info, value)
-        --        EasyFrames:GetModule("Pet"):SetScale(value)
-        --    end,
-        --    arg = "pet"
-        --},
-
-        --lockedMovableFrame = {
-        --    type = "toggle",
-        --    order = 3,
-        --    name = L["Lock pet frame"],
-        --    desc = L["Lock or unlock pet frame"],
-        --    set = function(info, value)
-        --        setOpt(info, value)
-        --        EasyFrames:GetModule("Pet"):SetMovable(value)
-        --    end,
-        --    arg = "pet"
-        --},
-        --
-        --resetPosition = {
-        --    type = "execute",
-        --    order = 4,
-        --    name = L["Reset position to default"],
-        --    func = function()
-        --        EasyFrames:GetModule("Pet"):ResetFramePosition()
-        --    end,
-        --},
 
         HPManaFormatOptions = {
             type = "group",
