@@ -1,6 +1,12 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4930
+* Reminder: added triggers test tab
+* Saving log: fixed Grim Batol logging
+* Raid Check: added support for more weapon buffs
+* Fixes
+
 v.4920
 * Raid Check: TWW updates
 

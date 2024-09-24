@@ -665,7 +665,7 @@ local function GetFood(checkType)
 					local spellId = auraData.spellId
 					local stats = auraData.points and auraData.points[1]
 					local foodType = module.db.tableFood[spellId]
-					if foodType then
+					if foodType or auraData.icon == 136000 then
 						local _,unitRace = UnitRace(name)
 
 						if unitRace == "Pandaren" and stats then
@@ -691,6 +691,12 @@ local function GetFood(checkType)
 
 						if ExRT.isClassic then
 							stats = 375
+						end
+						if auraData.icon == 136000 then
+							stats = true
+						end
+						if type(stats) ~= "number" then
+							stats = module.db.tableFood_headers[ #module.db.tableFood_headers ]
 						end
 
 						f[stats] = f[stats] or {}
@@ -3395,6 +3401,53 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 		[7549] = {ench=7549,item=222508,icon=3622199,q=1},
 		[7530] = {ench=7530,item=222895,icon=4549251,q=2},
 		[7534] = {ench=7534,item=222893,icon=4549251,q=3},
+
+		[6489] = {ench=6489,item=193561,icon=4559217,q=2},
+		[6493] = {ench=6493,item=193567,icon=4559209,q=3},
+		[6537] = {ench=6537,item=194009,icon=4549251,q=2},
+		[6541] = {ench=6541,item=194013,icon=4549250,q=3},
+		[6829] = {ench=6829,item=204701,icon=5088845,q=2},
+		[6837] = {ench=6837,item=204972,icon=134422,q=2},
+		[6905] = {ench=6905,item=205044,icon=4559225,q=2},
+		[6490] = {ench=6490,item=193565,icon=4559217,q=3},
+		[6494] = {ench=6494,item=193556,icon=4559216,q=1},
+		[6538] = {ench=6538,item=194010,icon=4549251,q=3},
+		[6542] = {ench=6542,item=194014,icon=4549249,q=1},
+		[6830] = {ench=6830,item=204702,icon=5088845,q=3},
+		[6838] = {ench=6838,item=204971,icon=134422,q=1},
+		[6906] = {ench=6906,item=205043,icon=4559225,q=1},
+		[7502] = {ench=7502,item=224110,icon=609896,q=3},
+		[6491] = {ench=6491,item=193559,icon=4559209,q=1},
+		[6495] = {ench=6495,item=193560,icon=4559216,q=2},
+		[6539] = {ench=6539,item=194011,icon=4549250,q=1},
+		[6543] = {ench=6543,item=194015,icon=4549249,q=2},
+		[6839] = {ench=6839,item=204973,icon=134422,q=3},
+		[6488] = {ench=6488,item=193557,icon=4559217,q=1},
+		[6492] = {ench=6492,item=193563,icon=4559209,q=2},
+		[6496] = {ench=6496,item=193564,icon=4559216,q=3},
+		[6536] = {ench=6536,item=194008,icon=4549251,q=1},
+		[6540] = {ench=6540,item=194012,icon=4549250,q=2},
+		[6544] = {ench=6544,item=194016,icon=4549249,q=3},
+		[7601] = {ench=7601,item=219911,icon=5975854,q=3},
+		[7600] = {ench=7600,item=219910,icon=5975854,q=2},
+		[7599] = {ench=7599,item=219909,icon=5975854,q=1},
+		[7598] = {ench=7598,item=219914,icon=5975933,q=3},
+		[7597] = {ench=7597,item=219913,icon=5975933,q=2},
+		[7596] = {ench=7596,item=219912,icon=5975933,q=1},
+		[7595] = {ench=7595,item=219908,icon=5975753,q=3},
+		[7594] = {ench=7594,item=219907,icon=5975753,q=2},
+		[7593] = {ench=7593,item=219906,icon=5975753,q=1},
+		[7500] = {ench=7500,item=224108,icon=609896,q=1},
+		[7498] = {ench=7498,item=224113,icon=609897,q=3},
+		[7497] = {ench=7497,item=224112,icon=609897,q=2},
+		[6828] = {ench=6828,item=204700,icon=5088845,q=1},
+		[7496] = {ench=7496,item=224111,icon=609897,q=1},
+		[7495] = {ench=7495,item=224107,icon=609892,q=3},
+		[7494] = {ench=7494,item=224106,icon=609892,q=2},
+		[7493] = {ench=7493,item=224105,icon=609892,q=1},
+		[6904] = {ench=6904,item=205039,icon=4559225,q=3},
+		[7501] = {ench=7501,item=224109,icon=609896,q=2},
+		[7052] = {ench=7052,item=210494,icon=1045108},
 	}
 	local wenchants_items = {}
 	for k,v in pairs(wenchants) do
@@ -3592,6 +3645,7 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 				self.buttons.flask.statustexture:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
 				self.buttons.flask.texture:SetDesaturated(false)
 				self.buttons.flask.timeleft:SetFormattedText(GARRISON_DURATION_MINUTES,ceil((auraData.expirationTime-now)/60))
+				self.buttons.flask.texture:SetTexture(auraData.icon)
 				isFlask = true
 				if auraData.expirationTime - now <= 600 then
 					isFlask = false
