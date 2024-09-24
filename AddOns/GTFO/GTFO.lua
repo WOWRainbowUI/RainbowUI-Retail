@@ -106,9 +106,9 @@ end
 if (buildNumber <= 20000) then
 	GTFO.ClassicMode = true;
 	GTFO.VersionNumber = GTFO.ClassicVersionNumber;
-	if (buildNumber >= 11404) then
+	if (buildNumber >= 11504) then
 		-- Enabled for 1.14 (Hardcore)
-		GTFO.DFSettingsUIMode = true;
+		GTFO.TWWSettingsUIMode = true;
 	end
 elseif (buildNumber <= 30000) then
 	GTFO.BurningCrusadeMode = true;
@@ -2114,9 +2114,7 @@ end
 
 function GTFO_Command_Options()
 	if (GTFO.TWWSettingsUIMode) then
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
+		Settings.OpenToCategory("GTFO");
 	else
 		InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
 		InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
