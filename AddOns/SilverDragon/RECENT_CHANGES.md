@@ -1,6 +1,5 @@
-## Changed in v2024.25
+## Changed in v2024.26
 
-* Fix particularly short minimap route segments not being displayed
-* Fix for occasional mobs with *very specific* arrangements of loot not showing a loot icon in the LDB popup
-* Minor data improvements in Suramar
+* Added quests for this week's world boss Orta
+* Ignore Xal'atath in mythics, even though she's flagged as a rare
 
