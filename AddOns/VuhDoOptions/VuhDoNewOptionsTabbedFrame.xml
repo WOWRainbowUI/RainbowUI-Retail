@@ -39,12 +39,12 @@
 
 			<Frame name="$parentPanelNumLabel" inherits="VuhDoLabelFrameTemplate">
 				<Size>
-					<AbsDimension x="140" y="17" />
+					<AbsDimension x="40" y="18" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="120" y="17" />
+							<AbsDimension x="590" y="17" />
 						</Offset>
 					</Anchor>
 				</Anchors>

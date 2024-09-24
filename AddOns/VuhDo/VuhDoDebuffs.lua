@@ -5,6 +5,7 @@ local GetSpellName = C_Spell.GetSpellName;
 local VUHDO_CUSTOM_DEBUFF_CONFIG = { };
 local VUHDO_UNIT_CUSTOM_DEBUFFS = { };
 setmetatable(VUHDO_UNIT_CUSTOM_DEBUFFS, VUHDO_META_NEW_ARRAY);
+local VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS = { };
 local VUHDO_LAST_UNIT_DEBUFFS = { };
 local VUHDO_PLAYER_ABILITIES = { };
 
@@ -70,6 +71,7 @@ local sStdDebuffSound;
 local sAllDebuffSettings;
 local sIsShowOnlyForFriendly;
 local sEmpty = { };
+local sCurChosenColor = { };
 --local sColorArray = nil;
 
 function VUHDO_debuffsInitLocalOverrides()
@@ -141,46 +143,36 @@ function _VUHDO_getDebuffColor(anInfo)
 		return tEmpty;
 	end
 
-	if (tDebuff or 6) ~= 6 and VUHDO_DEBUFF_COLORS[tDebuff] then -- VUHDO_DEBUFF_TYPE_CUSTOM
-		return VUHDO_DEBUFF_COLORS[tDebuff];
+	twipe(tColor);
+
+	if tDebuff and tDebuff > 0 and tDebuff ~= 7 and anInfo["unit"] and sCurChosenColor[anInfo["unit"]] then
+		tSourceColor = sCurChosenColor[anInfo["unit"]];
+
+		if tSourceColor["useText"] then
+			tColor["useText"], tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"] = true, tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"];
+		end
+
+		if tSourceColor["useBackground"] then
+			tColor["useBackground"], tColor["R"], tColor["G"], tColor["B"], tColor["O"] = true, tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"];
+		end
 	end
 
-	tDebuffSettings = sAllDebuffSettings[anInfo["debuffName"]];
-
-	if tDebuff == 6 and tDebuffSettings ~= nil -- VUHDO_DEBUFF_TYPE_CUSTOM
-		and tDebuffSettings["isColor"] then
-		if tDebuffSettings["color"] ~= nil then
-			tSourceColor = tDebuffSettings["color"];
-		else
-			tSourceColor = VUHDO_DEBUFF_COLORS[6];
-		end
-
-		twipe(tColor);
-
-		if VUHDO_DEBUFF_COLORS[6]["useBackground"] then
-			tColor["R"], tColor["G"], tColor["B"], tColor["O"], tColor["useBackground"] = tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"], true;
-		end
-
-		if VUHDO_DEBUFF_COLORS[6]["useText"] then
-			tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"], tColor["useText"] = tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"], true;
-		end
-
+	if not anInfo["mibucateg"] or not VUHDO_BUFF_SETTINGS[anInfo["mibucateg"]] then
 		return tColor;
 	end
 
-	if not anInfo["mibucateg"] or not VUHDO_BUFF_SETTINGS[anInfo["mibucateg"]] then	return tEmpty; end
-
 	tSourceColor = VUHDO_BUFF_SETTINGS[anInfo["mibucateg"]]["missingColor"];
-	twipe(tColor);
-	if VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_TEXT"] then
+
+	if not tColor["useText"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_TEXT"] then
 		tColor["useText"], tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"] = true, tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"];
 	end
 
-	if VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_BACKGROUND"] then
+	if not tColor["useBackground"] and VUHDO_BUFF_SETTINGS["CONFIG"]["BAR_COLORS_BACKGROUND"] then
 		tColor["useBackground"], tColor["R"], tColor["G"], tColor["B"], tColor["O"] = true, tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"];
 	end
 
 	return tColor;
+
 end
 
 
@@ -457,6 +449,51 @@ local sCurIcons = { };
 
 
 --
+local tSourceColor;
+local tDebuffSettings;
+local function VUHDO_updateCurChosenColor(aUnit, aType)
+
+	if (aType or 0) == 0 then -- VUHDO_DEBUFF_TYPE_NONE
+		return;
+	end
+
+	if (aType or 6) ~= 6 and VUHDO_DEBUFF_COLORS[aType] then -- VUHDO_DEBUFF_TYPE_<POISON|DISEASE|MAGIC|CURSE|BLEED>
+		tSourceColor = VUHDO_DEBUFF_COLORS[aType];
+
+		if tSourceColor["useBackground"] then
+			sCurChosenColor[aUnit]["R"], sCurChosenColor[aUnit]["G"], sCurChosenColor[aUnit]["B"], sCurChosenColor[aUnit]["O"], sCurChosenColor[aUnit]["useBackground"] = tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"], true;
+		end
+
+		if tSourceColor["useText"] then
+			sCurChosenColor[aUnit]["TR"], sCurChosenColor[aUnit]["TG"], sCurChosenColor[aUnit]["TB"], sCurChosenColor[aUnit]["TO"], sCurChosenColor[aUnit]["useText"] = tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"], true;
+		end
+
+		return;
+	end
+
+	tDebuffSettings = sAllDebuffSettings[sCurChosen[aUnit][2]] or sAllDebuffSettings[tostring(sCurChosen[aUnit][3])];
+
+	if aType == 6 and tDebuffSettings ~= nil and tDebuffSettings["isColor"] then -- VUHDO_DEBUFF_TYPE_CUSTOM
+		if tDebuffSettings["color"] ~= nil then
+			tSourceColor = tDebuffSettings["color"];
+		else
+			tSourceColor = VUHDO_DEBUFF_COLORS[6];
+		end
+
+		if VUHDO_DEBUFF_COLORS[6]["useBackground"] then
+			sCurChosenColor[aUnit]["R"], sCurChosenColor[aUnit]["G"], sCurChosenColor[aUnit]["B"], sCurChosenColor[aUnit]["O"], sCurChosenColor[aUnit]["useBackground"] = tSourceColor["R"], tSourceColor["G"], tSourceColor["B"], tSourceColor["O"], true;
+		end
+
+		if VUHDO_DEBUFF_COLORS[6]["useText"] then
+			sCurChosenColor[aUnit]["TR"], sCurChosenColor[aUnit]["TG"], sCurChosenColor[aUnit]["TB"], sCurChosenColor[aUnit]["TO"], sCurChosenColor[aUnit]["useText"] = tSourceColor["TR"], tSourceColor["TG"], tSourceColor["TB"], tSourceColor["TO"], true;
+		end
+	end
+
+end
+
+
+
+--
 local tCurChosenPrev;
 local function VUHDO_addCurChosen(aUnit, anAuraInstanceId, aType, aName, aSpellId, anIsStandard)
 
@@ -502,6 +539,8 @@ local function VUHDO_addCurChosen(aUnit, anAuraInstanceId, aType, aName, aSpellI
 			aSpellId or sCurChosen[aUnit][3] or VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[3],
 			(anIsStandard ~= nil) and anIsStandard or (sCurChosen[aUnit][4] or VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[4]);
 	end
+
+	VUHDO_updateCurChosenColor(aUnit, aType or VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[1]);
 
 end
 
@@ -579,6 +618,8 @@ local function VUHDO_updateCurChosen(aUnit)
 		VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[1], VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[2],
 		VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[3], VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[4];
 
+	sCurChosenColor[aUnit] = { };
+
 	tCurChosen = sCurChosenListHead[aUnit];
 
 	while tCurChosen and tCurChosen["auraInstanceId"] do
@@ -599,6 +640,10 @@ local function VUHDO_updateCurChosen(aUnit)
 
 			if tCurChosenInfo[4] and sCurChosen[aUnit][4] == VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[4] then
 				sCurChosen[aUnit][4] = tCurChosenInfo[4];
+			end
+
+			if not sCurChosenColor[aUnit]["useBackground"] or not sCurChosenColor[aUnit]["useText"] then
+				VUHDO_updateCurChosenColor(aUnit, tCurChosenInfo[1]);
 			end
 		end
 
@@ -667,6 +712,8 @@ local function VUHDO_initDebuffInfos(aUnit)
 		VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[1], VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[2],
 		VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[3], VUHDO_DEBUFF_CUR_CHOSEN_DEFAULT[4];
 
+	sCurChosenColor[aUnit] = { };
+
 	if not sCurIcons[aUnit] then
 		sCurIcons[aUnit] = { };
 	else
@@ -680,6 +727,14 @@ local function VUHDO_initDebuffInfos(aUnit)
 	else
 		for tAuraInstanceId, _ in pairs(VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit]) do
 			VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId] = nil;
+		end
+	end
+
+	if not VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit] then
+		VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit] = { };
+	else
+		for tSpell, _ in pairs(VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit]) do
+			VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpell] = nil;
 		end
 	end
 
@@ -784,7 +839,7 @@ local function VUHDO_determineDebuffPredicate(anAuraInstanceId, aName, anIcon, a
 
 		-- Entweder Fähigkeit vorhanden ODER noch keiner gewählt UND auch nicht entfernbare
 		-- Either ability available OR none selected AND not removable (DETECT_DEBUFFS_REMOVABLE_ONLY)
-		if not anIsUpdate and tType and (tAbility or (sCurChosen[sUnit][1] == 0 and sIsNotRemovableOnly)) then -- VUHDO_DEBUFF_TYPE_NONE
+		if not anIsUpdate and tType and (tAbility or sIsNotRemovableOnly) then -- VUHDO_DEBUFF_TYPE_NONE
 			VUHDO_addCurChosen(sUnit, anAuraInstanceId, tType, nil, nil, nil);
 			VUHDO_addUnitDebuffInfo(sUnit, "CHOSEN", anAuraInstanceId, anIcon, anExpiry, aStacks, aDuration);
 		end
@@ -946,6 +1001,7 @@ end
 local tInfo;
 local tDoStdSound;
 local tName;
+local tSpellIdStr;
 local tDebuffSettings;
 local tCurChosenInfo;
 local function VUHDO_updateDebuffs(aUnit)
@@ -963,13 +1019,17 @@ local function VUHDO_updateDebuffs(aUnit)
 	if sCurIcons[aUnit] then
 		for tAuraInstanceId, tDebuffInfo in pairs(sCurIcons[aUnit]) do
 			tName = tDebuffInfo[8];
+			tSpellIdStr = tostring(tDebuffInfo[6]);
 
 			if not VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId] then
 				if not sIsShowOnlyForFriendly or UnitIsFriend("player", aUnit) then
 					-- tExpiry, tStacks, tIcon, tAuraInstanceId, tName
 					VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId] = {
-						tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[1], tDebuffInfo[7], tName
+						tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[1], tDebuffInfo[7], tName, tDebuffInfo[6]
 					};
+
+					VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tName] = (VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tName] or 0) + 1;
+					VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpellIdStr] = (VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpellIdStr] or 0) + 1;
 
 					VUHDO_addDebuffIcon(aUnit, tDebuffInfo[1], tName, tDebuffInfo[2], tDebuffInfo[3], tDebuffInfo[4], tDebuffInfo[5], tDebuffInfo[6], tDebuffInfo[7]);
 
@@ -1032,6 +1092,7 @@ local tAura;
 local tDoUpdate, tDoUpdateIter;
 local tDoUpdateDebuffType, tDoUpdateDebuffChosen;
 local tDoUpdateUnitDebuffInfo = { };
+local tSpellIdStr;
 function VUHDO_determineDebuff(aUnit, aUpdateInfo)
 
 	tInfo = (VUHDO_RAID or sEmpty)[aUnit];
@@ -1115,7 +1176,13 @@ function VUHDO_determineDebuff(aUnit, aUpdateInfo)
 	-- Lost old custom debuff?
 	for tAuraInstanceId, tUnitCustomDebuff in pairs(VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit]) do
 		if tUnitCustomDebuff and (not sCurIcons[aUnit] or not sCurIcons[aUnit][tAuraInstanceId]) then
-			VUHDO_removeDebuffIcon(aUnit, tUnitCustomDebuff[5]);
+			VUHDO_removeDebuffIcon(aUnit, tAuraInstanceId);
+
+			tSpellIdStr = tostring(tUnitCustomDebuff[6]);
+
+			VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tUnitCustomDebuff[5]] = VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tUnitCustomDebuff[5]] - 1;
+			VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpellIdStr] = VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][tSpellIdStr] - 1;
+
 			VUHDO_UNIT_CUSTOM_DEBUFFS[aUnit][tAuraInstanceId] = nil;
 
 			VUHDO_updateBouquetsForEvent(aUnit, 29); -- VUHDO_UPDATE_CUSTOM_DEBUFF
@@ -1302,5 +1369,44 @@ end
 function VUHDO_getDebuffCurChosen()
 
 	return sCurChosen;
+
+end
+
+
+
+--
+function VUHDO_getDebuffCurChosenColor()
+
+	return sCurChosenColor;
+
+end
+
+
+
+--
+function VUHDO_getUnitCustomDebuffSpells()
+
+	return VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS;
+
+end
+
+
+
+--
+function VUHDO_hasUnitDebuff(aUnit, aSpell)
+
+	if not aUnit or not aSpell then
+		return;
+	end
+
+	if type(aSpell) == "number" then
+		aSpell = tostring(aSpell);
+	end
+
+	if VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit] and (VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][aSpell] or 0) > 0 then
+		return true;
+	else
+		return false;
+	end
 
 end

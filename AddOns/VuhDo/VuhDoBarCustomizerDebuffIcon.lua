@@ -104,7 +104,7 @@ local function VUHDO_animateDebuffIcon(aButton, anIconInfo, aNow, anIconIndex, a
 
 	if tCuDeStoConfig["isStaticConfig"] and 
 		(VUHDO_DEBUFF_BLACKLIST[anIconInfo[3]] or VUHDO_DEBUFF_BLACKLIST[tostring(anIconInfo[7])]) then
-		VUHDO_removeDebuffIcon(aUnit, anIconInfo[3]);
+		VUHDO_removeDebuffIcon(aUnit, anIconInfo[8]);
 
 		return;
 	end
@@ -207,6 +207,7 @@ local function VUHDO_animateDebuffIcon(aButton, anIconInfo, aNow, anIconIndex, a
 	end
 
 	tAuraInstanceId = VUHDO_getBarIconFrame(aButton, anIconIndex)["debuffInstanceId"];
+
 	tCurChosenInfo = VUHDO_getDebuffCurChosenInfo()[aUnit] and VUHDO_getDebuffCurChosenInfo()[aUnit][tAuraInstanceId];
 	tType = tCurChosenInfo and tCurChosenInfo[1];
 
@@ -289,7 +290,7 @@ function VUHDO_addDebuffIcon(aUnit, anIcon, aName, anExpiry, aStacks, aDuration,
 		end
 	end
 
-	tIconInfo = { anIcon, -1, aName, anExpiry, aStacks, aDuration, aSpellId };
+	tIconInfo = { anIcon, -1, aName, anExpiry, aStacks, aDuration, aSpellId, anAuraInstanceId };
 	VUHDO_DEBUFF_ICONS[aUnit][tSlot] = tIconInfo;
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
@@ -320,11 +321,11 @@ function VUHDO_updateDebuffIcon(aUnit, anIcon, aName, anExpiry, aStacks, aDurati
 	for tCnt = 1, sMaxIcons do
 		tIconInfo = VUHDO_DEBUFF_ICONS[aUnit][tCnt];
 
-		if tIconInfo and tIconInfo[3] == aName then
+		if tIconInfo and tIconInfo[8] == anAuraInstanceId then
 			tFound = true;
 
-			tIconInfo[1], tIconInfo[3], tIconInfo[4], tIconInfo[5], tIconInfo[6], tIconInfo[7] =
-				anIcon, aName, anExpiry, aStacks, aDuration, aSpellId;
+			tIconInfo[1], tIconInfo[3], tIconInfo[4], tIconInfo[5], tIconInfo[6], tIconInfo[7], tIconInfo[8] =
+				anIcon, aName, anExpiry, aStacks, aDuration, aSpellId, anAuraInstanceId;
 
 			for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 				tFrame = VUHDO_getBarIconFrame(tButton, tCnt + 39);
@@ -344,12 +345,12 @@ end
 --
 local tAllButtons2;
 local tFrame;
-function VUHDO_removeDebuffIcon(aUnit, aName)
+function VUHDO_removeDebuffIcon(aUnit, anAuraInstanceId)
 	tAllButtons2 = VUHDO_getUnitButtons(aUnit);
 	if not tAllButtons2 then return; end
 
 	for tCnt2 = 1, sMaxIcons do
-		if (VUHDO_DEBUFF_ICONS[aUnit][tCnt2] or sEmpty)[3] == aName then
+		if (VUHDO_DEBUFF_ICONS[aUnit][tCnt2] or sEmpty)[8] == anAuraInstanceId then
 			VUHDO_DEBUFF_ICONS[aUnit][tCnt2][2] = 1; -- ~= -1, lock icon to not be processed by onupdate
 			for _, tButton2 in pairs(tAllButtons2) do
 				VUHDO_LibCustomGlow.PixelGlow_Stop(tButton2, VUHDO_CUSTOM_GLOW_CUDE_FRAME_KEY);

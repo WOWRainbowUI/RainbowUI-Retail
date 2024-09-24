@@ -812,6 +812,30 @@ end
 
 
 --
+local tUnitHotCnt;
+function VUHDO_hasUnitHot(aUnit, aSpellName, aSourceType)
+
+	if not aUnit or not aSpellName then
+		return;
+	end
+
+	if not aSourceType then
+		aSourceType = VUHDO_UNIT_HOT_TYPE_MINE;
+	end
+
+	_, tUnitHotCount = VUHDO_getUnitHot(aUnit, aSpellName, aSourceType);
+
+	if tUnitHotCount and tUnitHotCount > 0 then
+		return true;
+	else
+		return false;
+	end
+
+end
+
+
+
+--
 local tOphEmpty = { nil, 0 };
 local tUnitHot;
 local tUnitHotCount;
