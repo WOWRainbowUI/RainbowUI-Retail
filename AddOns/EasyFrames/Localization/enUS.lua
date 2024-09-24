@@ -331,3 +331,4 @@ L["Show indicator of threat"] = true
 L["Profiles"] = true
 L["EasyFrames"] = "Easy Frames"
 L["Easy Frames"] = true
+L["[IN DEVELOPING. Temporarily disabled due to API bug. Coming soon]\n\n"] = true

@@ -300,7 +300,7 @@ local generalOptions = {
                 description = {
                     type = "description",
                     order = 2,
-                    name = "[IN DEVELOPING. Temporarily disabled due to API bug. Coming soon]\n\n" .. L["Buffs settings (like custom buffsize, max buffs count, etc)"],
+                    name = L["[IN DEVELOPING. Temporarily disabled due to API bug. Coming soon]\n\n"] .. L["Buffs settings (like custom buffsize, max buffs count, etc)"],
                 },
 
                 customBuffSize = {
