@@ -26,11 +26,6 @@ local db
 local PartyIterator = EasyFrames.Helpers.Iterator(EasyFrames.Utils.GetPartyFrames())
 local BossIterator = EasyFrames.Helpers.Iterator(EasyFrames.Utils.GetBossFrames())
 
-local playerFrameContentMain = EasyFrames.Utils.GetPlayerFrameContentMain()
-local targetFrameContentMain = EasyFrames.Utils.GetTargetFrameContentMain()
-local focusFrameContentMain = EasyFrames.Utils.GetFocusFrameContentMain()
-local GetTargetHealthBar = EasyFrames.Utils.GetTargetHealthBar
-local GetFocusHealthBar = EasyFrames.Utils.GetFocusHealthBar
 local CreateBar = EasyFrames.Utils.CreateBar
 
 local OnSetPointHookScript = function(point, relativeTo, relativePoint, xOffset, yOffset)
@@ -48,62 +43,16 @@ function Core:OnInitialize()
 end
 
 function Core:OnEnable()
-    --self:RegisterEvent("UPDATE_SHAPESHIFT_COOLDOWN", "UpdateShapeshiftForm") -- This is used for shapeshifts/stances
-
-    self:RegisterEvent("PLAYER_ENTERING_WORLD", "PlayerEnteringWorld")
-
     if db.general.useEFTextures then
-        self:RegisterEvent("PLAYER_FLAGS_CHANGED", "PlayerFlagsChanged");
-        self:RegisterEvent("GROUP_ROSTER_UPDATE", "GroupRosterUpdate");
-        self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED", "GroupRosterUpdate")
-        --self:RegisterEvent("PLAYER_TARGET_CHANGED", "PlayerTargetChanged")
-        --self:RegisterEvent("PLAYER_FOCUS_CHANGED", "PlayerFocusChanged")
+        self:SecureHook("UnitFrame_Update", "UnitFrame_Update");
 
-        self:CreateHealthBarFor(TargetFrame)
-        self:CreateHealthBarFor(FocusFrame)
+        --local _, class = UnitClass("player")
+        --if class == "DRUID" then
+        --    self:RegisterEvent("UNIT_DISPLAYPOWER", "UnitDisplaypower")
+        --end
 
-        self:SecureHook("UnitFrame_Update", "UnitFrameUpdate")
-
-        local _, class = UnitClass("player")
-        if class == "DRUID" then
-            self:RegisterEvent("UNIT_DISPLAYPOWER", "UnitDisplaypower")
-        end
-
-        hooksecurefunc(TargetFrame, "CheckClassification", function()
-            self:CheckClassification(TargetFrame)
-        end)
-
-        hooksecurefunc(FocusFrame, "CheckClassification", function()
-            self:CheckClassification(FocusFrame)
-        end)
-
-        self:MoveFramesNames()
-        self:MoveToTFrames()
-        self:MovePlayerFrameBars()
-        self:MovePlayerPowerBar()
-        self:MoveTargetFrameBars()
-        self:MoveFocusFrameBars()
-        self:MovePetFrameBars()
         --self:MovePartyFrameBars()
         --self:MoveBossFrameBars()
-
-        self:MovePlayerFramesBarsTextString()
-        self:MoveTargetFramesBarsTextString()
-        self:MoveFocusFramesBarsTextString()
-
-        self:MoveLevelText()
-    else
-        -- Blizzard's textures.
-
-        hooksecurefunc(TargetFrame, "CheckClassification", function()
-            self:CheckClassificationForNonEFMode(TargetFrame)
-        end)
-
-        hooksecurefunc(FocusFrame, "CheckClassification", function()
-            self:CheckClassificationForNonEFMode(FocusFrame)
-        end)
-
-        self:MovePlayerFrameBarsForNonEFMode()
     end
 
     if (db.general.showWelcomeMessage) then
@@ -132,10 +81,14 @@ function Core:OnProfileChanged(newDB)
 end
 
 
-function Core:UnitFrameUpdate(frame)
+function Core:UnitFrame_Update(frame)
     if (frame.unit == "target" or frame.unit == "focus") then
-        self:UnitFrameHealthBar_Update(frame.EasyFrames.healthbar)
-        self:UnitFrameHealPredictionBars_Update(frame)
+        self:UnitFrameHealthBar_Update(frame.EasyFrames.healthbar);
+        self:UnitFrameHealPredictionBars_Update(frame);
+
+        if ( frame.EasyFrames.tempMaxHealthLossBar and frame.EasyFrames.tempMaxHealthLossBar.initialized) then
+            self:TempMaxHealthLoss_OnMaxHealthModifiersChanged(frame.EasyFrames.tempMaxHealthLossBar, GetUnitTotalModifiedMaxHealthPercent(frame.unit));
+        end
     end
 end
 
@@ -147,8 +100,24 @@ function Core:CreateHealthBarFor(parentFrame)
         Core:UnitFrameHealthBar_Update(HealthBar)
     end)
 
-    HealthBar:RegisterUnitEvent("UNIT_HEALTH", HealthBar.unit)
-    HealthBar:RegisterUnitEvent("UNIT_MAXHEALTH", HealthBar.unit)
+    HealthBar:RegisterUnitEvent("UNIT_HEALTH", HealthBar.unit);
+    HealthBar:RegisterUnitEvent("UNIT_MAXHEALTH", HealthBar.unit);
+
+    local TempMaxHealthLossBar = CreateBar(parentFrame, "TempMaxHealthLoss");
+    TempMaxHealthLossBar:SetFrameLevel(HealthBar:GetFrameLevel() + 1);
+    TempMaxHealthLossBar:SetStatusBarTexture(Media:Fetch("statusbar", db.general.barTexture));
+    TempMaxHealthLossBar:SetPoint("RIGHT", HealthBar, "RIGHT", 0, 0);
+
+    TempMaxHealthLossBar:SetScript("OnEvent", function(_, _, ...)
+        local _, arg2 = ...
+        Core:TempMaxHealthLoss_OnMaxHealthModifiersChanged(TempMaxHealthLossBar, arg2);
+    end);
+
+    TempMaxHealthLossBar:RegisterUnitEvent("UNIT_MAX_HEALTH_MODIFIERS_CHANGED", HealthBar.unit);
+
+    local tempMaxHealthLossBarTexture = TempMaxHealthLossBar:GetStatusBarTexture();
+    tempMaxHealthLossBarTexture:SetAtlas("UI-HUD-UnitFrame-Player-PortraitOn-Bar-TempHPLoss", TextureKitConstants.UseAtlasSize);
+    tempMaxHealthLossBarTexture:SetDrawLayer("BACKGROUND");
 
     local TotalAbsorbBar = CreateBar(parentFrame, "TotalAbsorbBar")
     TotalAbsorbBar:SetFrameLevel(HealthBar:GetFrameLevel())
@@ -206,14 +175,14 @@ function Core:CreateHealthBarFor(parentFrame)
 
     for _, frame in pairs({
         HealthBar,
-        --TotalAbsorbBarOverlay,
-        --TotalAbsorbBar,
-        --HealPredictionBar,
+        TempMaxHealthLossBar,
     }) do
         if (frame) then
-            frame:SetSize(EasyFrames.Const.HEALTHBAR_WIDTH, EasyFrames.Const.HEALTHBAR_HEIGHT)
+            frame:SetSize(EasyFrames.Const.HEALTHBAR_WIDTH_BLIZZARD, EasyFrames.Const.HEALTHBAR_HEIGHT)
         end
     end
+
+    Core:TempMaxHealthLoss_InitalizeMaxHealthLossBar(TempMaxHealthLossBar, HealthBar, HealthBar);
 
     parentFrame.EasyFrames = {
         healthbar = HealthBar,
@@ -224,6 +193,7 @@ function Core:CreateHealthBarFor(parentFrame)
         healAbsorbBar = HealAbsorbBar,
         healAbsorbBarLeftShadow = HealAbsorbBarLeftShadow,
         healAbsorbBarRightShadow = HealAbsorbBarRightShadow,
+        tempMaxHealthLossBar = TempMaxHealthLossBar,
     }
     parentFrame.EasyFrames.totalAbsorbBar.overlay = TotalAbsorbBarOverlay
 end
@@ -333,7 +303,7 @@ function Core:UnitFrameHealPredictionBars_Update(frame)
     Core:UnitFrameUtil_UpdateFillBar(frame, appendTexture, frame.EasyFrames.totalAbsorbBar, totalAbsorb)
 end
 
-function Core:UnitFrameUtil_UpdateFillBarBase(frame, realbar, previousTexture, bar, amount, barOffsetXPercent)
+function Core:UnitFrameUtil_UpdateFillBarBase(_, realbar, previousTexture, bar, amount, barOffsetXPercent)
     if ( amount == 0 ) then
         bar:Hide();
         if ( bar.overlay ) then
@@ -368,27 +338,53 @@ function Core:UnitFrameUtil_UpdateFillBar(frame, previousTexture, bar, amount, b
     return Core:UnitFrameUtil_UpdateFillBarBase(frame, frame.EasyFrames.healthbar, previousTexture, bar, amount, barOffsetXPercent);
 end
 
-function Core:PlayerFlagsChanged(event, arg1)
-    if (event == "PLAYER_FLAGS_CHANGED") then
-        if (arg1 == "target") then
-            self:CheckClassification(TargetFrame)
-        end
+function Core:TempMaxHealthLoss_InitalizeMaxHealthLossBar(bar, healthBarsContainer, healthBar)
+    bar.myHealthBarContainer = healthBarsContainer;
+    bar.healthBar = healthBar;
+    bar:SetFillStyle("REVERSE");
+    bar:SetMinMaxValues(0, 1);
+
+    bar.initialized = true;
+end
+
+function Core:TempMaxHealthLoss_SetShouldAdjustHealthBarAnchor(bar, xOffset, yOffset)
+    bar.ShouldAdjustHealthBarAnchor = true;
+    bar.xAnchorOffset = xOffset;
+    bar.yAnchorOffset = yOffset;
+end
+
+function Core:TempMaxHealthLoss_OnMaxHealthModifiersChanged(bar, value)
+    --current UI implementation only cares about showing max health loss, not gain
+    local clampedValue = Clamp(value, 0, 1);
+    --disable / enable all tempMaxHealth loss bars with CVar
+    if (GetCVarBool("showTempMaxHealthLoss")) then
+        self:TempMaxHealthLoss_Update_MaxHealthLoss(bar, clampedValue);
     end
 end
 
-function Core:GroupRosterUpdate()
-    if FocusFrame:IsShown() then
-        self:CheckClassification(FocusFrame)
+function Core:TempMaxHealthLoss_Update_MaxHealthLoss(bar, fillPercent)
+    --local fullWidth = bar.myHealthBarContainer:GetWidth();
+    local fullWidth = EasyFrames.Const.HEALTHBAR_WIDTH_BLIZZARD;
+    if ( bar.ShouldAdjustHealthBarAnchor ) then
+        bar.healthBar:SetPoint("BOTTOMRIGHT", bar.myHealthBarContainer, "BOTTOMRIGHT", ((fullWidth*(fillPercent))*-1) + bar.xAnchorOffset, bar.yAnchorOffset);
+    else
+        --bar.healthBar:SetWidth(fullWidth*(1-fillPercent));
     end
-
-    local playerFrameAlternatePowerBar = PlayerFrame_GetAlternatePowerBar()
-    if playerFrameAlternatePowerBar and playerFrameAlternatePowerBar:IsShown() then
-        self:MovePlayerFrameAlternateManaBar()
-    end
+    bar:Show();
+    bar:SetValue(fillPercent);
 end
 
-function Core:UnitDisplaypower()
-    self:MovePlayerPowerBar()
+function Core:SetTexture()
+    -- Party
+    --PartyIterator(function(frame)
+    --    _G[frame:GetName() .. "Texture"]:SetTexture(Media:Fetch("frames", "smalltarget"))
+    --end)
+
+    -- Boss
+    --BossIterator(function(frame)
+    --    local borderTexture = frame.TargetFrameContainer.FrameTexture;
+    --    borderTexture:SetTexture(Media:Fetch("frames", "boss"))
+    --end)
 end
 
 function Core:UnitFrameHealthBar_Update(frame)
@@ -396,52 +392,10 @@ function Core:UnitFrameHealthBar_Update(frame)
     frame:SetValue(UnitHealth(frame.unit))
 end
 
-function Core:PlayerTargetChanged()
-    --self:UnitFrameHealthBar_Update(GetTargetHealthBar)
-end
-
-function Core:PlayerFocusChanged()
-    --self:UnitFrameHealthBar_Update(GetFocusHealthBar)
-end
-
 function Core:PlayerEnteringWorld()
     if TargetFrame:IsShown() then
         TargetFrame:UpdateAuras()
     end
-end
-
-function Core:CheckClassification(frame, forceNormalTexture)
-    local classification = UnitClassification(frame.unit);
-    local borderTexture = frame.TargetFrameContainer.FrameTexture;
-    local healthBar = frame.EasyFrames.healthbar
-    local manaBar = frame.TargetFrameContent.TargetFrameContentMain.ManaBar;
-    local frameFlash = frame.TargetFrameContainer.Flash;
-
-    healthBar:SetStatusBarTexture(Media:Fetch("statusbar", db.general.barTexture))
-    healthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
-
-    -- This is old color and texture.
-    --manaBar:SetStatusBarTexture(Media:Fetch("statusbar", db.general.barTexture))
-    --manaBar:SetStatusBarColor(0, 0, 1)
-
-    manaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
-
-    frameFlash:SetTexture(Media:Fetch("misc", "player-status-flash"))
-
-    if (forceNormalTexture) then
-        borderTexture:SetTexture(Media:Fetch("frames", "default"));
-    elseif (classification == "minus") then
-        borderTexture:SetTexture(Media:Fetch("frames", "minus"));
-    else
-        borderTexture:SetTexture(Media:Fetch("frames", "default"));
-    end
-end
-
-function Core:CheckClassificationForNonEFMode(frame)
-    local healthBar = frame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar;
-
-    healthBar:SetStatusBarTexture(Media:Fetch("statusbar", db.general.barTexture))
-    healthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
 end
 
 function Core:MoveRegion(frame, point, relativeTo, relativePoint, xOffset, yOffset)
@@ -454,82 +408,8 @@ function Core:MoveRegion(frame, point, relativeTo, relativePoint, xOffset, yOffs
     end
 end
 
-function Core:MovePlayerFrameName(point, xOffset, yOffset)
-    self:MoveRegion(PlayerName, point or "TOPLEFT", xOffset or 89, yOffset or -13)
-
-    PlayerName:SetJustifyH("CENTER")
-    PlayerName:SetWidth(110)
-end
-
-function Core:MoveTargetFrameName(point, xOffset, yOffset)
-    self:MoveRegion(TargetFrame.name, point or "TOPLEFT", xOffset or 35, yOffset or -13)
-
-    TargetFrame.name:SetJustifyH("CENTER")
-    TargetFrame.name:SetWidth(110)
-end
-
-function Core:MoveFocusFrameName(point, xOffset, yOffset)
-    self:MoveRegion(FocusFrame.name, point or "TOPLEFT", xOffset or 35, yOffset or -13)
-
-    FocusFrame.name:SetJustifyH("CENTER")
-    FocusFrame.name:SetWidth(110)
-end
-
-function Core:MovePetFrameName()
-    self:MoveRegion(PetName, "BOTTOMLEFT", PetFrame, "BOTTOMLEFT", 46, 38)
-
-    PetName:SetJustifyH("CENTER")
-end
-
-function Core:MovePlayerPowerBar()
-    local frame
-    local _, class = UnitClass("player")
-    local adXOffset = 10
-    local adYOffset = 6
-    local xGlobalOffset
-    local yGlobalOffset
-
-    if PlayerFrame.classPowerBar then
-        frame = PlayerFrame.classPowerBar
-    elseif class == "SHAMAN" then
-        frame = TotemFrame
-    elseif class == "DEATHKNIGHT" then
-        frame = RuneFrame
-        adXOffset = 4
-        adYOffset = 2
-    elseif class == "PRIEST" then
-        frame = PriestBarFrame
-    elseif class == "EVOKER" then
-        frame = EssencePlayerFrame
-        adXOffset = 4
-    end
-
-    if class == "DRUID" then
-        xGlobalOffset = -4
-        yGlobalOffset = 4
-    elseif class == "MAGE" then
-        adXOffset = 4
-    elseif class == "ROGUE" then
-        adXOffset = 5
-    end
-
-    if (frame and db.player.specialbarFixPosition) then
-        local point, relativeTo, relativePoint, xOffset, yOffset = frame:GetPoint()
-
-        if point then
-            Core:MoveRegion(frame, point, relativeTo, relativePoint, xGlobalOffset or (xOffset - adXOffset), yGlobalOffset or (yOffset + adYOffset))
-        end
-    end
-end
-
 function Core:MoveFramesNames()
     -- Names
-    -- Player's frame will set in Player module (with option "Show player name inside the frame")
-    self:MoveTargetFrameName()
-    self:MoveFocusFrameName()
-
-    self:MovePetFrameName()
-
     --PartyIterator(function(frame)
     --    local point, relativeTo, relativePoint, xOffset, yOffset = frame.name:GetPoint()
     --
@@ -541,297 +421,6 @@ function Core:MoveFramesNames()
     --
     --    Core:MoveRegion(frame.name, point, relativeTo, relativePoint, xOffset, yOffset + 20)
     --end)
-end
-
-function Core:MoveToTFrames()
-    -- @TODO move targettarget to its own settings module.
-    TargetFrameToT:ClearAllPoints()
-    TargetFrameToT:SetPoint("CENTER", TargetFrame, "CENTER", 80, -53)
-
-    -- ToT name
-    TargetFrameToT.name:ClearAllPoints();
-    TargetFrameToT.name:SetPoint("CENTER", TargetFrameToT, "CENTER", 18, 18)
-
-    -- ToT HealthBar
-    --TargetFrameToT.HealthBar:SetParent(TargetFrame)
-    --TargetFrameToT.FrameTexture:SetParent(TargetFrameToT)
-    self:MoveRegion(TargetFrameToT.HealthBar, "CENTER", TargetFrameToT, "CENTER", 19, 4)
-    TargetFrameToT.HealthBar:SetHeight(EasyFrames.Const.MANABAR_HEIGHT)
-    TargetFrameToT.HealthBar:SetFrameLevel(0)
-    TargetFrameToT.HealthBar.HealthBarMask:Hide()
-
-    self:MoveRegion(TargetFrameToT.ManaBar, "CENTER", TargetFrameToT, "CENTER", 18, -8)
-    TargetFrameToT.ManaBar:SetWidth(EasyFrames.Const.TOT_MANABAR_WIDTH)
-    TargetFrameToT.ManaBar:SetHeight(EasyFrames.Const.TOT_MANABAR_HEIGHT)
-    TargetFrameToT.ManaBar:SetFrameLevel(0)
-    TargetFrameToT.ManaBar.ManaBarMask:Hide()
-
-
-    -- @TODO move focustarget to its own settings module.
-    FocusFrameToT:ClearAllPoints()
-    FocusFrameToT:SetPoint("CENTER", FocusFrame, "CENTER", 80, -53)
-    -- ToT name
-    FocusFrameToT.name:ClearAllPoints();
-    FocusFrameToT.name:SetPoint("CENTER", FocusFrameToT, "CENTER", 18, 18)
-
-    -- ToT HealthBar
-    self:MoveRegion(FocusFrameToT.HealthBar, "CENTER", FocusFrameToT, "CENTER", 19, 4)
-    FocusFrameToT.HealthBar:SetHeight(EasyFrames.Const.MANABAR_HEIGHT)
-    FocusFrameToT.HealthBar:SetFrameLevel(0)
-    FocusFrameToT.HealthBar.HealthBarMask:Hide()
-
-    -- ToT ManaBar
-    self:MoveRegion(FocusFrameToT.ManaBar, "CENTER", FocusFrameToT, "CENTER", 18, -8)
-    FocusFrameToT.ManaBar:SetWidth(EasyFrames.Const.TOT_MANABAR_WIDTH)
-    FocusFrameToT.ManaBar:SetHeight(EasyFrames.Const.TOT_MANABAR_HEIGHT)
-    FocusFrameToT.ManaBar:SetFrameLevel(0)
-    FocusFrameToT.ManaBar.ManaBarMask:Hide()
-end
-
-function Core:MovePlayerFrameBars(isVehicle)
-    -- HealthBar
-    local healthBar = PlayerFrame_GetHealthBar()
-    local manaBar = PlayerFrame_GetManaBar()
-    local playerFrameAlternatePowerBar = PlayerFrame_GetAlternatePowerBar()
-
-    if not isVehicle then
-        healthBar:SetWidth(EasyFrames.Const.HEALTHBAR_WIDTH)
-        healthBar:SetHeight(EasyFrames.Const.HEALTHBAR_HEIGHT)
-
-        if playerFrameAlternatePowerBar then
-            playerFrameAlternatePowerBar:SetWidth(EasyFrames.Const.HEALTHBAR_WIDTH)
-        end
-
-        healthBar.TotalAbsorbBar:SetHeight(EasyFrames.Const.HEALTHBAR_HEIGHT)
-
-        healthBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
-
-        -- Line order is important
-        playerFrameContentMain.HealthBarsContainer.PlayerFrameHealthBarAnimatedLoss:SetParent(PlayerFrame) -- fix for blinking red texture
-        healthBar:SetParent(PlayerFrame)
-        healthBar.TotalAbsorbBar:SetParent(PlayerFrame)
-        healthBar.MyHealPredictionBar:SetParent(PlayerFrame)
-        healthBar.OtherHealPredictionBar:SetParent(PlayerFrame)
-
-        PlayerFrame_GetHealthBarContainer().HealthBarMask:Hide()
-
-        self:MoveRegion(healthBar, "CENTER", PlayerFrame, "CENTER", 27, 9)
-
-        -- ManaBar
-        manaBar:SetWidth(EasyFrames.Const.MANABAR_WIDTH)
-        manaBar:SetHeight(EasyFrames.Const.MANABAR_HEIGHT)
-
-        manaBar:SetParent(PlayerFrame)
-        manaBar.ManaCostPredictionBar:SetParent(PlayerFrame)
-        manaBar.ManaBarText:SetParent(PlayerFrame.PlayerFrameContainer)
-        manaBar.LeftText:SetParent(PlayerFrame.PlayerFrameContainer)
-        manaBar.RightText:SetParent(PlayerFrame.PlayerFrameContainer)
-
-        manaBar.ManaBarMask:Hide()
-
-        self:MoveRegion(manaBar, "CENTER", PlayerFrame, "CENTER", 27, -11)
-        self:MovePlayerFrameAlternateManaBar()
-
-        PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.GroupIndicator:ClearAllPoints()
-        PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.GroupIndicator:SetPoint("TOPLEFT", 13, 0)
-
-        PlayerFrameGroupIndicatorLeft:SetAlpha(0)
-        PlayerFrameGroupIndicatorRight:SetAlpha(0)
-        PlayerFrameGroupIndicatorMiddle:SetAlpha(0)
-
-        -- RoleIcon
-        --self:MoveRegion(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.RoleIcon, "CENTER", PlayerFrame, "CENTER", -90, 30)
-        self:MoveRegion(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.RoleIcon, "CENTER", PlayerFrame, "CENTER", -83, -18)
-
-        -- PVP icon
-        self:MoveRegion(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PrestigePortrait, "CENTER", PlayerFrame, "CENTER", -97, 7)
-        self:MoveRegion(PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PrestigeBadge, "CENTER", PlayerFrame, "CENTER", -97, 7)
-    else
-        healthBar:SetParent(playerFrameContentMain.HealthBarsContainer)
-        PlayerFrame_GetHealthBarContainer().HealthBarMask:Show()
-
-        self:MoveRegion(healthBar, "CENTER", playerFrameContentMain.HealthBarsContainer, "CENTER", 0, 0)
-
-        manaBar:SetParent(playerFrameContentMain)
-        manaBar.ManaBarMask:Show()
-
-        self:MoveRegion(manaBar, "TOPLEFT", playerFrameContentMain.ManaBarArea, "TOPLEFT", 91, -61)
-    end
-end
-
-function Core:MovePlayerFrameBarsForNonEFMode()
-
-end
-
-function Core:MovePlayerFrameAlternateManaBar()
-    local playerFrameAlternatePowerBar = PlayerFrame_GetAlternatePowerBar()
-    if playerFrameAlternatePowerBar then
-        local point, relativeTo, relativePoint = playerFrameAlternatePowerBar:GetPoint()
-
-        if point then
-            self:MoveRegion(playerFrameAlternatePowerBar, point, relativeTo, relativePoint, 87, -70)
-        end
-    end
-end
-
-function Core:MoveTargetFrameBars()
-    local originHealthBar = targetFrameContentMain.HealthBarsContainer.HealthBar;
-    local localHealthBar = GetTargetHealthBar();
-    local manaBar = targetFrameContentMain.ManaBar;
-    local numericalThreat = TargetFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
-
-    -- Something like permanent hide.
-    originHealthBar:GetStatusBarTexture():SetAlpha(0)
-    originHealthBar.MyHealPredictionBar:SetAlpha(0)
-    originHealthBar.OtherHealPredictionBar:SetAlpha(0)
-    originHealthBar.TotalAbsorbBar:SetAlpha(0)
-    originHealthBar.OverAbsorbGlow:SetAlpha(0)
-    originHealthBar.OverHealAbsorbGlow:SetAlpha(0)
-    originHealthBar.HealAbsorbBar:SetAlpha(0)
-
-    self:MoveRegion(localHealthBar, "CENTER", TargetFrame, "CENTER", -27, 9)
-    self:MoveRegion(targetFrameContentMain.HealthBarsContainer.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0)
-
-    numericalThreat:SetScale(0.9)
-    self:MoveRegion(numericalThreat, "CENTER", TargetFrame, "CENTER", 44, 48)
-
-    targetFrameContentMain.ReputationColor:Hide()
-
-    -- ManaBar
-    manaBar:SetWidth(EasyFrames.Const.MANABAR_WIDTH)
-    manaBar:SetHeight(EasyFrames.Const.MANABAR_HEIGHT)
-
-    manaBar:SetParent(TargetFrame)
-    manaBar.ManaBarMask:Hide()
-
-    self:MoveRegion(manaBar, "CENTER", TargetFrame, "CENTER", -28, -10)
-
-    -- PetBattleIcon
-    local point, relativeTo, relativePoint, xOffset, yOffset = TargetFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon:GetPoint()
-    --self:MoveRegion(TargetFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon, point, relativeTo, relativePoint, xOffset - 6, yOffset - 1);
-    self:MoveRegion(TargetFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon, point, relativeTo, relativePoint, xOffset + 5, yOffset + 20);
-
-    -- PVP icon
-    for _, frame in pairs({
-        TargetFrame.TargetFrameContent.TargetFrameContentContextual.PrestigePortrait,
-        TargetFrame.TargetFrameContent.TargetFrameContentContextual.PrestigeBadge,
-        TargetFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon,
-    }) do
-        if (frame) then
-            self:MoveRegion(frame, "CENTER", TargetFrame, "CENTER", 96, 7)
-        end
-    end
-end
-
-function Core:MoveFocusFrameBars()
-    local originHealthBar = focusFrameContentMain.HealthBarsContainer.HealthBar;
-    local localHealthBar = GetFocusHealthBar();
-    local manaBar = focusFrameContentMain.ManaBar;
-    local numericalThreat = FocusFrame.TargetFrameContent.TargetFrameContentContextual.NumericalThreat;
-
-    -- Something like permanent hide.
-    originHealthBar:GetStatusBarTexture():SetAlpha(0)
-    originHealthBar.MyHealPredictionBar:SetAlpha(0)
-    originHealthBar.OtherHealPredictionBar:SetAlpha(0)
-    originHealthBar.TotalAbsorbBar:SetAlpha(0)
-    originHealthBar.OverAbsorbGlow:SetAlpha(0)
-    originHealthBar.OverHealAbsorbGlow:SetAlpha(0)
-    originHealthBar.HealAbsorbBar:SetAlpha(0)
-
-    self:MoveRegion(localHealthBar, "CENTER", FocusFrame, "CENTER", -27, 9)
-    self:MoveRegion(focusFrameContentMain.HealthBarsContainer.DeadText, "CENTER", localHealthBar, "CENTER", 0, 0)
-
-    numericalThreat:SetScale(0.9)
-    self:MoveRegion(numericalThreat, "CENTER", FocusFrame, "CENTER", 44, 48)
-
-    focusFrameContentMain.ReputationColor:Hide()
-
-    -- ManaBar
-    manaBar:SetWidth(EasyFrames.Const.MANABAR_WIDTH)
-    manaBar:SetHeight(EasyFrames.Const.MANABAR_HEIGHT)
-
-    manaBar:SetParent(FocusFrame)
-    manaBar.ManaBarMask:Hide()
-
-    self:MoveRegion(manaBar, "CENTER", FocusFrame, "CENTER", -28, -10)
-
-    -- PetBattleIcon
-    local point, relativeTo, relativePoint, xOffset, yOffset = FocusFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon:GetPoint()
-    --self:MoveRegion(TargetFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon, point, relativeTo, relativePoint, xOffset - 6, yOffset - 1);
-    self:MoveRegion(FocusFrame.TargetFrameContent.TargetFrameContentContextual.PetBattleIcon, point, relativeTo, relativePoint, xOffset + 5, yOffset + 20);
-
-    -- PVP icon
-    for _, frame in pairs({
-        FocusFrame.TargetFrameContent.TargetFrameContentContextual.PrestigePortrait,
-        FocusFrame.TargetFrameContent.TargetFrameContentContextual.PrestigeBadge,
-        FocusFrame.TargetFrameContent.TargetFrameContentContextual.PvpIcon,
-    }) do
-        if (frame) then
-            self:MoveRegion(frame, "CENTER", FocusFrame, "CENTER", 96, 7)
-        end
-    end
-end
-
-function Core:MovePetFrameBars()
-    -- HealthBar
-    local healthBar = PetFrameHealthBar;
-    local manaBar = PetFrameManaBar;
-
-    healthBar:SetHeight(EasyFrames.Const.MANABAR_HEIGHT)
-    self:MoveRegion(healthBar, "CENTER", PetFrame, "CENTER", 19, 5)
-    healthBar:SetFrameLevel(0)
-    PetFrameHealthBarMask:Hide()
-
-    -- ManaBar
-    manaBar:SetHeight(EasyFrames.Const.TOT_MANABAR_HEIGHT)
-    self:MoveRegion(manaBar, "CENTER", PetFrame, "CENTER", 19, -8)
-    manaBar:SetFrameLevel(0)
-    PetFrameManaBarText:SetParent(PetFrame)
-    PetFrameManaBarTextRight:SetParent(PetFrame)
-    PetFrameManaBarTextLeft:SetParent(PetFrame)
-    PetFrameManaBarMask:Hide()
-
-    self:MoveRegion(PetFrameHealthBar.RightText, "RIGHT", PetFrameHealthBar, "RIGHT", 0, 0)
-    self:MoveRegion(PetFrameHealthBar.LeftText, "LEFT", PetFrameHealthBar, "LEFT", 0, 0)
-    self:MoveRegion(PetFrameHealthBar.TextString, "CENTER", PetFrameHealthBar, "CENTER", 0, 0)
-
-    self:MoveRegion(PetFrameManaBar.TextString, "CENTER", PetFrameManaBar, "CENTER", 0, 0)
-end
-
-function Core:MovePlayerFramesBarsTextString()
-    self:MoveRegion(PlayerFrame_GetHealthBar().TextString, "CENTER", PlayerFrame_GetHealthBar(), "CENTER", 0, 0)
-    self:MoveRegion(PlayerFrame_GetHealthBar().RightText, "RIGHT", PlayerFrame_GetHealthBar(), "RIGHT", -5, 0)
-    self:MoveRegion(PlayerFrame_GetHealthBar().LeftText, "LEFT", PlayerFrame_GetHealthBar(), "LEFT", 2, 0)
-
-    self:MoveRegion(PlayerFrame_GetManaBar().TextString, "CENTER", PlayerFrame_GetManaBar(), "CENTER", 0, 0)
-    self:MoveRegion(PlayerFrame_GetManaBar().RightText, "RIGHT", PlayerFrame_GetManaBar(), "RIGHT", -4, 0)
-    self:MoveRegion(PlayerFrame_GetManaBar().LeftText, "LEFT", PlayerFrame_GetManaBar(), "LEFT", 3, 0)
-end
-
-function Core:MoveTargetFramesBarsTextString()
-    local healthBar = targetFrameContentMain.HealthBarsContainer.HealthBar;
-    local manaBar = targetFrameContentMain.ManaBar;
-
-    self:MoveRegion(healthBar.TextString, "CENTER", GetTargetHealthBar(), "CENTER", 0, 0)
-    self:MoveRegion(healthBar.RightText, "RIGHT", GetTargetHealthBar(), "RIGHT", -5, 0)
-    self:MoveRegion(healthBar.LeftText, "LEFT", GetTargetHealthBar(), "LEFT", 2, 0)
-
-    self:MoveRegion(manaBar.TextString, "CENTER", manaBar, "CENTER", 1, 0)
-    self:MoveRegion(manaBar.RightText, "RIGHT", manaBar, "RIGHT", -4, 0)
-    self:MoveRegion(manaBar.LeftText, "LEFT", manaBar, "LEFT", 3, 0)
-end
-
-function Core:MoveFocusFramesBarsTextString()
-    local healthBar = focusFrameContentMain.HealthBarsContainer.HealthBar;
-    local manaBar = focusFrameContentMain.ManaBar;
-
-    self:MoveRegion(healthBar.TextString, "CENTER", GetFocusHealthBar(), "CENTER", 0, 0)
-    self:MoveRegion(healthBar.RightText, "RIGHT", GetFocusHealthBar(), "RIGHT", -5, 0)
-    self:MoveRegion(healthBar.LeftText, "LEFT", GetFocusHealthBar(), "LEFT", 2, 0)
-
-    self:MoveRegion(manaBar.TextString, "CENTER", manaBar, "CENTER", 1, 0)
-    self:MoveRegion(manaBar.RightText, "RIGHT", manaBar, "RIGHT", -4, 0)
-    self:MoveRegion(manaBar.LeftText, "LEFT", manaBar, "LEFT", 3, 0)
 end
 
 function Core:MovePartyFrameBars()
@@ -867,12 +456,4 @@ function Core:MoveBossFrameBars()
         Core:MoveRegion(healthBar.RightText, "RIGHT", frame, "RIGHT", -110, 12)
         Core:MoveRegion(healthBar.LeftText, "LEFT", frame, "LEFT", 8, 12)
     end)
-end
-
-function Core:MoveLevelText()
-    Core:MoveRegion(PlayerLevelText, "CENTER", -83, -19)
-    Core:MoveRegion(TargetFrame.TargetFrameContent.TargetFrameContentMain.LevelText, "CENTER", 82, -19)
-    Core:MoveRegion(TargetFrame.TargetFrameContent.TargetFrameContentContextual.HighLevelTexture, "CENTER", 82, -19)
-    Core:MoveRegion(FocusFrame.TargetFrameContent.TargetFrameContentMain.LevelText, "CENTER", 82, -19)
-    Core:MoveRegion(FocusFrame.TargetFrameContent.TargetFrameContentContextual.HighLevelTexture, "CENTER", 82, -19)
 end

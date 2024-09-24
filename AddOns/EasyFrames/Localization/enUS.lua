@@ -264,9 +264,6 @@ L["Show or hide focus PVP icon"] = true
 
 L["Pet"] = true
 L["In pet options you can set scale pet frame, show/hide pet name, enable/disable pet hit indicators, etc"] = true
-L["Correcting the position of the Pet frame"] = true
-L["This function only correctly repositions a pet frame when out of combat. During combat, the position of the frame cannot be changed, " ..
-    "but as soon as the player exits the combat, the position of the frame will be corrected."] = true
 L["Pet name"] = true
 L["Pet name font family"] = true
 L["Pet name font size"] = true

@@ -141,8 +141,6 @@ L["Show or hide focus PVP icon"] = "显示或隐藏焦点框架的PVP图标"
 -- 宠物
 L["Pet"] = "宠物"
 L["In pet options you can set scale pet frame, show/hide pet name, enable/disable pet hit indicators, etc"] = "在宠物选项中可以设置玩家框架的缩放尺寸、显示和隐藏宠物名字、启用和禁用宠物命中指示器等。"
-L["Correcting the position of the Pet frame"] = "修复宠物框架的位置"
-L["This function only correctly repositions a pet frame when out of combat. During combat, the position of the frame cannot be changed, but as soon as the player exits the combat, the position of the frame will be corrected."] = "这个功能只有在脱离战斗时才能正确地重新定位宠物框架。在战斗中，框架的位置不能改变，但一旦玩家退出战斗，框架的位置就会被修复"
 L["Pet healthbar text format"] = "宠物生命条文本样式"
 L["Set the pet healthbar text format"] = "设置宠物生命条的文本样式。"
 L["Pet manabar text format"] = "宠物能量条文本样式"

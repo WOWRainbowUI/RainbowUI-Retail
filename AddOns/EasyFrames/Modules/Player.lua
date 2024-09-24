@@ -16,7 +16,6 @@
 --]]
 
 local EasyFrames = LibStub("AceAddon-3.0"):GetAddon("EasyFrames")
-local L = LibStub("AceLocale-3.0"):GetLocale("EasyFrames")
 local Media = LibStub("LibSharedMedia-3.0")
 
 local MODULE_NAME = "Player"
@@ -35,7 +34,7 @@ local OnShowHookScript = function(frame)
     frame:Hide()
 end
 
-local OnSetTextHookScript = function(frame, text, flag)
+local OnSetTextHookScript = function(frame, _, flag)
     if (flag ~= "EasyFramesHookSetText" and not db.player.showHitIndicator) then
         frame:SetText(nil, "EasyFramesHookSetText")
     end
@@ -45,43 +44,43 @@ end
 function Player:OnInitialize()
     self.db = EasyFrames.db
     db = self.db.profile
-
 end
 
 function Player:OnEnable()
-    self:ShowName(db.player.showName)
-    self:SetFrameNameFont()
-    self:SetFrameNameColor()
-    self:SetHealthBarsFont()
-    self:SetManaBarsFont()
-    self:ShowHitIndicator(db.player.showHitIndicator)
-    self:ShowSpecialbar(db.player.showSpecialbar)
-    self:ShowRestIcon(db.player.showRestIcon)
-    self:ShowStatusTexture(db.player.showStatusTexture)
-    self:ShowAttackBackground(db.player.showAttackBackground)
-    self:SetAttackBackgroundOpacity(db.player.attackBackgroundOpacity)
-    self:ShowGroupIndicator(db.player.showGroupIndicator)
-    self:ShowRoleIcon(db.player.showRoleIcon)
-    self:ShowPVPIcon(db.player.showPVPIcon)
+    self:ShowName(db.player.showName);
+    self:SetFrameNameFont();
+    self:SetFrameNameColor();
+    self:SetHealthBarsFont();
+    self:SetManaBarsFont();
+    self:ShowHitIndicator(db.player.showHitIndicator);
+    self:ShowSpecialbar(db.player.showSpecialbar);
+    self:ShowRestIcon(db.player.showRestIcon);
+    self:ShowStatusTexture(db.player.showStatusTexture);
+    self:ShowAttackBackground(db.player.showAttackBackground);
+    self:SetAttackBackgroundOpacity(db.player.attackBackgroundOpacity);
+    self:ShowGroupIndicator(db.player.showGroupIndicator);
+    self:ShowRoleIcon(db.player.showRoleIcon);
+    self:ShowPVPIcon(db.player.showPVPIcon);
 
     if db.general.useEFTextures then
-        self:SecureHook("PlayerFrame_ToPlayerArt", "PlayerFrameToPlayerArt")
-        self:SecureHook("PlayerFrame_ToVehicleArt", "PlayerFrameToVehicleArt")
-        self:SecureHook("PlayerFrame_UpdateStatus", "PlayerFrameUpdateStatus")
-        --self:SecureHook("PlayerFrame_UpdatePlayerNameTextAnchor", "PlayerFrameUpdatePlayerNameTextAnchor") -- @TODO: check the vehicle later.
+        self:SecureHook("PlayerFrame_ToPlayerArt", "PlayerFrame_ToPlayerArt");
+        self:SecureHook("PlayerFrame_ToVehicleArt", "PlayerFrame_ToVehicleArt");
 
-        --self:SecureHook("UnitFrameManaBar_UpdateType", "UnitFrameManaBarUpdate") -- @TODO check perfomance here
+        self:SecureHook("PlayerFrame_UpdateStatus", "PlayerFrame_UpdateStatus");
+        self:SecureHook("PlayerFrame_UpdatePlayerNameTextAnchor", "PlayerFrame_UpdatePlayerNameTextAnchor");
+
+        self:MovePlayerClassPowerBar();
     end
 
     hooksecurefunc(PlayerFrame_GetHealthBar(), "UpdateTextString", function()
-        self:UpdateHealthBarTextString(PlayerFrame)
+        self:UpdateHealthBarTextString(PlayerFrame);
     end)
 
     hooksecurefunc(PlayerFrame_GetManaBar(), "UpdateTextString", function()
-        self:UpdateManaBarTextString(PlayerFrame)
+        self:UpdateManaBarTextString(PlayerFrame);
     end)
 
-    self:SecureHook("UnitFramePortrait_Update", "MakeClassPortraits")
+    self:SecureHook("UnitFramePortrait_Update", "MakeClassPortraits");
 end
 
 function Player:OnProfileChanged(newDB)
@@ -106,48 +105,180 @@ function Player:OnProfileChanged(newDB)
 
     self:UpdateHealthBarTextString(PlayerFrame)
     self:UpdateManaBarTextString(PlayerFrame)
+
+    if db.general.useEFTextures then
+        self:MovePlayerClassPowerBar();
+    end
 end
 
 
-function Player:PlayerFrameToPlayerArt()
-    Core:MovePlayerFrameBars()
-    --Core:MovePlayerFramesBarsTextString()
+function Player:PlayerFrame_ToPlayerArt()
+    local healthBarContainer = PlayerFrame_GetHealthBarContainer();
+    local healthBar = PlayerFrame_GetHealthBar();
+    local manaBar = PlayerFrame_GetManaBar();
+    local alternatePowerBar = PlayerFrame_GetAlternatePowerBar();
 
-    -- The API changes the texture every time. It is necessary to change it back to own after the changes.
-    PlayerFrame.PlayerFrameContainer.FrameTexture:SetTexture(Media:Fetch("frames", "default"))
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexture(Media:Fetch("misc", "player-status"))
-    PlayerFrame.PlayerFrameContainer.FrameFlash:SetTexture(Media:Fetch("misc", "player-status-flash"))
+    PlayerFrame.PlayerFrameContainer.FrameTexture:SetTexture(Media:Fetch("frames", "default"));
+    PlayerFrame.PlayerFrameContainer.FrameTexture:SetTexCoord(1.01, 0.025, 0.24, 1);
 
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexCoord(0.013, 0.803, 0, 0.57)
+    PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture:SetTexture(Media:Fetch("frames", "default-alternate"));
+    PlayerFrame.PlayerFrameContainer.AlternatePowerFrameTexture:SetTexCoord(1.01, 0.025, 0.24, 1.03);
 
-    TargetFrame.TargetFrameContainer.Flash:SetTexture(Media:Fetch("misc", "player-status-flash"))
-end
-
-function Player:PlayerFrameToVehicleArt()
-    Core:MovePlayerFrameBars(true)
-
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1)
-end
-
-function Player:PlayerFrameUpdateStatus()
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PlayerPortraitCornerIcon:Hide()
-end
-
-function Player:PlayerFrameUpdatePlayerNameTextAnchor()
-    if PlayerFrame.unit == "vehicle" then
-        --PlayerName:SetPoint("TOPLEFT", 96, -27);
+    -- Update Flash and Status Textures
+    local frameFlash = PlayerFrame.PlayerFrameContainer.FrameFlash;
+    if alternatePowerBar then
+        frameFlash:SetTexture(Media:Fetch("misc", "player-alternate-status-flash"));
+        frameFlash:SetTexCoord(0.99, 0, 0.24, 1);
+        frameFlash:SetPoint("CENTER",  frameFlash:GetParent(), "CENTER", 2, 0);
     else
-        --PlayerName:SetPoint("TOPLEFT", 88, -27);
-        --Core:MovePlayerFrameName(nil, nil, -28)
+        frameFlash:SetTexture(Media:Fetch("misc", "player-status-flash"));
+        frameFlash:SetTexCoord(0.99, 0, 0.24, 1);
+        frameFlash:SetPoint("CENTER",  frameFlash:GetParent(), "CENTER", 2, 0);
+    end
+
+    local statusTexture = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture;
+    statusTexture:SetTexture(Media:Fetch("misc", "player-status"));
+    statusTexture:SetTexCoord(1.008, 0.025, 0.22, 1);
+
+    -- Update health bar
+    healthBarContainer:SetPoint("TOPLEFT", 85, -30);
+
+    healthBar:SetHeight(EasyFrames.Const.HEALTHBAR_HEIGHT);
+    healthBarContainer:SetHeight(EasyFrames.Const.HEALTHBAR_HEIGHT);
+
+    healthBarContainer.HealthBarMask:Hide(); -- Reverse in Vehicle
+    healthBarContainer:SetFrameStrata("BACKGROUND"); -- Reverse in Vehicle
+
+    -- Update mana bar
+    manaBar:SetPoint("TOPLEFT", 85, -55);
+
+    -- Update alternate power bar
+    if alternatePowerBar then
+        alternatePowerBar:SetPoint("TOPLEFT", 85, -69);
+    end
+
+    -- Update other stuff
+    local playerFrameTargetContextual = PlayerFrame_GetPlayerFrameContentContextual();
+    playerFrameTargetContextual.GroupIndicator:SetPoint("TOPLEFT", 13, 0);
+
+    PlayerFrameGroupIndicatorLeft:SetAlpha(0);
+    PlayerFrameGroupIndicatorRight:SetAlpha(0);
+    PlayerFrameGroupIndicatorMiddle:SetAlpha(0);
+
+    playerFrameTargetContextual.RoleIcon:SetPoint("TOPLEFT", 28, -63);
+
+    playerFrameTargetContextual.PrestigePortrait:SetPoint("TOPLEFT", -4, -16);
+
+    PlayerLevelText:SetJustifyH("CENTER");
+    PlayerLevelText:SetPoint("BOTTOMLEFT", -138, -10);
+end
+
+function Player:PlayerFrame_ToVehicleArt()
+    local healthBarContainer = PlayerFrame_GetHealthBarContainer();
+    healthBarContainer.HealthBarMask:Show(); -- Default state.
+    healthBarContainer:SetFrameStrata("LOW"); -- Default state.
+
+    PlayerFrame.PlayerFrameContainer.FrameFlash:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1); -- Default state.
+    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetTexCoord(0, 0, 0, 1, 1, 0, 1, 1); -- Default state.
+
+    PlayerFrameGroupIndicatorLeft:SetAlpha(0.3);
+    PlayerFrameGroupIndicatorRight:SetAlpha(0.3);
+    PlayerFrameGroupIndicatorMiddle:SetAlpha(0.3);
+end
+
+function Player:PlayerFrame_UpdatePlayerNameTextAnchor()
+    if db.general.useEFTextures then
+        local xOffset = -13;
+        if db.player.showNameInsideFrame then
+            xOffset = -28;
+        end
+
+        PlayerName:SetJustifyH("CENTER");
+        PlayerName:SetWidth(116);
+
+        if PlayerFrame.unit == "vehicle" then
+            PlayerName:SetPoint("TOPLEFT", 96, -27);
+        else
+            PlayerName:SetPoint("TOPLEFT", 89, xOffset);
+        end
+
+        self:ShowNameInsideFrame(db.player.showNameInsideFrame);
     end
 end
 
-function Player:UnitFrameManaBarUpdate(manaBar)
-    if (not manaBar or not manaBar.unitFrame.frameType or manaBar.unit ~= "player") then
-        return;
+function Player:ShowName(value)
+    if (value) then
+        PlayerName:Show()
+    else
+        PlayerName:Hide()
     end
 
-    manaBar:GetStatusBarTexture():SetDrawLayer("BACKGROUND", 0)
+    self:PlayerFrame_UpdatePlayerNameTextAnchor()
+end
+
+function Player:ShowNameInsideFrame(showNameInsideFrame)
+    if db.general.useEFTextures then
+        local HealthBarTexts = {
+            PlayerFrame_GetHealthBar().RightText,
+            PlayerFrame_GetHealthBar().LeftText,
+            PlayerFrame_GetHealthBar().TextString
+        };
+
+        for _, healthBarTextString in pairs(HealthBarTexts) do
+            local point, relativeTo, relativePoint, xOffset = healthBarTextString:GetPoint();
+
+            if (showNameInsideFrame and db.player.showName and PlayerFrame.unit ~= "vehicle") then
+                Core:MoveRegion(healthBarTextString, point, relativeTo, relativePoint, xOffset, -4);
+            else
+                Core:MoveRegion(healthBarTextString, point, relativeTo, relativePoint, xOffset, 0);
+            end
+        end
+    end
+end
+
+function Player:PlayerFrame_UpdateStatus()
+    PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PlayerPortraitCornerIcon:Hide();
+end
+
+function Player:MovePlayerClassPowerBar()
+    local frame
+    local _, class = UnitClass("player")
+    local adXOffset = 5
+    local adYOffset = 0
+    local xGlobalOffset
+    local yGlobalOffset
+
+    if PlayerFrame.classPowerBar then
+        frame = PlayerFrame.classPowerBar
+    elseif class == "SHAMAN" then
+        frame = TotemFrame
+    elseif class == "DEATHKNIGHT" then
+        frame = RuneFrame
+        adXOffset = -2
+        adYOffset = 4
+    elseif class == "PRIEST" then
+        frame = PriestBarFrame
+    elseif class == "EVOKER" then
+        frame = EssencePlayerFrame
+        adXOffset = 4
+    end
+
+    if class == "DRUID" then
+        xGlobalOffset = -4 -- TODO: need to check
+        yGlobalOffset = 4
+    elseif class == "MAGE" then
+        adXOffset = 0
+    elseif class == "ROGUE" then
+        adXOffset = 5
+    end
+
+    if (frame and db.player.specialbarFixPosition) then
+        local point, relativeTo, relativePoint, xOffset, yOffset = frame:GetPoint()
+
+        if point then
+            Core:MoveRegion(frame, point, relativeTo, relativePoint, xGlobalOffset or (xOffset - adXOffset), yGlobalOffset or (yOffset + adYOffset))
+        end
+    end
 end
 
 function Player:MakeClassPortraits(frame)
@@ -162,40 +293,6 @@ function Player:MakeClassPortraits(frame)
             ClassPortraits(frame)
         else
             DefaultPortraits(frame)
-        end
-    end
-end
-
-function Player:ShowName(value)
-    if (value) then
-        PlayerName:Show()
-    else
-        PlayerName:Hide()
-    end
-
-    self:ShowNameInsideFrame(db.player.showNameInsideFrame)
-end
-
-function Player:ShowNameInsideFrame(value)
-    if db.general.useEFTextures then
-        local HealthBarTexts = {
-            PlayerFrame_GetHealthBar().RightText,
-            PlayerFrame_GetHealthBar().LeftText,
-            PlayerFrame_GetHealthBar().TextString
-        }
-
-        for _, healthBar in pairs(HealthBarTexts) do
-            local point, relativeTo, relativePoint, xOffset, yOffset = healthBar:GetPoint()
-
-            if (value and db.player.showName) then
-                Core:MovePlayerFrameName(nil, nil, -28)
-
-                Core:MoveRegion(healthBar, point, relativeTo, relativePoint, xOffset, yOffset - 4)
-            else
-                Core:MovePlayerFrameName()
-
-                Core:MoveRegion(healthBar, point, relativeTo, relativePoint, xOffset, 0)
-            end
         end
     end
 end
@@ -336,7 +433,6 @@ end
 function Player:ShowStatusTexture(value)
     for _, frame in pairs({
         PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture,
-        --PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PlayerPortraitCornerIcon,
     }) do
         if frame then
             self:Unhook(frame, "Show")
@@ -353,7 +449,6 @@ function Player:ShowStatusTexture(value)
         end
     end
 end
-
 
 function Player:ShowAttackBackground(value)
     for _, frame in pairs({
@@ -419,6 +514,7 @@ function Player:ShowPVPIcon(value)
     for _, frame in pairs({
         PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PrestigePortrait,
         PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PrestigeBadge,
+        PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PVPIcon,
         PlayerPVPTimerText,
     }) do
         if frame then

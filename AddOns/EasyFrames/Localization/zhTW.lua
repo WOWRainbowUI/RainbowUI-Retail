@@ -264,9 +264,6 @@ L["Show or hide focus PVP icon"] = "顯示或隱藏專注目標的 PVP 圖示"
 
 L["Pet"] = "寵物"
 L["In pet options you can set scale pet frame, show/hide pet name, enable/disable pet hit indicators, etc"] = "在寵物選項中可以設定寵物框架的縮放大小、血量條文字格式...等。"
-L["Correcting the position of the Pet frame"] = "修正寵物框架位置"
-L["This function only correctly repositions a pet frame when out of combat. During combat, the position of the frame cannot be changed, " ..
-    "but as soon as the player exits the combat, the position of the frame will be corrected."] = "此功能只能在非戰鬥中重新調整寵物框架到正確的位置，戰鬥中無法更改框架位置，但是只要一離開戰鬥，就會被調整到正確的位置。"
 L["Pet name"] = "寵物名字"
 L["Pet name font family"] = "寵物名字字體"
 L["Pet name font size"] = "寵物名字大小"
