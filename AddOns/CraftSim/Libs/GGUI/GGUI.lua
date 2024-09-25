@@ -129,6 +129,7 @@ function GGUI:MakeFrameMoveable(gFrame)
     end)
     gFrame.frame:HookScript("OnMouseUp", function(self, button)
         gFrame.frame.hookFrame:StopMovingOrSizing()
+        if not gFrame.preMoveAnchorParent then return end
         local x, y = gFrame.frame.hookFrame:GetCenter()
         local relativeX, relativeY = gFrame.preMoveAnchorParent:GetCenter()
 
@@ -1579,7 +1580,7 @@ function GGUI.Text:SetText(text)
     self.frame:SetText(text)
 end
 
----@param color GUTIL.COLORS
+---@param color GUTIL.COLORS?
 function GGUI.Text:SetColor(color)
     local text = GUTIL:StripColor(self:GetText())
     if color then
@@ -2927,6 +2928,7 @@ function GGUI.FrameList:new(options)
     options.rowScale = options.rowScale or 1
     self.autoAdjustHeight = options.autoAdjustHeight or false
     self.autoAdjustHeightCallback = options.autoAdjustHeightCallback
+    self.maxAutoAdjustHeight = options.maxAutoAdjustHeight
     self.rowBackdrops = options.rowBackdrops
     self.rowScale = options.rowScale
     self.rowHeight = options.rowHeight
@@ -3458,6 +3460,11 @@ function GGUI.FrameList:AdjustHeight()
     -- adjust framelist height depending on activeRow Count and call callback if existing
     local headerOffset = 10
     local newHeight = (#self.activeRows * self.rowHeight) + headerOffset
+
+    if self.maxAutoAdjustHeight then
+        -- limit to maxHeightAdjustment
+        newHeight = math.min(self.maxAutoAdjustHeight, newHeight)
+    end
 
     self.frame:SetSize(self.frame:GetWidth(), newHeight)
 

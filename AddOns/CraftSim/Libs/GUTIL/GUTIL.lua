@@ -841,12 +841,32 @@ end
 ---@param width number?
 ---@param offsetX number?
 ---@param offsetY number?
-function GUTIL:IconToText(iconPath, height, width, offsetX, offsetY)
+---@param originalX number? for textures to scale better
+---@param originalY number? for textures to scale better
+function GUTIL:IconToText(iconPath, height, width, offsetX, offsetY, originalX, originalY)
     width = width or height
     offsetX = offsetX or 0
     offsetY = offsetY or 0
 
-    return "\124T" .. iconPath .. ":" .. height .. ":" .. width .. ":" .. offsetX .. ":" .. offsetY .. "\124t"
+    if not originalX then
+        return ("|T%s:%d:%d:%d:%d|t"):format(
+            iconPath,
+            height or width,
+            width,
+            offsetX,
+            offsetY
+        );
+    else
+        return ("|T%s:%d:%d:%d:%d:%d:%d|t"):format(
+            iconPath,
+            height or width,
+            width,
+            offsetX,
+            offsetY,
+            originalX,
+            originalY
+        );
+    end
 end
 
 function GUTIL:ValidateNumberString(str, min, max, allowDecimals)

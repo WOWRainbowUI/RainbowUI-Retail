@@ -70,7 +70,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.MULTICRAFT_EXPLANATION_TOOLTIP] =
         "複數製造給你一個使用配方製作比你通常會製作的更多物品的機率。\n\n額外數量通常介於 1 到 2.5y 之間\ny = 1 次製作通常產生的數量。",
         [CraftSim.CONST.TEXT.REAGENTSKILL_EXPLANATION_TOOLTIP] =
-        "你的材料品質可以給你最多 40% 的基礎配方難度作為獎勵技能。\n\n所有 Q1 材料: 0% 獎勵\n所有 Q2 材料: 20% 獎勵\n所有 Q3 材料: 40% 獎勵\n\n技能是藉由每種品質的材料數量乘以它們的品質\n以及每個個別龍族飛行製作材料物品獨有的特定權重值來計算的\n\n然而，這對於重新製作卻不同。在那裡，試劑可以增加品質的最大值\n取決於最初製作物品所使用的材料品質。\n確切的運作方式尚不清楚。\n然而，CraftSim 在內部將達到的技能與所有 q3 進行比較，並計算\n基於此的最大技能提升。",
+        "你的材料品質可以給你最多 40% 的基礎配方難度作為獎勵技能。\n\n所有一星材料: 0% 獎勵\n所有二星材料: 20% 獎勵\n所有三星材料: 40% 獎勵\n\n技能是藉由每種品質的材料數量乘以它們的品質\n以及每個個別龍族飛行製作材料物品獨有的特定權重值來計算的\n\n然而，這對於重新製作卻不同。在那裡，試劑可以增加品質的最大值\n取決於最初製作物品所使用的材料品質。\n確切的運作方式尚不清楚。\n然而，CraftSim 在內部將達到的技能與所有三星進行比較，並計算\n基於此的最大技能提升。",
         [CraftSim.CONST.TEXT.REAGENTFACTOR_EXPLANATION_TOOLTIP] =
         "材料對配方所能貢獻的最大值在大部分時間是基礎配方難度的 40%。\n\n然而，在重新製作的情況下，這個數值會根據之前的製作而有所不同\n以及之前使用過的材料品質。",
 
@@ -144,6 +144,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.POPUP_NO_PRICE_SOURCE_TITLE] = "CraftSim 價格來源警告",
         [CraftSim.CONST.TEXT.POPUP_NO_PRICE_SOURCE_WARNING] = "沒有找到價格來源!\n\n至少需要安裝下面其中一個價格來源插件，CraftSim 才能計算利潤:\n\n\n",
         [CraftSim.CONST.TEXT.POPUP_NO_PRICE_SOURCE_WARNING_SUPPRESS] = "不要再顯示警告",
+		[CraftSim.CONST.TEXT.POPUP_NO_PRICE_SOURCE_WARNING_ACCEPT] = "確定",
 
         -- Materials Frame
         [CraftSim.CONST.TEXT.REAGENT_OPTIMIZATION_TITLE] = "CraftSim 材料最佳化",
@@ -154,6 +155,18 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.MATERIALS_BEST_COMBINATION] = "已分配最佳組合",
         [CraftSim.CONST.TEXT.MATERIALS_NO_COMBINATION] = "無法找到提高\n品質的組合",
         [CraftSim.CONST.TEXT.MATERIALS_ASSIGN] = "分配",
+		[CraftSim.CONST.TEXT.MATERIALS_MAXIMUM_QUALITY] = "最高品質: ",
+        [CraftSim.CONST.TEXT.MATERIALS_AVERAGE_PROFIT_LABEL] = "平均利潤: ",
+        [CraftSim.CONST.TEXT.MATERIALS_AVERAGE_PROFIT_TOOLTIP] =
+        "使用" .. f.l("此材料分配").."時的"..f.bb("每件製作平均利潤"),
+        [CraftSim.CONST.TEXT.MATERIALS_OPTIMIZE_BEST_ASSIGNED] = "最佳材料分配",
+        [CraftSim.CONST.TEXT.MATERIALS_CONCENTRATION_LABEL] = "專注: ",
+        [CraftSim.CONST.TEXT.MATERIALS_OPTIMIZE_INFO] = "Shift + 左鍵點擊數字將物品連結發送到聊天視窗",
+        [CraftSim.CONST.TEXT.MATERIALS_OPTIMIZE_BUTTON] = "最佳化",
+        [CraftSim.CONST.TEXT.MATERIALS_OPTIMIZE_TOOLTIP] =
+            f.r("實驗性功能: ") ..
+            "非常吃效能並且會在編輯時重置。\n最佳化每個專注點數的" ..
+            f.gold("最高金錢價值"),
 
         -- Specialization Info Frame
         [CraftSim.CONST.TEXT.SPEC_INFO_TITLE] = "CraftSim 專精資訊",
@@ -387,6 +400,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.OPTIONS_GENERAL_DETAILED_TOOLTIP_TOOLTIP] = "在物品的浮動提示資訊中顯示上次使用的材料組合的完整清單。",
         [CraftSim.CONST.TEXT.OPTIONS_GENERAL_SUPPORTED_PRICE_SOURCES] = "支援的價格來源:",
         [CraftSim.CONST.TEXT.OPTIONS_PERFORMANCE_RAM] = "製造時啟用記憶體清理",
+		[CraftSim.CONST.TEXT.OPTIONS_PERFORMANCE_RAM_CRAFTS] = "次製造",
         [CraftSim.CONST.TEXT.OPTIONS_PERFORMANCE_RAM_TOOLTIP] =
         "啟用時，CraftSim 會在每次指定數量的製造後清除記憶體中未使用的資料，以防止記憶體堆積。\n記憶體堆積也有可能是其他插件引起的，並且不是只有 CraftSim。\n清理會影響整個魔獸的記憶體使用量。",
         [CraftSim.CONST.TEXT.OPTIONS_MODULES_TAB] = "模組",
@@ -518,6 +532,10 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_NO_MATS] = "沒有材料",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_OPEN_RECIPE_BUTTON_LABEL] = "加入開放材料",
 		[CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_FIRST_CRAFTS_BUTTON_LABEL] = "加入首次製作",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_PATRON_ORDERS_BUTTON_LABEL] = "加入常客訂單",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_PATRON_ORDERS_ALLOW_CONCENTRATION_CHECKBOX] = "允許專注",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_PATRON_ORDERS_ALLOW_CONCENTRATION_TOOLTIP] =
+        "如果無法達到最低品質，可以的話要使用" .. f.l("專注"),
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CLEAR_ALL_BUTTON_LABEL] = "全部清空",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_IMPORT_RECIPE_SCAN_BUTTON_LABEL] = "根據配方掃描補貨",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_WRONG_PROFESSION] = "專業錯誤",
@@ -586,10 +604,21 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_STATUSBAR_CRAFTER] = f.white("正確的製作專業角色"),
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_STATUSBAR_PROFESSION] = f.white("打開專業"),
 		[CraftSim.CONST.TEXT.CRAFT_QUEUE_BUTTON_EDIT] = "編輯",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_BUTTON_CRAFT] = "製造",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_BUTTON_CLAIM] = "宣告",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_BUTTON_CLAIMED] = "已宣告",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_BUTTON_NEXT] = "下一個: ",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_BUTTON_NOTHING_QUEUED] = "沒有任何排程",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_BUTTON_ORDER] = "訂單",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_BUTTON_SUBMIT] = "送出",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_IGNORE_ACUITY_RECIPES_CHECKBOX_LABEL] = "忽略靈巧配方",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_IGNORE_ACUITY_RECIPES_CHECKBOX_TOOLTIP] =
         "不要將使用 " .. f.bb("工匠靈巧") .. " 進行製作的首個物品加入排程",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_AMOUNT_TOOLTIP] = "\n\n已排程的製作: ",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_ORDER_CUSTOMER] = "\n\nOrder Customer: ",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ORDER_MINIMUM_QUALITY] = "\nMinimum Quality: ",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ORDER_REWARDS] = "\n獎勵:",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ORDER_INFO_REAGENTS_IN_YOUR_INVENTORY] = f.r("\n\n所有相關材料都必須在你的背包中才能製作工作訂單!"),
 
         -- craft buffs
 
@@ -624,10 +653,32 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_MAX] = f.g("最大"),
         [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_MAX_VALUE] = "最大: ",
         [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_FULL] = f.g("專注已滿"),
+		[CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_SORT_MODE_CHARACTER] = "角色",
+        [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_SORT_MODE_CONCENTRATION] = "專注",
+        [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_SORT_MODE_PROFESSION] = "專業",
+        [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_FORMAT_MODE_EUROPE_MAX_DATE] = "歐洲 - 最大日期",
+        [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_FORMAT_MODE_AMERICA_MAX_DATE] = "美國 - 最大日期",
+        [CraftSim.CONST.TEXT.CONCENTRATION_TRACKER_FORMAT_MODE_HOURS_LEFT] = "小時剩餘",
 
         -- static popups
         [CraftSim.CONST.TEXT.STATIC_POPUPS_YES] = "是",
         [CraftSim.CONST.TEXT.STATIC_POPUPS_NO] = "否",
+		
+		-- frames
+        [CraftSim.CONST.TEXT.FRAMES_RESETTING] = "重設 frameID: ",
+        [CraftSim.CONST.TEXT.FRAMES_WHATS_NEW] = "CraftSim 更新資訊?",
+        [CraftSim.CONST.TEXT.FRAMES_JOIN_DISCORD] = "加入 Discord!",
+        [CraftSim.CONST.TEXT.FRAMES_DONATE_KOFI] = "拜訪 CraftSim on Kofi",
+        [CraftSim.CONST.TEXT.FRAMES_NO_INFO] = "沒有資訊",
+
+        -- node data
+        [CraftSim.CONST.TEXT.NODE_DATA_RANK_TEXT] = "等級 ",
+        [CraftSim.CONST.TEXT.NODE_DATA_TOOLTIP] = "\n\n來自天賦的總屬性:\n",
+
+        -- columns
+        [CraftSim.CONST.TEXT.SOURCE_COLUMN_AH] = "拍賣",
+        [CraftSim.CONST.TEXT.SOURCE_COLUMN_OVERRIDE] = "重訂",
+        [CraftSim.CONST.TEXT.SOURCE_COLUMN_WO] = "WO",
 		
 		-- 自行加入
         [CraftSim.CONST.TEXT.OPTIONS_CRAFTS] = "次製造",
@@ -640,8 +691,8 @@ function CraftSim.LOCAL_TW:GetData()
 		[CraftSim.CONST.TEXT.NO_PRICESOURCE_WARNING] = "是否確定不要再次提醒你取得價格來源?",
 		[CraftSim.CONST.TEXT.REAGENT_DATA_INVENTORY] = "\n(背包: ",
 		[CraftSim.CONST.TEXT.REAGENT_DATA_PREREQUISITE] = "\n\n前提條件:",
-		[CraftSim.CONST.TEXT.NODE_DATA_RANK] = "等級 ",
-		[CraftSim.CONST.TEXT.STATS_FROM_TALENT] = "\n\n來自天賦的總屬性:\n",		
+		-- [CraftSim.CONST.TEXT.NODE_DATA_RANK] = "等級 ",
+		-- [CraftSim.CONST.TEXT.STATS_FROM_TALENT] = "\n\n來自天賦的總屬性:\n",		
 		[CraftSim.CONST.TEXT.RECIPE_SCAN_QUEUE_TOOLTIP] = "按下 " ..
             CreateAtlasMarkup("NPE_LeftClick", 20, 20, 2) .. " + Shift 將選取的配方加入 " .. f.bb("製作排程"),
 		
