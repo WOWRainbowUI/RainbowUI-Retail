@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.0.09 (18th September 2024)
+-- 	Leatrix Plus 11.0.10 (25th September 2024)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.0.09"
+	LeaPlusLC["AddonVer"] = "11.0.10"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -34,8 +34,11 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 110000 then -- 11.0.0
+		if gametocversion and gametocversion >= 110002 then -- 11.0.2
 			LeaPlusLC.NewPatch = true
+		end
+		if gametocversion and gametocversion >= 110005 then -- 11.0.5
+			LeaPlusLC.NewPatch1105 = true
 		end
 	end
 
@@ -1243,14 +1246,15 @@
 			LeaPlusLC:MakeCB(MountPanel, "MuteMechsuits", "Mechsuits", 150, -172, false, "If checked, mechsuits will be quieter.|n|nThis applies to Felsteel Annihilator, Lightforged Warframe, Sky Golem and other mechsuits.")
 			LeaPlusLC:MakeCB(MountPanel, "MuteOttuks", "Ottuks", 150, -192, false, "If checked, ottuks will be quieter.")
 			LeaPlusLC:MakeCB(MountPanel, "MutePanthers", "Panthers", 150, -212, false, "If checked, the jewelcrafting panther mounts will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteRazorwings", "Razorwings", 150, -232, false, "If checked, razorwings will be muted.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteRabbits", "Rabbits", 150, -232, false, "If checked, divine rabbit mounts will be quieter.|n|nThis applies to Jade, Bright Foreseer.")
 
-			LeaPlusLC:MakeCB(MountPanel, "MuteRockets", "Rockets", 284, -92, false, "If checked, rockets will be muted.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteSoulEaters", "Soul Eaters", 284, -112, false, "If checked, Gladiator Soul Eater mounts will be quieter.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteSoulseekers", "Soulseekers", 284, -132, false, "If checked, soulseekers will be quieter.|n|nThis applies to Corridor Creeper, Mawsworn Soulhunter and Bound Shadehound.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteTravelers", "Travelers", 284, -152, false, "If checked, traveling merchant greetings and farewells will be muted.|n|nThis applies to Traveler's Tundra Mammoth, Grand Expedition Yak and Mighty Caravan Brutosaur.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteUnicorns", "Unicorns", 284, -172, false, "If checked, unicorns will be quieter.|n|nThis applies to Lucid Nightmare, Wild Dreamrunner, Pureheart Courser and other unicorn mounts.")
-			LeaPlusLC:MakeCB(MountPanel, "MuteZeppelins", "Zeppelins", 284, -192, false, "If checked, zeppelins will be muted.|n|nThis applies to zeppelin mounts and transports.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteRazorwings", "Razorwings", 284, -92, false, "If checked, razorwings will be muted.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteRockets", "Rockets", 284, -112, false, "If checked, rockets will be muted.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteSoulEaters", "Soul Eaters", 284, -132, false, "If checked, Gladiator Soul Eater mounts will be quieter.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteSoulseekers", "Soulseekers", 284, -152, false, "If checked, soulseekers will be quieter.|n|nThis applies to Corridor Creeper, Mawsworn Soulhunter and Bound Shadehound.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteTravelers", "Travelers", 284, -172, false, "If checked, traveling merchant greetings and farewells will be muted.|n|nThis applies to Traveler's Tundra Mammoth, Grand Expedition Yak and Mighty Caravan Brutosaur.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteUnicorns", "Unicorns", 284, -192, false, "If checked, unicorns will be quieter.|n|nThis applies to Lucid Nightmare, Wild Dreamrunner, Pureheart Courser and other unicorn mounts.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteZeppelins", "Zeppelins", 284, -212, false, "If checked, zeppelins will be muted.|n|nThis applies to zeppelin mounts and transports.")
 
 			LeaPlusLC:MakeTx(MountPanel, "Specific", 418, -72)
 			LeaPlusLC:MakeCB(MountPanel, "MuteBanLu", "Ban-Lu", 418, -92, false, "If checked, Ban-Lu will no longer talk to you.")
@@ -1392,7 +1396,6 @@
 
 			LeaPlusLC:MakeTx(SoundPanel, "Misc", 418, -72)
 			LeaPlusLC:MakeCB(SoundPanel, "MuteDucks", "Ducks", 418, -92, false, "If checked, duck greetings will be muted.|n|nUse this if you like to do your Valdrakken banking in peace.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteCursedPickaxe", "Pickaxe", 418, -112, false, "If checked, the Cursed Pickaxe will be muted.|n|nYou can remove the associated transform with the remove transforms option.")
 
 			-- Set click width for sounds checkboxes
 			for k, v in pairs(muteTable) do
@@ -5970,6 +5973,21 @@
 						myButton:HookScript("OnLeave", function()
 							GameTooltip:Hide()
 						end)
+						if ZGV_Notification_Entry_Template_Mixin then
+							-- Fix notification system entry height
+							hooksecurefunc(ZGV_Notification_Entry_Template_Mixin, "UpdateHeight", function(self)
+								self:Show()
+								local height = 46
+								if ZGV and ZGV.db and ZGV.db.profile and ZGV.db.profile.nc_size and ZGV.db.profile.nc_size == 1 then height = 36 end
+								height = height + (self.time:IsVisible() and self.time:GetStringHeight()+0 or 0)
+								height = height + (self.title:IsVisible() and self.title:GetStringHeight()+3 or 0)
+								height = height + (self.text:IsVisible() and self.text:GetStringHeight()+3 or 0)
+								height = height + (self.SpecialButton and self.SpecialButton:IsVisible() and self.SpecialButton:GetHeight()+8 or 0)
+								if (self.single or self.special) then height = max(height,25) end
+								self:SetHeight(height)
+								self:Hide()
+							end)
+						end
 					elseif name == "BtWQuestsMinimapButton"				-- BtWQuests
 						or name == "TomCats-MinimapButton"				-- TomCat's Tours
 						or name == "TomCats-LoveIsInTheAirMinimapButton2023"
@@ -6418,7 +6436,7 @@
 			row = row + 1; LeaPlusLC:MakeCB(transPanel.scrollChild, "TransTurkey", "Pilgrim's Bounty: Turkey Shooter", 16,  -((row - 1) * 20) - 2, false, "If checked, the Turkey Shooter transform will be removed when applied.")
 
 			row = row + 2; LeaPlusLC:MakeTx(transPanel.scrollChild, "Items", 16,  -(row - 1) * 20 - 2)
-			row = row + 1; LeaPlusLC:MakeCB(transPanel.scrollChild, "TransCursedPickaxe", "Cursed Pickaxe", 16,  -((row - 1) * 20) - 2, false, "If checked, the Cursed Pickaxe transform will be removed when applied.|n|nYou can mute the associated sounds with the mute game sounds option.")
+			row = row + 1; LeaPlusLC:MakeCB(transPanel.scrollChild, "TransCursedPickaxe", "Cursed Pickaxe", 16,  -((row - 1) * 20) - 2, false, "If checked, the Cursed Pickaxe transform will be removed when applied.|n|nYou can mute the associated sounds with the mute game sounds combat shouts option.")
 
 			-- Debug
 			-- RemoveCommentToEnableDebug = true
@@ -11264,8 +11282,8 @@
 					end
 				end
 
-				if LeaPlusLC.NewPatch then
-					-- LockDF("CombatPlates", "Not currently available in The War Within.")
+				if LeaPlusLC.NewPatch1105 then
+					LockDF("CharAddonList", "This option is now built into the game.")
 				end
 
 				-- Run other startup items
