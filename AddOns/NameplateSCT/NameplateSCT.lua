@@ -123,8 +123,8 @@ local defaults = {
 
 		modOffTargetStrata = false,
 		strata = {
-			target = "HIGH",
-			offTarget = "MEDIUM",
+			target = "BACKGROUND",
+			offTarget = "BACKGROUND",
 		},
 
 		font = defaultFont,
