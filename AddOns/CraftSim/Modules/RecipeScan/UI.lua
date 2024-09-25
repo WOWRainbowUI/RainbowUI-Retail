@@ -770,8 +770,29 @@ function CraftSim.RECIPE_SCAN.UI:InitScanOptionsTab(scanOptionsTab)
         parent = content, anchorParent = content.optimizeProfessionToolsCB.frame, anchorA = "TOP", anchorB = "BOTTOM", offsetY = checkBoxSpacingY,
         label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_SUBRECIPES),
         tooltip = L(CraftSim.CONST.TEXT.RECIPE_SCAN_OPTIMIZE_SUBRECIPES_TOOLTIP),
+        initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_OPTIMIZE_SUBRECIPES"),
         clickCallback = function(_, checked)
             CraftSim.DB.OPTIONS:Save("RECIPESCAN_OPTIMIZE_SUBRECIPES", checked)
+        end
+    }
+
+    content.optimizeReagentsTopProfit = GGUI.Checkbox {
+        parent = content, anchorParent = content.optimizeSubRecipes.frame, anchorA = "TOP", anchorB = "BOTTOM", offsetY = checkBoxSpacingY,
+        label = "Optimize Reagents - Top Profit Max Quality",
+        tooltip = "If enabled, all recipes will be optimized for their most profitable result quality instead of max quality reachable",
+        initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_OPTIMIZE_REAGENTS_TOP_PROFIT"),
+        clickCallback = function(_, checked)
+            CraftSim.DB.OPTIONS:Save("RECIPESCAN_OPTIMIZE_REAGENTS_TOP_PROFIT", checked)
+        end
+    }
+
+    content.optimizeConcentrationValue = GGUI.Checkbox {
+        parent = content, anchorParent = content.optimizeReagentsTopProfit.frame, anchorA = "TOP", anchorB = "BOTTOM", offsetY = checkBoxSpacingY,
+        label = "Optimize Concentration Value",
+        tooltip = "If enabled, all recipes will be optimized for their best concentration gold value per point\n" .. f.r("!!High Performance Usage!!"),
+        initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_OPTIMIZE_CONCENTRATION_VALUE"),
+        clickCallback = function(_, checked)
+            CraftSim.DB.OPTIONS:Save("RECIPESCAN_OPTIMIZE_CONCENTRATION_VALUE", checked)
         end
     }
 
@@ -795,7 +816,7 @@ function CraftSim.RECIPE_SCAN.UI:InitScanOptionsTab(scanOptionsTab)
 
         },
         buttonOptions = {
-            parent = content, anchorParent = content.optimizeSubRecipes.frame,
+            parent = content, anchorParent = content.optimizeConcentrationValue.frame,
             anchorA = "TOPLEFT", anchorB = "BOTTOMLEFT", offsetY = checkBoxSpacingY,
             label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_EXPANSION_FILTER_BUTTON), offsetX = 25,
             adjustWidth = true, sizeX = 20,
@@ -863,8 +884,13 @@ function CraftSim.RECIPE_SCAN.UI:AddRecipe(row, recipeData)
             end
 
             local averageProfit = recipeData:GetAverageProfit()
-            row.concentrationWeight, row.concentrationProfit = CraftSim.AVERAGEPROFIT:GetConcentrationWeight(recipeData,
-                averageProfit)
+            row.concentrationWeight = 0
+            row.concentrationProfit = 0
+            if enableConcentration then
+                row.concentrationWeight, row.concentrationProfit = CraftSim.AVERAGEPROFIT:GetConcentrationWeight(
+                    recipeData,
+                    averageProfit)
+            end
 
             if enableConcentration and row.concentrationProfit then
                 averageProfit = row.concentrationProfit
@@ -874,8 +900,9 @@ function CraftSim.RECIPE_SCAN.UI:AddRecipe(row, recipeData)
             row.relativeProfit = GUTIL:GetPercentRelativeTo(averageProfit, recipeData.priceData.craftingCosts)
             recipeData.resultData:Update() -- switch back
             row.concentrationCost = recipeData.concentrationCost
-            concentrationCostColumn.text:SetText(row.concentrationCost)
-            concentrationValueColumn.text:SetText(CraftSim.UTIL:FormatMoney(row.concentrationWeight, true))
+            concentrationCostColumn.text:SetText((enableConcentration and row.concentrationCost) or f.grey("-"))
+            concentrationValueColumn.text:SetText((enableConcentration and CraftSim.UTIL:FormatMoney(row.concentrationWeight, true)) or
+                f.grey("-"))
 
             averageProfitColumn.text:SetText(CraftSim.UTIL:FormatMoney(averageProfit, true, relativeTo, true))
 

@@ -1,6 +1,10 @@
 # CraftSim
 
-## [18.2.0.1](https://github.com/derfloh205/CraftSim/tree/18.2.0.1) (2024-09-25)
-[Full Changelog](https://github.com/derfloh205/CraftSim/compare/18.2.0...18.2.0.1) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
+## [18.2.1](https://github.com/derfloh205/CraftSim/tree/18.2.1) (2024-09-25)
+[Full Changelog](https://github.com/derfloh205/CraftSim/compare/18.2.0.1...18.2.1) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
 
-- hotfix  
+- news  
+- nice  
+- recipescan option for top profit material optimization  
+- Top Profit Option For Material Optimization  
+- optimizeHighestProfitQuality  
