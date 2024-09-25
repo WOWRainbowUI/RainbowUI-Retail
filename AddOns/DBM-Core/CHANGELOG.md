@@ -1,16 +1,31 @@
 # DBM - Core
 
-## [11.0.15](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.15) (2024-09-21)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.14...11.0.15) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [11.0.16](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/11.0.16) (2024-09-25)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/11.0.15...11.0.16) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- bump version  
-- Fix significant bugs in sikran that made almost all the timers to be non functional after first sweep due to failure to retest the mod with test tools after it was refactored to no longer reset counts. All the timer conditionals were coded relying on counts resetting after each sweep, but since they weren't anymore, it resulted in most timers to stop being functional after first sweep. This is quite frankly, an unacceptable failure in my test processes and peoples time and progress shouldn't suffer as a result of it. As such, anyone that requests a refund for last months patreon pledge, will be given one out of my own pocket  
-- Fix mask trigger not working correctly on kyveza mythic  
-    tweak option defaults for mythic Kyveza  
-- Update localization.fr.lua (#1256)  
-- Update commonlocal.es.lua (#1257)  
-- Update commonlocal.fr.lua (#1258)  
-- Update commonlocal.br.lua (#1259)  
-- Update localization.es.lua (#1255)  
-- Add ulgrax berserk timer  
+- Update localization.tw.lua (#1272)  
+- Update localization.cn.lua (#1273)  
+- prep new tag  
+- mythic templating. empty table for now.  
+- bump vanilla tocs  
+    Further enhance stinging swarm tracking  
+- Add tank taunt warning to silken court since it's far more dangerous to not swap.  
+- Fixes  
+- Update koKR (#1270)  
+- Proper support the echo variant of icon assignments on Bloodtwister as a separate option from BW variant. If any weak aura variants crop up, those will be supported too.  
+    made it easier to template out icons in drop downs by creating common locales for the texture strings  
+- Push some strings earlier for translations to start  
+- disable the wrest reset for now, it needs more work, if it's even doable at all.  
+- Change raid "shockwave" alerts to "frontal" alerts as experiment.  
+- Update commonlocal.fr.lua (#1261)  
+- Update commonlocal.es.lua (#1266)  
+- Tests: Replace StupidParser with a proper parser  
+    This is 2x faster and more correct  
+- Update localization.br.lua (#1265)  
+- Update localization.fr.lua (#1263)  
+- Update localization.es.lua (#1262)  
+- Update localization.fr.lua (#1260)  
+- Update commonlocal.br.lua (#1267)  
+- Update localization.tw.lua (#1268)  
+- Rename twlight massacre to what it's being referred to now  
 - bump alpha  
