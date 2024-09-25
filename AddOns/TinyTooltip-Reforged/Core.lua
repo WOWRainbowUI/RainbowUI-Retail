@@ -266,6 +266,7 @@ end
 
 function addon:GetClassIcon(class)
     if (not class) then return end
+    if (class == "Adventurer") then return end
     local x1, x2, y1, y2 = unpack(CLASS_ICON_TCOORDS[strupper(class)])
     return format(self.icons.class, x1*256, x2*256, y1*256, y2*256)
 end
