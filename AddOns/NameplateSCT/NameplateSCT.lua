@@ -14,7 +14,7 @@ NameplateSCT.frame = CreateFrame("Frame", nil, UIParent)
 -- COMPATIBILITY --
 -------------------
 
-local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+local GetSpellTexture = _G.GetSpellTexture or C_Spell.GetSpellTexture
 
 ------------
 -- LOCALS --
@@ -1098,7 +1098,7 @@ function NameplateSCT:DisplayText(guid, text, size, animation, spellId, pow, spe
 	fontString.unit = unit
 	fontString.guid = guid
 
-	local texture = C_Spell.GetSpellTexture(spellId or spellName or "")
+	local texture = GetSpellTexture(spellId or spellName or "")
 	if NameplateSCT.db.global.showIcon and texture then
 		icon = fontString.icon
 		icon:Show()
@@ -1160,7 +1160,7 @@ function NameplateSCT:DisplayTextOverkill(guid, text, size, animation, spellId, 
 
 	fontString.unit = "player"
 	fontString.guid = guid
-	local texture = C_Spell.GetSpellTexture(spellId or spellName or "")
+	local texture = GetSpellTexture(spellId or spellName or "")
 	if NameplateSCT.db.global.showIcon and texture then
 	icon = fontString.icon
 	icon:Show()
