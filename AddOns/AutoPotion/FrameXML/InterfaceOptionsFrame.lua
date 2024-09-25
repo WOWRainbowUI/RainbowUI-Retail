@@ -370,9 +370,9 @@ SLASH_HAM4 = "/autopotion"
 
 SlashCmdList.HAM = function(msg, editBox)
 	if InterfaceOptions_AddCategory then
-		InterfaceOptionsFrame_OpenToCategory(panel.panel.name)
+		InterfaceOptionsFrame_OpenToCategory("一鍵吃糖")
 	else
-		local settingsCategoryID = _G[addonName].categoryID
-		Settings.OpenToCategory(settingsCategoryID)
+		-- local settingsCategoryID = _G[addonName].categoryID
+		Settings.OpenToCategory("一鍵吃糖")
 	end
 end
