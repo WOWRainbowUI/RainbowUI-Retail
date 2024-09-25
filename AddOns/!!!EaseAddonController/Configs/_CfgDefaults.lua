@@ -121,7 +121,7 @@ D["AdvancedInterfaceOptions"] = {
     },
 	{
 		type = "text",
-        text = "自己的戰鬥文字捲動：請改在 Esc > 選項 > 戰鬥 > 允許浮動戰鬥文字，勾選/取消勾選。\n\n鏡頭最遠距離：調整前請先關閉功能百寶箱裡面的 '最大鏡頭縮放'。\n",       
+        text = "鏡頭最遠距離：調整前請先關閉功能百寶箱裡面的 '最大鏡頭縮放'。\n",       
 	},
 };
 D["AdventureGuideLockouts"] = {
