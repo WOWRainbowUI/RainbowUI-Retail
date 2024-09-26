@@ -2142,3 +2142,9 @@ Change Log:
 * Added Cataclysm spells for Grim Batol (Mythic)
 * Added TWW spells for TWW Delves 
 * Added TWW spells for Nerub-ar Palace
+
+5.13
+* Disabled sliders temporarily for WoW Classic until a replacement can be found
+* Updated ToC for WoW Classic 1.15.4
+* Removed Pre-Dragonflight UI management
+* Added TWW spells for Nerub-ar Palace
