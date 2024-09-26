@@ -53,6 +53,15 @@ function addon:IsScrappable(itemID)
 	end
 end
 
+function addon:IsShatterable(itemID)
+	if addon:IsRetail() then
+		local info = addon.data.shatterable[itemID]
+		if info then
+			return info[1], addon.colors.disenchantable, info[2]
+		end
+	end
+end
+
 function addon:NonDisenchantable(itemID)
 	return not not addon.data.nondisenchantable[itemID]
 end
@@ -72,18 +81,25 @@ function addon:IsDisenchantable(itemID)
 	-- 	end
 	-- end
 
-	-- match against common traits between items that are disenchantable
-	return quality and (
-		(
-			quality >= Enum.ItemQuality.Uncommon and quality <= Enum.ItemQuality.Epic
-		) and C_Item.GetItemInventoryTypeByID(itemID) ~= Enum.InventoryType.IndexBodyType and (
-			class == Enum.ItemClass.Weapon or (
-				class == Enum.ItemClass.Armor and subClass ~= Enum.ItemArmorSubclass.Cosmetic
-			) or (
-				class == Enum.ItemClass.Gem and subClass == Enum.ItemGemSubclass.Artifactrelic
-			) or class == Enum.ItemClass.Profession
-		)
-	) and 13262, addon.colors.disenchantable
+	if not quality or quality < Enum.ItemQuality.Uncommon or quality > Enum.ItemQuality.Epic then
+		-- grey, white, and legendary items, plus artifacts and heirlooms can't be disenchanted
+		return
+	elseif class == Enum.ItemClass.Gem and subClass ~= Enum.ItemGemSubclass.Artifactrelic then
+		-- any gem other than artifact relics can't be disenchanted
+		return
+	elseif class ~= Enum.ItemClass.Weapon and class ~= Enum.ItemClass.Armor then
+		-- only armor or weapons can be disenchanted
+		return
+	elseif C_Item.GetItemInventoryTypeByID(itemID) == Enum.InventoryType.IndexBodyType then
+		-- shirts can't be disenchanted
+		return
+	elseif C_Item.IsCosmeticItem(itemID) then
+		-- cosmetic items can't be disenchanted
+		return
+	end
+
+	-- TODO: check if profession items can still be disenchanted
+	return 13262, addon.colors.disenchantable
 end
 
 function addon:IsOpenable(itemID)
@@ -116,6 +132,10 @@ function addon:IsSalvagable(itemID)
 		return spellID, color, numItems
 	end
 	spellID, color, numItems = addon:IsScrappable(itemID)
+	if spellID then
+		return spellID, color, numItems
+	end
+	spellID, color, numItems = addon:IsShatterable(itemID)
 	if spellID then
 		return spellID, color, numItems
 	end
