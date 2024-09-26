@@ -3,6 +3,7 @@ addon.data = {}
 
 local modifier
 
+local ERR_COLOR = CreateColor(1, 32/255, 32/255)
 local TEMPLATES = {
 	'SecureActionButtonTemplate',
 	'SecureHandlerAttributeTemplate',
@@ -18,7 +19,13 @@ local Molinari = addon:CreateButton('Button', addonName, UIParent, table.concat(
 Molinari:SetFrameStrata('TOOLTIP')
 Molinari:Hide()
 
-addon:HookTooltip(function(tooltip, item)
+local function tooltipHelp(msg, color)
+	GameTooltip:AddLine(' ')
+	GameTooltip:AddLine(msg, color and color:GetRGB())
+	GameTooltip:Show() -- re-render
+end
+
+local function tooltipHook(tooltip, item)
 	if tooltip:GetOwner() == Molinari then
 		-- don't trigger on our own tooltips
 		return
@@ -51,8 +58,8 @@ addon:HookTooltip(function(tooltip, item)
 		return
 	end
 
-	if addon:NonDisenchantable(itemID) then
-		GameTooltip:AddLine(ITEM_DISENCHANT_NOT_DISENCHANTABLE, FACTION_RED_COLOR:GetRGB())
+	if addon:NonDisenchantable(itemID) or (C_Item.IsCosmeticItem and C_Item.IsCosmeticItem(itemID)) then
+		tooltipHelp(ITEM_DISENCHANT_NOT_DISENCHANTABLE, ERR_COLOR)
 		return
 	end
 
@@ -60,10 +67,10 @@ addon:HookTooltip(function(tooltip, item)
 	if spellID then
 		if not IsPlayerSpell(spellID) then
 			local spellName = (C_Spell.GetSpellName or GetSpellInfo)(spellID)
-			GameTooltip:AddLine(ERR_USE_LOCKED_WITH_SPELL_S:format(spellName), FACTION_RED_COLOR:GetRGB())
+			tooltipHelp(ERR_USE_LOCKED_WITH_SPELL_S:format(spellName), ERR_COLOR)
 			return
 		elseif numItemsRequired and C_Item.GetStackCount(item:GetItemLocation()) < numItemsRequired then
-			GameTooltip:AddLine(SPELL_FAILED_NEED_MORE_ITEMS:format(numItemsRequired, C_Item.GetItemNameByID(itemID)), FACTION_RED_COLOR:GetRGB())
+			tooltipHelp(SPELL_FAILED_NEED_MORE_ITEMS:format(numItemsRequired, C_Item.GetItemNameByID(itemID)), ERR_COLOR)
 			return
 		else
 			return Molinari:ApplySpell(item, spellID, color)
@@ -75,7 +82,13 @@ addon:HookTooltip(function(tooltip, item)
 	if key then
 		return Molinari:ApplyItem(item, key, color)
 	end
-end)
+end
+
+function addon:OnLogin()
+	-- load late so our hooks are added late, that way our tooltip lines are more
+	-- likely to render at the bottom of the tooltip (but no guarantee)
+	addon:HookTooltip(tooltipHook)
+end
 
 local MACRO_SALVAGE = '/run C_TradeSkillUI.CraftSalvage(%d, 1, ItemLocation:CreateFromBagAndSlot(%d, %d))'
 local MACRO_TRADE = '/cast %s\n/run ClickTargetTradeButton(7)'
@@ -197,9 +210,9 @@ Molinari:HookScript('OnEnter', function(self)
 	if addon:IsRetail() then
 		if self.spellID then
 			local spellName = (C_Spell.GetSpellName or GetSpellInfo)(self.spellID)
-			GameTooltip:AddLine((('\n'):split(NPEV2_CASTER_ABILITYINITIAL:gsub(' %%s ', '%s'))):format('|A:NPE_LeftClick:18:18|a', '|cff0090ff' .. spellName .. '|r'))
+			tooltipHelp((('\n'):split(NPEV2_CASTER_ABILITYINITIAL:gsub(' %%s ', '%s'))):format('|A:NPE_LeftClick:18:18|a', '|cff0090ff' .. spellName .. '|r'))
 		elseif self.itemID then
-			GameTooltip:AddLine(NPEV2_ABILITYINITIAL:format('|A:NPE_LeftClick:18:18|a', '|cff0090ff' .. C_Item.GetItemNameByID(self.itemID) .. '|r'))
+			tooltipHelp(NPEV2_ABILITYINITIAL:format('|A:NPE_LeftClick:18:18|a', '|cff0090ff' .. C_Item.GetItemNameByID(self.itemID) .. '|r'))
 		end
 	end
 
@@ -226,6 +239,25 @@ function addon:MODIFIER_STATE_CHANGED()
 			addon:DeferMethod(Molinari, 'Hide')
 		elseif modifier ~= 'SHIFT' and IsShiftKeyDown() then
 			addon:DeferMethod(Molinari, 'Hide')
+		end
+	elseif GameTooltip:IsShown() then
+		local owner = GameTooltip:GetOwner()
+		if owner and owner:IsMouseOver() then
+			if owner.GetSlotAndBagID then
+				local slotIndex, bagID = owner:GetSlotAndBagID()
+				if slotIndex and bagID then
+					local item = Item:CreateFromBagAndSlot(bagID, slotIndex)
+					if item then
+						tooltipHook(GameTooltip, item)
+						return
+					end
+				end
+			end
+
+			local _, itemLink = GameTooltip:GetItem()
+			if itemLink then
+				tooltipHook(GameTooltip, Item:CreateFromItemLink(itemLink))
+			end
 		end
 	end
 end
