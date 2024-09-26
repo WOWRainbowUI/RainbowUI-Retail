@@ -357,7 +357,7 @@ function addon:GetUnitInfo(unit)
     local pvpName = UnitPVPName(unit)
     local gender = UnitSex(unit)
     local level = UnitLevel(unit)
-	if(UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
+	if UnitIsWildBattlePet and (UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit)) then
         level = UnitBattlePetLevel(unit)
     end   
     local effectiveLevel = UnitEffectiveLevel(unit)

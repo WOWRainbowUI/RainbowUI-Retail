@@ -29,7 +29,7 @@ local function ShowId(tooltip, name, value, noBlankLine)
 end
 
 local function ShowLinkIdInfo(tooltip, data)
-    if (data.type == Enum.TooltipDataType.Item) then
+    if data and (data.type == Enum.TooltipDataType.Item) then
         local itemName, itemLink, itemID = TooltipUtil.GetDisplayedItem(tooltip)
         ShowId(tooltip, ParseHyperLink(itemLink))
     end

@@ -1,3 +1,4 @@
+if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then return end
 
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 local clientVer, clientBuild, clientDate, clientToc = GetBuildInfo()

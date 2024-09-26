@@ -13,11 +13,7 @@ local addon = TinyTooltipReforged
 local function ColorStatusBar(self, value)
     if (addon.db.general.statusbarColor == "auto") then        
         local unit = "mouseover"
-        if (clientToc < 110000) then
-            local focus = GetMouseFocus()
-        else
-            local focus = GetMouseFoci()
-        end
+        local focus = GetMouseFoci()
         if (focus and focus.unit) then
             unit = focus.unit
         end
@@ -52,11 +48,7 @@ local function UpdateHealthBar(self, hp)
         GameTooltipStatusBar.TextString:Show() 
     end
     local unit = "mouseover"
-    if (clientToc < 110000) then
-        local focus = GetMouseFocus()
-    else
-        local focus = GetMouseFoci()
-    end
+    local focus = GetMouseFoci()
     if (focus and focus.unit) then
         unit = focus.unit
     end
