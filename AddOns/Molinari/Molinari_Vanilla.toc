@@ -16,12 +16,12 @@
 
 libs\Dashi\embed.xml
 
+locale\zhCN.lua
+locale\zhTW.lua
+
 utils.lua
 addon.lua
 settings.lua
-
-locale\zhCN.lua
-locale\zhTW.lua
 
 data\openable_classic_era.lua
 data\keys_classic_era.lua
