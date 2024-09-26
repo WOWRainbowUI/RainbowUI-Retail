@@ -1896,9 +1896,7 @@ end
 
 function GTFO_Command_Options()
 	if (Settings and Settings.OpenToCategory) then
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
-		Settings.OpenToCategory(GTFO.SettingsCategoryId);
+		Settings.OpenToCategory("GTFO");
 	else
 		InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
 		InterfaceOptionsFrame_OpenToCategory(GTFOLocal.Option_Name);
