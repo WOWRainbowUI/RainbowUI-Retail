@@ -1477,6 +1477,11 @@ GTFO.SpellID["451016"] = {
   sound = 3;
 };
 
+GTFO.SpellID["441782"] = {
+  --desc = "Strands of Reality (Skeinspinner Takazj)";
+  sound = 3;
+};
+
 GTFO.SpellID["444094"] = {
   --desc = "Caustic Hail (Rasha'nan)";
   sound = 3;
@@ -1559,6 +1564,16 @@ GTFO.SpellID["444030"] = {
 
 GTFO.SpellID["461408"] = {
   --desc = "Consume (Queen Ansurek)";
+  sound = 3;
+};
+
+GTFO.SpellID["450031"] = {
+  --desc = "Land (Queen Ansurek)";
+  sound = 3;
+};
+
+GTFO.SpellID["450034"] = {
+  --desc = "Land (Queen Ansurek)";
   sound = 3;
 };
 
