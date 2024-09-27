@@ -1,6 +1,6 @@
 ## Interface: 40400, 40401
 ## Author: p3lim
-## Version: 110000.120-Release
+## Version: 110000.121-Release
 ## Title: Molinari
 ## Notes: One-click Milling, Prospecting, Disenchanting, Lockpicking, and more!
 ## SavedVariables: MolinariBlacklistDB, MolinariDB, MolinariDB2, MolinariDB3
