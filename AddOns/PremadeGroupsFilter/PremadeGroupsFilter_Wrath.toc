@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Title: Premade Groups Filter
-## Version: 6.0.3
+## Version: 6.1.0
 ## IconTexture: 397907
 ## X-Flavor: Wrath
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
