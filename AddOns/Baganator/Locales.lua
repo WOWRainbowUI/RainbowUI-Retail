@@ -45,7 +45,7 @@ L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
 L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
 L["TRACKED"] = "Tracked"
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
 
 L["CUSTOMISE_BAGANATOR"] = "Customise Baganator"
 L["BAG_VIEW_TYPE"] = "Bag view type"
@@ -204,6 +204,7 @@ L["MONEY_LOGS"] = "Money Logs"
 L["NO_TRANSACTIONS_AVAILABLE"] = "No Transactions Available"
 L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "You do not have permissions to edit this tab"
 L["GUILD_NO_TABS_PURCHASED"] = "No guild bank tabs purchased"
+L["MULTIPLE_TABS"] = "Multiple tabs"
 
 L["BUY_WARBAND_BANK_TAB"] = "Buy Warband Bank Tab?"
 L["DEPOSIT_WARBOUND"] = "Deposit Warbound Items"
@@ -332,6 +333,7 @@ L["CATEGORIES_FAILED_WARNING"] = "Something went wrong when displaying the categ
 L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
 L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
 L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
 L["BINDING_QUICK_SEARCH"] = "Quick Search"
 
 L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
@@ -346,20 +348,20 @@ L["SYNDICATOR_INSTALL_MESSAGE"] = "Use your addon website/client to install |cff
 
 local L = Locales.frFR
 L["ACCOUNT_GOLD_X"] = "Or du compte : %s"
+--[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
 L["ADD_FROM_ATT_MESSAGE"] = "Utiliser les objets venant de la mini-liste All The Things pour ajouter à cette catégorie"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Ajout de %s objets (depuis la fenêtre %s)"
---[[Translation missing --]]
-L["ADD_IDS"] = "Add IDs"
+L["ADD_IDS"] = "Ajouter ID"
 L["ADD_ITEM"] = "Ajouter un objet"
 L["ADD_ITEM_IDS_MESSAGE"] = "Ajouter une liste d'objet avec leur itemID"
 L["ADD_TO_CATEGORY"] = "Ajouter à la catégorie"
 L["ALL_CHARACTERS"] = "Tous les personnages"
-L["ALT_CLICK"] = "Alt+Click"
+L["ALT_CLICK"] = "Alt+Clic"
 L["ALWAYS"] = "Toujours"
 L["ARRANGE_ITEMS"] = "Organiser les objets"
 L["AT_THE_BOTTOM"] = "En bas"
 L["AT_THE_TOP"] = "En haut"
---[[Translation missing --]]
 L["ATT_ADDON"] = "ATT"
 L["ATTACHED_DIRECTLY_TO_X"] = "Attaché directement %s"
 L["AUCTION_HOUSE"] = "Hôtel des ventes"
@@ -378,12 +380,11 @@ L["BIND_ON_ACCOUNT"] = "Liés au compte"
 L["BIND_ON_EQUIP"] = "Lié quand équipé"
 L["BIND_ON_USE"] = "Lié lors de l'utilisation"
 L["BINDING_QUICK_SEARCH"] = "Recherche Rapide"
+L["BINDING_TOGGLE_BANK"] = "Afficher la Banque"
 --[[Translation missing --]]
-L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
---[[Translation missing --]]
-L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
---[[Translation missing --]]
-L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
+L["BINDING_TOGGLE_GUILD_BANK"] = "Afficher la Banque de Guilde"
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Afficher la Banque de Bataillon"
 L["BLANK_SPACE"] = "Espace vide"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "LqA"
@@ -399,8 +400,7 @@ L["CANNOT_EDIT_GUILD_BANK_TAB_ERROR"] = "Vous n’êtes pas autorisé à modifie
 L["CANNOT_WITHDRAW_ANY_MORE_ITEMS_FROM_THE_GUILD_BANK"] = "Impossible de retirer d’autres objets de la banque de guilde"
 L["CATEGORIES"] = "Catégories"
 L["CATEGORIES_FAILED_WARNING"] = "Quelque chose s'est mal passé pendant l'affichage des catégories. La recherche qui a échoué \"%s\". Les objets suivants ont échoué : %s. Capture cet écran et visite ce Discord :"
---[[Translation missing --]]
-L["CATEGORIES_IN_TOOLTIPS_X"] = "Category matches in bag item tooltips now %s"
+L["CATEGORIES_IN_TOOLTIPS_X"] = "Correspondances de catégories dans les infobulles des objets du sac : %s"
 L["CATEGORY_AUTO_EQUIPMENT_SETS"] = "Auto: Ensemble d'équipement"
 L["CATEGORY_BAG"] = "Sac"
 L["CATEGORY_EQUIPMENT_SET"] = "Ensemble d'équipement"
@@ -432,25 +432,19 @@ L["CREATE_NEW_CATEGORY"] = "Créer une nouvelle catégorie..."
 L["CREATE_NEW_DIVIDER"] = "Créer un nouveau séparateur..."
 L["CREATE_NEW_SECTION"] = "Créer une nouvelle section..."
 L["CTRL_C_TO_COPY"] = "Ctrl+C pour copier"
---[[Translation missing --]]
-L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
---[[Translation missing --]]
-L["CURRENCIES"] = "Currencies"
+L["CTRL_CLICK_TO_TRANSFER"] = "CTRL+Clic pour transférer"
+L["CURRENCIES"] = "Monnaies"
 L["CUSTOMISE_BAGANATOR"] = "Personnaliser Baganator"
 L["DEPOSIT_REAGENTS"] = "Dépôt des composants"
 L["DEPOSIT_WARBOUND"] = "Déposer les objets liés au bataillon"
---[[Translation missing --]]
-L["DISABLED"] = "disabled"
+L["DISABLED"] = "désactivé"
 L["DISCORD_DESCRIPTION"] = "Mises à jour, suggestions de fonctionnalités et assistance"
---[[Translation missing --]]
-L["DRAGGING"] = "Dragging"
---[[Translation missing --]]
-L["DRAGGING_THEN_ALT"] = "Dragging then Alt"
+L["DRAGGING"] = "Glisser"
+L["DRAGGING_THEN_ALT"] = "Glisser puis ALT"
 L["EDIT"] = "Modifier"
 L["EMPTY"] = "Vide"
 L["ENABLE_CATEGORY_MODE_WARNING"] = "Vous devez utilser la disposition Catégories si vous souhaitez utiliser des catégories"
---[[Translation missing --]]
-L["ENABLED"] = "enabled"
+L["ENABLED"] = "activé"
 L["ENCHANTING"] = "Enchantement"
 L["ENGINEERING"] = "Ingénierie"
 L["ENGRAVED_RUNE"] = "Rune gravée"
@@ -517,11 +511,10 @@ L["INCLUDE_REAGENTS"] = "Inclure les composants"
 L["INSCRIPTION"] = "Calligraphie"
 L["INSERT_OR_CREATE"] = "Insérer ou créer"
 L["INVALID_CATEGORY_IMPORT_FORMAT"] = "Format d’importation de catégorie non valide"
---[[Translation missing --]]
-L["ITEM_INFORMATION_MISSING"] = "Item information missing"
+L["ITEM_INFORMATION_MISSING"] = "Information sur l'objet manquante"
 L["ITEM_LEVEL"] = "Niveau de l’objet"
 L["ITEM_QUALITY"] = "Qualité de l’objet"
-L["ITEM_QUALITY_TEXT_COLORS"] = "Item quality text colors"
+L["ITEM_QUALITY_TEXT_COLORS"] = "Couleurs du texte selon la qualité des objets"
 L["ITEM_TYPE"] = "Type d’objet"
 L["ITEMS"] = "Objets"
 L["JEWELCRAFTING"] = "Joaillerie"
@@ -530,8 +523,7 @@ L["JUNK"] = "Camelote"
 L["JUNK_DETECTION_2"] = "Détection d'objets indésirables"
 L["KEYS"] = "Clés"
 L["KEYSTONE_LEVEL"] = "Niveau de clé"
---[[Translation missing --]]
-L["KEYWORDS_IN_TOOLTIPS_X"] = "Keywords in bag item tooltips now %s"
+L["KEYWORDS_IN_TOOLTIPS_X"] = "Mots-clés dans les infobulles des objets du sac : %s"
 L["LAYOUT"] = "Disposition"
 L["LEATHERWORKING"] = "Travail du cuir"
 L["LOCK_WINDOWS"] = "Verrouillage les fenêtres"
@@ -542,7 +534,8 @@ L["MINING"] = "Minage"
 L["MONEY_LOGS"] = "Journaux des monnaies"
 L["MOVE"] = "Déplacer"
 --[[Translation missing --]]
-L["NEVER"] = "Never"
+L["MULTIPLE_TABS"] = "Multiple tabs"
+L["NEVER"] = "Jamais"
 L["NEW_CATEGORY"] = "Nouvelle catégorie"
 L["NEW_SECTION"] = "Nouvelle section"
 L["NO_TRANSACTIONS_AVAILABLE"] = "Aucune transaction disponible"
@@ -564,43 +557,33 @@ L["REAGENTS"] = "Composants"
 L["REALM_WIDE_GOLD_X"] = "Or sur le serveur: %s"
 L["REALM_X_X_X"] = "%s (x%s)"
 L["RECENT_CHARACTER_TABS"] = "Onglets de personnages récents"
-L["RECENT_HEADER_CLICK_MESSAGE"] = "Cliquer sur le Tittre pour effacer tout de suite"
+L["RECENT_HEADER_CLICK_MESSAGE"] = "Cliquer sur l'en-tête pour effacer immédiatement."
 L["RECENT_TIMER"] = "Durée Récent"
 L["REDUCE_UI_SPACING"] = "Réduire l’espacement de l’interface utilisateur"
 L["REMOVE_BORDERS"] = "Supprimer les bordures"
 L["REMOVE_FROM_CATEGORY"] = "Retirer de la catégorie"
---[[Translation missing --]]
-L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
+L["REMOVED_UNUSED_CATEGORIES"] = "Toutes les catégories personnalisées inutilisées ont été supprimées"
 L["RESET_POSITIONS"] = "Position par défaut"
 L["REVERSE_GROUPS_SORT_ORDER"] = "Inverser l’ordre de tri des groupes"
 L["REVERT_CHANGES"] = "Annuler les changements"
---[[Translation missing --]]
-L["RIGHT_CLICK_TO_REMOVE"] = "<Right click to remove>"
+L["RIGHT_CLICK_TO_REMOVE"] = "Clic droit pour retirer"
 L["SCRAP"] = "Scrap"
 L["SCRAPPING_MACHINE"] = "Machine à recycler"
 L["SEARCH_EVERYWHERE"] = "Recherche Globale"
 L["SEARCH_EVERYWHERE_TOOLTIP_TEXT_2"] = "Affichera les résultats dans le chat."
 L["SEARCH_HELP"] = "Aide à la recherche"
 L["SEARCH_TRY_X"] = "Recherche, essayez %s"
---[[Translation missing --]]
-L["SECTION_CRAFTING"] = "Crafting"
---[[Translation missing --]]
-L["SECTION_EQUIPMENT"] = "Equipment"
+L["SECTION_CRAFTING"] = "Artisanat"
+L["SECTION_EQUIPMENT"] = "Équipement"
 L["SELLJUNK"] = "SellJunk"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "MAJ-Clic pour suivre/ne plus suivre"
 L["SHOW_ADD_BUTTONS"] = "Afficher les Boutons pour Ajouter"
 L["SHOW_BUTTONS"] = "Afficher les boutons"
---[[Translation missing --]]
-L["SHOW_NAME_PREFIX"] = "Show name prefix"
+L["SHOW_NAME_PREFIX"] = "Afficher le préfixe du nom"
 L["SHOW_SORT_BUTTON"] = "Afficher le bouton de tri"
---[[Translation missing --]]
-L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
+L["SHOW_TRANSFERABLE_ONLY"] = "Afficher uniquement les transférables"
 L["SINGLE_BAG"] = "Un seul sac"
---[[Translation missing --]]
-L["SINGLE_BAG_DESCRIPTION_2"] = "Arrange items by slot. Keeps your items in one large container."
+L["SINGLE_BAG_DESCRIPTION_2"] = "Organise les objets par emplacement. Regroupe vos objets dans un grand conteneur."
 L["SKINS"] = "Skins"
 L["SLOT"] = "Emplacements"
 L["SOCKET_INTERFACE"] = "Interface des châsses "
@@ -628,8 +611,7 @@ L["TIPS_TRANSFER"] = "Recherchez des articles, puis utilisez le bouton de transf
 L["TL"] = "OE"
 L["TO_OPEN_OPTIONS_X"] = "Accédez aux options avec /bgr"
 L["TOOLTIP_SETTINGS"] = "Paramètres de l’infobulle"
---[[Translation missing --]]
-L["TRACKED"] = "Tracked"
+L["TRACKED"] = "Suivies"
 L["TRADE"] = "Echange"
 L["TRADEABLE_LOOT"] = "Butin échangeable"
 L["TRANSFER"] = "Transfert"
@@ -644,8 +626,7 @@ L["TRANSFER_MAIN_VIEW_TRADE_TOOLTIP_TEXT"] = "Ajouter les objets recherchés à 
 L["TRANSPARENCY"] = "Transparence"
 L["TYPE"] = "Type"
 L["UNLIMITED"] = "Illimité"
---[[Translation missing --]]
-L["UPGRADE_DETECTION"] = "Upgrade detection"
+L["UPGRADE_DETECTION"] = "Détection d'amélioration"
 L["USE_DEFAULT"] = "Par défaut"
 L["USING_X"] = "Utilisant %s"
 L["VENDOR"] = "Vendeur"
@@ -669,6 +650,8 @@ L["XS_GUILD_BANK"] = "Banque de Guilde de %s"
 
 local L = Locales.deDE
 L["ACCOUNT_GOLD_X"] = "Account-Gold: %s"
+--[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
 L["ADD_FROM_ATT_MESSAGE"] = "Verwende Elemente aus den Minilisten-Fenstern des Addons All The Things, um sie zu dieser Kategorie hinzuzufügen."
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "%s Elemente hinzugefügt (aus %s Popouts)"
 L["ADD_IDS"] = "IDs hinzufügen"
@@ -699,12 +682,11 @@ L["BIND_ON_ACCOUNT"] = "Bind on Account"
 L["BIND_ON_EQUIP"] = "Bind on Equip"
 L["BIND_ON_USE"] = "Bind on Use"
 L["BINDING_QUICK_SEARCH"] = "Schnell-Suche"
+L["BINDING_TOGGLE_BANK"] = "Bank umschalten"
 --[[Translation missing --]]
-L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
---[[Translation missing --]]
-L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
---[[Translation missing --]]
-L["BINDING_TOGGLE_WARBAND_BANK"] = "Toggle Warband Bank"
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
+L["BINDING_TOGGLE_GUILD_BANK"] = "Gilden-Bank umschalten"
+L["BINDING_TOGGLE_WARBAND_BANK"] = "Kriegsmeuten-Bank umschalten"
 L["BLANK_SPACE"] = "Leere Stelle"
 L["BLIZZARD"] = "Blizzard"
 L["BOA"] = "BoA"
@@ -752,8 +734,7 @@ L["CREATE_NEW_CATEGORY"] = "Erstelle neue Kategorie"
 L["CREATE_NEW_DIVIDER"] = "Neue Trennlinie erstellen..."
 L["CREATE_NEW_SECTION"] = "Neuen Bereich erstellen..."
 L["CTRL_C_TO_COPY"] = "Strg+C zum Kopieren"
---[[Translation missing --]]
-L["CTRL_CLICK_TO_TRANSFER"] = "<Ctrl-click to transfer>"
+L["CTRL_CLICK_TO_TRANSFER"] = "<Strg-Klick zum Übertragen>"
 L["CURRENCIES"] = "Abzeichen"
 L["CUSTOMISE_BAGANATOR"] = "Baganator anpassen"
 L["DEPOSIT_REAGENTS"] = "Reagenzien einlagern"
@@ -853,6 +834,8 @@ L["MANAGE_CHARACTERS"] = "Charaktere verwalten"
 L["MINING"] = "Bergbau"
 L["MONEY_LOGS"] = "Währungs-Logs"
 L["MOVE"] = "Bewegen"
+--[[Translation missing --]]
+L["MULTIPLE_TABS"] = "Multiple tabs"
 L["NEVER"] = "Nie"
 L["NEW_CATEGORY"] = "Neue Kategorie"
 L["NEW_SECTION"] = "Neuer Abschnitt"
@@ -894,16 +877,12 @@ L["SEARCH_TRY_X"] = "Suche, versuche: %s"
 L["SECTION_CRAFTING"] = "Handwerk"
 L["SECTION_EQUIPMENT"] = "Ausrüstung"
 L["SELLJUNK"] = "Schrott verkaufen"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
+L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Umschalt-Klick zum Verfolgen/Aufheben der Verfolgung>"
 L["SHOW_ADD_BUTTONS"] = "Hinzufügen Buttons anzeigen"
 L["SHOW_BUTTONS"] = "Zeige Buttons"
 L["SHOW_NAME_PREFIX"] = "Namenspräfix anzeigen"
 L["SHOW_SORT_BUTTON"] = "Sortieren Button anzeigen"
---[[Translation missing --]]
-L["SHOW_TRANSFERABLE_ONLY"] = "Show transferable only"
+L["SHOW_TRANSFERABLE_ONLY"] = "Nur wenn übertragbar anzeigen"
 L["SINGLE_BAG"] = "Einzelne Tasche"
 L["SINGLE_BAG_DESCRIPTION_2"] = "Ordnen Sie die Gegenstände nach Plätzen. Bringt Ihre Gegenstände in einem einzelnen großen Behälter unter."
 L["SKINS"] = "Skins"
@@ -933,8 +912,7 @@ L["TIPS_TRANSFER"] = "Suche nach Gegenständen und verwende dann die Transfer-Sc
 L["TL"] = "TL"
 L["TO_OPEN_OPTIONS_X"] = "Optionen anzeigen mit /bgr"
 L["TOOLTIP_SETTINGS"] = "Tooltip-Einstellungen"
---[[Translation missing --]]
-L["TRACKED"] = "Tracked"
+L["TRACKED"] = "Erfasst"
 L["TRADE"] = "Handeln"
 L["TRADEABLE_LOOT"] = "Handelbare Beute"
 L["TRANSFER"] = "Transferieren"
@@ -973,6 +951,8 @@ L["XS_GUILD_BANK"] = "%s's Gildenbank"
 
 local L = Locales.ruRU
 L["ACCOUNT_GOLD_X"] = "Всего на аккаунте: %s"
+--[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
 L["ADD_FROM_ATT_MESSAGE"] = "Используйте предметы из всплывающих окон All The Things для добавления в эту категорию"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Добавлено %s предметов (из %s окон)"
 L["ADD_IDS"] = "Добавить ID"
@@ -1004,6 +984,8 @@ L["BIND_ON_EQUIP"] = "BoE"
 L["BIND_ON_USE"] = "BoU"
 L["BINDING_QUICK_SEARCH"] = "Быстрый поиск"
 L["BINDING_TOGGLE_BANK"] = "Открыть банк"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
 L["BINDING_TOGGLE_GUILD_BANK"] = "Открыть банк гильдии"
 L["BINDING_TOGGLE_WARBAND_BANK"] = "Открыть банк отряда"
 L["BLANK_SPACE"] = "Незаполненное сумками место"
@@ -1152,6 +1134,8 @@ L["MANAGE_CHARACTERS"] = "Настройка"
 L["MINING"] = "Горное дело"
 L["MONEY_LOGS"] = "Журнал финансов"
 L["MOVE"] = "Передвинуть"
+--[[Translation missing --]]
+L["MULTIPLE_TABS"] = "Multiple tabs"
 L["NEVER"] = "Никогда"
 L["NEW_CATEGORY"] = "Новая категория"
 L["NEW_SECTION"] = "Новая секция"
@@ -1193,7 +1177,6 @@ L["SEARCH_TRY_X"] = "Попробуйте ввести для поиска: %s"
 L["SECTION_CRAFTING"] = "Изготовление"
 L["SECTION_EQUIPMENT"] = "Снаряжение"
 L["SELLJUNK"] = "Аддон SellJunk"
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-ЛКМ для отслеживания"
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-ЛКМ для отслеживания/отмены>"
 L["SHOW_ADD_BUTTONS"] = "Кнопки добавления"
 L["SHOW_BUTTONS"] = "Отображать кнопки"
@@ -1272,6 +1255,8 @@ L["XS_GUILD_BANK"] = "%s - банк гильдии"
 
 local L = Locales.esES
 L["ACCOUNT_GOLD_X"] = "Oro de la Cuenta: %s"
+--[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
 L["ADD_FROM_ATT_MESSAGE"] = "Utilice los elementos de todas las ventanas emergentes de mini-listas para añadirlos a esta categoría."
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Añadido %s objetos (%s desde ventana emergente)"
 L["ADD_IDS"] = "Agregar IDs"
@@ -1304,6 +1289,8 @@ L["BIND_ON_USE"] = "Vinculado al usar"
 L["BINDING_QUICK_SEARCH"] = "Búsqueda rápida"
 --[[Translation missing --]]
 L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
 --[[Translation missing --]]
 L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
 --[[Translation missing --]]
@@ -1456,6 +1443,8 @@ L["MANAGE_CHARACTERS"] = "Gestionar personajes"
 L["MINING"] = "Minería"
 L["MONEY_LOGS"] = "Registro de dinero"
 L["MOVE"] = "Mover"
+--[[Translation missing --]]
+L["MULTIPLE_TABS"] = "Multiple tabs"
 L["NEVER"] = "Nunca"
 L["NEW_CATEGORY"] = "Categoría nueva"
 L["NEW_SECTION"] = "Nueva sección"
@@ -1497,8 +1486,6 @@ L["SEARCH_TRY_X"] = "Buscar, ejemplo: %s"
 L["SECTION_CRAFTING"] = "Elaboración"
 L["SECTION_EQUIPMENT"] = "Equipamiento"
 L["SELLJUNK"] = "SellJunk"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
 --[[Translation missing --]]
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 L["SHOW_ADD_BUTTONS"] = "Mostrar botones de añadir"
@@ -1577,6 +1564,8 @@ L["XS_GUILD_BANK"] = "%s's Banco de Hermandad"
 local L = Locales.esMX
 L["ACCOUNT_GOLD_X"] = "Oro en cuenta: %s"
 --[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
+--[[Translation missing --]]
 L["ADD_FROM_ATT_MESSAGE"] = "Use items from All The Things popout mini-list windows to add into this category."
 --[[Translation missing --]]
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Added %s items (from %s popouts)"
@@ -1626,6 +1615,8 @@ L["BIND_ON_USE"] = "Bind on Use"
 L["BINDING_QUICK_SEARCH"] = "Quick Search"
 --[[Translation missing --]]
 L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
 --[[Translation missing --]]
 L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
 --[[Translation missing --]]
@@ -1901,6 +1892,8 @@ L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["MOVE"] = "Move"
 --[[Translation missing --]]
+L["MULTIPLE_TABS"] = "Multiple tabs"
+--[[Translation missing --]]
 L["NEVER"] = "Never"
 L["NEW_CATEGORY"] = "Nueva Categoría"
 --[[Translation missing --]]
@@ -1974,8 +1967,6 @@ L["SECTION_CRAFTING"] = "Crafting"
 --[[Translation missing --]]
 L["SECTION_EQUIPMENT"] = "Equipment"
 L["SELLJUNK"] = "Vender Basura"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
 --[[Translation missing --]]
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 --[[Translation missing --]]
@@ -2110,6 +2101,8 @@ L["XS_GUILD_BANK"] = "Banco de Hermandad de %s"
 
 local L = Locales.zhTW
 L["ACCOUNT_GOLD_X"] = "帳號金幣：%s"
+--[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
 L["ADD_FROM_ATT_MESSAGE"] = "使用 “All The Things ”彈出式迷你視窗中的物品加入到此分類中。"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "已加入 %s 物品（來自 %s 彈出視窗）"
 L["ADD_IDS"] = "新增ID"
@@ -2141,6 +2134,8 @@ L["BIND_ON_EQUIP"] = "裝備綁定"
 L["BIND_ON_USE"] = "使用綁定"
 L["BINDING_QUICK_SEARCH"] = "快速搜尋"
 L["BINDING_TOGGLE_BANK"] = "切換銀行"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
 L["BINDING_TOGGLE_GUILD_BANK"] = "切換公會銀行"
 L["BINDING_TOGGLE_WARBAND_BANK"] = "切換戰隊銀行"
 L["BLANK_SPACE"] = "空白"
@@ -2289,6 +2284,8 @@ L["MANAGE_CHARACTERS"] = "管理角色"
 L["MINING"] = "採礦"
 L["MONEY_LOGS"] = "金幣紀錄"
 L["MOVE"] = "移動"
+--[[Translation missing --]]
+L["MULTIPLE_TABS"] = "Multiple tabs"
 L["NEVER"] = "從不"
 L["NEW_CATEGORY"] = "新分類"
 L["NEW_SECTION"] = "新群組"
@@ -2330,7 +2327,6 @@ L["SEARCH_TRY_X"] = "搜尋，嘗試 %s"
 L["SECTION_CRAFTING"] = "製作"
 L["SECTION_EQUIPMENT"] = "裝備"
 L["SELLJUNK"] = "賣出垃圾"
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-點擊 來追蹤"
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-點擊 來追蹤/不追蹤>"
 L["SHOW_ADD_BUTTONS"] = "顯示新增按鈕"
 L["SHOW_BUTTONS"] = "顯示按鈕"
@@ -2405,6 +2401,8 @@ L["XS_GUILD_BANK"] = "%s 的公會銀行"
 
 local L = Locales.zhCN
 L["ACCOUNT_GOLD_X"] = "帐号金币：%s"
+--[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
 L["ADD_FROM_ATT_MESSAGE"] = "使用“All The Things”小列表弹窗中的物品添加到此分类中。"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "已添加 %s 件物品（来自 %s 弹出窗口）"
 L["ADD_IDS"] = "添加ID"
@@ -2436,6 +2434,8 @@ L["BIND_ON_EQUIP"] = "装备绑定"
 L["BIND_ON_USE"] = "使用绑定"
 L["BINDING_QUICK_SEARCH"] = "快速搜索"
 L["BINDING_TOGGLE_BANK"] = "切换银行"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
 L["BINDING_TOGGLE_GUILD_BANK"] = "切换公会银行"
 L["BINDING_TOGGLE_WARBAND_BANK"] = "切换战团银行"
 L["BLANK_SPACE"] = "空白"
@@ -2584,6 +2584,8 @@ L["MANAGE_CHARACTERS"] = "角色管理"
 L["MINING"] = "采矿"
 L["MONEY_LOGS"] = "货币记录"
 L["MOVE"] = "移动"
+--[[Translation missing --]]
+L["MULTIPLE_TABS"] = "Multiple tabs"
 L["NEVER"] = "从不"
 L["NEW_CATEGORY"] = "新分类"
 L["NEW_SECTION"] = "新组"
@@ -2625,7 +2627,6 @@ L["SEARCH_TRY_X"] = "搜索，尝试：%s"
 L["SECTION_CRAFTING"] = "制造"
 L["SECTION_EQUIPMENT"] = "装备"
 L["SELLJUNK"] = "出售垃圾"
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-点击 追踪"
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-点击 追踪/不追踪>"
 L["SHOW_ADD_BUTTONS"] = "显示添加按钮"
 L["SHOW_BUTTONS"] = "显示按钮"
@@ -2700,6 +2701,8 @@ L["XS_GUILD_BANK"] = "%s 的公会银行"
 
 local L = Locales.koKR
 L["ACCOUNT_GOLD_X"] = "계정 총 소지금: %s"
+--[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
 L["ADD_FROM_ATT_MESSAGE"] = "ATT(All The Things) 애드온 미니 목록 창의 항목을 사용하여 이 카테고리에 추가하세요."
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "%s 항목을 추가했습니다(%s ATT에서)."
 L["ADD_IDS"] = "ID 추가"
@@ -2732,6 +2735,8 @@ L["BIND_ON_USE"] = "사용시 귀속"
 L["BINDING_QUICK_SEARCH"] = "빠른 검색"
 --[[Translation missing --]]
 L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
 --[[Translation missing --]]
 L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
 --[[Translation missing --]]
@@ -2890,6 +2895,8 @@ L["MANAGE_CHARACTERS"] = "캐릭터 관리"
 L["MINING"] = "채광"
 L["MONEY_LOGS"] = "골드 기록"
 L["MOVE"] = "이동"
+--[[Translation missing --]]
+L["MULTIPLE_TABS"] = "Multiple tabs"
 L["NEVER"] = "안함"
 L["NEW_CATEGORY"] = "새 카테고리"
 L["NEW_SECTION"] = "새 섹션"
@@ -2931,8 +2938,6 @@ L["SEARCH_TRY_X"] = "검색, %s 시도"
 L["SECTION_CRAFTING"] = "제작"
 L["SECTION_EQUIPMENT"] = "장비"
 L["SELLJUNK"] = "폐품 판매"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
 --[[Translation missing --]]
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 L["SHOW_ADD_BUTTONS"] = "추가 버튼 표시"
@@ -3016,6 +3021,8 @@ local L = Locales.itIT
 --[[Translation missing --]]
 L["ACCOUNT_GOLD_X"] = "Account gold: %s"
 --[[Translation missing --]]
+L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
+--[[Translation missing --]]
 L["ADD_FROM_ATT_MESSAGE"] = "Use items from All The Things popout mini-list windows to add into this category."
 --[[Translation missing --]]
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "Added %s items (from %s popouts)"
@@ -3077,6 +3084,8 @@ L["BIND_ON_USE"] = "Bind on Use"
 L["BINDING_QUICK_SEARCH"] = "Quick Search"
 --[[Translation missing --]]
 L["BINDING_TOGGLE_BANK"] = "Toggle Bank"
+--[[Translation missing --]]
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
 --[[Translation missing --]]
 L["BINDING_TOGGLE_GUILD_BANK"] = "Toggle Guild Bank"
 --[[Translation missing --]]
@@ -3379,6 +3388,8 @@ L["MONEY_LOGS"] = "Money Logs"
 --[[Translation missing --]]
 L["MOVE"] = "Move"
 --[[Translation missing --]]
+L["MULTIPLE_TABS"] = "Multiple tabs"
+--[[Translation missing --]]
 L["NEVER"] = "Never"
 --[[Translation missing --]]
 L["NEW_CATEGORY"] = "New Category"
@@ -3460,8 +3471,6 @@ L["SECTION_CRAFTING"] = "Crafting"
 L["SECTION_EQUIPMENT"] = "Equipment"
 --[[Translation missing --]]
 L["SELLJUNK"] = "SellJunk"
---[[Translation missing --]]
-L["SHIFT_CLICK_TO_TRACK"] = "Shift-click to track"
 --[[Translation missing --]]
 L["SHIFT_CLICK_TO_TRACK_UNTRACK"] = "<Shift-click to track/untrack>"
 --[[Translation missing --]]
