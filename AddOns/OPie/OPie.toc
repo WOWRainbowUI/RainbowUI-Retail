@@ -1,6 +1,6 @@
-## Interface: 11503, 40400, 110002
+## Interface: 11504, 40400, 110002
 ## Title: OPie
-## Version: Ælling 5
+## Version: Ælling 5a
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
