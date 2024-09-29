@@ -1,10 +1,11 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r156](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r156) (2024-09-28)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r155...r156) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r157](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r157) (2024-09-29)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r155...r157) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- CI: Include tests in release  
-- SoD/DFC: Add mod for new boss (Azgaloth)  
+- don't load trash common in zekvir's lair. fixes double announces  
+- further zekvir work  
+- preliminary fixes for hotfixes  
 - define SoD stats types in BWL  
 - fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1278  
 - Update iron Hook CD from hotfixes  
