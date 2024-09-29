@@ -31,6 +31,8 @@ L["error.semantic"] = "|cffff0000過濾語法的語意錯誤|r\n\n表示過濾�
 L["error.semantic.protected"] = "|cffff0000過濾語法的語意錯誤|r\n\n不再支持關鍵字 'name'，'comment' 和 'findnumber'。 請從高級過濾器表達方式中刪除他們或者點擊重置按鈕。 \n\n從爭霸艾澤拉斯開始，這些都受到暴雪的保護，任何插件都無法讀取。 \n\n使用列表上方的確認搜索欄過濾隊伍副本名稱。\n\n詳細錯誤訊息：\n|cffaaaaaa%s|r"
 L["message.noplaystylefix"] = "預組隊伍過濾: 不會修復“接口操作因AddOn而失敗”錯誤，因為您似乎沒有完全安全的帳戶，否則無法創建預製隊伍。請參閱插件常見問題解答以獲取更多信息以及如何解決此問題。"
 L["message.settingsupgraded"] = "預組隊伍過濾: 設置遷移到版本 %s"
+L["message.sortingoverwritten"] = "預組隊伍過濾: 預設的預組隊伍排序已被 %s 覆寫。"
+L["message.sortingrestored"] = "預組隊伍過濾: 預設的預組隊伍排序已被 %s 恢復。"
 
 L["dialog.settings"] = GAMEMENU_OPTIONS
 L["dialog.reset"] = "重置"
@@ -129,3 +131,7 @@ L["settings.signupOnEnter.title"] = "使用Enter報名"
 L["settings.signupOnEnter.tooltip"] = "報名新隊伍時自動聚焦“給隊長的註記”文字編輯框，並按Enter鍵確認您的申請。"
 L["settings.skipSignUpDialog.title"] = "跳過報名對話框"
 L["settings.skipSignUpDialog.tooltip"] = "如果可能，跳過角色類型/註記提示並立即報名該隊伍。 按下Shift以始終顯示對話框。"
+L["settings.signUpDeclined.title"] = "套用到被拒絕的隊伍"
+L["settings.signUpDeclined.tooltip"] = "恢復成地心之戰之前的舊行為，並允許報名之前拒絕你的隊伍。"
+L["settings.section.mythicplus.title"] = "傳奇+"
+L["settings.section.signup.title"] = "報名"
