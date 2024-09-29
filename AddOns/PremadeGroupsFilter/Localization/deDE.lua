@@ -31,6 +31,8 @@ L["error.semantic"] = "|cffff0000Semantischer Fehler im Filterausdruck|r\n\nDas 
 L["error.semantic.protected"] = "|cffff0000Semantischer Fehler im Filterausdruck|r\n\nDie Filterausdrücke 'name', 'comment' und 'findnumber' werden nicht mehr unterstützt. Bitte entferne sie aus deinem Filterausdruck oder drücke die Zurücksetzen-Schaltfläche.\n\nAb dem Battle for Azeroth Prepatch sind diese Werte durch Blizzard geschützt und können von keinem Addon mehr ausgewertet werden.\n\nBenutze das Standardsuchfeld oberhalb der Gruppenauflistung, um nach Gruppenname zu filtern.\n\nTechnische Fehlermeldung:\n|cffaaaaaa%s|r"
 L["message.noplaystylefix"] = "Premade Groups Filter: Der Fehler 'Interface-Aktion auf Grund eines Addons fehlgeschlagen' wird nicht automatisch behoben, da du anscheinend keinen vollständig gesicherten Account hast und ansonsten keine organisierten Gruppen erstellen kannst. Siehe Addon-FAQ für weitere Informationen und wie man dieses Problem behebt."
 L["message.settingsupgraded"] = "Premade Groups Filter: Einstellungen auf Version %s migriert"
+L["message.sortingoverwritten"] = "Premade Groups Filter: Die standardmäßige Sortierreihenfolge organisierter Gruppen wurde durch das Addon %s überschrieben."
+L["message.sortingrestored"] = "Premade Groups Filter: Die standardmäßige Sortierreihenfolge organisierter Gruppen wurde durch das Addon %s wiederhergestellt."
 
 L["dialog.settings"] = GAMEMENU_OPTIONS
 L["dialog.reset"] = "Zurücksetzen"
@@ -133,3 +135,7 @@ L["settings.specIcon.title"] = "Spezialisierung anzeigen"
 L["settings.specIcon.tooltip"] = "Zeigt ein Icon für die Klassenspezialisierung jedes Mitglieds bei organisierten Dungeongruppen."
 L["settings.missingRoles.title"] = "Fehlende Rollen zeigen"
 L["settings.missingRoles.tooltip"] = "Zeigt das Rollensymbol jedes freien Platzes bei organisierten Dungeongruppen."
+L["settings.signUpDeclined.title"] = "Abgelehnte Gruppen anmelden"
+L["settings.signUpDeclined.tooltip"] = "Stellt das alte Verhalten vor TWW wieder her und erlaubt es, euch für Gruppen anzumelden, die euch zuvor abgelehnt haben."
+L["settings.section.mythicplus.title"] = "Mythisch+"
+L["settings.section.signup.title"] = "Anmeldung"
