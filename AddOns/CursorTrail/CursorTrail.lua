@@ -21,7 +21,6 @@ local _  -- Prevent tainting global _ .
 local abs = _G.math.abs
 local assert = _G.assert
 local C_Timer = _G.C_Timer
-----local collectgarbage = _G.collectgarbage
 local ColorPickerFrame = _G.ColorPickerFrame
 local CopyTable = _G.CopyTable
 local CreateFrame = _G.CreateFrame
@@ -133,9 +132,10 @@ kScreenBottomFourthMult = 1.077
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 kNewFeatures =  -- For flagging new features in the UI.
 {
-    -- Added in release 11.0.2.4 ...
-    {anchor="RIGHT", relativeTo="Tabs.1", relativeAnchor="LEFT", x=0, y=-4},
-    {anchor="RIGHT", relativeTo="LayerEnabledCheckbox", relativeAnchor="LEFT", x=0, y=2},
+--~ Disabled this notification in 11.0.2.6 ...
+--~     -- Added in release 11.0.2.4 ...
+--~     {anchor="RIGHT", relativeTo="Tabs.1", relativeAnchor="LEFT", x=0, y=-4},
+--~     {anchor="RIGHT", relativeTo="LayerEnabledCheckbox", relativeAnchor="LEFT", x=0, y=2},
 
 --~ Disabled this notification in 11.0.2.3 ...
 --~     -- Added in release 10.1.7.4 ...
@@ -190,6 +190,7 @@ kNewModels =  -- For flagging new models in the dropdown list.
 --[[                       Variables                                         ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+gbLoggingOut = nil
 gbReloadOnShow = nil
 gMotionIntensity = 0  -- Ranges 0.0 to 1.0, increases the longer the mouse is moving.  Decrease when mouse is idle.
 gCommand = nil  -- Used to change visibility of cursor FX.  Can be kRefresh, kHide, or nil (no change).
@@ -230,15 +231,15 @@ gLayers =
     getSelectedLayer = function(self)  -- gLayers:getSelectedLayer()
         return self:getLayer()
     end,
---~     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~     getSelectedLayerCfg = function(self)  -- gLayers:getSelectedLayerCfg()
---~         return self:getLayer().playerConfigLayer
---~     end,
---~     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~     getLayerCfg = function(self, layerNum)  -- gLayers:getLayerCfg()
---~         assert(layerNum >= 1 and layerNum <= kMaxLayers)
---~         return self:getLayer(layerNum).playerConfigLayer
---~     end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    getSelectedLayerCfg = function(self)  -- gLayers:getSelectedLayerCfg()
+        return self:getLayer().playerConfigLayer
+    end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    getLayerCfg = function(self, layerNum)  -- gLayers:getLayerCfg()
+        assert(layerNum >= 1 and layerNum <= kMaxLayers)
+        return self:getLayer(layerNum).playerConfigLayer
+    end,
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     getLayer = function(self, layerNum)  -- gLayers:getLayer()
         -- Returns layer data for layerNum.  If layerNum is nil, returns data for the currently selected UI layer.
@@ -298,17 +299,36 @@ gLayers =
         end
         return maxSize
     end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    resetLayer = function(self, layerNum)  -- gLayers:resetLayer()
+        if not layerNum then layerNum = self:getSelectedLayerNum() end
+        assert(layerNum >= 1 and layerNum <= kMaxLayers)
+        local layerCfg = self[layerNum].playerConfigLayer
+        if layerNum == 1 then
+            staticCopyTable( kDefaultConfig[kNewConfigKey].Layers[1], layerCfg )
+        else
+            staticCopyTable( kDefaultConfigLayer, layerCfg )
+            layerCfg.IsLayerEnabled = true
+            layerCfg.ShapeColorR=1; layerCfg.ShapeColorG=1; layerCfg.ShapeColorB=1
+        end
+
+        self:loadFXAndUpdateUI()
+        printMsg(kAddonHeading .."Reset layer ".. layerNum ..".")
+    end,
 --~ UNTESTED ...
 --~     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~     copyLayerCfg = function(self, layerNum)  -- gLayers:copyLayerCfg()
+--~     copyLayer = function(self, layerNum)  -- gLayers:copyLayer()
+--~         if not layerNum then layerNum = self:getSelectedLayerNum() end
 --~         assert(layerNum >= 1 and layerNum <= kMaxLayers)
 --~         return CopyTable( self[layerNum].playerConfigLayer )
 --~     end,
 --~     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~     pasteLayerCfg = function(self, layerNum, layerCfg)  -- gLayers:pasteLayerCfg()
+--~     pasteLayer = function(self, layerNum, layerCfg)  -- gLayers:pasteLayer()
+--~         if not layerNum then layerNum = self:getSelectedLayerNum() end
 --~         assert(layerNum >= 1 and layerNum <= kMaxLayers)
 --~         assert(type(layerCfg) == "table")
 --~         staticCopyTable(layerCfg, self[layerNum].playerConfigLayer
+--~         self:loadFXAndUpdateUI()
 --~     end,
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     swapLayers = function(self, layerNumA, layerNumB)  -- gLayers:swapLayers()
@@ -319,6 +339,11 @@ gLayers =
         staticCopyTable( PlayerConfig.Layers[layerNumB], PlayerConfig.Layers[layerNumA] )  -- Copy B to A.
         staticCopyTable( tmp, PlayerConfig.Layers[layerNumB] )  -- Copy tmp to B.
 
+        self:loadFXAndUpdateUI()
+        printMsg(kAddonHeading .."Swapped layers ".. layerNumA .." and ".. layerNumB ..".")
+    end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    loadFXAndUpdateUI = function(self)  -- gLayers:loadFXAndUpdateUI()
         -- Updated FX variables in gLayers.
         CursorTrail_Load()
 
@@ -327,7 +352,6 @@ gLayers =
         OptionsFrame_SetModified(true)
         OptionsFrame.ProfilesUI:OnValueChanged()
         OptionsFrame_SelectLayer( self:getSelectedLayerNum() )  -- Refreshes UI values.
-        printMsg(kAddonHeading .."Swapped layers ".. layerNumA .." and ".. layerNumB ..".")
     end,
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 }
@@ -376,7 +400,8 @@ function printUsageMsg()
     printMsg(BLUE.."  /ct help"..GREEN2.." - 顯示這段說明內容。")
     printMsg(BLUE.."  /ct off"..GREEN2.." - 暫時停用滑鼠特效以改善遊戲效能。"
         .."  (下次重新載入介面，或是輸入 "..BLUE.."/ct on"..GREEN2.." 來重新啟用。))")
-    printMsg(BLUE.."  /ct reload"..GREEN2.." - 重新載入當前的滑鼠游標設定。")
+    printMsg(BLUE.."  /ct pow"..GREEN2.." - 顯示/隱藏設定檔選項視窗。")
+	printMsg(BLUE.."  /ct reload"..GREEN2.." - 重新載入當前的滑鼠游標設定。")
     printMsg(BLUE.."  /ct reset"..GREEN2.." - 重置為原本的設定。")
     printMsg(GREEN2.."備份指令:")
     printMsg(BLUE.."    /ct backup <備份名稱>")
@@ -442,6 +467,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         if OptionsFrame and OptionsFrame:IsShown() then OptionsFrame:Hide() end
         Globals.CursorTrail_Config.NewFeaturesSeen = {}
         Globals.CursorTrail_Config.ChangelogVersionSeen = nil
+        gbUpdateChangelogVersionSeenOnExit = nil
         printMsg("鼠之軌跡: 重置新功能通知。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "combat"
@@ -558,21 +584,32 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         CursorTrail_Hide()
         printMsg("鼠之軌跡"..": "..ORANGE.."關閉|r  (下次重新載入時會再次開啟，或是從選項視窗開啟。)")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+    elseif cmd == "pow" then
+        if OptionsFrame.ProfilesUI then
+            OptionsFrame_ToggleUI(true)  -- Must show main UI first.
+            local profileOptionsFrame = OptionsFrame.ProfilesUI.mainFrame.optionsFrame
+            if profileOptionsFrame and profileOptionsFrame:IsShown() then
+                profileOptionsFrame:Hide()
+            else
+                OptionsFrame.ProfilesUI.menu.options()  -- Show profile options.
+            end
+        end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     --____________________________________________________
     --               DEBUGGING COMMANDS
     --____________________________________________________
     elseif cmd == "memory" then  -- For debugging.
         local numDecPts = 1
-        local preGC = getMemoryUsage()
-        freeMemory()  -- Frees any "garbage memory" immediately.
-        local currMem = getMemoryUsage()
-        local profilesSize = getTableSize( Globals.CursorTrail_Config.Profiles, true )
-        local backupsSize = getTableSize( Globals.CursorTrail_Config.ProfileBackups, true )
+        local preGC = syslag.getMemoryUsage()
+        syslag.freeEveryAddonsMemory()  -- Frees any "garbage memory" immediately.
+        local currMem = syslag.getMemoryUsage()
+        local profilesSize = syslag.getTableSize( Globals.CursorTrail_Config.Profiles, true )
+        local backupsSize = syslag.getTableSize( Globals.CursorTrail_Config.ProfileBackups, true )
         printMsg( kAddonFolderName .." Memory: ".. round(currMem, numDecPts) .."k"
                 .. "  (Max: ".. round(preGC, numDecPtrs) .."k)\n"
                 .. "Profiles: ".. round(profilesSize, numDecPts) .."k\n"
                 .. "Backups: ".. round(backupsSize, numDecPts) .."k" )
-        freeMemory()
+        syslag.freeEveryAddonsMemory()
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "throttle" then  -- For diagnosing large frame rate drops on certain computers.  (TODO:Remove)
         if cmdParam == nil or cmdParam == "" then
@@ -602,7 +639,6 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         while frm do
             i = i + 1
             vdt_dump(frm, "Ancestory "..i, true)
-            print("ck2")
             if frm == OptionsFrame then
                 print("Ancestory=TRUE")
                 return true
@@ -639,7 +675,27 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
 --~         Globals.C_UI.Reload()
 --~     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 --~     elseif cmd == "test" then
+--~ ---     ............................................................
+--~         if gTest then
+--~             if not gTest.small then
+--~                 print("alloc SMALL")
+--~                 gTest = {small=true}
+--~             end
+--~         else
+--~             print("starting mem: "..syslag.getMemoryUsage(1) .."k")
+--~             print("alloc BIG")
+--~             for i = 1, 10 do
+--~                 gTest = CopyTable( OptionsFrame.ProfilesUI.DB:getProfiles() )
+--~             end
+--~         end
+--~         deltatime(1)
+--~         C_Timer.After(0.3, function() print("curr mem: "..syslag.getMemoryUsage(1) .."k") end)
+--~ ---     ............................................................
 --~         print(kAddonHeading.."Test...")
+--~         private.UDControls.MsgBox3("Save data before continuing?",
+--~             Globals.YES, function(thisStaticPopupTable, data, reason) print("btnYES") end,
+--~             Globals.NO, function(thisStaticPopupTable, data, reason) print("btnNO") end,
+--~             Globals.CANCEL, function(thisStaticPopupTable, data, reason) print("btnCANCEL") end)
 --~ ---     ............................................................
 --~         ----local data = OptionsFrame.ProfilesUI.DB:get("Test")
 --~ --TODO: Add Credits to TOC files for AceSerializer if you end up using it.
@@ -719,6 +775,7 @@ EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD") --VARIABLES_LOADED
 function       EventFrame:PLAYER_ENTERING_WORLD(isLogin, isReload)
     ----dbg("PLAYER_ENTERING_WORLD".. (isLogin and " (LOGIN)" or "") .. (isReload and " (RELOAD)" or ""))
     ----dbg("CursorModel: "..(CursorModel and "EXISTS" or "NIL"))
+    assert(not gbLoggingOut)
     memchk()
     Addon_Initialize()
     memchk("Addon_Initialize()")
@@ -785,6 +842,10 @@ end
 -------------------------------------------------------------------------------
 EventFrame:RegisterEvent("PLAYER_LOGOUT")
 function       EventFrame:PLAYER_LOGOUT()
+    gbLoggingOut = true
+    if OptionsFrame:IsVisible() then  -- Reloading while UI is still open?
+        OptionsFrame_OnCancel()  -- (Fix for BUG_20240925.1)
+    end
     if gbUpdateChangelogVersionSeenOnExit then
         Globals.CursorTrail_Config.ChangelogVersionSeen = kAddonVersion -- Stops flashing the changelog button even if user didn't open it.
     end
@@ -1009,9 +1070,12 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                         local modelZ = TestModel.OfsZ
                         ----TestModel:SetPosition(modelZ, modelX, modelY)  --<<< NO EFFECT.
                         ----TestModel:SetViewTranslation(cursorX-ScreenMidX, cursorY-ScreenMidY)
-                        gPosVector:SetXYZ(modelX, modelY, modelZ)
-                        gRotVector:SetXYZ(TestModel.RotX, TestModel.RotY, TestModel.RotZ)
-                        TestModel:SetTransform(gPosVector, gRotVector, TestModel.Scale)  ----TestModel:GetWorldScale() )
+                        TestModel:SetTransform( CreateVector3D(modelX, modelY, modelZ),  -- (Position x,y,z)
+                                        CreateVector3D(TestModel.RotX, TestModel.RotY, TestModel.RotZ),  -- (Rotation x,y,z)
+                                        TestModel.Scale )  ----TestModel:GetWorldScale() )
+                        ----gPosVector2:SetXYZ(modelX, modelY, modelZ)
+                        ----gRotVector2:SetXYZ(TestModel.RotX, TestModel.RotY, TestModel.RotZ)
+                        ----TestModel:SetTransform(gPosVector2, gRotVector2, TestModel.Scale)  ----TestModel:GetWorldScale() )
                     else
                         local modelX = (cursorX + TestModel.OfsX) / (ScreenHypotenuse * TestModel.Scale)
                         local modelY = (cursorY + TestModel.OfsY) / (ScreenHypotenuse * TestModel.Scale)
@@ -1348,9 +1412,10 @@ function validateConfig(config)
         layerCfg.UserRotY = layerCfg.UserRotY or 0
         layerCfg.UserRotZ = layerCfg.UserRotZ or 0
 
-        layerCfg.FadeOut = layerCfg.FadeOut or false
-        layerCfg.UserShowOnlyInCombat = layerCfg.UserShowOnlyInCombat or false
-        layerCfg.UserShowMouseLook = layerCfg.UserShowMouseLook or false
+        -- Note: The following values can be legally nil when loading a default.
+        ----layerCfg.FadeOut = layerCfg.FadeOut or false
+        ----layerCfg.UserShowOnlyInCombat = layerCfg.UserShowOnlyInCombat or false
+        ----layerCfg.UserShowMouseLook = layerCfg.UserShowMouseLook or false
 
         if layerCfg.UserScale < kMinScale then layerCfg.UserScale = kMinScale end
     end

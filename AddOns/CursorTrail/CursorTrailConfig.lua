@@ -1,9 +1,6 @@
 --[[---------------------------------------------------------------------------
     File:   CursorTrailConfig.lua
     Desc:   Functions and variables for showing this addon's configuration options.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- BUGS & TODOs:
-    None.
 -----------------------------------------------------------------------------]]
 
 local kAddonFolderName, private = ...
@@ -31,6 +28,7 @@ local CreateFrame = _G.CreateFrame
 local GameTooltip = _G.GameTooltip
 local GetAddOnMetadata = _G.GetAddOnMetadata or _G.C_AddOns.GetAddOnMetadata
 local GetTime = _G.GetTime
+local ipairs = _G.ipairs
 local IsAltKeyDown = _G.IsAltKeyDown
 local IsControlKeyDown = _G.IsControlKeyDown
 local IsShiftKeyDown = _G.IsShiftKeyDown
@@ -85,8 +83,6 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --[[                       Constants                                         ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-kButtonTemplate = ((kGameTocVersion >= 100000) and "UIPanelButtonTemplate") or "OptionsButtonTemplate"
-
 kFrameHeaderWidth = 350
 kFrameHeaderHeight = 58
 kFrameMargin = 18
@@ -97,7 +93,7 @@ kBtnWidth = 104
 kBtnHeight = 22
 kButtonSpacing = 4
 kDropdownListboxScale = 0.95
-kbClickableCheckboxText = isRetailWoW()  -- Uncomment this line for clickable checkbox text that toggles its checkbox.
+kbClickableCheckboxText = true  -- Uncomment this line for clickable checkbox text that toggles its checkbox.
 
 kFrameWidth = 459
 kColumnWidth1 = 100  -- Width of the labels column.
@@ -138,21 +134,35 @@ function UI_SetValues(config, reason) -- Copies config data into UI widgets.  If
     ----end
     LOCK_UI()
     OptionsFrame.ShapeColor:CloseColorPicker(false)  -- Make sure color picker is closed.  (Cancel color changes.)
+    OptionsFrame_CloseDropDownMenus()  -- Close any popup menus that are open.
 
     ----vdt_dump(config, "config (1) in UI_SetValues()")
     config = config or PlayerConfig  -- Use local copy of "SavedVariables" data if config is nil.
     ----vdt_dump(config, "config (2) in UI_SetValues()")
     validateConfig(config)  -- Ensure all config fields exist, and have valid values.
     ----vdt_dump(config, "config (3) in UI_SetValues()")
+
+    -- Copy all values in "config" to "PlayerConfig" if they are different tables.
     if config ~= PlayerConfig then
-        staticCopyTable(config, PlayerConfig)  -- Updates PlayerConfig.
+        if reason == kReasons.LoadingDefault then
+            -- First, convert special kNoChange values when loading a default.
+            local specialSettings = {"FadeOut", "UserShowOnlyInCombat", "UserShowMouseLook"}
+            for i = 1, kMaxLayers do
+                for _, key in ipairs(specialSettings) do
+                    if config.Layers[i][key] == kNoChange then
+                        config.Layers[i][key] = PlayerConfig.Layers[1][key]  -- Set all layers to first layer's value.
+                    end
+                end
+            end
+        end
+
+        -- Update PlayerConfig.
+        staticCopyTable(config, PlayerConfig)
     end
 
-    -- Close any popup menus that are open.
-    OptionsFrame_CloseDropDownMenus()
-
     -- Copy selected layer data into UI widgets.  (Convert nil values to false or "" so OptionsFrame_Value() works right.)
-    local layerCfg = config.Layers[ OptionsFrame_GetSelectedLayer() ]
+    local layerNum = OptionsFrame_GetSelectedLayer()
+    local layerCfg = config.Layers[layerNum]
 
     OptionsFrame_Value("enabled", layerCfg.IsLayerEnabled and true or false)
     OptionsFrame_Value("shape", layerCfg.ShapeFileName or "")
@@ -167,15 +177,9 @@ function UI_SetValues(config, reason) -- Copies config data into UI widgets.  If
     OptionsFrame_Value("OfsX", layerCfg.UserOfsX)
     OptionsFrame_Value("OfsY", layerCfg.UserOfsY)
 
-    if layerCfg.FadeOut == true or layerCfg.FadeOut == false then  -- If nil, leave as-is.
-        OptionsFrame_Value("fade", layerCfg.FadeOut)
-    end
-    if layerCfg.UserShowOnlyInCombat == true or layerCfg.UserShowOnlyInCombat == false then  -- If nil, leave as-is.
-        OptionsFrame_Value("combat", layerCfg.UserShowOnlyInCombat)
-    end
-    if layerCfg.UserShowMouseLook == true or layerCfg.UserShowMouseLook == false then  -- If nil, leave as-is.
-        OptionsFrame_Value("MouseLook", layerCfg.UserShowMouseLook)
-    end
+    OptionsFrame_Value("fade", layerCfg.FadeOut)
+    OptionsFrame_Value("combat", layerCfg.UserShowOnlyInCombat)
+    OptionsFrame_Value("MouseLook", layerCfg.UserShowMouseLook)
 
     OptionsFrame_UpdateButtonStates()
     OptionsFrame_ClearFocus()
@@ -185,6 +189,8 @@ function UI_SetValues(config, reason) -- Copies config data into UI widgets.  If
     CursorTrail_Load()  -- Apply changes to model and texture FX variables.
     CursorTrail_Refresh()
     UNLOCK_UI()
+
+    ----if reason == kReasons.UndoingProfileChanges then vdt_dump(PlayerConfig, "PlayerConfig after undo profile changes")
     --|traceCfg("OUT UI_SetValues().")
 end
 
@@ -294,7 +300,7 @@ function StandardPanel_Create(buttonText, buttonW, buttonH)
     local description = GetAddOnMetadata(kAddonFolderName, "Notes") or ""
     descText:SetText(description)
 
-    local optionsBtn = CreateFrame("Button", nil, StandardPanel, kButtonTemplate)
+    local optionsBtn = CreateFrame("Button", nil, StandardPanel, "UIPanelButtonTemplate")
     optionsBtn:SetPoint("LEFT", headingText, "LEFT", 0, 0)
     optionsBtn:SetPoint("TOP", descText, "BOTTOM", 0, -ofs)
     optionsBtn:SetSize(buttonW, buttonH)
@@ -439,6 +445,17 @@ function OptionsFrame_Create()
     OptionsFrame:SetClampRectInsets(250, -250, -350, 350)
     OptionsFrame:RegisterForDrag("LeftButton")
 
+    ---------------------------
+    -- - - - FUNCTIONS - - - --
+    ---------------------------
+
+    function OptionsFrame:hidePopupWindows()
+        local mainframe = self.ProfilesUI.mainFrame
+        if mainframe.optionsFrame then
+            mainframe.optionsFrame:Hide()
+        end
+    end
+
     ------------------------
     -- - - - EVENTS - - - --
     ------------------------
@@ -481,6 +498,12 @@ function OptionsFrame_Create()
                 local layerNum = OptionsFrame_GetSelectedLayer()
                 local isLayerEnabled = PlayerConfig.Layers[layerNum].IsLayerEnabled
                 if not isLayerEnabled then OptionsFrame_SelectFirstEnabledLayer() end
+
+                ----if OptionsFrame.ProfilesUI.DB:getOptions().bUseAccountProfile then
+                ----    OptionsFrame.ProfilesUI:setBackColor(0.5, 0.5, 0.9,  0.28)
+                ----else
+                ----    OptionsFrame.ProfilesUI:setBackColor(0.5, 0.5, 0.9,  0.15)
+                ----end
             end)
 
     ----OptionsFrame.ProfilesUI.bMouseWheelTips = false -- Optional customization.
@@ -529,7 +552,7 @@ function OptionsFrame_Create()
     OptionsFrame_CreateDividerLine(xPos, firstDividerY)
 
     -- DEFAULTS BUTTON --
-    OptionsFrame.DefaultsBtn = CreateFrame("Button", nil, OptionsFrame, kButtonTemplate)
+    OptionsFrame.DefaultsBtn = CreateFrame("Button", nil, OptionsFrame, "UIPanelButtonTemplate")
     OptionsFrame.DefaultsBtn:SetText( Globals.DEFAULTS .." ..." )
     fontName, fontSize = OptionsFrame.DefaultsBtn.Text:GetFont()
     OptionsFrame.DefaultsBtn.Text:SetFont(fontName, fontSize-1)
@@ -544,7 +567,7 @@ function OptionsFrame_Create()
             end)
 
 --~     -- TEST BUTTON --
---~     OptionsFrame.TestBtn = CreateFrame("Button", nil, OptionsFrame, kButtonTemplate)
+--~     OptionsFrame.TestBtn = CreateFrame("Button", nil, OptionsFrame, "UIPanelButtonTemplate")
 --~     OptionsFrame.TestBtn:SetText("TEST")
 --~     OptionsFrame.TestBtn:SetPoint("TOP", OptionsFrame.DefaultsBtn, "BOTTOM", 0, -kButtonSpacing)
 --~     OptionsFrame.TestBtn:SetSize(kBtnWidth, kBtnHeight-4)
@@ -577,14 +600,14 @@ function OptionsFrame_Create()
 --~             end)
 
     -- CANCEL BUTTON --
-    OptionsFrame.CancelBtn = CreateFrame("Button", nil, OptionsFrame, kButtonTemplate)
+    OptionsFrame.CancelBtn = CreateFrame("Button", nil, OptionsFrame, "UIPanelButtonTemplate")
     OptionsFrame.CancelBtn:SetText(CANCEL)
     OptionsFrame.CancelBtn:SetPoint("BOTTOMRIGHT", OptionsFrame, "BOTTOMRIGHT", -kFrameMargin, kFrameMargin)
     OptionsFrame.CancelBtn:SetSize(kBtnWidth, kBtnHeight+2)
     OptionsFrame.CancelBtn:SetScript("OnClick", OptionsFrame_OnCancel)
 
     -- OKAY BUTTON --
-    OptionsFrame.OkayBtn = CreateFrame("Button", nil, OptionsFrame, kButtonTemplate)
+    OptionsFrame.OkayBtn = CreateFrame("Button", nil, OptionsFrame, "UIPanelButtonTemplate")
     OptionsFrame.OkayBtn:SetText(OKAY)
     OptionsFrame.OkayBtn:SetPoint("RIGHT", OptionsFrame.CancelBtn, "LEFT", -kButtonSpacing, 0)
     OptionsFrame.OkayBtn:SetSize(kBtnWidth, kBtnHeight+2)
@@ -611,10 +634,12 @@ function OptionsFrame_Create()
     OptionsFrame.HelpBtn:SetPoint("BOTTOMLEFT", OptionsFrame, "BOTTOMLEFT", kFrameMargin-2, kFrameMargin-3)
     OptionsFrame.HelpBtn:SetTooltip("說明", "ANCHOR_TOP")
     OptionsFrame.HelpBtn:SetScript("OnClick", function(self)
-            PlaySound(private.kSound.ActionQuiet)
+            -- Show help.
+            OptionsFrame:hidePopupWindows()
             memchk()
             CursorTrail_ShowHelp(OptionsFrame)
             memchk("CursorTrail_ShowHelp()")
+            PlaySound(private.kSound.ActionQuiet)
         end)
 
     -- CHANGELOG BUTTON (ICON) --
@@ -635,10 +660,12 @@ function OptionsFrame_Create()
     OptionsFrame.ChangelogBtn:SetPoint("LEFT", OptionsFrame.HelpBtn, "RIGHT", 7, -0.5)
     OptionsFrame.ChangelogBtn:SetTooltip("更新資訊", "ANCHOR_TOP")
     OptionsFrame.ChangelogBtn:SetScript("OnClick", function(self)
-            PlaySound(private.kSound.ActionQuiet)
+            -- Show changelog.
+            OptionsFrame:hidePopupWindows()
             memchk()
             CursorTrail_ShowChangelog(OptionsFrame)
             memchk("CursorTrail_ShowChangelog()")
+            PlaySound(private.kSound.ActionQuiet)
             OptionsFrame.ChangelogBtn:flash(false)
             Globals.CursorTrail_Config.ChangelogVersionSeen = kAddonVersion
         end)
@@ -646,8 +673,8 @@ function OptionsFrame_Create()
     OptionsFrame.ChangelogBtn.flash = function(self, bFlash)
             if bFlash and not self.flashTicker then
                 -- Start flashing the button.
-                self.origScale = self.origScale or self:GetScale()
-                OptionsFrame.ChangelogBtn:SetScale( 1.25 * self.origScale )
+                ----self.origScale = self.origScale or self:GetScale()
+                ----OptionsFrame.ChangelogBtn:SetScale( 1.25 * self.origScale )
 
                 self.origAlpha = self.origAlpha or self:GetAlpha()
                 local flashSecs = 0.4
@@ -662,7 +689,7 @@ function OptionsFrame_Create()
                 self.flashTicker:Cancel()
                 self.flashTicker = nil
                 OptionsFrame.ChangelogBtn:SetAlpha( self.origAlpha )
-                OptionsFrame.ChangelogBtn:SetScale( self.origScale )
+                ----OptionsFrame.ChangelogBtn:SetScale( self.origScale )
             end
         end
 
@@ -1047,10 +1074,22 @@ function OptionsFrame_CreateContextMenu()
                 i = i + 1
             end
 
+            -- RESET LAYER:
+            lines[i] = {text="Reset Layer "..currentLayer,
+                        func=function() gLayers:resetLayer(currentLayer) end}
+                        ----func=function()
+                        ----    msgbox3("Reset layer "..currentLayer.." to starting values?",
+                        ----            YES, function(thisPopupFrame, data, reason) gLayers:resetLayer(currentLayer) end,
+                        ----            NO, nil,
+                        ----            nil, nil,  -- button3
+                        ----            myDataBuffer,  -- data
+                        ----            false, nil, 0, 3)  -- Icon, Sound, Timeout, Preferred Index.
+                        ----end}
+            i = i + 1
+
             -- COPY/PASTE LAYER:
             --TODO:  lines[i] = {text="Copy Layer",  func=function() gLayers:copyLayer() end}; i=i+1
             --TODO:  lines[i] = {text="Paste Layer",  func=function() gLayers:pasteLayer() end}; i=i+1
-            --TODO:  lines[i] = {text="Reset Layer",  func=function() gLayers:resetLayer() end}; i=i+1
 
             -- SWAP LAYERS:
             lines[i] = {isDivider=true}; i=i+1
@@ -1265,13 +1304,14 @@ end
 
 -------------------------------------------------------------------------------
 function OptionsFrame_OnShow()
+    ----memchk()
     --|traceCfg("IN OptionsFrame_OnShow().")
     assert(PlayerConfig == getPlayerConfig())  -- Verify address has not changed from incorrectly using CopyTable().
     PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
     EventFrame:RegisterEvent("GLOBAL_MOUSE_DOWN")
     OptionsFrame.BlockerFrame:Hide()
     OptionsFrame_HandleNewFeatures()  -- Flag any new features.
-    OptionsFrame.OriginalConfig = CopyTable(PlayerConfig)
+    ----OptionsFrame.OriginalConfig = CopyTable(PlayerConfig)  <<< Moved OriginalConfig to ProfilesUI.OriginalValues.
 
     -- If currently selected layer isn't enabled, select the first layer that is enabled.
     local selectedLayerNum = OptionsFrame_GetSelectedLayer()
@@ -1286,10 +1326,12 @@ function OptionsFrame_OnShow()
     OptionsFrame_SetModified(false)
     OptionsFrame.closeReason = nil
     --|traceCfg("OUT OptionsFrame_OnShow().")
+    ----memchk("OptionsFrame_OnShow()")
 end
 
 -------------------------------------------------------------------------------
 function OptionsFrame_OnHide()
+    ----memchk()
     --|traceCfg("IN OptionsFrame_OnHide().")
     assert(PlayerConfig == getPlayerConfig())  -- Verify address has not changed from incorrectly using CopyTable().
     PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE)
@@ -1303,14 +1345,15 @@ function OptionsFrame_OnHide()
     CursorTrail_Refresh()  -- Shows/hides FX depending on changes to UserShowOnlyInCombat setting.
     CursorTrail_HideHelp()
     CursorTrail_HideChangelog()
-    OptionsFrame.OriginalConfig = nil  -- Free memory.
+    ----OptionsFrame.OriginalConfig = nil  -- Free memory.  <<< Moved OriginalConfig to ProfilesUI.OriginalValues.
     EventFrame:UnregisterEvent("GLOBAL_MOUSE_DOWN")
 
-    -- Free garbage memory now!  This prevents excessive build up caused by
-    -- calling GetMouseFocus()/GetMouseFoci() in the main OnUpdate() function,
-    -- and also from using the color picker window.
-    Globals.collectgarbage("collect")
+    ---->>> DISABLED because it might be collecting garbage for all addons, not just this one.  (Bigger lags on my main vs on my development alt.)
+    ------ Free garbage memory now, preventing excessive build up caused by CopyTable() in gMainFrame:OnShow() in UDProfiles.lua.
+    ----Globals.C_Timer.After(0.1,function() Globals.collectgarbage("collect") end)
+
     --|traceCfg("OUT OptionsFrame_OnHide().")
+    ----memchk("OptionsFrame_OnHide()")
 end
 
 -------------------------------------------------------------------------------
@@ -1338,9 +1381,9 @@ function OptionsFrame_OnCancel()
     OptionsFrame.closeReason = CANCEL
 
     -- Revert to previous config.
-    staticCopyTable( OptionsFrame.OriginalConfig, PlayerConfig )  -- Set PlayerConfig to original values.
-    CursorTrail_Load()  -- Update FX variables.
+    ----staticCopyTable(OptionsFrame.OriginalConfig, PlayerConfig) -- Set PlayerConfig to original values. <<< Moved OriginalConfig to ProfilesUI.OriginalValues.
     OptionsFrame.ProfilesUI:OnCancel()  -- Reverts to original profile (name and data).
+    CursorTrail_Load()  -- Update FX variables.
     OptionsFrame_SetModified(false)
     OptionsFrame:Hide()
     --|traceCfg("OUT OptionsFrame_OnCancel().")
@@ -1498,6 +1541,13 @@ function OptionsFrame_NextPrevLayer(delta)
 end
 
 -------------------------------------------------------------------------------
+function allowTabKey()
+    local profilesUI = OptionsFrame.ProfilesUI
+    return gLayers:getSelectedLayerCfg().IsLayerEnabled
+            and not profilesUI:isShownMsgBox()
+end
+
+-------------------------------------------------------------------------------
 function OptionsFrame_TabKey()
     --|traceCfg("IN OptionsFrame_TabKey().")
     if IsControlKeyDown() then
@@ -1505,7 +1555,7 @@ function OptionsFrame_TabKey()
         if IsShiftKeyDown() then OptionsFrame_NextPrevLayer(-1)
         else OptionsFrame_NextPrevLayer(1)
         end
-    else
+    elseif allowTabKey() then
         -- Set focus to next/previous editbox.
         local count = #OptionsFrame_TabOrder
 

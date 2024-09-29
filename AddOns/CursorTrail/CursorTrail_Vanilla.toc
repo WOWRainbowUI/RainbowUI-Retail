@@ -1,8 +1,8 @@
-## Interface: 11503
+## Interface: 11504
 ## Title: CursorTrail
 ## Notes: Adds a shape, shadow, and glowing trail effect to your mouse cursor.
 ## Author: UppyDan
-## Version: 1.15.3.8
+## Version: 1.15.4.1
 ## SavedVariables: CursorTrail_Config
 ## SavedVariablesPerCharacter: CursorTrail_PlayerConfig
 

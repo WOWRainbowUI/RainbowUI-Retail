@@ -36,6 +36,9 @@ kDefaultModelID = (isRetailWoW() and 1417024 or 166498 )  -- "Electric, Blue & L
 kDefaultStrata = "HIGH"
 kDefaultShape = "Cross 1"
 
+kNoChange = nil  -- Must be nil so compareToDefaultProfile() in UDProfiles.lua can work.
+
+-- The main table.
 kDefaultConfig =  -- Initialize this variable to an empty table.
 {
     -- NOTES:
@@ -68,8 +71,8 @@ kDefaultConfig["閃電"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -90,7 +93,7 @@ kDefaultConfig["閃電黑白環"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = true,
-            --UserShowOnlyInCombat = true,
+            UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = false,
         },
         [2] = {
@@ -107,7 +110,7 @@ kDefaultConfig["閃電黑白環"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
+            UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = true,
         },
     },
@@ -129,8 +132,8 @@ kDefaultConfig["閃電-大"] = {
             UserOfsX = 1.0, UserOfsY = -0.9,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -151,8 +154,8 @@ kDefaultConfig["閃電-小"] = {
             UserOfsX = 3.4, UserOfsY = -2.8,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -173,8 +176,8 @@ kDefaultConfig["閃電-巨大"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -195,8 +198,8 @@ kDefaultConfig["紫光"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -217,8 +220,8 @@ kDefaultConfig["紫光-淡出"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = true,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -239,8 +242,8 @@ kDefaultConfig["紫光-淡出2"] = {
             UserOfsX = 0, UserOfsY = 0.025,
             -- - - - - - - - - - - - - - --
             FadeOut = true,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -261,8 +264,8 @@ kDefaultConfig["光暈-淡出"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = true,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -283,8 +286,8 @@ kDefaultConfig["紅色發光星星"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
         [2] = {
             IsLayerEnabled = true,
@@ -300,8 +303,8 @@ kDefaultConfig["紅色發光星星"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -322,8 +325,8 @@ kDefaultConfig["環形和閃電"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -344,8 +347,8 @@ kDefaultConfig["環形-閃爍"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -366,8 +369,8 @@ kDefaultConfig["星星綠光"] = {
             UserOfsX = 0, UserOfsY = 0.025,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -388,8 +391,8 @@ kDefaultConfig["十字黃色脈動"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -410,8 +413,8 @@ kDefaultConfig["十字暗影光暈"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -432,8 +435,8 @@ kDefaultConfig["環形和骸骨"] = {
             UserOfsX = 0, UserOfsY = 0.05,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
-            --UserShowMouseLook = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
         },
     },
 }
@@ -455,7 +458,7 @@ kDefaultConfig["紅色十字線和圈"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = false,
-            --UserShowOnlyInCombat = true,
+            UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = true,
         },
         [2] = {
@@ -472,12 +475,51 @@ kDefaultConfig["紅色十字線和圈"] = {
             UserOfsX = 0, UserOfsY = 0,
             -- - - - - - - - - - - - - - --
             FadeOut = true,
-            --UserShowOnlyInCombat = true,
+            UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = false,
         },
     },
 }
 
+----------------________________________-----------------------------------
+kDefaultConfig["大環形-發綠光"] = {
+    Layers = {
+        [1] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring 1.tga",
+            ModelID = 0,
+            ShapeColorR = 1, ShapeColorG = 0.761, ShapeColorB = 0,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0.15,
+            UserScale = 1.26,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = true,
+        },
+        [2] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring Soft 3.tga",
+            ModelID = 0,
+            ShapeColorR = 0.502, ShapeColorG = 1, ShapeColorB = 0,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1.35,
+            UserAlpha = 1,
+            Strata = "BACKGROUND",
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = false,
+        },
+    },
+}
 ----------------________________________-----------------------------------
 kDefaultConfig["(這裡開始)"] = {
     Layers = {
@@ -540,8 +582,8 @@ if isRetailWoW() or isWrathWoW() then
                 UserOfsX = 0, UserOfsY = 0,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                --UserShowOnlyInCombat = true,
-                --UserShowMouseLook = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
             },
         },
     }
@@ -562,8 +604,8 @@ if isRetailWoW() or isWrathWoW() then
                 UserOfsX = 0, UserOfsY = 0,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                --UserShowOnlyInCombat = true,
-                --UserShowMouseLook = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
             },
         },
     }
@@ -584,8 +626,8 @@ if isRetailWoW() or isWrathWoW() then
                 UserOfsX = 0, UserOfsY = 0.05,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                --UserShowOnlyInCombat = true,
-                --UserShowMouseLook = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
             },
         },
     }
@@ -606,8 +648,8 @@ if isRetailWoW() or isWrathWoW() then
                 UserOfsX = 0, UserOfsY = (isVanillaWoW() and -2.2) or 0,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                --UserShowOnlyInCombat = true,
-                --UserShowMouseLook = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
             },
         },
     }
@@ -645,20 +687,37 @@ if isRetailWoW() then
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
-                ShapeFileName = kMediaPath.."Ring 3.tga",
+                ShapeFileName = kMediaPath.."Ring Soft 2.tga",
                 ModelID = 1417024,  -- "Sparkling, Rainbow"
                 ShapeColorR = 1, ShapeColorG = 0.882, ShapeColorB = 0.882,
                 ShapeSparkle = false,
                 -- - - - - - - - - - - - - - --
-                UserShadowAlpha = 0.99,
-                UserScale = 0.65,
+                UserShadowAlpha = 0.7,
+                UserScale = 0.88,
                 UserAlpha = 1,
                 Strata = kDefaultStrata,
                 UserOfsX = 0, UserOfsY = 0,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                --UserShowOnlyInCombat = true,
-                --UserShowMouseLook = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = true,
+            },
+            [2] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kMediaPath.."Ring Soft 2.tga",
+                ModelID = 0,
+                ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+                ShapeSparkle = true,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0,
+                UserScale = 1.07,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = false,
             },
         },
     }
@@ -679,8 +738,8 @@ if isRetailWoW() then
                 UserOfsX = 0, UserOfsY = 0,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                --UserShowOnlyInCombat = true,
-                --UserShowMouseLook = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
             },
         },
     }
@@ -701,8 +760,8 @@ if isRetailWoW() then
                 UserOfsX = 0.15, UserOfsY = -0.15,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                --UserShowOnlyInCombat = true,
-                --UserShowMouseLook = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
             },
         },
     }
@@ -723,8 +782,8 @@ if isRetailWoW() then
                 UserOfsX = 0, UserOfsY = 0,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                --UserShowOnlyInCombat = true,
-                --UserShowMouseLook = true,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
             },
         },
     }
@@ -745,7 +804,7 @@ if isRetailWoW() then
                 UserOfsX = 0, UserOfsY = 0,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                UserShowOnlyInCombat = true,
+                UserShowOnlyInCombat = kNoChange,
                 UserShowMouseLook = false,
             },
             [2] = {
@@ -762,7 +821,7 @@ if isRetailWoW() then
                 UserOfsX = 0, UserOfsY = 0,
                 -- - - - - - - - - - - - - - --
                 FadeOut = false,
-                UserShowOnlyInCombat = true,
+                UserShowOnlyInCombat = kNoChange,
                 UserShowMouseLook = true,
             },
         },
@@ -784,6 +843,9 @@ for name, data in pairs(kDefaultConfig) do
         if not data.Layers[i] then
             data.Layers[i] = CopyTable(kDefaultConfigLayer)
             data.Layers[i].IsLayerEnabled = false
+            data.Layers[i].FadeOut = kNoChange
+            data.Layers[i].UserShowOnlyInCombat = kNoChange
+            data.Layers[i].UserShowMouseLook = kNoChange
         end
     end
 end
