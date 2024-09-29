@@ -1,2 +1,3 @@
-## Improvements
-- TWW Season 1 Catalyst non-set items added.
+## Bugfixes
+- Favorite Catalyst items will appear again.
+- Tooltip for Veteran, Champion and Heroic items has been fixed
