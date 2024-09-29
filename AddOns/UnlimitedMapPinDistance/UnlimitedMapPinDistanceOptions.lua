@@ -91,6 +91,10 @@ function UMPD_Init()
         UMPD.shortNumbers = false
     end
 
+    if UMPD.fadeMouseOver == nil then
+        UMPD.fadeMouseOver = true
+    end
+
     -- Frame
     UMPDO = CreateFrame("Frame", nil, nil, UMPD.name)
     UMPDO.name = _UMPD.name
@@ -174,6 +178,11 @@ function UMPD_Init()
     cbShortNumbers:SetPoint("TOPLEFT", 8, -342)
     cbShortNumbers:HookScript("OnClick", function(self,value)
         UMPD.shortNumbers = self:GetChecked()
+    end)
+    local cbFadeMouseOver = createCheckbox(UMPDO,UMPD.fadeMouseOver,"st","Fade pin when mousing over it")
+    cbFadeMouseOver:SetPoint("TOPLEFT", 8, -372)
+    cbFadeMouseOver:HookScript("OnClick", function(self,value)
+        UMPD.fadeMouseOver = self:GetChecked()
     end)
 
     -- Notes
