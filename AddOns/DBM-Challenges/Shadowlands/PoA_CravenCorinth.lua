@@ -3,7 +3,7 @@ local mod	= DBM:NewMod("CravenCorinth", "DBM-Challenges", 1)
 
 mod.statTypes = "normal,heroic,mythic,challenge"
 
-mod:SetRevision("20221023053638")
+mod:SetRevision("20240714045619")
 mod:SetCreatureID(172412)
 mod.soloChallenge = true
 
@@ -23,7 +23,7 @@ mod:RegisterEventsInCombat(
 
 local warnFansCasts					= mod:NewCountAnnounce(341868, 2)
 
-local specWarnFansofDesolation		= mod:NewSpecialWarningDodge(341868, nil, nil, nil, 2, 2)
+local specWarnFansofDesolation		= mod:NewSpecialWarningDodgeCount(341868, nil, nil, nil, 2, 2)
 local specWarnConsume				= mod:NewSpecialWarningSwitch(337924, nil, nil, nil, 1, 2)
 
 local timerFansofDesolationCD		= mod:NewCDTimer(55.8, 341868, nil, nil, nil, 3)

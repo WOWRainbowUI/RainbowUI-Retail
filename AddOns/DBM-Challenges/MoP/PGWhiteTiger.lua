@@ -3,7 +3,7 @@ local mod	= DBM:NewMod("d640", "DBM-Challenges", 4, nil, function(t)
 end)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240414044754")
+mod:SetRevision("20240706194522")
 mod.noStatistics = true
 
 --mod:RegisterCombat("scenario", 1148)
@@ -47,14 +47,14 @@ local specWarnSonicBlast	= mod:NewSpecialWarningInterrupt(145200, false, nil, ni
 local specWarnAquaBomb		= mod:NewSpecialWarningTarget(145206, nil, nil, nil, 1, 2)--It's cast too often to dispel them off, so it's better as a target warning.
 
 --Tank
-local timerWindBlastCD		= mod:NewNextTimer(21, 144106, nil, nil, nil, 5)
-local timerPowerfulSlamCD	= mod:NewCDTimer(15, 144401, nil, nil, nil, 3)--15-17sec variation. Off by default do to timer spam
+local timerWindBlastCD		= mod:NewCDNPTimer(17.7, 144106, nil, nil, nil, 5)
+local timerPowerfulSlamCD	= mod:NewCDNPTimer(14.5, 144401, nil, nil, nil, 3)--15-17sec variation.
 --Damager
-local timerAmberGlobCD		= mod:NewNextTimer(10.5, 142189, nil, nil, nil, 5)--Now off by default do to spam
-local timerHealIllusionCD	= mod:NewNextTimer(20, 142238, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--Off by default do to timer spam
+local timerAmberGlobCD		= mod:NewCDNPTimer(8.5, 142189, nil, nil, nil, 5)--Now off by default do to spam
+local timerHealIllusionCD	= mod:NewCDNPTimer(17, 142238, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
 --Healer
-local timerAquaBombCD		= mod:NewCDTimer(12, 145206, nil, false, nil, 5)--12-22 second variation? off by default do to this
-local timerSonicBlastCD		= mod:NewCDTimer(6, 145200, nil, nil, nil, 2)--8-11sec variation, off by default because maybe spammy?
+local timerAquaBombCD		= mod:NewCDNPTimer(12, 145206, nil, false, nil, 5)--12-22 second variation? off by default do to this
+--local timerSonicBlastCD		= mod:NewCDNPTimer(6, 145200, nil, nil, nil, 2)--3-11sec variation?
 
 local started = false
 
@@ -75,23 +75,23 @@ function mod:SPELL_CAST_START(args)
 			specWarnWindBlast:Show()
 			specWarnWindBlast:Play("carefly")
 		end
-		timerWindBlastCD:Start(args.sourceGUID)
+		timerWindBlastCD:Start(nil, args.sourceGUID)
 	elseif spellId == 144401 then
 		if self:AntiSpam(1.5, 4) then
 			specWarnPowerfulSlam:Show()
 			specWarnPowerfulSlam:Play("shockwave")
 		end
-		timerPowerfulSlamCD:Start(args.sourceGUID)
+		timerPowerfulSlamCD:Start(nil, args.sourceGUID)
 	elseif spellId == 142189 then
 		if self.Options.SpecWarn142189spell then
 			specWarnAmberGlob:Show()
-			specWarnAmberGlob:Play("watchstep")
+			specWarnAmberGlob:Play("watchorb")
 		elseif self:AntiSpam(1.5, 5) then
 			warnAmberGlobule:Show()
 		end
 		timerAmberGlobCD:Start(args.sourceGUID)
 	elseif spellId == 142238 then
-		timerHealIllusionCD:Start(args.sourceGUID)
+		timerHealIllusionCD:Start(nil, args.sourceGUID)
 		if self.Options.SpecWarn142238interrupt and self:CheckInterruptFilter(args.sourceGUID, false, true) then
 			specWarnHealIllusion:Show(args.sourceName)
 			specWarnHealIllusion:Play("kickcast")
@@ -105,7 +105,7 @@ function mod:SPELL_CAST_START(args)
 		elseif self:AntiSpam(1.5, 7) then
 			warnSonicBlast:Show()
 		end
-		timerSonicBlastCD:Start(args.sourceGUID)
+--		timerSonicBlastCD:Start(nil, args.sourceGUID)
 	end
 end
 
@@ -123,7 +123,7 @@ function mod:SPELL_AURA_APPLIED(args)
 		else
 			warnAquaBomb:CombinedShow(0.5, args.destName)
 		end
-		timerAquaBombCD:Start(args.sourceGUID)
+		timerAquaBombCD:Start(nil, args.sourceGUID)
 	end
 end
 mod.SPELL_AURA_APPLIED_DOSE = mod.SPELL_AURA_APPLIED
@@ -182,12 +182,12 @@ function mod:UNIT_DIED(args)
 	elseif cid == 72344 or cid == 72346 then--Illusionary Aqualyte
 		timerAquaBombCD:Cancel(args.destGUID)
 	elseif cid == 72342 or cid == 72343 then--Illusionary Hive-Singer
-		timerSonicBlastCD:Cancel(args.destGUID)
+--		timerSonicBlastCD:Cancel(args.destGUID)
 	end
 end
 
-function mod:SCENARIO_UPDATE(newStep)
-	local diffID, currWave, maxWave, duration = C_Scenario.GetProvingGroundsInfo()
+function mod:SCENARIO_UPDATE()
+	local diffID = C_Scenario.GetProvingGroundsInfo()--, currWave, maxWave, duration
 	if diffID > 0 then
 		if not started then
 			started = true
@@ -197,7 +197,8 @@ function mod:SCENARIO_UPDATE(newStep)
 				"SPELL_AURA_APPLIED_DOSE 144383",
 				"SPELL_CAST_SUCCESS 144084 144091 144088 144086 144087 145260 142838 145198",
 				"UNIT_DIED",
-				"CHAT_MSG_WHISPER"
+				"CHAT_MSG_WHISPER",
+				"CHAT_MSG_BN_WHISPER"
 			)
 		end
 	elseif started then
@@ -217,7 +218,7 @@ do
 		if DBM.Options.AutoRespond and started then
 			if status ~= "GM" then--Filter GMs
 				name = Ambiguate(name, "none")
-				local diffID, currWave, maxWave, duration = C_Scenario.GetProvingGroundsInfo()
+				local diffID, currWave = C_Scenario.GetProvingGroundsInfo()--, maxWave, duration
 				local message = L.ReplyWhisper:format(UnitName("player"), mode[diffID], currWave)
 				if msg == "status" then
 					SendChatMessage(message, "WHISPER", nil, name)
@@ -225,6 +226,14 @@ do
 					SendChatMessage(message, "WHISPER", nil, name)
 				end
 			end
+		end
+	end
+	function mod:CHAT_MSG_BN_WHISPER(msg, ...)
+		if DBM.Options.AutoRespond and started then
+			local presenceId = select(12, ...)
+			local diffID, currWave = C_Scenario.GetProvingGroundsInfo()--, maxWave, duration
+			local message = L.ReplyWhisper:format(UnitName("player"), mode[diffID], currWave)
+			BNSendWhisper(presenceId, message)
 		end
 	end
 end

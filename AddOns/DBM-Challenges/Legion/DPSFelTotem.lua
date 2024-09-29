@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,timewalker"
 
-mod:SetRevision("20220407221113")
+mod:SetRevision("20240714045619")
 mod:SetCreatureID(117230, 117484)--Tugar, Jormog
 mod:SetBossHPInfoToHighest()
 mod.soloChallenge = true
@@ -84,7 +84,7 @@ end
 function mod:SPELL_CAST_SUCCESS(args)
 	local spellId = args.spellId
 	if spellId == 237950 then
-		specWarnEarthquake:Show(args.sourceName)
+		specWarnEarthquake:Show()
 		specWarnEarthquake:Play("aesoon")
 		timerEarthquakeCD:Start()
 	elseif spellId == 242730 then
