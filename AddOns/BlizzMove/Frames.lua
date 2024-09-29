@@ -258,7 +258,10 @@ BlizzMoveAPI:RegisterFrames(
     },
     ["InterfaceOptionsFrame"] =
     {
-        MinVersion = 0,
+        VersionRanges = {
+            { Min = 0, Max = 11503 },
+            { Min = 40000, Max = 40400 },
+        },
         MaxVersion = 100000,
     },
     ["ItemTextFrame"] =
@@ -465,7 +468,10 @@ BlizzMoveAPI:RegisterFrames(
     },
     ["VideoOptionsFrame"] =
     {
-        MinVersion = 0,
+        VersionRanges = {
+            { Min = 0, Max = 11503 },
+            { Min = 40000, Max = 40400 },
+        },
         MaxVersion = 100000,
     },
     ["WorldMapFrame"] =
