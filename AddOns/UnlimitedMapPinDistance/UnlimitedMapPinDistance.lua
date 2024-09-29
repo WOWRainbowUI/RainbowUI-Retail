@@ -52,6 +52,27 @@ do
             SuperTrackedFrame.Time:SetShown(not SuperTrackedFrame.isClamped)
         end
     end
+
+    -- Override default SuperTrackedFrameMixin:GetTargetAlpha()
+    function SuperTrackedFrame:GetTargetAlpha()
+		if not C_Navigation.HasValidScreenPosition() then
+			return 0;
+		end
+        local additionalFade = 1.0;
+        if UMPD.fadeMouseOver then
+            if self:IsMouseOver() then
+                local mouseX, mouseY = GetCursorPosition();
+                local scale = UIParent:GetEffectiveScale();
+                mouseX = mouseX / scale
+                mouseY = mouseY / scale;
+                local centerX, centerY = self:GetCenter();
+                self.mouseToNavVec:SetXY(mouseX - centerX, mouseY - centerY);
+                local mouseToNavDistanceSq = self.mouseToNavVec:GetLengthSquared();
+                additionalFade = ClampedPercentageBetween(mouseToNavDistanceSq, 0, self.navFrameRadiusSq * 2);
+            end
+        end
+        return FrameDeltaLerp(self:GetAlpha(), self:GetTargetAlphaBaseValue() * additionalFade, 0.1);
+	end
 end
 
 -- Find Zone in command
