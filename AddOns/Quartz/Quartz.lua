@@ -22,6 +22,9 @@ local media = LibStub("LibSharedMedia-3.0")
 local db
 
 local WoW10 = select(4, GetBuildInfo()) >= 100000
+if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then -- 暫時修正
+	WoW10 = true
+end
 
 ----------------------------
 -- Upvalues
