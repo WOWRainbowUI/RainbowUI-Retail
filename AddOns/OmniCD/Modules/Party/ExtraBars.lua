@@ -39,7 +39,6 @@ function P:CreateExtraBarFrames()
 		frame.icons = {}
 		frame.numIcons = 0
 		frame.db = E.db.extraBars[key]
-		frame:SetScript("OnShow", nil)
 
 		frame.anchor.text:SetFontObject(E.AnchorFont)
 		local name = i == 1 and L["Interrupts"] or i
@@ -570,6 +569,12 @@ function P:SetExBorder(icon, db)
 						statusBar.borderBottom:Hide()
 						statusBar.borderRight:Hide()
 					else
+						statusBar.borderTop:SetTexelSnappingBias(0.0)
+						statusBar.borderTop:SetSnapToPixelGrid(false)
+						statusBar.borderBottom:SetTexelSnappingBias(0.0)
+						statusBar.borderBottom:SetSnapToPixelGrid(false)
+						statusBar.borderRight:SetTexelSnappingBias(0.0)
+						statusBar.borderRight:SetSnapToPixelGrid(false)
 						statusBar.borderTop:SetColorTexture(r, g, b)
 						statusBar.borderBottom:SetColorTexture(r, g, b)
 						statusBar.borderRight:SetColorTexture(r, g, b)

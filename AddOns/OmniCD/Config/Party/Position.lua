@@ -66,7 +66,9 @@ local position = {
 				db[option .. "More"] = value
 			end
 		end
-		P:Refresh()
+		if P:IsCurrentZone(key) then
+			P:Refresh()
+		end
 	end,
 	args = {
 		addOnsSettings = {

@@ -41,10 +41,10 @@ function P:ResetCooldown(icon, resetAllCharges)
 			return
 		end
 		currCharges = currCharges + 1
-		icon.count:SetText(currCharges)
 		active.charges = currCharges
+		icon.count:SetText(currCharges)
 		icon.active = currCharges
-		P:SetCooldownElements(info, icon, currCharges)
+		self:SetCooldownElements(info, icon, currCharges)
 
 		local castingBar = statusBar and not E.db.extraBars[statusBar.key].nameBar and currCharges == 1 and statusBar.castingBar
 		if castingBar then
@@ -93,6 +93,7 @@ function P:UpdateCooldown(icon, reducedTime, updateActiveTimer)
 		local elapsed = (now - startTime) * updateActiveTimer
 		startTime = now - elapsed
 		duration = duration * updateActiveTimer
+
 	end
 
 	startTime = startTime - reducedTime

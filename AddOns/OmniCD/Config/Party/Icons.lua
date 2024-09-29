@@ -164,16 +164,14 @@ local icons = {
 }
 
 local sliderTimer
-local function UpdatePixelObjects(noDelay)
+local function UpdatePixelObjects()
 	P:UpdatePositionValues()
 	for _, info in pairs(P.groupInfo) do
 		local frame = info.bar
 		P:SetBarBackdrop(frame)
 		P:SetIconLayout(frame)
 	end
-	if not noDelay then
-		sliderTimer = nil
-	end
+	sliderTimer = nil
 end
 
 function P:ConfigSize(noDelay)
@@ -182,10 +180,8 @@ function P:ConfigSize(noDelay)
 		self:SetIconScale(frame)
 	end
 	if E.db.icons.displayBorder then
-		if noDelay then
-			UpdatePixelObjects(noDelay)
-		elseif not sliderTimer then
-			sliderTimer = E.TimerAfter(0.5, UpdatePixelObjects)
+		if not sliderTimer then
+			sliderTimer = C_Timer.After(0.5, UpdatePixelObjects)
 		end
 	end
 end

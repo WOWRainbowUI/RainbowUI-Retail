@@ -280,7 +280,7 @@ E.spell_db = {
 		{ ["class"]="HUNTER",["type"]="interrupt",["buff"]=147362,["spec"]=true,["name"]="Counter Shot",["duration"]=24,["icon"]=249170,["spellID"]=147362, },
 		{ ["class"]="HUNTER",["type"]="offensive",["buff"]=120360,["spec"]=true,["name"]="Barrage",["duration"]=20,["icon"]=236201,["spellID"]=120360,["talent"]=459800, },
 		{ ["class"]="HUNTER",["type"]="offensive",["buff"]=212431,["spec"]=true,["name"]="Explosive Shot",["duration"]=30,["icon"]=236178,["spellID"]=212431, },
-		{ ["class"]="HUNTER",["type"]="offensive",["buff"]=375891,["spec"]={375891,321078},["name"]="Death Chakram",["duration"]=45,["icon"]=3578207,["spellID"]=375891, },
+
 		{ ["class"]="HUNTER",["type"]="other",["buff"]=34477,["spec"]=true,["name"]="Misdirection",["duration"]=30,["icon"]=132180,["spellID"]=34477 },
 		{ ["class"]="HUNTER",["type"]="other",["buff"]=187698,["spec"]=true,["name"]="Tar Trap",["duration"]=30,["icon"]=576309,["spellID"]=187698, },
 		{ ["class"]="HUNTER",["type"]="other",["buff"]=199483,["spec"]=true,["name"]="Camouflage",["duration"]=60,["icon"]=461113,["spellID"]=199483, },
@@ -412,7 +412,6 @@ E.spell_db = {
 	["WARLOCK"] = {
 		{ ["class"]="WARLOCK",["type"]="offensive",["buff"]=417537,["spec"]=true,["duration"]=45,["name"]="Oblivion",["icon"]=828455,["spellID"]=417537, },
 		{ ["class"]="WARLOCK",["type"]="offensive",["buff"]=212459,["spec"]=true,["duration"]=120,["name"]="Call Fel Lord",["icon"]=1113433,["spellID"]=212459, },
-		{ ["class"]="WARLOCK",["type"]="offensive",["buff"]=353601,["spec"]=true,["duration"]=45,["name"]="Fel Obelisk",["icon"]=1718002,["spellID"]=353601, },
 		{ ["class"]="WARLOCK",["type"]="offensive",["buff"]=201996,["spec"]=true,["duration"]=60,["name"]="Call Observer",["icon"]=538445,["spellID"]=201996, },
 		{ ["class"]="WARLOCK",["type"]="offensive",["buff"]=353753,["spec"]=true,["duration"]=30,["name"]="Bonds of Fel",["icon"]=1117883,["spellID"]=353753, },
 		{ ["class"]="WARLOCK",["type"]="disarm",["buff"]=353294,["spec"]=true,["duration"]=60,["name"]="Shadow Rift",["icon"]=4067372,["spellID"]=353294, },
@@ -671,7 +670,7 @@ E.spell_db = {
 		{ ["class"]="MAGE",["type"]="aoeCC",["buff"]=157980,["spec"]=true,["name"]="Supernova",["duration"]=45,["icon"]=1033912,["spellID"]=157980, },
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=365362,["spec"]=true,["name"]="Arcane Surge",["duration"]=90,["icon"]=4667417,["spellID"]=365350, },
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=321507,["spec"]=true,["name"]="Touch of the Magi",["duration"]=45,["icon"]=236222,["spellID"]=321507, },
-		{ ["class"]="MAGE",["type"]="offensive",["buff"]=376103,["spec"]={376103,321076},["name"]="Radiant Spark",["duration"]=30,["icon"]=3565446,["spellID"]=376103, },
+
 		{ ["class"]="MAGE",["type"]="offensive",["buff"]=153626,["spec"]={62},["name"]="Arcane Orb",["charges"]=1,["duration"]=20,["icon"]=1033906,["spellID"]=153626, },
 		{ ["class"]="MAGE",["type"]="raidDefensive",["buff"]=414660,["spec"]=true,["name"]="Mass Barrier",["duration"]=180,["icon"]=1723997,["spellID"]=414660, },
 		{ ["class"]="MAGE",["type"]="other",["buff"]=414664,["spec"]=true,["duration"]=300,["name"]="Mass Invisibility",["icon"]=1387356,["spellID"]=414664, },
@@ -735,7 +734,7 @@ E.spell_db = {
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=445619,["name"]="Aberrant Spellforge",["duration"]=60,["icon"]=5948197,["spellID"]=445619,["item"]=212451, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=449946,["name"]="Treacherous Transmitter",["duration"]=90,["icon"]=5948071,["spellID"]=449946,["item"]=221023, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=445560,["name"]="Ovi'nax's Mercurial Egg",["duration"]=120,["icon"]=5948240,["spellID"]=445560,["item"]=220305, },
-
+		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=444959,["name"]="Spymaster's Web",["duration"]=20,["icon"]=6035288,["spellID"]=444959,["item"]=220202, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=455482,["name"]="Imperfect Ascendancy Serum",["duration"]=120,["icon"]=967529,["spellID"]=455482,["item"]=225654, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=455451,["name"]="Quickwick Candlestick",["duration"]=120,["icon"]=454044,["spellID"]=455451,["item"]=225649, },
 		{ ["class"]="TRINKET",["type"]="trinket",["buff"]=435493,["name"]="Concoction: Kiss of Death",["duration"]=150,["icon"]=4497603,["spellID"]=435493,["item"]=215174, },
