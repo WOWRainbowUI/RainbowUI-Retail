@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TheStonevaultTrash", "DBM-Party-WarWithin", 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240925005958")
+mod:SetRevision("20240925042513")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -106,6 +106,7 @@ function mod:SPELL_CAST_START(args)
 		elseif self:AntiSpam(3, 7) then
 			warnPiercingWail:Show()
 		end
+	elseif spellId == 449130 then
 		if self:AntiSpam(3, 2) then
 			specWarnLavaCannon:Show()
 			specWarnLavaCannon:Play("watchorb")
