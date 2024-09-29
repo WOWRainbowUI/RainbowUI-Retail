@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2024-09-15"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2024-09-25"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -164,6 +164,27 @@ local PROFILESUI_VERSION = "2024-09-15"  -- Version (date) of this file.  Stored
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Sep 25, 2024
+        - Fixed LUA errors in Classic WoW 1.15.4 that were caused by the removal of
+          the OptionsButtonTemplate and OptionsBoxTemplate templates from its API.
+        - Added a profile option to use the same profile for all characters rather
+          than have a different profile for each one.
+        - Added "Undo" to the Menu dropdown.  It undoes profile changes by reloading it.
+        - Allow moving the profile options window.
+        - Added ProfilesUI.menu.options() for triggering the "Profile Options" menu item.
+        - Added ProfilesUI:isShownOptions() and ProfilesUI:isShownMsgBox().
+        - Fixed bug where blockerFrame could be clicked and permanently cover a popup message under it.
+        - Replaced StaticPopup_Show(kAddonFolderName.."_SAVE_THEN_LOAD") with msgbox_SaveThenLoad(),
+          allowing users to press Y/N keys to trigger Yes/No buttons.
+        - Fixed BUG_20240925.1 which was causing loss of unsaved settings if the game was reloaded
+        - Fixed BUG_20240925.2 which was not updating profile name correctly when canceling the
+          the main UI but keeping changes to profiles.
+          while the main UI was open and showing values from one of the defaults just selected.
+        - Fixed incorrect comments, and changed incorrect variable names.
+          (i.e. Renamed thisStaticPopupTable to thisPopupFrame.)
+        - Improved blockerFrame so it also clears focus from an active editbox in the parent UI.
+        - Freed memory that was no longer needed in ProfilesUI:OnCancel() after users click YES to
+          confirm keeping profile changes.
     Sep 15, 2024
         - Moved setRegionsTextureColor() to be a member function of the "edges" table
           created by enhanceFrameEdges(), named setColor().  (Implemented in UDControls.lua.)
@@ -193,10 +214,6 @@ CHANGE HISTORY:
 
     May 28, 2024
         - Original version.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- BUGS & TODOs:
-    None.
  -----------------------------------------------------------------------------]]
 
 local kAddonFolderName, private = ...
@@ -234,6 +251,10 @@ local tostringall = tostringall
 local type = type
 local UnitFullName = UnitFullName
 ----local unpack = unpack
+
+local UDControls = private.UDControls
+local MsgBox = UDControls.MsgBox
+local MsgBox3 = UDControls.MsgBox3
 
 --*****************************************************************************
 --[[                        Development Switches                             ]]
@@ -276,8 +297,6 @@ L.NEW = NEW
 
 local kAddonTitle = GetAddOnMetadata(kAddonFolderName, "Title") or kAddonFolderName
 local kGameTocVersion = select(4, GetBuildInfo())
-local kButtonTemplate = ((kGameTocVersion >= 100000) and "UIPanelButtonTemplate") or "OptionsButtonTemplate"
-local kBoxTemplate = ((kGameTocVersion >= 100000) and "TooltipBorderBackdropTemplate") or "OptionsBoxTemplate"
 local kAddonHeading = "["..kAddonTitle.."]"
 
 ----local kbTraceDB = true  -- Enables ProfilesDB:_trace() calls.
@@ -324,13 +343,14 @@ local kReasons = {
     RefreshingUI      = "RefreshingUI",
     SavingProfile     = "SavingProfile",
     ShowingUI         = "ShowingUI",
+    UndoingProfileChanges = "UndoingProfileChanges",
 }
 
 --*****************************************************************************
 --[[                        Variables                                        ]]
 --*****************************************************************************
 
-local gbInitialLogin, gbReloadingUi
+local gbInitialLogin, gbReloadingUi, gbLoggingOut
 local UI_GetValues, UI_SetValues
 local gMainFrame  -- Accessible to outside world via "ProfilesUI.mainFrame".
 local gDefaultsTable
@@ -439,6 +459,38 @@ local function tCount(tbl) -- Returns the number of keys in the table.
 end
 
 --~ --=============================================================================
+--~ function tClearInPlace(tbl)
+--~   -- Removes all keys and subkeys from the table without changing its memory location.
+--~     table.wipe(tbl)
+--~     ----assert(type(tbl) == "table")
+--~     ----for k, v in pairs(tbl) do
+--~     ----    if type(v) == "table" then
+--~     ----        tClearInPlace(v)
+--~     ----    end
+--~     ----    tbl[k] = nil
+--~     ----end
+--~ end
+
+--~ --=============================================================================
+--~ function tCopyInPlace(src, dest, recursing)
+--~   -- Copies values of keys from src table to dest table without changing
+--~   -- the memory address of the dest table.
+--~     assert(type(src) == "table")
+--~     assert(type(dest) == "table")
+--~     if src == dest then return end
+--~     if not recursing then tClearInPlace(dest) end  -- Wipe original destination param.
+
+--~     for k, v in pairs(src) do
+--~         if type(v) == "table" then
+--~             dest[k] = {}
+--~             tCopyInPlace(v, dest[k], true)
+--~         else
+--~             dest[k] = v
+--~         end
+--~     end
+--~ end
+
+--~ --=============================================================================
 --~ local function tCompare(tbl1, tbl2, bNilEqualsFalse) -- Returns true if both tables have the same keys and values.
 --~ 	if tbl1 ~= tbl2 then  -- Parameters are different?
 --~         -- Verify both parameters are tables.
@@ -504,6 +556,13 @@ local function tracePUI(...)  -- Search&Replace "tracePUI(" to comment/uncomment
 end
 
 --=============================================================================
+local function vdt_dump(varValue, varDescription)  -- e.g.  vdt_dump(someVar, "Checkpoint 1")
+    if _G.ViragDevTool_AddData then
+        _G.ViragDevTool_AddData(varValue, varDescription)
+    end
+end
+
+--=============================================================================
 local gFrameToReshow = nil
 local function reshow(frameToUse)
     if frameToUse then  -- Set frame?
@@ -522,52 +581,78 @@ local function reshow(frameToUse)
 end
 
 --=============================================================================
-local gMBData = {lastUsedFrame = nil, lastUsedID = nil, blockerFrame = nil}
+local gMBIntf = {blockerFrame = nil}
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-local function hideBlockerFrame() if gMBData.blockerFrame then gMBData.blockerFrame:Hide() end end
-local function showBlockerFrame()
-    if not gMBData.blockerFrame then
+function gMBIntf:hideBlockerFrame() if self.blockerFrame then self.blockerFrame:Hide() end end
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+function gMBIntf:showBlockerFrame()
+    if not self.blockerFrame then
         assert(gMainFrame)
-        gMBData.blockerFrame = CreateFrame("Frame", nil, gMainFrame:GetParent())
-        gMBData.blockerFrame:SetAllPoints()
-        gMBData.blockerFrame:SetFrameStrata("FULLSCREEN_DIALOG")
-        gMBData.blockerFrame:EnableMouse(true)
-        gMBData.blockerFrame:SetScript("OnMouseWheel", function(self) end) -- Disables mouse wheel.
-        gMBData.blockerFrame.background = gMBData.blockerFrame:CreateTexture()
-        gMBData.blockerFrame.background:SetAllPoints()
-        gMBData.blockerFrame.background:SetColorTexture(0.2,0.2,0.2, 0.6)
+        self.blockerFrame = CreateFrame("Frame", nil, gMainFrame:GetParent())
+        self.blockerFrame:SetAllPoints()
+        self.blockerFrame:SetFrameStrata("FULLSCREEN_DIALOG")
+        ----self.blockerFrame:SetFrameLevel(9990)
+        self.blockerFrame:EnableMouse(true)
+        self.blockerFrame:SetScript("OnMouseDown", function(self) self:Lower() end) -- Prevents covering popup messages.
+        self.blockerFrame:SetScript("OnMouseWheel", function(self) end) -- Disables mouse wheel.
+        self.blockerFrame.background = self.blockerFrame:CreateTexture()
+        self.blockerFrame.background:SetAllPoints()
+        self.blockerFrame.background:SetColorTexture(0.2,0.2,0.2, 0.6)
+
+        -- Create an invisible editbox in the blocker frame for clearing focus in the main UI.  (Classic WoWs only.)
+        if not isRetailWoW() then
+            self.blockerFrame.editbox = CreateFrame("EditBox", nil, self.blockerFrame, "InputBoxTemplate")
+            self.blockerFrame.editbox:SetPoint("TOPLEFT", 0, 0)
+            ----self.blockerFrame.editbox:SetSize(32, 32)
+        end
     end
-    gMBData.blockerFrame:Show()
-end
-local function isBlockerFrameShown()
-    if not gMBData.blockerFrame then return false end
-    return gMBData.blockerFrame:IsShown()
+
+    self.blockerFrame:Show()
+
+    local editbox = self.blockerFrame.editbox
+    if editbox then
+        editbox:Enable()
+        editbox:SetFocus()  -- Steals focus from any editbox in the parent UI.
+        editbox:ClearFocus()  -- Now nothing has focus.
+        editbox:Disable()  -- Avoids keystrokes being accidentally sent to this editbox.
+    end
 end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-local function msgBox(...)
-    ----tracePUI("IN msgBox,", ...)
-    gMBData.lastUsedFrame = private.UDControls.MsgBox(...)
-    gMBData.lastUsedID = (gMBData.lastUsedFrame and gMBData.lastUsedFrame.which) or nil
-
-    -- Hide blocker frame when the message box goes away.
-    gMBData.lastUsedFrame:SetScript("OnHide", function(self)
-                gMBData.blockerFrame:Hide()
-                reshow()
-                ----tracePUI("OnHide msgBox")
-            end)
-
-    -- Make the message box "modal", preventing any interaction with the main UI until the message is dismissed.
-    showBlockerFrame()
-    ----tracePUI("OUT msgBox")
-    return gMBData.lastUsedFrame
-end
+--~ function gMBIntf:isBlockerFrameShown()
+--~     if not self.blockerFrame then return false end
+--~     return self.blockerFrame:IsShown()
+--~ end
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 
 --~ --=============================================================================
---~ local function msgBox_IsShown()
---~     return gMBData.lastUsedFrame
---~            and gMBData.lastUsedFrame:IsShown()
---~            and gMBData.lastUsedFrame.which == gMBData.lastUsedID
+--~ local function msgbox(...)  -- Deprecated 2024-09-23. (Replaced by msgbox3.)
+--~     ----tracePUI("IN msgbox,", ...)
+--~     MsgBox(...)  -- Show the message box.
+--~     gMBIntf:showBlockerFrame()  -- Prevent any interaction with the main UI until the message is dismissed.
+--~     ----tracePUI("OUT msgbox")
 --~ end
+
+--=============================================================================
+local function msgbox3(msg, ...)
+    ----tracePUI("IN msgbox3,", ...)
+    ----msg = msg:gsub(' ""', '')  -- Remove empty quotes (empty names).
+    MsgBox3(msg, ...)  -- Show the message box.
+    ----tracePUI("OUT msgbox3")
+end
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+-- Set OnShow and OnHide callback functions for our message boxes.
+-- Note: Can't just call frame:HookScript() because message boxes don't have their own permanent frame!
+MsgBox3("HookScript", "OnShow", function(self)
+                    -- Prevent any interaction with the main UI until the message is closed.
+                    gMBIntf:showBlockerFrame()
+                    ----tracePUI("OnShow msgbox")
+                end)
+MsgBox3("HookScript", "OnHide", function(self)
+                    -- Hide blocker frame when the message box goes away.
+                    if gMBIntf.blockerFrame then gMBIntf.blockerFrame:Hide() end
+                    reshow()
+                    ----tracePUI("OnHide msgbox")
+                end)
 
 --~ --=============================================================================
 --~ local function debugMsgBox(msg, callstackLevel)  -- callstackLevel of 2 is a good start.
@@ -583,21 +668,14 @@ end
 --~         stack = stack:gsub(': in', ', in')
 --~         msg = msg .."\n|cff808080"..stack
 --~     end
---~     private.UDControls.MsgBox(msg, nil, nil, nil, nil,
---~             nil, nil,  -- data1, data2
+--~     private.UDControls.MsgBox3(msg, nil, nil, nil, nil, nil, nil,
+--~             nil,  -- data
 --~             false, kSound.Failure, 0, kPopupPreferredIndex)
 --~ end
 
 --=============================================================================
 local function printProfilesMsg(...)
 	DEFAULT_CHAT_FRAME:AddMessage( string.join(" ", kAddonHeading, tostringall(...)) );
-end
-
---=============================================================================
-local function vdt_dump(varValue, varDescription)  -- e.g.  vdt_dump(someVar, "Checkpoint 1")
-    if _G.ViragDevTool_AddData then
-        _G.ViragDevTool_AddData(varValue, varDescription)
-    end
 end
 
 --=============================================================================
@@ -772,32 +850,34 @@ local function equivalentValues(value1, value2)
 end
 
 --=============================================================================
-local function compareProfiles(profile1, profile2) -- Returns true if both profiles are equivalent.
+local function compareToDefaultProfile(profile, defaultProfile) -- Returns true if both profiles are equivalent.
 -- (This function treats nil, false, "", and 0 as being equal.  Missing keys are ignored.)
-    ----vdt_dump(profile1, "profile1 in compareProfiles()")
-    ----vdt_dump(profile2, "profile2 in compareProfiles()")
+    ----vdt_dump(profile, "profile in compareToDefaultProfile()")
+    ----vdt_dump(defaultProfile, "defaultProfile in compareToDefaultProfile()")
 
-    -- Compare values in profile1 to those in profile2.
-    for key1, value1 in pairs(profile1) do
-        local value2 = profile2[key1]
-        if not equivalentValues(value1, value2) then
+    -- Compare values in "profile" to those in "defaultProfile".
+    for key1, value1 in pairs(profile) do
+        local value2 = defaultProfile[key1]
+        -- If value2 (a default value) is nil, don't compare the values.
+        -- (A nil value in defaultProfile means use the current UI value.)
+        if value2 and not equivalentValues(value1, value2) then
             -- If values are tables, compare them.
             if type(value1) == "table" and type(value2) == "table" then
-                if not compareProfiles(value1, value2) then
+                if not compareToDefaultProfile(value1, value2) then
                     return false
                 end
             else -- Values are not tables, and are not equal.
-                ----print("compareProfiles()=FALSE.  '"..key1.."' differs. (", value1, "vs", value2, ")")  -- For debugging.
+                ----print("compareToDefaultProfile()1=FALSE.  '"..key1.."' differs. (", value1, "vs", value2, ")")  -- For debugging.
                 return false
             end
         end
     end
 
-    -- Check profile2 for values not found in profile1.
-    for key2, value2 in pairs(profile2) do
-        local value1 = profile1[key2]
+    -- Check "defaultProfile" for values not found in "profile".
+    for key2, value2 in pairs(defaultProfile) do
+        local value1 = profile[key2]
         if value1 == nil and not equivalentValues(value1, value2) then
-            ----print("compareProfiles()=FALSE.  '"..key2.."' differs. (", value1, "vs", value2, ")")  -- For debugging.
+            ----print("compareToDefaultProfile()2=FALSE.  '"..key2.."' differs. (", value1, "vs", value2, ")")  -- For debugging.
             return false
         end
     end
@@ -806,7 +886,7 @@ local function compareProfiles(profile1, profile2) -- Returns true if both profi
 end
 
 --=============================================================================
-local function defaultValuesAreLoaded()  -- [ Keywords: isDefaultData() isUnsavedDefaults() ]
+local function defaultValuesAreLoaded() -- [ Keywords: isDefaultData() isUnsavedDefaults() defaultsAreLoaded() areDefaultsLoaded() ]
   -- Returns true if displayed UI values match the named default's values, or false if not.
 
     -- Verify name is unsaved and has a corresponding entry in the defaults table.
@@ -821,7 +901,7 @@ local function defaultValuesAreLoaded()  -- [ Keywords: isDefaultData() isUnsave
     local displayedValues = {}
     UI_GetValues(displayedValues, kReasons.CheckingIfDefault)
 
-    return compareProfiles(displayedValues, gDefaultsTable[name])
+    return compareToDefaultProfile(displayedValues, gDefaultsTable[name])
 end
 
 --=============================================================================
@@ -855,11 +935,11 @@ local function getSortedNames(tbl, maxLetters)  -- (Case insensitive comparisons
 end
 
 --~ --=============================================================================
---~ local function dbg(bLoggingOut)
+--~ local function dbg()
 --~   -- Comment out these lines ...
 --~     ----if tCount(ProfilesDB.getAddonConfig().Profiles) < 2 then return end  -- Only check for backups if profiles exist.
 --~     local backups = ProfilesDB.getAddonConfig().ProfileBackups
---~     if bLoggingOut == true then
+--~     if gbLoggingOut then
 --~         assert(backups, "Backups table is nil during logout!" )
 --~         assert( not tEmpty(backups), "Backups table is empty during logout!" )
 --~     else
@@ -919,6 +999,30 @@ local function setModifiedProfiles(bModified)
     if not bModified then ProfilesUI.bModifiedValues = false end
 end
 
+--=============================================================================
+local function msgbox_SaveThenLoad(nameToSave, nameToLoad, options)
+    nameToSave = stripUnsavedMarker(nameToSave) -- In case nameToSave is an unsaved default (possibly modified).
+    local msg = L.SaveBeforeLoading:format(nameToSave, nameToLoad)  -- %s %s = nameToSave, nameToLoad
+    msgbox3( basicHeading(L.Title_Load) .. msg,
+        L.YES, function(thisPopupFrame, data, reason)
+                data.options = data.options:gsub("c","")  -- Remove confirmation option.
+                data.options = data.options:gsub("s","")  -- Remove silent option.
+                ProfilesUI:saveProfile(data.nameToSave, data.options, data.nameToLoad)  -- [ Keywords: saveThenLoad() ]
+            end,
+        L.NO, function(thisPopupFrame, data, reason)
+                data.options = data.options:gsub("c","")  -- Remove confirmation option.
+                local bLoadDefault = sFind("d", data.options)
+                if bLoadDefault then
+                    ProfilesUI:loadDefault(data.nameToLoad, data.options)
+                else
+                    ProfilesUI:loadProfile(data.nameToLoad, data.options)
+                end
+            end,
+        L.CANCEL, nil,  ----function(thisPopupFrame, data, reason) end,
+        {nameToSave=nameToSave, nameToLoad=nameToLoad, options=options},  -- data
+        false, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
+end
+
 --*****************************************************************************
 --[[                        Profiles Database                                ]]
 --*****************************************************************************
@@ -932,6 +1036,7 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
     --[[ CONSTANTS ]]
     TABLE_ID = "ProfilesDB",
     kKeyName_SelectedName = "_SelectedName",  -- Key name under ".Profiles" containing the selected profile name.
+    kKeyName_SelectedNameForAll = "ALL_CHARACTERS",  -- Used instead of playerFullName when the bUseAccountProfile options is on.
 
     --[[ VARIABLES ]]
     getAddonConfig = nil,
@@ -1091,15 +1196,17 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
     -------------------------------------------------------------------------------
     getSelectedName = function(self)  -- ProfilesDB:getSelectedName()
     -- Returns the selected profile name from persistent data.
-    -- Clears selected name field if the profile it refers to doesn't exist.
+    -- Clears selected name field if the profile it refers to doesn't exist, and returns nil.
         assert(self == ProfilesDB)  -- Fails if function called using '.' instead of ':'.
         local profiles = self:getProfiles()
-        local selectedName = profiles[self.kKeyName_SelectedName][self.playerFullName]
+        local usingAccountProfile = self:usingAccountProfile()
+        local activeKeyName = (usingAccountProfile and self.kKeyName_SelectedNameForAll) or self.playerFullName
+        local selectedName = profiles[self.kKeyName_SelectedName][activeKeyName]  -- Name of selected profile.
         if hasUnsavedMarker(selectedName) or self:exists(selectedName) then
             return selectedName  -- SUCCESS
         end
         -- Else, that profile no longer exists, so clear the _SelectedName variable.
-        profiles[self.kKeyName_SelectedName][self.playerFullName] = nil
+        profiles[self.kKeyName_SelectedName][activeKeyName] = nil
         return nil  -- No selected name anymore.
     end,
     -------------------------------------------------------------------------------
@@ -1111,20 +1218,22 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
         assert(self == ProfilesDB)  -- Fails if function called using '.' instead of ':'.
         assert(bForce == nil or type(bForce) == "boolean")
         local profiles = self:getProfiles()
+        local usingAccountProfile = self:usingAccountProfile()
+        local activeKeyName = (usingAccountProfile and self.kKeyName_SelectedNameForAll) or self.playerFullName
         if bForce then
-            profiles[self.kKeyName_SelectedName][self.playerFullName] = profileName
+            profiles[self.kKeyName_SelectedName][activeKeyName] = profileName
             return true  -- SUCCESS
         end
 
         assert(self:isLegalName(profileName))
         if hasUnsavedMarker(profileName) or self:exists(profileName) then
-            profiles[self.kKeyName_SelectedName][self.playerFullName] = profileName
+            profiles[self.kKeyName_SelectedName][activeKeyName] = profileName
             return true  -- SUCCESS
         end
 
         -- Else, the specified profile doesn't exist!
         -- Clear current value to avoid name/data sync problems.
-        profiles[self.kKeyName_SelectedName][self.playerFullName] = nil
+        profiles[self.kKeyName_SelectedName][activeKeyName] = nil
         return false  -- FAILURE
     end,
     -------------------------------------------------------------------------------
@@ -1143,6 +1252,11 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
             assert(nameFound)
             return nameFound  -- SUCCESS
         end
+    end,
+    -------------------------------------------------------------------------------
+    usingAccountProfile = function(self)  -- ProfilesDB:usingAccountProfile()
+    -- Returns true if the user turned on the option to use the same profile for all characters.
+        return self:getOptions().bUseAccountProfile
     end,
     -------------------------------------------------------------------------------
     isEmpty = function(self)  -- ProfilesDB:isEmpty()
@@ -1192,6 +1306,7 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
         options.bSaveOnOkay = false
         options.bConfirmDelete = true
         options.bConfirmCopy = true
+        options.bUseAccountProfile = false
         -- - - - - - - - - - - - - - - - --
         if not self.cachedConfig then
             self:validateCache()
@@ -1467,8 +1582,16 @@ local function ProfileOptions_Show()
         frm:SetBackdropColor(r, g, b, a)
 
         frm:EnableMouse(true)  -- Prevent clicks from passing thru to something below.
-        frm:SetPoint("CENTER", 0, 0)
-        frm:SetSize(330, 144)
+        frm:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", -4, 4)
+        frm:SetSize(330, 100)  -- Temporary size for now.
+
+        -- Allow moving the options window.
+        frm:EnableMouse(true)
+        frm:SetMovable(true)
+        frm:SetClampedToScreen(true)
+        frm:RegisterForDrag("LeftButton")
+        frm:SetScript("OnDragStart", function(self, button) self:StartMoving() end)
+        frm:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
         -- TITLE --
         local titleY = -12
@@ -1515,15 +1638,21 @@ local function ProfileOptions_Show()
         frm.resetBtn:SetPoint("RIGHT", frm.xBtn, "LEFT", x, y)
         frm.resetBtn:SetTooltip(L.ResetOptionsDesc, "ANCHOR_TOP")
         frm.resetBtn:SetScript("OnClick", function(self)
-                    private.UDControls.MsgBox( basicHeading(L.ResetOptionsDesc) .. L.ConfirmResetOptions,
-                        L.YES, function(thisStaticPopupTable, data, data2)
+                    MsgBox3( basicHeading(L.ResetOptionsDesc) .. L.ConfirmResetOptions,
+                        L.YES, function(thisPopupFrame, data, reason)
+                                    if ProfilesDB:getOptions().bUseAccountProfile then
+                                        -- Must trigger this widget's click handler now.
+                                        gMainFrame.optionsFrame.accountProfileCB:Click()
+                                    end
+                                    -- Reset profile options.
                                     ProfilesDB:initializeOptions()
                                     gMainFrame.optionsFrame:Hide()
-                                    gMainFrame.optionsFrame:Show()  -- Updates UI.
+                                    gMainFrame.optionsFrame:Show()  -- Updates options UI.
                                     printProfilesMsg(L.ResetOptionsSucceeded)
                                 end,
                         L.NO, nil)
-                        ----nil, nil,  -- data1, data2
+                        ----nil, nil,  -- button3
+                        ----nil,  -- data
                         ----false, nil, 0, kPopupPreferredIndex)
                 end)
 
@@ -1561,19 +1690,78 @@ local function ProfileOptions_Show()
                     ProfilesDB:getOptions().bConfirmDelete = isChecked
                 end)
 
+        -- CHECKBOX: USE SAME PROFILE FOR ALL CHARACTERS --
+        frm.accountProfileCB = private.UDControls.CreateCheckBox(frm, fontTemplateName, nil, nil, bClickableText)
+        frm.accountProfileCB:SetLabel(L.OptionAccountProfile)
+        frm.accountProfileCB:SetPoint("TOPLEFT", frm.confirmDeleteCB, "BOTTOMLEFT", 0, -spacing)
+        frm.accountProfileCB:SetPoint("RIGHT", frm, "RIGHT", -5, 0)
+        frm.accountProfileCB:SetClickHandler( function(thisCB, isChecked)
+                    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+                    local function changeProfileSelectionMode(currentProfileName, isChecked)
+                        -- Update the options variable and load the new active profile.
+                        ProfilesDB:getOptions().bUseAccountProfile = isChecked -- Note: Affects how get/setSelectedName() work.
+                        local newProfileName = ProfilesDB:getSelectedName() or currentProfileName
+                        if newProfileName and newProfileName ~= "" then
+                            ProfilesDB:setSelectedName( stripUnsavedMarker(newProfileName) )
+                            ProfilesUI:refreshUI()
+                            if ProfilesUI.callbackLoadProfile then
+                                ProfilesUI.callbackLoadProfile(newProfileName)
+                            end
+
+                            -- To avoid problems caused by user canceling the main UI afterwards, close and reopen the UI.
+                            gMainFrame:GetParent():Hide()
+                            gMainFrame:GetParent():Show()
+                            gMainFrame.optionsFrame:Show()
+                        else
+                            ProfilesUI:refreshUI()  -- Shows/hides the accountProfileIcon.
+                        end
+                    end
+                    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+
+                    local old = ProfilesDB:getOptions().bUseAccountProfile
+                    if isChecked ~= old then
+                        local currentName = ProfilesDB:getSelectedName()
+                        if hasUnsavedMarker(currentName) then
+                            -- Prompt user to save any changes before switching profile selection mode.
+                            currentName = stripUnsavedMarker(currentName)
+                            msgbox3( basicHeading(L.Title_Load) .. L.SaveChangesFirst:format(currentName),
+                                    L.YES, function(thisPopupFrame, data, reason)
+                                                ProfilesUI:saveProfile(data.currentName, "s")  -- Save current profile.
+                                                changeProfileSelectionMode(data.currentName, data.isChecked)
+                                            end,
+                                    L.NO, function(thisPopupFrame, data, reason)
+                                                changeProfileSelectionMode(data.currentName, data.isChecked)
+                                            end,
+                                    L.CANCEL, function(thisPopupFrame, data, reason)
+                                                data.thisCB:SetChecked( not data.isChecked )  -- Revert checkbox to previous state.
+                                            end,
+                                    {thisCB=thisCB, currentName=currentName, isChecked=isChecked},  -- data
+                                    false, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
+                        else  -- Current profile is already saved.
+                            changeProfileSelectionMode(currentName, isChecked)
+                        end
+                    end
+                end)
+
+        -- Update frame size.
+        frm:SetHeight( frm:GetTop() - frm.accountProfileCB:GetBottom() + 13 )
+
         ------------------------
         -- - - - EVENTS - - - --
         ------------------------
-        frm:SetScript("OnShow", function(self)
+        frm:SetScript("OnShow", function(self) --[ Keywords: gMainFrame.optionsFrame:OnShow() ]
                     -- Set current values.
                     local options = ProfilesDB:getOptions()
                     self.saveOnOkayCB:SetChecked( options.bSaveOnOkay )
                     self.confirmDeleteCB:SetChecked( options.bConfirmDelete )
                     self.confirmCopyCB:SetChecked( options.bConfirmCopy )
+                    self.accountProfileCB:SetChecked( options.bUseAccountProfile )
                     PlaySound(kSound.Open)
+                    ----if self.callbackOnShowOptions then self.callbackOnShowOptions() end
                 end)
-        frm:SetScript("OnHide", function(self)
+        frm:SetScript("OnHide", function(self) --[ Keywords: gMainFrame.optionsFrame:OnHide() ]
                     PlaySound(kSound.Close)
+                    ----if self.callbackOnHideOptions then self.callbackOnHideOptions() end
                 end)
     end
 
@@ -1637,15 +1825,16 @@ local function LB_Actions_CopyTo(thisLB, line, clickedName, mouseButton)  -- Lis
         return  -- Done.
     end
 
-    msgBox( basicHeading(L.mCopyTo) .. L.ConfirmCopyTo:format(destName, srcName),
-            L.CONTINUE, function(thisStaticPopupTable, data, data2)  -- (thisTable, data1, data2)
+    msgbox3( basicHeading(L.mCopyTo) .. L.ConfirmCopyTo:format(destName, srcName),
+            L.CONTINUE, function(thisPopupFrame, data, reason)
                                 ----ProfilesUI:saveProfile(data.srcName, "s") -- First save any UI changes.
                                 ----ProfilesUI:copyProfile(data.srcName, data.destName)
                                 ProfilesUI:copyProfile(nil, data.destName)  -- Copies values from UI.
                             end,
             L.CANCEL, nil,
-            {srcName=srcName, destName=destName}, nil,  -- data1, data2
-            false, kSound.Popup, 0, kPopupPreferredIndex)
+            nil, nil,  -- button3
+            {srcName=srcName, destName=destName},  -- data
+            false, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
 end
 
 --=============================================================================
@@ -1663,13 +1852,14 @@ local function LB_Actions_CopyFrom(thisLB, line, clickedName, mouseButton)  -- L
         return  -- Done.
     end
 
-    msgBox( basicHeading(L.mCopyFrom) .. L.ConfirmCopyFrom:format(srcName, destName),
-            L.CONTINUE, function(thisStaticPopupTable, data, data2)  -- (thisTable, data1, data2)
+    msgbox3( basicHeading(L.mCopyFrom) .. L.ConfirmCopyFrom:format(srcName, destName),
+            L.CONTINUE, function(thisPopupFrame, data, reason)
                                 ProfilesUI:copyProfile(data.srcName, data.destName)
                             end,
             L.CANCEL, nil,
-            {srcName=srcName, destName=destName}, nil,  -- data1, data2
-            false, kSound.Popup, 0, kPopupPreferredIndex)
+            nil, nil,  -- button3
+            {srcName=srcName, destName=destName},  -- data
+            false, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
 end
 
 --=============================================================================
@@ -1726,6 +1916,10 @@ function actionMenuFuncs.onSelectItem( selectedItem )
     elseif selectedItem == L.mRename then
         local name = stripUnsavedMarker(currentName)
         StaticPopup_Show(kAddonFolderName.."_RENAME", name, nil, name) -- (which, text1, text2, customData)
+    -- UNDO --  [ Keywords: LB_Actions_Undo ]
+    elseif selectedItem == L.mUndo then
+        local name = stripUnsavedMarker(currentName)
+        ProfilesUI:loadProfile(name, "")
     -- BACKUP --  [ Keywords: LB_Actions_Backup ]
     elseif selectedItem == L.mBackup then
         ----ProfilesUI:backupProfiles(nil, "c")  -- Prompt for confirmation, then create a timestamped backup.
@@ -1799,6 +1993,12 @@ function actionMenuFuncs.onOpen(thisLB)
             elseif action == L.mNewProfile then
                 info.tooltip = L.NewProfileDesc
                 info.icon = "Interface\\PaperDollInfoFrame\\Character-Plus"
+            -- Is the action "Undo"?
+            elseif action == L.mUndo then
+                local strippedCurrentName = stripUnsavedMarker(currentName)
+                local enabled = ( hasUnsavedMarker(currentName) and ProfilesDB:exists(strippedCurrentName) )
+                info.disabled = not enabled
+                info.tooltip = L.UndoDesc
             -- Is the action "Backup"?
             elseif action == L.mBackup then
                 info.tooltip = L.BackupDesc
@@ -1832,6 +2032,10 @@ function actionMenuFuncs.onOpen(thisLB)
     end -- for
 
     thisLB:Refresh()
+    if gMainFrame.optionsFrame then
+        -- Ensure the profile options window is closed when the actions menu is opened.
+        gMainFrame.optionsFrame:Hide()
+    end
     PlaySound(kSound.ActionQuiet)
     ----vdt_dump(thisLB, "thisLB in actionMenuFuncs.onOpen()")
 end
@@ -1933,7 +2137,7 @@ local function createActionsDropDown(dropDownFrameName, parent)
 
     -- Define contents of listbox.
     local sDefaults = (gDefaultsTable and L.mDefaults) or ""
-    local actions = {L.mNewProfile, L.mSaveAs, L.mRename, L.mDelete,
+    local actions = {L.mNewProfile, L.mSaveAs, L.mRename, L.mDelete, L.mUndo,
                     kDivider, L.mLoad, sDefaults,
                     kDivider, L.mCopyTo, L.mCopyFrom, ----L.mExport, L.mImport,
                     kDivider, L.mBackup, L.mRestore, L.mOptions}
@@ -2026,10 +2230,19 @@ local function UDProfiles_CreateUI(info)
     ----gMainFrame:SetBackdropColor(0,0,0, 0.8)
     gMainFrame:SetBackColor(0.5, 0.5, 0.9,  0.05)
 
+    ----gMainFrame.title:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
+    ----gMainFrame.title:SetScript("OnEnter", function(self)
+    ----            GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+    ----            local isChecked = ProfilesDB:usingAccountProfile()
+    ----            local msg = L.OptionAccountProfile:sub(1, -2) .." = ".. (isChecked and YES or NO):upper()
+    ----            GameTooltip:SetText(msg, nil, nil, nil, nil, 1)
+    ----        end)
+
     --=-=-=-=-=-=-=-=-=-=-=-=
     -- - - - WIDGETS - - - --
     --=-=-=-=-=-=-=-=-=-=-=-=
 
+    -- STATUS TEXT --
     local statusText = CreateFrame("Frame", nil, gMainFrame)
     gMainFrame.statusText = statusText
     statusText:Hide()
@@ -2259,30 +2472,46 @@ local function UDProfiles_CreateUI(info)
     -- PROFILE NAMES LISTBOX --
     ProfilesUI:createProfilesListBox()  -- Creates "gMainFrame.profilesListBox" variable.
 
+    -- ACCOUNT PROFILE ICON --
+    local accountProfileIcon = gMainFrame:CreateTexture(nil, "ARTWORK")
+    gMainFrame.accountProfileIcon = accountProfileIcon
+    accountProfileIcon:SetTexture("Interface\\FriendsFrame\\UI-Toast-ChatInviteIcon")
+    accountProfileIcon:SetSize(28, 24)
+    accountProfileIcon:SetPoint("BOTTOMRIGHT", editbox, "TOPLEFT", 18, -5)
+    accountProfileIcon:Hide()
+
     --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     -- - - - MAIN FRAME EVENTS - - - --
     --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     ---------------------------------------------------------------------------
-    gMainFrame:SetScript("OnShow", function(self)
+    gMainFrame:SetScript("OnShow", function(self) --[ Keywords: gMainFrame:OnShow() ]
                 ----tracePUI("IN OnShow gMainFrame")
                 ----vdt_dump(self, "gMainFrame in its OnShow()")
+                ----memchk()
+                local profilesUI = ProfilesUI
+
                 ProfilesDB:clearCache()
-                ProfilesUI.OriginalProfiles = CopyTable( ProfilesDB:getProfiles() )
-                ProfilesUI.OriginalProfileName = ProfilesDB:getSelectedName()
-                ProfilesUI:refreshUI()  -- Sets UI values.
+--TODO: Find a way to avoid using CopyTable() in the next line everytime the UI opens.  It grows memory faster
+--      than necessary, and takes a long time for garbage collector to release it after we nil it in OnHide().
+                profilesUI.OriginalProfiles = CopyTable( ProfilesDB:getProfiles() )
+                profilesUI.OriginalProfileName = ProfilesDB:getSelectedName()
+                profilesUI.OriginalNameWasSaved = false
+                profilesUI.OriginalAccountProfileMode = ProfilesDB:usingAccountProfile()
+                profilesUI:refreshUI()  -- Sets UI values.
                 setModifiedProfiles(false)
                 gMainFrame.closeReason = nil
 
-                ------ Make a copy of UI values.
-                ----ProfilesUI.OriginalValues = {}
-                ----UI_GetValues( ProfilesUI.OriginalValues, kReasons.ShowingUI )
+                -- Make a copy of UI values.
+                profilesUI.OriginalValues = {}
+                UI_GetValues( profilesUI.OriginalValues, kReasons.ShowingUI )
 
+                ----memchk("gMainFrame:OnShow")
                 ----dbg()
                 ----tracePUI("OUT OnShow gMainFrame")
             end)
     ---------------------------------------------------------------------------
-    gMainFrame:SetScript("OnHide", function(self)
+    gMainFrame:SetScript("OnHide", function(self) --[ Keywords: gMainFrame:OnHide() ]
                 -- If UI was closed without user clicking OK or CANCEL, such as with a slash command,
                 -- then run the OK logic so any changes are saved.  Useful if user has a button macro
                 -- that toggle the UI open and closed.
@@ -2294,18 +2523,15 @@ local function UDProfiles_CreateUI(info)
                 -- Clean up.
                 self.statusText:showMsg("")
                 self:closeDropDownMenus(true)  -- 'true' means clear contents of listboxes rarely used.
-                hideBlockerFrame()
+                gMBIntf:hideBlockerFrame()
                 ProfileOptions_Hide()
-                self.OriginalProfileName = nil
-                ----self.OriginalValues = nil
 
-                -- Must clear profiles cache now so slash commands will have valid data to use,
-                -- except if the data was modified.  In that case, we must wait until after the
-                -- user chooses to keep those changes or not.  Cache will be cleared when that
+                -- Must clear profiles cache now (by calling clearTempVars) so slash commands will have
+                -- valid data to use, except if the data was modified.  In that case, we must wait until
+                -- after the user chooses to keep those changes or not.  Cache will be cleared when that
                 -- popup message goes away.  See ProfilesUI:OnCancel().
                 if not isModifiedProfiles() then
-                    ProfilesUI.OriginalProfiles = nil
-                    ProfilesDB:clearCache()
+                    ProfilesUI:clearTempVars()
                 end
                 ----dbg()
                 ----tracePUI("OUT OnHide gMainFrame")
@@ -2317,7 +2543,7 @@ local function UDProfiles_CreateUI(info)
     --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     ---------------------------------------------------------------------------
-    function gMainFrame:closeDropDownMenus(bFreeMemory)
+    function gMainFrame:closeDropDownMenus(bReleaseMemory)
         -- Pass in true to clear contents of listboxes that are rarely used.
         assert(self)  -- Fails if function called using '.' instead of ':'.
         if self.menuDropDown then
@@ -2328,7 +2554,7 @@ local function UDProfiles_CreateUI(info)
         end
         if self.backupsListBox then
             self.backupsListBox:Hide()
-            if bFreeMemory then
+            if bReleaseMemory then
                 self.backupsListBox:Clear()
             end
         end
@@ -2340,7 +2566,7 @@ local function UDProfiles_CreateUI(info)
     --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     local DB = ProfilesDB
     if DB:countProfiles() > 0 then
-        ----if DB:countBackups() <= 2 then msgBox(kAddonHeading.."\nWARNING - No user backups exist.") end  -- For debugging.
+        ----if DB:countBackups() <= 2 then msgbox3(kAddonHeading.."\nWARNING - No user backups exist.") end  -- For debugging.
 
         if gbInitialLogin or not DB:backupExists(L.BackupName_Login) then
             if DB:backup(L.BackupName_Login) then
@@ -2385,14 +2611,13 @@ function ProfilesUI:getBackColor()      return gMainFrame:GetBackColor() end
 function ProfilesUI:setBackColor(r, g, b, alpha) gMainFrame:SetBackColor(r, g, b, alpha) end  -- Sets background color of main group box.
 function ProfilesUI:showOptions()       return ProfileOptions_Show() end
 function ProfilesUI:hideOptions()       return ProfileOptions_Hide() end
+function ProfilesUI:isShownOptions()    return gMainFrame.optionsFrame and gMainFrame.optionsFrame:IsShown() end
+function ProfilesUI:isShownMsgBox()     return MsgBox3("IsShown") or MsgBox("IsShown") end
 -------------------------------------------------------------------------------
-function ProfilesUI:setCallback_LoadProfile(callbackFunc)
-    self.callbackLoadProfile = callbackFunc
-end
--------------------------------------------------------------------------------
-function ProfilesUI:setCallback_LoadDefault(callbackFunc)
-    self.callbackLoadDefault = callbackFunc
-end
+function ProfilesUI:setCallback_LoadProfile(func)   self.callbackLoadProfile = func end
+function ProfilesUI:setCallback_LoadDefault(func)   self.callbackLoadDefault = func end
+----function ProfilesUI:setCallback_OnShowOptions(func) self.callbackOnShowOptions = func end
+----function ProfilesUI:setCallback_OnHideOptions(func) self.callbackOnHideOptions = func end
 -------------------------------------------------------------------------------
 function ProfilesUI:setListBoxEdgeColor(r, g, b, alpha)  -- Sets edge color and title box background color (if supported).
     if r == nil then r = self.ListBoxColor.r end
@@ -2493,6 +2718,8 @@ end
 function ProfilesUI:refreshUI(bRestoringProfiles)
     ----tracePUI("IN refreshUI,", bRestoringProfiles)
     assert(self == ProfilesUI)  -- Fails if function called using '.' instead of ':'.
+    gMainFrame.accountProfileIcon:SetShown( self.DB:usingAccountProfile() )
+
     local selectedName = ProfilesDB:getSelectedName()
     if selectedName then
         if hasUnsavedMarker(selectedName) then  -- Unsaved name?
@@ -2540,48 +2767,62 @@ function ProfilesUI:OnCancel(bPrintMsg)  -- Reverts to original profile name and
     assert(self == ProfilesUI)  -- Fails if function called using '.' instead of ':'.
     gMainFrame.closeReason = L.CANCEL
 
-    local currentName = self:getCurrentName()
-    local origName = self.OriginalProfileName
-    if origName and origName ~= "" and namesDiffer(origName, currentName) then
-        -- Restore original profile name and data.  (Works properly even if user reloads while UI is open!)
-        self:loadProfile( origName, (bPrintMsg and "" or "bs") )
-        self:setProfileName(origName)  -- Fixes BUG 20240522.1.
+    local profilesUI = self
+    local accountProfileModeUnchanged = (profilesUI.OriginalAccountProfileMode == ProfilesDB:usingAccountProfile())
+
+    -- Restore original values and profile name, unless the account profile mode was changed.
+    if accountProfileModeUnchanged then -- Don't revert selected profile name if the selection mode has changed!
+        UI_SetValues(profilesUI.OriginalValues, kReasons.CancelingChanges)
+        profilesUI:setProfileName( profilesUI.OriginalProfileName )
     end
-    ----self:setCurrentName(self.OriginalProfileName)  <<< This does not undo modified name if user reloads while UI is open!
-    ----UI_SetValues(self.OriginalValues, kReasons.CancelingChanges)
 
     -- Assuming the main UI canceled our changes to profile data, restore changes made
     -- to backups and options, and then ask the user if we should restore changes made to the profiles.
     ProfilesDB:useCachedBackups()  -- In case caller accidentally deleted our ".ProfileBackups" key.
     ProfilesDB:useCachedOptions()  -- In case caller accidentally deleted our ".ProfileOptions" key.
     if isModifiedProfiles() then
-        msgBox( basicHeading(L.Title_ProfilesChanged) .. L.ConfirmKeepChanges,
-                L.YES, function(thisStaticPopupTable, data1, data2)  -- (thisTable, data1, data2)
+        msgbox3( basicHeading(L.Title_ProfilesChanged) .. L.ConfirmKeepChanges,
+                L.YES, function(thisPopupFrame, data, reason)
                             -- Ensure profiles still exist.  Restore them from cached data if necessary.
                             ProfilesDB:useCachedProfiles() -- In case caller undid changes using CopyTable()
                                                            -- and deleted our ".Profiles" key by accident.
-                            ProfilesDB:clearCache()  -- Clear so slash commands can work properly after UI is closed.
+                            if ProfilesUI.OriginalNameWasSaved then
+                                ProfilesUI:loadProfile( stripUnsavedMarker(ProfilesUI.OriginalProfileName), "s" )
+                            end
+                            ProfilesUI:clearTempVars()
                             PlaySound(kSound.Success)
                             ----dbg()
                         end,
-                L.NoUndo, function(thisStaticPopupTable, data1, reason)
+                L.NoUndo, function(thisPopupFrame, data, reason)
                             -- Restore canceled changes using 'OriginalProfiles'.
                             ProfilesDB:clearCache() -- In case caller undid changes using CopyTable() and
                                                     -- changed the address of this addon's "SaveVariables".
-                            ProfilesDB:restore(nil, ProfilesUI.OriginalProfiles) -- Note: Causes cache to be updated.
-                            ProfilesDB:clearCache() -- Clear again so slash commands can work properly after UI is closed.
-                            ProfilesUI.OriginalProfiles = nil  -- Free memory.
+                            ProfilesDB:restore(nil, ProfilesUI.OriginalProfiles) -- Note: Also causes cache to be updated.
+
+                            -- Restore values (again) that were shown when the main UI was last opened.
+                            UI_SetValues(ProfilesUI.OriginalValues, kReasons.UndoingProfileChanges)
+                            ProfilesUI:setProfileName(ProfilesUI.OriginalProfileName)
+
+                            ProfilesUI:clearTempVars()
                             PlaySound(kSound.Delete)
                             printProfilesMsg(L.CanceledProfileChanges)
-
-                            -- Reload current profile in case its settings were altered by the undo.
-                            self:loadProfile( self:getCurrentName(), "s" )
                             ----dbg()
                         end,
-                nil, nil,  -- data1, data2
-                false, kSound.Popup, 0, kPopupPreferredIndex)
+                nil, nil,  -- button3
+                nil,  -- data
+                false, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
     end
     ----tracePUI("OUT OnCancel")
+end
+
+--=============================================================================
+function ProfilesUI:clearTempVars()
+    self.OriginalProfileName = nil
+    self.OriginalValues = nil
+    self.OriginalProfiles = nil
+    self.OriginalNameWasSaved = false
+    self.OriginalAccountProfileMode = nil
+    ProfilesDB:clearCache()  -- Clear so slash commands can work properly after UI is closed.
 end
 
 --=============================================================================
@@ -2598,9 +2839,12 @@ function ProfilesUI:OnValueChanged()  -- Main UI should call this whenever the u
         self.bModifiedValues = true
 
         -- Mark profile name as "unsaved".
-        local currentName = ProfilesUI:getCurrentName()
-        ProfilesUI:setProfileName( appendUnsavedMarker(currentName) )
+        local currentName = self:getCurrentName()
+        self:setProfileName( appendUnsavedMarker(currentName) )
     end
+
+    ------ Ensure profile options window is hidden.
+    ----if self.mainFrame.optionsFrame then self.mainFrame.optionsFrame:Hide() end
 end
 
 --*****************************************************************************
@@ -2630,17 +2874,18 @@ function ProfilesUI:createProfile(name, options)  -- [ Keywords: createProfile()
         local currentName = ProfilesUI:getCurrentName()
         if hasUnsavedMarker(currentName) then
             local strippedCurrentName = stripUnsavedMarker(currentName)
-            msgBox( basicHeading(L.mNewProfile) .. L.SaveChangesFirst:format(strippedCurrentName),
-                    L.YES, function(thisStaticPopupTable, data1, data2)  -- (thisTable, data1, data2)
-                                ProfilesUI:saveProfile(data1.nameToSave, "s")
-                                ProfilesUI:createProfile(data1.nameToCreate, data1.options) -- Call self again.
+            msgbox3( basicHeading(L.mNewProfile) .. L.SaveChangesFirst:format(strippedCurrentName),
+                    L.YES, function(thisPopupFrame, data, reason)
+                                ProfilesUI:saveProfile(data.nameToSave, "s")
+                                ProfilesUI:createProfile(data.nameToCreate, data.options) -- Call self again.
                             end,
-                    L.NO, function(thisStaticPopupTable, data1, reason)
+                    L.NO, function(thisPopupFrame, data, reason)
                                 ProfilesUI:setCurrentName("") -- So we don't get here again when we call self.
-                                ProfilesUI:createProfile(data1.nameToCreate, data1.options) -- Call self again.
+                                ProfilesUI:createProfile(data.nameToCreate, data.options) -- Call self again.
                             end,
-                    {nameToSave=strippedCurrentName, nameToCreate=name, options=options}, nil,  -- data1, data2
-                    false, kSound.Popup, 0, kPopupPreferredIndex)
+                    L.CANCEL, nil,  -- button3
+                    {nameToSave=strippedCurrentName, nameToCreate=name, options=options},  -- data
+                    false, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
             ----tracePUI("OUT createProfile early 1.")
             return  -- Done.
         end
@@ -2649,13 +2894,14 @@ function ProfilesUI:createProfile(name, options)  -- [ Keywords: createProfile()
         local existingName = ProfilesDB:exists(name)
         if existingName then
             -- Replace existing profile?
-            msgBox( basicHeading(L.mNewProfile) .. L.ConfirmDefaults:format(existingName),
-                    L.CONTINUE, function(thisStaticPopupTable, name, options)  -- (thisTable, data1, data2)
-                                ProfilesUI:createProfile(name, options:gsub("c","")) -- Call self without confirm option.
+            msgbox3( basicHeading(L.mNewProfile) .. L.ConfirmDefaults:format(existingName),
+                    L.CONTINUE, function(thisPopupFrame, data, reason)
+                                ProfilesUI:createProfile(data.name, data.options:gsub("c","")) -- Call self without confirm option.
                             end,
-                    L.CANCEL, nil,  ----function(thisStaticPopupTable, data1, reason)
-                    name, options,  -- data1, data2
-                    true, kSound.Popup, 0, kPopupPreferredIndex)
+                    L.CANCEL, nil,  ----function(thisPopupFrame, data, reason)
+                    nil, nil,  -- button3
+                    {name=name, options=options},  -- data
+                    true, nil, 0, kPopupPreferredIndex)
             ----tracePUI("OUT createProfile early 2.")
             return  -- Done.
         end
@@ -2764,15 +3010,16 @@ function ProfilesUI:saveProfile(nameToSave, options, nameToLoadAfterwards)  -- [
     -- Get confirmation before overwriting an existing profile (if necessary).
     if canSave == L.YES and bConfirm and existingName then
         -- Replace existing profile?
-        msgBox( basicHeading(L.SAVE) .. L.ConfirmOverwriteProfile:format(existingName),
-                L.CONTINUE, function(thisStaticPopupTable, data1, data2)  -- (thisTable, data1, data2)
-                            ProfilesUI:saveProfile(data1.nameToSave,
-                                            data1.options:gsub("c",""), -- Call self without confirm option.
-                                            data1.nameToLoadAfterwards)
+        msgbox3( basicHeading(L.SAVE) .. L.ConfirmOverwriteProfile:format(existingName),
+                L.CONTINUE, function(thisPopupFrame, data, reason)
+                            ProfilesUI:saveProfile(data.nameToSave,
+                                            data.options:gsub("c",""), -- Call self without confirm option.
+                                            data.nameToLoadAfterwards)
                         end,
-                L.CANCEL, nil,  ----function(thisStaticPopupTable, data1, reason)
-                {nameToSave=nameToSave, options=options, nameToLoadAfterwards=nameToLoadAfterwards}, nil, -- data1, data2
-                true, kSound.Popup, 0, kPopupPreferredIndex)
+                L.CANCEL, nil,  ----function(thisPopupFrame, data, reason)
+                nil, nil,  -- button3
+                {nameToSave=nameToSave, options=options, nameToLoadAfterwards=nameToLoadAfterwards}, -- data
+                true, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
         ----tracePUI("OUT saveProfile early 2.")
         return  -- Done.
     end
@@ -2800,6 +3047,7 @@ function ProfilesUI:saveProfile(nameToSave, options, nameToLoadAfterwards)  -- [
             -- or the new name has changed the letter casing of the displayed name.
             local currentName = self:getCurrentName()
             if namesMatch(nameToSave, stripUnsavedMarker(currentName)) then
+                self.OriginalNameWasSaved = (currentName == self.OriginalProfileName)
                 self:setProfileName(nameToSave)
             end
         end
@@ -2872,8 +3120,7 @@ function ProfilesUI:loadProfile(nameToLoad, options)  -- [ Keywords: loadProfile
             if namesDiffer(nameToLoad, strippedCurrentName) then  -- Loading a different profile?
                 options = options:gsub("a","")  -- Remove auto-save option.
                 ----options = options:gsub("s","")  -- Remove silent option.
-                StaticPopup_Show( kAddonFolderName.."_SAVE_THEN_LOAD", strippedCurrentName, nameToLoad, -- which, text1, text2
-                            {nameToSave=currentName, nameToLoad=nameToLoad, options=options} ) -- customData
+                msgbox_SaveThenLoad(currentName, nameToLoad, options)
                 ----tracePUI("OUT loadProfile early 1.")
                 return  -- Done.
             end
@@ -2955,8 +3202,7 @@ function ProfilesUI:loadDefault(nameToLoad, options)  -- [ Keywords: loadDefault
 
         if canSave == L.YES and bUnsaved then
             -- Warn user about unsaved profile before continuing.
-            StaticPopup_Show( kAddonFolderName.."_SAVE_THEN_LOAD", strippedCurrentName, nameToLoad, -- which, text1, text2
-                            {nameToSave=currentName, nameToLoad=nameToLoad, options="d"} ) -- customData
+            msgbox_SaveThenLoad(currentName, nameToLoad, "d")
             return  -- Done.
         end
     end
@@ -3089,13 +3335,14 @@ function ProfilesUI:deleteProfile(name, options)  -- [ Keywords: deleteProfile()
 
     -- Get confirmation if necessary.
     if bConfirm then
-        msgBox( basicHeading(L.DELETE) .. L.ConfirmDeleteProfile:format(name),
-                L.DELETE, function(thisStaticPopupTable, name, options)  -- (thisTable, data1, data2)
-                                ProfilesUI:deleteProfile(name, options:gsub("c","")) -- Call self without confirm option.
+        msgbox3( basicHeading(L.DELETE) .. L.ConfirmDeleteProfile:format(name),
+                L.DELETE, function(thisPopupFrame, data, reason)
+                                ProfilesUI:deleteProfile(data.name, data.options:gsub("c","")) -- Call self without confirm option.
                             end,
                 L.CANCEL, nil,
-                name, options,  -- data1, data2
-                true, kSound.Popup, 0, kPopupPreferredIndex)
+                nil, nil,  -- button3
+                {name=name, options=options},  -- data
+                true, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
         ----tracePUI("OUT deleteProfile early 1.")
         return  -- Done.
     end
@@ -3162,13 +3409,15 @@ function ProfilesUI:renameProfile(oldName, newName, options)
     local existingName = ProfilesDB:exists(newName)
     if bConfirm and existingName and namesDiffer(newName, oldName) then
         -- Replace existing profile?
-        msgBox( basicHeading(L.mRename) .. L.ConfirmOverwriteProfile:format(existingName),
-                L.CONTINUE, function(thisStaticPopupTable, names, options)  -- (thisTable, data1, data2)
-                            ProfilesUI:renameProfile(names[1], names[2], options:gsub("c","")) -- Call self without confirm option.
+        msgbox3( basicHeading(L.mRename) .. L.ConfirmOverwriteProfile:format(existingName),
+                L.CONTINUE, function(thisPopupFrame, data, reason)
+                            ProfilesUI:renameProfile(data.oldName, data.newName,
+                                            data.options:gsub("c","")) -- Call self without confirm option.
                         end,
-                L.CANCEL, nil,  ----function(thisStaticPopupTable, data1, reason)
-                {oldName, newName}, options,  -- data1, data2
-                true, kSound.Popup, 0, kPopupPreferredIndex)
+                L.CANCEL, nil,  ----function(thisPopupFrame, data, reason)
+                nil, nil,  -- button3
+                {oldName=oldName, newName=newName, options=options},  -- data
+                true, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
         ----tracePUI("OUT renameProfile early 1.")
         return  -- Done.
     end
@@ -3286,8 +3535,7 @@ function ProfilesUI:loadNextProfile()
         if bLoadNext or strippedCurrentName == "" then
             if bUnsaved then
                 -- Warn user about unsaved profile before continuing.
-                StaticPopup_Show( kAddonFolderName.."_SAVE_THEN_LOAD", strippedCurrentName, name, -- which, text1, text2
-                                {nameToSave=currentName, nameToLoad=name, options=""} ) -- customData
+                msgbox_SaveThenLoad(currentName, name, "")  -- (nameToSave, nameToLoad, options)
                 return  -- Done.
             else
                 return self:loadProfile(name, "s")
@@ -3344,8 +3592,7 @@ function ProfilesUI:loadPreviousProfile()
 
             if bUnsaved then
                 -- Warn user about unsaved profile before continuing.
-                StaticPopup_Show( kAddonFolderName.."_SAVE_THEN_LOAD", name, previousName, -- which, text1, text2
-                                {nameToSave=name, nameToLoad=previousName, options=""} ) -- customData
+                msgbox_SaveThenLoad(name, previousName, "")  -- (nameToSave, nameToLoad, options)
                 return  -- Done.
             else
                 return self:loadProfile(previousName, "s")
@@ -3396,13 +3643,15 @@ function ProfilesUI:backupProfiles(backupName, options)
         local existingName = ProfilesDB:backupExists(backupName)
         if existingName then
             -- Replace existing backup?
-            msgBox( basicHeading(L.Title_BackupProfiles) .. L.ConfirmBackup:format(existingName),
-                    L.mBackup, function(thisStaticPopupTable, name, options)  -- (thisTable, data1, data2)
-                                ProfilesUI:backupProfiles(name, options:gsub("c","")) -- Call self without confirm option.
+            msgbox3( basicHeading(L.Title_BackupProfiles) .. L.ConfirmBackup:format(existingName),
+                    L.mBackup, function(thisPopupFrame, data, reason)
+                                ProfilesUI:backupProfiles(data.backupName,
+                                                data.options:gsub("c","")) -- Call self without confirm option.
                             end,
-                    L.CANCEL, nil,  ----function(thisStaticPopupTable, data1, reason)
-                    backupName, options,  -- data1, data2
-                    true, kSound.Popup, 0, kPopupPreferredIndex)
+                    L.CANCEL, nil,  ----function(thisPopupFrame, data, reason)
+                    nil, nil,  -- button3
+                    {backupName=backupName, options=options},  -- data
+                    true, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
             ----tracePUI("OUT backupProfiles early 1.")
             return  -- Done.
         end
@@ -3438,8 +3687,7 @@ function ProfilesUI:backupProfiles(backupName, options)
 
     -- Warn about unsaved profile not being backed up.  (Ignore silent option in this case.)
     if bResult and hasUnsavedMarker(ProfilesUI:getCurrentName()) then
-            msgBox(warningHeading() .. L.UnsavedChangesBackupWarning)
-                ----nil, nil, nil, nil, nil, nil, true, kSound.Popup)  ----, 0, kPopupPreferredIndex)
+        msgbox3( warningHeading() .. L.UnsavedChangesBackupWarning )
     end
 
     ----tracePUI("OUT backupProfiles,", bResult)
@@ -3472,15 +3720,17 @@ function ProfilesUI:restoreProfiles(backupName, options) -- Restores all profile
     -- Get confirmation if necessary.
     if bConfirm then
         -- Replace all current profiles?
-        msgBox( basicHeading(L.Title_RestoreProfiles) .. L.ConfirmRestore:format(backupName),
-                L.mRestore:trim(" ."), function(thisStaticPopupTable, name, options)  -- (thisTable, data1, data2)
-                            ProfilesUI:restoreProfiles(name, options:gsub("c","")) -- Call self without confirm option.
+        msgbox3( basicHeading(L.Title_RestoreProfiles) .. L.ConfirmRestore:format(backupName),
+                L.mRestore:trim(" ."), function(thisPopupFrame, data, reason)
+                            ProfilesUI:restoreProfiles(data.backupName,
+                                        data.options:gsub("c","")) -- Call self without confirm option.
                         end,
-                L.CANCEL, function(thisStaticPopupTable, data1, reason)
+                L.CANCEL, function(thisPopupFrame, data, reason)
                             triggerMenuItem(L.mRestore) -- Reshow the backups listbox on cancels.
                         end,
-                backupName, options,  -- data1, data2
-                true, kSound.Popup, 0, kPopupPreferredIndex)
+                nil, nil,  -- button3
+                {backupName=backupName, options=options},  -- data
+                true, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
         ----tracePUI("OUT restoreProfiles early 1.")
         return  -- Done.
     end
@@ -3528,13 +3778,15 @@ function ProfilesUI:deleteBackup(backupName, options)
 
     -- Get confirmation if necessary.
     if bConfirm then
-        msgBox( basicHeading(L.DeleteBackup) .. L.ConfirmDeleteBackup:format(backupName),
-                L.DELETE, function(thisStaticPopupTable, name, options)  -- (thisTable, data1, data2)
-                            ProfilesUI:deleteBackup(name, options:gsub("c","")) -- Call self without confirm option.
+        msgbox3( basicHeading(L.DeleteBackup) .. L.ConfirmDeleteBackup:format(backupName),
+                L.DELETE, function(thisPopupFrame, data, reason)
+                            ProfilesUI:deleteBackup(data.backupName,
+                                            data.options:gsub("c","")) -- Call self without confirm option.
                         end,
                 L.CANCEL, nil,
-                backupName, options,  -- data1, data2
-                true, kSound.Popup, 0, kPopupPreferredIndex)
+                nil, nil,  -- button3
+                {backupName=backupName, options=options},  -- data
+                true, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
         ----tracePUI("OUT deleteBackup early 1.")
         return  -- Done.
     end
@@ -3821,7 +4073,10 @@ local function createPopupListBox(parent, titleText,
     local x = (isRetailWoW() and -5) or 1.8
     local y = (isRetailWoW() and -6) or 1.2
     listbox.xBtn:SetPoint("TOPRIGHT", listbox.titleBox, "TOPRIGHT", x, y)
-    listbox.xBtn:SetScript("OnClick", function(self) self:GetParent():GetParent():Hide() end)
+    listbox.xBtn:SetScript("OnClick", function(self)
+                self:GetParent():GetParent():Hide()
+                PlaySound(kSound.ActionQuiet)
+            end)
 
     -- PREVIOUS BUTTON --
     local btnW, btnH = 13, 16
@@ -3860,15 +4115,24 @@ local function createPopupListBox(parent, titleText,
     hooksecurefunc(private.UDControls, "handleGlobalMouseClick", function(mouseButton)
                 ----print("listbox HOOK CALLED")
 
+                ------ Hide our options window if user clicks outside of it.
+                ----if gMainFrame.optionsFrame and gMainFrame.optionsFrame:IsShown()
+                ----    and not gMainFrame.optionsFrame:IsMouseOver()
+                ----  then
+                ----    gMainFrame.optionsFrame:Hide()
+                ----    return
+                ----end
+
                 -- Hide our custom dropdowns when user clicks outside of them.
+                local mainframe = gMainFrame
                 local listbox
-                if gMainFrame.profilesListBox:IsShown() then
-                    listbox = gMainFrame.profilesListBox
-                elseif gMainFrame.backupsListBox and gMainFrame.backupsListBox:IsShown() then
-                    listbox = gMainFrame.backupsListBox
-                elseif gMainFrame.menuDropDown.listbox:IsShown() then
-                    if gMainFrame.menuDropDown:IsMouseOver() then return end
-                    listbox = gMainFrame.menuDropDown.listbox
+                if mainframe.profilesListBox:IsShown() then
+                    listbox = mainframe.profilesListBox
+                elseif mainframe.backupsListBox and mainframe.backupsListBox:IsShown() then
+                    listbox = mainframe.backupsListBox
+                elseif mainframe.menuDropDown.listbox:IsShown() then
+                    if mainframe.menuDropDown:IsMouseOver() then return end
+                    listbox = mainframe.menuDropDown.listbox
                 end
 
                 if not listbox or not listbox:IsShown() then return end  -- Nothing to do.
@@ -3877,8 +4141,8 @@ local function createPopupListBox(parent, titleText,
                     if listbox:IsMouseOver() then return end
                     if listbox.titleBox and listbox.titleBox:IsMouseOver() then return end
                     -- Otherwise, user clicked outside of the listbox.
-                    if gMainFrame.loadDropDownBtn:IsMouseOver() or gMainFrame.editbox:IsMouseOver() then
-                        if listbox == gMainFrame.profilesListBox then return end
+                    if mainframe.loadDropDownBtn:IsMouseOver() or mainframe.editbox:IsMouseOver() then
+                        if listbox == mainframe.profilesListBox then return end
                     end
                     -- Close listbox.
                     listbox:Hide()
@@ -3921,21 +4185,13 @@ local function createPopupListBox(parent, titleText,
                 -- Else do default mousewheel behavior (scroll contents).
                 thisDisplayFrame:_onMouseWheel(delta)
             end)
---~     ---------------------------------------------------------------------------
---~     listbox:SetScript("OnShow", function(self)
---~                 -- Set mousewheel scrolling step size, adjusted by max # of items in the listbox.
---~                 local numItems = self:GetNumItems()
---~                 local numLines = self:GetNumLines()  -- # of visible lines at one time.
---~                 local diff = numItems - numLines
---~                 local step = math.floor(diff/10) -- Set step so around 10 mousewheels will scroll the entire list.
---~                 if step < 1 then
---~                     step = 1
---~                 elseif step > numLines-1 then  -- Don't scroll more lines than are in view!
---~                     step = numLines-1
---~                 end
---~                 self.sliderFrame:SetValueStep(step)
---~                 ----dbg()
---~             end)
+    ---------------------------------------------------------------------------
+    listbox:SetScript("OnShow", function(self)
+                -- Ensure the profile options window is closed when a popup menu is opened.
+                if gMainFrame.optionsFrame then
+                    gMainFrame.optionsFrame:Hide()
+                end
+            end)
 
     return listbox
 end
@@ -4094,7 +4350,7 @@ function ProfilesUI:createBackupsListBox()
     ProfilesUI:setListBoxBackColor( ProfilesUI:getListBoxBackColor() ) -- Sets background color to match our other listboxes.
 
 --~     -- NEW (BACKUP) BUTTON (in listbox title) --
---~     listbox.newBtnSmall = CreateFrame("Button", nil, listbox.titleBox, kButtonTemplate)
+--~     listbox.newBtnSmall = CreateFrame("Button", nil, listbox.titleBox, "UIPanelButtonTemplate")
 --~     listbox.newBtnSmall:SetText(L.NEW)
 --~     listbox.newBtnSmall:SetSize(45, 18)
 --~     listbox.newBtnSmall:SetPoint("RIGHT", listbox.xBtn, "LEFT", -6, 1)
@@ -4113,7 +4369,7 @@ function ProfilesUI:createBackupsListBox()
 --~     listbox.newBtnSmall:SetScript("OnLeave", function(self) GameTooltip:Hide() end)
 
     -- NEW (BACKUP) BUTTON (inside the listbox) --
-    listbox.newBtn = CreateFrame("Button", nil, listbox.titleBox, kButtonTemplate)
+    listbox.newBtn = CreateFrame("Button", nil, listbox.titleBox, "UIPanelButtonTemplate")
     listbox.newBtn:SetText(L.NewBackup)
     listbox.newBtn:SetSize( listbox:GetWidth(), listbox.cust.lineHeight-1 )
     listbox.newBtn:SetHitRectInsets(0, 0, -2, -1)  -- (Left, Right, Top, Bottom)
@@ -4185,14 +4441,16 @@ local function staticPopup_SaveProfile(name)
     -- Saving to a different existing name?
     if existingName and namesDiffer(name, currentName) then
         -- Replace existing profile?
-        msgBox( basicHeading(L.SAVE) .. L.ConfirmOverwriteProfile:format(existingName),
-                L.CONTINUE, function(thisStaticPopupTable, name, data2)  -- (thisTable, data1, data2)
+        msgbox3( basicHeading(L.SAVE) .. L.ConfirmOverwriteProfile:format(existingName),
+                L.CONTINUE, function(thisPopupFrame, name, reason)
                             ProfilesUI:saveProfile(name)
                             ProfilesUI:setProfileName(name)
+                            setModifiedProfiles(true)  -- Profiles changed.  (Can be undone if user cancels main UI.)
                         end,
-                L.CANCEL, nil,  ----function(thisStaticPopupTable, data1, reason)
-                name, nil,  -- data1, data2
-                false, kSound.Popup, 0, kPopupPreferredIndex)
+                L.CANCEL, nil,  ----function(thisPopupFrame, data, reason)
+                nil, nil,  -- button3
+                name,  -- data
+                false, nil, 0, kPopupPreferredIndex)  ----kSound.Popup
     elseif name:trim() == "" then
         ----tracePUI("staticPopup_SaveProfile: Case 2.")
         ProfilesUI:clearProfileName()
@@ -4205,25 +4463,26 @@ local function staticPopup_SaveProfile(name)
 end
 
 --=============================================================================
-local function staticPopup_OnShow(thisStaticPopupTable, customData)
-    ----tracePUI("OnShow popup", thisStaticPopupTable.which)
+local function staticPopup_OnShow(thisPopupFrame, customData)
+    ----tracePUI("OnShow popup", thisPopupFrame.which)
     -- 'customData' is the 4th parameter passed to StaticPopup_Show().
     assert(customData)  -- Fails if missing 4th param ... StaticPopup_Show(which, text_arg1, text_arg2, customData)
-    assert(thisStaticPopupTable.OnHide == staticPopup_OnHide) -- Required function so blockerFrame doesn't stay visible forever.
+    assert(thisPopupFrame.OnHide == staticPopup_OnHide) -- Required function so blockerFrame doesn't stay visible forever.
 
-    thisStaticPopupTable.data = customData
-    ----thisStaticPopupTable.origPos = { thisStaticPopupTable:GetPoint() }
-    ----gLastUsedStaticPopup = thisStaticPopupTable  -- Risky!  Main UI could change popup's position and possibly cause taint problems.
+    local dialog = _G.StaticPopupDialogs[ thisPopupFrame.which ]
+    dialog.data = customData
+    ----dialog.origPos = { dialog:GetPoint() }
+    ----gLastUsedStaticPopup = thisPopupFrame  -- Risky!  Main UI could change popup's position and possibly cause taint problems.
 
     -- Remove empty quotes (empty names) from the text message.
-    local msg = thisStaticPopupTable.text:GetText()
+    local msg = thisPopupFrame.text:GetText()
     if msg then
         msg = msg:gsub(' ""', '')
-        thisStaticPopupTable.text:SetText(msg)
+        thisPopupFrame.text:SetText(msg)
     end
 
     -- Customize buttons.
-    local popupName = thisStaticPopupTable:GetName()
+    local popupName = thisPopupFrame:GetName()
     local minBtnH = 24
     ----local btnW = _G[popupName.."Button1"]:GetWidth() * 0.8
     for i = 1, 4 do
@@ -4234,16 +4493,16 @@ local function staticPopup_OnShow(thisStaticPopupTable, customData)
     end
 
     -- Customize editbox.
-    local editbox = thisStaticPopupTable.editBox
+    local editbox = thisPopupFrame.editBox
     if editbox and editbox:IsShown() then
         _G[popupName.."Button1"]:Disable()  -- Disable OK button.
         editbox:SetFocus()
-        if thisStaticPopupTable.data == "" then
+        if dialog.data == "" then
             editbox:SetText("TEMP")  -- Fixes disabled OK button after first appearance with blank text.
         end
-        editbox:SetText( thisStaticPopupTable.data )
+        editbox:SetText( dialog.data )
         editbox:HighlightText()
-        ----if thisStaticPopupTable.which == kAddonFolderName.."_BACKUP" then  -- Popup for backups?
+        ----if thisPopupFrame.which == kAddonFolderName.."_BACKUP" then  -- Popup for backups?
             C_Timer.After(0.01, function()
                         local newFrameH = _G[popupName]:GetHeight() - 6
                         _G[popupName]:SetHeight(newFrameH)
@@ -4251,17 +4510,18 @@ local function staticPopup_OnShow(thisStaticPopupTable, customData)
         ----end
     end
 
-    showBlockerFrame()  -- Do this last.  (If something fails above, the blocker frame won't be stuck on screen.)
+    gMBIntf:showBlockerFrame()  -- Do this last.  (If something fails above, the blocker frame won't be stuck on screen.)
 end
 
 --=============================================================================
-local function staticPopup_OnHide(thisStaticPopupTable)
-    hideBlockerFrame()
-    ----thisStaticPopupTable:ClearAllPoints()  -- Risky?  Might cause taint problems.
-    ----thisStaticPopupTable:SetPoint( unpack(thisStaticPopupTable.origPos) )
+local function staticPopup_OnHide(thisPopupFrame)
+    gMBIntf:hideBlockerFrame()
+    ----local dialog = _G.StaticPopupDialogs[ thisPopupFrame.which ]
+    ----thisPopupFrame:ClearAllPoints()  -- Risky?  Might cause taint problems.
+    ----thisPopupFrame:SetPoint( unpack(dialog.origPos) )
     reshow()  -- Reshow previous frame (if set) that displayed this popup window.
     ----C_Timer.After(1, dbg)
-    ----tracePUI("OnHide popup", thisStaticPopupTable.which)
+    ----tracePUI("OnHide popup", thisPopupFrame.which)
 end
 
 --=============================================================================
@@ -4292,17 +4552,17 @@ local function staticPopup_OnTextChanged(thisEB)
 end
 
 --=============================================================================
-local function staticPopup_OnEnterPressed(thisStaticPopupTable)
-    local okayBtn = _G[thisStaticPopupTable:GetParent():GetName().."Button1"]
+local function staticPopup_OnEnterPressed(thisPopupFrame)
+    local okayBtn = _G[thisPopupFrame:GetParent():GetName().."Button1"]
     if okayBtn:IsEnabled() then
         okayBtn:Click()
     end
 end
 
 --=============================================================================
-local function staticPopup_OnEscapePressed(thisStaticPopupTable)
+local function staticPopup_OnEscapePressed(thisPopupFrame)
     ClearCursor()
-    thisStaticPopupTable:GetParent():Hide()  -- Hides the popup window.
+    thisPopupFrame:GetParent():Hide()  -- Hides the popup window.
 end
 
 --=============================================================================
@@ -4351,40 +4611,40 @@ StaticPopupDialogs[kAddonFolderName.."_SAVE_AS"] = {
     end,
 }
 
---=============================================================================
-StaticPopupDialogs[kAddonFolderName.."_SAVE_THEN_LOAD"] = {
-    text = basicHeading(L.Title_Load) .. L.SaveBeforeLoading,  -- %s %s = nameToSave, nameToLoad
-    button1 = L.YES,
-    button2 = L.NO,
-    button3 = L.CANCEL,
-    timeout=0, whileDead=1, exclusive=1, hideOnEscape=1, preferredIndex=kPopupPreferredIndex,
-    ----showAlert = 1,
-    ----showAlertGear = 1,
+--~ --=============================================================================
+--~ StaticPopupDialogs[kAddonFolderName.."_SAVE_THEN_LOAD"] = {
+--~     text = basicHeading(L.Title_Load) .. L.SaveBeforeLoading,  -- %s %s = nameToSave, nameToLoad
+--~     button1 = L.YES,
+--~     button2 = L.NO,
+--~     button3 = L.CANCEL,
+--~     timeout=0, whileDead=1, exclusive=1, hideOnEscape=1, preferredIndex=kPopupPreferredIndex,
+--~     ----showAlert = 1,
+--~     ----showAlertGear = 1,
 
-    OnShow = function(self, customData)
-        assert(customData.nameToSave and customData.nameToLoad) -- Wrong data passed to StaticPopup_Show()?
-        staticPopup_OnShow(self, customData)
-    end,
-    OnHide = staticPopup_OnHide,
+--~     OnShow = function(self, customData)
+--~         assert(customData.nameToSave and customData.nameToLoad) -- Wrong data passed to StaticPopup_Show()?
+--~         staticPopup_OnShow(self, customData)
+--~     end,
+--~     OnHide = staticPopup_OnHide,
 
-    selectCallbackByIndex = true,  -- Required when using OnButton1, OnButton2, etc.  (Return true from them to keep popup open.)
-    OnButton1 = function(self, data, reason) -- YES
-        data.options = data.options:gsub("c","")  -- Remove confirmation option.
-        data.options = data.options:gsub("s","")  -- Remove silent option.
-        local strippedName = stripUnsavedMarker(data.nameToSave)  -- In case current name is an unsaved default (possibly modified).
-        ProfilesUI:saveProfile(strippedName, data.options, data.nameToLoad)  -- [ Keywords: saveThenLoad() ]
-    end,
-    OnButton2 = function(self, data, reason) -- NO
-        data.options = data.options:gsub("c","")  -- Remove confirmation option.
-        local bLoadDefault = sFind("d", data.options)
-        if bLoadDefault then
-            ProfilesUI:loadDefault(data.nameToLoad, data.options)
-        else
-            ProfilesUI:loadProfile(data.nameToLoad, data.options)
-        end
-    end,
-    OnButton3 = function(self, data, reason) end, -- CANCEL
-}
+--~     selectCallbackByIndex = true,  -- Required when using OnButton1, OnButton2, etc.  (Return true from them to keep popup open.)
+--~     OnButton1 = function(self, data, reason) -- YES
+--~         data.options = data.options:gsub("c","")  -- Remove confirmation option.
+--~         data.options = data.options:gsub("s","")  -- Remove silent option.
+--~         local strippedName = stripUnsavedMarker(data.nameToSave)  -- In case current name is an unsaved default (possibly modified).
+--~         ProfilesUI:saveProfile(strippedName, data.options, data.nameToLoad)  -- [ Keywords: saveThenLoad() ]
+--~     end,
+--~     OnButton2 = function(self, data, reason) -- NO
+--~         data.options = data.options:gsub("c","")  -- Remove confirmation option.
+--~         local bLoadDefault = sFind("d", data.options)
+--~         if bLoadDefault then
+--~             ProfilesUI:loadDefault(data.nameToLoad, data.options)
+--~         else
+--~             ProfilesUI:loadProfile(data.nameToLoad, data.options)
+--~         end
+--~     end,
+--~     OnButton3 = function(self, data, reason) end, -- CANCEL
+--~ }
 
 --=============================================================================
 StaticPopupDialogs[kAddonFolderName.."_RENAME"] = {
@@ -4443,15 +4703,17 @@ EventFrame:RegisterEvent("PLAYER_LOGOUT")
 EventFrame:SetScript("OnEvent", function(thisFrame, event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
         gbInitialLogin, gbReloadingUi = ...
+        assert(not gbLoggingOut)
     elseif event == "PLAYER_LOGOUT" then
         ----assert(nil) -- Used to verify this is getting called.
+        gbLoggingOut = true
         if gMainFrame then
             ProfilesDB:validateCache() -- Restores ".Profiles" and ".ProfileBackups" from cache if they got wiped.
-            ----dbg(true)
+            ----dbg()
             ----assert(gMainFrame:IsVisible())  -- If UI was left open, it is still open at this point.
             if gMainFrame:IsVisible() then  -- Reloading while UI is still open?
                 ProfilesUI:OnCancel()
-                ----dbg(true)
+                ----dbg()
             end
         end
         ----ProfilesDB:_trace()
@@ -4480,6 +4742,7 @@ function ProfilesUI.menu.copyFrom(bSilent)  triggerMenuItem(L.mCopyFrom, not bSi
 function ProfilesUI.menu.delete(bSilent)    triggerMenuItem(L.mDelete, not bSilent); return gMainFrame.profilesListBox; end
 function ProfilesUI.menu.backup()           triggerMenuItem(L.mBackup); return gLastUsedStaticPopup; end
 function ProfilesUI.menu.restore(bSilent)   triggerMenuItem(L.mRestore, not bSilent); return gMainFrame.backupsListBox; end
+function ProfilesUI.menu.options()          triggerMenuItem(L.mOptions); end
 
 --*****************************************************************************
 --[[                        Exposed Functions                                ]]

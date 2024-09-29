@@ -105,7 +105,10 @@ function CursorTrail_ShowChangelog(parent)
             elseif strStartsWith(line, "Released ") then  -- Release date?
                 line = YELLOW .. line
                 dx = 1
-            elseif strStartsWith(line, "NEW FEATURES:") or strStartsWith(line, "CHANGES:") then
+            elseif strStartsWith(line, "NEW FEATURES:")
+                or strStartsWith(line, "CHANGES:")
+                or strStartsWith(line, "BUG FIXES:")
+              then
                 line = YELLOW .. line
                 dx = indent * 0.75
             elseif line:sub(1,5) == "- - -" then  -- Version block?

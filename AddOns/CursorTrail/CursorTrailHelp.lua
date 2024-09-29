@@ -33,7 +33,7 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 kHelpText_Options = [[
-The options window can be opened from the standard addons window, or by typing "/ct" or "/cursortrail".  Settings are saved separately for each of your WoW characters, so your tank (for example) can have different cursor effects than your other characters.
+The main options window can be opened from the standard addons window, or by typing "/ct" or "/cursortrail".  Settings are saved separately for each of your WoW characters, so your tank (for example) can have different cursor effects than your other characters.
 
 * Layers:  Selecting a layer tab shows the options for that layer.  Tabs for enabled layers will be slightly green instead of their standard color, indicating which layers are enabled without needing to select them.
 If layers have the same "Layer Strata" setting, layer 1 FX are drawn on top of layer 2 FX.
@@ -92,7 +92,7 @@ kHelpText_Tips = [[
 ]]
 
 kHelpText_ProfileCommands = [[
-Profiles (your settings) can be saved and loaded between all your characters from the options window:
+Profiles (your settings) can be saved and loaded between all your characters from the main window:
 ]] .."\n".. (private.ProfilesUI_ProfilesHelp or "") .."\n".. [[
 Profiles can also be managed using slash commands:
         /ct save  <profile name>
@@ -102,7 +102,7 @@ Profiles can also be managed using slash commands:
 ]]
 
 kHelpText_BackupCommands = [[
-Backups of your profiles can be created and restored from the options window:
+Backups of your profiles can be created and restored from the main window:
 ]] .."\n".. (private.ProfilesUI_BackupsHelp or "") .."\n".. [[
 Backups can also be managed using slash commands:
         /ct backup  <backup name>

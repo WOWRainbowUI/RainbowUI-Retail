@@ -26,6 +26,7 @@ local C_Timer = _G.C_Timer
 local CreateFrame = _G.CreateFrame
 ----local CopyTable = _G.CopyTable
 local date = _G.date
+local debugprofilestop = _G.debugprofilestop
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local DoesAncestryInclude = _G.DoesAncestryInclude
 local floor = _G.floor
@@ -80,7 +81,8 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 -------------------------------------------------------------------------------
-msgBox = private.UDControls.MsgBox
+----msgbox = private.UDControls.MsgBox  -- Deprecated 2024-09-23.
+msgbox3 = private.UDControls.MsgBox3
 
 -------------------------------------------------------------------------------
 function printMsg(...)
@@ -97,12 +99,15 @@ function vdt_dump(varValue, varDescription, bShow)  -- e.g.  vdt_dump(someVar, "
 end
 
 -------------------------------------------------------------------------------
-function freeMemory()  -- Frees any "garbage memory" immediately.
+syslag = {} -- Functions in this group cause noticeable lag to the game.  (Brief FPS drops.)
+
+-------------------------------------------------------------------------------
+function syslag.freeEveryAddonsMemory()  -- Frees any "garbage memory" immediately.
     Globals.collectgarbage("collect")
 end
 
 -------------------------------------------------------------------------------
-function getMemoryUsage(numDecPts)  -- Returns addons memory usage (in kilobytes).
+function syslag.getMemoryUsage(numDecPts)  -- Returns current addon's memory usage (in kilobytes).
     UpdateAddOnMemoryUsage(kAddonFolderName)
     local kilobytes = GetAddOnMemoryUsage(kAddonFolderName)
     if numDecPts then
@@ -112,16 +117,16 @@ function getMemoryUsage(numDecPts)  -- Returns addons memory usage (in kilobytes
 end
 
 -------------------------------------------------------------------------------
-function getTableSize(tbl, bSkipFinalGarbageCollection)  -- Returns the size of the specified table (in kilobytes).
+function syslag.getTableSize(tbl, bSkipFinalGarbageCollection)  -- Returns the size of the specified table (in kilobytes).
     assert(type(tbl) == "table")
-    freeMemory()
-    local pre = getMemoryUsage()
+    syslag.freeEveryAddonsMemory()
+    local pre = syslag.getMemoryUsage()
     local copy = Globals.CopyTable(tbl)
-    local post = getMemoryUsage()
+    local post = syslag.getMemoryUsage()
     staticClearTable(copy)
     copy = nil
     if not bSkipFinalGarbageCollection then
-        freeMemory()
+        syslag.freeEveryAddonsMemory()
     end
     return post - pre
 end
@@ -129,7 +134,8 @@ end
 -------------------------------------------------------------------------------
 local memchk_stack = {}
 local memchk_stacksize = 0
-function memchk(outputText, numDecPts) -- Used for  printing memory sizes at various points in the addon's execution.
+function memchk(outputText, numDecPts) -- Used for printing memory sizes at various points in the addon's execution.
+                                       -- NOTE: Causes the game to lag for a moment.
 --~     --_________________________________________________________________________
 --~     --###### TODO: Comment out this block before releasing next version. ######
 --~     if outputText then -- Print change in memory size.
@@ -142,14 +148,24 @@ function memchk(outputText, numDecPts) -- Used for  printing memory sizes at var
 --~             memchk_stacksize = memchk_stacksize - 1
 
 --~             -- Print change in memory size.
---~             local delta = getMemoryUsage() - startingSize
+--~             local delta = syslag.getMemoryUsage() - startingSize
 --~             print("memchk "..outputText..": ", round(delta, numDecPts or 1) .."k")
 --~         end
 --~     else  -- Push current memory size onto stack.
 --~         memchk_stacksize = memchk_stacksize + 1
---~         memchk_stack[ memchk_stacksize ] = getMemoryUsage()
+--~         memchk_stack[ memchk_stacksize ] = syslag.getMemoryUsage()
 --~     end
 --~     --_________________________________________________________________________
+end
+
+-------------------------------------------------------------------------------
+local deltatime_previous
+function deltatime(lineID) -- Prints millisecs since last time it was called.
+    local t = debugprofilestop()
+    if not deltatime_previous then deltatime_previous = t end
+    local dt = t - deltatime_previous
+    deltatime_previous = t
+    print("deltatime ".. (lineID or "") ..":   ".. dt .." ms")
 end
 
 -------------------------------------------------------------------------------
@@ -171,6 +187,8 @@ end
 local dumpObject_Dumped
 function dumpObject(obj, heading, indents, bSorted, depth)
     local bSkipFunctions = true  -- Comment out this line to print functions too.
+    local nameColor = "|cff9999FF"
+    local darkColor = "|cff707070"
 
     indents = indents or ""
     heading = heading or "Object Dump"
@@ -187,13 +205,11 @@ function dumpObject(obj, heading, indents, bSorted, depth)
             return
         end
         dumpObject_Dumped[obj] = true
-        if (depth == 0) then print(obj) end  -- Print starting table address.
+        if (depth == 0) then print(darkColor .. tostring(obj)) end  -- Print first starting table address.
     end
 
     local count = 0
     local varName, value, dataType
-    local nameColor = "|cff9999FF"
-    local darkColor = "|cff707070"
     local iter = bSorted and pairsSortedKeys or pairs
     local compareFunc
     if bSorted then compareFunc = function(a,b) return tostring(a):lower() < tostring(b):lower() end end
@@ -211,7 +227,7 @@ function dumpObject(obj, heading, indents, bSorted, depth)
             print(indents .. varName .. " = " .. (value and "true" or "false"))
         else
             if (dataType=="table") then
-                print(indents .. varName .. " = ", value)
+                print(indents  .. darkColor .. varName .. " = ", value)
                 dumpObject(value, "", indents, bSorted, depth+1)
             elseif (dataType == "userdata") then
                 if  (not bSkipFunctions) then
@@ -653,10 +669,10 @@ function showErrMsg(msg)
 -- REQUIRES:    'kAddonFolderName' to have been set to the addon's name.  i.e. First line
 --              of your lua file should look like this -->  local kAddonFolderName = ...
     local bar = ":::::::::::::"
-    msgBox( bar.." [ "..kAddonFolderName.." ] "..bar.."\n\n"..msg,
-            nil, nil,
-            nil, nil,
-            nil, nil, true, SOUNDKIT.ALARM_CLOCK_WARNING_3 )
+    msgbox3( bar.." [ "..kAddonFolderName.." ] "..bar.."\n\n"..msg,
+            nil, nil, nil, nil, nil, nil,
+            nil,
+            true, SOUNDKIT.ALARM_CLOCK_WARNING_3 )
 end
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -678,6 +694,19 @@ function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
         vdt_dump(PlayerConfig, kAddonFolderName.." PlayerConfig")
         vdt_dump(gLayers, kAddonFolderName.." gLayers")
         dumpObjectSorted(PlayerConfig, "CONFIG INFO")
+        ----dumpObjectSorted( Globals.CursorTrail_Config.Profiles._SelectedName, "SELECTED PROFILE NAMES" )
+    -------------------------------------------------------------------------------
+    elseif (params == "selectedprofiles") then  -- [ Keywords: SelectedProfiles_Dump() ]
+        local profilesDB = OptionsFrame.ProfilesUI.DB
+        local nameColor = "|cff9999FF"
+        local playerFullName = profilesDB.playerFullName
+        local usingAccountProfile = profilesDB:usingAccountProfile()
+        local activeKeyName = (usingAccountProfile and profilesDB.kKeyName_SelectedNameForAll) or playerFullName
+        print("SELECTED PROFILE NAMES ...")
+        for key, value in pairs(Globals.CursorTrail_Config.Profiles._SelectedName) do
+            local active = (key == activeKeyName and GREEN2 .."  (ACTIVE)" or "")
+            print(nameColor .. key .."|r = '".. value .."'".. active)
+        end
     -------------------------------------------------------------------------------
     elseif (params == "model") then
         CursorModel_Dump()

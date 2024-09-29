@@ -1,4 +1,4 @@
-local CONTROLS_VERSION = "2024-09-15"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
+local CONTROLS_VERSION = "2024-09-25"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
 
 --[[---------------------------------------------------------------------------
 FILE:   UDControls.lua
@@ -16,6 +16,17 @@ REQUIREMENTS / DEPENDANCIES:
 USAGE:  See examples at end of this comment block.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Sep 25, 2024
+        - Fixed LUA errors in Classic WoW 1.15.4 that were caused by the removal of
+          the OptionsButtonTemplate and OptionsBoxTemplate templates from its API.
+        - Added GetLabelWidth() to checkboxes.  (See CCheckBox.GetLabelWidth() .)
+        - Added MsgBox3(), CCheckBox:Click().
+        - Added support to MsgBox3() and MsgBox() for hooking "OnShow" and "OnHide" script
+          functions by specifying their first three parameters like this ...
+                MsgBox3("HookScript", "OnShow", function(self) print("MsgBox OnShow() called.") end
+                MsgBox3("HookScript", "OnHide", function(self) print("MsgBox OnHide() called.") end
+          Also can determine if a message box is being shown like this ...
+                local isShown = MsgBox3("IsShown")
     Sep 15, 2024
         - Added CUtil.EnhanceFrameEdges(), CUtil.CreateContextMenu().
     Jul 24, 2024
@@ -159,10 +170,12 @@ CHANGE HISTORY:
 ~~~~~~~~~~~~~~~
 
     Functions:
+        Click()
         Configure()
         Disable()
         Enable()
         GetChecked()
+        GetLabelWidth()
         SetChecked()
         SetClickHandler( function(isChecked) )
         SetLabel()
@@ -812,8 +825,6 @@ local unpack = unpack
 -- Templates compatible with all versions of WoW.
 local kGameTocVersion = select(4, GetBuildInfo())
 local function isRetailWoW() return (kGameTocVersion >= 100000) end
-local kButtonTemplate = ((kGameTocVersion >= 100000) and "UIPanelButtonTemplate") or "OptionsButtonTemplate"
-local kBoxTemplate = ((kGameTocVersion >= 100000) and "TooltipBorderBackdropTemplate") or "OptionsBoxTemplate"
 local kMinVer_10_2_5 = (kGameTocVersion >= 100205)  -- WoW 10.2.5 or newer?
 
 -- Other constants.
@@ -901,6 +912,11 @@ end
 -------------------------------------------------------------------------------
 --#############################################################################
 
+
+-- ****************************************************************************
+-- Does nothing.  i.e. noop()
+-- ****************************************************************************
+local function DoNothing() end
 
 -- ****************************************************************************
 -- Dumps a variable to the ViragDevTools addon, if it is loaded.
@@ -2014,17 +2030,25 @@ end
 
 
 -- ****************************************************************************
--- Sets the label for the checkbox.
+-- Sets the label for the checkbox.  Returns label width.
 -- ****************************************************************************
 function CCheckBox.SetLabel(thisCheckBox, label)
     local fontString = thisCheckBox.fontString
     fontString:SetText(label or "")
     gCalcFontString:SetText(label or "")
-    local labelWidth = gCalcFontString:GetStringWidth()
-    local width = math.ceil( thisCheckBox.checkButton:GetWidth() + labelWidth + 2 )
+    thisCheckBox.labelWidth = gCalcFontString:GetStringWidth()
+    local width = math.ceil( thisCheckBox.checkButton:GetWidth() + thisCheckBox.labelWidth + 2 )
     thisCheckBox:SetWidth(width)
-    local rightInset = thisCheckBox.bClickableText and -labelWidth or 0  --DJUadded
+    local rightInset = thisCheckBox.bClickableText and -thisCheckBox.labelWidth or 0  --DJUadded
     thisCheckBox.checkButton:SetHitRectInsets(0, rightInset, 0, 0)  --DJUadded
+end
+
+
+-- ****************************************************************************
+-- Returns the width of the text part of the checkbox.
+-- ****************************************************************************
+function CCheckBox.GetLabelWidth(thisCheckBox)
+    return thisCheckBox.labelWidth
 end
 
 
@@ -2111,6 +2135,14 @@ end
 
 
 -- ****************************************************************************
+-- Clicks the checkbox.
+-- ****************************************************************************
+function CCheckBox.Click(thisCheckBox)  --DJUadded
+    thisCheckBox.checkButton:Click()
+end
+
+
+-- ****************************************************************************
 -- Creates and returns a checkbox object ready to be configured.
 -- ****************************************************************************
 local function CreateCheckBox(parent, fontTemplateName, dx, dy, bClickableText)
@@ -2155,7 +2187,9 @@ local function CreateCheckBox(parent, fontTemplateName, dx, dy, bClickableText)
     ----end
 
     -- Extension functions.
+    checkbox.Click              = CCheckBox.Click
     checkbox.Configure          = CCheckBox.Configure
+    checkbox.GetLabelWidth      = CCheckBox.GetLabelWidth
     checkbox.SetLabel           = CCheckBox.SetLabel
     checkbox.SetTooltip         = CCheckBox.SetTooltip
     checkbox.SetTooltipTitleAndText = CCheckBox.SetTooltipTitleAndText
@@ -4066,7 +4100,7 @@ local function CreateTextScrollFrame(parent, title, width, height)  --DJUadded
     end
 
     -- Create CLOSE button.
-    containerFrame.closeBtn = CreateFrame("Button", nil, containerFrame, kButtonTemplate)
+    containerFrame.closeBtn = CreateFrame("Button", nil, containerFrame, "UIPanelButtonTemplate")
     containerFrame.closeBtn:SetText("Close")
     containerFrame.closeBtn:SetPoint("BOTTOM", 0, 12)
     containerFrame.closeBtn:SetSize(width/3, 24)
@@ -4153,7 +4187,7 @@ local function CreateTextScrollFrame(parent, title, width, height)  --DJUadded
             dx = dx or 0
             dy = dy or 1
 
-            local numStrings = #containerFrame.strings
+            local numStrings = #self.strings
             numStrings = numStrings + 1
             local str = self.scrollChild:CreateFontString(nil, "ARTWORK", fontName or "GameFontNormal")
             self.strings[numStrings] = str  -- Store this string.
@@ -4168,11 +4202,23 @@ local function CreateTextScrollFrame(parent, title, width, height)  --DJUadded
                 dy = math.max(dy, 0)  -- Prevents a scrolling bug when thumb is dragged below bottom of scrollbar.
                 str:SetPoint("TOP", self.scrollChild, "TOP", 0, -dy)
             end
-            str.verticalScrollPos = self.nextVertPos
+            str.verticalScrollPos = self.nextVertPos  -- Each string knows its position.
             self.nextVertPos = self.nextVertPos + str:GetHeight() + dy
 
             return str  -- Return the font string so it can be customized.
         end
+
+    ---->>> DIDN'T CLEAR THE FRAME!
+    ------ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    ------ Clear():
+    ------ Clears all text from the frame.
+    ----containerFrame.Clear = function(self)  --TODO: Untested!
+    ----        assert(type(self) == "table")  -- Fails if this function is called using a dot instead of a colon.
+    ----        for i = 1, #self.strings do
+    ----            self.strings[i] = nil  -- Release the fontstring for the garbage collector to collect.
+    ----        end
+    ----        self.nextVertPos = 0
+    ----    end
 
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- GetNextVerticalPosition():
@@ -4303,7 +4349,7 @@ local function CreateGroupBox(title, anchor, parent, relativeAnchor, x, y, width
     ----    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",  tileEdge=true,  edgeSize=16,
     ----    insets = {left=4, right=4, top=4, bottom=4},
     ----}
-    local groupbox = CreateFrame("Frame", nil, parent, kBoxTemplate)
+    local groupbox = CreateFrame("Frame", nil, parent, "TooltipBorderBackdropTemplate")
 
     groupbox:SetPoint(anchor, parent, relativeAnchor, x, y)
     if (width and width > 0) then
@@ -4404,7 +4450,11 @@ function CUtil.DisplayAllFonts(width, height)
 
 
 -- ****************************************************************************
-function CUtil.MsgBox( msg,
+CUtil.MsgBoxScripts = {}  -- Used by MsgBox(), MsgBox3(), and MsgBox_Command().
+
+
+-- ****************************************************************************
+function CUtil.MsgBox( msg,    -- Deprecated 2024-09-23. (Replaced by MsgBox3.)
                     btnText1, btnFunc1,
                     btnText2, btnFunc2,
                     customData, customData2, -- Can be tables of values if more than two data parameters are needed.
@@ -4415,21 +4465,21 @@ function CUtil.MsgBox( msg,
 --~
 --~ EXAMPLE 2: A prompt with two choices that each call a function that uses a custom data buffer (myDataBuffer).
 --~     MsgBox("Bad data found!  Click OK to use it anyway, or CANCEL to restore defaults.",
---~             "Okay", function(thisStaticPopupTable, data, data2)  -- 'data2' unused in this example.
+--~             _G.OKAY, function(thisPopupFrame, data, data2)  -- 'data2' unused in this example.
 --~                             local dataBuffer = data
 --~                             saveMyData(dataBuffer)
 --~                         end,
---~             "Cancel", function(thisStaticPopupTable, data, reason)  -- 'reason' can be "clicked", "timeout", or "override".
+--~             _G.CANCEL, function(thisPopupFrame, data, reason)  -- 'reason' can be "clicked", "timeout", or "override".
 --~                             local dataBuffer = data
 --~                             restoreMyDefaultData(dataBuffer)
 --~                         end,
 --~             myDataBuffer, nil,  -- data, data2
---~             true, SOUNDKIT.IG_MAINMENU_OPEN, 0, 3)  -- Icon, Sound, Timeout, Preferred Index.
+--~             true, SOUNDKIT.ALARM_CLOCK_WARNING_3, 0, 3)  -- Icon, Sound, Timeout, Preferred Index.
 --~
 --~ EXAMPLE 3: A Yes/No prompt with a single function for "Yes", and a 15 second time limit.
 --~     MsgBox("Uh oh! Show help?\n\n(This message goes away after 15 seconds.)",
---~             "Yes", showMyHelp,
---~             "No", nil,
+--~             _G.YES, showMyHelp,
+--~             _G.NO, nil,
 --~             nil, nil,  -- data, data2
 --~             false, SOUNDKIT.ALARM_CLOCK_WARNING_3, 15)  -- Icon, Sound, Timeout, Preferred Index.
 --~
@@ -4437,25 +4487,24 @@ function CUtil.MsgBox( msg,
 --~     local SrcName = "My DPS Profile"
 --~     local DestName = "My Tank Profile"
 --~     MsgBox( 'Are you sure?\n\nThe profile "'..SrcName..'" will be copied to "'..DestName..'".',
---~             "Copy Profile", function(thisStaticPopupTable, data, data2)  -- 'data2' unused in this example.
+--~             "Copy Profile", function(thisPopupFrame, data, data2)  -- 'data2' unused in this example.
 --~                                 data.profileFrame:copyProfile( data.srcName, data.destName )
 --~                             end,
---~             "Cancel", nil,
+--~             _G.CANCEL, nil,
 --~             {profileFrame=ProfileFrame, srcName=SrcName, destName=DestName}, nil,  -- data, data2
---~             false, SOUNDKIT.IG_MAINMENU_OPEN)  -- Icon, Sound, Timeout, Preferred Index.
---~
---~ For more info, see ...
---~     https://wowpedia.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
---~     https://wowwiki-archive.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
+--~             false)  -- Icon, Sound, Timeout, Preferred Index.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     local msgboxID = "MSGBOX_FOR_" .. kAddonFolderName
+
+    local cmdResult = CUtil.MsgBox_Command(msgboxID, msg, btnText1, btnFunc1) -- Pass our ID and first 3 params to MsgBox_Command().
+    if cmdResult ~= nil then return cmdResult end  -- Caller specified a message box command, so return now.
 
     assert(msg and type(msg) == "string" and msg ~= "")
     assert(btnFunc1 == nil or type(btnFunc1) == "function")
     assert(btnFunc2 == nil or type(btnFunc2) == "function")
     assert(bShowAlertIcon == true or bShowAlertIcon == false or bShowAlertIcon == nil)
 
-    if (btnText1 == "" or btnText1 == nil) then btnText1 = "Okay" end
+    if (btnText1 == "" or btnText1 == nil) then btnText1 = OKAY end
     if (btnText2 == "") then btnText2 = nil end
     if (bShowAlertIcon ~= true) then bShowAlertIcon = nil end  -- Forces it to be 'true' or 'nil'.
 
@@ -4478,18 +4527,287 @@ function CUtil.MsgBox( msg,
         button2 = btnText2,
         OnCancel = btnFunc2,
 
-        OnHide = function(thisStaticPopupTable) thisStaticPopupTable.data = nil; thisStaticPopupTable.data2 = nil; end,
+        OnShow = function(self, customData)  -- 'self' is the popup frame.
+            ----local dialog = _G.StaticPopupDialogs[ self.which ]
+            local callback = CUtil.MsgBoxScripts["OnShow"]
+            if callback then callback(self, customData) end
+        end,
+
+        OnHide = function(self)  -- 'self' is the popup frame.
+            local dialog = _G.StaticPopupDialogs[ self.which ]
+            dialog.data = nil
+            dialog.data2 = nil
+            local callback = CUtil.MsgBoxScripts["OnHide"]
+            if callback then callback(self) end
+        end,
     }
 
     local msgbox = _G.StaticPopup_Show(msgboxID)
     if msgbox then
-        -- Note: 'data' and 'data2' get passed to your OnAccept() function, and 'data' also is passed to OnCancel().
+        -- Note: 'data' and 'data2' are passed to your OnAccept() function, and only 'data' is passed to OnCancel().
         msgbox.data = customData
         msgbox.data2 = customData2
     end
     return msgbox
 end
 
+
+-- ****************************************************************************
+-- Similar to CUtil.MsgBox(), except this function allows up to three buttons instead of two.
+-- Also, there is only one customData parameter instead of two.  (Pass multiple parameters as a table.)
+-- ENTER key triggers button 1.
+-- ESCAPE key triggers the button named _G.CANCEL (if it exists), or _G.NO (if it exists).
+-- Y key triggers the button named _G.YES (if it exists).
+-- N key triggers the button named _G.NO (if it exists).
+-- ****************************************************************************
+function CUtil.MsgBox3( msg,
+                    btnText1, btnFunc1,
+                    btnText2, btnFunc2,
+                    btnText3, btnFunc3,
+                    customData, -- Can be tables of values.
+                    bShowAlertIcon, soundID, timeoutSecs, preferredIndex)
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+--~ EXAMPLE 1: Basic message with a single "Okay" button.
+--~     MsgBox3("Job done.")
+--~
+--~ EXAMPLE 2: A prompt with two choices that each call a function that uses a custom data buffer (myDataBuffer).
+--~     MsgBox3("Bad data found!  Click OK to use it anyway, or CANCEL to restore defaults.",
+--~             _G.OKAY, function(thisPopupFrame, data, reason)  -- 'reason' can be "clicked", "timeout", or "override".
+--~                             local dataBuffer = data
+--~                             saveMyData(dataBuffer)
+--~                         end,
+--~             _G.CANCEL, function(thisPopupFrame, data, reason)
+--~                             local dataBuffer = data
+--~                             restoreMyDefaultData(dataBuffer)
+--~                         end,
+--~             nil, nil,  -- Button3 hidden.
+--~             myDataBuffer,  -- data
+--~             true, SOUNDKIT.ALARM_CLOCK_WARNING_3, 0, 3)  -- Icon, Sound, Timeout, Preferred Index.
+--~
+--~ EXAMPLE 3: A prompt with three buttons (YES/NO/CANCEL), each call a function that uses a custom data buffer (myDataBuffer).
+--~     MsgBox3("Save data before continuing?",
+--~             _G.YES, function(thisPopupFrame, data, reason)  -- 'reason' can be "clicked", "timeout", or "override".
+--~                             local dataBuffer = data
+--~                             saveMyData(dataBuffer)
+--~                             processData(dataBuffer)
+--~                         end,
+--~             _G.NO, function(thisPopupFrame, data, reason)
+--~                             local dataBuffer = data
+--~                             processData(dataBuffer)
+--~                         end,
+--~             _G.CANCEL, function(thisPopupFrame, data, reason)
+--~                             print("Operation canceled.")
+--~                         end,
+--~             myDataBuffer,  -- data
+--~             true, SOUNDKIT.IG_MAINMENU_OPEN, 0, 3)  -- Icon, Sound, Timeout, Preferred Index.
+--~
+--~ EXAMPLE 4: A Yes/No prompt with a single function for "Yes", and a 15 second time limit.
+--~     MsgBox3("Uh oh! Show help?\n\n(This message goes away after 15 seconds.)",
+--~             _G.YES, showMyHelp,  -- Button1 calls function showMyHelp().
+--~             _G.NO, nil,  -- Button2 displayed, but does nothing.
+--~             nil, nil,  -- Button3 hidden.
+--~             nil,  -- data
+--~             false, nil, 15)  -- Icon, Sound, Timeout, Preferred Index.
+--~
+--~ EXAMPLE 5: Setting custom OnShow/OnHide script functions.
+--~     MsgBox3("HookScript", "OnShow", function(self) print("MsgBox OnShow() called.") end  -- (Only need to do this once.)
+--~     MsgBox3("HookScript", "OnHide", function(self) print("MsgBox OnHide() called.") end  -- (Only need to do this once.)
+--~     MsgBox3("Hello world!")
+--~
+--~ EXAMPLE 6: Checking if a message box is being shown, and getting its frame it it is.
+--~     if MsgBox3("IsShown") then
+--~         print( "The frame for the displayed message box is:", MsgBox3("GetFrame") )
+--~     end
+--~
+--~ For more info, see ...
+--~     https://wowpedia.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
+--~     https://wowwiki-archive.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
+-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    local msgboxID = "MSGBOX3_FOR_" .. kAddonFolderName
+
+    local cmdResult = CUtil.MsgBox_Command(msgboxID, msg, btnText1, btnFunc1) -- Pass our ID and first 3 params to MsgBox_Command().
+    if cmdResult ~= nil then return cmdResult end  -- Caller specified a message box command, so return now.
+
+    assert(msg and type(msg) == "string" and msg ~= "")
+    assert(btnFunc1 == nil or type(btnFunc1) == "function")
+    assert(btnFunc2 == nil or type(btnFunc2) == "function")
+    assert(btnFunc3 == nil or type(btnFunc3) == "function")
+    assert(bShowAlertIcon == true or bShowAlertIcon == false or bShowAlertIcon == nil)
+
+    if (btnText1 == "" or btnText1 == nil) then btnText1 = OKAY end
+    if (btnText2 == "") then btnText2 = nil end
+    if (btnText3 == "") then btnText3 = nil end
+    btnFunc1 = btnFunc1 or DoNothing
+    btnFunc2 = btnFunc2 or DoNothing
+    btnFunc3 = btnFunc3 or DoNothing
+    if (bShowAlertIcon ~= true) then bShowAlertIcon = nil end  -- Forces it to be 'true' or 'nil'.
+
+    if not _G.StaticPopupDialogs[msgboxID] then
+        _G.StaticPopupDialogs[msgboxID] =
+        {
+            selectCallbackByIndex = true,  -- Required when using OnButton1, OnButton2, etc.  (Return true from them to keep popup open.)
+            whileDead = true,
+            exclusive = true,  -- Makes the popup go away if any other popup is displayed.
+            ----enterClicksFirstButton = true,  <<< ENTER handled in our own keypress function.
+            ----hideOnEscape = true,  <<< ESCAPE handled in our own keypress function.
+            ----fullScreenCover = true,  -- Modal message box.  Darkens entire screen too. (TODO: Does this work in classic wow?)
+            ----verticalButtonLayout = true,
+            --_________________________________________________________________
+            OnShow = function(self, customData)  -- 'self' is the popup frame.
+                local dialogInfo = _G.StaticPopupDialogs[ self.which ]
+                dialogInfo.msgboxFrame = self
+
+                -- Customize buttons.
+                local popupName = self:GetName()
+                local minBtnH = 24
+                for i = 1, 4 do
+                    local btn = _G[popupName.."Button"..i]
+                    if btn:GetHeight() < minBtnH then
+                        btn:SetHeight(minBtnH)
+                        deltaH = 1
+                    end
+                end
+
+                -- Customize frame height (if necessary).
+                C_Timer.After(0.01, function()
+                    local frameH = self:GetHeight()
+                    local minH = minBtnH + 56
+                    if self.AlertIcon and self.AlertIcon:IsShown() then minH = minH + 4 end
+                    if frameH < minH then self:SetHeight(minH) end
+                end)
+
+                -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+                -- Process Y, N, ENTER, and ESCAPE keys.
+                self:SetScript("OnKeyDown", function(self, key)
+                    local bPassKeyToParent = false
+                    if key == "ENTER" then
+                        StaticPopup_OnClick(self, 1)  -- Trigger button1.
+                    elseif key == "ESCAPE" then
+                        local btnNum = CUtil.findSPDButton(self, _G.CANCEL) or CUtil.findSPDButton(self, _G.NO)
+                        if btnNum then StaticPopup_OnClick(self, btnNum)
+                        ----else self:Hide()  -- No cancel button, so just close the frame.
+                        end
+                    elseif key == "Y" then
+                        local btnNum = CUtil.findSPDButton(self, _G.YES)
+                        if btnNum then StaticPopup_OnClick(self, btnNum)
+                        ----else bPassKeyToParent = true
+                        end
+                    elseif key == "N" then
+                        local btnNum = CUtil.findSPDButton(self, _G.NO)
+                        if btnNum then StaticPopup_OnClick(self, btnNum)
+                        ----else bPassKeyToParent = true
+                        end
+                    else
+                        bPassKeyToParent = true
+                    end
+                    if not InCombatLockdown() then self:SetPropagateKeyboardInput(bPassKeyToParent) end
+                end)
+                -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+
+                local callback = CUtil.MsgBoxScripts["OnShow"]
+                if callback then callback(self, customData) end
+            end,
+            --_________________________________________________________________
+            OnHide = function(self)  -- 'self' is the popup frame.
+                local dialogInfo = _G.StaticPopupDialogs[ self.which ]
+                local callback = CUtil.MsgBoxScripts["OnHide"]
+                if callback then callback(self) end
+                dialogInfo.msgboxFrame = nil
+            end,
+            --_________________________________________________________________
+        }
+    end
+
+    -- If a prior message is still showing, wait for it to close.
+    local dialogInfo = _G.StaticPopupDialogs[msgboxID]
+    local delaySecs = dialogInfo.msgboxFrame and 0.15 or 0 -- Allow time for prior message to close.
+    C_Timer.After( delaySecs, function()
+        ----assert(dialogInfo.msgboxFrame == nil) -- Fails if our wait time was too short.
+
+        -- Set caller's parameters.
+        dialogInfo.showAlert = bShowAlertIcon
+        dialogInfo.sound = soundID
+        dialogInfo.timeout = timeoutSecs
+        dialogInfo.preferredIndex = preferredIndex or 1  -- Which of the global StaticPopup frames to use (if available).
+
+        dialogInfo.text = (msg or "")
+        dialogInfo.button1 = btnText1
+        dialogInfo.button2 = btnText2
+        dialogInfo.button3 = btnText3
+        dialogInfo.OnButton1 = btnFunc1
+        dialogInfo.OnButton2 = btnFunc2
+        dialogInfo.OnButton3 = btnFunc3
+
+        -- Show the message box.
+        _G.StaticPopup_Show(msgboxID, nil, nil, customData)  -- which, text1, text2, customData
+    end)
+end
+
+
+-- ****************************************************************************
+--  Helper function that executes configuration or status commands for MsgBox3()
+--  and MsgBox() popup frames.
+--  NOTE: This implementation is required instead of just frame:IsShown() or
+--  frame:HookScript() because message boxes don't have their own permanent frame.
+--  One is temporarily assigned to them by the game each time a message is shown.
+--
+-- Supported commands:
+--      MsgBox_Command( msgboxID, "IsShown" )
+--      MsgBox_Command( msgboxID, "GetFrame" )
+--      MsgBox_Command( msgboxID, "HookScript", "OnShow", function(self) )
+--      MsgBox_Command( msgboxID, "HookScript", "OnHide", function(self) )
+--
+-- Returns: Returns nil if the cmd parameter is not a supported command.  Otherwise, it returns
+--          whatever the specified command requested.  If the command normally returns nothing,
+--          then true or false is returned indicating success or failure.
+-- ****************************************************************************
+function CUtil.MsgBox_Command(msgboxID, cmd, arg1, arg2)
+    if cmd == "HookScript" then
+        local scriptName, scriptFunc = arg1, arg2
+        ----print(kAddonFolderName, "CUtil.MsgBox_Command(", cmd, scriptName, scriptFunc, ")")
+        assert(scriptFunc == nil or type(scriptFunc) == "function")  -- Fails if bad parameters passed in.
+        assert(scriptName == "OnShow" or scriptName == "OnHide") -- Fails if unsupported script name passed in.
+        CUtil.MsgBoxScripts[scriptName] = scriptFunc
+        return true
+    elseif cmd == "IsShown" then
+        assert(arg1 == nil and arg2 == nil)
+        local dialogInfo = _G.StaticPopupDialogs[msgboxID]
+        if dialogInfo and dialogInfo.msgboxFrame then return true end
+        return false
+    elseif cmd == "GetFrame" then
+        assert(arg1 == nil and arg2 == nil)
+        local dialogInfo = _G.StaticPopupDialogs[msgboxID]
+        if dialogInfo and dialogInfo.msgboxFrame then return dialogInfo.msgboxFrame end
+        return false
+    else -- A command was not passed in.
+        return nil
+    end
+end
+
+
+-- ****************************************************************************
+-- Helper function that finds a specific button name in a static popup dialog.
+-- The button's name can either match perfectly, or start with the search text
+-- followed by a space character.  Comparisons are case-insensitive.
+-- Returns the button's number (1 - 4) if found, or nil if not.
+-- ****************************************************************************
+function CUtil.findSPDButton(thisStaticPopup, searchText)
+    assert(searchText)
+    local len = searchText:len()
+    searchText = searchText:lower()
+    for i = 1, 4 do
+        local btn = _G[thisStaticPopup:GetName().."Button"..i]
+        if btn and btn:IsShown() and btn:IsEnabled() then
+            local fontString = (isRetailWoW() and btn.Text) or btn:GetFontString()
+            local text = fontString:GetText():lower()
+            if text == searchText
+                or (text:sub(1,len) == searchText and text:sub(len+1,len+1) == " ")
+            then
+                return i
+            end
+        end
+    end
+end
 
 -- ****************************************************************************
 -- Creates the "new feature" glowy text used in the Blizzard UI for new features.
@@ -4840,11 +5158,13 @@ private.UDControls.CreateContextMenu      = CUtil.CreateContextMenu
 private.UDControls.CreateHorizontalDivider= CUtil.CreateHorizontalDivider
 private.UDControls.CreateTexture_NEW      = CUtil.CreateTexture_NEW
 private.UDControls.DisplayAllFonts        = CUtil.DisplayAllFonts
+private.UDControls.DoNothing              = DoNothing   --DJUadded
 private.UDControls.EnhanceFrameEdges      = CUtil.EnhanceFrameEdges
 private.UDControls.GameTooltip_SetTitleAndText = CUtil.GameTooltip_SetTitleAndText
 private.UDControls.GetMouseFocus          = CUtil.GetMouseFocus
 private.UDControls.handleGlobalMouseClick = CUtil.handleGlobalMouseClick
 private.UDControls.MsgBox                 = CUtil.MsgBox
+private.UDControls.MsgBox3                = CUtil.MsgBox3
 private.UDControls.Outline                = CUtil.Outline
 private.UDControls.TextSize               = CUtil.TextSize
 
