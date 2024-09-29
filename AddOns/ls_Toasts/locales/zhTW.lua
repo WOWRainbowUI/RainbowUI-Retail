@@ -62,8 +62,6 @@ L["YOU_RECEIVED"] = "你收到"
 
 -- Retail
 L["CURRENCY_THRESHOLD_DESC"] = "輸入 |cffffd200-1|r 來忽略此貨幣，|cffffd2000|r 來停用過濾，或|cffffd200任何大於 0 的數字|r來設定值臨界值，低於這個數值將不會顯示通知。"
-L["FILTER_GUILD_ACHIEVEMENTS"] = "過濾公會成就"
-L["FILTER_GUILD_ACHIEVEMENTS_DESC"] = "啟用此選項會阻擋陣營相關的公會成就通知，它們會在跨陣營公會造成成就洗頻的問題。"
 L["HANDLE_LEFT_CLICK"] = "允許左鍵點擊"
 L["NEW_CURRENCY_FILTER_DESC"] = "輸入兌換通貨 ID"
 L["SHOW_QUEST_ITEMS"] = "顯示任務物品"
