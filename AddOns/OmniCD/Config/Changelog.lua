@@ -1,8 +1,8 @@
 local E, L, C = select(2, ...):unpack()
 
 if E.isClassic then E.changelog = [=[
-v1.15.3.2803
-	minor bug fix
+v1.15.4.2807
+	tag fix
 ]=]
 elseif E.isBCC then E.changelog = [=[
 v2.5.4.2722
@@ -15,17 +15,14 @@ v3.4.3.2773
 	Added option to change icon texture for 'Trinket, Main Hand, Consumables' spell type.
 ]=]
 elseif E.isCata then E.changelog = [=[
-v4.4.0.2803
-	minor bug fix
+v4.4.0.2807
+	tag fix
 ]=]
 else E.changelog = [=[
-v11.0.2.2804
-	minor bug fixes
-	zhCN localization update
-
-v11.0.2.2803
-	Release for WoW: The War Within
-
+v11.0.2.2807
+	Fixed constant refreshing in Delves (group events fire every second periodically)
+	Patch 11.0.5 modifier changes
+	tag fix
 ]=]
 end
 

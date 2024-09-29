@@ -95,7 +95,8 @@ local function SetPriority(info, value) E[ info[1] ].setPriority(info, value) en
 local function GetGlow(info) return E[ info[1] ].getGlow(info) end
 local function SetGlow(info, value) E[ info[1] ].setGlow(info, value) end
 
-local _spells = {
+local function GetSpellsTbl()
+	return {
 	name = L["Spells"],
 	order = 70,
 	type = "group", childGroups = "tab",
@@ -151,6 +152,7 @@ local _spells = {
 		},
 	}
 }
+end
 
 local itemsOrdered = {
 	[-1] = "R",
@@ -442,7 +444,7 @@ end
 
 function P:AddSpellPicker()
 	if not E.spellsOptionTbl or next(E.spellsOptionTbl) == nil then
-		local spells = E:DeepCopy(_spells)
+		local spells = GetSpellsTbl()
 		self:AddSpellPickerSpells(spells)
 		self:RegisterSubcategory("spells", spells)
 		E.spellsOptionTbl = spells

@@ -75,14 +75,14 @@ local unitFrameData = {
 	},
 	{
 		[1] = "Cell-Party",
-		[2] = "CellPartyFrameMember",
+		[2] = "CellPartyFrameMember", -- CellPartyFrameUnitButton
 		[3] = "unit",
 		[4] = 1,
 		[5] = 5,
 	},
 	{
 		[1] = "Cell-Raid",
-		[2] = "CellRaidFrameMember",
+		[2] = "CellRaidFrameMember", -- CellRaidFrameUnitButton
 		[3] = "unit",
 		[4] = 1,
 		[5] = 40,
@@ -221,21 +221,55 @@ local unitFrameData = {
 		[3] = "unit",
 	},
 	{
-		[1] = "GW2_UI",
-		[2] = "GwCompactPartyFrame",
-		[3] = "unit",
-	},
-	{
 		[1] = "GW2_UI-Party",
 		[2] = "GwPartyFrame",
 		[3] = "unit",
 	},
 	{
-		[1] = "GW2_UI-Raid",
-		[2] = "GwCompactRaidFrame",
+		[1] = "GW2_UI-Raid40",
+		[2] = "GW2_Raid40Group%dUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "GW2_UI-Raid25",
+		[2] = "GW2_Raid25Group%dUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "GW2_UI-Raid10",
+		[2] = "GW2_Raid10Group%dUnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "GW2_UI-Raid40-RWS",
+		[2] = "GW2_Raid40Group1UnitButton",
 		[3] = "unit",
 		[4] = 1,
-		[5] = 40
+		[5] = 40,
+	},
+	{
+		[1] = "GW2_UI-Raid25-RWS",
+		[2] = "GW2_Raid25Group1UnitButton",
+		[3] = "unit",
+		[4] = 1,
+		[5] = 25,
+	},
+	{
+		[1] = "GW2_UI-Raid10-RWS",
+		[2] = "GW2_Raid10Group1UnitButton",
+		[3] = "unit",
+		[4] = 1,
+		[5] = 10,
+	},
+	{
+		[1] = "GW2_UI-Maintank",
+		[2] = "GW2_MaintankGroup1UnitButton",
+		[3] = "unit",
+	},
+	{
+		[1] = "GW2_UI-Party-Grid",
+		[2] = "GW2_PartyGroup1UnitButton",
+		[3] = "unit",
 	},
 	{
 		[1] = "AltzUI",
@@ -321,7 +355,7 @@ function E:UnitFrames()
 					local formatted = format(frame, j)
 					insertFrame(formatted)
 				end
-			else
+			elseif addon ~= "HealBot" then
 				insertFrame(frame)
 			end
 			t.frames = f

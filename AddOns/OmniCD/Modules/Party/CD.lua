@@ -1,7 +1,7 @@
 local E = select(2, ...):unpack()
 local P, CM, CD = E.Party, E.Comm, E.Cooldowns
 
-local pairs, type, tonumber, unpack, tinsert, wipe, strmatch, min, max, abs = pairs, type, tonumber, unpack, table.insert, table.wipe, string.match, math.min, math.max, math.abs
+local pairs, type, tonumber, unpack, tinsert, wipe, min, max, abs = pairs, type, tonumber, unpack, table.insert, table.wipe, math.min, math.max, math.abs
 local GetTime, UnitBuff, UnitTokenFromGUID, UnitHealth, UnitHealthMax, UnitLevel, UnitChannelInfo, UnitAffectingCombat = GetTime, UnitBuff, UnitTokenFromGUID, UnitHealth, UnitHealthMax, UnitLevel, UnitChannelInfo, UnitAffectingCombat
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 local AuraUtil_ForEachAura = AuraUtil and AuraUtil.ForEachAura
@@ -24,7 +24,6 @@ local isHighlightEnabled
 local totemGUIDS = {}
 local petGUIDS = {}
 local diedHostileGUIDS = {}
-local dispelledHostileGUIDS = {}
 
 E.auraMultString = {}
 
@@ -51,7 +50,6 @@ function CD:Disable()
 	wipe(totemGUIDS)
 	wipe(petGUIDS)
 	wipe(diedHostileGUIDS)
-	wipe(dispelledHostileGUIDS)
 	self.enabled = false
 end
 
@@ -376,6 +374,7 @@ local registeredUserEvents = setmetatable({}, mt)
 
 
 
+
 local function RemoveHighlightByCLEU(info, srcGUID, spellID, destGUID)
 	if isHighlightEnabled and destGUID == srcGUID then
 		local icon = info.glowIcons[spellID]
@@ -399,6 +398,7 @@ function CD:RegisterRemoveHighlightByCLEU(spellID)
 		end
 	end
 end
+
 
 
 
@@ -451,6 +451,7 @@ end
 
 
 
+
 local function ForceUpdatePeriodicSync(id)
 	local cooldownInfo = CM.cooldownSyncIDs[id]
 	if cooldownInfo then
@@ -472,6 +473,7 @@ for id in pairs(E.sync_reset) do
 		ForceUpdatePeriodicSync(id)
 	end
 end
+
 
 
 
@@ -532,6 +534,7 @@ end
 
 
 
+
 local function StartCdOnAuraRemoved(info, srcGUID, spellID, destGUID)
 	if srcGUID == destGUID then
 		spellID = E.spell_auraremoved_cdstart_preactive[spellID]
@@ -564,6 +567,7 @@ end
 
 
 
+
 local function ProcessSpellOnAuraApplied(_, srcGUID, spellID)
 	spellID = E.spell_auraapplied_processspell[spellID]
 	ProcessSpell(spellID, srcGUID)
@@ -579,6 +583,7 @@ for k in pairs(E.spell_auraapplied_processspell) do
 		registeredEvents['SPELL_AURA_APPLIED'][k] = ProcessSpellOnAuraApplied
 	end
 end
+
 
 
 
@@ -2079,12 +2084,11 @@ local monkBrews = {
 
 registeredEvents['SWING_DAMAGE']['MONK'] = function(info, _,_, destGUID)
 	if info.talentData[418359] then
-		local rt = info.auras.bonedustTargetGUID and info.auras.bonedustTargetGUID[destGUID] and 1.5 or 0.5
-		for i = 1, 5 do
+		for i = 1, 4 do
 			local id = monkBrews[i]
 			local icon = info.spellIcons[id]
 			if icon and icon.active then
-				P:UpdateCooldown(icon, rt)
+				P:UpdateCooldown(icon, 0.5)
 			end
 		end
 	end
@@ -2989,10 +2993,10 @@ E.auraMultString[458650] = "saveTheDay"
 
 
 registeredEvents['SPELL_AURA_APPLIED'][428933] = function(info)
-	info.auras.premonitionOfInsight = true
+	info.auras["premonitionOfInsight"] = true
 end
 registeredEvents['SPELL_AURA_REMOVED'][428933] = function(info, srcGUID, spellID, destGUID)
-	info.auras.premonitionOfInsight = nil
+	info.auras["premonitionOfInsight"] = nil
 	RemoveHighlightByCLEU(info, srcGUID, spellID, destGUID)
 end
 E.auraMultString[428933] = "premonitionOfInsight"
@@ -3332,14 +3336,14 @@ end
 registeredEvents['SPELL_AURA_APPLIED'][344179] = function(info)
 	local icon = info.auras.feralSpiritIcon
 	if icon and icon.active then
-		P:UpdateCooldown(icon, 2)
+		P:UpdateCooldown(icon, 1)
 	end
 end
 registeredEvents['SPELL_AURA_APPLIED_DOSE'][344179] = function(info, _,_,_,_,_,_, amount)
 	if amount == 2 then
 		local icon = info.auras.feralSpiritIcon
 		if icon and icon.active then
-			P:UpdateCooldown(icon, 2)
+			P:UpdateCooldown(icon, 1)
 		end
 	end
 end
@@ -3599,14 +3603,14 @@ local rageSpenders = {
 	[394062] = { 2.0, { 401150, 871 } },
 	[190456] = { 3.5, { 401150, 871 } },
 	[6572] = { 2.0, { 401150, 871}, { 390675, 1 }, { "Revenge", 0 } },
-	[6343] = { { [71]=1, [72]=1 }, { 262161, 167105, 227847, 1719, 228920 } },
-	[1680] = { { [73]=2 }, { 401150, 871 } },
-	[163201] = { { [73]=4, [71]=2 }, { 262161, 167105, 227847, 401150, 871 }, { 316402, 0 }, { "SuddenDeath", 0 } },
-	[281000] = { { [73]=4, [71]=2 }, { 262161, 167105, 227847, 401150, 871 }, { 316402, 0 }, { "SuddenDeath", 0 } },
-	[1464] = { { [73]=2, [71]=1 }, { 262161, 167105, 227847, 401150, 871, 1719, 228920 } },
-	[2565] = { { [73]=3, ["d"]=1.5 }, { 262161, 167105, 227847, 401150, 871, 1719, 228920 } },
-	[202168] = { { [73]=1, ["d"]=0.5 }, { 262161, 167105, 227847, 401150, 871, 1719, 228920 }, nil, { "Victorious", 0 } },
-	[1715] = { { [73]=1, ["d"]=0.5 }, { 262161, 167105, 227847, 401150, 871, 1719, 228920 } },
+	[6343] = { { [71]=1, [72]=1 }, { 262161, 167105, 228920, 227847, 1719 } },
+	[1680] = { { [73]=2, [71]=1 }, { 262161, 167105, 228920, 227847, 401150, 871 } },
+	[163201] = { { [73]=4, [71]=2 }, { 262161, 167105, 228920, 227847, 401150, 871 }, { 316402, 0 }, { "SuddenDeath", 0 } },
+	[281000] = { { [73]=4, [71]=2 }, { 262161, 167105, 228920, 227847, 401150, 871 }, { 316402, 0 }, { "SuddenDeath", 0 } },
+	[1464] = { { [73]=2, [71]=1 }, { 262161, 167105, 228920, 227847, 401150, 871, 1719 } },
+	[2565] = { { [73]=3, ["d"]=1.5 }, { 262161, 167105, 228920, 227847, 401150, 871, 1719 } },
+	[202168] = { { [73]=1, ["d"]=0.5 }, { 262161, 167105, 228920, 227847, 401150, 871, 1719 }, nil, { "Victorious", 0 } },
+	[1715] = { { [73]=1, ["d"]=0.5 }, { 262161, 167105, 228920, 227847, 401150, 871, 1719 } },
 }
 
 for id, t in pairs(rageSpenders) do
@@ -4261,10 +4265,6 @@ local consumables = {
 	6262,
 
 }
-E.consumableIDs = {}
-for _, v in pairs(consumables) do
-	E.consumableIDs[v] = 3
-end
 
 local startCdOutOfCombat = function(guid)
 	local info = groupInfo[guid]
@@ -4755,4 +4755,3 @@ E.ProcessSpell = ProcessSpell
 CD.totemGUIDS = totemGUIDS
 CD.petGUIDS = petGUIDS
 CD.diedHostileGUIDS = diedHostileGUIDS
-CD.dispelledHostileGUIDS = dispelledHostileGUIDS

@@ -246,11 +246,11 @@ local function Constructor()
 
 	local widget = {
 		alignoffset = 30,
-		editbox	    = editbox,
-		label	    = label,
-		button	    = button,
-		frame	    = frame,
-		type	    = Type
+		editbox     = editbox,
+		label       = label,
+		button      = button,
+		frame       = frame,
+		type        = Type
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func

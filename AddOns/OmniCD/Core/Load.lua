@@ -6,8 +6,20 @@ local function OmniCD_OnEvent(self, event, ...)
 	if event == 'ADDON_LOADED' then
 		local addon = ...
 		if addon == E.AddOn then
+			if E.isClassic then
+				local seasonID = C_Seasons.GetActiveSeason()
+				if seasonID == 1 or seasonID == 2 then
+					self:UnregisterEvent('ADDON_LOADED')
+					self:SetScript("OnEvent", nil)
+					return
+				end
+			end
 			self:OnInitialize()
 			self:UnregisterEvent('ADDON_LOADED')
+			self:RegisterEvent('PLAYER_LOGIN')
+			if not E.preMoP then
+				E:RegisterEvent('PET_BATTLE_OPENING_START')
+			end
 		end
 	elseif event == 'PLAYER_LOGIN' then
 		self:OnEnable()
@@ -41,10 +53,6 @@ local function OmniCD_OnEvent(self, event, ...)
 end
 
 E:RegisterEvent('ADDON_LOADED')
-E:RegisterEvent('PLAYER_LOGIN')
-if not E.preMoP then
-	E:RegisterEvent('PET_BATTLE_OPENING_START')
-end
 E:SetScript("OnEvent", OmniCD_OnEvent)
 
 function E:CreateFontObjects()

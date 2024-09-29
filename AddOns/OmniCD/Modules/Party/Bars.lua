@@ -71,7 +71,6 @@ function P:SetEnabledColorScheme(info)
 	end
 end
 
-
 local wwDamageSpells = {
 	[100780] = true,
 	[100784] = true,
@@ -98,7 +97,6 @@ local function CooldownBarFrame_OnEvent(self, event, ...)
 		if unit ~= info.unit and unit ~= UNIT_TO_PET[info.unit] then
 			return
 		end
-
 
 		if info.spec == 269 and wwDamageSpells[spellID] then
 			if info.lastComboStrikesID and info.lastComboStrikesID ~= spellID then
@@ -136,7 +134,6 @@ local function CooldownBarFrame_OnEvent(self, event, ...)
 
 
 
-
 		if not UnitIsDeadOrGhost(unit) then
 			if E.preMoP then
 				local icon = info.spellIcons[20608]
@@ -160,7 +157,6 @@ local function CooldownBarFrame_OnEvent(self, event, ...)
 		if unit ~= info.unit then
 			return
 		end
-
 		if info.glowIcons[TOUCH_OF_KARMA] then
 			if not P:GetBuffDuration(unit, TOUCH_OF_KARMA) then
 				local icon = info.glowIcons[TOUCH_OF_KARMA]
@@ -194,20 +190,20 @@ local function CooldownBarFrame_OnEvent(self, event, ...)
 		if unit ~= info.unit then
 			return
 		end
-
 		if UnitIsConnected(unit) then
 			CM:EnqueueInspect(nil, guid)
 		end
 
 	elseif event == 'UNIT_CONNECTION' then
 		local unit, isConnected = ...
-		if unit == info.unit then
-			info.isDeadOrOffline = UnitIsDeadOrGhost(unit) or not isConnected
-			if info.isDeadOrOffline then
-				P:SetDisabledColorScheme(info)
-			else
-				P:SetEnabledColorScheme(info)
-			end
+		if unit ~= info.unit then
+			return
+		end
+		info.isDeadOrOffline = UnitIsDeadOrGhost(unit) or not isConnected
+		if info.isDeadOrOffline then
+			P:SetDisabledColorScheme(info)
+		else
+			P:SetEnabledColorScheme(info)
 		end
 	end
 end
@@ -240,22 +236,24 @@ function P:HideBar(bar)
 	self:RemoveUnusedContainers(bar)
 
 	for key, frame in pairs(self.extraBars) do
-		local icons = frame.icons
-		local n = 0
-		local shouldUpdateLayout
-		for j = frame.numIcons, 1, -1 do
-			local icon = icons[j]
-			local iconGUID = icon.guid
-			if guid == iconGUID then
-				self:RemoveIcon(icon)
-				tremove(icons, j)
-				n = n + 1
-				shouldUpdateLayout = true
+		if frame.db.enabled then
+			local icons = frame.icons
+			local n = 0
+			local shouldUpdateLayout
+			for j = frame.numIcons, 1, -1 do
+				local icon = icons[j]
+				local iconGUID = icon.guid
+				if guid == iconGUID then
+					self:RemoveIcon(icon)
+					tremove(icons, j)
+					n = n + 1
+					shouldUpdateLayout = true
+				end
 			end
-		end
-		frame.numIcons = frame.numIcons - n
-		if shouldUpdateLayout then
-			self:SetExIconLayout(key)
+			frame.numIcons = frame.numIcons - n
+			if shouldUpdateLayout then
+				self:SetExIconLayout(key)
+			end
 		end
 	end
 
@@ -359,7 +357,6 @@ local function GetUnitBarFrame()
 		frame.anchor.text:SetFontObject(E.AnchorFont)
 		frame.anchor:SetScript("OnMouseUp", E.OmniCDAnchor_OnMouseUp)
 		frame.anchor:SetScript("OnMouseDown", E.OmniCDAnchor_OnMouseDown)
-		frame:SetScript("OnHide", OmniCDBar_OnHide)
 		frame:SetScript("OnEvent", CooldownBarFrame_OnEvent)
 	end
 	unitBars[#unitBars + 1] = frame
@@ -489,6 +486,15 @@ function P:SetBarBackdrop(barFrame)
 	end
 end
 
+--[[ temp fix ]]
+local iconTextureFix = {
+	[371032] = {403631,5199622,4622450},
+}
+
+local function GetOverrideTexture(info, iconFix)
+	return info.talentData[ iconFix[1] ] and iconFix[2] or iconFix[3]
+end
+
 local twwHeroTalents = {
 	[436358] = true,
 	[439843] = true,
@@ -562,12 +568,11 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 		end
 	end
 
-	local isInspectedUnit = info.spec
+	local specID = info.spec
 	local lvl = info.level
-	local iconIndex = 0
 
 	local loginsessionData = self.loginsessionData[guid]
-	if not CM.syncedGroupMembers[guid] and not info.shadowlandsData.covenantID and isInspectedUnit and loginsessionData then
+	if not CM.syncedGroupMembers[guid] and not info.shadowlandsData.covenantID and specID and loginsessionData then
 		for k, v in pairs(loginsessionData) do
 			if k == "covenantID" then
 				info.shadowlandsData.covenantID = v
@@ -589,344 +594,307 @@ function P:UpdateUnitBar(guid, isUpdateBarsOrGRU)
 
 			local auraStr = E.auraMultString[id]
 			if auraStr then
-				if type(auraStr) == "table" then
-					local talentID = auraStr[2]
-					local talentRank = info.talentData[talentID]
-					if talentRank then
-						info.auras[ auraStr[1] ] = true
-					end
-				else
-					info.auras[auraStr] = true
-				end
+				info.auras[auraStr] = true
 			end
 		end)
-		if info.itemData[205146] and not found then
+		if not found and info.itemData[205146] then
 			info.itemData[205146] = nil
 		end
 	end
 
+	local iconIndex = 0
 	for spellID, spell in pairs(E.hash_spelldb) do
-		local cat, spellType, spec, race, item, item2, talent, disabledSpec = spell.class, spell.type, spell.spec, spell.race, spell.item, spell.item2, spell.talent, spell.disabledSpec
-		local isValidSpell
-		local enabledSpell = self.spell_enabled[spellID]
-		local extraBarKey, extraBarFrame
-		if enabledSpell and enabledSpell > 0 then
-			extraBarKey = "raidBar" .. enabledSpell
-			extraBarFrame = E.db.extraBars[extraBarKey].enabled and self.extraBars[extraBarKey]
-		end
-		if enabledSpell and (notUser or not self.isUserHidden or (extraBarFrame and not extraBarFrame.db.unitBar)) then
-			if cat == "RACIAL" then
-				if type(race) == "table" then
-					for k = 1, #race do
-						local id = race[k]
-						if id == raceID then
-							isValidSpell = true
+		local cat, spellType, spec, race, item, talent, disabledSpec = spell.class, spell.type, spell.spec, spell.race, spell.item, spell.talent, spell.disabledSpec
+		if not disabledSpec or not disabledSpec[specID] or not disabledSpec[specID][self.zone] then
+			local isValidSpell
+			local enabledSpell = self.spell_enabled[spellID]
+			local extraBarKey, extraBarFrame
+			if enabledSpell and enabledSpell > 0 then
+				extraBarKey = "raidBar" .. enabledSpell
+				extraBarFrame = E.db.extraBars[extraBarKey].enabled and self.extraBars[extraBarKey]
+			end
+			if enabledSpell and (notUser or not self.isUserHidden or (extraBarFrame and not extraBarFrame.db.unitBar)) then
+				if cat == "RACIAL" then
+					if type(race) == "table" then
+						for k = 1, #race do
+							local id = race[k]
+							if id == raceID then
+								isValidSpell = true
+							end
 						end
+					elseif race == raceID then
+						isValidSpell = true
 					end
-				elseif race == raceID then
-					isValidSpell = true
-				end
 
 
-			elseif isInspectedUnit then
-				if cat == class then
-					isValidSpell = (not E.postBFA or not E.covenant_abilities[spellID] or self.isInShadowlands)
-						and self:IsSpecOrTalentForPvpStatus(spec==true and spellID or spec, info, lvl >= GetSpellLevelLearned(spellID), disabledSpec and disabledSpec[info.spec])
-						and (not talent or not self:IsSpecOrTalentForPvpStatus(talent, info, true))
-				elseif cat == "COVENANT" then
-					isValidSpell = self.isInShadowlands and self:IsSpecOrTalentForPvpStatus(spec==true and spellID or spec, info, true)
-				elseif cat == "ESSENCE" then
-					isValidSpell = info.talentData[spec]
-				elseif not E.BOOKTYPE_CATEGORY[cat] then
-					isValidSpell = self:IsEquipped(info, item, item2) or (info.sessionItemData[item] and (item ~= 5512 or not info.talentData[386689]))
-				end
-			else
-				if cat == class then
-					isValidSpell = lvl >= GetSpellLevelLearned(spellID) and (not spec or (loginsessionData and loginsessionData[spec])) and not talent
-				elseif cat == "COVENANT" then
-					isValidSpell = self.isInShadowlands and loginsessionData and loginsessionData[spec]
-				elseif cat == "TRINKET" then
-					isValidSpell = not item or info.sessionItemData[item]
+				elseif specID then
+					if cat == class then
+						isValidSpell = (not E.postBFA or not E.covenant_abilities[spellID] or self.isInShadowlands)
+							and self:IsSpecOrTalentForPvpStatus(spec==true and spellID or spec, info, lvl >= GetSpellLevelLearned(spellID))
+							and (not talent or not self:IsSpecOrTalentForPvpStatus(talent, info, true))
+					elseif cat == "COVENANT" then
+						isValidSpell = self.isInShadowlands and self:IsSpecOrTalentForPvpStatus(spec==true and spellID or spec, info, true)
+					elseif cat == "ESSENCE" then
+						isValidSpell = info.talentData[spec]
+					elseif not E.BOOKTYPE_CATEGORY[cat] then
+						isValidSpell = self:IsEquipped(info, item) or (info.sessionItemData[item] and (item ~= 5512 or not info.talentData[386689]))
+					end
+				else
+					if cat == class then
+						isValidSpell = lvl >= GetSpellLevelLearned(spellID) and (not spec or (loginsessionData and loginsessionData[spec])) and not talent
+					elseif cat == "COVENANT" then
+						isValidSpell = self.isInShadowlands and loginsessionData and loginsessionData[spec]
+					elseif cat == "TRINKET" then
+						isValidSpell = not item or info.sessionItemData[item]
+					end
 				end
 			end
-		end
 
-		if isValidSpell then
-			local cd = self:GetValueByType(spell.duration, guid, item2)
-			if cd and (not E.preMoP or not self.isInArena or cd < 900) then
-				local buffID, iconTexture = spell.buff, spell.icon
-				local ch = self:GetValueByType(spell.charges, guid) or 1
-				local baseCooldown = cd
-				if isInspectedUnit then
-					if cat == class then
-						local modData = E.spell_cdmod_talents[spellID]
-						if modData then
-							for k = 1, #modData, 2 do
-								local tal = modData[k]
-								local rank = self:IsTalentForPvpStatus(tal, info)
-								if rank then
-									local rt = modData[k+1]
-									if type(rt) == "table" then
-										local specRT = rt[isInspectedUnit]
-										if specRT then
-											if type(specRT) == "table" then
-												rt = specRT[rank] or specRT[1]
-												local pvpMult = self.isPvP and specRT[3]
-												if pvpMult then
-													rt = rt * pvpMult
-												end
-											else
-												rt = specRT
-											end
-										else
+			if isValidSpell then
+				local cd = self:GetValueByType(spell.duration, specID)
+				if cd and (not E.preMoP or not self.isInArena or cd < 900) then
+					local buffID, iconTexture = spell.buff, spell.icon
+					local ch = self:GetValueByType(spell.charges, specID) or 1
+					local baseCooldown = cd
+					if specID then
+						if cat == class then
+							local modData = E.spell_cdmod_talents[spellID]
+							if modData then
+								for k = 1, #modData, 2 do
+									local rank = self:IsTalentForPvpStatus(modData[k], info)
+									if rank then
+										local rt = modData[k+1]
+										if type(rt) == "table" then
 											local pvpMult = self.isPvP and rt[3]
-											rt = rt[rank] or rt[1]
-											if pvpMult then
-												rt = rt * pvpMult
-											end
+											rt = rt[specID] or rt[rank] or rt[1]
+											if rt and pvpMult then rt = rt * pvpMult end
 										end
+										if rt then cd = cd - rt end
 									end
-									if rt then
+								end
+							end
+
+							modData = E.spell_cxmod_azerite[spellID]
+							if modData and info.talentData[modData.azerite] then
+								if modData.duration then
+									cd = cd - modData.duration
+								elseif modData.charges then
+									ch = ch + modData.charges
+								end
+							end
+
+							modData = E.spell_cdmod_conduits[spellID]
+							if modData and self.isInShadowlands then
+								local rankValue = info.talentData[modData]
+								if rankValue then
+									if self.isPvP and modData == 336636 then
+										rankValue = rankValue / 2
+									end
+									cd = cd - rankValue
+								end
+							end
+
+							modData = E.spell_cdmod_by_haste[spellID]
+							if modData == true or modData == specID then
+								if E.preMoP then
+									cd = cd + (info.rangedWeaponSpeed or 0)
+								else
+									local spellHasteMult = info.spellHasteMult or 1/(1 + UnitSpellHaste("player")/100)
+									cd = cd * spellHasteMult
+								end
+							end
+
+							modData = E.spell_cdmod_talents_mult[spellID]
+							if modData then
+								for k = 1, #modData, 2 do
+									local rank = self:IsTalentForPvpStatus(modData[k], info)
+									if rank then
+										local mult = modData[k+1]
+										if type(mult) == "table" then
+											local pvpMult = self.isPvP and mult[3]
+											mult = mult[specID] or mult[rank] or mult[1]
+											if mult and pvpMult then mult = 1 - (1 - mult) * pvpMult end
+										end
+										if mult then cd = cd * mult end
+									end
+								end
+							end
+
+							modData = E.spell_cdmod_conduits_mult[spellID]
+							if modData and self.isInShadowlands then
+								local rankValue = info.talentData[modData]
+								if rankValue then
+									cd = cd * rankValue
+								end
+							end
+
+							modData = info.talentData["essStriveMult"]
+							if modData then
+								local stiveSpec = E.spell_cdmod_ess_strive_mult[spellID]
+								if stiveSpec == true or stiveSpec == specID then
+									local pvpCD = self.isPvP and self.loginsessionData[guid] and self.loginsessionData[guid]["strivedPvpCD"]
+									cd = pvpCD or cd * modData
+									info.talentData["essStrivedPvpID"] = spellID
+								elseif spellID == 107574 and specID == 71 then
+									cd = cd - 5
+								end
+							end
+
+
+							if info.talentData[412713] and spellID ~= 404381 then
+								cd = cd * 0.9
+							end
+
+							modData = E.spell_chmod_talents[spellID]
+							if modData then
+								for k = 1, #modData, 2 do
+									local tal = modData[k]
+									local rank = self:IsTalentForPvpStatus(tal, info)
+									if rank then
+										local charges = modData[k + 1]
+										charges = type(charges) == "table" and (charges[rank] or charges[1]) or charges
+										ch = ch + charges
+									end
+								end
+							end
+						elseif cat == "COVENANT" then
+							local covData = E.covenant_cdmod_conduits[spellID]
+							if covData and info.talentData[ covData[1] ] then
+								cd = cd - covData[2]
+							end
+
+							covData = E.covenant_cdmod_items_mult[spellID]
+							if covData and info.itemData[ covData[1] ] then
+								cd = cd * covData[2]
+							end
+
+							covData = E.covenant_chmod_conduits[spellID]
+							if covData and info.talentData[ covData[1] ] then
+								ch = ch + covData[2]
+							end
+						elseif cat == "ESSENCE" then
+							local essData = E.spell_cdmod_essrank23 [spellID]
+							if essData then
+								if E:IsEssenceRankUpgraded(info.talentData["essMajorID"]) then
+									cd = cd - essData
+								end
+							end
+
+							essData = E.spell_chargemod_essrank3 [spellID]
+							if essData then
+								if essData[1] == info.talentData["essMajorID"] then
+									ch = ch + essData[2]
+								end
+							end
+						elseif cat == "RACIAL" then
+							local modData = E.spell_cdmod_talents[spellID]
+							if modData then
+								for k = 1, #modData, 2 do
+									local tal = modData[k]
+									local rank = self:IsTalentForPvpStatus(tal, info)
+									if rank then
+										local rt = modData[k+1]
+										rt = type(rt) == "table" and (rt[rank] or rt[1]) or rt
 										cd = cd - rt
 									end
 								end
 							end
-						end
 
-						modData = E.spell_cxmod_azerite[spellID]
-						if modData and info.talentData[modData.azerite] then
-							if modData.duration then
-								cd = cd - modData.duration
-							elseif modData.charges then
-								ch = ch + modData.charges
+
+							if info.talentData[412713] then
+								cd = cd * 0.9
 							end
-						end
-
-						modData = E.spell_cdmod_conduits[spellID]
-						if modData and self.isInShadowlands then
-							local rankValue = info.talentData[modData]
-							if rankValue then
-								if self.isPvP and modData == 336636 then
-									rankValue = rankValue / 2
-								end
-								cd = cd - rankValue
-							end
-						end
-
-						modData = E.spell_cdmod_by_haste[spellID]
-						if modData == true or modData == info.spec then
-							if E.preMoP then
-								cd = cd + (info.rangedWeaponSpeed or 0)
-							else
-								local spellHasteMult = info.spellHasteMult or 1/(1 + UnitSpellHaste("player")/100)
-								cd = cd * spellHasteMult
-							end
-						end
-
-						modData = E.spell_cdmod_talents_mult[spellID]
-						if modData then
-							for k = 1, #modData, 2 do
-								local tal = modData[k]
-								local rank = self:IsTalentForPvpStatus(tal, info)
-								if rank then
-									local mult = modData[k+1]
-									if type(mult) == "table" then
-										local specMult = mult[isInspectedUnit]
-										if specMult then
-											if type(specMult) == "table" then
-												mult = specMult[rank] or specMult[1]
-												local pvpMult = self.isPvP and specMult[3]
-												if pvpMult then
-													mult = 1 - ((1 - mult) * pvpMult)
-												end
-											else
-												mult = specMult
-											end
-										else
-											local pvpMult = self.isPvP and mult[3]
-											mult = mult[rank] or mult[1]
-											if pvpMult then
-												mult = 1 - ((1 - mult) * pvpMult)
-											end
-										end
-									end
-									if mult then
-										cd = cd * mult
-									end
-								end
-							end
-						end
-
-						modData = E.spell_cdmod_conduits_mult[spellID]
-						if modData and self.isInShadowlands then
-							local rankValue = info.talentData[modData]
-							if rankValue then
-								cd = cd * rankValue
-							end
-						end
-
-						modData = info.talentData["essStriveMult"]
-						if modData then
-							local stiveSpec = E.spell_cdmod_ess_strive_mult[spellID]
-							if stiveSpec == true or stiveSpec == info.spec then
-								local pvpCD = self.isPvP and self.loginsessionData[guid] and self.loginsessionData[guid]["strivedPvpCD"]
-								cd = pvpCD or cd * modData
-								info.talentData["essStrivedPvpID"] = spellID
-							elseif spellID == 107574 and info.spec == 71 then
-								cd = cd - 5
-							end
-						end
-
-
-						if info.talentData[412713] and spellID ~= 404381 then
-							cd = cd * 0.9
-						end
-
-						modData = E.spell_chmod_talents[spellID]
-						if modData then
-							for k = 1, #modData, 2 do
-								local tal = modData[k]
-								local rank = self:IsTalentForPvpStatus(tal, info)
-								if rank then
-									local charges = modData[k + 1]
-									charges = type(charges) == "table" and (charges[rank] or charges[1]) or charges
-									ch = ch + charges
-								end
-							end
-						end
-					elseif cat == "COVENANT" then
-						local covData = E.covenant_cdmod_conduits[spellID]
-						if covData and info.talentData[ covData[1] ] then
-							cd = cd - covData[2]
-						end
-
-						covData = E.covenant_cdmod_items_mult[spellID]
-						if covData and info.itemData[ covData[1] ] then
-							cd = cd * covData[2]
-						end
-
-						covData = E.covenant_chmod_conduits[spellID]
-						if covData and info.talentData[ covData[1] ] then
-							ch = ch + covData[2]
-						end
-					elseif cat == "ESSENCE" then
-						local essData = E.spell_cdmod_essrank23 [spellID]
-						if essData then
-							if E:IsEssenceRankUpgraded(info.talentData["essMajorID"]) then
-								cd = cd - essData
-							end
-						end
-
-						essData = E.spell_chargemod_essrank3 [spellID]
-						if essData then
-							if essData[1] == info.talentData["essMajorID"] then
-								ch = ch + essData[2]
-							end
-						end
-					elseif cat == "RACIAL" then
-						local modData = E.spell_cdmod_talents[spellID]
-						if modData then
-							for k = 1, #modData, 2 do
-								local tal = modData[k]
-								local rank = self:IsTalentForPvpStatus(tal, info)
-								if rank then
-									local rt = modData[k+1]
-									rt = type(rt) == "table" and (rt[rank] or rt[1]) or rt
-									cd = cd - rt
-								end
-							end
-						end
-
-
-						if info.talentData[412713] then
-							cd = cd * 0.9
 						end
 					end
-				end
-				ch = ch > 1 and ch
+					ch = ch > 1 and ch
 
 
 
 
-				local icon
-				if extraBarFrame then
-					extraBarFrame.numIcons = extraBarFrame.numIcons + 1
-					if ( extraBarFrame.db.unitBar ) then
-						local container = frame.exContainers[enabledSpell]
-						icon = GetIcon(extraBarFrame, extraBarFrame.numIcons, container)
-						container.icons[#container.icons + 1] = icon
-					else
-						icon = GetIcon(extraBarFrame, extraBarFrame.numIcons)
-					end
-				else
-					iconIndex = iconIndex + 1
-					icon = frame.icons[iconIndex] or GetIcon(frame, iconIndex)
-				end
-
-				icon.name:Hide()
-				icon.guid = guid
-				icon.spellID = spellID
-				icon.class = class
-				icon.unit = unit
-				icon.unitName = name
-
-				icon.type = spellType
-				icon.priority = E.db.spellPriority[spellID] or E.db.priority[spellType]
-				icon.category = cat
-				icon.isBookType = (E.BOOKTYPE_CATEGORY[cat] or cat == "COVENANT") and not twwHeroTalents[spellID]
-				icon.buff = buffID
-				icon.duration = cd and cd < 1 and 1 or cd
-				icon.baseCooldown = baseCooldown
-				icon.maxcharges = ch
-				icon.count:SetText(ch or (spellID == 323436 and info.auras.purifySoulStacks) or (spellID == 6262 and info.auras.healthStoneStacks) or "")
-				icon.icon:SetTexture(iconTexture)
-				icon.iconTexture = iconTexture
-				icon.active = nil
-				icon.tooltipID = nil
-				icon.glowBorder = not extraBarFrame and E.db.highlight.glowBorder and E.db.spellGlow[spellID]
-				icon.Glow:Hide()
-				icon.modRate = info.spellModRates[spellID] or 1
-
-				self:HideOverlayGlow(icon)
-
-				local active = info.active[spellID]
-				if active and active.startTime then
-					if icon.maxcharges then
-						active.charges = active.charges or (icon.maxcharges - 1)
-						icon.count:SetText(active.charges)
-					else
-						active.charges = nil
-					end
-
-					self:HighlightIcon(icon, true)
-
-					icon.cooldown:SetCooldown(active.startTime, active.duration, active.modRate)
-					icon.active = active.charges or 0
-				else
-					icon.cooldown:Clear()
-				end
-
-				if info.preactiveIcons[spellID] then
-					info.preactiveIcons[spellID] = icon
-					self:HighlightIcon(icon, true)
-				end
-
-
-				if extraBarFrame then
-					local statusBar = icon.statusBar
-					if statusBar then
-						if not extraBarFrame.shouldShowProgressBar then
-							self:RemoveStatusBar(statusBar)
-							icon.statusBar = nil
+					local icon
+					if extraBarFrame then
+						extraBarFrame.numIcons = extraBarFrame.numIcons + 1
+						if ( extraBarFrame.db.unitBar ) then
+							local container = frame.exContainers[enabledSpell]
+							icon = GetIcon(extraBarFrame, extraBarFrame.numIcons, container)
+							container.icons[#container.icons + 1] = icon
+						else
+							icon = GetIcon(extraBarFrame, extraBarFrame.numIcons)
 						end
 					else
-						if extraBarFrame.shouldShowProgressBar then
-							self:GetStatusBar(icon, extraBarKey)
+						iconIndex = iconIndex + 1
+						icon = frame.icons[iconIndex] or GetIcon(frame, iconIndex)
+					end
+
+					icon.name:Hide()
+					icon.guid = guid
+					icon.spellID = spellID
+					icon.class = class
+					icon.unit = unit
+					icon.unitName = name
+
+					icon.type = spellType
+					icon.priority = E.db.spellPriority[spellID] or E.db.priority[spellType]
+					icon.category = cat
+					icon.isBookType = (E.BOOKTYPE_CATEGORY[cat] or cat == "COVENANT") and not twwHeroTalents[spellID]
+					icon.buff = buffID
+					icon.duration = cd and cd < 1 and 1 or cd
+					icon.baseCooldown = baseCooldown
+					icon.maxcharges = ch
+					icon.count:SetText(ch or (spellID == 323436 and info.auras.purifySoulStacks) or (spellID == 6262 and info.auras.healthStoneStacks) or "")
+					local iconFix = iconTextureFix[spellID]
+					if iconFix then
+						iconTexture = GetOverrideTexture(info, iconFix)
+					end
+					icon.icon:SetTexture(iconTexture)
+					icon.iconTexture = iconTexture
+					icon.active = nil
+					icon.tooltipID = nil
+					icon.glowBorder = not extraBarFrame and E.db.highlight.glowBorder and E.db.spellGlow[spellID]
+					icon.Glow:Hide()
+					icon.modRate = info.spellModRates[spellID] or 1
+
+					self:HideOverlayGlow(icon)
+
+					local active = info.active[spellID]
+					if active and active.startTime then
+						if icon.maxcharges then
+							active.charges = active.charges or (icon.maxcharges - 1)
+							icon.count:SetText(active.charges)
+						else
+							active.charges = nil
+						end
+
+						self:HighlightIcon(icon, true)
+
+						icon.cooldown:SetCooldown(active.startTime, active.duration, active.modRate)
+						icon.active = active.charges or 0
+					else
+						icon.cooldown:Clear()
+					end
+
+					if info.preactiveIcons[spellID] then
+						info.preactiveIcons[spellID] = icon
+						self:HighlightIcon(icon, true)
+					end
+
+
+					if extraBarFrame then
+						local statusBar = icon.statusBar
+						if statusBar then
+							if not extraBarFrame.shouldShowProgressBar then
+								self:RemoveStatusBar(statusBar)
+								icon.statusBar = nil
+							end
+						else
+							if extraBarFrame.shouldShowProgressBar then
+								self:GetStatusBar(icon, extraBarKey)
+							end
 						end
 					end
-				end
 
-				info.spellIcons[spellID] = icon
+					info.spellIcons[spellID] = icon
+				end
 			end
 		end
 	end

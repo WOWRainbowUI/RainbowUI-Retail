@@ -13,6 +13,7 @@ function P:Enable()
 	end
 	self:RegisterEvent('UI_SCALE_CHANGED')
 	self:RegisterEvent('PLAYER_ENTERING_WORLD')
+	self:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	self:RegisterEvent('GROUP_ROSTER_UPDATE')
 	self:RegisterEvent('GROUP_JOINED')
 	self:RegisterEvent('PLAYER_REGEN_ENABLED')
@@ -72,7 +73,15 @@ function P:ResetModule(isModuleDisabled)
 	CM:Disable()
 	CD:Disable()
 
-	wipe(self.groupInfo)
+
+	for guid, info in pairs(self.groupInfo) do
+		for _, timer in pairs(info.callbackTimers) do
+			if type(timer) == "userdata" then
+				timer:Cancel()
+			end
+		end
+		self.groupInfo[guid] = nil
+	end
 	wipe(self.userInfo.sessionItemData)
 
 	self.disabled = true
@@ -259,14 +268,10 @@ function P:GetEffectiveNumGroupMembers()
 	return size == 0 and self.isInTestMode and 1 or size
 end
 
-function P:GetValueByType(v, guid, item2)
+function P:GetValueByType(v, spec)
 	if v then
 		if type(v) == "table" then
-			if item2 then
-				return self.groupInfo[guid].itemData[item2] and v[item2] or v.default
-			end
-			local info = self.groupInfo[guid]
-			return v[info.spec] or v.default
+			return v[spec] or v.default
 		else
 			return v
 		end
@@ -316,21 +321,18 @@ function P:IsSpecAndTalentForPvpStatus(talentID, info)
 	end
 end
 
-function P:IsSpecOrTalentForPvpStatus(talentID, info, isLearnedLevel, talentDisabledSpec)
+function P:IsSpecOrTalentForPvpStatus(talentID, info, isLearnedLevel)
 	if not talentID then
 		return isLearnedLevel
 	end
 	if type(talentID) == "table" then
 		for _, id in ipairs(talentID) do
-			local talent = P:IsSpecOrTalentForPvpStatus(id, info, isLearnedLevel, talentDisabledSpec)
+			local talent = P:IsSpecOrTalentForPvpStatus(id, info, isLearnedLevel)
 			if talent then return talent end
 		end
 	else
 		if specIDs[talentID] then
 			return isLearnedLevel and info.spec == talentID
-		end
-		if talentDisabledSpec and talentDisabledSpec[self.zone] then
-			return
 		end
 		if covenantIDs[talentID] and not self.isInShadowlands then
 			return

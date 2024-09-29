@@ -41,59 +41,61 @@ local PARTY_UNIT = {
 	"party1", "party2", "party3", "party4", "player"
 }
 
-local INSTANCETYPE_EVENTS = E.preMoP and {
-	arena = {
-
-		'UPDATE_UI_WIDGET',
-	},
-	pvp = {
-		'CHAT_MSG_BG_SYSTEM_NEUTRAL',
-
-		'UPDATE_UI_WIDGET',
-	}
-} or {
+local INSTANCETYPE_EVENTS = {
 	party = {
-		'CHALLENGE_MODE_START',
+		'CHALLENGE_MODE_START'
 	},
 	raid  = {
-		'ENCOUNTER_END',
+		'ENCOUNTER_END'
 	},
 	none = {
-		'PLAYER_FLAGS_CHANGED',
+		'PLAYER_FLAGS_CHANGED'
 	},
 	arena = {
-
-		'UPDATE_UI_WIDGET',
+		'UPDATE_UI_WIDGET'
 	},
 	pvp = {
 		'CHAT_MSG_BG_SYSTEM_NEUTRAL',
-		'UPDATE_UI_WIDGET',
-
+		'UPDATE_UI_WIDGET'
 	}
 }
-if (E.isWOTLKC or E.isCata) then
-	INSTANCETYPE_EVENTS.raid = { 'ENCOUNTER_END' }
+if E.preMoP then
+	if E.preWOTLKC then
+		INSTANCETYPE_EVENTS.raid = nil
+	end
+	INSTANCETYPE_EVENTS.party = nil
+	INSTANCETYPE_EVENTS.none = nil
 end
 
 function P:UnregisterZoneEvents()
-	local registeredZoneEvents = self.currentZoneEvents
-	if registeredZoneEvents then
-		for _, event in ipairs(registeredZoneEvents) do
+	if self.currentZoneEvents then
+		for _, event in ipairs(self.currentZoneEvents) do
 			self:UnregisterEvent(event)
 		end
+		self.currentZoneEvents = nil
 	end
-	self.currentZoneEvents = nil
 end
 
-function P:RegisterZoneEvents(currentZoneEvents)
+function P:RegisterZoneEvents()
 	self:UnregisterZoneEvents()
-	currentZoneEvents = currentZoneEvents or INSTANCETYPE_EVENTS[self.zone]
+
+	local currentZoneEvents = INSTANCETYPE_EVENTS[self.zone]
 	if currentZoneEvents then
 		for _, event in ipairs(currentZoneEvents) do
 			self:RegisterEvent(event)
 		end
+		self.currentZoneEvents = currentZoneEvents
 	end
-	self.currentZoneEvents = currentZoneEvents
+
+	if E.isTWW then
+		if self.zone == "scenario" then
+			self:UnregisterEvent('GROUP_ROSTER_UPDATE')
+			self:RegisterEvent('INSTANCE_GROUP_SIZE_CHANGED')
+		else
+			self:UnregisterEvent('INSTANCE_GROUP_SIZE_CHANGED')
+			self:RegisterEvent('GROUP_ROSTER_UPDATE')
+		end
+	end
 end
 
 local function IsInShadowlands()
@@ -274,9 +276,17 @@ local function UpdateRosterInfo(force, clearSession)
 			local level = UnitLevel(unit)
 			level = level > 0 and level or 200
 			info = {
-				guid = guid, class = class, raceID = race, name = name, level = level,
-				index = index, unit = unit, petGUID = pet,
-				isDead = isDead, isDeadOrOffline = isDeadOrOffline, isAdminObsForMDI = isAdminObsForMDI,
+				guid = guid,
+				class = class,
+				raceID = race,
+				name = name,
+				level = level,
+				index = index,
+				unit = unit,
+				petGUID = pet,
+				isDead = isDead,
+				isDeadOrOffline = isDeadOrOffline,
+				isAdminObsForMDI = isAdminObsForMDI,
 				preactiveIcons = {},
 				spellIcons = {},
 				glowIcons = {},
@@ -403,7 +413,6 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 
 	CD:UpdateCombatLogVar()
 	wipe(CD.diedHostileGUIDS)
-	wipe(CD.dispelledHostileGUIDS)
 
 	E:SetActiveUnitFrameData()
 	self:UpdateEnabledSpells()
@@ -438,6 +447,10 @@ function P:PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, isRefresh)
 
 	self:GROUP_ROSTER_UPDATE(true, isRefresh)
 end
+
+
+P.ZONE_CHANGED_NEW_AREA = P.PLAYER_ENTERING_WORLD
+P.INSTANCE_GROUP_SIZE_CHANGED = P.GROUP_ROSTER_UPDATE
 
 function P:CHAT_MSG_BG_SYSTEM_NEUTRAL(arg1)
 	if self.disabled then return end

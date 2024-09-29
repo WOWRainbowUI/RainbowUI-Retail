@@ -53,7 +53,10 @@ end
 
 function P:FindRelativeFrame(guid)
 	if E.customUF.active then
-		if E.db.position.uf ~= "auto" then
+		if E.db.position.uf == "HealBot" then
+			local f = HealBot_Panel_RaidButton(guid)
+			return f and f.gref.Back
+		elseif E.db.position.uf ~= "auto" then
 			local frames, unitKey = E.customUF.frames, E.customUF.unit
 			local n = #frames
 			for i = 1, n do
@@ -66,15 +69,23 @@ function P:FindRelativeFrame(guid)
 			end
 			return
 		end
-		for _, data in pairs(E.customUF.enabledList) do
-			local frames, unitKey = data.frames, data.unit
-			local n = #frames
-			for i = 1, n do
-				local name = frames[i]
-				local f = _G[name]
-				local unit = f and (f[unitKey] or f:GetAttribute("unit"))
-				if E.UNIT_TO_PET[unit] and UnitGUID(unit) == guid and f:IsVisible() then
+		for addon, data in pairs(E.customUF.enabledList) do
+			if addon == "HealBot" then
+				local f = HealBot_Panel_RaidButton(guid)
+				f = f and f.gref.Back
+				if f and f:IsVisible() then
 					return f
+				end
+			else
+				local frames, unitKey = data.frames, data.unit
+				local n = #frames
+				for i = 1, n do
+					local name = frames[i]
+					local f = _G[name]
+					local unit = f and (f[unitKey] or f:GetAttribute("unit"))
+					if E.UNIT_TO_PET[unit] and UnitGUID(unit) == guid and f:IsVisible() then
+						return f
+					end
 				end
 			end
 		end

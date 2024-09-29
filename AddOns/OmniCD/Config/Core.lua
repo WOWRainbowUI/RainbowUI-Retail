@@ -281,6 +281,14 @@ local function GetOptions()
 									dialogControl = "Link-OmniCD",
 									get = function() return "https://www.curseforge.com/wow/addons/omnicd-battleres" end,
 								},
+
+
+
+
+
+
+
+
 							}
 						} or nil,
 						otherAddOns = E.isDF and {
