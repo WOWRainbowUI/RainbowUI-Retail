@@ -4,7 +4,7 @@
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: MysticalOS, Domekologe
-## Version: 1.4.42
+## Version: 1.4.43
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## X-DBM-CountPack: 1
 ## X-DBM-CountPack-GlobalName: DBMCPOverwatch
