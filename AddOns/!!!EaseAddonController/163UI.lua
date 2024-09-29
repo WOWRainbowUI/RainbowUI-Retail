@@ -1186,7 +1186,7 @@ end
 do
     local gotOptionCategory = {}
     local funcOpenCategory = function(cfg, v, loading)
-        local func = CoreIOF_OTC or InterfaceOptionsFrame_OpenToCategory
+        local func = CoreIOF_OTC or Settings.OpenToCategory
         func(gotOptionCategory[cfg._path])
         if not SettingsPanel.CategoryList:IsVisible() then -- 10.0 fix
             func(gotOptionCategory[cfg._path])
