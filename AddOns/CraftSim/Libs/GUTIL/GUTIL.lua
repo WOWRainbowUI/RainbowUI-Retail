@@ -549,7 +549,8 @@ function GUTIL:GetItemLocationFromItemID(itemID, includeBank)
             end
         end
         if includeBank then
-            for bag = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
+            -- +6 to include warbank
+            for bag = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS + 6 do
                 for slot = 1, C_Container.GetContainerNumSlots(bag) do
                     local slotItemID = C_Container.GetContainerItemID(bag, slot)
                     if slotItemID == itemID then
@@ -928,6 +929,7 @@ function GUTIL:OrderedPairs(t, compFunc)
     return GUTIL.OrderedNext, keys
 end
 
+---@deprecated use FrameDistributor
 --- spreads the iteration (unsorted random) of a given function over multiple frames (one frame per iteration) to reduce game lag for heavy processing.
 --- Use the finallyCallback to continue after the iteration ends
 ---@async
@@ -1100,4 +1102,81 @@ function GUTIL:TooltipAddDoubleLineWithID(options)
             return lineLeft, lineRight
         end
     end
+end
+
+--- GUTIL.FrameDistributor
+
+---@class GUTIL.FrameDistributor
+---@overload fun(options:GUTIL.FrameDistributor.ConstructorOptions): GUTIL.FrameDistributor
+GUTIL.FrameDistributor = GUTIL.Object:extend()
+
+---@class GUTIL.FrameDistributor.ConstructorOptions
+---@field iterationsPerFrame number? default: 1
+---@field maxIterations number?
+---@field iterationTable table? if null iterates til maxIterations or cancelled
+---@field continue fun(frameDistributor: GUTIL.FrameDistributor, key: any?, value: any?, currentIteration: number, progress: number) called each iteration, has to call Continue
+---@field cancel? fun(): boolean -- used to check for cancel between iterations
+---@field finally? fun()  -- ran when finished and on cancel
+
+---@param options GUTIL.FrameDistributor.ConstructorOptions
+function GUTIL.FrameDistributor:new(options)
+    self.iterationsPerFrame = options.iterationsPerFrame or 1
+    self.maxIterations = options.maxIterations
+
+    self.currentIteration = 0
+    self.iterationTable = options.iterationTable
+    self.tableSize = GUTIL:Count(self.iterationTable or {})
+    if self.iterationTable then
+        self.iterationProgressStep = (self.tableSize / 100)
+    else
+        self.iterationProgressStep = 1
+    end
+    self.continue = options.continue or function() end
+    self.cancel = options.cancel or function() return false end
+    self.finally = options.finally or function() end
+    self.currentIterationKey = nil
+    self.breakActive = false
+end
+
+function GUTIL.FrameDistributor:Continue()
+    self.currentIteration = self.currentIteration + 1
+
+    if self.maxIterations then
+        if self.currentIteration >= self.maxIterations then
+            self.finally()
+            return
+        end
+    end
+
+    local runInFrame = self.iterationsPerFrame <= 0 or (mod(self.currentIteration, self.iterationsPerFrame) > 0)
+
+    if self.cancel() then
+        self.finally()
+        return
+    end
+    local key, value
+    if self.iterationTable then
+        key, value = next(self.iterationTable, self.currentIterationKey)
+        self.currentIterationKey = key
+    end
+
+    local currentProgress = self.currentIteration / self.iterationProgressStep
+
+    if self.iterationTable and not key then
+        self.finally()
+        return
+    end
+
+    if runInFrame then
+        self.continue(self, key, value, self.currentIteration, currentProgress)
+    else
+        RunNextFrame(function()
+            self.continue(self, key, value, self.currentIteration, currentProgress)
+        end)
+    end
+end
+
+--- Stops iteration and calls finally callback
+function GUTIL.FrameDistributor:Break()
+    self.finally()
 end
