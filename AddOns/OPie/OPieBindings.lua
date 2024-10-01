@@ -27,7 +27,10 @@ local bindLines, bindLines2, bindZone, bindZoneOrigin = {}, {}, CreateFrame("Fra
 		local bind2 = config.createBindingButton(bindZone, 170)
 		bind2:SetPoint("LEFT", bind, "RIGHT", 4, 0)
 		local label = bind:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		label:SetPoint("TOPLEFT", bindZoneOrigin, 5, 18-24*i)
+		label:SetPoint("LEFT", bind, -215, -1.25)
+		label:SetWidth(200)
+		label:SetMaxLines(1)
+		label:SetJustifyH("LEFT")
 		bind.warn = bind:CreateTexture(nil, "ARTWORK")
 		bind.warn:SetTexture("Interface/EncounterJournal/UI-EJ-WarningTextIcon")
 		bind.warn:SetSize(14, 14)
@@ -43,8 +46,9 @@ local bindZoneBar = XU:Create("ScrollBar", nil, frame)
 	bindZoneBar:SetPoint("TOPLEFT", bindZone, "TOPRIGHT", 1, 14)
 	bindZoneBar:SetPoint("BOTTOMLEFT", bindZone, "BOTTOMRIGHT", 1, -10)
 	bindZoneBar:SetWindowRange(#bindLines-1)
-	bindZoneBar:SetStepsPerPage(#bindLines-5)
+	bindZoneBar:SetStepsPerPage(#bindLines-5, 6)
 	bindZoneBar:SetCoverTarget(bindZone)
+	bindZoneBar:SetWheelScrollTarget(bindZone)
 
 local ringBindings = {map={}, name=L"Ring Bindings"}
 function ringBindings:refresh()
@@ -227,7 +231,7 @@ local currentOwner, bindingTypes = ringBindings, {ringBindings, subBindings}
 local function updatePanelContent()
 	local m = currentOwner.count
 	bindZoneBar:SetShown(m >= #bindLines)
-	bindZoneBar:SetMinMaxValues(0, m > #bindLines and m - #bindLines + 1 or 1)
+	bindZoneBar:SetMinMaxValues(0, m >= #bindLines and m - #bindLines + 1 or 0)
 	local csv = bindZoneBar:GetValue()
 	local csPartial = csv % 1
 	local csBase = csv - csPartial
@@ -259,10 +263,6 @@ function bindZone.SetBinding(buttonOrId, binding)
 	currentOwner:set(id, binding, bidx)
 	updatePanelContent()
 end
-bindZone:SetScript("OnMouseWheel", function(_, delta)
-	bindZoneBar:Step(-delta*6, true)
-	updatePanelContent()
-end)
 bindZoneBar:SetScript("OnValueChanged", function(_, _, userEvent)
 	if userEvent then
 		updatePanelContent()

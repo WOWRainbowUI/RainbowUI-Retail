@@ -303,8 +303,8 @@ do -- config.bind
 		local fs = btn:GetFontString()
 		fs:SetMaxLines(1)
 		fs:ClearAllPoints()
-		fs:SetPoint("LEFT", 5, 0)
-		fs:SetPoint("RIGHT", 5, 0)
+		fs:SetPoint("LEFT", 5, -0.75)
+		fs:SetPoint("RIGHT", 5, -0.75)
 		fs:SetJustifyH("CENTER")
 		btn.IsCapturingBinding, btn.SetBindingText, btn.ToggleAlternateEditor =
 			IsCapturingBinding, SetBindingText, ToggleAlternateEditor
@@ -404,6 +404,7 @@ local OPC_Options = {
 	{ "section", caption=L"Behavior" },
 		{"bool", "UseDefaultBindings", caption=L"Use default ring bindings"},
 		{"bool", "HideStanceBar", caption=L"Hide stance bar", globalOnly=true},
+		{"bool", "PerCharRotationStore", caption=L"Per-character ring rotations", globalOnly=true},
 		{"range", "RingScale", 0.1, 2, caption=L"Ring scale", valueFormat="%0.1f"},
 	{ "section", tag="_Appearance", caption=L"Appearance" },
 		{"bool", "GhostMIRings", caption=L"Nested rings"},
@@ -1110,7 +1111,7 @@ function frame.refresh()
 			OPC_UpdateControlReqs(control)
 		end
 		if control.globalOnly then
-			widget:SetShown(isViewOfGlobalDomain)
+			widget:SetEnabled(isViewOfGlobalDomain)
 		end
 	end
 	OPC_BlockInput = false

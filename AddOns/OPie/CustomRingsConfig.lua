@@ -1,9 +1,9 @@
 local COMPAT, api, _, T = select(4,GetBuildInfo()), {}, ...
-local PC, RK, ORI, config = T.OPieCore, T.RingKeeper, OPie.UI, T.config
-local L, MODERN = T.L, COMPAT >= 8e4
-local AB = assert(T.ActionBook:compatible(2,23), "A compatible version of ActionBook is required")
-local EV, TS, XU = T.Evie, T.TenSettings, T.exUI
+local PC, RK, ORI, L, config = T.OPieCore, T.RingKeeper, OPie.UI, T.L, T.config
+local MODERN = COMPAT >= 11e4
+local AB, EV, TS, XU = T.ActionBook:compatible(2,23), T.Evie, T.TenSettings, T.exUI
 local GameTooltip = T.NotGameTooltip or GameTooltip
+assert(PC and RK and ORI and AB and EV and TS and XU and L and 1, 'Incompatible library bundle')
 
 local FULLNAME, SHORTNAME do
 	function EV.PLAYER_LOGIN()
@@ -569,7 +569,7 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		UIDropDownMenu_SetWidth(s, 250)
 		oy = oy + 31
 		s.label = s:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		s.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -47)
+		s.label:SetPoint("BOTTOMLEFT", sliceDetail, "TOPLEFT", 10, 9-oy)
 		s.label:SetText(L"Show this slice for:")
 	end
 	sliceDetail.showConditional = XU:Create("LineInput", nil, sliceDetail) do
@@ -578,7 +578,7 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		c:SetPoint("TOPLEFT", 274, -oy)
 		oy = oy + 23
 		c.label = c:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		c.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -73)
+		c.label:SetPoint("BOTTOMLEFT", sliceDetail, "TOPLEFT", 10, 6-oy)
 		c.label:SetText(L"Visibility conditional:")
 		prepEditBox(c, function(self) api.setSliceProperty("show", self:GetText()) end)
 		c:SetScript("OnEnter", function(self)
@@ -591,6 +591,19 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 			GameTooltip:Show()
 		end)
 		c:SetScript("OnLeave", config.ui.HideTooltip)
+	end
+	sliceDetail.shortLabel = XU:Create("LineInput", nil, sliceDetail) do
+		local c = sliceDetail.shortLabel
+		c:SetWidth(85)
+		c:SetPoint("TOPLEFT", 274, -oy)
+		oy = oy + 23
+		c.label = c:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+		c.label:SetPoint("BOTTOMLEFT", sliceDetail, "TOPLEFT", 10, 6-oy)
+		c.label:SetText(L"Override label:")
+		prepEditBox(c, function(self)
+			local tx = self:GetText()
+			api.setSliceProperty("label", tx ~= "" and tx or nil)
+		end)
 	end
 	sliceDetail.color = XU:Create("LineInput", nil, sliceDetail) do
 		local c = sliceDetail.color
@@ -610,7 +623,7 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 			end
 		end)
 		c.label = c:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		c.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -96)
+		c.label:SetPoint("BOTTOMLEFT", sliceDetail, "TOPLEFT", 10, 6-oy)
 		c.label:SetText(L"Color:")
 		c.placeholder = c:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		c.placeholder:SetPoint("LEFT", 18, 0)
@@ -671,7 +684,7 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		f:SetText(" ") f:GetFontString():ClearAllPoints() f:GetFontString():SetPoint("LEFT", f, "RIGHT", 4, 0)
 		f.icon = f:CreateTexture() f.icon:SetAllPoints()
 		f.label = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		f.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -119)
+		f.label:SetPoint("BOTTOMLEFT", sliceDetail, "TOPLEFT", 10, 6-oy)
 		f.label:SetText(L"Icon:")
 		
 		local isd = XU:Create("IconSelector", nil, sliceDetail)
@@ -715,14 +728,14 @@ sliceDetail = CreateFrame("Frame", nil, ringContainer) do
 		local e = sliceDetail.fastClick
 		e:SetHitRectInsets(0, -200, 4, 4) e:SetMotionScriptsWhileDisabled(1)
 		e:SetPoint("TOPLEFT", 266, -oy)
+		oy = oy + 23
 		e:SetScript("OnClick", function(self) PlayCheckboxSound(self) return api.setSliceProperty("fastClick", self:GetChecked() and true or nil) end)
 		e:SetScript("OnEnter", config.ui.ShowControlTooltip)
 		e:SetScript("OnLeave", config.ui.HideTooltip)
 		e.Text:SetText(L"Allow as quick action")
 		e.label = sliceDetail:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		e.label:SetPoint("TOPLEFT", sliceDetail, "TOPLEFT", 10, -142)
+		e.label:SetPoint("BOTTOMLEFT", sliceDetail, "TOPLEFT", 10, 6-oy)
 		e.label:SetText(L"Options:")
-		oy = oy + 21
 	end
 	sliceDetail.collectionDrop = CreateFrame("Frame", "RKC_SliceOptions_Collection", sliceDetail, "UIDropDownMenuTemplate") do
 		local w = sliceDetail.collectionDrop
@@ -1576,6 +1589,7 @@ function api.updateSliceDisplay(_id, desc)
 	sliceDetail.color:SetColor(getSliceColor(desc, sicon))
 	sliceDetail.skipSpecs:SetValue(skipSpecs)
 	sliceDetail.showConditional:SetText(showConditional or desc.show or "")
+	sliceDetail.shortLabel:SetText(desc.label or "")
 	api.updateSliceOptions(desc)
 	editorHost:SetAction(desc)
 	local canRestore, hasRestore = RK:CanRestoreSlice(currentRingName, desc)

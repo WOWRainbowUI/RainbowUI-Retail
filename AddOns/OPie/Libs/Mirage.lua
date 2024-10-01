@@ -1,6 +1,6 @@
 local COMPAT, _, T = select(4, GetBuildInfo()), ...
 if T.TenEnv then T.TenEnv() end
-local FRAME_BUFFER_OK = COMPAT <= 11e4
+local FRAME_BUFFER_OK = COMPAT == 40400
 
 local gx do
 	local b = ([[Interface\AddOns\%s\gfx\]]):format((...))

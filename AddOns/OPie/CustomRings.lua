@@ -1,4 +1,4 @@
-local MAJ, REV, _, T = 3, 60, ...
+local MAJ, REV, _, T = 3, 61, ...
 local EV, ORI, PC = T.Evie, OPie.UI, T.OPieCore
 local AB, RW, IM = T.ActionBook:compatible(2,37), T.ActionBook:compatible("Rewire", 1,10), T.ActionBook:compatible("Imp", 1, 0)
 assert(ORI and AB and RW and IM and EV and PC and 1, "Missing required libraries")
@@ -295,10 +295,12 @@ local function RK_SyncRing(name, force, tok)
 			action = AB:GetActionSlot(e)
 		end
 		pmode = action and ((rotationPresentationModes[e.rotationMode] or 4) + (e.fastClick and 0 or 2)) or nil
-		changed = changed or (action ~= e._action) or (pmode ~= e._pmode) or (action and (e.show ~= e._show) or (e.embed ~= e._embed))
+		changed = changed or (action ~= e._action) or action and (e.show ~= e._show or e.embed ~= e._embed or pmode ~= e._pmode)
 		e._action, e._pmode = action, pmode
 		if i == onOpenSlice then
 			onOpenAction, onOpenToken = e._action, e.sliceToken
+		elseif action then
+			ORI:SetDisplayOptions(e.sliceToken, e.icon, e.label, e._r, e._g, e._b)
 		end
 	end
 	changed = changed or (desc._embed ~= desc.embed) or (desc._onOpen ~= onOpenAction) or (desc._onOpenToken ~= onOpenToken)
@@ -313,7 +315,6 @@ local function RK_SyncRing(name, force, tok)
 			collection['__visibility-' .. e.sliceToken], e._show = e.show or nil, e.show
 			collection['__embed-' .. e.sliceToken], e._embed = e.embed, e.embed
 			collection['__pmode-' .. e.sliceToken] = e._pmode
-			ORI:SetDisplayOptions(e.sliceToken, e.icon, nil, e._r, e._g, e._b)
 		end
 	end
 	collection['__embed'], desc._embed = desc.embed, desc.embed

@@ -63,14 +63,6 @@ env.GetSpellTexture = C_Spell.GetSpellTexture
 env.DoesSpellExist = C_Spell.DoesSpellExist
 env.GetSpellLink = C_Spell.GetSpellLink
 
-env.C_Minimap = {}
-function env.C_Minimap.GetTrackingInfo(idx)
-	local ti = C_Minimap.GetTrackingInfo(idx)
-	if ti then
-		return ti.name, ti.texture, ti.active, ti.type, ti.subType, ti.spellID
-	end
-end
-
 function env.GetStablePetInfo(idx)
 	local si = C_StableInfo.GetStablePetInfo(idx)
 	if si then
@@ -85,7 +77,6 @@ local function proxyFor(p, t)
 end
 env._G = env
 proxyFor(env, _G)
-proxyFor(env.C_Minimap, C_Minimap)
 
 function T.TenEnv()
 	setfenv(2, env)
