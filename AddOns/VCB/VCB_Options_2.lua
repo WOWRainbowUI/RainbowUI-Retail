@@ -561,10 +561,10 @@ vcbOptions2:HookScript("OnShow", function(self)
 	if vcbOptions1:IsShown() then vcbOptions1:Hide() end
 	if vcbOptions3:IsShown() then vcbOptions3:Hide() end
 	if vcbOptions4:IsShown() then vcbOptions4:Hide() end
-	vcbOptions00Tab1.Text:SetTextColor(vcbDeafultColor:GetRGB())
+	vcbOptions00Tab1.Text:SetTextColor(vcbMainColor:GetRGB())
 	vcbOptions00Tab2.Text:SetTextColor(vcbHighColor:GetRGB())
-	vcbOptions00Tab3.Text:SetTextColor(vcbDeafultColor:GetRGB())
-	vcbOptions00Tab4.Text:SetTextColor(vcbDeafultColor:GetRGB())
+	vcbOptions00Tab3.Text:SetTextColor(vcbMainColor:GetRGB())
+	vcbOptions00Tab4.Text:SetTextColor(vcbMainColor:GetRGB())
 end)
 -- Hiding the panel --
 vcbOptions2:SetScript("OnHide", function(self)

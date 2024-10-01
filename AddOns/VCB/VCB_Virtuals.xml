@@ -1,8 +1,160 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 	<Script file="VCB_Virtuals.lua"/>
+<!-- Normal Shadow 13 -->
+	<FontFamily name="vcb_NormalShadowFonts_13" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Fonts\FRIZQT__.TTF" height="13" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Fonts\2002.ttf" height="14" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Fonts\ARKai_T.ttf" height="13" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Fonts\blei00d.TTF" height="13" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Fonts\FRIZQT___CYR.TTF" height="13" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+	</FontFamily>
+<!-- Normal Shadow 15 -->
+	<FontFamily name="vcb_NormalShadowFonts_15" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Fonts\FRIZQT__.TTF" height="15" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Fonts\2002.ttf" height="16" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Fonts\ARKai_T.ttf" height="15" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Fonts\blei00d.TTF" height="15" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Fonts\FRIZQT___CYR.TTF" height="15" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+	</FontFamily>
+<!-- Funky Shadow 18 -->
+	<FontFamily name="vcb_FunkyShadowFonts_18" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Fonts\skurri.ttf" height="18" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Fonts\K_Damage.ttf" height="12" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Fonts\ARKai_C.ttf" height="8" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Fonts\bKAI00M.ttf" height="8" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Fonts\SKURRI_CYR.TTF" height="18" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+	</FontFamily>
+<!-- Funky Shadow 22 -->
+	<FontFamily name="vcb_FunkyShadowFonts_22" virtual="true">
+		<Member alphabet="roman">
+			<Font font="Fonts\skurri.ttf" height="22" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="korean">
+			<Font font="Fonts\K_Damage.ttf" height="16" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="simplifiedchinese">
+			<Font font="Fonts\ARKai_C.ttf" height="12" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="traditionalchinese">
+			<Font font="Fonts\bKAI00M.ttf" height="12" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+		<Member alphabet="russian">
+			<Font font="Fonts\SKURRI_CYR.TTF" height="22" outline="NONE">
+				<Shadow x="1" y="-1">
+					<Color r="0" g="0" b="0" a="1"/>
+				</Shadow>
+			</Font>
+		</Member>
+	</FontFamily>
 <!-- Tabs Panel -->
-	<Frame name="vcbTabsPanel" frameStrata="DIALOG" frameLevel="250" enableKeyboard="true" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
+	<Frame name="vcbTabsPanel" frameStrata="DIALOG" frameLevel="0" enableKeyboard="true" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
 		<Size x="488" y="844"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
@@ -16,7 +168,7 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Button parentKey="ExitButton" inherits="InsecureActionButtonTemplate" frameLevel="510">
+			<Button parentKey="ExitButton" registerForClicks="AnyDown, AnyUp" frameLevel="256">
 				<Size x="16" y="16"/>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-4" y="-4"/>
@@ -49,14 +201,14 @@
 		</Scripts>
 	</Frame>
 <!-- Tabs button -->
-	<Button name="vcbTabsButton" inherits="InsecureActionButtonTemplate" frameLevel="500" virtual="true">
+	<Button name="vcbTabsButton" registerForClicks="AnyDown, AnyUp" frameLevel="256" virtual="true">
 		<Size x="128" y="32"/>
-		<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER"/>
+		<ButtonText parentKey="Text" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="CENTER"/>
 		<NormalTexture atlas="common-gray-button-entrybox-center"/>
 		<HighlightTexture atlas="Adventures_MissionList_Highlight" desaturated="true" alphaMode="ADD"/>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString parentKey="CenterTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+				<FontString parentKey="CenterTxt" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="TOP" relativePoint="BOTTOM" x="0" y="-16"/>
 					</Anchors>
@@ -73,7 +225,7 @@
 		</Layers>
 	</Button>
 <!-- Panel Options -->
-	<Frame name="vcbOptionsPanel" inherits="InsetFrameTemplate4" frameStrata="DIALOG" frameLevel="0" enableMouse="true" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="true" virtual="true">
+	<Frame name="vcbOptionsPanel" inherits="InsetFrameTemplate4" frameStrata="DIALOG" frameLevel="0" clampedToScreen="true" hidden="true" virtual="true">
 		<Size x="360" y="844"/>
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-7">
@@ -91,17 +243,10 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<FontString parentKey="TitleTxt" font="Fonts\skurri.TTF" justifyV="MIDDLE" justifyH="CENTER">
+				<FontString parentKey="TitleTxt" font="vcb_FunkyShadowFonts_22" justifyV="MIDDLE" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="TOP" x="0" y="-14"/>
 					</Anchors>
-					<FontHeight val="22"/>
-					<Shadow>
-					  <Offset>
-						<AbsDimension x="2" y="-2"/>
-					  </Offset>
-					  <Color r="0" g="0" b="0"/>
-					</Shadow>
 					<Scripts>
 						<OnLoad>
 							self:SetTextColor(vcbMainColor:GetRGB())
@@ -109,7 +254,7 @@
 						</OnLoad>
 					</Scripts>
 				</FontString>
-				<FontString parentKey="TopTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+				<FontString parentKey="TopTxt" font="vcb_NormalShadowFonts_15" justifyV="MIDDLE" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="TOP" relativeKey="$parent.TitleTxt" relativePoint="BOTTOM" x="0" y="-8"/>
 					</Anchors>
@@ -122,7 +267,7 @@
 						</OnShow>
 					</Scripts>
 				</FontString>
-				<FontString parentKey="CenterTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+				<FontString parentKey="CenterTxt" font="vcb_NormalShadowFonts_15" justifyV="MIDDLE" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="CENTER" relativePoint="CENTER" x="0" y="-12"/>
 					</Anchors>
@@ -135,7 +280,7 @@
 						</OnShow>
 					</Scripts>
 				</FontString>
-				<FontString parentKey="BottomTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+				<FontString parentKey="BottomTxt" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="BOTTOM" relativePoint="BOTTOM" x="0" y="120"/>
 					</Anchors>
@@ -148,7 +293,7 @@
 						</OnShow>
 					</Scripts>
 				</FontString>
-				<FontString parentKey="BottomRightTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="RIGHT">
+				<FontString parentKey="BottomRightTxt" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="RIGHT">
 					<Anchors>
 						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-2" y="4"/>
 					</Anchors>
@@ -162,7 +307,7 @@
 						</OnShow>
 					</Scripts>
 				</FontString>
-				<FontString parentKey="BottomLeftTxt" font="Game13FontShadow" justifyV="MIDDLE" justifyH="LEFT">
+				<FontString parentKey="BottomLeftTxt" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="LEFT">
 					<Anchors>
 						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="4" y="4"/>
 					</Anchors>
@@ -184,37 +329,8 @@
 			</OnShow>
 		</Scripts>
 	</Frame>
-<!-- Button -->
-	<Button name="vcbOptionsButton" inherits="InsecureActionButtonTemplate" frameLevel="500" virtual="true">
-		<Size x="128" y="34"/>
-		<ButtonText parentKey="Text" font="Fonts\skurri.TTF" justifyV="MIDDLE" justifyH="CENTER" outline="NORMAL">
-			<FontHeight val="14"/>
-			<Scripts>
-				<OnLoad>
-					self:SetTextColor(vcbMainColor:GetRGB())
-				</OnLoad>
-			</Scripts>
-		</ButtonText>
-		<NormalTexture atlas="common-button-tertiary-normal-small" >
-			<Scripts>
-				<OnLoad>
-					self:SetVertexColor(vcbMainColor:GetRGB())
-					self:SetDesaturation(1)
-				</OnLoad>
-			</Scripts>
-		</NormalTexture>
-		<PushedTexture atlas="common-button-tertiary-pressed-small" >
-			<Scripts>
-				<OnLoad>
-					self:SetVertexColor(vcbMainColor:GetRGB())
-					self:SetDesaturation(1)
-				</OnLoad>
-			</Scripts>
-		</PushedTexture>
-		<HighlightTexture atlas="common-button-tertiary-hover-small" desaturated="true" alphaMode="ADD"/>
-	</Button>
 <!-- Box Options -->
-	<Frame name="vcbOptionsBox" frameStrata="DIALOG" frameLevel="200" enableMouse="false" movable="true" clampedToScreen="true" dontSavePosition="true" hidden="false" virtual="true">
+	<Frame name="vcbOptionsBox" frameLevel="128" enableMouse="false" clampedToScreen="true" hidden="false" virtual="true">
 		<Layers>
 			<Layer level="BORDER">
 				<Texture parentKey="BorderTop" file="Interface\Common\ThinBorder2-Top">
@@ -243,17 +359,10 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<FontString parentKey="TitleTxt" font="Fonts\skurri.TTF" justifyV="MIDDLE" justifyH="CENTER">
+				<FontString parentKey="TitleTxt" font="vcb_FunkyShadowFonts_18" justifyV="MIDDLE" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="TOP" relativePoint="TOP" x="0" y="-6"/>
 					</Anchors>
-					<FontHeight val="16"/>
-					<Shadow>
-					  <Offset>
-						<AbsDimension x="2" y="-2"/>
-					  </Offset>
-					  <Color r="0" g="0" b="0"/>
-					</Shadow>
 					<Scripts>
 						<OnLoad>
 							self:SetTextColor(vcbHighColor:GetRGB())
@@ -263,10 +372,38 @@
 			</Layer>
 		</Layers>
 	</Frame>
+<!-- Button -->
+	<Button name="vcbOptionsButton" registerForClicks="AnyDown, AnyUp" frameLevel="256" clampedToScreen="true" virtual="true">
+		<Size x="176" y="34"/>
+		<ButtonText parentKey="Text" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="CENTER">
+			<Scripts>
+				<OnLoad>
+					self:SetTextColor(vcbMainColor:GetRGB())
+				</OnLoad>
+			</Scripts>
+		</ButtonText>
+		<NormalTexture atlas="common-button-tertiary-normal-small" >
+			<Scripts>
+				<OnLoad>
+					self:SetVertexColor(vcbMainColor:GetRGB())
+					self:SetDesaturation(1)
+				</OnLoad>
+			</Scripts>
+		</NormalTexture>
+		<PushedTexture atlas="common-button-tertiary-pressed-small" >
+			<Scripts>
+				<OnLoad>
+					self:SetVertexColor(vcbMainColor:GetRGB())
+					self:SetDesaturation(1)
+				</OnLoad>
+			</Scripts>
+		</PushedTexture>
+		<HighlightTexture atlas="common-button-tertiary-hover-small" desaturated="true" alphaMode="ADD"/>
+	</Button>
 <!-- Pop Out -->
-	<Button name="vcbPopOut" frameStrata="DIALOG" frameLevel="525" virtual="true">
+	<Button name="vcbPopOut" frameLevel="256" registerForClicks="AnyDown, AnyUp" clampedToScreen="true" virtual="true">
 		<Size x="176" y="32" />
-		<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER">
+		<ButtonText parentKey="Text" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="CENTER">
 			<Scripts>
 				<OnLoad>
 					self:SetTextColor(vcbMainColor:GetRGB())
@@ -284,12 +421,12 @@
 		<HighlightTexture atlas="charactercreate-customize-dropdownbox-hover" alphaMode="ADD"/>
 		<Frames>
 <!-- Choice 0 -->
-			<Button name="$parentChoice0" inherits="InsecureActionButtonTemplate" hidden="true">
+			<Button name="$parentChoice0" frameLevel="512" registerForClicks="AnyDown, AnyUp" hidden="true">
 				<Anchors>
 					<Anchor point="TOP" relativePoint="BOTTOM" x="0" y="4"/>
 				</Anchors>
 				<Size x="160" y="24"/>
-				<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER"/>
+				<ButtonText parentKey="Text" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="CENTER"/>
 				<NormalTexture atlas="AftLevelup-ToastBG"/>
 				<HighlightTexture atlas="Adventures_MissionList_Highlight" desaturated="true" alphaMode="ADD"/>
 				<Scripts>
@@ -304,14 +441,14 @@
 		</Frames>
 	</Button>
 <!-- Pop Out Button -->
-	<Button name="vcbPopOutButton" frameStrata="DIALOG" frameLevel="750" virtual="true">
+	<Button name="vcbPopOutButton" frameLevel="512" registerForClicks="AnyDown, AnyUp" clampedToScreen="true" virtual="true">
 		<Size x="160" y="24"/>
-		<ButtonText parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="CENTER"/>
+		<ButtonText parentKey="Text" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="CENTER"/>
 		<NormalTexture atlas="AftLevelup-ToastBG"/>
 		<HighlightTexture atlas="Adventures_MissionList_Highlight" desaturated="true" alphaMode="ADD"/>
 	</Button>
 <!-- Edit Box -->
-	<Frame name="vcbEditBox" inherits="GlowBoxTemplate" frameStrata="DIALOG" frameLevel="510" enableMouse="true" clampedToScreen="true" virtual="true">
+	<Frame name="vcbEditBox" inherits="GlowBoxTemplate" frameLevel="128" enableMouse="true" clampedToScreen="true" virtual="true">
 		<Size x="256" y="16"/>
 		<Frames>
 			<EditBox parentKey="WritingLine" inherits="InputBoxScriptTemplate" frameStrata="DIALOG" font="GameFontHighlight" letters="0" blinkSpeed="0.5" numeric="false" alphabeticOnly="false" password="false" multiLine="0" historyLines="0" autoFocus="false" ignoreArrows="false" countInvisibleLetters="false" invisibleBytes="nil">
@@ -342,11 +479,11 @@
 		</Scripts>
 	</Frame>
 <!-- Check Box -->
-	<CheckButton name="vcbCheckButton" inherits="SettingsCheckBoxTemplate" frameLevel="510" virtual="true">
+	<CheckButton name="vcbCheckButton" inherits="SettingsCheckBoxTemplate" frameLevel="256" clampedToScreen="true" virtual="true">
 		<Size x="22" y="22"/>
 		<Layers>
 			<Layer level="ARTWORK">
-				<FontString parentKey="Text" font="Game13FontShadow" justifyV="MIDDLE" justifyH="LEFT" >
+				<FontString parentKey="Text" font="vcb_NormalShadowFonts_13" justifyV="MIDDLE" justifyH="LEFT" >
 					<Anchors>
 						<Anchor point="LEFT" relativePoint="RIGHT" x="0" y="0"/>
 					</Anchors>
@@ -356,7 +493,7 @@
 		<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight.blp" alphaMode="ADD"/>
 	</CheckButton>
 <!-- Slider -->	
-	<Frame name="vcbSlider" inherits="MinimalSliderWithSteppersTemplate" frameLevel="510" virtual="true">
+	<Frame name="vcbSlider" inherits="MinimalSliderWithSteppersTemplate" frameLevel="256" clampedToScreen="true" virtual="true">
 		<Scripts>
 			<OnLoad>
 				CallbackRegistryMixin.OnLoad(self)

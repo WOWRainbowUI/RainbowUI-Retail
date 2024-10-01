@@ -1,8 +1,8 @@
 -- Colors --
 vcbMainColor = CreateColorFromRGBAHexString("F0E68CFF")
 vcbHighColor = CreateColorFromRGBAHexString("9ACD32FF")
-vcbDeafultColor = CreateColorFromRGBAHexString("FFFFFFFF")
-vcbNoColor  = CreateColorFromRGBAHexString("00000000")
+vcbNoMainColor = CreateColorFromRGBAHexString("F0E68C00")
+vcbNoHighColor = CreateColorFromRGBAHexString("9ACD3200")
 -- function for showing the menu --
 function vcbShowMenu()
 	if not vcbOptions00:IsShown() then

@@ -37,7 +37,7 @@ for i = 1, 3, 1 do
 	_G["vcbOptions00Tab"..i].CenterTxt:Hide()
 end
 vcbOptions00Tab4.CenterTxt:SetText("Thank you for using this amazing add-on!|nYou are a |cff00CED1Funky|r and a |cffFF0055Groovy|r person!|nMay the good |cff9400D3Mojo|r be with you!")
-vcbOptions00.BGtexture:SetGradient("VERTICAL", vcbNoColor, vcbMainColor)
+vcbOptions00.BGtexture:SetGradient("VERTICAL", vcbNoMainColor, vcbMainColor)
 vcbOptions00.BGtexture:ClearAllPoints()
 vcbOptions00.BGtexture:SetPoint("TOPRIGHT", vcbOptions00, "TOPRIGHT", 0, 0)
 vcbOptions00.BGtexture:SetPoint("BOTTOMLEFT", vcbOptions00Tab4, "BOTTOMLEFT", 0, -128)
