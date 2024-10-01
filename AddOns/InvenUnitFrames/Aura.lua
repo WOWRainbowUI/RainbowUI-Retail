@@ -177,6 +177,7 @@ end
 
 local function setAura(aura, icon, count, duration, endTime, size, showText, showCdTexture, isPlayer)
 	aura.icon:SetTexture(icon)
+
 	aura.count:SetText(count and count > 1 and count or nil)
 	aura:SetWidth(size)
 	aura:SetHeight(size)
@@ -305,6 +306,7 @@ local function showBuff(object, index, isBig, r, g, b, a)
 	else
 		setAura(object.buff[numBuff], auraIcon, auraCount, auraDuration, auraEnumDebuffTime, object.buff.small, object.buff.cduse, object.buff.cdsmalltexture)
 	end
+
 	object.buff[numBuff].bg:SetTexture(r, g, b, a)
 end
 
@@ -321,7 +323,9 @@ local function showDebuff(object, index, isBig, r, g, b, a)
 	else
 		setAura(object.debuff[numDebuff], auraIcon, auraCount, auraDuration, auraEnumDebuffTime, object.debuff.small, object.debuff.cduse, object.debuff.cdsmalltexture)
 	end
+
 	object.debuff[numDebuff].bg:SetTexture(r, g, b, a)
+
 end
 
 local function auraUpdate(object)
@@ -343,10 +347,12 @@ local function auraUpdate(object)
 					if numBuff < object.buff.num then
 --						auraName, auraIcon, auraCount, auraType, auraDuration, auraEnumDebuffTime, auraCaster, _, _, auraSpellID = C_UnitAuras.GetBuffDataByIndex(object.unit, i)
 
+
+
 aurainfo=C_UnitAuras.GetBuffDataByIndex(object.unit, i)
 auraName = aurainfo and aurainfo.name or nil
 auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
+auraCount  = aurainfo and aurainfo.applications or 0
 auraType  = aurainfo and aurainfo.dispelName or nil
 auraDuration  = aurainfo and aurainfo.duration or nil
 auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
@@ -386,7 +392,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 aurainfo=C_UnitAuras.GetBuffDataByIndex(object.unit, i)
 auraName = aurainfo and aurainfo.name or nil
 auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
+auraCount  = aurainfo and aurainfo.applications or 0
 auraType  = aurainfo and aurainfo.dispelName or nil
 auraDuration  = aurainfo and aurainfo.duration or nil
 auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
@@ -420,7 +426,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 aurainfo=C_UnitAuras.GetBuffDataByIndex(object.unit, i)
 auraName = aurainfo and aurainfo.name or nil
 auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
+auraCount  = aurainfo and aurainfo.applications or 0
 auraType  = aurainfo and aurainfo.dispelName or nil
 auraDuration  = aurainfo and aurainfo.duration or nil
 auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
@@ -457,7 +463,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 aurainfo=C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
 auraName = aurainfo and aurainfo.name or nil
 auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
+auraCount  = aurainfo and aurainfo.applications or 0
 auraType  = aurainfo and aurainfo.dispelName or nil
 auraDuration  = aurainfo and aurainfo.duration or nil
 auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
@@ -492,7 +498,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 aurainfo=C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
 auraName = aurainfo and aurainfo.name or nil
 auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
+auraCount  = aurainfo and aurainfo.applications or 0
 auraType  = aurainfo and aurainfo.dispelName or nil
 auraDuration  = aurainfo and aurainfo.duration or nil
 auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
@@ -527,7 +533,7 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 aurainfo=C_UnitAuras.GetDebuffDataByIndex(object.unit, i)
 auraName = aurainfo and aurainfo.name or nil
 auraIcon = aurainfo and aurainfo.icon or nill
-auraCount  = aurainfo and aurainfo.charges or 0
+auraCount  = aurainfo and aurainfo.applications or 0
 auraType  = aurainfo and aurainfo.dispelName or nil
 auraDuration  = aurainfo and aurainfo.duration or nil
 auraEnumDebuffTime  = aurainfo and aurainfo.expirationTime or nil
@@ -583,6 +589,8 @@ auraSpellID = aurainfo and aurainfo.spellId or nil
 	else
 		object.values.dispel = select(5, LRD:Dispel(object.unit))
 	end
+
+
 end
 
 IUF.callbacks.Aura = auraUpdate
