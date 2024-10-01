@@ -126,11 +126,18 @@ local function hideBlizFrames()
 end
 
 local function hideBlizFrames2()
-
 	PlayerFrame:SetAlpha(0)
+	PetFrame:SetAlpha(0)
 	TargetFrame:SetAlpha(0)
-	PartyFrame:SetAlpha(0)
- 
+
+	--adjustment to avoid overlap
+	if not InCombatLockdown() then
+		PetFrame:SetScale(0.00001)
+		PlayerFrame:SetScale(0.00001)
+		TargetFrame:SetScale(0.00001)
+	end
+
+
 
 
 end
