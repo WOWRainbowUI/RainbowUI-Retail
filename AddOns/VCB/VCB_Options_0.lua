@@ -37,7 +37,7 @@ for i = 1, 3, 1 do
 	_G["vcbOptions00Tab"..i].CenterTxt:Hide()
 end
 vcbOptions00Tab4.CenterTxt:SetText("感謝使用這個超棒der插件!|n你是個|cff00CED1時髦|r又|cffFF0055帥氣|r的人!|n願美好的|cff9400D3魔力|r與你同在!")
-vcbOptions00.BGtexture:SetGradient("VERTICAL", vcbNoColor, vcbMainColor)
+vcbOptions00.BGtexture:SetGradient("VERTICAL", vcbNoMainColor, vcbMainColor)
 vcbOptions00.BGtexture:ClearAllPoints()
 vcbOptions00.BGtexture:SetPoint("TOPRIGHT", vcbOptions00, "TOPRIGHT", 0, 0)
 vcbOptions00.BGtexture:SetPoint("BOTTOMLEFT", vcbOptions00Tab4, "BOTTOMLEFT", 0, -128)

@@ -1,20 +1,20 @@
 -- function for the texts --
 local function VCBtexts(var1)
 	var1:SetFontObject("SystemFont_Shadow_Small")
-	var1:SetHeight(TargetFrameSpellBar.Text:GetHeight())
+	var1:SetHeight(FocusFrameSpellBar.Text:GetHeight())
 	var1:Hide()
 end
 -- Name Text --
-local VCBnameText = TargetFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
+local VCBnameText = FocusFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
 VCBtexts(VCBnameText)
 -- Current Time Text --
-local VCBcurrentTimeText = TargetFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
+local VCBcurrentTimeText = FocusFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
 VCBtexts(VCBcurrentTimeText)
 -- Total Time Text --
-local VCBtotalTimeText = TargetFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
+local VCBtotalTimeText = FocusFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
 VCBtexts(VCBtotalTimeText)
 -- Both Time Text --
-local VCBbothTimeText = TargetFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
+local VCBbothTimeText = FocusFrameSpellBar:CreateFontString(nil, "OVERLAY", nil)
 VCBtexts(VCBbothTimeText)
 -- Position of the Name Text --
 local function NameTextPosition(self, var1, var2)
@@ -314,8 +314,6 @@ local function CastBarColor(self)
 end
 -- Hooking Time part 1 --
 FocusFrameSpellBar:HookScript("OnShow", function(self)
-	self.TextBorder:GetParent():Lower()
-	self.TextBorder:SetDrawLayer("BACKGROUND")
 	NameTextPosition(self, "NameText", VCBnameText)
 	CastingTextPosition(self, "CurrentTimeText", VCBcurrentTimeText)
 	CastingTextPosition(self, "BothTimeText", VCBbothTimeText)
