@@ -17,6 +17,16 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
     local news = {
         f.bb("                   Hello and thank you for using CraftSim!\n"),
         f.bb("                                 ( You are awesome! )"),
+        newP("18.2.4"),
+        f.P .. f.bb("CraftQueue"),
+        f.a .. "- Moved queue button for open recipe to recipe view",
+        f.a .. "- Enabled more" .. f.g(" Queuing Options") .. " on right click",
+        f.P .. f.l("RecipeData Class - API Changes"),
+        f.a .. "- See " .. f.bb("API_README.md"),
+        f.p .. "Specialization Talent Data Updated",
+        f.p .. "Fixed " .. f.bb("CraftQueue") .. " consistency when reloading after login",
+        f.p .. "Locals Update",
+        f.a .. "- " .. f.bb("deDE") .. " by: " .. f.bb("https://github.com/Gogadon"),
         newP("18.2.3"),
         f.P ..
         "Added a " ..

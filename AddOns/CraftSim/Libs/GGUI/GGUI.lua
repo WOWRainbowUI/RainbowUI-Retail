@@ -1705,7 +1705,7 @@ end
 ---@field sizeX? number
 ---@field sizeY? number
 ---@field adjustWidth? boolean
----@field clickCallback? function
+---@field clickCallback? fun(button: GGUI.Button, mouseButton: MouseButton)
 ---@field initialStatusID? string
 ---@field macro? boolean
 ---@field secure? boolean
@@ -1868,9 +1868,11 @@ function GGUI.Button:new(options)
     if not self.macro then
         self.clickCallback = options.clickCallback
 
-        button:SetScript("OnClick", function()
-            if self.clickCallback then
-                self.clickCallback(self)
+        button:RegisterForClicks("AnyUp", "AnyDown")
+
+        button:SetScript("OnClick", function(_, button, down)
+            if down and self.clickCallback then
+                self.clickCallback(self, button)
             end
         end)
     end
