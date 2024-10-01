@@ -1,4 +1,4 @@
-local MAJ, REV, COMPAT, _, T = 1, 10, select(4,GetBuildInfo()), ...
+local MAJ, REV, COMPAT, _, T = 1, 11, select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
@@ -233,13 +233,13 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 			local gmi, gmiex = C_MountJournal.GetMountInfoByID, C_MountJournal.GetMountInfoExtraByID
 			for i=1, #idm do
 				i = idm[i]
-				local _1, sid, _3, active, _5, _6, _7, factionLocked, factionId, hide, have, _12, isDragonriding = gmi(i)
+				local _1, sid, _3, active, _5, _6, _7, factionLocked, factionId, hide, have, _12, _isSteadyFlight = gmi(i)
 				if have and not hide
 				   and (not factionLocked or factionId == myFactionId)
 				   and RW:IsSpellCastable(sid, escapeContext)
 				   then
 					local _, _, _, _, t = gmiex(i)
-					local isTypeMatch = t == mtype or (wantDragonriding and isDragonriding)
+					local isTypeMatch = t == mtype or (wantDragonriding and t == 424)
 					if sid == prefSID or (active and isTypeMatch and prefSID == nil) then
 						return sid
 					elseif isTypeMatch and not skip[sid] then
@@ -256,12 +256,12 @@ local toMacroText, quantizeMacro, formatMacro, formatToken, setMountPreference d
 			if tag == "ground" then
 				gmSid = gmSid and IsKnownSpell(gmSid) or findMount(gmPref or gmSid, 230, ctype)
 				return replaceSpellID(ctype, tostring(gmSid), prefix)
+			elseif tag == "dragon" or MODERN and tag == "air" then
+				drSid = drSid and IsKnownSpell(drSid) or findMount(drPref or drSid, 402, ctype)
+				return replaceSpellID(ctype, tostring(drSid), prefix)
 			elseif tag == "air" then
 				fmSid = fmSid and IsKnownSpell(fmSid) or findMount(fmPref or fmSid, 248, ctype)
 				return replaceSpellID(ctype, tostring(fmSid), prefix)
-			elseif tag == "dragon" then
-				drSid = drSid and IsKnownSpell(drSid) or findMount(drPref or drSid, 402, ctype)
-				return replaceSpellID(ctype, tostring(drSid), prefix)
 			end
 			return nil
 		end

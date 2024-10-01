@@ -1,8 +1,7 @@
-local configCache, _, T = {}, ...
-local PC, EV, api, iapi = T.OPieCore, T.Evie, {}, {}
+local COMPAT, _, T = select(4, GetBuildInfo()), ...
+local PC, EV, api, iapi, configCache = T.OPieCore, T.Evie, {}, {}, {}
 local GameTooltip = T.NotGameTooltip or GameTooltip
 local max, min, abs, floor, sin, cos = math.max, math.min, math.abs, math.floor, sin, cos
-local MODERN = select(4, GetBuildInfo()) > 11e4
 local MIN_ANIMATION_FPS, LOCKED_FRAMERATE = 20, 60 do
 	local ticks = 0
 	local function unlockTick()
@@ -321,7 +320,7 @@ local SwitchIndicatorFactory, ValidateIndicator do
 	end
 end
 
-local tokenR, tokenG, tokenB, tokenIcon, iconIsAtlas, tokenQuest = {}, {}, {}, {}, {}, {}
+local tokenR, tokenG, tokenB, tokenIcon, tokenLabel, iconIsAtlas, tokenQuest = {}, {}, {}, {}, {}, {}, {}
 local qualMap, qualMod, qualModLow = {}, 131072, 16384 do
 	for v=qualModLow, qualMod-1, qualModLow do
 		qualMap[v] = v/qualModLow
@@ -411,7 +410,7 @@ local function updateCentralElements(self, si, _, tok, usable, state, icon, capt
 
 	if configCache.UseGameTooltip then
 		if not (tipFunc and tipArg) then
-			local text = caption and caption ~= "" and caption or stext
+			local text = caption and caption ~= "" and caption or tokenLabel[tok] or stext
 			tipFunc, tipArg = text and GameTooltip.AddLine, text
 		end
 		if tipFunc then
@@ -488,7 +487,7 @@ local function updateSlice(self, originAngle, selected, tok, usable, state, icon
 		self:SetOverlayIconVertexColor(1,1,1)
 	end
 	if ActiveIndicatorFactory.supportsShortLabels then
-		self:SetShortLabel(configCache.ShowShortLabels and stext or "")
+		self:SetShortLabel(configCache.ShowShortLabels and (tokenLabel[tok] or stext) or "")
 	end
 	self:SetQualityOverlay(qual)
 	self:SetCooldown(cd, cd2, usableCharge)
@@ -704,12 +703,13 @@ function iapi:Hide()
 	wipeTokenCache()
 end
 
-function api:SetDisplayOptions(token, icon, _, r,g,b)
+function api:SetDisplayOptions(token, icon, label, r,g,b)
 	if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" then r,g,b = nil end
+	if label == "" or type(label) ~= "string" then label = nil end
 	if iconIsAtlas[icon] or type(icon) == "string" and not GetFileIDFromPath(icon) and C_Texture.GetAtlasInfo(icon) then
 		iconIsAtlas[icon] = true
 	end
-	tokenR[token], tokenG[token], tokenB[token], tokenIcon[token] = r,g,b, icon
+	tokenR[token], tokenG[token], tokenB[token], tokenIcon[token], tokenLabel[token] = r,g,b, icon, label
 end
 function api:SetQuestHint(sliceToken, hint)
 	tokenQuest[sliceToken] = hint or nil
@@ -737,8 +737,10 @@ function api:RegisterIndicatorConstructor(key, info)
 	assert(type(onPAC) == "function" or onPAC == nil, 'RegisterIndicatorConstructor: info.onParentAlphaChanged, if set, must be a function', 2)
 
 	local mainPool, err = ValidateIndicator(apiLevel, reqAPILevel, info)
-	if MODERN and key == "elvui" and not info.fixedFrameBuffering then
-		mainPool, err = nil, 'Disabled to avoid triggering a client crash.'
+	local fbKey = key == "elvui" and COMPAT ~= 40400 and (COMPAT > 11e4 and "fixedFrameBuffering" or COMPAT > 2e4 and "fixedFrameBufferingClassic" or "fixedFrameBufferingEra")
+	if fbKey and not info[fbKey] then
+		-- BUG[2408/11.0.2,1.15.4,4.4.1]: Showing buffered frames while a model frame is visible can crash to desktop with an assertion failure (test builds)/restart the renderer in a loop/crash the client
+		mainPool, err = nil, 'Disabled to avoid triggering a client crash (missing flag: ' .. fbKey .. ').'
 	end
 	LastRegisteredIndicatorFactory, IndicatorFactories[key] = mainPool and key or LastRegisteredIndicatorFactory, {
 		name = iname:gsub("|+", ""),

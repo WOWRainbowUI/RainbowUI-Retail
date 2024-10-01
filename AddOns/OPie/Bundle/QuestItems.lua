@@ -50,6 +50,13 @@ if MODERN then
 			[217011]=have1, [217012]=have1, [217013]=have1, -- (isle of dorn) actor's chest
 			[227792]=have1, -- everyday cache
 			[227713]=have1, -- art consortium payout
+			[226263]=have1, -- theater troupe's trove
+			[226264]=have1, -- radiant cache
+			[228361]=have1, -- seasoned adventurer's cache
+			[226273]=have1, -- awakened mechanical cache
+			[225571]=have1, [225572]=have1, [225573]=have1, -- weaver/general/vizier caches
+			[224784]=have1, -- pinnacle cache
+			[169219]=c1, -- brewfest sampler
 		}
 	end
 	local includeSpell = {
