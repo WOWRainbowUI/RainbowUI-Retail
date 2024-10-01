@@ -108,6 +108,24 @@ GTFO.SpellID["452261"] = {
   sound = 1;
 };
 
+GTFO.SpellID["446843"] = {
+  --desc = "Darkness Outburst (The Oozekhan)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["453876"] = {
+  --desc = "Militant Green (Grand Overspinner Antourix)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+GTFO.SpellID["449770"] = {
+  --desc = "Worm Bile (Magma Serpent)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -226,6 +244,12 @@ GTFO.SpellID["462439"] = {
   sound = 1;
 };
 
+GTFO.SpellID["461825"] = {
+  --desc = "Black Blood (The Coaglamation)";
+  sound = 1;
+};
+
+
 --- *******************
 --- * Darkflame Cleft *
 --- *******************
@@ -327,12 +351,18 @@ GTFO.SpellID["434096"] = {
   sound = 1;
 };
 
--- 
-GTFO.SpellID["453310"] = {
+GTFO.SpellID["453214"] = {
   --desc = "Obsidian Beam (Speaker Shadowcrown)";
+  applicationOnly = true;
   sound = 1;
-  test = true; -- Verify
 };
+
+GTFO.SpellID["453173"] = {
+  --desc = "Collapsing Night (Speaker Shadowcrown)";
+  sound = 1;
+  ignoreApplication = true;
+};
+
 
 --- ***************
 --- * The Rookery *
@@ -689,6 +719,11 @@ GTFO.SpellID["443403"] = {
 GTFO.SpellID["445818"] = {
   --desc = "Frothing Gluttony (Queen Ansurek)";
   applicationOnly = true;
+  sound = 1;
+};
+
+GTFO.SpellID["462252"] = {
+  --desc = "Volatile Eruption (Volatile Black Blood Pool)";
   sound = 1;
 };
 

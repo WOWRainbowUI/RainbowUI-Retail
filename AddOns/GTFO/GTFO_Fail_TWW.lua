@@ -329,6 +329,39 @@ GTFO.SpellID["453192"] = {
   sound = 3;
 };
 
+GTFO.SpellID["450863"] = {
+  --desc = "Rupturing Runes (Orta)";
+  applicationOnly = true;
+  sound = 3;
+};
+
+GTFO.SpellID["450407"] = {
+  --desc = "Colossal Slam (Orta)";
+  sound = 3;
+};
+
+GTFO.SpellID["455878"] = {
+  --desc = "Reformation Nova (The Oozekhan)";
+  sound = 3;
+};
+
+GTFO.SpellID["456329"] = {
+  --desc = "Grimweave Bombardment (Harvester Qixt)";
+  sound = 3;
+};
+
+GTFO.SpellID["448351"] = {
+  --desc = "Stomp! (Wicktwister Kobold)";
+  sound = 3;
+};
+
+GTFO.SpellID["442725"] = {
+  --desc = "Furnace Blast";
+  sound = 3;
+};
+
+
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -469,7 +502,6 @@ GTFO.SpellID["435788"] = {
 --- * City of Threads *
 --- *******************
 
--- TODO: Shadows of Doubt (Orator Krix'vizk) - Mythic
 -- TODO: Slime Propagation (Orator Krix'vizk) - Mythic
 -- TODO: Gutburst (Izo - Ravenous Scarab) - Mythic
 
@@ -480,8 +512,20 @@ GTFO.SpellID["443438"] = {
   applicationOnly = true;
 };
 
+GTFO.SpellID["448561"] = {
+  --desc = "Shadows of Doubt (Orator Krix'vizk)";
+  applicationOnly = true;
+  sound = 3;
+};
+
 GTFO.SpellID["450783"] = {
   --desc = "Perfume Toss (Xeph'itik)";
+  sound = 3;
+  applicationOnly = true;
+};
+
+GTFO.SpellID["451426"] = {
+  --desc = "Gossamer Barrage (Xeph'itik)";
   sound = 3;
   applicationOnly = true;
 };
@@ -1574,6 +1618,11 @@ GTFO.SpellID["450031"] = {
 
 GTFO.SpellID["450034"] = {
   --desc = "Land (Queen Ansurek)";
+  sound = 3;
+};
+
+GTFO.SpellID["471445"] = {
+  --desc = "Expulsion Beam (Chamber Expeller)";
   sound = 3;
 };
 
