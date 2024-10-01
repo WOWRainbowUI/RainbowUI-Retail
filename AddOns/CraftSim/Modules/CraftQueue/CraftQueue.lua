@@ -6,6 +6,7 @@ local GGUI = CraftSim.GGUI
 local GUTIL = CraftSim.GUTIL
 
 local L = CraftSim.UTIL:GetLocalizer()
+local f = GUTIL:GetFormatter()
 
 ---@class CraftSim.CRAFTQ : Frame
 CraftSim.CRAFTQ = GUTIL:CreateRegistreeForEvents({ "TRADE_SKILL_ITEM_CRAFTED_RESULT", "COMMODITY_PURCHASE_SUCCEEDED",
@@ -171,7 +172,7 @@ function CraftSim.CRAFTQ:AddPatronOrders()
 
                             local recipeInfo = C_TradeSkillUI.GetRecipeInfo(order.spellID)
                             if recipeInfo and recipeInfo.learned then
-                                local recipeData = CraftSim.RecipeData(order.spellID)
+                                local recipeData = CraftSim.RecipeData({ recipeID = order.spellID })
                                 recipeData:SetOrder(order)
 
                                 recipeData:SetCheapestQualityReagentsMax() -- considers patron reagents
@@ -690,8 +691,9 @@ function CraftSim.CRAFTQ:CheckSaleRateThresholdForRecipe(recipeData, usedQualiti
     return false
 end
 
---- Called by the AddCurrentRecipeButton
-function CraftSim.CRAFTQ:AddOpenRecipe()
+--- Called OnMouseDown by the AddCurrentRecipeButt
+---@param mouseButton MouseButton
+function CraftSim.CRAFTQ:AddOpenRecipe(mouseButton)
     local recipeData
     if CraftSim.SIMULATION_MODE.isActive then
         if CraftSim.SIMULATION_MODE.recipeData then
@@ -707,7 +709,94 @@ function CraftSim.CRAFTQ:AddOpenRecipe()
         return
     end
 
-    CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+    local queueButton
+    local exportMode = CraftSim.UTIL:GetExportModeByVisibility()
+    if exportMode == CraftSim.CONST.EXPORT_MODE.NON_WORK_ORDER then
+        queueButton = CraftSim.CRAFTQ.queueRecipeButton
+    else
+        queueButton = CraftSim.CRAFTQ.queueRecipeButtonWO
+    end
+
+    if mouseButton == "LeftButton" then
+        CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+    elseif mouseButton == "RightButton" then
+        --- Give more Options for queuing
+        if recipeData.orderData then
+            MenuUtil.CreateContextMenu(UIParent, function(ownerRegion, rootDescription)
+                if recipeData.orderData.minQuality then
+                    rootDescription:CreateButton("Optimize " .. f.bb("Minimum Quality") .. " + Queue", function()
+                        local recipeData = recipeData:Copy()
+                        recipeData:OptimizeReagents({
+                            highestProfit = false,
+                            maxQuality = recipeData.orderData.minQuality,
+                        })
+
+                        if recipeData.resultData.expectedQuality < recipeData.orderData.minQuality then
+                            CraftSim.DEBUG:SystemPrint(f.l("CraftSim: " ..
+                                f.r("Could not reach minimum quality for work order. Recipe not queued.")))
+                            CraftSim.DEBUG:SystemPrint(f.l("CraftSim: " ..
+                                f.bb("Highest Quality: " ..
+                                    GUTIL:GetQualityIconString(recipeData.resultData.expectedQuality, 20, 20))))
+                        else
+                            CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+                        end
+                    end)
+                else
+                    rootDescription:CreateButton("Optimize " .. f.g("Top Profit") .. " + Queue", function()
+                        local recipeData = recipeData:Copy()
+                        recipeData:OptimizeReagents({
+                            highestProfit = true,
+                            maxQuality = recipeData.maxQuality,
+                        })
+                        CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+                    end)
+                end
+            end)
+        else
+            MenuUtil.CreateContextMenu(UIParent, function(ownerRegion, rootDescription)
+                rootDescription:CreateButton("Optimize " .. f.bb("Max Quality") .. " + Queue", function()
+                    local recipeData = recipeData:Copy()
+                    recipeData:OptimizeReagents({
+                        highestProfit = false,
+                        maxQuality = recipeData.maxQuality,
+                    })
+                    CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+                end)
+                rootDescription:CreateButton("Optimize " .. f.g("Top Profit") .. " + Queue", function()
+                    local recipeData = recipeData:Copy()
+                    recipeData:OptimizeReagents({
+                        highestProfit = true,
+                        maxQuality = recipeData.maxQuality,
+                    })
+                    CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+                end)
+                if recipeData.supportsQualities then
+                    rootDescription:CreateButton("Optimize " .. f.gold("Concentration Value") .. " + Queue", function()
+                        queueButton:SetEnabled(false)
+                        local recipeData = recipeData:Copy()
+                        if not recipeData.concentrating then
+                            recipeData.concentrating = true
+                            recipeData:Update()
+                        end
+                        recipeData:OptimizeReagents({
+                            highestProfit = true,
+                            maxQuality = recipeData.maxQuality,
+                        })
+                        recipeData:OptimizeConcentration({
+                            frameDistributedCallback = function()
+                                CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+                                queueButton:SetEnabled(true)
+                                queueButton:SetText("+ CraftQueue")
+                            end,
+                            progressUpdateCallback = function(progress)
+                                queueButton:SetText(string.format("%.0f%%", progress))
+                            end
+                        })
+                    end)
+                end
+            end)
+        end
+    end
 end
 
 function CraftSim.CRAFTQ:AddFirstCrafts()
@@ -724,7 +813,7 @@ function CraftSim.CRAFTQ:AddFirstCrafts()
     end)
 
     GUTIL:FrameDistributedIteration(firstCraftRecipeIDs, function(_, recipeID, counter)
-        local recipeData = CraftSim.RecipeData(recipeID, false, false)
+        local recipeData = CraftSim.RecipeData({ recipeID = recipeID })
         local isSkillLine = recipeData.professionData.skillLineID == currentSkillLineID
         local ignoreAcuity = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_FIRST_CRAFTS_IGNORE_ACUITY_RECIPES")
         local usesAcuity = recipeData.reagentData:HasOneOfReagents({ CraftSim.CONST.ITEM_IDS.CURRENCY.ARTISANS_ACUITY })
