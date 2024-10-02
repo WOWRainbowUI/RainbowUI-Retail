@@ -1,5 +1,5 @@
 ## Interface: 110002
-## Version: v11.0.2-1.0.18e
+## Version: v11.0.2-1.0.19
 ## Title: Hekili
 ## Author: Hekili
 ## IconTexture: Interface\AddOns\Hekili\Textures\LOGO-ORANGE.blp
@@ -77,6 +77,7 @@ TheWarWithin\ShamanRestoration.lua
 TheWarWithin\WarlockAffliction.lua
 TheWarWithin\WarlockDemonology.lua
 TheWarWithin\WarlockDestruction.lua
+TheWarWithin\Warrior\ReflectableSpells.lua
 TheWarWithin\WarriorArms.lua
 TheWarWithin\WarriorFury.lua
 TheWarWithin\WarriorProtection.lua
