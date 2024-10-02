@@ -220,11 +220,10 @@ function CraftSim.COOLDOWNS.UI:InitializeCooldownOptionsTab(cooldownOptionsTab)
             end), function(a, b)
             return a.selectionID > b.selectionID
         end),
-        selectionFrameOptions = {
-            backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-            sizeX = 240, sizeY = 260, anchorA = "LEFT", anchorB = "RIGHT",
-
-        },
+        parent = content,
+        anchorPoints = { { anchorParent = content, anchorA = "TOP", anchorB = "TOP", offsetY = -10 } },
+        label = L(LID.COOLDOWNS_EXPANSION_FILTER_BUTTON),
+        sizeX = 30, sizeY = 25,
         buttonOptions = {
             parent = content, anchorParent = content,
             anchorA = "TOP", anchorB = "TOP", offsetY = -10,

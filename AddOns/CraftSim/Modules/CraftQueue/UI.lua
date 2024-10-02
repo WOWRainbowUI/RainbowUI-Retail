@@ -1795,8 +1795,7 @@ function CraftSim.CRAFTQ.UI:UpdateCraftQueueRowByCraftQueueItem(row, craftQueueI
 
     row.craftQueueItem = craftQueueItem
 
-    editButtonColumn.editButton.clickCallback = function()
-        print("show edit recipe frame")
+    editButtonColumn.editButton.clickCallback = function(_, mouseButton)
         CraftSim.CRAFTQ.UI:UpdateEditRecipeFrameDisplay(craftQueueItem)
         if not CraftSim.CRAFTQ.frame.content.queueTab.content.editRecipeFrame:IsVisible() then
             CraftSim.CRAFTQ.frame.content.queueTab.content.editRecipeFrame:Show()
