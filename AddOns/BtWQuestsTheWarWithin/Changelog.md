@@ -1,3 +1,7 @@
+# v5.2
+
+- Fixed the completion check for The Priory questline in Hallowfall
+
 # v5.1
 
 - Fixed error opening quest chain The Flame Within in Hallowfall
