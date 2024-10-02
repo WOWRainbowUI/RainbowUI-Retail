@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2595, "DBM-Party-WarWithin", 8, 1274)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240819062911")
+mod:SetRevision("20241002054921")
 mod:SetCreatureID(216648, 216649)--Nx, Vx
 mod:SetEncounterID(2908)
 mod:SetHotfixNoticeRev(20240818000000)
@@ -77,7 +77,7 @@ function mod:OnCombatStart(delay)
 	timerDuskbringerCD:Start(18.5-delay, 1)
 	timerIceSicklesCD:Start(20.4-delay, 1)
 	self:Schedule(25.4, buggedIceSicklesCast, self)
-	timerNextSwapCD:Start(28.5-delay, 1)
+	timerNextSwapCD:Start(28.1-delay, 1)
 end
 
 function mod:SPELL_CAST_START(args)
@@ -99,7 +99,7 @@ function mod:SPELL_CAST_START(args)
 		else
 			self:SetStage(1)
 			--Start Nx Active timers, Vx Inactive timers
-			timerShadeSlashCD:Start(25.4, self.vb.tankCount+1)
+			timerShadeSlashCD:Start(24.0, self.vb.tankCount+1)
 			timerDuskbringerCD:Start(39.5, self.vb.duskCount+1)
 			timerIceSicklesCD:Start(42.3, self.vb.iceCount+1)
 			self:Schedule(47.3, buggedIceSicklesCast, self)

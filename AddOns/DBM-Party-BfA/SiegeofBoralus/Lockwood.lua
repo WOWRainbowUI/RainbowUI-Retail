@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2173, "DBM-Party-BfA", 5, 1023)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240925005958")
+mod:SetRevision("20241002054921")
 mod:SetCreatureID(129208)
 mod:SetEncounterID(2109)
 mod:SetHotfixNoticeRev(20240807000000)
@@ -56,7 +56,7 @@ function mod:OnCombatStart(delay)
 	self.vb.clearDeckCount = 0
 	self.vb.broadCount = 0
 	timerCleartheDeckCD:Start(3.5-delay, 1)
-	timerRicochetCD:Start(9.7-delay, 1)--Could be shorter, but most people trigger gutshot on pull
+	timerRicochetCD:Start(9.3-delay, 1)--Could be shorter, but most people trigger gutshot on pull
 	if self:IsMythic() then
 		timerMassBombardmentCD:Start(10.1-delay, 1)
 	end
@@ -99,7 +99,7 @@ function mod:SPELL_CAST_SUCCESS(args)
 		timerCleartheDeckCD:Stop()
 		timerRicochetCD:Stop()
 		timerMassBombardmentCD:Stop()
-		timerBroadsideCD:Start(13.3, self.vb.broadCount+1)--13-15 in TWW
+		timerBroadsideCD:Start(10.9, self.vb.broadCount+1)--10.9-15 in TWW
 	elseif spellId == 181089 then--Encounter Event (boss returning)
 		self:SetStage(1)
 		timerBroadsideCD:Stop()

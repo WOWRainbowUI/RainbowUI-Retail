@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2400, "DBM-Party-Shadowlands", 3, 1184)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240925005958")
+mod:SetRevision("20241002054921")
 mod:SetCreatureID(164567)
 mod:SetEncounterID(2397)
 mod:SetHotfixNoticeRev(20240808000000)
@@ -60,7 +60,7 @@ function mod:OnCombatStart(delay)
 	if self:AntiSpam(3, 1) then
 		timerBewilderingPollenCD:Start(7.3, 1)
 		--Recheck force compliance/tears on live
-		timerTearsoftheForestCD:Start(14.2, 1)--14.2-20
+		timerTearsoftheForestCD:Start(13, 1)--13-20
 	end
 --	timerEmbraceDarknessCD:Start(35-delay)--35-41
 --	timerRepulsiveVisageCD:Start(44.7-delay)--44.7-46?

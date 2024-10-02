@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,mythic"--Best way to really call it
 
-mod:SetRevision("20240929004817")
+mod:SetRevision("20241001042559")
 mod:SetCreatureID(225204)--Non hard one placeholder on load. Real one set in OnCombatStart
 mod:SetEncounterID(2987, 2985)
 mod:SetHotfixNoticeRev(20240914000000)
@@ -107,7 +107,7 @@ function mod:SPELL_CAST_START(args)
 		timerClawSmashCD:Start(nil, self.vb.smashCount+1)
 	elseif args.spellId == 450505 or args.spellId == 472128 then
 		self.vb.enfeeblingSpittleCount = self.vb.enfeeblingSpittleCount + 1
-		if self.Options.SpecWarn450505interrupt and self:CheckInterruptFilter(args.sourceGUID, nil, true) then
+		if self.Options.SpecWarn450505interruptcount and self:CheckInterruptFilter(args.sourceGUID, nil, true) then
 			specWarnEnfeeblingSpittleInterrupt:Show(args.sourceName, self.vb.enfeeblingSpittleCount)
 			specWarnEnfeeblingSpittleInterrupt:Play("kickcast")
 		else

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2593, "DBM-Party-WarWithin", 5, 1270)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20240917045510")
+mod:SetRevision("20240930055012")
 mod:SetCreatureID(213937)
 mod:SetEncounterID(2839)
 mod:SetHotfixNoticeRev(20240706000000)
@@ -117,7 +117,7 @@ function mod:SPELL_CAST_START(args)
 		self.vb.expelCount = self.vb.expelCount + 1
 		specWarnExpelWebs:Show(self.vb.expelCount)
 		specWarnExpelWebs:Play("watchstep")
-		timerExpelWebsCD:Start(self:IsMythic() and 15.2 or (self:GetStage(2) and 25 or 20), self.vb.expelCount+1)
+		timerExpelWebsCD:Start(self:IsMythic() and 12 or (self:GetStage(2) and 23 or 20), self.vb.expelCount+1)
 		updateAllTimers(self, 4)
 	elseif spellId == 448888 then
 		self.vb.sprayCount = self.vb.sprayCount + 1
