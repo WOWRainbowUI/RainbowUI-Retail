@@ -277,7 +277,7 @@ function ham.settingsFrame:InitializeOptions()
 			"InterfaceOptionsCheckButtonTemplate")
 		cavedwellerDelightButton:SetPoint("TOPLEFT", itemsTitle, 440, -PADDING)
 		---@diagnostic disable-next-line: undefined-field
-		cavedwellerDelightButton.Text:SetText("Cavedweller's Delight")
+		cavedwellerDelightButton.Text:SetText("穴居者之喜")
 		cavedwellerDelightButton:HookScript("OnClick", function(_, btn, down)
 			HAMDB.cavedwellerDelight = cavedwellerDelightButton:GetChecked()
 			ham.updateHeals()
@@ -399,7 +399,7 @@ SlashCmdList.HAM = function(msg, editBox)
 	if InterfaceOptions_AddCategory then
 		InterfaceOptionsFrame_OpenToCategory("一鍵吃糖")
 	else
-		-- local settingsCategoryID = _G[addonName].categoryID
-		Settings.OpenToCategory("一鍵吃糖")
+		local settingsCategoryID = _G[addonName].categoryID
+		Settings.OpenToCategory(settingsCategoryID)
 	end
 end
