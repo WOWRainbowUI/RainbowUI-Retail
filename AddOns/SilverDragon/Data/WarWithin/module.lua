@@ -633,8 +633,8 @@ core:RegisterMobData("地心之戰", {
 	-- World Bosses
 	[229334] = {
 		name="Kordac",
-		quest=nil,
-		worldquest=nil,
+		quest=81630, -- This is the world quest
+		worldquest=81630,
 		locations={
 			-- [ns.ISLEOFDORN]={50005880},
 			[ns.ISLEOFDORN]={},

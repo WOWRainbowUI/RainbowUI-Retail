@@ -1,5 +1,5 @@
-## Changed in v2024.26
+## Changed in v2024.27
 
-* Added quests for this week's world boss Orta
-* Ignore Xal'atath in mythics, even though she's flagged as a rare
+* Added quests for this week's world boss Kordac
+* Made dark magic scanning a little more efficient
 
