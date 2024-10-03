@@ -34,6 +34,7 @@ function ActionCamPlusConfig_Setup()
 		ACP_AddonEnabled = true,
 		ACP_ActionCam = false,
 		ACP_Focusing = false,
+		ACP_FocusingInteract = false,
 		ACP_Pitch = true,
 		ACP_SetCameraZoom = true,
 		ACP_AutoSetCameraDistance = true,
@@ -42,6 +43,7 @@ function ActionCamPlusConfig_Setup()
 		ACP_Mounted = true,
 		ACP_MountedActionCam = true,
 		ACP_MountedFocusing = false,
+		ACP_MountedFocusingInteract = false,
 		ACP_MountedPitch = false,
 		ACP_DruidFormMounts = true,
 		ACP_MountedSetCameraZoom = true,
@@ -51,14 +53,18 @@ function ActionCamPlusConfig_Setup()
 
 		ACP_Combat = false,
 		ACP_CombatActionCam = false,
-		ACP_CombatFocusing = true,
-		ACP_CombatPitch = true,
+		ACP_CombatFocusing = false,
+		ACP_CombatFocusingInteract = false,
+		ACP_CombatPitch = false,
 		ACP_CombatSetCameraZoom = false,
 		ACP_AutoSetCombatCameraDistance = true,
 		combatCamDistance = 20,
 		
 		transitionSpeed = 10,
-		defaultZoomSpeed = 40,
+		defaultZoomSpeed = GetCVar("cameraZoomSpeed"),
+		focusStrengthVertical = .75,
+		focusStrengthHorizontal = 1,
+		leftShoulder = false,
 		
 		mountZooms = {}
 	}
@@ -98,7 +104,7 @@ function ActionCamPlusConfig_Setup()
 	ActionCamPlusOptionsFrame:SetScript("OnMouseDown", function(self) self:StartMoving() end)
 	ActionCamPlusOptionsFrame:SetScript("OnMouseUp", function(self) self:StopMovingOrSizing() end)
 	ActionCamPlusOptionsFrame:SetPoint("CENTER", UIParent)
-	ActionCamPlusOptionsFrame:SetSize(540, 580)
+	ActionCamPlusOptionsFrame:SetSize(540, 640)
 
 	local titlebox = ActionCamPlusOptionsFrame:CreateTexture("titlebox", "ARTWORK")
 	titlebox:SetSize(360, 64)
@@ -122,118 +128,160 @@ function ActionCamPlusConfig_Setup()
 	-- For reference:  ACP.createCheckButton(name, parent, anchor, offX, offY, label, tooltip, framepoint="TOPLEFT", anchorpoint="BOTTOMLEFT")
 
 	-- Addon Enabled
-	options.ACP_AddonEnabled = ACP.createCheckButton("AddonEnabled", ActionCamPlusOptionsFrame, ActionCamPlusOptionsFrame, leftMargin, top,
+	options.ACP_AddonEnabled = ACP.createCheckButton("ACP_AddonEnabled", ActionCamPlusOptionsFrame, ActionCamPlusOptionsFrame, leftMargin, top,
 						"啟用插件",
 						"開啟/關閉動感鏡頭 Plus 的功能。",
 						"TOPLEFT", "TOPLEFT")
 	-- On Foot Options
 				-- Action Cam
-				options.ACP_ActionCam = ACP.createCheckButton("ActionCam", ACP_AddonEnabled, ACP_AddonEnabled, listIndent, 5,
+				options.ACP_ActionCam = ACP.createCheckButton("ACP_ActionCam", ACP_AddonEnabled, ACP_AddonEnabled, listIndent, 5,
 									"動感鏡頭",
 									"步行時啟用動感鏡頭。")
 
 				-- Focusing
-				options.ACP_Focusing = ACP.createCheckButton("Focusing", ACP_AddonEnabled, ACP_ActionCam, 0,  listVertPad,
-									"聚焦目標",
-									"步行時啟用鏡頭聚焦到選取目標。")
+				options.ACP_Focusing = ACP.createCheckButton("ACP_Focusing", ACP_AddonEnabled, ACP_ActionCam, 0,  listVertPad,
+									"聚焦敵人",
+									"步行時啟用鏡頭聚焦到選取的敵人。")
+
+				-- Focusing Interact 
+				options.ACP_FocusingInteract = ACP.createCheckButton("ACP_FocusingInteract", ACP_AddonEnabled, ACP_Focusing, 0,  listVertPad,
+									"聚焦互動目標",
+									"步行時啟用鏡頭聚焦到可互動的 NPC。")
 
 				-- Pitch
-				options.ACP_Pitch = ACP.createCheckButton("Pitch", ACP_AddonEnabled, ACP_Focusing, 0,  listVertPad,
+				options.ACP_Pitch = ACP.createCheckButton("ACP_Pitch", ACP_AddonEnabled, ACP_FocusingInteract, 0,  listVertPad,
 									"上下調整鏡頭",
 									"步行時啟用鏡頭上下調整。")
 
 				-- Set Camera Zoom
-				options.ACP_SetCameraZoom = ACP.createCheckButton("SetCameraZoom", ACP_AddonEnabled, ACP_Pitch, 0,  listVertPad,
+				options.ACP_SetCameraZoom = ACP.createCheckButton("ACP_SetCameraZoom", ACP_AddonEnabled, ACP_Pitch, 0,  listVertPad,
 									"自動調整鏡頭距離",
 									"動感鏡頭 Plus 會將鏡頭恢復成上坐騎前或進入戰鬥前的鏡頭距離。")
 
 				-- Auto Set Camera Distance
-				options.ACP_AutoSetCameraDistance = ACP.createCheckButton("AutoSetCameraDistance", ACP_SetCameraZoom, ACP_SetCameraZoom, 0,  listVertPad,
+				options.ACP_AutoSetCameraDistance = ACP.createCheckButton("ACP_AutoSetCameraDistance", ACP_SetCameraZoom, ACP_SetCameraZoom, 0,  listVertPad,
 									"自動設定鏡頭距離",
 									"動感鏡頭 Plus 會自動將當前的鏡頭距離設為預設值。")
 
-				options.ACP_UnmountedZoomDistance = ACP.createCameraSlider("UnmountedZoomDistance", ACP_AutoSetCameraDistance, "unmountedCamDistance", 1, 39, "步行時的鏡頭距離", ACP_AutoSetCameraDistance, "TOPLEFT", "BOTTOMLEFT", 0, cameraSliderIndent)
+				options.ACP_UnmountedZoomDistance = ACP.createCameraSlider("UnmountedZoomDistance", ACP_AutoSetCameraDistance, "unmountedCamDistance", 1, 39, 
+									"步行時的鏡頭距離", ACP_AutoSetCameraDistance, "TOPLEFT", "BOTTOMLEFT", 0, cameraSliderIndent)
+
+				options.leftShoulder = ACP.createCheckButton("leftShoulder", ACP_AddonEnabled, ACP_UnmountedZoomDistance, 0, -16,
+									"換到另一側",
+									"將相機偏移到左肩。")
 
 	-- Mounted Header
-	options.ACP_Mounted = ACP.createCheckButton("Mounted", ACP_AddonEnabled, ActionCamPlusOptionsFrame, leftMargin-10, top,
+	options.ACP_Mounted = ACP.createCheckButton("ACP_Mounted", ACP_AddonEnabled, ActionCamPlusOptionsFrame, leftMargin-10, top,
 						"騎乘坐騎",
 						"騎乘坐騎時啟用動感鏡頭 Plus 的功能。", 
 						"TOPLEFT", "TOP")
 	-- Mounted Options
 				-- Action Cam
-				options.ACP_MountedActionCam = ACP.createCheckButton("MountedActionCam", ACP_Mounted, ACP_Mounted, listIndent,  5,
+				options.ACP_MountedActionCam = ACP.createCheckButton("ACP_MountedActionCam", ACP_Mounted, ACP_Mounted, listIndent,  5,
 									"動感鏡頭",
 									"騎乘坐騎時啟用動感鏡頭。")
 
 				-- Focusing
-				options.ACP_MountedFocusing = ACP.createCheckButton("MountedFocusing", ACP_Mounted, ACP_MountedActionCam, 0,  listVertPad,
-									"聚焦目標",
-									"騎乘坐騎時啟用鏡頭聚焦到選取目標。")
+				options.ACP_MountedFocusing = ACP.createCheckButton("ACP_MountedFocusing", ACP_Mounted, ACP_MountedActionCam, 0,  listVertPad,
+									"聚焦敵人",
+									"騎乘坐騎時啟用鏡頭聚焦到選取的敵人。")
+
+				-- Focusing Interact 
+				options.ACP_MountedFocusingInteract = ACP.createCheckButton("ACP_MountedFocusingInteract", ACP_AddonEnabled, ACP_MountedFocusing, 0,  listVertPad,
+									"聚焦互動目標",
+									"騎乘坐騎時啟用鏡頭聚焦到可互動的 NPC。")
 
 				-- Pitch
-				options.ACP_MountedPitch = ACP.createCheckButton("MountedPitch", ACP_Mounted, ACP_MountedFocusing, 0,  listVertPad,
+				options.ACP_MountedPitch = ACP.createCheckButton("ACP_MountedPitch", ACP_Mounted, ACP_MountedFocusingInteract, 0,  listVertPad,
 									"上下調整鏡頭",
 									"騎乘坐騎時啟用鏡頭上下調整。")
 
 				-- Druid Form Mounts
-				options.ACP_DruidFormMounts = ACP.createCheckButton("DruidFormMounts", ACP_Mounted, ACP_MountedPitch, 0,  listVertPad,
+				options.ACP_DruidFormMounts = ACP.createCheckButton("ACP_DruidFormMounts", ACP_Mounted, ACP_MountedPitch, 0,  listVertPad,
 									"德魯伊形態坐騎",
 									"德魯伊的旅行形態也視為坐騎。")
 
 				-- Set Camera Zoom
-				options.ACP_MountedSetCameraZoom = ACP.createCheckButton("MountedSetCameraZoom", ACP_Mounted, ACP_DruidFormMounts, 0,  listVertPad,
+				options.ACP_MountedSetCameraZoom = ACP.createCheckButton("ACP_MountedSetCameraZoom", ACP_Mounted, ACP_DruidFormMounts, 0,  listVertPad,
 									"自動調整鏡頭距離",
 									"上坐騎時，動感鏡頭 Plus 會將鏡頭距離調整為騎乘坐騎的設定。")
 
 				-- Auto Set Camera Distance
-				options.ACP_AutoSetMountedCameraDistance = ACP.createCheckButton("AutoSetMountedCameraDistance", ACP_MountedSetCameraZoom, ACP_MountedSetCameraZoom, 0,  listVertPad,
+				options.ACP_AutoSetMountedCameraDistance = ACP.createCheckButton("ACP_AutoSetMountedCameraDistance", ACP_MountedSetCameraZoom, ACP_MountedSetCameraZoom, 0,  listVertPad,
 									"自動設定鏡頭距離",
 									"上坐騎時，動感鏡頭 Plus 會自動將當時的鏡頭距離設為騎乘坐騎時的鏡頭距離。")
 
 				-- Mount Specific Zoom
-				options.ACP_MountSpecificZoom = ACP.createCheckButton("MountSpecificZoom", ACP_MountedSetCameraZoom, ACP_AutoSetMountedCameraDistance, 0,  listVertPad,
+				options.ACP_MountSpecificZoom = ACP.createCheckButton("ACP_MountSpecificZoom", ACP_AutoSetMountedCameraDistance, ACP_AutoSetMountedCameraDistance, 0,  listVertPad,
 									"坐騎專用鏡頭距離",
 									"動感鏡頭 Plus 會記住每一個坐騎的鏡頭距離。")
 
-				options.ACP_MountedZoomDistance = ACP.createCameraSlider("MountedZoomDistance", ACP_AutoSetMountedCameraDistance, "mountedCamDistance", 1, 39, "騎乘坐騎時的鏡頭距離", ACP_MountSpecificZoom, "TOPLEFT", "BOTTOMLEFT", 0, cameraSliderIndent)
+				options.ACP_MountedZoomDistance = ACP.createCameraSlider("MountedZoomDistance", ACP_AutoSetMountedCameraDistance, "mountedCamDistance", 1, 39, 
+									"騎乘坐騎時的鏡頭距離", ACP_MountSpecificZoom, "TOPLEFT", "BOTTOMLEFT", 0, cameraSliderIndent)
 
 	-- Combat Header
-	options.ACP_Combat = ACP.createCheckButton("Combat", ACP_AddonEnabled, ActionCamPlusOptionsFrame, leftMargin, 0,
+	options.ACP_Combat = ACP.createCheckButton("ACP_Combat", ACP_AddonEnabled, ActionCamPlusOptionsFrame, leftMargin, 0,
 						"戰鬥中",
 						"戰鬥中啟用動感鏡頭 Plus 的功能。",
 						"TOPLEFT", "LEFT")
 	-- Combat Options
 				-- Action Cam
-				options.ACP_CombatActionCam = ACP.createCheckButton("CombatActionCam", ACP_Combat, ACP_Combat, listIndent,  5,
+				options.ACP_CombatActionCam = ACP.createCheckButton("ACP_CombatActionCam", ACP_Combat, ACP_Combat, listIndent,  5,
 									"動感鏡頭",
 									"戰鬥中啟用動感鏡頭。")
 
 				-- Focusing
-				options.ACP_CombatFocusing = ACP.createCheckButton("CombatFocusing", ACP_Combat, ACP_CombatActionCam, 0,  listVertPad,
-									"聚焦目標",
-									"戰鬥中啟用鏡頭聚焦到選取目標。")
+				options.ACP_CombatFocusing = ACP.createCheckButton("ACP_CombatFocusing", ACP_Combat, ACP_CombatActionCam, 0,  listVertPad,
+									"聚焦敵人",
+									"戰鬥中啟用鏡頭聚焦到選取的敵人。")
+
+				-- Focusing Interact
+				options.ACP_CombatFocusingInteract = ACP.createCheckButton("ACP_CombatFocusingInteract", ACP_Combat, ACP_CombatFocusing, 0,  listVertPad,
+									"聚焦互動目標",
+									"戰鬥中啟用鏡頭聚焦到可互動的 NPC。")
 
 				-- Pitch
-				options.ACP_CombatPitch = ACP.createCheckButton("CombatPitch", ACP_Combat, ACP_CombatFocusing, 0,  listVertPad,
+				options.ACP_CombatPitch = ACP.createCheckButton("ACP_CombatPitch", ACP_Combat, ACP_CombatFocusingInteract, 0,  listVertPad,
 									"上下調整鏡頭",
 									"戰鬥中啟用鏡頭上下調整。")
 
 				-- Set Camera Zoom
-				options.ACP_CombatSetCameraZoom = ACP.createCheckButton("CombatSetCameraZoom", ACP_Combat, ACP_CombatPitch, 0,  listVertPad,
+				options.ACP_CombatSetCameraZoom = ACP.createCheckButton("ACP_CombatSetCameraZoom", ACP_Combat, ACP_CombatPitch, 0,  listVertPad,
 									"自動設定鏡頭距離",
 									"進入戰鬥時，動感鏡頭 Plus 會將鏡頭距離調整為戰鬥的設定。")
 
 				-- Auto Set Camera Distance
-				options.ACP_AutoSetCombatCameraDistance = ACP.createCheckButton("AutoSetCombatCameraDistance", ACP_CombatSetCameraZoom, ACP_CombatSetCameraZoom, 0,  listVertPad,
+				options.ACP_AutoSetCombatCameraDistance = ACP.createCheckButton("ACP_AutoSetCombatCameraDistance", ACP_CombatSetCameraZoom, ACP_CombatSetCameraZoom, 0,  listVertPad,
 									"自動設定鏡頭距離",
 									"戰鬥時，動感鏡頭 Plus 會自動將當時的鏡頭距離設為戰鬥時的鏡頭距離。")
 
-				options.ACP_CombatZoomDistance = ACP.createCameraSlider("CombatZoomDistance", ACP_AutoSetCombatCameraDistance, "combatCamDistance", 1, 39, "戰鬥時的鏡頭距離", ACP_AutoSetCombatCameraDistance, "TOPLEFT", "BOTTOMLEFT", 0, cameraSliderIndent)
+				options.ACP_CombatZoomDistance = ACP.createCameraSlider("CombatZoomDistance", ACP_AutoSetCombatCameraDistance, "combatCamDistance", 1, 39, 
+									"戰鬥時的鏡頭距離", ACP_AutoSetCombatCameraDistance, "TOPLEFT", "BOTTOMLEFT", 0, cameraSliderIndent)
 
 	-- Zoom Options
-	options.ACP_transitionSpeed = ACP.createSlider("transitionSpeed", ActionCamPlusOptionsFrame, "transitionSpeed", 1, 40, "自動恢復鏡頭速度", ActionCamPlusOptionsFrame, "TOPRIGHT", "RIGHT", -leftMargin-20, top-50)
-	options.ACP_defaultZoomSpeed = ACP.createSlider("defaultZoomSpeed", ActionCamPlusOptionsFrame, "defaultZoomSpeed", 1, 40, "手動調整鏡頭速度", ACP_transitionSpeed, "TOP", "BOTTOM", 0, -50)
+	options.ACP_transitionSpeed = ACP.createSlider("transitionSpeed", ActionCamPlusOptionsFrame, "transitionSpeed", 1, 40, 
+					"自動恢復鏡頭速度", ActionCamPlusOptionsFrame, "TOPRIGHT", "RIGHT", -leftMargin-20, top-10)
+	options.ACP_defaultZoomSpeed = ACP.createSlider("defaultZoomSpeed", ActionCamPlusOptionsFrame, "defaultZoomSpeed", 1, 40, 
+					"手動調整鏡頭速度", transitionSpeed, "TOP", "BOTTOM", 0, -40)
+	options.ACP_focusStrengthHorizontal = ACP.createSlider("focusStrengthHorizontal", ActionCamPlusOptionsFrame, "focusStrengthHorizontal", 0, 1, 
+					"水平聚焦強度", defaultZoomSpeed, "TOP", "BOTTOM", 0, -40)
+	options.ACP_focusStrengthVertical = ACP.createSlider("focusStrengthVertical", ActionCamPlusOptionsFrame, "focusStrengthVertical", 0, 1, 
+					"垂直聚焦強度", focusStrengthHorizontal, "TOP", "BOTTOM", 0, -40)
+
 	options.ACP_defaultZoomSpeed:HookScript("OnValueChanged", function(self, v) SetCVar("cameraZoomSpeed", floor(v + .5)) end)
+	options.ACP_focusStrengthHorizontal:HookScript("OnValueChanged", 
+		function(self, v) 
+			v = floor(v * 10)/10 
+			SetCVar("test_cameraTargetFocusInteractStrengthYaw", v)
+			SetCVar("test_cameraTargetFocusEnemyStrengthYaw", v)
+		end)
+	options.ACP_focusStrengthVertical:HookScript("OnValueChanged", 
+		function(self, v) 
+			v = floor(v * 10)/10
+			SetCVar("test_cameraTargetFocusInteractStrengthPitch", v)
+			SetCVar("test_cameraTargetFocusEnemyStrengthPitch", v)
+		end)
+
 end
 
 function ACP.UpdateDB(defaults)
@@ -287,7 +335,7 @@ function ACP.createCheckButton(name, parent, anchor, offX, offY, label, tooltip,
 	framepoint = framepoint or "TOPLEFT"
 	anchorpoint = anchorpoint or "BOTTOMLEFT"
 
-	local checkButton = CreateFrame("CheckButton", "ACP_"..name, parent, "UICheckButtonTemplate")
+	local checkButton = CreateFrame("CheckButton", name, parent, "UICheckButtonTemplate")
 	checkButton:SetPoint(framepoint, anchor, anchorpoint, offX, offY)
 	checkButton:SetScript("OnClick", ActionCamPlusConfig_OnClick)
 	checkButton:SetScript("OnShow", ActionCamPlusConfig_OnShow)
@@ -428,12 +476,11 @@ function ACP.createCameraSlider(name, parent, value, min, max, label, anchor, fr
 	return slider
 end
 
-
 function ACP.createSlider(name, parent, value, min, max, label, anchor, framepoint, anchorpoint, offX, offY)
 	framepoint = framepoint or "TOPLEFT"
 	anchorpoint = anchorpoint or "BOTTOMLEFT"
 
-	local slider = CreateFrame("Slider", "ACP_"..name, parent, "OptionsSliderTemplate")
+	local slider = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
 	local editbox = CreateFrame("EditBox", "$parentEditBox", slider, "InputBoxTemplate")
 	slider.dbValue = value
 	slider:SetMinMaxValues(min, max)
@@ -450,25 +497,33 @@ function ACP.createSlider(name, parent, value, min, max, label, anchor, framepoi
 	getglobal(slider:GetName() .. 'High'):SetText(max)
 	getglobal(slider:GetName() .. 'Text'):SetText(label)
 
-	slider:SetValueStep(1)
+	slider:SetValueStep(max > 1 and 1 or .1)
 	slider:SetStepsPerPage(5)
 
 	editbox:SetSize(30,30)
 	editbox:ClearAllPoints()
 	editbox:SetPoint("TOP", slider, "BOTTOM", 0, 5)
-	editbox:SetText(slider:GetValue())
+	editbox:SetText(ActionCamPlusDB[value])
 	editbox:SetAutoFocus(false)
 
+	local sourceUpdate = false
 	slider:SetScript("OnValueChanged", function(self, v)
-		v = floor(v + .5)
+		if max == 1 then
+			v = floor(v * 10)/10
+		else
+			v = floor(v + .5)
+		end
+
 		ActionCamPlusDB[self.dbValue] = v
+		sourceUpdate = true
 		self.editbox:SetText(v)
 	end)
 	editbox:SetScript("OnTextChanged", function(self)
 		local val = self:GetText()
-		if tonumber(val) then
+		if not sourceUpdate and tonumber(val) then
 			self:GetParent():SetValue(val)
 		end
+		sourceUpdate = false
 	end)
 	editbox:SetScript("OnEnterPressed", function(self)
 		local val = self:GetText()
@@ -505,7 +560,10 @@ end
 
 local cameraTestThrottle
 local cameraTestZoom
+local shouldTest = true
 function ACP.testCameraDistance(value)
+	if not shouldTest then return end
+
 	cameraTestZoom = value
 	if cameraTestThrottle then return end
 
@@ -516,8 +574,10 @@ function ACP.testCameraDistance(value)
 end
 
 function ACP.UpdateZoomOptions()
+	shouldTest = false
 	local sliders = {options.ACP_UnmountedZoomDistance, options.ACP_MountedZoomDistance, options.ACP_CombatZoomDistance}
 	for i = 1, #sliders do
 		sliders[i]:SetValue(ActionCamPlusDB[sliders[i].dbValue])
 	end
+	shouldTest = true
 end

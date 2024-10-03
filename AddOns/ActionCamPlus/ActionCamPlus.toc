@@ -1,9 +1,9 @@
-## Interface: 11503, 30403, 40400, 110002
+## Interface: 30403, 40400, 110002
 ## Title: ActionCamPlus
 ## Notes: Makes Blizzard's experimental Action Camera more usable.
 ## Author: Anorian
 ## SavedVariables: ActionCamPlusDB
-## Version: v0.62
+## Version: v0.63
 ## OptionalDeps: ACP
 
 ## Title-zhTW: |cffffffee[系統]|r 動感鏡頭 Plus
