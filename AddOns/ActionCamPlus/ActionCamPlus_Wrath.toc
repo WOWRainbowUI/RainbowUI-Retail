@@ -1,0 +1,10 @@
+## Interface: 30402
+## Title: ActionCamPlus
+## Notes: Makes Blizzard's experimental Action Camera more usable.
+## Author: Anorian
+## SavedVariables: ActionCamPlusDB
+## Version: 0.21
+## OptionalDeps: ACP
+
+ActionCamPlus.lua
+ActionCamPlusConfig.lua
