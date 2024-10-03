@@ -57,6 +57,13 @@ local GetCachedItemName, PeekCachedItemName do
 		return itemNames[tonumber(ident) or tonumber(type(ident) == "string" and ident:match("item:(%d+)"))]
 	end
 end
+local function toCooldown(now, start, duration, enabled)
+	if start and start > now then
+		start = start - 2^32/1000
+	end
+	duration = duration or 0
+	return duration > 0 and enabled ~= 0 and start+duration-now or 0, duration, enabled
+end
 
 if MODERN_MOUNTS then -- mount: mount ID
 	local function callSummonMount(mountID)
@@ -94,8 +101,7 @@ if MODERN_MOUNTS then -- mount: mount ID
 	function mountHint(id)
 		local usable = (not (InCombatLockdown() or IsIndoors())) and HasFullControl() and not UnitIsDeadOrGhost("player")
 		local cname, sid, icon, active, usable2 = C_MountJournal.GetMountInfoByID(id)
-		local cdStart, cdLength = GetSpellCooldown(sid)
-		local cdLeft = (cdLength or 0) > 0 and cdStart+cdLength-GetTime() or 0
+		local cdLeft, cdLength = toCooldown(GetTime(), GetSpellCooldown(sid))
 		return usable and cdLeft == 0 and usable2, active and 1 or 0, icon, cname, 0, cdLeft, cdLength, callMethod.SetMountBySpellID, sid
 	end
 	local actionMap = {}
@@ -202,18 +208,17 @@ do -- spell: spell ID + mount spell ID
 		local mjID = sid and getSpellMountID(sid)
 		if mjID then return mountHint(mjID) end
 		if not sname then return end
-		local time, msid = GetTime(), spellMap[lowered[n]] or sid
+		local now, msid = GetTime(), spellMap[lowered[n]] or sid
 		local inRange, usable, nomana, hasRange = NormalizeInRange[IsSpellInRange(sid and RUNE_BASESPELL_CACHE[sid] or n, target or "target")], IsUsableSpell(n)
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		local cdStart, cdLength, enabled = GetSpellCooldown(n)
-		local cdLeft = (cdLength or 0) > 0 and enabled ~= 0 and cdStart+cdLength-time or 0
+		local cdLeft, cdLength, enabled = toCooldown(now, GetSpellCooldown(n))
 		local count, charges, maxCharges, ccdStart, ccdLength = GetSpellCount(n), GetSpellCharges(n)
 		local state = ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n, sid) or enabled == 0) and 1 or 0) +
 		              (MODERN and IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) +
 		              (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
 		usable = not not (usable and inRange and (cdLeft == 0 or enabled == 0))
 		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
-			cdLeft, cdLength = ccdStart+ccdLength-time, ccdLength
+			cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
 		end
 		local sbslot = msid and msid ~= 161691 and FindSpellBookSlotBySpellID(msid)
 		return usable, state, GetSpellTexture(n), sname or n, count <= 1 and charges or count, cdLeft, cdLength, sbslot and SetSpellBookItem or msid and SetSpellByID, sbslot or msid
@@ -345,12 +350,11 @@ do -- item: items ID/inventory slot
 		else
 			return
 		end
-		local iid, cdStart, cdLength, enabled, cdLeft = (link and tonumber(link:match("item:([x%x]+)"))) or itemIdMap[ident]
+		local iid, cdLeft, cdLength, enabled = (link and tonumber(link:match("item:([x%x]+)"))) or itemIdMap[ident]
 		if MODERN and iid and PlayerHasToy(iid) and C_Item.GetItemCount(iid) == 0 then
 			return toyHint(iid, nil, target)
 		elseif iid then
-			cdStart, cdLength, enabled = C_Container.GetItemCooldown(iid)
-			cdLeft = (cdLength or 0) > 0 and (enabled ~= 0) and (cdStart + cdLength - GetTime()) or 0
+			cdLeft, cdLength, enabled = toCooldown(GetTime(), C_Container.GetItemCooldown(iid))
 		end
 		target = target or "target"
 		local canRange = not (InCombatLockdown() and (UnitIsFriend("player", target) or not UnitExists(target))) or nil
@@ -618,10 +622,10 @@ if MODERN or CF_WRATH then -- battlepet: pet ID, species ID
 	end
 	local function battlepetHint(pid)
 		local sid, cn, _, _, _, _, _, n, tex = C_PetJournal.GetPetInfoByPetID(pid)
-		local cdStart, cdLength, enabled = C_PetJournal.GetPetCooldownByGUID(pid)
-		local cdLeft = (cdLength or 0) > 0 and (enabled ~= 0) and (cdStart + cdLength - GetTime()) or 0
-		local state = CF_WRATH and (C_PetJournal.IsCurrentlySummoned(pid) and 1 or 0) or strcmputf8i(C_PetJournal.GetSummonedPetGUID() or "", pid) == 0 and 1 or 0
-		return sid and cdLeft == 0 and C_PetJournal.PetIsSummonable(pid), state, tex, cn or n or "", 0, cdLeft or 0, cdLength or 0, SetBattlePetByID, pid
+		local cdLeft, cdLength, enabled = toCooldown(GetTime(), C_PetJournal.GetPetCooldownByGUID(pid))
+		local state = (CF_WRATH and (C_PetJournal.IsCurrentlySummoned(pid) and 1 or 0) or strcmputf8i(C_PetJournal.GetSummonedPetGUID() or "", pid) == 0 and 1 or 0)
+		            + (enabled == 0 and 2048 or 0)
+		return sid and cdLeft == 0 and C_PetJournal.PetIsSummonable(pid), state, tex, cn or n or "", 0, cdLeft, cdLength, SetBattlePetByID, pid
 	end
 	if MODERN then -- random favorite pet
 		local rname, _, ricon = GetSpellInfo(243819)
@@ -828,17 +832,16 @@ do -- extrabutton
 		if not HasExtraActionBar() then
 			return false, 0, "Interface/Icons/temp", "", 0, 0, 0
 		end
-		local time, at, aid = GetTime(), GetActionInfo(slot)
+		local now, at, aid = GetTime(), GetActionInfo(slot)
 		local inRange, usable, nomana, hasRange = NormalizeInRange[IsActionInRange(slot)], IsUsableAction(slot)
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		local cdStart, cdLength, enabled = GetActionCooldown(slot)
-		local cdLeft = (cdLength or 0) > 0 and enabled ~= 0 and cdStart+cdLength-time or 0
+		local cdLeft, cdLength, enabled = toCooldown(now, GetActionCooldown(slot))
 		local count, charges, maxCharges, ccdStart, ccdLength = GetActionCount(slot), GetActionCharges(slot)
 		local state = ((IsCurrentAction(slot) or enabled == 0) and 1 or 0) +
 		              (at == "spell" and IsSpellOverlayed(aid) and 2 or 0) +
-		              (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024)
+		              (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
 		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
-			cdLeft, cdLength = ccdStart+ccdLength-time, ccdLength
+			cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
 		end
 		usable = not not (usable and inRange and (cdLeft == 0 or enabled == 0 or charges > 0))
 		return usable, state, GetActionTexture(slot), GetActionText(slot) or (at == "spell" and GetSpellInfo(aid)), count <= 1 and charges or count, cdLeft, cdLength, callMethod.SetAction, slot
@@ -1038,9 +1041,9 @@ if MODERN or CF_WRATH then -- toy: item ID, flags[FORCE_SHOW]
 		return f == nil and PlayerHasToy(id)
 	end
 	function toyHint(iid, _modState, target)
-		local state, count, hasUsableCharge = 0, 0, false
+		local state, count, hasUsableCharge, now = 0, 0, false, GetTime()
 		local _, name, icon = C_ToyBox.GetToyInfo(iid)
-		local cdStart, cdLength = C_Container.GetItemCooldown(iid)
+		local cdLeft, cdLength, enabled = toCooldown(now, C_Container.GetItemCooldown(iid))
 		local ignUse, usable = IGNORE_TOY_USABILITY[iid]
 		local _, sid = C_Item.GetItemSpell(iid)
 		if not playerHasToy(iid) then
@@ -1054,18 +1057,17 @@ if MODERN or CF_WRATH then -- toy: item ID, flags[FORCE_SHOW]
 		local canRange = not (InCombatLockdown() and (UnitIsFriend("player", target) or not UnitExists(target))) or nil
 		local inRange, hasRange = canRange and NormalizeInRange[C_Item.IsItemInRange(iid, target)]
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		state = state + (inRange and 0 or 16) + (hasRange and 512 or 0)
+		state = state + (inRange and 0 or 16) + (hasRange and 512 or 0) + (enabled == 0 and 2048 or 0)
 		if sid then
 			local charges, maxCharges, ccdStart, ccdLength = GetSpellCharges(sid)
 			-- BUG[11.0.2/2409]: GetSpellCharges[The Innkeeper's Daughter] returns the unified hearthstone state,
 			-- but the *item cooldown* is actually enforced (longer + no second charge for Humans).
 			count = charges and charges > 0 and cdLength == 0 and charges or count
 			if charges and maxCharges and charges < maxCharges and cdLength == 0 then
-				cdStart, cdLength, hasUsableCharge = ccdStart, ccdLength, charges > 0
+				hasUsableCharge, cdLeft, cdLength = charges > 0, toCooldown(now, ccdStart, ccdLength, 1)
 				state = state + (hasUsableCharge and 64 or 0)
 			end
 		end
-		local cdLeft = (cdLength or 0) > 0 and cdStart+cdLength-GetTime() or 0
 		icon = icon or C_Item.GetItemIconByID(iid)
 		usable = name and (hasUsableCharge or cdLeft == 0) and inRange and usable or false
 		return usable, state, icon, name, count, cdLeft, cdLength, callMethod.SetToyByItemID, iid
@@ -1166,9 +1168,8 @@ do -- disenchant: iid
 		local name = C_Item.GetItemNameByID(ident)
 		local qual = MODERN and ident and (C_TradeSkillUI.GetItemReagentQualityByItemInfo(ident) or C_TradeSkillUI.GetItemCraftedQualityByItemInfo(ident))
 		qual = qual and qual > 0 and qual < 8 and (qual * 16384) or 0
-		local cdStart, cdLength = GetSpellCooldown(DISENCHANT_SID)
-		local cdLeft = (cdLength or 0) > 0 and cdStart+cdLength-GetTime() or 0
-		local state = (C_Item.IsCurrentItem(ident) and 1 or 0) + (usable and 0 or 1024) + qual + 131072
+		local cdLeft, cdLength, enabled = toCooldown(GetTime(), GetSpellCooldown(DISENCHANT_SID))
+		local state = (C_Item.IsCurrentItem(ident) and 1 or 0) + (usable and 0 or 1024) + qual + 131072 + (enabled == 0 and 2048 or 0)
 		local disName = ICON_PREFIX .. (name or ("item:" .. ident))
 		return not not (usable and cdLeft == 0), state, C_Item.GetItemIconByID(ident), disName, count,
 			cdLeft or 0, cdLength or 0, disenchantTip, ident
