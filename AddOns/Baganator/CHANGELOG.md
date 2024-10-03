@@ -1,6 +1,6 @@
 # Baganator
 
-## [497](https://github.com/Baganator/Baganator/tree/497) (2024-09-28)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/496...497) 
+## [498](https://github.com/Baganator/Baganator/tree/498) (2024-10-03)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/497...498) 
 
-- Currency Panel: Fix error from wrong pool initialization parameters  
+- Update translations  
