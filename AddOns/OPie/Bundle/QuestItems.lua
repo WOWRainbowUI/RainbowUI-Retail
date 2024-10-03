@@ -57,6 +57,7 @@ if MODERN then
 			[225571]=have1, [225572]=have1, [225573]=have1, -- weaver/general/vizier caches
 			[224784]=have1, -- pinnacle cache
 			[169219]=c1, -- brewfest sampler
+			[225249]=c1, -- bag o' gold
 		}
 	end
 	local includeSpell = {
