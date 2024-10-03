@@ -1,5 +1,5 @@
 local addonName, ACP = ...;
-ACP.version = 0.21
+ACP.version = 0.22
 
 local castingMount = false
 local activeMountID = 0
@@ -9,7 +9,7 @@ local _destination = nil
 BINDING_HEADER_ACTIONCAMPLUS = "ActionCamPlus" 
 local _
 
-local ActionCamPlus_EventFrame = CreateFrame("Frame")
+local ActionCamPlus_EventFrame = CreateFrame("Frame", 'ActionCamPlus_EventFrame')
 -- Init Events
 ActionCamPlus_EventFrame:RegisterEvent("ADDON_LOADED")
 ActionCamPlus_EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -46,20 +46,20 @@ ActionCamPlus_EventFrame:SetScript("OnKeyDown", function()
 end)
 ActionCamPlus_EventFrame:SetPropagateKeyboardInput(true)
 
-
 local camMoving = false
 local lastCamPosition = 0
 local timeSinceLastUpdate = 0
 local timeSinceLastCheck = 0
-function ACP.zoomLevelUpdate(self, elapsed) -- Save where we like our camera to be while walking, mounted, or in combat
+function ACP.zoomLevelUpdate(self, elapsed) -- constantly monitor camera zoom and movement so we can accurately track what's happening and react
 	timeSinceLastUpdate = timeSinceLastUpdate + elapsed
 	if _destination then timeSinceLastCheck = timeSinceLastCheck + elapsed end
 	local camPosition = GetCameraZoom()
 
-	if _destination and timeSinceLastCheck > .0167 then
+	if _destination and timeSinceLastUpdate > .016 then
 		timeSinceLastCheck = 0
-		local diff = camPosition - _destination
-		if diff >= 0 and diff < .5 then
+		local diff = abs(camPosition - _destination)
+
+		if diff >= 0 and diff < .25 then
 			_destination = nil
 			MoveViewInStop()
 			MoveViewOutStop()
@@ -73,18 +73,16 @@ function ACP.zoomLevelUpdate(self, elapsed) -- Save where we like our camera to 
 				camMoving = false
 				_destination = nil
 
-				ignoreCVarUpdate = true
-				SetCVar("cameraZoomSpeed", ActionCamPlusDB.defaultZoomSpeed)
-				ignoreCVarUpdate = false
+				ACP.setZoomSpeed()
 
 				if ActionCamPlusDB.ACP_AddonEnabled then
-					local zoomAmount = floor(GetCameraZoom() * 2) / 2
+					local zoomAmount = floor(GetCameraZoom() * 2 + .5) / 2
 					if ((ActionCamPlusDB.ACP_Mounted and IsMounted()) or (ActionCamPlusDB.ACP_DruidFormMounts and ACP.CheckDruidForm())) and ActionCamPlusDB.ACP_AutoSetMountedCameraDistance then 
-						if ActionCamPlusDB.ACP_MountSpecificZoom then 
+						if ActionCamPlusDB.ACP_MountSpecificZoom and activeMountID then 
 							ActionCamPlusDB.mountZooms[activeMountID] = zoomAmount
+						else
+							ActionCamPlusDB.mountedCamDistance = zoomAmount
 						end
-
-						ActionCamPlusDB.mountedCamDistance = zoomAmount
 
 					elseif ActionCamPlusDB.ACP_Combat and ActionCamPlusDB.ACP_AutoSetCombatCameraDistance and UnitAffectingCombat("player") then
 						ActionCamPlusDB.combatCamDistance = zoomAmount
@@ -120,13 +118,21 @@ function ActionCamPlus_EventFrame:ADDON_LOADED(self, addon)
 end
 
 function ActionCamPlus_EventFrame:PLAYER_ENTERING_WORLD()
-	ActionCamPlusDB.defaultZoomSpeed = GetCVar("cameraZoomSpeed")
+	if ActionCamPlusDB.defaultZoomSpeed then
+		SetCVar("cameraZoomSpeed", ActionCamPlusDB.defaultZoomSpeed)
+	else
+		ActionCamPlusDB.defaultZoomSpeed = GetCVar("cameraZoomSpeed")
+	end
 	SetCVar("CameraKeepCharacterCentered", 0)
-	-- ActionCamPlus_EventFrame:UPDATE_SHAPESHIFT_FORM()
+	
+	ACP.SpellIsMount(spellID) -- call once to init mountIDs
+	activeMountID = ACP.getMountID()
+
 	ACP.SetActionCam()
 
+	-- ActionCamPlus_EventFrame:UPDATE_SHAPESHIFT_FORM()
 	-- if ActionCamPlusDB.ACP_AddonEnabled then 
-	-- 	ActionCamPlus_EventFrame:PLAYER_MOUNT_DISPLAY_CHANGED()
+		-- ActionCamPlus_EventFrame:PLAYER_MOUNT_DISPLAY_CHANGED()
 	-- 	ActionCamPlus_EventFrame:UPDATE_SHAPESHIFT_FORM()
 	-- else
 	-- 	ACP.ActionCamOFF()
@@ -225,10 +231,10 @@ function SlashCmdList.ACTIONCAMPLUS(msg)
 	if arg1 == "" then
 		if ActionCamPlusDB.ACP_AddonEnabled then
 			ActionCamPlusDB.ACP_AddonEnabled = false
-			print("ActionCamPlus disabled.")
+			RaidNotice_AddMessage(RaidWarningFrame, "ActionCamPlus disabled.", ChatTypeInfo["SYSTEM"])
 		else
 			ActionCamPlusDB.ACP_AddonEnabled = true
-			print("ActionCamPlus enabled.")
+			RaidNotice_AddMessage(RaidWarningFrame, "ActionCamPlus enabled.", ChatTypeInfo["SYSTEM"])
 		end
 		ACP.SetActionCam()
 
@@ -248,10 +254,17 @@ function SlashCmdList.ACTIONCAMPLUS(msg)
 
 	elseif arg1 == "t" or arg1 == "test" then 
 		-- ACP.SetActionCam()
-		print(GetCameraZoom())
+		-- print(GetCameraZoom())
 		--TEST CODE
 		-- SetCVar("test_cameraDynamicPitchSmartPivotCutoffDist", arg2)
 		-- print(ActionCamPlusDB.transitionSpeed)
+		ACP_CVars = {}
+		local commands = ConsoleGetAllCommands()
+		for i=1,#commands do
+			if strfind(string.upper(commands[i].command), 'TEST') then
+				ACP_CVars[commands[i].command] = commands[i]
+			end
+		end
 
 		--END TEST CODE
 	end
@@ -272,6 +285,7 @@ function ACP.SetActionCam() -- This function basically decides everything
 		if mounted and ActionCamPlusDB.ACP_Mounted then 
 			ACP.ActionCam(ActionCamPlusDB.ACP_MountedActionCam)
 			ACP.SetFocus(ActionCamPlusDB.ACP_MountedFocusing)
+			ACP.SetFocusInteract(ActionCamPlusDB.ACP_MountedFocusingInteract)
 			ACP.SetPitch(ActionCamPlusDB.ACP_MountedPitch)
 
 			if not ActionCamPlusDB.ACP_MountedSetCameraZoom then return end
@@ -283,6 +297,7 @@ function ACP.SetActionCam() -- This function basically decides everything
 		elseif combat and ActionCamPlusDB.ACP_Combat then
 			ACP.ActionCam(ActionCamPlusDB.ACP_CombatActionCam)
 			ACP.SetFocus(ActionCamPlusDB.ACP_CombatFocusing)
+			ACP.SetFocusInteract(ActionCamPlusDB.ACP_CombatFocusingInteract)
 			ACP.SetPitch(ActionCamPlusDB.ACP_CombatPitch)
 
 			if not ActionCamPlusDB.ACP_CombatSetCameraZoom then return end
@@ -290,6 +305,7 @@ function ACP.SetActionCam() -- This function basically decides everything
 		else
 			ACP.ActionCam(ActionCamPlusDB.ACP_ActionCam)
 			ACP.SetFocus(ActionCamPlusDB.ACP_Focusing)
+			ACP.SetFocusInteract(ActionCamPlusDB.ACP_FocusingInteract)
 			ACP.SetPitch(ActionCamPlusDB.ACP_Pitch)
 
 			if not ActionCamPlusDB.ACP_SetCameraZoom then return end
@@ -298,24 +314,33 @@ function ACP.SetActionCam() -- This function basically decides everything
 	else
 		ACP.ActionCam(false)
 		ACP.SetFocus(false)
+		ACP.SetFocusInteract(false)
 		ACP.SetPitch(false)
 	end
 end
 
 function ACP.ActionCam(enable)
 	if enable then
-		SetCVar("test_cameraOverShoulder", 1)
+		SetCVar("test_cameraOverShoulder", ActionCamPlusDB.leftShoulder and -1 or 1)
 	else
 		SetCVar("test_cameraOverShoulder", 0)
 	end
 end
-GetCVar("test_cameraOverShoulder")
+-- GetCVar("test_cameraOverShoulder")
 
 function ACP.SetFocus(enable)
 	if enable then 
 		SetCVar("test_cameraTargetFocusEnemyEnable", 1)
 	else
 		SetCVar("test_cameraTargetFocusEnemyEnable", 0)
+	end
+end
+
+function ACP.SetFocusInteract(enable)
+	if enable then 
+		SetCVar("test_cameraTargetFocusInteractEnable", 1)
+	else
+		SetCVar("test_cameraTargetFocusInteractEnable", 0)
 	end
 end
 
@@ -329,43 +354,72 @@ end
 
 function ACP.SetCameraZoom(destination)
 	if abs(destination - GetCameraZoom()) > .5 then
-		_destination = destination
-		ignoreCVarUpdate = true
-		SetCVar("cameraZoomSpeed", ActionCamPlusDB.transitionSpeed)		
-		ignoreCVarUpdate = false
-
 		-- MoveViewInStop() -- this line stops the camera from doing whatever it might have been doing before...
 		-- MoveViewOutStop()
+
+		_destination = destination
+		ACP.setZoomSpeed(true)
+
+		-- we have to delay for one in-game frame so that our wow's cam doesn't get confused
+		-- also, set the target .5 further to account for the general inaccuracy of this function. It should be sorted out by the stop script
 		if destination >= GetCameraZoom() then 
-			-- we have to delay for one in-game frame so that our wow's cam doesn't get confused
-			C_Timer.After(.001, function() CameraZoomOut(destination - GetCameraZoom() + .5) end)
+			-- C_Timer.After(.001, function() CameraZoomOut(destination - GetCameraZoom() + .5) end)
+			ACP.doubleDelay(function() CameraZoomOut(destination - GetCameraZoom() + .5) end)
 		else
-			C_Timer.After(.001, function() CameraZoomIn(GetCameraZoom() - destination + .5) end)
-		end	
+			-- C_Timer.After(.001, function() CameraZoomIn(GetCameraZoom() - destination + .5) end)
+			ACP.doubleDelay(function() CameraZoomIn(GetCameraZoom() - destination + .5) end)
+		end
 	end
 end
 
+-- delay two frames
+function ACP.doubleDelay(func)
+	C_Timer.After(.001, function()
+		-- double check after one frame
+		-- if CVar hasn't updated then wait another frame
+		-- why do we sometimes transition at default scroll speed??? >.<
+		-- it still happens sometimes even with this...
+		if tonumber(GetCVar('cameraZoomSpeed')) ~= ActionCamPlusDB.transitionSpeed then
+			ACP.setZoomSpeed(true)
+			ACP.doubleDelay(func)
+		else
+			C_Timer.After(.001, function() func() end)
+		end
+	end)
+end
+
+function ACP.setZoomSpeed(transition)
+	ignoreCVarUpdate = true
+	SetCVar("cameraZoomSpeed", transition and ActionCamPlusDB.transitionSpeed or ActionCamPlusDB.defaultZoomSpeed)
+	ignoreCVarUpdate = false
+end
+
+function ACP.getMountID()
+	if not IsMounted() then return nil end
+
+	local i = 1
+	while true do
+        local buff=C_UnitAuras.GetBuffDataByIndex('player', i)
+
+        if buff then
+            if ACP.SpellIsMount(buff.spellId) then return buff.spellId end
+            i=i+1
+        else break end
+    end
+end
+
 -- Is spell id a mount?
+mountSpellIDs = nil
 function ACP.SpellIsMount(spellID)
-	local mountSpellIDs = {}
-	if ACP.IsClassic() then
-		for i = 1, GetNumCompanions("MOUNT") do
-			_,_, mountSpellID, _ = GetCompanionInfo("MOUNT", i)
-			tinsert(mountSpellIDs, mountSpellID)
-		end
-	else
-		local mountIDs = C_MountJournal.GetMountIDs()
-		for i = 1,#mountIDs do 
-			_, mountSpellID = C_MountJournal.GetMountInfoByID(mountIDs[i])
-			tinsert(mountSpellIDs, mountSpellID)
+	if not mountSpellIDs then
+		mountSpellIDs = {}
+		for i,k in pairs(C_MountJournal.GetMountIDs()) do
+			_, mountSpellID, _ = C_MountJournal.GetMountInfoByID(i)
+			if mountSpellID then mountSpellIDs[mountSpellID] = true end
 		end
 	end
 
-	if tContains(mountSpellIDs, spellID) then
-		return true
-	end
-
-	return false
+	return mountSpellIDs[spellID] or false
 end
 
 function ACP.IsClassic()
