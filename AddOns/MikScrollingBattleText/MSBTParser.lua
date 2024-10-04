@@ -537,6 +537,8 @@ local function CreateSearchCaptureFuncs()
 		-- Reputation events.
 		FACTION_STANDING_DECREASED = function(p, c) p.eventType, p.isLoss, p.factionName, p.amount = "reputation", true, c[1], c[2] end,
 		FACTION_STANDING_INCREASED = function(p, c) p.eventType, p.factionName, p.amount = "reputation", c[1], c[2] end,
+		FACTION_STANDING_DECREASED_ACCOUNT_WIDE = function(p, c) p.eventType, p.isLoss, p.factionName, p.amount = "reputation", true, c[1], c[2] end,
+		FACTION_STANDING_INCREASED_ACCOUNT_WIDE = function(p, c) p.eventType, p.factionName, p.amount = "reputation", c[1], c[2] end,
 
 		-- Proficiency events.
 		SKILL_RANK_UP = function(p, c) p.eventType, p.skillName, p.amount = "proficiency", c[1], c[2] end,
@@ -547,6 +549,11 @@ local function CreateSearchCaptureFuncs()
 		LOOT_MONEY_SPLIT = function(p, c) p.eventType, p.isMoney, p.moneyString = "loot", true, c[1] end,
 		CURRENCY_GAINED = function(p, c) p.eventType, p.isCurrency, p.itemLink, p.amount = "loot", true, c[1], c[2] end,
 	}
+
+	if not IsRetail then
+		searchCaptureFuncs["FACTION_STANDING_DECREASED_ACCOUNT_WIDE"] = nil
+		searchCaptureFuncs["FACTION_STANDING_INCREASED_ACCOUNT_WIDE"] = nil
+	end
 
 	searchCaptureFuncs["LOOT_ITEM_SELF_MULTIPLE"] = searchCaptureFuncs["LOOT_ITEM_SELF"]
 	searchCaptureFuncs["LOOT_ITEM_CREATED_SELF_MULTIPLE"] = searchCaptureFuncs["LOOT_ITEM_CREATED_SELF"]
