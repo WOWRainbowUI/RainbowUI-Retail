@@ -8,9 +8,11 @@ vcbOptions1Box4.TitleTxt:SetText("總共施法時間")
 vcbOptions1Box5.TitleTxt:SetText("延遲標示 & 施法斷點")
 vcbOptions1Box6.TitleTxt:SetText("施法條顏色")
 -- positioning the boxes --
-for i = 2, 6, 1 do
-	_G["vcbOptions1Box"..i]:SetPoint("TOP", _G["vcbOptions1Box"..i-1], "BOTTOM", 0, 0)
-end
+vcbOptions1Box2:SetPoint("TOPLEFT", vcbOptions1Box1, "TOPRIGHT", 0, 0)
+vcbOptions1Box3:SetPoint("TOPLEFT", vcbOptions1Box1, "BOTTOMLEFT", 0, 0)
+vcbOptions1Box4:SetPoint("TOPRIGHT", vcbOptions1Box2, "BOTTOMRIGHT", 0, 0)
+vcbOptions1Box5:SetPoint("TOPLEFT", vcbOptions1Box3, "BOTTOMLEFT", 0, 0)
+vcbOptions1Box6:SetPoint("TOPRIGHT", vcbOptions1Box4, "BOTTOMRIGHT", 0, 0)
 -- Checking the Saved Variables --
 local function CheckSavedVariables()
 	vcbOptions1Box1PopOut1:SetText(VCBrPlayer["Icon"])

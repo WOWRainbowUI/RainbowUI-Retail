@@ -5,7 +5,7 @@
 <!-- Options Box 1 Spell's Icon & Spell's Name -->
 			<Frame name="$parentBox1" inherits="vcbOptionsBox">
 				<Anchors>
-					<Anchor point="TOP" relativeKey="$parent.TopTxt" relativePoint="BOTTOM" x ="0" y="-8"/>
+					<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x ="0" y="-64"/>
 				</Anchors>
 				<Size x="360" y="72"/>
 				<Frames>

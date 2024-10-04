@@ -5,9 +5,10 @@
 <!-- Options Box 0, Read Me! -->
 			<Frame name="$parentBox0" inherits="vcbOptionsBox">
 				<Anchors>
-					<Anchor point="TOP" relativeKey="$parent.TopTxt" relativePoint="BOTTOM" x ="0" y="-8"/>
+					<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x ="0" y="-64"/>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x ="0" y="-64"/>
 				</Anchors>
-				<Size x="360" y="216"/>
+				<Size y="144"/>
 				<Layers>
 					<Layer level="OVERLAY">
 						<FontString parentKey="CenterText" font="Game13FontShadow" justifyV="MIDDLE" justifyH="LEFT" >

@@ -8,9 +8,11 @@ vcbOptions2Box3.TitleTxt:SetText("目前 & 總共施法時間")
 vcbOptions2Box4.TitleTxt:SetText("總共施法時間")
 vcbOptions2Box5.TitleTxt:SetText("法術名稱 & 施法條顏色")
 -- positioning the boxes --
-for i = 1, 5, 1 do
-	_G["vcbOptions2Box"..i]:SetPoint("TOP", _G["vcbOptions2Box"..i-1], "BOTTOM", 0, 0)
-end
+vcbOptions2Box1:SetPoint("TOPLEFT", vcbOptions2Box0, "BOTTOMLEFT", 0, 0)
+vcbOptions2Box2:SetPoint("TOPRIGHT", vcbOptions2Box0, "BOTTOMRIGHT", 0, 0)
+vcbOptions2Box3:SetPoint("TOPLEFT", vcbOptions2Box1, "BOTTOMLEFT", 0, 0)
+vcbOptions2Box4:SetPoint("TOPRIGHT", vcbOptions2Box2, "BOTTOMRIGHT", 0, 0)
+vcbOptions2Box5:SetPoint("TOP", vcbOptions2Box4, "BOTTOM", 0, 0)
 -- fuction for Available --
 local function vcbAvailable()
 	vcbOptions2Box1CheckButton1:SetChecked(true)
