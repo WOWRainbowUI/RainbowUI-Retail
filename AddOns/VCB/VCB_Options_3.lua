@@ -8,9 +8,11 @@ vcbOptions3Box3.TitleTxt:SetText("Current & Total Cast Time")
 vcbOptions3Box4.TitleTxt:SetText("Total Cast Time")
 vcbOptions3Box5.TitleTxt:SetText("Spell's Name & Cast Bar's Color")
 -- positioning the boxes --
-for i = 1, 5, 1 do
-	_G["vcbOptions3Box"..i]:SetPoint("TOP", _G["vcbOptions3Box"..i-1], "BOTTOM", 0, 0)
-end
+vcbOptions3Box1:SetPoint("TOPLEFT", vcbOptions3Box0, "BOTTOMLEFT", 0, 0)
+vcbOptions3Box2:SetPoint("TOPRIGHT", vcbOptions3Box0, "BOTTOMRIGHT", 0, 0)
+vcbOptions3Box3:SetPoint("TOPLEFT", vcbOptions3Box1, "BOTTOMLEFT", 0, 0)
+vcbOptions3Box4:SetPoint("TOPRIGHT", vcbOptions3Box2, "BOTTOMRIGHT", 0, 0)
+vcbOptions3Box5:SetPoint("TOP", vcbOptions3Box4, "BOTTOM", 0, 0)
 -- fuction for Available --
 local function vcbAvailable()
 	vcbOptions3Box1CheckButton1:SetChecked(true)
