@@ -28,6 +28,7 @@ local Print = MikSBT.Print
 local SplitString = MikSBT.SplitString
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 
 -------------------------------------------------------------------------------
@@ -126,7 +127,7 @@ local eventFrame
 
 -- Meta table for the differential profile tables.
 local differentialMap = {}
-local differential_mt = { __index = function(t,k) return differentialMap[t][k] end }
+local differential_mt = { __index = function(t, k) return differentialMap[t][k] end }
 local differentialCache = {}
 
 -- Holds variables to be saved between sessions.
@@ -3326,7 +3327,7 @@ local function SetupBlizzardOptions()
 	frame.name = "MikScrollingBattleText"
 
 	-- Create an option button in the center of the frame to launch MSBT's options.
-	local button = CreateFrame("Button", nil, frame, IsClassic and "OptionsButtonTemplate" or "UIPanelButtonTemplate")
+	local button = CreateFrame("Button", nil, frame, IsCataClassic and "OptionsButtonTemplate" or "UIPanelButtonTemplate")
 	button:SetSize(100, 24)
 	button:SetPoint("CENTER")
 	button:SetText(MikSBT.COMMAND)
