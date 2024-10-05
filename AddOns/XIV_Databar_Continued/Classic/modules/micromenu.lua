@@ -230,7 +230,7 @@ function MenuModule:CreateFrames()
         end
     end
 
-    if mm.chat then
+    if (WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC) and mm.chat then -- 經典時期暫時不顯示聊天選單按鈕
         self.frames.chat = CreateFrame("BUTTON", "chat", parentFrame)
         parentFrame = self.frames.chat
     else
