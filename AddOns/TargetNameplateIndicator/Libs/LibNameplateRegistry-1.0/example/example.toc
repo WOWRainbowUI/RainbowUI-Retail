@@ -1,10 +1,10 @@
-## Interface: 100207, 110000
-## Interface-Retail: 100207, 110000
-## Interface-Classic: 11502
-## Interface-Wrath: 30403
-## Interface-Cata: 40400
-## X-Max-Interface: 110000
-## X-Min-Interface:  11502
+## Interface: 110002, 110005
+## Interface-Retail: 110002, 110005
+## Interface-Classic: 11504
+## Interface-Cata: 40400, 40401
+## X-Max-Interface: 110005
+## X-Min-Interface:  11504
+
 
 ## Title: example
 
