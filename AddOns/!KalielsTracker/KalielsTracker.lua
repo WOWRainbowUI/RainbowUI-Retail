@@ -2580,7 +2580,7 @@ function KT:SetModuleHeader(module)
 end
 
 function KT:SetHeaderText(module, append)
-	local text = module.title
+	local text = module.title or "" -- 暫時修正
 	if append then
 		text = format("%s (%s)", text, append)
 	end
