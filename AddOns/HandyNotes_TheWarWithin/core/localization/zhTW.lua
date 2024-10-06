@@ -191,9 +191,9 @@ L['options_restore_hidden_nodes'] = '恢復隱藏的圖示'
 L['options_restore_hidden_nodes_desc'] = '恢復所有使用右鍵選單隱藏的圖示。'
 
 L['ignore_class_restrictions'] = '忽略職業限制'
-L['ignore_class_restrictions_desc'] = '顯示需要非當前角色職業的隊伍、地點和獎勵.'
+L['ignore_class_restrictions_desc'] = '顯示需要非當前角色職業的隊伍、地點和獎勵。'
 L['ignore_faction_restrictions'] = '忽略陣營限制'
-L['ignore_faction_restrictions_desc'] = '顯示需要對方陣營的隊伍、地點和獎勵.'
+L['ignore_faction_restrictions_desc'] = '顯示需要對方陣營的隊伍、地點和獎勵。'
 
 L['options_rewards_settings'] = '獎勵'
 L['options_reward_behaviors_settings'] = '獎勵行為'
