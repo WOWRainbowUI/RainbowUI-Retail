@@ -575,7 +575,7 @@ function CraftSim.CRAFTQ.UI:Init()
             sizeX = fixedButtonWidth,
             label = L(CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_PATRON_ORDERS_BUTTON_LABEL),
             clickCallback = function()
-                CraftSim.CRAFTQ:AddPatronOrders()
+                CraftSim.CRAFTQ:QueuePatronOrders()
             end
         })
 
@@ -601,6 +601,19 @@ function CraftSim.CRAFTQ.UI:Init()
                             L("CRAFT_QUEUE_ADD_PATRON_ORDERS_ALLOW_CONCENTRATION_TOOLTIP"));
                         --GameTooltip_AddNormalLine(tooltip, "Test Tooltip Normal Line");
                         --GameTooltip_AddErrorLine(tooltip, "Test Tooltip Colored Line");
+                    end);
+
+                    local forceConcentrationCB = rootDescription:CreateCheckbox(f.r("Force " .. f.gold("Concentration")),
+                        function()
+                            return CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_PATRON_ORDERS_FORCE_CONCENTRATION")
+                        end, function()
+                            local value = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_PATRON_ORDERS_FORCE_CONCENTRATION")
+                            CraftSim.DB.OPTIONS:Save("CRAFTQUEUE_PATRON_ORDERS_FORCE_CONCENTRATION", not value)
+                        end)
+
+                    forceConcentrationCB:SetTooltip(function(tooltip, elementDescription)
+                        GameTooltip_AddInstructionLine(tooltip,
+                            "Force the use of concentration for all patron orders if possible");
                     end);
 
                     local sparkCB = rootDescription:CreateCheckbox("Ignore " .. f.e("Spark") .. " Recipes",
@@ -936,26 +949,33 @@ function CraftSim.CRAFTQ.UI:Init()
 
     createContent(CraftSim.CRAFTQ.frame)
 
-    local tooltip = "Add the displayed recipe to the " ..
-        f.l("CraftSim ") .. f.bb("Craft Queue") .. "\n" .. f.bb("Right Click") .. " for more options"
-
     -- add to queue button in crafting ui
     CraftSim.CRAFTQ.queueRecipeButton = GGUI.Button {
         parent = ProfessionsFrame.CraftingPage.SchematicForm,
         anchorPoints = { {
             anchorParent = ProfessionsFrame.CraftingPage.SchematicForm.TrackRecipeCheckbox,
-            anchorA = "RIGHT", anchorB = "LEFT", offsetX = -15,
+            anchorA = "RIGHT", anchorB = "LEFT", offsetX = -18, offsetY = -19,
         } },
         adjustWidth = true,
         sizeX = 15,
         label = "+ CraftQueue",
-        clickCallback = function(_, mouseButton)
-            CraftSim.CRAFTQ:AddOpenRecipe(mouseButton)
+        clickCallback = function(_, _)
+            CraftSim.CRAFTQ:QueueOpenRecipe()
         end,
-        tooltipOptions = {
-            text = tooltip,
-            anchor = "ANCHOR_CURSOR_RIGHT",
-        },
+    }
+
+    CraftSim.CRAFTQ.queueRecipeButtonOptions = GGUI.Button {
+        parent = ProfessionsFrame.CraftingPage.SchematicForm,
+        anchorPoints = { {
+            anchorParent = CraftSim.CRAFTQ.queueRecipeButton.frame,
+            anchorA = "LEFT", anchorB = "RIGHT", offsetX = 5,
+        } },
+        sizeX = 20, sizeY = 20,
+        buttonTextureOptions = CraftSim.CONST.BUTTON_TEXTURE_OPTIONS.OPTIONS,
+        cleanTemplate = true,
+        clickCallback = function(_, _)
+            CraftSim.CRAFTQ:ShowQueueOpenRecipeOptions()
+        end
     }
 
     -- add to queue button in crafting ui for work orders
@@ -968,13 +988,23 @@ function CraftSim.CRAFTQ.UI:Init()
         adjustWidth = true,
         sizeX = 15,
         label = "+ CraftQueue",
-        clickCallback = function(_, mouseButton)
-            CraftSim.CRAFTQ:AddOpenRecipe(mouseButton)
+        clickCallback = function(_, _)
+            CraftSim.CRAFTQ:QueueOpenRecipe()
         end,
-        tooltipOptions = {
-            text = tooltip,
-            anchor = "ANCHOR_CURSOR_RIGHT",
-        },
+    }
+
+    CraftSim.CRAFTQ.queueRecipeButtonOptionsWO = GGUI.Button {
+        parent = ProfessionsFrame.OrdersPage.OrderView.OrderDetails.SchematicForm,
+        anchorPoints = { {
+            anchorParent = CraftSim.CRAFTQ.queueRecipeButtonWO.frame,
+            anchorA = "LEFT", anchorB = "RIGHT", offsetX = 5,
+        } },
+        sizeX = 20, sizeY = 20,
+        buttonTextureOptions = CraftSim.CONST.BUTTON_TEXTURE_OPTIONS.OPTIONS,
+        cleanTemplate = true,
+        clickCallback = function(_, _)
+            CraftSim.CRAFTQ:ShowQueueOpenRecipeOptions()
+        end
     }
 end
 
@@ -1507,7 +1537,9 @@ function CraftSim.CRAFTQ.UI:UpdateAddOpenRecipeButton(recipeData)
     local exportMode = CraftSim.UTIL:GetExportModeByVisibility()
 
     local button = CraftSim.CRAFTQ.queueRecipeButton
+    local buttonOptions = CraftSim.CRAFTQ.queueRecipeButtonOptions
     local buttonWO = CraftSim.CRAFTQ.queueRecipeButtonWO
+    local buttonOptionsWO = CraftSim.CRAFTQ.queueRecipeButtonOptionsWO
 
     local isTradeSkillAllowed = not CraftSim.CONST.GATHERING_PROFESSIONS
         [recipeData.professionData.professionInfo.profession] and not C_TradeSkillUI.IsTradeSkillGuild() and
@@ -1525,7 +1557,11 @@ function CraftSim.CRAFTQ.UI:UpdateAddOpenRecipeButton(recipeData)
 
     button:SetVisible(isTradeSkillAllowed and isRecipeAllowed and exportMode == CraftSim.CONST.EXPORT_MODE
         .NON_WORK_ORDER)
+    buttonOptions:SetVisible(isTradeSkillAllowed and isRecipeAllowed and exportMode == CraftSim.CONST.EXPORT_MODE
+        .NON_WORK_ORDER)
     buttonWO:SetVisible(isTradeSkillAllowed and isRecipeAllowed and exportMode == CraftSim.CONST.EXPORT_MODE.WORK_ORDER)
+    buttonOptionsWO:SetVisible(isTradeSkillAllowed and isRecipeAllowed and
+    exportMode == CraftSim.CONST.EXPORT_MODE.WORK_ORDER)
 end
 
 function CraftSim.CRAFTQ.UI:UpdateQueueDisplay()
