@@ -1,3 +1,4 @@
+local addonName = ...
 local MDT = MDT
 local L = MDT.L
 
@@ -5,14 +6,14 @@ local dungeonIndex = 111
 MDT.dungeonList[dungeonIndex] = L["The Dawnbreaker"]
 MDT.mapInfo[dungeonIndex] = {}
 
-local zones = { 2215, 2215 } -- TODO remove 2215 WHEN DAWNBREAKER IS GONE FROM ROTATION
+local zones = { 2215, 2215, 2359 } -- TODO remove 2215 WHEN DAWNBREAKER IS GONE FROM ROTATION
 for _, zone in ipairs(zones) do
   MDT.zoneIdToDungeonIdx[zone] = dungeonIndex
 end
 
 MDT.dungeonMaps[dungeonIndex] = {
   [0] = "",
-  [1] = { customTextures = "Dawnbreaker" }
+  [1] = { customTextures = 'Interface\\AddOns\\'..addonName..'\\TheWarWithin\\Textures\\Dawnbreaker' }
 }
 
 MDT.dungeonSubLevels[dungeonIndex] = {
