@@ -41,7 +41,7 @@ local rhToys = {
 	206195, --Path of the Naaru
 	212337, --Stone of the Hearth
 	210455, --Draenic Hologem
-	228940, --Notorious Thread's Hearthstone (Not a toy)
+	228940, --Notorious Thread's Hearthstone
 }
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -50,6 +50,7 @@ local rhToys = {
 
 local rhList, macroIcon, macroToyName, macroTimer, waitTimer
 local rhCheckButtons, wait, lastRnd, loginMsg = {}, false, 0, "r21"
+local playerClass = select(3,UnitClass("player"))
 local addon, RH = ...
 local L = RH.Localisation
 
@@ -94,7 +95,12 @@ local function updateMacro()
 			end
 			macroText = "#showtooltip " .. macroToyName .. "\n/use " .. macroToyName
 		else
-			macroText = "#showtooltip " .. macroToyName .. "\n/stopcasting\n/click [btn:2]rhB 2;[btn:3]rhB 3;rhB"
+			-- Add cancelform to macro if player is a druid
+			if playerClass == 11 then
+				macroText = "#showtooltip " .. macroToyName .. "\n/cancelform\n/stopcasting\n/click [btn:2]rhB 2;[btn:3]rhB 3;rhB"
+			else
+				macroText = "#showtooltip " .. macroToyName .. "\n/stopcasting\n/click [btn:2]rhB 2;[btn:3]rhB 3;rhB"
+			end
 		end
 		if macroTimer ~= true then
 			macroTimer = true
