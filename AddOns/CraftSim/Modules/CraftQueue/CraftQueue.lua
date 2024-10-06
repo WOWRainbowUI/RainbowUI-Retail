@@ -127,7 +127,7 @@ function CraftSim.CRAFTQ:CRAFTINGORDERS_CLAIMED_ORDER_REMOVED()
     self.UI:UpdateDisplay()
 end
 
-function CraftSim.CRAFTQ:AddPatronOrders()
+function CraftSim.CRAFTQ:QueuePatronOrders()
     local profession = C_TradeSkillUI.GetChildProfessionInfo().profession
     if C_TradeSkillUI.IsNearProfessionSpellFocus(profession) then
         local request = {
@@ -206,13 +206,17 @@ function CraftSim.CRAFTQ:AddPatronOrders()
                                 recipeData:Update()
 
                                 local function queueRecipe()
+                                    local allowConcentration = CraftSim.DB.OPTIONS:Get(
+                                        "CRAFTQUEUE_PATRON_ORDERS_ALLOW_CONCENTRATION")
+                                    local forceConcentration = CraftSim.DB.OPTIONS:Get(
+                                        "CRAFTQUEUE_PATRON_ORDERS_FORCE_CONCENTRATION")
                                     -- TODO: allow queuing with concentration and concentration optimization in queue options
                                     -- check if the min quality is reached, if not do not queue
                                     if recipeData.resultData.expectedQuality >= order.minQuality then
                                         CraftSim.CRAFTQ:AddRecipe { recipeData = recipeData }
                                     end
 
-                                    if CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_PATRON_ORDERS_ALLOW_CONCENTRATION") and
+                                    if (forceConcentration or allowConcentration) and
                                         recipeData.resultData.expectedQualityConcentration == order.minQuality then
                                         -- use concentration to reach and then queue
                                         recipeData.concentrating = true
@@ -224,14 +228,25 @@ function CraftSim.CRAFTQ:AddPatronOrders()
                                 end
                                 -- try to optimize for target quality
                                 if order.minQuality then
-                                    RunNextFrame(
-                                        function()
-                                            recipeData:OptimizeReagents({
-                                                maxQuality = order.minQuality
-                                            })
-                                            queueRecipe()
-                                        end
-                                    )
+                                    if CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_PATRON_ORDERS_FORCE_CONCENTRATION") then
+                                        RunNextFrame(
+                                            function()
+                                                recipeData:OptimizeReagents({
+                                                    maxQuality = math.max(order.minQuality - 1, 1)
+                                                })
+                                                queueRecipe()
+                                            end
+                                        )
+                                    else
+                                        RunNextFrame(
+                                            function()
+                                                recipeData:OptimizeReagents({
+                                                    maxQuality = order.minQuality
+                                                })
+                                                queueRecipe()
+                                            end
+                                        )
+                                    end
                                 else
                                     queueRecipe()
                                 end
@@ -718,9 +733,8 @@ function CraftSim.CRAFTQ:CheckSaleRateThresholdForRecipe(recipeData, usedQualiti
     return false
 end
 
---- Called OnMouseDown by the AddCurrentRecipeButt
----@param mouseButton MouseButton
-function CraftSim.CRAFTQ:AddOpenRecipe(mouseButton)
+function CraftSim.CRAFTQ:QueueOpenRecipe()
+    ---@type CraftSim.RecipeData
     local recipeData
     if CraftSim.SIMULATION_MODE.isActive then
         if CraftSim.SIMULATION_MODE.recipeData then
@@ -728,7 +742,7 @@ function CraftSim.CRAFTQ:AddOpenRecipe(mouseButton)
         end
     else
         if CraftSim.INIT.currentRecipeData then
-            recipeData = CraftSim.INIT.currentRecipeData
+            recipeData = CraftSim.INIT.currentRecipeData:Copy()
         end
     end
 
@@ -736,94 +750,83 @@ function CraftSim.CRAFTQ:AddOpenRecipe(mouseButton)
         return
     end
 
-    local queueButton
     local exportMode = CraftSim.UTIL:GetExportModeByVisibility()
+    local queueButton
     if exportMode == CraftSim.CONST.EXPORT_MODE.NON_WORK_ORDER then
         queueButton = CraftSim.CRAFTQ.queueRecipeButton
     else
         queueButton = CraftSim.CRAFTQ.queueRecipeButtonWO
     end
 
-    if mouseButton == "LeftButton" then
-        CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
-    elseif mouseButton == "RightButton" then
-        --- Give more Options for queuing
-        if recipeData.orderData then
-            MenuUtil.CreateContextMenu(UIParent, function(ownerRegion, rootDescription)
-                if recipeData.orderData.minQuality then
-                    rootDescription:CreateButton("Optimize " .. f.bb("Minimum Quality") .. " + Queue", function()
-                        local recipeData = recipeData:Copy()
-                        recipeData:OptimizeReagents({
-                            highestProfit = false,
-                            maxQuality = recipeData.orderData.minQuality,
-                        })
+    local optimizeTopProfit = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_TOP_PROFIT_QUALITY")
+    local optimizeGear = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_PROFESSION_GEAR")
+    local optimizeConcentration = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_CONCENTRATION")
 
-                        if recipeData.resultData.expectedQuality < recipeData.orderData.minQuality then
-                            CraftSim.DEBUG:SystemPrint(f.l("CraftSim: " ..
-                                f.r("Could not reach minimum quality for work order. Recipe not queued.")))
-                            CraftSim.DEBUG:SystemPrint(f.l("CraftSim: " ..
-                                f.bb("Highest Quality: " ..
-                                    GUTIL:GetQualityIconString(recipeData.resultData.expectedQuality, 20, 20))))
-                        else
-                            CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
-                        end
-                    end)
-                else
-                    rootDescription:CreateButton("Optimize " .. f.g("Top Profit") .. " + Queue", function()
-                        local recipeData = recipeData:Copy()
-                        recipeData:OptimizeReagents({
-                            highestProfit = true,
-                            maxQuality = recipeData.maxQuality,
-                        })
-                        CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
-                    end)
-                end
-            end)
-        else
-            MenuUtil.CreateContextMenu(UIParent, function(ownerRegion, rootDescription)
-                rootDescription:CreateButton("Optimize " .. f.bb("Max Quality") .. " + Queue", function()
-                    local recipeData = recipeData:Copy()
-                    recipeData:OptimizeReagents({
-                        highestProfit = false,
-                        maxQuality = recipeData.maxQuality,
-                    })
-                    CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
-                end)
-                rootDescription:CreateButton("Optimize " .. f.g("Top Profit") .. " + Queue", function()
-                    local recipeData = recipeData:Copy()
-                    recipeData:OptimizeReagents({
-                        highestProfit = true,
-                        maxQuality = recipeData.maxQuality,
-                    })
-                    CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
-                end)
-                if recipeData.supportsQualities then
-                    rootDescription:CreateButton("Optimize " .. f.gold("Concentration Value") .. " + Queue", function()
-                        queueButton:SetEnabled(false)
-                        local recipeData = recipeData:Copy()
-                        if not recipeData.concentrating then
-                            recipeData.concentrating = true
-                            recipeData:Update()
-                        end
-                        recipeData:OptimizeReagents({
-                            highestProfit = true,
-                            maxQuality = recipeData.maxQuality,
-                        })
-                        recipeData:OptimizeConcentration({
-                            frameDistributedCallback = function()
-                                CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
-                                queueButton:SetEnabled(true)
-                                queueButton:SetText("+ CraftQueue")
-                            end,
-                            progressUpdateCallback = function(progress)
-                                queueButton:SetText(string.format("%.0f%%", progress))
-                            end
-                        })
-                    end)
-                end
-            end)
-        end
+    if optimizeConcentration and recipeData.supportsQualities then
+        recipeData.concentrating = true
+        recipeData:Update()
     end
+
+    if optimizeGear then
+        recipeData:OptimizeGear(CraftSim.TOPGEAR:GetSimMode(CraftSim.TOPGEAR.SIM_MODES.PROFIT))
+    end
+
+    if optimizeTopProfit then
+        recipeData:OptimizeReagents {
+            highestProfit = true,
+        }
+    end
+
+    if optimizeConcentration and recipeData.supportsQualities then
+        queueButton:SetEnabled(false)
+        recipeData:OptimizeConcentration {
+            frameDistributedCallback = function()
+                queueButton:SetEnabled(true)
+                queueButton:SetText("+ CraftQueue")
+                CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+            end,
+            progressUpdateCallback = function(progress)
+                queueButton:SetText(string.format("%.0f%%", progress))
+            end
+        }
+    else
+        CraftSim.CRAFTQ:AddRecipe({ recipeData = recipeData })
+    end
+end
+
+function CraftSim.CRAFTQ:ShowQueueOpenRecipeOptions()
+    MenuUtil.CreateContextMenu(UIParent, function(ownerRegion, rootDescription)
+        local recipeData = CraftSim.INIT.currentRecipeData
+        if not recipeData then return end
+        if recipeData.supportsQualities then
+            rootDescription:CreateCheckbox(
+                "Optimize " .. f.g("Top Profit Quality"),
+                function()
+                    return CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_TOP_PROFIT_QUALITY")
+                end, function()
+                    local value = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_TOP_PROFIT_QUALITY")
+                    CraftSim.DB.OPTIONS:Save("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_TOP_PROFIT_QUALITY", not value)
+                end)
+        end
+        rootDescription:CreateCheckbox(
+            "Optimize " .. f.bb("Profession Gear"),
+            function()
+                return CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_PROFESSION_GEAR")
+            end, function()
+                local value = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_PROFESSION_GEAR")
+                CraftSim.DB.OPTIONS:Save("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_PROFESSION_GEAR", not value)
+            end)
+        if recipeData.supportsQualities then
+            rootDescription:CreateCheckbox(
+                "Optimize " .. f.gold("Concentration"),
+                function()
+                    return CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_CONCENTRATION")
+                end, function()
+                    local value = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_CONCENTRATION")
+                    CraftSim.DB.OPTIONS:Save("CRAFTQUEUE_QUEUE_OPEN_RECIPE_OPTIMIZE_CONCENTRATION", not value)
+                end)
+        end
+    end)
 end
 
 function CraftSim.CRAFTQ:AddFirstCrafts()
