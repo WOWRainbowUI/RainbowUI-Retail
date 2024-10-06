@@ -96,6 +96,8 @@ L['Login Information 2'] = "輸入 %s 或 %s 打開設定面板"
 
 L['Not enabled, enter/ii to enable'] = '未啟用，輸入 %s 來啟用'
 
+L['New Version Discovered'] = '%s 發現新版本 %s'
+
 -- 自行加入
 L['Input Input'] = "大型聊天輸入框"
 L['InputInput'] = "聊天-輸入框"
