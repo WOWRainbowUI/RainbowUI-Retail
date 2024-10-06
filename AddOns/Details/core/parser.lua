@@ -429,7 +429,7 @@
 			[228649] = 100784, --monk blackout kick
 
 			[436304] = 439843, --frost dk reaper's mark
-			[439594] = 393843, --frost dk reaper's mark
+			[439594] = 439843, --frost dk reaper's mark
 			[66198] = 222024, --frost dk obliterate offhand
 			[66196] = 222026, --frost dk frost strike offhand
 			[383312] = 383313, --frost dk abom limb
@@ -6029,6 +6029,17 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		Details222.MythicPlus.BackgroundTexture = backgroundTexture
 
 		if (time) then
+            --Subtract death time from time of run to get the true time
+            local deaths = C_ChallengeMode.GetDeathCount()
+            if deaths and deaths > 0 then
+                local secondsPerDeath = 5
+                if level >= 7 then
+                    secondsPerDeath = 15
+                end
+
+                time = time - deaths * (secondsPerDeath * 1000)
+            end
+
         	Details222.MythicPlus.time = math.floor(time / 1000)
 			Details:Msg("run elapsed time:", DetailsFramework:IntegerToTimer(time / 1000))
 		else
