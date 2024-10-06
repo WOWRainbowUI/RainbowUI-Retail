@@ -82,7 +82,6 @@ L['Show Timestamp'] = "顯示時間戳記"
 L['Show bg'] = "顯示訊息背景"
 L['Default Setting'] = "預設設定"
 L['Enable InputInput_Libraries_zh'] = '開啟 %s'
-L['Need To Reload'] = 'Need To Reload'
 L['Do you want to reload the addOnes'] = '是否重新載入介面'
 
 L['Yes'] = '確定'
@@ -95,3 +94,5 @@ L['Login Information 1'] = "您正在使用%s輸入框增強插件，使用過�
 L['Login Information 2'] = "輸入 %s 或 %s 打開設定面板"
 
 L['Not enabled, enter/ii to enable'] = '未開啟，輸入%s開啟'
+
+L['New Version Discovered'] = '%s 發現新版本 %s'
