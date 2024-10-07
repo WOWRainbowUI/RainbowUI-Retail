@@ -286,6 +286,8 @@ L["Bloodthirsty Cub"] = "Filhote Sedento de Sangue"
 L["Bloodthirsty Tundra Wolf"] = "Lobo Sanguinário da Tundra"
 --[[Translation missing --]]
 L["Bloodworker"] = "Bloodworker"
+--[[Translation missing --]]
+L["Bloody Javelin"] = "Bloody Javelin"
 L["Bolstering"] = "Encorajadora"
 L["Bomb Tonk"] = "Tonque Bomba"
 L["Bone Magus"] = "Magus Ósseo"
@@ -596,6 +598,10 @@ L["Demolishing Terror"] = "Terror Demolidor"
 L["Demon"] = "Demônio"
 --[[Translation missing --]]
 L["DenOfDecay"] = "Den of Decay"
+--[[Translation missing --]]
+L["Depleted Anima Seed"] = "Depleted Anima Seed"
+--[[Translation missing --]]
+L["depletedAnimaSeedDescription"] = "Updates the graveyard location"
 L["Depraved Collector"] = "Coletor Depravado"
 L["Depraved Darkblade"] = "Laminegra Depravado"
 L["Depraved Houndmaster"] = "Mestre de Matilha Depravado"
@@ -615,6 +621,10 @@ L["Devouring Ghoul"] = "Carniçal Devorador"
 L["Devouring Maggot"] = "Verme Devorador"
 L["Devout Blood Priest"] = "Sacerdotisa Sangrenta Devota"
 L["Dinomancer Kish'o"] = "Dinomante Kish'o"
+--[[Translation missing --]]
+L["Discarded Shield"] = "Discarded Shield"
+--[[Translation missing --]]
+L["Discharged Anima"] = "Discharged Anima"
 L["Disease Slasher"] = "Açoitadora da Doença"
 L["Diseased Horror"] = "Horror Doentio"
 L["Diseased Lasher"] = "Açoitadora Doente"
@@ -1218,6 +1228,8 @@ L["Ignis the Furnace Master"] = "Ignis, o Mestre de Caldeira"
 L["Illysanna Ravencrest"] = "Illysanna Cristacorvo"
 L["Imacu'tya"] = "Imacu'tya"
 L["Imbued Stormcaller"] = "Tempestário Imbuído"
+--[[Translation missing --]]
+L["imbuedIronBarDescription"] = "Usable by Warriors, Dwarves, and Khaz Algar Blacksmiths (25)"
 L["Immoliant Fury"] = "Fúria Emoliente"
 L["Import"] = "Importar"
 L["Import a preset from a text string"] = "Importar uma rota de uma cadeia de texto"
@@ -1730,6 +1742,10 @@ L["Ossified Conscript"] = "Conscrito Ossificado"
 L["Overflowing"] = [=[Transbordante 
 ]=]
 L["Overgrown Ancient"] = "Anciente Supercrescido"
+--[[Translation missing --]]
+L["Overgrown Roots"] = "Overgrown Roots"
+--[[Translation missing --]]
+L["overgrownRootsDescription"] = "Usable by Night Elves, Tauren, Highmountain Tauren, Druids, and Khaz Algar Herbalists (25)"
 L["Overloaded Mailemental"] = "Elemencarta Sobrecarregada"
 L["Overseer Korgus"] = "Feitor Korgus"
 L["Overseer Lahar"] = "Feitor Lahar"
