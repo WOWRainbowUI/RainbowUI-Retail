@@ -1,6 +1,5 @@
-### Changes in 110000.121-Release:
+### Changes in 110000.122-Release:
 
-- Changed: Updated shatterable items (Gleaming Shatter support)
-- Fixed: Error on cataclysm
-- Fixed: Profession items not being disenchantable
+- Changed: Updated item database for cataclysm
+- Fixed: Localization not working
 
