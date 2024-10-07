@@ -155,7 +155,7 @@ local function setRandom()
 				lastRnd = rnd
 			end
 			macroToyName = rhDB.L.tList[rnd]["name"]
-			rhBtn:SetAttribute("item", macroToyName)
+			rhBtn:SetAttribute("toy", macroToyName)
 			if rhDB.iconOverride.name == L["RANDOM"] then
 				macroIcon = rhDB.L.tList[rnd]["icon"]
 			else
@@ -202,11 +202,7 @@ local function listGenerate()
 
 	for i, v in pairs(rhDB.L.tList) do
 		if v["status"] == true then
-			if i == 228940 then
-				if C_Item.IsUsableItem(i) then 
-					table.insert(rhList, i)
-				end
-			elseif PlayerHasToy(i) then
+			if PlayerHasToy(i) then
 				local addToy = true
 				-- Check for Covenant
 				for _, k in pairs(covenantHearths) do
@@ -296,23 +292,23 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 rhBtn:RegisterForClicks("AnyDown")
 rhBtn:SetAttribute("pressAndHoldAction", true)
-rhBtn:SetAttribute("type", "item")
-rhBtn:SetAttribute("typerelease", "item")
+rhBtn:SetAttribute("type", "toy")
+rhBtn:SetAttribute("typerelease", "toy")
 rhBtn:SetScript("PreClick", function(self, button, isDown)
 	if not combatCheck() then
 		if (button == "2" or button == "RightButton") and rhDB.settings.dalOpt then
-			rhBtn:SetAttribute("item", rhDB.L.dalaran)
+			rhBtn:SetAttribute("toy", rhDB.L.dalaran)
 		elseif (button == "3" or button == "MiddleButton") and rhDB.settings.garOpt then
-			rhBtn:SetAttribute("item", rhDB.L.garrison)
+			rhBtn:SetAttribute("toy", rhDB.L.garrison)
 		end
 	end
 end)
 rhBtn:SetScript("PostClick", function(self, button)
 	if not combatCheck() then
 		if (button == "2" or button == "RightButton") and rhDB.settings.dalOpt then
-			rhBtn:SetAttribute("item", macroToyName)
+			rhBtn:SetAttribute("toy", macroToyName)
 		elseif (button == "3" or button == "MiddleButton") and rhDB.settings.garOpt then
-			rhBtn:SetAttribute("item", macroToyName)
+			rhBtn:SetAttribute("toy", macroToyName)
 		else
 			setRandom()
 		end
