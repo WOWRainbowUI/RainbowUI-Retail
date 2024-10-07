@@ -827,6 +827,88 @@ local function POI_SetOptions(frame, type, poi)
       frame.HighlightTexture:Hide()
     end)
   end
+  if type == "stonevaultItem" then
+    local itemTexture = 3528441
+    local itemDescription = L["imbuedIronBarDescription"]
+
+    frame.Texture:SetTexture(itemTexture)
+    frame.HighlightTexture:SetAtlas("bags-innerglow")
+
+    frame:SetSize(12, 12)
+    frame.Texture:SetSize(12, 12)
+    frame.HighlightTexture:SetSize(12, 12)
+
+    frame:SetScript("OnEnter", function()
+      GameTooltip:SetOwner(UIParent, "ANCHOR_CURSOR")
+      GameTooltip:SetSpellByID(462500)
+      GameTooltip:AddLine(" ")
+      GameTooltip:AddLine(itemDescription, 1, 1, 1)
+      GameTooltip:Show()
+      frame.HighlightTexture:Show()
+    end)
+    frame:SetScript("OnLeave", function()
+      GameTooltip:Hide()
+      frame.HighlightTexture:Hide()
+    end)
+  end
+
+  if type == "mistsItem" then
+    local itemInfo = {
+      [1] = {
+        name = L["Overgrown Roots"],
+        description = L["overgrownRootsDescription"],
+        texture = 134413,
+        size = 10,
+      },
+      [2] = {
+        spellId = 340162,
+        texture = 1029746,
+        size = 10,
+      },
+      [3] = {
+        spellId = 340158,
+        texture = 134527,
+        size = 10,
+      },
+      [4] = {
+        name = L["Depleted Anima Seed"],
+        description = L["depletedAnimaSeedDescription"],
+        texture = 4554354,
+        size = 10,
+      },
+      [5] = {
+        name = L["Depleted Anima Seed"],
+        description = L["depletedAnimaSeedDescription"].."\n\n"..L["overgrownRootsDescription"],
+        texture = 4554354,
+        size = 10,
+      },
+    }
+    local info = itemInfo[poi.itemType]
+
+    frame.Texture:SetTexture(info.texture)
+    frame.HighlightTexture:SetAtlas("bags-innerglow")
+
+    frame:SetSize(info.size, info.size)
+    frame.Texture:SetSize(info.size, info.size)
+    frame.HighlightTexture:SetSize(info.size, info.size)
+
+    frame:SetScript("OnEnter", function()
+      GameTooltip:SetOwner(UIParent, "ANCHOR_CURSOR")
+      if info.spellId then
+        GameTooltip:SetSpellByID(info.spellId)
+      else
+        GameTooltip_SetTitle(GameTooltip, info.name)
+        GameTooltip:AddLine(info.description, 1, 1, 1, true)
+        GameTooltip:AddTexture(info.texture)
+      end
+      GameTooltip:Show()
+      frame.HighlightTexture:Show()
+    end)
+    frame:SetScript("OnLeave", function()
+      GameTooltip:Hide()
+      frame.HighlightTexture:Hide()
+    end)
+  end
 
   if type == "textFrame" then
     frame:SetSize(18, 18)

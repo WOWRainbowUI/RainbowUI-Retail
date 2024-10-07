@@ -349,6 +349,8 @@ L["Bloodthirsty Cub"] = "Bloodthirsty Cub"
 L["Bloodthirsty Tundra Wolf"] = "Bloodthirsty Tundra Wolf"
 --[[Translation missing --]]
 L["Bloodworker"] = "Bloodworker"
+--[[Translation missing --]]
+L["Bloody Javelin"] = "Bloody Javelin"
 L["Bolstering"] = "激勵"
 L["Bomb Tonk"] = "炸弹坦克"
 L["Bone Magus"] = "白骨魔导师"
@@ -720,6 +722,10 @@ L["Demolishing Terror"] = "攻城恐魔"
 L["Demon"] = "惡魔"
 --[[Translation missing --]]
 L["DenOfDecay"] = "Den of Decay"
+--[[Translation missing --]]
+L["Depleted Anima Seed"] = "Depleted Anima Seed"
+--[[Translation missing --]]
+L["depletedAnimaSeedDescription"] = "Updates the graveyard location"
 L["Depraved Collector"] = "堕落的搜集者"
 L["Depraved Darkblade"] = "堕落的黑暗剑士"
 L["Depraved Houndmaster"] = "堕落的驯犬者"
@@ -743,6 +749,10 @@ L["Devouring Ghoul"] = "Devouring Ghoul"
 L["Devouring Maggot"] = "贪吃的蛆虫"
 L["Devout Blood Priest"] = "虔诚鲜血祭司"
 L["Dinomancer Kish'o"] = "恐龙统领吉什奥"
+--[[Translation missing --]]
+L["Discarded Shield"] = "Discarded Shield"
+--[[Translation missing --]]
+L["Discharged Anima"] = "Discharged Anima"
 --[[Translation missing --]]
 L["Disease Slasher"] = "Disease Slasher"
 L["Diseased Horror"] = "染病恐魔"
@@ -1445,6 +1455,8 @@ L["Ignis the Furnace Master"] = "Ignis the Furnace Master"
 L["Illysanna Ravencrest"] = "伊莉萨娜·拉文凯斯"
 L["Imacu'tya"] = "伊玛库塔"
 L["Imbued Stormcaller"] = "灌注能量的唤雷者"
+--[[Translation missing --]]
+L["imbuedIronBarDescription"] = "Usable by Warriors, Dwarves, and Khaz Algar Blacksmiths (25)"
 L["Immoliant Fury"] = "不朽之怒"
 L["Import"] = "匯入"
 L["Import a preset from a text string"] = "從文字字串匯入路線"
@@ -2053,6 +2065,10 @@ L["Ossified Conscript"] = "骨化的援兵"
 L["Overflowing"] = "溢流"
 --[[Translation missing --]]
 L["Overgrown Ancient"] = "Overgrown Ancient"
+--[[Translation missing --]]
+L["Overgrown Roots"] = "Overgrown Roots"
+--[[Translation missing --]]
+L["overgrownRootsDescription"] = "Usable by Night Elves, Tauren, Highmountain Tauren, Druids, and Khaz Algar Herbalists (25)"
 L["Overloaded Mailemental"] = "过载的邮件元素"
 L["Overseer Korgus"] = "科古斯狱长"
 --[[Translation missing --]]
