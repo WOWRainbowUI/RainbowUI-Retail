@@ -6,11 +6,15 @@
 	<Include file="Libs\Ace3\AceGUI-3.0\AceGUI-3.0.xml" />
 	<Include file="Libs\Ace3\AceConfig-3.0\AceConfigRegistry-3.0\AceConfigRegistry-3.0.xml" />
 	<Include file="Libs\Ace3\AceConfig-3.0\AceConfigDialog-3.0\AceConfigDialog-3.0.xml" />
+	<Include file="Libs\Ace3\AceComm-3.0\AceComm-3.0.xml" />
+	<Include file="Libs\Ace3\AceSerializer-3.0\AceSerializer-3.0.xml" />
 	<Script file="localization\localization.lua"/>
 	<Script file="localization\localization_frFR.lua"/>
 	<Script file="embeds.lua"/>
 	<Script file="CalReminder.lua"/>
+	<Script file="CalReminderBusiness.lua"/>
 	<Script file="CalReminderOptions.lua"/>
+	<Script file="Sharing.lua" />
 	<FontString name="CalReminderWindowTitleTemplate" inherits="GameFontNormal" virtual="true">
 		<Size x="400" y="20" />
 	</FontString>

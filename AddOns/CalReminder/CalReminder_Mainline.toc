@@ -2,9 +2,9 @@
 ## Title: CalReminder
 ## IconTexture: Interface\Icons\inv_misc_pocketwatch_01.blp
 ## AddonCompartmentFunc: CalReminder_OpenOptions
-## Version: 1.2.8
+## Version: 1.3.0
 ## Author: Xam_insight
-## SavedVariables: maxDaysToCheck, CalReminderOptionsData
+## SavedVariables: maxDaysToCheck, CalReminderOptionsData, CalReminderData
 
 Libs\Ace3\LibStub\LibStub.lua
 Libs\Ace3\AceLocale-3.0\AceLocale-3.0.xml

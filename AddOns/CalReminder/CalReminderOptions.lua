@@ -110,6 +110,9 @@ function loadCalReminderOptions()
 	}
 
 	ACR:RegisterOptionsTable("CalReminder", CalReminderOptions)
+	
+	CalReminderOptionsLoaded = true
+	
 	ACD:AddToBlizOptions("CalReminder", "CalReminder")
 	ACD:SetDefaultSize("CalReminder", 400, 222)
 end
