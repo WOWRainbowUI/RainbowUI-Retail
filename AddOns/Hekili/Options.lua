@@ -3105,12 +3105,20 @@ do
 								order = 1.1
 							},
 
-							break01 = {
-								type = "description",
-								name = " ",
-								order = 1.2,
-								width = "full",
-							},
+                            desaturate = {
+                                type = "toggle",
+                                name = format( "%s Desaturate", NewFeature ),
+                                desc = "Desaturate the primary icon when you should wait before using the ability.",
+                                width = 1.49,
+                                order = 1.15
+                            },
+
+                            break01 = {
+                                type = "description",
+                                name = " ",
+                                order = 1.2,
+                                width = "full",
+                            },
 
 							type = {
 								type = "select",
@@ -10113,105 +10121,154 @@ do
 				}
 			},
 
-			snapshots = {
-				type = "group",
-				name = "問題回報 (快照)",
-				desc = "了解如何回報插件的問題，例如不正確的技能建議或錯誤。",
-				order = 86,
-				args = {
-					autoSnapshot = {
-						type = "toggle",
-						name = "自動快照",
-						desc = "勾選時，插件將在無法產生建議時自動建立快照。\n\n" ..
-							"此自動快照在每次戰鬥中只會發生一次。",
-						order = 1,
-						width = "full",
-					},
+            snapshots = {
+                type = "group",
+                name = "快照 (問題回報)",
+                desc = "了解如何回報插件的問題，例如不正確的技能建議或錯誤。",
+                order = 86,
+                childGroups = "tab",
+                args = {
+                    prefHeader = {
+                        type = "header",
+                        name = "Snapshots",
+                        order = 1,
+                        width = "full"
+                    },
+                    SnapID = {
+                        type = "select",
+                        name = "Select a Snapshot",
+                        desc = "Select a Snapshot to export.",
+                        values = function( info )
+                            if #ns.snapshots == 0 then
+                                snapshots.snaps[ 0 ] = "No snapshots have been generated."
+                            else
+                                snapshots.snaps[ 0 ] = nil
+                                for i, snapshot in ipairs( ns.snapshots ) do
+                                    snapshots.snaps[ i ] = "|cFFFFD100" .. i .. ".|r " .. snapshot.header
+                                end
+                            end
 
-					screenshot = {
-						type = "toggle",
-						name = "畫面截圖",
-						desc = "勾選時，插件將在你手動建立快照時截取畫面截圖。\n\n" ..
-							"將兩者都提交到你的回報單中，將提供有用的資訊以供調查。",
-						order = 2,
-						width = "full",
-					},
+                            return snapshots.snaps
+                        end,
+                        set = function( info, val )
+                            snapshots.selected = val
+                        end,
+                        get = function( info )
+                            return snapshots.selected
+                        end,
+                        order = 3,
+                        width = "full",
+                        disabled = function() return #ns.snapshots == 0 end,
+                    },
+                    autoSnapshot = {
+                        type = "toggle",
+                        name = "Auto Snapshot",
+                        desc = "If checked, the addon will automatically create a snapshot whenever it failed to generate a recommendation.\n\n" ..
+                            "This automatic snapshot can only occur once per episode of combat.",
+                        order = 2,
+                        width = "normal",
+                    },
+                    screenshot = {
+                        type = "toggle",
+                        name = "Take Screenshot",
+                        desc = "If checked, the addon will take a screenshot when you manually create a snapshot.\n\n" ..
+                            "Submitting both with your issue tickets will provide useful information for investigation purposes.",
+                        order = 2.1,
+                        width = "normal",
+                    },
+                    issueReporting_snapshot = {
+                        type = "group",
+                        name = "What is a snapshot?",
+                        order = 4,
+                        args = {
+                            issueReporting_snapshot_what = {
+                                type = "description",
+                                name = function()
+                                    return "Snapshots are logs of the addon's decision-making process for a set of recommendations.  If you have questions about -- or disagree with -- the addon's recommendations, " ..
+                                    "reviewing a snapshot can help identify what factors led to the specific recommendations that you saw.\n\n" ..
+                                    "Snapshots only capture a specific point in time, and explain the current recommendation as well as all future recommendations based on icons shown. So if you show 3 icons in the addon, the snapshot will explain the current recommendation and the next 2." ..
+                                    "\n\nYou can also freeze the addon's recommendations using the |cffffd100Pause|r binding ( |cffffd100" .. ( Hekili.DB.profile.toggles.pause.key or "NOT BOUND" ) .. "|r ).  Doing so will freeze the addon's recommendations, allowing you to mouseover the display " ..
+                                    "and see which conditions were met to display those recommendations.  Press Pause again to unfreeze the addon.\n\n" ..
+                                    "Using the settings at the top of this panel, you can ask the addon to automatically generate a snapshot for you when no recommendations were able to be made.\n\n"
+                                end,
+                                order = 4,
+                                width = "full",
+                                fontSize = "medium",
+                            },
+                        },
+                    },
 
-					prefHeader = {
-						type = "header",
-						name = "快照 / 故障排除",
-						order = 2.5,
-						width = "full"
-					},
+                    issueReporting_snapshot_how = {
+                        type = "group",
+                        name = "How do I get one?",
+                        order = 5,
+                        args = {
+                            issueReporting_snapshot_how_info = {
+                                type = "description",
+                                name = function()
+                                return "|cFFFFD100When should I do it|r\n" ..
+                                "You should generate the snapshot when the issue is actively happening. If you look at the recommendations and think \"this seems wrong\", that's when you should do it. Most of the time, issues can be recreated at training dummies." ..
+                                "\n\nFor example, if the issue usually happens 20 seconds into your rotation, then an out-of-combat prepull snapshot isn't going to help the Dev or other community members diagnose and fix the issue." ..
+                                "\n\n|cFFFFD100How do I do it|r\n" ..
+                                "You can generate a snapshot one of 3 ways:\n" ..
+                                "• Pressing the snapshot keybind: |cffffd100" .. ( Hekili.DB.profile.toggles.snapshot.key or "NOT BOUND" ) .. "|r" ..
+                                "\n• Pressing the pause keybind: |cffffd100" .. ( Hekili.DB.profile.toggles.pause.key or "NOT BOUND" ) .. "|r" ..
+                                "\n• One can be automatically generated if the addon fails to recommend something, if you allow it to via the checkbox at the top of this window (|cFFFFD100Auto Snapshot|r)" ..
+                                "\n\n|cFFFFD100Okay I made one, where is it?|r\n" ..
+                                "The snapshot can be retrieved by picking it from dropdown list near the top of this window, then copying it from the textbox that appears. Be sure to press |cFFFFD100Ctrl + A|r before copying it so that you get the entire thing. It should be very, very long."
+                                end,
+                                order = 4.1,
+                                fontSize = "medium",
+                                width = "full",
+                                },
+                        },
+                    },
+                    issueReporting_snapshot_next = {
+                        type = "group",
+                        name = "What do I do with it now?",
+                        order = 6,
+                        args = {
+                            issueReporting_snapshot_next_info = {
+                                type = "description",
+                                name = "|cFFFFD100Now that the snapshot is in your clipboard ready to be pasted|r\n\n" .. 
+                                "1. Head to the Pastebin website: https://pastebin.com/" .. 
+                                "\n\n2. Create a paste with it and post the link wherever it's required (probably the discord, or a github ticket)",
+                                order = 5.1,
+                                fontSize = "medium",
+                                width = "full",
+                            },
+                        },
+                    },
+                    Snapshot = {
+                        type = 'input',
+                        name = "Grab your Snapshot from this textbox",
+                        desc = "Click here and press CTRL+A, CTRL+C to copy the snapshot.\n\nPaste in a text editor to review or upload to Pastebin to support an issue ticket.",
+                        order = 20,
+                        get = function( info )
+                            if snapshots.selected == 0 then return "" end
+                            return ns.snapshots[ snapshots.selected ].log
+                        end,
+                        set = function() end,
+                        width = "full",
+                        hidden = function() return snapshots.selected == 0 or #ns.snapshots == 0 end,
+                    },
 
-					header = {
-						type = "description",
-						name = function()
-							return "快照是插件針對一組建議的決策過程日誌。 如果你對插件的建議有疑問或不同意，" ..
-							"查看快照可以幫助你識別導致你看到的特定建議的因素。\n\n" ..
-							"快照僅捕捉特定時間點，因此必須在你看到你關心的特定建議時截取快照。 你可以通過" ..
-							"使用開關部分中的 |cffffd100快照|r 綁定 (|cffffd100" .. ( Hekili.DB.profile.toggles.snapshot.key or "未綁定" ) .. "|r) 來產生快照。\n\n" ..
-							"你也可以使用 |cffffd100暫停|r 綁定 (|cffffd100" .. ( Hekili.DB.profile.toggles.pause.key or "未綁定" ) .. "|r) 凍結插件的建議。 這樣做會凍結插件的建議，讓你可以將滑鼠指向技能組" ..
-							"並查看哪些條件滿足了顯示這些建議的條件。 再次按下暫停以解除凍結插件。\n\n" ..
-							"最後，使用此面板底部的設定，你可以要求插件在無法提出任何建議時自動為你產生快照。\n\n"
-						end,
-						fontSize = "medium",
-						order = 10,
-						width = "full",
-					},
+                    SnapshotInstructions = {
+                        type = "description",
+                        name = "|cFF00CCFFClick the textbox above and press CTRL+A, CTRL+C to select ALL text and copy it to the clipboard. It should be hundreds of lines long.|r\n\n",
+                        order = 30,
+                        width = "full",
+                        fontSize = "medium",
+                        hidden = function() return snapshots.selected == 0 or #ns.snapshots == 0 end,
+                        }
 
-					SnapID = {
-						type = "select",
-						name = "選擇項目",
-						desc = "選擇要匯出的快照。",
-						values = function( info )
-							if #ns.snapshots == 0 then
-								snapshots.snaps[ 0 ] = "尚未產生快照。"
-							else
-								snapshots.snaps[ 0 ] = nil
-								for i, snapshot in ipairs( ns.snapshots ) do
-									snapshots.snaps[ i ] = "|cFFFFD100" .. i .. ".|r " .. snapshot.header
-								end
-							end
-
-							return snapshots.snaps
-						end,
-						set = function( info, val )
-							snapshots.selected = val
-						end,
-						get = function( info )
-							return snapshots.selected
-						end,
-						order = 12,
-						width = "full",
-						disabled = function() return #ns.snapshots == 0 end,
-					},
-
-					Snapshot = {
-						type = 'input',
-						name = "快照",
-						desc = "點一下此處並按下 CTRL+A、CTRL+C 以複製快照。\n\n貼上到文字編輯器中以查看或上傳到 Pastebin 以支援回報單。",
-						order = 20,
-						get = function( info )
-							if snapshots.selected == 0 then return "" end
-							return ns.snapshots[ snapshots.selected ].log
-						end,
-						set = function() end,
-						width = "full",
-						hidden = function() return snapshots.selected == 0 or #ns.snapshots == 0 end,
-					},
-
-					SnapshotInstructions = {
-						type = "description",
-						name = "點一下快照並按下 CTRL+A、CTRL+C 以選取所有文字並複製到剪貼簿。\n\n"
-							.. "將文字貼上到文字編輯器中以供你自己查看，或上傳到 Pastebin 以連結到 GitHub 上的問題回報。",
-						order = 30,
-						width = "full",
-						hidden = function() return snapshots.selected == 0 or #ns.snapshots == 0 end,
-					}
-				}
-			},
-		},
+                },
+            },
+        },
+        plugins = {
+            specializations = {},
+        }
+    }
 
 		plugins = {
 			specializations = {},
