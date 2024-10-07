@@ -3,7 +3,9 @@
 	<Script file="localization\localization_zhTW.lua"/>
 	<Script file="embeds.lua"/>
 	<Script file="CalReminder.lua"/>
+	<Script file="CalReminderBusiness.lua"/>
 	<Script file="CalReminderOptions.lua"/>
+	<Script file="Sharing.lua" />
 	<FontString name="CalReminderWindowTitleTemplate" inherits="GameFontNormal" virtual="true">
 		<Size x="400" y="20" />
 	</FontString>
