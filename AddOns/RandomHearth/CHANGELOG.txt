@@ -1,3 +1,2 @@
-Add /cancelform to macro text if player is a Druid - Note that this will require clicking the button twice, I don't believe there is a way around this as it's two separate actions.
-
-Known issue: Notorious Thread's Hearthstone apparently doesn't work. Unsure why.
+Remove unique check for Notorious Thread's Hearthstone due to item now being a toy.
+Thank you Saintscar!
