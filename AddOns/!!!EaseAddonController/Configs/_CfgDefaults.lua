@@ -1791,6 +1791,11 @@ D["NoAutoClose"] = {
 	tags = { "ENHANCEMENT" },
 	title = "同時打開多個視窗",
 	desc = "打開新視窗時，讓其他視窗不會自動關閉。",
+	modifier = "彩虹ui",
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["NOAUTOCLOSE"]("") end,
+    },
 };
 D["NugComboBar"] = {
     defaultEnable = 0,

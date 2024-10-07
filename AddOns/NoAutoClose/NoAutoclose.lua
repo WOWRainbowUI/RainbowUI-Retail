@@ -1,4 +1,4 @@
-local _, ns = ...;
+local addonName, ns = ...;
 
 ns.hookedFrames = {};
 ns.ignore = {
@@ -8,10 +8,6 @@ ns.ignore = {
     MacroFrame = true,
     PerksProgramFrame = true, -- trading post frame, better to allow it to hide the UI
     WarboardQuestChoiceFrame = true,
-};
-local nukedCenterPanels = {
-    ClassTalentFrame = true,
-    SettingsPanel = true,
 };
 local uiSpecialFrameBlacklist = {
     PlayerSpellsFrame = true, -- cannot be safely closed with UISpecialFrames
@@ -39,6 +35,10 @@ local function setNil(table, key)
     TextureLoadingGroupMixin.RemoveTexture({textures = table}, key);
 end
 
+EventUtil.ContinueOnAddOnLoaded(addonName, function()
+    ns:Init();
+end);
+
 function ns:ShouldNotManuallyShowHide(frame, interfaceActionWasBlocked)
     local name = frame.GetName and frame:GetName();
     if
@@ -55,15 +55,33 @@ function ns:ShouldNotManuallyShowHide(frame, interfaceActionWasBlocked)
 end
 
 function ns:OnDisplayInterfaceActionBlockedMessage()
-    if InCombatLockdown() and debugstack(3):find("in function `ShowUIPanel'") then
+    if InCombatLockdown() and debugstack(3):find('in function `ShowUIPanel\'') then
         self.interfaceActionWasBlocked = true;
     end
+end
+
+function ns:SetDefaultPosition(frame)
+    if
+        (frame.IsForbidden and frame:IsForbidden())
+        or (frame.IsProtected and frame:IsProtected() and InCombatLockdown())
+    then
+        return;
+    end
+    frame:ClearAllPoints();
+    (frame.SetPointBase or frame.SetPoint)(
+        frame,
+        self.db.defaultPosition.anchor,
+        UIParent,
+        self.db.defaultPosition.anchor,
+        self.db.defaultPosition.x,
+        self.db.defaultPosition.y
+    );
 end
 
 function ns:OnShowUIPanel(frame)
     local interfaceActionWasBlocked = self.interfaceActionWasBlocked;
     self.interfaceActionWasBlocked = false;
-    if not frame or (frame.IsRestricted and frame:IsRestricted()) then return; end
+    if not frame or (frame.IsForbidden and frame:IsForbidden()) then return; end
     local name = frame.GetName and frame:GetName();
     local isHooked = self.hookedFrames[name];
     if not isHooked and frame.IsProtected and frame:IsProtected() and InCombatLockdown() then return; end
@@ -85,8 +103,7 @@ function ns:OnShowUIPanel(frame)
     if isHooked then
         if (frame.GetPoint and not frame:GetPoint()) then
             -- disabling the UIPanelLayout system removes the default location, so let's set one
-            local ofsx, ofsy = 50, -50;
-            (frame.SetPointBase or frame.SetPoint)(frame, 'TOPLEFT', UIParent, 'TOPLEFT', ofsx, ofsy);
+            self:SetDefaultPosition(frame);
         end
         if (frame.IsToplevel and frame:IsToplevel() and frame.IsShown and frame:IsShown()) then
             -- if the frame is a toplevel frame, raise it to the top of the stack
@@ -131,10 +148,6 @@ function ns:ReworkSettingsOpenAndClose()
 end
 
 function ns:HandleUIPanel(name, info, flippedUiSpecialFrames)
-    if info.area == 'center' and not nukedCenterPanels[name] then
-        setTrue(UIPanelWindows[name], 'allowOtherPanels');
-        return;
-    end
     local frame = _G[name];
     if not frame or self.ignore[name] then return; end
     if ((frame.IsProtected and frame:IsProtected()) or uiSpecialFrameBlacklist[name]) then
@@ -156,16 +169,15 @@ function ns:HandleUIPanel(name, info, flippedUiSpecialFrames)
     };
     setNil(UIPanelWindows, name);
     if frame.SetAttribute then
-        frame:SetAttribute("UIPanelLayout-defined", nil);
-        frame:SetAttribute("UIPanelLayout-enabled", nil);
-        frame:SetAttribute("UIPanelLayout-area", nil);
-        frame:SetAttribute("UIPanelLayout-pushable", nil);
-        frame:SetAttribute("UIPanelLayout-whileDead", nil);
+        frame:SetAttribute('UIPanelLayout-defined', nil);
+        frame:SetAttribute('UIPanelLayout-enabled', nil);
+        frame:SetAttribute('UIPanelLayout-area', nil);
+        frame:SetAttribute('UIPanelLayout-pushable', nil);
+        frame:SetAttribute('UIPanelLayout-whileDead', nil);
     end
     if (frame.GetPoint and not frame:GetPoint()) then
         -- disabling the UIPanelLayout system removes the default location, so let's set one
-        local ofsx, ofsy = 50, -50;
-        (frame.SetPointBase or frame.SetPoint)(frame, 'TOPLEFT', UIParent, 'TOPLEFT', ofsx, ofsy);
+        self:SetDefaultPosition(frame);
     end
 end
 
@@ -173,14 +185,14 @@ end
 --- @param ... any # arguments
 function ns:AddToCombatLockdownQueue(func, ...)
     if #self.combatLockdownQueue == 0 then
-        self.eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED");
+        self.eventFrame:RegisterEvent('PLAYER_REGEN_ENABLED');
     end
 
     tinsert(self.combatLockdownQueue, { func = func, args = { ... } });
 end
 
 function ns:PLAYER_REGEN_ENABLED()
-    self.eventFrame:UnregisterEvent("PLAYER_REGEN_ENABLED");
+    self.eventFrame:UnregisterEvent('PLAYER_REGEN_ENABLED');
     if #self.combatLockdownQueue == 0 then return; end
 
     for _, item in pairs(self.combatLockdownQueue) do
@@ -191,6 +203,7 @@ end
 
 local escHandlerMap = {};
 local handlerFrameIndex = 0;
+local sharedAttributesFrame = CreateFrame('Frame', nil, nil, 'SecureHandlerBaseTemplate');
 function ns:ConfigureSecureEscHandler(frame, alwaysSetBindinOnShow)
     --[[
         Since the UIPanel system no longer taintlessly hides protected panels, we need to create a secure handler, which will
@@ -208,6 +221,7 @@ function ns:ConfigureSecureEscHandler(frame, alwaysSetBindinOnShow)
     escHandler.panel = frame;
     escHandler:SetFrameRef('panel', frame);
     escHandler:SetFrameRef('UIParent', UIParent);
+    escHandler:SetFrameRef('sharedAttributesFrame', sharedAttributesFrame);
     escHandler:RegisterEvent('PLAYER_REGEN_ENABLED');
     escHandler:RegisterEvent('PLAYER_REGEN_DISABLED');
     escHandler:HookScript('OnEvent', function(handlerFrame, event)
@@ -237,8 +251,9 @@ function ns:ConfigureSecureEscHandler(frame, alwaysSetBindinOnShow)
             if (not panel:GetPoint()) then
                 -- disabling the UIPanelLayout system removes the default location, so let's set one
                 local UIParent = self:GetFrameRef('UIParent');
-                local ofsx, ofsy = 50, -50;
-                panel:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', ofsx, ofsy);
+                local sharedAttributesFrame = self:GetFrameRef('sharedAttributesFrame');
+                local anchor, ofsx, ofsy = sharedAttributesFrame:GetAttribute('anchor'), sharedAttributesFrame:GetAttribute('x'), sharedAttributesFrame:GetAttribute('y');
+                panel:SetPoint(anchor, UIParent, anchor, ofsx, ofsy);
             end
         end
     ]]);
@@ -287,18 +302,156 @@ end
 function ns:Init()
     hooksecurefunc('ShowUIPanel', function(frame) self:OnShowUIPanel(frame); end);
     hooksecurefunc('HideUIPanel', function(frame) self:OnHideUIPanel(frame); end);
+    hooksecurefunc('RegisterUIPanel', function() self:ADDON_LOADED(); end);
     hooksecurefunc('DisplayInterfaceActionBlockedMessage', function() self:OnDisplayInterfaceActionBlockedMessage(); end);
+    hooksecurefunc('RestoreUIPanelArea', function(frame) self:SetDefaultPosition(frame); end);
     self:ReworkSettingsOpenAndClose();
 
-    ns.eventFrame = CreateFrame('Frame');
-    ns.eventFrame:HookScript('OnEvent', function(_, event, ...) self[event](self, event, ...); end);
-    ns.eventFrame:RegisterEvent('ADDON_LOADED');
-    ns.eventFrame:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW');
-    ns.eventFrame:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE');
+    self.eventFrame = CreateFrame('Frame');
+    self.eventFrame:HookScript('OnEvent', function(_, event, ...) self[event](self, event, ...); end);
+    self.eventFrame:RegisterEvent('ADDON_LOADED');
+    self.eventFrame:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW');
+    self.eventFrame:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE');
 
-    ns.combatLockdownQueue = {};
+    self.combatLockdownQueue = {};
+
+    self:initOptions()
 end
 
-do
-    ns:Init();
+function ns:initOptions()
+    NoAutoCloseDB = NoAutoCloseDB or {};
+    self.db = NoAutoCloseDB;
+    local defaults = {
+        defaultPosition = {
+            anchor = 'TOPLEFT',
+            x = 50,
+            y = -50,
+        },
+    };
+    for k, v in pairs(defaults) do
+        if self.db[k] == nil then
+            self.db[k] = v;
+        end
+    end
+    local function updatePositionAttributes(anchor, x, y)
+        sharedAttributesFrame:SetAttribute('anchor', anchor);
+        sharedAttributesFrame:SetAttribute('x', x);
+        sharedAttributesFrame:SetAttribute('y', y);
+    end
+
+    local panel = CreateFrame('Frame');
+    panel.name = '多視窗';
+
+    local title = panel:CreateFontString('ARTWORK', nil, 'GameFontNormalLarge');
+    title:SetPoint('TOPLEFT', 10, -15);
+    title:SetText('同時打開多個視窗');
+
+    local defaultPositionHeader = panel:CreateFontString('ARTWORK', nil, 'GameFontNormal');
+    defaultPositionHeader:SetPoint('TOPLEFT', title, 'BOTTOMLEFT', 0, -15);
+    defaultPositionHeader:SetText('預設位置');
+
+    local defaultPositionDescription = panel:CreateFontString('ARTWORK', nil, 'GameFontHighlight');
+    defaultPositionDescription:SetPoint('TOPLEFT', defaultPositionHeader, 'BOTTOMLEFT', 5, -5);
+    defaultPositionDescription:SetText('設定由同時打開多個視窗處理的面板預設位置。');
+
+    local currentDefaultPosition = panel:CreateFontString('ARTWORK', nil, 'GameFontHighlight');
+    currentDefaultPosition:SetPoint('TOPLEFT', defaultPositionDescription, 'BOTTOMLEFT', 0, -5);
+    local function updatePositionText()
+        currentDefaultPosition:SetText(('目前預設位置: %s (%.2f, %.2f)'):format(self.db.defaultPosition.anchor, self.db.defaultPosition.x, self.db.defaultPosition.y));
+    end
+    updatePositionText();
+    local moverFrame = self:GetMoverFrame(function(anchor, x, y)
+        self.db.defaultPosition.anchor = anchor;
+        self.db.defaultPosition.x = x;
+        self.db.defaultPosition.y = y;
+        updatePositionText();
+        if InCombatLockdown() then
+            self:AddToCombatLockdownQueue(updatePositionAttributes, anchor, x, y);
+        else
+            updatePositionAttributes(anchor, x, y);
+        end
+    end);
+    panel:SetScript('OnHide', function() moverFrame:Hide(); end);
+
+    local showMoverButton = CreateFrame('Button', nil, panel, 'UIPanelButtonTemplate');
+    showMoverButton:SetPoint('TOPLEFT', currentDefaultPosition, 'BOTTOMLEFT', 0, -5);
+    showMoverButton:SetSize(150, 25);
+    showMoverButton:SetText('移動預設位置');
+    showMoverButton:SetScript('OnClick', function()
+        moverFrame:SetShown(not moverFrame:IsShown());
+    end);
+    -- todo: add a dropdown for the anchor, and number inputs for x and y
+
+    local resetToDefaultButton = CreateFrame('Button', nil, panel, 'UIPanelButtonTemplate');
+    resetToDefaultButton:SetPoint('TOPLEFT', showMoverButton, 'BOTTOMLEFT', 0, -5);
+    resetToDefaultButton:SetSize(150, 25);
+    resetToDefaultButton:SetText('重置為預設值');
+    resetToDefaultButton:SetScript('OnClick', function()
+        self.db.defaultPosition = defaults.defaultPosition;
+        updatePositionText();
+        moverFrame:ClearAllPoints();
+        moverFrame:SetPoint(self.db.defaultPosition.anchor, self.db.defaultPosition.x, self.db.defaultPosition.y);
+    end);
+
+    local category, _ = Settings.RegisterCanvasLayoutCategory(panel, panel.name);
+    category.ID = panel.name;
+    Settings.RegisterAddOnCategory(category);
+
+    SLASH_NOAUTOCLOSE1 = '/noautoclose';
+    SLASH_NOAUTOCLOSE2 = '/nac';
+    SlashCmdList['NOAUTOCLOSE'] = function() Settings.OpenToCategory(panel.name); end;
+end
+
+function ns:GetMoverFrame(onMoveCallback)
+    local NineSliceLayout =
+    {
+        ["TopRightCorner"] = { atlas = "%s-NineSlice-Corner", mirrorLayout = true, x=8, y=8 },
+        ["TopLeftCorner"] = { atlas = "%s-NineSlice-Corner", mirrorLayout = true, x=-8, y=8 },
+        ["BottomLeftCorner"] = { atlas = "%s-NineSlice-Corner", mirrorLayout = true, x=-8, y=-8 },
+        ["BottomRightCorner"] = { atlas = "%s-NineSlice-Corner",  mirrorLayout = true, x=8, y=-8 },
+        ["TopEdge"] = { atlas = "_%s-NineSlice-EdgeTop" },
+        ["BottomEdge"] = { atlas = "_%s-NineSlice-EdgeBottom" },
+        ["LeftEdge"] = { atlas = "!%s-NineSlice-EdgeLeft" },
+        ["RightEdge"] = { atlas = "!%s-NineSlice-EdgeRight" },
+        ["Center"] = { atlas = "%s-NineSlice-Center", x = -8, y = 8, x1 = 8, y1 = -8, },
+    };
+
+    local frame = CreateFrame('Frame', 'NoAutoCloseMoverFrame', UIParent);
+    frame:SetSize(150, 100);
+    frame:SetPoint(self.db.defaultPosition.anchor, self.db.defaultPosition.x, self.db.defaultPosition.y);
+    frame:SetFrameStrata('DIALOG');
+    frame:SetFrameLevel(9990);
+    frame.layoutType = 'UniqueCornersLayout';
+    frame.layoutTextureKit = 'OptionsFrame';
+    NineSliceUtil.ApplyLayout(frame, NineSliceLayout, 'editmode-actionbar-highlight');
+
+    local closeButton = CreateFrame('Button', nil, frame, 'UIPanelCloseButton');
+    closeButton:SetFrameStrata('DIALOG')
+    closeButton:SetFrameLevel(9999);
+    closeButton:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', 0, 0);
+    closeButton:SetScript('OnClick', function()
+        frame:Hide();
+    end);
+
+    local label = frame:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmall');
+    label:SetAllPoints();
+    label:SetIgnoreParentScale(true);
+    label:SetJustifyH('CENTER');
+    label:SetJustifyV('MIDDLE');
+    label:SetText('同時打開\n多個視窗');
+
+    frame.onMoveCallback = onMoveCallback;
+    frame:SetMovable(true);
+    frame:SetScript('OnMouseDown', function()
+        frame:StartMoving();
+    end);
+    frame:SetScript('OnMouseUp', function()
+        frame:StopMovingOrSizing();
+        frame:SetUserPlaced(false);
+        local anchor, _, _, x, y = frame:GetPoint();
+        frame.onMoveCallback(anchor, x, y);
+    end);
+    frame:Hide();
+
+    return frame;
 end
