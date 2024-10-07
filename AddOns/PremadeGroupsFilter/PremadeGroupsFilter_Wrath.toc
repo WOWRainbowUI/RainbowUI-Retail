@@ -1,6 +1,6 @@
 ## Interface: 30403
 ## Title: Premade Groups Filter
-## Version: 6.2.0
+## Version: 6.3.0
 ## IconTexture: 397907
 ## X-Flavor: Wrath
 ## Notes: Allows filtering of premade groups using an UI or advanced filter expressions.
@@ -24,7 +24,6 @@ Localization\enUS.lua
 Localization\zhCN.lua
 Localization\zhTW.lua
 Modules\Logger.lua
-Fixes\FixGetPlaystyleString.lua
 Fixes\FixReportAdvertisement.lua
 UI\StaticPopup.xml
 UI\StaticPopup.lua
