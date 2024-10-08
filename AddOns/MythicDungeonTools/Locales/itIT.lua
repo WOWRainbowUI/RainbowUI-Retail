@@ -109,6 +109,8 @@ L["Aqu'sirr"] = "Aqu'sirr"
 L["Arachnopod Destroyer"] = "Distruttore Aracnopode"
 --[[Translation missing --]]
 L["AraKara"] = "Ara-Kara"
+--[[Translation missing --]]
+L["araKaraItemDescription"] = "Usable by Khaz Algar Tailors (25)"
 L["Aranasi Broodmother"] = "Madre della Stirpe Aranasi"
 L["Arcane Anomaly"] = "Anomalia Arcana"
 L["Arcane Construct"] = "Costrutto Arcano"
@@ -729,6 +731,8 @@ L["Dulhu"] = "Dulhu"
 L["Dul'zak"] = "Dul'zak"
 --[[Translation missing --]]
 L["Dungeon Data Missing"] = "Dungeon Data Missing"
+--[[Translation missing --]]
+L["Dungeon Entrance"] = "Dungeon Entrance"
 L["Dungeon Level"] = "Livello della spedizione"
 L["Duskwatch Arcanist"] = "Arcanista della Guardia del Vespro"
 L["Duskwatch Guard"] = "Miliziano della Guardia del Vespro"
@@ -2283,6 +2287,8 @@ L["Stitched Giant"] = "Gigante Ricucito"
 L["Stitched Vanguard"] = "Avanguardia Ricucita"
 L["Stitchflesh's Creation"] = "Creazione di Cucicarne"
 L["Stitching Assistant"] = "Assistente alla Cucitura"
+--[[Translation missing --]]
+L["stolenPowerDescription"] = "Usable by Rogues, Priests, and Khaz Algar Engineers (25)"
 L["Stoneborn Eviscerator"] = "Svisceratrice Litogena"
 L["Stoneborn Reaver"] = "Razziatore Litogeno"
 L["Stoneborn Slasher"] = "Sfregiatore Litogeno"

@@ -110,6 +110,8 @@ L["Aqu'sirr"] = "아쿠시르"
 L["Arachnopod Destroyer"] = "파괴자 거미로봇"
 --[[Translation missing --]]
 L["AraKara"] = "Ara-Kara"
+--[[Translation missing --]]
+L["araKaraItemDescription"] = "Usable by Khaz Algar Tailors (25)"
 L["Aranasi Broodmother"] = "아라나시 무리어미"
 L["Arcane Anomaly"] = "비전 변형물"
 L["Arcane Construct"] = "비전 피조물"
@@ -741,6 +743,8 @@ L["Dulhu"] = "둘후"
 L["Dul'zak"] = "둘자크"
 --[[Translation missing --]]
 L["Dungeon Data Missing"] = "Dungeon Data Missing"
+--[[Translation missing --]]
+L["Dungeon Entrance"] = "Dungeon Entrance"
 L["Dungeon Level"] = "던전 레벨"
 L["Duskwatch Arcanist"] = "황혼감시대 비전술사"
 L["Duskwatch Guard"] = "황혼감시대 경비병"
@@ -2283,6 +2287,8 @@ L["Stitched Giant"] = "기워 붙인 거인"
 L["Stitched Vanguard"] = "누더기 선봉대"
 L["Stitchflesh's Creation"] = "스티치플레시의 피조물"
 L["Stitching Assistant"] = "바느질 조수"
+--[[Translation missing --]]
+L["stolenPowerDescription"] = "Usable by Rogues, Priests, and Khaz Algar Engineers (25)"
 L["Stoneborn Eviscerator"] = "돌숨결 적출자"
 L["Stoneborn Reaver"] = "돌숨결 약탈자"
 L["Stoneborn Slasher"] = "돌숨결 난도질꾼"
