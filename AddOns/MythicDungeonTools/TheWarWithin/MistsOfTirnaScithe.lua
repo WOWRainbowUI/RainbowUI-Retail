@@ -64,6 +64,12 @@ MDT.mapPOIs[dungeonIndex] = {
       ["y"] = -319.32567032828,
       ["itemType"] = 5,
     },
+    [7] = {
+      ["template"] = "MapLinkPinTemplate",
+      ["type"] = "dungeonEntrance",
+      ["x"] = 822.00553571743,
+      ["y"] = -111.94358107728,
+    },
   },
 };
 
@@ -545,6 +551,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["count"] = 4,
     ["health"] = 30632655,
     ["scale"] = 1,
+    ["stealthDetect"] = true,
     ["displayId"] = 95256,
     ["creatureType"] = "Humanoid",
     ["level"] = 60,
@@ -864,6 +871,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["count"] = 4,
     ["health"] = 35804403,
     ["scale"] = 1,
+    ["stealthDetect"] = true,
     ["displayId"] = 95261,
     ["creatureType"] = "Humanoid",
     ["level"] = 60,

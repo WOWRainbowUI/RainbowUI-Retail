@@ -139,6 +139,8 @@ L["Aqu'sirr"] = "阿库希尔"
 --[[Translation missing --]]
 L["Arachnopod Destroyer"] = "Arachnopod Destroyer"
 L["AraKara"] = "『回音之城』厄拉卡拉"
+--[[Translation missing --]]
+L["araKaraItemDescription"] = "Usable by Khaz Algar Tailors (25)"
 L["Aranasi Broodmother"] = "阿兰纳丝蛛后"
 L["Arcane Anomaly"] = "奥术畸体"
 --[[Translation missing --]]
@@ -892,6 +894,8 @@ L["Drust Spiteclaw"] = "德鲁斯特恶爪者"
 L["Dulhu"] = "Dulhu"
 L["Dul'zak"] = "杜尔扎克"
 L["Dungeon Data Missing"] = "缺少地城資料"
+--[[Translation missing --]]
+L["Dungeon Entrance"] = "Dungeon Entrance"
 L["Dungeon Level"] = "地城層數"
 L["Duskwatch Arcanist"] = "暮色卫队奥术师"
 L["Duskwatch Guard"] = "暮色卫队卫兵"
@@ -2753,6 +2757,8 @@ L["Stitched Giant"] = "Stitched Giant"
 L["Stitched Vanguard"] = "缝合先锋"
 L["Stitchflesh's Creation"] = "缝肉的造物"
 L["Stitching Assistant"] = "缝合助理"
+--[[Translation missing --]]
+L["stolenPowerDescription"] = "Usable by Rogues, Priests, and Khaz Algar Engineers (25)"
 L["Stoneborn Eviscerator"] = "石裔剔骨者"
 L["Stoneborn Reaver"] = "石裔掠夺者"
 L["Stoneborn Slasher"] = "石裔切割者"

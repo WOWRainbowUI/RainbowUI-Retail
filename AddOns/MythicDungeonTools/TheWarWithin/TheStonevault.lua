@@ -30,6 +30,12 @@ MDT.mapPOIs[dungeonIndex] = {
       ["x"] = 247.47244222345,
       ["y"] = -307.41345271418,
     },
+    [2] = {
+      ["template"] = "MapLinkPinTemplate",
+      ["type"] = "dungeonEntrance",
+      ["x"] = 420.12609193429,
+      ["y"] = -67.862389219205,
+    },
   },
 };
 
@@ -155,6 +161,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["scale"] = 1,
     ["displayId"] = 117402,
     ["creatureType"] = "Mechanical",
+    ["stealthDetect"] = true,
     ["level"] = 80,
     ["characteristics"] = {
       ["Taunt"] = true,
@@ -345,6 +352,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["scale"] = 1.3,
     ["displayId"] = 117973,
     ["creatureType"] = "Humanoid",
+    ["stealthDetect"] = true,
     ["level"] = 80,
     ["characteristics"] = {
       ["Taunt"] = true,
@@ -1082,6 +1090,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["scale"] = 1.4,
     ["displayId"] = 116911,
     ["creatureType"] = "Mechanical",
+    ["stealthDetect"] = true,
     ["level"] = 80,
     ["characteristics"] = {
       ["Taunt"] = true,
@@ -1174,6 +1183,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["scale"] = 1,
     ["displayId"] = 115944,
     ["creatureType"] = "Humanoid",
+    ["stealthDetect"] = true,
     ["level"] = 80,
     ["characteristics"] = {
       ["Taunt"] = true,
@@ -1296,6 +1306,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["scale"] = 1.5,
     ["displayId"] = 117855,
     ["creatureType"] = "Elemental",
+    ["stealthDetect"] = true,
     ["level"] = 80,
     ["characteristics"] = {
       ["Taunt"] = true,
