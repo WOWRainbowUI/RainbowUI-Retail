@@ -1,7 +1,7 @@
 # GatherMate2
 
-## [1.50.2.1](https://github.com/Nevcairiel/GatherMate2/tree/1.50.2.1) (2024-08-30)
-[Full Changelog](https://github.com/Nevcairiel/GatherMate2/compare/1.50.1...1.50.2.1) [Previous Releases](https://github.com/Nevcairiel/GatherMate2/releases)
+## [1.50.2.2](https://github.com/Nevcairiel/GatherMate2/tree/1.50.2.2) (2024-08-30)
+[Full Changelog](https://github.com/Nevcairiel/GatherMate2/compare/1.50.1...1.50.2.2) [Previous Releases](https://github.com/Nevcairiel/GatherMate2/releases)
 
 - Added Herbs & Mines transparent icons .tga  
 - Added "Webbed Ore Deposit"  
