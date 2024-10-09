@@ -26,10 +26,10 @@ GTFO = {
 		SoundOverrides = { "", "", "", "" }; -- Override table for GTFO sounds
 		IgnoreSpellList = { };
 	};
-	Version = "5.13.1"; -- Version number (text format)
+	Version = "5.14"; -- Version number (text format)
 	VersionNumber = 0; -- Numeric version number for checking out-of-date clients (placeholder until client is detected)
-	RetailVersionNumber = 51301; -- Numeric version number for checking out-of-date clients (retail)
-	ClassicVersionNumber = 51300; -- Numeric version number for checking out-of-date clients (Vanilla classic)
+	RetailVersionNumber = 51400; -- Numeric version number for checking out-of-date clients (retail)
+	ClassicVersionNumber = 51400; -- Numeric version number for checking out-of-date clients (Vanilla classic)
 	BurningCrusadeVersionNumber = 50000; -- Numeric version number for checking out-of-date clients (TBC classic)
 	WrathVersionNumber = 50503; -- Numeric version number for checking out-of-date clients (Wrath classic)
 	CataclysmVersionNumber = 51300; -- Numeric version number for checking out-of-date clients (Wrath classic)
@@ -80,7 +80,6 @@ GTFO = {
 	BurningCrusadeMode = nil; -- WoW TBC client detection
 	WrathMode = nil; -- WoW Wrath client detection
 	CataclysmMode = nil; -- WoW Cataclysm client detection
-	DisableSlidersUIMode = nil; -- Workaround for temporarily turning off sliders thanks to Classic Era
 	SoundChannels = { 
 		{ Code = "Master", Name = GTFOLocal.Master_Volume },
 		{ Code = "SFX", Name = _G.SOUND_VOLUME, CVar = "Sound_EnableSFX" },
@@ -105,7 +104,6 @@ end
 if (buildNumber <= 20000) then
 	GTFO.ClassicMode = true;
 	GTFO.VersionNumber = GTFO.ClassicVersionNumber;
-	GTFO.DisableSlidersUIMode = true;
 elseif (buildNumber <= 30000) then
 	GTFO.BurningCrusadeMode = true;
 	GTFO.VersionNumber = GTFO.BurningCrusadeVersionNumber;
@@ -1096,7 +1094,7 @@ function GTFO_PlaySound(iSound, bOverride, bForceVibrate)
 	if (bOverride or GTFO.Settings.Sounds[iSound]) then
 		local soundChannel = GTFO.Settings.SoundChannel;
 		
-		if (bOverride and not GTFO.DisableSlidersUIMode) then
+		if (bOverride) then
 			local channel = math.floor(getglobal("GTFO_ChannelIdSlider"):GetValue());
 			soundChannel = GTFO.SoundChannels[channel].Code;
 		end
@@ -1254,21 +1252,19 @@ function GTFO_RenderOptions()
 		VolumeText:SetPoint("TOPLEFT", 170, -195);
 		VolumeText:SetText("");
 
-		if (not GTFO.DisableSlidersUIMode) then
-			local VolumeSlider = CreateFrame("Slider", "GTFO_VolumeSlider", ConfigurationPanel, "OptionsSliderTemplate");
-			VolumeSlider:SetPoint("TOPLEFT", 12, -195);
-			VolumeSlider.tooltip = GTFOLocal.UI_VolumeDescription;
-			VolumeSlider:SetScript("OnValueChanged",GTFO_Option_SetVolume);
-			if (getglobal(GTFO_VolumeSlider:GetName().."Text")) then
-				getglobal(GTFO_VolumeSlider:GetName().."Text"):SetText(GTFOLocal.UI_Volume);
-				getglobal(GTFO_VolumeSlider:GetName().."High"):SetText(GTFOLocal.UI_VolumeMax);
-				getglobal(GTFO_VolumeSlider:GetName().."Low"):SetText(GTFOLocal.UI_VolumeMin);
-			end
-			VolumeSlider:SetMinMaxValues(1,5);
-			VolumeSlider:SetValueStep(1);
-			VolumeSlider:SetValue(GTFO.Settings.Volume);
-			GTFO_Option_SetVolumeText(GTFO.Settings.Volume);
+		local VolumeSlider = CreateFrame("Slider", "GTFO_VolumeSlider", ConfigurationPanel, "OptionsSliderTemplate");
+		VolumeSlider:SetPoint("TOPLEFT", 12, -195);
+		VolumeSlider.tooltip = GTFOLocal.UI_VolumeDescription;
+		VolumeSlider:SetScript("OnValueChanged",GTFO_Option_SetVolume);
+		if (getglobal(GTFO_VolumeSlider:GetName().."Text")) then
+			getglobal(GTFO_VolumeSlider:GetName().."Text"):SetText(GTFOLocal.UI_Volume);
+			getglobal(GTFO_VolumeSlider:GetName().."High"):SetText(GTFOLocal.UI_VolumeMax);
+			getglobal(GTFO_VolumeSlider:GetName().."Low"):SetText(GTFOLocal.UI_VolumeMin);
 		end
+		VolumeSlider:SetMinMaxValues(1,5);
+		VolumeSlider:SetValueStep(1);
+		VolumeSlider:SetValue(GTFO.Settings.Volume);
+		GTFO_Option_SetVolumeText(GTFO.Settings.Volume);
 		
 		local UnmuteButton = CreateFrame("CheckButton", "GTFO_UnmuteButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 		UnmuteButton:SetPoint("TOPLEFT", 10, -240)
@@ -1288,21 +1284,19 @@ function GTFO_RenderOptions()
 		TrivialDamageText:SetPoint("TOPLEFT", 450, -270);
 		TrivialDamageText:SetText("");
 
-		if (not GTFO.DisableSlidersUIMode) then
-			local TrivialDamageSlider = CreateFrame("Slider", "GTFO_TrivialDamageSlider", ConfigurationPanel, "OptionsSliderTemplate");
-			TrivialDamageSlider:SetPoint("TOPLEFT", 300, -270);
-			TrivialDamageSlider.tooltip = GTFOLocal.UI_TrivialSlider;
-			TrivialDamageSlider:SetScript("OnValueChanged",GTFO_Option_SetTrivialDamage);
-			if (getglobal(GTFO_TrivialDamageSlider:GetName().."Text")) then
-				getglobal(GTFO_TrivialDamageSlider:GetName().."Text"):SetText(GTFOLocal.UI_TrivialSlider);
-				getglobal(GTFO_TrivialDamageSlider:GetName().."High"):SetText(" ");
-				getglobal(GTFO_TrivialDamageSlider:GetName().."Low"):SetText(" ");
-			end
-			TrivialDamageSlider:SetMinMaxValues(.5,10);
-			TrivialDamageSlider:SetValueStep(.5);
-			TrivialDamageSlider:SetValue(GTFO.Settings.TrivialDamagePercent);
-			GTFO_Option_SetTrivialDamageText(GTFO.Settings.TrivialDamagePercent);
+		local TrivialDamageSlider = CreateFrame("Slider", "GTFO_TrivialDamageSlider", ConfigurationPanel, "OptionsSliderTemplate");
+		TrivialDamageSlider:SetPoint("TOPLEFT", 300, -270);
+		TrivialDamageSlider.tooltip = GTFOLocal.UI_TrivialSlider;
+		TrivialDamageSlider:SetScript("OnValueChanged",GTFO_Option_SetTrivialDamage);
+		if (getglobal(GTFO_TrivialDamageSlider:GetName().."Text")) then
+			getglobal(GTFO_TrivialDamageSlider:GetName().."Text"):SetText(GTFOLocal.UI_TrivialSlider);
+			getglobal(GTFO_TrivialDamageSlider:GetName().."High"):SetText(" ");
+			getglobal(GTFO_TrivialDamageSlider:GetName().."Low"):SetText(" ");
 		end
+		TrivialDamageSlider:SetMinMaxValues(.5,10);
+		TrivialDamageSlider:SetValueStep(.5);
+		TrivialDamageSlider:SetValue(GTFO.Settings.TrivialDamagePercent);
+		GTFO_Option_SetTrivialDamageText(GTFO.Settings.TrivialDamagePercent);
 
 		local TestModeButton = CreateFrame("CheckButton", "GTFO_TestModeButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 		TestModeButton:SetPoint("TOPLEFT", 10, -300)
@@ -1315,20 +1309,18 @@ function GTFO_RenderOptions()
 		ChannelText:SetPoint("TOPLEFT", 170, -350);
 		ChannelText:SetText("");
 
-		if (not GTFO.DisableSlidersUIMode) then
-			local ChannelIdSlider = CreateFrame("Slider", "GTFO_ChannelIdSlider", ConfigurationPanel, "OptionsSliderTemplate");
-			ChannelIdSlider:SetPoint("TOPLEFT", 12, -350);
-			ChannelIdSlider:SetScript("OnValueChanged",GTFO_Option_SetChannel);
-			ChannelIdSlider:SetMinMaxValues(1,5);
-			ChannelIdSlider:SetValueStep(1);
-			ChannelIdSlider:SetValue(GTFO_GetCurrentSoundChannelId(GTFO.Settings.SoundChannel));
-			if (getglobal(GTFO_ChannelIdSlider:GetName().."Text")) then
-				getglobal(GTFO_ChannelIdSlider:GetName().."Text"):SetText(GTFOLocal.UI_SoundChannel);
-				getglobal(GTFO_ChannelIdSlider:GetName().."High"):SetText(" ");
-				getglobal(GTFO_ChannelIdSlider:GetName().."Low"):SetText(" ");
-			end
-			GTFO_Option_SetChannelIdText(GTFO_GetCurrentSoundChannelId(GTFO.Settings.SoundChannel));
+		local ChannelIdSlider = CreateFrame("Slider", "GTFO_ChannelIdSlider", ConfigurationPanel, "OptionsSliderTemplate");
+		ChannelIdSlider:SetPoint("TOPLEFT", 12, -350);
+		ChannelIdSlider:SetScript("OnValueChanged",GTFO_Option_SetChannel);
+		ChannelIdSlider:SetMinMaxValues(1,5);
+		ChannelIdSlider:SetValueStep(1);
+		ChannelIdSlider:SetValue(GTFO_GetCurrentSoundChannelId(GTFO.Settings.SoundChannel));
+		if (getglobal(GTFO_ChannelIdSlider:GetName().."Text")) then
+			getglobal(GTFO_ChannelIdSlider:GetName().."Text"):SetText(GTFOLocal.UI_SoundChannel);
+			getglobal(GTFO_ChannelIdSlider:GetName().."High"):SetText(" ");
+			getglobal(GTFO_ChannelIdSlider:GetName().."Low"):SetText(" ");
 		end
+		GTFO_Option_SetChannelIdText(GTFO_GetCurrentSoundChannelId(GTFO.Settings.SoundChannel));
 		
 		local VibrationButton = CreateFrame("CheckButton", "GTFO_VibrationButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
 		VibrationButton:SetPoint("TOPLEFT", 10, -380)
@@ -1908,12 +1900,10 @@ function GTFO_Option_SetVolume()
 	if (not GTFO.UIRendered) then
 		return;
 	end
-	if (not GTFO.DisableSlidersUIMode) then
-		GTFO.Settings.Volume = math.floor(getglobal("GTFO_VolumeSlider"):GetValue());
-		getglobal("GTFO_VolumeSlider"):SetValue(GTFO.Settings.Volume);
-		GTFO_GetSounds();
-		GTFO_Option_SetVolumeText(GTFO.Settings.Volume);
-	end
+	GTFO.Settings.Volume = math.floor(getglobal("GTFO_VolumeSlider"):GetValue());
+	getglobal("GTFO_VolumeSlider"):SetValue(GTFO.Settings.Volume);
+	GTFO_GetSounds();
+	GTFO_Option_SetVolumeText(GTFO.Settings.Volume);
 	GTFO_SaveSettings();
 end
 
@@ -1941,12 +1931,10 @@ function GTFO_Option_SetTrivialDamage()
 	if (not GTFO.UIRendered) then
 		return;
 	end
-	if (not GTFO.DisableSlidersUIMode) then
-		GTFO.Settings.TrivialDamagePercent = math.floor(getglobal("GTFO_TrivialDamageSlider"):GetValue() * 10)/10;
-		getglobal("GTFO_TrivialDamageSlider"):SetValue(GTFO.Settings.TrivialDamagePercent);
-		GTFO_GetSounds();
-		GTFO_Option_SetTrivialDamageText(GTFO.Settings.TrivialDamagePercent);
-	end
+	GTFO.Settings.TrivialDamagePercent = math.floor(getglobal("GTFO_TrivialDamageSlider"):GetValue() * 10)/10;
+	getglobal("GTFO_TrivialDamageSlider"):SetValue(GTFO.Settings.TrivialDamagePercent);
+	GTFO_GetSounds();
+	GTFO_Option_SetTrivialDamageText(GTFO.Settings.TrivialDamagePercent);
 	GTFO_SaveSettings();
 end
 
@@ -1954,12 +1942,10 @@ function GTFO_Option_SetChannel()
 	if (not GTFO.UIRendered) then
 		return;
 	end
-	if (not GTFO.DisableSlidersUIMode) then
-		local channelId = math.floor(getglobal("GTFO_ChannelIdSlider"):GetValue());
-		GTFO.Settings.SoundChannel = GTFO.SoundChannels[channelId].Code;
-		getglobal("GTFO_ChannelIdSlider"):SetValue(channelId);
-		GTFO_Option_SetChannelIdText(channelId);
-	end
+	local channelId = math.floor(getglobal("GTFO_ChannelIdSlider"):GetValue());
+	GTFO.Settings.SoundChannel = GTFO.SoundChannels[channelId].Code;
+	getglobal("GTFO_ChannelIdSlider"):SetValue(channelId);
+	GTFO_Option_SetChannelIdText(channelId);
 	GTFO_SaveSettings();
 end
 
@@ -2232,7 +2218,7 @@ function GTFO_SetDefaults()
 	GTFO.Settings.EnableVibration = GTFO.DefaultSettings.EnableVibration;
 	GTFO.Settings.TrivialDamagePercent = GTFO.DefaultSettings.TrivialDamagePercent;
 	GTFO.Settings.SoundChannel = GTFO.DefaultSettings.SoundChannel;
-	if (GTFO.UIRendered and not GTFO.DisableSlidersUIMode) then
+	if (GTFO.UIRendered) then
 		getglobal("GTFO_VolumeSlider"):SetValue(GTFO.DefaultSettings.Volume);
 		getglobal("GTFO_TrivialDamageSlider"):SetValue(GTFO.DefaultSettings.TrivialDamagePercent);
 		getglobal("GTFO_ChannelIdSlider"):SetValue(GTFO_GetCurrentSoundChannelId(GTFO.DefaultSettings.SoundChannel));
