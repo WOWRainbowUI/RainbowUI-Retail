@@ -2156,3 +2156,9 @@ Change Log:
 * Added TWW spells for The Dawnbreaker
 * Added TWW spells for Nerub-ar Palace
 
+5.14
+* Re-enabled sliders for WoW Classic
+* Added The War Within spells (world)
+* Added TWW spells for TWW Delves 
+* Added TWW spells for Cinderbrew Meadery
+* Added TWW spells for Nerub-ar Palace

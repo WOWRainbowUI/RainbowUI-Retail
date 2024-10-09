@@ -126,6 +126,12 @@ GTFO.SpellID["449770"] = {
   sound = 1;
 };
 
+GTFO.SpellID["458799"] = {
+  --desc = "Overcharged Earth (Kordac)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -597,6 +603,22 @@ GTFO.SpellID["414523"] = {
   sound = 1;
 };
 
+GTFO.SpellID["452041"] = {
+  --desc = "Grimweave Orb (Ascended Webfriar)";
+  sound = 1;
+};
+
+GTFO.SpellID["440939"] = {
+  --desc = "Frost Grip (Researcher Xik'vik)";
+  sound = 1;
+};
+
+GTFO.SpellID["453152"] = {
+  --desc = "Gossamer Webbing (Web Marauder)";
+  sound = 1;
+};
+
+
 --- *******************
 --- * Nerub-ar Palace *
 --- *******************
@@ -726,6 +748,12 @@ GTFO.SpellID["462252"] = {
   --desc = "Volatile Eruption (Volatile Black Blood Pool)";
   sound = 1;
 };
+
+GTFO.SpellID["446253"] = {
+  --desc = "Slime Trail (Congealed Mass)";
+  sound = 1;
+};
+
 
 end
 
