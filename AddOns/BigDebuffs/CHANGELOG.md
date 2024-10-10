@@ -1,6 +1,9 @@
 # BigDebuffs
 
-## [v39](https://github.com/jordonwow/bigdebuffs/tree/v39) (2024-09-24)
-[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v38...v39) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
+## [v40](https://github.com/jordonwow/bigdebuffs/tree/v40) (2024-10-09)
+[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v39...v40) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
 
-- Fix for ElvUI player frame (fixes #781)  
+- add dance of the wind (#802)  
+    * add dance of the wind  
+    * .  
+- Haunt (#801)  
