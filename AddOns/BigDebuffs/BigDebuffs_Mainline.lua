@@ -362,6 +362,7 @@ addon.Spells = {
     [213664] = { type = BUFF_DEFENSIVE }, -- Nimble Brew (Brew PvP Talent)
     [132578] = { type = BUFF_DEFENSIVE }, -- Invoke Niuzao, the Black Ox
     [353319] = { type = IMMUNITY_SPELL }, -- Peaceweaver
+    [432180] = { type = BUFF_DEFENSIVE }, -- Dance of the Wind
 
     -- Paladin
 
@@ -604,6 +605,7 @@ addon.Spells = {
     [702] = { type = DEBUFF_OFFENSIVE, nounitFrames = true, nonameplates = true }, -- Curse of Weakness
     [410598] = { type = DEBUFF_OFFENSIVE, nonameplates = true }, -- Soul Rip
     [442726] = { type = BUFF_OFFENSIVE }, -- Malevolence
+    [48181] = { type = DEBUFF_OFFENSIVE, nonameplates = true }, -- Haunt
     [417537] = { type = DEBUFF_OFFENSIVE, nonameplates = true }, -- Oblivion
 
     -- Warrior
