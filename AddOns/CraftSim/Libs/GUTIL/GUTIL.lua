@@ -679,6 +679,17 @@ function GUTIL:WaitForEvent(event, callback, maxWaitSeconds)
     end
 end
 
+--- Runs the callback in the next frame when condition is true, otherwise it runs in the same frame
+---@param condition boolean
+---@param callback function
+function GUTIL:NextFrameIF(condition, callback)
+    if condition then
+        RunNextFrame(callback)
+    else
+        callback()
+    end
+end
+
 function GUTIL:EquipItemByLink(link)
     for bag = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
         for slot = 1, C_Container.GetContainerNumSlots(bag) do
