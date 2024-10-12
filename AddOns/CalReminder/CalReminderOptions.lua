@@ -6,52 +6,101 @@ if not CalReminderOptionsData then
 	CalReminderOptionsData = {}
 end
 
-function loadCalReminderOptions()
-	local alliancenpcValues = {
-		["ANDUIN"               ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["ANDUIN"               ]["CreatureId"]),
-		["ALLIANCE_GUILD_HERALD"] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["ALLIANCE_GUILD_HERALD"]["CreatureId"]),
-		["VARIAN"               ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["VARIAN"               ]["CreatureId"]),
-		["HEMET"                ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["HEMET"                ]["CreatureId"]),
-		["RAVERHOLDT"           ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["RAVERHOLDT"           ]["CreatureId"]),
-		["UTHER"                ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["UTHER"                ]["CreatureId"]),
-		["VELEN"                ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["VELEN"                ]["CreatureId"]),
-		["NOBUNDO"              ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["NOBUNDO"              ]["CreatureId"]),
-		["CHEN"                 ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["CHEN"                 ]["CreatureId"]),
-		["MALFURION"            ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["MALFURION"            ]["CreatureId"]),
-		["ILLIDAN"              ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["ILLIDAN"              ]["CreatureId"]),
-		["LICH_KING"            ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["LICH_KING"            ]["CreatureId"]),
-		["SHANDRIS"             ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["SHANDRIS"             ]["CreatureId"]),
-		["SHAW"                 ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["SHAW"                 ]["CreatureId"]),
-		["VALEERA"              ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["VALEERA"              ]["CreatureId"]),
-		["JAINA"                ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["JAINA"                ]["CreatureId"]),
-		["KANRETHAD"            ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["KANRETHAD"            ]["CreatureId"]),
-		["BOLVAR"               ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["BOLVAR"               ]["CreatureId"]),
-		["TURALYON"             ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["TURALYON"             ]["CreatureId"]),
-		["ALLERIA"              ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["ALLERIA"              ]["CreatureId"]),
-		["AZURATHEL"            ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["AZURATHEL"            ]["CreatureId"]),
-	}
+CalReminder_allianceNpcValues = {
+	"ANDUIN"               ,
+	"ALLIANCE_GUILD_HERALD",
+	"VARIAN"               ,
+	"HEMET"                ,
+	"RAVERHOLDT"           ,
+	"UTHER"                ,
+	"VELEN"                ,
+	"NOBUNDO"              ,
+	"CHEN"                 ,
+	"MALFURION"            ,
+	"ILLIDAN"              ,
+	"LICH_KING"            ,
+	"SHANDRIS"             ,
+	"SHAW"                 ,
+	"VALEERA"              ,
+	"JAINA"                ,
+	"KANRETHAD"            ,
+	"BOLVAR"               ,
+	"TURALYON"             ,
+	"ALLERIA"              ,
+	"AZURATHEL"            ,
+	"DINAIRE"              ,
+	"VEREESA"              ,
+}
 
-	local hordeNpcValues = {
-		["BAINE"                ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["BAINE"                ]["CreatureId"]),
-		["SYLVANAS"             ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["SYLVANAS"             ]["CreatureId"]),
-		["HEMET"                ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["HEMET"                ]["CreatureId"]),
-		["RAVERHOLDT"           ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["RAVERHOLDT"           ]["CreatureId"]),
-		["ILLIDAN"              ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["ILLIDAN"              ]["CreatureId"]),
-		["LICH_KING"            ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["LICH_KING"            ]["CreatureId"]),
-		["HORDE_GUILD_HERALD"   ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["HORDE_GUILD_HERALD"   ]["CreatureId"]),
-		["THRALL"               ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["THRALL"               ]["CreatureId"]),
-		["GALLYWIX"             ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["GALLYWIX"             ]["CreatureId"]),
-		["GAMON"                ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["GAMON"                ]["CreatureId"]),
-		["REXXAR"               ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["REXXAR"               ]["CreatureId"]),
-		["VALEERA"              ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["VALEERA"              ]["CreatureId"]),
-		["HAMUUL"               ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["HAMUUL"               ]["CreatureId"]),
-		["SAURFANG"             ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["SAURFANG"             ]["CreatureId"]),
-		["GARROSH"              ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["GARROSH"              ]["CreatureId"]),
-		["LIADRIN"              ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["LIADRIN"              ]["CreatureId"]),
-		["FAOL"                 ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["FAOL"                 ]["CreatureId"]),
-		["KAELTHAS"             ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["KAELTHAS"             ]["CreatureId"]),
-		["CINDRETHRESH"         ] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels["CINDRETHRESH"         ]["CreatureId"]),
-	}
+CalReminder_hordeNpcValues = {
+	"BAINE"             ,
+	"SYLVANAS"          ,
+	"HEMET"             ,
+	"RAVERHOLDT"        ,
+	"ILLIDAN"           ,
+	"LICH_KING"         ,
+	"HORDE_GUILD_HERALD",
+	"THRALL"            ,
+	"GALLYWIX"          ,
+	"GAMON"             ,
+	"REXXAR"            ,
+	"VALEERA"           ,
+	"HAMUUL"            ,
+	"SAURFANG"          ,
+	"GARROSH"           ,
+	"LIADRIN"           ,
+	"FAOL"              ,
+	"KAELTHAS"          ,
+	"CINDRETHRESH"      ,
+	"DINAIRE"           ,
+	"VEREESA"           ,
+}
+
+
+local function sorTableByNames(inputTable, firstValue)
+    -- Create a temporary table to store the codes sorted by names
+    local sortedTable = {}
+
+    -- Insert the keys (codes) into the temporary table with their associated names
+    for code, name in pairs(inputTable) do
+        table.insert(sortedTable, { code = code, name = name })
+    end
+
+    -- Sort the temporary table by the 'name' field
+    table.sort(sortedTable, function(a, b)
+        return a.name < b.name
+    end)
+
+    -- Create the final table with numeric indices
+    local resultTable = {}
+
+    -- Add firstValue to the result table
+    table.insert(resultTable, firstValue) -- Insert firstValue at the beginning
+
+    -- Add the sorted values to the result table
+    for _, entry in ipairs(sortedTable) do
+        table.insert(resultTable, entry.code)
+    end
+
+    return resultTable
+end
+
+function loadCalReminderOptions()
+	local allianceNpcValues = {}
+	for _, entry in ipairs(CalReminder_allianceNpcValues) do
+        allianceNpcValues[entry] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels[entry]["CreatureId"])
+    end
+
+	local allianceNpcValuesSorting = sorTableByNames(allianceNpcValues, "RANDOM")
+	allianceNpcValues["RANDOM"] = ORANGE_FONT_COLOR:GenerateHexColorMarkup()..RANDOMIZE_APPEARANCE.."|r"
+	
+	local hordeNpcValues = {}
+	for _, entry in ipairs(CalReminder_hordeNpcValues) do
+        hordeNpcValues[entry] = EZBlizzUiPop_GetNameFromNpcID(EZBlizzUiPop_npcModels[entry]["CreatureId"])
+    end
+
+	local hordeNpcValuesSorting = sorTableByNames(hordeNpcValues, "RANDOM")
+	hordeNpcValues["RANDOM"] = ORANGE_FONT_COLOR:GenerateHexColorMarkup()..RANDOMIZE_APPEARANCE.."|r"
 
 	local CalReminderOptions = {
 		type = "group",
@@ -64,7 +113,6 @@ function loadCalReminderOptions()
 				args = {
 					enableSound = {
 						type = "toggle", order = 1,
-						width = "full",
 						name = ENABLE_SOUND,
 						desc = ENABLE_SOUND,
 						set = function(info, val) 
@@ -78,30 +126,62 @@ function loadCalReminderOptions()
 							return enabled
 						end
 					},
+					enableDeathQuotes = {
+						type = "toggle", order = 2,
+						name = L["CALREMINDER_OPTIONS_QUOTES"],
+						desc = L["CALREMINDER_OPTIONS_QUOTES_DESC"],
+						set = function(info, val) 
+							DeadpoolOptionsData["QuotesDisabled"] = not val
+							if val then
+								if val then
+									local englishFaction = UnitFactionGroup("player")
+									local chief = CalReminderOptionsData["HORDE_NPC"] or "RANDOM"
+									local chiefList = CalReminder_hordeNpcValues
+									if englishFaction == "Alliance" then
+										chief = CalReminderOptionsData["ALLIANCE_NPC"] or "RANDOM"
+										chiefList = CalReminder_allianceNpcValues
+									end
+									if chief == "RANDOM" then
+										chief = chiefList[math.random(1, #chiefList)]
+									end
+									EZBlizzUiPop_PlayNPCRandomSound(chief, "Dialog", true)
+								end
+							end
+						end,
+						get = function(info)
+							local enabled = true
+							if DeadpoolOptionsData["QuotesDisabled"] ~= nil then
+								enabled = not DeadpoolOptionsData["QuotesDisabled"]
+							end
+							return enabled
+						end
+					},
 					alliance = {
-						type = "select", order = 2,
+						type = "select", order = 3,
 						width = "double",
 						name = string.format(L["CALREMINDER_OPTIONS_NPC"], FACTION_ALLIANCE),
 						desc = string.format(L["CALREMINDER_OPTIONS_NPC_DESC"], FACTION_ALLIANCE),
-						values = alliancenpcValues,
+						values = allianceNpcValues,
+						sorting = allianceNpcValuesSorting,
 						set = function(info, val)
 							CalReminderOptionsData["ALLIANCE_NPC"] = val
 						end,
 						get = function(info)
-							return CalReminderOptionsData["ALLIANCE_NPC"] or "SHANDRIS"
+							return CalReminderOptionsData["ALLIANCE_NPC"] or "RANDOM"
 						end
 					},
 					horde = {
-						type = "select", order = 3,
+						type = "select", order = 4,
 						width = "double",
 						name = string.format(L["CALREMINDER_OPTIONS_NPC"], FACTION_HORDE),
 						desc = string.format(L["CALREMINDER_OPTIONS_NPC_DESC"], FACTION_HORDE),
 						values = hordeNpcValues,
+						sorting = hordeNpcValuesSorting,
 						set = function(info, val)
 							CalReminderOptionsData["HORDE_NPC"] = val
 						end,
 						get = function(info)
-							return CalReminderOptionsData["HORDE_NPC"] or "GAMON"
+							return CalReminderOptionsData["HORDE_NPC"] or "RANDOM"
 						end
 					},
 				},

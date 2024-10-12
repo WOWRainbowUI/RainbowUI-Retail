@@ -8,12 +8,15 @@ L["CALREMINDER_SHOWEVENT"] = "顯示活動"
 
 L["CALREMINDER_WELCOME"] = "輸入 /crm 打開行事曆活動提醒的設定選項。"
 
-L["CALREMINDER_DDAY_REMINDER"] = "親愛的%s，你尚未回覆今晚的活動邀請%s: %s。"
+L["CALREMINDER_DDAY_REMINDER"] = "親愛的%s，你尚未回覆今天的活動邀請%s: %s。"
 L["CALREMINDER_LDAY_REMINDER"] = "親愛的%s，你尚未回覆明晚的活動邀請%s: %s。"
 L["CALREMINDER_ACHIV_REMINDER"] = "待回覆的邀請"
 
 L["CALREMINDER_OPTIONS_NPC"] = "%s NPC"
 L["CALREMINDER_OPTIONS_NPC_DESC"] = "選擇提醒你即將到來活動的%s NPC。"
+
+L["CALREMINDER_OPTIONS_QUOTES"] = "啟用引言"
+L["CALREMINDER_OPTIONS_QUOTES_DESC"] = "啟用 / 停用 NPC 引言"
 
 L["CALREMINDER_CALLTOARMS_TOOLTIP_DETAILS"] = "向線上的受邀者發送訊息。"
 L["CALREMINDER_CALLTOARMS_DIALOG"] = "要傳送給線上的 '%s' 玩家的訊息："
