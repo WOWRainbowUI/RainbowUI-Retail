@@ -15,6 +15,9 @@ L["CALREMINDER_ACHIV_REMINDER"] = "Invitation en attente"
 L["CALREMINDER_OPTIONS_NPC"] = "PNJ %s"
 L["CALREMINDER_OPTIONS_NPC_DESC"] = "Choisissez le PNJ côté %s qui vous rappellera les événements proches."
 
+L["CALREMINDER_OPTIONS_QUOTES"] = "Citations"
+L["CALREMINDER_OPTIONS_QUOTES_DESC"] = "Active / désactive les citations de PNJ"
+
 L["CALREMINDER_CALLTOARMS_TOOLTIP_DETAILS"] = "Envoyer un message aux invités connectés."
 L["CALREMINDER_CALLTOARMS_DIALOG"] = "Message à envoyer aux joueurs '%s' connectés :"
 
