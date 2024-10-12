@@ -8,15 +8,12 @@ L["CALREMINDER_WELCOME"] = "Type /crm to open CalReminder options panel."
 
 L["CALREMINDER_SHOWEVENT"] = "Show event"
 
-L["CALREMINDER_DDAY_REMINDER"] = "%s, you did not answer today event invite%s: %s."
+L["CALREMINDER_DDAY_REMINDER"] = "%s, you did not answer tonight event invite%s: %s."
 L["CALREMINDER_LDAY_REMINDER"] = "%s, you did not answer tomorrow event invite%s: %s."
 L["CALREMINDER_ACHIV_REMINDER"] = "Invite pendind"
 
 L["CALREMINDER_OPTIONS_NPC"] = "%s NPC"
 L["CALREMINDER_OPTIONS_NPC_DESC"] = "Choose the %s NPC who will remind you impending events."
-
-L["CALREMINDER_OPTIONS_QUOTES"] = "Enable Quotes"
-L["CALREMINDER_OPTIONS_QUOTES_DESC"] = "Enables / disables NPC Quotes"
 
 L["CALREMINDER_CALLTOARMS_TOOLTIP_DETAILS"] = "Send messages to connected invitees."
 L["CALREMINDER_CALLTOARMS_DIALOG"] = "Message to send to connected '%s' players:"

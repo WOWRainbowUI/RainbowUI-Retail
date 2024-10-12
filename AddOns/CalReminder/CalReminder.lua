@@ -48,7 +48,7 @@ local playerNotFoundMsg = string.gsub(ERR_CHAT_PLAYER_NOT_FOUND_S, "%%s", "(.-)"
 function CalReminder:ChatFilter(event, msg, author, ...)
 	if string.match(msg, playerNotFoundMsg) then
 		local actualTime = GetTime()
-		if lastCalReminderSendCommMessage and actualTime <= lastCalReminderSendCommMessage + 1 then
+		if lastCalReminderSendCommMessage and actualTime <= lastCalReminderSendCommMessage + 5 then
 			return true
 		end
 	end
@@ -619,25 +619,22 @@ function CalReminder:ReloadData()
 	CalReminder_shareDataWithInvitees()
 	
 	if firstPendingEvent and firstEvent then
-		local englishFaction = UnitFactionGroup("player")
-		local chief = CalReminderOptionsData["HORDE_NPC"] or "RANDOM"
-		local chiefList = CalReminder_hordeNpcValues
+		englishFaction, localizedFaction = UnitFactionGroup("player")
+		local chief = CalReminderOptionsData["HORDE_NPC"] or "GAMON"
 		if englishFaction == "Alliance" then
-			chief = CalReminderOptionsData["ALLIANCE_NPC"] or "RANDOM"
-			chiefList = CalReminder_allianceNpcValues
-		end
-		if chief == "RANDOM" then
-			chief = chiefList[math.random(1, #chiefList)]
+			chief = CalReminderOptionsData["ALLIANCE_NPC"] or "SHANDRIS"
 		end
 		local frame = nil
-		if firstEventIsToday or firstEventIsTomorrow then
-			local message = (firstEventIsToday and L["CALREMINDER_DDAY_REMINDER"]) or L["CALREMINDER_LDAY_REMINDER"]
+		if firstEventIsToday then
 			if not CalReminderOptionsData["SoundsDisabled"] then
-				if DeadpoolOptionsData["QuotesDisabled"] or not EZBlizzUiPop_PlayNPCRandomSound(chief, "Dialog", true) then
-					EZBlizzUiPop_PlaySound(12867)
-				end
+				EZBlizzUiPop_PlaySound(12867)
 			end
-			frame = EZBlizzUiPop_npcDialog(chief, string.format(message, UnitName("player"), L["SPACE_BEFORE_DOT"], firstEvent.title), "CalReminderFrameTemplate")
+			frame = EZBlizzUiPop_npcDialog(chief, string.format(L["CALREMINDER_DDAY_REMINDER"], UnitName("player"), L["SPACE_BEFORE_DOT"], firstEvent.title), "CalReminderFrameTemplate")
+		elseif firstEventIsTomorrow then
+			if not CalReminderOptionsData["SoundsDisabled"] then
+				EZBlizzUiPop_PlaySound(12867)
+			end
+			frame = EZBlizzUiPop_npcDialog(chief, string.format(L["CALREMINDER_LDAY_REMINDER"], UnitName("player"), L["SPACE_BEFORE_DOT"], firstEvent.title), "CalReminderFrameTemplate")
 		end
 		if not frame then
 			local isGuildEvent = GetGuildInfo("player") ~= nil and firstEvent.calendarType == "GUILD_EVENT"

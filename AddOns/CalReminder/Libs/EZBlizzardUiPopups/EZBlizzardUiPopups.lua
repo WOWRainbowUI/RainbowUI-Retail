@@ -20,41 +20,10 @@ else
 	return
 end
 
-local willPlay, soundHandle
-
 function EZBlizzUiPop_PlaySound(soundID)
 	if soundID then
 		PlaySound(soundID, "master")
 	end
-end
-
-function EZBlizzUiPop_PlaySoundFileId(soundFileId, channel, playSound)
-	if playSound then
-		if soundHandle then
-			StopSound(soundHandle)
-		end
-		willPlay, soundHandle = PlaySoundFile(soundFileId, channel)
-	end
-	return soundHandle
-end
-
-function EZBlizzUiPop_PlayRandomSound(soundFileIdBank, channel, playSound)
-	if playSound then
-		local nbSounds = #soundFileIdBank
-		if nbSounds > 0 then
-			local sound = math.random(1, nbSounds)
-			return Deadpool_PlaySoundFileId(soundFileIdBank[sound], channel, playSound)
-		end
-	end
-	return nil
-end
-
-function EZBlizzUiPop_PlayNPCRandomSound(npc, channel, playSound)
-	if playSound then
-		local soundFileIdBank = EZBlizzUiPop_npcModels[npc] and EZBlizzUiPop_npcModels[npc].soundQuotes
-		return EZBlizzUiPop_PlayRandomSound(soundFileIdBank, channel, playSound)
-	end
-	return nil
 end
 
 -- Tip by Gello - Hyjal
@@ -280,45 +249,43 @@ if not EZBlizzUiPop_npcModels then
 	EZBlizzUiPop_npcModels = {}
 end
 
-EZBlizzUiPop_npcModels["BAINE"]                 = { ["CreatureId"] = 36648,  ["CameraId"] = 141,  ["animation"] = 60, ["soundQuotes"] = { 2416552, 2416540, 2416542, 2416543 } } -- or animation 65 ?
-EZBlizzUiPop_npcModels["SYLVANAS"]              = { ["CreatureId"] = 177114, ["CameraId"] = 84,   ["animation"] = 60, ["soundQuotes"] = { 1801002, 1801005, 1800995, 561301 } }
-EZBlizzUiPop_npcModels["ANDUIN"]                = { ["CreatureId"] = 230055, ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 5725623, 5725624, 5725625, 5725634, 5725619, 5725620, 5725630 } }
-EZBlizzUiPop_npcModels["ALLIANCE_GUILD_HERALD"] = { ["CreatureId"] = 49587,  ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 552227, 552221 } }
-EZBlizzUiPop_npcModels["VARIAN"]                = { ["CreatureId"] = 29611,  ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 563552, 563519, 563537, 563479 } }
-EZBlizzUiPop_npcModels["HEMET"]                 = { ["CreatureId"] = 191205, ["CameraId"] = 90,   ["animation"] = 60, ["soundQuotes"] = { 1486698, 1486699, 1486701, 1486702, 1486703, 1486704 } }
-EZBlizzUiPop_npcModels["RAVERHOLDT"]            = { ["CreatureId"] = 229150, ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 1388284, 1388286, 1388282 } }
-EZBlizzUiPop_npcModels["UTHER"]                 = { ["CreatureId"] = 166619, ["CameraId"] = 1079, ["animation"] = 60, ["soundQuotes"] = { 3597128, 3597129, 563239 } }
-EZBlizzUiPop_npcModels["VELEN"]                 = { ["CreatureId"] = 210670, ["CameraId"] = 106,  ["animation"] = 60, ["soundQuotes"] = { 1055403, 1055404, 1055405, 1055406, 1055399, 1055400, 1055402 } }
-EZBlizzUiPop_npcModels["NOBUNDO"]               = { ["CreatureId"] = 212343, ["CameraId"] = 268,  ["animation"] = 60, ["soundQuotes"] = { 1373762, 1373763, 1373756, 1373757, 1373758, 1373759 } }
-EZBlizzUiPop_npcModels["KHADGAR"]               = { ["CreatureId"] = 193459, ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 4639084, 4639095, 4639096, 4639097, 4639090 } }
-EZBlizzUiPop_npcModels["CHOGALL"]               = { ["CreatureId"] = 81822,  ["CameraId"] = 815,  ["animation"] = 60, ["soundQuotes"] = { 546172, 546153, 546103, 546166 } }
-EZBlizzUiPop_npcModels["CHEN"]                  = { ["CreatureId"] = 209704, ["CameraId"] = 144,  ["animation"] = 60, ["soundQuotes"] = { 634292, 634296, 634290, 634294 } }
-EZBlizzUiPop_npcModels["MALFURION"]             = { ["CreatureId"] = 193211, ["CameraId"] = 575,  ["animation"] = 60, ["soundQuotes"] = { 2468393, 2468394, 2468396, 2468397 } }
-EZBlizzUiPop_npcModels["ILLIDAN"]               = { ["CreatureId"] = 22917,  ["CameraId"] = 296,  ["animation"] = 65, ["soundQuotes"] = { 552503, 552514, 1689235, 1689238, 1689239, 1689240, 1689241, 1699667 } }
-EZBlizzUiPop_npcModels["LICH_KING"]             = { ["CreatureId"] = 36597,  ["CameraId"] = 88,   ["animation"] = 60, ["soundQuotes"] = { 554123, 554181, 553997, 554089, 554172, 554085 } }
-EZBlizzUiPop_npcModels["HORDE_GUILD_HERALD"]    = { ["CreatureId"] = 49590,  ["CameraId"] = 141,  ["animation"] = 60, ["soundQuotes"] = { 557802, 557807, 557801, 557804, 557800, 557809, 557799, 557806, 557814 } }
-EZBlizzUiPop_npcModels["THRALL"]                = { ["CreatureId"] = 229321, ["CameraId"] = 109,  ["animation"] = 60, ["soundQuotes"] = { 5758117, 5758118, 5758119, 5758114, 5758115, 5758116, 2922115 } }
-EZBlizzUiPop_npcModels["GALLYWIX"]              = { ["CreatureId"] = 101605, ["CameraId"] = 114,  ["animation"] = 51, ["soundQuotes"] = { 1860609, 1860611, 1860613, 1860622, 1860626 } }
-EZBlizzUiPop_npcModels["SHANDRIS"]              = { ["CreatureId"] = 205067, ["CameraId"] = 109,  ["animation"] = 60, ["soundQuotes"] = { 5482269, 4288146, 4288143 } }
-EZBlizzUiPop_npcModels["SHAW"]                  = { ["CreatureId"] = 198884, ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 1388445, 1388442, 1388449, 1388451 } }
-EZBlizzUiPop_npcModels["GAMON"]                 = { ["CreatureId"] = 158588, ["CameraId"] = 126,  ["animation"] = 60, ["soundQuotes"] = { 897314, 897322, 897324 } }
-EZBlizzUiPop_npcModels["REXXAR"]                = { ["CreatureId"] = 203683, ["CameraId"] = 142,  ["animation"] = 60, ["soundQuotes"] = { 2011278, 2011283, 2011276, 2011282 } }
-EZBlizzUiPop_npcModels["VALEERA"]               = { ["CreatureId"] = 229128, ["CameraId"] = 84,   ["animation"] = 60, ["soundQuotes"] = { 1388604, 1388606, 1388608 } }
-EZBlizzUiPop_npcModels["JAINA"]                 = { ["CreatureId"] = 216168, ["CameraId"] = 84,   ["animation"] = 60, ["soundQuotes"] = { 2012996, 2012998, 2012999, 2013000, 2013002, 5828671, 5828672, 2012993, 2012994 } }
-EZBlizzUiPop_npcModels["HAMUUL"]                = { ["CreatureId"] = 208649, ["CameraId"] = 126,  ["animation"] = 60, ["soundQuotes"] = { 1388273, 1388275, 1388276, 1388278 } }
-EZBlizzUiPop_npcModels["SAURFANG"]              = { ["CreatureId"] = 156180, ["CameraId"] = 109,  ["animation"] = 60, ["soundQuotes"] = { 2012223, 2012224, 2012212, 2012213, 2012214, 2012216, 2012217, 2012226 } }
-EZBlizzUiPop_npcModels["KANRETHAD"]             = { ["CreatureId"] = 118927, ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 1581925, 1581926, 1581927 } }
-EZBlizzUiPop_npcModels["GARROSH"]               = { ["CreatureId"] = 143425, ["CameraId"] = 86,   ["animation"] = 60, ["soundQuotes"] = { 549620, 896000, 896028, 896036 } }
-EZBlizzUiPop_npcModels["LIADRIN"]               = { ["CreatureId"] = 226656, ["CameraId"] = 120,  ["animation"] = 60, ["soundQuotes"] = { 1388292, 1388295, 1388297, 1388298 } }
-EZBlizzUiPop_npcModels["FAOL"]                  = { ["CreatureId"] = 186182, ["CameraId"] = 130,  ["animation"] = 60, ["soundQuotes"] = { 1388191, 1388193, 1388189, 1388196 } }
-EZBlizzUiPop_npcModels["KAELTHAS"]              = { ["CreatureId"] = 179475, ["CameraId"] = 119,  ["animation"] = 60, ["soundQuotes"] = { 3620551, 3620554, 558296 } }
-EZBlizzUiPop_npcModels["BOLVAR"]                = { ["CreatureId"] = 164079, ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 3698917, 3698918, 3698920, 3698921, 3698922, 3698912, 3698913, 3698914 } }
-EZBlizzUiPop_npcModels["TURALYON"]              = { ["CreatureId"] = 223205, ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 4659345, 4659349, 4659346, 4659338 } }
-EZBlizzUiPop_npcModels["ALLERIA"]               = { ["CreatureId"] = 230062, ["CameraId"] = 120,  ["animation"] = 60, ["soundQuotes"] = { 5725989, 5725999, 5725985, 5725991, 5726000 } }
-EZBlizzUiPop_npcModels["AZURATHEL"]             = { ["CreatureId"] = 181056, ["CameraId"] = 146,  ["animation"] = 60, ["soundQuotes"] = { 4659468, 4659471, 4659467 } }
-EZBlizzUiPop_npcModels["CINDRETHRESH"]          = { ["CreatureId"] = 181055, ["CameraId"] = 146,  ["animation"] = 60, ["soundQuotes"] = { 4661200, 4661197, 4661198, 4661203 } }
-EZBlizzUiPop_npcModels["DINAIRE"]               = { ["CreatureId"] = 206533, ["CameraId"] = 82,   ["animation"] = 60, ["soundQuotes"] = { 5725530, 5725538, 5725546, 5725413 } }
-EZBlizzUiPop_npcModels["VEREESA"]               = { ["CreatureId"] = 30115,  ["CameraId"] = 120,  ["animation"] = 60, ["soundQuotes"] = { 1388723, 1388707, 1388710, 1388737 } }
+EZBlizzUiPop_npcModels["BAINE"]                 = { ["CreatureId"] = 36648,  ["CameraId"] = 141, ["animation"] = 60 } -- or animation 65 ?
+EZBlizzUiPop_npcModels["SYLVANAS"]              = { ["CreatureId"] = 10181,  ["CameraId"] = 84,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["ANDUIN"]                = { ["CreatureId"] = 107574, ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["ALLIANCE_GUILD_HERALD"] = { ["CreatureId"] = 49587,  ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["VARIAN"]                = { ["CreatureId"] = 29611,  ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["HEMET"]                 = { ["CreatureId"] = 94409,  ["CameraId"] = 90,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["RAVERHOLDT"]            = { ["CreatureId"] = 101513, ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["UTHER"]                 = { ["CreatureId"] = 17233,  ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["VELEN"]                 = { ["CreatureId"] = 17468,  ["CameraId"] = 106, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["NOBUNDO"]               = { ["CreatureId"] = 110695, ["CameraId"] = 268, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["KHADGAR"]               = { ["CreatureId"] = 90417,  ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["CHOGALL"]               = { ["CreatureId"] = 81822,  ["CameraId"] = 815, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["CHEN"]                  = { ["CreatureId"] = 56133,  ["CameraId"] = 144, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["MALFURION"]             = { ["CreatureId"] = 102432, ["CameraId"] = 575, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["ILLIDAN"]               = { ["CreatureId"] = 22917,  ["CameraId"] = 296, ["animation"] = 65 }
+EZBlizzUiPop_npcModels["LICH_KING"]             = { ["CreatureId"] = 36597,  ["CameraId"] = 88,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["HORDE_GUILD_HERALD"]    = { ["CreatureId"] = 49590,  ["CameraId"] = 141, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["THRALL"]                = { ["CreatureId"] = 91731,  ["CameraId"] = 815, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["GALLYWIX"]              = { ["CreatureId"] = 101605, ["CameraId"] = 114, ["animation"] = 51 }
+EZBlizzUiPop_npcModels["SHANDRIS"]              = { ["CreatureId"] = 161804, ["CameraId"] = 109, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["SHAW"]                  = { ["CreatureId"] = 141358, ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["GAMON"]                 = { ["CreatureId"] = 158588, ["CameraId"] = 126, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["REXXAR"]                = { ["CreatureId"] = 145422, ["CameraId"] = 142, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["VALEERA"]               = { ["CreatureId"] = 150476, ["CameraId"] = 84,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["JAINA"]                 = { ["CreatureId"] = 145580, ["CameraId"] = 84,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["HAMUUL"]                = { ["CreatureId"] = 107163, ["CameraId"] = 126, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["SAURFANG"]              = { ["CreatureId"] = 144490, ["CameraId"] = 109, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["KANRETHAD"]             = { ["CreatureId"] = 118449, ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["GARROSH"]               = { ["CreatureId"] = 143425, ["CameraId"] = 86,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["LIADRIN"]               = { ["CreatureId"] = 176789, ["CameraId"] = 84,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["FAOL"]                  = { ["CreatureId"] = 186182, ["CameraId"] = 130, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["KAELTHAS"]              = { ["CreatureId"] = 179475, ["CameraId"] = 119, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["BOLVAR"]                = { ["CreatureId"] = 164079, ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["TURALYON"]              = { ["CreatureId"] = 189600, ["CameraId"] = 82,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["ALLERIA"]               = { ["CreatureId"] = 175138, ["CameraId"] = 84,  ["animation"] = 60 }
+EZBlizzUiPop_npcModels["AZURATHEL"]             = { ["CreatureId"] = 181056, ["CameraId"] = 146, ["animation"] = 60 }
+EZBlizzUiPop_npcModels["CINDRETHRESH"]          = { ["CreatureId"] = 181055, ["CameraId"] = 146, ["animation"] = 60 }
 
 function EZBlizzUiPop_npcDialog(npc, text, overlayFrameTemplate)
 	local frame = nil
@@ -377,28 +344,17 @@ function EZBlizzUiPop_TalkingHeadFrame_Play(cameraId, name, text, animation)
 	frame:Show()
 	model.uiCameraID = cameraId
 	Model_ApplyUICamera(model, model.uiCameraID)
-	model:SetScript("OnModelLoaded", function()
-		Model_ApplyUICamera(model, model.uiCameraID)
-		if model.currentAnimation ~= animation then
-			model:SetAnimation(animation)
-			model.currentAnimation = animation
-		end
-	end)
 
 	TalkingHeadFrame:Reset(textFormatted, name)
 	TalkingHeadFrame:FadeinFrames()
 	C_Timer.After(0.1, function()
 		model:SetAnimation(animation)
-		model.currentAnimation = animation
 		model:SetScript("OnAnimFinished", function()
-			model.currentAnimation = nil
 			modelAnimationLoopIterration = modelAnimationLoopIterration + 1
 			if modelAnimationLoopIterration < modelAnimationLoop then
 				model:SetAnimation(animation)
-				model.currentAnimation = animation
 			else
 				model:SetAnimation(0)
-				model.currentAnimation = 0
 				model:SetScript("OnAnimFinished", nil)
 				modelAnimationLoopIterration = 0
 			end
@@ -409,7 +365,7 @@ function EZBlizzUiPop_TalkingHeadFrame_Play(cameraId, name, text, animation)
 	end)
 end
 
---[[ Loading models
+---[[ Loading models
 local model = CreateFrame('PlayerModel', nil, UIParent)
 model:SetPoint("BOTTOMLEFT")
 model:SetWidth(5)
@@ -426,104 +382,32 @@ model:Hide()
 --]]
 
 --[[
-function testModels(cam) --/run testModels()
-	local imageSize = 120
-	local numRows, numCols = 7, 16
-	local i = 1
-	for k, v in pairs(EZBlizzUiPop_npcModels) do
-		local x = math.floor((i - 1) / numCols)
-		local y = ((i - 1) % numCols)
-		
+local camId = 80
+local creatureId = 181055
+local imageSize = 80
+local animation = 60
+
+for i = 0, 10 do
+	for j = 0, 5 do
 		local totopModel = CreateFrame("PlayerModel", "", UIParent)
-		totopModel:SetPoint("TOPLEFT", y*imageSize, -x*imageSize)
+		totopModel:SetPoint("TOPLEFT", i*imageSize, -j*imageSize)
 		totopModel:SetWidth(imageSize)
 		totopModel:SetHeight(imageSize)
-		totopModel:SetCreature(v.CreatureId)
-		totopModel.uiCameraID = cam or v.CameraId
-		--C_Timer.After(0.1 * i, function()
-			Model_ApplyUICamera(totopModel, totopModel.uiCameraID)
-		--end)
-		totopModel:SetScript("OnModelLoaded", function()
-            Model_ApplyUICamera(totopModel, totopModel.uiCameraID)
-			totopModel:SetAnimation(v.animation)
-        end)
+		totopModel:SetCreature(creatureId)
+		--totopModel:SetDisplayInfo(creatureId)
+		totopModel:RefreshCamera()
+		Model_ApplyUICamera(totopModel, camId)
 		local fontstring = totopModel:CreateFontString("", "ARTWORK", "GameTooltipText")
 		fontstring:SetTextColor(1, 1, 1, 1.0)
-		fontstring:SetText(k)
-		fontstring:SetPoint("BOTTOM", 0, 10)
-		
-		fontstring = totopModel:CreateFontString("", "ARTWORK", "GameTooltipText")
-		fontstring:SetTextColor(1, 1, 1, 1.0)
-		fontstring:SetText(cam or v.CameraId)
+		fontstring:SetText(camId)
 		fontstring:SetPoint("BOTTOM", 0, 0)
-		totopModel:SetAnimation(v.animation)
-		totopModel:SetAttribute("animation", v.animation)
+		totopModel:SetAnimation(animation)
+		totopModel:SetAttribute("animation", animation)
 		totopModel:SetScript("OnAnimFinished", function()
 			totopModel:SetAnimation(totopModel:GetAttribute("animation"))
 		end)
-		i = i + 1
-	end
-end
-
-function testModels2() --/run testModels2()
-	local imageSize = 120
-	local numRows, numCols = 7, 16
-	for k, v in pairs(EZBlizzUiPop_npcModels) do
-		
-		local totopModel = v.model
-		--totopModel:SetCreature(v.CreatureId)
-		--totopModel:RefreshCamera()
-		--totopModel.uiCameraID = v.CameraId
-		Model_ApplyUICamera(totopModel, totopModel.uiCameraID)
-	end
-end
---]]
-
---[[
-local camIds = {82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 110, 110, 111, 111, 111, 112, 112, 112, 113, 113, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 268, 268, 269, 269, 1060, 1061, 1080, 1081, 1082, 1083, 1208, 1209, 1210, 1211, 1212, 1213, 1214, 1215, 1216, 1217, 1218, 1219, 1220, 1221, 1222, 1223, 1226, 1227, 1236, 1237, 1238, 1239, 1240, 1241, 1371, 1372, 1373, 1374, 1439, 1440, 1672, 1672, 1672, 1672, 1673, 1673, 1673, 1673, 1676, 1677, 1678, 1679, 1807, 1807, 1808, 1808, 1809, 1809, 1810, 1810}
-local cam
-local testingModels = {}
-local creatureId = 166619
-local imageSize = 120
-local animation = 60
-local numRows, numCols = 7, 16
-
-for i, v in ipairs(camIds) do
-	if cam then v = cam; cam = cam + 1 end
-	local x = math.floor((i - 1) / numCols)
-    local y = ((i - 1) % numCols)
-	
-	local totopModel = CreateFrame("PlayerModel", "", UIParent)
-	testingModels[i] = totopModel
-	totopModel:SetPoint("TOPLEFT", y*imageSize, -x*imageSize)
-	totopModel:SetWidth(imageSize)
-	totopModel:SetHeight(imageSize)
-	totopModel:SetCreature(creatureId)
-	--totopModel:SetDisplayInfo(creatureId)
-	totopModel:RefreshCamera()
-	totopModel.cameraId = v
-	Model_ApplyUICamera(totopModel, v)
-	totopModel:SetScript("OnModelLoaded", function()
-		Model_ApplyUICamera(totopModel, v)
-		totopModel:SetAnimation(animation)
-	end)
-	local fontstring = totopModel:CreateFontString("", "ARTWORK", "GameTooltipText")
-	fontstring:SetTextColor(1, 1, 1, 1.0)
-	fontstring:SetText(v)
-	fontstring:SetPoint("BOTTOM", 0, 0)
-	totopModel:SetAnimation(animation)
-	totopModel:SetAttribute("animation", animation)
-	totopModel:SetScript("OnAnimFinished", function()
-		totopModel:SetAnimation(totopModel:GetAttribute("animation"))
-	end)
-	--animation = animation + 1
-end
-
-function testModels3(creature) --/run testModels3("BAINE")
-	for i, v in ipairs(testingModels) do
-		v:SetCreature(EZBlizzUiPop_npcModels[creature].CreatureId)
-		v:RefreshCamera()
-		Model_ApplyUICamera(v, v.cameraId)
+		camId = camId + 1
+		--animation = animation + 1
 	end
 end
 
