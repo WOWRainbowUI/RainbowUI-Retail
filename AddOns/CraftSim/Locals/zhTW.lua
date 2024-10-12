@@ -162,11 +162,10 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.REAGENTS_OPTIMIZE_BEST_ASSIGNED] = "最佳材料分配",
         [CraftSim.CONST.TEXT.REAGENTS_CONCENTRATION_LABEL] = "專注: ",
         [CraftSim.CONST.TEXT.REAGENTS_OPTIMIZE_INFO] = "Shift + 左鍵點擊數字將物品連結發送到聊天視窗",
-        [CraftSim.CONST.TEXT.REAGENTS_OPTIMIZE_BUTTON] = "最佳化",
+        [CraftSim.CONST.TEXT.ADVANCED_OPTIMIZATION_BUTTON] = "進階最佳化",
         [CraftSim.CONST.TEXT.REAGENTS_OPTIMIZE_TOOLTIP] =
-            f.r("實驗性功能: ") ..
-            "非常吃效能並且會在編輯時重置。\n最佳化每個專注點數的" ..
-            f.gold("最高金錢價值"),
+            "(編輯時重置)\n啟用 " ..
+            f.gold("專注價值") .. " 和 " .. f.bb("完成的材料 ") .. " 最佳化",
 
         -- Specialization Info Frame
         [CraftSim.CONST.TEXT.SPEC_INFO_TITLE] = "CraftSim 專精資訊",
