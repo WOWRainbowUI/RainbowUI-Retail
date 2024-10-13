@@ -55,28 +55,26 @@ local function FirstTimeSavedVariables()
 end
 -- loading saved variables --
 local function LoadSavedVariables()
-	if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" then
-		TargetFrame:HookScript("OnUpdate", function(self)
-			self:SetClampedToScreen(false)
-			self:ClearAllPoints()
-			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", -1000, -1000)
+	if VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" and VCBrTarget["Unlock"] then
+		SUFUnittarget:HookScript("OnShow", function(self)
+			local classFilename = UnitClassBase("target")
+			if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
 		end)
-	end
-	if VCBrTarget["Unlock"] then
+		vcbSufCoOp_Traget(vcbClassColorTarget)
+	elseif VCBrTarget["otherAdddon"] == "無" and VCBrTarget["Unlock"] then
 		TargetFrameSpellBar:HookScript("OnUpdate", function(self)
 			self:SetScale(VCBrTarget["Scale"]/100)
 			self:ClearAllPoints()
 			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", VCBrTarget["Position"]["X"], VCBrTarget["Position"]["Y"])
 		end)
 	end
-	if VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" then
-		FocusFrame:HookScript("OnUpdate", function(self)
-			self:SetClampedToScreen(false)
-			self:ClearAllPoints()
-			self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", -1000, -1000)
+	if VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" and VCBrFocus["Unlock"] then
+		SUFUnitfocus:HookScript("OnShow", function(self)
+			local classFilename = UnitClassBase("focus")
+			if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
 		end)
-	end
-	if VCBrFocus["Unlock"] then
+		vcbSufCoOp_Focus()
+	elseif VCBrFocus["otherAdddon"] == "無" and VCBrFocus["Unlock"] then
 		FocusFrameSpellBar:HookScript("OnUpdate", function(self)
 			self:SetScale(VCBrFocus["Scale"]/100)
 			self:ClearAllPoints()
@@ -142,12 +140,28 @@ local function EventsTime(self, event, arg1, arg2, arg3)
 		PlayerCastingBarFrame.Icon:SetScale(2.5) -- 圖示大小
 		PlayerCastingBarFrame.Icon:AdjustPointsOffset(3, -3)
 		vcbCreateTicks()
-	elseif event == "PLAYER_FOCUS_CHANGED" and FocusFrame:IsShown() then
-		local classFilename = UnitClassBase("focus")
-		if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
-	elseif event == "PLAYER_TARGET_CHANGED" and TargetFrame:IsShown() then
-		local classFilename = UnitClassBase("target")
-		if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
+	elseif event == "PLAYER_FOCUS_CHANGED" then
+		if FocusFrame:IsShown() then
+			local classFilename = UnitClassBase("focus")
+			if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
+		elseif SUFUnitfocus ~= nil and SUFUnitfocus:IsShown() then
+			SUFUnitfocus.vcbCastbar:SetUnit(nil, true, true)
+			SUFUnitfocus.vcbCastbar:PlayFinishAnim()
+			SUFUnitfocus.vcbCastbar:SetUnit("focus", true, true)
+			local classFilename = UnitClassBase("focus")
+			if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
+		end
+	elseif event == "PLAYER_TARGET_CHANGED" then
+		if TargetFrame:IsShown() then
+			local classFilename = UnitClassBase("target")
+			if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
+		elseif SUFUnittarget ~= nil and SUFUnittarget:IsShown() then
+			SUFUnittarget.vcbCastbar:SetUnit(nil, true, true)
+			SUFUnittarget.vcbCastbar:PlayFinishAnim()
+			SUFUnittarget.vcbCastbar:SetUnit("target", true, true)
+			local classFilename = UnitClassBase("target")
+			if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
+		end
 	elseif event == "CURRENT_SPELL_CAST_CHANGED" and arg1 == false then
 		lagStart = GetTime()
 	elseif event == "UNIT_SPELLCAST_START" and arg1 == "player" then

@@ -11,11 +11,7 @@ function vcbShowMenu()
 		vcbOptions00:Hide()
 	end
 end
--- Slash Command --
-SLASH_VOODOOCASTINGBAR1, SLASH_VOODOOCASTINGBAR2 = '/vcb', '/voodoocastingbar'
-function SlashCmdList.VOODOOCASTINGBAR(msg, editBox)
-	vcbShowMenu()
-end
+RegisterNewSlashCommand(vcbShowMenu, "vcb", "voodoocastingbar")
 -- Mini Map Button Functions --
 -- Clicky Clicky --
 function vcbMinimapClick(addonName, buttonName)

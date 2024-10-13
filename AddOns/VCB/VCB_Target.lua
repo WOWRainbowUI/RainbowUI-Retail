@@ -102,7 +102,7 @@ local function CastingTextPosition(self, var1, var2)
 end
 -- Ascending, Descending and Sec --
 local function AscendingDescendingSec(self)
-	if self.barType == "standard" then
+	if self.casting then
 		if VCBrTarget["CurrentTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "顯示" then
 				if VCBrTarget["CurrentTimeText"]["Direction"] == "正數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
@@ -201,7 +201,7 @@ local function AscendingDescendingSec(self)
 				end
 			end
 		end
-	elseif self.barType == "channel" then
+	elseif self.channeling then
 		if VCBrTarget["CurrentTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "顯示" then
 				if VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
@@ -304,12 +304,17 @@ local function AscendingDescendingSec(self)
 end
 -- coloring the bar --
 local function CastBarColor(self)
-	if VCBrTarget["Color"] == "預設顏色" then
+	if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
+		if VCBrTarget["Color"] == "預設顏色" then
+			self:SetStatusBarDesaturated(false)
+			self:SetStatusBarColor(1, 1, 1, 1)
+		elseif VCBrTarget["Color"] == "職業顏色" then
+			self:SetStatusBarDesaturated(true)
+			self:SetStatusBarColor(vcbClassColorTarget:GetRGB())
+		end
+	else
 		self:SetStatusBarDesaturated(false)
 		self:SetStatusBarColor(1, 1, 1, 1)
-	elseif VCBrTarget["Color"] == "職業顏色" then
-		self:SetStatusBarDesaturated(true)
-		self:SetStatusBarColor(vcbClassColorTarget:GetRGB())
 	end
 end
 -- Hooking Time part 1 --

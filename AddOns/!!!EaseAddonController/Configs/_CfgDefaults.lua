@@ -2613,7 +2613,7 @@ D["VCB"] = {
 	modifier = "彩虹ui",
     {
         text = "設定選項",
-        callback = function() SlashCmdList["VOODOOCASTINGBAR"]("") end,
+        callback = function() vcbShowMenu() end,
     },
 };
 D["VuhDo"] = {
