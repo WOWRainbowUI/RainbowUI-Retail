@@ -102,7 +102,7 @@ local function CastingTextPosition(self, var1, var2)
 end
 -- Ascending, Descending and Sec --
 local function AscendingDescendingSec(self)
-	if self.barType == "standard" then
+	if self.casting then
 		if VCBrTarget["CurrentTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "Show" then
 				if VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
@@ -201,7 +201,7 @@ local function AscendingDescendingSec(self)
 				end
 			end
 		end
-	elseif self.barType == "channel" then
+	elseif self.channeling then
 		if VCBrTarget["CurrentTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "Show" then
 				if VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
@@ -304,12 +304,17 @@ local function AscendingDescendingSec(self)
 end
 -- coloring the bar --
 local function CastBarColor(self)
-	if VCBrTarget["Color"] == "Default Color" then
+	if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
+		if VCBrTarget["Color"] == "Default Color" then
+			self:SetStatusBarDesaturated(false)
+			self:SetStatusBarColor(1, 1, 1, 1)
+		elseif VCBrTarget["Color"] == "Class' Color" then
+			self:SetStatusBarDesaturated(true)
+			self:SetStatusBarColor(vcbClassColorTarget:GetRGB())
+		end
+	else
 		self:SetStatusBarDesaturated(false)
 		self:SetStatusBarColor(1, 1, 1, 1)
-	elseif VCBrTarget["Color"] == "Class' Color" then
-		self:SetStatusBarDesaturated(true)
-		self:SetStatusBarColor(vcbClassColorTarget:GetRGB())
 	end
 end
 -- Hooking Time part 1 --

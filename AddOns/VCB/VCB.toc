@@ -8,7 +8,7 @@
 ## DefaultState: enabled
 ## SavedVariables: VCBrNumber VCBrProfile VCBrCounterLoading VCBrCounterDeleting
 ## SavedVariablesPerCharacter: VCBrPlayer VCBrTarget VCBrFocus
-## Version: 1.50
+## Version: 1.51
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 
@@ -17,6 +17,7 @@ VCB_Zlave.xml
 VCB_Player.lua
 VCB_Target.lua
 VCB_Focus.lua
+VCB_SUFcoop.lua
 VCB_Options_0.xml
 VCB_Options_1.xml
 VCB_Options_2.xml

@@ -47,6 +47,7 @@ local function CheckSavedVariables()
 	vcbOptions3Box1Slider1:SetValue(VCBrFocus["Scale"])
 	FocusFrame.CBpreview:SetScale(VCBrFocus["Scale"]/100)
 	vcbOptions3Box1PopOut1.Text:SetText(VCBrFocus["otherAdddon"])
+	if VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" then FocusFrame.CBpreview:SetParent(SUFUnitfocus) end
 	vcbOptions3Box2PopOut1:SetText(VCBrFocus["CurrentTimeText"]["Position"])
 	vcbOptions3Box2PopOut2:SetText(VCBrFocus["CurrentTimeText"]["Direction"])
 	vcbOptions3Box2PopOut3:SetText(VCBrFocus["CurrentTimeText"]["Sec"])
@@ -93,7 +94,7 @@ local function MouseWheelSlider(self, delta)
 	end
 end
 -- Box 0 Read me! --
-vcbOptions3Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 1: ").."Please close all other panels and keep this panel open, then take a focus!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 2: ").."When you dock or undock the cast bar, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 3: ").."When you choose from the pop out the Shadowed Unit Frame (SUF), the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 4: ").."For the people who uses SUF. Before doing anything, first you go to the options of SUF, to the 'Hide Blizzard' tab and untick the option Hide focus frame and then reload as the add on suggested! (/suf --> Hide Blizzard -- > Hide focus frame)")
+vcbOptions3Box0.CenterText:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 1: ").."Please close all other panels and keep this panel open, then take a focus!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 2: ").."When you dock or undock the cast bar, the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 3: ").."When you choose from the pop out the Shadowed Unit Frame (SUF), the game will be reloaded!|n|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbHighColor:WrapTextInColorCode("Note 4: ").."For the people who uses SUF. If you are an old user and you unticked the option 'Hide focus frame' undo it. Go to the SUF option and Hide focus frame again. If you are a new user you have to do nothing!")
 -- Box 1 --
 -- check button 1 do it --
 vcbOptions3Box1CheckButton1.Text:SetText("Undock")
