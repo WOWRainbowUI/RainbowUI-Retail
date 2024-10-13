@@ -1,7 +1,7 @@
 ## Interface: 110002
 ## Title: HidingBar
 ## Author: sfmict
-## Version: v11.0.2
+## Version: v11.0.3
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: Convenient hiding panel
 ## SavedVariables: HidingBarDB
