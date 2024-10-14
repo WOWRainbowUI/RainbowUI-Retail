@@ -111,8 +111,9 @@ WHITE       = "|cffFFFFFF"
 YELLOW      = "|cffFDDA0D"
 
 -- Misc.
-kRefresh = 1
 kHide = -1
+kRefresh = 1
+kRefreshForced = 2
 
 kMaxLayers = 2
 kMediaPath = "Interface\\Addons\\" .. kAddonFolderName .. "\\Media\\"
@@ -123,7 +124,7 @@ kAddonAlertHeading = ORANGE.."<"..YELLOW..kAddonFolderName..ORANGE.."> "..kTextC
 kMinScale = 0.02  -- 2%  (Prevent 1% scale because it causes many models to fill screen and stop moving.)
 
 kFXFrameLevel = 32
-kDefaultShadowSize = 51
+kDefaultShadowSize = 51  -- Based on comparing size of shadow to size of EditBaseValues square.
 kDefaultShapeSize = math.floor( (kDefaultShadowSize*0.74) + 0.5 )
 
 kScreenTopFourthMult = 1.015
@@ -289,12 +290,15 @@ gLayers =
     getLargestShapeSize = function(self)  -- gLayers:getLargestShapeSize()
         -- Returns largest shape size set across all enabled layers.
         local maxSize = 0
-        local size, layer
+        local layer, shapeSize, shadowSize
         for layerNum = 1, kMaxLayers do
             layer = self[layerNum]
             if layer and layer.playerConfigLayer.IsLayerEnabled then
-                size = layer.ShapeTexture:GetWidth()
-                if size > maxSize then maxSize = size end
+                shape = layer.ShapeTexture
+                shapeSize = shape.height * shape:GetScale()
+                shadowSize = layer.ShadowTexture:GetSize() * 0.6
+                if shapeSize > maxSize then maxSize = shapeSize end
+                if shadowSize > maxSize then maxSize = shadowSize end
             end
         end
         return maxSize
@@ -447,7 +451,17 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "reset" then
         ----if Calibrating then Calibrating_DoNextStep("abort") end
-        if OptionsFrame and OptionsFrame:IsShown() then OptionsFrame:Hide() end
+        -- Reset window position.
+        local addonConfig = Globals.CursorTrail_Config
+        addonConfig.Position_X = nil
+        addonConfig.Position_Y = nil
+        if OptionsFrame then
+            OptionsFrame:Hide()
+            OptionsFrame:ClearAllPoints()
+            OptionsFrame:SetPoint("CENTER")
+        end
+
+        -- Reset all FX.
         PlayerConfig_SetDefaults()
         CursorTrail_Load()
         CursorTrail_ON()
@@ -469,6 +483,13 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         Globals.CursorTrail_Config.ChangelogVersionSeen = nil
         gbUpdateChangelogVersionSeenOnExit = nil
         printMsg("鼠之軌跡: 重置新功能通知。")
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - -
+--~     elseif cmd == "previewlayer" or cmd == "pl" then
+--~         gbPreviewSelectedLayer = not gbPreviewSelectedLayer
+--~         printMsg(kAddonFolderName..GREEN2.." 'Preview selected layer' |r= "
+--~             ..ORANGE..(gbPreviewSelectedLayer and "ON" or "OFF"))
+--~         ----gCommand = kRefreshForced
+--~         CursorTrail_Refresh(true)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "combat"
         or cmd == "mouselook"
@@ -774,12 +795,13 @@ end)
 EventFrame:RegisterEvent("PLAYER_ENTERING_WORLD") --VARIABLES_LOADED
 function       EventFrame:PLAYER_ENTERING_WORLD(isLogin, isReload)
     ----dbg("PLAYER_ENTERING_WORLD".. (isLogin and " (LOGIN)" or "") .. (isReload and " (RELOAD)" or ""))
-    ----dbg("CursorModel: "..(CursorModel and "EXISTS" or "NIL"))
     assert(not gbLoggingOut)
     memchk()
-    Addon_Initialize()
-    memchk("Addon_Initialize()")
+    Addon_Initialize()  -- Initializes things unique to this addon.
+    memchk("Initialize Addon - PART1")
 
+    -- Initialize other things that are common to most addons you write.
+    memchk()
     if not StandardPanel then StandardPanel_Create("/"..kAddonFolderName) end
     if not OptionsFrame then OptionsFrame_Create() end
 
@@ -809,6 +831,7 @@ function       EventFrame:PLAYER_ENTERING_WORLD(isLogin, isReload)
         })
         private.addedCompartmentButton = true
     end
+    memchk("Initialize Addon - PART2")
 end
 
 -------------------------------------------------------------------------------
@@ -838,6 +861,12 @@ EventFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 function       EventFrame:LOADING_SCREEN_DISABLED()
     updateScreenVars()
 end
+
+-----------------------------------------------------------------------------------
+----EventFrame:RegisterEvent("PLAYER_LOGIN") -- Called at very end of the load process, right before user gets control.
+----function       EventFrame:PLAYER_LOGIN()
+----    gCommand = kRefreshForced  -- Forces FX to appear at mouse position.
+----end
 
 -------------------------------------------------------------------------------
 EventFrame:RegisterEvent("PLAYER_LOGOUT")
@@ -965,11 +994,17 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
     local bOptionsShown = (OptionsFrame and OptionsFrame:IsShown())
     local isGameCursorHidden = self:isGameCursorHidden()
 
+    if gCommand == kRefreshForced then
+        gMotionIntensity = 1.0
+        gPreviousX = nil
+    end
+
     local cursorX, cursorY = GetCursorPosition()
     local bMouseMoved = (cursorX ~= gPreviousX or cursorY ~= gPreviousY)
     gPreviousX, gPreviousY = cursorX, cursorY
     ----DebugText("x: "..cursorX..",  y: "..cursorY)
     ----DebugText( string.format("dx: %d,  dy: %d", Globals.GetCursorDelta()) )
+    ----DebugText("bMouseMoved: "..(bMouseMoved and "true" or "false"))
     ----local dx, dy = cursorX-(gPreviousX or 0), cursorY-(gPreviousY or 0)
 
     local previousIntensity = gMotionIntensity
@@ -1000,10 +1035,12 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
     end
 
     -- Update each layer.
+    --TODO: local previewLayerNum = (gbPreviewSelectedLayer and OptionsFrame_GetSelectedLayer())
     for layerNum = 1, kMaxLayers do
         local layer = gLayers[layerNum]
         local layerCfg = layer.playerConfigLayer
 
+        ----TODO: if layerCfg.IsLayerEnabled or layerNum == previewLayerNum then
         if layerCfg.IsLayerEnabled then
             local cursorModel = layer.CursorModel
             local cursorModelBase = cursorModel.base
@@ -1020,7 +1057,7 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
             --_________________________________________________
             -- Show/hide cursor FX (or leave them as-is).
             --_________________________________________________
-            if gCommand == kRefresh then
+            if gCommand == kRefresh or gCommand == kRefreshForced then
                 CursorTrail_Refresh()  -- Note: Resets gCommand to nil.
             elseif gCommand == kHide then
                 CursorTrail_Hide()  -- Note: Resets gCommand to nil.
@@ -1051,6 +1088,12 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                 -- Is mouse over options window or color picker?
                 if bOptionsShown then
                     local mouseFocus = GetMouseFocus()
+                    if not mouseFocus then
+                        -- Probably tried getting focus while a dropdown was closing.  Abort, and try again after a short delay.
+                        C_Timer.After(0.1, function() gCommand = kRefreshForced end)
+                        return
+                    end
+
                     if doesAncestryInclude(OptionsFrame, mouseFocus)
                        or (ColorPickerFrame:IsShown() and doesAncestryInclude(ColorPickerFrame, mouseFocus))
                       then
@@ -1061,6 +1104,12 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                         ----cursorX = (OptionsFrame:GetLeft() - ofs - 8) * ScreenScale
                     end
                 end
+
+                -- Update position of "mouse position frame".  (All other FX frames center on it.)
+                local tX, tY  -- Position of texture objects.
+                tX = ((cursorX - ScreenMidX) / ScreenScale)
+                tY = ((cursorY - ScreenMidY) / ScreenScale)
+                gAnchorFrame:SetPoint("CENTER", tX, tY)
 
                 -- Update test model position (if it exists).
                 if TestModel and TestModel:GetModelFileID() then
@@ -1082,16 +1131,6 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                         TestModel:SetPosition(TestModel.OfsZ, modelX, modelY) -- Probably won't follow mouse without custom step sizes.
                     end
                 end
-
-                local tX, tY  -- Position of texture objects.
-                tX = ((cursorX - ScreenMidX) / ScreenScale)
-                tY = ((cursorY - ScreenMidY) / ScreenScale)
-
-                -- Update position of shadow.
-                shadowTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX, tY)
-
-                -- Update position of shape.
-                shapeTexture:SetPoint("CENTER", kGameFrame, "CENTER", tX, tY)
 
                 -- Update position of cursor model.
                 if cursorModel.Constants.UseSetTransform then
@@ -1182,10 +1221,10 @@ Globals.MovieFrame:HookScript("OnHide", function() gCommand = kRefresh end)
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 -------------------------------------------------------------------------------
-function Addon_Initialize()
-    -------------------
-    -- Global Settings
-    -------------------
+function Addon_Initialize()  -- Initialize things unique to this addon.
+    ----------------------------
+    -- Initialize Addon Config
+    ----------------------------
     Globals.CursorTrail_Config.Profiles = Globals.CursorTrail_Config.Profiles or {}
 
     ------ Changelog stuff.
@@ -1215,14 +1254,30 @@ function Addon_Initialize()
     end
     if (newFeaturesCount > 0) then printNewFeaturesMsg(true) end
 
-    -------------------
-    -- Player Settings
-    -------------------
-    if (not PlayerConfig) then
+    -----------------------------
+    -- Initialize Player Config
+    -----------------------------
+    if not PlayerConfig then
         PlayerConfig_Load()
     end
 
-    -- Initialize addon.
+    ----------------------------
+    -- Initialize other stuff.
+    ----------------------------
+    -- Create a master anchor frame which will never be resized, and therefore can
+    -- accurately follow the mouse cursor.  Other FX frames will center on this frame.
+    if not gAnchorFrame then
+        gAnchorFrame = CreateFrame("Frame", nil, kGameFrame)
+        gAnchorFrame:Hide()
+        gAnchorFrame:SetSize(3,3)
+        gAnchorFrame.SetSize  = CRIPPLED  -- So we can't resize this frame.
+        gAnchorFrame.SetScale = CRIPPLED  -- So we can't resize this frame.
+        if kEditBaseValues then
+            gAnchorFrame:Show()
+            private.UDControls.Outline(gAnchorFrame)
+        end
+    end
+
     CursorTrail_Load()
     CursorTrail_ON()
 
@@ -1264,6 +1319,7 @@ end
 
 -------------------------------------------------------------------------------
 function initConfig(config)  -- Sets all layers to default values.
+    assert(not config.Profiles) -- Fails if CursorTrail_Config is passed in instead of CursorTrail_PlayerConfig (or a copy of player config).
     local defaultData = kDefaultConfig[kDefaultConfigKey]
     config.Layers = config.Layers or {}
     for layerNum = 1, kMaxLayers do
@@ -1314,14 +1370,7 @@ function PlayerConfig_Validate() validateConfig(PlayerConfig) end
 
 -------------------------------------------------------------------------------
 function backupObsoleteData(oldVersionNum)
-    local profilesDB
-    if OptionsFrame then
-        profilesDB = OptionsFrame.ProfilesUI.DB
-    else
-        -- Our UI hasn't initialized ProfilesDB yet, so we must do it.
-        profilesDB = private.ProfilesDB
-        profilesDB:init(getAddonConfig)
-    end
+    local profilesDB = OptionsFrame_GetProfilesDB()
 
     -- Does backup exist for today's date?
     ----local backupName = profilesDB:makeBackupName("v"..oldVersionNum)  -- e.g. "Backup_v11.0.2.3"
@@ -1335,52 +1384,80 @@ function backupObsoleteData(oldVersionNum)
 end
 
 -------------------------------------------------------------------------------
-function convertObsoleteConfig(config) -- Convert old data structures into the format expected by this version of the addon.
-    if isEmpty(config) then return end
+function convertObsoleteConfig(config) -- Converts old data structures into the format expected by this version of the addon.
+    assert(not config.Profiles) -- Fails if CursorTrail_Config is passed in instead of CursorTrail_PlayerConfig (or a copy of player config).
+    local isConfigEmpty = isEmpty(config)
+
+    --_________________________________________________________________________
+    -- Clear obsolete variables that were removed some time before version 10.
+    --_________________________________________________________________________
+    if not isConfigEmpty then
+        if config.BaseScale then
+            -- These vars were moved into CursorModel.Constants .
+            config.BaseScale = nil
+            config.BaseOfsX = nil
+            config.BaseOfsY = nil
+            config.BaseStepX = nil
+            config.BaseStepY = nil
+        end
+        config.Version = nil  -- Obsolete version variable.  See config.ConfigVersion .
+    end
+
     --_________________________________________________________________________
     -- 2024-08-30: Convert CursorTrail version 11.0.2.3 data to version 11.0.2.4.
-    if not config.Layers then
-        -- Backup before making any changes so users can still use older addon versions if necessary.
-        backupObsoleteData("11.0.2.3") -- TODO: Remove this line after a few months (Dec 2024) if no conversion problems arise. (To save time.  This code runs often.)
+    --  Added multiple layers in 11.0.2.4.
+    --_________________________________________________________________________
+    if not isConfigEmpty then
+        if not config.Layers then
+            -- Backup before making any changes so users can still use older addon versions if necessary.
+            ----backupObsoleteData("11.0.2.3")  <<< REMOVED IN 11.0.2.7.
 
-        -- Create multiple layers of config data and move previous config values into layer 1.
-        local obsoleteVars = CopyTable(config)
-        initConfig(config)  -- Initializes all layers to default values.
-
-        -- Move obsolete values to layer 1.
-        local firstLayer = config.Layers[1]
-        for k, v in pairs(obsoleteVars) do
-            firstLayer[k] = v
-            config[k] = nil  -- Clear obsolete variable.
-        end
-    end
-    if not config.Layers[kMaxLayers] then
-        local layers = config.Layers
-        if not layers[1] then
+            -- Create multiple layers of config data and move previous config values into layer 1.
+            local obsoleteVars = CopyTable(config)
             initConfig(config)  -- Initializes all layers to default values.
-        else
-            -- Add more layers to config.
-            for i = 2, kMaxLayers do
-                layers[i] = CopyTable(kDefaultConfigLayer)
-                layers[i].IsLayerEnabled = false
+
+            -- Move obsolete values to layer 1.
+            local firstLayer = config.Layers[1]
+            for k, v in pairs(obsoleteVars) do
+                firstLayer[k] = v
+                config[k] = nil  -- Clear obsolete variable.
             end
         end
-    end
-    if config.Layers[kMaxLayers+1] then
-        -- Happens if kMaxLayers was temporarily increased.  Must force config to have the same max layers again.
-        local i = kMaxLayers + 1
-        while config.Layers[i] do
-            config.Layers[i] = nil
-            i = i + 1
+        if not config.Layers[kMaxLayers] then
+            local layers = config.Layers
+            if not layers[1] then
+                initConfig(config)  -- Initializes all layers to default values.
+            else
+                -- Add more layers to config.
+                for i = 2, kMaxLayers do
+                    layers[i] = CopyTable(kDefaultConfigLayer)
+                    layers[i].IsLayerEnabled = false
+                end
+            end
         end
+        if config.Layers[kMaxLayers+1] then
+            -- Happens if kMaxLayers was temporarily increased.  Must force config to have the same max layers again.
+            local i = kMaxLayers + 1
+            while config.Layers[i] do
+                config.Layers[i] = nil
+                i = i + 1
+            end
+        end
+        config.SelectedLayerNum = nil  -- (Removed in 11.0.2.4a.)
     end
 
-    config.SelectedLayerNum = nil  -- (Removed in 11.0.2.4a.)
     --_________________________________________________________________________
+    -- 2024-10-07: Convert CursorTrail version 11.0.2.6 data to version 11.0.2.7.
+    -- Added a version number to config.  No other changes were made.
+    --_________________________________________________________________________
+    if not config.ConfigVersion then
+        config.ConfigVersion = 2
+    end
 end
 
 -------------------------------------------------------------------------------
 function validateConfig(config)
+    assert(not config.Profiles) -- Fails if CursorTrail_Config is passed in instead of CursorTrail_PlayerConfig (or a copy of player config).
     convertObsoleteConfig(config)  -- Convert old data structures.
 
     ---------------------
@@ -1419,19 +1496,6 @@ function validateConfig(config)
 
         if layerCfg.UserScale < kMinScale then layerCfg.UserScale = kMinScale end
     end
-
-    ---------------------------
-    -- Clear obsolete fields.
-    ---------------------------
-    -- (Removed some time before version 10.)
-    if (config.BaseScale ~= nil) then
-        config.BaseScale = nil
-        config.BaseOfsX = nil
-        config.BaseOfsY = nil
-        config.BaseStepX = nil
-        config.BaseStepY = nil
-    end
-    config.Version = nil
 end
 
 -------------------------------------------------------------------------------
@@ -1465,7 +1529,7 @@ function CursorTrail_Load()  -- Loads models, shapes, and shadows for all layers
         ----------------
         -- LOAD SHAPE --
         ----------------
-        layer.ShapeTexture:SetTexture( layerCfg.ShapeFileName )
+        layer:setShape( layerCfg.ShapeFileName, true ) -- 'true' skips SetScale.  It is done below by applyModelSettings().
         layer.ShapeTexture:setColor(layerCfg.ShapeColorR, layerCfg.ShapeColorG, layerCfg.ShapeColorB)
         ----layer.ShapeTexture:setColor()  -- Set texture's original color(s).
         layer.ShapeFrame:SetFrameStrata( layerCfg.Strata )
@@ -1561,6 +1625,8 @@ end
 function createLayer(playerConfigLayer)
     assert(playerConfigLayer)
     assert(not playerConfigLayer.Layers) -- Fails if PlayerConfig is passed in rather than settings for a single layer.
+    assert(gAnchorFrame)
+
     local layer = {}
     layer.playerConfigLayer = playerConfigLayer
 
@@ -1575,14 +1641,14 @@ function createLayer(playerConfigLayer)
     -- FUNCTIONS:
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     layer.showFX = function(self)  -- layer:showFX()
-        self.ShadowTexture:Show()
-        self.ShapeTexture:Show()
+        self.ShadowFrame:Show()
+        self.ShapeFrame:Show()
         self.CursorModel:show()
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     layer.hideFX = function(self)  -- layer:hideFX()
-        self.ShadowTexture:Hide()
-        self.ShapeTexture:Hide()
+        self.ShadowFrame:Hide()
+        self.ShapeFrame:Hide()
         self.CursorModel:hide()
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
@@ -1597,9 +1663,34 @@ function createLayer(playerConfigLayer)
 --~         self.playerConfigLayer.IsLayerEnabled = bEnabled
 --~     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-    layer.setShape = function(self, shapeFileName)  -- layer:setShape()
-        self.playerConfigLayer.ShapeFileName = shapeFileName
-        self.ShapeTexture:SetTexture(shapeFileName)
+    layer.setShape = function(self, shapeID, bypassSetScale)  -- layer:setShape()
+        self.playerConfigLayer.ShapeFileName = shapeID
+        local shapeTexture = self.ShapeTexture
+        shapeTexture:SetTexture(shapeID)
+        shapeTexture.width = 1
+        shapeTexture.height = 1
+        shapeTexture.baseScale = 1
+
+        if shapeID and shapeID ~= "" then
+            -- Compute base scale for this shape.
+            local data = getShapeData(shapeID)
+            if data then
+                local coords = data.texCoords or {0,1,0,1} -- (minX, maxX, minY, maxY)
+                shapeTexture:SetTexCoord( coords[1], coords[2], coords[3], coords[4] )
+                local smallestSize = math.min( data.width, data.height )
+                shapeTexture.width = data.width
+                shapeTexture.height = data.height
+                shapeTexture.baseScale = kDefaultShapeSize * data.scale / smallestSize
+            --else assert(nil)  --###### TODO: Comment out this line before releasing next version. ######
+            end
+
+            -- Scale is set later in applyModelSettings() when called by layer:setScale().
+            -- But some slash commands may need scale to be set now.
+            if not bypassSetScale then
+                shapeTexture:setUserScale()
+                gCommand = kRefreshForced
+            end
+        end
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     layer.setModel = function(self, modelID)  -- layer:setModel()
@@ -1686,15 +1777,16 @@ end
 function createShadow(parentLayer)
     local shadowFrame = CreateFrame("Frame", nil, kGameFrame)
     shadowFrame.parentLayer = parentLayer
+    shadowFrame:SetSize(1, 1)
+    shadowFrame:SetPoint("CENTER", gAnchorFrame, "CENTER")
     shadowFrame:SetFrameStrata("BACKGROUND")
 
     shadowFrame.texture = shadowFrame:CreateTexture()
+    shadowFrame.texture.parentLayer = parentLayer
+    shadowFrame.texture:SetPoint("CENTER")
     shadowFrame.texture:SetBlendMode("ALPHAKEY")
     shadowFrame.texture:SetTexture([[Interface\GLUES\Models\UI_Alliance\gradient5Circle]])  -- Note: gradient5Circle is not centered.
     shadowFrame.texture:SetTexCoord(0, 0.918, 0, 0.935)  -- (minX, maxX, minY, maxY)  Centers gradient5Circle.
-    ----shadowFrame.texture:SetTexture([[Interface\GLUES\Models\UI_Draenei\GenericGlow64]])
-    ----shadowFrame.texture:SetColorTexture(1,1,1,1)  DIDN'T WORK!
-    ----shadowFrame.texture:SetVertexColor(1,1,1,1)  DIDN'T WORK!  (Only works for non-black textures.)
 
     return shadowFrame
 end
@@ -1703,33 +1795,42 @@ end
 function createShape(parentLayer)
     local shapeFrame = CreateFrame("Frame", nil, kGameFrame)
     shapeFrame.parentLayer = parentLayer
+    shapeFrame:SetSize(1, 1)
+    shapeFrame:SetPoint("CENTER", gAnchorFrame, "CENTER")
     shapeFrame:SetFrameStrata("HIGH")
 
-    local texture = shapeFrame:CreateTexture()
-    shapeFrame.texture = texture
-    texture.parentLayer = parentLayer
-    ----texture:SetBlendMode("ALPHAKEY")
+    shapeFrame.texture = shapeFrame:CreateTexture()
+    shapeFrame.texture.parentLayer = parentLayer
+    shapeFrame.texture:SetPoint("CENTER")
 
-    -- FUNCTIONS:
+    -- SHAPE FUNCTIONS:
+    local texture = shapeFrame.texture
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    texture.SetSize = CRIPPLED  -- Prevent changing texture size because it messes up original proportions.
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     texture.origSetTexture = shapeFrame.texture.SetTexture
-    texture.SetTexture = function(self, shapeFileName)  -- [ Keywords: SetShape() texture:SetTexture() ]
-        if (shapeFileName == kStr_None) then
+    texture.SetTexture = function(self, shapeID)  -- [ Keywords: texture:SetTexture() ]
+        if (shapeID == "") then
             self:origSetTexture(nil)  -- Clear current texture.
         else
-            self:origSetTexture(shapeFileName)
+            self:origSetTexture(shapeID)
 
             -- Development Sanity Check:
-            if not self.bDevCheck_20240903_1 and shapeFileName and shapeFileName:lower():find("interface\\addons\\") then
+            if not self.bDevCheck_20240903_1 and Globals.type(shapeID) == "string" and shapeID:lower():find("interface\\addons\\") then
                 self.bDevCheck_20240903_1 = true
-                if not shapeFileName:find(kAddonFolderName.."\\") then
+                if not shapeID:find(kAddonFolderName.."\\") then
                     -- You renamed your addon folder and copied LUA config files from original folder.
                     -- Change paths in those config files to refer to the new folder name.
-                    ----print("[CT] kAddonFolderName:", kAddonFolderName, "\nshapeFileName:", shapeFileName)
+                    ----print("[CT] kAddonFolderName:", kAddonFolderName, "\nshapeID:", shapeID)
                     showErrMsg("Developer Warning 20240903.1")
                 end
             end
         end
+    end
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    texture.setUserScale = function(self, userScale)
+        userScale = userScale or self.parentLayer.playerConfigLayer.UserScale
+        self:SetScale( userScale * self.baseScale / ScreenScale )
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     texture.setColor = function(self, r, g, b, a)  -- Pass in nothing to use the texture's original color(s).  [ Keywords: texture:setColor() ]
@@ -1964,9 +2065,7 @@ function createModel(parentLayer)
         -- UPDATE SHAPE --
         -- Update shape size based on current user scale.
         local shapeTexture = self.parentLayer.ShapeTexture
-        local shapeSize = (kDefaultShapeSize * userScale) / ScreenScale
-        shapeTexture:SetSize(shapeSize, shapeSize)
-
+        shapeTexture:setUserScale(userScale)
         shapeTexture:SetAlpha(userAlpha)
 
         -- Force cursor FX to refresh during the next OnUpdate().

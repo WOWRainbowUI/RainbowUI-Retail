@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2024-09-25"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2024-10-09"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -164,6 +164,15 @@ local PROFILESUI_VERSION = "2024-09-25"  -- Version (date) of this file.  Stored
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Oct 09, 2024
+        - Reduced how often memory grows due to copying original settings before modifying them.
+          Previously, a copy was made every time the main UI was opened.  Now, a copy of the
+          settings is only made just before the profiles are modified.
+        - Improved loadNextProfile() and loadPreviousProfile().  If current name does not exist
+          as a saved profile, those functions now select the closest name to it (alphabetically)
+          rather than just selecting the first or last profile in the list.
+        - Fixed bug in compareToDefaultProfile() that prevented it from comparing boolean values
+          if the second value was false.
     Sep 25, 2024
         - Fixed LUA errors in Classic WoW 1.15.4 that were caused by the removal of
           the OptionsButtonTemplate and OptionsBoxTemplate templates from its API.
@@ -324,6 +333,7 @@ kSound.Info = SOUNDKIT.IG_CREATURE_AGGRO_SELECT or 0  ----TUTORIAL_POPUP, IG_MIN
 kSound.Alert = SOUNDKIT.INTERFACE_SOUND_LOST_TARGET_UNIT or 0  ----GS_LOGIN
 kSound.Action = SOUNDKIT.U_CHAT_SCROLL_BUTTON or 0  ----IG_CHAT_SCROLL_UP, IG_MINIMAP_ZOOM_OUT
 kSound.ActionQuiet = SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or 0 -- (A quieter version of kSound.Action .)
+kSound.ActionLoud = SOUNDKIT.GS_TITLE_OPTION_OK or 0 -- (A louder version of kSound.Action .)
 kSound.ProfileChange = kSound.Success  ----KEY_RING_CLOSE
 
 -- Dropdown constants.
@@ -860,7 +870,7 @@ local function compareToDefaultProfile(profile, defaultProfile) -- Returns true 
         local value2 = defaultProfile[key1]
         -- If value2 (a default value) is nil, don't compare the values.
         -- (A nil value in defaultProfile means use the current UI value.)
-        if value2 and not equivalentValues(value1, value2) then
+        if value2 ~= nil and not equivalentValues(value1, value2) then
             -- If values are tables, compare them.
             if type(value1) == "table" and type(value2) == "table" then
                 if not compareToDefaultProfile(value1, value2) then
@@ -995,8 +1005,12 @@ end
 local function isModifiedProfiles() return ProfilesUI.bModifiedProfiles end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 local function setModifiedProfiles(bModified)
-    ProfilesUI.bModifiedProfiles = bModified
-    if not bModified then ProfilesUI.bModifiedValues = false end
+    local profilesUI = ProfilesUI
+    assert(not bModified or profilesUI.OriginalProfiles) -- Fails if profiles are modified before we copied original values.
+    profilesUI.bModifiedProfiles = bModified
+    if not bModified then
+        profilesUI.bModifiedValues = false  -- If profiles not modified, clear this flag too.
+    end
 end
 
 --=============================================================================
@@ -1005,9 +1019,13 @@ local function msgbox_SaveThenLoad(nameToSave, nameToLoad, options)
     local msg = L.SaveBeforeLoading:format(nameToSave, nameToLoad)  -- %s %s = nameToSave, nameToLoad
     msgbox3( basicHeading(L.Title_Load) .. msg,
         L.YES, function(thisPopupFrame, data, reason)
-                data.options = data.options:gsub("c","")  -- Remove confirmation option.
-                data.options = data.options:gsub("s","")  -- Remove silent option.
-                ProfilesUI:saveProfile(data.nameToSave, data.options, data.nameToLoad)  -- [ Keywords: saveThenLoad() ]
+                ----if data.nameToSave == "" then
+                ----    triggerMenuItem(L.mSaveAs)
+                ----else
+                    data.options = data.options:gsub("c","")  -- Remove confirmation option.
+                    data.options = data.options:gsub("s","")  -- Remove silent option.
+                    ProfilesUI:saveProfile(data.nameToSave, data.options, data.nameToLoad)  -- [ Keywords: saveThenLoad() ]
+                ----end
             end,
         L.NO, function(thisPopupFrame, data, reason)
                 data.options = data.options:gsub("c","")  -- Remove confirmation option.
@@ -1035,6 +1053,7 @@ end
 ProfilesDB = {  -- (Note: Declared as local at top of this file.)
     --[[ CONSTANTS ]]
     TABLE_ID = "ProfilesDB",
+    ----kKeyName_ProfilesVersion = "_Version",  -- Key name under ".Profiles" containing the version the profiles were stored as.
     kKeyName_SelectedName = "_SelectedName",  -- Key name under ".Profiles" containing the selected profile name.
     kKeyName_SelectedNameForAll = "ALL_CHARACTERS",  -- Used instead of playerFullName when the bUseAccountProfile options is on.
 
@@ -1105,7 +1124,10 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
         assert(self == ProfilesDB)  -- Fails if function called using '.' instead of ':'.
         if name and type(name) == "string" then
             name = name:trim()
-            if name ~= "" and namesDiffer(name, self.kKeyName_SelectedName) then
+            if name ~= ""
+                and namesDiffer(name, self.kKeyName_SelectedName)
+                ----and namesDiffer(name, self.kKeyName_ProfilesVersion)
+              then
                 return true
             end
         end
@@ -1124,6 +1146,16 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
         end
         return self.cachedConfig.Profiles
     end,
+    -----------------------------------------------------------------------------------
+    ----getProfilesVersion = function(self)  -- ProfilesDB:getProfilesVersion()
+    ----    return self.cachedConfig.Profiles[self.kKeyName_ProfilesVersion]
+    ----end,
+    -----------------------------------------------------------------------------------
+    ----setProfilesVersion = function(self, ver, bForce)  -- ProfilesDB:setProfilesVersion()
+    ----  -- If bForce is true, then ver can be nil (to clear this value).
+    ----    assert(bForce == true or (type(ver) == "number" and ver > 0))
+    ----    self.cachedConfig.Profiles[self.kKeyName_ProfilesVersion] = ver
+    ----end,
     -------------------------------------------------------------------------------
     get = function(self, profileName)  -- ProfilesDB:get()
     -- Returns the profile data and matching name if successful, or nil if not.
@@ -2114,6 +2146,7 @@ local function createActionsDropDown(dropDownFrameName, parent)
     listbox.ownerDD = dropdown  -- So listbox change handler can update the dropdown's editbox text.
 
     listbox:Hide()
+    listbox:SetButtonFlashing(true)
     listbox.tooltipWhileDisabled = true  -- Show tooltips even over disabled listbox lines.
     listbox.separatorLeft = kActionsMenu.leftPadding - 4
     listbox.separatorRight = -kActionsMenu.rightPadding
@@ -2398,7 +2431,7 @@ local function UDProfiles_CreateUI(info)
                     local dy = 8
                     profilesLB:ClearAllPoints()
                     if profilesLB:GetWidth() < gMainFrame.editbox:GetWidth() + kLoadDropDownBtnW then
-                        profilesLB:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", kLoadDropDownBtnW-16, dy)
+                        profilesLB:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", kLoadDropDownBtnW-18, dy)
                     else
                         profilesLB:SetPoint("TOPLEFT", gMainFrame.editbox, "BOTTOMLEFT", -8, dy)
                     end
@@ -2492,9 +2525,7 @@ local function UDProfiles_CreateUI(info)
                 local profilesUI = ProfilesUI
 
                 ProfilesDB:clearCache()
---TODO: Find a way to avoid using CopyTable() in the next line everytime the UI opens.  It grows memory faster
---      than necessary, and takes a long time for garbage collector to release it after we nil it in OnHide().
-                profilesUI.OriginalProfiles = CopyTable( ProfilesDB:getProfiles() )
+                profilesUI.OriginalProfiles = nil  -- Gets set later by cacheUnmodifiedProfiles().
                 profilesUI.OriginalProfileName = ProfilesDB:getSelectedName()
                 profilesUI.OriginalNameWasSaved = false
                 profilesUI.OriginalAccountProfileMode = ProfilesDB:usingAccountProfile()
@@ -2595,9 +2626,9 @@ local function UDProfiles_CreateUI(info)
 end  -- End of UDProfiles_CreateUI().
 
 
---=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
--- - - - PROFILES UI FUNCTIONS - - - --
---=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+-- - - - PROFILESUI FUNCTIONS - - - --
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 --=============================================================================
 -- "Easy Access" helper functions (providing simpler access to some of the main frame's functions):
@@ -2712,6 +2743,15 @@ end
 --=============================================================================
 function ProfilesUI:isProfileUnsaved()
     return hasUnsavedMarker( self:getCurrentName() )
+end
+
+--=============================================================================
+function ProfilesUI:cacheUnmodifiedProfiles()
+    -- Make sure we have a copy of original profile settings before they are modified.
+    if not self.OriginalProfiles then
+        assert(not isModifiedProfiles()) -- Fails if profiles are already changed so we can't copy original values!
+        self.OriginalProfiles = CopyTable( ProfilesDB:getProfiles() )
+    end
 end
 
 --=============================================================================
@@ -2907,7 +2947,10 @@ function ProfilesUI:createProfile(name, options)  -- [ Keywords: createProfile()
         end
     end
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Create new profile.
+    self:cacheUnmodifiedProfiles()  -- Make sure we have a copy of all profiles first!
+
     -- Set UI values to defaults.
     UI_SetDefaults()
 
@@ -3024,12 +3067,14 @@ function ProfilesUI:saveProfile(nameToSave, options, nameToLoadAfterwards)  -- [
         return  -- Done.
     end
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Save profile.
     if canSave == L.YES then
+        ----vdt_dump(ProfilesDB:getProfiles(), "'.Profiles' in ProfilesUI:saveProfile()")
+        self:cacheUnmodifiedProfiles()  -- Make sure we have a copy of all profiles first!
+
         local profileData, nameFound = ProfilesDB:get(nameToSave)
         profileData = profileData or {}
-
-        ----vdt_dump(ProfilesDB:getProfiles(), "'.Profiles' in ProfilesUI:saveProfile()")
         UI_GetValues(profileData, kReasons.SavingProfile)  -- Copies UI values into profileData.
         bResult = ProfilesDB:set(nameToSave, profileData)  -- Saves data from the UI to the specified profile.
         if bResult then
@@ -3135,6 +3180,7 @@ function ProfilesUI:loadProfile(nameToLoad, options)  -- [ Keywords: loadProfile
         end
     end -- End scope block.
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Load profile.
     local bResult = false
     local profileData, nameFound
@@ -3207,6 +3253,7 @@ function ProfilesUI:loadDefault(nameToLoad, options)  -- [ Keywords: loadDefault
         end
     end
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Load the specified default data.
     local msg
     local bResult = UI_SetDefaults(nameToLoad)
@@ -3270,6 +3317,8 @@ function ProfilesUI:copyProfile(srcName, destName, options)  -- [ Keywords: copy
     assert(destName == "" or destNameIsUnsaved or isLegalProfileName(destName))
     assert(srcName ~= "" or destName ~= "")  -- Both can't be empty!
     if srcName == destName then return end  -- Trivial case.  Just return.
+
+    self:cacheUnmodifiedProfiles()  -- Make sure we have a copy of all profiles first!
 
     -- Set blank names to nil for simpler coding below.
     if srcName == "" then srcName = nil end
@@ -3347,7 +3396,10 @@ function ProfilesUI:deleteProfile(name, options)  -- [ Keywords: deleteProfile()
         return  -- Done.
     end
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Delete profile.
+    self:cacheUnmodifiedProfiles()  -- Make sure we have a copy of all profiles first!
+
     local bResult = false
     local nameFound
     if isLegalProfileName(name) then
@@ -3423,7 +3475,10 @@ function ProfilesUI:renameProfile(oldName, newName, options)
     end
     options = options:gsub("c","")  -- Ensure 'prompt' option is removed before continuing.
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Rename profile.
+    self:cacheUnmodifiedProfiles()  -- Make sure we have a copy of all profiles first!
+
     local bResult = false
     local bLegalName = isLegalProfileName(newName)
     if bLegalName then
@@ -3521,34 +3576,32 @@ function ProfilesUI:loadNextProfile()
     if #self.sortedProfileNames == 0 then return end  -- Do nothing.  No profiles exist.
 
     local currentName = self:getCurrentName()
-    local bUnsaved = hasUnsavedMarker(currentName)
     local strippedCurrentName = stripUnsavedMarker(currentName)
-
-    if bUnsaved then
-        if defaultValuesAreLoaded() then  -- Unmodified default data?
-            return self:loadFirstProfile("s")  -- Load first profile without getting confirmation.
-        end
+    local bUnsaved = hasUnsavedMarker(currentName)
+    local bUnmodifiedDefault = (bUnsaved and defaultValuesAreLoaded()) or false
+    if bUnmodifiedDefault then
+        bUnsaved = false  -- Unmodified defaults don't need to be saved.
     end
 
+    if strippedCurrentName == "" then
+        return self:loadFirstProfile("s")  -- Load first profile without getting confirmation.
+        ----msgbox_SaveThenLoad("", self.sortedProfileNames[1], "s")  -- (nameToSave, nameToLoad, options)
+        ----return  -- Done.
+    end
+
+    local lowerCurrentName = strippedCurrentName:lower()
+    local options = bUnsaved and "cs" or "s"
     local bLoadNext = false
+    local lowerName
     for i, name in ipairs(self.sortedProfileNames) do
-        if bLoadNext or strippedCurrentName == "" then
-            if bUnsaved then
-                -- Warn user about unsaved profile before continuing.
-                msgbox_SaveThenLoad(currentName, name, "")  -- (nameToSave, nameToLoad, options)
-                return  -- Done.
-            else
-                return self:loadProfile(name, "s")
-            end
-        elseif namesMatch(name, strippedCurrentName) then
+        lowerName = name:lower()
+        if bLoadNext then
+            return self:loadProfile(name, options)
+        elseif lowerName == lowerCurrentName then
             bLoadNext = true
+        elseif lowerName > lowerCurrentName then
+            return self:loadProfile(name, options)
         end
-    end
-
-    if gDefaultsTable[strippedCurrentName] then
-        -- It's a modified default that has not been saved to the profile list.
-        -- Get confirmation before loading the first profile.
-        return self:loadFirstProfile("cs")
     end
 
     gMainFrame.statusText:showMsg(L.BottomOfList, kStatusMsgShorterSecs, true)
@@ -3565,49 +3618,37 @@ function ProfilesUI:loadPreviousProfile()
     if #self.sortedProfileNames == 0 then return end  -- Do nothing.  No profiles exist.
 
     local currentName = self:getCurrentName()
-    local bUnsaved = hasUnsavedMarker(currentName)
     local strippedCurrentName = stripUnsavedMarker(currentName)
-
-    if bUnsaved then
-        if defaultValuesAreLoaded() then  -- Does name refer to a default?
-            return self:loadLastProfile("s")
-        end
+    local bUnsaved = hasUnsavedMarker(currentName)
+    local bUnmodifiedDefault = (bUnsaved and defaultValuesAreLoaded()) or false
+    if bUnmodifiedDefault then
+        bUnsaved = false  -- Unmodified defaults don't need to be saved.
     end
 
-    local previousName = nil
-    for i, name in ipairs(self.sortedProfileNames) do
-        if strippedCurrentName == "" then
-            strippedCurrentName = name
-            previousName = name
-        end
+    if strippedCurrentName == "" then
+        return self:loadLastProfile("s")  -- Load first profile without getting confirmation.
+        ----msgbox_SaveThenLoad("", self.sortedProfileNames[#self.sortedProfileNames], "s")  -- (nameToSave, nameToLoad, options)
+        ----return  -- Done.
+    end
 
-        if namesDiffer(name, strippedCurrentName) then
-            previousName = name  -- Keep searching.
-        else -- Found the matching name in the list.
-            if not previousName then  -- At top of list?
+    local lowerCurrentName = strippedCurrentName:lower()
+    local options = bUnsaved and "cs" or "s"
+    local previousName = nil
+    local lowerName
+    for i, name in ipairs(self.sortedProfileNames) do
+        lowerName = name:lower()
+        if lowerName >= lowerCurrentName then
+            if previousName then
+                return self:loadProfile(previousName, options)
+            else -- At top of list.
                 gMainFrame.statusText:showMsg(L.TopOfList, kStatusMsgShorterSecs, true)
                 PlaySound(kSound.Info)
                 return false
             end
-
-            if bUnsaved then
-                -- Warn user about unsaved profile before continuing.
-                msgbox_SaveThenLoad(name, previousName, "")  -- (nameToSave, nameToLoad, options)
-                return  -- Done.
-            else
-                return self:loadProfile(previousName, "s")
-            end
+        else
+            previousName = name  -- Keep searching.
         end
     end
-
-    if gDefaultsTable[strippedCurrentName] then
-        -- It's a modified default that has not been saved to the profile list.
-        -- Get confirmation before loading the last profile.
-        return self:loadLastProfile("cs")
-    end
-
-    -- If we get here, the displayed name no longer exists as a profile (nor is it a default).
-    return self:loadLastProfile("s")
 end
 
 --*****************************************************************************
@@ -3658,6 +3699,7 @@ function ProfilesUI:backupProfiles(backupName, options)
         options = options:gsub("c","")  -- Ensure 'prompt' option is removed before continuing.
     end
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Backup profiles, but do not overwrite the @Login or @Original backups!
     local bResult = false
     local errMsg = nil
@@ -3735,7 +3777,10 @@ function ProfilesUI:restoreProfiles(backupName, options) -- Restores all profile
         return  -- Done.
     end
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Restore specified backup.
+    self:cacheUnmodifiedProfiles()  -- Make sure we have a copy of all profiles first!
+
     local bResult, nameFound, numProfiles = ProfilesDB:restore(backupName)
     if bResult then
         self:refreshUI(true)
@@ -3791,6 +3836,7 @@ function ProfilesUI:deleteBackup(backupName, options)
         return  -- Done.
     end
 
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     -- Delete specified backup.
     local bResult = ProfilesDB:deleteBackup(backupName)
     if not bSilent then
@@ -3849,6 +3895,7 @@ local function createPopupListBox(parent, titleText,
 
     local listbox = private.UDControls.CreateListBox( gMainFrame )
     listbox:Hide()  -- This listbox remains hidden until it is needed.
+    listbox:SetButtonFlashing(true)
     ----listbox:SetIndicators({})
 
     --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -244,6 +244,7 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
 
         -- EVENTS --
         HelpFrame:SetScript("OnShow", function(self)
+                self:SetFrameLevel( self:GetParent():GetFrameLevel()+10 )
                 Globals.PlaySound(829)  -- IG_SPELLBOOK_OPEN
             end)
         HelpFrame:SetScript("OnHide", function(self)
@@ -263,16 +264,39 @@ function CursorTrail_ShowHelp(parent, scrollToTopic)
         end
     end
     HelpFrame:SetVerticalScroll( scrollOffset, scrollDelaySecs )
+    if ChangelogFrame and ChangelogFrame:IsShown() then
+        HelpFrame:ClearAllPoints()
+        HelpFrame:SetPoint("RIGHT", UIParent, "CENTER", -1, 0)
+        ChangelogFrame:ClearAllPoints()
+        ChangelogFrame:SetPoint("LEFT", UIParent, "CENTER", 1, 0)
+    else
+        HelpFrame:ClearAllPoints()
+        HelpFrame:SetPoint("CENTER", UIParent, "CENTER")
+    end
     HelpFrame:Show()
+    ----Globals.UIFrameFadeIn(HelpFrame, 0.3, 0, 1)
 end
 
 -------------------------------------------------------------------------------
 function CursorTrail_HideHelp()
     if HelpFrame and HelpFrame:IsShown() then
         HelpFrame:Hide()
+        if ChangelogFrame and ChangelogFrame:IsShown() then
+            ChangelogFrame:ClearAllPoints()
+            ChangelogFrame:SetPoint("CENTER", UIParent, "CENTER")
+        end
         return true
     end
     return false
+end
+
+-------------------------------------------------------------------------------
+function CursorTrail_ToggleHelp(parent)
+    if HelpFrame and HelpFrame:IsShown() then
+        CursorTrail_HideHelp()
+    else
+        CursorTrail_ShowHelp(parent)
+    end
 end
 
 --- End of File ---

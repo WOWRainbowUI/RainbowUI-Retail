@@ -7,6 +7,109 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.2.7
+Released 2024-10-13
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.2.7 for Retail WoW
+Version 4.4.0.15 for Classic Cataclysm
+Version 1.15.4.2 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW FEATURES:
+- Save the position of the main window between reloads.
+
+- Scroll bar buttons in popup menus will flash if there are more lines above/below those being shown.  They will also auto-repeat when held down.
+
+- Right-clicking the colorswatch square will now switch between its current color and white (or red if the current color is white).
+
+- Added new shapes:
+        Bug (Blue)
+        Bug (Orange)
+        Frame (Gold)
+        Frame (Gold 3D)
+        Glow (Gold)
+        Glyph (Green)
+        Ring (Atramedes)
+        Ring (Bronze)
+        Ring (Eclipse)
+        Ring (Gear)
+        Ring (Gold)
+        Ring (Horde)
+        Ring (Ice)
+        Ring (Meat)
+        Ring (Orange)
+        Ring (Reticle)
+        Ring (Spotted)
+        Ring (Stone)
+        Ring (Stone 2)
+        Shield (Alliance)
+        Shield (Gold)
+
+- Added new defaults:
+        Evil Eye
+        Ice Cold  ...  Not available in Classic (Vanilla) WoW.
+
+CHANGES:
+- Reversed the order of choices for "Layer Strata", so the topmost strata level is at the top of the list of choices, and moving the mousewheel up to change the selection "moves the strata level up".  (And vice-versa.)
+
+- No longer automatically create a backup named "@v11.0.2.3".  (It was only a temporary safety measure and is no longer needed.)
+
+- Increased the size of text in dropdown menus.
+
+- Editboxes are slightly taller, making them easier to click.
+
+- Increased the amount a value changes when using the mouse wheel for the following settings.  (Up/down keys still change them by 1.)
+            Shadow (%) - Changes by 5 each time.
+            Opacity (%) - Changes by 5 each time.
+            Scale (%) - Changes by 2 each time.
+
+- Optimized memory usage, reducing the amount of memory used when the UI opens.  (Now, an "undo" copy of all profiles is made only when a profile is modified.  Changing UI settings without saving no longer increases memory significantly.)
+
+- Changed Help and Changelog icon buttons behavior.  Clicking them now shows and hides their corresponding windows.
+
+- If both Help and Changelog are shown at same time, their windows will be positioned side-by-side.
+
+- Updated code for scrolling through dropdown items with the mouse wheel while the menu is closed.  (No noticeable change.)
+
+- Simplified code for how shapes and shadows follow the mouse position.  (No noticeable change.)
+
+- Changed code for how shape sizes are set, so shapes whose width is different than their height can be properly displayed.  (No noticeable change.)
+
+- Changed the color of Layer 2's shape to white for the default named "(Start Here)".  (Many of the new shapes require white to look their best.)
+
+BUG FIXES:
+- When changing shapes while "fade out" is on, the new shape now appears briefly.
+
+- Fixed problem where the second layer's shape didn't show up immediately after loading a profile that had two shapes and the previous profile only had one.  This would only happen one time after a reload.  (BUG_20240930.1)
+
+- Fixed problems with the "right-click swap between default values" feature.
+
+- Fixed a bug when clicking the small up/down arrows at the top of Load and Defaults popup lists.  (The previous/next item failed to load the first time the listbox had to scroll the item into view.)
+
+- Fixed missing warning message that asks about saving a modified default profile before loading a different profile.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.2.7 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW FEATURES:
+- Added additional new shapes:
+        Frame (Stormy, Yellow)
+        Ring (Gradient 1) ... Ring (Gradient 10)
+
+- Added additional new default:
+        Flashy Ball Bearing
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 4.4.0.15 for Classic Cataclysm
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+BUG FIXES:
+- Restored defaults that disappeared when Classic Cataclysm was released.  (Sorry about that!)
+        Soul Skull Trail
+        Ring & Soul Skull
+        Small Blue Green
+        Sphere Orange Swirl
+
+=======================================
 RELEASE 11.0.2.6
 Released 2024-09-27
 
@@ -469,88 +572,6 @@ Version 1.14.4.3 for Classic WoW ...
 - Updated for WoW 10.2 and WoW Wrath of Lich King 3.4.3.
 - Updated Troubleshooting section with a tip about some models disappearing when Scale % is set too low.
 - Fixed incrementing scaling past 999% with the arrow keys so it no longer jumps back to 100%.  (Maximum scale is now 998%.)
-
-=======================================
-RELEASE 10.1.7.2
-Released 2023-09-28
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.1.7.2 for Retail WoW ...
-Version 3.4.2.5 for Classic WotLK...
-Version 1.14.4.2 for Classic WoW ...
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Added the "Sparkle" option for shapes.  When turned on, the shape's color "sparkles" and the chosen color is not used.  (Does not affect model color.)
-- Added "/ct sparkle" slash command for toggling between normal shape color and sparkling shape color.
-- Added "Defaults 11" button.  It uses the new shape "Sparkle" option.
-- Updated help text with information about the shape "Sparkle" option.
-
-=======================================
-RELEASE 10.1.7.1
-Released 2023-09-05
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.1.7.1 for Retail WoW ...
-Version 3.4.2.4 for Classic WotLK...
-Version 1.14.4.1 for Classic WoW ...
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for WoW 10.1.7 and WoW Classic 1.14.4.
-- Added a troubleshooting tip to the help window for correcting mouse tracking problems when using addons that change UI scale below the game's minimum (64%).
-- Minor updated to help text for profile commands.
-
-=======================================
-RELEASE 10.1.5.2
-Released 2023-07-31
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.1.5.2 for Retail WoW ...
-Version 3.4.2.2 for Classic WotLK...
-Version 1.14.3.7 for Classic WoW ...
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Added support for other addons (such as UIScale) that change the game's UI scaling smaller than what is allowed by the standard UI scale slider.  (Shapes and shadows now follow the mouse cursor properly when scaling is below 64%.)
-    IMPORTANT - You must do "/ct reload" (or a normal game reload) after changing the UI scale smaller than the game's minimum scale (64%) so CursorTrail sees the new scale value.
-- Updated the "/ct screen" slash command to use new Blizzard API functions.  (Used for debugging CursorTrail.)
-- Miscellaneous code clean up.  (Removed unnecessary variables and comment blocks.)
-
-=======================================
-RELEASE 10.1.5.1
-Released 2023-07-12
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.1.5.1 for Retail WoW ...
-Version 3.4.2.1 for Classic WotLK...
-Version 1.14.3.6 for Classic WoW ...
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- No changes except for version numbers.
-
-=======================================
-RELEASE 10.1.0.1
-Released 2023-05-02
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.1.0.1 for Retail WoW ...
-Version 3.4.1.3 for Classic WotLK...
-Version 1.14.3.5 for Classic WoW ...
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-NEW FEATURES:
-- Added a "Shape" popup menu to the options, allowing an addition shape that follows the mouse cursor along with "Model" and "Shadow %" choices.
-- Added a color swatch button for changing the color of the selected shape.  (Disabled if a shape has not been selected.)
-- Added "<None>" to the list of models.  This allows having a shape or black shadow without anything else.
-- Changed the "Defaults 4" button to use the new "Shape" feature.
-- Added "NEW" indicators next to new options.  The indicators go away after the next reload.  (Can be reset by typing "/ct resetnewfeatures".)
-- Added a "Help" button along the bottom of the main window.
-
-CHANGES:
-- Changed the order of some options, grouping Shape, Model, and Shadow together at the top.
-- Changed up/down/scroll amount for model offsets to 0.25 (was 1.0).  This allows finer adjustments using the up/down arrow keys or mouse wheel.
-- Fixed showing/hiding the cursor trail effect after cinematic movies finish.
-- Fixed showing/hiding the cursor trail effect when "Fade out when idle" and "Show during Mouse Look" are both on.
-- Fixed "mouselook" slash command.  (It was incorrectly changing the "show only in combat" option.)
-- Fixed "fade out when idle" bug.  (Wasn't fading out completely.)
-- Improved fading out so it occurs at a consistent rate regardless of the opacity % being used.  (Smaller %s were fading out much faster than when at 100%.)
-- Improved accuracy of models following mouse cursor.
-- Changed minimum scale % to 2.  (1% was causing some models to fill the screen and stop moving after clicking Okay.  Reason unknown.)
-- Slash command results are now shown in the selected chat tab.  (Previously, they only appeared in the "General" chat tab.)
-- Added divider lines to the main window to indicate which settings are changed by clicking on of the "Defaults" buttons.
 
 ]]
 

@@ -83,6 +83,10 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 --[[                       Constants                                         ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+private.UDControls.kSetButtonFlashing = true  -- Default to flashing listbox scrollbar buttons.
+----private.UDControls.kButtonFlashAlpha = 1  -- For testing.
+----private.UDControls.kButtonFlashSecs = 0.8  -- For testing.
+
 kFrameHeaderWidth = 350
 kFrameHeaderHeight = 58
 kFrameMargin = 18
@@ -92,12 +96,12 @@ kRowSpacing = 16
 kBtnWidth = 104
 kBtnHeight = 22
 kButtonSpacing = 4
-kDropdownListboxScale = 0.95
+kDropdownListboxScale = 1
 kbClickableCheckboxText = true  -- Uncomment this line for clickable checkbox text that toggles its checkbox.
 
-kFrameWidth = 459
-kColumnWidth1 = 100  -- Width of the labels column.
-kColumnWidth2 = kFrameWidth-(kFrameMargin*2)-kColumnWidth1-kBtnWidth-25  -- Width of values column.
+kFrameWidth = 465
+kColumnWidth1 = 110  -- Width of the labels column.
+kColumnWidth2 = kFrameWidth-(kFrameMargin*2)-kColumnWidth1-kBtnWidth-10  -- Width of values column.
 
 ksLayer = "圖層 "  -- Space at end required.
 ksEnableLayer = "啟用圖層 "  -- Space at end required.
@@ -165,7 +169,7 @@ function UI_SetValues(config, reason) -- Copies config data into UI widgets.  If
     local layerCfg = config.Layers[layerNum]
 
     OptionsFrame_Value("enabled", layerCfg.IsLayerEnabled and true or false)
-    OptionsFrame_Value("shape", layerCfg.ShapeFileName or "")
+    OptionsFrame_Value("shape", layerCfg.ShapeFileName or kShape_None)
     OptionsFrame.ShapeColor:SetColor( layerCfg.ShapeColorR, layerCfg.ShapeColorG, layerCfg.ShapeColorB) ---, 0.75) --Uncomment to test opacity slider.
     OptionsFrame_Value("sparkle", layerCfg.ShapeSparkle or false)
     OptionsFrame_Value("model", layerCfg.ModelID)
@@ -187,7 +191,7 @@ function UI_SetValues(config, reason) -- Copies config data into UI widgets.  If
     -- Apply changes.  (Necessary when loading a profile.)
     OptionsFrame_SetModified(true)
     CursorTrail_Load()  -- Apply changes to model and texture FX variables.
-    CursorTrail_Refresh()
+    CursorTrail_Refresh(true)
     UNLOCK_UI()
 
     ----if reason == kReasons.UndoingProfileChanges then vdt_dump(PlayerConfig, "PlayerConfig after undo profile changes")
@@ -356,6 +360,19 @@ function OptionsFrame_ToggleUI(bForceShow)
 end
 
 -------------------------------------------------------------------------------
+function OptionsFrame_GetProfilesDB()
+    local profilesDB
+    if OptionsFrame then
+        profilesDB = OptionsFrame.ProfilesUI.DB
+    else
+        -- Our UI hasn't initialized ProfilesDB yet, so we must do it.
+        profilesDB = private.ProfilesDB
+        profilesDB:init(getAddonConfig)
+    end
+    return profilesDB
+end
+
+-------------------------------------------------------------------------------
 function OptionsFrame_Create()
     memchk()
     --|traceCfg("IN OptionsFrame_Create().")
@@ -397,7 +414,7 @@ function OptionsFrame_Create()
     OptionsFrame.LayerNumText = OptionsFrame:CreateFontString(nil, "ARTWORK", "Game120Font")
     OptionsFrame.LayerNumText:SetScale(2)
     ----OptionsFrame.LayerNumText:GetFontObject():SetTextColor(1, 1, 1,  0.05)
-    OptionsFrame.LayerNumText:GetFontObject():SetTextColor(0.3, 0.3, 0.3,  0.2)
+    OptionsFrame.LayerNumText:GetFontObject():SetTextColor(0.3, 0.3, 0.3,  (isRetailWoW() and 0.2 or 0.25))
 
     -- TOOLTIP:
     OptionsFrame.WarnTooltip = CreateFrame("GameTooltip", kAddonFolderName.."WarnTooltip", OptionsFrame, "GameTooltipTemplate")
@@ -436,7 +453,10 @@ function OptionsFrame_Create()
             end)
     OptionsFrame.BlockerFrame:RegisterForDrag("LeftButton")
     OptionsFrame.BlockerFrame:SetScript("OnDragStart", function() OptionsFrame:StartMoving() end)
-    OptionsFrame.BlockerFrame:SetScript("OnDragStop", function() OptionsFrame:StopMovingOrSizing() end)
+    OptionsFrame.BlockerFrame:SetScript("OnDragStop", function()
+                OptionsFrame:StopMovingOrSizing()
+                OptionsFrame:savePosition()
+            end)
 
     -- Allow moving the options window.
     OptionsFrame:EnableMouse(true)
@@ -456,13 +476,24 @@ function OptionsFrame_Create()
         end
     end
 
+    function OptionsFrame:savePosition()
+        if IsControlKeyDown() then self:ClearAllPoints(); self:SetPoint("CENTER"); end
+        local scale = self:GetEffectiveScale()
+        local db = Globals.CursorTrail_Config
+        db.Position_X = self:GetLeft() * scale
+        db.Position_Y = self:GetTop() * scale
+    end
+
     ------------------------
     -- - - - EVENTS - - - --
     ------------------------
     OptionsFrame:SetScript("OnShow", OptionsFrame_OnShow)
     OptionsFrame:SetScript("OnHide", OptionsFrame_OnHide)
     OptionsFrame:SetScript("OnDragStart", function() OptionsFrame:StartMoving() end)
-    OptionsFrame:SetScript("OnDragStop", function() OptionsFrame:StopMovingOrSizing() end)
+    OptionsFrame:SetScript("OnDragStop", function()
+                OptionsFrame:StopMovingOrSizing()
+                OptionsFrame:savePosition()
+            end)
     OptionsFrame:SetScript("OnKeyDown", OptionsFrame_OnKeyDown)
     OptionsFrame:SetScript("OnMouseUp", function(self, mouseButton)
                 OptionsFrame_ClearFocus()
@@ -485,7 +516,7 @@ function OptionsFrame_Create()
     yPos = yPos + profilesOffset
     OptionsFrame.ProfilesUI = private.UDProfiles_CreateUI({
                         parent = OptionsFrame,
-                        xPos = kFrameMargin,
+                        xPos = kFrameMargin-1,
                         yPos = yPos,
                         getAddonConfig = getAddonConfig,
                         UI_SetValues = UI_SetValues,
@@ -512,7 +543,7 @@ function OptionsFrame_Create()
     ----OptionsFrame.ProfilesUI:setListBoxLinesPerPage(5)  -- For testing.
     ----OptionsFrame.ProfilesUI.mainFrame.profilesListBox.sliderFrame:SetValueStep(3)
     ----OptionsFrame.ProfilesUI:SetPoint("RIGHT", -kFrameMargin, 0)
-    OptionsFrame.ProfilesUI:setWidthOfBox( kColumnWidth1 + kColumnWidth2 + 16 )
+    OptionsFrame.ProfilesUI:setWidthOfBox( kColumnWidth1 + kColumnWidth2 + 2 )
 
     ----local profilesLB = OptionsFrame.ProfilesUI.mainFrame.profilesListBox
     ----profilesLB:HookScript("OnShow", function()
@@ -637,8 +668,8 @@ function OptionsFrame_Create()
             -- Show help.
             OptionsFrame:hidePopupWindows()
             memchk()
-            CursorTrail_ShowHelp(OptionsFrame)
-            memchk("CursorTrail_ShowHelp()")
+            CursorTrail_ToggleHelp(OptionsFrame)
+            memchk("CursorTrail_ToggleHelp()")
             PlaySound(private.kSound.ActionQuiet)
         end)
 
@@ -663,8 +694,8 @@ function OptionsFrame_Create()
             -- Show changelog.
             OptionsFrame:hidePopupWindows()
             memchk()
-            CursorTrail_ShowChangelog(OptionsFrame)
-            memchk("CursorTrail_ShowChangelog()")
+            CursorTrail_ToggleChangelog(OptionsFrame)
+            memchk("CursorTrail_ToggleChangelog()")
             PlaySound(private.kSound.ActionQuiet)
             OptionsFrame.ChangelogBtn:flash(false)
             Globals.CursorTrail_Config.ChangelogVersionSeen = kAddonVersion
@@ -677,7 +708,7 @@ function OptionsFrame_Create()
                 ----OptionsFrame.ChangelogBtn:SetScale( 1.25 * self.origScale )
 
                 self.origAlpha = self.origAlpha or self:GetAlpha()
-                local flashSecs = 0.4
+                local flashSecs = 0.6
                 local dimmedAlpha = 0.5 * self.origAlpha
                 self.flashTicker = Globals.C_Timer.NewTicker(flashSecs, function()
                             local alpha = OptionsFrame.ChangelogBtn:GetAlpha()
@@ -703,7 +734,7 @@ function OptionsFrame_Create()
     OptionsFrame.LayerEnabledCheckbox = OptionsFrame_CreateCheckBox(ksEnableLayer, xPos, yPos)
     changeCheckboxSize(OptionsFrame.LayerEnabledCheckbox, 4, 7, 0)
     OptionsFrame.LayerEnabledCheckbox:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", kFrameMargin+5, yPos+4)
-	OptionsFrame.LayerEnabledCheckbox:SetScript('PostClick', function(self, button)
+	OptionsFrame.LayerEnabledCheckbox:SetScript('PostClick', function(self, button)  --[ Keywords: OnEnableLayer() OnLayerEnabled() ]
         local isChecked = self:GetChecked()
         local layerNum = OptionsFrame_GetSelectedLayer()
         assert( gLayers[layerNum].playerConfigLayer == PlayerConfig.Layers[layerNum] ) -- Should refer to the same table!
@@ -720,7 +751,7 @@ function OptionsFrame_Create()
     yPos = yPos - 2  -- Tweak position slightly.
     OptionsFrame.ShapeLabel = OptionsFrame_CreateLabel("圖形:", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
-    OptionsFrame.ShapeDropDown = OptionsFrame_CreateShapeDropDown(xPos, yPos, 140)
+    OptionsFrame.ShapeDropDown = OptionsFrame_CreateShapeDropDown(xPos, yPos, 170)
 
     -- SHAPE COLOR SWATCH --
     OptionsFrame.ShapeColor = private.UDControls.CreateColorSwatch( OptionsFrame, 22 )
@@ -748,7 +779,17 @@ function OptionsFrame_Create()
                     if ColorPickerFrame:IsShown() then
                         ColorPickerFrame:Hide()
                     end
-                    self:SetColor(1,1,1)
+                    local newVal = {1, 1, 1}  -- Init to default color.
+                    local r, g, b = self:GetColor()
+                    local isDefaultColor = (r == newVal[1] and g == newVal[2] and b == newVal[3])
+                    if not isDefaultColor then
+                        self.previousVal = {r, g, b}  -- Store current color.
+                    elseif self.previousVal then
+                        newVal = self.previousVal  -- Use previous color.
+                    else
+                        newVal = {1, 0, 0}  -- Use an arbitrary alternate color.
+                    end
+                    self:SetColor( newVal[1], newVal[2], newVal[3] )
                     self:colorChangedHandler()
                 end
             end)
@@ -783,6 +824,7 @@ function OptionsFrame_Create()
     OptionsFrame.ShadowLabel = OptionsFrame_CreateLabel("陰影 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.ShadowEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 0)
+    OptionsFrame.ShadowEditBox.wheelDelta = 5
     OptionsFrame.ShadowEditBox:SetScript("OnTextChanged", OptionsFrame_OnShadowChanged)
 
     -- Next row.
@@ -798,16 +840,18 @@ function OptionsFrame_Create()
     OptionsFrame.ScaleLabel = OptionsFrame_CreateLabel("縮放大小 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.ScaleEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 100)
+    OptionsFrame.ScaleEditBox.wheelDelta = 2
     OptionsFrame.ScaleEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
 
     -- Next row.
     xPos = kFrameMargin
     yPos = yPos - kRowHeight - kRowSpacing
 
-    -- OPACITY --
+    -- OPACITY (%) --
     OptionsFrame.AlphaLabel = OptionsFrame_CreateLabel("不透明度 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.AlphaEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 100)
+    OptionsFrame.AlphaEditBox.wheelDelta = 5
     OptionsFrame.AlphaEditBox:SetScript("OnTextChanged", OptionsFrame_OnAlphaChanged)
 
     -- Next row.
@@ -829,12 +873,14 @@ function OptionsFrame_Create()
     xPos = xPos + kColumnWidth1  -- Next column.
     -- X
     OptionsFrame.OfsXEditBox = OptionsFrame_CreateEditBox(xPos, yPos, 42, nil, nil, "0")
-    OptionsFrame.OfsXEditBox.scrollDelta = 0.25
+    OptionsFrame.OfsXEditBox.wheelDelta = 0.25
+    OptionsFrame.OfsXEditBox.arrowsDelta = OptionsFrame.OfsXEditBox.wheelDelta
     OptionsFrame.OfsXEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
     xPos = xPos + OptionsFrame.OfsXEditBox:GetWidth() + 12  -- Next column.
     -- Y
     OptionsFrame.OfsYEditBox = OptionsFrame_CreateEditBox(xPos, yPos, 42, nil, nil, "0")
-    OptionsFrame.OfsYEditBox.scrollDelta = OptionsFrame.OfsXEditBox.scrollDelta
+    OptionsFrame.OfsYEditBox.wheelDelta = OptionsFrame.OfsXEditBox.wheelDelta
+    OptionsFrame.OfsYEditBox.arrowsDelta = OptionsFrame.OfsXEditBox.arrowsDelta
     OptionsFrame.OfsYEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
 
     -- Next row.
@@ -917,7 +963,7 @@ function OptionsFrame_Create()
     -------------------------------------------------------
     -- Buttons for changing base steps. (Developers only!)
     -------------------------------------------------------
-    if (kEditBaseValues == true) then
+    if kEditBaseValues then
         OptionsFrame:SetPoint("CENTER", UIParent, "CENTER", kFrameWidth/2+100, 0)  -- Move it right.
         local develWarning = OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         develWarning:SetPoint("BOTTOMLEFT", OptionsFrame, "TOPLEFT", 9, 10)
@@ -931,29 +977,12 @@ function OptionsFrame_Create()
                 end
         centerFrame:updateSize()
         centerFrame:SetAlpha(0.5)
-        local lineW = 2
-        local topLine = centerFrame:CreateTexture(nil, "BACKGROUND")
-        topLine:SetColorTexture(0, 0, 0, 1) -- Black
-        topLine:SetPoint("TOPLEFT", centerFrame, "TOPLEFT", 0, lineW)
-        topLine:SetPoint("BOTTOMRIGHT", centerFrame, "TOPRIGHT", 0, 0)
 
-        local bottomLine = centerFrame:CreateTexture(nil, "BACKGROUND")
-        bottomLine:SetColorTexture(0, 0, 0, 1) -- Black
-        bottomLine:SetPoint("TOPLEFT", centerFrame, "BOTTOMLEFT", 0, -lineW)
-        bottomLine:SetPoint("BOTTOMRIGHT", centerFrame, "BOTTOMRIGHT", 0, 0)
-
-        local leftLine = centerFrame:CreateTexture(nil, "BACKGROUND")
-        leftLine:SetColorTexture(0, 0, 0, 1) -- Black
-        leftLine:SetPoint("TOPLEFT", centerFrame, "TOPLEFT", -lineW, lineW)
-        leftLine:SetPoint("BOTTOMRIGHT", centerFrame, "BOTTOMLEFT", 0, -lineW)
-
-        local rightLine = centerFrame:CreateTexture(nil, "BACKGROUND")
-        rightLine:SetColorTexture(0, 0, 0, 1) -- Black
-        rightLine:SetPoint("TOPLEFT", centerFrame, "TOPRIGHT", 0, lineW)
-        rightLine:SetPoint("BOTTOMRIGHT", centerFrame, "BOTTOMRIGHT", lineW, -lineW)
+        local r, g, b = 0, 1, 1  -- Cyan
+        private.UDControls.Outline(centerFrame, {r=r, g=g, b=b, a=1, thickness=2, expand=1})
 
         local centerPoint = centerFrame:CreateTexture(nil, "BACKGROUND")
-        centerPoint:SetColorTexture(0, 0, 0, 1) -- Black
+        centerPoint:SetColorTexture(r, g, b, 1)
         centerPoint:SetPoint("CENTER", centerFrame, "CENTER")
         centerPoint:SetSize(3, 3)
 
@@ -965,9 +994,19 @@ function OptionsFrame_Create()
                 OptionsFrame_OnOkay()
                 ----CursorModel_Dump()
             elseif key == "NUMPADPLUS" then
-                OptionsFrame_IncrDecrModel(-1)
+                if IsShiftKeyDown() then
+                    OptionsFrame.ShapeDropDown:SelectNextOrPrevious( true )
+                else
+                    OptionsFrame.ModelDropDown:SelectNextOrPrevious( true )
+                end
+                PlaySound(private.kSound.Action)
             elseif key == "NUMPADMINUS" then
-                OptionsFrame_IncrDecrModel(1)
+                if IsShiftKeyDown() then
+                    OptionsFrame.ShapeDropDown:SelectNextOrPrevious( false )
+                else
+                    OptionsFrame.ModelDropDown:SelectNextOrPrevious( false )
+                end
+                PlaySound(private.kSound.Action)
             elseif IsShiftKeyDown() and key == "/" then  -- Pressed '?' key.
                 local color = "|cff9999ff"
                 local cursorModel = gLayers:getSelectedLayer().CursorModel
@@ -1022,16 +1061,16 @@ function OptionsFrame_CreateContextMenu()
     if not OptionsFrame.UseBlizzardMenu then
         local color = OptionsFrame.ProfilesUI.ListBoxColor
         OptionsFrame.contextMenu = private.UDControls.CreateContextMenu(OptionsFrame)
-        OptionsFrame.contextMenu.edges:setColor(color.r, color.g, color.b, color.alpha)
-        OptionsFrame.contextMenu:setBackColor(0.5, 1, 1,  0.95)
+        OptionsFrame.contextMenu:SetColor(color.r, color.g, color.b, color.alpha)
+        OptionsFrame.contextMenu:SetBackColor(0.5, 1, 1,  0.95)
 
         Globals.hooksecurefunc(private.UDControls, "handleGlobalMouseClick", function(mouseButton)
                 -- Hide context menu when user clicks anywhere outside of it.
                 if (mouseButton == nil or mouseButton == "LeftButton") then
-                    local menu = OptionsFrame.contextMenu
-                    if menu.UseBlizzardMenu then return end -- Only continue for custom context menu.
-                    if menu:IsShown() and not menu:IsMouseOver() then
-                        menu:close()
+                    local cmenu = OptionsFrame.contextMenu
+                    if cmenu.UseBlizzardMenu then return end -- Only continue for custom context menu.
+                    if cmenu:IsShown() and not cmenu:IsMouseOver() then
+                        cmenu:Close()
                     end
                 end
             end)
@@ -1122,14 +1161,14 @@ function OptionsFrame_CreateContextMenu()
             end)
         else -- Use custom context menu implementation.
             local lines = createContextMenuLines()
-            self.contextMenu:open( lines )
+            self.contextMenu:Open( lines )
         end
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     function OptionsFrame:closeContextMenu()
         if self.contextMenu then
             if self.UseBlizzardMenu then self.contextMenu:Hide()
-            else self.contextMenu:close()
+            else self.contextMenu:Close()
             end
         end
     end
@@ -1299,6 +1338,11 @@ function OptionsFrame_HandleNewFeatures()
     if Globals.CursorTrail_Config.ChangelogVersionSeen ~= kAddonVersion then
         OptionsFrame.ChangelogBtn:flash(true)
         gbUpdateChangelogVersionSeenOnExit = true  -- Stops flashing the changelog button on next reload, even if user didn't open it.
+        if previousVersion then
+            OptionsFrame.ChangelogBtn:SetTooltip("Changelog\n(Updated from "
+                                                .. Globals.CursorTrail_Config.ChangelogVersionSeen
+                                                .." to ".. kAddonVersion ..")", "ANCHOR_TOP")
+        end
     end
 end
 
@@ -1307,6 +1351,17 @@ function OptionsFrame_OnShow()
     ----memchk()
     --|traceCfg("IN OptionsFrame_OnShow().")
     assert(PlayerConfig == getPlayerConfig())  -- Verify address has not changed from incorrectly using CopyTable().
+    local db = Globals.CursorTrail_Config
+    if db.Position_X and db.Position_Y then  -- Restore previous window position?
+        OptionsFrame:ClearAllPoints()
+        local scale = OptionsFrame:GetEffectiveScale()
+        local x, y = db.Position_X/scale, db.Position_Y/scale
+        local winW, winH = OptionsFrame:GetSize()
+        x = math.min( math.max(0, x), UIParent:GetWidth()-winW )
+        y = math.min( math.max(winH, y), UIParent:GetHeight() )
+        OptionsFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+    end
+
     PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
     EventFrame:RegisterEvent("GLOBAL_MOUSE_DOWN")
     OptionsFrame.BlockerFrame:Hide()
@@ -1335,18 +1390,29 @@ function OptionsFrame_OnHide()
     --|traceCfg("IN OptionsFrame_OnHide().")
     assert(PlayerConfig == getPlayerConfig())  -- Verify address has not changed from incorrectly using CopyTable().
     PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE)
-    OptionsFrame.ShapeColor:CloseColorPicker(false)  -- Make sure color picker is closed.  (Cancel color changes.)
-    OptionsFrame.ChangelogBtn:flash(false)
-    ----OptionsFrame.StrataDropDown.previousSelection = nil  -- Reset right-click default toggle.
-    ----if not OptionsFrame.closeReason then  -- UI closed by slash command instead of button click?
+    local optionsFrame = OptionsFrame
+    optionsFrame.ShapeColor:CloseColorPicker(false)  -- Make sure color picker is closed.  (Cancel color changes.)
+    optionsFrame.ChangelogBtn:flash(false)
+    ----if not optionsFrame.closeReason then  -- UI closed by slash command instead of button click?
     ----    OptionsFrame_OnOkay()
     ----end
 
     CursorTrail_Refresh()  -- Shows/hides FX depending on changes to UserShowOnlyInCombat setting.
     CursorTrail_HideHelp()
     CursorTrail_HideChangelog()
-    ----OptionsFrame.OriginalConfig = nil  -- Free memory.  <<< Moved OriginalConfig to ProfilesUI.OriginalValues.
+    --TODO: gbPreviewSelectedLayer = nil  -- Always turn off previewing selected layer when the UI closes.
+    ----optionsFrame.OriginalConfig = nil  -- Free memory.  <<< Moved OriginalConfig to ProfilesUI.OriginalValues.
     EventFrame:UnregisterEvent("GLOBAL_MOUSE_DOWN")
+
+    -- Reset right-click swap values for controls that support that feature.
+    optionsFrame.ShapeDropDown.previousSelection = nil
+    optionsFrame.ModelDropDown.previousSelection = nil
+    optionsFrame.StrataDropDown.previousSelection = nil
+    optionsFrame.ShadowEditBox.previousVal = nil
+    optionsFrame.ScaleEditBox.previousVal = nil
+    optionsFrame.AlphaEditBox.previousVal = nil
+    optionsFrame.OfsXEditBox.previousVal = nil
+    optionsFrame.OfsYEditBox.previousVal = nil
 
     ---->>> DISABLED because it might be collecting garbage for all addons, not just this one.  (Bigger lags on my main vs on my development alt.)
     ------ Free garbage memory now, preventing excessive build up caused by CopyTable() in gMainFrame:OnShow() in UDProfiles.lua.
@@ -1407,7 +1473,7 @@ function OptionsFrame_UpdateButtonStates()  -- UpdateOkayButton()
     if isLayerEnabled then
         if modelID == 0
             and shadowAlpha == 0.0
-            and (shapeFileName == nil or shapeFileName == "")
+            and (shapeFileName == nil or shapeFileName == kShape_None)
           then
             warning = "Model, Shape, and Shadow (%) are all off!  (One must be on.)"
         end
@@ -1432,14 +1498,14 @@ function OptionsFrame_UpdateButtonStates()  -- UpdateOkayButton()
     end
 
     -- Enable/disable the shape's color picker button based on the selected shape.
-    if shapeFileName == nil or shapeFileName == "" or OptionsFrame.SparkleCheckbox:GetChecked() then
+    if shapeFileName == nil or shapeFileName == kShape_None or OptionsFrame.SparkleCheckbox:GetChecked() then
         OptionsFrame.ShapeColor:Disable()
     else
         OptionsFrame.ShapeColor:Enable()
     end
 
     -- Enable/disable the sparkle checkbox based on the selected shape.
-    if shapeFileName == nil or shapeFileName == "" then
+    if shapeFileName == nil or shapeFileName == kShape_None then
         OptionsFrame.SparkleCheckbox:Disable()
     else
         OptionsFrame.SparkleCheckbox:Enable()
@@ -1479,8 +1545,8 @@ function OptionsFrame_EditBox_OnKeyDown(self, key)
         if key == "TAB" then OptionsFrame_TabKey()
         ----elseif key == "ESCAPE" then OptionsFrame:Hide()
         ----elseif key == "ENTER" then OptionsFrame_ClearFocus()
-        elseif key == "UP" then OptionsFrame_IncrDecrValue(self, 1)
-        elseif key == "DOWN" then OptionsFrame_IncrDecrValue(self, -1)
+        elseif key == "UP" then OptionsFrame_IncrDecrValue(self, 1, true)
+        elseif key == "DOWN" then OptionsFrame_IncrDecrValue(self, -1, true)
         end
     end
     --|traceCfg("OUT OptionsFrame_EditBox_OnKeyDown("..(self:GetName() or "nil")..", "..(key or "nil")..").")
@@ -1503,7 +1569,7 @@ function OptionsFrame_DropDown_OnButtonUp(self, mouseButton)
             elseif dropdown == OptionsFrame.ModelDropDown then
                 dropdown:SelectID(kDefaultModelID, true)
             elseif dropdown == OptionsFrame.ShapeDropDown then
-                dropdown:SelectText(kDefaultShape, true)
+                dropdown:SelectID(kDefaultShapeID, true)
             end
         elseif dropdown == OptionsFrame.StrataDropDown then
             if current:upper():find(kDefaultStrata) == 1 then
@@ -1604,9 +1670,13 @@ function OptionsFrame_ClearFocus()
 end
 
 -------------------------------------------------------------------------------
-function OptionsFrame_IncrDecrValue(self, delta)
+function OptionsFrame_IncrDecrValue(self, delta, isArrowKey)
     --|traceCfg("IN OptionsFrame_IncrDecrValue("..(self:GetName() or "nil")..").")
-    if self.scrollDelta then delta = delta * self.scrollDelta end
+    if isArrowKey then
+        if self.arrowsDelta then delta = delta * self.arrowsDelta end
+    else -- MouseWheel
+        if self.wheelDelta then delta = delta * self.wheelDelta end
+    end
     local num = tonumber(self:GetText()) or 0
     num = num + delta
     local r = (num*100) % (delta*100)
@@ -1616,6 +1686,11 @@ function OptionsFrame_IncrDecrValue(self, delta)
     self:SetText(num)
     local handler = self:GetScript("OnTextChanged")
     if handler then handler(self, true) end
+    if (self.minVal or self.maxVal) and self:GetText() == "" then
+        if (delta < 0 and self.minVal) then self:SetText( self.minVal )
+        elseif (delta > 0 and self.maxVal) then self:SetText( self.maxVal )
+        end
+    end
     self:HighlightText()
     ----self:SetCursorPosition(99)
     --|traceCfg("OUT OptionsFrame_IncrDecrValue("..(self:GetName() or "nil")..").")
@@ -1763,6 +1838,9 @@ function OptionsFrame_Value(valName, newVal)  -- [ Keywords: OptionsFrame_Value(
         if (newVal == nil) then  -- GET
             retVal = OptionsFrame.ShapeDropDown:GetSelectedID()
         else -- SET
+            if not getShapeData(newVal) then
+                newVal = ""
+            end
             OptionsFrame.ShapeDropDown:SelectID( newVal )
         end
         --|traceCfg("OUT OptionsFrame_Value("..valName..", "..(tostring(newVal) or "nil").."), early.")
@@ -1819,6 +1897,8 @@ function OptionsFrame_Value(valName, newVal)  -- [ Keywords: OptionsFrame_Value(
     end
 
     --|traceCfg("OUT OptionsFrame_Value("..valName..", "..(tostring(newVal) or "nil")..").")
+    if minVal then editbox.minVal = minVal * multiplier end
+    if maxVal then editbox.maxVal = maxVal * multiplier end
     return retVal
 end
 
@@ -1873,6 +1953,7 @@ function OptionsFrame_CreateEditBox(x, y, width, maxChars, bNumeric, defaultVal)
     editboxFrame:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x+9, y+10)
     editboxFrame:SetAutoFocus(false)
     editboxFrame:SetSize(32, 32)
+    changeEditBoxHeight( editboxFrame, (isRetailWoW() and 2 or 4) )
     if maxChars then
         editboxFrame:SetMaxLetters(maxChars)
         editboxFrame:SetWidth(maxChars*10)
@@ -1992,7 +2073,7 @@ function OptionsFrame_CreateTab(tabNum, tabText)
     end
 
     tabButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-    tabButton:SetScript("OnClick", function(self, mouseButton)
+    tabButton:SetScript("OnClick", function(self, mouseButton)  -- [ Keywords: OnSelectLayer() OnSelectTab() ]
                 --|traceCfg("tabButton:OnClick("..mouseButton..") for tab #"..(self.tabNum or "nil"))
                 ----UI_GetValues(PlayerConfig, "tabButton:OnClick")  -- Checks if PlayerConfig matches UI values before we change layers.
                 OptionsFrame_SelectLayer(self.tabNum)
@@ -2062,7 +2143,8 @@ function OptionsFrame_CreateModelDropDown(x, y, width)
     dropdown:SetScript("OnMouseWheel", function(self, delta)
                 --|traceCfg("IN ModelDropDown:OnMouseWheel().")
                 self:HideSelections()  -- i.e. CloseDropDownMenus()
-                OptionsFrame_IncrDecrModel(delta)
+                self:SelectNextOrPrevious(delta < 0)
+                PlaySound(private.kSound.Action)
                 --|traceCfg("OUT ModelDropDown:OnMouseWheel().")
             end)
 
@@ -2081,7 +2163,7 @@ function OptionsFrame_CreateShapeDropDown(x, y, width)
     local dropdown = private.UDControls.CreateDropDown(OptionsFrame)
     dropdown:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y+7)
     dropdown:Configure(width / kDropdownListboxScale)
-    ----dropdown:SetDynamicWheelSpeed(true)
+    dropdown:SetDynamicWheelSpeed(true)
     dropdown:SetListBoxHeight(ScreenH / kDropdownListboxScale)
     dropdown:GetListBoxFrame():SetScale( kDropdownListboxScale )
 
@@ -2101,7 +2183,7 @@ function OptionsFrame_CreateShapeDropDown(x, y, width)
     ShapeDropDown_AddLines(dropdown)
 
     -- Set dropdown's text to the selected shape.
-    if (PlayerConfig.ShapeFileName == nil or PlayerConfig.ShapeFileName == "") then
+    if (PlayerConfig.ShapeFileName == nil or PlayerConfig.ShapeFileName == kShape_None) then
         dropdown:SelectIndex(1)  -- Select first item in the dropdown.
     else
         dropdown:SelectID( PlayerConfig.ShapeFileName )
@@ -2116,7 +2198,8 @@ function OptionsFrame_CreateShapeDropDown(x, y, width)
     dropdown:SetScript("OnMouseWheel", function(self, delta)
                 --|traceCfg("IN ShapeDropDown:OnMouseWheel().")
                 self:HideSelections()  -- i.e. CloseDropDownMenus()
-                OptionsFrame_IncrDecrShape(delta)
+                self:SelectNextOrPrevious(delta < 0)
+                PlaySound(private.kSound.Action)
                 --|traceCfg("OUT ShapeDropDown:OnMouseWheel().")
             end)
 
@@ -2137,6 +2220,7 @@ function OptionsFrame_CreateStrataDropDown(x, y, width)
     ----dropdown:SetDynamicWheelSpeed(true)
     dropdown:SetListBoxHeight(ScreenH / kDropdownListboxScale)
     dropdown:GetListBoxFrame():SetScale( kDropdownListboxScale )
+
     dropdown:SetChangeHandler(  -- [ Keywords: OnSelectStrata() OnSelectLevel()]
         function(self, selectedID)
             OptionsFrame_Value("strata", selectedID)
@@ -2145,14 +2229,14 @@ function OptionsFrame_CreateStrataDropDown(x, y, width)
             ----print("Strata level set to:", selectedID)
         end
     )
-    dropdown:AddItem("背景", "BACKGROUND")
-    dropdown:AddItem("低", "LOW")
-    dropdown:AddItem("中", "MEDIUM")
-    dropdown:AddItem("高  (預設)", "HIGH")
-    dropdown:AddItem("對話框", "DIALOG")
-    dropdown:AddItem("全螢幕", "FULLSCREEN")
-    dropdown:AddItem("全螢幕對話框", "FULLSCREEN_DIALOG")
     dropdown:AddItem("浮動提示  (最高)", "TOOLTIP")
+    dropdown:AddItem("全螢幕對話框", "FULLSCREEN_DIALOG")
+    dropdown:AddItem("全螢幕", "FULLSCREEN")
+    dropdown:AddItem("對話框", "DIALOG")
+    dropdown:AddItem("高  (預設)", "HIGH")
+    dropdown:AddItem("中", "MEDIUM")
+    dropdown:AddItem("低", "LOW")
+    dropdown:AddItem("背景", "BACKGROUND")
 
     dropdown:SelectID( PlayerConfig.Strata )
 
@@ -2160,7 +2244,8 @@ function OptionsFrame_CreateStrataDropDown(x, y, width)
     dropdown:SetScript("OnMouseWheel", function(self, delta)
                 --|traceCfg("IN StrataDropDown:OnMouseWheel().")
                 self:HideSelections()  -- i.e. CloseDropDownMenus()
-                OptionsFrame_IncrDecrStrata(delta)
+                self:SelectNextOrPrevious(delta < 0)
+                PlaySound(private.kSound.Action)
                 --|traceCfg("OUT StrataDropDown:OnMouseWheel().")
             end)
 
@@ -2188,97 +2273,6 @@ function OptionsFrame_CreateStrataDropDown(x, y, width)
 
     --|traceCfg("OUT OptionsFrame_CreateStrataDropDown().")
     return dropdown
-end
-
--------------------------------------------------------------------------------
-function OptionsFrame_IncrDecrModel(delta)
-    --|traceCfg("IN OptionsFrame_IncrDecrModel().")
-    local dropdown = OptionsFrame.ModelDropDown
-    local selectedModelID = dropdown:GetSelectedID()
-    local prevID = nil
-    local bUseNextID = false
-
-    for index, modelData in pairs(kSortedModelChoices) do
-        if (bUseNextID == true) then
-            dropdown:SelectID(modelData.sortedID)
-            dropdown:changeHandler(modelData.sortedID)
-            PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)  -- Click sound.
-            --|traceCfg("OUT OptionsFrame_IncrDecrModel(), early 1.")
-            return  -- Done.
-        elseif (modelData.sortedID == selectedModelID) then
-            if (delta < 0) then -- Increment selection.
-                bUseNextID = true
-            else -- Decrement selection.
-                if prevID then
-                    dropdown:SelectID(prevID)
-                    dropdown:changeHandler(prevID)
-                    PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)  -- Click sound.
-                end
-                --|traceCfg("OUT OptionsFrame_IncrDecrModel(), early 2.")
-                return  -- Done.
-            end
-        else
-            prevID = modelData.sortedID
-        end
-    end
-
-    --|traceCfg("OUT OptionsFrame_IncrDecrModel().")
-end
-
--------------------------------------------------------------------------------
-function OptionsFrame_IncrDecrShape(delta)
-    --|traceCfg("IN OptionsFrame_IncrDecrShape().")
-    local dropdown = OptionsFrame.ShapeDropDown
-    local selectedIndex = dropdown:GetSelectedIndex()
-
-    if (delta < 0) then -- Increment selection.
-        if (selectedIndex < dropdown:GetNumItems()) then
-            selectedIndex = selectedIndex + 1
-        else
-            --|traceCfg("OUT OptionsFrame_IncrDecrShape(), early 1.")
-            return  -- Done.
-        end
-    else -- Decrement selection.
-        if (selectedIndex > 1) then
-            selectedIndex = selectedIndex - 1
-        else
-            --|traceCfg("OUT OptionsFrame_IncrDecrShape(), early 2.")
-            return  -- Done.
-        end
-    end
-
-    dropdown:SelectIndex(selectedIndex)
-    dropdown:changeHandler( dropdown.itemIDs[selectedIndex] )
-    PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)  -- Click sound.
-    --|traceCfg("OUT OptionsFrame_IncrDecrShape().")
-end
-
--------------------------------------------------------------------------------
-function OptionsFrame_IncrDecrStrata(delta)
-    --|traceCfg("IN OptionsFrame_IncrDecrStrata().")
-    local dropdown = OptionsFrame.StrataDropDown
-    local selectedIndex = dropdown:GetSelectedIndex()
-
-    if (delta < 0) then -- Increment selection.
-        if (selectedIndex < dropdown:GetNumItems()) then
-            selectedIndex = selectedIndex + 1
-        else
-            --|traceCfg("OUT OptionsFrame_IncrDecrStrata(), early 1.")
-            return  -- Done.
-        end
-    else -- Decrement selection.
-        if (selectedIndex > 1) then
-            selectedIndex = selectedIndex - 1
-        else
-            --|traceCfg("OUT OptionsFrame_IncrDecrStrata(), early 2.")
-            return  -- Done.
-        end
-    end
-
-    dropdown:SelectIndex(selectedIndex)
-    dropdown:changeHandler( dropdown.itemIDs[selectedIndex] )
-    PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)  -- Click sound.
-    --|traceCfg("OUT OptionsFrame_IncrDecrStrata().")
 end
 
 -------------------------------------------------------------------------------
