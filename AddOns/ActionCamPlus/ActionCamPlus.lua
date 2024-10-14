@@ -414,7 +414,7 @@ function ACP.SpellIsMount(spellID)
 	if not mountSpellIDs then
 		mountSpellIDs = {}
 		for i,k in pairs(C_MountJournal.GetMountIDs()) do
-			_, mountSpellID, _ = C_MountJournal.GetMountInfoByID(i)
+			name, mountSpellID, _ = C_MountJournal.GetMountInfoByID(k)
 			if mountSpellID then mountSpellIDs[mountSpellID] = true end
 		end
 	end
