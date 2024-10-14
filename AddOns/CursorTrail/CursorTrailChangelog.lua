@@ -156,6 +156,7 @@ function CursorTrail_ShowChangelog(parent)
 
         -- EVENTS --
         ChangelogFrame:SetScript("OnShow", function(self)
+                self:SetFrameLevel( self:GetParent():GetFrameLevel()+20 )
                 self:SetVerticalScroll(0)  -- Always open to first line of text.
                 Globals.PlaySound(829)  -- IG_SPELLBOOK_OPEN
             end)
@@ -164,16 +165,39 @@ function CursorTrail_ShowChangelog(parent)
             end)
     end
 
+    if HelpFrame and HelpFrame:IsShown() then
+        HelpFrame:ClearAllPoints()
+        HelpFrame:SetPoint("RIGHT", UIParent, "CENTER", -1, 0)
+        ChangelogFrame:ClearAllPoints()
+        ChangelogFrame:SetPoint("LEFT", UIParent, "CENTER", 1, 0)
+    else
+        ChangelogFrame:ClearAllPoints()
+        ChangelogFrame:SetPoint("CENTER", UIParent, "CENTER")
+    end
     ChangelogFrame:Show()
+    -----Globals.UIFrameFadeIn(ChangelogFrame, 0.3, 0, 1)
 end
 
 -------------------------------------------------------------------------------
 function CursorTrail_HideChangelog()
     if ChangelogFrame and ChangelogFrame:IsShown() then
         ChangelogFrame:Hide()
+        if HelpFrame and HelpFrame:IsShown() then
+            HelpFrame:ClearAllPoints()
+            HelpFrame:SetPoint("CENTER", UIParent, "CENTER")
+        end
         return true
     end
     return false
+end
+
+-------------------------------------------------------------------------------
+function CursorTrail_ToggleChangelog(parent)
+    if ChangelogFrame and ChangelogFrame:IsShown() then
+        CursorTrail_HideChangelog()
+    else
+        CursorTrail_ShowChangelog(parent)
+    end
 end
 
 --- End of File ---

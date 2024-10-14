@@ -99,6 +99,12 @@ function vdt_dump(varValue, varDescription, bShow)  -- e.g.  vdt_dump(someVar, "
 end
 
 -------------------------------------------------------------------------------
+function CRIPPLED()  -- Used to cripple existing functions.  (Similar to an illegal "NOOP".)
+    assert(nil, "The function should not be used!")
+    ----DevTools_Dump(debugstack(2, 1, 0))
+end
+
+-------------------------------------------------------------------------------
 syslag = {} -- Functions in this group cause noticeable lag to the game.  (Brief FPS drops.)
 
 -------------------------------------------------------------------------------
@@ -448,6 +454,8 @@ end
 kGameTocVersion = kGameTocVersion or Globals.select(4, Globals.GetBuildInfo())
 function isVanillaWoW() return (kGameTocVersion < 20000) end
 function isWrathWoW()   return (kGameTocVersion >= 30000 and kGameTocVersion < 40000) end
+function isWrathWoW_Min() return (kGameTocVersion >= 30000) end
+function isCataWoW()    return (kGameTocVersion >= 40000 and kGameTocVersion < 50000) end
 function isRetailWoW()  return (kGameTocVersion >= 100000) end
 ----UNTESTED:  local isClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 ----UNTESTED:  local isWrath = (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC)
@@ -536,12 +544,33 @@ end
 
 -------------------------------------------------------------------------------
 function changeCheckboxSize(checkbox, deltaBoxW, deltaBoxH, deltaFontSize)
+    deltaBoxW = deltaBoxW or 0
+    deltaBoxH = deltaBoxH or 0
+    deltaFontSize = deltaFontSize or 0
     local w, h = checkbox:GetSize()
     checkbox:SetSize(w+deltaBoxW, h+deltaBoxH)
     if deltaFontSize ~= 0 then
         local fontName, fontSize = checkbox.Text:GetFont()
-        checkbox.Text:SetFont(fontName, fontSize+2)
+        checkbox.Text:SetFont(fontName, fontSize+deltaFontSize)
     end
+end
+
+-------------------------------------------------------------------------------
+function changeEditBoxHeight(editbox, deltaBoxH)  ----, deltaFontSize)
+    deltaBoxH = deltaBoxH or 0
+    local h = editbox.Middle:GetHeight() + deltaBoxH
+    editbox.Left:SetHeight( h )
+    editbox.Middle:SetHeight( h )
+    editbox.Right:SetHeight( h )
+
+    ----deltaFontSize = deltaFontSize or 0
+    ----if deltaFontSize ~= 0 then
+    ----    local fontString = editbox:GetRegions()[1]
+    ----    if fontString then
+    ----        local fontName, fontSize = fontString:GetFont()
+    ----        fontString:SetFont(fontName, fontSize+deltaFontSize)
+    ----    end
+    ----end
 end
 
 -------------------------------------------------------------------------------
@@ -923,6 +952,51 @@ function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
     elseif (params == "bug") then  -- Cause a bug to test error reporting.
         Globals.xpcall( bogus_function, Globals.geterrorhandler() )
         ----Globals.xpcall( bogus_function, errHandler )
+    -------------------------------------------------------------------------------
+    elseif (params:sub(1,3) == "vdt") then  -- Show specified FX object from selected layer in ViragDevTool.
+        local whichFX = params:sub(4):trim()
+        local layer = gLayers:getSelectedLayer()
+        local var
+        if     whichFX == "shape" then var = layer.ShapeFrame
+        elseif whichFX == "model" then var = layer.CursorModel
+        elseif whichFX == "shadow" then var = layer.ShadowFrame
+        else assert(nil, "Invalid FX name!  ("..(whichFX or "nil")..")")
+        end
+        vdt_dump(var, "layer"..gLayers:getSelectedLayerNum().."."..whichFX, true)
+    -------------------------------------------------------------------------------
+    elseif (params:sub(1,11) == "settexcoord" or params:sub(1,3) == "stc") then
+        -- Calls shape:SetTexCoord() for the current shape on the selected layer.
+        -- USAGE:  /ct stc <minX> <maxX> <minY> <maxY>
+        -- EXAMPLES:
+        --      /ct stc 0 1 0 1         (Sets default coordinates.)
+        --      /ct stc 0 0.5 0 0.5     (Crops shape to its top-left quadrant.)
+        params = params:gsub(", ", " ")
+        local cmd, minX, maxX, minY, maxY = string.split(" ", params)
+        if minY == "=" then minY = minX end
+        if maxY == "=" then maxY = maxX end
+        minX=minX or 0;  maxX=maxX or 1;  minY=minY or 0;  maxY=maxY or 1
+        local shapeTexture = gLayers:getSelectedLayer().ShapeTexture
+        shapeTexture:SetTexCoord(minX, maxX, minY, maxY)
+        print(kAddonFolderName.."  shape"..gLayers:getSelectedLayerNum()..":SetTexCoord("
+                ..minX..", "..maxX..", "..minY..", "..maxY..")")
+    -------------------------------------------------------------------------------
+    elseif (params:sub(1,11) == "shape scale") then
+        local scale = tonumber(params:sub(12):trim())
+        if scale and scale > 0 then
+            local shapeID = OptionsFrame_Value("shape")
+            if shapeID == nil or shapeID == "" then
+                OptionsFrame_ToggleUI(true)
+                OptionsFrame_ToggleUI()
+                shapeID = OptionsFrame_Value("shape")
+            end
+            assert(shapeID and shapeID ~= "")
+            local shapeData = getShapeData(shapeID)
+            shapeData.scale = scale
+            gLayers:getSelectedLayer():setShape(shapeID)
+            print(kAddonFolderName.."  shape"..gLayers:getSelectedLayerNum().." scale", scale)
+        else
+            print(kAddonFolderName.."  ERROR")
+        end
     -------------------------------------------------------------------------------
     else
         return false  -- 'params' was NOT handled by this function.

@@ -34,7 +34,6 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 
 kDefaultModelID = 166498  -- "Electric, Blue & Long"
 kDefaultStrata = "HIGH"
-kDefaultShape = "Cross 1"
 
 kNoChange = nil  -- Must be nil so compareToDefaultProfile() in UDProfiles.lua can work.
 
@@ -59,7 +58,7 @@ kDefaultConfig["Electric"] = {
     Layers = {
         [1] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = kDefaultModelID,
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -120,7 +119,7 @@ kDefaultConfig["Electric Large"] = {
     Layers = {
         [1] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = kDefaultModelID,
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -142,7 +141,7 @@ kDefaultConfig["Electric Small"] = {
     Layers = {
         [1] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = kDefaultModelID,
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -164,7 +163,7 @@ kDefaultConfig["Electric Huge"] = {
     Layers = {
         [1] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = kDefaultModelID,
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -186,7 +185,7 @@ kDefaultConfig["Glow Purple"] = {
     Layers = {
         [1] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = 166923,  -- "Burning Cloud, Purple"
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -208,7 +207,7 @@ kDefaultConfig["Glow Purple Fade"] = {
     Layers = {
         [1] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = 166923,  -- "Burning Cloud, Purple"
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -230,7 +229,7 @@ kDefaultConfig["Glow Purple Fade 2"] = {
     Layers = {
         [1] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = 166923,  -- "Burning Cloud, Purple"
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -252,7 +251,7 @@ kDefaultConfig["Glow Soft Fade"] = {
     Layers = {
         [1] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = 166991,  -- "Cloud, Purple (Soft)"
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -291,7 +290,7 @@ kDefaultConfig["Star Glow Red"] = {
         },
         [2] = {
             IsLayerEnabled = true,
-            ShapeFileName = nil,
+            ShapeFileName = kShape_None,
             ModelID = 166159,  -- "Trail - Swirling, Firestrike"
             ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
@@ -521,6 +520,45 @@ kDefaultConfig["Ring Glow Green"] = {
     },
 }
 ----------------________________________-----------------------------------
+kDefaultConfig["Evil Eye"] = {
+    Layers = {
+        [1] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kShape_None,
+            ModelID = 166334,  -- "Object - Ring, Yellow"
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1,
+            UserAlpha = 0.85,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+        [2] = {
+            IsLayerEnabled = true,
+            ShapeFileName = 458999,  -- "Ring (Meat)"
+            ModelID = 166334,  -- "Object - Ring, Yellow"
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 0.5,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1.15,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
+    },
+}
+----------------________________________-----------------------------------
 kDefaultConfig["(Start Here)"] = {
     Layers = {
         [1] = {
@@ -544,7 +582,7 @@ kDefaultConfig["(Start Here)"] = {
             IsLayerEnabled = false,
             ShapeFileName = kMediaPath.."Ring 1.tga",
             ModelID = 0,  -- None.
-            ShapeColorR = 0.459, ShapeColorG = 0.537, ShapeColorB = 0.749,
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
             ShapeSparkle = false,
             -- - - - - - - - - - - - - - --
             UserShadowAlpha = 0,
@@ -561,16 +599,55 @@ kDefaultConfig["(Start Here)"] = {
 }
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
---[[                       RETAIL & WRATH WoW                                ]]
+--[[                       RETAIL, CATA & WRATH WoW                          ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-if isRetailWoW() or isWrathWoW() then
+if isWrathWoW_Min() then
+    ----------------________________________-----------------------------------
+    kDefaultConfig["Ice Cold"] = {
+        Layers = {
+            [1] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kShape_None,
+                ModelID = 166028,  -- "Glow - Cloud, Blue"
+                ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0,
+                UserScale = 2.6,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+            [2] = {
+                IsLayerEnabled = true,
+                ShapeFileName = 458995,  -- "Ring (Ice)"
+                ModelID = 166538,  -- "Glow - Burning Cloud, Blue"
+                ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0.2,
+                UserScale = 1.15,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+        },
+    }
     ----------------________________________-----------------------------------
     kDefaultConfig["Soul Skull Trail"] = {
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
-                ShapeFileName = nil,
+                ShapeFileName = kShape_None,
                 ModelID = 166926,  -- "Soul Skull"
                 ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
                 ShapeSparkle = false,
@@ -636,7 +713,7 @@ if isRetailWoW() or isWrathWoW() then
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
-                ShapeFileName = nil,
+                ShapeFileName = kShape_None,
                 ModelID = 240896,  -- "Trail - Swirling, Orange"
                 ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
                 ShapeSparkle = false,
@@ -660,6 +737,45 @@ end
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 if isRetailWoW() then
+    ----------------________________________-----------------------------------
+    kDefaultConfig["Flashy Ball Bearing"] = {
+        Layers = {
+            [1] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kShape_None,
+                ModelID = 1414694,  -- "Object - Pentagon Flashers"
+                ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0,
+                UserScale = 1.5,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+            [2] = {
+                IsLayerEnabled = true,
+                ShapeFileName = 457566,  -- "Ring (Atramedes)"
+                ModelID = 1536474,  -- "Trail - Cloud, Blue & Green"
+                ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0,
+                UserScale = 1.17,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+        },
+    }
     ----------------________________________-----------------------------------
     kDefaultConfig["Ring & Rainbow"] = {
         Layers = {
@@ -770,7 +886,7 @@ if isRetailWoW() then
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
-                ShapeFileName = nil,
+                ShapeFileName = kShape_None,
                 ModelID = 166159,  -- "Trail - Swirling, Firestrike"
                 ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
                 ShapeSparkle = false,
@@ -787,7 +903,7 @@ if isRetailWoW() then
             },
             [2] = {
                 IsLayerEnabled = true,
-                ShapeFileName = nil,
+                ShapeFileName = kShape_None,
                 ModelID = 1513210,  -- "Trail - Solar Wrath"
                 ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
                 ShapeSparkle = false,
