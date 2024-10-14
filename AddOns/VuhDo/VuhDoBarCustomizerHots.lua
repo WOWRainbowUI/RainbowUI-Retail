@@ -324,6 +324,12 @@ local function VUHDO_customizeHotIcons(aButton, aHotName, aRest, aTimes, anIcon,
 
 	elseif sIsWarnColor and aRest < sHotCols["WARNING"]["lowSecs"] then
 		tHotColor = sHotCols["WARNING"];
+
+		-- FIXME: color swatch should set isOpacity but doesn't
+		if tHotColor["O"] then
+			tHotColor["useOpacity"] = true;
+		end
+
 		tTimer:SetTextColor(VUHDO_textColor(tHotColor));
 	else
 		tHotColor = VUHDO_copyColor(tHotCfg);
