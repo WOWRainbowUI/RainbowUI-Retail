@@ -1,10 +1,12 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r161](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r161) (2024-10-10)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r160...r161) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r162](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r162) (2024-10-14)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r161...r162) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Add missing timer and alerts for morbid fixation to surgeon stichflesh  
-- Add Rp timer for fangs of the queen. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/280  
-- Fix misc issues from https://github.com/DeadlyBossMods/DBM-Dungeons/issues/283  
-- Fix some of issues in https://github.com/DeadlyBossMods/DBM-Dungeons/issues/281  
-    can't really fix the debug for why it thinks there is a missing timer, so added debug info so it actually logs missing timer messages in transcriptor for now on  
+- Update koKR (#286)  
+- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/289  
+    Although one of fixes is guesswork since no log for context  
+- Scope expel to personal only using target scanning. Fixes and closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/287  
+- fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/285  
+- Timer fix and clarity tweaks. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/290  
+- improve singularity/pool handling based on feedback  

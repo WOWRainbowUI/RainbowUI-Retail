@@ -8,7 +8,7 @@ else
 	mod.statTypes = "normal,heroic"
 end
 
-mod:SetRevision("20241005075847")
+mod:SetRevision("20241014004315")
 mod:SetCreatureID(40319)
 mod:SetEncounterID(1048)
 mod:SetHotfixNoticeRev(20240812000000)
@@ -70,7 +70,7 @@ function mod:OnCombatStart(delay)
 	self.vb.curseCount = 0
 	if not self:IsCata() then
 		timerAddCD:Start(2.5, 1)--Maybe also true in cata?
-		timerCurseofEntropyCD:Start(30, 1)
+		timerCurseofEntropyCD:Start(15, 1)
 	end
 end
 
