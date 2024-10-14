@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TirnaScitheTrash", "DBM-Party-Shadowlands", 3)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241014005333")
+mod:SetRevision("20241014043722")
 --mod:SetModelID(47785)
 
 mod.isTrashMod = true
@@ -110,7 +110,7 @@ function mod:CrushingLeap(targetname, _, unituid)
 --	end
 end
 
-function mod:Expel(targetname, _, unituid)
+function mod:ExpelTarget(targetname, _, unituid)
 	--Now has death check cause it's possible for mob to die before cast finishes and we don't want scan to return target if it won't finish
 	if not targetname or (unituid and UnitIsDead(unituid)) then return end
 	DBM:Debug("Crushing Leap on "..targetname)
