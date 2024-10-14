@@ -419,6 +419,7 @@ end
 --
 local tCursorItemType;
 local tAbilities;
+local tAbility;
 local tUnit;
 local tInfo;
 local tBuff;
@@ -456,8 +457,13 @@ function VUHDO_setupSmartCast(aButton)
 	if VUHDO_CONFIG["SMARTCAST_CLEANSE"] and not tInfo["dead"] then
 		if VUHDO_DEBUFF_TYPE_NONE ~= tInfo["debuff"] then
 			tAbilities = VUHDO_getDebuffAbilities();
-			if tAbilities[tInfo["debuff"]] then
-				VUHDO_setupAllButtonsTo(aButton, tAbilities[tInfo["debuff"]]);
+			tAbility = tAbilities[tInfo["debuff"]];
+
+			-- never smart cast cleanse a tank with BoP to avoid aggro loss
+			if tAbility and
+				(tInfo["role"] ~= VUHDO_ID_MELEE_TANK or tAbility ~= VUHDO_SPELL_ID.BLESSING_OF_PROTECTION) then
+				VUHDO_setupAllButtonsTo(aButton, tAbility);
+
 				return true;
 			end
 		end
