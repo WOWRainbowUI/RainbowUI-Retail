@@ -1778,6 +1778,16 @@ local function UpdateBarStatus(self,isTitle)
 	 	end
 	end
 
+	if parent.optionAnimation and parent.optionStyleAnimation == 3 then
+		if isActive and not self.anim.osa3 then
+			self.anim:SetScript("OnLoop",BarAnimation_Reverse)
+			self.anim.osa3 = true
+		elseif not isActive and self.anim.osa3 then
+			self.anim:SetScript("OnLoop",BarAnimation)
+			self.anim.osa3 = false
+		end
+	end
+
 	local doStandartColors = true
 	if parent.optionSmoothAnimation and not self.afterAnimFix then
 		doStandartColors = false
@@ -4985,6 +4995,7 @@ do
 		bit = bit,
 		print = print,
 		abs = abs,
+		floor = floor,
 		C_Timer = C_Timer,
 		C_UnitAuras = C_UnitAuras,
 		GetAuraDataByIndex = C_UnitAuras.GetAuraDataByIndex,
@@ -5211,6 +5222,7 @@ do
 			}
 			shiftingpower = {}
 			timeskip = {}
+			BlessingfromBeyond = {}
 
 			return function (timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,spellID,spellName,school,auraType)
 				if not sourceName then
@@ -5418,6 +5430,36 @@ do
 						end
 					end, total_len)
 					timeskip[sourceName].t_end = GetTime() + len
+				elseif (spellID == 462661) and destName then	--Blessing from Beyond
+					if BlessingfromBeyond[destName] then
+						BlessingfromBeyond[destName]:Cancel()
+					end
+					local total_len = 20
+					local changePerTick = 0.5
+					--for i=1,60 do
+					--	local auraData = C_UnitAuras.GetAuraDataByIndex(destName,i,"HARMFUL")
+					--	if not auraData then
+					--		break
+					--	elseif auraData.spellId == 462661 then
+					--		changePerTick = (auraData.points and auraData.points[2] or 50)/100
+					--		total_len = floor(auraData.expirationTime - GetTime() + 0.5)
+					--		break
+					--	end
+					--end
+					BlessingfromBeyond[destName] = C_Timer.NewTicker(1,function()
+						local line, updateReq
+						for j=1,#_C do
+							line = _C[j]
+							if line.fullName == destName then
+								line:ReduceCD(changePerTick,true)
+								updateReq = true
+							end
+						end
+						if updateReq then
+							UpdateAllData()
+						end
+					end, total_len)
+					BlessingfromBeyond[destName].t_end = GetTime() + total_len
 				end
 
 				$$$1
@@ -5562,6 +5604,13 @@ do
 							unitSpellData:SetDur(0,true)
 
 							forceUpdateAllData = true
+						end
+					end
+				elseif (spellID == 462661) then	--Blessing from Beyond
+					if BlessingfromBeyond[destName] then
+						local now = GetTime()
+						if abs(now - BlessingfromBeyond[destName].t_end) > 0.2 then
+							BlessingfromBeyond[destName]:Cancel()
 						end
 					end
 				end
@@ -8790,8 +8839,8 @@ function module.options:Load()
 	end)
 
 	self.optColSet.textStyleAnimation = ELib:Text(self.optColSet.col6scroll,L.cd2OtherSetStyleAnimation..":",11):Size(200,20):Point(10,-105)
-	self.optColSet.dropDownStyleAnimation = ELib:DropDown(self.optColSet.col6scroll,205,2):Size(220):Point(180,-105)
-	self.optColSet.dropDownStyleAnimation.Styles = {L.cd2OtherSetStyleAnimation1,L.cd2OtherSetStyleAnimation2}
+	self.optColSet.dropDownStyleAnimation = ELib:DropDown(self.optColSet.col6scroll,205,3):Size(220):Point(180,-105)
+	self.optColSet.dropDownStyleAnimation.Styles = {L.cd2OtherSetStyleAnimation1,L.cd2OtherSetStyleAnimation2,L.cd2OtherSetStyleAnimation3}
 	for i=1,#self.optColSet.dropDownStyleAnimation.Styles do
 		self.optColSet.dropDownStyleAnimation.List[i] = {
 			text = self.optColSet.dropDownStyleAnimation.Styles[i],

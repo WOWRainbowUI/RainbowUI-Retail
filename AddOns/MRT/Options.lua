@@ -97,6 +97,10 @@ function Options:SetPage(page)
 
 	if Options.CurrentFrame.isWide then
 		Options.CurrentFrame:SetWidth(type(Options.CurrentFrame.isWide)=='number' and Options.CurrentFrame.isWide or 850)
+		Options.CurrentFrame._wasWide = true
+	elseif Options.CurrentFrame._wasWide then
+		Options.CurrentFrame:SetWidth(Options.Width-Options.ListWidth)
+		Options.CurrentFrame._wasWide = nil
 	end
 
 	if type(Options.CurrentFrame.OnShow) == 'function' then
@@ -846,7 +850,7 @@ function OptionsFrame:AddChest(chestType)
 		
 		animated.frame = 0
 		animated.frame_max = 14
-		animated.tmr = 0
+		animated.tmr = 1
 		animated:SetScript("OnUpdate",function(self,elapsed)
 			self.tmr = self.tmr + elapsed
 			if self.tmr > 0.15 then

@@ -2507,6 +2507,21 @@ do
 		return self
 	end
 
+	local function Widget_ChangeTabPos(self,list)
+		local prev
+		for i=1,#self.tabs do
+			local button = self.tabs[ list[i] ].button
+			button:ClearAllPoints()
+			if not prev then
+				button:SetPoint("TOPLEFT", 10, 24)
+			else
+				button:SetPoint("LEFT", prev, "RIGHT", 0, 0)				
+			end
+			prev = button
+		end
+		return self
+	end
+
 	function ELib:Tabs(parent,template,...)
 		template = template == 0 and "ExRTTabButtonTransparentTemplate" or template or "ExRTTabButtonTemplate"
 
@@ -2554,6 +2569,7 @@ do
 		self.selected = 1
 		self.UpdateTabs = TabFrameUpdateTabs
 		self.SelectTab = TabFrameSelectTab
+		self.ChangeTabPos = Widget_ChangeTabPos
 
 		Mod(self,
 			'SetTo',Widget_SetTo
