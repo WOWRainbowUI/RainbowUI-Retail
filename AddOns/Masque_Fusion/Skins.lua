@@ -28,7 +28,7 @@ local L = Core.Locale
 local API_VERSION = 110000
 
 -- Skin Info
-local Version = "11.0.1"
+local Version = "11.0.2"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Fusion",
 	"https://www.curseforge.com/wow/addons/masque-fusion",
@@ -109,8 +109,6 @@ MSQ:AddSkin("Fusion", {
 		TexCoords = {0.02, 0.98, 0.02, 0.98},
 		-- Color = {1, 1, 1, 1},
 		BlendMode = "BLEND",
-		DrawLayer = "BACKGROUND",
-		DrawLevel = 0,
 		Width = 36,
 		Height = 36,
 		Point = "CENTER",
