@@ -333,12 +333,24 @@
 	<Frame name="vcbOptionsBox" frameLevel="128" enableMouse="false" clampedToScreen="true" hidden="false" virtual="true">
 		<Layers>
 			<Layer level="BORDER">
-				<Texture parentKey="BorderTop" file="Interface\Common\ThinBorder2-Top">
+				<Texture parentKey="BorderTop" file="Interface\Common\ThinBorder-Top">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="3" y="0"/>
 						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-3" y="0"/>
 					</Anchors>
-					<Size y="4"/>
+					<Size y="18"/>
+					<Scripts>
+						<OnLoad>
+							self:SetVertexColor(vcbMainColor:GetRGB())
+						</OnLoad>
+					</Scripts>
+				</Texture>
+				<Texture parentKey="BorderBottom" file="Interface\Common\ThinBorder-Top">
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="3" y="-11"/>
+						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="-11"/>
+					</Anchors>
+					<Size y="18"/>
 					<Scripts>
 						<OnLoad>
 							self:SetVertexColor(vcbMainColor:GetRGB())
@@ -351,18 +363,6 @@
 						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="0" y="3"/>
 					</Anchors>
 					<Size x="18"/>
-					<Scripts>
-						<OnLoad>
-							self:SetVertexColor(vcbMainColor:GetRGB())
-						</OnLoad>
-					</Scripts>
-				</Texture>
-				<Texture parentKey="BorderBottom" file="Interface\Common\ThinBorder2-Top">
-					<Anchors>
-						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" x="3" y="0"/>
-						<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="0"/>
-					</Anchors>
-					<Size y="4"/>
 					<Scripts>
 						<OnLoad>
 							self:SetVertexColor(vcbMainColor:GetRGB())
@@ -383,7 +383,7 @@
 				</Texture>
 			</Layer>
 			<Layer level="OVERLAY">
-				<FontString parentKey="TitleTxt" font="GameFontNormal" justifyV="MIDDLE" justifyH="CENTER">
+				<FontString parentKey="TitleTxt" font="GameFontNormal" justifyV="MIDDLE" justifyH="CENTER" >
 					<Anchors>
 						<Anchor point="TOP" relativePoint="TOP" x="0" y="-6"/>
 					</Anchors>
