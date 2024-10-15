@@ -325,6 +325,40 @@ local function AscendingDescendingSec(self)
 		end
 	end
 end
+-- Spell School Color --
+local vcbPhysicalColor = CreateColorFromRGBAHexString("FFFF00FF") -- 1
+local vcbHolyColor = CreateColorFromRGBAHexString("FFE680FF") -- 2
+local vcbFireColor = CreateColorFromRGBAHexString("FF8000FF") -- 4
+local vcbNatureColor = CreateColorFromRGBAHexString("4DFF4DFF") -- 8
+local vcbFrostColor = CreateColorFromRGBAHexString("80FFFFFF") -- 16
+local vcbShadowColor = CreateColorFromRGBAHexString("8080FFFF") -- 32
+local vcbArcaneColor = CreateColorFromRGBAHexString("FF80FFFF") -- 64
+local vcbHolystrikeColor = CreateColorFromRGBAHexString("FFF04DFF") -- 3
+local vcbFlamestrikeColor = CreateColorFromRGBAHexString("FFB300FF") -- 5
+local vcbRadiantColor = CreateColorFromRGBAHexString("FFA933FF") -- 6
+local vcbStormstrikeColor = CreateColorFromRGBAHexString("A6FF27FF") -- 9
+local vcbHolystormColor = CreateColorFromRGBAHexString("A6F367FF") -- 10
+local vcbVolcanicColor = CreateColorFromRGBAHexString("A6C027FF") -- 12
+local vcbFroststrikeColor = CreateColorFromRGBAHexString("C0FF80FF") -- 17
+local vcbHolyfrostColor = CreateColorFromRGBAHexString("B3F5CCFF") -- 18
+local vcbFrostfireColor = CreateColorFromRGBAHexString("C0C080FF") -- 20
+local vcbFroststormColor = CreateColorFromRGBAHexString("67FFA6FF") -- 24
+local vcbShadowstrikeColor = CreateColorFromRGBAHexString("B3B399FF") -- 33
+local vcbTwilightColor = CreateColorFromRGBAHexString("C0B3C0FF") -- 34
+local vcbShadowflameColor = CreateColorFromRGBAHexString("B38099FF") -- 36
+local vcbPlagueColor = CreateColorFromRGBAHexString("67C0A6FF") -- 40
+local vcbShadowfrostColor = CreateColorFromRGBAHexString("80B3FFFF") -- 48
+local vcbSpellstrikeColor = CreateColorFromRGBAHexString("FFB399FF") -- 65
+local vcbDivineColor = CreateColorFromRGBAHexString("FFB3C0FF") -- 66
+local vcbSpellfireColor = CreateColorFromRGBAHexString("FF8080FF") -- 68
+local vcbAstralColor = CreateColorFromRGBAHexString("A6C0A6FF") -- 72
+local vcbSpellfrostColor = CreateColorFromRGBAHexString("C0C0FFFF") -- 80
+local vcbSpellshadowColor = CreateColorFromRGBAHexString("C080FFFF") -- 96
+local vcbElementalColor = CreateColorFromRGBAHexString("99D56FFF") -- 28
+local vcbChromaticColor = CreateColorFromRGBAHexString("A9C78FFF") -- 62
+local vcbCosmicColor = CreateColorFromRGBAHexString("C0B9DFFF") -- 106
+local vcbMagicColor = CreateColorFromRGBAHexString("B7BBA2FF") -- 126
+local vcbChaosColor = CreateColorFromRGBAHexString("C1C58BFF") -- 127 - 124
 -- coloring the bar --
 local function CastBarColor(self)
 	if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
@@ -479,7 +513,9 @@ PlayerCastingBarFrame:HookScript("OnUpdate", function(self)
 		end
 	end
 	VCBnameText:SetText(self.Text:GetText())
-	if VCBrPlayer["Ticks"] == "Show" then vcbShowTicks(VCBarg3)
-	else vcbHideTicks()
+	if self.barType == "channel" and VCBrPlayer["Ticks"] == "Show" then
+		vcbShowTicks(arg3)
+	else
+		vcbHideTicks()
 	end
 end)

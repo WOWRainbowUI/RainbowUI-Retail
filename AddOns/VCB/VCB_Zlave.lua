@@ -133,7 +133,7 @@ local function PlayerChannelLagBar(arg3)
 	end
 end
 -- Events Time --
-local function EventsTime(self, event, arg1, arg2, arg3)
+local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 	if event == "PLAYER_LOGIN" then
 		FirstTimeSavedVariables()
 		LoadSavedVariables()
@@ -165,22 +165,18 @@ local function EventsTime(self, event, arg1, arg2, arg3)
 	elseif event == "CURRENT_SPELL_CAST_CHANGED" and arg1 == false then
 		lagStart = GetTime()
 	elseif event == "UNIT_SPELLCAST_START" and arg1 == "player" then
-		VCBarg3 = arg3
 		vcbHideTicks()
 		VCBlagBar1:Hide()
 		VCBlagBar2:Hide()
+		VCBarg3 = arg3
 		PlayerCastLagBar(arg3)
 	elseif event == "UNIT_SPELLCAST_CHANNEL_START" and arg1 == "player" then
+		vcbHideTicks()
+		VCBlagBar1:Hide()
+		VCBlagBar2:Hide()
 		vcbChannelSpellID = arg3
 		VCBarg3 = arg3
-		vcbHideTicks()
-		VCBlagBar1:Hide()
-		VCBlagBar2:Hide()
 		PlayerChannelLagBar(arg3)
-	elseif event == "UNIT_SPELLCAST_EMPOWER_START" and arg1 == "player" then
-		VCBlagBar1:Hide()
-		VCBlagBar2:Hide()
-		vcbHideTicks()
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
 		local spellId, spellName, spellSchool = select(12, CombatLogGetCurrentEventInfo())
@@ -188,8 +184,16 @@ local function EventsTime(self, event, arg1, arg2, arg3)
 			vcbSpellSchool = spellSchool
 		elseif subevent == "SPELL_CAST_SUCCESS" and spellId == vcbChannelSpellID and sourceName == UnitFullName("player") then
 			vcbSpellSchool = spellSchool
+		elseif subevent == "SPELL_AURA_APPLIED" and sourceName == UnitFullName("player") and spellId == 356995 then
+			vcbEvokerTicksFirstTime = true
+			vcbEvokerTicksSecondTime = false
+		elseif subevent == "SPELL_AURA_REFRESH" and sourceName == UnitFullName("player") and spellId == 356995 then
+			vcbEvokerTicksFirstTime = false
+			vcbEvokerTicksSecondTime = true
 		end
-	elseif (event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_SENT") and arg1 == "player" then
+	elseif event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then
+		vcbSpellSchool = 0
+	elseif event == "UNIT_SPELLCAST_INTERRUPTED" and arg1 == "player" then
 		vcbSpellSchool = 0
 	end
 end
