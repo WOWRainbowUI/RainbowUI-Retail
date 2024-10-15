@@ -29,7 +29,7 @@ local API_VERSION = 110000
 
 -- Skin Info
 local Authors = {"StormFX", "|cff999999Sairen|r"}
-local Version = "11.0.1"
+local Version = "11.0.2"
 local Websites = {
 	"https://github.com/SFX-WoW/Masque_Serenity",
 	"https://www.curseforge.com/wow/addons/masque-serenity",
@@ -122,8 +122,6 @@ MSQ:AddSkin("Serenity", {
 		--TexCoords = {0.07,0.93,0.07,0.93},
 		Color = {1, 1, 1, 1},
 		BlendMode = "BLEND",
-		DrawLayer = "BACKGROUND",
-		DrawLevel = 0,
 		Width = 32,
 		Height = 32,
 		Point = "CENTER",
@@ -770,8 +768,6 @@ MSQ:AddSkin("Serenity - Square", {
 		--TexCoords = {0.07,0.93,0.07,0.93},
 		Color = {1, 1, 1, 1},
 		BlendMode = "BLEND",
-		DrawLayer = "BACKGROUND",
-		DrawLevel = 0,
 		Width = 32,
 		Height = 32,
 		Point = "CENTER",
