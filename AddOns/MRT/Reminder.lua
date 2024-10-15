@@ -2474,14 +2474,20 @@ function module.options:Load()
 	end
 
 	self.timeLineBoss = ELib:DropDown(self.tab.tabs[4],250,-1):Point("TOPLEFT",10,-10):Size(220):SetText("Select boss")
-	self.timeLineBoss.SetValue = function(_,arg1,arg2,arg3)
+	self.timeLineBoss.SetValue = function(_,arg1,arg2,arg3,arg4)
 		ELib:DropDownClose()
+
+		self.timeLineBoss:ResetAdjust()
 
 		self.timeLineBoss:SetText(arg2)
 		if arg3 == 2 then
 			self.timeLineBoss.BOSS_ID = arg1[1] and arg1[1][3]
 			self.timeLineBoss.CUSTOM_TIMELINE = self.timeLineBoss:CreateCustomTimelineFromHistory(arg1)
 			VMRT.Reminder2.TLBoss = nil
+		elseif arg3 == 3 then
+			self.timeLineBoss.BOSS_ID = arg1
+			self.timeLineBoss.CUSTOM_TIMELINE = arg4.tl
+			VMRT.Reminder2.TLBoss = arg4.id
 		else
 			self.timeLineBoss.BOSS_ID = arg1
 			self.timeLineBoss.CUSTOM_TIMELINE = nil
@@ -2516,7 +2522,42 @@ function module.options:Load()
 		return data
 	end
 
-	self.timeLineBoss.spell_status = {}
+
+	self.timeLineBoss.historyImportWindow, self.timeLineBoss.historyExportWindow = ExRT.F.CreateImportExportWindows()
+	self.timeLineBoss.historyImportWindow:SetFrameStrata("FULLSCREEN")
+	self.timeLineBoss.historyExportWindow:SetFrameStrata("FULLSCREEN")
+
+	function self.timeLineBoss.historyImportWindow:ImportFunc(str)
+		local header = str:sub(1,8)
+		if header:sub(1,7) ~= "MRTREMH" or (header:sub(8,8) ~= "0" and header:sub(8,8) ~= "1") then
+			print("Import: wrong format")
+			return
+		end
+
+		module.options.timeLineBoss.historyImportWindow:TextToHistory(str:sub(9),header:sub(8,8)=="0")
+	end
+
+	function self.timeLineBoss.historyImportWindow:TextToHistory(str,uncompressed)
+		local decoded = LibDeflate:DecodeForPrint(str)
+		local decompressed
+		if uncompressed then
+			decompressed = decoded
+		else
+			decompressed = LibDeflate:DecompressDeflate(decoded)
+		end
+		decoded = nil
+
+		local successful, res = pcall(ExRT.F.TextToTable,decompressed)
+		decompressed = nil
+		if successful and res then
+			module.db.history = res
+			if VMRT.Reminder2.HistorySession then
+				VMRT.Reminder2.history = module.db.history
+			end
+		else
+			print("Import error")
+		end
+	end
 
 	function self.timeLineBoss:PreUpdate()
 		local List = self.List
@@ -2535,6 +2576,38 @@ function module.options:Load()
 				func = self.SetValue,
 			}
 		end
+
+		subMenu[#subMenu+1] = {
+			text = " ",
+			isTitle = true,
+		}
+		subMenu[#subMenu+1] = {
+			text = L.ReminderFightExport,
+			func = function()
+				ELib:DropDownClose()
+
+				local str = module.options:GetHistoryString()
+
+				local compressed
+				if #str < 1000000 then
+					compressed = LibDeflate:CompressDeflate(str,{level = 5})
+				end
+				local encoded = "MRTREMH"..(compressed and "1" or "0")..LibDeflate:EncodeForPrint(compressed or str)
+
+				module.options.timeLineBoss.historyExportWindow.Edit:SetText(encoded)
+				module.options.timeLineBoss.historyExportWindow:Show()
+			end,
+		}
+		subMenu[#subMenu+1] = {
+			text = L.ReminderFightImport,
+			func = function()
+				ELib:DropDownClose()
+
+				module.options.timeLineBoss.historyImportWindow:NewPoint("CENTER",UIParent,0,0)
+				module.options.timeLineBoss.historyImportWindow:Show()
+			end,
+		}
+
 		self.List[ #self.List+1 ] = {
 			text = L.ReminderFightSaved,
 			subMenu = subMenu,
@@ -2569,19 +2642,63 @@ function module.options:Load()
 			if not toadd then
 				toadd = self.List
 			end
-			toadd[#toadd+1] = {
+
+			local bossImg
+			if ExRT.GDB.encounterIDtoEJ[bossID] and EJ_GetCreatureInfo then
+				bossImg = select(5, EJ_GetCreatureInfo(1, ExRT.GDB.encounterIDtoEJ[bossID]))
+			end
+
+			local boss_list = {
 				arg1 = bossID,
 				arg2 = ExRT.L.bossName[bossID],
 				text = ExRT.L.bossName[bossID],
 				func = self.SetValue,
 				prio = bossID,
+				icon = bossImg,
 			}
-			if toadd[#toadd].text == "" then
-				toadd[#toadd].text = "Boss "..bossID
+			if not (boss_list.text == "" and ExRT.isClassic) then
+				toadd[#toadd+1] = boss_list
+			end
+			if boss_list.text == "" then
+				boss_list.text = "Boss "..bossID
+			end
+
+			if bossData.m then
+				local subMenu = {}
+				boss_list.subMenu = subMenu
+				for i=1,#bossData do
+					local bossData_i = bossData[i]
+					local text = (bossData_i.d[1] == 4 and (PLAYER_DIFFICULTY6 or "Mythic") or bossData_i.d[1] == 3 and (PLAYER_DIFFICULTY2 or "Heroic") or bossData_i.d[1] == 2 and (PLAYER_DIFFICULTY1 or "Normal") or "") .. " ".. module:FormatTime(bossData_i.d[2])
+					subMenu[#subMenu+1] = {
+						arg1 = bossID,
+						arg2 = boss_list.text .. " ".. module:FormatTime(bossData_i.d[2]),
+						text = text,
+						func = self.SetValue,
+						prio = bossData_i.d[1] + bossData_i.d[2] / 10000,
+						arg3 = 3,
+						arg4 = {id = bossID + i/100, tl = bossData_i},
+					}
+					if i == 1 then
+						boss_list.arg3 = 3
+						boss_list.arg4 = subMenu[#subMenu].arg4
+					end
+				end
+				sort(subMenu,function(a,b)
+					return (a.prio or 0) > (b.prio or 0) 
+				end)
+			elseif bossData.d then
+				boss_list.tooltip = (bossData.d[1] == 4 and (PLAYER_DIFFICULTY6 or "Mythic") or bossData.d[1] == 3 and (PLAYER_DIFFICULTY2 or "Heroic") or bossData.d[1] == 2 and (PLAYER_DIFFICULTY1 or "Normal") or "") .. " ".. module:FormatTime(bossData.d[2])
 			end
 	
-			if module.db.lastEncounterID == bossID or (not module.db.lastEncounterID and VMRT.Reminder2.TLBoss and VMRT.Reminder2.TLBoss == bossID) then
+			if module.db.lastEncounterID == bossID then
 	 			res = function() self:SetValue(bossID,ExRT.L.bossName[bossID]) end
+			elseif not module.db.lastEncounterID and VMRT.Reminder2.TLBoss and (VMRT.Reminder2.TLBoss == bossID or (type(VMRT.Reminder2.TLBoss == "number") and floor(VMRT.Reminder2.TLBoss) == bossID)) then
+				if VMRT.Reminder2.TLBoss % 1 ~= 0 then
+					local n = floor( (VMRT.Reminder2.TLBoss % 1) * 100 )
+					res = function() self:SetValue(bossID,ExRT.L.bossName[bossID],3,{id = VMRT.Reminder2.TLBoss, tl = bossData.m and (bossData[n] or bossData[1]) or bossData}) end
+				else
+					res = function() self:SetValue(bossID,ExRT.L.bossName[bossID]) end
+				end
 			end
 		end
 		for i=1,#self.List do
@@ -2600,98 +2717,347 @@ function module.options:Load()
 
 	C_Timer.After(1,function() local r=self.timeLineBoss:PreUpdate() if r then r() end end)	
 
+	function self:GetTimeLineData()
+		return module.options.timeLineBoss.CUSTOM_TIMELINE or module.db.timeLimeData[module.options.timeLineBoss.BOSS_ID]
+	end
+
+	self.timeLineBoss.spell_status = {}
+	self.timeLineBoss.spell_dur = {}
+
 module.db.timeLimeData = {
 	[2921] = {	--court
-		p = {120+11,180,300+13,300+53,n={1.5,2,2.5,3}},
-		[443068]={395,426,490},
-		[438801]={26,79,209,270},
-		[438677]={205,263,436,493},
-		[450129]={208,264,396,429,493},
-		[442994]={379,454,524,559},
-		[440504]={12,32,66,86,193,223,253,283},
-		[441626]={201,203,256,259,388,390,422,424,485,488},
-		[438355]={220,278,445,507},
-		[451277]={313},
-		[441782]={214,250,274,379,412,437,480},
-		[450980]={130},
-		[439838]={16,86},
-		[438343]={19,53,79},
-		[440246]={44,104,405,503},
-		[438218]={14,34,61,81,121,196,216,241,256,278,301,374,391,423,443,464,484,520},
+		m = true,
+		{
+			[438218]={10,30,57,78,151.4,171.4,191.3,253.7,d=1.5},
+			[438343]={7.7,45.7,81.8},
+			[438355]={175.6,d=10},
+			[438677]={162.4,d=2},
+			[438801]={12,66,153.3,d=3},
+			[439838]={16.4,72.7,d=1.5},
+			[440246]={35,93.2,279.5,d=6},
+			[440504]={19.1,59,85,146.4,186.3,d=4},
+			[441626]={153.5,267.2,d=2},
+			[441782]={163.9,256,d=4},
+			[442994]={256.7,d=3},
+			[443068]={273.7,d=2},
+			[450129]={156.3,270.3,d=5.5},
+			[450980]={103.6,d="p"},
+			[451277]={206.6,d="p"},
+			p={103.6,133.3,206.6,233.6,n={1.5,2,2.5,3}},
+			d={3,280},
+		},
+		{
+			[438218]={10.1,30,57,78,116,193.9,213.9,234,254,274,294,378.7,426.7,446.6,469.7,489.6,d=1.5},
+			[438343]={7.7,45.6,83.5,119.4},
+			[438355]={218.2,276.5,450.4,d=10},
+			[438677]={204.9,263,439.7,496.6,d=2},
+			[438801]={12,66,196,250,d=3},
+			[439838]={16.3,72.7,d=1.5},
+			[440246]={35.3,93.3,404.6,502.7,d=6},
+			[440504]={19,59,85.1,118,189.1,229,256,286,d=4},
+			[441626]={196.2,252.5,392,488.6,d=2},
+			[441782]={206.5,244.4,268.9,381.1,413,436.3,481.6,d=4},
+			[442994]={381.6,456.6,d=3},
+			[443068]={398.7,429.6,493.7,d=2},
+			[450129]={199,255.2,394.7,491.5,d=5.5},
+			[450980]={129.1,d="p"},
+			[451277]={310.5,d="p"},
+			p={129,175.9,310.5,358.6,n={1.5,2,2.5,3}},
+			d={3,512},
+		},
+		{
+			[438218]={13,33,60,80,120,194.9,214.9,239.9,254.9,276.9,299.9,373,390,422,442,463,483,519,d=1.5},
+			[438343]={19.7,53.1,80},
+			[438355]={220.6,278.5,445.7,507.6,d=10},
+			[438677]={203.9,261.9,434,491,d=2},
+			[438801]={23,76,206.9,267.9,d=3},
+			[439838]={15.2,85.4,d=1.5},
+			[440246]={38.3,98.3,399.6,497.1,d=6},
+			[440504]={8,28,62,82,189.9,219.9,249.9,279.9,d=4},
+			[441626]={199,201.6,254.8,257.4,386.3,388.8,420,422.5,484,486.5,d=2},
+			[441782]={210.9,246.8,270.8,375.2,408.9,433.9,476.9,d=4},
+			[442994]={376,451,521,558,d=1},
+			[443068]={393,424.1,488,d=2},
+			[450129]={204.3,260.1,391.6,425.3,489.2,d=4.5},
+			[450980]={130,d="p"},
+			[451277]={313.8,d="p"},
+			p={130,178.8,313.8,353,n={1.5,2,2.5,3}},
+			d={4,562},
+		},
+		{
+			[438218]={13,33,60,80,120,183.7,203.7,228.7,243.7,265.7,288.7,356.6,373.7,405.6,425.6,446.6,466.6,502.7,d=1.5},
+			[438343]={19.7,53.2,80},
+			[438355]={209.5,267.3,429.3,491.1,d=10},
+			[438677]={192.7,250.7,417.6,474.6,d=2},
+			[438801]={23,76,195.7,256.7,d=3},
+			[439838]={15.2,85.7,d=1.5},
+			[440246]={38.4,98.5,382.8,480.9,d=6},
+			[440504]={8,28,62,82,178.7,208.7,238.7,268.7,d=4},
+			[441626]={187.9,190.4,243.7,246.2,370,372.5,403.7,406.2,467.5,470,d=2},
+			[441782]={199.8,235.6,259.6,358.9,392.6,417.5,460.5,d=4},
+			[442994]={359.7,434.6,504.7,d=3},
+			[443068]={376.6,407.6,471.6,d=2},
+			[450129]={193.2,249,375.2,408.9,472.8,d=4.5},
+			[450980]={133.1,d="p"},
+			[451277]={301.2,d="p"},
+			p={133.1,167.7,301.2,336.6,n={1.5,2,2.5,3}},
+			d={4,520},
+		}, 
 	},
 	[2920] = {	--kyveza
-		--p = {60+41,120+5,180+51,240+15,360,n={2,1,2,1,2}},
-		[436971]={15,145,275},
-		[438245]={34,64,164,194,294,324},
-		[439576]={46,47,48,49,49,50,76,77,78,79,79,80,176,177,178,179,179,180,206,207,208,209,209,210,306,307,308,309,309,310,336,337,338,339,339,340},
-		[440650]={8,138,268},
-		[442277]={{361,d=20}},
-		[437620]={26,56,86,156,186,216,286,316,346},
-		[435405]={{101,d=25},{231,d=25}},
-		[440377]={11,41,71,141,171,201,271,301,331},
+		m = true,
+		{
+			[435405]={96.1,226.1,d=5},
+			[436971]={13.8,143.8,273.8,d=2},
+			[437620]={22,52,82,152,182,212,282,312,342,d=4},
+			[438245]={34,64,164,194,294,324,d=0.5},
+			[439576]={45.3,46.1,46.8,47.6,47.6,48.4,49.1,49.9,50.6,75.4,76.2,76.9,77.7,78.4,79.1,79.9,80.6,175.4,176.1,176.9,177.6,177.6,178.4,179.1,179.9,180.6,205.4,206.1,206.9,207.6,208.4,209.2,209.2,210.6,305.4,306.1,306.9,307.6,308.4,309.1,309.9,310.6,335.4,336.1,336.9,337.6,338.4,339.1,339.9,340.6,d=0},
+			[440377]={10,40,70,140,170,200,270,300,330,d=1.5},
+			[440650]={8.5,138.5,268.5},
+			[442277]={356.1,d=5},
+			p={101.1,125.2,231.1,255.1,n={2,1,2,1,2}},
+			d={4,380},
+		},
+		{
+			[435405]={96.1,226.1,d=5},
+			[436971]={13.7,143.8,273.8,d=2},
+			[437620]={22,52,82,152,182,212,282,312,342,d=4},
+			[438245]={34,64,164,194,294,324,d=0.5},
+			[439576]={45.4,46.1,46.9,47.6,48.4,49.1,49.9,50.6,75.4,76.1,76.9,77.6,78.4,79.1,79.9,80.6,175.3,176.1,176.9,177.6,178.4,179.1,179.9,180.6,205.4,206.1,206.9,207.6,208.4,209.1,209.9,210.6,305.4,306.1,306.9,307.6,308.4,308.4,309.1,309.9,310.6,335.4,336.1,336.9,337.6,338.4,338.4,339.1,340.6,d=1},
+			[440377]={10,40,70,140,170,200,270,300,330,d=1.5},
+			[440650]={8.5,138.5,268.5},
+			[442277]={356.1,d=5},
+			p={101.1,125.1,231.2,255.2,n={2,1,2,1,2}},
+			d={4,392},
+		},
+		{
+			[435405]={96.1,226.1,d=5},
+			[436867]={8.5},
+			[436971]={13.8,143.7,273.8,d=2},
+			[437620]={22,52,82,152,182,212,282,312,342,d=4},
+			[438245]={34,64,164,194,294,324,d=0.5},
+			[439576]={45.4,46.1,46.9,47.6,48.9,49.6,75.4,76.1,76.9,77.6,78.9,79.6,175.4,176.1,176.9,177.6,178.4,179.6,180.4,205.4,206.1,206.9,207.6,208.4,209.6,210.4,305.4,306.1,306.9,307.6,308.4,309.1,310.4,311.1,335.4,336.1,336.9,337.6,338.4,339.1,340.4,341.1,d=0.5},
+			[440377]={10,40,70,140,170,200,270,300,330,d=1.5},
+			[440650]={268.5},
+			[442277]={356.1},
+			[442573]={138.5},
+			p={101.1,125.1,231.2,255.2,n={2,1,2,1,2}},
+			d={3,360},
+		},
+		{
+			[435405]={103.4,d=0},
+			[436867]={8.5},
+			[436971]={13.8,143.8,d=2},
+			[437620]={22,152,182,d=4},
+			[438245]={43.7,164,194,d=0.5},
+			[439576]={175.4,176.1,176.9,177.6,178.4,179.6,180.4,d=0.5},
+			[440377]={10,44.3,140,170,d=1.5},
+			[442573]={138.5},
+			p={103.5,125.2,n={2,1,2,1,2}},
+			d={3,195},
+		},
 	},
 	[2919] = {	--ovinax
-		[446344]={14,50,80,110,140,170,223,253,283,313,343,398,428,458},
-		[442526]={37,87,137,210,260,310,385,435},
-		[443003]={3,39,59,79,99,119,139,159,179,212,232,252,272,292,312,332,352,387,407,427,447,467},
-		[442432]={20,193,368},		
+		m = true,
+		{
+			[442432]={21.5,195.4,372.4,d=15},
+			[442526]={36.6,86.6,136.5,210.4,260.4,310.4,387.4,437.4,d=1.5},
+			[443003]={2,38.6,58.6,78.5,98.6,118.5,138.6,158.6,178.5,212.4,232.4,252.5,272.5,292.4,312.5,332.4,352.4,389.4,409.4,429.4,449.4,469.4,d=1.5},
+			[446344]={15,51.6,81.6,111.6,141.5,171.5,225.5,255.5,285.5,315.5,345.5,402.5,432.4,462.4},
+			d={4,475},
+			p={-442432},
+		},
+		{
+			[442432]={21.8,194.3,d=15},
+			[442526]={36.8,86.8,136.8,209.3,d=1.5},
+			[443003]={2,38.8,58.8,78.8,98.8,118.8,138.8,158.8,178.8,211.3,231.3,d=1.5},
+			[446344]={15,51.8,81.8,111.8,141.8,171.8,224.3},
+			d={3,236},
+			p={-442432},
+		},
+		{
+			[442432]={18.9,186.5,355.2,d=15},
+			[442526]={33.8,83.9,133.9,201.5,251.5,301.5,370.2,420.2,470.2,d=1.5},
+			[443003]={2,35.9,55.9,75.9,95.9,115.9,135.9,155.9,175.8,203.5,223.5,243.5,263.5,283.5,303.5,323.5,343.5,372.2,392.2,412.2,432.2,452.2,472.2,d=1.5},
+			[446344]={15,48.9,78.9,108.9,138.9,168.8,216.6,246.5,276.5,306.5,336.5,385.2,415.2,445.2,475.2},
+			d={3,484},
+			p={-442432},
+		},
+		{
+			[442432]={21.6,195.9,367.1,d=15},
+			[442526]={36.6,86.6,136.6,210.9,260.9,310.9,382.1,432.2,482.2,d=1.5},
+			[443003]={2,38.6,58.6,78.6,98.6,118.6,138.6,158.6,178.6,212.9,232.9,252.9,272.9,292.9,312.9,332.9,352.9,384.2,404.2,424.2,444.2,464.2,484.2,504.2,524.2,544.1,d=1.5},
+			[446344]={15,51.6,81.6,111.6,141.6,171.6,225.9,255.9,285.9,315.9,345.9,397.2,427.2,457.2,487.2,517.2,547.2},
+			d={4,551},
+			p={-442432},
+		},
 	},
 	[2918] = {	--rasha
-		[452806]={62,127,193,259,325},
-		[439811]={9,49,89,114,154,179,220,245,286,311},
-		[439784]={16,99,150,165,216},
-		[444687]={7,29,31,44,47,75,77,95,97,109,111,140,142,160,162,174,177,207,209,227,229,240,243,273,275,293,295,306,309},
-		[454989]={40,84,170,236,297},
-		[439789]={37,106,147,284},
-		[455373]={21,80,212,232,278,303},
-		[456853]={57,122,187,254,320},
-		[439795]={71,137,203,269},
+		m = true,
+		{
+			[439784]={14.2,99.3,149.7,164.8,216.4,d=2},
+			[439789]={35.1,106.1,146.9,283.3,d=2},
+			[439795]={69,134.7,201.4,266.3,d=4},
+			[439811]={8.1,48.1,89,114.1,154.6,179.7,221.4,246.4,286.3,d=1.5},
+			[444687]={5.5,28.1,30.1,43.1,45.5,75.1,77.1,95.2,97.2,109,111.5,140.8,142.8,160.7,162.8,174.7,177.2,207.5,209.5,227.5,229.6,241.4,243.9,272.5,274.5,292.5,294.5,d=1.5},
+			[452806]={63.2,128.9,195.8,261.6},
+			[454989]={38.1,84.1,169.7,236.4,296.6,d=2},
+			[455373]={18.7,79.7,212.1,232.1,277,d=2.5},
+			[456853]={56.7,122.7,188.3,255,d=1},
+			d={4,301},
+			p={-452806,2.5},
+		},
+		{
+			[439784]={14.2,98.8,148.6,163.7,215.6,340.6,d=2},
+			[439789]={35.1,105.7,145.8,283.2,d=2},
+			[439795]={68.7,133.6,200.5,266,330.3,d=4},
+			[439811]={8.1,48.1,88.6,113.7,153.6,178.6,220.6,245.6,286,311,d=1.5},
+			[444687]={5.6,28.1,30.2,43.1,45.6,74.8,76.8,94.8,96.8,108.7,111.2,139.7,141.7,159.7,161.7,173.6,176.1,206.7,208.7,226.7,228.7,240.6,243.1,272.1,274.1,292.1,294.1,306,308.5,336.5,338.5,d=1.5},
+			[452806]={63,127.8,195,260.8,325.4},
+			[454989]={38.1,83.7,168.6,235.6,296.2,d=2},
+			[455373]={18.8,79.4,211.3,231.3,276.7,301.5,345.8,d=2.5},
+			[456853]={56.7,122.4,187.3,254.2,319.6,d=1},
+			d={4,350},
+			p={-452806,2.5},
+		},
 	},
 	[2898] = {	--sikran
-		[456420]={95,193},
-		[439559]={24,64,112,140,168,209,237,265},
-		[433519]={19,46,75,118,146,174,216,243,271},
-		[442428]={53,80,152,180,250,277},		
+		m = true,
+		{
+			[433519]={16.7,43.8,72,114.7,142.8,169.9,212.6,240.7,d=1.5},
+			[439559]={22.1,62.6,111.5,139.5,166.6,209.3,237.4,d=2},
+			[442428]={52.6,79.6,151.6,178.6,249.5,d=2},
+			[456420]={90.8,188.6,d=5},
+			d={4,265},
+		},
+		{
+			[433519]={17.6,45.6,73.5,114.8,142.8,170.7,215.6,243.5,271.5,310.6,d=1.5},
+			[439559]={22.9,63,111.5,139.5,167.5,208.8,236.8,264.7,307.3,d=2},
+			[442428]={51.6,78.9,151.5,179.5,249.2,276.9,d=2},
+			[456420]={90.9,189.3,286.6,d=5},
+			d={4,330},
+		},		
 	},
 	[2902] = {	--ulgrax
-		p = {60+34,120+53,240+33,300+41,n={2,1,2,1},nc={1,2,2,3}},
-		[441452]={11,56,189,234,358},
-		[435136]={7,32,60,184,209,237,353,378},
-		[434697]={3,18,33,52,67,181,196,211,230,245,350,365},
-		[434803]={34,70,211,247},
-		[445123]={95,272},
-		[441425]={90,173,267,341},
-		[443842]={142,319},
-		[436200]={107,283},
-		[445052]={100,276},
-		[436203]={111,118,125,132,288,295,302,309},
-		[435341]={96,273},
-		[435138]={16,64,194,241,363},
+		m = true,
+		{
+			[434697]={3,18,33,52,67,171.9,186.9,201.9,220.9,235.9,337.1,352,367,d=1},
+			[434803]={34.1,70,203,238.9,368.1},
+			[435136]={5,30,58,173.9,198.9,226.9,339.1,364,d=2},
+			[435138]={15,62,183.9,230.9,349,d=2},
+			[435341]={96.1,265},
+			[436200]={103.1,272.1,d=4},
+			[436203]={107.7,114.9,122,129,276.7,283.7,290.8,297.9,d=3.5},
+			[441425]={90,164.6,258.9,329.4},
+			[441452]={9,54,177.9,222.9,343,d=2.5},
+			[443842]={138.5,307.3,d=4},
+			[445052]={97.1,266,d=3},
+			[445123]={90,258.9,d=5},
+			p={95,164.6,263.9,329.4,n={2,1,2,1,2,1},nc={1,2,2,3,3,4}},
+			d={4,371},
+		},
+		{
+			[434697]={3,18,33,52,67,173.2,188.2,203.2,222.2,237.2,348.4,363.4,378.4,397.4,412.4,518.7,533.7,548.7,567.7,582.7,d=1},
+			[434803]={34.2,70.1,204.4,240.3,379.5,415.4,549.8,585.8},
+			[435136]={5,30,58,175.2,200.2,228.2,350.4,375.4,403.4,520.7,545.7,573.7,d=2},
+			[435138]={15,62,185.2,232.2,360.4,407.4,530.7,577.7,d=2},
+			[435341]={96,266.3,441.4},
+			[436200]={103.1,273.4,449,d=4},
+			[436203]={107.7,114.8,121.8,128.9,278,285.2,292.2,299.3,453.6,460.6,467.7,474.8,d=3.5},
+			[441425]={90,165.7,260.2,340.8,435.4,511.5,605.7},
+			[441452]={9,54,179.2,224.2,354.4,399.4,524.7,569.7,d=2.5},
+			[443842]={138.5,308.7,483.9,d=4},
+			[445052]={97,267.3,442.9,d=3},
+			[445123]={90,260.2,435.4,605.7,d=5},
+			p={95,165.7,265.2,340.8,440.4,511.5,n={2,1,2,1,2,1},nc={1,2,2,3,3,4}},
+			d={4,610},
+		},
 	},
 	[2917] = {	--horror
-		[444363]={19,78,147,206},
-		[442530]={127},
-		[443203]={11,139},
-		[452237]={10,42,69,101,139,171,198,230},
-		[445936]={36,95,165,224},
+		m = true,
+		{
+			[442530]={120,d=8},
+			[443203]={11,139.1},
+			[444363]={14,73,142.1,201.1,d=5},
+			[445936]={32,91.1,160.1,219.1,d=5},
+			[452237]={9,41,68,100,137.1,169.1,196.1,d=2},
+			d={4,225},
+		},
+		{
+			[442530]={120,248,d=8},
+			[443203]={11.1,139.1,267.1},
+			[444363]={14,73,142,201,270.1,d=5},
+			[445936]={32,91,160,219,288.1,d=5},
+			[452237]={9,41,68,100,137,169.1,196,228,265.1,297,324.1,d=2},
+			d={4,327},
+		},
 	},
 	[2922] = {	--queen
-		p = {120+7,120+32,240+23,n={1.5,2,3}},
-		[443888]={302},
-		[451600]={185,185,205,207,211,213},
-		[439299]={20,20,21,21,67,67,68,68,114,114,115,115},
-		[439814]={62,110},
-		[443325]={275},
-		[437093]={12,52,103},
-		[438976]={293},
-		[440899]={9,49,100},
-		[447456]={139,143,147},
-		[447411]={135,148},
-		[443336]={277},
-		[449986]={243,263},
-		[447076]={127},
-		[437592]={19,75},
-		[437417]={35,91},
+		m = true,
+		{
+			p = {157.9,180+22,300+41,n={1.5,2,3}},
+			d = {4,602},
+			[443888]={379.6,459.6,539.6},
+			[451600]={242.9,243.2,253,253.2,269.5,270.5,279.5,280.5},
+			[455374]={266.6,266.7,278.6,280.7},
+			[447456]={169.4,173.5,177.4,188.5,192.5,196.5,d=2.5},
+			[437592]={20.4,76.4,129.49,d=5},
+			[449940]={293.2},
+			[440899]={7.9,47.9,101.9},
+			[447411]={165.9,185,198,244.3,252.3,255.3,272.5,280.5,283.5,d=5},
+			[447076]={157.9,d="p"},
+			[439299]={20.5,21,21.5,22,60.4,60.9,61.5,61.9,73.4,73.9,74.4,74.9,98.4,98.9,99.5,99.9,114.5,114.9,115.4,116,140.4,141,141.4,141.9,369.6,370.1,370.6,371.1,380.6,381.1,381.6,382.1,406.6,407.1,407.6,408.1,427.6,428.1,428.6,429.1,444.6,445.1,445.6,446.1,460.6,461.1,461.6,462.1,507.6,508.1,508.6,509.1,526.6,527.1,527.6,528.1,540.6,541.1,541.6,542.1,562.7,563.2,563.7,564.1},
+			[443325]={352.1,418.1,500.1},
+			[437093]={9.4,49.4,103.4},
+			[451832]={562.6},
+			[438976]={438.6,490.6,524.6},
+			[444829]={368.6,432.6,515.6},
+			[443336]={353.6,419.6,501.6},
+			[449986]={321.2,d=20},
+			[445422]={394.6,474.6,562.6,598.1,d=9},
+			[439814]={16.5,56.4,110.5,136.5,d=3},
+			[437417]={34.4,90.4,146.5,d=6},
+		},
+		{
+			[437093]={11.5,51.4,102.4,d=1},
+			[437417]={29.4,85.4,d=6},
+			[437592]={18.4,74.4,130.4,d=1},
+			[438976]={314.6,d=1.5},
+			[439299]={20.4,20.9,21.4,21.9,67.4,67.9,68.4,68.9,114.4,114.9,115.4,115.9,d=3},
+			[439814]={57.4,105.4,121.4,d=5},
+			[440899]={8.4,48.4,99.4,d=1.5},
+			[443325]={296,d=1.5},
+			[443336]={299.1,d=1},
+			[443888]={324,d=1},
+			[447076]={136,d=4},
+			[447411]={142,d=6},
+			[447456]={149,153,157,d=2.5},
+			[449986]={266.5,d=20},
+			[451600]={193.6,193.9,197.9,203.6,203.9,218.2,219,223,228.2,229,232.9,d=3.5},
+			p={140,160.2,286.5,n={1.5,2,3}},
+			d={3,332},
+		},
+		{
+			[437093]={11.5,51.4,102.4,d=1},
+			[437417]={29.4,85.4,141.4,d=6},
+			[437592]={18.4,74.5,130.4,d=1},
+			[438976]={368.2,426.8,d=1.5},
+			[439299]={20.5,21,21.5,22,67.5,67.9,68.4,68.9,114.5,114.9,115.5,115.9,139.5,139.9,140.5,140.9,405.7,406.2,406.8,407.2,444.7,445.2,445.7,446.2,485.7,486.2,486.7,487.2,d=3},
+			[439814]={57.4,105.4,121.4,d=5},
+			[440899]={8.4,48.4,99.4,d=1.5},
+			[443325]={349.7,415.7,497.7,d=1.5},
+			[443336]={352.8,418.7,d=1},
+			[443888]={377.7,457.7,d=1},
+			[444829]={439.7,d=4},
+			[445422]={388.7,468.7,d=9},
+			[447076]={153.9,d=4},
+			[447411]={159.9,179,198,d=6},
+			[447456]={166.9,171,174.9,185.9,190,194,d=2.5},
+			[449986]={320.6,d=20},
+			[451600]={236,236.2,240.2,246,246.2,250.2,261.9,264,268,271.9,274,278,281.9,283.9,d=2},
+			p={157.9,199.2,340.6,n={1.5,2,3}},
+			d={3,498},
+		},
 	},
 	[1204] = {	--Rhyolith
 		[98597]={117,187},
@@ -2715,20 +3081,41 @@ module.db.timeLimeData = {
 		[99832]={8,16,24,56,66,97,105,144,152,189,197,205,214},
 	},
 	[1203] = {	--Ragna
-		[98237]={25,51,77,103,129},
-		[98952]={155},
-		[99287]={583,603,609,612,612,613,616,617,630,633,637,640},
-		[99268]={479,524,569,569},
-		[98164]={15,41,67,98,129},
-		[99236]={236,296,353,362,473,500,506,531,562,568,596},
-		[98175]={23,57,86,193,252},
-		[98953]={382},
-		[99235]={233,242,302,356,467,476,503,534,559,593},
-		[98710]={32,63,94,125,199,246,287,327,368,451,483,514,544,575},
-		[99172]={239,293,299,359,470,498,528,537,565,590,599},
-		[98263]={6,6,6,6,6,43,43,43,43,43,74,74,74,74,74,104,104,104,104,104,135,135,135,135,135},
-		[100460]={398,398,419,423,442,449},
-		[100171]={231,291,351,464,495,526,556,587},
+		m = true,
+		{
+			[98164]={16.6,42.5,68,99.1},
+			[98175]={23.5,79,148.5,249.3},
+			[98237]={26.3,52.2,78.1,104},
+			[98263]={5.2,5.2,5.2,5.2,5.2,44.1,44.1,44.1,44.1,44.1,74.9,74.9,74.9,74.9,74.9,105.7,105.7,105.7,105.7,105.7},
+			[98710]={31.2,61.9,92.7,151.1,199.6,239.8,280.6,398.5,429.6,460.4,d=2.5},
+			[98951]={110.5,322.8,d=8},
+			[99172]={192.7,247.8,256.8,312.8,419,443.8,449.8,477.9,d=2.5},
+			[99235]={186.7,250.8,309.8,315.8,413,446.8,452.8,481,d=2.5},
+			[99236]={189.7,195.7,253.8,318.8,416,422,475,484,d=2.5},
+			[99268]={428},
+			[100171]={186.7,247.8,309.8,413,443.8,475},
+			[100460]={343.8,343.8,366.5,366.5},
+			[100593]={531.7},
+			[100604]={533.3,588.3,643.4,698.4},
+			d={3,723},
+		},
+		{
+			[98164]={16.1,42.5,68,98.8},
+			[98175]={27.6},
+			[98237]={25.8,51.8,77.7,103.6},
+			[98263]={6.4,6.4,6.4,43.7,43.7,43.7,74.5,74.5,74.5,105.2,105.2,105.2},
+			[98313]={474.4},
+			[98710]={30.7,61.5,92.3,165.5,205.7,246.2,322.7,354.7,385.4,416.2,447,d=2.5},
+			[98952]={270.5,d=8},
+			[98953]={108.5,d=8},
+			[99172]={338.4,430.8,d=3},
+			[99235]={189.5,369.3,461.5,d=3},
+			[99236]={230.4,400,d=3},
+			[99268]={353,398.4,443.7,443.7},
+			[99287]={360.2,407.8,408,432.5,432.8,444.3,452.3,458.4,464.1},
+			[100460]={291.9,295.2,315.9,321.1},
+			d={2,476},
+		},
 	},
 	[1185] = {	--Majo
 		[98535]={41,55,68,80,89,99,107,158,172,185,196,206,215,224,267,282,296,306,316,326,336,381,395,408,420,430,439,447,491,506,519,530,541,551,559},
@@ -2744,8 +3131,52 @@ module.db.timeLimeData = {
 		[99352]={125,172,219,360},
 		[26662]={360},
 		[99259]={7,41,75,109,148,182,216,250,289,323,357},
-	},	
+	},
+	[1206] = {	--Alysrazor
+		[98868]={24.6,24.6,29.5,34.3,40.8,47.3,47.3,49.1,51.3,51.3,53.7,56.4,57.7,63.4,65.1,67.1,69.1,69.9,76.4,113.2,117.2,119.7,121.9,134.6,138.7,140.3,144.2,150.9,154.9,155.8,157.4,158,162,163.9,167.9,170.4,178.4,182.4,199.5,201.1,203.5,205.9,205.9,209.9,212.4,218.9,356.2,356.6,359.1,360.2,362.7,363.1,366.3,366.7,374,376.6,377.6,377.6,380.6,381.6,381.6,382.5,385.7,388.1,389.7,390.5,391.5,393.8,394.5,397,397.1,401.9,405.1,405.9,408.5,411.6,411.6,414.8,433.9,445.6,448.5,455.3,459.3,461.8,465.8,474.7,476.4,478.7,479.1,483.1,484.5,484.5,488.3,488.9,491.1,496.9,498.5,518.4,522.6,525.9,533.1,533.3,537.2,544},
+		[99199]={32.7,65,120.1,152.5,217.3,363.1,395.4,440.7,473.1,538.8},
+		[99308]={55.3,58.6,144,146,230.2,230.2,387.3,388.9,465,465,550,550.9,576.8},
+		[99464]={12.9},
+		[99558]={41.6,74,129,161.5,226.2,372,404.3,449.7,482.1,548.1},
+		[99919]={292.9,294.6,299.7,307.6,312.4,312.8},
+		[100024]={55.3,59.4,73.1,143.8,146.8,158.6,159.8,227.6,231.6,241.5,242.6,385.7,404.7,461.4,468.3,475.4,479.6,549.8,551.6,563.6,571.6},
+		[100093]={46.5,54.1,71.9,373.7,384.5,387.5,388.5,390.6,408.7,481.6,493.7},
+		[100744]={97,102,182.9,187.9,417.7,422.7,502.6,507.4},
+		[100761]={32.7,37.7,120.1,125.1,363.1,368.1,440.8,445.8},
+		[100836]={97,182.9,417.7,502.6},
+		[101223]={27.8,32.7,39.2,39.6,44.5,46.5,47.2,52.1,52.1,54.1,55.4,58.6,60.4,63.3,68.3,69.9,71.9,74.8,118.1,130.9,139.5,146,149.7,155.8,162.2,168.7,175.2,199.5,204.3,211,218.4,361.1,364.1,371.7,372.9,373.7,380.3,380.9,382.5,382.5,384.5,385.7,386.7,387.5,388.5,388.9,390.6,392.1,395.4,398.6,399.7,403.4,406.7,408.7,410,410,416.5,444.3,452.9,460.2,466.7,472.7,479.6,481.6,482.9,483.2,489.4,489.4,492.3,493.7,494.4,496.9,523.6,533.1,542.3},
+		[101484]={182.9,417.7,417.7},
+		[102111]={65,70.1,152.5,157.5,217.3,222.3,395.4,400.4,473.1,478.1,538.8,544},
+		d={3,605},
+	},
+	[1197] = {	-- Beth'tilac
+		[97079]={27.9},
+		[98471]={14.7,14.8,15.1,15.3,19.1,19.4,20.7,21.1,21.5,21.5,22.4,22.9,23.3,25,25.3,25.8,25.8,26.2,26.2,26.2,27.1,27.9,29,29.5,30.5,30.5,31.7,32.5,32.5,32.7,33.7,35.4,35.9,36.6,36.8,37.2,37.6,37.6,37.6,37.9,38.1,39.2,39.2,40.1,40.1,40.8,40.8,41.5,42.5,42.5,42.5,44,44.7,44.7,46.9,46.9,47.3,47.7,48.9,50.5,50.5,53.8,101.2,101.9,102.2,103.7,104,106.1,108.5,108.9,110.5,111.7,113.8,114.1,114.1,115,115.4,115.4,115.8,117,118,118.6,120,120.8,121.9,122.5,122.6,123.9,125,125,125,125.1,125.5,125.5,125.5,126.7,127.9,128.3,128.3,128.3,129.9,130.3,130.6,131.5,131.5,131.5,133.2,133.2,133.2,133.2,134.8,135.2,135.2,136.4,136.4,136.4,137.8,138.4,139.7,139.7,142.9,144.9,147.4,149.5,152.6,155.9,195.5,195.5,195.5,195.5,196.7,197.8,198,198.3,201,201.6,202.2,202.6,202.8,204.4,204.4,204.8,204.9,206,207.3,207.3,207.3,207.3,207.3,207.6,207.7,208.1,209.7,210.3,210.5,210.5,210.5,210.9,210.9,210.9,212.9,213.3,214.2,214.2,215.4,215.4,216.2,216.2,217,217,217.4,217.4,218,218,218.6,218.6,218.6,219.4,219.4,219.9,220.2,220.2,221,221.1,221.9,221.9,222.6,222.6,222.6,223.4,223.7,224.5,224.6,225.4,225.4,225.8,226.2,227.7,227.8,229,229.4,230.6,231,231.8,233.9,234.3,235.1,237.1,238.3,240.2,244},
+		[98934]={5.2,11.6,17.7,24,29.1,35.5,42,48.5,55,61.4,67.9,74.4,80.9,92.2,98.7,105.2,111.7,118.2,124.7,131.1,137.6,144.1,150.6,157.1,163.6,170,184.6,191.1,197.6,204,210.5,217,223.7,230.2,236.7,243.2,249.7,256.1,262.6,277.2},
+		[99052]={84.1,92.1,176.5,184.5,269.1,277.1},
+		[99333]={3.1,6,9,12,15,18,21,93,96,99,102,105,108,186,189,192,195,198,201,204},
+		[99463]={51.9,81.3,94.2,112.1,142.5,157.1,173.3,179.7,202.8,214.2,235.1,242,264.6,277.6},
+		[99476]={314.9,346.2,378},
+		[99497]={285.3,290.1,295,299.9,304.7,310,314.9,319.7,324.2,329.5,334.3,338.7,343.6,348.9,353.7,358.6,363,368.3,373.1,378,382.4,387.3,392.5,397.5,401.9,407.1},
+		[99526]={59.8,121.4,158.7,181.8,219,243.6,284.1},
+		[99859]={290.1,296.6,303.1,308.4,313.6,319.7,326.2,332.7,338.8,345.2,350.5,356.9,363,368.3,374.8,380.8,386.2,392.5,399.1,405.1},
+		[99934]={53.8,61.4,69.8,76.4,82.9,89.4,116.6,124.7,131.1,139.2,147.4,155.5,163.6,170,176.5,176.9,183.4,189.8,196.3,204.4,212.5,220.6,227.4,233.9,239.9,240.3,245.2,253.3,259.8,266.3,274.4,282.5},
+		d={3,410},
+	},
 }
+	for bossID,bossData in pairs(module.db.timeLimeData) do
+		if bossData.m then
+			for i=1,#bossData do
+				if bossData[i].p and bossData[i].p[1] < 0 then
+					local spell = -bossData[i].p[1]
+					local diff = bossData[i].p[2] and bossData[i].p[2] > 0 and bossData[i].p[2] or 0
+					for j=1,#bossData[i][spell] do
+						bossData[i].p[j] = bossData[i][spell][j] + diff
+					end
+				end
+			end
+		end
+	end
 
 	self.timeLineTestRun = ELib:Button(self.tab.tabs[4],L.BossmodsKromogTest):Point("TOP",self.tab.tabs[4],0,-10):Point("RIGHT",self,-10,0):Size(140,20):OnClick(function()
 		if module.db.simrun then
@@ -2756,7 +3187,7 @@ module.db.timeLimeData = {
 		module.db.simrun = GetTime()
 		module:TriggerBossPull()
 
-		local timeLineData = module.options.timeLineBoss.CUSTOM_TIMELINE or module.db.timeLimeData[module.options.timeLineBoss.BOSS_ID]
+		local timeLineData = module.options:GetTimeLineData()
 		if timeLineData.p then
 			for i=1,#timeLineData.p do
 				local t = ScheduleTimer(function() module:TriggerBossPhase(tostring(i+1),i+1) end, timeLineData.p[i])
@@ -2777,52 +3208,137 @@ module.db.timeLimeData = {
 		end)
 	end)
 
-	self.timeLineImportFromNoteFrame = ELib:Popup(" "):Size(600,450)
+	self.timeLineImportFromNoteFrame = ELib:Popup(" "):Size(600,450+125)
 	ELib:Border(self.timeLineImportFromNoteFrame,1,.4,.4,.4,.9)
 
 	self.timeLineImportFromNoteFrame.Edit = ELib:MultiEdit(self.timeLineImportFromNoteFrame):Point("TOP",0,-15):Size(590,405)
-	self.timeLineImportFromNoteFrame.Copy = ELib:Button(self.timeLineImportFromNoteFrame,"Import text from note"):Point("BOTTOMLEFT",5,5):Size(290,20):OnClick(function()
-		self.timeLineImportFromNoteFrame.Edit:SetText(GMRT.F:GetNote())
-	end)
-	self.timeLineImportFromNoteFrame.Import = ELib:Button(self.timeLineImportFromNoteFrame,"Add to reminders"):Point("BOTTOMRIGHT",-5,5):Size(290,20):OnClick(function()
+	self.timeLineImportFromNoteFrame.Import = ELib:Button(self.timeLineImportFromNoteFrame,L.ReminderImportAdd):Point("BOTTOM",0,5):Size(590,20):OnClick(function()
 		local text = self.timeLineImportFromNoteFrame.Edit:GetText()
-		local timeLineData = module.options.timeLineBoss.CUSTOM_TIMELINE or module.db.timeLimeData[module.options.timeLineBoss.BOSS_ID]
+		local timeLineData = module.options:GetTimeLineData()
+
+		module.options.timeLineTimeFrame.undoimportlist = {}
 
 		local lines = {strsplit("\n",text)}
 		for i=1,#lines do
 			local line = lines[i]
 			if line:find("{time:") then
 				local time = line:match("{time:([^,}]+)")
-				local p = line:match("{time:([^,}]+,p(%d+)")
-				if time then
+				local p = line:match("{time:[^,}]+,p(%d+)")
+				if time and not line:find("{time:[^,}]+,S") then
 					local x = module:ConvertMinuteStrToNum(time)
 					x = x and x[1]
 					if x then
 						local data2 = ExRT.F.table_copy2(newRemainderTemplate)
 						data2.bossID = module.options.timeLineBoss.BOSS_ID
 						data2.uid = module.options:GetNewUID()
+						data2.dur = 3
 				
+						local toadd = true
+
 						if not data2.triggers[1] then
 							data2.triggers[1] = {}
 						end
 						data2.triggers[1].event = 3
 						if p and p~=1 and timeLineData then
 							data2.triggers[1].event = 2
-							data2.triggers[1].pattFind = timeLineData.p.n and tonumber(p) and timeLineData.p.n[tonumber(p)] or tostring(p)
-							if timeLineData.p.nc and tonumber(p) then
-								data2.triggers[1].counter = tostring(timeLineData.p.nc[tonumber(p)])
+							data2.triggers[1].pattFind = timeLineData.p and timeLineData.p.n and tonumber(p) and tostring(timeLineData.p.n[tonumber(p)-1]) or tostring(p)
+							if timeLineData.p and timeLineData.p.nc and tonumber(p) then
+								data2.triggers[1].counter = tostring(timeLineData.p.nc[tonumber(p)-1])
+							end
+							if not timeLineData.p then
+								toadd = false
 							end
 						end
 						local t=floor(x*10)/10
 						data2.triggers[1].delayTime = format("%d:%02d.%d",t/60,t%60,(t*10)%10)
 
 						local msg = line:gsub("{time:[^}]+}",""):trim()
+
+						if module.options.timeLineImportFromNoteFrame.opt_filter_names then
+							local ability,names = msg:match("^(.-) - (.-)$")
+							if names then
+								names = names:gsub("%b{}","")
+								for n in names:gmatch("[^ ]+") do
+									data.players[n] = true
+								end
+							end
+							if ability then
+								msg = ability
+							end
+						end
+						local everylist
+						if module.options.timeLineImportFromNoteFrame.opt_everyplayer then
+							for player,spell in msg:gmatch("([^ _]+) *{spell:(%d+)}") do
+								player = player:gsub("||c........",""):gsub("||r","")
+								if not player:find("[%d:]") then
+									if not everylist then everylist = {} end
+
+									local msg1 = "{spell:"..spell.."}"
+									spell = tonumber(spell)
+									local name = GetSpellInfo(spell)
+									if name then
+										msg1 = msg1 .. " " .. name
+									end
+	
+									everylist[#everylist+1] = {player,msg1}
+								end
+							end
+						end
+						if module.options.timeLineImportFromNoteFrame.opt_linesmy then
+							local playerName = UnitName'player'
+							if not msg:find( playerName ) then
+								toadd = false
+							end
+						end
+						if module.options.timeLineImportFromNoteFrame.opt_wordmy then
+							local playerName = UnitName'player'
+							if not msg:find( playerName ) then
+								toadd = false
+							else
+								msg = msg:match(playerName.."[^ ]* ([^ ]+)")
+								if not msg then
+									toadd = false
+								end
+								if msg and msg:gsub("%b{}",""):trim() == "" and msg:find("{spell:%d+") then
+									local spell = msg:match("{spell:(%d+)")
+									spell = tonumber(spell)
+									local name = GetSpellInfo(spell)
+									if name then
+										msg = msg .. " " .. name
+									end
+								end
+							end
+						end
+						if module.options.timeLineImportFromNoteFrame.opt_rev then
+							data2.durrev = true
+						end
+
 						data2.msg = msg
 
-						if not p or timeLineData then
-							CURRENT_DATA[data2.uid] = data2
+						if toadd and (not p or timeLineData) then
+							if everylist then
+								for i=1,#everylist do
+									local player,msg = everylist[i][1],everylist[i][2]
+									
+									local data3 = ExRT.F.table_copy2(data2)
+									data3.uid = module.options:GetNewUID()
 
-							print("Added line",data2.triggers[1].delayTime,msg)
+									data3.msg = msg
+									data3.players[player] = true
+									data3.allPlayers = nil
+
+									CURRENT_DATA[data3.uid] = data3
+
+									module.options.timeLineTimeFrame.undoimportlist[data3.uid] = true
+									print("Added line with player filter",data3.triggers[1].delayTime,player,msg)
+								end
+							else
+								CURRENT_DATA[data2.uid] = data2
+								print("Added line",data2.triggers[1].delayTime,msg)
+								module.options.timeLineTimeFrame.undoimportlist[data2.uid] = true
+							end
+
+
 						end
 					end
 				end
@@ -2833,13 +3349,78 @@ module.db.timeLimeData = {
 		module.options:UpdateData()
 		module.options.timeLineTimeFrame:UpdateList()
 		module:ReloadAll()
+
+		module.options.timeLineImportFromNoteUndo:Show()
+	end)
+	self.timeLineImportFromNoteFrame.Copy = ELib:Button(self.timeLineImportFromNoteFrame,L.ReminderImportTextFromNote):Point("BOTTOM",0,30+100):Size(590,20):OnClick(function()
+		self.timeLineImportFromNoteFrame.Edit:SetText(GMRT.F:GetNote())
 	end)
 
-	self.timeLineImportFromNote = ELib:Button(self.tab.tabs[4],"Import from note"):Point("RIGHT",self.timeLineTestRun,"LEFT",-5,0):Size(140,20):OnClick(function()
+	self.timeLineImportFromNoteFrame.forEveryPlayer = ELib:Check(self.timeLineImportFromNoteFrame,L.ReminderForEveryPlayer):Tooltip(L.ReminderForEveryPla):Point("BOTTOMLEFT",self.timeLineImportFromNoteFrame.Import,0,25):OnClick(function(self)
+		if self:GetChecked() then
+			module.options.timeLineImportFromNoteFrame.opt_everyplayer = true
+		else
+			module.options.timeLineImportFromNoteFrame.opt_everyplayer = nil
+		end
+	end)
+	--[[
+	self.timeLineImportFromNoteFrame.useFilterNames = ELib:Check(self.timeLineImportFromNoteFrame,"Use names as filter"):Tooltip("For lines with template: ability - name name name.\nNew reminder will be added, but shown only for filtered players"):Point("BOTTOMLEFT",self.timeLineImportFromNoteFrame.Import,0,25):OnClick(function(self)
+		if self:GetChecked() then
+			module.options.timeLineImportFromNoteFrame.opt_filter_names = true
+		else
+			module.options.timeLineImportFromNoteFrame.opt_filter_names = nil
+		end
+	end)
+	]]
+
+	module.options.timeLineImportFromNoteFrame.opt_rev = true
+	self.timeLineImportFromNoteFrame.durRevCheck = ELib:Check(self.timeLineImportFromNoteFrame,L.ReminderDurRev,true):Tooltip(L.ReminderDurRevTooltip2):Point("BOTTOMLEFT",self.timeLineImportFromNoteFrame.forEveryPlayer,0,25):OnClick(function(self)
+		if self:GetChecked() then
+			module.options.timeLineImportFromNoteFrame.opt_rev = true
+		else
+			module.options.timeLineImportFromNoteFrame.opt_rev = nil
+		end
+	end)
+
+	self.timeLineImportFromNoteFrame.onlyMyAbility = ELib:Check(self.timeLineImportFromNoteFrame,L.ReminderImportNoteWordMy):Point("BOTTOMLEFT",self.timeLineImportFromNoteFrame.durRevCheck,0,25):OnClick(function(self)
+		if self:GetChecked() then
+			module.options.timeLineImportFromNoteFrame.opt_wordmy = true
+		else
+			module.options.timeLineImportFromNoteFrame.opt_wordmy = nil
+		end
+	end)
+
+	self.timeLineImportFromNoteFrame.onlyMyNameLines = ELib:Check(self.timeLineImportFromNoteFrame,L.ReminderImportNoteLinesMy):Point("BOTTOMLEFT",self.timeLineImportFromNoteFrame.onlyMyAbility,0,25):OnClick(function(self)
+		if self:GetChecked() then
+			module.options.timeLineImportFromNoteFrame.opt_linesmy = true
+		else
+			module.options.timeLineImportFromNoteFrame.opt_linesmy = nil
+		end
+	end)
+
+
+
+
+
+	self.timeLineImportFromNote = ELib:Button(self.tab.tabs[4],L.ReminderImportFromNote):Point("RIGHT",self.timeLineTestRun,"LEFT",-5,0):Size(140,20):OnClick(function()
 		self.timeLineImportFromNoteFrame:Show()
 	end)
+	self.timeLineImportFromNoteUndo = ELib:Button(self.tab.tabs[4],L.ReminderUndo):Tooltip(L.ReminderUndoTip):Point("TOP",self.timeLineImportFromNote,"BOTTOM",0,0):Shown(false):Size(140,20):OnClick(function(self)
+		for uid in pairs(module.options.timeLineTimeFrame.undoimportlist) do
+			CURRENT_DATA[uid] = nil
+		end
+		module.options:UpdateData()
+		module.options.timeLineTimeFrame:UpdateList()
+		module:ReloadAll()
+		self:Hide()
+	end):OnShow(function(self)
+		if self.tmr then
+			self.tmr:Cancel()
+		end
+		self.tmr = C_Timer.NewTimer(30,function() self:Hide() end)
+	end,true)
 
-	self.timeLineExportToNote = ELib:Button(self.tab.tabs[4],"Export to note"):Point("RIGHT",self.timeLineImportFromNote,"LEFT",-5,0):Size(140,20):OnClick(function()
+	self.timeLineExportToNote = ELib:Button(self.tab.tabs[4],L.ReminderExportToNote):Point("RIGHT",self.timeLineImportFromNote,"LEFT",-5,0):Size(140,20):OnClick(function()
 		local data_list = {}
 		for uid,data in pairs(CURRENT_DATA) do
 
@@ -2847,10 +3428,12 @@ module.db.timeLimeData = {
 
 			local options = VMRT.Reminder2.options[uid] or 0
 			local isPersonal = bit.band(options,bit.lshift(1,3)) > 0
+			local ignoreTimelime = bit.band(options,bit.lshift(1,5)) > 0
 			if 
 				--((isPersonal and module.options.timeLineBoss.isPersonal) or (not isPersonal and not module.options.timeLineBoss.isPersonal)) and
+				not ignoreTimelime and
 				(bossID and bossID == module.options.timeLineBoss.BOSS_ID) and
-				#data.triggers == 1 and
+				#data.triggers >= 1 and
 				(data.triggers[1].event == 3 or data.triggers[1].event == 2)
 			then
 				local dt = module:ConvertMinuteStrToNum(data.triggers[1].delayTime)
@@ -2877,14 +3460,84 @@ module.db.timeLimeData = {
 		local str = ""
 		for i=1,#data_list do
 			local data,dt,gp = data_list[i][1],data_list[i][2],data_list[i][3]
-			str = str .. "{time:"..module:FormatTime(dt)..(gp and ",p"..gp or "").."} "..(data.msg or "") .."\n"
+
+			local msg = data.msg or ""
+			local pmsg
+			for k in pairs(data.players) do 
+				pmsg = (pmsg or "").."||cffffffff"..k.."||r "..msg.." " 
+			end
+
+			str = str .. "{time:"..module:FormatTime(dt)..(gp and ",p"..gp or "").."} "..(pmsg and pmsg:trim() or msg) .."\n"
+
 		end
 
 		ExRT.F:Export(str,true)
 	end)
 
-
 	local TIMELINE_SCALE = 80
+	local TIMELINE_ADJUST = 100
+	local TIMELINE_ADJUST_DATA = {}
+
+	self.timeLineAdjustFL = ELib:Button(self.tab.tabs[4],L.ReminderAdjustFL):Point("RIGHT",self.timeLineExportToNote,"LEFT",-5,0):Size(140,20):OnEnter(function(self)
+		self.subframe:Show()
+	end)
+
+	self.timeLineAdjustFL.subframe = CreateFrame("Frame",nil,self.timeLineAdjustFL)
+	self.timeLineAdjustFL.subframe:SetPoint("TOPLEFT",self.timeLineAdjustFL,"BOTTOMLEFT",-40,2)
+	self.timeLineAdjustFL.subframe:SetPoint("TOPRIGHT",self.timeLineAdjustFL,"BOTTOMRIGHT",40,2)
+	self.timeLineAdjustFL.subframe:SetHeight(100)
+	self.timeLineAdjustFL.subframe:Hide()
+	self.timeLineAdjustFL.subframe:SetScript("OnUpdate",function(self)
+		if not self:IsMouseOver() and not self:GetParent():IsMouseOver() then
+			self:Hide()
+		end
+	end)
+	self.timeLineAdjustFL.subframe.bg = self.timeLineAdjustFL.subframe:CreateTexture(nil,"BACKGROUND")
+	self.timeLineAdjustFL.subframe.bg:SetAllPoints()
+	self.timeLineAdjustFL.subframe.bg:SetColorTexture(0,0,0,1)
+
+	self.timeLineAdjustFL.subframe.timeScale = ELib:Slider(self.timeLineAdjustFL.subframe):Size(100):Point("TOP",0,-5):Range(10,200,true):SetTo(TIMELINE_ADJUST):OnChange(function(self,val)
+		TIMELINE_ADJUST = floor(val+0.5)
+		if not self.lock then
+			module.options.timeLineTimeFrame:UpdateList()
+			module.options.timeLineTimeFrame:UpdateTimeText()
+		end
+		self.tooltipText = "Global timesacle: "..TIMELINE_ADJUST .. "%"
+		self:tooltipReload(self)
+	end)
+	self.timeLineAdjustFL.subframe.timeScale.tooltipText = "Global timesacle: "..TIMELINE_ADJUST .. "%"
+
+	for i=1,3 do
+		self.timeLineAdjustFL.subframe["tpos"..i] = ELib:Edit(self.timeLineAdjustFL.subframe,"0"):Size(40,20):Point("TOPLEFT",35,-20-(i-1)*25):LeftText("At"):OnChange(function(self,isUser)
+			if not isUser then return end
+			local t = self:GetText() or ""
+			t = module:ConvertMinuteStrToNum(t)
+			TIMELINE_ADJUST_DATA[i] = t and t[1] or nil
+
+			module.options.timeLineTimeFrame:UpdateList()
+			module.options.timeLineTimeFrame:UpdateTimeText()
+		end)
+
+		self.timeLineAdjustFL.subframe["addtime"..i] = ELib:Edit(self.timeLineAdjustFL.subframe,"0"):Size(40,20):Point("LEFT",self.timeLineAdjustFL.subframe["tpos"..i],"RIGHT",55,0):LeftText("sec. add "):RightText("sec."):OnChange(function(self,isUser)
+			if not isUser then return end
+			TIMELINE_ADJUST_DATA[-i] = tonumber(self:GetText() or "")
+
+			module.options.timeLineTimeFrame:UpdateList()
+			module.options.timeLineTimeFrame:UpdateTimeText()
+		end)
+	end
+
+	function self.timeLineBoss:ResetAdjust()
+		module.options.timeLineAdjustFL.subframe.timeScale.lock = true
+		TIMELINE_ADJUST = 100
+		module.options.timeLineAdjustFL.subframe.timeScale:SetValue(TIMELINE_ADJUST)
+		module.options.timeLineAdjustFL.subframe.timeScale.lock = false
+		TIMELINE_ADJUST_DATA = {}
+		for i=1,3 do
+			module.options.timeLineAdjustFL.subframe["tpos"..i]:SetText("0")
+			module.options.timeLineAdjustFL.subframe["addtime"..i]:SetText("0")
+		end
+	end
 
 	self.timeLineTimeFrameHeaders = ELib:ScrollFrame(self.tab.tabs[4]):Point("TOPLEFT",10,-50):Size(220,500):Height(500)
 	ELib:Border(self.timeLineTimeFrameHeaders,0)
@@ -2904,7 +3557,7 @@ module.db.timeLimeData = {
 		local x,y = ExRT.F.GetCursorPos(self)
 		local htime = self:GetTimeFromPos(x + self:GetHorizontalScroll())
 
-		TIMELINE_SCALE = TIMELINE_SCALE + delta
+		TIMELINE_SCALE = TIMELINE_SCALE - delta
 		self:UpdateList()
 		self:UpdateTimeText()
 
@@ -2949,7 +3602,7 @@ module.db.timeLimeData = {
 	self.timeLineTimeFrame.timeCursor = ELib:Text(self.tab.tabs[4],"1:00",14):Point("BOTTOM",self.timeLineTimeFrame.cursor,"TOP",0,0):Shown(false)
 
 	self.timeLineTimeFrame:SetScript("OnUpdate",function(self)
-		if self:IsMouseOver() and not module.options.quickSetupFrame:IsShown() and not self.moveSpotted then
+		if self:IsMouseOver() and (not module.options.quickSetupFrame:IsShown() or not module.options.quickSetupFrame:IsMouseOver()) and not self.moveSpotted then
 			local x,y = ExRT.F.GetCursorPos(self)
 
 			if x <= 40 and self.timeLeft:IsShown() then
@@ -3034,15 +3687,38 @@ module.db.timeLimeData = {
 		self:UpdateTimeText()
 	end)
 
-	self.quickSetupFrame = ELib:Popup(" "):Size(510,370)
+	self.quickSetupFrame = ELib:Popup(" "):Size(510,390)
 	ELib:Border(self.quickSetupFrame,1,.4,.4,.4,.9)
 
 
 	self.quickSetupFrame.saveButton = ELib:Button(self.quickSetupFrame,L.ReminderSave):Point("BOTTOMRIGHT",self.quickSetupFrame,"BOTTOM",-5,10):Size(200,20):OnClick(function()
+		local data = self.quickSetupFrame.data
 		self.quickSetupFrame:Hide()
-		local uid = self.quickSetupFrame.data.uid or self:GetNewUID()
-		self.quickSetupFrame.data.uid = uid
-		CURRENT_DATA[uid] = self.quickSetupFrame.data
+		local uid = data.uid or self:GetNewUID()
+		data.uid = uid
+
+		local removeSpellTrigger = true
+		if data.tmp_tl_cd then
+			local msg = data.msg
+			if msg then
+				local spellID = msg:match("{spell:(%d+)}")
+				if spellID then
+					data.triggers[2] = {
+						event = 13,
+						spellID = tonumber(spellID),
+						invert = true,
+					}
+					data.hideTextChanged = true
+
+					removeSpellTrigger = false
+				end
+			end
+		end
+		if removeSpellTrigger and data.triggers[2] and data.triggers[2].event == 13 and data.hideTextChanged then
+			tremove(data.triggers, 2)
+			data.hideTextChanged = nil
+		end
+		CURRENT_DATA[uid] = data
 		module.options:UpdateData()
 		module.options.timeLineTimeFrame:UpdateList()
 		module:ReloadAll()
@@ -3064,11 +3740,23 @@ module.db.timeLimeData = {
 		local data = module.options.quickSetupFrame.data
 
 		data.dur = prev.dur
+		data.durrev = prev.durrev
 		data.countdown = prev.countdown
 		data.msg = prev.msg
 		data.countdown = prev.countdown
 		data.countdownVoice = prev.countdownVoice
 		data.sound = prev.sound
+		data.allPlayers = prev.allPlayers
+		data.tmp_tl_cd = prev.tmp_tl_cd
+
+		for k in pairs(data.players) do data.players[k]=nil end
+		for k in pairs(prev.players) do data.players[k]=true end
+
+		for k,v in pairs(data) do if type(k)=="string" and k:find("^role") then data[k]=nil end end
+		for k,v in pairs(data) do if type(k)=="string" and k:find("^class") then data[k]=nil end end
+
+		for k,v in pairs(prev) do if type(k)=="string" and k:find("^role") then data[k]=v end end
+		for k,v in pairs(prev) do if type(k)=="string" and k:find("^class") then data[k]=v end end
 		
 		module.options.quickSetupFrame:Update(data)
 	end)
@@ -3079,6 +3767,7 @@ module.db.timeLimeData = {
 			text = L.ReminderAllPlayers,
 			func = function()
 				module.options.quickSetupFrame.data.allPlayers = true
+				for k,v in pairs(module.options.quickSetupFrame.data.players) do module.options.quickSetupFrame.data.players[k]=nil end
 				for k,v in pairs(module.options.quickSetupFrame.data) do if type(k)=="string" and k:find("^role") then module.options.quickSetupFrame.data[k]=nil end end
 				for k,v in pairs(module.options.quickSetupFrame.data) do if type(k)=="string" and k:find("^class") then module.options.quickSetupFrame.data[k]=nil end end
 				ELib:DropDownClose()
@@ -3086,9 +3775,34 @@ module.db.timeLimeData = {
 			end
 		}
 
+		self.quickSetupFrame.quickFilter.List[#self.quickSetupFrame.quickFilter.List+1] = {
+			text = L.ReminderPlayerNames,
+			func = function()
+				module.options.quickSetupFrame.quickFilter:SetText(L.ReminderPlayerNames)
+				module.options.quickSetupFrame.playersEdit:SetText("")
+				module.options.quickSetupFrame.playersEdit:ExtraShow()
+				ELib:DropDownClose()
+			end,
+		}
+		local PLAYER = (ExRT.F.utf8sub(PLAYER, 1, 1)):upper() .. ExRT.F.utf8sub(PLAYER, 2)
+		self.quickSetupFrame.quickFilter.List[#self.quickSetupFrame.quickFilter.List+1] = {
+			text = PLAYER,
+			func = function()
+				module.options.quickSetupFrame.data.allPlayers = nil
+				for k,v in pairs(module.options.quickSetupFrame.data.players) do module.options.quickSetupFrame.data.players[k]=nil end
+				for k,v in pairs(module.options.quickSetupFrame.data) do if type(k)=="string" and k:find("^role") then module.options.quickSetupFrame.data[k]=nil end end
+				for k,v in pairs(module.options.quickSetupFrame.data) do if type(k)=="string" and k:find("^class") then module.options.quickSetupFrame.data[k]=nil end end
+				module.options.quickSetupFrame.quickFilter:SetText(PLAYER)
+				module.options.quickSetupFrame.data.players[ UnitName'player' ] = true
+				module.options.quickSetupFrame.playersEdit:SetText(UnitName'player')
+				module.options.quickSetupFrame.playersEdit:ExtraShow()
+				ELib:DropDownClose()
+			end,
+		}
+
 		local listNow = {}
 		self.quickSetupFrame.quickFilter.List[#self.quickSetupFrame.quickFilter.List+1] = {
-			text = "Roles",
+			text = L.ReminderRoles,
 			subMenu = listNow,
 		}
 		for i=1,#module.datas.rolesList do
@@ -3096,6 +3810,7 @@ module.db.timeLimeData = {
 			listNow[#listNow+1] = {
 				text = module.datas.rolesList[i][2],
 				func = function()
+					for k,v in pairs(module.options.quickSetupFrame.data.players) do module.options.quickSetupFrame.data.players[k]=nil end
 					for k,v in pairs(module.options.quickSetupFrame.data) do if type(k)=="string" and k:find("^role") then module.options.quickSetupFrame.data[k]=nil end end
 					for k,v in pairs(module.options.quickSetupFrame.data) do if type(k)=="string" and k:find("^class") then module.options.quickSetupFrame.data[k]=nil end end
 					module.options.quickSetupFrame.data["role"..token] = true
@@ -3108,7 +3823,7 @@ module.db.timeLimeData = {
 
 		local listNow = {}
 		self.quickSetupFrame.quickFilter.List[#self.quickSetupFrame.quickFilter.List+1] = {
-			text = "Class",
+			text = CLASS or "Class",
 			subMenu = listNow,
 		}
 		for i=1,#ExRT.GDB.ClassList do
@@ -3116,6 +3831,7 @@ module.db.timeLimeData = {
 			listNow[#listNow+1] = {
 				text = (RAID_CLASS_COLORS[class] and RAID_CLASS_COLORS[class].colorStr and "|c"..RAID_CLASS_COLORS[class].colorStr or "")..L.classLocalizate[class],
 				func = function()
+					for k,v in pairs(module.options.quickSetupFrame.data.players) do module.options.quickSetupFrame.data.players[k]=nil end
 					for k,v in pairs(module.options.quickSetupFrame.data) do if type(k)=="string" and k:find("^role") then module.options.quickSetupFrame.data[k]=nil end end
 					for k,v in pairs(module.options.quickSetupFrame.data) do if type(k)=="string" and k:find("^class") then module.options.quickSetupFrame.data[k]=nil end end
 					module.options.quickSetupFrame.data["class"..class] = true
@@ -3127,8 +3843,20 @@ module.db.timeLimeData = {
 		end
 
 		self.quickSetupFrame.quickFilter.Update = function(self)
+			module.options.quickSetupFrame.playersEdit:ExtraShow(true)
 			if module.options.quickSetupFrame.data.allPlayers then
 				self:SetText(L.ReminderAllPlayers)
+				return
+			end
+			for k in pairs(module.options.quickSetupFrame.data.players) do 
+				self:SetText(L.ReminderPlayerNames)
+
+				local str = ""
+				for k in pairs(module.options.quickSetupFrame.data.players) do 
+					str = str .. k .. " "
+				end
+				module.options.quickSetupFrame.playersEdit:SetText(str:trim())
+				module.options.quickSetupFrame.playersEdit:ExtraShow()
 				return
 			end
 			for k,v in pairs(module.options.quickSetupFrame.data) do 
@@ -3153,14 +3881,36 @@ module.db.timeLimeData = {
 
 		end
 	end
+	self.quickSetupFrame.playersEdit = ELib:Edit(self.quickSetupFrame):Size(270,20):Point("TOPLEFT",self.quickSetupFrame.quickFilter,"BOTTOMLEFT",0,-5+25):Shown(false):LeftText(L.ReminderPlayerNames..":"):Tooltip(L.ReminderPlayerNamesTip):OnChange(function(self,isUser)
+		if not isUser then return end
+		for k,v in pairs(module.options.quickSetupFrame.data.players) do
+			module.options.quickSetupFrame.data.players[k] = nil
+		end
+		local names = {strsplit(" ",self:GetText():gsub(" +"," "):trim(),nil)}
+		for i=1,#names do
+			module.options.quickSetupFrame.data.players[ names[i] ]=true
+		end
+		if #names > 0 then
+			module.options.quickSetupFrame.data.allPlayers = nil
+		else
+			module.options.quickSetupFrame.data.allPlayers = true
+		end
+	end)
+	function self.quickSetupFrame.playersEdit:ExtraShow(isHide)
+		if isHide then
+			self:Point("TOPLEFT",module.options.quickSetupFrame.quickFilter,"BOTTOMLEFT",0,-5+25):Shown(false)
+		else
+			self:Point("TOPLEFT",module.options.quickSetupFrame.quickFilter,"BOTTOMLEFT",0,-5):Shown(true)
+		end
+	end
 
-	self.quickSetupFrame.spellDD = ELib:DropDown(self.quickSetupFrame,220,-1):AddText("|cffffd100"..L.cd2TextSpell..":"):Size(270):Point("TOPLEFT",self.quickSetupFrame.quickFilter,"BOTTOMLEFT",0,-5)
+	self.quickSetupFrame.spellDD = ELib:DropDown(self.quickSetupFrame,220,-1):AddText("|cffffd100"..L.cd2TextSpell..":"):Size(270):Point("TOPLEFT",self.quickSetupFrame.playersEdit,"BOTTOMLEFT",0,-5)
 	self.quickSetupFrame.spellDD.SetValue = function(_,arg1)
 		local isCustom
 		if arg1 == -1 then
 			arg1 = nil
 			module.options.quickSetupFrame.spellDD_extra:Point("TOPLEFT",module.options.quickSetupFrame.spellDD,"BOTTOMLEFT",0,-5):Shown(true)
-			self.quickSetupFrame.spellDD:SetText("Custom")
+			self.quickSetupFrame.spellDD:SetText(L.ReminderCustom)
 			local spell = (module.options.quickSetupFrame.data.msg or ""):match("{spell:(%d+)}")
 			module.options.quickSetupFrame.spellDD_extra:SetText(spell or "")
 			isCustom = true
@@ -3174,7 +3924,7 @@ module.db.timeLimeData = {
 			if not module.options.quickSetupFrame.data.msg or not module.options.quickSetupFrame.data.msg:find("{spell:%d+}") then
 				module.options.quickSetupFrame.data.msg = "{spell:"..arg1.."} "..(module.options.quickSetupFrame.data.msg or "")
 			else
-				module.options.quickSetupFrame.data.msg = module.options.quickSetupFrame.data.msg:gsub("{spell:%d+}","{spell:"..arg1.."}")
+				module.options.quickSetupFrame.data.msg = module.options.quickSetupFrame.data.msg:gsub("{spell:%d+}","{spell:"..arg1.."}",1)
 			end
 		else
 			if module.options.quickSetupFrame.data.msg then
@@ -3186,6 +3936,13 @@ module.db.timeLimeData = {
 		end
 		ELib:DropDownClose()
 	end
+	self.quickSetupFrame.cooldownCheck = ELib:Check(self.quickSetupFrame,""):Tooltip(L.ReminderHideMsgCheck):Point("LEFT",self.quickSetupFrame.spellDD,"RIGHT",5,0):OnClick(function(self)
+		if self:GetChecked() then
+			module.options.quickSetupFrame.data.tmp_tl_cd = true
+		else
+			module.options.quickSetupFrame.data.tmp_tl_cd = nil
+		end
+	end)
 	do
 		local cd_module = ExRT.A.ExCD2
 		local List = self.quickSetupFrame.spellDD.List
@@ -3209,18 +3966,53 @@ module.db.timeLimeData = {
 					List[#List+1] = l
 					l = l.subMenu
 				end
+
 				local name,_,texture = GetSpellInfo(line[1])
-				local name = name or "spell:"..line[1]
-				l[#l+1] = {
-					text = (texture and "|T"..texture..":20|t " or "")..name,
-					arg1 = line[1],
-					arg2 = name,
-					func = self.quickSetupFrame.spellDD.SetValue,
-				}
+				name = name or "spell:"..line[1]
+
+				for j=4,8 do
+					if line[j] then
+						local specSubMenu
+						if j > 4 then
+							for k=1,#l do
+								if l[k].s == j then
+									specSubMenu = l[k]
+									break
+								end
+							end 
+							if not specSubMenu then
+								local specID = ExRT.GDB.ClassSpecializationList[class] and ExRT.GDB.ClassSpecializationList[class][j-4]
+								specSubMenu = {
+									text = specID and L.specLocalizate[ cd_module.db.specInLocalizate[specID] ] or "Spec "..j,
+									s = j,
+									subMenu = {},
+									arg2 = "aaa"..string.char(64+j),
+									icon = specID and ExRT.GDB.ClassSpecializationIcons[specID],
+								}
+								l[#l+1] = specSubMenu
+							end
+							specSubMenu = specSubMenu.subMenu
+						else
+							specSubMenu = l
+						end
+
+						specSubMenu[#specSubMenu+1] = {
+							text = (texture and "|T"..texture..":20|t " or "")..name,
+							arg1 = line[1],
+							arg2 = name,
+							func = self.quickSetupFrame.spellDD.SetValue,
+						}
+					end
+				end
 			end
 		end
 		for i=1,#List do
 			if List[i].subMenu then
+				for j=1,#List[i].subMenu do
+					if List[i].subMenu[j].subMenu then
+						sort(List[i].subMenu[j].subMenu,function(a,b) return a.arg2 < b.arg2 end)
+					end
+				end
 				sort(List[i].subMenu,function(a,b) return a.arg2 < b.arg2 end)
 			end
 		end
@@ -3235,16 +4027,18 @@ module.db.timeLimeData = {
 			func = self.quickSetupFrame.spellDD.SetValue,
 		}
 	end
-	self.quickSetupFrame.spellDD_extra = ELib:Edit(self.quickSetupFrame):Size(270,20):Point("TOPLEFT",self.quickSetupFrame.spellDD,"BOTTOMLEFT",0,-5+25):LeftText(L.ReminderCustom.." "..L.cd2TextSpell..":"):Shown(false):OnChange(function(self,isUser)
+	self.quickSetupFrame.spellDD_extra = ELib:Edit(self.quickSetupFrame,nil,true):Size(270,20):Point("TOPLEFT",self.quickSetupFrame.spellDD,"BOTTOMLEFT",0,-5+25):LeftText(L.ReminderCustom.." "..L.cd2TextSpell..":"):Shown(false):OnChange(function(self,isUser)
 		local text = self:GetText():trim()
 		if text == "" then text = nil end
 		local _,_,texture = GetSpellInfo(text or "")
 		self:InsideIcon(texture)
 		if not isUser then return end
-		if not module.options.quickSetupFrame.data.msg or not module.options.quickSetupFrame.data.msg:find("{spell:%d+}") then
-			module.options.quickSetupFrame.data.msg = "{spell:"..text.."} "..(module.options.quickSetupFrame.data.msg or "")
-		else
-			module.options.quickSetupFrame.data.msg = module.options.quickSetupFrame.data.msg:gsub("{spell:%d+}","{spell:"..text.."}")
+		if text then
+			if not module.options.quickSetupFrame.data.msg or not module.options.quickSetupFrame.data.msg:find("{spell:%d+}") then
+				module.options.quickSetupFrame.data.msg = "{spell:"..text.."} "..(module.options.quickSetupFrame.data.msg or "")
+			else
+				module.options.quickSetupFrame.data.msg = module.options.quickSetupFrame.data.msg:gsub("{spell:%d+}","{spell:"..text.."}",1)
+			end
 		end
 		module.options.quickSetupFrame.spellDD.spell = text
 	end)
@@ -3253,10 +4047,11 @@ module.db.timeLimeData = {
 	end
 
 	self.quickSetupFrame.msgEdit = ELib:Edit(self.quickSetupFrame):Size(270,20):Point("TOPLEFT",self.quickSetupFrame.spellDD_extra,"BOTTOMLEFT",0,-5):LeftText(L.ReminderMsg..":"):OnChange(function(self,isUser)
-		if not isUser then return end
 		local text = self:GetText():trim()
 		if text == "" then text = nil end
-		module.options.quickSetupFrame.data.msg = (module.options.quickSetupFrame.spellDD.spell and "{spell:"..module.options.quickSetupFrame.spellDD.spell.."} " or "")..text
+		if not text then self:ColorBorder(true) else self:ColorBorder(false) end
+		if not isUser then return end
+		module.options.quickSetupFrame.data.msg = (module.options.quickSetupFrame.spellDD.spell and "{spell:"..module.options.quickSetupFrame.spellDD.spell.."} " or "")..(text or "")
 	end)
 
 	self.quickSetupFrame.msgEdit.colorButton = CreateFrame("Button",nil,self.quickSetupFrame.msgEdit)
@@ -3363,18 +4158,64 @@ module.db.timeLimeData = {
 	end)
 
 
-	self.quickSetupFrame.timeEdit = ELib:Edit(self.quickSetupFrame):Size(270,20):Point("TOPLEFT",self.quickSetupFrame.eventDD_extra,"BOTTOMLEFT",0,-5):LeftText(L.ReminderDelay..":"):OnChange(function(self,isUser)
+	self.quickSetupFrame.timeEdit = ELib:Edit(self.quickSetupFrame):Size(200,20):Point("TOPLEFT",self.quickSetupFrame.eventDD_extra,"BOTTOMLEFT",0,-5):LeftText(L.ReminderDelay..":"):OnChange(function(self,isUser)
 		if not isUser then return end
 		local text = self:GetText():trim()
 		if text == "" then text = nil end
 		module.options.quickSetupFrame.data.triggers[1].delayTime = text
 	end)
 
-	self.quickSetupFrame.durEdit = ELib:Edit(self.quickSetupFrame):Size(270,20):Point("TOPLEFT",self.quickSetupFrame.timeEdit,"BOTTOMLEFT",0,-5):LeftText(L.ReminderDuration..":"):OnChange(function(self,isUser)
+	self.quickSetupFrame.timeEdit.mod = ELib:DropDown(self.quickSetupFrame.timeEdit,100,-1):Point("LEFT",self.quickSetupFrame.timeEdit,"RIGHT",5,0):Size(65):SetText("Mod")
+	function self.quickSetupFrame.timeEdit.mod:SetValue(arg1)
+		local dt = module:ConvertMinuteStrToNum(module.options.quickSetupFrame.data.triggers[1].delayTime)
+		if not dt or not dt[1] then
+			return
+		end
+		dt = dt[1] + arg1
+		if dt < 0 then dt = 0 end
+		module.options.quickSetupFrame.data.triggers[1].delayTime = module:FormatTime(dt)
+		module.options.quickSetupFrame.timeEdit:SetText(module.options.quickSetupFrame.data.triggers[1].delayTime)
+		ELib:DropDownClose()
+	end
+	for i=-20,20 do
+		if (abs(i)<=10 or abs(i)%5 == 0) and i ~= 0 then
+			self.quickSetupFrame.timeEdit.mod.List[#self.quickSetupFrame.timeEdit.mod.List+1] = {
+				text = (i>0 and "+" or "")..i,
+				arg1 = i,
+				func = self.quickSetupFrame.timeEdit.mod.SetValue,
+			}
+		end
+	end
+	self.quickSetupFrame.timeEdit.mod.List[#self.quickSetupFrame.timeEdit.mod.List+1] = {
+		text = "Round",
+		func = function()
+			local dt = module:ConvertMinuteStrToNum(module.options.quickSetupFrame.data.triggers[1].delayTime)
+			if not dt or not dt[1] then
+				return
+			end
+			dt = floor(dt[1] + 0.5)
+			if dt < 0 then dt = 0 end
+			module.options.quickSetupFrame.data.triggers[1].delayTime = module:FormatTime(dt)
+			module.options.quickSetupFrame.timeEdit:SetText(module.options.quickSetupFrame.data.triggers[1].delayTime)
+			ELib:DropDownClose()
+		end,
+	}
+
+
+	self.quickSetupFrame.durEdit = ELib:Edit(self.quickSetupFrame):Size(135,20):Point("TOPLEFT",self.quickSetupFrame.timeEdit,"BOTTOMLEFT",0,-5):LeftText(L.ReminderDuration..":"):OnChange(function(self,isUser)
 		if not isUser then return end
 		local text = self:GetText():trim()
 		if text == "" then text = nil end
+		if text then text = tonumber(text) end
 		module.options.quickSetupFrame.data.dur = text
+	end)
+
+	self.quickSetupFrame.durRevese = ELib:Check(self.quickSetupFrame,L.ReminderDurRev):Tooltip(L.ReminderDurRevTooltip):Point("LEFT",self.quickSetupFrame.durEdit,"RIGHT",5,0):OnClick(function(self)
+		if self:GetChecked() then
+			module.options.quickSetupFrame.data.durrev = true
+		else
+			module.options.quickSetupFrame.data.durrev = nil
+		end
 	end)
 
 
@@ -3568,6 +4409,8 @@ module.db.timeLimeData = {
 		self.countdownVoice:SetValue(data.countdownVoice)
 		self.countdownVoice:Update()
 		self.quickFilter:Update()
+		self.durRevese:SetChecked(data.durrev)
+		self.cooldownCheck:SetChecked(data.tmp_tl_cd)
 
 		for i=1,1 do
 			local trigger = data.triggers[i]
@@ -3625,9 +4468,15 @@ module.db.timeLimeData = {
 		self.SAVED_VAR_XP = xp
 		self.SAVED_VAR_P = p
 
-		local data2 = ExRT.F.table_copy2(newRemainderTemplate)
-		data2.bossID = module.options.timeLineBoss.BOSS_ID
-		data2.uid = module.options:GetNewUID()
+		local data2
+		if module.options.quickSetupFrame:IsShown() then
+			data2 = module.options.quickSetupFrame.data
+		else
+			data2 = ExRT.F.table_copy2(newRemainderTemplate)
+			data2.bossID = module.options.timeLineBoss.BOSS_ID
+			data2.uid = module.options:GetNewUID()
+			data2.durrev = true
+		end
 
 		if not data2.triggers[1] then
 			data2.triggers[1] = {}
@@ -3657,6 +4506,14 @@ module.db.timeLimeData = {
 			texture = line:CreateTexture()
 			line.textures[c] = texture
 			texture:SetHeight(20)
+
+			--[[
+			line.redhl.tex[c] = line:CreateTexture(nil,"BORDER")
+			line.redhl.tex[c]:SetSize(4,40)
+			line.redhl.tex[c]:SetPoint("CENTER",texture,0,0)
+			line.redhl.tex[c]:Hide()
+			line.redhl.tex[c]:SetColorTexture(1,0,0,.9)
+			]]
 		end
 		if color then
 			texture:SetColorTexture(unpack(color))
@@ -3667,10 +4524,24 @@ module.db.timeLimeData = {
 		texture:SetWidth(self:GetPosFromTime(data.len))
 		texture:Show()
 	end
-	self.timeLineTimeFrame.Util_ButtonOnClick = function(self)
-		local data = ExRT.F.table_copy2(self.data)
-		module.options.quickSetupFrame:Update(data)
-		module.options.quickSetupFrame:Show()
+	self.timeLineTimeFrame.Util_ButtonOnClick = function(self,button)
+		if button == "RightButton" then
+			local menu = {
+				{ text = "Advanced edit", func = function() 
+					local data = ExRT.F.table_copy2(self.data)
+					module.options.setupFrame:Update(data)
+					module.options.setupFrame:Show()
+				end, notCheckable = true },
+				{ text = L.ReminderSendOne, func = function() ELib.ScrollDropDown.Close() module:Sync(false,nil,nil,self.data.uid) end, notCheckable = true, isTitle = IsInRaid() and not ExRT.F.IsPlayerRLorOfficer("player") },
+				{ text = DELETE, func = function() ELib.ScrollDropDown.Close() module.options:RemoveReminder(self.data.uid) end, notCheckable = true },
+				{ text = CLOSE, func = function() ELib.ScrollDropDown.Close() end, notCheckable = true },
+			}
+			ELib.ScrollDropDown.EasyMenu(self,menu,150)
+		else
+			local data = ExRT.F.table_copy2(self.data)
+			module.options.quickSetupFrame:Update(data)
+			module.options.quickSetupFrame:Show()
+		end
 	end
 	self.timeLineTimeFrame.Util_ButtonOnEnter = function(self)
 		local data = self.data
@@ -3685,6 +4556,33 @@ module.db.timeLimeData = {
 		if dt then
 			GameTooltip:AddLine((p and "Phase "..p..(pc and " (#"..pc..")" or "")..": " or "")..module:FormatTime(dt[1]))
 		end
+		local filter = ""
+		for k,v in pairs(data.players) do filter = filter .. k .. " " end
+		if filter == "" then
+			for k,v in pairs(data) do 
+				if type(k)=="string" and k:find("^role") then 
+					local token = k:match("^role(.-)$")
+					for i=1,#module.datas.rolesList do
+						if tostring(module.datas.rolesList[i][1]) == token then
+							filter = module.datas.rolesList[i][2]
+							break
+						end
+					end
+				elseif type(k)=="string" and k:find("^class") then 
+					local token = k:match("^class(.-)$")
+					for i=1,#ExRT.GDB.ClassList do
+						if ExRT.GDB.ClassList[i] == token then
+							filter = (RAID_CLASS_COLORS[token] and RAID_CLASS_COLORS[token].colorStr and "|c"..RAID_CLASS_COLORS[token].colorStr or "")..L.classLocalizate[token]
+							break
+						end
+					end
+				end 
+				if filter ~= "" then break end
+			end
+		end
+		if filter ~= "" then
+			GameTooltip:AddLine("Filter: "..filter)
+		end
 		if pd then
 			GameTooltip:AddLine("From start: "..module:FormatTime(pd))
 		end
@@ -3692,23 +4590,44 @@ module.db.timeLimeData = {
 		GameTooltip:Show()
 		
 		self:SetAlpha(.7)
+
+		self.cursor:SetColorTexture(1,1,0,1)
 	end
 	self.timeLineTimeFrame.Util_ButtonOnLeave = function(self)
 		GameTooltip_Hide()
 		self:SetAlpha(1)
+		self.cursor:SetColorTexture(1,1,1,.5)
 	end
 
 	self.timeLineTimeFrame.Util_HeaderOnEnter = function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 		GameTooltip:SetHyperlink("spell:"..self.spell )
 		GameTooltip:Show()
+
+		module.options.timeLineTimeFrame:HighlighSpellLine(self.spell,true)
 	end
 	self.timeLineTimeFrame.Util_HeaderOnLeave = function(self)
 		GameTooltip_Hide()
+
+		module.options.timeLineTimeFrame:HighlighSpellLine(self.spell,false)
 	end
-	self.timeLineTimeFrame.Util_HeaderOnClick = function(self)
-		module.options.timeLineBoss.spell_status[self.spell] = not module.options.timeLineBoss.spell_status[self.spell]
-		module.options.timeLineTimeFrame:UpdateList()
+	self.timeLineTimeFrame.Util_HeaderOnClick = function(self,button)
+		if button == "RightButton" then
+			local menu = {
+				{ text = "Set custom duration (length)", func = function() 
+					ExRT.F.ShowInput("Set duration for "..GetSpellInfo(self.spell).." (for session)",function(spell,dur) 
+						module.options.timeLineBoss.spell_dur[spell]=tonumber(dur) 
+						module.options.timeLineTimeFrame:UpdateList()
+						ELib.ScrollDropDown.Close()
+					end,self.spell,true,2)
+				end, notCheckable = true },
+				{ text = CLOSE, func = function() ELib.ScrollDropDown.Close() end, notCheckable = true },
+			}
+			ELib.ScrollDropDown.EasyMenu(self,menu,150)
+		else
+			module.options.timeLineBoss.spell_status[self.spell] = not module.options.timeLineBoss.spell_status[self.spell]
+			module.options.timeLineTimeFrame:UpdateList()
+		end
 	end
 
 
@@ -3743,6 +4662,36 @@ module.db.timeLimeData = {
 		end
 		return x*s
 	end
+	self.timeLineTimeFrame.GetTimeAdjust = function(self,t,reverse)
+		if not reverse then t = t * (TIMELINE_ADJUST / 100) end
+		for i=1,3 do
+			if TIMELINE_ADJUST_DATA[i] and TIMELINE_ADJUST_DATA[-i] and t >= TIMELINE_ADJUST_DATA[i] then
+				t = t + TIMELINE_ADJUST_DATA[-i] * (reverse and -1 or 1)
+			end
+		end
+		if reverse then t = t / (TIMELINE_ADJUST / 100) end
+		return t
+	end
+
+	self.timeLineTimeFrame.HighlighSpellLine = function(self,id,show)
+		for i=1,#self.lines do
+			local line = self.lines[i]
+			if (line.header.spell == id and show) or not show then
+				--line.redhl:Show()
+				--for j=1,#line.redhl.tex do
+				--	line.redhl.tex[j]:Show()
+				--end
+				line:SetAlpha(1)
+			else
+				--line.redhl:Hide()
+				--for j=1,#line.redhl.tex do
+				--	line.redhl.tex[j]:Hide()
+				--end
+				line:SetAlpha(.3)
+			end
+		end
+	end
+
 	self.timeLineTimeFrame.UpdateList = function(self)
 		local data_list = {}
 		local max_delay = 0
@@ -3752,10 +4701,12 @@ module.db.timeLimeData = {
 
 			local options = VMRT.Reminder2.options[uid] or 0
 			local isPersonal = bit.band(options,bit.lshift(1,3)) > 0
+			local ignoreTimelime = bit.band(options,bit.lshift(1,5)) > 0
 			if 
 				--((isPersonal and module.options.timeLineBoss.isPersonal) or (not isPersonal and not module.options.timeLineBoss.isPersonal)) and
+				not ignoreTimelime and
 				(bossID and bossID == module.options.timeLineBoss.BOSS_ID) and
-				#data.triggers == 1 and
+				#data.triggers >= 1 and
 				(data.triggers[1].event == 3 or data.triggers[1].event == 2)
 			then
 				local dt = module:ConvertMinuteStrToNum(data.triggers[1].delayTime)
@@ -3769,16 +4720,17 @@ module.db.timeLimeData = {
 
 		self.phases,self.phases_rev = nil
 
-		local width = self:GetPosFromTime(max_delay+20)
+		local width = self:GetPosFromTime(self:GetTimeAdjust(max_delay)+20)
 
-		local timeLineData = module.options.timeLineBoss.CUSTOM_TIMELINE or module.db.timeLimeData[module.options.timeLineBoss.BOSS_ID]
+		local timeLineData = module.options:GetTimeLineData()
+		if timeLineData and timeLineData.m then timeLineData = nil end
 		local line_c = 0
 		local line_p = 0
 		if timeLineData then
 			local spells_sorted = {}
 			for spell,spell_times in pairs(timeLineData) do
 				if type(spell) == "number" then
-					spells_sorted[#spells_sorted+1] = {id = spell, name = GetSpellInfo(spell) or "spell"..spell,isOff = module.options.timeLineBoss.spell_status[spell]}
+					spells_sorted[#spells_sorted+1] = {id = spell, name = GetSpellInfo(spell) or "spell"..spell,isOff = module.options.timeLineBoss.spell_status[spell],prio = module.options.timeLineBoss.spell_status[spell] and 0 or 1}
 				end
 				for i=1,#spell_times do
 					local t = type(spell_times[i])=="table" and spell_times[i][1] or spell_times[i]
@@ -3789,6 +4741,7 @@ module.db.timeLimeData = {
 			end
 			if timeLineData.p then
 				self.phases = function(t)
+					t = self:GetTimeAdjust(t,true)
 					for i=1,#timeLineData.p do
 						if t < timeLineData.p[i] then
 							return (timeLineData.p.n and timeLineData.p.n[i-1]) or i, t-(timeLineData.p[i-1] or 0), timeLineData.p.nc and timeLineData.p.nc[i-1]
@@ -3797,6 +4750,7 @@ module.db.timeLimeData = {
 					return (timeLineData.p.n and timeLineData.p.n[#timeLineData.p]) or #timeLineData.p+1,t-timeLineData.p[#timeLineData.p], timeLineData.p.nc and timeLineData.p.nc[#timeLineData.p]
 				end
 				self.phases_rev = function(t,p,c)
+					t = self:GetTimeAdjust(t)
 					for i=1,#timeLineData.p do
 						if (not timeLineData.p.n or tostring(timeLineData.p.n[i]) == tostring(p)) and (not timeLineData.p.nc or tostring(timeLineData.p.nc[i]) == tostring(c)) then
 							return t + timeLineData.p[i], i+1
@@ -3805,15 +4759,13 @@ module.db.timeLimeData = {
 				end
 			end
 			sort(spells_sorted,function(a,b) 
-				if a.isOff ~= b.isOff then
-					return b.isOff
-				elseif a.name ~= b.name then
-					return a.name < b.name 
+				if a.prio ~= b.prio then
+					return a.prio > b.prio
 				else
-					return a.id < b.id
+					return a.name < b.name 
 				end
 			end)
-			width = self:GetPosFromTime(max_delay+20)
+			width = self:GetPosFromTime(self:GetTimeAdjust(max_delay)+20)
 
 			for j=1,#spells_sorted do
 				local spell = spells_sorted[j].id
@@ -3832,6 +4784,7 @@ module.db.timeLimeData = {
 					line.header = CreateFrame("Button",nil,self.headers.C)
 					line.header:SetPoint("TOPLEFT",0,-20*(line_c-1))
 					line.header:SetSize(220,20)
+					line.header:RegisterForClicks("LeftButtonUp","RightButtonUp")
 					line.header:SetScript("OnClick",self.Util_HeaderOnClick)
 					line.header:SetScript("OnEnter",self.Util_HeaderOnEnter)
 					line.header:SetScript("OnLeave",self.Util_HeaderOnLeave)
@@ -3841,6 +4794,16 @@ module.db.timeLimeData = {
 					line.header.icon:SetSize(20,20)
 	
 					line.header.name = ELib:Text(line.header,"Spell Name",12):Point("RIGHT",-22,0):Right()
+
+					--[[
+					line.redhl = line:CreateTexture(nil,"BORDER")
+					line.redhl:SetHeight(4)
+					line.redhl:SetPoint("LEFT")
+					line.redhl:SetPoint("RIGHT")
+					line.redhl:Hide()
+					line.redhl:SetColorTexture(1,0,0,.9)
+					line.redhl.tex = {}
+					]]
 
 					if line_c%2 == 1 then
 						line.bg = line:CreateTexture(nil,"BACKGROUND")
@@ -3859,8 +4822,20 @@ module.db.timeLimeData = {
 				if not isOff then
 					for i=1,#spell_times do
 						local st = spell_times[i]
-						local len = type(st) == "table" and st.d or 2
+						local len = module.options.timeLineBoss.spell_dur[spell] or (type(st) == "table" and st.d) or spell_times.d or 2
 						st = type(st) == "table" and st[1] or st
+						st = self:GetTimeAdjust(st)
+						if len == "p" and timeLineData.p then
+							for i=1,#timeLineData.p do
+								if st < self:GetTimeAdjust(timeLineData.p[i]) then
+									len = self:GetTimeAdjust(timeLineData.p[i]) - st
+									break
+								end
+							end
+						end
+						if len == "p" then
+							len = 2
+						end
 						self:Util_SetLineTexture(line,i,{pos=st,len=len},color)
 					end
 					t_c = #spell_times
@@ -3898,9 +4873,13 @@ module.db.timeLimeData = {
 						pcursor.text = ELib:Text(self.C,"Phase "..(i+1),10):Point("TOPRIGHT",pcursor,"TOPRIGHT",1,-1):Right():Color(0,1,0,.7)
 						pcursor.text:SetRotation(90*math.pi/180)
 					end
-					local x = self:GetPosFromTime(timeLineData.p[i])
+					local x = self:GetPosFromTime(self:GetTimeAdjust(timeLineData.p[i]))
 					pcursor:SetPoint("LEFT",x,0)
-					pcursor.text:SetText("Phase "..(timeLineData.p.n and timeLineData.p.n[i] or (i+1)))
+					local text = "Phase "..(timeLineData.p.n and timeLineData.p.n[i] or (i+1))
+					if timeLineData.p.n and timeLineData.p.n[i] and tostring(timeLineData.p.n[i]):find("%d%.%d") then
+						text = "Intermission "..tostring(timeLineData.p.n[i]):match("^%d+")
+					end
+					pcursor.text:SetText(text)
 					pcursor:Show()
 					pcursor.text:Show()
 				end
@@ -3953,26 +4932,39 @@ module.db.timeLimeData = {
 				button.cursor = button:CreateTexture(nil,"BORDER")
 				button.cursor:SetSize(1,1000)
 				button.cursor:SetPoint("BOTTOMLEFT",button,"TOPLEFT",0,0)
-				button.cursor:SetColorTexture(1,1,1,1)
+				button.cursor:SetColorTexture(1,1,1,.5)
 
 				button.icon = button:CreateTexture()
 				button.icon:SetAllPoints()
+				button:RegisterForClicks("LeftButtonUp","RightButtonUp")
 				button:SetScript("OnClick",self.Util_ButtonOnClick)
 				button:SetScript("OnEnter",self.Util_ButtonOnEnter)
 				button:SetScript("OnLeave",self.Util_ButtonOnLeave)
 			end
 
 			local x = data_list[i][2]
-			if self:GetPosFromTime(prevButton)+20 >= self:GetPosFromTime(x) then
+			if x < 2 then x = 2 end
+			local pos = self:GetPosFromTime(x)
+			local anchorLeft = not data.durrev
+
+			if prevButton >= (pos - (anchorLeft and 0 or 20)) then
 				prevY = prevY + 20
 			else
 				prevY = 0
 			end
-			prevButton = x
-			button:SetPoint("TOPLEFT",self:GetPosFromTime(x),-(line_c+1)*20-prevY)
+			button:ClearAllPoints()
+
+			prevButton = max(pos + (anchorLeft and 20 or 0),prevButton)
+
+			button:SetPoint(anchorLeft and "TOPLEFT" or "TOPRIGHT",self.C,"TOPLEFT",pos,-(line_c+1)*20-prevY)
+
+			button.cursor:SetHeight((line_c+1)*20+prevY+100)
+			button.cursor:ClearAllPoints()
+			button.cursor:SetPoint(anchorLeft and "BOTTOMLEFT" or "BOTTOMRIGHT",button,anchorLeft and "TOPLEFT" or "TOPRIGHT",0,0)
+
 			local texture = 134938
 			if type(data.msg) == "string" and data.msg:find("{spell:%d+}") then
-				texture = select(3,GetSpellInfo( tonumber(data.msg:match("{spell:(%d+)}")),nil )) or texture
+				texture = select(3,GetSpellInfo( tonumber(data.msg:match("{spell:(%d+)}"),10) )) or texture
 			end
 			button.icon:SetTexture(texture)
 			button.data = data
@@ -5151,6 +6143,7 @@ module.db.timeLimeData = {
 		self.setupFrame.data.updatedName = ExRT.SDB.charName
 		self.setupFrame.data.updatedTime = time()
 		module.options:UpdateData()
+		module.options.timeLineTimeFrame:UpdateList()
 		module:ReloadAll()
 	end)
 
@@ -5180,6 +6173,7 @@ module.db.timeLimeData = {
 		end
 
 		module.options:UpdateData()
+		module.options.timeLineTimeFrame:UpdateList()
 		module:ReloadAll()
 	end)
 
@@ -5481,6 +6475,19 @@ module.db.timeLimeData = {
 		GameTooltip:Show()
 	end)
 	function self.setupFrame.durEdit:ExtraShown()
+		if module:GetReminderType(module.options.setupFrame.data.msgSize) ~= REM.TYPE_WA then
+			return true
+		end
+	end
+
+	self.setupFrame.durRevese = ELib:Check(self.setupFrame.tab.tabs[1],L.ReminderDurRev..":"):Left(5):Tooltip(L.ReminderDurRevTooltip):OnClick(function(self)
+		if self:GetChecked() then
+			module.options.setupFrame.data.durrev = true
+		else
+			module.options.setupFrame.data.durrev = nil
+		end
+	end)
+	function self.setupFrame.durRevese:ExtraShown()
 		if module:GetReminderType(module.options.setupFrame.data.msgSize) ~= REM.TYPE_WA then
 			return true
 		end
@@ -6161,6 +7168,7 @@ module.db.timeLimeData = {
 			[self.setupFrame.msgSize] = 20,
 			[self.setupFrame.msgEdit] = 30,
 			[self.setupFrame.durEdit] = 40,
+			[self.setupFrame.durRevese] = 45,
 			[self.setupFrame.soundList] = 50,
 			[self.setupFrame.soundCustom] = 60,
 			[self.setupFrame.soundAfterList] = 70,
@@ -6242,6 +7250,10 @@ module.db.timeLimeData = {
 
 	self.setupFrame.disableSynq = ELib:Check(self.setupFrame.tab.tabs[4],L.ReminderPersonalSendDisable..":"):Point("TOPLEFT",self.setupFrame.disableUpdatesSound,"BOTTOMLEFT",0,-5):Left(5):OnClick(function(self)
 		UpdateOption(module.options.setupFrame.data.uid,not self:GetChecked(),bit.lshift(1,3))
+	end)
+
+	self.setupFrame.disableTimeLine = ELib:Check(self.setupFrame.tab.tabs[4],"Not show this reminder on timeline:"):Point("TOPLEFT",self.setupFrame.disableSynq,"BOTTOMLEFT",0,-5):Left(5):OnClick(function(self)
+		UpdateOption(module.options.setupFrame.data.uid,not self:GetChecked(),bit.lshift(1,5))
 	end)
 
 
@@ -6782,7 +7794,7 @@ module.db.timeLimeData = {
 		button.state = 1
 		button:Update()
 
-		button.HEIGHT = 5 + 25 * 4
+		button.HEIGHT = 5 + 25 * 5
 
 		local function CheckDelayTimeText(text)
 			if not text then
@@ -6813,13 +7825,23 @@ module.db.timeLimeData = {
 		end)
 		self.setupFrame.delayedActivation.Background:SetColorTexture(1,1,1,1)
 
-		self.setupFrame.sametargetsCheck = ELib:Check(button.sub,L.ReminderSameTarget..":"):Point("TOPLEFT",self.setupFrame.delayedActivation,"BOTTOMLEFT",0,-5):Left(5):Tooltip(L.ReminderSameTargetTooltip):OnClick(function(self)
+
+		self.setupFrame.hideTextChangedCheck = ELib:Check(button.sub,"Hide text after status change:"):Point("TOPLEFT",self.setupFrame.delayedActivation,"BOTTOMLEFT",0,-5):Left(5):Tooltip("Hide existed text messages if global status is not active anymore."):OnClick(function(self)
+			if self:GetChecked() then
+				module.options.setupFrame.data.hideTextChanged = true
+			else
+				module.options.setupFrame.data.hideTextChanged = nil
+			end
+		end)
+
+		self.setupFrame.sametargetsCheck = ELib:Check(button.sub,L.ReminderSameTarget..":"):Point("TOPLEFT",self.setupFrame.hideTextChangedCheck,"BOTTOMLEFT",0,-5):Left(5):Tooltip(L.ReminderSameTargetTooltip):OnClick(function(self)
 			if self:GetChecked() then
 				module.options.setupFrame.data.sametargets = true
 			else
 				module.options.setupFrame.data.sametargets = nil
 			end
 		end)
+
 	
 		self.setupFrame.specialTarget = ELib:Edit(button.sub):Size(270,20):Point("TOPLEFT",self.setupFrame.sametargetsCheck,"BOTTOMLEFT",0,-5):LeftText(L.ReminderSpecialTarget..":"):Tooltip(L.ReminderSpecialTargetTooltip):OnChange(function(self,isUser)
 			local text = self:GetText():trim()
@@ -7695,11 +8717,13 @@ module.db.timeLimeData = {
 		self.msgEdit:SetText(data.msg or "")
 		self.msgSize:SetValue(data.msgSize)
 		self.durEdit:SetText(data.dur or "")
+		self.durRevese:SetChecked(data.durrev)
 		self.countdownCheck:SetChecked(data.countdown)
 		self.countdownCheck:GetScript("OnClick")(self.countdownCheck)
 		self.countdownType:SetValue(data.countdownType)
 		self.copyCheck:SetChecked(data.copy)
 		self.sametargetsCheck:SetChecked(data.sametargets)
+		self.hideTextChangedCheck:SetChecked(data.hideTextChanged)
 		self.extraCheck:SetText(data.extraCheck or "")
 		self.specialTarget:SetText(data.specialTarget or "")
 		self.delayedActivation:SetText(data.delayedActivation or "")
@@ -7802,6 +8826,7 @@ module.db.timeLimeData = {
 		self.disableUpdates:SetChecked(bit.band(options,bit.lshift(1,2)) > 0)
 		self.disableUpdatesSound:SetChecked(bit.band(options,bit.lshift(1,4)) > 0)
 		self.disableSynq:SetChecked(bit.band(options,bit.lshift(1,3)) > 0)
+		self.disableTimeLine:SetChecked(bit.band(options,bit.lshift(1,5)) > 0)
 
 		if not data.uid then
 			self.copyButton:Disable()
@@ -7848,13 +8873,14 @@ module.db.timeLimeData = {
 	self.setupFrame.historyFrame.exportWindow:SetFrameStrata("FULLSCREEN")
 
 	function self.setupFrame.historyFrame.importWindow:ImportFunc(str)
-		local header = str:sub(1,9)
-		if header:sub(1,8) ~= "EXRTREMH" or (header:sub(9,9) ~= "0" and header:sub(9,9) ~= "1") then
+		local l = str:sub(1,2) == "EX" and 9 or 8
+		local header = str:sub(1,l)
+		if not (header:sub(1,l) == "EXRTREMH" or header:sub(1,l) == "MRTREMH") or (header:sub(l,l) ~= "0" and header:sub(l,l) ~= "1") then
 			print("Import: wrong format")
 			return
 		end
 
-		module.options.setupFrame.historyFrame:TextToHistory(str:sub(10),header:sub(9,9)=="0")
+		module.options.setupFrame.historyFrame:TextToHistory(str:sub(l+1),header:sub(l,l)=="0")
 	end
 
 	function self.setupFrame.historyFrame:TextToHistory(str,uncompressed)
@@ -7972,7 +8998,7 @@ module.db.timeLimeData = {
 				if #str < 1000000 then
 					compressed = LibDeflate:CompressDeflate(str,{level = 5})
 				end
-				local encoded = "EXRTREMH"..(compressed and "1" or "0")..LibDeflate:EncodeForPrint(compressed or str)
+				local encoded = "MRTREMH"..(compressed and "1" or "0")..LibDeflate:EncodeForPrint(compressed or str)
 
 				module.options.setupFrame.historyFrame.exportWindow.Edit:SetText(encoded)
 				module.options.setupFrame.historyFrame.exportWindow:Show()
@@ -10207,6 +11233,18 @@ function module:CheckAllTriggers(trigger, printLog)
 			end
 		end
 	end
+
+	if remType == REM.TYPE_TEXT and not check and data.hideTextChanged then
+		for j=#module.db.showedReminders,1,-1 do
+			local showed = module.db.showedReminders[j]
+			if showed.data == data then
+				if showed.voice then
+					showed.voice:Cancel()
+				end
+				tremove(module.db.showedReminders,j)
+			end
+		end
+	end
 end
 
 
@@ -10315,6 +11353,8 @@ do
 	
 		if trigger._trigger.activeTime then
 			module.db.timers[#module.db.timers+1] = ScheduleTimer(module.DeactivateTrigger, max(trigger._trigger.activeTime, 0.01), 0, trigger, vars.uid or vars.guid or 1, true, printLog)
+		elseif not trigger.untimed and trigger._data.hideTextChanged and trigger._data.dur and tonumber(trigger._data.dur) > 0 then
+			module.db.timers[#module.db.timers+1] = ScheduleTimer(module.DeactivateTrigger, max(tonumber(trigger._data.dur), 0.01), 0, trigger, vars.uid or vars.guid or 1, true, printLog)
 		elseif not trigger.untimed then
 			module:DeactivateTrigger(trigger, vars.uid or vars.guid or 1, false, printLog)
 		end
@@ -10328,7 +11368,7 @@ function module:RunTrigger(trigger, vars, printLog)
 	local triggerData = trigger._trigger
 	if trigger.DdelayTime then
 		for i=1,#trigger.DdelayTime do
-			local t = ScheduleTimer(module.ActivateTrigger, trigger.DdelayTime[i], 0, trigger, vars, printLog)
+			local t = ScheduleTimer(module.ActivateTrigger, max(trigger.DdelayTime[i]-(trigger._data.durrev and (trigger._data.dur or 0) or 0),0.01), 0, trigger, vars, printLog)
 			module.db.timers[#module.db.timers+1] = t
 			if trigger.delays then
 				trigger.delays[#trigger.delays+1] = t
@@ -10552,7 +11592,7 @@ do
 			end
 		end
 
-		local reminderDuration = trigger.status and trigger.status._customDuration or data.dur or 2
+		local reminderDuration = trigger.status and trigger.status._customDuration or (data.dur and tonumber(data.dur)) or 2
 
 		--stop duplicates for untimed text reminders
 		if data.copy and reminderDuration == 0 then
@@ -14498,6 +15538,9 @@ do
 					if bit.band(checks,bit.lshift(1,4)) > 0 then new.sametargets = true end
 					if bit.band(checks,bit.lshift(1,5)) > 0 then new.dynamicdisable = true end
 					if bit.band(checks,bit.lshift(1,6)) > 0 then new.norewrite = true end
+					if bit.band(checks,bit.lshift(1,7)) > 0 then new.durrev = true end
+					if bit.band(checks,bit.lshift(1,8)) > 0 then new.hideTextChanged = true end
+
 
 					for j=1,#module.datas.rolesList do
 						if bit.band(roles,bit.lshift(1, j-1)) > 0 then new["role"..j] = true end
@@ -14587,6 +15630,7 @@ do
 		--[[
 		if module.options.UpdateData then
 			module.options:UpdateData()
+			module.options.timeLineTimeFrame:UpdateList()
 		end
 		if VMRT.Reminder2.enabled then
 			module:ReloadAll()
@@ -14700,6 +15744,8 @@ do
 				if data.sametargets then checks = bit.bor(checks,bit.lshift(1,4)) end
 				if data.dynamicdisable then checks = bit.bor(checks,bit.lshift(1,5)) end
 				if data.norewrite then checks = bit.bor(checks,bit.lshift(1,6)) end
+				if data.durrev then checks = bit.bor(checks,bit.lshift(1,7)) end
+				if data.hideTextChanged then checks = bit.bor(checks,bit.lshift(1,8)) end
 
 				local glowOptions = (
 					(data.glowType or "") .. DELIMITER_2 .. 

@@ -1,6 +1,11 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4960
+* Reminder: added option to show message before timer ends instead of after. This option is enabled by default for new reminders from "boss timeline"
+* Reminder: updates
+* Raid Cooldowns: added option to grow by columns
+
 v.4950
 * Reminder: added "boss timeline" feature with simplified setup and quick exchange to/from notes 
 * Raid Cooldowns: added option for animation style "Starts Full for active and empty for cd"
