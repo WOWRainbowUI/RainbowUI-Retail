@@ -58,6 +58,8 @@ L["Alarm-o-Bot"] = "경보로봇"
 L["Alcruux"] = "알크룩스"
 L["Algeth'ar Echoknight"] = "알게타르 메아리 기사"
 L["AlgetharAcademy"] = "알게타르 대학"
+--[[Translation missing --]]
+L["algetharShortName"] = "AA"
 L["Alliance Archer"] = "얼라이언스 궁수"
 L["Alliance Berserker"] = "얼라이언스 광전사"
 L["Alliance Cleric"] = "얼라이언스 성직자"
@@ -112,6 +114,8 @@ L["Arachnopod Destroyer"] = "파괴자 거미로봇"
 L["AraKara"] = "Ara-Kara"
 --[[Translation missing --]]
 L["araKaraItemDescription"] = "Usable by Khaz Algar Tailors (25)"
+--[[Translation missing --]]
+L["araKaraShortName"] = "ARAK"
 L["Aranasi Broodmother"] = "아라나시 무리어미"
 L["Arcane Anomaly"] = "비전 변형물"
 L["Arcane Construct"] = "비전 피조물"
@@ -126,6 +130,8 @@ L["Arcane Warden"] = "비전 감독관"
 L["Arcanid"] = "아르카니드"
 L["Archdruid Glaidalis"] = "대드루이드 글라이달리스"
 L["Archmage Sol"] = "대마법사 솔"
+--[[Translation missing --]]
+L["arcwayShortName"] = "ARC"
 L["Ardenweald"] = "몽환숲"
 L["Armored Mistral"] = "무장한 광풍"
 L["Armored Overseer"] = "무장한 감독관"
@@ -162,6 +168,8 @@ L["Atal'ai High Priest"] = "아탈라이 대사제"
 L["Atal'ai Hoodoo Hexxer"] = "아탈라이 어둠마법 사술사"
 L["Atal'Dazar"] = "아탈다자르"
 L["Atal'Dazar Sublevel"] = "아탈다자르"
+--[[Translation missing --]]
+L["atalDazarShortName"] = "AD"
 L["atalTeemingNote"] = "무리 메모:%s%sG29가 항상 있지 않습니다%sG2의 무리 적들이 항상 있지 않습니다%sG27이 항상 있지 않습니다"
 --[[Translation missing --]]
 L["Atik"] = "Atik"
@@ -196,6 +204,8 @@ L["Azure Spellbinder"] = "하늘빛 주문술사"
 L["Azure Stalker"] = "하늘빛 추적자"
 L["Azure Warder"] = "하늘빛 수호병"
 L["Azureblade"] = "하늘칼날"
+--[[Translation missing --]]
+L["azureVaultShortName"] = "AV"
 L["Baalgar the Watchful"] = "경계자 바알가르"
 L["Backup Singer"] = "보조 가수"
 L["Baelog"] = "밸로그"
@@ -249,6 +259,8 @@ L["Bitterbrine Scavenger"] = "쓴소금물 청소부"
 L["Bitterbrine Slave"] = "쓴소금물 노예"
 L["Black and Yellow"] = "검정색과 노란색"
 L["Black Rook Hold"] = "검은 떼까마귀 요새"
+--[[Translation missing --]]
+L["blackrookHoldShortName"] = "BRH"
 L["Blacktar Bomber"] = "검은타르 폭탄마"
 L["Blacktooth"] = "검은이빨 주먹잡이"
 L["Blacktooth Arsonist"] = "검은이빨 방화범"
@@ -322,6 +334,8 @@ L["Brackenhide Shaper"] = "담쟁이가죽 구체자"
 L["brackenhideCage"] = "Meat Storage"
 --[[Translation missing --]]
 L["BrackenhideHollow"] = "Brackenhide Hollow"
+--[[Translation missing --]]
+L["brackenhideShortName"] = "BH"
 L["Brain of Yogg-Saron"] = "요그사론의 뇌"
 L["Brawling Patron"] = "난동 피우는 손님"
 L["Brittlebone Crossbowman"] = "불완전뼈 석궁수"
@@ -360,6 +374,8 @@ L["Cartel Smuggler"] = "중개단 밀수업자"
 L["Cartel Wiseguy"] = "중개단 폭력단원"
 L["Catacombs"] = "지하무덤"
 L["Cathedral of Eternal Night"] = "영원한 밤의 대성당"
+--[[Translation missing --]]
+L["cathedralOfEternalNightShortName"] = "COEN"
 L["Cavern Seeker"] = "동굴 수색자"
 L["Centrifuge Construct"] = "원심력 피조물"
 --[[Translation missing --]]
@@ -399,6 +415,8 @@ L["Chrono-Lord Epoch"] = "시간의 군주 에포크"
 L["CityofEchoes"] = "CityofEchoes"
 --[[Translation missing --]]
 L["CityOfThreads"] = "City of Threads"
+--[[Translation missing --]]
+L["cityOfThreadsShortName"] = "COT"
 L["Claw Fighter"] = "발톱 싸움꾼"
 --[[Translation missing --]]
 L["Click the fullscreen button for a maximized view of MDT."] = "Click the fullscreen button for a maximized view of MDT."
@@ -468,6 +486,8 @@ L["Corsair Officer"] = "해적 장교"
 L["Corstilax"] = "코스틸락스"
 L["Court of Stars"] = "별의 궁정"
 L["Court of Stars Sublevel"] = "별의 궁정"
+--[[Translation missing --]]
+L["courtOfStarsShortName"] = "COS"
 L["Cove Seagull"] = "해만 갈매기"
 L["Coven Diviner"] = "서약단 예언자"
 L["Coven Thornshaper"] = "서약단 가시장이"
@@ -548,10 +568,16 @@ L["Dark Rune Worker"] = "암흑룬 노동자"
 L["Dark Touched Warrior"] = "어둠을 영접한 전사"
 L["Darkheart Thicket"] = "어둠심장 숲"
 L["Darkheart Thicket Sublevel"] = "어둠심장 숲"
+--[[Translation missing --]]
+L["darkheartThicketShortName"] = "DHT"
 L["Darkweb Hatchling"] = "새끼 검은그물 거미"
 L["Darkweb Recluse"] = "검은그물 그늘거미"
 --[[Translation missing --]]
 L["DataImportButtonTooltip"] = "Import external NPC Data."
+--[[Translation missing --]]
+L["dawnBreakerShortName"] = "DAWN"
+--[[Translation missing --]]
+L["dawnlowerShortName"] = "FALL"
 --[[Translation missing --]]
 L["DawnOfTheInfiniteLower"] = "DOTI: Galakrond's Fall"
 --[[Translation missing --]]
@@ -559,6 +585,8 @@ L["DawnOfTheInfiniteUpper"] = "DOTI: Murozond's Rise"
 --[[Translation missing --]]
 L["dawnPortalNote"] = [=[Infinite Riftmage 2 and 4 need to be defeated for the portals to activate.
 Temporal Deviations will keep respawning but give no count.]=]
+--[[Translation missing --]]
+L["dawnupperShortName"] = "RISE"
 L["Dazar'ai Augur"] = "다자르아이 점술가"
 L["Dazar'ai Colossus"] = "다자르아이 거수"
 L["Dazar'ai Confessor"] = "다자르아이 고해사제"
@@ -609,6 +637,8 @@ L["Demolishing Terror"] = "파괴의 공포"
 L["Demon"] = "악마"
 --[[Translation missing --]]
 L["DenOfDecay"] = "Den of Decay"
+--[[Translation missing --]]
+L["deOtherSideShortName"] = "DOS"
 --[[Translation missing --]]
 L["Depleted Anima Seed"] = "Depleted Anima Seed"
 --[[Translation missing --]]
@@ -852,13 +882,15 @@ L["Everbloom Cultivator"] = "Everbloom Cultivator"
 L["Everbloom Mender"] = "상록숲 치유사"
 L["Everbloom Naturalist"] = "상록숲 식물학자"
 L["Everbloom Tender"] = "상록숲 화원관리인"
+--[[Translation missing --]]
+L["everbloomShortName"] = "EB"
 L["Executioner Varruth"] = "집행자 바루스"
 L["Executor of the Caliph"] = "통치자의 집행관"
 L["Executor Tarvold"] = "집행관 타르볼드"
 --[[Translation missing --]]
 L["Exhumed Spirit"] = "Exhumed Spirit"
 --[[Translation missing --]]
-L["Expand the top toolbar to gain access to drawing and note features."] = "Expand the top toolbar to gain access to drawing and note features."
+L["Expand the top toolbar to gain access to drawing and note features."] = "Expand the side toolbar to gain access to drawing and note features."
 L["Experimental Sludge"] = "실험용 수액괴물"
 L["Expert Technician"] = "전문 기술병"
 L["Explosive"] = "폭탄"
@@ -874,6 +906,8 @@ L["Eye of Taldaram"] = "탈다람의 눈"
 --[[Translation missing --]]
 L["Eye Of The Queen"] = "Eye Of The Queen"
 L["Eye Stalk"] = "추적자의 눈"
+--[[Translation missing --]]
+L["eyeOfAzsharaShortName"] = "EoA"
 L["Faceless Corruptor"] = "얼굴 없는 타락자"
 L["Faceless Horror"] = "얼굴 없는 공포"
 L["Faceless Maiden"] = "얼굴 없는 여인"
@@ -976,6 +1010,8 @@ L["freeholdBeguilingPatrolNote"] = "Week 2/5/8/11: G53 is stationary at Emissary
 L["freeholdGraveyardDescription1"] = "Unlocks after defeating Skycap'n Kragg"
 --[[Translation missing --]]
 L["freeholdGraveyardDescription2"] = "Unlocks after defeating Council o' Captains"
+--[[Translation missing --]]
+L["freeholdShortName"] = "FH"
 L["Frenzied Bat"] = "광포한 박쥐"
 L["Frenzied Geist"] = "광포한 외눈깨비"
 L["Frenzied Ghoul"] = "광포한 구울"
@@ -1050,6 +1086,8 @@ L["Grease Bot"] = "기름 로봇"
 L["Grievous"] = "치명상"
 --[[Translation missing --]]
 L["Grim Batol"] = "Grim Batol"
+--[[Translation missing --]]
+L["grimBatolShortName"] = "GB"
 L["Grimhorn the Enslaver"] = "험악뿔 구속자"
 L["Grimrail Bombardier"] = "파멸철로 폭격수"
 L["Grimrail Laborer"] = "파멸철로 노동자"
@@ -1059,6 +1097,8 @@ L["Grimrail Scout"] = "파멸철로 정찰병"
 L["Grimrail Technician"] = "파멸철로 기술자"
 --[[Translation missing --]]
 L["GrimrailDepot"] = "Grimrail Depot"
+--[[Translation missing --]]
+L["grimrailDepotShortName"] = "GB"
 L["Grip"] = "죽음의 손아귀"
 L["Gripping Terror"] = "옭아매는 공포"
 L["Gritslime Snail"] = "모래점액 달팽이"
@@ -1122,7 +1162,13 @@ L["HallsOfAtonementFloor1"] = "속죄의 전당"
 L["HallsOfAtonementFloor2"] = "고통의 신도석"
 L["HallsOfAtonementFloor3"] = "영혼의 성역"
 --[[Translation missing --]]
+L["hallsOfAtonementShortName"] = "HOA"
+--[[Translation missing --]]
 L["HallsOfInfusion"] = "Halls of Infusion"
+--[[Translation missing --]]
+L["hallsOfInfusionShortName"] = "HOI"
+--[[Translation missing --]]
+L["hallsOfValorShortName"] = "HOV"
 --[[Translation missing --]]
 L["Hapless Assistant"] = "Hapless Assistant"
 L["Harbaron"] = "하르바론"
@@ -1317,6 +1363,8 @@ L["Iron Star"] = "강철의 별"
 L["IronDocks"] = "Iron Docks"
 --[[Translation missing --]]
 L["ironDocksIronStar"] = "Iron Star"
+--[[Translation missing --]]
+L["ironDocksShortName"] = "ID"
 L["Ironhull Apprentice"] = "아이언헐 수습생"
 L["Ironroot Lasher"] = "무쇠뿌리덩굴손"
 L["Irontide Bonesaw"] = "무쇠파도 해골톱날"
@@ -1360,6 +1408,10 @@ L["Join Live Session"] = "라이브 세션에 참여함:%s%s: %s - %s"
 L["Junkyard D.0.G."] = "고철장 개"
 L["Juvenile Runestag"] = "새끼 룬수사슴"
 L["K.U.-J.0."] = "쿠.조."
+--[[Translation missing --]]
+L["karaLowerShortName"] = "LOWER"
+--[[Translation missing --]]
+L["karaUpperShortName"] = "UPPER"
 L["Kel'Thuzad"] = "켈투자드"
 L["Keristrasza"] = "케리스트라자"
 L["Khajin the Unyielding"] = "불굴의 카진"
@@ -1380,6 +1432,8 @@ L["King Tor"] = "왕 토르"
 L["King Ymiron"] = "왕 이미론"
 L["Kings' Rest"] = "왕들의 안식처"
 L["Kings' Rest Sublevel"] = "왕들의 안식처"
+--[[Translation missing --]]
+L["kingsRestShortName"] = "KR"
 L["Kin-Tara"] = "킨타라"
 L["Klotos"] = "클로토스"
 L["Knight Captain Valyri"] = "기사대장 발리리"
@@ -1515,6 +1569,8 @@ L["Mature Krolusk"] = "다 자란 크롤러스크"
 --[[Translation missing --]]
 L["MausoleumOfLegends"] = "Mausoleum Of Legends"
 L["Maw of Souls"] = "영혼의 아귀"
+--[[Translation missing --]]
+L["mawOfSoulsShortName"] = "MOS"
 L["Mchimba the Embalmer"] = "장의사 음침바"
 L["MDI Mode"] = "MDI 모드"
 --[[Translation missing --]]
@@ -1539,6 +1595,10 @@ L["Mechagon Prowler"] = "메카곤 호랑이"
 L["Mechagon Renormalizer"] = "메카곤 재규격 설계사"
 L["Mechagon Tinkerer"] = "메카곤 땜장이"
 L["Mechagon Trooper"] = "메카곤 부대원"
+--[[Translation missing --]]
+L["mechagonCityShortName"] = "WORK"
+--[[Translation missing --]]
+L["mechagonIslandShortName"] = "YARD"
 L["Mechanical"] = "기계"
 L["Mechanized Peacekeeper"] = "기계화 평화감시단"
 L["Melded Berserker"] = "식물에 잠식당한 광전사"
@@ -1569,6 +1629,8 @@ L["Mire Soldier"] = "진창 병사"
 L["Misguided Nymph"] = "어리석은 요정"
 L["Mistcaller"] = "미스트콜러"
 L["Mists of Tirna Scithe"] = "티르너 사이드의 안개"
+--[[Translation missing --]]
+L["mistsShortName"] = "MISTS"
 L["Mistveil Defender"] = "안개장막 수호병"
 L["Mistveil Gorgegullet"] = "안개장막 포식귀"
 L["Mistveil Guardian"] = "안개장막 수호자"
@@ -1594,6 +1656,8 @@ L["Moragg"] = "모라그"
 L["Morchie"] = "미로크"
 L["Mordretha, the Endless Empress"] = "무한의 여제 모르드레타"
 L["Moroes"] = "모로스"
+--[[Translation missing --]]
+L["motherlodeShortName"] = "ML"
 L["Mouseover a patrolling enemy with a blue border to view the patrol path."] = "순찰 길을 보이도록 푸른 테두리가 있는 순찰하는 적 위에 마우스를 올려노으시면 됩니다"
 L["Mouseover the Live button while in a group to learn more about Live mode."] = "단체로 계시는 동안 '라이브 모드'대해서 배우도록 '라이브'라는 버튼 위에 마우스를 올려노으시면 됩니다"
 L["Move Object"] = "물건을 움직기"
@@ -1635,15 +1699,21 @@ L["Naz'jar Tempest Witch"] = "나즈자르 폭풍우 마녀"
 L["Necro Knight"] = "해골 기사"
 L["Necrotic"] = "괴저"
 L["Necrotic Spiderling"] = "괴저 새끼거미"
+--[[Translation missing --]]
+L["necroticWakeShortName"] = "NW"
 L["Neesa Nox"] = "니사 녹스"
 L["Nefarious Darkspeaker"] = "사악한 암흑예언자"
 L["Nekthara the Mangler"] = "분쇄자 네크타라"
 L["Neltharion's Lair"] = "넬타리온의 둥지"
 L["Neltharion's Lair Sublevel"] = "넬타리온의 둥지"
 --[[Translation missing --]]
+L["neltharionsLairShortName"] = "NL"
+--[[Translation missing --]]
 L["Neltharus"] = "Neltharus"
 --[[Translation missing --]]
 L["neltharusChain"] = "Burning Chain"
+--[[Translation missing --]]
+L["neltharusShortName"] = "NELT"
 --[[Translation missing --]]
 L["Nerubian Hauler"] = "Nerubian Hauler"
 L["Ner'zhul"] = "넬쥴"
@@ -1705,6 +1775,8 @@ L["Nokhud Warhound"] = "Nokhud Warhound"
 --[[Translation missing --]]
 L["Nokhud Warsmith"] = "Nokhud Warsmith"
 L["Nokhud Warspear"] = "노쿠드 전쟁창"
+--[[Translation missing --]]
+L["nokhudOffensiveShortName"] = "NO"
 L["Not specified"] = "기타"
 L["Note Text:"] = "메모 텍스트:"
 L["Noth the Plaguebringer"] = "역병술사 노스"
@@ -1799,6 +1871,8 @@ L["Plagued Bat"] = "역병에 걸린 박쥐"
 L["Plagued Rat"] = "역병 걸린 쥐"
 L["Plaguefall"] = "역병 몰락지"
 L["plaguefallDevotedNote"] = "이코르 바일플래시와 교전 전에 수액이 흐르는 사체에 의해 이미 변화된 역병결합 헌신자는 적 병력 수치를 주지 않습니다."
+--[[Translation missing --]]
+L["plaguefallShortName"] = "PF"
 L["Plagueroc"] = "역병대괴조"
 L["Plain Texture"] = "일반 텍스처"
 L["Players can join the live session by either clicking this button or the Live Session chat link"] = "선수분들이 이 버튼이나 채팅 링크를 누르시고 라이브 세션에 참여하실 수 있습니다"
@@ -2015,6 +2089,8 @@ L["Royal Venomshell"] = "Royal Venomshell"
 --[[Translation missing --]]
 L["Ruby Overlook"] = "Ruby Overlook"
 L["RubyLifePools"] = "루비 생명의 웅덩이"
+--[[Translation missing --]]
+L["rubyLifePoolsShortName"] = "RLP"
 L["Ruin's Descent"] = "폐허 하강장치"
 L["Ruins Dweller"] = "폐허 골록"
 L["Rune Etched Sentry"] = "룬각인 파수병"
@@ -2043,6 +2119,8 @@ L["Sanguine Cadet"] = "핏빛 생도"
 L["Sanguine Depths"] = "핏빛 심연"
 L["Sanguine DepthsFloor1"] = "절망의 심연"
 L["Sanguine DepthsFloor2"] = "슬픔의 투기장"
+--[[Translation missing --]]
+L["sanguineDepthsShortName"] = "SD"
 L["Sap"] = "혼절시키기"
 L["Sapped Voidlord"] = "약화된 공허군주"
 L["Sapphiron"] = "사피론"
@@ -2080,6 +2158,8 @@ L["Seaspray Crab"] = "바다안개 게"
 L["Seat of the Archon"] = "집정관의 권좌"
 L["Seat of the Triumvirate"] = "삼두정의 권좌"
 L["Seat of the Triumvirate Sublevel"] = "삼두정의 권좌"
+--[[Translation missing --]]
+L["seatOfTheTriumvirateShortName"] = "SEAT"
 --[[Translation missing --]]
 L["Select all"] = "Select all"
 L["Select the dungeon level"] = "던전 레벨을 고르기"
@@ -2126,6 +2206,8 @@ L["Shadowmoon Enslaver"] = "Shadowmoon Enslaver"
 L["Shadowmoon Exhumer"] = "어둠달 도굴꾼"
 L["Shadowmoon Loyalist"] = "어둠달 충성주의자"
 L["ShadowmoonBurialGrounds"] = "어둠달 골짜기"
+--[[Translation missing --]]
+L["shadowmoonShortName"] = "SBG"
 L["Shady Dealer"] = "암거래상"
 L["Shalebiter"] = "혈암깨물이"
 L["Shambling Arbalest"] = "휘청이는 석궁병"
@@ -2148,6 +2230,8 @@ L["Shrine of the Storm"] = "폭풍의 사원"
 L["Shrine of the Storm Sublevel"] = "폭풍의 사원"
 L["Shrine Templar"] = "사원 기사단원"
 L["shrineGraveyardNote1"] = "군주 스통송을 패배시킬 후에 얻습니다"
+--[[Translation missing --]]
+L["shrineOfTheStormsShortName"] = "SOTS"
 L["Shroud Hound"] = "지옥안개 사냥개"
 --[[Translation missing --]]
 L["Shrouded"] = "Shrouded"
@@ -2166,6 +2250,8 @@ L["siegeGutterNote2"] = "G72 Gutters can be used for Enemy forces by tagging the
 L["siegeGuttersNote"] = "Note on Gutters:%sFootmen will insta-kill Gutters when a player comes near them. If they die without taking damage from the group they will not give any enemy forces"
 L["Siegemaster Olugar"] = "공성전문가 오루가"
 L["Siegemaster Rokra"] = "공성전문가 로크라"
+--[[Translation missing --]]
+L["siegeOfBoralusShortName"] = "SIEGE"
 L["Silence"] = "침묵"
 L["Silt Crab"] = "진흙 게"
 L["Sir Zeliek"] = "젤리에크 경"
@@ -2186,6 +2272,8 @@ L["Skeletal Smith"] = "해골 대장장이"
 L["Skeletal Usher"] = "해골 안내인"
 L["Skeletal Waiter"] = "해골 웨이터"
 L["Skeletal Warrior"] = "해골 전사"
+--[[Translation missing --]]
+L["Skittering Assistant"] = "Skittering Assistant"
 L["Skittering Crawler"] = "땅거미게"
 L["Skittering Swarmer"] = "땅거미"
 L["Skittish"] = "변덕"
@@ -2260,6 +2348,8 @@ L["Spinemaw Larva"] = "가시아귀 애벌레"
 L["Spinemaw Reaver"] = "가시아귀 약탈자"
 L["Spinemaw Staghorn"] = "가시아귀 사슴뿔"
 L["Spires of Ascension"] = "승천의 탑"
+--[[Translation missing --]]
+L["spiresOfAscensionShortName"] = "SOA"
 L["Spirit of Vengeance"] = "복수의 영혼"
 L["Spiteful"] = "원한"
 L["Spitting Cobra"] = "독액 코브라"
@@ -2298,6 +2388,8 @@ L["Stonefiend Anklebiter"] = "돌마귀 발목깨물이"
 L["Stonefury"] = "분노석"
 L["Stoneskin Gargoyle"] = "돌가죽 가고일"
 L["Stonevault Geomancer"] = "바위동굴 흙점쟁이"
+--[[Translation missing --]]
+L["stoneVaultShortName"] = "SV"
 L["Stonewall Gargon"] = "돌담 가르곤"
 L["Storm Drake"] = "폭풍 비룡"
 L["Storm Tempered Keeper"] = "폭풍으로 빚은 문지기"
@@ -2371,7 +2463,11 @@ L["TazaveshFloor6"] = "아그라마의 석실"
 L["TazaveshFloor7"] = "보랄러스 항구"
 L["TazaveshFloor8"] = "호사로운 요지"
 L["TazaveshLower"] = "타자베쉬: 경이의 거리"
+--[[Translation missing --]]
+L["tazaveshLowerShortName"] = "STRT"
 L["TazaveshUpper"] = "타자베쉬: 소레아의 승부수"
+--[[Translation missing --]]
+L["tazaveshUpperShortName"] = "GMBT"
 L["tdBuffGateNote"] = "아군을 담음 수 있는 기회. 아군의 종족에 따라서 버프를 줄 겁니다:%s오크/드워프: 10%% 힘/민첩성%s언데드/인간: 10%% 체력%s타우렌/드레나이: 10초당 1%% 생명력+마나%s블러드 엘프/노움: 10%% 지능"
 L["tdGraveyardNote1"] = "모래 여왕을 패배시킬 후에 얻습니다"
 L["tdGraveyardNote2"] = "제스 하울리스를 패배시킬 후에 얻습니다"
@@ -2391,7 +2487,11 @@ L["Temple of Sethraliss Sublevel"] = "세스랄리스 사원"
 L["templeEyeNote"] = "세스랄리스의 눈%s세스랄리스의 눈들을 세스탈리스의 해골에서 가져가시면 됩니다%s각각의 눈이 12 적 병력을 줄 겁니다"
 L["templeGraveyardNote1"] = "메레크타를 패배시킬 후에 얻습니다"
 L["templeGraveyardNote2"] = "세스랄리스의 해골 이벤트를 완료한 후에 얻습니다 "
+--[[Translation missing --]]
+L["templeOfSethralisShortName"] = "TOS"
 L["TempleOfTheJadeSerpent"] = "옥룡사"
+--[[Translation missing --]]
+L["templeOfTheJadeSerpentShortName"] = "TJS"
 L["Temporal Deviation"] = "시간의 편차"
 L["Temporal Fusion"] = "시간의 주입"
 L["Territorial Bladebeak"] = "텃세하는 칼날부리"
@@ -2506,6 +2606,8 @@ L["TheaterOfPainFloor2"] = "정복의 방"
 L["TheaterOfPainFloor3"] = "고통의 제단"
 L["TheaterOfPainFloor4"] = "대학살의 무덤 상층"
 L["TheaterOfPainFloor5"] = "대학살의 무덤 하층"
+--[[Translation missing --]]
+L["theaterOfPainShortName"] = "TOP"
 L["TheAzureVault"] = "하늘빛 보관소"
 --[[Translation missing --]]
 L["TheBurningCauldron"] = "The Burning Cauldron"
@@ -2527,6 +2629,8 @@ L["Thornguard"] = "가시방어병"
 L["Thrashbite the Scornful"] = "경멸하는 난타이빨"
 --[[Translation missing --]]
 L["Throne of Tides"] = "Throne of Tides"
+--[[Translation missing --]]
+L["throneOfTidesShortName"] = "TOTT"
 L["Thunderhead"] = "천둥뿔도마뱀"
 --[[Translation missing --]]
 L["Thundering"] = "Thundering"
@@ -2566,6 +2670,8 @@ L["Toggle Window"] = "창을 열기/닫기"
 L["Toiling Groundskeeper"] = "느릿느릿한 관리인"
 L["Tol Dagor"] = "톨 다고르"
 L["Tol Dagor Sublevel1"] = "톨 다고르"
+--[[Translation missing --]]
+L["tolDagorShortName"] = "TD"
 L["Tomb Horror"] = "공포의 무덤마귀"
 L["Tomb Stalker"] = "무덤 거미"
 L["Tormented Bloodseeker"] = "고통의 흡혈박쥐"
@@ -2643,6 +2749,8 @@ L["Uldaman: Legacy of Tyr"] = "Uldaman: Legacy of Tyr"
 --[[Translation missing --]]
 L["UldamanLegacyOfTyr"] = "Uldaman: Legacy of Tyr"
 --[[Translation missing --]]
+L["uldamanShortName"] = "ULD"
+--[[Translation missing --]]
 L["Ulduar"] = "Ulduar"
 L["Umbral War-Adept"] = "암영 전투 숙련가"
 L["Umbrelskul"] = "엄브렐스컬"
@@ -2654,6 +2762,8 @@ L["Undead"] = "언데드"
 L["Underrot Tick"] = "썩은굴 진드기"
 --[[Translation missing --]]
 L["underrotMatronNote"] = "Matron 4+5 can spawn on either left or right platform"
+--[[Translation missing --]]
+L["underrotShortName"] = "UR"
 L["underrotSkipNote"] = "포자소환사 잔차를 패배시킬 후에 지름길을 얻습니다"
 --[[Translation missing --]]
 L["underrotVoidNote"] = "Spawns of Void-Touched Emissary 2 and 3 are random.%sOnly one of them will be present at a time."
@@ -2724,6 +2834,8 @@ L["Vault Guard"] = "금고 경비병"
 L["Vault of the Betrayer"] = "배신자의 금고"
 L["Vault of the Wardens"] = "감시관의 금고"
 L["Vault of the Wardens Sublevel"] = "감시관의 금고"
+--[[Translation missing --]]
+L["vaultOfTheWardensShortName"] = "VOTW"
 L["Venom Stalker"] = "맹독 늑대거미"
 L["Venomfang"] = "맹독송곳니"
 L["Venomous Ophidian"] = "맹독 뱀"
@@ -2790,6 +2902,8 @@ L["Vol'zith the Whisperer"] = "속삭임의 볼지스"
 --[[Translation missing --]]
 L["VortexPinnacle"] = "Vortex Pinnacle"
 --[[Translation missing --]]
+L["vortexPinnacleShortName"] = "VP"
+--[[Translation missing --]]
 L["Vx"] = "Vx"
 L["Vy Relic"] = "바이 유물"
 --[[Translation missing --]]
@@ -2811,6 +2925,8 @@ L["Watchful Inquisitor"] = "감시하는 심문관"
 L["Waterlogged Soul Guard"] = "물에 젖은 영혼 경비병"
 L["Waycrest Manor"] = "웨이크레스트 저택"
 L["Waycrest Reveler"] = "웨이크레스트 난봉꾼"
+--[[Translation missing --]]
+L["waycrestManorShortName"] = "WCM"
 L["wcmWorldquestNote"] = "G52에 메모: 대모 크리스티안을 처지할 전역 퀘스트가 활성화된다면 %sG52가 없을 겁니다"
 L["Weald Shimmermoth"] = "숲 아른나방"
 L["Weaponized Crawler"] = "무장한 거미전차"
