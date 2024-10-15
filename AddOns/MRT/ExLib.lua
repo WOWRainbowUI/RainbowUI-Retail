@@ -4372,7 +4372,7 @@ ELib.ScrollDropDown = {}
 ELib.ScrollDropDown.List = {}
 local ScrollDropDown_Blizzard,ScrollDropDown_Modern = {},{}
 
-for i=1,2 do
+for i=1,3 do
 	ScrollDropDown_Modern[i] = ELib:Template("ExRTDropDownListModernTemplate",UIParent)
 	_G[GlobalAddonName.."DropDownListModern"..i] = ScrollDropDown_Modern[i]
 	ScrollDropDown_Modern[i]:SetClampedToScreen(true)
@@ -4380,6 +4380,7 @@ for i=1,2 do
 	ScrollDropDown_Modern[i].Buttons = {}
 	ScrollDropDown_Modern[i].MaxLines = 0
 	ScrollDropDown_Modern[i].isModern = true
+	ScrollDropDown_Modern[i].Level = i
 	do
 		ScrollDropDown_Modern[i].Animation = CreateFrame("Frame",nil,ScrollDropDown_Modern[i])
 		ScrollDropDown_Modern[i].Animation:SetSize(1,1)
@@ -4705,9 +4706,9 @@ function ELib.ScrollDropDown.OnButtonEnter(self)
 	ELib.ScrollDropDown:CloseSecondLevel(self.Level)
 	if self.subMenu then
 		if IsDropDownCustom then
-			ELib.ScrollDropDown.ToggleDropDownMenu(self,2,self.subMenu,IsDropDownCustom)
+			ELib.ScrollDropDown.ToggleDropDownMenu(self,self.Level+1,self.subMenu,IsDropDownCustom)
 		else
-			ELib.ScrollDropDown.ToggleDropDownMenu(self,2)
+			ELib.ScrollDropDown.ToggleDropDownMenu(self,self.Level+1)
 		end
 	end
 end
