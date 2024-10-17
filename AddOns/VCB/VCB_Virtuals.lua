@@ -5,31 +5,39 @@ vcbNoMainColor = CreateColorFromRGBAHexString("F0E68C00")
 vcbNoHighColor = CreateColorFromRGBAHexString("9ACD3200")
 -- function for showing the menu --
 function vcbShowMenu()
-	if not vcbOptions00:IsShown() then
-		vcbOptions00:Show()
+	if not InCombatLockdown() then
+		if not vcbOptions00:IsShown() then
+			vcbOptions00:Show()
+		else
+			vcbOptions00:Hide()
+		end
 	else
-		vcbOptions00:Hide()
+		local vcbTime = GameTime_GetTime(false)
+		DEFAULT_CHAT_FRAME:AddMessage(vcbTime.." |A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a ["..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."] You can't do this, while you are in combat!")
 	end
 end
+-- Slash Command --
 RegisterNewSlashCommand(vcbShowMenu, "vcb", "voodoocastingbar")
 -- Mini Map Button Functions --
--- Clicky Clicky --
-function vcbMinimapClick(addonName, buttonName)
-	if buttonName == "LeftButton" then
-		vcbShowMenu()
-	end
-end
--- On Enter --
-function vcbMinimapOnEnter()
-	GameTooltip_ClearStatusBars(GameTooltip)
-	GameTooltip_SetDefaultAnchor(GameTooltip, UIParent)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|n點一下: "..vcbMainColor:WrapTextInColorCode("打開設定選項!")) 
-	GameTooltip:Show()
-end
--- On Leave --
-function vcbMinimapOnLeave()
-	GameTooltip:Hide()
-end
+AddonCompartmentFrame:RegisterAddon({
+	text = vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")),
+	icon = C_AddOns.GetAddOnMetadata("VCB", "IconAtlas"),
+	notCheckable = true,
+	func = function(button, menuInputData, menu)
+		local buttonName = menuInputData.buttonName
+		if buttonName == "LeftButton" then
+			vcbShowMenu()
+		end
+	end,
+	funcOnEnter = function(button)
+		MenuUtil.ShowTooltip(button, function(tooltip)
+		tooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|n點一下: "..vcbMainColor:WrapTextInColorCode("打開設定選項!"))
+		end)
+	end,
+	funcOnLeave = function(button)
+		MenuUtil.HideTooltip(button)
+	end,
+})
 -- functions for the buttons and popouts --
 -- on enter --
 function vcbEnteringMenus(self)
