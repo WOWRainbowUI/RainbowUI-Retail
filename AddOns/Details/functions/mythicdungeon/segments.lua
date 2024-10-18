@@ -211,6 +211,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
     Details222.StartCombat()
 
     --get the current combat just created and the table with all past segments
+    ---@type combat
     local newCombat = Details:GetCurrentCombat()
     local segmentsTable = Details:GetCombatSegments()
 
@@ -253,7 +254,8 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
         EndedAt = Details.MythicPlus.EndedAt, --the end of the run
         WorldStateTimerStart = Details222.MythicPlus.WorldStateTimerStartAt,
         WorldStateTimerEnd = Details222.MythicPlus.WorldStateTimerEndAt,
-        RunTime = Details222.MythicPlus.time,
+        RunTime = Details222.MythicPlus.time, --this is the time that discounted the deaths penalty
+        TotalTime = Details222.MythicPlus.ElapsedTime, --this is the total time of the run
         TimeInCombat = timeInCombat,
         SegmentID = "overall", --segment number within the dungeon
         RunID = Details.mythic_dungeon_id,
@@ -278,7 +280,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
 		DungeonTexture = Details222.MythicPlus.Texture,
 		DungeonBackgroundTexture = Details222.MythicPlus.BackgroundTexture,
         SegmentType = DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL,
-        SegmentName = Details.MythicPlus.DungeonName .. " +" .. Details222.MythicPlus.Level,
+        SegmentName = Details.MythicPlus.DungeonName .. " +" .. (Details222.MythicPlus.Level or 2),
     }
 
     --add all boss segments from this run to this new segment
@@ -324,6 +326,7 @@ function DetailsMythicPlusFrame.MergeSegmentsOnEnd() --~merge
     --check if both values are valid, this can get invalid if the player leaves the dungeon before the timer ends or the game crashes
     if (type(Details222.MythicPlus.time) == "number") then
         newCombat.run_time = Details222.MythicPlus.time
+        newCombat.elapsed_time = Details222.MythicPlus.ElapsedTime
         Details222.MythicPlus.LogStep("GetCompletionInfo() Found, Time: " .. Details222.MythicPlus.time)
 
     elseif (newCombat.is_mythic_dungeon.WorldStateTimerEnd and newCombat.is_mythic_dungeon.WorldStateTimerStart) then

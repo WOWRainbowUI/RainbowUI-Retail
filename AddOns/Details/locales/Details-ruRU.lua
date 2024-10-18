@@ -709,6 +709,8 @@ L["STRING_OPTIONS_EXTERNALS_TITLE"] = "Внешние виджеты"
 L["STRING_OPTIONS_EXTERNALS_TITLE2"] = "Эти параметры управляют поведением многих внешних виджетов."
 L["STRING_OPTIONS_GENERAL"] = "Общие настройки"
 L["STRING_OPTIONS_GENERAL_ANCHOR"] = "Общее:"
+--[[Translation missing --]]
+L["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"] = "\"Space Between Windows\""
 L["STRING_OPTIONS_HIDE_ICON"] = "Скрыть значок"
 L["STRING_OPTIONS_HIDE_ICON_DESC"] = [=[Когда включено, значок, представляющий выбранного дисплея, не отображается.
 

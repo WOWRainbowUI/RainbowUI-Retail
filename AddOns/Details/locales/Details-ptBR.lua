@@ -704,6 +704,8 @@ L["STRING_OPTIONS_EXTERNALS_TITLE"] = "Widgets Externos"
 L["STRING_OPTIONS_EXTERNALS_TITLE2"] = "Esta opção controla o comportamento de vários widgets externos."
 L["STRING_OPTIONS_GENERAL"] = "Configurações Gerais"
 L["STRING_OPTIONS_GENERAL_ANCHOR"] = "Geral:"
+--[[Translation missing --]]
+L["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"] = "\"Space Between Windows\""
 L["STRING_OPTIONS_HIDE_ICON"] = "Esconder ícone"
 L["STRING_OPTIONS_HIDE_ICON_DESC"] = [=[Quando habilitado, o ícone no canto superior esquerdo não será exibido.
 

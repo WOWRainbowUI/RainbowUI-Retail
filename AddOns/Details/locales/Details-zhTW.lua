@@ -709,6 +709,8 @@ L["STRING_OPTIONS_EXTERNALS_TITLE"] = "外部小套件"
 L["STRING_OPTIONS_EXTERNALS_TITLE2"] = "這些選項控制許多外部小套件的作用"
 L["STRING_OPTIONS_GENERAL"] = "一般設定"
 L["STRING_OPTIONS_GENERAL_ANCHOR"] = "一般:"
+--[[Translation missing --]]
+L["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"] = "\"Space Between Windows\""
 L["STRING_OPTIONS_HIDE_ICON"] = "隱藏圖示"
 L["STRING_OPTIONS_HIDE_ICON_DESC"] = [=[啟用時，不會顯示代表所選視窗的圖示。
 

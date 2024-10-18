@@ -699,6 +699,8 @@ L["STRING_OPTIONS_EXTERNALS_TITLE"] = "Externe Widgets"
 L["STRING_OPTIONS_EXTERNALS_TITLE2"] = "Diese Optionen bestimmen das Verhalten vieler fremder Widgets."
 L["STRING_OPTIONS_GENERAL"] = "Allgemeine Einstellungen"
 L["STRING_OPTIONS_GENERAL_ANCHOR"] = "Allgemein:"
+--[[Translation missing --]]
+L["STRING_OPTIONS_GROUPING_HORIZONTAL_GAP"] = "\"Space Between Windows\""
 L["STRING_OPTIONS_HIDE_ICON"] = "Symbol verstecken"
 L["STRING_OPTIONS_HIDE_ICON_DESC"] = [=[Aktiviert: Das Symbol des entsprechenden Fensters wird nicht gezeigt.
 
