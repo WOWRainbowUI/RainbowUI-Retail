@@ -678,6 +678,7 @@ function module.options:Load()
 		tinsert(module.db.encountersList,MRT.F.table_find(module.db.encountersList,909,1) or #module.db.encountersList,{EXPANSION_NAME7..": "..DUNGEONS,-1012,-968,-1041,-1022,-1030,-1023,-1002,-1001,-1036,-1021})
 	else
 		module.db.encountersList = {}
+		tinsert(module.db.encountersList,MRT.F.table_copy2(MRT.F.table_find3(MRT.GDB.EncountersList,367,1)))
 	end
 
 	module.db.mapToEncounter = {
@@ -782,6 +783,15 @@ function module.options:Load()
 
 	function self:GetBossName(bossID)
 		return bossID < 0 and L.EJInstanceName[ -bossID ] or L.bossName[ bossID ]
+	end
+	function self:GetBossIcon(bossID)
+		if bossID and bossID > 0 and MRT.GDB.encounterIDtoEJ[bossID] and EJ_GetCreatureInfo then
+			local bossImg = select(5, EJ_GetCreatureInfo(1, MRT.GDB.encounterIDtoEJ[bossID]))
+			if bossImg then
+				return "|T"..bossImg..":12:24|t"
+			end
+		end
+		return ""
 	end
 
 	local BlackNoteNow = nil
@@ -910,7 +920,7 @@ function module.options:Load()
 		self.NotesList.L[1] = "|cff55ee55"..L.messageTab1
 		self.NotesList.L[2] = L.NoteSelf
 		for i=1,#VMRT.Note.Black do
-			self.NotesList.L[i+2] = (VMRT.Note.AutoLoad[i] and (bossesToGreen[ VMRT.Note.AutoLoad[i] ] and "|cff00ff00" or "|cffffff00").."["..module.options:GetBossName(VMRT.Note.AutoLoad[i]).."]|r" or "")..(VMRT.Note.BlackNames[i] or i)
+			self.NotesList.L[i+2] = (VMRT.Note.AutoLoad[i] and (bossesToGreen[ VMRT.Note.AutoLoad[i] ] and "|cff00ff00" or "|cffffff00")..module.options:GetBossIcon(VMRT.Note.AutoLoad[i]).."["..module.options:GetBossName(VMRT.Note.AutoLoad[i]).."]|r" or "")..(VMRT.Note.BlackNames[i] or i)
 		end
 		self.NotesList.L[#self.NotesList.L + 1] = "|cff00aaff"..L.NoteAdd
 		self.NotesList:Update()
@@ -934,6 +944,7 @@ function module.options:Load()
 		module.options.LastIndex = index
 
 		module.options.buttonsend:SetShown(index == 1)
+		module.options.buttonundo:SetShown(index == 1)
 		module.options.buttoncopy:SetShown(index > 2)
 		module.options.buttonwindow:SetShown(index > 2)
 		module.options.buttoncopyPersonal:SetShown(index > 2)
@@ -964,12 +975,12 @@ function module.options:Load()
 
 			module.options.DraftName:SetText( VMRT.Note.DefName or "" )
 
-			module.options.autoLoadDropdown:SetText(VMRT.Note.AutoLoad[0] and module.options:GetBossName(VMRT.Note.AutoLoad[0]) or "-")
+			module.options.autoLoadDropdown:UpdateText(VMRT.Note.AutoLoad[0])
 		elseif index == 2 then
 			module.options.NoteEditBox.EditBox:SetText(VMRT.Note.SelfText or "")
 			module.options.DraftName:SetText( L.NoteSelf )
 
-			module.options.autoLoadDropdown:SetText("-")
+			module.options.autoLoadDropdown:UpdateText()
 
 			NoteIsSelfNow = true
 		elseif index == #self.L then
@@ -983,7 +994,7 @@ function module.options:Load()
 
 			NotesListUpdateNames()
 
-			module.options.autoLoadDropdown:SetText("-")
+			module.options.autoLoadDropdown:UpdateText()
 		else
 			index = index - 2
 			if IsShiftKeyDown() then
@@ -994,7 +1005,7 @@ function module.options:Load()
 			BlackNoteNow = index
 			module.options.DraftName:SetText( VMRT.Note.BlackNames[index] or "" )
 
-			module.options.autoLoadDropdown:SetText(VMRT.Note.AutoLoad[index] and module.options:GetBossName(VMRT.Note.AutoLoad[index]) or "-")
+			module.options.autoLoadDropdown:UpdateText(VMRT.Note.AutoLoad[index])
 		end
 	end
 
@@ -1131,6 +1142,8 @@ function module.options:Load()
 			NotesListUpdateNames()
 		elseif not BlackNoteNow and not NoteIsSelfNow then
 			VMRT.Note.DefName = self:GetText()
+
+			module:ModHistory(-1, {name = VMRT.Note.DefName})
 		end
 	end)
 	self.DraftName:SetBackdropColor(0, 0, 0, 0) 
@@ -1144,12 +1157,20 @@ function module.options:Load()
 
 		VMRT.Note.AutoLoad[index] = encounterID
 
-		module.options.autoLoadDropdown:SetText(encounterID and module.options:GetBossName(encounterID) or "-")
+		module.options.autoLoadDropdown:UpdateText(encounterID)
 		NotesListUpdateNames()
 		ELib:DropDownClose()
+
+		if index == 0 then
+			module:ModHistory(-1, {bossID = VMRT.Note.AutoLoad[0]})
+		end
 	end
 
-	self.autoLoadDropdown = ELib:DropDown(self.tab.tabs[1],550,25):AddText(ENCOUNTER_JOURNAL_ENCOUNTER..":"):Point("TOPRIGHT",self.DuplicateDraft,"BOTTOMRIGHT",-2,-1):Size(550):SetText(VMRT.Note.AutoLoad[0] and L.bossName[ VMRT.Note.AutoLoad[0] ] or "-")
+	self.autoLoadDropdown = ELib:DropDown(self.tab.tabs[1],550,25):AddText(ENCOUNTER_JOURNAL_ENCOUNTER..":"):Point("TOPRIGHT",self.DuplicateDraft,"BOTTOMRIGHT",-2,-1):Size(550)
+	function self.autoLoadDropdown:UpdateText(encounterID)
+		self:SetText(encounterID and (module.options:GetBossIcon(encounterID)..module.options:GetBossName(encounterID)) or "-")
+	end
+	self.autoLoadDropdown:UpdateText(VMRT.Note.AutoLoad[0])
 	do
 		local List = self.autoLoadDropdown.List
 		List[#List+1] = {
@@ -1163,10 +1184,16 @@ function module.options:Load()
 				isTitle = true,
 			}
 			for j=2,#instance do
+				local bossID, bossImg = instance[j]
+				if bossID and MRT.GDB.encounterIDtoEJ[bossID] and EJ_GetCreatureInfo then
+					bossImg = select(5, EJ_GetCreatureInfo(1, MRT.GDB.encounterIDtoEJ[bossID]))
+				end
 				List[#List+1] = {
-					text = module.options:GetBossName(instance[j]),
-					arg1 = instance[j],
+					text = module.options:GetBossName(bossID),
+					arg1 = bossID,
 					func = autoLoadDropdown_SetValue,
+					icon = bossImg,
+					iconsize = 32,
 				}
 			end
 		end
@@ -1185,7 +1212,7 @@ function module.options:Load()
 	self.autoLoadDropdown:SetScript("OnLeave",function(self)
 		self.Background:Hide()
 	end)
-	if MRT.isClassic then
+	if MRT.isClassic and not MRT.isCata then
 		self.autoLoadDropdown:Hide()
 	end
 
@@ -1242,7 +1269,6 @@ function module.options:Load()
 		return self:_SetText(text)
 	end
 
-
 	function self.NoteEditBox.EditBox:OnTextChanged(isUser)
 		if not isUser and (not module.options.InsertFix or GetTime() - module.options.InsertFix > 0.1) then
 			return
@@ -1261,7 +1287,7 @@ function module.options:Load()
 			VMRT.Note.BlackLastUpdateName[BlackNoteNow] = MRT.SDB.charKey
 			VMRT.Note.BlackLastUpdateTime[BlackNoteNow] = time()
 		else
-			VMRT.Note.Text1 = text
+			module:SaveText(text,-1)
 			if module.frame.text:GetText() ~= txtWithIcons(module.frame, VMRT.Note.Text1) then
 				module.options.buttonsend:Anim(true)
 			else
@@ -1317,7 +1343,31 @@ function module.options:Load()
 		end
 	end)
 
-	self.buttonsend = ELib:Button(self.tab.tabs[1],L.messagebutsend):Size(0,30):Point("LEFT",self.NotesList,"TOPRIGHT",4,0):Point("BOTTOM",self,"BOTTOM",0,2):Point("RIGHT",self,"RIGHT",-2,0):Tooltip(L.messagebutsendtooltip):OnClick(function (self)
+	self.buttonundo = ELib:Button(self.tab.tabs[1],L.NoteUndo):Size(80,30):Point("LEFT",self.NotesList,"TOPRIGHT",4,0):Point("BOTTOM",self,"BOTTOM",0,2):Tooltip(L.NoteUndoTip):OnClick(function (self)
+		local menu = {}
+		for i=1,#module.db.History do
+			menu[#menu+1] = {text = date("%X",module.db.History[i].time), func = function() 
+				ELib.ScrollDropDown.Close() 
+				module.db.HistoryLock = true
+				local history = module.db.History[i]
+				module:SaveText(history.text, -2) 
+				module.frame:SetTo()
+				if VMRT.Note.AutoLoad[0] ~= history.bossID then
+					VMRT.Note.AutoLoad[0] = history.bossID
+				end
+				module.options.autoLoadDropdown:UpdateText(VMRT.Note.AutoLoad[0])
+				if VMRT.Note.DefName ~= history.name then
+					VMRT.Note.DefName = history.name
+				end
+				module.options.DraftName:SetText( VMRT.Note.DefName or "" )
+				module.db.HistoryLock = nil
+			end, tooltip = (module.db.History[i].text or ""):sub(1,800)..(#(module.db.History[i].text or "") > 800 and "..." or "")}
+		end
+		menu[#menu+1] = { text = CLOSE, func = function() ELib.ScrollDropDown.Close() end, notCheckable = true }
+
+		ELib.ScrollDropDown.EasyMenu(self,menu,200)
+	end)
+	self.buttonsend = ELib:Button(self.tab.tabs[1],L.messagebutsend):Size(0,30):Point("LEFT",self.buttonundo,"RIGHT",2,0):Point("BOTTOM",self,"BOTTOM",0,2):Point("RIGHT",self,"RIGHT",-2,0):Tooltip(L.messagebutsendtooltip):OnClick(function (self)
 		module.frame:Save() 
 
 		if IsShiftKeyDown() then
@@ -1671,7 +1721,7 @@ function module.options:Load()
 	end)  
 
 
-	self.chkOnlyInRaid = ELib:Check(self.tab.tabs[2],L.MarksBarDisableInRaid,VMRT.Note.HideOutsideRaid):Point(15,-40):OnClick(function(self) 
+	self.chkOnlyInRaid = ELib:Check(self.tab.tabs[2],L.MarksBarDisableInRaid,VMRT.Note.HideOutsideRaid):Point("TOPLEFT",self.chkOnlyPromoted,"BOTTOMLEFT",0,-5):OnClick(function(self) 
 		if self:GetChecked() then
 			VMRT.Note.HideOutsideRaid = true
 		else
@@ -1680,7 +1730,7 @@ function module.options:Load()
 		module:Visibility()
 	end) 
 
-	self.chkOnlyInRaidKInstance = ELib:Check(self.tab.tabs[2],L.NoteShowOnlyInRaid,VMRT.Note.ShowOnlyInRaid):Point(15,-65):OnClick(function(self) 
+	self.chkOnlyInRaidKInstance = ELib:Check(self.tab.tabs[2],L.NoteShowOnlyInRaid,VMRT.Note.ShowOnlyInRaid):Point("TOPLEFT",self.chkOnlyInRaid,"BOTTOMLEFT",0,-5):OnClick(function(self) 
 		if self:GetChecked() then
 			VMRT.Note.ShowOnlyInRaid = true
 			module:RegisterEvents('ZONE_CHANGED_NEW_AREA')
@@ -1691,7 +1741,7 @@ function module.options:Load()
 		module:Visibility()
 	end) 
 
-	self.chkOnlySelf = ELib:Check(self.tab.tabs[2],L.NoteShowOnlyPersonal,VMRT.Note.ShowOnlyPersonal):Point(15,-90):OnClick(function(self) 
+	self.chkOnlySelf = ELib:Check(self.tab.tabs[2],L.NoteShowOnlyPersonal,VMRT.Note.ShowOnlyPersonal):Point("TOPLEFT",self.chkOnlyInRaidKInstance,"BOTTOMLEFT",0,-5):OnClick(function(self) 
 		if self:GetChecked() then
 			VMRT.Note.ShowOnlyPersonal = true
 		else
@@ -1700,7 +1750,7 @@ function module.options:Load()
 		module.allframes:UpdateText()
 	end) 
 
-	self.chkSelfWindow = ELib:Check(self.tab.tabs[2],L.NotePersonalWindow,VMRT.Note.PersonalWindow):Point(15,-115):OnClick(function(self) 
+	self.chkSelfWindow = ELib:Check(self.tab.tabs[2],L.NotePersonalWindow,VMRT.Note.PersonalWindow):Point("TOPLEFT",self.chkOnlySelf,"BOTTOMLEFT",0,-5):OnClick(function(self) 
 		if self:GetChecked() then
 			VMRT.Note.PersonalWindow = true
 			module.frame_personal:Enable()
@@ -1713,7 +1763,7 @@ function module.options:Load()
 
 
 
-	self.chkHideInCombat = ELib:Check(self.tab.tabs[2],L.NoteHideInCombat,VMRT.Note.HideInCombat):Point(15,-140):OnClick(function(self) 
+	self.chkHideInCombat = ELib:Check(self.tab.tabs[2],L.NoteHideInCombat,VMRT.Note.HideInCombat):Point("TOPLEFT",self.chkSelfWindow,"BOTTOMLEFT",0,-5):OnClick(function(self) 
 		if self:GetChecked() then
 			VMRT.Note.HideInCombat = true
 			module:RegisterEvents('PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED')
@@ -1724,7 +1774,7 @@ function module.options:Load()
 		module:Visibility()
 	end) 
 
-	self.chkSaveAllNew = ELib:Check(self.tab.tabs[2],L.NoteSaveAllNew,VMRT.Note.SaveAllNew):Point(15,-165):OnClick(function(self) 
+	self.chkSaveAllNew = ELib:Check(self.tab.tabs[2],L.NoteSaveAllNew,VMRT.Note.SaveAllNew):Point("TOPLEFT",self.chkHideInCombat,"BOTTOMLEFT",0,-5):OnClick(function(self) 
 		if self:GetChecked() then
 			VMRT.Note.SaveAllNew = true
 		else
@@ -1732,7 +1782,7 @@ function module.options:Load()
 		end
 	end) 
 
-	self.chkEnableWhenReceive = ELib:Check(self.tab.tabs[2],L.NoteEnableWhenReceive,VMRT.Note.EnableWhenReceive):Point(15,-190):OnClick(function(self) 
+	self.chkEnableWhenReceive = ELib:Check(self.tab.tabs[2],L.NoteEnableWhenReceive,VMRT.Note.EnableWhenReceive):Point("TOPLEFT",self.chkSaveAllNew,"BOTTOMLEFT",0,-5):OnClick(function(self) 
 		if self:GetChecked() then
 			VMRT.Note.EnableWhenReceive = true
 		else
@@ -1740,7 +1790,44 @@ function module.options:Load()
 		end
 	end) 
 
-	self.sliderFontSize = ELib:Slider(self.tab.tabs[2],L.NoteFontSize):Size(300):Point(16,-225):Range(6,72):SetTo(VMRT.Note.FontSize or 12):OnChange(function(self,event) 
+	self.chkEnableBossAutoLoad = ELib:Check(self.tab.tabs[2],L.NoteEnableBossAutoLoad,VMRT.Note.EnableBossAutoLoad):Tooltip(L.NoteEnableBossAutoLoadTip):Point("TOPLEFT",self.chkEnableWhenReceive,"BOTTOMLEFT",0,-5):OnClick(function(self) 
+		if self:GetChecked() then
+			VMRT.Note.EnableBossAutoLoad = true
+			module:RegisterEvents('ZONE_CHANGED','ZONE_CHANGED_INDOORS')
+		else
+			VMRT.Note.EnableBossAutoLoad = nil
+		end
+	end) 
+
+	self.dropDownBossAutoLoadType = ELib:DropDown(self.tab.tabs[2],350,3):Point("LEFT",self.chkEnableBossAutoLoad,315,-0):Size(300):SetText(L["NoteEnableBossAutoLoadType"..(VMRT.Note.BossAutoLoadType or 3)])
+	function self.dropDownBossAutoLoadType:SetValue(arg1)
+		ELib:DropDownClose()
+		VMRT.Note.BossAutoLoadType = arg1
+		module.options.dropDownBossAutoLoadType:SetText(L["NoteEnableBossAutoLoadType"..arg1])
+	end
+	for i=1,3 do
+		self.dropDownBossAutoLoadType.List[i] = {
+			text = L["NoteEnableBossAutoLoadType"..i],
+			arg1 = i,
+			func = self.dropDownBossAutoLoadType.SetValue,
+		}
+	end
+
+	self.chkBossAutoLoadSend = ELib:Check(self.tab.tabs[2],L.NoteBossAutoLoadSendAsRL,VMRT.Note.BossAutoLoadSendAsRL):Tooltip(L.NoteEnableBossAutoLoadTip):Point("TOPLEFT",self.chkEnableBossAutoLoad,"BOTTOMLEFT",25,-5):OnClick(function(self) 
+		if self:GetChecked() then
+			VMRT.Note.BossAutoLoadSendAsRL = true
+		else
+			VMRT.Note.BossAutoLoadSendAsRL = nil
+		end
+	end) 
+
+	if MRT.isClassic and not MRT.isCata then
+		self.dropDownBossAutoLoadType:Hide()
+		self.chkEnableBossAutoLoad:Hide()
+		self.chkBossAutoLoadSend:Hide()
+	end
+
+	self.sliderFontSize = ELib:Slider(self.tab.tabs[2],L.NoteFontSize):Size(300):Point("TOPLEFT",self.chkEnableBossAutoLoad,"BOTTOMLEFT",0,-20-25):Range(6,72):SetTo(VMRT.Note.FontSize or 12):OnChange(function(self,event) 
 		event = event - event%1
 		VMRT.Note.FontSize = event
 		module.allframes:UpdateFont()
@@ -1756,7 +1843,7 @@ function module.options:Load()
 		module.allframes:UpdateFont()
 	end
 
-	self.dropDownFont = ELib:DropDown(self.tab.tabs[2],350,10):Point(15,-255):Size(300)
+	self.dropDownFont = ELib:DropDown(self.tab.tabs[2],350,10):Point("TOPLEFT",self.sliderFontSize,"TOPLEFT",0,-30):Size(300)
 	for i=1,#MRT.F.fontList do
 		self.dropDownFont.List[i] = {}
 		local info = self.dropDownFont.List[i]
@@ -1791,7 +1878,7 @@ function module.options:Load()
 		module.allframes:UpdateFont()
 	end) 
 
-	self.slideralpha = ELib:Slider(self.tab.tabs[2],L.messagebutalpha):Size(300):Point(16,-300):Range(0,100):SetTo(VMRT.Note.Alpha or 100):OnChange(function(self,event) 
+	self.slideralpha = ELib:Slider(self.tab.tabs[2],L.messagebutalpha):Size(300):Point("TOPLEFT",self.dropDownFont,"BOTTOMLEFT",0,-20):Range(0,100):SetTo(VMRT.Note.Alpha or 100):OnChange(function(self,event) 
 		event = event - event%1
 		VMRT.Note.Alpha = event
 		module.allframes:SetAlpha(event/100)
@@ -1799,15 +1886,7 @@ function module.options:Load()
 		self:tooltipReload(self)
 	end)
 
-	self.sliderscale = ELib:Slider(self.tab.tabs[2],L.messagebutscale):Size(300):Point(16,-370):Range(5,200):SetTo(VMRT.Note.Scale or 100):OnChange(function(self,event) 
-		event = event - event%1
-		VMRT.Note.Scale = event
-		module.allframes:ScaleFix(event/100)
-		self.tooltipText = event
-		self:tooltipReload(self)
-	end)
-
-	self.slideralphaback = ELib:Slider(self.tab.tabs[2],L.messageBackAlpha):Size(300):Point(16,-335):Range(0,100):SetTo(VMRT.Note.ScaleBack or 100):OnChange(function(self,event) 
+	self.slideralphaback = ELib:Slider(self.tab.tabs[2],L.messageBackAlpha):Size(300):Point("TOPLEFT",self.slideralpha,"BOTTOMLEFT",0,-20):Range(0,100):SetTo(VMRT.Note.ScaleBack or 100):OnChange(function(self,event) 
 		event = event - event%1
 		VMRT.Note.ScaleBack = event
 		module.allframes.background:SetColorTexture(0, 0, 0, event/100)
@@ -1815,7 +1894,15 @@ function module.options:Load()
 		self:tooltipReload(self)
 	end)
 
-	self.moreOptionsDropDown = ELib:DropDown(self.tab.tabs[2],275,#frameStrataList+1):Point(15,-405):Size(300):SetText(L.NoteFrameStrata)
+	self.sliderscale = ELib:Slider(self.tab.tabs[2],L.messagebutscale):Size(300):Point("TOPLEFT",self.slideralphaback,"BOTTOMLEFT",0,-20):Range(5,200):SetTo(VMRT.Note.Scale or 100):OnChange(function(self,event) 
+		event = event - event%1
+		VMRT.Note.Scale = event
+		module.allframes:ScaleFix(event/100)
+		self.tooltipText = event
+		self:tooltipReload(self)
+	end)
+
+	self.moreOptionsDropDown = ELib:DropDown(self.tab.tabs[2],275,#frameStrataList+1):Point("TOPLEFT",self.sliderscale,"BOTTOMLEFT",0,-15):Size(300):SetText(L.NoteFrameStrata)
 
 	local function moreOptionsDropDown_SetVaule(_,arg)
 		VMRT.Note.Strata = arg
@@ -1839,7 +1926,7 @@ function module.options:Load()
 		ELib:DropDownClose()
 	end})
 
-	self.ButtonToCenter = ELib:Button(self.tab.tabs[2],L.MarksBarResetPos):Size(300,20):Point(15,-435):Tooltip(L.MarksBarResetPosTooltip):OnClick(function()
+	self.ButtonToCenter = ELib:Button(self.tab.tabs[2],L.MarksBarResetPos):Size(300,20):Point("TOPLEFT",self.moreOptionsDropDown,"BOTTOMLEFT",0,-5):Tooltip(L.MarksBarResetPosTooltip):OnClick(function()
 		VMRT.Note.Left = nil
 		VMRT.Note.Top = nil
 
@@ -2441,6 +2528,10 @@ function module.options:Load()
 		self.chkTimersGlow:SetChecked(VMRT.Note.TimerGlow)
 		self.chkTimersOnlyMy:SetChecked(VMRT.Note.TimerOnlyMy)
 
+		self.chkEnableBossAutoLoad:SetChecked(VMRT.Note.EnableBossAutoLoad)
+		self.dropDownBossAutoLoadType:SetText(L["NoteEnableBossAutoLoadType"..(VMRT.Note.BossAutoLoadType or 3)])
+		self.chkBossAutoLoadSend:SetChecked(VMRT.Note.BossAutoLoadSendAsRL)
+
 		self.frameTypeGlow1:SetChecked(false)
 		self.frameTypeGlow1:SetChecked(false)
 		self.frameTypeGlow1:SetChecked(false)
@@ -2931,15 +3022,59 @@ setmetatable(module.allframes, {__index = function(table, key)
 	end
 end})
 
+module.db.History = {}
+function module:AddHistory(text, index)
+	if not text or index == -2 or not index or text:trim() == "" or module.db.HistoryLock then
+		return
+	end
+	if not (module.db.History[1] and module.db.History[1].index == index) then
+		tinsert(module.db.History, 1, {text = text, index = index, time = GetTime(), bossID = VMRT.Note.AutoLoad[0], name = VMRT.Note.DefName})
+	end
+	module.db.History[1].text = text
+
+	for i=11,#module.db.History do
+		module.db.History[i] = nil
+	end
+end
+function module:ModHistory(index, data)
+	if not module.db.History[1] or module.db.History[1].index ~= index or module.db.HistoryLock then
+		return
+	end
+	for k,val in pairs(data) do
+		if val == -1 then
+			module.db.History[1][k] = nil
+		else
+			module.db.History[1][k] = val
+		end
+	end
+end
+function module:SaveText(text, index)
+  	VMRT.Note.Text1 = text
+
+	module:AddHistory(text, index)
+end
+
+function module.frame:SetTo(blackNoteID)
+	module:SaveText(blackNoteID and VMRT.Note.Black[blackNoteID] or VMRT.Note.Text1 or "")
+
+	if blackNoteID then
+		VMRT.Note.AutoLoad[0] = VMRT.Note.AutoLoad[blackNoteID]
+		VMRT.Note.DefName = VMRT.Note.BlackNames[blackNoteID]
+		if VMRT.Note.DefName then
+			VMRT.Note.DefName = VMRT.Note.DefName:gsub("%*$","")
+		end
+
+		module:ModHistory(nil, {bossID = VMRT.Note.AutoLoad[0], name = VMRT.Note.DefName})
+	end
+
+	module.allframes:UpdateText()
+	module.frame:UpdateOptionsText() 
+end
 
 function module.frame:Save(blackNoteID)
-	VMRT.Note.Text1 = (blackNoteID and VMRT.Note.Black[blackNoteID] or VMRT.Note.Text1 or "")
+	module.frame:SetTo(blackNoteID)
 
 	MRT.F:FireCallback("Note_SendText",VMRT.Note.Text1)
-
-	if not blackNoteID and module.options.NoteEditBox and VMRT.Note.OptionsFormatting then
-	--	VMRT.Note.Text1 = VMRT.Note.Text1:gsub("|([Ttcr])","||%1")
-	end
 
 	if #VMRT.Note.Text1 == 0 then
 		VMRT.Note.Text1 = " "
@@ -2959,14 +3094,6 @@ function module.frame:Save(blackNoteID)
 	end
 	local encounterID = VMRT.Note.AutoLoad[blackNoteID or 0] or "-"
 	local noteName = (blackNoteID and VMRT.Note.BlackNames[blackNoteID]) or (not blackNoteID and VMRT.Note.DefName) or ""
-
-	if blackNoteID then
-		VMRT.Note.AutoLoad[0] = VMRT.Note.AutoLoad[blackNoteID]
-		VMRT.Note.DefName = VMRT.Note.BlackNames[blackNoteID]
-		if VMRT.Note.DefName then
-			VMRT.Note.DefName = VMRT.Note.DefName:gsub("%*$","")
-		end
-	end
 
 	if MRT.isClassic and not MRT.isLK and false then
 		local MSG_LIMIT_COUNT = 10
@@ -3000,6 +3127,18 @@ function module.frame:Clear()
 	module.options.NoteEditBox.EditBox:SetText("") 
 end 
 
+function module.frame:UpdateOptionsText(onlyPage) 
+	if module.options.NoteEditBox then
+		if module.options.IsMainNoteNow and not onlyPage then
+			module.options.NoteEditBox.EditBox:SetText(VMRT.Note.Text1)
+		end
+
+		module.options.lastUpdate:SetText( L.NoteLastUpdate..": "..VMRT.Note.LastUpdateName.." ("..date("%H:%M:%S %d.%m.%Y",VMRT.Note.LastUpdateTime)..")" )
+
+		module.options.UpdatePageAfterGettingNote()
+	end
+end 
+
 function module:addonMessage(sender, prefix, ...)
 	if prefix == "multiline" then
 		if VMRT.Note.OnlyPromoted and IsInRaid() and not MRT.F.IsPlayerRLorOfficer(sender) then
@@ -3016,20 +3155,13 @@ function module:addonMessage(sender, prefix, ...)
 			module.db.lasttext = lastnowtext
 		end
 		module.db.msgindex = msgnowindex
-		VMRT.Note.Text1 = module.db.lasttext
+		module:SaveText(module.db.lasttext, module.db.msgindex)
+		module:ModHistory(module.db.msgindex, {bossID = -1, name = -1})
 		MRT.F:FireCallback("Note_ReceivedText",VMRT.Note.Text1)
 		module.allframes:UpdateText()
-		if module.options.NoteEditBox then
-			if module.options.IsMainNoteNow then
-				module.options.NoteEditBox.EditBox:SetText(VMRT.Note.Text1)
-			end
-
-			module.options.lastUpdate:SetText( L.NoteLastUpdate..": "..VMRT.Note.LastUpdateName.." ("..date("%H:%M:%S %d.%m.%Y",VMRT.Note.LastUpdateTime)..")" )
-		end
 		VMRT.Note.AutoLoad[0] = nil
-		if module.options.UpdatePageAfterGettingNote then
-			module.options.UpdatePageAfterGettingNote()
-		end
+		VMRT.Note.DefName = nil
+		module.frame:UpdateOptionsText()
 		if VMRT.Note.EnableWhenReceive and not VMRT.Note.enabled then
 			module:Enable()
 		end
@@ -3042,9 +3174,6 @@ function module:addonMessage(sender, prefix, ...)
 		if VMRT.Note.OnlyPromoted and IsInRaid() and not MRT.F.IsPlayerRLorOfficer(sender) then
 			return
 		end
-		if sender == MRT.SDB.charKey then
-			return
-		end
 		local msgIndex,encounterID,noteName = ...
 		if tostring(msgIndex) ~= tostring(module.db.msgindex) then
 			return
@@ -3053,6 +3182,11 @@ function module:addonMessage(sender, prefix, ...)
 		if noteName == "" then noteName = nil end
 		VMRT.Note.AutoLoad[0] = encounterID
 		VMRT.Note.DefName = noteName
+		module.frame:UpdateOptionsText(true)
+		module:ModHistory(module.db.msgindex, {bossID = VMRT.Note.AutoLoad[0] or -1, name = VMRT.Note.DefName or -1})
+		if sender == MRT.SDB.charKey then
+			return
+		end
 		if VMRT.Note.SaveAllNew then
 			local finded = false
 			if noteName then
@@ -3152,6 +3286,7 @@ function module.main:ADDON_LOADED()
 	if VMRT.Note.Text1 then 
 		module.allframes:UpdateText()
 	end
+	module:SaveText(VMRT.Note.Text1, -1)
 
 	module:RegisterAddonMessage()
 	module:RegisterSlash()
@@ -3193,6 +3328,9 @@ function module:Enable()
 	else
 		module.frame_personal:Disable()
 	end
+	if VMRT.Note.EnableBossAutoLoad then
+		module:RegisterEvents('ZONE_CHANGED','ZONE_CHANGED_INDOORS')
+	end
 	module:Visibility()
 	GSUB_AutoColorCreate()
 end
@@ -3202,7 +3340,7 @@ function module:Disable()
 	if module.options.chkEnable then
 		module.options.chkEnable:SetChecked(false)
 	end
-	module:UnregisterEvents('PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED',"PLAYER_LOGIN","ENCOUNTER_END","ENCOUNTER_START")
+	module:UnregisterEvents('PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED',"PLAYER_LOGIN","ENCOUNTER_END","ENCOUNTER_START",'ZONE_CHANGED')
 	module:Visibility()
 end
 
@@ -3288,6 +3426,8 @@ end
 function module.main:ZONE_CHANGED_NEW_AREA()
 	C_Timer.After(1,module.CheckZoneProfiles)
 
+	module.main:ZONE_CHANGED()
+
 	if VMRT.Note.enabled and VMRT.Note.ShowOnlyInRaid then
 		C_Timer.After(5, module.Visibility)
 	end
@@ -3318,6 +3458,80 @@ end
 function module.main:PLAYER_TALENT_UPDATE(unit)
 	module.main:PLAYER_SPECIALIZATION_CHANGED("player")
 end
+
+
+local SubzoneTextToBossID = MRT.Data.SubzoneTextToBossID
+local locale = GetLocale()
+SubzoneTextToBossID = SubzoneTextToBossID[locale or "enUS"] or SubzoneTextToBossID.enUS
+
+--SubzoneTextToBossID['"Сломанный клык"']=2922
+local SubzoneBossIDInctanceReq = MRT.Data.SubzoneBossIDInctanceReq
+
+local function CheckSubZone()
+	if module.db.isEncounter then
+		return
+	end
+	local zoneText = GetSubZoneText()
+	
+	if zoneText then
+		local bossID = SubzoneTextToBossID[zoneText]
+		if not bossID and locale == "enUS" then
+			bossID = SubzoneTextToBossID["The "..zoneText]
+		end
+		if bossID then
+			if SubzoneBossIDInctanceReq[bossID] and select(8,GetInstanceInfo()) ~= SubzoneBossIDInctanceReq[bossID] then
+				return
+			end
+
+			if VMRT.Note.AutoLoad[0] == bossID then	--some note already here
+				return
+			end
+			local noteID
+
+			if VMRT.Note.BossAutoLoadType == 1 then
+				for i=1,#VMRT.Note.Black do
+					if VMRT.Note.AutoLoad[i] == bossID then
+						noteID = i
+						break
+					end
+				end
+			elseif VMRT.Note.BossAutoLoadType == 2 then
+				for i=#VMRT.Note.Black,1,-1 do
+					if VMRT.Note.AutoLoad[i] == bossID then
+						noteID = i
+						break
+					end
+				end
+			elseif (VMRT.Note.BossAutoLoadType or 3) == 3 then
+				local lastupd, nid = 0
+				for i=1,#VMRT.Note.Black do
+					if VMRT.Note.AutoLoad[i] == bossID and (VMRT.Note.BlackLastUpdateTime[i] or 0)>lastupd then
+						lastupd = VMRT.Note.BlackLastUpdateTime[i]
+						nid = i
+					end
+				end
+				if nid then
+					noteID = nid
+				end
+			end
+
+			if noteID then
+				if VMRT.Note.BossAutoLoadSendAsRL and MRT.F.IsPlayerRLorOfficer("player") == 2 then
+					module.frame:Save(noteID)
+				else
+					module.frame:SetTo(noteID)
+				end
+			end		
+		end
+	end
+end
+
+function module.main:ZONE_CHANGED()
+	if not VMRT.Note.EnableBossAutoLoad then return end
+
+	C_Timer.After(1,CheckSubZone)
+end
+module.main.ZONE_CHANGED_INDOORS = module.main.ZONE_CHANGED
 
 
 do
@@ -3378,6 +3592,7 @@ do
 
 	local phaseCombatEvents = {}
 	function module.main:ENCOUNTER_START(encounterID, encounterName, difficultyID, groupSize)
+		module.db.isEncounter = encounterID
 		local noteText = (VMRT.Note.Text1 or "")..(VMRT.Note.SelfText or "")
 		if encounterID and encounterName then
 			encounter_id[tostring(encounterID)] = true
@@ -3436,6 +3651,7 @@ do
 		module.allframes:UpdateText()
 	end
 	function module.main:ENCOUNTER_END()
+		module.db.isEncounter = nil
 		wipe(encounter_id)
 
 		module:UnregisterTimer()

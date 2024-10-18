@@ -1,8 +1,8 @@
---	15.10.2024
+--	18.10.2024
 
 local GlobalAddonName, MRT = ...
 
-MRT.V = 4960
+MRT.V = 4980
 MRT.T = "R"
 
 MRT.Slash = {}			--> функции вызова из коммандной строки
@@ -356,7 +356,6 @@ end
 ---------------> Mods <---------------
 
 MRT.F = {}
-MRT.mds = MRT.F
 
 -- Moved to Functions.lua
 

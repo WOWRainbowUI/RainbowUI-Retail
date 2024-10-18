@@ -1,6 +1,19 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4980
+* Reminder: timeline updates
+* Reminder: added m+ support
+* Note: added option to autoload note before boss
+* Fixes
+
+v.4980-Cata
+* Note: added option to autoload note before boss
+* Reminder: added "boss timeline" feature with simplified setup and quick exchange to/from notes 
+* Raid Cooldowns: added option to grow by columns
+* Raid Cooldowns: added option for animation style "Starts Full for active and empty for cd"
+* Fixes
+
 v.4960
 * Reminder: added option to show message before timer ends instead of after. This option is enabled by default for new reminders from "boss timeline"
 * Reminder: updates
