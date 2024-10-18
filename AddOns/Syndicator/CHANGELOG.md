@@ -1,6 +1,7 @@
 # Syndicator
 
-## [125](https://github.com/Baganator/Syndicator/tree/125) (2024-09-25)
-[Full Changelog](https://github.com/Baganator/Syndicator/compare/124...125) 
+## [126](https://github.com/Baganator/Syndicator/tree/126) (2024-10-18)
+[Full Changelog](https://github.com/Baganator/Syndicator/compare/125...126) 
 
-- Vanilla Classic: Update toc for 1.15.4  
+- Fix typo  
+- Retail: Add keyword keystone  
