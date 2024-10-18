@@ -1,7 +1,6 @@
 # Baganator
 
-## [500](https://github.com/Baganator/Baganator/tree/500) (2024-10-12)
-[Full Changelog](https://github.com/Baganator/Baganator/compare/499...500) 
+## [501](https://github.com/Baganator/Baganator/tree/501) (2024-10-18)
+[Full Changelog](https://github.com/Baganator/Baganator/compare/500...501) 
 
-- Cata: Fix tracking/untracking currencies  
-- Fix currency panel hiding after hovering over warband transferable icon  
+- Add new default Keystone category  
