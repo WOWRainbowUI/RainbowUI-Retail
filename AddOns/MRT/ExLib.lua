@@ -165,7 +165,7 @@ CheckButton	ExRTRadioButtonModernTemplate
 local GlobalAddonName, ExRT = ...
 local isExRT = GlobalAddonName == "MRT"
 
-local libVersion = 46
+local libVersion = 47
 
 if type(ELib)=='table' and type(ELib.V)=='number' and ELib.V > libVersion then return end
 
@@ -3846,8 +3846,10 @@ do
 			if not self.T then
 				if type(self.L[i]) == "table" then
 					line:SetText(self.L[i][1])
+					line.text:SetWordWrap(false)
 				else
 					line:SetText(self.L[i])
+					line.text:SetWordWrap(false)
 				end
 			else
 				for k=1,#self.T do
@@ -4306,6 +4308,21 @@ do
 		end
 		return self
 	end
+	local function Widget_AddTextInside(self,text,size,extra_func)
+		self.insideText = self.insideText or ELib:Text(self,text,size or 12):Point("LEFT",2,0):Left():Color(.7,.7,.7):Shadow()
+		self.insideText:SetText(text)
+		if type(extra_func)=='function' then
+			self.insideText:Run(extra_func)
+		end
+
+		return self
+	end
+	local function DropDownButton_OnClick(self,...)
+		if self.PreUpdate then
+			self:PreUpdate()
+		end
+		ELib.ScrollDropDown.ClickButton(self,...)
+	end
 
 	function ELib:DropDown(parent,width,lines,template)
 		template = template == 0 and "ExRTDropDownMenuTemplate" or template or "ExRTDropDownMenuModernTemplate"
@@ -4331,6 +4348,7 @@ do
 			'SetText',Widget_SetText,
 			'Tooltip',Widget_SetTooltip,
 			'AddText',Widget_AddText,
+			'TextInside',Widget_AddTextInside,
 			'Disable',Widget_Disable,
 			'Enable',Widget_Enable,
 			'ColorBorder',Widget_ColorBorder
@@ -4351,12 +4369,19 @@ do
 	function ELib:DropDownButton(parent,defText,dropDownWidth,lines,template)
 		local self = ELib:Button(parent,defText,template)
 
-		self:SetScript("OnClick",ELib.ScrollDropDown.ClickButton)
+		self:SetScript("OnClick",DropDownButton_OnClick)
 		self:SetScript("OnHide",ScrollDropDownOnHide)
 
 		self.List = {}
 		self.Width = dropDownWidth
 		self.Lines = lines or 10
+		if lines == -1 then
+			self.Lines = nil
+		end
+
+		if not template then
+			self.isModern = true
+		end
 
 		self.isButton = true
 
@@ -4373,21 +4398,22 @@ ELib.ScrollDropDown.List = {}
 local ScrollDropDown_Blizzard,ScrollDropDown_Modern = {},{}
 
 for i=1,3 do
-	ScrollDropDown_Modern[i] = ELib:Template("ExRTDropDownListModernTemplate",UIParent)
-	_G[GlobalAddonName.."DropDownListModern"..i] = ScrollDropDown_Modern[i]
-	ScrollDropDown_Modern[i]:SetClampedToScreen(true)
-	ScrollDropDown_Modern[i].border = ELib:Shadow(ScrollDropDown_Modern[i],20)
-	ScrollDropDown_Modern[i].Buttons = {}
-	ScrollDropDown_Modern[i].MaxLines = 0
-	ScrollDropDown_Modern[i].isModern = true
-	ScrollDropDown_Modern[i].Level = i
+	local dropDown = ELib:Template("ExRTDropDownListModernTemplate",UIParent)
+	ScrollDropDown_Modern[i] = dropDown
+	_G[GlobalAddonName.."DropDownListModern"..i] = dropDown
+	dropDown:SetClampedToScreen(true)
+	dropDown.border = ELib:Shadow(dropDown,20)
+	dropDown.Buttons = {}
+	dropDown.MaxLines = 0
+	dropDown.isModern = true
+	dropDown.Level = i
 	do
-		ScrollDropDown_Modern[i].Animation = CreateFrame("Frame",nil,ScrollDropDown_Modern[i])
-		ScrollDropDown_Modern[i].Animation:SetSize(1,1)
-		ScrollDropDown_Modern[i].Animation:SetPoint("CENTER")
-		ScrollDropDown_Modern[i].Animation.P = 0
-		ScrollDropDown_Modern[i].Animation.parent = ScrollDropDown_Modern[i]
-		ScrollDropDown_Modern[i].Animation:SetScript("OnUpdate",function(self,elapsed)
+		dropDown.Animation = CreateFrame("Frame",nil,dropDown)
+		dropDown.Animation:SetSize(1,1)
+		dropDown.Animation:SetPoint("CENTER")
+		dropDown.Animation.P = 0
+		dropDown.Animation.parent = dropDown
+		dropDown.Animation:SetScript("OnUpdate",function(self,elapsed)
 			self.P = self.P + elapsed
 			local P = self.P
 			if P > 2.5 then
@@ -4403,16 +4429,16 @@ for i=1,3 do
 		end)
 	end
 
-	ScrollDropDown_Modern[i].Slider = ELib.CreateSlider(ScrollDropDown_Modern[i],10,170,-8,-8,1,10,"Text",1,"TOPRIGHT",true,true)
-	ScrollDropDown_Modern[i].Slider:SetScript("OnValueChanged",function (self,value)
+	dropDown.Slider = ELib.CreateSlider(dropDown,10,170,-8,-8,1,10,"Text",1,"TOPRIGHT",true,true)
+	dropDown.Slider:SetScript("OnValueChanged",function (self,value)
 		value = Round(value)
 		self:GetParent().Position = value
 		ELib.ScrollDropDown:Reload()
 	end)
-	ScrollDropDown_Modern[i].Slider:SetScript("OnEnter",function(self) UIDropDownMenu_StopCounting(self:GetParent()) end)
-	ScrollDropDown_Modern[i].Slider:SetScript("OnLeave",function(self) UIDropDownMenu_StartCounting(self:GetParent()) end)
+	dropDown.Slider:SetScript("OnEnter",function(self) UIDropDownMenu_StopCounting(self:GetParent()) end)
+	dropDown.Slider:SetScript("OnLeave",function(self) UIDropDownMenu_StartCounting(self:GetParent()) end)
 
-	ScrollDropDown_Modern[i]:SetScript("OnMouseWheel",function (self,delta)
+	dropDown:SetScript("OnMouseWheel",function (self,delta)
 		local min,max = self.Slider:GetMinMaxValues()
 		local val = self.Slider:GetValue()
 		if (val - delta) < min then
@@ -4426,21 +4452,22 @@ for i=1,3 do
 end
 
 for i=1,2 do
-	ScrollDropDown_Blizzard[i] = ELib:Template("ExRTDropDownListTemplate",UIParent)
-	_G[GlobalAddonName.."DropDownList"..i] = ScrollDropDown_Blizzard[i]
-	ScrollDropDown_Blizzard[i].Buttons = {}
-	ScrollDropDown_Blizzard[i].MaxLines = 0
+	local dropDown = ELib:Template("ExRTDropDownListTemplate",UIParent)
+	ScrollDropDown_Blizzard[i] = dropDown
+	_G[GlobalAddonName.."DropDownList"..i] = dropDown
+	dropDown.Buttons = {}
+	dropDown.MaxLines = 0
 
-	ScrollDropDown_Blizzard[i].Slider = ELib.CreateSlider(ScrollDropDown_Blizzard[i],10,170,-15,-11,1,10,"Text",1,"TOPRIGHT",true)
-	ScrollDropDown_Blizzard[i].Slider:SetScript("OnValueChanged",function (self,value)
+	dropDown.Slider = ELib.CreateSlider(dropDown,10,170,-15,-11,1,10,"Text",1,"TOPRIGHT",true)
+	dropDown.Slider:SetScript("OnValueChanged",function (self,value)
 		value = Round(value)
 		self:GetParent().Position = value
 		ELib.ScrollDropDown:Reload()
 	end)
-	ScrollDropDown_Blizzard[i].Slider:SetScript("OnEnter",function(self) UIDropDownMenu_StopCounting(self:GetParent()) end)
-	ScrollDropDown_Blizzard[i].Slider:SetScript("OnLeave",function(self) UIDropDownMenu_StartCounting(self:GetParent()) end)
+	dropDown.Slider:SetScript("OnEnter",function(self) UIDropDownMenu_StopCounting(self:GetParent()) end)
+	dropDown.Slider:SetScript("OnLeave",function(self) UIDropDownMenu_StartCounting(self:GetParent()) end)
 
-	ScrollDropDown_Blizzard[i]:SetScript("OnMouseWheel",function (self,delta)
+	dropDown:SetScript("OnMouseWheel",function (self,delta)
 		local min,max = self.Slider:GetMinMaxValues()
 		local val = self.Slider:GetValue()
 		if (val - delta) < min then
@@ -4475,37 +4502,38 @@ do
 		if dropDown.Buttons[i] then
 			return
 		end
-		dropDown.Buttons[i] = ELib:Template("ExRTDropDownMenuButtonTemplate",dropDown)
+		local button = ELib:Template("ExRTDropDownMenuButtonTemplate",dropDown)
+		dropDown.Buttons[i] = button
 		if dropDown.isModern then
-			dropDown.Buttons[i]:SetPoint("TOPLEFT",8,-8 - (i-1) * 16)
+			button:SetPoint("TOPLEFT",8,-8 - (i-1) * 16)
 		else
-			dropDown.Buttons[i]:SetPoint("TOPLEFT",18,-16 - (i-1) * 16)
+			button:SetPoint("TOPLEFT",18,-16 - (i-1) * 16)
 		end
-		dropDown.Buttons[i].NormalText:SetMaxLines(1) 
+		button.NormalText:SetMaxLines(1) 
 
 		if dropDown.isModern then
-			dropDown.Buttons[i].checkButton = ELib:Template("ExRTCheckButtonModernTemplate",dropDown.Buttons[i])
-			dropDown.Buttons[i].checkButton:SetPoint("LEFT",1,0)
-			dropDown.Buttons[i].checkButton:SetSize(12,12)
+			button.checkButton = ELib:Template("ExRTCheckButtonModernTemplate",button)
+			button.checkButton:SetPoint("LEFT",1,0)
+			button.checkButton:SetSize(12,12)
 
-			dropDown.Buttons[i].radioButton = ELib:Template("ExRTRadioButtonModernTemplate",dropDown.Buttons[i])
-			dropDown.Buttons[i].radioButton:SetPoint("LEFT",1,0)
-			dropDown.Buttons[i].radioButton:SetSize(12,12)
-			dropDown.Buttons[i].radioButton:EnableMouse(false)
+			button.radioButton = ELib:Template("ExRTRadioButtonModernTemplate",button)
+			button.radioButton:SetPoint("LEFT",1,0)
+			button.radioButton:SetSize(12,12)
+			button.radioButton:EnableMouse(false)
 		else
-			dropDown.Buttons[i].checkButton = CreateFrame("CheckButton",nil,dropDown.Buttons[i],"UICheckButtonTemplate")
-			dropDown.Buttons[i].checkButton:SetPoint("LEFT",-7,0)
-			dropDown.Buttons[i].checkButton:SetScale(.6)
+			button.checkButton = CreateFrame("CheckButton",nil,button,"UICheckButtonTemplate")
+			button.checkButton:SetPoint("LEFT",-7,0)
+			button.checkButton:SetScale(.6)
 
-			dropDown.Buttons[i].radioButton = CreateFrame("CheckButton",nil,dropDown.Buttons[i])	-- Do not used in blizzard style
+			button.radioButton = CreateFrame("CheckButton",nil,button)	-- Do not used in blizzard style
 		end
-		dropDown.Buttons[i].checkButton:SetScript("OnClick",CheckButtonClick)
-		dropDown.Buttons[i].checkButton:SetScript("OnEnter",CheckButtonOnEnter)
-		dropDown.Buttons[i].checkButton:SetScript("OnLeave",CheckButtonOnLeave)
-		dropDown.Buttons[i].checkButton:Hide()
-		dropDown.Buttons[i].radioButton:Hide()
+		button.checkButton:SetScript("OnClick",CheckButtonClick)
+		button.checkButton:SetScript("OnEnter",CheckButtonOnEnter)
+		button.checkButton:SetScript("OnLeave",CheckButtonOnLeave)
+		button.checkButton:Hide()
+		button.radioButton:Hide()
 
-		dropDown.Buttons[i].Level = level
+		button.Level = level
 	end
 end
 
@@ -4549,7 +4577,8 @@ function ELib.ScrollDropDown:Reload(level)
 
 					if data.icon then
 						icon:SetTexture(data.icon)
-						paddingLeft = paddingLeft + 18
+						paddingLeft = paddingLeft + (data.iconsize or 16)+2
+						icon:SetWidth(data.iconsize or 16)
 						if data.iconcoord then
 							icon:SetTexCoord(unpack(data.iconcoord))
 							icon.customcoord = true
@@ -4759,13 +4788,21 @@ function ELib.ScrollDropDown.ToggleDropDownMenu(self,level,customList,customWidt
 	local count = #dropDown.List
 
 	local maxLinesNow = self.Lines or count
+	if not self.Lines then
+		local cc = 0
+		for i=1,#dropDown.List do
+			if not dropDown.List[i].isHidden then cc=cc+1 end
+		end
+		maxLinesNow = cc
+		count = cc
+	end
 
 	for i=(dropDown.MaxLines+1),maxLinesNow do
 		ELib.ScrollDropDown.CreateButton(i,level)
 	end
 	dropDown.MaxLines = max(dropDown.MaxLines,maxLinesNow)
 
-	local isSliderHidden = max(count-maxLinesNow+1,1) == 1
+	local isSliderHidden = self.SliderHidden or max(count-maxLinesNow+1,1) == 1
 	if isModern then 
 		for i=1,maxLinesNow do
 			dropDown.Buttons[i]:SetSize(dropDownWidth - 16 - (isSliderHidden and 0 or 12),16)

@@ -3,7 +3,7 @@
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 4960
+## Version: 4980
 core.lua
 Functions.lua
 embeds.xml
@@ -16,6 +16,7 @@ localization\localization.tw.lua
 localization\localization.kr.lua
 localization\localization.it.lua
 localization\localization.lua
+Data.lua
 BlizzFix.lua
 Options.lua
 Note.lua

@@ -1330,12 +1330,7 @@ function module.options:Load()
 	end)
 
 	self.chkReadyCheckFrameButTest = ELib:Button(self.tab.tabs[2],L.raidcheckReadyCheckTest):Size(300,20):Point(15,-75):OnClick(function(self) 
-		module.main:READY_CHECK("raid1",35,"TEST")
-		for i=2,30 do
-			local y = math.random(1,30000)
-			local r = math.random(1,2)
-			ExRT.F.ScheduleTimer(function() module.main:READY_CHECK_CONFIRM("raid"..i,r==1,"TEST") end, y/1000)
-		end
+		module:ReadyCheckTest()
 	end)
 
 	self.chkReadyCheckFrameSliderScale = ELib:Slider(self.tab.tabs[2],L.raidcheckReadyCheckScale):Size(300):Point(15,-115):Range(5,200):SetTo(VMRT.RaidCheck.ReadyCheckFrameScale or 100):OnChange(function(self,event) 
@@ -2942,55 +2937,63 @@ function module:ReadyCheckWindow(starter,isTest,manual)
 		self.frame:Hide()
 		return
 	end
+	ExRT.F:AddCoroutine(function()
 
-	self.frame:Create()
+		self.frame:Create()
 
-	module.db.RaidCheckReadyCheckTime = nil
-
-	local colsAdd = 0
-	if VMRT.RaidCheck.ReadyCheckSoulstone then
-		colsAdd = bit.bor(colsAdd,0x1)
-	end
-	if (self.frame.colsAdd or -1) ~= colsAdd then
-		self.frame.colsAdd = colsAdd
-		self.frame:UpdateCols()
-	end
-
-	self.frame.isManual = manual
-
-	self.frame.isTest = isTest
-	if not self.frame.testData then
-		self.frame.testData = {}
-	else
-		wipe(self.frame.testData)
-	end
-	self.frame:UpdateRoster()
-	if manual then
-		for i=1,#self.frame.lines do 
-			self.frame.lines[i].rc_status = 4
+		if InCombatLockdown() then coroutine.yield("sleep",200) end
+	
+		module.db.RaidCheckReadyCheckTime = nil
+	
+		local colsAdd = 0
+		if VMRT.RaidCheck.ReadyCheckSoulstone then
+			colsAdd = bit.bor(colsAdd,0x1)
 		end
-		if UnitLevel'player' >= 50 and not ExRT.isClassic then
-			ExRT.F.SendExMsg("raidcheckreq","REQ\t1")
+		if (self.frame.colsAdd or -1) ~= colsAdd then
+			self.frame.colsAdd = colsAdd
+			self.frame:UpdateCols()
 		end
-	end
-	self.frame:UpdateData()
+	
+		self.frame.isManual = manual
+	
+		self.frame.isTest = isTest
+		if not self.frame.testData then
+			self.frame.testData = {}
+		else
+			wipe(self.frame.testData)
+		end
+		self.frame:UpdateRoster()
 
-	self.frame.headText:SetText("MRT")
+		if InCombatLockdown() then coroutine.yield("sleep",200) end
 
-	self.frame.timeLeftLine:Hide()
+		if manual then
+			for i=1,#self.frame.lines do 
+				self.frame.lines[i].rc_status = 4
+			end
+			if UnitLevel'player' >= 50 and not ExRT.isClassic then
+				ExRT.F.SendExMsg("raidcheckreq","REQ\t1")
+			end
+		end
+		self.frame:UpdateData()
+	
+		self.frame.headText:SetText("MRT")
+	
+		self.frame.timeLeftLine:Hide()
+	
+		self.frame.mimimize:Hide()
+		self.frame:SetMaximized()
+	
+		if self.frame.hideTimer then
+			self.frame.hideTimer:Cancel()
+		end
+	
+		self.frame.anim:Stop()
+		self.frame:SetAlpha(1)
+		self.frame:Show()
+	
+		self.frame:RegisterEvent("UNIT_AURA")
 
-	self.frame.mimimize:Hide()
-	self.frame:SetMaximized()
-
-	if self.frame.hideTimer then
-		self.frame.hideTimer:Cancel()
-	end
-
-	self.frame.anim:Stop()
-	self.frame:SetAlpha(1)
-	self.frame:Show()
-
-	self.frame:RegisterEvent("UNIT_AURA")
+	end)
 end
 
 function module.main:ADDON_LOADED()
@@ -3174,6 +3177,16 @@ do
 			module:SendConsumeData()
 		end
 	end
+
+	function module:ReadyCheckTest()
+		module.main:READY_CHECK("raid1",35,"TEST")
+		for i=2,30 do
+			local y = math.random(1,30000)
+			local r = math.random(1,2)
+			ExRT.F.ScheduleTimer(function() module.main:READY_CHECK_CONFIRM("raid"..i,r==1,"TEST") end, y/1000)
+		end
+	end
+	--/run GMRT.A.RaidCheck:ReadyCheckTest()
 end
 
 function module.main:READY_CHECK_FINISHED()
