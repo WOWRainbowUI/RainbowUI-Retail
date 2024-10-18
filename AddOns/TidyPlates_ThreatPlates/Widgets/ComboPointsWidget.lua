@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Combo Points Widget
+-- Combo points are only be shown on one single nameplate. They are shown
+--   - on the current target (if it is attackable) or
+--   - on the current soft-enemy target (if it is attackable) and the current target cannot be attacked
+-- Combo points are only shown when the player is in combat or - out of combat - when at least one CP is active.
 ---------------------------------------------------------------------------------------------------
 local ADDON_NAME, Addon = ...
 
@@ -745,6 +748,24 @@ local function UpdateEssenceBlizzardWhenHidden(self, widget_frame)
 end
 
 ---------------------------------------------------------------------------------------------------
+-- Helper Functions 
+---------------------------------------------------------------------------------------------------
+
+local function HideWidgetFrame(widget_frame)
+  widget_frame:Hide()
+  widget_frame:SetParent(nil)
+end
+
+  -- The combo points widget can only be shown once and can only be shown on either the target or on the soft-enemy target unit. 
+  -- So, the widget will be shown on
+  --   - on the current target (if attackable) or
+  --   - on the soft-enemy target (if attackable) and the current target cannot be attacked
+local function GetCurrentTargetUnitID()
+  -- UnitCanAttack is false if there is no target or softenemy target
+  return (UnitCanAttack("player", "target") and "target") or (UnitCanAttack("player", "softenemy") and "softenemy") or nil
+end
+
+---------------------------------------------------------------------------------------------------
 -- Event Handling
 ---------------------------------------------------------------------------------------------------
 
@@ -753,24 +774,19 @@ local function EventHandler(event, unitid, power_type)
   if event == "UNIT_POWER_UPDATE" and not WATCH_POWER_TYPES[power_type] then return end
   -- UNIT_POWER_FREQUENT is only registred for Evoker, so no need to check here
   -- if event == "UNIT_POWER_FREQUENT" and not WATCH_POWER_TYPES[power_type] then return end
-  
-  local plate = GetNamePlateForUnit("anyenemy")
-  if plate then -- not necessary, prerequisite for IsShown(): plate.TPFrame.Active and
-    local widget = Widget
-    local widget_frame = widget.WidgetFrame
-    if widget_frame:IsShown() then
-      widget:UpdateUnitResource(widget_frame)
-    end
+
+  local widget_frame = Widget.WidgetFrame
+  if widget_frame:IsShown() then
+    Widget:UpdateUnitResource(widget_frame)
   end
 end
 
 local function EventHandlerEvoker(event, unitid, power_type)
-  -- Only UNIT_POWER_FREQUENT is registred for Evoker, so no need to check here anything
-  local plate = GetNamePlateForUnit("anyenemy")
-  if plate and Widget.WidgetFrame:IsShown() then -- not necessary, prerequisite for IsShown(): plate.TPFrame.Active and
-    Widget:UpdateUnitResource(Widget.WidgetFrame)
+  local widget_frame = Widget.WidgetFrame
+  if widget_frame:IsShown() then
+    Widget:UpdateUnitResource(widget_frame)
   else
-    UpdateEssenceBlizzardWhenHidden(Widget, Widget.WidgetFrame)
+    UpdateEssenceBlizzardWhenHidden(Widget, widget_frame)
   end
 end
 
@@ -807,13 +823,43 @@ function Widget:UNIT_MAXPOWER(unitid, power_type)
   end
 end
 
-function Widget:PLAYER_TARGET_CHANGED()
-  local tp_frame = self:GetThreatPlateForUnit("anyenemy")
-  if tp_frame then
-    self:OnTargetUnitAdded(tp_frame, tp_frame.unit)
+local function PlayerTargetChanged(tp_frame, unit)
+  local widget = Widget
+  local widget_frame = widget.WidgetFrame
+
+  -- If this is an update because nameplate style switched from healthbar to headline view, 
+  -- the widget might be needed to be shown/hidden depending on settings
+  if widget:EnabledForStyle(unit.style, unit) then
+    widget_frame:SetParent(tp_frame)
+    widget_frame:SetFrameLevel(tp_frame:GetFrameLevel() + 7)
+    
+    widget_frame:ClearAllPoints()
+    -- Updates based on settings / unit style
+    local db = widget.db
+    if unit.style == "NameOnly" or unit.style == "NameOnly-Unique" then
+      widget_frame:SetPoint("CENTER", tp_frame, "CENTER", db.x_hv, db.y_hv)
+    else
+      widget_frame:SetPoint("CENTER", tp_frame, "CENTER", db.x, db.y)
+    end
+    
+    widget:UpdateUnitResource(widget_frame)
+
+    widget_frame:Show()
   else
-    self.WidgetFrame:Hide()
-    self.WidgetFrame:SetParent(nil)
+    HideWidgetFrame(widget_frame)
+  end
+end
+
+-- PLAYER_TARGET_CHANGED is triggered when entering combat and a unit attacking the player
+-- Therefore, combo point widget must be shonw in this case (as the player enters combat).
+-- ! So, don't check for WidgetFrame:IsShown() here
+function Widget:PLAYER_TARGET_CHANGED()
+  local target_unitid = GetCurrentTargetUnitID()
+  local tp_frame = target_unitid and Widget:GetThreatPlateForUnit(target_unitid)
+  if tp_frame then
+    PlayerTargetChanged(tp_frame, tp_frame.unit)
+  else
+    HideWidgetFrame(self.WidgetFrame)
   end
 end
 
@@ -833,8 +879,7 @@ function Widget:UPDATE_SHAPESHIFT_FORM()
   if self.ShowInShapeshiftForm then
     self:PLAYER_TARGET_CHANGED()
   else
-    self.WidgetFrame:Hide()
-    self.WidgetFrame:SetParent(nil)
+    HideWidgetFrame(self.WidgetFrame)
   end
 end
 
@@ -923,8 +968,7 @@ function Widget:OnDisable()
     self:UnregisterEvent("RUNE_TYPE_UPDATE")
   end
 
-  self.WidgetFrame:Hide()
-  self.WidgetFrame:SetParent(nil)
+  HideWidgetFrame(self.WidgetFrame)
 end
 
 function Widget:EnabledForStyle(style, unit)
@@ -960,35 +1004,27 @@ function Widget:Create()
   self:PLAYER_TARGET_CHANGED()
 end
 
+  -- OnTargetUnitAdded and OnTargetUnitRemoved are called for all target units including soft-target units. 
+  -- But the combo points widget can only be shown once and can only be shown on either the target or on the soft-enemy target unit. 
+  -- So, process (and show the widget) only if
+  --   - the unit is the current target or
+  --   - the unit is the current soft-enemy target and the current target cannot be attacked
 function Widget:OnTargetUnitAdded(tp_frame, unit)
-  local widget_frame = self.WidgetFrame
-
-  -- unit.isTarget or unit.IsSoftEnemytarget: should not be necessary here,
-  -- as soft interact (unless enemies) and friend targets cannot be attacked
-  if UnitCanAttack("player", unit.unitid) and self:EnabledForStyle(unit.style, unit) then
-    widget_frame:SetParent(tp_frame)
-    widget_frame:SetFrameLevel(tp_frame:GetFrameLevel() + 7)
-    
-    widget_frame:ClearAllPoints()
-    -- Updates based on settings / unit style
-    local db = self.db
-    if unit.style == "NameOnly" or unit.style == "NameOnly-Unique" then
-      widget_frame:SetPoint("CENTER", tp_frame, "CENTER", db.x_hv, db.y_hv)
-    else
-      widget_frame:SetPoint("CENTER", tp_frame, "CENTER", db.x, db.y)
-    end
-    
-    self:UpdateUnitResource(widget_frame)
-
-    widget_frame:Show()
-  else
-    widget_frame:Hide()
-    widget_frame:SetParent(nil)
+  local target_unitid = GetCurrentTargetUnitID()
+  if target_unitid and UnitIsUnit(target_unitid, unit.unitid) then 
+    PlayerTargetChanged(tp_frame, unit)
   end
 end
 
-function Widget:OnTargetUnitRemoved()
-  self.WidgetFrame:Hide()
+-- OnTargetUnitAdded is called when entering combat.
+-- Therefore, combo point widget must be shown in this case (as the player enters combat).
+-- ! So, don't check for WidgetFrame:IsShown() here
+function Widget:OnTargetUnitRemoved(tp_frame, unit)
+  -- OnTargetUnitAdded and OnTargetUnitRemoved are called for all target units including soft-target units. 
+  -- Only hide the widget if the nameplate for the unit is removed that shows the widget
+  if tp_frame ~= self.WidgetFrame:GetParent() then return end
+  
+  HideWidgetFrame(self.WidgetFrame)
 end
 
 local function UpdateTexturePosition(texture, resource_index)

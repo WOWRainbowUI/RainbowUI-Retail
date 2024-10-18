@@ -324,7 +324,11 @@ function WidgetHandler:DisableWidget(widget_name)
     self.EnabledTargetWidgets[widget_name] = nil
 
     widget:OnDisable()
-    widget:OnTargetUnitRemoved()
+    for _, tp_frame in pairs(Addon.PlatesCreated) do
+      if tp_frame.unit.IsSoftTarget then
+        widget:OnTargetUnitRemoved(tp_frame, tp_frame.unit)
+      end
+    end
   elseif widget.FocusOnly then
     self.EnabledFocusWidget = nil
 
@@ -404,7 +408,7 @@ function WidgetHandler:OnUnitRemoved(tp_frame, unit)
 
   if unit.IsSoftTarget then
     for _, widget in pairs(self.EnabledTargetWidgets) do
-      widget:OnTargetUnitRemoved()
+      widget:OnTargetUnitRemoved(tp_frame, unit)
     end
   end
 

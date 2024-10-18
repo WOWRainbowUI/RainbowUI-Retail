@@ -1,5 +1,16 @@
 ﻿------------------------------------------------------
-12.0.9 (2024-07-18)
+12.0.10 (2024-10-18)
+------------------------------------------------------
+* Fixed several bugs that caused the target and Combo Points widget on (soft-)target units to disappear when a (soft-)target unit died [GH-528, GH-554, Comment #7442, #7444].
+* Fixed a bug that caused nameplates to be shown at a lower position when Only Names was enabled.
+* Fixed a Lua error that occurred when defining a custom style with an empty trigger value [GH-555]. 
+* Fixed spell ID for CC Aura Banish (Warlock) in WoW Classic SoD [Comment #7414].
+* Updated list of spells to detect healers in Healer Tracker widget [GH-558].
+* Updated integrated libraries (Ace3 Release-r1349).
+* Updated TOC version for Classic Patch 1.15.4.
+
+------------------------------------------------------
+12.0.9 (2024-07-15)
 ------------------------------------------------------
 * Fixed list of Shaman totems for TWW - added Totem of Wrath and Stone Bulwark Totem and removed non-existent totems [GH-550].
 * Fixed a bug that prevented totems with a spell rank from being recognised correctly in WoW Classic.
