@@ -109,6 +109,7 @@ L["dialog.matchingid"] = "匹配ID"
 L["dialog.matchingid.tooltip"] = "僅顯示具有與您自己完全相同的副本鎖定ID的團隊。總是顯示所有團隊如果根本沒有鎖定的ID。"
 L["dialog.needsbl"] = "需要嗜血"
 L["dialog.needsbl.tooltip"] = "僅顯示尚未有提供嗜血/英勇技能的職業的隊伍。"
+L["dialog.cancelOldestApp"] = "點擊取消最舊的申請"
 
 L["settings.dialogMovable.title"] = "可移動的對話框"
 L["settings.dialogMovable.tooltip"] = "允許您使用鼠標移動對話框。 右鍵單擊重置位置。"
