@@ -109,6 +109,7 @@ L["dialog.matchingid"] = "Соответствующий ID подземелья
 L["dialog.matchingid.tooltip"] = "Показывать только те группы, в которых такая же блокировка подземелья, как и у Вас. Всегда показывать все группы, в которых у Вас вообще нет блокировки."
 L["dialog.needsbl"] = "Требуется Кровожадность / Героизм"
 L["dialog.needsbl.tooltip"] = "Показывает только те группы, в которых нет класса, предоставляющего Кровожадность / Героизм."
+L["dialog.cancelOldestApp"] = "Нажмите, чтобы отменить старую заявку в группу"
 
 L["settings.dialogMovable.title"] = "Перемещаемое окно PGF"
 L["settings.dialogMovable.tooltip"] = "Позволяет перемещать окно PGF с помощью мыши. ПКМ - сбрасывает положение."
@@ -140,5 +141,7 @@ L["settings.signUpDeclined.title"] = "Применить к отклоненны
 L["settings.signUpDeclined.tooltip"] = "Восстановить старый режим до TWW и разрешить регистрироваться в группы, которые ранее Вам отказали."
 L["settings.section.mythicplus.title"] = "М+"
 L["settings.section.signup.title"] = "Подписаться"
-L["settings.rioRatingColors.title"] = "Рейтинг в цветах Raider.IO"
-L["settings.rioRatingColors.tooltip"] = "Использует цветовую схему Raider.IO для оценок Мифических+, если загружен аддон Raider.IO."
+L["settings.rioRatingColors.title"] = "Рейтинг по цвету Raider.IO"
+L["settings.rioRatingColors.tooltip"] = "Использовать цветовую схему Raider.IO для рейтинга M+, если загружен аддон Raider.IO."
+L["settings.cancelOldestApp.title"] = "Отмена старой заявки в группу"
+L["settings.cancelOldestApp.tooltip"] = "Если у вас максимальное количество ожидающих заявок, нажмите на любую группу, чтобы сначала отменить самую старую заявку. Затем нажмите снова, чтобы подать заявку в группу."
