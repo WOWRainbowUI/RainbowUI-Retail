@@ -165,7 +165,7 @@ CheckButton	ExRTRadioButtonModernTemplate
 local GlobalAddonName, ExRT = ...
 local isExRT = GlobalAddonName == "MRT"
 
-local libVersion = 47
+local libVersion = 48
 
 if type(ELib)=='table' and type(ELib.V)=='number' and ELib.V > libVersion then return end
 
@@ -2823,7 +2823,7 @@ do
 	end
 	local function Widget_AddExtraText(self,text)
 		if not self.extraText then
-			self.extraText = ELib:Text(self,"",10,"ChatFontNormal"):Point("RIGHT",-2,0):Color(.5,.5,.5)
+			self.extraText = ELib:Text(self,"",10,"ChatFontNormal"):Point("RIGHT",-2,0):Point("TOP",self,0,0):Point("BOTTOM",self,0,0):Color(.5,.5,.5):Left()
 			self.extraTextFunc = ModExtraText_Func
 			self:extraTextFunc()
 		end
@@ -6840,5 +6840,47 @@ do
 		self.groupLine = {}
 
 		return self
+	end
+end
+
+do
+	local NavLineF
+	function ELib:FindFrame(frame)
+		if not NavLineF then
+			NavLineF = ELib:Frame(UIParent):Point("TOPLEFT",UIParent,0,0):Size(1,1)
+			NavLineF:Hide()
+			
+			NavLineF.line = NavLineF:CreateLine(nil, "ARTWORK")
+			NavLineF.line:SetTexture("Interface/AddOns/"..GlobalAddonName.."/media/lineGapped")
+			NavLineF.line:SetVertexColor(.44,1,.50,1)
+			NavLineF.line:SetThickness(10)
+			
+			NavLineF:SetScript("OnUpdate",function(self)
+				if not self.f then
+					return
+				end
+				local l2,t2 = self.f:GetLeft(), self.f:GetTop()
+				if not l2 then print'notfund' return end
+				local s2 = self.f:GetEffectiveScale()
+				l2, t2 = l2*s2, t2*s2
+			
+				local s3 = UIParent:GetEffectiveScale()
+				l2, t2 = l2/s3, t2/s3
+			
+				self.line:SetStartPoint("BOTTOMLEFT", UIParent, 0, 0)
+				self.line:SetEndPoint("BOTTOMLEFT", UIParent, l2, t2)
+			
+				local t = GetTime() % 1
+				local d = 40/1024
+				self.line:SetTexCoord(d * t,(1 - d)+ t*d,0,1)
+			end)
+
+		end
+		if frame then
+			NavLineF.f = frame
+			NavLineF:Show()
+		else
+			NavLineF:Hide()
+		end
 	end
 end

@@ -296,6 +296,9 @@ L.RaidCheckDisableNonRaid = "Отключить вне рейда"
 L.RaidCheckConsFlaskClick = "Включить кнопку фласки (ручная настройка обязательна)"
 L.RaidCheckConsFlaskName = "Название фласки:"
 L.RaidCheckConsFlaskNameTooltip = "Точное название фласки или itemID фласки"
+L.RaidCheckOwnOilItem = "Использовать свой предмет для зачарования оружия"
+L.RaidCheckOwnOilItemTip = "Введите ID предмета, настройка персональная для каждого персонажа"
+L.RaidCheckOnlyUnlimRune = "Использовать только бесконечную руну"
 
 L.marksbarstart = "Очистить"
 L.marksbardel = "Удалить"
@@ -1669,6 +1672,8 @@ L.ReminderHideTextAfterStatusTip = "Скрыть текст сообщения, 
 L.ReminderNotShowOnTimeline = "Не показывать этот ремаиндер на таймлайне"
 L.ReminderRemoveBeforeExport = "Удалить текущие ремаиндеры"
 L.ReminderRemoveBeforeExportTip = "Удалены будут все ремаиндеры, которые сейчас отображаются на полоске"
+L.ReminderGrowUp = "Рост вверх"
+L.ReminderTimeExcluded = "Таймер исключен"
 
 L.OtherCovHelper = "Помощь с выбором"
 

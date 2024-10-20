@@ -1,6 +1,16 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.4990
+* Reminder: added option to grow upwards
+* Raid Check: add option for using only unlimited rune (old one for now)
+* Raid Check: add option for using custom oil itemid
+* Fixes
+
+v.4990-Cata
+* Reminder: added option to grow upwards
+* Fixes
+
 v.4980
 * Reminder: timeline updates
 * Reminder: added m+ support

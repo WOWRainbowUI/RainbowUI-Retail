@@ -293,6 +293,9 @@ L.RaidCheckNoOils = "No oils"
 L.RaidCheckOnlyCauldron = "Use flask only from cauldron"
 L.RaidCheckDisableForRL = "Disable popup for ready check starter"
 L.RaidCheckDisableNonRaid = "Disable outside raids"
+L.RaidCheckOwnOilItem = "Use own weapon buff item"
+L.RaidCheckOwnOilItemTip = "Type item ID, this option is personal for every character"
+L.RaidCheckOnlyUnlimRune = "Use only unlimited rune"
 
 L.marksbarstart = "Clear"
 L.marksbardel = "Delete"
@@ -1665,6 +1668,8 @@ L.ReminderHideTextAfterStatusTip = "Hide existed text messages if global status 
 L.ReminderNotShowOnTimeline = "Not show this reminder on timeline"
 L.ReminderRemoveBeforeExport = "Remove current reminders"
 L.ReminderRemoveBeforeExportTip = "All reminders that currently visible on line will be removed before import"
+L.ReminderGrowUp = "Grow upwards"
+L.ReminderTimeExcluded = "Timer excluded"
 
 L.OtherCovHelper = "Help me with choice"
 

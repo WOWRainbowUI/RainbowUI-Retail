@@ -11659,7 +11659,7 @@ module.db.AllSpells = {
 		nil,nil,{213644,8,0},{213644,8,0},
 		isTalent=true,isDispel=true},
 	{498,	"PALADIN,DEF",4,--Божественная защита
-		nil,{498,60,8},nil,{498,60,8},
+		nil,{498,60,8},nil,{403876,60,8},
 		cdDiff={114154,"*0.7"},icon=524353},
 	{642,	"PALADIN,DEF",2,--Божественный щит
 		{642,300,8},nil,nil,nil,
