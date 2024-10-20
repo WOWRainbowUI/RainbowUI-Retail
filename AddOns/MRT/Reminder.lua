@@ -19,7 +19,7 @@ local GetSpellInfo, strsplit, GetTime, UnitPower, UnitGetTotalAbsorbs, UnitClass
 local pairs, ipairs, bit, string_gmatch, tremove, pcall, format, wipe, type, select, loadstring, next, max, bit_band, unpack = pairs, ipairs, bit, string.gmatch, tremove, pcall, format, wipe, type, select, loadstring, next, math.max, bit.band, unpack
 
 local senderVersion = 4
-local addonVersion = 46
+local addonVersion = 47
 
 local options = module.options
 
@@ -91,27 +91,6 @@ frame:SetScript("OnDragStop", function(self)
 	VMRT.Reminder2.Top = self:GetTop()
 end)
 
-frame.textBig = frame:CreateFontString(nil,"ARTWORK")
-frame.textBig:SetPoint("TOP")
-frame.textBig:SetFont(ExRT.F.defFont, 80, "")
-frame.textBig:SetShadowOffset(1,-1)
-frame.textBig:SetTextColor(1,1,1,1)
-frame.textBig:SetText(" ")
-
-frame.text = frame:CreateFontString(nil,"ARTWORK")
-frame.text:SetPoint("TOP",frame.textBig,"BOTTOM",0,0)
-frame.text:SetFont(ExRT.F.defFont, 40, "")
-frame.text:SetShadowOffset(1,-1)
-frame.text:SetTextColor(1,1,1,1)
-frame.text:SetText(" ")
-
-frame.textSmall = frame:CreateFontString(nil,"ARTWORK")
-frame.textSmall:SetPoint("TOP",frame.text,"BOTTOM",0,0)
-frame.textSmall:SetFont(ExRT.F.defFont, 20, "")
-frame.textSmall:SetShadowOffset(1,-1)
-frame.textSmall:SetTextColor(1,1,1,1)
-frame.textSmall:SetText(" ")
-
 frame.dot = frame:CreateTexture(nil, "BACKGROUND",nil,-6)
 frame.dot:SetTexture("Interface\\AddOns\\MRT\\media\\circle256")
 frame.dot:SetAllPoints()
@@ -120,6 +99,116 @@ frame.dot:SetVertexColor(1,0,0,1)
 frame:Hide()
 frame.dot:Hide()
 
+frame.textBigD = {}
+frame.textD = {}
+frame.textSmallD = {}
+
+frame.textBig = {}
+frame.text = {}
+frame.textSmall = {}
+function frame:CreateText(t,i,textSizeScale)
+	local text = t[i]
+	if text then
+		return text
+	end
+
+	text = self:CreateFontString(nil,"ARTWORK")
+	t[i] = text
+	text:SetShadowOffset(1,-1)
+	text:SetTextColor(1,1,1,1)
+
+	text.tss = textSizeScale == 1 and 1.5 or textSizeScale == 2 and 1 or 0.5
+
+	text.tmr = self:CreateFontString(nil,"ARTWORK")
+	text.tmr:SetShadowOffset(1,-1)
+	text.tmr:SetTextColor(1,1,1,1)
+	text.tmr:SetPoint("LEFT",text,"RIGHT",floor(text.tss * 6 + 0.5),0)
+
+
+	self:UpdateTextStyle(text)
+
+	return text
+end
+
+function frame:UpdateTextStyle(obj)
+	if not VMRT then
+		return
+	end
+	local font = VMRT.Reminder2.Font or ExRT.F.defFont
+	local outline = VMRT.Reminder2.FontOutline and "OUTLINE" or ""
+	local fontSize = VMRT.Reminder2.FontSize or 50
+
+	local ahText = (VMRT.Reminder2.FontAdj == 1 and "LEFT") or (VMRT.Reminder2.FontAdj == 2 and "RIGHT") or ""
+	local avTextT,avTextB = "TOP","BOTTOM"
+	if VMRT.Reminder2.GrowUp then
+		avTextT,avTextB = avTextB,avTextT
+	end
+	local te = VMRT.Reminder2.FontTimerExcluded
+
+	local rpf = avTextT..ahText
+	local rpt = avTextB..ahText
+
+	for o,t in pairs(obj and {{obj}} or {self.textBigD,self.textD,self.textSmallD}) do
+		for ci,text in pairs(t) do
+			text:SetFont(font, fontSize*text.tss, outline)
+			text.tmr:SetFont(font, fontSize*text.tss, outline)
+
+			text.te = te
+
+			text.rpf = rpf
+			text.rpt = rpt
+
+			text.point = nil
+		end
+	end
+end
+
+do
+	local pd = {"textBig","text","textSmall"}
+	local p = {"textBigD","textD","textSmallD"}
+	function frame:Update()
+		local lastT
+		for j,t in ipairs(pd) do
+			local fp = self[t]
+			local f = self[ p[j] ]
+			local c = 0
+			for i=#fp,1,-2 do
+				c = c + 1
+				local text = f[c]
+				if not text then
+					text = self:CreateText(f,c,j)
+				end
+		
+				if text.te then
+					text:SetText((fp[i-1] or "").." "..(fp[i] or ""))
+					text.tmr:SetText("")				
+				else
+					text:SetText(fp[i-1])
+					text.tmr:SetText((fp[i] or "").." ")
+				end
+
+				if text.point ~= (lastT or self) then
+					text:ClearAllPoints()
+					if lastT then
+						text:SetPoint(text.rpf or "TOP",lastT,text.rpt or "BOTTOM",0,0)
+						text.point = lastT
+					else
+						text:SetPoint(text.rpf or "TOP",self,"CENTER",0,0)
+						text.point = self
+					end
+				end
+
+				lastT = text
+			end
+			for i=c+1,#f do
+				local text = f[i]
+
+				text:SetText("")
+				text.tmr:SetText("")
+			end
+		end
+	end
+end
 
 
 local frameBars = CreateFrame('Frame',nil,UIParent)
@@ -418,28 +507,7 @@ function frameBars:StopAllBars()
 end
 
 function module:UpdateVisual(onlyFont)
-	local outline = VMRT.Reminder2.FontOutline and "OUTLINE" or ""
-	frame.text:SetFont(VMRT.Reminder2.Font or ExRT.F.defFont, VMRT.Reminder2.FontSize or 50, outline)
-	frame.textBig:SetFont(VMRT.Reminder2.Font or ExRT.F.defFont, (VMRT.Reminder2.FontSize or 50)*1.5, outline)
-	frame.textSmall:SetFont(VMRT.Reminder2.Font or ExRT.F.defFont, (VMRT.Reminder2.FontSize or 50)/2, outline)
-
-	frame.textBig:ClearAllPoints()
-	frame.text:ClearAllPoints()
-	frame.textSmall:ClearAllPoints()
-	
-	if VMRT.Reminder2.FontAdj == 1 then
-		frame.textBig:SetPoint("TOPLEFT")
-		frame.text:SetPoint("TOPLEFT",frame.textBig,"BOTTOMLEFT",0,0)
-		frame.textSmall:SetPoint("TOPLEFT",frame.text,"BOTTOMLEFT",0,0)
-	elseif VMRT.Reminder2.FontAdj == 2 then
-		frame.textBig:SetPoint("TOPRIGHT")
-		frame.text:SetPoint("TOPRIGHT",frame.textBig,"BOTTOMRIGHT",0,0)
-		frame.textSmall:SetPoint("TOPRIGHT",frame.text,"BOTTOMRIGHT",0,0)
-	else
-		frame.textBig:SetPoint("TOP")
-		frame.text:SetPoint("TOP",frame.textBig,"BOTTOM",0,0)
-		frame.textSmall:SetPoint("TOP",frame.text,"BOTTOM",0,0)
-	end
+	frame:UpdateTextStyle()
 
 	local width = VMRT.Reminder2.BarWidth or 450
 	local height = VMRT.Reminder2.BarHeight or 40
@@ -474,9 +542,16 @@ function module:UpdateVisual(onlyFont)
 		frame.dot:Show()
 		frame:EnableMouse(true)
 		frame:SetMovable(true)
-		frame.text:SetText(L.ReminderDefText)
-		frame.textBig:SetText(L.ReminderBigText)
-		frame.textSmall:SetText(L.ReminderSmallText)
+		wipe(frame.text)
+		wipe(frame.textBig)
+		wipe(frame.textSmall)
+		frame.text[#frame.text+1] = L.ReminderDefText
+		frame.text[#frame.text+1] = "2.3"
+		frame.textBig[#frame.textBig+1] = L.ReminderBigText
+		frame.textBig[#frame.textBig+1] = "4.5"
+		frame.textSmall[#frame.textSmall+1] = L.ReminderSmallText
+		frame.textSmall[#frame.textSmall+1] = "6.7"
+		frame:Update()
 		frame:Show()
 
 		frameBars.dot:Show()
@@ -491,10 +566,13 @@ function module:UpdateVisual(onlyFont)
 		frame.dot:Hide()
 		frame:EnableMouse(false)
 		frame:SetMovable(false)
-		frame.text:SetText("")
-		frame.textBig:SetText("")
-		frame.textSmall:SetText("")
-		frame:Hide()
+		if frame.text[1] == L.ReminderDefText then
+			wipe(frame.text)
+			wipe(frame.textBig)
+			wipe(frame.textSmall)
+			frame:Update()
+			frame:Hide()
+		end
 
 		frameBars.dot:Hide()
 		frameBars:EnableMouse(false)
@@ -506,9 +584,9 @@ end
 
 ELib:FixPreloadFont(frame,function() 
 	if VMRT then
-		frame.text:SetFont(GameFontWhite:GetFont(),11, "")
-		frame.textBig:SetFont(GameFontWhite:GetFont(),11, "")
-		frame.textSmall:SetFont(GameFontWhite:GetFont(),11, "")
+		--frame.text:SetFont(GameFontWhite:GetFont(),11, "")
+		--frame.textBig:SetFont(GameFontWhite:GetFont(),11, "")
+		--frame.textSmall:SetFont(GameFontWhite:GetFont(),11, "")
 		module:UpdateVisual(true)
 		return true
 	end
@@ -2356,7 +2434,7 @@ function options:Load()
 				event = 3,
 			},
 		},
-		dur = 2,
+		dur = 3,
 		players = {},
 		allPlayers = true,
 	}
@@ -2589,22 +2667,39 @@ function options:Load()
 		local timeLineData = self.timeLineData
 		if not timeLineData or not timeLineData.p then return end
 
-		time = self:GetTimeAdjust(time,true)
+		local res
+		local res_time
 		for i=1,#timeLineData.p do
-			if time < timeLineData.p[i] then
-				return self.custom_phase[i-1] or (timeLineData.p.n and timeLineData.p.n[i-1]) or i, time-(timeLineData.p[i-1] or 0), self:GetPhaseCounter(i-1), i-1
+			local phase_time = self:GetTimeAdjust(timeLineData.p[i])
+			if time > phase_time then
+				--do this for wrong ordered phases
+				if not res_time or res_time < phase_time then
+					res = i
+					res_time = phase_time	
+				end
 			end
 		end
-		return (self.custom_phase[#timeLineData.p] or timeLineData.p.n and timeLineData.p.n[#timeLineData.p]) or #timeLineData.p+1, time-timeLineData.p[#timeLineData.p], self:GetPhaseCounter(#timeLineData.p), #timeLineData.p
+		if res then
+			return (self.custom_phase[res] or timeLineData.p.n and timeLineData.p.n[res]) or res+1, time-self:GetTimeAdjust(timeLineData.p[res]), self:GetPhaseCounter(res), res
+		end
 	end
 	function options.timeLine:GetTimeOnPhase(time,phase,phaseCount)
 		local timeLineData = self.timeLineData
 		if not timeLineData or not timeLineData.p then return end
 
-		time = self:GetTimeAdjust(time)
 		for i=1,#timeLineData.p do
 			if (tostring(self.custom_phase[i] or (timeLineData.p.n and timeLineData.p.n[i]) or i+1) == tostring(phase)) and (not phaseCount or tostring(self:GetPhaseCounter(i)) == tostring(phaseCount)) then
-				return time + timeLineData.p[i], i+1
+				return time + self:GetTimeAdjust(timeLineData.p[i]), i+1
+			end
+		end
+	end
+
+	function options.timeLine:GetTimeUntilPhaseEnd(time)
+		local timeLineData = self.timeLineData
+		if not timeLineData.p then return end
+		for i=1,#timeLineData.p do
+			if time < self:GetTimeAdjust(timeLineData.p[i]) then
+				return self:GetTimeAdjust(timeLineData.p[i]) - time
 			end
 		end
 	end
@@ -2614,17 +2709,26 @@ function options:Load()
 
 		if timeLineData[spell] then
 			local spellData = timeLineData[spell]
-			if time < self:GetTimeAdjust((type(spellData[1])=="table" and spellData[1][1] or spellData[1]) + (afterEnd and (type(spellData[1])=="table" and spellData[1].d or spellData.d or 2) or 0)) then return end
-			local p
-			for i=2,#spellData do
-				local spell_time = self:GetTimeAdjust( (type(spellData[i])=="table" and spellData[i][1] or spellData[i])+(afterEnd and (type(spellData[i])=="table" and spellData[i].d or spellData.d or 2) or 0) )
-				if spell_time > time then
-					p = i - 1
-					break
+			local counter = 0
+			local res_time, res_counter
+			for i=1,#spellData do
+				local spell_time_og = (type(spellData[i])=="table" and spellData[i][1] or spellData[i])
+				if not self:IsRemovedByTimeAdjust(spell_time_og) then
+					counter = counter + 1
+
+					local spell_time = self:GetTimeAdjust(spell_time_og)
+
+					local dur = (afterEnd and (type(spellData[i])=="table" and spellData[i].d or spellData.d or 2) or 0)
+					if dur == "p" then dur = self:GetTimeUntilPhaseEnd(spell_time) or 2 end
+
+					if time > spell_time and (not afterEnd or (time - spell_time) > dur) then
+						res_time = time - spell_time - dur
+						res_counter = counter
+					end
 				end
 			end
-			if not p then p = #spellData end
-			return time - self:GetTimeAdjust((type(spellData[p])=="table" and spellData[p][1] or spellData[p]) + (afterEnd and (type(spellData[p])=="table" and spellData[p].d or spellData.d or 2) or 0)), p
+
+			return res_time, res_counter
 		end
 	end
 	function options.timeLine:GetTimeForSpell(time,spell,counter,afterEnd)
@@ -2635,7 +2739,12 @@ function options:Load()
 			local spellData = timeLineData[spell]
 			if spellData[counter] then
 				local spell_time = type(spellData[counter])=="table" and spellData[counter][1] or spellData[counter]
-				return self:GetTimeAdjust(spell_time + time + (afterEnd and (type(spellData[counter])=="table" and spellData[counter].d or spellData.d or 2) or 0))
+				spell_time = self:GetTimeAdjust(spell_time)
+
+				local dur = (afterEnd and (type(spellData[counter])=="table" and spellData[counter].d or spellData.d or 2) or 0)
+				if dur == "p" then dur = self:GetTimeUntilPhaseEnd(spell_time) or 2 end
+
+				return time + spell_time + dur
 			end
 		end
 	end
@@ -2671,8 +2780,6 @@ function options:Load()
 			end
 		end
 
-		
-
 		local data_list = {}
 
 		for uid,data in pairs(CURRENT_DATA) do
@@ -2695,7 +2802,9 @@ function options:Load()
 					data.triggers[1].event == 22 or 
 					(data.triggers[1].event == 1 and data.triggers[1].counter and tonumber(data.triggers[1].counter) and (
 						data.triggers[1].eventCLEU == "SPELL_CAST_SUCCESS" or
-						data.triggers[1].eventCLEU == "SPELL_AURA_REMOVED"
+						data.triggers[1].eventCLEU == "SPELL_CAST_START" or
+						data.triggers[1].eventCLEU == "SPELL_AURA_REMOVED" or 
+						data.triggers[1].eventCLEU == "SPELL_AURA_APPLIED"
 					))
 				) and
 				(not self.FILTER_REM_ONLYMY or module:CheckPlayerCondition(data))
@@ -2714,9 +2823,9 @@ function options:Load()
 					if customData then customData = {p = customData} end
 				elseif data.triggers[1].event == 1 then
 					timeOnPhase = time
-					local isAura = data.triggers[1].eventCLEU == "SPELL_AURA_REMOVED"
-					time = self:GetTimeForSpell(time,data.triggers[1].spellID,tonumber(data.triggers[1].counter),isAura) or 0
-					customData = {s = data.triggers[1].spellID, c = tonumber(data.triggers[1].counter), e = data.triggers[1].isAura and "SAR" or "SCC"}
+					local isAfterEnd = data.triggers[1].eventCLEU == "SPELL_AURA_REMOVED"
+					time = self:GetTimeForSpell(time,data.triggers[1].spellID,tonumber(data.triggers[1].counter),isAfterEnd) or 0
+					customData = {s = data.triggers[1].spellID, c = tonumber(data.triggers[1].counter), e = data.triggers[1].eventCLEU == "SPELL_CAST_SUCCESS" and "SCC" or data.triggers[1].eventCLEU == "SPELL_CAST_START" and "SCS" or data.triggers[1].eventCLEU == "SPELL_AURA_REMOVED" and "SAR" or data.triggers[1].eventCLEU == "SPELL_AURA_APPLIED" and "SAA"}
 				end
 
 				if time then
@@ -3148,9 +3257,10 @@ function options:Load()
 						newEntry.arg1 = -bossID
 						newEntry.arg3 = 4
 					end
-					if i == 1 then
+					if not boss_list.prio2 or boss_list.prio2 < newEntry.prio then
 						boss_list.arg3 = newEntry.arg3
 						boss_list.arg4 = newEntry.arg4
+						boss_list.prio2 = newEntry.prio
 					end
 				end
 				sort(subMenu,function(a,b)
@@ -3164,7 +3274,7 @@ function options:Load()
 	 			res = function() self:SetValue(bossID,ExRT.L.bossName[bossID]) end
 			elseif not module.db.lastEncounterID and VMRT.Reminder2.TLBoss and (VMRT.Reminder2.TLBoss == bossID or (type(VMRT.Reminder2.TLBoss == "number") and floor(VMRT.Reminder2.TLBoss) == bossID)) then
 				if VMRT.Reminder2.TLBoss % 1 ~= 0 then
-					local n = floor( (VMRT.Reminder2.TLBoss % 1) * 100 )
+					local n = floor( (VMRT.Reminder2.TLBoss % 1) * 100 + 0.5 )
 					res = function() self:SetValue(bossID,ExRT.L.bossName[bossID],3,{id = VMRT.Reminder2.TLBoss, tl = bossData.m and (bossData[n] or bossData[1]) or bossData}) end
 				else
 					res = function() self:SetValue(bossID,ExRT.L.bossName[bossID]) end
@@ -3294,6 +3404,25 @@ function options:Load()
 				
 						local toadd = true
 
+						--manual fixes
+						if cleu == "SAR:447207:1" then cleu = nil p = "3"
+						elseif cleu == "SCS:449986:1" then cleu = nil p = "4"
+
+						elseif cleu == "SCS:450483:1" then cleu = nil p = "2"
+						--elseif cleu == "SAR:450980:1" then cleu = nil p = "3"
+						--elseif cleu == "SAR:451277:1" then cleu = nil p = "5"
+
+						elseif cleu == "SAA:447207:1" then cleu = nil p = "2"
+						elseif cleu == "SAA:442432:1" then cleu = nil p = "2"
+						elseif cleu == "SAA:442432:2" then cleu = nil p = "3"
+						elseif cleu == "SAA:442432:3" then cleu = nil p = "4"
+
+						--elseif cleu == "SCS:439795:1" then cleu = nil p = "2"
+						--elseif cleu == "SCS:439795:2" then cleu = nil p = "3"
+						--elseif cleu == "SCS:439795:3" then cleu = nil p = "4"
+						--elseif cleu == "SCS:439795:4" then cleu = nil p = "5"
+						end
+
 						if not data.triggers[1] then
 							data.triggers[1] = {}
 						end
@@ -3318,9 +3447,9 @@ function options:Load()
 								cleu_count = tonumber(cleu_count)
 
 								if not cleu_spell or not cleu_count or cleu_count <= 0 then
-								elseif cleu_event == "SCC" or cleu_event == "SAR" then
+								elseif cleu_event == "SCC" or cleu_event == "SAA" or cleu_event == "SAR" or cleu_event == "SCS" then
 									data.triggers[1].event = 1
-									data.triggers[1].eventCLEU = cleu_event == "SCC" and "SPELL_CAST_SUCCESS" or "SPELL_AURA_REMOVED"
+									data.triggers[1].eventCLEU = cleu_event == "SCC" and "SPELL_CAST_SUCCESS" or cleu_event == "SCS" and "SPELL_CAST_START" or cleu_event == "SAR" and "SPELL_AURA_REMOVED" or "SPELL_AURA_APPLIED"
 									data.triggers[1].spellID = cleu_spell
 									data.triggers[1].counter = tostring(cleu_count)
 									isValid = true
@@ -3337,7 +3466,7 @@ function options:Load()
 						local msg = line:gsub("{time:[^}]+}",""):trim()
 
 						if options.timeLineImportFromNoteFrame.opt_filter_names then
-							local ability,names = msg:match("^(.-) - (.-)$")
+							local ability,names = strsplit("-",msg,2)
 							if names then
 								names = names:gsub("%b{}","")
 								for n in names:gmatch("[^ ]+") do
@@ -3346,16 +3475,17 @@ function options:Load()
 										data.players[n] = true
 									end
 								end
-							end
-							if ability then
-								msg = ability
+
+								if ability then
+									msg = ability
+								end
 							end
 						end
 						local everylist
 						if options.timeLineImportFromNoteFrame.opt_everyplayer then
 							for player,spell in msg:gmatch("([^ _]+) *{spell:(%d+)}") do
 								player = player:gsub("||c........",""):gsub("||r","")
-								if not player:find("[%d:]") then
+								if not player:find("[%d:]") and #player > 1 then
 									if not everylist then everylist = {} end
 
 									local msg1 = "{spell:"..spell.."}"
@@ -4043,11 +4173,13 @@ function options:Load()
 		options.quickSetupFrame.prev = options.quickSetupFrame.data
 		options.quickSetupFrame:Hide()
 	end)
+	self.quickSetupFrame.saveButton.Texture:SetGradient("VERTICAL",CreateColor(0.05,0.15,0.07,1), CreateColor(0.15,0.31,0.15,1))
 
-	self.quickSetupFrame.removeButton = ELib:Button(self.quickSetupFrame,L.ReminderRemove):Point("BOTTOMLEFT",self.quickSetupFrame,"BOTTOM",5,10):Size(200,20):OnClick(function()
+	self.quickSetupFrame.removeButton = ELib:Button(self.quickSetupFrame,L.ReminderRemove):Point("BOTTOMRIGHT",self.quickSetupFrame,"BOTTOM",-5,10):Size(200,20):OnClick(function()
 		local uid = self.quickSetupFrame.data.uid
 		options:RemoveReminder(uid)
 	end)
+	self.quickSetupFrame.removeButton.Texture:SetGradient("VERTICAL",CreateColor(0.15,0.06,0.09,1), CreateColor(0.30,0.21,0.25,1))
 
 	self.quickSetupFrame.copyButton = ELib:Button(self.quickSetupFrame,L.ReminderCopyPrev):Point("BOTTOM",0,35):Size(410,20):OnClick(function()
 		local prev = self.quickSetupFrame.prev
@@ -4232,6 +4364,31 @@ function options:Load()
 	end
 
 	self.quickSetupFrame.spellDD = ELib:DropDown(self.quickSetupFrame,220,-1):AddText("|cffffd100"..L.cd2TextSpell..":"):Size(270):Point("TOPLEFT",self.quickSetupFrame.playersEdit,"BOTTOMLEFT",0,-5)
+
+	function self.quickSetupFrame.spellDD:ModText(isFromEdit)
+		local msg = options.quickSetupFrame.msgEdit:GetText() or ""
+		local spell = options.quickSetupFrame.spellDD.spell
+
+		if msg:trim() == "" and spell and not isFromEdit then
+			local spellName,_,spellTexture = GetSpellInfo(spell or 0)
+			if spellName then
+				msg = spellName
+			end
+		end
+
+		if spell then
+			msg = "{spell:"..spell.."} "..msg
+		end
+
+		if msg:trim() == "" then msg = nil end
+		options.quickSetupFrame.data.msg = msg
+
+		local showedText = msg and msg:gsub("^{spell:%d+} *","",1) or ""
+		if showedText ~= options.quickSetupFrame.msgEdit:GetText() then
+			options.quickSetupFrame.msgEdit:SetText(showedText)
+		end
+	end
+
 	self.quickSetupFrame.spellDD.SetValue = function(_,arg1)
 		local isCustom
 		if arg1 == -1 then
@@ -4248,19 +4405,11 @@ function options:Load()
 		if arg1 then
 			local spellName,_,spellTexture = GetSpellInfo(arg1)
 			self.quickSetupFrame.spellDD:SetText( (spellTexture and "|T"..spellTexture..":20|t " or "")..(spellName or "spell:"..arg1) )
-			if not options.quickSetupFrame.data.msg or not options.quickSetupFrame.data.msg:find("{spell:%d+}") then
-				options.quickSetupFrame.data.msg = "{spell:"..arg1.."} "..(options.quickSetupFrame.data.msg or "")
-			else
-				options.quickSetupFrame.data.msg = options.quickSetupFrame.data.msg:gsub("{spell:%d+}","{spell:"..arg1.."}",1)
-			end
-		else
-			if options.quickSetupFrame.data.msg then
-				options.quickSetupFrame.data.msg = options.quickSetupFrame.data.msg:gsub("{spell:%d+} *","")
-			end
-			if not isCustom then
-				self.quickSetupFrame.spellDD:SetText("-")
-			end
+		elseif not isCustom then
+			self.quickSetupFrame.spellDD:SetText("-")
 		end
+		options.quickSetupFrame.spellDD:ModText()
+
 		options.quickSetupFrame.msgEdit:UpdateColorBorder()
 		ELib:DropDownClose()
 	end
@@ -4288,6 +4437,7 @@ function options:Load()
 				if not l then
 					l = {
 						text = L.classLocalizate[class],
+						colorCode = (RAID_CLASS_COLORS[class] and RAID_CLASS_COLORS[class].colorStr and "|c"..RAID_CLASS_COLORS[class].colorStr or ""),
 						arg1 = class,
 						subMenu = {},
 					}
@@ -4395,14 +4545,12 @@ function options:Load()
 		local _,_,texture = GetSpellInfo(text or "")
 		self:InsideIcon(texture)
 		if not isUser then return end
-		if text then
-			if not options.quickSetupFrame.data.msg or not options.quickSetupFrame.data.msg:find("{spell:%d+}") then
-				options.quickSetupFrame.data.msg = "{spell:"..text.."} "..(options.quickSetupFrame.data.msg or "")
-			else
-				options.quickSetupFrame.data.msg = options.quickSetupFrame.data.msg:gsub("{spell:%d+}","{spell:"..text.."}",1)
-			end
+		if texture then
+			options.quickSetupFrame.spellDD.spell = text
+		else
+			options.quickSetupFrame.spellDD.spell = nil
 		end
-		options.quickSetupFrame.spellDD.spell = text
+		options.quickSetupFrame.spellDD:ModText(true)
 		options.quickSetupFrame.msgEdit:UpdateColorBorder()
 	end)
 	function self.quickSetupFrame.spellDD_extra:ExtraHide()
@@ -4414,7 +4562,7 @@ function options:Load()
 		if text == "" then text = nil end
 		self:UpdateColorBorder()
 		if not isUser then return end
-		options.quickSetupFrame.data.msg = (options.quickSetupFrame.spellDD.spell and "{spell:"..options.quickSetupFrame.spellDD.spell.."} " or "")..(text or "")
+		options.quickSetupFrame.spellDD:ModText(true)
 		self:UpdateColorBorder()
 	end)
 	function self.quickSetupFrame.msgEdit:UpdateColorBorder()
@@ -4430,6 +4578,12 @@ function options:Load()
 		if ColorPickerFrame.SetupColorPickerAndShow then
 			local info = {}
 			info.r, info.g, info.b = 1,1,1
+			if options.quickSetupFrame.msgEdit then
+				local at,rt,gt,bt = options.quickSetupFrame.msgEdit:GetText():match("|c(..)(..)(..)(..)")
+				if bt then
+					info.r, info.g, info.b = tonumber(rt,16)/255,tonumber(gt,16)/255,tonumber(bt,16)/255,tonumber(at,16)/255
+				end
+			end
 			info.opacity = 1
 			info.hasOpacity = false
 			info.swatchFunc = function()
@@ -4549,11 +4703,28 @@ function options:Load()
 			func = SetCLEU,
 			arg1 = "SPELL_AURA_REMOVED",
 		}
+		self.quickSetupFrame.eventDD.List[#self.quickSetupFrame.eventDD.List+1] = {
+			text = module.C["SPELL_AURA_APPLIED"].lname,
+			func = SetCLEU,
+			arg1 = "SPELL_AURA_APPLIED",
+		}
+		self.quickSetupFrame.eventDD.List[#self.quickSetupFrame.eventDD.List+1] = {
+			text = module.C["SPELL_CAST_START"].lname,
+			func = SetCLEU,
+			arg1 = "SPELL_CAST_START",
+		}
 		function self.quickSetupFrame.eventDD:PreUpdate()
 			self.List[1].isHidden = (not options.timeLine.ZONE_ID) and true or false
 			self.List[3].isHidden = options.timeLine.ZONE_ID and true or false
 			self.List[4].isHidden = (not options.timeLine.SAVED_VAR_S or (options.timeLine.timeLineData[options.timeLine.SAVED_VAR_SID].spellType or 1) ~= 1) and true or false
 			self.List[5].isHidden = (not options.timeLine.SAVED_VAR_S or (options.timeLine.timeLineData[options.timeLine.SAVED_VAR_SID].spellType or 1) ~= 2) and true or false
+			self.List[6].isHidden = options.quickSetupFrame.data.triggers[1].eventCLEU ~= "SPELL_AURA_APPLIED"
+			self.List[7].isHidden = options.quickSetupFrame.data.triggers[1].eventCLEU ~= "SPELL_CAST_START"
+
+			self.List[4].isTitle = not options.timeLine.SAVED_VAR_S and true or false
+			self.List[5].isTitle = not options.timeLine.SAVED_VAR_S and true or false
+			self.List[6].isTitle = not options.timeLine.SAVED_VAR_S and true or false
+			self.List[7].isTitle = not options.timeLine.SAVED_VAR_S and true or false
 		end
 
 		self.quickSetupFrame.eventDD.Update = function(self)
@@ -4929,12 +5100,12 @@ function options:Load()
 		self.durEdit:SetText(data.dur or "")
 
 		local msg = data.msg or ""
-		if msg:find("{spell:%d+}") then
-			local spell = tonumber( msg:match("{spell:(%d+)}"),nil )
+		if msg:find("^{spell:%d+}") then
+			local spell = tonumber( msg:match("^{spell:(%d+)}"),nil )
 			local name,_,texture = GetSpellInfo(spell or 0)
 			self.spellDD:SetText( (texture and "|T"..texture..":20|t " or "")..(name or "spell:"..spell) )
 			self.spellDD.spell = spell
-			msg = msg:gsub("{spell:%d+} *","")
+			msg = msg:gsub("{spell:%d+} *","",1)
 		else
 			self.spellDD:SetText( "-" )
 			self.spellDD.spell = nil
@@ -4969,7 +5140,7 @@ function options:Load()
 
 		if data.uid and CURRENT_DATA[data.uid] then
 			self.removeButton:Show()
-			self.saveButton:NewPoint("BOTTOMRIGHT",self,"BOTTOM",-5,10):Size(200,20)
+			self.saveButton:NewPoint("BOTTOMLEFT",self,"BOTTOM",5,10):Size(200,20)
 		else
 			self.removeButton:Hide()
 			self.saveButton:NewPoint("BOTTOM",self,"BOTTOM",0,10):Size(410,20)
@@ -4985,6 +5156,19 @@ function options:Load()
 	end
 
 
+	function options.timeLine:ResetSavedVars()
+		self.SAVED_VAR_X = nil
+		self.SAVED_VAR_XP = nil
+		self.SAVED_VAR_P = nil
+		self.SAVED_VAR_PC = nil
+		self.SAVED_VAR_SID = nil
+		self.SAVED_VAR_S = nil
+		self.SAVED_VAR_SC = nil
+
+		self.SAVED_VAR_BOSS = nil
+		self.SAVED_VAR_ZONE = nil
+		self.SAVED_VAR_BOSS_ZONE = nil
+	end
 	function options.timeLine:ProcessClick(x, y, button)
 		x = self:GetTimeFromPos(x)
 
@@ -5135,6 +5319,8 @@ function options:Load()
 			}
 			ELib.ScrollDropDown.EasyMenu(self,menu,150)
 		else
+			options.timeLine:ResetSavedVars()
+
 			local data = ExRT.F.table_copy2(self.data)
 			options.quickSetupFrame:Update(data)
 			options.quickSetupFrame:Show()
@@ -5154,7 +5340,13 @@ function options:Load()
 			GameTooltip:AddLine((p and "Phase "..p..(pc and " (#"..pc..")" or "")..": " or "")..module:FormatTime(dt[1]))
 		end
 		local filter = ""
-		for k,v in pairs(data.players) do filter = filter .. k .. " " end
+		for k,v in pairs(data.players) do 
+			if UnitClass(k) then
+				filter = filter .. "|c" .. RAID_CLASS_COLORS[select(2,UnitClass(name))].colorStr .. k
+			else
+				filter = filter .. k .. " " 
+			end
+		end
 		for k,v in pairs(data) do 
 			if type(k)=="string" and k:find("^role") then 
 				local token = k:match("^role(.-)$")
@@ -5339,17 +5531,7 @@ function options:Load()
 						st = type(st) == "table" and st[1] or st
 						if not self:IsRemovedByTimeAdjust(st) then
 							st = self:GetTimeAdjust(st)
-							if len == "p" and timeLineData.p then
-								for i=1,#timeLineData.p do
-									if st < self:GetTimeAdjust(timeLineData.p[i]) then
-										len = self:GetTimeAdjust(timeLineData.p[i]) - st
-										break
-									end
-								end
-							end
-							if len == "p" then
-								len = 2
-							end
+							if len == "p" then len = self:GetTimeUntilPhaseEnd(st) or 2 end
 							t_c = t_c + 1
 							self:Util_SetLineTexture(line,t_c,{pos=st,len=len,cast=cast},color)
 						end
@@ -5382,7 +5564,10 @@ function options:Load()
 
 			if timeLineData.p then
 				for i=1,#timeLineData.p do
-					local pcursor = self.frame.pcursors[i]
+					local x = timeLineData.p[i]
+
+					line_p = line_p + 1
+					local pcursor = self.frame.pcursors[line_p]
 					if not pcursor then
 						pcursor = self.frame.D:CreateTexture(nil,"ARTWORK", nil, 4)
 						self.frame.pcursors[i] = pcursor
@@ -5395,9 +5580,11 @@ function options:Load()
 						pcursor.text:SetRotation(90*math.pi/180)
 						pcursor.text:SetDrawLayer("ARTWORK", 4)
 					end
-					local x = self:GetPosFromTime(self:GetTimeAdjust(timeLineData.p[i]))
-					pcursor:SetPoint("LEFT",x,0)
+
 					local pn = self.custom_phase[i] or (timeLineData.p.n and timeLineData.p.n[i]) or (i+1)
+					local phase_time = self:GetTimeOnPhase(0,pn,self:GetPhaseCounter(i))
+					x = self:GetPosFromTime(phase_time)
+					pcursor:SetPoint("LEFT",x,0)
 					local text = "Phase "..pn
 					if tostring(pn):find("%d%.%d") then
 						text = "Intermission "..tostring(pn):match("^%d+")
@@ -5410,7 +5597,6 @@ function options:Load()
 					pcursor:Show()
 					pcursor.text:Show()
 				end
-				line_p = #timeLineData.p
 			end
 		end
 		for i=line_c+1,#self.frame.lines do
@@ -5468,9 +5654,6 @@ function options:Load()
 			end
 
 			local x = data_list[i][2]
-			if data_list[i][3] and data_list[i][3].p then
-				x = self:GetTimeAdjust(x)
-			end
 
 			local pos = self:GetPosFromTime(x)
 			local anchorLeft = not data.durrev
@@ -5500,8 +5683,9 @@ function options:Load()
 				local spell = data_list[i][3].s
 				local found = false
 				for j=1,#self.frame.lines do
-					if self.frame.lines[j].spell == spell then
-						button.cursor:SetPoint("TOP",self.frame.lines[j],"RIGHT",0,0)
+					local line = self.frame.lines[j]
+					if line.spell == spell and line:IsShown() then
+						button.cursor:SetPoint("TOP",line,"RIGHT",0,0)
 
 						button.cursorToSpell:SetWidth( self:GetPosFromTime(data_list[i][4]) )
 						button.cursorToSpell:Show()
@@ -10951,6 +11135,8 @@ function options:Load()
 	self.chkLock = ELib:Check(self.options_tab.tabs[1],L.ReminderTestMode..":",false):Point(250,-10):Left(5):OnClick(function(self) 
 		frame.unlocked = self:GetChecked()
 		module:UpdateVisual()
+
+		options.chkLock2:SetChecked(self:GetChecked())
 	end)
 
 	self.ResetPosButton = ELib:Button(self.options_tab.tabs[1],L.MarksBarResetPos):Point("LEFT",self.chkLock,"RIGHT",100,0):Size(200,20):OnClick(function()
@@ -11054,6 +11240,17 @@ function options:Load()
 		module:UpdateVisual()
 	end)
 
+	self.optTimerExcluded = ELib:Check(self.optionWidgets.tabs[1],L.ReminderTimeExcluded,not VMRT.Reminder2.FontTimerExcluded):Point("LEFT",self.dropDownFontAdj,"RIGHT",5,0):OnClick(function(self) 
+		VMRT.Reminder2.FontTimerExcluded = not self:GetChecked()
+		module:UpdateVisual()
+	end)
+
+	self.optGrowUp = ELib:Check(self.optionWidgets.tabs[1],L.ReminderGrowUp..":",VMRT.Reminder2.GrowUp):Point("TOPLEFT",self.dropDownFontAdj,"BOTTOMLEFT",0,-5):Left(5):OnClick(function(self) 
+		VMRT.Reminder2.GrowUp = self:GetChecked()
+		module:UpdateVisual()
+	end)
+
+
 
 	local function HideNameplateGlows()
 		local LCG = LibStub("LibCustomGlow-1.0",true)
@@ -11065,6 +11262,13 @@ function options:Load()
 			end  
 		end
 	end
+
+	self.chkLock2 = ELib:Check(self.options_tab.tabs[2],L.ReminderTestMode,false):Point(330,20):OnClick(function(self) 
+		frame.unlocked = self:GetChecked()
+		module:UpdateVisual()
+
+		options.chkLock:SetChecked(self:GetChecked())
+	end)
 
 	self.nameplateTypeGlow1 = ELib:Radio(self.optionWidgets.tabs[2],""):Point(190,-10):OnClick(function() 
 		self.nameplateTypeGlow1:SetChecked(true)
@@ -12474,7 +12678,10 @@ do
 				return
 			end
 
-			local textBig,text,textSmall
+			for k in pairs(self.textBig) do self.textBig[k]=nil end
+			for k in pairs(self.text) do self.text[k]=nil end
+			for k in pairs(self.textSmall) do self.textSmall[k]=nil end
+			local total_c = 0
 			local now = GetTime()
 			for j=#showedReminders,1,-1 do
 				local showed = showedReminders[j]
@@ -12492,13 +12699,17 @@ do
 						countdownFormat = module.datas.countdownType[data.countdownType or 2][3]
 						showed.countdownFormat = countdownFormat
 					end
+					local table
 					if data.msgSize == 2 then
-						textBig = msg .. (showed.dur ~= 0 and data.countdown and format(countdownFormat,t - now) or "") .. (textBig and "\n" or "") .. (textBig or "")
+						table = self.textBig
 					elseif data.msgSize == 3 then
-						textSmall = msg .. (showed.dur ~= 0 and data.countdown and format(countdownFormat,t - now) or "") .. (textSmall and "\n" or "") .. (textSmall or "")
+						table = self.textSmall
 					else
-						text = msg .. (showed.dur ~= 0 and data.countdown and format(countdownFormat,t - now) or "") .. (text and "\n" or "") .. (text or "")
+						table = self.text
 					end
+					table[#table+1] = msg or ""
+					table[#table+1] = showed.dur ~= 0 and data.countdown and format(countdownFormat,t - now) or ""
+					total_c = total_c + 1
 				else
 					if data.soundafter and not VMRT.Reminder2.disableSound and bit.band(VMRT.Reminder2.options[data.uid or 0] or 0,bit.lshift(1,1)) == 0 then
 						module:PlaySound(data.soundafter, showed.reminder, now)
@@ -12510,19 +12721,8 @@ do
 				end
 			end
 
-			if textBig ~= self.textBig.prev then
-				self.textBig:SetText(textBig or "")
-				self.textBig.prev = textBig
-			end
-			if text ~= self.text.prev then
-				self.text:SetText(text or "")
-				self.text.prev = text
-			end
-			if textSmall ~= self.textSmall.prev then
-				self.textSmall:SetText(textSmall or "")
-				self.textSmall.prev = textSmall
-			end
-			if not textBig and not text and not textSmall then
+			self:Update()
+			if total_c == 0 then
 				self:Hide()
 			end
 		end

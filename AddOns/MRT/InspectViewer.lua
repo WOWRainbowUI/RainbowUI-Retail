@@ -1914,6 +1914,10 @@ function module.options:Load()
 			if module.db.page == 4 and self.additional then
 				ELib.Tooltip:Add(nil,self.additional,false,true)
 			end
+			if IsShiftKeyDown() and IsAltKeyDown() and type(self.link)=="string" then
+				local itemLinkModded = self.link:match("item:[%d:%-]+")
+				ELib.Tooltip:Add(nil,{itemLinkModded},false,true)
+			end
 		end
 	end
 	local function Lines_ItemIcon_OnLeave(self)
