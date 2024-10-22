@@ -192,6 +192,15 @@
 			</Button>
 		</Frames>
 		<Scripts>
+			<OnLoad>
+				self:RegisterEvent("PLAYER_REGEN_DISABLED")
+				local function EventsTime(self, event, arg1, arg2, arg3)
+					if event == "PLAYER_REGEN_DISABLED" then
+						self:Hide()
+					end
+				end
+				self:SetScript("OnEvent", EventsTime)
+			</OnLoad>
 			<OnKeyDown>
 				if key == "ESCAPE" then self:SetPropagateKeyboardInput(false) self:Hide() else self:SetPropagateKeyboardInput(true) end
 			</OnKeyDown>
@@ -456,9 +465,11 @@
 				<Scripts>
 					<OnShow>
 						self:GetParent():SetNormalAtlas("charactercreate-customize-dropdownbox-hover")
+						PlaySound(855, "Master")
 					</OnShow>
 					<OnHide>
 						self:GetParent():SetNormalAtlas("charactercreate-customize-dropdownbox-open")
+						PlaySound(855, "Master")
 					</OnHide>
 				</Scripts>
 			</Button>

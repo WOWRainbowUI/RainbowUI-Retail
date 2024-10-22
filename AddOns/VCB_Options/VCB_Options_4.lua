@@ -76,8 +76,6 @@ vcbOptions4Box1EditBox1.WritingLine:HookScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWrite a name for your profile in the Edit Box and|npress enter to save your settings/options!") 
 end)
--- leave --
-vcbOptions4Box1EditBox1.WritingLine:HookScript("OnLeave", vcbLeavingMenus)
 -- pressing enter --
 vcbOptions4Box1EditBox1.WritingLine:SetScript("OnEnterPressed", function(self)
 	if self:HasText() then
@@ -112,10 +110,6 @@ vcbOptions4Box2PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nSelect one of the profiles to be "..vcbHighColor:WrapTextInColorCode("LOADED!")) 
 end)
--- leave --
-vcbOptions4Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions4Box2PopOut1, vcbOptions4Box2PopOut1Choice0)
 -- choice 0 --
 vcbOptions4Box2PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
@@ -135,10 +129,6 @@ vcbOptions4Box3PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nSelect one of the profiles to be "..vcbHighColor:WrapTextInColorCode("DELETED!")) 
 end)
--- leave --
-vcbOptions4Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions4Box3PopOut1, vcbOptions4Box3PopOut1Choice0)
 -- choice 0 --
 vcbOptions4Box3PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
