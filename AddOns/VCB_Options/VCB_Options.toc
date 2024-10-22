@@ -1,0 +1,22 @@
+## Interface: 110002
+## Title: Voodoo |cff9ACD32Casting|r Bar |cff9ACD32Options|r
+## Notes: |cffF0E68COptions for the |cff9ACD32Voodoo|r Casting |cff9ACD32Bar|r|r!
+## IconAtlas: Relic-Fel-TraitBG
+## DefaultState: enabled
+## LoadOnDemand: 1
+## Dependencies: VCB
+## Version: 1.54
+## Author: The_Indolent
+## X-Website: https://panosanastasiou.rocks/
+
+## Title-zhTW: |cff0099FF[介面]|r 內建施法條增強-設定選項
+## Notes-zhTW: Voodoo |cff9ACD32Casting|r Bar |cff9ACD32Options|r |n|n內建施法條增強的設定選項。|n|n|cffffd200使用方法: |r輸入 /vcb 打開設定選項。
+## X-Category-zhTW: 介面
+## IconTexture: Interface\Icons\spell_holy_surgeoflight_shadow
+
+VCB_Virtuals.xml
+VCB_Options_0.xml
+VCB_Options_1.xml
+VCB_Options_2.xml
+VCB_Options_3.xml
+VCB_Options_4.xml

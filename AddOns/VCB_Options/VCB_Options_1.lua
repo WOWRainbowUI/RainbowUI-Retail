@@ -39,10 +39,6 @@ vcbOptions1Box1PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("法術圖示要顯示在哪裡?") 
 end)
--- leave --
-vcbOptions1Box1PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box1PopOut1, vcbOptions1Box1PopOut1Choice0)
 -- naming --
 vcbOptions1Box1PopOut1Choice0.Text:SetText("左")
 vcbOptions1Box1PopOut1Choice1.Text:SetText("右")
@@ -69,10 +65,6 @@ vcbOptions1Box1PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("法術名稱要顯示在哪裡?") 
 end)
--- leave --
-vcbOptions1Box1PopOut2:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box1PopOut2, vcbOptions1Box1PopOut2Choice0)
 -- parent & sort --
 for i = 1, 9, 1 do
 	_G["vcbOptions1Box1PopOut2Choice"..i]:SetParent(vcbOptions1Box1PopOut2Choice0)
@@ -95,10 +87,6 @@ vcbOptions1Box2PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("當前施法時間要顯示在哪裡?") 
 end)
--- leave --
-vcbOptions1Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box2PopOut1, vcbOptions1Box2PopOut1Choice0)
 -- parent & sort --
 for i = 1, 9, 1 do
 	_G["vcbOptions1Box2PopOut1Choice"..i]:SetParent(vcbOptions1Box2PopOut1Choice0)
@@ -120,10 +108,6 @@ vcbOptions1Box2PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("如何顯示時間?|n兩者表示時間在施法時為正數，在引導時為倒數!") 
 end)
--- leave --
-vcbOptions1Box2PopOut2:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box2PopOut2, vcbOptions1Box2PopOut2Choice0)
 -- naming --
 vcbOptions1Box2PopOut2Choice0.Text:SetText("正數")
 vcbOptions1Box2PopOut2Choice1.Text:SetText("倒數")
@@ -149,10 +133,6 @@ vcbOptions1Box2PopOut3:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("是否要顯示 '秒' 這個字?") 
 end)
--- leave --
-vcbOptions1Box2PopOut3:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box2PopOut3, vcbOptions1Box2PopOut3Choice0)
 -- naming --
 vcbOptions1Box2PopOut3Choice0.Text:SetText("顯示")
 vcbOptions1Box2PopOut3Choice1.Text:SetText("隱藏")
@@ -175,10 +155,6 @@ vcbOptions1Box2PopOut4:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("時間要顯示幾位小數") 
 end)
--- leave --
-vcbOptions1Box2PopOut4:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box2PopOut4, vcbOptions1Box2PopOut4Choice0)
 -- naming --
 vcbOptions1Box2PopOut4Choice0.Text:SetText("0")
 vcbOptions1Box2PopOut4Choice1.Text:SetText("1")
@@ -205,10 +181,6 @@ vcbOptions1Box3PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("目前/總共時間要顯示在哪裡?") 
 end)
--- leave --
-vcbOptions1Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box3PopOut1, vcbOptions1Box3PopOut1Choice0)
 -- parent & sort --
 for i = 1, 9, 1 do
 	_G["vcbOptions1Box3PopOut1Choice"..i]:SetParent(vcbOptions1Box3PopOut1Choice0)
@@ -230,10 +202,6 @@ vcbOptions1Box3PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("如何顯示時間?|n兩者表示時間在施法時為正數，在引導時為倒數!") 
 end)
--- leave --
-vcbOptions1Box3PopOut2:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box3PopOut2, vcbOptions1Box3PopOut2Choice0)
 -- naming --
 vcbOptions1Box3PopOut2Choice0.Text:SetText("正數")
 vcbOptions1Box3PopOut2Choice1.Text:SetText("倒數")
@@ -259,10 +227,6 @@ vcbOptions1Box3PopOut3:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("是否要顯示 '秒' 這個字?") 
 end)
--- leave --
-vcbOptions1Box3PopOut3:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box3PopOut3, vcbOptions1Box3PopOut3Choice0)
 -- naming --
 vcbOptions1Box3PopOut3Choice0.Text:SetText("顯示")
 vcbOptions1Box3PopOut3Choice1.Text:SetText("隱藏")
@@ -285,10 +249,6 @@ vcbOptions1Box3PopOut4:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("時間要顯示幾位小數") 
 end)
--- leave --
-vcbOptions1Box3PopOut4:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box3PopOut4, vcbOptions1Box3PopOut4Choice0)
 -- naming --
 vcbOptions1Box3PopOut4Choice0.Text:SetText("0")
 vcbOptions1Box3PopOut4Choice1.Text:SetText("1")
@@ -315,10 +275,6 @@ vcbOptions1Box4PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("總共施法時間要顯示在哪裡?") 
 end)
--- leave --
-vcbOptions1Box4PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box4PopOut1, vcbOptions1Box4PopOut1Choice0)
 -- parent & sort --
 for i = 1, 9, 1 do
 	_G["vcbOptions1Box4PopOut1Choice"..i]:SetParent(vcbOptions1Box4PopOut1Choice0)
@@ -340,10 +296,6 @@ vcbOptions1Box4PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("是否要顯示 '秒' 這個字?") 
 end)
--- leave --
-vcbOptions1Box4PopOut2:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box4PopOut2, vcbOptions1Box4PopOut2Choice0)
 -- naming --
 vcbOptions1Box4PopOut2Choice0.Text:SetText("顯示")
 vcbOptions1Box4PopOut2Choice1.Text:SetText("隱藏")
@@ -366,10 +318,6 @@ vcbOptions1Box4PopOut3:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("時間要顯示幾位小數") 
 end)
--- leave --
-vcbOptions1Box4PopOut3:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box4PopOut3, vcbOptions1Box4PopOut3Choice0)
 -- naming --
 vcbOptions1Box4PopOut3Choice0.Text:SetText("0")
 vcbOptions1Box4PopOut3Choice1.Text:SetText("1")
@@ -396,10 +344,6 @@ vcbOptions1Box5PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("是否要顯示延遲標示?") 
 end)
--- leave --
-vcbOptions1Box5PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box5PopOut1, vcbOptions1Box5PopOut1Choice0)
 -- naming --
 vcbOptions1Box5PopOut1Choice0.Text:SetText("顯示")
 vcbOptions1Box5PopOut1Choice1.Text:SetText("隱藏")
@@ -422,10 +366,6 @@ vcbOptions1Box5PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("是否要顯示施法斷點?")
 end)
--- leave --
-vcbOptions1Box5PopOut2:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box5PopOut2, vcbOptions1Box5PopOut2Choice0)
 -- naming --
 vcbOptions1Box5PopOut2Choice0.Text:SetText("顯示")
 vcbOptions1Box5PopOut2Choice1.Text:SetText("隱藏")
@@ -449,10 +389,6 @@ vcbOptions1Box6PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("施法條要顯示什麼顏色?")
 end)
--- leave --
-vcbOptions1Box6PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions1Box6PopOut1, vcbOptions1Box6PopOut1Choice0)
 -- naming --
 vcbOptions1Box6PopOut1Choice0.Text:SetText("預設顏色")
 vcbOptions1Box6PopOut1Choice1.Text:SetText("職業顏色")

@@ -76,8 +76,6 @@ vcbOptions4Box1EditBox1.WritingLine:HookScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("在文字欄位中輸入設定檔名稱，然後按下 Enter 鍵來儲存設定/選項!") 
 end)
--- leave --
-vcbOptions4Box1EditBox1.WritingLine:HookScript("OnLeave", vcbLeavingMenus)
 -- pressing enter --
 vcbOptions4Box1EditBox1.WritingLine:SetScript("OnEnterPressed", function(self)
 	if self:HasText() then
@@ -112,10 +110,6 @@ vcbOptions4Box2PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("請選擇要"..vcbHighColor:WrapTextInColorCode("載入").."的設定檔!")
 end)
--- leave --
-vcbOptions4Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions4Box2PopOut1, vcbOptions4Box2PopOut1Choice0)
 -- choice 0 --
 vcbOptions4Box2PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then
@@ -135,10 +129,6 @@ vcbOptions4Box3PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
 	GameTooltip:SetText("請選擇要"..vcbHighColor:WrapTextInColorCode("刪除").."的設定檔!")
 end)
--- leave --
-vcbOptions4Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
--- drop down --
-vcbClickPopOut(vcbOptions4Box3PopOut1, vcbOptions4Box3PopOut1Choice0)
 -- choice 0 --
 vcbOptions4Box3PopOut1Choice0:HookScript("OnClick", function(self, button, down)
 	if button == "LeftButton" and down == false then

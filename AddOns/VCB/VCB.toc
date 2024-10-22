@@ -5,23 +5,16 @@
 ## DefaultState: enabled
 ## SavedVariables: VCBrNumber VCBrProfile VCBrCounterLoading VCBrCounterDeleting
 ## SavedVariablesPerCharacter: VCBrPlayer VCBrTarget VCBrFocus
-## Version: 1.53
+## Version: 1.54
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 
 ## Title-zhTW: |cff0099FF[介面]|r 內建施法條增強
-## Notes-zhTW: Voodoo |cff9ACD32Casting|r Bar |n|n幫遊戲內建的施法條加入一些巫毒魔法，顯示法術圖示、時間、延遲和施法斷點。|n|n|cffffd200使用方法: |r從Esc>選項>插件>施法條，進行設定。
+## Notes-zhTW: Voodoo |cff9ACD32Casting|r Bar |n|n幫遊戲內建的施法條加入一些巫毒魔法，顯示法術圖示、時間、延遲和施法斷點。|n|n|cffffd200使用方法: |r輸入 /vcb 打開設定選項。
 ## X-Category-zhTW: 介面
 ## IconTexture: Interface\Icons\spell_holy_surgeoflight_shadow
 
-VCB_Virtuals.xml
 VCB_Zlave.xml
 VCB_Player.lua
 VCB_Target.lua
 VCB_Focus.lua
-VCB_SUFcoop.lua
-VCB_Options_0.xml
-VCB_Options_1.xml
-VCB_Options_2.xml
-VCB_Options_3.xml
-VCB_Options_4.xml

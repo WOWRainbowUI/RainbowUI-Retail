@@ -325,40 +325,6 @@ local function AscendingDescendingSec(self)
 		end
 	end
 end
--- Spell School Color --
-local vcbPhysicalColor = CreateColorFromRGBAHexString("FFFF00FF") -- 1
-local vcbHolyColor = CreateColorFromRGBAHexString("FFE680FF") -- 2
-local vcbFireColor = CreateColorFromRGBAHexString("FF8000FF") -- 4
-local vcbNatureColor = CreateColorFromRGBAHexString("4DFF4DFF") -- 8
-local vcbFrostColor = CreateColorFromRGBAHexString("80FFFFFF") -- 16
-local vcbShadowColor = CreateColorFromRGBAHexString("8080FFFF") -- 32
-local vcbArcaneColor = CreateColorFromRGBAHexString("FF80FFFF") -- 64
-local vcbHolystrikeColor = CreateColorFromRGBAHexString("FFF04DFF") -- 3
-local vcbFlamestrikeColor = CreateColorFromRGBAHexString("FFB300FF") -- 5
-local vcbRadiantColor = CreateColorFromRGBAHexString("FFA933FF") -- 6
-local vcbStormstrikeColor = CreateColorFromRGBAHexString("A6FF27FF") -- 9
-local vcbHolystormColor = CreateColorFromRGBAHexString("A6F367FF") -- 10
-local vcbVolcanicColor = CreateColorFromRGBAHexString("A6C027FF") -- 12
-local vcbFroststrikeColor = CreateColorFromRGBAHexString("C0FF80FF") -- 17
-local vcbHolyfrostColor = CreateColorFromRGBAHexString("B3F5CCFF") -- 18
-local vcbFrostfireColor = CreateColorFromRGBAHexString("C0C080FF") -- 20
-local vcbFroststormColor = CreateColorFromRGBAHexString("67FFA6FF") -- 24
-local vcbShadowstrikeColor = CreateColorFromRGBAHexString("B3B399FF") -- 33
-local vcbTwilightColor = CreateColorFromRGBAHexString("C0B3C0FF") -- 34
-local vcbShadowflameColor = CreateColorFromRGBAHexString("B38099FF") -- 36
-local vcbPlagueColor = CreateColorFromRGBAHexString("67C0A6FF") -- 40
-local vcbShadowfrostColor = CreateColorFromRGBAHexString("80B3FFFF") -- 48
-local vcbSpellstrikeColor = CreateColorFromRGBAHexString("FFB399FF") -- 65
-local vcbDivineColor = CreateColorFromRGBAHexString("FFB3C0FF") -- 66
-local vcbSpellfireColor = CreateColorFromRGBAHexString("FF8080FF") -- 68
-local vcbAstralColor = CreateColorFromRGBAHexString("A6C0A6FF") -- 72
-local vcbSpellfrostColor = CreateColorFromRGBAHexString("C0C0FFFF") -- 80
-local vcbSpellshadowColor = CreateColorFromRGBAHexString("C080FFFF") -- 96
-local vcbElementalColor = CreateColorFromRGBAHexString("99D56FFF") -- 28
-local vcbChromaticColor = CreateColorFromRGBAHexString("A9C78FFF") -- 62
-local vcbCosmicColor = CreateColorFromRGBAHexString("C0B9DFFF") -- 106
-local vcbMagicColor = CreateColorFromRGBAHexString("B7BBA2FF") -- 126
-local vcbChaosColor = CreateColorFromRGBAHexString("C1C58BFF") -- 127 - 124
 -- coloring the bar --
 local function CastBarColor(self)
 	if self.barType == "standard" or self.barType == "channel" or self.barType == "uninterruptable" then
@@ -447,6 +413,399 @@ local function CastBarColor(self)
 		self:SetStatusBarColor(1, 1, 1, 1)
 	end
 end
+-- Some local variables --
+local lagStart = 0
+local lagEnd = 0
+local lagTotal = 0
+local statusMin = 0
+local statusMax = 0
+local lagWidth = 0
+-- function for the lag bars --
+local function VCBlagBars(var1)
+	var1:SetTexture("Interface\\RAIDFRAME\\Raid-Bar-Hp-Fill")
+	var1:SetHeight(PlayerCastingBarFrame:GetHeight())
+	var1:SetVertexColor(1, 0, 0)
+	var1:SetAlpha(0.75)
+	var1:SetBlendMode("ADD")
+	var1:Hide()
+end
+-- Lag Bar 1 --
+local VCBlagBar1 = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
+VCBlagBars(VCBlagBar1)
+-- Lag Bar 2 --
+local VCBlagBar2 = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
+VCBlagBars(VCBlagBar2)
+-- Player Casting Latency Bar --
+local function PlayerCastLagBar(arg3)
+	local playerSpell = IsPlayerSpell(arg3)
+	if playerSpell and VCBrPlayer["LagBar"] == "顯示" then
+		lagEnd = GetTime()
+		lagTotal = (lagEnd - lagStart)
+		statusMin, statusMax = PlayerCastingBarFrame:GetMinMaxValues()
+		lagWidth = lagTotal / (statusMax - statusMin)
+		VCBlagBar1:ClearAllPoints()
+		VCBlagBar1:SetWidth(PlayerCastingBarFrame:GetWidth() * lagWidth)
+		VCBlagBar1:SetPoint("RIGHT", PlayerCastingBarFrame, "RIGHT", 0, 0)
+		VCBlagBar1:Show()
+	end
+end
+-- Player Channeling Latency Bar --
+local function PlayerChannelLagBar(arg3)
+	local playerSpell = IsPlayerSpell(arg3)
+	if playerSpell and VCBrPlayer["LagBar"] == "顯示" then
+		lagEnd = GetTime()
+		lagTotal = (lagEnd - lagStart)
+		statusMin, statusMax = PlayerCastingBarFrame:GetMinMaxValues()
+		lagWidth = lagTotal / (statusMax - statusMin)
+		VCBlagBar2:ClearAllPoints()
+		VCBlagBar2:SetWidth(PlayerCastingBarFrame:GetWidth() * lagWidth)
+		VCBlagBar2:SetPoint("LEFT", PlayerCastingBarFrame, "LEFT", 0, 0)
+		VCBlagBar2:Show()
+	end
+end
+-- Creating the ticks for the player's castbar --
+-- Create Ticks 3 --
+local function Create3Ticks()
+	spaceTick = PlayerCastingBarFrame:GetWidth() / 3
+	for i = 1, 3, 1 do
+		if i == 1 then
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB3spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		else
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB3spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("LEFT", "VCB3spark".. i-1, "LEFT", spaceTick, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		end
+	end
+end
+-- Create Ticks 4 --
+local function Create4Ticks()
+	spaceTick = PlayerCastingBarFrame:GetWidth() / 4
+	for i = 1, 4, 1 do
+		if i == 1 then
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB4spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		else
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB4spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("LEFT", "VCB4spark".. i-1, "LEFT", spaceTick, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		end
+	end
+end
+-- Create Ticks 5 --
+local function Create5Ticks()
+	spaceTick = PlayerCastingBarFrame:GetWidth() / 5
+	for i = 1, 5, 1 do
+		if i == 1 then
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB5spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		else
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB5spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("LEFT", "VCB5spark".. i-1, "LEFT", spaceTick, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		end
+	end
+end
+-- Create Ticks 6 --
+local function Create6Ticks()
+	spaceTick = PlayerCastingBarFrame:GetWidth() / 6
+	for i = 1, 6, 1 do
+		if i == 1 then
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB6spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		else
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB6spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("LEFT", "VCB6spark".. i-1, "LEFT", spaceTick, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		end
+	end
+end
+-- Create Ticks 7 --
+local function Create7Ticks()
+	spaceTick = PlayerCastingBarFrame:GetWidth() / 7
+	for i = 1, 7, 1 do
+		if i == 1 then
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB7spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		else
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB7spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("LEFT", "VCB7spark".. i-1, "LEFT", spaceTick, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		end
+	end
+end
+-- Create Ticks 8 --
+local function Create8Ticks()
+	spaceTick = PlayerCastingBarFrame:GetWidth() / 8
+	for i = 1, 8, 1 do
+		if i == 1 then
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB8spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("CENTER", PlayerCastingBarFrame, "LEFT", 0, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		else
+			local tick = PlayerCastingBarFrame:CreateTexture("VCB8spark".. i, "OVERLAY", nil, 7)
+			tick:SetAtlas("ui-castingbar-empower-cursor", true)
+			tick:SetHeight(PlayerCastingBarFrame:GetHeight())
+			tick:ClearAllPoints()
+			tick:SetPoint("LEFT", "VCB8spark".. i-1, "LEFT", spaceTick, 0)
+			tick:SetBlendMode("BLEND")
+			tick:SetVertexColor(1, 1, 1, 1)
+			tick:Hide()
+		end
+	end
+end
+-- Show Ticks 3 --
+local function Show3Ticks()
+	for i = 1, 3, 1 do
+		_G["VCB3spark".. i]:Show()
+	end
+end
+-- Show Ticks 4 --
+local function Show4Ticks()
+	for i = 1, 4, 1 do
+		_G["VCB4spark".. i]:Show()
+	end
+end
+-- Show Ticks 5 --
+local function Show5Ticks()
+	for i = 1, 5, 1 do
+		_G["VCB5spark".. i]:Show()
+	end
+end
+-- Show Ticks 6 --
+local function Show6Ticks()
+	for i = 1, 6, 1 do
+		_G["VCB6spark".. i]:Show()
+	end
+end
+-- Show Ticks 7 --
+local function Show7Ticks()
+	for i = 1, 7, 1 do
+		_G["VCB7spark".. i]:Show()
+	end
+end
+-- Show Ticks 8 --
+local function Show8Ticks()
+	for i = 1, 8, 1 do
+		_G["VCB8spark".. i]:Show()
+	end
+end
+-- Hiding --
+-- Hide Ticks 3 --
+local function Hide3Ticks()
+	for i = 1, 3, 1 do
+		_G["VCB3spark".. i]:Hide()
+	end
+end
+-- Hide Ticks 4 --
+local function Hide4Ticks()
+	for i = 1, 4, 1 do
+		_G["VCB4spark".. i]:Hide()
+	end
+end
+-- Hide Ticks 5 --
+local function Hide5Ticks()
+	for i = 1, 5, 1 do
+		_G["VCB5spark".. i]:Hide()
+	end
+end
+-- Hide Ticks 6 --
+local function Hide6Ticks()
+	for i = 1, 6, 1 do
+		_G["VCB6spark".. i]:Hide()
+	end
+end
+-- Hide Ticks 7 --
+local function Hide7Ticks()
+	for i = 1, 7, 1 do
+		_G["VCB7spark".. i]:Hide()
+	end
+end
+-- Hide Ticks 8 --
+local function Hide8Ticks()
+	for i = 1, 8, 1 do
+		_G["VCB8spark".. i]:Hide()
+	end
+end
+-- Classes --
+-- Priest --
+local function ShowPriestTicks(arg3)
+-- Penance, Mind Flay Insanity --
+	if arg3 == 391403 or arg3 == 47757 or arg3 == 47540 then
+		Show4Ticks()
+-- Void Torrent, Divine Hymn, Symbol of Hope --
+	elseif arg3 == 263165 or arg3 == 64843 or arg3 == 64901 then
+		Show5Ticks()
+-- Mind Flay --
+	elseif arg3 == 15407 then
+		Show6Ticks()
+	end
+end
+-- Mage --
+local function ShowMageTicks(arg3)
+-- Covenant: Shifting Power --
+	if arg3 == 314791 then
+		Show4Ticks()
+-- Arcane Missiles, Ray of Frost --
+	elseif arg3 == 5143 or arg3 == 205021 then
+		Show5Ticks()
+	end
+end
+-- Warlock --
+local function ShowWarlockTicks(arg3)
+-- Drain Life, Drain Soul, Health Funnel --
+	if arg3 == 234153 or arg3 == 198590 or arg3 == 217979 then
+		Show5Ticks()
+	end
+end
+-- Monk --
+local function ShowMonkTicks(arg3)
+-- Essence Font, Spinning Crane Kick --
+	if arg3 == 191837 or arg3 == 101546 then
+		Show3Ticks()
+-- Crackling Jade Lightning, Fists of Fury  --
+	elseif arg3 == 117952 or arg3 == 113656 then
+		Show4Ticks()
+-- Soothing Mist --
+	elseif arg3 == 115175 then
+		Show8Ticks()
+	end
+end
+-- Druid --
+local function ShowDruidTicks(arg3)
+-- Tranquility --
+	if arg3 == 740 then
+		Show4Ticks()
+	end
+end
+-- Evoker --
+local function ShowEvokerTicks()
+-- Disintegrate --
+	if vcbEvokerTicksFirstTime then
+		for i = 1, 3, 1 do
+			_G["VCB3spark".. i]:Show()
+		end
+	elseif vcbEvokerTicksSecondTime then
+		for i = 1, 4, 1 do
+			_G["VCB4spark".. i]:Show()
+		end
+	end
+end
+-- Create the Ticks --
+local function vcbCreateTicks()
+	_, _, classID = C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))
+	if classID == 5 then
+		Create4Ticks()
+		Create5Ticks()
+		Create6Ticks()
+	elseif classID == 8 then
+		Create4Ticks()
+		Create5Ticks()
+	elseif classID == 9 then
+		Create5Ticks()
+	elseif classID == 10 then
+		Create3Ticks()
+		Create4Ticks()
+		Create8Ticks()
+	elseif classID == 11 then
+		Create4Ticks()
+	elseif classID == 13 then
+		Create3Ticks()
+		Create4Ticks()
+	end
+end
+-- Show the Ticks --
+local function vcbShowTicks(arg3)
+	if classID == 5 then ShowPriestTicks(arg3)
+	elseif classID == 8 then ShowMageTicks(arg3)
+	elseif classID == 9 then ShowWarlockTicks(arg3)
+	elseif classID == 10 then ShowMonkTicks(arg3)
+	elseif classID == 11 then ShowDruidTicks(arg3)
+	elseif classID == 13 then ShowEvokerTicks()
+	end
+end
+-- Hide the Ticks --
+local function vcbHideTicks()
+	if classID == 5 then
+		Hide4Ticks()
+		Hide5Ticks()
+		Hide6Ticks()
+	elseif classID == 8 then
+		Hide4Ticks()
+		Hide5Ticks()
+	elseif classID == 9 then
+		Hide5Ticks()
+	elseif classID == 10 then
+		Hide3Ticks()
+		Hide4Ticks()
+		Hide8Ticks()
+	elseif classID == 11 then
+		Hide4Ticks()
+	elseif classID == 13 then
+		Hide3Ticks()
+		Hide4Ticks()
+	end
+end
 -- Hooking Time part 1 --
 PlayerCastingBarFrame:HookScript("OnShow", function(self)
 	if VCBrPlayer["Icon"] == "左" then
@@ -519,3 +878,45 @@ PlayerCastingBarFrame:HookScript("OnUpdate", function(self)
 		vcbHideTicks()
 	end
 end)
+-- Events Time --
+local function EventsTime(self, event, arg1, arg2, arg3, arg4)
+	if event == "PLAYER_LOGIN" then
+		PlayerCastingBarFrame.Icon:SetScale(2.5) -- 圖示大小
+		PlayerCastingBarFrame.Icon:AdjustPointsOffset(3, -3)
+		vcbCreateTicks()
+	elseif event == "CURRENT_SPELL_CAST_CHANGED" and arg1 == false then
+		lagStart = GetTime()
+	elseif event == "UNIT_SPELLCAST_START" and arg1 == "player" then
+		vcbHideTicks()
+		VCBlagBar1:Hide()
+		VCBlagBar2:Hide()
+		VCBarg3 = arg3
+		PlayerCastLagBar(arg3)
+	elseif event == "UNIT_SPELLCAST_CHANNEL_START" and arg1 == "player" then
+		vcbHideTicks()
+		VCBlagBar1:Hide()
+		VCBlagBar2:Hide()
+		vcbChannelSpellID = arg3
+		VCBarg3 = arg3
+		PlayerChannelLagBar(arg3)
+	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
+		local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
+		local spellId, spellName, spellSchool = select(12, CombatLogGetCurrentEventInfo())
+		if subevent == "SPELL_CAST_START" and sourceName == UnitFullName("player") then
+			vcbSpellSchool = spellSchool
+		elseif subevent == "SPELL_CAST_SUCCESS" and spellId == vcbChannelSpellID and sourceName == UnitFullName("player") then
+			vcbSpellSchool = spellSchool
+		elseif subevent == "SPELL_AURA_APPLIED" and sourceName == UnitFullName("player") and spellId == 356995 then
+			vcbEvokerTicksFirstTime = true
+			vcbEvokerTicksSecondTime = false
+		elseif subevent == "SPELL_AURA_REFRESH" and sourceName == UnitFullName("player") and spellId == 356995 then
+			vcbEvokerTicksFirstTime = false
+			vcbEvokerTicksSecondTime = true
+		end
+	elseif event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then
+		vcbSpellSchool = 0
+	elseif event == "UNIT_SPELLCAST_INTERRUPTED" and arg1 == "player" then
+		vcbSpellSchool = 0
+	end
+end
+vcbZlave:HookScript("OnEvent", EventsTime)

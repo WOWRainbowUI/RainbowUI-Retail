@@ -2619,7 +2619,7 @@ D["VCB"] = {
 	modifier = "彩虹ui",
     {
         text = "設定選項",
-        callback = function() vcbShowMenu() end,
+        callback = function() SlashCmdList["VCB"]("") end,
     },
 };
 D["VuhDo"] = {
