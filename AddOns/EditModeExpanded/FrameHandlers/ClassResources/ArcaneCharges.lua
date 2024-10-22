@@ -1,11 +1,12 @@
 local addonName, addon = ...
 
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local lib = LibStub:GetLibrary("EditModeExpanded-1.0")
 
 function addon:initArcaneCharges()
     local db = addon.db.global
     if db.EMEOptions.arcaneCharges then
-        lib:RegisterFrame(MageArcaneChargesFrame, "Arcane Charges", db.ArcaneCharges)
+        lib:RegisterFrame(MageArcaneChargesFrame, POWER_TYPE_ARCANE_CHARGES, db.ArcaneCharges)
         lib:RegisterHideable(MageArcaneChargesFrame)
         lib:RegisterToggleInCombat(MageArcaneChargesFrame)
         lib:SetDontResize(MageArcaneChargesFrame)
@@ -14,22 +15,18 @@ function addon:initArcaneCharges()
         hooksecurefunc(PlayerFrameBottomManagedFramesContainer, "Layout", function()
             if GetSpecialization() ~= 1 then return end
             if not EditModeManagerFrame.editModeActive then
-                lib:RepositionFrame(MageArcaneChargesFrame)
+                addon.ResetFrame(MageArcaneChargesFrame)
             end
         end)
         hooksecurefunc(MageArcaneChargesFrame, "HandleBarSetup", function()
             if GetSpecialization() ~= 1 then return end
             if not EditModeManagerFrame.editModeActive then
-                lib:RepositionFrame(MageArcaneChargesFrame)
+                addon.ResetFrame(MageArcaneChargesFrame)
             end
         end)
-        local noInfinite
-        hooksecurefunc(MageArcaneChargesFrame, "Show", function()
+        MageArcaneChargesFrame:HookScript("OnShow", function()
             if GetSpecialization() ~= 1 then return end
-            if noInfinite then return end
-            noInfinite = true
-            lib:RepositionFrame(MageArcaneChargesFrame)
-            noInfinite = false
+            addon.ResetFrame(MageArcaneChargesFrame)
         end)
     end
 end

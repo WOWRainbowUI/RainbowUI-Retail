@@ -1,8 +1,9 @@
 # Edit Mode Expanded
 
-## [11.0-021](https://github.com/teelolws/EditModeExpanded/tree/11.0-021) (2024-09-28)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-019...11.0-021) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [11.0-023](https://github.com/teelolws/EditModeExpanded/tree/11.0-023) (2024-10-21)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/11.0-022...11.0-023) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Fix: don't show target-of-target during editmode if setting is disabled via interface options  
-    Closes: https://github.com/teelolws/EditModeExpanded/issues/122  
-- Update TalkingHead.lua  
+- Update RegisteredSystemFrames.lua  
+- Cleanup hook once code  
+- Code cleanup: make and use a wrapper for lib:RepositionFrame  
+    Closes: https://github.com/teelolws/EditModeExpanded/issues/151  
