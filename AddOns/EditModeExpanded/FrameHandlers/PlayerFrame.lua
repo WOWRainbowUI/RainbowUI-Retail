@@ -1,5 +1,6 @@
 local addonName, addon = ...
 
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local lib = LibStub:GetLibrary("EditModeExpanded-1.0")
 
 function addon:initPlayerFrame()
@@ -28,7 +29,7 @@ function addon:initPlayerFrame()
             local frame = PlayerFrame.manabar
             local x, y
             
-            lib:RegisterCustomCheckbox(PlayerFrame, "隱藏職業資源條", 
+            lib:RegisterCustomCheckbox(PlayerFrame, L["Hide Resource Bar"], 
                 -- on checked
                 function()
                     if InCombatLockdown() then return end
@@ -55,7 +56,7 @@ function addon:initPlayerFrame()
             lib:RegisterResizable(PlayerFrame)
         end
         
-        lib:RegisterCustomCheckbox(PlayerFrame, "隱藏名字",
+        lib:RegisterCustomCheckbox(PlayerFrame, L["Hide Name"],
             function()
                 PlayerFrame.name:Hide()
             end,
@@ -65,7 +66,7 @@ function addon:initPlayerFrame()
             "HideName"
         )
         
-        lib:RegisterCustomCheckbox(PlayerFrame, "隱藏圖示",
+        lib:RegisterCustomCheckbox(PlayerFrame, L["Hide Icons"],
             function()
                 PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual:Hide()
                 PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:Hide()
@@ -78,7 +79,7 @@ function addon:initPlayerFrame()
         )
         
         C_Timer.After(4, function()
-            lib:RegisterCustomCheckbox(PlayerFrame, "隱藏等級",
+            lib:RegisterCustomCheckbox(PlayerFrame, L["Hide Level"],
                 function()
                     PlayerLevelText:Hide()
                 end,
