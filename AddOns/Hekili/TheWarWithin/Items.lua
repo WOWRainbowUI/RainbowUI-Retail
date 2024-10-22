@@ -546,7 +546,7 @@ all:RegisterAbilities( {
 
         auras = {
             kaheti_shadeweavers_dark_ritual = {
-                id = 455479,
+                id = 455464,
                 duration = 30,
                 max_stack = 10
             }
@@ -888,31 +888,6 @@ all:RegisterAbilities( {
             battle_prowess = {
                 id = 91374,
                 duration = 15,
-                max_stack = 1
-            }
-        }
-    },
-
-
-    -- Timewalking Stuff As Needed
-    shadowmoon_insignia = {
-        cast = 0,
-        cooldown = 60,
-        gcd = "off",
-
-        item = 150526,
-        toggle = "defensives",
-
-        proc = "health",
-
-        handler = function()
-            applyBuff( "protectors_vigor" )
-        end,
-
-        auras = {
-            protectors_vigor = {
-                id = 244189,
-                duration = 20,
                 max_stack = 1
             }
         }

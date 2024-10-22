@@ -5295,13 +5295,13 @@ do
                     args = {
 						core = {
 							type = "group",
-							name = "核心",
+							name = "專精設定",
 							desc = "核心功能和" .. specs[ id ] .. "專精的選項。",
 							order = 1,
 							args = {
 								enabled = {
 									type = "toggle",
-									name = "啟用",
+									name = "啟用"..specs[ id ],
 									desc = "勾選時，插件將會根據選定的優先順序列表為 " .. name .. " 提供優先順序建議。",
 									order = 0,
 									width = "full",
@@ -5323,7 +5323,7 @@ do
 									name = "優先順序",
 									desc = "插件在提出優先順序建議時將會使用選定的分享。",
 									order = 1,
-									width = 2.85,
+									width = 1.5,
 									values = function( info, val )
 										wipe( packs )
 
@@ -5363,8 +5363,8 @@ do
                                     type = "select",
                                     name = "藥水",
                                     desc = "除非有在優先順序中特別指定，否則會推薦使用所選的藥水。",
-                                    order = 1.2,
-                                    width = 3,
+                                    order = 3,
+                                    width = 1.5,
                                     values = class.potionList,
                                     get = function()
                                         local p = self.DB.profile.specs[ id ].potion or class.specs[ id ].options.potion or "default"
@@ -5376,7 +5376,7 @@ do
                                 blankLine1 = {
                                     type = 'description',
                                     name = '',
-                                    order = 1.2,
+                                    order = 2,
                                     width = 'full'
                                 },
                             },
@@ -5394,8 +5394,10 @@ do
 								targetsHeader = {
 									type = "description",
 									name = "這些設定控制產生技能建議時如何計算目標數量。\n\n預設情況下，目標數量"
-										.. "會顯示在主要和多目標技能組中主圖示的右下角，除非只偵測到單一目標。\n\n",
+										.. "會顯示在主要和多目標技能組中主圖示的右下角，除非只偵測到單一目標。\n\n"
+                                        .. "你在遊戲內真實的目標會永遠計算在內。 \n\n|cFFFF0000警告:|r 目前不支援行動目標系統的 '軟' 目標。\n\n",
 									width = "full",
+									fontSize = "medium",
 									order = 0.01
 								},
 								yourTarget = {
@@ -5429,10 +5431,10 @@ do
 									args = {
 										damagePets = {
 											type = "toggle",
-											name = "被僕從傷害的敵人",
+											name = "包含被你的寵物和僕從傷害的敵人",
 											desc = "勾選時，插件將會計算在過去幾秒鐘內你的寵物或僕從擊中 (或擊中你) 的敵人。  "
 												.. "如果你的寵物/僕從分散在戰場上，可能會導致目標計數錯誤。",
-											order = 1,
+											order = 2,
 											width = "full",
 										},
 
@@ -5446,13 +5448,13 @@ do
 											min = 1,
 											max = 10,
 											step = 0.1,
-											order = 2,
-											width = "full",
+											order = 1,
+											width = 1.5,
 										},
 
 										damageDots = {
 											type = "toggle",
-											name = "帶有 DOT / 減益的敵人",
+											name = "包含帶有你的 DOT / 減益的敵人",
 											desc = "勾選時，帶有你的減益或持續傷害效果的敵人將會被計算為目標，無論它們在戰場上的位置如何。\n\n"
 												.. "這對於近戰專精可能不理想，因為敵人在你施加 DOT/出血後可能會走開。如果已啟用|cFFFFD100計算名條|r，"
 												.. "則不再在範圍內的敵人將會被過濾掉。\n\n"
@@ -5475,19 +5477,112 @@ do
 								},
 								nameplates = {
 									type = "toggle",
-									name = "計算名條",
-									desc = "勾選時，指定半徑內的敵方名條將會被計算為敵方目標。\n\n"
+									name = "計算你附近的名條",
+									desc = "勾選時，距離你的角色特定範圍內的敵方名條將會被計算為敵方目標。\n\n"
 										.. AtlasToString( "common-icon-checkmark" ) .. " 建議用於使用 10 碼或更短範圍的近戰專精\n\n"
 										.. AtlasToString( "common-icon-redx" ) .. " 不建議用於遠程專精。",
 									width = "full",
 									order = 0.1,
 								},
+								
+								petbased = {
+											type = "toggle",
+											name = "計算你寵物附近的目標",
+											desc = function ()
+												local msg = "勾選並正確設定時，當你的目標也在你的寵物範圍內時，插件將會將你寵物附近的目標計算為有效目標。"
+
+												if Hekili:HasPetBasedTargetSpell() then
+													local spell = Hekili:GetPetBasedTargetSpell()
+													local link = Hekili:GetSpellLinkWithTexture( spell )
+
+													msg = msg .. "\n\n" .. link .. "|w|r 在你的快捷列上，將會用於你所有的" .. UnitClass( "player" ) .. "寵物。"
+												else
+													msg = msg .. "\n\n|cFFFF0000需要寵物技能在你的其中一個快捷列上。|r"
+												end
+
+												if GetCVar( "nameplateShowEnemies" ) == "1" then
+													msg = msg .. "\n\n敵方名條已|cFF00FF00啟用|r，將會用於偵測你寵物附近的目標。"
+												else
+													msg = msg .. "\n\n|cFFFF0000需要顯示敵方名條。|r"
+												end
+
+												return msg
+											end,
+											width = "full",
+											hidden = function ()
+												return Hekili:GetPetBasedTargetSpells() == nil
+											end,
+											order = 0.2
+										},
+
+										petbasedGuidance = {
+											type = "description",
+											name = function ()
+												local out
+
+												if not self:HasPetBasedTargetSpell() then
+													out = "為了使依據寵物的偵測正常工作，必須從你的|cFF00FF00寵物法術書|r中選擇一個技能，並將其放置在|cFF00FF00你的|r 其中一個快捷列上。\n\n"
+													local spells = Hekili:GetPetBasedTargetSpells()
+
+													if not spells then return " " end
+
+													out = out .. "對於 %s，由於其範圍，建議使用 %s。它將會適用於你所有的寵物。"
+
+													if spells.count > 1 then
+														out = out .. "\n替代方案: "
+													end
+
+													local n = 1
+
+													local link = Hekili:GetSpellLinkWithTexture( spells.best )
+													out = format( out, UnitClass( "player" ), link )
+													for spell in pairs( spells ) do
+														if type( spell ) == "number" and spell ~= spells.best then
+															n = n + 1
+
+															link = Hekili:GetSpellLinkWithTexture( spell )
+
+															if n == 2 and spells.count == 2 then
+																out = out .. link .. "。"
+															elseif n ~= spells.count then
+																out = out .. link .. "，"
+															else
+																out = out .. "和 " .. link .. "。"
+															end
+														end
+													end
+												end
+
+												if GetCVar( "nameplateShowEnemies" ) ~= "1" then
+													if not out then
+														out = "|cFFFF0000警告！|r依據寵物的目標偵測需要啟用|cFFFFD100敵方名條|r。"
+													else
+														out = out .. "\n\n|cFFFF0000警告！|r依據寵物的目標偵測需要啟用|cFFFFD100敵方名條|r。"
+													end
+												end
+
+												return out
+											end,
+											fontSize = "medium",
+											width = "full",
+											disabled = function ( info, val )
+												if Hekili:GetPetBasedTargetSpells() == nil then return true end
+												if self.DB.profile.specs[ id ].petbased == false then return true end
+												if self:HasPetBasedTargetSpell() and GetCVar( "nameplateShowEnemies" ) == "1" then return true end
+
+												return false
+											end,
+											order = 0.21,
+                                    hidden = function ()
+                                        return not self.DB.profile.specs[ id ].petbased
+                                    end
+                                },
 
 								npGroup = {
 									type = "group",
 									inline = true,
 									name = "名條偵測",
-									order = 0.2,
+									order = 0.11,
 									hidden = function ()
 										return not self.DB.profile.specs[ id ].nameplates
 									end,
@@ -5560,7 +5655,7 @@ do
 											desc = "如果啟用 |cFFFFD100計算名條|r，則此範圍內的敵人將會包含在目標計數中。\n\n"
 												.. "只有在同時啟用 |cFFFFD100顯示敵方名條|r 和 |cFFFFD100顯示所有名條|r 時，此設定才可用。",
 											width = "full",
-											order = 1.7,
+											order = 0.1,
 											min = 0,
 											max = 100,
 											step = 1,
@@ -5627,97 +5722,6 @@ do
 												return self.DB.profile.specs[ id ].nameplates == false
 											end,
 										}, ]]
-
-										-- 依據寵物的集群檢測
-										petbased = {
-											type = "toggle",
-											name = "計算你寵物附近的目標",
-											desc = function ()
-												local msg = "勾選並正確設定時，當你的目標也在你的寵物範圍內時，插件將會將你寵物附近的目標計算為有效目標。"
-
-												if Hekili:HasPetBasedTargetSpell() then
-													local spell = Hekili:GetPetBasedTargetSpell()
-													local link = Hekili:GetSpellLinkWithTexture( spell )
-
-													msg = msg .. "\n\n" .. link .. "|w|r 在你的快捷列上，將會用於你所有的" .. UnitClass( "player" ) .. "寵物。"
-												else
-													msg = msg .. "\n\n|cFFFF0000需要寵物技能在你的其中一個快捷列上。|r"
-												end
-
-												if GetCVar( "nameplateShowEnemies" ) == "1" then
-													msg = msg .. "\n\n敵方名條已|cFF00FF00啟用|r，將會用於偵測你寵物附近的目標。"
-												else
-													msg = msg .. "\n\n|cFFFF0000需要顯示敵方名條。|r"
-												end
-
-												return msg
-											end,
-											width = "full",
-											hidden = function ()
-												return Hekili:GetPetBasedTargetSpells() == nil
-											end,
-											order = 3.1
-										},
-
-										petbasedGuidance = {
-											type = "description",
-											name = function ()
-												local out
-
-												if not self:HasPetBasedTargetSpell() then
-													out = "為了使依據寵物的偵測正常工作，必須從你的|cFF00FF00寵物法術書|r中選擇一個技能，並將其放置在|cFF00FF00你的|r 其中一個快捷列上。\n\n"
-													local spells = Hekili:GetPetBasedTargetSpells()
-
-													if not spells then return " " end
-
-													out = out .. "對於 %s，由於其範圍，建議使用 %s。它將會適用於你所有的寵物。"
-
-													if spells.count > 1 then
-														out = out .. "\n替代方案: "
-													end
-
-													local n = 1
-
-													local link = Hekili:GetSpellLinkWithTexture( spells.best )
-													out = format( out, UnitClass( "player" ), link )
-													for spell in pairs( spells ) do
-														if type( spell ) == "number" and spell ~= spells.best then
-															n = n + 1
-
-															link = Hekili:GetSpellLinkWithTexture( spell )
-
-															if n == 2 and spells.count == 2 then
-																out = out .. link .. "。"
-															elseif n ~= spells.count then
-																out = out .. link .. "，"
-															else
-																out = out .. "和 " .. link .. "。"
-															end
-														end
-													end
-												end
-
-												if GetCVar( "nameplateShowEnemies" ) ~= "1" then
-													if not out then
-														out = "|cFFFF0000警告！|r依據寵物的目標偵測需要啟用|cFFFFD100敵方名條|r。"
-													else
-														out = out .. "\n\n|cFFFF0000警告！|r依據寵物的目標偵測需要啟用|cFFFFD100敵方名條|r。"
-													end
-												end
-
-												return out
-											end,
-											fontSize = "medium",
-											width = "full",
-											disabled = function ( info, val )
-												if Hekili:GetPetBasedTargetSpells() == nil then return true end
-												if self.DB.profile.specs[ id ].petbased == false then return true end
-												if self:HasPetBasedTargetSpell() and GetCVar( "nameplateShowEnemies" ) == "1" then return true end
-
-												return false
-											end,
-											order = 3.11,
-										}
 									}
 								},
 
@@ -5737,7 +5741,7 @@ do
 
 								cycle = {
 									type = "toggle",
-									name = "建議更改目標 |TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t",
+									name = "允許切換目標 |TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t",
 									desc = "啟用換目標時，可能會顯示一個圖示 (|TInterface\\Addons\\Hekili\\Textures\\Cycle:0|t) ，表示你應該在其他目標上使用技能。\n\n" ..
 										"這對於一些只想將減益效果施加到另一個目標的專精 (例如御風武僧) 來說效果很好，但對於關注" ..
 										"依據持續時間維護 DOT/減益效果的專精 (例如痛苦術士) 來說效果可能較差。\n\n此功能將在未來的更新中進行改進。",
@@ -5768,8 +5772,8 @@ do
 
 								aoe = {
 									type = "range",
-									name = "多目標技能組: 最小目標數",
-									desc = "顯示多目標技能組 (或主要技能組處於多目標模式) 時，其建議將會假設至少有這麼多目標可用。",
+									name = "用於偵測多目標建議的最低目標數量",
+									desc = "當多目標技能組顯示時 (或已啟用多目標模式時)，其建議將假設至少有這麼多目標可用。\n\n這在使用雙技能組模式時非常有用，可以確保在通常不會更改的情況下顯示多目標優先順序，例如，直到 5 個目標。\n\n使用 5 的設定將確保在多目標模式下遵循正確的優先順序。不同的專精和配裝，最佳值可能有所不同。",
 									width = "full",
 									min = 2,
 									max = 10,
@@ -5916,7 +5920,7 @@ do
 
                     options.args.core.plugins.settings.prefHeader = {
                         type = "header",
-                        name = "偏好設定",
+                        name = specs[ id ] .. "偏好設定",
                         order = 100.1,
                     }
 
@@ -8388,16 +8392,16 @@ do
                             args = {
                                 key = {
                                     type = "keybinding",
-                                    name = "專注單體迴圈",
-                                    desc = "替支援專注單體迴圈的專精設定按鈕來切換開啟或關閉專注單體迴圈。",
+                                    name = "專注單體優先順序",
+                                    desc = "替支援專注單體優先順序的專精設定按鈕來切換開啟或關閉專注單體迴圈。",
                                     width = 1,
                                     order = 1,
                                         },
 
                                 value = {
                                     type = "toggle",
-                                    name = "啟用專注單體迴圈",
-                                    desc = "啟用時，專注單體專精的迴圈會稍微變化，在 AoE 中使用單體目標。\n\n",
+                                    name = "啟用專注單體優先順序",
+                                    desc = "啟用時，專注單體專精的優先順序會稍微變化，在 多目標中使用單體目標。\n\n",
                                     width = 2,
                                     order = 2,
                                         },
@@ -10021,7 +10025,7 @@ do
 						args = {
 							gettingStarted_displays_info = {
 								type = "description",
-								name = "|cFFFFD100技能組|r 是 Hekili 向你顯示推薦施放的法術和物品的地方，|cFF00CCFF主要|r 技能組是你的 DPS 迴圈。當此選項視窗打開時，所有技能組都可見。\n" ..
+								name = "|cFFFFD100技能組|r 是 Hekili 向你顯示推薦施放的法術和物品的地方，|cFF00CCFF主要|r 技能組是你的 DPS 優先順序。當此選項視窗打開時，所有技能組都可見。\n" ..
 									"\n|cFFFFD100技能組|r 可以通過以下方式移動:\n" ..
 									"· 點擊並拖曳它們\n" ..
 									"  - 你可以通過點擊最上方的 |cFFFFD100Hekili " .. Hekili.Version .. " |r 標題並將其拖曳到一邊來移開此視窗。\n" ..
