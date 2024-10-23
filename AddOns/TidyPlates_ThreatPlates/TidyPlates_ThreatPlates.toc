@@ -1,7 +1,7 @@
-## Interface: 11503, 40400, 110002, 110005
+## Interface: 11504, 40400, 110002, 110005
 
 ## Title: Threat Plates
-## Version: 12.0.10
+## Version: 12.0.11
 ## Notes: Threat-reactive nameplates.
 ## Notes-deDE: Bedrohungsreaktive Namensplaketten.
 ## Notes-esES: Placas Identificativas de Amenaza

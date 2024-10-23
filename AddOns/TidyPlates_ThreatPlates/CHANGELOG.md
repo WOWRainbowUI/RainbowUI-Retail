@@ -1,4 +1,4 @@
-# 12.0.10 (2024-10-18)
+# 12.0.11 (2024-10-23)
 
 * Fixed a bug that caused the target and combo points widget on (soft-)target unit to be hidden when a (soft-)target unit died [GH-528, GH-554].
 * Fixed a bug that caused nameplates to be shown at a lower position when Only Names was enabled.
