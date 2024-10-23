@@ -412,6 +412,8 @@ L["CATEGORY_GROUPS_DESCRIPTION"] = "Regroupez les éléments par type, avec des 
 L["CATEGORY_HEARTHSTONE"] = "Pierre de foyer"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Emplacements d’inventaire (Auto)"
 L["CATEGORY_JUNK"] = "Camelote"
+--[[Translation missing --]]
+L["CATEGORY_KEYSTONE"] = "Keystone"
 L["CATEGORY_OTHER"] = "Autres"
 L["CATEGORY_POTION"] = "Potion"
 L["CATEGORY_RECENT"] = "Récent"
@@ -712,6 +714,8 @@ L["CATEGORY_GROUPS_DESCRIPTION"] = "Gruppiert Artikel nach Typ, mit Funktionen z
 L["CATEGORY_HEARTHSTONE"] = "Ruhestein"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventarplätze (Auto)"
 L["CATEGORY_JUNK"] = "Schrott"
+--[[Translation missing --]]
+L["CATEGORY_KEYSTONE"] = "Keystone"
 L["CATEGORY_OTHER"] = "Andere"
 L["CATEGORY_POTION"] = "Tränke"
 L["CATEGORY_RECENT"] = "Zuletzt"
@@ -1010,6 +1014,7 @@ L["CATEGORY_GROUPS_DESCRIPTION"] = "Группировка предметов п
 L["CATEGORY_HEARTHSTONE"] = "Камень возвращения"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Слоты инвентаря (авто)"
 L["CATEGORY_JUNK"] = "Хлам"
+L["CATEGORY_KEYSTONE"] = "Ключ"
 L["CATEGORY_OTHER"] = "Прочее"
 L["CATEGORY_POTION"] = "Зелье"
 L["CATEGORY_RECENT"] = "Недавнее"
@@ -1311,6 +1316,7 @@ L["CATEGORY_GROUPS_DESCRIPTION"] = "Agrupar los objetos por tipo, con funciones 
 L["CATEGORY_HEARTHSTONE"] = "Piedras de hogar"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Ranuras de inventario (Auto)"
 L["CATEGORY_JUNK"] = "Basura"
+L["CATEGORY_KEYSTONE"] = "Piedra angular"
 L["CATEGORY_OTHER"] = "Otros"
 L["CATEGORY_POTION"] = "Pociones"
 L["CATEGORY_RECENT"] = "Recientes"
@@ -1660,6 +1666,8 @@ L["CATEGORY_HEARTHSTONE"] = "Hearthstone"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventory Slots (Auto)"
 --[[Translation missing --]]
 L["CATEGORY_JUNK"] = "Junk"
+--[[Translation missing --]]
+L["CATEGORY_KEYSTONE"] = "Keystone"
 --[[Translation missing --]]
 L["CATEGORY_OTHER"] = "Other"
 --[[Translation missing --]]
@@ -2085,8 +2093,7 @@ L["XS_GUILD_BANK"] = "Banco de Hermandad de %s"
 
 local L = Locales.zhTW
 L["ACCOUNT_GOLD_X"] = "帳號金幣：%s"
---[[Translation missing --]]
-L["ACTION_TO_TRACK_TEXT"] = "Shift-click currency or drop item"
+L["ACTION_TO_TRACK_TEXT"] = "Shift-點擊 兌換通貨或掉落物品"
 L["ADD_FROM_ATT_MESSAGE"] = "使用 “All The Things ”彈出式迷你視窗中的物品加入到此分類中。"
 L["ADD_FROM_ATT_POPUP_COMPLETE"] = "已加入 %s 物品（來自 %s 彈出視窗）"
 L["ADD_IDS"] = "新增ID"
@@ -2118,8 +2125,7 @@ L["BIND_ON_EQUIP"] = "裝備綁定"
 L["BIND_ON_USE"] = "使用綁定"
 L["BINDING_QUICK_SEARCH"] = "快速搜尋"
 L["BINDING_TOGGLE_BANK"] = "切換銀行"
---[[Translation missing --]]
-L["BINDING_TOGGLE_CURRENCY_PANEL"] = "Toggle Currency Panel"
+L["BINDING_TOGGLE_CURRENCY_PANEL"] = "切換兌換通貨"
 L["BINDING_TOGGLE_GUILD_BANK"] = "切換公會銀行"
 L["BINDING_TOGGLE_WARBAND_BANK"] = "切換戰隊銀行"
 L["BLANK_SPACE"] = "空白"
@@ -2148,6 +2154,7 @@ L["CATEGORY_GROUPS_DESCRIPTION"] = "根據類型分組物品，並可新增自�
 L["CATEGORY_HEARTHSTONE"] = "爐石"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "物品欄（自動）"
 L["CATEGORY_JUNK"] = "垃圾"
+L["CATEGORY_KEYSTONE"] = "鑰石"
 L["CATEGORY_OTHER"] = "其他"
 L["CATEGORY_POTION"] = "藥劑"
 L["CATEGORY_RECENT"] = "最近"
@@ -2268,8 +2275,7 @@ L["MANAGE_CHARACTERS"] = "管理角色"
 L["MINING"] = "採礦"
 L["MONEY_LOGS"] = "金幣紀錄"
 L["MOVE"] = "移動"
---[[Translation missing --]]
-L["MULTIPLE_TABS"] = "Multiple tabs"
+L["MULTIPLE_TABS"] = "多重標籤"
 L["NEVER"] = "從不"
 L["NEW_CATEGORY"] = "新分類"
 L["NEW_SECTION"] = "新群組"
@@ -2446,6 +2452,7 @@ L["CATEGORY_GROUPS_DESCRIPTION"] = "按类型对物品分组，并可添加新�
 L["CATEGORY_HEARTHSTONE"] = "炉石"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "物品栏（自动）"
 L["CATEGORY_JUNK"] = "垃圾"
+L["CATEGORY_KEYSTONE"] = "钥石"
 L["CATEGORY_OTHER"] = "其他"
 L["CATEGORY_POTION"] = "药水"
 L["CATEGORY_RECENT"] = "最近"
@@ -2754,6 +2761,8 @@ L["CATEGORY_GROUPS_DESCRIPTION"] = "새로운 사용자 정의 카테고리를 �
 L["CATEGORY_HEARTHSTONE"] = "귀환석"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "재고 (자동)"
 L["CATEGORY_JUNK"] = "폐품"
+--[[Translation missing --]]
+L["CATEGORY_KEYSTONE"] = "Keystone"
 L["CATEGORY_OTHER"] = "기타"
 L["CATEGORY_POTION"] = "물약"
 L["CATEGORY_RECENT"] = "최근"
@@ -3128,6 +3137,8 @@ L["CATEGORY_HEARTHSTONE"] = "Hearthstone"
 L["CATEGORY_INVENTORY_SLOTS_AUTO"] = "Inventory Slots (Auto)"
 --[[Translation missing --]]
 L["CATEGORY_JUNK"] = "Junk"
+--[[Translation missing --]]
+L["CATEGORY_KEYSTONE"] = "Keystone"
 --[[Translation missing --]]
 L["CATEGORY_OTHER"] = "Other"
 --[[Translation missing --]]
