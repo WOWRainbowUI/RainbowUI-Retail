@@ -7,6 +7,7 @@ local AutoSelectGossip = {
     [48598] = true,         --I'd like to check my mail.   [NPC: 132969] Katy Stampwhistle
     [55193] = true,         --Mail [NPC: 191869] Child of Ohn'ahra
     [109275] = true,        --Reporting to duty (Time Rift)
+    [120733] = true,        --Theater Troupe
 
     [107824] = 1,           --Trading Post
     [107827] = 1,           --Trading Post
@@ -19,6 +20,17 @@ local AutoSelectGossip = {
     [123493] = 1,           --Delver's Guide, Dornagal
     [122660] = 1,           --Explorers' League Supplies, Dornagal
     [120910] = 1,           --Breem, Dornagal Flight Master
+
+    --Delves Start
+    [111366] = 1,           --Fungal Folly, Stoneguard Benston
+    [120018] = 1,           --Waterworks, Foreman Bruknar
+    [121502] = 1,           --Underkeep, Weaver's Instructions
+    [121408] = 1,           --Skittering Breach, Lamplighter Havrik Chayvn
+    [120540] = 1,           --Earthcrawl Mines, Lamplighter Rathling
+    [120541] = 1,           --Earthcrawl Mines, 2nd Phase, Lamplighter Rathling
+    [121526] = 1,           --The Dread Pit, Vanathia
+    [121508] = 1,           --The Dread Pit, Vant
+    [120767] = 1,           --Nightfall Sanctum, Great Kyron
 };
 
 local function IsAutoSelectOption(gossipOptionID, onlyOption)

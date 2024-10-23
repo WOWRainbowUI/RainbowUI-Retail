@@ -1,5 +1,5 @@
 ## Interface: 110002, 110005
-## Version: 0.4.6
+## Version: 0.4.7
 
 ## Title: Dialogue UI
 
@@ -25,7 +25,8 @@ Code\Scroll.xml
 Code\Settings.xml
 Code\GossipDataProvider.xml
 Code\NameplateGossip.lua
-Code\UI.xml
+Code\DialogueUI.xml
+Code\BookUI.xml
 Code\WidgetManager.xml
 Code\Core.lua
 

@@ -132,7 +132,7 @@ function DUIDialogSettingsMixin:OnGamePadButtonDown(button)
 
     local valid = false;
 
-    if button == "PADFORWARD" or button == "PADBACK" or button == "PAD2" then
+    if button == "PADFORWARD" or button == "PADBACK" or button == "PADMENU" or button == "PAD2" then
         self:Hide();
         valid = true;
     elseif button == "PADLSHOULDER" then
@@ -327,7 +327,7 @@ local function ValueTextFormatter_PrimaryControlKey(arrowOptionButton, dbValue)
         arrowOptionButton.HotkeyFrame = f;
     end
 
-    f:SetBaseHeight(20);
+    f:UpdateBaseHeight();   --SetBaseHeight(20)
 
     local key, keyDesc, errorText;
 
@@ -433,6 +433,11 @@ local function TTSVoice_BuildMenuData(dropdownButton, dbKey)
         menuData.fitWidth = true;
         menuData.autoScaling = true;
 
+        local function selectedIDGetter()
+            return GetDBValue(dbKey)
+        end
+        menuData.selectedIDGetter = selectedIDGetter;
+
         for i, data in ipairs(voices) do
             menuData.buttons[i] = {
                 name = TTSVoice_AbbreviateName(data.name),
@@ -535,6 +540,21 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["Use Blizzard Tooltip"], description = L["Use Blizzard Tooltip Desc"], dbKey = "UseBlizzardTooltip"},
             {type = "Subheader", name = L["Roleplaying"], validationFunc = RPAddOn_Validation},
             {type = "Checkbox", name = L["Use RP Name In Dialogues"], description = L["Use RP Name In Dialogues Desc"], tooltip = RPAddOn_ReplaceName_Tooltip, dbKey = "UseRoleplayName", validationFunc = RPAddOn_Validation},
+
+            {type = "Subheader", name = L["Readables"]},    --Book
+            {type = "Checkbox", name = L["BookUI Enable"], description = L["BookUI Enable Desc"], preview = "BookUI", ratio = 1, dbKey = "BookUIEnabled"},
+            {type = "ArrowOption", name = L["Frame Size"], description = L["BookUI Frame Size Desc"], tooltip = OptionHasNoEffectDueToMobile, dbKey = "BookUISize", requiredParentValue = {BookUIEnabled = true},
+                choices = {
+                    {dbValue = 0, valueText = L["Size Extra Small"]},
+                    {dbValue = 1, valueText = L["Size Small"]},
+                    {dbValue = 2, valueText = L["Size Medium"]},
+                    {dbValue = 3, valueText = L["Size Large"]},
+                },
+            },
+            {type = "Checkbox", name = L["BookUI Keep UI Open"], description = L["BookUI Keep UI Open Desc"], dbKey = "BookKeepUIOpen", requireSameParentValue = true},
+            {type = "Checkbox", name = L["BookUI Show Location"], description = L["BookUI Show Location Desc"], dbKey = "BookShowLocation", requireSameParentValue = true},
+            {type = "Checkbox", name = L["BookUI Show Item Description"], description = L["BookUI Show Item Description Desc"], dbKey = "BookUIItemDescription", requireSameParentValue = true},
+            {type = "Checkbox", name = L["BookUI Darken Screen"], description = L["BookUI Darken Screen Desc"], dbKey = "BookDarkenScreen", requireSameParentValue = true},
         },
     },
 
@@ -601,7 +621,11 @@ local Schematic = { --Scheme
             {type = "Subheader", name = L["Gossip"]},
             {type = "Checkbox", name = L["Auto Select Gossip"], description = L["Auto Select Gossip Desc"], dbKey = "AutoSelectGossip"},
             {type = "Checkbox", name = L["Force Gossip"], description = L["Force Gossip Desc"], dbKey = "ForceGossip"},
+            {type = "Checkbox", name = L["Show Hint"], description = L["Show Hint Desc"], dbKey = "ShowDialogHint"},
             --{type = "Checkbox", name = L["Nameplate Dialog"], description = L["Nameplate Dialog Desc"], dbKey = "NameplateDialogEnabled", preview = "NameplateDialogEnabled", ratio = 1},
+
+            {type = "Subheader", name = L["Compatibility"]},
+            {type = "Checkbox", name = L["Disable DUI In Instance"], description = L["Disable DUI In Instance Desc"], dbKey = "DisableDUIInInstance"},
         },
     },
 
@@ -609,7 +633,7 @@ local Schematic = { --Scheme
         tabName = L["Accessibility"],  --Cate5
         options = {
             {type = "Checkbox", name = L["TTS"], description = L["TTS Desc"], dbKey = "TTSEnabled", preview = "TTSButton", ratio = 1},
-            {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", parentKey = "TTSEnabled", requiredParentValue = {TTSEnabled = true}},
+            {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", requiredParentValue = {TTSEnabled = true}},
             {type = "Checkbox", name = L["TTS Auto Play"], description = L["TTS Auto Play Desc"], dbKey = "TTSAutoPlay", requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Skip Recent"], description = L["TTS Skip Recent Desc"], dbKey = "TTSSkipRecent", branchLevel = 2, requiredParentValue = {TTSEnabled = true, TTSAutoPlay = true}},
             {type = "Checkbox", name = L["TTS Auto Stop"], description = L["TTS Auto Stop Desc"], dbKey = "TTSAutoStop", requiredParentValue = {TTSEnabled = true}},
@@ -642,6 +666,10 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["TTS Content NPC Name"], dbKey = "TTSContentSpeaker", branchLevel = 2, requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Content Quest Name"], dbKey = "TTSContentQuestTitle", branchLevel = 2, requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Content Objective"], dbKey = "TTSContentObjective", branchLevel = 2, requireSameParentValue = true},
+
+            {type = "Subheader", name = L["Readable Objects"], requiredParentValue = {TTSEnabled = true, BookUIEnabled = true}},
+            {type = "DropdownButton", name = L["BookUI TTS Voice"], description = L["BookUI TTS Voice Desc"],  tooltip = TTSVoice_TooltipFunc, dbKey="BookTTSVoice", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, branchLevel = 2, requireSameParentValue = true},
+            {type = "Checkbox", name = L["BookUI TTS Click To Read"], description = L["BookUI TTS Click To Read Desc"], dbKey = "BookTTSClickToRead", branchLevel = 2, requireSameParentValue = true},
         },
     },
 };
@@ -825,7 +853,11 @@ function DUIDialogSettingsMixin:Init()
         f:SetParent(self);
     end
 
-    self.hotkeyFramePool = API.CreateObjectPool(CreateHotkeyFrame, RemoveHotkeyFrame);
+    local function OnAcquireHotkeyFrame(f)
+        f:UpdateBaseHeight();
+    end
+
+    self.hotkeyFramePool = API.CreateObjectPool(CreateHotkeyFrame, RemoveHotkeyFrame, OnAcquireHotkeyFrame);
 
     self.numTabs = #Schematic;
 
