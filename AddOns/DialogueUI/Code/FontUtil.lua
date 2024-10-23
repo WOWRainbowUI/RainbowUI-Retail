@@ -65,6 +65,11 @@ local FONT_OBJECT_HEIGHT = {
     DUIFont_AlertHeader = {8, 9, 10, 12, 12},
 };
 
+FONT_OBJECT_HEIGHT.DUIFont_Book_H1 = FONT_OBJECT_HEIGHT.DUIFont_Quest_Title_18;
+FONT_OBJECT_HEIGHT.DUIFont_Book_H2 = FONT_OBJECT_HEIGHT.DUIFont_Quest_Title_16;
+FONT_OBJECT_HEIGHT.DUIFont_Book_H3 = FONT_OBJECT_HEIGHT.DUIFont_Quest_Title_16;
+FONT_OBJECT_HEIGHT.DUIFont_Book_Paragraph = FONT_OBJECT_HEIGHT.DUIFont_Quest_Paragraph;
+
 local IS_NUMBER_FONT = {
     DUIFont_ItemCount = true,
 };
@@ -132,9 +137,9 @@ do  --Auto Downsize Font To Fit Into Region (Derivative of AutoScalingFontString
     local Round = API.Round;
     local AutoScalingFontStringMixin =  {};
 
-    function AutoScalingFontStringMixin:SetText(fontString, text)
+    function AutoScalingFontStringMixin:SetText(fontString, text, minLineHeight)
         fontString:SetText(text);
-        self:ScaleTextToFit(fontString);
+        self:ScaleTextToFit(fontString, minLineHeight);
     end
 
     function AutoScalingFontStringMixin:GetFontHeight(fontString)
@@ -142,10 +147,10 @@ do  --Auto Downsize Font To Fit Into Region (Derivative of AutoScalingFontString
         return Round(height);
     end
 
-    function AutoScalingFontStringMixin:ScaleTextToFit(fontString)
+    function AutoScalingFontStringMixin:ScaleTextToFit(fontString, minLineHeight)
         local baseLineHeight = self:GetFontHeight(fontString);
         local tryHeight = baseLineHeight;
-        local minLineHeight = AUTO_SCALING_MIN_HEIGHT;
+        minLineHeight = minLineHeight or AUTO_SCALING_MIN_HEIGHT;
         local stringWidth = fontString:GetUnboundedStringWidth() / fontString:GetTextScale();
 
         if stringWidth > 0 then
@@ -175,8 +180,8 @@ do  --Auto Downsize Font To Fit Into Region (Derivative of AutoScalingFontString
         end
     end
 
-    function FontUtil:SetAutoScalingText(fontString, text)
-        AutoScalingFontStringMixin:SetText(fontString, text)
+    function FontUtil:SetAutoScalingText(fontString, text, minLineHeight)
+        AutoScalingFontStringMixin:SetText(fontString, text, minLineHeight)
     end
 end
 

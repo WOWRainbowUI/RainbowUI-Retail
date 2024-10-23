@@ -90,6 +90,8 @@ L["Format Item Level"] = "物品等級 %d";   --_G.ITEM_LEVEL in Classic is diff
 L["Format Breadcrumb Quests Available"] = "可接的系列任務: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 L["Format Functionality Handled By"] = "此功能由 %s 提供";      --A functionality is provided by [another addon name] (Used in Settings.lua)
 
+L["Format Time Left"] = BONUS_OBJECTIVE_TIME_LEFT or "剩餘時間: %s";
+
 --Settings
 L["UI"] = "介面";
 L["Camera"] = "鏡頭";
@@ -200,8 +202,13 @@ L["Auto Select Gossip"] = "自動選擇選項";
 L["Auto Select Gossip Desc"] = "與特定 NPC 互動時自動選擇最佳的對話選項。";
 L["Force Gossip"] = "強制閒聊";
 L["Force Gossip Desc"] = "預設情況下，遊戲有時會自動選擇第一個選項而不顯示對話框。 透過啟用強制閒聊，該對話框便會出現。";
+L["Show Hint"] = "顯示提示";
+L["Show Hint Desc"] = "加入可以選擇正確答案的按鈕 (如果有正確答案的話)。\n\n目前只支援時光漫遊的謎題。";
 L["Nameplate Dialog"] = "在名條上顯示對話";
 L["Nameplate Dialog Desc"] = "如果 NPC 沒有提供選擇，則在 NPC 名條上顯示對話。\n\n此選項會修改 CVar \"SoftTarget Nameplate Interact\"。";
+L["Compatibility"] = "Compatibility";
+L["Disable DUI In Instance"] = "副本中使用魔獸預設介面。";
+L["Disable DUI In Instance Desc"] = "在副本或團隊中停用任務對話插件，改用遊戲內建介面。\n\n如果無法和允許你開始或跳過首領戰的 NPC 互動時，請啟用此選項。";
 
 L["TTS"] = TEXT_TO_SPEECH or "文字轉語音";
 L["TTS Desc"] = "點一下介面左上方的按鈕將對話內容文字大聲唸出來。";
@@ -235,11 +242,50 @@ L["TTS Content NPC Name"] = "NPC 名字";
 L["TTS Content Quest Name"] = "任務標題";
 L["TTS Content Objective"] = "任務目標";
 
+--Book UI and Settings
+L["Readables"] = "可閱讀";   --Readable Objects
+L["Readable Objects"] = "可閱讀的物件";     --Used as a label for a setting in Accessibility-TTS
+L["BookUI Enable"] = "可閱讀的物件使用新介面";
+L["BookUI Enable Desc"] = "像是書本、信件或便籤這些可閱讀的物件要使用新的介面。";
+L["BookUI Frame Size Desc"] = "設定書本介面的大小。";
+L["BookUI Keep UI Open"] = "保持視窗開啟";
+L["BookUI Keep UI Open Desc"] = "焦點移出物件時也要保持保持視窗開啟。\n\n按 Esc 鍵或在介面上點右鍵來關閉視窗。";
+L["BookUI Show Location"] = "顯示位置";
+L["BookUI Show Location Desc"] = "在標題列顯示物件的位置。\n\n只對遊戲物件有效，背包中的物品沒有作用。";
+L["BookUI Show Item Description"] = "顯示物品說明";
+L["BookUI Show Item Description Desc"] = "如果物品的浮動提示資訊中有任何說明，在介面的最上方顯示出來。";
+L["BookUI Darken Screen"] = "畫面調暗";
+L["BookUI Darken Screen Desc"] = "將介面下方的區域變暗，以便能專注於內容。";
+L["BookUI TTS Voice"] = "語音";
+L["BookUI TTS Voice Desc"] = "可閱讀的物件使用這個語音:";
+L["BookUI TTS Click To Read"] = "點一下段落唸出";
+L["BookUI TTS Click To Read Desc"] = "點一下段落將它唸出來。\n\n點一下已經在唸的段落來停止唸出。";
+
 --Tutorial
 L["Tutorial Settings Hotkey"] = "按下 [KEY:PC:F1] 打開設定";
 L["Tutorial Settings Hotkey Console"] = "按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU] 打開設定";   --Use this if gamepad enabled
 L["Instuction Open Settings"] = "要打開設定選項，請在和 NPC 互動時按下 [KEY:PC:F1]。 ";    --Used in Game Menu - AddOns
 L["Instuction Open Settings Console"] = "要打開設定選項，請在和 NPC 互動時按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU]。";
+
+L["Show Answer"] = "顯示正確答案。";
+
+--Asking for Directions-- (match the name to replace gossip icon)
+L["Pin Auction House"] = "拍賣場";
+L["Pin Bank"] = "銀行";
+L["Pin Barber"] = "美容師";
+L["Pin Battle Pet Trainer"] = "戰寵訓練師";
+L["Pin Crafting Orders"] = "製作訂單";
+L["Pin Flight Master"] = "飛行管理員";
+L["Pin Great Vault"] = "寶庫";
+L["Pin Inn"] = "旅店";
+L["Pin Item Upgrades"] = "物品升級";
+L["Pin Mailbox"] = "郵箱";
+L["Pin Other Continents"] = "其他大陸";
+L["Pin POI"] = "地標";
+L["Pin Profession Trainer"] = "專業技能訓練師";
+L["Pin Rostrum"] = "外形調整台";
+L["Pin Stable Master"] = "獸欄管理員";
+L["Pin Trading Post"] = "貿易站";
 
 -- 自行加入
 L["Dialogue UI"] = "任務-對話"
