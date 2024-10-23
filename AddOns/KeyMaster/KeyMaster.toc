@@ -1,6 +1,6 @@
-## Interface: 110002
-## X-Max-Interface: 110002
-## X-Min-Interface: 110002
+## Interface: 110002, 110005
+## X-Max-Interface: 110002, 110005
+## X-Min-Interface: 110002, 110005
 
 ## Version: 1.3.5
 ## Title: |cffb09c60Key Master|r

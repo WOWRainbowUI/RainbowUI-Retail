@@ -1,4 +1,4 @@
-## Interface: 11504, 30403, 40400, 110002
+## Interface: 11504, 30403, 40400, 110002, 110005
 ## Version: 3.6.1
 ## Title: Auto Potion
 ## Author: ollidiemaus

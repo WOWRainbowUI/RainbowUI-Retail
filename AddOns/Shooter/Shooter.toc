@@ -1,4 +1,4 @@
-## Interface: 110002## IconTexture: 982414
+## Interface: 110002, 110005## IconTexture: 982414
 ## Title: Shooter
 ## Notes: Takes a screenshot when you earn an achievement.
 ## Title-zhTW: |cffFFCC99[成就]|r 成就自動擷圖

@@ -1,4 +1,4 @@
-## Interface: 110002
+## Interface: 110002, 110005
 ## Notes: Gathering Node data from WoWHead for GatherMate2
 ## Title: WoWGatheringNodes v.V11.0_Update_9.4.24
 ## Author: SLOKnightfall

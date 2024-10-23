@@ -1,4 +1,4 @@
-## Interface: 110002, 40400, 11503
+## Interface: 11504, 40400, 110002, 110005
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-koKR: 모든 것을 위한 쿨다운 카운트

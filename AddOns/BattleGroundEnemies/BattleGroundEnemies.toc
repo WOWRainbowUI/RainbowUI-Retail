@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 110002
+## Interface: 11503, 30403, 40400, 110002, 110005
 ## Title: BattleGroundEnemies
 ## Version: 11.0.2.3
 ## Author: Bullsei

@@ -1,4 +1,4 @@
-## Interface: 110002
+## Interface: 110002, 110005
 ## Title: Combat |cffff930fTime Tracker|r
 ## Version: v10.2.5.7
 ## Notes: Fully automatic custom stopwatch to keep track of time spent in combat.

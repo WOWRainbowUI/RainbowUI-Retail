@@ -1,4 +1,4 @@
-## Interface: 110002
+## Interface: 110002, 110005
 ## Title: HideActionbarAnimations
 ## Notes: Hides the Actionbar Animations added in 10.1.5
 ## IconTexture: Interface\Addons\HideActionbarAnimations\HideActionbarAnimationsIcon

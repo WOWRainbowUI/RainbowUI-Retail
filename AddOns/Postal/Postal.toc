@@ -1,4 +1,4 @@
-## Interface: 11503, 30403, 40400, 110002
+## Interface: 11503, 30403, 40400, 110002, 110005
 ## Title: Postal
 ## Version: v4.1.9
 ## X-Build: 632

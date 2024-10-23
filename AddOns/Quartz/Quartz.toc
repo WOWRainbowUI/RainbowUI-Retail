@@ -1,5 +1,5 @@
 ## Title: Quartz
-## Interface: 11504, 30403, 40400, 110002
+## Interface: 11504, 30403, 40400, 110002, 110005
 ## Notes: Modular casting bar.
 ## Author: Nevcairiel, Nymbia
 ## Version: 3.7.13 Fix
