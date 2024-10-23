@@ -81,7 +81,7 @@ kModelConstants =
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166294] = {  -- "spells/healrag_state_chest.m2"
-        Name = kCategory.Glow .. "Burning Cloud, Red",
+        Name = kCategory.Glow .. "紅色亮光",
         UseSetTransform = true, BaseScale = 0.02,
         ----BaseRotX = 0, BaseRotY = 0, BaseRotZ = 0,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
@@ -115,19 +115,19 @@ kModelConstants =
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166640] = {  -- "spells/piercingstrike_cast_hand.m2"
-        Name = kCategory.Glow .. "Electric, Red",
+        Name = kCategory.Glow .. "紅色電流",
         UseSetTransform = true, BaseScale = 0.025,
         BaseRotX = 90, BaseRotY = 90, BaseRotZ = 0,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
     },
     [166054] = {  -- "spells/explosivetrap_recursive.m2"
-        Name = kCategory.Glow .. "Flame",
+        Name = kCategory.Glow .. "火焰",
         UseSetTransform = true, BaseScale = 0.05,
         ----BaseRotX = 0, BaseRotY = 0, BaseRotZ = 0,
         BaseOfsX = 0, BaseOfsY = 4, BaseOfsZ = 0,
     },
     [166594] = {  -- "spells/movementimmunity_base.m2"
-        Name = kCategory.Glow .. "Immunity",
+        Name = kCategory.Glow .. "免疫細胞",
         UseSetTransform = true, BaseScale = 0.01,
         ----BaseRotX = 0, BaseRotY = 0, BaseRotZ = 0,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
@@ -138,25 +138,25 @@ kModelConstants =
     --~~~~~~~~~~~~~~~~~~~~~~~
 
     [166453] = {  -- "spells/layonhands_low_head.m2"
-        Name = kCategory.Object .. "Hands",
+        Name = kCategory.Object .. "雙手",
         UseSetTransform = true, BaseScale = 0.019,
         BaseRotX = 0, BaseRotY = 0, BaseRotZ = 270,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
     },
     [166316] = {  -- "spells/valentines_lookingforloveheart.m2"
-        Name = kCategory.Object .. "Heart",
+        Name = kCategory.Object .. "愛心",
         UseSetTransform = true, BaseScale = 0.021,
         ----BaseRotX = 0, BaseRotY = 0, BaseRotZ = 0,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
     },
     [166334] = {  -- "spells/holy_precast_high_base.m2"
-        Name = kCategory.Object .. "Ring, Yellow",
+        Name = kCategory.Object .. "黃色環形",
         UseSetTransform = true, BaseScale = 0.008,
         ----BaseRotX = 0, BaseRotY = 0, BaseRotZ = 0,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
     },
     [166338] = {  -- "spells/holy_precast_uber_base.m2"
-        Name = kCategory.Object .. "Ring, Yellow 2",
+        Name = kCategory.Object .. "黃色環形 2",
         UseSetTransform = true, BaseScale = 0.008,
         ----BaseRotX = 0, BaseRotY = 0, BaseRotZ = 0,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
@@ -169,7 +169,7 @@ kModelConstants =
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166543] = {  -- "spells/manatideinfuse_base.m2"
-        Name = kCategory.Object .. "Swirl, Pulsing, Blue",
+        Name = kCategory.Object .. "藍色漩渦",
         UseSetTransform = true, BaseScale = 0.0014,
         ----BaseRotX = 0, BaseRotY = 0, BaseRotZ = 0,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
@@ -180,7 +180,7 @@ kModelConstants =
     --~~~~~~~~~~~~~~~~~~~~~~~~
 
     [166566] = {  -- "spells/missile_flare.m2"
-        Name = kCategory.Spots .. "Flare",
+        Name = kCategory.Spots .. "光亮",
         UseSetTransform = true, BaseScale = 0.03,
         ----BaseRotX = 0, BaseRotY = 0, BaseRotZ = 0,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
@@ -219,7 +219,7 @@ kModelConstants =
     --~~~~~~~~~~~~~~~~~~~~~~~~~
 
     [166492] = {  -- "spells/lightning_precast_low_hand.m2"
-        Name = kCategory.Trail .. "Electric, Blue",
+        Name = kCategory.Trail .. "藍色閃電",
         BaseScale = 0.1, BaseFacing = 0,
         BaseOfsX = 0, BaseOfsY = 0.01,
         BaseStepX = 3430, BaseStepY = 3155,
@@ -275,7 +275,7 @@ kModelConstants =
         IsSkewed = true, HorizontalSlope = 0,
     },
     [166159] = {  -- "spells/firestrike_missile_low.m2"
-        Name = kCategory.Trail .. "Swirling, Firestrike",
+        Name = kCategory.Trail .. "旋轉火球",
         UseSetTransform = true, BaseScale = 0.008,
         BaseRotX = 0, BaseRotY = 270, BaseRotZ = 270,
         ----BaseOfsX = 0, BaseOfsY = 0, BaseOfsZ = 0,
