@@ -1,11 +1,11 @@
-## Interface: 110002
+## Interface: 110005
 ## Title: Voodoo |cff9ACD32Casting|r Bar |cff9ACD32Options|r
 ## Notes: |cffF0E68COptions for the |cff9ACD32Voodoo|r Casting |cff9ACD32Bar|r|r!
 ## IconAtlas: Relic-Fel-TraitBG
 ## DefaultState: enabled
 ## LoadOnDemand: 1
 ## Dependencies: VCB
-## Version: 1.54
+## Version: 1.55
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 

@@ -872,7 +872,7 @@ PlayerCastingBarFrame:HookScript("OnUpdate", function(self)
 		end
 	end
 	VCBnameText:SetText(self.Text:GetText())
-	if self.barType == "channel" and VCBrPlayer["Ticks"] == "Show" then
+	if (self.barType == "channel" or self.barType =="uninterruptable") and VCBrPlayer["Ticks"] == "Show" then
 		vcbShowTicks(VCBarg3)
 	else
 		vcbHideTicks()
