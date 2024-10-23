@@ -197,6 +197,18 @@ local function CheckForSuccesInspect(name)
 	end
 end
 
+
+local function forbidden()end
+local exec_env = setmetatable({}, { __index = function(t, k)
+	if k == "_G" then
+		return t
+	elseif k == "ShowUIPanel" then
+		return forbidden
+	else
+		return _G[k]
+	end
+end})
+
 local lastCheckNext = {}
 local inspectLastTime = 0
 local function InspectNext()
@@ -222,8 +234,16 @@ local function InspectNext()
 				end
 				if ACHIEVEMENT_FUNCTIONS and not ACHIEVEMENT_FUNCTIONS.categoryIndex then ACHIEVEMENT_FUNCTIONS.categoryIndex = 1 end
 
-				ClearAchievementComparisonUnit()
-				SetAchievementComparisonUnit(name)
+				if (AchievementFrame_DisplayComparison and not ExRT.isClassic) then
+					local func = AchievementFrame_DisplayComparison
+					local def_env = getfenv(func)
+					setfenv(func, exec_env)
+					func(name)
+					setfenv(func, def_env)
+				else
+					ClearAchievementComparisonUnit()
+					SetAchievementComparisonUnit(name)
+				end
 			end
 
 			module.db.inspectQuery[name] = nil

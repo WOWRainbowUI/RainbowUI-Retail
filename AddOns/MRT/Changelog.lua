@@ -1,6 +1,14 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5005
+* Raid Inspect: added "cheap" option for minimum rank for gems/enchants
+* Major fixes
+
+v.5000
+* Raid Inspect: added option for minimum rank for gems/enchants
+* Fixes
+
 v.4990
 * Reminder: added option to grow upwards
 * Raid Check: add option for using only unlimited rune (old one for now)

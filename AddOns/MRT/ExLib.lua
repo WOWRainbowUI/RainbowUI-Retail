@@ -4531,6 +4531,7 @@ do
 		button.checkButton:SetScript("OnEnter",CheckButtonOnEnter)
 		button.checkButton:SetScript("OnLeave",CheckButtonOnLeave)
 		button.checkButton:Hide()
+		--button.radioButton:SetScript("OnClick",CheckButtonClick)
 		button.radioButton:Hide()
 
 		button.Level = level
@@ -4699,6 +4700,7 @@ function ELib.ScrollDropDown.UpdateChecks()
 			local button = ELib.ScrollDropDown.DropDownList[j].Buttons[i]
 			if button:IsShown() and button.data then
 				button.checkButton:SetChecked(button.data.checkState)
+				button.radioButton:SetChecked(button.data.checkState)
 			end
 		end
 	end
@@ -4751,8 +4753,9 @@ function ELib.ScrollDropDown.OnButtonLeave(self)
 	end
 end
 
-function ELib.ScrollDropDown.EasyMenu(self,list,customWidth)
+function ELib.ScrollDropDown.EasyMenu(self,list,customWidth,maxLinesNow)
 	IsDropDownCustom = customWidth or 200
+	self.Lines = maxLinesNow
 	ELib.ScrollDropDown.ToggleDropDownMenu(self,nil,list,customWidth)
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 end
@@ -4879,6 +4882,13 @@ function ELib.ScrollDropDown:CloseSecondLevel(level)
 	end
 end
 ELib.DropDownClose = ELib.ScrollDropDown.Close
+
+function ELib.DropDownCloseIfOpened()
+	if ELib.ScrollDropDown.DropDownList[1]:IsShown() then
+		ELib.ScrollDropDown.Close()
+		return true
+	end
+end
 
 ---> End Scroll Drop Down
 

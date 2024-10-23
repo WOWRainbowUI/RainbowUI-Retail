@@ -173,6 +173,32 @@ local function GSUB_Encounter(list,msg)
 	end
 end
 
+local function GSUB_Zone(mlist,msg)
+	local list = {strsplit(",",mlist)}
+
+	local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID = GetInstanceInfo()
+	name = (name or "-"):lower()
+	instanceID = tostring(instanceID or "-")
+
+	local found = false
+	for i=1,#list do
+		list[i] = list[i]:gsub("|?|c........",""):gsub("|?|r",""):lower()
+		if list[i] == name or list[i] == instanceID then
+			found = true
+			break
+		end
+	end
+	if not found and mlist:lower() == name then
+		found = true
+	end
+
+	if found then
+		return msg
+	else
+		return ""
+	end
+end
+
 local classList = {
 	[L.classLocalizate.WARRIOR:lower()] = 1,
 	[L.classLocalizate.PALADIN:lower()] = 2,
@@ -533,6 +559,7 @@ do
 				:gsub("{(!?)[Gg](%d+)}(.-){/[Gg]}",GSUB_Group)
 				:gsub("{(!?)[Rr][Aa][Cc][Ee]:([^}]+)}(.-){/[Rr][Aa][Cc][Ee]}",GSUB_Race)
 				:gsub("{[Ee]:([^}]+)}(.-){/[Ee]}",GSUB_Encounter)
+				:gsub("{[Zz]:([^}]+)}(.-){/[Zz]}",GSUB_Zone)
 				:gsub("{(!?)[Pp]([^}:][^}]*)}(.-){/[Pp]}",GSUB_Phase)
 				:gsub("{icon:([^}]+)}","|T%1:16|t")
 				:gsub("{spell:(%d+):?(%d*)}",GSUB_Icon)
@@ -3539,6 +3566,8 @@ do
 	local currPhase = 1
 	local currGlobalPhase = 1
 
+	module.db.encounter_global_stage = 1
+
 	function module.main:SetPhase(stage, globalStage)
 		wipe(encounter_time_p)
 		local t = GetTime()
@@ -3551,16 +3580,8 @@ do
 			currGlobalPhase = globalStage
 		else
 			currGlobalPhase = currGlobalPhase + 1
+			encounter_time_p["g"..tostring(currGlobalPhase)] = t
 		end
-		--[[
-		if module.db.encounter_counters_time then
-			for k,v in pairs(module.db.encounter_counters_time) do
-				if k:find(":p%d+$") then
-					module.db.encounter_counters_time[k]=nil
-				end
-			end
-		end
-		]]
 		if module.frame:IsShown() then
 			module.allframes:UpdateText()
 		end
@@ -3574,6 +3595,8 @@ do
 		if type(BigWigsLoader)=='table' and BigWigsLoader.RegisterMessage then
 			BigWigsLoader.RegisterMessage({}, "BigWigs_SetStage", function(event, addon, stage)
 				if stage then
+					if module.db.encounter_time and GetTime() - module.db.encounter_time < 2 then return end	--pull poss
+
 					module.main:SetPhase(stage)
 				end
 			end)
