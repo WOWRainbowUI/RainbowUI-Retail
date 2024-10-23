@@ -34,7 +34,6 @@ local GetTime = GetTime
 ---@field SetFont fun(self:df_timebar, font:string|nil, size:number|nil, color:any, shadow:boolean|nil)
 ---@field SetThrottle fun(self:df_timebar, seconds:number)
 ---@field SetDirection fun(self:df_timebar, direction:string)
----@field SetBackgroundColor fun(self:df_timebar, color:any, green:number|nil, blue:number|nil, alpha:number|nil)
 
 ---@class df_timebar_statusbar : statusbar
 ---@field MyObject df_timebar
@@ -239,12 +238,6 @@ function TimeBarMetaFunctions:SetFont(font, size, color, shadow)
     end
 end
 
---set background texture color
-function TimeBarMetaFunctions:SetBackgroundColor(color, green, blue, alpha)
-    local r, g, b, a = detailsFramework:ParseColors(color, green, blue, alpha)
-    self.statusBar.backgroundTexture:SetVertexColor(r, g, b, a)
-end
-
 ---set a throttle for the timer bar, the timer will only update every X seconds
 ---calling without parameters will disable the throttle
 ---@param seconds number|nil the amount of seconds to throttle the timer
@@ -356,7 +349,7 @@ local OnUpdateFunc = function(self, deltaTime)
     end
 
     if (self.showTimer) then
-        local timeLeft = floor(endTime - timeNow) + 1
+        local timeLeft = floor(endTime - timeNow)
         local formatedTimeLeft = detailsFramework:IntegerToTimer(timeLeft)
         self.rightText:SetText(formatedTimeLeft)
     end
@@ -365,8 +358,6 @@ local OnUpdateFunc = function(self, deltaTime)
     if (timeNow >= self.endTime) then
         self.MyObject:StopTimer()
     end
-
-    self.MyObject:RunHooksForWidget("OnUpdate", self, self)
 end
 
 ---start a timer on the timebar
@@ -513,8 +504,7 @@ function detailsFramework:CreateTimeBar(parent, texture, width, height, value, m
 		timeBar.statusBar:EnableMouse(false)
 
         timeBar.statusBar.backgroundTexture = timeBar.statusBar:CreateTexture(nil, "border")
-        timeBar.statusBar.backgroundTexture:SetColorTexture(.9, .9, .9, 1)
-        timeBar.statusBar.backgroundTexture:SetVertexColor(.1, .1, .1, .6)
+        timeBar.statusBar.backgroundTexture:SetColorTexture(.1, .1, .1, .6)
         timeBar.statusBar.backgroundTexture:SetAllPoints()
 
         timeBar.statusBar.barTexture = timeBar.statusBar:CreateTexture(nil, "artwork")
@@ -542,7 +532,6 @@ function detailsFramework:CreateTimeBar(parent, texture, width, height, value, m
 			OnLeave = {},
 			OnHide = {},
 			OnShow = {},
-            OnUpdate = {},
 			OnMouseDown = {},
             OnMouseUp = {},
             OnTimerStart = {},

@@ -1992,17 +1992,17 @@ function DF:CreateCoolTip()
 
 	function gameCooltip:SetSpellByID(spellId, bShowDescriptionOnly) --~spell
 		if (type(spellId) == "number") then
-			spellId = C_Spell.GetOverrideSpell(spellId)
+			spellId = C_SpellBook.GetOverrideSpell(spellId)
 			local spellName, spellRank, spellIcon, castTime, minRange, maxRange = GetSpellInfo(spellId)
 			--castTime zero represents an instant cast or a channeled cast
 			if (spellName) then
-				local spellDescription = C_Spell.GetSpellDescription(spellId)
+				local spellDescription = GetSpellDescription(spellId)
 				local cooldownTime, globalCooldown = GetSpellBaseCooldown(spellId)
 				--local cooldown = cooldownTime / 1000
-				local bIsPassive = C_Spell.IsSpellPassive(spellId, SPELLBOOK_BANK_PLAYER)
+				local bIsPassive = IsPassiveSpell(spellId, SPELLBOOK_BANK_PLAYER)
 				local chargesAvailable, maxCharges, chargeCooldownStart, rechargeTime, chargeModRate = GetSpellCharges(spellId)
 
-				local tResourceCost = C_Spell.GetSpellPowerCost(spellId)
+				local tResourceCost = GetSpellPowerCost(spellId)
 				--[=[
 					hasRequiredAura=false,
 					type=0,
@@ -2022,7 +2022,7 @@ function DF:CreateCoolTip()
 				gameCooltip:AddIcon(spellIcon, 1, 1, 20, 20, .1, .9, .1, .9)
 
 				if (not bShowDescriptionOnly) then
-					if (tResourceCost and tResourceCost.cost and tResourceCost.cost > 0) then
+					if (tResourceCost.cost and tResourceCost.cost > 0) then
 						if (maxRange and maxRange > 0) then
 							gameCooltip:AddLine(tResourceCost.cost .. " " .. (_G[tResourceCost.name] or tResourceCost.name), string.format(_G.SPELL_RANGE, math.floor(maxRange)), 1, 1, 1, 1, nil, 12)
 						else

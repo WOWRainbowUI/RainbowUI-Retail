@@ -584,35 +584,18 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 			debuffNameTracklistEntry:ClearFocus()
 
 			if (text ~= "") then
-				if (text:find(";")) then
-					for _, spellName in ipairs({strsplit(";", text)}) do
-						spellName = strtrim(spellName)
-						if (not tonumber(spellName)) then
-							DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID: " .. (spellName or ""))
-						end
-						
-						local spellId = getSpellIDFromSpellName(spellName)
-
-						if (spellId) then
-							newAuraPanel.db.aura_tracker.debuff_tracked [spellId] = false
-						else
-							DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found: " .. (spellName or ""))
-						end
-					end
-				else
-					if (not tonumber(text)) then
-						DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID.")
-					end
-
-					--get the spellId
-					local spellId = getSpellIDFromSpellName(text)
-					if (not spellId) then
-						DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
-						return
-					end
-
-					newAuraPanel.db.aura_tracker.debuff_tracked [spellId] = false
+				if (not tonumber(text)) then
+					DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID.")
 				end
+
+				--get the spellId
+				local spellId = getSpellIDFromSpellName(text)
+				if (not spellId) then
+					DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
+					return
+				end
+
+				newAuraPanel.db.aura_tracker.debuff_tracked [spellId] = false
 
 				--refresh the buff blacklist frame
 				newAuraPanel.debuff_tracked:Refresh()
@@ -652,36 +635,19 @@ function DF:CreateAuraConfigPanel(parent, name, db, changeCallback, options, tex
 			buffNameTracklistEntry:ClearFocus()
 
 			if (text ~= "") then
-				if (text:find(";")) then
-					for _, spellName in ipairs({strsplit(";", text)}) do
-						spellName = strtrim(spellName)
-						if (not tonumber(spellName)) then
-							DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID: " .. (spellName or ""))
-						end
-						
-						local spellId = getSpellIDFromSpellName(spellName)
-
-						if (spellId) then
-							newAuraPanel.db.aura_tracker.buff_tracked [spellId] = false
-						else
-							DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found: " .. (spellName or ""))
-						end
-					end
-				else
-					if (not tonumber(text)) then
-						DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID.")
-					end
-
-					--get the spellId
-					local spellId = getSpellIDFromSpellName(text)
-					if (not spellId) then
-						DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
-						return
-					end
-
-					--add the spellId to the tracklist
-					newAuraPanel.db.aura_tracker.buff_tracked [spellId] = false
+				if (not tonumber(text)) then
+					DetailsFramework.Msg({__name = "DetailsFramework"}, "Invalid Spell-ID.")
 				end
+
+				--get the spellId
+				local spellId = getSpellIDFromSpellName(text)
+				if (not spellId) then
+					DetailsFramework.Msg({__name = "DetailsFramework"}, "Spell not found!")
+					return
+				end
+
+				--add the spellId to the tracklist
+				newAuraPanel.db.aura_tracker.buff_tracked [spellId] = false
 
 				--refresh the buff tracklist frame
 				newAuraPanel.buff_tracked:Refresh()

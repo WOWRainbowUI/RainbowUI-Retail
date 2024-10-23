@@ -18,7 +18,7 @@ end
 local L = DF.Language.GetLanguageTable(addonId)
 
 local _
-local GetQuestsForPlayerByMapID = C_TaskQuest.GetQuestsForPlayerByMapID or C_TaskQuest.GetQuestsOnMap
+local GetQuestsForPlayerByMapID = C_TaskQuest.GetQuestsForPlayerByMapID
 local isWorldQuest = QuestUtils_IsQuestWorldQuest
 local GetNumQuestLogRewardCurrencies = WorldQuestTrackerAddon.GetNumQuestLogRewardCurrencies
 local GetQuestLogRewardInfo = GetQuestLogRewardInfo
@@ -906,7 +906,8 @@ function WorldQuestTracker.UpdateZoneWidgets(forceUpdate)
 		local needAnotherUpdate = false
 
 		for i, info  in ipairs(taskInfo) do
-			local questID = info.questID
+			local questID = info.questId
+
 			local isWorldQuest = isWorldQuest(questID)
 			if (isWorldQuest) then
 				if (HaveQuestData(questID)) then

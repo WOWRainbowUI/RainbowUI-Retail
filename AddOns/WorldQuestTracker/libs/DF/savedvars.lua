@@ -85,7 +85,7 @@ function detailsFramework.SavedVars.GetProfile(addonObject, bCreateIfNotFound, p
         --as deploy does not overwrite existing values, it won't overwrite the values set by 'profileToCopyFrom'
         profileTable = detailsFramework.table.deploy(profileTable, addonObject.__savedVarsDefaultTemplate)
         --mark the profile as loaded
-        profileTable.__loaded = true --loaded key is removed when the profile saves
+        profileTable.__loaded = true
     end
 
     return profileTable
