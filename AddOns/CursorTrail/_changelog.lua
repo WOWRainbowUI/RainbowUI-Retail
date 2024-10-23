@@ -7,6 +7,21 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.5.1
+Released 2024-10-22
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.5.1 for Retail WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- Updated for WoW 11.0.5.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 4.4.0.16 for Classic Cataclysm
+Version 1.15.4.3 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+- No changes.
+
+=======================================
 RELEASE 11.0.2.7
 Released 2024-10-13
 
@@ -559,19 +574,6 @@ Version 10.2.5.1 for Retail WoW
 Version 1.15.0.1 for Classic WoW
 - - - - - - - - - - - - - - - - - - - - - - - - - -
 - Fixed the "Cloud, Purple (Soft)" model so it correctly follows the mouse cursor.
-
-=======================================
-RELEASE 10.2.0.1
-Released 2023-11-07
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.0.1 for Retail WoW ...
-Version 3.4.3.1 for Classic WotLK...
-Version 1.14.4.3 for Classic WoW ...
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated for WoW 10.2 and WoW Wrath of Lich King 3.4.3.
-- Updated Troubleshooting section with a tip about some models disappearing when Scale % is set too low.
-- Fixed incrementing scaling past 999% with the arrow keys so it no longer jumps back to 100%.  (Maximum scale is now 998%.)
 
 ]]
 
