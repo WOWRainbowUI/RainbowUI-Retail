@@ -142,10 +142,11 @@ function module:CHALLENGE_MODE_COMPLETED()
 	DelayedZoneCheck(true)
 end
 
----Used for registering combat with trash in general for use of notifying affixes mod that party is in combat
+---Used for registering combat with enemies that don't support conventional means (such as dungeon trash)
 ---@param zone number Instance ID of the zone
----@param modId string|number The mod id to register for combat scanning
+---@param modId? string|number The mod id to register for combat scanning
 function bossModPrototype:RegisterZoneCombat(zone, modId)
+	modId = modId or self.id
 	if DBM.Options.NoCombatScanningFeatures then return end
 	if not registeredZones[zone] then
 		registeredZones[zone] = true
@@ -160,8 +161,9 @@ function bossModPrototype:RegisterZoneCombat(zone, modId)
 end
 
 ---@param zone number Instance ID of the zone
----@param modId string|number The mod id to register for combat scanning
+---@param modId? string|number The mod id to register for combat scanning
 function bossModPrototype:UnregisterZoneCombat(zone, modId)
+	modId = modId or self.id
 	if DBM.Options.NoCombatScanningFeatures then return end
 	if not registeredZones[zone] then
 		registeredZones[zone] = nil
