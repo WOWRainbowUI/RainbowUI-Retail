@@ -1,129 +1,106 @@
 # Hekili
 
-## [v11.0.2-1.0.21](https://github.com/Hekili/hekili/tree/v11.0.2-1.0.21) (2024-10-21)
-[Full Changelog](https://github.com/Hekili/hekili/compare/v11.0.2-1.0.20a...v11.0.2-1.0.21) [Previous Releases](https://github.com/Hekili/hekili/releases)
+## [v11.0.5-1.0.0](https://github.com/Hekili/hekili/tree/v11.0.5-1.0.0) (2024-10-23)
+[Full Changelog](https://github.com/Hekili/hekili/compare/v11.0.2-1.0.21...v11.0.5-1.0.0) [Previous Releases](https://github.com/Hekili/hekili/releases)
 
-- 18 priority updates  
-- Outlaw debug info  
-- Outlaw more fix  
-- Outlaw: Testfix for RtB  
-- Merge pull request #3986 from syrifgit/TWW-Live---Syrif-Changes  
-    Hunter, Mage, Lock, minor fixes  
-- Merge pull request #3987 from syrifgit/UI-Changes  
-    General UI Changes  
-- no rotations or specs here  
-    only priorities and specializations  
-- Revisions to UI  
-    as requested/disussed  
-- Revisions  
-    Will leave the shadow priest part out for now as it will take longer to fix.  
-- spriest  
-    bugfix to voidheart update  
-- Spriest - Entropic Rift  
-    Improve Entropic Rift calculations. Is is inherently linked to voidheart which is a real, trackable buff with an ID. So alias it with entropic rift and use voidheart for all calculations. Removes need for reset\_precast calculating as well.  
-    void torrent refreshes the 8 second buff on every tick, and void blast extends it by a second each cast, up to a max of 3 seconds per window.  
-- BM - Call of the Wild CDR  
-    More accurate modelling, and also the initial tick was incorrect because it summons 2 pets so you are granted a full charge of each.  
-- wrong copy paste  
-    undo  
-- BM - Call of the Wild CDR  
-    More accurate modelling, and also the initial tick was incorrect because it summons 2 pets so you are granted a full charge of each.  
-- WarlockDestruction.lua  
-    funnel toggle logic  
-- WarlockAffliction.lua  
-    funnel toggle logic  
-- WarlockDestruction.simc  
-    fix funnel toggle logic  
-- WarlockAffliction.simc  
-    fix funnel toggle logic  
-- MageFrost.lua  
-    Shifting power cooldowns toggle by default  
-- MageFire.lua  
-    shifting power CDs toggle by default  
-- HunterSurvival.lua  
-    UI consistency  
-- HunterMarksmanship.lua  
-- HunterMarksmanship.lua  
-    UI Consistency  
-- HunterBeastMastery.lua  
-    Improve UI consistency / sizing  
-- UI Changes  
--  General UI  
-    - Update target settings UI to better guide the user through making their selections  
-    - Separate pet-based detection from nameplate detection  
-    - Change wording of many options  
-    - Minor tweaks to size / order of options  
-    Actual targeting logic has not been modified yet, that will be a future PR.  
-    More UI Cleanup. Change "Core" to "Specialization Settings", label is more intuitive especially for English Second Language users. Stop using "normal" width and start using "1.5" width on stuff to create consistency, this is a parameter value you already use elsewhere, may as well stick with it.  
-- Merge pull request #3968 from johnnylam88/refactor/expansion-items  
-    refactor: move expansion-specific items into their own modules  
-- Merge pull request #3972 from johnnylam88/fix/protection-warrior-thunder-blast  
-    fix: adjust Thunder Blast for protection warrior  
-- Merge pull request #3974 from johnnylam88/fix/sanlayn-vamp-blood  
-    fix: treat Vampiric Blood as a cooldown with San'layn Hero Talents  
-- Merge pull request #3977 from Yuuseki/thewarwithin  
-    fix(assassination): get correct mutilate and ambush energy cost  
-- Remember not to forget  
-- VDH: CD Resets, Stuff  
-- Blood: Model BS->BS stacks; correct BS max stack  
-- Make Assassin's combo\_points.deficit account for charged points  
-- Marksman fixes (from Syrif's PR)  
-- Stormbringer to Stormsurge  
-- Updated PvP target dummy list.  
+- Remove diffs  
 - Merge branch 'thewarwithin' of https://github.com/Hekili/hekili into thewarwithin  
-- fix(assassination): fix cheap shot energy calculation  
-- fix(assassination): add goremaws\_bite line back in (deleted accidentally)  
-- fix(assassination): more energy cost corrections  
-- fix(assassination): get correct mutilate and ambush energy cost based on talent  
-- Merge pull request #3971 from johnnylam88/fix/kaheti-shadeweavers-emblem  
-- fix: treat Vampiric Blood as a cooldown with San'layn Hero Talents  
-- fix: correct the buff ID for Kaheti Shadeweaver's Dark Ritual  
-    Fixes #3967.  
-- fix: adjust Thunder Blast for protection warrior  
-    Use the correct texture ID for Thunder Blast on protection warrior, and  
-    fix how the Thunder Blast buff is handled when casting both Thunder Clap  
-    and Thunder Blast.  
-- fix: support Timewalking Wrathstone trinket in TWW  
-    Fixes #3956.  
-- refactor: load new expansion-specific Items.lua files  
-- refactor: split out expansion-specific items from Classes.lua  
-    Move expansion-specific trinkets and other items from `Classes.lua` into  
-    separate, expansion-specific `Items.lua` files.  
-    This is meant to make addtions or updates for Timewalking events easier.  
-- Merge pull request #3865 from johnnylam88/fix/slayer-hero-talent  
-    fix: manage Marked for Execution debuff from Slayer's Strike  
-- Merge branch 'thewarwithin' into fix/slayer-hero-talent  
-- Update WarriorFury.lua  
-    max/min and debuff fix  
-- Update WarriorArms.lua  
-    Fix max/min; marked\_for\_execution debuff  
-- Balance and Guardian updates  
-- Unholy SimC update  
-- Frost DK: SimC update, tie BoS RP option to priority  
-- Prot Pal update  
-- Demo: Fix Soul Strike queue (caused actions to repeat)  
-- Holy Pal: Revise Eternal Flame (does not replace WoG)  
-- BrM update 3  
-- BrM: another update  
-- Merge branch 'thewarwithin' of https://github.com/Hekili/hekili into thewarwithin  
-- BrM updates  
-- Merge pull request #3929 from joshjau/arms-warrior  
-    Refactor Arms Warrior APL: Remove raid events, fix typo  
-- Merge pull request #3935 from johnnylam88/fix/monk-brewmaster-tier-bonus  
-    fix: add buffs from monk brewmaster tier set bonuses  
-- fix: adjust Keg Smash cost due to Flow of Battle  
-- fix: add buffs from monk brewmaster tier set bonuses  
-    Add Flow of Battle buffs from the Monk Brewmaster tier set bonuses. The  
-    buffs are named identically to the ones used by SimulationCraft.  
-- Update WarriorArms.simc  
-- Refactor Fury Warrior APL: Remove raid events, simplify fight conditions  
-    Updated heroic leap and variable checks to use in-game observable conditions instead of raid events for better real-world applicability.  
-- fix: manage Marked for Execution debuff from Slayer's Strike  
-    Modify Arms and Fury warrior modules to manage the Marked for Execution  
-    stacking debuff from Slayer's Strike.  
-    Marked For Execution is applied by Slayer's Strike and stacks a maximum of  
-    three times and is removed only when Execute is cast.  
-    With the Imminent Demise talent, consuming Sudden Death applies Imminent  
-    Demise and stacks a maximum of three times and is removed by Bladestorm.  
-    Use the correct name for the debuff (also used in SimC) as  
-    `marked\_for\_execution` and allow it to be tracked via `active\_dot`.  
+- Paladin updates and in-game talent validation  
+- Merge pull request #4025 from syrifgit/rogue-final-touches  
+    Sub rogues can play the game I guess  
+- Sub rogues can play the game I guess  
+- Unholy and Balance priority updates plus fix astral\_communion buff  
+- Merge pull request #4022 from syrifgit/rogue-final-touches  
+    More rogue stuff  
+- Fix [REC] Augmentation spams azure strike and never uses living flame #4020  
+- *cringe* Fix #4023  
+- Fix #4021  
+- Update RogueAssassination.lua  
+    forgot 1 part of the setting  
+- More fixes  
+- Enhancement: ice\_strike\_passive  
+- Mistweaver weaves mists  
+- Update RogueSubtlety.lua  
+- Jadefire Empowerment stacks  
+- Brewmaster and Windwalker in-game talent validation  
+- Enhancement voltaic\_surge and flowing\_spirits fixes  
+- Mage in-game talent validation and Arcane priority fix  
+- Fury: fix talents and priority  
+- Outlaw: Remove BtE bug workaround  
+- Merge pull request #4016 from Hekili/11.0.5  
+    Merge 11.0.5 to main  
+- Merge branch 'thewarwithin' into 11.0.5  
+- Hunter in-game talent validation  
+- Restore incarnation aliases  
+- Merge pull request #4006 from syrifgit/syrif-fixes  
+    quick fixes, non-anniversary  
+- Evoker in-game talent validation and updates  
+- Merge pull request #4014 from syrifgit/rogue-final-touches  
+    Rogue final touches  
+- Druid  in-game talent validation and Balance/Feral priorities  
+- for real  
+    stop doing math on booleans  
+- Stop doing math on booleans  
+- Demon Hunter in-game talent validation  
+- final reviews  
+- DK in-game talent validation and Frost/Unholy priority updates  
+- Update RogueAssassination.lua  
+    regen sin pack  
+- Sync /w Heks talent validation  
+- Update RogueSubtlety.simc  
+- Update RogueOutlaw.simc  
+- Update RogueAssassination.simc  
+- Update RogueSubtlety.lua  
+- Update RogueOutlaw.lua  
+- Update RogueAssassination.lua  
+- Fire: Fix applyBuff  
+- Merge branch '11.0.5' of https://github.com/Hekili/hekili into 11.0.5  
+- Fire Mage: Probably fix #3978  
+- Merge pull request #3997 from syrifgit/Rogue-Anniversary-Rework  
+    11.0.5 Reworks: Rogue  
+- Merge branch '11.0.5' into Rogue-Anniversary-Rework  
+- Priest in-game talent validation w Shadow priority update  
+- Rogue in-game talent validation  
+- Fury priority update  
+- Warlock talent ID in-game validation  
+- Enhancement : Flowing Spirits  
+- Fury: (Sort of) fix Bloodthirst crit setting  
+- Warrior talent ID in-game validation  
+- Elemental, Enhancement in-game talent validation  
+- Merge pull request #4009 from syrifgit/mage-anniversary-rework  
+    Mage Anniversary Rework  
+- review  
+- review notes  
+- dont do math on booleans  
+- pack strings and a survival type  
+- Merge branch 'Rogue-Anniversary-Rework' of https://github.com/syrifgit/syrif-hekili into Rogue-Anniversary-Rework  
+- Supercharged review implementation  
+    buff name stuff  
+- Merge branch '11.0.5' into Rogue-Anniversary-Rework  
+- superchargers unite  
+- Mage diff files implemented  
+- Arcane, BM  
+    uncomment the grace period, arcane diff checked.  
+- Mag Anniversary Rework  
+- Merge pull request #4004 from syrifgit/It's-a-hunter-anniversary  
+    Hunter's 20th Anniversary  
+- Update HunterBeastMastery.lua  
+- boop  
+- quick fixes, non-anniversary  
+- BM Review  
+- Review done  
+- yay its the rogues anniversay  
+    happy anniversary  
+- Hunter's 20th Anniversary  
+    or something like that  
+- Fix #4003  
+- Shadow: SimC handles Unfurling Darkness ICD as a CD buff now  
+- Elemental talents and quick changes  
+- Add Nerub'ar Palace interrupts (from PR; w/o caching changes)  
+- Review Warrior, Warlock, 2/3 Shaman Talents  
+- Share referernce diffs  
+- Increment TOC  
+- Fix #3985  
+- Fix Immolation Aura during Meta  
+- Fix #4000  
+- Rogue rework  
