@@ -299,6 +299,7 @@ L.RaidCheckConsFlaskNameTooltip = "Точное название фласки и
 L.RaidCheckOwnOilItem = "Использовать свой предмет для зачарования оружия"
 L.RaidCheckOwnOilItemTip = "Введите ID предмета, настройка персональная для каждого персонажа"
 L.RaidCheckOnlyUnlimRune = "Использовать только бесконечную руну"
+L.RaidCheckMinRank = "Минимальный ранг"
 
 L.marksbarstart = "Очистить"
 L.marksbardel = "Удалить"
@@ -984,6 +985,7 @@ L.InspectViewerHideInRaid = "Скрыть тех кто не в рейде"
 L.InspectViewerColorizeNoValorUpgrade = "Выделять предметы без макс. уровневых улучшений"
 L.InspectViewerNoExRTAddon = "У игрока не установлен MRT"
 L.InspectViewerRefreshAll = "Обновить всех"
+L.InspectViewerCheap = "Дешевый"
 
 L.CoinsSpoilsOfPandariaWinTrigger = "Система перезагружается. Не выключать питание, иначе возможен взрыв."
 L.CoinsEmpty = "Здесь пока пусто"
@@ -1674,6 +1676,14 @@ L.ReminderRemoveBeforeExport = "Удалить текущие ремаиндер
 L.ReminderRemoveBeforeExportTip = "Удалены будут все ремаиндеры, которые сейчас отображаются на полоске"
 L.ReminderGrowUp = "Рост вверх"
 L.ReminderTimeExcluded = "Таймер исключен"
+L.ReminderRepeatableFilter = "Повторяющиеся заклинания"
+L.ReminderRepeatableFilterTip = "Показывать отдельную кнопку ремаиндера для каждого заклинания, если исполользуется продвинутое условие счетчика.\nС выключеным фильтром будут показаны только ремаиндеры для заклинаний с указанным единственным номером."
+L.ReminderHideOne = "Скрыть ремаиндер"
+L.ReminderHideOneTip = "Скрыть этот рамаиндер до смены босса.\n(Будет помещен в меню \"Без категории\")"
+L.ReminderPresetFilter = "Предустановленный фильтр босса"
+L.ReminderLogNextFight = "Записать следующий бой"
+L.ReminderLogNextFightTip = "Боссы и м+ забеги записываются автоматически (если включена запись истории).\nЭта опция специально для записи следующего боя (не боссы)"
+L.ReminderSearchStringTip = "Используйте \"|cff00ff00=|r\" в начале для точного совпадения."
 
 L.OtherCovHelper = "Помощь с выбором"
 

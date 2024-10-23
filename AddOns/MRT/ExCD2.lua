@@ -12544,7 +12544,7 @@ module.db.AllSpells = {
 
 	{48707,	"DEATHKNIGHT,DEF",4,--Антимагический панцирь
 		{48707,60,5},
-		isTalent=true,durationDiff={205727,"*1.4",207321,5},cdDiff={205727,-20},stopDurWithAuraFade=48707},
+		durationDiff={205727,"*1.4",207321,5},cdDiff={205727,-20},stopDurWithAuraFade=48707},
 	{51052,	"DEATHKNIGHT,RAID",3,--Зона антимагии
 		{51052,120,8},
 		isTalent=true,durationDiff={337764,{2,2.2,2.4,2.6,2.8,3,3.2,3.4,3.6,3.8,4,4.2,4.4,4.6,4.8}},cdDiff={374383,-30}},
