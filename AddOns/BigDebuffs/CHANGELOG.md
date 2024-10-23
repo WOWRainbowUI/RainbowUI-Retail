@@ -1,9 +1,8 @@
 # BigDebuffs
 
-## [v40](https://github.com/jordonwow/bigdebuffs/tree/v40) (2024-10-09)
-[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v39...v40) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
+## [v41](https://github.com/jordonwow/bigdebuffs/tree/v41) (2024-10-23)
+[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v40...v41) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
 
-- add dance of the wind (#802)  
-    * add dance of the wind  
-    * .  
-- Haunt (#801)  
+- 11.0.5 Changes (#803)  
+    * 11.0.5 Changes  
+    * 11.0.5  
