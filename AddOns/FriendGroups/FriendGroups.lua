@@ -438,50 +438,54 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 	end
 
 	local accountInfo = FriendGroups_GetInfoByName(contextData.name, bnetfriend)
-	if bnetfriend then
-		note = accountInfo.note
-	else
-		note = accountInfo.notes
-	end
-
-	local groups = FriendGroups_GetPlayerGroups(note)
-
-	rootDescription:CreateDivider()
-	rootDescription:CreateTitle("Friend Groups")
-	rootDescription:CreateButton("Create new group", function(data)
-		FriendGroups_CreateNewGroup(data.name, data.bnetfriend)
-	end, { name = contextData.name, bnetfriend = bnetfriend })
-
-	local add = rootDescription:CreateButton("Add to group")
-
-	for _, group in ipairs(groupsSorted) do
-		if not FriendGroups_HasValue(groups, group) and not (group == "") and not (group == "[Favorites]") and not (group == "Friends List is empty") and not (group == "[No Group]") then
-			add:CreateButton(group, function(data)
-				local note = data.note
-				local group = data.group
-
-				note = FriendGroups_AddGroup(note, group)
-				if bnetfriend then
-					BNSetFriendNote(accountInfo.bnetAccountID, note)
-				else
-					C_FriendList.SetFriendNotes(contextData.name, note)
-				end
-			end, { group = group, note = note })
+	
+	if accountInfo then
+	
+		if bnetfriend then
+			note = accountInfo.note
+		else
+			note = accountInfo.notes
 		end
-	end
 
-	local remove = rootDescription:CreateButton("Remove from group")
+		local groups = FriendGroups_GetPlayerGroups(note)
 
-	for _, group in ipairs(groupsSorted) do
-		if FriendGroups_HasValue(groups, group) then
-			remove:CreateButton(group, function(data)
-				note = FriendGroups_RemoveGroup(data.note, data.group)
-				if bnetfriend then
-					BNSetFriendNote(accountInfo.bnetAccountID, note)
-				else
-					C_FriendList.SetFriendNotes(contextData.name, note)
-				end
-			end, { group = group, note = note })
+		rootDescription:CreateDivider()
+		rootDescription:CreateTitle("Friend Groups")
+		rootDescription:CreateButton("Create new group", function(data)
+			FriendGroups_CreateNewGroup(data.name, data.bnetfriend)
+		end, { name = contextData.name, bnetfriend = bnetfriend })
+
+		local add = rootDescription:CreateButton("Add to group")
+
+		for _, group in ipairs(groupsSorted) do
+			if not FriendGroups_HasValue(groups, group) and not (group == "") and not (group == "[Favorites]") and not (group == "Friends List is empty") and not (group == "[No Group]") then
+				add:CreateButton(group, function(data)
+					local note = data.note
+					local group = data.group
+
+					note = FriendGroups_AddGroup(note, group)
+					if bnetfriend then
+						BNSetFriendNote(accountInfo.bnetAccountID, note)
+					else
+						C_FriendList.SetFriendNotes(contextData.name, note)
+					end
+				end, { group = group, note = note })
+			end
+		end
+
+		local remove = rootDescription:CreateButton("Remove from group")
+
+		for _, group in ipairs(groupsSorted) do
+			if FriendGroups_HasValue(groups, group) then
+				remove:CreateButton(group, function(data)
+					note = FriendGroups_RemoveGroup(data.note, data.group)
+					if bnetfriend then
+						BNSetFriendNote(accountInfo.bnetAccountID, note)
+					else
+						C_FriendList.SetFriendNotes(contextData.name, note)
+					end
+				end, { group = group, note = note })
+			end
 		end
 	end
 end
