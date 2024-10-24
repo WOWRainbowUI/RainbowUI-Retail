@@ -438,50 +438,54 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 	end
 
 	local accountInfo = FriendGroups_GetInfoByName(contextData.name, bnetfriend)
-	if bnetfriend then
-		note = accountInfo and accountInfo.note or "" -- 暫時修正
-	else
-		note = accountInfo and accountInfo.notes or ""
-	end
-
-	local groups = FriendGroups_GetPlayerGroups(note)
-
-	rootDescription:CreateDivider()
-	rootDescription:CreateTitle("好友群組")
-	rootDescription:CreateButton("建立新群組", function(data)
-		FriendGroups_CreateNewGroup(data.name, data.bnetfriend)
-	end, { name = contextData.name, bnetfriend = bnetfriend })
-
-	local add = rootDescription:CreateButton("加入群組")
-
-	for _, group in ipairs(groupsSorted) do
-		if not FriendGroups_HasValue(groups, group) and not (group == "") and not (group == "[摯友]") and not (group == "好友名單是空的") and not (group == "[沒有群組]") then
-			add:CreateButton(group, function(data)
-				local note = data.note
-				local group = data.group
-
-				note = FriendGroups_AddGroup(note, group)
-				if bnetfriend then
-					BNSetFriendNote(accountInfo.bnetAccountID, note)
-				else
-					C_FriendList.SetFriendNotes(contextData.name, note)
-				end
-			end, { group = group, note = note })
+	
+	if accountInfo then
+	
+		if bnetfriend then
+			note = accountInfo.note
+		else
+			note = accountInfo.notes
 		end
-	end
 
-	local remove = rootDescription:CreateButton("移出群組")
+		local groups = FriendGroups_GetPlayerGroups(note)
 
-	for _, group in ipairs(groupsSorted) do
-		if FriendGroups_HasValue(groups, group) then
-			remove:CreateButton(group, function(data)
-				note = FriendGroups_RemoveGroup(data.note, data.group)
-				if bnetfriend then
-					BNSetFriendNote(accountInfo.bnetAccountID, note)
-				else
-					C_FriendList.SetFriendNotes(contextData.name, note)
-				end
-			end, { group = group, note = note })
+		rootDescription:CreateDivider()
+		rootDescription:CreateTitle("好友群組")
+		rootDescription:CreateButton("建立新群組", function(data)
+			FriendGroups_CreateNewGroup(data.name, data.bnetfriend)
+		end, { name = contextData.name, bnetfriend = bnetfriend })
+
+		local add = rootDescription:CreateButton("加入群組")
+
+		for _, group in ipairs(groupsSorted) do
+			if not FriendGroups_HasValue(groups, group) and not (group == "") and not (group == "[摯友]") and not (group == "好友名單是空的") and not (group == "[沒有群組]") then
+				add:CreateButton(group, function(data)
+					local note = data.note
+					local group = data.group
+
+					note = FriendGroups_AddGroup(note, group)
+					if bnetfriend then
+						BNSetFriendNote(accountInfo.bnetAccountID, note)
+					else
+						C_FriendList.SetFriendNotes(contextData.name, note)
+					end
+				end, { group = group, note = note })
+			end
+		end
+
+		local remove = rootDescription:CreateButton("移出群組")
+
+		for _, group in ipairs(groupsSorted) do
+			if FriendGroups_HasValue(groups, group) then
+				remove:CreateButton(group, function(data)
+					note = FriendGroups_RemoveGroup(data.note, data.group)
+					if bnetfriend then
+						BNSetFriendNote(accountInfo.bnetAccountID, note)
+					else
+						C_FriendList.SetFriendNotes(contextData.name, note)
+					end
+				end, { group = group, note = note })
+			end
 		end
 	end
 end
