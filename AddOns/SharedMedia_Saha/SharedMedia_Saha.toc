@@ -5,7 +5,7 @@
 ## X-Category-zhTW: 進階
 ## DefaultState: Disabled
 ## Author: 安格斯
-## Version: 24-0725-033
+## Version: 24-1024-034
 ## IconTexture: Interface\AddOns\DBM-VPSaha\z_ags
 
 Soundpaths.lua 
