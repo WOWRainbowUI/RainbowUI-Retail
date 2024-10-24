@@ -895,7 +895,7 @@ do
             --- @type BlizzMoveAPI_FrameData?
             local frameData = self.FrameData[frame];
             local shouldHandleMouseWheel = frameData and not (frameData.IgnoreMouse or frameData.IgnoreMouseWheel);
-            if not shouldHandleMouseWheel and (frame:IsMouseWheelEnabled() or frame:IsMouseClickEnabled()) then return; end -- some clickable/scrollable thing is in the way
+            if not shouldHandleMouseWheel and (frame:IsForbidden() or frame:IsMouseWheelEnabled() or frame:IsMouseClickEnabled()) then return; end -- some clickable/scrollable thing is in the way
 
             if shouldHandleMouseWheel and self.CurrentMouseoverFrames[frame] then
                 captureFrame:EnableMouseWheel(true);
@@ -1135,9 +1135,9 @@ do
         local frame = self:GetFrameFromName(addOnName, frameName);
 
         if(not matchesBuild) then
-            if(frame and not frameData.SilenceCompatabilityWarnings) then
-                self:Print("Frame was marked as incompatible, but does exist ( Build:", self.gameBuild, "| Version:", self.gameVersion, "| BMVersion:", self.Config.version, "):", frameName);
-            end
+            -- if(frame and not frameData.SilenceCompatabilityWarnings) then
+            --		self:Print("Frame was marked as incompatible, but does exist ( Build:", self.gameBuild, "| Version:", self.gameVersion, "| BMVersion:", self.Config.version, "):", frameName);
+            -- end
 
             return false;
         end
