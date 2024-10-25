@@ -8,7 +8,7 @@
 ## X-Curse-Project-ID: 100610
 ## X-Wago-ID: lQNlrEKe
 
-## Version: v11.0.2.521-Retail
+## Version: v11.0.2.521-Retail Fix
 
 ## Title-zhTW: |cff00FFFF[任務]|r 世界任務追蹤
 ## Notes-zhTW:  World Quest Tracker |n|n加強地圖上世界任務圖示的相關功能、提供世界任務追蹤清單，更容易找到和追蹤你要的世界任務。|n|n|cffffd200使用方法: |r點世界地圖左下角的 "選項" 進行設定。

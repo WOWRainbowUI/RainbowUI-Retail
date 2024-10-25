@@ -4,7 +4,7 @@
 ## Title-zhTW: |cff00FFFF[任務]|r 任務怪提示
 ## Notes-zhTW: QuestPlates |n|n在任務怪名字和血條的左側顯示任務目標進度的提示圖示，開啟敵方血條就會出現。|n圖示內的數字表示完成任務還需要多少數量或百分比。
 ## X-Category-zhTW: 任務
-## Version: 10.0.2.1 Fix
+## Version: 10.0.2.1 Fix2
 ## Author: Semlar
 ## SavedVariables: QuestPlateSettings
 semlib\semlib.xml
