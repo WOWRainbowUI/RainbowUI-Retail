@@ -496,9 +496,9 @@ function tpm:CreateFlyout(flyoutData)
 					flyname = v.name
 				end
 			end
-			if not flyname then
-				print(APPEND .. "No short name found for spellID " .. spellID ..", please report this on GitHub")
-			end
+			-- if not flyname then
+			--	print(APPEND .. "No short name found for spellID " .. spellID ..", please report this on GitHub")
+			-- end
 			flyoutsCreated = flyoutsCreated + 1
 			local flyOutButton = createFlyOutButton(spellID, flyoutsCreated, totalKnownSpells)
 			if db.buttonText == true and flyname then

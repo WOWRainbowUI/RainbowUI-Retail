@@ -13,9 +13,9 @@ local L = LibStub("AceLocale-3.0"):GetLocale("TeleportMenu")
 local defaultsDB = {
     enabled = true,
     iconSize = 40,
-    hearthstone = "rng",
+    hearthstone = "rng", -- 更改預設值
     reverseMageFlyouts = false,
-    buttonText = true,
+    buttonText = false, -- 更改預設值
     showOnlySeasonalHerosPath = false,
 }
 
