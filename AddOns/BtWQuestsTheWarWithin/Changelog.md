@@ -1,3 +1,7 @@
+# v5.3
+
+- Updated for 11.0.5
+
 # v5.2
 
 - Fixed the completion check for The Priory questline in Hallowfall
