@@ -1,3 +1,8 @@
+Version 1.34
+
+- Fixed trying out announcing pulls without a group
+- Fixed pull number click area scaling
+
 Version 1.33
 
 - Maybe fixed screen freeze caused by rapidely triggering multiple animated map zooms

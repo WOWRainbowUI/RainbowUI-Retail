@@ -853,17 +853,20 @@ local OnEvent = function(_, ev, ...)
             MDT.DrawHull = function(...)
                 if not MDTGuideDB.active then return DrawHull(...) end
 
-                local multipliers = MDT.scaleMultiplier
                 local scale = MDT:GetScale() or 1
-
                 local zoomScale = Addon.GetZoomScale()
+
                 if scale ~= 1 and zoomScale < 1 then scale = scale * zoomScale end
 
-                for i = 1, MDT:GetNumDungeons() do multipliers[i] = (multipliers[i] or 1) * scale end
+                local dungeonId = Addon.GetCurrentDungeonId()
+                local multipliers = MDT.scaleMultiplier
+
+                local origScale = multipliers[dungeonId]
+                multipliers[dungeonId] = (origScale or 1) * scale
 
                 DrawHull(...)
 
-                for i, v in pairs(multipliers) do multipliers[i] = v / scale end
+                multipliers[dungeonId] = origScale
             end
 
             -- Hook hull number drawing
