@@ -51,9 +51,9 @@ do
 		local uiMapID = C_Map.GetBestMapForUnit('player')
 		if uiMapID then
 			for k, task in pairs(C_TaskQuest.GetQuestsForPlayerByMapID(uiMapID) or {}) do
-				if task.inProgress and task.questId then -- 暫時修正
+				if task.inProgress and task.questID then -- 暫時修正
 					-- track active world quests
-					local questID = task.questId
+					local questID = task.questID
 					local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
 					if questName then
 						-- print(k, questID, questName)
