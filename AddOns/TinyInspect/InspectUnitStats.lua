@@ -103,19 +103,21 @@ function ShowInspectItemStatsFrame(frame, unit)
     end
     for k, v in pairs(inspectStats) do
         if (v.r + v.g + v.b > 1.2) then
-            frame.statsFrame["stat"..index].Label:SetText(k)
-            frame.statsFrame["stat"..index].Label:SetTextColor(1, 0.82, 0)
-            frame.statsFrame["stat"..index].Value:SetText(v.value)
-            frame.statsFrame["stat"..index].Value:SetTextColor(v.r, v.g, v.b)
-            if (playerStats[k]) then
-                frame.statsFrame["stat"..index].PlayerValue:SetText(playerStats[k].value)
-                frame.statsFrame["stat"..index].PlayerValue:SetTextColor(playerStats[k].r, playerStats[k].g, playerStats[k].b)
-            else
-                frame.statsFrame["stat"..index].PlayerValue:SetText("-")
-            end
-            frame.statsFrame["stat"..index].Background:SetShown(index%2~=0)
-            frame.statsFrame["stat"..index]:Show()
-            index = index + 1
+            if frame.statsFrame["stat"..index] then -- 暫時修正
+				frame.statsFrame["stat"..index].Label:SetText(k)
+				frame.statsFrame["stat"..index].Label:SetTextColor(1, 0.82, 0)
+				frame.statsFrame["stat"..index].Value:SetText(v.value)
+				frame.statsFrame["stat"..index].Value:SetTextColor(v.r, v.g, v.b)
+				if (playerStats[k]) then
+					frame.statsFrame["stat"..index].PlayerValue:SetText(playerStats[k].value)
+					frame.statsFrame["stat"..index].PlayerValue:SetTextColor(playerStats[k].r, playerStats[k].g, playerStats[k].b)
+				else
+					frame.statsFrame["stat"..index].PlayerValue:SetText("-")
+				end
+				frame.statsFrame["stat"..index].Background:SetShown(index%2~=0)
+				frame.statsFrame["stat"..index]:Show()
+				index = index + 1
+			end
         end
     end
     for k, v in pairs(playerStats) do

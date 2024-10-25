@@ -1,6 +1,6 @@
 ## Interface: 110002, 110005
 ## Title: TinyInspect
-## Version: 11.0.6 Fix
+## Version: 11.0.6 Fix2
 ## Notes: Show ItemLevel For Inspect & Party & Raid & Mouse & Bag & Bank ...
 ## Notes-zhCN: 装等观察,装等显示
 ## Notes-zhTW: 裝等觀察,裝等顯示
