@@ -29,7 +29,7 @@ L["Quest Type Covenant Calling"] = "誓盟使命";
 
 L["Accept"] = ACCEPT or "接受";
 L["Continue"] = CONTINUE or "繼續";
-L["Complete Quest"] = COMPLETE_QUEST or "完成任務";
+L["Complete Quest"] = COMPLETE or "完成";   --Complete (Verb)  We no longer use COMPLETE_QUEST because the it's too long in some languages
 L["Incomplete"] = INCOMPLETE or "未完成";
 L["Cancel"] = CANCEL or "取消";
 L["Goodbye"] = GOODBYE or "再見";
@@ -68,6 +68,9 @@ L["Item Is An Upgrade"] = "這件裝備對你有提升";
 L["Identical Stats"] = "這兩件裝備的屬性相同";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "你的戰隊已經完成此任務。");
 L["New Quest Available"] = "有新任務";
+L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "戰役";
+L["Click To Open BtWQuests"] = "點一下在任務指南插件查看此任務。";
+L["Story Progress"] = STORY_PROGRESS or "故事進度";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "獎勵 %d 聲望和 %s";
@@ -91,6 +94,10 @@ L["Format Breadcrumb Quests Available"] = "可接的系列任務: %s";    --This
 L["Format Functionality Handled By"] = "此功能由 %s 提供";      --A functionality is provided by [another addon name] (Used in Settings.lua)
 
 L["Format Time Left"] = BONUS_OBJECTIVE_TIME_LEFT or "剩餘時間: %s";
+L["Format Your Progress"] = "你的進度: |cffffffff%d/%d|r";
+L["Format And More"] = LFG_LIST_AND_MORE or "還有 %d 個...";
+L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d 章節";
+L["Format Quest Progress"] = "%d/%d 任務";
 
 --Settings
 L["UI"] = "介面";
@@ -170,6 +177,8 @@ L["Press Button To Scroll Down"] = "按下按鈕往下捲頁";
 L["Press Button To Scroll Down Desc"] = "如果內容超出可以看見的範圍，按下確認按鈕將向下捲動頁面而不是接受任務。";
 L["Right Click To Close UI"] = "點右鍵關閉介面";
 L["Right Click To Close UI Desc"] = "在任務對話的介面上點右鍵將它關閉。";
+L["Press Tab To Select Reward"] = "按 Tab 鍵選擇獎勵";
+L["Press Tab To Select Reward Desc"] = "交回任務時，按 [KEY:PC:TAB] 循環切換可選擇的獎勵。";
 L["Experimental Features"] = "實驗性";
 L["Emulate Swipe"] = "模擬滑動手勢";
 L["Emulate Swipe Desc"] = "拖曳視窗內容來上下捲動。";
@@ -221,6 +230,8 @@ L["TTS Auto Play"] = "自動唸出內容";
 L["TTS Auto Play Desc"] = "自動唸出對話內容。";
 L["TTS Skip Recent"] = "跳過最近唸過的內容";
 L["TTS Skip Recent Desc"] = "跳過最近唸過的內容文字。";
+L["TTS Auto Play Delay"] = "延遲唸出";
+L["TTS Auto Play Delay Desc"] = "自動唸出之前添加短暫的延遲，這樣就不會與 NPC 本身的語音重疊。";
 L["TTS Auto Stop"] = "離開時停止";
 L["TTS Auto Stop Desc"] = "離開 NPC 時停止唸出內容。";
 L["TTS Stop On New"] = "開始新對話時停止";

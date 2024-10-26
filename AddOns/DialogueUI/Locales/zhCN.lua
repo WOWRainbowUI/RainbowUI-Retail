@@ -55,6 +55,9 @@ L["Item Is An Upgrade"] = "这件装备对你有提升";
 L["Identical Stats"] = "这两件装备的属性相同";
 L["Quest Completed On Account"] = "你的战团此前已经完成了这个任务。";
 L["New Quest Available"] = "发现新任务";
+L["Campaign Quest"] =  "战役";
+L["Click To Open BtWQuests"] = "点击以在BtWQuests窗口中查看此任务。";
+L["Story Progress"] = "故事进度";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = "在%2$s中的声望提高%1$d点";
@@ -77,6 +80,10 @@ L["Format Item Level"] = "物品等级 %d";
 L["Format Breadcrumb Quests Available"] = "可接受引导性任务：";
 L["Format Functionality Handled By"] = "此功能由以下插件处理：%s";
 L["Format Time Left"] = "剩余时间：%s";
+L["Format Your Progress"] = "你的进度：|cffffffff%d/%d|r";
+L["Format And More"] = "更多%d……";
+L["Format Chapter Progress"] = "%d/%d 章";
+L["Format Quest Progress"] = "%d/%d 任务";
 
 --Settings
 L["UI"] = "界面";
@@ -160,6 +167,8 @@ L["Press Button To Scroll Down"] = "按确认键来向下滚屏";
 L["Press Button To Scroll Down Desc"] = "如果当前页面盛不下所有任务文本，按下确认键会向下滚屏而不是接受任务。";
 L["Right Click To Close UI"] = "右键关闭界面";
 L["Right Click To Close UI Desc"] = "在对话界面上按右键即可关闭窗口。";
+L["Press Tab To Select Reward"] = "按Tab键选择任务奖励";
+L["Press Tab To Select Reward Desc"] = "在你交任务时，按[KEY:PC:TAB]在可选奖励之间循环。";
 L["Experimental Features"] = "实验性";
 L["Emulate Swipe"] = "模拟滑动手势";
 L["Emulate Swipe Desc"] = "在对话界面上点击并拖拽来滚动页面。";
@@ -212,6 +221,8 @@ L["TTS Auto Play"] = "自动播放";
 L["TTS Auto Play Desc"] = "自动朗读对话文本。";
 L["TTS Skip Recent"] = "跳过最近朗读过的内容";
 L["TTS Skip Recent Desc"] = "跳过最近朗读过的内容。";
+L["TTS Auto Play Delay"] = "延迟阅读";
+L["TTS Auto Play Delay Desc"] = "在自动播放前增加一个短暂的延迟来避免文本朗读与NPC自带语音重叠。";
 L["TTS Auto Stop"] = "离开时停止";
 L["TTS Auto Stop Desc"] = "在你离开NPC时停止朗读文本。";
 L["TTS Stop On New"] = "开始新对话时停止";

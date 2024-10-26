@@ -16,7 +16,7 @@ L["Quest Type Covenant Calling"] = "Covenant Calling";
 
 L["Accept"] = ACCEPT or "Accpet";
 L["Continue"] = CONTINUE or "Continue";
-L["Complete Quest"] = COMPLETE_QUEST or "Complete Quest";
+L["Complete Quest"] = COMPLETE or "Complete";   --Complete (Verb)  We no longer use COMPLETE_QUEST because the it's too long in some languages
 L["Incomplete"] = INCOMPLETE or "Incomplete";
 L["Cancel"] = CANCEL or "Cancel";
 L["Goodbye"] = GOODBYE or "Goodbye";
@@ -55,6 +55,9 @@ L["Item Is An Upgrade"] = "This item is an upgrade for you";
 L["Identical Stats"] = "The two items have the same stats";   --Two items provide the same stats
 L["Quest Completed On Account"] = (ACCOUNT_COMPLETED_QUEST_NOTICE or "Your Warband previously completed this quest.");
 L["New Quest Available"] = "New Quest Available";
+L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "Campaign";
+L["Click To Open BtWQuests"] = "Click to view this quest in BtWQuests window.";
+L["Story Progress"] = STORY_PROGRESS or "Story Progress";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "Awards %d reputation with the %s";
@@ -77,6 +80,10 @@ L["Format Item Level"] = "Item Level %d";   --_G.ITEM_LEVEL in Classic is differ
 L["Format Breadcrumb Quests Available"] = "Available Breadcrumb Quests: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
 L["Format Functionality Handled By"] = "This functionality is handled by %s";      --A functionality is provided by [another addon name] (Used in Settings.lua)
 L["Format Time Left"] = BONUS_OBJECTIVE_TIME_LEFT or "Time Left: %s";
+L["Format Your Progress"] = "Your progress: |cffffffff%d/%d|r";
+L["Format And More"] = LFG_LIST_AND_MORE or "and %d more...";
+L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d Chapters";
+L["Format Quest Progress"] = "%d/%d Quests";
 
 --Settings
 L["UI"] = "UI";
@@ -160,6 +167,8 @@ L["Press Button To Scroll Down"] = "Press Button To Scroll Down";
 L["Press Button To Scroll Down Desc"] = "If the content is taller than the viewport, pressing the Confirm Button will scroll the page down instead of accepting quest.";
 L["Right Click To Close UI"] = "Right Click To Close UI";
 L["Right Click To Close UI Desc"] = "Right click on the dialogue UI to close it.";
+L["Press Tab To Select Reward"] = "Press Tab To Select Reward";
+L["Press Tab To Select Reward Desc"] = "Press [KEY:PC:TAB] to cycle through choosable rewards when you turn in the quest.";
 L["Experimental Features"] = "Experimental";
 L["Emulate Swipe"] = "Emulate Swipe Gesture";
 L["Emulate Swipe Desc"] = "Scroll the dialogue UI up/down by clicking and dragging on the window.";
@@ -212,6 +221,8 @@ L["TTS Auto Play"] = "Auto Play";
 L["TTS Auto Play Desc"] = "Auto play dialogue texts.";
 L["TTS Skip Recent"] = "Skip Recently Read Texts";
 L["TTS Skip Recent Desc"] = "Skip recently read texts.";
+L["TTS Auto Play Delay"] = "Delay Reading";
+L["TTS Auto Play Delay Desc"] = "Add a brief delay before auto reading so it does not overlap with the NPC's own voiceover.";
 L["TTS Auto Stop"] = "Stop On Leaving";
 L["TTS Auto Stop Desc"] = "Stop reading when you leave the NPC.";
 L["TTS Stop On New"] = "Stop On New Dialogue";
