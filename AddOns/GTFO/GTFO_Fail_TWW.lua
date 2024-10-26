@@ -375,6 +375,12 @@ GTFO.SpellID["440378"] = {
   sound = 3;
 };
 
+GTFO.SpellID["464508"] = {
+  --desc = "Shadow Fissure (Kel'Thuzad)";
+  sound = 3;
+};
+
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
@@ -1691,13 +1697,13 @@ GTFO.SpellID["463891"] = {
 GTFO.SpellID["462969"] = {
   --desc = "Molten Furnace (Bael'Gar)";
   sound = 3;
+  tankSound = 0;
 };
 
 GTFO.SpellID["462974"] = {
   --desc = "Giant Strike (Bael'Gar)";
   sound = 3;
   tankSound = 0;
-  test = true;
 };
 
 GTFO.SpellID["463470"] = {
