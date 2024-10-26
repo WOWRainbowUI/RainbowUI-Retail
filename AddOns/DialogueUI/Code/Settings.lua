@@ -595,6 +595,7 @@ local Schematic = { --Scheme
                 },
             },
             {type = "Checkbox", name = L["Right Click To Close UI"], description = L["Right Click To Close UI Desc"], dbKey = "RightClickToCloseUI", requiredParentValue = {InputDevice = 1}},
+            {type = "Checkbox", name = L["Press Tab To Select Reward"], description = L["Press Tab To Select Reward Desc"], dbKey = "CycleRewardHotkeyEnabled", requiredParentValue = {InputDevice = 1}},
 
             {type = "Subheader", name = L["Quest"]},
             {type = "Checkbox", name = L["Press Button To Scroll Down"], description = L["Press Button To Scroll Down Desc"], dbKey = "ScrollDownThenAcceptQuest"},
@@ -636,6 +637,7 @@ local Schematic = { --Scheme
             {type = "Checkbox", name = L["TTS Use Hotkey"], description = L["TTS Use Hotkey Desc"], tooltip = TTSHotkey_TooltipFunc, dbKey = "TTSUseHotkey", requiredParentValue = {TTSEnabled = true}},
             {type = "Checkbox", name = L["TTS Auto Play"], description = L["TTS Auto Play Desc"], dbKey = "TTSAutoPlay", requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Skip Recent"], description = L["TTS Skip Recent Desc"], dbKey = "TTSSkipRecent", branchLevel = 2, requiredParentValue = {TTSEnabled = true, TTSAutoPlay = true}},
+            {type = "Checkbox", name = L["TTS Auto Play Delay"], description = L["TTS Auto Play Delay Desc"], dbKey = "TTSAutoPlayDelay", branchLevel = 2, requireSameParentValue = true},
             {type = "Checkbox", name = L["TTS Auto Stop"], description = L["TTS Auto Stop Desc"], dbKey = "TTSAutoStop", requiredParentValue = {TTSEnabled = true}},
             {type = "Checkbox", name = L["TTS Stop On New"], description = L["TTS Stop On New Desc"], dbKey = "TTSStopOnNew", requireSameParentValue = true},
             {type = "DropdownButton", name = L["TTS Voice Male"], description = L["TTS Voice Male Desc"], tooltip = TTSVoice_TooltipFunc, dbKey="TTSVoiceMale", valueTextFormatter = ValueTextFormatter_TTSVoiceName, choices = TTSVoice_GetChoices, requireSameParentValue = true},

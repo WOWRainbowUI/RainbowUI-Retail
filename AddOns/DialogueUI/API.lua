@@ -760,10 +760,10 @@ do  -- Quest
     local GetQuestObjectives = C_QuestLog.GetQuestObjectives;
     local GetQuestTimeLeftSeconds = C_TaskQuest and C_TaskQuest.GetQuestTimeLeftSeconds or AlwaysNil;
     local IsQuestFlaggedCompletedOnAccount = C_QuestLog.IsQuestFlaggedCompletedOnAccount or AlwaysFalse;
-    local GetQuestLogQuestText = GetQuestLogQuestText;
+    local GetLogIndexForQuestID = C_QuestLog.GetLogIndexForQuestID or GetQuestLogIndexByID or AlwaysNil;
     local GetNumQuestLeaderBoards = GetNumQuestLeaderBoards;
     local GetQuestLogLeaderBoard = GetQuestLogLeaderBoard;
-    local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysFalse;
+    local GetQuestClassification = C_QuestInfoSystem.GetQuestClassification or AlwaysNil;
 
     API.IsQuestFlaggedCompletedOnAccount = IsQuestFlaggedCompletedOnAccount;
 
@@ -830,33 +830,24 @@ do  -- Quest
     API.GetQuestCurrency = GetQuestCurrency;
 
     local function GetQuestLogProgress(questID)
-        local questLogIndex = C_QuestLog.GetLogIndexForQuestID(questID);
+        local questLogIndex = GetLogIndexForQuestID(questID);
         if questLogIndex then
-            --local detailText, objectiveText = GetQuestLogQuestText(questLogIndex);
             local numObjectives = GetNumQuestLeaderBoards(questLogIndex);
             if numObjectives > 0 then
-                local tbl;
+                local str;
                 local text, objectiveType, finished;
                 local n = 0;
                 for i = 1, numObjectives do
                     text, objectiveType, finished = GetQuestLogLeaderBoard(i, questLogIndex);
                     if text then
-                        --[[
-                        if not tbl then
-                            tbl = {};
-                        end
-                        n = n + 1;
-                        tbl[n] = text;
-                        --]]
-                        
-                        if tbl then
-                            tbl = tbl.."\n".."- "..text;
+                        if str then
+                            str = str.."\n".."- "..text;
                         else
-                            tbl = "- "..text;
+                            str = "- "..text;
                         end
                     end
                 end
-                return tbl
+                return str
             end
         end
     end
@@ -1192,7 +1183,6 @@ do  -- Quest
 
 
     --QuestTag
-    
     local GetQuestTagInfo = C_QuestLog.GetQuestTagInfo or AlwaysFalse;
     local QUEST_TAG_NAME = {
         --Also: Enum.QuestTagType
@@ -1262,6 +1252,16 @@ do  -- Quest
     end
     API.GetRecurringQuestTimeLeft = GetRecurringQuestTimeLeft;
 
+    local function ShouldMuteQuestDetail(questID)
+        --Temp Blizzard bug fix for weekly quest appearing repeatedly issue
+        local class = GetQuestClassification(questID);
+        if (class == 4 or class == 5) and IsOnQuest(questID) then
+            return true
+        else
+            return false
+        end
+    end
+    API.ShouldMuteQuestDetail = ShouldMuteQuestDetail;
 
     do
         --Replace player name with RP name:
@@ -1288,6 +1288,32 @@ do  -- Quest
             TextModifier = modifierFunc or TextModifier_None;
         end
         addon.SetDialogueTextModifier = SetDialogueTextModifier;
+    end
+
+
+    --QuestLine
+    if C_QuestLog.GetZoneStoryInfo and C_QuestLine and C_QuestLine.GetQuestLineInfo then
+        local GetBestMapForUnit = C_Map.GetBestMapForUnit;
+        function API.GetQuestLineInfo(questID)
+            local uiMapID = GetBestMapForUnit("player");
+            local isQuestLineQuest, questLineName, questLineID, achievementID;
+            if uiMapID then
+                achievementID = C_QuestLog.GetZoneStoryInfo(uiMapID);
+                if achievementID then
+                    isQuestLineQuest = true;
+                    local questLineInfo = C_QuestLine.GetQuestLineInfo(questID, uiMapID);
+                    if questLineInfo then
+                        questLineName = questLineInfo.questLineName;
+                        questLineID = questLineInfo.questLineID;
+                    end
+                end
+            end
+            return isQuestLineQuest, questLineName, questLineID, uiMapID, achievementID
+        end
+    else
+        function API.GetQuestLineInfo(questID)
+
+        end
     end
 end
 

@@ -16,6 +16,7 @@ local IsAutoSelectOption = addon.IsAutoSelectOption;
 local GetDBBool = addon.GetDBBool;
 local SwipeEmulator = addon.SwipeEmulator;
 local GossipDataProvider = addon.GossipDataProvider;
+local HeaderWidgetManger = addon.HeaderWidgetManger;
 local IS_MODERN_WOW = not addon.IS_CLASSIC;
 
 local FadeFrame = API.UIFrameFade;
@@ -306,9 +307,13 @@ function DUIDialogBaseMixin:OnLoad()
 
     API.DisableSharpening(self.ButtonHighlight.BackTexture);
 
+    local headerFrame = self.FrontFrame.Header;
+
+    HeaderWidgetManger:SetOwner(headerFrame);
+    HeaderWidgetManger:SetAnchorTo(headerFrame.Title);
 
     --Warband Completed Alert
-    local wb = self.FrontFrame.Header.WarbandCompleteAlert;
+    local wb = headerFrame.WarbandCompleteAlert;
     self.WarbandCompleteAlert = wb;
     wb.tooltipText = L["Quest Completed On Account"];
     wb:SetScript("OnEnter", TooltipFrame.ShowWidgetTooltip);
@@ -748,10 +753,11 @@ function DUIDialogBaseMixin:UseQuestLayout(state)
         self.BackgroundDecor:Hide();
         self.FrontFrame.QuestPortrait:FadeOut();
         self.WarbandCompleteAlert:Hide();
+        CallbackRegistry:Trigger("StopViewingQuest");
     end
 end
 
-function DUIDialogBaseMixin:UpdateQuestTitle()
+function DUIDialogBaseMixin:UpdateQuestTitle(method)
     local text = GetQuestTitle();
 
     local headerFrame = self.FrontFrame.Header;
@@ -776,50 +782,41 @@ function DUIDialogBaseMixin:UpdateQuestTitle()
         end
     end
 
+    HeaderWidgetManger:ReleaseAllWidgets();
+
     local questID = self.questID;
     local campaignID = C_CampaignInfo and C_CampaignInfo.GetCampaignID(questID);
 
     if campaignID and campaignID ~= 0 then
         local campaignInfo = C_CampaignInfo.GetCampaignInfo(campaignID);
         if campaignInfo then
-            local questTypeFrame = self.questTypeFramePool:Acquire();
-            questTypeFrame:SetPoint("BOTTOMLEFT", title, "TOPLEFT", 0, 0);
-            questTypeFrame:SetParent(headerFrame);
-            questTypeFrame:SetCampaignNameID(campaignInfo.name, campaignID);
+            HeaderWidgetManger:AddCampaign(campaignInfo.name, campaignID)
         end
     else
         local questTagID = API.GetQuestTag(questID);
-        local leftObject;
-
         if questTagID then
             --print("questTagID", questTagID) --debug
             local tagName, tagIcon = API.GetQuestTagNameIcon(questTagID);
             if tagName then
-                local questTypeFrame = self.questTypeFramePool:Acquire();
-                questTypeFrame:SetPoint("BOTTOMLEFT", title, "TOPLEFT", 0, 0);
-                questTypeFrame:SetParent(headerFrame);
-                questTypeFrame:SetQuestTagNameAndIcon(tagName, tagIcon);
-                leftObject = questTypeFrame;
+                HeaderWidgetManger:AddQuestTag(tagName, tagIcon);
             end
         end
 
         local isRecurring, seconds = API.GetRecurringQuestTimeLeft(questID);
         if isRecurring and seconds then
-            local questTypeFrame = self.questTypeFramePool:Acquire();
-            if leftObject then
-                questTypeFrame:SetPoint("LEFT", leftObject, "RIGHT", 16, 0);
-            else
-                questTypeFrame:SetPoint("BOTTOMLEFT", title, "TOPLEFT", 0, 0);
-            end
-            questTypeFrame:SetParent(headerFrame);
-            questTypeFrame:SetRemainingTime(seconds);
-            leftObject = questTypeFrame;
+            HeaderWidgetManger:AddQuestRemainingTime(seconds);
         end
+
+        HeaderWidgetManger:RequestQuestLineQuest(questID, 0);
     end
 
     local decor = API.GetQuestBackgroundDecor(questID);
     self.BackgroundDecor:SetTexture(decor);
     self.BackgroundDecor:Show();
+
+    CallbackRegistry:Trigger("ViewingQuest", questID, method);
+
+    HeaderWidgetManger:LayoutWidgets();
 
     return 6 * (FRAME_SIZE_MULTIPLIER)   --Accounted for Header Size
 end
@@ -879,6 +876,7 @@ function DUIDialogBaseMixin:SetScrollable(scrollable)
         self.ScrollFrame:SetUseOverlapBorder(false, false);
     end
 
+    SwipeEmulator:SetOwner(self.ScrollFrame);
     SwipeEmulator:SetScrollable(scrollable, self.ScrollFrame);
 end
 
@@ -1338,7 +1336,7 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
     local fs, text;
 
     --Title
-    local offsetY = self:UpdateQuestTitle();
+    local offsetY = self:UpdateQuestTitle("Detail");
 
     --Detail
     text = ConcatenateNPCName(GetQuestText("Detail"));
@@ -1411,6 +1409,7 @@ function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
     if API.IsQuestAutoAccepted() or API.IsPlayerOnQuest(self.questID) then
         AcceptButton:SetButtonAlreadyOnQuest();
         ExitButton:SetButtonCloseAutoAcceptQuest();
+        KeyboardControl:SetKeyButton("PRIMARY", ExitButton);
         self.acknowledgeAutoAcceptQuest = true;
     else
         AcceptButton:SetButtonAcceptQuest();
@@ -1466,7 +1465,7 @@ function DUIDialogBaseMixin:HandleQuestProgress(playFadeIn)
     self:UseQuestLayout(true);
 
     --Title
-    local offsetY = self:UpdateQuestTitle();
+    local offsetY = self:UpdateQuestTitle("Progress");
 
     --Progress
     local text = ConcatenateNPCName(GetQuestText("Progress"));
@@ -1571,7 +1570,7 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     self:UseQuestLayout(true);
 
     --Title
-    local offsetY = self:UpdateQuestTitle();
+    local offsetY = self:UpdateQuestTitle("Complete");
 
     --Progress
     local text = ConcatenateNPCName(GetQuestText("Complete"));
@@ -1835,7 +1834,7 @@ function DUIDialogBaseMixin:IsChoosingReward()
     return self.chooseItems == true
 end
 
-function DUIDialogBaseMixin:SelectRewardChoice(choiceID)
+function DUIDialogBaseMixin:SelectRewardChoice(choiceID, showTooltip)
     if not self.chooseItems then return end;    --Handled in Formatter when building reward choices
 
     local claimQuestReward;
@@ -1859,10 +1858,12 @@ function DUIDialogBaseMixin:SelectRewardChoice(choiceID)
     end
 
     local buttons = self.itemButtonPool:GetObjectsByPredicate(Predicate_ActiveChoiceButton);
+    local selectedButton;
     for i, button in ipairs(buttons) do
         if button.index == choiceID then
             button:SetBackgroundTexture(1);
             FadeFrame(button, 0.15, 1);
+            selectedButton = button;
         else
             button:SetBackgroundTexture(1);
             FadeFrame(button, 0.15, 0.25);
@@ -1870,6 +1871,10 @@ function DUIDialogBaseMixin:SelectRewardChoice(choiceID)
         button:UpdateNameColor();
     end
     self.RewardSelection.BackTexture:Hide();
+
+    if selectedButton and showTooltip then
+        addon.RewardTooltipCode:OnEnter(selectedButton);
+    end
 
     return true
 end
@@ -1902,6 +1907,23 @@ function DUIDialogBaseMixin:FlashRewardChoices()
         for i, button in ipairs(buttons) do
             button:PlaySheen();
         end
+    end
+end
+
+function DUIDialogBaseMixin:CycleRewardChoice(delta)
+    if not self.chooseItems then return end;
+
+    local buttons = self.itemButtonPool:GetObjectsByPredicate(Predicate_ActiveChoiceButton);
+    if buttons then
+        local numChoices = #buttons;    --GetNumQuestChoices
+        local choiceID = self.rewardChoiceID or 0;
+        choiceID = choiceID + delta;
+        if choiceID > numChoices then
+            choiceID = 1;
+        elseif choiceID < 1 then
+            choiceID = numChoices;
+        end
+        return self:SelectRewardChoice(choiceID, true);
     end
 end
 
@@ -2075,6 +2097,8 @@ function DUIDialogBaseMixin:ShowUI(event, ...)
     self:Show();
     self.hasInteraction = true;
 
+    TooltipFrame:Hide();
+
     CallbackRegistry:Trigger("DialogueUI.HandleEvent", event);
 end
 
@@ -2091,7 +2115,6 @@ end
 
 function DUIDialogBaseMixin:OnShow()
     KeyboardControl:SetParentFrame(self);
-    SwipeEmulator:SetOwner(self.ScrollFrame);
 
     self:RegisterEvent("GOSSIP_SHOW");
     self:RegisterEvent("GOSSIP_CLOSED");
