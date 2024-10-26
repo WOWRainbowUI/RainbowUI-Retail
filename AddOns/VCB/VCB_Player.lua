@@ -450,7 +450,7 @@ VCBSpellQueueBar(VCBSpellQueueChannelBar)
 -- Player Casting SpellQueue Bar --
 local function PlayerCastSpellQueueBar(arg3)
 	local playerSpell = IsSpellKnownOrOverridesKnown(arg3)
-	if playerSpell and VCBrPlayer["QueueBar"] == "Show" then
+	if playerSpell and VCBrPlayer["QueueBar"] == "顯示" then
 		statusMin, statusMax = PlayerCastingBarFrame:GetMinMaxValues()
 		local totalCastTime = statusMax - statusMin
 		local spellQueueWindow = math.min(GetSpellQueueWindow() / 1000 / totalCastTime, 1)
@@ -465,7 +465,7 @@ end
 -- Player Channeling SpellQueue Bar --
 local function PlayerChannelSpellQueueBar(arg3)
 	local playerSpell = IsSpellKnownOrOverridesKnown(arg3)
-	if playerSpell and VCBrPlayer["QueueBar"] == "Show" then
+	if playerSpell and VCBrPlayer["QueueBar"] == "顯示" then
 		statusMin, statusMax = PlayerCastingBarFrame:GetMinMaxValues()
 		local totalCastTime = statusMax - statusMin
 		local spellQueueWindow = math.min(GetSpellQueueWindow() / 1000 / totalCastTime, 1)
@@ -1049,9 +1049,9 @@ end
 local function FactionIcon(self)
 	local a = CreateVector2D(0, 0)
 	local b = CreateVector2D(1, 1)
-	if vcbFaction.name == "Alliance" then
+	if vcbFaction.name == "聯盟" then
 	self:SetSwipeTexture("interface/ICONS/UI_AllianceIcon-round")
-	elseif vcbFaction.name == "Horde" then
+	elseif vcbFaction.name == "部落" then
 	self:SetSwipeTexture("interface/ICONS/UI_HordeIcon-round")
 	end
 	self:SetTexCoordRange(a, b)
@@ -1139,11 +1139,11 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 			vcbFrameGCDparent:SetScale(PlayerCastingBarFrame.Icon:GetEffectiveScale())
 			vcbFrameGCDparent:ClearAllPoints()
 			vcbFrameGCDparent:SetPoint("RIGHT", PlayerCastingBarFrame.Icon, "LEFT", -4, 0)
-			if VCBrPlayer["GCD"]["ClassicTexture"] == "Class Icon" then
+			if VCBrPlayer["GCD"]["ClassicTexture"] == "職業圖示" then
 				ClassIcon(vcbFrameGCD)
-			elseif VCBrPlayer["GCD"]["ClassicTexture"] == "Hero Icon" then
+			elseif VCBrPlayer["GCD"]["ClassicTexture"] == "英雄圖示" then
 				HeroIcon(vcbFrameGCD)
-			elseif VCBrPlayer["GCD"]["ClassicTexture"] == "Faction Icon" then
+			elseif VCBrPlayer["GCD"]["ClassicTexture"] == "陣營圖示" then
 				FactionIcon(vcbFrameGCD)
 			end
 		end
@@ -1188,7 +1188,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		vcbSpellSchool = 0
 		local spellCooldownInfo = C_Spell.GetSpellCooldown(61304)
 		if spellCooldownInfo.duration > 0 then
-			if VCBrPlayer["GCD"]["ClassicTexture"] ~= "Hide" then
+			if VCBrPlayer["GCD"]["ClassicTexture"] ~= "隱藏" then
 				vcbFrameGCD:SetCooldown(GetTime(), spellCooldownInfo.duration - (GetTime() - lagStart))
 			end
 		end

@@ -106,48 +106,48 @@ local function AscendingDescendingSec(self)
 	if self.casting then
 		if VCBrTarget["CurrentTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
-					VCBcurrentTimeTextTarget:SetFormattedText("%.2f sec", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "正數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
+					VCBcurrentTimeTextTarget:SetFormattedText("%.2f 秒", self.value)
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBcurrentTimeTextTarget:SetFormattedText("%.2f sec", VCBdescending)
+					VCBcurrentTimeTextTarget:SetFormattedText("%.2f 秒", VCBdescending)
 				end
-			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "正數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
 					VCBcurrentTimeTextTarget:SetFormattedText("%.2f", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" then
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBcurrentTimeTextTarget:SetFormattedText("%.2f", VCBdescending)
 				end
 			end
 		elseif VCBrTarget["CurrentTimeText"]["Decimals"] == 1 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
-					VCBcurrentTimeTextTarget:SetFormattedText("%.1f sec", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "正數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
+					VCBcurrentTimeTextTarget:SetFormattedText("%.1f 秒", self.value)
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBcurrentTimeTextTarget:SetFormattedText("%.1f sec", VCBdescending)
+					VCBcurrentTimeTextTarget:SetFormattedText("%.1f 秒", VCBdescending)
 				end
-			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "正數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
 					VCBcurrentTimeTextTarget:SetFormattedText("%.1f", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" then
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBcurrentTimeTextTarget:SetFormattedText("%.1f", VCBdescending)
 				end
 			end
 		elseif VCBrTarget["CurrentTimeText"]["Decimals"] == 0 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
-					VCBcurrentTimeTextTarget:SetFormattedText("%.0f sec", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "正數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
+					VCBcurrentTimeTextTarget:SetFormattedText("%.0f 秒", self.value)
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBcurrentTimeTextTarget:SetFormattedText("%.0f sec", VCBdescending)
+					VCBcurrentTimeTextTarget:SetFormattedText("%.0f 秒", VCBdescending)
 				end
-			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "正數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
 					VCBcurrentTimeTextTarget:SetFormattedText("%.0f", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" then
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBcurrentTimeTextTarget:SetFormattedText("%.0f", VCBdescending)
 				end
@@ -155,48 +155,48 @@ local function AscendingDescendingSec(self)
 		end
 		if VCBrTarget["BothTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["BothTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Ascending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
-					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Descending" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "正數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
+					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f 秒", self.value, self.maxValue)
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
+					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f 秒", VCBdescending, self.maxValue)
 				end
-			elseif VCBrTarget["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Ascending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["BothTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "正數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
 					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Descending" then
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
 				end
 			end
 		elseif VCBrTarget["BothTimeText"]["Decimals"] == 1 then
 			if VCBrTarget["BothTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Ascending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
-					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Descending" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "正數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
+					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f 秒", self.value, self.maxValue)
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f sec", VCBdescending, self.maxValue)
+					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f 秒", VCBdescending, self.maxValue)
 				end
-			elseif VCBrTarget["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Ascending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["BothTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "正數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
 					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Descending" then
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
 				end
 			end
 		elseif VCBrTarget["BothTimeText"]["Decimals"] == 0 then
 			if VCBrTarget["BothTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Ascending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
-					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Descending" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "正數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
+					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f 秒", self.value, self.maxValue)
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f sec", VCBdescending, self.maxValue)
+					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f 秒", VCBdescending, self.maxValue)
 				end
-			elseif VCBrTarget["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Ascending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["BothTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "正數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
 					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Descending" then
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "倒數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
 				end
@@ -205,48 +205,48 @@ local function AscendingDescendingSec(self)
 	elseif self.channeling then
 		if VCBrTarget["CurrentTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
-					VCBcurrentTimeTextTarget:SetFormattedText("%.2f sec", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
+					VCBcurrentTimeTextTarget:SetFormattedText("%.2f 秒", self.value)
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBcurrentTimeTextTarget:SetFormattedText("%.2f sec", VCBdescending)
+					VCBcurrentTimeTextTarget:SetFormattedText("%.2f 秒", VCBdescending)
 				end
-			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
 					VCBcurrentTimeTextTarget:SetFormattedText("%.2f", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" then
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBcurrentTimeTextTarget:SetFormattedText("%.2f", VCBdescending)
 				end
 			end
 		elseif VCBrTarget["CurrentTimeText"]["Decimals"] == 1 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
-					VCBcurrentTimeTextTarget:SetFormattedText("%.1f sec", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
+					VCBcurrentTimeTextTarget:SetFormattedText("%.1f 秒", self.value)
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBcurrentTimeTextTarget:SetFormattedText("%.1f sec", VCBdescending)
+					VCBcurrentTimeTextTarget:SetFormattedText("%.1f 秒", VCBdescending)
 				end
-			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
 					VCBcurrentTimeTextTarget:SetFormattedText("%.1f", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" then
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBcurrentTimeTextTarget:SetFormattedText("%.1f", VCBdescending)
 				end
 			end
 		elseif VCBrTarget["CurrentTimeText"]["Decimals"] == 0 then
 			if VCBrTarget["CurrentTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
-					VCBcurrentTimeTextTarget:SetFormattedText("%.0f sec", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
+					VCBcurrentTimeTextTarget:SetFormattedText("%.0f 秒", self.value)
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBcurrentTimeTextTarget:SetFormattedText("%.0f sec", VCBdescending)
+					VCBcurrentTimeTextTarget:SetFormattedText("%.0f 秒", VCBdescending)
 				end
-			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["CurrentTimeText"]["Direction"] == "Descending" or VCBrTarget["CurrentTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["CurrentTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["CurrentTimeText"]["Direction"] == "倒數" or VCBrTarget["CurrentTimeText"]["Direction"] == "兩者" then
 					VCBcurrentTimeTextTarget:SetFormattedText("%.0f", self.value)
-				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "Ascending" then
+				elseif VCBrTarget["CurrentTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBcurrentTimeTextTarget:SetFormattedText("%.0f", VCBdescending)
 				end
@@ -254,48 +254,48 @@ local function AscendingDescendingSec(self)
 		end
 		if VCBrTarget["BothTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["BothTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Descending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
-					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f sec", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Ascending" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "倒數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
+					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f 秒", self.value, self.maxValue)
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f sec", VCBdescending, self.maxValue)
+					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f 秒", VCBdescending, self.maxValue)
 				end
-			elseif VCBrTarget["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Descending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["BothTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "倒數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
 					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Ascending" then
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBbothTimeTextTarget:SetFormattedText("%.2f/%.2f", VCBdescending, self.maxValue)
 				end
 			end
 		elseif VCBrTarget["BothTimeText"]["Decimals"] == 1 then
 			if VCBrTarget["BothTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Descending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
-					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f sec", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Ascending" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "倒數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
+					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f 秒", self.value, self.maxValue)
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f sec", VCBdescending, self.maxValue)
+					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f 秒", VCBdescending, self.maxValue)
 				end
-			elseif VCBrTarget["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Descending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["BothTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "倒數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
 					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Ascending" then
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBbothTimeTextTarget:SetFormattedText("%.1f/%.1f", VCBdescending, self.maxValue)
 				end
 			end
 		elseif VCBrTarget["BothTimeText"]["Decimals"] == 0 then
 			if VCBrTarget["BothTimeText"]["Sec"] == "顯示" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Descending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
-					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f sec", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Ascending" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "倒數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
+					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f 秒", self.value, self.maxValue)
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
-					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f sec", VCBdescending, self.maxValue)
+					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f 秒", VCBdescending, self.maxValue)
 				end
-			elseif VCBrTarget["BothTimeText"]["Sec"] == "Hide" then
-				if VCBrTarget["BothTimeText"]["Direction"] == "Descending" or VCBrTarget["BothTimeText"]["Direction"] == "Both" then
+			elseif VCBrTarget["BothTimeText"]["Sec"] == "隱藏" then
+				if VCBrTarget["BothTimeText"]["Direction"] == "倒數" or VCBrTarget["BothTimeText"]["Direction"] == "兩者" then
 					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f", self.value, self.maxValue)
-				elseif VCBrTarget["BothTimeText"]["Direction"] == "Ascending" then
+				elseif VCBrTarget["BothTimeText"]["Direction"] == "正數" then
 					local VCBdescending = self.maxValue - self.value
 					VCBbothTimeTextTarget:SetFormattedText("%.0f/%.0f", VCBdescending, self.maxValue)
 				end
@@ -336,20 +336,20 @@ local function AloneTargetSpellBar()
 		CastBarColor(self)
 		if VCBrTarget["TotalTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["TotalTimeText"]["Sec"] == "顯示" and self.maxValue ~= nil then
-				VCBtotalTimeTextTarget:SetFormattedText("%.2f sec", self.maxValue)
-			elseif VCBrTarget["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+				VCBtotalTimeTextTarget:SetFormattedText("%.2f 秒", self.maxValue)
+			elseif VCBrTarget["TotalTimeText"]["Sec"] == "隱藏" and self.maxValue ~= nil then
 				VCBtotalTimeTextTarget:SetFormattedText("%.2f", self.maxValue)
 			end
 		elseif VCBrTarget["TotalTimeText"]["Decimals"] == 1 then
 			if VCBrTarget["TotalTimeText"]["Sec"] == "顯示" and self.maxValue ~= nil then
-				VCBtotalTimeTextTarget:SetFormattedText("%.1f sec", self.maxValue)
-			elseif VCBrTarget["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+				VCBtotalTimeTextTarget:SetFormattedText("%.1f 秒", self.maxValue)
+			elseif VCBrTarget["TotalTimeText"]["Sec"] == "隱藏" and self.maxValue ~= nil then
 				VCBtotalTimeTextTarget:SetFormattedText("%.1f", self.maxValue)
 			end
 		elseif VCBrTarget["TotalTimeText"]["Decimals"] == 0 then
 			if VCBrTarget["TotalTimeText"]["Sec"] == "顯示" and self.maxValue ~= nil then
-				VCBtotalTimeTextTarget:SetFormattedText("%.0f sec", self.maxValue)
-			elseif VCBrTarget["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+				VCBtotalTimeTextTarget:SetFormattedText("%.0f 秒", self.maxValue)
+			elseif VCBrTarget["TotalTimeText"]["Sec"] == "隱藏" and self.maxValue ~= nil then
 				VCBtotalTimeTextTarget:SetFormattedText("%.0f", self.maxValue)
 			end
 		end
@@ -383,20 +383,20 @@ local function vcbSufCoOp_Traget()
 		AscendingDescendingSec(self)
 		if VCBrTarget["TotalTimeText"]["Decimals"] == 2 then
 			if VCBrTarget["TotalTimeText"]["Sec"] == "顯示" and self.maxValue ~= nil then
-				VCBtotalTimeTextTarget:SetFormattedText("%.2f sec", self.maxValue)
-			elseif VCBrTarget["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+				VCBtotalTimeTextTarget:SetFormattedText("%.2f 秒", self.maxValue)
+			elseif VCBrTarget["TotalTimeText"]["Sec"] == "隱藏" and self.maxValue ~= nil then
 				VCBtotalTimeTextTarget:SetFormattedText("%.2f", self.maxValue)
 			end
 		elseif VCBrTarget["TotalTimeText"]["Decimals"] == 1 then
 			if VCBrTarget["TotalTimeText"]["Sec"] == "顯示" and self.maxValue ~= nil then
-				VCBtotalTimeTextTarget:SetFormattedText("%.1f sec", self.maxValue)
-			elseif VCBrTarget["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+				VCBtotalTimeTextTarget:SetFormattedText("%.1f 秒", self.maxValue)
+			elseif VCBrTarget["TotalTimeText"]["Sec"] == "隱藏" and self.maxValue ~= nil then
 				VCBtotalTimeTextTarget:SetFormattedText("%.1f", self.maxValue)
 			end
 		elseif VCBrTarget["TotalTimeText"]["Decimals"] == 0 then
 			if VCBrTarget["TotalTimeText"]["Sec"] == "顯示" and self.maxValue ~= nil then
-				VCBtotalTimeTextTarget:SetFormattedText("%.0f sec", self.maxValue)
-			elseif VCBrTarget["TotalTimeText"]["Sec"] == "Hide" and self.maxValue ~= nil then
+				VCBtotalTimeTextTarget:SetFormattedText("%.0f 秒", self.maxValue)
+			elseif VCBrTarget["TotalTimeText"]["Sec"] == "隱藏" and self.maxValue ~= nil then
 				VCBtotalTimeTextTarget:SetFormattedText("%.0f", self.maxValue)
 			end
 		end
