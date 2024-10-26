@@ -1,3 +1,6 @@
+### 1.2.22
+- Fix odd error (hopefully)
+
 ### 1.2.21
 - Version Update
 

@@ -47,7 +47,15 @@ local function HasRemainingSlotsForLocalPlayerRole(lfgSearchResultID)
     return roles and roles[roleRemainingKeyLookup[playerRole]] > 0;
 end
 
+local function IsDeclined(appStatus)
+	return appStatus == "declined" or appStatus == "declined_delisted" or appStatus =="declined_full";
+end
+
 local function SortRules(searchResultID1, searchResultID2)
+    if type(searchResultID2) ~= "number" then
+        return false
+    end
+
     local searchResultInfo1 = C_LFGList.GetSearchResultInfo(searchResultID1);
     local searchResultInfo2 = C_LFGList.GetSearchResultInfo(searchResultID2);
     local _, appStatus1, pendingStatus1, appDuration1 = C_LFGList.GetApplicationInfo(searchResultID1);
@@ -58,6 +66,19 @@ local function SortRules(searchResultID1, searchResultID2)
     if ( appStatus1 ~= appStatus2 ) then
         return appStatus1 ~= "none";
     end
+
+    local isDeclined1 = IsDeclined(appStatus1);
+	local isDeclined2 = IsDeclined(appStatus2);
+
+	--sort declined to the bottom
+	if LFGListFrame.declines then
+		isDeclined1 = isDeclined1 or LFGListFrame.declines[searchResultInfo1.partyGUID];
+		isDeclined2 = isDeclined2 or LFGListFrame.declines[searchResultInfo2.partyGUID];
+	end
+
+	if isDeclined1 ~= isDeclined2 then
+		return isDeclined2;
+	end
 
     if ( appDuration1 ~= appDuration2 ) then
         return appDuration1 > appDuration2;
@@ -96,7 +117,7 @@ end
 function SortSearchResults(result)
     -- No longer sort anything on unsecured accounts due taints
     if not IsAccountSecured() then return end
-    if result and next(result.results) == nil then return end
+    if not result or (result and next(result.results) == nil) then return end
     table.sort(result.results, SortRules);
 end
 
@@ -152,27 +173,14 @@ function PremadeSort:OnEvent(e, ...)
         Settings = PremadeSortDB;
         Settings.SortWarMode = Settings.SortWarMode or true;
         Settings.ColorDisabled = nil;
-		Settings.HideTimestamp = Settings.HideTimestamp or true;
         --BINDING_HEADER_PREMADESORT = GetAddOnMetadata(addonName, "Title");
     elseif e == "PLAYER_LOGIN" then
         if not C_LFGList.IsPlayerAuthenticatedForLFG(183) then return end
         function LFGList_ReportAdvertisement(searchResultID, leaderName)
             local reportInfo = ReportInfo:CreateReportInfoFromType(Enum.ReportType.GroupFinderPosting);
             reportInfo:SetGroupFinderSearchResultID(searchResultID);
-            ReportFrame:InitiateReport(reportInfo, leaderName, nil, nil, false);
+            ReportFrame:InitiateReport(reportInfo, leaderName);
         end
-
-        function GetPlaystyleString(playstyle, activityInfo)
-            local unk = ""
-            if activityInfo.isRatedPvpActivity then return _G["GROUP_FINDER_PVP_PLAYSTYLE" .. playstyle] or unk end
-            if activityInfo.isCurrentRaidActivity then return _G["GROUP_FINDER_PVE_RAID_PLAYSTYLE" .. playstyle] or unk end
-            if activityInfo.isMythicPlusActivity then return _G["GROUP_FINDER_PVE_PLAYSTYLE" .. playstyle] or unk  end
-            if activityInfo.isMythicActivity then return _G["GROUP_FINDER_PVE_MYTHICZERO_PLAYSTYLE" .. playstyle] or unk end
-            return unk
-        end
-        C_LFGList.GetPlaystyleString = GetPlaystyleString
-        LFGListEntryCreation_SetTitleFromActivityInfo = function() end
-        --local success = pcall(setfenv(LFGListUtil_SetSearchEntryTooltip, setmetatable({ C_LFGList = setmetatable({ GetPlaystyleString = GetPlaystyleString }, { __index = C_LFGList }) }, { __index = getfenv(LFGListUtil_SetSearchEntryTooltip)})))
     end
 end
 
