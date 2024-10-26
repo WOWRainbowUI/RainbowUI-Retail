@@ -428,7 +428,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		if FocusFrame:IsShown() then
 			local classFilename = UnitClassBase("focus")
 			if classFilename ~= nil then vcbClassColorFocus = C_ClassColor.GetClassColor(classFilename) end
-		elseif SUFUnitfocus ~= nil and SUFUnitfocus:IsShown() then
+		elseif SUFUnitfocus ~= nil and VCBrFocus["otherAdddon"] == "Shadowed Unit Frame" and SUFUnitfocus:IsShown() then
 			SUFUnitfocus.vcbCastbar:SetUnit(nil, true, true)
 			SUFUnitfocus.vcbCastbar:PlayFinishAnim()
 			SUFUnitfocus.vcbCastbar:SetUnit("focus", true, true)

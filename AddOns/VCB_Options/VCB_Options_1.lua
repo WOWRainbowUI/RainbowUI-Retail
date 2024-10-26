@@ -5,14 +5,16 @@ vcbOptions1Box1.TitleTxt:SetText("Spell's Icon & Spell's Name")
 vcbOptions1Box2.TitleTxt:SetText("Current Cast Time")
 vcbOptions1Box3.TitleTxt:SetText("Current & Total Cast Time")
 vcbOptions1Box4.TitleTxt:SetText("Total Cast Time")
-vcbOptions1Box5.TitleTxt:SetText("Latency Bar & Ticks of the Spells")
-vcbOptions1Box6.TitleTxt:SetText("Cast Bar's Color")
+vcbOptions1Box5.TitleTxt:SetText("Latency Bar & Queue Bar")
+vcbOptions1Box6.TitleTxt:SetText("Global Cooldown & Spell's Tick")
+vcbOptions1Box7.TitleTxt:SetText("Cast Bar's Color")
 -- positioning the boxes --
 vcbOptions1Box2:SetPoint("TOPLEFT", vcbOptions1Box1, "TOPRIGHT", 0, 0)
 vcbOptions1Box3:SetPoint("TOPLEFT", vcbOptions1Box1, "BOTTOMLEFT", 0, 0)
 vcbOptions1Box4:SetPoint("TOPRIGHT", vcbOptions1Box2, "BOTTOMRIGHT", 0, 0)
 vcbOptions1Box5:SetPoint("TOPLEFT", vcbOptions1Box3, "BOTTOMLEFT", 0, 0)
 vcbOptions1Box6:SetPoint("TOPRIGHT", vcbOptions1Box4, "BOTTOMRIGHT", 0, 0)
+vcbOptions1Box7:SetPoint("TOPLEFT", vcbOptions1Box5, "BOTTOMLEFT", 0, 0)
 -- Checking the Saved Variables --
 local function CheckSavedVariables()
 	vcbOptions1Box1PopOut1:SetText(VCBrPlayer["Icon"])
@@ -29,8 +31,10 @@ local function CheckSavedVariables()
 	vcbOptions1Box4PopOut2:SetText(VCBrPlayer["TotalTimeText"]["Sec"])
 	vcbOptions1Box4PopOut3:SetText(VCBrPlayer["TotalTimeText"]["Decimals"])
 	vcbOptions1Box5PopOut1:SetText(VCBrPlayer["LagBar"])
-	vcbOptions1Box5PopOut2:SetText(VCBrPlayer["Ticks"])
-	vcbOptions1Box6PopOut1:SetText(VCBrPlayer["Color"])
+	vcbOptions1Box5PopOut2:SetText(VCBrPlayer["QueueBar"])
+	vcbOptions1Box6PopOut1:SetText(VCBrPlayer["Ticks"])
+	vcbOptions1Box6PopOut2:SetText(VCBrPlayer["GCD"]["ClassicTexture"])
+	vcbOptions1Box7PopOut1:SetText(VCBrPlayer["Color"])
 end
 -- Box 1 Spell's Icon and Spell's Name --
 -- pop out 1 Spell's Icon --
@@ -360,11 +364,11 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
--- pop out 2 Ticks of the Spells --
+-- pop out 2 Queue Bar --
 -- enter --
 vcbOptions1Box5PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nTicks of the Spells to be shown?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nQueue Window Bar to be shown?") 
 end)
 -- naming --
 vcbOptions1Box5PopOut2Choice0.Text:SetText("Show")
@@ -376,35 +380,87 @@ vcbOptions1Box5PopOut2Choice1:SetPoint("TOP",vcbOptions1Box5PopOut2Choice0, "BOT
 for i = 0, 1, 1 do
 	_G["vcbOptions1Box5PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
-			VCBrPlayer["Ticks"] = self.Text:GetText()
+			VCBrPlayer["QueueBar"] = self.Text:GetText()
 			vcbOptions1Box5PopOut2.Text:SetText(self:GetText())
 			vcbOptions1Box5PopOut2Choice0:Hide()
 		end
 	end)
 end
--- Box 6 Castbar's Color --
--- pop out 1 Castbar's Color --
+-- Options Box 6 Ticks of the Spells & GCD --
+-- pop out 1 Ticks of the Spells --
 -- enter --
 vcbOptions1Box6PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhat color do you want the|nCastbar to be?") 
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nTicks of the Spell to be shown?") 
 end)
 -- naming --
-vcbOptions1Box6PopOut1Choice0.Text:SetText("Default Color")
-vcbOptions1Box6PopOut1Choice1.Text:SetText("Class' Color")
-vcbOptions1Box6PopOut1Choice2.Text:SetText("Spell School Color")
+vcbOptions1Box6PopOut1Choice0.Text:SetText("Show")
+vcbOptions1Box6PopOut1Choice1.Text:SetText("Hide")
 -- parent & sort --
-for i = 1, 2, 1 do
+for i = 1, 1, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetParent(vcbOptions1Box6PopOut1Choice0)
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box6PopOut1Choice"..i-1], "BOTTOM", 0, 0)
 end
 -- clicking --
-for i = 0, 2, 1 do
+for i = 0, 1, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
-			VCBrPlayer["Color"] = self.Text:GetText()
+			VCBrPlayer["Ticks"] = self.Text:GetText()
 			vcbOptions1Box6PopOut1.Text:SetText(self:GetText())
 			vcbOptions1Box6PopOut1Choice0:Hide()
+		end
+	end)
+end
+-- pop out 2 Global Cooldown --
+-- enter --
+vcbOptions1Box6PopOut2:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nGlobal Cooldown to be shown?") 
+end)
+-- naming --
+vcbOptions1Box6PopOut2Choice0.Text:SetText("Hide")
+vcbOptions1Box6PopOut2Choice1.Text:SetText("Class Icon")
+vcbOptions1Box6PopOut2Choice2.Text:SetText("Hero Icon")
+vcbOptions1Box6PopOut2Choice3.Text:SetText("Faction Icon")
+-- parent & sort --
+for i = 1, 3, 1 do
+	_G["vcbOptions1Box6PopOut2Choice"..i]:SetParent(vcbOptions1Box6PopOut2Choice0)
+	_G["vcbOptions1Box6PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box6PopOut2Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 3, 1 do
+	_G["vcbOptions1Box6PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["GCD"]["ClassicTexture"] = self.Text:GetText()
+			vcbOptions1Box6PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box6PopOut2Choice0:Hide()
+			vcbCreatingTheGCD()
+		end
+	end)
+end
+-- Box 7 Castbar's Color --
+-- pop out 1 Castbar's Color --
+-- enter --
+vcbOptions1Box7PopOut1:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhat color do you want the|nCastbar to be?") 
+end)
+-- naming --
+vcbOptions1Box7PopOut1Choice0.Text:SetText("Default Color")
+vcbOptions1Box7PopOut1Choice1.Text:SetText("Class' Color")
+vcbOptions1Box7PopOut1Choice2.Text:SetText("Spell School Color")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions1Box7PopOut1Choice"..i]:SetParent(vcbOptions1Box7PopOut1Choice0)
+	_G["vcbOptions1Box7PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box7PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions1Box7PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["Color"] = self.Text:GetText()
+			vcbOptions1Box7PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box7PopOut1Choice0:Hide()
 		end
 	end)
 end
