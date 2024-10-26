@@ -132,6 +132,13 @@ GTFO.SpellID["458799"] = {
   sound = 1;
 };
 
+GTFO.SpellID["459545"] = {
+  --desc = "Choking Cloud (Archavon the Stone Watcher)";
+  ignoreApplication = true;
+  sound = 1;
+};
+
+
 --- ****************************
 --- * Ara-Kara, City of Echoes *
 --- ****************************
