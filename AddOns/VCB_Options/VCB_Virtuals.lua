@@ -78,6 +78,12 @@ local function options1()
 -- drop down --
 	vcbClickPopOut(vcbOptions1Box6PopOut1, vcbOptions1Box6PopOut1Choice0)
 	vcbOptions1Box6PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+	vcbClickPopOut(vcbOptions1Box6PopOut2, vcbOptions1Box6PopOut2Choice0)
+	vcbOptions1Box6PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+	vcbClickPopOut(vcbOptions1Box7PopOut1, vcbOptions1Box7PopOut1Choice0)
+	vcbOptions1Box7PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 end
 local function options2()
 	TargetFrame.CBpreview:SetScript("OnLeave", vcbLeavingMenus)

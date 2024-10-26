@@ -420,6 +420,63 @@ local lagTotal = 0
 local statusMin = 0
 local statusMax = 0
 local lagWidth = 0
+local lagBarWidth = 0
+
+local function VCBCastBarFrame(var1)
+	var1:SetTexture("Interface\\CastingBar\\UI-CastingBar-Frame")
+	var1:SetHeight(PlayerCastingBarFrame:GetHeight())
+	var1:SetWidth(PlayerCastingBarFrame:GetWidth())
+	var1:Hide()
+end
+
+local VCBCastBarFrame1 = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
+VCBCastBarFrame(VCBCastBarFrame1)
+
+-- Spell Queue Window Bar --
+local function VCBSpellQueueBar(var1)
+	var1:SetTexture("Interface\\RAIDFRAME\\Raid-Bar-Hp-Fill")
+	var1:SetHeight(PlayerCastingBarFrame:GetHeight())
+	var1:SetVertexColor(0, 1, 0)
+	var1:SetAlpha(0.75)
+	var1:SetBlendMode("ADD")
+	var1:Hide()
+end
+-- SpellQueue Bar 1 --
+local VCBSpellQueueCastBar = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
+VCBSpellQueueBar(VCBSpellQueueCastBar)
+-- SpellQueue Bar 2 --
+local VCBSpellQueueChannelBar = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
+VCBSpellQueueBar(VCBSpellQueueChannelBar)
+-- Player Casting SpellQueue Bar --
+local function PlayerCastSpellQueueBar(arg3)
+	local playerSpell = IsSpellKnownOrOverridesKnown(arg3)
+	if playerSpell and VCBrPlayer["QueueBar"] == "Show" then
+		statusMin, statusMax = PlayerCastingBarFrame:GetMinMaxValues()
+		local totalCastTime = statusMax - statusMin
+		local spellQueueWindow = math.min(GetSpellQueueWindow() / 1000 / totalCastTime, 1)
+		local spellQueueWidth = (PlayerCastingBarFrame:GetWidth() * spellQueueWindow) - lagBarWidth
+		VCBSpellQueueCastBar:ClearAllPoints()
+		VCBSpellQueueCastBar:SetWidth(spellQueueWidth)
+        VCBSpellQueueCastBar:SetPoint("RIGHT", PlayerCastingBarFrame, "RIGHT", -lagBarWidth, 0)
+		VCBSpellQueueCastBar:Show()
+	end
+end
+
+-- Player Channeling SpellQueue Bar --
+local function PlayerChannelSpellQueueBar(arg3)
+	local playerSpell = IsSpellKnownOrOverridesKnown(arg3)
+	if playerSpell and VCBrPlayer["QueueBar"] == "Show" then
+		statusMin, statusMax = PlayerCastingBarFrame:GetMinMaxValues()
+		local totalCastTime = statusMax - statusMin
+		local spellQueueWindow = math.min(GetSpellQueueWindow() / 1000 / totalCastTime, 1)
+		local spellQueueWidth = (PlayerCastingBarFrame:GetWidth() * spellQueueWindow) - lagBarWidth
+		VCBSpellQueueChannelBar:ClearAllPoints()
+		VCBSpellQueueChannelBar:SetWidth(spellQueueWidth)
+		VCBSpellQueueChannelBar:SetPoint("LEFT", PlayerCastingBarFrame, "LEFT", lagBarWidth, 0)
+		VCBSpellQueueChannelBar:Show()
+	end
+end
+
 -- function for the lag bars --
 local function VCBlagBars(var1)
 	var1:SetTexture("Interface\\RAIDFRAME\\Raid-Bar-Hp-Fill")
@@ -430,37 +487,46 @@ local function VCBlagBars(var1)
 	var1:Hide()
 end
 -- Lag Bar 1 --
-local VCBlagBar1 = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
-VCBlagBars(VCBlagBar1)
+local VCBLagCastBar = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
+VCBlagBars(VCBLagCastBar)
 -- Lag Bar 2 --
-local VCBlagBar2 = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
-VCBlagBars(VCBlagBar2)
+local VCBLagChannelBar = PlayerCastingBarFrame:CreateTexture(nil, "OVERLAY", nil, 7)
+VCBlagBars(VCBLagChannelBar)
 -- Player Casting Latency Bar --
 local function PlayerCastLagBar(arg3)
-	local playerSpell = IsPlayerSpell(arg3)
+	local playerSpell = IsSpellKnownOrOverridesKnown(arg3)
+	lagBarWidth = 0
 	if playerSpell and VCBrPlayer["LagBar"] == "顯示" then
 		lagEnd = GetTime()
 		lagTotal = (lagEnd - lagStart)
 		statusMin, statusMax = PlayerCastingBarFrame:GetMinMaxValues()
+		-- print("Status: "statusMin, " + ", statusMax)
 		lagWidth = lagTotal / (statusMax - statusMin)
-		VCBlagBar1:ClearAllPoints()
-		VCBlagBar1:SetWidth(PlayerCastingBarFrame:GetWidth() * lagWidth)
-		VCBlagBar1:SetPoint("RIGHT", PlayerCastingBarFrame, "RIGHT", 0, 0)
-		VCBlagBar1:Show()
+		lagBarWidth = PlayerCastingBarFrame:GetWidth() * lagWidth
+		if lagBarWidth == 0 then
+			VCBLagCastBar:Hide()
+		else
+			VCBLagCastBar:ClearAllPoints()
+			VCBLagCastBar:SetWidth(lagBarWidth)
+			VCBLagCastBar:SetPoint("RIGHT", PlayerCastingBarFrame, "RIGHT", 0, 0)
+			VCBLagCastBar:Show()
+		end
 	end
 end
 -- Player Channeling Latency Bar --
 local function PlayerChannelLagBar(arg3)
-	local playerSpell = IsPlayerSpell(arg3)
+	local playerSpell = IsSpellKnownOrOverridesKnown(arg3)
+	lagBarWidth = 0
 	if playerSpell and VCBrPlayer["LagBar"] == "顯示" then
 		lagEnd = GetTime()
 		lagTotal = (lagEnd - lagStart)
 		statusMin, statusMax = PlayerCastingBarFrame:GetMinMaxValues()
 		lagWidth = lagTotal / (statusMax - statusMin)
-		VCBlagBar2:ClearAllPoints()
-		VCBlagBar2:SetWidth(PlayerCastingBarFrame:GetWidth() * lagWidth)
-		VCBlagBar2:SetPoint("LEFT", PlayerCastingBarFrame, "LEFT", 0, 0)
-		VCBlagBar2:Show()
+		lagBarWidth = PlayerCastingBarFrame:GetWidth() * lagWidth
+		VCBLagChannelBar:ClearAllPoints()
+		VCBLagChannelBar:SetWidth(lagBarWidth)
+		VCBLagChannelBar:SetPoint("LEFT", PlayerCastingBarFrame, "LEFT", 0, 0)
+		VCBLagChannelBar:Show()
 	end
 end
 -- Creating the ticks for the player's castbar --
@@ -806,6 +872,190 @@ local function vcbHideTicks()
 		Hide4Ticks()
 	end
 end
+-- textures of the classic GCD --
+local function ClassIcon(self)
+	local a
+	local b
+	self:SetSwipeTexture("interface/hud/uiunitframeclassicons2x")
+	if select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 1 then --Warrior
+		a = CreateVector2D(0.478515625, 0.478515625) -- left, top
+		b = CreateVector2D(0.712890625, 0.712890625) -- right, bottom
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 2 then --Paladin
+		a = CreateVector2D(0.240234375, 0.240234375)
+		b = CreateVector2D(0.474609375, 0.474609375)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 3 then --Hunter
+		a = CreateVector2D(0.001953125, 0.240234375)
+		b = CreateVector2D(0.236328125, 0.474609375)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 4 then --Rogue
+		a = CreateVector2D(0.716796875, 0.240234375)
+		b = CreateVector2D(0.951171875, 0.474609375)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 5 then --Priest
+		a = CreateVector2D(0.478515625, 0.240234375)
+		b = CreateVector2D(0.712890625, 0.474609375)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 6 then --Death Kight
+		a = CreateVector2D(0.001953125, 0.236328125)
+		b = CreateVector2D(0.001953125, 0.236328125)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 7 then --Shaman
+		a = CreateVector2D(0.240234375, 0.478515625)
+		b = CreateVector2D(0.474609375, 0.712890625)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 8 then --Mage
+		a = CreateVector2D(0.001953125, 0.478515625)
+		b = CreateVector2D(0.236328125, 0.712890625)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 9 then --Warlock
+		a = CreateVector2D(0.240234375, 0.716796875)
+		b = CreateVector2D(0.474609375, 0.951171875)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 10 then --Monk
+		a = CreateVector2D(0.001953125, 0.716796875)
+		b = CreateVector2D(0.236328125, 0.951171875)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 11 then --Druid
+		a = CreateVector2D(0.478515625, 0.001953125)
+		b = CreateVector2D(0.712890625, 0.236328125)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 12 then --Demon Hunter
+		a = CreateVector2D(0.240234375, 0.001953125)
+		b = CreateVector2D(0.474609375, 0.236328125)
+	elseif select(3, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))) == 13 then --Evoker
+		a = CreateVector2D(0.716796875, 0.001953125)
+		b = CreateVector2D(0.951171875, 0.236328125)
+	end
+	self:SetTexCoordRange(a, b)
+end
+local function HeroIcon(self)
+	local a
+	local b
+	self:SetSwipeTexture("interface/talentframe/talentsheroclassicons")
+	local chkTalentID = C_ClassTalents.GetLastSelectedSavedConfigID(PlayerUtil.GetCurrentSpecID())
+	local hero = C_ClassTalents.GetActiveHeroTalentSpec()
+	local subTreeInfo = C_Traits.GetSubTreeInfo(chkTalentID, hero)
+	if subTreeInfo.name == "Deathbringer" then
+		a = CreateVector2D(0.00048828125, 0.0009765625)
+		b = CreateVector2D(0.09814453125, 0.1962890625)
+	elseif subTreeInfo.name == "Rider of the Apocalypse" then
+		a = CreateVector2D(0.00048828125, 0.1982421875)
+		b = CreateVector2D(0.09814453125, 0.3935546875)
+	elseif subTreeInfo.name == "San'layn" then
+		a = CreateVector2D(0.00048828125, 0.3955078125)
+		b = CreateVector2D(0.09814453125, 0.5908203125)
+	elseif subTreeInfo.name == "Aldrachi Reaver" then
+		a = CreateVector2D(0.00048828125, 0.5927734375)
+		b = CreateVector2D(0.09814453125, 0.7880859375)
+	elseif subTreeInfo.name == "Fel-Scarred" then
+		a = CreateVector2D(0.00048828125, 0.7900390625)
+		b = CreateVector2D(0.09814453125, 0.9853515625)
+	elseif subTreeInfo.name == "Druid of the Claw" then
+		a = CreateVector2D(0.09912109375, 0.0009765625)
+		b = CreateVector2D(0.19677734375, 0.1962890625)
+	elseif subTreeInfo.name == "Elune's Chosen" then
+		a = CreateVector2D(0.09912109375, 0.1982421875)
+		b = CreateVector2D(0.19677734375, 0.3935546875)
+	elseif subTreeInfo.name == "Keeper of the Grove" then
+		a = CreateVector2D(0.09912109375, 0.3955078125)
+		b = CreateVector2D(0.19677734375, 0.5908203125)
+	elseif subTreeInfo.name == "Wildstalker" then
+		a = CreateVector2D(0.09912109375, 0.5927734375)
+		b = CreateVector2D(0.19677734375, 0.7880859375)
+	elseif subTreeInfo.name == "Chronowarden" then
+		a = CreateVector2D(0.09912109375, 0.7900390625)
+		b = CreateVector2D(0.19677734375, 0.9853515625)
+	elseif subTreeInfo.name == "Flameshaper" then
+		a = CreateVector2D(0.19775390625, 0.0009765625)
+		b = CreateVector2D(0.29541015625, 0.1962890625)
+	elseif subTreeInfo.name == "Scalecommander" then
+		a = CreateVector2D(0.19775390625, 0.1982421875)
+		b = CreateVector2D(0.29541015625, 0.3935546875)
+	elseif subTreeInfo.name == "Dark Ranger" then
+		a = CreateVector2D(0.19775390625, 0.3955078125)
+		b = CreateVector2D(0.29541015625, 0.5908203125)
+	elseif subTreeInfo.name == "Pack Leader" then
+		a = CreateVector2D(0.19775390625, 0.5927734375)
+		b = CreateVector2D(0.29541015625, 0.7880859375)
+	elseif subTreeInfo.name == "Sentinel" then
+		a = CreateVector2D(0.19775390625, 0.7900390625)
+		b = CreateVector2D(0.29541015625, 0.9853515625)
+	elseif subTreeInfo.name == "Frostfire" then
+		a = CreateVector2D(0.29638671875, 0.0009765625)
+		b = CreateVector2D(0.39404296875, 0.1962890625)
+	elseif subTreeInfo.name == "Spellslinger" then
+		a = CreateVector2D(0.29638671875, 0.1982421875)
+		b = CreateVector2D(0.39404296875, 0.3935546875)
+	elseif subTreeInfo.name == "Sunfury" then
+		a = CreateVector2D(0.29638671875, 0.3955078125)
+		b = CreateVector2D(0.39404296875, 0.5908203125)
+	elseif subTreeInfo.name == "Conduit of the Celestials" then
+		a = CreateVector2D(0.29638671875, 0.5927734375)
+		b = CreateVector2D(0.39404296875, 0.7880859375)
+	elseif subTreeInfo.name == "Master of Harmony" then
+		a = CreateVector2D(0.59228515625, 0.7900390625)
+		b = CreateVector2D(0.68994140625, 0.9853515625)
+	elseif subTreeInfo.name == "Shado-pan" then
+		a = CreateVector2D(0.29638671875, 0.7900390625)
+		b = CreateVector2D(0.39404296875, 0.9853515625)
+	elseif subTreeInfo.name == "Herald of the Sun" then
+		a = CreateVector2D(0.39501953125, 0.0009765625)
+		b = CreateVector2D(0.49267578125, 0.1962890625)
+	elseif subTreeInfo.name == "Lightsmith" then
+		a = CreateVector2D(0.39501953125, 0.1982421875)
+		b = CreateVector2D(0.49267578125, 0.3935546875)
+	elseif subTreeInfo.name == "Templar" then
+		a = CreateVector2D(0.39501953125, 0.3955078125)
+		b = CreateVector2D(0.49267578125, 0.5908203125)
+	elseif subTreeInfo.name == "Archon" then
+		a = CreateVector2D(0.39501953125, 0.5927734375)
+		b = CreateVector2D(0.49267578125, 0.7880859375)
+	elseif subTreeInfo.name == "Oracle" then
+		a = CreateVector2D(0.39501953125, 0.7900390625)
+		b = CreateVector2D(0.49267578125, 0.9853515625)
+	elseif subTreeInfo.name == "Voidweaver" then
+		a = CreateVector2D(0.49365234375, 0.0009765625)
+		b = CreateVector2D(0.59130859375, 0.1962890625)
+	elseif subTreeInfo.name == "Deathstalker" then
+		a = CreateVector2D(0.49365234375, 0.1982421875)
+		b = CreateVector2D(0.59130859375, 0.3935546875)
+	elseif subTreeInfo.name == "Fatebound" then
+		a = CreateVector2D(0.49365234375, 0.3955078125)
+		b = CreateVector2D(0.59130859375, 0.5908203125)
+	elseif subTreeInfo.name == "Trickster" then
+		a = CreateVector2D(0.49365234375, 0.5927734375)
+		b = CreateVector2D(0.59130859375, 0.7880859375)
+	elseif subTreeInfo.name == "Farseer" then
+		a = CreateVector2D(0.49365234375, 0.7900390625)
+		b = CreateVector2D(0.59130859375, 0.9853515625)
+	elseif subTreeInfo.name == "Stormbringer" then
+		a = CreateVector2D(0.59228515625, 0.0009765625)
+		b = CreateVector2D(0.68994140625, 0.1962890625)
+	elseif subTreeInfo.name == "Totemic" then
+		a = CreateVector2D(0.69091796875, 0.0009765625)
+		b = CreateVector2D(0.78857421875, 0.1962890625)
+	elseif subTreeInfo.name == "Diabolist" then
+		a = CreateVector2D(0.78955078125, 0.0009765625)
+		b = CreateVector2D(0.88720703125, 0.1962890625)
+	elseif subTreeInfo.name == "Hellcaller" then
+		a = CreateVector2D(0.69091796875, 0.1982421875)
+		b = CreateVector2D(0.78857421875, 0.3935546875)
+	elseif subTreeInfo.name == "Soul Harvester" then
+		a = CreateVector2D(0.88818359375, 0.0009765625)
+		b = CreateVector2D(0.98583984375, 0.1962890625)
+	elseif subTreeInfo.name == "Colossus" then
+		a = CreateVector2D(0.59228515625, 0.1982421875)
+		b = CreateVector2D(0.68994140625, 0.3935546875)
+	elseif subTreeInfo.name == "Mountain Thane" then
+		a = CreateVector2D(0.59228515625, 0.3955078125)
+		b = CreateVector2D(0.68994140625, 0.5908203125)
+	elseif subTreeInfo.name == "Slayer" then
+		a = CreateVector2D(0.59228515625, 0.5927734375)
+		b = CreateVector2D(0.68994140625, 0.7880859375)
+	end
+	self:SetTexCoordRange(a, b)
+end
+local function FactionIcon(self)
+	local a = CreateVector2D(0, 0)
+	local b = CreateVector2D(1, 1)
+	if vcbFaction.name == "Alliance" then
+	self:SetSwipeTexture("interface/ICONS/UI_AllianceIcon-round")
+	elseif vcbFaction.name == "Horde" then
+	self:SetSwipeTexture("interface/ICONS/UI_HordeIcon-round")
+	end
+	self:SetTexCoordRange(a, b)
+end
 -- Hooking Time part 1 --
 PlayerCastingBarFrame:HookScript("OnShow", function(self)
 	if VCBrPlayer["Icon"] == "左" then
@@ -884,27 +1134,48 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		PlayerCastingBarFrame.Icon:SetScale(2.5) -- 圖示大小
 		PlayerCastingBarFrame.Icon:AdjustPointsOffset(3, -3)
 		vcbCreateTicks()
+		-- create the GCD --
+		function vcbCreatingTheGCD()
+			vcbFrameGCDparent:SetScale(PlayerCastingBarFrame.Icon:GetEffectiveScale())
+			vcbFrameGCDparent:ClearAllPoints()
+			vcbFrameGCDparent:SetPoint("RIGHT", PlayerCastingBarFrame.Icon, "LEFT", -4, 0)
+			if VCBrPlayer["GCD"]["ClassicTexture"] == "Class Icon" then
+				ClassIcon(vcbFrameGCD)
+			elseif VCBrPlayer["GCD"]["ClassicTexture"] == "Hero Icon" then
+				HeroIcon(vcbFrameGCD)
+			elseif VCBrPlayer["GCD"]["ClassicTexture"] == "Faction Icon" then
+				FactionIcon(vcbFrameGCD)
+			end
+		end
+		vcbCreatingTheGCD()
 	elseif event == "CURRENT_SPELL_CAST_CHANGED" and arg1 == false then
 		lagStart = GetTime()
 	elseif event == "UNIT_SPELLCAST_START" and arg1 == "player" then
 		vcbHideTicks()
-		VCBlagBar1:Hide()
-		VCBlagBar2:Hide()
+		VCBLagCastBar:Hide()
+		VCBLagChannelBar:Hide()
+		VCBSpellQueueCastBar:Hide()
+		VCBSpellQueueChannelBar:Hide()
+		VCBCastBarFrame1:Show()
 		VCBarg3 = arg3
 		PlayerCastLagBar(arg3)
+		PlayerCastSpellQueueBar(arg3)
 	elseif event == "UNIT_SPELLCAST_CHANNEL_START" and arg1 == "player" then
 		vcbHideTicks()
-		VCBlagBar1:Hide()
-		VCBlagBar2:Hide()
-		vcbChannelSpellID = arg3
+		VCBLagCastBar:Hide()
+		VCBLagChannelBar:Hide()
+		VCBSpellQueueCastBar:Hide()
+		VCBSpellQueueChannelBar:Hide()
+		VCBCastBarFrame1:Show()
 		VCBarg3 = arg3
 		PlayerChannelLagBar(arg3)
+		PlayerChannelSpellQueueBar(arg3)
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		local timestamp, subevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
 		local spellId, spellName, spellSchool = select(12, CombatLogGetCurrentEventInfo())
 		if subevent == "SPELL_CAST_START" and sourceName == UnitFullName("player") then
 			vcbSpellSchool = spellSchool
-		elseif subevent == "SPELL_CAST_SUCCESS" and spellId == vcbChannelSpellID and sourceName == UnitFullName("player") then
+		elseif subevent == "SPELL_CAST_SUCCESS" and sourceName == UnitFullName("player") then
 			vcbSpellSchool = spellSchool
 		elseif subevent == "SPELL_AURA_APPLIED" and sourceName == UnitFullName("player") and spellId == 356995 then
 			vcbEvokerTicksFirstTime = true
@@ -915,6 +1186,12 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		end
 	elseif event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then
 		vcbSpellSchool = 0
+		local spellCooldownInfo = C_Spell.GetSpellCooldown(61304)
+		if spellCooldownInfo.duration > 0 then
+			if VCBrPlayer["GCD"]["ClassicTexture"] ~= "Hide" then
+				vcbFrameGCD:SetCooldown(GetTime(), spellCooldownInfo.duration - (GetTime() - lagStart))
+			end
+		end
 	elseif event == "UNIT_SPELLCAST_INTERRUPTED" and arg1 == "player" then
 		vcbSpellSchool = 0
 	end

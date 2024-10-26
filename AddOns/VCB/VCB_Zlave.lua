@@ -39,6 +39,11 @@ local function CreateGlobalVariables()
 	vcbCosmicColor = CreateColorFromRGBAHexString("C0B9DFFF") -- 106
 	vcbMagicColor = CreateColorFromRGBAHexString("B7BBA2FF") -- 126
 	vcbChaosColor = CreateColorFromRGBAHexString("C1C58BFF") -- 127 - 124
+-- class color --
+	vcbClassColorPlayer = C_ClassColor.GetClassColor(select(2, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))))
+-- faction and faction color --
+	vcbFaction = C_CreatureInfo.GetFactionInfo(C_PlayerInfo.GetRace(PlayerLocation:CreateFromUnit("player")))
+	vcbFactionColor = CreateColor(_G["PLAYER_FACTION_COLOR_"..string.upper(vcbFaction.name)]:GetRGB())
 -- function for showing the menu --
 	local function vcbShowMenu()
 		if not InCombatLockdown() then
@@ -133,7 +138,6 @@ local function FirstTimeSavedVariables()
 			otherAdddon = "無",
 		}
 	end
-	vcbClassColorPlayer = C_ClassColor.GetClassColor(select(2, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))))
 	if VCBrPlayer["CurrentTimeText"]["Decimals"] == nil then VCBrPlayer["CurrentTimeText"]["Decimals"] = 1 end
 	if VCBrPlayer["TotalTimeText"]["Decimals"] == nil then VCBrPlayer["TotalTimeText"]["Decimals"] = 1 end
 	if VCBrPlayer["BothTimeText"]["Decimals"] == nil then VCBrPlayer["BothTimeText"]["Decimals"] = 1 end
@@ -143,6 +147,8 @@ local function FirstTimeSavedVariables()
 	if VCBrFocus["CurrentTimeText"]["Decimals"] == nil then VCBrFocus["CurrentTimeText"]["Decimals"] = 1 end
 	if VCBrFocus["TotalTimeText"]["Decimals"] == nil then VCBrFocus["TotalTimeText"]["Decimals"] = 1 end
 	if VCBrFocus["BothTimeText"]["Decimals"] == nil then VCBrFocus["BothTimeText"]["Decimals"] = 1 end
+	if VCBrPlayer["GCD"] == nil then VCBrPlayer["GCD"] = {ClassicTexture = "職業圖示",} end
+	if VCBrPlayer["QueueBar"] == nil then VCBrPlayer["QueueBar"] = "顯示" end
 end
 -- Events Time --
 local function EventsTime(self, event, arg1, arg2, arg3, arg4)

@@ -5,14 +5,16 @@ vcbOptions1Box1.TitleTxt:SetText("法術圖示 & 法術名稱")
 vcbOptions1Box2.TitleTxt:SetText("目前施法時間")
 vcbOptions1Box3.TitleTxt:SetText("目前 & 總共施法時間")
 vcbOptions1Box4.TitleTxt:SetText("總共施法時間")
-vcbOptions1Box5.TitleTxt:SetText("延遲標示 & 施法斷點")
-vcbOptions1Box6.TitleTxt:SetText("施法條顏色")
+vcbOptions1Box5.TitleTxt:SetText("延遲標示 & 排隊圖示")
+vcbOptions1Box6.TitleTxt:SetText("共用冷卻 & 施法斷點")
+vcbOptions1Box7.TitleTxt:SetText("施法條顏色")
 -- positioning the boxes --
 vcbOptions1Box2:SetPoint("TOPLEFT", vcbOptions1Box1, "TOPRIGHT", 0, 0)
 vcbOptions1Box3:SetPoint("TOPLEFT", vcbOptions1Box1, "BOTTOMLEFT", 0, 0)
 vcbOptions1Box4:SetPoint("TOPRIGHT", vcbOptions1Box2, "BOTTOMRIGHT", 0, 0)
 vcbOptions1Box5:SetPoint("TOPLEFT", vcbOptions1Box3, "BOTTOMLEFT", 0, 0)
 vcbOptions1Box6:SetPoint("TOPRIGHT", vcbOptions1Box4, "BOTTOMRIGHT", 0, 0)
+vcbOptions1Box7:SetPoint("TOPLEFT", vcbOptions1Box5, "BOTTOMLEFT", 0, 0)
 -- Checking the Saved Variables --
 local function CheckSavedVariables()
 	vcbOptions1Box1PopOut1:SetText(VCBrPlayer["Icon"])
@@ -29,8 +31,10 @@ local function CheckSavedVariables()
 	vcbOptions1Box4PopOut2:SetText(VCBrPlayer["TotalTimeText"]["Sec"])
 	vcbOptions1Box4PopOut3:SetText(VCBrPlayer["TotalTimeText"]["Decimals"])
 	vcbOptions1Box5PopOut1:SetText(VCBrPlayer["LagBar"])
-	vcbOptions1Box5PopOut2:SetText(VCBrPlayer["Ticks"])
-	vcbOptions1Box6PopOut1:SetText(VCBrPlayer["Color"])
+	vcbOptions1Box5PopOut2:SetText(VCBrPlayer["QueueBar"])
+	vcbOptions1Box6PopOut1:SetText(VCBrPlayer["Ticks"])
+	vcbOptions1Box6PopOut2:SetText(VCBrPlayer["GCD"]["ClassicTexture"])
+	vcbOptions1Box7PopOut1:SetText(VCBrPlayer["Color"])
 end
 -- Box 1 Spell's Icon and Spell's Name --
 -- pop out 1 Spell's Icon --
@@ -360,11 +364,11 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
--- pop out 2 Ticks of the Spells --
+-- pop out 2 Queue Bar --
 -- enter --
 vcbOptions1Box5PopOut2:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("是否要顯示施法斷點?")
+	GameTooltip:SetText("是否要顯示排隊視窗列?") 
 end)
 -- naming --
 vcbOptions1Box5PopOut2Choice0.Text:SetText("顯示")
@@ -376,35 +380,87 @@ vcbOptions1Box5PopOut2Choice1:SetPoint("TOP",vcbOptions1Box5PopOut2Choice0, "BOT
 for i = 0, 1, 1 do
 	_G["vcbOptions1Box5PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
-			VCBrPlayer["Ticks"] = self.Text:GetText()
+			VCBrPlayer["QueueBar"] = self.Text:GetText()
 			vcbOptions1Box5PopOut2.Text:SetText(self:GetText())
 			vcbOptions1Box5PopOut2Choice0:Hide()
 		end
 	end)
 end
--- Box 6 Castbar's Color --
--- pop out 1 Castbar's Color --
+-- Options Box 6 Ticks of the Spells & GCD --
+-- pop out 1 Ticks of the Spells --
 -- enter --
 vcbOptions1Box6PopOut1:SetScript("OnEnter", function(self)
 	vcbEnteringMenus(self)
-	GameTooltip:SetText("施法條要顯示什麼顏色?")
+	GameTooltip:SetText("是否要顯示施法斷點?") 
 end)
 -- naming --
-vcbOptions1Box6PopOut1Choice0.Text:SetText("預設顏色")
-vcbOptions1Box6PopOut1Choice1.Text:SetText("職業顏色")
-vcbOptions1Box6PopOut1Choice2.Text:SetText("法術類型顏色")
+vcbOptions1Box6PopOut1Choice0.Text:SetText("顯示")
+vcbOptions1Box6PopOut1Choice1.Text:SetText("隱藏")
 -- parent & sort --
-for i = 1, 2, 1 do
+for i = 1, 1, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetParent(vcbOptions1Box6PopOut1Choice0)
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box6PopOut1Choice"..i-1], "BOTTOM", 0, 0)
 end
 -- clicking --
-for i = 0, 2, 1 do
+for i = 0, 1, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
-			VCBrPlayer["Color"] = self.Text:GetText()
+			VCBrPlayer["Ticks"] = self.Text:GetText()
 			vcbOptions1Box6PopOut1.Text:SetText(self:GetText())
 			vcbOptions1Box6PopOut1Choice0:Hide()
+		end
+	end)
+end
+-- pop out 2 Global Cooldown --
+-- enter --
+vcbOptions1Box6PopOut2:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("是否要顯示共用冷卻時間?") 
+end)
+-- naming --
+vcbOptions1Box6PopOut2Choice0.Text:SetText("隱藏")
+vcbOptions1Box6PopOut2Choice1.Text:SetText("職業圖示")
+vcbOptions1Box6PopOut2Choice2.Text:SetText("英雄圖示")
+vcbOptions1Box6PopOut2Choice3.Text:SetText("陣營圖示")
+-- parent & sort --
+for i = 1, 3, 1 do
+	_G["vcbOptions1Box6PopOut2Choice"..i]:SetParent(vcbOptions1Box6PopOut2Choice0)
+	_G["vcbOptions1Box6PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box6PopOut2Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 3, 1 do
+	_G["vcbOptions1Box6PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["GCD"]["ClassicTexture"] = self.Text:GetText()
+			vcbOptions1Box6PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box6PopOut2Choice0:Hide()
+			vcbCreatingTheGCD()
+		end
+	end)
+end
+-- Box 7 Castbar's Color --
+-- pop out 1 Castbar's Color --
+-- enter --
+vcbOptions1Box7PopOut1:SetScript("OnEnter", function(self)
+	vcbEnteringMenus(self)
+	GameTooltip:SetText("施法條要顯示什麼顏色?") 
+end)
+-- naming --
+vcbOptions1Box7PopOut1Choice0.Text:SetText("預設顏色")
+vcbOptions1Box7PopOut1Choice1.Text:SetText("職業顏色")
+vcbOptions1Box7PopOut1Choice2.Text:SetText("法術類型顏色")
+-- parent & sort --
+for i = 1, 2, 1 do
+	_G["vcbOptions1Box7PopOut1Choice"..i]:SetParent(vcbOptions1Box7PopOut1Choice0)
+	_G["vcbOptions1Box7PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box7PopOut1Choice"..i-1], "BOTTOM", 0, 0)
+end
+-- clicking --
+for i = 0, 2, 1 do
+	_G["vcbOptions1Box7PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
+		if button == "LeftButton" and down == false then
+			VCBrPlayer["Color"] = self.Text:GetText()
+			vcbOptions1Box7PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box7PopOut1Choice0:Hide()
 		end
 	end)
 end

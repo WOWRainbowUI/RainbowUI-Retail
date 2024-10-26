@@ -1,0 +1,17 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\Blizzard_SharedXML\UI.xsd">
+	<Frame name="vcbFrameGCDparent" parent="UIParent" frameStrata="BACKGROUND" frameLevel="0">
+		<Anchors>
+			<Anchor point="RIGHT" relativeTo="PlayerCastingBarFrame" relativePoint="LEFT" x ="0" y="0"/>
+		</Anchors>
+		<Size x="36" y="36"/>
+<!-- Global Cooldown Classic -->
+		<Frames>
+			<Cooldown name="vcbFrameGCD" setAllPoints="true" reverse="true" hideCountdownNumbers="false" drawEdge="true" drawBling="false" drawSwipe="true">
+				<SwipeTexture file="Interface\ICONS\UI_AllianceIcon-round"/>
+				<EdgeTexture file="Interface\Cooldown\UI-HUD-ActionBar-LoC"/>
+			</Cooldown>
+		</Frames>
+	</Frame>
+	<Script file="VCB_Player.lua"/>
+</Ui>

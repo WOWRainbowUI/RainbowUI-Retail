@@ -5,7 +5,7 @@
 ## DefaultState: enabled
 ## SavedVariables: VCBrNumber VCBrProfile VCBrCounterLoading VCBrCounterDeleting
 ## SavedVariablesPerCharacter: VCBrPlayer VCBrTarget VCBrFocus
-## Version: 1.55
+## Version: 1.57
 ## Author: The_Indolent
 ## X-Website: https://panosanastasiou.rocks/
 
@@ -15,6 +15,6 @@
 ## IconTexture: Interface\Icons\spell_holy_surgeoflight_shadow
 
 VCB_Zlave.xml
-VCB_Player.lua
+VCB_Player.xml
 VCB_Target.lua
 VCB_Focus.lua

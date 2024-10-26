@@ -185,7 +185,7 @@
 					</Button>
 				</Frames>
 			</Frame>
-<!-- Options Box 5 Lag Bar & Ticks of the Spells -->
+<!-- Options Box 5 Lag Bar & Queue Bar -->
 			<Frame name="$parentBox5" inherits="vcbOptionsBox">
 				<Size x="360" y="72"/>
 				<Frames>
@@ -198,7 +198,7 @@
 							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
 						</Frames>
 					</Button>
-<!-- Pop Out Button 2 Ticks of the Spells -->
+<!-- Pop Out Button 2 Queue Bar -->
 					<Button name="$parentPopOut2" inherits="vcbPopOut">
 						<Anchors>
 							<Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="0" y="8"/>
@@ -209,8 +209,34 @@
 					</Button>
 				</Frames>
 			</Frame>
-<!-- Options Box 6 One Color -->
+<!-- Options Box 6 1 Ticks of the Spells & GCD -->
 			<Frame name="$parentBox6" inherits="vcbOptionsBox">
+				<Size x="360" y="72"/>
+				<Frames>
+<!-- Pop Out Button 1 Ticks of the Spells -->
+					<Button name="$parentPopOut1" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOM" x="0" y="8"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+<!-- Pop Out Button 1 Global Cooldown -->
+					<Button name="$parentPopOut2" inherits="vcbPopOut">
+						<Anchors>
+							<Anchor point="BOTTOMLEFT" relativePoint="BOTTOM" x="0" y="8"/>
+						</Anchors>
+						<Frames>
+							<Button name="$parentChoice1" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice2" inherits="vcbPopOutButton"/>
+							<Button name="$parentChoice3" inherits="vcbPopOutButton"/>
+						</Frames>
+					</Button>
+				</Frames>
+			</Frame>
+<!-- Options Box 7 One Color -->
+			<Frame name="$parentBox7" inherits="vcbOptionsBox">
 				<Size x="360" y="72"/>
 				<Frames>
 <!-- Pop Out Button 1 Castbar's Color -->

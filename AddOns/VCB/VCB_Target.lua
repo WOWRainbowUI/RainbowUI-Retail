@@ -430,7 +430,7 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		if TargetFrame:IsShown() then
 			local classFilename = UnitClassBase("target")
 			if classFilename ~= nil then vcbClassColorTarget = C_ClassColor.GetClassColor(classFilename) end
-		elseif SUFUnittarget ~= nil and SUFUnittarget:IsShown() then
+		elseif SUFUnittarget ~= nil and VCBrTarget["otherAdddon"] == "Shadowed Unit Frame" and SUFUnittarget:IsShown() then
 			SUFUnittarget.vcbCastbar:SetUnit(nil, true, true)
 			SUFUnittarget.vcbCastbar:PlayFinishAnim()
 			SUFUnittarget.vcbCastbar:SetUnit("target", true, true)
