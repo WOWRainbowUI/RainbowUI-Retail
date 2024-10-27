@@ -94,3 +94,12 @@ L['Login Information 1'] = "You are using the %s Input Enhancement addon. If you
 L['Login Information 2'] = "Enter %s or %s to open the settings panel"
 
 L['Not enabled, enter/ii to enable'] = 'Not enabled, enter%s to enable'
+
+L['New Version Discovered'] = '%s Discovered a new version %s'
+
+-- 自行加入
+L['Input Input'] = ""
+L['InputInput'] = "InputInput"
+L['No Fading'] = "No Fading"
+L['Keep Chat History'] = "Keep Chat History"
+L["Show %d messages"] = "Show %d messages"

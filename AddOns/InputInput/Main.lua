@@ -22,8 +22,11 @@ local IsLeftShiftKeyDown = API.IsLeftShiftKeyDown
 local C_AddOns_GetAddOnEnableState = API.C_AddOns_GetAddOnEnableState
 local C_AddOns_EnableAddOn = API.C_AddOns_EnableAddOn
 local C_AddOns_DisableAddOn = API.C_AddOns_DisableAddOn
+local C_ChatInfo_RegisterAddonMessagePrefix = API.C_ChatInfo_RegisterAddonMessagePrefix
 
 local measureFontString = UIParent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+
+local isTinyChatEnabled
 
 local tip = ''
 -- 更新显示 FontString 位置的函数
@@ -532,6 +535,8 @@ end
 
 local showTime = false
 local showbg = false
+local noFade = false
+local keepHistory = true
 
 ---@param saveKey string
 ---@param channel string
@@ -548,8 +553,8 @@ function SaveMSG(saveKey, channel, senderGUID, msg, isChannel, sender, isPlayer)
 	currtime = "|TTag:" .. time() .. "|TTag"
 	tinsert(channelMsg, currtime .. FormatMSG(channel, senderGUID, msg, isChannel, sender, isPlayer))
 	local temp = {}
-	if #channelMsg > 10 then
-		for k = #channelMsg - 10, #channelMsg do
+	if #channelMsg > 30 then -- 最多幾行訊息
+		for k = #channelMsg - 30, #channelMsg do
 			tinsert(temp, channelMsg[k])
 		end
 	else
@@ -576,7 +581,15 @@ local ChatLabels = {
 	["BN_WHISPER_INFORM"]    = 'CHAT_MSG_BN_WHISPER_INFORM',
 }
 
----@param editBox EditBox
+local function WipeMSG()
+	for k, v in pairs(ChatLabels) do
+		D:SaveDB(k, {})
+	end
+	for k = 1, 10 do
+		D:SaveDB("CHANNEL"..k, {})
+	end
+end
+
 function HideEuiBorder(editBox)
 	if ElvUI then
 		---@diagnostic disable-next-line: undefined-field
@@ -600,6 +613,8 @@ function HideEuiBorder(editBox)
 end
 
 local showChannelName = true
+local showLines = 7
+
 
 ---@param editBox EditBox
 ---@param chatType string
@@ -610,11 +625,23 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 	local info = ChatTypeInfo[chatType]
 	local r, g, b = info.r, info.g, info.b
 	local chatGroup = Chat_GetChatCategory(chatType);
+	
 	if chatType == "CHANNEL" then
 		local channelTarget = editBox:GetAttribute("channelTarget") or 'SAY'
 		local channelNumber, channelname = GetChannelName(channelTarget)
 		local channelText = ""
-		if showChannelName then
+		if showChannelName and channelname then
+			if strfind(channelname, "Community") then
+				local clubInfo = C_Club.GetClubInfo(channelname:match(":(%d+):"));
+				if clubInfo then
+					local streamInfo = C_Club.GetStreamInfo(clubInfo.clubId, channelname:match(":(%d+)$"));
+					if streamInfo then
+						channelname = (clubInfo.shortName and clubInfo.shortName or clubInfo.name) .. " - " .. streamInfo.name
+					end
+				end
+			end
+			info = ChatTypeInfo[chatType..channelTarget]
+			r, g, b = info.r, info.g, info.b
 			channelText = '|cFF' .. U:RGBToHex(r, g, b) .. channelTarget .. ' ' .. channelname .. '|r'
 		end
 		channel_name:SetText(channelText)
@@ -657,10 +684,13 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 	end
 	-- chat_h = 1
 	local c_h = 0
-	for k = 0, 4 do
+	showLines = showLines or 7
+	for k = 0, showLines do  -- 顯示幾行訊息
 		local msg = msg_list[#msg_list - k]
-		msg = M.ICON:EmojiFilter(msg)
-		msg = M.ICON:IconFilter(msg)
+		if not isTinyChatEnabled then -- 有 TinyChat 就不再額外顯示圖示和表情圖案
+			msg = M.ICON:EmojiFilter(msg)
+			msg = M.ICON:IconFilter(msg)
+		end
 		msg = U:BTagFilter(msg)
 		msg = U:TTagFilter(msg, showTime)
 		if msg and #msg > 0 then
@@ -686,11 +716,17 @@ function Chat(editBox, chatType, backdropFrame2, channel_name)
 			end
 			local fontfile, _, flags = fontString:GetFont()
 			fontString:SetFont(fontfile or W.defaultFontName, 16 * scale, flags)
-			local a = 1 - math.log(k + 1) + 2 / math.log(#msg_list)
-			if a < 0 then a = 0 end
-			if a > 1 then a = 1 end
-			fontString:SetAlpha(a)
-			bgTexture:SetAlpha(a)
+			-- 淡出
+			if noFade then
+				fontString:SetAlpha(1)
+				bgTexture:SetAlpha(1)
+			else
+				local a = 1 - math.log(k + 1) + (10-(50/showLines)) / math.log(#msg_list)
+				if a < 0 then a = 0 end
+				if a > 1 then a = 1 end
+				fontString:SetAlpha(a)
+				bgTexture:SetAlpha(a)
+			end
 			fontString:Show()
 			if showbg then
 				bgTexture:Show()
@@ -718,15 +754,24 @@ function ChannelChange(editBox, bg, bg3, border, backdropFrame2, resizeBtnTextur
 	end
 	editBox:SetTextInsets(10, 10, 0, 0) -- 左, 右, 上, 下
 	local chatType = editBox:GetAttribute("chatType") or "SAY"
-	local info = ChatTypeInfo[chatType]
-	local r, g, b = info.r, info.g, info.b
-	bg:SetColorTexture(r, g, b, 0.15)
-	II_LANG:SetTextColor(r, g, b, 0.6)
-	-- local c_start = CreateColor(0, 0, 0, 0.3)
-	-- local c_end = CreateColor(r, g, b, 0.15)
-	-- bg3:SetGradient("VERTICAL", c_start, c_end)
-	border:SetBackdropBorderColor(r, g, b, 1)
-	resizeBtnTexture:SetVertexColor(r, g, b, 1)
+	local info
+	local r, g, b
+	if chatType == "CHANNEL" then
+		local channelTarget = editBox:GetAttribute("channelTarget") or 'SAY'
+		info = ChatTypeInfo[chatType..channelTarget]
+	else
+		info = ChatTypeInfo[chatType]
+	end
+	if info then -- 暫時修正
+		r, g, b = info.r, info.g, info.b
+		bg:SetColorTexture(r, g, b, 0.15)
+		II_LANG:SetTextColor(r, g, b, 0.6)
+		-- local c_start = CreateColor(0, 0, 0, 0.3)
+		-- local c_end = CreateColor(r, g, b, 0.15)
+		-- bg3:SetGradient("VERTICAL", c_start, c_end)
+		border:SetBackdropBorderColor(r, g, b, 1)
+		resizeBtnTexture:SetVertexColor(r, g, b, 1)
+	end
 	Chat(editBox, chatType, backdropFrame2, channel_name)
 end
 
@@ -959,9 +1004,9 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 	end)
 	editBox:HookScript("OnKeyDown", function(self, key, ...)
 		if key == "TAB" then
-			if not ElvUI and not NDui then
-				UpdateChannel(self)
-			end
+			-- if not ElvUI and not NDui then
+			-- UpdateChannel(self)
+			-- end
 			if NDui then
 				hooksecurefunc("ChatEdit_CustomTabPressed", function(self)
 					ChannelChange(self, bg, bg3, border, backdropFrame2, texture_btn, channel_name, II_LANG)
@@ -969,6 +1014,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 			end
 		elseif key == "UP" then
 			-- 上滚历史消息
+			if TinyChatDB and TinyChatDB.HistoryNeedAlt and not IsAltKeyDown() then return end -- TinyChat 相容性，上下鍵選擇是否需要按住 Alt
 			if not ElvUI then
 				if historyIndex > 1 then
 					historyIndex = historyIndex - 1
@@ -978,6 +1024,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 				end
 			end
 		elseif key == "DOWN" then
+			if TinyChatDB and TinyChatDB.HistoryNeedAlt and not IsAltKeyDown() then return end -- TinyChat 相容性，上下鍵選擇是否需要按住 Alt
 			if not ElvUI then
 				-- 下滚历史消息
 				if historyIndex < #messageHistory then
@@ -1033,6 +1080,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		frame_E:RegisterEvent(v)
 	end
 	frame_E:RegisterEvent('CHAT_MSG_CHANNEL')
+	frame_E:RegisterEvent('CHAT_MSG_COMMUNITIES_CHANNEL')
 
 	frame_E:HookScript("OnEvent",
 		function(self, ...)
@@ -1075,7 +1123,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 				end
 			end
 
-			if event == 'CHAT_MSG_CHANNEL' then
+			if event == 'CHAT_MSG_CHANNEL' or event == 'CHAT_MSG_COMMUNITIES_CHANNEL' then
 				SaveMSG('CHANNEL' .. channelNumber, 'CHANNEL' .. channelNumber, guid or bnSenderID, msg or '',
 					true, sender)
 				if ChatChange then
@@ -1116,6 +1164,18 @@ local function optionSetup(backdropFrame2)
 	function MAIN:Hidebg(show)
 		showbg = show
 	end
+	
+	function MAIN:NoFade(value)
+		noFade = value
+	end
+	
+	function MAIN:KeepHistory(value)
+		keepHistory = value
+	end
+	
+	function MAIN:ShowLines(value)
+		showLines = value
+	end
 
 	function M.MAIN:EnableIL_zh(show)
 		local isLoad = C_AddOns_GetAddOnEnableState("InputInput_Libraries_zh") == 2
@@ -1138,6 +1198,7 @@ frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("CVAR_UPDATE")
 frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("CHAT_MSG_ADDON")
 
 frame:RegisterEvent("ZONE_CHANGED")
 frame:RegisterEvent("ZONE_CHANGED_INDOORS")
@@ -1153,13 +1214,24 @@ for _, event in pairs(ChatTypeGroup["WHISPER"]) do
 	frame:RegisterEvent(event);
 end
 local editBox, bg, border, backdropFrame2, resizeButton, resizeBtnTexture, channel_name, II_TIP, II_LANG, bg3
-
+local SendRecieveGroupSize = 0
+local SendMessageWaiting = nil
+local versionUpdateMsg = nil
 frame:HookScript("OnEvent", function(self_f, event, ...)
 	if not isInit then
 		editBox, bg, border, backdropFrame2, resizeButton, resizeBtnTexture, channel_name, II_TIP, II_LANG, bg3 =
 			MAIN:Init()
+		C_ChatInfo_RegisterAddonMessagePrefix('INPUTINPUT_V')
 	end
 	if event == 'PLAYER_ENTERING_WORLD' or strfind(event, "WHISPER", 0, true) then
+		
+		isTinyChatEnabled = C_AddOns.IsAddOnLoaded("TinyChat") -- TinyChat 相容性修正
+		
+		-- 登入時清空聊天內容
+		if isLogin and not keepHistory then
+			WipeMSG()
+		end
+		
 		for _, chatFrameName in pairs(CHAT_FRAMES) do
 			local chatFrameTab = _G[chatFrameName .. "Tab"]
 			-- Hook点击标签的事件
@@ -1191,6 +1263,9 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 			end
 		end)
 		U:InitZones()
+		if not SendMessageWaiting then
+			SendMessageWaiting = U:Delay(10, U.SendVersionMsg)
+		end
 	elseif event == 'CVAR_UPDATE' then
 		local cvarName, value = ...
 		if cvarName == 'chatStyle' or cvarName == 'whisperMode' then
@@ -1241,6 +1316,26 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 		U:InitZones()
 	elseif event == 'GROUP_ROSTER_UPDATE' or event == 'RAID_ROSTER_UPDATE' then
 		U:InitGroupMembers()
+		local num = GetNumGroupMembers()
+		if num ~= SendRecieveGroupSize then
+			if num > 1 and num > SendRecieveGroupSize then
+				if not SendMessageWaiting then
+					SendMessageWaiting = U:Delay(10, U.SendVersionMsg)
+				end
+			end
+			SendRecieveGroupSize = num
+		end
+	elseif event == 'CHAT_MSG_ADDON' then
+		local prefix, text, channel, sender, target, zoneChannelID, localID, name, instanceID = ...
+		if prefix == "INPUTINPUT_V" and (not versionUpdateMsg or time() - versionUpdateMsg > 60 * 30) then
+			local ver, msg, inCombat = W:getVersion(W.version), W:getVersion(text), InCombatLockdown()
+			LOG:Debug(ver, msg, text)
+			if msg and (msg > ver) and not inCombat then
+				LOG:Info(string.format(L['New Version Discovered'], W.colorName,
+					'|cFFFFFFFF' .. text .. '|r|cFF909399 (' .. W.version .. ')|r'))
+				versionUpdateMsg = time()
+			end
+		end
 	else
 		if (C_AddOns_IsAddOnLoaded("ElvUI") or ElvUI == nil) and
 			(C_AddOns_IsAddOnLoaded("NDui") or NDui == nil) then
@@ -1249,16 +1344,17 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 
 			optionSetup(backdropFrame2)
 
-			C_Timer.After(5, function(cb)
+			--[[
+			U:Delay(5, function(cb)
 				LOG:Info(string.format(L['Login Information 1'],
 					W.colorName,
 					"|cff409EFFDiscord|r |cFFFFFFFF[https://discord.gg/qC9RAdXN]|r",
 					"|cff409EFFCurseForge|r |cFFFFFFFF[https://www.curseforge.com/wow/addons/inputinput/comments]|r"))
 			end)
-			C_Timer.After(6, function(cb)
+			U:Delay(6, function(cb)
 				LOG:Info(string.format(L['Login Information 2'], "|cff409EFF/ii|r", "|cff409EFF/inputinput|r"))
 			end)
-			C_Timer.After(7, function(cb)
+			U:Delay(7, function(cb)
 				local isLoad = C_AddOns_GetAddOnEnableState("InputInput_Libraries_zh") == 2
 				if GetLocale() == 'zhCN' or GetLocale() == 'zhTW' then
 					if not (C_AddOns_GetAddOnEnableState("InputInput_Libraries_zh") == 2) then
@@ -1267,6 +1363,8 @@ frame:HookScript("OnEvent", function(self_f, event, ...)
 					end
 				end
 			end)
+			--]]
+
 			U:InitFriends()
 			U:InitGuilds()
 			U:InitGroupMembers()
