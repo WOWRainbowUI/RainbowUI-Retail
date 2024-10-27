@@ -52,42 +52,29 @@ local function IsDeclined(appStatus)
 end
 
 local function SortRules(searchResultID1, searchResultID2)
-    if type(searchResultID2) ~= "number" then
-        return false
-    end
-
-    local searchResultInfo1 = C_LFGList.GetSearchResultInfo(searchResultID1);
-    local searchResultInfo2 = C_LFGList.GetSearchResultInfo(searchResultID2);
+	local searchResultInfo1 = C_LFGList.GetSearchResultInfo(searchResultID1);
+	local searchResultInfo2 = C_LFGList.GetSearchResultInfo(searchResultID2);
+	local hasRemainingRole1 = HasRemainingSlotsForLocalPlayerRole(searchResultID1);
+	local hasRemainingRole2 = HasRemainingSlotsForLocalPlayerRole(searchResultID2);
     local _, appStatus1, pendingStatus1, appDuration1 = C_LFGList.GetApplicationInfo(searchResultID1);
     local _, appStatus2, pendingStatus2, appDuration2 = C_LFGList.GetApplicationInfo(searchResultID2);
-    local hasRemainingRole1 = HasRemainingSlotsForLocalPlayerRole(searchResultID1);
-    local hasRemainingRole2 = HasRemainingSlotsForLocalPlayerRole(searchResultID2);
-
-    if ( appStatus1 ~= appStatus2 ) then
-        return appStatus1 ~= "none";
-    end
-
-    local isDeclined1 = IsDeclined(appStatus1);
+	local isDeclined1 = IsDeclined(appStatus1);
 	local isDeclined2 = IsDeclined(appStatus2);
 
 	--sort declined to the bottom
 	if LFGListFrame.declines then
-		isDeclined1 = isDeclined1 or LFGListFrame.declines[searchResultInfo1.partyGUID];
-		isDeclined2 = isDeclined2 or LFGListFrame.declines[searchResultInfo2.partyGUID];
+		isDeclined1 = isDeclined1 or not not LFGListFrame.declines[searchResultInfo1.partyGUID];
+		isDeclined2 = isDeclined2 or not not LFGListFrame.declines[searchResultInfo2.partyGUID];
 	end
 
 	if isDeclined1 ~= isDeclined2 then
 		return isDeclined2;
 	end
 
-    if ( appDuration1 ~= appDuration2 ) then
-        return appDuration1 > appDuration2;
-    end
-
-    -- Groups with your current role available are preferred
-    if ( hasRemainingRole1 ~= hasRemainingRole2 ) then
-        return hasRemainingRole1;
-    end
+	-- Groups with your current role available are preferred
+	if (hasRemainingRole1 ~= hasRemainingRole2) then
+		return hasRemainingRole1;
+	end
 
     if Settings.FriendsEnabled then
         if ( searchResultInfo1.numBNetFriends ~= searchResultInfo2.numBNetFriends ) then
@@ -107,18 +94,22 @@ local function SortRules(searchResultID1, searchResultID2)
         return searchResultInfo1.isWarMode == C_PvP.IsWarModeDesired();
     end
 
+    if (appStatus1 ~= appStatus2) then
+        return (appStatus1 ~= "none") and (appStatus2 == "none" or appStatus1 > appStatus2)
+    end
+
     if ( searchResultInfo1.age ~= searchResultInfo2.age ) then
         return searchResultInfo1.age < searchResultInfo2.age
     end
 
-    return searchResultID1 < searchResultID2
+	return searchResultID1 < searchResultID2;
 end
 
 function SortSearchResults(result)
     -- No longer sort anything on unsecured accounts due taints
     if not IsAccountSecured() then return end
     if not result or (result and next(result.results) == nil) then return end
-    table.sort(result.results, SortRules);
+    table.sort(result.results, SortRules)
 end
 
 local LFGListDisplayType = Enum.LFGListDisplayType
