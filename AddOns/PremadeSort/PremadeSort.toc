@@ -1,0 +1,10 @@
+## Interface: 110005
+## Title: |cffEEE4AEPremade Sort|r
+## Author: Yuyuli
+## Version: 1.2.22
+## Notes: |cff58C6FASort LFG list by creation time.|r
+## IconTexture: 255344
+## SavedVariables: PremadeSortDB
+## OptionalDeps: ElvUI
+
+PremadeSort.lua

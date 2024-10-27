@@ -1,0 +1,7 @@
+<Bindings>
+    <Binding name="Refresh LFG" category="Premade Sort">
+        if ( LFGListFrame.SearchPanel.RefreshButton:IsVisible() and not LFGListApplicationDialog:IsVisible() ) then
+            LFGListSearchPanel_DoSearch(LFGListFrame.SearchPanel);
+        end
+    </Binding>
+</Bindings>
