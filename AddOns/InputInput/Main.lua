@@ -762,14 +762,16 @@ function ChannelChange(editBox, bg, bg3, border, backdropFrame2, resizeBtnTextur
 	else
 		info = ChatTypeInfo[chatType]
 	end
-	r, g, b = info.r, info.g, info.b
-	bg:SetColorTexture(r, g, b, 0.15)
-	II_LANG:SetTextColor(r, g, b, 0.6)
-	-- local c_start = CreateColor(0, 0, 0, 0.3)
-	-- local c_end = CreateColor(r, g, b, 0.15)
-	-- bg3:SetGradient("VERTICAL", c_start, c_end)
-	border:SetBackdropBorderColor(r, g, b, 1)
-	resizeBtnTexture:SetVertexColor(r, g, b, 1)
+	if info then -- 暫時修正
+		r, g, b = info.r, info.g, info.b
+		bg:SetColorTexture(r, g, b, 0.15)
+		II_LANG:SetTextColor(r, g, b, 0.6)
+		-- local c_start = CreateColor(0, 0, 0, 0.3)
+		-- local c_end = CreateColor(r, g, b, 0.15)
+		-- bg3:SetGradient("VERTICAL", c_start, c_end)
+		border:SetBackdropBorderColor(r, g, b, 1)
+		resizeBtnTexture:SetVertexColor(r, g, b, 1)
+	end
 	Chat(editBox, chatType, backdropFrame2, channel_name)
 end
 
