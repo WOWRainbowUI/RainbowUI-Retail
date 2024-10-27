@@ -85,6 +85,14 @@ local DEFAULT_LOW_PRIORITY_SPELLS =
 168092; EVB Water Bolt
 400165; DIMR Epoch Bolt
 418202; DIMR Temporal Blast
+; TWW S1
+333602; NW Frostbolt
+434786; AK Web Bolt
+429110; SV Alloy Bolt
+451261; GB Earth Bolt
+76369; GB Shadowflame Bolt
+257063; SOB Brackish Bolt
+272581; SOB Water Bolt
 ]];
 -- 376399; ignore test
 -- 392279; ignore test
@@ -155,6 +163,11 @@ local DEFAULT_PVE_PURGE =
 374778; AV Brilliant Scales
 ; Dragonflight S3
 255579; AD Gilded Claws
+; TWW S1
+431493; DAWN Darkblade
+256957; SOB Watertight Shell
+275826; SOB Bolstering Shout
+335141; NW Dark Shroud
 ]];
 
 ------------------------------

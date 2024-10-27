@@ -1,10 +1,11 @@
-lightweight tag 2ed6e5a805ec7b3b553f19a8ffeba8502572ce5e r154
+lightweight tag 86e2892051b485548bb32a60d44ee1faf910d796 r155
 Author:	Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:	Tue Aug 13 19:33:03 2024 -0700
+Date:	Sat Oct 26 13:14:21 2024 -0700
 
-commit 2ed6e5a805ec7b3b553f19a8ffeba8502572ce5e
+commit 86e2892051b485548bb32a60d44ee1faf910d796
 Author: Brian Tsang <13686151+corgatag@users.noreply.github.com>
-Date:   Tue Aug 13 19:33:03 2024 -0700
+Date:   Sat Oct 26 13:14:21 2024 -0700
 
-    Fix errors in latest patch
+    - Add more low pri spells for TWW S1
+    - Update toc
 
