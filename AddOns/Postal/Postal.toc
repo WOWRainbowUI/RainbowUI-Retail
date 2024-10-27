@@ -1,9 +1,9 @@
-## Interface: 11503, 30403, 40400, 110002, 110005
+## Interface: 11504, 30403, 40400, 110002, 110005
 ## Title: Postal
-## Version: v4.1.9
-## X-Build: 632
-## X-ReleaseDate: 2024-09-27T15:25:23Z
-## X-Revision: 632
+## Version: v4.2.0
+## X-Build: 634
+## X-ReleaseDate: 2024-10-26T14:56:29Z
+## X-Revision: 634
 ## Author: Xinhuan
 ## X-Credits: Ammo, Rabbit, Grennon, Mikk, oscarucb, Jonny aka The_Original_Manbot
 ## X-Category: Mail
