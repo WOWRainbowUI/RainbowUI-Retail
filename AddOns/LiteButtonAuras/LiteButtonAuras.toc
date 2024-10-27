@@ -1,7 +1,7 @@
 ## Interface: 11504, 40400, 110002, 110005
 ## Title: LiteButtonAuras
 ## IconTexture: Interface\Icons\achievement_guild_timeoff
-## Version: 11.0.2-2
+## Version: 11.0.5-1
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
