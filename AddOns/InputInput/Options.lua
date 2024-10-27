@@ -6,20 +6,17 @@ local C_AddOns_IsAddOnLoaded = API.C_AddOns_IsAddOnLoaded
 local GetAddOnMemoryUsage = API.GetAddOnMemoryUsage
 local C_AddOns_GetAddOnEnableState = API.C_AddOns_GetAddOnEnableState
 
-local settings = { -- 預設值
+local settings = {
     showChat = true,
     showChannel = true,
     showTime = true,
     showbg = false,
-    enableIL_zh = true,
-    noFade = false,
-	keepHistory =  true,
-	showLines = 7
+    enableIL_zh = true
 }
 
 
 local options = CreateFrame("FRAME")
-options.name = L['InputInput']
+options.name = W.N
 options:Hide()
 
 local texture = options:CreateTexture(nil, "BACKGROUND")
@@ -29,7 +26,7 @@ texture:SetSize(150, 150)
 
 local title = options:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 title:SetPoint("TOPLEFT", options, "TOPLEFT", 20, -20)
-title:SetText(L['Input Input'].." "..W.colorName)
+title:SetText(W.colorName)
 local font, fontsize, flags = title:GetFont()
 ---@diagnostic disable-next-line: param-type-mismatch
 title:SetFont(font, 28, flags)
@@ -40,7 +37,7 @@ button:SetPoint("TOPRIGHT", options, "TOPRIGHT", -20, -20)
 button:SetText(L['Default Setting'])
 
 if Settings and Settings.RegisterCanvasLayoutCategory then
-    local category, layout = Settings.RegisterCanvasLayoutCategory(options, options.name);
+    local category, layout = Settings.RegisterCanvasLayoutCategory(options, W.N);
     Settings.RegisterAddOnCategory(category);
     options.settingcategory = category
 else
@@ -68,9 +65,6 @@ local function changeSetting()
     M.MAIN:HideChannel(settings.showChannel)
     M.MAIN:HideTime(settings.showTime)
     M.MAIN:Hidebg(settings.showbg)
-    M.MAIN:NoFade(settings.noFade)
-    M.MAIN:KeepHistory(settings.keepHistory)
-    M.MAIN:ShowLines(settings.showLines)
     M.MAIN:EnableIL_zh(settings.enableIL_zh)
 end
 
@@ -111,45 +105,18 @@ function OPT:loadOPT()
     showbg:SetPoint("TOPLEFT", 32, -130)
     showbg.Text:SetText(L['Show bg'])
     showbg:SetChecked(settings.showbg)
-	
-	-- 不要淡出
-	local noFade = CreateFrame("CheckButton", W.N .. "noFade", options,
-        "InterfaceOptionsCheckButtonTemplate")
-    noFade:SetPoint("TOPLEFT", 32, -162)
-    noFade.Text:SetText(L['No Fading'])
-    noFade:SetChecked(settings.noFade)
-	
-	-- 永久保存
-	local keepHistory = CreateFrame("CheckButton", W.N .. "keepHistory", options,
-        "InterfaceOptionsCheckButtonTemplate")
-    keepHistory:SetPoint("TOPLEFT", 32, -194)
-    keepHistory.Text:SetText(L['Keep Chat History'])
-    keepHistory:SetChecked(settings.keepHistory)	
-	
-	-- 要顯示幾行訊息
-	local showLines = CreateFrame("Slider", W.N .. "showLines", options, "OptionsSliderTemplate")
-	showLines:SetPoint("TOPLEFT", 32 , -252)
-	showLines:SetWidth(200)
-	showLines:SetHeight(20)
-	showLines:SetMinMaxValues(7, 30)
-	showLines:SetValue(settings.showLines and settings.showLines or 7)
-	showLines:SetValueStep(1)
-	showLines:SetObeyStepOnDrag(true)
-	showLines.Text:SetText(format(L["Show %d messages"], settings.showLines or 7))
-	showLines.Low:SetText("7")
-	showLines.High:SetText("30")
-	
-	-- 显示频道名称
+
+    -- 显示频道名称
     local showChannel = CreateFrame("CheckButton", W.N .. "showChannel", options,
         "InterfaceOptionsCheckButtonTemplate")
-    showChannel:SetPoint("TOPLEFT", 16, -304)
+    showChannel:SetPoint("TOPLEFT", 16, -168)
     showChannel.Text:SetText(L['Show channel Name'])
     showChannel:SetChecked(settings.showChannel)
 
     -- 启用|cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r_Libraries_|cffF56C6Czh|r
     local enableIL_zh = CreateFrame("CheckButton", W.N .. "enableIL_zh", options,
         "InterfaceOptionsCheckButtonTemplate")
-    enableIL_zh:SetPoint("TOPLEFT", 16, -336)
+    enableIL_zh:SetPoint("TOPLEFT", 16, -206)
     -- enableIL_zh.Text:SetText(format(L['Enable InputInput_Libraries_zh'],
     --     'InputInput_Libraries_zh'))
     -- enableIL_zh:Hide()
@@ -165,11 +132,12 @@ function OPT:loadOPT()
         GameTooltip:Hide() -- 隐藏提示框
     end)
 
+
     options:SetScript("OnShow", function(self)
         UpdateAddOnMemoryUsage()
         enableIL_zh.Text:SetText(format(L['Enable InputInput_Libraries_zh'],
-            C_AddOns.IsAddOnLoaded('InputInput_Libraries_zh') and ('|cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r_Libraries_|cffF56C6Czh|r' .. ' |cFF909399' .. GetAddonMemory('InputInput_Libraries_zh')) or ' |cFF909399') ..
-			' (' .. L['Need To Reload'] .. ')|r')
+                '|cff409EFF|cffF56C6Ci|rnput|cffF56C6Ci|rnput|r_Libraries_|cffF56C6Czh|r') ..
+            ' |cFF909399' .. GetAddonMemory('InputInput_Libraries_zh') .. ' (' .. L['Need To Reload'] .. ')|r')
         settings.enableIL_zh = C_AddOns_GetAddOnEnableState("InputInput_Libraries_zh") == 2
         enableIL_zh:SetChecked(settings.enableIL_zh)
     end)
@@ -183,17 +151,11 @@ function OPT:loadOPT()
         if settings.showChat then
             showTime:Show()
             showbg:Show()
-			noFade:Show()
-            keepHistory:Show()
-            showLines:Show()
-            showChannel:SetPoint("TOPLEFT", 16, -304)
-            enableIL_zh:SetPoint("TOPLEFT", 16, -336)
+            showChannel:SetPoint("TOPLEFT", 16, -168)
+            enableIL_zh:SetPoint("TOPLEFT", 16, -206)
         else
             showTime:Hide()
             showbg:Hide()
-			noFade:Hide()
-            keepHistory:Hide()
-            showLines:Hide()
             showChannel:SetPoint("TOPLEFT", 16, -98)
             enableIL_zh:SetPoint("TOPLEFT", 16, -136)
         end
@@ -208,7 +170,7 @@ function OPT:loadOPT()
         D:SaveDB("settings", settings)
         changeSetting()
     end)
-	showbg:SetScript("OnClick", function(self)
+    showbg:SetScript("OnClick", function(self)
         settings.showbg = self:GetChecked()
         D:SaveDB("settings", settings)
         changeSetting()
@@ -218,23 +180,6 @@ function OPT:loadOPT()
         D:SaveDB("settings", settings)
         changeSetting()
     end)
-    noFade:SetScript("OnClick", function(self)
-        settings.noFade = self:GetChecked()
-        D:SaveDB("settings", settings)
-        changeSetting()
-    end)
-	keepHistory:SetScript("OnClick", function(self)
-        settings.keepHistory = self:GetChecked()
-        D:SaveDB("settings", settings)
-        changeSetting()
-    end)
-	showLines:SetScript("OnValueChanged", function(self, value)
-	    settings.showLines = value
-        D:SaveDB("settings", settings)
-        changeSetting()
-		
-		showLines.Text:SetText(format(L["Show %d messages"], value))
-	end)
 
     button:SetScript("OnClick", function()
         settings = {
@@ -242,11 +187,7 @@ function OPT:loadOPT()
             showChannel = true,
             showTime = true,
             showbg = false,
-            enableIL_zh = true,
-            showbg = true,
-            noFade = false,
-            keepHistory = true,
-            showLines = 7,
+            enableIL_zh = true
         }
         D:SaveDB("settings", settings)
         changeSetting()
@@ -254,17 +195,11 @@ function OPT:loadOPT()
         if settings.showChat then
             showTime:Show()
             showbg:Show()
-            noFade:Show()
-            keepHistory:Show()
-            showLines:Show()
-            showChannel:SetPoint("TOPLEFT", 16, -304)
-            enableIL_zh:SetPoint("TOPLEFT", 16, -336)
+            showChannel:SetPoint("TOPLEFT", 16, -168)
+            enableIL_zh:SetPoint("TOPLEFT", 16, -206)
         else
             showTime:Hide()
             showbg:Hide()
-			noFade:Hide()
-            keepHistory:Hide()
-            showLines:Hide()
             showChannel:SetPoint("TOPLEFT", 16, -98)
             enableIL_zh:SetPoint("TOPLEFT", 16, -136)
         end
@@ -272,9 +207,5 @@ function OPT:loadOPT()
         showbg:SetChecked(settings.showbg)
         showChannel:SetChecked(settings.showChannel)
         enableIL_zh:SetChecked(settings.enableIL_zh)
-        noFade:SetChecked(settings.noFade)
-        keepHistory:SetChecked(settings.keepHistory)
-        showLines:SetValue(settings.showLines)
-		showLines.Text:SetText(format(L["Show %d messages"], settings.showLines or 7))
     end)
 end
