@@ -4932,6 +4932,7 @@ do
         v1 = 1,
         v2 = 1,
         v3 = 1,
+        pmultiplier = 1
     }
 
     mt_default_debuff = {

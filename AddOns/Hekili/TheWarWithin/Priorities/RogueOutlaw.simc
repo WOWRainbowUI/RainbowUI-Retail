@@ -1,8 +1,8 @@
-actions.precombat+=/use_item,name=imperfect_ascendancy_serum
 actions.precombat+=/apply_poison
+actions.precombat+=/use_item,name=imperfect_ascendancy_serum
 actions.precombat+=/stealth,precombat_seconds=2
 # Builds with Keep it Rolling prepull Adrenaline Rush before Roll the Bones to consume Loaded Dice immediately instead of on the next pandemic roll
-actions.precombat+=/adrenaline_rush,precombat_seconds=2,if=settings.use_ld_opener&talent.improved_adrenaline_rush&buff.adrenaline_rush.down&talent.keep_it_rolling&talent.loaded_dice
+actions.precombat+=/adrenaline_rush,precombat_seconds=2,if=talent.improved_adrenaline_rush&buff.adrenaline_rush.down&talent.keep_it_rolling&talent.loaded_dice
 actions.precombat+=/roll_the_bones,precombat_seconds=2,if=buff.roll_the_bones.down
 actions.precombat+=/adrenaline_rush,precombat_seconds=1,if=talent.improved_adrenaline_rush&buff.adrenaline_rush.down
 
@@ -13,7 +13,7 @@ actions+=/kick
 # Variables that define the reroll rules for Roll the Bones  Default rule: reroll if the only buff that will be rolled away is Buried Treasure, or Grand Melee in single target without upcoming adds
 actions+=/variable,name=rtb_reroll,value=rtb_buffs.will_lose=(rtb_buffs.will_lose.buried_treasure+rtb_buffs.will_lose.grand_melee&spell_targets.blade_flurry<2)
 # If Loaded Dice is talented, then keep any 1 buff from Roll the Bones but roll it into 2 buffs when Loaded Dice is active. Also reroll 2 buffs with loaded dice up if broadside, ruthless precision and true bearing are all missing and loaded dice is up
-actions+=/variable,name=rtb_reroll,if=talent.loaded_dice,value=(rtb_buffs.will_lose<=buff.loaded_dice.up)|buff.loaded_dice.up&rtb_buffs.will_lose<3&(!rtb_buffs.will_lose.broadside|buff.broadside.remains<11)&(!rtb_buffs.will_lose.ruthless_precision|buff.ruthless_precision.remains<11)&(!rtb_buffs.will_lose.true_bearing|buff.true_bearing.remains<11)
+actions+=/variable,name=rtb_reroll,if=talent.loaded_dice,value=rtb_buffs.will_lose<=buff.loaded_dice.up|buff.loaded_dice.up&rtb_buffs.will_lose<3&(!rtb_buffs.will_lose.broadside|buff.broadside.remains<11)&(!rtb_buffs.will_lose.ruthless_precision|buff.ruthless_precision.remains<11)&(!rtb_buffs.will_lose.true_bearing|buff.true_bearing.remains<11)
 # If all active Roll the Bones buffs are ahead of its container buff and have under 40s remaining or with supercharger talented, then reroll again with Loaded Dice active in an attempt to get even more buffs
 actions+=/variable,name=rtb_reroll,value=variable.rtb_reroll&rtb_buffs.longer=0|rtb_buffs.normal=0&rtb_buffs.longer>=1&buff.loaded_dice.up&(rtb_buffs<6&rtb_buffs.max_remains<39|talent.supercharger)
 # Non supercharger builds should avoid rerolls when we will not have time remaining on the fight or add wave to recoup the opportunity cost of the global
@@ -25,8 +25,8 @@ actions+=/variable,name=finish_condition,value=combo_points>=cp_max_spend-1-(ste
 actions+=/variable,name=blade_flurry_sync,value=spell_targets.blade_flurry<2&raid_event.adds.in>20|buff.blade_flurry.remains>gcd
 actions+=/call_action_list,name=cds
 # High priority stealth list, will fall through if no conditions are met
-actions+=/call_action_list,name=stealth,strict=1,if=stealthed.all&stealthed.all_remains>settings.stealth_padding
-actions+=/run_action_list,name=finish,strict=1,if=variable.finish_condition
+actions+=/call_action_list,name=stealth,strict=1,if=stealthed.all
+actions+=/call_action_list,name=finish,strict=1,if=variable.finish_condition
 actions+=/call_action_list,name=build
 actions+=/arcane_torrent,if=energy.base_deficit>=15+energy.regen
 actions+=/arcane_pulse
@@ -75,7 +75,7 @@ actions.cds+=/call_action_list,name=stealth_cds,if=!stealthed.all
 actions.cds+=/thistle_tea,if=!buff.thistle_tea.up&(energy.base_deficit>=150|fight_remains<charges*6)
 # Use Blade Rush at minimal energy outside of stealth
 actions.cds+=/blade_rush,if=energy.base_time_to_max>4&!stealthed.all
-actions.cds+=/potion,if=buff.bloodlust.react|fight_remains<30|buff.adrenaline_rush.up
+actions.cds+=/potion,if=buff.bloodlust.up|boss&fight_remains<30|buff.adrenaline_rush.up
 actions.cds+=/blood_fury
 actions.cds+=/berserking
 actions.cds+=/fireblood

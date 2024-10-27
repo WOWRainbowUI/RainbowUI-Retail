@@ -2611,7 +2611,6 @@ spec:RegisterAbilities( {
 
         talent = "sunfire",
         startsCombat = false,
-        form = "moonkin_form",
 
         handler = function ()
             applyDebuff( "target", "sunfire" )

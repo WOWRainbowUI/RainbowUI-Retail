@@ -666,7 +666,7 @@ spec:RegisterAuras( {
     icy_talons = {
         id = 194879,
         duration = 6,
-        max_stack = function() return talent.smothering_offense.enabled and 5 or 3 end,
+        max_stack = function() return ( talent.smothering_offense.enabled and 5 or 3 ) + ( talent.dark_talons.enabled and 2 or 0 ) end,
     },
     inexorable_assault = {
         id = 253595,

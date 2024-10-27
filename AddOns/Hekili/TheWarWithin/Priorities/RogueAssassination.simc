@@ -23,10 +23,10 @@ actions+=/variable,name=scent_saturation,value=buff.scent_of_blood.stack>=variab
 actions+=/variable,name=not_pooling,value=(dot.deathmark.ticking|dot.kingsbane.ticking|debuff.shiv.up)|(buff.envenom.up&buff.envenom.remains<=1)|energy.pct>=(40+30*talent.hand_of_fate-15*talent.vicious_venoms)|boss&fight_remains<=20
 actions+=/variable,name=in_cooldowns,value=dot.deathmark.ticking|dot.kingsbane.ticking|debuff.shiv.up
 actions+=/variable,name=clip_envenom,value=buff.envenom.up&buff.envenom.remains<=1
-actions+=/variable,name=upper_limit_energy,value=energy.pct>=(70-30*talent.sanguine_blades-10*talent.vicious_venoms.rank)
+actions+=/variable,name=upper_limit_energy,value=70-30*talent.sanguine_blades-10*talent.vicious_venoms.rank
 actions+=/variable,name=avoid_tea,value=energy>40+50+5*talent.vicious_venoms.rank
 actions+=/variable,name=cd_soon,value=cooldown.kingsbane.remains<6&!cooldown.kingsbane.ready
-actions+=/variable,name=not_pooling,value=variable.in_cooldowns|!variable.cd_soon&variable.avoid_tea&buff.darkest_night.up|!variable.cd_soon&variable.avoid_tea&variable.clip_envenom|variable.upper_limit_energy|fight_remains<=20
+actions+=/variable,name=not_pooling,value=variable.in_cooldowns|!variable.cd_soon&variable.avoid_tea&buff.darkest_night.up|!variable.cd_soon&variable.avoid_tea&variable.clip_envenom|energy.percent>variable.upper_limit_energy|fight_remains<=20
 actions+=/call_action_list,name=stealthed,strict=1,if=stealthed.rogue|stealthed.improved_garrote|master_assassin_remains>0
 actions+=/call_action_list,name=cds
 actions+=/call_action_list,name=core_dot
@@ -56,8 +56,8 @@ actions.cds+=/thistle_tea,if=!buff.thistle_tea.up&(debuff.shiv.remains>=4|spell_
 # Potion/Racials/Other misc cooldowns
 actions.cds+=/call_action_list,name=misc_cds
 actions.cds+=/call_action_list,name=vanish,if=!stealthed.all&master_assassin_remains=0
-# Cold Blood with similar conditions to Envenom, avoiding munching Edge Case
-actions.cds+=/cold_blood,if=!buff.edge_case.up&cooldown.deathmark.remains>10&!buff.darkest_night.up&effective_combo_points>=variable.effective_spend_cp&(variable.not_pooling|debuff.amplifying_poison.stack>=20|active_enemies>1)&!buff.vanish.up&(!cooldown.kingsbane.up|active_enemies>1)&!cooldown.deathmark.up
+# Cold Blood for Edge Case or Envenoms during shiv
+actions.cds+=/cold_blood,use_off_gcd=1,if=(buff.fatebound_coin_tails.stack>0&buff.fatebound_coin_heads.stack>0)|debuff.shiv.up&(cooldown.deathmark.remains>50|!talent.inevitabile_end&effective_combo_points>=variable.effective_spend_cp)
 
 # Core damage over time abilities used everywhere Maintain Garrote
 actions.core_dot+=/garrote,if=combo_points.deficit>=1&(pmultiplier<=1)&refreshable&target.time_to_die-remains>12
@@ -83,7 +83,6 @@ actions.direct+=/envenom,if=!buff.darkest_night.up&combo_points>=variable.effect
 actions.direct+=/envenom,if=buff.darkest_night.up&effective_combo_points>=cp_max_spend
 # Check if we should be using a filler
 actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1-buff.darkest_night.up|variable.not_pooling|active_enemies>1
-
 # Maintain Caustic Spatter
 actions.direct+=/variable,name=use_caustic_filler,value=talent.caustic_spatter&dot.rupture.ticking&(!debuff.caustic_spatter.up|debuff.caustic_spatter.remains<=2)&combo_points.deficit>1&active_enemies>1
 actions.direct+=/mutilate,if=variable.use_caustic_filler
@@ -142,9 +141,9 @@ actions.stealthed+=/ambush,if=!debuff.deathstalkers_mark.up&talent.deathstalkers
 # Make sure to have Shiv up during Kingsbane as a final check
 actions.stealthed+=/shiv,if=talent.kingsbane&dot.kingsbane.ticking&debuff.shiv.remains<1&buff.envenom.up
 # Envenom to maintain the buff during Subterfuge
-actions.stealthed+=/envenom,if=effective_combo_points>=variable.effective_spend_cp&dot.kingsbane.ticking&buff.envenom.remains<=3&(debuff.deathstalkers_mark.up|buff.edge_case.up|buff.cold_blood.up)
+actions.stealthed+=/envenom,if=effective_combo_points>=variable.effective_spend_cp&dot.kingsbane.ticking&buff.envenom.remains<=3&(debuff.deathstalkers_mark.up|buff.cold_blood.up)
 # Envenom during Master Assassin in single target
-actions.stealthed+=/envenom,if=effective_combo_points>=variable.effective_spend_cp&buff.master_assassin_aura.up&active_enemies=1&(debuff.deathstalkers_mark.up|buff.edge_case.up|buff.cold_blood.up)
+actions.stealthed+=/envenom,if=effective_combo_points>=variable.effective_spend_cp&buff.master_assassin_aura.up&variable.single_target&(debuff.deathstalkers_mark.up|buff.cold_blood.up)
 # Rupture during Indiscriminate Carnage
 actions.stealthed+=/rupture,cycle_targets=1,if=effective_combo_points>=variable.effective_spend_cp&buff.indiscriminate_carnage.up&(refreshable|!settings.cycle)&(!variable.regen_saturated|!variable.scent_saturation|!dot.rupture.ticking)&target.time_to_die>15
 # Improved Garrote: Apply or Refresh with buffed Garrotes, accounting for Indiscriminate Carnage
@@ -155,7 +154,7 @@ actions.stealthed+=/garrote,if=stealthed.improved_garrote&(pmultiplier<=1|remain
 # Stealth Cooldowns   Vanish Sync for Improved Garrote with Deathmark
 actions.vanish+=/pool_resource,for_next=1,extra_amount=45
 # Vanish to fish for Fateful Ending
-actions.vanish+=/vanish,if=!buff.fatebound_lucky_coin.up&(buff.fatebound_coin_tails.stack>=5|buff.fatebound_coin_heads.stack>=5)
+actions.vanish+=/vanish,if=!buff.fatebound_lucky_coin.up&effective_combo_points>=variable.effective_spend_cp&(buff.fatebound_coin_tails.stack>=5|buff.fatebound_coin_heads.stack>=5)
 # Vanish to spread Garrote during Deathmark without Indiscriminate Carnage
 actions.vanish+=/vanish,if=!talent.master_assassin&!talent.indiscriminate_carnage&talent.improved_garrote&cooldown.garrote.up&(dot.garrote.pmultiplier<=1|dot.garrote.refreshable)&(debuff.deathmark.up|cooldown.deathmark.remains<4)&combo_points.deficit>=(spell_targets.fan_of_knives>?4)
 actions.vanish+=/pool_resource,for_next=1,extra_amount=45
