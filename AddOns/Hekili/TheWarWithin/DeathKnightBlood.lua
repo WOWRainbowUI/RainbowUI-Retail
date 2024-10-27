@@ -457,7 +457,7 @@ spec:RegisterAuras( {
     bone_shield = {
         id = 195181,
         duration = 30.0,
-        max_stack = 10,
+        max_stack = function() return talent.reinforced_bones.enabled and 12 or 10 end,
 
         -- Affected by:
         -- foul_bulwark[206974] #0: { 'type': APPLY_AURA, 'subtype': ADD_FLAT_MODIFIER, 'points': 1.0, 'target': TARGET_UNIT_CASTER, 'modifies': EFFECT_3_VALUE, }
