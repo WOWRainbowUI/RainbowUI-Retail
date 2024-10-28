@@ -1235,9 +1235,20 @@ function module.options:Load()
 	end)
 	self.autoLoadDropdown:SetScript("OnEnter",function(self)
 		self.Background:Show()
+
+		GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
+		GameTooltip:AddLine(L.NoteEnableBossAutoLoad)
+		if VMRT.Note.EnableBossAutoLoad then
+			GameTooltip:AddLine(VIDEO_OPTIONS_ENABLED or "Enabled",0,1,0)
+		else
+			GameTooltip:AddLine(VIDEO_OPTIONS_DISABLED or "Disabled",1,0,0)
+		end
+		GameTooltip:Show()
 	end)
 	self.autoLoadDropdown:SetScript("OnLeave",function(self)
 		self.Background:Hide()
+
+		GameTooltip_Hide()
 	end)
 	if MRT.isClassic and not MRT.isCata then
 		self.autoLoadDropdown:Hide()

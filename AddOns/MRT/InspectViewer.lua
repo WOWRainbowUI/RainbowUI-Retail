@@ -124,6 +124,7 @@ local IS_TWW = UnitLevel'player' >= 71 and not ExRT.isClassic
 
 module.db.topEnchGemsCheap = {
 [7380]=true,[7381]=true,[7382]=true,[7329]=true,[7330]=true,[7331]=true,[7335]=true,[7335]=true,[7336]=true,[7336]=true,[7337]=true,[7337]=true,[7386]=true,[7387]=true,[7388]=true,[7341]=true,[7342]=true,[7343]=true,[7392]=true,[7393]=true,[7394]=true,[7394]=true,[7347]=true,[7348]=true,[7349]=true,
+[217115]=true,[217114]=true,[217113]=true,
 }
 
 module.db.topEnchGems = IS_TWW and {
@@ -1096,7 +1097,7 @@ function module.options:Load()
 						not enchLevel or 
 						(
 						 type(enchLevel) == "number" and 
-						 ((enchLevel + (not module.db.topEnchGemsCheap[ench] and 3 or 0)) < ((module.db.minEnchRank or 3) + (module.db.checkCheap and 0 or 3)))
+						 ((enchLevel + (not module.db.topEnchGemsCheap[gem] and 3 or 0)) < ((module.db.minEnchRank or 3) + (module.db.checkCheap and 0 or 3)))
 						)
 					then
 						isTop = false

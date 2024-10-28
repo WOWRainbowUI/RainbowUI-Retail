@@ -1,6 +1,11 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5020
+* Reminder: added "sound delay" option
+* Raid groups: added option "Keep changes" for autosave any editing for selected preset
+* Fixes
+
 v.5005
 * Raid Inspect: added "cheap" option for minimum rank for gems/enchants
 * Major fixes
