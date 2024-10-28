@@ -1443,7 +1443,6 @@ D["LiteButtonAuras"] = {
 	tags = { "ACTIONBAR" },
 	title = "光環時間 (快捷列)",
 	desc = "直接在快捷列的技能圖示上面顯示你自己身上的增益效果，和你的當前目標身上的減益效果時間，方便監控。``對敵方目標施放的 DOT 會顯示紅色邊框，自己身上的 HOT/BUFF 會顯示綠色邊框。`",
-	icon = "Interface\\Icons\\achievement_guild_level10",
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
