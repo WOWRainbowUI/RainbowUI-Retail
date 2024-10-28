@@ -2252,6 +2252,8 @@ L["Time-Lost Smack-o-Tron"] = "迷时咚咚机器人"
 L["Time-Lost Tidehunter"] = "迷时猎潮者"
 L["Time-Lost Wakethrasher"] = "迷时鞭漪者"
 L["Time-Lost Waveshaper"] = "迷时塑波者"
+--[[Translation missing --]]
+L["Timer"] = "Timer"
 L["Timestream Anomaly"] = "时流畸体"
 L["Timestream Leech"] = "时流汲取者"
 L["Tirathon Saltheril"] = "提拉宋·萨瑟利尔"

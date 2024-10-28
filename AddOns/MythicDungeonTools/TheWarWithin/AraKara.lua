@@ -6,7 +6,8 @@ local dungeonIndex = 113
 MDT.dungeonList[dungeonIndex] = L["AraKara"]
 MDT.mapInfo[dungeonIndex] = {
   teleportId = 445417,
-  shortName = L["araKaraShortName"]
+  shortName = L["araKaraShortName"],
+  mapID = 503
 }
 
 local zones = { 2216, 2357, 2358 } -- TODO remove 2216 WHEN ARAKARA IS GONE FROM ROTATION
@@ -2411,7 +2412,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Bloodstained Webmage",
     ["id"] = 220599,
     ["count"] = 0,
-    ["health"] = 7160880,
+    ["health"] = 5733236,
     ["scale"] = 1.1,
     ["displayId"] = 117870,
     ["creatureType"] = "Humanoid",

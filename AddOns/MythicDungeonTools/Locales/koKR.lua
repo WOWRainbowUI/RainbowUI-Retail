@@ -2647,6 +2647,8 @@ L["Time-Lost Smack-o-Tron"] = "Time-Lost Smack-o-Tron"
 L["Time-Lost Tidehunter"] = "잃어버린 시간의 바다사냥꾼"
 L["Time-Lost Wakethrasher"] = "잃어버린 시간의 수면난타자"
 L["Time-Lost Waveshaper"] = "잃어버린 시간의 물결구체자"
+--[[Translation missing --]]
+L["Timer"] = "Timer"
 L["Timestream Anomaly"] = "시간의 흐름 변형물"
 L["Timestream Leech"] = "시간의 흐름 거머리"
 L["Tirathon Saltheril"] = "티라손 살데릴"

@@ -2488,6 +2488,8 @@ L["Time-Lost Smack-o-Tron"] = "Baffotron perdu dans le temps"
 L["Time-Lost Tidehunter"] = "Chasse-marée perdu dans le temps"
 L["Time-Lost Wakethrasher"] = "Brise-sillage perdu dans le temps"
 L["Time-Lost Waveshaper"] = "Sculpte-vagues perdu dans le temps"
+--[[Translation missing --]]
+L["Timer"] = "Timer"
 L["Timestream Anomaly"] = "Anomalie du flux temporel"
 L["Timestream Leech"] = "Sangsue du flux temporel"
 L["Tirathon Saltheril"] = "Tirathon Saltheril"
