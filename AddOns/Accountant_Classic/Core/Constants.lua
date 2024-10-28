@@ -29,7 +29,7 @@ end
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
 local FOLDER_NAME, private = ...
-private.addon_name = "Accountant_Classic"
+private.addon_name = FOLDER_NAME
 
 local LibStub = _G.LibStub
 local L = LibStub("AceLocale-3.0"):GetLocale(private.addon_name)
@@ -126,10 +126,16 @@ if (WoWClassicEra or WoWClassicTBC or WoWWOTLKC or WoWCATAC) then
 		["OTHER"] = 	{ Title = L["Unknown"]};
 	}
 	if WoWCATAC then
+		-- Transmog
 		constants.events[#constants.events + 1] = "TRANSMOGRIFY_OPEN";
     constants.events[#constants.events + 1] = "TRANSMOGRIFY_CLOSE";
     constants.logtypes[#constants.logtypes + 1] = "TRANSMO";
     constants.onlineData["TRANSMO"] =	{ Title = TRANSMOGRIFY};
+    -- Reforging
+    constants.events[#constants.events + 1] = "FORGE_MASTER_OPENED";
+    constants.events[#constants.events + 1] = "FORGE_MASTER_CLOSED";
+    constants.logtypes[#constants.logtypes + 1] = "REFORGE";
+    constants.onlineData["REFORGE"] = { Title = REFORGE };
 	end
 else
 	constants.events = {

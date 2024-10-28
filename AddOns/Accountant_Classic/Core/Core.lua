@@ -37,7 +37,21 @@ local math = _G.math
 local floor, fmod = math.floor, math.fmod
 -- WoW
 local PanelTemplates_TabResize, PanelTemplates_SetNumTabs, PanelTemplates_SetTab, PanelTemplates_UpdateTabs = PanelTemplates_TabResize, PanelTemplates_SetNumTabs, PanelTemplates_SetTab, PanelTemplates_UpdateTabs
-local GetAddOnInfo, GetAddOnMetadata, GetRealmName, UnitName, UnitFactionGroup, UnitClass, GetBuildInfo = GetAddOnInfo, GetAddOnMetadata, GetRealmName, UnitName, UnitFactionGroup, UnitClass, GetBuildInfo
+local GetRealmName, UnitName, UnitFactionGroup, UnitClass, GetBuildInfo = GetRealmName, UnitName, UnitFactionGroup, UnitClass, GetBuildInfo
+local GetAddOnInfo = function(...)
+	if _G.GetAddOnInfo then
+		return _G.GetAddOnInfo(...)
+	elseif C_AddOns and C_AddOns.GetAddOnInfo then
+		return C_AddOns.GetAddOnInfo(...)
+	end
+end
+local GetAddOnMetadata = function(...)
+	if _G.GetAddOnMetadata then
+		return _G.GetAddOnMetadata(...)
+	elseif C_AddOns and C_AddOns.GetAddOnMetadata then
+		return C_AddOns.GetAddOnMetadata(...)
+	end
+end
 local GetBackpackCurrencyInfo = GetBackpackCurrencyInfo or nil
 local GetCurrencyInfo = GetCurrencyInfo or nil
 
@@ -73,7 +87,7 @@ addon.constants = private.constants
 addon.constants.addon_name = private.addon_name
 addon.Name = FOLDER_NAME
 -- addon.LocName = select(2, GetAddOnInfo(addon.Name))
-addon.Notes = select(3, C_AddOns.GetAddOnInfo(addon.Name))
+addon.Notes = select(3, GetAddOnInfo(addon.Name))
 _G.Accountant_Classic = addon
 
 -- UIDropDownMenu
@@ -92,7 +106,7 @@ if ( TitanPanelButton_UpdateButton ) then
 	TitanPanelButton_UpdateButton(private.addon_name);
 end
 
-local AccountantClassic_Version = C_AddOns.GetAddOnMetadata(private.addon_name, "Version");
+local AccountantClassic_Version = GetAddOnMetadata(private.addon_name, "Version");
 --AccountantClassic_Disabled = false;
 -- NewDB
 local AC_NewDB = false
@@ -1222,6 +1236,7 @@ function AccountantClassic_OnEvent(self, event, ...)
 	event == "BARBER_SHOP_APPEARANCE_APPLIED" or
 	event == "BARBER_SHOP_CLOSE" or
 	event == "TRANSMOGRIFY_CLOSE" or
+	event == "FORGE_MASTER_CLOSED" or
 	event == "VOID_STORAGE_CLOSE" or
 	event == "MERCHANT_CLOSED" or
 	event == "TRADE_CLOSED" or
@@ -1249,6 +1264,8 @@ function AccountantClassic_OnEvent(self, event, ...)
 		AC_LOGTYPE = "BARBER";
 	elseif event == "TRANSMOGRIFY_OPEN" then
 		AC_LOGTYPE = "TRANSMO";
+	elseif event == "FORGE_MASTER_OPENED" then
+		AC_LOGTYPE = "REFORGE";
 	elseif event == "VOID_STORAGE_OPEN" then
 		AC_LOGTYPE = "VOID";
 	elseif event == "MERCHANT_SHOW" then

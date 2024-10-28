@@ -357,7 +357,7 @@ local function getOptions()
 									end,
 									set = function(info, value)
 										to_confirm_character_removal(value)
-										InterfaceOptionsFrame:Hide()
+										SettingsPanel:Hide()
 									end,
 								},
 							},
@@ -377,13 +377,16 @@ end
 
 function addon:OpenOptions() 
 	-- open the profiles tab before, so the menu expands
-	-- InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
-	-- InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
-	-- InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.General)
-	-- if InterfaceOptionsFrame then
-	--	InterfaceOptionsFrame:Raise()
-	-- end
-	Settings.OpenToCategory(L["Accountant Classic"])
+	if _G.InterfaceOptionsFrame_OpenToCategory then
+		InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
+		InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.Profiles)
+		InterfaceOptionsFrame_OpenToCategory(addon.optionsFrames.General)
+	elseif Settings and Settings.OpenToCategory then
+		Settings.OpenToCategory(addon.LocName, "general")
+	end
+	if InterfaceOptionsFrame then
+		InterfaceOptionsFrame:Raise()
+	end
 end
 
 local function giveProfiles()
