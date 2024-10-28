@@ -189,7 +189,7 @@ function ham.settingsFrame:InitializeOptions()
 	local stopCastButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 	stopCastButton:SetPoint("TOPLEFT", behaviourTitle, 0, -PADDING)
 	---@diagnostic disable-next-line: undefined-field
-	stopCastButton.Text:SetText("Include /stopcasting in the macro (reload after changing)")
+	stopCastButton.Text:SetText("巨集中包含 /stopcasting (更改後需要重新載入介面)")
 	stopCastButton:HookScript("OnClick", function(_, btn, down)
 		HAMDB.stopCast = stopCastButton:GetChecked()
 	end)
