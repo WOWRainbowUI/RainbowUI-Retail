@@ -1,2 +1,2 @@
-## Bugfixes
-- Item 'Mistcaller Ocarina' now shows the use effect.
+## Other Changes
+- TOC interface version updated.
