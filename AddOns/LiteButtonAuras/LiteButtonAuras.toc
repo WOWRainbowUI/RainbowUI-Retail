@@ -1,7 +1,8 @@
 ## Interface: 11504, 40400, 110002, 110005
 ## Title: LiteButtonAuras
-## IconTexture: Interface\Icons\achievement_guild_timeoff
-## Version: 11.0.5-1
+## IconTexture: Interface\Icons\ability_deathknight_heartstopaura
+## AddonCompartmentFunc: LiteButtonAuras_AddonCompartmentFunc
+## Version: 11.0.5-2
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Bartender4, Dominos, ElvUI, Masque

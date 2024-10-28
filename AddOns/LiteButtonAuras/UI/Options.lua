@@ -509,3 +509,5 @@ end
 function LBA.OpenOptions()
     Settings.OpenToCategory(category.ID)
 end
+
+LiteButtonAuras_AddonCompartmentFunc = function () LBA.OpenOptions() end
