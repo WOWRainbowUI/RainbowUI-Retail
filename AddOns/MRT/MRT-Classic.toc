@@ -3,7 +3,7 @@
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 5005
+## Version: 5020
 core.lua
 Functions.lua
 embeds.xml

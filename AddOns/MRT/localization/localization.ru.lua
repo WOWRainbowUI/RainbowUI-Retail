@@ -1133,6 +1133,8 @@ L.RaidGroupsQuickLoad = "Быстрая загрузка"
 L.RaidGroupsTextMovable = "* имена можно перетаскивать"
 L.RaidGroupsExport = "Экспортировать текущие группы"
 L.RaidGroupsKeepPosInGroup = "Сохранять позиции в группах"
+L.RaidGroupsSaveCurrent = "Сохранять изменения"
+L.RaidGroupsSaveCurrentTip = "Автоматическое сохранение любых изменений для текущего выбранного состава"
 
 L.panelmarksclear = "Очистить"
 L.panelmarkstooltip = "Используйте макросы /rt mark 1, /rt mark 2, /rt mark 3, /rt mark 4 для установки меток и /rt mark 5 для сброса меток"
@@ -1684,6 +1686,9 @@ L.ReminderPresetFilter = "Предустановленный фильтр бос
 L.ReminderLogNextFight = "Записать следующий бой"
 L.ReminderLogNextFightTip = "Боссы и м+ забеги записываются автоматически (если включена запись истории).\nЭта опция специально для записи следующего боя (не боссы)"
 L.ReminderSearchStringTip = "Используйте \"|cff00ff00=|r\" в начале для точного совпадения."
+L.ReminderSoundDelay = "Звук через"
+L.ReminderSoundDelayTip = "Время ожидания в секундах после активации ремаиндера для воспроизведения звука.\nМожно указать несколько через запятую.\nОставить пустым для воспроизведения сразу."
+L.ReminderRecent = "Последние"
 
 L.OtherCovHelper = "Помощь с выбором"
 

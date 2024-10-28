@@ -1666,14 +1666,6 @@ module.datas = {
 		{6,ExRT.F.GetRaidTargetText(6,20)},
 		{7,ExRT.F.GetRaidTargetText(7,20)},
 		{8,ExRT.F.GetRaidTargetText(8,20)},
-		{9,ExRT.F.GetRaidTargetText(9,20)},
-		{10,ExRT.F.GetRaidTargetText(10,20)},
-		{11,ExRT.F.GetRaidTargetText(11,20)},
-		{12,ExRT.F.GetRaidTargetText(12,20)},
-		{13,ExRT.F.GetRaidTargetText(13,20)},
-		{14,ExRT.F.GetRaidTargetText(14,20)},
-		{15,ExRT.F.GetRaidTargetText(15,20)},
-		{16,ExRT.F.GetRaidTargetText(16,20)},
 	},
 	markToIndex = {
 		[0] = 0,
@@ -1697,7 +1689,7 @@ module.datas = {
 		[0x20000] = 18,
 	},
 	unitsList = {
-		{"boss1","boss2","boss3","boss4","boss5"},
+		{"boss1","boss2","boss3","boss4","boss5","arena1","arena2","arena3","arena4","arena5","arenapet1","arenapet2","arenapet3","arenapet4","arenapet5","npc"},
 		{"nameplate1","nameplate2","nameplate3","nameplate4","nameplate5","nameplate6","nameplate7","nameplate8","nameplate9","nameplate10",
 		 "nameplate11","nameplate12","nameplate13","nameplate14","nameplate15","nameplate16","nameplate17","nameplate18","nameplate19","nameplate20",
 		 "nameplate21","nameplate22","nameplate23","nameplate24","nameplate25","nameplate26","nameplate27","nameplate28","nameplate29","nameplate30",
@@ -1707,7 +1699,7 @@ module.datas = {
 		 "raid21","raid22","raid23","raid24","raid25","raid26","raid27","raid28","raid29","raid30",
 		 "raid31","raid32","raid33","raid34","raid35","raid36","raid37","raid38","raid39","raid40"},
 		{"player","party1","party2","party3","party4"},
-		ALL = {"boss1","boss2","boss3","boss4","boss5",
+		ALL = {"boss1","boss2","boss3","boss4","boss5","arena1","arena2","arena3","arena4","arena5","arenapet1","arenapet2","arenapet3","arenapet4","arenapet5","npc",
 		 "nameplate1","nameplate2","nameplate3","nameplate4","nameplate5","nameplate6","nameplate7","nameplate8","nameplate9","nameplate10",
 		 "nameplate11","nameplate12","nameplate13","nameplate14","nameplate15","nameplate16","nameplate17","nameplate18","nameplate19","nameplate20",
 		 "nameplate21","nameplate22","nameplate23","nameplate24","nameplate25","nameplate26","nameplate27","nameplate28","nameplate29","nameplate30",
@@ -1792,6 +1784,22 @@ for _,v in pairs(module.datas.glowImages) do
 		module.datas.glowImagesData[ v[1] ] = v
 	end
 end
+
+local unitreplace = {
+	arena1 = "boss6",
+	arena2 = "boss7",
+	arena3 = "boss8",
+	arena4 = "boss9",
+	arena5 = "boss10",
+	arenapet1 = "boss11",
+	arenapet2 = "boss12",
+	arenapet3 = "boss13",
+	arenapet4 = "boss14",
+	arenapet5 = "boss15",
+	npc = "boss16",
+}
+local unitreplace_rev = {}
+for k,v in pairs(unitreplace) do unitreplace_rev[v]=k end
 
 module.C = {
 	[1] = {
@@ -4356,6 +4364,7 @@ function options:Load()
 		data.countdownVoice = prev.countdownVoice
 		data.sound = prev.sound
 		data.allPlayers = prev.allPlayers
+		data.sounddelay = prev.sounddelay
 		data.tmp_tl_cd = prev.tmp_tl_cd
 
 		if prev.triggers[2] and prev.triggers[2].event == 16 and module:GetReminderType(prev.msgSize) == REM.TYPE_RAIDFRAME then
@@ -4525,6 +4534,8 @@ function options:Load()
 
 	self.quickSetupFrame.spellDD = ELib:DropDown(self.quickSetupFrame,220,-1):AddText("|cffffd100"..L.cd2TextSpell..":"):Size(270):Point("TOPLEFT",self.quickSetupFrame.playersEdit,"BOTTOMLEFT",0,-5)
 
+	self.quickSetupFrame.spellDD.recent = {}
+
 	function self.quickSetupFrame.spellDD:ModText(isFromEdit)
 		local msg = options.quickSetupFrame.msgEdit:GetText() or ""
 		local spell = options.quickSetupFrame.spellDD.spell
@@ -4565,6 +4576,18 @@ function options:Load()
 		if arg1 then
 			local spellName,_,spellTexture = GetSpellInfo(arg1)
 			self.quickSetupFrame.spellDD:SetText( (spellTexture and "|T"..spellTexture..":20|t " or "")..(spellName or "spell:"..arg1) )
+
+			if spellName then
+				for i=5,1,-1 do
+					if self.quickSetupFrame.spellDD.recent[i] == arg1 then
+						tremove(self.quickSetupFrame.spellDD.recent, i)	
+					end
+				end
+				tinsert(self.quickSetupFrame.spellDD.recent, 1, arg1)
+				for i=6,#self.quickSetupFrame.spellDD.recent do
+					self.quickSetupFrame.spellDD.recent[i] = nil
+				end
+			end
 		elseif not isCustom then
 			self.quickSetupFrame.spellDD:SetText("-")
 		end
@@ -4583,6 +4606,10 @@ function options:Load()
 	do
 		local cd_module = ExRT.A.ExCD2
 		local List = self.quickSetupFrame.spellDD.List
+		List[#List+1] = {
+			text = L.ReminderRecent,
+			subMenu = {},
+		}
 		for i=1,#cd_module.db.AllSpells do
 			local line = cd_module.db.AllSpells[i]
 			local class = strsplit(",",line[2] or "")
@@ -4692,9 +4719,33 @@ function options:Load()
 						self.List[i].isHidden = false
 					else
 						self.List[i].isHidden = true
+					end		
+				elseif self.List[i].text == L.ReminderRecent then
+					local subMenu = self.List[i].subMenu
+					wipe(subMenu)
+				
+					if #options.quickSetupFrame.spellDD.recent > 0 then
+						for _,k in ipairs(options.quickSetupFrame.spellDD.recent) do
+							if type(k) == "number" then
+								local name,_,texture = GetSpellInfo(k)
+								if name then
+									subMenu[#subMenu+1] = {
+										text = (texture and "|T"..texture..":20|t " or "")..name,
+										arg1 = k,
+										arg2 = name,
+										func = self.SetValue,
+									}
+								end
+							end
+						end
+						self.List[i].isHidden = false
+
+						self.List[i].arg1 = subMenu[1].arg1
+						self.List[i].arg2 = subMenu[1].arg2
+						self.List[i].func = subMenu[1].func
+					else
+						self.List[i].isHidden = true
 					end
-					
-					break
 				end
 			end
 		end
@@ -5023,6 +5074,14 @@ function options:Load()
 
 
 	self.quickSetupFrame.soundList = ELib:DropDown(self.quickSetupFrame,270,15):AddText("|cffffd100"..L.ReminderSound..":"):Size(270):Point("TOPLEFT",self.quickSetupFrame.countdownVoice,"BOTTOMLEFT",0,-5)
+
+	self.quickSetupFrame.soundList.delayEdit = ELib:Edit(self.quickSetupFrame.soundList):Size(45,20):Point("LEFT",self.quickSetupFrame.soundList,"RIGHT",5,0):Tooltip(L.ReminderSoundDelay.."\n"..L.ReminderSoundDelayTip):OnChange(function(self,isUser)
+		if not isUser then return end
+		local text = self:GetText():trim()
+		if text == "" then text = nil end
+		options.quickSetupFrame.data.sounddelay = text
+	end)
+
 	function self.quickSetupFrame.soundList.func_SetValue(_,arg1)
 		self.quickSetupFrame.soundCustom.tts = false
 		self.quickSetupFrame.soundList.lastOpt = arg1
@@ -5063,6 +5122,14 @@ function options:Load()
 		else
 			options.quickSetupFrame.soundCustom:Point("TOPLEFT",options.quickSetupFrame.soundList,"BOTTOMLEFT",0,-5+25):Shown(false)
 		end
+		if options.quickSetupFrame.data.sound or self.quickSetupFrame.soundList.lastOpt == 0 then
+			self.quickSetupFrame.soundList:Size(220)
+			self.quickSetupFrame.soundList.delayEdit:Show()
+		else
+			self.quickSetupFrame.soundList:Size(270)
+			self.quickSetupFrame.soundList.delayEdit:Hide()
+		end
+
 		ELib:DropDownClose()
 		if not options.quickSetupFrame.setup and arg1 and arg1 ~= 0 then
 			module:PlaySound(arg1)
@@ -5082,8 +5149,14 @@ function options:Load()
 				self.quickSetupFrame.soundList:func_SetValue(0)
 				self.quickSetupFrame.soundCustom:SetText(data.sound or "")
 			end
+
+			self.quickSetupFrame.soundList:Size(220)
+			self.quickSetupFrame.soundList.delayEdit:Show()
 		else
 			self.quickSetupFrame.soundList:func_SetValue(data.sound)
+
+			self.quickSetupFrame.soundList:Size(270)
+			self.quickSetupFrame.soundList.delayEdit:Hide()
 		end
 	end
 	function self.quickSetupFrame.soundList:PreUpdate()
@@ -5134,7 +5207,7 @@ function options:Load()
 		end
 	end
 
-	self.quickSetupFrame.soundList.playButton = ELib:Icon(self.quickSetupFrame.soundList,"Interface\\AddOns\\MRT\\media\\DiesalGUIcons16x256x128",20,true):Point("LEFT",self.quickSetupFrame.soundList,"RIGHT",5,0)
+	self.quickSetupFrame.soundList.playButton = ELib:Icon(self.quickSetupFrame.soundList,"Interface\\AddOns\\MRT\\media\\DiesalGUIcons16x256x128",20,true):Point("LEFT",self.quickSetupFrame.soundList,"LEFT",5+270,0)
 	self.quickSetupFrame.soundList.playButton.texture:SetTexCoord(0.375,0.4375,0.5,0.625)
 	self.quickSetupFrame.soundList.playButton:SetScript("OnClick",function()
 		if options.quickSetupFrame.data.sound == "TTS" then
@@ -5301,6 +5374,7 @@ function options:Load()
 		self.eventDD:Update()
 
 		self.soundList:Update()
+		self.soundList.delayEdit:SetText(data.sounddelay or "")
 
 		if data.uid and CURRENT_DATA[data.uid] then
 			self.removeButton:Show()
@@ -7069,7 +7143,9 @@ function options:Load()
 		return sid .. "-" .. pid .. "-" .. t
 	end
 
-	self.setupFrame = ELib:Popup(" "):Size(510,580)
+	local SETUPFRAME_HEIGHT = 610
+
+	self.setupFrame = ELib:Popup(" "):Size(510,SETUPFRAME_HEIGHT)
 	ELib:Border(self.setupFrame,1,.4,.4,.4,.9)
 
 	self.setupFrame.decorationLine = ELib:DecorationLine(self.setupFrame,true,"BACKGROUND",1):Point("TOPLEFT",self.setupFrame,0,-16):Point("BOTTOMRIGHT",self.setupFrame,"TOPRIGHT",0,-36)
@@ -7606,6 +7682,20 @@ function options:Load()
 			module:PlaySound(options.setupFrame.data.sound)
 		end
 	end)
+
+	self.setupFrame.soundDelayEdit = ELib:Edit(self.setupFrame.tab.tabs[1]):Size(270,20):LeftText(L.ReminderSoundDelay..":"):OnChange(function(self,isUser)
+		if not isUser then return end
+		local text = self:GetText()
+		if text and text:trim() == "" then text = nil end
+		options.setupFrame.data.sounddelay = text
+	end):Tooltip(L.ReminderSoundDelayTip)
+	function self.setupFrame.soundDelayEdit:ExtraShown()
+		if options.setupFrame.soundList:IsShown() and 
+			(options.setupFrame.data.sound or options.setupFrame.soundList.lastOpt == 0)
+		then
+			return true
+		end
+	end
 
 	self.setupFrame.soundAfterList = ELib:DropDown(self.setupFrame.tab.tabs[1],270,15):AddText("|cffffd100"..L.ReminderSoundAfter..":"):Size(270)
 	function self.setupFrame.soundAfterList.func_SetValue(_,arg1)
@@ -8165,6 +8255,7 @@ function options:Load()
 			[self.setupFrame.durRevese] = 45,
 			[self.setupFrame.soundList] = 50,
 			[self.setupFrame.soundCustom] = 60,
+			[self.setupFrame.soundDelayEdit] = 65,
 			[self.setupFrame.soundAfterList] = 70,
 			[self.setupFrame.soundAfterCustom] = 80,
 			[self.setupFrame.countdownCheck] = 90,
@@ -8190,6 +8281,7 @@ function options:Load()
 		parent = {
 			[self.setupFrame.soundAfterCustom] = self.setupFrame.soundAfterList,
 			[self.setupFrame.soundCustom] = self.setupFrame.soundList,
+			[self.setupFrame.soundDelayEdit] = self.setupFrame.soundList,
 		},
 	}
 	function self.setupFrame:RebuildSetupPage()
@@ -8601,7 +8693,7 @@ function options:Load()
 
 
 
-	self.setupFrame.triggersScrollFrame = ELib:ScrollFrame(self.setupFrame.tab.tabs[2]):Point("TOP",0,0):Size(510,505):Height(500)
+	self.setupFrame.triggersScrollFrame = ELib:ScrollFrame(self.setupFrame.tab.tabs[2]):Point("TOP",0,0):Size(510,SETUPFRAME_HEIGHT-75):Height(SETUPFRAME_HEIGHT-80)
 	ELib:Border(self.setupFrame.triggersScrollFrame,0)
 
 	ELib:DecorationLine(self.setupFrame.tab.tabs[2]):Point("TOP",self.setupFrame.triggersScrollFrame,"BOTTOM",0,0):Point("LEFT",self.setupFrame,0,0):Point("RIGHT",self.setupFrame,0,0):Size(0,1)
@@ -9294,7 +9386,7 @@ function options:Load()
 				end
 
 				if options.setupFrame.data.triggers[button.num].targetMark then
-					button.targetUnit.Background:SetGradient("HORIZONTAL",unpack(COLOR_BORDER_FULL))
+					button.targetMark.Background:SetGradient("HORIZONTAL",unpack(COLOR_BORDER_FULL))
 				else
 					button.targetMark.Background:SetVertexColor(unpack(COLOR_BORDER_EMPTY))
 				end
@@ -9742,6 +9834,7 @@ function options:Load()
 		self.soundList:Update()
 		--data.soundafter
 		self.soundAfterList:Update()
+		self.soundDelayEdit:SetText(data.sounddelay or "")
 
 		if data.bossID then
 			self.bossList:SetValue(data.bossID)
@@ -11970,13 +12063,15 @@ function module:Enable()
 
 	module:RegisterEvents('ENCOUNTER_START','ENCOUNTER_END','ZONE_CHANGED_NEW_AREA','CHALLENGE_MODE_START','CHALLENGE_MODE_COMPLETED','CHALLENGE_MODE_RESET')
 
+	module:RegisterBigWigsCallback("BigWigs_OnBossEngage")
+	module:RegisterDBMCallback("DBM_Pull")
+
 	module:ResetPrevZone()
 	module:LoadForCurrentZone()
 
 	if module.db.debug then
 		module:RegisterTimer()
 	end
-
 	C_Timer.After(3,function()
 		if IsEncounterInProgress() and not module.db.encounterID and IsInRaid() then
 			module.db.requestEncounterID = GetTime()
@@ -11996,6 +12091,9 @@ function module:Disable()
 
 	module:UnregisterTimer()
 	module:UnloadAll()
+
+	module:UnregisterBigWigsCallback("BigWigs_OnBossEngage")
+	module:UnregisterDBMCallback("DBM_Pull")
 end
 
 function module:timer(elapsed)
@@ -12852,13 +12950,28 @@ do
 						clist[#clist+1] = tmr
 					end
 					t.voice = clist
+				elseif data.countdownVoice == -9999 then --hardcoded ID for tts
+					for i=1,min(5,reminderDuration-0.3) do
+						local sound = i
+						local tmr = ScheduleTimer(module.PlayTTS, reminderDuration-(i+0.3), module, i)
+						module.db.timers[#module.db.timers+1] = tmr
+						clist[#clist+1] = tmr
+					end
+					t.voice = clist
 				end
 			end
 			frame:Show()
 		end
 
 		if data.sound and not VMRT.Reminder2.disableSound and bit.band(VMRT.Reminder2.options[data.uid or 0] or 0,bit.lshift(1,1)) == 0 then
-			module:PlaySound(data.sound, reminder, now)
+			if reminder.delayedSound then
+				for i=1,#reminder.delayedSound do
+					local t = ScheduleTimer(module.PlaySound, reminder.delayedSound[i], module, data.sound, reminder, now + reminder.delayedSound[i])
+					module.db.timers[#module.db.timers+1] = t
+				end
+			else
+				module:PlaySound(data.sound, reminder, now)
+			end
 		end
 	end
 end
@@ -12906,6 +13019,18 @@ do
 				reminder.soundTime = now
 			end
 		end
+	end
+	function module:PlayTTS(msg)
+		C_Timer.After(0.01,function()	--Try to fix lag
+			--C_VoiceChat.StopSpeakingText()
+			C_VoiceChat.SpeakText(
+				VMRT.Reminder2.ttsVoice or 1, 
+				tostring( msg or "" ), 
+				Enum.VoiceTtsDestination.QueuedLocalPlayback, 
+				VMRT.Reminder2.ttsSpeechRate or C_TTSSettings.GetSpeechRate() or 0, 
+				VMRT.Reminder2.ttsVolume or C_TTSSettings.GetSpeechVolume() or 100
+			)
+		end)
 	end
 end
 
@@ -13121,36 +13246,42 @@ end
 function module.main:UNIT_HEALTH(unit)
 	local triggers = tUNIT_HEALTH[unit]
 	if triggers then
-		local hpMax = UnitHealthMax(unit)
+		local funit = unitreplace[unit] or unit
+
+		local hpMax = UnitHealthMax(funit)
 		if hpMax == 0 then
-			module:TriggerHPLookup(unit,triggers,0)
+			module:TriggerHPLookup(funit,triggers,0,0)
 			return
 		end
-		local hpNow = UnitHealth(unit)
+		local hpNow = UnitHealth(funit)
 		local hp = hpNow / hpMax * 100
-		module:TriggerHPLookup(unit,triggers,hp,hpNow)
+		module:TriggerHPLookup(funit,triggers,hp,hpNow)
 	end
 end
 
 function module.main:UNIT_POWER_FREQUENT(unit)
 	local triggers = tUNIT_POWER_FREQUENT[unit]
 	if triggers then
-		local powerMax = UnitPowerMax(unit)
+		local funit = unitreplace[unit] or unit
+
+		local powerMax = UnitPowerMax(funit)
 		if powerMax == 0 then
-			module:TriggerHPLookup(unit,triggers,0)
+			module:TriggerHPLookup(funit,triggers,0,0)
 			return
 		end
-		local powerNow = UnitPower(unit)
+		local powerNow = UnitPower(funit)
 		local power = powerNow / powerMax * 100
-		module:TriggerHPLookup(unit,triggers,power,powerNow)
+		module:TriggerHPLookup(funit,triggers,power,powerNow)
 	end
 end
 
 function module.main:UNIT_ABSORB_AMOUNT_CHANGED(unit)
 	local triggers = tUNIT_ABSORB_AMOUNT_CHANGED[unit]
 	if triggers then
-		local absorbs = UnitGetTotalAbsorbs(unit)
-		module:TriggerHPLookup(unit,triggers,absorbs,absorbs)
+		local funit = unitreplace[unit] or unit
+
+		local absorbs = UnitGetTotalAbsorbs(funit)
+		module:TriggerHPLookup(funit,triggers,absorbs,absorbs)
 	end
 end
 
@@ -13634,7 +13765,7 @@ do
 			return
 		end
 		if (BigWigsLoader) then
-			--BigWigsLoader.UnregisterMessage(module, event)
+			BigWigsLoader.UnregisterMessage(module, event)
 			registeredBigWigsEvents[event] = nil
 		end
 	end
@@ -13736,7 +13867,9 @@ do
 			if event == "DBM_kill" or event == "DBM_wipe" then 
 				event = event:sub(5) 
 			end
-			DBM:RegisterCallback(event, DBMEventCallback)
+			if not DBM:IsCallbackRegistered(event, DBMEventCallback) then
+				DBM:RegisterCallback(event, DBMEventCallback)
+			end
 		end
 	end
 	function module:UnregisterDBMCallback(event)
@@ -13749,7 +13882,7 @@ do
 			if event == "DBM_kill" or event == "DBM_wipe" then 
 				event = event:sub(5) 
 			end
-			--DBM:UnregisterCallback(event, DBMEventCallback)
+			DBM:UnregisterCallback(event, DBMEventCallback)
 		end
 	end
 end
@@ -13857,12 +13990,14 @@ local bossFramesblackList = {}
 module.db.bossFramesblackList = bossFramesblackList
 function module.main:INSTANCE_ENCOUNTER_ENGAGE_UNIT()
 	for _,unit in pairs(module.datas.unitsList[1]) do
-		local guid = UnitGUID(unit)
+		local funit = unitreplace[unit] or unit
+		
+		local guid = UnitGUID(funit)
 		if guid then
 			if not bossFramesblackList[guid] then
 				bossFramesblackList[guid] = true
-				local name = UnitName(unit) or ""
-				module:TriggerBossFrame(name, guid, unit)
+				local name = UnitName(funit) or ""
+				module:TriggerBossFrame(name, guid, funit)
 			end
 			module:CycleAllUnitEvents(unit)
 		end
@@ -13898,7 +14033,9 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 	function module.main:UNIT_AURA(unit,updateInfo)
 		local triggers = tUNIT_AURA[unit]
 		if triggers then
-			local guid = UnitGUID(unit)
+			local funit = unitreplace[unit] or unit
+
+			local guid = UnitGUID(funit)
 			if guid then
 				local a = unitAurasInstances[guid]
 				if not a then
@@ -13928,7 +14065,7 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 					if updateInfo.updatedAuraInstanceIDs then
 						for _, auraInstanceID in pairs(updateInfo.updatedAuraInstanceIDs) do
 							local oldAura = a[auraInstanceID]
-							local newAura = C_UnitAuras_GetAuraDataByAuraInstanceID(unit, auraInstanceID)
+							local newAura = C_UnitAuras_GetAuraDataByAuraInstanceID(funit, auraInstanceID)
 							if newAura then
 								a[auraInstanceID] = newAura
 								if oldAura and (oldAura.applications ~= newAura.applications or oldAura.expirationTime ~= newAura.expirationTime) then
@@ -13946,7 +14083,7 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 						a.n = {}
 					end
 					for index=1,255 do
-						local aura = C_UnitAuras_GetAuraDataByIndex(unit, index, "HELPFUL")
+						local aura = C_UnitAuras_GetAuraDataByIndex(funit, index, "HELPFUL")
 						if not aura then
 							break
 						end
@@ -13955,7 +14092,7 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 						if aura.name then a.n[aura.name] = aura.auraInstanceID end
 					end
 					for index=1,255 do
-						local aura = C_UnitAuras_GetAuraDataByIndex(unit, index, "HARMFUL")
+						local aura = C_UnitAuras_GetAuraDataByIndex(funit, index, "HARMFUL")
 						if not aura then
 							break
 						end
@@ -13965,7 +14102,7 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 					end
 				end
 	
-				local name = UnitName(unit)
+				local name = UnitName(funit)
 				local now = GetTime()
 				for i=1,#triggers do
 					local trigger = triggers[i]
@@ -13992,10 +14129,10 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 						(not triggerData.sourceUnit or auraData.sourceUnit and module:CheckUnit(triggerData.sourceUnit,UnitGUID(auraData.sourceUnit),trigger)) and
 						(not trigger.DtargetName or name and trigger.DtargetName[name]) and
 						(not trigger.DtargetID or trigger.DtargetID(guid)) and
-						(not triggerData.targetMark or (GetRaidTargetIndex(unit) or 0) == triggerData.targetMark) and
+						(not triggerData.targetMark or (GetRaidTargetIndex(funit) or 0) == triggerData.targetMark) and
 						(not triggerData.targetUnit or module:CheckUnit(triggerData.targetUnit,guid,trigger)) and
 						(not trigger.Dstacks or module:CheckNumber(trigger.Dstacks,auraData.applications)) and
-						(not triggerData.targetRole or module:CmpUnitRole(unit,triggerData.targetRole))
+						(not triggerData.targetRole or module:CmpUnitRole(funit,triggerData.targetRole))
 					then
 						if not trigger.statuses[guid] then
 	
@@ -14003,7 +14140,7 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 								sourceName = sourceName,
 								sourceMark = auraData.sourceUnit and GetRaidTargetIndex(auraData.sourceUnit) or nil,
 								targetName = name,
-								targetMark = GetRaidTargetIndex(unit),
+								targetMark = GetRaidTargetIndex(funit),
 								stacks = auraData.applications,
 								guid = guid,
 								sourceGUID = auraData.sourceUnit and UnitGUID(auraData.sourceUnit) or nil,
@@ -14014,7 +14151,7 @@ if not ExRT.isClassic or C_UnitAuras_GetAuraDataByIndex then
 								spellName = auraData.name,
 							}
 							trigger.statuses[guid] = vars
-							trigger.units[guid] = unit
+							trigger.units[guid] = funit
 							if not triggerData.bwtimeleft or auraData.expirationTime - now < triggerData.bwtimeleft then
 								TriggerAura_DelayActive(trigger, triggerData, guid, vars)
 							else
@@ -14260,14 +14397,18 @@ end
 function module.main:UNIT_TARGET(unit)
 	local triggers = tUNIT_TARGET[unit]
 	if triggers then
-		module:TriggerTargetLookup(unit,triggers)
+		local funit = unitreplace[unit] or unit
+
+		module:TriggerTargetLookup(funit,triggers)
 	end
 end
 
 function module.main:UNIT_THREAT_LIST_UPDATE(unit)
 	local triggers = tUNIT_TARGET[unit]
 	if triggers then
-		module:TriggerTargetLookup(unit,triggers)
+		local funit = unitreplace[unit] or unit
+
+		module:TriggerTargetLookup(funit,triggers)
 	end
 end
 
@@ -14314,7 +14455,7 @@ function module:TriggerSpellCD(triggers)
 end
 
 
-function module.main:SPELL_UPDATE_COOLDOWN(unit)
+function module.main:SPELL_UPDATE_COOLDOWN()
 	local triggers = module.db.eventsToTriggers.CDABIL
 	if triggers then
 		module:TriggerSpellCD(triggers)
@@ -14355,8 +14496,11 @@ end
 
 function module.main:UNIT_SPELLCAST_SUCCEEDED(unit, castGUID, spellID)
 	local triggers = tUNIT_SPELLCAST_SUCCEEDED[unit]
+
 	if triggers then
-		module:TriggerSpellcastSucceeded(unit, triggers, spellID)
+		local funit = unitreplace[unit] or unit
+
+		module:TriggerSpellcastSucceeded(funit, triggers, spellID)
 	end
 end
 
@@ -14774,53 +14918,64 @@ end
 function module.main:UNIT_SPELLCAST_START(unit,castGUID,spellID)
 	local triggers = tUNIT_CAST[unit]
 	if triggers then
-		local name, text, texture, startTime, endTime, isTradeSkill, castID, interruptible, spellId = UnitCastingInfo(unit)
-		module:TriggerCast(unit,triggers,spellID,true,(endTime or 0)/1000)
+		local funit = unitreplace[unit] or unit
+
+		local name, text, texture, startTime, endTime, isTradeSkill, castID, interruptible, spellId = UnitCastingInfo(funit)
+		module:TriggerCast(funit,triggers,spellID,true,(endTime or 0)/1000)
 	end
 end
 
 function module.main:UNIT_SPELLCAST_CHANNEL_START(unit,castGUID,spellID)
 	local triggers = tUNIT_CAST[unit]
 	if triggers then
-		local name, text, texture, startTime, endTime, isTradeSkill, interruptible, spellId = UnitChannelInfo(unit)
-		module:TriggerCast(unit,triggers,spellID,true,(endTime or 0)/1000)
+		local funit = unitreplace[unit] or unit
+
+		local name, text, texture, startTime, endTime, isTradeSkill, interruptible, spellId = UnitChannelInfo(funit)
+		module:TriggerCast(funit,triggers,spellID,true,(endTime or 0)/1000)
 	end
 end
 
 function module.main:UNIT_SPELLCAST_STOP(unit,castGUID,spellID)
 	local triggers = tUNIT_CAST[unit]
 	if triggers then
-		module:TriggerCast(unit,triggers,spellID,false)
+		local funit = unitreplace[unit] or unit
+
+		module:TriggerCast(funit,triggers,spellID,false)
 	end
 end
 
 function module.main:UNIT_SPELLCAST_CHANNEL_STOP(unit,castGUID,spellID)
 	local triggers = tUNIT_CAST[unit]
 	if triggers then
-		module:TriggerCast(unit,triggers,spellID,false)
+		local funit = unitreplace[unit] or unit
+
+		module:TriggerCast(funit,triggers,spellID,false)
 	end
 end
 
 function module.main:UNIT_CAST_CHECK(unit)
-	local name, text, texture, startTime, endTime, isTradeSkill, castID, interruptible, spellId = UnitCastingInfo(unit)
+	local funit = unitreplace[unit] or unit
+
+	local name, text, texture, startTime, endTime, isTradeSkill, castID, interruptible, spellId = UnitCastingInfo(funit)
 	if name then
 		local triggers = tUNIT_CAST[unit]
 		if triggers then
-			module:TriggerCast(unit,triggers,spellId,true,(endTime or 0)/1000)
+			module:TriggerCast(funit,triggers,spellId,true,(endTime or 0)/1000)
 		end
 	else
-		local name, text, texture, startTime, endTime, isTradeSkill, interruptible, spellId = UnitChannelInfo(unit)
+		local name, text, texture, startTime, endTime, isTradeSkill, interruptible, spellId = UnitChannelInfo(funit)
 		if name then
 			local triggers = tUNIT_CAST[unit]
 			if triggers then
-				module:TriggerCast(unit,triggers,spellId,true,(endTime or 0)/1000)
+				module:TriggerCast(funit,triggers,spellId,true,(endTime or 0)/1000)
 			end
 		end
 	end
 end
 
 function module:CycleAllUnitEvents(unit)
-	if UnitGUID(unit) then
+	local funit = unitreplace[unit] or unit
+	if UnitGUID(funit) then
 		if tUNIT_HEALTH then module.main:UNIT_HEALTH(unit) end
 		if tUNIT_POWER_FREQUENT then module.main:UNIT_POWER_FREQUENT(unit) end
 		if tUNIT_ABSORB_AMOUNT_CHANGED then module.main:UNIT_ABSORB_AMOUNT_CHANGED(unit) end
@@ -14832,7 +14987,9 @@ end
 
 
 function module:TriggerUnitRemovedLookup(unit,triggers,guid)
-	guid = guid or UnitGUID(unit)
+	local funit = unitreplace[unit] or unit
+
+	guid = guid or UnitGUID(funit)
 	for i=1,#triggers do
 		local trigger = triggers[i]
 
@@ -15833,9 +15990,6 @@ do
 			prevZoneID = zoneID
 			if module.db.debug then print("Load Zone ID",zoneID,zoneName) end
 
-			module:RegisterBigWigsCallback("BigWigs_OnBossEngage")
-			module:RegisterDBMCallback("DBM_Pull")
-
 			if difficultyID ~= 8 then
 				if module.db.InChallengeMode then
 					module:SaveHistorySegment()
@@ -16510,10 +16664,12 @@ function module:LoadReminders(encounterID,encounterDiff,zoneID,zoneName)
 
 						if units then
 							for _,unit in module.IterateTable(units) do
-								local unitTable = eventTable[unit]
+								local funit = unitreplace_rev[unit] or unit
+
+								local unitTable = eventTable[funit]
 								if not unitTable then
 									unitTable = {}
-									eventTable[unit] = unitTable
+									eventTable[funit] = unitTable
 								end
 
 								unitTable[#unitTable+1] = triggerNow
@@ -16547,6 +16703,7 @@ function module:LoadReminders(encounterID,encounterDiff,zoneID,zoneName)
 			reminder.activeFunc2 = loadstring("return function(t,n) local s=t[n].status t[n].status=not t[n]._trigger.invert local r="..triggersStr.." t[n].status=s return r end")()
 
 			reminder.delayedActivation = module:ConvertMinuteStrToNum(data.delayedActivation)
+			reminder.delayedSound = module:ConvertMinuteStrToNum(data.sounddelay)
 
 			if module:GetReminderType(data.msgSize) == REM.TYPE_RAIDFRAME then
 				nameplateUsed = true
@@ -16856,7 +17013,7 @@ do
 						end
 					end
 
-					local specialTarget,delayedActivation,soundafter = strsplit(DELIMITER_2,extraOptions or "")
+					local specialTarget,delayedActivation,soundafter,sounddelay = strsplit(DELIMITER_2,extraOptions or "")
 
 					local new = {
 						uid = uid,
@@ -16866,6 +17023,7 @@ do
 						dur = dur~="" and tonumber(dur) or nil,
 						countdownType = countdownType~="" and tonumber(countdownType) or nil,
 						delayedActivation = delayedActivation and delayedActivation~="" and delayedActivation:gsub(STRING_CONVERT.decodePatt,STRING_CONVERT.decodeFunc) or nil,
+						sounddelay = sounddelay and sounddelay~="" and sounddelay:gsub(STRING_CONVERT.decodePatt,STRING_CONVERT.decodeFunc) or nil,
 						sound = sound~="" and sound:gsub(STRING_CONVERT.decodePatt,STRING_CONVERT.decodeFunc) or nil,
 						soundafter = soundafter and soundafter~="" and soundafter:gsub(STRING_CONVERT.decodePatt,STRING_CONVERT.decodeFunc) or nil,
 						bossID = bossID~="" and tonumber(bossID) or nil,
@@ -17125,7 +17283,8 @@ do
 				local extraOptions = (
 					(data.specialTarget or ""):gsub(STRING_CONVERT.encodePatt,STRING_CONVERT.encodeFunc) .. DELIMITER_2 .. 
 					(data.delayedActivation or ""):gsub(STRING_CONVERT.encodePatt,STRING_CONVERT.encodeFunc) .. DELIMITER_2 .. 
-					(data.soundafter or ""):gsub(STRING_CONVERT.encodePatt,STRING_CONVERT.encodeFunc)
+					(data.soundafter or ""):gsub(STRING_CONVERT.encodePatt,STRING_CONVERT.encodeFunc) .. DELIMITER_2 .. 
+					(data.sounddelay or ""):gsub(STRING_CONVERT.encodePatt,STRING_CONVERT.encodeFunc)
 				):gsub(DELIMITER_2.."*$","")
 
 				r = r .. (data.uid .. DELIMITER_1 .. (data.name or ""):gsub(STRING_CONVERT.encodePatt,STRING_CONVERT.encodeFunc) .. DELIMITER_1 .. (data.msg or ""):gsub(STRING_CONVERT.encodePatt,STRING_CONVERT.encodeFunc) .. DELIMITER_1 .. (data.msgSize or "") .. DELIMITER_1 .. (data.dur or "")  .. DELIMITER_1 .. checks .. DELIMITER_1 .. (data.countdownType or "") .. DELIMITER_1 ..

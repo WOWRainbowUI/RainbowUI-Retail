@@ -11408,8 +11408,8 @@ module.db.AllSpells = {
 
 
 	{107574,"WARRIOR,DPS",3,--Аватара
-		{107574,90,20},
-		isTalent=true,cdDiff={296320,"*0.80"},durationDiff={400314,"*2"}},
+		nil,{107574,90,20},{107574,90,20},{401150,90,20},
+		isTalent=true,cdDiff={296320,"*0.80"},durationDiff={400314,"*2"},sameTalent={107574,401150}},
 	{6673,	"WARRIOR",1,--Боевой крик
 		{6673,15,0},nil,nil,nil},
 	{18499,	"WARRIOR,DEF",4,--Ярость берсерка
@@ -11681,7 +11681,7 @@ module.db.AllSpells = {
 		]]},
 	{190784,"PALADIN,MOVE",4,--Божественный скакун
 		{190784,45,3},nil,nil,nil,
-		isTalent=true,hasCharges=230332,durationDiff={432990,2,376996,2,335424,3,199542,2,339268,{"*1.50","*1.55","*1.60","*1.65","*1.70","*1.75","*1.80","*1.85","*1.90","*1.95","*2.00","*2.05","*2.10","*2.15","*2.20"}},ignoreUseWithAura=375253,changeCdWithAura={381752,"*0.85"}},
+		isTalent=true,hasCharges=230332,cdDiff={469409,"*0.8"},durationDiff={432990,2,376996,2,335424,3,199542,2,339268,{"*1.50","*1.55","*1.60","*1.65","*1.70","*1.75","*1.80","*1.85","*1.90","*1.95","*2.00","*2.05","*2.10","*2.15","*2.20"},469409,"*0.6"},ignoreUseWithAura=375253,changeCdWithAura={381752,"*0.85"}},
 	{86659,	"PALADIN,DEFTANK",4,--Защитник древних королей
 		nil,nil,{86659,300,8},nil,
 		isTalent=true,cdDiff={340030,{-15,-16.5,-18,-19.5,-21,-22.5,-24,-25.5,-27,-28.5,-30,-31.5,-33,-34.5,-36}},hideWithTalent=228049,sameSpell={86659,212641},reduceCdAfterCast={{53600,204074},-2,{85673,204074},-2,{53600,204074},-2,{85256,204074},-2,{53385,204074},-2,{215661,204074},-2},
@@ -11695,8 +11695,8 @@ module.db.AllSpells = {
 			end
 		]]},
 	{853,	"PALADIN",3,--Молот правосудия
-		{853,60,6},nil,nil,nil,
-		reduceCdAfterCast={{85673,234299},{-3,-6},{53600,234299},{-3,-6},{85256,234299},{-3,-6},{53385,234299},{-3,-6},{215661,234299},{-3,-6}}},
+		{853,45,6},nil,nil,nil,
+		cdDiff={234299,-15}},
 	{183218,"PALADIN",3,--Преграждающая длань
 		nil,nil,nil,{183218,30,10},
 		CLEU_PREP=[[
@@ -11752,7 +11752,19 @@ module.db.AllSpells = {
 		]]},
 	{96231,	"PALADIN,KICK",5,--Укор
 		{96231,15,0},nil,nil,nil,
-		isTalent=true},
+		isTalent=true,
+		CLEU_SPELL_INTERRUPT=[[
+			if sourceName and session_gGUIDs[sourceName][469886] and spellID == 96231 then
+				local line = CDList[sourceName][96231]
+				if line then
+					line:ReduceCD(1)
+
+					if IsAuraActive(sourceName,432502) then
+						line:ReduceCD(1)
+					end
+				end
+			end
+		]]},
 	{184662,"PALADIN,DEF",4,--Щит возмездия
 		nil,nil,nil,{184662,90,15},
 		isTalent=true,cdDiff={114154,"*0.7"},stopDurWithAuraFade=184662},
@@ -11831,7 +11843,7 @@ module.db.AllSpells = {
 		isTalent=true,cdDiff={384909,-60,216853,"*0.67",378425,{"*0.85","*0.7"}},sameSpell={1022,204018},reduceCdAfterCast={{85256,337600},-3,{85222,337600},-3,{85673,337600},-3,{53385,337600},-3,{152262,337600},-3,{53600,337600},-3}},
 	{115750,"PALADIN",3,--Слепящий свет
 		{115750,90,0},nil,nil,nil,
-		isTalent=true},
+		isTalent=true,cdDiff={469325,-15}},
 	{205191,"PALADIN",3,--Око за око
 		nil,nil,nil,{205191,60,10},
 		isTalent=true},
@@ -11852,13 +11864,13 @@ module.db.AllSpells = {
 		isTalent=true},
 	{387174,"PALADIN,DEFTANK",3,--Око Тира
 		nil,nil,{387174,60,9},nil,
-		isTalent=true,cdDiff={405757,"*0.75"}},
+		isTalent=true,cdDiff={405757,"*0.67"}},
 	{378974,"PALADIN",3,--Бастион Света
 		nil,nil,{378974,120,0},nil,
 		isTalent=true},
 	{20066,	"PALADIN,CC",3,--Покаяние
 		{20066,15,0},nil,nil,nil,
-		isTalent=true},
+		isTalent=true,cdDiff={469325,-15}},
 	{414273,"PALADIN",3,
 		nil,{414273,90,0},nil,nil,
 		isTalent=true},
@@ -12189,10 +12201,10 @@ module.db.AllSpells = {
 		nil,nil,{315508,45,0},nil,
 		isTalent=true},
 	{381989,"ROGUE",3,--Призовая игра
-		nil,nil,{381989,420,0},nil,
+		nil,nil,{381989,360,0},nil,
 		isTalent=true},
 	{121471,"ROGUE,DPS",3,--Теневые клинки
-		nil,nil,nil,{121471,120,20},
+		nil,nil,nil,{121471,90,16},
 		isTalent=true,cdDiff={296320,"*0.80",354825,"0.8"},
 		CLEU_SPELL_ENERGIZE=[[
 			if destGUID and isRogue[destGUID] and destName and session_gGUIDs[sourceName][341559] and spellID == 196911 then
@@ -12976,7 +12988,7 @@ module.db.AllSpells = {
 		{192077,120,15},nil,nil,nil,
 		isTalent=true,cdDiff={381867,{-3,-6},462791,-30}},
 	{383013,"SHAMAN,DISPEL",3,--Тотем противоядия
-		{383013,45,6},
+		{383013,120,6},
 		isTalent=true,cdDiff={381867,{-3,-6}},
 		CLEU_SPELL_AURA_REMOVED_DOSE=[[
 			if spellID == 53390 and session_gGUIDs[sourceName][382030] then
@@ -13838,7 +13850,7 @@ module.db.AllSpells = {
 		isTalent=true,cdDiff={296320,"*0.80",329802,-54,391174,-60},hideWithTalent=102543,reduceCdAfterCast={{274837,340053,103},-0.2,{106785,340053,103},-0.2,{202028,340053,103},-0.2,{5221,340053,103},-0.2,{1822,340053,103},-0.2,{106830,340053,103},-0.2}},
 	{194223,"DRUID,DPS",3,--Парад планет
 		nil,{194223,180,20},nil,nil,nil,
-		isTalent=true,durationDiff={340706,{5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12}},cdDiff={296320,"*0.80",329802,-54},hideWithTalent=102560},
+		isTalent=true,durationDiff={340706,{5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12},468743,"*0.8"},cdDiff={468743,-80,329802,-54,434249,-15,296320,"*0.80",},hideWithTalent=102560,hasCharges=468743},
 	{391528,"DRUID,DPS",3,--Созыв духов
 		{391528,120,0},
 		isTalent=true,cdDiff={391548,"*0.5",393991,"*0.5",393371,"*0.5",393414,"*0.5"}},
@@ -14585,11 +14597,11 @@ module.db.AllSpells = {
 		{291944,150,6},
 		isRacial="ZandalariTroll"},
 	{357214,"RACIAL",3,--Взмах крыльями
-		{357214,90,0},
-		isRacial="Dracthyr",cdDiff={368838,-45}},
+		{357214,180,0},
+		isRacial="Dracthyr",cdDiff={368838,-120}},
 	{368970,"RACIAL",3,--Взмах крыльями
-		{368970,90,0},
-		isRacial="Dracthyr",cdDiff={375443,-45}},
+		{368970,180,0},
+		isRacial="Dracthyr",cdDiff={375443,-120}},
 
 
 	{67826,	"ITEMS",3,--Дживс
@@ -15157,7 +15169,7 @@ if ExRT.isCata then
 
 	module.db.spell_afterCombatNotReset[GetSpellInfo(20608) or "spell:20608"] = true	module.db.spell_afterCombatNotReset[20608] = true
 
-	module.db.spell_cdByTalent_fix[31884] = {53375,{-20,-40,-60}}
+	module.db.spell_cdByTalent_fix[31884] = {53375,{-20,-40,-60},93417,{-30,-60}}
 	module.db.spell_cdByTalent_fix[871] = {12312,{-30,-60}}
 	module.db.spell_cdByTalent_fix[10278] = {20174,{-60,-120}}
 	module.db.spell_cdByTalent_fix[10310] = {20234,{-120,-240}}
