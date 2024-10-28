@@ -6,7 +6,8 @@ local dungeonIndex = 111
 MDT.dungeonList[dungeonIndex] = L["The Dawnbreaker"]
 MDT.mapInfo[dungeonIndex] = {
   teleportId = 445414,
-  shortName = L["dawnBreakerShortName"]
+  shortName = L["dawnBreakerShortName"],
+  mapID = 505
 }
 
 local zones = { 2215, 2215, 2359 } -- TODO remove 2215 WHEN DAWNBREAKER IS GONE FROM ROTATION
@@ -229,6 +230,12 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["g"] = 17,
         ["sublevel"] = 1,
       },
+      [8] = {
+        ["x"] = 246.23270722923,
+        ["y"] = -435.82976769389,
+        ["g"] = 42,
+        ["sublevel"] = 1,
+      },
     },
   },
   [3] = {
@@ -399,12 +406,6 @@ MDT.dungeonEnemies[dungeonIndex] = {
       },
     },
     ["clones"] = {
-      [1] = {
-        ["x"] = 246.5280642612,
-        ["y"] = -434.57841439197,
-        ["g"] = 42,
-        ["sublevel"] = 1,
-      },
       [2] = {
         ["x"] = 367.24319296367,
         ["y"] = -173.67920079313,
@@ -580,8 +581,8 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["sublevel"] = 1,
       },
       [35] = {
-        ["x"] = 210.10376180658,
-        ["y"] = -412.25425297673,
+        ["x"] = 215.88335206173,
+        ["y"] = -420.66090374661,
         ["g"] = 43,
         ["sublevel"] = 1,
       },
@@ -899,8 +900,8 @@ MDT.dungeonEnemies[dungeonIndex] = {
         ["sublevel"] = 1,
       },
       [36] = {
-        ["x"] = 217.80276608278,
-        ["y"] = -421.8375028846,
+        ["x"] = 209.39607021599,
+        ["y"] = -412.64269337308,
         ["g"] = 43,
         ["sublevel"] = 1,
       },
@@ -1119,7 +1120,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Sureki Militant",
     ["id"] = 213932,
     ["count"] = 12,
-    ["health"] = 32754194,
+    ["health"] = 35835879,
     ["scale"] = 1.8,
     ["stealthDetect"] = true,
     ["displayId"] = 116834,
@@ -1360,7 +1361,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Ascendant Viscoxria",
     ["id"] = 211261,
     ["count"] = 25,
-    ["health"] = 56690306,
+    ["health"] = 37826761,
     ["scale"] = 2.5,
     ["stealthDetect"] = true,
     ["displayId"] = 115760,
@@ -1555,7 +1556,7 @@ MDT.dungeonEnemies[dungeonIndex] = {
     ["name"] = "Anubikkaj",
     ["id"] = 211089,
     ["count"] = 0,
-    ["health"] = 208859018,
+    ["health"] = 139349505,
     ["scale"] = 1.7,
     ["displayId"] = 114315,
     ["creatureType"] = "Humanoid",

@@ -3,6 +3,7 @@ local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
 
+L["Timer"] = "Timer"
 L["Skittering Assistant"] = "Skittering Assistant"
 L["theaterOfPainShortName"] = "TOP"
 L["tazaveshUpperShortName"] = "GMBT"
@@ -4929,6 +4930,7 @@ L["Time-Lost Smack-o-Tron"] = "Time-Lost Smack-o-Tron"
 L["Time-Lost Tidehunter"] = "Time-Lost Tidehunter"
 L["Time-Lost Wakethrasher"] = "Time-Lost Wakethrasher"
 L["Time-Lost Waveshaper"] = "Time-Lost Waveshaper"
+L["Timer"] = "Timer"
 L["Timestream Anomaly"] = "Timestream Anomaly"
 L["Timestream Leech"] = "Timestream Leech"
 L["Tirathon Saltheril"] = "Tirathon Saltheril"

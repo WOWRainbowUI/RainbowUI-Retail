@@ -3154,6 +3154,8 @@ L["Time-Lost Wakethrasher"] = "Time-Lost Wakethrasher"
 --[[Translation missing --]]
 L["Time-Lost Waveshaper"] = "Time-Lost Waveshaper"
 --[[Translation missing --]]
+L["Timer"] = "Timer"
+--[[Translation missing --]]
 L["Timestream Anomaly"] = "Timestream Anomaly"
 --[[Translation missing --]]
 L["Timestream Leech"] = "Timestream Leech"
