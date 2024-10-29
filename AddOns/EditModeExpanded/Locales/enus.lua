@@ -51,6 +51,7 @@ L["Hide Icons"] = true
 L["Hide Level"] = true
 L["Raid Manager"] = true
 L["Hide Names"] = true
+L["UNLINK_CLASS_RESOURCE_DESCRIPTION"] = "Unlink from Player Frame (may require reload)"
 
 -- 自行加入
 L["Target of Target"] = true

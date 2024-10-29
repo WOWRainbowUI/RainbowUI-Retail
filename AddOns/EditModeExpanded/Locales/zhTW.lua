@@ -50,6 +50,7 @@ L["Hide Icons"] = "隱藏圖示"
 L["Hide Level"] = "隱藏等級"
 L["Raid Manager"] = "團隊管理面板"
 L["Hide Names"] = "隱藏名稱"
+L["UNLINK_CLASS_RESOURCE_DESCRIPTION"] = "取消和玩家框架的連結 (可能需要重新載入介面)"
 
 -- 自行加入
 L["Target of Target"] = "目標的目標"
