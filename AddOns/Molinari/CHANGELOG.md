@@ -1,5 +1,6 @@
-### Changes in 110000.122-Release:
+### Changes in 110000.123-Release:
 
-- Changed: Updated item database for cataclysm
-- Fixed: Localization not working
+- Changed: Updated item database
+- Changed: Updated zhCN translations
+- Changed: Update Interface versions
 
