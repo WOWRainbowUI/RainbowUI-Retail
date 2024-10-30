@@ -1,4 +1,4 @@
-local CONTROLS_VERSION = "2024-10-09"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
+local CONTROLS_VERSION = "2024-10-16"  -- Version (date) of this file.  Stored as "UDControls.VERSION".
 
 --[[---------------------------------------------------------------------------
 FILE:   UDControls.lua
@@ -16,6 +16,16 @@ REQUIREMENTS / DEPENDANCIES:
 USAGE:  See examples at end of this comment block.
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Oct 16, 2024
+        - Added SmallTooltip:Show(), SmallTooltip:Hide(), and SmallTooltip:SetTextColor().
+        - Added anchor/relativeFrame/relativeAnchor/x/y parameters to ContextMenu:Open().
+        - Minor changes to CreateColorSwatch().
+        - Added support to MsgBox3() for sending a key to a visible message box so it
+          can be forced to close a certain way if necessary to prevent data corruption.
+                e.g.  MsgBox3("SendKey", "ESCAPE")
+        - Updated MsgBox3() by changing its 'bShowAlertIcon' parameter into a 'boolFlags' string
+          of space delimited StaticPopupDialog flags that can be set true (or false by putting
+          a '-' character infront of the flag name).  See MsgBox3 examples.
     Oct 09, 2024
         - Added flashing scrollbar buttons in listboxes and dropdown menus when
           there are more lines above/below those being shown.
@@ -797,6 +807,7 @@ CHANGE HISTORY:
  FYI
 -----
     SetTextureColor() / SetTextureBackgroundColor() == SetColorTexture()
+                                                       Also see texture:SetVertexColor().
 
 -------------------------------------------------------------------------------]]
 
@@ -4248,8 +4259,7 @@ local function CreateColorSwatch(parent, size)
 
     -- Create button frame.
     local colorswatch = CreateFrame("Button", nil, parent)
-    colorswatch:SetWidth(size)
-    colorswatch:SetHeight(size)
+    colorswatch:SetSize(size, size)
     colorswatch:SetNormalTexture("Interface\\ChatFrame\\ChatFrameColorSwatch")
     colorswatch:SetScript("OnClick", function(self, mouseButton)
                 if mouseButton ~= "LeftButton" then return end  -- Only process left button.
@@ -4260,19 +4270,15 @@ local function CreateColorSwatch(parent, size)
 
     -- Border texture.
     colorswatch.borderTexture = colorswatch:CreateTexture(nil, "BACKGROUND")
-    colorswatch.borderTexture:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
-    ----colorswatch.borderTexture:SetVertexColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
-    colorswatch.borderTexture:SetVertexColor(1, 1, 1)
-    ----colorswatch.borderTexture:SetColorTexture(1, 1, 1)
-    colorswatch.borderTexture:SetWidth(size-2)
-    colorswatch.borderTexture:SetHeight(size-2)
-    colorswatch.borderTexture:SetPoint("CENTER")
+    ----colorswatch.borderTexture:SetColorTexture(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+    colorswatch.borderTexture:SetColorTexture(1, 1, 1)
+    colorswatch.borderTexture:SetSize(size-2, size-2)
+    colorswatch.borderTexture:SetPoint("CENTER", -0.1, 0)
 
     -- Checkerboard texture.  (Requires WoW version 10.0.2 or later to use texture 188523.)
     if (kGameTocVersion >= 100002) then
         colorswatch.checkers = colorswatch:CreateTexture(nil, "BACKGROUND")
-        colorswatch.checkers:SetWidth(size * 0.75)
-        colorswatch.checkers:SetHeight(size * 0.75)
+        colorswatch.checkers:SetSize(size * 0.75, size * 0.75)
         colorswatch.checkers:SetTexture(188523) -- Tileset\\Generic\\Checkers
         colorswatch.checkers:SetTexCoord(.25, 0, 0.5, .25)
         colorswatch.checkers:SetDesaturated(true)
@@ -4831,13 +4837,16 @@ end
 -- ESCAPE key triggers the button named _G.CANCEL (if it exists), or _G.NO (if it exists).
 -- Y key triggers the button named _G.YES (if it exists).
 -- N key triggers the button named _G.NO (if it exists).
+-- The 'boolFlags' parameter can be nil, true to show an alert icon, or a string of StaticPopupDialog
+-- flags (separated by spaces) to set true.  To set a flag false, put a dash '-' in front of its name.
+-- For a list of flags that can be set, see preInit() below.
 -- ****************************************************************************
 function CUtil.MsgBox3( msg,
                     btnText1, btnFunc1,
                     btnText2, btnFunc2,
                     btnText3, btnFunc3,
                     customData, -- Can be tables of values.
-                    bShowAlertIcon, soundID, timeoutSecs, preferredIndex)
+                    boolFlags, soundID, timeoutSecs, preferredIndex)
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 --~ EXAMPLE 1: Basic message with a single "Okay" button.
 --~     MsgBox3("Job done.")
@@ -4854,7 +4863,7 @@ function CUtil.MsgBox3( msg,
 --~                         end,
 --~             nil, nil,  -- Button3 hidden.
 --~             myDataBuffer,  -- data
---~             true, SOUNDKIT.ALARM_CLOCK_WARNING_3, 0, 3)  -- Icon, Sound, Timeout, Preferred Index.
+--~             "showAlert fullScreenCover", SOUNDKIT.ALARM_CLOCK_WARNING_3, 0, 3)  -- Flags, Sound, Timeout, Preferred Index.
 --~
 --~ EXAMPLE 3: A prompt with three buttons (YES/NO/CANCEL), each call a function that uses a custom data buffer (myDataBuffer).
 --~     MsgBox3("Save data before continuing?",
@@ -4871,7 +4880,7 @@ function CUtil.MsgBox3( msg,
 --~                             print("Operation canceled.")
 --~                         end,
 --~             myDataBuffer,  -- data
---~             true, SOUNDKIT.IG_MAINMENU_OPEN, 0, 3)  -- Icon, Sound, Timeout, Preferred Index.
+--~             "showAlert -whileDead", SOUNDKIT.IG_MAINMENU_OPEN, 0, 3)  -- Flags, Sound, Timeout, Preferred Index.
 --~
 --~ EXAMPLE 4: A Yes/No prompt with a single function for "Yes", and a 15 second time limit.
 --~     MsgBox3("Uh oh! Show help?\n\n(This message goes away after 15 seconds.)",
@@ -4879,7 +4888,7 @@ function CUtil.MsgBox3( msg,
 --~             _G.NO, nil,  -- Button2 displayed, but does nothing.
 --~             nil, nil,  -- Button3 hidden.
 --~             nil,  -- data
---~             false, nil, 15)  -- Icon, Sound, Timeout, Preferred Index.
+--~             nil, nil, 15)  -- Flags, Sound, Timeout, Preferred Index.
 --~
 --~ EXAMPLE 5: Setting custom OnShow/OnHide script functions.
 --~     MsgBox3("HookScript", "OnShow", function(self) print("MsgBox OnShow() called.") end  -- (Only need to do this once.)
@@ -4892,6 +4901,7 @@ function CUtil.MsgBox3( msg,
 --~     end
 --~
 --~ For more info, see ...
+--~     https://warcraft.wiki.gg/wiki/Creating_simple_pop-up_dialog_boxes
 --~     https://wowpedia.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
 --~     https://wowwiki-archive.fandom.com/wiki/Creating_simple_pop-up_dialog_boxes
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
@@ -4904,7 +4914,6 @@ function CUtil.MsgBox3( msg,
     assert(btnFunc1 == nil or type(btnFunc1) == "function")
     assert(btnFunc2 == nil or type(btnFunc2) == "function")
     assert(btnFunc3 == nil or type(btnFunc3) == "function")
-    assert(bShowAlertIcon == true or bShowAlertIcon == false or bShowAlertIcon == nil)
 
     if (btnText1 == "" or btnText1 == nil) then btnText1 = OKAY end
     if (btnText2 == "") then btnText2 = nil end
@@ -4912,18 +4921,39 @@ function CUtil.MsgBox3( msg,
     btnFunc1 = btnFunc1 or DoNothing
     btnFunc2 = btnFunc2 or DoNothing
     btnFunc3 = btnFunc3 or DoNothing
-    if (bShowAlertIcon ~= true) then bShowAlertIcon = nil end  -- Forces it to be 'true' or 'nil'.
 
     if not _G.StaticPopupDialogs[msgboxID] then
         _G.StaticPopupDialogs[msgboxID] =
         {
-            selectCallbackByIndex = true,  -- Required when using OnButton1, OnButton2, etc.  (Return true from them to keep popup open.)
-            whileDead = true,
-            exclusive = true,  -- Makes the popup go away if any other popup is displayed.
-            ----enterClicksFirstButton = true,  <<< ENTER handled in our own keypress function.
-            ----hideOnEscape = true,  <<< ESCAPE handled in our own keypress function.
-            ----fullScreenCover = true,  -- Modal message box.  Darkens entire screen too.
-            ----verticalButtonLayout = true,
+            --_________________________________________________________________
+            preInit = function(self)  -- 'self' is the StaticPopupDialogs table for this message box.
+                -- For a list of flags, see https://warcraft.wiki.gg/wiki/Creating_simple_pop-up_dialog_boxes .
+                self.whileDead = true
+                self.exclusive = true  -- Makes the popup go away if any other popup is displayed.
+                self.showAlert = nil
+                self.showAlertGear = nil
+                self.fullScreenCover = nil  -- System modal message box.  (Darkens entire screen.)
+                self.verticalButtonLayout = nil
+                self.interruptCinematic = nil
+                self.notClosableByLogout = nil
+                self.noCancelOnReuse = nil
+                self.cancels = nil
+            end,
+            --_________________________________________________________________
+            postInit = function(self)  -- 'self' is the StaticPopupDialogs table for this message box.
+                -- Prevents caller from changing these options.
+                self.selectCallbackByIndex = true  -- Required when using OnButton1, OnButton2, etc.  (Return true from them to keep popup open.)
+                self.enterClicksFirstButton = nil  -- Required!  ENTER key handled in our own keypress function.
+                self.hideOnEscape = nil  -- Required!  ESCAPE key handled in our own keypress function.
+                self.hasMoneyFrame = nil
+                self.hasMoneyInputFrame = nil
+                self.hasEditBox = nil
+                self.hasDropdown = nil
+                self.hasItemFrame = nil
+                self.subText = nil
+                self.compactItemFrame = nil
+                self.extraButton = nil
+            end,
             --_________________________________________________________________
             OnShow = function(self, customData)  -- 'self' is the popup frame.
                 local dialogInfo = _G.StaticPopupDialogs[ self.which ]
@@ -4997,7 +5027,7 @@ function CUtil.MsgBox3( msg,
         ----assert(dialogInfo.msgboxFrame == nil) -- Fails if our wait time was too short.
 
         -- Set caller's parameters.
-        dialogInfo.showAlert = bShowAlertIcon
+        dialogInfo:preInit()
         dialogInfo.sound = soundID
         dialogInfo.timeout = timeoutSecs
         dialogInfo.preferredIndex = preferredIndex or 1  -- Which of the global StaticPopup frames to use (if available).
@@ -5009,6 +5039,22 @@ function CUtil.MsgBox3( msg,
         dialogInfo.OnButton1 = btnFunc1
         dialogInfo.OnButton2 = btnFunc2
         dialogInfo.OnButton3 = btnFunc3
+
+        if (boolFlags == true) then dialogInfo.showAlert = true  -- Legacy support for 'bShowAlertIcon' param.
+        elseif (boolFlags == false or boolFlags == nil) then dialogInfo.showAlert = nil  -- Legacy support for 'bShowAlertIcon' param.
+        else -- Parse boolFlags string.
+            local delimiter = " "
+            for flag in string.gmatch(boolFlags, "([^"..delimiter.."]+)") do
+                flag = flag:trim()
+                ----print("MsgBox boolFlag:", flag)  -- For debugging.
+                if flag:sub(1,1) == "-" then  -- If starts with '-', set flag to nil (false).
+                    dialogInfo[flag:sub(2)] = nil
+                else  -- Set flag to true.
+                    dialogInfo[flag] = true
+                end
+            end
+        end
+        dialogInfo:postInit()
 
         -- Show the message box.
         _G.StaticPopup_Show(msgboxID, nil, nil, customData)  -- which, text1, text2, customData
@@ -5028,6 +5074,7 @@ end
 --      MsgBox_Command( msgboxID, "GetFrame" )
 --      MsgBox_Command( msgboxID, "HookScript", "OnShow", function(self) )
 --      MsgBox_Command( msgboxID, "HookScript", "OnHide", function(self) )
+--      MsgBox_Command( msgboxID, "SendKey", keyName )  -- e.g. "ESCAPE", "ENTER", "Y", "N".
 --
 -- Returns: Returns nil if the cmd parameter is not a supported command.  Otherwise, it returns
 --          whatever the specified command requested.  If the command normally returns nothing,
@@ -5045,15 +5092,35 @@ function CUtil.MsgBox_Command(msgboxID, cmd, arg1, arg2)
         assert(arg1 == nil and arg2 == nil)
         local dialogInfo = _G.StaticPopupDialogs[msgboxID]
         if dialogInfo and dialogInfo.msgboxFrame then return true end
-        return false
     elseif cmd == "GetFrame" then
         assert(arg1 == nil and arg2 == nil)
         local dialogInfo = _G.StaticPopupDialogs[msgboxID]
         if dialogInfo and dialogInfo.msgboxFrame then return dialogInfo.msgboxFrame end
-        return false
+--~ --      MsgBox_Command( msgboxID, "Click", buttonNumberOrText )  -- e.g. 1, 2, 3, OKAY, CANCEL, YES, NO.
+--~     elseif cmd == "Click" then
+--~         local dialogInfo = _G.StaticPopupDialogs[msgboxID]
+--~         if dialogInfo and dialogInfo.msgboxFrame then
+--~             if type(arg1) == "string" then
+--~                 arg1 = CUtil.findSPDButton(dialogInfo, arg1)  -- Find button number contain the text.
+--~             end
+--~             if arg1 >= 1 and arg1 <= 3 then
+--~                 StaticPopup_OnClick(dialogInfo.msgboxFrame, arg1)
+--~                 return true
+--~             end
+--~         end
+    elseif cmd == "SendKey" then
+        assert(type(arg1) == "string" and arg1 ~= "")
+        local dialogInfo = _G.StaticPopupDialogs[msgboxID]
+        if dialogInfo and dialogInfo.msgboxFrame then
+            local onKeyDown = dialogInfo.msgboxFrame:GetScript("OnKeyDown")
+            onKeyDown(dialogInfo.msgboxFrame, arg1)
+            return true
+        end
     else -- A command was not passed in.
         return nil
     end
+
+    return false  -- If we get here, 'cmd' is valid but it failed.
 end
 
 
@@ -5368,7 +5435,7 @@ function CUtil.CreateContextMenu(parent, fontTemplateName, sizes)
     ---------------------------
 
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-    function listbox:Open(lines)  -- ContextMenu:Open()
+    function listbox:Open(lines, anchor, relativeFrame, relativeAnchor, x, y)  -- ContextMenu:Open()
     -- Each line in the "lines" parameter can have one or more of the following values:
     --  * text      - The text to show for this line in the menu.
     --  * icon      - An icon (path name) to show at end of the menu line.
@@ -5404,11 +5471,15 @@ function CUtil.CreateContextMenu(parent, fontTemplateName, sizes)
             local listboxH = (#lines * sizes.lineHeight) + sizes.bottomPadding + sizes.edgeW
             self:Configure(listboxW, listboxH, sizes.lineHeight)  -- Set final size.
 
-            -- Show context menu at mouse location.
-            local x, y = GetScaledCursorPosition()
-            x = x - (self:GetWidth() * 0.33)
-            y = y + (sizes.lineHeight * 0.5) + sizes.edgeW
-            self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+            -- Show context menu at mouse location, or at the specified position if provided.
+            if anchor then  -- Show at specified position.
+                self:SetPoint(anchor, relativeFrame, relativeAnchor, x, y)
+            else  -- Show at mouse position.
+                x, y = GetScaledCursorPosition()
+                x = x - (self:GetWidth() * 0.33)
+                y = y + (sizes.lineHeight * 0.5) + sizes.edgeW
+                self:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+            end
             self:Show()
         end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
@@ -5427,6 +5498,80 @@ function CUtil.CreateContextMenu(parent, fontTemplateName, sizes)
 
     CUtil.EnhanceFrameEdges( listbox, 1, -0.5, -1, 0 )  -- (frame, x1, y1, x2, y2)
     return listbox
+end
+
+
+-- ****************************************************************************
+-- SmallTooltip is for showing a smaller tooltips than GameTooltip does.
+-- EXAMPLE:  SmallTooltip:Show(YourButton, "Info about your button.", "ANCHOR_TOP")
+-- ****************************************************************************
+CUtil.SmallTooltip = {}
+function CUtil.SmallTooltip:validate()
+    if not self.tooltip then
+        self.tooltip = CreateFrame("Frame", nil, UIParent, "TooltipBorderedFrameTemplate")
+        self.tooltip:Hide()
+        self.tooltip:SetFrameStrata("TOOLTIP")
+        self.tooltip:SetBackdropColor(0, 0, 0, 1)  -- Makes background a little darker.
+        ----self.tooltip:SetBackdropBorderColor(0, 1, 1, 1)
+        self.tooltip.fontString = self.tooltip:CreateFontString(nil, "ARTWORK")
+        self.tooltip.fontString:SetFont("Fonts\\ARIALN.ttf", 12, "")
+        self.tooltip.fontString:SetPoint("CENTER", 1, 0)
+    end
+end
+
+
+-- ****************************************************************************
+-- Displays a small tooltip containing the specified text.  The anchor parameter
+-- can be "ANCHOR_RIGHT", "ANCHOR_LEFT", "ANCHOR_TOP", "ANCHOR_BOTTOM", or nil.
+-- If parent is nil, UIParent is used.
+-- ****************************************************************************
+function CUtil.SmallTooltip:Show(parent, text, anchor, x, y)
+    assert(text ~= nil and text ~= "")
+    assert(parent == nil or type(parent) == "table")
+    self:validate()
+
+    parent = parent or UIParent
+    self.tooltip:SetParent(parent)
+	self.tooltip.fontString:SetText(text)
+	local strW = self.tooltip.fontString:GetStringWidth()
+	local strH = self.tooltip.fontString:GetStringHeight()
+	self.tooltip:SetSize( strW+16, strH+13 )
+
+    self.tooltip:ClearAllPoints()
+    if parent == UIParent then
+        if (anchor == "ANCHOR_TOP") then self.tooltip:SetPoint("TOP", x, y)
+        elseif (anchor == "ANCHOR_BOTTOM") then self.tooltip:SetPoint("BOTTOM", x, y)
+        elseif (anchor == "ANCHOR_LEFT") then self.tooltip:SetPoint("LEFT", x, y)
+        elseif (anchor == "ANCHOR_RIGHT") then self.tooltip:SetPoint("RIGHT", x, y)
+        else self.tooltip:SetPoint("CENTER")
+        end
+    else
+        if (anchor == "ANCHOR_TOP") then self.tooltip:SetPoint("BOTTOM", parent, "TOP", x, y)
+        elseif (anchor == "ANCHOR_BOTTOM") then self.tooltip:SetPoint("TOP", parent, "BOTTOM", x, y)
+        elseif (anchor == "ANCHOR_LEFT") then self.tooltip:SetPoint("RIGHT", parent, "LEFT", x, y)
+        else self.tooltip:SetPoint("LEFT", parent, "RIGHT", x, y) -- "ANCHOR_RIGHT"
+        end
+    end
+
+    self.tooltip:Show()
+end
+
+-- ****************************************************************************
+function CUtil.SmallTooltip:Hide()
+    self:validate()
+    self.tooltip:Hide()
+end
+
+-- ****************************************************************************
+function CUtil.SmallTooltip:GetTextColor()
+    self:validate()
+    return self.tooltip.fontString:GetTextColor()
+end
+
+-- ****************************************************************************
+function CUtil.SmallTooltip:SetTextColor(r, g, b, alpha)
+    self:validate()
+    self.tooltip.fontString:SetTextColor(r, g, b, alpha)
 end
 
 
@@ -5466,15 +5611,16 @@ private.UDControls.CreateContextMenu      = CUtil.CreateContextMenu
 private.UDControls.CreateHorizontalDivider= CUtil.CreateHorizontalDivider
 private.UDControls.CreateTexture_NEW      = CUtil.CreateTexture_NEW
 private.UDControls.DisplayAllFonts        = CUtil.DisplayAllFonts
-private.UDControls.DoNothing              = DoNothing   --DJUadded
+private.UDControls.DoNothing              = DoNothing
 private.UDControls.EnhanceFrameEdges      = CUtil.EnhanceFrameEdges
-private.UDControls.FillFrame              = CUtil.FillFrame  --DJUadded
+private.UDControls.FillFrame              = CUtil.FillFrame
 private.UDControls.GameTooltip_SetTitleAndText = CUtil.GameTooltip_SetTitleAndText
 private.UDControls.GetMouseFocus          = CUtil.GetMouseFocus
 private.UDControls.handleGlobalMouseClick = CUtil.handleGlobalMouseClick
 private.UDControls.MsgBox                 = CUtil.MsgBox
 private.UDControls.MsgBox3                = CUtil.MsgBox3
 private.UDControls.Outline                = CUtil.Outline
+private.UDControls.SmallTooltip           = CUtil.SmallTooltip
 private.UDControls.TextSize               = CUtil.TextSize
 
 --- End of File ---

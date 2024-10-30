@@ -54,7 +54,8 @@ kDefaultConfig =  -- Initialize this variable to an empty table.
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ----------------________________________-----------------------------------
-kDefaultConfig["閃電"] = {
+kDefaultConfig["閃電"] = {  -- [ Keywords: kDefaultConfigKey ]
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -77,6 +78,7 @@ kDefaultConfig["閃電"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["閃電黑白環"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -112,10 +114,28 @@ kDefaultConfig["閃電黑白環"] = {
             UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = true,
         },
+        [3] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring 1.tga",
+            ModelID = 0,
+            ShapeColorR = 0.5, ShapeColorG = 0.5, ShapeColorB = 0.5,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1.27,
+            UserAlpha = 0.25,
+            Strata = "BACKGROUND",
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = true,
+        },
     },
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["閃電-大"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -138,6 +158,7 @@ kDefaultConfig["閃電-大"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["閃電-小"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -160,6 +181,7 @@ kDefaultConfig["閃電-小"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["閃電-巨大"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -182,6 +204,7 @@ kDefaultConfig["閃電-巨大"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["紫光"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -204,6 +227,7 @@ kDefaultConfig["紫光"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["紫光-淡出"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -226,6 +250,7 @@ kDefaultConfig["紫光-淡出"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["紫光-淡出2"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -248,6 +273,7 @@ kDefaultConfig["紫光-淡出2"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["光暈-淡出"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -270,6 +296,7 @@ kDefaultConfig["光暈-淡出"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["紅色發光星星"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -309,6 +336,7 @@ kDefaultConfig["紅色發光星星"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["環形和閃電"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -327,10 +355,28 @@ kDefaultConfig["環形和閃電"] = {
             UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = kNoChange,
         },
+        [2] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring Soft 4.tga",
+            ModelID = 0,
+            ShapeColorR = 0, ShapeColorG = 0, ShapeColorB = 0,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 0.98,
+            UserAlpha = 0.65,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
     },
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["環形-閃爍"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -353,6 +399,7 @@ kDefaultConfig["環形-閃爍"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["星星綠光"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -375,6 +422,7 @@ kDefaultConfig["星星綠光"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["十字黃色脈動"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -397,6 +445,7 @@ kDefaultConfig["十字黃色脈動"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["十字暗影光暈"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -419,6 +468,7 @@ kDefaultConfig["十字暗影光暈"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["環形和骸骨"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -442,6 +492,7 @@ kDefaultConfig["環形和骸骨"] = {
 
 ----------------________________________-----------------------------------
 kDefaultConfig["紅色十字線和圈"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -482,6 +533,7 @@ kDefaultConfig["紅色十字線和圈"] = {
 
 ----------------________________________-----------------------------------
 kDefaultConfig["大環形-發綠光"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -521,6 +573,7 @@ kDefaultConfig["大環形-發綠光"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["邪惡之眼"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -556,10 +609,28 @@ kDefaultConfig["邪惡之眼"] = {
             UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = kNoChange,
         },
+        [3] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kShape_None,
+            ModelID = 166159,  -- "Trail - Swirling, Firestrike"
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1.15,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = false,
+        },
     },
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["(這裡開始)"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -605,6 +676,7 @@ kDefaultConfig["(這裡開始)"] = {
 if isWrathWoW_Min() then
     ----------------________________________-----------------------------------
     kDefaultConfig["冰冷"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -644,6 +716,7 @@ if isWrathWoW_Min() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["靈魂骸骨"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -666,6 +739,7 @@ if isWrathWoW_Min() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["環形和靈魂骸骨"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -688,6 +762,7 @@ if isWrathWoW_Min() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["藍綠合"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -710,6 +785,7 @@ if isWrathWoW_Min() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["橘球"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -739,7 +815,8 @@ end
 if isRetailWoW() then
 	----------------________________________-----------------------------------
     kDefaultConfig["我愛彩虹"] = {
-        Layers = {
+        MasterScale = 1,
+		Layers = {
             [1] = {
                 IsLayerEnabled = true,
                 ShapeFileName = nil,
@@ -761,6 +838,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["華麗滾珠轉軸"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -800,6 +878,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["環形和彩虹"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -838,7 +917,65 @@ if isRetailWoW() then
         },
     }
     ----------------________________________-----------------------------------
-    kDefaultConfig["火焰星星"] = {
+    kDefaultConfig["環形和彩虹 2"] = {
+        MasterScale = 1,
+        Layers = {
+            [1] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kShape_None,
+                ModelID = 165943,  -- "Sparkle, Blue"
+                ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0,
+                UserScale = 1.5,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+            [2] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kMediaPath.."Ring 2.tga",
+                ModelID = 1417024,  -- "Sparkling, Rainbow"
+                ShapeColorR = 1, ShapeColorG = 0.592, ShapeColorB = 0,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0.3,
+                UserScale = 0.9,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+            [3] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kMediaPath.."Ring Soft 4.tga",
+                ModelID = 0,
+                ShapeColorR = 0, ShapeColorG = 0, ShapeColorB = 0,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0,
+                UserScale = 0.98,
+                UserAlpha = 0.65,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+        },
+    }
+    ----------------________________________-----------------------------------
+    kDefaultConfig["Star Flame"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -861,6 +998,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["綠色螺旋"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -883,6 +1021,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["大甜甜圈"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -905,6 +1044,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["火球"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -959,9 +1099,9 @@ for name, data in pairs(kDefaultConfig) do
         if not data.Layers[i] then
             data.Layers[i] = CopyTable(kDefaultConfigLayer)
             data.Layers[i].IsLayerEnabled = false
-            data.Layers[i].FadeOut = kNoChange
-            data.Layers[i].UserShowOnlyInCombat = kNoChange
-            data.Layers[i].UserShowMouseLook = kNoChange
+            ----data.Layers[i].FadeOut = kNoChange
+            ----data.Layers[i].UserShowOnlyInCombat = kNoChange
+            ----data.Layers[i].UserShowMouseLook = kNoChange
         end
     end
 end

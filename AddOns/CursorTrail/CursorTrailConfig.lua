@@ -96,8 +96,8 @@ kRowSpacing = 16
 kBtnWidth = 104
 kBtnHeight = 22
 kButtonSpacing = 4
-kDropdownListboxScale = 1
-kbClickableCheckboxText = true  -- Uncomment this line for clickable checkbox text that toggles its checkbox.
+kDropDownListBoxScale = 1
+kbClickableCheckBoxText = true  -- Uncomment this line for clickable checkbox text that toggles its checkbox.
 
 kFrameWidth = 465
 kColumnWidth1 = 110  -- Width of the labels column.
@@ -107,10 +107,22 @@ ksLayer = "圖層 "  -- Space at end required.
 ksEnableLayer = "啟用圖層 "  -- Space at end required.
 
 kReasons = private.ProfilesUI_Reasons  -- Constants passed into calls to UI_GetValues() and UI_SetValues().
+kReasons.ResettingLayer = "ResettingLayer"
+kReasons.SwappingLayers = "SwappingLayers"
+kReasons.MovingLayer = "MovingLayer"
+kReasons.PastingLayer = "PastingLayer"
+kReasons.SettingValueOnAllLayers = "SettingValueOnAllLayers"
+kReasons.ChangingScale = "ChangingScale"
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 --[[                       Helper Function                                   ]]
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+-------
+-- FYI
+-------
+--  SetTextureColor() / SetTextureBackgroundColor() == SetColorTexture()
+--                                                     Also see texture:SetVertexColor().
 
 -------------------------------------------------------------------------------
 function getAddonConfig()  -- Returns the addon's persistent "SavedVariables" config data.
@@ -168,9 +180,14 @@ function UI_SetValues(config, reason) -- Copies config data into UI widgets.  If
     local layerNum = OptionsFrame_GetSelectedLayer()
     local layerCfg = config.Layers[layerNum]
 
+    OptionsFrame_Value("masterscale", config.MasterScale)
+
     OptionsFrame_Value("enabled", layerCfg.IsLayerEnabled and true or false)
     OptionsFrame_Value("shape", layerCfg.ShapeFileName or kShape_None)
-    OptionsFrame.ShapeColor:SetColor( layerCfg.ShapeColorR, layerCfg.ShapeColorG, layerCfg.ShapeColorB) ---, 0.75) --Uncomment to test opacity slider.
+    if not kShowColorPickerOpacity then
+        layerCfg.ShapeColorA = nil
+    end
+    OptionsFrame.ShapeColor:SetColor( layerCfg.ShapeColorR, layerCfg.ShapeColorG, layerCfg.ShapeColorB, layerCfg.ShapeColorA )
     OptionsFrame_Value("sparkle", layerCfg.ShapeSparkle or false)
     OptionsFrame_Value("model", layerCfg.ModelID)
 
@@ -206,7 +223,7 @@ function UI_GetValues(config, reason) -- Copies UI values into 'config'.  If 'co
     ----    assert(nil, "UI_GetValues() was called by "..config.TABLE_ID.." using ':' instead of '.' syntax!")
     ----end
     LOCK_UI()
-    OptionsFrame.ShapeColor:CloseColorPicker(true)  -- Saves any color changes.
+    OptionsFrame.ShapeColor:CloseColorPicker(true)  -- Save any color changes.
 
 --~     --_________________________________________________________________________
 --~     --###### TODO: Comment out this block before releasing next version. ######
@@ -220,8 +237,8 @@ function UI_GetValues(config, reason) -- Copies UI values into 'config'.  If 'co
 --~         assert( valueMatchesUI(layerCfg.IsLayerEnabled, "enabled", layerNum) )
 --~         assert( valueMatchesUI(layerCfg.ShapeFileName, "shape", layerNum) )
 --~         assert( valueMatchesUI(layerCfg.ModelID, "model", layerNum) )
---~         local r, g, b = OptionsFrame.ShapeColor:GetColor()
---~         assert( layerCfg.ShapeColorR == r and layerCfg.ShapeColorG == g and layerCfg.ShapeColorB == b )
+--~         local r, g, b, a = OptionsFrame.ShapeColor:GetColor()
+--~         assert( layerCfg.ShapeColorR == r and layerCfg.ShapeColorG == g and layerCfg.ShapeColorB == b and layerCfg.ShapeColorA == a )
 --~         assert( valueMatchesUI(layerCfg.ShapeSparkle, "sparkle", layerNum) )
 
 --~         assert( valueMatchesUI(layerCfg.UserShadowAlpha, "shadow", layerNum) )
@@ -322,7 +339,7 @@ function StandardPanel_Create(buttonText, buttonW, buttonH)
         ----HideUIPanel(GameMenuFrame)
 
         -- Show/hide this addon's config UI.
-        if OptionsFrame:IsShown() then OptionsFrame:Hide() else OptionsFrame:Show() end
+        OptionsFrame_ToggleUI()
     end)
 
     -- Adds this top level panel to the Interface Options.
@@ -344,19 +361,64 @@ end
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 -------------------------------------------------------------------------------
-function OptionsFrame_ToggleUI(bForceShow)
-    --|traceCfg("IN OptionsFrame_ToggleUI().")
-    if not OptionsFrame then
-        OptionsFrame_Create()
+function uiCoveredError(frameToFlash)
+    PlaySound(private.kSound.Failure)
+    frameToFlash = frameToFlash or OptionsFrame.ProfilesUI:getModalMessageFrame()
+    if frameToFlash then
+        flashGlowFrame(frameToFlash)
+    else
+        printMsg(kAddonAlertHeading, "Can't continue until popup message is closed.")
     end
+end
 
-    if OptionsFrame:IsShown() and not bForceShow then
-        OptionsFrame:Hide()
+-------------------------------------------------------------------------------
+function OptionsFrame_ShowUI()
+    --|traceCfg("IN OptionsFrame_ShowUI().")
+    local bResult = true
+    if not OptionsFrame then OptionsFrame_Create() end
+
+    if OptionsFrame.ProfilesUI:isCovered() then
+        bResult = false
+        uiCoveredError()
     else
         OptionsFrame:Show()
         if isCursorTrailOff() then CursorTrail_ON(true) end
     end
-    --|traceCfg("OUT OptionsFrame_ToggleUI().")
+    --|traceCfg("OUT OptionsFrame_ShowUI(), "..tostring(bResult))
+    return bResult
+end
+
+-------------------------------------------------------------------------------
+function OptionsFrame_HideUI(forceLevel)
+    --|traceCfg("IN OptionsFrame_HideUI(), "..(forceLevel or "nil"))
+    local bResult = true
+    forceLevel = forceLevel or 0
+    if OptionsFrame and OptionsFrame:IsShown() then
+        if OptionsFrame.ProfilesUI:isCovered() and forceLevel < 2 then
+            bResult = false
+            uiCoveredError()
+        elseif OptionsFrame.WarnTooltip:IsShown() and forceLevel < 1 then
+            bResult = false
+            uiCoveredError( OptionsFrame.WarnTooltip )
+        else
+            OptionsFrame:Hide()
+        end
+    end
+    --|traceCfg("OUT OptionsFrame_HideUI(), "..tostring(bResult))
+    return bResult
+end
+
+-------------------------------------------------------------------------------
+function OptionsFrame_ToggleUI()
+    --|traceCfg("IN OptionsFrame_ToggleUI().")
+    local bResult
+    if OptionsFrame and OptionsFrame:IsShown() then
+        bResult = OptionsFrame_HideUI()
+    else
+        bResult = OptionsFrame_ShowUI()
+    end
+    --|traceCfg("OUT OptionsFrame_ToggleUI(), "..tostring(bResult))
+    return bResult
 end
 
 -------------------------------------------------------------------------------
@@ -414,7 +476,7 @@ function OptionsFrame_Create()
     OptionsFrame.LayerNumText = OptionsFrame:CreateFontString(nil, "ARTWORK", "Game120Font")
     OptionsFrame.LayerNumText:SetScale(2)
     ----OptionsFrame.LayerNumText:GetFontObject():SetTextColor(1, 1, 1,  0.05)
-    OptionsFrame.LayerNumText:GetFontObject():SetTextColor(0.3, 0.3, 0.3,  (isRetailWoW() and 0.2 or 0.25))
+    OptionsFrame.LayerNumText:GetFontObject():SetTextColor(0.3, 0.3, 0.3,  (isRetailWoW() and 0.22 or 0.27))
 
     -- TOOLTIP:
     OptionsFrame.WarnTooltip = CreateFrame("GameTooltip", kAddonFolderName.."WarnTooltip", OptionsFrame, "GameTooltipTemplate")
@@ -501,6 +563,7 @@ function OptionsFrame_Create()
                 else OptionsFrame:closeContextMenu()
                 end
             end)
+    OptionsFrame:SetScript("OnMouseWheel", function() end)  -- Cripple mousewheel when over our window background.
 
     -------------------------
     -- - - - WIDGETS - - - --
@@ -509,7 +572,8 @@ function OptionsFrame_Create()
     local xPos = kFrameMargin
     local yPos = topPos
     local dli = 5  -- Divider line inset.
-    local fontName, fontSize
+    local scaleWheelDelta = 2
+    local editbox, fontName, fontSize
 
     -- PROFILES --
     local profilesOffset = 8  -- Tweak position slightly.
@@ -560,8 +624,21 @@ function OptionsFrame_Create()
     -- Next row.
     yPos = yPos - OptionsFrame.ProfilesUI:GetHeight() + profilesOffset - kRowSpacing
 
+    -- MASTER SCALE (%) --
+    yPos = yPos - 3  -- Tweak position slightly.
+    OptionsFrame.MasterScaleLabel = OptionsFrame_CreateLabel("整體縮放 (%):", xPos, yPos)
+    xPos = xPos + kColumnWidth1  -- Next column.
+    OptionsFrame.MasterScaleEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 100)
+    OptionsFrame.MasterScaleEditBox.wheelDelta = scaleWheelDelta
+    OptionsFrame.MasterScaleEditBox:SetScript("OnTextChanged", OptionsFrame_OnEditBoxChanged)
+    OptionsFrame.MasterScaleEditBox:SetFrameLevel(10)  -- So mouse wheel doesn't trigger tab cycling so easily if mouse moves off editbox.
+
+    -- Next row.
+    xPos = kFrameMargin
+    yPos = yPos - kRowHeight - kRowSpacing
+
     -- LAYER TABS --
-    yPos = yPos - 6  -- Tweak position slightly.
+    yPos = yPos + 1  -- Tweak position slightly.
     local tabSpacing = 5
     OptionsFrame.Tabs = {}
     for i = 1, kMaxLayers do
@@ -731,10 +808,10 @@ function OptionsFrame_Create()
 
     -- ENABLE LAYER --
     yPos = yPos + 8  -- Tweak position slightly.
-    OptionsFrame.LayerEnabledCheckbox = OptionsFrame_CreateCheckBox(ksEnableLayer, xPos, yPos)
-    changeCheckboxSize(OptionsFrame.LayerEnabledCheckbox, 4, 7, 0)
-    OptionsFrame.LayerEnabledCheckbox:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", kFrameMargin+5, yPos+4)
-	OptionsFrame.LayerEnabledCheckbox:SetScript('PostClick', function(self, button)  --[ Keywords: OnEnableLayer() OnLayerEnabled() ]
+    OptionsFrame.LayerEnabledCheckBox = OptionsFrame_CreateCheckBox(ksEnableLayer, xPos, yPos)
+    changeCheckBoxSize(OptionsFrame.LayerEnabledCheckBox, 4, 7, 0)
+    OptionsFrame.LayerEnabledCheckBox:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", kFrameMargin+5, yPos+4)
+	OptionsFrame.LayerEnabledCheckBox:SetScript('PostClick', function(self, button)  --[ Keywords: OnEnableLayer() OnLayerEnabled() ]
         local isChecked = self:GetChecked()
         local layerNum = OptionsFrame_GetSelectedLayer()
         assert( gLayers[layerNum].playerConfigLayer == PlayerConfig.Layers[layerNum] ) -- Should refer to the same table!
@@ -753,14 +830,25 @@ function OptionsFrame_Create()
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.ShapeDropDown = OptionsFrame_CreateShapeDropDown(xPos, yPos, 170)
 
+    ----OptionsFrame.ShapeDropDown.setAllBtn = createSetAllButton(OptionsFrame.ShapeDropDown, "ANCHOR_TOP", 24, -1, "shape")
+    ----OptionsFrame.ShapeDropDown.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "ShapeFileName") end)
+
     -- SHAPE COLOR SWATCH --
     OptionsFrame.ShapeColor = private.UDControls.CreateColorSwatch( OptionsFrame, 22 )
     OptionsFrame.ShapeColor:SetPoint("LEFT", OptionsFrame.ShapeDropDown, "RIGHT", 8, -1)
-    OptionsFrame.ShapeColor:SetTooltip("點一下更改圖形的顏色。")
+    OptionsFrame.ShapeColor:SetTooltip("點一下更改圖形的顏色。") ----, "ANCHOR_TOP")
     OptionsFrame.ShapeColor:SetColorChangedHandler(function(self)
-                gLayers:getSelectedLayer():setShapeColor( self.r, self.g, self.b, self.a )
-                OptionsFrame.ProfilesUI:OnValueChanged()
-                OptionsFrame_SetModified(true)
+                local layer = gLayers:getSelectedLayer()
+                local layerCfg = layer.playerConfigLayer
+                if   self.r ~= layerCfg.ShapeColorR
+                  or self.g ~= layerCfg.ShapeColorG
+                  or self.b ~= layerCfg.ShapeColorB
+                  or (self.a ~= nil and self.a ~= layerCfg.ShapeColorA)
+                  then
+                    layer:setShapeColor( self.r, self.g, self.b, self.a )
+                    OptionsFrame.ProfilesUI:OnValueChanged()
+                    OptionsFrame_SetModified(true)
+                end
 
                 -- Shows FX briefly if fading is on.
                 gMotionIntensity = 1; gPreviousX = nil;
@@ -779,26 +867,27 @@ function OptionsFrame_Create()
                     if ColorPickerFrame:IsShown() then
                         ColorPickerFrame:Hide()
                     end
-                    local newVal = {1, 1, 1}  -- Init to default color.
-                    local r, g, b = self:GetColor()
-                    local isDefaultColor = (r == newVal[1] and g == newVal[2] and b == newVal[3])
+                    local newVal = {1, 1, 1,  1}  -- Init to default color.
+                    local r, g, b, alpha = self:GetColor()
+                    alpha = alpha or 1
+                    local isDefaultColor = (r == newVal[1] and g == newVal[2] and b == newVal[3] and alpha == newVal[4])
                     if not isDefaultColor then
-                        self.previousVal = {r, g, b}  -- Store current color.
+                        self.previousVal = {r, g, b, alpha}  -- Store current color.
                     elseif self.previousVal then
                         newVal = self.previousVal  -- Use previous color.
                     else
-                        newVal = {1, 0, 0}  -- Use an arbitrary alternate color.
+                        newVal = {1, 0, 0,  1}  -- Use an arbitrary alternate color.
                     end
-                    self:SetColor( newVal[1], newVal[2], newVal[3] )
+                    self:SetColor( newVal[1], newVal[2], newVal[3], newVal[4] )
                     self:colorChangedHandler()
                 end
             end)
 
     -- SHAPE SPARKLE --
-    OptionsFrame.SparkleCheckbox = OptionsFrame_CreateCheckBox("閃耀", xPos, yPos)
-    OptionsFrame.SparkleCheckbox:ClearAllPoints()
-    OptionsFrame.SparkleCheckbox:SetPoint("LEFT", OptionsFrame.ShapeColor, "RIGHT", 4, 0)
-    OptionsFrame.SparkleCheckbox:SetScript('PostClick', function(self, button)
+    OptionsFrame.SparkleCheckBox = OptionsFrame_CreateCheckBox("閃耀", xPos, yPos)
+    OptionsFrame.SparkleCheckBox:ClearAllPoints()
+    OptionsFrame.SparkleCheckBox:SetPoint("LEFT", OptionsFrame.ShapeColor, "RIGHT", 4, 0)
+    OptionsFrame.SparkleCheckBox:SetScript('PostClick', function(self, button)
         local isChecked = self:GetChecked()
         if isChecked and ColorPickerFrame:IsShown() then
             ColorPickerFrame:Hide()
@@ -806,6 +895,23 @@ function OptionsFrame_Create()
         gLayers:getSelectedLayer():setShapeSparkle( isChecked )
         OptionsFrame_UpdateButtonStates()
     end)
+
+    ----OptionsFrame.SparkleCheckBox.setAllBtn = createSetAllButton(OptionsFrame.SparkleCheckBox, "ANCHOR_TOP", -13, -1)
+    OptionsFrame.SparkleCheckBox.setAllBtn = createSetAllButton(OptionsFrame.SparkleCheckBox, "ANCHOR_RIGHT", 0, 0, "color")
+    OptionsFrame.SparkleCheckBox.setAllBtn:SetPoint("LEFT", OptionsFrame.SparkleCheckBox.Text, "RIGHT", -2, -7)
+    OptionsFrame.SparkleCheckBox.setAllBtn:SetScript("OnClick", function(self)
+                OptionsFrame.ShapeColor:CloseColorPicker(true)  -- Save any color changes.
+                setAllLayers(self, "ShapeColorR")
+                setAllLayers(self, "ShapeColorG")
+                setAllLayers(self, "ShapeColorB")
+                setAllLayers(self, "ShapeColorA")
+                setAllLayers(self, "ShapeSparkle")
+            end)
+
+    OptionsFrame.ShapeDropDown.setAllBtn = createSetAllButton(OptionsFrame.ShapeDropDown, "ANCHOR_RIGHT", 0, 0, "shape")
+    OptionsFrame.ShapeDropDown.setAllBtn:ClearAllPoints()
+    OptionsFrame.ShapeDropDown.setAllBtn:SetPoint("BOTTOM", OptionsFrame.SparkleCheckBox.setAllBtn, "TOP", 0, -17)
+    OptionsFrame.ShapeDropDown.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "ShapeFileName") end)
 
     -- Next row.
     xPos = kFrameMargin
@@ -816,6 +922,9 @@ function OptionsFrame_Create()
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.ModelDropDown = OptionsFrame_CreateModelDropDown(xPos, yPos, kColumnWidth2+16)
 
+    OptionsFrame.ModelDropDown.setAllBtn = createSetAllButton(OptionsFrame.ModelDropDown, "ANCHOR_RIGHT", 0, -1, "model")
+    OptionsFrame.ModelDropDown.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "ModelID") end)
+
     -- Next row.
     xPos = kFrameMargin
     yPos = yPos - kRowHeight - kRowSpacing
@@ -824,8 +933,18 @@ function OptionsFrame_Create()
     OptionsFrame.ShadowLabel = OptionsFrame_CreateLabel("陰影 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.ShadowEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 0)
-    OptionsFrame.ShadowEditBox.wheelDelta = 5
-    OptionsFrame.ShadowEditBox:SetScript("OnTextChanged", OptionsFrame_OnShadowChanged)
+    editbox = OptionsFrame.ShadowEditBox
+    editbox.wheelDelta = 5
+    editbox:SetScript("OnTextChanged", OptionsFrame_OnShadowChanged)
+
+    editbox.setAllBtn = createSetAllButton(editbox, "ANCHOR_RIGHT", -1, -1)
+    editbox.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "UserShadowAlpha") end)
+
+    ----editbox.resetAllBtn = createResetAllButton(editbox, "ANCHOR_RIGHT", 0, 0)
+    ----editbox.resetAllBtn:SetScript("OnClick", function(self)
+    ----            OptionsFrame_Value("shadow", 0)
+    ----            setAllLayers(self, "UserShadowAlpha", 0)
+    ----        end)
 
     -- Next row.
     xPos = kFrameMargin
@@ -840,8 +959,19 @@ function OptionsFrame_Create()
     OptionsFrame.ScaleLabel = OptionsFrame_CreateLabel("縮放大小 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.ScaleEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 100)
-    OptionsFrame.ScaleEditBox.wheelDelta = 2
-    OptionsFrame.ScaleEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
+    editbox = OptionsFrame.ScaleEditBox
+    editbox.wheelDelta = scaleWheelDelta
+    editbox:SetScript("OnTextChanged", OptionsFrame_OnEditBoxChanged)
+
+    editbox.setAllBtn = createSetAllButton(editbox, "ANCHOR_RIGHT", -1, -1)
+    editbox.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "UserScale") end)
+
+    ----local smallBtn2_X = editbox.setAllBtn:GetWidth() - 8
+    ----editbox.resetAllBtn = createResetAllButton(editbox, "ANCHOR_RIGHT", smallBtn2_X, 0)
+    ----editbox.resetAllBtn:SetScript("OnClick", function(self)
+    ----            OptionsFrame_Value("scale", 100)
+    ----            setAllLayers(self, "UserScale", 1)
+    ----        end)
 
     -- Next row.
     xPos = kFrameMargin
@@ -851,8 +981,18 @@ function OptionsFrame_Create()
     OptionsFrame.AlphaLabel = OptionsFrame_CreateLabel("不透明度 (%):", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.AlphaEditBox = OptionsFrame_CreateEditBox(xPos, yPos, nil, 3, true, 100)
-    OptionsFrame.AlphaEditBox.wheelDelta = 5
-    OptionsFrame.AlphaEditBox:SetScript("OnTextChanged", OptionsFrame_OnAlphaChanged)
+    editbox = OptionsFrame.AlphaEditBox
+    editbox.wheelDelta = 5
+    editbox:SetScript("OnTextChanged", OptionsFrame_OnAlphaChanged)
+
+    editbox.setAllBtn = createSetAllButton(editbox, "ANCHOR_RIGHT", -1, -1)
+    editbox.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "UserAlpha") end)
+
+    ----editbox.resetAllBtn = createResetAllButton(editbox, "ANCHOR_RIGHT", smallBtn2_X, 0)
+    ----editbox.resetAllBtn:SetScript("OnClick", function(self)
+    ----            OptionsFrame_Value("alpha", 100)
+    ----            setAllLayers(self, "UserAlpha", 1)
+    ----        end)
 
     -- Next row.
     xPos = kFrameMargin
@@ -862,6 +1002,15 @@ function OptionsFrame_Create()
     OptionsFrame.StrataLabel = OptionsFrame_CreateLabel("框架層級:", xPos, yPos)
     xPos = xPos + kColumnWidth1  -- Next column.
     OptionsFrame.StrataDropDown = OptionsFrame_CreateStrataDropDown(xPos, yPos, 138)
+
+    OptionsFrame.StrataDropDown.setAllBtn = createSetAllButton(OptionsFrame.StrataDropDown, "ANCHOR_RIGHT", 0, -1)
+    OptionsFrame.StrataDropDown.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "Strata") end)
+
+    ----OptionsFrame.StrataDropDown.resetAllBtn = createResetAllButton(OptionsFrame.StrataDropDown, "ANCHOR_RIGHT", smallBtn2_X, 0)
+    ----OptionsFrame.StrataDropDown.resetAllBtn:SetScript("OnClick", function(self)
+    ----            OptionsFrame_Value("strata", kDefaultStrata)
+    ----            setAllLayers(self, "Strata", kDefaultStrata)
+    ----        end)
 
     -- Next row.
     xPos = kFrameMargin
@@ -873,15 +1022,31 @@ function OptionsFrame_Create()
     xPos = xPos + kColumnWidth1  -- Next column.
     -- X
     OptionsFrame.OfsXEditBox = OptionsFrame_CreateEditBox(xPos, yPos, 42, nil, nil, "0")
-    OptionsFrame.OfsXEditBox.wheelDelta = 0.25
-    OptionsFrame.OfsXEditBox.arrowsDelta = OptionsFrame.OfsXEditBox.wheelDelta
-    OptionsFrame.OfsXEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
-    xPos = xPos + OptionsFrame.OfsXEditBox:GetWidth() + 12  -- Next column.
+    editbox = OptionsFrame.OfsXEditBox
+    editbox.wheelDelta = 0.25
+    editbox.arrowsDelta = editbox.wheelDelta
+    editbox:SetScript("OnTextChanged", OptionsFrame_OnEditBoxChanged)
+    xPos = xPos + editbox:GetWidth() + 12  -- Next column.
     -- Y
     OptionsFrame.OfsYEditBox = OptionsFrame_CreateEditBox(xPos, yPos, 42, nil, nil, "0")
-    OptionsFrame.OfsYEditBox.wheelDelta = OptionsFrame.OfsXEditBox.wheelDelta
-    OptionsFrame.OfsYEditBox.arrowsDelta = OptionsFrame.OfsXEditBox.arrowsDelta
-    OptionsFrame.OfsYEditBox:SetScript("OnTextChanged", OptionsFrame_OnValueChanged)
+    editbox = OptionsFrame.OfsYEditBox
+    editbox.wheelDelta = OptionsFrame.OfsXEditBox.wheelDelta
+    editbox.arrowsDelta = OptionsFrame.OfsXEditBox.arrowsDelta
+    editbox:SetScript("OnTextChanged", OptionsFrame_OnEditBoxChanged)
+
+    editbox.setAllBtn = createSetAllButton(editbox, "ANCHOR_RIGHT", -1, -1, "offset")
+    editbox.setAllBtn:SetScript("OnClick", function(self)
+                setAllLayers(self, "UserOfsX")
+                setAllLayers(self, "UserOfsY")
+            end)
+
+    ----editbox.resetAllBtn = createResetAllButton(editbox, "ANCHOR_RIGHT", 0, 0)
+    ----editbox.resetAllBtn:SetScript("OnClick", function(self)
+    ----            OptionsFrame_Value("OfsX", 0)
+    ----            OptionsFrame_Value("OfsY", 0)
+    ----            setAllLayers(self, "UserOfsX", 0)
+    ----            setAllLayers(self, "UserOfsY", 0)
+    ----        end)
 
     -- Next row.
     xPos = kFrameMargin
@@ -891,7 +1056,8 @@ function OptionsFrame_Create()
     OptionsFrame_TabOrder={ OptionsFrame.ShadowEditBox,
                             OptionsFrame.ScaleEditBox,
                             OptionsFrame.AlphaEditBox,
-                            OptionsFrame.OfsXEditBox, OptionsFrame.OfsYEditBox }
+                            OptionsFrame.OfsXEditBox, OptionsFrame.OfsYEditBox,
+                            OptionsFrame.MasterScaleEditBox }
 
     -- DIVIDER LINE --
     ----OptionsFrame_CreateDividerLine( xPos, yPos+(kRowSpacing/2) ) ----, kFrameMargin+kColumnWidth1+kColumnWidth2 )
@@ -899,36 +1065,45 @@ function OptionsFrame_Create()
 
     -- FADE OUT --
     yPos = yPos - 3  -- Tweak position slightly.
-    OptionsFrame.FadeCheckbox = OptionsFrame_CreateCheckBox("滑鼠不動時隱藏", xPos, yPos)
-	OptionsFrame.FadeCheckbox:SetScript('PostClick', function(self, button)
-        --|traceCfg("IN FadeCheckbox:PostClick().")
+    OptionsFrame.FadeCheckBox = OptionsFrame_CreateCheckBox("滑鼠不動時隱藏", xPos, yPos)
+	OptionsFrame.FadeCheckBox:SetScript('PostClick', function(self, button)
+        --|traceCfg("IN FadeCheckBox:PostClick().")
         gLayers:getSelectedLayer():setFadeOut( self:GetChecked() )
-        --|traceCfg("OUT FadeCheckbox:PostClick().")
+        --|traceCfg("OUT FadeCheckBox:PostClick().")
     end)
+
+    OptionsFrame.FadeCheckBox.setAllBtn = createSetAllButton(OptionsFrame.FadeCheckBox, "ANCHOR_LEFT", 0, 0)
+    OptionsFrame.FadeCheckBox.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "FadeOut") end)
 
     -- Next row.
     xPos = kFrameMargin
     yPos = yPos - kRowHeight - kRowSpacing
 
     -- SHOW ONLY IN COMBAT --
-    OptionsFrame.CombatCheckbox = OptionsFrame_CreateCheckBox("只在戰鬥中顯示", xPos, yPos)
-	OptionsFrame.CombatCheckbox:SetScript('PostClick', function(self, button)
-        --|traceCfg("IN CombatCheckbox:PostClick().")
+    OptionsFrame.CombatCheckBox = OptionsFrame_CreateCheckBox("只在戰鬥中顯示", xPos, yPos)
+	OptionsFrame.CombatCheckBox:SetScript('PostClick', function(self, button)
+        --|traceCfg("IN CombatCheckBox:PostClick().")
         gLayers:getSelectedLayer():setCombat( self:GetChecked() )
-        --|traceCfg("OUT CombatCheckbox:PostClick().")
+        --|traceCfg("OUT CombatCheckBox:PostClick().")
     end)
+
+    OptionsFrame.CombatCheckBox.setAllBtn = createSetAllButton(OptionsFrame.CombatCheckBox, "ANCHOR_LEFT", 0, 0)
+    OptionsFrame.CombatCheckBox.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "UserShowOnlyInCombat") end)
 
     -- Next row.
     xPos = kFrameMargin
     yPos = yPos - kRowHeight - kRowSpacing
 
     -- SHOW DURING MOUSELOOK --
-    OptionsFrame.MouseLookCheckbox = OptionsFrame_CreateCheckBox("用滑鼠控制視角時要顯示", xPos, yPos)
-	OptionsFrame.MouseLookCheckbox:SetScript('PostClick', function(self, button)
-        --|traceCfg("IN MouseLookCheckbox:PostClick().")
+    OptionsFrame.MouseLookCheckBox = OptionsFrame_CreateCheckBox("用滑鼠控制視角時要顯示", xPos, yPos)
+	OptionsFrame.MouseLookCheckBox:SetScript('PostClick', function(self, button)
+        --|traceCfg("IN MouseLookCheckBox:PostClick().")
         gLayers:getSelectedLayer():setMouseLook( self:GetChecked() )
-        --|traceCfg("OUT MouseLookCheckbox:PostClick().")
+        --|traceCfg("OUT MouseLookCheckBox:PostClick().")
     end)
+
+    OptionsFrame.MouseLookCheckBox.setAllBtn = createSetAllButton(OptionsFrame.MouseLookCheckBox, "ANCHOR_LEFT", 0, 0)
+    OptionsFrame.MouseLookCheckBox.setAllBtn:SetScript("OnClick", function(self) setAllLayers(self, "UserShowMouseLook") end)
 
     -- Next row.
     xPos = kFrameMargin
@@ -1077,45 +1252,63 @@ function OptionsFrame_CreateContextMenu()
     end
 
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-    function OptionsFrame:openContextMenu()
+    -- Note: Optional anchor parameters have no effect if UseBlizzardMenu is true.
+    function OptionsFrame:openContextMenu(contentID, anchor, relativeFrame, relativeAnchor, x, y)
+        contentID = contentID or 1
+        assert(contentID >= 1)
         OptionsFrame_CloseDropDownMenus()
         OptionsFrame.ProfilesUI.mainFrame:closeDropDownMenus()
 
         -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-        local function createContextMenuLines()
+        local function createContextMenuLines(contentID)
+            -----------------------------------------------
+            -- contentID:   1 = Show all items.
+            --              2 = Hide "select layer" lines.
+            assert(contentID >= 1 and contentID <= 2)
+            -----------------------------------------------
             local lines = {}
             local i = 1
             local currentLayer = OptionsFrame_GetSelectedLayer()
 
-            -- SELECT LAYER:
-            for j = 1, kMaxLayers do
-                local isLayerEnabled = PlayerConfig.Layers[j].IsLayerEnabled
-                local disableLine = (j == currentLayer)  -- Disable the line for the currently selected layer.
-                local layerIcon = "Interface\\COMMON\\Indicator-" .. (isLayerEnabled and "Green" or "Red")
-                lines[i] = {text="Select Layer "..j,  func=function() OptionsFrame_SelectLayer(j) end,
-                            disabled=disableLine, icon=layerIcon}
-                i = i + 1
+            if contentID ~= 2 then
+                -- SELECT LAYER:
+                for j = 1, kMaxLayers do
+                    local isLayerEnabled = PlayerConfig.Layers[j].IsLayerEnabled
+                    local disableLine = (j == currentLayer)  -- Disable the line for the currently selected layer.
+                    local lineText = disableLine and "<< Layer "..j.." >>" or "Select Layer "..j
+                    local layerIcon = "Interface\\COMMON\\Indicator-" .. (isLayerEnabled and "Green" or "Red")
+                    lines[i] = {text=lineText, icon=layerIcon, disabled=disableLine,
+                                func=function() OptionsFrame_SelectLayer(j) end}
+                    i = i + 1
+                end
+
+                -- DIVIDER LINE --
+                lines[i] = {isDivider=true}; i=i+1
             end
 
             -- ENABLE/DISABLE LAYER:
-            lines[i] = {isDivider=true}; i=i+1
             if OptionsFrame_Value("enabled") then
                 lines[i] = {text="Disable Layer "..currentLayer,
-                            func=function() OptionsFrame.LayerEnabledCheckbox:Click() end,
-                            ----icon="Interface\\BUTTONS\\UI-GROUPLOOT-PASS-DOWN"
+                            icon="Interface\\MINIMAP\\UI-Minimap-ZoomOutButton-Up",
+                            func=function() OptionsFrame.LayerEnabledCheckBox:Click() end,
                            }
                 i = i + 1
             else
                 lines[i] = {text="Enable Layer "..currentLayer,
-                            func=function() OptionsFrame.LayerEnabledCheckbox:Click() end,
-                            ----icon="Interface\\BUTTONS\\UI-RefreshButton"
+                            icon="Interface\\MINIMAP\\UI-Minimap-ZoomInButton-Up",
+                            func=function() OptionsFrame.LayerEnabledCheckBox:Click() end,
                            }
                 i = i + 1
             end
 
             -- RESET LAYER:
             lines[i] = {text="Reset Layer "..currentLayer,
-                        func=function() gLayers:resetLayer(currentLayer) end}
+                        icon="Interface\\BUTTONS\\UI-GROUPLOOT-PASS-DOWN",
+                        func=function()
+                            gLayers:resetLayer(currentLayer)
+                            PlaySound(SOUNDKIT.ITEM_REPAIR)
+                            OptionsFrame_StatusMsg("Reset layer "..currentLayer..".")
+                        end,
                         ----func=function()
                         ----    msgbox3("Reset layer "..currentLayer.." to starting values?",
                         ----            YES, function(thisPopupFrame, data, reason) gLayers:resetLayer(currentLayer) end,
@@ -1123,22 +1316,67 @@ function OptionsFrame_CreateContextMenu()
                         ----            nil, nil,  -- button3
                         ----            myDataBuffer,  -- data
                         ----            false, nil, 0, 3)  -- Icon, Sound, Timeout, Preferred Index.
-                        ----end}
+                        ----end,
+                        }
             i = i + 1
 
-            -- COPY/PASTE LAYER:
-            --TODO:  lines[i] = {text="Copy Layer",  func=function() gLayers:copyLayer() end}; i=i+1
-            --TODO:  lines[i] = {text="Paste Layer",  func=function() gLayers:pasteLayer() end}; i=i+1
-
-            -- SWAP LAYERS:
+            -- DIVIDER LINE --
             lines[i] = {isDivider=true}; i=i+1
+
+            -- COPY/PASTE LAYER:
+            lines[i] = {text="Copy Layer "..currentLayer,
+                        icon="Interface\\BUTTONS\\UI-GuildButton-OfficerNote-Up",
+                        func=function()
+                            gLayers:copyLayer()
+                            PlaySound(private.kSound.Action)
+                            OptionsFrame_StatusMsg("Copied layer "..currentLayer..".")
+                        end,
+                        }
+            i = i + 1
+            lines[i] = {text="Paste Layer",
+                        icon="Interface\\BUTTONS\\UI-GuildButton-PublicNote-Up",
+                        disabled=(gLayers.clipboard == nil),
+                        func=function()
+                            gLayers:pasteLayer()
+                            PlaySound(private.kSound.Action)
+                            OptionsFrame_StatusMsg("Pasted to layer "..currentLayer..".")
+                        end,
+                        }
+            i = i + 1
+
+            -- DIVIDER LINE --
+            lines[i] = {isDivider=true}; i=i+1
+
+            -- MOVE LAYER:
             for j = 1, kMaxLayers do
                 if j ~= currentLayer then
-                    lines[i] = {text="Swap "..currentLayer.." & "..j,
-                                func=function() gLayers:swapLayers(currentLayer, j) end }
+                    lines[i] = {text="Move to Layer "..j,
+                                func=function()
+                                    gLayers:moveLayer(currentLayer, j)
+                                    PlaySound(private.kSound.Action)
+                                    gLayers:selectLayerNum(j)
+                                    OptionsFrame_StatusMsg("Moved layer "..currentLayer.." to "..j..".")
+                                end,
+                                }
                     i = i + 1
                 end
             end
+
+---->>> WORKS, but seemed unecessary since we have "Move Layer" which is more typical to use that than swapping is.
+--~             -- SWAP LAYERS:
+--~             for j = 1, kMaxLayers do
+--~                 if j ~= currentLayer then
+--~                     lines[i] = {text="Swap "..currentLayer.." & "..j,
+--~                                 func=function()
+--~                                     gLayers:swapLayers(currentLayer, j)
+--~                                     PlaySound(private.kSound.Action)
+--~                                     gLayers:selectLayerNum(j)
+--~                                     printMsg(kAddonHeading .."Swapped layers "..currentLayer.." and "..j..".")
+--~                                 end,
+--~                                 }
+--~                     i = i + 1
+--~                 end
+--~             end
 
             return lines
         end
@@ -1147,7 +1385,7 @@ function OptionsFrame_CreateContextMenu()
         if self.UseBlizzardMenu then  -- Use Blizzard's menu implementation.  (Only works in Retail WoW!)
             if not Globals.MenuUtil then return end  -- Not supported in Classic WoW version.
             self.contextMenu = Globals.MenuUtil.CreateContextMenu(self, function(ownerRegion, rootDescription)
-                local lines = createContextMenuLines()
+                local lines = createContextMenuLines(contentID)
                 for i = 1, #lines do
                     local line = lines[i]
                     if line.isDivider    then rootDescription:QueueDivider()
@@ -1160,9 +1398,10 @@ function OptionsFrame_CreateContextMenu()
                 end
             end)
         else -- Use custom context menu implementation.
-            local lines = createContextMenuLines()
-            self.contextMenu:Open( lines )
+            local lines = createContextMenuLines(contentID)
+            self.contextMenu:Open( lines, anchor, relativeFrame, relativeAnchor, x, y )
         end
+        PlaySound(private.kSound.ActionQuiet)
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     function OptionsFrame:closeContextMenu()
@@ -1212,7 +1451,7 @@ end
 function OptionsFrame_SelectTab(layerNum)
     layerNum = layerNum or 1
     OptionsFrame.selectedLayerNum = layerNum
-    OptionsFrame.LayerEnabledCheckbox.Text:SetText( ksEnableLayer .. layerNum )
+    OptionsFrame.LayerEnabledCheckBox.Text:SetText( ksEnableLayer .. layerNum )
 
     -- Highlight the tab button for the specified layer.
     if isRetailWoW() then
@@ -1255,12 +1494,15 @@ function OptionsFrame_SelectLayer(layerNum, bCancelingChanges)
     -- Select the specified layer.
     OptionsFrame_SelectTab(layerNum)
     OptionsFrame.LayerNumText:SetText(layerNum)
-    local offsets = {-30, -10, -12, -6, -12, -10}
+    local offsets = {-27, -8, -10, -4, -10, -8}
     OptionsFrame.LayerNumText:SetPoint("RIGHT", OptionsFrame.RightLine, "LEFT", offsets[layerNum] or -12, -14)
 
     -- Populate UI with values from the new selected layer.
     if bLayerChange then
         UI_SetValues(PlayerConfig, "OptionsFrame_SelectLayer") -- Sets UI values from appropriate layer of PlayerConfig.
+        if OptionsFrame:IsShown() and not bCancelingChanges then
+            PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
+        end
     end
 
     local isLayerEnabled = PlayerConfig.Layers[layerNum].IsLayerEnabled
@@ -1405,6 +1647,7 @@ function OptionsFrame_OnHide()
     EventFrame:UnregisterEvent("GLOBAL_MOUSE_DOWN")
 
     -- Reset right-click swap values for controls that support that feature.
+    optionsFrame.MasterScaleEditBox.previousVal = nil
     optionsFrame.ShapeDropDown.previousSelection = nil
     optionsFrame.ModelDropDown.previousSelection = nil
     optionsFrame.StrataDropDown.previousSelection = nil
@@ -1437,7 +1680,7 @@ function OptionsFrame_OnOkay()
     end
 
     OptionsFrame.ProfilesUI:OnOkay()  -- Updates the current profile's data.
-    OptionsFrame:Hide()
+    OptionsFrame_HideUI()
     --|traceCfg("OUT OptionsFrame_OnOkay().")
 end
 
@@ -1451,7 +1694,7 @@ function OptionsFrame_OnCancel()
     OptionsFrame.ProfilesUI:OnCancel()  -- Reverts to original profile (name and data).
     CursorTrail_Load()  -- Update FX variables.
     OptionsFrame_SetModified(false)
-    OptionsFrame:Hide()
+    OptionsFrame_HideUI()
     --|traceCfg("OUT OptionsFrame_OnCancel().")
 end
 
@@ -1498,7 +1741,7 @@ function OptionsFrame_UpdateButtonStates()  -- UpdateOkayButton()
     end
 
     -- Enable/disable the shape's color picker button based on the selected shape.
-    if shapeFileName == nil or shapeFileName == kShape_None or OptionsFrame.SparkleCheckbox:GetChecked() then
+    if shapeFileName == nil or shapeFileName == kShape_None or OptionsFrame.SparkleCheckBox:GetChecked() then
         OptionsFrame.ShapeColor:Disable()
     else
         OptionsFrame.ShapeColor:Enable()
@@ -1506,9 +1749,9 @@ function OptionsFrame_UpdateButtonStates()  -- UpdateOkayButton()
 
     -- Enable/disable the sparkle checkbox based on the selected shape.
     if shapeFileName == nil or shapeFileName == kShape_None then
-        OptionsFrame.SparkleCheckbox:Disable()
+        OptionsFrame.SparkleCheckBox:Disable()
     else
-        OptionsFrame.SparkleCheckbox:Enable()
+        OptionsFrame.SparkleCheckBox:Enable()
     end
 end
 
@@ -1543,7 +1786,7 @@ function OptionsFrame_EditBox_OnKeyDown(self, key)
         propagateKeyboardInput(self, false) -- Don't pass this key to parent.
 
         if key == "TAB" then OptionsFrame_TabKey()
-        ----elseif key == "ESCAPE" then OptionsFrame:Hide()
+        ----elseif key == "ESCAPE" then OptionsFrame_HideUI()
         ----elseif key == "ENTER" then OptionsFrame_ClearFocus()
         elseif key == "UP" then OptionsFrame_IncrDecrValue(self, 1, true)
         elseif key == "DOWN" then OptionsFrame_IncrDecrValue(self, -1, true)
@@ -1594,6 +1837,7 @@ end
 
 -------------------------------------------------------------------------------
 function OptionsFrame_NextPrevLayer(delta)
+    OptionsFrame:closeContextMenu()
     local layerNum = OptionsFrame_GetSelectedLayer()
     if delta < 0 then
         layerNum = layerNum - 1
@@ -1603,7 +1847,6 @@ function OptionsFrame_NextPrevLayer(delta)
         if layerNum > kMaxLayers then layerNum = 1 end
     end
     OptionsFrame_SelectLayer(layerNum)
-    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
 end
 
 -------------------------------------------------------------------------------
@@ -1662,10 +1905,9 @@ end
 -------------------------------------------------------------------------------
 function OptionsFrame_ClearFocus()
     --|traceCfg("IN OptionsFrame_ClearFocus().")
-    local focusedEditBox = OptionsFrame_GetFocus()
-    if focusedEditBox then
-        focusedEditBox:ClearFocus()
-    end
+    local editbox = OptionsFrame_TabOrder[1]
+    editbox:SetFocus()
+    editbox:ClearFocus()
     --|traceCfg("OUT OptionsFrame_ClearFocus().")
 end
 
@@ -1698,13 +1940,14 @@ end
 
 
 -------------------------------------------------------------------------------
-function OptionsFrame_OnValueChanged(self, isUserInput)
-    --|traceCfg("IN OptionsFrame_OnValueChanged().")
-    ----print("OptionsFrame_OnValueChanged:  self:GetText() =", self:GetText())
+function OptionsFrame_OnEditBoxChanged(self, isUserInput)
+    --|traceCfg("IN OptionsFrame_OnEditBoxChanged().")
+    ----print("OptionsFrame_OnEditBoxChanged:  self:GetText() =", self:GetText())
     if isUserInput then
         local layer = gLayers:getSelectedLayer()
 
-        if     self == OptionsFrame.ScaleEditBox then layer:setScale( OptionsFrame_Value("scale") )
+        if     self == OptionsFrame.MasterScaleEditBox then gLayers:setMasterScale( OptionsFrame_Value("masterScale") )
+        elseif self == OptionsFrame.ScaleEditBox then layer:setScale( OptionsFrame_Value("scale") )
         elseif self == OptionsFrame.OfsXEditBox  then layer:setOffsets( OptionsFrame_Value("OfsX"), nil )
         elseif self == OptionsFrame.OfsYEditBox  then layer:setOffsets( nil, OptionsFrame_Value("OfsY") )
         else assert(nil) -- Called by unexpected widget.
@@ -1714,7 +1957,7 @@ function OptionsFrame_OnValueChanged(self, isUserInput)
         OptionsFrame_SetModified(true)
         gMotionIntensity = 1.0  -- Force any "fading FX" to show briefly.
     end
-    --|traceCfg("OUT OptionsFrame_OnValueChanged().")
+    --|traceCfg("OUT OptionsFrame_OnEditBoxChanged().")
 end
 
 -------------------------------------------------------------------------------
@@ -1750,6 +1993,16 @@ end
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 -------------------------------------------------------------------------------
+function OptionsFrame_StatusMsg(msg, durationSecs)
+    if OptionsFrame and OptionsFrame.ProfilesUI then
+        durationSecs = durationSecs or 5
+        OptionsFrame.ProfilesUI.mainFrame.statusText:showMsg(""..msg.."")
+    else
+        printMsg(kAddonHeading..msg)
+    end
+end
+
+-------------------------------------------------------------------------------
 function OptionsFrame_Value(valName, newVal)  -- [ Keywords: OptionsFrame_Value() ]
 -- Gets or sets a value in the options frame UI.
 -- If only 'valName' is passed in, the specified value is returned.
@@ -1769,44 +2022,44 @@ function OptionsFrame_Value(valName, newVal)  -- [ Keywords: OptionsFrame_Value(
     -- - - - - - - - - - - - - - - - -
     if (valName == "enabled") then
         if (newVal == nil) then  -- GET
-            retVal = OptionsFrame.LayerEnabledCheckbox:GetChecked()
+            retVal = OptionsFrame.LayerEnabledCheckBox:GetChecked()
         else -- SET
-            OptionsFrame.LayerEnabledCheckbox:SetChecked(newVal)
+            OptionsFrame.LayerEnabledCheckBox:SetChecked(newVal)
         end
         --|traceCfg("OUT OptionsFrame_Value("..valName..", "..(tostring(newVal) or "nil").."), early.")
         return retVal
     -- - - - - - - - - - - - - - - - -
     elseif (valName == "combat") then
         if (newVal == nil) then  -- GET
-            retVal = OptionsFrame.CombatCheckbox:GetChecked()
+            retVal = OptionsFrame.CombatCheckBox:GetChecked()
         else -- SET
-            OptionsFrame.CombatCheckbox:SetChecked(newVal)
+            OptionsFrame.CombatCheckBox:SetChecked(newVal)
         end
         --|traceCfg("OUT OptionsFrame_Value("..valName..", "..(tostring(newVal) or "nil").."), early.")
         return retVal
     -- - - - - - - - - - - - - - - - -
     elseif (valName == "mouselook") then
         if (newVal == nil) then  -- GET
-            retVal = OptionsFrame.MouseLookCheckbox:GetChecked()
+            retVal = OptionsFrame.MouseLookCheckBox:GetChecked()
         else -- SET
-            OptionsFrame.MouseLookCheckbox:SetChecked(newVal)
+            OptionsFrame.MouseLookCheckBox:SetChecked(newVal)
         end
         --|traceCfg("OUT OptionsFrame_Value("..valName..", "..(tostring(newVal) or "nil").."), early.")
         return retVal
     -- - - - - - - - - - - - - - - - -
     elseif (valName == "fade") then
         if (newVal == nil) then  -- GET
-            retVal = OptionsFrame.FadeCheckbox:GetChecked()
+            retVal = OptionsFrame.FadeCheckBox:GetChecked()
         else -- SET
-            OptionsFrame.FadeCheckbox:SetChecked(newVal)
+            OptionsFrame.FadeCheckBox:SetChecked(newVal)
         end
         --|traceCfg("OUT OptionsFrame_Value("..valName..", "..(tostring(newVal) or "nil").."), early.")
         return retVal
     elseif (valName == "sparkle") then
         if (newVal == nil) then  -- GET
-            retVal = OptionsFrame.SparkleCheckbox:GetChecked()
+            retVal = OptionsFrame.SparkleCheckBox:GetChecked()
         else -- SET
-            OptionsFrame.SparkleCheckbox:SetChecked(newVal)
+            OptionsFrame.SparkleCheckBox:SetChecked(newVal)
         end
         --|traceCfg("OUT OptionsFrame_Value("..valName..", "..(tostring(newVal) or "nil").."), early.")
         return retVal
@@ -1851,6 +2104,12 @@ function OptionsFrame_Value(valName, newVal)  -- [ Keywords: OptionsFrame_Value(
     -- - - - - - - - - - - - - - - - -
     elseif (valName == "scale") then
         editbox = OptionsFrame.ScaleEditBox
+        minVal, maxVal = 0.01, 9.98  -- (1% to 998%)  Note: 1% scale causes many models to fill screen and stop moving.  But you must allow entering 1 to get values like 12 or 150.
+        multiplier = 100
+        defaultNum = 100  -- 100%
+    -- - - - - - - - - - - - - - - - -
+    elseif (valName == "masterscale") then
+        editbox = OptionsFrame.MasterScaleEditBox
         minVal, maxVal = 0.01, 9.98  -- (1% to 998%)  Note: 1% scale causes many models to fill screen and stop moving.  But you must allow entering 1 to get values like 12 or 150.
         multiplier = 100
         defaultNum = 100  -- 100%
@@ -1984,7 +2243,7 @@ function OptionsFrame_CreateEditBox(x, y, width, maxChars, bNumeric, defaultVal)
                             else
                                 if self == OptionsFrame.ShadowEditBox then
                                     newVal = 50
-                                elseif self == OptionsFrame.ScaleEditBox then
+                                elseif self == OptionsFrame.ScaleEditBox or self == OptionsFrame.MasterScaleEditBox then
                                     newVal = 150
                                 elseif self == OptionsFrame.AlphaEditBox then
                                     newVal = 50
@@ -2010,10 +2269,11 @@ end
 -------------------------------------------------------------------------------
 function OptionsFrame_CreateCheckBox(labelText, x, y, bClickableText)
     --|traceCfg("IN OptionsFrame_CreateCheckBox().")
-    bClickableText = bClickableText or kbClickableCheckboxText
-	local checkbox = CreateFrame("CheckButton", nil, OptionsFrame, "InterfaceOptionsCheckButtonTemplate")
+    bClickableText = bClickableText or kbClickableCheckBoxText
+    local checkbox = CreateFrame("CheckButton", nil, OptionsFrame, "InterfaceOptionsCheckButtonTemplate")
     checkbox:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x+kFrameMargin+kColumnWidth1-17, y+7)
-	checkbox:SetScript('OnClick', function(self)
+    checkbox:SetPassThroughButtons("RightButton")  -- Allow right-clicks to open our context menu.
+    checkbox:SetScript("OnClick", function(self, mouseButton)
                     --|traceCfg("IN checkbox:OnClick("..(self:GetName() or "nil")..").")
                     if self:GetChecked() then PlaySound(856) else PlaySound(857) end -- IG_MAINMENU_OPTION_CHECKBOX_ON/OFF.
 
@@ -2076,14 +2336,31 @@ function OptionsFrame_CreateTab(tabNum, tabText)
     tabButton:SetScript("OnClick", function(self, mouseButton)  -- [ Keywords: OnSelectLayer() OnSelectTab() ]
                 --|traceCfg("tabButton:OnClick("..mouseButton..") for tab #"..(self.tabNum or "nil"))
                 ----UI_GetValues(PlayerConfig, "tabButton:OnClick")  -- Checks if PlayerConfig matches UI values before we change layers.
-                OptionsFrame_SelectLayer(self.tabNum)
-                PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
+                if not IsShiftKeyDown() or mouseButton == "RightButton" then
+                    OptionsFrame_SelectLayer(self.tabNum)
+                end
             end)
     tabButton:SetScript("OnMouseUp", function(self, mouseButton)
                 -- Do this stuff in OnMouseUp instead of OnClick because Retail WoW doesn't send
                 -- click events for a tab that is already selected.
+                OptionsFrame:closeContextMenu()
+
                 if mouseButton == "RightButton" then
-                    Globals.C_Timer.After(0.1, function() OptionsFrame.LayerEnabledCheckbox:Click() end)
+                    if IsShiftKeyDown() then
+                        Globals.C_Timer.After(0.1, function() OptionsFrame.LayerEnabledCheckBox:Click() end)
+                    else
+                        Globals.C_Timer.After(0.1, function()
+                                    OptionsFrame:openContextMenu(2, "TOPLEFT", self, "BOTTOMLEFT", -3, 4)
+                                end)
+                    end
+                else  -- "LeftButton"
+                    if IsShiftKeyDown() then  -- SHIFT+LeftButton = Toggle tab's enabled state without selecting it.
+                        local layerCfg = gLayers:getLayerCfg(self.tabNum)
+                        layerCfg.IsLayerEnabled = not layerCfg.IsLayerEnabled
+                        gLayers:loadFXAndUpdateUI()
+                        ----PlaySound( layerCfg.IsLayerEnabled and 856 or 857 )  -- IG_MAINMENU_OPTION_CHECKBOX_ON/OFF.
+                        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
+                    end
                 end
             end)
 
@@ -2096,10 +2373,10 @@ function OptionsFrame_CreateModelDropDown(x, y, width)
     --|traceCfg("IN OptionsFrame_CreateModelDropDown().")
     local dropdown = private.UDControls.CreateDropDown(OptionsFrame)
     dropdown:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y+7)
-    dropdown:Configure(width / kDropdownListboxScale)
+    dropdown:Configure(width / kDropDownListBoxScale)
     dropdown:SetDynamicWheelSpeed(true)
-    dropdown:SetListBoxHeight(ScreenH / kDropdownListboxScale)
-    dropdown:GetListBoxFrame():SetScale( kDropdownListboxScale )
+    dropdown:SetListBoxHeight(ScreenH / kDropDownListBoxScale)
+    dropdown:GetListBoxFrame():SetScale( kDropDownListBoxScale )
     ----dropdown.tooltip = "Testing  1  2  3"  -- For testing.
 
     dropdown:SetChangeHandler(  -- [ Keywords: OnSelectModel() ]
@@ -2162,10 +2439,10 @@ function OptionsFrame_CreateShapeDropDown(x, y, width)
     --|traceCfg("IN OptionsFrame_CreateShapeDropDown().")
     local dropdown = private.UDControls.CreateDropDown(OptionsFrame)
     dropdown:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y+7)
-    dropdown:Configure(width / kDropdownListboxScale)
+    dropdown:Configure(width / kDropDownListBoxScale)
     dropdown:SetDynamicWheelSpeed(true)
-    dropdown:SetListBoxHeight(ScreenH / kDropdownListboxScale)
-    dropdown:GetListBoxFrame():SetScale( kDropdownListboxScale )
+    dropdown:SetListBoxHeight(ScreenH / kDropDownListBoxScale)
+    dropdown:GetListBoxFrame():SetScale( kDropDownListBoxScale )
 
     dropdown:SetChangeHandler(  -- [ Keywords: OnSelectShape() ]
         function(self, selectedID)
@@ -2216,10 +2493,10 @@ function OptionsFrame_CreateStrataDropDown(x, y, width)
     --|traceCfg("IN OptionsFrame_CreateStrataDropDown().")
     local dropdown = private.UDControls.CreateDropDown(OptionsFrame)
     dropdown:SetPoint("TOPLEFT", OptionsFrame, "TOPLEFT", x, y+7)
-    dropdown:Configure(width / kDropdownListboxScale)
+    dropdown:Configure(width / kDropDownListBoxScale)
     ----dropdown:SetDynamicWheelSpeed(true)
-    dropdown:SetListBoxHeight(ScreenH / kDropdownListboxScale)
-    dropdown:GetListBoxFrame():SetScale( kDropdownListboxScale )
+    dropdown:SetListBoxHeight(ScreenH / kDropDownListBoxScale)
+    dropdown:GetListBoxFrame():SetScale( kDropDownListBoxScale )
 
     dropdown:SetChangeHandler(  -- [ Keywords: OnSelectStrata() OnSelectLevel()]
         function(self, selectedID)
@@ -2274,6 +2551,141 @@ function OptionsFrame_CreateStrataDropDown(x, y, width)
     --|traceCfg("OUT OptionsFrame_CreateStrataDropDown().")
     return dropdown
 end
+
+-------------------------------------------------------------------------------
+function flashGlowFrame(parent)
+    if not OptionsFrame.glowFrame then
+        OptionsFrame.glowFrame = CreateFrame("Frame", nil, OptionsFrame)
+        ----OptionsFrame.glowFrame:SetSize(64, 64)  -- For debugging.
+        ----private.UDControls.Outline(OptionsFrame.glowFrame)  -- For debugging.
+        OptionsFrame.glowFrame.glow = OptionsFrame.glowFrame:CreateTexture(nil, "OVERLAY")
+        OptionsFrame.glowFrame.glow:SetTexture("Interface\\BUTTONS\\Micro-Highlight")
+        OptionsFrame.glowFrame.glow:SetTexCoord(0.04, 0.48, 0.02, 0.63)
+        OptionsFrame.glowFrame.glow:SetAllPoints( OptionsFrame.glowFrame )
+    end
+
+    OptionsFrame.glowFrame:SetParent(parent)
+    OptionsFrame.glowFrame:SetFrameStrata( parent:GetFrameStrata() )
+    OptionsFrame.glowFrame:SetFrameLevel( parent:GetFrameLevel()+100 )
+    OptionsFrame.glowFrame:SetPoint("TOPLEFT", (parent.Left or parent), "TOPLEFT", -0, 0) -- 'parent.Left' is for editboxes.
+    OptionsFrame.glowFrame:SetPoint("BOTTOMRIGHT", (parent.Right or parent), "BOTTOMRIGHT", 0, -0) -- 'parent.Right' is for editboxes.
+    OptionsFrame.glowFrame:Show()
+    Globals.UIFrameFadeOut(OptionsFrame.glowFrame, 0.66, 1, 0)  -- (Frame, DurationSecs, StartAlpha, EndAlpha)
+end
+
+-------------------------------------------------------------------------------
+function setAllLayers(thisBtn, configKeyName, value)
+    ----PlaySound(private.kSound.Action)
+    if configKeyName ~= "UserOfsX" and configKeyName:sub(1,10) ~= "ShapeColor" then
+        PlaySound( isRetailWoW() and SOUNDKIT.UI_TRANSMOG_OPEN_WINDOW or SOUNDKIT.UI_IG_STORE_WINDOW_CLOSE_BUTTON )
+    end
+
+    local widget = thisBtn:GetParent()
+    flashGlowFrame(widget)
+    if configKeyName == "UserOfsY" then
+        Globals.C_Timer.After(0.25, function() flashGlowFrame(OptionsFrame.OfsXEditBox) end)
+    elseif configKeyName == "ShapeSparkle" then
+        Globals.C_Timer.After(0.25, function() flashGlowFrame(OptionsFrame.ShapeColor) end)
+    end
+    gLayers:setAllLayers(configKeyName, value)
+end
+
+-------------------------------------------------------------------------------
+function showSmallButtonTooltip(button, text, x, y)
+    local stt = button.SmallTooltip
+    stt:SetTextColor( Globals.NORMAL_FONT_COLOR:GetRGB() )
+    stt:Show(button, text, button.anchor, x, y)
+    Globals.UIFrameFadeIn(stt.tooltip, 0.66, 0, 1)
+end
+
+-------------------------------------------------------------------------------
+function showSetAllTooltip(button)
+    local x = button.anchor:find("RIGHT") and -3 or 4
+    local y = button.anchor:find("TOP") and -10 or 0
+    local text = string.format("Set all layers to this %s.", button.valueName or "value")
+    showSmallButtonTooltip(button, text, x, y)
+end
+
+-------------------------------------------------------------------------------
+function createSetAllButton(parent, anchor, x, y, valueName)
+        -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+        local function createSetAllTexture(button, alpha)
+            local tex = button:CreateTexture(nil, "ARTWORK")
+            tex:SetTexture("Interface\\GLUES\\CHARACTERCREATE\\UI-RotationRight-Big-Up")
+            tex:SetVertexColor(0.5, 1, 0,  1)  -- LIME GREEN
+            if button.anchor:sub(1,10) == "ANCHOR_TOP" then tex:SetTexCoord(0,0,  1,0,  0,1,  1,1) -- Makes arrow point to bottom.
+            elseif button.anchor == "ANCHOR_RIGHT" then tex:SetTexCoord(1,0,0,1) -- Makes arrow point to left.
+            end
+            tex:SetSize( button:GetSize() )
+            tex:SetAlpha(alpha)
+            return tex
+        end
+        -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+
+        local button = CreateFrame("Button", nil, parent)
+        button:SetPassThroughButtons("RightButton")  -- So our context menu can open.
+        button.anchor = anchor
+        button.valueName = valueName
+        x = x or 0
+        y = y or 0
+        if     anchor == "ANCHOR_LEFT"      then button:SetPoint("RIGHT", parent, "LEFT", x+1.5, y)
+        elseif anchor == "ANCHOR_RIGHT"     then button:SetPoint("LEFT", parent, "RIGHT", x+2, y)
+        elseif anchor == "ANCHOR_TOP"       then button:SetPoint("BOTTOM", parent, "TOP", x-0.5, y-8)
+        elseif anchor == "ANCHOR_TOPRIGHT"  then button:SetPoint("BOTTOMRIGHT", parent, "TOPRIGHT", x+3, y-8)
+        else assert(nil) -- Invalid anchor.
+        end
+
+        button:SetSize(32, 32)
+        button:SetNormalTexture( createSetAllTexture(button, 0.4) )
+        button:SetHighlightTexture( createSetAllTexture(button, 0.9) )
+        button:SetPushedTexture( createSetAllTexture(button, 0.1) )
+        button:SetHitRectInsets(6, 6, 6, 6)  -- (left, right, top, bottom)
+
+        button.SmallTooltip = private.UDControls.SmallTooltip
+        button:SetScript("OnEnter", showSetAllTooltip)
+        button:SetScript("OnLeave", function(self) self.SmallTooltip:Hide() end)
+        return button
+end
+
+--~ -------------------------------------------------------------------------------
+--~ function showResetAllTooltip(button)
+--~     local tooltipX = (button.anchor == "ANCHOR_RIGHT") and 3 or -3
+--~     showSmallButtonTooltip(button, "Reset this on all layers.", tooltipX)
+--~ end
+--~
+--~ -------------------------------------------------------------------------------
+--~ function createResetAllButton(parent, anchor, x, y)
+--~         -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+--~         local function createResetAllTexture(button, alpha)
+--~             local tex = button:CreateTexture(nil, "ARTWORK")
+--~             tex:SetTexture("Interface\\BUTTONS\\UI-GroupLoot-Pass-Up")
+--~             tex:SetSize( button:GetSize() )
+--~             tex:SetAlpha(alpha)
+--~             return tex
+--~         end
+--~         -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+--~
+--~         local button = CreateFrame("Button", nil, parent)
+--~         button:SetPassThroughButtons("RightButton")  -- So our context menu can open.
+--~         button.anchor = anchor
+--~         x = x or 0
+--~         if anchor == "ANCHOR_LEFT" then
+--~             button:SetPoint("RIGHT", parent, "LEFT", x-4, y)
+--~         else -- anchor == "ANCHOR_RIGHT"
+--~             button:SetPoint("LEFT", parent, "RIGHT", x+8, y)
+--~         end
+--~
+--~         button:SetSize(16, 16)
+--~         button:SetNormalTexture( createResetAllTexture(button, 0.35) )
+--~         button:SetHighlightTexture( createResetAllTexture(button, 0.75) )
+--~         button:SetPushedTexture( createResetAllTexture(button, 0.2) )
+--~         ----button:SetHitRectInsets(2, 2, 2, 2)  -- (left, right, top, bottom)
+--~
+--~         button.SmallTooltip = private.UDControls.SmallTooltip
+--~         button:SetScript("OnEnter", showResetAllTooltip)
+--~         button:SetScript("OnLeave", function(self) self.SmallTooltip:Hide() end)
+--~         return button
+--~ end
 
 -------------------------------------------------------------------------------
 function OptionsFrame_SetModified(bModified) OptionsFrame.modified = bModified end

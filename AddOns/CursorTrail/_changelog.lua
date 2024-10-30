@@ -7,6 +7,58 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kChangelogText =
 [[
 =======================================
+RELEASE 11.0.5.2
+Released 2024-10-29
+
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+Version 11.0.5.2 for Retail WoW
+Version 4.4.1.1 for Classic Cataclysm
+Version 1.15.4.4 for Classic WoW
+- - - - - - - - - - - - - - - - - - - - - - - - - -
+NEW FEATURES:
+- Added layer 3.
+
+- Added "Master Scale (%)" for changing the size of all FX on all layers at once.
+
+- Added small icon buttons next to each setting for copying its value to all other layers.
+
+- Added "Copy Layer" and "Paste Layer" to the context menu that appears when right-clicking an empty area of the main window's background.
+
+- When clicking on layer tab names ...
+        Left-click              = Selects that layer.  (Normal behavior.)
+        Shift + Left-click  = Toggles that layer's enabled state without selecting it.
+        Right-click            = Opens the context menu.
+        Shift + Right-click = Selects that layer and toggles its enabled state.
+
+- Added new default:
+        Ring & Rainbow 2  ...  Retail WoW only.
+
+CHANGES:
+- Changed context menu "swap layer" lines into "move layer" lines.
+
+- Added icons to the context menu lines "Enable/Disable Layer", and "Reset Layer".
+
+- Added sounds to context menu items that didn't have one.
+
+- Mouse wheel is now ignored when over an empty area of the main window.  (Prevents accidentally zooming the screen when using the mouse wheel to change values.)
+
+- Updated some defaults:
+        Electric B&W Rings
+        Evil Eye
+        Ring & Electric Trail
+
+- Updated help.
+
+BUG FIXES:
+- Fixed problems that occurred while typing the /ct slash command while the main window was disabled by a popup message that required an answer.
+
+- Fixed problems caused by closing the main window with the /ct slash command while all layers were disabled.  (BUG_20241016.1)
+
+- Fixed right-clicking to open the context menu when the mouse is over a checkbox.
+
+- Opening or closing the color picker without making any changes no longer marks the profile as unsaved.
+
+=======================================
 RELEASE 11.0.5.1
 Released 2024-10-22
 
@@ -142,7 +194,7 @@ Note: To open profile options, click "Menu" in the main window and select "Profi
 
 - Added "Undo" to the Menu dropdown list.  It undoes unsaved changes to the current profile.  (Same as reloading the profile.)
 
-- Added "Reset Layer" to context menu that appears when right-clicking an empty area of the main window's background.
+- Added "Reset Layer" to the context menu that appears when right-clicking an empty area of the main window's background.
 
 CHANGES:
 - Added shortcut keys to Yes/No popup messages.  Pressing the Y key triggers the Yes button, and N key triggers the No button.
@@ -552,28 +604,6 @@ Version 1.15.0.2 for Classic WoW
 - Fixed errors caused by calling the SetPropagateKeyboardInput() function during combat.
 - Clicking outside of an open dropdown menu will now close that menu.
 - Updated the UI controls library.  (Should not cause any noticeable changes.)
-
-=======================================
-RELEASE 10.2.5.1
-Released 2024-01-16
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.5.1 for Retail WoW
-Version 3.4.3.2 for Classic WotLK
-Version 1.15.0.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated Troubleshooting section with a workaround for conflicting slash commands with the CTMod addon.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 10.2.5.1 for Retail WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Updated the color swatch picker so it works with the changes made in WoW 10.2.5.
-- Added an icon for display in the logon screen's AddOn list.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-Version 1.15.0.1 for Classic WoW
-- - - - - - - - - - - - - - - - - - - - - - - - - -
-- Fixed the "Cloud, Purple (Soft)" model so it correctly follows the mouse cursor.
 
 ]]
 

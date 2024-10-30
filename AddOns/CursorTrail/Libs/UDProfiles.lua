@@ -1,4 +1,4 @@
-local PROFILESUI_VERSION = "2024-10-09"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
+local PROFILESUI_VERSION = "2024-10-16"  -- Version (date) of this file.  Stored as "ProfilesUI.VERSION".
 
 --[[---------------------------------------------------------------------------
     FILE:   UDProfiles.lua
@@ -164,6 +164,12 @@ local PROFILESUI_VERSION = "2024-10-09"  -- Version (date) of this file.  Stored
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 CHANGE HISTORY:
+    Oct 16, 2024
+        - Fixed various problems that occurred while typing the addon's slash command to open/close its
+          main UI while a message was still being displayed about saving or canceling previous changes.
+        - Added ProfilesUI:isCovered() for checking if the blocker frame is covering the addon's UI.
+          (If true, that means a message box is being shown and needs a response from the user.)
+        - Added ProfilesUI:getModalMessageFrame() which returns the message box that showed the blocker frame.
     Oct 09, 2024
         - Reduced how often memory grows due to copying original settings before modifying them.
           Previously, a copy was made every time the main UI was opened.  Now, a copy of the
@@ -566,8 +572,9 @@ local function tracePUI(...)  -- Search&Replace "tracePUI(" to comment/uncomment
 end
 
 --=============================================================================
-local function vdt_dump(varValue, varDescription)  -- e.g.  vdt_dump(someVar, "Checkpoint 1")
+local function vdt_dump(varValue, varDescription, bShow)  -- e.g.  vdt_dump(someVar, "Checkpoint 1")
     if _G.ViragDevTool_AddData then
+        if bShow then _G.ViragDevToolFrame:Show() end
         _G.ViragDevTool_AddData(varValue, varDescription)
     end
 end
@@ -593,9 +600,15 @@ end
 --=============================================================================
 local gMBIntf = {blockerFrame = nil}
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-function gMBIntf:hideBlockerFrame() if self.blockerFrame then self.blockerFrame:Hide() end end
+function gMBIntf:hideBlockerFrame()
+    if self.blockerFrame then
+        self.blockerFrame:Hide()
+        self.blockerFrame.shownByFrame = nil
+    end
+end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-function gMBIntf:showBlockerFrame()
+function gMBIntf:showBlockerFrame(shownByFrame)
+    assert(shownByFrame)
     if not self.blockerFrame then
         assert(gMainFrame)
         self.blockerFrame = CreateFrame("Frame", nil, gMainFrame:GetParent())
@@ -617,6 +630,7 @@ function gMBIntf:showBlockerFrame()
         end
     end
 
+    self.blockerFrame.shownByFrame = shownByFrame
     self.blockerFrame:Show()
 
     local editbox = self.blockerFrame.editbox
@@ -628,19 +642,11 @@ function gMBIntf:showBlockerFrame()
     end
 end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~ function gMBIntf:isBlockerFrameShown()
---~     if not self.blockerFrame then return false end
---~     return self.blockerFrame:IsShown()
---~ end
+function gMBIntf:isBlockerFrameShown()
+    if not self.blockerFrame then return false end
+    return self.blockerFrame:IsShown()
+end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-
---~ --=============================================================================
---~ local function msgbox(...)  -- Deprecated 2024-09-23. (Replaced by msgbox3.)
---~     ----tracePUI("IN msgbox,", ...)
---~     MsgBox(...)  -- Show the message box.
---~     gMBIntf:showBlockerFrame()  -- Prevent any interaction with the main UI until the message is dismissed.
---~     ----tracePUI("OUT msgbox")
---~ end
 
 --=============================================================================
 local function msgbox3(msg, ...)
@@ -654,7 +660,7 @@ end
 -- Note: Can't just call frame:HookScript() because message boxes don't have their own permanent frame!
 MsgBox3("HookScript", "OnShow", function(self)
                     -- Prevent any interaction with the main UI until the message is closed.
-                    gMBIntf:showBlockerFrame()
+                    gMBIntf:showBlockerFrame(self)
                     ----tracePUI("OnShow msgbox")
                 end)
 MsgBox3("HookScript", "OnHide", function(self)
@@ -1594,6 +1600,7 @@ ProfilesDB = {  -- (Note: Declared as local at top of this file.)
 
 --=============================================================================
 local function ProfileOptions_Show()
+    ----tracePUI("IN ProfileOptions_Show")
     if not gMainFrame.optionsFrame then  -- [ Keywords: createOptionsFrame() createProfilesOptionsFrame() ]
         -- Create the options window.
         local parent = gMainFrame
@@ -1798,14 +1805,18 @@ local function ProfileOptions_Show()
     end
 
     gMainFrame.optionsFrame:Show()
+    ----tracePUI("OUT ProfileOptions_Show")
 end
 
 --=============================================================================
 local function ProfileOptions_Hide()
+    ----tracePUI("IN ProfileOptions_Hide")
     if gMainFrame.optionsFrame and gMainFrame.optionsFrame:IsShown() then
         gMainFrame.optionsFrame:Hide()
+        ----tracePUI("OUT ProfileOptions_Hide, true")
         return true
     end
+    ----tracePUI("OUT ProfileOptions_Hide, false")
     return false
 end
 
@@ -2279,8 +2290,8 @@ local function UDProfiles_CreateUI(info)
     local statusText = CreateFrame("Frame", nil, gMainFrame)
     gMainFrame.statusText = statusText
     statusText:Hide()
-    statusText:SetHeight( gMainFrame.title:GetHeight() )  -- Set to height of groupbox's title text.
-    statusText:SetPoint("BOTTOMRIGHT", gMainFrame, "TOPRIGHT", -2, 1)
+    statusText:SetHeight( gMainFrame.title:GetHeight() + 3 )  -- Set to height of groupbox's title text.
+    statusText:SetPoint("BOTTOMRIGHT", gMainFrame, "TOPRIGHT", -2, 0)
     statusText:SetFrameLevel( gMainFrame:GetFrameLevel()+2 )
     statusText.bg = statusText:CreateTexture(nil, "BACKGROUND")
     statusText.bg:SetAllPoints()
@@ -2300,7 +2311,7 @@ local function UDProfiles_CreateUI(info)
                 self.fontString:SetText(txt.." ")
                 if txt == "" then self:Hide(); return; end
                 local width = self.fontString:GetUnboundedStringWidth()
-                self:SetWidth(width+2)
+                self:SetWidth(width+5)
                 if bDimmed then
                     statusText.fontString:SetTextColor(0.5, 0.5, 0.5)
                     statusText.bg:Hide()
@@ -2523,7 +2534,16 @@ local function UDProfiles_CreateUI(info)
                 ----vdt_dump(self, "gMainFrame in its OnShow()")
                 ----memchk()
                 local profilesUI = ProfilesUI
+                local delaySecs = 0
+                if gMBIntf:isBlockerFrameShown() and profilesUI:isShownMsgBox() then
+                    -- Abort the previous msgbox to prevent it from using data we will reset below!
+                    if not MsgBox3("SendKey", "ESCAPE") then
+                        assert(nil)  -- Big problems if msgbox didn't go away and assert goes off!
+                    end
+                    delaySecs = 0.1
+                end
 
+              C_Timer.After(delaySecs, function()
                 ProfilesDB:clearCache()
                 profilesUI.OriginalProfiles = nil  -- Gets set later by cacheUnmodifiedProfiles().
                 profilesUI.OriginalProfileName = ProfilesDB:getSelectedName()
@@ -2540,12 +2560,14 @@ local function UDProfiles_CreateUI(info)
                 ----memchk("gMainFrame:OnShow")
                 ----dbg()
                 ----tracePUI("OUT OnShow gMainFrame")
+              end)
             end)
     ---------------------------------------------------------------------------
     gMainFrame:SetScript("OnHide", function(self) --[ Keywords: gMainFrame:OnHide() ]
                 -- If UI was closed without user clicking OK or CANCEL, such as with a slash command,
                 -- then run the OK logic so any changes are saved.  Useful if user has a button macro
                 -- that toggle the UI open and closed.
+
                 ----tracePUI("IN OnHide gMainFrame,", gMainFrame.closeReason)
                 if not gMainFrame.closeReason then  -- UI closed by slash command instead of button click?
                     ProfilesUI:OnOkay()
@@ -2576,6 +2598,7 @@ local function UDProfiles_CreateUI(info)
     ---------------------------------------------------------------------------
     function gMainFrame:closeDropDownMenus(bReleaseMemory)
         -- Pass in true to clear contents of listboxes that are rarely used.
+        ----tracePUI("ProfilesUI.mainFrame:closeDropDownMenus()")
         assert(self)  -- Fails if function called using '.' instead of ':'.
         if self.menuDropDown then
             self.menuDropDown.listbox:Hide()
@@ -2644,6 +2667,8 @@ function ProfilesUI:showOptions()       return ProfileOptions_Show() end
 function ProfilesUI:hideOptions()       return ProfileOptions_Hide() end
 function ProfilesUI:isShownOptions()    return gMainFrame.optionsFrame and gMainFrame.optionsFrame:IsShown() end
 function ProfilesUI:isShownMsgBox()     return MsgBox3("IsShown") or MsgBox("IsShown") end
+function ProfilesUI:isCovered()         return gMBIntf:isBlockerFrameShown() end
+function ProfilesUI:getModalMessageFrame() return gMBIntf.blockerFrame and gMBIntf.blockerFrame.shownByFrame or nil end
 -------------------------------------------------------------------------------
 function ProfilesUI:setCallback_LoadProfile(func)   self.callbackLoadProfile = func end
 function ProfilesUI:setCallback_LoadDefault(func)   self.callbackLoadDefault = func end
@@ -4557,7 +4582,7 @@ local function staticPopup_OnShow(thisPopupFrame, customData)
         ----end
     end
 
-    gMBIntf:showBlockerFrame()  -- Do this last.  (If something fails above, the blocker frame won't be stuck on screen.)
+    gMBIntf:showBlockerFrame(thisPopupFrame)  -- Do this last.  (If something fails above, the blocker frame won't be stuck on screen.)
 end
 
 --=============================================================================
@@ -4647,6 +4672,24 @@ StaticPopupDialogs[kAddonFolderName.."_SAVE_AS"] = {
     editBoxWidth = kProfileNameMaxLetters * kLetterWidth,
 
     OnShow = staticPopup_OnShow,
+--~     hasDropdown = 1,
+--~     OnShow = function(self, customData)
+--~         staticPopup_OnShow(self, customData)
+--~         self.editBox:ClearAllPoints()
+--~         self.editBox:SetPoint("TOP", self.text, "BOTTOM", 0, -8)
+--~         self.Dropdown:ClearAllPoints()
+--~         self.Dropdown:SetPoint("TOP", self.editBox, "BOTTOM", 0, -2)
+--~         self.Dropdown:SetWidth( self.editBox:GetWidth()+40 )
+--~         self.selection = nil
+--~ 		local function SetSelected(option) self.selection = option end
+--~ 		self.Dropdown:SetupMenu(function(dropdown, rootDescription)
+--~             local function IsSelected(option) return (option == self.selection) end
+--~             local options = {"aaa", "bbb", "a3", "ccc"}
+--~             for index, option in ipairs(options) do
+--~                 rootDescription:CreateRadio(option, IsSelected, SetSelected, index)
+--~             end
+--~         end)
+--~     end,
     OnHide = staticPopup_OnHide,
     EditBoxOnEnterPressed = staticPopup_OnEnterPressed,
     EditBoxOnEscapePressed = staticPopup_OnEscapePressed,

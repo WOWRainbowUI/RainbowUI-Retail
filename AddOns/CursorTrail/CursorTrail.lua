@@ -115,7 +115,7 @@ kHide = -1
 kRefresh = 1
 kRefreshForced = 2
 
-kMaxLayers = 2
+kMaxLayers = 3
 kMediaPath = "Interface\\Addons\\" .. kAddonFolderName .. "\\Media\\"
 kStr_None = "< 無 >"
 kAddonHeading = kTextColorDefault.."["..kAddonFolderName.."] "..WHITE
@@ -133,6 +133,10 @@ kScreenBottomFourthMult = 1.077
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 kNewFeatures =  -- For flagging new features in the UI.
 {
+    -- Added in release 11.0.2.8 ...
+    {anchor="RIGHT", relativeTo="MasterScaleLabel", relativeAnchor="LEFT", x=-2, y=1},
+    {anchor="BOTTOM", relativeTo="Tabs.3", relativeAnchor="TOP", x=0, y=-11},
+
 --~ Disabled this notification in 11.0.2.6 ...
 --~     -- Added in release 11.0.2.4 ...
 --~     {anchor="RIGHT", relativeTo="Tabs.1", relativeAnchor="LEFT", x=0, y=-4},
@@ -186,6 +190,7 @@ kNewModels =  -- For flagging new models in the dropdown list.
                         -- Ctrl increase the amount of change each arrow key press.
                         -- When done, type "/ct model" to dump all values (BEFORE CLOSING THE UI).
 ----kShadowStrataMatchesMain = true  -- Set to true if you want shadow at same level as the trail effect.
+----kShowColorPickerOpacity = true  -- Set to true to show the opacity slider in the color picker window.
 
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 --[[                       Variables                                         ]]
@@ -223,6 +228,10 @@ gLayers =
     -- Data for gLayers is set in the function CursorTrail_Load().
 
     -- FUNCTIONS:
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    selectLayerNum = function(self, layerNum, bCancelingChanges)  -- gLayers:selectLayerNum()
+        OptionsFrame_SelectLayer(layerNum, bCancelingChanges)
+    end,
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     getSelectedLayerNum = function(self)  -- gLayers:getSelectedLayerNum()
         -- Returns the layer number of the currently selected layer in the UI.
@@ -313,46 +322,90 @@ gLayers =
         else
             staticCopyTable( kDefaultConfigLayer, layerCfg )
             layerCfg.IsLayerEnabled = true
-            layerCfg.ShapeColorR=1; layerCfg.ShapeColorG=1; layerCfg.ShapeColorB=1
+            layerCfg.ShapeColorR=1; layerCfg.ShapeColorG=1; layerCfg.ShapeColorB=1; layerCfg.ShapeColorA=1
         end
 
-        self:loadFXAndUpdateUI()
-        printMsg(kAddonHeading .."Reset layer ".. layerNum ..".")
+        self:loadFXAndUpdateUI( kReasons.ResettingLayer )
     end,
---~ UNTESTED ...
---~     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~     copyLayer = function(self, layerNum)  -- gLayers:copyLayer()
---~         if not layerNum then layerNum = self:getSelectedLayerNum() end
---~         assert(layerNum >= 1 and layerNum <= kMaxLayers)
---~         return CopyTable( self[layerNum].playerConfigLayer )
---~     end,
---~     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
---~     pasteLayer = function(self, layerNum, layerCfg)  -- gLayers:pasteLayer()
---~         if not layerNum then layerNum = self:getSelectedLayerNum() end
---~         assert(layerNum >= 1 and layerNum <= kMaxLayers)
---~         assert(type(layerCfg) == "table")
---~         staticCopyTable(layerCfg, self[layerNum].playerConfigLayer
---~         self:loadFXAndUpdateUI()
---~     end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    setAllLayers = function(self, configKeyName, value)  -- gLayers:setAll()
+        -- Set configKeyName on all layers to the specified value.  If value is nil,
+        -- the value from the current (selected) layer will be used to set other layers.
+        value = value or self:getSelectedLayerCfg()[configKeyName]
+        assert(value ~= nil)
+        for layerNum = 1, kMaxLayers do
+            local layerCfg = self:getLayerCfg(layerNum)
+            layerCfg[configKeyName] = value
+        end
+        self:loadFXAndUpdateUI( kReasons.SettingValueOnAllLayers )
+    end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    copyLayer = function(self, layerNum)  -- gLayers:copyLayer()
+        if not layerNum then layerNum = self:getSelectedLayerNum() end
+        assert(layerNum >= 1 and layerNum <= kMaxLayers)
+        self.clipboard = CopyTable( self[layerNum].playerConfigLayer )
+        return self.clipboard
+    end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    pasteLayer = function(self, layerNum)  -- gLayers:pasteLayer()
+        assert(self.clipboard)  -- copyLayer() must be called first!
+        if not layerNum then layerNum = self:getSelectedLayerNum() end
+        assert(layerNum >= 1 and layerNum <= kMaxLayers)
+        staticCopyTable( self.clipboard, self[layerNum].playerConfigLayer )
+        self[layerNum].playerConfigLayer.IsLayerEnabled = true  -- Always enable layers that are pasted to.
+        self:loadFXAndUpdateUI( kReasons.PastingLayer )
+    end,
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     swapLayers = function(self, layerNumA, layerNumB)  -- gLayers:swapLayers()
         assert(layerNumA >= 1 and layerNumA <= kMaxLayers)
         assert(layerNumB >= 1 and layerNumB <= kMaxLayers)
+        if layerNumA == layerNumB then return end  -- Trivial case.
+
         -- Swap layer data in PlayerConfig.
         local tmp = CopyTable( PlayerConfig.Layers[layerNumA] )  -- Copy A to tmp.
         staticCopyTable( PlayerConfig.Layers[layerNumB], PlayerConfig.Layers[layerNumA] )  -- Copy B to A.
         staticCopyTable( tmp, PlayerConfig.Layers[layerNumB] )  -- Copy tmp to B.
 
-        self:loadFXAndUpdateUI()
-        printMsg(kAddonHeading .."Swapped layers ".. layerNumA .." and ".. layerNumB ..".")
+        self:loadFXAndUpdateUI( kReasons.SwappingLayers )
     end,
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
-    loadFXAndUpdateUI = function(self)  -- gLayers:loadFXAndUpdateUI()
+    moveLayer = function(self, layerNumA, layerNumB)  -- gLayers:moveLayer()
+        assert(layerNumA >= 1 and layerNumA <= kMaxLayers)
+        assert(layerNumB >= 1 and layerNumB <= kMaxLayers)
+        if layerNumA == layerNumB then return end  -- Trivial case.
+
+        -- Move layer data in PlayerConfig.
+        local tmp = CopyTable( PlayerConfig.Layers[layerNumA] )  -- Copy A to tmp.
+        if layerNumA < layerNumB then
+            for i = layerNumA, layerNumB-1 do
+                ----print("Moving layer", i+1, "to", i)
+                staticCopyTable( PlayerConfig.Layers[i+1], PlayerConfig.Layers[i] )  -- Copy layer i+1 to i.
+            end
+        else -- layerNumA > layerNumB
+            for i = layerNumA, layerNumB+1, -1 do
+                ----print("Moving layer", i-1, "to", i)
+                staticCopyTable( PlayerConfig.Layers[i-1], PlayerConfig.Layers[i] )  -- Copy layer i-1 to i.
+            end
+        end
+        ----print("Moving layer", layerNumA, "(tmp) to layer", layerNumB)
+        staticCopyTable( tmp, PlayerConfig.Layers[layerNumB] )  -- Copy tmp to B.
+
+        self:loadFXAndUpdateUI( kReasons.MovingLayers )
+    end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    setMasterScale = function(self, masterScale)  -- gLayers:setMasterScale()
+        PlayerConfig.MasterScale = masterScale
+        for layerNum = 1, kMaxLayers do
+            self[layerNum].CursorModel:applyModelSettings()  -- Updates size of all models, shapes, and shadows.
+        end
+    end,
+    -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
+    loadFXAndUpdateUI = function(self, reason)  -- gLayers:loadFXAndUpdateUI()
         -- Updated FX variables in gLayers.
         CursorTrail_Load()
 
         -- Update values set in the UI.
-        UI_SetValues(PlayerConfig, "SwappingLayers") -- Sets UI values from appropriate layer of PlayerConfig.
+        UI_SetValues(PlayerConfig, reason) -- Sets UI values from appropriate layer of PlayerConfig.
         OptionsFrame_SetModified(true)
         OptionsFrame.ProfilesUI:OnValueChanged()
         OptionsFrame_SelectLayer( self:getSelectedLayerNum() )  -- Refreshes UI values.
@@ -456,7 +509,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         addonConfig.Position_X = nil
         addonConfig.Position_Y = nil
         if OptionsFrame then
-            OptionsFrame:Hide()
+            if not OptionsFrame_HideUI(1) then return end
             OptionsFrame:ClearAllPoints()
             OptionsFrame:SetPoint("CENTER")
         end
@@ -471,14 +524,14 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         printMsg("鼠之軌跡: 重置為原本的設定。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "reload" then
-        if OptionsFrame and OptionsFrame:IsShown() then OptionsFrame:Hide() end
+        if not OptionsFrame_HideUI() then return end
         updateScreenVars()
         CursorTrail_Load()
         CursorTrail_ON()
         printMsg("鼠之軌跡: 已重新載入設定。")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "resetnewfeatures" then  -- For development use.
-        if OptionsFrame and OptionsFrame:IsShown() then OptionsFrame:Hide() end
+        if not OptionsFrame_HideUI() then return end
         Globals.CursorTrail_Config.NewFeaturesSeen = {}
         Globals.CursorTrail_Config.ChangelogVersionSeen = nil
         gbUpdateChangelogVersionSeenOnExit = nil
@@ -510,7 +563,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
             print(kAddonHeading.."ERROR - No profile name specified.")
             return  -- FAIL
         end
-        ----OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+        ----if not OptionsFrame_HideUI() then return end  -- Close UI to avoid user undoing changes by clicking Cancel button.
         local profilesUI = OptionsFrame.ProfilesUI
         --:::::::::::::::::::::::::::::::::::::::::::::
         if cmd == "load" then
@@ -564,7 +617,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "restore" or cmd == "re" then
-        OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+        if not OptionsFrame_HideUI() then return end  -- Close UI to avoid user undoing changes by clicking Cancel button.
         local profilesUI = OptionsFrame.ProfilesUI
         local backupName = cmdParam
         if backupName == "" then
@@ -583,7 +636,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         end
      -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "deletebackup" or cmd == "db" then
-        OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+        if not OptionsFrame_HideUI() then return end  -- Close UI to avoid user undoing changes by clicking Cancel button.
         local backupName = cmdParam
         if backupName == nil or backupName == "" then
             print(kAddonHeading.."ERROR - No backup name specified.")
@@ -607,7 +660,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
     elseif cmd == "pow" then
         if OptionsFrame.ProfilesUI then
-            OptionsFrame_ToggleUI(true)  -- Must show main UI first.
+            if not OptionsFrame_ShowUI() then return end  -- Must show main UI first.
             local profileOptionsFrame = OptionsFrame.ProfilesUI.mainFrame.optionsFrame
             if profileOptionsFrame and profileOptionsFrame:IsShown() then
                 profileOptionsFrame:Hide()
@@ -669,7 +722,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
         print("Ancestory=FALSE")
     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 --~     elseif cmd == "deleteallprofiles!" then
---~         OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+--~         if not OptionsFrame_HideUI() then return end  -- Close UI to avoid user undoing changes by clicking Cancel button.
 --~         print(kAddonHeading.."Deleting profiles ...")
 --~         ----Globals.CursorTrail_Config.Profiles = {}
 --~         local DB = OptionsFrame.ProfilesUI.DB
@@ -681,7 +734,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
 --~         print(kAddonHeading.."All profiles deleted!")
 --~     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 --~     elseif cmd == "deleteallbackups!" then
---~         OptionsFrame:Hide()  -- Close UI to avoid user undoing changes by clicking Cancel button.
+--~         if not OptionsFrame_HideUI() then return end  -- Close UI to avoid user undoing changes by clicking Cancel button.
 --~         print(kAddonHeading.."Deleting backups ...")
 --~         local DB = OptionsFrame.ProfilesUI.DB
 --~         local backups = DB:getBackups()
@@ -690,7 +743,7 @@ Globals.SlashCmdList[kAddonFolderName] = function(params)
 --~         print(kAddonHeading.."All backups deleted!")
 --~     -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 --~     elseif cmd == "deletealldata!" then
---~         if OptionsFrame then OptionsFrame:Hide() end  -- Close UI to avoid user undoing changes by clicking Cancel button.
+--~         if not OptionsFrame_HideUI() then return end  -- Close UI to avoid user undoing changes by clicking Cancel button.
 --~         Globals.CursorTrail_Config = nil
 --~         Globals.CursorTrail_PlayerConfig = nil
 --~         Globals.C_UI.Reload()
@@ -1044,8 +1097,8 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
         if layerCfg.IsLayerEnabled then
             local cursorModel = layer.CursorModel
             local cursorModelBase = cursorModel.base
-            local shadowTexture = layer.ShadowTexture
-            local shapeTexture = layer.ShapeTexture
+            local shadowFrame = layer.ShadowFrame
+            local shapeFrame = layer.ShapeFrame
 
             --_________________________________________________
             -- Hide cursor FX during mouselook, if appropriate.
@@ -1070,7 +1123,7 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
             if layerCfg.ShapeSparkle then
                 local sparkle = gShapeSparkle
                 local index = sparkle.index
-                shapeTexture:SetVertexColor( sparkle.R[index], sparkle.G[index], sparkle.B[index] )
+                shapeFrame.texture:SetVertexColor( sparkle.R[index], sparkle.G[index], sparkle.B[index], 1 )
                 index = index + 1
                 if index > sparkle.max then
                     sparkle.index = 1
@@ -1158,10 +1211,10 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                         cursorModelBase:SetAlpha( layerCfg.UserAlpha * gMotionIntensity )
                     end
                     if layerCfg.UserShadowAlpha > 0 then  -- Has user set shadow opacity?
-                        shadowTexture:SetAlpha( layerCfg.UserShadowAlpha * gMotionIntensity )
+                        shadowFrame:SetAlpha( layerCfg.UserShadowAlpha * gMotionIntensity )
                     end
                     if layerCfg.UserAlpha > 0 then
-                        shapeTexture:SetAlpha( layerCfg.UserAlpha * gMotionIntensity )
+                        shapeFrame:SetAlpha( layerCfg.UserAlpha * gMotionIntensity )
                     end
                 end
             elseif gMotionIntensity ~= previousIntensity then
@@ -1179,16 +1232,16 @@ function CursorTrail_OnUpdate(self, elapsedSeconds)
                     end
 
                     -- Fade out shadow.
-                    if shadowTexture:GetAlpha() > 0 then
+                    if shadowFrame:GetAlpha() > 0 then
                         alpha = layerCfg.UserShadowAlpha * gMotionIntensity
-                        shadowTexture:SetAlpha(alpha)
+                        shadowFrame:SetAlpha(alpha)
                         ----print("shadow alpha:", round(alpha,2))
                     end
 
                     -- Fade out shape.
-                    if shapeTexture:GetAlpha() > 0 then
+                    if shapeFrame:GetAlpha() > 0 then
                         alpha = layerCfg.UserAlpha * gMotionIntensity
-                        shapeTexture:SetAlpha(alpha)
+                        shapeFrame:SetAlpha(alpha)
                         ----print("shape alpha:", round(alpha,2))
                     end
                 end
@@ -1283,7 +1336,7 @@ function Addon_Initialize()  -- Initialize things unique to this addon.
 
     ------ Automatically open the UI if there is a problem with the current settings.
     ----if not gLayers:hasEnabledLayer() then
-    ----    OptionsFrame_ToggleUI(true)
+    ----    OptionsFrame_ShowUI()
     ----end
 end
 
@@ -1304,7 +1357,7 @@ end
 
 -------------------------------------------------------------------------------
 function CursorTrail_OFF()
-    if OptionsFrame:IsShown() then OptionsFrame:Hide() end
+    if not OptionsFrame_HideUI(1) then return end
     EventFrame:SetScript("OnUpdate", nil)
 end
 
@@ -1366,7 +1419,15 @@ function PlayerConfig_Load()
 end
 
 -------------------------------------------------------------------------------
-function PlayerConfig_Validate() validateConfig(PlayerConfig) end
+function PlayerConfig_Validate()
+    validateConfig(PlayerConfig)
+    for i = 1, kMaxLayers do
+        local layerCfg = PlayerConfig.Layers[i]
+        layerCfg.FadeOut = layerCfg.FadeOut or false
+        layerCfg.UserShowOnlyInCombat = layerCfg.UserShowOnlyInCombat or false
+        layerCfg.UserShowMouseLook = layerCfg.UserShowMouseLook or false
+    end
+end
 
 -------------------------------------------------------------------------------
 function backupObsoleteData(oldVersionNum)
@@ -1430,8 +1491,10 @@ function convertObsoleteConfig(config) -- Converts old data structures into the 
             else
                 -- Add more layers to config.
                 for i = 2, kMaxLayers do
-                    layers[i] = CopyTable(kDefaultConfigLayer)
-                    layers[i].IsLayerEnabled = false
+                    if not layers[i] then
+                        layers[i] = CopyTable(kDefaultConfigLayer)
+                        layers[i].IsLayerEnabled = false
+                    end
                 end
             end
         end
@@ -1463,6 +1526,9 @@ function validateConfig(config)
     ---------------------
     -- Validate fields.
     ---------------------
+    config.MasterScale = config.MasterScale or 1
+    if (config.MasterScale < kMinScale) then config.MasterScale = kMinScale end
+
     for layerNum = 1, kMaxLayers do
         local layerCfg = config.Layers[layerNum]
         assert(not layerCfg.Layers)  -- Fails if layerCfg settings got passed into a function expecting PlayerConfig.
@@ -1476,6 +1542,7 @@ function validateConfig(config)
         layerCfg.ShapeColorR = layerCfg.ShapeColorR or 1
         layerCfg.ShapeColorG = layerCfg.ShapeColorG or 1
         layerCfg.ShapeColorB = layerCfg.ShapeColorB or 1
+        layerCfg.ShapeColorA = layerCfg.ShapeColorA or 1
         ----layerCfg.ShapeSparkle = layerCfg.ShapeSparkle or false
 
         layerCfg.UserShadowAlpha = layerCfg.UserShadowAlpha or 0
@@ -1494,7 +1561,7 @@ function validateConfig(config)
         ----layerCfg.UserShowOnlyInCombat = layerCfg.UserShowOnlyInCombat or false
         ----layerCfg.UserShowMouseLook = layerCfg.UserShowMouseLook or false
 
-        if layerCfg.UserScale < kMinScale then layerCfg.UserScale = kMinScale end
+        if (layerCfg.UserScale < kMinScale) then layerCfg.UserScale = kMinScale end
     end
 end
 
@@ -1521,7 +1588,7 @@ function CursorTrail_Load()  -- Loads models, shapes, and shadows for all layers
         -----------------
         -- LOAD SHADOW --
         -----------------
-        layer.ShadowTexture:SetAlpha( layerCfg.UserShadowAlpha )
+        layer.ShadowFrame:SetAlpha( layerCfg.UserShadowAlpha )
         if kShadowStrataMatchesMain then
             layer.ShadowFrame:SetFrameStrata( layerCfg.Strata )
         end
@@ -1530,7 +1597,7 @@ function CursorTrail_Load()  -- Loads models, shapes, and shadows for all layers
         -- LOAD SHAPE --
         ----------------
         layer:setShape( layerCfg.ShapeFileName, true ) -- 'true' skips SetScale.  It is done below by applyModelSettings().
-        layer.ShapeTexture:setColor(layerCfg.ShapeColorR, layerCfg.ShapeColorG, layerCfg.ShapeColorB)
+        layer.ShapeTexture:setColor(layerCfg.ShapeColorR, layerCfg.ShapeColorG, layerCfg.ShapeColorB, layerCfg.ShapeColorA)
         ----layer.ShapeTexture:setColor()  -- Set texture's original color(s).
         layer.ShapeFrame:SetFrameStrata( layerCfg.Strata )
 
@@ -1655,8 +1722,8 @@ function createLayer(playerConfigLayer)
     layer.hasVisibleFX = function(self)  -- layer:hasVisibleFX()
         -- Returns true if either the model, shape, or shadow is being shown.
         return (self.CursorModel.IsHidden ~= true
-                or self.ShapeTexture:GetAlpha() > 0
-                or self.ShadowTexture:GetAlpha() > 0)
+                or self.ShapeFrame:GetAlpha() > 0
+                or self.ShadowFrame:GetAlpha() > 0)
     end
 --~     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
 --~     layer.setEnabled = function(self, bEnabled)  -- layer:setEnabled()
@@ -1707,7 +1774,7 @@ function createLayer(playerConfigLayer)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     layer.setAlpha = function(self, alpha)    -- layer:setAlpha()  i.e. setOpacity()
         self.playerConfigLayer.UserAlpha = alpha
-        self.ShapeTexture:SetAlpha( alpha )
+        self.ShapeFrame:SetAlpha( alpha )
         self.CursorModel.base:SetAlpha( alpha )
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
@@ -1732,13 +1799,13 @@ function createLayer(playerConfigLayer)
         layerCfg.FadeOut = bFadeOut or false
         gMotionIntensity = 0
         if layerCfg.FadeOut then
-            self.ShapeTexture:SetAlpha(0)
+            self.ShapeFrame:SetAlpha(0)
             self.CursorModel.base:SetAlpha(0)
-            self.ShadowTexture:SetAlpha(0)
+            self.ShadowFrame:SetAlpha(0)
         else
-            self.ShapeTexture:SetAlpha( layerCfg.UserAlpha )
+            self.ShapeFrame:SetAlpha( layerCfg.UserAlpha )
             self.CursorModel.base:SetAlpha( layerCfg.UserAlpha )
-            self.ShadowTexture:SetAlpha( layerCfg.UserShadowAlpha )
+            self.ShadowFrame:SetAlpha( layerCfg.UserShadowAlpha )
         end
         ----gPreviousX = nil  -- Forces cursor FX to refresh during the next OnUpdate().
     end
@@ -1748,6 +1815,7 @@ function createLayer(playerConfigLayer)
         layerCfg.ShapeColorR = r
         layerCfg.ShapeColorG = g
         layerCfg.ShapeColorB = b
+        layerCfg.ShapeColorA = a
         self.ShapeTexture:setColor( r, g, b, a )
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
@@ -1758,7 +1826,7 @@ function createLayer(playerConfigLayer)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     layer.setShadowAlpha = function(self, alpha)  -- layer:setShadowAlpha()
         self.playerConfigLayer.UserShadowAlpha = alpha
-        self.ShadowTexture:SetAlpha( alpha )
+        self.ShadowFrame:SetAlpha( alpha )
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     layer.setCombat = function(self, bShowOnlyInCombat)  -- layer:setCombat()
@@ -1784,7 +1852,7 @@ function createShadow(parentLayer)
     shadowFrame.texture = shadowFrame:CreateTexture()
     shadowFrame.texture.parentLayer = parentLayer
     shadowFrame.texture:SetPoint("CENTER")
-    shadowFrame.texture:SetBlendMode("ALPHAKEY")
+    ----shadowFrame.texture:SetBlendMode("ALPHAKEY")
     shadowFrame.texture:SetTexture([[Interface\GLUES\Models\UI_Alliance\gradient5Circle]])  -- Note: gradient5Circle is not centered.
     shadowFrame.texture:SetTexCoord(0, 0.918, 0, 0.935)  -- (minX, maxX, minY, maxY)  Centers gradient5Circle.
 
@@ -1830,7 +1898,8 @@ function createShape(parentLayer)
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     texture.setUserScale = function(self, userScale)
         userScale = userScale or self.parentLayer.playerConfigLayer.UserScale
-        self:SetScale( userScale * self.baseScale / ScreenScale )
+        local finalUserScale = userScale * PlayerConfig.MasterScale
+        self:SetScale( finalUserScale * self.baseScale / ScreenScale )
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
     texture.setColor = function(self, r, g, b, a)  -- Pass in nothing to use the texture's original color(s).  [ Keywords: texture:setColor() ]
@@ -1842,11 +1911,11 @@ function createShape(parentLayer)
         local layerCfg = self.parentLayer.playerConfigLayer
         layerCfg.ShapeSparkle = bSparkle or false
         if not layerCfg.ShapeSparkle then
-            local r, g, b = OptionsFrame.ShapeColor:GetColor()
+            local r, g, b, a = OptionsFrame.ShapeColor:GetColor()
             if not r or not g or not b then
-                r, g, b = layerCfg.ShapeColorR, layerCfg.ShapeColorG, layerCfg.ShapeColorB
+                r, g, b, a = layerCfg.ShapeColorR, layerCfg.ShapeColorG, layerCfg.ShapeColorB, layerCfg.ShapeColorA
             end
-            self:setColor(r, g, b)
+            self:setColor(r, g, b, a)
         end
     end
     -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --
@@ -2002,6 +2071,7 @@ function createModel(parentLayer)
         layerCfg = layerCfg or parentLayerCfg
         local userScale = layerCfg.UserScale or parentLayerCfg.UserScale or 1
         if userScale <= 0 then userScale = 1 end
+        finalUserScale = userScale * PlayerConfig.MasterScale
 
         local userAlpha = layerCfg.userAlpha or parentLayerCfg.UserAlpha or 1
         if userAlpha <= 0 then userAlpha = 1 end
@@ -2013,17 +2083,17 @@ function createModel(parentLayer)
         local userRotY = layerCfg.UserRotY or parentLayerCfg.UserRotY
         local userRotZ = layerCfg.UserRotZ or parentLayerCfg.UserRotZ
 
-        -- Compute scale factor.
-        local baseScale = self.Constants.BaseScale
-        local finalScale = userScale * baseScale
+        -- Compute model scale factor.
+        local modelBaseScale = self.Constants.BaseScale
+        local finalModelScale = finalUserScale * modelBaseScale
 
         ---->>> DIDN'T HELP.  CHANGING UI SCALE ALSO CHANGES THE ScaleMin VALUE.  WAS UNABLE TO DETERMINE CORRECT VALUE.
-        ----if (self.Constants.ScaleMin and finalScale < self.Constants.ScaleMin) then
-        ----    finalScale = self.Constants.ScaleMin
+        ----if (self.Constants.ScaleMin and finalModelScale < self.Constants.ScaleMin) then
+        ----    finalModelScale = self.Constants.ScaleMin
         ----end
 
         -- UPDATE MODEL --
-        self.Scale = finalScale  -- Store this for use by SetTransform().
+        self.Scale = finalModelScale  -- Store this for use by SetTransform().
         self.RotX = rad( (self.Constants.BaseRotX or 0) + userRotX )
         self.RotY = rad( (self.Constants.BaseRotY or 0) + userRotY )
         self.RotZ = rad( (self.Constants.BaseRotZ or 0) + userRotZ )
@@ -2032,24 +2102,24 @@ function createModel(parentLayer)
         self.base:SetAlpha(userAlpha)
         if self.Constants.UseSetTransform then
             local mult = 20
-            self.OfsX = (self.Constants.BaseOfsX + (userOfsX * mult)) * userScale
-            self.OfsY = (self.Constants.BaseOfsY + (userOfsY * mult)) * userScale
+            self.OfsX = (self.Constants.BaseOfsX + (userOfsX * mult)) * finalUserScale
+            self.OfsY = (self.Constants.BaseOfsY + (userOfsY * mult)) * finalUserScale
             ----if gPreviousX == nil then
             ----    gPreviousX, gPreviousY = GetCursorPosition()
             ----end
             self.base:UseModelCenterToTransform(true)
             ----self:setTransform(gPreviousX, gPreviousY)
         else -- Not using SetTransform().
-            self.base:SetScale(finalScale)
-            ----print("self.base:GetEffectiveScale():", self.base:GetEffectiveScale()) -- i.e. finalScale * kGameFrame:GetEffectiveScale()
+            self.base:SetScale(finalModelScale)
+            ----print("self.base:GetEffectiveScale():", self.base:GetEffectiveScale()) -- i.e. finalModelScale * kGameFrame:GetEffectiveScale()
             ----if (self.base:GetEffectiveScale() < 0.0113) then printMsg(kAddonFolderName.." WARNING - Model scaled too small.  ") end
 
             -- Compute model step size and offset.
             local mult = kBaseMult * ScreenHypotenuse
-            self.OfsX = (self.Constants.BaseOfsX * mult / baseScale / userScale) + userOfsX
-            self.OfsY = (self.Constants.BaseOfsY * mult / baseScale / userScale) + userOfsY
-            self.StepX = self.Constants.BaseStepX * mult * finalScale
-            self.StepY = self.Constants.BaseStepY * mult * finalScale
+            self.OfsX = (self.Constants.BaseOfsX * mult / modelBaseScale / finalUserScale) + userOfsX
+            self.OfsY = (self.Constants.BaseOfsY * mult / modelBaseScale / finalUserScale) + userOfsY
+            self.StepX = self.Constants.BaseStepX * mult * finalModelScale
+            self.StepY = self.Constants.BaseStepY * mult * finalModelScale
 
             self.base:SetFacing( self.RotX )
             self.base:SetPitch( self.RotY )
@@ -2058,15 +2128,14 @@ function createModel(parentLayer)
 
         -- UPDATE SHADOW --
         -- Update shadow size based on current user scale.
-        local shadowTexture = self.parentLayer.ShadowTexture
-        local shadowSize = (kDefaultShadowSize * userScale) / ScreenScale
-        shadowTexture:SetSize(shadowSize, shadowSize)
+        local layer = self.parentLayer
+        local shadowSize = (kDefaultShadowSize * finalUserScale) / ScreenScale
+        layer.ShadowTexture:SetSize(shadowSize, shadowSize)
 
         -- UPDATE SHAPE --
         -- Update shape size based on current user scale.
-        local shapeTexture = self.parentLayer.ShapeTexture
-        shapeTexture:setUserScale(userScale)
-        shapeTexture:SetAlpha(userAlpha)
+        layer.ShapeTexture:setUserScale(userScale)
+        layer.ShapeFrame:SetAlpha(userAlpha)
 
         -- Force cursor FX to refresh during the next OnUpdate().
         C_Timer.After(0.1, function()  -- Timer required to give any UI dropdowns time to close
