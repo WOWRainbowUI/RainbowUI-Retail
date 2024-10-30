@@ -343,7 +343,7 @@ local function str_split_lines(str)  -- Splits string into lines. (Returns empty
 end
 
 -------------------------------------------------------------------------------
-function str_split(str, delimiter)  -- Note: Does not return empty lines.
+function str_split(str, delimiter)  -- Note: Does not return empty lines.  [ Keywords: strsplit() splitstr() delimeter ]
     assert(delimiter)
     local parts = {}
     for part in string.gmatch(str, "([^"..delimiter.."]+)") do
@@ -543,7 +543,7 @@ function propagateKeyboardInput(frame, bPropagate)  -- Safely propagates keyboar
 end
 
 -------------------------------------------------------------------------------
-function changeCheckboxSize(checkbox, deltaBoxW, deltaBoxH, deltaFontSize)
+function changeCheckBoxSize(checkbox, deltaBoxW, deltaBoxH, deltaFontSize)
     deltaBoxW = deltaBoxW or 0
     deltaBoxH = deltaBoxH or 0
     deltaFontSize = deltaFontSize or 0
@@ -719,10 +719,18 @@ function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
     elseif (params == "camera") then
         Camera_Dump()
     -------------------------------------------------------------------------------
-    elseif (params == "config") then  -- [ Keywords: Config_Dump() ]
-        vdt_dump(PlayerConfig, kAddonFolderName.." PlayerConfig")
-        vdt_dump(gLayers, kAddonFolderName.." gLayers")
-        dumpObjectSorted(PlayerConfig, "CONFIG INFO")
+    elseif (params:sub(1,6) == "config") then  -- [ Keywords: Config_Dump() ]
+        local layerNum = tonumber(params:sub(7))
+        if layerNum then
+            vdt_dump(gLayers[layerNum], kAddonFolderName.." gLayer["..layerNum.."]")
+            dumpObjectSorted(PlayerConfig.Layers[layerNum], "CONFIG LAYER "..layerNum)
+        elseif params == "config" then
+            vdt_dump(PlayerConfig, kAddonFolderName.." PlayerConfig")
+            vdt_dump(gLayers, kAddonFolderName.." gLayers")
+            dumpObjectSorted(PlayerConfig, "CONFIG INFO")
+        else
+            return false   -- Invalid command.
+        end
         ----dumpObjectSorted( Globals.CursorTrail_Config.Profiles._SelectedName, "SELECTED PROFILE NAMES" )
     -------------------------------------------------------------------------------
     elseif (params == "selectedprofiles") then  -- [ Keywords: SelectedProfiles_Dump() ]
@@ -985,8 +993,8 @@ function HandleToolSwitches(params)  --[ Keywords: Slash Commands ]
         if scale and scale > 0 then
             local shapeID = OptionsFrame_Value("shape")
             if shapeID == nil or shapeID == "" then
-                OptionsFrame_ToggleUI(true)
-                OptionsFrame_ToggleUI()
+                OptionsFrame_ShowUI()
+                OptionsFrame_HideUI()
                 shapeID = OptionsFrame_Value("shape")
             end
             assert(shapeID and shapeID ~= "")
@@ -1007,7 +1015,9 @@ end
 
 -------------------------------------------------------------------------------
 function CmdLineValue(name, val, plusOrMinus)
-    local cursorModel = gLayers:getSelectedLayer().CursorModel
+    local layer = gLayers:getSelectedLayer()
+    local layerCfg = layer.playerConfigLayer
+    local cursorModel = layer.CursorModel
     val = tonumber(val)
     if (val == nil) then
         print(kAddonFolderName .. " "..name.." is", cursorModel.Constants[name], ".")
@@ -1020,13 +1030,13 @@ function CmdLineValue(name, val, plusOrMinus)
         val = round(val, 3)
 
         if (name == "BaseScale") then
-            PlayerConfig.UserScale = 1.0  -- Reset user offsets when changing base scale.
+            layerCfg.UserScale = 1.0  -- Reset user offsets when changing base scale.
             cursorModel.Constants.BaseScale = 1.0  -- VERY IMPORTANT to do this first.
             cursorModel:applyModelSettings()
         elseif (name:sub(1,7) == "BaseOfs") then
             -- Reset user offsets when changing base offsets.
-            PlayerConfig.UserOfsX = 0
-            PlayerConfig.UserOfsY = 0
+            layerCfg.UserOfsX = 0
+            layerCfg.UserOfsY = 0
         end
 
         cursorModel.Constants[name] = val  -- Change the specified value.

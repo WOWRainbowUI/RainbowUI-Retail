@@ -54,7 +54,8 @@ kDefaultConfig =  -- Initialize this variable to an empty table.
 --:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ----------------________________________-----------------------------------
-kDefaultConfig["Electric"] = {
+kDefaultConfig["Electric"] = {  -- [ Keywords: kDefaultConfigKey ]
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -77,6 +78,7 @@ kDefaultConfig["Electric"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Electric B&W Rings"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -112,10 +114,28 @@ kDefaultConfig["Electric B&W Rings"] = {
             UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = true,
         },
+        [3] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring 1.tga",
+            ModelID = 0,
+            ShapeColorR = 0.5, ShapeColorG = 0.5, ShapeColorB = 0.5,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1.27,
+            UserAlpha = 0.25,
+            Strata = "BACKGROUND",
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = true,
+        },
     },
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Electric Large"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -138,6 +158,7 @@ kDefaultConfig["Electric Large"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Electric Small"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -160,6 +181,7 @@ kDefaultConfig["Electric Small"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Electric Huge"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -182,6 +204,7 @@ kDefaultConfig["Electric Huge"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Glow Purple"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -204,6 +227,7 @@ kDefaultConfig["Glow Purple"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Glow Purple Fade"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -226,6 +250,7 @@ kDefaultConfig["Glow Purple Fade"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Glow Purple Fade 2"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -248,6 +273,7 @@ kDefaultConfig["Glow Purple Fade 2"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Glow Soft Fade"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -270,6 +296,7 @@ kDefaultConfig["Glow Soft Fade"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Star Glow Red"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -309,6 +336,7 @@ kDefaultConfig["Star Glow Red"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Ring & Electric Trail"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -327,10 +355,28 @@ kDefaultConfig["Ring & Electric Trail"] = {
             UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = kNoChange,
         },
+        [2] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kMediaPath.."Ring Soft 4.tga",
+            ModelID = 0,
+            ShapeColorR = 0, ShapeColorG = 0, ShapeColorB = 0,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 0.98,
+            UserAlpha = 0.65,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = false,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = kNoChange,
+        },
     },
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Ring Sparkle"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -353,6 +399,7 @@ kDefaultConfig["Ring Sparkle"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Star Glow Green"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -375,6 +422,7 @@ kDefaultConfig["Star Glow Green"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Cross Yellow Pulse"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -397,6 +445,7 @@ kDefaultConfig["Cross Yellow Pulse"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Cross Glow Shadow"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -419,6 +468,7 @@ kDefaultConfig["Cross Glow Shadow"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Ring & Bones"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -442,6 +492,7 @@ kDefaultConfig["Ring & Bones"] = {
 
 ----------------________________________-----------------------------------
 kDefaultConfig["Cross & Ring, Red"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -482,6 +533,7 @@ kDefaultConfig["Cross & Ring, Red"] = {
 
 ----------------________________________-----------------------------------
 kDefaultConfig["Ring Glow Green"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -521,6 +573,7 @@ kDefaultConfig["Ring Glow Green"] = {
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["Evil Eye"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -556,10 +609,28 @@ kDefaultConfig["Evil Eye"] = {
             UserShowOnlyInCombat = kNoChange,
             UserShowMouseLook = kNoChange,
         },
+        [3] = {
+            IsLayerEnabled = true,
+            ShapeFileName = kShape_None,
+            ModelID = 166159,  -- "Trail - Swirling, Firestrike"
+            ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+            ShapeSparkle = false,
+            -- - - - - - - - - - - - - - --
+            UserShadowAlpha = 0,
+            UserScale = 1.15,
+            UserAlpha = 1,
+            Strata = kDefaultStrata,
+            UserOfsX = 0, UserOfsY = 0,
+            -- - - - - - - - - - - - - - --
+            FadeOut = true,
+            UserShowOnlyInCombat = kNoChange,
+            UserShowMouseLook = false,
+        },
     },
 }
 ----------------________________________-----------------------------------
 kDefaultConfig["(Start Here)"] = {
+    MasterScale = 1,
     Layers = {
         [1] = {
             IsLayerEnabled = true,
@@ -605,6 +676,7 @@ kDefaultConfig["(Start Here)"] = {
 if isWrathWoW_Min() then
     ----------------________________________-----------------------------------
     kDefaultConfig["Ice Cold"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -644,6 +716,7 @@ if isWrathWoW_Min() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["Soul Skull Trail"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -666,6 +739,7 @@ if isWrathWoW_Min() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["Ring & Soul Skull"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -688,6 +762,7 @@ if isWrathWoW_Min() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["Small Blue Green"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -710,6 +785,7 @@ if isWrathWoW_Min() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["Sphere Orange Swirl"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -739,6 +815,7 @@ end
 if isRetailWoW() then
     ----------------________________________-----------------------------------
     kDefaultConfig["Flashy Ball Bearing"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -778,6 +855,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["Ring & Rainbow"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -816,7 +894,65 @@ if isRetailWoW() then
         },
     }
     ----------------________________________-----------------------------------
+    kDefaultConfig["Ring & Rainbow 2"] = {
+        MasterScale = 1,
+        Layers = {
+            [1] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kShape_None,
+                ModelID = 165943,  -- "Sparkle, Blue"
+                ShapeColorR = 1, ShapeColorG = 1, ShapeColorB = 1,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0,
+                UserScale = 1.5,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+            [2] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kMediaPath.."Ring 2.tga",
+                ModelID = 1417024,  -- "Sparkling, Rainbow"
+                ShapeColorR = 1, ShapeColorG = 0.592, ShapeColorB = 0,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0.3,
+                UserScale = 0.9,
+                UserAlpha = 1,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+            [3] = {
+                IsLayerEnabled = true,
+                ShapeFileName = kMediaPath.."Ring Soft 4.tga",
+                ModelID = 0,
+                ShapeColorR = 0, ShapeColorG = 0, ShapeColorB = 0,
+                ShapeSparkle = false,
+                -- - - - - - - - - - - - - - --
+                UserShadowAlpha = 0,
+                UserScale = 0.98,
+                UserAlpha = 0.65,
+                Strata = kDefaultStrata,
+                UserOfsX = 0, UserOfsY = 0,
+                -- - - - - - - - - - - - - - --
+                FadeOut = false,
+                UserShowOnlyInCombat = kNoChange,
+                UserShowMouseLook = kNoChange,
+            },
+        },
+    }
+    ----------------________________________-----------------------------------
     kDefaultConfig["Star Flame"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -839,6 +975,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["Swirly Green"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -861,6 +998,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["Big Donut"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -883,6 +1021,7 @@ if isRetailWoW() then
     }
     ----------------________________________-----------------------------------
     kDefaultConfig["Fireball"] = {
+        MasterScale = 1,
         Layers = {
             [1] = {
                 IsLayerEnabled = true,
@@ -937,9 +1076,9 @@ for name, data in pairs(kDefaultConfig) do
         if not data.Layers[i] then
             data.Layers[i] = CopyTable(kDefaultConfigLayer)
             data.Layers[i].IsLayerEnabled = false
-            data.Layers[i].FadeOut = kNoChange
-            data.Layers[i].UserShowOnlyInCombat = kNoChange
-            data.Layers[i].UserShowMouseLook = kNoChange
+            ----data.Layers[i].FadeOut = kNoChange
+            ----data.Layers[i].UserShowOnlyInCombat = kNoChange
+            ----data.Layers[i].UserShowMouseLook = kNoChange
         end
     end
 end

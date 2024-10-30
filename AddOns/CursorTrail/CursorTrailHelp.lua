@@ -35,6 +35,9 @@ setfenv(1, _G.CursorTrail)  -- Everything after this uses our namespace rather t
 kHelpText_Options = [[
 The main options window can be opened from the standard addons window, or by typing "/ct" or "/cursortrail".  Settings are saved separately for each of your WoW characters, so your tank (for example) can have different cursor effects than your other characters.
 
+* Master Scale %: Controls the size of all models, shapes, and sizes on all layers.  Leave this at 100% when designing a new set of FX, then use it later to make everything bigger or smaller as desired.
+Note: Master scale is combined with each layer's scale value to calculate the final size of each FX.
+
 * Layers:  Selecting a layer tab shows the options for that layer.  Tabs for enabled layers will be slightly green instead of their standard color, indicating which layers are enabled without needing to select them.
 If layers have the same "Layer Strata" setting, layer 1 FX are drawn on top of layer 2 FX.
 
@@ -68,9 +71,13 @@ When "Sparkle" is turn on, the chosen shape color is ignored and the shape "spar
 kHelpText_Tips = [[
 * Layers:
 
-- Right-clicking an empty area of the UI opens a context menu at the mouse for selecting/enabling layers.
+- Right-clicking an empty area of the UI opens a context menu at the mouse for performing various actions to the layer.
 
-- Right-clicking a layer's tab will select the layer and toggle its enable checkbox.
+- When clicking on layer tab names ...
+        Left-click              = Selects that layer.  (Normal behavior.)
+        Shift + Left-click  = Toggles that layer's enabled state without selecting it.
+        Right-click            = Opens the context menu.
+        Shift + Right-click = Selects that layer and toggles its enabled state.
 
 - Pressing Ctrl+Tab or Shift+Ctrl+Tab selects the next/previous layer.
 
