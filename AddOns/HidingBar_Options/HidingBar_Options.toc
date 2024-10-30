@@ -1,7 +1,7 @@
 ## Interface: 110002, 110005
 ## Title: HidingBar Options
 ## Author: sfmict
-## Version: v11.0.4
+## Version: v11.0.5
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: HidingBar Options
 ## LoadOnDemand: 1
@@ -14,4 +14,5 @@
 embeds.xml
 templates.xml
 Main.lua
+IconData.lua
 About.lua
