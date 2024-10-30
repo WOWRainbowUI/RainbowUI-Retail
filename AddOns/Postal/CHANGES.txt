@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------
-r634 | Zimzarina | 2024-10-26 14:56:29 +0000 (Sat, 26 Oct 2024) | 1 line
+r636 | Zimzarina | 2024-10-30 01:57:24 +0000 (Wed, 30 Oct 2024) | 1 line
 Changed paths:
-   M /trunk/Postal.toc
+   M /trunk/Postal_Cata.toc
 
-TOC update retail.
+TOC Update Cataclysm
 ------------------------------------------------------------------------
 
