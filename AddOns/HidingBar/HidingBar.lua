@@ -9,6 +9,7 @@ local btnSettingsMeta = {__index = function(self, key)
 	return self[key]
 end}
 local createdButtonsByName, btnSettings, noEventFrames = {}, {}, {}
+hb.ombDefIcon = "Interface/Icons/misc_arrowleft"
 hb.ldbiPrefix = "LibDBIcon10_"
 hb.matchName = hb.ldbiPrefix..addon.."%d+$"
 hb.createdButtons, hb.minimapButtons, hb.mixedButtons = {}, {}, {}
@@ -1953,7 +1954,7 @@ do
 		self.ldb_icon = ldb:NewDataObject(self.ombName, {
 			type = "data source",
 			text = self.ombName,
-			icon = "Interface/Icons/misc_arrowleft",
+			icon = hb.ombDefIcon,
 			OnClick = OnClick,
 			OnEnter = OnEnter,
 			OnLeave = OnLeave,
@@ -2648,16 +2649,16 @@ function hidingBarMixin:setBarTypePosition(typePosition)
 
 		if self.config.omb.anchor == "left" then
 			secondPosition = btnSize + self.config.omb.distanceToBar
-			self.ldb_icon.icon = "Interface/Icons/misc_arrowright"
+			self.ldb_icon.icon = self.config.omb.icon or "Interface/Icons/misc_arrowright"
 		elseif self.config.omb.anchor == "right" then
 			secondPosition = -btnSize - self.config.omb.distanceToBar
-			self.ldb_icon.icon = "Interface/Icons/misc_arrowleft"
+			self.ldb_icon.icon = self.config.omb.icon or "Interface/Icons/misc_arrowleft"
 		elseif self.config.omb.anchor == "top" then
 			secondPosition = -btnSize - self.config.omb.distanceToBar
-			self.ldb_icon.icon = "Interface/Icons/misc_arrowdown"
+			self.ldb_icon.icon = self.config.omb.icon or "Interface/Icons/misc_arrowdown"
 		else
 			secondPosition = btnSize + self.config.omb.distanceToBar
-			self.ldb_icon.icon = "Interface/Icons/misc_arrowlup"
+			self.ldb_icon.icon = self.config.omb.icon or "Interface/Icons/misc_arrowlup"
 		end
 
 		self.anchorObj = self.config.omb

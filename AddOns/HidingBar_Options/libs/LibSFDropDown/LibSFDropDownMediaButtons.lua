@@ -1,5 +1,5 @@
 local lsfdd = LibStub("LibSFDropDown-1.5")
-local cur_ver, ver = lsfdd._mbv, 3
+local cur_ver, ver = lsfdd._mbv, 4
 if cur_ver and cur_ver >= ver then return end
 lsfdd._mbv = ver
 local menu1 = lsfdd:GetMenu(1)
@@ -15,22 +15,11 @@ if not menu1.mediaBackdropFrame then
 
 	function menu1.mediaBackdropFrame:setBackdrop(btn, backdrop)
 		if btn.value == "None" then
-			if self.style then
-				self.style:Show()
-				self.style = nil
-			end
+			menu1.activeStyle:Show()
 			self:Hide()
 			return
 		end
-
-		for name, style in next, menu1.styles do
-			if style:IsShown() then
-				self.style = style
-				style:Hide()
-				break
-			end
-		end
-
+		menu1.activeStyle:Hide()
 		self:SetBackdrop(backdrop)
 		self:Show()
 	end

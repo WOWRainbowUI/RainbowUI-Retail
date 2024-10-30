@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 8
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 9
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
@@ -96,6 +96,9 @@ info.widgets = [table] -- A table of widgets, that adds mini buttons to the butt
 		icon = [texture], -- An icon for the widget
 		iconInfo = [nil, table], -- A table looks like info.iconInfo
 		OnClick = [function(infoBtn, arg1, arg2)] -- The function that is called when you click the button
+		OnEnter = [function(infoBtn, arg1, arg2)] -- Handler OnEnter
+		OnLeave = [function(infoBtn, arg1, arg2)] -- Handler OnLeave
+		OnTooltipShow = [function(infoBtn, tooltipFrame, arg1, arg2)] -- Handler tooltip show
 	},
 }
 info.customFrame = [frame] -- Allows this button to be a completely custom frame
@@ -153,6 +156,22 @@ menuStyles.menuBackdrop = function(parent)
 	return CreateFrame("FRAME", nil, parent, "TooltipBackdropTemplate")
 end
 
+if oldminor < 9 then
+	if C_Texture.GetAtlasInfo("common-dropdown-bg") then
+		menuStyles.modernMenu = function(parent)
+			local f = CreateFrame("FRAME", nil, parent)
+			f.bg = f:CreateTexture(nil, "BACKGROUND")
+			f.bg:SetAtlas("common-dropdown-bg")
+			f.bg:SetPoint("TOPLEFT", -5, 2)
+			f.bg:SetPoint("BOTTOMRIGHT", 5, -8)
+			f.bg:SetAlpha(.925)
+			return f
+		end
+		if lib._v.menuStyle == "menuBackdrop" then
+			lib._v.menuStyle = "modernMenu"
+		end
+	end
+end
 
 function v.createMenuStyle(menu, name, frameFunc)
 	local f = frameFunc(menu)
@@ -160,6 +179,7 @@ function v.createMenuStyle(menu, name, frameFunc)
 	if not f:GetPoint() then
 		f:SetAllPoints()
 	end
+	f:Hide()
 	menu.styles[name] = f
 end
 
@@ -359,19 +379,6 @@ local function DropDownMenuButton_OnEnterInit(self)
 	if self.widgets then
 		v.widgetAlpha(1)
 	end
-
-	if self.OnTooltipShow and (self:IsEnabled() or self.tooltipWhileDisabled) then
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:ClearLines()
-		self:OnTooltipShow(GameTooltip, self.arg1, self.arg2)
-		GameTooltip:Show()
-	else
-		GameTooltip:Hide()
-	end
-
-	if self.OnEnter then
-		self:OnEnter(self.arg1, self.arg2)
-	end
 end
 
 
@@ -394,6 +401,19 @@ local function DropDownMenuButton_OnEnter(self)
 
 	if self.widgets then
 		v.widgetInit(self)
+	end
+
+	if self.OnTooltipShow and (self:IsEnabled() or self.tooltipWhileDisabled) then
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:ClearLines()
+		self:OnTooltipShow(GameTooltip, self.arg1, self.arg2)
+		GameTooltip:Show()
+	else
+		GameTooltip:Hide()
+	end
+
+	if self.OnEnter then
+		self:OnEnter(self.arg1, self.arg2)
 	end
 
 	DropDownMenuButton_OnEnterInit(self)
@@ -515,6 +535,21 @@ end
 
 local function widget_OnEnter(self)
 	self.icon:SetVertexColor(1, 1, 1)
+	local parent = self:GetParent()
+
+	if self.OnTooltipShow then
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:ClearLines()
+		self.OnTooltipShow(parent, GameTooltip, parent.arg1, parent.arg2)
+		GameTooltip:Show()
+	else
+		GameTooltip:Hide()
+	end
+
+	if self.OnEnter then
+		self.OnEnter(parent, parent.arg1, parent.arg2)
+	end
+
 	DropDownMenuButton_OnEnterInit(self:GetParent())
 end
 
@@ -522,6 +557,15 @@ end
 local function widget_OnLeave(self)
 	self.icon:SetVertexColor(.7, .7, .7)
 	local parent = self:GetParent()
+
+	if self.OnTooltipShow then
+		GameTooltip:Hide()
+	end
+
+	if self.OnLeave then
+		self.OnLeave(parent.arg1, parent.arg2)
+	end
+
 	parent:GetScript("OnLeave")(parent)
 end
 
@@ -578,6 +622,9 @@ function v.widgetInit(parent)
 		btn:SetSize(info.width or DropDownMenuButtonHeight, info.height or DropDownMenuButtonHeight)
 		btn:SetPoint("RIGHT", position, 0)
 		btn.OnClick = info.OnClick
+		btn.OnEnter = info.OnEnter
+		btn.OnLeave = info.OnLeave
+		btn.OnTooltipShow = info.OnTooltipShow
 		v.setIcon(btn.icon, info.icon, info.iconInfo)
 		btn:Show()
 		position = position - btn:GetWidth()
@@ -1432,8 +1479,8 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, xOffset, yOffse
 		menu:SetPoint(point, anchorFrame, relativePoint, 0, y)
 	end
 
-	for name, frame in next, menu.styles do
-		frame:Hide()
+	if menu.activeStyle then
+		menu.activeStyle:Hide()
 	end
 	local style = v.DROPDOWNBUTTON.ddDisplayMode
 	if style == "menu" then
@@ -1441,7 +1488,8 @@ function DropDownButtonMixin:ddToggle(level, value, anchorFrame, xOffset, yOffse
 	elseif not menu.styles[style] then
 		style = v.defaultStyle
 	end
-	menu.styles[style]:Show()
+	menu.activeStyle = menu.styles[style]
+	menu.activeStyle:Show()
 end
 
 
@@ -1975,7 +2023,7 @@ end
 do
 	local function OnClick(self)
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-		self:ddToggle(1, nil, self, self:GetWidth() - 18, (self:GetHeight() / 2 + 6) * (self:ddIsOpenMenuUp() and -1 or 1))
+		self:ddToggle(1, nil, self, self:GetWidth() - 13, (self:GetHeight() / 2 + 2) * (self:ddIsOpenMenuUp() and -1 or 1))
 	end
 
 
@@ -2095,5 +2143,35 @@ if oldminor < 8 then
 		for k, v in next, DropDownMenuSearchMixin do
 			f[k] = v
 		end
+	end
+end
+
+
+if oldminor < 9 then
+	for i = 1, #v.dropDownMenusList do
+		local menu = v.dropDownMenusList[i]
+		if not menu:IsShown() then
+			for _, style in next, menu.styles do
+				style:Hide()
+			end
+		end
+		if not menu.styles.modernMenu and v.menuStyles.modernMenu then
+			v.createMenuStyle(menu, "modernMenu", v.menuStyles.modernMenu)
+		end
+		for j = 1, #menu.buttonsList do
+			menu.buttonsList[j]:SetScript("OnEnter", DropDownMenuButton_OnEnter)
+		end
+	end
+
+	for i = 1, #dropDownSearchFrames do
+		for j, btn in ipairs(dropDownSearchFrames[i].view:GetFrames()) do
+			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
+		end
+	end
+
+	for i = 1, #v.widgetFrames do
+		local widget = v.widgetFrames[i]
+		widget:SetScript("OnEnter", widget_OnEnter)
+		widget:SetScript("OnLeave", widget_OnLeave)
 	end
 end
