@@ -217,6 +217,7 @@
 ---|"movetostatue" 17
 ---|"movetotank"
 ---|"movetoweb" 17
+---|"movetoflamethrower" 17
 ---|"mpurple"
 ---|"myellow"
 ---|"negative" 13
@@ -255,6 +256,7 @@
 ---|"runintofire" 12
 ---|"runout" 2
 ---|"runoverflowers" 12
+---|"runovermobs" 17
 ---|"runtoedge"
 ---|"safenow"
 ---|"scatter"
@@ -270,6 +272,7 @@
 ---|"shockwave" 2
 ---|"silencesoon"
 ---|"slagelementalcoming" 12
+---|"soakbeam" 17
 ---|"soulcleave" 12
 ---|"south"
 ---|"southeast"
