@@ -347,7 +347,7 @@ function ham.settingsFrame:InitializeOptions()
 		heartseekingButton = CreateFrame("CheckButton", nil, self.content, "InterfaceOptionsCheckButtonTemplate")
 		heartseekingButton:SetPoint("TOPLEFT", itemsTitle, 0, -60)
 		---@diagnostic disable-next-line: undefined-field
-		heartseekingButton.Text:SetText("Heartseeking Health Injector (tinker)")
+		heartseekingButton.Text:SetText("覓心生命注射器 (技工裝置)")
 		heartseekingButton:HookScript("OnClick", function(_, btn, down)
 			ham.settingsFrame:updateConfig("heartseekingInjector", heartseekingButton:GetChecked())
 		end)
