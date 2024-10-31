@@ -11865,9 +11865,11 @@ function Hekili:MakeSnapshot( isAuto )
         return
     end
 
+    self.ManualSnapshot = not isAuto
     self.ActiveDebug = true
     Hekili.Update()
     self.ActiveDebug = false
+    self.ManualSnapshot = nil
 
     HekiliDisplayPrimary.activeThread = nil
 end
