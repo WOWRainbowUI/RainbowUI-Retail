@@ -1,5 +1,5 @@
-## Interface: 11504, 30403, 40400, 110002, 110005
-## Version: 0.4.8b
+## Interface: 11504, 30403, 40401, 110002, 110005
+## Version: 0.5.0
 
 ## Title: Dialogue UI
 
