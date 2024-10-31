@@ -1,52 +1,63 @@
+local enabled = false
+local gameMenuFrameHook_OnShow = false
+local wasKeybindModeTrigger = false
 local quickKeybindModeShortcutFrame = nil
-local origGameMenuFrame_OnShow = nil
 
-local function overrideScript(frame, script, newHandler)
-  local origScript = frame:GetScript(script)
-  frame:SetScript(script, newHandler)
-  return origScript
+local function isFunction(object)
+  if type(object) == "function" then
+    return true
+  end
+
+  return false
 end
 
 local function quickKeybindModeShortcutFrame_OnClick()
   QuickKeybindFrame:Show()
+  GameMenuFrame:Hide()
+  wasKeybindModeTrigger = true
 end
 
-local function gameMenuFrame_OnShow(self, ...)
-  origGameMenuFrame_OnShow(self, ...)
+local function quickKeybinddModeAddButton()
+  if enabled then
+    if isFunction(GameMenuFrame.AddSection) and isFunction(GameMenuFrame.AddButton) then
+      GameMenuFrame:AddSection()
+      GameMenuFrame:AddButton("Quick Keybind Mode", quickKeybindModeShortcutFrame_OnClick, false, "testdisabled")
+    else
+      -- Legacy way, will not be needed after The War Within releases (likely pre-patch)
+      if not quickKeybindModeShortcutFrame then
+        quickKeybindModeShortcutFrame = CreateFrame("Button", "BUIIQuickKeybindModeShortcutMenuButton", GameMenuFrame, "GameMenuButtonTemplate")
+        quickKeybindModeShortcutFrame:SetText("Quick Keybind Mode")
+        quickKeybindModeShortcutFrame:SetScript("OnClick", quickKeybindModeShortcutFrame_OnClick)
+	quickKeybindModeShortcutFrame:SetPoint("TOP", GameMenuButtonContinue, "BOTTOM", 0, -(quickKeybindModeShortcutFrame:GetHeight() / 1.5))
+      end
 
-  GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + quickKeybindModeShortcutFrame:GetHeight())
+      -- Try and match the look we will have when using AddSection and AddButton
+      GameMenuFrame:SetHeight(GameMenuFrame:GetHeight() + quickKeybindModeShortcutFrame:GetHeight() * 1.5)
+      if not quickKeybindModeShortcutFrame:IsVisible() then
+        quickKeybindModeShortcutFrame:Show()
+      end
+    end
+  end
+end
+
+local function quickKeybindMode_OnDisable()
+  if wasKeybindModeTrigger then
+    -- Have to show the GameMenuFrame again otherwise SettingsPanel is shown
+    GameMenuFrame:Show()
+    wasKeybindModeTrigger = false
+  end
 end
 
 function BUII_QuickKeybindModeShortcutEnable()
-  if not quickKeybindModeShortcutFrame then
-    quickKeybindModeShortcutFrame = CreateFrame("Button", "BUIIQuickKeybindModeShortcutMenuButton", GameMenuFrame,
-      "GameMenuButtonTemplate")
-    quickKeybindModeShortcutFrame:SetText("Quick Keybind Mode")
-    quickKeybindModeShortcutFrame:SetScript("OnClick", quickKeybindModeShortcutFrame_OnClick)
-  end
+  enabled = true
 
-  if not quickKeybindModeShortcutFrame:IsVisible() then
-    quickKeybindModeShortcutFrame:Show()
-  end
-
-  quickKeybindModeShortcutFrame:SetPoint("TOP", GameMenuButtonEditMode, "BOTTOM", 0, -1)
-  GameMenuButtonMacros:SetPoint("TOP", quickKeybindModeShortcutFrame, "BOTTOM", 0, -1)
-
-  -- GameMenuFrame adjusts height OnShow so we'll need to override it to take
-  -- the new button into account
-  if not origGameMenuFrame_OnShow then
-    origGameMenuFrame_OnShow = overrideScript(GameMenuFrame, "OnShow", gameMenuFrame_OnShow)
+  if not gameMenuFrameHook_OnShow then
+    gameMenuFrameHook_OnShow = true
+    GameMenuFrame:HookScript("OnShow", quickKeybinddModeAddButton)
+    EventRegistry:RegisterCallback("QuickKeybindFrame.QuickKeybindModeDisabled", quickKeybindMode_OnDisable, "BUII_QuickKeybindMode_OnDisable")
   end
 end
 
 function BUII_QuickKeybindModeShortcutDisable()
-  quickKeybindModeShortcutFrame:Hide()
-
-  GameMenuButtonMacros:SetPoint("TOP", GameMenuButtonEditMode, "BOTTOM", 0, -1)
-  GameMenuFrame:SetScript("OnShow", origGameMenuFrame_OnShow)
-
-  if origGameMenuFrame_OnShow then
-    GameMenuFrame:SetScript("OnShow", origGameMenuFrame_OnShow)
-    origGameMenuFrame_OnShow = nil
-  end
+  enabled = false
 end

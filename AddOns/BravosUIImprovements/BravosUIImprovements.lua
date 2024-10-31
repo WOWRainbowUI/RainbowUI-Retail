@@ -1,3 +1,4 @@
+local addonName, addon = ...
 local spellBarHookSet = false
 local stanceBarHookSet = false
 
@@ -14,6 +15,28 @@ local function handleFocusFrameSpellBar_OnUpdate(self, arg1, ...)
     else
       self:SetPoint("TOPLEFT", FocusFrame, "TOPLEFT", 45, 20)
     end
+  end
+end
+
+local function setPlayerClassColor()
+  local _, const_class = UnitClass("player");
+  local r, g, b = GetClassColor(const_class)
+  local playerHealthBar;
+
+  if PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea ~= nil then
+    playerHealthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
+  else
+    playerHealthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarsContainer.HealthBar
+  end
+
+  if _G["BUIIOptionsPanelHealthClassColor"]:GetChecked() then
+    playerHealthBar:SetStatusBarDesaturated(true)
+    playerHealthBar:SetStatusBarColor(r, g, b)
+    BUIIDatabase["class_color"] = true
+  else
+    playerHealthBar:SetStatusBarDesaturated(false)
+    playerHealthBar:SetStatusBarColor(1, 1, 1)
+    BUIIDatabase["class_color"] = false
   end
 end
 
@@ -120,16 +143,32 @@ local function handleUnitFramePortraitUpdate(self)
     if UnitInVehicle(self.unit) then
       healthBar = PetFrameHealthBar
     else
-      healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
+      if PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea ~= nil then
+        healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
+      else
+        healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBar
+      end
     end
   elseif self.unit == "pet" then
     healthBar = PetFrameHealthBar
   elseif self.unit == "target" then
-    healthBar = TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar
+    if TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar ~= nil then
+      healthBar = TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBar
+    else
+      healthBar = TargetFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar
+    end
   elseif self.unit == "focus" then
-    healthBar = FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar
+    if FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar ~= nil then
+      healthBar = FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar
+    else
+      healthBar = FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBarsContainer.HealthBar
+    end
   elseif self.unit == "vehicle" then
-    healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
+    if PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea ~= nil then
+      healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
+    else
+      healthBar = PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBar
+    end
   end
 
   -- If we've reached this point and healthBar isn't valid bail out
@@ -161,7 +200,13 @@ function BUII_OnLoadHandler(self)
   hooksecurefunc("UnitFramePortrait_Update", handleUnitFramePortraitUpdate)
 
   self.name = "Bravo's UI Improvements"
-  InterfaceOptions_AddCategory(self)
+  if InterfaceOptions_AddCategory then
+    InterfaceOptions_AddCategory(self)
+  else
+    local category, layout = Settings.RegisterCanvasLayoutCategory(self, self.name);
+    Settings.RegisterAddOnCategory(category);
+    addon.settingsCategory = category
+  end
 end
 
 function BUII_OnEventHandler(self, event, arg1, ...)
@@ -202,6 +247,7 @@ function BUII_OnEventHandler(self, event, arg1, ...)
   elseif event == "PLAYER_ENTERING_WORLD" then
     if BUIIDatabase["class_color"] then
       _G["BUIIOptionsPanelHealthClassColor"]:SetChecked(true)
+      setPlayerClassColor()
     end
 
     if BUIIDatabase["castbar_timers"] then
@@ -247,18 +293,7 @@ function BUII_OnEventHandler(self, event, arg1, ...)
 end
 
 function BUII_HealthClassColorCheckButton_OnClick(self)
-  local _, const_class = UnitClass("player");
-  local r, g, b = GetClassColor(const_class)
-
-  if self:GetChecked() then
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar:SetStatusBarDesaturated(true)
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar:SetStatusBarColor(r, g, b)
-    BUIIDatabase["class_color"] = true
-  else
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar:SetStatusBarDesaturated(false)
-    PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar:SetStatusBarColor(1, 1, 1)
-    BUIIDatabase["class_color"] = false
-  end
+  setPlayerClassColor()
 end
 
 function BUII_CastBarTimersCheckButton_OnClick(self)
