@@ -151,7 +151,7 @@ Enable this setting if you want this timer to be hidden, or when using a WeakAur
 	L["Affected Unit Filters and Info"] = "오라에 걸린 유닛의 필터와 정보"
 	L["Align"] = "정렬"
 	L["Alignment"] = "정렬"
-	L["All maintainers of the libraries we use, especially:"] = "특히 우리가 사용하는 라이브러리의 모든 유지 관리자:"
+	L["All maintainers of the libraries we use, especially:"] = "특히 우리가 사용중인 라이브러리를 관리하시는 모든 분들:"
 	L["All of"] = "모두 만족"
 	L["Allow Full Rotation"] = "전체 회전 허용"
 	L["Alpha"] = "투명도"
@@ -446,7 +446,8 @@ Supports multiple entries, separated by commas
 Can use \ to escape -.]=] ] = [=[필터 형식: '이름', '이름-서버', '-서버'. 여러 항목을 지원하며, 각 항목은 쉼표로 구분합니다.
 -는 앞에 \를 사용해서 이스케이프 처리를 할 수 있습니다.]=]
 	L[ [=[Filter to only dispellable de/buffs of the given type(s)
-Bleed classification via LibDispel]=] ] = "LibDispel을 통해 출혈로 분류된 버프/디버프만 인식합니다"
+Bleed classification via LibDispel]=] ] = [=[선택한 종류의 버프/디버프 중 해제 가능한 것만 인식합니다
+출혈은 LibDispel을 통해 분류됩니다]=]
 	L["Find Auras"] = "위크오라 구하기"
 	L["Finish"] = "종료"
 	L["Finishing..."] = "완료중..."
@@ -772,6 +773,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = [=[위크오�
 	L["Regions of type \"%s\" are not supported."] = "\"%s\" 종류의 Region은 지원하지 않습니다."
 	L["Remaining Time"] = "남은 시간"
 	L["Remove"] = "제거"
+	--[[Translation missing --]]
+	L["Remove All Sounds"] = "Remove All Sounds"
+	--[[Translation missing --]]
+	L["Remove All Text To Speech"] = "Remove All Text To Speech"
 	L["Remove this display from its group"] = "이 디스플레이를 그룹에서 제거합니다"
 	L["Remove this property"] = "이 속성 제거"
 	L["Rename"] = "이름 변경"
@@ -833,8 +838,12 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = [=[위크오�
 	L["Show Model"] = "모델 표시"
 	L["Show model of unit "] = "유닛의 모델 표시"
 	L["Show On"] = "표시 조건"
+	--[[Translation missing --]]
+	L["Show Sound Setting"] = "Show Sound Setting"
 	L["Show Spark"] = "섬광 표시"
 	L["Show Text"] = "텍스트 표시"
+	--[[Translation missing --]]
+	L["Show Text To Speech Setting"] = "Show Text To Speech Setting"
 	L["Show this group's children"] = "이 그룹의 자식 위크오라를 표시합니다"
 	L["Show Tick"] = "틱 표시"
 	L["Shows a 3D model from the game files"] = "게임 파일내 3D 모델을 표시합니다"
@@ -1039,7 +1048,7 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	L["You are about to delete a trigger. |cFFFF0000This cannot be undone!|r Would you like to continue?"] = "이 활성 조건을 삭제하려고 합니다. |cFFFF0000이는 되돌릴 수 없습니다!|r 계속할까요?"
 	L[ [=[You can add a comma-separated list of state values here that (when changed) WeakAuras should also run the Anchor Code on.
 
-WeakAuras will always run custom anchor code if you include 'changed' in this list, or when a region is added, removed, or re-ordered.]=] ] = "이곳에 스테이트 값 목록을 쉼표 구분자를 넣어 추가할 수 있으며 (changed 발동시) WeakAuras도 앵커 코드를 이곳에서 실행합니다. WeakAuras는 언제나 이 목록에 'changed'가 들어있거나 region이 추가, 삭제, 재정렬시 사용자 정의 앵커 코드를 실행합니다."
+WeakAuras will always run custom anchor code if you include 'changed' in this list, or when a region is added, removed, or re-ordered.]=] ] = "이곳에 스테이트 값들의 목록을 쉼표로 구분해서 넣을 수 있으며 (changed가 발동하면) WeakAuras는 앵커 코드를 실행할 것입니다. WeakAuras는 이 목록에 'changed'가 들어있거나 region이 추가, 삭제, 재정렬시 항상 사용자 정의 앵커 코드를 실행합니다."
 	L[ [=[You can add a comma-separated list of state values here that (when changed) WeakAuras should also run the Grow Code on.
 
 WeakAuras will always run custom grow code if you include 'changed' in this list, or when a region is added, removed, or re-ordered.]=] ] = "이곳에 스테이트 값 목록을 쉼표 구분자를 넣어 추가할 수 있으며 (changed 발동시) WeakAuras도 Grow 코드를 이곳에서 실행합니다. WeakAuras는 언제나 이 목록에 'changed'가 들어있거나 region이 추가, 삭제, 재정렬시 사용자 정의 Grow 코드를 실행합니다."

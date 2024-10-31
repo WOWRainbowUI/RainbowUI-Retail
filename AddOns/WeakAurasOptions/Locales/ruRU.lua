@@ -746,6 +746,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = "Время �
 	L["Regions of type \"%s\" are not supported."] = "Регионы типа \"%s\" не поддерживаются."
 	L["Remaining Time"] = "Оставшееся время"
 	L["Remove"] = "Удалить"
+	--[[Translation missing --]]
+	L["Remove All Sounds"] = "Remove All Sounds"
+	--[[Translation missing --]]
+	L["Remove All Text To Speech"] = "Remove All Text To Speech"
 	L["Remove this display from its group"] = "Убрать индикацию из этой группы"
 	L["Remove this property"] = "Удалить это свойство"
 	L["Rename"] = "Переименовать"
@@ -809,8 +813,12 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = "Время �
 	L["Show Model"] = "Показать модель"
 	L["Show model of unit "] = "Показать модель единицы"
 	L["Show On"] = "Показать"
+	--[[Translation missing --]]
+	L["Show Sound Setting"] = "Show Sound Setting"
 	L["Show Spark"] = "Показать искру"
 	L["Show Text"] = "Показать текст"
+	--[[Translation missing --]]
+	L["Show Text To Speech Setting"] = "Show Text To Speech Setting"
 	L["Show this group's children"] = "Показать индикации этой группы"
 	L["Show Tick"] = "Показать такт"
 	L["Shows a 3D model from the game files"] = "Показывает 3D модель из файлов игры"
@@ -970,8 +978,7 @@ Upgrade your version of WeakAuras or wait for next release before installing thi
 	--[[Translation missing --]]
 	L["Unknown Encounter's Spell Id"] = "Unknown Encounter's Spell Id"
 	L["Unknown property '%s' found in '%s'"] = "Неизвестное свойство %s в переменной %s."
-	--[[Translation missing --]]
-	L["Unknown Spell"] = "Unknown Spell"
+	L["Unknown Spell"] = "Неизвестное заклинание"
 	L["Unlike the start or finish animations, the main animation will loop over and over until the display is hidden."] = "В отличие от начальной или конечной анимации, основная зациклена и будет повторяться пока индикация не пропадет."
 	L["Update"] = "Обновить"
 	L["Update Auras"] = "Обновить индикации"
