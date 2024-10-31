@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2595, "DBM-Party-WarWithin", 8, 1274)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241009083621")
+mod:SetRevision("20241022111413")
 mod:SetCreatureID(216648, 216649)--Nx, Vx
 mod:SetEncounterID(2908)
 mod:SetHotfixNoticeRev(20240818000000)
@@ -39,7 +39,7 @@ local timerNextSwapCD						= mod:NewCDCountTimer(44.9, 439989, nil, nil, nil, 6)
 mod:AddTimerLine(DBM:EJ_GetSectionInfo(28876))
 local warnIceSickles						= mod:NewTargetNoFilterAnnounce(440238, 3, nil, "RemoveMagic")
 
-local specWarnShadeSlash					= mod:NewSpecialWarningDefensive(439621, nil, nil, nil, 1, 2)
+local specWarnShadeSlash					= mod:NewSpecialWarningDodgeCount(439621, nil, nil, nil, 1, 2)
 local specWarnDuskbringer					= mod:NewSpecialWarningDodgeCount(439692, nil, nil, nil, 2, 2)
 --local specWarnGTFO						= mod:NewSpecialWarningGTFO(372820, nil, nil, nil, 1, 8)
 
@@ -114,7 +114,7 @@ function mod:SPELL_CAST_START(args)
 			timerShadeSlashCD:Start(9.4, self.vb.tankCount+1)
 		end
 		if self:IsTanking("player", nil, nil, true, args.sourceGUID) then
-			specWarnShadeSlash:Show()
+			specWarnShadeSlash:Show(self.vb.tankCount)
 			specWarnShadeSlash:Play("defensive")
 		end
 	elseif spellId == 440468 then

@@ -1,4 +1,4 @@
-## Interface: 40400
+## Interface: 40401
 ## X-Min-Interface-Cata: 40400
 ## Title:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Dungeons (BC)|r
 ## Title-deDE:|cffffe00a<|r|cffff7d0aDBM Mod|r|cffffe00a>|r |cffc030c0Gruppe-BC|r
@@ -32,7 +32,7 @@
 ## X-Curse-Project-ID: 314994
 ## X-WoWI-ID: 24904
 ## X-Wago-ID: xZKxZENk
-## Version: r164
+## Version: r165
 
 localization.en.lua
 localization.de.lua
