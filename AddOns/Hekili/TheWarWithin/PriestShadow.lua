@@ -2245,12 +2245,11 @@ spec:RegisterAbilities( {
             end
 
             if talent.unfurling_darkness.enabled then
-                if buff.unfurling_darkness.up then
-                    removeBuff( "unfurling_darkness" )
-                elseif buff.unfurling_darkness_cd.down then
+                if buff.unfurling_darkness.up then removeBuff( "unfurling_darkness" ) end
+                if buff.unfurling_darkness_cd.down then
                     applyBuff( "unfurling_darkness" )
+                    applyDebuff( "player", "unfurling_darkness_cd" )
                     applyBuff( "unfurling_darkness_cd" )
-                    applyDebuff( "player", "unfurling_darkness_icd" )
                 end
             end
         end,
