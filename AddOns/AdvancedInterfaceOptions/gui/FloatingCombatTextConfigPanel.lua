@@ -89,8 +89,8 @@ function addon:CreateFloatingCombatTextOptions()
       },
       floatingCombatTextCombatLogPeriodicSpells = {
         type = "toggle",
-        name = LOG_PERIODIC_EFFECTS,
-        desc = OPTION_TOOLTIP_LOG_PERIODIC_EFFECTS,
+        name = LOG_PERIODIC_EFFECTS or "週期性傷害",
+        desc = OPTION_TOOLTIP_LOG_PERIODIC_EFFECTS or "顯示週期性傷害效果數值，比如撕裂和暗言術：痛。",
         get = function()
           return C_CVar.GetCVarBool("floatingCombatTextCombatLogPeriodicSpells")
         end,
@@ -102,8 +102,8 @@ function addon:CreateFloatingCombatTextOptions()
       },
       floatingCombatTextPetMeleeDamage = {
         type = "toggle",
-        name = SHOW_PET_MELEE_DAMAGE,
-        desc = OPTION_TOOLTIP_SHOW_PET_MELEE_DAMAGE,
+        name = SHOW_PET_MELEE_DAMAGE or "寵物傷害",
+        desc = OPTION_TOOLTIP_SHOW_PET_MELEE_DAMAGE or "顯示寵物造成的傷害。",
         get = function()
           return C_CVar.GetCVarBool("floatingCombatTextPetMeleeDamage")
         end,
@@ -129,8 +129,8 @@ function addon:CreateFloatingCombatTextOptions()
       },
       floatingCombatTextCombatHealing = {
         type = "toggle",
-        name = SHOW_COMBAT_HEALING,
-        desc = OPTION_TOOLTIP_SHOW_COMBAT_HEALING,
+        name = SHOW_COMBAT_HEALING or "顯示治療",
+        desc = OPTION_TOOLTIP_SHOW_COMBAT_HEALING or "顯示你對目標恢復的生命量。",
         get = function()
           return C_CVar.GetCVarBool("floatingCombatTextCombatHealing")
         end,
