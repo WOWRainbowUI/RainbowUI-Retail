@@ -1,8 +1,8 @@
-## Interface: 11503, 40400, 110002, 110005
+## Interface: 11504, 30403, 40401, 110002, 110005
 ## Title: Copy Anything
 ## Notes: Copy text from any frame.
 ## Author: Oppzippy
-## Version: v1.1.32
+## Version: v1.1.33
 ## OptionalDeps: LibCopyPaste-1.0, Ace3
 ## SavedVariables: CopyAnythingDB
 ## X-Curse-Project-ID: 341960
