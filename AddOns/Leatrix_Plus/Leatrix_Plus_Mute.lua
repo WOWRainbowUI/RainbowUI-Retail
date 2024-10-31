@@ -609,6 +609,14 @@
 			--[[charge]] 			"01.ogg#1384993", "02.ogg#1384994", "03.ogg#1384995", "04.ogg#1384996", "05.ogg#1384997", "06.ogg#1384998", "07.ogg#1384999", "08.ogg#1384970", "09.ogg#1384971",
 			--[[casterwindu]]		"01.ogg#1384986", "02.ogg#1384987", "03.ogg#1384988", "04.ogg#1384989", "05.ogg#1384990", "06.ogg#1384991", "07.ogg#1384992",
 
+			-- Dracthyr (female) (sound/creature/dracthyrfemale/dracthyrfemale_)
+			--[[battleshout]]		"01.ogg#4740921", "02.ogg#4740923", "03.ogg#4740925", "04.ogg#4740927",
+			--[[charge-unknown]]	"01.ogg#4740947", "02.ogg#4740949", "03.ogg#4740951", "04.ogg#4740953",
+
+			-- Dracthyr (male) (sound/creature/dracthyrmale/dracthyrmale_)
+			--[[battleshout]]		"01.ogg#4737455", "02.ogg#4737457", "03.ogg#4737459", "04.ogg#4737461",
+			--[[charge-unknown]]	"01.ogg#4737477", "02.ogg#4737479", "03.ogg#4737481", "04.ogg#4737483", "05.ogg#4737485",
+
 		},
 
 		----------------------------------------------------------------------
@@ -974,6 +982,32 @@
 
 			-- Moving idle wind (sound/doodad/fx_mount_wind_gusts)
 			-- "01.ogg#644101", "02.ogg#644103", "03.ogg#644105", "04.ogg#644107", "05.ogg#644109",
+
+		},
+
+		-- Tempest (Coldflame Tempest)
+		["MuteTempest"] = {
+
+			-- sound/creature/wingflap/fx_wingflap_feather_large
+			"01.ogg#1561447", "02.ogg#1561448", "03.ogg#1561449", "04.ogg#1561450", "05.ogg#1561451", "06.ogg#1561452", "07.ogg#1561453", "08.ogg#1561454", "09.ogg#1561455", "10.ogg#1561456",
+
+			-- sound/creature/5930359/5930359_battleshout_
+			"01.ogg#6190756", "02.ogg#6190758", "03.ogg#6190760", "04.ogg#6190762", "05.ogg#6190764", "06.ogg#6195720", "07.ogg#6195722", "08.ogg#6195724", "09.ogg#6195726", "10.ogg#6195728",
+
+			-- Passive (sound/creature/5930359/5930359_fidget8_)
+			"01.ogg#6197314", "02.ogg#6197316", "03.ogg#6197318", "04.ogg#6197320", "05.ogg#6197322",
+
+			-- Passive (sound/creature/5930359/5930359_fidget_)
+			"01.ogg#6190766", "02.ogg#6190768", "03.ogg#6190770", "04.ogg#6190772", "05.ogg#6190774",
+
+			-- Summon (sound/spell/dreambreath_cast_oneshot_)
+			"01.ogg#4614161", "02.ogg#4614163", "03.ogg#4614165",
+
+			-- Footsteps (sound/creature/dragonelementium/dragonelementium_fidget13_)
+			-- "01.ogg#4731665", "02.ogg#4731667", "03.ogg#4731669", "04.ogg#4731671", "05.ogg#4731673", "06.ogg#4731675", "07.ogg#4731677", "08.ogg#4731679", "09.ogg#4731681", "10.ogg#4731683",
+
+			-- Some other sounds
+			--"sound/creature/raszagethboss/raszagethboss_fidget_"
 
 		},
 
