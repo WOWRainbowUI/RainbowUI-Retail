@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 11.0.14 (23rd October 2024)
+-- 	Leatrix Plus 11.0.15 (30th October 2024)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "11.0.14"
+	LeaPlusLC["AddonVer"] = "11.0.15"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -1258,6 +1258,7 @@
 			LeaPlusLC:MakeTx(MountPanel, "Specific", 418, -72)
 			LeaPlusLC:MakeCB(MountPanel, "MuteBanLu", "Ban-Lu", 418, -92, false, "If checked, Ban-Lu will no longer talk to you.")
 			LeaPlusLC:MakeCB(MountPanel, "MuteSoar", "Soar", 418, -112, false, "If checked, Soar (Dracthyr) will be quieter.")
+			LeaPlusLC:MakeCB(MountPanel, "MuteTempest", "Tempest", 418, -132, false, "If checked, the Coldflame Tempest mount will be quieter.")
 
 			-- Set click width for sounds checkboxes
 			for k, v in pairs(mountTable) do
