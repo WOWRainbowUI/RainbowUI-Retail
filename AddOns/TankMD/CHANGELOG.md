@@ -1,8 +1,9 @@
 # TankMD
 
-## [v3.2.1](https://github.com/Oppzippy/TankMD/tree/v3.2.1) (2024-08-28)
-[Full Changelog](https://github.com/Oppzippy/TankMD/compare/v3.2.0...v3.2.1) [Previous Releases](https://github.com/Oppzippy/TankMD/releases)
+## [v3.2.2](https://github.com/Oppzippy/TankMD/tree/v3.2.2) (2024-10-30)
+[Full Changelog](https://github.com/Oppzippy/TankMD/compare/v3.2.1...v3.2.2) [Previous Releases](https://github.com/Oppzippy/TankMD/releases)
 
-- Remove LibGroupInSpecT dependency  
-    It is throwing errors and hasn't been updated yet. This commit can be  
-    reverted when LibGroupInSpecT is fixed.  
+- Update Interface version (#22)  
+    Co-authored-by: Oppzippy <Oppzippy@users.noreply.github.com>  
+- Update Interface version (#21)  
+    Co-authored-by: Oppzippy <Oppzippy@users.noreply.github.com>  
