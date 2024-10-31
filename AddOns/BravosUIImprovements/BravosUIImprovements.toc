@@ -4,11 +4,12 @@
 ## SavedVariables: BUIIDatabase
 ## SavedVariablesPerCharacter: BUIICharacterDatabase
 ## IconTexture: Interface\AddOns\BravosUIImprovements\Media\icon
+## X-Curse-Project-ID: 701258
 
 ## Title-zhTW: |cff0099FF[介面]|r 內建介面增強
 ## Notes-zhTW: Bravo's UI Improvements |n|n提供幾個簡單的功能來稍微改善遊戲預設介面，主要是讓施法條能顯示施法時間和法術圖示。|n|n|cffffd200使用方法: |r從Esc>選項>插件>介面增強，進行設定。
 ## X-Category-zhTW: 介面
-## Version: 202405100228 Fix5
+## Version: v0.3.0
 
 BravosUIImprovements.xml
 ImprovedEditMode.xml
