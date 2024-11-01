@@ -303,8 +303,8 @@ do -- config.bind
 		local fs = btn:GetFontString()
 		fs:SetMaxLines(1)
 		fs:ClearAllPoints()
-		fs:SetPoint("LEFT", 5, -0.75)
-		fs:SetPoint("RIGHT", 5, -0.75)
+		fs:SetPoint("LEFT", 6, -0.5)
+		fs:SetPoint("RIGHT", 6, -0.5)
 		fs:SetJustifyH("CENTER")
 		btn.IsCapturingBinding, btn.SetBindingText, btn.ToggleAlternateEditor =
 			IsCapturingBinding, SetBindingText, ToggleAlternateEditor
@@ -401,6 +401,7 @@ local OPC_Options = {
 		{"twof", "PadSupportMode", caption=L"Controller directional input:", reqFeature="GamePad", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT, menu={"freelook", "freelook1", "cursor", "none", freelook=L"Camera analog stick", freelook1=L"Movement analog stick", cursor=L"Virtual mouse cursor", none=L"None"}},
 		{"twof", "SliceBinding", caption=L"Per-slice bindings:", depOn="InteractionMode"},
 		{"bool", "ClickPriority", caption=L"Prevent other UI interactions", captionTop=L"While a ring is open:", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=false},
+		{"navi", tag="InRingBindingNav", caption=L"Customize in-ring bindings"},
 	{ "section", caption=L"Behavior" },
 		{"bool", "UseDefaultBindings", caption=L"Use default ring bindings"},
 		{"bool", "HideStanceBar", caption=L"Hide stance bar", globalOnly=true},
@@ -482,6 +483,7 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 		local c = widgetControl[self]
 		local menuInit = c.menuInitializer or c.menu and twofMenuInitializer
 		if menuInit then
+			config.ui.HideTooltip(self)
 			sharedDrop.initialize, sharedDrop.owner = menuInit, self
 			ToggleDropDownMenu(1, nil, sharedDrop, self, -6, 6)
 		end
@@ -492,6 +494,15 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 			c.text:SetText(not c.widget:IsEnabled() and c.otherwise or c.menu[v])
 		end
 	end
+	local function onTwofEnter(self)
+		local c = widgetControl[self]
+		if c.label:IsTruncated() and (UIDROPDOWNMENU_OPEN_MENU ~= sharedDrop or sharedDrop.owner ~= self or not DropDownList1:IsVisible()) then
+			GameTooltip:SetOwner(self, "ANCHOR_NONE")
+			GameTooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
+			GameTooltip:SetText(c.label:GetText())
+			GameTooltip:Show()
+		end
+	end
 	local function onTwofTextSet(fs)
 		local p = fs:GetParent()
 		local ws = math.max(fs:GetStringWidth()+5, widgetControl[p].label:GetStringWidth()-20, 50)
@@ -499,6 +510,18 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 	end
 	local function handlesLeftClicks(self, button, _ev)
 		return self:IsEnabled() and button == "LeftButton" and UIDROPDOWNMENU_OPEN_MENU == sharedDrop and sharedDrop.owner == self
+	end
+	local function onNaviEnter(self)
+		if self:GetFontString():IsTruncated() then
+			GameTooltip:SetOwner(self, "ANCHOR_NONE")
+			GameTooltip:SetPoint("BOTTOM", self, "TOP", 0, 1)
+			GameTooltip:SetText(self:GetText())
+			GameTooltip:Show()
+		end
+	end
+	local function onNaviClick(self)
+		PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
+		return widgetControl[self]:OnClick(self)
 	end
 
 	local boolSetEnabledHook, twofTextSetTextHook
@@ -561,6 +584,22 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 		fs:SetText(v.caption)
 		return fs, ofsY-20, false, 0
 	end
+	function build.navi(v, ofsY, halfpoint, rowHeight, rframe)
+		local b = CreateFrame("Button", nil, controlContainer, "UIPanelButtonTemplate")
+		b:SetSize(250, 24)
+		b:SetPoint("TOPLEFT", rframe, halfpoint and 316 or 16, ofsY-3)
+		b:SetText(v.caption)
+		b:SetScript("OnEnter", onNaviEnter)
+		b:SetScript("OnLeave", config.ui.HideTooltip)
+		b:SetScript("OnClick", onNaviClick)
+		local fs = b:GetFontString()
+		fs:ClearAllPoints()
+		fs:SetPoint("LEFT", 6, -0.5)
+		fs:SetPoint("RIGHT", -6, -0.5)
+		fs:SetJustifyH("CENTER")
+		fs:SetMaxLines(1)
+		return b, halfpoint and ofsY - math.max(rowHeight, 30) or ofsY, not halfpoint, halfpoint and 0 or 30
+	end
 	function build.twof(v, ofsY, halfpoint, rowHeight, rframe)
 		local tb = CreateFrame("Button", nil, controlContainer)
 		tb:SetSize(24,24)
@@ -571,15 +610,19 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 		tb:GetHighlightTexture():SetBlendMode("ADD")
 		tb:SetPoint("TOPLEFT", rframe, "TOPLEFT", halfpoint and 316 or 16, ofsY-13.5)
 		tb:SetScript("OnClick", onTwofClick)
+		tb:SetScript("OnEnter", onTwofEnter)
+		tb:SetScript("OnLeave", config.ui.HideTooltip)
 		local label = tb:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		label:SetPoint("BOTTOMLEFT", tb, "TOPLEFT", 2.5, -1.5)
+		label:SetWidth(285)
 		label:SetText(v.caption)
 		label:SetJustifyH("LEFT")
+		label:SetMaxLines(1)
 		local text = tb:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		text:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 23, -5)
 		text:SetWidth(240)
 		text:SetJustifyH("LEFT")
-		text:SetWordWrap(false)
+		text:SetMaxLines(1)
 		if not twofTextSetTextHook then
 			hooksecurefunc(text, "SetText", onTwofTextSet)
 			twofTextSetTextHook = text.SetText
@@ -829,6 +872,9 @@ do -- customized widgets
 			doBind and L"Use slice and close ring" or
 			L"Do nothing"
 		)
+	end
+	function optionControl.InRingBindingNav:OnClick(_w)
+		T.ShowSliceBindingPanel(OR_CurrentOptionsDomain)
 	end
 	function EV:CVAR_UPDATE(cvar)
 		if cvar == "GamePadEnable" and frame:IsVisible() then
