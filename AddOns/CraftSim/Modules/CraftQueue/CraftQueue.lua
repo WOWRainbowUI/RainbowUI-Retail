@@ -360,13 +360,13 @@ function CraftSim.CRAFTQ:RestockFavorites()
                         local concentrationCosts = recipeData.concentrationCost
                         if CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_RESTOCK_FAVORITES_OFFSET_CONCENTRATION_CRAFT_AMOUNT") then
                             concentrationCosts = concentrationCosts -
-                            (concentrationCosts * recipeData.professionStats.ingenuity:GetPercent(true) * recipeData.professionStats.ingenuity:GetExtraValue())
+                                (concentrationCosts * recipeData.professionStats.ingenuity:GetPercent(true) * recipeData.professionStats.ingenuity:GetExtraValue())
                         end
-                        local queueableAmount = math.floor(currentConcentration / recipeData.concentrationCost)
+                        local queueableAmount = math.floor(currentConcentration / concentrationCosts)
                         if queueableAmount > 0 then
                             CraftSim.CRAFTQ:AddRecipe { recipeData = recipeData, amount = queueableAmount }
                             currentConcentration = currentConcentration -
-                                (recipeData.concentrationCost * queueableAmount)
+                                (concentrationCosts * queueableAmount)
                         end
                     end
                 end
@@ -653,31 +653,6 @@ function CraftSim.CRAFTQ:GetRestockOptionsForRecipe(recipeID)
     restockPerRecipeOptions[recipeID].saleRatePerQuality = restockPerRecipeOptions[recipeID].saleRatePerQuality or {}
 
     return restockPerRecipeOptions[recipeID]
-end
-
--- Function to determine the restock quantity for a given expected item.
---
--- This function retrieves the default restock amount from the database options.
--- If a custom restock key for TSM (TradeSkillMaster) is specified, it attempts to get the restock amount
--- using the TSM API based on the expected item's link. If a valid restock amount is found, it returns that value.
--- Otherwise, it falls back to the default restock amount.
---
----@param expectedItem ItemMixin The item for which the restock quantity is being determined.
----@return number restockAmount Restock quantity for the given expected item.
-function CraftSim.CRAFTQ:GetRestockQuantity(expectedItem)
-    local defaultRestockAmount = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_GENERAL_RESTOCK_RESTOCK_AMOUNT") or 1
-    local tsmExpressionEnabled = CraftSim.DB.OPTIONS:Get("TSM_RESTOCK_KEY_ITEMS_ENABLED")
-    if tsmExpressionEnabled and TSM_API and expectedItem and CraftSim.DB.OPTIONS:Get("TSM_RESTOCK_KEY_ITEMS") ~= "" then
-        local restockAmount = TSM_API.GetCustomPriceValue(CraftSim.DB.OPTIONS:Get("TSM_RESTOCK_KEY_ITEMS"),
-            TSM_API.ToItemString(expectedItem:GetItemLink()))
-        if restockAmount ~= nil then
-            return restockAmount
-        else
-            return defaultRestockAmount
-        end
-    else
-        return defaultRestockAmount
-    end
 end
 
 ---@param recipeData CraftSim.RecipeData
