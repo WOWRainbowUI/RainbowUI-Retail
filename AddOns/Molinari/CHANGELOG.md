@@ -1,6 +1,5 @@
-### Changes in 110000.123-Release:
+### Changes in 110000.124-Release:
 
-- Changed: Updated item database
-- Changed: Updated zhCN translations
-- Changed: Update Interface versions
+- Fixed: Addon blocked error
+- Fixed: Error on login on cataclysm
 
