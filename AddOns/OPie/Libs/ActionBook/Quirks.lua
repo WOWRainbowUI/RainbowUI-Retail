@@ -274,13 +274,18 @@ if MODERN then -- /equipset {not a set name} errors
 	local f = CreateFrame("Button", uniqueName("ABEquipSetQuirk!"), nil, "SecureActionButtonTemplate")
 	f:SetAttribute("pressAndHoldAction", 1)
 	f:SetAttribute("type", "equipmentset")
-	f:SetAttribute("DoEquipCommand", SLASH_CLICK1 .. " " .. f:GetName() .. " 1 1")
+	f:SetAttribute("typerelease", "equipmentset")
+	f:SetAttribute("DoEquipCommand", SLASH_CLICK1 .. " " .. f:GetName())
 	f:SetAttribute("RunSlashCmd", [[-- AB_EquipSetQuirk_Run 
 		local cmd, v = ...
-		if v then
+		if v and v ~= "" then
 			self:SetAttribute("equipmentset", v)
-			return self:GetAttribute("DoEquipCommand")
+			return self:GetAttribute("DoEquipCommand"), "notified-click", v
 		end
+	]])
+	f:SetAttribute("RunSlashCmd-PreClick", [[-- AB_EquipSetQuirk_PreRun 
+		local cmd, v = ...
+		self:SetAttribute("equipmentset", v)
 	]])
 	RW:RegisterCommand(SLASH_EQUIP_SET1, true, false, f)
 end
@@ -313,4 +318,22 @@ end
 
 if MODERN and playerRace ~= "Draenei" and playerRace ~= "LightforgedDraenei" then -- 10.2.7 thinks Draenic Hologem is usable by everyone
 	AB:SetPlayerHasToyOverride(210455, false)
+end
+
+if MODERN then -- Travel form usability/outcome feedback
+	local CAN_FLY, CAN_SWIM = false, false
+	AB:SetSpellIconOverride(783, function()
+		if CAN_SWIM and IsSwimming() then
+			return 132112
+		end
+		return CAN_FLY and (IsFlyableArea() or IsAdvancedFlyableArea()) and not InCombatLockdown() and 132128 or 132144, not IsIndoors()
+	end)
+	local function syncLevel(ev)
+		local lv = UnitLevel("player") or 0
+		CAN_SWIM = CAN_SWIM or lv >= 17
+		CAN_FLY = CAN_FLY or lv >= 30
+		return (ev == "PLAYER_LOGIN" or CAN_FLY and CAN_SWIM) and "remove"
+	end
+	EV.PLAYER_LEVEL_UP = syncLevel
+	EV.PLAYER_LOGIN = syncLevel
 end

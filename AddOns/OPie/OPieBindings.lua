@@ -118,10 +118,17 @@ function ringBindings:shiftClick()
 end
 
 local subBindings = { name=L"In-Ring Bindings",
-	options={"ScrollNestedRingUpButton", "ScrollNestedRingDownButton", "OpenNestedRingButton", "SelectedSliceBind"},
-	optionNames={L"Scroll nested ring (up)", L"Scroll nested ring (down)", L"Open nested ring", L"Selected slice (keep ring open)"},
+	options={"ScrollNestedRingUpButton", "ScrollNestedRingDownButton", "OpenNestedRingButton", "SelectedSliceBind", "SelectedCloseBind"},
+	optionNames={L"Scroll nested ring (up)", L"Scroll nested ring (down)", L"Open nested ring", L"Selected slice (keep ring open)", L"Selected slice (close ring)"},
 	count=0, t={}
 }
+local function adjustBindingID(scope, id)
+	local prefixLength = scope and 2 or 5
+	if id <= prefixLength then
+		return true, id + (scope and 3 or 0), prefixLength
+	end
+	return false, id - prefixLength, prefixLength
+end
 function subBindings.allowWheel(btn)
 	return btn:GetID() <= 2 and not subBindings.scope
 end
@@ -133,35 +140,50 @@ function subBindings:refresh(scope)
 	for s, s2 in PC:GetOption("SliceBindingString", scope):gmatch("([^%s\31]+)\31?(%S*)") do
 		t[ni], t[ni+0.5], ni = s, s2, ni + 1
 	end
-	subBindings.t, subBindings.count = t, ni+(scope and 1 or 4)
+	subBindings.t, subBindings.count = t, ni+(scope and 2 or 5)
 end
 function subBindings:get(id)
-	local firstListSize = self.scope and 1 or 4
-	if id <= firstListSize then
-		id = (self.scope and 3 or 0) + id
+	local inPrefix, id = adjustBindingID(self.scope, id)
+	if inPrefix then
 		local value, setting = PC:GetOption(self.options[id], self.scope)
 		local value2, setting2 = PC:GetOption(self.options[id] .. "2", self.scope)
 		return value, self.optionNames[id], setting and "|cffffffff" or nil, nil, nil, nil, nil, value2, setting2 and "|cffffffff" or nil
 	end
-	id = id - firstListSize
 	local b, b2 = self.t[id], self.t[id+0.5]
 	b, b2 = b ~= "false" and b or "", b2 ~= "false" and b2 or ""
 	return b, (L"Slice #%d"):format(id), nil, nil, nil, nil, nil, b2
 end
 function subBindings:set(id, bind, bidx)
-	local firstListSize = self.scope and 1 or 4
-	if id > firstListSize then
-		return subBindings:setSliceBinding(id - firstListSize, bind, bidx, firstListSize)
+	local inPrefix, id, prefixLength = adjustBindingID(self.scope, id)
+	if not inPrefix then
+		return subBindings:setSliceBinding(id, bind, bidx, prefixLength)
 	end
-	id = (self.scope and 3 or 0) + id
 	config.undo:saveActiveProfile()
 	local opt = self.options[id] .. (bidx == 2 and "2" or "")
 	PC:SetOption(opt, bind or nil, self.scope)
 	if bind == false and PC:GetOption(opt, self.scope) ~= "" then
 		PC:SetOption(opt, "", self.scope)
 	end
+	if bind then
+		subBindings:clearBinding(bind, opt)
+	end
 end
-function subBindings:setSliceBinding(sliceIdx, bind, bidx, firstListSize)
+function subBindings:clearBinding(bind, exceptOpt)
+	local scope, opts = self.scope, subBindings.options
+	local _, startID, prefixLength = adjustBindingID(scope, 1)
+	for i=startID, startID+prefixLength-1 do
+		for j=1, 2 do
+			local opt = j == 2 and opts[i] .. "2" or opts[i]
+			if opt ~= exceptOpt and bind == PC:GetOption(opt, scope) then
+				PC:SetOption(opt, nil, scope)
+				if bind == PC:GetOption(opt, scope) then
+					PC:SetOption(opt, "", scope)
+				end
+			end
+		end
+	end
+end
+function subBindings:setSliceBinding(sliceIdx, bind, bidx, prefixLength)
 	if bind == nil then
 		local i, s, s2 = 1, select(self.scope == nil and 5 or 4, PC:GetOption("SliceBindingString", self.scope))
 		for f, f2 in (s or s2):gmatch("([^%s\31]+)\31?(%S*)") do
@@ -189,7 +211,7 @@ function subBindings:setSliceBinding(sliceIdx, bind, bidx, firstListSize)
 		end
 	end
 	
-	self.t, self.count = nt, (finalIndex or 0) + firstListSize + 1
+	self.t, self.count = nt, (finalIndex or 0) + prefixLength + 1
 	local _, _, _, global, default = PC:GetOption("SliceBindingString", self.scope)
 	local v = table.concat(o, " ")
 	if self.scope == nil and v == default or
@@ -198,6 +220,9 @@ function subBindings:setSliceBinding(sliceIdx, bind, bidx, firstListSize)
 	end
 	config.undo:saveActiveProfile()
 	PC:SetOption("SliceBindingString", v, self.scope)
+	if bind then
+		subBindings:clearBinding(bind, nil)
+	end
 end
 local subBindings_List = {}
 local function subBindings_ScopeClick(_, key)

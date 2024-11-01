@@ -202,6 +202,7 @@ do -- spell: spell ID + mount spell ID
 			return t[k]
 		end})
 	end
+	local iconOverrideHandlers = {}
 	local function spellHint(n, _modState, target)
 		if not n then return end
 		local sname, _, _, _, _, _, sid = GetSpellInfo(n)
@@ -220,8 +221,15 @@ do -- spell: spell ID + mount spell ID
 		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
 			cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
 		end
+		local ih, ico, ohUsable = iconOverrideHandlers[msid], nil
+		if ih then
+			ico, ohUsable = ih(msid, n)
+			if ohUsable ~= nil then
+				usable = ohUsable == true
+			end
+		end
 		local sbslot = msid and msid ~= 161691 and FindSpellBookSlotBySpellID(msid)
-		return usable, state, GetSpellTexture(n), sname or n, count <= 1 and charges or count, cdLeft, cdLength, sbslot and SetSpellBookItem or msid and SetSpellByID, sbslot or msid
+		return usable, state, ico or GetSpellTexture(n), sname or n, count <= 1 and charges or count, cdLeft, cdLength, sbslot and SetSpellBookItem or msid and SetSpellByID, sbslot or msid
 	end
 	function spellFeedback(sname, target, spellId)
 		spellMap[sname] = spellId or spellMap[sname] or getSpellIDFromName(sname)
@@ -300,6 +308,12 @@ do -- spell: spell ID + mount spell ID
 			end
 		end
 		AB:NotifyObservers("spell")
+	end
+	function AB.HUM:SetSpellIconOverride(id, f)
+		if not (type(id) == "number" and (f == nil or type(f) == "function")) then
+			return error('SetSpellIconOverride: invalid arguments', 2)
+		end
+		iconOverrideHandlers[id] = f
 	end
 end
 do -- item: items ID/inventory slot
@@ -703,6 +717,12 @@ if MODERN or CF_WRATH then -- equipmentset: equipment sets by name
 			return total == equipped or (available > 0), active and 1 or 0, resolveIcon(icon), name, nil, 0, 0, callMethod.SetEquipmentSet, esid
 		end
 	end
+	local function wrapCommandHint(...)
+		local _, state = ...
+		if state then
+			return true, ...
+		end
+	end
 	function EV.EQUIPMENT_SETS_CHANGED()
 		AB:NotifyObservers("equipmentset")
 	end
@@ -710,7 +730,7 @@ if MODERN or CF_WRATH then -- equipmentset: equipment sets by name
 		return "attribute", "type","equipmentset", "equipmentset",name
 	end
 	local function equipSetActionSpec_SLASH(name)
-		-- [3.4.2] /equipset exists but SABT action type does not
+		-- [3.4.2] [4.4.1] /equipset exists but the SABT action type does not
 		return "macrotext", SLASH_EQUIP_SET1 .. " " .. name
 	end
 	equipSetActionSpec, equipSetActionSpec_SLASH = MODERN and equipSetActionSpec or equipSetActionSpec_SLASH, nil
@@ -730,7 +750,7 @@ if MODERN or CF_WRATH then -- equipmentset: equipment sets by name
 	AB:RegisterActionType("equipmentset", createEquipSet, describeEquipSet, 1)
 	RW:SetCommandHint(SLASH_EQUIP_SET1, 80, function(_, _, clause)
 		if clause and clause ~= "" then
-			return true, equipmentsetHint(clause)
+			return wrapCommandHint(equipmentsetHint(clause))
 		end
 	end)
 end
@@ -1128,7 +1148,7 @@ if MODERN or CF_WRATH then -- toy: item ID, flags[FORCE_SHOW]
 	end)
 	function AB.HUM:SetPlayerHasToyOverride(id, filter)
 		local tf = type(filter)
-		if not (type(id) == "number" and tf == "nil" or tf == "boolean" or tf == "function") then
+		if not (type(id) == "number" and (tf == "nil" or tf == "boolean" or tf == "function")) then
 			return error('SetPlayerHasToyOverride: invalid arguments', 2)
 		end
 		OVERRIDE_TOY_ACQUIRED[id] = filter
