@@ -47,7 +47,7 @@ V =
       "天賦專精和旅行", "輸入圖示檔案名稱、材質路徑、圖集名稱或已知的技能名稱來指定圖示。", "將環的設定字串分享給其他人用。", "目標標記圖示", "將會依據巨集條件更新按鍵綁定。", "使用下列的巨集指令來展開這個環:", "這些設定", "這個外觀可能不支援 OPie 的全部功能。", "其他插件正在使用這個按鍵綁定。", "無法使用這個按鍵綁定，因為已用於其他地方。",
       "專業技能", "飾品", "瞭解; 仍要繼續編輯", "復原變更", "游標未移動", "游標未移動，或在環中心", "需要更新", "使用預設的環按鍵綁定", "展開時使用第一個功能", "使用整體設定",
       "使用功能", "使用功能後關閉環", "工具", "虛擬滑鼠游標", "顯示條件:", "術士戰鬥", "術士一般", "環展開時:", "世界標記圖示", "記憶體不足! 魔獸世界無法載入 OPie 已儲存的變數，請停用其它插件。\n\n現在做的任何變更都不會被儲存。",
-      "稍後可以取消或還原成先前的設定。", "可以使用擴充的巨集條件式；詳細內容請看 %s。", "要使用快速功能，必須在 OPie 選項中替這個環啟用 %s 互動。", "預設", "快捷列-環形", "每個功能按鍵綁定:",
+      "稍後可以取消或還原成先前的設定。", "可以使用擴充的巨集條件式；詳細內容請看 %s。", "要使用快速功能，必須在 OPie 選項中替這個環啟用 %s 互動。", "預設", "快捷列-環形", "每個功能按鍵綁定:", "自訂環內按鍵綁定", "選擇的功能 (關閉環)",
     } or nil
 
 K = V and {
@@ -71,7 +71,7 @@ K = V and {
       "Specializations and Travel", "Specify an icon by entering an icon file name, texture path, atlas name, or a known ability name.", "Take a snapshot of this ring to share it with others.", "Target Markers", "The binding will update to reflect the value of this macro conditional.", "The following macro command opens this ring:", "These Settings", "This appearance may not support all OPie features.", "This binding is currently used by another addon.", "This binding is not currently active because it conflicts with another.",
       "Trade Skills", "Trinkets", "Understood; edit anyway", "Undo changes", "Unmoved cursor", "Unmoved cursor, or at ring center", "Update required", "Use default ring bindings", "Use first slice when opened", "Use global setting",
       "Use slice", "Use slice and close ring", "Utility", "Virtual mouse cursor", "Visibility conditional:", "Warlock Combat", "Warlock General", "While a ring is open:", "World Markers", "World of Warcraft could not load OPie's saved variables due to a lack of memory. Try disabling other addons.\n\nAny changes you make now will not be saved.",
-      "You can cancel or revert to previous settings later.", "You may use extended macro conditionals; see %s for details.", "You must enable a %s interaction for this ring in OPie options to use quick actions.", "default", "OPie", "Per-slice bindings:"
+      "You can cancel or revert to previous settings later.", "You may use extended macro conditionals; see %s for details.", "You must enable a %s interaction for this ring in OPie options to use quick actions.", "default", "OPie", "Per-slice bindings:", "Customize in-ring bindings", "Selected slice (close ring)",
 }
 
 local L = K and {}
