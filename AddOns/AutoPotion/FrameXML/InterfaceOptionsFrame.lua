@@ -25,7 +25,7 @@ function ham.settingsFrame:updateConfig(option, value)
         ham.options[option] = value  -- Update in-memory
         HAMDB[option] = value        -- Persist to DB
     else
-        print("Invalid option: " .. tostring(option))
+        print("無效的選項: " .. tostring(option))
     end
 	-- Rebuild the macro and update priority frame
 	ham.checkTinker()
@@ -199,7 +199,7 @@ function ham.settingsFrame:InitializeOptions()
     if InterfaceOptions_AddCategory then
         InterfaceOptions_AddCategory(self.panel)
     else
-        local category = Settings.RegisterCanvasLayoutCategory(self.panel, addonName)
+        local category = Settings.RegisterCanvasLayoutCategory(self.panel, "一鍵吃糖")
         Settings.RegisterAddOnCategory(category)
         self.panel.categoryID = category:GetID() -- for OpenToCategory use
     end
