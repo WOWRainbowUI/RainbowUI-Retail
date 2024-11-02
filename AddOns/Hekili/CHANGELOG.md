@@ -1,42 +1,48 @@
 # Hekili
 
-## [v11.0.5-1.0.7](https://github.com/Hekili/hekili/tree/v11.0.5-1.0.7) (2024-10-30)
-[Full Changelog](https://github.com/Hekili/hekili/compare/v11.0.5-1.0.6b...v11.0.5-1.0.7) [Previous Releases](https://github.com/Hekili/hekili/releases)
+## [v11.0.5-1.0.8](https://github.com/Hekili/hekili/tree/v11.0.5-1.0.8) (2024-11-01)
+[Full Changelog](https://github.com/Hekili/hekili/compare/v11.0.5-1.0.7...v11.0.5-1.0.8) [Previous Releases](https://github.com/Hekili/hekili/releases)
 
+- Destro Shadowburn update  
+- Revise Alacrity  
 - Merge branch 'thewarwithin' of https://github.com/Hekili/hekili into thewarwithin  
-- Frost DK SimC update  
-- Merge pull request #4115 from johnnylam88/feat/reserve-vanish-charges  
-    feat: add slider to reserve Vanish charges for rogues  
-- Screenshot on manual snapshots  
-- Merge branch 'thewarwithin' of https://github.com/Hekili/hekili into thewarwithin  
-- Handle Demonic Healthstones  
-- Merge pull request #4122 from syrifgit/syrif-hunter  
-    BM - no more multishot in ST  
-- BM - no more multishot in ST  
-    hasn't been updated on the official APL yet, but this is no longer relevant due to multiple bug fixes  
-- Merge pull request #4121 from syrifgit/syrif-rogue  
-    Sin rogue - carnage effect  
-- Merge pull request #4120 from syrifgit/syrif-mage  
-    Arcane mage - Barrage Spam  
-- Shadow: Improve Unfurling Darkness CD  
-- Merge branch 'thewarwithin' of https://github.com/Hekili/hekili into thewarwithin  
-- Arms, Ele, Fury sim updates  
-- no reactions here  
-- Sin rogue: Better APL support for no-target-swap users  
-- Sin rogue  
-    old carnage handling for previous iteration of the effect  
-- Update MageArcane.simc  
-    Replace react with up/down/stack  
-- Arcane mage - fix barrage spam due to touch desync  
-- Arcane pack string  
-- feat: add slider to reserve Vanish charges for rogues  
-    Fixes #3855.  
-- Merge pull request #4113 from johnnylam88/fix/bonestorm-bone-shield  
-    fix: Bone Shield stacks return zero during Bonestorm  
-- fix: add correct events and times for Bone Shield gains during Bonestorm  
-    Fix an off-by-one error for the correct tick times for adding stacks to  
-    the Bone Shield, and also use the correct function `QueueAuraEvent` to  
-    queue the tick event.  
-- fix: correct 2nd argument to `removeStack`  
-    The second argument to `removeStack` should be the number of stacks of  
-    the aura to remove, which is contained in `consume`.  
+- Merge pull request #4124 from syrifgit/syrif-rogue  
+    Rogue Improvements  
+- SoD match recharge and cooldown  
+- space  
+- tier shoulders  
+- shadow\_Dance -> dance  
+- Alacrity  
+- Update RogueOutlaw.lua  
+- Update RogueOutlaw.lua  
+    I was wrong about the nested if bc of Blade Flurry.  
+- Review notes implemented  
+- Lingering Shadow / Lingering Darkness, Alacrity, Symbolic Victory  
+- Merge branch 'syrif-rogue' of https://github.com/syrifgit/syrif-hekili into syrif-rogue  
+- Update RogueAssassination.lua  
+    Remove blank line  
+- Deathstalkers mark, first dance, new APL (simc sync),  supercharger  
+- Update RogueAssassination.simc  
+    remove blank line  
+- Support recheck timing of Diabolic Art/Ritual  
+- MW: Update ToP Buffs  
+- sin fixes, more sub modelling  
+- typos  
+- rotten buff  
+- Sub rogue, first pass  
+    Still todo: Evisc, black powder, technique, cold blood, shadownblades, goremaw, dance  
+- Outlaw - remove unneeded code  
+- Minor outlaw tweaks  
+- nerien notes  
+- Merge branch 'Hekili:thewarwithin' into syrif-rogue  
+- sub accuracy tweaks  
+- outlaw accuracy tweaks  
+- Smarter Garrotes for no-target-swap  
+    also, spell\_targets isn't real apparently  
+- Fix #4094  
+- Fix #4125  
+- Review notes implemented  
+    also changed to FoK spell\_targets for more accuracy  
+- Fix Thorim's Invocation  
+- Better fan CP prediction  
+- fan of knives stuff?  

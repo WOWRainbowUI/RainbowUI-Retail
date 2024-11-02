@@ -283,15 +283,14 @@ spec:RegisterAuras( {
         duration = 3,
         max_stack = 1,
     },
-    perforated_veins_stack = {
+    perforated_veins = {
         id = 394254,
         duration = 3600,
         max_stack = 4
     },
-    -- At $394254u stacks, your next attack that generates combo points deals $w1% increased damage.
-    perforated_veins = {
-        id = 426602,
-        duration = 3600,
+    poised_shadows = {
+        id = 455573,
+        duration = 30,
         max_stack = 1,
     },
     premeditation = {
@@ -370,14 +369,23 @@ spec:RegisterAuras( {
         max_stack = function() return combo_points.max end,
         copy = { "supercharge", "supercharged", "supercharger" }
     },
-    symbols_of_death_crit = {
-        id = 227151,
+    symbols_of_death = {
+        id = 212283,
         duration = 10,
         max_stack = 1,
-        copy = "symbols_of_death_autocrit"
     },
     -- Talent: Your next Shadowstrike or $?s200758[Gloomblade][Backstab] deals $s3% increased damage, generates $s1 additional combo points, and is guaranteed to critically strike.
     -- https://wowhead.com/beta/spell=394203
+    the_first_dance_prep = {
+        id = 470678,
+        duration = 3600,
+        max_stack = 1,
+    },
+    the_first_dance_prep = {
+        id = 470677,
+        duration = 6,
+        max_stack = 1,
+    },
     the_rotten = {
         id = 394203,
         duration = 30,
@@ -405,11 +413,6 @@ spec:RegisterAuras( {
         id = 286131,
         duration = 1,
         max_stack = 50
-    },
-    the_first_dance = {
-        id = 278981,
-        duration = function () return buff.shadow_dance.duration end,
-        max_stack = 1,
     },
 
     -- Conduit
@@ -587,7 +590,7 @@ spec:RegisterStateExpr( "effective_combo_points", function ()
 
     if c > 0 and buff.supercharged_combo_points.up then
         c = c + ( talent.forced_induction.enabled and 3 or 2 )
-    end -- todo: Find out if these stack like this or not? coup de gace and supercharge
+    end
 
     if talent.coup_de_grace.enabled and this_action == "coup_de_grace" and buff.coup_de_grace.up then c = c + 5 end
     return c
@@ -598,29 +601,31 @@ end )
 spec:RegisterGear( "cinidaria_the_symbiote", 133976 )
 spec:RegisterGear( "denial_of_the_halfgiants", 137100 )
 
-local function comboSpender( amt, resource )
-    if resource == "combo_points" then
-        if amt > 0 then
-            gain( 6 * amt, "energy" )
+spec:RegisterHook( "spend", function( amt, resource )
+    if amt > 0 and resource == "combo_points" then
+        if talent.relentless_strikes.enabled and amt > 0 then
+            gain( 5 * effective_combo_points, "energy" )
         end
 
-        if talent.alacrity.enabled and amt >= 10 then
-            addStack( "alacrity" )
+        if effective_combo_points > 4 and debuff.deathstalkers_mark.up then
+            removeDebuffStack( "target", "deathstalkers_mark" )
+            if debuff.deathstalkers_mark.down and talent.darkest_night.enabled then
+                    gain( 40, "energy" )
+                    applyBuff( "darkest_night" )
+                end
+            applyBuff( "deathstalkers_mark_buff" )
         end
 
-        if talent.secret_technique.enabled then
-            reduceCooldown( "secret_technique", amt )
-        end
+        if talent.alacrity.rank > 1 and effective_combo_points > 9 then addStack( "alacrity" ) end
+        if talent.secret_technique.enabled then reduceCooldown( "secret_technique", amt ) end
+        if talent.deepening_shadows.enabled then reduceCooldown( "shadow_dance", amt * effective_combo_points ) end
+        if talent.supercharger.enabled and buff.supercharged_combo_points.up then removeStack( "supercharged_combo_points" ) end
 
-        if talent.deepening_shadows.enabled then reduceCooldown( "shadow_dance", amt * 0.5 ) end
-
-        if legendary.obedience.enabled and buff.flagellation_buff.up then
-            reduceCooldown( "flagellation", amt )
-        end
+        -- Legacy
+        if legendary.obedience.enabled and buff.flagellation_buff.up then reduceCooldown( "flagellation", amt ) end
     end
-end
+end )
 
-spec:RegisterHook( "spend", comboSpender )
 
 local function st_gain( token )
     local amount = action[ token ].cp_gain
@@ -699,6 +704,10 @@ local TriggerLingeringDarkness = setfenv( function ()
     applyBuff( "lingering_darkness" )
 end, state )
 
+local TriggerLingeringShadow = setfenv( function ()
+    applyBuff( "lingering_shadow" )
+end, state )
+
 
 spec:RegisterStateTable( "danse_macabre_tracker", setmetatable( {}, {
     __index = function( t, k )
@@ -761,9 +770,14 @@ spec:RegisterHook( "reset_precast", function( amt, resource )
 
     if buff.cold_blood.up then setCooldown( "cold_blood", action.cold_blood.cooldown ) end
 
-    if talent.lingering_darkness.enabled and buff.shadow_dance.up then
-        state:QueueAuraEvent( "lingering_darkness", TriggerLingeringDarkness, buff.shadow_dance.expires, "AURA_EXPIRATION" )
+    if talent.lingering_darkness.enabled and buff.shadow_blades.up then
+        state:QueueAuraEvent( "lingering_darkness", TriggerLingeringDarkness, buff.shadow_blades.expires, "AURA_EXPIRATION" )
     end
+
+    if talent.lingering_shadow.enabled and buff.shadow_dance.up then
+        state:QueueAuraEvent( "lingering_shadow", TriggerLingeringShadow, buff.shadow_dance.expires, "AURA_EXPIRATION" )
+    end
+
 end )
 
 spec:RegisterHook( "step", function()
@@ -830,19 +844,13 @@ spec:RegisterGear( "will_of_valeera", 137069 )
     } )
 
 
--- Tier Sets
-spec:RegisterGear( "tier21", 152163, 152165, 152161, 152160, 152162, 152164 )
-spec:RegisterGear( "tier20", 147172, 147174, 147170, 147169, 147171, 147173 )
-spec:RegisterGear( "tier19", 138332, 138338, 138371, 138326, 138329, 138335 )
 
--- Tier 31
-spec:RegisterGear( "tier31", 207234, 207235, 207236, 207237, 207239, 217208, 217210, 217206, 217207, 217209 )
-
--- Tier 30
-spec:RegisterGear( "tier30", 202500, 202498, 202497, 202496, 202495 )
--- Shadow Dance is in RogueAssassination.lua, so the 2pc bonus is handled there.
+--- The War Within
+spec:RegisterGear( "tww1", 212039, 212037, 212041, 212038, 212036 )
 
 -- DF Tier Set
+spec:RegisterGear( "tier31", 207234, 207235, 207236, 207237, 207239, 217208, 217210, 217206, 217207, 217209 )
+spec:RegisterGear( "tier30", 202500, 202498, 202497, 202496, 202495 )
 spec:RegisterGear( "tier29", 200369, 200371, 200372, 200373, 200374 )
 spec:RegisterAuras( {
     honed_blades = {
@@ -857,6 +865,10 @@ spec:RegisterAuras( {
     }
 })
 
+-- Old Tier Sets
+spec:RegisterGear( "tier21", 152163, 152165, 152161, 152160, 152162, 152164 )
+spec:RegisterGear( "tier20", 147172, 147174, 147170, 147169, 147171, 147173 )
+spec:RegisterGear( "tier19", 138332, 138338, 138371, 138326, 138329, 138335 )
 
 
 -- Abilities
@@ -876,9 +888,8 @@ spec:RegisterAbilities( {
         notalent = "gloomblade",
 
         cp_gain = function ()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
-            return 1 + ( buff.broadside.up and 1 or 0 )
+            if buff.shadow_blades.up or buff.premeditation.up then return combo_points.max end
+            return 1
         end,
 
         used_for_danse = function()
@@ -887,21 +898,34 @@ spec:RegisterAbilities( {
         end,
 
         handler = function ()
+
+            if talent.perforated_veins.enabled then
+                if buff.perforated_veins.stack < 4 then
+                    addStack( "perforated_veins" )
+                else removeBuff( "perforated_veins" )
+                end
+            end
+
+            if buff.the_rotten.up and talent.improved_backstab.enabled then
+                removeStack( "the_rotten" )
+                applyDebuff( "target", "find_weakness" )
+            end
+
+            if talent.inevitability.enabled and buff.symbols_of_death.up then
+                buff.symbols_of_death.expires = buff.symbols_of_death.expires + 0.5
+            end
+
+            st_gain( "backstab" )
+
+            removeBuff( "premeditation" )
+            removeBuff( "the_rotten" )
             removeBuff( "honed_blades" )
-            applyDebuff( "target", "shadows_grasp", 8 )
 
             if azerite.perforate.enabled and buff.perforate.up then
                 -- We'll assume we're attacking from behind if we've already put up Perforate once.
                 addStack( "perforate" )
                 gainChargeTime( "shadow_blades", 0.5 )
             end
-
-            st_gain( "backstab" )
-
-            removeBuff( "perforated_veins" )
-            removeBuff( "premeditation" )
-            removeBuff( "symbols_of_death_crit" )
-            removeBuff( "the_rotten" )
         end,
 
         bind = "gloomblade"
@@ -933,7 +957,7 @@ spec:RegisterAbilities( {
         handler = function ()
             removeBuff( "masterful_finish" )
 
-            if talent.alacrity.enabled and effective_combo_points > 4 then addStack( "alacrity" ) end
+            if talent.symbolic_victory.enabled and buff.symbolic_victory.up then removeBuff( "symbolic_victory" ) end
 
             if buff.finality_black_powder.up then removeBuff( "finality_black_powder" )
             elseif talent.finality.enabled then applyBuff( "finality_black_powder" ) end
@@ -941,7 +965,7 @@ spec:RegisterAbilities( {
             if set_bonus.tier29_2pc > 0 then applyBuff( "honed_blades", nil, effective_combo_points ) end
 
             spend( combo_points.current, "combo_points" )
-            removeStack( "supercharged_combo_points" )
+            
             if talent.deeper_daggers.enabled or conduit.deeper_daggers.enabled then applyBuff( "deeper_daggers" ) end
         end,
     },
@@ -969,9 +993,8 @@ spec:RegisterAbilities( {
         end,
 
         cp_gain = function()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
-            return 1 + ( talent.seal_fate.enabled and ( buff.cold_blood.up or buff.the_rotten.up ) and 1 or 0 )
+            if buff.shadow_blades.up or buff.premeditation.up then return combo_points.max end
+            return 1
         end,
 
         handler = function ()
@@ -982,43 +1005,8 @@ spec:RegisterAbilities( {
             st_gain( "cheap_shot" )
             removeBuff( "premeditation" )
 
-            if buff.cold_blood.up then removeBuff( "cold_blood" )
-            elseif buff.the_rotten.up then removeStack( "the_rotten" ) end
-        end,
-    },
-
-    -- Talent: Deal $s1 Arcane damage to an enemy, extracting their anima to Animacharge a combo point for $323558d.    Damaging finishing moves that consume the same number of combo points as your Animacharge function as if they consumed $s2 combo points.    |cFFFFFFFFAwards $s3 combo $lpoint:points;.|r
-    echoing_reprimand = {
-        id = 323547,
-        cast = 0,
-        cooldown = 45,
-        gcd = "totem",
-        school = "arcane",
-
-        spend = 10,
-        spendType = "energy",
-
-        startsCombat = true,
-        toggle = "cooldowns",
-
-        usable = function() return covenant.kyrian end,
-
-        cp_gain = function ()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
-            return 2 + ( buff.broadside.up and 1 or 0 ) + ( talent.seal_fate.enabled and ( buff.cold_blood.up or buff.the_rotten.up ) and 1 or 0 )
-        end,
-
-        handler = function ()
-            -- Can't predict the Animacharge, unless you have the talent/legendary.
-
-            st_gain( "echoing_reprimand" )
-            removeBuff( "premeditation" )
-
             if buff.the_rotten.up then removeStack( "the_rotten" ) end
         end,
-
-        copy = { 385616, 323547 },
     },
 
     -- Finishing move that disembowels the target, causing damage per combo point. Targets with Find Weakness suffer an additional 20% damage as Shadow. 1 point : 273 damage 2 points: 546 damage 3 points: 818 damage 4 points: 1,091 damage 5 points: 1,363 damage 6 points: 1,636 damage
@@ -1052,9 +1040,6 @@ spec:RegisterAbilities( {
                 removeBuff( "coup_de_grace" )
             end
 
-            if talent.alacrity.enabled and combo_points.current > 4 then
-                addStack( "alacrity" )
-            end
             removeBuff( "nights_vengeance" )
 
             if buff.finality_eviscerate.up then removeBuff( "finality_eviscerate" )
@@ -1064,10 +1049,15 @@ spec:RegisterAbilities( {
                 applyDebuff( "target", "deathstalkers_mark", nil, debuff.deathstalkers_mark.stack + 3 )
             end
 
+            if talent.symbolic_victory.enabled and buff.symbolic_victory.up then removeBuff( "symbolic_victory" ) end
+
             if set_bonus.tier29_2pc > 0 then applyBuff( "honed_blades", nil, effective_combo_points ) end
 
+            if buff.slice_and_dice.up then
+                buff.slice_and_dice.expires = buff.slice_and_dice.expires + effective_combo_points * 3
+            else applyBuff( "slice_and_dice", effective_combo_points * 3 ) end
+
             spend( combo_points.current, "combo_points" )
-            removeStack( "supercharged_combo_points" )
 
             if talent.deeper_daggers.enabled or conduit.deeper_daggers.enabled then applyBuff( "deeper_daggers" ) end
         end,
@@ -1113,7 +1103,6 @@ spec:RegisterAbilities( {
         school = "shadow",
 
         spend = function ()
-            if buff.goremaws_bite.up then return 0 end
             return 40 * ( ( talent.shadow_focus.enabled and ( buff.shadow_dance.up or buff.stealth.up ) ) and 0.95 or 1 )
         end,
         spendType = "energy",
@@ -1122,19 +1111,15 @@ spec:RegisterAbilities( {
         startsCombat = true,
 
         cp_gain = function()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
-            return 1 + ( talent.seal_fate.enabled and ( buff.cold_blood.up or buff.the_rotten.up ) and 1 or 0 )
+            if buff.shadow_blades.up or buff.premeditation.up then return combo_points.max
+            else return 1 end
         end,
 
         handler = function ()
-            applyDebuff( "target", "shadows_grasp", 8 )
-
             st_gain( "gloomblade" )
             removeBuff( "premeditation" )
 
-            if buff.the_rotten.up then removeStack( "the_rotten" )
-            else removeBuff( "symbols_of_death_crit" ) end
+            if buff.the_rotten.up then removeStack( "the_rotten" ) end
         end,
 
         bind = "backstab"
@@ -1155,9 +1140,8 @@ spec:RegisterAbilities( {
         startsCombat = true,
 
         cp_gain = function()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
-            return 3 + ( talent.seal_fate.enabled and ( buff.cold_blood.up or buff.the_rotten.up ) and 1 or 0 )
+            if buff.shadow_blades.up or buff.premeditation.up then return combo_points.max end
+            return 3
         end,
 
         handler = function()
@@ -1201,9 +1185,8 @@ spec:RegisterAbilities( {
         usable = function () return combo_points.current > 0, "requires combo_points" end,
         handler = function ()
             applyBuff( "secret_technique" ) -- fake buff for APL logic.
-            removeStack( "goremaws_bite" )
-            if talent.alacrity.enabled and combo_points.current > 4 then addStack( "alacrity" ) end
-            spend( min( talent.deeper_stratagem.enabled and 6 or 5, combo_points.current ), "combo_points" )
+            if talent.goremaws_bite.enabled and buff.goremaws_bite.up then removeStack( "goremaws_bite" ) end
+            spend( combo_points.current, "combo_points" )
         end,
     },
 
@@ -1211,7 +1194,7 @@ spec:RegisterAbilities( {
     shadow_blades = {
         id = 121471,
         cast = 0,
-        cooldown = function () return ( essence.vision_of_perfection.enabled and 0.87 or 1 ) * 90 * ( pvptalent.thiefs_bargain.enabled and 0.8 or 1 ) end,
+        cooldown = function () return 90 * ( essence.vision_of_perfection.enabled and 0.87 or 1 ) * ( pvptalent.thiefs_bargain.enabled and 0.8 or 1 ) end,
         gcd = "off",
         school = "physical",
 
@@ -1222,6 +1205,7 @@ spec:RegisterAbilities( {
 
         handler = function ()
             applyBuff( "shadow_blades" )
+
         end,
     },
 
@@ -1229,9 +1213,9 @@ spec:RegisterAbilities( {
     shadow_dance = {
         id = 185313,
         cast = 0,
-        charges = function () return 1 + talent.double_dance.rank end,
+        charges = function () if talent.double_dance.enabled then return 2 or nil end end,
         cooldown = 60,
-        recharge = 6,
+        recharge = function () if talent.double_dance.enabled then return 60 or nil end end,
         gcd = "off",
 
         startsCombat = false,
@@ -1277,7 +1261,6 @@ spec:RegisterAbilities( {
         school = "physical",
 
         spend = function ()
-            if buff.goremaws_bite.up then return 0 end
             return ( 45 - ( azerite.blade_in_the_shadows.enabled and 2 or 0 ) ) * ( ( talent.shadow_focus.enabled and ( buff.shadow_dance.up or buff.stealth.up ) ) and 0.95 or 1 )
         end,
         spendType = "energy",
@@ -1286,9 +1269,8 @@ spec:RegisterAbilities( {
         cycle = function () return talent.find_weakness.enabled and "find_weakness" or nil end,
 
         cp_gain = function ()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
-            return 2 + ( talent.improved_ambush.enabled and 1 or 0 ) + ( buff.broadside.up and 1 or 0 )
+            if buff.shadow_blades.up or buff.premeditation.up then return combo_points.max end
+            return 2 + ( talent.improved_ambush.enabled and 1 or 0 )
         end,
 
         usable = function () return stealthed.all or buff.sepsis_buff.up, "requires stealth or sepsis_buff" end,
@@ -1301,32 +1283,30 @@ spec:RegisterAbilities( {
         handler = function ()
             st_gain( "shadowstrike" )
 
-            removeBuff( "honed_blades" )
-            removeBuff( "premeditation" )
-            removeBuff( "symbols_of_death_crit" )
-            removeBuff( "the_rotten" )
-
-            if azerite.blade_in_the_shadows.enabled then addStack( "blade_in_the_shadows" ) end
-            if buff.premeditation.up then
-                if buff.slice_and_dice.up then
-                    if buff.slice_and_dice.remains < 10 then buff.slice_and_dice.expires = query_time + 10 end
-                else
-                    applyBuff( "slice_and_dice", 10 )
+            if buff.the_rotten.up then
+                removeStack( "the_rotten" )
+                if talent.improved_backstab.enabled then
+                    applyDebuff( "target", "find_weakness" )
                 end
+            end
+            
+
+            if buff.premeditation.up then
                 removeBuff( "premeditation" )
             end
 
             if talent.deathstalkers_mark.enabled and stealthed.all then
                 applyDebuff( "target", "deathstalkers_mark", nil, 3 )
+                if talent.clear_the_witnesses.enabled then applyBuff( "clear_the_witnesses" ) end
             end
 
+            if buff.sepsis_buff.up then removeBuff( "sepsis_buff" ) end
             if conduit.perforated_veins.enabled then
                 addStack( "perforated_veins" )
             end
+            if azerite.blade_in_the_shadows.enabled then addStack( "blade_in_the_shadows" ) end
 
-            removeBuff( "sepsis_buff" )
 
-            applyDebuff( "target", "find_weakness" )
         end,
 
         bind = "ambush"
@@ -1356,9 +1336,8 @@ spec:RegisterAbilities( {
         startsCombat = true,
 
         cp_gain = function ()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
-            return 1 + ( buff.broadside.up and 1 or 0 )
+            if buff.shadow_blades.up or buff.premeditation.up then return combo_points.max end
+            return 1
         end,
 
         handler = function ()
@@ -1378,8 +1357,7 @@ spec:RegisterAbilities( {
         school = "physical",
 
         spend = function ()
-            if buff.goremaws_bite.up then return 0 end
-            return 35 * ( ( talent.shadow_focus.enabled and ( buff.shadow_dance.up or buff.stealth.up ) ) and 0.95 or 1 )
+            return 45 * ( ( talent.shadow_focus.enabled and ( buff.shadow_dance.up or buff.stealth.up ) ) and 0.95 or 1 )
         end,
         spendType = "energy",
 
@@ -1387,9 +1365,8 @@ spec:RegisterAbilities( {
 
         startsCombat = true,
         cp_gain = function()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
-            return active_enemies
+            if buff.shadow_blades.up or buff.premeditation.up then return combo_points.max end
+            return active_enemies + ( buff.clear_the_witnesses and 1 or 0 )
         end,
 
         used_for_danse = function()
@@ -1400,10 +1377,15 @@ spec:RegisterAbilities( {
         handler = function ()
             st_gain( "shuriken_storm" )
 
-            removeBuff( "honed_blades" )
-            removeBuff( "premeditation" )
-            removeBuff( "symbols_of_death_crit" )
-            removeStack( "the_rotten" )
+            if talent.clear_the_witnesses.enabled then removeBuff( "clear_the_witnesses" ) end
+            if talent.premeditation.enabled then removeBuff( "premeditation" ) end
+
+            if buff.the_rotten.up then
+                removeStack( "the_rotten" )
+                if talent.improved_shuriken_storm.enabled then
+                    applyDebuff( "target", "find_weakness" )
+                end
+            end
 
             if buff.silent_storm.up then
                 applyDebuff( "target", "find_weakness" )
@@ -1457,8 +1439,7 @@ spec:RegisterAbilities( {
 
         startsCombat = true,
         cp_gain = function()
-            if buff.shadow_blades.up then return 7 end
-            if buff.premeditation.up then return combo_points.max end
+            if buff.shadow_blades.up or buff.premeditation.up then return combo_points.max end
             return 1
         end,
 
@@ -1466,7 +1447,6 @@ spec:RegisterAbilities( {
             st_gain( "shuriken_toss" )
 
             removeBuff( "premeditation" )
-            removeBuff( "symbols_of_death_crit" )
             removeStack( "the_rotten" )
         end,
     },
@@ -1475,19 +1455,29 @@ spec:RegisterAbilities( {
     symbols_of_death = {
         id = 212283,
         cast = 0,
-        charges = function() if talent.death_perception.enabled then return 1 end end,
-        cooldown = 30,
-        recharge = function() if talent.death_perception.enabled then return 30 end end,
+        charges = function() if talent.death_perception.enabled then return talent.death_perception.rank + 1 end end,
+        cooldown = function() return 30 - ( 5 * talent.swift_death.rank ) end,
+        recharge = function() if talent.death_perception.enabled then return 30 - ( 5 * talent.swift_death.rank ) end end,
         gcd = "off",
         school = "physical",
+
+        spend = -40,
+        spendType = "energy",
 
         startsCombat = false,
 
         handler = function ()
             applyBuff( "symbols_of_death" )
-            -- applyBuff( "symbols_of_death_crit" )
 
-            if legendary.the_rotten.enabled then applyBuff( "the_rotten" ) end
+            if talent.symbolic_victory.enabled then
+                applyBuff( "symbolic_victory" )
+            end
+
+            if set_bonus.tww1 >= 2 then
+                applyBuff( "poised_shadows" )
+            end
+
+            if talent.the_rotten.enabled or legendary.the_rotten.enabled then applyBuff( "the_rotten" ) end
             if talent.supercharger.enabled then addStack( "supercharged_combo_points", nil, talent.supercharger.rank ) end
         end,
     }
@@ -1588,4 +1578,4 @@ spec:RegisterSetting( "allow_shadowmeld", nil, {
 } )
 
 
-spec:RegisterPack( "Subtlety", 20241026, [[Hekili:nZXAtUTTXFl34zOLS9PQh3RKAPpKK2oXtBMorEA)MOGOGKypksfcqFrDUr)27UGVaaxqkD2xM(f3CKl3xyFJvDXOfFEX81mjFXVmE44BgnC8DdgD7KBgD)I5YJh4lMFGf8iBl8FeZ2d)78SvYiU8i(IJrjS1icejzPbWlxmFvwyK8NJxSIcRtMCha7bEa847gTy(UW1R55WYfblMJWE9OHxp8UV)0Y5H7)XtlZoGOr8b4VJ)PtltYKxNS56GK9Rys4pJJoEAz4Mtlt5Bs5IDSvr8)8PL)nol9A21)klER6BG)bGri5Si5UtF60NuuA43D94XaL(lB2egeYJdowrpDygobOo8)oAKnxvd1dxp6wakf6CaY9xp(b4TFEh)0Y)nlf(Nq5UW4fZJcfsbQfrDhQo)f1HcpgfM1l(HfZzbYWeasq(wN8KqMg(iOSdogeX9LS0TC47HpAEqAOKNgYq95QSnBgSjmET)tC2JXCHyqkFplmwCA5hNcS6PLENw(fgaoqMbfO50YQxjzr8y5GSybNh7VkITMpOGNoT85NpT8kqif81(Bss9xZaW0)m1d83ZcyRsR(U8Z50Wd5IZpcNIjNw(ptcJHtOFaLEE6cjyCyj)1Yvj25m5ob8hpYtfavsFSM18uCMs8pasmFDOKH0Bq2bhI8mqM7Pe73FA5KtlFxXNNRUrzlGR(6(5cU6LGUNL6l3X9FkuIQxUOKcLKxCeKViHFYgFfdREFfc2eXEkc(ou)TVDMBsjAREDHPSUPrgAve7lKa6qL4eNkrf5JcJ3c)z8wq(sZTpkzVZtjhKKebQN4s1KYcrZitX4USYMLBMPrnA7mV2uLoX8ne6fqTed8jQzUb1m0(u16laUBDQbX4pj(hqdxbONWWhYcjUgZBtqDXtc)vWNH47oD6UnkbqckTwu9EDOwbbFHJGvMWirhPnSSizv0IkXP0WWaNJ1b5XWGhTEVTTsYbatCz93uQNX)ROmEHnudhKkJ7c2W8HFHfhkWNPWNFE(KsgU8C5I4cixsuuziWbw(aAePmijXHA3eXTOw5OhfgW9zqS21H2Ac07IlK(XHB3jREfTD7dL(5f(eP8daMHOxGxAHDQHRrlUogQ4hdp4NMDqMLwBhErQai646eGFYXXajybfIPwnefDYOIv65s9OZCy0cjWmGETY6)I4n3hp90csbrB3c2k5zcQtecXkgAgnJgWzq4QHg53WOq(h4qzpQSz1Nl9nu98Guo6W(lpCXcwV6efvCKV6jfb)AnjvTvKz85Zl0QY8nriuGTbnD91vAJhQlKPSGqwKV4yCakPF3flP6HtZRozuREqQZl9pbDEUp)t4B2Wb68fUFtqU7I8A2T2p4akqJgAjrwvXKB5iQfWagevk)p8XQ7YRXRaVbRvXHg5QiVvqIbOOQS0Jwe6xvQzHEEOkFpRJGrURGI8tQjoKQNNIo3k04Ugck040OSg)Bct5kbuHE7a(NlxIOfYydph10kuzhw3qZ9Zs(EWeO3NH6DEeI22VSzgzkNfSJNMKj8b8fl2hkboWmvF7rqQlKXP)cApFBn37IOOyyhAU8Bc3dHAqdBFMiGhJk2J(WjvgKMdkchCE34VnyTQlGCrRTVqRpbQO6ETe4rXL2bPl5Y9S1()wg4vHLlgR6)tJw90dkru(zvKPkp)wQrL)BzHhoWxpWH2Smbuor7gAeNvh1oGQr6G(N3bFzIUgkhuxANxO2krzRoYsdwx4q(7vEg(IOePQ1TrLcTUByrK)oJRp1qQ6MyJ10WfqmqoEqLAe0IRpA2rudg6CAKOITQtT1gNbE34)HqthIkA70swk6XxMIE8FKk6ruk6r))NIESQxJZlBjOvsa)U52nY2m3z9XczhWAPwlEMFrk2X2Pyn4K)Ai2nIkG3VMbnIF2SG7Is6O2JlPIg4lcoabk(DFOhN41gI5gfNRKq788NX8voVQuYNffsc7AaSuIrr8uC6CyNyI8jcLprUJjzGmWIvp70Y4ezUYMhj4doBLDRN3Bcvz)HV5qkpFMGnAiMD4q0ruTkW)QzxXxuHQYKTBbEztwCmpYsvm)jgCqkbf(H0WeqgapY0K8zpLRrK4O)kXj8iqDru3z5x7x(XVSg0nsCOf0yhta9hZKdyXh9xFqqhdVjuQr1qe7zDwAHiIw5uPbQHWO1OgbuEzJaymPCsjbuHq7qojLIzDPi6wmV8Hq464mu4QALozIlFmaU01FfmX9Do8kzvapIjJt0Xqrl31iv93(sEWU4qOamkp)sylhsIPN9)OEefNwMN2WShHRCofKkBoNJpr7IlkRznFMqay75(Ye)1HWBUgHSop9DubfAifNjhQ)YgrFCYr1tn)D2jVYfddjZZ5uGx08Imiceu3Dml4rGqpPsLzCm9tqVLbqIUFITh6BP7tkArT6171p1DZ(gLDrotFxLmqfiiOXn4W(VqBl6TqVouCGjd2v5cx(c(xcHo9svDDz5aHfe1Y9kfaHW8ZBl35Sni6i22ZQ95sro0M7mvT1JlZ9amuyxXSrzcz3fBFA5KHMx7sZMAR0ehsCLX1O5a6bNzuG)K2TMAF4EMdWZyYdgDj31ulNMl8xJ9HQ8tV6mgGPrNc2hXgY4d2CAltfT7wIqwSVwCBl1lvubIW)oDBZNNx7gOUU4qnUsV1P29GBsfJoTmiiuBSqIbb5mdYP9CQu2bK3iv(b)TDRXhRnvkDlO8Gg6Dt15LsNlH2LeREfgrgEh0KW)sDbqy3cQxSNdTyqMcV(OY556zAIo(gd3n3(S29Oz4ycw0c4GOb02w1TAEpS94A8yE62JfxG5qdRdr2kaOnzB5D1P5hnVcY8BCR9Wze09SUEtr9zyrrAqZyTyNWsHMbXYhstHqfwwkFEh2ne2Ah2Uyg0t4rKnIL56pTPg8uOCh0njh6dlqMxBr4(dmmXVChUtibmOFtaWTrjRyr1gkIMcTPSHXFEp2sM6vP8T84QtmlH4qg0eRv3Kt0Hlcp)f()NS1B3RKwdqnUa6vSTO5iuDCWJc7m3Wx(f02daSCtAGcMEILgdfqkq9wU8NKklgOYBlUz43IfG9Bzqnrq0xrYEaowMmzpuEa8GGDS4TCXGtF6VhgdV62VhvYXaTuV(TUVaY3M3JBlqug0hGS3OFVFx0q)EySqo1v0yJ17PXQDMilm7krLn2FGg7gzbSqn51TzJ3V7vrxmYHYO5C0TqU7PX3njkBd0XmZ1gsPkyyjLp3HT)2As34WOG02JCUs4Cnt6gc13omxJZghXfFJ9CBBGtcam52VDyEaUEAeXqQgN2LffzItgZEoleSgbigITlK3CupeNsVuKtmFN20QAW8QI(ormXGRAZ29s57xk6Rq8nVMhMUq(3eZq3C(ltL8kJ(or8l1e8m57xk6Dx1qfIDp1rck0kWgsYDopbUac2bWfeKm2l0U1xzu3Mtn4TMP7PgOqNU(FtRR61c7KAu1DzDz60rVo1N5qQ13vABrMApQTX74w0MglWlL(KCdFVKZRxvk8I14N(0pRmcqKDpCwR62kVft8ygVNTeOLvEzJyIbvf98(P)j9Bn80NEZPLFn3U3PprrIsq)aE7itBmm6pOUZLPg3445GOIqq13YsbIg9HWntDNj0R3vUZb)8ZTeoF20wYr1)RHLhRZYn5knwUP8uZYeC1SweNVko2sj7ohWxdrSulxkr0(vWubG(JRFeUO46)Tj7v8bfmf1ivF(58NwTl4fpOApWDJ8I7yPa5TTM3TWGA3ZvRC5v5p2ElLl4w7RT55NTVjOztFW7k3ZdXJiELBUwBoNfmDpI7ouJj0fZ(E0Islkj10tBv90RYhH6wg(4nd9AfGzJh65i)DF38L2EFwQgCEFjEu8DF4CLAImE0ZbwDCNieEgtU9JJh2IQtnL6cUtFKPFC6ih2oE6GnB69p)m9GCNn9oARM3GjjZv2cDoZElAY5qOus1NuS5W6Fq9wgJrtQmM03MxDORwl4Zb6QL81fWKhy6yWCbFDtZ38MYm74xfg)LKh5(8FhI9fdWGuPi7AYt8u)W4nz4Our8rZba6ASRW68fUQTHaaLbOjd7IOVDxMPJjn2Mo6wBrADIVdQaHdfp6ssCJExYI71f(dA7xCEcoI4rEUVmtNKS5cXIiV3voNjzHtf5wbdEsDSJV9H6f6cM6Qgo3Xzcr36FjABXhuRmzz(BL(SxDcf7u(th51t)aUAHoPPPIzAdDJnQZZCAGExrsP6O7KRnkQaWyTUjkPhKLEyCx6HXFB1dJmkE8pm9GvaCJvGT7W5AxilQUQjvvTBVPCRxQxR1UrB(2vPWiDslN5OoNSCt1xJ1c5NyTu7MnvDXxiIVSLoTBAG3HPdv7zW6duSiwlDEHFsSm1pySDtfbqB5xNny86zxGj8iIQbaJnZF)1EuZmGI70RFw1mHRM1lCfSxhIgm4SP9g)(jVZrDyQht)7LU0xJSCSIukgBufbPN4rCC5uOl(DaxL50r2e3QKocdmDsZZVzycFItqN1IsGHBA3mR5Bn(5hNxtsZB1hyxIVS6NMCZ3v(dsUrSSkiHOtO)vs5kLzuoeXkJrwmOND1W1NWkmytU892Q6qvF9WiZqmzyT9L7swkqU9bKkxf9rxLt8KAowRJop3nXu3UI(BF(527TA6KHxp623DLJgS8CR4R40hQPCJ(ZCvzt)gQiDFbJ611L(6drvRt0N80HCSjO2IrrxeCvA5ceAUHv2Otx5A7RmB6ToQY42cVG)i2ELAogtsH9izSpnitBUulZGZP3RVmlUWGAzwA8sRnyPX7nwBfTrjniVCc0MWYKZWSO0ng0EKRxnb(khLJz(zTPFa10roQeTfrUVxZvz(6stL7AHOezXDWe1pUXmD9iOoM68D6MB9904xQujkLMRLDMqe0xzAt(Ujd2UBBnpu4u1i7mDfKemvqs2biMP)wOFEUEnrf77mXNuVFZfUDNX6fwJgTINRJxPcvyAxMhzIupCgbthFJx7zgQRAUTfmeGQm2lza4HUKR8rRwhmaQByyznw6lrOJA6)OE5auAmuNAHDhLvSyoltUljDXC8))qsTkBl(F]] )
+spec:RegisterPack( "Subtlety", 20241101, [[Hekili:nZ16tUTTr8)wUXZqFY2NQECVsQ19HK02jEAZ0jYt73efefKe7rrYqa6lQZn6V9Ul4laWfKsNpNPF5IfjWID)Hf7lSmlgV4ZlMVMj5l(LjJMC94XJgpC80j3n97wmxEiLVyEkl4r2w4FeZ2d)DE(kzexEaFXHOe2AKaIK8Sa4LlMVkpms(ZXlwrt17HXMYdGhF74fZ3fUEnVySCrWI54yVA8ORgD73FC58W9)4XL5PizeFa(D8pDCzsU8QKnxfKSFftc)mo6WXLHBoUmJVjJl2XwfX)Zhx(34SSRyx9RS4TQ5a)bgJqYzrYDh)0XpPwPrF3vtMaR0FzZMWGqECWH61tFmJMcRo8Fhp2MRAg19xn(gyukY5yi3D1K7H3(5D8Jl)3Sm4pHYDHXlMhfkKcefrSdHZFrTPWJrHz9IFyXCwGmmbgjiFRtEsiZcFea7GdbrCFjlBlhMpmP5bzHsEwidXZv5B2mCty8A)N4ShJ5cXWm(EwyS44Ypody1Jl9oUeP8x4(8y((qGzxw)cjlIhlhMhl48y)vrS18HLC0XLp)8XLxaIOGV2FtsM)Agmm10UOEMPWQXxhkziRxn1In6SW0c55hHTXKJl)NjHXWw0pGIppBHe0oSaGgbRK6R5m5ob8Jh5zc)9SShB4Uc2qj)MmrEkPm)ai0xQK73FC50JlFx5KlqBu4c4Q5oOqYvVeGEwMVCh3)PqjIUCrf9RwCXbq6Ie(jB8vSR691eyte7PiyEiaUVlwBAfr)cdqaqehwQhRRxKJQeX(cjqmeaN6eavlEuy8w4NXBbPlRq5OI5onaoijjcaN4kqsPGOPHPyCAvShk0X0wlALmVUGrh09AcmbGKyGhru5AevOpm1GvW4UXj6HgEs8trfwbGrODdzP02q5Tjio8KWFfmnKE3QVUBJsaIGYQ1QEN(OwbwDb4FL5yK4bOnS8izTzIAXPsPWGMt0hYJHbpA9EB9KKuGsCzZCQu6W)vuoVu)P1rJA16s2W8HFHfhkWNPONFHJKkgUAF5vIlQp9ffgW9zG9V1H2mjQ0Zfs)4WT7K1VIsH6ElRAz8uGUG5e4OtPcKHgBhA0gY(JHP(z5PY8moLcx)aayWADcWpf0yOe2AdrNDOG0yOqBzuMV8Cbo6mhEewcmdGQ1kVNfV5EZ5snlhGbWT8OOctZnUMGdXJmnXqpWhaRiJ0XCLXb)uoeisQUphqWnGEEqgxwFE7SeSlBSDxZr(QNuAtQt)gnArMgnpnlEkL3eHqnSnOIRVoOnzKUqMXcczr(IdXbOKE)zlP625kIxyCNNFu7x6tbp8CxXu4B2WloA1Ei3EwNA2T2piffOVZsGSIQOqXr0iFbSOi)IF4JHBve0vjzdwlqAoEKJOUwbgSH4CYZoyTq)QcLf6(hQp6zTdm2oKUEMsZIdUF5z4zBfzChyefzCQt2q)nHzCLaQiV7Wg6MlrYcEsHNJiTIu220nqUFwY3dAax(zigKhHOxhuLDHmJZc2XZsYf(a9If7dLahy6cUBdinHx484cQoFtd37ArrXW2YC1Cc3dwAq9AFMiGhJa7bFyNkF)I5qCXWz3n(BdwRclVq06AgAbUtzu3Rd7okU02gDfxUNT2)3YHdvyiCXQeY0wRl1TjresixpE)(IBK)B5HPP81dDGMv(Fkw0(hnsZ6TAhJQL3GbN2gFLFUwGdIL2UfA0su6QJTqW6dgLVxDYWxeLivztnUsO1pgwA4VxZ6ZmKQ(xSjAiC5igkNmSggbuC9bZCuAXqNsW91SvJNTU4m40n(peAyic02ELSa6jNhqp5psGEmfqp())a6jkG(08wcOscCUBUDYLT9D2STqMvQMR1YN5x6IDITlwdo5VgIzjOm49R5qQXNml4oMKEc94CcObMrqkyO439fPG1BdXCJIZvsOTF(tOEhNwukffhcxc7yaSaXOiEgwUSuWtHOOinfLi7qsoidSy1ZoUmorwa28ibF4jd2DUFVju59hMtAgVOiDTsuLLMgDaHvb(R2zREwXPkt2Uf4Ln5XX8ilOy(tmyJucaEAwycidWjYSKIAbvGisSwCv0eEeaxeHDwnB)Qj)YsC2WXHMrJDmHpKPVCil(G)6ubTn82JsvafcBpRZZkfrulNYnqZimYmQLbLxwQ5tiLtkjGYeApYjPu8qFar)I55NaURTZqHROv6Ljo)mTDH1FfmXD9wujzTbpIsvtKXqzg3nev9BFjpyxCieag1j)QXwvJeZt2)JMkuCCzHBdZCeUWzrqQ15Cw9eTBsOkM1IASddBp3xM4VoeEZv4iB8tFlLrHwsXjYH6VSL1hNCutDSFNTZRcXWqY8Cuz2fTVxbcZan5gZcEewMNuoYm2K(jiZYaWn3pX2dzT0)(eTGw)69675UyEJqUiRWURWfOmce066uy)xiLf90N5FjesMlJruNxTxzF8bdhQJR5jamG5xKuUZkBqKpS95QUlkfzfBU1eZBQvM76oOOUIzJYfY(d1(4YPJmVgK2P0wJePjU83AKAaDvZmcVFA3At9wzp3OSUODVDL(mQrr78PnwUuEMiuuh(zV3axFfiDwbuFfMZRYMWfNqTsF5IAh1FT)SVqoCGMlcR9sktqeEAS3vBuKvvoS7tdUUZqnUsplTUny0EvmsQZybHWWfs0IlNzSCApNk6GaYlLQyF)M(r8jAfatxbQWcLEIB9EH0fsOD03QxHM)H3b5J8Vu3beMyI6f75q2mKrl0Sv5CF9u0qrr8AJZ2UnqyNoi5Xs7rFkA1J622j48kB7HYRUCKHsHiFfmOn5B59Ll7hnV8XI7ARBtMeR7jDXMIMTUYWaH096q9GLbPBIbOKLbwiSuq(8omFlm5rmH0CiRZdiBellWpT6s8uOChKVkhY0lqwe9s4(uggCHCh2gibmiJwyGBJswXIA0peTfAtzdn78EmPp1RY4B5X17ywcrAoKMSv(Qt1hxeU)l8)p5R3UxjTgd14QNxX2IAHq83bpkSJoaM5xqvoyGfnpZOj3UaYLnlgcrvG4wH8NKjllzZBlVt43IH49B5qCxGrxrYEyCSCzYEiee4bb7yXB5IHh)0FpmgE11FpcYXWAPE9BDFdNVTil6ogrLTEyKxo(3h03AO7tZI4uU7SP6T0u12bKfLD5FYM63rtDdJ)wKM8(8SP79FtWIXoaJ2vQ3I4UR3F)lrvIMoQkVwzqvgdRw5tTC(VTzPBTzuU02f1Uw4Cv17wc1RhLBOzRT4Y5yxz4w0KyaMC7RhLhIDKgHnK6c2DEwrM6KXSRKdbRrmedX2fXBxmjIDPxkXjQGuxOQ2y(Ms(EjmrPX6s39C57xk5D7l41CZ0fXFvudDZ5Vmi5Bm57LWVuvWtKVFPKVMW34KWURRjXk05G7oGI6DGZyb7zWLliPTxilRVsRUTR2WBnD3tviIEp6)QeHIdQ(kfT23kQtUpPUdUZBNA83em1bvnkDHfzj7hBB6oPd00OzGPWtYUf(C2V(MUcVye)4N(zLsasS7kQ7mwBAvx7dVgVFWeiryEv6DIH1Hs9(z)j9B784NEZXLFn3k5XprTevd9d4T6mRvz0)G6UIMzCtPNcHknS1C7qLeA8hc3mZT)vVlVWTN9NFUdNepmRdpFd(Ay5j6SCBUsJLBlpnSmbx9qhIZxfhBbYU9S81SiwWY5UiAFon1dq)XnpcB8C9FBYELtOKPOQp7Zpx806ElV8b19vEhex7U16CfUO4X2ngD5kzFDrp)S59p9WS79Uq6S(iEewACZZAL7SKLVK42kF(zYlqCGhTG0bePkIANGZL1A3u31WhVEKxNd4HjJ8C45DGB(sRttRGbN3rJhfFpa2vPQqJhD5GvB2jcHNrLC)4KrDaDQIvxYD6Lq9JZg7qZXtFypm7UNFMUWUpm7wATM3GU3kaBHoNz33ofCieAPAkL9QS(eA6Rz0oqTYKE)dRp66gr(ugDDBf7AWKBy6uWSLIDVMV5nv(KXzfg)LKhHtL)oy1kggdUkL(ftEIN5hgVjhlTkspAoaixRUtwNVWM7negqLPvsdMi57(iZSjKkBZgFJTiToX3XQ4lzIhDjjUjVlzXDdk)bToAUW1eH9ip3xGQZLSDl4Ie)YlCwJYYdvK9HmCsQNUkEa4PVVX04V)ulVjyDBW5G2IpOAsZkpVk88YAL7woRNn27s9n46wiLEnvmtxKBIreAMvh07cYvQX6ozJQIaaAR19IsEcYchM0hom51fhgBe23Fy4GLbCJMUTFZ5A3llcxnlvDuxVPQtBAAK2(jBr)CPOiTtlN(OofVCZ0BC2s5NOry7Nnv5FxkIVS2CT)1aVtthq7jW6dvSigfCrGFs8Rl9dgDuvPb0o(aTbLxpZWlHhqelaOQz(jyxhcQrY(umN(3lSklaxzzxEsWUPi8Sd)9YjVF67CeeM6X0FW0vh0iJfR0FIrtC1AHN6rSt5uGl)yGRDA6WrIB4OhlaZMAV19a6PNyZZzqOTM)1DRD1(TgF)XfHI0(Y9bwLyM1FBYTFx1xKClty1JemkHhRsQ6EnJOGi6onYya9Sdc2QB0SxUIweREdvVt0iDmmDuJML7ivkjU92JYff9gx9z3PEu9TIxh5U4gJQi69nzYOtbkjPPlYOnz0DIAZMo6QX38UlCKT25XQTY1ZvusdAH76hUmI9xhsT6ziA1jA7x2lOwVwrhqDTl(scA20w2KthBTpa(WSBCeXYnLhT(JOZyA4y0HhMVLrV6GmTzdZ8aSp9E9gLXffunktRxA1DmTEVrlXOvqPHfHMG6ewACgQfv2ga0JS5WjOxvrHm91Rvjfi(qYYUO1g1d8A3i2xvPQCBhlkreboyIMh3QYUelo6i(D6ABd80y32UMuiMRo1MG)173BtMUn3rEMTfhuEEQLFE6arjyPGK8uWgS)2mwaxp0QYM1MyknTMD5jUtOzfBiJwm4nMQuwjmvjlmkrIc9BgD2KR962tttW3D1UIWOCz2DKlrQOSQnMaGqqgvfOMEBj6iRGpQhzbfyHWPf1DeHYI5SC5UKSfZX)NQKQ54w8)c]] )

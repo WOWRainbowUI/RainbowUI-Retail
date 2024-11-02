@@ -93,7 +93,9 @@ spec:RegisterTalents( {
     gift_of_the_celestials        = { 101113, 388212, 1 }, -- Reduces the cooldown of Invoke Yul'on, the Jade Serpent by 2 min, but decreases its duration to 12 sec.
     healing_elixir                = { 101109, 122280, 1 }, -- You consume a healing elixir when you drop below 40% health or generate excess healing elixirs, instantly healing you for 15% of your maximum health. You generate 1 healing elixir every 30 sec, stacking up to 2 times.
     invigorating_mists            = { 101110, 274586, 1 }, -- Vivify heals all allies with your Renewing Mist active for 10,515, reduced beyond 5 allies.
+    invoke_chiji                  = { 101129, 325197, 1 }, -- Summon an effigy of Chi-Ji for 12 sec that kicks up a Gust of Mist when you Blackout Kick, Rising Sun Kick, or Spinning Crane Kick, healing up to 2 allies for 13,380, and reducing the cost and cast time of your next Enveloping Mist by 33%, stacking. Chi-Ji's presence makes you immune to movement impairing effects.
     invoke_chiji_the_red_crane    = { 101129, 325197, 1 }, -- Summon an effigy of Chi-Ji for 12 sec that kicks up a Gust of Mist when you Blackout Kick, Rising Sun Kick, or Spinning Crane Kick, healing up to 2 allies for 13,380, and reducing the cost and cast time of your next Enveloping Mist by 33%, stacking. Chi-Ji's presence makes you immune to movement impairing effects.
+    invoke_yulon                  = { 101129, 322118, 1 }, -- Summons an effigy of Yu'lon, the Jade Serpent for 12 sec. Yu'lon will heal injured allies with Soothing Breath, healing the target and up to 2 allies for 16,784 over 7.4 sec. Enveloping Mist costs 50% less mana while Yu'lon is active.
     invoke_yulon_the_jade_serpent = { 101129, 322118, 1 }, -- Summons an effigy of Yu'lon, the Jade Serpent for 12 sec. Yu'lon will heal injured allies with Soothing Breath, healing the target and up to 2 allies for 16,784 over 7.4 sec. Enveloping Mist costs 50% less mana while Yu'lon is active.
     invokers_delight              = { 101123, 388661, 1 }, -- You gain 20% haste for 8 sec after summoning your Celestial.
     jade_bond                     = { 101113, 388031, 1 }, -- Abilities that activate Gust of Mist reduce the cooldown on Invoke Yul'on, the Jade Serpent by 0.5 sec, and Chi-Ji's Gusts of Mists healing is increased by 60% and Yu'lon's Soothing Breath healing is increased by 500%.
@@ -538,7 +540,12 @@ spec:RegisterAuras( {
         duration = 30,
         max_stack = 1
     },
-    tea_of_plenty_rm = {
+    tea_of_plenty_eh = {
+        id = 388524,
+        duration = 30,
+        max_stack = 3,
+    },
+    tea_of_plenty_em = {
         id = 393988,
         duration = 30,
         max_stack = 3,
@@ -571,7 +578,7 @@ spec:RegisterAuras( {
     thunder_focus_tea = {
         id = 116680,
         duration = 30,
-        max_stack = 1,
+        max_stack = function() return talent.focused_thunder.enabled and 2 or 1 end,
         onRemove = function()
             setCooldown( "thunder_focus_tea", 30 )
         end,
@@ -704,7 +711,7 @@ spec:RegisterAbilities( {
     enveloping_mist = {
         id = 124682,
         cast = function()
-            if buff.invoke_chiji.stack == 3 or buff.thunder_focus_tea.up or buff.tea_of_serenity_em.up then return 0 end
+            if buff.invoke_chiji.stack == 3 or buff.thunder_focus_tea.up or buff.tea_of_plenty_em.up or buff.tea_of_serenity_em.up then return 0 end
             return 2 * ( 1 - 0.333 * buff.invoke_chiji.stack ) * haste
         end,
         cooldown = 0,
@@ -722,8 +729,10 @@ spec:RegisterAbilities( {
             if buff.thunder_focus_tea.up then
                 removeStack( "thunder_focus_tea" )
                 if buff.thunder_focus_tea.down and talent.deep_clarity.enabled then applyBuff( "zen_pulse" ) end
+            elseif buff.tea_of_plenty_em.up then removeStack( "tea_of_plenty_em" )
             elseif buff.tea_of_serenity_em.up then removeStack( "tea_of_serenity_em" )
-            else removeBuff( "invoke_chiji" ) end
+            elseif buff.invoke_chiji.stack == 3 then removeBuff( "invoke_chiji" ) end
+
             gust_of_mist.count = 0
 
             if buff.lifecycles_em_rsk.up then
@@ -749,6 +758,7 @@ spec:RegisterAbilities( {
         texture = 627486,
 
         handler = function ()
+            if buff.tea_of_plenty_eh.up then removeStack( "tea_of_plenty_eh" ) end
         end,
     },
 
@@ -917,7 +927,6 @@ spec:RegisterAbilities( {
 
         handler = function ()
             applyBuff( "renewing_mist" )
-            removeStack( "tea_of_plenty_rm" )
             removeStack( "tea_of_serenity_rm" )
             if talent.secret_infusion.enabled and buff.thunder_focus_tea.stack == buff.thunder_focus_tea.max_stack then applyBuff( "secret_infusion_haste" ) end
         end,
@@ -983,7 +992,10 @@ spec:RegisterAbilities( {
     rising_sun_kick = {
         id = 107428,
         cast = 0,
-        cooldown = function() return ( buff.thunder_focus_tea.up and 3 or 12 ) * haste end,
+        cooldown = function()
+            if buff.thunder_focus_tea.up or buff.tea_of_plenty_rsk.up then return haste end
+            return 10 * haste
+        end,
         gcd = "spell",
         school = "physical",
 
@@ -1005,7 +1017,7 @@ spec:RegisterAbilities( {
                 if buff.thunder_focus_tea.up then
                     removeStack( "thunder_focus_tea" )
                     if buff.thunder_focus_tea.down and talent.deep_clarity.enabled then applyBuff( "zen_pulse" ) end
-                end
+                elseif buff.tea_of_plenty_rsk.up then removeStack( "tea_of_plenty_rsk" ) end
                 if buff.lifecycles_em_rsk.up then
                     addStack( "mana_tea_stack" )
                     removeBuff( "lifecycles_em_rsk" )
@@ -1018,8 +1030,11 @@ spec:RegisterAbilities( {
     rushing_wind_kick = {
         id = 467307,
         cast = 0.0,
-        cooldown = 10.0,
-        gcd = "global",
+        cooldown = function()
+            if buff.thunder_focus_tea.up or buff.tea_of_plenty_rsk.up then return haste end
+            return 10 * haste
+        end,
+        gcd = "spell",
 
         spend = 0.025,
         spendType = 'mana',
@@ -1028,6 +1043,14 @@ spec:RegisterAbilities( {
         startsCombat = true,
 
         handler = function()
+            if buff.thunder_focus_tea.up then
+                removeStack( "thunder_focus_tea" )
+                if buff.thunder_focus_tea.down and talent.deep_clarity.enabled then applyBuff( "zen_pulse" ) end
+            elseif buff.tea_of_plenty_rsk.up then removeStack( "tea_of_plenty_rsk" ) end
+            if buff.lifecycles_em_rsk.up then
+                addStack( "mana_tea_stack" )
+                removeBuff( "lifecycles_em_rsk" )
+            end
             applyBuff( "rushing_winds" )
         end,
     },
