@@ -9,7 +9,7 @@
     <Script file="Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua" />
 
     <Script>
-        DecursiveEmbedsxmlCheck = "2.7.23";
+        DecursiveEmbedsxmlCheck = "2.7.24";
     </Script>
 
 </Ui>

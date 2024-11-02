@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.7.23) add-on for World of Warcraft UI
+    Decursive (v 2.7.24) add-on for World of Warcraft UI
     Copyright (C) 2006-2019 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2024-09-16T00:26:57Z
+    This file was last updated on 2024-10-20T21:50:55Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -1941,7 +1941,7 @@ local function GetStaticOptions ()
                                     "\n\n|cFFDDDD00 %s|r:\n   %s"..
                                     "\n\n|cFFDDDD00 %s|r:\n   %s\n\n   %s"
                                 ):format(
-                                    "2.7.23", "John Wellesz", ("2024-10-03T23:25:26Z"):sub(1,10),
+                                    "2.7.24", "John Wellesz", ("2024-11-01T12:37:45Z"):sub(1,10),
                                     L["ABOUT_NOTES"],
                                     L["ABOUT_LICENSE"],         GetAddOnMetadata("Decursive", "X-License") or 'All Rights Reserved',
                                     L["ABOUT_SHAREDLIBS"],      GetAddOnMetadata("Decursive", "X-Embeds")  or 'GetAddOnMetadata() failure',
@@ -2130,7 +2130,7 @@ function D:CheckCureOrder ()
         [DC.BLEED]          = 7,
     };
     local AuthorizedValues = {
-        [false] = true; -- LOL Yes, it's TRUE tnat FALSE is an authorized value xD
+        [false] = true; -- LOL Yes, it's TRUE that FALSE is an authorized value xD
         -- Other <0  values are used when there used to be a spell...
         [1]     = DC.ENEMYMAGIC,
         [-11]   = DC.ENEMYMAGIC,
@@ -3750,6 +3750,6 @@ function D:QuickAccess (CallingObject, button) -- {{{
 end -- }}}
 
 
-T._LoadedFiles["Dcr_opt.lua"] = "2.7.23";
+T._LoadedFiles["Dcr_opt.lua"] = "2.7.24";
 
 -- Closer
