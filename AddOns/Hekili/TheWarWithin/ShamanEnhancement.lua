@@ -1121,7 +1121,9 @@ spec:RegisterHook( "reset_precast", function ()
         end
     end
 
-    tiSpell = action.chain_lightning.lastCast > action.lightning_bolt.lastCast and "chain_lightning" or "lightning_bolt"
+    if tiSpell == "chain_lightning" and action.lightning_bolt.lastCast > action.chain_lightning.lastCast then tiSpell = "lightning_bolt" end
+    if tiSpell == "lightning_bolt" and action.chain_lightning.lastCast > action.lightning_bolt.lastCast then tiSpell = "chain_lightning" end
+    if action.tempest.lastCast > action[ tiSpell ].lastCast then tiSpell = true_active_enemies > 1 and "chain_lightning" or "lightning_bolt" end
 
     rawset( buff, "doom_winds_debuff", debuff.doom_winds_debuff )
     rawset( buff, "doom_winds_cd", debuff.doom_winds_debuff )
@@ -2134,7 +2136,7 @@ spec:RegisterAbilities( {
             if azerite.natural_harmony.enabled then applyBuff( "natural_harmony_nature" ) end
             if buff.vesper_totem.up and vesper_totem_dmg_charges > 0 then trigger_vesper_damage() end
 
-            tiSpell = "tempest"
+            tiSpell = true_active_enemies > 1 and "chain_lightning" or "lightning_bolt"
         end,
 
         bind = "lightning_bolt",
