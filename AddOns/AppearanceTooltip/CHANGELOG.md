@@ -1,9 +1,7 @@
 # AppearanceTooltip
 
-## [v53](https://github.com/kemayo/wow-appearancetooltip/tree/v53) (2024-09-25)
-[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v52...v53) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
+## [v54](https://github.com/kemayo/wow-appearancetooltip/tree/v54) (2024-11-01)
+[Full Changelog](https://github.com/kemayo/wow-appearancetooltip/compare/v53...v54) [Previous Releases](https://github.com/kemayo/wow-appearancetooltip/releases)
 
-- Add cameraIDs for Earthen  
-- Stop errors in overlay hooks from breaking other functionality  
-- Show alert popups when you learn a new appearance  
-- Get working in Cataclysm Classic  
+- TOC for 11.0.5  
+- Don't alert for an appearance if C\_ContentTracking would alert  
