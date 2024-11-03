@@ -1,14 +1,0 @@
-﻿## Interface: 110002, 110005## IconTexture: Interface\Icons\spell_holy_borrowedtime
-## Title: InterruptedIn
-## Notes: Simple countdown announcment command which can be interrupted.
-## Notes-zhCN:中断式倒数发话指令
-## Title-zhTW: |cffFF9900[進階]|r /iin 巨集指令
-## Notes-zhTW: InterruptedIn By |cff69ccf0永恆滿月|r |n|n讓你可以使用 /iin 指令製作具有時間性的發話巨集，具備中斷發話的功能。|n|n|cffffd200使用方法: |r詳細說明和範例請看 https://goo.gl/yN2S5n
-## X-Category-zhTW: 進階
-## DefaultState: disabled
-## URL:http://forum.gamer.com.tw/C.php?bsn=05219&snA=465621&locked=T&page=1&gothis=4556564#4556564
-## Author: ACDACD
-## Version: 1.0.07
-localization.lua
-localization.tw.lua
-InterruptedIn.xml
