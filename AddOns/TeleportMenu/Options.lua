@@ -21,8 +21,8 @@ local defaultsDB = {
 }
 
 -- Get all options and verify them
-local function getOptions()
-    local db = TeleportMenuDB
+function tpm:GetOptions()
+    local db = TeleportMenuDB or {}
     for k, v in pairs(db) do
         if defaultsDB[k] == nil then
             db[k] = nil
@@ -49,7 +49,7 @@ function tpm:GetOptionsCategory()
 end
 
 function tpm:LoadOptions()
-    local db = getOptions()
+    local db = tpm:GetOptions()
 
     do
         local optionsKey = "enabled"
@@ -91,7 +91,7 @@ function tpm:LoadOptions()
     do -- Icon Size Slider
         local optionsKey = "iconSize"
         local text = L["Icon Size"]
-        local tooltip = L["Increase or decrease the size of the icons."]
+        local tooltip = L["Icon Size Tooltip"]
         local options = Settings.CreateSliderOptions(10, 75, 1)
         local label = L["%s px"]
 
