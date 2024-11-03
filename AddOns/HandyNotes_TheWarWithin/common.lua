@@ -82,6 +82,12 @@ ns.groups.FLIGHT_MASTER = Group('flight_master', 'flight_point_y', {
     achievement = 40430
 })
 
+ns.groups.FOR_THE_COLLECTIVE = Group('for_the_collective', 975747, {
+    defaults = ns.GROUP_HIDDEN,
+    type = ns.group_types.ACHIEVEMENT,
+    achievement = 40630
+})
+
 ns.groups.GOBBLIN_WITH_GLUBLURP = Group('gobblin_with_glublurp', 5763494, {
     defaults = ns.GROUP_HIDDEN,
     type = ns.group_types.ACHIEVEMENT,
@@ -152,6 +158,11 @@ ns.groups.ROCKED_TO_SLEEP = Group('rocked_to_sleep', 5788303, {
 --     type = ns.group_types.ACHIEVEMENT,
 --     achievement = 40194
 -- })
+
+ns.groups.SECRETS_OF_AZEROTH = Group('secrets_of_azeroth', 'peg_gn', {
+    defaults = ns.GROUP_HIDDEN,
+    type = ns.group_types.EXPANSION
+})
 
 ns.groups.SKITTERSHAW_SPIN = Group('skittershaw_spin', 879828, {
     defaults = ns.GROUP_HIDDEN,
