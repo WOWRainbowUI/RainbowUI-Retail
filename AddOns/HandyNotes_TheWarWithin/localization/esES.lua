@@ -136,6 +136,12 @@ L['critter_love_note'] = 'Tienes que teclear la emoción {emote:/amor} en alima�
 L['options_icons_critter_love'] = '{achievement:40475}'
 L['options_icons_critter_love_desc'] = 'Muestra dónde están las alimañas para el logro {achievement:40475}.'
 
+L['for_the_collective_note'] = 'Requiere la misión del mundo {wq:Misión de mensajero: Recuperación de menas}\n\nContribuye hasta con 20x {npc:224281} en cada {npc:228056}.\n\n{note:El progreso de la contribución está ligado a reino y se resetea tras 2 horas.}'
+L['for_the_collective_suffix'] = 'menas contribuidas'
+L['for_the_collective_location'] = 'Encima del edificio. Usa el {npc:Tablón de madera} cercano para construir una rampa.'
+L['options_icons_for_the_collective'] = '{achievement:40630}'
+L['options_icons_for_the_collective_desc'] = 'Muestra dónde están los {npc:228056} para el logro {achievement:40630}.'
+
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
@@ -339,3 +345,18 @@ L['tsw_chest_4_location'] = 'En lo alto de una viga. Bájate del pilar cerca del
 L['tuk_chest_1_note'] = 'Detrás de la estatua.'
 L['tuk_chest_2_note'] = '{note:Sólo disponible en las variantes de la historia "Evolución Incontrolable" y "Víctimas de Tortura".}'
 L['tuk_chest_3_note'] = '{note:Sólo disponible en las variantes de la historia "Evolución Incontrolable" y "Rescate de la Tejedora".}'
+
+-------------------------------------------------------------------------------
+----------------------------- SECRETS OF AZEROTH ------------------------------
+-------------------------------------------------------------------------------
+
+L['options_icons_secrets_of_azeroth'] = 'Secretos de Azeroth'
+L['options_icons_secrets_of_azeroth_desc'] = 'Muestra dónde están las pistas para los {location:Secretos de Azeroth}.'
+
+L['alyx_kickoff_note'] = 'Habla con {npc:226683} para activar los nuevos puzzles de los Secretos de Azeroth.'
+
+L['celebration_crates_label'] = 'Cajones de celebración'
+L['celebration_crates_note'] = 'Busca y devuelve todos los {object:Cajones de celebración} escondidos a lo largo de {location:Azeroth}.'
+
+L['1_soggy_celebration_crate_note'] = 'Cómprale un {item:225996} a {npc:143029} ({dot:Blue}) en el {location:Bar Zambullida} y dáselo a {npc:189119} para descubrir el {item:226200}.'
+L['2_hazy_celebration_crate_note'] = 'Mientras estés vivo, busca el área con luz verde brillante. {note:Aunque debes estar muerto para descubrir el {item:232263}.}'

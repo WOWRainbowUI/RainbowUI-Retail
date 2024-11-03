@@ -137,6 +137,12 @@ L['critter_love_note'] = 'Vous devez utiliser l\'émote {emote:/amour} sur les b
 L['options_icons_critter_love'] = '{achievement:40475}'
 L['options_icons_critter_love_desc'] = 'Afficher les emplacements des bestioles pour le haut-fait {achievement:40475}.'
 
+L['for_the_collective_note'] = 'Requiert l\'expédition {wq:Mission de messagerie : récupération de minerai}\n\nContribuez jusqu\'à 20x {npc:224281} à chaque {npc:228056}.\n\n{note:La progression des contributions est commune au serveur et se réinitialise au bout de 2 heures.}'
+L['for_the_collective_suffix'] = 'minerai contribué'
+L['for_the_collective_location'] = 'Sur le toit du bâtiment. Utilisez la {npc:Planche en bois} à proximité pour construire une rampe.'
+L['options_icons_for_the_collective'] = '{achievement:40630}'
+L['options_icons_for_the_collective_desc'] = 'Afficher les emplacements des {npc:228056} pour le haut-fait {achievement:40630}.'
+
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
@@ -340,3 +346,18 @@ L['tsw_chest_4_location'] = 'En haut d\'une poutre. Descendez du pilier près de
 L['tuk_chest_1_note'] = 'Derrière la statue.'
 L['tuk_chest_2_note'] = '{note:Disponible uniquement pendant les variantes d’histoires "Évolution incontrôlable" et "Victimes de tortures".}'
 L['tuk_chest_3_note'] = '{note:Disponible uniquement pendant les variantes d’histoires "Évolution incontrôlable" et "Sauvetage de tisserande".}'
+
+-------------------------------------------------------------------------------
+----------------------------- SECRETS OF AZEROTH ------------------------------
+-------------------------------------------------------------------------------
+
+L['options_icons_secrets_of_azeroth'] = 'Secrets d\'Azeroth'
+L['options_icons_secrets_of_azeroth_desc'] = 'Afficher les emplacements des indices pour les {location:Secrets d\'Azeroth}.'
+
+L['alyx_kickoff_note'] = 'Parlez à {npc:226683} pour activer les nouvelles énigmes des Secrets d\'Azeroth.'
+
+L['celebration_crates_label'] = 'Caisses d’anniversaire'
+L['celebration_crates_note'] = 'Trouvez et rapportez toutes les {object:Caisses d’anniversaire} cachées à travers {location:Azeroth}.'
+
+L['1_soggy_celebration_crate_note'] = 'Achetez un {item:225996} à {npc:143029} ({dot:Blue}) au {location:Barboteur} et donnez-le à {npc:189119} pour faire apparaître la {item:226200}.'
+L['2_hazy_celebration_crate_note'] = 'Tant que vous êtes en vie, repérez la zone où la lumière verte brille. {note:Cependant, vous devez être mort pour faire apparaître la {item:232263}.}'

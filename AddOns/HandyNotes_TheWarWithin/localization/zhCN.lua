@@ -136,6 +136,12 @@ L['critter_love_note'] = '必须对小动物使用表情 {emote:/爱}、{emote:/
 L['options_icons_critter_love'] = '{achievement:40475}'
 L['options_icons_critter_love_desc'] = '显示 {achievement:40475} 成就中小动物的位置。'
 
+L['for_the_collective_note'] = '需要 {wq:信使任务：矿石回收}\n\n捐赠总计20个 {npc:224281} 给每个 {npc:228056}。\n\n{note:捐赠进度服务器共享并2小时之后重置。}'
+L['for_the_collective_suffix'] = '捐赠矿石'
+L['for_the_collective_location'] = '在建筑物顶部。使用附近的 {object:木板} 造一个斜坡。'
+L['options_icons_for_the_collective'] = '{achievement:40630}'
+L['options_icons_for_the_collective_desc'] = '显示 {achievement:40630} 成就中 {npc:228056} 的位置。'
+
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
 -------------------------------------------------------------------------------
@@ -339,3 +345,18 @@ L['tsw_chest_4_location'] = '在横梁上。从另一个宝箱附近的柱子上
 L['tuk_chest_1_note'] = '雕像后面。'
 L['tuk_chest_2_note'] = '{note:仅在“逃亡的进化体”和“煎熬受害者”故事变种。}'
 L['tuk_chest_3_note'] = '{note:仅在“逃亡的进化体”和“纺丝者救援”故事变种。}'
+
+-------------------------------------------------------------------------------
+----------------------------- SECRETS OF AZEROTH ------------------------------
+-------------------------------------------------------------------------------
+
+L['options_icons_secrets_of_azeroth'] = '艾泽拉斯之秘'
+L['options_icons_secrets_of_azeroth_desc'] = '显示 {location:艾泽拉斯之秘} 线索的位置。'
+
+L['alyx_kickoff_note'] = '与 {npc:226683} 交谈以启用新的艾泽拉斯之秘谜题。'
+
+L['celebration_crates_label'] = '庆典箱子'
+L['celebration_crates_note'] = '找到并交还隐藏在 {location:艾泽拉斯} 中的所有 {object:庆典箱子}。'
+
+L['1_soggy_celebration_crate_note'] = '从 {location:深潜酒吧} 的 {npc:143029}（{dot:Blue}）购买 {item:225996} 并将其交给 {npc:189119} 以揭示 {item:226200}。'
+L['2_hazy_celebration_crate_note'] = '活着的时候，寻找发出绿光的区域。{note:但是，必须死了才能揭示 {item:232263}。}'

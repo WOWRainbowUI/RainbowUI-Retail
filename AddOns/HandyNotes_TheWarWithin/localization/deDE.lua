@@ -61,7 +61,7 @@ L['cendvin_note'] = 'Plündere 900x {item:225557} in {location:Aschenholtz} von 
 L['options_icons_flat_earthen'] = '{achievement:40606}'
 L['options_icons_flat_earthen_desc'] = 'Zeigt die Position für den Erfolg {achievement:40606} an.'
 
-L['tome_of_polymorph_mosswool'] = nil
+L['tome_of_polymorph_mosswool'] = 'Betrette den Tunnel und gehe zum {location:Der Zundersalon}.\n\nNimm die Quest {quest:84438} von {npc:229128} an, um den {item:227710} zu erhalten.'
 
 L['aradan_note_start'] = '{npc:213428} befindet sich auf der {location:Insel von Dorn} in {location:Dornogal} im Dungeon {location:Die Brutstätte}.\n\n{note:{npc:213428} kann auch in einem Anhängerdungeon gezähmt werden.}'
 L['aradan_note_step_1'] = '1. Sammle den {item:220770} aus den tiefen Gewässern außerhalb der {location:Insel von Dorn}.'
@@ -137,6 +137,12 @@ L['gobblin_with_glublurp_note'] = 'Klicke einen {object:Funkelnder Kristall} ({d
 L['critter_love_note'] = 'Du musst das Emote {emote:/liebe} auf Kleintiere anwenden (KEINE Kampfhaustiere).'
 L['options_icons_critter_love'] = '{achievement:40475}'
 L['options_icons_critter_love_desc'] = 'Zeigt die Positionen der Kleintiere für den Erfolg {achievement:40475} an.'
+
+L['for_the_collective_note'] = 'Benötigt die Weltquest {wq:Kuriermission: Erzsammlung}.\n\nSteuere bis zu 20x {npc:224281} bei jeder {npc:228056} bei.\n\n{note:Der Fortschritt ist Realmweit und wird nach 2 Stunden zurückgesetzt.}'
+L['for_the_collective_suffix'] = 'Erz beigesteuert'
+L['for_the_collective_location'] = 'Oben auf dem Gebäude. Benutze die {npc:Holzplanke} in der Nähe, um eine Rampe zu bauen.'
+L['options_icons_for_the_collective'] = '{achievement:40630}'
+L['options_icons_for_the_collective_desc'] = 'Zeigt die Positionen von {npc:228056} für den Erfolg {achievement:40630} an.'
 
 -------------------------------------------------------------------------------
 --------------------------------- HALLOWFALL ----------------------------------
@@ -280,7 +286,7 @@ L['options_icons_skittershaw_spin_desc'] = 'Zeigt die Position des Krabblertaxis
 L['skittershaw_spin_note'] = 'Fahre mit dem {npc:224973} eine ganze Runde um den Distrikt.\n\nDas {npc:224973} hält an verschiedenen Stellen ({dot:Red}) entlang der Runde.'
 
 L['options_icons_no_harm_from_reading'] = '{achievement:40632}'
-L['options_icons_no_harm_from_reading_desc'] = 'Display {npc:227421} locations for the {achievement:40632} achievement.'
+L['options_icons_no_harm_from_reading_desc'] = 'Zeigt die Positionen von {npc:227421} für den Erfolg {achievement:40632} an.'
 L['no_harm_from_reading_note'] = [[
 Gehe in die Höhle ({dot:Yellow}) zur Wand mit den drei Spinnen ({dot:Red}).
 Klettere die Wand hoch und springe in das Loch.
@@ -314,9 +320,9 @@ L['you_cant_hang_with_us_note'] = 'Finde einen {npc:211816} mit dem Stärkungsza
 L['kej_pet_vendor_note'] = 'Jedes Haustier hat einen begrenzten Bestand und kostet 2.250x {currency:3056}.\n\n{note:Es kann 3 bis 4 Stunden dauern, bis eines dieser Haustiere wieder beim Händler verfügbar ist.}'
 
 L['options_icons_back_to_the_wall'] = '{achievement:40620}'
-L['options_icons_back_to_the_wall_desc'] = nil
-L['arathi_prisoner_suffix'] = nil
-L['arathi_prisoner_note'] = nil
+L['options_icons_back_to_the_wall_desc'] = 'Zeigt die Positionen von {npc:222119} für den Erfolg {achievement:40620} an.'
+L['arathi_prisoner_suffix'] = 'gefangene Arathi gerettet'
+L['arathi_prisoner_note'] = 'Rette {npc:222119} aus Spinnennetzen während der Weltquest {wq:Spezialauftrag: Besser als Nachsicht}.'
 
 -------------------------------------------------------------------------------
 ----------------------------------- DELVES ------------------------------------
@@ -342,3 +348,18 @@ L['tsw_chest_4_location'] = 'Oben auf dem Balken. Springe von der Säule runter,
 L['tuk_chest_1_note'] = 'Hinter der Statue.'
 L['tuk_chest_2_note'] = '{note:Nur in den Geschichtenvariantionen "Ausreißersevolution" und "Folteropfer" verfügbar.}'
 L['tuk_chest_3_note'] = '{note:Nur in den Geschichtenvariantionen "Ausreißersevolution" und "Weberrettung" verfügbar.}'
+
+-------------------------------------------------------------------------------
+----------------------------- SECRETS OF AZEROTH ------------------------------
+-------------------------------------------------------------------------------
+
+L['options_icons_secrets_of_azeroth'] = 'Geheimnisse von Azeroth'
+L['options_icons_secrets_of_azeroth_desc'] = 'Zeigt die Positionen für die {location:Geheimnisse von Azeroth} an.'
+
+L['alyx_kickoff_note'] = 'Spreche mit {npc:226683}, um die neuen {location:Geheimnisse von Azeroth} freizuschalten.'
+
+L['celebration_crates_label'] = 'Feierkiste'
+L['celebration_crates_note'] = 'Finde und bringe alle {object:Feierkisten} zurück, die in ganz {location:Azeroth} versteckt sind.'
+
+L['1_soggy_celebration_crate_note'] = 'Kaufe ein {item:225996} von {npc:143029} ({dot:Blue}) in {location:The Dive Bar} und gib dieses {npc:189119}, um {item:226200} auszudecken.'
+L['2_hazy_celebration_crate_note'] = 'Du musst jedoch tot sein, um die {item:232263} öffnen zu können.}'
