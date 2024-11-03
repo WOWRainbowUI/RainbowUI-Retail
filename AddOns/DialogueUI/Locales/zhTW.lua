@@ -71,6 +71,7 @@ L["New Quest Available"] = "有新任務";
 L["Campaign Quest"] = TRACKER_HEADER_CAMPAIGN_QUESTS or "戰役";
 L["Click To Open BtWQuests"] = "點一下在任務指南插件查看此任務。";
 L["Story Progress"] = STORY_PROGRESS or "故事進度";
+L["Quest Complete Alert"] = QUEST_WATCH_POPUP_QUEST_COMPLETE or "任務完成!";
 
 --String Format
 L["Format Reputation Reward Tooltip"] = QUEST_REPUTATION_REWARD_TOOLTIP or "獎勵 %d 聲望和 %s";
@@ -215,6 +216,10 @@ L["Quest Item Display Hide Seen Desc"] = "忽略你的任何角色已發現過�
 L["Quest Item Display Await World Map"] = " 等待世界地圖";
 L["Quest Item Display Await World Map Desc"] = "打開世界地圖時，會暫時隱藏任務物品，並且暫停自動關閉。";
 L["Quest Item Display Reset Position Desc"] = "重置視窗的位置。";
+L["Auto Complete Quest"] = "自動完成任務";
+L["Auto Complete Quest Desc"] = "自動完成以下任務，然後在獨立的視窗中顯示對話和獎勵。如果獎勵包含箱子，你可以點擊打開它。\n\n- 糖果桶 (萬鬼節)\n- 卡茲阿爾加週任";
+L["Press Key To Open Container"] = "按空白鍵打開容器";
+L["Press Key To Open Container Desc"] = "非戰鬥中時按下 [KEY:PC:SPACE] 打開獎勵的容器。";
 L["Auto Select"] = "自動選擇";
 L["Auto Select Gossip"] = "自動選擇選項";
 L["Auto Select Gossip Desc"] = "與特定 NPC 互動時自動選擇最佳的對話選項。";
@@ -288,6 +293,8 @@ L["Instuction Open Settings"] = "要打開設定選項，請在和 NPC 互動時
 L["Instuction Open Settings Console"] = "要打開設定選項，請在和 NPC 互動時按下 [KEY:PC:F1] 或 [KEY:CONSOLE:MENU]。";
 
 L["Show Answer"] = "顯示正確答案。";
+L["Quest Failed Pattern"] = "才能完成此任務。$";
+L["AutoCompleteQuest HallowsEnd"] = "糖果桶";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "拍賣場";

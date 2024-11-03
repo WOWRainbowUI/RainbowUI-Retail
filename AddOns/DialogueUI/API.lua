@@ -120,6 +120,7 @@ end
 do  -- Pixel
     local GetPhysicalScreenSize = GetPhysicalScreenSize;
     local SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();
+    local UI_SCALE_RATIO = 1 / UIParent:GetEffectiveScale();
 
     local function GetPixelPertectScale()
         return (768/SCREEN_HEIGHT)
@@ -212,8 +213,18 @@ do  -- Pixel
 
     PixelUtil:SetScript("OnEvent", function(self, event, ...)
         SCREEN_WIDTH, SCREEN_HEIGHT = GetPhysicalScreenSize();
+        UI_SCALE_RATIO = 1 / UIParent:GetEffectiveScale();
         self:MarkScaleDirty();
     end);
+
+
+    local GetCursorPosition = GetCursorPosition;
+
+    local function GetScaledCursorPosition()
+        local x, y = GetCursorPosition();
+        return x*UI_SCALE_RATIO, y*UI_SCALE_RATIO
+    end
+    API.GetScaledCursorPosition = GetScaledCursorPosition;
 end
 
 do  -- Object Pool
@@ -1353,6 +1364,15 @@ do  -- Color
         return TextPalette[colorIndex]
     end
     API.GetTextColorByIndex = GetTextColorByIndex;
+
+    local function SetTextColorByIndex(fontString, colorIndex)
+        local color = GetTextColorByIndex(colorIndex);
+        if color then
+            local r, g, b = color:GetRGB();
+            fontString:SetTextColor(r, g, b);
+        end
+    end
+    API.SetTextColorByIndex = SetTextColorByIndex;
 
     local function SetTextColorByGlobal(fontString, colorMixin)
         local r, g, b;

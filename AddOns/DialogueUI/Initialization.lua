@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v0.5.0";
-local VERSION_DATE = 1730300000;
+local VERSION_TEXT = "v0.5.1";
+local VERSION_DATE = 1730600000;
 
 
 local addonName, addon = ...
@@ -50,6 +50,8 @@ local DefaultValues = {
     QuestItemDisplay = false,
         QuestItemDisplayHideSeen = false,
         QuestItemDisplayDynamicFrameStrata = false,
+    AutoCompleteQuest = false,
+        PressKeyToOpenContainer = true,
     AutoSelectGossip = false,
     ForceGossip = false,
     ShowDialogHint = true,
