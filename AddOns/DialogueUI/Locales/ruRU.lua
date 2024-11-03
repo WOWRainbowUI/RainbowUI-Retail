@@ -113,6 +113,13 @@ L["Size Medium"] = "Средний";
 L["Size Large"] = "Большой";
 L["Font Size"] = "Размер шрифта";
 L["Font Size Desc"] = "Выберите размер шрифта.\n\nПо умолчанию: 12";
+L["Font"] = "Шрифт";
+L["Font Desc"] = "Выберите шрифт.";
+L["Font Tooltip Normal"] = "Текущий шрифт: ";
+L["Font Tooltip Missing"] = "Выбранный вами шрифт отсутствует. Теперь будет использоваться шрифт по умолчанию.";
+L["Default"] = "По умолчанию";
+L["Default Font"] = "Шрифт по умолчанию";
+L["System Font"] = "Системный шрифт";
 L["Frame Orientation"] = "Расположение";
 L["Frame Orientation Desc"] = "Расположение окна в левой или правой части экрана";
 L["Orientation Left"] = "Слева";
@@ -283,6 +290,8 @@ L["Match Stat Spirit"] = "([,%d%.]+) к духу";
 L["Match Stat DPS"] = "([,%d%.]+) ед. урона в секунду";
 
 L["Show Answer"] = "Показать решение.";
+L["Quest Failed Pattern"] = "^Не удалось завершить";
+L["AutoCompleteQuest HallowsEnd"] = "Кулек конфет";     --Quest:28981
 
 --Asking for Directions-- (match the name to replace gossip icon)
 L["Pin Auction House"] = "Аукционный дом";
