@@ -12,6 +12,7 @@ local GetSpellCooldown = ExRT.F.GetSpellCooldown or GetSpellCooldown
 local GetSpellInfo = ExRT.F.GetSpellInfo or GetSpellInfo
 local GetSpellLink = C_Spell and C_Spell.GetSpellLink or GetSpellLink
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local GetItemInfo, GetItemInfoInstant, GetItemSpell = C_Item and C_Item.GetItemInfo or GetItemInfo, C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant, C_Item and C_Item.GetItemSpell or GetItemSpell
 local GetCVar = C_CVar and C_CVar.GetCVar or C_CVar
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned or ExRT.NULLfunc
@@ -298,7 +299,7 @@ do
 					local n = {}
 					e = setmetatable({},{
 						__index = function (t1,k1) 
-							return n[k1] or type(k1) == "number" and k1 > 0 and n[GetSpellInfo(k1) or ""]
+							return n[k1] or type(k1) == "number" and k1 > 0 and n[GetSpellName(k1) or ""]
 						end,
 						__newindex = function (t1,k1,v1)
 							n[k1] = v1
@@ -1260,7 +1261,7 @@ do
 			local n = {}
 			for k in pairs(module.db.spell_isTalent) do
 				if type(k) == "number" then
-					n[#n+1] = GetSpellInfo(k) or "spell:"..k
+					n[#n+1] = GetSpellName(k) or "spell:"..k
 				end
 			end
 			for _,v in pairs(n) do
@@ -3728,7 +3729,7 @@ local function UpdateRoster()
 					if _db.spell_isRacial[ SpellID ] and race ~= _db.spell_isRacial[ SpellID ] then
 						AddThisSpell = false
 					end
-					if not GetSpellInfo(SpellID) then	--non exist, removed spells
+					if not GetSpellName(SpellID) then	--non exist, removed spells
 						AddThisSpell = false
 					end
 					local spellClass,spellClass2 = strsplit(",",spellData[2])
@@ -3798,7 +3799,8 @@ local function UpdateRoster()
 							lastUse,nowCd = VMRT.ExCD2.Save[sName][1],VMRT.ExCD2.Save[sName][2]
 						end
 
-						local spellName,_,spellTexture = GetSpellInfo(SpellID)
+						local spellName = GetSpellName(SpellID)
+						local spellTexture = GetSpellTexture(SpellID)
 						spellTexture = spellTexture or "Interface\\Icons\\INV_MISC_QUESTIONMARK"
 						spellName = spellName or "unk"
 						local shownName = DelUnitNameServer(name)
@@ -3809,7 +3811,7 @@ local function UpdateRoster()
 
 						for l=4,8 do
 							if spellData[l] then
-								local h = (ExRT.isClassic and not ExRT.isCata) and _db.cdsNav[name][GetSpellInfo(spellData[l][1])] or _db.cdsNav[name][spellData[l][1]]
+								local h = (ExRT.isClassic and not ExRT.isCata) and _db.cdsNav[name][GetSpellName(spellData[l][1])] or _db.cdsNav[name][spellData[l][1]]
 								if h then
 									h.db = spellData
 									if lastUse ~= 0 and nowCd ~= 0 and h.lastUse == 0 and h.cd == 0 then
@@ -4695,7 +4697,7 @@ function module.main:UNIT_AURA(unitID)
 		if not FD_Found then
 			local line = _db.cdsNav[UnitName(unitID)][5384]
 			if ExRT.isClassic and not ExRT.isCata and not line then
-				line = _db.cdsNav[UnitName(unitID)][GetSpellInfo(5384)]
+				line = _db.cdsNav[UnitName(unitID)][GetSpellName(5384)]
 			end
 			if line then
 				CLEUstartCD(line)
@@ -5003,6 +5005,8 @@ do
 		UnitHealthMax = UnitHealthMax,
 		UnitHealth = UnitHealth,
 		GetSpellInfo = GetSpellInfo,
+		GetSpellName = GetSpellName,
+		GetSpellTexture = GetSpellTexture,
 		type = type,
 		Gtype = type,
 		pairs = pairs,
@@ -5204,7 +5208,7 @@ do
 				[22812]=true,[198589]=true,[48792]=true,[204021]=true,[109304]=true,[55342]=true,
 				[115203]=true,[19236]=true,[108271]=true,[104773]=true,[871]=true,[118038]=true,
 				[184364]=true,[498]=true,[31850]=true,[185311]=true,[212800]=true,
-				[403876]=true,[363916]=true,[243435]=true,
+				[403876]=true,[363916]=true,[243435]=true,[55233]=true,
 			}
 			thundercharge = {}
 			faerie = {}
@@ -5659,7 +5663,7 @@ do
 				$$$1
 			end
 		]],subevents={RANGE_DAMAGE=true,SPELL_PERIODIC_DAMAGE=true,SWING_DAMAGE=[[
-			local meleeStr = GetSpellInfo(6603)
+			local meleeStr = GetSpellName(6603)
 			return function (timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,amount,overkill,school,resisted,blocked,absorbed,critical,glancing,crushing,isOffHand)
 				if not eventsView.SPELL_DAMAGE then return end
 				return eventsView.SPELL_DAMAGE(timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,6603,meleeStr,1,amount,overkill,school,resisted,blocked,absorbed,critical,glancing,crushing,isOffHand)
@@ -5683,7 +5687,7 @@ do
 				$$$1
 			end
 		]],subevents={RANGE_MISSED=true,SPELL_PERIODIC_MISSED=true,SWING_MISSED=[[
-			local meleeStr = GetSpellInfo(6603)
+			local meleeStr = GetSpellName(6603)
 			return function (timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,missType,isOffHand,amountMissed,critical)
 				if not eventsView.SPELL_MISSED then return end	--temp fix
 				return eventsView.SPELL_MISSED(timestamp,event,hideCaster,sourceGUID,sourceName,sourceFlags,sourceFlags2,destGUID,destName,destFlags,destFlags2,6603,meleeStr,1,missType,isOffHand,amountMissed,critical)
@@ -5791,12 +5795,12 @@ do
 			local guid = UnitGUID(unitID)
 			local name = UnitName(unitID)
 
-			eventsView.SPELL_CAST_SUCCESS(0,"SPELL_CAST_SUCCESS",false,guid,name,0,0,"","",0,0,spellID,GetSpellInfo(spellID),1)
+			eventsView.SPELL_CAST_SUCCESS(0,"SPELL_CAST_SUCCESS",false,guid,name,0,0,"","",0,0,spellID,GetSpellName(spellID),1)
 
 			if spellID == 5384 then
 				local line = _db.cdsNav[name][5384]
 				if ExRT.isClassic and not ExRT.isCata and not line then
-					line = _db.cdsNav[name][GetSpellInfo(5384)]
+					line = _db.cdsNav[name][GetSpellName(5384)]
 				end
 				if line then
 					line:SetCD(360)
@@ -5838,7 +5842,7 @@ do
 			if not UnitIsGhost(unitID) then
 				local hp = UnitHealth(unitID) / max(UnitHealthMax(unitID),1)
 				if hp < 0.45 then
-					eventsView.SPELL_CAST_SUCCESS(0,"SPELL_CAST_SUCCESS",false,UnitGUID(unitID),name,0,0,"","",0,0,20608,GetSpellInfo(20608),1)
+					eventsView.SPELL_CAST_SUCCESS(0,"SPELL_CAST_SUCCESS",false,UnitGUID(unitID),name,0,0,"","",0,0,20608,GetSpellName(20608),1)
 				end
 			end
 			_db.spell_ReincarnationFix[name] = nil
@@ -6329,7 +6333,7 @@ function module.options:Load()
 				GameTooltip:AddLine("|cffffffaa"..L.cd2AddSpellFrameCharge.."|r")
 			else
 				GameTooltip:AddLine("|cffffffaa"..L.cd2AddSpellFrameChargeChange..":|r")
-				local sname = GetSpellInfo(module.db.spell_charge_fix[ data[1] ])
+				local sname = GetSpellName(module.db.spell_charge_fix[ data[1] ])
 				GameTooltip:AddLine("|cffffffff - "..(sname or "???") .."|r")
 			end
 		end
@@ -6337,7 +6341,7 @@ function module.options:Load()
 		if module.db.spell_sharingCD[ data[1] ] then
 			GameTooltip:AddLine("|cffffffaa"..L.cd2AddSpellFrameSharing..": |r")
 			for otherID,otherCD in pairs(module.db.spell_sharingCD[ data[1] ]) do
-				local sname = GetSpellInfo(otherID)
+				local sname = GetSpellName(otherID)
 				GameTooltip:AddLine("|cffffffff - "..(sname or "???") .." (".. otherCD ..")|r")
 			end
 		end
@@ -6387,7 +6391,7 @@ function module.options:Load()
 		if module.db.spell_durationByTalent_fix[ data[1] ] then
 			GameTooltip:AddLine("|cffaaffaa"..L.cd2AddSpellFrameDuration..":|r")
 			for j=1,#module.db.spell_durationByTalent_fix[data[1]],2 do
-				local sname = GetSpellInfo(module.db.spell_durationByTalent_fix[ data[1] ][j]) or "???"
+				local sname = GetSpellName(module.db.spell_durationByTalent_fix[ data[1] ][j]) or "???"
 				local cd = module.db.spell_durationByTalent_fix[ data[1] ][j+1]
 				local isRank 
 				if type(cd) == 'table' then
@@ -6413,7 +6417,7 @@ function module.options:Load()
 		do
 			for auraID,sID in pairs(module.db.spell_aura_list) do
 				if sID == data[1] then
-					local sname = GetSpellInfo(auraID) or "???"
+					local sname = GetSpellName(auraID) or "???"
 					GameTooltip:AddLine("|cffaaffaa"..L.cd2AddSpellFrameDurationLost..":|r")
 					GameTooltip:AddLine("|cffffffff - \""..sname.."\"|r")
 
@@ -6847,7 +6851,7 @@ function module.options:Load()
 					end
 					cats[cat] = true
 				end
-				if (categoryNow == "ENABLED" and data[1] and GetSpellInfo(data[1]) and VMRT.ExCD2.CDE[ data[1] ]) then
+				if (categoryNow == "ENABLED" and data[1] and GetSpellName(data[1]) and VMRT.ExCD2.CDE[ data[1] ]) then
 					list[#list+1] = data
 				end
 				if (categoryNow == "FAV" and data[1] and VMRT.ExCD2.OptFav[ data[1] ]) then
@@ -6857,7 +6861,7 @@ function module.options:Load()
 		end
 		if self.search then
 			for i=#list,1,-1 do
-				local name = GetSpellInfo(list[i][1])
+				local name = GetSpellName(list[i][1])
 				if name and not name:lower():find(self.search) then
 					tremove(list,i)
 				end
@@ -7072,7 +7076,8 @@ function module.options:Load()
 
 				isHideMost = true
 			else
-				local spellName,_,spellTexture = GetSpellInfo(data[1])
+				local spellName = GetSpellName(data[1])
+				local spellTexture = GetSpellTexture(data[1])
 				line.icon:SetTexture(spellTexture)
 				line.spellName:SetText(spellName or "Removed spell #"..data[1])
 
@@ -7381,7 +7386,7 @@ function module.options:Load()
 		local parent = self:GetParent()
 		local data = parent.data
 		local spellID = data[1]
-		if not GetSpellInfo(spellID) then
+		if not GetSpellName(spellID) then
 			self:Disable()
 			parent.spellIDIcon:ColorBorder(true)
 			return

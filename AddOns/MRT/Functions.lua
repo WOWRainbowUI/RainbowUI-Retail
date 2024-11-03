@@ -623,18 +623,56 @@ function ExRT.F.table_rewrite(t1,t2)
 	end
 end
 
+function ExRT.F.table_random(t)
+	local keys_num = 0
+	for k,v in pairs(t) do
+		keys_num = keys_num + 1
+	end
+	if keys_num == 0 then return end
+	local key_need = math.random(1,keys_num)
+	keys_num = 0
+	for k,v in pairs(t) do
+		keys_num = keys_num + 1
+		if keys_num == key_need then
+			return v
+		end
+	end
+end
+
+local sort_f = function(a,b) return a[1]<b[1] end
+function ExRT.F.table_to_string(t)
+	if type(t)~="table" then return end
+	local keys = {}
+	local res = {}
+	for q,w in pairs(t) do
+		if type(q)~="function" and type(q)~="table" and not (w=="") then
+			keys[#keys+1]={tostring(q),w}
+		end
+	end
+	sort(keys,sort_f)
+	for i=1,#keys do
+		local v = keys[i][2]
+		res[#res+1] = keys[i][1] .. "=" .. (type(v)=="table" and ExRT.F.table_to_string(v) or type(v)=="function" and "<f>" or tostring(v))
+	end
+	local str = "{"..table.concat(res,",").."}"
+	return str
+end
+
 function ExRT.F.tohex(num,size)
 	return format("%0"..(size or "1").."X",num)
 end
 
 function ExRT.F.UnitInGuild(unit)
-	unit = ExRT.F.delUnitNameServer(unit)
+	local sunit = ExRT.F.delUnitNameServer(unit)
 	local gplayers = GetNumGuildMembers() or 0
 	for i=1,gplayers do
 		local name = GetGuildRosterInfo(i)
-		if name and ExRT.F.delUnitNameServer(name) == unit then
+		if name and ExRT.F.delUnitNameServer(name) == sunit then
 			return true
 		end
+	end
+	if UnitIsInMyGuild(unit) or UnitIsInMyGuild(sunit) then
+		return true
 	end
 	return false
 end
@@ -2537,7 +2575,7 @@ do
 	end
 end
 
-function ExRT.F.GetEncountersList(onlyRaid,onlyActual,reverse)
+function ExRT.F.GetEncountersList(onlyRaid,onlyActual,reverse,onlyDung)
 	local new = {}
 
 	local isActual,isRaid
@@ -2545,6 +2583,7 @@ function ExRT.F.GetEncountersList(onlyRaid,onlyActual,reverse)
 		if v[1] == 232 then
 			isRaid = true
 			isActual = false
+			if onlyDung then break end
 		elseif v[1] == ACTUAL_DUNG then
 			isActual = true
 		elseif v[1] == ACTUAL_RAID then
