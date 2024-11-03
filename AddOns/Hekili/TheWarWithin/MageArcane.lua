@@ -2212,7 +2212,7 @@ spec:RegisterOptions( {
     damage = true,
     damageExpiration = 6,
 
-    potion = "spectral_intellect",
+    potion = "tempered_potion",
 
     package = "Arcane",
 } )
@@ -2227,8 +2227,8 @@ spec:RegisterSetting( "check_explosion_range", true, {
 
 spec:RegisterSetting( "cancel_pom", false, {
     name = strformat( "Cancel %s", Hekili:GetSpellLinkWithTexture( spec.abilities.presence_of_mind.id ) ),
-    desc = strformat( "If checked, canceling %s (icon with a red X) may be recommended during the opener with cooldowns.\n"
-        .. "This is consistent with the SimulationCraft priority but may feel awkward or incorrect.  The DPS impact is trivial.", Hekili:GetSpellLinkWithTexture( spec.abilities.presence_of_mind.id ) ),
+    desc = strformat( "If checked, canceling %s (icon with a red X) may be recommended during the opener with cooldowns. " ..
+                      "\n\nThis behavior is consistent with the SimulationCraft priority but may feel awkward or incorrect. The DPS impact is minor.", Hekili:GetSpellLinkWithTexture( spec.abilities.presence_of_mind.id ) ),
     type = "toggle",
     width = "full"
 } )
