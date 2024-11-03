@@ -421,14 +421,13 @@ end)
 vcbOptions1Box6PopOut2Choice0.Text:SetText("Hide")
 vcbOptions1Box6PopOut2Choice1.Text:SetText("Class Icon")
 vcbOptions1Box6PopOut2Choice2.Text:SetText("Hero Icon")
-vcbOptions1Box6PopOut2Choice3.Text:SetText("Faction Icon")
 -- parent & sort --
-for i = 1, 3, 1 do
+for i = 1, 2, 1 do
 	_G["vcbOptions1Box6PopOut2Choice"..i]:SetParent(vcbOptions1Box6PopOut2Choice0)
 	_G["vcbOptions1Box6PopOut2Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box6PopOut2Choice"..i-1], "BOTTOM", 0, 0)
 end
 -- clicking --
-for i = 0, 3, 1 do
+for i = 0, 2, 1 do
 	_G["vcbOptions1Box6PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["GCD"]["ClassicTexture"] = self.Text:GetText()
@@ -448,15 +447,14 @@ end)
 -- naming --
 vcbOptions1Box7PopOut1Choice0.Text:SetText("Default Color")
 vcbOptions1Box7PopOut1Choice1.Text:SetText("Class' Color")
-vcbOptions1Box7PopOut1Choice2.Text:SetText("Faction Color")
-vcbOptions1Box7PopOut1Choice3.Text:SetText("Spell School Color")
+vcbOptions1Box7PopOut1Choice2.Text:SetText("Spell School Color")
 -- parent & sort --
-for i = 1, 3, 1 do
+for i = 1, 2, 1 do
 	_G["vcbOptions1Box7PopOut1Choice"..i]:SetParent(vcbOptions1Box7PopOut1Choice0)
 	_G["vcbOptions1Box7PopOut1Choice"..i]:SetPoint("TOP", _G["vcbOptions1Box7PopOut1Choice"..i-1], "BOTTOM", 0, 0)
 end
 -- clicking --
-for i = 0, 3, 1 do
+for i = 0, 2, 1 do
 	_G["vcbOptions1Box7PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["Color"] = self.Text:GetText()

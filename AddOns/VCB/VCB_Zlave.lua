@@ -41,9 +41,6 @@ local function CreateGlobalVariables()
 	vcbChaosColor = CreateColorFromRGBAHexString("C1C58BFF") -- 127 - 124
 -- class color --
 	vcbClassColorPlayer = C_ClassColor.GetClassColor(select(2, C_PlayerInfo.GetClass(PlayerLocation:CreateFromUnit("player"))))
--- faction and faction color --
-	vcbFaction = C_CreatureInfo.GetFactionInfo(C_PlayerInfo.GetRace(PlayerLocation:CreateFromUnit("player")))
-	vcbFactionColor = CreateColor(_G["PLAYER_FACTION_COLOR_"..string.upper(vcbFaction.name)]:GetRGB())
 -- function for showing the menu --
 	local function vcbShowMenu()
 		if not InCombatLockdown() then
