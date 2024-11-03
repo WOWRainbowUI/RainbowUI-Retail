@@ -1966,6 +1966,8 @@ L["Rancid Gasbag"] = "썩은 가스주머니"
 --[[Translation missing --]]
 L["Rashanan"] = "Rashanan"
 L["Rat"] = "쥐"
+--[[Translation missing --]]
+L["Ravenous Crawler"] = "Ravenous Crawler"
 L["Ravenous Dreadbat"] = "포악한 공포박쥐"
 --[[Translation missing --]]
 L["Ravenous Scarab"] = "Ravenous Scarab"

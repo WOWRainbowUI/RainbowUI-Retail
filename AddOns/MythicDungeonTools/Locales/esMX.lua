@@ -1963,6 +1963,8 @@ L["Rancid Gasbag"] = "Saco de gas rancio"
 --[[Translation missing --]]
 L["Rashanan"] = "Rashanan"
 L["Rat"] = "Rata"
+--[[Translation missing --]]
+L["Ravenous Crawler"] = "Ravenous Crawler"
 L["Ravenous Dreadbat"] = "Murciélago aterrador voraz"
 --[[Translation missing --]]
 L["Ravenous Scarab"] = "Ravenous Scarab"

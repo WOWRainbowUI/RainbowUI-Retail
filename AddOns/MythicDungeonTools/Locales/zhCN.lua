@@ -1666,6 +1666,8 @@ L["Rampaging Clefthoof"] = "狂怒的裂蹄牛"
 L["Rancid Gasbag"] = "腐臭的气囊怪"
 L["Rashanan"] = "拉夏南"
 L["Rat"] = "老鼠"
+--[[Translation missing --]]
+L["Ravenous Crawler"] = "Ravenous Crawler"
 L["Ravenous Dreadbat"] = "贪婪的恐惧蝠"
 L["Ravenous Scarab"] = "贪婪的甲虫"
 L["Ravenous Wolf"] = "饥饿的狼"

@@ -2357,6 +2357,8 @@ L["Rancid Gasbag"] = "腐臭的气囊怪"
 --[[Translation missing --]]
 L["Rashanan"] = "Rashanan"
 L["Rat"] = "老鼠"
+--[[Translation missing --]]
+L["Ravenous Crawler"] = "Ravenous Crawler"
 L["Ravenous Dreadbat"] = "贪婪的恐惧蝠"
 --[[Translation missing --]]
 L["Ravenous Scarab"] = "Ravenous Scarab"

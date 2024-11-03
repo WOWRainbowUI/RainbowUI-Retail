@@ -1664,6 +1664,8 @@ L["Rampaging Clefthoof"] = "Буйный копытень"
 L["Rancid Gasbag"] = "Тошнотворный газовый мешок"
 L["Rashanan"] = "Раша'нан"
 L["Rat"] = "Крыса"
+--[[Translation missing --]]
+L["Ravenous Crawler"] = "Ravenous Crawler"
 L["Ravenous Dreadbat"] = "Прожорливый жуткий нетопырь"
 L["Ravenous Scarab"] = "Прожорливый скарабей"
 L["Ravenous Wolf"] = "Прожорливый волк"

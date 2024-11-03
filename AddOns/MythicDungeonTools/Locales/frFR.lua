@@ -1824,6 +1824,8 @@ L["Rampaging Clefthoof"] = "Sabot-fourchu enragé"
 L["Rancid Gasbag"] = "Sac à gaz rance"
 L["Rashanan"] = "Rasha'nan"
 L["Rat"] = "Rat"
+--[[Translation missing --]]
+L["Ravenous Crawler"] = "Ravenous Crawler"
 L["Ravenous Dreadbat"] = "Chiropteffroi vorace"
 L["Ravenous Scarab"] = "Scarabée vorace"
 --[[Translation missing --]]

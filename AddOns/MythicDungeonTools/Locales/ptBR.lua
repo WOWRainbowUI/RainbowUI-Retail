@@ -1998,6 +1998,8 @@ L["Rancid Gasbag"] = "Gasoso Repugnante"
 --[[Translation missing --]]
 L["Rashanan"] = "Rashanan"
 L["Rat"] = "Rato"
+--[[Translation missing --]]
+L["Ravenous Crawler"] = "Ravenous Crawler"
 L["Ravenous Dreadbat"] = "Deimorcego Voraz"
 --[[Translation missing --]]
 L["Ravenous Scarab"] = "Ravenous Scarab"

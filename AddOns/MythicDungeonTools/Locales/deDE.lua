@@ -1664,6 +1664,8 @@ L["Rampaging Clefthoof"] = "Rasender Grollhuf"
 L["Rancid Gasbag"] = "Ranziger Gasbeutel"
 L["Rashanan"] = "Rasha'nan"
 L["Rat"] = "Ratte"
+--[[Translation missing --]]
+L["Ravenous Crawler"] = "Ravenous Crawler"
 L["Ravenous Dreadbat"] = "Unersättliche Fleddermaus"
 L["Ravenous Scarab"] = "Gefräßiger Skarabäus"
 L["Ravenous Wolf"] = "Ausgehungerter Wolf"
