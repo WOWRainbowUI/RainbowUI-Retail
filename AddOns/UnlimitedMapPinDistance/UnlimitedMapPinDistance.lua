@@ -6,7 +6,7 @@ _UMPD.name          = "導航"
 _UMPD.addonName     = "無限距離導航"
 _UMPD.version       = GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
 _UMPD.init          = false
-_UMPD.blizzEnabled  = false
+_UMPD.blizzEnabled  = GetCVar('showInGameNavigation') or false
 
 do
     -- Time to reach Pin

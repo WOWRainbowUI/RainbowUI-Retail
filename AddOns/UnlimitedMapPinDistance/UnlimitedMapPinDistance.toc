@@ -1,11 +1,12 @@
 ## Interface: 110002, 110005
 ## Title: Unlimited Map Pin Distance
 ## Author: XAM
-## Version: 1.4.6
+## Version: 1.4.7
 ## Notes: Removes the 1000 yard limit on pins
 ## X-Category: map-minimap chat-communication quests-leveling
 ## X-Website: https://www.curseforge.com/wow/addons/unlimited-map-pin-distance
 ## SavedVariables: UMPD
+## IconTexture: Interface/Addons/UnlimitedMapPinDistance/logo
 
 ## Title-zhTW: |cff4DFF4D[地圖]|r 無限距離導航
 ## Notes-zhTW: Unlimited Map Pin Distance |n|n讓遊戲內建的任務導航/地圖標記導航距離可以超過 1000 碼的限制 (需要自行設定)。|n|n並且提供輸入指令 /way、/uway 或 /pin 來建立地圖標記導航。|n|n|cffffd200使用方法: |r從Esc>選項>插件>導航，進行設定。

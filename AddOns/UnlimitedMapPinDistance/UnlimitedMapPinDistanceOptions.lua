@@ -73,8 +73,6 @@ function UMPD_Init()
     UMPD.pinAlphaShort = UMPD.pinAlphaShort or 100
     UMPD.pinAlphaClamped = UMPD.pinAlphaClamped or 100
 
-    _UMPD.blizzEnabled = GetCVar('showInGameNavigation')
-
     if UMPD.autoTrackPins == nil then
         UMPD.autoTrackPins = true
     end
