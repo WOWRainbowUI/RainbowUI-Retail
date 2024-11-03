@@ -1,21 +1,18 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r165](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r165) (2024-10-31)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r164...r165) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r166](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r166) (2024-11-03)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r165...r166) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- bump cata tocs  
-- Preliminary Initial trash timers for Grim Batol  
-- preliminary intiial nameplate timers for stonevault  
-    Also fixed a bug where restore metals timer di not cancel for the Cursedforge mender variant mob caster  
-- Fixes to Cataclysm and Mist of pandaria classic for grim batol  
-- Removed debug from speaker shadowcrown, the generic timers in fallbacks are good enough for bad pulls. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/308  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/307  
-- Fix number 5 on https://github.com/DeadlyBossMods/DBM-Dungeons/issues/306  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/305  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/304  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/302  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/301  
-- Fix and close https://github.com/DeadlyBossMods/DBM-Dungeons/issues/297  
-- Fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/1318  
-- Make two dungeon tweaks reported by player feedback  
-- Add Anima Slash Alert and nameplate timer. Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/303  
+- Add all missing requested tank busters Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/309  
+- Fix all reported errors in https://github.com/DeadlyBossMods/DBM-Dungeons/issues/311  
+- Fix super rare bug where timers would get screwed up if meat hook hit an invisible script bunny (which apparently can happen)  
+    Fixed some other edge case timers that are off by a few milliseconds  
+    Closes https://github.com/DeadlyBossMods/DBM-Dungeons/issues/312  
+- remove game version 11.0.2 and add game version 11.0.7  
+- scope all vanilla dungeons (for both classic and retail) with zone restrictions  
+- scope all shadowlands dungeons to single zone ID  
+- Scope all bfa dungeons with strict zone requirements  
+- Added corrupt warning and timers to grim batol trash  
+- Scope all retail and cataclysm dungeon, delves, and world event mods with setzone  
+- Push some initial fixes  
+- Preliminary boralus initials  

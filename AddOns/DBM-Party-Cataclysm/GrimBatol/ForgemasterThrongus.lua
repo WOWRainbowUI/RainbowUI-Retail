@@ -8,11 +8,12 @@ else
 	mod.statTypes = "normal,heroic"
 end
 
-mod:SetRevision("20241030015006")
+mod:SetRevision("20241102154000")
 mod:SetCreatureID(40177)
 mod:SetEncounterID(1050)
 mod:SetHotfixNoticeRev(20240614000000)
 --mod:SetMinSyncRevision(20230929000000)
+mod:SetZone(670)
 
 mod:RegisterCombat("combat")
 

@@ -1,11 +1,13 @@
 local mod	= DBM:NewMod(2595, "DBM-Party-WarWithin", 8, 1274)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241022111413")
+mod:SetRevision("20241102154000")
 mod:SetCreatureID(216648, 216649)--Nx, Vx
 mod:SetEncounterID(2908)
 mod:SetHotfixNoticeRev(20240818000000)
 mod:SetMinSyncRevision(20240818000000)
+mod:SetZone(2669)
+
 --mod.respawnTime = 29
 
 mod:RegisterCombat("combat")
