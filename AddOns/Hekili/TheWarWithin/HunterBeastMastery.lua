@@ -2424,9 +2424,9 @@ spec:RegisterOptions( {
 
 
 spec:RegisterSetting( "barbed_shot_grace_period", 1, {
-    name = strformat( "%s Grace Period", Hekili:GetSpellLinkWithTexture( spec.abilities.barbed_shot.id ) ),
-    desc = strformat( "If set above zero, %s's cooldown will be reduced by this number of global cooldowns.  This feature helps to ensure that you maintain %s stacks by recommending %s with time remaining on %s.",
-        Hekili:GetSpellLinkWithTexture( spec.abilities.barbed_shot.id ), Hekili:GetSpellLinkWithTexture( spec.auras.frenzy.id ), spec.abilities.barbed_shot.name, spec.auras.frenzy.name ),
+    name = strformat( "%s Grace Period", Hekili:GetSpellLinkWithTexture( spec.abilities.barbed_shot.id ) ),  -- Barbed Shot
+    desc = strformat( "If set above zero, %s's cooldown will be reduced by this number of global cooldowns. This feature helps to ensure that you maintain %s stacks by recommending %s with time remaining on %s.",
+        Hekili:GetSpellLinkWithTexture( spec.abilities.barbed_shot.id ), Hekili:GetSpellLinkWithTexture( spec.auras.frenzy.id ), Hekili:GetSpellLinkWithTexture( spec.abilities.barbed_shot.id ), Hekili:GetSpellLinkWithTexture( spec.auras.frenzy.id ) ),
     icon = 2058007,
     iconCoords = { 0.1, 0.9, 0.1, 0.9 },
     type = "range",
@@ -2442,7 +2442,7 @@ end )
 
 spec:RegisterSetting( "pet_healing", 0, {
     name = strformat( "%s Below Health %%", Hekili:GetSpellLinkWithTexture( spec.abilities.mend_pet.id ) ),
-    desc = strformat( "If set above zero, %s may be recommended when your pet falls below this health percentage.  Setting to |cFFFFd1000|r disables this feature.",
+    desc = strformat( "If set above zero, %s may be recommended when your pet falls below this health percentage. Setting to |cFFFFd1000|r disables this feature.",
         Hekili:GetSpellLinkWithTexture( spec.abilities.mend_pet.id ) ),
     icon = 132179,
     iconCoords = { 0.1, 0.9, 0.1, 0.9 },
@@ -2468,10 +2468,11 @@ spec:RegisterSetting( "mark_any", false, {
 } )
 
 spec:RegisterSetting( "check_pet_range", false, {
-    name = "Check Pet Range for |T132176:0|t Kill Command",
+    name = strformat( "Check Pet Range for %s", Hekili:GetSpellLinkWithTexture( spec.abilities.kill_command.id ) ),
     desc = function ()
-        return "If checked, |T132176:0|t Kill Command will be recommended if your pet is not in range of your target.\n\n" ..
-            "Requires |c" .. ( state.settings.petbased and "FF00FF00" or "FFFF0000" ) .. "Pet-Based Target Detection|r"
+        return strformat( "If checked, %s will only be recommended if your pet is in range of your target.\n\n" ..
+                          "Requires |c" .. ( state.settings.petbased and "FF00FF00" or "FFFF0000" ) .. "Pet-Based Target Detection|r",
+                          Hekili:GetSpellLinkWithTexture( spec.abilities.kill_command.id ) )
     end,
     type = "toggle",
     width = "full"

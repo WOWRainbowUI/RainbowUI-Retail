@@ -1646,7 +1646,7 @@ spec:RegisterOptions( {
     damage = true,
     damageExpiration = 6,
 
-    potion = "phantom_fire",
+    potion = "tempered_potion",
 
     package = "Frost Mage",
 } )
@@ -1660,48 +1660,17 @@ spec:RegisterSetting( "prevent_hardcasts", false, {
         Hekili:GetSpellLinkWithTexture( spec.abilities.glacial_spike.id ),
         Hekili:GetSpellLinkWithTexture( spec.abilities.frostbolt.id )
     ),
-    desc = strformat( "If checked, non-instant %s, %s, %s casts will not be recommended while you are moving.\n\nAn exception is made if %s is talented and active and your cast "
-        .. "would be complete before |W%s|w expires.",
+    desc = strformat( "If checked, non-instant %s, %s, and %s casts will not be recommended while you are moving.\n\nAn exception is made if %s is talented and active, and your cast " ..
+                      "would be complete before %s expires.",
         Hekili:GetSpellLinkWithTexture( spec.abilities.blizzard.id ),
         Hekili:GetSpellLinkWithTexture( spec.abilities.glacial_spike.id ),
         Hekili:GetSpellLinkWithTexture( spec.abilities.frostbolt.id ),
-        Hekili:GetSpellLinkWithTexture( 108839 ), ( ice_floes and ice_floes.name or "Ice Floes" )
+        Hekili:GetSpellLinkWithTexture( 108839 ),
+        Hekili:GetSpellLinkWithTexture( 108839 )
     ),
     type = "toggle",
     width = "full"
 } )
-
-
---[[ spec:RegisterSetting( "ignore_freezing_rain_st", true, {
-    name = "Ignore |T629077:0|t Freezing Rain in Single-Target",
-    desc = "If checked, the default action list will not recommend using |T135857:0|t Blizzard in single-target due to the |T629077:0|t Freezing Rain talent proc.",
-    type = "toggle",
-    width = "full",
-} ) ]]
-
---[[ spec:RegisterSetting( "limit_ice_lance", false, {
-    name = strformat( "Limit %s", Hekili:GetSpellLinkWithTexture( spec.abilities.ice_lance.id ) ),
-    desc = strformat( "If checked, %s will recommended less often when %s, %s, and %s are talented.", Hekili:GetSpellLinkWithTexture( spec.abilities.ice_lance.id ),
-        Hekili:GetSpellLinkWithTexture( spec.talents.slick_ice[2] ),
-        Hekili:GetSpellLinkWithTexture( spec.talents.frozen_touch[2] ),
-        Hekili:GetSpellLinkWithTexture( spec.talents.deep_shatter[2] ) ),
-    type = "toggle",
-    width = "full",
-} )
-
-spec:RegisterStateExpr( "limited_ice_lance", function()
-    return settings.limit_ice_lance and talent.slick_ice.enabled and talent.frozen_touch.enabled and talent.deep_shatter.enabled
-end ) ]]
-
---[[ spec:RegisterSetting( "manual_water_jet", false, {
-    name = strformat( "%s: Manual Control", Hekili:GetSpellLinkWithTexture( spec.abilities.water_jet.id ) ),
-    desc = strformat( "If checked, your pet's %s may be recommended for manual use instead of auto-cast by your pet.  "
-        .. "This ability is available when your pet is summoned by %s.\n\n"
-        .. "You will need to disable its auto-cast before using this feature.", Hekili:GetSpellLinkWithTexture( spec.abilities.water_jet.id ),
-        Hekili:GetSpellLinkWithTexture( spec.abilities.icy_veins.id ) ),
-    type = "toggle",
-    width = "full",
-} ) ]]
 
 --[[ spec:RegisterSetting( "check_explosion_range", true, {
     name = strformat( "%s: Range Check", Hekili:GetSpellLinkWithTexture( 1449 ) ),
