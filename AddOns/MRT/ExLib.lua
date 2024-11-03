@@ -27,6 +27,9 @@ All functions:
 -> ELib:Border(parent,size,colorR,colorG,colorB,colorA,outside,layerCounter)
 -> ELib:Button(parent,text,template)
 	:Tooltip(str)		-> [add tooltip]
+-> ELib:ButtonIcon(parent,icon,isAtlas)
+	:Tooltip(str)		-> [add tooltip]
+	:IconSize(size)		-> change size of icon to buttonsize+iconsize*2
 -> ELib:Check(parent,text,state,template)
 	:Tooltip(str)		-> [add tooltip]
 	:Left([relativeX])	-> [move text to left side], relativeX default 2
@@ -39,6 +42,7 @@ All functions:
 	:Tooltip(str)		-> [add tooltip]
 	:Size(width)		-> SetWidth(width)
 	:AddText(text)		-> [add text at left side]
+	:AutoText(val[,key])	-> SetText from list, find val on key
 -> ELib:DropDownButton(parent,defText,dropDownWidth,lines,template)
 	:Tooltip(str)		-> [add tooltip]
 -> ELib:Edit(parent,maxLetters,onlyNum,template)
@@ -165,7 +169,7 @@ CheckButton	ExRTRadioButtonModernTemplate
 local GlobalAddonName, ExRT = ...
 local isExRT = GlobalAddonName == "MRT"
 
-local libVersion = 48
+local libVersion = 49
 
 if type(ELib)=='table' and type(ELib.V)=='number' and ELib.V > libVersion then return end
 
@@ -358,9 +362,35 @@ function ELib:Template(name,parent)
 	return obj
 end
 
+local fontsforsize = {
+	[10] = "FriendsFont_Small",
+	[11] = "FriendsFont_11",
+	[12] = "GameFontWhite",
+	[14] = "FriendsFont_Large",
+	[8] = "SystemFont_Tiny2",
+	[9] = "SystemFont_Tiny",
+	[13] = "SystemFont_Med2",
+	[14] = "SystemFont_Med3",
+	[16] = "SystemFont_Large",
+	[18] = "SystemFont_Large2",
+	[20] = "SystemFont_Shadow_Huge1",
+	[24] = "SystemFont_Shadow_Huge2",
+	[25] = "SystemFont_Shadow_Huge3",
+	[27] = "SystemFont_Huge4",
+	[64] = "SystemFont_World",
+	[30] = "Game30Font",
+}
+local function GetFontForSize(size)
+	local fontname = fontsforsize[size]
+	if _G[fontname] then
+		return fontname
+	end
+end
+
 if not ExRTFontNormal then
 	local ExRTFontNormal = CreateFont("ExRTFontNormal")
-	ExRTFontNormal:SetFont(GameFontNormal:GetFont())
+	--ExRTFontNormal:SetFont(GameFontNormal:GetFont())
+	ExRTFontNormal:CopyFontObject(GameFontNormal)
 	ExRTFontNormal:SetShadowColor(0,0,0)
 	ExRTFontNormal:SetShadowOffset(1,-1)
 	ExRTFontNormal:SetTextColor(1,.82,0)
@@ -589,6 +619,39 @@ do
 	local function OnLoad(self)
 		self:SetFrameLevel(self:GetParent():GetFrameLevel()+2)
 	end
+	local function OnSliderChanged(self,val)
+		if self.InResetState and val ~= self.InResetState then
+			self:SetValue(self.InResetState)
+			return
+		end
+		local text = self:GetParent().sliderText and self:GetParent().sliderText(self,val) or format("%d%s",val,self:GetParent().sliderAfterText or "")
+		self.text:SetText(text)
+		if self:GetParent().sliderFunc then
+			self:GetParent().sliderFunc(self,val)
+		end
+	end
+	local function OnSliderShow(self)
+		if self:GetParent().sliderShow then
+			self:GetParent().sliderShow(self)
+		end
+	end
+	local function SliderOnMouseWheel(self,delta)
+		self:SetValue(self:GetValue()+delta)
+	end
+	local function SliderOnMouseUp(self,button)
+		if button ~= "RightButton" then return end
+		if self.reset then
+			self:SetValue(self.reset)
+			self.InResetState = nil
+		end
+	end
+	local function SliderOnMouseDown(self,button)
+		if button ~= "RightButton" then return end
+		if self.reset then
+			self:SetValue(self.reset)
+			self.InResetState = self.reset
+		end
+	end
 	function Templates:ExRTDropDownMenuButtonTemplate(parent)
 		local self = CreateFrame("Button",nil,parent)
 		self:SetSize(100,16)
@@ -624,6 +687,33 @@ do
 		self:SetDisabledFontObject("GameFontDisableSmallLeft")
 
 		self:SetPushedTextOffset(1,-1)
+
+		self.slider = CreateFrame("Slider", nil, self)
+		self.slider:Hide()
+		self.slider:SetPoint("TOPLEFT",2,-2)
+		self.slider:SetPoint("BOTTOMRIGHT",-2,2)
+		Templates:Border(self.slider,.22,.22,.3,1,1,2)
+		
+		self.slider.thumb = self.slider:CreateTexture(nil, "ARTWORK")
+		self.slider.thumb:SetColorTexture(.32,.32,.4,1)
+		self.slider.thumb:SetSize(28,10)
+		
+		self.slider:SetThumbTexture(self.slider.thumb)
+		self.slider:SetOrientation("HORIZONTAL")
+		self.slider:SetMinMaxValues(1,2)
+		self.slider:SetValue(1)
+		self.slider:SetValueStep(1)
+		self.slider:SetObeyStepOnDrag(true)
+		
+		self.slider.text = self.slider:CreateFontString(nil,"OVERLAY","GameFontHighlightSmall")
+		self.slider.text:SetPoint("CENTER",0,0)
+
+		self.slider:SetScript("OnValueChanged",OnSliderChanged)
+		self.slider:SetScript("OnMouseWheel", SliderOnMouseWheel)
+		self.slider:SetScript("OnShow",OnSliderShow)
+		self.slider:SetScript("OnMouseDown", SliderOnMouseDown)
+		self.slider:SetScript("OnMouseUp", SliderOnMouseUp)
+		self.slider._SetValue = self.slider.SetValue
 
 		self:SetScript("OnEnter",OnEnter)
 		self:SetScript("OnLeave",OnLeave)
@@ -1142,7 +1232,8 @@ do
 		self.Middle:SetTexture("Interface\\Common\\Common-Input-Border")
 		self.Middle:SetTexCoord(0.0625,0.9375,0,0.625)
 
-		self:SetFontObject("ChatFontNormal") 
+		--self:SetFontObject("ChatFontNormal") 
+		self:SetFontObject("GameFontWhite") 
 
 		self:SetScript("OnEscapePressed",OnEscapePressed)
 		self:SetScript("OnEditFocusLost",OnEditFocusLost)
@@ -1161,7 +1252,8 @@ do
 		self.Background:SetPoint("TOPLEFT")
 		self.Background:SetPoint("BOTTOMRIGHT")
 
-		self:SetFontObject("ChatFontNormal") 
+		--self:SetFontObject("ChatFontNormal")
+		self:SetFontObject("GameFontWhite") 
 
 		self:SetTextInsets(4, 4, 0, 0)
 
@@ -2620,7 +2712,11 @@ do
 	end
 	local function Widget_FontSize(self,size)
 		local filename,fontSize,fontParam1,fontParam2,fontParam3 = self:GetFont()
-		self:SetFont(filename,size,fontParam1,fontParam2,fontParam3)
+		if GetFontForSize(size) then
+			self:SetFontObject(GetFontForSize(size))
+		else
+			self:SetFont(filename,size,fontParam1,fontParam2,fontParam3)
+		end
 		return self
 	end
 
@@ -2663,7 +2759,9 @@ do
 		local self = parent:CreateFontString(nil,"ARTWORK",template)
 		if template and size then
 			local filename = self:GetFont()
-			if filename then
+			if size ~= 12 and GetFontForSize(size) then
+				self:SetFontObject(GetFontForSize(size))
+			elseif filename and size ~= 12 then
 				self:SetFont(filename,size,"")
 			end
 		end
@@ -2685,6 +2783,7 @@ do
 			'Shadow',Widget_Shadow,
 			'Outline',Widget_Outline,
 			'FontSize',Widget_FontSize,
+			'SetFontSize',Widget_FontSize,
 			'Tooltip',Widget_Tooltip,
 			'MaxLines',Widget_MaxLines
 		)
@@ -2799,7 +2898,8 @@ do
 	end
 	local function Widget_AddBackgroundText(self,text)
 		if not self.backgroundText then
-			self.backgroundText = ELib:Text(self,"",12,"ChatFontNormal"):Point("LEFT",2,0):Point("RIGHT",-2,0):Color(.5,.5,.5)
+			--self.backgroundText = ELib:Text(self,"",12,"ChatFontNormal"):Point("LEFT",2,0):Point("RIGHT",-2,0):Color(.5,.5,.5)
+			self.backgroundText = ELib:Text(self,"",12,"GameFontWhite"):Point("LEFT",2,0):Point("RIGHT",-2,0):Color(.5,.5,.5)
 		end
 		self.backText = text
 		self:OnFocus(BackgroundText_FocusGained,BackgroundText_FocusLost)
@@ -2823,7 +2923,8 @@ do
 	end
 	local function Widget_AddExtraText(self,text)
 		if not self.extraText then
-			self.extraText = ELib:Text(self,"",10,"ChatFontNormal"):Point("RIGHT",-2,0):Point("TOP",self,0,0):Point("BOTTOM",self,0,0):Color(.5,.5,.5):Left()
+			--self.extraText = ELib:Text(self,"",10,"ChatFontNormal"):Point("RIGHT",-2,0):Point("TOP",self,0,0):Point("BOTTOM",self,0,0):Color(.5,.5,.5):Left()
+			self.extraText = ELib:Text(self,"",10,"GameFontWhite"):Point("RIGHT",-2,0):Point("TOP",self,0,0):Point("BOTTOM",self,0,0):Color(.5,.5,.5):Left()
 			self.extraTextFunc = ModExtraText_Func
 			self:extraTextFunc()
 		end
@@ -2865,7 +2966,9 @@ do
 		local self = ELib:Template(template,parent) or CreateFrame("EditBox",nil,parent,template or (BackdropTemplateMixin and "BackdropTemplate"))
 		if not template then
 			local GameFontNormal_Font = GameFontNormal:GetFont()
-			self:SetFont(GameFontNormal_Font,12,"")
+			--self:SetFont(GameFontNormal_Font,12,"")
+			self:SetFontObject(ExRTFontNormal)
+			self:SetTextColor(1,1,1,1)
 			self:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8X8",edgeFile = DEFAULT_BORDER,edgeSize = 8,tileSize = 0,insets = {left = 2.5,right = 2.5,top = 2.5,bottom = 2.5}})
 			self:SetBackdropColor(0, 0, 0, 0.8) 
 			self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
@@ -3181,6 +3284,30 @@ do
 		return self
 	end
 
+	local function OnEnter(self)
+		self:SetAlpha(.7)
+		if self.tooltip then
+			ButtonOnEnter(self)
+		end
+	end
+	local function OnLeave(self)
+		self:SetAlpha(1)
+		if self.tooltip then
+			ELib.Tooltip:Hide()
+		end
+	end
+	local function Widget_VisualHover(self)
+		self:OnEnter(OnEnter):OnLeave(OnLeave)
+
+		return self
+	end	
+	local function Widget_IconSize(self,diff)
+		self.icon:ClearAllPoints()
+		self.icon:SetPoint("TOPLEFT",-diff,diff)
+		self.icon:SetPoint("BOTTOMRIGHT",diff,-diff)
+
+		return self
+	end
 
 	function ELib:Button(parent,text,template)
 		if template == 0 then
@@ -3207,6 +3334,27 @@ do
 		local self = ELib:Button(parent,text,template or 0):Size(width,height):Point(relativePoint or "TOPLEFT",x,y) 
 		if tooltip then self:Tooltip(tooltip) end
 		if isDisabled then self:Disable() end
+		return self
+	end
+
+	function ELib:ButtonIcon(parent,icon,isAtlas)
+		local self = CreateFrame("Button",nil,parent)
+
+		self.icon = self:CreateTexture(nil,"ARTWORK")
+		self.icon:SetAllPoints()
+		if isAtlas then
+			self.icon:SetAtlas(icon)
+		else
+			self.icon:SetTexture(icon)
+		end
+
+		Mod(self,
+			'Tooltip',Widget_Tooltip,
+			'VisualHover',Widget_VisualHover,
+			'IconSize',Widget_IconSize
+		)
+		self._Disable = self.Disable	self.Disable = Widget_Disable
+
 		return self
 	end
 end
@@ -3723,6 +3871,7 @@ do
 				line.text:Font(self.fontName,self.fontSize or 12)
 			end
 			line:SetFontString(line.text)
+			line.text:SetFontObject(self.fontSize and GetFontForSize(self.fontSize) or "GameFontWhite")
 			line:SetPushedTextOffset(2, -1)
 		else
 			local zeroWidth = nil
@@ -3732,6 +3881,7 @@ do
 				if self.fontName then
 					textObj:Font(self.fontName,self.fontSize or 12)
 				end
+				textObj:SetFontObject(self.fontSize and GetFontForSize(self.fontSize) or "GameFontWhite")
 				line['text'..j] = textObj
 				if width == 0 then
 					zeroWidth = j
@@ -3881,10 +4031,16 @@ do
 				end
 			end
 			if self.IconsRight then
-				local icon = self.IconsRight[j]
+				local icon = self.IconsRight[i]
 				if type(icon)=='table' then
-					line.iconRight:SetTexture(icon[1])
-					line.iconRight:SetSize(icon[2],icon[2])
+					if icon.isAtlas then
+						line.iconRight:SetAtlas(icon[1])
+					else
+						line.iconRight:SetTexture(icon[1])
+					end
+					if icon[2] then
+						line.iconRight:SetSize(icon[2],icon[2])
+					end
 				elseif icon then
 					line.iconRight:SetTexture(icon)
 					line.iconRight:SetSize(self.LINE_HEIGHT or 16,self.LINE_HEIGHT or 16)
@@ -3945,12 +4101,12 @@ do
 		self.fontSize = size
 		if not self.T then
 			for i=1,#self.List do
-				self.List[i].text:SetFont(self.List[i].text:GetFont(),size,"")
+				self.List[i].text:SetFontSize(size)
 			end
 		else
 			for i=1,#self.List do
 				for j=1,#self.T do
-					self.List[i]['text'..j]:SetFont(self.List[i]['text'..j]:GetFont(),size,"")
+					self.List[i]['text'..j]:SetFontSize(size)
 				end
 			end
 		end
@@ -4323,6 +4479,15 @@ do
 		end
 		ELib.ScrollDropDown.ClickButton(self,...)
 	end
+	local function DropDown_AutoText(self,value,key)
+		for i=1,#self.List do
+			if self.List[i][key or "arg1"] == value then
+				self:SetText(self.List[i].text)
+				return
+			end
+		end
+		self:SetText("")
+	end
 
 	function ELib:DropDown(parent,width,lines,template)
 		template = template == 0 and "ExRTDropDownMenuTemplate" or template or "ExRTDropDownMenuModernTemplate"
@@ -4351,7 +4516,8 @@ do
 			'TextInside',Widget_AddTextInside,
 			'Disable',Widget_Disable,
 			'Enable',Widget_Enable,
-			'ColorBorder',Widget_ColorBorder
+			'ColorBorder',Widget_ColorBorder,
+			'AutoText',DropDown_AutoText
 		)
 
 		self._Size = self.Size
@@ -4576,8 +4742,13 @@ function ELib.ScrollDropDown:Reload(level)
 					local icon = button.Icon
 					local paddingLeft = data.padding or 0
 
-					if data.icon then
-						icon:SetTexture(data.icon)
+					if data.icon or data.atlas then
+						if data.atlas then
+							icon:SetAtlas(data.atlas,false,nil,true)
+							icon.customcoord = false
+						else
+							icon:SetTexture(data.icon)
+						end
 						paddingLeft = paddingLeft + (data.iconsize or 16)+2
 						icon:SetWidth(data.iconsize or 16)
 						if data.iconcoord then
@@ -4653,6 +4824,20 @@ function ELib.ScrollDropDown:Reload(level)
 						button:SetEnabled(false)
 					else
 						button:SetEnabled(true)
+					end
+
+					if data.slider then	-- {func = onChangedFunc, val = currVal, min = currMin, max = currMax}
+						button.slider:SetMinMaxValues(data.slider.min,data.slider.max)
+						button.sliderAfterText = data.slider.afterText
+						button.sliderFunc = nil
+						button.slider:SetValue(data.slider.val)
+						button.sliderFunc = data.slider.func
+						button.sliderShow = data.slider.show
+						button.slider.reset = data.slider.reset
+						button.slider:Show()
+					else
+						button.sliderFunc = nil
+						button.slider:Hide()
 					end
 
 					button.id = i
@@ -6579,7 +6764,9 @@ do
 			button:SetParent(self.C)
 			button.sub.back:SetColorTexture(.2,.2,.2,.9)
 		end
-		button:Point("TOP",0,-topStart):Size(self.Width - 10 * (parent and 2 or 1),30)
+
+		local objWidth = self.Width - 10 * (parent and 2 or 1)
+		button:Point("TOP",0,-topStart):Size(objWidth,30)
 
 		local isUpdateReqPre = isUpdateReq
 		
@@ -6618,7 +6805,7 @@ do
 					elseif type(subNow) == "table" and subNow.isSubData then
 						widthNow = 0
 	
-						local expandHeight = UpdateT1Button(self,subNow,isUpdateReqPre,subTop,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth-5,button.sub)
+						local expandHeight = UpdateT1Button(self,subNow,isUpdateReqPre,subTop,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth-floor(10/(self.ButtonsInLine or 3)),button.sub)
 
 						subTop = subTop + 30 + expandHeight + 5
 					elseif type(subNow) == "string" then
@@ -6660,7 +6847,7 @@ do
 						subButton:Show()
 	
 						widthNow = widthNow + buttonWidth + 10
-						if widthNow >= (self.Width - 20) then
+						if widthNow >= objWidth then
 							widthNow = 0
 							subTop = subTop + BUTTON_HEIGHT + 5
 						end
@@ -6684,9 +6871,10 @@ do
 		return subTop
 	end
 	
-	local function CalculateHeight(self,subData,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth)
+	local function CalculateHeight(self,subData,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth,isSubLevel)
 		local subTop = 5
 		local widthNow = 0
+		local objWidth = self.Width - 10 * (isSubLevel and 2 or 1)
 		for j=1,#subData do
 			local subNow = subData[j]
 			if subNow == 0 then
@@ -6701,7 +6889,7 @@ do
 				local sub_uid = subNow.uid or subNow.name
 				local expandHeight, expandWidth = 0
 				if self.stateExpand[sub_uid] then
-					expandHeight, expandWidth = CalculateHeight(self,subNow.data,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth)
+					expandHeight, expandWidth = CalculateHeight(self,subNow.data,BUTTON_HEIGHT,GROUP_HEIGHT,buttonWidth-floor(10/(self.ButtonsInLine or 3)),true)
 
 					expandHeight = expandHeight + 5 + 5 + (expandWidth > 0 and BUTTON_HEIGHT or 0)
 				end
@@ -6714,8 +6902,8 @@ do
 	
 				subTop = subTop + GROUP_HEIGHT + 5
 			else
-				widthNow = widthNow + buttonWidth + 5
-				if widthNow >= (self.Width - 20) then
+				widthNow = widthNow + buttonWidth + 10
+				if widthNow >= objWidth then
 					widthNow = 0
 					subTop = subTop + BUTTON_HEIGHT + 5
 				end
@@ -6731,7 +6919,7 @@ do
 
 		local data = self.data
 		local fromTop = self.FirstButtonPaddingFromTop or 5
-		local buttonWidth = (self.ButtonWidth or (self.Width - 10 - 10 - 10)/(self.ButtonsInLine or 3))
+		local buttonWidth = self.ButtonWidth or ((self.Width - 10 - 10 - ((self.ButtonsInLine or 3)-1)*10)/(self.ButtonsInLine or 3))
 
 		local scroll = self.ScrollBar:GetValue()
 

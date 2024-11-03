@@ -1,6 +1,13 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5040
+* Reminder: added "assignments" page for quick raid cooldowns organization for your roster
+* Reminder: queen ansurek p3 start was moved (only for timeline, reminders are unaffected)
+* WeakAuras checks: now able to check if aura is same
+* Note: added option for using autoload for personal note
+* Fixes
+
 v.5020
 * Reminder: added "sound delay" option
 * Raid groups: added option "Keep changes" for autosave any editing for selected preset

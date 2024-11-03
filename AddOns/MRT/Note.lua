@@ -8,6 +8,8 @@ local ELib,L = MRT.lib,MRT.L
 local GetTime, GetSpecializationInfo = GetTime, GetSpecializationInfo
 local string_gsub, strsplit, tonumber, format, string_match, floor, string_find, type, string_gmatch = string.gsub, strsplit, tonumber, format, string.match, floor, string.find, type, string.gmatch
 local GetSpellInfo = MRT.F.GetSpellInfo or GetSpellInfo
+local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
+local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local NewVMRTTableData
 
 local GetSpecialization = GetSpecialization
@@ -132,7 +134,7 @@ local function GSUB_Icon(spellID,iconSize)
 		return "|T"..preicon..":"..iconSize.."|t"
 	end
 
-	local spellTexture = select(3,GetSpellInfo(spellID))
+	local spellTexture = GetSpellTexture(spellID)
 	return "|T"..(spellTexture or "Interface\\Icons\\INV_MISC_QUESTIONMARK")..":"..iconSize.."|t"
 end
 
@@ -898,7 +900,6 @@ function module.options:Load()
 	self.NotesList.ButtonMoveDown.i:SetTexture("Interface\\AddOns\\"..GlobalAddonName.."\\media\\DiesalGUIcons16x256x128")
 	self.NotesList.ButtonMoveDown.i:SetTexCoord(0.25,0.3125,0.5,0.625)
 
-
 	self.NotesList.UpdateAdditional = function(self,val)
 		self.ButtonMoveUp:Hide()
 		self.ButtonMoveDown:Hide()
@@ -1288,7 +1289,7 @@ function module.options:Load()
 		if preicon then
 			iconText = "|T"..preicon..":"..iconSize.."|t"
 		else
-			local spellTexture = select(3,GetSpellInfo(spellID))
+			local spellTexture = GetSpellTexture(spellID)
 			iconText = "|T"..(spellTexture or "Interface\\Icons\\INV_MISC_QUESTIONMARK")..":"..iconSize..":"..iconSize..":-6:0|t"
 		end
 
@@ -1594,7 +1595,6 @@ function module.options:Load()
 
 	self.OtherIconsFrame.OnShow = function(self)
 		self.OnShow = nil
-		local GetSpellInfo = GetSpellInfo
 		local line = 1
 		local inLine = 0
 		for i=14,#module.db.otherIconsList-3 do
@@ -1626,7 +1626,7 @@ function module.options:Load()
 					inLine = 0
 				end
 			else
-				local _,_,spellTexture = GetSpellInfo( spellID )
+				local spellTexture = GetSpellTexture( spellID )
 				if predefSpellIcons[spellID] then
 					spellTexture = predefSpellIcons[spellID]
 				end
@@ -1859,13 +1859,23 @@ function module.options:Load()
 		end
 	end) 
 
+	self.chkBossAutoLoadPersonal = ELib:Check(self.tab.tabs[2],L.NoteBossAutoLoadPersonal,VMRT.Note.BossAutoLoadPersonal):Point("TOPLEFT",self.chkBossAutoLoadSend,"BOTTOMLEFT",0,-5):OnClick(function(self) 
+		if self:GetChecked() then
+			VMRT.Note.BossAutoLoadPersonal = true
+		else
+			VMRT.Note.BossAutoLoadPersonal = nil
+		end
+	end) 
+
+
 	if MRT.isClassic and not MRT.isCata then
 		self.dropDownBossAutoLoadType:Hide()
 		self.chkEnableBossAutoLoad:Hide()
 		self.chkBossAutoLoadSend:Hide()
+		self.chkBossAutoLoadPersonal:Hide()
 	end
 
-	self.sliderFontSize = ELib:Slider(self.tab.tabs[2],L.NoteFontSize):Size(300):Point("TOPLEFT",self.chkEnableBossAutoLoad,"BOTTOMLEFT",0,-20-25):Range(6,72):SetTo(VMRT.Note.FontSize or 12):OnChange(function(self,event) 
+	self.sliderFontSize = ELib:Slider(self.tab.tabs[2],L.NoteFontSize):Size(300):Point("TOPLEFT",self.chkEnableBossAutoLoad,"BOTTOMLEFT",0,-20-45):Range(6,72):SetTo(VMRT.Note.FontSize or 12):OnChange(function(self,event) 
 		event = event - event%1
 		VMRT.Note.FontSize = event
 		module.allframes:UpdateFont()
@@ -2569,6 +2579,7 @@ function module.options:Load()
 		self.chkEnableBossAutoLoad:SetChecked(VMRT.Note.EnableBossAutoLoad)
 		self.dropDownBossAutoLoadType:SetText(L["NoteEnableBossAutoLoadType"..(VMRT.Note.BossAutoLoadType or 3)])
 		self.chkBossAutoLoadSend:SetChecked(VMRT.Note.BossAutoLoadSendAsRL)
+		self.chkBossAutoLoadPersonal:SetChecked(VMRT.Note.BossAutoLoadPersonal)
 
 		self.frameTypeGlow1:SetChecked(false)
 		self.frameTypeGlow1:SetChecked(false)
@@ -3171,7 +3182,11 @@ function module.frame:UpdateOptionsText(onlyPage)
 			module.options.NoteEditBox.EditBox:SetText(VMRT.Note.Text1)
 		end
 
-		module.options.lastUpdate:SetText( L.NoteLastUpdate..": "..VMRT.Note.LastUpdateName.." ("..date("%H:%M:%S %d.%m.%Y",VMRT.Note.LastUpdateTime)..")" )
+		if VMRT.Note.LastUpdateName then
+			module.options.lastUpdate:SetText( L.NoteLastUpdate..": "..VMRT.Note.LastUpdateName.." ("..date("%H:%M:%S %d.%m.%Y",VMRT.Note.LastUpdateTime or 0)..")" )
+		else
+			module.options.lastUpdate:SetText( "" )
+		end
 
 		module.options.UpdatePageAfterGettingNote()
 	end
@@ -3521,7 +3536,7 @@ local function CheckSubZone()
 				return
 			end
 
-			if VMRT.Note.AutoLoad[0] == bossID then	--some note already here
+			if not VMRT.Note.BossAutoLoadPersonal and VMRT.Note.AutoLoad[0] == bossID then	--some note already here
 				return
 			end
 			local noteID
@@ -3554,7 +3569,12 @@ local function CheckSubZone()
 			end
 
 			if noteID then
-				if VMRT.Note.BossAutoLoadSendAsRL and MRT.F.IsPlayerRLorOfficer("player") == 2 then
+				if VMRT.Note.BossAutoLoadPersonal then
+					VMRT.Note.SelfText = VMRT.Note.Black[noteID]
+
+					module.allframes:UpdateText()
+					module.frame:UpdateOptionsText() 
+				elseif VMRT.Note.BossAutoLoadSendAsRL and MRT.F.IsPlayerRLorOfficer("player") == 2 then
 					module.frame:Save(noteID)
 				else
 					module.frame:SetTo(noteID)
