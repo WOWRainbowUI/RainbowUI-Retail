@@ -352,19 +352,6 @@ local function Color_Class(self)
 	self.Flash:SetDesaturated(true)
 	self.Flash:SetVertexColor(vcbClassColorPlayer:GetRGB())
 end
--- faction color --
-local function Color_Faction(self)
-	self:SetStatusBarDesaturated(true)
-	self:SetStatusBarColor(vcbFactionColor:GetRGB())
-	self.Spark:SetDesaturated(true)
-	self.Spark:SetVertexColor(vcbFactionColor:GetRGB())
-	self.ChannelShadow:SetDesaturated(true)
-	self.ChannelShadow:SetVertexColor(vcbFactionColor:GetRGB())
-	self.StandardGlow:SetDesaturated(true)
-	self.StandardGlow:SetVertexColor(vcbFactionColor:GetRGB())
-	self.Flash:SetDesaturated(true)
-	self.Flash:SetVertexColor(vcbFactionColor:GetRGB())
-end
 -- Spell School color --
 local function Color_SpellSchool(self)
 	self:SetStatusBarDesaturated(true)
@@ -570,8 +557,6 @@ local function Color_SpellSchool(self)
 		self.ChannelShadow:SetVertexColor(vcbChaosColor:GetRGB())
 		self.StandardGlow:SetVertexColor(vcbChaosColor:GetRGB())
 		self.Flash:SetVertexColor(vcbChaosColor:GetRGB())
-	else
-		Color_Default(self)
 	end
 end
 -- final function --
@@ -581,8 +566,6 @@ local function CastBarColor(self)
 			Color_Default(self)
 		elseif VCBrPlayer["Color"] == "職業顏色" then
 			Color_Class(self)
-		elseif VCBrPlayer["Color"] == "陣營顏色" then
-			Color_Faction(self)
 		elseif VCBrPlayer["Color"] == "法術類型顏色" then
 			Color_SpellSchool(self)
 		end
@@ -1215,16 +1198,6 @@ local function HeroIcon(self)
 	end
 	self:SetTexCoordRange(a, b)
 end
-local function FactionIcon(self)
-	local a = CreateVector2D(0, 0)
-	local b = CreateVector2D(1, 1)
-	if vcbFaction.name == "聯盟" then
-	self:SetSwipeTexture("interface/ICONS/UI_AllianceIcon-round")
-	elseif vcbFaction.name == "部落" then
-	self:SetSwipeTexture("interface/ICONS/UI_HordeIcon-round")
-	end
-	self:SetTexCoordRange(a, b)
-end
 -- Hooking Time part 1 --
 PlayerCastingBarFrame:HookScript("OnShow", function(self)
 	if VCBrPlayer["Icon"] == "左" then
@@ -1312,8 +1285,6 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 				ClassIcon(vcbFrameGCD)
 			elseif VCBrPlayer["GCD"]["ClassicTexture"] == "英雄圖示" then
 				HeroIcon(vcbFrameGCD)
-			elseif VCBrPlayer["GCD"]["ClassicTexture"] == "陣營圖示" then
-				FactionIcon(vcbFrameGCD)
 			end
 		end
 		vcbCreatingTheGCD()
@@ -1328,6 +1299,8 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 		VCBarg3 = arg3
 		PlayerCastLagBar(arg3)
 		PlayerCastSpellQueueBar(arg3)
+		local mountID = C_MountJournal.GetMountFromSpell(arg3)
+		if mountID then vcbSpellSchool = 72 end
 	elseif event == "UNIT_SPELLCAST_CHANNEL_START" and arg1 == "player" then
 		vcbHideTicks()
 		VCBLagCastBar:Hide()
@@ -1352,15 +1325,12 @@ local function EventsTime(self, event, arg1, arg2, arg3, arg4)
 			vcbEvokerTicksSecondTime = true
 		end
 	elseif event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then
-		vcbSpellSchool = 0
 		local spellCooldownInfo = C_Spell.GetSpellCooldown(61304)
 		if spellCooldownInfo.duration > 0 then
 			if VCBrPlayer["GCD"]["ClassicTexture"] ~= "隱藏" then
 				vcbFrameGCD:SetCooldown(GetTime(), spellCooldownInfo.duration - (GetTime() - lagStart))
 			end
 		end
-	elseif event == "UNIT_SPELLCAST_INTERRUPTED" and arg1 == "player" then
-		vcbSpellSchool = 0
 	end
 end
 vcbZlave:HookScript("OnEvent", EventsTime)
