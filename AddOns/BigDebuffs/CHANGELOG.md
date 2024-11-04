@@ -1,8 +1,7 @@
 # BigDebuffs
 
-## [v41](https://github.com/jordonwow/bigdebuffs/tree/v41) (2024-10-23)
-[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v40...v41) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
+## [v42](https://github.com/jordonwow/bigdebuffs/tree/v42) (2024-11-03)
+[Full Changelog](https://github.com/jordonwow/bigdebuffs/compare/v41...v42) [Previous Releases](https://github.com/jordonwow/bigdebuffs/releases)
 
-- 11.0.5 Changes (#803)  
-    * 11.0.5 Changes  
-    * 11.0.5  
+- Add General's Phalanx and Bulwark to mainline (#809)  
+- Revert "feat: add support for GladiusEx frames" (#805)  
