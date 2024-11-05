@@ -1,5 +1,5 @@
 ## Interface: 100002
-## Version: 11.0.2.3
+## Version: 11.0.5.0
 
 ## Title: Lib: UTF8
 ## Notes: A library for manipulating UTF-8 strings

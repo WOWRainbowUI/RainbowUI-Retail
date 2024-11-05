@@ -1,8 +1,11 @@
 local AddonName, Data = ...
 
 
-local MAJOR, MINOR = "LibSpellIconSelector", 2
+local MAJOR, MINOR = "LibSpellIconSelector", 3
 local LibSpellIconSelector = LibStub:NewLibrary(MAJOR, MINOR)
+
+local C_Spell = C_Spell
+local GetSpellInfo = GetSpellInfo
 
 if not LibSpellIconSelector then return end
 
@@ -42,9 +45,17 @@ local function findSpellByIconId(t, iconId)
 end
 
 local function parseSpellInfo(spellId)
-   local name, rank, icon = GetSpellInfo(spellId)
-   if not name or name == "" or not icon then return end
-   return {name = name, spellId = spellId, icon = icon}
+	if C_Spell and C_Spell.GetSpellInfo then
+		local spellInfo = C_Spell.GetSpellInfo(spellId)
+		if not spellInfo then return end
+		if not spellInfo.iconID then return end
+		spellInfo.icon = spellInfo.iconID
+		return spellInfo
+	else
+		local name, rank, iconID = GetSpellInfo(spellId)
+		if not name or name == "" or not iconID then return end
+		return {name = name, spellId = spellId, icon = iconID}
+	end
 end
 
 
@@ -93,8 +104,8 @@ function iconSelectorFrameMixin:OnShow()
 	self:RefreshIconDataProvider();
 	self.BorderBox.IconSelectorEditBox:OnTextChanged();
 
-	local function OnIconSelected(selectionIndex, icon)
-		self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(icon);
+	local function OnIconSelected(selectionIndex, iconID)
+		self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(iconID);
 
 		-- Index is not yet set, but we know if an icon in IconSelector was selected it was in the list, so set directly.
 
@@ -259,17 +270,17 @@ function LibSpellIconSelector:Show(iconId, onApply)
 			frame:RefreshIconDataProvider()
 		end)
 
-		local function IconButtonInitializer(button, selectionIndex, icon)
+		local function IconButtonInitializer(button, selectionIndex, iconID)
 			button.OnEnter = function(self)
 				local selectionIndex = self:GetSelectionIndex()
 				local spell = dataProviderTable[selectionIndex]
 				local spellId = spell.spellId
 				local spellname = spell.name
-				local icon = spell.icon
+				local iconID = spell.icon
 				GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 0)
 				GameTooltip:AddLine("SpellId: "..tostring(spellId), 1, 1, 1)
 				GameTooltip:AddLine("Spell name: "..spellname, 1, 1, 1)
-				GameTooltip:AddLine("Icon ID: "..tostring(icon), 1, 1, 1)
+				GameTooltip:AddLine("Icon ID: "..tostring(iconID), 1, 1, 1)
 				GameTooltip:Show()
 			end
 

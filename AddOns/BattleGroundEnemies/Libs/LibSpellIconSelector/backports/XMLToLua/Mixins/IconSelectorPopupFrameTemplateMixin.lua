@@ -56,17 +56,18 @@ end
 function IconSelectorPopupFrameTemplateMixin:OnEvent(event, ...)
 end
 
+
 function IconSelectorPopupFrameTemplateMixin:SetIconFromMouse()
 	local cursorType, ID = GetCursorInfo();
 	for _, validType in ipairs(ValidIconSelectorCursorTypes) do
 		if ( cursorType == validType ) then
 			local icon;
 			if ( cursorType == "item" ) then
-				icon = select(10, GetItemInfo(ID));
+				icon = GetItemInfo and select(10, GetItemInfo(ID)) or C_Item and C_Item.GetItemInfo and select(10, C_Item.GetItemInfo(ID));
 			elseif ( cursorType == "spell" ) then
 				-- 'ID' field for spells would actually be the slot number, not the actual spellID, so we get this separately.
 				local spellID = select(4, GetCursorInfo());
-				icon = select(3, GetSpellInfo(spellID));
+				icon = GetSpellInfo and select(3, GetSpellInfo(spellID)) or C_Spell and C_Spell.GetSpellInfo and C_Spell.GetSpellInfo(spellID) and C_Spell.GetSpellInfo(spellID).iconID;
 			elseif ( cursorType == "mount" ) then
 				icon = select(3, C_MountJournal.GetMountInfoByID(ID));
 			elseif ( cursorType == "battlepet" ) then
