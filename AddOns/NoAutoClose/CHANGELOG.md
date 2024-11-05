@@ -1,6 +1,6 @@
 # NoAutoClose
 
-## [v1.3.3](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.3) (2024-11-03)
-[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.2...v1.3.3) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
+## [v1.3.4](https://github.com/NumyAddon/NoAutoClose/tree/v1.3.4) (2024-11-04)
+[Full Changelog](https://github.com/NumyAddon/NoAutoClose/compare/v1.3.3...v1.3.4) [Previous Releases](https://github.com/NumyAddon/NoAutoClose/releases)
 
-- fix issue with frames sometimes not hiding properly while in combat  
+- fix error on cata classic  
