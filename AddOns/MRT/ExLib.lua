@@ -169,7 +169,7 @@ CheckButton	ExRTRadioButtonModernTemplate
 local GlobalAddonName, ExRT = ...
 local isExRT = GlobalAddonName == "MRT"
 
-local libVersion = 49
+local libVersion = 50
 
 if type(ELib)=='table' and type(ELib.V)=='number' and ELib.V > libVersion then return end
 
@@ -624,7 +624,7 @@ do
 			self:SetValue(self.InResetState)
 			return
 		end
-		local text = self:GetParent().sliderText and self:GetParent().sliderText(self,val) or format("%d%s",val,self:GetParent().sliderAfterText or "")
+		local text = self:GetParent().sliderText and self:GetParent().sliderText(self,val) or format("%s%d%s",self:GetParent().sliderBeforeText or "",val,self:GetParent().sliderAfterText or "")
 		self.text:SetText(text)
 		if self:GetParent().sliderFunc then
 			self:GetParent().sliderFunc(self,val)
@@ -2187,6 +2187,15 @@ do
 		GameTooltip:SetText(self.tooltipText or "")
 		GameTooltip:Show()
 	end
+	function Tooltip:Std2(anchorUser,...)
+		GameTooltip:SetOwner(self,anchorUser or "ANCHOR_RIGHT")
+		if self.tooltipOpts then
+			GameTooltip:SetText(self.tooltipText or "",unpack(self.tooltipOpts))
+		else
+			GameTooltip:SetText(self.tooltipText or "")
+		end
+		GameTooltip:Show()
+	end
 	function Tooltip:Link(data,...)
 		if not data then return end
 		local x = self:GetRight()
@@ -2749,13 +2758,13 @@ do
 		return self
 	end
 
-
 	function ELib:Text(parent,text,size,template)
 		if template == 0 then 
 			template = nil 
 		elseif not template then
 			template = "ExRTFontNormal"
 		end
+
 		local self = parent:CreateFontString(nil,"ARTWORK",template)
 		if template and size then
 			local filename = self:GetFont()
@@ -3368,10 +3377,13 @@ do
 		end
 		return self
 	end
-	local function Widget_Tooltip(self,text)
-		self:SetScript("OnEnter",ELib.Tooltip.Std)
+	local function Widget_Tooltip(self,text,...)
+		self:SetScript("OnEnter",ELib.Tooltip.Std2)
 		self:SetScript("OnLeave",ELib.Tooltip.Hide)
 		self.tooltipText = text
+		if select("#",...) > 0 then
+			self.tooltipOpts = {...}
+		end
 		return self
 	end
 	function ELib:Icon(parent,textureIcon,size,isButton)
@@ -4480,6 +4492,9 @@ do
 		ELib.ScrollDropDown.ClickButton(self,...)
 	end
 	local function DropDown_AutoText(self,value,key)
+		if self.PreUpdate then
+			self:PreUpdate()
+		end
 		for i=1,#self.List do
 			if self.List[i][key or "arg1"] == value then
 				self:SetText(self.List[i].text)
@@ -4828,7 +4843,10 @@ function ELib.ScrollDropDown:Reload(level)
 
 					if data.slider then	-- {func = onChangedFunc, val = currVal, min = currMin, max = currMax}
 						button.slider:SetMinMaxValues(data.slider.min,data.slider.max)
+						button.slider:SetValueStep(data.slider.step or 1)
 						button.sliderAfterText = data.slider.afterText
+						button.sliderBeforeText = data.slider.beforeText
+						button.sliderText = data.slider.sliderText
 						button.sliderFunc = nil
 						button.slider:SetValue(data.slider.val)
 						button.sliderFunc = data.slider.func
@@ -4916,7 +4934,11 @@ function ELib.ScrollDropDown.OnButtonEnter(self)
 	end
 	if self.tooltip then
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine(type(self.tooltip)=="function" and self.tooltip() or self.tooltip)
+		if type(self.tooltip) == "string" and self.tooltip:find("^spell:%d+") then
+			GameTooltip:SetHyperlink(self.tooltip)
+		else
+			GameTooltip:AddLine(type(self.tooltip)=="function" and self.tooltip() or self.tooltip)
+		end
 		GameTooltip:Show()
 	end
 	ELib.ScrollDropDown:CloseSecondLevel(self.Level)
@@ -5038,7 +5060,7 @@ function ELib.ScrollDropDown.ToggleDropDownMenu(self,level,customList,customWidt
 	dropDown.parent = self
 
 	dropDown:Show()
-	dropDown:SetFrameLevel(0)
+	dropDown:SetFrameLevel(10+(level or 0))
 
 	ELib.ScrollDropDown:Reload()
 end
@@ -7039,6 +7061,19 @@ do
 
 		return self
 	end
+end
+
+function ELib:ScrollFrameBackground(parent)
+	local self = CreateFrame("ScrollFrame", nil, parent)
+
+	self.content = CreateFrame("Frame", nil, self) 
+	self:SetScrollChild(self.content)
+
+	self.C = self.content
+
+	self.C:SetAllPoints()
+
+	return self
 end
 
 do
