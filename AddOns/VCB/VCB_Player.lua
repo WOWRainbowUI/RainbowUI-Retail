@@ -1078,121 +1078,121 @@ local function HeroIcon(self)
 	local chkTalentID = C_ClassTalents.GetLastSelectedSavedConfigID(PlayerUtil.GetCurrentSpecID())
 	local hero = C_ClassTalents.GetActiveHeroTalentSpec()
 	local subTreeInfo = C_Traits.GetSubTreeInfo(chkTalentID, hero)
-	if subTreeInfo.name == "Deathbringer" then
+	if subTreeInfo.iconElementID == "talents-heroclass-deathknight-deathbringer" then
 		a = CreateVector2D(0.00048828125, 0.0009765625)
 		b = CreateVector2D(0.09814453125, 0.1962890625)
-	elseif subTreeInfo.name == "Rider of the Apocalypse" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-deathknight-rideroftheapocalypse" then
 		a = CreateVector2D(0.00048828125, 0.1982421875)
 		b = CreateVector2D(0.09814453125, 0.3935546875)
-	elseif subTreeInfo.name == "San'layn" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-deathknight-sanlayn" then
 		a = CreateVector2D(0.00048828125, 0.3955078125)
 		b = CreateVector2D(0.09814453125, 0.5908203125)
-	elseif subTreeInfo.name == "Aldrachi Reaver" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-demonhunter-aldrachireaver" then
 		a = CreateVector2D(0.00048828125, 0.5927734375)
 		b = CreateVector2D(0.09814453125, 0.7880859375)
-	elseif subTreeInfo.name == "Fel-Scarred" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-demonhunter-felscarred" then
 		a = CreateVector2D(0.00048828125, 0.7900390625)
 		b = CreateVector2D(0.09814453125, 0.9853515625)
-	elseif subTreeInfo.name == "Druid of the Claw" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-druid-druidoftheclaw" then
 		a = CreateVector2D(0.09912109375, 0.0009765625)
 		b = CreateVector2D(0.19677734375, 0.1962890625)
-	elseif subTreeInfo.name == "Elune's Chosen" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-druid-eluneschosen" then
 		a = CreateVector2D(0.09912109375, 0.1982421875)
 		b = CreateVector2D(0.19677734375, 0.3935546875)
-	elseif subTreeInfo.name == "Keeper of the Grove" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-druid-keeperofthegrove" then
 		a = CreateVector2D(0.09912109375, 0.3955078125)
 		b = CreateVector2D(0.19677734375, 0.5908203125)
-	elseif subTreeInfo.name == "Wildstalker" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-druid-wildstalker" then
 		a = CreateVector2D(0.09912109375, 0.5927734375)
 		b = CreateVector2D(0.19677734375, 0.7880859375)
-	elseif subTreeInfo.name == "Chronowarden" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-evoker-chronowarden" then
 		a = CreateVector2D(0.09912109375, 0.7900390625)
 		b = CreateVector2D(0.19677734375, 0.9853515625)
-	elseif subTreeInfo.name == "Flameshaper" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-evoker-flameshaper" then
 		a = CreateVector2D(0.19775390625, 0.0009765625)
 		b = CreateVector2D(0.29541015625, 0.1962890625)
-	elseif subTreeInfo.name == "Scalecommander" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-evoker-scalecommander" then
 		a = CreateVector2D(0.19775390625, 0.1982421875)
 		b = CreateVector2D(0.29541015625, 0.3935546875)
-	elseif subTreeInfo.name == "Dark Ranger" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-hunter-darkranger" then
 		a = CreateVector2D(0.19775390625, 0.3955078125)
 		b = CreateVector2D(0.29541015625, 0.5908203125)
-	elseif subTreeInfo.name == "Pack Leader" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-hunter-packleader" then
 		a = CreateVector2D(0.19775390625, 0.5927734375)
 		b = CreateVector2D(0.29541015625, 0.7880859375)
-	elseif subTreeInfo.name == "Sentinel" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-hunter-sentinel" then
 		a = CreateVector2D(0.19775390625, 0.7900390625)
 		b = CreateVector2D(0.29541015625, 0.9853515625)
-	elseif subTreeInfo.name == "Frostfire" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-mage-frostfire" then
 		a = CreateVector2D(0.29638671875, 0.0009765625)
 		b = CreateVector2D(0.39404296875, 0.1962890625)
-	elseif subTreeInfo.name == "Spellslinger" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-mage-spellslinger" then
 		a = CreateVector2D(0.29638671875, 0.1982421875)
 		b = CreateVector2D(0.39404296875, 0.3935546875)
-	elseif subTreeInfo.name == "Sunfury" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-mage-sunfury" then
 		a = CreateVector2D(0.29638671875, 0.3955078125)
 		b = CreateVector2D(0.39404296875, 0.5908203125)
-	elseif subTreeInfo.name == "Conduit of the Celestials" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-monk-conduitofthecelestials" then
 		a = CreateVector2D(0.29638671875, 0.5927734375)
 		b = CreateVector2D(0.39404296875, 0.7880859375)
-	elseif subTreeInfo.name == "Master of Harmony" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-monk-masterofharmony" then
 		a = CreateVector2D(0.59228515625, 0.7900390625)
 		b = CreateVector2D(0.68994140625, 0.9853515625)
-	elseif subTreeInfo.name == "Shado-pan" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-monk-shadopan" then
 		a = CreateVector2D(0.29638671875, 0.7900390625)
 		b = CreateVector2D(0.39404296875, 0.9853515625)
-	elseif subTreeInfo.name == "Herald of the Sun" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-paladin-heraldofthesun" then
 		a = CreateVector2D(0.39501953125, 0.0009765625)
 		b = CreateVector2D(0.49267578125, 0.1962890625)
-	elseif subTreeInfo.name == "Lightsmith" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-paladin-lightsmith" then
 		a = CreateVector2D(0.39501953125, 0.1982421875)
 		b = CreateVector2D(0.49267578125, 0.3935546875)
-	elseif subTreeInfo.name == "Templar" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-paladin-templar" then
 		a = CreateVector2D(0.39501953125, 0.3955078125)
 		b = CreateVector2D(0.49267578125, 0.5908203125)
-	elseif subTreeInfo.name == "Archon" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-priest-archon" then
 		a = CreateVector2D(0.39501953125, 0.5927734375)
 		b = CreateVector2D(0.49267578125, 0.7880859375)
-	elseif subTreeInfo.name == "Oracle" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-priest-oracle" then
 		a = CreateVector2D(0.39501953125, 0.7900390625)
 		b = CreateVector2D(0.49267578125, 0.9853515625)
-	elseif subTreeInfo.name == "Voidweaver" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-priest-voidweaver" then
 		a = CreateVector2D(0.49365234375, 0.0009765625)
 		b = CreateVector2D(0.59130859375, 0.1962890625)
-	elseif subTreeInfo.name == "Deathstalker" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-rogue-deathstalker" then
 		a = CreateVector2D(0.49365234375, 0.1982421875)
 		b = CreateVector2D(0.59130859375, 0.3935546875)
-	elseif subTreeInfo.name == "Fatebound" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-rogue-fatebound" then
 		a = CreateVector2D(0.49365234375, 0.3955078125)
 		b = CreateVector2D(0.59130859375, 0.5908203125)
-	elseif subTreeInfo.name == "Trickster" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-rogue-trickster" then
 		a = CreateVector2D(0.49365234375, 0.5927734375)
 		b = CreateVector2D(0.59130859375, 0.7880859375)
-	elseif subTreeInfo.name == "Farseer" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-shaman-farseer" then
 		a = CreateVector2D(0.49365234375, 0.7900390625)
 		b = CreateVector2D(0.59130859375, 0.9853515625)
-	elseif subTreeInfo.name == "Stormbringer" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-shaman-stormbringer" then
 		a = CreateVector2D(0.59228515625, 0.0009765625)
 		b = CreateVector2D(0.68994140625, 0.1962890625)
-	elseif subTreeInfo.name == "Totemic" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-shaman-totemic" then
 		a = CreateVector2D(0.69091796875, 0.0009765625)
 		b = CreateVector2D(0.78857421875, 0.1962890625)
-	elseif subTreeInfo.name == "Diabolist" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-warlock-diabolist" then
 		a = CreateVector2D(0.78955078125, 0.0009765625)
 		b = CreateVector2D(0.88720703125, 0.1962890625)
-	elseif subTreeInfo.name == "Hellcaller" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-warlock-hellcaller" then
 		a = CreateVector2D(0.69091796875, 0.1982421875)
 		b = CreateVector2D(0.78857421875, 0.3935546875)
-	elseif subTreeInfo.name == "Soul Harvester" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-warlock-soulharvester" then
 		a = CreateVector2D(0.88818359375, 0.0009765625)
 		b = CreateVector2D(0.98583984375, 0.1962890625)
-	elseif subTreeInfo.name == "Colossus" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-warrior-colossus" then
 		a = CreateVector2D(0.59228515625, 0.1982421875)
 		b = CreateVector2D(0.68994140625, 0.3935546875)
-	elseif subTreeInfo.name == "Mountain Thane" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-warrior-mountainthane" then
 		a = CreateVector2D(0.59228515625, 0.3955078125)
 		b = CreateVector2D(0.68994140625, 0.5908203125)
-	elseif subTreeInfo.name == "Slayer" then
+	elseif subTreeInfo.iconElementID == "talents-heroclass-warrior-slayer" then
 		a = CreateVector2D(0.59228515625, 0.5927734375)
 		b = CreateVector2D(0.68994140625, 0.7880859375)
 	end
