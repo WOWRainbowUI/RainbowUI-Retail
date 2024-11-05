@@ -1353,6 +1353,73 @@ do
 	end
 end
 
+do
+	local alertWindow = nil
+	local alertFunc = nil
+	local alertArg1 = nil
+	local ce = 0
+	local function CreateEdit()
+		ce = ce + 1
+		local e = alertWindow.EditBox[ce]
+		if not e then
+			e = ELib:Edit(alertWindow):Size(400,16):Point("TOPLEFT",90,-20-(ce-1)*20)
+			alertWindow.EditBox[ce] = e
+
+			e:SetScript("OnEnterPressed",function (self)
+				self:GetParent().OK:Click("LeftButton")
+			end)
+		end
+		e:Show()
+
+		return alertWindow.EditBox[ce]
+	end
+	local function CreateWindow()
+		alertWindow = ExRT.lib:Popup():Size(500,65)
+		alertWindow:SetFrameStrata("FULLSCREEN_DIALOG")
+
+		alertWindow.EditBox = {}
+
+		alertWindow.OK = ExRT.lib:Button(alertWindow,ACCEPT):Size(130,20):Point("BOTTOM",0,3):OnClick(function (self)
+			alertWindow:Hide()
+			local r = {}
+			for i=1,#alertWindow.EditBox do
+				local e = alertWindow.EditBox[i]
+				local input = e:GetText()
+				r[i] = input
+			end
+			alertFunc(r)
+		end)
+	end
+	function ExRT.F.ShowInput2(text,func,...)
+		if not alertWindow then
+			CreateWindow()
+		end
+		ce = 0
+		alertWindow.title:SetText(text)
+		for i=1,select("#",...) do
+			local opt = select(i,...)
+			
+			local e = CreateEdit()
+			e:LeftText(type(opt) == "table" and opt.text or opt)
+			e:SetScript("OnTextChanged",type(opt) == "table" and opt.funcOnEdit or nil)
+			e:Tooltip(type(opt) == "table" and opt.tip or nil)
+			e:SetText(type(opt) == "table" and opt.defText or "")
+			if type(opt) == "table" and opt.onlyNum then
+				e:SetNumeric(true)
+			else
+				e:SetNumeric(false)
+			end
+		end
+		alertFunc = func
+
+		alertWindow:ClearAllPoints()
+		alertWindow:SetPoint("CENTER",UIParent,0,0)
+		alertWindow:SetHeight(45+20*ce)
+		alertWindow:Show()
+		alertWindow.EditBox[1]:SetFocus()
+	end
+end
+
 ---------------> Chat links hook <---------------
 do
 	local chatLinkFormat = "|HMRT:%s:0|h|cffffff00[MRT: %s]|r|h"
