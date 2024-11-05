@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TheDawnbreakerTrash", "DBM-Party-WarWithin", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241103162323")
+mod:SetRevision("20241104102517")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -345,7 +345,7 @@ function mod:StartNameplateTimers(guid, cid)
 	elseif cid == 213892 or cid == 228540 then--Nightfall Shadowmage (223994 is an RP mage, not engaged)
 		timerEnsharingShadowsCD:Start(cid == 228540 and 10.8 or 8.3, guid)--8.3-12.9 (213892) 10.8-14 (228540)
 	elseif cid == 210966 then--Sureki Webmage
-		timerBurstingCacoonCD:Start(5.9, guid)--5.9-11.7
+		timerBurstingCacoonCD:Start(1.8, guid)--1.8-11.7
 	end
 end
 

@@ -1,12 +1,13 @@
 local mod	= DBM:NewMod("NecroticWakeTrash", "DBM-Party-Shadowlands", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241103173717")
+mod:SetRevision("20241104115606")
 --mod:SetModelID(47785)
 
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
 mod:SetZone(2286)
+mod:RegisterZoneCombat(2286)
 
 mod:RegisterEvents(
 	"SPELL_CAST_START 324293 327240 327399 334748 320462 338353 323496 333477 333479 338606 345623 322756 328667 335143 320822 324394 324387 338456 324323 321807",
@@ -91,7 +92,7 @@ local timerAnimatedDeadCD					= mod:NewCDNPTimer(29.1, 321780, nil, nil, nil, 1)
 local timerBoneMendCD						= mod:NewCDPNPTimer(7, 335143, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--7 second recast, but can be delayed a lot by Final bargain
 --local timerRaspingScreamCD				= mod:NewCDPNPTimer(15, 324293, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--Not known, couldn't find a single log mob lived more than one cast
 local timerGruesomeCleaveCD					= mod:NewCDPNPTimer(11.1, 324323, nil, nil, nil, 3)
---local timerBoneshatterShieldCD			= mod:NewCDNPTimer(15, 343470, nil, nil, nil, 1, nil, DBM_CORE_L.DAMAGE_ICON)--Not known, couldn't find a single log mob lived more than one cast
+--local timerBoneshatterShieldCD			= mod:NewCDNPTimer(15, 343470, nil, nil, nil, 1, nil, DBM_COMMON_L.DAMAGE_ICON)--Not known, couldn't find a single log mob lived more than one cast
 --local timerFrostBoltVolleyCD				= mod:NewCDNPTimer(15.4, 328667, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--CD unknown
 local timerGoresplatterCD					= mod:NewCDPNPTimer(20, 338353, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--20-22
 local timerMutlilateCD						= mod:NewCDNPTimer(13, 338456, nil, nil, nil, 5)--13 sec trash, 10.6 both minibosses
@@ -434,4 +435,10 @@ function mod:UNIT_DIED(args)
 	elseif cid == 163619 then--Zolramus Bonecarver
 
 	end
+end
+
+--Abort timers when all players out of combat, so NP timers clear on a wipe
+--Caveat, it won't calls top with GUIDs, so while it might terminate bar objects, it may leave lingering nameplate icons
+function mod:LeavingZoneCombat()
+	self:Stop()
 end

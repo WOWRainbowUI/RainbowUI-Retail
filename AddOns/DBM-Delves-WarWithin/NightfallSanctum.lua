@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("z2686", "DBM-Delves-WarWithin")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241102154000")
+mod:SetRevision("20241105003512")
 mod:SetHotfixNoticeRev(20240422000000)
 mod:SetMinSyncRevision(20240422000000)
 mod:SetZone(2686)
@@ -51,7 +51,7 @@ function mod:SPELL_CAST_START(args)
 		specWarnShadowSweep:Show()
 		specWarnShadowSweep:Play("frontal")
 		timerShadowSweepCD:Start()
-	elseif args.spellId == 470592 then
+	elseif args.spellId == 470592 and args:GetSrcCreatureID() == 218022 then
 		timerBlessingofDuskCD:Start()
 	elseif args.spellId == 444408 then
 		specWarnSpeakersWrath:Show()

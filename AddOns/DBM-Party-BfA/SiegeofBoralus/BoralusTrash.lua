@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("BoralusTrash", "DBM-Party-BfA", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241103162323")
+mod:SetRevision("20241104104210")
 --mod:SetModelID(47785)
 
 mod.isTrashMod = true
@@ -39,8 +39,8 @@ local warnAzeriteCharge				= mod:NewTargetAnnounce(454437, 2)
 local warnBurningTar				= mod:NewSpellAnnounce(256640, 2)
 local warnIronHook					= mod:NewSpellAnnounce(272662, 4, nil, nil, nil, nil, nil, 12)
 
+local specWarnSingingSteel			= mod:NewSpecialWarningDefensive(256709, nil, nil, nil, 1, 2)
 local specWarnSlobberKnocker		= mod:NewSpecialWarningDodge(256627, nil, nil, 2, 1, 15)
-local specWarnSingingSteel			= mod:NewSpecialWarningDodge(256709, "Tank", nil, nil, 1, 15)
 local specWarnHeavySlash			= mod:NewSpecialWarningDodge(257288, "Tank", nil, nil, 1, 15)
 local specWarnCrushingSlam			= mod:NewSpecialWarningSpell(272711, nil, nil, nil, 2, 2)
 --local specWarnTrample				= mod:NewSpecialWarningDodge(272874, nil, nil, nil, 2, 2)
@@ -62,8 +62,6 @@ local specWarnChokingWatersDispel	= mod:NewSpecialWarningDispel(272571, "RemoveM
 local specWarnFear					= mod:NewSpecialWarningSpell(257169, nil, nil, nil, 2, 2)
 local specWarnShatteringBellow		= mod:NewSpecialWarningCast(257732, "SpellCaster", nil, nil, 1, 1)
 
---copilot, there are no NewCDTimer objects in this mod, only NewCDNPTimer objects
---copilot, there is no DBM_CORE_L in this mod, only DBM_COMMON_L
 local timerSlobberknockerCD			= mod:NewCDPNPTimer(18.8, 256627, nil, nil, nil, 5)--18.8-20.6
 local timerBurningTarCD				= mod:NewCDNPTimer(20.1, 256640, nil, nil, nil, 3)
 local timerSavageTempestCD			= mod:NewCDNPTimer(19.1, 257170, nil, nil, nil, 3)
@@ -101,9 +99,11 @@ function mod:SPELL_CAST_START(args)
 	elseif spellId == 256627 and self:AntiSpam(3, 2) then
 		specWarnSlobberKnocker:Show()
 		specWarnSlobberKnocker:Play("frontal")
-	elseif spellId == 256709 and self:AntiSpam(3, 2) then
-		specWarnSingingSteel:Show()
-		specWarnSingingSteel:Play("frontal")
+	elseif spellId == 256709 then
+		if self:IsTanking("player", nil, nil, true, args.sourceGUID) and self:AntiSpam(3, 5) then
+			specWarnSingingSteel:Show()
+			specWarnSingingSteel:Play("defensive")
+		end
 	elseif spellId == 257170 then
 		timerSavageTempest:Start(nil, args.sourceGUID)
 		if self:AntiSpam(4, 1) then
