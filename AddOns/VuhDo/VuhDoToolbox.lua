@@ -1025,21 +1025,23 @@ function VUHDO_isActionValid(anActionName, anIsCustom, anIsHostile)
 	tActionLowerName = strlower(anActionName);
 
 	if anIsHostile then
-		if (VUHDO_SPELL_KEY_ASSIST == tActionLowerName 
+		if (VUHDO_SPELL_KEY_ASSIST == tActionLowerName
 		 or VUHDO_SPELL_KEY_FOCUS == tActionLowerName
-		 or VUHDO_SPELL_KEY_TARGET == tActionLowerName 
-		 or VUHDO_SPELL_KEY_EXTRAACTIONBUTTON == tActionLowerName 
-		 or VUHDO_SPELL_KEY_MOUSELOOK == tActionLowerName) then
+		 or VUHDO_SPELL_KEY_TARGET == tActionLowerName
+		 or VUHDO_SPELL_KEY_EXTRAACTIONBUTTON == tActionLowerName
+		 or VUHDO_SPELL_KEY_MOUSELOOK == tActionLowerName
+		 or VUHDO_SPELL_KEY_PING == tActionLowerName) then
 			tIsHostileAction = true;
 		end
 	else
-		if VUHDO_SPELL_KEY_ASSIST == tActionLowerName 
-		 or VUHDO_SPELL_KEY_FOCUS == tActionLowerName 
-		 or VUHDO_SPELL_KEY_MENU == tActionLowerName 
-		 or VUHDO_SPELL_KEY_TELL == tActionLowerName 
-		 or VUHDO_SPELL_KEY_TARGET == tActionLowerName 
-		 or VUHDO_SPELL_KEY_EXTRAACTIONBUTTON == tActionLowerName 
-		 or VUHDO_SPELL_KEY_MOUSELOOK == tActionLowerName 
+		if VUHDO_SPELL_KEY_ASSIST == tActionLowerName
+		 or VUHDO_SPELL_KEY_FOCUS == tActionLowerName
+		 or VUHDO_SPELL_KEY_MENU == tActionLowerName
+		 or VUHDO_SPELL_KEY_TELL == tActionLowerName
+		 or VUHDO_SPELL_KEY_TARGET == tActionLowerName
+		 or VUHDO_SPELL_KEY_EXTRAACTIONBUTTON == tActionLowerName
+		 or VUHDO_SPELL_KEY_MOUSELOOK == tActionLowerName
+		 or VUHDO_SPELL_KEY_PING == tActionLowerName
 		 or VUHDO_SPELL_KEY_DROPDOWN == tActionLowerName then
 			tIsFriendlyAction = true;
 		end
