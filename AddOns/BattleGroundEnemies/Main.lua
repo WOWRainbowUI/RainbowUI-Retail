@@ -67,7 +67,7 @@ local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsTBCC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 local IsWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 
-local HasSpeccs = not not GetSpecializationInfoByID  -- Mists of Pandaria
+local HasSpeccs = not not GetSpecialization  -- Mists of Pandaria
 local HasRBG = not not IsRatedBattleground
 
 local MaxLevel = GetMaxPlayerLevel()
@@ -3191,7 +3191,7 @@ function BattleGroundEnemies.Enemies:CreateArenaEnemies()
 
 
 		local _, classTag, specName
-		if GetArenaOpponentSpec and GetSpecializationInfoByID then --HasSpeccs
+		if GetArenaOpponentSpec and GetSpecializationInfoByID and GetSpecialization then --HasSpeccs
 			local specID, gender = GetArenaOpponentSpec(i)
 
 			if (specID and specID > 0) then
@@ -3281,6 +3281,26 @@ local function getTimestamp()
 	local timestampFormat = "[%I:%M:%S] " --timestamp format
 	local stamp = BetterDate(timestampFormat, time())
 	return stamp
+end
+
+local sentDebugMessages = {}
+function BattleGroundEnemies:OnetimeDebug(...)
+
+	local message = table.concat({ ... }, ", ")
+	if sentDebugMessages[message] then return end
+
+	if not self.db then return end
+	if not self.db.profile then return end
+	if not self.db.profile.Debug then return end
+
+	if not self.debugFrame then
+		self.debugFrame = CreatedebugFrame()
+	end
+
+	local text = stringifyMultitArgs(getTimestamp(), ...)
+
+	self.debugFrame:AddMessage(text)
+	sentDebugMessages[message] = true
 end
 
 function BattleGroundEnemies:Debug(...)

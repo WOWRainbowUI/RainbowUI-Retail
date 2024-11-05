@@ -1,10 +1,9 @@
 # BattleGroundEnemies
 
-## [11.0.2.3](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.2.3) (2024-08-25)
-[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.0.2.2...11.0.2.3) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
+## [11.0.5.0](https://github.com/BullseiWoWAddons/BattleGroundEnemies/tree/11.0.5.0) (2024-11-04)
+[Full Changelog](https://github.com/BullseiWoWAddons/BattleGroundEnemies/compare/11.0.2.3...11.0.5.0) [Previous Releases](https://github.com/BullseiWoWAddons/BattleGroundEnemies/releases)
 
-- trigger new build for new LibGroupInSpecT  
-- cosmetics  
-- cleaner that way  
-- C\_Spell.GetSpellInfo() returns table now, still keep backwards compability to old GetSpellInfo()  
-- cosmectical  
+- Update interface version numbers for BattleGroundEnemies  
+- Refactor specialization checks to include GetSpecialization function and update debug message logging  
+- Add one-time debug message logging to BattleGroundEnemies  
+- Update changelog for version 11.0.5.0 with bug fixes and localization improvements  
