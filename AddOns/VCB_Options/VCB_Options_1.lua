@@ -420,7 +420,7 @@ end)
 -- naming --
 vcbOptions1Box6PopOut2Choice0.Text:SetText("隱藏")
 vcbOptions1Box6PopOut2Choice1.Text:SetText("職業圖示")
--- vcbOptions1Box6PopOut2Choice2.Text:SetText("Hero Icon") -- 暫時移除
+vcbOptions1Box6PopOut2Choice2.Text:SetText("英雄圖示")
 -- parent & sort --
 for i = 1, 2, 1 do
 	_G["vcbOptions1Box6PopOut2Choice"..i]:SetParent(vcbOptions1Box6PopOut2Choice0)
