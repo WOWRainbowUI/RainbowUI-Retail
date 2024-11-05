@@ -13,6 +13,7 @@ local VUHDO_buildFocusMacroText;
 local VUHDO_buildAssistMacroText;
 local VUHDO_buildExtraActionButtonMacroText;
 local VUHDO_buildMouseLookMacroText;
+local VUHDO_buildPingMacroText;
 local VUHDO_replaceMacroTemplates;
 local VUHDO_isActionValid;
 local VUHDO_isSpellKnown;
@@ -45,6 +46,7 @@ function VUHDO_keySetupInitLocalOverrides()
 	VUHDO_buildAssistMacroText = _G["VUHDO_buildAssistMacroText"];
 	VUHDO_buildExtraActionButtonMacroText = _G["VUHDO_buildExtraActionButtonMacroText"];
 	VUHDO_buildMouseLookMacroText = _G["VUHDO_buildMouseLookMacroText"];
+	VUHDO_buildPingMacroText = _G["VUHDO_buildPingMacroText"];
 	VUHDO_replaceMacroTemplates = _G["VUHDO_replaceMacroTemplates"];
 	VUHDO_isActionValid = _G["VUHDO_isActionValid"];
 	VUHDO_isSpellKnown = _G["VUHDO_isSpellKnown"];
@@ -105,6 +107,9 @@ local function _VUHDO_setupHealButtonAttributes(aModiKey, aButtonId, anAction, a
 		elseif "mouselook" == tActionLow then
 			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
 			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildMouseLookMacroText());
+		elseif "ping" == tActionLow then
+			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, "macro");
+			aButton:SetAttribute(aModiKey .. "macrotext" .. aButtonId, VUHDO_buildPingMacroText(tUnit));
 		elseif "menu" == tActionLow or "tell" == tActionLow then
 			aButton:SetAttribute(aModiKey .. "type" .. aButtonId, nil);
 		elseif "dropdown" == tActionLow then

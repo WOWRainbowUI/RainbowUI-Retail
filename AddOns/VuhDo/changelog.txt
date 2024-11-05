@@ -1,3 +1,24 @@
+Version 3.178  
+  
+  
+Known issues:  
+-- Debuff tooltips are currently bugged when using ElvUI  
+--   Deselect 'VuhDo Options > Panels > Tooltips > Tooltips > Debuffs'  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed health bar color when mode opacity overrides class color opacity  
+  
+  
+Improvements:  
+-- Added new bindable command 'Ping' (friendly and hostile)  
+-- Bump TOC interface for 11.0.5  
+  
+  
+--------------------------------------------------------------  
 Version 3.177  
   
   

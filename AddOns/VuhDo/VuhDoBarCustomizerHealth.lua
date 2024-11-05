@@ -223,7 +223,7 @@ local function VUHDO_getStatusBarColor(aBarType, aUnit)
 			return tBarColor;
 		end
 
-		tBarClassColor = VUHDO_getClassColor(tInfo);
+		tBarClassColor = VUHDO_copyColor(VUHDO_getClassColor(tInfo));
 
 		if tBarColor["useOpacity"] then
 			tBarClassColor["useOpacity"] = true;

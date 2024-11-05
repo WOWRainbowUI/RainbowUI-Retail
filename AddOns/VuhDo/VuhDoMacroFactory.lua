@@ -199,6 +199,8 @@ local function VUHDO_generateTargetMacroText(aTarget, aFriendlyAction, aHostileA
 		tFriendText = "/focus [noharm,@vuhdo]\n";
 	elseif "assist" == tLowerFriendly then
 		tFriendText = "/assist [noharm,@vuhdo]\n";
+	elseif VUHDO_SPELL_KEY_PING == tLowerFriendly then
+		tFriendText = "/ping [help,@vuhdo]Assist;[harm,@vuhdo]Attack;[exists,@vuhdo]Ping\n";
 	elseif #aFriendlyAction > 0 and GetSpellName(aFriendlyAction) then
 		if (VUHDO_SPELLS[aFriendlyAction] or sEmpty)["nohelp"] then
 			tModiSpell = "[@vuhdo] ";
@@ -311,6 +313,15 @@ end
 --
 function VUHDO_buildMouseLookMacroText()
 	return "/run if IsMouselooking() then MouselookStop() else MouselookStart() end\n";
+end
+
+
+
+--
+function VUHDO_buildPingMacroText(aTarget)
+
+	return "/ping [@" .. aTarget .. ",harm] Attack;[@" .. aTarget .. ",help] Assist;[@" .. aTarget .. ",exists] Ping";
+
 end
 
 
