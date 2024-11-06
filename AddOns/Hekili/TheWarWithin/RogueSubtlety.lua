@@ -1076,7 +1076,7 @@ spec:RegisterAbilities( {
         spendType = "energy",
 
         startsCombat = true,
-        texture = 3565724,
+        texture = 6035318,
 
         toggle = "essences",
 
