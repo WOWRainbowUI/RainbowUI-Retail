@@ -69,20 +69,20 @@ function CraftSim.RECIPE_SCAN.UI:Init()
 
         CraftSim.RECIPE_SCAN.UI:InitRecipeScanTab(frame.content.recipeScanTab)
 
-        ---@class CraftSim.RECIPE_SCAN.SCAN_OPTIONS_TAB : GGUI.BlizzardTab
-        frame.content.scanOptionsTab = GGUI.BlizzardTab {
-            buttonOptions = {
-                label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_LABEL_OPTIONS),
-                anchorA = "LEFT", anchorB = "RIGHT", anchorParent = frame.content.recipeScanTab.button
-            },
-            parent = frame.content, anchorParent = frame.content,
-            sizeX = tabSizeX, sizeY = tabSizeY,
-            top = true,
-        }
+        -- ---@class CraftSim.RECIPE_SCAN.SCAN_OPTIONS_TAB : GGUI.BlizzardTab
+        -- frame.content.scanOptionsTab = GGUI.BlizzardTab {
+        --     buttonOptions = {
+        --         label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_TAB_LABEL_OPTIONS),
+        --         anchorA = "LEFT", anchorB = "RIGHT", anchorParent = frame.content.recipeScanTab.button
+        --     },
+        --     parent = frame.content, anchorParent = frame.content,
+        --     sizeX = tabSizeX, sizeY = tabSizeY,
+        --     top = true,
+        -- }
 
-        CraftSim.RECIPE_SCAN.UI:InitScanOptionsTab(frame.content.scanOptionsTab)
+        --CraftSim.RECIPE_SCAN.UI:InitScanOptionsTab(frame.content.scanOptionsTab)
 
-        GGUI.BlizzardTabSystem { frame.content.recipeScanTab, frame.content.scanOptionsTab }
+        GGUI.BlizzardTabSystem { frame.content.recipeScanTab }
     end
 
     createContent(CraftSim.RECIPE_SCAN.frame)
@@ -203,8 +203,52 @@ function CraftSim.RECIPE_SCAN.UI:InitRecipeScanTab(recipeScanTab)
         cleanTemplate = true,
         clickCallback = function(_, _)
             MenuUtil.CreateContextMenu(UIParent, function(ownerRegion, rootDescription)
+                GUTIL:CreateReuseableMenuUtilContextMenuFrame(rootDescription, function(frame)
+                    frame.label = GGUI.Text {
+                        parent = frame,
+                        anchorPoints = { { anchorParent = frame, anchorA = "LEFT", anchorB = "LEFT" } },
+                        text = "Profit Margin Threshold (%): ",
+                        justifyOptions = { type = "H", align = "LEFT" },
+                    }
+                    frame.input = GGUI.NumericInput {
+                        parent = frame, anchorParent = frame,
+                        sizeX = 30, sizeY = 25, offsetX = 5,
+                        anchorA = "RIGHT", anchorB = "RIGHT",
+                        initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SEND_TO_CRAFTQUEUE_PROFIT_MARGIN_THRESHOLD"),
+                        borderAdjustWidth = 1.32,
+                        allowDecimals = true,
+                        onNumberValidCallback = function(input)
+                            CraftSim.DB.OPTIONS:Save("RECIPESCAN_SEND_TO_CRAFTQUEUE_PROFIT_MARGIN_THRESHOLD",
+                                tonumber(input.currentValue))
+                        end,
+                    }
+                end, 200, 25, "RECIPE_SCAN_SEND_TO_CRAFT_QUEUE_PROFIT_MARGIN_INPUT")
+
+                GUTIL:CreateReuseableMenuUtilContextMenuFrame(rootDescription, function(frame)
+                    frame.label = GGUI.Text {
+                        parent = frame,
+                        anchorPoints = { { anchorParent = frame, anchorA = "LEFT", anchorB = "LEFT" } },
+                        text = "Default Queue Amount: ",
+                        justifyOptions = { type = "H", align = "LEFT" },
+                    }
+                    frame.input = GGUI.NumericInput {
+                        parent = frame, anchorParent = frame,
+                        sizeX = 30, sizeY = 25, offsetX = 5,
+                        anchorA = "RIGHT", anchorB = "RIGHT",
+                        initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SEND_TO_CRAFTQUEUE_DEFAULT_QUEUE_AMOUNT"),
+                        borderAdjustWidth = 1.32,
+                        minValue = 1,
+                        onNumberValidCallback = function(input)
+                            CraftSim.DB.OPTIONS:Save("RECIPESCAN_SEND_TO_CRAFTQUEUE_DEFAULT_QUEUE_AMOUNT",
+                                tonumber(input.currentValue))
+                        end,
+                    }
+                end, 200, 25, "RECIPE_SCAN_SEND_TO_CRAFT_QUEUE_DEFAULT_QUEUE_AMOUNT_INPUT")
+
                 if TSM_API then
-                    local tsmExpressionCB = rootDescription:CreateCheckbox(
+                    local tsmOptions = rootDescription:CreateButton(f.bb("TSM"))
+
+                    local tsmExpressionCB = tsmOptions:CreateCheckbox(
                         "Use " .. f.bb("TSM") .. " Restock Amount Expression",
                         function()
                             return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SEND_TO_CRAFTQUEUE_USE_TSM_RESTOCK_EXPRESSION")
@@ -219,6 +263,29 @@ function CraftSim.RECIPE_SCAN.UI:InitRecipeScanTab(recipeScanTab)
                             "If enabled, restock amount will be determined by configured " ..
                             f.bb("TSM Expression") .. " (Options)");
                     end);
+
+                    GUTIL:CreateReuseableMenuUtilContextMenuFrame(tsmOptions, function(frame)
+                        frame.label = GGUI.Text {
+                            parent = frame,
+                            anchorPoints = { { anchorParent = frame, anchorA = "LEFT", anchorB = "LEFT" } },
+                            text = f.bb("TSM") .. " Sale Rate Threshold: ",
+                            justifyOptions = { type = "H", align = "LEFT" },
+                        }
+                        frame.input = GGUI.NumericInput {
+                            parent = frame, anchorParent = frame,
+                            sizeX = 30, sizeY = 25, offsetX = 5,
+                            anchorA = "RIGHT", anchorB = "RIGHT",
+                            initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SEND_TO_CRAFTQUEUE_TSM_SALERATE_THRESHOLD"),
+                            borderAdjustWidth = 1.32,
+                            allowDecimals = true,
+                            maxValue = 1,
+                            minValue = 0,
+                            onNumberValidCallback = function(input)
+                                CraftSim.DB.OPTIONS:Save("RECIPESCAN_SEND_TO_CRAFTQUEUE_TSM_SALERATE_THRESHOLD",
+                                    tonumber(input.currentValue))
+                            end,
+                        }
+                    end, 150, 25, "RECIPE_SCAN_SEND_TO_CRAFT_QUEUE_TSM_SALERATE_INPUT")
                 end
             end)
         end
@@ -450,6 +517,34 @@ function CraftSim.RECIPE_SCAN.UI:CreateProfessionTabContent(row, content)
                     end)
 
                 rootDescription:CreateDivider()
+
+                local reagentAllocation = rootDescription:CreateButton("Reagent Allocation")
+
+                reagentAllocation:CreateRadio("All " .. GUTIL:GetQualityIconString(1, 20, 20),
+                    function()
+                        return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SCAN_MODE") ==
+                            CraftSim.RECIPE_SCAN.SCAN_MODES.Q1
+                    end, function()
+                        CraftSim.DB.OPTIONS:Save("RECIPESCAN_SCAN_MODE", CraftSim.RECIPE_SCAN.SCAN_MODES.Q1)
+                    end)
+
+                reagentAllocation:CreateRadio("All " .. GUTIL:GetQualityIconString(2, 20, 20), function()
+                    return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SCAN_MODE") == CraftSim.RECIPE_SCAN.SCAN_MODES.Q2
+                end, function()
+                    CraftSim.DB.OPTIONS:Save("RECIPESCAN_SCAN_MODE", CraftSim.RECIPE_SCAN.SCAN_MODES.Q2)
+                end)
+
+                reagentAllocation:CreateRadio("All " .. GUTIL:GetQualityIconString(3, 20, 20), function()
+                    return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SCAN_MODE") == CraftSim.RECIPE_SCAN.SCAN_MODES.Q2
+                end, function()
+                    CraftSim.DB.OPTIONS:Save("RECIPESCAN_SCAN_MODE", CraftSim.RECIPE_SCAN.SCAN_MODES.Q2)
+                end)
+
+                reagentAllocation:CreateRadio(L("RECIPE_SCAN_MODE_OPTIMIZE"), function()
+                    return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SCAN_MODE") == CraftSim.RECIPE_SCAN.SCAN_MODES.OPTIMIZE
+                end, function()
+                    CraftSim.DB.OPTIONS:Save("RECIPESCAN_SCAN_MODE", CraftSim.RECIPE_SCAN.SCAN_MODES.OPTIMIZE)
+                end)
 
                 local optimizeTopProfit = rootDescription:CreateCheckbox(
                     "Autoselect " .. f.g("Top Profit Quality"),
@@ -760,6 +855,70 @@ function CraftSim.RECIPE_SCAN.UI:CreateProfessionTabContent(row, content)
         scale = 1.1,
     }
 
+    content.sortButton = CreateFrame("DropdownButton", nil, content, "WowStyle1FilterDropdownTemplate")
+    content.sortButton:SetText("Sort By")
+
+    content.sortButton:SetSize(80, 23)
+    content.sortButton:SetPoint("BOTTOMRIGHT", content.resultList.frame, "TOPRIGHT", 15, 25)
+
+    content.sortButton:HookScript("OnClick", function()
+        MenuUtil.CreateContextMenu(UIParent, function(ownerRegion, rootDescription)
+            rootDescription:CreateCheckbox("Ascending", function()
+                return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SORT_MODE_ASCENDING")
+            end, function()
+                local value = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SORT_MODE_ASCENDING")
+                CraftSim.DB.OPTIONS:Save("RECIPESCAN_SORT_MODE_ASCENDING", not value)
+                CraftSim.RECIPE_SCAN:UpdateResultSort()
+            end)
+
+            rootDescription:CreateRadio(
+                L("RECIPE_SCAN_SORT_MODE_PROFIT"),
+                function()
+                    return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SORT_MODE") == CraftSim.RECIPE_SCAN.SORT_MODES.PROFIT
+                end, function()
+                    CraftSim.DB.OPTIONS:Save("RECIPESCAN_SORT_MODE", CraftSim.RECIPE_SCAN.SORT_MODES.PROFIT)
+                    CraftSim.RECIPE_SCAN:UpdateResultSort()
+                end)
+            rootDescription:CreateRadio(
+                L("RECIPE_SCAN_SORT_MODE_RELATIVE_PROFIT"),
+                function()
+                    return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SORT_MODE") ==
+                        CraftSim.RECIPE_SCAN.SORT_MODES.RELATIVE_PROFIT
+                end, function()
+                    CraftSim.DB.OPTIONS:Save("RECIPESCAN_SORT_MODE",
+                        CraftSim.RECIPE_SCAN.SORT_MODES.RELATIVE_PROFIT)
+                    CraftSim.RECIPE_SCAN:UpdateResultSort()
+                end)
+            rootDescription:CreateRadio(
+                L("RECIPE_SCAN_SORT_MODE_CONCENTRATION_VALUE"),
+                function()
+                    return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SORT_MODE") ==
+                        CraftSim.RECIPE_SCAN.SORT_MODES.CONCENTRATION_VALUE
+                end, function()
+                    CraftSim.DB.OPTIONS:Save("RECIPESCAN_SORT_MODE", CraftSim.RECIPE_SCAN.SORT_MODES.CONCENTRATION_VALUE)
+                    CraftSim.RECIPE_SCAN:UpdateResultSort()
+                end)
+            rootDescription:CreateRadio(
+                L("RECIPE_SCAN_SORT_MODE_CONCENTRATION_COST"),
+                function()
+                    return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SORT_MODE") ==
+                        CraftSim.RECIPE_SCAN.SORT_MODES.CONCENTRATION_COST
+                end, function()
+                    CraftSim.DB.OPTIONS:Save("RECIPESCAN_SORT_MODE", CraftSim.RECIPE_SCAN.SORT_MODES.CONCENTRATION_COST)
+                    CraftSim.RECIPE_SCAN:UpdateResultSort()
+                end)
+            rootDescription:CreateRadio(
+                L("RECIPE_SCAN_SORT_MODE_CRAFTING_COST"),
+                function()
+                    return CraftSim.DB.OPTIONS:Get("RECIPESCAN_SORT_MODE") ==
+                        CraftSim.RECIPE_SCAN.SORT_MODES.CRAFTING_COST
+                end, function()
+                    CraftSim.DB.OPTIONS:Save("RECIPESCAN_SORT_MODE", CraftSim.RECIPE_SCAN.SORT_MODES.CRAFTING_COST)
+                    CraftSim.RECIPE_SCAN:UpdateResultSort()
+                end)
+        end)
+    end)
+
     return content
 end
 
@@ -843,102 +1002,6 @@ function CraftSim.RECIPE_SCAN.UI:InitScanOptionsTab(scanOptionsTab)
     scanOptionsTab = scanOptionsTab
     ---@class CraftSim.RECIPE_SCAN.SCAN_OPTIONS_TAB.CONTENT : Frame
     local content = scanOptionsTab.content
-
-    content.sendToCraftQueueOptions = GGUI.Frame {
-        sizeX = 300, sizeY = 360,
-        parent = content,
-        anchorPoints = { { anchorParent = content, anchorA = "TOPLEFT", anchorB = "TOPLEFT", offsetX = 10, offsetY = -20 } },
-        backdropOptions = CraftSim.CONST.DEFAULT_BACKDROP_OPTIONS,
-        title = f.bb("Send To CraftQueue") .. " Options"
-    }
-
-    local queueOptionsContent = content.sendToCraftQueueOptions.content
-
-    queueOptionsContent.marginThreshold = GGUI.NumericInput {
-        allowDecimals = true,
-        parent = queueOptionsContent, anchorParent = queueOptionsContent, anchorA = "TOP", anchorB = "TOP", offsetX = 73, offsetY = -50,
-        initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SEND_TO_CRAFTQUEUE_PROFIT_MARGIN_THRESHOLD"),
-        borderAdjustHeight = 1.05,
-        borderAdjustWidth = 1.4,
-        sizeX = 30,
-        labelOptions = {
-            text = "Profit Threshold (%): "
-        },
-        onNumberValidCallback = function(input)
-            CraftSim.DB.OPTIONS:Save("RECIPESCAN_SEND_TO_CRAFTQUEUE_PROFIT_MARGIN_THRESHOLD",
-                tonumber(input.currentValue))
-        end
-    }
-
-    queueOptionsContent.defaultQueueAmount = GGUI.NumericInput {
-        allowDecimals = true,
-        parent = queueOptionsContent, anchorParent = queueOptionsContent.marginThreshold.textInput.frame, anchorA = "TOP", anchorB = "BOTTOM", offsetY = -5,
-        initialValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SEND_TO_CRAFTQUEUE_DEFAULT_QUEUE_AMOUNT"),
-        borderAdjustHeight = 1.05,
-        borderAdjustWidth = 1.4,
-        sizeX = 30,
-        labelOptions = {
-            text = "Default Queue Amount: "
-        },
-        onNumberValidCallback = function(input)
-            CraftSim.DB.OPTIONS:Save("RECIPESCAN_SEND_TO_CRAFTQUEUE_DEFAULT_QUEUE_AMOUNT",
-                tonumber(input.currentValue))
-        end
-    }
-
-    local initialScanModeValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SCAN_MODE")
-    local initialScanModeLabel = L(CraftSim.RECIPE_SCAN.SCAN_MODES_TRANSLATION_MAP[initialScanModeValue])
-
-    content.scanMode = GGUI.Dropdown({
-        parent = content,
-        anchorParent = content,
-        anchorA = "TOP",
-        anchorB = "TOP",
-        offsetY = -50,
-        width = 170,
-        initialValue = initialScanModeValue,
-        initialLabel = initialScanModeLabel,
-        label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_MODE),
-        initialData = GUTIL:Map(CraftSim.RECIPE_SCAN.SCAN_MODES,
-            function(scanMode)
-                local localizationID = CraftSim.RECIPE_SCAN.SCAN_MODES_TRANSLATION_MAP[scanMode]
-                return {
-                    label = L(localizationID),
-                    value = scanMode
-                }
-            end),
-        clickCallback = function(_, _, value)
-            CraftSim.DB.OPTIONS:Save("RECIPESCAN_SCAN_MODE", value)
-        end
-    })
-
-    local initialSortModeValue = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SORT_MODE")
-    local initialSortModeLabel = L(CraftSim.RECIPE_SCAN.SORT_MODES_TRANSLATION_MAP[initialSortModeValue])
-
-    content.sortMode = GGUI.Dropdown({
-        parent = content,
-        anchorParent = content.scanMode.frame,
-        anchorA = "TOP",
-        anchorB = "BOTTOM",
-        width = 170,
-        offsetY = -10,
-        initialValue = initialSortModeValue,
-        initialLabel = initialSortModeLabel,
-        label = L(CraftSim.CONST.TEXT.RECIPE_SCAN_SORT_MODE),
-        initialData = GUTIL:Sort(GUTIL:Map(CraftSim.RECIPE_SCAN.SORT_MODES,
-            function(sortMode)
-                local localizationID = CraftSim.RECIPE_SCAN.SORT_MODES_TRANSLATION_MAP[sortMode]
-                return {
-                    label = L(localizationID),
-                    value = sortMode
-                }
-            end), function(a, b) -- make the resulting dropdown data table sorted by label alphabetically
-            return a.label > b.label
-        end),
-        clickCallback = function(_, _, value)
-            CraftSim.DB.OPTIONS:Save("RECIPESCAN_SORT_MODE", value)
-        end
-    })
 end
 
 ---@param row CraftSim.RECIPE_SCAN.PROFESSION_LIST.ROW
@@ -1014,6 +1077,7 @@ function CraftSim.RECIPE_SCAN.UI:AddRecipe(row, recipeData)
 
             row.averageProfit = averageProfit
             row.relativeProfit = GUTIL:GetPercentRelativeTo(averageProfit, recipeData.priceData.craftingCosts)
+            row.craftingCost = recipeData.priceData.craftingCosts
             recipeData.resultData:Update() -- switch back
             row.concentrationCost = recipeData.concentrationCost
             concentrationCostColumn.text:SetText((enableConcentration and row.concentrationCost) or f.grey("-"))

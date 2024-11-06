@@ -381,9 +381,6 @@ function CraftSim.LOCAL_DE:GetData()
         [CraftSim.CONST.TEXT.RECIPE_SCAN_ONLY_FAVORITES_CHECKBOX] = "Nur Favoriten",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_ONLY_FAVORITES_CHECKBOX_TOOLTIP] = "Scanne nur deine Lieblingsrezepte",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_EQUIPPED] = "Ausgerüstet",
-        [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q1] = "Reagenzien Qualität 1",
-        [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q2] = "Reagenzien Qualität 2",
-        [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_Q3] = "Reagenzien Qualität 3",
 
         [CraftSim.CONST.TEXT.RECIPE_SCAN_MODE_OPTIMIZE] = "Reagenzien optimieren",
         [CraftSim.CONST.TEXT.RECIPE_SCAN_SORT_MODE_PROFIT] = "Gewinn",
@@ -611,9 +608,9 @@ function CraftSim.LOCAL_DE:GetData()
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CRAFT_BUTTON_ROW_LABEL_NO_REAGENTS] = "Keine Reagenzien",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_OPEN_RECIPE_BUTTON_LABEL] = "Offenes Rezept hinzufügen",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_FIRST_CRAFTS_BUTTON_LABEL] = "Erstherstellungen hinzufügen",
-        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_PATRON_ORDERS_BUTTON_LABEL] = "Aufträge von Kunden hinzufügen",
-        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_PATRON_ORDERS_ALLOW_CONCENTRATION_CHECKBOX] = "Konzentration erlauben",
-        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_PATRON_ORDERS_ALLOW_CONCENTRATION_TOOLTIP] =
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_WORK_ORDERS_BUTTON_LABEL] = "Aufträge von Kunden hinzufügen",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_WORK_ORDERS_ALLOW_CONCENTRATION_CHECKBOX] = "Konzentration erlauben",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_ADD_WORK_ORDERS_ALLOW_CONCENTRATION_TOOLTIP] =
             "Wenn die Mindestqualität nicht erreicht werden kann, verwende " .. f.l("Konzentration") .. " falls möglich",
 
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_CLEAR_ALL_BUTTON_LABEL] = "Alles löschen",

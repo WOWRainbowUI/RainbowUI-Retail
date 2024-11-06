@@ -1191,3 +1191,32 @@ end
 function GUTIL.FrameDistributor:Break()
     self.finally()
 end
+
+--- Reuseable MenuUtil Context Menu Frames Utility
+---@param initCallback fun(frame: Frame)
+---@param sizeX number
+---@param sizeY number
+---@param frameID string
+function GUTIL:CreateReuseableMenuUtilContextMenuFrame(descriptionElement, initCallback, sizeX, sizeY, frameID)
+    self.contextMenuFrames = self.contextMenuFrames or {}
+
+    local contextMenuFrame = descriptionElement:CreateTemplate("Frame")
+    contextMenuFrame:AddInitializer(function(frame, elementDescription, menu)
+        frame = frame --[[@as Frame]]
+        frame:SetSize(sizeX, sizeY)
+        local customFrame = self.contextMenuFrames[frameID]
+        if not customFrame then
+            customFrame = CreateFrame("Frame")
+            initCallback(customFrame)
+            self.contextMenuFrames[frameID] = customFrame
+        end
+        customFrame:SetParent(frame)
+        customFrame:SetAllPoints(frame)
+        customFrame:Show()
+
+        -- to not make it appear in reuseable frames of other context menus
+        customFrame:SetScript("OnHide", function()
+            customFrame:Hide()
+        end)
+    end)
+end

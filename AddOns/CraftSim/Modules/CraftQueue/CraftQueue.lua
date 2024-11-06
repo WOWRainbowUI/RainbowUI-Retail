@@ -129,9 +129,10 @@ end
 
 function CraftSim.CRAFTQ:QueuePatronOrders()
     local profession = C_TradeSkillUI.GetChildProfessionInfo().profession
+    local orderType = CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_WORK_ORDERS_ORDER_TYPE")
     if C_TradeSkillUI.IsNearProfessionSpellFocus(profession) then
         local request = {
-            orderType = Enum.CraftingOrderType.Npc,
+            orderType = orderType,
             searchFavorites = false,
             initialNonPublicSearch = false,
             primarySort = {
@@ -154,21 +155,21 @@ function CraftSim.CRAFTQ:QueuePatronOrders()
                         tinsert(orders, claimedOrder)
                     end
 
-                    local queuePatronOrdersButton = CraftSim.CRAFTQ.frame.content.queueTab.content
-                        .addPatronOrdersButton --[[@as GGUI.Button]]
-                    queuePatronOrdersButton:SetEnabled(false)
+                    local queueWorkOrdersButton = CraftSim.CRAFTQ.frame.content.queueTab.content
+                        .addWorkOrdersButton --[[@as GGUI.Button]]
+                    queueWorkOrdersButton:SetEnabled(false)
 
                     GUTIL.FrameDistributor {
                         iterationTable = orders,
                         iterationsPerFrame = 1,
                         maxIterations = 100,
                         finally = function()
-                            queuePatronOrdersButton:SetText(L(CraftSim.CONST.TEXT
-                                .CRAFT_QUEUE_ADD_PATRON_ORDERS_BUTTON_LABEL))
-                            queuePatronOrdersButton:SetEnabled(true)
+                            queueWorkOrdersButton:SetText(L(CraftSim.CONST.TEXT
+                                .CRAFT_QUEUE_ADD_WORK_ORDERS_BUTTON_LABEL))
+                            queueWorkOrdersButton:SetEnabled(true)
                         end,
                         continue = function(distributor, _, order, _, progress)
-                            queuePatronOrdersButton:SetText(string.format("%.0f%%", progress))
+                            queueWorkOrdersButton:SetText(string.format("%.0f%%", progress))
 
                             local recipeInfo = C_TradeSkillUI.GetRecipeInfo(order.spellID)
                             if recipeInfo and recipeInfo.learned then
@@ -224,9 +225,9 @@ function CraftSim.CRAFTQ:QueuePatronOrders()
 
                                 local function queueRecipe()
                                     local allowConcentration = CraftSim.DB.OPTIONS:Get(
-                                        "CRAFTQUEUE_PATRON_ORDERS_ALLOW_CONCENTRATION")
+                                        "CRAFTQUEUE_WORK_ORDERS_ALLOW_CONCENTRATION")
                                     local forceConcentration = CraftSim.DB.OPTIONS:Get(
-                                        "CRAFTQUEUE_PATRON_ORDERS_FORCE_CONCENTRATION")
+                                        "CRAFTQUEUE_WORK_ORDERS_FORCE_CONCENTRATION")
                                     -- TODO: allow queuing with concentration and concentration optimization in queue options
                                     -- check if the min quality is reached, if not do not queue
                                     if recipeData.resultData.expectedQuality >= order.minQuality then
@@ -245,7 +246,7 @@ function CraftSim.CRAFTQ:QueuePatronOrders()
                                 end
                                 -- try to optimize for target quality
                                 if order.minQuality and order.minQuality > 0 then
-                                    if CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_PATRON_ORDERS_FORCE_CONCENTRATION") then
+                                    if CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_WORK_ORDERS_FORCE_CONCENTRATION") then
                                         RunNextFrame(
                                             function()
                                                 recipeData:OptimizeReagents({
