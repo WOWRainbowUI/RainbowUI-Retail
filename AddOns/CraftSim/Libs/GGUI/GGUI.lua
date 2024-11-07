@@ -1505,6 +1505,7 @@ end
 ---@field fontOptions? GGUI.FontOptions
 ---@field tooltipOptions? GGUI.TooltipOptions
 ---@field hide? boolean
+---@field wrap? boolean
 
 ---@class GGUI.JustifyOptions
 ---@field type "H" | "V" | "HV"
@@ -1554,9 +1555,7 @@ function GGUI.Text:new(options)
             options.fontOptions.flags or "")
     end
 
-    if options.wrap then
-        text:SetWordWrap(true)
-    end
+    text:SetWordWrap(options.wrap == true)
 
     if options.fixedWidth then
         text:SetWidth(options.fixedWidth)

@@ -171,7 +171,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.SPEC_INFO_TITLE] = "CraftSim 專精資訊",
         [CraftSim.CONST.TEXT.SPEC_INFO_SIMULATE_KNOWLEDGE_DISTRIBUTION] = "模擬知識分配",
         [CraftSim.CONST.TEXT.SPEC_INFO_NODE_TOOLTIP] = "該節點為您提供該配方的下列屬性:",
-        [CraftSim.CONST.TEXT.SPEC_INFO_WORK_IN_PROGRESS] = "專精資訊仍在製作中",
+        [CraftSim.CONST.TEXT.SPEC_INFO_WORK_IN_PROGRESS] = "沒有資料",
 
         -- Crafting Results Frame
         [CraftSim.CONST.TEXT.CRAFT_RESULTS_TITLE] = "CraftSim 製造結果",
