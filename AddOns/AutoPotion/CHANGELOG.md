@@ -1,9 +1,12 @@
 # Auto Potion
 
-## [3.7.4](https://github.com/ollidiemaus/AutoPotion/tree/3.7.4) (2024-10-30)
-[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.7.3...3.7.4) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
+## [3.7.6](https://github.com/ollidiemaus/AutoPotion/tree/3.7.6) (2024-11-06)
+[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.7.5...3.7.6) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
 
-- Update AutoPotion.toc  
-- Support for the Heartseeking Health Injector tinker (#62)  
-    * add support for the Heartseeking Health Injector tinker | update priorities | improved config handling  
-    * fix tooltip  
+- fix: fortitude of the bear (#63)  
+    * fix: fortitude of the bear  
+    * fix: unit pet event registration  
+    * chore: remove unused func  
+    ---------  
+    Co-authored-by: Oliver Maus <ollidiemaus@googlemail.com>  
+- added fleeting cavedweller  

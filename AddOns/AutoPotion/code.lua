@@ -208,9 +208,9 @@ local function buildItemMacroString()
       local entry
       -- Check if the entry starts with "slot:" and extract the slot number
       if type(name) == "string" and name:match("^slot:") then
-        entry = name:sub(6)  -- Extract everything after "slot:"
+        entry = name:sub(6)               -- Extract everything after "slot:"
       else
-        entry = "item:" .. tostring(name)  -- Default to item ID formatting
+        entry = "item:" .. tostring(name) -- Default to item ID formatting
       end
       -- Add the entry to the macro string
       if i == 1 then
@@ -230,7 +230,8 @@ local function UpdateMegaMacro(newCode)
       return
     end
   end
-  print("|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it then reload your game.")
+  print(
+    "|cffff0000AutoPotion Error:|r Missing global 'AutoPotion' macro in MegaMacro. Please create it then reload your game.")
 end
 
 local function checkMegaMacroAddon()
@@ -273,16 +274,18 @@ function ham.checkTinker()
   for _, slot in ipairs(tinkerSlots) do
     local itemID = GetInventoryItemID("player", slot)
     if itemID then
-      local spellName, _ = C_Item.GetItemSpell(itemID)
+      local spellName, spellID = C_Item.GetItemSpell(itemID)
       if spellName then
         -- note: i'm not an engineer, so i use a trinket with a use effect for debugging.
         -- this is why the "Phylactery" reference exists if debugging is enabled --- phuze.
+        -- note: Using "spellName" to find "Heartseeking" can only support English region.
+        -- So I add spellID to support other region, e.g. Taiwan (TW), China (CN) and Korea (KR) --- Nephits
         if ham.debug then
-          if spellName:find("Phylactery") or spellName:find("Heartseeking") then
+          if spellName:find("Phylactery") or spellName:find("Heartseeking") or spellID == 452767 then
             ham.tinkerSlot = slot
           end
         else
-          if spellName:find("Heartseeking") then
+          if spellName:find("Heartseeking") or spellID == 452767 then
             ham.tinkerSlot = slot
           end
         end
@@ -391,6 +394,7 @@ if isClassic == false then
   updateFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 end
 updateFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+updateFrame:RegisterEvent("UNIT_PET")
 updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- when addon is loaded
   if event == "ADDON_LOADED" and arg1 == addonName then
@@ -406,21 +410,25 @@ updateFrame:SetScript("OnEvent", function(self, event, arg1, ...)
   -- bag update events
   if event == "BAG_UPDATE" then
     onBagUpdate()
-  -- on loading/reloading
+    -- on loading/reloading
+  elseif event == "UNIT_PET" then
+    log("event: UNIT_PET")
+    MakeMacro()
+    -- when pet is called
   elseif event == "PLAYER_ENTERING_WORLD" then
     log("event: PLAYER_ENTERING_WORLD")
     MakeMacro()
-  -- on exiting combat
+    -- on exiting combat
   elseif event == "PLAYER_REGEN_ENABLED" then
     log("event: PLAYER_REGEN_ENABLED")
     -- Wait a second after combat ends to update the macro
     -- as the UI may still be cleaning up a protected state.
     C_Timer.After(0.5, MakeMacro)
-  -- when talents change and classic is false
+    -- when talents change and classic is false
   elseif isClassic == false and event == "TRAIT_CONFIG_UPDATED" then
     log("event: TRAIT_CONFIG_UPDATED")
     MakeMacro()
-  -- when player changes equipment
+    -- when player changes equipment
   elseif event == "PLAYER_EQUIPMENT_CHANGED" then
     log("event: PLAYER_EQUIPMENT_CHANGED")
     MakeMacro()
