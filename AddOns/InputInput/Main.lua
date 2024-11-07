@@ -593,9 +593,15 @@ end
 function HideEuiBorder(editBox)
 	if ElvUI then
 		---@diagnostic disable-next-line: undefined-field
-		editBox:SetBackdropBorderColor(0, 0, 0, 0)
+		if editBox.SetBackdropBorderColor then
+			---@diagnostic disable-next-line: undefined-field
+			editBox:SetBackdropBorderColor(0, 0, 0, 0)
+		end
 		---@diagnostic disable-next-line: undefined-field
-		editBox:SetBackdropColor(0, 0, 0, 0)
+		if editBox.SetBackdropColor then
+			---@diagnostic disable-next-line: undefined-field
+			editBox:SetBackdropColor(0, 0, 0, 0)
+		end
 		-- editBox:StripTextures()
 		---@diagnostic disable-next-line: undefined-field
 		if editBox.shadow then
@@ -609,6 +615,17 @@ function HideEuiBorder(editBox)
 			---@diagnostic disable-next-line: undefined-field
 			editBox.characterCount:Hide()
 		end
+	end
+end
+
+function HideLS_GLASSBorder(editBox)
+	if ls_Glass then
+		LoadPostion(editBox)
+		---@diagnostic disable-next-line: undefined-field
+		editBox.Backdrop:SetBackdropColor(0, 0, 0, 0)
+		---@diagnostic disable-next-line: undefined-field
+		editBox.Backdrop:SetBackdropBorderColor(0, 0, 0, 0)
+		editBox:SetTextInsets(10, 10, 0, 0)
 	end
 end
 
@@ -997,7 +1014,10 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 			M.HISTORY:simulateInputChange(text, self:GetInputLanguage())
 		end
 		last_text = text
-		lastChannel = self:GetAttribute("chatType")
+		-- lastChannel = self:GetAttribute("chatType")
+		if ls_Glass then
+			-- editBox:SetTextInsets(10, 10, 0, 0)
+		end
 	end)
 	editBox:HookScript("OnInputLanguageChanged", function(self)
 		II_LANG:SetText(_G["INPUT_" .. self:GetInputLanguage()])
@@ -1015,7 +1035,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 		elseif key == "UP" then
 			-- 上滚历史消息
 			if TinyChatDB and TinyChatDB.HistoryNeedAlt and not IsAltKeyDown() then return end -- TinyChat 相容性，上下鍵選擇是否需要按住 Alt
-			if not ElvUI then
+			if not ElvUI or ls_Glass then
 				if historyIndex > 1 then
 					historyIndex = historyIndex - 1
 					local h = messageHistory[historyIndex]
@@ -1025,7 +1045,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 			end
 		elseif key == "DOWN" then
 			if TinyChatDB and TinyChatDB.HistoryNeedAlt and not IsAltKeyDown() then return end -- TinyChat 相容性，上下鍵選擇是否需要按住 Alt
-			if not ElvUI then
+			if not ElvUI or ls_Glass then
 				-- 下滚历史消息
 				if historyIndex < #messageHistory then
 					historyIndex = historyIndex + 1
@@ -1058,6 +1078,7 @@ local function eventSetup(editBox, bg, border, backdropFrame2, resizeButton, tex
 	-- 设置焦点获得事件处理函数
 	editBox:HookScript("OnEditFocusGained", function(self)
 		HideEuiBorder(self)
+		HideLS_GLASSBorder(editBox)
 		-- Elvui 会重置输入框的位置大小
 		if ElvUI then
 			LoadSize(scale, self, backdropFrame2, channel_name, II_TIP, II_LANG)
