@@ -621,10 +621,12 @@ end
 function HideLS_GLASSBorder(editBox)
 	if ls_Glass then
 		LoadPostion(editBox)
-		---@diagnostic disable-next-line: undefined-field
-		-- editBox.Backdrop:SetBackdropColor(0, 0, 0, 0)
-		---@diagnostic disable-next-line: undefined-field
-		-- editBox.Backdrop:SetBackdropBorderColor(0, 0, 0, 0)
+		if editBox.Backdrop then -- 暫時修正
+			---@diagnostic disable-next-line: undefined-field
+			editBox.Backdrop:SetBackdropColor(0, 0, 0, 0)
+			---@diagnostic disable-next-line: undefined-field
+			editBox.Backdrop:SetBackdropBorderColor(0, 0, 0, 0)
+		end
 		editBox:SetTextInsets(10, 10, 0, 0)
 	end
 end
