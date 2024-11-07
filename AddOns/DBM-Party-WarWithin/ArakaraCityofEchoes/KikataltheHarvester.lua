@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2585, "DBM-Party-WarWithin", 6, 1271)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241103162323")
+mod:SetRevision("20241105185406")
 mod:SetCreatureID(215407)
 mod:SetEncounterID(2901)
 mod:SetHotfixNoticeRev(20240818000000)
@@ -73,8 +73,7 @@ function mod:SPELL_CAST_START(args)
 		warnSingularity:Show()
 		specWarnCosmicSingularity:Schedule(3.5, DBM_COMMON_L.POOL)
 		specWarnCosmicSingularity:ScheduleVoice(3.5, "movetopool")
-		--Timer has predictable spell queuing after first cast, but first cast is 46.1-48
-		timerCosmicSingularityCD:Start((self.vb.cosmicCount == 1 or self.vb.cosmicCount == 7) and 46.1 or 46.9, self.vb.cosmicCount+1)
+		timerCosmicSingularityCD:Start(46.1, self.vb.cosmicCount+1)
 
 		--Do some timer adjustments if needed
 		if self:IsMythic() then

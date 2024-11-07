@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2595, "DBM-Party-WarWithin", 8, 1274)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241102154000")
+mod:SetRevision("20241106060442")
 mod:SetCreatureID(216648, 216649)--Nx, Vx
 mod:SetEncounterID(2908)
 mod:SetHotfixNoticeRev(20240818000000)
@@ -12,14 +12,17 @@ mod:SetZone(2669)
 
 mod:RegisterCombat("combat")
 
+mod:RegisterEvents(
+	"CHAT_MSG_MONSTER_SAY"
+)
+
 mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 441384 441381 439621 440468 439692 440218 440238",
 --	"SPELL_CAST_SUCCESS 440419",
-	"SPELL_AURA_APPLIED 441298 458741 440238",
+	"SPELL_AURA_APPLIED 441298 458741 440238"
 --	"SPELL_AURA_REMOVED 439989"
 --	"SPELL_PERIODIC_DAMAGE",
 --	"SPELL_PERIODIC_MISSED",
-	"CHAT_MSG_MONSTER_SAY"
 --	"UNIT_SPELLCAST_SUCCEEDED boss1"
 )
 

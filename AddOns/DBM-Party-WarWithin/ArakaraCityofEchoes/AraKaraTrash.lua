@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("AraKaraTrash", "DBM-Party-WarWithin", 6)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241103162323")
+mod:SetRevision("20241105185406")
 --mod:SetModelID(47785)
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true
@@ -224,7 +224,7 @@ function mod:StartNameplateTimers(guid, cid)
 	elseif cid == 223253 then--Bloodstained Webmage
 		timerRevoltingVolleyCD:Start(2.2, guid)--2.2-4.5
 	elseif cid == 216338 then--Hulking Bodyguard
-		timerImpaleCD:Start(4.8, guid)--4.8-7.6
+		timerImpaleCD:Start(4.4, guid)--4.8-7.6
 	elseif cid == 216364 then--Blood Overseer
 		timerVenomVolleyCD:Start(5.2, guid)--5.2-7.4
 		timerEruptingWebsCD:Start(11.3, guid)--11.3-13.9
