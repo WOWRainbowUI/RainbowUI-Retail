@@ -1,8 +1,8 @@
-## Interface: 110005, 40400, 11504
+## Interface: 110005, 40401, 11504
 ## Title: LiteButtonAuras
 ## IconTexture: Interface\Icons\ability_deathknight_heartstopaura
 ## AddonCompartmentFunc: LiteButtonAuras_AddonCompartmentFunc
-## Version: 11.0.5-2
+## Version: 11.0.5-3
 ## Author: Xodiv-Nagrand
 ## Email: mib@post.com
 ## OptionalDeps: Bartender4, Dominos, ElvUI, Masque
