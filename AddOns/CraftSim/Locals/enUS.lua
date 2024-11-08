@@ -249,7 +249,9 @@ function CraftSim.LOCAL_EN:GetData()
             f.bb("Any Name") ..
             " .. Expected Costs from crafting it yourself\n" ..
             f.l("OR") ..
-            " will always be used if set. " .. f.bb("Crafting Costs") .. " will only be used if lower than " .. f.g("AH"),
+            " will always be used if set. " ..
+            f.bb("Crafting Costs") .. " will only be used if lower than " .. f.g("AH") .. "\n\n" ..
+            f.bb("Right Click") .. " on any reagent to override its price by a custom value",
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_COSTS] = "Crafting Costs: ",
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_ITEM_HEADER] = "Item",
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_AH_PRICE_HEADER] = "AH Price",
@@ -542,11 +544,9 @@ function CraftSim.LOCAL_EN:GetData()
         "Are you sure you want to delete all data\nfrom customers with 0 total tip?",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_DELETE_CUSTOMER_CONFIRMATION_POPUP] =
         "Are you sure you want to delete\nall data for %s?",
-        [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_DELETE_CUSTOMER_POPUP_TITLE] = "Delete Customer History",
-        [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_ZERO_TIPS_CONFIRMATION_POPUP_TITLE] = "Delete 0 Tip Customer History",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_DAYS_INPUT_LABEL] = "Auto Remove Interval (Days)",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_DAYS_INPUT_TOOLTIP] =
-        "CraftSim will automatically delete all 0 tip customers when you login after X days of the last deletion.\nIf set to 0, CraftSim will never delete automatically.",
+        "CraftSim will automatically remove all customers below the configured tip when you login after X days of the last deletion.\nIf set to 0, CraftSim will never delete automatically.",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_CUSTOMER_HEADER] = "Customer",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_TOTAL_TIP_HEADER] = "Total Tip",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_CRAFT_HISTORY_DATE_HEADER] = "Date",
@@ -630,7 +630,7 @@ greater or equal the configured sale rate threshold.
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_REAGENTS_SELECT_LABEL] = "Select",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_OPTIONAL_REAGENTS_LABEL] = "Optional Reagents",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_FINISHING_REAGENTS_LABEL] = "Finishing Reagents",
-        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_SPARK_LABEL] = "Spark",
+        [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_SPARK_LABEL] = "Required",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_PROFESSION_GEAR_LABEL] = "Profession Gear",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_OPTIMIZE_PROFIT_BUTTON] = "Optimize",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_CRAFTING_COSTS_LABEL] = "Crafting Costs: ",

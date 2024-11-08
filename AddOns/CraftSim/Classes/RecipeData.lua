@@ -463,7 +463,7 @@ function CraftSim.RecipeData:SetOptionalReagents(itemIDList)
     self:Update()
 end
 
---- also sets a sparkReagentItem if not yet set
+--- also sets a requiredSelectionReagent if not yet set
 function CraftSim.RecipeData:SetNonQualityReagentsMax()
     for _, reagent in pairs(self.reagentData.requiredReagents) do
         if not reagent.hasQuality then
@@ -471,14 +471,21 @@ function CraftSim.RecipeData:SetNonQualityReagentsMax()
         end
     end
 
-    if self.reagentData:HasSparkSlot() then
-        if not self.reagentData.sparkReagentSlot.activeReagent then
-            local firstPossibleSparkItem = self.reagentData.sparkReagentSlot.possibleReagents[1]
-            if firstPossibleSparkItem then
-                self.reagentData.sparkReagentSlot:SetReagent(firstPossibleSparkItem.item:GetItemID())
+    if self.reagentData:HasRequiredSelectableReagent() then
+        if not self.reagentData.requiredSelectableReagentSlot.activeReagent then
+            local firstPossibleRequiredSelectableReagent = self.reagentData.requiredSelectableReagentSlot
+                .possibleReagents[1]
+            if firstPossibleRequiredSelectableReagent then
+                self.reagentData.requiredSelectableReagentSlot:SetReagent(firstPossibleRequiredSelectableReagent.item
+                    :GetItemID())
             end
         end
     end
+end
+
+---@return boolean hasRequiredSelectableReagent
+function CraftSim.RecipeData:HasRequiredSelectableReagent()
+    return self.reagentData:HasRequiredSelectableReagent()
 end
 
 --- Consideres Order Reagents
@@ -548,8 +555,8 @@ function CraftSim.RecipeData:UpdateConcentrationCost()
 
     self.concentrationCurveData = CraftSim.CONCENTRATION_CURVE_DATA[craftingDataID]
 
-    -- try to only enable it for simulation mode?
-    if self.concentrationCurveData and CraftSim.SIMULATION_MODE.isActive then
+    -- try to only enable it for simulation mode or if its not the current character
+    if self.concentrationCurveData and (CraftSim.SIMULATION_MODE.isActive or not self:IsCrafter()) then
         return self:GetConcentrationCostForSkill(self.professionStats.skill.value)
     else
         -- if by any chance the data for this recipe is not mapped in the db2 data, get a good guess via the api
@@ -1484,13 +1491,10 @@ function CraftSim.RecipeData:CanCraft(amount)
         return false, 0
     end
 
-    -- TODO: Remove after 11.0.5
-    local excludeWarbankTemp = false
-
     -- check amount of reagents in players inventory + bank
-    local hasEnoughReagents = self.reagentData:HasEnough(amount, self:GetCrafterUID(), excludeWarbankTemp)
+    local hasEnoughReagents = self.reagentData:HasEnough(amount, self:GetCrafterUID())
 
-    local craftAbleAmount = self.reagentData:GetCraftableAmount(self:GetCrafterUID(), excludeWarbankTemp)
+    local craftAbleAmount = self.reagentData:GetCraftableAmount(self:GetCrafterUID())
 
     local isChargeRecipe = self.cooldownData.maxCharges > 0
 
@@ -1502,7 +1506,6 @@ function CraftSim.RecipeData:CanCraft(amount)
     craftAbleAmount = math.min(craftAbleAmount, concentrationAmount)
 
     -- CraftSim.DEBUG:SystemPrint("CanCraft")
-    -- CraftSim.DEBUG:SystemPrint("excludeWarbankTemp: " .. tostring(excludeWarbankTemp))
     -- CraftSim.DEBUG:SystemPrint("hasEnoughReagents: " .. tostring(hasEnoughReagents))
     -- CraftSim.DEBUG:SystemPrint("craftAbleAmount: " .. tostring(craftAbleAmount))
 

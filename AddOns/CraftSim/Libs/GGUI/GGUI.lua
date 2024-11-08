@@ -2524,43 +2524,52 @@ function GGUI.CurrencyInput:new(options)
         offsetY = options.offsetY,
         sizeX = options.sizeX,
         sizeY = options.sizeY,
-        initialValue = options.initialValue,
+        initialValue = tostring(options.initialValue),
         onTextChangedCallback = function(self, input, userInput)
             if userInput then
                 -- validate and color text, and adapt save button
                 input = input or ""
                 -- remove colorizations
-                input = string.gsub(input, GUTIL.COLORS.GOLD, "")
-                input = string.gsub(input, GUTIL.COLORS.SILVER, "")
-                input = string.gsub(input, GUTIL.COLORS.COPPER, "")
-                input = string.gsub(input, "|r", "")
-                input = string.gsub(input, "|c", "")
+                -- input = string.gsub(input, GUTIL.COLORS.GOLD, "")
+                -- input = string.gsub(input, GUTIL.COLORS.SILVER, "")
+                -- input = string.gsub(input, GUTIL.COLORS.COPPER, "")
+                -- input = string.gsub(input, "|r", "")
+                -- input = string.gsub(input, "|c", "")
+                input = GUTIL:StripColor(input)
 
                 local valid = GUTIL:ValidateMoneyString(input)
                 currencyInput.isValid = valid
 
                 if valid then
-                    -- colorize
-                    local gold = tonumber(string.match(input, "(%d+)g")) or 0
-                    local silver = tonumber(string.match(input, "(%d+)s")) or 0
-                    local copper = tonumber(string.match(input, "(%d+)c")) or 0
+                    local gold = tonumber(string.match(input, "(%d+)g"))
+                    local silver = tonumber(string.match(input, "(%d+)s"))
+                    local copper = tonumber(string.match(input, "(%d+)c"))
+                    -- colorize and write
                     local gC = GUTIL:ColorizeText("g", GUTIL.COLORS.GOLD)
                     local sC = GUTIL:ColorizeText("s", GUTIL.COLORS.SILVER)
                     local cC = GUTIL:ColorizeText("c", GUTIL.COLORS.COPPER)
-                    local colorizedText = ((gold > 0 and (gold .. gC)) or "") ..
-                        ((silver > 0 and (silver .. sC)) or "") .. ((copper > 0 and (copper .. cC)) or "")
+                    local colorizedText = ""
+
+                    if gold then
+                        colorizedText = colorizedText .. gold .. gC
+                    end
+                    if silver then
+                        colorizedText = colorizedText .. silver .. sC
+                    end
+                    if copper then
+                        colorizedText = colorizedText .. copper .. cC
+                    end
+
                     currencyInput.textInput:SetText(colorizedText)
 
-
-                    currencyInput.gold = gold
-                    currencyInput.silver = silver
-                    currencyInput.copper = copper
-                    currencyInput.total = gold * 10000 + silver * 100 + copper
+                    currencyInput.gold = gold or 0
+                    currencyInput.silver = silver or 0
+                    currencyInput.copper = copper or 0
+                    currencyInput.total = currencyInput.gold * 10000 + currencyInput.silver * 100 + currencyInput.copper
                     if currencyInput.onValueValidCallback then
                         currencyInput.onValueValidCallback(currencyInput)
                     end
                 end
-
 
                 currencyInput.border:SetValid(valid)
 
@@ -2614,6 +2623,8 @@ function GGUI.CurrencyInput:new(options)
     end
 end
 
+--- called by non user input
+---@param total number copperValue in total
 function GGUI.CurrencyInput:SetValue(total)
     local gold, silver, copper = GUTIL:GetMoneyValuesFromCopper(total)
     local gC = GUTIL:ColorizeText("g", GUTIL.COLORS.GOLD)
@@ -2621,6 +2632,13 @@ function GGUI.CurrencyInput:SetValue(total)
     local cC = GUTIL:ColorizeText("c", GUTIL.COLORS.COPPER)
     local colorizedText = ((gold > 0 and (gold .. gC)) or "") ..
         ((silver > 0 and (silver .. sC)) or "") .. ((copper > 0 and (copper .. cC)) or "")
+    if gold == 0 and silver == 0 and copper == 0 then
+        colorizedText = "0" .. cC
+    end
+    -- print("gold: " .. tostring(gold))
+    -- print("silver: " .. tostring(silver))
+    -- print("copper: " .. tostring(copper))
+    -- print("colorized set value: " .. tostring(colorizedText))
     self.textInput:SetText(colorizedText)
 
     self.gold = gold
