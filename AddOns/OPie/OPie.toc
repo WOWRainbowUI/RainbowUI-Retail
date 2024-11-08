@@ -1,6 +1,6 @@
 ## Interface: 11504, 40401, 110002, 110005
 ## Title: OPie
-## Version: Ørred 2
+## Version: Ørred 2a
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## X-Website: https://www.townlong-yak.com/addons/opie
