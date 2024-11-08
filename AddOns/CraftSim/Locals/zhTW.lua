@@ -233,7 +233,7 @@ function CraftSim.LOCAL_TW:GetData()
             f.l("或") ..
             " 將會在設定後永遠被使用。 " ..
             f.bb("製造成本") .. " 將只會在低於 " .. f.g("拍賣場") .. " 時被使用\n\n" ..
-            f.bb("右鍵點擊") .. " 任何材料將價格改為自訂數值"
+            f.bb("右鍵點擊") .. " 任何材料將價格改為自訂數值",
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_COSTS] = "製造成本: ",
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_ITEM_HEADER] = "物品",
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_AH_PRICE_HEADER] = "拍賣價格",
@@ -503,7 +503,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_DELETE_CUSTOMER_CONFIRMATION_POPUP] = "是否確定要刪除 %s 的所有資料?",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_DAYS_INPUT_LABEL] = "自動移除天數",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_DAYS_INPUT_TOOLTIP] =
-        "當您在上次刪除後的 X 天登入時，CraftSim 將自動移除所有小費低於設定值之客戶。\n如果設定為 0，CraftSim 將永遠不會自動刪除。"
+        "當您在上次刪除後的 X 天登入時，CraftSim 將自動移除所有小費低於設定值之客戶。\n如果設定為 0，CraftSim 將永遠不會自動刪除。",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_CUSTOMER_HEADER] = "客戶",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_TOTAL_TIP_HEADER] = "小費總計",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_CRAFT_HISTORY_DATE_HEADER] = "日期",
