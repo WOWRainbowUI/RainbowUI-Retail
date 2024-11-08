@@ -81,7 +81,7 @@ function CraftSim.ITEM_COUNT:UpdateItemCountForCharacter()
                 local itemIcon = itemInfoInstant[5]
                 if Enum.ItemClass.Tradegoods == itemClassID then
                     if not alreadyUpdated[itemID] then
-                        print("Updating Count: " .. GUTIL:IconToText(itemIcon, 20, 20))
+                        -- print("Updating Count: " .. GUTIL:IconToText(itemIcon, 20, 20))
                         alreadyUpdated[itemID] = true
                         self:UpdateAllCountsForItemID(itemID)
                     end
