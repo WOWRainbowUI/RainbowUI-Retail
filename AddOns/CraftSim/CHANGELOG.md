@@ -1,23 +1,18 @@
 # CraftSim
 
-## [19.4.2](https://github.com/derfloh205/CraftSim/tree/19.4.2) (2024-11-07)
-[Full Changelog](https://github.com/derfloh205/CraftSim/compare/19.4.1...19.4.2) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
+## [19.5.0](https://github.com/derfloh205/CraftSim/tree/19.5.0) (2024-11-08)
+[Full Changelog](https://github.com/derfloh205/CraftSim/compare/19.4.2...19.5.0) [Previous Releases](https://github.com/derfloh205/CraftSim/releases)
 
-- news  
-- specinfo update  
-- price override improvements  
-- db changes  
-- customerHistory  
-- customerHistory UI Improvements  
-- news  
-- news  
-- #457  
-- salvage recipes quantity  
-- #652  
-- f  
-- cleanup  
-- #600  
-- spark slot -> required selectable reagent generalization  
-- news  
-- #659  
-- #684  
+- Update ReagentData.lua (#689)  
+- ui  
+- more improvements  
+- craftQueue more compact  
+- craftqueue options  
+- ptbr update  
+- Updates Fixes, Reffits and Refines to ptBR.Lua (#687)  
+    Co-authored-by: genjuwow <derfloh205@gmail.com>  
+- removed warning  
+- craftqueue options  
+- gutil changes  
+- queueFavoritesEnhancements  
+- favoriteRecipes Cache  

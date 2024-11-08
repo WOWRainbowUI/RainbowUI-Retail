@@ -1283,6 +1283,11 @@ function CraftSim.RecipeData:IsResult(idLinkOrMixin)
     return self:GetResultQuality(idLinkOrMixin) ~= nil
 end
 
+---@return boolean
+function CraftSim.RecipeData:IsWorkOrder()
+    return self.orderData ~= nil
+end
+
 function CraftSim.RecipeData:GetJSON(indent)
     indent = indent or 0
 
@@ -1853,9 +1858,9 @@ function CraftSim.RecipeData:GetFormattedCrafterText(includeRealm, includeProfes
     local crafterData = self:GetCrafterData()
     local classColor = C_ClassColor.GetClassColor(crafterData.class)
     if includeRealm then
-        finalText = finalText .. classColor:WrapTextInColorCode(crafterData.name .. "-" .. crafterData.realm)
+        finalText = finalText .. " " .. classColor:WrapTextInColorCode(crafterData.name .. "-" .. crafterData.realm)
     else
-        finalText = finalText .. classColor:WrapTextInColorCode(crafterData.name)
+        finalText = finalText .. " " .. classColor:WrapTextInColorCode(crafterData.name)
     end
 
     return finalText

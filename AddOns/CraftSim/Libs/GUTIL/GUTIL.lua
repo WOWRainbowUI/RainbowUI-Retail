@@ -1134,19 +1134,11 @@ function GUTIL.FrameDistributor:new(options)
     self.iterationsPerFrame = options.iterationsPerFrame or 1
     self.maxIterations = options.maxIterations
 
-    self.currentIteration = 0
     self.iterationTable = options.iterationTable
-    self.tableSize = GUTIL:Count(self.iterationTable or {})
-    if self.iterationTable then
-        self.iterationProgressStep = (self.tableSize / 100)
-    else
-        self.iterationProgressStep = 1
-    end
+    self:Reset()
     self.continue = options.continue or function() end
     self.cancel = options.cancel or function() return false end
     self.finally = options.finally or function() end
-    self.currentIterationKey = nil
-    self.breakActive = false
 end
 
 function GUTIL.FrameDistributor:Continue()
@@ -1190,6 +1182,24 @@ end
 --- Stops iteration and calls finally callback
 function GUTIL.FrameDistributor:Break()
     self.finally()
+end
+
+---@param newTable table
+function GUTIL.FrameDistributor:SetIterationTable(newTable)
+    self.iterationTable = newTable
+    self:Reset()
+end
+
+function GUTIL.FrameDistributor:Reset()
+    self.tableSize = GUTIL:Count(self.iterationTable or {})
+    if self.iterationTable then
+        self.iterationProgressStep = (self.tableSize / 100)
+    else
+        self.iterationProgressStep = 1
+    end
+    self.currentIterationKey = nil
+    self.breakActive = false
+    self.currentIteration = 0
 end
 
 --- Reuseable MenuUtil Context Menu Frames Utility
