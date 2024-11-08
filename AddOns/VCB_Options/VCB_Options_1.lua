@@ -44,10 +44,10 @@ vcbOptions1Box1PopOut1:SetScript("OnEnter", function(self)
 	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nWhere do you want the|nSpell's Icon to be shown?") 
 end)
 -- naming --
-vcbOptions1Box1PopOut1Choice0.Text:SetText("Left")
-vcbOptions1Box1PopOut1Choice1.Text:SetText("Right")
-vcbOptions1Box1PopOut1Choice2.Text:SetText("Left and Right")
-vcbOptions1Box1PopOut1Choice3.Text:SetText("Hide")
+vcbOptions1Box1PopOut1Choice0.Text:SetText("Hide")
+vcbOptions1Box1PopOut1Choice1.Text:SetText("Left")
+vcbOptions1Box1PopOut1Choice2.Text:SetText("Right")
+vcbOptions1Box1PopOut1Choice3.Text:SetText("Left and Right")
 -- parent & sort --
 for i = 1, 3, 1 do
 	_G["vcbOptions1Box1PopOut1Choice"..i]:SetParent(vcbOptions1Box1PopOut1Choice0)
@@ -58,7 +58,7 @@ for i = 0, 3, 1 do
 	_G["vcbOptions1Box1PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["Icon"] = self.Text:GetText()
-			vcbOptions1Box1PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box1PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box1PopOut1Choice0:Hide()
 		end
 	end)
@@ -79,7 +79,7 @@ for i = 0, 9, 1 do
 	_G["vcbOptions1Box1PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["NameText"] = self.Text:GetText()
-			vcbOptions1Box1PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box1PopOut2.Text:SetText(self.Text:GetText())
 			vcbOptions1Box1PopOut2Choice0:Hide()
 		end
 	end)
@@ -101,7 +101,7 @@ for i = 0, 9, 1 do
 	_G["vcbOptions1Box2PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["CurrentTimeText"]["Position"] = self.Text:GetText()
-			vcbOptions1Box2PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box2PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box2PopOut1Choice0:Hide()
 		end
 	end)
@@ -126,7 +126,7 @@ for i = 0, 2, 1 do
 	_G["vcbOptions1Box2PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["CurrentTimeText"]["Direction"] = self.Text:GetText()
-			vcbOptions1Box2PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box2PopOut2.Text:SetText(self.Text:GetText())
 			vcbOptions1Box2PopOut2Choice0:Hide()
 		end
 	end)
@@ -138,8 +138,8 @@ vcbOptions1Box2PopOut3:SetScript("OnEnter", function(self)
 	GameTooltip:SetText(vcbMainColor:WrapTextInColorCode("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
 end)
 -- naming --
-vcbOptions1Box2PopOut3Choice0.Text:SetText("Show")
-vcbOptions1Box2PopOut3Choice1.Text:SetText("Hide")
+vcbOptions1Box2PopOut3Choice0.Text:SetText("Hide")
+vcbOptions1Box2PopOut3Choice1.Text:SetText("Show")
 -- parent & sort --
 vcbOptions1Box2PopOut3Choice1:SetParent(vcbOptions1Box2PopOut3Choice0)
 vcbOptions1Box2PopOut3Choice1:SetPoint("TOP",vcbOptions1Box2PopOut3Choice0, "BOTTOM", 0, 0)
@@ -148,7 +148,7 @@ for i = 0, 1, 1 do
 	_G["vcbOptions1Box2PopOut3Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["CurrentTimeText"]["Sec"] = self.Text:GetText()
-			vcbOptions1Box2PopOut3.Text:SetText(self:GetText())
+			vcbOptions1Box2PopOut3.Text:SetText(self.Text:GetText())
 			vcbOptions1Box2PopOut3Choice0:Hide()
 		end
 	end)
@@ -173,7 +173,7 @@ for i = 0, 2, 1 do
 	_G["vcbOptions1Box2PopOut4Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["CurrentTimeText"]["Decimals"] = tonumber(self.Text:GetText())
-			vcbOptions1Box2PopOut4.Text:SetText(self:GetText())
+			vcbOptions1Box2PopOut4.Text:SetText(self.Text:GetText())
 			vcbOptions1Box2PopOut4Choice0:Hide()
 		end
 	end)
@@ -195,7 +195,7 @@ for i = 0, 9, 1 do
 	_G["vcbOptions1Box3PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["BothTimeText"]["Position"] = self.Text:GetText()
-			vcbOptions1Box3PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box3PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box3PopOut1Choice0:Hide()
 		end
 	end)
@@ -220,7 +220,7 @@ for i = 0, 2, 1 do
 	_G["vcbOptions1Box3PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["BothTimeText"]["Direction"] = self.Text:GetText()
-			vcbOptions1Box3PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box3PopOut2.Text:SetText(self.Text:GetText())
 			vcbOptions1Box3PopOut2Choice0:Hide()
 		end
 	end)
@@ -232,8 +232,8 @@ vcbOptions1Box3PopOut3:SetScript("OnEnter", function(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
 end)
 -- naming --
-vcbOptions1Box3PopOut3Choice0.Text:SetText("Show")
-vcbOptions1Box3PopOut3Choice1.Text:SetText("Hide")
+vcbOptions1Box3PopOut3Choice0.Text:SetText("Hide")
+vcbOptions1Box3PopOut3Choice1.Text:SetText("Show")
 -- parent & sort --
 vcbOptions1Box3PopOut3Choice1:SetParent(vcbOptions1Box3PopOut3Choice0)
 vcbOptions1Box3PopOut3Choice1:SetPoint("TOP",vcbOptions1Box3PopOut3Choice0, "BOTTOM", 0, 0)
@@ -242,7 +242,7 @@ for i = 0, 1, 1 do
 	_G["vcbOptions1Box3PopOut3Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["BothTimeText"]["Sec"] = self.Text:GetText()
-			vcbOptions1Box3PopOut3.Text:SetText(self:GetText())
+			vcbOptions1Box3PopOut3.Text:SetText(self.Text:GetText())
 			vcbOptions1Box3PopOut3Choice0:Hide()
 		end
 	end)
@@ -267,7 +267,7 @@ for i = 0, 2, 1 do
 	_G["vcbOptions1Box3PopOut4Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["BothTimeText"]["Decimals"] = tonumber(self.Text:GetText())
-			vcbOptions1Box3PopOut4.Text:SetText(self:GetText())
+			vcbOptions1Box3PopOut4.Text:SetText(self.Text:GetText())
 			vcbOptions1Box3PopOut4Choice0:Hide()
 		end
 	end)
@@ -289,7 +289,7 @@ for i = 0, 9, 1 do
 	_G["vcbOptions1Box4PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["TotalTimeText"]["Position"] = self.Text:GetText()
-			vcbOptions1Box4PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box4PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box4PopOut1Choice0:Hide()
 		end
 	end)
@@ -301,8 +301,8 @@ vcbOptions1Box4PopOut2:SetScript("OnEnter", function(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nword 'Sec' to be shown?") 
 end)
 -- naming --
-vcbOptions1Box4PopOut2Choice0.Text:SetText("Show")
-vcbOptions1Box4PopOut2Choice1.Text:SetText("Hide")
+vcbOptions1Box4PopOut2Choice0.Text:SetText("Hide")
+vcbOptions1Box4PopOut2Choice1.Text:SetText("Show")
 -- parent & sort --
 vcbOptions1Box4PopOut2Choice1:SetParent(vcbOptions1Box4PopOut2Choice0)
 vcbOptions1Box4PopOut2Choice1:SetPoint("TOP",vcbOptions1Box4PopOut2Choice0, "BOTTOM", 0, 0)
@@ -311,7 +311,7 @@ for i = 0, 1, 1 do
 	_G["vcbOptions1Box4PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["TotalTimeText"]["Sec"] = self.Text:GetText()
-			vcbOptions1Box4PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box4PopOut2.Text:SetText(self.Text:GetText())
 			vcbOptions1Box4PopOut2Choice0:Hide()
 		end
 	end)
@@ -336,7 +336,7 @@ for i = 0, 2, 1 do
 	_G["vcbOptions1Box4PopOut3Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["TotalTimeText"]["Decimals"] = tonumber(self.Text:GetText())
-			vcbOptions1Box4PopOut3.Text:SetText(self:GetText())
+			vcbOptions1Box4PopOut3.Text:SetText(self.Text:GetText())
 			vcbOptions1Box4PopOut3Choice0:Hide()
 		end
 	end)
@@ -349,8 +349,8 @@ vcbOptions1Box5PopOut1:SetScript("OnEnter", function(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nLatency's Bar to be shown?") 
 end)
 -- naming --
-vcbOptions1Box5PopOut1Choice0.Text:SetText("Show")
-vcbOptions1Box5PopOut1Choice1.Text:SetText("Hide")
+vcbOptions1Box5PopOut1Choice0.Text:SetText("Hide")
+vcbOptions1Box5PopOut1Choice1.Text:SetText("Show")
 -- parent & sort --
 vcbOptions1Box5PopOut1Choice1:SetParent(vcbOptions1Box5PopOut1Choice0)
 vcbOptions1Box5PopOut1Choice1:SetPoint("TOP",vcbOptions1Box5PopOut1Choice0, "BOTTOM", 0, 0)
@@ -359,7 +359,7 @@ for i = 0, 1, 1 do
 	_G["vcbOptions1Box5PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["LagBar"] = self.Text:GetText()
-			vcbOptions1Box5PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box5PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box5PopOut1Choice0:Hide()
 		end
 	end)
@@ -371,8 +371,8 @@ vcbOptions1Box5PopOut2:SetScript("OnEnter", function(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nQueue Window Bar to be shown?") 
 end)
 -- naming --
-vcbOptions1Box5PopOut2Choice0.Text:SetText("Show")
-vcbOptions1Box5PopOut2Choice1.Text:SetText("Hide")
+vcbOptions1Box5PopOut2Choice0.Text:SetText("Hide")
+vcbOptions1Box5PopOut2Choice1.Text:SetText("Show")
 -- parent & sort --
 vcbOptions1Box5PopOut2Choice1:SetParent(vcbOptions1Box5PopOut2Choice0)
 vcbOptions1Box5PopOut2Choice1:SetPoint("TOP",vcbOptions1Box5PopOut2Choice0, "BOTTOM", 0, 0)
@@ -381,7 +381,7 @@ for i = 0, 1, 1 do
 	_G["vcbOptions1Box5PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["QueueBar"] = self.Text:GetText()
-			vcbOptions1Box5PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box5PopOut2.Text:SetText(self.Text:GetText())
 			vcbOptions1Box5PopOut2Choice0:Hide()
 		end
 	end)
@@ -394,8 +394,8 @@ vcbOptions1Box6PopOut1:SetScript("OnEnter", function(self)
 	GameTooltip:SetText("|A:"..C_AddOns.GetAddOnMetadata("VCB", "IconAtlas")..":16:16|a "..vcbMainColor:WrapTextInColorCode(C_AddOns.GetAddOnMetadata("VCB", "Title")).."|nDo you want the|nTicks of the Spell to be shown?") 
 end)
 -- naming --
-vcbOptions1Box6PopOut1Choice0.Text:SetText("Show")
-vcbOptions1Box6PopOut1Choice1.Text:SetText("Hide")
+vcbOptions1Box6PopOut1Choice0.Text:SetText("Hide")
+vcbOptions1Box6PopOut1Choice1.Text:SetText("Show")
 -- parent & sort --
 for i = 1, 1, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:SetParent(vcbOptions1Box6PopOut1Choice0)
@@ -406,7 +406,7 @@ for i = 0, 1, 1 do
 	_G["vcbOptions1Box6PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["Ticks"] = self.Text:GetText()
-			vcbOptions1Box6PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box6PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box6PopOut1Choice0:Hide()
 		end
 	end)
@@ -431,7 +431,7 @@ for i = 0, 2, 1 do
 	_G["vcbOptions1Box6PopOut2Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["GCD"]["ClassicTexture"] = self.Text:GetText()
-			vcbOptions1Box6PopOut2.Text:SetText(self:GetText())
+			vcbOptions1Box6PopOut2.Text:SetText(self.Text:GetText())
 			vcbOptions1Box6PopOut2Choice0:Hide()
 			vcbCreatingTheGCD()
 		end
@@ -458,7 +458,7 @@ for i = 0, 2, 1 do
 	_G["vcbOptions1Box7PopOut1Choice"..i]:HookScript("OnClick", function(self, button, down)
 		if button == "LeftButton" and down == false then
 			VCBrPlayer["Color"] = self.Text:GetText()
-			vcbOptions1Box7PopOut1.Text:SetText(self:GetText())
+			vcbOptions1Box7PopOut1.Text:SetText(self.Text:GetText())
 			vcbOptions1Box7PopOut1Choice0:Hide()
 		end
 	end)
@@ -489,14 +489,72 @@ for i = 1, 4, 1 do
 		_G["vcbOptions1Box"..i.."PopOut1Choice9"].Text:SetText("Bottom Right")
 	end
 end
+-- drop down --
+vcbClickPopOut(vcbOptions1Box1PopOut1, vcbOptions1Box1PopOut1Choice0)
+vcbOptions1Box1PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box1PopOut2, vcbOptions1Box1PopOut2Choice0)
+vcbOptions1Box1PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box2PopOut1, vcbOptions1Box2PopOut1Choice0)
+vcbOptions1Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box2PopOut2, vcbOptions1Box2PopOut2Choice0)
+vcbOptions1Box2PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box2PopOut3, vcbOptions1Box2PopOut3Choice0)
+vcbOptions1Box2PopOut3:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box2PopOut4, vcbOptions1Box2PopOut4Choice0)
+vcbOptions1Box2PopOut4:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box3PopOut1, vcbOptions1Box3PopOut1Choice0)
+vcbOptions1Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box3PopOut2, vcbOptions1Box3PopOut2Choice0)
+vcbOptions1Box3PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box3PopOut3, vcbOptions1Box3PopOut3Choice0)
+vcbOptions1Box3PopOut3:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box3PopOut4, vcbOptions1Box3PopOut4Choice0)
+vcbOptions1Box3PopOut4:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box4PopOut1, vcbOptions1Box4PopOut1Choice0)
+vcbOptions1Box4PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box4PopOut2, vcbOptions1Box4PopOut2Choice0)
+vcbOptions1Box4PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box4PopOut3, vcbOptions1Box4PopOut3Choice0)
+vcbOptions1Box4PopOut3:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box5PopOut1, vcbOptions1Box5PopOut1Choice0)
+vcbOptions1Box5PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box5PopOut2, vcbOptions1Box5PopOut2Choice0)
+vcbOptions1Box5PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box6PopOut1, vcbOptions1Box6PopOut1Choice0)
+vcbOptions1Box6PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box6PopOut2, vcbOptions1Box6PopOut2Choice0)
+vcbOptions1Box6PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions1Box7PopOut1, vcbOptions1Box7PopOut1Choice0)
+vcbOptions1Box7PopOut1:SetScript("OnLeave", vcbLeavingMenus)
 -- Showing the panel --
 vcbOptions1:HookScript("OnShow", function(self)
 	CheckSavedVariables()
 	if vcbOptions2:IsShown() then vcbOptions2:Hide() end
 	if vcbOptions3:IsShown() then vcbOptions3:Hide() end
 	if vcbOptions4:IsShown() then vcbOptions4:Hide() end
+	if vcbOptions5:IsShown() then vcbOptions5:Hide() end
+	if vcbOptions6:IsShown() then vcbOptions6:Hide() end
 	vcbOptions00Tab1.Text:SetTextColor(vcbHighColor:GetRGB())
 	vcbOptions00Tab2.Text:SetTextColor(vcbMainColor:GetRGB())
 	vcbOptions00Tab3.Text:SetTextColor(vcbMainColor:GetRGB())
 	vcbOptions00Tab4.Text:SetTextColor(vcbMainColor:GetRGB())
+	vcbOptions00Tab5.Text:SetTextColor(vcbMainColor:GetRGB())
+	vcbOptions00Tab6.Text:SetTextColor(vcbMainColor:GetRGB())
 end)

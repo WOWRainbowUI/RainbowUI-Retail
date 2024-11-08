@@ -2,7 +2,7 @@
 vcbOptions3.TopTxt:SetText("Focus' Castbar Options!")
 -- naming the boxes --
 vcbOptions3Box0.TitleTxt:SetText("Read me please!")
-vcbOptions3Box1.TitleTxt:SetText("Position & Scale of the Focus' Castbar!")
+vcbOptions3Box1.TitleTxt:SetText("Position & Scale")
 vcbOptions3Box2.TitleTxt:SetText("Current Cast Time")
 vcbOptions3Box3.TitleTxt:SetText("Current & Total Cast Time")
 vcbOptions3Box4.TitleTxt:SetText("Total Cast Time")
@@ -479,19 +479,66 @@ for i = 0, 1, 1 do
 		end
 	end)
 end
--- naming button choices for spell's name, current cast time, current & total time, and total time --
-for i = 2, 5, 1 do
-	_G["vcbOptions3Box"..i.."PopOut1Choice0"].Text:SetText("Hide")
-	_G["vcbOptions3Box"..i.."PopOut1Choice1"].Text:SetText("Top Left")
-	_G["vcbOptions3Box"..i.."PopOut1Choice2"].Text:SetText("Left")
-	_G["vcbOptions3Box"..i.."PopOut1Choice3"].Text:SetText("Bottom Left")
-	_G["vcbOptions3Box"..i.."PopOut1Choice4"].Text:SetText("Top")
-	_G["vcbOptions3Box"..i.."PopOut1Choice5"].Text:SetText("Center")
-	_G["vcbOptions3Box"..i.."PopOut1Choice6"].Text:SetText("Bottom")
-	_G["vcbOptions3Box"..i.."PopOut1Choice7"].Text:SetText("Top Right")
-	_G["vcbOptions3Box"..i.."PopOut1Choice8"].Text:SetText("Right")
-	_G["vcbOptions3Box"..i.."PopOut1Choice9"].Text:SetText("Bottom Right")
-end
+
+FocusFrame.CBpreview:SetScript("OnLeave", vcbLeavingMenus)
+vcbOptions3Box1CheckButton1:SetScript("OnLeave", vcbLeavingMenus)
+vcbOptions3Box1Slider1.Slider:SetScript("OnLeave", vcbLeavingMenus)
+vcbOptions3Box1PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+vcbClickPopOut(vcbOptions3Box1PopOut1, vcbOptions3Box1PopOut1Choice0)
+-- leave choice 1 --
+vcbOptions3Box1PopOut1Choice1:SetScript("OnLeave", vcbLeavingMenus)
+-- leave --
+vcbOptions3Box2PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box2PopOut1, vcbOptions3Box2PopOut1Choice0)
+-- leave --
+vcbOptions3Box2PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box2PopOut2, vcbOptions3Box2PopOut2Choice0)
+-- leave --
+vcbOptions3Box2PopOut3:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box2PopOut3, vcbOptions3Box2PopOut3Choice0)
+-- leave --
+vcbOptions3Box2PopOut4:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box2PopOut4, vcbOptions3Box2PopOut4Choice0)
+-- leave --
+vcbOptions3Box3PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box3PopOut1, vcbOptions3Box3PopOut1Choice0)
+-- leave --
+vcbOptions3Box3PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box3PopOut2, vcbOptions3Box3PopOut2Choice0)
+-- leave --
+vcbOptions3Box3PopOut3:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box3PopOut3, vcbOptions3Box3PopOut3Choice0)
+-- leave --
+vcbOptions3Box3PopOut4:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box3PopOut4, vcbOptions3Box3PopOut4Choice0)
+-- leave --
+vcbOptions3Box4PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box4PopOut1, vcbOptions3Box4PopOut1Choice0)
+-- leave --
+vcbOptions3Box4PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box4PopOut2, vcbOptions3Box4PopOut2Choice0)
+-- leave --
+vcbOptions3Box4PopOut3:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box4PopOut3, vcbOptions3Box4PopOut3Choice0)
+-- leave --
+vcbOptions3Box5PopOut1:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box5PopOut1, vcbOptions3Box5PopOut1Choice0)
+-- leave --
+vcbOptions3Box5PopOut2:SetScript("OnLeave", vcbLeavingMenus)
+-- drop down --
+vcbClickPopOut(vcbOptions3Box5PopOut2, vcbOptions3Box5PopOut2Choice0)
 -- Showing the panel --
 vcbOptions3:HookScript("OnShow", function(self)
 	CheckSavedVariables()
@@ -505,10 +552,14 @@ vcbOptions3:HookScript("OnShow", function(self)
 	if vcbOptions1:IsShown() then vcbOptions1:Hide() end
 	if vcbOptions2:IsShown() then vcbOptions2:Hide() end
 	if vcbOptions4:IsShown() then vcbOptions4:Hide() end
+	if vcbOptions5:IsShown() then vcbOptions5:Hide() end
+	if vcbOptions6:IsShown() then vcbOptions6:Hide() end
 	vcbOptions00Tab1.Text:SetTextColor(vcbMainColor:GetRGB())
 	vcbOptions00Tab2.Text:SetTextColor(vcbMainColor:GetRGB())
 	vcbOptions00Tab3.Text:SetTextColor(vcbHighColor:GetRGB())
 	vcbOptions00Tab4.Text:SetTextColor(vcbMainColor:GetRGB())
+	vcbOptions00Tab5.Text:SetTextColor(vcbMainColor:GetRGB())
+	vcbOptions00Tab6.Text:SetTextColor(vcbMainColor:GetRGB())
 end)
 -- Hiding the panel --
 vcbOptions3:SetScript("OnHide", function(self)
