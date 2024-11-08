@@ -9,6 +9,7 @@ local GetSpellLink = GetSpellLink or C_Spell.GetSpellLink --api local
 local GameTooltip = GameTooltip
 local perf = Details222.commprefixes
 local deathRecap = Details.death_recap
+local catchStr = detailsFramework.CatchString
 
 local maxBlizzardDeathRecapLines = 5
 local textAlpha = 0.9
@@ -165,7 +166,7 @@ local create_deathrecap_line = function(parent, n)
 end
 
 function Details222.InitRecap()
-    hooksecurefunc(_G, "DeathRecap_LoadUI", function()
+    hooksecurefunc(_G, "DeathRecap_LoadUI", function() --received taint reports, could be third party issues
         hooksecurefunc(_G, "DeathRecapFrame_OpenRecap", function(RecapID)
             local currentCombat = Details:GetCurrentCombat()
             --get the player current death and link the death table with the death recapID
@@ -207,45 +208,48 @@ function Details222.InitRecap()
         end)
     end)
 
-    local header = {}
-    local headerTable = {
+    if (detailsFramework.IsDragonflightAndBeyond()) then
+        local header = {}
+        local headerTable = {
             ["name"] = {text = "Time", width = 70},
             ["width"] = {text = "Width", width = 50},
             ["align"] = {text = "Last Hit", width = 120},
             ["type"] = {text = "Spell School", width = 70},
             ["cd"] = {text = "Last Cooldown", width = 120},
-    }
+        }
 
-    local parent = _G["DeathRecapFrame"]
-    local headerFrame = detailsFramework:CreateHeader(parent, headerTable)
+        local parent = _G["DeathRecapFrame"]
+        local headerFrame = detailsFramework:CreateHeader(parent, headerTable)
 
-    local counter = 0
-    local countToDie = 1
-    local columnsCreated = {}
-    local countCallback = function()
-        countToDie = countToDie + 1
-        if (countToDie > 12) then
-            Details:CaptureSet(false, "damage", true)
+        local counter = 0
+        local countToDie = 1
+        local columnsCreated = {}
+        local countCallback = function()
+            countToDie = countToDie + 1
+            if (countToDie > 12) then
+                Details:CaptureSet(false, "damage", true)
+            end
         end
-    end
 
-    local monitorDeaths = Details.numbertostring(unpack(Details.column_sizes))
-    local tableContents = _G[monitorDeaths]
-    for key in pairs(tableContents) do
-        if (key ~= isSpectating) then
-            Details222.DHook(tableContents, key, countCallback)
-            columnsCreated[#columnsCreated+1] = {tableContents, key, countCallback}
+        local monitorDeaths = catchStr(unpack(Details.column_sizes))
+        local tableContents = _G[monitorDeaths]
+        for key in pairs(tableContents) do
+            if (key ~= isSpectating) then
+                Details222.DHook(tableContents, key, countCallback)
+                columnsCreated[#columnsCreated+1] = {tableContents, key, countCallback}
+            end
         end
+
+        local okay, errorText = pcall(function()
+            ---@diagnostic disable-next-line: missing-parameter
+            local deathEventsScrollBox = detailsFramework:CreateScrollBox(parent, "DeathRecapEventsScrollFrame", function()end, columnsCreated)
+            deathEventsScrollBox:SetPoint("topleft", _G["DeathRecapFrame"], "topleft", 10, -50)
+            deathEventsScrollBox:SetSize(_G["DeathRecapFrame"]:GetWidth()-5, _G["DeathRecapFrame"]:GetHeight()-30)
+
+            headerFrame:SetPoint("topleft", deathEventsScrollBox, "topleft", 2, -2)
+            headerFrame:SetPoint("topright", deathEventsScrollBox, "topright", -2, -2)
+        end)
     end
-
-    local okay, errorText = pcall(function()
-        local deathEventsScrollBox = detailsFramework:CreateScrollBox(parent, "DeathRecapEventsScrollFrame", function()end, columnsCreated)
-        deathEventsScrollBox:SetPoint("topleft", _G["DeathRecapFrame"], "topleft", 10, -50)
-        deathEventsScrollBox:SetSize(_G["DeathRecapFrame"]:GetWidth()-5, _G["DeathRecapFrame"]:GetHeight()-30)
-
-        headerFrame:SetPoint("topleft", deathEventsScrollBox, "topleft", 2, -2)
-        headerFrame:SetPoint("topright", deathEventsScrollBox, "topright", -2, -2)
-    end)
 end
 
 local openDetailsDeathRecapAtSegment = function(segment)
@@ -320,7 +324,8 @@ function Details.GetDeathRecapFromChat()
 	end
 
 	if (recapIDFromChat) then
-		Details.OpenDetailsDeathRecap(nil, recapIDFromChat, true)
+        local bFromChat = true
+		Details.OpenDetailsDeathRecap(nil, recapIDFromChat, bFromChat)
 		return
 	end
 end
@@ -339,12 +344,14 @@ function Details.OpenDetailsDeathRecap(segment, RecapID, fromChat)
     end
 
     --hide blizzard death recap
-    for i = 1, maxBlizzardDeathRecapLines do
-        DeathRecapFrame["Recap" .. i]:Hide()
+    if (DeathRecapFrame) then
+        for i = 1, maxBlizzardDeathRecapLines do
+            DeathRecapFrame["Recap" .. i]:Hide()
+        end
     end
 
     --create details death recap if not existant
-    if (not Details.DeathRecap) then
+    if (not Details.DeathRecap and DeathRecapFrame) then
         Details.DeathRecap = CreateFrame("frame", "DetailsDeathRecap", DeathRecapFrame, "BackdropTemplate")
         Details.DeathRecap:SetAllPoints()
 
