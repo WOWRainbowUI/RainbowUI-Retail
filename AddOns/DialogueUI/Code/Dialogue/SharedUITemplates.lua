@@ -441,7 +441,7 @@ function DUIDialogOptionButtonMixin:RemoveQuestTypeText()
     end
 end
 
-function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo, requery)
+function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo)
     local typeText;
 
     if questInfo.isTrivial then
@@ -459,29 +459,22 @@ function DUIDialogOptionButtonMixin:SetQuestTypeText(questInfo, requery)
                 elseif questInfo.frequency == 2 then
                     typeText = L["Quest Frequency Weekly"];
                 elseif questInfo.frequency == 3 or questInfo.isMeta then    --TWW Meta Quest
-                    --[[
-                    typeText = API.GetQuestTimeLeft(questInfo.questID, true);
-                    if (not requery) and (not typeText) then
-                        After(0.5, function()
-                            if self:IsVisible() and self.questID and self.questID == questInfo.questID then
-                                self:SetQuestTypeText(questInfo, true)
-                            end
-                        end);
-                    end
-                    --]]
+
                 end
             end
         end
     end
 
     if typeText then
-        local questTypeFrame = addon.DialogueUI.questTypeFramePool:Acquire();
-        questTypeFrame:SetRightText(typeText);
-        questTypeFrame:SetPoint("RIGHT", self, "RIGHT", -HOTKEYFRAME_PADDING, 0);
-        questTypeFrame:SetParent(self);
-        local frameWidth = questTypeFrame:GetContentWidth();
-        self.hasQuestType = true;
-        self.rightFrameWidth = Round(frameWidth);
+        if not self.hasQuestType then
+            local questTypeFrame = addon.DialogueUI.questTypeFramePool:Acquire();
+            questTypeFrame:SetRightText(typeText);
+            questTypeFrame:SetPoint("RIGHT", self, "RIGHT", -HOTKEYFRAME_PADDING, 0);
+            questTypeFrame:SetParent(self);
+            local frameWidth = questTypeFrame:GetContentWidth();
+            self.hasQuestType = true;
+            self.rightFrameWidth = Round(frameWidth);
+        end
     else
         self:RemoveQuestTypeText();
     end
@@ -510,9 +503,25 @@ function DUIDialogOptionButtonMixin:SetQuest(questInfo, hotkey)
 
     self.showIcon = true;
     self.questID = questInfo.questID;
+    self.rightFrameWidth = BUTTON_HEIGHT_LARGE;     --Reserved for displaying quest type on the right, such as Trivial, Weekly...
+    API.BuildQuestInfo(questInfo);
     self:SetQuestVisual(questInfo);
-    self:SetQuestTypeText(questInfo);
     self:SetButtonText(questInfo.title, true);
+
+    local function OnQuestLoaded(questID)
+        if self:IsQuestButton() and self.questID == questID and self:IsShown() then
+            questInfo:Refresh();
+            self:SetQuestTypeText(questInfo);
+        end
+    end
+    CallbackRegistry:LoadQuest(self.questID, OnQuestLoaded);
+end
+
+function DUIDialogOptionButtonMixin:IsQuestButton()
+    if self.type and self.type == "availableQuest" or self.type == "activeQuest" then
+        return true
+    end
+    return false
 end
 
 function DUIDialogOptionButtonMixin:SetAvailableQuest(questInfo, index, hotkey)
@@ -926,18 +935,21 @@ local HotkeyIcons = {
     XBOX_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "RB", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     XBOX_PAD1 = {file = "XBOX-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     XBOX_PAD2 = {file = "XBOX-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    XBOX_PAD3 = {file = "XBOX-PAD3.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     XBOX_PAD4 = {file = "XBOX-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
 
     PS_PADLSHOULDER = {file = "HotkeyBackground-LB.png", themed = true, text = "L1", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "R1", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD1 = {file = "PS-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD2 = {file = "PS-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    PS_PAD3 = {file = "PS-PAD3.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     PS_PAD4 = {file = "PS-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
 
     SWITCH_PADLSHOULDER = {file = "HotkeyBackground-LB.png", themed = true, text = "L", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     SWITCH_PADRSHOULDER = {file = "HotkeyBackground-RB.png", themed = true, text = "R", ratio = 1.5, rightCoord = 0.75, noBackground = true, useFrameSize = true, trilinear = true},
     SWITCH_PAD1 = {file = "SWITCH-PAD1.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     SWITCH_PAD2 = {file = "SWITCH-PAD2.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
+    SWITCH_PAD3 = {file = "SWITCH-PAD3.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
     SWITCH_PAD4 = {file = "SWITCH-PAD4.png", themed = true, ratio = 1, rightCoord = 1, noBackground = true, useFrameSize = true, trilinear = true},
 };
 
@@ -1091,6 +1103,16 @@ function DUIDialogHotkeyFrameMixin:SetShowDisabledKey(showDisabledKey)
     self.showDisabledKey = showDisabledKey == true or nil;
 end
 
+function DUIDialogHotkeyFrameMixin:UseCompactMode()
+    --Font Size + 8
+    local fontSize = addon.FontUtil:GetDefaultFontSize();
+    local frameHeight = fontSize + 2;
+    self:SetBaseHeight(frameHeight);
+    local iconSize = frameHeight - 4;
+    self.defaultIconSize = iconSize;
+    self.Icon:SetSize(iconSize, iconSize);
+    self:ReloadKey();
+end
 
 
 local ItemButtonSharedMixin = {};
@@ -2632,11 +2654,19 @@ do  --Settings, CallbackRegistry
             end
 
             GAME_PAD_CONFIRM_KEY = prefix.."PAD1";
+            HotkeyIcons.Confirm = HotkeyIcons[prefix.."PAD1"];
+            HotkeyIcons.Cancel = HotkeyIcons[prefix.."PAD2"];
+            HotkeyIcons.Action = HotkeyIcons[prefix.."PAD3"];
+            HotkeyIcons.Mod = HotkeyIcons[prefix.."PAD4"];
         else
             ANIM_OFFSET_H_BUTTON_HOVER = 8;
             HotkeyIcons.Esc = nil;
             HotkeyIcons.Shift = nil;
             GAME_PAD_CONFIRM_KEY = nil;
+            HotkeyIcons.Confirm = HotkeyIcons["SPACE"];
+            HotkeyIcons.Cancel = nil;
+            HotkeyIcons.Action = HotkeyIcons["SPACE"];
+            HotkeyIcons.Mod = nil;
         end
 
         CallbackRegistry:Trigger("PostInputDeviceChanged", dbValue);
