@@ -31,14 +31,10 @@ L["|cFFFF0000Not|r Item Bonus Id Equipped"] = "|cFFFF0000Нет|r ID бонус�
 L["|cFFFF0000Not|r Item Equipped"] = "Предмет |cFFFF0000НЕ|r надет"
 L["|cFFFF0000Not|r Player Name/Realm"] = "|cFFFF0000Нет|r Имя / Игровой мир игрока"
 L["|cFFFF0000Not|r Spell Known"] = "Заклинание |cFFFF0000НЕ|rизвестно"
---[[Translation missing --]]
 L[ [=[|cFFFF0000Support for unfiltered COMBAT_LOG_EVENT_UNFILTERED is deprecated|r
 COMBAT_LOG_EVENT_UNFILTERED without a filter is advised against as it’s very performance costly.
 Find more information:
-https://github.com/WeakAuras/WeakAuras2/wiki/Custom-Triggers#events]=] ] = [=[|cFFFF0000Support for unfiltered COMBAT_LOG_EVENT_UNFILTERED is deprecated|r
-COMBAT_LOG_EVENT_UNFILTERED without a filter is advised against as it’s very performance costly.
-Find more information:
-https://github.com/WeakAuras/WeakAuras2/wiki/Custom-Triggers#events]=]
+https://github.com/WeakAuras/WeakAuras2/wiki/Custom-Triggers#events]=] ] = "|cFFFF0000Поддержка COMBAT_LOG_EVENT_UNFILTERED без фильтра устарела|r Использование COMBAT_LOG_EVENT_UNFILTERED без фильтра не рекомендуется, так как это очень затратно по производительности. Дополнительная информация: https://github.com/WeakAuras/WeakAuras2/wiki/Custom-Triggers#events"
 L["|cFFffcc00Extra Options:|r %s"] = "|cFFFFCC00Дополнительные параметры:|r %s"
 L["|cFFffcc00Extra Options:|r None"] = "|cFFFFCC00Дополнительные параметры:|r нет"
 L[ [=[• |cff00ff00Player|r, |cff00ff00Target|r, |cff00ff00Focus|r, and |cff00ff00Pet|r correspond directly to those individual unitIDs.
@@ -319,10 +315,8 @@ L["Create"] = "Создание"
 L["Critical"] = "Критический эффект"
 L["Critical (%)"] = "Критический удар"
 L["Critical Rating"] = "Показатель крит. удара"
---[[Translation missing --]]
-L["Crop X"] = "Crop X"
---[[Translation missing --]]
-L["Crop Y"] = "Crop Y"
+L["Crop X"] = "Обрезка X"
+L["Crop Y"] = "Обрезка Y"
 L["Crowd Controlled"] = "Потеря контроля над персонажем"
 L["Crushing"] = "Сокрушительный удар"
 L["C'thun"] = "К'Тун"
@@ -1399,8 +1393,7 @@ L["Warfront (Normal)"] = "Фронт (обычный)"
 L["Warlords of Draenor"] = "Warlords of Draenor"
 L["Warning"] = "Предупреждение"
 L["Warning for unknown aura:"] = "Предупреждение для неизвестной индикации."
---[[Translation missing --]]
-L["Warning: Anchoring in aura '%s' is imposssible, due to an anchoring cycle"] = "Warning: Anchoring in aura '%s' is imposssible, due to an anchoring cycle"
+L["Warning: Anchoring in aura '%s' is imposssible, due to an anchoring cycle"] = "Предупреждение: крепление в ауре '%s' невозможно из-за цикла крепления"
 L["Warning: Full Scan auras checking for both name and spell id can't be converted."] = "|cFFFFCC00Предупреждение.|r Триггер с функцией Полного сканирования, проверяющий как название эффекта, так и ID заклинания, нельзя преобразовать."
 L["Warning: Name info is now available via %affected, %unaffected. Number of affected group members via %unitCount. Some options behave differently now. This is not automatically adjusted."] = "|cFFFFCC00Примечение.|r Теперь имена задействованных и незадействованных игроков доступны посредством %affected и %unaffected; количество задействованных участников группы - %unitCount. Некоторые параметры работают иначе. Эти изменения автоматически не применяются."
 L["Warning: Tooltip values are now available via %tooltip1, %tooltip2, %tooltip3 instead of %s. This is not automatically adjusted."] = "|cFFFFCC00Примечение.|r Теперь значения из текста подсказки доступны посредством %tooltip1, %tooltip2 и %tooltip3. Это изменение автоматически не применяется."

@@ -746,10 +746,8 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = "Время �
 	L["Regions of type \"%s\" are not supported."] = "Регионы типа \"%s\" не поддерживаются."
 	L["Remaining Time"] = "Оставшееся время"
 	L["Remove"] = "Удалить"
-	--[[Translation missing --]]
-	L["Remove All Sounds"] = "Remove All Sounds"
-	--[[Translation missing --]]
-	L["Remove All Text To Speech"] = "Remove All Text To Speech"
+	L["Remove All Sounds"] = "Удалить все звуки"
+	L["Remove All Text To Speech"] = "Удалить весь текст в речь"
 	L["Remove this display from its group"] = "Убрать индикацию из этой группы"
 	L["Remove this property"] = "Удалить это свойство"
 	L["Rename"] = "Переименовать"
@@ -813,12 +811,10 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = "Время �
 	L["Show Model"] = "Показать модель"
 	L["Show model of unit "] = "Показать модель единицы"
 	L["Show On"] = "Показать"
-	--[[Translation missing --]]
-	L["Show Sound Setting"] = "Show Sound Setting"
+	L["Show Sound Setting"] = "Показать настройки звука"
 	L["Show Spark"] = "Показать искру"
 	L["Show Text"] = "Показать текст"
-	--[[Translation missing --]]
-	L["Show Text To Speech Setting"] = "Show Text To Speech Setting"
+	L["Show Text To Speech Setting"] = "Показать настройку преобразования текста в речь"
 	L["Show this group's children"] = "Показать индикации этой группы"
 	L["Show Tick"] = "Показать такт"
 	L["Shows a 3D model from the game files"] = "Показывает 3D модель из файлов игры"
@@ -908,8 +904,7 @@ every 3 events starting from 2nd and ending at 11th: 2-11/3]=] ] = "Время �
 	L["The group and all direct children will share the same base frame level."] = "Группа и все её прямые дочерние элементы будут иметь один и тот же базовый уровень фрейма."
 	L["The trigger number is optional. When no trigger number is specified, the trigger selected via dynamic information will be used."] = "Номер триггера является необязательным. Если номер триггера не указан, будет использоваться триггер, выбранный через динамическую информацию."
 	L["The type of trigger"] = "Тип триггера"
-	--[[Translation missing --]]
-	L["The WeakAuras Options Addon version %s doesn't match the WeakAuras version %s. If you updated the addon while the game was running, try restarting World of Warcraft. Otherwise try reinstalling WeakAuras"] = "The WeakAuras Options Addon version %s doesn't match the WeakAuras version %s. If you updated the addon while the game was running, try restarting World of Warcraft. Otherwise try reinstalling WeakAuras"
+	L["The WeakAuras Options Addon version %s doesn't match the WeakAuras version %s. If you updated the addon while the game was running, try restarting World of Warcraft. Otherwise try reinstalling WeakAuras"] = "Версия %s дополнения WeakAuras Options не соответствует версии %s WeakAuras. Если вы обновили дополнение во время игры, попробуйте перезапустить World of Warcraft. В противном случае попробуйте переустановить WeakAuras"
 	L["Then "] = "Тогда "
 	L["There are several special codes available to make this text dynamic. Click to view a list with all dynamic text codes."] = "Существует несколько специальных кодов для динамического текста. Нажмите, чтобы просмотреть список всех кодов динамического текста."
 	L["Thickness"] = "Толщина"
