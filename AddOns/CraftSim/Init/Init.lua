@@ -362,13 +362,13 @@ function CraftSim.INIT:HookToProfessionsFrame()
 
 	ProfessionsFrame:HookScript("OnShow",
 		function()
+			CraftSim.DEBUG:StartProfiling("Update Customer History")
 			CraftSim.CUSTOMER_HISTORY.UI:UpdateDisplay()
+			CraftSim.DEBUG:StopProfiling("Update Customer History")
 			CraftSim.INIT.lastRecipeID = nil
 			if CraftSim.DB.OPTIONS:Get("OPEN_LAST_RECIPE") then
 				C_Timer.After(1, function()
-					local recipeInfo = ProfessionsFrame.CraftingPage.SchematicForm:GetRecipeInfo()
 					local professionInfo = ProfessionsFrame:GetProfessionInfo()
-					local professionFullName = professionInfo.professionName
 					local profession = professionInfo.parentProfessionName
 					if CraftSim.OPTIONS.lastOpenRecipeID[profession] then
 						C_TradeSkillUI.OpenRecipe(CraftSim.OPTIONS.lastOpenRecipeID[profession])
@@ -704,7 +704,7 @@ function CraftSim.INIT:TriggerModulesByRecipeType()
 	CraftSim.FRAME:ToggleFrame(CraftSim.COST_OPTIMIZATION.frameWO,
 		showCostOptimization and exportMode == CraftSim.CONST.EXPORT_MODE.WORK_ORDER)
 	if recipeData and showCostOptimization then
-		CraftSim.COST_OPTIMIZATION:UpdateDisplay(recipeData, exportMode)
+		CraftSim.COST_OPTIMIZATION:UpdateDisplay(recipeData)
 	end
 
 	if recipeData and showCraftResults then

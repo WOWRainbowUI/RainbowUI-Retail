@@ -23,6 +23,7 @@ local print = CraftSim.DEBUG:SetDebugPrint(CraftSim.CONST.DEBUG_IDS.DB)
 ---@field provisionAll number
 ---@field provisionSome number
 ---@field provisionNone number
+---@field npc boolean
 
 ---@class CraftSim.DB.CustomerHistory.ChatMessage
 ---@field fromPlayer boolean
@@ -116,9 +117,10 @@ function CraftSim.DB.CUSTOMER_HISTORY:Delete(customerHistory)
     CraftSimDB.customerHistoryDB.data[customerHistory.customer .. "-" .. customerHistory.realm] = nil
 end
 
-function CraftSim.DB.CUSTOMER_HISTORY:DeleteZeroTipCustomers()
+---@param minimumTip number
+function CraftSim.DB.CUSTOMER_HISTORY:PurgeCustomers(minimumTip)
     for customerID, customerHistory in pairs(CraftSimDB.customerHistoryDB.data) do
-        if not customerHistory.totalTip or customerHistory.totalTip <= 0 then
+        if not customerHistory.totalTip or customerHistory.totalTip <= minimumTip then
             CraftSimDB.customerHistoryDB.data[customerID] = nil
         end
     end

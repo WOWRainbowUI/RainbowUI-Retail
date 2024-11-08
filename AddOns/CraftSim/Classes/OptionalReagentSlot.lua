@@ -1,6 +1,8 @@
 ---@class CraftSim
 local CraftSim = select(2, ...)
 
+local GUTIL = CraftSim.GUTIL
+
 
 ---@class CraftSim.OptionalReagentSlot : CraftSim.CraftSimObject
 CraftSim.OptionalReagentSlot = CraftSim.CraftSimObject:extend()
@@ -31,6 +33,27 @@ function CraftSim.OptionalReagentSlot:new(recipeData, reagentSlotSchematic)
     end
 end
 
+---@return boolean isAllocated
+function CraftSim.OptionalReagentSlot:IsAllocated()
+    return self.activeReagent ~= nil
+end
+
+---@param itemID ItemID
+---@return boolean isPossibleReagent
+function CraftSim.OptionalReagentSlot:IsPossibleReagent(itemID)
+    return GUTIL:Some(self.possibleReagents, function(possibleReagent)
+        return possibleReagent.item:GetItemID() == itemID
+    end)
+end
+
+---@param recipeData CraftSim.RecipeData
+---@return boolean isOrderReagent
+function CraftSim.OptionalReagentSlot:IsOrderReagentIn(recipeData)
+    if not self.activeReagent then return false end
+
+    return self.activeReagent:IsOrderReagentIn(recipeData)
+end
+
 ---@param itemID number?
 function CraftSim.OptionalReagentSlot:SetReagent(itemID)
     if not itemID then
@@ -57,27 +80,24 @@ end
 --- returns wether the player has enough the selected optional reagent
 ---@param multiplier number? default: 1
 ---@param crafterUID string
----@param excludeWarbankTemp? boolean
-function CraftSim.OptionalReagentSlot:HasItem(multiplier, crafterUID, excludeWarbankTemp)
+function CraftSim.OptionalReagentSlot:HasItem(multiplier, crafterUID)
     multiplier = multiplier or 1
     if not self.activeReagent then
         return true
     end
 
-    local itemCount = CraftSim.CRAFTQ:GetItemCountFromCraftQueueCache(crafterUID, self.activeReagent.item:GetItemID(),
-        excludeWarbankTemp)
+    local itemCount = CraftSim.CRAFTQ:GetItemCountFromCraftQueueCache(crafterUID, self.activeReagent.item:GetItemID())
 
     return itemCount >= (multiplier * self.maxQuantity)
 end
 
 --- check how many times the player can fulfill the allocated item quantity
 ---@param crafterUID string
-function CraftSim.OptionalReagentSlot:HasQuantityXTimes(crafterUID, excludeWarbankTemp)
+function CraftSim.OptionalReagentSlot:HasQuantityXTimes(crafterUID)
     if not self.activeReagent then
         return math.huge -- yes I have infinite a number of times yes
     end
-    local itemCount = CraftSim.CRAFTQ:GetItemCountFromCraftQueueCache(crafterUID, self.activeReagent.item:GetItemID(),
-        excludeWarbankTemp)
+    local itemCount = CraftSim.CRAFTQ:GetItemCountFromCraftQueueCache(crafterUID, self.activeReagent.item:GetItemID())
     return itemCount * self.maxQuantity
 end
 

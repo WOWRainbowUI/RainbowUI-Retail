@@ -247,12 +247,12 @@ end
 ---@return number?
 ---@return number?
 function GUTIL:GetMoneyValuesFromCopper(copperValue, formatString)
-  local gold = GUTIL:Round(copperValue / 10000)
-  local silver = GUTIL:Round(copperValue / 100000)
-  local copper = GUTIL:Round(copperValue / 10000000)
+  local gold = math.floor(copperValue / 1e4)
+  local silver = math.floor(copperValue / 100 % 100)
+  local copper = math.floor(copperValue % 100)
 
   if not formatString then
-    return tonumber(gold) or 0, tonumber(silver) or 0, tonumber(copper) or 0
+    return gold, silver, copper
   else
     return gold .. "g " .. silver .. "s " .. copper .. "c"
   end

@@ -2,6 +2,8 @@
 local CraftSim = select(2, ...)
 local addonName = select(1, ...)
 
+local Auctionator = Auctionator
+
 local GGUI = CraftSim.GGUI
 local GUTIL = CraftSim.GUTIL
 
@@ -176,9 +178,11 @@ function CraftSim.CRAFTQ:QueueWorkOrders()
                                 local recipeData = CraftSim.RecipeData({ recipeID = order.spellID })
 
                                 if not CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_PATRON_ORDERS_SPARK_RECIPES") then
-                                    if recipeData.reagentData:HasSparkSlot() then
-                                        if recipeData.reagentData.sparkReagentSlot.activeReagent then
-                                            if not recipeData.reagentData.sparkReagentSlot.activeReagent:IsOrderReagentIn(recipeData) then
+                                    if recipeData:HasRequiredSelectableReagent() then
+                                        local slot = recipeData.reagentData.requiredSelectableReagentSlot
+                                        if slot and slot:IsPossibleReagent(CraftSim.CONST.ITEM_IDS
+                                                .REQUIRED_SELECTABLE_ITEMS.SPARK_OF_OMENS) then
+                                            if slot:IsAllocated() and not slot:IsOrderReagentIn(recipeData) then
                                                 distributor:Continue()
                                                 return
                                             end
@@ -534,11 +538,13 @@ function CraftSim.CRAFTQ.CreateAuctionatorShoppingList()
         end
         local activeReagents = craftQueueItem.recipeData.reagentData:GetActiveOptionalReagents()
         local quantityMap = {}
-        if craftQueueItem.recipeData.reagentData:HasSparkSlot() then
-            if craftQueueItem.recipeData.reagentData.sparkReagentSlot.activeReagent then
-                tinsert(activeReagents, craftQueueItem.recipeData.reagentData.sparkReagentSlot.activeReagent)
-                quantityMap[craftQueueItem.recipeData.reagentData.sparkReagentSlot.activeReagent.item:GetItemID()] =
-                    craftQueueItem.recipeData.reagentData.sparkReagentSlot.maxQuantity or 1
+        if craftQueueItem.recipeData:HasRequiredSelectableReagent() then
+            local slot = craftQueueItem.recipeData.reagentData.requiredSelectableReagentSlot
+            if slot and slot:IsAllocated() and not slot:IsOrderReagentIn(craftQueueItem.recipeData) then
+                tinsert(activeReagents, slot
+                    .activeReagent)
+                quantityMap[slot.activeReagent.item:GetItemID()] =
+                    slot.maxQuantity or 1
             end
         end
         for _, optionalReagent in pairs(activeReagents) do
@@ -565,9 +571,6 @@ function CraftSim.CRAFTQ.CreateAuctionatorShoppingList()
 
     local crafterUIDs = GUTIL:ToSet(crafterUIDs)
 
-    -- TODO: Remove after 11.0.5
-    local excludeWarbankTemp = false
-
     --- convert to Auctionator Search Strings and deduct item count (of all crafters total)
     local searchStrings = GUTIL:Map(reagentMap, function(info, itemID)
         itemID = CraftSim.CRAFTQ:GetNonSoulboundAlternativeItemID(itemID)
@@ -576,8 +579,7 @@ function CraftSim.CRAFTQ.CreateAuctionatorShoppingList()
         end
         -- subtract the total item count of all crafter's cached inventory
         local totalItemCount = GUTIL:Fold(crafterUIDs, 0, function(itemCount, crafterUID)
-            local itemCountForCrafter = CraftSim.CRAFTQ:GetItemCountFromCraftQueueCache(crafterUID, itemID,
-                excludeWarbankTemp)
+            local itemCountForCrafter = CraftSim.CRAFTQ:GetItemCountFromCraftQueueCache(crafterUID, itemID)
             return itemCount + itemCountForCrafter
         end)
 
@@ -792,7 +794,7 @@ function CraftSim.CRAFTQ:ShowQueueOpenRecipeOptions()
     end)
 end
 
-function CraftSim.CRAFTQ:AddFirstCrafts()
+function CraftSim.CRAFTQ:QueueFirstCrafts()
     local openRecipeIDs = C_TradeSkillUI.GetFilteredRecipeIDs()
     local currentSkillLineID = C_TradeSkillUI.GetProfessionChildSkillLineID()
 
@@ -817,9 +819,11 @@ function CraftSim.CRAFTQ:AddFirstCrafts()
             local queueRecipe = isSkillLine and (not ignoreAcuity or not usesAcuity)
             if queueRecipe then
                 if CraftSim.DB.OPTIONS:Get("CRAFTQUEUE_FIRST_CRAFTS_IGNORE_SPARK_RECIPES") then
-                    if recipeData.reagentData:HasSparkSlot() then
-                        frameDistributor:Continue()
-                        return
+                    if recipeData:HasRequiredSelectableReagent() then
+                        if recipeData.reagentData.requiredSelectableReagentSlot:IsPossibleReagent(CraftSim.CONST.ITEM_IDS.REQUIRED_SELECTABLE_ITEMS.SPARK_OF_OMENS) then
+                            frameDistributor:Continue()
+                            return
+                        end
                     end
                 end
 

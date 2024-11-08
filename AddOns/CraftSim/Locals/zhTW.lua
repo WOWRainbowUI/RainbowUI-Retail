@@ -220,15 +220,20 @@ function CraftSim.LOCAL_TW:GetData()
 
         -- Cost Details Frame
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_TITLE] = "CraftSim 成本明細",
-        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_EXPLANATION] = "所有材料可能價格概述如下。\n" ..
-            f.bb("'使用來源'") ..
-            " 欄位指示哪一個價格已被使用。\n\n" ..
+        [CraftSim.CONST.TEXT.COST_OPTIMIZATION_EXPLANATION] =
+            "這裡您可以看到所有使用過的材料的價格概覽。\n「" ..
+            f.bb("使用來源") ..
+            "欄位表示使用了哪一個價格。\n\n" ..
             f.g("拍賣場") ..
             " .. 拍賣場價格\n" ..
             f.l("或") ..
             " .. 重訂價格\n" ..
             f.bb("任何名稱") ..
-            " .. 製作者的製作資料預估成本\n\n" .. f.l("或") .. " 已設定則會優先使用。 " .. f.bb("製造資料") .. " 僅在低於 " .. f.g("拍賣場") .. " 時才會使用。",
+            " .. 預估自行製作的成本\n" ..
+            f.l("或") ..
+            " 將會在設定後永遠被使用。 " ..
+            f.bb("製造成本") .. " 將只會在低於 " .. f.g("拍賣場") .. " 時被使用\n\n" ..
+            f.bb("右鍵點擊") .. " 任何材料將價格改為自訂數值"
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_CRAFTING_COSTS] = "製造成本: ",
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_ITEM_HEADER] = "物品",
         [CraftSim.CONST.TEXT.COST_OPTIMIZATION_AH_PRICE_HEADER] = "拍賣價格",
@@ -496,11 +501,9 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_NO_TIP_LABEL] = "移除 0 小費客戶",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_ZERO_TIPS_CONFIRMATION_POPUP] = "是否確定要刪除小費總計為 0 的所有客戶資料?",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_DELETE_CUSTOMER_CONFIRMATION_POPUP] = "是否確定要刪除 %s 的所有資料?",
-        [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_DELETE_CUSTOMER_POPUP_TITLE] = "刪除客戶歷史記錄",
-        [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_ZERO_TIPS_CONFIRMATION_POPUP_TITLE] = "刪除 0 小費客戶歷史記錄",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_DAYS_INPUT_LABEL] = "自動移除天數",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_PURGE_DAYS_INPUT_TOOLTIP] =
-        "CraftSim 會在每次登入後，自動刪除上次刪除後 X 天的所有 0 小費客戶。\n設為 0 時，CraftSim 將完全不會自動刪除。",
+        "當您在上次刪除後的 X 天登入時，CraftSim 將自動移除所有小費低於設定值之客戶。\n如果設定為 0，CraftSim 將永遠不會自動刪除。"
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_CUSTOMER_HEADER] = "客戶",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_TOTAL_TIP_HEADER] = "小費總計",
         [CraftSim.CONST.TEXT.CUSTOMER_HISTORY_CRAFT_HISTORY_DATE_HEADER] = "日期",
@@ -579,7 +582,7 @@ function CraftSim.LOCAL_TW:GetData()
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_REAGENTS_SELECT_LABEL] = "選擇",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_OPTIONAL_REAGENTS_LABEL] = "選擇性材料",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_FINISHING_REAGENTS_LABEL] = "完成的材料",
-		[CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_SPARK_LABEL] = "火花",
+		[CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_SPARK_LABEL] = "必要的",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_PROFESSION_GEAR_LABEL] = "專業裝備",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_OPTIMIZE_PROFIT_BUTTON] = "最佳化利潤",
         [CraftSim.CONST.TEXT.CRAFT_QUEUE_EDIT_RECIPE_CRAFTING_COSTS_LABEL] = "製造成本: ",
