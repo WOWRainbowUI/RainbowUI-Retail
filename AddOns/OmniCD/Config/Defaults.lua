@@ -70,7 +70,6 @@ C.Party.arena = {
 		["inactiveAlpha"] = 1,
 		["activeAlpha"] = 1,
 		["displayBorder"] = true,
-		["borderPixels"] = 1,
 		["borderColor"] = { r = 0.0, g = 0.0, b = 0.0 },
 	},
 	["highlight"] = {
@@ -614,6 +613,7 @@ C.Party.party.spells = {
 	["462031"] = true,
 	["157981"] = true,
 	["157980"] = true,
+	["449700"] = true,
 	["116844"] = true,
 	["51490"] = true,
 

@@ -1,11 +1,6 @@
 local E, L, C = select(2, ...):unpack()
 local P = E.Party
 
-local GetSpellLink = C_Spell and C_Spell.GetSpellLink or GetSpellLink
-local GetSpellDescription = C_Spell and C_Spell.GetSpellDescription or GetSpellDescription
-
-
-
 P.clearAllDefault = function(info)
 	local key = info[2]
 	P:ResetOption(key, "spells")
@@ -20,6 +15,18 @@ P.clearAllDefault = function(info)
 	if P:IsCurrentZone(key) then
 		P:UpdateEnabledSpells()
 		P:UpdateAllBars()
+	end
+end
+
+P.getForbearance = function(info)
+	return E.profile.Party[ info[2] ].icons.showForbearanceCounter
+end
+
+P.setForbearance = function(info, state)
+	local key = info[2]
+	E.profile.Party[key].icons.showForbearanceCounter = state
+	if P:IsCurrentZone(key) then
+		P:Refresh()
 	end
 end
 
@@ -83,9 +90,9 @@ P.setGlow = function(info, state)
 	end
 end
 
-
-
 local function clearAllDefault(info) E[ info[1] ].clearAllDefault(info) end
+local function GetForbearance(info) return E[ info[1] ].getForbearance(info) end
+local function SetForbearance(info, value) E[ info[1] ].setForbearance(info, value) end
 local function GetSpell(info) return E[ info[1] ].getSpell(info) end
 local function SetSpell(info, value) E[ info[1] ].setSpell(info, value) end
 local function GetFrame(info) return E[ info[1] ].getFrame(info) end
@@ -121,8 +128,8 @@ local function GetSpellsTbl()
 			desc = L["Show timer on spells while under the effect of Forbearance or Hypothermia. Spells castable to others will darken instead"],
 			order = 3,
 			type = "toggle",
-			get = function(info) return E[ info[1] ].db.icons.showForbearanceCounter end,
-			set = function(info, state) E[ info[1] ].db.icons.showForbearanceCounter = state end,
+			get = GetForbearance,
+			set = SetForbearance,
 		},
 		list_OFFENSIVE = {
 			name = L["Offensive"],
@@ -171,33 +178,34 @@ local itemsOrdered = {
 local header = {
 	name = "header",
 	order = 0,
-	type = "group", dialogControl = "InlineGroupList2-OmniCD", inline = true,
+	type = "group", dialogControl = "InlineGroupList2-OmniCDC", inline = true,
 	args = {
 		li0 = {
 			name = L["Spells"],
 			desc = L["CTRL+click to edit spell."],
-			order = 0, type = "description", dialogControl = "InlineGroupList2Label-OmniCD", width = 1, justifyH = "CENTER",
+			order = 0, type = "description", dialogControl = "InlineGroupList2Label-OmniCDC", width = 1, justifyH = "CENTER",
 		},
 		li1 = {
 			name = L["Frame"],
 			desc = format("%s\n%s", L["Override spell-type frame."], L["0: Raid Frame, 1: Interrupt Bar, 2-8: Extra Bar"]),
-			order = 1, type = "description", dialogControl = "InlineGroupList2Label-OmniCD", width = 0.7, justifyH = "CENTER",
+			order = 1, type = "description", dialogControl = "InlineGroupList2Label-OmniCDC", width = 0.7, justifyH = "CENTER",
 		},
 		li2 = {
 			name = L["Priority"],
 			desc = L["Override spell-type priority."],
-			order = 2, type = "description", dialogControl = "InlineGroupList2Label-OmniCD", width = 0.7, justifyH = "CENTER",
+			order = 2, type = "description", dialogControl = "InlineGroupList2Label-OmniCDC", width = 0.7, justifyH = "CENTER",
 		},
 		li3 = {
 			name = L["Glow"],
 			desc = format("%s.\n\n%s", L["Glow Border"], L["Glow condition can be changed from the Highlighting tab."]),
-			order = 3, type = "description", dialogControl = "InlineGroupList2Label-OmniCD", width = 0.7,
+			order = 3, type = "description", dialogControl = "InlineGroupList2Label-OmniCDC", width = 0.7,
 		},
 	}
 }
 
 function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, itemID)
 	local sId = tostring(spellID)
+
 	local classFileName = LOCALIZED_CLASS_NAMES_MALE[class]
 	local category = (type == "covenant" and "COVENANT") or class
 
@@ -215,16 +223,16 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 		t[category].args[sId] = {
 			name = name,
 			order = type == "covenant" and E.BOOKTYPE_CATEGORY[class] or nil,
-			type = "group", dialogControl = "InlineGroupList2-OmniCD", inline = true,
+			type = "group", dialogControl = "InlineGroupList2-OmniCDC", inline = true,
 			arg = classFileName and class,
 			args = {
 				spells = {
 					image = icon, imageCoords = E.BORDERLESS_TCOORDS,
 					name = name,
-					desc = E.isClassic and GetSpellDescription(spellID) or nil,
-					tooltipHyperlink = not E.isClassic and GetSpellLink(spellID) or nil,
+					desc = E.isClassic and C_Spell.GetSpellDescription(spellID) or nil,
+					tooltipHyperlink = not E.isClassic and C_Spell.GetSpellLink(spellID) or nil,
 					order = 1,
-					type = "toggle", dialogControl = "InlineGroupList2CheckBox-OmniCD",
+					type = "toggle", dialogControl = "InlineGroupList2CheckBox-OmniCDC",
 					get = GetSpell,
 					set = SetSpell,
 					arg = spellID,
@@ -232,7 +240,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 				spellFrame = {
 					name = "",
 					order = 2,
-					type = "range", dialogControl = "InlineGroupList2Slider-OmniCD",
+					type = "range", dialogControl = "InlineGroupList2Slider-OmniCDC",
 					min = 0, max = 8, step = 1,
 					width = 0.7,
 					get = GetFrame,
@@ -241,7 +249,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 				spellPriority = {
 					name = "",
 					order = 3,
-					type = "range", dialogControl = "InlineGroupList2Slider-OmniCD",
+					type = "range", dialogControl = "InlineGroupList2Slider-OmniCDC",
 					min = 0, max = 100, step = 1,
 					width = 0.7,
 					get = GetPriority,
@@ -250,7 +258,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 				spellGlow = {
 					name = "",
 					order = 4,
-					type = "toggle", dialogControl = "InlineGroupListCheckBox-OmniCD",
+					type = "toggle", dialogControl = "InlineGroupListCheckBox-OmniCDC",
 					width = 0.7,
 					get = GetGlow,
 					set = SetGlow,
@@ -281,16 +289,16 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 		t[type].args[sId] = {
 			name = name,
 			order = E.BOOKTYPE_CATEGORY[class] or nil,
-			type = "group", dialogControl = "InlineGroupList2-OmniCD", inline = true,
+			type = "group", dialogControl = "InlineGroupList2-OmniCDC", inline = true,
 			arg = classFileName and class,
 			args = {
 				spells = {
 					image = icon, imageCoords = E.BORDERLESS_TCOORDS,
 					name = name,
-					desc = E.isClassic and GetSpellDescription(spellID) or nil,
-					tooltipHyperlink = not E.isClassic and GetSpellLink(spellID) or nil,
+					desc = E.isClassic and C_Spell.GetSpellDescription(spellID) or nil,
+					tooltipHyperlink = not E.isClassic and C_Spell.GetSpellLink(spellID) or nil,
 					order = 1,
-					type = "toggle", dialogControl = "InlineGroupList2CheckBox-OmniCD",
+					type = "toggle", dialogControl = "InlineGroupList2CheckBox-OmniCDC",
 					get = GetSpell,
 					set = SetSpell,
 					arg = spellID,
@@ -298,7 +306,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 				spellFrame = {
 					name = "",
 					order = 2,
-					type = "range", dialogControl = "InlineGroupList2Slider-OmniCD",
+					type = "range", dialogControl = "InlineGroupList2Slider-OmniCDC",
 					min = 0, max = 8, step = 1,
 					width = 0.7,
 					get = GetFrame,
@@ -307,7 +315,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 				spellPriority = {
 					name = "",
 					order = 3,
-					type = "range", dialogControl = "InlineGroupList2Slider-OmniCD",
+					type = "range", dialogControl = "InlineGroupList2Slider-OmniCDC",
 					min = 0, max = 100, step = 1,
 					width = 0.7,
 					get = GetPriority,
@@ -316,7 +324,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 				spellGlow = {
 					name = "",
 					order = 4,
-					type = "toggle", dialogControl = "InlineGroupListCheckBox-OmniCD",
+					type = "toggle", dialogControl = "InlineGroupListCheckBox-OmniCDC",
 					width = 0.7,
 					get = GetGlow,
 					set = SetGlow,
@@ -351,7 +359,7 @@ function P:AddSpellTypeSpell(spells, tab, spellID, class, type, icon, name, item
 				t[type].args[sId].args.spells.desc = tooltip
 			end
 		else
-			local tooltip = GetSpellLink(spellID)
+			local tooltip = C_Spell.GetSpellLink(spellID)
 			if t[category] then
 				t[category].args[sId].args.spells.tooltipHyperlink = tooltip
 			end
