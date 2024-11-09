@@ -1,7 +1,5 @@
 local E = select(2, ...):unpack()
 
-local GetSpellInfo = C_Spell and C_Spell.GetSpellName or GetSpellInfo
-
 E.spell_db["ESSENCE"] = {
 	{ spellID = 295373, duration = 30, type = "essence", spec = 295373 },
 	{ spellID = 295186, duration = 60, type = "essence", spec = 295186 },
@@ -62,7 +60,7 @@ E.spell_damage_cdr_azerite = {
 }
 
 for _, v in pairs(E.spell_cxmod_azerite) do
-	local name = GetSpellInfo(v.azerite)
+	local name = C_Spell.GetSpellName(v.azerite)
 	v.name = name
 end
 

@@ -1,12 +1,15 @@
 local E = select(2, ...):unpack()
 local P, CM, CD = E.Party, E.Comm, E.Cooldowns
 
-P.spell_enabled = {}
+local AuraUtil_ForEachAura = E.isDF and AuraUtil and AuraUtil.ForEachAura
+
+local spell_enabled = {}
 
 function P:Enable()
 	if self.enabled then
 		return
 	end
+	self.enabled = true
 
 	if not E.isDF then
 		self:RegisterEvent('CVAR_UPDATE')
@@ -22,14 +25,10 @@ function P:Enable()
 		self[event](self, ...)
 	end)
 
-	self.enabled = true
-
-	self.zone = select(2, IsInInstance())
 	if InCombatLockdown() then
 		self:PLAYER_REGEN_DISABLED()
 	end
 	CM:InspectUser()
-
 	self:SetHooks()
 	self:CreateExtraBarFrames()
 	self:Refresh()
@@ -39,25 +38,24 @@ function P:Disable()
 	if not self.enabled then
 		return
 	end
+	self.enabled = false
+	self.disabledZone = true
 
 	if self.isInTestMode then
 		self:Test()
 	end
-	self.disabledZone = true
 	self:UnregisterAllEvents()
+	self:UnhookAll()
 	self:ResetModule(true)
-
-	self.enabled = false
-end
-
-function P:HideAllBars()
-	self:HideBars()
-	self:HideExBars()
 end
 
 function P:ResetModule(isModuleDisabled)
+	self.disabled = true
+	self.joinedNewGroup = false
+
 	if not isModuleDisabled then
 		self:UnregisterZoneEvents()
+		self:UpdateZoneHooks(true)
 	end
 
 	for _, timer in pairs(self.callbackTimers) do
@@ -65,14 +63,8 @@ function P:ResetModule(isModuleDisabled)
 	end
 	self.callbackTimers = {}
 
-
-
-
-
-
 	CM:Disable()
 	CD:Disable()
-
 
 	for guid, info in pairs(self.groupInfo) do
 		for _, timer in pairs(info.callbackTimers) do
@@ -84,88 +76,74 @@ function P:ResetModule(isModuleDisabled)
 	end
 	wipe(self.userInfo.sessionItemData)
 
-	self.disabled = true
-	self:HideAllBars()
+	self:ReleaseAll()
 
 	E.Libs.CBH:Fire("OnShutdown")
+end
+
+function P:ReleaseAll()
+	self:ReleaseBars()
+	self:ReleaseExBars()
+end
+
+function P:HideAll()
+	self:HideBars()
+	self:HideExBars()
 end
 
 function P:Refresh()
 	if not self.enabled then
 		return
 	end
-
-	local zone = self.isInTestMode and self.testZone or self.zone
-	zone = zone == "none" and E.profile.Party.noneZoneSetting or (zone == "scenario" and E.profile.Party.scenarioZoneSetting) or zone
-	E.db = E.profile.Party[zone]
-	self.db = E.db
-	for key, frame in pairs(self.extraBars) do
-		frame.db = E.db.extraBars[key]
-	end
-
-	self:UpdateTextures()
-	self:UpateTimerFormat()
+	self:UpdateStatusBarTextures()
+	self:UpateStatusBarTimerFormat()
 	self:PLAYER_ENTERING_WORLD(nil, nil, true)
 end
 
-function P:UpdateTextures()
-	local texture = E.Libs.LSM:Fetch("statusbar", E.profile.General.textures.statusBar.bar)
-	self:ConfigTextures()
-
-	for i = 1, #self.unusedStatusBars do
-		local statusBar = self.unusedStatusBars[i]
-		statusBar.BG:SetTexture(texture)
-		statusBar.CastingBar:SetStatusBarTexture(texture)
-		statusBar.CastingBar.BG:SetTexture(E.Libs.LSM:Fetch("statusbar", E.profile.General.textures.statusBar.BG))
-	end
-end
-
-function P:UpateTimerFormat()
-	local db = E.profile.General.cooldownText.statusBar
-	self.mmss = db.mmss
-	self.ss = db.ss
-	self.mmssColor = db.mmssColor
-	self.ssColor = db.ssColor
-end
-
 function P:UpdateEnabledSpells()
-	wipe(self.spell_enabled)
+	wipe(spell_enabled)
 
 	for id, v in pairs(E.hash_spelldb) do
 		local sId = tostring(id)
-		if self.db.spells[sId] then
-			local index = self.db.spellFrame[id] or self.db.frame[v.type]
+		if E.db.spells[sId] then
+			local index = E.db.spellFrame[id] or E.db.frame[v.type]
 			if index and index > 0 then
 				local db = E.db.extraBars["raidBar" .. index]
 				if db.enabled then
-					self.spell_enabled[id] = index
+					spell_enabled[id] = index
 				elseif db.redirect then
-					self.spell_enabled[id] = 0
+					spell_enabled[id] = 0
 				end
 			else
-				self.spell_enabled[id] = 0
+				spell_enabled[id] = 0
 			end
 		end
 	end
 end
 
+local BASE_ICON_HEIGHT = 36
+
 function P:UpdatePositionValues()
+
 	local db = E.db.position
-	local pixel = (E.db.general.showRange and not db.detached and self.effectivePixelMult or E.PixelMult) / E.db.icons.scale
+	local pixelMult = E.db.general.showRange and not db.detached and self.effectivePixelMult or E.PixelMult
+
+	local size = BASE_ICON_HEIGHT * E.db.icons.scale
+	self.iconScale = (size - size % pixelMult) / BASE_ICON_HEIGHT
+
+	local pixel = pixelMult / self.iconScale
+	self.pixel = pixel
+
 	local growLeft = strfind(db.anchor, "RIGHT")
 	local growX = growLeft and -1 or 1
 	local growRowsUpward = db.growUpward
 	local growY = growRowsUpward and 1 or -1
 
-
 	self.point = db.anchor
 	self.relativePoint = db.attach
-
 	self.anchorPoint = growLeft and "BOTTOMLEFT" or "BOTTOMRIGHT"
-
 	self.containerOfsX = db.offsetX * growX * pixel
 	self.containerOfsY = -(db.offsetY * pixel)
-
 	self.columns = db.columns
 	self.multiline = db.layout ~= "vertical" and db.layout ~= "horizontal"
 	self.tripleline = db.layout == "tripleRow" or db.layout == "tripleColumn"
@@ -177,7 +155,7 @@ function P:UpdatePositionValues()
 
 	if db.layout == "horizontal" or db.layout == "doubleRow" or db.layout == "tripleRow" then
 		self.ofsX = 0
-		self.ofsY = growY * (E.baseIconHeight + db.paddingY * pixel)
+		self.ofsY = growY * (BASE_ICON_HEIGHT + db.paddingY * pixel)
 		self.ofsY2 = 0
 		if growLeft then
 			self.point2 = "TOPRIGHT"
@@ -189,7 +167,7 @@ function P:UpdatePositionValues()
 			self.ofsX2 = db.paddingX * pixel
 		end
 	else
-		self.ofsX = growX * (E.baseIconHeight + db.paddingX  * pixel)
+		self.ofsX = growX * (BASE_ICON_HEIGHT + db.paddingX * pixel)
 		self.ofsY = 0
 		self.ofsX2 = 0
 		if growRowsUpward then
@@ -204,13 +182,10 @@ function P:UpdatePositionValues()
 	end
 end
 
-
-
-
-if AuraUtil and AuraUtil.ForEachAura then
-	P.GetBuffDuration = function(_, unit, spellID)
+if AuraUtil_ForEachAura then
+	function P:GetBuffDuration(unit, spellID)
 		local dur, expTime
-		AuraUtil.ForEachAura(unit, "HELPFUL", nil, function(_,_,_,_, duration, expirationTime, _,_,_, id)
+		AuraUtil_ForEachAura(unit, "HELPFUL", nil, function(_,_,_,_, duration, expirationTime, _,_,_, id)
 			if id == spellID then
 				dur, expTime = duration, expirationTime
 				return true
@@ -219,9 +194,9 @@ if AuraUtil and AuraUtil.ForEachAura then
 		return dur, expTime
 	end
 
-	P.GetDebuffDuration = function(_, unit, spellID)
+	function P:GetDebuffDuration(unit, spellID)
 		local dur, expTime
-		AuraUtil.ForEachAura(unit, "HARMFUL", nil, function(_,_,_,_, duration, expirationTime, _,_,_, id)
+		AuraUtil_ForEachAura(unit, "HARMFUL", nil, function(_,_,_,_, duration, expirationTime, _,_,_, id)
 			if id == spellID then
 				dur, expTime = duration, expirationTime
 				return true
@@ -230,29 +205,19 @@ if AuraUtil and AuraUtil.ForEachAura then
 		return dur, expTime
 	end
 else
-	local UnitBuff = C_UnitAuras and C_UnitAuras.GetBuffDataByIndex or UnitBuff
-	local UnitDebuff = C_UnitAuras and C_UnitAuras.GetDebuffDataByIndex or UnitDebuff
 
-	P.GetBuffDuration = E.isClassic and function(_, unit, spellID)
+	function P:GetBuffDuration(unit, spellID)
 		for i = 1, 50 do
 			local _,_,_,_, duration, expirationTime, _,_,_, id = UnitBuff(unit, i)
 			if not id then return end
-			id = E.spell_merged[id] or id
-			if id == spellID then
-				return duration, expirationTime
-			end
-		end
-	end or function(_, unit, spellID)
-		for i = 1, 50 do
-			local _,_,_,_, duration, expirationTime, _,_,_, id = UnitBuff(unit, i)
-			if not id then return end
+
 			if id == spellID then
 				return duration, expirationTime
 			end
 		end
 	end
 
-	P.GetDebuffDuration = function(_, unit, spellID)
+	function P:GetDebuffDuration(unit, spellID)
 		for i = 1, 50 do
 			local _,_,_,_, duration, expirationTime,_,_,_, id = UnitDebuff(unit, i)
 			if not id then return end
@@ -298,6 +263,7 @@ function P:IsSpecAndTalentForPvpStatus(talentID, info)
 	if not talentID then
 		return true
 	end
+
 	if type(talentID) == "table" then
 		local talentRank
 		for _, id in ipairs(talentID) do
@@ -359,3 +325,6 @@ function P:UI_SCALE_CHANGED()
 		self:ConfigExSize(key)
 	end
 end
+
+P.spell_enabled = spell_enabled
+E.BASE_ICON_HEIGHT = BASE_ICON_HEIGHT

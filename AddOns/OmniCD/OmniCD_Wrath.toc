@@ -1,24 +1,24 @@
 ## Interface: 30403
 ## Title: OmniCD
-## Version: 3.4.3.2807
-## Author: Treebonker
 ## Notes: Party cooldown tracker. /oc
-## X-Credits:
+## Author: Treebonker
+## Version: v2.8.8
+## DefaultState: Disabled
+## SavedVariables: OmniCDDB
+## OptionalDeps: Ace3, LibOmniCDC, LibDeflate, LibSharedMedia-3.0, UTF8, LibDualSpec-1.0
+## IconTexture: Interface\AddOns\OmniCD\Media\omnicd-logo64-c
 ## X-License: All Rights Reserved
 ## X-Localizations: enUS, deDE, esMX, frFR, itIT, koKR, ruRU, zhCN, zhTW
 ## X-Website: https://www.curseforge.com/wow/addons/omnicd
-## DefaultState: Disabled
-## SavedVariables: OmniCDDB
+## X-Curse-Project-ID: 306489
 
 ## Title-zhTW: |cffFF7F00[副本]|r 隊友技能冷卻監控
 ## Notes-zhTW: OmniCD |n|n在隊伍框架旁顯示隊友的技能、斷法冷卻時間。PvP/PvE都適用!|n|n|cffffd200使用方法：|r從Esc>選項>插件>隊友技能監控，進行設定。
 ## X-Category-zhTW: 團隊
 
-Libs\Embeds.xml
-Locales\locales.xml
+Embeds.xml
+Locales\Locales.xml
 Core\Core.xml
-Modules\Spells\Core.lua
-Modules\Spells\Spells_Wrath.lua
-Modules\Spells\Modifiers_Wrath.lua
+Modules\Spells\Spells_Wrath.xml
 Modules\Modules.xml
 Config\Config.xml

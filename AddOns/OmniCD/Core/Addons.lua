@@ -1,7 +1,5 @@
 local E, L = select(2, ...):unpack()
 
-local IsAddOnLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
-
 local unitFrameData = {
 	--[[
 		[1] = AddOn name
@@ -12,14 +10,14 @@ local unitFrameData = {
 	]]
 	{
 		[1] = "VuhDo",
-		[2] = "Vd%dH", -- panel#
+		[2] = "Vd%dH",
 		[3] = "raidid",
 		[4] = 2,
 		[5] = 40,
 	},
 	{
 		[1] = "Grid2",
-		[2] = "Grid2LayoutHeader%dUnitButton", -- not group#
+		[2] = "Grid2LayoutHeader%dUnitButton",
 		[3] = "unit",
 		[4] = 1,
 		[5] = 5,
@@ -42,7 +40,7 @@ local unitFrameData = {
 		[3] = "unit",
 		[4] = 1,
 		[5] = 5,
-		[6] = 0, -- Group0 for party
+		[6] = 0,
 	},
 	{
 		[1] = "Plexus",
@@ -56,7 +54,7 @@ local unitFrameData = {
 		[2] = "PlexusLayoutHeader1UnitButton",
 		[3] = "unit",
 		[4] = 1,
-		[5] = 40, -- certain layout uses Header1 only
+		[5] = 40,
 	},
 	{
 		[1] = "HealBot",
@@ -67,14 +65,14 @@ local unitFrameData = {
 	},
 	{
 		[1] = "Cell-Party",
-		[2] = "CellPartyFrameMember", -- CellPartyFrameUnitButton
+		[2] = "CellPartyFrameMember",
 		[3] = "unit",
 		[4] = 1,
 		[5] = 5,
 	},
 	{
 		[1] = "Cell-Raid",
-		[2] = "CellRaidFrameMember", -- CellRaidFrameUnitButton
+		[2] = "CellRaidFrameMember",
 		[3] = "unit",
 		[4] = 1,
 		[5] = 40,
@@ -108,7 +106,7 @@ local unitFrameData = {
 	},
 	{
 		[1] = "AshToAsh",
-		[2] = "AshToAshUnit%dUnit", -- panel#
+		[2] = "AshToAshUnit%dUnit",
 		[3] = "unit",
 		[4] = 1,
 		[5] = 40
@@ -152,7 +150,7 @@ local unitFrameData = {
 		[5] = 40,
 	},
 	{
-		[1] = "ShadowUF-Raid1", -- 'Separate raid frames' option
+		[1] = "ShadowUF-Raid1",
 		[2] = "SUFHeaderraid%dUnitButton",
 		[3] = "unit",
 	},
@@ -167,7 +165,7 @@ local unitFrameData = {
 		[3] = "partyid",
 	},
 	{
-		[1] = "PitBull4", -- no default raid frame
+		[1] = "PitBull4",
 		[2] = "PitBull4_Groups_PartyUnitButton",
 		[3] = "unit",
 		[4] = 1,
@@ -194,7 +192,7 @@ local unitFrameData = {
 		[3] = "unit",
 	},
 	{
-		[1] = "RUF", -- no raid frame
+		[1] = "RUF",
 		[2] = "oUF_RUF_PartyUnitButton",
 		[3] = "unit",
 	},
@@ -304,15 +302,17 @@ local customUF = { optionTable = { auto = L["Auto"], blizz = L["Blizzard"] }, en
 
 function E:SetActiveUnitFrameData()
 	if customUF.enabledList then
-		-- auto no longer looks for prio, instead it iterates all frames til it finds a 'visible' match. prio is only used to set active now
-		local addon = self.db.position.uf == "auto" and customUF.prio or self.db.position.uf
+
+		local addon = self.db.position.uf
 		local data = customUF.enabledList[addon]
 		if data then
 			customUF.unit = data.unit
 			customUF.delay = data.delay
 			customUF.frames = data.frames
 			customUF.active = data.addonName
-		else -- blizz
+		elseif addon == "auto" then
+			customUF.active = addon
+		else
 			customUF.active = nil
 		end
 	end
@@ -324,7 +324,7 @@ function E:UnitFrames()
 		local addon, frame, unit, delay, index, minGroup = unpack(data)
 
 		local addonName = addon:match("[^%-]+")
-		if _G[addonName] or IsAddOnLoaded(addonName) then
+		if _G[addonName] or C_AddOns.IsAddOnLoaded(addonName) then
 			customUF.enabledList = customUF.enabledList or {}
 			local t = {}
 			index = index or 5
@@ -345,11 +345,11 @@ function E:UnitFrames()
 				for j = 1, 3 do
 					for k = 1, 8 do
 						local formatted = format(frame, j, k)
-						insertFrame(formatted, k == 1 and 40) -- 'Raid Wide Sorting' fix
+						insertFrame(formatted, k == 1 and 40)
 					end
 				end
 			elseif strfind(frame, "%%d") then
-				for j = minGroup, 8 do -- IRF3, Lime
+				for j = minGroup, 8 do
 					local formatted = format(frame, j)
 					insertFrame(formatted)
 				end
@@ -358,17 +358,12 @@ function E:UnitFrames()
 			end
 			t.frames = f
 			customUF.enabledList[addon] = t
-
-			if not customUF.prio then
-				customUF.prio = addon
-			end
-
 			customUF.optionTable[addon] = addon
 		end
 	end
 
 	if customUF.enabledList then
-		-- Fallback to auto if addon was removed
+
 		for zone in pairs(self.L_CFG_ZONE) do
 			local uf = self.profile.Party[zone].position.uf
 			if uf ~= "blizz" and not customUF.enabledList[uf] then
@@ -381,9 +376,9 @@ function E:UnitFrames()
 end
 
 function E:Counters()
-	if IsAddOnLoaded("OmniCC") then
+	if C_AddOns.IsAddOnLoaded("OmniCC") then
 		self.OmniCC = OmniCC
-	elseif not GetCVarBool("countdownForCooldowns") and E.profile.General.cooldownText.useElvUICooldownTimer then -- WA no longer shows double text but whatever
+	elseif not GetCVarBool("countdownForCooldowns") and E.profile.General.cooldownText.useElvUICooldownTimer then
 		local ElvUI1 = ElvUI and ElvUI[1]
 		self.ElvUI1 = ElvUI1 and type(ElvUI1.CooldownEnabled) == "function" and ElvUI1:CooldownEnabled()
 			and type(ElvUI1.RegisterCooldown) == "function" and ElvUI1

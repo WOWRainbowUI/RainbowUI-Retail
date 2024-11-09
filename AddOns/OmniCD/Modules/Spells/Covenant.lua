@@ -70,7 +70,7 @@ local covenant_db = {
 	["ROGUE"] = {
 
 
-
+		{ spellID = 328305, duration = 90, type = "covenant", spec = 321077 },
 
 	},
 	["SHAMAN"] = {

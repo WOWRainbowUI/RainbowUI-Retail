@@ -1,8 +1,5 @@
 local E = select(2, ...):unpack()
 
-local GetSpellInfo = C_Spell and C_Spell.GetSpellName or GetSpellInfo
-local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
-
 E.spell_cdmod_talents = {
 
 	[48982] = {
@@ -503,7 +500,7 @@ local temp = {}
 for _, v in E.pairs(E.spell_cdmod_talents, E.spell_cdmod_talents_mult) do
 	for k = 1, #v, 2 do
 		local id = v[k]
-		local name = GetSpellInfo(id)
+		local name = C_Spell.GetSpellName(id)
 		if name and not temp[id] then
 			E.talentNameToRankIDs[name] = E.talentNameToRankIDs[name] or {}
 			tinsert(E.talentNameToRankIDs[name], id)
@@ -895,7 +892,7 @@ for i = 1, #talentRanks do
 	local t = talentRanks[i]
 	local rank1 = t[1]
 	rank1 = E.spell_merged[rank1] or rank1
-	local name = GetSpellInfo(rank1)
+	local name = C_Spell.GetSpellName(rank1)
 	if name then
 		for j = 2, #t do
 			local rankN = t[j]
@@ -939,7 +936,7 @@ E.spell_merged_updateoncast = {
 }
 for k, v in pairs(E.spell_merged_updateoncast) do
 	if not v[2] then
-		local _, icon = GetSpellTexture(k)
+		local _, icon = C_Spell.GetSpellTexture(k)
 		v[2] = icon
 	end
 end
@@ -1013,6 +1010,7 @@ E.spell_auraremoved_cdstart_preactive = {
 	[1784] = 1784,
 	[16188] = 16188,
 	[28682] = 11129,
+	[11129] = 11129,
 	[89485] = 89485,
 	[16166] = 16166,
 	[5384] = 0,

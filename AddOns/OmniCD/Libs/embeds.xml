@@ -1,7 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
-..\FrameXML\UI.xsd">
-	<Include file="Ace3\AceGUI-3.0\AceGUI-3.0.xml"/>
-	<Include file="..\Config\Libs\Lib.xml"/>
-	<Include file="Ace3\AceConfig-3.0\AceConfig-3.0.xml"/>
-	<Include file="UTF8\utf8.xml"/>
-</Ui>
