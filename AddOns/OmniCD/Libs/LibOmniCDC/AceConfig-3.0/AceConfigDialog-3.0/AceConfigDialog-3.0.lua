@@ -1723,7 +1723,7 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 					del(valuesort)
 
 				elseif v.type == "color" then
-					control = CreateControl(dialogControl or v.control, "ColorPicker")
+					control = CreateControl(v.dialogControl or v.control, "ColorPicker")
 					control:SetLabel(name)
 					control:SetHasAlpha(GetOptionsMemberValue("hasAlpha",v, options, path, appName))
 					control:SetColor(GetOptionsMemberValue("get",v, options, path, appName))
