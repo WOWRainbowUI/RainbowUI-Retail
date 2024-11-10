@@ -1272,8 +1272,8 @@ local SinfulHysteriaHandler = setfenv( function ()
 end, state )
 
 
-local IncarnationComboPointPeriodic = setfenv( function()
-    gain( 1, "combo_point" )
+local ComboPointPeriodic = setfenv( function()
+    gain( 1, "combo_points" )
 end, state )
 
 spec:RegisterHook( "reset_precast", function ()
@@ -1300,7 +1300,8 @@ spec:RegisterHook( "reset_precast", function ()
     end
 
     if prev_gcd[1].feral_frenzy and now - action.feral_frenzy.lastCast < gcd.execute and combo_points.current < 5 then
-        gain( 5, "combo_points" )
+        -- combo_points.current = 5
+        gain( 5, "combo_points", false )
     end
 
     -- opener_done = nil
@@ -1316,7 +1317,7 @@ spec:RegisterHook( "reset_precast", function ()
         for i = 1.5, expires - query_time, 1.5 do
             tick = query_time + i
             if tick < expires then
-                state:QueueAuraEvent( "incarnation_combo_point_perodic", IncarnationComboPointPeriodic, tick, "AURA_TICK" )
+                state:QueueAuraEvent( "incarnation_combo_point_perodic", ComboPointPeriodic, tick, "AURA_TICK" )
             end
         end
     end
@@ -1326,9 +1327,10 @@ spec:RegisterHook( "reset_precast", function ()
     end
 end )
 
-spec:RegisterHook( "gain", function( amt, resource )
+spec:RegisterHook( "gain", function( amt, resource, overflow )
+    if overflow == nil then overflow = true end -- nil is yes
     if amt > 0 and resource == "combo_points" then
-        if combo_points.deficit < amt then -- excess points
+        if combo_points.deficit < amt and overflow then -- excess points
         local combo_points_to_store = amt - combo_points.deficit
             if buff.overflowing_power.stack > ( 3 - combo_points_to_store ) or buff.bs_inc.down then -- unable to store them all
                 applyBuff( "coiled_to_spring" )
@@ -1610,7 +1612,7 @@ spec:RegisterAbilities( {
             if buff.cat_form.down then shift( "cat_form" ) end
             applyBuff( "berserk" )
             for i = 1.5, spec.auras.berserk.duration, 1.5 do
-                state:QueueAuraEvent( "incarnation_combo_point_periodic", IncarnationComboPointPeriodic, query_time + i, "AURA_TICK" )
+                state:QueueAuraEvent( "incarnation_combo_point_periodic", ComboPointPeriodic, query_time + i, "AURA_TICK" )
             end
         end,
 
@@ -1797,7 +1799,7 @@ spec:RegisterAbilities( {
         end,
 
         handler = function ()
-            gain( 5, "combo_points" )
+            gain( 5, "combo_points", false )
             applyDebuff( "target", "feral_frenzy" )
             if buff.bs_inc.up and talent.berserk_frenzy.enabled then applyDebuff( "target", "frenzied_assault" ) end
             if set_bonus.tier31_2pc > 0 then applyBuff( "smoldering_frenzy" ) end
@@ -1988,7 +1990,7 @@ spec:RegisterAbilities( {
             setCooldown( "prowl", 0 )
 
             for i = 1.5, spec.auras.incarnation.duration, 1.5 do
-                state:QueueAuraEvent( "incarnation_combo_point_periodic", IncarnationComboPointPeriodic, query_time + i, "AURA_TICK" )
+                state:QueueAuraEvent( "incarnation_combo_point_periodic", ComboPointPeriodic, query_time + i, "AURA_TICK" )
             end
 
         end,
