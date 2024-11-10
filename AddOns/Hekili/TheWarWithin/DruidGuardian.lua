@@ -1059,7 +1059,7 @@ end )
 
 spec:RegisterHook( "runHandler_startCombat", function()
     if talent.killing_strikes.enabled then applyBuff( "ravage_upon_combat") end
-    ursocRageSpend = 0 -- reset upon entering combat
+    -- ursocRageSpend = 0 -- reset upon entering combat
 end )
 
 spec:RegisterHook( "spend", function( amt, resource )

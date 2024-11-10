@@ -562,7 +562,7 @@ do
                 },
 
                 specs = {
-                    ['**'] = specTemplate
+                    -- ['**'] = specTemplate
                 },
 
                 packs = {
@@ -10092,7 +10092,7 @@ do
 									"1. 我的按鍵綁定沒有正確顯示\n- |cFF00CCFF使用巨集或潛行條時，有時會發生這種情況。你可以在|r |cFFFFD100技能|r |cFF00CCFF部分中手動告訴插件使用哪個按鍵綁定。從下拉選單中找到法術，然後使用|r |cFFFFD100覆蓋按鍵綁定|r |cFF00CCFF文字框。飾品也可以在|r |cFFFFD100裝備和物品|r 下執行相同的操作。\n\n" ..
 									"2. 我不認識這個法術! 這是什麼?\n- |cFF00CCFF如果你是冰霜法師，那可能是你的水元素寵物法術，冰凍。否則，它可能是一個飾品。你可以按 |cFFFFD100alt-shift-p|r 暫停插件並將滑鼠指向圖示，查看它是什麼!|r\n\n" ..
 									"3. 如何停用某個技能或飾品?\n- |cFF00CCFF到 |cFFFFD100技能|r 或 |cFFFFD100裝備和物品|r，在下拉選單中找到它，然後將其停用。\n\n|r" ..
-									"\n我已經看到最底部了，但我仍然有一個問題! \n- |cFF00CCFF請到|r |cFFFFD100問題回報|r |cFF00CCFF獲得更詳細的說明。",
+									"\n我已經看到最底部了，但我仍然有一個問題! \n- |cFF00CCFF請到|r |cFFFFD100快照 (問題回報)|r |cFF00CCFF獲得更詳細的說明。",
 								order = 4.1,
 								fontSize = "medium",
 								width = "full",
@@ -11696,13 +11696,8 @@ do
                     local ability = str:trim()
 
                     if ability and ( ability == "use_item" or class.abilities[ ability ] ) then
-                        if ability == "pocketsized_computation_device" then ability = "cyclotronic_blast" end
-                        -- Stub abilities that are replaced sometimes.
-                        if ability == "any_dnd" or ability == "wound_spender" or ability == "summon_pet" or ability == "apply_poison" or ability == "trinket1" or ablity == "trinket2" or ability == "raptor_bite" or ability == "mongoose_strike" then
-                            result.action = ability
-                        else
-                            result.action = class.abilities[ ability ] and class.abilities[ ability ].key or ability
-                        end
+                        if ability == "pocketsized_computation_device" then ability = "cyclotronic_blast"
+                        else result.action = ability end
                     elseif not ignore_actions[ ability ] then
                         insert( warnings, "Line " .. line .. ": Unsupported action '" .. ability .. "'." )
                         result.action = ability
