@@ -2,8 +2,8 @@
 ## Title: OmniCD
 ## Notes: Party cooldown tracker. /oc
 ## Author: Treebonker
-## Version: v2.8.8
-## DefaultState: Disabled
+## Version: v2.8.9
+## DefaultState: Enabled
 ## SavedVariables: OmniCDDB
 ## OptionalDeps: Ace3, LibOmniCDC, LibDeflate, LibSharedMedia-3.0, UTF8, LibDualSpec-1.0
 ## IconTexture: Interface\AddOns\OmniCD\Media\omnicd-logo64-c
@@ -15,6 +15,7 @@
 ## Title-zhTW: |cffFF7F00[副本]|r 隊友技能冷卻監控
 ## Notes-zhTW: OmniCD |n|n在隊伍框架旁顯示隊友的技能、斷法冷卻時間。PvP/PvE都適用!|n|n|cffffd200使用方法：|r從Esc>選項>插件>隊友技能監控，進行設定。
 ## X-Category-zhTW: 團隊
+## DefaultState: Disabled
 
 Embeds.xml
 Locales\Locales.xml
