@@ -17,6 +17,12 @@ function CraftSim.NEWS:GET_NEWS(itemMap)
     local news = {
         f.bb("                   Hello and thank you for using CraftSim!\n"),
         f.bb("                                 ( You are awesome! )"),
+        newP("19.5.1"),
+        f.P .. f.l("Cached Profession Data") .. " is now removed when unlearning",
+        f.P .. f.bb("Recipe Scan"),
+        f.a .. "Added " .. f.g("Right Click -> Remove") .. " Feature to list of professions",
+        f.p .. "Fixed " .. f.bb("Queue First Crafts") .. " not using cheapest reagents",
+        f.p .. "Fixed " .. f.bb("Craft Queue Amount") .. " tab button functionality",
         newP("19.5.0"),
         f.P .. f.bb("Craft Queue"),
         f.a .. "- General UI Improvements for the queue list",
