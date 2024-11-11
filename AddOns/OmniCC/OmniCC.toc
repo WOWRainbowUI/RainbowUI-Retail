@@ -1,4 +1,4 @@
-## Interface: 110002, 40401, 40400, 11504
+## Interface: 110007, 110005, 40401, 11504
 ## Title: OmniCC
 ## Notes: Cooldown count for everything
 ## Notes-koKR: 모든 것을 위한 쿨다운 카운트
@@ -8,7 +8,7 @@
 ## Notes-frFR: Compte à rebours du temps de recharge
 ## Notes-ruRU: Время восстановления абилок и т.п.
 ## Author: Tuller
-## Version: 11.0.2
+## Version: 11.0.3
 ## SavedVariables: OmniCCDB, OmniCC4Config
 ## IconTexture: Interface/Icons/spell_nature_timestop
 ## AddonCompartmentFunc: OmniCC_Launch
