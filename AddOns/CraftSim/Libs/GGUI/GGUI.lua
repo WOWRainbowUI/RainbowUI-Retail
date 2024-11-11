@@ -3407,7 +3407,7 @@ function GGUI.FrameList:GetRow(filterFunc)
 end
 
 --- removes all (up to the limit) rows where filterFunc is true from the list
----@param filterFunc? fun(row:GGUI.FrameList.Row)
+---@param filterFunc? fun(row:GGUI.FrameList.Row): boolean
 ---@param limit? number
 function GGUI.FrameList:Remove(filterFunc, limit)
     local currentRemoveCount = 0
@@ -3416,6 +3416,10 @@ function GGUI.FrameList:Remove(filterFunc, limit)
             if (filterFunc and filterFunc(row)) or (not filterFunc) then
                 row.active = false
                 currentRemoveCount = currentRemoveCount + 1
+
+                if self.selectedRow == row then
+                    self.selectedRow = nil
+                end
 
                 if limit and currentRemoveCount >= limit then
                     return
