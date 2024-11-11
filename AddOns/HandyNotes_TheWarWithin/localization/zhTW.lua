@@ -368,3 +368,9 @@ L['celebration_crates_note'] = '找到並交還隱藏在 {location:艾澤拉斯}
 
 L['1_soggy_celebration_crate_note'] = '從 {location:深潛酒吧} 的 {npc:143029}（{dot:Blue}）購買 {item:225996} 並將其交給 {npc:189119} 以揭示 {item:226200}。'
 L['2_hazy_celebration_crate_note'] = '活著的時候，尋找發出綠光的區域。{note:但是，必須死了才能揭示 {item:232263}。}'
+L['3_dirt_caked_celebration_crate_note'] = '{note:無需從 {npc:226683} 附近的公告板上收集此箱子的 {item:228321}。}\n\n1. 進入 {location:卡拉贊} 後面的 {location:被遺忘的墓穴}。\n\n2. 走下樓梯，穿過 {location:遺忘之井}，走下 {location:乞丐行道} 的斜坡，進入 {location:被遺忘的墓穴} 的下一層。\n\n3. 右轉並沿著隧道穿過 {location:乞丐行道}。\n\n4. 穿過大房間，朝著 {location:倒吊深淵} 走去。\n\n5. 徑直穿過水面，進入 {location:絕望泥沼} 拿取 {item:228322}。'
+L['4_sandy_celebration_crate'] = '1. 從 {location:卡林多} 的 {location:千針石林} {location:沉沒的挖掘場} 收集 {item:228768}。\n\n2. 在 {location:艾蘇納} 的東邊道路上找到游蕩的 {npc:91079}。\n\n3. 花費 %s 購買 {item:228767}。'
+L['5_battered_celebration_crate'] = '靠在 {npc:24026} 附近洞穴的岩石上。'
+L['6_waterlogged_celebration_crate'] = '位於地精建築二樓的水下。\n\n{note:不要觸碰電梯。當前它會導致游戲崩潰。}'
+
+L['water_resistant_receipt_note'] = '1. 進入充滿 {npc:47390} 的隧道，右轉從管道後面的 {object:防水的銷售收據} 中收集 {item:228768}。\n\n2. 在 {location:破碎群島} 的 {location:艾蘇納} 找到 {npc:91079}。'
