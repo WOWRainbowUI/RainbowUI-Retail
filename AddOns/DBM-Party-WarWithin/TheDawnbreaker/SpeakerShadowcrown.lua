@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2580, "DBM-Party-WarWithin", 5, 1270)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241104102517")
+mod:SetRevision("20241111094130")
 mod:SetCreatureID(211087)
 mod:SetEncounterID(2837)
 mod:SetHotfixNoticeRev(20241005000000)
@@ -69,7 +69,7 @@ local allTimers = {
 		[445996] = {13.8, 18},--Collapsing Darkness (Non Mythic)
 		[453140] = {8.7, 27.5, 23.6, 25.1, 25.6},--Collapsing Night (Mythic)
 		[4267341] = {10.1, 25.2},--Burning Shadows (Non Mythic)
-		[4267342] = {14.2, 18, 21.9, 18.0, 25.1, 25.4},--Burning Shadows (Mythic)
+		[4267342] = {14.2, 18, 20.6, 18.0, 25.1, 25.4},--Burning Shadows (Mythic)
 	},								---23.5
 }
 

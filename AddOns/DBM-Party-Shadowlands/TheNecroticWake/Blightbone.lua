@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2395, "DBM-Party-Shadowlands", 1, 1182)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241103162323")
+mod:SetRevision("20241111101136")
 mod:SetCreatureID(162691)
 mod:SetEncounterID(2387)
 mod:SetHotfixNoticeRev(20240817000000)
@@ -79,7 +79,7 @@ function mod:OnCombatStart(delay)
 	self.vb.gasCount = 0
 	self.vb.crunchCount = 0
 	timerCrunchCD:Start(5-delay, 1)
-	timerHeavingRetchCD:Start(10.6-delay, 1)
+	timerHeavingRetchCD:Start(10.3-delay, 1)
 	timerFetidGasCD:Start(22-delay, 1)
 end
 

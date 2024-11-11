@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2594, "DBM-Party-WarWithin", 8, 1274)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241102154000")
+mod:SetRevision("20241111103343")
 mod:SetCreatureID(216619)
 mod:SetEncounterID(2907)
 mod:SetHotfixNoticeRev(20240818000000)
@@ -51,7 +51,7 @@ function mod:OnCombatStart(delay)
 	self.vb.doubtCount = 0
 	self.vb.fakeNewsCount = 0
 	timerSubjugateCD:Start(4.1-delay, 1)--4.1-4.8
-	timerTerrorizeCD:Start(9.3-delay, 1)--9.3-9.7
+	timerTerrorizeCD:Start(9.1-delay, 1)--9.1-9.7
 	timerVociferousIndoctrinationCD:Start(25.1-delay, 1)
 	if self:IsMythic() then
 		timerShadowsofDoubtCD:Start(14.1-delay, 1)
