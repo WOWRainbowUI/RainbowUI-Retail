@@ -9,6 +9,27 @@ local RAID_CLASS_COLORS, COMBATLOG_OBJECT_TYPE_MASK, COMBATLOG_OBJECT_CONTROL_MA
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned or ExRT.NULLfunc
 local GetRaidRosterInfo = GetRaidRosterInfo
 local GetItemInfo, GetItemInfoInstant  = C_Item and C_Item.GetItemInfo or GetItemInfo,  C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant
+local GetSpecialization = GetSpecialization
+
+if not GetSpecialization and ExRT.isClassic then
+	GetSpecialization = function()
+		local n,m = 1,1
+		for spec=1,3 do
+			local selectedNum = 0
+			for talPos=1,22 do
+				local name, iconTexture, tier, column, rank, maxRank, isExceptional, available = GetTalentInfo(spec, talPos)
+				if name and maxRank > 0 and rank > 0 then
+					selectedNum = selectedNum + 1
+				end
+			end
+			if selectedNum > m then
+				n = spec
+				m = selectedNum
+			end
+		end
+		return n
+	end
+end
 
 do
 	local antiSpamArr = {}
@@ -824,6 +845,59 @@ function ExRT.F.GetUnitRole(unit)
 			return role, "MDD"
 		else
 			return role, "RDD"
+		end
+	end
+end
+if ExRT.isClassic and not ExRT.isWoD then
+	function ExRT.F.GetPlayerRole()
+		local role = UnitGroupRolesAssigned('player')
+		if role == "HEALER" then
+			local _,class = UnitClass('player')
+			return role, (class == "PALADIN" or class == "MONK") and "MHEALER" or "RHEALER"
+		elseif role ~= "DAMAGER" then
+			--TANK, NONE
+			return role
+		else
+			local _,class = UnitClass('player')
+			local isMelee = (class == "WARRIOR" or class == "PALADIN" or class == "ROGUE" or class == "DEATHKNIGHT" or class == "MONK" or class == "DEMONHUNTER")
+			if class == "DRUID" then
+				isMelee = GetSpecialization() ~= 1
+			elseif class == "SHAMAN" then
+				isMelee = GetSpecialization() == 2
+			elseif class == "HUNTER" then
+				isMelee = false
+			end
+			if isMelee then
+				return role, "MDD"
+			else
+				return role, "RDD"
+			end
+		end
+	end
+	
+	function ExRT.F.GetUnitRole(unit)
+		local role = UnitGroupRolesAssigned(unit)
+		if role == "HEALER" then
+			local _,class = UnitClass(unit)
+			return role, (class == "PALADIN" or class == "MONK") and "MHEALER" or "RHEALER"
+		elseif role ~= "DAMAGER" then
+			--TANK, NONE
+			return role
+		else
+			local _,class = UnitClass(unit)
+			local isMelee = (class == "WARRIOR" or class == "PALADIN" or class == "ROGUE" or class == "DEATHKNIGHT" or class == "MONK" or class == "DEMONHUNTER")
+			if class == "DRUID" then
+				isMelee = not (UnitPowerType(unit) == 8)	--astral power
+			elseif class == "SHAMAN" then
+				isMelee = UnitPowerMax(unit) >= 150
+			elseif class == "HUNTER" then
+				isMelee = false
+			end
+			if isMelee then
+				return role, "MDD"
+			else
+				return role, "RDD"
+			end
 		end
 	end
 end

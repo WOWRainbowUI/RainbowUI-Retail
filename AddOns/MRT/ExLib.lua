@@ -2735,10 +2735,23 @@ do
 			ELib.Tooltip.Show(self,self.a,text.TooltipOverwrite)
 			return
 		end
+		if text.extraTip and not text:IsTruncated() then
+			if type(text.extraTip) == "function" then
+				ELib.Tooltip.Show(self,self.a,text.extraTip(text))
+			else
+				ELib.Tooltip.Show(self,self.a,text.extraTip)
+			end
+		end
 		if not text:IsTruncated() and not text.alwaysTooltip then
 			return
 		end
-		ELib.Tooltip.Show(self,self.a,text:GetText())
+		if type(text.extraTip) == "function" then
+			ELib.Tooltip.Show(self,self.a,text:GetText(),text.extraTip(text))
+		elseif text.extraTip then
+			ELib.Tooltip.Show(self,self.a,text:GetText(),text.extraTip)
+		else
+			ELib.Tooltip.Show(self,self.a,text:GetText())
+		end
 	end
 	local function OnTooltipLeave(self)
 		ELib.Tooltip.Hide()
@@ -2963,6 +2976,15 @@ do
 		self:HighlightText( Start, End )
 		return Start, End
 	end
+	local function Widget_FontSize(self,size)
+		local filename,fontSize,fontParam1,fontParam2,fontParam3 = self:GetFont()
+		if GetFontForSize(size) then
+			self:SetFontObject(GetFontForSize(size))
+		else
+			self:SetFont(filename,size,fontParam1,fontParam2,fontParam3)
+		end
+		return self
+	end
 
 	function ELib:Edit(parent,maxLetters,onlyNum,template)
 		if template == 0 then
@@ -3005,7 +3027,8 @@ do
 			'BackgroundText',Widget_AddBackgroundText,
 			'ColorBorder',Widget_ColorBorder,
 			'GetTextHighlight',Widget_GetTextHighlight,
-			'ExtraText',Widget_AddExtraText
+			'ExtraText',Widget_AddExtraText,
+			'FontSize',Widget_FontSize
 		)
 
 		return self

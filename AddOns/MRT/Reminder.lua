@@ -16,13 +16,14 @@ local GetSpellName = C_Spell and C_Spell.GetSpellName or GetSpellInfo
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 
 local senderVersion = 4
-local addonVersion = 58
+local addonVersion = 59
 
 local options = module.options
 
 --[[
 todo:
 second activation
+send history after pull
 ]]
 
 module.db.timers = {}
@@ -2774,6 +2775,8 @@ function options:Load()
 		TL_HEADER_COLOR_ON = {1,1,1,1},
 		TL_HEADER_COLOR_HOVER = {1,1,0,1},
 
+		FILTER_AURA = true,
+
 		spell_status = {},
 		spell_dur = {},
 		custom_phase = {},
@@ -3059,11 +3062,13 @@ function options:Load()
 			local ignoreTimelime = bit.band(roptions,bit.lshift(1,5)) > 0
 			if 
 				not ignoreTimelime and
-				(not self.BOSS_ID or bossID == self.BOSS_ID) and
-				(not self.ZONE_ID or (
-				 (bossList and (bossID and bossList[bossID])) or
-				 module:FindNumberInString(self.ZONE_ID,zoneID)
-				)) 
+				(
+				 (self.BOSS_ID and bossID == self.BOSS_ID) or
+				 (self.ZONE_ID and (
+				  (bossList and (bossID and bossList[bossID])) or
+				  module:FindNumberInString(self.ZONE_ID,zoneID)
+				 ))
+				) 
 			then
 				local isAdded = false
 				if
@@ -3230,6 +3235,12 @@ function options:Load()
 		local var = {spell = {}, aura = {}}
 
 		local function add(spell,spellType,time,dur,cast)
+			if data[spell] and data[spell].spellType == 2 and spellType == 1 then
+				data[spell] = {spellType = spellType}
+			end
+			if data[spell] and data[spell].spellType ~= spellType then
+				return
+			end
 			if not data[spell] then 
 				data[spell] = {spellType = spellType} 
 			end
@@ -3262,8 +3273,11 @@ function options:Load()
 						if var.spell[j][4] == hline[4] and var.spell[j][12] == hline[12] then
 							cast = hline[1]-var.spell[j][1]
 							if cast >= 10 then
-								dur, cast = cast
-								s = var.spell[j][1] - start
+								--dur, cast = cast
+								--s = var.spell[j][1] - start
+							end
+							if cast > 10 then
+								cast = nil
 							end
 							tremove(var.spell,j)
 							break
@@ -3286,8 +3300,9 @@ function options:Load()
 				end
 			elseif hline[2] == 2 and not isChallenge then
 				if (hline[1] - start) > 2 then	--filter stage on pull
-					if not data.p then data.p = {} end
+					if not data.p then data.p = {n={}} end
 					data.p[ #data.p+1 ] = hline[1] - start
+					data.p.n[ #data.p ] = tonumber(hline[3] or "-")
 				end
 			elseif hline[2] == 3 and isChallenge then
 				if not data.p then data.p = {n={}} end
@@ -3299,8 +3314,8 @@ function options:Load()
 				data.p.n[ #data.p ] = 0
 			end
 		end
-		for i=1,#var.spell do add(var.spell[i][12],1,var.spell[i][1] - start) end
-		for i=1,#var.aura do add(var.aura[i][12],2,var.aura[i][1] - start) end
+		--for i=1,#var.spell do add(var.spell[i][12],1,var.spell[i][1] - start) end
+		--for i=1,#var.aura do add(var.aura[i][12],2,var.aura[i][1] - start) end
 		for _,list in pairs(data) do
 			sort(list,function(a,b)
 				if type(a) == type(b) and type(a) == "table" then
@@ -3370,7 +3385,7 @@ function options:Load()
 
 	self.timeLineBoss = ELib:DropDown(self.tab.tabs[4],250,-1):Point("TOPLEFT",10,-10):Size(220):SetText(L.ReminderSelectBoss)
 	self.timeLineBoss.mainframe = options.timeLine
-	self.timeLineBoss.SetValue = function(_,arg1,arg2,arg3,arg4)
+	self.timeLineBoss.SetValue = function(_,arg1,arg2,arg3,arg4,ignoreReload)
 		ELib:DropDownClose()
 		options.timeLine.frame.bigBossButtons:Hide()
 
@@ -3384,9 +3399,7 @@ function options:Load()
 		options.timeLine.ZONE_ID = nil
 		options.timeLine.CUSTOM_TIMELINE = nil
 		VMRT.Reminder2.TLBoss = nil
-		options.timeLine.FILTER_SPELL = nil
-		options.timeLine.FILTER_CAST = nil
-		options.timeLine.FILTER_AURA = nil
+		--options.timeLine.FILTER_SPELL = nil
 
 
 		options.timeLineBoss:SetText(arg2)
@@ -3410,7 +3423,10 @@ function options:Load()
 			VMRT.Reminder2.TLBoss = arg1
 		end
 
-		options.timeLine:Update()
+		if not ignoreReload then
+			options.timeLine:Update()
+			options.assignBoss:SetValue(arg1,arg2,arg3,arg4,true)
+		end
 	end
 
 	function self.timeLineBoss:SelectBoss(bossID)
@@ -3500,8 +3516,8 @@ function options:Load()
 				end
 				local encoded = "MRTREMH"..(compressed and "1" or "0")..LibDeflate:EncodeForPrint(compressed or str)
 
-				self.mainframe.historyExportWindow.Edit:SetText(encoded)
-				self.mainframe.historyExportWindow:Show()
+				options.timeLine.historyExportWindow.Edit:SetText(encoded)
+				options.timeLine.historyExportWindow:Show()
 			end,
 		}
 		subMenu[#subMenu+1] = {
@@ -3509,8 +3525,8 @@ function options:Load()
 			func = function()
 				ELib:DropDownClose()
 
-				self.mainframe.historyImportWindow:NewPoint("CENTER",UIParent,0,0)
-				self.mainframe.historyImportWindow:Show()
+				options.timeLine.historyImportWindow:NewPoint("CENTER",UIParent,0,0)
+				options.timeLine.historyImportWindow:Show()
 			end,
 		}
 		subMenu[#subMenu+1] = {
@@ -3530,6 +3546,13 @@ function options:Load()
 			prio = 100000,
 		}
 
+		local dungBossList = ExRT.F.GetEncountersList(false,false,false,true)
+		local dungIDs = {}
+		for i=1,#dungBossList do dungIDs[ dungBossList[i][1] ] = true end
+
+		local listDung = {}
+		self.List[#self.List+1] = {text = DUNGEONS or "DUNGEONS", arg3 = "dung", subMenu = listDung, prio = 40000-1, isHidden = ExRT.isClassic}
+
 		for bossID,bossData in pairs(options.timeLine.Data) do
 			local toadd
 			local isZone
@@ -3545,7 +3568,12 @@ function options:Load()
 					end
 				end
 				if zone then
-					toadd = ExRT.F.table_find3(self.List,zone[1],"arg3")
+					local isDung = dungIDs[ zone[1] ]
+					if not isDung then
+						toadd = ExRT.F.table_find3(self.List,zone[1],"arg3")
+					else
+						toadd = ExRT.F.table_find3(listDung,zone[1],"arg3")
+					end
 					if not toadd then
 						local text = GetMapNameByID(zone[1])
 
@@ -3561,7 +3589,11 @@ function options:Load()
 						end
 
 						toadd = {text = text, arg3 = zone[1], subMenu = {}, zonemd = zone, prio = 40000+zone[1], icon = zoneImg}
-						self.List[#self.List+1] = toadd
+						if not isDung then
+							self.List[#self.List+1] = toadd
+						else
+							listDung[#listDung+1] = toadd
+						end
 					end
 					toadd = toadd.subMenu
 				end
@@ -3569,7 +3601,7 @@ function options:Load()
 				isZone = true
 				toadd = ExRT.F.table_find3(self.List,"m+","arg3")
 				if not toadd then
-					toadd = {text = PLAYER_DIFFICULTY_MYTHIC_PLUS or "M+", arg3 = "m+", subMenu = {}, prio = 40000-1, isHidden = ExRT.isClassic}
+					toadd = {text = PLAYER_DIFFICULTY_MYTHIC_PLUS or "M+", arg3 = "m+", subMenu = {}, prio = 40000-2, isHidden = ExRT.isClassic}
 					self.List[#self.List+1] = toadd
 				end
 				toadd = toadd.subMenu
@@ -3664,6 +3696,12 @@ function options:Load()
 				sort(list.subMenu,function(a,b) return (ExRT.F.table_find(list.zonemd,a.arg1) or 0) > (ExRT.F.table_find(list.zonemd,b.arg1) or 0) end)
 			end
 		end
+		for i=1,#listDung do
+			local list = listDung[i]
+			if list.zonemd then
+				sort(list.subMenu,function(a,b) return (ExRT.F.table_find(list.zonemd,a.arg1) or 0) > (ExRT.F.table_find(list.zonemd,b.arg1) or 0) end)
+			end
+		end
 		self.List[#self.List+1] = {
 			text = L.ReminderCustom,
 			func = function() ELib:DropDownClose() ExRT.F.ShowInput(L.ReminderEncounterID,function(_,id) id=tonumber(id) if not id then return end self:SetValue(id,L.bossName[id]) end,nil,true) end,
@@ -3693,16 +3731,57 @@ function options:Load()
 		end
 	end
 
-	for bossID,bossData in pairs(options.timeLine.Data) do
-		if bossData.m then
-			for i=1,#bossData do
-				if bossData[i].p and bossData[i].p[1] < 0 then
-					local spell = -bossData[i].p[1]
-					local diff = bossData[i].p[2] and bossData[i].p[2] > 0 and bossData[i].p[2] or 0
-					for j=1,#bossData[i][spell] do
-						bossData[i].p[j] = bossData[i][spell][j] + diff
+	do
+		local newList = {}
+		for bossID,bossData in pairs(options.timeLine.Data) do
+			for i,bossFight in ipairs(bossData.m and bossData or {bossData}) do
+				if bossFight.p and bossFight.p[1] < 0 then
+					local spell = -bossFight.p[1]
+					local diff = bossFight.p[2] and bossFight.p[2] > 0 and bossFight.p[2] or 0
+					for j=1,#bossFight[spell] do
+						bossFight.p[j] = bossFight[spell][j] + diff
 					end
 				end
+				--[[
+				if bossFight.p and bossFight.p.n then
+					for j=1,#bossFight.p.n do
+						if bossFight.p.n[j] < 0 and bossFight.p.n[j] > -10000 then
+							if newList[ -bossFight.p.n[j] ] then
+								print('double for',-bossFight.p.n[j])
+							end
+							local fight_start, fight_end = bossFight.p[j], bossFight.p[j+1]
+							local new = {d={8,fight_end - fight_start}}
+							newList[ -bossFight.p.n[j] ] = new
+
+							for k,v in pairs(bossFight) do
+								if type(k)=="number" then
+									new[k] = {}
+									for l=1,#v do
+										local time = (type(v[l]) == "table" and v[l][1] or v[l])
+										if time >= fight_start and time <= fight_end then
+											if type(v[l]) == "table" then
+												local n = table_copy2(v[l])
+												new[k][#new[k]+1] = n
+												n[1] = n[1] - fight_start
+											else
+												new[k][#new[k]+1] = v[l] - fight_start
+											end
+										end
+									end
+									for k2,v2 in pairs(v) do
+										if type(k2)~="number" then
+											new[k][k2] = v
+										end
+									end
+									if #new[k] == 0 then
+										new[k] = nil
+									end
+								end
+							end
+						end
+					end
+				end
+				]]
 			end
 		end
 	end
@@ -3793,22 +3872,14 @@ function options:Load()
 						local toadd = true
 
 						--manual fixes
-						if cleu == "SAR:447207:1" then cleu = nil p = "3"
-						elseif cleu == "SCS:449986:1" then cleu = nil p = "4"
-
-						elseif cleu == "SCS:450483:1" then cleu = nil p = "2"
-						--elseif cleu == "SAR:450980:1" then cleu = nil p = "3"
-						--elseif cleu == "SAR:451277:1" then cleu = nil p = "5"
-
+						if cleu == "SCS:450483:1" then cleu = nil p = "1.5"
 						elseif cleu == "SAA:447207:1" then cleu = nil p = "2"
+
 						elseif cleu == "SAA:442432:1" then cleu = nil p = "2"
 						elseif cleu == "SAA:442432:2" then cleu = nil p = "3"
 						elseif cleu == "SAA:442432:3" then cleu = nil p = "4"
-
-						--elseif cleu == "SCS:439795:1" then cleu = nil p = "2"
-						--elseif cleu == "SCS:439795:2" then cleu = nil p = "3"
-						--elseif cleu == "SCS:439795:3" then cleu = nil p = "4"
-						--elseif cleu == "SCS:439795:4" then cleu = nil p = "5"
+						elseif cleu == "SAA:442432:4" then cleu = nil p = "5"
+						elseif cleu == "SAA:442432:5" then cleu = nil p = "6"
 						end
 
 						if not data.triggers[1] then
@@ -3822,7 +3893,7 @@ function options:Load()
 								p = tonumber(p)
 								if p then
 									if isgp == "g" then
-										data.triggers[1].pattFind = timeLineData.p and timeLineData.p.n and tostring(timeLineData.p.n[p-1])
+										data.triggers[1].pattFind = timeLineData.p and timeLineData.p.n and tostring(timeLineData.p.n[p-1]) or tostring(p)
 									else
 										data.triggers[1].pattFind = tostring(p)
 									end
@@ -5931,12 +6002,12 @@ function options:Load()
 			pd = dt and options.timeLine:GetTimeOnPhase(dt[1],p,pc)
 		end
 		if dt then
-			GameTooltip:AddLine((p and "Phase "..p..(pc and " (#"..pc..")" or "")..": " or "")..module:FormatTime(dt[1]))
+			GameTooltip:AddLine((p and "Phase "..p..(pc and " (#"..pc..")" or "")..": " or "")..module:FormatTime2(dt[1]))
 		end
 		local filter = ""
 		for k,v in pairs(data.players) do 
 			if UnitClass(k) then
-				filter = filter .. "|c" .. RAID_CLASS_COLORS[select(2,UnitClass(k))].colorStr .. k
+				filter = filter .. "|c" .. RAID_CLASS_COLORS[select(2,UnitClass(k))].colorStr .. k .. " "
 			else
 				filter = filter .. k .. " " 
 			end
@@ -5953,7 +6024,7 @@ function options:Load()
 				local token = k:match("^class(.-)$")
 				for i=1,#ExRT.GDB.ClassList do
 					if ExRT.GDB.ClassList[i] == token then
-						filter = (RAID_CLASS_COLORS[token] and RAID_CLASS_COLORS[token].colorStr and "|c"..RAID_CLASS_COLORS[token].colorStr or "")..L.classLocalizate[token].."|r "
+						filter = filter..(RAID_CLASS_COLORS[token] and RAID_CLASS_COLORS[token].colorStr and "|c"..RAID_CLASS_COLORS[token].colorStr or "")..L.classLocalizate[token].."|r "
 					end
 				end
 			end
@@ -5962,7 +6033,7 @@ function options:Load()
 			GameTooltip:AddLine("Filter: "..filter)
 		end
 		if pd then
-			GameTooltip:AddLine("From start: "..module:FormatTime(pd))
+			GameTooltip:AddLine("From start: "..module:FormatTime2(pd))
 		end
 		GameTooltip:AddLine(module:FormatMsg(data.msg or ""))
 		GameTooltip:Show()
@@ -6370,6 +6441,8 @@ function options:Load()
 		TL_ASSIGNWIDTH = 100,
 		TL_ASSIGNSPACING = 5,
 
+		FILTER_AURA = true,
+
 		gluerange = 2,
 
 		spell_status = {},
@@ -6403,6 +6476,7 @@ function options:Load()
 			{414658,"MAGE",3,{414658,180,6}},
 			{48018,"WARLOCK",3,{48018,10,0}},
 			{48020,"WARLOCK",3,{48020,30,0}},
+			{451235,"PRIEST",3,{451235,120,15}},
 		},
 
 		OPTS_TTS = VMRT.Reminder2.OptAssigTTS,
@@ -6554,7 +6628,7 @@ function options:Load()
 
 	self.assignBoss = ELib:DropDown(self.tab.tabs[5],250,-1):Point("TOPLEFT",10,-10):Size(220):SetText(L.ReminderSelectBoss)
 	self.assignBoss.mainframe = options.assign
-	self.assignBoss.SetValue = function(_,arg1,arg2,arg3,arg4)
+	self.assignBoss.SetValue = function(_,arg1,arg2,arg3,arg4,ignoreReload)
 		ELib:DropDownClose()
 		options.assign.frame.bigBossButtons:Hide()
 
@@ -6568,9 +6642,7 @@ function options:Load()
 		options.assign.ZONE_ID = nil
 		options.assign.CUSTOM_TIMELINE = nil
 		VMRT.Reminder2.TLBoss = nil
-		options.assign.FILTER_SPELL = nil
-		options.assign.FILTER_CAST = nil
-		options.assign.FILTER_AURA = nil
+		--options.assign.FILTER_SPELL = nil
 
 		options.assign.var_draggedlastline = nil
 
@@ -6595,7 +6667,10 @@ function options:Load()
 			VMRT.Reminder2.TLBoss = arg1
 		end
 
-		options.assign:Update()
+		if not ignoreReload then
+			options.assign:Update()
+			options.timeLineBoss:SetValue(arg1,arg2,arg3,arg4,true)
+		end
 	end
 	self.assignBoss.PreUpdate = self.timeLineBoss.PreUpdate
 	self.assignBoss.SelectBoss = self.timeLineBoss.SelectBoss
@@ -6875,6 +6950,7 @@ function options:Load()
 	options.assign.frame.QUICK_HEIGHT = 60 + 20 + 10
 	options.assign.frame.quick = ELib:ScrollFrame(self.tab.tabs[5]):Size(((options.assign.TL_ASSIGNWIDTH + 10) * 2 + 5 + 15),520-options.assign.frame.QUICK_HEIGHT):Height(100):Point("TOPLEFT",options.assign.frame,"TOPRIGHT",0,-options.assign.frame.QUICK_HEIGHT)
 	ELib:Border(options.assign.frame.quick,0)
+	options.assign.frame.quick.ScrollBar.thumb:SetHeight(60) 
 
 	options.assign.frame.D = CreateFrame("Frame",nil,options.assign.frame.C)
 	options.assign.frame.D:SetAllPoints()
@@ -7143,7 +7219,7 @@ function options:Load()
 			GameTooltip:Show()
 		elseif self.tiptime then
 			GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-			GameTooltip:AddLine(module:FormatTime(self.tiptime))
+			GameTooltip:AddLine(module:FormatTime2(self.tiptime))
 			GameTooltip:Show()
 		end
 
@@ -7173,6 +7249,7 @@ function options:Load()
 
 	options.assign.Util_LineAssignOnClick = function(self,button)
 		if self.setup and self.setup.funcOnClick then return self.setup.funcOnClick(self.setup.funcOnClickArg) end
+		if self.funcOnClick then self.funcOnClick(self) end
 		if self.setup and button == "RightButton" then
 			local spellName = GetSpellName(self.setup.spell)
 			ExRT.F.ShowInput2("Set custom options for "..(spellName or self.setup.spell),function(res) 
@@ -7229,13 +7306,14 @@ function options:Load()
 	end
 
 	options.assign.Util_LineAssignOnEnter = function(self)
+		if self.funcOnEnter then self.funcOnEnter(self) end
 		local data = self.data
 
 		self:SetAlpha(.7)
 
 		local spell = (data and options.assign:GetSpell(data)) or (self.setup and self.setup.spell)
 		if spell then
-			local cd = self.setup and self.setup.cd or options.assign:GetSpellBaseCD(spell)
+			local cd = self.setup and self.setup.cd or options.assign.custom_cd[spell] or options.assign:GetSpellBaseCD(spell)
 			if cd then
 				options.assign.frame:ShowCD(spell,cd,(data and data.players) or (self.setup and self.setup.players))
 			end
@@ -7267,7 +7345,7 @@ function options:Load()
 			pd = dt and options.assign:GetTimeOnPhase(dt[1],p,pc)
 		end
 		if dt then
-			GameTooltip:AddLine((p and "Phase "..p..(pc and " (#"..pc..")" or "")..": " or "")..module:FormatTime(dt[1]))
+			GameTooltip:AddLine((p and "Phase "..p..(pc and " (#"..pc..")" or "")..": " or "")..module:FormatTime2(dt[1]))
 		end
 		local filter = ""
 		for k,v in pairs(data.players) do 
@@ -7298,12 +7376,13 @@ function options:Load()
 			GameTooltip:AddLine("Filter: "..filter)
 		end
 		if pd then
-			GameTooltip:AddLine("From start: "..module:FormatTime(pd))
+			GameTooltip:AddLine("From start: "..module:FormatTime2(pd))
 		end
 		GameTooltip:AddLine(module:FormatMsg(data.msg or ""))
 		GameTooltip:Show()
 	end
 	options.assign.Util_LineAssignOnLeave = function(self)
+		if self.funcOnLeave then self.funcOnLeave(self) end
 		GameTooltip_Hide()
 		self:SetAlpha(1)
 
@@ -7781,6 +7860,7 @@ function options:Load()
 		if self.setup and self.setup.notMovable then
 			return
 		end
+		if self.funcOnDrag then self.funcOnDrag(self) end
 		local da = options.assign.frame.draggingAssign
 		if not da then
 			da = options.assign:Util_CreateLineAssign(options.assign.frame)
@@ -7818,7 +7898,7 @@ function options:Load()
 		options.assign.frame:ShowCD()
 		local spell = (self.data and options.assign:GetSpell(self.data)) or (self.setup and self.setup.spell)
 		if spell then
-			local cd = self.setup and self.setup.cd or options.assign:GetSpellBaseCD(spell)
+			local cd = self.setup and self.setup.cd or options.assign.custom_cd[spell] or options.assign:GetSpellBaseCD(spell)
 			if cd then
 				options.assign.frame:ShowCD(spell,cd,self.data and self.data.players or self.setup and self.setup.players,"DRAGGING",self)
 			end
@@ -8225,7 +8305,7 @@ function options:Load()
 							local setup = {
 								msg = "{spell:"..line[1].."} "..(spellName or name),
 								spell = line[1],
-								cd = line[j][2],
+								cd = options.assign.custom_cd[ line[1] ] or line[j][2],
 							}
 							if name then
 								setup.players = {[name] = true}
@@ -8347,6 +8427,97 @@ function options:Load()
 		end
 	end)
 
+	options.assign.frame.quick.CDFrame = CreateFrame("Frame",nil,options.assign.frame.quick)
+	options.assign.frame.quick.CDFrame:SetSize(90,32)
+	options.assign.frame.quick.CDFrame:Hide()
+	options.assign.frame.quick.CDFrame:SetFrameLevel(1000)
+	options.assign.frame.quick.CDFrame:EnableMouse(true)
+	options.assign.frame.quick.CDFrame:SetScript("OnUpdate",function(self)
+		if not self.parent or not self.parent:IsVisible() then
+			self:Hide()
+		end
+		local x,y = ExRT.F.GetCursorPos(self)
+		local xp,yp = ExRT.F.GetCursorPos(self.parent)
+		if (xp < -5 or xp > self.parent:GetWidth() + 5 or yp < -5 or yp > self.parent:GetHeight() + 5) and (x < -10 or x > self:GetWidth() + 10 or y < -10 or y > self:GetHeight() + 10) then
+			self:Hide()
+		elseif options.assign.frame.quick.ScrollBar.thumb:IsMouseOver() and (x < 0 or x > self:GetWidth() or y < 0 or y > self:GetHeight()) then
+			self:Hide()
+		end
+	end)
+	options.assign.frame.quick.CDFrame.bg = options.assign.frame.quick.CDFrame:CreateTexture(nil,"BACKGROUND")
+	options.assign.frame.quick.CDFrame.bg:SetAllPoints()
+	options.assign.frame.quick.CDFrame.bg:SetColorTexture(0,0,0,1)
+	ELib:Border(options.assign.frame.quick.CDFrame,1,.24,.25,.30,1)
+
+	options.assign.frame.quick.CDFrame.icon = options.assign.frame.quick.CDFrame:CreateTexture(nil,"ARTWORK")
+	options.assign.frame.quick.CDFrame.icon:SetPoint("TOPLEFT",2,-2)
+	options.assign.frame.quick.CDFrame.icon:SetSize(14,14)
+
+	options.assign.frame.quick.CDFrame.CD = ELib:Edit(options.assign.frame.quick.CDFrame):Size(40,16):Point("TOPLEFT",50,0):LeftText("CD:",9):FontSize(9):Tooltip("Used only for visual red/yellow lines. Leave empty for reset to default"):OnChange(function(self,isUser)
+		if not isUser then return end
+		local t = self:GetText() or ""
+		t = module:ConvertMinuteStrToNum(t)
+		t = t and t[1]
+		local parent = self:GetParent().parent
+		local setup = parent.setup
+		setup.cd = t or options.assign:GetSpellBaseCD(setup.spell)
+		options.assign.custom_cd[ setup.spell ] = t
+		parent:UpdateFromData(setup, true)
+		for i=1,#options.assign.frame.quick.pframes_data do
+			local data = options.assign.frame.quick.pframes_data[i]
+			for i=1,#data.list do
+				local setup2 = data.list[i][1]
+
+				if setup2.spell == setup.spell then
+					setup2.cd = setup.cd
+				end
+			end
+		end
+		for i=1,#options.assign.frame.quick.pframes do
+			local line = options.assign.frame.quick.pframes[i]
+			local c = 0
+			for j=1,#line.btn do
+				local a = line.btn[j]
+				if a.setup and a.setup.spell == setup.spell then
+					a:UpdateFromData(a.setup, true)
+				end
+			end
+		end
+	end)
+
+	options.assign.frame.quick.CDFrame.Charges = ELib:Edit(options.assign.frame.quick.CDFrame):Size(40,16):Point("TOPLEFT",50,-16):LeftText("Charges:",9):FontSize(9):Tooltip("Used only for visual red/yellow lines. Leave empty for reset to default"):OnChange(function(self,isUser)
+		if not isUser then return end
+		local t = self:GetText() or ""
+		t = tonumber(t)
+		local setup = self:GetParent().parent.setup
+		options.assign.custom_charges[setup.spell] = t
+	end)
+
+	function options.assign:Util_AssignSetupOnEnter()
+	  	if not self.setup then
+			return
+		end
+		local spell = self.setup.spell
+		if not spell then
+			return
+		end
+		if IsMouseButtonDown() then
+			return
+		end
+		options.assign.frame.quick.CDFrame.parent = self
+		options.assign.frame.quick.CDFrame:SetPoint("TOPLEFT",self,"BOTTOMRIGHT",0,5)
+		local texture = GetSpellTexture(spell)
+		options.assign.frame.quick.CDFrame.icon:SetTexture(texture)
+		options.assign.frame.quick.CDFrame.CD:SetText( module:FormatTime(self.setup.cd) )
+		options.assign.frame.quick.CDFrame.Charges:SetText( tostring(options.assign.custom_charges[spell] or 1) )
+		options.assign.frame.quick.CDFrame.CD:ClearFocus()
+		options.assign.frame.quick.CDFrame.Charges:ClearFocus()
+		options.assign.frame.quick.CDFrame:Show()
+	end
+	function options.assign:Util_AssignSetupOnDrag()
+		options.assign.frame.quick.CDFrame:Hide()
+	end
+
 	function options.assign.frame.quick:UpdateView(forceUnderLock)
 		if self.lock and not forceUnderLock then return end
 		local pos = self:GetVerticalScroll()
@@ -8362,7 +8533,7 @@ function options:Load()
 				if not a then
 					a = CreateFrame("Frame",nil,self.C)
 					self.pframes[c] = a
-		
+
 					a:SetSize(options.assign.TL_ASSIGNWIDTH + 10, 80)
 					a.btn = {}
 			
@@ -8379,6 +8550,11 @@ function options:Load()
 					local b = a.btn[cb] 
 					if not b then
 						b = options.assign:Util_CreateLineAssign(a)
+
+						b.funcOnEnter = options.assign.Util_AssignSetupOnEnter
+						b.funcOnLeave = options.assign.Util_AssignSetupOnLeave
+						b.funcOnDrag = options.assign.Util_AssignSetupOnDrag
+
 						a.btn[cb] = b
 		
 					end
@@ -8518,6 +8694,11 @@ function options:Load()
 			self:PlayerListUpdateFromSavedRoster()
 		else
 			self:PlayerListUpdateAllClasses()
+		end
+	end
+	function options.assign:PlayerListUpdateOnShow()
+		if self.frame.quick.last == 1 or not self.frame.quick.last then
+			self:PlayerListUpdateFromRoster()
 		end
 	end
 	--options.assign:PlayerListUpdate()
@@ -8722,7 +8903,7 @@ function options:Load()
 	end
 	options.assign.frame.quick.filter:Update()
 
-	options.assign.frame.quick.dd = ELib:DropDown(options.assign.frame.quick,250,-1):Point("BOTTOM",options.assign.frame.quick.filter,"TOP",0,5):Size(220):SetText("Select roster")
+	options.assign.frame.quick.dd = ELib:DropDown(options.assign.frame.quick,250,-1):Point("BOTTOM",options.assign.frame.quick.filter,"TOP",0,5):Size(220):SetText("Select roster"):OnShow(function() options.assign:PlayerListUpdateOnShow() end,true)
 	function options.assign.frame.quick.dd:SetValue(arg1)
 		ELib:DropDownClose()
 		options.assign.frame.quick.last = arg1
@@ -8871,6 +9052,7 @@ function options:Load()
 
 	options.assign.frame.quick.rosteredit.ImportButton = ELib:Button(options.assign.frame.quick.rosteredit.frame.C,L.Import):Point("TOP",options.assign.frame.quick.rosteredit.ExportButton,"BOTTOM",0,-5):Size(200,20):OnClick(function()
 		options.assign.frame.quick.rosteredit.importWindow:NewPoint("CENTER",UIParent,0,0)
+		options.assign.frame.quick.rosteredit.importWindow.Edit:SetText("")
 		options.assign.frame.quick.rosteredit.importWindow:Show()
 	end)
 
@@ -16368,6 +16550,16 @@ end
 
 function module:CheckAllTriggers(trigger, printLog)
 	local data, reminder = trigger._data, trigger._reminder
+
+	for i,t in ipairs(reminder.triggers) do
+		if t.status and t.status.specialTriggerCheck and not t.status.specialTriggerCheck() then
+			module:DeactivateTrigger(t)
+			--module:RunAndRemoveTimer(module.DeactivateTrigger,nil,t,t.status.uid or t.status.guid or 1,true)
+
+			--print('discard trigger status',i)
+		end
+	end
+
 	local check = reminder.activeFunc(reminder.triggers)
 
 	--if module.db.debug and data.debug then
@@ -16670,6 +16862,39 @@ do
 			module:DeactivateTrigger(trigger, vars.uid or vars.guid or 1, false, printLog)
 		end
 	end
+end
+
+local function RemoveTimer(needRun,func,...)
+	local debugCount = 0
+	for j=#module.db.timers,1,-1 do
+		local timer = module.db.timers[j]
+		if timer.func == func then
+			local isPass = true
+			for i=1,select("#",...) do
+				local arg = select(i,...)
+				if arg and arg ~= timer.args[i] then
+					isPass = false
+					break
+				end
+			end
+			if isPass then
+				if needRun then
+					timer.func(unpack(timer.args))
+				end
+				timer:Cancel()
+				tremove(module.db.timers, j)
+				debugCount = debugCount + 1
+			end
+		end 
+	end
+end
+
+function module:RemoveTimer(func,...)
+	RemoveTimer(false,func,...)
+end
+
+function module:RunAndRemoveTimer(func,...)
+	RemoveTimer(true,func,...)
 end
 
 function module:RunTrigger(trigger, vars, printLog)
@@ -18550,7 +18775,7 @@ function module:TriggerSpellCD(triggers)
 			end 
 			if duration then	--spell found
 				if not enabled then
-					duration = 99999
+					duration = 3600
 				end
 				local cdCheck = duration > gduration and duration > 0
 
@@ -18560,8 +18785,13 @@ function module:TriggerSpellCD(triggers)
 						spellID = select(7,GetSpellInfo(spell)),
 						spellName = GetSpellName(spell),
 						counter = trigger.count,
-						timeLeft = startTime + duration,
+						timeLeft = startTime + duration * (modRate or 1),
 					}
+					--special case, check if spell have cd less then dur
+					if cdCheck and trigger._data.hideTextChanged and trigger._data.dur and tonumber(trigger._data.dur) > 0 then
+						vars.specialTriggerCheck = function(s) if vars.timeLeft < GetTime() + trigger._data.dur then return false else return s or true end end
+					end
+
 					trigger.statuses[1] = vars
 					if not trigger.Dcounter or module:CheckNumber(trigger.Dcounter,trigger.count) then
 						module:RunTrigger(trigger, vars)
@@ -18569,7 +18799,7 @@ function module:TriggerSpellCD(triggers)
 
 					--schedule recheck after cd expiration
 					--still can be wrong if cd duration will change afterwards
-					local t = ScheduleTimer(module.TriggerSpellCD, duration, self, triggers)
+					local t = ScheduleTimer(module.TriggerSpellCD, duration * (modRate or 1), self, triggers)
 					module.db.timers[#module.db.timers+1] = t
 				elseif trigger.statuses[1] and not cdCheck then
 					trigger.statuses[1] = nil
@@ -18577,7 +18807,7 @@ function module:TriggerSpellCD(triggers)
 				end
 
 				if trigger.statuses[1] then
-					trigger.statuses[1].timeLeft = startTime + duration
+					trigger.statuses[1].timeLeft = startTime + duration * (modRate or 1)
 				end
 			end
 		end
@@ -19188,13 +19418,13 @@ do
 	local prev
 	function module.main:PLAYER_TARGET_CHANGED()
 		local guid = UnitGUID("target")
+		if prev == guid then return end
 		if guid then
 			module:CycleAllUnitEvents("target")
-			prev = guid
 		else
 			module:CycleAllUnitEvents_UnitRemoved("target", prev)
-			prev = nil
 		end
+		prev = guid
 	end
 end
 
@@ -20713,7 +20943,7 @@ function module:FilterFuncReminders(data,encounterID,encounterDiff,zoneID,myName
 		((
 		 (
 		  (encounterID and data.bossID == encounterID and (not data.diffID or (data.diffID == encounterDiff or encounterDiff == -1))) or
-		  (zoneID and (module:FindNumberInString(zoneID,data.zoneID) or data.zoneID=="-1"))
+		  (zoneID and (not encounterID or not data.bossID) and (module:FindNumberInString(zoneID,data.zoneID) or data.zoneID=="-1"))
 		 ) and
 		 (not myName or module:CheckPlayerCondition(data,myName,myClass,myRole,mySubRole)) and
 		 bit.band(VMRT.Reminder2.options[data.uid or 0] or 0,bit.lshift(1,0)) == 0
@@ -21609,9 +21839,10 @@ do
 				uid == data.uid and 
 				(bit.band(VMRT.Reminder2.options[uid] or 0,bit.lshift(1,3)) == 0 or oneUID) and
 				(
-				 (not bossID and not zoneID and not oneUID) or
-				 (bossID and ((type(bossID) == "table" and data.bossID and bossID[data.bossID]) or (type(bossID) ~= "table" and data.bossID == bossID))) or
-				 (zoneID and module:FindNumberInString(zoneID,data.zoneID)) or
+				 (
+				  (not bossID or ((type(bossID) == "table" and data.bossID and bossID[data.bossID]) or (type(bossID) ~= "table" and data.bossID == bossID))) and
+				  (not zoneID or module:FindNumberInString(zoneID,data.zoneID))
+				 ) or
 				 (oneUID and uid == oneUID)
 				)
 			then
@@ -21827,10 +22058,13 @@ module.db.synqIndex = {}
 function module:addonMessage(sender, prefix, subprefix, arg1, ...)
 	if prefix == "rmd" then
 		if subprefix == "D" or subprefix == "d" or subprefix == "L" or subprefix == "l" then
-			if subprefix == "D" and IsInRaid() and not ExRT.F.IsPlayerRLorOfficer(sender) then
+			if IsEncounterInProgress() then
 				return
 			end
 			if VMRT.Reminder2.disableUpdates then
+				return
+			end
+			if subprefix == "D" and IsInRaid() and not ExRT.F.IsPlayerRLorOfficer(sender) then
 				return
 			end
 			if subprefix == "L" and not (isLiveSession or module.db.preLiveSession) then

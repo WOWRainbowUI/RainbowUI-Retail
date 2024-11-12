@@ -12457,7 +12457,7 @@ module.db.AllSpells = {
 		changeCdWithHaste=true},
 	{34433,	"PRIEST,DPS,HEAL",3,--Исчадие Тьмы
 		{34433,180,15},nil,nil,nil,
-		isTalent=true,cdDiff={296320,"*0.80"},hideWithTalent=123040,reduceCdAfterCast={{47540,390770},-4,{585,390770},-4,{8092,390770},-4}},
+		isTalent=true,cdDiff={296320,"*0.80"},hideWithTalent=123040,reduceCdAfterCast={{47540,390770},-4,{585,390770},-4,{8092,390770},-4},sameSpell={34433,451235}},
 	{15487,	"PRIEST,CC,KICK",3,--Безмолвие
 		nil,nil,nil,{15487,45,4},
 		isTalent=true,cdDiff={263716,-15}},
@@ -12504,7 +12504,7 @@ module.db.AllSpells = {
 		isTalent=true},
 	{123040,"PRIEST",3,--Подчинитель разума
 		nil,{123040,60,12},nil,nil,
-		isTalent=true,cdDiff={296320,"*0.80"},reduceCdAfterCast={{585,390770},-2,{47540,390770},-2,{8092,390770},-2}},
+		isTalent=true,cdDiff={296320,"*0.80"},reduceCdAfterCast={{585,390770},-2,{47540,390770},-2,{8092,390770},-2},sameSpell={123040,451235}},
 	{64044,	"PRIEST,CC",3,--Глубинный ужас
 		nil,nil,nil,{64044,45,4},
 		isTalent=true},
