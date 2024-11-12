@@ -1,3 +1,7 @@
+# v2.49.0
+
+- Fixed an issue with Chromie Time 
+
 # v2.48.4
 
 - Updated for 11.0.5
