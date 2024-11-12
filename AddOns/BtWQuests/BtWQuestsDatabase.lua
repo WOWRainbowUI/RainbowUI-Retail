@@ -2783,10 +2783,10 @@ end
 local ChromieTimeItemMixin = CreateFromMixins(ItemMixin);
 function ChromieTimeItemMixin:IsCompleted(database, item, character)
     local chromieId = character:GetChromieTimeID()
-    if item.id then
+    if item.id ~= -1 then
         return item.id == chromieId
     else
-        return chromieId >= 0
+        return chromieId > 0
     end
 end
 
