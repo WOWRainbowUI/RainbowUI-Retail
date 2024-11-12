@@ -1,6 +1,16 @@
 local GlobalAddonName, ExRT = ...
 
 ExRT.Options.Changelog = [=[
+v.5080
+* Reminder: changed load conditions logic for reminders with both boss+zone load
+* Reminder: "assignments"/"timeline": added dungeon bosses to list
+* Raid groups: server name in not required
+* Raid Inspect: added option to set custom minimum ilvl for highlight
+* Interrupts: added option to autoreset based on maximum assigned number for each mark (be sure that your assigned kickers have v5080+ before using this option)
+* Note: added custom roster
+* Note: added role icons for tanks and healers for list with names
+* Fixes
+
 v.5060
 * Reminder: "assignments": added "live session" option (multiple people can add/remove/change reminders at same time with immediate progress visualisation)
 * Reminder: "assignments": added option for filtering existed reminders with same filter as enabled spell groups (enabled by default)
