@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2611, "DBM-Raids-WarWithin", 1, 1273)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20241102153720")
+mod:SetRevision("20241111222740")
 mod:SetCreatureID(214502)
 mod:SetEncounterID(2917)
 mod:SetUsedIcons(4, 5, 6, 7, 8)
@@ -293,7 +293,7 @@ function mod:SPELL_AURA_APPLIED(args)
 				if timerGruesomeDigorgeCD:GetRemaining(self.vb.disgorgeCount+1) > 15 then
 					timerGraspFromBeyondCD:Start(15, self.vb.graspCount+1)
 				else
-					timerGraspFromBeyondCD:Start(21, self.vb.graspCount+1)
+					timerGraspFromBeyondCD:Start(17.3, self.vb.graspCount+1)
 				end
 			end
 		end
