@@ -8,7 +8,7 @@
 
 ## Title-zhTW: |cff4DD2FF[頭像]|r 暴雪頭像 (美化調整)
 ## Notes-zhTW: Easy Frames |n|n喜歡遊戲內建的頭像推薦使用這個插件，讓內建頭像變得比較漂亮，還額外提供了許多自訂化的選項。|n|n使用方法: |r從Esc>選項>插件>頭像，進行設定。
-## Version: 4.5.1
+## Version: 4.5.2
 ## X-Category-zhTW: 介面
 ## DefaultState: disabled
 
