@@ -1,8 +1,16 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
 local MaxLevel = GetMaxPlayerLevel()
 
+
+local generalDefaults = {
+	OnlyShowIfNotMaxLevel = true,
+}
 
 local defaultSettings = {
 	Enabled = false,
@@ -18,27 +26,27 @@ local defaultSettings = {
 			OffsetY = 2
 		}
 	},
-	OnlyShowIfNotMaxLevel = true,
 	Text = {
 		FontSize = 18,
-		FontOutline = "",
-		FontColor = {1, 1, 1, 1},
-		EnableShadow = false,
-		ShadowColor = {0, 0, 0, 1},
 		JustifyH = "LEFT"
 	}
 }
 
-local options = function(location)
+local generalOptions = function (location)
 	return {
 		OnlyShowIfNotMaxLevel = {
 			type = "toggle",
 			name = L.LevelText_OnlyShowIfNotMaxLevel,
 			order = 2
-		},
+		}
+	}
+end
+
+local options = function(location)
+	return {
 		LevelTextTextSettings = {
 			type = "group",
-			name = L.TextSettings,
+			name = L.Text,
 			get = function(option)
 				return Data.GetOption(location.Text, option)
 			end,
@@ -56,9 +64,12 @@ local level = BattleGroundEnemies:NewButtonModule({
 	moduleName = "Level",
 	localizedModuleName = LEVEL,
 	defaultSettings = defaultSettings,
+	generalDefaults = generalDefaults,
 	options = options,
+	generalOptions = generalOptions,
 	events = {"UnitIdUpdate"},
-	enabledInThisExpansion = true
+	enabledInThisExpansion = true,
+	attachSettingsToButton = true
 })
 
 function level:AttachToPlayerButton(playerButton)
@@ -76,7 +87,8 @@ function level:AttachToPlayerButton(playerButton)
 
 	-- Level
 
-	function fs:PlayerDetailsChanged(playerDetails)
+	function fs:PlayerDetailsChanged()
+		local playerDetails = playerButton.PlayerDetails
 		if not playerDetails then return end
 		if playerDetails.PlayerLevel then self:SetLevel(playerDetails.PlayerLevel) end --for testmode
 	end
@@ -98,7 +110,9 @@ function level:AttachToPlayerButton(playerButton)
 
 	function fs:ApplyAllSettings()
 		self:ApplyFontStringSettings(self.config.Text)
+		self:PlayerDetailsChanged()
 		self:DisplayLevel()
 	end
 	playerButton.Level = fs
+	return playerButton.Level
 end

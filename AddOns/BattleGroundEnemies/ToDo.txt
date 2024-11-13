@@ -1,4 +1,4 @@
-Add castbars and combat indicator to testmode
+Add castbars to testmode
 Work on cooldown tracking
-improved layout editing
-have to investigate why self.EnemyFaction is not set inside PLAYER_ENTERING_WORLD event handler
+i need to add a feature to not include alpha versions in the version check
+Add localization for 1-5 spielerdesc (mouseover 1-5 spieler)

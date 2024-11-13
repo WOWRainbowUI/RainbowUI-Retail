@@ -44,17 +44,17 @@ local function findSpellByIconId(t, iconId)
 	end
 end
 
-local function parseSpellInfo(spellId)
+local function parseSpellInfo(spellID)
 	if C_Spell and C_Spell.GetSpellInfo then
-		local spellInfo = C_Spell.GetSpellInfo(spellId)
+		local spellInfo = C_Spell.GetSpellInfo(spellID)
 		if not spellInfo then return end
 		if not spellInfo.iconID then return end
 		spellInfo.icon = spellInfo.iconID
 		return spellInfo
 	else
-		local name, rank, iconID = GetSpellInfo(spellId)
+		local name, rank, iconID = GetSpellInfo(spellID)
 		if not name or name == "" or not iconID then return end
-		return {name = name, spellId = spellId, icon = iconID}
+		return {name = name, spellID = spellID, icon = iconID}
 	end
 end
 
@@ -85,9 +85,9 @@ local function findSelectionIndexByIconId(iconId)
 	end
 end
 
-local function findSelectionIndexBySpellID(spellId)
+local function findSelectionIndexBySpellID(spellID)
 	for i = 1, #dataProviderTable do
-		if spellId == dataProviderTable[i].spellId then
+		if spellID == dataProviderTable[i].spellID then
 			return i
 		end
 	end
@@ -190,14 +190,14 @@ local function filterBySpellName(name)
 end
 
 
-local function filterBySpellId(spellId)
-	if type(spellId) ~= "number" then return end
-	if spellId <= 0 then return end
+local function filterBySpellId(spellID)
+	if type(spellID) ~= "number" then return end
+	if spellID <= 0 then return end
 
 	local oneFound = false
  	for i = 1, #allSpells do
 		local spell = allSpells[i]
-		local spellID = tostring(spell.spellId)
+		local spellId = tostring(spell.spellID)
 		local found = strfind(spellID, tostring(spellId) or "")
 		if found then
 			table.insert(filteredSpells, spell)
@@ -205,7 +205,7 @@ local function filterBySpellId(spellId)
 		end
 	end
 	if not oneFound then --check if this spell really doesnt exist, we might have entered "early" out of fetchallSpells()
-		local spellInfo = parseSpellInfo(spellId)
+		local spellInfo = parseSpellInfo(spellID)
 		if spellInfo then
 			table.insert(filteredSpells, spellInfo)
 		end
@@ -214,7 +214,7 @@ end
 
 function iconSelectorFrameMixin:InputChanged(inputFrame)
 	wipe(filteredSpells)
-	local spellId
+	local spellID
 	local text
 	local inputText =  inputFrame:GetText()
 	if inputText then
@@ -274,11 +274,11 @@ function LibSpellIconSelector:Show(iconId, onApply)
 			button.OnEnter = function(self)
 				local selectionIndex = self:GetSelectionIndex()
 				local spell = dataProviderTable[selectionIndex]
-				local spellId = spell.spellId
+				local spellID = spell.spellID
 				local spellname = spell.name
 				local iconID = spell.icon
 				GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 0)
-				GameTooltip:AddLine("SpellId: "..tostring(spellId), 1, 1, 1)
+				GameTooltip:AddLine("SpellId: "..tostring(spellID), 1, 1, 1)
 				GameTooltip:AddLine("Spell name: "..spellname, 1, 1, 1)
 				GameTooltip:AddLine("Icon ID: "..tostring(iconID), 1, 1, 1)
 				GameTooltip:Show()

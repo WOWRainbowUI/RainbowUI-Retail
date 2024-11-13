@@ -1,4 +1,8 @@
-local AddonName, Data = ...
+---@class Data
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 
 local L = Data.L
@@ -20,6 +24,108 @@ local function GetAllModuleAnchors(moduleName)
 	return moduleAnchors
 end
 
+
+
+
+local function getDefaultSettingsForGroup(group, defaults, ignoreChildGroups)
+	local newSettings = {}
+	local groupSettings = group.args
+	for childKey, childData in pairs(groupSettings) do
+		if childData.type == "group" then
+			if not ignoreChildGroups then
+				if childData.get or childData.set then
+					return error("can't reset that since we don't know where the defaults live")
+				else
+					Mixin(newSettings, getDefaultSettingsForGroup(childData, defaults))
+				end
+			end
+		else
+			if type(defaults[childKey]) == "table" then
+				newSettings[childKey] = CopyTable(defaults[childKey], false)
+			else
+				newSettings[childKey] = defaults[childKey]
+			end
+		end
+	end
+	return newSettings
+end
+
+local addResetFunctionForgroup = function(dbLocation, defaults, ignoreChildGroups)
+	local function func(info)
+		local option = CopyTable(info.options, false)
+		for i = 1, #info -1 do
+			option = option.args[info[i]]
+		end
+		local defaultsForGroup = getDefaultSettingsForGroup(option, defaults, ignoreChildGroups)
+
+		Mixin(dbLocation, defaultsForGroup)
+		BattleGroundEnemies:NotifyChange()
+	end
+	return func
+end
+
+local function convertPermutations(permutations)
+    local result = {}
+
+    for _, perm in ipairs(permutations) do
+        local key = table.concat(perm, "_")
+        local values = {}
+
+        for _, role in ipairs(perm) do
+            table.insert(values, _G[role])
+        end
+
+        result[key] = values
+    end
+
+    return result
+end
+
+
+---comment
+---@param playerCountConfigs any
+local function sortByMinPlayerCount(playerCountConfigs)
+	table.sort(playerCountConfigs, function(playerCountConfigA, playerCountConfigB)
+		return playerCountConfigA.minPlayerCount < playerCountConfigB.minPlayerCount
+	end)
+end
+
+---comment
+---@param playerType any
+---@param playerCountConfigs any
+---@param inputs any
+---@param profileToIgnore any
+---@return boolean
+---@return string?
+local function isValidPlayerCountRange(playerType, playerCountConfigs, inputs, profileToIgnore)
+	local min = inputs.MinPlayerCount
+	local max = inputs.MaxPlayerCount
+	if not min then return false, L.MinCantBeUndefined end
+	if not max then return false, L.MaxCantBeUndefined end
+
+	if min > max then return false, L.MaxNeedsToBeEqualOrGreater end
+
+	for i = 1, #playerCountConfigs do
+		local playerCountConfig = playerCountConfigs[i]
+		if not profileToIgnore or playerCountConfig ~= profileToIgnore then
+			local range = {
+				min = playerCountConfig.minPlayerCount,
+				max = playerCountConfig.maxPlayerCount
+			}
+			local newRange = {
+				min = min,
+				max = max
+			}
+			if Data.Helpers.AreOverlappingRanges(newRange, range) then
+				return false, L.RangeOverlapping:format(BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(playerCountConfig))
+			end
+		end
+	end
+	return true
+end
+
+---comment
+---@return table
 local function GetAllModuleFrames()
 	local t = {}
 	for moduleNamee, moduleFrame in pairs(BattleGroundEnemies.ButtonModules) do
@@ -27,14 +133,6 @@ local function GetAllModuleFrames()
 	end
 	return t
 end
-
-local BGSizeToLocale = {
-	[5] = ARENA,
-	[15] = L.BGSize_15,
-	[40] = L.BGSize_40
-}
-
-
 
 -- Points
 -- TOPLEFT 		TOP 		TOPRIGHT
@@ -53,6 +151,10 @@ local function isInSameHorizontal(Point1, Point2)
     end
 end
 
+---comment
+---@param Point1 any
+---@param Point2 any
+---@return boolean
 local function isInSameVertical(Point1, Point2)
     local p1 = (Point1.Point:match("(LEFT)")) or (Point1.Point:match("(RIGHT)")) or false
     local p2 = (Point2.Point:match("(LEFT)")) or (Point2.Point:match("(RIGHT)")) or false
@@ -63,6 +165,7 @@ local function isInSameVertical(Point1, Point2)
     elseif p1=="RIGHT" and p2=="RIGHT" then
         return true
     end
+	return false
 end
 
 function BattleGroundEnemies:GetActivePoints(config)
@@ -156,7 +259,12 @@ local function validateAnchor(playerType, moduleName, relativeFrame)
 end
 
 
-
+---comment
+---@param location any
+---@param moduleName any
+---@param moduleFrame any
+---@param playerType any
+---@return table
 function Data.AddPositionSetting(location, moduleName, moduleFrame, playerType)
 	local numPoints = location.ActivePoints
 	local temp = {}
@@ -250,28 +358,28 @@ function Data.AddPositionSetting(location, moduleName, moduleFrame, playerType)
 		end
 	end
 
-	temp.AddPoint = {
-		type = "execute",
-		name = L.AddPoint,
-		func = function()
-			location.ActivePoints = numPoints + 1
-			location.Points = location.Points or {}
-			location.Points[numPoints + 1] = location.Points[numPoints + 1] or {
-				Point = "TOPLEFT",
-				RelativeFrame = "Button",
-				RelativePoint = "TOPLEFT"
-			}
-			BattleGroundEnemies:NotifyChange()
-		end,
-		disabled = function()
-			if not location.Points then return false end
+	-- temp.AddPoint = {
+	-- 	type = "execute",
+	-- 	name = L.AddPoint,
+	-- 	func = function()
+	-- 		location.ActivePoints = numPoints + 1
+	-- 		location.Points = location.Points or {}
+	-- 		location.Points[numPoints + 1] = location.Points[numPoints + 1] or {
+	-- 			Point = "TOPLEFT",
+	-- 			RelativeFrame = "Button",
+	-- 			RelativePoint = "TOPLEFT"
+	-- 		}
+	-- 		BattleGroundEnemies:NotifyChange()
+	-- 	end,
+	-- 	disabled = function()
+	-- 		if not location.Points then return false end
 
-			--dynamic containers with dynamic width and height can have a maximum of 1 point
-			return not canAddPoint(location, moduleFrame)
-		end,
-		width = "full",
-		order = numPoints + 4
-	}
+	-- 		--dynamic containers with dynamic width and height can have a maximum of 1 point
+	-- 		return not canAddPoint(location, moduleFrame)
+	-- 	end,
+	-- 	width = "full",
+	-- 	order = numPoints + 4
+	-- }
 	temp.WidthGroup = {
 		type = "group",
 		name = L.Width,
@@ -350,11 +458,23 @@ end
 
 
 
-local function copy(obj)
-	if type(obj) ~= 'table' then return obj end
-	local res = {}
-	for k, v in pairs(obj) do res[copy(k)] = copy(v) end
-	return res
+-- local function copy(obj)
+-- 	if type(obj) ~= 'table' then return obj end
+-- 	local res = {}
+-- 	for k, v in pairs(obj) do res[copy(k)] = copy(v) end
+-- 	return res
+-- end
+
+local CopyTable = CopyTable or function(settings, shallow)
+	local copy = {};
+	for k, v in pairs(settings) do
+		if type(v) == "table" and not shallow then
+			copy[k] = CopyTable(v);
+		else
+			copy[k] = v;
+		end
+	end
+	return copy;
 end
 
 
@@ -376,8 +496,10 @@ function Data.SetOption(location, option, ...)
 	else
 		value = ...
 	end
+	--DevTool:AddData(CopyTable(location) , "location")
+	--DevTool:AddData(CopyTable(option) , "option")
 	location[option[#option]] = value
-	BattleGroundEnemies:ApplyAllSettings()
+	BattleGroundEnemies:ApplyAllSettingsDebounce()
 
 
 	--BattleGroundEnemies.db.profile[key] = value
@@ -482,19 +604,29 @@ local FontOutlines = {
 	["THICKOUTLINE"] = L.Thick,
 }
 
-function Data.AddNormalTextSettings(location)
+function Data.AddNormalTextSettings(location, defaults)
 	return {
+		Reset = {
+			type = "execute",
+			name = L.RestoreDefault,
+			func = addResetFunctionForgroup(location, defaults),
+			width = "full",
+			hidden = not defaults,
+			order = 1,
+		},
 		JustifyH = {
 			type = "select",
 			name = L.JustifyH,
 			desc = L.JustifyH_Desc,
-			values = JustifyHValues
+			values = JustifyHValues,
+			order = 2
 		},
 		JustifyV = {
 			type = "select",
 			name = L.JustifyV,
 			desc = L.JustifyV_Desc,
-			values = JustifyVValues
+			values = JustifyVValues,
+			order = 3
 		},
 		FontSize = {
 			type = "range",
@@ -504,38 +636,7 @@ function Data.AddNormalTextSettings(location)
 			max = 40,
 			step = 1,
 			width = "normal",
-			order = 1
-		},
-		FontOutline = {
-			type = "select",
-			name = L.Font_Outline,
-			desc = L.Font_Outline_Desc,
-			values = FontOutlines,
-			order = 2
-		},
-		Fake = Data.AddVerticalSpacing(3),
-		FontColor = {
-			type = "color",
-			name = L.Fontcolor,
-			desc = L.Fontcolor_Desc,
-			hasAlpha = true,
 			order = 4
-		},
-		EnableShadow = {
-			type = "toggle",
-			name = L.FontShadow_Enabled,
-			desc = L.FontShadow_Enabled_Desc,
-			order = 5
-		},
-		ShadowColor = {
-			type = "color",
-			name = L.FontShadowColor,
-			desc = L.FontShadowColor_Desc,
-			disabled = function()
-				return not location.EnableShadow
-			end,
-			hasAlpha = true,
-			order = 6
 		}
 	}
 end
@@ -543,132 +644,189 @@ end
 
 function Data.AddCooldownSettings(location)
 	return {
-		ShowNumber = {
-			type = "toggle",
-			name = L.ShowNumbers,
-			desc = L.ShowNumbers_Desc,
-			order = 1
+		FontSize = {
+			type = "range",
+			name = L.FontSize,
+			desc = L.FontSize_Desc,
+			min = 6,
+			max = 40,
+			step = 1,
+			width = "normal",
+			order = 3
 		},
-		asdfasdf = {
-			type = "group",
-			name = "",
-			desc = "",
-			disabled = function()
-				return not location.ShowNumber
-			end,
-			inline = true,
-			order = 2,
-			args = {
-				FontSize = {
-					type = "range",
-					name = L.FontSize,
-					desc = L.FontSize_Desc,
-					min = 6,
-					max = 40,
-					step = 1,
-					width = "normal",
-					order = 3
-				},
-				FontOutline = {
-					type = "select",
-					name = L.Font_Outline,
-					desc = L.Font_Outline_Desc,
-					values = FontOutlines,
-					order = 4
-				},
-				Fake1 = Data.AddVerticalSpacing(5),
-				EnableShadow = {
-					type = "toggle",
-					name = L.FontShadow_Enabled,
-					desc = L.FontShadow_Enabled_Desc,
-					order = 6
-				},
-				ShadowColor = {
-					type = "color",
-					name = L.FontShadowColor,
-					desc = L.FontShadowColor_Desc,
-					disabled = function()
-						return not location.EnableShadow
-					end,
-					hasAlpha = true,
-					order = 7
-				},
-				DrawSwipe = {
-					type = "toggle",
-					name = L.Enable_DrawSwipe,
-					desc = L.Enable_DrawSwipe_Desc,
-					order = 8
-				}
-			}
-		}
 	}
 end
 
-function BattleGroundEnemies:AddModuleSettings(location, defaults, playerType, BGSize)
-	local i = 1
+--nice idea but it kinda sucks
+local function generateOverwritableOptions(location, options)
+	local newOptions = {}
+	for k,v in pairs(options) do
+		if v.type ~= "group" then
+			if v.name and v.name ~= " " then
+				local newK = "overWrite"..k
+				newOptions[newK] = {
+					type = "group",
+					name = "",
+					desc = L.overwrite_desc,
+					inline = true,
+					order = v.order or 1,
+					args = {}
+				}
+				newOptions[newK].args[newK] =  {
+					name = L.overwrite,
+					desc = L.overwrite_desc,
+					type = "toggle",
+					order = 1
+				}
+				print("k", k)
+				newOptions[newK].args[k] = v
+				newOptions[newK].args[k].order = 2
+				newOptions[newK].args[k].disabled = function()
+					return not location[newK]
+				end
+			end
+		else
+			newOptions[k] = v
+			newOptions[k].args = generateOverwritableOptions(location, v.args)
+		end
+	end
+	return newOptions
+end
+
+function BattleGroundEnemies:GetModuleOptions(location, options)
+	local moduleOptions = type(options) == "function" and options(location) or options or {}
+	return moduleOptions
+end
+
+function BattleGroundEnemies:AddModulesSettings(location, playerCountConfigDefault, playerType, condidtionFunc)
 	local temp = {}
 	for moduleName, moduleFrame in pairs(self.ButtonModules) do
 
 		local locationn = location.ButtonModules[moduleName]
 
-		temp[moduleName]  = {
-			type = "group",
-			name = moduleFrame.localizedModuleName,
-			order = moduleFrame.order,
-			get =  function(option)
-				return Data.GetOption(locationn, option)
-			end,
-			set = function(option, ...)
-				return Data.SetOption(locationn, option, ...)
-			end,
-			disabled = function() return not BattleGroundEnemies:IsModuleEnabledOnThisExpansion(moduleName) end,
-			childGroups = "tab",
-			args = {
-				Enabled = {
-					type = "toggle",
-					name = VIDEO_OPTIONS_ENABLED,
-					width = "normal",
-					order = 1
-				},
-				PositionSetting = {
-					type = "group",
-					name = L.Position .. " " .. L.AND .. " " .. L.Size,
-					get =  function(option)
-						return Data.GetOption(locationn, option)
-					end,
-					set = function(option, ...)
-						return Data.SetOption(locationn, option, ...)
-					end,
-					disabled  = function() return not locationn.Enabled end,
-					order = 2,
-					args = Data.AddPositionSetting(locationn, moduleName, moduleFrame, playerType)
-				},
-				ModuleSettings = {
-					type = "group",
-					name = L.ModuleSpecificSettings,
-					get =  function(option)
-						return Data.GetOption(locationn, option)
-					end,
-					set = function(option, ...)
-						return Data.SetOption(locationn, option, ...)
-					end,
-					disabled  = function() return not locationn.Enabled or not moduleFrame.options end,
-					order = 3,
-					args = type(moduleFrame.options) == "function" and moduleFrame.options(locationn, playerType) or moduleFrame.options or {}
-				},
-				Reset = {
-					type = "execute",
-					name = L.ResetModule,
-					desc = L.ResetModule_Desc:format(L[playerType], BGSizeToLocale[tonumber(BGSize)]),
-					func = function()
-						location.ButtonModules[moduleName] = copy(defaults.ButtonModules[moduleName])
-						BattleGroundEnemies:NotifyChange()
-					end,
-					width = "full",
-					order = 4,
+		if condidtionFunc(moduleFrame) then
+			temp[moduleName]  = {
+				type = "group",
+				name = moduleFrame.localizedModuleName,
+				order = moduleFrame.order,
+				get =  function(option)
+					return Data.GetOption(locationn, option)
+				end,
+				set = function(option, ...)
+					return Data.SetOption(locationn, option, ...)
+				end,
+				disabled = function() return not BattleGroundEnemies:IsModuleEnabledOnThisExpansion(moduleName) end,
+				childGroups = "tab",
+				args = {
+					Enabled = {
+						type = "toggle",
+						name = VIDEO_OPTIONS_ENABLED,
+						width = "normal",
+						order = 1
+					},
+					ShowGeneralOptions = {
+						type = "execute",
+						name = L.JumpToGeneralOptions,
+						desc = L.JumpToGeneralOptions_Desc,
+						func = function()
+							local optionsPath = {"BattleGroundEnemies", "GeneralSettings", "ButtonModules", moduleName}
+							AceConfigDialog:SelectGroup(unpack(optionsPath))
+						end,
+						hidden = not BattleGroundEnemies.ButtonModules[moduleName].generalOptions,
+						width = "full",
+						order = 2
+					},
+					Reset = {
+						type = "execute",
+						name = L.RestoreDefault,
+						desc = L.ResetModule_Desc:format(L[playerType], BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(location)),
+						func = function()
+							location.ButtonModules[moduleName] = CopyTable(playerCountConfigDefault.ButtonModules[moduleName])
+							BattleGroundEnemies:NotifyChange()
+						end,
+						width = "full",
+						order = 3,
+					},
+					PositionSetting = {
+						type = "group",
+						name = L.Position .. " " .. L.AND .. " " .. L.Size,
+						get =  function(option)
+							return Data.GetOption(locationn, option)
+						end,
+						set = function(option, ...)
+							return Data.SetOption(locationn, option, ...)
+						end,
+						disabled  = function() return not locationn.Enabled end,
+						hidden = moduleFrame.flags.FixedPosition,
+						order = 4,
+						args = Data.AddPositionSetting(locationn, moduleName, moduleFrame, playerType)
+					},
+					ModuleSettings = {
+						type = "group",
+						name = L.ModuleSpecificSettings,
+						get =  function(option)
+							return Data.GetOption(locationn, option)
+						end,
+						set = function(option, ...)
+							return Data.SetOption(locationn, option, ...)
+						end,
+						order = 5,
+						disabled = function() return not locationn.Enabled or not moduleFrame.options end,
+						args = BattleGroundEnemies:GetModuleOptions(locationn, moduleFrame.options),
+						childGroups = "tab"
+					},
+
 				}
 			}
-		}
+		end
+
+
+	end
+	return temp
+end
+
+function BattleGroundEnemies:AddGeneralModuleSettings()
+	local temp = {}
+	for moduleName, moduleFrame in pairs(self.ButtonModules) do
+		if moduleFrame.generalOptions then
+			local locationn = BattleGroundEnemies.db.profile.ButtonModules[moduleName]
+			local defaults = BattleGroundEnemies.db.defaults.profile.ButtonModules[moduleName]
+
+
+			local moduleOptions = self:GetModuleOptions(locationn, moduleFrame.generalOptions)
+
+			temp[moduleName]  = {
+				type = "group",
+				name = moduleFrame.localizedModuleName,
+				order = moduleFrame.order,
+				get =  function(option)
+					return Data.GetOption(locationn, option)
+				end,
+				set = function(option, ...)
+					return Data.SetOption(locationn, option, ...)
+				end,
+				disabled = function() return not BattleGroundEnemies:IsModuleEnabledOnThisExpansion(moduleName) end,
+				hidden = not moduleFrame.generalOptions,
+				childGroups = "tab",
+				args = {
+					Reset = {
+						type = "execute",
+						name = L.RestoreDefault,
+						desc = L.ResetGeneralModule_Desc,
+						func = function()
+							BattleGroundEnemies.db.profile.ButtonModules[moduleName] = CopyTable(defaults)
+							BattleGroundEnemies:NotifyChange()
+						end,
+						width = "full",
+						order = 1,
+					}
+				}
+			}
+			for k,v in pairs(moduleOptions) do
+				temp[moduleName].args[k] = v
+				temp[moduleName].args[k].order = temp[moduleName].args[k].order + 1
+			end
+		end
 	end
 	return temp
 end
@@ -679,7 +837,6 @@ local function addEnemyAndAllySettings(self, mainFrame)
 	local oppositePlayerType = playerType == "Enemies" and "Allies" or "Enemies"
 	local settings = {}
 	local location = BattleGroundEnemies.db.profile[playerType]
-
 
 	settings.GeneralSettings = {
 		type = "group",
@@ -700,33 +857,81 @@ local function addEnemyAndAllySettings(self, mainFrame)
 				desc = "test",
 				order = 1
 			},
-			Fake = Data.AddHorizontalSpacing(2),
-			Fake1 = Data.AddHorizontalSpacing(3),
-			Fake2 = Data.AddHorizontalSpacing(4),
-			CopySettings = {
-				type = "execute",
-				name = L.CopySettings:format(L[oppositePlayerType]),
-				desc = L.CopySettings_Desc:format(L[oppositePlayerType])..L.NotAvailableInCombat,
-				disabled = InCombatLockdown,
-				func = function()
-					BattleGroundEnemies.db.profile[playerType] = copy(BattleGroundEnemies.db.profile[oppositePlayerType])
+			CustomPlayerCountConfigsEnabled = {
+				type = "toggle",
+				name = L.EnableCustomPlayerCountProfiles,
+				desc = L.EnableCustomPlayerCountProfiles_Desc,
+				get =  function(option)
+					return Data.GetOption(location, option)
+				end,
+				set = function(option, ...)
+
+					Data.SetOption(location, option, ...)
 					BattleGroundEnemies:NotifyChange()
 				end,
-				confirm = function() return L.ConfirmProfileOverride:format(L[playerType], L[oppositePlayerType]) end,
+				width = "full",
+				order = 2
+			},
+			CopySettings = {
+				type = "select",
+				name = L.CopySettings,
+				desc = L.Normal.."\n".. L.CopySettingsNormal_Desc.."\n\n"..L.Mirrored..'\n' ..L.CopySettingsMirrored_Desc,
+				get = function() return "" end,
+				set = function(option, value)
+					if value == "Normal" then
+						BattleGroundEnemies.db.profile[playerType] = CopyTable(BattleGroundEnemies.db.profile[oppositePlayerType], false)
+					elseif value == "Mirrored" then
+						BattleGroundEnemies.db.profile[playerType] = BattleGroundEnemies:FlipSettingsHorizontallyRecursive(BattleGroundEnemies.db.profile[oppositePlayerType])
+					end
+					BattleGroundEnemies:NotifyChange()
+				end,
+				values = {
+					Normal = L.Normal..": ".. L[oppositePlayerType],
+					Mirrored = L.Mirrored..": "..L[oppositePlayerType]
+				},
+				confirm = function(t, value)
+					local phrase
+					if value == "Mirrored" then
+						phrase = L.OverwriteMirroredConfirm
+					elseif value == "Normal" then
+						phrase = L.OverwriteNormalConfirm
+					end
+					return phrase:format(L[playerType], L[oppositePlayerType])
+				end,
 				width = "double",
-				order = 5
+				order = 3
+			},
+			LoadDefaults = {
+				type = "execute",
+				name = L.RestoreDefault,
+				func = function()
+					BattleGroundEnemies.db.profile[playerType] = CopyTable(BattleGroundEnemies.db.defaults.profile[playerType], false)
+					BattleGroundEnemies:NotifyChange()
+				end,
+				confirm = function ()
+					return "Are you sure?"
+				end,
+				width = "double",
+				order = 4
 			},
 			RangeIndicator_Settings = {
 				type = "group",
 				name = L.RangeIndicator_Settings,
 				desc = L.RangeIndicator_Settings_Desc,
-				order = 6,
+				order = 7,
 				args = {
+					Reset = {
+						type = "execute",
+						name = L.RestoreDefault,
+						func = addResetFunctionForgroup(location, BattleGroundEnemies.db.defaults.profile[playerType]),
+						width = "full",
+						order = 1,
+					},
 					RangeIndicator_Enabled = {
 						type = "toggle",
 						name = L.RangeIndicator_Enabled,
 						desc = L.RangeIndicator_Enabled_Desc,
-						order = 1
+						order = 2
 					},
 					RangeIndicator_Range = {
 						type = "select",
@@ -740,7 +945,7 @@ local function addEnemyAndAllySettings(self, mainFrame)
 						-- end,
 						-- values =   Data[playerType.."RangeToRange"],
 						values = function()
-							local checkers 
+							local checkers
 							if playerType == "Enemies" then
 								checkers = LRC:GetHarmCheckers(true)
 							else
@@ -753,7 +958,7 @@ local function addEnemyAndAllySettings(self, mainFrame)
 							return ranges
 						end,
 						width = "half",
-						order = 2
+						order = 3
 					},
 					RangeIndicator_Alpha = {
 						type = "range",
@@ -763,9 +968,9 @@ local function addEnemyAndAllySettings(self, mainFrame)
 						min = 0,
 						max = 1,
 						step = 0.05,
-						order = 3
+						order = 4
 					},
-					Fake = Data.AddVerticalSpacing(4),
+					Fake = Data.AddVerticalSpacing(5),
 					RangeIndicator_Everything = {
 						type = "toggle",
 						name = L.RangeIndicator_Everything,
@@ -782,7 +987,6 @@ local function addEnemyAndAllySettings(self, mainFrame)
 						end,
 						set = function(option, key, state)
 							location.RangeIndicator_Frames[key] = state
-							BattleGroundEnemies:ApplyAllSettings()
 						end,
 						width = "double",
 						values = function() return GetAllModuleFrames() end,
@@ -793,28 +997,35 @@ local function addEnemyAndAllySettings(self, mainFrame)
 			KeybindSettings = {
 				type = "group",
 				name = KEY_BINDINGS,
-				desc = L.KeybindSettings_Desc..L.NotAvailableInCombat,
+				desc = L.KeybindSettings_Desc.." "..L.NotAvailableInCombat,
 				disabled = InCombatLockdown,
 				--childGroups = "tab",
-				order = 7,
+				order = 8,
 				args = {
+					Reset = {
+						type = "execute",
+						name = L.RestoreDefault,
+						func = addResetFunctionForgroup(location, BattleGroundEnemies.db.defaults.profile[playerType]),
+						width = "full",
+						order = 1,
+					},
 					ActionButtonUseKeyDown = {
 						type = "toggle",
 						name = ACTION_BUTTON_USE_KEY_DOWN,
 						desc = OPTION_TOOLTIP_ACTION_BUTTON_USE_KEY_DOWN,
-						order = 1,
+						order = 2,
 					},
 					UseClique = {
 						type = "toggle",
 						name = L.EnableClique,
 						desc = L.EnableClique_Desc,
-						order = 2,
+						order = 3,
 						hidden = playerType == "Enemies"
 					},
 					LeftButton = {
 						type = "group",
 						name = KEY_BUTTON1,
-						order = 3,
+						order = 4,
 						disabled = function() return location.UseClique end,
 						args = {
 							LeftButtonType = {
@@ -831,14 +1042,13 @@ local function addEnemyAndAllySettings(self, mainFrame)
 								multiline = true,
 								width = 'double',
 								order = 2
-							},
-
+							}
 						}
 					},
 					RightButton = {
 						type = "group",
 						name = KEY_BUTTON2,
-						order = 4,
+						order = 5,
 						disabled = function() return location.UseClique end,
 						args = {
 							RightButtonType = {
@@ -855,17 +1065,15 @@ local function addEnemyAndAllySettings(self, mainFrame)
 								multiline = true,
 								width = 'double',
 								order = 2
-							},
-
+							}
 						}
 					},
 					MiddleButton = {
 						type = "group",
 						name = KEY_BUTTON3,
-						order = 5,
+						order = 6,
 						disabled = function() return location.UseClique end,
 						args = {
-
 							MiddleButtonType = {
 								type = "select",
 								name = KEY_BUTTON3,
@@ -888,22 +1096,73 @@ local function addEnemyAndAllySettings(self, mainFrame)
 		}
 	}
 
+	local isCustomProfile
+	local playerCountConfigs = BattleGroundEnemies.db.profile[playerType].playerCountConfigs
+	local customPlayerCountConfigs = BattleGroundEnemies.db.profile[playerType].customPlayerCountConfigs
+	local thisPlayerCountConfigs
+	if BattleGroundEnemies.db.profile[playerType].CustomPlayerCountConfigsEnabled then
+		isCustomProfile = true
+		thisPlayerCountConfigs = customPlayerCountConfigs
+	else
+		thisPlayerCountConfigs = BattleGroundEnemies.db.profile[playerType].playerCountConfigs
+	end
 
-	for k, BGSize in pairs({"5", "15", "40"}) do
-		local location = BattleGroundEnemies.db.profile[playerType][BGSize]
-		local defaults = BattleGroundEnemies.db.defaults.profile[playerType][BGSize]
-		settings[BGSize] = {
+	local allConfigs = {}
+	local tables = {playerCountConfigs, customPlayerCountConfigs}
+	for i = 1, #tables do
+		local t = tables[i]
+		for j = 1, #t do
+			table.insert(allConfigs, t[j])
+		end
+	end
+
+	local allPlayerCountConfigOptions = {}
+	for j = 1, #playerCountConfigs do
+		table.insert(allPlayerCountConfigOptions, L[playerType]..": ".. BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(playerCountConfigs[j]))
+	end
+	for k = 1, #customPlayerCountConfigs do
+		table.insert(allPlayerCountConfigOptions, CHANNEL_CATEGORY_CUSTOM.." ".. L[playerType]..": ".. BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(customPlayerCountConfigs[k]))
+	end
+
+
+
+
+	for i = 1, #thisPlayerCountConfigs do
+
+		local location = thisPlayerCountConfigs[i]
+
+		local allConfigsWithoutCurrent = {}
+		local allPlayerCountConfigOptionsWithoutCurrent = {}
+		for j = 1, #allConfigs do
+			if allConfigs[j] ~= location then
+				table.insert(allConfigsWithoutCurrent, location)
+				table.insert(allPlayerCountConfigOptionsWithoutCurrent, allPlayerCountConfigOptions[j])
+			end
+		end
+
+		local playerCountConfigDefaults = BattleGroundEnemies.db.defaults.profile[playerType].playerCountConfigs
+		local playerCountConfigDefault = playerCountConfigDefaults[i]
+
+		local tempInputs = {
+			MinPlayerCount = location.minPlayerCount,
+			MaxPlayerCount = location.maxPlayerCount
+		}
+		-- local playerCountConfigsCopy = CopyTable(playerCountConfigs)
+		-- local playerCountConfigsWithoutCurrentConfig = table.remove(playerCountConfigsCopy, i)
+		-- print("i is ", i, #playerCountConfigsWithoutCurrentConfig)
+		-- print("bla", #playerCountConfigsCopy)
+		settings[BattleGroundEnemies[playerType]:GetPlayerCountConfigName(location)] = {
 			type = "group",
-			name = L["BGSize_"..BGSize],
-			desc = L["BGSize_"..BGSize.."_Desc"]:format(L[playerType]),
-			disabled = function() return not mainFrame.config.Enabled end,
+			name = BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(location),
+			desc = BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(location).."desc",
+			disabled = function() return not mainFrame.playerTypeConfig.Enabled end,
 			get =  function(option)
 				return Data.GetOption(location, option)
 			end,
 			set = function(option, ...)
 				return Data.SetOption(location, option, ...)
 			end,
-			order = k + 1,
+			order = i + 1,
 			args = {
 				Enabled = {
 					type = "toggle",
@@ -911,21 +1170,142 @@ local function addEnemyAndAllySettings(self, mainFrame)
 					desc = "test",
 					order = 1
 				},
-				Fake = Data.AddHorizontalSpacing(2),
+				Fake = Data.AddVerticalSpacing(2),
 				CopySettings = {
-					type = "execute",
-					name = L.CopySettings:format(L[oppositePlayerType]..": "..L["BGSize_"..BGSize]),
-					desc = L.CopySettings_Desc:format(L[oppositePlayerType]..": "..L["BGSize_"..BGSize]),
-					func = function()
-						print("func called")
-						BattleGroundEnemies.db.profile[playerType][BGSize] = copy(BattleGroundEnemies.db.profile[oppositePlayerType][BGSize])
+					type = "select",
+					name = L.CopySettings,
+					get = function() return "" end,
+					set = function(option, value)
+						local minPlayers, maxPlayers = BattleGroundEnemies[playerType]:GetPlayerCountsFromConfig(location)
+						thisPlayerCountConfigs[i] = CopyTable(allConfigsWithoutCurrent[value])
+						thisPlayerCountConfigs[i].minPlayerCount = minPlayers
+						thisPlayerCountConfigs[i].maxPlayerCount = maxPlayers
 						BattleGroundEnemies:NotifyChange()
 					end,
+					values = allPlayerCountConfigOptionsWithoutCurrent,
 					confirm = function()
-						return L.ConfirmProfileOverride:format(L[playerType]..": "..L["BGSize_"..BGSize], L[oppositePlayerType]..": "..L["BGSize_"..BGSize])
+						return L.ConfirmProfileOverride:format(L[playerType]..": "..BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(location), L[playerType]..": "..BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(location))
 					end,
 					width = "double",
 					order = 3
+				},
+				LoadFromDefaultPlayerCountProfile = {
+					type = "select",
+					name = L.RestoreDefault,
+				 	get = function() return "" end,
+						-- set = function(option, value)
+						-- 	value = Data[playerType.."RangeToItemID"][value]
+						-- 	return Data.SetOption(location, option, value)
+						-- end,
+						-- values =   Data[playerType.."RangeToRange"],
+					set = function(option, value)
+						if isCustomProfile then
+							thisPlayerCountConfigs[i] = CopyTable(playerCountConfigDefaults[value])
+						else
+							thisPlayerCountConfigs[i] = CopyTable(playerCountConfigDefault)
+						end
+						BattleGroundEnemies:NotifyChange()
+					end,
+					values = function()
+						local t = {}
+						if isCustomProfile then
+							for j = 1, #playerCountConfigDefaults do
+								t[j] = L[playerType]..": ".. BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(playerCountConfigDefaults[j])
+							end
+						else
+							table.insert(t, L[playerType]..": ".. BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(playerCountConfigDefault))
+						end
+						return t
+					end,
+					confirm = function ()
+						return "Are you sure?"
+					end,
+					width = "double",
+					order = 4
+				},
+				blub = {
+					type = "group",
+					name = "",
+					order = 5,
+					inline = true,
+					hidden = not isCustomProfile,
+					args = {
+						MinPlayerCount = {
+							type = "range",
+							min = 1,
+							max = 40,
+							step = 1,
+							name = L.MinPlayerCount,
+							get = function()
+								return tempInputs.MinPlayerCount
+							end,
+							set = function(option, value)
+								tempInputs.MinPlayerCount = value
+							end,
+							order = 1
+						},
+						MaxPlayerCount = {
+							type = "range",
+							min = 1,
+							max = 40,
+							step = 1,
+							name = L.MaxPlayerCount,
+							get = function()
+								return tempInputs.MaxPlayerCount
+								end,
+							set = function(option, value)
+								tempInputs.MaxPlayerCount = value
+							end,
+							order = 2
+						},
+						ChangePlayerCount = {
+							type = "execute",
+							name = L.Change,
+							func = function(option, value)
+								location.minPlayerCount = tempInputs.MinPlayerCount
+								location.maxPlayerCount = tempInputs.MaxPlayerCount
+								sortByMinPlayerCount(thisPlayerCountConfigs)
+								BattleGroundEnemies:NotifyChange()
+							end,
+							confirm = function()
+								return "Are you sure you want to change this profile so its used for "..tempInputs.MinPlayerCount.." to "..tempInputs.MaxPlayerCount.."players for "..playerType.." ?"
+							end,
+							disabled = function ()
+								return not isValidPlayerCountRange(playerType, thisPlayerCountConfigs, tempInputs,  location)
+							end,
+							order = 3
+						},
+						DeletePlayerCountProfile = {
+							type = "execute",
+							name = "X",
+							desc = L.DeletePlayerCountProfile_Desc .. ": " ..L[playerType]..": "..BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(location),
+							func = function()
+								table.remove(thisPlayerCountConfigs, i)
+								BattleGroundEnemies:NotifyChange()
+							end,
+							confirm = function()
+								return L.ConfirmDeletePlayerCountProfile..": ".. L[playerType]..": "..BattleGroundEnemies[playerType]:GetPlayerCountConfigNameLocalized(location)
+							end,
+							hidden = not isCustomProfile,
+							width = "half",
+							order = 4
+						},
+						errormsg =  {
+							type = "description",
+							fontSize = "large",
+							name = function ()
+								local isGood, errorMessage = isValidPlayerCountRange(playerType, thisPlayerCountConfigs, tempInputs, location)
+								if not isGood then
+									return ERRORS..": ".. errorMessage
+								end
+							end,
+							hidden = function ()
+								if not isCustomProfile then return true end
+								return isValidPlayerCountRange(playerType, thisPlayerCountConfigs, tempInputs, location)
+							end,
+							order = 5
+						}
+					}
 				},
 				MainFrameSettings = {
 					type = "group",
@@ -933,12 +1313,12 @@ local function addEnemyAndAllySettings(self, mainFrame)
 					desc = L.MainFrameSettings_Desc:format(L[playerType == "Enemies" and "enemies" or "allies"]),
 					disabled = function() return not location.Enabled end,
 					--childGroups = "tab",
-					order = 4,
+					order = 6,
 					args = {
 						Framescale = {
 							type = "range",
 							name = L.Framescale,
-							desc = L.Framescale_Desc..L.NotAvailableInCombat,
+							desc = L.Framescale_Desc.." "..L.NotAvailableInCombat,
 							disabled = InCombatLockdown,
 							min = 0.3,
 							max = 2,
@@ -947,7 +1327,7 @@ local function addEnemyAndAllySettings(self, mainFrame)
 						},
 						PlayerCount = {
 							type = "group",
-							name = L.PlayerCount_Enabled,
+							name = "",
 							get = function(option)
 								return Data.GetOption(location.PlayerCount, option)
 							end,
@@ -959,114 +1339,184 @@ local function addEnemyAndAllySettings(self, mainFrame)
 							args = {
 								Enabled = {
 									type = "toggle",
-									name = L.PlayerCount_Enabled,
+									name = L.PlayerCount,
 									desc = L.PlayerCount_Enabled_Desc,
 									order = 1
-								},
-								PlayerCountTextSettings = {
-									type = "group",
-									name = L.TextSettings,
-									disabled = function() return not location.PlayerCount.Enabled end,
-									get = function(option)
-										return Data.GetOption(location.PlayerCount.Text, option)
-									end,
-									set = function(option, ...)
-										return Data.SetOption(location.PlayerCount.Text, option, ...)
-									end,
-									inline = true,
-									order = 2,
-									args = Data.AddNormalTextSettings(location.PlayerCount.Text)
 								}
 							}
 						}
 					}
 				},
-				BarSettings = {
+				ButtonSettings = {
 					type = "group",
 					name = L.Button,
 					disabled = function() return not location.Enabled end,
 					--childGroups = "tab",
-					order = 5,
+					order = 7,
 					args = {
+						Reset = {
+							type = "execute",
+							name = L.RestoreDefault,
+							func = addResetFunctionForgroup(location, playerCountConfigDefault, true),
+							width = "full",
+							order = 1,
+						},
 						BarWidth = {
 							type = "range",
 							name = L.Width,
-							desc = L.BarWidth_Desc..L.NotAvailableInCombat,
+							desc = L.BarWidth_Desc.." "..L.NotAvailableInCombat,
 							disabled = InCombatLockdown,
 							min = 1,
 							max = 400,
 							step = 1,
-							order = 1
+							order = 2
 						},
 						BarHeight = {
 							type = "range",
 							name = L.Height,
-							desc = L.BarHeight_Desc..L.NotAvailableInCombat,
+							desc = L.BarHeight_Desc.." "..L.NotAvailableInCombat,
 							disabled = InCombatLockdown,
 							min = 1,
 							max = 100,
 							step = 1,
-							order = 2
+							order = 3
 						},
 						BarVerticalGrowdirection = {
 							type = "select",
 							name = L.VerticalGrowdirection,
-							desc = L.VerticalGrowdirection_Desc..L.NotAvailableInCombat,
+							desc = L.VerticalGrowdirection_Desc.." "..L.NotAvailableInCombat,
 							disabled = InCombatLockdown,
 							values = Data.VerticalDirections,
-							order = 3
+							order = 4
 						},
 						BarVerticalSpacing = {
 							type = "range",
 							name = L.VerticalSpacing,
-							desc = L.VerticalSpacing..L.NotAvailableInCombat,
+							desc = L.VerticalSpacing.." "..L.NotAvailableInCombat,
 							disabled = InCombatLockdown,
 							min = 0,
 							max = 100,
 							step = 1,
-							order = 4
+							order = 5
 						},
 						BarColumns = {
 							type = "range",
 							name = L.Columns,
-							desc = L.Columns_Desc..L.NotAvailableInCombat,
+							desc = L.Columns_Desc.." "..L.NotAvailableInCombat,
 							disabled = InCombatLockdown,
 							min = 1,
 							max = 4,
 							step = 1,
-							order = 5
+							order = 6
 						},
 						BarHorizontalGrowdirection = {
 							type = "select",
 							name = L.VerticalGrowdirection,
-							desc = L.VerticalGrowdirection_Desc..L.NotAvailableInCombat,
+							desc = L.VerticalGrowdirection_Desc.." "..L.NotAvailableInCombat,
 							hidden = function() return location.BarColumns < 2 end,
 							disabled = InCombatLockdown,
 							values = Data.HorizontalDirections,
-							order = 6
+							order = 7
 						},
 						BarHorizontalSpacing = {
 							type = "range",
 							name = L.HorizontalSpacing,
-							desc = L.HorizontalSpacing..L.NotAvailableInCombat,
+							desc = L.HorizontalSpacing.." "..L.NotAvailableInCombat,
 							hidden = function() return location.BarColumns < 2 end,
 							disabled = InCombatLockdown,
 							min = 0,
 							max = 400,
 							step = 1,
-							order = 7
-						},
-						ModuleSettings = {
-							type = "group",
-							name = L.ModuleSettings,
-							order = 8,
-							args = self:AddModuleSettings(location, defaults, playerType, BGSize)
+							order = 8
 						}
 					}
+				},
+				ModuleSettings = {
+					type = "group",
+					name = L.Modules,
+					order = 8,
+					args = self:AddModulesSettings(location, playerCountConfigDefault, playerType, function(options) return not options.attachSettingsToButton end)
 				}
 			}
 		}
+		Mixin(settings[BattleGroundEnemies[playerType]:GetPlayerCountConfigName(location)].args.ButtonSettings.args, self:AddModulesSettings(location, playerCountConfigDefault, playerType, function(options) return options.attachSettingsToButton end))
 	end
+
+	local inputs = {
+		MinPlayerCount = 1,
+		MaxPlayerCount = 1
+	}
+
+	settings.NewPlayerCountProfile = {
+		type = "group",
+		name = "+",
+		childGroups = "tab",
+		order = #playerCountConfigs + 2,
+		hidden = not isCustomProfile,
+		args = {
+			MinPlayerCount = {
+				type = "range",
+				min = 1,
+				max = 40,
+				step = 1,
+				name = L.MinPlayerCount,
+				get = function()
+					return inputs.MinPlayerCount
+				end,
+				set = function(option, value)
+					inputs.MinPlayerCount = value
+				end,
+				order = 1
+			},
+			MaxPlayerCount = {
+				type = "range",
+				min = 1,
+				max = 40,
+				step = 1,
+				name = L.MaxPlayerCount,
+				get = function()
+					return inputs.MaxPlayerCount
+					end,
+				set = function(option, value)
+					inputs.MaxPlayerCount = value
+				end,
+				order = 2
+			},
+			BaseProfile = {
+				type = "select",
+				name = L.CopyFrom,
+				get = function() return "" end,
+				set = function(option, value)
+					table.insert(thisPlayerCountConfigs, CopyTable(allConfigs[value]))
+					thisPlayerCountConfigs[#thisPlayerCountConfigs].minPlayerCount = inputs.MinPlayerCount
+					thisPlayerCountConfigs[#thisPlayerCountConfigs].maxPlayerCount = inputs.MaxPlayerCount
+					sortByMinPlayerCount(thisPlayerCountConfigs)
+					BattleGroundEnemies:NotifyChange()
+				end,
+				values = allPlayerCountConfigOptions,
+				disabled = function ()
+					return not isValidPlayerCountRange(playerType, thisPlayerCountConfigs, inputs)
+				end,
+				width = "double",
+				order = 3
+			},
+			errormsg =  {
+				type = "description",
+				fontSize = "large",
+				name = function ()
+					local isGood, errorMessage = isValidPlayerCountRange(playerType, thisPlayerCountConfigs, inputs)
+					if not isGood then
+						return ERRORS..": ".. errorMessage
+					end
+				end,
+				hidden = function ()
+					return isValidPlayerCountRange(playerType, thisPlayerCountConfigs, inputs)
+				end,
+				order = 4,
+			},
+
+		}
+	}
 	return settings
 end
 
@@ -1095,25 +1545,39 @@ function BattleGroundEnemies:SetupOptions()
 				inline = true,
 				order = 1,
 				args = {
-					Testmode_BGSize = {
-						type = "select",
-						name = L.BattlegroundSize,
-						order = 1,
-						get = function() return self.Testmode.BGSizeTestmode end,
+					Testmode_PlayerCount = {
+						type = "range",
+						name = L.PlayerCount,
+						disabled = InCombatLockdown,
+						min = 1,
+						max = 40,
+						step = 1,
+						get = function() return self.Testmode.PlayerCountTestmode end,
 						set = function(option, value)
-							self.Testmode.BGSizeTestmode = value
+							self.Testmode.PlayerCountTestmode = value
 							if self.Testmode.Active then
 								self:CreateFakePlayers()
 							end
+							if self.Editmode.Active then
+								BattleGroundEnemies.EditMode.EditModeManager:OpenEditmode()
+							end
 						end,
-						values = BGSizeToLocale
+						order = 1
 					},
 					Testmode_Enabled = {
 						type = "execute",
 						name = L.Testmode_Toggle,
 						desc = L.Testmode_Toggle_Desc,
-						disabled = function() return InCombatLockdown() or (self:IsShown() and not self.Testmode.Active) or not self.BGSize end,
+						disabled = function() return InCombatLockdown() or (self:IsShown() and not self.Testmode.Active) or self.Editmode.Active end,
 						func = self.ToggleTestmode,
+						order = 2
+					},
+					Editmode_Enabled = {
+						type = "execute",
+						name = L.Editmode_Toggle,
+						desc = L.Editmode_Toggle_Desc,
+						disabled = function() return InCombatLockdown() or (self:IsShown() and not self.Editmode.Active)end,
+						func = self.ToggleEditmode,
 						order = 2
 					},
 					Testmode_ToggleAnimation = {
@@ -1136,7 +1600,7 @@ function BattleGroundEnemies:SetupOptions()
 			},
 			GeneralSettings = {
 				type = "group",
-				name = L.GeneralSettings,
+				name = GENERAL,
 				desc = L.GeneralSettings_Desc,
 				order = 2,
 				args = {
@@ -1146,107 +1610,293 @@ function BattleGroundEnemies:SetupOptions()
 						desc = L.Locked_Desc,
 						order = 1
 					},
-					DisableArenaFramesInArena = {
+					ShowBGEInArena = {
 						type = "toggle",
-						name = L.DisableArenaFramesInArena,
-						desc = L.DisableArenaFramesInArena_Desc,
-						set = function(option, value)
-							Data.SetOption(location, option, value)
-							self:ToggleArenaFrames()
-						end,
+						name = L.EnableInArenas,
+						order = 2
+					},
+					ShowBGEInBattleground = {
+						type = "toggle",
+						name = L.EnableInBattlegrounds,
 						order = 3
 					},
-					DisableArenaFramesInBattleground = {
-						type = "toggle",
-						name = L.DisableArenaFramesInBattleground,
-						desc = L.DisableArenaFramesInBattleground_Desc,
-						set = function(option, value)
-							Data.SetOption(location, option, value)
-							self:ToggleArenaFrames()
+					miscellaneous = {
+						type = "group",
+						name = MISCELLANEOUS,
+						order = 4,
+						args = {
+							Reset = {
+								type = "execute",
+								name = L.RestoreDefault,
+								func = addResetFunctionForgroup(BattleGroundEnemies.db.profile, BattleGroundEnemies.db.defaults.profile),
+								width = "full",
+								order = 1,
+							},
+							EnableMouseWheelPlayerTargeting = {
+								type = "toggle",
+								name = L.MouseWheelPlayerTargeting,
+								desc = L.MouseWheelPlayerTargeting_Desc,
+								order = 2
+							},
+							ShowTooltips = {
+								type = "toggle",
+								name = L.ShowTooltips,
+								desc = L.ShowTooltips_Desc,
+								order = 3
+							},
+							ConvertCyrillic = {
+								type = "toggle",
+								name = L.ConvertCyrillic,
+								desc = L.ConvertCyrillic_Desc,
+								width = "normal",
+								order = 4
+							},
+							RoleSortingOrder = {
+								type = "select",
+								name = L.RoleSortingOrder,
+								desc = L.RoleSortingOrder_Desc,
+								values = function ()
+									local roles = Data.PlayerRoles
+									local allRolePermutations = Data.Helpers.permgen(roles)
+
+									local result = {}
+									for _, perm in ipairs(allRolePermutations) do
+										local key = table.concat(perm, "_")
+										local values = {}
+
+										for _, role in ipairs(perm) do
+											table.insert(values, _G[role])
+										end
+										result[key] = table.concat(values, " > ")
+									end
+
+									return result
+								end,
+								width = "double",
+							},
+							HideArenaframesIn = {
+								type = "group",
+								name = L.HideArenaframesIn,
+								inline = true,
+								order = 7,
+								args = {
+									DisableArenaFramesInArena = {
+										type = "toggle",
+										name = ARENA,
+										order = 1
+									},
+									DisableArenaFramesInBattleground = {
+										type = "toggle",
+										name = BATTLEFIELDS,
+										order = 2
+									}
+								}
+							},
+							HideRaidframesIn = {
+								type = "group",
+								name = L.HideRaidframesIn,
+								inline = true,
+								order = 8,
+								args = {
+									DisableRaidFramesInArena = {
+										type = "toggle",
+										name = ARENA,
+										order = 1
+									},
+									DisableRaidFramesInBattleground = {
+										type = "toggle",
+										name = BATTLEFIELDS,
+										order = 2
+									}
+								}
+							},
+							MyTarget = {
+								type = "group",
+								name = L.MyTarget,
+								inline = true,
+								order = 9,
+								args = {
+									MyTarget_Color = {
+										type = "color",
+										name = L.Color,
+										desc = L.MyTarget_Color_Desc,
+										hasAlpha = true,
+										order = 1
+									},
+									MyTarget_BorderSize = {
+										type = "range",
+										name = L.BorderSize,
+										min = 1,
+										max = 5,
+										step = 1,
+										order = 2
+									}
+								}
+							},
+							MyFocus = {
+								type = "group",
+								name = L.MyFocus,
+								inline = true,
+								order = 10,
+								args = {
+									MyFocus_Color = {
+										type = "color",
+										name = L.Color,
+										desc = L.MyFocus_Color_Desc,
+										hasAlpha = true,
+										order = 1
+									},
+									MyFocus_BorderSize = {
+										type = "range",
+										name = L.BorderSize,
+										min = 1,
+										max = 5,
+										step = 1,
+										order = 2
+									}
+								}
+							},
+
+						}
+					},
+					DataSettings = {
+						type = "group",
+						name = L.Data,
+						childGroups = "tab",
+						order = 5,
+						args = {
+							Reset = {
+								type = "execute",
+								name = L.RestoreDefault,
+								func = addResetFunctionForgroup(BattleGroundEnemies.db.profile, BattleGroundEnemies.db.defaults.profile),
+								width = "full",
+								order = 1,
+							},
+							UseBigDebuffsPriority = {
+								type = "toggle",
+								name = L.UseBigDebuffsPriority,
+								desc = L.UseBigDebuffsPriority_Desc:format(L.Buffs, L.Debuffs, L.HighestPriorityAura),
+								width = "full",
+								order = 2
+							},
+						}
+					},
+					CooldownSettings = {
+						type = "group",
+						name = L.Cooldown,
+						get = function(option)
+							return Data.GetOption(location.Cooldown, option)
 						end,
-						order = 4
-					},
-					ShowTooltips = {
-						type = "toggle",
-						name = L.ShowTooltips,
-						desc = L.ShowTooltips_Desc,
-						order = 5
-					},
-					ConvertCyrillic = {
-						type = "toggle",
-						name = L.ConvertCyrillic,
-						desc = L.ConvertCyrillic_Desc,
-						width = "normal",
+						set = function(option, ...)
+							return Data.SetOption(location.Cooldown, option, ...)
+						end,
+						args = {
+							Reset = {
+								type = "execute",
+								name = L.RestoreDefault,
+								func = function()
+									location.Cooldown = CopyTable(BattleGroundEnemies.db.defaults.profile.Cooldown)
+									BattleGroundEnemies:NotifyChange()
+								end,
+								width = "full",
+								order = 1,
+							},
+							ShowNumber = {
+								type = "toggle",
+								name = L.ShowNumbers,
+								desc = L.ShowNumbers_Desc,
+								order = 2
+							},
+							DrawSwipe = {
+								type = "toggle",
+								name = L.Enable_DrawSwipe,
+								desc = L.Enable_DrawSwipe_Desc,
+								order = 3
+							}
+						},
 						order = 6
 					},
-					Font = {
-						type = "select",
-						name = L.Font,
-						desc = L.Font_Desc,
-						dialogControl = "LSM30_Font",
-						values = AceGUIWidgetLSMlists.font,
-						order = 9
-					},
-					MyTarget = {
+					TextSettings = {
 						type = "group",
-						name = L.MyTarget,
-						inline = true,
-						order = 10,
+						name = L.Text,
+						get = function(option)
+							return Data.GetOption(location.Text, option)
+						end,
+						set = function(option, ...)
+							return Data.SetOption(location.Text, option, ...)
+						end,
 						args = {
-							MyTarget_Color = {
-								type = "color",
-								name = L.Color,
-								desc = L.MyTarget_Color_Desc,
-								hasAlpha = true,
-								order = 1
+							Reset = {
+								type = "execute",
+								name = L.RestoreDefault,
+								func = function()
+									location.Text = CopyTable(BattleGroundEnemies.db.defaults.profile.Text)
+									BattleGroundEnemies:NotifyChange()
+								end,
+								width = "full",
+								order = 1,
 							},
-							MyTarget_BorderSize = {
-								type = "range",
-								name = L.BorderSize,
-								min = 1,
-								max = 5,
-								step = 1,
+							Font = {
+								type = "select",
+								name = L.Font,
+								desc = L.Font_Desc,
+								dialogControl = "LSM30_Font",
+								values = AceGUIWidgetLSMlists.font,
 								order = 2
-							}
-						}
-					},
-					MyFocus = {
-						type = "group",
-						name = L.MyFocus,
-						inline = true,
-						order = 11,
-						args = {
-							MyFocus_Color = {
-								type = "color",
-								name = L.Color,
-								desc = L.MyFocus_Color_Desc,
-								hasAlpha = true,
-								order = 1
 							},
-							MyFocus_BorderSize = {
-								type = "range",
-								name = L.BorderSize,
-								min = 1,
-								max = 5,
-								step = 1,
-								order = 2
+							FontColor = {
+								type = "color",
+								name = L.Fontcolor,
+								desc = L.Fontcolor_Desc,
+								hasAlpha = true,
+								order = 3
+							},
+							Fake = Data.AddVerticalSpacing(4),
+							FontOutline = {
+								type = "select",
+								name = L.Font_Outline,
+								desc = L.Font_Outline_Desc,
+								values = FontOutlines,
+								order = 5
+							},
+							Fake1 = Data.AddVerticalSpacing(6),
+							EnableShadow = {
+								type = "toggle",
+								name = L.FontShadow_Enabled,
+								desc = L.FontShadow_Enabled_Desc,
+								order = 7
+							},
+							ShadowColor = {
+								type = "color",
+								name = L.FontShadowColor,
+								desc = L.FontShadowColor_Desc,
+								disabled = function()
+									return not location.Text.EnableShadow
+								end,
+								hasAlpha = true,
+								order = 8
 							}
-						}
-					}
-				}
-			},
-			DataSettings = {
-				type = "group",
-				name = L.Data,
-				childGroups = "tab",
-				order = 3,
-				args = {
-					UseBigDebuffsPriority = {
-						type = "toggle",
-						name = L.UseBigDebuffsPriority,
-						desc = L.UseBigDebuffsPriority_Desc:format(L.Buffs, L.Debuffs, L.HighestPriorityAura),
+						},
 						order = 7
 					},
+					PlayerCount = {
+						type = "group",
+						name = L.PlayerCount,
+						get = function(option)
+							return Data.GetOption(location.PlayerCount.Text, option)
+						end,
+						set = function(option, ...)
+							return Data.SetOption(location.PlayerCount.Text, option, ...)
+						end,
+						order = 8,
+						args = Data.AddNormalTextSettings(location.PlayerCount.Text, BattleGroundEnemies.db.defaults.profile.PlayerCount.Text)
+					},
+					ButtonModules = {
+						type = "group",
+						name = L.Modules,
+						args = self:AddGeneralModuleSettings(),
+						order = 9
+					}
 				}
 			},
 			EnemySettings = {
@@ -1433,11 +2083,16 @@ function BattleGroundEnemies:SetupOptions()
 						type = "execute",
 						name = L.ExportButton,
 						desc = L.ExportButton_Desc,
-						func = function()
-							BattleGroundEnemies:ExportDataViaPrint(BattleGroundEnemies.db.profile)
+						func = function ()
+							return BattleGroundEnemies:ExportButtonPressed()
 						end,
 						order = 2,
-					}
+					},
+					-- shareActiveProfile = {
+					-- 	type = "toggle",
+					-- 	name = L.EnableProfileSharing,
+					-- 	desc = L.EnableProfileSharing_Desc
+					-- }
 				}
 			}
 		}

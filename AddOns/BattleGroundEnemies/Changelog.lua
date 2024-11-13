@@ -1,6 +1,50 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
 
 Data.changelog = {
+	{
+		Version = "11.0.5.1",
+		General = "Tons of new features and changes arrived aiming to make the addon much easier to setup by trimming down the settings and by adding the new editmode. Checkout the full list below if you wanna know more :). Unfortunately due to many settings being global now it means that the settings will get reset to defaults. Since the changes are quite signifficant please let me know if you are facing any problems.",
+		Sections = {
+			{
+				Header = "New Features:",
+				Entries = {
+					"Added an Editmode to the addon, it works similar to Blizzards Editmode so it enables you to drag and drop and snap frames to other frames. When you select a frame the options panel will jump to the setting of that particular module.",
+					"Made most of the settings global, meaning they apply no matter if its an enemy or ally and no matter the player count.",
+					"Added an option to copy over all settings from allies to enemies and vice versa, You can also choose to mirror the settings visually",
+					"Added multiple keybind related features: By default you are now able to target the next or previous enemy or ally by scrolling over the ally or enemy frame. Also added 4 new keybinding settings to the blizzard keybinding section. You will now find BattleGroundEnemies there.",
+					"Added Deephaul Crystal to bg buffs",
+					"Added new global module settings for DR tracker, you can now specify a specific icon to show up for each dr category. You can find this new setting at General > Modules",
+					"Added a feature requested by RealJig at GitHub: You can now select to automatically hide the default Blizzard raid frames in a battleground. You can find this settings at General > Miscellaneous",
+					"Added the possibility to create individual subprofiles for player counts, this enables you finer control over positioning of your frames.",
+					"You can now specify a player count from 1 to 40 for the testmode. This enabled you more control over the various settings depending on how many players are shown.",
+					"Added combat indicator to testmode",
+					"Added a new option to choose the role sorting order as requested by Hoffahoff from CurseForge",
+				}
+			},
+			{
+				Header = "Changes:",
+				Entries = {
+					"Reworked the way the modules for spec and class and priority aura/interrupt work. They are now merged into one module to make it compatible with the new editmode. There are now two of this new modules, this will allow you to still see the class or spec of a player even if an aura is active, second module is disabled by default.",
+					"New spec class priority module now offers more modern class icons",
+					"Set respawn time to 15 seconds for solo rated battlegrounds."
+				}
+			},
+			{
+				Header = "Bugfix",
+				Entries = {
+					"Fixed not showing up enemies in battlegrounds",
+					"Fixed a bug related to the factions not being set correctly, which caused an error",
+					"Fixed an error reported by Addonman on GitHub",
+					"Fixed DrTracker cooldown",
+					"Fixed racials and trinket in testmode",
+					"Fixed error reported by xenoyearner on Curseforge"
+				}
+			}
+		}
+	},
 	{
 		Version = "11.0.5.0",
 		General = "Fixed errors and removed message for missing localizations",

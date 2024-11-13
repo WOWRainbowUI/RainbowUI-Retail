@@ -1,6 +1,6 @@
 ## Interface: 110005
 ## Title: BattleGroundEnemies
-## Version: 11.0.5.0
+## Version: 11.0.5.1
 ## Author: Bullsei
 ## SavedVariables: BattleGroundEnemiesDB
 ## OptionalDeps: Ace3, LibStub, LibRaces-1.0, UTF8, DRList-1.0, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets
@@ -17,13 +17,23 @@ Libs\LibGroupInSpecT-1.1\lib.xml
 
 Locales.lua
 
+Helpers.lua
 Data.lua
 Defaults.lua
 Main.lua
+dbupgrades.lua
 Messaging.lua
 TargetCall.lua
 Changelog.lua
 ImportExport.lua
+Mainframe.lua
+PlayerButton.lua
+
+Editmode\EditModeMixins.lua
+Editmode\EditModeUtil.lua
+Editmode\EditModeManagerMixin.lua
+Editmode\EditMode.lua
+Editmode\ShrinkUntilTruncateFontStringMixin.lua
 
 Modules\ContainerTemplate.lua
 Modules\Auras.lua
@@ -33,7 +43,6 @@ Modules\CombatIndicator.lua
 Modules\Covenant.lua
 Modules\DR.lua
 Modules\HealthBar.lua
-Modules\HighestActivePriority.lua
 Modules\Level.lua
 Modules\Name.lua
 Modules\ObjectiveAndRespawn.lua
@@ -41,7 +50,7 @@ Modules\Power.lua
 Modules\Racial.lua
 Modules\RaidTargetIcon.lua
 Modules\Role.lua
-Modules\SpecAndClass.lua
+Modules\SpecClassProirity.lua
 Modules\TargetIndicatorNumeric.lua
 Modules\TargetIndicatorSymbolic.lua
 Modules\Trinket.lua

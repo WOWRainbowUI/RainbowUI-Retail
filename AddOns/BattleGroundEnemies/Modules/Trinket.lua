@@ -1,4 +1,8 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
 local CreateFrame = CreateFrame
@@ -17,13 +21,9 @@ local defaultSettings = {
 	Parent = "Button",
 	UseButtonHeightAsHeight = true,
 	UseButtonHeightAsWidth = true,
+	ActivePoints = 1,
 	Cooldown = {
-		ShowNumber = true,
 		FontSize = 12,
-		FontOutline = "OUTLINE",
-		EnableShadow = false,
-		DrawSwipe = true,
-		ShadowColor = {0, 0, 0, 1},
 	}
 }
 
@@ -50,7 +50,7 @@ local trinket = BattleGroundEnemies:NewButtonModule({
 	localizedModuleName = L.Trinket,
 	defaultSettings = defaultSettings,
 	options = options,
-	events = {"ShouldQueryAuras", "CareAboutThisAura", "NewAura", "SPELL_CAST_SUCCESS"},
+	events = {"ShouldQueryAuras", "NewAura", "SPELL_CAST_SUCCESS"},
 	enabledInThisExpansion = true
 })
 
@@ -90,7 +90,7 @@ function trinket:AttachToPlayerButton(playerButton)
 			local trinketCD=Data.TrinketData[spellId].cd or 0
 			
 			-- If healer in retail reduce 2 min trinkets to 90 seconds.
-			if IsRetail and playerButton.PlayerDetails.PlayerRoleNumber == 1 and trinketCD == 120 then
+			if IsRetail and playerButton.PlayerDetails.PlayerRole == "HEALER" and trinketCD == 120 then
 				trinketCD=90
 			end
 			self:SetTrinketCooldown(GetTime(), trinketCD)
@@ -125,15 +125,6 @@ function trinket:AttachToPlayerButton(playerButton)
 	function frame:ShouldQueryAuras(unitID, filter)
 		return filter == "HARMFUL"
 	end
-
-
-	function frame:CareAboutThisAura(unitID, filter, aura)
-		local spellId = aura.spellId
-		if spellId == 336139 then return true end
-
-		return not self.spellId and Data.cCdurationBySpellID[spellId]
-	end
-
 
 	function frame:NewAura(unitID, filter, aura)
 		if filter == "HELPFUL" then return end
@@ -192,4 +183,5 @@ function trinket:AttachToPlayerButton(playerButton)
 		self.Cooldown:ApplyCooldownSettings(moduleSettings.Cooldown, false, {0, 0, 0, 0.5})
 	end
 	playerButton.Trinket = frame
+	return playerButton.Trinket
 end

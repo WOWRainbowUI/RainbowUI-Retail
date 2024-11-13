@@ -1,4 +1,8 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
 
@@ -28,7 +32,7 @@ local defaultSettings = {
 
 }
 
-local options = function(location, playerType)
+local options = function(location)
 	return {
 		IconWidth = {
 			type = "range",
@@ -66,7 +70,8 @@ local symbolicTargetIndicator = BattleGroundEnemies:NewButtonModule({
 	defaultSettings = defaultSettings,
 	options = options,
 	events = {"UpdateTargetIndicators"},
-	enabledInThisExpansion = true
+	enabledInThisExpansion = true,
+	attachSettingsToButton = true
 })
 
 function symbolicTargetIndicator:AttachToPlayerButton(playerButton)
@@ -119,4 +124,5 @@ function symbolicTargetIndicator:AttachToPlayerButton(playerButton)
 			self:SetSizeAndPosition(i)
 		end
 	end
+	return playerButton.TargetIndicatorSymbolic
 end

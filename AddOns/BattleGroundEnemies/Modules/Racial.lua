@@ -1,4 +1,8 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
 
@@ -8,6 +12,10 @@ local GameTooltip = GameTooltip
 local GetSpellTexture = C_Spell and C_Spell.GetSpellTexture or GetSpellTexture
 
 
+local generalDefaults = {
+	Filtering_Enabled = false,
+	Filtering_Filterlist = {}, --key = spellId, value = spellName or false
+}
 
 
 local defaultSettings = {
@@ -15,17 +23,43 @@ local defaultSettings = {
 	Parent = "Button",
 	UseButtonHeightAsHeight = true,
 	UseButtonHeightAsWidth = true,
+	ActivePoints = 1,
 	Cooldown = {
-		ShowNumber = true,
 		FontSize = 12,
-		FontOutline = "OUTLINE",
-		EnableShadow = false,
-		DrawSwipe = true,
-		ShadowColor = {0, 0, 0, 1},
 	},
-	Filtering_Enabled = false,
-	Filtering_Filterlist = {}, --key = spellId, value = spellName or false
+
 }
+local generalOptions = function(location)
+	return {
+		Filtering_Enabled = {
+			type = "toggle",
+			name = L.Filtering_Enabled,
+			desc = L.RacialFiltering_Enabled_Desc,
+			width = 'normal',
+			order = 1
+		},
+		Fake = Data.AddHorizontalSpacing(2),
+		Filtering_Filterlist = {
+			type = "multiselect",
+			name = L.Filtering_Filterlist,
+			desc = L.RacialFiltering_Filterlist_Desc,
+			disabled = function() return not location.Filtering_Enabled end,
+			get = function(option, key)
+				for spellId in pairs(Data.RacialNameToSpellIDs[key]) do
+					return location.Filtering_Filterlist[spellId]
+				end
+			end,
+			set = function(option, key, state) -- value = spellname
+				for spellId in pairs(Data.RacialNameToSpellIDs[key]) do
+					location.Filtering_Filterlist[spellId] = state or nil
+				end
+			end,
+			values = Data.Racialnames,
+			order = 3
+		}
+	}
+end
+
 
 local options = function(location)
 	return {
@@ -41,41 +75,6 @@ local options = function(location)
 			end,
 			order = 1,
 			args = Data.AddCooldownSettings(location.Cooldown)
-		},
-		RacialFilteringSettings = {
-			type = "group",
-			name = FILTER,
-			desc = L.RacialFilteringSettings_Desc,
-			--inline = true,
-			order = 2,
-			args = {
-				Filtering_Enabled = {
-					type = "toggle",
-					name = L.Filtering_Enabled,
-					desc = L.RacialFiltering_Enabled_Desc,
-					width = 'normal',
-					order = 1
-				},
-				Fake = Data.AddHorizontalSpacing(2),
-				Filtering_Filterlist = {
-					type = "multiselect",
-					name = L.Filtering_Filterlist,
-					desc = L.RacialFiltering_Filterlist_Desc,
-					disabled = function() return not location.Filtering_Enabled end,
-					get = function(option, key)
-						for spellId in pairs(Data.RacialNameToSpellIDs[key]) do
-							return location.Filtering_Filterlist[spellId]
-						end
-					end,
-					set = function(option, key, state) -- value = spellname
-						for spellId in pairs(Data.RacialNameToSpellIDs[key]) do
-							location.Filtering_Filterlist[spellId] = state or nil
-						end
-					end,
-					values = Data.Racialnames,
-					order = 3
-				}
-			}
 		}
 	}
 end
@@ -84,7 +83,9 @@ local racial = BattleGroundEnemies:NewButtonModule({
 	moduleName = "Racial",
 	localizedModuleName = L.Racial,
 	defaultSettings = defaultSettings,
+	generalDefaults = generalDefaults,
 	options = options,
+	generalOptions = generalOptions,
 	events = {"SPELL_CAST_SUCCESS"},
 	enabledInThisExpansion = true
 })
@@ -116,6 +117,12 @@ function racial:AttachToPlayerButton(playerButton)
 	function frame:ApplyAllSettings()
 		local moduleSettings = self.config
 		self.Cooldown:ApplyCooldownSettings(moduleSettings.Cooldown, false, {0, 0, 0, 0.5})
+
+		if self.spellId then
+			if moduleSettings.Filtering_Enabled and not moduleSettings.Filtering_Filterlist[self.spellId] then 
+				self:Reset()
+			end
+		end
 	end
 
 
@@ -137,7 +144,7 @@ function racial:AttachToPlayerButton(playerButton)
 			insi.Cooldown:SetCooldown(GetTime(), Data.RacialSpellIDtoCooldown[spellId].trinketCD)
 		end
 
-		if config.RacialFiltering_Enabled and not config.RacialFiltering_Filterlist[spellId] then return end
+		if config.Filtering_Enabled and not config.Filtering_Filterlist[spellId] then return end
 
 		self.spellId = spellId
 		self.Icon:SetTexture(GetSpellTexture(spellId))
@@ -148,4 +155,5 @@ function racial:AttachToPlayerButton(playerButton)
 		self:RacialCheck(spellId)
 	end
 	playerButton.Racial = frame
+	return playerButton.Racial
 end

@@ -1,22 +1,373 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+
+local allieDefaults15man = {
+	Enabled = true,
+	minPlayerCount = 6,
+	maxPlayerCount = 15,
+
+	Position_X = 150,
+	Position_Y = 600,
+	BarWidth = 180,
+	BarHeight = 28,
+	BarVerticalGrowdirection = "downwards",
+	BarVerticalSpacing = 3,
+	BarColumns = 1,
+	BarHorizontalGrowdirection = "rightwards",
+	BarHorizontalSpacing = 100,
+	
+	PlayerCount = {
+		Enabled = true,
+	},
+
+	ButtonModules = {
+		CastBar = {
+			Enabled = false,
+			Points = {
+				{
+					Point = "LEFT",
+					RelativeFrame = "SpecClassPriorityOne",
+					RelativePoint = "RIGHT",
+					OffsetX = 28,
+				},
+			},
+		},
+		Cooldowns = {
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "Racial",
+					RelativePoint = "TOPRIGHT",
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "rightwards",
+				VerticalGrowdirection = "downwards",
+			},
+		},
+		DRTracking = {
+			Points = {
+				{
+					Point = "BOTTOMLEFT",
+					RelativeFrame = "SpecClassPriorityOne",
+					RelativePoint = "BOTTOMRIGHT",
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "rightwards",
+				VerticalGrowdirection = "downwards",
+			},
+		},
+		NonPriorityBuffs = {
+			Enabled = false,
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "PriorityDebuffs",
+					RelativePoint = "TOPRIGHT",
+					OffsetX = 2,
+					OffsetY = 0
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "rightwards",
+				VerticalGrowdirection = "downwards",
+			},
+		},
+		NonPriorityDebuffs = {
+			Enabled = false,
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "NonPriorityBuffs",
+					RelativePoint = "TOPRIGHT",
+					OffsetX = 8
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "rightwards",
+				VerticalGrowdirection = "downwards",
+			}
+		},
+		PriorityBuffs = {
+			Enabled = true,
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "DRTracking",
+					RelativePoint = "TOPRIGHT",
+					OffsetX = 2,
+					OffsetY = 0
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "rightwards",
+				VerticalGrowdirection = "downwards",
+			}
+		},
+		PriorityDebuffs = {
+			Enabled = true,
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "PriorityBuffs",
+					RelativePoint = "TOPRIGHT",
+					OffsetX = 8
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "rightwards",
+				VerticalGrowdirection = "downwards",
+			}
+		},
+		Racial = {
+			Points = {
+				{
+					Point = "TOPRIGHT",
+					RelativeFrame = "Trinket",
+					RelativePoint = "TOPLEFT",
+					OffsetX = -1
+				}
+			}
+		},
+		SpecClassPriorityOne = {
+			Cooldown = {
+				FontSize = 20,
+			},
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "Button",
+					RelativePoint = "TOPRIGHT",
+				}
+			}
+		},
+		Trinket = {
+			Points = {
+				{
+					Point = "TOPRIGHT",
+					RelativeFrame = "Button",
+					RelativePoint = "TOPLEFT",
+					OffsetX = -1
+				}
+			}
+		}
+	},
+
+	Framescale = 1,
+
+
+					-- PositiveSound = [[Interface\AddOns\WeakAuras\Media\Sounds\BatmanPunch.ogg]],
+	-- NegativeSound = [[Sound\Interface\UI_BattlegroundCountdown_Timer.ogg]],
+}
+local enemyDefault15man = {
+	Enabled = true,
+	minPlayerCount = 6,
+	maxPlayerCount = 15,
+
+	Position_X = 1100,
+	Position_Y = 600,
+	BarWidth = 180,
+	BarHeight = 28,
+	BarVerticalGrowdirection = "downwards",
+	BarVerticalSpacing = 3,
+	BarColumns = 1,
+	BarHorizontalGrowdirection = "rightwards",
+	BarHorizontalSpacing = 100,
+
+	PlayerCount = {
+		Enabled = true,
+	},
+
+	ButtonModules = {
+		CastBar = {
+			Enabled = false,
+			Points = {
+				{
+					Point = "RIGHT",
+					RelativeFrame = "SpecClassPriorityOne",
+					RelativePoint = "LEFT",
+					OffsetX = -28
+				},
+			}
+		},
+		Cooldowns = {
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "Racial",
+					RelativePoint = "TOPRIGHT",
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "rightwards",
+				VerticalGrowdirection = "downwards",
+			},
+		},
+		DRTracking = {
+			Points = {
+				{
+					Point = "BOTTOMRIGHT",
+					RelativeFrame = "SpecClassPriorityOne",
+					RelativePoint = "BOTTOMLEFT",
+					OffsetX = -2
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "leftwards",
+				VerticalGrowdirection = "downwards",
+			}
+		},
+		NonPriorityBuffs = {
+			Enabled = false,
+			Points = {
+				{
+					Point = "TOPRIGHT",
+					RelativeFrame = "PriorityDebuffs",
+					RelativePoint = "TOPLEFT",
+					OffsetX = -2,
+					OffsetY = 0
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "leftwards",
+				VerticalGrowdirection = "downwards",
+			}
+		},
+		NonPriorityDebuffs = {
+			Enabled = false,
+			Points = {
+				{
+					Point = "TOPRIGHT",
+					RelativeFrame = "NonPriorityBuffs",
+					RelativePoint = "TOPLEFT",
+					OffsetX = -8
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "leftwards",
+				VerticalGrowdirection = "downwards",
+			}
+		},
+		PriorityBuffs = {
+			Enabled = true,
+			Points = {
+				{
+					Point = "TOPRIGHT",
+					RelativeFrame = "DRTracking",
+					RelativePoint = "TOPLEFT",
+					OffsetX = -2,
+					OffsetY = 0
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "leftwards",
+				VerticalGrowdirection = "downwards",
+			}
+		},
+		PriorityDebuffs = {
+			Enabled = true,
+			Points = {
+				{
+					Point = "TOPRIGHT",
+					RelativeFrame = "PriorityBuffs",
+					RelativePoint = "TOPLEFT",
+					OffsetX = -8
+				}
+			},
+			Container = {
+				HorizontalGrowDirection = "leftwards",
+				VerticalGrowdirection = "downwards",
+			},
+		},
+		Racial = {
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "Trinket",
+					RelativePoint = "TOPRIGHT",
+					OffsetX = 1
+				}
+			}
+		},
+		SpecClassPriorityOne = {
+			Cooldown = {
+				FontSize = 20,
+			},
+			Points = {
+				{
+					Point = "TOPRIGHT",
+					RelativeFrame = "Button",
+					RelativePoint = "TOPLEFT",
+				}
+			}
+		},
+		Trinket = {
+			Points = {
+				{
+					Point = "TOPLEFT",
+					RelativeFrame = "Button",
+					RelativePoint = "TOPRIGHT",
+					OffsetX = 1
+				}
+			}
+		}
+	},
+
+	Framescale = 1,
+}
+-- PositiveSound = [[Interface\AddOns\WeakAuras\Media\Sounds\BatmanPunch.ogg]],
+-- NegativeSound = [[Sound\Interface\UI_BattlegroundCountdown_Timer.ogg]],
 
 Data.defaultSettings = {
 	profile = {
-		Font = "PT Sans Narrow Bold",
-
 		Locked = false,
 		Debug = false,
 
+		shareActiveProfile = false,
+
 		DisableArenaFramesInArena = false,
 		DisableArenaFramesInBattleground = false,
+
+		DisableRaidFramesInArena = false,
+		DisableRaidFramesInBattleground = false,
+
+		ShowBGEInArena = true,
+		ShowBGEInBattleground = true,
 
 		MyTarget_Color = {1, 1, 1, 1},
 		MyTarget_BorderSize = 2,
 		MyFocus_Color = {0, 0.988235294117647, 0.729411764705882, 1},
 		MyFocus_BorderSize = 2,
 		ShowTooltips = true,
+		EnableMouseWheelPlayerTargeting = true,
 		UseBigDebuffsPriority = true,
 		ConvertCyrillic = true,
+
+		PlayerCount = {
+			Text = {
+				FontSize = 14,
+				JustifyV = "MIDDLE",
+				JustifyH = "LEFT"
+			}
+		},
+
+		RoleSortingOrder = "HEALER_TANK_DAMAGER",
+
+		Cooldown = {
+			ShowNumber = true,
+			DrawSwipe = true,
+		},
+
+		Text = {
+			Font = "PT Sans Narrow Bold",
+			FontColor = {1, 1, 1, 1},
+			FontOutline = "",
+			EnableShadow = false,
+			ShadowColor = {0, 0, 0, 1}
+		},
 
 		RBG = {
 			TargetCalling_SetMark = false,
@@ -30,11 +381,18 @@ Data.defaultSettings = {
 		Enemies = {
 			Enabled = true,
 
+			CustomPlayerCountConfigsEnabled = false,
+
 			RangeIndicator_Enabled = true,
 			RangeIndicator_Range = 40,
 			RangeIndicator_Alpha = 0.55,
 			RangeIndicator_Everything = true,
 			RangeIndicator_Frames = {},
+
+
+			ActionButtonUseKeyDown = false,
+			UseClique = false,
+
 
 			LeftButtonType = "Target",
 			LeftButtonValue = "",
@@ -43,545 +401,359 @@ Data.defaultSettings = {
 			MiddleButtonType = "Custom",
 			MiddleButtonValue = "",
 
-			["5"] = {
-				Enabled = true,
+			playerCountConfigs = {
+				{
+					Enabled = true,
+					minPlayerCount = 1,
+					maxPlayerCount = 5,
 
-				Position_X = false,
-				Position_Y = false,
-				BarWidth = 200,
-				BarHeight = 47,
-				BarVerticalGrowdirection = "downwards",
-				BarVerticalSpacing = 40,
-				BarColumns = 1,
-				BarHorizontalGrowdirection = "rightwards",
-				BarHorizontalSpacing = 100,
+					Position_X = 1100,
+					Position_Y = 600,
+					BarWidth = 200,
+					BarHeight = 47,
+					BarVerticalGrowdirection = "downwards",
+					BarVerticalSpacing = 40,
+					BarColumns = 1,
+					BarHorizontalGrowdirection = "rightwards",
+					BarHorizontalSpacing = 100,
 
-				PlayerCount = {
-					Enabled = false,
-					Text = {
-						FontSize = 14,
-						FontOutline = "OUTLINE",
-						FontColor = {1, 1, 1, 1},
-						EnableShadow = false,
-						ShadowColor = {0, 0, 0, 1},
-					}
-				},
-				ButtonModules = {
-					Class = {
-						Width = 52,
+					PlayerCount = {
+						Enabled = false,
 					},
-					CastBar = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "RIGHT",
-								RelativeFrame = "Spec",
-								RelativePoint = "LEFT",
-								OffsetX = -3
-							}
-						}
-					},
-					Covenant = {
-						Enabled = false
-					},
-					Cooldowns = {
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Racial",
-								RelativePoint = "TOPRIGHT",
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					DRTracking = {
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Class",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetY = -2
-							}
-						},
-						Container = {
-							UseButtonHeightAsSize = false,
-							IconSize = 31,
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "downwards",
-						}
-					},
-					healthBar = {
-						HealthTextEnabled = true,
-						HealthTextType = "health",
-						HealthText = {
-							FontSize = 18,
-							JustifyV = "BOTTOM"
-						}
-					},
-					Name = {
-						Text = {
-							JustifyV = "TOP"
-						}
-					},
-					NonPriorityBuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "PriorityDebuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					NonPriorityDebuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "NonPriorityBuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Power = {
-						Height = 8,
-					},
-					PriorityBuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "DRTracking",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							UseButtonHeightAsSize = false,
-							IconSize = 25,
-							IconsPerRow = 8,
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					PriorityDebuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "PriorityBuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -8
-							}
-						},
-						Container = {
-							UseButtonHeightAsSize = false,
-							IconSize = 25,
-							IconsPerRow = 8,
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Racial = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "TOPRIGHT",
-								OffsetX = 1
+					ButtonModules = {
+						SpecClassPriorityOne = {
+							Width = 52,
+							Cooldown = {
+								FontSize = 26,
 							},
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 1
+						},
+						CastBar = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "RIGHT",
+									RelativeFrame = "SpecClassPriorityOne",
+									RelativePoint = "LEFT",
+									OffsetX = -28
+								}
 							}
-						}
-					},
-					RaidTargetIcon = {
-						Enabled = false
-					},
-					Trinket = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "TOPRIGHT",
-								OffsetX = 1
+						},
+						Covenant = {
+							Enabled = false
+						},
+						Cooldowns = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Racial",
+									RelativePoint = "TOPRIGHT",
+								}
 							},
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 1
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							},
+						},
+						DRTracking = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "Button",
+									RelativePoint = "BOTTOMRIGHT",
+									OffsetY = -2
+								}
+							},
+							Container = {
+								UseButtonHeightAsSize = false,
+								IconSize = 31,
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						healthBar = {
+							HealthTextEnabled = true,
+							HealthTextType = "health",
+							HealthText = {
+								FontSize = 18,
+								JustifyV = "BOTTOM"
+							}
+						},
+						Name = {
+							Text = {
+								JustifyV = "TOP"
+							}
+						},
+						NonPriorityBuffs = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "PriorityDebuffs",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -2,
+									OffsetY = 0
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						NonPriorityDebuffs = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "NonPriorityBuffs",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -8
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						Power = {
+							Height = 8,
+						},
+						PriorityBuffs = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "DRTracking",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -2,
+									OffsetY = 0
+								}
+							},
+							Container = {
+								UseButtonHeightAsSize = false,
+								IconSize = 25,
+								IconsPerRow = 8,
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						PriorityDebuffs = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "PriorityBuffs",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -8
+								}
+							},
+							Container = {
+								UseButtonHeightAsSize = false,
+								IconSize = 25,
+								IconsPerRow = 8,
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						Racial = {
+							Cooldown = {
+								FontSize = 26,
+							},
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Trinket",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 1
+								}
+							}
+						},
+						RaidTargetIcon = {
+							Enabled = false
+						},
+						Trinket = {
+							Cooldown = {
+								FontSize = 26,
+							},
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Button",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 1
+								}
 							}
 						}
-					}
+					},
+
+					Framescale = 1,
+
+					-- PositiveSound = [[Interface\AddOns\WeakAuras\Media\Sounds\BatmanPunch.ogg]],
+					-- NegativeSound = [[Sound\Interface\UI_BattlegroundCountdown_Timer.ogg]],
 				},
+				enemyDefault15man,
+				{
+					Enabled = true,
+					minPlayerCount = 16,
+					maxPlayerCount = 40,
 
-				Framescale = 1,
+					Position_X = 1100,
+					Position_Y = 600,
+					BarWidth = 180,
+					BarHeight = 22,
+					BarVerticalGrowdirection = "downwards",
+					BarVerticalSpacing = 1,
+					BarColumns = 1,
+					BarHorizontalGrowdirection = "rightwards",
+					BarHorizontalSpacing = 100,
 
+					PlayerCount = {
+						Enabled = true,
+					},
+					ButtonModules = {
+						CastBar = {
+							Enabled = false,
+							Points = {
+								{
+									Point = "RIGHT",
+									RelativeFrame = "SpecClassPriorityOne",
+									RelativePoint = "LEFT",
+									OffsetX = -28
+								}
+							}
+						},
+						Cooldowns = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Racial",
+									RelativePoint = "TOPRIGHT",
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							},
+						},
+						DRTracking = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "SpecClassPriorityOne",
+									RelativePoint = "TOPLEFT",
+									OffsetX= -2
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						NonPriorityBuffs = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "PriorityDebuffs",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -2,
+									OffsetY = 0
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						NonPriorityDebuffs = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "NonPriorityBuffs",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -8
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						Power = {
+							Enabled = false,
+						},
+						PriorityBuffs = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "DRTracking",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -2,
+									OffsetY = 0
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						PriorityDebuffs = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "PriorityBuffs",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -8
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "leftwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						Racial = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Trinket",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 1
+								}
+							}
+						},
+						Trinket = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Button",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 1
+								}
+							}
+						}
+					},
+
+					Framescale = 1,
+
+				}
+			},
+			customPlayerCountConfigs = 	{
+				["**"] = enemyDefault15man
 				-- PositiveSound = [[Interface\AddOns\WeakAuras\Media\Sounds\BatmanPunch.ogg]],
 				-- NegativeSound = [[Sound\Interface\UI_BattlegroundCountdown_Timer.ogg]],
-			},
-			["15"] = {
-				Enabled = true,
-
-				Position_X = false,
-				Position_Y = false,
-				BarWidth = 180,
-				BarHeight = 28,
-				BarVerticalGrowdirection = "downwards",
-				BarVerticalSpacing = 3,
-				BarColumns = 1,
-				BarHorizontalGrowdirection = "rightwards",
-				BarHorizontalSpacing = 100,
-
-				PlayerCount = {
-					Enabled = true,
-					Text = {
-						FontSize = 14,
-						FontOutline = "OUTLINE",
-						FontColor = {1, 1, 1, 1},
-						EnableShadow = false,
-						ShadowColor = {0, 0, 0, 1},
-					}
-				},
-
-				ButtonModules = {
-					CastBar = {
-						Enabled = false,
-						Points = {
-							{
-								Point = "RIGHT",
-								RelativeFrame = "Spec",
-								RelativePoint = "LEFT",
-								OffsetX = -3
-							},
-						}
-					},
-					Cooldowns = {
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Racial",
-								RelativePoint = "TOPRIGHT",
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					DRTracking = {
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Class",
-								RelativePoint = "TOPLEFT",
-								OffsetX = -2
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					NonPriorityBuffs = {
-						Enabled = false,
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "PriorityDebuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					NonPriorityDebuffs = {
-						Enabled = false,
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "NonPriorityBuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					PriorityBuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "DRTracking",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					PriorityDebuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "PriorityBuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					Racial = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "TOPRIGHT",
-								OffsetX = 1
-							},
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 1
-							}
-						}
-					},
-					Trinket = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "TOPRIGHT",
-								OffsetX = 1
-							},
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 1
-							}
-						}
-					}
-				},
-
-				Framescale = 1,
-
-
-
-				-- PositiveSound = [[Interface\AddOns\WeakAuras\Media\Sounds\BatmanPunch.ogg]],
-				-- NegativeSound = [[Sound\Interface\UI_BattlegroundCountdown_Timer.ogg]],
-			},
-			["40"] = {
-				Enabled = true,
-
-				Position_X = false,
-				Position_Y = false,
-				BarWidth = 180,
-				BarHeight = 22,
-				BarVerticalGrowdirection = "downwards",
-				BarVerticalSpacing = 1,
-				BarColumns = 1,
-				BarHorizontalGrowdirection = "rightwards",
-				BarHorizontalSpacing = 100,
-
-				PlayerCount = {
-					Enabled = true,
-					Text = {
-						FontSize = 14,
-						FontOutline = "OUTLINE",
-						FontColor = {1, 1, 1, 1},
-						EnableShadow = false,
-						ShadowColor = {0, 0, 0, 1},
-					}
-				},
-
-				ButtonModules = {
-					CastBar = {
-						Enabled = false,
-						Points = {
-							{
-								Point = "RIGHT",
-								RelativeFrame = "Spec",
-								RelativePoint = "LEFT",
-								OffsetX = -3
-							}
-						}
-					},
-					Cooldowns = {
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Racial",
-								RelativePoint = "TOPRIGHT",
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					DRTracking = {
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Class",
-								RelativePoint = "TOPLEFT",
-								OffsetX= -2
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					NonPriorityBuffs = {
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "PriorityDebuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					NonPriorityDebuffs = {
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "NonPriorityBuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Power = {
-						Enabled = false,
-					},
-					PriorityBuffs = {
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "DRTracking",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					PriorityDebuffs = {
-						Points = {
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "PriorityBuffs",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "leftwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Racial = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "TOPRIGHT",
-								OffsetX = 1
-							},
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 1
-							}
-						}
-					},
-					Trinket = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "TOPRIGHT",
-								OffsetX = 1
-							},
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 1
-							}
-						}
-					}
-				},
-
-				Framescale = 1,
-
 			}
-
 		},
 		Allies = {
 			Enabled = true,
 
+			CustomPlayerCountConfigsEnabled = false,
+
 			RangeIndicator_Enabled = true,
 			RangeIndicator_Range = 40,
 			RangeIndicator_Alpha = 0.55,
 			RangeIndicator_Everything = true,
 			RangeIndicator_Frames = {},
+
+			ActionButtonUseKeyDown = false,
+			UseClique = false,
 
 			LeftButtonType = "Target",
 			LeftButtonValue = "",
@@ -590,533 +762,361 @@ Data.defaultSettings = {
 			MiddleButtonType = "Custom",
 			MiddleButtonValue = "",
 
-			["5"] = {
-				Enabled = true,
-
-				Position_X = false,
-				Position_Y = false,
-				BarWidth = 200,
-				BarHeight = 47,
-				BarVerticalGrowdirection = "downwards",
-				BarVerticalSpacing = 40,
-				BarColumns = 1,
-				BarHorizontalGrowdirection = "rightwards",
-				BarHorizontalSpacing = 100,
-
-				PlayerCount = {
-					Enabled = false,
-					Text = {
-						FontSize = 14,
-						FontOutline = "OUTLINE",
-						FontColor = {1, 1, 1, 1},
-						EnableShadow = false,
-						ShadowColor = {0, 0, 0, 1},
-					}
-				},
-				ButtonModules = {
-					CastBar = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "LEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "RIGHT",
-								OffsetX = 28,
-							},
-						},
-					},
-					Class = {
-						Width = 52,
-					},
-					Covenant = {
-						Enabled = false
-					},
-					Cooldowns = {
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Button",
-								RelativePoint = "TOPRIGHT",
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					DRTracking = {
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetY = -2
-							}
-						},
-						Container = {
-							UseButtonHeightAsSize = false,
-							IconSize = 31,
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "downwards",
-						}
-					},
-					healthBar = {
-						HealthTextEnabled = true,
-						HealthTextType = "health",
-						HealthText = {
-							FontSize = 18,
-							JustifyV = "BOTTOM"
-						}
-					},
-					Name = {
-						Text = {
-							JustifyV = "TOP"
-						}
-					},
-					NonPriorityBuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "PriorityDebuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					NonPriorityDebuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "NonPriorityBuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Power = {
-						Height = 8,
-					},
-					PriorityBuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "DRTracking",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							UseButtonHeightAsSize = false,
-							IconSize = 25,
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					PriorityDebuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "PriorityBuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 8
-							}
-						},
-						Container = {
-							UseButtonHeightAsSize = false,
-							IconSize = 25,
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Racial = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "TOPLEFT",
-								OffsetX = -1
-							},
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -1
-							}
-						}
-					},
-					RaidTargetIcon = {
-						Enabled = false
-					},
-					Trinket = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Spec",
-								RelativePoint = "TOPLEFT",
-								OffsetX = -1
-							},
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "Spec",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -1
-							}
-						}
-					}
-				},
-
-				Framescale = 1,
-
-
-				-- PositiveSound = [[Interface\AddOns\WeakAuras\Media\Sounds\BatmanPunch.ogg]],
-				-- NegativeSound = [[Sound\Interface\UI_BattlegroundCountdown_Timer.ogg]],
-
-			},
-			["15"] = {
-				Enabled = true,
-
-				Position_X = false,
-				Position_Y = false,
-				BarWidth = 180,
-				BarHeight = 28,
-				BarVerticalGrowdirection = "downwards",
-				BarVerticalSpacing = 3,
-				BarColumns = 1,
-				BarHorizontalGrowdirection = "rightwards",
-				BarHorizontalSpacing = 100,
-
-				PlayerCount = {
+			playerCountConfigs = {
+				{
 					Enabled = true,
-					Text = {
-						FontSize = 14,
-						FontOutline = "OUTLINE",
-						FontColor = {1, 1, 1, 1},
-						EnableShadow = false,
-						ShadowColor = {0, 0, 0, 1},
-					}
+					minPlayerCount = 1,
+					maxPlayerCount = 5,
+
+					Position_X = 150,
+					Position_Y = 600,
+					BarWidth = 200,
+					BarHeight = 47,
+					BarVerticalGrowdirection = "downwards",
+					BarVerticalSpacing = 40,
+					BarColumns = 1,
+					BarHorizontalGrowdirection = "rightwards",
+					BarHorizontalSpacing = 100,
+
+					PlayerCount = {
+						Enabled = false,
+					},
+					ButtonModules = {
+						CastBar = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "LEFT",
+									RelativeFrame = "SpecClassPriorityOne",
+									RelativePoint = "RIGHT",
+									OffsetX = 28,
+								},
+							},
+						},
+						SpecClassPriorityOne = {
+							Width = 52,
+							Cooldown = {
+								FontSize = 26,
+							},
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Button",
+									RelativePoint = "TOPRIGHT",
+								}
+							}
+						},
+						Covenant = {
+							Enabled = false
+						},
+						Cooldowns = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "Button",
+									RelativePoint = "TOPRIGHT",
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							},
+						},
+						DRTracking = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Button",
+									RelativePoint = "BOTTOMLEFT",
+									OffsetY = -2
+								}
+							},
+							Container = {
+								UseButtonHeightAsSize = false,
+								IconSize = 31,
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						healthBar = {
+							HealthTextEnabled = true,
+							HealthTextType = "health",
+							HealthText = {
+								FontSize = 18,
+								JustifyV = "BOTTOM"
+							}
+						},
+						Name = {
+							Text = {
+								JustifyV = "TOP"
+							}
+						},
+						NonPriorityBuffs = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "PriorityDebuffs",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 2,
+									OffsetY = 0
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						NonPriorityDebuffs = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "NonPriorityBuffs",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 8
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						Power = {
+							Height = 8,
+						},
+						PriorityBuffs = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "DRTracking",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 2,
+									OffsetY = 0
+								}
+							},
+							Container = {
+								UseButtonHeightAsSize = false,
+								IconSize = 25,
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						PriorityDebuffs = {
+							Enabled = true,
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "PriorityBuffs",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 8
+								}
+							},
+							Container = {
+								UseButtonHeightAsSize = false,
+								IconSize = 25,
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						Racial = {
+							Cooldown = {
+								FontSize = 26,
+							},
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "Trinket",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -1
+								}
+							}
+						},
+						RaidTargetIcon = {
+							Enabled = false
+						},
+						Trinket = {
+							Cooldown = {
+								FontSize = 26,
+							},
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "Button",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -1
+								}
+							}
+						}
+					},
+
+					Framescale = 1,
+
+
+					-- PositiveSound = [[Interface\AddOns\WeakAuras\Media\Sounds\BatmanPunch.ogg]],
+					-- NegativeSound = [[Sound\Interface\UI_BattlegroundCountdown_Timer.ogg]],
+
 				},
-
-				ButtonModules = {
-					CastBar = {
-						Enabled = false,
-						Points = {
-							{
-								Point = "LEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "RIGHT",
-								OffsetX = 28,
-							},
-						},
-					},
-					Cooldowns = {
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Racial",
-								RelativePoint = "TOPRIGHT",
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					DRTracking = {
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "TOPRIGHT",
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					NonPriorityBuffs = {
-						Enabled = false,
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "PriorityDebuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					NonPriorityDebuffs = {
-						Enabled = false,
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "NonPriorityBuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					PriorityBuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "DRTracking",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					PriorityDebuffs = {
-						Enabled = true,
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "PriorityBuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Racial = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "TOPLEFT",
-								OffsetX = -1
-							},
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -1
-							}
-						}
-					},
-					Trinket = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Spec",
-								RelativePoint = "TOPLEFT",
-								OffsetX = -1
-							},
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "Spec",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -1
-							}
-						}
-					}
-				},
-
-				Framescale = 1,
-
-
-								-- PositiveSound = [[Interface\AddOns\WeakAuras\Media\Sounds\BatmanPunch.ogg]],
-				-- NegativeSound = [[Sound\Interface\UI_BattlegroundCountdown_Timer.ogg]],
-			},
-			["40"] = {
-				Enabled = true,
-
-				Position_X = false,
-				Position_Y = false,
-				BarWidth = 180,
-				BarHeight = 22,
-				BarVerticalGrowdirection = "downwards",
-				BarVerticalSpacing = 1,
-				BarColumns = 1,
-				BarHorizontalGrowdirection = "rightwards",
-				BarHorizontalSpacing = 100,
-
-				PlayerCount = {
+				allieDefaults15man,
+				{
 					Enabled = true,
-					Text = {
-						FontSize = 14,
-						FontOutline = "OUTLINE",
-						FontColor = {1, 1, 1, 1},
-						EnableShadow = false,
-						ShadowColor = {0, 0, 0, 1},
-					}
-				},
+					minPlayerCount = 16,
+					maxPlayerCount = 40,
 
-				ButtonModules = {
-					CastBar = {
-						Enabled = false,
-						Points = {
-							{
-								Point = "LEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "RIGHT",
-								OffsetX = 28,
-							}
-						}
+					Position_X = 150,
+					Position_Y = 600,
+					BarWidth = 180,
+					BarHeight = 22,
+					BarVerticalGrowdirection = "downwards",
+					BarVerticalSpacing = 1,
+					BarColumns = 1,
+					BarHorizontalGrowdirection = "rightwards",
+					BarHorizontalSpacing = 100,
+
+					PlayerCount = {
+						Enabled = true,
 					},
-					Cooldowns = {
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Racial",
-								RelativePoint = "TOPRIGHT",
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						},
-					},
-					DRTracking = {
-						Points = {
-							{
-								Point = "TOPLEFT",
-								RelativeFrame = "Button",
-								RelativePoint = "TOPRIGHT",
+					ButtonModules = {
+						CastBar = {
+							Enabled = false,
+							Points = {
+								{
+									Point = "LEFT",
+									RelativeFrame = "SpecClassPriorityOne",
+									RelativePoint = "RIGHT",
+									OffsetX = 28,
+								}
 							}
 						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					NonPriorityBuffs = {
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "PriorityDebuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					NonPriorityDebuffs = {
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "NonPriorityBuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Power = {
-						Enabled = false,
-					},
-					PriorityBuffs = {
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "DRTracking",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 2,
-								OffsetY = 1
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					PriorityDebuffs = {
-						Points = {
-							{
-								Point = "BOTTOMLEFT",
-								RelativeFrame = "PriorityBuffs",
-								RelativePoint = "BOTTOMRIGHT",
-								OffsetX = 8
-							}
-						},
-						Container = {
-							HorizontalGrowDirection = "rightwards",
-							VerticalGrowdirection = "upwards",
-						}
-					},
-					Racial = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "TOPLEFT",
-								OffsetX = -1
+						Cooldowns = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Racial",
+									RelativePoint = "TOPRIGHT",
+								}
 							},
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "Trinket",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -1
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							},
+						},
+						DRTracking = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "SpecClassPriorityOne",
+									RelativePoint = "TOPRIGHT",
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						NonPriorityBuffs = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "PriorityDebuffs",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 2,
+									OffsetY = 0
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						NonPriorityDebuffs = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "NonPriorityBuffs",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 8
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						Power = {
+							Enabled = false,
+						},
+						PriorityBuffs = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "DRTracking",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 2,
+									OffsetY = 0
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						PriorityDebuffs = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "PriorityBuffs",
+									RelativePoint = "TOPRIGHT",
+									OffsetX = 8
+								}
+							},
+							Container = {
+								HorizontalGrowDirection = "rightwards",
+								VerticalGrowdirection = "downwards",
+							}
+						},
+						Racial = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "Trinket",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -1
+								}
+							}
+						},
+						SpecClassPriorityOne = {
+							Points = {
+								{
+									Point = "TOPLEFT",
+									RelativeFrame = "Button",
+									RelativePoint = "TOPRIGHT",
+								}
+							}
+						},
+						Trinket = {
+							Points = {
+								{
+									Point = "TOPRIGHT",
+									RelativeFrame = "Button",
+									RelativePoint = "TOPLEFT",
+									OffsetX = -1
+								}
 							}
 						}
 					},
-					Trinket = {
-						ActivePoints = 2,
-						Points = {
-							{
-								Point = "TOPRIGHT",
-								RelativeFrame = "Spec",
-								RelativePoint = "TOPLEFT",
-								OffsetX = -1
-							},
-							{
-								Point = "BOTTOMRIGHT",
-								RelativeFrame = "Button",
-								RelativePoint = "BOTTOMLEFT",
-								OffsetX = -1
-							}
-						}
-					}
-				},
 
 
-				Framescale = 1,
+					Framescale = 1,
 
+				}
+			},
+			customPlayerCountConfigs = {
+				["**"] = allieDefaults15man --**means it will be used by all other keys in here, for example customPlayerCountConfigs.xyx will be allieDefaults15man
+		
 			}
-		}
+		},
+		ButtonModules = {},
 	}
 }

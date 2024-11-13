@@ -1,4 +1,8 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
 local C_Covenants = C_Covenants
@@ -31,7 +35,8 @@ local covenant = BattleGroundEnemies:NewButtonModule({
 	},
 	options = nil,
 	events = {},
-	enabledInThisExpansion = LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_SHADOWLANDS
+	enabledInThisExpansion = LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_SHADOWLANDS,
+	attachSettingsToButton = true
 })
 
 function covenant:AttachToPlayerButton(playerButton)
@@ -76,4 +81,5 @@ function covenant:AttachToPlayerButton(playerButton)
 	playerButton.Covenant.Reset = function(self)
 		self.covenantID = false
 	end
+	return playerButton.Covenant
 end

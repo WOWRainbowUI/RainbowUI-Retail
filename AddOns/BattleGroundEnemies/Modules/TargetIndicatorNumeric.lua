@@ -1,4 +1,8 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
 
@@ -24,10 +28,6 @@ local defaultSettings = {
 	},
 	Text = {
 		FontSize = 13,
-		FontOutline = "",
-		FontColor = {1, 1, 1, 1},
-		EnableShadow = true,
-		ShadowColor = {0, 0, 0, 1},
 		JustifyH = "RIGHT",
 		JustifyV = "MIDDLE"
 	}
@@ -37,7 +37,7 @@ local options = function(location, playerType)
 	return {
 		TextSettings = {
 			type = "group",
-			name = L.TextSettings,
+			name = L.Text,
 			inline = true,
 			order = 4,
 			get = function(option)
@@ -57,7 +57,8 @@ local targetIndicatorNumeric = BattleGroundEnemies:NewButtonModule({
 	defaultSettings = defaultSettings,
 	options = options,
 	events = {"UpdateTargetIndicators"},
-	enabledInThisExpansion = true
+	enabledInThisExpansion = true,
+	attachSettingsToButton = true
 })
 
 function targetIndicatorNumeric:AttachToPlayerButton(playerButton)
@@ -85,4 +86,5 @@ function targetIndicatorNumeric:AttachToPlayerButton(playerButton)
 		if not self:GetFont() then return end
 		self:SetText(0) --we do that because the level is anchored right to this and the name is anhored right to the level
 	end
+	return playerButton.TargetIndicatorNumeric
 end

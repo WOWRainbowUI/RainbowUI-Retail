@@ -1,6 +1,10 @@
 
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
 local LibSpellIconSelector = LibStub("LibSpellIconSelector")
 
 local L = Data.L
@@ -8,6 +12,17 @@ local L = Data.L
 local CTimerNewTicker = C_Timer.NewTicker
 
 
+local generalDefaults = {
+	Combat = {
+		Enabled = true,
+		Icon = 132147
+	},
+	OutOfCombat = {
+		Enabled = true,
+		Icon = 132310
+	},
+	UpdatePeriod = 0.1
+}
 
 
 local defaultSettings = {
@@ -25,15 +40,6 @@ local defaultSettings = {
 			OffsetY = -15
 		}
 	},
-	Combat = {
-		Enabled = true,
-		Icon = 132147
-	},
-	OutOfCombat = {
-		Enabled = true,
-		Icon = 132310
-	},
-	UpdatePeriod = 0.1
 }
 
 local Icons = { --one of the two (or both) must be enabled, otherwise u won't see an icon
@@ -41,7 +47,8 @@ local Icons = { --one of the two (or both) must be enabled, otherwise u won't se
 	"OutOfCombat"
 }
 
-local options = function(location)
+
+local generalOptions = function(location)
 	local t = {}
 	for i = 1, #Icons do
 		t[Icons[i]] = {
@@ -98,8 +105,11 @@ local combatIndicator = BattleGroundEnemies:NewButtonModule({
 	moduleName = "CombatIndicator",
 	localizedModuleName = L.CombatIndicator,
 	defaultSettings = defaultSettings,
-	options = options,
-	enabledInThisExpansion = true
+	generalDefaults = generalDefaults,
+	events = {"OnTestmodeEnabled", "OnTestmodeDisabled", "OnTestmodeTick"},
+	generalOptions = generalOptions,
+	enabledInThisExpansion = true,
+	attachSettingsToButton = true
 })
 
 
@@ -208,10 +218,35 @@ function combatIndicator:AttachToPlayerButton(playerButton)
 	end
 
 	function playerButton.CombatIndicator:Disable()
+		self:DisableTicker()
+	end
+
+	function playerButton.CombatIndicator:DisableTicker()
 		if self.Ticker then
 			self.Ticker:Cancel()
 		end
 	end
+
+	function playerButton.CombatIndicator:OnTestmodeEnabled()
+		self.testmodeEnabled = true
+		self:DisableTicker()
+	end
+
+	function playerButton.CombatIndicator:OnTestmodeDisabled()
+		self.testmodeEnabled = false
+		self:Update(0)
+	end
+
+	function playerButton.CombatIndicator:OnTestmodeTick()
+		if not self.testmodeEnabled then
+			self:DisableTicker()
+			self.testmodeEnabled = true
+		end
+		local newState = math.random(1,2)
+		self:Update(newState)
+	end
+
+
 
 	function playerButton.CombatIndicator:ApplyAllSettings()
 		self:CallFuncOnAllIconFrames(function(iconFrame)
@@ -223,10 +258,11 @@ function combatIndicator:AttachToPlayerButton(playerButton)
 		if self.Ticker then
 			self.Ticker:Cancel()
 		end
-		if self.config.UpdatePeriod then
+		if self.config.UpdatePeriod and not self.testmodeEnabled then
 			self.Ticker = CTimerNewTicker(self.config.UpdatePeriod, function()
 				self:Update()
 			end)
 		end
 	end
+	return playerButton.CombatIndicator
 end

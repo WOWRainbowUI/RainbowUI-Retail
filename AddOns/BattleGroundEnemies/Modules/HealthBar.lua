@@ -1,4 +1,8 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local LSM = LibStub("LibSharedMedia-3.0")
 local L = Data.L
@@ -11,20 +15,19 @@ local HealthTextTypes = {
 	perc = COMPACT_UNIT_FRAME_PROFILE_HEALTHTEXT_PERC
 }
 
-local defaultSettings = {
-	Parent = "Button",
-	Enabled = true,
+local generalDefaults = {
 	Texture = 'Blizzard Raid Bar',
 	Background = {0, 0, 0, 0.66},
 	HealthPrediction_Enabled = true,
+}
+
+local defaultSettings = {
+	Parent = "Button",
+	Enabled = true,
 	HealthTextEnabled = false,
 	HealthTextType = "health",
 	HealthText = {
 		FontSize = 17,
-		FontOutline = "",
-		FontColor = {1, 1, 1, 1},
-		EnableShadow = false,
-		ShadowColor = {0, 0, 0, 1},
 		JustifyH = "CENTER",
 		JustifyV = "TOP",
 	},
@@ -43,7 +46,7 @@ local defaultSettings = {
 	}
 }
 
-local options = function(location)
+local generalOptions = function(location)
 	return {
 		Texture = {
 			type = "select",
@@ -54,7 +57,6 @@ local options = function(location)
 			width = "normal",
 			order = 1
 		},
-		Fake = Data.AddHorizontalSpacing(2),
 		Background = {
 			type = "color",
 			name = L.BarBackground,
@@ -63,13 +65,17 @@ local options = function(location)
 			width = "normal",
 			order = 3
 		},
-		Fake1 = Data.AddVerticalSpacing(4),
 		HealthPrediction_Enabled = {
 			type = "toggle",
 			name = COMPACT_UNIT_FRAME_PROFILE_DISPLAYHEALPREDICTION,
 			width = "normal",
-			order = 5,
+			order = 2,
 		},
+	}
+end
+
+local options = function(location)
+	return {
 		HealthTextEnabled = {
 			type = "toggle",
 			name = L.HealthTextEnabled,
@@ -105,9 +111,13 @@ local healthBar = BattleGroundEnemies:NewButtonModule({
 	moduleName = "healthBar",
 	localizedModuleName = L.HealthBar,
 	defaultSettings = defaultSettings,
+	generalDefaults = generalDefaults,
 	options = options,
+	generalOptions = generalOptions,
 	events = {"UpdateHealth", "PlayerDetailsChanged"},
-	enabledInThisExpansion = true
+	flags = {FixedPosition = true},
+	enabledInThisExpansion = true,
+	attachSettingsToButton = true
 })
 
 
@@ -251,6 +261,8 @@ function healthBar:AttachToPlayerButton(playerButton)
 		end
 
 		self.HealthText:ApplyFontStringSettings(config.HealthText)
+		self:PlayerDetailsChanged()
 	end
+	return playerButton.healthBar
 end
 
