@@ -1,8 +1,16 @@
 
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
 
 local L = Data.L
+
+local generalDefaults = {
+	ShowRealmnames = true
+}
 
 local defaultSettings = {
 	Enabled = true,
@@ -24,18 +32,13 @@ local defaultSettings = {
 	},
 	Text = {
 		FontSize = 13,
-		FontOutline = "",
-		FontColor = {1, 1, 1, 1},
-		EnableShadow = true,
-		ShadowColor = {0, 0, 0, 1},
 		JustifyH = "LEFT",
 		JustifyV = "MIDDLE",
 		WordWrap = false
 	},
-	ShowRealmnames = true
 }
 
-local options = function(location)
+local generalOptions = function(location)
 	return {
 		ShowRealmnames = {
 			type = "toggle",
@@ -43,10 +46,15 @@ local options = function(location)
 			desc = L.ShowRealmnames_Desc,
 			width = "normal",
 			order = 2
-		},
+		}
+	}
+end
+
+local options = function(location)
+	return {
 		TextSettings = {
 			type = "group",
-			name = L.TextSettings,
+			name = L.Text,
 			inline = true,
 			order = 4,
 			get = function(option)
@@ -60,13 +68,18 @@ local options = function(location)
 	}
 end
 
+
+
 local name = BattleGroundEnemies:NewButtonModule({
 	moduleName = "Name",
 	localizedModuleName = L.Name,
+	generalDefaults = generalDefaults,
 	defaultSettings = defaultSettings,
+	generalOptions = generalOptions,
 	options = options,
 	events = {"PlayerDetailsChanged"},
-	enabledInThisExpansion = true
+	enabledInThisExpansion = true,
+	attachSettingsToButton = true
 })
 
 
@@ -109,7 +122,7 @@ function name:AttachToPlayerButton(playerButton)
 		self.DisplayedName = name
 	end
 
-	function playerButton.Name:PlayerDetailsChanged(playerDetails)
+	function playerButton.Name:PlayerDetailsChanged()
 		self:SetName()
 	end
 
@@ -119,4 +132,5 @@ function name:AttachToPlayerButton(playerButton)
 		self:ApplyFontStringSettings(config.Text)
 		self:SetName()
 	end
+	return playerButton.Name
 end

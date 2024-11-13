@@ -1,4 +1,8 @@
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
 local L = Data.L
 
@@ -19,12 +23,7 @@ local defaultSettings = {
 	ActivePoints = 1,
 	IconSize = 20,
 	Cooldown = {
-		ShowNumber = true,
 		FontSize = 12,
-		FontOutline = "OUTLINE",
-		EnableShadow = false,
-		DrawSwipe = false,
-		ShadowColor = {0, 0, 0, 1},
 	},
 	Container = {
 		UseButtonHeightAsSize = true,
@@ -110,7 +109,7 @@ local function createNewCooldownFrame(playerButton, container)
 	cooldownFrame.Container = container
 
 	cooldownFrame.ApplyChildFrameSettings = function(self)
-		self.Cooldown:ApplyCooldownSettings(container.config.Cooldown, false)
+		self.Cooldown:ApplyCooldownSettings(container.config.Cooldown, false, {0, 0, 0, 0.5})
 	end
 
 	cooldownFrame.GetStatus = function(self)
@@ -193,4 +192,5 @@ function cooldowns:AttachToPlayerButton(playerButton)
 	end
 
 	playerButton.Cooldowns = container
+	return playerButton.Cooldowns
 end

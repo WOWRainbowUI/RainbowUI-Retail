@@ -1,6 +1,10 @@
 
+---@class BattleGroundEnemies
 local BattleGroundEnemies = BattleGroundEnemies
-local AddonName, Data = ...
+---@type string
+local AddonName = ...
+---@class Data
+local Data = select(2, ...)
 
 local BackdropTemplateMixin = BackdropTemplateMixin
 local CreateFrame = CreateFrame
@@ -35,7 +39,8 @@ local raidTargetIcon = BattleGroundEnemies:NewButtonModule({
 	defaultSettings = defaultSettings,
 	options = nil,
 	events = {"UpdateRaidTargetIcon", "PlayerButtonSizeChanged"},
-	enabledInThisExpansion = true
+	enabledInThisExpansion = true,
+	attachSettingsToButton = true
 })
 
 function raidTargetIcon:AttachToPlayerButton(playerButton)
@@ -61,4 +66,5 @@ function raidTargetIcon:AttachToPlayerButton(playerButton)
 	function playerButton.RaidTargetIcon:ApplyAllSettings()
 		self:UpdateRaidTargetIcon()
 	end
+	return playerButton.RaidTargetIcon
 end
